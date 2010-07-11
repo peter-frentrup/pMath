@@ -1,0 +1,78 @@
+Interessant: LyX (http://www.lyx.org/VisualTour)
+
+Beispiel:
+              c
+  a - f( b + --- ) * e
+              d
+
+speziel zu betrachtende Zeichen (beim Parsen):
+  a-z A-Z 0-9 + - * / ^ . ~ % $ " ! { [ ( ) ] } , : ; \n ? # ' < = > | & \x20
+
+Interne Speicherung (ob ASCII, UTF-8, UCS-2 oder UTF-16 oder gar UTF-32 ist noch nicht entschieden):
+                                        .-------------------------------------------- Index
+                                        |  .----------------------------------------- Zähler
+                  ______-------v        v  v                  v---------------------- Nenner
+  Sequence("a-f(b+\uffff)*e", {Fraction(6, Sequence("c", {}), Sequence("d", {}))})
+Parsing:        VV\____/                             V                  V
+              VV\______/V  
+              \_________/  
+              \__________/V
+            VV\___________/
+            \_____________/
+                           
+Streckbar:     (        )  
+
+
+
+
+Beispiele:
+  # a+f(b+c)*d
+  # a+f(b+c)*
+      d
+  # a+
+     f(b+c)*d
+  # a+
+     f(b+c)*
+      d
+  # a+
+     f(b+
+       c)*d                !!!!
+  # a+
+     f(b+
+       c)*
+      d
+  # a+
+     f(
+       b+
+        c)*
+      d
+  
+    ...
+    
+    a+f(b+c)*d
+    0111344122  <-- Einrückung
+       2   2        ( <- alternativ)
+
+    a + f ( b + c ) * d
+       2   4   3     1   <-- Einrückungsreihenfolge
+    
+    a+f(b+c)*d    a+f(b+c)*d
+           VV         VVV   
+      VVVVV\/V      VV\_/V  
+    VV\/\/\_/V      \____/VV
+    \/\_____/V    VV\______/
+                  \________/
+
+  # a+b*c
+  # a+
+     b*c
+  # a+
+     b*
+	  c
+  
+  # a*b+c
+  # a*b+
+     c
+  # a*
+      b+
+     c

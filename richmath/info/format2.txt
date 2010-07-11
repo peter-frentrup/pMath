@@ -1,0 +1,33 @@
+  2+a        
+ n         
+.---.  2        1
+ >    a  = 1 + ---
+'---'  i        x
+ i=1        
+
+___________________________________
+parsed (pmath expression):
+	{{UnderoverscriptBox("\[Sum]", {"i", "=", "1"}, SuperscriptBox("n", {"2", "+", "a"})), SubsuperscriptBox("a", "i", "2")}, "=", {"1", "+", FractionBox("1", "X")}}
+
+___________________________________
+pmath representation (string):
+"\(\[Sum]\+\(i=1\)\%\(n\^\(2+a\)\)a\_i\%2=1+1\/x\)"
+
+___________________________________
+internal representation (richmath classes):
+Sequence(
+	"\[UnderoverscriptBoxPlaceholder]a\[SubsuperscriptBoxPlaceholder]=1+\[BoxPlaceholder]", 
+	{
+		UnderoverscriptBox(
+			Sequence("\[Sum]", {}),
+			Sequence("i=1", {}),
+			Sequence(
+				"n\[SubsuperscriptBoxPlaceholder]",
+				SubsuperscriptBox(
+					NULL,
+					Sequence("2+a", {})),
+				{})),
+		FractionBox(
+			Sequence("1", {}),
+			Sequence("x", {}))
+	})

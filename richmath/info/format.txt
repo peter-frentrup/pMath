@@ -1,0 +1,52 @@
+
+_________________________________________________________
+  b
+.---. 
+ >    f[i]
+'---' 
+ i=a  
+
+pMath:
+\(UnderoverBox\,\[sum]\,i=a\,b\)f[i]
+
+C:
+BOX_START "UnderoverBox" BOX_NEXT
+  UTF8_SUM BOX_NEXT
+  "i=a" BOX_NEXT
+  "b"
+BOX_END
+
+_________________________________________________________
+/------\
+|  Ok  |
+\------/
+
+pMath:
+\(ButtonBox\,Ok\)
+
+C:
+BOX_START "ButtonBox" BOX_NEXT
+  "Ok" BOX_NEXT
+BOX_END
+
+_________________________________________________________
+/------\
+|  Ok  |
+\------/ [with Background 0xFF0080]
+
+pMath:
+\(ButtonBox\,Ok\,Background\=0xff0080\)
+
+C:
+BOX_START "ButtonBox" BOX_NEXT
+  "Ok" BOX_NEXT
+  "Background" BOX_OPTION_SET "0xff0080"
+BOX_END
+
+_________________________________________________________
+Options for Buttons:
+OnClick
+Background,
+Active,
+Baseline,
+Enabled

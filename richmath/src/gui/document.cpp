@@ -1,0 +1,3634 @@
+#include <gui/document.h>
+
+#include <cmath>
+#include <cstdio>
+
+#include <boxes/buttonbox.h>
+#include <boxes/fractionbox.h>
+#include <boxes/gridbox.h>
+#include <boxes/inputbox.h>
+#include <boxes/radicalbox.h>
+#include <boxes/section.h>
+#include <boxes/mathsequence.h>
+#include <boxes/subsuperscriptbox.h>
+#include <boxes/underoverscriptbox.h>
+#include <eval/binding.h>
+#include <eval/client.h>
+#include <gui/clipboard.h>
+#include <gui/native-widget.h>
+
+using namespace richmath;
+
+bool richmath::DebugFollowMouse = false;
+
+Hashtable<String, Expr, object_hash> richmath::global_immediate_macros;
+Hashtable<String, Expr, object_hash> richmath::global_macros;
+
+Box *richmath::expand_selection(Box *box, int *start, int *end){
+  if(!box)
+    return 0;
+  
+  MathSequence *seq = dynamic_cast<MathSequence*>(box);
+  if(seq){
+    for(int i = *start;i < *end;++i){
+      if(seq->span_array().is_token_end(i))
+        goto MULTIPLE_TOKENS;
+    }
+    
+    if(*start == *end 
+    && *start > 0 
+    && !seq->span_array().is_operand_start(*start)){
+      --*start;
+      --*end;
+    }
+      
+    while(*start > 0 && !seq->span_array().is_token_end(*start - 1))
+      --*start;
+    
+    while(*end < seq->length() && !seq->span_array().is_token_end(*end))
+      ++*end;
+    
+    if(*end < seq->length())
+      ++*end;
+    return seq;
+    
+   MULTIPLE_TOKENS:
+    if(*start < seq->length()){
+      Span s = seq->span_array()[*start];
+      
+      if(s){
+        int e = s.end();
+        while(s && s.end() >= *end){
+          e = s.end();
+          s = s.next();
+        }
+          
+        if(e >= *end){
+          *end = e + 1;
+          return seq;
+        }
+      }
+    }
+    
+    int a = *start;
+    while(--a >= 0){
+      Span s = seq->span_array()[a];
+      
+      if(s){
+        int e = s.end();
+        while(s && s.end() + 1 >= *end){
+          e = s.end();
+          s = s.next();
+        }
+          
+        if(e + 1 >= *end){
+          *start = a;
+          *end = e + 1;
+          return seq;
+        }
+      }
+    }
+    
+    if(*start > 0 
+    || *end < seq->length()){
+      *start = 0;
+      *end = seq->length();
+      return seq;
+    }
+  }
+  
+  int index = box->index();
+  Box *box2 = box->parent();
+  while(box2){
+    if(dynamic_cast<MathSequence*>(box2)){
+      *start = index;
+      *end = index + 1;
+      return box2;
+    }
+    
+    index = box2->index();
+    box2 = box2->parent();
+  }
+  
+  return box;
+}
+
+int richmath::box_depth(Box *box){
+  int result = 0;
+  while(box){
+    ++result;
+    box = box->parent();
+  }
+  return result;
+}
+
+int richmath::box_order(Box *b1, int i1, Box *b2, int i2){
+  int od1, od2, d1, d2;
+  od1 = d1 = box_depth(b1);
+  od2 = d2 = box_depth(b2);
+  
+  while(d1 > d2){
+    i1 = b1->index();
+    b1 = b1->parent();
+    --d1;
+  }
+  
+  while(d2 > d1){
+    i2 = b2->index();
+    b2 = b2->parent();
+    --d2;
+  }
+  
+  while(b1 != b2 && b1 && b2){
+    i1 = b1->index();
+    b1 = b1->parent();
+    
+    i2 = b2->index();
+    b2 = b2->parent();
+  }
+  
+  if(i1 == i2)
+    return od1 - od2;
+  
+  return i1 - i2;
+}
+
+/*static void show_highlight(Canvas *canvas, int color, Box *box){
+  if(box && box->parent()){
+    cairo_matrix_t mat;
+    cairo_matrix_init_identity(&mat);
+    box->transformation(0, &mat);
+    
+    canvas->save();
+    canvas->transform(mat);
+    
+    canvas->pixrect(
+      0,
+      - box->extents().ascent,
+      box->extents().width,
+      box->extents().descent,
+      false);
+    
+    canvas->restore();
+    
+    int c = canvas->get_color();
+    canvas->set_color(color);
+    canvas->show_blur_stroke(4, false);
+    canvas->set_color(c);
+  }
+}*/
+
+void richmath::selection_outline(
+  Box          *box, 
+  int           start, 
+  int           end, 
+  Array<Point> &pts
+){
+  if(MathSequence *seq = dynamic_cast<MathSequence*>(box)){
+    int startline = 0;
+    while(startline < seq->line_array().length() - 1
+    && seq->line_array()[startline].end <= start)
+      ++startline;
+    
+    int endline = startline;
+    while(endline < seq->line_array().length() - 1
+    && seq->line_array()[endline].end <= end)
+      ++endline;
+    
+    if(startline == endline){
+      float x1, x2;
+      x1 = seq->indention_width(seq->line_array()[startline].indent);
+      
+      if(startline > 0){
+        int e = seq->line_array()[startline - 1].end;
+        if(e < seq->glyph_array().length())
+          x1-= seq->glyph_array()[e].x_offset;
+      }
+      
+      x2 = x1;
+      
+      if(start > 0)
+        x1+= seq->glyph_array()[start - 1].right;
+      if(end > 0)
+        x2+= seq->glyph_array()[end - 1].right;
+      
+      if(start < seq->length())
+        x1+= seq->glyph_array()[start].x_offset / 2;
+      if(end < seq->length())
+        x2+= seq->glyph_array()[end].x_offset / 2;
+      
+      if(startline > 0){
+        x1-= seq->glyph_array()[seq->line_array()[startline - 1].end - 1].right;
+        x2-= seq->glyph_array()[seq->line_array()[startline - 1].end - 1].right;
+      }
+      
+      float y = - seq->line_array()[0].ascent;
+      for(int line = 0;line < startline;++line)
+        y+= seq->line_array()[line].ascent + seq->line_array()[line].descent
+          + seq->line_spacing();
+      y+= seq->line_array()[startline].ascent;
+      
+      pts.length(4);
+      pts[0].x = pts[3].x = x1;
+      pts[1].x = pts[2].x = x2;
+      pts[0].y = pts[1].y = y - seq->line_array()[startline].ascent - 1;
+      pts[2].y = pts[3].y = y + seq->line_array()[startline].descent + 1;
+    }
+    else{
+      float x1 = seq->indention_width(seq->line_array()[startline].indent);
+      float x2 = seq->indention_width(seq->line_array()[endline  ].indent);
+      
+      if(startline > 0){
+        int e = seq->line_array()[startline - 1].end;
+        if(e < seq->glyph_array().length())
+          x1-= seq->glyph_array()[seq->line_array()[startline - 1].end].x_offset;
+      }
+      if(endline > 0){
+        int e = seq->line_array()[endline - 1].end;
+        if(e < seq->glyph_array().length())
+          x2-= seq->glyph_array()[seq->line_array()[endline - 1].end].x_offset;
+      }
+      
+      if(start > 0)
+        x1+= seq->glyph_array()[start - 1].right;
+      if(end > 0)
+        x2+= seq->glyph_array()[end - 1].right;
+      
+      if(start < seq->length())
+        x1+= seq->glyph_array()[start].x_offset / 2;
+      if(end < seq->length())
+        x2+= seq->glyph_array()[end].x_offset / 2;
+      
+      if(startline > 0)
+        x1-= seq->glyph_array()[seq->line_array()[startline - 1].end - 1].right;
+      if(endline > 0)
+        x2-= seq->glyph_array()[seq->line_array()[endline - 1].end - 1].right;
+      
+      float y1 = - seq->line_array()[0].ascent;
+      for(int line = 0;line < startline;++line)
+        y1+= seq->line_array()[line].ascent + seq->line_array()[line].descent
+          + seq->line_spacing();
+      
+      float y2 = y1;
+      for(int line = startline;line < endline;++line)
+        y2+= seq->line_array()[line].ascent + seq->line_array()[line].descent
+          + seq->line_spacing();
+          
+      y1+= seq->line_array()[startline].ascent;
+      y2+= seq->line_array()[endline].ascent;
+      
+      pts.length(8);
+      pts[0].x = seq->extents().width;
+      pts[0].y = y2 - seq->line_array()[endline].ascent;
+      
+      pts[1].x = seq->extents().width;
+      pts[1].y = y1 - seq->line_array()[startline].ascent; 
+      
+      pts[2].x = x1;
+      pts[2].y = y1 - seq->line_array()[startline].ascent; 
+      
+      pts[3].x = x1;
+      pts[3].y = y1 + seq->line_array()[startline].descent; 
+      
+      pts[4].x = 0;
+      pts[4].y = y1 + seq->line_array()[startline].descent; 
+      
+      pts[5].x = 0;
+      pts[5].y = y2 + seq->line_array()[endline].descent; 
+      
+      pts[6].x = x2;
+      pts[6].y = y2 + seq->line_array()[endline].descent; 
+      
+      pts[7].x = x2;
+      pts[7].y = y2 - seq->line_array()[endline].ascent; 
+    }
+  }
+  else if(SectionList *slist = dynamic_cast<SectionList*>(box)){
+    float yend;
+    if(end < slist->length())
+      yend = slist->section(end)->y_offset;
+    else
+      yend = slist->extents().height();
+      
+    if(start == end){
+      pts.length(4);
+      
+      pts[0].x = pts[3].x = 0;
+      pts[1].x = pts[2].x = slist->extents().width;
+      pts[0].y = pts[1].y = pts[2].y = pts[3].y = yend;
+    }
+    else{
+      pts.length(4);
+      
+      pts[0].x = pts[3].x = 0;
+      pts[1].x = pts[2].x = slist->extents().width;
+      pts[0].y = pts[1].y = slist->section(start)->y_offset;
+      pts[2].y = pts[3].y = yend;
+    }
+  }
+  else if(GridBox *grid = dynamic_cast<GridBox*>(box)){
+    int ax, ay, bx, by;
+    if(end > start)
+      --end;
+      
+    grid->matrix().index_to_yx(start, &ay, &ax);
+    grid->matrix().index_to_yx(end,   &by, &bx);
+    
+    if(bx < ax){
+      int tmp = ax;
+      ax = bx;
+      bx = tmp;
+    }
+    
+    if(by < ay){
+      int tmp = ay;
+      ay = by;
+      by = tmp;
+    }
+    
+    const Array<float> &xpos = grid->xpos_array();
+    const Array<float> &ypos = grid->ypos_array();
+    
+    float x1, x2, y1, y2;
+    x1 = xpos[ax];
+    if(bx < grid->cols() - 1)
+      x2 = xpos[bx] + grid->item(by, bx)->extents().width;
+    else
+      x2 = grid->extents().width;
+      
+    y1 = - grid->extents().ascent + ypos[ay];
+    if(by < grid->rows() - 1)
+      y2 = - grid->extents().ascent + ypos[by] + grid->item(by, bx)->extents().height();
+    else
+      y2 = grid->extents().descent;
+    
+    pts.length(4);
+    pts[0].x = pts[3].x = x1;
+    pts[1].x = pts[2].x = x2;
+    pts[0].y = pts[1].y = y1;
+    pts[2].y = pts[3].y = y2;
+  }
+  else if(box){
+    for(int i = start;i < end;++i){
+      Box *b = box->item(i);
+      
+      pts.length(4);
+      pts[0].x = pts[3].x = 0;
+      pts[1].x = pts[2].x = b->extents().width;
+      pts[0].y = pts[1].y = -b->extents().ascent;
+      pts[2].y = pts[3].y = b->extents().descent;
+    }
+  }
+  else
+    pts.length(0);
+}
+
+bool richmath::bounding_rect(
+  const Array<Point> &pts, 
+  float              *x,
+  float              *y, 
+  float              *w,
+  float              *h
+){
+  if(pts.length() > 0){
+    *x = pts[0].x;
+    *y = pts[0].y;
+    
+    float x2 = *x;
+    float y2 = *y;
+    for(int i = 1;i < pts.length();++i){
+      if(*x > pts[i].x) *x = pts[i].x;
+      if(x2 < pts[i].x) x2 = pts[i].x;
+      
+      if(*y > pts[i].y) *y = pts[i].y;
+      if(y2 < pts[i].y) y2 = pts[i].y;
+    }
+    
+    *w = x2 - *x;
+    *h = y2 - *y;
+    
+    return true;
+  }
+  
+  return false;
+}
+
+void richmath::selection_path(
+  Canvas  *canvas, 
+  Box     *box, 
+  int      start, 
+  int      end, 
+  bool     tostroke
+){
+  if(box){
+    canvas->save();
+    
+    cairo_matrix_t mat;
+    cairo_matrix_init_identity(&mat);
+    box->transformation(0, &mat);
+    
+    canvas->transform(mat);
+    
+    Array<Point> pts(0);
+    selection_outline(box, start, end, pts);
+    if(pts.length() > 0){
+      canvas->align_point(&pts[0].x, &pts[0].y, tostroke);
+      canvas->move_to(pts[0].x, pts[0].y);
+      
+      for(int i = 1;i < pts.length();++i){
+        canvas->align_point(&pts[i].x, &pts[i].y, tostroke);
+        canvas->line_to(pts[i].x, pts[i].y);
+      }
+      
+      canvas->close_path();
+    }
+    
+    canvas->restore();
+  }
+}
+
+static MathSequence *search_string(
+  Box *box, 
+  int *index, 
+  Box *stop_box,
+  int  stop_index,
+  const String string, 
+  bool complete_token
+){
+  MathSequence *seq = dynamic_cast<MathSequence*>(box);
+  
+  if(seq){
+    const uint16_t *buf = string.buffer();
+    int             len = string.length();
+    
+    const uint16_t *seqbuf = seq->text().buffer();
+    int             seqlen = seq->text().length();
+    
+    if(stop_box == seq)
+      seqlen = stop_index;
+    
+    int i = *index;
+    for(;i <= seqlen - len;++i){
+      if(complete_token){
+        if((i == 0 || seq->span_array().is_token_end(i-1))
+        && seq->span_array().is_token_end(i + len - 1)){
+          int j = 0;
+          
+          for(;j < len;++j)
+            if(seqbuf[i + j] != buf[j]
+            || (seq->span_array().is_token_end(i + j) && j < len - 1))
+              break;
+              
+          if(j == len){
+            *index = i+j;
+            return seq;
+          }
+        }
+      }
+      else{
+        int j = 0;
+        
+        for(;j < len;++j)
+          if(seqbuf[i + j] != buf[j])
+            break;
+        
+        if(j == len){
+          *index = i+j;
+          return seq;
+        }
+      }
+      
+      if(seqbuf[i] == PMATH_CHAR_BOX){
+        int b = 0;
+        while(box->item(b)->index() < i)
+          ++b;
+          
+        *index = 0;
+        return search_string(
+          box->item(b), 
+          index, 
+          stop_box,
+          stop_index,
+          string, 
+          complete_token);
+      }
+    }
+    
+    for(;i < seqlen;++i){
+      if(seqbuf[i] == PMATH_CHAR_BOX){
+        int b = 0;
+        while(box->item(b)->index() < i)
+          ++b;
+          
+        *index = 0;
+        return search_string(
+          box->item(b), 
+          index, 
+          stop_box,
+          stop_index,
+          string, 
+          complete_token);
+      }
+    }
+  }
+  else if(box == stop_box){
+    if(*index >= stop_index || *index >= box->count())
+      return 0;
+    
+    int i = *index;
+    *index = 0;
+    return search_string(
+      box->item(i), 
+      index, 
+      stop_box,
+      stop_index,
+      string, 
+      complete_token);
+  }
+  else if(*index < box->count()){
+    int i = *index;
+    *index = 0;
+    return search_string(
+      box->item(i), 
+      index, 
+      stop_box,
+      stop_index,
+      string, 
+      complete_token);
+  }
+  
+  if(box->parent()){
+    *index = box->index() + 1;
+    return search_string(
+      box->parent(), 
+      index, 
+      stop_box,
+      stop_index,
+      string, 
+      complete_token);
+  }
+  
+  *index = 0;
+  return 0;
+}
+
+static bool selection_is_name(Document *doc){
+  if(doc->selection_length() <= 0)
+    return false;
+    
+  MathSequence *seq = dynamic_cast<MathSequence*>(doc->selection_box());
+  if(!seq)
+    return false;
+  
+  const uint16_t *buf = seq->text().buffer();
+  for(int i = doc->selection_start();i < doc->selection_end();++i){
+    if(!pmath_char_is_digit(buf[i])
+    && !pmath_char_is_name( buf[i]))
+      return false;
+    
+    
+    if(seq->span_array().is_token_end(i)
+    && i < doc->selection_end() - 1)
+      return false;
+  }
+  
+  return true;
+}
+
+//{ class Document ...
+
+Document::Document()
+: SectionList(),
+  best_index_rel_x(0),
+  auto_scroll(false),
+  prev_sel_line(-1),
+  prev_sel_box_id(0),
+  must_resize_min(0),
+  _native(NativeWidget::dummy),
+  mouse_down_counter(0),
+  mouse_down_time(0),
+  mouse_down_x(0),
+  mouse_down_y(0)
+//  _mouse_grabber_id(0)
+{
+  context.selection.set(this, 0, 0);
+  context.math_shaper = MathShaper::available_shapers.default_value;
+  context.text_shaper = TextShaper::find("Arial", NoStyle);
+  context.stylesheet = Stylesheet::Default;
+  
+  context.set_script_size_multis(Expr());
+  
+  style = new Style();
+}
+
+Document::~Document(){
+}
+
+bool Document::request_repaint(float x, float y, float w, float h){
+  float wx, wy, ww, wh;
+  native()->scroll_pos(&wx, &wy);
+  native()->window_size(&ww, &wh);
+  
+  if(x + w > wx && x < wx + ww
+  && y + h > wy && y < wy + wh){
+    native()->invalidate();
+    return true;
+  }
+  
+  return false;
+}
+
+void Document::invalidate(){
+  native()->invalidate();
+  
+  Box::invalidate();
+}
+
+void Document::invalidate_all(){
+  must_resize_min = count();
+  for(int i = 0;i < length();++i)
+    section(i)->invalidate();
+}
+
+void Document::scroll_to(float x1, float y1, float x2, float y2){
+  if(!native()->is_scrollable())
+    return;
+  
+  float w, h, x, y;
+  native()->window_size(&w, &h);
+  native()->scroll_pos(&x, &y);
+  
+  if(y1 < y){
+    if(context.selection.get() == this)
+      y = y1;
+    else
+      y = y1 - h/6.f;
+  }
+  else if(y2 > y + h){
+    if(context.selection.get() == this)
+      y = y2 - h;
+    else
+      y = y2 - h * 5/6.f;
+  }
+  
+  if(x1 < x){
+    x = x1 - w/6.f;
+  }
+  else if(x2 > x + w){
+    x = x2 - w * 5/6.f;
+    if(x1 < x)
+      x = x1;
+  }
+  
+  native()->scroll_to(x, y);
+}
+
+//{ event invokers ...
+
+void Document::mouse_exit(){
+  if(context.mouseover_box_id){
+    Box *over = Box::find(context.mouseover_box_id);
+    
+    if(over)
+      over->on_mouse_exit();
+    
+    context.mouseover_box_id = 0;
+  }
+  
+  if(DebugFollowMouse){
+    mouse_move_sel.reset();
+    invalidate();
+  }
+}
+
+void Document::mouse_down(MouseEvent &event){
+  Box *receiver = 0;
+  
+  if(++mouse_down_counter == 1){
+    event.set_source(this);
+    
+    bool eol;
+    int start, end;
+    receiver = mouse_selection(
+      event.x, event.y, 
+      &start, &end,
+      &eol);
+    
+    receiver = receiver ? receiver->mouse_sensitive() : this;
+    assert(receiver != 0);
+    context.clicked_box_id = receiver->id();
+  }
+  else{
+    receiver = Box::find(context.clicked_box_id);
+    
+    if(!receiver){
+      context.clicked_box_id = this->id();
+      receiver = this;
+    }
+  }
+  
+  receiver->on_mouse_down(event);
+  
+//  ++mouse_down_counter;
+//  if(event.left){
+//    _mouse_grabber_id = 0;
+//    context.clicked_box_id = 0;
+//    
+//    float ddx, ddy;
+//    native()->double_click_dist(&ddx, &ddy);
+//    
+//    bool double_click = NativeWidget::time_diff(
+//        mouse_down_time, 
+//        native()->message_time()) <= native()->double_click_time()
+//      && fabs(event.x - mouse_down_x) <= ddx
+//      && fabs(event.y - mouse_down_y) <= ddy;
+//      
+//    mouse_down_time = native()->message_time();
+//    
+//    bool eol;
+//    int start, end;
+//    Box *box = mouse_selection(
+//      event.x, event.y, 
+//      &start, &end,
+//      &eol);
+//    
+//    if(dynamic_cast<Section*>(box) 
+//    && box->parent() == this
+//    && selectable()){
+//      _mouse_grabber_id = static_cast<Section*>(box)->id();
+//      
+//      start = box->index();
+//      end = start + 1;
+//      
+//      select(this, start, end);
+//    }
+//    else if(box){
+//      WidgetBox *widget = box->find_parent<WidgetBox>(true);
+//      
+//      if(widget){
+//        context.clicked_box_id = widget->id();
+//        
+//        cairo_matrix_t mat;
+//        cairo_matrix_init_identity(&mat);
+//        widget->transformation(this, &mat);
+//        cairo_matrix_invert(&mat);
+//        
+//        Canvas::transform_point(mat, &event.x, &event.y);
+//        
+//        if(widget->mouse_down(event)){
+//          double_click = false;
+//          _mouse_grabber_id = widget->id();
+//        }
+//      }
+//      
+//      if(!_mouse_grabber_id && box->selectable()){
+//        if(!double_click)
+//          select(box, start, end);
+//        
+//        Box *grabber = box;
+//        while(grabber && grabber->selectable())
+//          grabber = grabber->parent();
+//        
+//        if(grabber)
+//          _mouse_grabber_id = grabber->id();
+//      }
+//      else if(!double_click && !_mouse_grabber_id && selectable())
+//        native()->beep();
+//    }
+//    else if(!double_click)
+//      native()->beep();
+//     
+//    if(double_click){
+//      if(selection_box() == this){
+//        if(context.selection_start < context.selection_end){
+//          toggle_open_close_group(context.selection_start);
+//          
+//          // prevent selection from changing in mouse_move():
+//          context.clicked_box_id = this->id();
+//          
+//          // prevent "tripple-click"
+//          mouse_down_time = 0;
+//        }
+//      }
+//      else if(selection_box() 
+//      && selection_box()->selectable()){
+//        Box *box = selection_box();
+//        int start = context.selection_start;
+//        int end = context.selection_end;
+//        
+//        box = expand_selection(box, &start, &end);
+//        
+//        select(box, start, end);
+//      }
+//    }
+//    
+//    mouse_down_x = event.x;
+//    mouse_down_y = event.y;
+//    mouse_down_sel = sel_first;
+//    return true;
+//  }
+//  
+//  return false;
+}
+
+void Document::mouse_up(MouseEvent &event){
+  Box *receiver = Box::find(context.clicked_box_id);
+  
+  if(receiver)
+    receiver->on_mouse_up(event);
+  
+  if(--mouse_down_counter <= 0){
+    context.clicked_box_id = 0;
+    mouse_down_counter = 0;
+  }
+  
+//  Box *grabber;
+//  --mouse_down_counter;
+//  
+//  if(!_mouse_grabber_id)
+//    return false;
+//    
+//  grabber = Box::find(_mouse_grabber_id);
+//  _mouse_grabber_id = 0;
+//  
+//  if(!grabber)
+//    return false;
+//  
+//  if(grabber->parent()){
+//    cairo_matrix_t mat;
+//    cairo_matrix_init_identity(&mat);
+//    grabber->transformation(0, &mat);
+//    cairo_matrix_invert(&mat);
+//    
+//    Canvas::transform_point(mat, &event.x, &event.y);
+//  }
+//  
+//  Box *box;
+//  int start, end;
+//  bool eol;
+//  
+//  box = grabber->mouse_selection(
+//    event.x, event.y, 
+//    &start, &end, 
+//    &eol);
+//  
+//  if(context.clicked_box_id){
+//    WidgetBox *widget = dynamic_cast<WidgetBox*>(Box::find(context.clicked_box_id));
+//    
+//    if(widget){
+//      cairo_matrix_t mat;
+//      cairo_matrix_init_identity(&mat);
+//      widget->transformation(grabber, &mat);
+//      cairo_matrix_invert(&mat);
+//      
+//      Canvas::transform_point(mat, &event.x, &event.y);
+//      
+//      widget->mouse_up(event);
+//    }
+//    
+//    context.clicked_box_id = 0;
+//  }
+//  
+//  mouse_down_sel.reset();
+//  
+//  return true;
+}
+
+void Document::mouse_move(MouseEvent &event){
+  Box *receiver = Box::find(context.clicked_box_id);
+  
+  if(receiver){
+    native()->set_cursor(CurrentCursor);
+    
+    receiver->on_mouse_move(event);
+  }
+  else{
+    event.set_source(this);
+    
+    int start, end;
+    bool eol;
+    Box *receiver = mouse_selection(event.x, event.y, &start, &end, &eol);
+    
+    if(DebugFollowMouse && !mouse_move_sel.equals(receiver, start, end)){
+      mouse_move_sel.set(receiver, start, end);
+      invalidate();
+    }
+    
+    Box *new_over = receiver ? receiver->mouse_sensitive() : 0;
+    Box *old_over = Box::find(context.mouseover_box_id);
+    if(new_over != old_over){
+      if(old_over)
+        old_over->on_mouse_exit();
+      
+      if(new_over)
+        new_over->on_mouse_enter();
+    }
+    
+    if(new_over){
+      context.mouseover_box_id = new_over->id();
+      
+//      event.set_source(new_over);
+      new_over->on_mouse_move(event);
+    }
+    else
+      context.mouseover_box_id = 0;
+  }
+}
+
+void Document::focus_set(){
+  context.active = true;
+  
+  if(selection_box())
+    selection_box()->on_enter();
+    
+//  if(context.focused_widget_id){
+//    Box *box = Box::find(context.focused_widget_id);
+//    if(box)
+//      box = box->on_set_focus();
+//    
+//    context.focused_widget_id = box ? box->id() : 0;
+//  }
+  
+  if(selection_length() > 0)
+    native()->invalidate();
+}
+
+void Document::focus_killed(){
+  context.active = false;
+  
+  if(selection_box())
+    selection_box()->on_exit();
+//  if(context.focused_widget_id){
+//    Box *box = Box::find(context.focused_widget_id);
+//    if(box)
+//      box->on_focus_killed();
+//  }
+  
+  if(!selectable())
+    select(0,0,0);
+  
+  if(selection_length() > 0)
+    native()->invalidate();
+}
+
+void Document::key_down(SpecialKeyEvent &event){
+//  if(context.focused_widget_id){
+//    WidgetBox *widget = dynamic_cast<WidgetBox*>(Box::find(context.focused_widget_id));
+//    if(widget && widget->key_down(event))
+//      return true;
+//  }
+  
+  Box *selbox = context.selection.get();
+  if(selbox){
+    selbox->on_key_down(event);
+  }
+  else{
+    Document *cur = get_current_document();
+    if(cur && cur != this)
+      cur->key_down(event);
+  }
+  
+  //return event.key == KeyUnknown;
+}
+
+void Document::key_up(SpecialKeyEvent &event){
+//  if(context.focused_widget_id){
+//    WidgetBox *widget = dynamic_cast<WidgetBox*>(Box::find(context.focused_widget_id));
+//    if(widget && widget->key_up(event))
+//      return true;
+//  }
+  
+  Box *selbox = context.selection.get();
+  if(selbox){
+    selbox->on_key_up(event);
+  }
+  else{
+    Document *cur = get_current_document();
+    if(cur && cur != this)
+      cur->key_up(event);
+  }
+  
+  //return event.key == KeyUnknown;
+}
+
+void Document::key_press(uint16_t unicode){
+  if(unicode == '\r'){
+    unicode = '\n';
+  }
+  else if((unicode < ' ' && unicode != '\n' && unicode != '\t')
+  || unicode == 127 || unicode == PMATH_CHAR_BOX)
+    return;
+  
+//  if(context.focused_widget_id){
+//    WidgetBox *widget = dynamic_cast<WidgetBox*>(Box::find(context.focused_widget_id));
+//    if(widget && widget->key_press(unicode))
+//      return;
+//  }
+  
+  Box *selbox = context.selection.get();
+  if(selbox){
+    selbox->on_key_press(unicode);
+  }
+  else{
+    Document *cur = get_current_document();
+    if(cur && cur != this)
+      cur->key_press(unicode);
+    else
+      native()->beep();
+  }
+}
+
+//} ... event invokers
+
+//{ event handlers ...
+
+void Document::on_mouse_down(MouseEvent &event){
+  event.set_source(this);
+  
+  if(event.left){
+    float ddx, ddy;
+    native()->double_click_dist(&ddx, &ddy);
+    
+    bool double_click = NativeWidget::time_diff(
+        mouse_down_time, 
+        native()->message_time()) <= native()->double_click_time()
+      && fabs(event.x - mouse_down_x) <= ddx
+      && fabs(event.y - mouse_down_y) <= ddy;
+      
+    mouse_down_time = native()->message_time();
+    
+    bool eol;
+    int start, end;
+    Box *box = mouse_selection(
+      event.x, event.y, 
+      &start, &end,
+      &eol);
+    
+    if(double_click){
+      Box *selbox = context.selection.get();
+      if(selbox == this){
+        if(context.selection.start < context.selection.end){
+          toggle_open_close_group(context.selection.start);
+          
+          // prevent selection from changing in mouse_move():
+          context.clicked_box_id = 0;
+          
+          // prevent "tripple-click"
+          mouse_down_time = 0;
+        }
+      }
+      else if(selbox && selbox->selectable()){
+        int start = context.selection.start;
+        int end   = context.selection.end;
+        
+        selbox = expand_selection(selbox, &start, &end);
+        
+        select(selbox, start, end);
+      }
+    }
+    else if(box && box->selectable())
+      select(box, start, end);
+//    else
+//      native()->beep();
+    
+    mouse_down_x   = event.x;
+    mouse_down_y   = event.y;
+    mouse_down_sel = sel_first;
+  }
+}
+
+void Document::on_mouse_move(MouseEvent &event){
+  event.set_source(this);
+  
+  int start, end;
+  bool eol;
+  Box *box = mouse_selection(event.x, event.y, &start, &end, &eol);
+  
+  if(box->selectable()){
+    if(box == this){
+      if(start == end)
+        native()->set_cursor(DocumentCursor);
+      else
+        native()->set_cursor(SectionCursor);
+    }
+    else 
+      native()->set_cursor(NativeWidget::text_cursor(box, start));
+  }
+  else if(dynamic_cast<Section*>(box) && selectable()){
+    native()->set_cursor(NoSelectCursor);
+  }
+  else
+    native()->set_cursor(DefaultCursor);
+  
+  if(event.left && context.clicked_box_id){
+    Box *mouse_down_box = mouse_down_sel.get();
+    
+    if(mouse_down_box){ // && (!box || box->selectable())
+      Section *sec1 = mouse_down_box->find_parent<Section>(true);
+      Section *sec2 = box ? box->find_parent<Section>(true) : 0;
+      
+      if(sec1 && sec1 != sec2){
+        event.set_source(sec1);
+        box = sec1->mouse_selection(event.x, event.y, &start, &end, &eol);
+      }
+      
+      select_range(
+        mouse_down_box, mouse_down_sel.start, mouse_down_sel.end,
+        box, start, end);
+    }
+  }
+}
+
+void Document::on_mouse_up(MouseEvent &event){
+  event.set_source(this);
+}
+
+void Document::on_mouse_cancel(){
+  
+}
+
+void Document::on_key_down(SpecialKeyEvent &event){
+  if(native()->is_scrollable()){
+    switch(event.key){
+      case KeyPageUp: {
+        float w, h;
+        native()->window_size(&w, &h);
+        native()->scroll_by(0, -h);
+        
+        event.key = KeyUnknown;
+      } return;
+      
+      case KeyPageDown: {
+        float w, h;
+        native()->window_size(&w, &h);
+        native()->scroll_by(0, h);
+        
+        event.key = KeyUnknown;
+      } return;
+      
+      default: break;
+    }
+  }
+  
+  switch(event.key){
+    case KeyLeft: {
+      if(event.shift){
+        move_horizontal(Backward, event.ctrl, true);
+      }
+      else if(selection_length() > 0){
+        Box *selbox = context.selection.get();
+        
+        if(selbox == this){
+          move_to(this, context.selection.end);
+          move_horizontal(Backward, event.ctrl);
+        }
+        else if(dynamic_cast<GridBox*>(selbox)
+        || (selbox 
+         && dynamic_cast<GridItem*>(selbox->parent())
+         && ((MathSequence*)selbox)->is_placeholder())){
+          move_horizontal(Backward, event.ctrl);
+        }
+        else
+          move_to(selbox, context.selection.start);
+      }
+      else
+        move_horizontal(Backward, event.ctrl);
+        
+      event.key = KeyUnknown;
+    } return;
+    
+    case KeyRight: {
+      if(event.shift){
+        move_horizontal(Forward, event.ctrl, true);
+      }
+      else if(selection_length() > 0){
+        Box *selbox = selection_box();
+        
+        if(selbox == this){
+          move_to(this, context.selection.start);
+          move_horizontal(Forward, event.ctrl);
+        }
+        else if(dynamic_cast<GridBox*>(selbox)
+        || (selbox
+         && dynamic_cast<GridItem*>(selbox->parent())
+         && ((MathSequence*)selbox)->is_placeholder())){
+          move_horizontal(Forward, event.ctrl);
+        }
+        else
+          move_to(selbox, context.selection.end);
+      }
+      else
+        move_horizontal(Forward, event.ctrl);
+      
+      event.key = KeyUnknown;
+    } return;
+    
+    case KeyHome: {
+      move_start_end(Backward, event.shift);
+      event.key = KeyUnknown;
+    } return;
+    
+    case KeyEnd: {
+      move_start_end(Forward, event.shift);
+      event.key = KeyUnknown;
+    } return;
+    
+    case KeyUp: {
+      move_vertical(Backward, event.shift);
+      event.key = KeyUnknown;
+    } return;
+    
+    case KeyDown: {
+      move_vertical(Forward, event.shift);
+      event.key = KeyUnknown;
+    } return;
+  
+    case KeyTab: {
+      if(is_tabkey_only_moving())
+        move_tab(event.shift ? Backward : Forward);
+      else
+        key_press('\t');
+      event.key = KeyUnknown;
+    } return;
+    
+    case KeyBackspace: {
+      set_prev_sel_line();
+      if(selection_length() > 0){
+        if(remove_selection(true))
+          event.key = KeyUnknown;
+        return;
+      }
+      
+      Box *selbox = context.selection.get();
+      if(context.selection.start == 0
+      && selbox
+      && selbox->parent()
+      && selbox->parent()->exitable()){
+        int index = selbox->index();
+        selbox = selbox->parent()->remove(&index);
+        
+        move_to(selbox, index);
+      }
+      else if(event.ctrl || selbox != this){
+        int old = context.selection.id;
+        MathSequence *seq = dynamic_cast<MathSequence*>(selbox);
+        
+        if(seq && seq->text()[context.selection.start - 1] == PMATH_CHAR_BOX){
+          move_horizontal(Backward, event.ctrl, event.shift);
+        }
+        else
+          move_horizontal(Backward, event.ctrl, true);
+        
+        if(!event.ctrl){
+          seq = dynamic_cast<MathSequence*>(selbox);
+          
+          if(seq && seq->text()[context.selection.start] == PMATH_CHAR_BOX){
+            event.key = KeyUnknown;
+            return;
+          }
+        }
+        
+        if(old == context.selection.id){
+          remove_selection(true);
+          
+          // reset sel_last:
+          selbox = context.selection.get();
+          select(selbox, context.selection.start, context.selection.end);
+        }
+      }
+      else
+        move_horizontal(Backward, event.ctrl);
+      
+      event.key = KeyUnknown;
+    } return;
+    
+    case KeyDelete: {
+      set_prev_sel_line();
+      if(selection_length() > 0){
+        if(remove_selection(true))
+          event.key = KeyUnknown;
+        return;
+      }
+      
+      Box *selbox = context.selection.get();
+      if(event.ctrl || selbox != this){
+        int index = context.selection.start;
+        Box *box = selbox->move_logical(Forward, event.ctrl, &index);
+        
+        if(box == selbox){
+          move_to(box, index, true);
+          selbox = selection_box();
+          
+          if(!event.ctrl){
+            MathSequence *seq = dynamic_cast<MathSequence*>(selbox);
+            
+            if(seq && seq->text()[context.selection.start] == PMATH_CHAR_BOX){
+              event.key = KeyUnknown;
+              return;
+            }
+          }
+        
+          remove_selection(true);
+        }
+        else{
+          Box *p = box;
+          while(p && p != selbox)
+            p = p->parent();
+          
+          if(p){
+            MathSequence *seq = dynamic_cast<MathSequence*>(box);
+            
+            if(seq && seq->is_placeholder(index)){
+              select(seq, index, index+1);
+            }
+            else
+              move_to(box, index);
+          }
+          else
+            native()->beep();
+        }
+      }
+      else
+        move_horizontal(Forward, event.ctrl);
+      
+      event.key = KeyUnknown;
+    } return;
+    
+    case KeyEscape: {
+      if(context.clicked_box_id){
+        Box *receiver = Box::find(context.clicked_box_id);
+          
+        if(receiver)
+          receiver->on_mouse_cancel();
+        
+        context.clicked_box_id = 0;
+        event.key = KeyUnknown;
+        return;
+      }
+      
+      key_press(PMATH_CHAR_ALIASDELIMITER);
+      event.key = KeyUnknown;
+    } return;
+    
+    default: return;
+  }
+}
+
+void Document::on_key_up(SpecialKeyEvent &event){
+//  if(context.focused_widget_id){
+//    WidgetBox *widget = dynamic_cast<WidgetBox*>(Box::find(context.focused_widget_id));
+//    if(widget && widget->key_up(event))
+//      return true;
+//  }
+}
+
+void Document::on_key_press(uint32_t unichar){
+  if(!prepare_insert()){
+    Document *cur = get_current_document();
+    
+    if(cur && cur != this)
+      cur->key_press(unichar);
+    else
+      native()->beep();
+      
+    return;
+  }
+  
+  if(unichar == '\n')
+    prev_sel_line = -1;
+  
+  remove_selection(false);
+  
+  MathSequence *seq = dynamic_cast<MathSequence*>(context.selection.get());
+  if(seq){
+    // handle "CAPSLOCK xxx CAPSLOCK" macros:
+    if(unichar == PMATH_CHAR_ALIASDELIMITER){
+      const uint16_t *buf = seq->text().buffer();
+      
+      int i = context.selection.start - 1;
+      while(i >= 0 && buf[i] != PMATH_CHAR_ALIASDELIMITER)
+        --i;
+      
+      if(i >= 0 && buf[i] == PMATH_CHAR_ALIASDELIMITER){
+        String alias = seq->text().part(i + 1, context.selection.start - i - 1);
+        Expr repl = String::FromChar(unicode_to_utf32(alias));
+        
+        if(!repl.is_valid())
+          repl = global_immediate_macros[alias];
+        if(!repl.is_valid())
+          repl = global_macros[alias];
+          
+        if(repl.is_valid() > 0){
+          String s(repl);
+          
+          if(s.is_valid()){
+            seq->remove(i, context.selection.start);
+            seq->insert(i, s);
+            
+            move_to(context.selection.get(), i + s.length());
+            return;
+          }
+          else{
+            MathSequence *repl_seq = new MathSequence();
+            repl_seq->load_from_object(repl, BoxOptionDefault);
+            
+            seq->remove(i, context.selection.start);
+            move_to(context.selection.get(), i);
+            insert_box(repl_seq, true);
+            return;
+          }
+        }
+      }
+    }
+    
+    if(!is_inside_string()
+    && !is_inside_alias())
+      handle_immediate_macros();
+    
+    seq->insert(context.selection.start, unichar);
+    move_to(seq, selection_start() + 1);
+    
+    // handle \xxx macros:
+    if(unichar == ' ' && !is_inside_string()){
+      context.selection.start--;
+      context.selection.end--;
+      
+      bool ok = handle_macros();
+      
+      if(seq == context.selection.get()
+      && context.selection.start < seq->length()
+      && seq->text()[context.selection.start] == ' '){
+        context.selection.end++;
+        
+        if(ok)
+          remove_selection(false);
+        else
+          context.selection.start++;
+      }
+    }
+    
+    // handle \[alias]:
+    int i = context.selection.start;
+    const uint16_t *buf = seq->text().buffer();
+    while(i < seq->length() 
+    && buf[i] <= 0x7F 
+    && buf[i] != ']' 
+    && buf[i] != '['
+    && i - context.selection.start < 64){
+      ++i;
+    }
+    
+    if(i < seq->length() && buf[i] == ']'){
+      int start = context.selection.start;
+      
+      move_to(seq, i + 1);
+      context.selection.start = i+1;
+      context.selection.end = i+1;
+      
+      if(!handle_macros())
+        move_to(seq, start);
+    }
+  }
+  else
+    native()->beep();
+}
+
+//} ... event handlers
+
+void Document::raw_select(Box *box, int start, int end){
+  if(end < start){
+    int i = start;
+    start = end;
+    end = i;
+  }
+  
+  if(box)
+    box = box->normalize_selection(&start, &end);
+  
+  Box *selbox = context.selection.get();
+  if(selbox != box
+  || context.selection.start != start
+  || context.selection.end   != end){
+    Box *common_parent = Box::common_parent(selbox, box);
+    
+    Box *b = selbox;
+    while(b != common_parent){
+      b->on_exit();
+      b = b->parent();
+    }
+    
+    b = box;
+    while(b != common_parent){
+      b->on_enter();
+      b = b->parent();
+    }
+//    if(selection_box() != box){
+//      if(selection_box())
+//        selection_box()->on_exit();
+//      
+//      if(box)
+//        box->on_enter();
+//    }
+    
+    context.selection.set(box, start, end);
+    
+    /*while(box && !box->highlight_inside())
+      box = box->parent();
+      
+    context.highlight_inside_box = box;
+    
+    box = selection_box();
+    
+    bool kill_old_focus = true;
+    while(box){
+      WidgetBox *widget = dynamic_cast<WidgetBox*>(box);
+      
+      if(widget){
+        if(context.focused_widget_id == widget->id()){
+          kill_old_focus = false;
+          break;
+        }
+        
+//        if(widget->set_focus()){
+//          kill_old_focus = false;
+//          
+//          if(context.focused_widget_id){
+//            WidgetBox *old = dynamic_cast<WidgetBox*>(BoxReference::find(context.focused_widget_id));
+//
+//            if(old)
+//              old->focus_killed();
+//          }
+//          
+//          context.focused_widget_id = widget->id();
+//          break;
+//        }
+      }
+      
+      box = box->parent();
+    }*/
+    
+//    if(kill_old_focus && context.focused_widget_id){
+//      WidgetBox *old = dynamic_cast<WidgetBox*>(Box::find(context.focused_widget_id));
+//
+//      if(old)
+//        old->focus_killed();
+//
+//      context.focused_widget_id = 0;
+//    }
+    
+    native()->invalidate();
+  }
+  
+  best_index_rel_x = 0;
+}
+
+void Document::select(Box *box, int start, int end){
+  if(box && !box->selectable())
+    return;
+  
+  sel_last.set(box, start, end);
+  sel_first = sel_last;
+  auto_scroll = mouse_down_counter == 0; // true
+  
+  raw_select(box, start, end);
+}
+
+void Document::select_to(Box *box, int start, int end){
+  if(box && !box->selectable())
+    return;
+  
+  Box *first = sel_first.get();
+  
+  select_range(
+    first,
+    sel_first.start,
+    sel_first.end,
+    box,
+    start,
+    end);
+}
+
+void Document::select_range(
+  Box *box1, int start1, int end1,
+  Box *box2, int start2, int end2
+){
+  if((box1 && !box1->selectable())
+  || (box2 && !box2->selectable())){
+    sel_first.set(0, 0, 0);
+    sel_last = sel_first;
+    raw_select(0, 0, 0);
+    return;
+  }
+  
+  sel_first.set(box1, start1, end1);
+  sel_last.set( box2, start2, end2);
+  auto_scroll = mouse_down_counter == 0; // true
+  
+  if(end1 < start1){
+    int i = start1;
+    start1 = end1;
+    end1 = i;
+  }
+  
+  if(end2 < start2){
+    int i = start2;
+    start2 = end2;
+    end2 = i;
+  }
+  
+  Box *b1 = box1;
+  Box *b2 = box2;
+  int s1  = start1;
+  int s2  = start2;
+  int e1  = end1;
+  int e2  = end2;
+  int d1 = box_depth(b1);
+  int d2 = box_depth(b2);
+  
+  while(d1 > d2){
+    if(b1->parent() && !b1->parent()->exitable()){
+      int o1 = box_order(b1, s1, b2, e2);//box_order(b1, s1, b2, s2);
+      int o2 = box_order(b1, e1, b2, s2);//box_order(b1, e1, b2, e2);
+      
+      if(o1 > 0)
+        raw_select(b1, 0, e1);
+      else if(o2 < 0)
+        raw_select(b1, s1, b1->length());
+      else
+        raw_select(b1, 0, b1->length());
+      
+      return;
+    }
+    s1 = b1->index();
+    e1 = s1 + 1;
+    b1 = b1->parent();
+    --d1;
+  }
+  
+  while(d2 > d1){
+    s2 = b2->index();
+    e2 = s2 + 1;
+    b2 = b2->parent();
+    --d2;
+  }
+  
+  sel_last.set(b2, s2, e2);
+  
+  while(b1 != b2 && b1 && b2){
+    if(b1->parent() && !b1->parent()->exitable()){
+      int o = box_order(b1, s1, b2, s2);
+      
+      if(o < 0)
+        raw_select(b1, s1, b1->length());
+      else
+        raw_select(b1, 0, e1);
+      
+      return;
+    }
+    
+    s1 = b1->index();
+    e1 = s1 + 1;
+    b1 = b1->parent();
+    
+    s2 = b2->index();
+    e2 = s2 + 1;
+    b2 = b2->parent();
+  }
+  
+  if(s2 < s1)
+    s1 = s2;
+  if(e1 < e2)
+    e1 =  e2;
+  
+  raw_select(b1, s1, e1);
+}
+
+void Document::move_to(Box *box, int index, bool selecting){
+  if(selecting)
+    select_to(box, index, index);
+  else
+    select(box, index, index);
+}
+
+void Document::move_horizontal(
+  LogicalDirection direction, 
+  bool             jumping,
+  bool             selecting
+){
+  Box *selbox = context.selection.get();
+  Box *box = sel_last.get();
+  if(!box){
+    sel_last = context.selection;
+    
+    box = selbox;
+    if(!box)
+      return;
+  }
+  
+  int i = sel_last.start;
+  if(direction == Forward)
+    i = sel_last.end;
+
+  if(sel_last.start != sel_last.end){
+    if(box == selbox){
+      if(direction == Forward){
+        if(sel_last.end == context.selection.end)
+          box = box->move_logical(direction, jumping, &i);
+      }
+      else{
+        if(sel_last.start == context.selection.start)
+          box = box->move_logical(direction, jumping, &i);
+      }
+    }
+  }
+  else
+    box = box->move_logical(direction, jumping, &i);
+  
+  if(selecting){
+    select_to(box, i, i);
+  }
+  else{
+    MathSequence *seq = dynamic_cast<MathSequence*>(box);
+    int j = i;
+    
+    if(seq){
+      if(direction == Forward){
+        if(seq->is_placeholder(i))
+          ++j;
+      }
+      else{
+        if(seq->is_placeholder(i - 1))
+          --i;
+      }
+    }
+    select(box, i, j);
+  }
+}
+
+void Document::move_vertical(
+  LogicalDirection direction,
+  bool             selecting
+){
+  Box *box = sel_last.get();
+  if(!box){
+    box = context.selection.get();
+    
+    sel_last = context.selection;
+    if(!box)
+      return;
+  }
+  
+  if(box == this && sel_last.start < sel_last.end){
+    if(selecting){
+      int i = sel_last.start;
+      int j = sel_last.end;
+      
+      if(direction == Forward && j < length())
+        ++j;
+      else if(direction == Backward && i > 0)
+        --i;
+      
+      select(this, i, j);
+      return;
+    }
+    
+    if(direction == Forward)
+      move_to(this, sel_last.end);
+    else
+      move_to(this, sel_last.start);
+    
+    return;
+  }
+  
+  int i, j;
+  if(direction == Forward && sel_last.start + 1 < sel_last.end){
+    i = sel_last.end;
+    if(sel_last.start < sel_last.end
+    && !dynamic_cast<MathSequence*>(box))
+      --i;
+  }
+  else
+    i = sel_last.start;
+  
+  box = box->move_vertical(direction, &best_index_rel_x, &i);
+  
+  j = i;
+  MathSequence *seq = dynamic_cast<MathSequence*>(box);
+  if(seq){
+    if(seq->is_placeholder(i - 1)){
+      --i;
+      best_index_rel_x+= seq->glyph_array()[i].right;
+      if(i > 0)
+        best_index_rel_x-= seq->glyph_array()[i-1].right;
+    }
+    else if(seq->is_placeholder(i))
+      ++j;
+  }
+  
+  float tmp = best_index_rel_x;
+  if(selecting)
+    select_to(box, i, j);
+  else
+    select(box, i, j);
+  
+  if(context.selection.get() == box)
+    best_index_rel_x = tmp;
+}
+
+void Document::move_start_end(
+  LogicalDirection direction, 
+  bool             selecting
+){
+  Box *box = selection_box();
+  if(!box)
+    return;
+    
+  int index = context.selection.start;
+  if(context.selection.start < context.selection.end
+  && direction == Forward)
+    index = context.selection.end;
+  
+  while(box && !dynamic_cast<Section*>(box->parent())){
+    index = box->index();
+    box = box->parent();
+  }
+  
+  MathSequence *seq = dynamic_cast<MathSequence*>(box);
+  if(seq){
+    int l = seq->line_array().length() - 1;
+    while(l > 0 && seq->line_array()[l - 1].end > index)
+      --l;
+    
+    if(l >= 0){
+      if(direction == Forward){
+        index = seq->line_array()[l].end;
+        
+        if(index > 0
+        && seq->text()[index - 1] == '\n')
+          --index;
+      }
+      else{
+        if(l == 0)
+          index = 0;
+        else
+          index = seq->line_array()[l - 1].end;
+      }
+    }
+  }
+  else if(context.selection.start < context.selection.end 
+  && length() > 0){
+    index = context.selection.start;
+    if(context.selection.start < context.selection.end
+    && direction == Forward)
+      index = context.selection.end - 1;
+    
+    if(section(index)->length() > 0){
+      if(direction == Forward){
+        direction = Backward;
+        ++index;
+      }
+      else{
+        direction = Forward;
+      }
+      box = move_logical(direction, false, &index);
+    }
+    else
+      box = this;
+  }
+  
+  if(selecting)
+    select_to(box, index, index);
+  else
+    select(box, index, index);
+}
+
+void Document::move_tab(LogicalDirection direction){
+  Box *box = sel_last.get();
+  if(!box){
+    box = context.selection.get();
+    
+    sel_last = context.selection;
+    if(!box)
+      return;
+  }
+  
+  int i;
+  if(direction == Forward){
+    i = sel_last.end;
+  }
+  else{
+    i = sel_last.start;
+    box = box->move_logical(direction, false, &i);
+  }
+  
+  bool repeated = false;
+  while(box){
+    if(box == this){
+      if(repeated)
+        return;
+        
+      repeated = true;
+      
+      if(direction == Forward)
+        --i;
+      else
+        ++i;
+    }
+    
+    MathSequence *seq = dynamic_cast<MathSequence*>(box);
+    if(seq && seq->is_placeholder(i)){
+      select(box, i, i + 1);
+      return;
+    }
+    
+    int old_i = i;
+    Box *old_box = box;
+    box = box->move_logical(direction, false, &i);
+    
+    if(old_i == i && old_box == box)
+      return;
+      
+  }
+}
+
+bool Document::is_inside_string(){
+  return is_inside_string(context.selection.get(), context.selection.start);
+}
+
+bool Document::is_inside_string(Box *box, int index){
+  while(box){
+    MathSequence *seq = dynamic_cast<MathSequence*>(box);
+    if(seq){
+      if(seq->is_inside_string((index)))
+        return true;
+        
+    }
+    index = box->index();
+    box = box->parent();
+  }
+  
+  return false;
+}
+
+bool Document::is_inside_alias(){
+  bool result = false;
+  Box *box = context.selection.get();
+  int index = context.selection.start;
+  while(box){
+    MathSequence *seq = dynamic_cast<MathSequence*>(box);
+    if(seq){
+      const uint16_t *buf = seq->text().buffer();
+      for(int i = 0;i < index;++i){
+        if(buf[i] == PMATH_CHAR_ALIASDELIMITER)
+          result = !result;
+      }
+    }
+    index = box->index();
+    box = box->parent();
+  }
+  return result;
+}
+
+bool Document::is_tabkey_only_moving(){
+  Box *selbox = context.selection.get();
+  
+  if(context.selection.start != context.selection.end)
+    return true;
+  
+  if(selbox == this)
+    return false;
+  
+  MathSequence *seq = dynamic_cast<MathSequence*>(selbox);
+  
+  if(!seq || !dynamic_cast<Section*>(seq->parent()))
+    return true;
+  
+  const uint16_t *buf = seq->text().buffer();
+  
+  for(int i = context.selection.start - 1;i >= 0;++i){
+    if(buf[i] == '\n')
+      return false;
+    
+    if(buf[i] != '\t' && buf[i] != ' ')
+      return true;
+  }
+  
+  return false;
+}
+
+void Document::insert(int pos, Section *section){
+  must_resize_min = pos + 1;
+  invalidate();
+  SectionList::insert(pos, section);
+}
+
+Section *Document::swap(int pos, Section *section){
+//  must_resize_min = pos;
+  invalidate();
+  return SectionList::swap(pos, section);
+}
+
+void Document::select_prev(bool operands_only){
+  Box *selbox = context.selection.get();
+  
+  if(context.selection.start != context.selection.end)
+    return;
+  
+  MathSequence *seq = dynamic_cast<MathSequence*>(selbox);
+  
+  int start = context.selection.start;
+  
+  if(seq && start > 0){
+    do{
+      --start;
+    }while(start > 0
+    && !seq->span_array().is_token_end(start - 1));
+    
+    if(start > 0 && seq->text()[start] == PMATH_CHAR_BOX){
+      int b = 0;
+      while(seq->item(b)->index() < start)
+        ++b;
+      
+      if(dynamic_cast<SubsuperscriptBox*>(seq->item(b))){
+        do{
+          --start;
+        }while(start > 0
+        && !seq->span_array().is_token_end(start - 1));
+      }
+    }
+      
+    if(pmath_char_is_right(seq->text()[start])){
+      int end = context.selection.start - 1;
+      
+      while(start >= 0){
+        Span s = seq->span_array()[start];
+        while(s){
+          if(s.end() == end
+          && seq->span_array().is_operand_start(start)){
+            move_to(seq, start, true);
+            return;
+          }
+          
+          s = s.next();
+        }
+        --start;
+      }
+    }
+    else if(!pmath_char_is_left(seq->text()[start])){
+      if(!operands_only || seq->span_array().is_operand_start(start))
+        move_to(seq, start, true);
+      return;
+    }
+  }
+}
+
+void Document::copy_to_clipboard(){
+  SharedPtr<OpenedClipboard> cb = Clipboard::std->open_write();
+  
+  Box *selbox = context.selection.get();
+  if(!cb || !selbox){
+    native()->beep();
+    return;
+  }
+  
+  Expr boxes = Expr(selbox->to_pmath(false, context.selection.start, context.selection.end));
+  
+  cb->add_text(Clipboard::BoxesText, boxes.to_string(
+    PMATH_WRITE_OPTIONS_INPUTEXPR | PMATH_WRITE_OPTIONS_FULLSTR));
+  
+  Expr text = Client::interrupt(Expr(
+    pmath_parse_string_args(
+          "FE`BoxesToText(`1`)",//"Try(FE`BoxesToText(`1`),$Failed)",
+        "(o)",
+        pmath_ref(boxes.get()))));
+  
+  cb->add_text(Clipboard::PlainText, text.to_string());
+}
+
+void Document::cut_to_clipboard(){
+  copy_to_clipboard();
+  remove_selection(false);
+}
+
+void Document::paste_from_clipboard(){
+  if(Clipboard::std->has_format(Clipboard::BoxesText)){
+    String s = Clipboard::std->read_as_text(Clipboard::BoxesText);
+    
+    Expr parsed = Client::interrupt(Expr(
+      pmath_parse_string(s.release())));
+    
+    if(context.selection.get() == this && get_style(Editable, true)
+    && (parsed[0] == PMATH_SYMBOL_SECTION
+     || parsed[0] == PMATH_SYMBOL_SECTIONGROUP)){
+      remove_selection(false);
+      
+      int i = context.selection.start;
+      insert_pmath(&i, parsed);
+      
+      select(this, i, i);
+      
+      return;
+    }
+    
+    parsed = Client::interrupt(Expr(pmath_parse_string_args(
+        "FE`SectionsToBoxes(`1`)",
+      "(o)",
+      parsed.release())));
+    MathSequence *tmp = new MathSequence;
+    tmp->load_from_object(parsed, BoxOptionFormatNumbers);
+    
+    GridBox *grid = dynamic_cast<GridBox*>(context.selection.get());
+    if(grid && grid->get_style(Editable)){
+      int row1, col1, row2, col2;
+      
+      grid->matrix().index_to_yx(context.selection.start, &row1, &col1);
+      grid->matrix().index_to_yx(context.selection.end-1, &row2, &col2);
+      
+      int w = col2 - col1 + 1;
+      int h = row2 - row1 + 1;
+      
+      if(tmp->length() == 1 && tmp->count() == 1){
+        GridBox *tmpgrid = dynamic_cast<GridBox*>(tmp->item(0));
+        
+        if(tmpgrid
+        && tmpgrid->rows() <= h
+        && tmpgrid->cols() <= w){
+          for(int col = 0;col < w;++col){
+            for(int row = 0;row < h;++row){
+              if(col < tmpgrid->cols()
+              && row < tmpgrid->rows()){
+                grid->item(row1 + row, col1 + col)->load_from_object(
+                  Expr(tmpgrid->item(row, col)->to_pmath(false)),
+                  BoxOptionFormatNumbers);
+              }
+              else{
+                grid->item(row1 + row, col1 + col)->load_from_object(
+                  String::FromChar(PMATH_CHAR_BOX),
+                  BoxOptionDefault);
+              }
+            }
+          }
+          
+          MathSequence *sel = grid->item(
+            row1 + tmpgrid->rows()-1,
+            col1 + tmpgrid->cols()-1)->content();
+          
+          move_to(sel, sel->length());
+          grid->invalidate();
+        
+          delete tmp;
+          return;
+        }
+      }
+      
+      for(int col = 0;col < w;++col){
+        for(int row = 0;row < h;++row){
+          grid->item(row1 + row, col1 + col)->load_from_object(
+            String::FromChar(PMATH_CHAR_BOX),
+            BoxOptionDefault);
+        }
+      }
+      
+      MathSequence *sel = grid->item(row1, col1)->content();
+      sel->remove(0, 1);
+      sel->insert(0, tmp);
+      move_to(sel, sel->length());
+      
+      grid->invalidate();
+      return;
+    }
+    
+    remove_selection(false);
+    
+    if(prepare_insert()){
+      MathSequence *seq = dynamic_cast<MathSequence*>(context.selection.get());
+      if(seq){
+        int newpos = context.selection.end + tmp->length();
+        seq->insert(context.selection.end, tmp);
+        
+        select(seq, newpos, newpos);
+        
+        return;
+      }
+    }
+    
+    delete tmp;
+    native()->beep();
+    return;
+  }
+  
+  if(Clipboard::std->has_format(Clipboard::PlainText)){
+    String s = Clipboard::std->read_as_text(Clipboard::PlainText);
+    
+    if(prepare_insert()){
+      insert_string(s);
+      
+      return;
+    }
+  }
+  
+  native()->beep();
+}
+
+void Document::insert_string(String text){
+  const uint16_t *buf = text.buffer();
+  int             len = text.length();
+  
+  // remove (dangerous) PMATH_CHAR_BOX from text:
+  for(int i = 0;i < len;++i){
+    if(buf[i] == PMATH_CHAR_BOX){
+      text.remove(i, 1);
+      buf = text.buffer();
+      len = text.length();
+      --i;
+    }
+  }
+  
+  if(is_inside_string()){
+    bool have_sth_to_escape = false;
+    
+    for(int i = 0;i < len;++i){
+      if(buf[i] < ' ' || buf[i] == '"' || buf[i] == '\\'){
+        have_sth_to_escape = true;
+        break;
+      }
+    }
+    
+    // todo: ask user ...
+    
+    if(have_sth_to_escape){
+      char insbuf[5] = {'\\', 'x', '0', '0', '\0'};
+      const char *ins = insbuf;
+      
+      for(int i = 0;i < len;++i){
+        switch(buf[i]){
+          case '\t': ins = "\\t"; break;
+          case '\n': ins = "\\n"; break;
+          case '\r': ins = "\\r"; break;
+          case '\\': ins = "\\\\"; break;
+          case '\"': ins = "\\\""; break;
+          
+          default:
+            if(buf[i] < ' '){
+              static const char *hex = "0123456789ABCDEF";
+              
+              insbuf[2] = hex[(buf[i] & 0xF0) >> 4];
+              insbuf[3] = hex[ buf[i] & 0x0F];
+              ins = insbuf;
+            }
+            else
+              continue;
+        }
+        
+        int il = strlen(ins);
+        text.remove(i, 1);
+        text.insert(i, ins, il);
+        buf = text.buffer();
+        len = text.length();
+        i+= il - 1;
+      }
+    }
+  }
+  
+  if(len > 0){
+    if(!is_inside_string()){ // remove space characters ...
+      static Array<bool> del;
+      
+      del.length(len);
+      del.zeromem();
+      int i;
+      for(i = 0;i < len;++i){
+        if(buf[i] == ' ' || buf[i] == '\t'){
+          del[i] = true;
+        }
+        else
+          break;
+      }
+      
+      uint16_t last_char = 0;
+      for(;i < len;++i){
+        switch(buf[i]){
+          case '\r': del[i] = true; break;
+          case '\n': {
+            for(int j = i-1;j > 0;--j){
+              if(buf[j] != ' ' && buf[j] != '\t')
+                break;
+              
+              del[j] = true;
+            }
+            
+            for(int j = i+1;j < len;++j){
+              if(buf[j] != ' ' && buf[j] != '\t')
+                break;
+              
+              del[j] = true;
+            }
+            
+            last_char = '\n';
+          } break;
+          
+          case '\"': {
+            do{
+              if(buf[i] == '\\'){
+                if(i + 1 < len)
+                  i+= 2;
+                else
+                  ++i;
+              }
+              else
+                ++i;
+            }while(i < len && buf[i] != '\"');
+            last_char = buf[i-1];
+          } break;
+          
+          case ' ':
+          case '\t': {
+            if(i+1 < len){
+              pmath_token_t tok = pmath_token_analyse(&buf[i+1], 1, NULL);
+              
+              if(tok == PMATH_TOK_DIGIT){
+                if(!pmath_char_is_name(last_char)
+                && !pmath_char_is_digit(last_char))
+                  del[i] = true;
+              }
+              else if(tok == PMATH_TOK_NAME){
+                if(!pmath_char_is_name(last_char))
+                  del[i] = true;
+              }
+              else if(tok == PMATH_TOK_LEFTCALL){
+                if(i > 0 && buf[i-1] == ' ')
+                  del[i-1] = false;
+              }
+              else
+                del[i] = true;
+            }
+            else
+              del[i] = true;
+          } break;
+          
+          default:
+            last_char = buf[i];
+        }
+      }
+      
+      int ti = 0;
+      int deli = 0;
+      while(deli < del.length()){
+        if(del[deli]){
+          int delcnt = 0;
+          do{
+            ++delcnt;
+            ++deli;
+          }while(deli < del.length() && del[deli]);
+          
+          text.remove(ti, delcnt);
+        }
+        else{
+          ++ti;
+          ++deli;
+        }
+      }
+      
+      buf = text.buffer();
+      len = text.length();
+    }
+    
+    MathSequence *seq = new MathSequence;
+    seq->insert(0, text);
+    
+    if(!is_inside_string()){ // replace tokens from global_immediate_macros ...
+      seq->ensure_spans_valid();
+      const SpanArray &spans = seq->span_array();
+      
+      MathSequence *seq2 = 0;
+      int last = 0;
+      int pos = 0;
+      while(pos < len){
+        int next = pos;
+        while(!spans.is_token_end(next))
+          ++next;
+        ++next;
+        
+        Expr *e = global_immediate_macros.search(text.part(pos, next-pos));
+        if(e){
+          if(!seq2)
+            seq2 = new MathSequence;
+          
+          seq2->insert(seq2->length(), text.part(last, pos-last));
+          
+          MathSequence *seq_tmp = new MathSequence;
+          seq_tmp->load_from_object(*e, BoxOptionDefault);
+          seq2->insert(seq2->length(), seq_tmp);
+          
+          last = next;
+        }
+        
+        pos = next;
+      }
+      
+      if(seq2){
+        seq2->insert(seq2->length(), text.part(last, len-last));
+        delete seq;
+        seq = seq2;
+      }
+    }
+    
+    insert_box(seq, false);
+  }  
+}
+
+void Document::insert_box(Box *box, bool handle_placeholder){
+  if(!box || !prepare_insert()){
+    Document *cur = get_current_document();
+    
+    if(cur && cur != this){
+      cur->insert_box(box, handle_placeholder);
+    }
+    else{
+      native()->beep();
+      delete box;
+    }
+    
+    return;
+  }
+  
+  assert(box->parent() == 0);
+  
+  if(!is_inside_string()
+  && !is_inside_alias()
+  && !handle_immediate_macros())
+    handle_macros();
+  
+  MathSequence *seq = dynamic_cast<MathSequence*>(context.selection.get());
+  
+  Box *new_sel_box = 0;
+  int new_sel_start = 0;
+  int new_sel_end = 0;
+  
+  if(!seq){
+    delete box;
+    return;
+  }
+  
+  if(handle_placeholder){
+    MathSequence *placeholder_seq = 0;
+    int placeholder_pos = 0;
+    
+    int i = 0;
+    Box *current = box;
+    while(current && (current != box || i < box->length())){
+      MathSequence *current_seq = dynamic_cast<MathSequence*>(current);
+      
+      if(current_seq && current_seq->is_placeholder(i)){
+        if(current_seq->text()[i] == CHAR_REPLACEMENT){
+          placeholder_seq = current_seq;
+          placeholder_pos = i;
+          break;
+        }
+        
+        if(!placeholder_seq){
+          placeholder_seq = current_seq;
+          placeholder_pos = i;
+        }
+      }
+      
+      current = current->move_logical(Forward, false, &i);
+    }
+    
+    if(placeholder_seq){
+      if(selection_length() == 0){
+        if(placeholder_seq->text()[placeholder_pos] == CHAR_REPLACEMENT){
+          placeholder_seq->remove(placeholder_pos, placeholder_pos + 1);
+          placeholder_seq->insert(placeholder_pos, PMATH_CHAR_PLACEHOLDER);
+        }
+        
+        new_sel_box   = placeholder_seq;
+        new_sel_start = placeholder_pos;
+        new_sel_end   = new_sel_start + 1;
+      }
+      else{
+        placeholder_seq->remove(placeholder_pos, placeholder_pos+1);
+        placeholder_seq->insert(
+          placeholder_pos, 
+          seq, 
+          context.selection.start,
+          context.selection.end);
+        
+        if(selection_length() == 1
+        && placeholder_seq->is_placeholder(placeholder_pos)){
+          new_sel_box   = placeholder_seq;
+          new_sel_start = placeholder_pos;
+          new_sel_end   = new_sel_start + 1;
+        }
+        else{
+          current = placeholder_seq;
+          i = placeholder_pos + selection_length();
+          while(current){
+            MathSequence *current_seq = dynamic_cast<MathSequence*>(current);
+            
+            if(current_seq && current_seq->is_placeholder(i)){
+              new_sel_box = current_seq;
+              new_sel_start = i;
+              new_sel_end = i + 1;
+              break;
+            }
+            
+            Box *prev = current;
+            int prev_index = i;
+            current = current->move_logical(Forward, false, &i);
+            
+            if(prev == current && i == prev_index)
+              break;
+          }
+          
+          if(!new_sel_box){
+            current = box;
+            i = 0;
+            while(current && (current != placeholder_seq || i < placeholder_pos)){
+              MathSequence *current_seq = dynamic_cast<MathSequence*>(current);
+              
+              if(current_seq && current_seq->is_placeholder(i)){
+                new_sel_box   = current_seq;
+                new_sel_start = i;
+                new_sel_end   = i + 1;
+                break;
+              }
+              
+              current = current->move_logical(Forward, false, &i);
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  seq = dynamic_cast<MathSequence*>(context.selection.get());
+  if(!seq){
+    delete box;
+    return;
+  }
+
+  if(context.selection.start < context.selection.end){
+    seq->remove(context.selection.start, context.selection.end);
+    context.selection.end = context.selection.start;
+  }
+  
+  if(new_sel_box){
+    if(new_sel_box == box){
+      new_sel_box   = seq;
+      new_sel_start+= context.selection.start;
+      new_sel_end  += context.selection.start;
+    }
+    
+    seq->insert(context.selection.start, box);
+    select(new_sel_box, new_sel_start, new_sel_end);
+  }  
+  else{
+    int len = 1;
+    if(dynamic_cast<MathSequence*>(box))
+      len = box->length();
+    
+    seq->insert(context.selection.start, box);
+    
+    move_to(seq, context.selection.start + len);
+  }
+}
+
+void Document::insert_fraction(){
+  if(!prepare_insert()){
+    Document *cur = get_current_document();
+    
+    if(cur && cur != this){
+      cur->insert_fraction();
+    }
+    else{
+      native()->beep();
+    }
+    
+    return;
+  }
+  
+  if(!is_inside_string()
+  && !is_inside_alias()
+  && !handle_immediate_macros())
+    handle_macros();
+  
+  select_prev(true);
+  
+  MathSequence *seq = dynamic_cast<MathSequence*>(context.selection.get());
+  if(seq){
+    int pos = context.selection.start;
+    
+    MathSequence *num = new MathSequence;
+    MathSequence *den = new MathSequence;
+    den->insert(0, PMATH_CHAR_PLACEHOLDER);
+    if(context.selection.start < context.selection.end){
+      num->insert(
+        0, seq,
+        context.selection.start,
+        context.selection.end);
+      seq->remove(context.selection.start, context.selection.end);
+      if(num->is_placeholder())
+        select(num, 0, 1);
+      else
+        select(den, 0, 1);
+    }
+    else{
+      num->insert(0, PMATH_CHAR_PLACEHOLDER);
+      select(num, 0, 1);
+    }
+    
+    seq->insert(pos, new FractionBox(num, den));
+  }
+}
+
+void Document::insert_matrix_column(){
+  if(!prepare_insert()){
+    Document *cur = get_current_document();
+    
+    if(cur && cur != this){
+      cur->insert_matrix_column();
+    }
+    else{
+      native()->beep();
+    }
+    
+    return;
+  }
+  
+  if(!is_inside_string()
+  && !is_inside_alias()
+  && !handle_immediate_macros())
+    handle_macros();
+  
+  GridBox *grid = 0;
+  
+  MathSequence *seq = dynamic_cast<MathSequence*>(context.selection.get());
+  
+  if(context.selection.start == context.selection.end
+  || (seq && seq->is_placeholder())){
+    Box *b = context.selection.get();
+    int i = 0;
+    while(b){
+      i = b->index();
+      b = b->parent();
+      grid = dynamic_cast<GridBox*>(b);
+      if(grid)
+        break;
+    }
+    
+    if(grid){
+      int row, col;
+      grid->matrix().index_to_yx(i, &row, &col);
+      
+      if(context.selection.end > 0
+      || selection_box() != grid->item(0, col)->content())
+        ++col;
+      
+      grid->insert_cols(col, 1);
+      select(grid->item(0, col)->content(), 0, 1);
+      return;
+    }
+  }
+  
+  if(seq
+  && context.selection.start > 0
+  && context.selection.start == context.selection.end
+  && !seq->span_array().is_token_end(context.selection.start - 1)){
+    while(context.selection.end < seq->length()
+    && !seq->span_array().is_token_end(context.selection.end))
+      ++context.selection.end;
+    
+    if(context.selection.end < seq->length())
+      ++context.selection.end;
+    
+    context.selection.start = context.selection.end;
+  }
+  
+  select_prev(true);
+  
+  if(seq){
+    int pos = context.selection.start;
+    
+    grid = new GridBox(1, 2);
+    
+    if(context.selection.start < context.selection.end){
+      grid->item(0, 0)->content()->remove(0, grid->item(0, 0)->content()->length());
+      grid->item(0, 0)->content()->insert(
+        0, seq,
+        context.selection.start,
+        context.selection.end);
+      seq->remove(context.selection.start, context.selection.end);
+      if(grid->item(0, 0)->content()->is_placeholder())
+        select(grid->item(0, 0)->content(), 0, 1);
+      else
+        select(grid->item(0, 1)->content(), 0, 1);
+    }
+    else{
+      select(grid->item(0, 0)->content(), 0, 1);
+    }
+    
+    seq->insert(pos, grid);
+  }
+}
+
+void Document::insert_matrix_row(){
+  if(!prepare_insert()){
+    Document *cur = get_current_document();
+    
+    if(cur && cur != this){
+      cur->insert_matrix_row();
+    }
+    else{
+      native()->beep();
+    }
+    
+    return;
+  }
+  
+  if(!is_inside_string()
+  && !is_inside_alias()
+  && !handle_immediate_macros())
+    handle_macros();
+  
+  GridBox *grid = 0;
+  
+  MathSequence *seq = dynamic_cast<MathSequence*>(context.selection.get());
+  
+  if(context.selection.start == context.selection.end
+  || (seq && seq->is_placeholder())){
+    Box *b = context.selection.get();
+    int i = 0;
+    
+    while(b){
+      i = b->index();
+      b = b->parent();
+      grid = dynamic_cast<GridBox*>(b);
+      if(grid)
+        break;
+    }
+    
+    if(grid){
+      int row, col;
+      grid->matrix().index_to_yx(i, &row, &col);
+      
+      if(context.selection.end > 0
+      || context.selection.get() != grid->item(row, 0)->content())
+        ++row;
+      
+      grid->insert_rows(row, 1);
+      select(grid->item(row, 0)->content(), 0, 1);
+      return;
+    }
+  }
+  
+  if(seq
+  && context.selection.start > 0
+  && context.selection.start == context.selection.end
+  && !seq->span_array().is_token_end(context.selection.start - 1)){
+    while(context.selection.end < seq->length()
+    && !seq->span_array().is_token_end(context.selection.end))
+      ++context.selection.end;
+    
+    if(selection_end() < seq->length())
+      ++context.selection.end;
+    
+    context.selection.start = context.selection.end;
+  }
+  
+  select_prev(true);
+  
+  if(seq){
+    int pos = context.selection.start;
+    
+    grid = new GridBox(2, 1);
+    
+    if(context.selection.start < context.selection.end){
+      grid->item(0, 0)->content()->remove(0, grid->item(0, 0)->content()->length());
+      grid->item(0, 0)->content()->insert(
+        0, seq,
+        context.selection.start,
+        context.selection.end);
+      seq->remove(context.selection.start, context.selection.end);
+      if(grid->item(0, 0)->content()->is_placeholder())
+        select(grid->item(0, 0)->content(), 0, 1);
+      else
+        select(grid->item(1, 0)->content(), 0, 1);
+    }
+    else{
+      select(grid->item(0, 0)->content(), 0, 1);
+    }
+    
+    seq->insert(pos, grid);
+  }
+}
+
+void Document::insert_sqrt(){
+  if(!prepare_insert()){
+    Document *cur = get_current_document();
+    
+    if(cur && cur != this){
+      cur->insert_sqrt();
+    }
+    else{
+      native()->beep();
+    }
+    
+    return;
+  }
+  
+  if(!is_inside_string()
+  && !is_inside_alias()
+  && !handle_immediate_macros())
+    handle_macros();
+  
+  MathSequence *seq = dynamic_cast<MathSequence*>(context.selection.get());
+  if(seq){
+    int pos = context.selection.start;
+    
+    MathSequence *content = new MathSequence;
+    if(context.selection.start < context.selection.end){
+      content->insert(
+        0, seq,
+        context.selection.start,
+        context.selection.end);
+      seq->remove(context.selection.start, context.selection.end);
+      if(content->is_placeholder())
+        select(content, 0, 1);
+      else
+        move_to(content, content->length());
+    }
+    else{
+      content->insert(0, PMATH_CHAR_PLACEHOLDER);
+      select(content, 0, 1);
+    }
+    
+    seq->insert(pos, new RadicalBox(content, 0));
+  }
+}
+
+void Document::insert_subsuperscript(bool sub){
+  if(!prepare_insert()){
+    Document *cur = get_current_document();
+    
+    if(cur && cur != this){
+      cur->insert_subsuperscript(sub);
+    }
+    else{
+      native()->beep();
+    }
+    
+    return;
+  }
+  
+  if(!is_inside_string()
+  && !is_inside_alias()
+  && !handle_immediate_macros())
+    handle_macros();
+  
+  MathSequence *seq = dynamic_cast<MathSequence*>(context.selection.get());
+  if(seq){
+    int pos = context.selection.end;
+    
+    if(context.selection.end == 0){
+      seq->insert(0, PMATH_CHAR_PLACEHOLDER);
+      pos+= 1;
+    }
+    else{
+      bool op = false;
+      
+      for(int i = context.selection.start;i < context.selection.end;++i){
+        if(seq->text()[i] == PMATH_CHAR_BOX){
+          seq->insert(context.selection.start, "(");
+          seq->insert(context.selection.end + 1, ")");
+          pos+= 2;
+          break;
+        }
+        if(seq->span_array().is_operand_start(i)){
+          if(op){
+            seq->insert(context.selection.start, "(");
+            seq->insert(context.selection.end + 1, ")");
+            pos+= 2;
+            break;
+          }
+          op = true;
+        }
+      }
+    }
+    
+    MathSequence *content = new MathSequence;
+    content->insert(0, PMATH_CHAR_PLACEHOLDER);
+    
+    seq->insert(pos, new SubsuperscriptBox(
+      sub  ? content : 0, 
+      !sub ? content : 0));
+    
+    select(content, 0, 1);
+  }
+}
+
+void Document::insert_underoverscript(bool under){
+  if(!prepare_insert()){
+    Document *cur = get_current_document();
+    
+    if(cur && cur != this){
+      cur->insert_underoverscript(under);
+    }
+    else{
+      native()->beep();
+    }
+    
+    return;
+  }
+  
+  if(!is_inside_string()
+  && !is_inside_alias()
+  && !handle_immediate_macros())
+    handle_macros();
+  
+  select_prev(false);
+  
+  MathSequence *seq = dynamic_cast<MathSequence*>(context.selection.get());
+  if(seq){
+    int pos = selection_start();
+    
+    MathSequence *base = new MathSequence;
+    MathSequence *uo = new MathSequence;
+    uo->insert(0, PMATH_CHAR_PLACEHOLDER);
+    if(context.selection.start < context.selection.end){
+      base->insert(
+        0, seq,
+        context.selection.start,
+        context.selection.end);
+      seq->remove(context.selection.start, context.selection.end);
+      if(base->is_placeholder())
+        select(base, 0, 1);
+      else
+        select(uo, 0, 1);
+    }
+    else{
+      base->insert(0, PMATH_CHAR_PLACEHOLDER);
+      select(base, 0, 1);
+    }
+    
+    seq->insert(pos, new UnderoverscriptBox(
+      base,
+      under  ? uo : 0, 
+      !under ? uo : 0));
+  }
+}
+
+bool Document::remove_selection(bool insert_default){
+  if(selection_length() == 0)
+    return false;
+  
+  if(selection_box() && !selection_box()->edit_selection(&context))
+    return false;
+  
+  MathSequence *seq = dynamic_cast<MathSequence*>(context.selection.get());
+  if(seq){
+    bool was_empty = seq->length() == 0
+      || (seq->length() == 1 && seq->text()[0] == PMATH_CHAR_PLACEHOLDER);
+    
+    seq->remove(context.selection.start, context.selection.end);
+    if(insert_default 
+    && was_empty 
+    && seq->parent()
+    && seq->parent()->remove_inserts_placeholder()){
+      int index = seq->index();
+      Box *box = seq->parent()->remove(&index);
+      
+      seq = dynamic_cast<MathSequence*>(box);
+      if(insert_default && seq && seq->length() == 0){
+        seq->insert(0, PMATH_CHAR_PLACEHOLDER);
+        select(seq, 0, 1);
+      }
+      else
+        move_to(box, index);
+    }
+    else if(insert_default 
+    && seq->length() == 0 
+    && seq->parent()
+    && seq->parent()->remove_inserts_placeholder()){
+      seq->insert(0, PMATH_CHAR_PLACEHOLDER);
+      select(seq, 0, 1);
+    }
+    else
+      move_to(context.selection.get(), context.selection.start);
+      
+    return true;
+  }
+  
+  GridBox *grid = dynamic_cast<GridBox*>(context.selection.get());
+  if(grid){
+    int start = context.selection.start;
+    Box *box = grid->remove_range(&start, context.selection.end);
+    select(box, start, start);
+    return true;
+  }
+  
+  if(context.selection.id == this->id()){
+    remove(context.selection.start, context.selection.end);
+    move_to(this, context.selection.start);
+    return true;
+  }
+  
+  return false;
+}
+
+void Document::complete_box(){
+  Box *b = context.selection.get();
+  while(b){
+    {
+      RadicalBox *rad = dynamic_cast<RadicalBox*>(b);
+      
+      if(rad && rad->count() == 1){
+        rad->complete();
+        rad->exponent()->insert(0, PMATH_CHAR_PLACEHOLDER);
+        select(rad->exponent(), 0, 1);
+        
+        return;
+      }
+    }
+    
+    {
+      SubsuperscriptBox *subsup = dynamic_cast<SubsuperscriptBox*>(b);
+      
+      if(subsup && subsup->count() == 1){
+        if(subsup->subscript()){
+          subsup->complete();
+          subsup->superscript()->insert(0, PMATH_CHAR_PLACEHOLDER);
+          select(subsup->superscript(), 0, 1);
+        }
+        else{
+          subsup->complete();
+          subsup->subscript()->insert(0, PMATH_CHAR_PLACEHOLDER);
+          select(subsup->subscript(), 0, 1);
+        }
+        
+        return;
+      }
+    }
+    
+    {
+      UnderoverscriptBox *underover = dynamic_cast<UnderoverscriptBox*>(b);
+      
+      if(underover && underover->count() == 2){
+        if(underover->underscript()){
+          underover->complete();
+          underover->overscript()->insert(0, PMATH_CHAR_PLACEHOLDER);
+          select(underover->overscript(), 0, 1);
+        }
+        else{
+          underover->complete();
+          underover->underscript()->insert(0, PMATH_CHAR_PLACEHOLDER);
+          select(underover->underscript(), 0, 1);
+        }
+        
+        return;
+      }
+    }
+    
+    b = b->parent();
+  }
+  
+  native()->beep();
+}
+
+void Document::paint_resize(Canvas *canvas, bool resize_only){
+  if(resize_only)
+    printf("r");
+  else
+    printf("p");
+    
+  context.canvas = canvas;
+  
+  float sx, sy, h;
+  native()->window_size(&_window_width, &h);
+  native()->page_size(&_page_width, &h);
+  native()->scroll_pos(&sx, &sy);
+  
+  context.width = _page_width;
+  context.section_content_window_width = _window_width; 
+  
+  if(_page_width < HUGE_VAL)
+    _extents.width = _page_width;
+  else
+    _extents.width = 0;
+  
+  unfilled_width = 0;
+  _extents.ascent = _extents.descent = 0;
+  
+  canvas->translate(-sx, -sy);
+  
+  init_section_bracket_sizes(&context);
+  
+  int sel_sect = -1;
+  Box *b = context.selection.get();
+  while(b && b != this){
+    sel_sect = b->index();
+    b = b->parent();
+  }
+  
+  int i = 0;
+  
+  while(i < length()
+  && _extents.descent + section(i)->extents().height() < sy){
+    if(section(i)->must_resize && i == sel_sect)
+      resize_section(&context, i);
+    
+    section(i)->y_offset = _extents.descent;
+    if(section(i)->visible)
+      _extents.descent+= section(i)->extents().descent;
+    
+    float w  = section(i)->extents().width;
+    float uw = section(i)->unfilled_width;
+    if(border_visible){
+      w+=  section_bracket_right_margin + section_bracket_width * group_info(i).nesting;
+      uw+= section_bracket_right_margin + section_bracket_width * group_info(i).nesting;
+    }
+    
+    if(_extents.width < w)
+       _extents.width = w;
+    
+    if(unfilled_width < uw)
+       unfilled_width = uw;
+    
+    ++i;
+  }
+  
+  {
+    float y = 0;
+    if(i < length())
+      y+= section(i)->y_offset;
+    canvas->move_to(0, y);
+  }
+  
+  int first_visible_section = i;
+  
+  if(!resize_only){
+    while(i < length()
+    && _extents.descent <= sy + h){
+      paint_section(&context, i, sx);
+      
+      section(i)->y_offset = _extents.descent;
+      if(section(i)->visible)
+        _extents.descent+= section(i)->extents().descent;
+      
+      float w  = section(i)->extents().width;
+      float uw = section(i)->unfilled_width;
+      if(border_visible){
+        w+=  section_bracket_right_margin + section_bracket_width * group_info(i).nesting;
+        uw+= section_bracket_right_margin + section_bracket_width * group_info(i).nesting;
+      }
+      
+      if(_extents.width < w)
+         _extents.width = w;
+      
+      if(unfilled_width < uw)
+         unfilled_width = uw;
+      
+      ++i;
+    }
+  }
+  
+  int last_visible_section = i - 1;
+  
+  while(i < length()){
+    if(section(i)->must_resize 
+    && (i == sel_sect 
+     || (auto_scroll 
+      && (i <= sel_sect
+       || (context.selection.id == this->id()
+        && i < context.selection.end)))
+     || i < must_resize_min))
+    {
+      resize_section(&context, i);
+      section(i)->y_offset = _extents.descent;
+    }
+    
+    if(section(i)->visible)
+      _extents.descent+= section(i)->extents().descent;
+    
+    float w  = section(i)->extents().width;
+    float uw = section(i)->unfilled_width;
+    if(border_visible){
+      w+=  section_bracket_right_margin + section_bracket_width * group_info(i).nesting;
+      uw+= section_bracket_right_margin + section_bracket_width * group_info(i).nesting;
+    }
+    
+    if(_extents.width < w)
+       _extents.width = w;
+    
+    if(unfilled_width < uw)
+       unfilled_width = uw;
+    
+    ++i;
+  }
+  
+  if(!resize_only){
+    // paint cursor (as a horizontal line) at end of document:
+    if(context.selection.id == this->id()
+    && context.selection.start == context.selection.end){
+      float y;
+      
+      if(context.selection.start < length())
+        y = section(context.selection.start)->y_offset;
+      else
+        y = _extents.descent;
+        
+      float x1 = sx;
+      float y1 = y + 0.5;
+      float x2 = sx + _extents.width;
+      float y2 = y + 0.5;
+      
+      context.canvas->align_point(&x1, &y1, true);
+      context.canvas->align_point(&x2, &y2, true);
+      context.canvas->move_to(x1, y1);
+      context.canvas->line_to(x2, y2);
+      context.draw_selection_path();
+    }
+    
+    // highlight the current selected word in the whole document:
+    if(selection_length() > 0){
+      MathSequence *seq = dynamic_cast<MathSequence*>(selection_box());
+      int start = selection_start();
+      int end   = selection_end();
+      int len   = selection_length();
+      
+      if(seq 
+      && !seq->is_placeholder(start)
+      && (start == 0 
+       || seq->span_array().is_token_end(start - 1))
+      && seq->span_array().is_token_end(end - 1)){
+        if(selection_is_name(this)){
+          String s = seq->text().part(start, len);
+          
+          if(s.length() > 0){
+            Box *find = this;
+            int index = first_visible_section;
+            
+            int count_occurences = 0;
+            
+            while(0 != (find = search_string(
+                find, &index, this, last_visible_section+1, s, true))
+            ){
+              selection_path(
+                context.canvas, 
+                find, 
+                index - len, 
+                index, 
+                true);
+              ++count_occurences;
+            }
+            
+            bool do_fill = false;
+            
+            if(count_occurences == 1){
+              if(sel_sect >= first_visible_section 
+              && sel_sect <= last_visible_section){
+                // The one found occurency is the selection. Search for more
+                // occurencies outside the visible range.
+                find = this;
+                index = 0;
+                
+                while(0 != (find = search_string(
+                    find, &index, this, first_visible_section, s, true))
+                ){
+                  do_fill = true;
+                  break;
+                }
+                
+                if(!do_fill){
+                  find = this;
+                  index = last_visible_section+1;
+                    
+                  while(0 != (find = search_string(
+                      find, &index, this, length(), s, true))
+                  ){
+                    do_fill = true;
+                    break;
+                  }
+                  
+                }
+              }
+              else
+                do_fill = true;
+            }
+            else
+              do_fill = (count_occurences > 1);
+            
+            if(do_fill){
+              context.canvas->set_color(0xFF6600, 0.2); // 0x66DD66
+              context.canvas->fill_preserve();
+              context.canvas->set_color(0xFF6600, 0.8); // 0x66DD66
+              context.canvas->hair_stroke();
+            }
+            else
+              context.canvas->new_path();
+          }
+        }
+      }
+    }
+    
+    if(DebugFollowMouse){
+      b = mouse_move_sel.get();
+      if(b){
+        selection_path(canvas, b, mouse_move_sel.start, mouse_move_sel.end, true);
+        if(is_inside_string(b, mouse_move_sel.start))
+          canvas->set_color(0x8000ff);
+        else
+          canvas->set_color(0xff0000);
+        canvas->hair_stroke();
+      }
+    }
+    
+    if(auto_scroll && native()->is_scrollable()){
+      auto_scroll = false;
+      
+      Box *box = sel_last.get();
+      
+      Array<Point> pts(0);
+      selection_outline(box, sel_last.start, sel_last.end, pts);
+      
+      float x,y,w,h;
+      bounding_rect(pts, &x, &y, &w, &h);
+      
+      if(box){
+        cairo_matrix_t mat;
+        cairo_matrix_init_identity(&mat);
+        box->transformation(0, &mat);
+        
+        Canvas::transform_rect(mat, &x, &y, &w, &h);
+        scroll_to(x, y, x + w, y + h);
+      }
+    }
+    
+    if(prev_sel_line >= 0){
+      MathSequence *seq = dynamic_cast<MathSequence*>(selection_box());
+      
+      if(seq && seq->id() == prev_sel_box_id){
+        int line = seq->get_line(selection_end(), prev_sel_line);
+        
+        if(line != prev_sel_line){
+          flashing_cursor = new BoxRepaintEvent(id(), 0);
+//          native()->beep();
+        }
+      }
+      
+      prev_sel_line = -1;
+      prev_sel_box_id = 0;
+    }
+    
+    if(flashing_cursor){
+      double t = flashing_cursor->timer();
+      Box *box = selection_box();
+      
+      static double MaxFlashingCursorRadius = 9;  /* pixels */
+      static double MaxFlashingCursorTime = 0.15; /* seconds */
+      if(!box
+      || t >= MaxFlashingCursorTime
+      || !flashing_cursor->register_for(id()))
+        flashing_cursor = 0;
+      
+      t = t / MaxFlashingCursorTime;
+      
+      if(flashing_cursor){
+        double r = MaxFlashingCursorRadius * (1 - t);
+        float x1 = context.last_cursor_x[0];
+        float y1 = context.last_cursor_y[0];
+        float x2 = context.last_cursor_x[1];
+        float y2 = context.last_cursor_y[1];
+        
+        r = MaxFlashingCursorRadius * (1 - t);
+        
+        context.canvas->save();
+        {
+          context.canvas->user_to_device(&x1, &y1);
+          context.canvas->user_to_device(&x2, &y2);
+          
+          cairo_matrix_t mat;
+          cairo_matrix_init_identity(&mat);
+          cairo_set_matrix(context.canvas->cairo(), &mat);
+          
+          double dx = x2 - x1;
+          double dy = y2 - y1;
+          double h = sqrt(dx*dx + dy*dy);
+          double c = dx/h;
+          double s = dy/h;
+          double x = (x1 + x2)/2;
+          double y = (y1 + y2)/2;
+          mat.xx = c;
+          mat.yx = s;
+          mat.xy = -s;
+          mat.yy = c;
+          mat.x0 = x - c*x + s*y;
+          mat.y0 = y - s*x - c*y;
+          context.canvas->transform(mat);
+          context.canvas->translate(x, y);
+          context.canvas->scale(r + h/2, r);
+          
+          context.canvas->arc(0, 0, 1, 0, 2 * M_PI, false);
+          
+          context.canvas->bitop_fill(BitOpDn, 0);
+        }
+        context.canvas->restore();
+      }
+    }
+    
+    if(selection_length() == 1
+    && best_index_rel_x == 0){
+      MathSequence *seq = dynamic_cast<MathSequence*>(selection_box());
+      if(seq){
+        best_index_rel_x = seq->glyph_array()[selection_end() - 1].right;
+        if(selection_start() > 0)
+          best_index_rel_x-= seq->glyph_array()[selection_start() - 1].right;
+        
+        best_index_rel_x/= 2;
+      }
+    }
+    
+    canvas->translate(sx, sy);
+  }
+  
+  context.canvas = 0;
+  must_resize_min = 0;
+}
+
+void Document::set_prev_sel_line(){
+  MathSequence *seq = dynamic_cast<MathSequence*>(selection_box());
+  if(seq){
+    prev_sel_line = seq->get_line(selection_end(), prev_sel_line);
+    prev_sel_box_id = seq->id();
+  }
+  else{
+    prev_sel_line = -1;
+    prev_sel_box_id = -1;
+  }
+}
+
+bool Document::prepare_insert(){
+  if(context.selection.id == this->id()){
+    prev_sel_line = -1;
+    if(context.selection.start != context.selection.end
+    || !get_style(Editable, true)){
+      return false;
+    }
+    
+    MathSection *sect = new MathSection(new Style(String("Input")));
+
+    insert(context.selection.start, sect);
+    move_horizontal(Forward, false);
+    
+    return true;
+  }
+  else{
+    if(selection_box() && selection_box()->edit_selection(&context)){
+      Section *s = selection_box()->find_parent<Section>(true);
+      
+      while(s && s->parent() != this){
+        s = s->find_parent<Section>(false);
+      }
+      
+      if(s)
+        set_open_close_group(s->index(), true);
+      
+      set_prev_sel_line();
+      return true;
+    }
+  }
+  
+  return false;
+}
+
+bool Document::handle_immediate_macros(
+  const Hashtable<String, Expr, object_hash> &table
+){
+  if(selection_length() != 0)
+    return false;
+    
+  MathSequence *seq = dynamic_cast<MathSequence*>(selection_box());
+  if(seq && selection_start() > 0){
+    int i = selection_start() - 2;
+    while(i >= 0 && !seq->span_array().is_token_end(i))
+      --i;
+    ++i;
+    
+    int e = selection_start() - 1;
+    while(e < seq->length() && !seq->span_array().is_token_end(e))
+      ++e;
+    
+    Expr repl = table[seq->text().part(i, e - i + 1)];
+    
+    if(repl.is_valid() > 0){
+      String s(repl);
+      
+      if(s.is_valid()){
+        seq->insert(e + 1, s);
+        seq->remove(i, e + 1);
+        move_to(selection_box(), i + s.length());
+        return true;
+      }
+      else{
+        MathSequence *repl_seq = new MathSequence();
+        repl_seq->load_from_object(repl, BoxOptionDefault);
+        
+        seq->remove(i, e + 1);
+        move_to(selection_box(), i);
+        insert_box(repl_seq, true);
+        return true;
+      }
+    }
+  }
+  
+  return false;
+}
+
+bool Document::handle_macros(
+  const Hashtable<String, Expr, object_hash> &table
+){
+  if(selection_length() != 0)
+    return false;
+    
+  MathSequence *seq = dynamic_cast<MathSequence*>(selection_box());
+  if(seq && selection_start() > 0){
+    const uint16_t *buf = seq->text().buffer();
+    
+    int e = selection_start();
+    int i = e - 1;
+    if(i >= 3 && buf[i] == ']'){
+      while(i > 0 && buf[i] != '[' && buf[i] <= 0x7F && e-i-2 < 64)
+        --i;
+      
+      if(i > 0 && buf[i] == '[' && buf[i-1] == '\\' && e-i-2 < 64){
+        char name[64];
+        
+        int j;
+        for(j = 0; j < e-i-2; ++j){
+          name[j] = (char)buf[i+1+j];
+        }
+        name[j] = '\0';
+        
+        uint32_t unichar = pmath_char_from_name(name);
+        if(unichar != 0xFFFFFFFFU){
+          String s = String::FromChar(unichar);
+          
+          --i;
+          seq->insert(e, s);
+          seq->remove(i, e);
+          move_to(selection_box(), i + s.length());
+          return true;
+        }
+      }
+      
+      i = e - 1;
+    }
+    while(i >= 0 && buf[i] > ' ' && buf[i] != '\\')
+      --i;
+    
+    int j = i;
+    while(j >= 0 && buf[j] == '\\')
+      --j;
+    
+    if(i < e - 1 && (i - j) % 2 == 1){
+      String s = seq->text().part(i + 1, e - i - 1);
+      
+      Expr repl = String::FromChar(unicode_to_utf32(s));
+      
+      if(!repl.is_valid())
+        repl = table[s];
+        
+      if(repl.is_valid()){
+        String s(repl);
+        
+        if(s.is_valid()){
+          seq->insert(e, s);
+          seq->remove(i, e);
+          move_to(selection_box(), i + s.length());
+          return true;
+        }
+        else{
+          MathSequence *repl_seq = new MathSequence();
+          repl_seq->load_from_object(repl, BoxOptionDefault);
+          
+          seq->remove(i, e);
+          move_to(selection_box(), i);
+          insert_box(repl_seq, true);
+          return true;
+        }
+      }
+    }
+  }
+  
+  return false;
+}
+
+bool Document::handle_immediate_macros(){
+  return handle_immediate_macros(global_immediate_macros);
+}
+
+bool Document::handle_macros(){
+  return handle_macros(global_macros);
+}
+
+//{ ... class Document

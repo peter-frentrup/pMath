@@ -1,0 +1,4 @@
+      _____
+1 + \/ "x"   = RowBox({"1+", SqrtBox(RowBox({"x"}))})              ~> 1 + sqrt("x")
+     _____
+"1+\/ "x" " = RowBox({"\"1+", SqrtBox(RowBox({"\"x\""})), "\""})   ~> "1+\(SqrtBox(RowBox({\"\\\"x\\\"\"}))\)"

@@ -1,0 +1,108 @@
+#ifndef __BOXES__TEXTBOX_H__
+#define __BOXES__TEXTBOX_H__
+
+#include <pango/pangocairo.h>
+
+#include <boxes/box.h>
+
+namespace richmath{
+  
+  /* A character buffer (Utf-8) with pmath_mem_xxx memory handling. */
+  class TextBuffer: public Base{
+    public:
+      TextBuffer(char *buf, int len);
+      ~TextBuffer();
+      
+      int capacity() const {       return _capacity; }
+      int length()   const {       return _length; }
+      const char *buffer() const { return _buffer; }
+      char       *buffer(){        return _buffer; }
+      
+      // return number of bytes inserted at pos
+      int insert(int pos, const char *ins, int inslen);
+      int insert(int pos, String s);
+      void remove(int pos, int len);
+      
+      bool is_box_at(int i);
+      
+    private:
+      int _capacity;
+      int _length;
+      char *_buffer;
+  };
+  
+  /* This is a box containing text (no math) and other boxes. 
+     It uses Pango for text layout. For math, use class MathSequence.
+   */
+  class TextSequence: public Box{
+    public:
+      TextSequence();
+      virtual ~TextSequence();
+      
+      virtual Box *item(int i){ return boxes[i]; }
+      virtual int count(){      return boxes.length(); }
+      virtual int length(){     return text.length(); }
+      
+      const TextBuffer &text_buffer(){ return text; }
+      
+      virtual void resize(Context *context);
+      virtual void paint(Context *context);
+      
+      void selection_path(Context *context, int start, int end);
+      
+      void ensure_boxes_valid();
+      void ensure_text_valid();
+      
+      void insert(int pos, const char *utf8, int len);
+      void insert(int pos, String s); // unsafe: allows PMATH_BOX_CHAR
+      void insert(int pos, Box *box);
+      void insert(int pos, TextSequence *txt, int start, int end);
+      void remove(int start, int end);
+      virtual Box *remove(int *index);
+      
+      Box *extract_box(int boxindex);
+      
+      virtual Box *move_logical(
+        LogicalDirection  direction, 
+        bool              jumping, 
+        int              *index);
+      
+      virtual Box *move_vertical(
+        LogicalDirection  direction, 
+        float            *index_rel_x,
+        int              *index);
+        
+      virtual Box *mouse_selection(
+        float x,
+        float y,
+        int   *start,
+        int   *end,
+        bool  *eol);
+      
+      virtual void child_transformation(
+        int             index,
+        cairo_matrix_t *matrix);
+      
+      virtual Box *normalize_selection(int *start, int *end);
+      
+//      virtual pmath_t to_pmath(bool parseable);
+//      pmath_t to_pmath(bool parseable, int start, int end);
+//      void load_from_object(const Expr object, int options); // BoxOptionXXX
+      
+      PangoLayoutIter *get_iter();
+      
+      void line_extents(PangoLayoutIter *iter, float *x, float *y, BoxSize *size);
+      void line_extents(int line, float *x, float *y, BoxSize *size);
+    
+    private:
+      Array<Box*>  boxes;
+      TextBuffer   text;
+      
+      PangoLayout *_layout;
+      
+      bool boxes_invalid;
+      bool text_invalid;
+  };
+}
+
+#endif // __BOXES__TEXTBOX_H__

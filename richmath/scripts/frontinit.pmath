@@ -1,0 +1,54 @@
+
+BeginPackage("FE`")
+
+$FrontEndDirectory;
+$MathShapers;
+SymbolInfo;
+BoxesToText;
+SectionsToBoxes;
+
+Begin("FE`Private`")
+
+oldNamespacePath:= $NamespacePath;
+$NamespacePath:= Prepend($NamespacePath, "FE`")
+
+
+$FrontEndDirectory:= DirectoryName($Input)
+Protect($FrontEndDirectory)
+
+
+$MathShapers:= {"Cambria Math", "Asana Math"}
+Protect($MathShapers)
+
+
+$Path:= Prepend($Path, $FrontEndDirectory)
+
+SymbolInfo(~name:String)::= Try(
+	With(
+		{sym:= name.BoxesToExpression(ParseSymbols -> False)},
+		If(sym.Match(HoldComplete(Symbol(~))),
+			False
+			,
+			If(Union($NamespacePath, {$Namespace}).Map(BoxesToExpression(# ++ name, ParseSymbols -> False)&).Cases(HoldComplete(Except(Symbol(~)))).Length() > 1,
+				$Failed
+				,
+				Namespace @@ sym =!= "Global`"
+					|| Attributes @@ sym =!= {} 
+					|| DownRules @@ sym =!= {} 
+					|| UpRules @@ sym =!= {} 
+					|| SubRules @@ sym =!= {} 
+					|| OwnRules @@ sym =!= {}
+				)
+			)
+		),
+	Syntax)
+
+SectionsToBoxes(~b)::= ReplaceRepeated(b, {Section(BoxData(~x), ~~~) :> {x, "\n"}, SectionGroup(~x, ~) :> x})
+
+$NamespacePath:= oldNamespacePath
+
+End()
+
+EndPackage()
+
+AutoLoad(Hold(FE`BoxesToText), ToFileName({$FrontEndDirectory, "auto"}, "fe-boxestotext.pmath"))

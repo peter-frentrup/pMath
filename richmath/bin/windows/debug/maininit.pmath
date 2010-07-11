@@ -1,0 +1,2 @@
+Get(ToFileName({DirectoryName($Input, 5), "library", "scripts"}, "maininit.pmath")) 
+Get(ToFileName({DirectoryName($Input, 4), "scripts"}, "frontinit.pmath")) 

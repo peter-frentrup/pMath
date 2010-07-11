@@ -1,0 +1,157 @@
+         fff(aa+bbb^ccc,eee)
+                \_/V\_/
+             \/V\_____/
+             \________/V\_/
+         \_/V\____________/V
+         \_________________/
+       
+depth:   2222444555555533332
+stops:   0011011001100110011 (last char of token)
+nextop:  0001001000100010000 (next char is operand start)
+dec-dep: 0000111111111111110 (decrement depth after )
+1+d-s-n: 3321543665466524432
+         3321432554355413322
+
+breaks:  ______________/____
+         ___/__________/____
+         ___/__/_______/____
+         ___/__/___/___/____
+         ___/__/___/__//____
+         ___/__/__//__//____
+         ___/__/__//__//__/_
+		 ...
+___________________
+fff(aa+bbb^ccc,eee)
+__________________
+fff(aa+bbb^ccc,
+ eee)
+_________________
+fff(aa+bbb^ccc,
+ eee)
+________________
+fff(aa+bbb^ccc,
+ eee)
+_______________
+fff(aa+bbb^ccc,
+ eee)
+______________
+fff(
+ aa+bbb^ccc,
+ eee)
+_____________
+fff(
+ aa+bbb^ccc,
+ eee)
+____________
+fff(
+ aa+bbb^ccc,
+ eee)
+___________
+fff(
+ aa+
+  bbb^ccc,
+ eee)
+__________
+fff(
+ aa+
+  bbb^ccc,
+ eee)
+_________
+fff(
+ aa+
+  bbb^
+   ccc,
+ eee)
+________
+fff(
+ aa+
+  bbb^
+   ccc,
+ eee)
+_______
+fff(
+ aa+
+  bbb^
+   ccc,
+ eee)
+______
+fff(
+ aa+
+  bbb^
+   ccc
+   ,
+ eee)
+_____
+fff(
+ aa+
+  bbb
+  ^
+  ccc
+  ,
+ eee)
+____
+fff(
+ aa+
+  b\
+  b\
+  b^
+  c\
+  c\
+  c,
+ eee
+ )
+___
+fff
+ (
+ aa
+ +
+ b\
+ b\
+ b^
+ c\
+ c\
+ c,
+ e\
+ e\
+ e)
+__
+f\
+ff
+ (
+ a\
+ a
+ +
+ b\
+ b\
+ b
+ ^
+ c\
+ c\
+ c
+ ,
+ e\
+ e\
+ e
+ )
+_
+f\
+f\
+f
+(
+a\
+a
++
+b\
+b\
+b
+^
+c\
+c\
+c
+,
+e\
+e\
+e
+)
+
+ 

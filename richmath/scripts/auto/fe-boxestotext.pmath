@@ -1,0 +1,53 @@
+
+Begin("FE`Private`")
+
+parenthesize(~x:String)::= x
+parenthesize({~x})::= parenthesize(x)
+parenthesize(~x)::= "(" ++ FE`BoxesToText(x) ++ ")"
+
+FE`BoxesToText(~s:String)::= s
+
+FE`BoxesToText("\u2192"):= "->";
+FE`BoxesToText("\u2254"):= ":=";
+FE`BoxesToText("\u29F4"):= ":>";
+FE`BoxesToText("\u2A74"):= "::=";
+FE`BoxesToText("\u2260"):= "!=";
+FE`BoxesToText("\u2264"):= "<=";
+FE`BoxesToText("\u2265"):= ">=";
+FE`BoxesToText("\u27E6"):= "[[";
+FE`BoxesToText("\u27E7"):= "]]";
+
+FE`BoxesToText(~b:List)::= StringExpression @@ b.Map(FE`BoxesToText)
+FE`BoxesToText(~b:/\/)::= StringExpression @@ b.Map(FE`BoxesToText)
+
+FE`BoxesToText(SqrtBox(~x))::= "Sqrt(" ++ FE`BoxesToText(x) ++ ")"
+FE`BoxesToText(RadicalBox(~x,~y))::= FE`BoxesToText({x, SuperscriptBox(FractionBox("1", y))})
+
+FE`BoxesToText(SuperscriptBox(~x))::= "^" ++ parenthesize(x)
+FE`BoxesToText({~x, SubscriptBox(~y)})::= "Subscript(" ++ x ++ ", " ++ y ++ ")"
+FE`BoxesToText(SubscriptBox(~y))::= "Subscript(\"\", " ++ y ++ ")"
+FE`BoxesToText({~x, SubsuperscriptBox(~y,~z)})::= "Subscript(" ++ x ++ ", " ++ y ++ ")^" ++ parenthesize(z)
+FE`BoxesToText(SubsuperscriptBox(~y,~z))::= "Subscript(\"\", " ++ y ++ ")^" ++ parenthesize(z)
+
+FE`BoxesToText(FractionBox(~x,~y))::= parenthesize(x) ++ "/" ++ parenthesize(y)
+
+FE`BoxesToText(UnderscriptBox(~x,~y))::= "Underscript(" ++ FE`BoxesToText(x) ++ ", " ++ FE`BoxesToText(y) ++ ")"
+FE`BoxesToText(OverscriptBox(~x,~y))::= "Overscript(" ++ FE`BoxesToText(x) ++ ", " ++ FE`BoxesToText(y) ++ ")"
+FE`BoxesToText(UnderoverscriptBox(~x,~y,~z))::= FE`BoxesToText(OverscriptBox(UnderscriptBox(x, y), z))
+
+FE`BoxesToText(FrameBox(~x,~~~))::= "Framed(" ++ x ++ ")"
+FE`BoxesToText(StyleBox(~x,~~~))::= FE`BoxesToText(x)
+FE`BoxesToText(TagBox(~x,~~~))::= FE`BoxesToText(x)
+FE`BoxesToText(InterpretationBox(~x,~~~))::= FE`BoxesToText(x)
+
+FE`BoxesToText(GridBox(~m,~~~))::= "{" ++ m.Map(Function({r}, 
+		"{" ++ r.Map(Function({x}, 
+			FE`BoxesToText(x))).Row(", ").ToString ++ "}")).Row(",\n").ToString ++ "}"
+
+FE`BoxesToText(Section(BoxData(~x),~~~))::= FE`BoxesToText(x)
+
+FE`BoxesToText(SectionGroup(~s:List,~~~))::= s.Map(FE`BoxesToText).Row("\n\n").ToString
+
+FE`BoxesToText(~x)::= "$Failed"
+
+End()
