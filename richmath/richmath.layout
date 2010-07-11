@@ -91,8 +91,8 @@
 	<File name="include\graphics\config-shaper.h" open="0" top="0" tabpos="8">
 		<Cursor position="4384" topLine="157" />
 	</File>
-	<File name="include\graphics\context.h" open="0" top="0" tabpos="13">
-		<Cursor position="1615" topLine="51" />
+	<File name="include\graphics\context.h" open="1" top="0" tabpos="19">
+		<Cursor position="358" topLine="1" />
 	</File>
 	<File name="include\graphics\fonts.h" open="0" top="0" tabpos="12">
 		<Cursor position="2083" topLine="63" />
@@ -113,7 +113,7 @@
 		<Cursor position="311" topLine="10" />
 	</File>
 	<File name="include\gui\document.h" open="1" top="0" tabpos="11">
-		<Cursor position="2028" topLine="56" />
+		<Cursor position="1469" topLine="32" />
 	</File>
 	<File name="include\gui\menu.h" open="0" top="0" tabpos="5">
 		<Cursor position="292" topLine="0" />
@@ -298,8 +298,8 @@
 	<File name="src\gui\control-painter.cpp" open="0" top="0" tabpos="21">
 		<Cursor position="3409" topLine="129" />
 	</File>
-	<File name="src\gui\document.cpp" open="1" top="1" tabpos="18">
-		<Cursor position="42142" topLine="1759" />
+	<File name="src\gui\document.cpp" open="1" top="0" tabpos="18">
+		<Cursor position="28695" topLine="1188" />
 	</File>
 	<File name="src\gui\menu.cpp" open="0" top="0" tabpos="4">
 		<Cursor position="946" topLine="6" />
@@ -331,8 +331,8 @@
 	<File name="src\gui\win32\win32-widget.cpp" open="0" top="0" tabpos="10">
 		<Cursor position="23783" topLine="889" />
 	</File>
-	<File name="src\main.cpp" open="1" top="0" tabpos="1">
-		<Cursor position="17722" topLine="551" />
+	<File name="src\main.cpp" open="1" top="1" tabpos="1">
+		<Cursor position="18165" topLine="551" />
 	</File>
 	<File name="src\util\base.cpp" open="0" top="0" tabpos="2">
 		<Cursor position="971" topLine="34" />

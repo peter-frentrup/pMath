@@ -3553,7 +3553,7 @@
 	<gui/native-widget.h>
 	<graphics/context.h>
 
-1278857386 source:d:\peter\programmieren\pmath\trunk\richmath\src\gui\document.cpp
+1278870438 source:d:\peter\programmieren\pmath\trunk\richmath\src\gui\document.cpp
 	<gui/document.h>
 	<cmath>
 	<cstdio>

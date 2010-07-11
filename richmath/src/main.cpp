@@ -559,7 +559,6 @@ int main(){
     
     write_text_section(doc, "Title", "\"Welcome\"");
     write_text_section(doc, "Section", "\"Todo-List\"");
-    todo(doc, "\"Clipping does not work with control widgets (e.g. a button inside an input field).\"");
     todo(doc, "\"Implement Interrupt().\"");
     todo(doc, "\"Leave caret at end of line at automatic line breaks.\"");
     todo(doc, "\"Use Pango for text sections.\"");

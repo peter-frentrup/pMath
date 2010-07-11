@@ -704,107 +704,6 @@ void Document::mouse_down(MouseEvent &event){
   }
   
   receiver->on_mouse_down(event);
-  
-//  ++mouse_down_counter;
-//  if(event.left){
-//    _mouse_grabber_id = 0;
-//    context.clicked_box_id = 0;
-//    
-//    float ddx, ddy;
-//    native()->double_click_dist(&ddx, &ddy);
-//    
-//    bool double_click = NativeWidget::time_diff(
-//        mouse_down_time, 
-//        native()->message_time()) <= native()->double_click_time()
-//      && fabs(event.x - mouse_down_x) <= ddx
-//      && fabs(event.y - mouse_down_y) <= ddy;
-//      
-//    mouse_down_time = native()->message_time();
-//    
-//    bool eol;
-//    int start, end;
-//    Box *box = mouse_selection(
-//      event.x, event.y, 
-//      &start, &end,
-//      &eol);
-//    
-//    if(dynamic_cast<Section*>(box) 
-//    && box->parent() == this
-//    && selectable()){
-//      _mouse_grabber_id = static_cast<Section*>(box)->id();
-//      
-//      start = box->index();
-//      end = start + 1;
-//      
-//      select(this, start, end);
-//    }
-//    else if(box){
-//      WidgetBox *widget = box->find_parent<WidgetBox>(true);
-//      
-//      if(widget){
-//        context.clicked_box_id = widget->id();
-//        
-//        cairo_matrix_t mat;
-//        cairo_matrix_init_identity(&mat);
-//        widget->transformation(this, &mat);
-//        cairo_matrix_invert(&mat);
-//        
-//        Canvas::transform_point(mat, &event.x, &event.y);
-//        
-//        if(widget->mouse_down(event)){
-//          double_click = false;
-//          _mouse_grabber_id = widget->id();
-//        }
-//      }
-//      
-//      if(!_mouse_grabber_id && box->selectable()){
-//        if(!double_click)
-//          select(box, start, end);
-//        
-//        Box *grabber = box;
-//        while(grabber && grabber->selectable())
-//          grabber = grabber->parent();
-//        
-//        if(grabber)
-//          _mouse_grabber_id = grabber->id();
-//      }
-//      else if(!double_click && !_mouse_grabber_id && selectable())
-//        native()->beep();
-//    }
-//    else if(!double_click)
-//      native()->beep();
-//     
-//    if(double_click){
-//      if(selection_box() == this){
-//        if(context.selection_start < context.selection_end){
-//          toggle_open_close_group(context.selection_start);
-//          
-//          // prevent selection from changing in mouse_move():
-//          context.clicked_box_id = this->id();
-//          
-//          // prevent "tripple-click"
-//          mouse_down_time = 0;
-//        }
-//      }
-//      else if(selection_box() 
-//      && selection_box()->selectable()){
-//        Box *box = selection_box();
-//        int start = context.selection_start;
-//        int end = context.selection_end;
-//        
-//        box = expand_selection(box, &start, &end);
-//        
-//        select(box, start, end);
-//      }
-//    }
-//    
-//    mouse_down_x = event.x;
-//    mouse_down_y = event.y;
-//    mouse_down_sel = sel_first;
-//    return true;
-//  }
-//  
-//  return false;
 }
 
 void Document::mouse_up(MouseEvent &event){
@@ -817,57 +716,6 @@ void Document::mouse_up(MouseEvent &event){
     context.clicked_box_id = 0;
     mouse_down_counter = 0;
   }
-  
-//  Box *grabber;
-//  --mouse_down_counter;
-//  
-//  if(!_mouse_grabber_id)
-//    return false;
-//    
-//  grabber = Box::find(_mouse_grabber_id);
-//  _mouse_grabber_id = 0;
-//  
-//  if(!grabber)
-//    return false;
-//  
-//  if(grabber->parent()){
-//    cairo_matrix_t mat;
-//    cairo_matrix_init_identity(&mat);
-//    grabber->transformation(0, &mat);
-//    cairo_matrix_invert(&mat);
-//    
-//    Canvas::transform_point(mat, &event.x, &event.y);
-//  }
-//  
-//  Box *box;
-//  int start, end;
-//  bool eol;
-//  
-//  box = grabber->mouse_selection(
-//    event.x, event.y, 
-//    &start, &end, 
-//    &eol);
-//  
-//  if(context.clicked_box_id){
-//    WidgetBox *widget = dynamic_cast<WidgetBox*>(Box::find(context.clicked_box_id));
-//    
-//    if(widget){
-//      cairo_matrix_t mat;
-//      cairo_matrix_init_identity(&mat);
-//      widget->transformation(grabber, &mat);
-//      cairo_matrix_invert(&mat);
-//      
-//      Canvas::transform_point(mat, &event.x, &event.y);
-//      
-//      widget->mouse_up(event);
-//    }
-//    
-//    context.clicked_box_id = 0;
-//  }
-//  
-//  mouse_down_sel.reset();
-//  
-//  return true;
 }
 
 void Document::mouse_move(MouseEvent &event){
@@ -903,7 +751,6 @@ void Document::mouse_move(MouseEvent &event){
     if(new_over){
       context.mouseover_box_id = new_over->id();
       
-//      event.set_source(new_over);
       new_over->on_mouse_move(event);
     }
     else
@@ -917,14 +764,6 @@ void Document::focus_set(){
   if(selection_box())
     selection_box()->on_enter();
     
-//  if(context.focused_widget_id){
-//    Box *box = Box::find(context.focused_widget_id);
-//    if(box)
-//      box = box->on_set_focus();
-//    
-//    context.focused_widget_id = box ? box->id() : 0;
-//  }
-  
   if(selection_length() > 0)
     native()->invalidate();
 }
@@ -934,11 +773,6 @@ void Document::focus_killed(){
   
   if(selection_box())
     selection_box()->on_exit();
-//  if(context.focused_widget_id){
-//    Box *box = Box::find(context.focused_widget_id);
-//    if(box)
-//      box->on_focus_killed();
-//  }
   
   if(!selectable())
     select(0,0,0);
@@ -948,12 +782,6 @@ void Document::focus_killed(){
 }
 
 void Document::key_down(SpecialKeyEvent &event){
-//  if(context.focused_widget_id){
-//    WidgetBox *widget = dynamic_cast<WidgetBox*>(Box::find(context.focused_widget_id));
-//    if(widget && widget->key_down(event))
-//      return true;
-//  }
-  
   Box *selbox = context.selection.get();
   if(selbox){
     selbox->on_key_down(event);
@@ -963,17 +791,9 @@ void Document::key_down(SpecialKeyEvent &event){
     if(cur && cur != this)
       cur->key_down(event);
   }
-  
-  //return event.key == KeyUnknown;
 }
 
 void Document::key_up(SpecialKeyEvent &event){
-//  if(context.focused_widget_id){
-//    WidgetBox *widget = dynamic_cast<WidgetBox*>(Box::find(context.focused_widget_id));
-//    if(widget && widget->key_up(event))
-//      return true;
-//  }
-  
   Box *selbox = context.selection.get();
   if(selbox){
     selbox->on_key_up(event);
@@ -983,8 +803,6 @@ void Document::key_up(SpecialKeyEvent &event){
     if(cur && cur != this)
       cur->key_up(event);
   }
-  
-  //return event.key == KeyUnknown;
 }
 
 void Document::key_press(uint16_t unicode){
@@ -994,12 +812,6 @@ void Document::key_press(uint16_t unicode){
   else if((unicode < ' ' && unicode != '\n' && unicode != '\t')
   || unicode == 127 || unicode == PMATH_CHAR_BOX)
     return;
-  
-//  if(context.focused_widget_id){
-//    WidgetBox *widget = dynamic_cast<WidgetBox*>(Box::find(context.focused_widget_id));
-//    if(widget && widget->key_press(unicode))
-//      return;
-//  }
   
   Box *selbox = context.selection.get();
   if(selbox){
@@ -1064,8 +876,6 @@ void Document::on_mouse_down(MouseEvent &event){
     }
     else if(box && box->selectable())
       select(box, start, end);
-//    else
-//      native()->beep();
     
     mouse_down_x   = event.x;
     mouse_down_y   = event.y;
@@ -1099,7 +909,7 @@ void Document::on_mouse_move(MouseEvent &event){
   if(event.left && context.clicked_box_id){
     Box *mouse_down_box = mouse_down_sel.get();
     
-    if(mouse_down_box){ // && (!box || box->selectable())
+    if(mouse_down_box){
       Section *sec1 = mouse_down_box->find_parent<Section>(true);
       Section *sec2 = box ? box->find_parent<Section>(true) : 0;
       
@@ -1351,11 +1161,6 @@ void Document::on_key_down(SpecialKeyEvent &event){
 }
 
 void Document::on_key_up(SpecialKeyEvent &event){
-//  if(context.focused_widget_id){
-//    WidgetBox *widget = dynamic_cast<WidgetBox*>(Box::find(context.focused_widget_id));
-//    if(widget && widget->key_up(event))
-//      return true;
-//  }
 }
 
 void Document::on_key_press(uint32_t unichar){
@@ -1372,6 +1177,37 @@ void Document::on_key_press(uint32_t unichar){
   
   if(unichar == '\n')
     prev_sel_line = -1;
+  
+  // handle parenthesis surrounding of selections:
+  if(context.selection.start < context.selection.end && unichar < 0xFFFF){
+    int prec;
+    uint16_t ch = (uint16_t)unichar;
+    
+    if(pmath_char_is_left(unichar)){
+      uint32_t right = pmath_right_fence(unichar);
+      MathSequence *seq = dynamic_cast<MathSequence*>(context.selection.get());
+      
+      if(seq && right && right < 0xFFFF){
+        seq->insert(context.selection.end,   right);
+        seq->insert(context.selection.start, unichar);
+        select(seq, context.selection.start, context.selection.end + 2);
+        
+        return;
+      }
+    }
+    else if(PMATH_TOK_RIGHT == pmath_token_analyse(&ch, 1, &prec)){
+      uint32_t left = (uint32_t)((int)unichar + prec);
+      MathSequence *seq = dynamic_cast<MathSequence*>(context.selection.get());
+      
+      if(seq && left && left < 0xFFFF){
+        seq->insert(context.selection.end,   ch);
+        seq->insert(context.selection.start, left);
+        select(seq, context.selection.start, context.selection.end + 2);
+        
+        return;
+      }
+    }
+  }
   
   remove_selection(false);
   
