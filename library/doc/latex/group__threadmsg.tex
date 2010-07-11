@@ -1,0 +1,166 @@
+\hypertarget{group__threadmsg}{
+\subsection{Thread Messaging}
+\label{group__threadmsg}\index{Thread Messaging@{Thread Messaging}}
+}
+Sending messages to other threads.  
+
+
+\subsubsection*{Data Structures}
+\begin{CompactItemize}
+\item 
+class \hyperlink{classpmath__messages__t}{pmath\_\-messages\_\-t}
+\begin{CompactList}\small\item\em A message queue for interthread communication. \item\end{CompactList}\end{CompactItemize}
+\subsubsection*{Functions}
+\begin{CompactItemize}
+\item 
+PMATH\_\-API \hyperlink{group__general__types_gc92090cb0b56345d6c379ed2341d4ef4}{pmath\_\-bool\_\-t} \hyperlink{group__threadmsg_g93b45ad8c3063c94602c8bbaaf3c2613}{pmath\_\-messages\_\-t::pmath\_\-is\_\-message\_\-queue} (\hyperlink{classpmath__t}{pmath\_\-t} obj)
+\begin{CompactList}\small\item\em Test if an object is a message queue. \item\end{CompactList}\item 
+PMATH\_\-API \hyperlink{classpmath__messages__t}{pmath\_\-messages\_\-t} \hyperlink{group__threadmsg_gf4d69db0ffe06846e57df7cadcd3dab6}{pmath\_\-messages\_\-t::pmath\_\-thread\_\-get\_\-queue} (void)
+\begin{CompactList}\small\item\em Get the current thread's message queue. \item\end{CompactList}\item 
+PMATH\_\-API void \hyperlink{group__threadmsg_gce6da6e34b0aeab35094ddccdd9a3e55}{pmath\_\-messages\_\-t::pmath\_\-thread\_\-sleep} (void)
+\begin{CompactList}\small\item\em Send the current thread to sleep. \item\end{CompactList}\item 
+PMATH\_\-API void \hyperlink{group__threadmsg_gbf90d49f5c42ccaa736ae5e56af6a4a6}{pmath\_\-messages\_\-t::pmath\_\-thread\_\-wakeup} (\hyperlink{classpmath__messages__t}{pmath\_\-messages\_\-t} mq)
+\begin{CompactList}\small\item\em Wake up another thread. \item\end{CompactList}\item 
+PMATH\_\-API void \hyperlink{group__threadmsg_ga3867a708fb07b86e017e8f201ef7edd}{pmath\_\-messages\_\-t::pmath\_\-thread\_\-send} (\hyperlink{classpmath__messages__t}{pmath\_\-messages\_\-t} mq, \hyperlink{classpmath__t}{pmath\_\-t} msg)
+\begin{CompactList}\small\item\em Asynchronously send a message to another thread. \item\end{CompactList}\item 
+PMATH\_\-API \hyperlink{classpmath__t}{pmath\_\-t} \hyperlink{group__threadmsg_g0466f7731e5e7cc3c4361f9512795a1c}{pmath\_\-messages\_\-t::pmath\_\-thread\_\-send\_\-wait} (\hyperlink{classpmath__messages__t}{pmath\_\-messages\_\-t} mq, \hyperlink{classpmath__t}{pmath\_\-t} msg, double timeout\_\-seconds)
+\begin{CompactList}\small\item\em Send a message to another thread and wait for the answer. \item\end{CompactList}\item 
+PMATH\_\-API void \hyperlink{group__threadmsg_g75339d9dd1902293cb72b38e77caa742}{pmath\_\-messages\_\-t::pmath\_\-thread\_\-send\_\-delayed} (\hyperlink{classpmath__messages__t}{pmath\_\-messages\_\-t} mq, \hyperlink{classpmath__t}{pmath\_\-t} msg, double seconds)
+\begin{CompactList}\small\item\em Asynchronously send a message to a thread sometime in the future. \item\end{CompactList}\end{CompactItemize}
+
+
+\subsubsection{Detailed Description}
+Sending messages to other threads. 
+
+Every pMath thread has its own message queue. Other threads can send messages to such a queue and optionally wait for a result. Messages to any queue can also be registered for delivery at a later point in time.
+
+Threads can go to sleep when they have no work to do. They will be awaken any time a message arrives to handle it.
+
+Technical Note: Pending messages are handled as soon as time \hyperlink{group__threads_gb75a9c87401fddb42b297ddb0495415f}{pmath\_\-aborting()} is called, which happens periodically. For the pMath code, it looks like asynchronous signals, because messages can occur any time during the evaluation. But from the native code's point of view, messages are synchronous, because they can only occur during \hyperlink{group__threads_gb75a9c87401fddb42b297ddb0495415f}{pmath\_\-aborting()}.
+
+\begin{Desc}
+\item[Note:]Message passing is not signal-safe. You must not send any messages from within a UNIX signal handler. \end{Desc}
+
+
+\subsubsection{Function Documentation}
+\hypertarget{group__threadmsg_g93b45ad8c3063c94602c8bbaaf3c2613}{
+\index{threadmsg@{threadmsg}!pmath\_\-is\_\-message\_\-queue@{pmath\_\-is\_\-message\_\-queue}}
+\index{pmath\_\-is\_\-message\_\-queue@{pmath\_\-is\_\-message\_\-queue}!threadmsg@{threadmsg}}
+\paragraph[{pmath\_\-is\_\-message\_\-queue}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API {\bf pmath\_\-bool\_\-t} pmath\_\-is\_\-message\_\-queue ({\bf pmath\_\-t} {\em obj})\hspace{0.3cm}{\tt  \mbox{[}related, inherited\mbox{]}}}\hfill}
+\label{group__threadmsg_g93b45ad8c3063c94602c8bbaaf3c2613}
+
+
+Test if an object is a message queue. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em obj}]Any pMath object. It wont be freed. \end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]TRUE if the object is a valid message queue object (\hyperlink{classpmath__messages__t}{pmath\_\-messages\_\-t}). \end{Desc}
+\hypertarget{group__threadmsg_gf4d69db0ffe06846e57df7cadcd3dab6}{
+\index{threadmsg@{threadmsg}!pmath\_\-thread\_\-get\_\-queue@{pmath\_\-thread\_\-get\_\-queue}}
+\index{pmath\_\-thread\_\-get\_\-queue@{pmath\_\-thread\_\-get\_\-queue}!threadmsg@{threadmsg}}
+\paragraph[{pmath\_\-thread\_\-get\_\-queue}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API {\bf pmath\_\-messages\_\-t} pmath\_\-thread\_\-get\_\-queue (void)\hspace{0.3cm}{\tt  \mbox{[}related, inherited\mbox{]}}}\hfill}
+\label{group__threadmsg_gf4d69db0ffe06846e57df7cadcd3dab6}
+
+
+Get the current thread's message queue. 
+
+\begin{Desc}
+\item[Returns:]A refernce to the message queue or NULL on error. You must destroy it with \hyperlink{classpmath__t_54e905402c38940687033b87eb8c6c9f}{pmath\_\-unref()} when its no longer needed. \end{Desc}
+\hypertarget{group__threadmsg_gce6da6e34b0aeab35094ddccdd9a3e55}{
+\index{threadmsg@{threadmsg}!pmath\_\-thread\_\-sleep@{pmath\_\-thread\_\-sleep}}
+\index{pmath\_\-thread\_\-sleep@{pmath\_\-thread\_\-sleep}!threadmsg@{threadmsg}}
+\paragraph[{pmath\_\-thread\_\-sleep}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API void pmath\_\-thread\_\-sleep (void)\hspace{0.3cm}{\tt  \mbox{[}related, inherited\mbox{]}}}\hfill}
+\label{group__threadmsg_gce6da6e34b0aeab35094ddccdd9a3e55}
+
+
+Send the current thread to sleep. 
+
+The thread will fall asleep until\begin{itemize}
+\item it receives a message or\item it is waken up with \hyperlink{group__threadmsg_gbf90d49f5c42ccaa736ae5e56af6a4a6}{pmath\_\-thread\_\-wakeup()} or\item an abort-condition (\hyperlink{group__threads_g84e45036b76764def6390af12d2070bf}{pmath\_\-abort\_\-please()} or \hyperlink{group__threads_gf1aa6d6603faaa4120207be6108e356c}{pmath\_\-throw()}) is met {\em anywhere\/} in the system.\end{itemize}
+
+
+Because of the last point, this function is normally called in a loop: 
+
+\begin{Code}\begin{verbatim}while(!pmath_aborting() && some_wait_condition){
+  pmath_thread_sleep();
+}
+\end{verbatim}
+\end{Code}
+
+ \hypertarget{group__threadmsg_gbf90d49f5c42ccaa736ae5e56af6a4a6}{
+\index{threadmsg@{threadmsg}!pmath\_\-thread\_\-wakeup@{pmath\_\-thread\_\-wakeup}}
+\index{pmath\_\-thread\_\-wakeup@{pmath\_\-thread\_\-wakeup}!threadmsg@{threadmsg}}
+\paragraph[{pmath\_\-thread\_\-wakeup}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API void pmath\_\-thread\_\-wakeup ({\bf pmath\_\-messages\_\-t} {\em mq})\hspace{0.3cm}{\tt  \mbox{[}related, inherited\mbox{]}}}\hfill}
+\label{group__threadmsg_gbf90d49f5c42ccaa736ae5e56af6a4a6}
+
+
+Wake up another thread. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em mq}]The message queue associated with the sleeping thread. It wont be freed.\end{description}
+\end{Desc}
+This function wakes up the thread that is associated with the message queue. It is safe to try to wake up threads, that are not sleeping.
+
+To follow the loop-style waiting idiom described in \hyperlink{group__threadmsg_gce6da6e34b0aeab35094ddccdd9a3e55}{pmath\_\-thread\_\-sleep()}, you must modify {\tt some\_\-wait\_\-condition} {\em before\/} calling this function to successfully awake the other thread. \hypertarget{group__threadmsg_ga3867a708fb07b86e017e8f201ef7edd}{
+\index{threadmsg@{threadmsg}!pmath\_\-thread\_\-send@{pmath\_\-thread\_\-send}}
+\index{pmath\_\-thread\_\-send@{pmath\_\-thread\_\-send}!threadmsg@{threadmsg}}
+\paragraph[{pmath\_\-thread\_\-send}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API void pmath\_\-thread\_\-send ({\bf pmath\_\-messages\_\-t} {\em mq}, \/  {\bf pmath\_\-t} {\em msg})\hspace{0.3cm}{\tt  \mbox{[}related, inherited\mbox{]}}}\hfill}
+\label{group__threadmsg_ga3867a708fb07b86e017e8f201ef7edd}
+
+
+Asynchronously send a message to another thread. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em mq}]The receivers message queue. It wont be freed. \item[{\em msg}]The message. It will be freed.\end{description}
+\end{Desc}
+The message will be evaluated by the receiver. This function returns immediately. If the receiver cannot handle the message (since it is dead or there is not enough memory), the message will be deleted.
+
+Note that messages might not be handled in the order they were send. \hypertarget{group__threadmsg_g0466f7731e5e7cc3c4361f9512795a1c}{
+\index{threadmsg@{threadmsg}!pmath\_\-thread\_\-send\_\-wait@{pmath\_\-thread\_\-send\_\-wait}}
+\index{pmath\_\-thread\_\-send\_\-wait@{pmath\_\-thread\_\-send\_\-wait}!threadmsg@{threadmsg}}
+\paragraph[{pmath\_\-thread\_\-send\_\-wait}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API {\bf pmath\_\-t} pmath\_\-thread\_\-send\_\-wait ({\bf pmath\_\-messages\_\-t} {\em mq}, \/  {\bf pmath\_\-t} {\em msg}, \/  double {\em timeout\_\-seconds})\hspace{0.3cm}{\tt  \mbox{[}related, inherited\mbox{]}}}\hfill}
+\label{group__threadmsg_g0466f7731e5e7cc3c4361f9512795a1c}
+
+
+Send a message to another thread and wait for the answer. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em mq}]The receivers message queue. It wont be freed. \item[{\em msg}]The message. It will be freed. \item[{\em timeout\_\-seconds}]The maximum number of seconds tho wait for the answer. Use HUGE\_\-VAL if you do not want a timeout. \end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]The result of pmath\_\-evaluate(message) called by the receiver or PMATH\_\-UNDEFINED in case of an error.\end{Desc}
+The message will be evaluated by the receiver. If the receiver cannot handle it (since it is dead or there is not enough memory), the message will be deleted.
+
+The calling thread will fall asleep until\begin{itemize}
+\item it receives an answer to return or\item the message is deleted or\item the timeout is reached or\item another abort situation occurs in the calling thread (e.g. \hyperlink{group__threads_g84e45036b76764def6390af12d2070bf}{pmath\_\-abort\_\-please()} is called anywhere in the system)\end{itemize}
+
+
+In the last two cases (timeout or abort), a the remote evaluation will be aborted.
+
+\begin{Desc}
+\item[\hyperlink{todo__todo000002}{Todo}]Check, what happens if mq belongs to a parent thread. \end{Desc}
+\hypertarget{group__threadmsg_g75339d9dd1902293cb72b38e77caa742}{
+\index{threadmsg@{threadmsg}!pmath\_\-thread\_\-send\_\-delayed@{pmath\_\-thread\_\-send\_\-delayed}}
+\index{pmath\_\-thread\_\-send\_\-delayed@{pmath\_\-thread\_\-send\_\-delayed}!threadmsg@{threadmsg}}
+\paragraph[{pmath\_\-thread\_\-send\_\-delayed}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API void pmath\_\-thread\_\-send\_\-delayed ({\bf pmath\_\-messages\_\-t} {\em mq}, \/  {\bf pmath\_\-t} {\em msg}, \/  double {\em seconds})\hspace{0.3cm}{\tt  \mbox{[}related, inherited\mbox{]}}}\hfill}
+\label{group__threadmsg_g75339d9dd1902293cb72b38e77caa742}
+
+
+Asynchronously send a message to a thread sometime in the future. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em mq}]The receivers message queue. It wont be freed. \item[{\em msg}]The message. It will be freed. \item[{\em seconds}]The delay in seconds before the message will be delivered.\end{description}
+\end{Desc}
+The message will be evaluated by the receiver. This function returns immediately. If the receiver cannot handle the message (since it is dead or there is not enough memory), the message will be deleted. 

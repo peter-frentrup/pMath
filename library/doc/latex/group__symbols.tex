@@ -1,0 +1,434 @@
+\hypertarget{group__symbols}{
+\subsection{Symbols}
+\label{group__symbols}\index{Symbols@{Symbols}}
+}
+Symbol objects in pMath.  
+
+
+\subsubsection*{Data Structures}
+\begin{CompactItemize}
+\item 
+class \hyperlink{classpmath__symbol__t}{pmath\_\-symbol\_\-t}
+\begin{CompactList}\small\item\em The Symbol class. \item\end{CompactList}\end{CompactItemize}
+\subsubsection*{Typedefs}
+\begin{CompactItemize}
+\item 
+typedef \hyperlink{classpmath__t}{pmath\_\-t}($\ast$ \hyperlink{group__symbols_g4a74d7aeade34fc26c04ffde22ab1a1a}{pmath\_\-builtin\_\-func\_\-t} )(\hyperlink{classpmath__expr__t}{pmath\_\-expr\_\-t} expr)
+\begin{CompactList}\small\item\em Prototype of a built-in function. \item\end{CompactList}\item 
+typedef int \hyperlink{group__symbols_g5d508ec0d32d617b6c642de54907ee17}{pmath\_\-symbol\_\-attributes\_\-t}
+\begin{CompactList}\small\item\em The (bitset) type of symbol attributes. \item\end{CompactList}\end{CompactItemize}
+\subsubsection*{Enumerations}
+\begin{CompactItemize}
+\item 
+enum \hyperlink{group__symbols_g957dfb51b09e821a8fc052835ea66670}{pmath\_\-code\_\-usage\_\-t} 
+\begin{CompactList}\small\item\em Constants saying when to call a binded function. May f be the pMath symbol. \item\end{CompactList}\end{CompactItemize}
+\subsubsection*{Functions}
+\begin{CompactItemize}
+\item 
+PMATH\_\-API \hyperlink{classpmath__symbol__t}{pmath\_\-symbol\_\-t} \hyperlink{group__symbols_ge9a166b048d04e6ef25632127f0172ba}{pmath\_\-symbol\_\-builtin} (int index)
+\begin{CompactList}\small\item\em Get a builtin symbol object. \item\end{CompactList}\item 
+PMATH\_\-API \hyperlink{group__general__types_gc92090cb0b56345d6c379ed2341d4ef4}{pmath\_\-bool\_\-t} \hyperlink{group__symbols_gd02a05fa96992d137b450627486ec0b5}{pmath\_\-register\_\-code} (\hyperlink{classpmath__symbol__t}{pmath\_\-symbol\_\-t} symbol, \hyperlink{group__symbols_g4a74d7aeade34fc26c04ffde22ab1a1a}{pmath\_\-builtin\_\-func\_\-t} func, \hyperlink{group__symbols_g957dfb51b09e821a8fc052835ea66670}{pmath\_\-code\_\-usage\_\-t} usage)
+\begin{CompactList}\small\item\em Bind a pMath symbol to some native code. \item\end{CompactList}\item 
+PMATH\_\-API \hyperlink{group__general__types_gc92090cb0b56345d6c379ed2341d4ef4}{pmath\_\-bool\_\-t} \hyperlink{group__symbols_gfb4f09c196d889a710c73d917ea0c12a}{pmath\_\-register\_\-approx\_\-code} (\hyperlink{classpmath__symbol__t}{pmath\_\-symbol\_\-t} symbol, \hyperlink{classpmath__t}{pmath\_\-t}($\ast$func)(\hyperlink{classpmath__t}{pmath\_\-t}, double, double))
+\begin{CompactList}\small\item\em Bind a pMath symbol to some native code for approximation. \item\end{CompactList}\item 
+PMATH\_\-API void \hyperlink{group__symbols_g78e6e98a2973c5e2b073b885269b12e4}{pmath\_\-symbol\_\-remove} (\hyperlink{classpmath__symbol__t}{pmath\_\-symbol\_\-t} symbol)
+\begin{CompactList}\small\item\em Remove a symbol completely from the system. \item\end{CompactList}\item 
+PMATH\_\-API \hyperlink{classpmath__symbol__t}{pmath\_\-symbol\_\-t} \hyperlink{group__symbols_gaa4869d454bc3a544a5333e58381f760}{pmath\_\-symbol\_\-iter\_\-next} (\hyperlink{classpmath__symbol__t}{pmath\_\-symbol\_\-t} old)
+\begin{CompactList}\small\item\em Iterate through the global symbol table. \item\end{CompactList}\item 
+PMATH\_\-API \hyperlink{classpmath__symbol__t}{pmath\_\-symbol\_\-t} \hyperlink{group__symbols_g0ccb42b30fcf6ee77d91241222f5c033}{pmath\_\-symbol\_\-t::pmath\_\-symbol\_\-get} (\hyperlink{classpmath__string__t}{pmath\_\-string\_\-t} name, \hyperlink{group__general__types_gc92090cb0b56345d6c379ed2341d4ef4}{pmath\_\-bool\_\-t} create)
+\begin{CompactList}\small\item\em Get a symbol by its fully qualified name. \item\end{CompactList}\item 
+PMATH\_\-API \hyperlink{classpmath__symbol__t}{pmath\_\-symbol\_\-t} \hyperlink{group__symbols_g6f088bc8c667dfe91087dc4ace6d18c1}{pmath\_\-symbol\_\-t::pmath\_\-symbol\_\-create\_\-temporary} (\hyperlink{classpmath__string__t}{pmath\_\-string\_\-t} name, \hyperlink{group__general__types_gc92090cb0b56345d6c379ed2341d4ef4}{pmath\_\-bool\_\-t} unique)
+\begin{CompactList}\small\item\em Create a new temporary symbol. \item\end{CompactList}\item 
+PMATH\_\-API \hyperlink{classpmath__symbol__t}{pmath\_\-symbol\_\-t} \hyperlink{group__symbols_g597a971f788584cac3f327f1afdd5f41}{pmath\_\-symbol\_\-t::pmath\_\-symbol\_\-find} (\hyperlink{classpmath__string__t}{pmath\_\-string\_\-t} name, \hyperlink{group__general__types_gc92090cb0b56345d6c379ed2341d4ef4}{pmath\_\-bool\_\-t} create)
+\begin{CompactList}\small\item\em Find a symbol in the current namespace search path. \item\end{CompactList}\item 
+PMATH\_\-API \hyperlink{classpmath__string__t}{pmath\_\-string\_\-t} \hyperlink{group__symbols_g286ea4e54b4bf2922c519ec5b823bf41}{pmath\_\-symbol\_\-t::pmath\_\-symbol\_\-name} (\hyperlink{classpmath__symbol__t}{pmath\_\-symbol\_\-t} symbol)
+\begin{CompactList}\small\item\em Get a symbol's name. \item\end{CompactList}\item 
+PMATH\_\-API \hyperlink{group__symbols_g5d508ec0d32d617b6c642de54907ee17}{pmath\_\-symbol\_\-attributes\_\-t} \hyperlink{group__symbols_gd553b66226a31e4c105b4f3c93682284}{pmath\_\-symbol\_\-t::pmath\_\-symbol\_\-get\_\-attributes} (\hyperlink{classpmath__symbol__t}{pmath\_\-symbol\_\-t} symbol)
+\begin{CompactList}\small\item\em Get a symbol's attributes. \item\end{CompactList}\item 
+PMATH\_\-API void \hyperlink{group__symbols_g37c740a2074440f4364763a4dbfab931}{pmath\_\-symbol\_\-t::pmath\_\-symbol\_\-set\_\-attributes} (\hyperlink{classpmath__symbol__t}{pmath\_\-symbol\_\-t} symbol, \hyperlink{group__symbols_g5d508ec0d32d617b6c642de54907ee17}{pmath\_\-symbol\_\-attributes\_\-t} attr)
+\begin{CompactList}\small\item\em Set a symbol's attributes. \item\end{CompactList}\item 
+PMATH\_\-API \hyperlink{classpmath__t}{pmath\_\-t} \hyperlink{group__symbols_gbf330376870422d219ae9f0557e515c2}{pmath\_\-symbol\_\-t::pmath\_\-symbol\_\-get\_\-value} (\hyperlink{classpmath__symbol__t}{pmath\_\-symbol\_\-t} symbol)
+\begin{CompactList}\small\item\em Get a symbol's value. \item\end{CompactList}\item 
+PMATH\_\-API void \hyperlink{group__symbols_g8344005c16b86be82d2efdedb0795a0c}{pmath\_\-symbol\_\-t::pmath\_\-symbol\_\-set\_\-value} (\hyperlink{classpmath__symbol__t}{pmath\_\-symbol\_\-t} symbol, \hyperlink{classpmath__t}{pmath\_\-t} value)
+\begin{CompactList}\small\item\em Set a symbol's value. \item\end{CompactList}\item 
+PMATH\_\-API void \hyperlink{group__symbols_g95b141d9cb33fba80d6a807f304ee3b7}{pmath\_\-symbol\_\-t::pmath\_\-symbol\_\-synchronized} (\hyperlink{classpmath__symbol__t}{pmath\_\-symbol\_\-t} symbol, \hyperlink{group__general__types_ge1a454657f18f3cc54508adeccccbcbc}{pmath\_\-callback\_\-t} callback, void $\ast$data)
+\begin{CompactList}\small\item\em Execute a function synchronized to a symbol. \item\end{CompactList}\item 
+PMATH\_\-API void \hyperlink{group__symbols_g7cd56e2b77ac13a11f1b6f7fd13ba357}{pmath\_\-symbol\_\-t::pmath\_\-symbol\_\-update} (\hyperlink{classpmath__symbol__t}{pmath\_\-symbol\_\-t} symbol)
+\begin{CompactList}\small\item\em Update a symbol manually. \item\end{CompactList}\end{CompactItemize}
+
+
+\subsubsection{Detailed Description}
+Symbol objects in pMath. 
+
+\subsubsection{Typedef Documentation}
+\hypertarget{group__symbols_g4a74d7aeade34fc26c04ffde22ab1a1a}{
+\index{symbols@{symbols}!pmath\_\-builtin\_\-func\_\-t@{pmath\_\-builtin\_\-func\_\-t}}
+\index{pmath\_\-builtin\_\-func\_\-t@{pmath\_\-builtin\_\-func\_\-t}!symbols@{symbols}}
+\paragraph[{pmath\_\-builtin\_\-func\_\-t}]{\setlength{\rightskip}{0pt plus 5cm}typedef {\bf pmath\_\-t}($\ast$ {\bf pmath\_\-builtin\_\-func\_\-t})({\bf pmath\_\-expr\_\-t} expr)}\hfill}
+\label{group__symbols_g4a74d7aeade34fc26c04ffde22ab1a1a}
+
+
+Prototype of a built-in function. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em expr}]An expression. The function must free it. \end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]Any pMath object. \end{Desc}
+\hypertarget{group__symbols_g5d508ec0d32d617b6c642de54907ee17}{
+\index{symbols@{symbols}!pmath\_\-symbol\_\-attributes\_\-t@{pmath\_\-symbol\_\-attributes\_\-t}}
+\index{pmath\_\-symbol\_\-attributes\_\-t@{pmath\_\-symbol\_\-attributes\_\-t}!symbols@{symbols}}
+\paragraph[{pmath\_\-symbol\_\-attributes\_\-t}]{\setlength{\rightskip}{0pt plus 5cm}typedef int {\bf pmath\_\-symbol\_\-attributes\_\-t}}\hfill}
+\label{group__symbols_g5d508ec0d32d617b6c642de54907ee17}
+
+
+The (bitset) type of symbol attributes. 
+
+A pMath symbol (here called `sym`) can have one or more of the following values (concatenated with \char`\"{}$|$\char`\"{}): \begin{itemize}
+\item {\tt PMATH\_\-SYMBOL\_\-ATTRIBUTE\_\-PROTECTED} \par
+ Any assignment to sym will fail.
+
+\item {\tt PMATH\_\-SYMBOL\_\-ATTRIBUTE\_\-HOLDFIRST} \par
+ When evaluating `sym(a,b,...)`, the first argument (a) will not be evaluated automatically.
+
+\item {\tt PMATH\_\-SYMBOL\_\-ATTRIBUTE\_\-HOLDREST} \par
+ When evaluating `sym(a,b,...)` all the arguments b,... will not be evaluated automatically.
+
+\item {\tt PMATH\_\-SYMBOL\_\-ATTRIBUTE\_\-HOLDALL} \par
+ combines HOLDFIRST and HOLDREST.
+
+\item {\tt PMATH\_\-SYMBOL\_\-ATTRIBUTE\_\-SYMMETRIC} \par
+ An expression `sym(a,b,...)` will be sorted automatically and thus sym(a,b) = sym(b,a).
+
+\item {\tt PMATH\_\-SYMBOL\_\-ATTRIBUTE\_\-ASSOCIATIVE} \par
+ An expression `sym(...,sym(a,...,z),...)` will be flattened automatically to sym(...,a,...,z,...).
+
+\item {\tt PMATH\_\-SYMBOL\_\-ATTRIBUTE\_\-NHOLDFIRST} \par
+ The first argument (a) of `sym(a,b,...)` will not be affected by Approximate(sym(a,b,...)).
+
+\item {\tt PMATH\_\-SYMBOL\_\-ATTRIBUTE\_\-NHOLDREST} \par
+ All the argument `b,...` in `sym(a,b,...)` will not be affected by Approximate(sym(a,b,...)).
+
+\item {\tt PMATH\_\-SYMBOL\_\-ATTRIBUTE\_\-NHOLDALL} \par
+ combines NHOLDFIRST and NHOLDREST.
+
+\item {\tt PMATH\_\-SYMBOL\_\-ATTRIBUTE\_\-TEMPORARY} \par
+ The symbol sym will be deleted immediately when it is no longer referenced. It will be freed automatically (but not immediately), when there is no external reference to the symbol (just the symbol's own function definitions/...).
+
+\item {\tt PMATH\_\-SYMBOL\_\-ATTRIBUTE\_\-LISTABLE} \par
+ Any expression sym(...) will be threaded automatically over lists. (e.g. \{a,b\} + \{c,d\} becomes \{a+c, b+d\}).
+
+\item {\tt PMATH\_\-SYMBOL\_\-ATTRIBUTE\_\-DEEPHOLDALL} The arguments `a,...` in an expression `sym(...)(a,...)` will not be evaluated automatically.
+
+\item {\tt PMATH\_\-SYMBOL\_\-ATTRIBUTE\_\-HOLDALLCOMPLETE} \par
+ Like HOLDALL, but in an expression `sym(a,b,...)` all arguments (a,b,...) wont be touched even if they have the form `eval(...)`. Additionally, rules for sym defined in one of its arguments (e.g. `a: sym(a):= \char`\"{}hi\char`\"{}`) wont be used.
+
+\item {\tt PMATH\_\-SYMBOL\_\-ATTRIBUTE\_\-ONEIDENTITY} \par
+ Used for pattern matching (in combination with ASSOCIATIVE) to say that `sym(x)` matches x. Note that it does not automatically evaluate `sym(x)` to x.
+
+\item {\tt PMATH\_\-SYMBOL\_\-ATTRIBUTE\_\-THREADLOCAL} \par
+ The symbol's value is local to the current thread. That means, an assignment to sym in one thread wont affect it in another thread.
+
+\item {\tt PMATH\_\-SYMBOL\_\-ATTRIBUTE\_\-NUMERICFUNCTION} \par
+ `sym(x,...)` is numeric if all the arguments are numeric.
+
+\item {\tt PMATH\_\-SYMBOL\_\-ATTRIBUTE\_\-READPROTECTED} `??sym` wont print out the value/function definitions for sym.
+
+\end{itemize}
+
+
+\subsubsection{Enumeration Type Documentation}
+\hypertarget{group__symbols_g957dfb51b09e821a8fc052835ea66670}{
+\index{symbols@{symbols}!pmath\_\-code\_\-usage\_\-t@{pmath\_\-code\_\-usage\_\-t}}
+\index{pmath\_\-code\_\-usage\_\-t@{pmath\_\-code\_\-usage\_\-t}!symbols@{symbols}}
+\paragraph[{pmath\_\-code\_\-usage\_\-t}]{\setlength{\rightskip}{0pt plus 5cm}enum {\bf pmath\_\-code\_\-usage\_\-t}}\hfill}
+\label{group__symbols_g957dfb51b09e821a8fc052835ea66670}
+
+
+Constants saying when to call a binded function. May f be the pMath symbol. 
+
+\begin{itemize}
+\item PMATH\_\-CODE\_\-USAGE\_\-DOWNCALL Call binded function when evaluating `f(...)`\end{itemize}
+
+
+\begin{itemize}
+\item PMATH\_\-CODE\_\-USAGE\_\-SUBCALL Call binded function when evaluating `f(...)(...)...`\end{itemize}
+
+
+\begin{itemize}
+\item PMATH\_\-CODE\_\-USAGE\_\-UPCALL Call binded function when evaluating `g(...,f,...)` or `g(..., f(...), ...)`\end{itemize}
+
+
+These use cases correspond to the DownRules(), SubRules() and UpRules() of a symbol.
+
+\begin{Desc}
+\item[See also:]\hyperlink{group__symbols_gd02a05fa96992d137b450627486ec0b5}{pmath\_\-register\_\-code} \end{Desc}
+
+
+\subsubsection{Function Documentation}
+\hypertarget{group__symbols_ge9a166b048d04e6ef25632127f0172ba}{
+\index{symbols@{symbols}!pmath\_\-symbol\_\-builtin@{pmath\_\-symbol\_\-builtin}}
+\index{pmath\_\-symbol\_\-builtin@{pmath\_\-symbol\_\-builtin}!symbols@{symbols}}
+\paragraph[{pmath\_\-symbol\_\-builtin}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API {\bf pmath\_\-symbol\_\-t} pmath\_\-symbol\_\-builtin (int {\em index})}\hfill}
+\label{group__symbols_ge9a166b048d04e6ef25632127f0172ba}
+
+
+Get a builtin symbol object. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em index}]The symbols unique index. \end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]The builtin symbol. This is not a copy. You must not destroy it with e.g. \hyperlink{classpmath__t_54e905402c38940687033b87eb8c6c9f}{pmath\_\-unref()}.\end{Desc}
+When you want to use the returned symbol, \hyperlink{classpmath__t_42cd678b691046a58dede518315c6b13}{pmath\_\-ref()} it first. Normaly, you do not call this function directly but use one of the PMATH\_\-SYMBOL\_\-XXX macros instead, where XXX is the uppercase equivalent of the corresponding pMath symbol name, e.g. PMATH\_\-SYMBOL\_\-LIST. \hypertarget{group__symbols_gd02a05fa96992d137b450627486ec0b5}{
+\index{symbols@{symbols}!pmath\_\-register\_\-code@{pmath\_\-register\_\-code}}
+\index{pmath\_\-register\_\-code@{pmath\_\-register\_\-code}!symbols@{symbols}}
+\paragraph[{pmath\_\-register\_\-code}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API {\bf pmath\_\-bool\_\-t} pmath\_\-register\_\-code ({\bf pmath\_\-symbol\_\-t} {\em symbol}, \/  {\bf pmath\_\-builtin\_\-func\_\-t} {\em func}, \/  {\bf pmath\_\-code\_\-usage\_\-t} {\em usage})}\hfill}
+\label{group__symbols_gd02a05fa96992d137b450627486ec0b5}
+
+
+Bind a pMath symbol to some native code. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em symbol}]The symbol. It wont be freed. \item[{\em func}]A native function. \item[{\em usage}]When to call the native function. \end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]Whether the binding succeded.\end{Desc}
+Any previous binding to the symbol with the same {\em usage\/} will be overwritten. \hypertarget{group__symbols_gfb4f09c196d889a710c73d917ea0c12a}{
+\index{symbols@{symbols}!pmath\_\-register\_\-approx\_\-code@{pmath\_\-register\_\-approx\_\-code}}
+\index{pmath\_\-register\_\-approx\_\-code@{pmath\_\-register\_\-approx\_\-code}!symbols@{symbols}}
+\paragraph[{pmath\_\-register\_\-approx\_\-code}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API {\bf pmath\_\-bool\_\-t} pmath\_\-register\_\-approx\_\-code ({\bf pmath\_\-symbol\_\-t} {\em symbol}, \/  {\bf pmath\_\-t}($\ast$)({\bf pmath\_\-t}, double, double) {\em func})}\hfill}
+\label{group__symbols_gfb4f09c196d889a710c73d917ea0c12a}
+
+
+Bind a pMath symbol to some native code for approximation. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em symbol}]The symbol. It wont be freed. \item[{\em func}]A native function. \end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]Whether the binding succeded.\end{Desc}
+Any previous approximation-binding to the symbol will be overwritten.
+
+The native function will be calledd when evaluating the pMath expression {\tt N(obj, \{precision, accuracy\})} as {\tt func(obj, precision, accuracy)}, where obj is either `symbol` or `symbol(...)`. \hypertarget{group__symbols_g78e6e98a2973c5e2b073b885269b12e4}{
+\index{symbols@{symbols}!pmath\_\-symbol\_\-remove@{pmath\_\-symbol\_\-remove}}
+\index{pmath\_\-symbol\_\-remove@{pmath\_\-symbol\_\-remove}!symbols@{symbols}}
+\paragraph[{pmath\_\-symbol\_\-remove}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API void pmath\_\-symbol\_\-remove ({\bf pmath\_\-symbol\_\-t} {\em symbol})}\hfill}
+\label{group__symbols_g78e6e98a2973c5e2b073b885269b12e4}
+
+
+Remove a symbol completely from the system. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em symbol}]a pMath symbol. It will be freed.\end{description}
+\end{Desc}
+Symbols with attribute protected wont be removed.
+
+This function walks through the internal list of all known symbols and replaces any occurencies with `Symbol(\char`\"{}name\char`\"{})`.
+
+There might be more references (e.g. on the stack or in other thread's local variable tables), so it is possible that the symbol still exists in the system.
+
+Note that all builtin symbols (the PMATH\_\-SYMBOL\_\-XXX) are also referenced in a seperate list and so cannot be removed completely from the system. However, their appearences in all other places will be removed. So this is a very dangerous function. \hypertarget{group__symbols_gaa4869d454bc3a544a5333e58381f760}{
+\index{symbols@{symbols}!pmath\_\-symbol\_\-iter\_\-next@{pmath\_\-symbol\_\-iter\_\-next}}
+\index{pmath\_\-symbol\_\-iter\_\-next@{pmath\_\-symbol\_\-iter\_\-next}!symbols@{symbols}}
+\paragraph[{pmath\_\-symbol\_\-iter\_\-next}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API {\bf pmath\_\-symbol\_\-t} pmath\_\-symbol\_\-iter\_\-next ({\bf pmath\_\-symbol\_\-t} {\em old})}\hfill}
+\label{group__symbols_gaa4869d454bc3a544a5333e58381f760}
+
+
+Iterate through the global symbol table. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em old}]The previous symbol. It will be freed. \end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]The next symbol.\end{Desc}
+To actually iterate through the whole list, use the following pattern: 
+
+\begin{Code}\begin{verbatim}pmath_symbol_t iter = pmath_ref(PMATH_SYMBOL_LIST);
+do{
+  
+  ... loop body here ...
+  
+  iter = pmath_symbol_iter_next(iter);
+}while(iter && iter != PMATH_SYMBOL_LIST);
+pmath_unref(iter);
+\end{verbatim}
+\end{Code}
+
+ \hypertarget{group__symbols_g0ccb42b30fcf6ee77d91241222f5c033}{
+\index{symbols@{symbols}!pmath\_\-symbol\_\-get@{pmath\_\-symbol\_\-get}}
+\index{pmath\_\-symbol\_\-get@{pmath\_\-symbol\_\-get}!symbols@{symbols}}
+\paragraph[{pmath\_\-symbol\_\-get}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API {\bf pmath\_\-symbol\_\-t} pmath\_\-symbol\_\-get ({\bf pmath\_\-string\_\-t} {\em name}, \/  {\bf pmath\_\-bool\_\-t} {\em create})\hspace{0.3cm}{\tt  \mbox{[}inherited\mbox{]}}}\hfill}
+\label{group__symbols_g0ccb42b30fcf6ee77d91241222f5c033}
+
+
+Get a symbol by its fully qualified name. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em name}]The symbol's name including its namespace. It will be freed. \item[{\em create}]Whether to create a new symbol, if none was found. \end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]NULL or a symbol called {\tt name} that must be destroyed with \hyperlink{classpmath__t_54e905402c38940687033b87eb8c6c9f}{pmath\_\-unref()}. \end{Desc}
+\hypertarget{group__symbols_g6f088bc8c667dfe91087dc4ace6d18c1}{
+\index{symbols@{symbols}!pmath\_\-symbol\_\-create\_\-temporary@{pmath\_\-symbol\_\-create\_\-temporary}}
+\index{pmath\_\-symbol\_\-create\_\-temporary@{pmath\_\-symbol\_\-create\_\-temporary}!symbols@{symbols}}
+\paragraph[{pmath\_\-symbol\_\-create\_\-temporary}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API {\bf pmath\_\-symbol\_\-t} pmath\_\-symbol\_\-create\_\-temporary ({\bf pmath\_\-string\_\-t} {\em name}, \/  {\bf pmath\_\-bool\_\-t} {\em unique})\hspace{0.3cm}{\tt  \mbox{[}inherited\mbox{]}}}\hfill}
+\label{group__symbols_g6f088bc8c667dfe91087dc4ace6d18c1}
+
+
+Create a new temporary symbol. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em name}]The base name of the temporary symbol. It will be freed. \item[{\em unique}]Whether to add a unique number to the symbol name. \end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]A new pMath Symbol. You must destroy it with \hyperlink{classpmath__t_54e905402c38940687033b87eb8c6c9f}{pmath\_\-unref()}. It has the Temporary attribute.\end{Desc}
+the name of the returned symbol is of the form name\$nnn (or name\$ if unique is false)
+
+If name already has the form \char`\"{}sym\$nnn\char`\"{} or \char`\"{}sym\$\char`\"{}, the function acts as if name would be simply \char`\"{}sym\char`\"{}.
+
+If there already exists a symbol with the generated name, that symbol will be returned and its attributes will be set to Temporary before. \hypertarget{group__symbols_g597a971f788584cac3f327f1afdd5f41}{
+\index{symbols@{symbols}!pmath\_\-symbol\_\-find@{pmath\_\-symbol\_\-find}}
+\index{pmath\_\-symbol\_\-find@{pmath\_\-symbol\_\-find}!symbols@{symbols}}
+\paragraph[{pmath\_\-symbol\_\-find}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API {\bf pmath\_\-symbol\_\-t} pmath\_\-symbol\_\-find ({\bf pmath\_\-string\_\-t} {\em name}, \/  {\bf pmath\_\-bool\_\-t} {\em create})\hspace{0.3cm}{\tt  \mbox{[}inherited\mbox{]}}}\hfill}
+\label{group__symbols_g597a971f788584cac3f327f1afdd5f41}
+
+
+Find a symbol in the current namespace search path. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em name}]The symbol's name. It will be freed. \item[{\em create}]Whether to create a new symbol, if none was found. \end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]NULL or a symbol called {\tt name} that must be destroyed with \hyperlink{classpmath__t_54e905402c38940687033b87eb8c6c9f}{pmath\_\-unref()}. \end{Desc}
+\hypertarget{group__symbols_g286ea4e54b4bf2922c519ec5b823bf41}{
+\index{symbols@{symbols}!pmath\_\-symbol\_\-name@{pmath\_\-symbol\_\-name}}
+\index{pmath\_\-symbol\_\-name@{pmath\_\-symbol\_\-name}!symbols@{symbols}}
+\paragraph[{pmath\_\-symbol\_\-name}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API {\bf pmath\_\-string\_\-t} pmath\_\-symbol\_\-name ({\bf pmath\_\-symbol\_\-t} {\em symbol})\hspace{0.3cm}{\tt  \mbox{[}inherited\mbox{]}}}\hfill}
+\label{group__symbols_g286ea4e54b4bf2922c519ec5b823bf41}
+
+
+Get a symbol's name. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em symbol}]A pMath symbol. \end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]The name of the symbol. You must destroy it with \hyperlink{classpmath__t_54e905402c38940687033b87eb8c6c9f}{pmath\_\-unref()}. \end{Desc}
+\hypertarget{group__symbols_gd553b66226a31e4c105b4f3c93682284}{
+\index{symbols@{symbols}!pmath\_\-symbol\_\-get\_\-attributes@{pmath\_\-symbol\_\-get\_\-attributes}}
+\index{pmath\_\-symbol\_\-get\_\-attributes@{pmath\_\-symbol\_\-get\_\-attributes}!symbols@{symbols}}
+\paragraph[{pmath\_\-symbol\_\-get\_\-attributes}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API {\bf pmath\_\-symbol\_\-attributes\_\-t} pmath\_\-symbol\_\-get\_\-attributes ({\bf pmath\_\-symbol\_\-t} {\em symbol})\hspace{0.3cm}{\tt  \mbox{[}inherited\mbox{]}}}\hfill}
+\label{group__symbols_gd553b66226a31e4c105b4f3c93682284}
+
+
+Get a symbol's attributes. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em symbol}]A pMath symbol. It wont be freed. \end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]The symbol's attributes. \end{Desc}
+\hypertarget{group__symbols_g37c740a2074440f4364763a4dbfab931}{
+\index{symbols@{symbols}!pmath\_\-symbol\_\-set\_\-attributes@{pmath\_\-symbol\_\-set\_\-attributes}}
+\index{pmath\_\-symbol\_\-set\_\-attributes@{pmath\_\-symbol\_\-set\_\-attributes}!symbols@{symbols}}
+\paragraph[{pmath\_\-symbol\_\-set\_\-attributes}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API void pmath\_\-symbol\_\-set\_\-attributes ({\bf pmath\_\-symbol\_\-t} {\em symbol}, \/  {\bf pmath\_\-symbol\_\-attributes\_\-t} {\em attr})\hspace{0.3cm}{\tt  \mbox{[}inherited\mbox{]}}}\hfill}
+\label{group__symbols_g37c740a2074440f4364763a4dbfab931}
+
+
+Set a symbol's attributes. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em symbol}]A pMath symbol. It wont be freed. \item[{\em attr}]The new attributes. \end{description}
+\end{Desc}
+\hypertarget{group__symbols_gbf330376870422d219ae9f0557e515c2}{
+\index{symbols@{symbols}!pmath\_\-symbol\_\-get\_\-value@{pmath\_\-symbol\_\-get\_\-value}}
+\index{pmath\_\-symbol\_\-get\_\-value@{pmath\_\-symbol\_\-get\_\-value}!symbols@{symbols}}
+\paragraph[{pmath\_\-symbol\_\-get\_\-value}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API {\bf pmath\_\-t} pmath\_\-symbol\_\-get\_\-value ({\bf pmath\_\-symbol\_\-t} {\em symbol})\hspace{0.3cm}{\tt  \mbox{[}inherited\mbox{]}}}\hfill}
+\label{group__symbols_gbf330376870422d219ae9f0557e515c2}
+
+
+Get a symbol's value. 
+
+\begin{Desc}
+\item[\hyperlink{deprecated__deprecated000001}{Deprecated}]\end{Desc}
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em symbol}]A pMath symbol. \end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]The symbol's value. You must free it with \hyperlink{classpmath__t_54e905402c38940687033b87eb8c6c9f}{pmath\_\-unref()}. Note that not every object is evaluatable (e.g. \hyperlink{group__custom}{Custom Objects} ). \end{Desc}
+\hypertarget{group__symbols_g8344005c16b86be82d2efdedb0795a0c}{
+\index{symbols@{symbols}!pmath\_\-symbol\_\-set\_\-value@{pmath\_\-symbol\_\-set\_\-value}}
+\index{pmath\_\-symbol\_\-set\_\-value@{pmath\_\-symbol\_\-set\_\-value}!symbols@{symbols}}
+\paragraph[{pmath\_\-symbol\_\-set\_\-value}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API void pmath\_\-symbol\_\-set\_\-value ({\bf pmath\_\-symbol\_\-t} {\em symbol}, \/  {\bf pmath\_\-t} {\em value})\hspace{0.3cm}{\tt  \mbox{[}inherited\mbox{]}}}\hfill}
+\label{group__symbols_g8344005c16b86be82d2efdedb0795a0c}
+
+
+Set a symbol's value. 
+
+\begin{Desc}
+\item[\hyperlink{deprecated__deprecated000002}{Deprecated}]\end{Desc}
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em symbol}]A pMath symbol. It wont be freed \item[{\em value}]The new value. It will be freed.\end{description}
+\end{Desc}
+This function ignores the Protected-attribute. You should only use it during symbol initialization and/or when you want to store non-evaluatable values in a symbol. In all other cases, evaluate an expression with the head PMATH\_\-SYMBOL\_\-ASSIGN or PMATH\_\-SYMBOL\_\-ASSIGNDELAYED. \hypertarget{group__symbols_g95b141d9cb33fba80d6a807f304ee3b7}{
+\index{symbols@{symbols}!pmath\_\-symbol\_\-synchronized@{pmath\_\-symbol\_\-synchronized}}
+\index{pmath\_\-symbol\_\-synchronized@{pmath\_\-symbol\_\-synchronized}!symbols@{symbols}}
+\paragraph[{pmath\_\-symbol\_\-synchronized}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API void pmath\_\-symbol\_\-synchronized ({\bf pmath\_\-symbol\_\-t} {\em symbol}, \/  {\bf pmath\_\-callback\_\-t} {\em callback}, \/  void $\ast$ {\em data})\hspace{0.3cm}{\tt  \mbox{[}inherited\mbox{]}}}\hfill}
+\label{group__symbols_g95b141d9cb33fba80d6a807f304ee3b7}
+
+
+Execute a function synchronized to a symbol. 
+
+\begin{Desc}
+\item[\hyperlink{deprecated__deprecated000003}{Deprecated}]\end{Desc}
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em symbol}]The symbol to lock. It wont be freed. \item[{\em callback}]The function to be executed when the symbol is locked. \item[{\em data}]A pointer that will be passed to callback.\end{description}
+\end{Desc}
+\begin{Desc}
+\item[See also:]\hyperlink{group__threads}{Multithreading with pMath} \end{Desc}
+\hypertarget{group__symbols_g7cd56e2b77ac13a11f1b6f7fd13ba357}{
+\index{symbols@{symbols}!pmath\_\-symbol\_\-update@{pmath\_\-symbol\_\-update}}
+\index{pmath\_\-symbol\_\-update@{pmath\_\-symbol\_\-update}!symbols@{symbols}}
+\paragraph[{pmath\_\-symbol\_\-update}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API void pmath\_\-symbol\_\-update ({\bf pmath\_\-symbol\_\-t} {\em symbol})\hspace{0.3cm}{\tt  \mbox{[}inherited\mbox{]}}}\hfill}
+\label{group__symbols_g7cd56e2b77ac13a11f1b6f7fd13ba357}
+
+
+Update a symbol manually. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em symbol}]A pMath symbol.\end{description}
+\end{Desc}
+You normally do not have to call this, since every change in a symbol yields an update. But there are some situations where you might to update it manually. The update mechanism is an optimization. Any expresseion or symbol, that is up to date while evaluation, wont be evaluated again. After an evaluation, expressions are updated automatically. 

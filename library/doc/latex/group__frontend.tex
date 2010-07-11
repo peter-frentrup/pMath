@@ -1,0 +1,118 @@
+\hypertarget{group__frontend}{
+\subsection{Front-ends}
+\label{group__frontend}\index{Front-ends@{Front-ends}}
+}
+Functions for use front-ends.  
+
+
+\subsubsection*{Functions}
+\begin{CompactItemize}
+\item 
+PMATH\_\-API \hyperlink{group__general__types_gc92090cb0b56345d6c379ed2341d4ef4}{pmath\_\-bool\_\-t} \hyperlink{group__frontend_g4934c2dc54f852627f8b291543a21e43}{pmath\_\-continue\_\-after\_\-abort} (void)
+\begin{CompactList}\small\item\em Requests pMath to stop aborting the current evaluation. \item\end{CompactList}\item 
+PMATH\_\-API \hyperlink{classpmath__t}{pmath\_\-t} \hyperlink{group__frontend_g31eb5567282f8a40cab67fac2d14361c}{pmath\_\-session\_\-execute} (\hyperlink{classpmath__t}{pmath\_\-t} input, \hyperlink{group__general__types_gc92090cb0b56345d6c379ed2341d4ef4}{pmath\_\-bool\_\-t} $\ast$aborted)
+\begin{CompactList}\small\item\em Execute an expression and change \$History and \$Line appropriately. \item\end{CompactList}\item 
+PMATH\_\-API \hyperlink{classpmath__t}{pmath\_\-t} \hyperlink{group__frontend_ge55417d3114126529937b86befd70824}{pmath\_\-session\_\-start} (void)
+\begin{CompactList}\small\item\em Saves some global state when an interactive dialog session starts. \item\end{CompactList}\item 
+PMATH\_\-API void \hyperlink{group__frontend_g13649bdb13d4f8fe693f6b72bf3a0840}{pmath\_\-session\_\-end} (\hyperlink{classpmath__t}{pmath\_\-t} old\_\-state)
+\begin{CompactList}\small\item\em Restore some global state when an interactive dialog session ends. \item\end{CompactList}\item 
+PMATH\_\-API \hyperlink{group__general__types_gc92090cb0b56345d6c379ed2341d4ef4}{pmath\_\-bool\_\-t} \hyperlink{group__frontend_gfb9f2c789bee5295c6794d16c0164943}{pmath\_\-init} (void)
+\begin{CompactList}\small\item\em Initialize the pMath CAS library. \item\end{CompactList}\item 
+PMATH\_\-API void \hyperlink{group__frontend_g012705e1fd248a7cebf738bae6375dd9}{pmath\_\-done} (void)
+\begin{CompactList}\small\item\em Free all resources used by the pMath CAS library and unload all modules. \item\end{CompactList}\end{CompactItemize}
+
+
+\subsubsection{Detailed Description}
+Functions for use front-ends. 
+
+A front-end to pMath is an executable, that initializes and finalizes the library and handles User input and output or otherwise invokes expression evalueation with the library. That is, what pMath does: parse and evaluate pMath code. 
+
+\subsubsection{Function Documentation}
+\hypertarget{group__frontend_g4934c2dc54f852627f8b291543a21e43}{
+\index{frontend@{frontend}!pmath\_\-continue\_\-after\_\-abort@{pmath\_\-continue\_\-after\_\-abort}}
+\index{pmath\_\-continue\_\-after\_\-abort@{pmath\_\-continue\_\-after\_\-abort}!frontend@{frontend}}
+\paragraph[{pmath\_\-continue\_\-after\_\-abort}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API {\bf pmath\_\-bool\_\-t} pmath\_\-continue\_\-after\_\-abort (void)}\hfill}
+\label{group__frontend_g4934c2dc54f852627f8b291543a21e43}
+
+
+Requests pMath to stop aborting the current evaluation. 
+
+\begin{Desc}
+\item[Returns:]Whether the global aborting-flag was set (by \hyperlink{group__threads_g84e45036b76764def6390af12d2070bf}{pmath\_\-abort\_\-please()})\end{Desc}
+This is for use in front-ends to allow the user to continue working after he aborted an evaluation.
+
+Any uncought exception will be deleted silently.
+
+This function also clears the \$MessageCount cache.
+
+\begin{Desc}
+\item[See also:]\hyperlink{group__threads_g84e45036b76764def6390af12d2070bf}{pmath\_\-abort\_\-please()} \end{Desc}
+\hypertarget{group__frontend_g31eb5567282f8a40cab67fac2d14361c}{
+\index{frontend@{frontend}!pmath\_\-session\_\-execute@{pmath\_\-session\_\-execute}}
+\index{pmath\_\-session\_\-execute@{pmath\_\-session\_\-execute}!frontend@{frontend}}
+\paragraph[{pmath\_\-session\_\-execute}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API {\bf pmath\_\-t} pmath\_\-session\_\-execute ({\bf pmath\_\-t} {\em input}, \/  {\bf pmath\_\-bool\_\-t} $\ast$ {\em aborted})}\hfill}
+\label{group__frontend_g31eb5567282f8a40cab67fac2d14361c}
+
+
+Execute an expression and change \$History and \$Line appropriately. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em input}]The input expression. It will be freed. \item[{\em aborted}]Optional address of a flag that will be set iff the evaluation was aborted by \hyperlink{group__threads_g84e45036b76764def6390af12d2070bf}{pmath\_\-abort\_\-please()} \end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]The return value is the same as pmath\_\-evaluate(input)\end{Desc}
+This function also calls pmath\_\-collect\_\-temporary\_\-symbols before evaluation. \hypertarget{group__frontend_ge55417d3114126529937b86befd70824}{
+\index{frontend@{frontend}!pmath\_\-session\_\-start@{pmath\_\-session\_\-start}}
+\index{pmath\_\-session\_\-start@{pmath\_\-session\_\-start}!frontend@{frontend}}
+\paragraph[{pmath\_\-session\_\-start}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API {\bf pmath\_\-t} pmath\_\-session\_\-start (void)}\hfill}
+\label{group__frontend_ge55417d3114126529937b86befd70824}
+
+
+Saves some global state when an interactive dialog session starts. 
+
+\begin{Desc}
+\item[Returns:]A pMath object to be given to \hyperlink{group__frontend_g13649bdb13d4f8fe693f6b72bf3a0840}{pmath\_\-session\_\-end()}\end{Desc}
+This function should be used by a frontend when implementing the Dialog() function. \hypertarget{group__frontend_g13649bdb13d4f8fe693f6b72bf3a0840}{
+\index{frontend@{frontend}!pmath\_\-session\_\-end@{pmath\_\-session\_\-end}}
+\index{pmath\_\-session\_\-end@{pmath\_\-session\_\-end}!frontend@{frontend}}
+\paragraph[{pmath\_\-session\_\-end}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API void pmath\_\-session\_\-end ({\bf pmath\_\-t} {\em old\_\-state})}\hfill}
+\label{group__frontend_g13649bdb13d4f8fe693f6b72bf3a0840}
+
+
+Restore some global state when an interactive dialog session ends. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em old\_\-state}]The object returned by \hyperlink{group__frontend_ge55417d3114126529937b86befd70824}{pmath\_\-session\_\-start()}. It will be freed.\end{description}
+\end{Desc}
+This function should be used by a frontend when implementing the Dialog() function. \hypertarget{group__frontend_gfb9f2c789bee5295c6794d16c0164943}{
+\index{frontend@{frontend}!pmath\_\-init@{pmath\_\-init}}
+\index{pmath\_\-init@{pmath\_\-init}!frontend@{frontend}}
+\paragraph[{pmath\_\-init}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API {\bf pmath\_\-bool\_\-t} pmath\_\-init (void)}\hfill}
+\label{group__frontend_gfb9f2c789bee5295c6794d16c0164943}
+
+
+Initialize the pMath CAS library. 
+
+\begin{Desc}
+\item[Returns:]TRUE, if the initialization was successfull, FALSE otherwise.\end{Desc}
+Any thread must call \hyperlink{group__frontend_gfb9f2c789bee5295c6794d16c0164943}{pmath\_\-init()} before using any other pMath function (exception: \hyperlink{group__atomic__ops}{Atomic Operations}). If the initialization fails, the thread should stop. Otherwise, \hyperlink{group__frontend_g012705e1fd248a7cebf738bae6375dd9}{pmath\_\-done()} must be called before the thread ends.
+
+When this function is called for the first time, the {\tt maininit.pmath} file is executed. This file is searched in the following directories in order:\begin{enumerate}
+\item The application directory\item The directory specified in the {\tt PMATH\_\-BASEDIRECTORY} environment variable\item Some operating system specific directories:\begin{itemize}
+\item /etc/pmath, /etc/local/pmath, /usr/share/pmath, /usr/share/local/pmath on Unix like systems\item The \char`\"{}common program files\char`\"{} and \char`\"{}program files\char`\"{} directories on Microsoft Windows. \end{itemize}
+\end{enumerate}
+\hypertarget{group__frontend_g012705e1fd248a7cebf738bae6375dd9}{
+\index{frontend@{frontend}!pmath\_\-done@{pmath\_\-done}}
+\index{pmath\_\-done@{pmath\_\-done}!frontend@{frontend}}
+\paragraph[{pmath\_\-done}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API void pmath\_\-done (void)}\hfill}
+\label{group__frontend_g012705e1fd248a7cebf738bae6375dd9}
+
+
+Free all resources used by the pMath CAS library and unload all modules. 
+
+\begin{Desc}
+\item[See also:]\hyperlink{group__frontend_gfb9f2c789bee5295c6794d16c0164943}{pmath\_\-init} \end{Desc}

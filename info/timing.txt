@@ -1,0 +1,125 @@
+with task lock in _pmath_find_builtin:
+Timing(Local({x:=1/Pi},Do(x:=3.5*x*(1-x),10^5);x))
+{60.06, 0.500884210307218}
+
+with spin lock in _pmath_find_builtin:
+Timing(Local({x:=1/Pi},Do(x:=3.5*x*(1-x),10^5);x))
+{5.741, 0.500884210307218}
+
+___________________________________________
+
+with task lock in _pmath_object_find_user_rule():
+Timing(Local({x:=1/Pi},Do(x:=3.5*x*(1-x),10^6);x))
+{105.535, 0.500884210307218}
+
+with spin lock in _pmath_object_find_user_rule():
+Timing(Local({x:=1/Pi},Do(x:=3.5*x*(1-x),10^6);x))
+{86.518, 0.500884210307218}
+
+with handling Times(x) = x and Plus(x) = x at _end_ of builtin_times() / builtin_plus():
+Timing(Local({x:=1/Pi},Do(x:=3.5*x*(1-x),10^6);x))
+{61.621, 0.500884210307218}
+
+___________________________________________
+
+Timing(Do(x:=1,10^7))
+{48.064, /\/}
+
+with _pmath_fast_ref(), _pmath_fast_unref(), _pmath_fast_instance_of():
+Timing(Do(x:=1,10^7))
+{28.159,/\/}
+
+Timing(Local({x:=1/Pi},Do(x:=3.5*x*(1-x),10^6);x))
+{47.705, 0.500884210307218}
+
+___________________________________________
+
+with _pmath_abort_reasons and incremental_hash() instead of goulburn_hash():
+Timing(Do(x:=1,10^7))
+{25.912, /\/}
+
+Timing(Local({x:=1/Pi},Do(x:=3.5*x*(1-x),10^6);x))
+{37.612, 0.500884210307218}
+
+___________________________________________
+
+without pmath_hash() in _pmath_expression_eval_items():
+Timing(Local({x:=1/Pi},Do(x:=3.5*x*(1-x),10^6);x))
+{27.799, 0.500884210307218}
+
+___________________________________________
+
+with builtin_default():
+Timing(Local({x:=1/Pi},Do(x:=3.5*x*(1-x),10^6);x))
+{22.636, 0.500884210307218}
+
+___________________________________________
+
+without saving/testing original in pmath_evaluate():
+Timing(Local({x:=1/Pi},Do(x:=3.5*x*(1-x),10^6);x))
+{20.592, 0.500884210307218}
+
+___________________________________________
+
+with _pmath_expression_shrink_associative() in (builtin_plus, builtin_times):
+Timing(Local({x:=1/Pi},Do(x:=3.5*x*(1-x),10^6);x))
+{19.172, 0.500884210307218}
+
+___________________________________________
+
+with _pmath_timer_t last_change (64 bit) in pmath_expression_t/pmath_symbol_t:
+Timing(Local({x:=1/Pi},Do(x:=3.5*x*(1-x),10^6);x))
+{22.105, 0.500884210307218}
+
+___________________________________________
+
+[14. 10. 2009] debug build with -DDEBUG_NO_FASTREF (several changes since last timing test which happened months ago):
+Timing(Local({x:=1/Pi},Do(x:=3.5*x*(1-x),10^6);x))
+{26.754`, 0.5008842103072177`}
+
+[17. 11. 2009] debug build without -DDEBUG_NO_FASTREF:
+Timing(Local({x:=1/Pi},Do(x:=3.5*x*(1-x),10^6);x))
+{24.757`, 0.5008842103072177`}
+
+[18. 11. 2009] with "early code" (see PMATH_CODE_USAGE_EARLYCALL & evaluation.c) for Plus/Times/Power:
+Timing(Local({x:=1/Pi},Do(x:=3.5*x*(1-x),10^6);x))
+{20.919`, 0.5008842103072177`}
+
+[8. 12. 2009] caching unused machine-precision floats to reduce calls to pmath_mem_alloc()
+Timing(Local({x:=1/Pi},Do(x:=3.5*x*(1-x),10^6);x))
+{18.346`, 0.5008842103072177`}
+
+[9. 12. 2009] caching unused general-expressions to reduce calls to pmath_mem_alloc()
+Timing(Local({x:=1/Pi},Do(x:=3.5*x*(1-x),10^6);x))
+{16.505`, 0.5008842103072177`}
+
+___________________________________________
+___________________________________________
+
+l:= RandomReal(1,10^6);
+Timing(l.Sort;)
+
+C's qsort():
+  {5.912, /\/}    (early in 2009 ?)
+  {4.93`, /\/}    (14. 10. 2009)
+  
+___________________________________________
+___________________________________________
+
+- Multithreading test (walking along a binary tree):
+	maketree(0,~v)::= v
+	maketree(~d,~v)::= {maketree(d-1,v+1),v,maketree(d-1,v+1)}
+	walk({~l,~v,~r})::= walk(l) + walk(r) + doit(v)
+	walk(~v)::= doit(v)
+	walk2({~l,~v,~r})::= Local({t1:=NewTask(walk2(l)), t2:=NewTask(walk2(r))}, Wait(t1) + Wait(t2) + doit(v))
+	walk2(~v)::= doit(v)
+	doit(~)::= (Pause(0.01);1)
+	t:=maketree(9,1);
+
+	While(True,Print(walk2(t).Timing))
+	
+	> walk(t).Timing
+	  {15.045, 1023}    /* times can vary */
+	> walk2(t).Timing
+	  {7.624, 1023}     /* ~ half the time (dual core cpu) */
+	

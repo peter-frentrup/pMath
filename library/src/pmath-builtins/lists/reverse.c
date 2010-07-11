@@ -1,0 +1,111 @@
+#include <assert.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include <pmath-config.h>
+#include <pmath-types.h>
+#include <pmath-core/objects.h>
+#include <pmath-core/expressions.h>
+#include <pmath-core/numbers.h>
+#include <pmath-core/strings.h>
+#include <pmath-core/symbols.h>
+
+#include <pmath-util/messages.h>
+
+#include <pmath-util/concurrency/atomic.h>
+
+#include <pmath-core/objects-inline.h>
+
+#include <pmath-builtins/lists-private.h>
+#include <pmath-builtins/all-symbols.h>
+#include <pmath-builtins/all-symbols-private.h>
+
+struct reverse_info_t{
+  long levelmin;
+  long levelmax;
+};
+
+static pmath_t reverse(
+  struct reverse_info_t *info, 
+  pmath_t         obj,  // will be freed
+  long                   level
+){
+  int reldepth = _pmath_object_in_levelspec(
+    obj, info->levelmin, info->levelmax, level);
+  
+  if(reldepth <= 0 && pmath_instance_of(obj, PMATH_TYPE_EXPRESSION)){
+    size_t len = pmath_expr_length(obj);
+    size_t i;
+    
+    for(i = len;i > 0;--i){
+      pmath_t item = pmath_expr_get_item(obj, i);
+      obj = pmath_expr_set_item(obj, i, NULL);
+      
+      item = reverse(info, item, level + 1);
+      obj = pmath_expr_set_item(obj, i, item);
+    }
+  }
+  
+  if(reldepth == 0
+  && pmath_instance_of(obj, PMATH_TYPE_EXPRESSION)){
+    size_t i, len;
+    
+    len = pmath_expr_length(obj);
+    for(i = len/2;i > 0;--i){
+      pmath_t a = pmath_expr_get_item(obj, i);
+      pmath_t b = pmath_expr_get_item(obj, len + 1 - i);
+      
+      obj = pmath_expr_set_item(obj, i,           b);
+      obj = pmath_expr_set_item(obj, len + 1 - i, a);
+    }
+    
+    return obj;
+  }
+  
+  return obj;
+}
+
+PMATH_PRIVATE pmath_t builtin_reverse(pmath_expr_t expr){
+/* Reverse(expr, levelspec)
+   Reverse(expr)             = Reverse(expr, 1)
+   
+   messages:
+     General::level
+     General::nexprat
+ */
+  struct reverse_info_t info;
+  pmath_t obj;
+  size_t exprlen;
+  
+  exprlen = pmath_expr_length(expr);
+  
+  if(exprlen < 1 || exprlen > 2){
+    pmath_message_argxxx(exprlen, 1, 2);
+    return expr;
+  }
+  
+  obj = pmath_expr_get_item(expr, 1);
+  if(!pmath_instance_of(obj, PMATH_TYPE_EXPRESSION)){
+    pmath_unref(obj);
+    pmath_message(NULL, "nexprat", 1, pmath_integer_new_si(1), pmath_ref(expr));
+    return expr;
+  }
+  
+  info.levelmin = 1;
+  info.levelmax = 1;
+  if(exprlen == 2){
+    pmath_t levels = pmath_expr_get_item(expr, 2);
+    
+    if(!_pmath_extract_levels(levels, &info.levelmin, &info.levelmax)){
+      pmath_unref(obj);
+      pmath_message(NULL, "level", 1, levels);
+      return expr;
+    }
+    
+    pmath_unref(levels);
+  }
+  
+  pmath_unref(expr);
+  return reverse(&info, obj, 1);
+}

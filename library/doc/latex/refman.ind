@@ -1,0 +1,898 @@
+\begin{theindex}
+
+  \item {Atomic Operations}, \hyperpage{56}
+  \item {atomic\_\discretionary {-}{}{}ops}
+    \subitem {pmath\_\discretionary {-}{}{}atomic\_\discretionary {-}{}{}compare\_\discretionary {-}{}{}and\_\discretionary {-}{}{}set}, 
+		\hyperpage{58}
+    \subitem {pmath\_\discretionary {-}{}{}atomic\_\discretionary {-}{}{}compare\_\discretionary {-}{}{}and\_\discretionary {-}{}{}set\_\discretionary {-}{}{}2}, 
+		\hyperpage{59}
+    \subitem {pmath\_\discretionary {-}{}{}atomic\_\discretionary {-}{}{}fetch\_\discretionary {-}{}{}add}, 
+		\hyperpage{58}
+    \subitem {pmath\_\discretionary {-}{}{}atomic\_\discretionary {-}{}{}fetch\_\discretionary {-}{}{}compare\_\discretionary {-}{}{}and\_\discretionary {-}{}{}set}, 
+		\hyperpage{58}
+    \subitem {pmath\_\discretionary {-}{}{}atomic\_\discretionary {-}{}{}fetch\_\discretionary {-}{}{}set}, 
+		\hyperpage{58}
+    \subitem {pmath\_\discretionary {-}{}{}atomic\_\discretionary {-}{}{}have\_\discretionary {-}{}{}cas2}, 
+		\hyperpage{59}
+    \subitem {pmath\_\discretionary {-}{}{}atomic\_\discretionary {-}{}{}lock}, 
+		\hyperpage{60}
+    \subitem {pmath\_\discretionary {-}{}{}atomic\_\discretionary {-}{}{}loop\_\discretionary {-}{}{}nop}, 
+		\hyperpage{60}
+    \subitem {pmath\_\discretionary {-}{}{}atomic\_\discretionary {-}{}{}unlock}, 
+		\hyperpage{60}
+
+  \indexspace
+
+  \item {C++ Binding}, \hyperpage{44}
+  \item {custom}
+    \subitem {pmath\_\discretionary {-}{}{}custom\_\discretionary {-}{}{}get\_\discretionary {-}{}{}data}, 
+		\hyperpage{5}
+    \subitem {pmath\_\discretionary {-}{}{}custom\_\discretionary {-}{}{}has\_\discretionary {-}{}{}destructor}, 
+		\hyperpage{6}
+    \subitem {pmath\_\discretionary {-}{}{}custom\_\discretionary {-}{}{}new}, 
+		\hyperpage{5}
+  \item {Custom Objects}, \hyperpage{4}
+
+  \indexspace
+
+  \item {debug}
+    \subitem {pmath\_\discretionary {-}{}{}debug\_\discretionary {-}{}{}print}, 
+		\hyperpage{69}
+    \subitem {pmath\_\discretionary {-}{}{}debug\_\discretionary {-}{}{}print\_\discretionary {-}{}{}object}, 
+		\hyperpage{69}
+  \item {Debugging}, \hyperpage{69}
+
+  \indexspace
+
+  \item {Expressions}, \hyperpage{6}
+  \item {expressions}
+    \subitem {pmath\_\discretionary {-}{}{}expr\_\discretionary {-}{}{}append}, 
+		\hyperpage{8}
+    \subitem {pmath\_\discretionary {-}{}{}expr\_\discretionary {-}{}{}flatten}, 
+		\hyperpage{11}
+    \subitem {pmath\_\discretionary {-}{}{}expr\_\discretionary {-}{}{}get\_\discretionary {-}{}{}item}, 
+		\hyperpage{9}
+    \subitem {pmath\_\discretionary {-}{}{}expr\_\discretionary {-}{}{}get\_\discretionary {-}{}{}item\_\discretionary {-}{}{}range}, 
+		\hyperpage{9}
+    \subitem {pmath\_\discretionary {-}{}{}expr\_\discretionary {-}{}{}length}, 
+		\hyperpage{9}
+    \subitem {pmath\_\discretionary {-}{}{}expr\_\discretionary {-}{}{}new}, 
+		\hyperpage{7}
+    \subitem {pmath\_\discretionary {-}{}{}expr\_\discretionary {-}{}{}new\_\discretionary {-}{}{}extended}, 
+		\hyperpage{8}
+    \subitem {pmath\_\discretionary {-}{}{}expr\_\discretionary {-}{}{}remove\_\discretionary {-}{}{}all}, 
+		\hyperpage{10}
+    \subitem {pmath\_\discretionary {-}{}{}expr\_\discretionary {-}{}{}resize}, 
+		\hyperpage{8}
+    \subitem {pmath\_\discretionary {-}{}{}expr\_\discretionary {-}{}{}set\_\discretionary {-}{}{}item}, 
+		\hyperpage{10}
+    \subitem {pmath\_\discretionary {-}{}{}expr\_\discretionary {-}{}{}sort}, 
+		\hyperpage{10}
+
+  \indexspace
+
+  \item {File API}, \hyperpage{70}
+  \item {file\_\-api}
+    \subitem {PMATH\_\-FILE\_\-ENDOFFILE}, \hyperpage{72}
+    \subitem {PMATH\_\-FILE\_\-INVALID}, \hyperpage{72}
+    \subitem {PMATH\_\-FILE\_\-OK}, \hyperpage{72}
+    \subitem {PMATH\_\-FILE\_\-OTHERERROR}, \hyperpage{72}
+    \subitem {PMATH\_\-FILE\_\-RECURSIVE}, \hyperpage{72}
+  \item {file\_\discretionary {-}{}{}api}
+    \subitem {pmath\_\discretionary {-}{}{}file\_\discretionary {-}{}{}binary\_\discretionary {-}{}{}buffer\_\discretionary {-}{}{}manipulate}, 
+		\hyperpage{77}
+    \subitem {pmath\_\discretionary {-}{}{}file\_\discretionary {-}{}{}binary\_\discretionary {-}{}{}buffer\_\discretionary {-}{}{}size}, 
+		\hyperpage{77}
+    \subitem {pmath\_\discretionary {-}{}{}file\_\discretionary {-}{}{}close}, 
+		\hyperpage{75}
+    \subitem {pmath\_\discretionary {-}{}{}file\_\discretionary {-}{}{}create\_\discretionary {-}{}{}binary}, 
+		\hyperpage{76}
+    \subitem {pmath\_\discretionary {-}{}{}file\_\discretionary {-}{}{}create\_\discretionary {-}{}{}binary\_\discretionary {-}{}{}buffer}, 
+		\hyperpage{77}
+    \subitem {pmath\_\discretionary {-}{}{}file\_\discretionary {-}{}{}create\_\discretionary {-}{}{}text}, 
+		\hyperpage{76}
+    \subitem {pmath\_\discretionary {-}{}{}file\_\discretionary {-}{}{}create\_\discretionary {-}{}{}text\_\discretionary {-}{}{}from\_\discretionary {-}{}{}binary}, 
+		\hyperpage{77}
+    \subitem {pmath\_\discretionary {-}{}{}file\_\discretionary {-}{}{}flush}, 
+		\hyperpage{74}
+    \subitem {pmath\_\discretionary {-}{}{}file\_\discretionary {-}{}{}manipulate}, 
+		\hyperpage{75}
+    \subitem {pmath\_\discretionary {-}{}{}file\_\discretionary {-}{}{}read}, 
+		\hyperpage{73}
+    \subitem {pmath\_\discretionary {-}{}{}file\_\discretionary {-}{}{}readline}, 
+		\hyperpage{73}
+    \subitem {pmath\_\discretionary {-}{}{}file\_\discretionary {-}{}{}set\_\discretionary {-}{}{}binbuffer}, 
+		\hyperpage{75}
+    \subitem {pmath\_\discretionary {-}{}{}file\_\discretionary {-}{}{}set\_\discretionary {-}{}{}textbuffer}, 
+		\hyperpage{73}
+    \subitem {pmath\_\discretionary {-}{}{}file\_\discretionary {-}{}{}status}, 
+		\hyperpage{72}
+    \subitem {pmath\_\discretionary {-}{}{}file\_\discretionary {-}{}{}test}, 
+		\hyperpage{72}
+    \subitem {pmath\_\discretionary {-}{}{}file\_\discretionary {-}{}{}write}, 
+		\hyperpage{74}
+    \subitem {pmath\_\discretionary {-}{}{}file\_\discretionary {-}{}{}write\_\discretionary {-}{}{}object}, 
+		\hyperpage{74}
+    \subitem {pmath\_\discretionary {-}{}{}file\_\discretionary {-}{}{}writetext}, 
+		\hyperpage{74}
+    \subitem {pmath\_\discretionary {-}{}{}files\_\discretionary {-}{}{}status\_\discretionary {-}{}{}t}, 
+		\hyperpage{72}
+  \item {Front-ends}, \hyperpage{90}
+  \item {frontend}
+    \subitem {pmath\_\discretionary {-}{}{}continue\_\discretionary {-}{}{}after\_\discretionary {-}{}{}abort}, 
+		\hyperpage{91}
+    \subitem {pmath\_\discretionary {-}{}{}done}, \hyperpage{92}
+    \subitem {pmath\_\discretionary {-}{}{}init}, \hyperpage{91}
+    \subitem {pmath\_\discretionary {-}{}{}session\_\discretionary {-}{}{}execute}, 
+		\hyperpage{91}
+
+  \indexspace
+
+  \item {General Purpose Types}, \hyperpage{55}
+  \item {general\_\discretionary {-}{}{}types}
+    \subitem {pmath\_\discretionary {-}{}{}bool\_\discretionary {-}{}{}t}, 
+		\hyperpage{56}
+    \subitem {pmath\_\discretionary {-}{}{}callback\_\discretionary {-}{}{}t}, 
+		\hyperpage{56}
+    \subitem {pmath\_\discretionary {-}{}{}write\_\discretionary {-}{}{}func\_\discretionary {-}{}{}t}, 
+		\hyperpage{56}
+
+  \indexspace
+
+  \item {helpers}
+    \subitem {pmath\_\discretionary {-}{}{}build\_\discretionary {-}{}{}value}, 
+		\hyperpage{82}
+    \subitem {pmath\_\discretionary {-}{}{}build\_\discretionary {-}{}{}value\_\discretionary {-}{}{}v}, 
+		\hyperpage{82}
+    \subitem {pmath\_\discretionary {-}{}{}current\_\discretionary {-}{}{}head}, 
+		\hyperpage{80}
+    \subitem {pmath\_\discretionary {-}{}{}emit}, \hyperpage{81}
+    \subitem {pmath\_\discretionary {-}{}{}gather\_\discretionary {-}{}{}begin}, 
+		\hyperpage{81}
+    \subitem {pmath\_\discretionary {-}{}{}gather\_\discretionary {-}{}{}end}, 
+		\hyperpage{81}
+    \subitem {pmath\_\discretionary {-}{}{}is\_\discretionary {-}{}{}expr\_\discretionary {-}{}{}of}, 
+		\hyperpage{79}
+    \subitem {pmath\_\discretionary {-}{}{}is\_\discretionary {-}{}{}expr\_\discretionary {-}{}{}of\_\discretionary {-}{}{}len}, 
+		\hyperpage{80}
+    \subitem {pmath\_\discretionary {-}{}{}option\_\discretionary {-}{}{}value}, 
+		\hyperpage{84}
+    \subitem {pmath\_\discretionary {-}{}{}options\_\discretionary {-}{}{}extract}, 
+		\hyperpage{83}
+    \subitem {pmath\_\discretionary {-}{}{}session\_\discretionary {-}{}{}end}, 
+		\hyperpage{80}
+    \subitem {pmath\_\discretionary {-}{}{}session\_\discretionary {-}{}{}start}, 
+		\hyperpage{80}
+    \subitem {pmath\_\discretionary {-}{}{}stack\_\discretionary {-}{}{}walker\_\discretionary {-}{}{}t}, 
+		\hyperpage{79}
+    \subitem {pmath\_\discretionary {-}{}{}walk\_\discretionary {-}{}{}stack}, 
+		\hyperpage{80}
+
+  \indexspace
+
+  \item {memory}
+    \subitem {pmath\_\discretionary {-}{}{}mem\_\discretionary {-}{}{}alloc}, 
+		\hyperpage{85}
+    \subitem {pmath\_\discretionary {-}{}{}mem\_\discretionary {-}{}{}free}, 
+		\hyperpage{86}
+    \subitem {pmath\_\discretionary {-}{}{}mem\_\discretionary {-}{}{}realloc}, 
+		\hyperpage{85}
+    \subitem {pmath\_\discretionary {-}{}{}mem\_\discretionary {-}{}{}realloc\_\discretionary {-}{}{}no\_\discretionary {-}{}{}failfree}, 
+		\hyperpage{85}
+    \subitem {pmath\_\discretionary {-}{}{}mem\_\discretionary {-}{}{}usage}, 
+		\hyperpage{86}
+  \item {Memory Management}, \hyperpage{84}
+  \item {Messages}, \hyperpage{86}
+  \item {messages}
+    \subitem {pmath\_\discretionary {-}{}{}message}, \hyperpage{87}
+    \subitem {pmath\_\discretionary {-}{}{}message\_\discretionary {-}{}{}argxxx}, 
+		\hyperpage{87}
+    \subitem {pmath\_\discretionary {-}{}{}message\_\discretionary {-}{}{}find\_\discretionary {-}{}{}text}, 
+		\hyperpage{88}
+    \subitem {pmath\_\discretionary {-}{}{}message\_\discretionary {-}{}{}syntax\_\discretionary {-}{}{}error}, 
+		\hyperpage{88}
+  \item {Multithreading with pMath}, \hyperpage{64}
+
+  \indexspace
+
+  \item {Numbers}, \hyperpage{11}
+  \item {numbers}
+    \subitem {pmath\_\discretionary {-}{}{}accuracy}, \hyperpage{13}
+    \subitem {pmath\_\discretionary {-}{}{}approximate}, \hyperpage{14}
+    \subitem {pmath\_\discretionary {-}{}{}float\_\discretionary {-}{}{}new\_\discretionary {-}{}{}d}, 
+		\hyperpage{18}
+    \subitem {pmath\_\discretionary {-}{}{}float\_\discretionary {-}{}{}new\_\discretionary {-}{}{}str}, 
+		\hyperpage{17}
+    \subitem {pmath\_\discretionary {-}{}{}integer\_\discretionary {-}{}{}fits\_\discretionary {-}{}{}si}, 
+		\hyperpage{18}
+    \subitem {pmath\_\discretionary {-}{}{}integer\_\discretionary {-}{}{}fits\_\discretionary {-}{}{}ui}, 
+		\hyperpage{19}
+    \subitem {pmath\_\discretionary {-}{}{}integer\_\discretionary {-}{}{}get\_\discretionary {-}{}{}si}, 
+		\hyperpage{19}
+    \subitem {pmath\_\discretionary {-}{}{}integer\_\discretionary {-}{}{}get\_\discretionary {-}{}{}ui}, 
+		\hyperpage{19}
+    \subitem {pmath\_\discretionary {-}{}{}integer\_\discretionary {-}{}{}new\_\discretionary {-}{}{}data}, 
+		\hyperpage{15}
+    \subitem {pmath\_\discretionary {-}{}{}integer\_\discretionary {-}{}{}new\_\discretionary {-}{}{}si}, 
+		\hyperpage{15}
+    \subitem {pmath\_\discretionary {-}{}{}integer\_\discretionary {-}{}{}new\_\discretionary {-}{}{}size}, 
+		\hyperpage{15}
+    \subitem {pmath\_\discretionary {-}{}{}integer\_\discretionary {-}{}{}new\_\discretionary {-}{}{}str}, 
+		\hyperpage{16}
+    \subitem {pmath\_\discretionary {-}{}{}integer\_\discretionary {-}{}{}new\_\discretionary {-}{}{}ui}, 
+		\hyperpage{15}
+    \subitem {pmath\_\discretionary {-}{}{}number\_\discretionary {-}{}{}get\_\discretionary {-}{}{}d}, 
+		\hyperpage{20}
+    \subitem {pmath\_\discretionary {-}{}{}number\_\discretionary {-}{}{}neg}, 
+		\hyperpage{20}
+    \subitem {pmath\_\discretionary {-}{}{}number\_\discretionary {-}{}{}sign}, 
+		\hyperpage{20}
+    \subitem {pmath\_\discretionary {-}{}{}precision}, \hyperpage{13}
+    \subitem {pmath\_\discretionary {-}{}{}rational\_\discretionary {-}{}{}denominator}, 
+		\hyperpage{17}
+    \subitem {pmath\_\discretionary {-}{}{}rational\_\discretionary {-}{}{}new}, 
+		\hyperpage{16}
+    \subitem {pmath\_\discretionary {-}{}{}rational\_\discretionary {-}{}{}numerator}, 
+		\hyperpage{17}
+    \subitem {pmath\_\discretionary {-}{}{}set\_\discretionary {-}{}{}accuracy}, 
+		\hyperpage{14}
+    \subitem {pmath\_\discretionary {-}{}{}set\_\discretionary {-}{}{}precision}, 
+		\hyperpage{14}
+
+  \indexspace
+
+  \item {Object Utility Functions}, \hyperpage{78}
+  \item {objects}
+    \subitem {pmath\_\discretionary {-}{}{}compare}, \hyperpage{26}
+    \subitem {pmath\_\discretionary {-}{}{}compare\_\discretionary {-}{}{}func\_\discretionary {-}{}{}t}, 
+		\hyperpage{25}
+    \subitem {pmath\_\discretionary {-}{}{}equal\_\discretionary {-}{}{}func\_\discretionary {-}{}{}t}, 
+		\hyperpage{25}
+    \subitem {pmath\_\discretionary {-}{}{}equals}, \hyperpage{25}
+    \subitem {pmath\_\discretionary {-}{}{}func\_\discretionary {-}{}{}t}, 
+		\hyperpage{24}
+    \subitem {pmath\_\discretionary {-}{}{}hash}, \hyperpage{25}
+    \subitem {pmath\_\discretionary {-}{}{}hash\_\discretionary {-}{}{}func\_\discretionary {-}{}{}t}, 
+		\hyperpage{25}
+    \subitem {pmath\_\discretionary {-}{}{}is\_\discretionary {-}{}{}evaluated}, 
+		\hyperpage{27}
+    \subitem {PMATH\_\discretionary {-}{}{}IS\_\discretionary {-}{}{}MAGIC}, 
+		\hyperpage{22}
+    \subitem {pmath\_\discretionary {-}{}{}param\_\discretionary {-}{}{}proc\_\discretionary {-}{}{}t}, 
+		\hyperpage{24}
+    \subitem {pmath\_\discretionary {-}{}{}proc\_\discretionary {-}{}{}t}, 
+		\hyperpage{24}
+    \subitem {pmath\_\discretionary {-}{}{}type\_\discretionary {-}{}{}t}, 
+		\hyperpage{23}
+    \subitem {pmath\_\discretionary {-}{}{}write}, \hyperpage{26}
+    \subitem {pmath\_\discretionary {-}{}{}write\_\discretionary {-}{}{}options\_\discretionary {-}{}{}t}, 
+		\hyperpage{24}
+  \item {Objects - the Base of pMath}, \hyperpage{20}
+
+  \indexspace
+
+  \item {parser}
+    \subitem {pmath\_\discretionary {-}{}{}boxes\_\discretionary {-}{}{}from\_\discretionary {-}{}{}spans}, 
+		\hyperpage{50}
+    \subitem {pmath\_\discretionary {-}{}{}parse\_\discretionary {-}{}{}string}, 
+		\hyperpage{54}
+    \subitem {pmath\_\discretionary {-}{}{}parse\_\discretionary {-}{}{}string\_\discretionary {-}{}{}args}, 
+		\hyperpage{54}
+    \subitem {PMATH\_\discretionary {-}{}{}RUN}, \hyperpage{48}
+    \subitem {PMATH\_\discretionary {-}{}{}RUN\_\discretionary {-}{}{}ARGS}, 
+		\hyperpage{49}
+    \subitem {pmath\_\discretionary {-}{}{}span\_\discretionary {-}{}{}array\_\discretionary {-}{}{}free}, 
+		\hyperpage{52}
+    \subitem {pmath\_\discretionary {-}{}{}span\_\discretionary {-}{}{}array\_\discretionary {-}{}{}is\_\discretionary {-}{}{}operator\_\discretionary {-}{}{}start}, 
+		\hyperpage{52}
+    \subitem {pmath\_\discretionary {-}{}{}span\_\discretionary {-}{}{}array\_\discretionary {-}{}{}is\_\discretionary {-}{}{}token\_\discretionary {-}{}{}end}, 
+		\hyperpage{52}
+    \subitem {pmath\_\discretionary {-}{}{}span\_\discretionary {-}{}{}array\_\discretionary {-}{}{}length}, 
+		\hyperpage{52}
+    \subitem {pmath\_\discretionary {-}{}{}span\_\discretionary {-}{}{}at}, 
+		\hyperpage{53}
+    \subitem {pmath\_\discretionary {-}{}{}span\_\discretionary {-}{}{}end}, 
+		\hyperpage{53}
+    \subitem {pmath\_\discretionary {-}{}{}span\_\discretionary {-}{}{}next}, 
+		\hyperpage{53}
+    \subitem {pmath\_\discretionary {-}{}{}spans\_\discretionary {-}{}{}from\_\discretionary {-}{}{}boxes}, 
+		\hyperpage{50}
+    \subitem {pmath\_\discretionary {-}{}{}spans\_\discretionary {-}{}{}from\_\discretionary {-}{}{}string}, 
+		\hyperpage{49}
+    \subitem {pmath\_\discretionary {-}{}{}string\_\discretionary {-}{}{}expand\_\discretionary {-}{}{}boxes}, 
+		\hyperpage{54}
+    \subitem {pmath\_\discretionary {-}{}{}token\_\discretionary {-}{}{}analyse}, 
+		\hyperpage{50}
+    \subitem {pmath\_\discretionary {-}{}{}token\_\discretionary {-}{}{}maybe\_\discretionary {-}{}{}first}, 
+		\hyperpage{51}
+    \subitem {pmath\_\discretionary {-}{}{}token\_\discretionary {-}{}{}maybe\_\discretionary {-}{}{}rest}, 
+		\hyperpage{51}
+    \subitem {pmath\_\discretionary {-}{}{}token\_\discretionary {-}{}{}prefix\_\discretionary {-}{}{}precedence}, 
+		\hyperpage{51}
+  \item {Parsing Code}, \hyperpage{45}
+  \item {pmath::Expr}, \hyperpage{92}
+    \subitem {to\_\discretionary {-}{}{}double}, \hyperpage{93}
+    \subitem {to\_\discretionary {-}{}{}string}, \hyperpage{94}
+  \item {pmath::Gather}, \hyperpage{94}
+  \item {pmath::String}, \hyperpage{112}
+  \item {PMATH\_\-FILE\_\-ENDOFFILE}
+    \subitem {file\_\-api}, \hyperpage{72}
+  \item {PMATH\_\-FILE\_\-INVALID}
+    \subitem {file\_\-api}, \hyperpage{72}
+  \item {PMATH\_\-FILE\_\-OK}
+    \subitem {file\_\-api}, \hyperpage{72}
+  \item {PMATH\_\-FILE\_\-OTHERERROR}
+    \subitem {file\_\-api}, \hyperpage{72}
+  \item {PMATH\_\-FILE\_\-RECURSIVE}
+    \subitem {file\_\-api}, \hyperpage{72}
+  \item {pmath\_\discretionary {-}{}{}abort\_\discretionary {-}{}{}please}
+    \subitem {threads}, \hyperpage{67}
+  \item {pmath\_\discretionary {-}{}{}aborting}
+    \subitem {threads}, \hyperpage{67}
+  \item {pmath\_\discretionary {-}{}{}accuracy}
+    \subitem {numbers}, \hyperpage{13}
+  \item {pmath\_\discretionary {-}{}{}approximate}
+    \subitem {numbers}, \hyperpage{14}
+  \item {pmath\_\discretionary {-}{}{}atomic\_\discretionary {-}{}{}compare\_\discretionary {-}{}{}and\_\discretionary {-}{}{}set}
+    \subitem {atomic\_\discretionary {-}{}{}ops}, \hyperpage{58}
+  \item {pmath\_\discretionary {-}{}{}atomic\_\discretionary {-}{}{}compare\_\discretionary {-}{}{}and\_\discretionary {-}{}{}set\_\discretionary {-}{}{}2}
+    \subitem {atomic\_\discretionary {-}{}{}ops}, \hyperpage{59}
+  \item {pmath\_\discretionary {-}{}{}atomic\_\discretionary {-}{}{}fetch\_\discretionary {-}{}{}add}
+    \subitem {atomic\_\discretionary {-}{}{}ops}, \hyperpage{58}
+  \item {pmath\_\discretionary {-}{}{}atomic\_\discretionary {-}{}{}fetch\_\discretionary {-}{}{}compare\_\discretionary {-}{}{}and\_\discretionary {-}{}{}set}
+    \subitem {atomic\_\discretionary {-}{}{}ops}, \hyperpage{58}
+  \item {pmath\_\discretionary {-}{}{}atomic\_\discretionary {-}{}{}fetch\_\discretionary {-}{}{}set}
+    \subitem {atomic\_\discretionary {-}{}{}ops}, \hyperpage{58}
+  \item {pmath\_\discretionary {-}{}{}atomic\_\discretionary {-}{}{}have\_\discretionary {-}{}{}cas2}
+    \subitem {atomic\_\discretionary {-}{}{}ops}, \hyperpage{59}
+  \item {pmath\_\discretionary {-}{}{}atomic\_\discretionary {-}{}{}lock}
+    \subitem {atomic\_\discretionary {-}{}{}ops}, \hyperpage{60}
+  \item {pmath\_\discretionary {-}{}{}atomic\_\discretionary {-}{}{}loop\_\discretionary {-}{}{}nop}
+    \subitem {atomic\_\discretionary {-}{}{}ops}, \hyperpage{60}
+  \item {pmath\_\discretionary {-}{}{}atomic\_\discretionary {-}{}{}unlock}
+    \subitem {atomic\_\discretionary {-}{}{}ops}, \hyperpage{60}
+  \item {pmath\_\discretionary {-}{}{}binary\_\discretionary {-}{}{}file\_\discretionary {-}{}{}api\_\discretionary {-}{}{}t}, 
+		\hyperpage{95}
+  \item {pmath\_\discretionary {-}{}{}bool\_\discretionary {-}{}{}t}
+    \subitem {general\_\discretionary {-}{}{}types}, \hyperpage{56}
+  \item {pmath\_\discretionary {-}{}{}boxes\_\discretionary {-}{}{}from\_\discretionary {-}{}{}spans}
+    \subitem {parser}, \hyperpage{50}
+  \item {pmath\_\discretionary {-}{}{}build\_\discretionary {-}{}{}value}
+    \subitem {helpers}, \hyperpage{82}
+  \item {pmath\_\discretionary {-}{}{}build\_\discretionary {-}{}{}value\_\discretionary {-}{}{}v}
+    \subitem {helpers}, \hyperpage{82}
+  \item {pmath\_\discretionary {-}{}{}builtin\_\discretionary {-}{}{}func\_\discretionary {-}{}{}t}
+    \subitem {symbols}, \hyperpage{37}
+  \item {PMATH\_\discretionary {-}{}{}C\_\discretionary {-}{}{}STRING}
+    \subitem {strings}, \hyperpage{29}
+  \item {pmath\_\discretionary {-}{}{}callback\_\discretionary {-}{}{}t}
+    \subitem {general\_\discretionary {-}{}{}types}, \hyperpage{56}
+  \item {pmath\_\discretionary {-}{}{}catch}
+    \subitem {threads}, \hyperpage{66}
+  \item {pmath\_\discretionary {-}{}{}char\_\discretionary {-}{}{}from\_\discretionary {-}{}{}name}
+    \subitem {strings}, \hyperpage{30}
+  \item {pmath\_\discretionary {-}{}{}char\_\discretionary {-}{}{}to\_\discretionary {-}{}{}name}
+    \subitem {strings}, \hyperpage{30}
+  \item {pmath\_\discretionary {-}{}{}code\_\discretionary {-}{}{}usage\_\discretionary {-}{}{}t}
+    \subitem {symbols}, \hyperpage{39}
+  \item {pmath\_\discretionary {-}{}{}collect\_\discretionary {-}{}{}temporary\_\discretionary {-}{}{}symbols}
+    \subitem {pmath\_\discretionary {-}{}{}symbol\_\discretionary {-}{}{}t}, 
+		\hyperpage{107}
+  \item {pmath\_\discretionary {-}{}{}compare}
+    \subitem {objects}, \hyperpage{26}
+  \item {pmath\_\discretionary {-}{}{}compare\_\discretionary {-}{}{}func\_\discretionary {-}{}{}t}
+    \subitem {objects}, \hyperpage{25}
+  \item {pmath\_\discretionary {-}{}{}continue\_\discretionary {-}{}{}after\_\discretionary {-}{}{}abort}
+    \subitem {frontend}, \hyperpage{91}
+  \item {pmath\_\discretionary {-}{}{}cstr\_\discretionary {-}{}{}writer\_\discretionary {-}{}{}info\_\discretionary {-}{}{}t}, 
+		\hyperpage{95}
+  \item {pmath\_\discretionary {-}{}{}current\_\discretionary {-}{}{}head}
+    \subitem {helpers}, \hyperpage{80}
+  \item {pmath\_\discretionary {-}{}{}custom\_\discretionary {-}{}{}get\_\discretionary {-}{}{}data}
+    \subitem {custom}, \hyperpage{5}
+  \item {pmath\_\discretionary {-}{}{}custom\_\discretionary {-}{}{}has\_\discretionary {-}{}{}destructor}
+    \subitem {custom}, \hyperpage{6}
+  \item {pmath\_\discretionary {-}{}{}custom\_\discretionary {-}{}{}new}
+    \subitem {custom}, \hyperpage{5}
+  \item {pmath\_\discretionary {-}{}{}custom\_\discretionary {-}{}{}t}, 
+		\hyperpage{96}
+  \item {pmath\_\discretionary {-}{}{}debug\_\discretionary {-}{}{}print}
+    \subitem {debug}, \hyperpage{69}
+  \item {pmath\_\discretionary {-}{}{}debug\_\discretionary {-}{}{}print\_\discretionary {-}{}{}object}
+    \subitem {debug}, \hyperpage{69}
+  \item {pmath\_\discretionary {-}{}{}done}
+    \subitem {frontend}, \hyperpage{92}
+  \item {pmath\_\discretionary {-}{}{}emit}
+    \subitem {helpers}, \hyperpage{81}
+  \item {pmath\_\discretionary {-}{}{}equal\_\discretionary {-}{}{}func\_\discretionary {-}{}{}t}
+    \subitem {objects}, \hyperpage{25}
+  \item {pmath\_\discretionary {-}{}{}equals}
+    \subitem {objects}, \hyperpage{25}
+  \item {pmath\_\discretionary {-}{}{}evaluate}
+    \subitem {pmath\_\discretionary {-}{}{}t}, \hyperpage{109}
+  \item {pmath\_\discretionary {-}{}{}evaluate\_\discretionary {-}{}{}expression}
+    \subitem {pmath\_\discretionary {-}{}{}expr\_\discretionary {-}{}{}t}, 
+		\hyperpage{98}
+  \item {pmath\_\discretionary {-}{}{}expr\_\discretionary {-}{}{}append}
+    \subitem {expressions}, \hyperpage{8}
+  \item {pmath\_\discretionary {-}{}{}expr\_\discretionary {-}{}{}flatten}
+    \subitem {expressions}, \hyperpage{11}
+  \item {pmath\_\discretionary {-}{}{}expr\_\discretionary {-}{}{}get\_\discretionary {-}{}{}item}
+    \subitem {expressions}, \hyperpage{9}
+  \item {pmath\_\discretionary {-}{}{}expr\_\discretionary {-}{}{}get\_\discretionary {-}{}{}item\_\discretionary {-}{}{}range}
+    \subitem {expressions}, \hyperpage{9}
+  \item {pmath\_\discretionary {-}{}{}expr\_\discretionary {-}{}{}length}
+    \subitem {expressions}, \hyperpage{9}
+  \item {pmath\_\discretionary {-}{}{}expr\_\discretionary {-}{}{}new}
+    \subitem {expressions}, \hyperpage{7}
+  \item {pmath\_\discretionary {-}{}{}expr\_\discretionary {-}{}{}new\_\discretionary {-}{}{}extended}
+    \subitem {expressions}, \hyperpage{8}
+  \item {pmath\_\discretionary {-}{}{}expr\_\discretionary {-}{}{}remove\_\discretionary {-}{}{}all}
+    \subitem {expressions}, \hyperpage{10}
+  \item {pmath\_\discretionary {-}{}{}expr\_\discretionary {-}{}{}resize}
+    \subitem {expressions}, \hyperpage{8}
+  \item {pmath\_\discretionary {-}{}{}expr\_\discretionary {-}{}{}set\_\discretionary {-}{}{}item}
+    \subitem {expressions}, \hyperpage{10}
+  \item {pmath\_\discretionary {-}{}{}expr\_\discretionary {-}{}{}sort}
+    \subitem {expressions}, \hyperpage{10}
+  \item {pmath\_\discretionary {-}{}{}expr\_\discretionary {-}{}{}t}, 
+		\hyperpage{96}
+    \subitem {pmath\_\discretionary {-}{}{}evaluate\_\discretionary {-}{}{}expression}, 
+		\hyperpage{98}
+  \item {pmath\_\discretionary {-}{}{}file\_\discretionary {-}{}{}binary\_\discretionary {-}{}{}buffer\_\discretionary {-}{}{}manipulate}
+    \subitem {file\_\discretionary {-}{}{}api}, \hyperpage{77}
+  \item {pmath\_\discretionary {-}{}{}file\_\discretionary {-}{}{}binary\_\discretionary {-}{}{}buffer\_\discretionary {-}{}{}size}
+    \subitem {file\_\discretionary {-}{}{}api}, \hyperpage{77}
+  \item {pmath\_\discretionary {-}{}{}file\_\discretionary {-}{}{}close}
+    \subitem {file\_\discretionary {-}{}{}api}, \hyperpage{75}
+  \item {pmath\_\discretionary {-}{}{}file\_\discretionary {-}{}{}create\_\discretionary {-}{}{}binary}
+    \subitem {file\_\discretionary {-}{}{}api}, \hyperpage{76}
+  \item {pmath\_\discretionary {-}{}{}file\_\discretionary {-}{}{}create\_\discretionary {-}{}{}binary\_\discretionary {-}{}{}buffer}
+    \subitem {file\_\discretionary {-}{}{}api}, \hyperpage{77}
+  \item {pmath\_\discretionary {-}{}{}file\_\discretionary {-}{}{}create\_\discretionary {-}{}{}text}
+    \subitem {file\_\discretionary {-}{}{}api}, \hyperpage{76}
+  \item {pmath\_\discretionary {-}{}{}file\_\discretionary {-}{}{}create\_\discretionary {-}{}{}text\_\discretionary {-}{}{}from\_\discretionary {-}{}{}binary}
+    \subitem {file\_\discretionary {-}{}{}api}, \hyperpage{77}
+  \item {pmath\_\discretionary {-}{}{}file\_\discretionary {-}{}{}flush}
+    \subitem {file\_\discretionary {-}{}{}api}, \hyperpage{74}
+  \item {pmath\_\discretionary {-}{}{}file\_\discretionary {-}{}{}manipulate}
+    \subitem {file\_\discretionary {-}{}{}api}, \hyperpage{75}
+  \item {pmath\_\discretionary {-}{}{}file\_\discretionary {-}{}{}read}
+    \subitem {file\_\discretionary {-}{}{}api}, \hyperpage{73}
+  \item {pmath\_\discretionary {-}{}{}file\_\discretionary {-}{}{}readline}
+    \subitem {file\_\discretionary {-}{}{}api}, \hyperpage{73}
+  \item {pmath\_\discretionary {-}{}{}file\_\discretionary {-}{}{}set\_\discretionary {-}{}{}binbuffer}
+    \subitem {file\_\discretionary {-}{}{}api}, \hyperpage{75}
+  \item {pmath\_\discretionary {-}{}{}file\_\discretionary {-}{}{}set\_\discretionary {-}{}{}textbuffer}
+    \subitem {file\_\discretionary {-}{}{}api}, \hyperpage{73}
+  \item {pmath\_\discretionary {-}{}{}file\_\discretionary {-}{}{}status}
+    \subitem {file\_\discretionary {-}{}{}api}, \hyperpage{72}
+  \item {pmath\_\discretionary {-}{}{}file\_\discretionary {-}{}{}test}
+    \subitem {file\_\discretionary {-}{}{}api}, \hyperpage{72}
+  \item {pmath\_\discretionary {-}{}{}file\_\discretionary {-}{}{}write}
+    \subitem {file\_\discretionary {-}{}{}api}, \hyperpage{74}
+  \item {pmath\_\discretionary {-}{}{}file\_\discretionary {-}{}{}write\_\discretionary {-}{}{}object}
+    \subitem {file\_\discretionary {-}{}{}api}, \hyperpage{74}
+  \item {pmath\_\discretionary {-}{}{}file\_\discretionary {-}{}{}writetext}
+    \subitem {file\_\discretionary {-}{}{}api}, \hyperpage{74}
+  \item {pmath\_\discretionary {-}{}{}files\_\discretionary {-}{}{}status\_\discretionary {-}{}{}t}
+    \subitem {file\_\discretionary {-}{}{}api}, \hyperpage{72}
+  \item {pmath\_\discretionary {-}{}{}float\_\discretionary {-}{}{}new\_\discretionary {-}{}{}d}
+    \subitem {numbers}, \hyperpage{18}
+  \item {pmath\_\discretionary {-}{}{}float\_\discretionary {-}{}{}new\_\discretionary {-}{}{}str}
+    \subitem {numbers}, \hyperpage{17}
+  \item {pmath\_\discretionary {-}{}{}float\_\discretionary {-}{}{}t}, 
+		\hyperpage{98}
+  \item {pmath\_\discretionary {-}{}{}func\_\discretionary {-}{}{}t}
+    \subitem {objects}, \hyperpage{24}
+  \item {pmath\_\discretionary {-}{}{}gather\_\discretionary {-}{}{}begin}
+    \subitem {helpers}, \hyperpage{81}
+  \item {pmath\_\discretionary {-}{}{}gather\_\discretionary {-}{}{}end}
+    \subitem {helpers}, \hyperpage{81}
+  \item {pmath\_\discretionary {-}{}{}hash}
+    \subitem {objects}, \hyperpage{25}
+  \item {pmath\_\discretionary {-}{}{}hash\_\discretionary {-}{}{}func\_\discretionary {-}{}{}t}
+    \subitem {objects}, \hyperpage{25}
+  \item {pmath\_\discretionary {-}{}{}init}
+    \subitem {frontend}, \hyperpage{91}
+  \item {pmath\_\discretionary {-}{}{}integer\_\discretionary {-}{}{}fits\_\discretionary {-}{}{}si}
+    \subitem {numbers}, \hyperpage{18}
+  \item {pmath\_\discretionary {-}{}{}integer\_\discretionary {-}{}{}fits\_\discretionary {-}{}{}ui}
+    \subitem {numbers}, \hyperpage{19}
+  \item {pmath\_\discretionary {-}{}{}integer\_\discretionary {-}{}{}get\_\discretionary {-}{}{}si}
+    \subitem {numbers}, \hyperpage{19}
+  \item {pmath\_\discretionary {-}{}{}integer\_\discretionary {-}{}{}get\_\discretionary {-}{}{}ui}
+    \subitem {numbers}, \hyperpage{19}
+  \item {pmath\_\discretionary {-}{}{}integer\_\discretionary {-}{}{}new\_\discretionary {-}{}{}data}
+    \subitem {numbers}, \hyperpage{15}
+  \item {pmath\_\discretionary {-}{}{}integer\_\discretionary {-}{}{}new\_\discretionary {-}{}{}si}
+    \subitem {numbers}, \hyperpage{15}
+  \item {pmath\_\discretionary {-}{}{}integer\_\discretionary {-}{}{}new\_\discretionary {-}{}{}size}
+    \subitem {numbers}, \hyperpage{15}
+  \item {pmath\_\discretionary {-}{}{}integer\_\discretionary {-}{}{}new\_\discretionary {-}{}{}str}
+    \subitem {numbers}, \hyperpage{16}
+  \item {pmath\_\discretionary {-}{}{}integer\_\discretionary {-}{}{}new\_\discretionary {-}{}{}ui}
+    \subitem {numbers}, \hyperpage{15}
+  \item {pmath\_\discretionary {-}{}{}integer\_\discretionary {-}{}{}t}, 
+		\hyperpage{99}
+  \item {pmath\_\discretionary {-}{}{}is\_\discretionary {-}{}{}evaluated}
+    \subitem {objects}, \hyperpage{27}
+  \item {pmath\_\discretionary {-}{}{}is\_\discretionary {-}{}{}expr\_\discretionary {-}{}{}of}
+    \subitem {helpers}, \hyperpage{79}
+  \item {pmath\_\discretionary {-}{}{}is\_\discretionary {-}{}{}expr\_\discretionary {-}{}{}of\_\discretionary {-}{}{}len}
+    \subitem {helpers}, \hyperpage{80}
+  \item {PMATH\_\discretionary {-}{}{}IS\_\discretionary {-}{}{}MAGIC}
+    \subitem {objects}, \hyperpage{22}
+  \item {pmath\_\discretionary {-}{}{}is\_\discretionary {-}{}{}message\_\discretionary {-}{}{}queue}
+    \subitem {threadmsg}, \hyperpage{62}
+  \item {pmath\_\discretionary {-}{}{}mem\_\discretionary {-}{}{}alloc}
+    \subitem {memory}, \hyperpage{85}
+  \item {pmath\_\discretionary {-}{}{}mem\_\discretionary {-}{}{}free}
+    \subitem {memory}, \hyperpage{86}
+  \item {pmath\_\discretionary {-}{}{}mem\_\discretionary {-}{}{}realloc}
+    \subitem {memory}, \hyperpage{85}
+  \item {pmath\_\discretionary {-}{}{}mem\_\discretionary {-}{}{}realloc\_\discretionary {-}{}{}no\_\discretionary {-}{}{}failfree}
+    \subitem {memory}, \hyperpage{85}
+  \item {pmath\_\discretionary {-}{}{}mem\_\discretionary {-}{}{}usage}
+    \subitem {memory}, \hyperpage{86}
+  \item {pmath\_\discretionary {-}{}{}message}
+    \subitem {messages}, \hyperpage{87}
+  \item {pmath\_\discretionary {-}{}{}message\_\discretionary {-}{}{}argxxx}
+    \subitem {messages}, \hyperpage{87}
+  \item {pmath\_\discretionary {-}{}{}message\_\discretionary {-}{}{}find\_\discretionary {-}{}{}text}
+    \subitem {messages}, \hyperpage{88}
+  \item {pmath\_\discretionary {-}{}{}message\_\discretionary {-}{}{}syntax\_\discretionary {-}{}{}error}
+    \subitem {messages}, \hyperpage{88}
+  \item {pmath\_\discretionary {-}{}{}messages\_\discretionary {-}{}{}t}, 
+		\hyperpage{100}
+  \item {pmath\_\discretionary {-}{}{}native\_\discretionary {-}{}{}writer}
+    \subitem {strings}, \hyperpage{30}
+  \item {pmath\_\discretionary {-}{}{}number\_\discretionary {-}{}{}get\_\discretionary {-}{}{}d}
+    \subitem {numbers}, \hyperpage{20}
+  \item {pmath\_\discretionary {-}{}{}number\_\discretionary {-}{}{}neg}
+    \subitem {numbers}, \hyperpage{20}
+  \item {pmath\_\discretionary {-}{}{}number\_\discretionary {-}{}{}sign}
+    \subitem {numbers}, \hyperpage{20}
+  \item {pmath\_\discretionary {-}{}{}number\_\discretionary {-}{}{}t}, 
+		\hyperpage{101}
+  \item {pmath\_\discretionary {-}{}{}option\_\discretionary {-}{}{}value}
+    \subitem {helpers}, \hyperpage{84}
+  \item {pmath\_\discretionary {-}{}{}options\_\discretionary {-}{}{}extract}
+    \subitem {helpers}, \hyperpage{83}
+  \item {pmath\_\discretionary {-}{}{}param\_\discretionary {-}{}{}proc\_\discretionary {-}{}{}t}
+    \subitem {objects}, \hyperpage{24}
+  \item {pmath\_\discretionary {-}{}{}parse\_\discretionary {-}{}{}string}
+    \subitem {parser}, \hyperpage{54}
+  \item {pmath\_\discretionary {-}{}{}parse\_\discretionary {-}{}{}string\_\discretionary {-}{}{}args}
+    \subitem {parser}, \hyperpage{54}
+  \item {pmath\_\discretionary {-}{}{}precision}
+    \subitem {numbers}, \hyperpage{13}
+  \item {pmath\_\discretionary {-}{}{}proc\_\discretionary {-}{}{}t}
+    \subitem {objects}, \hyperpage{24}
+  \item {pmath\_\discretionary {-}{}{}quotient\_\discretionary {-}{}{}t}, 
+		\hyperpage{101}
+  \item {pmath\_\discretionary {-}{}{}rational\_\discretionary {-}{}{}denominator}
+    \subitem {numbers}, \hyperpage{17}
+  \item {pmath\_\discretionary {-}{}{}rational\_\discretionary {-}{}{}new}
+    \subitem {numbers}, \hyperpage{16}
+  \item {pmath\_\discretionary {-}{}{}rational\_\discretionary {-}{}{}numerator}
+    \subitem {numbers}, \hyperpage{17}
+  \item {pmath\_\discretionary {-}{}{}rational\_\discretionary {-}{}{}t}, 
+		\hyperpage{102}
+  \item {pmath\_\discretionary {-}{}{}register\_\discretionary {-}{}{}approx\_\discretionary {-}{}{}code}
+    \subitem {symbols}, \hyperpage{40}
+  \item {pmath\_\discretionary {-}{}{}register\_\discretionary {-}{}{}code}
+    \subitem {symbols}, \hyperpage{39}
+  \item {pmath\_\discretionary {-}{}{}resume\_\discretionary {-}{}{}all}
+    \subitem {threads}, \hyperpage{67}
+  \item {PMATH\_\discretionary {-}{}{}RUN}
+    \subitem {parser}, \hyperpage{48}
+  \item {PMATH\_\discretionary {-}{}{}RUN\_\discretionary {-}{}{}ARGS}
+    \subitem {parser}, \hyperpage{49}
+  \item {pmath\_\discretionary {-}{}{}session\_\discretionary {-}{}{}end}
+    \subitem {helpers}, \hyperpage{80}
+  \item {pmath\_\discretionary {-}{}{}session\_\discretionary {-}{}{}execute}
+    \subitem {frontend}, \hyperpage{91}
+  \item {pmath\_\discretionary {-}{}{}session\_\discretionary {-}{}{}start}
+    \subitem {helpers}, \hyperpage{80}
+  \item {pmath\_\discretionary {-}{}{}set\_\discretionary {-}{}{}accuracy}
+    \subitem {numbers}, \hyperpage{14}
+  \item {pmath\_\discretionary {-}{}{}set\_\discretionary {-}{}{}precision}
+    \subitem {numbers}, \hyperpage{14}
+  \item {pmath\_\discretionary {-}{}{}span\_\discretionary {-}{}{}array\_\discretionary {-}{}{}free}
+    \subitem {parser}, \hyperpage{52}
+  \item {pmath\_\discretionary {-}{}{}span\_\discretionary {-}{}{}array\_\discretionary {-}{}{}is\_\discretionary {-}{}{}operator\_\discretionary {-}{}{}start}
+    \subitem {parser}, \hyperpage{52}
+  \item {pmath\_\discretionary {-}{}{}span\_\discretionary {-}{}{}array\_\discretionary {-}{}{}is\_\discretionary {-}{}{}token\_\discretionary {-}{}{}end}
+    \subitem {parser}, \hyperpage{52}
+  \item {pmath\_\discretionary {-}{}{}span\_\discretionary {-}{}{}array\_\discretionary {-}{}{}length}
+    \subitem {parser}, \hyperpage{52}
+  \item {pmath\_\discretionary {-}{}{}span\_\discretionary {-}{}{}array\_\discretionary {-}{}{}t}, 
+		\hyperpage{102}
+  \item {pmath\_\discretionary {-}{}{}span\_\discretionary {-}{}{}at}
+    \subitem {parser}, \hyperpage{53}
+  \item {pmath\_\discretionary {-}{}{}span\_\discretionary {-}{}{}end}
+    \subitem {parser}, \hyperpage{53}
+  \item {pmath\_\discretionary {-}{}{}span\_\discretionary {-}{}{}next}
+    \subitem {parser}, \hyperpage{53}
+  \item {pmath\_\discretionary {-}{}{}span\_\discretionary {-}{}{}t}, 
+		\hyperpage{104}
+  \item {pmath\_\discretionary {-}{}{}spans\_\discretionary {-}{}{}from\_\discretionary {-}{}{}boxes}
+    \subitem {parser}, \hyperpage{50}
+  \item {pmath\_\discretionary {-}{}{}spans\_\discretionary {-}{}{}from\_\discretionary {-}{}{}string}
+    \subitem {parser}, \hyperpage{49}
+  \item {pmath\_\discretionary {-}{}{}stack\_\discretionary {-}{}{}free}
+    \subitem {stacks}, \hyperpage{89}
+  \item {pmath\_\discretionary {-}{}{}stack\_\discretionary {-}{}{}new}
+    \subitem {stacks}, \hyperpage{89}
+  \item {pmath\_\discretionary {-}{}{}stack\_\discretionary {-}{}{}pop}
+    \subitem {stacks}, \hyperpage{90}
+  \item {pmath\_\discretionary {-}{}{}stack\_\discretionary {-}{}{}push}
+    \subitem {stacks}, \hyperpage{90}
+  \item {pmath\_\discretionary {-}{}{}stack\_\discretionary {-}{}{}t}, 
+		\hyperpage{104}
+  \item {pmath\_\discretionary {-}{}{}stack\_\discretionary {-}{}{}walker\_\discretionary {-}{}{}t}
+    \subitem {helpers}, \hyperpage{79}
+  \item {pmath\_\discretionary {-}{}{}string\_\discretionary {-}{}{}buffer}
+    \subitem {strings}, \hyperpage{34}
+  \item {pmath\_\discretionary {-}{}{}string\_\discretionary {-}{}{}concat}
+    \subitem {strings}, \hyperpage{34}
+  \item {pmath\_\discretionary {-}{}{}string\_\discretionary {-}{}{}equals\_\discretionary {-}{}{}latin1}
+    \subitem {strings}, \hyperpage{35}
+  \item {pmath\_\discretionary {-}{}{}string\_\discretionary {-}{}{}expand\_\discretionary {-}{}{}boxes}
+    \subitem {parser}, \hyperpage{54}
+  \item {pmath\_\discretionary {-}{}{}string\_\discretionary {-}{}{}from\_\discretionary {-}{}{}native}
+    \subitem {strings}, \hyperpage{32}
+  \item {pmath\_\discretionary {-}{}{}string\_\discretionary {-}{}{}from\_\discretionary {-}{}{}utf8}
+    \subitem {strings}, \hyperpage{31}
+  \item {pmath\_\discretionary {-}{}{}string\_\discretionary {-}{}{}insert}
+    \subitem {strings}, \hyperpage{33}
+  \item {pmath\_\discretionary {-}{}{}string\_\discretionary {-}{}{}insert\_\discretionary {-}{}{}codepage}
+    \subitem {strings}, \hyperpage{33}
+  \item {pmath\_\discretionary {-}{}{}string\_\discretionary {-}{}{}insert\_\discretionary {-}{}{}latin1}
+    \subitem {strings}, \hyperpage{31}
+  \item {pmath\_\discretionary {-}{}{}string\_\discretionary {-}{}{}insert\_\discretionary {-}{}{}ucs2}
+    \subitem {strings}, \hyperpage{33}
+  \item {pmath\_\discretionary {-}{}{}string\_\discretionary {-}{}{}length}
+    \subitem {strings}, \hyperpage{35}
+  \item {pmath\_\discretionary {-}{}{}string\_\discretionary {-}{}{}new}
+    \subitem {strings}, \hyperpage{30}
+  \item {pmath\_\discretionary {-}{}{}string\_\discretionary {-}{}{}part}
+    \subitem {strings}, \hyperpage{34}
+  \item {pmath\_\discretionary {-}{}{}string\_\discretionary {-}{}{}t}, 
+		\hyperpage{104}
+  \item {pmath\_\discretionary {-}{}{}string\_\discretionary {-}{}{}to\_\discretionary {-}{}{}native}
+    \subitem {strings}, \hyperpage{32}
+  \item {pmath\_\discretionary {-}{}{}string\_\discretionary {-}{}{}to\_\discretionary {-}{}{}utf8}
+    \subitem {strings}, \hyperpage{31}
+  \item {pmath\_\discretionary {-}{}{}symbol\_\discretionary {-}{}{}attributes\_\discretionary {-}{}{}t}
+    \subitem {symbols}, \hyperpage{37}
+  \item {pmath\_\discretionary {-}{}{}symbol\_\discretionary {-}{}{}builtin}
+    \subitem {symbols}, \hyperpage{39}
+  \item {pmath\_\discretionary {-}{}{}symbol\_\discretionary {-}{}{}create\_\discretionary {-}{}{}temporary}
+    \subitem {symbols}, \hyperpage{41}
+  \item {pmath\_\discretionary {-}{}{}symbol\_\discretionary {-}{}{}find}
+    \subitem {symbols}, \hyperpage{42}
+  \item {pmath\_\discretionary {-}{}{}symbol\_\discretionary {-}{}{}get}
+    \subitem {symbols}, \hyperpage{41}
+  \item {pmath\_\discretionary {-}{}{}symbol\_\discretionary {-}{}{}get\_\discretionary {-}{}{}attributes}
+    \subitem {symbols}, \hyperpage{42}
+  \item {pmath\_\discretionary {-}{}{}symbol\_\discretionary {-}{}{}get\_\discretionary {-}{}{}value}
+    \subitem {symbols}, \hyperpage{43}
+  \item {pmath\_\discretionary {-}{}{}symbol\_\discretionary {-}{}{}iter\_\discretionary {-}{}{}next}
+    \subitem {symbols}, \hyperpage{41}
+  \item {pmath\_\discretionary {-}{}{}symbol\_\discretionary {-}{}{}name}
+    \subitem {symbols}, \hyperpage{42}
+  \item {pmath\_\discretionary {-}{}{}symbol\_\discretionary {-}{}{}remove}
+    \subitem {symbols}, \hyperpage{40}
+  \item {pmath\_\discretionary {-}{}{}symbol\_\discretionary {-}{}{}set\_\discretionary {-}{}{}attributes}
+    \subitem {symbols}, \hyperpage{43}
+  \item {pmath\_\discretionary {-}{}{}symbol\_\discretionary {-}{}{}set\_\discretionary {-}{}{}value}
+    \subitem {symbols}, \hyperpage{43}
+  \item {pmath\_\discretionary {-}{}{}symbol\_\discretionary {-}{}{}synchronized}
+    \subitem {symbols}, \hyperpage{44}
+  \item {pmath\_\discretionary {-}{}{}symbol\_\discretionary {-}{}{}t}, 
+		\hyperpage{106}
+    \subitem {pmath\_\discretionary {-}{}{}collect\_\discretionary {-}{}{}temporary\_\discretionary {-}{}{}symbols}, 
+		\hyperpage{107}
+  \item {pmath\_\discretionary {-}{}{}symbol\_\discretionary {-}{}{}update}
+    \subitem {symbols}, \hyperpage{44}
+  \item {pmath\_\discretionary {-}{}{}t}, \hyperpage{108}
+    \subitem {pmath\_\discretionary {-}{}{}evaluate}, \hyperpage{109}
+  \item {pmath\_\discretionary {-}{}{}text\_\discretionary {-}{}{}file\_\discretionary {-}{}{}api\_\discretionary {-}{}{}t}, 
+		\hyperpage{109}
+  \item {pmath\_\discretionary {-}{}{}thread\_\discretionary {-}{}{}aborting}
+    \subitem {threads}, \hyperpage{68}
+  \item {pmath\_\discretionary {-}{}{}thread\_\discretionary {-}{}{}call\_\discretionary {-}{}{}locked}
+    \subitem {threads}, \hyperpage{67}
+  \item {pmath\_\discretionary {-}{}{}thread\_\discretionary {-}{}{}fork\_\discretionary {-}{}{}daemon}
+    \subitem {pmath\_\discretionary {-}{}{}thread\_\discretionary {-}{}{}t}, 
+		\hyperpage{111}
+  \item {pmath\_\discretionary {-}{}{}thread\_\discretionary {-}{}{}get\_\discretionary {-}{}{}current}
+    \subitem {threads}, \hyperpage{68}
+  \item {pmath\_\discretionary {-}{}{}thread\_\discretionary {-}{}{}get\_\discretionary {-}{}{}parent}
+    \subitem {threads}, \hyperpage{68}
+  \item {pmath\_\discretionary {-}{}{}thread\_\discretionary {-}{}{}get\_\discretionary {-}{}{}queue}
+    \subitem {threadmsg}, \hyperpage{62}
+  \item {pmath\_\discretionary {-}{}{}thread\_\discretionary {-}{}{}is\_\discretionary {-}{}{}parent}
+    \subitem {threads}, \hyperpage{68}
+  \item {pmath\_\discretionary {-}{}{}thread\_\discretionary {-}{}{}local\_\discretionary {-}{}{}load}
+    \subitem {threads}, \hyperpage{66}
+  \item {pmath\_\discretionary {-}{}{}thread\_\discretionary {-}{}{}local\_\discretionary {-}{}{}save}
+    \subitem {threads}, \hyperpage{66}
+  \item {pmath\_\discretionary {-}{}{}thread\_\discretionary {-}{}{}send}
+    \subitem {threadmsg}, \hyperpage{62}
+  \item {pmath\_\discretionary {-}{}{}thread\_\discretionary {-}{}{}send\_\discretionary {-}{}{}delayed}
+    \subitem {threadmsg}, \hyperpage{63}
+  \item {pmath\_\discretionary {-}{}{}thread\_\discretionary {-}{}{}send\_\discretionary {-}{}{}wait}
+    \subitem {threadmsg}, \hyperpage{63}
+  \item {pmath\_\discretionary {-}{}{}thread\_\discretionary {-}{}{}sleep}
+    \subitem {threadmsg}, \hyperpage{62}
+  \item {pmath\_\discretionary {-}{}{}thread\_\discretionary {-}{}{}t}, 
+		\hyperpage{110}
+    \subitem {pmath\_\discretionary {-}{}{}thread\_\discretionary {-}{}{}fork\_\discretionary {-}{}{}daemon}, 
+		\hyperpage{111}
+  \item {pmath\_\discretionary {-}{}{}thread\_\discretionary {-}{}{}wakeup}
+    \subitem {threadmsg}, \hyperpage{62}
+  \item {pmath\_\discretionary {-}{}{}threadlock\_\discretionary {-}{}{}t}, 
+		\hyperpage{112}
+  \item {pmath\_\discretionary {-}{}{}throw}
+    \subitem {threads}, \hyperpage{66}
+  \item {pmath\_\discretionary {-}{}{}token\_\discretionary {-}{}{}analyse}
+    \subitem {parser}, \hyperpage{50}
+  \item {pmath\_\discretionary {-}{}{}token\_\discretionary {-}{}{}maybe\_\discretionary {-}{}{}first}
+    \subitem {parser}, \hyperpage{51}
+  \item {pmath\_\discretionary {-}{}{}token\_\discretionary {-}{}{}maybe\_\discretionary {-}{}{}rest}
+    \subitem {parser}, \hyperpage{51}
+  \item {pmath\_\discretionary {-}{}{}token\_\discretionary {-}{}{}prefix\_\discretionary {-}{}{}precedence}
+    \subitem {parser}, \hyperpage{51}
+  \item {pmath\_\discretionary {-}{}{}type\_\discretionary {-}{}{}t}
+    \subitem {objects}, \hyperpage{23}
+  \item {pmath\_\discretionary {-}{}{}utf8\_\discretionary {-}{}{}writer}
+    \subitem {strings}, \hyperpage{30}
+  \item {pmath\_\discretionary {-}{}{}walk\_\discretionary {-}{}{}stack}
+    \subitem {helpers}, \hyperpage{80}
+  \item {pmath\_\discretionary {-}{}{}write}
+    \subitem {objects}, \hyperpage{26}
+  \item {pmath\_\discretionary {-}{}{}write\_\discretionary {-}{}{}func\_\discretionary {-}{}{}t}
+    \subitem {general\_\discretionary {-}{}{}types}, \hyperpage{56}
+  \item {pmath\_\discretionary {-}{}{}write\_\discretionary {-}{}{}options\_\discretionary {-}{}{}t}
+    \subitem {objects}, \hyperpage{24}
+
+  \indexspace
+
+  \item {stacks}
+    \subitem {pmath\_\discretionary {-}{}{}stack\_\discretionary {-}{}{}free}, 
+		\hyperpage{89}
+    \subitem {pmath\_\discretionary {-}{}{}stack\_\discretionary {-}{}{}new}, 
+		\hyperpage{89}
+    \subitem {pmath\_\discretionary {-}{}{}stack\_\discretionary {-}{}{}pop}, 
+		\hyperpage{90}
+    \subitem {pmath\_\discretionary {-}{}{}stack\_\discretionary {-}{}{}push}, 
+		\hyperpage{90}
+  \item {Strings}, \hyperpage{27}
+  \item {strings}
+    \subitem {PMATH\_\discretionary {-}{}{}C\_\discretionary {-}{}{}STRING}, 
+		\hyperpage{29}
+    \subitem {pmath\_\discretionary {-}{}{}char\_\discretionary {-}{}{}from\_\discretionary {-}{}{}name}, 
+		\hyperpage{30}
+    \subitem {pmath\_\discretionary {-}{}{}char\_\discretionary {-}{}{}to\_\discretionary {-}{}{}name}, 
+		\hyperpage{30}
+    \subitem {pmath\_\discretionary {-}{}{}native\_\discretionary {-}{}{}writer}, 
+		\hyperpage{30}
+    \subitem {pmath\_\discretionary {-}{}{}string\_\discretionary {-}{}{}buffer}, 
+		\hyperpage{34}
+    \subitem {pmath\_\discretionary {-}{}{}string\_\discretionary {-}{}{}concat}, 
+		\hyperpage{34}
+    \subitem {pmath\_\discretionary {-}{}{}string\_\discretionary {-}{}{}equals\_\discretionary {-}{}{}latin1}, 
+		\hyperpage{35}
+    \subitem {pmath\_\discretionary {-}{}{}string\_\discretionary {-}{}{}from\_\discretionary {-}{}{}native}, 
+		\hyperpage{32}
+    \subitem {pmath\_\discretionary {-}{}{}string\_\discretionary {-}{}{}from\_\discretionary {-}{}{}utf8}, 
+		\hyperpage{31}
+    \subitem {pmath\_\discretionary {-}{}{}string\_\discretionary {-}{}{}insert}, 
+		\hyperpage{33}
+    \subitem {pmath\_\discretionary {-}{}{}string\_\discretionary {-}{}{}insert\_\discretionary {-}{}{}codepage}, 
+		\hyperpage{33}
+    \subitem {pmath\_\discretionary {-}{}{}string\_\discretionary {-}{}{}insert\_\discretionary {-}{}{}latin1}, 
+		\hyperpage{31}
+    \subitem {pmath\_\discretionary {-}{}{}string\_\discretionary {-}{}{}insert\_\discretionary {-}{}{}ucs2}, 
+		\hyperpage{33}
+    \subitem {pmath\_\discretionary {-}{}{}string\_\discretionary {-}{}{}length}, 
+		\hyperpage{35}
+    \subitem {pmath\_\discretionary {-}{}{}string\_\discretionary {-}{}{}new}, 
+		\hyperpage{30}
+    \subitem {pmath\_\discretionary {-}{}{}string\_\discretionary {-}{}{}part}, 
+		\hyperpage{34}
+    \subitem {pmath\_\discretionary {-}{}{}string\_\discretionary {-}{}{}to\_\discretionary {-}{}{}native}, 
+		\hyperpage{32}
+    \subitem {pmath\_\discretionary {-}{}{}string\_\discretionary {-}{}{}to\_\discretionary {-}{}{}utf8}, 
+		\hyperpage{31}
+    \subitem {pmath\_\discretionary {-}{}{}utf8\_\discretionary {-}{}{}writer}, 
+		\hyperpage{30}
+  \item {Symbols}, \hyperpage{36}
+  \item {symbols}
+    \subitem {pmath\_\discretionary {-}{}{}builtin\_\discretionary {-}{}{}func\_\discretionary {-}{}{}t}, 
+		\hyperpage{37}
+    \subitem {pmath\_\discretionary {-}{}{}code\_\discretionary {-}{}{}usage\_\discretionary {-}{}{}t}, 
+		\hyperpage{39}
+    \subitem {pmath\_\discretionary {-}{}{}register\_\discretionary {-}{}{}approx\_\discretionary {-}{}{}code}, 
+		\hyperpage{40}
+    \subitem {pmath\_\discretionary {-}{}{}register\_\discretionary {-}{}{}code}, 
+		\hyperpage{39}
+    \subitem {pmath\_\discretionary {-}{}{}symbol\_\discretionary {-}{}{}attributes\_\discretionary {-}{}{}t}, 
+		\hyperpage{37}
+    \subitem {pmath\_\discretionary {-}{}{}symbol\_\discretionary {-}{}{}builtin}, 
+		\hyperpage{39}
+    \subitem {pmath\_\discretionary {-}{}{}symbol\_\discretionary {-}{}{}create\_\discretionary {-}{}{}temporary}, 
+		\hyperpage{41}
+    \subitem {pmath\_\discretionary {-}{}{}symbol\_\discretionary {-}{}{}find}, 
+		\hyperpage{42}
+    \subitem {pmath\_\discretionary {-}{}{}symbol\_\discretionary {-}{}{}get}, 
+		\hyperpage{41}
+    \subitem {pmath\_\discretionary {-}{}{}symbol\_\discretionary {-}{}{}get\_\discretionary {-}{}{}attributes}, 
+		\hyperpage{42}
+    \subitem {pmath\_\discretionary {-}{}{}symbol\_\discretionary {-}{}{}get\_\discretionary {-}{}{}value}, 
+		\hyperpage{43}
+    \subitem {pmath\_\discretionary {-}{}{}symbol\_\discretionary {-}{}{}iter\_\discretionary {-}{}{}next}, 
+		\hyperpage{41}
+    \subitem {pmath\_\discretionary {-}{}{}symbol\_\discretionary {-}{}{}name}, 
+		\hyperpage{42}
+    \subitem {pmath\_\discretionary {-}{}{}symbol\_\discretionary {-}{}{}remove}, 
+		\hyperpage{40}
+    \subitem {pmath\_\discretionary {-}{}{}symbol\_\discretionary {-}{}{}set\_\discretionary {-}{}{}attributes}, 
+		\hyperpage{43}
+    \subitem {pmath\_\discretionary {-}{}{}symbol\_\discretionary {-}{}{}set\_\discretionary {-}{}{}value}, 
+		\hyperpage{43}
+    \subitem {pmath\_\discretionary {-}{}{}symbol\_\discretionary {-}{}{}synchronized}, 
+		\hyperpage{44}
+    \subitem {pmath\_\discretionary {-}{}{}symbol\_\discretionary {-}{}{}update}, 
+		\hyperpage{44}
+
+  \indexspace
+
+  \item {Thread Messaging}, \hyperpage{60}
+  \item {threadmsg}
+    \subitem {pmath\_\discretionary {-}{}{}is\_\discretionary {-}{}{}message\_\discretionary {-}{}{}queue}, 
+		\hyperpage{62}
+    \subitem {pmath\_\discretionary {-}{}{}thread\_\discretionary {-}{}{}get\_\discretionary {-}{}{}queue}, 
+		\hyperpage{62}
+    \subitem {pmath\_\discretionary {-}{}{}thread\_\discretionary {-}{}{}send}, 
+		\hyperpage{62}
+    \subitem {pmath\_\discretionary {-}{}{}thread\_\discretionary {-}{}{}send\_\discretionary {-}{}{}delayed}, 
+		\hyperpage{63}
+    \subitem {pmath\_\discretionary {-}{}{}thread\_\discretionary {-}{}{}send\_\discretionary {-}{}{}wait}, 
+		\hyperpage{63}
+    \subitem {pmath\_\discretionary {-}{}{}thread\_\discretionary {-}{}{}sleep}, 
+		\hyperpage{62}
+    \subitem {pmath\_\discretionary {-}{}{}thread\_\discretionary {-}{}{}wakeup}, 
+		\hyperpage{62}
+  \item {threads}
+    \subitem {pmath\_\discretionary {-}{}{}abort\_\discretionary {-}{}{}please}, 
+		\hyperpage{67}
+    \subitem {pmath\_\discretionary {-}{}{}aborting}, \hyperpage{67}
+    \subitem {pmath\_\discretionary {-}{}{}catch}, \hyperpage{66}
+    \subitem {pmath\_\discretionary {-}{}{}resume\_\discretionary {-}{}{}all}, 
+		\hyperpage{67}
+    \subitem {pmath\_\discretionary {-}{}{}thread\_\discretionary {-}{}{}aborting}, 
+		\hyperpage{68}
+    \subitem {pmath\_\discretionary {-}{}{}thread\_\discretionary {-}{}{}call\_\discretionary {-}{}{}locked}, 
+		\hyperpage{67}
+    \subitem {pmath\_\discretionary {-}{}{}thread\_\discretionary {-}{}{}get\_\discretionary {-}{}{}current}, 
+		\hyperpage{68}
+    \subitem {pmath\_\discretionary {-}{}{}thread\_\discretionary {-}{}{}get\_\discretionary {-}{}{}parent}, 
+		\hyperpage{68}
+    \subitem {pmath\_\discretionary {-}{}{}thread\_\discretionary {-}{}{}is\_\discretionary {-}{}{}parent}, 
+		\hyperpage{68}
+    \subitem {pmath\_\discretionary {-}{}{}thread\_\discretionary {-}{}{}local\_\discretionary {-}{}{}load}, 
+		\hyperpage{66}
+    \subitem {pmath\_\discretionary {-}{}{}thread\_\discretionary {-}{}{}local\_\discretionary {-}{}{}save}, 
+		\hyperpage{66}
+    \subitem {pmath\_\discretionary {-}{}{}throw}, \hyperpage{66}
+  \item {Threadsafe Stacks}, \hyperpage{88}
+  \item {to\_\discretionary {-}{}{}double}
+    \subitem {pmath::Expr}, \hyperpage{93}
+  \item {to\_\discretionary {-}{}{}string}
+    \subitem {pmath::Expr}, \hyperpage{94}
+
+\end{theindex}

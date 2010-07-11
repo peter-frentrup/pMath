@@ -1,0 +1,194 @@
+#ifndef __PMATH_UTIL__CONCURRENCY__ATOMIC__NON_ATOMIC_H__
+#define __PMATH_UTIL__CONCURRENCY__ATOMIC__NON_ATOMIC_H__
+
+#warning Your compiler or system is currently unsupported. Falling back to a non-atomic (and thus NOT THREADSAFE) implementation. 
+
+/**\addtogroup atomic_ops
+   @{
+ */
+
+/**\brief Declares a variable with specified alignment.
+   \param TYPE The variable type, possibly including the \c volatile modifier.
+   \param NAME The variable name.
+   \param ALIGNMENT The alignment in bytes
+ */
+#define PMATH_DECLARE_ALIGNED(TYPE, NAME, ALIGNMENT)
+
+/**\brief Declares a volatile machine size integer with proper alignment.
+   \param NAME The variable name.
+ */
+#define PMATH_DECLARE_ATOMIC(NAME)
+
+/**\brief Declares a volatile double-machine-size integer with proper alignment.
+   \param NAME The variable name.
+ */
+#define PMATH_DECLARE_ATOMIC_2(NAME)
+
+/**\brief Add a value to another.
+   \param atom A sizeof(void*) aligned pointer.
+   \param delta The difference between the new and the old value.
+   \return The old value of \c *atom.
+   
+   This function increments \c *atom atomically by \c delta. It has full memory
+   barrier semantics.
+ */
+PMATH_FORCE_INLINE intptr_t pmath_atomic_fetch_add(
+  intptr_t volatile *atom, 
+  intptr_t delta
+){
+  intptr_t result = *atom;
+  *atom+= delta;
+  return result;
+}
+
+/**\brief Exchange a value.
+   \param atom A sizeof(void*) aligned pointer.
+   \param new_value The new value of \c *atom.
+   \return The old value of \c *atom.
+   
+   This function sets \c *atom to \c new_value and returns the old value
+   atomically. It has full memory barrier semantics.
+ */
+PMATH_FORCE_INLINE intptr_t pmath_atomic_fetch_set(
+  intptr_t volatile *atom, 
+  intptr_t new_value
+){
+  intptr_t result = *atom;
+  *atom = new_value;
+  return result;
+}
+
+/**\brief Exchange a value if it equals another value.
+   \param atom A sizeof(void*) aligned pointer.
+   \param old_value The comparisor.
+   \param new_value The possible new value of \c *atom.
+   \return The old value of \c *atom.
+   
+   You should use pmath_atomic_compare_and_set() if you don't need the exact old 
+   value of \c *atom, because this function might be non-existent on some 
+   systems. This function has aquire barrier semantics.
+ */
+PMATH_FORCE_INLINE intptr_t pmath_atomic_fetch_compare_and_set(
+  intptr_t volatile *atom, 
+  intptr_t old_value,
+  intptr_t new_value
+){
+  if(*atom == old_value){
+    *atom = new_value;
+    return old_value;
+  }
+  return *atom;
+}
+
+/**\brief Exchange a value if it equals another value.
+   \param atom A sizeof(void*) aligned pointer.
+   \param old_value The comparisor.
+   \param new_value The possible new value of \c *atom.
+   \return Whether the exchange was performed.
+   
+   This function compares \c *atom with \c old_value and iff both equal sets
+   \c *atom to \c new_value, everything atomically and with aquire barrier
+   semantics.
+ */
+PMATH_FORCE_INLINE pmath_bool_t pmath_atomic_compare_and_set(
+  intptr_t volatile *atom, 
+  intptr_t old_value,
+  intptr_t new_value
+){
+  if(*atom == old_value){
+    *atom = new_value;
+    return TRUE;
+  }
+  return FALSE;
+}
+
+/**\brief Exchange two values value if they equal another two values.
+   \param *atom A 2*sizeof(void*) aligned pointer to two values.
+   \param old_value_fst The first old value.
+   \param old_value_snd The second old value.
+   \param new_value_fst The possible new value of \c atom[0].
+   \param new_value_snd The possible new value of \c atom[1].
+   \return Whether the exchange was performed or not.
+   
+   This function compares \c old_value_fst with \c atom[0] and \c old_value_snd
+   with atom[1]. 
+   If they equal, \c atom[0] is set to \c new_value_fst and \c atom[1] is set to 
+   \c new_value_snd and TRUE is returned. Otherwise, FALSE will be returned.
+   
+   This function has aquire barrier semantics.
+   
+   \note This function is not available on all Platforms. You must not call it 
+         if pmath_atomic_have_cas2() returns FALSE. 
+ */
+PMATH_FORCE_INLINE pmath_bool_t pmath_atomic_compare_and_set_2(
+  intptr_t volatile *atom,
+  intptr_t old_value_fst,
+  intptr_t old_value_snd,
+  intptr_t new_value_fst,
+  intptr_t new_value_snd
+){
+  if(atom[0] == old_value_fst && atom[1] == old_value_snd){
+    atom[0] = new_value_fst;
+    atom[0] = new_value_snd;
+    return TRUE;
+  }
+  return FALSE;
+}
+
+/**\brief Check, whether the CPU supports pmath_atomic_compare_and_set_2().
+   \return whether pmath_atomic_compare_and_set_2() is supported.
+   
+   Note, that a call to pmath_atomic_compare_and_set_2() will crash your 
+   application on any platform that does not support the operation (e.g. 
+   pre-Pentiums, early AMD64).
+ */
+PMATH_FORCE_INLINE pmath_bool_t pmath_atomic_have_cas2(void){
+  return FALSE;
+}
+
+/**\brief Insert an explicit memory barrier.
+ */
+PMATH_FORCE_INLINE void pmath_atomic_barrier(void){
+}
+
+/**\brief Try to aquire a lock.
+   \param atom The lock. A sizeof(void*) aligned pointer.
+   
+   This function implements a spin lock. It has aquire barrier semantics. Use 
+   it with pmath_atomic_unlock():
+   \code
+PMATH_DECLARE_ATOMIC(spin);
+...
+pmath_atomic_lock(&spin)
+... critical section ...
+pmath_atomic_unlock(&spin);
+   \endcode
+ */
+PMATH_FORCE_INLINE void pmath_atomic_lock(
+  intptr_t volatile *atom
+){
+  *atom = 1;
+}
+
+/**\brief Release a previously aquired lock.
+   \param atom The lock. A sizeof(void*) aligned pointer.
+   
+   \see pmath_atomic_lock
+ */
+PMATH_FORCE_INLINE void pmath_atomic_unlock(
+  intptr_t volatile *atom
+){
+  *atom = 0;
+}
+
+#ifdef pmath_atomic_loop_nop
+  #undef pmath_atomic_loop_nop
+#endif
+/**A no-operation for use in spin locks.
+ */
+PMATH_FORCE_INLINE void pmath_atomic_loop_nop(void){
+}
+
+/*@}*/
+
+#endif /* __PMATH_UTIL__CONCURRENCY__ATOMIC__NON_ATOMIC_H__ */

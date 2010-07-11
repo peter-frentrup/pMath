@@ -1,0 +1,93 @@
+??a                ShowDefinition(a)
+a && b             And(a,b)
+a || b             Or(a,b)
+!a                 Not(a)
+a + b              Plus(a,b)
+a - b              Plus(a,Times(-1,b))
+a * b              Times(a,b)
+a / b              Times(a,Power(b,-1))
+a ^ b              Power(a,b)
+a!                 Factorial(a)
+f(a,,b)            f(a,/\/,b)
+a.f                f(a)
+a.f(...)           f(a, ...)
+a:= b              Assign(a,b)
+a::= b             AssignDelayed(a,b)
+a/: b:= c          AssignTag(a,b,c)
+a/: b::= c         AssignTagDelayed(a,b,c)
+a; b               EvaluationSequence(a,b)
+sym::tag           MessageName(sym, "tag")
+a++                PostIncrement(a)
+++a                Increment(a)
+a--                PostDecrement(a)
+--a                Decrement(a)
+a+= b              Increment(a,b)
+a-= b              Decrement(a,b)
+ a*= b              MultiplyBy(a,b)
+ a/= b              DivideBy(a,b)
+
+a < b              Less(a,b)
+a <= b             LessEqual(a,b)
+a < b <= c         Inequaltion(a,Less,b,LessEqual,c)
+a = b              Equal(a,b)
+a != b             Unequal(a,b)
+a == b             Identical(a,b)
+a =!= b            Unidentical(a,b)
+a > b              Greather(b,a)
+a >= b             GreatherEqual(b,a)
+a > b >= c         Inequation(a,Greather,b,GreatherEqual,c)
+
+a..b               Range(a,b)
+ a..b..c            Range(a,b,c)        [?]
+a -> b             Rule(a,b)
+a:> b              RuleDelayed(a,b)
+{a,b}              List(a,b)
+body _             Function(body)
+#2                 PureArgument(2)
+ ##2                PureArgument(2..)   [?]
+
+a:p                Pattern(a,p)
+?a                 Optional(a)
+?a:prod            Optional(a,prod)
+~                  SingleMatch()
+~~                 RepeatedPattern(~,1..)      [ ~~x  ==  x:~** ]
+~~~                RepeatedPattern(~,0..)      [~~~x  ==  x:~***]
+~a                 Pattern(a,~)
+~~a                Pattern(a,~~)
+~~~a               Pattern(a,~~~)
+p**                RepeatedPattern(p,1..)
+p***               RepeatedPattern(p,0..)
+p?f                TestPattern(p,f)
+p//cond            Condition(p,cond)
+f @ g(...)         Apply(f,g(...))     ---> f(...)
+
+Late Binding (old idea; if we would not use `::=`):
+   Functions:
+	f(~x):= x^2                (automatic delay) [1]
+	f(~x):= LateEvaluate(x^2)  (explicit delay) [1]
+	
+	f(~x):= Evaluate(x^2)      (automatic evaluation)
+	
+	Variables:
+	x:= 2+2                    (automatic evaluation)
+	x:= LateEvaluate(2+2)      (explicit delay) [1]
+	...
+	
+	[1] Problem: LateEvaluate(x) can only be stored with LateEvaluate(LateEvaluate(x))
+	    x:= y:= LateEvaluate(LateEvaluate(a))
+		 {x,y}  -->  {a,LateEvaluate(a)}
+		 But: You normaly do not use LateEvaluate anywhere else than in :=
+		 It is silly to want to store LateEvaluate(Evaluate(x))
+   
+	l:= {1,2}
+	{x,y}:= l     (automatic evaluation)
+	({~~~lhs}:= {~~rhs}):= Transpose({{lhs},{rhs}}).Map(_(#1:= #2))
+	                       Zip...
+
+Namespaces:
+  ContinuedFractions`Round()
+  
+  ContinuedFractions::Round()
+  ContinuedFractions'Round()
+  ContinuedFractions#Round()
+  ContinuedFractions_Round()

@@ -1,0 +1,225 @@
+\hypertarget{group__expressions}{
+\subsection{Expressions}
+\label{group__expressions}\index{Expressions@{Expressions}}
+}
+Expression objects in pMath.  
+
+
+\subsubsection*{Data Structures}
+\begin{CompactItemize}
+\item 
+class \hyperlink{classpmath__expr__t}{pmath\_\-expr\_\-t}
+\begin{CompactList}\small\item\em The Expression class. \item\end{CompactList}\end{CompactItemize}
+\subsubsection*{Functions}
+\begin{CompactItemize}
+\item 
+PMATH\_\-API \hyperlink{classpmath__expr__t}{pmath\_\-expr\_\-t} \hyperlink{group__expressions_ga830588c2d0d6e28e78dfe6838f9935f}{pmath\_\-expr\_\-t::pmath\_\-expr\_\-new} (\hyperlink{classpmath__t}{pmath\_\-t} head, size\_\-t length)
+\begin{CompactList}\small\item\em Create a new expression. \item\end{CompactList}\item 
+PMATH\_\-API \hyperlink{classpmath__expr__t}{pmath\_\-expr\_\-t} \hyperlink{group__expressions_ge2fc3e2cc7db617208f2ef97deed49d7}{pmath\_\-expr\_\-t::pmath\_\-expr\_\-new\_\-extended} (\hyperlink{classpmath__t}{pmath\_\-t} head, size\_\-t length,...)
+\begin{CompactList}\small\item\em Create a new expression with all items given. \item\end{CompactList}\item 
+PMATH\_\-API \hyperlink{classpmath__expr__t}{pmath\_\-expr\_\-t} \hyperlink{group__expressions_g781924a3e0164cc27e703b486517ab4c}{pmath\_\-expr\_\-t::pmath\_\-expr\_\-resize} (\hyperlink{classpmath__expr__t}{pmath\_\-expr\_\-t} expr, size\_\-t new\_\-length)
+\begin{CompactList}\small\item\em Resize an expression. \item\end{CompactList}\item 
+PMATH\_\-API \hyperlink{classpmath__expr__t}{pmath\_\-expr\_\-t} \hyperlink{group__expressions_g8057092ab059876cd19e09c2ff7296d9}{pmath\_\-expr\_\-t::pmath\_\-expr\_\-append} (\hyperlink{classpmath__expr__t}{pmath\_\-expr\_\-t} expr, size\_\-t count,...)
+\begin{CompactList}\small\item\em Append some items to an expression. \item\end{CompactList}\item 
+PMATH\_\-API size\_\-t \hyperlink{group__expressions_gf77c0a198380cd9b3e7e1a47f41f57c0}{pmath\_\-expr\_\-t::pmath\_\-expr\_\-length} (\hyperlink{classpmath__expr__t}{pmath\_\-expr\_\-t} expr)
+\begin{CompactList}\small\item\em Get an expression's length. \item\end{CompactList}\item 
+PMATH\_\-API \hyperlink{classpmath__t}{pmath\_\-t} \hyperlink{group__expressions_g70b7099d22d00d94f52df167b4e42364}{pmath\_\-expr\_\-t::pmath\_\-expr\_\-get\_\-item} (\hyperlink{classpmath__expr__t}{pmath\_\-expr\_\-t} expr, size\_\-t index)
+\begin{CompactList}\small\item\em Get an item from an expression. \item\end{CompactList}\item 
+PMATH\_\-API \hyperlink{classpmath__expr__t}{pmath\_\-expr\_\-t} \hyperlink{group__expressions_ga3ba4e55b5e454f569c7e131653d5b14}{pmath\_\-expr\_\-t::pmath\_\-expr\_\-get\_\-item\_\-range} (\hyperlink{classpmath__expr__t}{pmath\_\-expr\_\-t} expr, size\_\-t start, size\_\-t length)
+\begin{CompactList}\small\item\em Get multiple items from an expression. \item\end{CompactList}\item 
+PMATH\_\-API \hyperlink{classpmath__expr__t}{pmath\_\-expr\_\-t} \hyperlink{group__expressions_g2771a8ad79e108e60df5dbe3ea9c7bf8}{pmath\_\-expr\_\-t::pmath\_\-expr\_\-set\_\-item} (\hyperlink{classpmath__expr__t}{pmath\_\-expr\_\-t} expr, size\_\-t index, \hyperlink{classpmath__t}{pmath\_\-t} item)
+\begin{CompactList}\small\item\em Set an item in an expression. \item\end{CompactList}\item 
+PMATH\_\-API \hyperlink{classpmath__expr__t}{pmath\_\-expr\_\-t} \hyperlink{group__expressions_g639d7a67fe8b892667b00acc2504b474}{pmath\_\-expr\_\-t::pmath\_\-expr\_\-remove\_\-all} (\hyperlink{classpmath__expr__t}{pmath\_\-expr\_\-t} expr, \hyperlink{classpmath__t}{pmath\_\-t} rem)
+\begin{CompactList}\small\item\em Remove all occurencies of an object from an expression. \item\end{CompactList}\item 
+PMATH\_\-API \hyperlink{classpmath__expr__t}{pmath\_\-expr\_\-t} \hyperlink{group__expressions_gb3708a99c95943b062a91797d340dd7b}{pmath\_\-expr\_\-t::pmath\_\-expr\_\-sort} (\hyperlink{classpmath__expr__t}{pmath\_\-expr\_\-t} expr)
+\begin{CompactList}\small\item\em Sort an expression. \item\end{CompactList}\item 
+PMATH\_\-API \hyperlink{classpmath__expr__t}{pmath\_\-expr\_\-t} \hyperlink{group__expressions_g9162f7fe8a42627c5adf6185dba9e67d}{pmath\_\-expr\_\-t::pmath\_\-expr\_\-flatten} (\hyperlink{classpmath__expr__t}{pmath\_\-expr\_\-t} expr, \hyperlink{classpmath__t}{pmath\_\-t} head, size\_\-t depth)
+\begin{CompactList}\small\item\em Flatten an expression. \item\end{CompactList}\end{CompactItemize}
+
+
+\subsubsection{Detailed Description}
+Expression objects in pMath. 
+
+Any pMath language-level expression (lists, terms, function calls, ...) is stored in a \hyperlink{classpmath__expr__t}{pmath\_\-expr\_\-t} -- an array of pMath objects.
+
+\begin{Desc}
+\item[See also:]\hyperlink{group__helpers}{Object Utility Functions} \end{Desc}
+
+
+\subsubsection{Function Documentation}
+\hypertarget{group__expressions_ga830588c2d0d6e28e78dfe6838f9935f}{
+\index{expressions@{expressions}!pmath\_\-expr\_\-new@{pmath\_\-expr\_\-new}}
+\index{pmath\_\-expr\_\-new@{pmath\_\-expr\_\-new}!expressions@{expressions}}
+\paragraph[{pmath\_\-expr\_\-new}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API {\bf pmath\_\-expr\_\-t} pmath\_\-expr\_\-new ({\bf pmath\_\-t} {\em head}, \/  size\_\-t {\em length})\hspace{0.3cm}{\tt  \mbox{[}inherited\mbox{]}}}\hfill}
+\label{group__expressions_ga830588c2d0d6e28e78dfe6838f9935f}
+
+
+Create a new expression. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em head}]The expression's head (index 0). Do not use them after the call. \item[{\em length}]The number of additional items in the expression. \end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]NULL or a new expression with head at index 0 and all other items initialized to NULL. You must destroy it with \hyperlink{classpmath__t_54e905402c38940687033b87eb8c6c9f}{pmath\_\-unref()}. \end{Desc}
+\hypertarget{group__expressions_ge2fc3e2cc7db617208f2ef97deed49d7}{
+\index{expressions@{expressions}!pmath\_\-expr\_\-new\_\-extended@{pmath\_\-expr\_\-new\_\-extended}}
+\index{pmath\_\-expr\_\-new\_\-extended@{pmath\_\-expr\_\-new\_\-extended}!expressions@{expressions}}
+\paragraph[{pmath\_\-expr\_\-new\_\-extended}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API {\bf pmath\_\-expr\_\-t} pmath\_\-expr\_\-new\_\-extended ({\bf pmath\_\-t} {\em head}, \/  size\_\-t {\em length}, \/   {\em ...})\hspace{0.3cm}{\tt  \mbox{[}inherited\mbox{]}}}\hfill}
+\label{group__expressions_ge2fc3e2cc7db617208f2ef97deed49d7}
+
+
+Create a new expression with all items given. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em head}]The expression's head (index 0). Do not use them after the call. \item[{\em length}]The number of additional items in the expression. \item[{\em ...}]exactly length pmath\_\-ts. Do not use them after the call. \end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]NULL or a new expression with head at index 0 all items at index i = 1..length initialized to the i'th argument in `...`. You must destroy it with \hyperlink{classpmath__t_54e905402c38940687033b87eb8c6c9f}{pmath\_\-unref()}. \end{Desc}
+\hypertarget{group__expressions_g781924a3e0164cc27e703b486517ab4c}{
+\index{expressions@{expressions}!pmath\_\-expr\_\-resize@{pmath\_\-expr\_\-resize}}
+\index{pmath\_\-expr\_\-resize@{pmath\_\-expr\_\-resize}!expressions@{expressions}}
+\paragraph[{pmath\_\-expr\_\-resize}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API {\bf pmath\_\-expr\_\-t} pmath\_\-expr\_\-resize ({\bf pmath\_\-expr\_\-t} {\em expr}, \/  size\_\-t {\em new\_\-length})\hspace{0.3cm}{\tt  \mbox{[}inherited\mbox{]}}}\hfill}
+\label{group__expressions_g781924a3e0164cc27e703b486517ab4c}
+
+
+Resize an expression. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em expr}]The old expression. It will be freed/invalid after the call. \item[{\em new\_\-length}]The new length of the expression. \end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]NULL or a new expression of length new\_\-length. You must destroy it with \hyperlink{classpmath__t_54e905402c38940687033b87eb8c6c9f}{pmath\_\-unref()}.\end{Desc}
+If expr's length is less than or equals to new\_\-length, all items at 1..(expr's length) are be copied and the rest is initialized with NULL. Otherwise, all items at 1..new\_\-length are copied, those at (new\_\-length+1)..(expr's length) are be freed and the rest is initialized with NULL. \hypertarget{group__expressions_g8057092ab059876cd19e09c2ff7296d9}{
+\index{expressions@{expressions}!pmath\_\-expr\_\-append@{pmath\_\-expr\_\-append}}
+\index{pmath\_\-expr\_\-append@{pmath\_\-expr\_\-append}!expressions@{expressions}}
+\paragraph[{pmath\_\-expr\_\-append}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API {\bf pmath\_\-expr\_\-t} pmath\_\-expr\_\-append ({\bf pmath\_\-expr\_\-t} {\em expr}, \/  size\_\-t {\em count}, \/   {\em ...})\hspace{0.3cm}{\tt  \mbox{[}inherited\mbox{]}}}\hfill}
+\label{group__expressions_g8057092ab059876cd19e09c2ff7296d9}
+
+
+Append some items to an expression. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em expr}]The old expression. It will be freed/invalid after the call. \item[{\em count}]The number of items to append. \item[{\em ...}]exactly count pmath\_\-ts. Do not use them after the call. \end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]NULL or a new expression that contains all items of expr followed by the items in `...`. You must destroy it with \hyperlink{classpmath__t_54e905402c38940687033b87eb8c6c9f}{pmath\_\-unref()}.\end{Desc}
+If expr == NULL, the returns value is pmath\_\-expr\_\-new\_\-extended(NULL,count,...). \hypertarget{group__expressions_gf77c0a198380cd9b3e7e1a47f41f57c0}{
+\index{expressions@{expressions}!pmath\_\-expr\_\-length@{pmath\_\-expr\_\-length}}
+\index{pmath\_\-expr\_\-length@{pmath\_\-expr\_\-length}!expressions@{expressions}}
+\paragraph[{pmath\_\-expr\_\-length}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API size\_\-t pmath\_\-expr\_\-length ({\bf pmath\_\-expr\_\-t} {\em expr})\hspace{0.3cm}{\tt  \mbox{[}inherited\mbox{]}}}\hfill}
+\label{group__expressions_gf77c0a198380cd9b3e7e1a47f41f57c0}
+
+
+Get an expression's length. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em expr}]A pMath expression. \end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]The number of items in expr (not counting the head). \end{Desc}
+\hypertarget{group__expressions_g70b7099d22d00d94f52df167b4e42364}{
+\index{expressions@{expressions}!pmath\_\-expr\_\-get\_\-item@{pmath\_\-expr\_\-get\_\-item}}
+\index{pmath\_\-expr\_\-get\_\-item@{pmath\_\-expr\_\-get\_\-item}!expressions@{expressions}}
+\paragraph[{pmath\_\-expr\_\-get\_\-item}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API {\bf pmath\_\-t} pmath\_\-expr\_\-get\_\-item ({\bf pmath\_\-expr\_\-t} {\em expr}, \/  size\_\-t {\em index})\hspace{0.3cm}{\tt  \mbox{[}inherited\mbox{]}}}\hfill}
+\label{group__expressions_g70b7099d22d00d94f52df167b4e42364}
+
+
+Get an item from an expression. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em expr}]A pMath expression. \item[{\em index}]The index of the item. \end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]A copy of the requested item, if index is not greater than the length of expr and NULL otherwise. You must destroy it with \hyperlink{classpmath__t_54e905402c38940687033b87eb8c6c9f}{pmath\_\-unref()}. \end{Desc}
+\hypertarget{group__expressions_ga3ba4e55b5e454f569c7e131653d5b14}{
+\index{expressions@{expressions}!pmath\_\-expr\_\-get\_\-item\_\-range@{pmath\_\-expr\_\-get\_\-item\_\-range}}
+\index{pmath\_\-expr\_\-get\_\-item\_\-range@{pmath\_\-expr\_\-get\_\-item\_\-range}!expressions@{expressions}}
+\paragraph[{pmath\_\-expr\_\-get\_\-item\_\-range}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API {\bf pmath\_\-expr\_\-t} pmath\_\-expr\_\-get\_\-item\_\-range ({\bf pmath\_\-expr\_\-t} {\em expr}, \/  size\_\-t {\em start}, \/  size\_\-t {\em length})\hspace{0.3cm}{\tt  \mbox{[}inherited\mbox{]}}}\hfill}
+\label{group__expressions_ga3ba4e55b5e454f569c7e131653d5b14}
+
+
+Get multiple items from an expression. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em expr}]A pMath expression. It will $\ast$not$\ast$ be destroyed. \item[{\em start}]The start index of the items. \item[{\em length}]The number of the items. \end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]A new expression with the same head as {\em expr\/}. Its length is max(0, min(start + length, 1 + pmath\_\-expr\_\-length(expr)) - start) and it contains the items from expr beginning at index {\em start\/}. \end{Desc}
+\hypertarget{group__expressions_g2771a8ad79e108e60df5dbe3ea9c7bf8}{
+\index{expressions@{expressions}!pmath\_\-expr\_\-set\_\-item@{pmath\_\-expr\_\-set\_\-item}}
+\index{pmath\_\-expr\_\-set\_\-item@{pmath\_\-expr\_\-set\_\-item}!expressions@{expressions}}
+\paragraph[{pmath\_\-expr\_\-set\_\-item}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API {\bf pmath\_\-expr\_\-t} pmath\_\-expr\_\-set\_\-item ({\bf pmath\_\-expr\_\-t} {\em expr}, \/  size\_\-t {\em index}, \/  {\bf pmath\_\-t} {\em item})\hspace{0.3cm}{\tt  \mbox{[}inherited\mbox{]}}}\hfill}
+\label{group__expressions_g2771a8ad79e108e60df5dbe3ea9c7bf8}
+
+
+Set an item in an expression. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em expr}]A pMath expression. It will be destroyed, do not use it after the call. \item[{\em index}]The index of the to-be-changed item. \item[{\em item}]The new value of the item. It will be destroyed, do not use it after the call. \end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]NULL or a new expression with item at index. You must destroy it with \hyperlink{classpmath__t_54e905402c38940687033b87eb8c6c9f}{pmath\_\-unref()}.\end{Desc}
+If index is greater than expr's length, item will be destroyed and the return value is expr. \hypertarget{group__expressions_g639d7a67fe8b892667b00acc2504b474}{
+\index{expressions@{expressions}!pmath\_\-expr\_\-remove\_\-all@{pmath\_\-expr\_\-remove\_\-all}}
+\index{pmath\_\-expr\_\-remove\_\-all@{pmath\_\-expr\_\-remove\_\-all}!expressions@{expressions}}
+\paragraph[{pmath\_\-expr\_\-remove\_\-all}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API {\bf pmath\_\-expr\_\-t} pmath\_\-expr\_\-remove\_\-all ({\bf pmath\_\-expr\_\-t} {\em expr}, \/  {\bf pmath\_\-t} {\em rem})\hspace{0.3cm}{\tt  \mbox{[}inherited\mbox{]}}}\hfill}
+\label{group__expressions_g639d7a67fe8b892667b00acc2504b474}
+
+
+Remove all occurencies of an object from an expression. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em expr}]A pMath expression. It will be destroyed, do not use it after the call. \item[{\em rem}]The object to be removed. It will $\ast$not$\ast$ be destroyed. \end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]NULL or a new expression that contains no occurencies of {\em rem\/} (except maybe the head). It is a shrinked version of {\em expr\/}. \end{Desc}
+\hypertarget{group__expressions_gb3708a99c95943b062a91797d340dd7b}{
+\index{expressions@{expressions}!pmath\_\-expr\_\-sort@{pmath\_\-expr\_\-sort}}
+\index{pmath\_\-expr\_\-sort@{pmath\_\-expr\_\-sort}!expressions@{expressions}}
+\paragraph[{pmath\_\-expr\_\-sort}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API {\bf pmath\_\-expr\_\-t} pmath\_\-expr\_\-sort ({\bf pmath\_\-expr\_\-t} {\em expr})\hspace{0.3cm}{\tt  \mbox{[}inherited\mbox{]}}}\hfill}
+\label{group__expressions_gb3708a99c95943b062a91797d340dd7b}
+
+
+Sort an expression. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em expr}]A pMath expression. It will be destroyed, do not use it after the call. \end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]A new expression where all items from expr are sorted (except the head, which remains unchanged). \end{Desc}
+\hypertarget{group__expressions_g9162f7fe8a42627c5adf6185dba9e67d}{
+\index{expressions@{expressions}!pmath\_\-expr\_\-flatten@{pmath\_\-expr\_\-flatten}}
+\index{pmath\_\-expr\_\-flatten@{pmath\_\-expr\_\-flatten}!expressions@{expressions}}
+\paragraph[{pmath\_\-expr\_\-flatten}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API {\bf pmath\_\-expr\_\-t} pmath\_\-expr\_\-flatten ({\bf pmath\_\-expr\_\-t} {\em expr}, \/  {\bf pmath\_\-t} {\em head}, \/  size\_\-t {\em depth})\hspace{0.3cm}{\tt  \mbox{[}inherited\mbox{]}}}\hfill}
+\label{group__expressions_g9162f7fe8a42627c5adf6185dba9e67d}
+
+
+Flatten an expression. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em expr}]A pMath expression. It will be destroyed, do not use it after the call. \item[{\em head}]The head of items, that should be flattened out. It will be destroyed, so you can use `pmath\_\-expr\_\-get\_\-item(expr)` directly to use expr's head. \item[{\em depth}]The depth to which level flattening should be done. A value of 0 means `no flattening`. \end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]A new expression where all items, that have the same head as expr, will be flattened. \end{Desc}

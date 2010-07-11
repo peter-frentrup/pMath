@@ -1,0 +1,325 @@
+\contentsline {section}{\numberline {1}The pMath Computer Algebra System Library}{1}{section.1}
+\contentsline {section}{\numberline {2}Todo List}{2}{section.2}
+\contentsline {section}{\numberline {3}Deprecated List}{2}{section.3}
+\contentsline {section}{\numberline {4}Module Index}{2}{section.4}
+\contentsline {subsection}{\numberline {4.1}Modules}{2}{subsection.4.1}
+\contentsline {section}{\numberline {5}Data Structure Index}{3}{section.5}
+\contentsline {subsection}{\numberline {5.1}Class Hierarchy}{3}{subsection.5.1}
+\contentsline {section}{\numberline {6}Data Structure Index}{4}{section.6}
+\contentsline {subsection}{\numberline {6.1}Data Structures}{4}{subsection.6.1}
+\contentsline {section}{\numberline {7}Module Documentation}{5}{section.7}
+\contentsline {subsection}{\numberline {7.1}Custom Objects}{5}{subsection.7.1}
+\contentsline {subsubsection}{\numberline {7.1.1}Detailed Description}{5}{subsubsection.7.1.1}
+\contentsline {subsubsection}{\numberline {7.1.2}Function Documentation}{6}{subsubsection.7.1.2}
+\contentsline {paragraph}{\numberline {7.1.2.1}pmath\_\discretionary {-}{}{}custom\_\discretionary {-}{}{}new}{6}{paragraph.7.1.2.1}
+\contentsline {paragraph}{\numberline {7.1.2.2}pmath\_\discretionary {-}{}{}custom\_\discretionary {-}{}{}get\_\discretionary {-}{}{}data}{6}{paragraph.7.1.2.2}
+\contentsline {paragraph}{\numberline {7.1.2.3}pmath\_\discretionary {-}{}{}custom\_\discretionary {-}{}{}has\_\discretionary {-}{}{}destructor}{7}{paragraph.7.1.2.3}
+\contentsline {subsection}{\numberline {7.2}Expressions}{7}{subsection.7.2}
+\contentsline {subsubsection}{\numberline {7.2.1}Detailed Description}{8}{subsubsection.7.2.1}
+\contentsline {subsubsection}{\numberline {7.2.2}Function Documentation}{8}{subsubsection.7.2.2}
+\contentsline {paragraph}{\numberline {7.2.2.1}pmath\_\discretionary {-}{}{}expr\_\discretionary {-}{}{}new}{8}{paragraph.7.2.2.1}
+\contentsline {paragraph}{\numberline {7.2.2.2}pmath\_\discretionary {-}{}{}expr\_\discretionary {-}{}{}new\_\discretionary {-}{}{}extended}{8}{paragraph.7.2.2.2}
+\contentsline {paragraph}{\numberline {7.2.2.3}pmath\_\discretionary {-}{}{}expr\_\discretionary {-}{}{}resize}{9}{paragraph.7.2.2.3}
+\contentsline {paragraph}{\numberline {7.2.2.4}pmath\_\discretionary {-}{}{}expr\_\discretionary {-}{}{}append}{9}{paragraph.7.2.2.4}
+\contentsline {paragraph}{\numberline {7.2.2.5}pmath\_\discretionary {-}{}{}expr\_\discretionary {-}{}{}length}{10}{paragraph.7.2.2.5}
+\contentsline {paragraph}{\numberline {7.2.2.6}pmath\_\discretionary {-}{}{}expr\_\discretionary {-}{}{}get\_\discretionary {-}{}{}item}{10}{paragraph.7.2.2.6}
+\contentsline {paragraph}{\numberline {7.2.2.7}pmath\_\discretionary {-}{}{}expr\_\discretionary {-}{}{}get\_\discretionary {-}{}{}item\_\discretionary {-}{}{}range}{10}{paragraph.7.2.2.7}
+\contentsline {paragraph}{\numberline {7.2.2.8}pmath\_\discretionary {-}{}{}expr\_\discretionary {-}{}{}set\_\discretionary {-}{}{}item}{11}{paragraph.7.2.2.8}
+\contentsline {paragraph}{\numberline {7.2.2.9}pmath\_\discretionary {-}{}{}expr\_\discretionary {-}{}{}remove\_\discretionary {-}{}{}all}{11}{paragraph.7.2.2.9}
+\contentsline {paragraph}{\numberline {7.2.2.10}pmath\_\discretionary {-}{}{}expr\_\discretionary {-}{}{}sort}{11}{paragraph.7.2.2.10}
+\contentsline {paragraph}{\numberline {7.2.2.11}pmath\_\discretionary {-}{}{}expr\_\discretionary {-}{}{}flatten}{12}{paragraph.7.2.2.11}
+\contentsline {subsection}{\numberline {7.3}Numbers}{12}{subsection.7.3}
+\contentsline {subsubsection}{\numberline {7.3.1}Detailed Description}{14}{subsubsection.7.3.1}
+\contentsline {subsubsection}{\numberline {7.3.2}Function Documentation}{14}{subsubsection.7.3.2}
+\contentsline {paragraph}{\numberline {7.3.2.1}pmath\_\discretionary {-}{}{}accuracy}{14}{paragraph.7.3.2.1}
+\contentsline {paragraph}{\numberline {7.3.2.2}pmath\_\discretionary {-}{}{}precision}{14}{paragraph.7.3.2.2}
+\contentsline {paragraph}{\numberline {7.3.2.3}pmath\_\discretionary {-}{}{}set\_\discretionary {-}{}{}accuracy}{15}{paragraph.7.3.2.3}
+\contentsline {paragraph}{\numberline {7.3.2.4}pmath\_\discretionary {-}{}{}set\_\discretionary {-}{}{}precision}{15}{paragraph.7.3.2.4}
+\contentsline {paragraph}{\numberline {7.3.2.5}pmath\_\discretionary {-}{}{}approximate}{15}{paragraph.7.3.2.5}
+\contentsline {paragraph}{\numberline {7.3.2.6}pmath\_\discretionary {-}{}{}integer\_\discretionary {-}{}{}new\_\discretionary {-}{}{}si}{16}{paragraph.7.3.2.6}
+\contentsline {paragraph}{\numberline {7.3.2.7}pmath\_\discretionary {-}{}{}integer\_\discretionary {-}{}{}new\_\discretionary {-}{}{}ui}{16}{paragraph.7.3.2.7}
+\contentsline {paragraph}{\numberline {7.3.2.8}pmath\_\discretionary {-}{}{}integer\_\discretionary {-}{}{}new\_\discretionary {-}{}{}size}{16}{paragraph.7.3.2.8}
+\contentsline {paragraph}{\numberline {7.3.2.9}pmath\_\discretionary {-}{}{}integer\_\discretionary {-}{}{}new\_\discretionary {-}{}{}data}{17}{paragraph.7.3.2.9}
+\contentsline {paragraph}{\numberline {7.3.2.10}pmath\_\discretionary {-}{}{}integer\_\discretionary {-}{}{}new\_\discretionary {-}{}{}str}{17}{paragraph.7.3.2.10}
+\contentsline {paragraph}{\numberline {7.3.2.11}pmath\_\discretionary {-}{}{}rational\_\discretionary {-}{}{}new}{17}{paragraph.7.3.2.11}
+\contentsline {paragraph}{\numberline {7.3.2.12}pmath\_\discretionary {-}{}{}rational\_\discretionary {-}{}{}numerator}{18}{paragraph.7.3.2.12}
+\contentsline {paragraph}{\numberline {7.3.2.13}pmath\_\discretionary {-}{}{}rational\_\discretionary {-}{}{}denominator}{18}{paragraph.7.3.2.13}
+\contentsline {paragraph}{\numberline {7.3.2.14}pmath\_\discretionary {-}{}{}float\_\discretionary {-}{}{}new\_\discretionary {-}{}{}str}{18}{paragraph.7.3.2.14}
+\contentsline {paragraph}{\numberline {7.3.2.15}pmath\_\discretionary {-}{}{}float\_\discretionary {-}{}{}new\_\discretionary {-}{}{}d}{19}{paragraph.7.3.2.15}
+\contentsline {paragraph}{\numberline {7.3.2.16}pmath\_\discretionary {-}{}{}integer\_\discretionary {-}{}{}fits\_\discretionary {-}{}{}si}{19}{paragraph.7.3.2.16}
+\contentsline {paragraph}{\numberline {7.3.2.17}pmath\_\discretionary {-}{}{}integer\_\discretionary {-}{}{}fits\_\discretionary {-}{}{}ui}{20}{paragraph.7.3.2.17}
+\contentsline {paragraph}{\numberline {7.3.2.18}pmath\_\discretionary {-}{}{}integer\_\discretionary {-}{}{}get\_\discretionary {-}{}{}si}{20}{paragraph.7.3.2.18}
+\contentsline {paragraph}{\numberline {7.3.2.19}pmath\_\discretionary {-}{}{}integer\_\discretionary {-}{}{}get\_\discretionary {-}{}{}ui}{20}{paragraph.7.3.2.19}
+\contentsline {paragraph}{\numberline {7.3.2.20}pmath\_\discretionary {-}{}{}number\_\discretionary {-}{}{}get\_\discretionary {-}{}{}d}{21}{paragraph.7.3.2.20}
+\contentsline {paragraph}{\numberline {7.3.2.21}pmath\_\discretionary {-}{}{}number\_\discretionary {-}{}{}sign}{21}{paragraph.7.3.2.21}
+\contentsline {paragraph}{\numberline {7.3.2.22}pmath\_\discretionary {-}{}{}number\_\discretionary {-}{}{}neg}{21}{paragraph.7.3.2.22}
+\contentsline {subsection}{\numberline {7.4}Objects - the Base of pMath}{21}{subsection.7.4}
+\contentsline {subsubsection}{\numberline {7.4.1}Detailed Description}{23}{subsubsection.7.4.1}
+\contentsline {subsubsection}{\numberline {7.4.2}Define Documentation}{23}{subsubsection.7.4.2}
+\contentsline {paragraph}{\numberline {7.4.2.1}PMATH\_\discretionary {-}{}{}IS\_\discretionary {-}{}{}MAGIC}{23}{paragraph.7.4.2.1}
+\contentsline {paragraph}{\numberline {7.4.2.2}PMATH\_\discretionary {-}{}{}IS\_\discretionary {-}{}{}MAGIC}{23}{paragraph.7.4.2.2}
+\contentsline {subsubsection}{\numberline {7.4.3}Typedef Documentation}{24}{subsubsection.7.4.3}
+\contentsline {paragraph}{\numberline {7.4.3.1}pmath\_\discretionary {-}{}{}type\_\discretionary {-}{}{}t}{24}{paragraph.7.4.3.1}
+\contentsline {paragraph}{\numberline {7.4.3.2}pmath\_\discretionary {-}{}{}write\_\discretionary {-}{}{}options\_\discretionary {-}{}{}t}{25}{paragraph.7.4.3.2}
+\contentsline {paragraph}{\numberline {7.4.3.3}pmath\_\discretionary {-}{}{}proc\_\discretionary {-}{}{}t}{25}{paragraph.7.4.3.3}
+\contentsline {paragraph}{\numberline {7.4.3.4}pmath\_\discretionary {-}{}{}param\_\discretionary {-}{}{}proc\_\discretionary {-}{}{}t}{25}{paragraph.7.4.3.4}
+\contentsline {paragraph}{\numberline {7.4.3.5}pmath\_\discretionary {-}{}{}func\_\discretionary {-}{}{}t}{26}{paragraph.7.4.3.5}
+\contentsline {paragraph}{\numberline {7.4.3.6}pmath\_\discretionary {-}{}{}hash\_\discretionary {-}{}{}func\_\discretionary {-}{}{}t}{26}{paragraph.7.4.3.6}
+\contentsline {paragraph}{\numberline {7.4.3.7}pmath\_\discretionary {-}{}{}equal\_\discretionary {-}{}{}func\_\discretionary {-}{}{}t}{26}{paragraph.7.4.3.7}
+\contentsline {paragraph}{\numberline {7.4.3.8}pmath\_\discretionary {-}{}{}compare\_\discretionary {-}{}{}func\_\discretionary {-}{}{}t}{26}{paragraph.7.4.3.8}
+\contentsline {subsubsection}{\numberline {7.4.4}Function Documentation}{26}{subsubsection.7.4.4}
+\contentsline {paragraph}{\numberline {7.4.4.1}pmath\_\discretionary {-}{}{}hash}{26}{paragraph.7.4.4.1}
+\contentsline {paragraph}{\numberline {7.4.4.2}pmath\_\discretionary {-}{}{}equals}{26}{paragraph.7.4.4.2}
+\contentsline {paragraph}{\numberline {7.4.4.3}pmath\_\discretionary {-}{}{}compare}{27}{paragraph.7.4.4.3}
+\contentsline {paragraph}{\numberline {7.4.4.4}pmath\_\discretionary {-}{}{}write}{27}{paragraph.7.4.4.4}
+\contentsline {paragraph}{\numberline {7.4.4.5}pmath\_\discretionary {-}{}{}is\_\discretionary {-}{}{}evaluated}{28}{paragraph.7.4.4.5}
+\contentsline {subsection}{\numberline {7.5}Strings}{28}{subsection.7.5}
+\contentsline {subsubsection}{\numberline {7.5.1}Detailed Description}{30}{subsubsection.7.5.1}
+\contentsline {subsubsection}{\numberline {7.5.2}Define Documentation}{30}{subsubsection.7.5.2}
+\contentsline {paragraph}{\numberline {7.5.2.1}PMATH\_\discretionary {-}{}{}C\_\discretionary {-}{}{}STRING}{30}{paragraph.7.5.2.1}
+\contentsline {paragraph}{\numberline {7.5.2.2}PMATH\_\discretionary {-}{}{}C\_\discretionary {-}{}{}STRING}{30}{paragraph.7.5.2.2}
+\contentsline {subsubsection}{\numberline {7.5.3}Function Documentation}{31}{subsubsection.7.5.3}
+\contentsline {paragraph}{\numberline {7.5.3.1}pmath\_\discretionary {-}{}{}utf8\_\discretionary {-}{}{}writer}{31}{paragraph.7.5.3.1}
+\contentsline {paragraph}{\numberline {7.5.3.2}pmath\_\discretionary {-}{}{}native\_\discretionary {-}{}{}writer}{31}{paragraph.7.5.3.2}
+\contentsline {paragraph}{\numberline {7.5.3.3}pmath\_\discretionary {-}{}{}char\_\discretionary {-}{}{}from\_\discretionary {-}{}{}name}{31}{paragraph.7.5.3.3}
+\contentsline {paragraph}{\numberline {7.5.3.4}pmath\_\discretionary {-}{}{}char\_\discretionary {-}{}{}to\_\discretionary {-}{}{}name}{31}{paragraph.7.5.3.4}
+\contentsline {paragraph}{\numberline {7.5.3.5}pmath\_\discretionary {-}{}{}string\_\discretionary {-}{}{}new}{32}{paragraph.7.5.3.5}
+\contentsline {paragraph}{\numberline {7.5.3.6}pmath\_\discretionary {-}{}{}string\_\discretionary {-}{}{}insert\_\discretionary {-}{}{}latin1}{32}{paragraph.7.5.3.6}
+\contentsline {paragraph}{\numberline {7.5.3.7}pmath\_\discretionary {-}{}{}string\_\discretionary {-}{}{}from\_\discretionary {-}{}{}utf8}{32}{paragraph.7.5.3.7}
+\contentsline {paragraph}{\numberline {7.5.3.8}pmath\_\discretionary {-}{}{}string\_\discretionary {-}{}{}to\_\discretionary {-}{}{}utf8}{33}{paragraph.7.5.3.8}
+\contentsline {paragraph}{\numberline {7.5.3.9}pmath\_\discretionary {-}{}{}string\_\discretionary {-}{}{}from\_\discretionary {-}{}{}native}{33}{paragraph.7.5.3.9}
+\contentsline {paragraph}{\numberline {7.5.3.10}pmath\_\discretionary {-}{}{}string\_\discretionary {-}{}{}to\_\discretionary {-}{}{}native}{33}{paragraph.7.5.3.10}
+\contentsline {paragraph}{\numberline {7.5.3.11}pmath\_\discretionary {-}{}{}string\_\discretionary {-}{}{}insert\_\discretionary {-}{}{}codepage}{34}{paragraph.7.5.3.11}
+\contentsline {paragraph}{\numberline {7.5.3.12}pmath\_\discretionary {-}{}{}string\_\discretionary {-}{}{}insert\_\discretionary {-}{}{}ucs2}{34}{paragraph.7.5.3.12}
+\contentsline {paragraph}{\numberline {7.5.3.13}pmath\_\discretionary {-}{}{}string\_\discretionary {-}{}{}insert}{34}{paragraph.7.5.3.13}
+\contentsline {paragraph}{\numberline {7.5.3.14}pmath\_\discretionary {-}{}{}string\_\discretionary {-}{}{}concat}{35}{paragraph.7.5.3.14}
+\contentsline {paragraph}{\numberline {7.5.3.15}pmath\_\discretionary {-}{}{}string\_\discretionary {-}{}{}part}{35}{paragraph.7.5.3.15}
+\contentsline {paragraph}{\numberline {7.5.3.16}pmath\_\discretionary {-}{}{}string\_\discretionary {-}{}{}buffer}{36}{paragraph.7.5.3.16}
+\contentsline {paragraph}{\numberline {7.5.3.17}pmath\_\discretionary {-}{}{}string\_\discretionary {-}{}{}length}{36}{paragraph.7.5.3.17}
+\contentsline {paragraph}{\numberline {7.5.3.18}pmath\_\discretionary {-}{}{}string\_\discretionary {-}{}{}equals\_\discretionary {-}{}{}latin1}{36}{paragraph.7.5.3.18}
+\contentsline {subsection}{\numberline {7.6}Symbols}{37}{subsection.7.6}
+\contentsline {subsubsection}{\numberline {7.6.1}Detailed Description}{38}{subsubsection.7.6.1}
+\contentsline {subsubsection}{\numberline {7.6.2}Typedef Documentation}{38}{subsubsection.7.6.2}
+\contentsline {paragraph}{\numberline {7.6.2.1}pmath\_\discretionary {-}{}{}builtin\_\discretionary {-}{}{}func\_\discretionary {-}{}{}t}{38}{paragraph.7.6.2.1}
+\contentsline {paragraph}{\numberline {7.6.2.2}pmath\_\discretionary {-}{}{}symbol\_\discretionary {-}{}{}attributes\_\discretionary {-}{}{}t}{39}{paragraph.7.6.2.2}
+\contentsline {subsubsection}{\numberline {7.6.3}Enumeration Type Documentation}{40}{subsubsection.7.6.3}
+\contentsline {paragraph}{\numberline {7.6.3.1}pmath\_\discretionary {-}{}{}code\_\discretionary {-}{}{}usage\_\discretionary {-}{}{}t}{40}{paragraph.7.6.3.1}
+\contentsline {subsubsection}{\numberline {7.6.4}Function Documentation}{40}{subsubsection.7.6.4}
+\contentsline {paragraph}{\numberline {7.6.4.1}pmath\_\discretionary {-}{}{}symbol\_\discretionary {-}{}{}builtin}{40}{paragraph.7.6.4.1}
+\contentsline {paragraph}{\numberline {7.6.4.2}pmath\_\discretionary {-}{}{}register\_\discretionary {-}{}{}code}{41}{paragraph.7.6.4.2}
+\contentsline {paragraph}{\numberline {7.6.4.3}pmath\_\discretionary {-}{}{}register\_\discretionary {-}{}{}approx\_\discretionary {-}{}{}code}{41}{paragraph.7.6.4.3}
+\contentsline {paragraph}{\numberline {7.6.4.4}pmath\_\discretionary {-}{}{}symbol\_\discretionary {-}{}{}remove}{41}{paragraph.7.6.4.4}
+\contentsline {paragraph}{\numberline {7.6.4.5}pmath\_\discretionary {-}{}{}symbol\_\discretionary {-}{}{}iter\_\discretionary {-}{}{}next}{42}{paragraph.7.6.4.5}
+\contentsline {paragraph}{\numberline {7.6.4.6}pmath\_\discretionary {-}{}{}symbol\_\discretionary {-}{}{}get}{42}{paragraph.7.6.4.6}
+\contentsline {paragraph}{\numberline {7.6.4.7}pmath\_\discretionary {-}{}{}symbol\_\discretionary {-}{}{}create\_\discretionary {-}{}{}temporary}{42}{paragraph.7.6.4.7}
+\contentsline {paragraph}{\numberline {7.6.4.8}pmath\_\discretionary {-}{}{}symbol\_\discretionary {-}{}{}find}{43}{paragraph.7.6.4.8}
+\contentsline {paragraph}{\numberline {7.6.4.9}pmath\_\discretionary {-}{}{}symbol\_\discretionary {-}{}{}name}{43}{paragraph.7.6.4.9}
+\contentsline {paragraph}{\numberline {7.6.4.10}pmath\_\discretionary {-}{}{}symbol\_\discretionary {-}{}{}get\_\discretionary {-}{}{}attributes}{43}{paragraph.7.6.4.10}
+\contentsline {paragraph}{\numberline {7.6.4.11}pmath\_\discretionary {-}{}{}symbol\_\discretionary {-}{}{}set\_\discretionary {-}{}{}attributes}{44}{paragraph.7.6.4.11}
+\contentsline {paragraph}{\numberline {7.6.4.12}pmath\_\discretionary {-}{}{}symbol\_\discretionary {-}{}{}get\_\discretionary {-}{}{}value}{44}{paragraph.7.6.4.12}
+\contentsline {paragraph}{\numberline {7.6.4.13}pmath\_\discretionary {-}{}{}symbol\_\discretionary {-}{}{}set\_\discretionary {-}{}{}value}{44}{paragraph.7.6.4.13}
+\contentsline {paragraph}{\numberline {7.6.4.14}pmath\_\discretionary {-}{}{}symbol\_\discretionary {-}{}{}synchronized}{45}{paragraph.7.6.4.14}
+\contentsline {paragraph}{\numberline {7.6.4.15}pmath\_\discretionary {-}{}{}symbol\_\discretionary {-}{}{}update}{45}{paragraph.7.6.4.15}
+\contentsline {subsection}{\numberline {7.7}C++ Binding}{45}{subsection.7.7}
+\contentsline {subsubsection}{\numberline {7.7.1}Detailed Description}{45}{subsubsection.7.7.1}
+\contentsline {subsection}{\numberline {7.8}Parsing Code}{46}{subsection.7.8}
+\contentsline {subsubsection}{\numberline {7.8.1}Detailed Description}{49}{subsubsection.7.8.1}
+\contentsline {subsubsection}{\numberline {7.8.2}Example}{49}{subsubsection.7.8.2}
+\contentsline {subsubsection}{\numberline {7.8.3}Define Documentation}{49}{subsubsection.7.8.3}
+\contentsline {paragraph}{\numberline {7.8.3.1}PMATH\_\discretionary {-}{}{}RUN}{49}{paragraph.7.8.3.1}
+\contentsline {paragraph}{\numberline {7.8.3.2}PMATH\_\discretionary {-}{}{}RUN\_\discretionary {-}{}{}ARGS}{50}{paragraph.7.8.3.2}
+\contentsline {subsubsection}{\numberline {7.8.4}Function Documentation}{50}{subsubsection.7.8.4}
+\contentsline {paragraph}{\numberline {7.8.4.1}pmath\_\discretionary {-}{}{}spans\_\discretionary {-}{}{}from\_\discretionary {-}{}{}string}{50}{paragraph.7.8.4.1}
+\contentsline {paragraph}{\numberline {7.8.4.2}pmath\_\discretionary {-}{}{}boxes\_\discretionary {-}{}{}from\_\discretionary {-}{}{}spans}{51}{paragraph.7.8.4.2}
+\contentsline {paragraph}{\numberline {7.8.4.3}pmath\_\discretionary {-}{}{}spans\_\discretionary {-}{}{}from\_\discretionary {-}{}{}boxes}{51}{paragraph.7.8.4.3}
+\contentsline {paragraph}{\numberline {7.8.4.4}pmath\_\discretionary {-}{}{}token\_\discretionary {-}{}{}analyse}{52}{paragraph.7.8.4.4}
+\contentsline {paragraph}{\numberline {7.8.4.5}pmath\_\discretionary {-}{}{}token\_\discretionary {-}{}{}prefix\_\discretionary {-}{}{}precedence}{52}{paragraph.7.8.4.5}
+\contentsline {paragraph}{\numberline {7.8.4.6}pmath\_\discretionary {-}{}{}token\_\discretionary {-}{}{}maybe\_\discretionary {-}{}{}first}{52}{paragraph.7.8.4.6}
+\contentsline {paragraph}{\numberline {7.8.4.7}pmath\_\discretionary {-}{}{}token\_\discretionary {-}{}{}maybe\_\discretionary {-}{}{}rest}{53}{paragraph.7.8.4.7}
+\contentsline {paragraph}{\numberline {7.8.4.8}pmath\_\discretionary {-}{}{}span\_\discretionary {-}{}{}array\_\discretionary {-}{}{}free}{53}{paragraph.7.8.4.8}
+\contentsline {paragraph}{\numberline {7.8.4.9}pmath\_\discretionary {-}{}{}span\_\discretionary {-}{}{}array\_\discretionary {-}{}{}length}{53}{paragraph.7.8.4.9}
+\contentsline {paragraph}{\numberline {7.8.4.10}pmath\_\discretionary {-}{}{}span\_\discretionary {-}{}{}array\_\discretionary {-}{}{}is\_\discretionary {-}{}{}token\_\discretionary {-}{}{}end}{53}{paragraph.7.8.4.10}
+\contentsline {paragraph}{\numberline {7.8.4.11}pmath\_\discretionary {-}{}{}span\_\discretionary {-}{}{}array\_\discretionary {-}{}{}is\_\discretionary {-}{}{}operator\_\discretionary {-}{}{}start}{54}{paragraph.7.8.4.11}
+\contentsline {paragraph}{\numberline {7.8.4.12}pmath\_\discretionary {-}{}{}span\_\discretionary {-}{}{}at}{54}{paragraph.7.8.4.12}
+\contentsline {paragraph}{\numberline {7.8.4.13}pmath\_\discretionary {-}{}{}span\_\discretionary {-}{}{}next}{54}{paragraph.7.8.4.13}
+\contentsline {paragraph}{\numberline {7.8.4.14}pmath\_\discretionary {-}{}{}span\_\discretionary {-}{}{}end}{54}{paragraph.7.8.4.14}
+\contentsline {paragraph}{\numberline {7.8.4.15}pmath\_\discretionary {-}{}{}string\_\discretionary {-}{}{}expand\_\discretionary {-}{}{}boxes}{55}{paragraph.7.8.4.15}
+\contentsline {paragraph}{\numberline {7.8.4.16}pmath\_\discretionary {-}{}{}parse\_\discretionary {-}{}{}string}{55}{paragraph.7.8.4.16}
+\contentsline {paragraph}{\numberline {7.8.4.17}pmath\_\discretionary {-}{}{}parse\_\discretionary {-}{}{}string\_\discretionary {-}{}{}args}{55}{paragraph.7.8.4.17}
+\contentsline {subsection}{\numberline {7.9}General Purpose Types}{56}{subsection.7.9}
+\contentsline {subsubsection}{\numberline {7.9.1}Detailed Description}{56}{subsubsection.7.9.1}
+\contentsline {subsubsection}{\numberline {7.9.2}Typedef Documentation}{57}{subsubsection.7.9.2}
+\contentsline {paragraph}{\numberline {7.9.2.1}pmath\_\discretionary {-}{}{}bool\_\discretionary {-}{}{}t}{57}{paragraph.7.9.2.1}
+\contentsline {paragraph}{\numberline {7.9.2.2}pmath\_\discretionary {-}{}{}callback\_\discretionary {-}{}{}t}{57}{paragraph.7.9.2.2}
+\contentsline {paragraph}{\numberline {7.9.2.3}pmath\_\discretionary {-}{}{}write\_\discretionary {-}{}{}func\_\discretionary {-}{}{}t}{57}{paragraph.7.9.2.3}
+\contentsline {subsection}{\numberline {7.10}Atomic Operations}{57}{subsection.7.10}
+\contentsline {subsubsection}{\numberline {7.10.1}Detailed Description}{58}{subsubsection.7.10.1}
+\contentsline {subsubsection}{\numberline {7.10.2}Nice to read:}{58}{subsubsection.7.10.2}
+\contentsline {subsubsection}{\numberline {7.10.3}Function Documentation}{59}{subsubsection.7.10.3}
+\contentsline {paragraph}{\numberline {7.10.3.1}pmath\_\discretionary {-}{}{}atomic\_\discretionary {-}{}{}fetch\_\discretionary {-}{}{}add}{59}{paragraph.7.10.3.1}
+\contentsline {paragraph}{\numberline {7.10.3.2}pmath\_\discretionary {-}{}{}atomic\_\discretionary {-}{}{}fetch\_\discretionary {-}{}{}set}{59}{paragraph.7.10.3.2}
+\contentsline {paragraph}{\numberline {7.10.3.3}pmath\_\discretionary {-}{}{}atomic\_\discretionary {-}{}{}fetch\_\discretionary {-}{}{}compare\_\discretionary {-}{}{}and\_\discretionary {-}{}{}set}{59}{paragraph.7.10.3.3}
+\contentsline {paragraph}{\numberline {7.10.3.4}pmath\_\discretionary {-}{}{}atomic\_\discretionary {-}{}{}compare\_\discretionary {-}{}{}and\_\discretionary {-}{}{}set}{60}{paragraph.7.10.3.4}
+\contentsline {paragraph}{\numberline {7.10.3.5}pmath\_\discretionary {-}{}{}atomic\_\discretionary {-}{}{}compare\_\discretionary {-}{}{}and\_\discretionary {-}{}{}set\_\discretionary {-}{}{}2}{60}{paragraph.7.10.3.5}
+\contentsline {paragraph}{\numberline {7.10.3.6}pmath\_\discretionary {-}{}{}atomic\_\discretionary {-}{}{}have\_\discretionary {-}{}{}cas2}{61}{paragraph.7.10.3.6}
+\contentsline {paragraph}{\numberline {7.10.3.7}pmath\_\discretionary {-}{}{}atomic\_\discretionary {-}{}{}lock}{61}{paragraph.7.10.3.7}
+\contentsline {paragraph}{\numberline {7.10.3.8}pmath\_\discretionary {-}{}{}atomic\_\discretionary {-}{}{}unlock}{61}{paragraph.7.10.3.8}
+\contentsline {paragraph}{\numberline {7.10.3.9}pmath\_\discretionary {-}{}{}atomic\_\discretionary {-}{}{}loop\_\discretionary {-}{}{}nop}{61}{paragraph.7.10.3.9}
+\contentsline {subsection}{\numberline {7.11}Thread Messaging}{61}{subsection.7.11}
+\contentsline {subsubsection}{\numberline {7.11.1}Detailed Description}{62}{subsubsection.7.11.1}
+\contentsline {subsubsection}{\numberline {7.11.2}Function Documentation}{63}{subsubsection.7.11.2}
+\contentsline {paragraph}{\numberline {7.11.2.1}pmath\_\discretionary {-}{}{}is\_\discretionary {-}{}{}message\_\discretionary {-}{}{}queue}{63}{paragraph.7.11.2.1}
+\contentsline {paragraph}{\numberline {7.11.2.2}pmath\_\discretionary {-}{}{}thread\_\discretionary {-}{}{}get\_\discretionary {-}{}{}queue}{63}{paragraph.7.11.2.2}
+\contentsline {paragraph}{\numberline {7.11.2.3}pmath\_\discretionary {-}{}{}thread\_\discretionary {-}{}{}sleep}{63}{paragraph.7.11.2.3}
+\contentsline {paragraph}{\numberline {7.11.2.4}pmath\_\discretionary {-}{}{}thread\_\discretionary {-}{}{}wakeup}{63}{paragraph.7.11.2.4}
+\contentsline {paragraph}{\numberline {7.11.2.5}pmath\_\discretionary {-}{}{}thread\_\discretionary {-}{}{}send}{64}{paragraph.7.11.2.5}
+\contentsline {paragraph}{\numberline {7.11.2.6}pmath\_\discretionary {-}{}{}thread\_\discretionary {-}{}{}send\_\discretionary {-}{}{}wait}{64}{paragraph.7.11.2.6}
+\contentsline {paragraph}{\numberline {7.11.2.7}pmath\_\discretionary {-}{}{}thread\_\discretionary {-}{}{}send\_\discretionary {-}{}{}delayed}{65}{paragraph.7.11.2.7}
+\contentsline {subsection}{\numberline {7.12}Multithreading with pMath}{65}{subsection.7.12}
+\contentsline {subsubsection}{\numberline {7.12.1}Detailed Description}{66}{subsubsection.7.12.1}
+\contentsline {subsubsection}{\numberline {7.12.2}Synchronization}{66}{subsubsection.7.12.2}
+\contentsline {subsubsection}{\numberline {7.12.3}Function Documentation}{67}{subsubsection.7.12.3}
+\contentsline {paragraph}{\numberline {7.12.3.1}pmath\_\discretionary {-}{}{}thread\_\discretionary {-}{}{}local\_\discretionary {-}{}{}save}{67}{paragraph.7.12.3.1}
+\contentsline {paragraph}{\numberline {7.12.3.2}pmath\_\discretionary {-}{}{}thread\_\discretionary {-}{}{}local\_\discretionary {-}{}{}load}{67}{paragraph.7.12.3.2}
+\contentsline {paragraph}{\numberline {7.12.3.3}pmath\_\discretionary {-}{}{}throw}{67}{paragraph.7.12.3.3}
+\contentsline {paragraph}{\numberline {7.12.3.4}pmath\_\discretionary {-}{}{}catch}{68}{paragraph.7.12.3.4}
+\contentsline {paragraph}{\numberline {7.12.3.5}pmath\_\discretionary {-}{}{}aborting}{68}{paragraph.7.12.3.5}
+\contentsline {paragraph}{\numberline {7.12.3.6}pmath\_\discretionary {-}{}{}abort\_\discretionary {-}{}{}please}{68}{paragraph.7.12.3.6}
+\contentsline {paragraph}{\numberline {7.12.3.7}pmath\_\discretionary {-}{}{}resume\_\discretionary {-}{}{}all}{68}{paragraph.7.12.3.7}
+\contentsline {paragraph}{\numberline {7.12.3.8}pmath\_\discretionary {-}{}{}thread\_\discretionary {-}{}{}call\_\discretionary {-}{}{}locked}{68}{paragraph.7.12.3.8}
+\contentsline {paragraph}{\numberline {7.12.3.9}pmath\_\discretionary {-}{}{}thread\_\discretionary {-}{}{}get\_\discretionary {-}{}{}current}{69}{paragraph.7.12.3.9}
+\contentsline {paragraph}{\numberline {7.12.3.10}pmath\_\discretionary {-}{}{}thread\_\discretionary {-}{}{}get\_\discretionary {-}{}{}parent}{69}{paragraph.7.12.3.10}
+\contentsline {paragraph}{\numberline {7.12.3.11}pmath\_\discretionary {-}{}{}thread\_\discretionary {-}{}{}is\_\discretionary {-}{}{}parent}{69}{paragraph.7.12.3.11}
+\contentsline {paragraph}{\numberline {7.12.3.12}pmath\_\discretionary {-}{}{}thread\_\discretionary {-}{}{}aborting}{70}{paragraph.7.12.3.12}
+\contentsline {subsection}{\numberline {7.13}Debugging}{70}{subsection.7.13}
+\contentsline {subsubsection}{\numberline {7.13.1}Detailed Description}{70}{subsubsection.7.13.1}
+\contentsline {subsubsection}{\numberline {7.13.2}Function Documentation}{70}{subsubsection.7.13.2}
+\contentsline {paragraph}{\numberline {7.13.2.1}pmath\_\discretionary {-}{}{}debug\_\discretionary {-}{}{}print}{70}{paragraph.7.13.2.1}
+\contentsline {paragraph}{\numberline {7.13.2.2}pmath\_\discretionary {-}{}{}debug\_\discretionary {-}{}{}print\_\discretionary {-}{}{}object}{71}{paragraph.7.13.2.2}
+\contentsline {subsection}{\numberline {7.14}File API}{71}{subsection.7.14}
+\contentsline {subsubsection}{\numberline {7.14.1}Detailed Description}{73}{subsubsection.7.14.1}
+\contentsline {subsubsection}{\numberline {7.14.2}Enumeration Type Documentation}{73}{subsubsection.7.14.2}
+\contentsline {paragraph}{\numberline {7.14.2.1}pmath\_\discretionary {-}{}{}files\_\discretionary {-}{}{}status\_\discretionary {-}{}{}t}{73}{paragraph.7.14.2.1}
+\contentsline {subsubsection}{\numberline {7.14.3}Function Documentation}{73}{subsubsection.7.14.3}
+\contentsline {paragraph}{\numberline {7.14.3.1}pmath\_\discretionary {-}{}{}file\_\discretionary {-}{}{}test}{73}{paragraph.7.14.3.1}
+\contentsline {paragraph}{\numberline {7.14.3.2}pmath\_\discretionary {-}{}{}file\_\discretionary {-}{}{}status}{74}{paragraph.7.14.3.2}
+\contentsline {paragraph}{\numberline {7.14.3.3}pmath\_\discretionary {-}{}{}file\_\discretionary {-}{}{}read}{74}{paragraph.7.14.3.3}
+\contentsline {paragraph}{\numberline {7.14.3.4}pmath\_\discretionary {-}{}{}file\_\discretionary {-}{}{}readline}{74}{paragraph.7.14.3.4}
+\contentsline {paragraph}{\numberline {7.14.3.5}pmath\_\discretionary {-}{}{}file\_\discretionary {-}{}{}set\_\discretionary {-}{}{}textbuffer}{74}{paragraph.7.14.3.5}
+\contentsline {paragraph}{\numberline {7.14.3.6}pmath\_\discretionary {-}{}{}file\_\discretionary {-}{}{}write}{75}{paragraph.7.14.3.6}
+\contentsline {paragraph}{\numberline {7.14.3.7}pmath\_\discretionary {-}{}{}file\_\discretionary {-}{}{}writetext}{75}{paragraph.7.14.3.7}
+\contentsline {paragraph}{\numberline {7.14.3.8}pmath\_\discretionary {-}{}{}file\_\discretionary {-}{}{}flush}{75}{paragraph.7.14.3.8}
+\contentsline {paragraph}{\numberline {7.14.3.9}pmath\_\discretionary {-}{}{}file\_\discretionary {-}{}{}write\_\discretionary {-}{}{}object}{76}{paragraph.7.14.3.9}
+\contentsline {paragraph}{\numberline {7.14.3.10}pmath\_\discretionary {-}{}{}file\_\discretionary {-}{}{}set\_\discretionary {-}{}{}binbuffer}{76}{paragraph.7.14.3.10}
+\contentsline {paragraph}{\numberline {7.14.3.11}pmath\_\discretionary {-}{}{}file\_\discretionary {-}{}{}manipulate}{76}{paragraph.7.14.3.11}
+\contentsline {paragraph}{\numberline {7.14.3.12}pmath\_\discretionary {-}{}{}file\_\discretionary {-}{}{}close}{77}{paragraph.7.14.3.12}
+\contentsline {paragraph}{\numberline {7.14.3.13}pmath\_\discretionary {-}{}{}file\_\discretionary {-}{}{}create\_\discretionary {-}{}{}binary}{77}{paragraph.7.14.3.13}
+\contentsline {paragraph}{\numberline {7.14.3.14}pmath\_\discretionary {-}{}{}file\_\discretionary {-}{}{}create\_\discretionary {-}{}{}text}{77}{paragraph.7.14.3.14}
+\contentsline {paragraph}{\numberline {7.14.3.15}pmath\_\discretionary {-}{}{}file\_\discretionary {-}{}{}create\_\discretionary {-}{}{}text\_\discretionary {-}{}{}from\_\discretionary {-}{}{}binary}{78}{paragraph.7.14.3.15}
+\contentsline {paragraph}{\numberline {7.14.3.16}pmath\_\discretionary {-}{}{}file\_\discretionary {-}{}{}create\_\discretionary {-}{}{}binary\_\discretionary {-}{}{}buffer}{78}{paragraph.7.14.3.16}
+\contentsline {paragraph}{\numberline {7.14.3.17}pmath\_\discretionary {-}{}{}file\_\discretionary {-}{}{}binary\_\discretionary {-}{}{}buffer\_\discretionary {-}{}{}size}{78}{paragraph.7.14.3.17}
+\contentsline {paragraph}{\numberline {7.14.3.18}pmath\_\discretionary {-}{}{}file\_\discretionary {-}{}{}binary\_\discretionary {-}{}{}buffer\_\discretionary {-}{}{}manipulate}{79}{paragraph.7.14.3.18}
+\contentsline {subsection}{\numberline {7.15}Object Utility Functions}{79}{subsection.7.15}
+\contentsline {subsubsection}{\numberline {7.15.1}Detailed Description}{80}{subsubsection.7.15.1}
+\contentsline {subsubsection}{\numberline {7.15.2}Typedef Documentation}{80}{subsubsection.7.15.2}
+\contentsline {paragraph}{\numberline {7.15.2.1}pmath\_\discretionary {-}{}{}stack\_\discretionary {-}{}{}walker\_\discretionary {-}{}{}t}{80}{paragraph.7.15.2.1}
+\contentsline {subsubsection}{\numberline {7.15.3}Function Documentation}{80}{subsubsection.7.15.3}
+\contentsline {paragraph}{\numberline {7.15.3.1}pmath\_\discretionary {-}{}{}is\_\discretionary {-}{}{}expr\_\discretionary {-}{}{}of}{80}{paragraph.7.15.3.1}
+\contentsline {paragraph}{\numberline {7.15.3.2}pmath\_\discretionary {-}{}{}is\_\discretionary {-}{}{}expr\_\discretionary {-}{}{}of\_\discretionary {-}{}{}len}{81}{paragraph.7.15.3.2}
+\contentsline {paragraph}{\numberline {7.15.3.3}pmath\_\discretionary {-}{}{}current\_\discretionary {-}{}{}head}{81}{paragraph.7.15.3.3}
+\contentsline {paragraph}{\numberline {7.15.3.4}pmath\_\discretionary {-}{}{}walk\_\discretionary {-}{}{}stack}{81}{paragraph.7.15.3.4}
+\contentsline {paragraph}{\numberline {7.15.3.5}pmath\_\discretionary {-}{}{}session\_\discretionary {-}{}{}start}{81}{paragraph.7.15.3.5}
+\contentsline {paragraph}{\numberline {7.15.3.6}pmath\_\discretionary {-}{}{}session\_\discretionary {-}{}{}end}{82}{paragraph.7.15.3.6}
+\contentsline {paragraph}{\numberline {7.15.3.7}pmath\_\discretionary {-}{}{}gather\_\discretionary {-}{}{}begin}{82}{paragraph.7.15.3.7}
+\contentsline {paragraph}{\numberline {7.15.3.8}pmath\_\discretionary {-}{}{}gather\_\discretionary {-}{}{}end}{82}{paragraph.7.15.3.8}
+\contentsline {paragraph}{\numberline {7.15.3.9}pmath\_\discretionary {-}{}{}emit}{82}{paragraph.7.15.3.9}
+\contentsline {paragraph}{\numberline {7.15.3.10}pmath\_\discretionary {-}{}{}build\_\discretionary {-}{}{}value\_\discretionary {-}{}{}v}{83}{paragraph.7.15.3.10}
+\contentsline {paragraph}{\numberline {7.15.3.11}pmath\_\discretionary {-}{}{}build\_\discretionary {-}{}{}value}{83}{paragraph.7.15.3.11}
+\contentsline {paragraph}{\numberline {7.15.3.12}pmath\_\discretionary {-}{}{}options\_\discretionary {-}{}{}extract}{84}{paragraph.7.15.3.12}
+\contentsline {paragraph}{\numberline {7.15.3.13}pmath\_\discretionary {-}{}{}option\_\discretionary {-}{}{}value}{85}{paragraph.7.15.3.13}
+\contentsline {subsection}{\numberline {7.16}Memory Management}{85}{subsection.7.16}
+\contentsline {subsubsection}{\numberline {7.16.1}Detailed Description}{86}{subsubsection.7.16.1}
+\contentsline {subsubsection}{\numberline {7.16.2}Function Documentation}{86}{subsubsection.7.16.2}
+\contentsline {paragraph}{\numberline {7.16.2.1}pmath\_\discretionary {-}{}{}mem\_\discretionary {-}{}{}alloc}{86}{paragraph.7.16.2.1}
+\contentsline {paragraph}{\numberline {7.16.2.2}pmath\_\discretionary {-}{}{}mem\_\discretionary {-}{}{}realloc}{86}{paragraph.7.16.2.2}
+\contentsline {paragraph}{\numberline {7.16.2.3}pmath\_\discretionary {-}{}{}mem\_\discretionary {-}{}{}realloc\_\discretionary {-}{}{}no\_\discretionary {-}{}{}failfree}{87}{paragraph.7.16.2.3}
+\contentsline {paragraph}{\numberline {7.16.2.4}pmath\_\discretionary {-}{}{}mem\_\discretionary {-}{}{}free}{87}{paragraph.7.16.2.4}
+\contentsline {paragraph}{\numberline {7.16.2.5}pmath\_\discretionary {-}{}{}mem\_\discretionary {-}{}{}usage}{87}{paragraph.7.16.2.5}
+\contentsline {subsection}{\numberline {7.17}Messages}{87}{subsection.7.17}
+\contentsline {subsubsection}{\numberline {7.17.1}Detailed Description}{88}{subsubsection.7.17.1}
+\contentsline {subsubsection}{\numberline {7.17.2}Function Documentation}{88}{subsubsection.7.17.2}
+\contentsline {paragraph}{\numberline {7.17.2.1}pmath\_\discretionary {-}{}{}message}{88}{paragraph.7.17.2.1}
+\contentsline {paragraph}{\numberline {7.17.2.2}pmath\_\discretionary {-}{}{}message\_\discretionary {-}{}{}argxxx}{89}{paragraph.7.17.2.2}
+\contentsline {paragraph}{\numberline {7.17.2.3}pmath\_\discretionary {-}{}{}message\_\discretionary {-}{}{}find\_\discretionary {-}{}{}text}{89}{paragraph.7.17.2.3}
+\contentsline {paragraph}{\numberline {7.17.2.4}pmath\_\discretionary {-}{}{}message\_\discretionary {-}{}{}syntax\_\discretionary {-}{}{}error}{89}{paragraph.7.17.2.4}
+\contentsline {subsection}{\numberline {7.18}Threadsafe Stacks}{89}{subsection.7.18}
+\contentsline {subsubsection}{\numberline {7.18.1}Detailed Description}{90}{subsubsection.7.18.1}
+\contentsline {subsubsection}{\numberline {7.18.2}Function Documentation}{90}{subsubsection.7.18.2}
+\contentsline {paragraph}{\numberline {7.18.2.1}pmath\_\discretionary {-}{}{}stack\_\discretionary {-}{}{}new}{90}{paragraph.7.18.2.1}
+\contentsline {paragraph}{\numberline {7.18.2.2}pmath\_\discretionary {-}{}{}stack\_\discretionary {-}{}{}free}{91}{paragraph.7.18.2.2}
+\contentsline {paragraph}{\numberline {7.18.2.3}pmath\_\discretionary {-}{}{}stack\_\discretionary {-}{}{}push}{91}{paragraph.7.18.2.3}
+\contentsline {paragraph}{\numberline {7.18.2.4}pmath\_\discretionary {-}{}{}stack\_\discretionary {-}{}{}pop}{91}{paragraph.7.18.2.4}
+\contentsline {subsection}{\numberline {7.19}Front-ends}{91}{subsection.7.19}
+\contentsline {subsubsection}{\numberline {7.19.1}Detailed Description}{92}{subsubsection.7.19.1}
+\contentsline {subsubsection}{\numberline {7.19.2}Function Documentation}{92}{subsubsection.7.19.2}
+\contentsline {paragraph}{\numberline {7.19.2.1}pmath\_\discretionary {-}{}{}continue\_\discretionary {-}{}{}after\_\discretionary {-}{}{}abort}{92}{paragraph.7.19.2.1}
+\contentsline {paragraph}{\numberline {7.19.2.2}pmath\_\discretionary {-}{}{}session\_\discretionary {-}{}{}execute}{92}{paragraph.7.19.2.2}
+\contentsline {paragraph}{\numberline {7.19.2.3}pmath\_\discretionary {-}{}{}init}{93}{paragraph.7.19.2.3}
+\contentsline {paragraph}{\numberline {7.19.2.4}pmath\_\discretionary {-}{}{}done}{93}{paragraph.7.19.2.4}
+\contentsline {section}{\numberline {8}Data Structure Documentation}{93}{section.8}
+\contentsline {subsection}{\numberline {8.1}pmath::Expr Class Reference}{93}{subsection.8.1}
+\contentsline {subsubsection}{\numberline {8.1.1}Detailed Description}{94}{subsubsection.8.1.1}
+\contentsline {subsubsection}{\numberline {8.1.2}Member Function Documentation}{94}{subsubsection.8.1.2}
+\contentsline {paragraph}{\numberline {8.1.2.1}operator[]}{94}{paragraph.8.1.2.1}
+\contentsline {paragraph}{\numberline {8.1.2.2}to\_\discretionary {-}{}{}double}{94}{paragraph.8.1.2.2}
+\contentsline {paragraph}{\numberline {8.1.2.3}to\_\discretionary {-}{}{}string}{95}{paragraph.8.1.2.3}
+\contentsline {subsection}{\numberline {8.2}pmath::Gather Class Reference}{95}{subsection.8.2}
+\contentsline {subsubsection}{\numberline {8.2.1}Detailed Description}{95}{subsubsection.8.2.1}
+\contentsline {subsection}{\numberline {8.3}pmath\_\discretionary {-}{}{}binary\_\discretionary {-}{}{}file\_\discretionary {-}{}{}api\_\discretionary {-}{}{}t Class Reference}{96}{subsection.8.3}
+\contentsline {subsubsection}{\numberline {8.3.1}Detailed Description}{96}{subsubsection.8.3.1}
+\contentsline {subsection}{\numberline {8.4}pmath\_\discretionary {-}{}{}cstr\_\discretionary {-}{}{}writer\_\discretionary {-}{}{}info\_\discretionary {-}{}{}t Struct Reference}{96}{subsection.8.4}
+\contentsline {subsubsection}{\numberline {8.4.1}Detailed Description}{96}{subsubsection.8.4.1}
+\contentsline {subsection}{\numberline {8.5}pmath\_\discretionary {-}{}{}custom\_\discretionary {-}{}{}t Class Reference}{97}{subsection.8.5}
+\contentsline {subsubsection}{\numberline {8.5.1}Detailed Description}{97}{subsubsection.8.5.1}
+\contentsline {subsection}{\numberline {8.6}pmath\_\discretionary {-}{}{}expr\_\discretionary {-}{}{}t Class Reference}{97}{subsection.8.6}
+\contentsline {subsubsection}{\numberline {8.6.1}Detailed Description}{99}{subsubsection.8.6.1}
+\contentsline {subsubsection}{\numberline {8.6.2}Friends And Related Function Documentation}{99}{subsubsection.8.6.2}
+\contentsline {paragraph}{\numberline {8.6.2.1}pmath\_\discretionary {-}{}{}evaluate\_\discretionary {-}{}{}expression}{99}{paragraph.8.6.2.1}
+\contentsline {subsection}{\numberline {8.7}pmath\_\discretionary {-}{}{}float\_\discretionary {-}{}{}t Class Reference}{99}{subsection.8.7}
+\contentsline {subsubsection}{\numberline {8.7.1}Detailed Description}{100}{subsubsection.8.7.1}
+\contentsline {subsection}{\numberline {8.8}pmath\_\discretionary {-}{}{}integer\_\discretionary {-}{}{}t Class Reference}{100}{subsection.8.8}
+\contentsline {subsubsection}{\numberline {8.8.1}Detailed Description}{101}{subsubsection.8.8.1}
+\contentsline {subsection}{\numberline {8.9}pmath\_\discretionary {-}{}{}messages\_\discretionary {-}{}{}t Class Reference}{101}{subsection.8.9}
+\contentsline {subsubsection}{\numberline {8.9.1}Detailed Description}{102}{subsubsection.8.9.1}
+\contentsline {subsection}{\numberline {8.10}pmath\_\discretionary {-}{}{}number\_\discretionary {-}{}{}t Class Reference}{102}{subsection.8.10}
+\contentsline {subsubsection}{\numberline {8.10.1}Detailed Description}{102}{subsubsection.8.10.1}
+\contentsline {subsection}{\numberline {8.11}pmath\_\discretionary {-}{}{}quotient\_\discretionary {-}{}{}t Class Reference}{102}{subsection.8.11}
+\contentsline {subsubsection}{\numberline {8.11.1}Detailed Description}{103}{subsubsection.8.11.1}
+\contentsline {subsection}{\numberline {8.12}pmath\_\discretionary {-}{}{}rational\_\discretionary {-}{}{}t Class Reference}{103}{subsection.8.12}
+\contentsline {subsubsection}{\numberline {8.12.1}Detailed Description}{103}{subsubsection.8.12.1}
+\contentsline {subsection}{\numberline {8.13}pmath\_\discretionary {-}{}{}span\_\discretionary {-}{}{}array\_\discretionary {-}{}{}t Class Reference}{103}{subsection.8.13}
+\contentsline {subsubsection}{\numberline {8.13.1}Detailed Description}{104}{subsubsection.8.13.1}
+\contentsline {subsection}{\numberline {8.14}pmath\_\discretionary {-}{}{}span\_\discretionary {-}{}{}t Class Reference}{105}{subsection.8.14}
+\contentsline {subsubsection}{\numberline {8.14.1}Detailed Description}{105}{subsubsection.8.14.1}
+\contentsline {subsection}{\numberline {8.15}pmath\_\discretionary {-}{}{}stack\_\discretionary {-}{}{}t Class Reference}{105}{subsection.8.15}
+\contentsline {subsubsection}{\numberline {8.15.1}Detailed Description}{105}{subsubsection.8.15.1}
+\contentsline {subsection}{\numberline {8.16}pmath\_\discretionary {-}{}{}string\_\discretionary {-}{}{}t Class Reference}{105}{subsection.8.16}
+\contentsline {subsubsection}{\numberline {8.16.1}Detailed Description}{107}{subsubsection.8.16.1}
+\contentsline {subsection}{\numberline {8.17}pmath\_\discretionary {-}{}{}symbol\_\discretionary {-}{}{}t Class Reference}{107}{subsection.8.17}
+\contentsline {subsubsection}{\numberline {8.17.1}Detailed Description}{108}{subsubsection.8.17.1}
+\contentsline {subsubsection}{\numberline {8.17.2}Friends And Related Function Documentation}{108}{subsubsection.8.17.2}
+\contentsline {paragraph}{\numberline {8.17.2.1}pmath\_\discretionary {-}{}{}collect\_\discretionary {-}{}{}temporary\_\discretionary {-}{}{}symbols}{108}{paragraph.8.17.2.1}
+\contentsline {subsection}{\numberline {8.18}pmath\_\discretionary {-}{}{}t Class Reference}{109}{subsection.8.18}
+\contentsline {subsubsection}{\numberline {8.18.1}Detailed Description}{110}{subsubsection.8.18.1}
+\contentsline {subsubsection}{\numberline {8.18.2}Friends And Related Function Documentation}{110}{subsubsection.8.18.2}
+\contentsline {paragraph}{\numberline {8.18.2.1}pmath\_\discretionary {-}{}{}evaluate}{110}{paragraph.8.18.2.1}
+\contentsline {subsection}{\numberline {8.19}pmath\_\discretionary {-}{}{}text\_\discretionary {-}{}{}file\_\discretionary {-}{}{}api\_\discretionary {-}{}{}t Class Reference}{110}{subsection.8.19}
+\contentsline {subsubsection}{\numberline {8.19.1}Detailed Description}{111}{subsubsection.8.19.1}
+\contentsline {subsection}{\numberline {8.20}pmath\_\discretionary {-}{}{}thread\_\discretionary {-}{}{}t Class Reference}{111}{subsection.8.20}
+\contentsline {subsubsection}{\numberline {8.20.1}Detailed Description}{112}{subsubsection.8.20.1}
+\contentsline {subsubsection}{\numberline {8.20.2}Friends And Related Function Documentation}{112}{subsubsection.8.20.2}
+\contentsline {paragraph}{\numberline {8.20.2.1}pmath\_\discretionary {-}{}{}thread\_\discretionary {-}{}{}fork\_\discretionary {-}{}{}daemon}{112}{paragraph.8.20.2.1}
+\contentsline {subsection}{\numberline {8.21}pmath\_\discretionary {-}{}{}threadlock\_\discretionary {-}{}{}t Class Reference}{113}{subsection.8.21}
+\contentsline {subsubsection}{\numberline {8.21.1}Detailed Description}{113}{subsubsection.8.21.1}
+\contentsline {subsection}{\numberline {8.22}pmath::String Class Reference}{113}{subsection.8.22}
+\contentsline {subsubsection}{\numberline {8.22.1}Detailed Description}{114}{subsubsection.8.22.1}

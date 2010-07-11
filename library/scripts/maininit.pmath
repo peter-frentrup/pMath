@@ -1,0 +1,97 @@
+
+
+Begin("System`")
+
+If(HoldComplete($BaseDirectory) === HoldComplete @@ {$BaseDirectory},
+	$BaseDirectory:= DirectoryName($Input)
+	)
+
+$Path:= {$BaseDirectory, "."}
+
+AutoLoad;
+
+End()
+
+
+System`Util`latexToBoxes;
+
+Begin("System`Private`")
+
+
+$NewMessage:= Function({symbol, tag},
+	Local({namespace, name, pattern, matches},
+		Try(
+			namespace:= Namespace(symbol);
+			name:= SymbolName(symbol);
+			If(namespace =!= "System`", name:= namespace ++ name);
+			If(name === "General", 
+				pattern:= name ++ "::" ++ tag ++ WordBoundary
+				,
+				pattern:= {"General", name} ++ "::" ++ tag ++ WordBoundary
+				);
+			matches:= FindList(ToFileName($BaseDirectory, If(tag === "usage", "usage.pmath", "messages.pmath")), pattern);
+			matches.Scan(#.StringToBoxes.BoxesToExpression.Release &)
+			)
+		),
+	HoldAll)
+Protect($NewMessage)
+
+
+AutoLoad(Hold(~s), ~o:Hold, ~f)::= Local(
+	{p},
+	(
+		p:= Unprotect @@ o;
+		Clear @@ o;
+		Get(f);
+		s
+	).Finally(Protect @@ p))
+AutoLoad(~o:Hold, ~f)::= Local(
+	{p},
+	(
+		p:= Unprotect @@ o;
+		List @@ o.Map((#::= AutoLoad(Hold(#), o, f); Attributes(#):= Attributes(#).Append(ReadProtected))&);
+	).Finally(Protect @@ p))
+Attributes(Autoload):= {Protected, ReadProtected}
+
+
+Unprotect(System`Utilities`GetSystemSyntaxInformation)
+System`Utilities`GetSystemSyntaxInformation(~symbol:Symbol)::= 
+	Local(
+		{nsdata},
+		Try(
+			If(HoldComplete(SyntaxInformationData) === HoldComplete @@ {SyntaxInformationData},
+				SyntaxInformationData:= Get(ToFileName($BaseDirectory, "syntaxinformation.pmath"))
+				);
+			
+			nsdata:= SyntaxInformationData.Cases({Namespace(symbol),~});
+			If(nsdata.Length() > 0,
+				nsdata:= nsdata[All,2].Flatten(1).Cases({SymbolName(symbol),~});
+				If(nsdata.Length() > 0,
+					Return(nsdata[All,2].Flatten(1))
+					)
+				)
+			)
+		)
+Protect(System`Utilities`GetSystemSyntaxInformation)
+
+
+/*
+f:= ToFileName({$BaseDirectory, "auto"}, "latextoboxes.pmath")
+If(FileType(f) === File,
+	Replace(
+			Unevaluated(System`Util`latexToBoxes::= (
+				Unprotect(System`Util`latexToBoxes);
+				Clear(System`Util`latexToBoxes);
+				Get(f);
+				System`Util`latexToBoxes
+				)),
+		HoldPattern(f)->f))*/
+Protect(System`Util`latexToBoxes)
+
+
+End()
+
+AutoLoad(Hold(ArcCos,ArcCot,ArcCsc,ArcSec,ArcSin,ArcTan, Cos,Cot,Csc,Sec,Sin,Tan, ArcCosh,ArcCoth,ArcCsch,ArcSech,ArcSinh,ArcTanh, Cosh,Coth,Csch,Sech,Sinh,Tanh), ToFileName({$BaseDirectory, "auto"}, "trig.pmath"))
+AutoLoad(Hold(BernoulliB,Gamma), ToFileName({$BaseDirectory, "auto"}, "gammazeta.pmath"))
+AutoLoad(Hold(System`Util`latexToBoxes), ToFileName({$BaseDirectory, "auto", "format"}, "latextoboxes.pmath"))
+Get(ToFileName({$BaseDirectory, "auto", "format"}, "sumprod.pmath"));

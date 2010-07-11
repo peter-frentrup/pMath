@@ -1,0 +1,77 @@
+myShowDefinition:= True;
+myShowDefinition.Attributes:= ThreadLocal;
+showdef(~n)::= Local(
+	{names:= Names(n)},
+	myShowDefinition:= False;
+	If(names == {}, 
+		Message(ShowDefinition::notfound, n);
+		Return());
+	If(names.Length == 1,
+		ShowDefinition(Evaluate(names[1]))
+		,
+		SectionPrint("PrintUsage", names.Map({Row({Button(#,ButtonFrame->"Frameless")," "})}&).Grid))
+	).Finally(myShowDefinition:= True)
+
+Unprotect(ShowDefinition);
+ShowDefinition(~n?IsHeld(IsString))/;myShowDefinition::= showdef(n);
+Protect(ShowDefinition, showdef);
+
+
+
+Unprotect(RunParser);
+
+RunParser({~a, "\u21A6", ~b})::= RunParser({"Function", "(", {{"{", a, "}"}, ",", b}, ")"})
+
+RunParser({UnderoverscriptBox("\u220F", {~i, "=", ~a}, ~b), ~c})::= 
+  RunParser({"Product", "(", {c, ",", {i, "->", {a, "..", b}}}, ")"})
+
+RunParser({"\u220F", SubsuperscriptBox({~i, "=", ~a}, ~b), ~c})::=
+  RunParser({"Product", "(", {c, ",", {i, "->", {a, "..", b}}}, ")"})
+
+RunParser({UnderoverscriptBox("\u2211", {~i, "=", ~a}, ~b), ~c})::= 
+  RunParser({"Sum", "(", {c, ",", {i, "->", {a, "..", b}}}, ")"})
+
+RunParser({"\u2211", SubsuperscriptBox({~i, "=", ~a}, ~b), ~c})::=
+  RunParser({"Sum", "(", {c, ",", {i, "->", {a, "..", b}}}, ")"})
+
+RunParser({~x, SubscriptBox("+")})::= RunParser("SubPlus", "(", x, ")")
+RunParser({~x, SubscriptBox("-")})::= RunParser("SubMinus", "(", x, ")")
+RunParser({~x, SubscriptBox("*")})::= RunParser("SubStar", "(", x, ")")
+
+RunParser({~x, SuperscriptBox("+")})::= RunParser("SuperPlus", "(", x, ")")
+RunParser({~x, SuperscriptBox("-")})::= RunParser("SuperMinus", "(", x, ")")
+RunParser({~x, SuperscriptBox("*")})::= RunParser("SuperStar", "(", x, ")")
+
+RunParser(OverscriptBox(~x, "_"))::= RunParser("OverBar", "(", x, ")")
+RunParser(OverscriptBox(~x, "^"))::= RunParser("OverHat", "(", x, ")")
+RunParser(OverscriptBox(~x, "~"))::= RunParser("OverTilde", "(", x, ")")
+RunParser(OverscriptBox(~x, "."))::= RunParser("OverDot", "(", x, ")")
+
+RunParser(UnderscriptBox(~x, "_"))::= RunParser("UnderBar", "(", x, ")")
+
+Protect(RunParser);
+
+MakeBoxes(Sum(~c, ~i -> ~a..~b))::= 
+  ParenthesizeBoxes(
+    {UnderoverscriptBox("\u2211", MakeBoxes(i = a), MakeBoxes(b)), ParenthesizeBoxes(MakeBoxes(c), Times)},
+	Times)
+  
+MakeBoxes(Product(~c, ~i -> ~a..~b))::= 
+  PrecedenceBoxForm(
+    {UnderoverscriptBox("\u220F", MakeBoxes(i = a), MakeBoxes(b)), ParenthesizeBoxes(MakeBoxes(c), Times)},
+	Times)
+
+MakeBoxes(SubPlus(~x))::= {ParenthesizeBoxes(MakeBoxes(c), Power), SubscriptBox("+")}
+MakeBoxes(SubMinus(~x))::= {ParenthesizeBoxes(MakeBoxes(c), Power), SubscriptBox("-")}
+MakeBoxes(SubStar(~x))::= {ParenthesizeBoxes(MakeBoxes(c), Power), SubscriptBox("*")}
+
+MakeBoxes(SuperPlus(~x))::= {ParenthesizeBoxes(MakeBoxes(c), Power), SuperscriptBox("+")}
+MakeBoxes(SuperMinus(~x))::= {ParenthesizeBoxes(MakeBoxes(c), Power), SuperscriptBox("-")}
+MakeBoxes(SuperStar(~x))::= {ParenthesizeBoxes(MakeBoxes(c), Power), SuperscriptBox("*")}
+
+MakeBoxes(OverBar(~x))::= OverscriptBox(MakeBoxes(x), "_")
+MakeBoxes(OverHat(~x))::= OverscriptBox(MakeBoxes(x), "^")
+MakeBoxes(OverTilde(~x))::= OverscriptBox(MakeBoxes(x), "~")
+MakeBoxes(OverDot(~x))::= OverscriptBox(MakeBoxes(x), ".")
+
+MakeBoxes(UnderBar(~x))::= UnderscriptBox(MakeBoxes(x), "_")

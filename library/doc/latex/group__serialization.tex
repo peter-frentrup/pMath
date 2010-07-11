@@ -1,0 +1,36 @@
+\hypertarget{group__serialization}{
+\subsection{Serializion}
+\label{group__serialization}\index{Serializion@{Serializion}}
+}
+Serializing pMath objects.  
+\subsubsection*{Functions}
+\begin{CompactItemize}
+\item 
+\hyperlink{group__serialization_g8b9e7328aea3833ee8bfea645ae4ca99}{PMATH\_\-API} (2) void pmath\_\-object\_\-to\_\-stream(\hyperlink{classpmath__object__t}{pmath\_\-object\_\-t} obj
+\begin{CompactList}\small\item\em Write an object to a stream. \item\end{CompactList}\end{CompactItemize}
+
+
+\subsubsection{Detailed Description}
+Serializing pMath objects. 
+
+All evaluateable pMath objects can be serialized to a platform-independant binary stream format: Expressions, Floats, Integers, Rationals, Strings, Symbols and NULL. 
+
+\subsubsection{Function Documentation}
+\hypertarget{group__serialization_g8b9e7328aea3833ee8bfea645ae4ca99}{
+\index{serialization@{serialization}!PMATH\_\-API@{PMATH\_\-API}}
+\index{PMATH\_\-API@{PMATH\_\-API}!serialization@{serialization}}
+\paragraph[PMATH\_\-API]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API (2)}\hfill}
+\label{group__serialization_g8b9e7328aea3833ee8bfea645ae4ca99}
+
+
+Write an object to a stream. 
+
+Read an object from a stream.
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em obj}]The pMath object. It will be freed. \item[{\em write}]A callback function to write a single byte. \item[{\em data}]An arbitrary pointer that will be prived to write as the second argument.\item[{\em read}]A callback function to read a single byte. \item[{\em data}]An arbitrary pointer that will be prived to read as the argument. \end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]A new pMath object. You must destroy it. \end{Desc}

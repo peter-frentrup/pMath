@@ -1,0 +1,264 @@
+/* argument count errors */
+General::arg1:=  "`1` called with `2` arguments; 1 argument is expected."
+General::argxu:= "`1` called with 1 argument; `2` arguments are expected."
+General::argx:=  "`1` called with `2` arguments; `3` arguments are expected."
+General::argtu:= "`1` called with 1 argument; `2` or `3` arguments are expected."
+General::argt:=  "`1` called with `2` arguments; `3` or `4` arguments are expected."
+General::argru:= "`1` called with 1 argument; between `2` and `3` arguments are expected."
+General::argr:=  "`1` called with `2` arguments; between `3` and `4` arguments are expected."
+General::argmu:= "`1` called with 1 argument; `2` or more arguments are expected."
+General::argm:=  "`1` called with `2` arguments; `3` or more arguments are expected."
+
+/* invalid options */
+General::nonopt:= "Option rules expected but `1` found after position `1` in `2`."
+General::opttf:= "Value of option `1` -> `2` should be True or False."
+General::opttfa:= "Value of option `1` -> `2` should be True, False, or Automatic."
+
+/* numeric errors */
+General::divz:= "The argument `1` in `2` should be nonzero."
+General::indet:= "Indeterminate expression `1` encountered."
+General::infy:= "Infinite expression `1` encountered."
+General::ovfl:= "An overflow occured in compution."
+General::unfl:= "An underflow occured in compution."
+General::meprec:= "Internal precision limit $MaxExtraPrecision = `1` reached while evaluating `2`."
+
+/* stack overflow */
+General::reclim:= "Recursion limit of `1` exceeded."
+
+/* assignment errores */
+General::altno:= "Use multiple assignments instead of alternatives in `1`."
+General::incomp:= "`2` is not assign-compatible to `1`."
+General::notag:= "`1` does not contain a symbol to attach a rule to."
+General::rval:= "The value of `1` cannot be changed because it is not a variable with a value."
+General::tag:= "Rule for `1` can only be attached to `2`."
+General::tagnf:= "Tag `1` not found in `2`."
+General::tagpos:= "Tag `1` in `2` is too deep for an assigned rule to be found."
+General::wrobj:= "Cannot assign anything to the object `1`."
+General::wrsym:= "The symbol `1` is Protected."
+
+/* IO-errors */
+General::byteord:= "Value of ByteOrdering->`1` should be 1 or -1."
+General::cdir:= "Cannot set current directory to `1`."
+General::fstr:= "File name `1` is not a string of at least one character."
+General::invio:= "`1` is not a valid stream."
+General::ioarg:= "Argument in `1` is not valid for I/O operation."
+General::ior:= "`1` is not an input stream."
+General::iow:= "`1` is not an output stream."
+General::iob:= "`1` is not an binary stream."
+General::nffil:= "File not found during `1`."
+General::noopen:= "Cannot open file `1`."
+General::nofront:= "There is no suitable front-end."
+General::privv:= "Privilege violation during `1`."
+
+/* type errors */
+General::atom:= "`1` is neither an expression nor a string."
+General::fnsym:= "The first argument in `1` is neither a symbol nor a string naming a symbol."
+General::heads:= "Heads `1` and `2` at positions `3` and `4` are expected to be the same."
+General::ilsmn:= "Single or list of non-negative integers expected at position `1` in `2`"
+General::ilsmp:= "Single or list of positive integers expected at position `1` in `2`"
+General::innf:= "Non-negative number or infinity expected at position `1` in `2`"
+General::intnm:= "Non-negative machine-size integer expected at position `2` in `1`."
+General::intm:= "Machine-size integer expected at position `2` in `1`."
+General::intpm:= "Positive machine-size integer expected at position `2` in `1`."
+General::invacc:= "Requested accuracy `1` is no machine-size real number in the allowable range."
+General::invprec:= "Requested precision `1` is no machine-size real number in the allowable range."
+General::iter:= "`1` does not have the form of an iterator."
+General::iterb:= "The iterator `1` does not have valid bounds."
+General::matsq:= "Argument `1` at position `2` is not a nonempty square matrix."
+General::nexprat:= "Nonatomic expression exprected at position `1` in `2`."
+General::noexpr:= "`1` is not an expression."
+General::nostream:= "`1` is not an open stream."
+General::nothread:= "`1` is not a thread object."
+General::numn:= "Non-negative number expected at position `1` in `2`."
+General::ns:= "Invalid namespace specified at position `1` in `2`. A namespace must consist of valid symbol names separated by and ending with `."
+General::nsls:= "Namespace or nonempty list of namespaces expected at position `1` in `2`."
+General::range:= "Range `1` does not have valid bounds."
+General::sing:= "Matrix `1` is singular."
+General::str:= "String expected at position `1` in `2`."
+General::strse:= "String or list of strings expected at position `1` in `2`."
+General::sym:= "Argument `1` in `2` is expected to be a symbol."
+
+/* level and part specification errors */
+General::level:= "`1` is no valid level specification."
+General::partd:= "The part specification `1` is longer than the object's depth."
+General::pspec:= "`1` is no valid part specification."
+General::partw:= "`1` has no part `2`."
+General::reps:= "`1` is not a list of replacement rules."
+General::seqs:= "Sequence specification (+n, -n, m..n, m..n..s or All) expected at position `2` in `1`."
+
+General::deadlock:= "Deadlock detected. Thread=`1` Stack=`2`."
+General::newsym:= "New symbol `1` created."
+General::notfound:= "Symbol `1` not found."
+General::stop:= "Further output of `1` will be suppressed during this calculation."
+
+General::nopar1:= "`1` cannot be parallelized; proceeding with sequential evaluation."
+
+Syntax::bgn:= "An expression cannot begin with \"`1`\"."
+Syntax::bgnf:= "An expression cannot begin with \"`1`\". (Line `2` in `3`)"
+Syntax::newl:= "The newline character after \"`1`\" is interpreted as a multiplication operator."
+Syntax::newlf:= "The newline character after \"`1`\" is interpreted as a multiplication operator. (Line `2` in `3`)"
+Syntax::nxt:= "\"`1`\" cannot be followed by \"`2`\"."
+Syntax::nxtf:= "\"`1`\" cannot be followed by \"`2`\". (Line `3` in `4`)"
+Syntax::more:= "Incomplete expression; more input needed."
+Syntax::moref:= "Unexpected end of file (probably unfinished expression). (Line `1` in `2`)"
+Syntax::stresc:= "Invalid string escape \\`1`."
+
+Messages::name:= Message::name:= "Message name `1` is not of the form symbol::name."
+Messages::str:= Message::str:= "`1` can only be set to a string, but not to `2`."
+
+Attributes::noattr:= "`1` is neither a valid attribute nor a list of valid attributes."
+
+Array::plen:= "`1` and `2` should have the same length."
+
+BinaryRead::format:= BinaryWrite::format:= "`1` is not a recognized binary format."
+BinaryWrite::nocoerce:= "`1` cannot be coerced to the specified format `2`."
+
+BoxesToExpression::base:= "Requested base `1` in `2` should be between 2 and 36."
+BoxesToExpression::digit:= "Digit at position `1` in `2` is to large to be used in base `3`."
+BoxesToExpression::inv:= "`1` is neither a string nor a valid box."
+
+Break::nofwd:= Continue::nofwd:= "No surrounding For, While or Do found for `1`."
+
+Unevaluated($CurrentNamespace::nsset):= "Cannot set $CurrentNamespace to `1`; value is not a parsable context name ending in `"
+
+Unevaluated($NamespacePath::nslist):= "Cannot set $NamespacePath to `1`; value must be a list of strings ending in `"
+
+Clear::ssym:= Update::ssym:= "`1` is neither a symbol nor a string."
+
+CopyDirectory::dirne:= DeleteDirectory::dirne:= RenameDirectory::dirne:= "Directory `1` not empty."
+CopyDirectory::filex:= CopyFile::filex:= RenameDirectory::filex:= RenameFile::filex:= "Cannot overwrite existing file `1`."
+CopyDirectory::nodir:= DeleteDirectory::nodir:= RenameDirectory::nodir:= "Directory `1` not found."
+CopyFile::fdir:= DeleteFile::fdir:= RenameFile::fdir:= "`1` is a directory; a file is expected."
+
+DefaultRules::vlist:= DownRules::vlist:= OwnRules::vlist:= SubRules::vlist:= UpRules::vlist:= "Cannot set `1` to `2`; value must be a list of rules."
+
+Dot::shape:= "The tensors `3` and `5` have incompatible shapes."
+
+Drop::drop:= StringDrop::drop:= "Cannot drop positions `1` through `2` in `3`.";
+
+Emit::nogather:= ReGather::nogather:= "There is no surrounding Gather()."
+Emit::nogather2:= "There is no surrounding Gather() for the tag `1`."
+
+End::nons:= EndPackage::nons:= "No previous context defined."
+
+EvaluateDelayed::invtim:= "`1` is not a positive machine-size number."
+
+First::first:= "`1` has a length of zero and no first element."
+
+Function::par:= "Function parameter specification `1` in `2` is neither a symbol nor a list of symbols."
+Function::cnt:= "Too many parameters in `1` to be filled from `2`."
+
+Get::path:= "`1` in Path is not a string."
+Get::load:= LoadLibrary::load:= "loading `1` ..."
+
+Inner::shape:= "Length `1` of dimension `2` in `3` is does not fit to length `4` of dimension 1 in `5`."
+Inner::nolev:= "Level `1` is not available in `2` (only `3` dimensions)."
+
+IsNumeric::set:= "Cannot set `1` to `2`. The lhs argument must be a symbol and the rhs must be True or False."
+
+Join::strexpr:= "An expression and a string cannot be concatenated."
+
+Last::nolast:= "`1` has a length of zero and no last element."
+
+LoadLibrary::fail:= "Failed to load external library `1`."
+
+Local::lvlist:= With::lvlist:= "Local variable definition `1` is not a list."
+Local::nodef:= "Local variable definition `1` contains `2`, which is neither a symbol nor an assignment to a symbol."
+With::nodef:= "Local variable definition `1` contains `2`, which is not an assignment to a symbol."
+
+$MaxExtraPrecision::meprecset:= "Cannot set $MaxExtraPrecision to `1`; value must be a positive number or Infinity."
+
+Most::norest:= "Cannot take the Most of expression `1` with length zero."
+
+OpenAppend::charcode:= OpenRead::charcode:= OpenWrite::charcode:= "`1` is not a valid character encoding."
+
+Options::optnf:= OptionValue::optnf:= SetOptions::optnf:= "`1` is not a known option for `2`."
+
+ParallelTry::toofew:= "Only `1` results received, rather than `2`."
+
+Partition::ohp:= "Overhang parameters in `1` must be nonzero machine-size integers, or lists of nonzero machine-size integers."
+Partition::ohpdm:= "The `1`-dimensional overhang parameter cannot indicate position in the `2`-dimensional block."
+Partition::pdep:= "Depth `1` requested in object with dimensions `2`."
+
+Read::readf:= "`1` is not a valid format specification."
+Read::readn:= "Invalid real number found."
+
+RegularExpression::msg1:= "\\ at end of pattern in `1`."
+RegularExpression::msg2:= "\c at end of pattern in `1`."
+RegularExpression::msg3:= "Unrecognized character follows \\ in `1`."
+RegularExpression::msg4:= "Numbers out of order in {} quantifier in `1`."
+RegularExpression::msg5:= "Number too big in {} quantifier in `1`."
+RegularExpression::msg6:= "Missing terminating ] for character class in `1`."
+RegularExpression::msg7:= "Invalid escape sequence in character class in `1`."
+RegularExpression::msg8:= "Range out of order in character class in `1`."
+RegularExpression::msg9:= "Nothing to repeat in `1`."
+RegularExpression::msg11:= "Internal error: unexpected repeat in `1`."
+RegularExpression::msg12:= "Unrecognized character after (? or (?- in `1`."
+RegularExpression::msg13:= "POSIX named classes are supported only within a class in `1`."
+RegularExpression::msg14:= "Missing ) in `1`."
+RegularExpression::msg15:= "Reference to non-existent subpattern in `1`."
+RegularExpression::msg17:= "Internal: unknown option bit(s) set in `1`."
+RegularExpression::msg18:= "Missing ) after comment in `1`."
+RegularExpression::msg20:= "Regular expression is too large in `1`."
+RegularExpression::msg21:= "Failed to get memory in `1`."
+RegularExpression::msg22:= "Unmatched parentheses in `1`."
+RegularExpression::msg23:= "Internal error: code overflow in `1`."
+RegularExpression::msg24:= "Unrecognized character after (?< in `1`."
+RegularExpression::msg25:= "Lookbehind assertion is not fixed length in `1`."
+RegularExpression::msg26:= "Malformed number or name after (?( in `1`."
+RegularExpression::msg27:= "Conditional group contains more than two branches in `1`."
+RegularExpression::msg28:= "Assertion expected after (?( in `1`."
+RegularExpression::msg29:= "(?R or (?[+-]digits must be followed by ) in `1`."
+RegularExpression::msg30:= "Unknown POSIX class name in `1`."
+RegularExpression::msg31:= "POSIX collating elements are not supported in `1`."
+RegularExpression::msg32:= "This version of PCRE is not compiled with PCRE_UTF8 support."
+RegularExpression::msg34:= "Character value in \\x{...} sequence is too large in `1`."
+RegularExpression::msg35:= "Invalid condition (?(0) in `1`."
+RegularExpression::msg36:= "\\C not allowed in lookbehind assertion in `1`."
+RegularExpression::msg37:= "PCRE/pMath does not support \\L, \\l, \\N, \\U, or \\u (in `1`)."
+RegularExpression::msg38:= "Number after (?C is greather than 255 in `1`."
+RegularExpression::msg39:= "Closing ) for opening (?C expected in `1`."
+RegularExpression::msg40:= "Recursive call could loop indefinitely in `1`."
+RegularExpression::msg41:= "Unrecognized character after (?P in `1`."
+RegularExpression::msg42:= "Syntax error in subpattern name (missing terminator) in `1`."
+RegularExpression::msg43:= "Two named subpatterns have the same name in `1`."
+RegularExpression::msg44:= "Invalid UTF-8 string in `1`."
+RegularExpression::msg45:= "Support for \\P, \\p, and \\X has not been compiled."
+RegularExpression::msg46:= "Malformed \\P or \\p sequence `1`."
+RegularExpression::msg47:= "Unknown property name after \\P or \\p in `1`."
+RegularExpression::msg48:= "Subpattern name in `1` is too long (maximum 32 characters)."
+RegularExpression::msg49:= "Too many named subpatterns (maximum 10000) in `1`."
+RegularExpression::msg52:= "Internal error: overran compiling workspace with `1`."
+RegularExpression::msg53:= "Internal error: previously-checked referenced subpattern not found in `1`."
+RegularExpression::msg54:= "DEFINE group contains more than one branch in `1`."
+RegularExpression::msg55:= "Repeating a DEFINE group is not allowed (in `1`)."
+RegularExpression::msg56:= "Inconsistent NEWLINE options in `1`."
+RegularExpression::msg57:= "\\g is not followed by a braced, angle-bracketed, or quoted name/number or by a plain number in `1`."
+RegularExpression::msg58:= "A numbered reference must not be zero (in `1`)."
+RegularExpression::msg59:= "(*VERB) with an argument is not supported (in `1`)."
+RegularExpression::msg60:= "(*VERB) not recognized in `1`."
+RegularExpression::msg61:= "Number is too big in `1`."
+RegularExpression::msg62:= "Subpattern name expected in `1`."
+RegularExpression::msg63:= "Digit expected after (?+ in `1`."
+RegularExpression::msg64:= "] is an invalid data character in JavaScript compatibility mode (in `1`)."
+
+Remove::rmptc:= "Symbol `1` is Protected and cannot be removed."
+
+ResetDirectory::dtop:= "Directory stack is empty."
+
+Rest::norest:= "Cannot take the rest of expression `1` with length zero."
+
+SetOptions::changebf:= "The BinaryFormat option of stream `1` cannot be changed to `2`."
+
+StringExpression::invld:= "Element `1` is not a valid string or pattern element in `2`."
+StringReplace::srep:= "`1` is not a valid string replacement rule."
+
+Take::take:= StringTake::take:= "Cannot take positions `1` through `2` in `3`.";
+
+TimeConstrains::invtim:= "`1` is neither a positive machine-size number, nor Infinity."
+
+Thread::len:= "Cannot combine expressions of unequal length in `1`."
+
+Throw::nocatch:= "Uncaught exception `1`."
+
+Try::nomsgs:= "`1` is neither a valid message name nor a list of valid message names."

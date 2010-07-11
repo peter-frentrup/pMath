@@ -1,0 +1,3788 @@
+[+ process]
+cairo version: 1.8.10
+sizeof(Entry<int,Void>) = 4
+sizeof(Box) = 32
+sizeof(MathSequence) = 84
+sizeof(Array<int>) = 12
+sizeof(Hashtable<int, int>) = 52
+sizeof(Style) = 112
+sizeof(Section) = 64
+[+ thread]
+[+ thread]
+[+ thread]
+loaded "Cambria Math" in 0.005000 seconds
+loaded "Asana Math" in 0.004000 seconds
+Loaded aliases in 0.002000 seconds.
+rrrrrrrrrrrrloaded "Mathematica Serif"
+loaded "Mathematica Mono"
+prrrrprrrrpppppppppCSpSSSSSpppTpTpTpTpTppppTppTppTpTppTpTpTpTpTppTpTpTpTpTpppppppppppCpppppCppppppCp
+pppppppppppppCpppppppppppppCpppppCppCSSSppSSSSSpppppCpppppppppppSppppppSppppSpSpSppppppppppppppCSSSp
+pSSSSSpppppppCppppppppppppCSSSp
+Parse: "{\"Part\", \"(\", {\"data\", \",\", \"1\", \",\", \"2\"}, \")\"}"
+p
+Parse: "{\"Part\", \"(\", {\"data\", \",\", \"1\", \",\", \"1\"}, \")\"}"
+p
+Parse: "{\"Part\", \"(\", {\"data\", \",\", \"2\", \",\", \"2\"}, \")\"}"
+p
+Parse: "{\"Part\", \"::\", \"\\\"partd\\\"\"}"
+pSSpSSSSSpppppppppppppppppppCSSSp
+Parse: "{\"Part\", \"(\", {\"data\", \",\", \"1\", \",\", \"2\"}, \")\"}"
+p
+Parse: "{\"Part\", \"(\", {\"data\", \",\", \"1\", \",\", \"1\"}, \")\"}"
+p
+Parse: "{\"Part\", \"(\", {\"data\", \",\", \"2\", \",\", \"2\"}, \")\"}"
+p
+Parse: "{\"Part\", \"::\", \"\\\"partd\\\"\"}"
+pSSpSSSSSpppppCSSSppSSSSSpCSSSppSSSSSpCSSSp
+Parse: "{\"Part\", \"(\", {\"data\", \",\", \"1\", \",\", \"2\"}, \")\"}"
+p
+Parse: "{\"Part\", \"(\", {\"data\", \",\", \"1\", \",\", \"1\"}, \")\"}"
+p
+Parse: "{\"Part\", \"(\", {\"data\", \",\", \"2\", \",\", \"2\"}, \")\"}"
+p
+Parse: "{\"Part\", \"::\", \"\\\"partd\\\"\"}"
+pSSpSSSSSpppppppppSpSpSpppppppCSSp
+Parse: "{\"Part\", \"(\", {\"data\", \",\", \"1\", \",\", \"2\"}, \")\"}"
+SpSSpSppSSSpSpppppppppppppppCSSSppSSSSSpCSSSppSSSSSpCSSSpSSpSSSSSppppppppppCSSSpSSpSSSSSpppppppppppp
+pppSpSpSpSpSpSSpppSpppppppppppCSSSpSSpSSSSSSSSSpppppSpSpSpSppppppSppppppppSpSSpppppCSSSpSSpSSSSSSSSS
+SSSSpppSSSpSSSpSSSpSSSpSSSpSSSpSSSpSSSpSSSpSppCSSSpSSpSSSSSSSSSSSSSpppppppSpSpSSpppppppppppppppppppp
+CSSSpSSpSSSSSSSSSSSSSSSSpppppSpSTpTppSpSpSpSpSpSpSpSpTpTppSpSTpTppSpSCSSSpSSpSSSSSSSSSSSSSSSSSpppppp
+pppTpTpppppppppppppppppCSSSpSSpSSSSSSSSSSSSSSSSSppppCSSSpSSpSSSSSSSSSSSSSSSSSpppppppCppppppppppppCSS
+preclim with expr=03635358= -251 - 1
+
+Parse: "\"256\""
+reclim with expr=0247D2D0= System`Subscpript(Global`p, 1, System`Hold(-251 - 1) - 1)
+
+Parse: "\"256\""
+reclim with expr=03636010= 61.7` - System`Subscript(Global`x, 1)
+p
+Parse: "\"256\""
+p
+Parse: "{\"General\", \"::\", \"\\\"reclim\\\"\"}"
+reclim with expr=03636118= (System`Subscript(Global`pp, 1 + 1, System`Hold(-251 - 1))(61.7`) - Syste
+m`Subscript(Global`p, 1, System`Hold(-251 - 1) - 1)(61.7`))/(System`Subscript(Global`x, System`Hold(
+-251 - 1)) - System`Subscript(Global`x, 1))
+reclim with expr=03635568= -System`Subscript(Global`x, 1)
+reclim with expr=03635670= System`Subscript(Global`p, 1 + 1, -251)(61.7`) - System`Subscript(Global`
+p, 1, -251 - 1)(61.7`)
+reclim with expr=03635988= 1/(System`Subscript(Global`x, -251) - System`Subscript(Global`x, 1))
+reclim with expr=03634E88= System`Subscript(Global`x, 1)
+reclim with expr=036340C8= System`Subscript(Global`p, 1 + 1, -250)(61.7`)
+reclim with expr=036350F0= -System`Subscript(Global`p, 1, -250 - 1)(61.7`)
+reclim with expr=036351F8= System`Subscript(Global`x, -250) - System`Subscript(Global`x, 1)
+reclim with expr=03634648= 1 + 1
+reclim with expr=03634D28= System`Message(System`Part::"pspec", System`Hold(1 + 1))
+reclim with expr=0247CFD0= System`Subscript(Global`p, 1 + 1, -249)
+reclim with expr=03634A10= System`Subscript(Global`p, 1, -249 - 1)(61.7`)
+reclim with expr=03634B18= System`Subscript(Global`x, -249)
+reclim with expr=03634C20= -System`Subscript(Global`x, 1)
+reclim with expr=03634280= 1 + 1
+reclim with expr=0247D390= System`Subscript(Global`p, System`Hold(1 + 1), -248 - 1)
+reclim with expr=03634C78= 61.7` - System`Subscript(Global`x, System`Hold(1 + 1))
+reclim with expr=03635300= (System`Subscript(Global`p, System`Hold(1 + 1) + 1, -248)(61.7`) - System
+`Subscript(Global`p, System`Hold(1 + 1), -248 - 1)(61.7`))/(System`Subscript(Global`x, -248) - Syste
+m`Subscript(Global`x, System`Hold(1 + 1)))
+reclim with expr=0247CF10= System`Subscript(Global`p, 1, -248 - 1)
+reclim with expr=03635F60= -248 + 1
+reclim with expr=03636900= System`Message(System`Part::"pspec", System`Hold(-248 + 1))
+reclim with expr=03634540= System`Subscript(Global`x, 1)
+reclim with expr=03634018= -247 - 1
+reclim with expr=0247D630= System`Subscript(Global`p, 2, System`Hold(-247 - 1) - 1)
+reclim with expr=036372F8= 61.7` - System`Subscript(Global`x, 2)
+reclim with expr=036376C0= (System`Subscript(Global`p, 2 + 1, System`Hold(-247 - 1))(61.7`) - System
+`Subscript(Global`p, 2, System`Hold(-247 - 1) - 1)(61.7`))/(System`Subscript(Global`x, System`Hold(-
+247 - 1)) - System`Subscript(Global`x, 2))
+reclim with expr=036344E8= -System`Subscript(Global`x, 2)
+reclim with expr=036342D8= System`Subscript(Global`p, 2 + 1, -247)(61.7`) - System`Subscript(Global`
+p, 2, -247 - 1)(61.7`)
+reclim with expr=03636A08= 1/(System`Subscript(Global`x, -247) - System`Subscript(Global`x, 2))
+reclim with expr=03633CA8= -247 - 1
+reclim with expr=0247D870= System`Subscript(Global`p, 1, System`Hold(-247 - 1) - 1)
+reclim with expr=03634438= 61.7` - System`Subscript(Global`x, 1)
+reclim with expr=03637B90= (System`Subscript(Global`p, 1 + 1, System`Hold(-247 - 1))(61.7`) - System
+`Subscript(Global`p, 1, System`Hold(-247 - 1) - 1)(61.7`))/(System`Subscript(Global`x, System`Hold(-
+247 - 1)) - System`Subscript(Global`x, 1))
+reclim with expr=03637C98= ++System`$MessageCount(System`Part::"partw")
+reclim with expr=03638110= System`Function({System`Private`symbol, System`Private`tag}, System`Local
+({System`Private`namespace, System`Private`name, System`Private`pattern, System`Private`matches}, Sy
+stem`Try(System`Private`namespace:= System`Namespace(System`Private`symbol); System`Private`name:= S
+ystem`SymbolName(System`Private`symbol); System`If(System`Private`namespace =!= "System`", System`Pr
+ivate`name:= System`Private`namespace ++ System`Private`name); System`If(System`Private`name === "Ge
+neral", System`Private`pattern:= System`Private`name ++ "::" ++ System`Private`tag ++ System`WordBou
+ndary, System`Private`pattern:= {"General", System`Private`name} ++ "::" ++ System`Private`tag ++ Sy
+stem`WordBoundary); System`Private`matches:= System`FindList(System`ToFileName(System`$BaseDirectory
+, System`If(System`Private`tag === "usage", "usage.pmath", "messages.pmath")), System`Private`patter
+n); System`Scan(System`Private`matches, System`Release(System`BoxesToExpression(System`StringToBoxes
+(#1))) &))), System`HoldAll)(System`Part, "partw")
+reclim with expr=036381C0= System`Colon(System`HoldForm(System`Part::"partw"), System`Row({"-- Messa
+ge text not found --", " (", {{55.7`, 1048}, {57.7`, 1080}, {59.3`, 1111}, {62.6`, 1196}, {65.6`, 13
+54}}, ",", -246, ")"}))
+reclim with expr=036382C8= System`ToBoxes(System`Hold(System`Colon(System`HoldForm(System`Part::"par
+tw"), System`Row({"-- Message text not found --", " (", {{55.7`, 1048}, {57.7`, 1080}, {59.3`, 1111}
+, {62.6`, 1196}, {65.6`, 1354}}, ",", -246, ")"}))))
+reclim with expr=03638060= 1 + 1
+reclim with expr=03638168= System`Messpage(System`Part::"pspec", System`Hold(1 + 1))
+reclim with expr=03638320= -247 - 1
+reclim with expr=009893B8= System`Subscript(Global`p, 2, System`Hold(-247 - 1) - 1)
+reclim with expr=03638CC0= 61.7` - System`Subscript(Global`x, 2)
+reclim with expr=03639088= (System`Subscript(Global`p, 2 + 1, System`Hold(-247 - 1))(61.7`) - System
+`Subscript(Global`p, 2, System`Hold(-247 - 1) - 1)(61.7`))/(System`Subscript(Global`x, System`Hold(-
+247 - 1)) - System`Subscript(Global`x, 2))
+reclim with expr=03638588= -System`Subscript(Global`x, 2)
+reclim with expr=03638848= System`Subscript(Global`p, 2 + 1, -247)(61.7`) - System`Subscript(Global`
+p, 2, -247 - 1)(61.7`)
+reclim with expr=03638B60= 1/(System`Subscript(Global`x, -247) - System`Subscript(Global`x, 2))
+reclim with expr=03633F68= System`Subscript(Global`x, 2)
+reclim with expr=036384D8= System`Subscript(Global`p, 2 + 1, -246)(61.7`)
+reclim with expr=03633D58= -System`Subscript(Global`p, 2, -246 - 1)(61.7`)
+reclim with expr=03633B48= System`Subscript(Global`x, -246) - System`Subscript(Global`x, 2)
+reclim with expr=03633F10= -247 - 1
+reclim with expr=009895F8= System`Subscript(Global`p, 1, System`Hold(-247 - 1) - 1)
+reclim with expr=03639A80= 61.7` - System`Subscript(Global`x, 1)
+reclim with expr=03639E48= (System`Subscript(Global`p, 1 + 1, System`Hold(-247 - 1))(61.7`) - System
+`Subscript(Global`p, 1, System`Hold(-247 - 1) - 1)(61.7`))/(System`Subscript(Global`x, System`Hold(-
+247 - 1)) - System`Subscript(Global`x, 1))
+reclim with expr=03633DB0= -System`Subscript(Global`x, 1)
+reclim with expr=036380B8= System`Subscript(Global`p, 1 + 1, -247)(61.7`) - System`Subscript(Global`
+p, 1, -247 - 1)(61.7`)
+reclim with expr=03639920= 1/(System`Subscript(Global`x, -247) - System`Subscript(Global`x, 1))
+reclim with expr=0363A2C0= System`$MessageCount(System`Part::"partw")
+reclim with expr=03639C38= System`Hold(System`$MessageCount(System`Part::"partw")) + 1
+reclim with expr=0363A2C0= System`$MessageCount(System`Part::"partw")
+reclim with expr=0363A210= System`Message(System`Assign::"wrsym", System`Hold)
+reclim with expr=035D3FF0= {System`Private`namespace$695, System`Private`name$696, System`Private`pa
+ttern$697, System`Private`matches$698}
+reclim with expr=0363A370= System`DownRules(Internal`IsCriticalMessage)
+reclim with expr=0363A420= System`BoxesToExpression({{"Internal`IsCriticalMessage", "(", "~", ")"},
+":=", "True"})
+[abort] reclim with expr=0098D288= System`Private`namespace$695:= System`Namespace(System`Part); Sys
+tem`Private`name$696:= System`SymbolName(System`Part); System`If(System`Private`namespace$695 =!= "S
+ystem`", System`Private`name$696:= System`Private`namespace$695 ++ System`Private`name$696); System`
+If(System`Private`name$696 === "General", System`Private`pattern$697:= System`Private`name$696 ++ ":
+:" ++ "partw" ++ System`WordBoundary, System`Private`pattern$697:= {"General", System`Private`name$6
+96} ++ "::" ++ "partw" ++ System`WordBoundary); System`Private`matches$698:= System`FindList(System`
+ToFileName(System`$BaseDirectory, System`If("partw" === "usage", "usage.pmath", "messages.pmath")),
+System`Private`pattern$697); System`Scan(System`Private`matches$698, System`Release(System`BoxesToEx
+pression(System`StringToBoxes(#1))) &)
+reclim with expr=0363A2C0= System`BoxesToExpression({{"DownRules", "(", "Internal`IsCriticalMessage"
+, ")"}, ":=", "`1`"})
+reclim with expr=0363A2C0= System`HoldForm(System`Part::"partw")
+reclim with expr=0363A4D0= System`Row({"-- Message text not found --", " (", {{55.7`, 1048}, {57.7`,
+ 1080}, {59.3`, 1111}, {62.6`, 1196}, {65.6`, 1354}}, ",", -245, ")"})
+reclim with expr=0363A370= System`MakeBoxes(System`Hold(System`HoldForm(System`Part::"partw")))
+reclim with expr=009362A8= System`MakeBoxes(System`Hold(System`Row({"-- Message text not found --",
+" (", {{55.7`, 1048}, {57.7`, 1080}, {59.3`, 1111}, {62.6`, 1196}, {65.6`, 1354}}, ",", -245, ")"}))
+)
+reclim with expr=0363A5D8= -24p7 - 1
+reclim with expr=00989A78= System`Subscript(Global`p, 2, System`Hold(-247 - 1) - 1)
+reclim with expr=00936930= 61.7` - System`Subscript(Global`x, 2)
+reclim with expr=00936CF8= (System`Subscript(Global`p, 2 + 1, System`Hold(-247 - 1))(61.7`) - System
+`Subscript(Global`p, 2, System`Hold(-247 - 1) - 1)(61.7`))/(System`Subscript(Global`x, System`Hold(-
+247 - 1)) - System`Subscript(Global`x, 2))
+reclim with expr=0363A688= -System`Subscript(Global`x, 2)
+reclim with expr=009364B8= System`Subscript(Global`p, 2 + 1, -247)(61.7`) - System`Subscript(Global`
+p, 2, -247 - 1)(61.7`)
+reclim with expr=009367D0= 1/(System`Subscript(Global`x, -247) - System`Subscript(Global`x, 2))
+reclim with expr=009361A0= System`Subscript(Global`x, 2)
+reclim with expr=036326A8= System`Subscript(Global`p, 2 + 1, -246)(61.7`)
+reclim with expr=00936040= -System`Subscript(Global`p, 2, -246 - 1)(61.7`)
+reclim with expr=00935F38= System`Subscript(Global`x, -246) - System`Subscript(Global`x, 2)
+reclim with expr=03633308= 2 + 1
+reclim with expr=03639C38= System`Message(System`Part::"pspec", System`Hold(2 + 1))
+reclim with expr=009894D8= System`Subscript(Global`p, 2 + 1, -245)
+reclim with expr=0363A058= System`Subscript(Global`p, 2p, -245 - 1)(61.7`)
+reclim with expr=03633570= System`Subscript(Global`x, -245)
+reclim with expr=03633468= -System`Subscript(Global`x, 2)
+reclim with expr=00937118= -247 - 1
+reclim with expr=00989E38= System`Subscript(Global`p, 1, System`Hold(-247 - 1) - 1)
+reclim with expr=00937D78= 61.7` - System`Subscript(Global`x, 1)
+reclim with expr=00938140= (System`Subscript(Global`p, 1 + 1, System`Hold(-247 - 1))(61.7`) - System
+`Subscript(Global`p, 1, System`Hold(-247 - 1) - 1)(61.7`))/(System`Subscript(Global`x, System`Hold(-
+247 - 1)) - System`Subscript(Global`x, 1))
+reclim with expr=009377F8= -System`Subscript(Global`x, 1)
+reclim with expr=00937900= System`Subscript(Global`p, 1 + 1, -247)(61.7`) - System`Subscript(Global`
+p, 1, -247 - 1)(61.7`)
+reclim with expr=00937C18= 1/(System`Subscript(Global`x, -247) - System`Subscript(Global`x, 1))
+reclim with expr=03633360= System`Subscript(Global`x, 1)
+reclim with expr=00937590= System`Subscript(Global`p, 1 + 1, -246)(61.7`)
+reclim with expr=036399D0= -System`Subscript(Global`p, 1, -246 - 1)(61.7`)
+reclim with expr=00936F60= System`Subscript(Global`x, -246) - System`Subscript(Global`x, 1)
+reclim with expr=00989F58= {{"Internal`IsCriticalMessage", "(", "~", ")"}, ":=", "True"}
+reclim with expr=00937F30= System`Message(System`BoxesToExpression::"inv", System`Hold({{"Internal`I
+sCriticalMessage", "(", "~", ")"}, ":=", "True"}))
+[abort] reclim with expr=00938508= System`Private`namespace$699:= System`Namespace(System`Part)
+reclim with expr=0098A138= {{"DownRules", "(", "Internal`IsCriticalMessage", ")"}, ":=", "`1`"}
+reclim with expr=00937F30= System`Message(System`BoxesToExpression::"inv", System`Hold({{"DownRules"
+, "(", "Internal`IsCriticalMessage", ")"}, ":=", "`1`"}))
+reclim with expr=0098D2F0= {"-- Message text not found --", " (", {{55.7`, 1048}, {57.7`, 1080}, {59
+.3`, 1111}, {62.6`, 1196}, {65.6`, 1354}}, ",", -244, ")"}
+reclim with expr=00938770= System`MakeBoxes(System`Part::"partw")
+reclim with expr=00938E50= System`MakeBoxes(System`Hold({"-- Message text not found --", " (", {{55.
+7`, 1048}, {57.7`, 1080}, {59.3`, 1111}, {62.6`, 1196}, {65.6`, 1354}}, ",", -244, ")"}))
+reclim with expr=00938F00= {System`Hold(System`MakeBoxes(System`Hold({"-- Message text not found --"
+, " (", {{55.7`, 1048}, {57.7`, 1080}, {59.3`, 1111}, {62.6`, 1196}, {65.6`, 1354}}, ",", -244, ")"}
+)))}
+preclim with expr=00939428= -247 - 1
+reclim with expr=0098A3D8= System`Subscript(Global`p, 2, System`Hold(-247 - 1) - 1)
+reclim with expr=00939BB8= 61.7` - System`Subscript(Global`x, 2)
+reclim with expr=00939F80= (System`Subscript(Global`p, 2 + 1, System`Hold(-247 - 1))(61.7`) - System
+`Subscript(Global`p, 2, System`Hold(-247 - 1) - 1)(61.7`))/(System`Subscript(Global`x, System`Hold(-
+247 - 1)) - System`Subscript(Global`x, 2))
+reclim with expr=00939638= -System`Subscript(Global`x, 2)
+reclim with expr=00939740= pSystem`Subscript(Global`p, 2 + 1, -247)(61.7`) - System`Subscript(Global
+`p, 2, -247 - 1)(61.7`)
+reclim with expr=00939A58= 1/(System`Subscript(Global`x, -247) - System`Subscript(Global`x, 2))
+reclim with expr=009387C8= System`Subscript(Global`x, 2)
+reclim with expr=00938FB0= System`Subscript(Global`p, 2 + 1, -246)(61.7`)
+reclim with expr=009391C0= -System`Subscript(Global`p, 2, -246 - 1)(61.7`)
+reclim with expr=009392C8= System`Subscript(Global`x, -246) - System`Subscript(Global`x, 2)
+reclim with expr=03633518= 2 + 1
+reclim with expr=00938560= System`Message(System`Part::"pspec", System`Hold(2 + 1))
+reclim with expr=0098A1F8= System`Subscript(Global`p, 2 + 1, -245)
+reclim with expr=00938458= System`Subscript(Global`p, 2, -245 - 1)(61.7`)
+reclim with expr=009389D8= System`Subscript(Global`x, -245)
+reclim with expr=00938980= -System`Subscript(Global`x, 2)
+reclim with expr=036331A8= 2 + 1
+reclim with expr=0098A4F8= System`Subscript(Global`p, System`Hold(2 + 1), -244 - 1)
+reclim with expr=00937850= 61.7` - System`Subscript(Global`x, System`Hold(2 + 1))
+reclim with expr=009393D0= (System`Subscript(Global`p, System`Hold(2 + 1) + 1, -244)(61.7`) - System
+`Subscript(Global`p, System`Hold(2 + 1), -244 - 1)(61.7`))/(System`Subscript(Global`x, -244) - Syste
+m`Subscript(Global`x, System`Hold(2 + 1)))
+reclim with expr=0098A198= System`Subscript(Global`p, 2, -244 - 1)
+reclim with expr=0093A240= -244 + 1
+reclim with expr=0093A298= System`Message(System`Part::"pspec", System`Hold(-244 + 1))
+reclim with expr=03632E38= System`Subscript(Global`x, 2)
+reclim with expr=0093B420= -247 - 1
+reclim with expr=0098AA38= System`Subscript(Global`p, 1, System`Hold(-247 - 1) - 1)
+reclim with expr=0093BBB0= 61.7` - System`Subscript(Global`x, 1)
+reclim with expr=0093BF78= (System`Subscript(Global`p, 1 + 1, System`Hold(-247 - 1))(61.7`) - System
+`Subscript(Global`p, 1, System`Hold(-247 - 1) - 1)(61.7`))/(System`Subscript(Global`x, System`Hold(-
+247 - 1)) - System`Subscript(Global`x, 1))
+reclim with expr=0093B630= -System`Subscript(Global`x, 1)
+reclim with expr=0093B738= System`Subscript(Global`p, 1 + 1, -247)(61.7`) - System`Subscript(Global`
+p, 1, -247 - 1)(61.7`)
+reclim with expr=0093BA50= 1/(System`Subscript(Global`x, -247) - System`Subscript(Global`x, 1))
+reclim with expr=0093AF50= System`Subscript(Global`x, 1)
+reclim with expr=0093AB30= System`Subscript(Global`p, 1 + 1, -246)(61.7`)
+reclim with expr=0093B1B8= -System`Subscript(Global`p, 1, -246 - 1)(61.7`)
+reclim with expr=0093B2C0= System`Subscript(Global`x, -246) - System`Subscript(Global`x, 1)
+reclim with expr=03633200= 1 + 1
+reclim with expr=0093ADF0= System`Message(System`Part::"pspec", System`Hold(1 + 1))
+reclim with expr=0098A858= System`Subscript(Global`p, 1 + 1, -245)
+reclim with expr=0093AD98= System`Subscript(Global`p, 1, -245 - 1)(61.7`)
+reclim with expr=03632C80= System`Subscript(Global`x, -245)
+reclim with expr=0093A450= -System`Subscript(Global`x, 1)
+reclim with expr=035E12B8= {"Internal`IsCriticalMessage", "(", "~", ")"}
+reclim with expr=0093C340= System`Message(System`BoxesToExpression::"inv", System`Hold({"Internal`Is
+CriticalMessage", "(", "~", ")"}))
+[abort] reclim with expr=0093C708= System`Namespace(System`Part)
+reclim with expr=02478070= {"DownRules", "(", "Internal`IsCriticalMessage", ")"}
+reclim with expr=0093C340= System`Message(System`BoxesToExpression::"inv", System`Hold({"DownRules",
+ "(", "Internal`IsCriticalMessage", ")"}))
+reclim with expr=0093C868= System`MakeBoxes({55.7`, 1048})
+reclim with expr=0093CB80= System`MakeBoxes({57.7`, 1080})
+reclim with expr=0093CC30= System`MakeBoxes({59.3`, 1111})
+reclim with expr=0093CCE0= System`MakeBoxes({62.6`, 1196})
+reclim with expr=0093CD90= System`MakeBoxes({65.6`, 1354})
+reclim with expr=035EE188= {System`Hold(System`MakeBoxes({55.7`, 1048})), ",", System`Hold(System`Ma
+keBoxes({57.7`, 1080})), ",", System`Hold(System`MakeBoxes({59.3`, 1111})), ",", System`Hold(System`
+MakeBoxes({62.6`, 1196})), ",", System`Hold(System`MakeBoxes({65.6`, 1354}))}
+preclim with expr=0093DA48= -247 - 1
+reclim with expr=0098B098= System`Subscript(Global`p, 2, System`Hold(-247 - 1) - 1)
+reclim with expr=0093E1D8= 61.7` - System`Subscript(Global`x, 2)
+reclim with expr=0093E5A0= (System`Subscript(Global`p, 2 + 1, System`Hold(-247 - 1))(61.7`) - System
+`Subscript(Global`p, 2, System`Hold(-247 - 1) - 1)(61.7`))/(System`Subscript(Global`x, System`Hold(-
+247 - 1)) - System`Subscript(Global`x, 2))
+reclim with expr=0093DC58= -System`Subscript(Global`x, 2)
+reclim with expr=0093DD60= System`Subscript(Global`p, 2 + 1, -247)(61.7`) - System`Subscript(Global`
+p, 2, -247 - 1)(61.7`)
+reclim with expr=0093E078= 1/(System`Subscript(Global`x, -247) - System`Subscript(Global`x, 2))
+reclim with expr=0093D578= System`Subscript(Global`x, 2)
+reclim with expr=00938C98= System`Subscript(Global`p, 2 + 1, -246)(61.7`)
+reclim with expr=0093D7E0= -System`Subscript(Global`p, 2, -246 - 1)(61.7`)
+reclim with expr=0093D8E8= System`Subscript(Gplobal`x, -246) - System`Subscript(Global`x, 2)
+reclim with expr=0093B0B0= 2 + 1
+reclim with expr=0093D418= System`Message(System`Part::"pspec", System`Hold(2 + 1))
+reclim with expr=0098AEB8= System`Subscript(Global`p, 2 + 1, -245)
+reclim with expr=0093D100= System`Subscript(Global`p, 2, -245 - 1)(61.7`)
+reclim with expr=0093D208= System`Subscript(Global`x, -245)
+reclim with expr=0093D310= -System`Subscript(Global`x, 2)
+reclim with expr=0093CA20= 2 + 1
+reclim with expr=034A65E0= System`Subscript(Global`p, System`Hold(2 + 1), -244 - 1)
+reclim with expr=0093D368= 61.7` - System`Subscript(Global`x, System`Hold(2 + 1))
+reclim with expr=0093D9F0= (System`Subscript(Global`p, System`Hold(2 + 1) + 1, -244)(61.7`) - System
+`Subscript(Global`p, System`Hold(2 + 1), -244 - 1)(61.7`))/(System`Subscript(Global`x, -244) - Syste
+m`Subscript(Global`x, System`Hold(2 + 1)))
+reclim with expr=0098ADF8= System`Subscript(Global`p, 2, -244 - 1)
+reclim with expr=0093E860= -244 + 1
+reclim with expr=0093E8B8= System`Message(System`Part::"pspec", System`Hold(-244 + 1))
+reclim with expr=0093C290= System`Subscript(Global`x, 2)
+reclim with expr=0093ABE0= -243 - 1
+reclim with expr=034A6880= System`Subscript(Global`p, 3, System`Hold(-243 - 1) - 1)
+reclim with expr=0093F410= 61.7` - System`Subscript(Global`x, 3)
+reclim with expr=0093F7D8= (System`Subscript(Global`p, 3 + 1, System`Hold(-243 - 1))(61.7`) - System
+`Subscript(Global`p, 3, System`Hold(-243 - 1) - 1)(61.7`))/(System`Subscript(Global`x, System`Hold(-
+243 - 1)) - System`Subscript(Global`x, 3))
+reclim with expr=0093C760= -System`Subscript(Global`x, 3)
+reclim with expr=0093C9C8= System`Subscript(Global`p, 3 + 1, -243)(61.7`) - System`Subscript(Global`
+p, 3, -243 - 1)(61.7`)
+reclim with expr=0093EA70= 1/(System`Subscript(Global`x, -243) - System`Subscript(Global`x, 3))
+reclim with expr=036328B8= -243 - 1
+reclim with expr=034A6AC0= System`Subscript(Global`p, 2, System`Hold(-243 - 1) - 1)
+reclim with expr=0093C448= 61.7` - System`Subscript(Global`x, 2)
+reclim with expr=0093FCA8= (System`Subscript(Global`p, 2 + 1, System`Hold(-243 - 1))(61.7`) - System
+`Subscript(Global`p, 2, System`Hold(-243 - 1) - 1)(61.7`))/(System`Subscript(Global`x, System`Hold(-
+243 - 1)) - System`Subscript(Global`x, 2))
+reclim with expr=0093FDB0= ++System`$MessageCount(System`Part::"partw")
+reclim with expr=00940228= System`Function({System`Private`symbol, System`Private`tag}, System`Local
+({System`Private`namespace, System`Private`name, System`Private`pattern, System`Private`matches}, Sy
+stem`Try(System`Private`namespace:= System`Namespace(System`Private`symbol); System`Private`name:= S
+ystem`SymbolName(System`Private`symbol); System`If(System`Private`namespace =!= "System`", System`Pr
+ivate`name:= System`Private`namespace ++ System`Private`name); System`If(System`Private`name === "Ge
+neral", System`Private`pattern:= System`Private`name ++ "::" ++ System`Private`tag ++ System`WordBou
+ndary, System`Private`pattern:= {"General", System`Private`name} ++ "::" ++ System`Private`tag ++ Sy
+stem`WordBoundary); System`Private`matches:= System`FindList(System`ToFileName(System`$BaseDirectory
+, System`If(System`Private`tag === "usage", "usage.pmath", "messages.pmath")), System`Private`patter
+n); System`Scan(System`Private`matches, System`Release(System`BoxesToExpression(System`StringToBoxes
+(#1))) &))), System`HoldAll)(System`Part, "partw")
+reclim with expr=009402D8= System`Colon(System`HoldForm(System`Part::"partw"), System`Row({"-- Messa
+ge text not found --", " (", {{55.7`, 1048}, {57.7`, 1080}, {59.3`, 1111}, {62.6`, 1196}, {65.6`, 13
+54}}, ",", -242, ")"}))
+reclim with expr=009403E0= System`ToBoxes(System`Hold(System`Colon(System`HoldForm(System`Part::"par
+tw"), System`Row({"-- Message text not found --", " (", {{55.7`, 1048}, {57.7`, 1080}, {59.3`, 1111}
+, {62.6`, 1196}, {65.6`, 1354}}, ",", -242, ")"}))))
+reclim with expr=00940178= 2 + 1
+preclim with expr=00940280= System`Message(System`Part::"pspec", System`Hold(2 + 1))
+reclim with expr=00941408= -247 - 1
+reclim with expr=034A7000= System`Subscript(Global`p, 1, System`Hold(-247 - 1) - 1)
+reclim with expr=00941B98= 61.7` - System`Subscript(Global`x, 1)
+reclim with expr=00941F60= (System`Subscript(Global`p, 1 + 1, System`Hold(-247 - 1))(61.7`) - System
+`Subscript(Global`p, 1, System`Hold(-247 - 1) - 1)(61.7`))/(System`Subscript(Global`x, System`Hold(-
+247 - 1)) - System`Subscript(Global`x, 1))
+reclim with expr=00941618= -System`Subscript(Global`x, 1)
+reclim with expr=00941720= System`Subscript(Global`p, 1 + 1, -247)(61.7`) - System`Subscript(Global`
+p, 1, -247 - 1)(61.7`)
+reclim with expr=00941A38= 1/(Systpem`Subscript(Global`x, -247) - System`Subscript(Global`x, 1))
+reclim with expr=00940F38= System`Subscript(Global`x, 1)
+reclim with expr=009406F8= System`Subscript(Global`p, 1 + 1, -246)(61.7`)
+reclim with expr=009411A0= -System`Subscript(Global`p, 1, -246 - 1)(61.7`)
+reclim with expr=009412A8= System`Subscript(Global`x, -246) - System`Subscript(Global`x, 1)
+reclim with expr=009401D0= 1 + 1
+reclim with expr=00940DD8= System`Message(System`Part::"pspec", System`Hold(1 + 1))
+reclim with expr=034A6E20= System`Subscript(Global`p, 1 + 1, -245)
+reclim with expr=00940AC0= System`Subscript(Global`p, 1, -245 - 1)(61.7`)
+reclim with expr=00940BC8= System`Subscript(Global`x, -245)
+reclim with expr=00940CD0= -System`Subscript(Global`x, 1)
+reclim with expr=03632860= 1 + 1
+reclim with expr=034A7120= System`Subscript(Global`p, System`Hold(1 + 1), -244 - 1)
+reclim with expr=00940D28= 61.7` - System`Subscript(Global`x, System`Hold(1 + 1))
+reclim with expr=009413B0= (System`Subscript(Global`p, System`Hold(1 + 1) + 1, -244)(61.7`) - System
+`Subscript(Global`p, System`Hold(1 + 1), -244 - 1)(61.7`))/(System`Subscript(Global`x, -244) - Syste
+m`Subscript(Global`x, System`Hold(1 + 1)))
+reclim with expr=034A6D60= System`Subscript(Global`p, 1, -244 - 1)
+reclim with expr=00942220= -244 + 1
+reclim with expr=00942278= System`Message(System`Part::"pspec", System`Hold(-244 + 1))
+reclim with expr=036325F8= System`Subscript(Global`x, 1)
+[abort] reclim with expr=00942E80= {"General", System`Private`name$708}
+reclim with expr=0093AC90= System`MakeBoxes({55.7`, 1048})
+reclim with expr=00943038= System`MakeBoxes({57.7`, 1080})
+reclim with expr=009430E8= System`MakeBoxes({59.3`, 1111})
+reclim with expr=00943198= System`MakeBoxes({62.6`, 1196})
+reclim with expr=00943248= System`MakeBoxes({65.6`, 1354})
+reclim with expr=035EE200= {System`Hold(System`MakeBoxes({55.7`, 1048})), ",", System`Hold(System`Ma
+keBoxes({57.7`, 1080})), ",", System`Hold(System`MakeBoxes({59.3`, 1111})), ",", System`Hold(System`
+MakeBoxes({62.6`, 1196})), ",", System`Hold(System`MakeBoxes({65.6`, 1354}))}
+preclim with expr=00943458= System`MakeBoxes(System`Part::"partw")
+
+Parse: "Hold(MakeBoxes(Part::\"partw\"))"
+preclim with expr=009448A0= -247 - 1
+reclim with expr=034A7840= System`Subscript(Global`p, 2, System`Hold(-247 - 1) - 1)
+reclim with expr=00945030= 61.7` - System`Subscript(Global`x, 2)
+reclim with expr=009453F8= (System`Subscript(Global`p, 2 + 1, System`Hold(-247 - 1))(61.7`) - System
+`Subscript(Global`p, 2, System`Hold(-247 - 1) - 1)(61.7`))/(System`Subscript(Global`x, System`Hold(-
+247 - 1)) - System`Subscript(Global`x, 2))
+reclim with expr=00944AB0= -System`Subscript(Global`x, 2)
+reclim with expr=00944BB8= System`Subscript(Global`p, 2 + 1, -247)(61.7`) - System`Subscript(Global`
+p, 2, -247 - 1)(61.7`)
+reclim with expr=00944ED0= 1/(System`Subscript(Global`x, -247) - System`Subscript(Global`x, 2))
+reclim with expr=009443D0= System`Subscript(Global`x, 2)
+reclim with expr=00943610= System`Subscript(Global`p, 2 + 1, -246)(61.7`)
+reclim with expr=00944638p= -System`Subscript(Global`p, 2, -246 - 1)(61.7`)
+reclim with expr=00944740= System`Subscript(Global`x, -246) - System`Subscript(Global`x, 2)
+reclim with expr=00943B90= 2 + 1
+reclim with expr=00944270= System`Message(System`Part::"pspec", System`Hold(2 + 1))
+reclim with expr=034A7660= System`Subscript(Global`p, 2 + 1, -245)
+reclim with expr=00943F58= System`Subscript(Global`p, 2, -245 - 1)(61.7`)
+reclim with expr=00944060= System`Subscript(Global`x, -245)
+reclim with expr=00944168= -System`Subscript(Global`x, 2)
+reclim with expr=009437C8= 2 + 1
+reclim with expr=034A7960= System`Subscript(Global`p, System`Hold(2 + 1), -244 - 1)
+reclim with expr=009441C0= 61.7` - System`Subscript(Global`x, System`Hold(2 + 1))
+reclim with expr=00944848= (System`Subscript(Global`p, System`Hold(2 + 1) + 1, -244)(61.7`) - System
+`Subscript(Global`p, System`Hold(2 + 1), -244 - 1)(61.7`))/(System`Subscript(Global`x, -244) - Syste
+m`Subscript(Global`x, System`Hold(2 + 1)))
+reclim with expr=034A75A0= System`Subscript(Global`p, 2, -244 - 1)
+reclim with expr=009456B8= -244 + 1
+reclim with expr=00945710= System`Message(System`Part::"pspec", System`Hold(-244 + 1))
+reclim with expr=00943A88= System`Subscript(Global`x, 2)
+reclim with expr=00943560= -243 - 1
+reclim with expr=034A7C00= System`Subscript(Global`p, 3, System`Hold(-243 - 1) - 1)
+reclim with expr=036978D8= 61.7` - System`Subscript(Global`x, 3)
+reclim with expr=03697CA0= (System`Subscript(Global`p, 3 + 1, System`Hold(-243 - 1))(61.7`) - System
+`Subscript(Global`p, 3, System`Hold(-243 - 1) - 1)(61.7`))/(System`Subscript(Global`x, System`Hold(-
+243 - 1)) - System`Subscript(Global`x, 3))
+reclim with expr=00943A30= -System`Subscript(Global`x, 3)
+reclim with expr=00943820= System`Subscript(Global`p, 3 + 1, -243)(61.7`) - System`Subscript(Global`
+p, 3, -243 - 1)(61.7`)
+reclim with expr=009458C8= 1/(System`Subscript(Global`x, -243) - System`Subscript(Global`x, 3))
+reclim with expr=00942C70= -243 - 1
+reclim with expr=034A7E40= System`Subscript(Global`p, 2, System`Hold(-243 - 1) - 1)
+reclim with expr=00943980= 61.7` - System`Subscript(Global`x, 2)
+reclim with expr=03698170= (System`Subscript(Global`p, 2 + 1, System`Hold(-243 - 1))(61.7`) - System
+`Subscript(Global`p, 2, System`Hold(-243 - 1) - 1)(61.7`))/(System`Subscript(Global`x, System`Hold(-
+243 - 1)) - System`Subscript(Global`x, 2))
+reclim with expr=03698278= ++System`$MessageCount(System`Part::"partw")
+reclim with expr=036986F0= System`Function({System`Private`symbol, System`Private`tag}, System`Local
+({System`Private`namespace, System`Private`name, System`Private`pattern, System`Private`matches}, Sy
+stem`Try(System`Private`namespace:= System`Namespace(System`Private`symbol); System`Private`name:= S
+ystem`SymbolName(System`Private`symbol); System`If(System`Private`namespace =!= "System`", System`Pr
+ivate`name:= System`Private`namespace ++ System`Private`name); System`If(System`Private`name === "Ge
+neral", System`Private`pattern:= System`Private`name ++ "::" ++ System`Private`tag ++ System`WordBou
+ndary, System`Private`pattern:= {"General", System`Private`name} ++ "::" ++ System`Private`tag ++ Sy
+stem`WordBoundary); System`Private`matches:= System`FindList(System`ToFileName(System`$BaseDirectory
+, System`If(System`Private`tag === "usage", "usage.pmath", "messages.pmath")), System`Private`patter
+n); System`Scan(System`Private`matches, System`Release(System`BoxesToExpression(System`StringToBoxes
+(#1))) &))), System`HoldAll)(System`Part, "partw")
+reclim with expr=036987A0= System`Colon(System`HoldForm(System`Part::"partw"), System`Row({"-- Messa
+ge text not found --", " (", {{55.7`, 1048}, {57.7`, 1080}, {59.3`, 1111}, {62.6`, 1196}, {65.6`, 13
+54}}, ",", -242, ")"}))
+reclim with expr=036988A8= System`ToBoxes(System`Hold(System`Colon(System`HoldForm(System`Part::"par
+tw"), System`Row({"-- Message text not found --", " (", {{55.7`, 1048}, {57.7`, 1080}, {59.3`, 1111}
+, {62.6`, 1196}, {65.6`, 1354}}, ",", -242, ")"}))))
+reclim with expr=03698640= 2 + 1
+reclim with expr=03698748= Systpem`Message(System`Part::"pspec", System`Hold(2 + 1))
+reclim with expr=03698900= -243 - 1
+reclim with expr=034A80E0= System`Subscript(Global`p, 3, System`Hold(-243 - 1) - 1)
+reclim with expr=036992A0= 61.7` - System`Subscript(Global`x, 3)
+reclim with expr=03699668= (System`Subscript(Global`p, 3 + 1, System`Hold(-243 - 1))(61.7`) - System
+`Subscript(Global`p, 3, System`Hold(-243 - 1) - 1)(61.7`))/(System`Subscript(Global`x, System`Hold(-
+243 - 1)) - System`Subscript(Global`x, 3))
+reclim with expr=03698B68= -System`Subscript(Global`x, 3)
+reclim with expr=03698E28= System`Subscript(Global`p, 3 + 1, -243)(61.7`) - System`Subscript(Global`
+p, 3, -243 - 1)(61.7`)
+reclim with expr=03699140= 1/(System`Subscript(Global`x, -243) - System`Subscript(Global`x, 3))
+reclim with expr=00940438= System`Subscript(Global`x, 3)
+reclim with expr=03698AB8= System`Subscript(Global`p, 3 + 1, -242)(61.7`)
+reclim with expr=00942CC8= -System`Subscript(Global`p, 3, -242 - 1)(61.7`)
+reclim with expr=00942430= System`Subscript(Global`x, -242) - System`Subscript(Global`x, 3)
+reclim with expr=00940D80= -243 - 1
+reclim with expr=034A8320= System`Subscript(Global`p, 2, Systepm`Hold(-243 - 1) - 1)
+reclim with expr=0369A060= 61.7` - System`Subscript(Global`x, 2)
+reclim with expr=0369A428= (System`Subscript(Global`p, 2 + 1, System`Hold(-243 - 1))(61.7`) - System
+`Subscript(Global`p, 2, System`Hold(-243 - 1) - 1)(61.7`))/(System`Subscript(Global`x, System`Hold(-
+243 - 1)) - System`Subscript(Global`x, 2))
+reclim with expr=00942C18= -System`Subscript(Global`x, 2)
+reclim with expr=03698698= System`Subscript(Global`p, 2 + 1, -243)(61.7`) - System`Subscript(Global`
+p, 2, -243 - 1)(61.7`)
+reclim with expr=03699F00= 1/(System`Subscript(Global`x, -243) - System`Subscript(Global`x, 2))
+reclim with expr=0369A8A0= System`$MessageCount(System`Part::"partw")
+reclim with expr=0369A218= System`Hold(System`$MessageCount(System`Part::"partw")) + 1
+reclim with expr=0369A8A0= System`$MessageCount(System`Part::"partw")
+reclim with expr=0369A7F0= System`Message(System`Assign::"wrsym", System`Hold)
+reclim with expr=035D47D0= {System`Private`namespace$711, System`Private`name$712, System`Private`pa
+ttern$713, System`Private`matches$714}
+reclim with expr=0369A950= System`DownRules(Internal`IsCriticalMessage)
+reclim with expr=0369AA00= System`BoxesToExpression({{"Internal`IsCriticalMessage", "(", "~", ")"},
+":=", "True"})
+[abort] reclim with expr=0098C520= System`Private`namespace$711:= System`Namespace(System`Part); Sys
+tem`Private`name$712:= System`SymbolName(System`Part); System`If(System`Private`namespace$711 =!= "S
+ystem`", System`Private`name$712:= System`Private`namespace$711 ++ System`Private`name$712); System`
+If(System`Private`name$712 === "General", System`Private`pattern$713:= System`Private`name$712 ++ ":
+:" ++ "partw" ++ System`WordBoundary, System`Private`pattern$713:= {"General", System`Private`name$7
+12} ++ "::" ++ "partw" ++ System`WordBoundary); System`Private`matches$714:= System`FindList(System`
+ToFileName(System`$BaseDirectory, System`If("partw" === "usage", "usage.pmath", "messages.pmath")),
+System`Private`pattern$713); System`Scan(System`Private`matches$714, System`Release(System`BoxesToEx
+pression(System`StringToBoxes(#1))) &)
+reclim with expr=0369A8A0= System`BoxesToExpression({{"DownRules", "(", "Internal`IsCriticalMessage"
+, ")"}, ":=", "`1`"})
+reclim with expr=0369A8A0= System`HoldForm(System`Part::"partw")
+reclim with expr=0369AAB0= System`Row({"-- Message text not found --", " (", {{55.7`, 1048}, {57.7`,
+ 1080}, {59.3`, 1111}, {62.6`, 1196}, {65.6`, 1354}}, ",", -241, ")"})
+reclim with expr=0369A950= System`MakeBoxes(System`Hold(System`HoldForm(System`Part::"partw")))
+reclim with expr=0369B1E8= System`MakeBoxes(System`Hold(System`Row({"-- Message text not found --",
+" (", {{55.7`, 1048}, {57.7`, 1080}, {59.3`, 1111}, {62.6`, 1196}, {65.6`, 1354}}, ",", -241, ")"}))
+)
+preclim with expr=0369BEA0= -247 - 1
+reclim with expr=0247BD90= System`Subscript(Global`p, 1, System`Hold(-247 - 1) - 1)
+reclim with expr=0369C630= 61.7` - System`Subscript(Global`x, 1)
+reclim with expr=0369C9F8= (System`Subscript(Global`p, 1 + 1, System`Hold(-247 - 1))(61.7`) - System
+`Subscript(Global`p, 1, System`Hold(-247 - 1) - 1)(61.7`))/(System`Subscript(Global`x, System`Hold(-
+247 - 1)) - System`Subscript(Global`x, 1))
+reclim with expr=0369C0B0= -System`Subscript(Global`x, 1)
+reclim with expr=0369C1B8= System`Subscript(Global`p, 1 + 1, -247)(61.7`) - System`Subscript(Global`
+p, 1, -247p - 1)(61.7`)
+reclim with expr=0369C4D0= 1/(System`Subscript(Global`x, -247) - System`Subscript(Global`x, 1))
+reclim with expr=0369B9D0= System`Subscript(Global`x, 1)
+reclim with expr=0369AC10= System`Subscript(Global`p, 1 + 1, -246)(61.7`)
+reclim with expr=0369BC38= -System`Subscript(Global`p, 1, -246 - 1)(61.7`)
+reclim with expr=0369BD40= System`Subscript(Global`x, -246) - System`Subscript(Global`x, 1)
+reclim with expr=0369A8F8= 1 + 1
+reclim with expr=0369B870= System`Message(System`Part::"pspec", System`Hold(1 + 1))
+reclim with expr=0247BBB0= System`Subscript(Global`p, 1 + 1, -245)
+reclim with expr=0369B558= System`Subscript(Global`p, 1, -245 - 1)(61.7`)
+reclim with expr=0369B660= System`Subscript(Global`x, -245)
+reclim with expr=0369B768= -System`Subscript(Global`x, 1)
+reclim with expr=0369B030= 1 + 1
+reclim with expr=0247BEB0= System`Subscript(Global`p, System`Hold(1 + 1), -244 - 1)
+reclim with expr=0369B7C0= 61.7` - System`Subscript(Global`x, System`Hold(1 + 1))
+reclim with expr=0369BE48= (System`Subscript(Global`p, System`Hold(1 + 1) + 1, -244)(61.7`) - System
+`Subscript(Global`p, System`Hold(1 + 1), -244 - 1)(61.7`))/(System`Subscript(Global`x, -244) - Syste
+m`Subscript(Global`x, System`Hold(1 + 1)))
+reclim with expr=0247BAF0= System`Subscript(Global`p, 1, -244 - 1)
+reclim with expr=0369CCB8= -244 + 1
+reclim with expr=0369CD10= System`Message(System`Part::"pspec", System`Hold(-244 + 1))
+reclim with expr=0369AF28= System`Subscript(Global`x, 1)
+reclim with expr=0369B190= -243 - 1
+reclim with expr=0247C150= System`Subscript(Global`p, 2, System`Hold(-243 - 1) - 1)
+reclim with expr=0369D868= 61.7` - System`Subscript(Global`x, 2)
+reclim with expr=0369DC30= (System`Subscript(Global`p, 2 + 1, System`Hold(-243 - 1))(61.7`) - System
+`Subscript(Global`p, 2, System`Hold(-243 - 1) - 1)(61.7`))/(System`Subscript(Global`x, System`Hold(-
+243 - 1)) - System`Subscript(Global`x, 2))
+reclim with expr=0369ADC8= -System`Subscript(Global`x, 2)
+reclim with expr=0369AFD8= System`Subscript(Global`p, 2 + 1, -243)(61.7`) - System`Subscript(Global`
+p, 2, -243 - 1)(61.7`)
+reclim with expr=0369CEC8= 1/(System`Subscript(Global`x, -243) - System`Subscript(Global`x, 2))
+reclim with expr=03632338= -243 - 1
+reclim with expr=0247C390= System`Subscript(Global`p, 1, System`Hold(-243 - 1) - 1)
+reclim with expr=0369AED0= 61.7` - System`Subscript(Global`x, 1)
+reclim with expr=0369E100= (System`Subscript(Global`p, 1 + 1, System`Hold(-243 - 1))(61.7`) - System
+`Subscript(Global`p, 1, System`Hold(-243 - 1) - 1)(61.7`))/(System`Subscript(Global`x, System`Hold(-
+243 - 1)) - System`Subscript(Global`x, 1))
+reclim with expr=0369E208= ++System`$MessageCount(System`Part::"partw")
+reclim with expr=0369E680= System`Function({System`Private`symbol, System`Private`tag}, System`Local
+({System`Private`namespace, System`Private`name, System`Private`pattern, System`Private`matches}, Sy
+stem`Try(System`Private`namespace:= System`Namespace(System`Private`symbol); System`Private`name:= S
+ystem`SymbolName(System`Private`symbol); System`If(System`Private`namespace =!= "System`", System`Pr
+ivate`name:= System`Private`namespace ++ System`Private`name); System`If(System`Private`name === "Ge
+neral", System`Private`pattern:= System`Private`name ++ "::" ++ System`Private`tag ++ System`WordBou
+ndary, System`Private`pattern:= {"General", System`Private`name} ++ "::" ++ System`Private`tag ++ Sy
+stem`WordBoundary); System`Private`matches:= System`FindList(System`ToFileName(System`$BaseDirectory
+, System`If(System`Private`tag === "usage", "usage.pmath", "messages.pmath")), System`Private`patter
+n); System`Scan(System`Private`matches, System`Release(System`BoxesToExpression(System`StringToBoxes
+(#1))) &))), System`HoldAll)(System`Part, "partw")
+reclim with expr=0369E730= System`Colon(System`HoldForm(System`Part::"partw"), System`Row({"-- Messa
+ge text not found --", " (", {{55.7`, 1048}, {57.7`, 1080}, {59.3`, 1111}, {62.6`, 1196}, {65.6`, 13
+54}}, ",", -242, ")"}))
+reclim with expr=0369E838= System`ToBoxes(System`Hold(System`Colon(System`HoldForm(System`Part::"par
+tw"), System`Row({"-- Message text not found --", " (", {{55.7`, 1048}, {57.7`, 1080}, {59.3`, 1111}
+, {62.6`, 1196}, {65.6`, 1354}}, ",", -242, ")"}))))
+reclim with expr=0369E5D0= 1 + 1
+preclim with expr=0369E6D8= System`Message(System`Part::"pspec", System`Hold(1 + 1))
+reclim with expr=036A0570= -247 - 1
+reclim with expr=009723E0= System`Subscript(Global`p, 2, System`Hold(-247 - 1) - 1)
+reclim with expr=036A0D00= 61.7` - System`Subscript(Global`x, 2)
+reclim with expr=036A10C8= (System`Subscript(Global`p, 2 + 1, System`Hold(-247 - 1))(61.7`) - System
+`Subscript(Global`p, 2, System`Hold(-247 - 1) - 1)(61.7`))/(System`Subscript(Global`x, System`Hold(-
+247 - 1)) - System`Subscript(Global`x, 2))
+reclim with expr=036A0780= -System`Subscript(Global`x, 2)
+reclim with expr=036A0888= System`Subscript(Global`p, 2 + 1, -247)(61.7`) - System`Subscript(Global`
+p, 2, -247 - 1)(61.7`)
+reclim with expr=036A0BA0= 1/(System`Subscript(Global`x, -247) - System`Subscript(Global`x, 2))
+reclim with expr=036A00A0= System`Subscript(Global`x, 2)
+preclim with expr=0369F2E0= System`Subscript(Global`p, 2 + 1, -246)(61.7`)
+reclim with expr=036A0308= -System`Subscript(Global`p, 2, -246 - 1)(61.7`)
+reclim with expr=036A0410= System`Subscript(Global`x, -246) - System`Subscript(Global`x, 2)
+reclim with expr=0369F860= 2 + 1
+reclim with expr=0369FF40= System`Message(System`Part::"pspec", System`Hold(2 + 1))
+reclim with expr=00972200= System`Subscript(Global`p, 2 + 1, -245)
+reclim with expr=0369FC28= System`Subscript(Global`p, 2, -245 - 1)(61.7`)
+reclim with expr=0369FD30= System`Subscript(Global`x, -245)
+reclim with expr=0369FE38= -System`Subscript(Global`x, 2)
+reclim with expr=0369F498= 2 + 1
+reclim with expr=00972500= System`Subscript(Global`p, System`Hold(2 + 1), -244 - 1)
+reclim with expr=0369FE90= 61.7` - System`Subscript(Global`x, System`Hold(2 + 1))
+reclim with expr=036A0518= (System`Subscript(Global`p, System`Hold(2 + 1) + 1, -244)(61.7`) - System
+`Subscript(Global`p, System`Hold(2 + 1), -244 - 1)(61.7`))/(System`Subscript(Global`x, -244) - Syste
+m`Subscript(Global`x, System`Hold(2 + 1)))
+reclim with expr=0247C870= System`Subscript(Global`p, 2, -244 - 1)
+reclim with expr=036A1388= -244 + 1
+reclim with expr=036A13E0= System`Message(System`Part::"pspec", System`Hold(-244 + 1))
+reclim with expr=0369F758= System`Subscript(Global`x, 2)
+reclim with expr=0369F230= -243 - 1
+reclim with expr=009727A0= System`Subscript(Global`p, 3, System`Hold(-243 - 1) - 1)
+reclim with expr=036A1F38= 61.7` - System`Subscript(Global`x, 3)
+reclim with expr=036A2300= (System`Subscript(Global`p, 3 + 1, System`Hold(-243 - 1))(61.7`) - System
+`Subscript(Global`p, 3, System`Hold(-243 - 1) - 1)(61.7`))/(System`Subscript(Global`x, System`Hold(-
+243 - 1)) - System`Subscript(Global`x, 3))
+reclim with expr=0369F700= -System`Subscript(Global`x, 3)
+reclim with expr=0369F4F0= System`Subscript(Global`p, 3 + 1, -243)(61.7`) - System`Subscript(Global`
+p, 3, -243 - 1)(61.7`)
+reclim with expr=036A1598= 1/(System`Subscript(Global`x, -243) - System`Subscript(Global`x, 3))
+reclim with expr=0369EEC0= -243 - 1
+reclim with expr=009729E0= System`Subscript(Global`p, 2, System`Hold(-243 - 1) - 1)
+reclim with expr=0369F650= 61.7` - System`Subscript(Global`x, 2)
+reclim with expr=036A27D0= (System`Subscript(Global`p, 2 + 1, System`Hold(-243 - 1))(61.7`) - System
+`Subscript(Global`p, 2, System`Hold(-243 - 1) - 1)(61.7`))/(System`Subscript(Global`x, System`Hold(-
+243 - 1)) - System`Subscript(Global`x, 2))
+reclim with expr=036A28D8= ++System`$MessageCount(System`Part::"partw")
+reclim with expr=036A2D50= System`Function({System`Private`symbol, System`Private`tag}, System`Local
+({System`Private`namespace, System`Private`name, System`Private`pattern, System`Private`matches}, Sy
+stem`Try(System`Private`namespace:= System`Namespace(System`Private`symbol); System`Private`name:= S
+ystem`SymbolName(System`Private`symbol); System`If(System`Private`namespace =!= "System`", System`Pr
+ivate`name:= System`Private`namespace ++ System`Private`name); System`If(System`Private`name === "Ge
+neral", System`Private`pattern:= System`Private`name ++ "::" ++ System`Private`tag ++ System`WordBou
+ndary, System`Private`pattern:= {"General", System`Private`name} ++ "::" ++ System`Private`tag ++ Sy
+stem`WordBoundary); System`Private`matches:= System`FindList(System`ToFileName(System`$BaseDirectory
+, System`If(System`Private`tag === "usage", "usage.pmath", "messages.pmath")), System`Private`patter
+n); System`Scan(System`Private`matches, System`Release(System`BoxesToExpression(System`StringToBoxes
+(#1))) &))), System`HoldAll)(System`Part, "partw")
+reclim with expr=036A2E00= System`Colon(System`HoldForm(System`Part::"partw"), System`Row({"-- Messa
+ge text not found --", " (", {{55.7`, 1048}, {57.7`, 1080}, {59.3`, 1111}, {62.6`, 1196}, {65.6`, 13
+54}}, ",", -242, ")"}))
+reclim with expr=036A2F08= System`ToBoxes(System`Hold(System`Colon(System`HoldForm(System`Part::"par
+tw"), System`Row({"-- Message text not found --", " (", {{55.7`, 1048}, {57.7`, 1080}, {59.3`, 1111}
+, {62.6`, 1196}, {65.6`, 1354}}, ",", -242, ")"}))))
+reclim with expr=036A2CA0= 2 + 1
+reclim with expr=036A2DA8= Spystem`Message(System`Part::"pspec", System`Hold(2 + 1))
+reclim with expr=036A2F60= -243 - 1
+reclim with expr=00972C80= System`Subscript(Global`p, 3, System`Hold(-243 - 1) - 1)
+reclim with expr=036A3900= 61.7` - System`Subscript(Global`x, 3)
+reclim with expr=036A3CC8= (System`Subscript(Global`p, 3 + 1, System`Hold(-243 - 1))(61.7`) - System
+`Subscript(Global`p, 3, System`Hold(-243 - 1) - 1)(61.7`))/(System`Subscript(Global`x, System`Hold(-
+243 - 1)) - System`Subscript(Global`x, 3))
+reclim with expr=036A31C8= -System`Subscript(Global`x, 3)
+reclim with expr=036A3488= System`Subscript(Global`p, 3 + 1, -243)(61.7`) - System`Subscript(Global`
+p, 3, -243 - 1)(61.7`)
+reclim with expr=036A37A0= 1/(System`Subscript(Global`x, -243) - System`Subscript(Global`x, 3))
+reclim with expr=0369F180= System`Subscript(Global`x, 3)
+reclim with expr=036A3118= System`Subscript(Global`p, 3 + 1, -242)(61.7`)
+reclim with expr=0369EF70= -System`Subscript(Global`p, 3, -242 - 1)(61.7`)
+reclim with expr=0369ED60= Spystem`Subscript(Global`x, -242) - System`Subscript(Global`x, 3)
+reclim with expr=0369F128= -243 - 1
+reclim with expr=00972EC0= System`Subscript(Global`p, 2, System`Hold(-243 - 1) - 1)
+reclim with expr=036A46C0= 61.7` - System`Subscript(Global`x, 2)
+reclim with expr=036A4A88= (System`Subscript(Global`p, 2 + 1, System`Hold(-243 - 1))(61.7`) - System
+`Subscript(Global`p, 2, System`Hold(-243 - 1) - 1)(61.7`))/(System`Subscript(Global`x, System`Hold(-
+243 - 1)) - System`Subscript(Global`x, 2))
+reclim with expr=0369EFC8= -System`Subscript(Global`x, 2)
+reclim with expr=036A2CF8= System`Subscript(Global`p, 2 + 1, -243)(61.7`) - System`Subscript(Global`
+p, 2, -243 - 1)(61.7`)
+reclim with expr=036A4560= 1/(System`Subscript(Global`x, -243) - System`Subscript(Global`x, 2))
+reclim with expr=036A4F00= System`$MessageCount(System`Part::"partw")
+reclim with expr=036A4878= System`Hold(System`$MessageCount(System`Part::"partw")) + 1
+reclim with expr=036A4F00= System`$MessageCount(System`Part::"partw")
+reclim with expr=036A4E50= System`Message(System`Assign::"wrsym", System`Hold)
+reclim with expr=02477C50= {System`Private`namespace$715, System`Private`name$716, System`Private`pa
+ttern$717, System`Private`matches$718}
+reclim with expr=036A4FB0= System`DownRules(Internal`IsCriticalMessage)
+reclim with expr=036A5060= System`BoxesToExpression({{"Internal`IsCriticalMessage", "(", "~", ")"},
+":=", "True"})
+[abort] reclim with expr=034D4D38= System`Private`namespace$715:= System`Namespace(System`Part); Sys
+tem`Private`name$716:= System`SymbolName(System`Part); System`If(System`Private`namespace$715 =!= "S
+ystem`", System`Private`name$716:= System`Private`namespace$715 ++ System`Private`name$716); System`
+If(System`Private`name$716 === "General", System`Private`pattern$717:= System`Private`name$716 ++ ":
+:" ++ "partw" ++ System`WordBoundary, System`Private`pattern$717:= {"General", System`Private`name$7
+16} ++ "::" ++ "partw" ++ System`WordBoundary); System`Private`matches$718:= System`FindList(System`
+ToFileName(System`$BaseDirectory, System`If("partw" === "usage", "usage.pmath", "messages.pmath")),
+System`Private`pattern$717); System`Scan(System`Private`matches$718, System`Release(System`BoxesToEx
+pression(System`StringToBoxes(#1))) &)
+reclim with expr=036A4F00= System`BoxesToExpression({{"DownRules", "(", "Internal`IsCriticalMessage"
+, ")"}, ":=", "`1`"})
+reclim with expr=036A4F00= System`HoldForm(System`Part::"partw")
+reclim with expr=036A5110= System`Row({"-- Message text not found --", " (", {{55.7`, 1048}, {57.7`,
+ 1080}, {59.3`, 1111}, {62.6`, 1196}, {65.6`, 1354}}, ",", -241, ")"})
+reclim with expr=036A4FB0= System`MakeBoxes(System`Hold(System`HoldForm(System`Part::"partw")))
+reclim with expr=036A5848= System`MakeBoxes(System`Hold(System`Row({"-- Message text not found --",
+" (", {{55.7`, 1048}, {57.7`, 1080}, {59.3`, 1111}, {62.6`, 1196}, {65.6`, 1354}}, ",", -241, ")"}))
+)
+preclim with expr=036A5218= -243 - 1
+reclim with expr=00971320= System`Subscript(Global`p, 3, System`Hold(-243 - 1) - 1)
+reclim with expr=036A5ED0= 61.7` - System`Subscript(Global`x, 3)
+reclim with expr=036A6298= (System`Subscript(Global`p, 3 + 1, System`Hold(-243 - 1))(61.7`) - System
+`Subscript(Global`p, 3, System`Hold(-243 - 1) - 1)(61.7`))/(System`Subscript(Global`x, System`Hold(-
+243 - 1)) - System`Subscript(Global`x, 3))
+reclim with expr=036A52C8= -System`Subscript(Global`x, 3)
+reclim with expr=036A5A58= System`Subscript(Global`p, 3 + 1, -243)(61.7`) - System`Subscript(Global`
+p, 3, -243 - 1)(61.7`)
+reclim with expr=036A5D70= 1/(System`Subscript(Global`x, -243) - System`Subscript(Global`x, 3))
+reclim with expr=036A5740= System`Subscript(Global`x, 3)
+reclim with expr=03630C88= System`Subscript(Global`p, 3 + 1, -242)(61.7`)
+reclim with expr=036A55E0p= -System`Subscript(Global`p, 3, -242 - 1)(61.7`)
+reclim with expr=036A54D8= System`Subscript(Global`x, -242) - System`Subscript(Global`x, 3)
+reclim with expr=0369CDC0= 3 + 1
+reclim with expr=036A4878= System`Message(System`Part::"pspec", System`Hold(3 + 1))
+reclim with expr=00972DA0= System`Subscript(Global`p, 3 + 1, -241)
+reclim with expr=036A4C98= System`Subscript(Global`p, 3, -241 - 1)(61.7`)
+reclim with expr=03632440= System`Subscript(Global`x, -241)
+reclim with expr=03632548= -System`Subscript(Global`x, 3)
+reclim with expr=036A66B8= -243 - 1
+reclim with expr=009716E0= System`Subscript(Global`p, 2, System`Hold(-243 - 1) - 1)
+reclim with expr=036A7318= 61.7` - System`Subscript(Global`x, 2)
+reclim with expr=036A76E0= (System`Subscript(Global`p, 2 + 1, System`Hold(-243 - 1))(61.7`) - System
+`Subscript(Global`p, 2, System`Hold(-243 - 1) - 1)(61.7`))/(System`Subscript(Global`x, System`Hold(-
+243 - 1)) - System`Subscript(Global`x, 2))
+reclim with expr=036A6D98= -System`Subscript(Global`x, 2)
+reclim with expr=036A6EA0= System`Subscript(Global`p, 2 + 1, -243)(61.7`) - System`Subscript(Global`
+p, 2, -243 - 1)(61.7`)
+reclim with expr=036A71B8= 1/(System`Subscript(Global`x, -243) - System`Subscript(Global`x, 2))
+reclim with expr=0369B818= System`Subscript(Global`x, 2)
+reclim with expr=036A6B30= System`Subscript(Global`p, 2 + 1, -242)(61.7`)
+reclim with expr=036A4610= -System`Subscript(Global`p, 2, -242 - 1)(61.7`)
+reclim with expr=036A6500= System`Subscript(Global`x, -242) - System`Subscript(Global`x, 2)
+reclim with expr=03478B58= -247 - 1
+reclim with expr=00971E60= System`Subscript(Global`p, 1, System`Hold(-247 - 1) - 1)
+reclim with expr=034792E8= 61.7` - System`Subscript(Global`x, 1)
+reclim with expr=034796B0= (System`Subscript(Global`p, 1 + 1, System`Hold(-247 - 1))(61.7`) - System
+`Subscript(Global`p, 1, System`Hold(-247 - 1) - 1)(61.7`))/(System`Subscript(Global`x, System`Hold(-
+247 - 1)) - System`Subscript(Global`x, 1))
+reclim with expr=03478D68= -System`Subscript(Global`x, 1)
+reclim with expr=03478E70= System`Subscript(Global`p, 1 + 1, -247)(61.7`) - System`Subscript(Global`
+p, 1, -247 - 1)(61.7`)
+reclim with expr=03479188= 1/(System`Subscript(Global`x, -247) - System`Subscript(Global`x, 1))
+reclim with expr=03478688= System`Subscript(Global`x, 1)
+reclim with expr=034778C8= System`Subscript(Global`p, 1 + 1, -246)(61.7`)
+reclim with expr=034788F0= -System`Subscript(Global`p, 1, -246 - 1)(61.7`)
+reclim with expr=034789F8= System`Subscript(Global`x, -246) - System`Subscript(Global`x, 1)
+reclim with expr=03477E48= 1 + 1
+reclim with expr=03478528= System`Message(System`Part::"pspec", System`Hold(1 + 1))
+reclim with expr=00971C80= System`Subscript(Global`p, 1 + 1, -245)
+reclim with expr=03478210= System`Subscript(Global`p, 1, -245 - 1)(61.7`)
+reclim with expr=03478318= System`Subscript(Global`x, -245)
+reclim with expr=03478420= -System`Subscript(Global`x, 1)
+reclim with expr=03477A80= 1 + 1
+reclim with expr=00971F80= System`Subscript(Global`p, System`Hold(1 + 1), -244 - 1)
+reclim with expr=03478478= 61.7` - System`Subscript(Global`x, System`Hold(1 + 1))
+reclim with expr=03478B00= (System`Subscript(Global`p, System`Hold(1 + 1) + 1, -244)(61.7`) - System
+`Subscript(Global`p, System`Hold(1 + 1), -244 - 1)(61.7`))/(System`Subscript(Global`x, -244) - Syste
+m`Subscript(Global`x, System`Hold(1 + 1)))
+reclim with expr=00971BC0= System`Subscript(Global`p, 1, -244 - 1)
+reclim with expr=03479970= -244 + 1
+reclim with expr=034799C8= System`Message(System`Part::"pspec", System`Hold(-244 + 1))
+reclim with expr=03477D40= System`Subscript(Global`x, 1)
+reclim with expr=03477818= -243 - 1
+reclim with expr=0098B238= System`Subscript(Global`p, 2, System`Hold(-243 - 1) - 1)
+reclim with expr=0347A520= 61.7` - System`Subscript(Global`x, 2)
+reclim with expr=0347A8E8= (System`Subscript(Global`p, 2 + 1, System`Hold(-243 - 1))(61.7`) - System
+`Subscript(Global`p, 2, System`Hold(-243 - 1) - 1)(61.7`))/(System`Subscript(Global`x, System`Hold(-
+243 - 1)) - System`Subscript(Global`x, 2))
+reclim with expr=03477CE8= -System`Subscript(Global`x, 2)
+reclim with expr=03477AD8= System`Subscript(Global`p, 2 + 1, -243)(61.7`) - System`Subscript(Global`
+p, 2, -243 - 1)(61.7`)
+reclim with expr=03479B80= 1/(System`Subscript(Global`x, -243) - System`Subscript(Global`x, 2))
+reclim with expr=03477088= -243 - 1
+reclim with expr=0098B478= System`Subscript(Global`p, 1, System`Hold(-243 - 1) - 1)
+reclim with expr=03477C38= 61.7` - System`Subscript(Global`x, 1)
+reclim with expr=0347ADB8= (System`Subscript(Global`p, 1 + 1, System`Hold(-243 - 1))(61.7`) - System
+`Subscript(Global`p, 1, System`Hold(-243 - 1) - 1)(61.7`))/(System`Subscript(Global`x, System`Hold(-
+243 - 1)) - System`Subscript(Global`x, 1))
+reclim with expr=0347AEC0= ++System`$MessageCount(System`Part::"partw")
+reclim with expr=0347B338= System`Function({System`Private`symbol, System`Private`tag}, System`Local
+({System`Private`namespace, System`Private`name, System`Private`pattern, System`Private`matches}, Sy
+stem`Try(System`Private`namespace:= System`Namespace(System`Private`symbol); System`Private`name:= S
+ystem`SymbolName(System`Private`symbol); System`If(System`Private`namespace =!= "System`", System`Pr
+ivate`name:= System`Private`namespace ++ System`Private`name); System`If(System`Private`name === "Ge
+neral", System`Private`pattern:= System`Private`name ++ "::" ++ System`Private`tag ++ System`WordBou
+ndary, System`Private`pattern:= {"General", System`Private`name} ++ "::" ++ System`Private`tag ++ Sy
+stem`WordBoundary); System`Private`matches:= System`FindList(System`ToFileName(System`$BaseDirectory
+, System`If(System`Private`tag === "usage", "usage.pmath", "messages.pmath")), System`Private`patter
+n); System`Scan(System`Private`matches, System`Release(System`BoxesToExpression(System`StringToBoxes
+(#1))) &))), System`HoldAll)(System`Part, "partw")
+reclim with expr=0347B3E8= System`Colon(System`HoldForm(System`Part::"partw"), System`Row({"-- Messa
+ge text not found --", " (", {{55.7`, 1048}, {57.7`, 1080}, {59.3`, 1111}, {62.6`, 1196}, {65.6`, 13
+54}}, ",", -242, ")"}))
+reclim with expr=0347B4F0= System`ToBoxes(System`Hold(System`Colon(System`HoldForm(System`Part::"par
+tw"), System`Row({"-- Message text not found --", " (", {{55.7`, 1048}, {57.7`, 1080}, {59.3`, 1111}
+, {62.6`, 1196}, {65.6`, 1354}}, ",", -242, ")"}))))
+reclim with expr=0347B288= 1 + 1
+preclim with expr=0347B390= System`Message(System`Part::"pspec", System`Hold(1 + 1))
+reclim with expr=0347B548= -243 - 1
+reclim with expr=0098B718= System`Subscript(Global`p, 2, System`Hold(-243 - 1) - 1)
+reclim with expr=0347BEE8= 61.7` - System`Subscript(Global`x, 2)
+reclim with expr=0347C2B0= (System`Subscript(Global`p, 2 + 1, System`Hold(-243 - 1))(61.7`) - System
+`Subscript(Global`p, 2, System`Hold(-243 - 1) - 1)(61.7`))/(System`Subscript(Global`x, System`Hold(-
+243 - 1)) - System`Subscript(Global`x, 2))
+reclim with expr=0347B7B0= -System`Subscript(Global`x, 2)
+reclim with expr=0347BA70= System`Subscript(Global`p, 2 + 1, -243)(61.7`) - System`Subscript(Global`
+p, 2, -243 - 1)(61.7`)
+reclim with expr=0347BD88= 1/(System`Subscript(Global`x, -243) - System`Subspcript(Global`x, 2))
+reclim with expr=03477768= System`Subscript(Global`x, 2)
+reclim with expr=0347B700= System`Subscript(Global`p, 2 + 1, -242)(61.7`)
+reclim with expr=036A6768= -System`Subscript(Global`p, 2, -242 - 1)(61.7`)
+reclim with expr=036A57F0= System`Subscript(Global`x, -242) - System`Subscript(Global`x, 2)
+reclim with expr=03477710= -243 - 1
+reclim with expr=0098B958= System`Subscript(Global`p, 1, System`Hold(-243 - 1) - 1)
+reclim with expr=0347CCA8= 61.7` - System`Subscript(Global`x, 1)
+reclim with expr=0347D070= (System`Subscript(Global`p, 1 + 1, System`Hold(-243 - 1))(61.7`) - System
+`Subscript(Global`p, 1, System`Hold(-243 - 1) - 1)(61.7`))/(System`Subscript(Global`x, System`Hold(-
+243 - 1)) - System`Subscript(Global`x, 1))
+reclim with expr=036A7268= -System`Subscript(Global`x, 1)
+reclim with expr=0347B2E0= System`Subscript(Global`p, 1 + 1, -243)(61.7`) - System`Subscript(Global`
+p, 1, -243 - 1)(61.7`)
+reclim with expr=0347CB48= 1/(System`Subscript(Global`x, -243) - System`Subscript(Global`x, 1))
+reclim with expr=0347D4E8= System`$MessageCount(System`Part::"partw")
+reclim with expr=0347CE60= System`Hold(System`$MessageCount(System`Part::"partw")) + 1
+reclim with expr=0347D4E8= System`$MessageCount(System`Part::"partw")
+reclim with expr=0347D438= System`Message(System`Assign::"wrsym", System`Hold)
+reclim with expr=02477A70= {System`Private`namespace$719, System`Private`name$720, System`Private`pa
+ttern$721, System`Private`matches$722}
+reclim with expr=0347D598= System`DownRules(Internal`IsCriticalMessage)
+reclim with expr=0347D648= System`BoxesToExpression({{"Internal`IsCriticalMessage", "(", "~", ")"},
+":=", "True"})
+[abort] reclim with expr=034D4C00= System`Private`namespace$719:= System`Namespace(System`Part); Sys
+tem`Private`name$720:= System`SymbolName(System`Part); System`If(System`Private`namespace$719 =!= "S
+ystem`", System`Private`name$720:= System`Private`namespace$719 ++ System`Private`name$720); System`
+If(System`Private`name$720 === "General", System`Private`pattern$721:= System`Private`name$720 ++ ":
+:" ++ "partw" ++ System`WordBoundary, System`Private`pattern$721:= {"General", System`Private`name$7
+20} ++ "::" ++ "partw" ++ System`WordBoundary); System`Private`matches$722:= System`FindList(System`
+ToFileName(System`$BaseDirectory, System`If("partw" === "usage", "usage.pmath", "messages.pmath")),
+System`Private`pattern$721); System`Scan(System`Private`matches$722, System`Release(System`BoxesToEx
+pression(System`StringToBoxes(#1))) &)
+reclim with expr=0347D4E8= System`BoxesToExpression({{"DownRules", "(", "Internal`IsCriticalMessage"
+, ")"}, ":=", "`1`"})
+reclim with expr=0347D4E8= System`HoldForm(System`Part::"partw")
+reclim with expr=0347D6F8= System`Row({"-- Message text not found --", " (", {{55.7`, 1048}, {57.7`,
+ 1080}, {59.3`, 1111}, {62.6`, 1196}, {65.6`, 1354}}, ",", -241, ")"})
+reclim with expr=0347D598= System`MakeBoxes(System`Hold(System`HoldForm(System`Part::"partw")))
+reclim with expr=0347DE30= System`MakeBoxes(System`Hold(System`Row({"-- Message text not found --",
+" (", {{55.7`, 1048}, {57.7`, 1080}, {59.3`, 1111}, {62.6`, 1196}, {65.6`, 1354}}, ",", -241, ")"}))
+)
+preclim with expr=0347F7F8= -247 - 1
+reclim with expr=0098C138= System`Subscript(Global`p, 2, System`Hold(-247 - 1) - 1)
+reclim with expr=0347FF88= 61.7` - System`Subscript(Global`x, 2)
+reclim with expr=03480350= (System`Subscript(Global`p, 2 + 1, System`Hold(-247 - 1))(61.7`) - System
+`Subscript(Global`p, 2, System`Hold(-247 - 1) - 1)(61.7`))/(System`Subscript(Global`x, System`Hold(-
+247 - 1)) - System`Subscript(Global`x, 2))
+reclim with expr=0347FA08= -System`Subscript(Global`x, 2)
+reclim with expr=0347FB10= System`Subscript(Global`p, 2 + 1, -247)(61.7`) - System`Subscript(pGlobal
+`p, 2, -247 - 1)(61.7`)
+reclim with expr=0347FE28= 1/(System`Subscript(Global`x, -247) - System`Subscript(Global`x, 2))
+reclim with expr=0347F328= System`Subscript(Global`x, 2)
+reclim with expr=0347E568= System`Subscript(Global`p, 2 + 1, -246)(61.7`)
+reclim with expr=0347F590= -System`Subscript(Global`p, 2, -246 - 1)(61.7`)
+reclim with expr=0347F698= System`Subscript(Global`x, -246) - System`Subscript(Global`x, 2)
+reclim with expr=0347EAE8= 2 + 1
+reclim with expr=0347F1C8= System`Message(System`Part::"pspec", System`Hold(2 + 1))
+reclim with expr=0098BF58= System`Subscript(Global`p, 2 + 1, -245)
+reclim with expr=0347EEB0= System`Subscript(Global`p, 2, -245 - 1)(61.7`)
+reclim with expr=0347EFB8= System`Subscript(Global`x, -245)
+reclim with expr=0347F0C0= -System`Subscript(Global`x, 2)
+reclim with expr=0347E720= 2 + 1
+reclim with expr=008FC340= System`Subscript(Global`p, System`Hold(2 + 1), -244 - 1)
+reclim with expr=0347F118= 61.7` - System`Subscript(Global`x, System`Hold(2 + 1))
+reclim with expr=0347F7A0= (System`Subscript(Global`p, System`Hold(2 + 1) + 1, -244)(61.7`) - System
+`Subscript(Global`p, System`Hold(2 + 1), -244 - 1)(61.7`))/(System`Subscript(Global`x, -244) - Syste
+m`Subscript(Global`x, System`Hold(2 + 1)))
+reclim with expr=0098BE98= System`Subscript(Global`p, 2, -244 - 1)
+reclim with expr=03480610= -244 + 1
+reclim with expr=03480668= System`Message(System`Part::"pspec", System`Hold(-244 + 1))
+reclim with expr=0347E9E0= System`Subscript(Global`x, 2)
+reclim with expr=0347E4B8= -243 - 1
+reclim with expr=008FC640= System`Subscript(Global`p, 3, System`Hold(-243 - 1) - 1)
+reclim with expr=034811C0= 61.7` - System`Subscript(Global`x, 3)
+reclim with expr=03481588= (System`Subscript(Global`p, 3 + 1, System`Hold(-243 - 1))(61.7`) - System
+`Subscript(Global`p, 3, System`Hold(-243 - 1) - 1)(61.7`))/(Systpem`Subscript(Global`x, System`Hold(
+-243 - 1)) - System`Subscript(Global`x, 3))
+reclim with expr=0347E988= -System`Subscript(Global`x, 3)
+reclim with expr=0347E778= System`Subscript(Global`p, 3 + 1, -243)(61.7`) - System`Subscript(Global`
+p, 3, -243 - 1)(61.7`)
+reclim with expr=03480820= 1/(System`Subscript(Global`x, -243) - System`Subscript(Global`x, 3))
+reclim with expr=0347E148= -243 - 1
+reclim with expr=008FC880= System`Spubscript(Global`p, 2, System`Hold(-243 - 1) - 1)
+reclim with expr=0347E8D8= 61.7` - System`Subscript(Global`x, 2)
+reclim with expr=03481A58= (STpystem`Subscript(Global`p, 2 + 1, System`Hold(-243 - 1))(61.7`) - Syst
+em`Subscript(Global`p, 2, System`Hold(-243 - 1) - 1)(61.7`))/(System`Subscript(Global`x, System`Hold
+(-243 - 1)) - System`Subscript(Global`x, 2))
+reclim with expr=03481B60= ++System`$MessageCount(System`Part::"partw")
+reclim with expr=03481FD8= System`Function({System`Private`symbol, System`Private`tag}, System`Local
+({System`Private`namespace, System`Private`name, System`Private`pattern, System`Private`matches}, Sy
+stem`Try(System`Private`namespace:= System`Namespace(System`Private`symbol); System`Private`name:= S
+ystem`SymbolName(System`Private`symbol); System`If(System`Private`namespace =!= "System`", System`Pr
+ivate`name:= System`Private`namespace ++ System`Private`name); System`If(System`Private`name === "Ge
+neral", System`Private`pattern:= System`Private`namTe ++ "::" ++p System`Private`tag ++ System`WordB
+oundary, System`Private`pattern:= {"General", System`Private`name} ++ "::" ++ System`Private`tag ++
+System`WordBoundary); System`Private`matches:= System`FindList(System`ToFileName(System`$BaseDirecto
+ry, System`If(System`Private`tag === "usage", "usage.pmath", "messages.pmath")), System`Private`patt
+ern); System`Scan(System`Private`matches, System`Release(System`BoxesToExpression(System`StringToBox
+es(#1))) &))), System`HoldAll)(System`Part, "partw")
+reclim with expr=03482088= System`Colon(System`HoldForm(System`Part::"partw"), System`Row({"-- Messa
+ge text not found --", " (", {{55.7`, 1048}, {57.7`, 1080}, {59.3`, 1111}, {62.6`, 1196}, {65.6`, 13
+5T4}}, ",", -242, ")"}))
+reclim with expr=03482190= System`ToBoxes(System`Hold(System`Colon(System`HoldpForm(System`Part::"pa
+rtw"), System`Row({"-- Message text not found --", " (", {{55.7`, 1048}, {57.7`, 1080}, {59.3`, 1111
+}, {62.6`, 1196}, {65.6`, 1354}}, ",", -242, ")"}))))
+reclim with expr=03481F28= 2 + 1p
+reclim with expr=03482030= System`Message(System`Part::"pspec", System`Hold(2 + 1))
+reclim with expr=034821E8= -243 - 1
+reclim with expr=008FCB20= System`Subscript(Global`p, 3, System`Hold(-243 - 1) - 1)
+reclim with expr=03482B88= 61.7` - System`Subscript(Global`x, 3p)
+reclim with expr=03482F50= (System`Subscript(Global`p, 3 + 1, System`Hold(-243 - 1))(61.7`) - System
+`Subscript(Global`p, 3, System`Hold(-243 - 1) - 1)(61.7`))/(System`Subscript(Global`x, System`Hold(-
+243 - 1)) - System`Subscript(Global`x, 3))
+reclim with expr=03482450= -System`Subscript(Global`x, 3)
+reclim with expr=03482710p= System`Subscript(Global`p, 3 + 1, -243)(61.7`) - System`Subscript(Global
+`p, 3, -243 - 1)(61.7`)
+reclim with expr=03482A28= 1/(System`Subscript(Global`x, -243) - System`Subscript(Global`x, 3))
+reclim with expr=0347E408= System`Subscript(Global`x, 3)
+reclim with expr=034823A0= System`Subscript(Global`p, 3 + 1, -242)(61.7`)
+reclim with expr=0347E1F8= -System`Subscript(Global`p, 3, -242 - 1)(61.7`)
+reclim with expr=0347DFE8= System`Subscript(Global`x, -242) - System`Subscript(Global`x, 3)
+reclim with expr=0347E3B0= -243 - 1
+reclim with expr=008FCD60= System`Subscript(Global`p, 2, System`Hold(-243 - 1) - 1)
+reclim with expr=03483948= 61.7` - System`Subscript(Global`x, 2)
+reclim with expr=03483D10= (System`Subscript(Global`p, 2 + 1, System`Hold(-243 - 1))(61.7`) - System
+`Subscript(Global`p, 2, System`Hold(-243 - 1) - 1)(p61.7`))/(System`Subscript(Global`x, System`Hold(
+-243 - 1)) - System`Subscript(Global`x, 2))
+reclim with expr=0347E250= -System`Subscript(Global`x, 2)
+reclim with expr=03481F80= System`Subscript(Global`p, 2 + 1, -243)(61.7`) - System`Subscript(Global`
+p, 2, -243 - 1)(61.7`)
+reclim with expr=034837E8= 1/(System`Subscript(Global`x, -243) - System`Subscript(Global`x, 2))
+reclim with expr=03484188= System`$MessageCount(System`Part::"partw")
+reclim with expr=03483B00= System`Hold(System`$MessageCount(System`Part::"partw")) + 1
+reclim with expr=03484188= System`$MessageCount(System`Part::"partw")
+reclim with expr=034840D8= System`Message(System`Assign::"wrsym", System`Hold)
+reclim with expr=008FD180= {System`Private`namespace$723, System`Private`nTame$724, Systemp`Private`
+pattern$725, System`Private`matches$726}
+reclim with expr=03484238= System`DownRules(Internal`IsCriticalMessage)
+reclim with expr=034842E8= System`BoxesToExpression({{"Internal`IsCriticalMessage", "(", "~", ")"},
+":=", "True"})
+[abort] reclim with expr=034D4AC8= System`Private`namespace$723:= System`Namespace(System`Part); Sys
+tem`Private`name$724:= System`SymbolName(System`Part); System`If(System`Private`namespace$723 =!= "S
+ystem`", System`Private`name$724:= System`Private`namespace$723 ++ System`Private`name$724); System`
+If(System`Private`name$724 === "General", System`Private`pattern$725:= System`Private`name$724 ++ ":
+:" ++ "partw" ++ System`WordBoundary, System`Private`patternT$725p:= {"General", System`Private`name
+$724} ++ "::" ++ "partw" ++ System`WordBoundary); System`Private`matches$726:= System`FindList(Syste
+m`ToFileName(System`$BaseDirectory, System`If("partw" === "usage", "usage.pmath", "messages.pmath"))
+, System`Private`pattern$725); System`Scan(System`Private`matches$726, System`Release(System`BoxesTo
+Expression(System`StringToBoxes(#1))) &)
+reclim with expr=03484188= System`BoxesToExpression({{"DownRules", "(", "Internal`IsCriticalMessage"
+, ")"}, ":=", "`1`"})
+reclim with expr=03484188= System`HoldForm(System`Part::"partw")
+reclim with expr=03484398= System`Row({"-- Message text not found --", " (", {{55.7`, 1048}, {57.7`,
+ Tp1080}, {59.3`, 1111}, {62.6`, 1196}, {65.6`, 1354}}, ",", -241, ")"})
+reclim with expr=03484238= System`MakeBoxes(System`Hold(System`HoldForm(System`Part::"partw")))
+reclim with expr=03484AD0= System`MakeBoxes(System`Hold(System`Row({"-- Message text not found --",
+" (", {{55.7`, 1048}, {57.7`, 1080}, {59.3`, 1111}, {62.6`, 1196}, {65.6`, 1354}}, ",", -241, ")"}))
+)
+preclim with expr=034844A0= -243 - 1
+reclim with expr=034D5FD8= System`Subscript(Global`p, 3, System`Hold(-243 - 1) - 1)
+reclim with expr=03485158= 61.7` - System`Subscript(Global`x, 3)
+reclim with expr=03485520= (System`Subscript(Global`p, 3 + 1, System`Hold(-243 - 1))(61.7`) - System
+`pSubscript(Global`p, 3, System`Hold(-243 - 1) - 1)(61.7`))/(System`Subscript(Global`x, System`Hold(
+-243 - 1)) - System`Subscript(Global`x, 3))
+reclim with expr=03484550= -System`Subscript(Global`x, 3)
+reclim with expr=03484CE0= System`Subscript(Global`p, 3 + 1, -243)(61.7`) - System`Subscript(Global`
+p, 3, -243 - 1)(61.7`)
+reclim with expr=03484FF8= 1/(System`Subscript(Global`x, -243) - System`Subscript(Global`x, 3))
+reclim with expr=034849C8= System`Subscript(Global`x, 3)
+reclim with expr=0347DEE0= System`Subscript(Global`p, 3 + 1, -242)(61.7`)
+reclim with expr=03484868= -System`Subscript(Global`p, 3, -242 - 1)(61.7`)
+reclim with expr=03484760= System`Subscript(Global`x, -242) - System`Subscript(Global`x, 3)
+reclim with expr=0347DCD0= 3 + 1
+reclim with expr=03483B00= System`Message(System`Part::"pspec", System`Hold(3 + 1))
+reclim with expr=008FCC40= System`Subscript(Global`p, 3 + 1, -241)
+reclim with expr=03483F20= System`Subscript(Global`p, 3, -241 - 1)(61.7`)
+reclim with expr=0347DA10= System`Subscript(Global`x, -241)
+reclim with expr=0347DA68= -System`Subscript(Global`x, 3)
+reclim with expr=03485940= -243 - 1
+reclim with expr=034D6398= System`Subscript(Global`p, 2, System`Hold(-243 - 1) - 1)
+reclim with expr=034865A0= 61.7` - System`Subscript(Global`x, 2)
+reclim with expr=03486968= (System`Subscript(Global`p, 2 + 1, System`Hold(-243 - 1))(61.7`) - System
+`Subscript(Global`p, 2, System`Hold(-243 - 1) - 1)(61.7`))/(System`Subscript(Global`x, System`Hold(-
+243 - 1)) - System`Subscript(Global`x, 2))
+reclim with expr=03486020= -System`Subscript(Global`x, 2)
+reclim with expr=03486128= System`Subscript(Global`p, 2 + 1, -243)(61.7`) - System`Subscript(Global`
+p, 2, -243 - 1)(61.7`)
+reclim with expr=03486440= 1/(System`Subscript(Global`x, -243) - System`Subscript(Global`x, 2))
+reclim with expr=0347DC78= System`Subscript(Global`x, 2)
+reclim with expr=03485DB8= System`Subscript(Global`p, 2 + 1, -242)(61.7`)
+reclim with expr=03483898= -System`Subscript(Global`p, 2, -242 - 1)(61.7`)
+reclim with expr=03485788= System`Subscript(Global`x, -242) - System`Subscript(Global`x, 2)
+reclim with expr=0251B740= -243 - 1
+reclim with expr=034D6878= System`Subscript(Global`p, 3, System`Hold(-243 - 1) - 1)
+reclim with expr=0251BED0= 61.7` - System`Subscript(Global`x, 3)
+reclim with expr=0251C298= (System`Subscript(Global`p, 3 + 1, System`Hold(-243 - 1))(61.7`) - System
+`Subscript(Global`p, 3, System`Hold(-243 - 1) - 1)(61.7`))/(System`Subscript(Global`x, System`Hold(-
+243 - 1)) - System`Subscript(Global`x, 3))
+reclim with expr=0251B950= -System`Subscript(Global`x, 3)
+reclim with expr=0251BA58= System`Subscript(Global`p, 3 + 1, -243)(61.7`) - System`Subscript(Global`
+p, 3, -243 - 1)(61.7`)
+reclim with expr=0251BD70= 1/(System`Subscript(Global`x, -243) - System`Subscript(Global`x, 3))
+reclim with expr=0251B270= System`Subscript(Global`x, 3)
+reclim with expr=0251AE50= System`Subscript(Global`p, 3 + 1, -242)(61.7`)
+reclim with expr=0251B4D8= -System`Subscript(Global`p, 3, -242 - 1)(61.7`)
+reclim with expr=0251B5E0= System`Subscript(Global`x, -242) - System`Subscript(Global`x, 3)
+reclim with expr=0347DAC0= 3 + 1
+reclim with expr=0251B110= System`Message(System`Part::"pspec", System`Hold(3 + 1))
+reclim with expr=034D6698= System`Subscript(Global`p, 3 + 1, -241)
+reclim with expr=0251B008= System`Subscript(Global`p, 3, -241 - 1)(61.7`)
+reclim with expr=034864F0= System`Subscript(Global`x, -241)
+reclim with expr=03486E38= -System`Subscript(Global`x, 3)
+reclim with expr=03631A48= 3 + 1
+reclim with expr=034D6998= System`Subscript(Global`p, System`Hold(3 + 1), -240 - 1)
+reclim with expr=0251B060= 61.7` - System`Subscript(Global`x, System`Hold(3 + 1))
+reclim with expr=0251B6E8= (System`Subscript(Global`p, System`Hold(3 + 1) + 1, -240)(61.7`) - System
+`Subscript(Global`p, System`Hold(3 + 1), -240 - 1)(61.7`))/(System`Subscript(Global`x, -240) - Syste
+m`Subscript(Global`x, System`Hold(3 + 1)))
+reclim with expr=008FD180= System`Subscript(Global`p, 3, -240 - 1)
+reclim with expr=0251C558= -240 + 1
+reclim with expr=0251C5B0= System`Message(System`Part::"pspec", System`Hold(-240 + 1))
+reclim with expr=03631D08= System`Subscript(Global`x, 3)
+reclim with expr=0251D738= -243 - 1
+reclim with expr=034D4F18= System`Subscript(Global`p, 2, System`Hold(-243 - 1) - 1)
+reclim with expr=0251DEC8= 61.7` - System`Subscript(Global`x, 2)
+reclim with expr=0251E290= (System`Subscript(Global`p, 2 + 1, System`Hold(-243 - 1))(61.7`) - System
+`Subscript(Global`p, 2, System`Hold(-243 - 1) - 1)(61.7`))/(System`Subscript(Global`x, System`Hold(-
+243 - 1)) - System`Subscript(Global`x, 2))
+reclim with expr=0251D948= -System`Subscript(Global`x, 2)
+reclim with expr=0251DA50= System`Subscript(Global`p, 2 + 1, -243)(61.7`) - System`Subscript(Global`
+p, 2, -243 - 1)(61.7`)
+reclim with expr=0251DD68= 1/(System`Subscript(Global`x, -243) - System`Subscript(Global`x, 2))
+reclim with expr=0251D268= System`Subscript(Global`x, 2)
+reclim with expr=0251CE48= System`Subscript(Global`p, 2 + 1, -242)(61.7`)
+reclim with expr=0251D4D0= -System`Subscript(Global`p, 2, -242 - 1)(61.7`)
+reclim with expr=0251D5D8= System`Subscript(Global`x, -242) - System`Subscript(Global`x, 2)
+reclim with expr=03631940= 2 + 1
+reclim with expr=0251D108= System`Message(System`Part::"pspec", System`Hold(2 + 1))
+reclim with expr=034D6CF8= System`Subscript(Global`p, 2 + 1, -241)
+reclim with expr=0251D0B0= System`Subscript(Global`p, 2, -241 - 1)(61.7`)
+reclim with expr=03479A20= System`Subscript(Global`x, -241)
+reclim with expr=0251C768= -System`Subscript(Global`x, 2)
+reclim with expr=025205F8= -247 - 1
+reclim with expr=034D57B8= System`Subscript(Global`p, 1, System`Hold(-247 - 1) - 1)
+reclim with expr=02520D88= 61.7` - System`Subscript(Global`x, 1)
+reclim with expr=02521150= (System`Subscript(Global`p, 1 + 1, System`Hold(-247 - 1))(61.7`) - System
+`Subscript(Global`p, 1, System`Hold(-247 - 1) - 1)(61.7`))/(System`Subscript(Global`x, System`Hold(-
+247 - 1)) - System`Subscript(Global`x, 1))
+reclim with expr=02520808= -System`Subscript(Global`x, 1)
+reclim with expr=02520910= System`Subscript(Global`p, 1 + 1, -247)(61.7`) - System`Subscript(Global`
+p, 1, -247 - 1)(61.7`)
+reclim with expr=02520C28= 1/(System`Subscript(Global`x, -247) - System`Subscript(Global`x, 1))
+reclim with expr=02520128= System`Subscript(Global`x, 1)
+reclim with expr=0251F368= System`Subscript(Global`p, 1 + 1, -246)(61.7`)
+reclim with expr=02520390= -System`Subscript(Global`p, 1, -246 - 1)(61.7`)
+reclim with expr=02520498= System`Subscript(Global`x, -246) - System`Subscript(Global`x, 1)
+reclim with expr=0251F8E8= 1 + 1
+reclim with expr=0251FFC8= System`Message(System`Part::"pspec", System`Hold(1 + 1))
+reclim with expr=034D55D8= System`Subscript(Global`p, 1 + 1, -245)
+reclim with expr=0251FCB0= System`Subscript(Global`p, 1, -245 - 1)(61.7`)
+reclim with expr=0251FDB8= System`Subscript(Global`x, -245)
+reclim with expr=0251FEC0= -System`Subscript(Global`x, 1)
+reclim with expr=0251F520= 1 + 1
+reclim with expr=034D58D8= System`Subscript(Global`p, System`Hold(1 + 1), -244 - 1)
+reclim with expr=0251FF18= 61.7` - System`Subscript(Global`x, System`Hold(1 + 1))
+reclim with expr=025205A0= (System`Subscript(Global`p, System`Hold(1 + 1) + 1, -244)(61.7`) - System
+`Subscript(Global`p, System`Hold(1 + 1), -244 - 1)(61.7`))/(System`Subscript(Global`x, -244) - Syste
+m`Subscript(Global`x, System`Hold(1 + 1)))
+reclim with expr=034D5518= System`Subscript(Global`p, 1, -244 - 1)
+reclim with expr=02521410= -244 + 1
+reclim with expr=02521468= System`Message(System`Part::"pspec", System`Hold(-244 + 1))
+reclim with expr=0251F7E0= System`Subscript(Global`x, 1)
+reclim with expr=0251F2B8= -243 - 1
+reclim with expr=034D5B78= System`Subscript(Global`p, 2, System`Hold(-243 - 1) - 1)
+reclim with expr=02521FC0= 61.7` - System`Subscript(Global`x, 2)
+reclim with expr=02522388= (System`Subscript(Global`p, 2 + 1, Systepm`Hold(-243 - 1))(61.7`) - Syste
+m`Subscript(Global`p, 2, System`Hold(-243 - 1) - 1)(61.7`))/(System`Subscript(Global`x, System`Hold(
+-243 - 1)) - System`Subscript(Global`x, 2))
+reclim with expr=0251F788= -System`Subscript(Global`x, 2)
+reclim with expr=0251F578= System`Subscript(Global`p, 2 + 1, -243)(61.7`) - System`Subscript(Global`
+p, 2, -243 - 1)(61.7`)
+reclim with expr=02521620= 1/(System`Subscript(Global`x, -243) - System`Subscript(Global`x, 2))
+reclim with expr=0251EF48= -243 - 1
+reclim with expr=034D5DB8= System`Subscript(Global`p, 1, System`Hold(-243 - 1) - 1)
+reclim with expr=0251F6D8= 61.7` - System`Subscript(Global`x, 1)
+reclim with expr=02522858= (System`Subscript(Global`p, 1 + 1, System`Hold(-243 - 1))(61.7`) - System
+`Subscript(Global`p, 1, System`Hold(-243 - 1) - 1)(61.7`))/(System`Subscript(Global`x, System`Hold(-
+243 - 1)) - System`Subscript(Global`x, 1))
+reclim with expr=02522960= ++System`$MessageCount(System`Part::"partw")
+reclim with expr=02522DD8= System`Function({System`Private`symbol, System`Private`tag}, System`Local
+({System`Private`namespace, System`Private`name, System`Private`pattern, System`Private`matches}, Sy
+stem`Try(System`Private`namespace:= System`Namespace(System`Private`symbol); System`Private`name:= S
+ystem`SymbolName(System`Private`symbol); System`If(System`Private`namespace =!= "System`", System`Pr
+ivate`name:= System`Private`namespace ++ System`Private`name); System`If(System`Private`name === "Ge
+neral", System`Private`pattern:= System`Private`name ++ "::" ++ System`Private`tag ++ System`WordBou
+ndary, System`Private`pattern:= {"General", System`Private`name} ++ "::" ++ System`Private`tag ++ Sy
+stem`WordBoundary); System`Private`matches:= System`FindList(System`ToFileName(System`$BaseDirectory
+, System`If(System`Private`tag === "usage", "usage.pmath", "messages.pmath")), System`Private`patter
+n); System`Scan(System`Private`matches, System`Release(System`BoxesToExpression(System`StringToBoxes
+(#1))) &))), System`HoldAll)(System`Part, "partw")
+reclim with expr=02522E88= System`Colon(System`HoldForm(System`Part::"partw"), System`Row({"-- Messa
+ge text not found --", " (", {{55.7`, 1048}, {57.7`, 1080}, {59.3`, 1111}, {62.6`, 1196}, {65.6`, 13
+54}}, ",", -242, ")"}))
+reclim with expr=02522F90= System`ToBoxes(System`Hold(System`Colon(System`HoldForm(System`Part::"par
+tw"), System`Row({"-- Message text not found --", " (", {{55.7`, 1048}, {57.7`, 1080}, {59.3`, 1111}
+, {62.6`, 1196}, {65.6`, 1354}}, ",", -242, ")"}))))
+reclim with expr=02522D28= 1 + 1
+preclim with expr=02522E30= System`Message(System`Part::"pspec", System`Hold(1 + 1))
+reclim with expr=02522FE8= -243 - 1
+reclim with expr=0091A440= System`Subscript(Global`p, 2, System`Hold(-243 - 1) - 1)
+reclim with expr=02523988= 61.7` - System`Subscript(Global`x, 2)
+reclim with expr=02523D50= (System`Subscript(Global`p, 2 + 1, System`Hold(-243 - 1))(61.7`) - System
+`Subscript(Global`p, 2, System`Hold(-243 - 1) - 1)(61.7`))/(System`Subscript(Global`x, System`Hold(-
+243 - 1)) - System`Subscript(Global`x, 2))
+reclim with expr=02523250= -System`Subscript(Global`x, 2)
+reclim with expr=02523510= System`Subscript(Global`p, 2 + 1, -243)(61.7`) - System`Subscript(Global`
+pp, 2, -243 - 1)(61.7`)
+reclim with expr=02523828= 1/(System`Subscript(Global`x, -243) - System`Subscript(Global`x, 2))
+reclim with expr=0251F208= System`Subscript(Global`x, 2)
+reclim with expr=025231A0= System`Subscript(Global`p, 2 + 1, -242)(61.7`)
+reclim with expr=0251EFF8= -System`Subscript(Global`p, 2, -242 - 1)(61.7`)
+reclim with expr=0251EDE8= System`Subscript(Global`x, -242) - System`Subscript(Global`x, 2)
+reclim with expr=0251F1B0= -243 - 1
+reclim with expr=0091A680= System`Subscript(Global`p, 1, System`Hold(-243 - 1) - 1)
+reclim with expr=02524748= 61.7` - System`Subscript(Global`x, 1)
+reclim with expr=02524B10= (System`Subscript(Global`p, 1 + 1, System`Hold(-243 - 1))(61.7`) - System
+`Subscript(Global`p, 1, System`Hold(-243 - 1) - 1)(61.7`))/(System`Subscript(Global`x, System`Hold(-
+243 - 1)) - System`Subscript(Global`x, 1))
+reclim with expr=0251F050= -System`Subscript(Global`x, 1)
+reclim with expr=02522D80= System`Subscript(Global`p, 1 + 1, -243)(61.7`) - System`Subscript(Global`
+p, 1, -243 - 1)(61.7`)
+reclim with expr=025245E8= 1/(System`Subscript(Global`x, -243) - System`Subscript(Global`x, 1))
+reclim with expr=02524F88= System`$MessageCount(System`Part::"partw")
+reclim with expr=02524900= System`Hold(System`$MessageCount(System`Part::"partw")) + 1
+reclim with expr=02524F88= System`$MessageCount(System`Part::"partw")
+reclim with expr=02524ED8= System`Message(System`Assign::"wrsym", System`Hold)
+reclim with expr=0091AAA0= {System`Private`namespace$727, System`Private`name$728, System`Private`pa
+ttern$729, System`Private`matches$730}
+reclim with expr=02525038= System`DownRules(Internal`IsCriticalMessage)
+reclim with expr=025250E8= System`BoxesToExpression({{"Internal`IsCriticalMessage", "(", "~", ")"},
+":=", "True"})
+[abort] reclim with expr=034D4928= System`Private`namespace$727:= System`Namespace(System`Part); Sys
+tem`Private`name$728:= System`SymbolName(System`Part); System`If(System`Private`namespace$727 =!= "S
+ystem`", System`Private`name$728:= System`Private`namespace$727 ++ System`Private`name$728); System`
+If(System`Private`name$728 === "General", System`Private`pattern$729:= System`Private`name$728 ++ ":
+:" ++ "partw" ++ System`WordBoundary, System`Private`pattern$729:= {"General", System`Private`name$7
+28} ++ "::" ++ "partw" ++ System`WordBoundary); System`Private`matches$730:= System`FindList(System`
+ToFileName(System`$BaseDirectory, System`If("partw" === "usage", "usage.pmath", "messages.pmath")),
+System`Private`pattern$729); System`Scan(System`Private`matches$730, System`Release(System`BoxesToEx
+pression(System`StringToBoxes(#1))) &)
+reclim with expr=02524F88= System`BoxesToExpression({{"DownRules", "(", "Internal`pIsCriticalMessage
+", ")"}, ":=", "`1`"})
+reclim with expr=02524F88= System`HoldForm(System`Part::"partw")
+reclim with expr=02525198= System`Row({"-- Message text not found --", " (", {{55.7`, 1048}, {57.7`,
+ 1080}, {59.3`, 1111}, {62.6`, 1196}, {65.6`, 1354}}, ",", -241, ")"})
+reclim with expr=02525038= System`MakeBoxes(System`Hold(System`HoldForm(System`Part::"partw")))
+reclim with expr=025258D0= System`MakeBoxes(System`Hold(System`Row({"-- Message text not found --",
+" (", {{55.7`, 1048}, {57.7`, 1080}, {59.3`, 1111}, {62.6`, 1196}, {65.6`, 1354}}, ",", -241, ")"}))
+)
+preclim with expr=025252A0= -243 - 1
+reclim with expr=0091ACE0= System`Subscript(Global`p, 2, System`Hold(-243 - 1) - 1)
+reclim with expr=02525F58= 61.7` - System`Subscript(Global`x, 2)
+reclim with expr=02526320= (System`Subscript(Global`p, 2 + 1, System`Hold(-243 - 1))(61.7`) - System
+`Subscript(Global`p, 2, System`Hold(-243 - 1) - 1)(61.7`))/(System`Subscript(Global`x, System`Hold(-
+243 - 1)) - System`Subscript(Global`x, 2))
+reclim with expr=02525350= -System`Subscript(Global`x, 2)
+reclim with expr=02525AE0= System`Subscript(Global`p, 2 + 1, -243)(61.7`) - System`Subscript(Globapl
+`p, 2, -243 - 1)(61.7`)
+reclim with expr=02525DF8= 1/(System`Subscript(Global`x, -243) - System`Subscript(Global`x, 2))
+reclim with expr=025257C8= System`Subscript(Global`x, 2)
+reclim with expr=036A6DF0= System`Subscript(Global`p, 2 + 1, -242)(61.7`)
+reclim with expr=02525668= -System`Subscript(Global`p, 2, -242 - 1)(61.7`)
+reclim with expr=02525560= System`Subscript(Global`x, -242) - System`Subscript(Global`x, 2)
+reclim with expr=0251E658= 2 + 1
+reclim with expr=02524900= System`Message(System`Part::"pspec", System`Hold(2 + 1))
+reclim with expr=0091A560= System`Subscript(Global`p, 2 + 1, -241)
+reclim with expr=02524D20= System`Subscript(Global`p, 2, -241 - 1)(61.7`)
+reclim with expr=0347D960= System`Subscript(Global`x, -241)
+reclim with expr=03485838= -System`Subscript(Global`x, 2)
+reclim with expr=02526740= -243 - 1
+reclim with expr=0091B0A0= System`Subscript(Global`p, 1, System`Hold(-243 - 1) - 1)
+reclim with expr=025273A0= 61.7` - System`Subscript(Global`x, 1)
+reclim with expr=02527768= (System`Subscript(Global`p, 1 + 1, System`Hold(-243 - 1))(61.7`) - System
+`Subscript(Global`p, 1, System`Hold(-243 - 1) - 1)(61.7`))/(System`Subscript(Global`x, System`Hold(-
+243 - 1)) - System`Subscript(Global`x, 1))
+reclim with expr=02526E20= -System`Subscript(Global`x, 1)
+reclim with expr=02526F28= System`Subscript(Global`p, 1 + 1, -243)(61.7`) - System`Subscript(Global`
+p, 1, -243 - 1)(61.7`)
+reclim with expr=02527240= 1/(System`Subscript(Global`x, -243) - System`Subscript(Global`x, 1))
+reclim with expr=0251CEF8= System`Subscript(Global`x, 1)
+reclim with expr=02526BB8= System`Subscript(Global`p, 1 + 1, -242)(61.7`)
+reclim with expr=02524698= -System`Subscript(Global`p, 1, -242 - 1)(61.7`)
+reclim with expr=02526588= System`Subscript(Global`x, -242) - System`Subscript(Global`x, 1)
+reclim with expr=0252A158= -247 - 1
+reclim with expr=0245DCE8= System`Subscript(Global`p, 2, System`Hold(-247 - 1) - 1)
+reclim with expr=0252A8E8= 61.7` - System`Subscript(Global`x, 2)
+reclim with expr=0252ACB0= (System`Subscript(Global`p, 2 + 1, System`Hold(-247 - 1))(61.7`) - System
+`Subscript(Global`p, 2, System`Hold(-247 - 1) - 1)(61.7`))/(System`Subscript(Global`x, System`Hold(-
+247 - 1)) - System`Subscript(Global`x, 2))
+reclim with expr=0252A368= -System`Subscript(Global`x, 2)
+reclim with expr=0252A470= System`Subscript(Global`p, 2 + 1, -247)(61.7`) - System`Subscript(Global`
+p, 2, -247 - 1)(61.7`)
+reclim with expr=0252A788= 1/(System`Subscript(Global`x, -247) - System`Subscript(Global`x, 2))
+reclim with expr=02529C88= System`Subscript(Global`x, 2)
+reclim with expr=02528EC8= System`Subscript(Global`p, 2 + 1, -246)(61.7`)
+reclim with expr=02529EF0= -System`Subscript(Global`p, 2, -246 - 1)(61.7`)
+reclim with expr=02529FF8= System`Subscript(Global`x, -246) - System`Subscript(Global`x, 2)
+reclim with expr=02529448= 2 + 1
+reclim with expr=02529B28= System`Message(System`Part::"pspec", System`Hold(2 + 1))
+reclim with expr=0245DB08= System`Subscript(Global`p, 2 + 1, -245)
+reclim with expr=02529810= System`Subscript(Global`p, 2, -245 - 1)(61.7`)
+reclim with expr=02529918= System`Subscript(Global`x, -245)
+reclim with expr=02529A20= -System`Subscript(Global`x, 2)
+reclim with expr=02529080= 2 + 1
+reclim with expr=0245DE08= System`Subscript(Global`p, System`Hold(2 + 1), -244 - 1)
+reclim with expr=02529A78= 61.7` - System`Subscript(Global`x, System`Hold(2 + 1))
+reclim with expr=0252A100= (System`Subscript(Global`p, System`Hold(2 + 1) + 1, -244)(61.7`) - System
+`Subscript(Global`p, System`Hold(2 + 1), -244 - 1)(61.7`))/(System`Subscript(Global`x, -244) - Syste
+m`Subscript(Global`x, System`Hold(2 + 1)))
+reclim with expr=0245DA48= System`Subscript(Global`p, 2, -244 - 1)
+reclim with expr=034E8F90= -244 + 1
+reclim with expr=034E8FE8= System`Message(System`Part::"pspec", System`Hold(-244 + 1))
+reclim with expr=02529340= System`Subscript(Global`x, 2)
+reclim with expr=02528E18= -243 - 1
+reclim with expr=0245E108= System`Subscript(Global`p, 3, System`Hold(-243 - 1) - 1)
+reclim with expr=034E9B40= 61.7` - System`Subscript(Global`x, 3)
+reclim with expr=034E9F08= (System`Subscript(Global`p, 3 + 1, System`Hold(-243 - 1))(61.7`) - System
+`Subscript(Global`p, 3, System`Hold(-243 - 1) - 1)(61.7`))/(System`Subscript(Global`x, System`Hold(-
+243 - 1)) - System`Subscript(Global`x, 3))
+reclim with expr=025292E8= -System`Subscript(Global`x, 3)
+reclim with expr=025290D8= System`Subscript(Global`p, 3 + 1, -243)(61.7`) - System`Subscript(Global`
+p, 3, -243 - 1)(61.7`)
+reclim with expr=034E91A0= 1/(System`Subscript(Global`x, -243) - System`Subscript(Global`x, 3))
+reclim with expr=02528AA8= -243 - 1
+reclim with expr=0245E348= System`Subscript(Global`p, 2, System`Hold(-243 - 1) - 1)
+reclim with expr=02529238= 61.7` - System`Subscript(Global`x, 2)
+reclim with expr=034EA3D8= (System`Subscript(Global`p, 2 + 1, System`Hold(-243 - 1))(61.7`) - System
+`Subscript(Global`p, 2, System`Hold(-243 - 1) - 1)(61.7`))/(System`Subscript(Global`x, System`Hold(-
+243 - 1)) - System`Subscript(Global`x, 2))
+reclim with expr=034EA4E0= ++System`$MessageCount(System`Part::"partw")
+reclim with expr=034EA958= System`Function({System`Private`symbol, System`Private`tag}, System`Local
+({System`Private`namespace, System`Private`name, System`Private`pattern, System`Private`matches}, Sy
+stem`Try(System`Private`namespace:= System`Namespace(System`Private`symbol); System`Private`name:= S
+ystem`SymbolName(System`Private`symbol); System`If(System`Private`namespace =!= "System`", System`Pr
+ivate`name:= System`Private`namespace ++ System`Private`name); System`If(System`Private`name === "Ge
+neral", System`Private`pattern:= System`Private`name ++ "::" ++ System`Private`tag ++ System`WordBou
+ndary, System`Private`pattern:= {"General", System`Private`name} ++ "::" ++ System`Private`tag ++ Sy
+stem`WordBoundary); System`Private`matches:= System`FindList(System`ToFileName(System`$BaseDirectory
+, System`If(System`Private`tag === "usage", "usage.pmath", "messages.pmath")), System`Private`patter
+n); System`Scan(System`Private`matches, System`Release(System`BoxesToExpression(System`StringToBoxes
+(#1))) &))), System`HoldAll)(System`Part, "partw")
+reclim with expr=034EAA08= System`Colon(System`HoldForm(System`Part::"partw"), System`Row({"-- Messa
+ge text not found --", " (", {{55.7`, 1048}, {57.7`, 1080}, {59.3`, 1111}, {62.6`, 1196}, {65.6`, 13
+54}}, ",", -242, ")"}))
+reclim with expr=034EAB10= System`ToBoxes(System`Hold(System`Colon(System`HoldForm(System`Part::"par
+tw"), System`Row({"-- Message text not found --", " (", {{55.7`, 1048}, {57.7`, 1080}, {59.3`, 1111}
+, {62.6`, 1196}, {65.6`, 1354}}, ",", -242, ")"}))))
+reclim with expr=034EA8A8= 2 + 1
+reclim with expr=034EA9B0p= System`Message(System`Part::"pspec", System`Hold(2 + 1))
+reclim with expr=034EAB68= -243 - 1
+reclim with expr=024C09A8= System`Subscript(Global`p, 3, System`Hold(-243 - 1) - 1)
+reclim with expr=034EB508= 61.7` - System`Subscript(Global`x, 3)
+reclim with expr=034EB8D0= (System`Subscript(Global`p, 3 + 1, System`Hold(-243 - 1))(61.7`) - System
+`Subscript(Global`p, 3, System`Hold(-243 - 1) - 1)(61.7`))/(System`Subscript(Global`x, System`Hold(-
+243 - 1)) - System`Subscript(Gplobal`x, 3))
+reclim with expr=034EADD0= -System`Subscript(Global`x, 3)
+reclim with expr=034EB090= System`Subscript(Global`p, 3 + 1, -243)(61.7`) - System`Subscript(Global`
+p, 3, -243 - 1)(61.7`)
+reclim with expr=034EB3A8= 1/(System`Subscript(Global`x, -243) - System`Subscript(Global`x, 3))
+reclim with expr=02528D68= System`Subscript(Global`x, 3)
+reclim with expr=034EAD20= System`Subscript(Global`p, 3 + 1, -242)(61.7`)
+reclim with expr=02528B58= -System`Subscript(Global`p, 3, -242 - 1)(61.7`)
+reclim with expr=02528948= System`Subscript(Global`x, -242) - System`Subscript(Global`x, 3)
+reclim with expr=02528D10= -243 - 1
+reclim with expr=024C0BE8= System`Subscript(Global`p, 2, System`Hold(-243 - 1) - 1)
+reclim with expr=034EC2C8= 61.7` - System`Subscript(Global`x, 2)
+reclim with expr=034EC690= (pSystem`Subscript(Global`p, 2 + 1, System`Hold(-243 - 1))(61.7`) - Syste
+m`Subscript(Global`p, 2, System`Hold(-243 - 1) - 1)(61.7`))/(System`Subscript(Global`x, System`Hold(
+-243 - 1)) - System`Subscript(Global`x, 2))
+reclim with expr=02528BB0= -System`Subscript(Global`x, 2)
+reclim with expr=034EA900= System`Subscript(Global`p, 2 + 1, -243)(61.7`) - System`Subscript(Global`
+p, 2, -243 - 1)(61.7`)
+reclim with expr=034EC168= 1/(System`Subscript(Global`x, -243) - System`Subscript(Global`x, 2))
+reclim with expr=034ECB08= System`$MessageCount(System`Part::"partw")
+reclim with expr=034EC480= System`Hold(System`$MessageCount(System`Part::"partw")) + 1
+reclim with expr=034ECB08= System`$MessageCount(System`Part::"partw")
+reclim with expr=034ECA58= System`Message(System`Assign::"wrsym", System`Hold)
+reclim with expr=024C1008= {System`Private`namespace$731, System`Private`name$732, System`Private`pa
+ttern$733, System`Private`matches$734}
+reclim with expr=034ECBB8= System`DownRules(Internal`IsCriticalMessage)
+reclim with expr=034ECC68= System`BoxesToExpression({{"Internal`IsCriticalMessage", "(", "~", ")"},
+":=", "True"})
+[abort] reclim with expr=034D4858= System`Private`namespace$731:= System`Namespace(System`Part); Sys
+tem`Private`name$732:= System`SymbolName(System`Part); System`If(System`Private`namespace$731 =!= "S
+ystem`", System`Private`name$732:= System`Private`namespace$731 ++ System`Private`name$732); System`
+If(System`Private`name$732 === "General", System`Private`pattern$733:= System`Private`name$732 ++ ":
+:" ++ "partw" ++ System`WordBoundary, System`Private`pattern$733:= {"General", System`Private`name$7
+32} ++ "::" ++ "partw" ++ System`WordBoundary); System`Private`matches$734:= System`FindList(System`
+ToFileName(System`$BaseDirectory, System`If("partw" === "usage", "usage.pmath", "messages.pmath")),
+System`Private`pattern$733); System`Scan(System`Private`matches$734, System`Release(System`BoxesToEx
+pression(System`StringToBoxes(#1))) &)
+reclim with expr=034ECB08= System`BoxesToExpression({{"DownRules", "(", "Internal`IsCriticalMessage"
+, ")"}, ":=", "`1`"})
+reclim with expr=034ECB08= System`HoldForm(System`Part::"partw")
+reclim with expr=034ECD18= System`Row({"-- Message text not found --", " (", {{55.7`, 1048}, {57.7`,
+ 1080}, {59.3`, 1111}, {62.6`, 1196}, {65.6`, 1354}}, ",", -241, ")"})
+reclim with expr=034ECBB8= System`MakeBoxes(System`Hold(System`HoldForm(System`Part::"partw")))
+reclim with expr=034ED450= System`MakeBoxes(System`Hold(System`Row({"-- Message text not found --",
+" (", {{55.7`, 1048}, {57.7`, 1080}, {59.3`, 1111}, {62.6`, 1196}, {65.6`, 1354}}, ",", -241, ")"}))
+)
+reclim with expr=034ECB60= -243 - 1
+preclim with expr=024C1308= System`Subscript(Global`p, 3, System`Hold(-243 - 1) - 1)
+reclim with expr=034EDAD8= 61.7` - System`Subscript(Global`x, 3)
+reclim with expr=034EDEA0= (System`Subscript(Global`p, 3 + 1, System`Hold(-243 - 1))(61.7`) - System
+`Subscript(Global`p, 3, System`Hold(-243 - 1) - 1)(61.7`))/(System`Subscript(Global`x, System`Hold(-
+243 - 1)) - System`Subscript(Global`x, 3))
+reclim with expr=034ECED0= -System`Subscript(Global`x, 3)
+reclim with expr=034ED660= System`Subscript(Global`p, 3 + 1, -24p3)(61.7`) - System`Subscript(Global
+`p, 3, -243 - 1)(61.7`)
+reclim with expr=034ED978= 1/(System`Subscript(Global`x, -243) - System`Subscript(Global`x, 3))
+reclim with expr=034ECF80= System`Subscript(Global`x, 3)
+reclim with expr=0251CDF0= System`Subscript(Global`p, 3 + 1, -242)(61.7`)
+reclim with expr=034ED088= -System`Subscript(Global`p, 3, -242 - 1)(61.7`)
+reclim with expr=034ED030= System`Subscript(Global`x, -242) - System`Subscript(Global`x, 3)
+reclim with expr=02528108= 3 + 1
+reclim with expr=034ED3F8= System`Message(System`Part::"pspec", System`Hold(3 + 1))
+reclim with expr=024C0E28= System`Subscript(Global`p, 3 + 1, -241)
+reclim with expr=034ECA00= System`Subscript(Global`p, 3, -241 - 1)(61.7`)
+reclim with expr=02528370= System`Subscript(Global`x, -241)
+reclim with expr=02528268= -System`Subscript(Global`x, 3)
+reclim with expr=034EE2C0= -243 - 1
+reclim with expr=024C1608= System`Subscript(Global`p, 2, System`Hold(-243 - 1) - 1)
+reclim with expr=034EEF20= 61.7` - System`Subscript(Global`x, 2)
+reclim with expr=034EF2E8= (System`Subscript(Global`p, 2 + 1, System`Hold(-243 - 1))(61.7`) - System
+`Subscript(Global`p, 2, System`Hold(-243 - 1) - 1)(61.7`))/(System`Subscript(Global`x, System`Hold(-
+243 - 1)) - System`Subscript(Global`x, 2))
+reclim with expr=034EE9A0= -System`Subscript(Global`x, 2)
+reclim with expr=034EEAA8= System`Subscript(Global`p, 2 + 1, -243)(61.7`) - System`Subscript(Global`
+p, 2, -243 - 1)(61.7`)
+reclim with expr=034EEDC0= 1/(System`Subscript(Global`x, -243) - System`Subscript(Global`x, 2))
+reclim with expr=02528160= System`Subscript(Global`x, 2)
+reclim with expr=034EE738= System`Subscript(Global`p, 2 + 1, -242)(61.7`)
+reclim with expr=034ECDC8= -System`Subscript(Global`p, 2, -242 - 1)(61.7`)
+reclim with expr=034EE108= System`Subscript(Global`x, -242) - System`Subscript(Global`x, 2)
+reclim with expr=034F0260= -243 - 1
+reclim with expr=034F90D8= System`Subscript(Global`p, 3, System`Hold(-243 - 1) - 1)
+reclim with expr=034F09F0= 61.7` - System`Subscript(Global`x, 3)
+reclim with expr=034F0DB8= (System`Subscript(Global`p, 3 + 1, System`Hold(-243 - 1))(61.7`) - System
+`Subscript(Global`p, 3, System`Hold(-243 - 1) - 1)(61.7`))/(System`Subscript(Global`x, System`Hold(-
+243 - 1)) - System`Subscript(Global`x, 3))
+reclim with expr=034F0470= -System`Subscript(Global`x, 3)
+reclim with expr=034F0578= System`Subscript(Global`p, 3 + 1, -243)(61.7`) - System`Subscript(Global`
+p, 3, -243 - 1)(61.7`)
+reclim with expr=034F0890= 1/(System`Subscript(Global`x, -243) - System`Subscript(Global`x, 3))
+reclim with expr=034EFD90= System`Subscript(Global`x, 3)
+reclim with expr=034EF970= System`Subscript(Global`p, 3 + 1, -242)(61.7`)
+reclim with expr=034EFFF8= -System`Subscript(Global`p, 3, -242 - 1)(61.7`)
+reclim with expr=034F0100= System`Subscript(Global`x, -242) - System`Subscript(Global`x, 3)
+reclim with expr=02528318= 3 + 1
+reclim with expr=034EFC30= System`Message(System`Part::"pspec", System`Hold(3 + 1))
+reclim with expr=034F8EF8= System`Subscript(Global`p, 3 + 1, -241)
+reclim with expr=034EFB28= System`Subscript(Global`p, 3, -241 - 1)(61.7`)
+reclim with expr=034EEE70= System`Subscript(Global`x, -241)
+reclim with expr=034EF7B8= -System`Subscript(Global`x, 3)
+reclim with expr=02527FA8= 3 + 1
+reclim with expr=034F91F8= System`Subscript(Global`p, System`Hold(3 + 1), -240 - 1)
+reclim with expr=034EFB80= 61.7` - System`Subscript(Global`x, System`Hold(3 + 1))
+reclim with expr=034F0208= (System`Subscript(Global`p, System`Hold(3 + 1) + 1, -240)(61.7`) - System
+`Subscript(Global`p, System`Hold(3 + 1), -240 - 1)(61.7`))/(System`Subscript(Global`x, -240) - Syste
+m`Subscript(Global`x, System`Hold(3 + 1)))
+reclim with expr=024C1008= System`Subscript(Global`p, 3, -240 - 1)
+reclim with expr=034F1078= -240 + 1
+reclim with expr=034F10D0= System`Message(System`Part::"pspec", System`Hold(-240 + 1))
+reclim with expr=025267F0= System`Subscript(Global`x, 3)
+reclim with expr=034F2258= -243 - 1
+reclim with expr=034F9738= System`Subscript(Global`p, 2, System`Hold(-243 - 1) - 1)
+reclim with expr=034F29E8= 61.7` - System`Subscript(Global`x, 2)
+reclim with expr=034F2DB0= (System`Subscript(Global`p, 2 + 1, System`Hold(-243 - 1))(61.7`) - System
+`Subscript(Global`p, 2, System`Hold(-243 - 1) - 1)(61.7`))/(System`Subscript(Global`x, System`Hold(-
+243 - 1)) - System`Subscript(Global`x, 2))
+reclim with expr=034F2468= -System`Subscript(Global`x, 2)
+reclim with expr=034F2570= System`Subscript(Global`p, 2 + 1, -243)(61.7`) - System`Subscript(Global`
+p, 2, -243 - 1)(61.7`)
+reclim with expr=034F2888= 1/(System`Subscript(Global`x, -243) - System`Subscript(Global`x, 2))
+reclim with expr=034F1D88= System`Subscript(Global`x, 2)
+reclim with expr=034F1968= System`Subscript(Global`p, 2 + 1, -242)(61.7`)
+reclim with expr=034F1FF0= -System`Subscript(Global`p, 2, -242 - 1)(61.7`)
+reclim with expr=034F20F8= System`Subscript(Global`x, -242) - System`Subscript(Global`x, 2)
+reclim with expr=02528000= 2 + 1
+reclim with expr=034F1C28= System`Message(System`Part::"pspec", System`Hold(2 + 1))
+reclim with expr=034F9558= System`Subscript(Global`p, 2 + 1, -241)
+reclim with expr=034F1BD0= System`Subscript(Global`p, 2, -241 - 1)(61.7`)
+reclim with expr=02525878= System`Subscript(Global`x, -241)
+reclim with expr=034F1288= -System`Subscript(Global`x, 2)
+reclim with expr=034F4358= -243 - 1
+reclim with expr=034F9D38= System`Subscript(Global`p, 3, System`Hold(-243 - 1) - 1)
+reclim with expr=034F4AE8= 61.7` - System`Subscript(Global`x, 3)
+reclim with expr=034F4EB0= (System`Subscript(Global`p, 3 + 1, System`Hold(-243 - 1))(61.7`) - System
+`Subscript(Global`p, 3, System`Hold(-243 - 1) - 1)(61.7`))/(System`Subscript(Global`x, System`Hold(-
+243 - 1)) - System`Subscript(Global`x, 3))
+reclim with expr=034F4568= -System`Subscript(Global`x, 3)
+reclim with expr=034F4670= System`Subscript(Global`p, 3 + 1, -243)(61.7`) - System`Subscript(Global`
+p, 3, -243 - 1)(61.7`)
+reclim with expr=034F4988= 1/(System`Subscript(Global`x, -243) - System`Subscript(Global`x, 3))
+reclim with expr=034F3E88= System`Subscript(Global`x, 3)
+reclim with expr=034F30C8= System`Subscript(Global`p, 3 + 1, -242)(61.7`)
+reclim with expr=034F40F0= -System`Subscript(Global`p, 3, -242 - 1)(61.7`)
+reclim with expr=034F41F8= System`Subscript(Global`x, -242) - System`Subscript(Global`x, 3)
+reclim with expr=034F3648= 3 + 1
+reclim with expr=034F3D28= System`Message(System`Part::"pspec", System`Hold(3 + 1))
+reclim with expr=034F9B58= System`Subscript(Global`p, 3 + 1, -241)
+reclim with expr=034F3A10= System`Subscript(Global`p, 3, -241 - 1)(61.7`)
+reclim with expr=034F3B18= System`Subscript(Global`x, -241)
+reclim with expr=034F3C20= -System`Subscript(Global`x, 3)
+reclim with expr=034F1910= 3 + 1
+reclim with expr=034F9E58= System`Subscript(Global`p, System`Hold(3 + 1), -240 - 1)
+reclim with expr=034F3C78= 61.7` - System`Subscript(Global`x, System`Hold(3 + 1))
+reclim with expr=034F4300= (System`Subscript(Global`p, System`Hold(3 + 1) + 1, -240)(61.7`) - System
+`Subscript(Global`p, System`Hold(3 + 1), -240 - 1)(61.7`))/(System`Subscript(Global`x, -240) - Syste
+m`Subscript(Global`x, System`Hold(3 + 1)))
+reclim with expr=034F9A98= System`Subscript(Global`p, 3, -240 - 1)
+reclim with expr=034F5170= -240 + 1
+reclim with expr=034F51C8= System`Message(System`Part::"pspec", System`Hold(-240 + 1))
+reclim with expr=034F3018= System`Subscript(Global`x, 3)
+reclim with expr=034F3120= -239 - 1
+reclim with expr=034FA0F8= System`Subscript(Global`p, 4, System`Hold(-239 - 1) - 1)
+reclim with expr=034F5D20= 61.7` - System`Subscript(Global`x, 4)
+reclim with expr=034F60E8= (System`Subscript(Global`p, 4 + 1, System`Hold(-239 - 1))(61.7`) - System
+`Subscript(Global`p, 4, System`Hold(-239 - 1) - 1)(61.7`))/(System`Subscript(Global`x, System`Hold(-
+239 - 1)) - System`Subscript(Global`x, 4))
+reclim with expr=034F1EE8= -System`Subscript(Global`x, 4)
+reclim with expr=02528058= System`Subscript(Global`p, 4 + 1, -239)(61.7`) - System`Subscript(Global`
+p, 4, -239 - 1)(61.7`)
+reclim with expr=034F5380= 1/(System`Subscript(Global`x, -239) - System`Subscript(Global`x, 4))
+reclim with expr=03631838= -239 - 1
+reclim with expr=034FA338= System`Subscript(Global`p, 3, System`Hold(-239 - 1) - 1)
+reclim with expr=034F2200= 61.7` - System`Subscript(Global`x, 3)
+reclim with expr=034F65B8= (System`Subscript(Global`p, 3 + 1, System`Hold(-239 - 1))(61.7`) - System
+`Subscript(Global`p, 3, System`Hold(-239 - 1) - 1)(61.7`))/(System`Subscript(Global`x, System`Hold(-
+239 - 1)) - System`Subscript(Global`x, 3))
+reclim with expr=034F66C0= ++System`$MessageCount(System`Part::"partw")
+reclim with expr=034F6B38= System`Function({System`Private`symbol, System`Private`tag}, System`Local
+({System`Private`namespace, System`Private`name, System`Private`pattern, System`Private`matches}, Sy
+stem`Try(System`Private`namespace:= System`Namespace(System`Private`symbol); System`Private`name:= S
+ystem`SymbolName(System`Private`symbol); System`If(System`Private`namespace =!= "System`", System`Pr
+ivate`name:= System`Private`namespace ++ System`Private`name); System`If(System`Private`name === "Ge
+neral", System`Private`pattern:= System`Private`name ++ "::" ++ System`Private`tag ++ System`WordBou
+ndary, System`Private`pattern:= {"General", System`Private`name} ++ "::" ++ System`Private`tag ++ Sy
+stem`WordBoundary); System`Private`matches:= System`FindList(System`ToFileName(System`$BaseDirectory
+, System`If(System`Private`tag === "usage", "usage.pmath", "messages.pmath")), System`Private`patter
+n); System`Scan(System`Private`matches, System`Release(System`BoxesToExpression(System`StringToBoxes
+(#1))) &))), System`HoldAll)(System`Part, "partw")
+reclim with expr=034F6BE8= System`Colon(System`HoldForm(System`Part::"partw"), System`Row({"-- Messa
+ge text not found --", " (", {{55.7`, 1048}, {57.7`, 1080}, {59.3`, 1111}, {62.6`, 1196}, {65.6`, 13
+54}}, ",", -238, ")"}))
+reclim with expr=034F6CF0= System`ToBoxes(System`Hold(System`Colon(System`HoldForm(System`Part::"par
+tw"), System`Row({"-- Message text not found --", " (", {{55.7`, 1048}, {57.7`, 1080}, {59.3`, 1111}
+, {62.6`, 1196}, {65.6`, 1354}}, ",", -238, ")"}))))
+preclim with expr=034F6A88= 3 + 1
+reclim with expr=034F6B90= System`Message(System`Part::"pspec", System`Hold(3 + 1))
+reclim with expr=034F7D18= -243 - 1
+reclim with expr=034FA878= System`Subscript(Global`p, 2, System`Hold(-243 - 1) - 1)
+reclim with expr=034F84A8= 61.7` - System`Subscript(Global`x, 2)
+reclim with expr=034F8870= (System`Subscript(Global`p, 2 + 1, System`Hold(-243 - 1))(61.7`) - System
+`Subscript(Global`p, 2, System`Hold(-243 - 1) - 1)(61.7`))/(System`Subscript(Global`x, System`Hold(-
+243 - 1)) - System`Subscript(Global`x, 2)p)
+reclim with expr=034F7F28= -System`Subscript(Global`x, 2)
+reclim with expr=034F8030= System`Subscript(Global`p, 2 + 1, -243)(61.7`) - System`Subscript(Global`
+p, 2, -243 - 1)(61.7`)
+reclim with expr=034F8348= 1/(System`Subscript(Global`x, -243) - System`Subscript(Global`x, 2))
+reclim with expr=034F7848= System`Subscript(Global`x, 2)
+reclim with expr=034F7008= System`Subscript(Global`p, 2 + 1, -242)(61.7`)
+reclim with expr=034F7AB0= -System`Subscript(Global`p, 2, -242 - 1)(61.7`)
+reclim with expr=034F7BB8= System`Subscript(Global`x, -242) - System`Subscript(Global`x, 2)
+reclim with expr=034F6AE0= 2 + 1
+reclim with expr=034F76E8= System`Message(System`Part::"pspec", System`Hold(2 + 1))
+reclim with expr=034FA698= System`Subscript(Global`p, 2 + 1, -241)
+reclim with expr=034F73D0= System`Subscript(Global`p, 2, -241 - 1)(61.7`)
+reclim with expr=034F74D8= System`Subscript(Global`x, -241)
+reclim with expr=034F75E0= -System`Subscript(Global`x, 2)
+reclim with expr=03631680= 2 + 1
+reclim with expr=034FA998= System`Subscript(Global`p, System`Hold(2 + 1), -240 - 1)
+reclim with expr=034F7638= 61.7` - System`Subscript(Global`x, System`Hold(2 + 1))
+reclim with expr=034F7CC0= (System`Subscript(Global`p, System`Hold(2 + 1) + 1, -240)(61.7`) - System
+`Subscript(Global`p, System`Hold(2 + 1), -240 - 1)(61.7`))/(System`Subscript(Global`x, -240) - Syste
+m`Subscript(Global`x, System`Hold(2 + 1)))
+reclim with expr=034FA5D8= System`Subscript(Global`p, 2, -240 - 1)
+reclim with expr=034F8B30= -240 + 1
+reclim with expr=034F8B88= System`Message(System`Part::"pspec", System`Hold(-240 + 1))
+reclim with expr=025214C0= System`Subscript(Global`x, 2)
+reclim with expr=034C0848= -247 - 1
+reclim with expr=034FB478= System`Subscript(Global`p, 1, System`Hold(-247 - 1) - 1)
+reclim with expr=034C0FD8= 61.7` - System`Subscript(Global`x, 1)
+reclim with expr=034C13A0= (System`Subscript(Global`p, 1 + 1, System`Hold(-247 - 1))(61.7`) - System
+`Subscript(Global`p, 1, System`Hold(-247 - 1) - 1)(61.7`))/(System`Subscript(Global`x, System`Hold(-
+247 - 1)) - System`Subscript(Global`x, 1))
+reclim with expr=034C0A58= -System`Subscript(Global`x, 1)
+reclim with expr=034C0B60= System`Subscript(Global`p, 1 + 1, -247)(61.7`) - System`Subscript(Global`
+p, 1, -247 - 1)(61.7`)
+reclim with expr=034C0E78= 1/(System`Subscript(Global`x, -247) - System`Subscript(Global`x, 1))
+reclim with expr=034C0378= System`Subscript(Global`x, 1)
+reclim with expr=034BF5B8= System`Subscript(Global`p, 1 + 1, -246)(61.7`)
+reclim with expr=034C05E0= -System`Subscript(Global`p, 1, -246 - 1)(61.7`)
+reclim with expr=034C06E8= System`Subscript(Global`x, -246) - System`Subscript(Global`x, 1)
+reclim with expr=034BFB38= 1 + 1
+reclim with expr=034C0218= System`Message(System`Part::"pspec", System`Hold(1 + 1))
+reclim with expr=034FB298= System`Subscript(Global`p, 1 + 1, -245)
+reclim with expr=034BFF00= System`Subscript(Global`p, 1, -245 - 1)(61.7`)
+reclim with expr=034C0008= System`Subscript(Global`x, -245)
+reclim with expr=034C0110= -System`Subscript(Global`x, 1)
+reclim with expr=034BF770= 1 + 1
+reclim with expr=034FB598= System`Subscript(Global`p, System`Hold(1 + 1), -244 - 1)
+reclim with expr=034C0168= 61.7` - System`Subscript(Global`x, System`Hold(1 + 1))
+reclim with expr=034C07F0= (System`Subscript(Global`p, System`Hold(1 + 1) + 1, -244)(61.7`) - System
+`Subscript(Global`p, System`Hold(1 + 1), -244 - 1)(61.7`))/(System`Subscript(Global`x, -244) - Syste
+m`Subscript(Global`x, System`Hold(1 + 1)))
+reclim with expr=034FB1D8= System`Subscript(Global`p, 1, -244 - 1)
+reclim with expr=034C1660= -244 + 1
+reclim with expr=034C16B8= System`Message(System`Part::"pspec", System`Hold(-244 + 1))
+reclim with expr=034BFA30= System`Subscript(Global`x, 1)
+reclim with expr=034BF508= -243 - 1
+reclim with expr=034FB898= System`Subscript(Global`p, 2, System`Hold(-243 - 1) - 1)
+reclim with expr=034C2210= 61.7` - System`Subscript(Global`x, 2)
+reclim with expr=034C25D8= (System`Subscript(Global`p, 2 + 1, System`Hold(-243 - 1))(61.7`) - System
+`Subscript(Global`p, 2, System`Hold(-243 - 1) - 1)(61.7`))/(System`Subscript(Global`x, System`Hold(-
+243 - 1)) - System`Subscript(Global`x, 2))
+reclim with expr=034BF9D8= -System`Subscript(Global`x, 2)
+reclim with expr=034BF7C8= System`Subscript(Global`p, 2 + 1, -243)(61.7`) - System`Subscript(Global`
+p, 2, -243 - 1)(61.7`)
+reclim with expr=034C1870= 1/(System`Subscript(Global`x, -243) - System`Subscript(Global`x, 2))
+reclim with expr=034BF198= -243 - 1
+reclim with expr=034FBAD8= System`Subscript(Global`p, 1, System`Hold(-243 - 1) - 1)
+reclim with expr=034BF928= 61.7` - System`Subscript(Global`x, 1)
+reclim with expr=034C2AA8= (System`Subscript(Global`p, 1 + 1, System`Hold(-243 - 1))(61.7`) - System
+`Subscript(Global`p, 1, System`Hold(-243 - 1) - 1)(61.7`))/(System`Subscript(Global`x, System`Hold(-
+243 - 1)) - System`Subscript(Global`x, 1))
+reclim with expr=034C2BB0= ++System`$MessageCount(System`Part::"partw")
+reclim with expr=034C3028= System`Function({System`Private`symbol, System`Private`tag}, System`Local
+({System`Private`namespace, System`Private`name, System`Private`pattern, System`Private`matches}, Sy
+stem`Try(System`Private`namespace:= System`Namespace(System`Private`symbol); System`Private`name:= S
+ystem`SymbolName(System`Private`symbol); System`If(System`Private`namespace =!= "System`", System`Pr
+ivate`name:= System`Private`namespace ++ System`Private`name); System`If(System`Private`name === "Ge
+neral", System`Private`pattern:= System`Private`name ++ "::" ++ System`Private`tag ++ System`WordBou
+ndary, System`Private`pattern:= {"General", System`Private`name} ++ "::" ++ System`Private`tag ++ Sy
+stem`WordBoundary); System`Private`matches:= System`FindList(System`ToFileName(System`$BaseDirectory
+, System`If(System`Private`tag === "usage", "usage.pmath", "messages.pmath")), System`Private`patter
+n); System`Scan(System`Private`matches, System`Release(System`BoxesToExpression(System`StringToBoxes
+(#1))) &))), System`HoldAll)(System`Part, "partw")
+reclim with expr=034C30D8= System`Colon(System`HoldForm(System`Part::"partw"), System`Row({"-- Messa
+ge text not found --", " (", {{55.7`, 1048}, {57.7`, 1080}, {59.3`, 1111}, {62.6`, 1196}, {65.6`, 13
+54}}, ",", -242, ")"}))
+reclim with expr=034C31E0= System`ToBoxes(System`Hold(System`Colon(System`HoldForm(System`Part::"par
+tw"), System`Row({"-- Message text not found --", " (", {{55.7`, 1048}, {57.7`, 1080}, {59.3`, 1111}
+, {62.6`, 1196}, {65.6`, 1354}}, ",", -242, ")"}))))
+reclim with expr=034C2F78= 1 + 1
+preclim with expr=034C3080= System`Message(System`Part::"pspec", System`Hold(1 + 1))
+reclim with expr=034C3238= -243 - 1
+reclim with expr=034FBD78= System`Subscript(Global`p, 2, System`Hold(-243 - 1) - 1)
+reclim with expr=034C3BD8= 61.7` - System`Subscript(Global`x, 2)
+reclim with expr=034C3FA0= (System`Subscript(Global`p, 2 + 1, System`Hold(-243 - 1))(61.7`) - System
+`Subscript(Global`p, 2, System`Hold(-243 - 1) - 1)(61.7`))/(System`Subscript(Gplobal`x, System`Hold(
+-243 - 1)) - System`Subscript(Global`x, 2))
+reclim with expr=034C34A0= -System`Subscript(Global`x, 2)
+reclim with expr=034C3760= System`Subscript(Global`p, 2 + 1, -243)(61.7`) - System`Subscript(Global`
+p, 2, -243 - 1)(61.7`)
+reclim with expr=034C3A78= 1/(System`Subscript(Global`x, -243) - System`Subscript(Global`x, 2))
+reclim with expr=034BF458= System`Subscript(Global`x, 2)
+reclim with expr=034C33F0= System`Subscript(Global`p, 2 + 1, -242)(61.7`)
+reclim with expr=034BF248= -System`Subscript(Global`p, 2, -242 - 1)(61.7`)
+reclim with expr=034BF038= System`Subscript(Global`x, -242) - System`Subscript(Global`x, 2)
+reclim with expr=034BF400= -243 - 1
+reclim with expr=034FBFB8= System`Subscript(Global`p, 1, System`Hold(-243 - 1) - 1)
+reclim with expr=034C4998= 61.7` - System`Subscript(Global`x, 1)
+reclim with expr=034C4D60= (System`Subscript(Global`p, 1 + 1, System`Hold(-243 - 1))(61.7`) - System
+`Subscript(Global`p, 1, System`Hold(-243 - 1) - 1)(61.7`))/(System`Subscript(Global`x, System`Hold(-
+243 - 1)) - System`Subscript(Global`x, 1))
+reclim with expr=034BF2A0= -System`Subscript(Global`x, 1)
+reclim with expr=034C2FD0= System`Subscript(Global`p, 1 + 1, -243)(61.7`) - System`Subscript(Global`
+p, 1, -243 - 1)(61.7`)
+reclim with expr=034C4838= 1/(System`Subscript(Global`x, -243) - System`Subscript(Global`x, 1))
+reclim with expr=034C51D8= System`$MessageCount(System`Part::"partw")
+reclim with expr=034C4B50= System`Hold(System`$MessageCount(System`Part::"partw")) + 1
+reclim with expr=034C51D8= System`$MessageCount(System`Part::"partw")
+reclim with expr=034C5128= System`Message(System`Assign::"wrsym", System`Hold)
+reclim with expr=034FC3D8= {System`Private`namespace$735, System`Private`name$736, System`Private`pa
+ttern$737, System`Private`matches$738}
+reclim with expr=034C5288= System`DownRules(Internal`IsCriticalMessage)
+reclim with expr=034C5338= System`BoxesToExpression({{"Internal`IsCriticalMessage", "(", "~", ")"},
+":=", "True"})
+[abort] reclim with expr=034D4650= System`Private`namespace$735:= System`Namespace(System`Part); Sys
+tem`Private`name$736:= System`SymbolName(System`Part); System`If(System`Private`namespace$735 =!= "S
+ystem`", System`Private`name$736:= System`Private`namespace$735 ++ System`Private`name$736); System`
+If(System`Private`name$736 === "General", System`Private`pattern$737:= System`Private`name$736 ++ ":
+:" ++ "partw" ++ System`WordBoundary, System`Private`pattern$737:= {"General", System`Private`name$7
+36} ++ "::" ++ "partw" ++ System`WordBoundary); System`Private`matches$738:= System`FindList(System`
+ToFileName(System`$BaseDirectory, System`If("partw" === "usage", "usage.pmath", "messages.pmath")),
+System`Private`pattern$737); System`Scan(System`Private`matches$738, System`Release(System`BoxesToEx
+pression(System`StringToBoxes(#1))) &)
+reclim with expr=034C51D8= System`BoxesToExpression({{"DownRules", "(", "Internal`IsCriticalMessage"
+, ")"}, ":=", "`1`"})
+reclim with expr=034C51D8= System`HoldForm(System`Part::"partw")
+reclim with expr=034C53E8= System`Row({"-- Message text not found --", " (", {{55.7`, 1048}, {57.7`,
+ 1080}, {59.3`, 1111}, {62.6`, 1196}, {65.6`, 1354}}, ",", -241, ")"})
+reclim with expr=034C5288= System`MakeBoxes(System`Hold(System`HoldForm(System`Part::"partw")))
+reclim with expr=034C5B20= System`MakeBoxes(System`Hold(System`Row({"-- Message text not found --",
+" (", {{55.7`, 1048}, {57.7`, 1080}, {59.3`, 1111}, {62.6`, 1196}, {65.6`, 1354}}, ",", -241, ")"}))
+)
+preclim with expr=034C54F0= -243 - 1
+reclim with expr=034FC618= System`Subscript(Global`p, 2, System`Hold(-243 - 1) - 1)
+reclim with expr=034C61A8= 61.7` - System`Subscript(Global`x, 2)
+reclim with expr=034C6570= (System`Subscript(Global`p, 2 + 1, System`Hold(-243 - 1))(61.7`) - System
+`Subscript(Global`p, 2, System`Hold(-243 - 1) - 1)(61.7`))/(System`Subscript(Global`px, System`Hold(
+-243 - 1)) - System`Subscript(Global`x, 2))
+reclim with expr=034C55A0= -System`Subscript(Global`x, 2)
+reclim with expr=034C5D30= System`Subscript(Global`p, 2 + 1, -243)(61.7`) - System`Subscript(Global`
+p, 2, -243 - 1)(61.7`)
+reclim with expr=034C6048= 1/(System`Subscript(Global`x, -243) - System`Subscript(Global`x, 2))
+reclim with expr=034C5A18= System`Subscript(Global`x, 2)
+reclim with expr=034BE590= System`Subscript(Global`p, 2 + 1, -242)(61.7`)
+reclim with expr=034C58B8= -System`Subscript(Global`p, 2, -242 - 1)(61.7`)
+reclim with expr=034C57B0= System`Subscript(Global`x, -242) - System`Subscript(Global`x, 2)
+reclim with expr=034BE7F8= 2 + 1
+reclim with expr=034C4B50= System`Message(System`Part::"pspec", System`Hold(2 + 1))
+reclim with expr=034FBE98= System`Subscript(Global`p, 2 + 1, -241)
+reclim with expr=034C4F70= System`Subscript(Global`p, 2, -241 - 1)(61.7`)
+reclim with expr=034BEA60= System`Subscript(Global`x, -241)
+reclim with expr=034BE958= -System`Subscript(Global`x, 2)
+reclim with expr=034C6990= -243 - 1
+reclim with expr=034FC9D8= System`Subscript(Global`p, 1, System`Hold(-243 - 1) - 1)
+reclim with expr=034C75F0= 61.7` - System`Subscript(Global`x, 1)
+reclim with expr=034C79B8= (System`Subscript(Global`p, 1 + 1, System`Hold(-243 - 1))(61.7`) - System
+`Subscript(Global`p, 1, System`Hold(-243 - 1) - 1)(61.7`))/(System`Subscript(Global`x, System`Hold(-
+243 - 1)) - System`Subscript(Global`x, 1))
+reclim with expr=034C7070= -System`Subscript(Global`x, 1)
+reclim with expr=034C7178= System`Subscript(Global`p, 1 + 1, -243)(61.7`) - System`Subscript(Global`
+p, 1, -243 - 1)(61.7`)
+reclim with expr=034C7490= 1/(System`Subscript(Global`x, -243) - System`Subscript(Global`x, 1))
+reclim with expr=034BE850= System`Subscript(Global`x, 1)
+reclim with expr=034C6E08= System`Subscript(Global`p, 1 + 1, -242)(61.7`)
+reclim with expr=034C48E8= -System`Subscript(Global`p, 1, -242 - 1)(61.7`)
+reclim with expr=034C67D8= System`Subscript(Global`x, -242) - System`Subscript(Global`x, 1)
+reclim with expr=034C8930= -243 - 1
+reclim with expr=0252AF18= System`Subscript(Global`p, 2, System`Hold(-243 - 1) - 1)
+reclim with expr=034C90C0= 61.7` - System`Subscript(Global`x, 2)
+reclim with expr=034C9488= (System`Subscript(Global`p, 2 + 1, System`Hold(-243 - 1))(61.7`) - System
+`Subscript(Global`p, 2, System`Hold(-243 - 1) - 1)(61.7`))/(System`Subscript(Global`x, System`Hold(-
+243 - 1)) - System`Subscript(Global`x, 2))
+reclim with expr=034C8B40= -System`Subscript(Global`x, 2)
+reclim with expr=034C8C48= System`Subscript(Global`p, 2 + 1, -243)(61.7`) - System`Subscript(Global`
+p, 2, -243 - 1)(61.7`)
+reclim with expr=034C8F60= 1/(System`Subscript(Global`x, -243) - System`Subscript(Global`x, 2))
+reclim with expr=034C8460= System`Subscript(Global`x, 2)
+reclim with expr=034C8040= System`Subscript(Global`p, 2 + 1, -242)(61.7`)
+reclim with expr=034C86C8= -System`Subscript(Global`p, 2, -242 - 1)(61.7`)
+pppppppCpHashtable corrupted?: SySstSeSmS`STimeCSoSnSstSrSaSinSeSd`SsStSopS$S78S8S [hash= 9532741]
+Sremoved: SSSySstSeSmS`STSiSmSeSCSoSnSstraSiSnSSeSdS`SsStSoSpS$788 [hash= 9532741]
+>-------------------------------
+S       count=557,cap=2048
+S       0:      NULL
+        1:      NULL
+S       2:      SNULL
+S       3:      NULL
+S       4:      NULL
+        5:      SNULL
+SS      6:      NULL
+S       7:      NULL
+SSSSSSS 8:      NULL
+        9:      NULL
+        10:     NULL
+        11:     [hash= 9368013] System`SectionGroupPrecedence
+        12:     NULL
+        13:     NULL
+        14:     [hash= 9337237] System`Message
+        15:     [hash= 9310893] System`Expression
+        16:     NULL
+        17:     [hash= 9383317] System`WordBoundary
+        18:     NULL
+        19:     NULL
+        20:     NULL
+        21:     NULL
+        22:     NULL
+        23:     NULL
+        24:     NULL
+        25:     NULL
+        26:     NULL
+        27:     [hash= 9281077] System`Abs
+        28:     [hash= 9368325] System`SectionLabelAutoDelete
+        29:     NULL
+        30:     [hash= 9254573] Internal`Condition
+        31:     NULL
+        32:     NULL
+        33:     NULL
+        34:     NULL
+        35:     NULL
+        36:     NULL
+        37:     [hash= 9343037] System`NHoldAll
+        38:     [hash= 9327797] System`IsInteger
+        39:     [hash= 9383005] System`WhitespaceCharacter
+        40:     NULL
+        41:     NULL
+        42:     NULL
+        43:     NULL
+        44:     NULL
+        45:     NULL
+        46:     NULL
+        47:     NULL
+        48:     NULL
+        49:     [hash= 9371549] System`String
+        50:     [hash= 9298085] System`$Namespace
+        51:     NULL
+        52:     NULL
+        53:     NULL
+        54:     [hash= 9351125] System`$Path
+        55:     NULL
+        56:     NULL
+        57:     [hash= 9320437] System`HoldComplete
+        58:     NULL
+        59:     [hash= 9359837] System`RenameDirectory
+        60:     NULL
+        61:     NULL
+        62:     NULL
+        63:     NULL
+        64:     NULL
+        65:     NULL
+        66:     [hash= 9329045] System`IsQuotient
+        67:     NULL
+        68:     [hash= 9336613] System`Match
+        69:     NULL
+        70:     NULL
+        71:     NULL
+        72:     NULL
+        73:     NULL
+        74:     NULL
+        75:     NULL
+        76:     NULL
+        77:     NULL
+        78:     NULL
+        79:     NULL
+        80:     [hash= 9360773] System`Return
+        81:     [hash= 9299749] System`DirectoryName
+        82:     NULL
+        83:     [hash= 9311829] System`FileType
+        84:     [hash= 9320853] System`HoldRest
+        85:     NULL
+        86:     NULL
+        87:     NULL
+        88:     [hash= 9354453] System`Rational
+        89:     [hash= 9281701] System`Append
+        90:     [hash= 9377557] System`Sum
+        91:     NULL
+        92:     NULL
+        93:     [hash= 9534301] FE`Private`name
+        94:     [hash= 9344805] System`Options
+        95:     NULL
+        96:     NULL
+        97:     NULL
+        98:     NULL
+        99:     NULL
+        100:    NULL
+        101:    [hash= 9534717] FE`Private`x
+        102:    NULL
+        103:    NULL
+        104:    NULL
+        105:    [hash= 9344389] System`OpenWrite
+        106:    NULL
+        107:    NULL
+        108:    NULL
+        109:    NULL
+        110:    NULL
+        111:    [hash= 9318461] System`Gather
+        112:    [hash= 9337133] System`MemoryUsage
+        113:    NULL
+        114:    [hash= 9300893] System`Editable
+        115:    NULL
+        116:    NULL
+        117:    NULL
+        118:    NULL
+        119:    [hash= 9533885] FE`$MathShapers
+        120:    NULL
+        121:    [hash= 9382485] System`Unprotect
+        122:    NULL
+        123:    [hash= 9369677] System`ShowAutoStyles
+        124:    [hash= 9371445] System`StartOfString
+        125:    NULL
+        126:    NULL
+        127:    NULL
+        128:    NULL
+        129:    [hash= 9371653] System`StringCases
+        130:    [hash= 9464829] System`$BaseDirectory
+        131:    NULL
+        132:    NULL
+        133:    NULL
+        134:    [hash= 9378701] System`Table
+        135:    NULL
+        136:    NULL
+        137:    NULL
+        138:    NULL
+        139:    NULL
+        140:    NULL
+        141:    [hash= 55391453]        System`Private`nsdata$671
+        142:    [hash= 9334637] System`LetterCharacter
+        143:    [hash= 9312869] System`FontColor
+        144:    NULL
+        145:    NULL
+        146:    [hash= 9326133] System`Inherited
+        147:    [hash= 9369469] System`Short
+        148:    NULL
+        149:    NULL
+        150:    NULL
+        151:    NULL
+        152:    NULL
+        153:    [hash= 9335157] System`Listable
+        154:    NULL
+        155:    NULL
+        156:    NULL
+        157:    NULL
+        158:    NULL
+        159:    NULL
+        160:    NULL
+        161:    NULL
+        162:    NULL
+        163:    NULL
+        164:    NULL
+        165:    [hash= 9283261] System`Array
+        166:    [hash= 9368221] System`SectionLabel
+        167:    NULL
+        168:    [hash= 9382901] System`While
+        169:    NULL
+        170:    [hash= 9311413] System`False
+        171:    NULL
+        172:    NULL
+        173:    [hash= 9343453] System`NRules
+        174:    [hash= 9344909] System`OptionValue
+        175:    [hash= 9335989] System`LUDecomposition
+        176:    NULL
+        177:    NULL
+        178:    NULL
+        179:    NULL
+        180:    NULL
+        181:    NULL
+        182:    NULL
+        183:    NULL
+        184:    [hash= 9381237] System`True
+        185:    NULL
+        186:    [hash= 9370613] System`Sort
+        187:    NULL
+        188:    [hash= 9300477] System`Documents
+        189:    [hash= 9534093] FE`SectionsToBoxes
+        190:    [hash= 9334325] System`Length
+        191:    NULL
+        192:    NULL
+        193:    [hash= 9352477] System`PostDecrement
+        194:    NULL
+        195:    NULL
+        196:    [hash= 9376829] System`Style
+        197:    [hash= 9345845] System`$PageWidth
+        198:    NULL
+        199:    NULL
+        200:    NULL
+        201:    [hash= 9359525] System`RegularExpression
+        202:    [hash= 9283781] System`AutoDelete
+        203:    NULL
+        204:    NULL
+        205:    NULL
+        206:    [hash= 9376101] System`StringForm
+        207:    NULL
+        208:    NULL
+        209:    NULL
+        210:    NULL
+        211:    NULL
+        212:    NULL
+        213:    NULL
+        214:    NULL
+        215:    [hash= 9342517] System`$NamespacePath
+        216:    NULL
+        217:    NULL
+        218:    [hash= 9298917] System`Depth
+        219:    [hash= 9362541] System`SectionFrameMargins
+        220:    NULL
+        221:    NULL
+        222:    NULL
+        223:    NULL
+        224:    NULL
+        225:    NULL
+        226:    NULL
+        227:    NULL
+        228:    NULL
+        229:    NULL
+        230:    NULL
+        231:    NULL
+        232:    NULL
+        233:    NULL
+        234:    NULL
+        235:    NULL
+        236:    NULL
+        237:    [hash= 9294093] System`Button
+        238:    NULL
+        239:    NULL
+        240:    NULL
+        241:    NULL
+        242:    NULL
+        243:    [hash= 9360565] System`ResetDirectory
+        244:    [hash= 9300373] System`Dot
+        245:    NULL
+        246:    [hash= 9320749] System`HoldPattern
+        247:    NULL
+        248:    NULL
+        249:    NULL
+        250:    NULL
+        251:    [hash= 9282013] System`ArcCosh
+        252:    [hash= 9283677] System`Attributes
+        253:    NULL
+        254:    NULL
+        255:    NULL
+        256:    NULL
+        257:    [hash= 9296485] System`ComplexInfinity
+        258:    NULL
+        259:    NULL
+        260:    NULL
+        261:    NULL
+        262:    [hash= 9353101] System`$ProcessId
+        263:    NULL
+        264:    NULL
+        265:    NULL
+        266:    NULL
+        267:    NULL
+        268:    NULL
+        269:    NULL
+        270:    NULL
+        271:    NULL
+        272:    [hash= 9379845] System`TestPattern
+        273:    NULL
+        274:    [hash= 9311933] System`FillBox
+        275:    NULL
+        276:    NULL
+        277:    NULL
+        278:    NULL
+        279:    NULL
+        280:    NULL
+        281:    [hash= 9360357] System`ReplacePart
+        282:    NULL
+        283:    NULL
+        284:    NULL
+        285:    [hash= 9380925] System`ToFileName
+        286:    NULL
+        287:    NULL
+        288:    NULL
+        289:    NULL
+        290:    NULL
+        291:    [hash= 9329461] System`IsValidArgumentCount
+        292:    [hash= 9294925] System`Cases
+        293:    NULL
+        294:    NULL
+        295:    NULL
+        296:    NULL
+        297:    [hash= 9284405] System`Begin
+        298:    NULL
+        299:    [hash= 9362437] System`SectionFrameColor
+        300:    NULL
+        301:    [hash= 9361085] System`Rotate
+        302:    NULL
+        303:    NULL
+        304:    [hash= 9345533] System`OverscriptBox
+        305:    [hash= 9382069] System`Unequal
+        306:    NULL
+        307:    NULL
+        308:    NULL
+        309:    [hash= 9358797] System`Re
+        310:    [hash= 9378077] System`Symmetric
+        311:    NULL
+        312:    NULL
+        313:    NULL
+        314:    NULL
+        315:    NULL
+        316:    [hash= 9334117] System`LCM
+        317:    NULL
+        318:    [hash= 9353933] System`Quotient
+        319:    NULL
+        320:    NULL
+        321:    NULL
+        322:    NULL
+        323:    [hash= 9465973] System`Private`s
+        324:    NULL
+        325:    NULL
+        326:    NULL
+        327:    NULL
+        328:    [hash= 9300061] System`Do
+        329:    NULL
+        330:    NULL
+        331:    NULL
+        332:    NULL
+        333:    [hash= 9367909] System`SectionGroup
+        334:    NULL
+        335:    NULL
+        336:    [hash= 9312141] System`Find
+        337:    NULL
+        338:    [hash= 9294717] System`$ByteOrdering
+        339:    NULL
+        340:    NULL
+        341:    [hash= 9283989] System`AutoNumberFormating
+        342:    NULL
+        343:    NULL
+        344:    [hash= 9343765] System`Not
+        345:    NULL
+        346:    [hash= 9381133] System`TransformationBox
+        347:    NULL
+        348:    NULL
+        349:    NULL
+        350:    NULL
+        351:    [hash= 9295861] System`Clear
+        352:    NULL
+        353:    NULL
+        354:    NULL
+        355:    [hash= 9350709] System`ParseSymbols
+        356:    NULL
+        357:    [hash= 9334949] System`LineBreakWithin
+        358:    NULL
+        359:    [hash= 9312973] System`FontFamily
+        360:    NULL
+        361:    [hash= 9380197] System`Through
+        362:    NULL
+        363:    NULL
+        364:    NULL
+        365:    [hash= 9350813] System`Part
+        366:    NULL
+        367:    NULL
+        368:    NULL
+        369:    NULL
+        370:    [hash= 9345221] System`Overflow
+        371:    NULL
+        372:    NULL
+        373:    [hash= 9380509] System`Times
+        374:    NULL
+        375:    NULL
+        376:    NULL
+        377:    NULL
+        378:    NULL
+        379:    NULL
+        380:    NULL
+        381:    NULL
+        382:    NULL
+        383:    NULL
+        384:    NULL
+        385:    NULL
+        386:    [hash= 9336509] System`Map
+        387:    NULL
+        388:    NULL
+        389:    NULL
+        390:    [hash= 9336717] System`MatrixForm
+        391:    NULL
+        392:    NULL
+        393:    NULL
+        394:    NULL
+        395:    NULL
+        396:    NULL
+        397:    [hash= 9293781] System`BoxRotation
+        398:    NULL
+        399:    [hash= 9352789] System`Precision
+        400:    NULL
+        401:    NULL
+        402:    [hash= 9465349] System`Private`tag
+        403:    [hash= 9353621] System`Protected
+        404:    NULL
+        405:    NULL
+        406:    NULL
+        407:    NULL
+        408:    NULL
+        409:    [hash= 9381445] System`Unassign
+        410:    NULL
+        411:    [hash= 9318045] System`FrontEndTokenExecute
+        412:    NULL
+        413:    NULL
+        414:    NULL
+        415:    NULL
+        416:    NULL
+        417:    NULL
+        418:    NULL
+        419:    NULL
+        420:    NULL
+        421:    NULL
+        422:    [hash= 9329877] System`Last
+        423:    NULL
+        424:    NULL
+        425:    [hash= 9369781] System`ShowDefinition
+        426:    NULL
+        427:    NULL
+        428:    [hash= 9309749] System`EndPackage
+        429:    NULL
+        430:    NULL
+        431:    NULL
+        432:    NULL
+        433:    NULL
+        434:    NULL
+        435:    [hash= 9282221] System`ArcCoth
+        436:    [hash= 9532637] Global`f
+        437:    NULL
+        438:    NULL
+        439:    [hash= 9299541] System`DirectedInfinity
+        440:    NULL
+        441:    [hash= 9295653] System`CirclePlus
+        442:    NULL
+        443:    NULL
+        444:    [hash= 9368949] System`SetAccuracy
+        445:    NULL
+        446:    NULL
+        447:    NULL
+        448:    NULL
+        449:    [hash= 9296381] System`Complex
+        450:    NULL
+        451:    NULL
+        452:    NULL
+        453:    [hash= 9328109] System`IsNegative
+        454:    NULL
+        455:    NULL
+        456:    NULL
+        457:    NULL
+        458:    [hash= 9360045] System`Repeated
+        459:    NULL
+        460:    [hash= 9321165] System`Identity
+        461:    NULL
+        462:    [hash= 9378285] System`Syntax
+        463:    [hash= 9281181] System`Accuracy
+        464:    NULL
+        465:    NULL
+        466:    NULL
+        467:    [hash= 9383629] System`Write
+        468:    NULL
+        469:    NULL
+        470:    [hash= 9299125] System`Dialog
+        471:    NULL
+        472:    NULL
+        473:    NULL
+        474:    NULL
+        475:    [hash= 9345637] System`OwnRules
+        476:    NULL
+        477:    [hash= 9281597] System`Antialiasing
+        478:    NULL
+        479:    [hash= 9283885] System`Automatic
+        480:    NULL
+        481:    NULL
+        482:    NULL
+        483:    NULL
+        484:    NULL
+        485:    [hash= 9327693] System`IsInexactNumber
+        486:    NULL
+        487:    [hash= 55390413]        Global`x
+        488:    NULL
+        489:    NULL
+        490:    NULL
+        491:    NULL
+        492:    NULL
+        493:    [hash= 9310165] System`Evaluate
+        494:    [hash= 9297773] System`Cross
+        495:    NULL
+        496:    NULL
+        497:    NULL
+        498:    NULL
+        499:    [hash= 9351853] System`Placeholder
+        500:    [hash= 9359629] System`Release
+        501:    NULL
+        502:    NULL
+        503:    NULL
+        504:    NULL
+        505:    [hash= 9312245] System`FindList
+        506:    [hash= 9327277] System`IsEven
+        507:    NULL
+        508:    [hash= 9329253] System`IsString
+        509:    [hash= 9294405] System`ButtonFunction
+        510:    [hash= 9283157] System`Arg
+        511:    NULL
+        512:    NULL
+        513:    NULL
+        514:    [hash= 9328837] System`IsPositive
+        515:    NULL
+        516:    [hash= 9298501] System`DefaultRules
+        517:    NULL
+        518:    NULL
+        519:    [hash= 9463789] Global`p
+        520:    [hash= 9344077] System`OneIdentity
+        521:    [hash= 9370405] System`SingleMatch
+        522:    NULL
+        523:    [hash= 9328213] System`IsNonNegative
+        524:    NULL
+        525:    NULL
+        526:    [hash= 9383109] System`With
+        527:    NULL
+        528:    NULL
+        529:    [hash= 9368429] System`SectionPrint
+        530:    NULL
+        531:    NULL
+        532:    [hash= 9299021] System`Det
+        533:    [hash= 9320957] System`I
+        534:    NULL
+        535:    [hash= 9534925] FE`AddConfigShaper
+        536:    [hash= 9379429] System`Tanh
+        537:    [hash= 9368533] System`Select
+        538:    NULL
+        539:    NULL
+        540:    NULL
+        541:    NULL
+        542:    NULL
+        543:    NULL
+        544:    NULL
+        545:    [hash= 9360149] System`Replace
+        546:    NULL
+        547:    NULL
+        548:    [hash= 9350917] System`Partition
+        549:    NULL
+        550:    [hash= 9382381] System`Union
+        551:    NULL
+        552:    NULL
+        553:    NULL
+        554:    NULL
+        555:    [hash= 9361813] System`Scan
+        556:    NULL
+        557:    [hash= 9371133] System`Stack
+        558:    [hash= 9342829] System`NewTask
+        559:    NULL
+        560:    NULL
+        561:    NULL
+        562:    NULL
+        563:    [hash= 9351645] System`Pi
+        564:    NULL
+        565:    [hash= 9326237] System`$InitialDirectory
+        566:    NULL
+        567:    NULL
+        568:    NULL
+        569:    NULL
+        570:    NULL
+        571:    NULL
+        572:    NULL
+        573:    NULL
+        574:    NULL
+        575:    [hash= 55390933]        Global`i
+        576:    [hash= 9359941] System`RenameFile
+        577:    [hash= 9351541] System`Pause
+        578:    NULL
+        579:    NULL
+        580:    NULL
+        581:    NULL
+        582:    [hash= 9299645] System`Directory
+        583:    NULL
+        584:    NULL
+        585:    [hash= 9361293] System`Round
+        586:    [hash= 9300581] System`DownRules
+        587:    NULL
+        588:    NULL
+        589:    NULL
+        590:    NULL
+        591:    NULL
+        592:    [hash= 9284717] System`BinaryFormat
+        593:    [hash= 9299437] System`Dimensions
+        594:    NULL
+        595:    NULL
+        596:    NULL
+        597:    NULL
+        598:    [hash= 9296797] System`Continue
+        599:    NULL
+        600:    [hash= 9281805] System`Apply
+        601:    [hash= 9319605] System`GridBoxRowSpacing
+        602:    NULL
+        603:    NULL
+        604:    [hash= 9334533] System`LessEqual
+        605:    [hash= 9381029] System`ToString
+        606:    NULL
+        607:    [hash= 9352685] System`Power
+        608:    [hash= 9312765] System`FoldList
+        609:    [hash= 9295965] System`Close
+        610:    NULL
+        611:    [hash= 9376933] System`StyleBox
+        612:    NULL
+        613:    NULL
+        614:    NULL
+        615:    [hash= 9380301] System`Throw
+        616:    NULL
+        617:    NULL
+        618:    [hash= 9321061] System`Identical
+        619:    NULL
+        620:    NULL
+        621:    NULL
+        622:    [hash= 9533053] System`Private`a
+        623:    NULL
+        624:    [hash= 9376205] System`StringMatch
+        625:    NULL
+        626:    NULL
+        627:    NULL
+        628:    NULL
+        629:    NULL
+        630:    NULL
+        631:    NULL
+        632:    NULL
+        633:    NULL
+        634:    NULL
+        635:    NULL
+        636:    [hash= 9370197] System`Sin
+        637:    NULL
+        638:    NULL
+        639:    NULL
+        640:    NULL
+        641:    [hash= 9377765] System`SuperscriptBox
+        642:    NULL
+        643:    NULL
+        644:    NULL
+        645:    NULL
+        646:    NULL
+        647:    NULL
+        648:    NULL
+        649:    NULL
+        650:    NULL
+        651:    [hash= 9368845] System`Sequence
+        652:    [hash= 9368637] System`Selectable
+        653:    [hash= 9371029] System`SqrtBox
+        654:    NULL
+        655:    NULL
+        656:    NULL
+        657:    [hash= 9465661] System`Private`pattern
+        658:    NULL
+        659:    NULL
+        660:    [hash= 9350501] System`ParenthesizeBoxes
+        661:    [hash= 9533261] System`Private`body
+        662:    NULL
+        663:    NULL
+        664:    NULL
+        665:    NULL
+        666:    NULL
+        667:    NULL
+        668:    [hash= 9380613] System`TimesBy
+        669:    NULL
+        670:    [hash= 9369885] System`ShowSectionBracket
+        671:    [hash= 9343973] System`On
+        672:    NULL
+        673:    NULL
+        674:    NULL
+        675:    NULL
+        676:    [hash= 9376725] System`StringToBoxes
+        677:    [hash= 9345325] System`Overlaps
+        678:    [hash= 9465245] System`Private`symbol
+        679:    NULL
+        680:    [hash= 9369365] System`Shallow
+        681:    [hash= 9336093] System`$MachineEpsilon
+        682:    NULL
+        683:    [hash= 9534405] FE`Private`sym
+        684:    NULL
+        685:    NULL
+        686:    NULL
+        687:    NULL
+        688:    NULL
+        689:    NULL
+        690:    NULL
+        691:    NULL
+        692:    [hash= 9343141] System`NHoldFirst
+        693:    NULL
+        694:    NULL
+        695:    [hash= 9326757] System`Integer
+        696:    NULL
+        697:    [hash= 9254957] Internal`DynamicEvaluate
+        698:    NULL
+        699:    NULL
+        700:    NULL
+        701:    [hash= 9466493] System`Private`Autoload
+        702:    NULL
+        703:    NULL
+        704:    NULL
+        705:    [hash= 9319813] System`Heads
+        706:    NULL
+        707:    [hash= 9295341] System`$CharacterEncoding
+        708:    [hash= 9313285] System`FontWeight
+        709:    NULL
+        710:    NULL
+        711:    [hash= 9369573] System`Shortest
+        712:    NULL
+        713:    NULL
+        714:    NULL
+        715:    NULL
+        716:    NULL
+        717:    NULL
+        718:    NULL
+        719:    NULL
+        720:    NULL
+        721:    [hash= 9326965] System`InterpretationBox
+        722:    NULL
+        723:    NULL
+        724:    NULL
+        725:    NULL
+        726:    NULL
+        727:    NULL
+        728:    NULL
+        729:    NULL
+        730:    NULL
+        731:    [hash= 9346261] System`ParallelTry
+        732:    NULL
+        733:    NULL
+        734:    NULL
+        735:    [hash= 9336405] System`MakeBoxes
+        736:    [hash= 9345117] System`OutputForm
+        737:    NULL
+        738:    NULL
+        739:    NULL
+        740:    [hash= 9319917] System`$History
+        741:    NULL
+        742:    NULL
+        743:    NULL
+        744:    NULL
+        745:    NULL
+        746:    NULL
+        747:    NULL
+        748:    NULL
+        749:    [hash= 9344285] System`OpenRead
+        750:    NULL
+        751:    NULL
+        752:    NULL
+        753:    NULL
+        754:    NULL
+        755:    NULL
+        756:    NULL
+        757:    NULL
+        758:    NULL
+        759:    [hash= 9336301] System`$MachinePrecision
+        760:    NULL
+        761:    NULL
+        762:    NULL
+        763:    NULL
+        764:    NULL
+        765:    NULL
+        766:    [hash= 9297565] System`Count
+        767:    NULL
+        768:    NULL
+        769:    [hash= 9359005] System`ReadList
+        770:    NULL
+        771:    NULL
+        772:    NULL
+        773:    NULL
+        774:    [hash= 9383213] System`Word
+        775:    [hash= 9325925] System`Inequation
+        776:    NULL
+        777:    NULL
+        778:    NULL
+        779:    NULL
+        780:    NULL
+        781:    [hash= 9362229] System`Section
+        782:    NULL
+        783:    NULL
+        784:    NULL
+        785:    NULL
+        786:    NULL
+        787:    [hash= 9370821] System`Special
+        788:    [hash= 9382693] System`UpRules
+        789:    NULL
+        790:    [hash= 9318149] System`FullForm
+        791:    NULL
+        792:    NULL
+        793:    [hash= 9377037] System`SubRules
+        794:    NULL
+        795:    NULL
+        796:    NULL
+        797:    NULL
+        798:    [hash= 9534613] FE`Private`b
+        799:    NULL
+        800:    [hash= 9352269] System`PolyGamma
+        801:    NULL
+        802:    [hash= 9282325] System`ArcCsc
+        803:    NULL
+        804:    NULL
+        805:    NULL
+        806:    NULL
+        807:    NULL
+        808:    NULL
+        809:    NULL
+        810:    NULL
+        811:    NULL
+        812:    NULL
+        813:    NULL
+        814:    NULL
+        815:    NULL
+        816:    NULL
+        817:    NULL
+        818:    [hash= 9284613] System`BernoulliB
+        819:    NULL
+        820:    NULL
+        821:    NULL
+        822:    NULL
+        823:    NULL
+        824:    [hash= 9466181] System`Private`f
+        825:    NULL
+        826:    NULL
+        827:    NULL
+        828:    [hash= 9328421] System`IsNumber
+        829:    NULL
+        830:    NULL
+        831:    NULL
+        832:    [hash= 9298605] System`DeleteContents
+        833:    [hash= 9296277] System`Complement
+        834:    NULL
+        835:    NULL
+        836:    NULL
+        837:    [hash= 9335261] System`Literal
+        838:    [hash= 9255061] Internal`DynamicRemove
+        839:    NULL
+        840:    NULL
+        841:    [hash= 9283469] System`AssignDelayed
+        842:    NULL
+        843:    NULL
+        844:    NULL
+        845:    NULL
+        846:    NULL
+        847:    [hash= 9369261] System`SetPrecision
+        848:    NULL
+        849:    NULL
+        850:    NULL
+        851:    NULL
+        852:    NULL
+        853:    [hash= 9369157] System`SetOptions
+        854:    [hash= 9319189] System`GreaterEqual
+        855:    [hash= 9352893] System`Prepend
+        856:    NULL
+        857:    [hash= 9383525] System`WorkingPrecision
+        858:    NULL
+        859:    [hash= 9327589] System`IsFreeOf
+        860:    [hash= 9318669] System`General
+        861:    [hash= 9310477] System`Except
+        862:    NULL
+        863:    NULL
+        864:    NULL
+        865:    NULL
+        866:    NULL
+        867:    NULL
+        868:    [hash= 9297357] System`Cot
+        869:    NULL
+        870:    NULL
+        871:    [hash= 9359317] System`RecordLists
+        872:    NULL
+        873:    [hash= 9343869] System`Off
+        874:    NULL
+        875:    NULL
+        876:    [hash= 9342621] System`$NewMessage
+        877:    [hash= 9351957] System`Plain
+        878:    NULL
+        879:    NULL
+        880:    [hash= 9358901] System`Read
+        881:    NULL
+        882:    NULL
+        883:    NULL
+        884:    NULL
+        885:    NULL
+        886:    NULL
+        887:    [hash= 9352997] System`Print
+        888:    NULL
+        889:    NULL
+        890:    NULL
+        891:    NULL
+        892:    [hash= 9297253] System`Cosh
+        893:    NULL
+        894:    NULL
+        895:    [hash= 9296901] System`CopyDirectory
+        896:    NULL
+        897:    NULL
+        898:    NULL
+        899:    NULL
+        900:    NULL
+        901:    NULL
+        902:    [hash= 9370093] System`Sign
+        903:    [hash= 9334741] System`Level
+        904:    NULL
+        905:    NULL
+        906:    NULL
+        907:    NULL
+        908:    NULL
+        909:    NULL
+        910:    NULL
+        911:    NULL
+        912:    NULL
+        913:    NULL
+        914:    NULL
+        915:    NULL
+        916:    NULL
+        917:    [hash= 9319709] System`Hash
+        918:    NULL
+        919:    NULL
+        920:    NULL
+        921:    NULL
+        922:    [hash= 9310061] System`EulerGamma
+        923:    [hash= 9299333] System`DigitCharacter
+        924:    NULL
+        925:    NULL
+        926:    [hash= 9297669] System`CreateDirectory
+        927:    NULL
+        928:    NULL
+        929:    NULL
+        930:    NULL
+        931:    NULL
+        932:    NULL
+        933:    NULL
+        934:    NULL
+        935:    NULL
+        936:    [hash= 9280973] System`Abort
+        937:    NULL
+        938:    [hash= 9297461] System`Coth
+        939:    NULL
+        940:    NULL
+        941:    NULL
+        942:    NULL
+        943:    NULL
+        944:    NULL
+        945:    NULL
+        946:    NULL
+        947:    NULL
+        948:    NULL
+        949:    NULL
+        950:    [hash= 9309541] System`EndOfLine
+        951:    [hash= 9346157] System`ParallelScan
+        952:    NULL
+        953:    [hash= 9299957] System`DivideBy
+        954:    NULL
+        955:    NULL
+        956:    NULL
+        957:    NULL
+        958:    NULL
+        959:    NULL
+        960:    NULL
+        961:    NULL
+        962:    [hash= 9362645] System`SectionGenerated
+        963:    NULL
+        964:    NULL
+        965:    NULL
+        966:    NULL
+        967:    [hash= 9353725] System`PureArgument
+        968:    NULL
+        969:    NULL
+        970:    NULL
+        971:    [hash= 9284197] System`Background
+        972:    NULL
+        973:    NULL
+        974:    NULL
+        975:    NULL
+        976:    NULL
+        977:    NULL
+        978:    [hash= 9320125] System`Hold
+        979:    NULL
+        980:    NULL
+        981:    NULL
+        982:    NULL
+        983:    NULL
+        984:    NULL
+        985:    NULL
+        986:    NULL
+        987:    NULL
+        988:    [hash= 9360877] System`Reverse
+        989:    NULL
+        990:    NULL
+        991:    NULL
+        992:    NULL
+        993:    [hash= 9370509] System`Skeleton
+        994:    NULL
+        995:    [hash= 9376621] System`StringTake
+        996:    NULL
+        997:    [hash= 9371861] System`StringExpression
+        998:    NULL
+        999:    NULL
+        1000:   NULL
+        1001:   NULL
+        1002:   [hash= 9283573] System`Associative
+        1003:   NULL
+        1004:   NULL
+        1005:   NULL
+        1006:   NULL
+        1007:   NULL
+        1008:   NULL
+        1009:   NULL
+        1010:   [hash= 9326861] System`Interpretation
+        1011:   NULL
+        1012:   NULL
+        1013:   NULL
+        1014:   [hash= 9379325] System`Tan
+        1015:   NULL
+        1016:   NULL
+        1017:   NULL
+        1018:   NULL
+        1019:   NULL
+        1020:   NULL
+        1021:   [hash= 9345013] System`Or
+        1022:   NULL
+        1023:   NULL
+        1024:   [hash= 9361709] System`SameTest
+        1025:   NULL
+        1026:   NULL
+        1027:   NULL
+        1028:   NULL
+        1029:   [hash= 9284301] System`BaseStyle
+        1030:   NULL
+        1031:   [hash= 9352581] System`PostIncrement
+        1032:   NULL
+        1033:   [hash= 9301101] System`End
+        1034:   NULL
+        1035:   NULL
+        1036:   NULL
+        1037:   NULL
+        1038:   NULL
+        1039:   NULL
+        1040:   NULL
+        1041:   NULL
+        1042:   [hash= 9533989] FE`BoxesToText
+        1043:   NULL
+        1044:   NULL
+        1045:   [hash= 9353309] System`$ProcessorType
+        1046:   NULL
+        1047:   NULL
+        1048:   NULL
+        1049:   [hash= 9335885] System`LongForm
+        1050:   NULL
+        1051:   NULL
+        1052:   NULL
+        1053:   NULL
+        1054:   NULL
+        1055:   NULL
+        1056:   NULL
+        1057:   NULL
+        1058:   NULL
+        1059:   [hash= 9318565] System`GCD
+        1060:   NULL
+        1061:   NULL
+        1062:   NULL
+        1063:   NULL
+        1064:   [hash= 9376413] System`StringReplace
+        1065:   NULL
+        1066:   NULL
+        1067:   NULL
+        1068:   NULL
+        1069:   NULL
+        1070:   NULL
+        1071:   [hash= 9383421] System`WordCharacter
+        1072:   NULL
+        1073:   [hash= 9532949] System`Private`i
+        1074:   NULL
+        1075:   NULL
+        1076:   NULL
+        1077:   NULL
+        1078:   [hash= 9319397] System`GridBox
+        1079:   NULL
+        1080:   NULL
+        1081:   NULL
+        1082:   [hash= 9317733] System`FrameBox
+        1083:   [hash= 9311621] System`FileByteCount
+        1084:   NULL
+        1085:   NULL
+        1086:   NULL
+        1087:   NULL
+        1088:   [hash= 9329565] System`Italic
+        1089:   NULL
+        1090:   [hash= 9298813] System`DeleteFile
+        1091:   NULL
+        1092:   NULL
+        1093:   NULL
+        1094:   NULL
+        1095:   [hash= 9378909] System`TagAssignDelayed
+        1096:   NULL
+        1097:   [hash= 9329669] System`Join
+        1098:   NULL
+        1099:   NULL
+        1100:   NULL
+        1101:   [hash= 9377661] System`Superscript
+        1102:   [hash= 9345429] System`Overscript
+        1103:   NULL
+        1104:   NULL
+        1105:   NULL
+        1106:   NULL
+        1107:   NULL
+        1108:   NULL
+        1109:   NULL
+        1110:   NULL
+        1111:   NULL
+        1112:   NULL
+        1113:   [hash= 9337653] System`Method
+        1114:   NULL
+        1115:   NULL
+        1116:   NULL
+        1117:   [hash= 9328525] System`IsNumeric
+        1118:   [hash= 9295237] System`CharacterEncoding
+        1119:   [hash= 9328317] System`IsNonPositive
+        1120:   NULL
+        1121:   NULL
+        1122:   NULL
+        1123:   [hash= 9300997] System`Emit
+        1124:   [hash= 9351437] System`PatternSequence
+        1125:   NULL
+        1126:   [hash= 9281909] System`ArcCos
+        1127:   NULL
+        1128:   NULL
+        1129:   NULL
+        1130:   NULL
+        1131:   [hash= 9353205] System`$ProcessorCount
+        1132:   [hash= 9293885] System`BoxTransformation
+        1133:   [hash= 9329357] System`IsSymbol
+        1134:   NULL
+        1135:   NULL
+        1136:   NULL
+        1137:   NULL
+        1138:   [hash= 9281493] System`And
+        1139:   [hash= 9280869] System`$Aborted
+        1140:   NULL
+        1141:   [hash= 9381653] System`Underscript
+        1142:   NULL
+        1143:   NULL
+        1144:   NULL
+        1145:   [hash= 9296693] System`ConstantArray
+        1146:   NULL
+        1147:   NULL
+        1148:   NULL
+        1149:   NULL
+        1150:   NULL
+        1151:   NULL
+        1152:   NULL
+        1153:   [hash= 9379013] System`TagBox
+        1154:   NULL
+        1155:   [hash= 9343661] System`NumericFunction
+        1156:   NULL
+        1157:   NULL
+        1158:   [hash= 9381861] System`Underoverscript
+        1159:   NULL
+        1160:   NULL
+        1161:   [hash= 9310581] System`Exp
+        1162:   [hash= 9377141] System`Subscript
+        1163:   [hash= 9534197] FE`Private`oldNamespacePath
+        1164:   [hash= 9309957] System`Equal
+        1165:   [hash= 9463893] Global`k
+        1166:   NULL
+        1167:   NULL
+        1168:   NULL
+        1169:   NULL
+        1170:   NULL
+        1171:   NULL
+        1172:   NULL
+        1173:   NULL
+        1174:   NULL
+        1175:   NULL
+        1176:   [hash= 9294821] System`Catch
+        1177:   NULL
+        1178:   NULL
+        1179:   NULL
+        1180:   NULL
+        1181:   NULL
+        1182:   [hash= 9380405] System`TimeConstrained
+        1183:   NULL
+        1184:   [hash= 9295549] System`Chop
+        1185:   NULL
+        1186:   NULL
+        1187:   [hash= 9282429] System`ArcCsch
+        1188:   NULL
+        1189:   [hash= 9297005] System`CopyFile
+        1190:   [hash= 9378805] System`TagAssign
+        1191:   [hash= 9368741] System`SelectedDocument
+        1192:   NULL
+        1193:   [hash= 9318253] System`Function
+        1194:   NULL
+        1195:   NULL
+        1196:   [hash= 9371341] System`StartOfLine
+        1197:   NULL
+        1198:   [hash= 9342933] System`NextPrime
+        1199:   NULL
+        1200:   NULL
+        1201:   NULL
+        1202:   NULL
+        1203:   NULL
+        1204:   NULL
+        1205:   NULL
+        1206:   [hash= 9329149] System`IsRational
+        1207:   [hash= 9352373] System`Position
+        1208:   NULL
+        1209:   NULL
+        1210:   NULL
+        1211:   NULL
+        1212:   [hash= 9381757] System`UnderscriptBox
+        1213:   [hash= 9532325] System`Private`nsdata$652
+        1214:   [hash= 9328941] System`IsPrime
+        1215:   NULL
+        1216:   [hash= 9359213] System`Real
+        1217:   [hash= 9282533] System`ArcSec
+        1218:   [hash= 9296173] System`$CommandLine
+        1219:   [hash= 9337341] System`$MessageCount
+        1220:   NULL
+        1221:   NULL
+        1222:   NULL
+        1223:   NULL
+        1224:   NULL
+        1225:   [hash= 9361605] System`RuleDelayed
+        1226:   NULL
+        1227:   NULL
+        1228:   [hash= 9310789] System`ExpandAll
+        1229:   NULL
+        1230:   [hash= 9533781] FE`SymbolInfo
+        1231:   NULL
+        1232:   [hash= 9465453] System`Private`namespace
+        1233:   [hash= 9466077] System`Private`o
+        1234:   NULL
+        1235:   NULL
+        1236:   NULL
+        1237:   NULL
+        1238:   NULL
+        1239:   NULL
+        1240:   NULL
+        1241:   [hash= 9380053] System`Thread
+        1242:   NULL
+        1243:   NULL
+        1244:   NULL
+        1245:   NULL
+        1246:   NULL
+        1247:   NULL
+        1248:   NULL
+        1249:   NULL
+        1250:   NULL
+        1251:   NULL
+        1252:   [hash= 9293469] System`Boole
+        1253:   [hash= 9465765] System`Private`matches
+        1254:   NULL
+        1255:   [hash= 9329773] System`Label
+        1256:   NULL
+        1257:   NULL
+        1258:   NULL
+        1259:   NULL
+        1260:   [hash= 9342309] System`Names
+        1261:   NULL
+        1262:   NULL
+        1263:   NULL
+        1264:   [hash= 9319293] System`Grid
+        1265:   [hash= 9359421] System`ReGather
+        1266:   NULL
+        1267:   [hash= 9378597] System`$SystemId
+        1268:   NULL
+        1269:   NULL
+        1270:   NULL
+        1271:   NULL
+        1272:   NULL
+        1273:   [hash= 9300165] System`Document
+        1274:   NULL
+        1275:   [hash= 9360981] System`RGBColor
+        1276:   NULL
+        1277:   NULL
+        1278:   NULL
+        1279:   NULL
+        1280:   NULL
+        1281:   NULL
+        1282:   NULL
+        1283:   [hash= 9335781] System`Longest
+        1284:   NULL
+        1285:   NULL
+        1286:   NULL
+        1287:   NULL
+        1288:   [hash= 9298293] System`DeepHoldAll
+        1289:   NULL
+        1290:   NULL
+        1291:   NULL
+        1292:   NULL
+        1293:   NULL
+        1294:   NULL
+        1295:   [hash= 9311517] System`File
+        1296:   NULL
+        1297:   NULL
+        1298:   NULL
+        1299:   [hash= 9343349] System`None
+        1300:   NULL
+        1301:   [hash= 9353517] System`Protect
+        1302:   [hash= 9298189] System`Decrement
+        1303:   NULL
+        1304:   NULL
+        1305:   NULL
+        1306:   NULL
+        1307:   NULL
+        1308:   NULL
+        1309:   [hash= 9311205] System`Factorial2
+        1310:   NULL
+        1311:   [hash= 55391557]        Global`t
+        1312:   NULL
+        1313:   [hash= 9300789] System`E
+        1314:   NULL
+        1315:   NULL
+        1316:   NULL
+        1317:   NULL
+        1318:   NULL
+        1319:   [hash= 9310997] System`Extract
+        1320:   NULL
+        1321:   NULL
+        1322:   NULL
+        1323:   [hash= 9295757] System`CircleTimes
+        1324:   NULL
+        1325:   NULL
+        1326:   NULL
+        1327:   NULL
+        1328:   NULL
+        1329:   NULL
+        1330:   [hash= 9282117] System`ArcCot
+        1331:   NULL
+        1332:   [hash= 9337445] System`MessageName
+        1333:   [hash= 9360461] System`ReplaceRepeated
+        1334:   NULL
+        1335:   NULL
+        1336:   NULL
+        1337:   NULL
+        1338:   NULL
+        1339:   NULL
+        1340:   NULL
+        1341:   NULL
+        1342:   NULL
+        1343:   [hash= 9313181] System`FontSlant
+        1344:   NULL
+        1345:   [hash= 9326549] System`InputBox
+        1346:   NULL
+        1347:   NULL
+        1348:   NULL
+        1349:   NULL
+        1350:   NULL
+        1351:   [hash= 9296069] System`Colon
+        1352:   [hash= 9351229] System`$PathnameSeparator
+        1353:   NULL
+        1354:   [hash= 9369053] System`SetDirectory
+        1355:   NULL
+        1356:   NULL
+        1357:   NULL
+        1358:   NULL
+        1359:   NULL
+        1360:   NULL
+        1361:   [hash= 9380717] System`Timing
+        1362:   NULL
+        1363:   NULL
+        1364:   [hash= 9326029] System`Infinity
+        1365:   NULL
+        1366:   NULL
+        1367:   NULL
+        1368:   [hash= 9297981] System`Csch
+        1369:   NULL
+        1370:   NULL
+        1371:   NULL
+        1372:   NULL
+        1373:   NULL
+        1374:   NULL
+        1375:   NULL
+        1376:   [hash= 9321581] System`Increment
+        1377:   NULL
+        1378:   [hash= 9353829] System`Quit
+        1379:   NULL
+        1380:   NULL
+        1381:   NULL
+        1382:   NULL
+        1383:   [hash= 9282845] System`ArcSinh
+        1384:   NULL
+        1385:   [hash= 9328733] System`IsOrdered
+        1386:   NULL
+        1387:   [hash= 9313389] System`For
+        1388:   NULL
+        1389:   [hash= 9309853] System`Environment
+        1390:   NULL
+        1391:   NULL
+        1392:   NULL
+        1393:   NULL
+        1394:   NULL
+        1395:   NULL
+        1396:   NULL
+        1397:   NULL
+        1398:   NULL
+        1399:   [hash= 9298709] System`DeleteDirectory
+        1400:   NULL
+        1401:   [hash= 9368117] System`SectionMargins
+        1402:   NULL
+        1403:   NULL
+        1404:   NULL
+        1405:   NULL
+        1406:   NULL
+        1407:   NULL
+        1408:   [hash= 9344701] System`OptionPattern
+        1409:   NULL
+        1410:   NULL
+        1411:   NULL
+        1412:   NULL
+        1413:   NULL
+        1414:   NULL
+        1415:   NULL
+        1416:   NULL
+        1417:   NULL
+        1418:   NULL
+        1419:   NULL
+        1420:   NULL
+        1421:   [hash= 9379533] System`$ThreadId
+        1422:   NULL
+        1423:   NULL
+        1424:   NULL
+        1425:   NULL
+        1426:   NULL
+        1427:   NULL
+        1428:   NULL
+        1429:   NULL
+        1430:   [hash= 9335469] System`Local
+        1431:   NULL
+        1432:   NULL
+        1433:   NULL
+        1434:   NULL
+        1435:   NULL
+        1436:   [hash= 9466285] System`Private`p
+        1437:   NULL
+        1438:   NULL
+        1439:   NULL
+        1440:   NULL
+        1441:   NULL
+        1442:   NULL
+        1443:   NULL
+        1444:   NULL
+        1445:   [hash= 9320541] System`HoldFirst
+        1446:   [hash= 9352061] System`Plus
+        1447:   NULL
+        1448:   NULL
+        1449:   NULL
+        1450:   [hash= 9293157] System`BinaryWrite
+        1451:   [hash= 9382173] System`Unevaluated
+        1452:   [hash= 9370925] System`Sqrt
+        1453:   NULL
+        1454:   [hash= 9381549] System`Underflow
+        1455:   NULL
+        1456:   NULL
+        1457:   NULL
+        1458:   NULL
+        1459:   NULL
+        1460:   [hash= 9370717] System`SortBy
+        1461:   [hash= 9281285] System`All
+        1462:   NULL
+        1463:   [hash= 9281389] System`Alternatives
+        1464:   NULL
+        1465:   NULL
+        1466:   [hash= 9377973] System`SymbolName
+        1467:   [hash= 9312557] System`Floor
+        1468:   NULL
+        1469:   NULL
+        1470:   NULL
+        1471:   NULL
+        1472:   NULL
+        1473:   NULL
+        1474:   [hash= 9337757] System`MinusPlus
+        1475:   NULL
+        1476:   [hash= 9376517] System`StringSplit
+        1477:   NULL
+        1478:   NULL
+        1479:   NULL
+        1480:   [hash= 9293677] System`BoxesToExpression
+        1481:   [hash= 9296589] System`Condition
+        1482:   NULL
+        1483:   NULL
+        1484:   NULL
+        1485:   [hash= 9282741] System`ArcSin
+        1486:   NULL
+        1487:   NULL
+        1488:   NULL
+        1489:   [hash= 9345949] System`Parallel`Return
+        1490:   [hash= 9359109] System`ReadProtected
+        1491:   [hash= 9321477] System`Im
+        1492:   [hash= 9299853] System`$DirectoryStack
+        1493:   NULL
+        1494:   NULL
+        1495:   NULL
+        1496:   NULL
+        1497:   NULL
+        1498:   [hash= 9320645] System`HoldForm
+        1499:   NULL
+        1500:   NULL
+        1501:   NULL
+        1502:   NULL
+        1503:   NULL
+        1504:   NULL
+        1505:   NULL
+        1506:   NULL
+        1507:   NULL
+        1508:   NULL
+        1509:   NULL
+        1510:   NULL
+        1511:   NULL
+        1512:   [hash= 9354349] System`Range
+        1513:   NULL
+        1514:   NULL
+        1515:   NULL
+        1516:   NULL
+        1517:   NULL
+        1518:   [hash= 9344493] System`Operate
+        1519:   NULL
+        1520:   NULL
+        1521:   NULL
+        1522:   NULL
+        1523:   NULL
+        1524:   [hash= 9360253] System`ReplaceList
+        1525:   NULL
+        1526:   [hash= 9284093] System`AutoSpacing
+        1527:   NULL
+        1528:   NULL
+        1529:   [hash= 9534821] FE`NumberBox
+        1530:   NULL
+        1531:   [hash= 9360669] System`Rest
+        1532:   NULL
+        1533:   NULL
+        1534:   [hash= 9297877] System`Csc
+        1535:   NULL
+        1536:   NULL
+        1537:   [hash= 9284821] System`BinaryRead
+        1538:   [hash= 9255269] Internal`IsCriticalMessage
+        1539:   NULL
+        1540:   NULL
+        1541:   NULL
+        1542:   NULL
+        1543:   NULL
+        1544:   NULL
+        1545:   NULL
+        1546:   NULL
+        1547:   NULL
+        1548:   NULL
+        1549:   NULL
+        1550:   NULL
+        1551:   [hash= 9283365] System`Assign
+        1552:   NULL
+        1553:   NULL
+        1554:   NULL
+        1555:   NULL
+        1556:   [hash= 9354141] System`RandomInteger
+        1557:   NULL
+        1558:   NULL
+        1559:   [hash= 9299229] System`$DialogLevel
+        1560:   NULL
+        1561:   NULL
+        1562:   [hash= 9337861] System`Mod
+        1563:   [hash= 9318773] System`Get
+        1564:   NULL
+        1565:   [hash= 9312453] System`Flatten
+        1566:   [hash= 9282949] System`ArcTan
+        1567:   NULL
+        1568:   [hash= 9313493] System`FractionBox
+        1569:   NULL
+        1570:   [hash= 9327069] System`Interrupt
+        1571:   NULL
+        1572:   NULL
+        1573:   NULL
+        1574:   NULL
+        1575:   NULL
+        1576:   NULL
+        1577:   NULL
+        1578:   NULL
+        1579:   NULL
+        1580:   NULL
+        1581:   NULL
+        1582:   [hash= 9383837] System`Zeta
+        1583:   [hash= 9464933] System`AutoLoad
+        1584:   [hash= 9533677] FE`$FrontEndDirectory
+        1585:   NULL
+        1586:   [hash= 9382797] System`Wait
+        1587:   NULL
+        1588:   NULL
+        1589:   [hash= 9321685] System`Indeterminate
+        1590:   NULL
+        1591:   NULL
+        1592:   NULL
+        1593:   NULL
+        1594:   NULL
+        1595:   NULL
+        1596:   [hash= 9255581] System`Utilities`GetSystemSyntaxInformation
+        1597:   [hash= 9312037] System`Finally
+        1598:   NULL
+        1599:   NULL
+        1600:   NULL
+        1601:   NULL
+        1602:   NULL
+        1603:   [hash= 9354037] System`RadicalBox
+        1604:   NULL
+        1605:   NULL
+        1606:   NULL
+        1607:   NULL
+        1608:   NULL
+        1609:   NULL
+        1610:   [hash= 9326341] System`Inner
+        1611:   NULL
+        1612:   NULL
+        1613:   [hash= 9312349] System`First
+        1614:   [hash= 9334429] System`Less
+        1615:   [hash= 9346053] System`ParallelMap
+        1616:   NULL
+        1617:   NULL
+        1618:   [hash= 9334845] System`$Line
+        1619:   NULL
+        1620:   NULL
+        1621:   NULL
+        1622:   NULL
+        1623:   NULL
+        1624:   NULL
+        1625:   NULL
+        1626:   NULL
+        1627:   [hash= 9317941] System`FrontEndObject
+        1628:   [hash= 9283053] System`ArcTanh
+        1629:   NULL
+        1630:   NULL
+        1631:   NULL
+        1632:   NULL
+        1633:   NULL
+        1634:   [hash= 9295029] System`Ceiling
+        1635:   NULL
+        1636:   [hash= 9361917] System`ScriptSizeMultipliers
+        1637:   NULL
+        1638:   [hash= 9383733] System`WriteString
+        1639:   NULL
+        1640:   NULL
+        1641:   NULL
+        1642:   NULL
+        1643:   [hash= 9294509] System`ByteCount
+        1644:   [hash= 9335573] System`Log
+        1645:   NULL
+        1646:   NULL
+        1647:   NULL
+        1648:   NULL
+        1649:   NULL
+        1650:   NULL
+        1651:   NULL
+        1652:   [hash= 9377869] System`Symbol
+        1653:   NULL
+        1654:   NULL
+        1655:   [hash= 9379117] System`TagUnassign
+        1656:   [hash= 9255373] Internal`$NamespacePathStack
+        1657:   [hash= 9351749] System`Piecewise
+        1658:   [hash= 9337965] System`Most
+        1659:   [hash= 9300269] System`DocumentApply
+        1660:   NULL
+        1661:   [hash= 9345741] System`$Packages
+        1662:   NULL
+        1663:   NULL
+        1664:   [hash= 9310269] System`EvaluateDelayed
+        1665:   NULL
+        1666:   NULL
+        1667:   [hash= 9532221] System`Private`SyntaxInformationData
+        1668:   NULL
+        1669:   [hash= 9342725] System`$NewSymbol
+        1670:   [hash= 9293261] System`Binomial
+        1671:   NULL
+        1672:   NULL
+        1673:   NULL
+        1674:   [hash= 9382277] System`Unidentical
+        1675:   NULL
+        1676:   NULL
+        1677:   NULL
+        1678:   NULL
+        1679:   NULL
+        1680:   NULL
+        1681:   NULL
+        1682:   [hash= 9328005] System`IsMachineNumber
+        1683:   NULL
+        1684:   NULL
+        1685:   NULL
+        1686:   NULL
+        1687:   NULL
+        1688:   NULL
+        1689:   NULL
+        1690:   NULL
+        1691:   NULL
+        1692:   NULL
+        1693:   NULL
+        1694:   NULL
+        1695:   NULL
+        1696:   NULL
+        1697:   NULL
+        1698:   NULL
+        1699:   NULL
+        1700:   NULL
+        1701:   [hash= 9362333] System`SectionFrame
+        1702:   NULL
+        1703:   NULL
+        1704:   NULL
+        1705:   [hash= 9328629] System`IsOdd
+        1706:   NULL
+        1707:   NULL
+        1708:   [hash= 9327485] System`IsFloat
+        1709:   [hash= 9361397] System`Row
+        1710:   [hash= 9379637] System`ThreadLocal
+        1711:   NULL
+        1712:   [hash= 9321269] System`If
+        1713:   [hash= 9361189] System`RotationBox
+        1714:   [hash= 9378493] System`$SystemCharacterEncoding
+        1715:   NULL
+        1716:   NULL
+        1717:   NULL
+        1718:   [hash= 9379741] System`Temporary
+        1719:   NULL
+        1720:   NULL
+        1721:   NULL
+        1722:   [hash= 9344181] System`OpenAppend
+        1723:   [hash= 9378389] System`SyntaxInformation
+        1724:   [hash= 9532117] System`Private`nsdata
+        1725:   NULL
+        1726:   NULL
+        1727:   NULL
+        1728:   NULL
+        1729:   NULL
+        1730:   NULL
+        1731:   NULL
+        1732:   NULL
+        1733:   NULL
+        1734:   NULL
+        1735:   NULL
+        1736:   NULL
+        1737:   NULL
+        1738:   NULL
+        1739:   [hash= 9338069] System`N
+        1740:   NULL
+        1741:   NULL
+        1742:   [hash= 9295445] System`Characters
+        1743:   NULL
+        1744:   NULL
+        1745:   [hash= 9351021] System`Path
+        1746:   NULL
+        1747:   [hash= 9254677] Internal`GetThreadId
+        1748:   NULL
+        1749:   [hash= 9317837] System`Framed
+        1750:   NULL
+        1751:   NULL
+        1752:   NULL
+        1753:   NULL
+        1754:   NULL
+        1755:   NULL
+        1756:   NULL
+        1757:   NULL
+        1758:   NULL
+        1759:   NULL
+        1760:   NULL
+        1761:   NULL
+        1762:   [hash= 9376309] System`StringPosition
+        1763:   NULL
+        1764:   NULL
+        1765:   NULL
+        1766:   NULL
+        1767:   NULL
+        1768:   [hash= 9336197] System`MachinePrecision
+        1769:   NULL
+        1770:   [hash= 9311309] System`$Failed
+        1771:   NULL
+        1772:   NULL
+        1773:   [hash= 9320021] System`$HistoryLength
+        1774:   NULL
+        1775:   NULL
+        1776:   NULL
+        1777:   NULL
+        1778:   [hash= 9310373] System`EvaluationSequence
+        1779:   [hash= 9327381] System`IsExactNumber
+        1780:   NULL
+        1781:   NULL
+        1782:   [hash= 9377349] System`Subsuperscript
+        1783:   NULL
+        1784:   NULL
+        1785:   NULL
+        1786:   [hash= 9319501] System`GridBoxColumnSpacing
+        1787:   [hash= 9319085] System`Greater
+        1788:   NULL
+        1789:   NULL
+        1790:   NULL
+        1791:   [hash= 9293365] System`Bold
+        1792:   [hash= 9343557] System`Number
+        1793:   NULL
+        1794:   NULL
+        1795:   NULL
+        1796:   NULL
+        1797:   [hash= 9359733] System`Remove
+        1798:   NULL
+        1799:   NULL
+        1800:   NULL
+        1801:   NULL
+        1802:   NULL
+        1803:   [hash= 9321373] System`IgnoreCase
+        1804:   [hash= 9293989] System`Break
+        1805:   NULL
+        1806:   NULL
+        1807:   [hash= 9336925] System`$MaxMachineNumber
+        1808:   NULL
+        1809:   [hash= 9381965] System`UnderoverscriptBox
+        1810:   NULL
+        1811:   NULL
+        1812:   NULL
+        1813:   [hash= 9371757] System`StringDrop
+        1814:   NULL
+        1815:   NULL
+        1816:   [hash= 9293573] System`BoxData
+        1817:   NULL
+        1818:   NULL
+        1819:   NULL
+        1820:   [hash= 9380821] System`ToBoxes
+        1821:   [hash= 9379221] System`Take
+        1822:   NULL
+        1823:   NULL
+        1824:   [hash= 9344597] System`Optional
+        1825:   NULL
+        1826:   NULL
+        1827:   NULL
+        1828:   NULL
+        1829:   [hash= 9311101] System`Factorial
+        1830:   NULL
+        1831:   NULL
+        1832:   NULL
+        1833:   [hash= 9298397] System`Default
+        1834:   NULL
+        1835:   NULL
+        1836:   NULL
+        1837:   [hash= 9377453] System`SubsuperscriptBox
+        1838:   NULL
+        1839:   NULL
+        1840:   [hash= 9255165] Internal`DynamicUpdated
+        1841:   NULL
+        1842:   NULL
+        1843:   NULL
+        1844:   NULL
+        1845:   NULL
+        1846:   NULL
+        1847:   [hash= 9358693] System`RawBoxes
+        1848:   NULL
+        1849:   [hash= 9343245] System`NHoldRest
+        1850:   NULL
+        1851:   NULL
+        1852:   NULL
+        1853:   NULL
+        1854:   NULL
+        1855:   NULL
+        1856:   NULL
+        1857:   [hash= 9310685] System`Expand
+        1858:   NULL
+        1859:   NULL
+        1860:   NULL
+        1861:   NULL
+        1862:   NULL
+        1863:   NULL
+        1864:   NULL
+        1865:   NULL
+        1866:   NULL
+        1867:   NULL
+        1868:   NULL
+        1869:   NULL
+        1870:   [hash= 55391037]        Global`data
+        1871:   NULL
+        1872:   [hash= 9309645] System`EndOfString
+        1873:   NULL
+        1874:   NULL
+        1875:   NULL
+        1876:   [hash= 9362125] System`Sech
+        1877:   [hash= 9294301] System`ButtonFrame
+        1878:   NULL
+        1879:   [hash= 9282637] System`ArcSech
+        1880:   NULL
+        1881:   [hash= 9300685] System`Drop
+        1882:   NULL
+        1883:   NULL
+        1884:   NULL
+        1885:   NULL
+        1886:   NULL
+        1887:   NULL
+        1888:   NULL
+        1889:   NULL
+        1890:   NULL
+        1891:   NULL
+        1892:   [hash= 9336821] System`$MaxExtraPrecision
+        1893:   [hash= 9297109] System`Cos
+        1894:   [hash= 9351333] System`Pattern
+        1895:   NULL
+        1896:   [hash= 9361501] System`Rule
+        1897:   NULL
+        1898:   NULL
+        1899:   NULL
+        1900:   NULL
+        1901:   NULL
+        1902:   [hash= 9311725] System`FileNames
+        1903:   NULL
+        1904:   NULL
+        1905:   NULL
+        1906:   NULL
+        1907:   NULL
+        1908:   [hash= 9255477] Internal`$NamespaceStack
+        1909:   NULL
+        1910:   [hash= 9381341] System`Try
+        1911:   [hash= 9284509] System`BeginPackage
+        1912:   NULL
+        1913:   NULL
+        1914:   NULL
+        1915:   [hash= 9320229] System`HoldAll
+        1916:   NULL
+        1917:   NULL
+        1918:   NULL
+        1919:   [hash= 9335053] System`List
+        1920:   NULL
+        1921:   NULL
+        1922:   [hash= 9337029] System`$MinMachineNumber
+        1923:   NULL
+        1924:   NULL
+        1925:   NULL
+        1926:   NULL
+        1927:   NULL
+        1928:   NULL
+        1929:   NULL
+        1930:   NULL
+        1931:   NULL
+        1932:   NULL
+        1933:   [hash= 9378181] System`Synchronize
+        1934:   NULL
+        1935:   NULL
+        1936:   NULL
+        1937:   NULL
+        1938:   NULL
+        1939:   NULL
+        1940:   NULL
+        1941:   NULL
+        1942:   NULL
+        1943:   NULL
+        1944:   NULL
+        1945:   NULL
+        1946:   NULL
+        1947:   [hash= 9533157] System`Private`b
+        1948:   NULL
+        1949:   NULL
+        1950:   NULL
+        1951:   NULL
+        1952:   NULL
+        1953:   [hash= 9318877] System`Goto
+        1954:   NULL
+        1955:   NULL
+        1956:   NULL
+        1957:   [hash= 9369989] System`ShowStringCharacters
+        1958:   NULL
+        1959:   [hash= 9353413] System`Product
+        1960:   NULL
+        1961:   NULL
+        1962:   NULL
+        1963:   NULL
+        1964:   NULL
+        1965:   NULL
+        1966:   [hash= 9362021] System`Sec
+        1967:   NULL
+        1968:   NULL
+        1969:   [hash= 9327173] System`Intersection
+        1970:   NULL
+        1971:   NULL
+        1972:   NULL
+        1973:   [hash= 9370301] System`Sinh
+        1974:   [hash= 9295133] System`Character
+        1975:   [hash= 9294613] System`ByteOrdering
+        1976:   NULL
+        1977:   NULL
+        1978:   NULL
+        1979:   NULL
+        1980:   NULL
+        1981:   NULL
+        1982:   [hash= 9334221] System`LeafCount
+        1983:   NULL
+        1984:   NULL
+        1985:   NULL
+        1986:   NULL
+        1987:   [hash= 9342413] System`Namespace
+        1988:   NULL
+        1989:   NULL
+        1990:   [hash= 9294197] System`ButtonBox
+        1991:   [hash= 9320333] System`HoldAllComplete
+        1992:   NULL
+        1993:   NULL
+        1994:   NULL
+        1995:   [hash= 9379949] System`TextShadow
+        1996:   NULL
+        1997:   [hash= 9318357] System`Gamma
+        1998:   NULL
+        1999:   NULL
+        2000:   NULL
+        2001:   NULL
+        2002:   NULL
+        2003:   NULL
+        2004:   [hash= 9354245] System`RandomReal
+        2005:   [hash= 9352165] System`PlusMinus
+        2006:   [hash= 9313077] System`FontSize
+        2007:   NULL
+        2008:   [hash= 9465557] System`Private`name
+        2009:   [hash= 9335365] System`LoadLibrary
+        2010:   NULL
+        2011:   NULL
+        2012:   NULL
+        2013:   NULL
+        2014:   [hash= 9312661] System`Fold
+        2015:   NULL
+        2016:   [hash= 9350605] System`ParserArguments
+        2017:   NULL
+        2018:   NULL
+        2019:   NULL
+        2020:   [hash= 9301205] System`EndOfFile
+        2021:   [hash= 9327901] System`IsHeld
+        2022:   [hash= 9377245] System`SubscriptBox
+        2023:   [hash= 9382589] System`Update
+        2024:   NULL
+        2025:   NULL
+        2026:   [hash= 9318981] System`GrayLevel
+        2027:   NULL
+        2028:   NULL
+        2029:   NULL
+        2030:   [hash= 9326445] System`$Input
+        2031:   NULL
+        2032:   [hash= 9335677] System`LogGamma
+        2033:   NULL
+        2034:   NULL
+        2035:   [hash= 9465037] System`Util`latexToBoxes
+        2036:   NULL
+        2037:   [hash= 9337549] System`Messages
+        2038:   NULL
+        2039:   NULL
+        2040:   NULL
+        2041:   [hash= 9326653] System`InputForm
+        2042:   [hash= 9371237] System`StandardForm
+        2043:   NULL
+        2044:   NULL
+        2045:   NULL
+        2046:   NULL
+        2047:   NULL
+<-------------------------------
+SSpSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSppppppppppppSSSCSSpSSSpSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS
+SSSSSppppSpCSSSpSSpSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSppppppppppCSSSppSSppSSSSSSSSSSSSppSSprrr
+rpprrrrpprrrrpprrrrpppppppSSpppSSSppppppppppppppppppppppppppppppCSSSpSSpSSSSSSSSSSSSSSSSSSSppppppppp
+pppppppppppppppCSSSpSSpSSSSSSSSSSSSSSSSSSSpppppSpppppSppCSSSpSSpSSSSSSSSSSSSSSSSSSSppppppCSSSSSpSSSS
+SSSSSSSSSSSSSSSpppCSSSpSpSSSSSSSSSSSSSSSSSSSSpppppCSSSpSSpSSSSSSSSSSSSSSSSSSSppppppppppppppppppppppp
+TpTpTpTpTpprrrrpprrrrpprrrrpprrrrpprrrrpprrrrpprrrrpprrrrpprrrrpprrrrpprrrrpprrrrpprrrrpprrrrpprrrrp
+prrrrpprrrrpprrrrpprrrrpprrrrpprrrrpprrrrpprrrrpprrrrpprrrrpprrrrpprrrrpprrrrpprrrrpprrrrpprrrrpprrr
+rpprrrrpprrrrpprrrrpprrrrpprrrrpprrrrpprrrrpprrrrpprrrrpprrrrpprrrrpprrrrpprrrrpprrrrpprrrrpprrrrppr
+rrrpppppppppppppppppppppSpSpSpSpSpppCSSSpSSpSSSSSSSSSSSSSSSSSppppppCSSSppSSSSSSSSSSSSSSSSpCSSSppSSSS
+SSSSSSSSSSSSpCSSSpSSpSSSSSSSSSSSSSSSSpCSSSpSSpSSSSSSSSSSSSSSSSppppppppppppSCpSSSSSSpppppppppppCS
+ctrl+e: System`Section(System`BoxData("a"), "Text")
+pCppppppppppppCS
+ctrl+e: System`Section(System`BoxData("a"), "Section")
+pCpppppppppppppCS
+ctrl+e: System`Section(System`BoxData("a"), "Subtitle")
+pCpppppppCS
+ctrl+e: System`Section(System`BoxData("a"), "Title")
+pppCpppppSpSpSpSpSpSpSpSpppppppppppCS
+ctrl+e: System`Section(System`BoxData("a"), "Section")
+ppppppppppppppppppppppppppppppppppppppprrrrpprrrrpprrrrpprrrrpprrrrpprrrrppppppppppppppppppppppppppp
+pppppTpTpTpTpTpppquitted
+[kill deamon 0091FFB0]S[- thread]
+[- thread]
+[- thread]
+Symbol 'System`TimeConstrained`stop$788' (00917540) still has 1 reference(s)
+expr cache hit rate:             0.872787 (202223 of 231698)
+int cache hit rate:              0.680067 (7342 of 10796)
+machine float cache hit rate:    0.940196 (2594 of 2759)
+multi prec float cache hit rate: 0.400000 (4 of 10)
+
+type                 allocations
+float (machine prec)    165
+float (multi prec)        6
+integer                3454
+quotient                315
+string               120496
+symbol                  603
+expression (general)  29981
+expression (part)    323502
+symbol rule             466
+custom                   36
+total object allocations: 479024
+global_timer = 840551
+
+    size allocs resize    sum
+<=     4   9827      0   9827
+<=     8 134233   3352 137585
+<=    12    185      9    194
+<=    16  37330      9  37339
+<=    20  71936      5  71941
+<=    24    836      2    838
+<=    28    112      1    113
+<=    32  14235    133  14368
+<=    48 352543    123 352666
+<=    56   4906      2   4908
+<=    64  34295     72  34367
+<=    72   2897      2   2899
+<=    80     52      3     55
+<=    96     54      4     58
+<=   128   2779     59   2838
+<=   192   1142     17   1159
+<=   256   1186     16   1202
+<=   512   1519     47   1566
+<=  1024    152     38    190
+>   1024    120   2643   2763
+
+total:   670339   6537 676876
+
+memory: 0 (should be 0)
+max. used: 1938432
+[- process]
+
+Process returned 0 (0x0)   execution time : 1631.233 s
+Press any key to continue.

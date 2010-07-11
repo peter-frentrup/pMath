@@ -1,0 +1,1341 @@
+(* Content-type: application/mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 6.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       145,          7]
+NotebookDataLength[     46410,       1332]
+NotebookOptionsPosition[     45973,       1312]
+NotebookOutlinePosition[     46316,       1327]
+CellTagsIndexPosition[     46273,       1324]
+WindowFrame->Normal
+ContainsDynamic->True *)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell["Power of a Product", "Title",
+ CellChangeTimes->{{3.446920745126738*^9, 3.446920752721738*^9}}],
+
+Cell[TextData[{
+ "Click on the items to change their color/state.\n\t",
+ Cell[BoxData[
+  FormBox[GridBox[{
+     {Cell["expand sign"], "\[Equal]", 
+      GraphicsBox[
+       {RGBColor[0, 1, 0], RectangleBox[{0, 0}]},
+       ImageSize->20]},
+     {
+      RowBox[{"expand", " ", 
+       RowBox[{"pos", "."}]}], "\[Equal]", 
+      GraphicsBox[
+       {RGBColor[0, 1, 1], RectangleBox[{0, 0}]},
+       ImageSize->20]},
+     {
+      RowBox[{"no", " ", "expand"}], "\[Equal]", 
+      GraphicsBox[
+       {RGBColor[1, 0.5, 0.5], RectangleBox[{0, 0}]},
+       ImageSize->20]}
+    }], TraditionalForm]]]
+}], "Text",
+ CellChangeTimes->{{3.446913910519738*^9, 3.4469140328807383`*^9}, 
+   3.446920829217738*^9, {3.446920904877738*^9, 3.446920916035738*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"DynamicModule", "[", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{
+    "values", ",", "f", ",", "styles", ",", "toggle", ",", "bg", ",", 
+     "kind"}], "}"}], ",", "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"values", "=", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"-", "3"}], ",", 
+       RowBox[{"-", "3.0"}], ",", 
+       RowBox[{
+        RowBox[{"-", "3"}], "/", "2"}], ",", 
+       RowBox[{"-", "Pi"}], ",", 
+       RowBox[{
+        RowBox[{"-", "2"}], "I"}], ",", 
+       RowBox[{"(", 
+        RowBox[{"1", "+", "I"}], ")"}], ",", "A"}], "}"}]}], ";", 
+    "\[IndentingNewLine]", 
+    RowBox[{"styles", "=", 
+     RowBox[{"{", 
+      RowBox[{"Automatic", ",", "Pink", ",", "Cyan", ",", "Green"}], "}"}]}], 
+    ";", "\[IndentingNewLine]", 
+    RowBox[{"kind", "=", 
+     RowBox[{"ConstantArray", "[", 
+      RowBox[{"1", ",", 
+       RowBox[{"{", 
+        RowBox[{
+         RowBox[{"Length", "[", "values", "]"}], ",", 
+         RowBox[{"Length", "[", "values", "]"}]}], "}"}]}], "]"}]}], ";", 
+    "\[IndentingNewLine]", 
+    RowBox[{
+     RowBox[{"f", "[", 
+      RowBox[{
+       RowBox[{"-", "1"}], ",", 
+       RowBox[{"-", "1"}]}], "]"}], ":=", 
+     "\"\<(a X\!\(\*SuperscriptBox[\()\), \(b\)]\)\>\""}], ";", 
+    "\[IndentingNewLine]", 
+    RowBox[{
+     RowBox[{"f", "[", 
+      RowBox[{
+       RowBox[{"-", "1"}], ",", "0"}], "]"}], ":=", "SpanFromLeft"}], ";", 
+    "\[IndentingNewLine]", 
+    RowBox[{
+     RowBox[{"f", "[", 
+      RowBox[{"0", ",", 
+       RowBox[{"-", "1"}]}], "]"}], ":=", "SpanFromAbove"}], ";", 
+    "\[IndentingNewLine]", 
+    RowBox[{
+     RowBox[{"f", "[", 
+      RowBox[{"0", ",", "0"}], "]"}], ":=", "SpanFromBoth"}], ";", 
+    "\[IndentingNewLine]", 
+    RowBox[{
+     RowBox[{"f", "[", 
+      RowBox[{
+       RowBox[{"-", "1"}], ",", "1"}], "]"}], ":=", "\"\<b\>\""}], ";", 
+    "\[IndentingNewLine]", 
+    RowBox[{
+     RowBox[{"f", "[", 
+      RowBox[{
+       RowBox[{"-", "1"}], ",", "_"}], "]"}], ":=", "SpanFromLeft"}], ";", 
+    "\[IndentingNewLine]", 
+    RowBox[{
+     RowBox[{"f", "[", 
+      RowBox[{"1", ",", 
+       RowBox[{"-", "1"}]}], "]"}], ":=", "\"\<a\>\""}], ";", 
+    "\[IndentingNewLine]", 
+    RowBox[{
+     RowBox[{"f", "[", 
+      RowBox[{"_", ",", 
+       RowBox[{"-", "1"}]}], "]"}], ":=", "SpanFromAbove"}], ";", 
+    "\[IndentingNewLine]", 
+    RowBox[{
+     RowBox[{"f", "[", 
+      RowBox[{"i_", ",", "0"}], "]"}], ":=", 
+     RowBox[{
+     "values", "\[LeftDoubleBracket]", "i", "\[RightDoubleBracket]"}]}], ";", 
+    "\[IndentingNewLine]", 
+    RowBox[{
+     RowBox[{"f", "[", 
+      RowBox[{"0", ",", "j_"}], "]"}], ":=", 
+     RowBox[{
+     "values", "\[LeftDoubleBracket]", "j", "\[RightDoubleBracket]"}]}], ";", 
+    "\[IndentingNewLine]", 
+    RowBox[{
+     RowBox[{"f", "[", 
+      RowBox[{"i_", ",", "j_"}], "]"}], ":=", 
+     RowBox[{"Quiet", "[", 
+      RowBox[{
+       RowBox[{"(", 
+        RowBox[{
+         RowBox[{
+         "values", "\[LeftDoubleBracket]", "i", "\[RightDoubleBracket]"}], 
+         " ", "X"}], ")"}], "^", 
+       RowBox[{
+       "values", "\[LeftDoubleBracket]", "j", "\[RightDoubleBracket]"}]}], 
+      "]"}]}], ";", "\[IndentingNewLine]", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"toggle", "[", 
+       RowBox[{"x_", ",", "i_", ",", "j_"}], "]"}], "/;", 
+      RowBox[{
+       RowBox[{"i", ">", "0"}], "&&", 
+       RowBox[{"j", ">", "0"}]}]}], ":=", 
+     RowBox[{"Button", "[", 
+      RowBox[{"x", ",", 
+       RowBox[{
+        RowBox[{"kind", "\[LeftDoubleBracket]", 
+         RowBox[{"i", ",", "j"}], "\[RightDoubleBracket]"}], "=", 
+        RowBox[{"1", "+", 
+         RowBox[{"Mod", "[", 
+          RowBox[{
+           RowBox[{"kind", "\[LeftDoubleBracket]", 
+            RowBox[{"i", ",", "j"}], "\[RightDoubleBracket]"}], ",", 
+           RowBox[{"Length", "[", "styles", "]"}]}], "]"}]}]}], ",", 
+       RowBox[{"Appearance", "\[Rule]", "\"\<Frameless\>\""}]}], "]"}]}], ";",
+     "\[IndentingNewLine]", 
+    RowBox[{
+     RowBox[{"toggle", "[", 
+      RowBox[{"x_", ",", "_", ",", "_"}], "]"}], ":=", "x"}], ";", 
+    "\[IndentingNewLine]", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"bg", "[", 
+       RowBox[{"x_", ",", "i_", ",", "j_"}], "]"}], "/;", 
+      RowBox[{
+       RowBox[{"i", ">", "0"}], "&&", 
+       RowBox[{"j", ">", "0"}]}]}], ":=", 
+     RowBox[{"Item", "[", 
+      RowBox[{"x", ",", 
+       RowBox[{"Background", "\[Rule]", 
+        RowBox[{"Dynamic", "[", 
+         RowBox[{"styles", "\[LeftDoubleBracket]", 
+          RowBox[{"kind", "\[LeftDoubleBracket]", 
+           RowBox[{"i", ",", "j"}], "\[RightDoubleBracket]"}], 
+          "\[RightDoubleBracket]"}], "]"}]}]}], "]"}]}], ";", 
+    "\[IndentingNewLine]", 
+    RowBox[{
+     RowBox[{"bg", "[", 
+      RowBox[{"x_", ",", "_", ",", "_"}], "]"}], ":=", "x"}], ";", 
+    "\[IndentingNewLine]", 
+    RowBox[{"Grid", "[", 
+     RowBox[{
+      RowBox[{"Table", "[", 
+       RowBox[{
+        RowBox[{"bg", "[", 
+         RowBox[{
+          RowBox[{"toggle", "[", 
+           RowBox[{
+            RowBox[{"f", "[", 
+             RowBox[{"i", ",", "j"}], "]"}], ",", "i", ",", "j"}], "]"}], ",",
+           "i", ",", "j"}], "]"}], ",", 
+        RowBox[{"{", 
+         RowBox[{"i", ",", 
+          RowBox[{"-", "1"}], ",", 
+          RowBox[{"Length", "[", "values", "]"}]}], "}"}], ",", 
+        RowBox[{"{", 
+         RowBox[{"j", ",", 
+          RowBox[{"-", "1"}], ",", 
+          RowBox[{"Length", "[", "values", "]"}]}], "}"}]}], "]"}], ",", 
+      "\[IndentingNewLine]", 
+      RowBox[{"Frame", "\[Rule]", "All"}], ",", 
+      RowBox[{"Alignment", "\[Rule]", 
+       RowBox[{"{", 
+        RowBox[{"Center", ",", "Center"}], "}"}]}], ",", 
+      RowBox[{"ItemSize", "\[Rule]", "Full"}], ",", "\[IndentingNewLine]", 
+      RowBox[{"Background", "\[Rule]", 
+       RowBox[{"{", 
+        RowBox[{
+         RowBox[{"{", 
+          RowBox[{"Gray", ",", "LightGray", ",", "None"}], "}"}], ",", 
+         RowBox[{"{", 
+          RowBox[{"Gray", ",", "LightGray", ",", "None"}], "}"}]}], "}"}]}]}],
+      "]"}]}]}], "]"}]], "Input",
+ CellChangeTimes->{{3.446911957586738*^9, 3.4469120326457376`*^9}, {
+  3.4469120662817383`*^9, 3.446912094793738*^9}, {3.446912451396738*^9, 
+  3.446912471570738*^9}, {3.446912532812738*^9, 3.4469125636457376`*^9}, {
+  3.446912743654738*^9, 3.446912772989738*^9}, {3.4469130461497383`*^9, 
+  3.446913051661738*^9}, {3.446913111219738*^9, 3.4469131298957376`*^9}, {
+  3.446913233761738*^9, 3.446913237941738*^9}, {3.4469135504727383`*^9, 
+  3.4469136349997377`*^9}, {3.446913666523738*^9, 3.446913694831738*^9}}],
+
+Cell[BoxData[
+ DynamicModuleBox[{$CellContext`values$$ = {-3, -3., 
+   Rational[-3, 2], -Pi, 
+   Complex[0, -2], 
+   Complex[1, 1], $CellContext`A}, $CellContext`f$$, $CellContext`styles$$ = {
+  Automatic, 
+   RGBColor[1, 0.5, 0.5], 
+   RGBColor[0, 1, 1], 
+   RGBColor[
+   0, 1, 0]}, $CellContext`toggle$$, $CellContext`bg$$, $CellContext`kind$$ = \
+{{4, 3, 3, 3, 3, 3, 3}, {4, 3, 3, 3, 3, 3, 3}, {4, 3, 3, 3, 3, 3, 3}, {4, 3, 
+  3, 3, 3, 3, 3}, {4, 3, 3, 3, 3, 3, 3}, {4, 2, 2, 2, 2, 2, 2}, {4, 2, 2, 2, 
+  2, 2, 2}}}, 
+  TagBox[GridBox[{
+     {"\<\"(a X\\!\\(\\*SuperscriptBox[\\()\\), \\(b\\)]\\)\"\>", 
+      "\[SpanFromLeft]", "\<\"b\"\>", "\[SpanFromLeft]", "\[SpanFromLeft]", 
+      "\[SpanFromLeft]", "\[SpanFromLeft]", "\[SpanFromLeft]", 
+      "\[SpanFromLeft]"},
+     {"\[SpanFromAbove]", "\[SpanFromBoth]", 
+      RowBox[{"-", "3"}], 
+      RowBox[{"-", "3.`"}], 
+      RowBox[{"-", 
+       FractionBox["3", "2"]}], 
+      RowBox[{"-", "\[Pi]"}], 
+      RowBox[{
+       RowBox[{"-", "2"}], " ", "\[ImaginaryI]"}], 
+      RowBox[{"1", "+", "\[ImaginaryI]"}], "A"},
+     {"\<\"a\"\>", 
+      RowBox[{"-", "3"}], 
+      ItemBox[
+       ButtonBox[
+        RowBox[{"-", 
+         FractionBox["1", 
+          RowBox[{"27", " ", 
+           SuperscriptBox["X", "3"]}]]}],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`kind$$, 1, 1] = 1 + Mod[
+            Part[$CellContext`kind$$, 1, 1], 
+            Length[$CellContext`styles$$]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         Part[$CellContext`styles$$, 
+          Part[$CellContext`kind$$, 1, 1]]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        FractionBox["0.037037037037037035`", 
+         SuperscriptBox[
+          RowBox[{"(", 
+           RowBox[{"-", "X"}], ")"}], "3.`"]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`kind$$, 1, 2] = 1 + Mod[
+            Part[$CellContext`kind$$, 1, 2], 
+            Length[$CellContext`styles$$]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         Part[$CellContext`styles$$, 
+          Part[$CellContext`kind$$, 1, 2]]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        FractionBox["1", 
+         RowBox[{"3", " ", 
+          SqrtBox["3"], " ", 
+          SuperscriptBox[
+           RowBox[{"(", 
+            RowBox[{"-", "X"}], ")"}], 
+           RowBox[{"3", "/", "2"}]]}]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`kind$$, 1, 3] = 1 + Mod[
+            Part[$CellContext`kind$$, 1, 3], 
+            Length[$CellContext`styles$$]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         Part[$CellContext`styles$$, 
+          Part[$CellContext`kind$$, 1, 3]]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        RowBox[{
+         SuperscriptBox["3", 
+          RowBox[{"-", "\[Pi]"}]], " ", 
+         SuperscriptBox[
+          RowBox[{"(", 
+           RowBox[{"-", "X"}], ")"}], 
+          RowBox[{"-", "\[Pi]"}]]}],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`kind$$, 1, 4] = 1 + Mod[
+            Part[$CellContext`kind$$, 1, 4], 
+            Length[$CellContext`styles$$]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         Part[$CellContext`styles$$, 
+          Part[$CellContext`kind$$, 1, 4]]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        RowBox[{
+         SuperscriptBox["3", 
+          RowBox[{
+           RowBox[{"-", "2"}], " ", "\[ImaginaryI]"}]], " ", 
+         SuperscriptBox[
+          RowBox[{"(", 
+           RowBox[{"-", "X"}], ")"}], 
+          RowBox[{
+           RowBox[{"-", "2"}], " ", "\[ImaginaryI]"}]]}],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`kind$$, 1, 5] = 1 + Mod[
+            Part[$CellContext`kind$$, 1, 5], 
+            Length[$CellContext`styles$$]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         Part[$CellContext`styles$$, 
+          Part[$CellContext`kind$$, 1, 5]]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        RowBox[{
+         SuperscriptBox["3", 
+          RowBox[{"1", "+", "\[ImaginaryI]"}]], " ", 
+         SuperscriptBox[
+          RowBox[{"(", 
+           RowBox[{"-", "X"}], ")"}], 
+          RowBox[{"1", "+", "\[ImaginaryI]"}]]}],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`kind$$, 1, 6] = 1 + Mod[
+            Part[$CellContext`kind$$, 1, 6], 
+            Length[$CellContext`styles$$]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         Part[$CellContext`styles$$, 
+          Part[$CellContext`kind$$, 1, 6]]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        RowBox[{
+         SuperscriptBox["3", "A"], " ", 
+         SuperscriptBox[
+          RowBox[{"(", 
+           RowBox[{"-", "X"}], ")"}], "A"]}],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`kind$$, 1, 7] = 1 + Mod[
+            Part[$CellContext`kind$$, 1, 7], 
+            Length[$CellContext`styles$$]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         Part[$CellContext`styles$$, 
+          Part[$CellContext`kind$$, 1, 7]]],
+       StripOnInput->False]},
+     {"\[SpanFromAbove]", 
+      RowBox[{"-", "3.`"}], 
+      ItemBox[
+       ButtonBox[
+        RowBox[{"-", 
+         FractionBox["0.037037037037037035`", 
+          SuperscriptBox["X", "3"]]}],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`kind$$, 2, 1] = 1 + Mod[
+            Part[$CellContext`kind$$, 2, 1], 
+            Length[$CellContext`styles$$]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         Part[$CellContext`styles$$, 
+          Part[$CellContext`kind$$, 2, 1]]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        FractionBox["0.037037037037037035`", 
+         SuperscriptBox[
+          RowBox[{"(", 
+           RowBox[{"-", "X"}], ")"}], "3.`"]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`kind$$, 2, 2] = 1 + Mod[
+            Part[$CellContext`kind$$, 2, 2], 
+            Length[$CellContext`styles$$]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         Part[$CellContext`styles$$, 
+          Part[$CellContext`kind$$, 2, 2]]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        FractionBox["0.19245008972987526`", 
+         SuperscriptBox[
+          RowBox[{"(", 
+           RowBox[{"-", "X"}], ")"}], 
+          RowBox[{"3", "/", "2"}]]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`kind$$, 2, 3] = 1 + Mod[
+            Part[$CellContext`kind$$, 2, 3], 
+            Length[$CellContext`styles$$]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         Part[$CellContext`styles$$, 
+          Part[$CellContext`kind$$, 2, 3]]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        RowBox[{"0.03170146783514191`", " ", 
+         SuperscriptBox[
+          RowBox[{"(", 
+           RowBox[{"-", "X"}], ")"}], 
+          RowBox[{"-", "\[Pi]"}]]}],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`kind$$, 2, 4] = 1 + Mod[
+            Part[$CellContext`kind$$, 2, 4], 
+            Length[$CellContext`styles$$]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         Part[$CellContext`styles$$, 
+          Part[$CellContext`kind$$, 2, 4]]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        RowBox[{
+         RowBox[{"(", 
+          RowBox[{
+           RowBox[{"-", "0.5862549342913523`"}], "-", 
+           RowBox[{"0.8101266271509918`", " ", "\[ImaginaryI]"}]}], ")"}], 
+         " ", 
+         SuperscriptBox[
+          RowBox[{"(", 
+           RowBox[{"-", "X"}], ")"}], 
+          RowBox[{
+           RowBox[{"-", "2"}], " ", "\[ImaginaryI]"}]]}],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`kind$$, 2, 5] = 1 + Mod[
+            Part[$CellContext`kind$$, 2, 5], 
+            Length[$CellContext`styles$$]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         Part[$CellContext`styles$$, 
+          Part[$CellContext`kind$$, 2, 5]]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        RowBox[{
+         RowBox[{"(", 
+          RowBox[{"1.3644972684798293`", "\[InvisibleSpace]", "+", 
+           RowBox[{"2.671731125003242`", " ", "\[ImaginaryI]"}]}], ")"}], " ",
+          
+         SuperscriptBox[
+          RowBox[{"(", 
+           RowBox[{"-", "X"}], ")"}], 
+          RowBox[{"1", "+", "\[ImaginaryI]"}]]}],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`kind$$, 2, 6] = 1 + Mod[
+            Part[$CellContext`kind$$, 2, 6], 
+            Length[$CellContext`styles$$]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         Part[$CellContext`styles$$, 
+          Part[$CellContext`kind$$, 2, 6]]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        RowBox[{
+         SuperscriptBox["3.`", "A"], " ", 
+         SuperscriptBox[
+          RowBox[{"(", 
+           RowBox[{"-", "X"}], ")"}], "A"]}],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`kind$$, 2, 7] = 1 + Mod[
+            Part[$CellContext`kind$$, 2, 7], 
+            Length[$CellContext`styles$$]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         Part[$CellContext`styles$$, 
+          Part[$CellContext`kind$$, 2, 7]]],
+       StripOnInput->False]},
+     {"\[SpanFromAbove]", 
+      RowBox[{"-", 
+       FractionBox["3", "2"]}], 
+      ItemBox[
+       ButtonBox[
+        RowBox[{"-", 
+         FractionBox["8", 
+          RowBox[{"27", " ", 
+           SuperscriptBox["X", "3"]}]]}],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`kind$$, 3, 1] = 1 + Mod[
+            Part[$CellContext`kind$$, 3, 1], 
+            Length[$CellContext`styles$$]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         Part[$CellContext`styles$$, 
+          Part[$CellContext`kind$$, 3, 1]]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        FractionBox["0.2962962962962963`", 
+         SuperscriptBox[
+          RowBox[{"(", 
+           RowBox[{"-", "X"}], ")"}], "3.`"]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`kind$$, 3, 2] = 1 + Mod[
+            Part[$CellContext`kind$$, 3, 2], 
+            Length[$CellContext`styles$$]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         Part[$CellContext`styles$$, 
+          Part[$CellContext`kind$$, 3, 2]]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        FractionBox[
+         RowBox[{"2", " ", 
+          SqrtBox[
+           FractionBox["2", "3"]]}], 
+         RowBox[{"3", " ", 
+          SuperscriptBox[
+           RowBox[{"(", 
+            RowBox[{"-", "X"}], ")"}], 
+           RowBox[{"3", "/", "2"}]]}]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`kind$$, 3, 3] = 1 + Mod[
+            Part[$CellContext`kind$$, 3, 3], 
+            Length[$CellContext`styles$$]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         Part[$CellContext`styles$$, 
+          Part[$CellContext`kind$$, 3, 3]]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        RowBox[{
+         SuperscriptBox[
+          RowBox[{"(", 
+           FractionBox["3", "2"], ")"}], 
+          RowBox[{"-", "\[Pi]"}]], " ", 
+         SuperscriptBox[
+          RowBox[{"(", 
+           RowBox[{"-", "X"}], ")"}], 
+          RowBox[{"-", "\[Pi]"}]]}],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`kind$$, 3, 4] = 1 + Mod[
+            Part[$CellContext`kind$$, 3, 4], 
+            Length[$CellContext`styles$$]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         Part[$CellContext`styles$$, 
+          Part[$CellContext`kind$$, 3, 4]]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        RowBox[{
+         SuperscriptBox[
+          RowBox[{"(", 
+           FractionBox["3", "2"], ")"}], 
+          RowBox[{
+           RowBox[{"-", "2"}], " ", "\[ImaginaryI]"}]], " ", 
+         SuperscriptBox[
+          RowBox[{"(", 
+           RowBox[{"-", "X"}], ")"}], 
+          RowBox[{
+           RowBox[{"-", "2"}], " ", "\[ImaginaryI]"}]]}],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`kind$$, 3, 5] = 1 + Mod[
+            Part[$CellContext`kind$$, 3, 5], 
+            Length[$CellContext`styles$$]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         Part[$CellContext`styles$$, 
+          Part[$CellContext`kind$$, 3, 5]]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        RowBox[{
+         SuperscriptBox[
+          RowBox[{"(", 
+           FractionBox["3", "2"], ")"}], 
+          RowBox[{"1", "+", "\[ImaginaryI]"}]], " ", 
+         SuperscriptBox[
+          RowBox[{"(", 
+           RowBox[{"-", "X"}], ")"}], 
+          RowBox[{"1", "+", "\[ImaginaryI]"}]]}],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`kind$$, 3, 6] = 1 + Mod[
+            Part[$CellContext`kind$$, 3, 6], 
+            Length[$CellContext`styles$$]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         Part[$CellContext`styles$$, 
+          Part[$CellContext`kind$$, 3, 6]]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        RowBox[{
+         SuperscriptBox[
+          RowBox[{"(", 
+           FractionBox["3", "2"], ")"}], "A"], " ", 
+         SuperscriptBox[
+          RowBox[{"(", 
+           RowBox[{"-", "X"}], ")"}], "A"]}],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`kind$$, 3, 7] = 1 + Mod[
+            Part[$CellContext`kind$$, 3, 7], 
+            Length[$CellContext`styles$$]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         Part[$CellContext`styles$$, 
+          Part[$CellContext`kind$$, 3, 7]]],
+       StripOnInput->False]},
+     {"\[SpanFromAbove]", 
+      RowBox[{"-", "\[Pi]"}], 
+      ItemBox[
+       ButtonBox[
+        RowBox[{"-", 
+         FractionBox["1", 
+          RowBox[{
+           SuperscriptBox["\[Pi]", "3"], " ", 
+           SuperscriptBox["X", "3"]}]]}],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`kind$$, 4, 1] = 1 + Mod[
+            Part[$CellContext`kind$$, 4, 1], 
+            Length[$CellContext`styles$$]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         Part[$CellContext`styles$$, 
+          Part[$CellContext`kind$$, 4, 1]]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        FractionBox["0.032251534433199495`", 
+         SuperscriptBox[
+          RowBox[{"(", 
+           RowBox[{"-", "X"}], ")"}], "3.`"]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`kind$$, 4, 2] = 1 + Mod[
+            Part[$CellContext`kind$$, 4, 2], 
+            Length[$CellContext`styles$$]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         Part[$CellContext`styles$$, 
+          Part[$CellContext`kind$$, 4, 2]]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        FractionBox["1", 
+         RowBox[{
+          SuperscriptBox["\[Pi]", 
+           RowBox[{"3", "/", "2"}]], " ", 
+          SuperscriptBox[
+           RowBox[{"(", 
+            RowBox[{"-", "X"}], ")"}], 
+           RowBox[{"3", "/", "2"}]]}]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`kind$$, 4, 3] = 1 + Mod[
+            Part[$CellContext`kind$$, 4, 3], 
+            Length[$CellContext`styles$$]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         Part[$CellContext`styles$$, 
+          Part[$CellContext`kind$$, 4, 3]]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        RowBox[{
+         SuperscriptBox["\[Pi]", 
+          RowBox[{"-", "\[Pi]"}]], " ", 
+         SuperscriptBox[
+          RowBox[{"(", 
+           RowBox[{"-", "X"}], ")"}], 
+          RowBox[{"-", "\[Pi]"}]]}],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`kind$$, 4, 4] = 1 + Mod[
+            Part[$CellContext`kind$$, 4, 4], 
+            Length[$CellContext`styles$$]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         Part[$CellContext`styles$$, 
+          Part[$CellContext`kind$$, 4, 4]]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        RowBox[{
+         SuperscriptBox["\[Pi]", 
+          RowBox[{
+           RowBox[{"-", "2"}], " ", "\[ImaginaryI]"}]], " ", 
+         SuperscriptBox[
+          RowBox[{"(", 
+           RowBox[{"-", "X"}], ")"}], 
+          RowBox[{
+           RowBox[{"-", "2"}], " ", "\[ImaginaryI]"}]]}],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`kind$$, 4, 5] = 1 + Mod[
+            Part[$CellContext`kind$$, 4, 5], 
+            Length[$CellContext`styles$$]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         Part[$CellContext`styles$$, 
+          Part[$CellContext`kind$$, 4, 5]]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        RowBox[{
+         SuperscriptBox["\[Pi]", 
+          RowBox[{"1", "+", "\[ImaginaryI]"}]], " ", 
+         SuperscriptBox[
+          RowBox[{"(", 
+           RowBox[{"-", "X"}], ")"}], 
+          RowBox[{"1", "+", "\[ImaginaryI]"}]]}],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`kind$$, 4, 6] = 1 + Mod[
+            Part[$CellContext`kind$$, 4, 6], 
+            Length[$CellContext`styles$$]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         Part[$CellContext`styles$$, 
+          Part[$CellContext`kind$$, 4, 6]]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        RowBox[{
+         SuperscriptBox["\[Pi]", "A"], " ", 
+         SuperscriptBox[
+          RowBox[{"(", 
+           RowBox[{"-", "X"}], ")"}], "A"]}],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`kind$$, 4, 7] = 1 + Mod[
+            Part[$CellContext`kind$$, 4, 7], 
+            Length[$CellContext`styles$$]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         Part[$CellContext`styles$$, 
+          Part[$CellContext`kind$$, 4, 7]]],
+       StripOnInput->False]},
+     {"\[SpanFromAbove]", 
+      RowBox[{
+       RowBox[{"-", "2"}], " ", "\[ImaginaryI]"}], 
+      ItemBox[
+       ButtonBox[
+        RowBox[{"-", 
+         FractionBox["\[ImaginaryI]", 
+          RowBox[{"8", " ", 
+           SuperscriptBox["X", "3"]}]]}],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`kind$$, 5, 1] = 1 + Mod[
+            Part[$CellContext`kind$$, 5, 1], 
+            Length[$CellContext`styles$$]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         Part[$CellContext`styles$$, 
+          Part[$CellContext`kind$$, 5, 1]]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        FractionBox["0.125`", 
+         SuperscriptBox[
+          RowBox[{"(", 
+           RowBox[{
+            RowBox[{"-", "\[ImaginaryI]"}], " ", "X"}], ")"}], "3.`"]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`kind$$, 5, 2] = 1 + Mod[
+            Part[$CellContext`kind$$, 5, 2], 
+            Length[$CellContext`styles$$]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         Part[$CellContext`styles$$, 
+          Part[$CellContext`kind$$, 5, 2]]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        FractionBox["1", 
+         RowBox[{"2", " ", 
+          SqrtBox["2"], " ", 
+          SuperscriptBox[
+           RowBox[{"(", 
+            RowBox[{
+             RowBox[{"-", "\[ImaginaryI]"}], " ", "X"}], ")"}], 
+           RowBox[{"3", "/", "2"}]]}]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`kind$$, 5, 3] = 1 + Mod[
+            Part[$CellContext`kind$$, 5, 3], 
+            Length[$CellContext`styles$$]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         Part[$CellContext`styles$$, 
+          Part[$CellContext`kind$$, 5, 3]]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        RowBox[{
+         SuperscriptBox["2", 
+          RowBox[{"-", "\[Pi]"}]], " ", 
+         SuperscriptBox[
+          RowBox[{"(", 
+           RowBox[{
+            RowBox[{"-", "\[ImaginaryI]"}], " ", "X"}], ")"}], 
+          RowBox[{"-", "\[Pi]"}]]}],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`kind$$, 5, 4] = 1 + Mod[
+            Part[$CellContext`kind$$, 5, 4], 
+            Length[$CellContext`styles$$]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         Part[$CellContext`styles$$, 
+          Part[$CellContext`kind$$, 5, 4]]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        RowBox[{
+         SuperscriptBox["2", 
+          RowBox[{
+           RowBox[{"-", "2"}], " ", "\[ImaginaryI]"}]], " ", 
+         SuperscriptBox[
+          RowBox[{"(", 
+           RowBox[{
+            RowBox[{"-", "\[ImaginaryI]"}], " ", "X"}], ")"}], 
+          RowBox[{
+           RowBox[{"-", "2"}], " ", "\[ImaginaryI]"}]]}],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`kind$$, 5, 5] = 1 + Mod[
+            Part[$CellContext`kind$$, 5, 5], 
+            Length[$CellContext`styles$$]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         Part[$CellContext`styles$$, 
+          Part[$CellContext`kind$$, 5, 5]]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        RowBox[{
+         SuperscriptBox["2", 
+          RowBox[{"1", "+", "\[ImaginaryI]"}]], " ", 
+         SuperscriptBox[
+          RowBox[{"(", 
+           RowBox[{
+            RowBox[{"-", "\[ImaginaryI]"}], " ", "X"}], ")"}], 
+          RowBox[{"1", "+", "\[ImaginaryI]"}]]}],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`kind$$, 5, 6] = 1 + Mod[
+            Part[$CellContext`kind$$, 5, 6], 
+            Length[$CellContext`styles$$]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         Part[$CellContext`styles$$, 
+          Part[$CellContext`kind$$, 5, 6]]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        RowBox[{
+         SuperscriptBox["2", "A"], " ", 
+         SuperscriptBox[
+          RowBox[{"(", 
+           RowBox[{
+            RowBox[{"-", "\[ImaginaryI]"}], " ", "X"}], ")"}], "A"]}],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`kind$$, 5, 7] = 1 + Mod[
+            Part[$CellContext`kind$$, 5, 7], 
+            Length[$CellContext`styles$$]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         Part[$CellContext`styles$$, 
+          Part[$CellContext`kind$$, 5, 7]]],
+       StripOnInput->False]},
+     {"\[SpanFromAbove]", 
+      RowBox[{"1", "+", "\[ImaginaryI]"}], 
+      ItemBox[
+       ButtonBox[
+        RowBox[{"-", 
+         FractionBox[
+          RowBox[{
+           FractionBox["1", "4"], "+", 
+           FractionBox["\[ImaginaryI]", "4"]}], 
+          SuperscriptBox["X", "3"]]}],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`kind$$, 6, 1] = 1 + Mod[
+            Part[$CellContext`kind$$, 6, 1], 
+            Length[$CellContext`styles$$]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         Part[$CellContext`styles$$, 
+          Part[$CellContext`kind$$, 6, 1]]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        FractionBox["1", 
+         SuperscriptBox[
+          RowBox[{"(", 
+           RowBox[{
+            RowBox[{"(", 
+             RowBox[{"1", "+", "\[ImaginaryI]"}], ")"}], " ", "X"}], ")"}], 
+          "3.`"]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`kind$$, 6, 2] = 1 + Mod[
+            Part[$CellContext`kind$$, 6, 2], 
+            Length[$CellContext`styles$$]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         Part[$CellContext`styles$$, 
+          Part[$CellContext`kind$$, 6, 2]]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        FractionBox["1", 
+         SuperscriptBox[
+          RowBox[{"(", 
+           RowBox[{
+            RowBox[{"(", 
+             RowBox[{"1", "+", "\[ImaginaryI]"}], ")"}], " ", "X"}], ")"}], 
+          RowBox[{"3", "/", "2"}]]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`kind$$, 6, 3] = 1 + Mod[
+            Part[$CellContext`kind$$, 6, 3], 
+            Length[$CellContext`styles$$]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         Part[$CellContext`styles$$, 
+          Part[$CellContext`kind$$, 6, 3]]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        SuperscriptBox[
+         RowBox[{"(", 
+          RowBox[{
+           RowBox[{"(", 
+            RowBox[{"1", "+", "\[ImaginaryI]"}], ")"}], " ", "X"}], ")"}], 
+         RowBox[{"-", "\[Pi]"}]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`kind$$, 6, 4] = 1 + Mod[
+            Part[$CellContext`kind$$, 6, 4], 
+            Length[$CellContext`styles$$]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         Part[$CellContext`styles$$, 
+          Part[$CellContext`kind$$, 6, 4]]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        SuperscriptBox[
+         RowBox[{"(", 
+          RowBox[{
+           RowBox[{"(", 
+            RowBox[{"1", "+", "\[ImaginaryI]"}], ")"}], " ", "X"}], ")"}], 
+         RowBox[{
+          RowBox[{"-", "2"}], " ", "\[ImaginaryI]"}]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`kind$$, 6, 5] = 1 + Mod[
+            Part[$CellContext`kind$$, 6, 5], 
+            Length[$CellContext`styles$$]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         Part[$CellContext`styles$$, 
+          Part[$CellContext`kind$$, 6, 5]]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        SuperscriptBox[
+         RowBox[{"(", 
+          RowBox[{
+           RowBox[{"(", 
+            RowBox[{"1", "+", "\[ImaginaryI]"}], ")"}], " ", "X"}], ")"}], 
+         RowBox[{"1", "+", "\[ImaginaryI]"}]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`kind$$, 6, 6] = 1 + Mod[
+            Part[$CellContext`kind$$, 6, 6], 
+            Length[$CellContext`styles$$]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         Part[$CellContext`styles$$, 
+          Part[$CellContext`kind$$, 6, 6]]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        SuperscriptBox[
+         RowBox[{"(", 
+          RowBox[{
+           RowBox[{"(", 
+            RowBox[{"1", "+", "\[ImaginaryI]"}], ")"}], " ", "X"}], ")"}], 
+         "A"],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`kind$$, 6, 7] = 1 + Mod[
+            Part[$CellContext`kind$$, 6, 7], 
+            Length[$CellContext`styles$$]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         Part[$CellContext`styles$$, 
+          Part[$CellContext`kind$$, 6, 7]]],
+       StripOnInput->False]},
+     {"\[SpanFromAbove]", "A", 
+      ItemBox[
+       ButtonBox[
+        FractionBox["1", 
+         RowBox[{
+          SuperscriptBox["A", "3"], " ", 
+          SuperscriptBox["X", "3"]}]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`kind$$, 7, 1] = 1 + Mod[
+            Part[$CellContext`kind$$, 7, 1], 
+            Length[$CellContext`styles$$]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         Part[$CellContext`styles$$, 
+          Part[$CellContext`kind$$, 7, 1]]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        FractionBox["1", 
+         SuperscriptBox[
+          RowBox[{"(", 
+           RowBox[{"A", " ", "X"}], ")"}], "3.`"]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`kind$$, 7, 2] = 1 + Mod[
+            Part[$CellContext`kind$$, 7, 2], 
+            Length[$CellContext`styles$$]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         Part[$CellContext`styles$$, 
+          Part[$CellContext`kind$$, 7, 2]]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        FractionBox["1", 
+         SuperscriptBox[
+          RowBox[{"(", 
+           RowBox[{"A", " ", "X"}], ")"}], 
+          RowBox[{"3", "/", "2"}]]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`kind$$, 7, 3] = 1 + Mod[
+            Part[$CellContext`kind$$, 7, 3], 
+            Length[$CellContext`styles$$]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         Part[$CellContext`styles$$, 
+          Part[$CellContext`kind$$, 7, 3]]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        SuperscriptBox[
+         RowBox[{"(", 
+          RowBox[{"A", " ", "X"}], ")"}], 
+         RowBox[{"-", "\[Pi]"}]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`kind$$, 7, 4] = 1 + Mod[
+            Part[$CellContext`kind$$, 7, 4], 
+            Length[$CellContext`styles$$]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         Part[$CellContext`styles$$, 
+          Part[$CellContext`kind$$, 7, 4]]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        SuperscriptBox[
+         RowBox[{"(", 
+          RowBox[{"A", " ", "X"}], ")"}], 
+         RowBox[{
+          RowBox[{"-", "2"}], " ", "\[ImaginaryI]"}]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`kind$$, 7, 5] = 1 + Mod[
+            Part[$CellContext`kind$$, 7, 5], 
+            Length[$CellContext`styles$$]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         Part[$CellContext`styles$$, 
+          Part[$CellContext`kind$$, 7, 5]]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        SuperscriptBox[
+         RowBox[{"(", 
+          RowBox[{"A", " ", "X"}], ")"}], 
+         RowBox[{"1", "+", "\[ImaginaryI]"}]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`kind$$, 7, 6] = 1 + Mod[
+            Part[$CellContext`kind$$, 7, 6], 
+            Length[$CellContext`styles$$]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         Part[$CellContext`styles$$, 
+          Part[$CellContext`kind$$, 7, 6]]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        SuperscriptBox[
+         RowBox[{"(", 
+          RowBox[{"A", " ", "X"}], ")"}], "A"],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`kind$$, 7, 7] = 1 + Mod[
+            Part[$CellContext`kind$$, 7, 7], 
+            Length[$CellContext`styles$$]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         Part[$CellContext`styles$$, 
+          Part[$CellContext`kind$$, 7, 7]]],
+       StripOnInput->False]}
+    },
+    ColumnsEqual->False,
+    GridBoxAlignment->{"Columns" -> {{Center}}, "Rows" -> {{Center}}},
+    GridBoxBackground->{"Columns" -> {
+        GrayLevel[0.5], 
+        GrayLevel[0.85], None}, "Rows" -> {
+        GrayLevel[0.5], 
+        GrayLevel[0.85], None}},
+    GridBoxFrame->{"Columns" -> {{True}}, "Rows" -> {{True}}},
+    GridBoxItemSize->{"Columns" -> {{All}}, "Rows" -> {{All}}},
+    RowsEqual->False],
+   "Grid"],
+  DynamicModuleValues:>{{DownValues[$CellContext`f$$] = {HoldPattern[
+         $CellContext`f$$[-1, -1]] :> 
+       "(a X\!\(\*SuperscriptBox[\()\), \(b\)]\)", HoldPattern[
+         $CellContext`f$$[-1, 0]] :> SpanFromLeft, HoldPattern[
+         $CellContext`f$$[-1, 1]] :> "b", HoldPattern[
+         $CellContext`f$$[0, -1]] :> SpanFromAbove, HoldPattern[
+         $CellContext`f$$[0, 0]] :> SpanFromBoth, HoldPattern[
+         $CellContext`f$$[1, -1]] :> "a", HoldPattern[
+         $CellContext`f$$[-1, 
+          Blank[]]] :> SpanFromLeft, HoldPattern[
+         $CellContext`f$$[
+          Blank[], -1]] :> SpanFromAbove, HoldPattern[
+         $CellContext`f$$[
+          Pattern[$CellContext`i$, 
+           Blank[]], 0]] :> Part[$CellContext`values$$, $CellContext`i$], 
+       HoldPattern[
+         $CellContext`f$$[0, 
+          Pattern[$CellContext`j$, 
+           Blank[]]]] :> Part[$CellContext`values$$, $CellContext`j$], 
+       HoldPattern[
+         $CellContext`f$$[
+          Pattern[$CellContext`i$, 
+           Blank[]], 
+          Pattern[$CellContext`j$, 
+           Blank[]]]] :> 
+       Quiet[(Part[$CellContext`values$$, $CellContext`i$] $CellContext`X)^
+         Part[$CellContext`values$$, $CellContext`j$]]}}, {
+    DownValues[$CellContext`toggle$$] = {HoldPattern[
+         Condition[
+          $CellContext`toggle$$[
+           Pattern[$CellContext`x$, 
+            Blank[]], 
+           Pattern[$CellContext`i$, 
+            Blank[]], 
+           Pattern[$CellContext`j$, 
+            Blank[]]], 
+          And[$CellContext`i$ > 0, $CellContext`j$ > 0]]] :> 
+       Button[$CellContext`x$, 
+         Part[$CellContext`kind$$, $CellContext`i$, $CellContext`j$] = 
+         1 + Mod[
+            Part[$CellContext`kind$$, $CellContext`i$, $CellContext`j$], 
+            Length[$CellContext`styles$$]], Appearance -> "Frameless"], 
+       HoldPattern[
+         $CellContext`toggle$$[
+          Pattern[$CellContext`x, 
+           Blank[]], 
+          Blank[], 
+          Blank[]]] :> $CellContext`x}}, {
+    DownValues[$CellContext`bg$$] = {HoldPattern[
+         Condition[
+          $CellContext`bg$$[
+           Pattern[$CellContext`x$, 
+            Blank[]], 
+           Pattern[$CellContext`i$, 
+            Blank[]], 
+           Pattern[$CellContext`j$, 
+            Blank[]]], 
+          And[$CellContext`i$ > 0, $CellContext`j$ > 0]]] :> 
+       Item[$CellContext`x$, Background -> Dynamic[
+           Part[$CellContext`styles$$, 
+            Part[$CellContext`kind$$, $CellContext`i$, $CellContext`j$]]]], 
+       HoldPattern[
+         $CellContext`bg$$[
+          Pattern[$CellContext`x, 
+           Blank[]], 
+          Blank[], 
+          Blank[]]] :> $CellContext`x}}}]], "Output",
+ CellChangeTimes->{{3.446911998824738*^9, 3.446912009042738*^9}, {
+   3.446912045523738*^9, 3.446912095544738*^9}, {3.446912149243738*^9, 
+   3.446912227717738*^9}, {3.4469123464877377`*^9, 3.446912356929738*^9}, {
+   3.446912399423738*^9, 3.446912472004738*^9}, 3.446912563982738*^9, {
+   3.446912744773738*^9, 3.446912792680738*^9}, {3.4469128433077383`*^9, 
+   3.446912865194738*^9}, 3.446912916894738*^9, {3.446912948350738*^9, 
+   3.446912965391738*^9}, 3.446913055176738*^9, {3.4469131188487377`*^9, 
+   3.446913130297738*^9}, {3.446913234364738*^9, 3.446913248797738*^9}, 
+   3.4469136376307383`*^9, {3.446913675811738*^9, 3.446913695805738*^9}}]
+}, {2}]]
+}, Open  ]]
+},
+WindowSize->{877, 573},
+WindowMargins->{{104, Automatic}, {34, Automatic}},
+FrontEndVersion->"6.0 for Microsoft Windows (32-bit) (April 28, 2007)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[590, 23, 101, 1, 83, "Title"],
+Cell[694, 26, 745, 22, 105, "Text"],
+Cell[CellGroupData[{
+Cell[1464, 52, 6565, 182, 456, "Input"],
+Cell[8032, 236, 37916, 1072, 322, "Output"]
+}, {2}]]
+}, Open  ]]
+}
+]
+*)
+
+(* End of internal cache information *)

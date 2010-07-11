@@ -1,0 +1,115 @@
+#include <assert.h>
+#include <inttypes.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include <pmath-config.h>
+#include <pmath-types.h>
+#include <pmath-core/objects.h>
+#include <pmath-core/custom.h>
+
+#include <pmath-util/debug.h>
+#include <pmath-util/hashtables-private.h>
+#include <pmath-util/memory.h>
+
+#include <pmath-util/concurrency/atomic.h>
+
+#include <pmath-core/objects-inline.h>
+#include <pmath-core/objects-private.h>
+#include <pmath-core/custom-private.h>
+
+struct custom_t{
+  struct _pmath_t    inherited;
+  void              *data;
+  pmath_callback_t   destructor;
+};
+
+PMATH_API pmath_custom_t pmath_custom_new(
+  void              *data,
+  pmath_callback_t   destructor
+){
+  struct custom_t *custom;
+  
+  if(PMATH_UNLIKELY(!destructor))
+    return NULL;
+  
+  custom = (struct custom_t*)
+    _pmath_create_stub(
+      PMATH_TYPE_SHIFT_CUSTOM, 
+      sizeof(struct custom_t));
+  
+  if(PMATH_UNLIKELY(!custom)){
+    destructor(data);
+    return NULL;
+  }
+  
+  custom->data = data;
+  custom->destructor = destructor;
+  return (pmath_custom_t)custom;
+}
+
+PMATH_API void *pmath_custom_get_data(pmath_custom_t custom){
+  if(PMATH_UNLIKELY(!custom))
+    return NULL;
+  
+  assert(pmath_instance_of(custom, PMATH_TYPE_CUSTOM));
+  
+  return ((struct custom_t*)custom)->data;
+}
+
+PMATH_API pmath_bool_t pmath_custom_has_destructor(
+  pmath_custom_t    custom,
+  pmath_callback_t  dtor
+){
+  if(PMATH_UNLIKELY(!custom))
+    return FALSE;
+  
+  assert(pmath_instance_of(custom, PMATH_TYPE_CUSTOM));
+  
+  return ((struct custom_t*)custom)->destructor == dtor;
+}
+
+//{ pMath object functions ...
+
+static int compare_custom(
+  struct custom_t *customA,
+  struct custom_t *customB
+){
+  return (uintptr_t)customA < (uintptr_t)customB ? -1 : 1;
+}
+
+static unsigned int hash_custom(
+  struct custom_t *custom
+){
+  return 0;
+}
+
+static void destroy_custom(
+  struct custom_t *custom
+){
+  custom->destructor(custom->data);
+  pmath_mem_free(custom);
+}
+
+//} ... pMath object functions
+
+//{ module handling functions ...
+
+PMATH_PRIVATE pmath_bool_t _pmath_custom_objects_init(void){
+  _pmath_init_special_type(
+    PMATH_TYPE_SHIFT_CUSTOM,
+    (pmath_compare_func_t)        compare_custom,
+    (pmath_hash_func_t)           hash_custom,
+    (pmath_proc_t)                destroy_custom,
+    (pmath_equal_func_t)          NULL,
+    (_pmath_object_write_func_t)  NULL);
+    
+  return TRUE;
+}
+
+PMATH_PRIVATE void _pmath_custom_objects_done(void){
+}
+
+//} ... module handling functions

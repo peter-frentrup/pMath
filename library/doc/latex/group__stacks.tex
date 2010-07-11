@@ -1,0 +1,92 @@
+\hypertarget{group__stacks}{
+\subsection{Threadsafe Stacks}
+\label{group__stacks}\index{Threadsafe Stacks@{Threadsafe Stacks}}
+}
+Fast threadsafe stacks in pMath.  
+
+
+\subsubsection*{Data Structures}
+\begin{CompactItemize}
+\item 
+class \hyperlink{classpmath__stack__t}{pmath\_\-stack\_\-t}
+\begin{CompactList}\small\item\em The type of pMath's threadsafe stacks. \item\end{CompactList}\end{CompactItemize}
+\subsubsection*{Functions}
+\begin{CompactItemize}
+\item 
+PMATH\_\-API \hyperlink{classpmath__stack__t}{pmath\_\-stack\_\-t} \hyperlink{group__stacks_g4a549111f394261de5ac3cc3acda428b}{pmath\_\-stack\_\-new} (void)
+\begin{CompactList}\small\item\em Create an empty stack. \item\end{CompactList}\item 
+PMATH\_\-API void \hyperlink{group__stacks_gc681555957545245455f2a0ac97e3828}{pmath\_\-stack\_\-free} (\hyperlink{classpmath__stack__t}{pmath\_\-stack\_\-t} stack)
+\begin{CompactList}\small\item\em Destroy a stack. \item\end{CompactList}\item 
+PMATH\_\-API void \hyperlink{group__stacks_g56988223111a61b5b46f719e0efd546f}{pmath\_\-stack\_\-push} (\hyperlink{classpmath__stack__t}{pmath\_\-stack\_\-t} stack, void $\ast$item)
+\begin{CompactList}\small\item\em Push an item onto a stack. \item\end{CompactList}\item 
+PMATH\_\-API void $\ast$ \hyperlink{group__stacks_g45bcd2d27a9beb76949c1283b6367dab}{pmath\_\-stack\_\-pop} (\hyperlink{classpmath__stack__t}{pmath\_\-stack\_\-t} stack)
+\begin{CompactList}\small\item\em Pop an item from a stack. \item\end{CompactList}\end{CompactItemize}
+
+
+\subsubsection{Detailed Description}
+Fast threadsafe stacks in pMath. 
+
+\hyperlink{classpmath__stack__t}{pmath\_\-stack\_\-t} is a stack abstraction that provides threadsafe push and pop operations. You can push and pop any structure whose first element is a pointer (which you must not touch).
+
+If your CPU supports it, very fast lockfree operations are used for push and pop.
+
+References\begin{itemize}
+\item Fober, Orlarey, Letz: \char`\"{}Lock-Free Techniques for Concurrent Access to Shared Objects\char`\"{} (\href{http://jim.afim-asso.org/jim2002/articles/L17_Fober.pdf}{\tt http://jim.afim-asso.org/jim2002/articles/L17\_\-Fober.pdf}) \end{itemize}
+
+
+\subsubsection{Function Documentation}
+\hypertarget{group__stacks_g4a549111f394261de5ac3cc3acda428b}{
+\index{stacks@{stacks}!pmath\_\-stack\_\-new@{pmath\_\-stack\_\-new}}
+\index{pmath\_\-stack\_\-new@{pmath\_\-stack\_\-new}!stacks@{stacks}}
+\paragraph[{pmath\_\-stack\_\-new}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API {\bf pmath\_\-stack\_\-t} pmath\_\-stack\_\-new (void)}\hfill}
+\label{group__stacks_g4a549111f394261de5ac3cc3acda428b}
+
+
+Create an empty stack. 
+
+\begin{Desc}
+\item[Returns:]A new stack or NULL.\end{Desc}
+Note that you cannot push anything onto a NULL stack, so check the result. Free the result with \hyperlink{group__stacks_gc681555957545245455f2a0ac97e3828}{pmath\_\-stack\_\-free()}. \hypertarget{group__stacks_gc681555957545245455f2a0ac97e3828}{
+\index{stacks@{stacks}!pmath\_\-stack\_\-free@{pmath\_\-stack\_\-free}}
+\index{pmath\_\-stack\_\-free@{pmath\_\-stack\_\-free}!stacks@{stacks}}
+\paragraph[{pmath\_\-stack\_\-free}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API void pmath\_\-stack\_\-free ({\bf pmath\_\-stack\_\-t} {\em stack})}\hfill}
+\label{group__stacks_gc681555957545245455f2a0ac97e3828}
+
+
+Destroy a stack. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em stack}]A stack previously created with \hyperlink{group__stacks_g4a549111f394261de5ac3cc3acda428b}{pmath\_\-stack\_\-new()}. May be NULL.\end{description}
+\end{Desc}
+You must manually pop and free all items on the stack before calling this function, because those items would not be freed automatically. \hypertarget{group__stacks_g56988223111a61b5b46f719e0efd546f}{
+\index{stacks@{stacks}!pmath\_\-stack\_\-push@{pmath\_\-stack\_\-push}}
+\index{pmath\_\-stack\_\-push@{pmath\_\-stack\_\-push}!stacks@{stacks}}
+\paragraph[{pmath\_\-stack\_\-push}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API void pmath\_\-stack\_\-push ({\bf pmath\_\-stack\_\-t} {\em stack}, \/  void $\ast$ {\em item})}\hfill}
+\label{group__stacks_g56988223111a61b5b46f719e0efd546f}
+
+
+Push an item onto a stack. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em stack}]The stack to where the item should be pushed. Must not be NULL. \item[{\em item}]The item to be pushed. It must point to a structure whose first element is a pointer. Must not be NULL. \end{description}
+\end{Desc}
+\hypertarget{group__stacks_g45bcd2d27a9beb76949c1283b6367dab}{
+\index{stacks@{stacks}!pmath\_\-stack\_\-pop@{pmath\_\-stack\_\-pop}}
+\index{pmath\_\-stack\_\-pop@{pmath\_\-stack\_\-pop}!stacks@{stacks}}
+\paragraph[{pmath\_\-stack\_\-pop}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API void$\ast$ pmath\_\-stack\_\-pop ({\bf pmath\_\-stack\_\-t} {\em stack})}\hfill}
+\label{group__stacks_g45bcd2d27a9beb76949c1283b6367dab}
+
+
+Pop an item from a stack. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em stack}]The stack to pop an item from. Must not be NULL. \end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]The top of stack or NULL if it is empty. \end{Desc}

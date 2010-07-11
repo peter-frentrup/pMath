@@ -1,0 +1,73 @@
+\hypertarget{classpmath__t}{
+\subsection{pmath\_\-t Class Reference}
+\label{classpmath__t}\index{pmath\_\-t@{pmath\_\-t}}
+}
+The basic type of all pMath objects.  
+
+
+Inherited by \hyperlink{classpmath__custom__t}{pmath\_\-custom\_\-t}, \hyperlink{classpmath__expr__t}{pmath\_\-expr\_\-t}, \hyperlink{classpmath__number__t}{pmath\_\-number\_\-t}, \hyperlink{classpmath__string__t}{pmath\_\-string\_\-t}, and \hyperlink{classpmath__symbol__t}{pmath\_\-symbol\_\-t}.
+
+\subsubsection*{Public Member Functions}
+\begin{CompactItemize}
+\item 
+PMATH\_\-API \hyperlink{classpmath__t}{pmath\_\-t} \hyperlink{classpmath__t_42cd678b691046a58dede518315c6b13}{pmath\_\-ref}(\hyperlink{classpmath__t}{pmath\_\-t} obj)
+\begin{CompactList}\small\item\em Increments the reference counter of an object and returns it. \item\end{CompactList}\item 
+PMATH\_\-API void \hyperlink{classpmath__t_54e905402c38940687033b87eb8c6c9f}{pmath\_\-unref}(\hyperlink{classpmath__t}{pmath\_\-t} obj)
+\begin{CompactList}\small\item\em Decrements the reference counter of an object and frees its memory if the reference counter becomes 0. \item\end{CompactList}\item 
+PMATH\_\-API \hyperlink{group__general__types_gc92090cb0b56345d6c379ed2341d4ef4}{pmath\_\-bool\_\-t} \hyperlink{classpmath__t_0bd527f1ec2db8f1eba58e1fd84babbc}{pmath\_\-instance\_\-of}(\hyperlink{classpmath__t}{pmath\_\-t} obj, \hyperlink{group__objects_ge2646df76dcb0113715322b13a1f36f0}{pmath\_\-type\_\-t} type)
+\begin{CompactList}\small\item\em Determine whether an object has a specific type. \item\end{CompactList}\item 
+\hyperlink{group__objects_gfa4048bca71f5022d1fb979a5b930a11}{PMATH\_\-IS\_\-MAGIC}(obj)
+\begin{CompactList}\small\item\em Fast test, whether an object is a `magic value`. \item\end{CompactList}\item 
+PMATH\_\-API unsigned int \hyperlink{group__objects_g9413cfb0b3fd00d361046189853a11d8}{pmath\_\-hash} (\hyperlink{classpmath__t}{pmath\_\-t} obj)
+\begin{CompactList}\small\item\em Calculates an object's hash value. \item\end{CompactList}\item 
+PMATH\_\-API \hyperlink{group__general__types_gc92090cb0b56345d6c379ed2341d4ef4}{pmath\_\-bool\_\-t} \hyperlink{group__objects_g6475af7f7c85777392e38c570ac07892}{pmath\_\-equals} (\hyperlink{classpmath__t}{pmath\_\-t} objA, \hyperlink{classpmath__t}{pmath\_\-t} objB)
+\begin{CompactList}\small\item\em Compares two objects for identity. \item\end{CompactList}\item 
+PMATH\_\-API int \hyperlink{group__objects_gc57589e08f5b3eed28e724c646503735}{pmath\_\-compare} (\hyperlink{classpmath__t}{pmath\_\-t} objA, \hyperlink{classpmath__t}{pmath\_\-t} objB)
+\begin{CompactList}\small\item\em Compares two objects syntactically. \item\end{CompactList}\item 
+PMATH\_\-API void \hyperlink{group__objects_g9f909b9eb04317260ee8630d10e5a7c6}{pmath\_\-write} (\hyperlink{classpmath__t}{pmath\_\-t} obj, \hyperlink{group__objects_gd83ea6a616c49cbe35b5d3dafb877f7e}{pmath\_\-write\_\-options\_\-t} options, \hyperlink{group__general__types_g781a2e0445795bb4e091470fb20497cc}{pmath\_\-write\_\-func\_\-t} write, void $\ast$user)
+\begin{CompactList}\small\item\em Write an object to a stream. \item\end{CompactList}\item 
+PMATH\_\-API \hyperlink{group__general__types_gc92090cb0b56345d6c379ed2341d4ef4}{pmath\_\-bool\_\-t} \hyperlink{group__objects_gb26224de5170fa688fa67dd2e85834e3}{pmath\_\-is\_\-evaluated} (\hyperlink{classpmath__t}{pmath\_\-t} obj)
+\begin{CompactList}\small\item\em Test whether an object is already evaluated. \item\end{CompactList}\end{CompactItemize}
+\subsubsection*{Related Functions}
+(Note that these are not member functions.) \begin{CompactItemize}
+\item 
+PMATH\_\-API \hyperlink{classpmath__t}{pmath\_\-t} \hyperlink{classpmath__t_d95c86ef0de178de4d3560518c8a8157}{pmath\_\-evaluate} (\hyperlink{classpmath__t}{pmath\_\-t} obj)
+\begin{CompactList}\small\item\em Evaluate an object. \item\end{CompactList}\item 
+PMATH\_\-API \hyperlink{classpmath__t}{pmath\_\-t} \hyperlink{group__helpers_g96660afa0732edf675653eb6ddeab0a4}{pmath\_\-build\_\-value\_\-v} (const char $\ast$format, va\_\-list args)
+\begin{CompactList}\small\item\em Generate a List of objects with a format string. \item\end{CompactList}\item 
+PMATH\_\-API \hyperlink{classpmath__t}{pmath\_\-t} \hyperlink{group__helpers_g13a748aa283c5f5408cce037d3ad224d}{pmath\_\-build\_\-value} (const char $\ast$format,...)
+\begin{CompactList}\small\item\em Generate a List of objects with a format string. \item\end{CompactList}\end{CompactItemize}
+
+
+\subsubsection{Detailed Description}
+The basic type of all pMath objects. 
+
+Note that this is not neccessaryly a pointer to some accessible piece of memory. Use \hyperlink{classpmath__t_0bd527f1ec2db8f1eba58e1fd84babbc}{pmath\_\-instance\_\-of()} to determine whether an object is of a specific type or set of types.
+
+You must free unused objects with \hyperlink{classpmath__t_54e905402c38940687033b87eb8c6c9f}{pmath\_\-unref()}. 
+
+\subsubsection{Friends And Related Function Documentation}
+\hypertarget{classpmath__t_d95c86ef0de178de4d3560518c8a8157}{
+\index{pmath\_\-t@{pmath\_\-t}!pmath\_\-evaluate@{pmath\_\-evaluate}}
+\index{pmath\_\-evaluate@{pmath\_\-evaluate}!pmath_t@{pmath\_\-t}}
+\paragraph[{pmath\_\-evaluate}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API {\bf pmath\_\-t} pmath\_\-evaluate ({\bf pmath\_\-t} {\em obj})\hspace{0.3cm}{\tt  \mbox{[}related\mbox{]}}}\hfill}
+\label{classpmath__t_d95c86ef0de178de4d3560518c8a8157}
+
+
+Evaluate an object. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em obj}]Any pMath object. It will be freed. Do not use it afterwards. \end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]A new object produced by pMath's and user defined evaluation rules. \end{Desc}
+
+
+The documentation for this class was generated from the following files:\begin{CompactItemize}
+\item 
+pmath-core/objects.h\item 
+pmath-core/objects-inline.h\item 
+pmath-util/evaluation.h\item 
+pmath-util/helpers.h\end{CompactItemize}

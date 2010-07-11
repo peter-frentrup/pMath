@@ -1,0 +1,97 @@
+\hypertarget{group__messages}{
+\subsection{Messages}
+\label{group__messages}\index{Messages@{Messages}}
+}
+Error handling and informing the user.  
+
+
+\subsubsection*{Functions}
+\begin{CompactItemize}
+\item 
+PMATH\_\-API void \hyperlink{group__messages_g0b94d5352ce3c6df0ca458d3c5cd7e15}{pmath\_\-message} (\hyperlink{classpmath__symbol__t}{pmath\_\-symbol\_\-t} symbol, const char $\ast$tag, size\_\-t argcount,...)
+\begin{CompactList}\small\item\em Print a message with pMath object arguments. \item\end{CompactList}\item 
+PMATH\_\-API void \hyperlink{group__messages_gc917f491312d93a2f437e287ec8baefe}{pmath\_\-message\_\-argxxx} (size\_\-t given, size\_\-t min, size\_\-t max)
+\begin{CompactList}\small\item\em Generate a General::arg$\ast$ message (invalid argument count). \item\end{CompactList}\item 
+PMATH\_\-API \hyperlink{classpmath__string__t}{pmath\_\-string\_\-t} \hyperlink{group__messages_g7759741a35c086736838a677b5facc21}{pmath\_\-message\_\-find\_\-text} (\hyperlink{classpmath__t}{pmath\_\-t} name)
+\begin{CompactList}\small\item\em Find a message's text. \item\end{CompactList}\item 
+PMATH\_\-API void \hyperlink{group__messages_g1091404d83f219f7e18a70642007be4a}{pmath\_\-message\_\-syntax\_\-error} (\hyperlink{classpmath__string__t}{pmath\_\-string\_\-t} code, int position, \hyperlink{classpmath__string__t}{pmath\_\-string\_\-t} filename, int lines\_\-before\_\-code)
+\begin{CompactList}\small\item\em Print a syntax warning or error message. \item\end{CompactList}\end{CompactItemize}
+
+
+\subsubsection{Detailed Description}
+Error handling and informing the user. 
+
+When you encounter an error such as wrong argument usage in pMath functions, you just print out a message and return the handled expression unevaluated. You do {\em not\/} call \hyperlink{group__threads_g84e45036b76764def6390af12d2070bf}{pmath\_\-abort\_\-please()}.
+
+Example: The built in Power function invokes the Power::indet in case of 0$^\wedge$0.
+
+If you notice that a memory allocation failed, do nothing at all (even do not try to print a message). pMath automatically calls \hyperlink{group__threads_g84e45036b76764def6390af12d2070bf}{pmath\_\-abort\_\-please()} on out-of-memory and thus no message would be shown.
+
+Messages are similar to Mathematicas approach. On the language level, you enter `Message(symbol::tag, ...)` to print a message with optional inserted values `...`. You can use Backquotes to refer to given values.
+
+You can use all messages of the symbol General with every other symbol. 
+
+\subsubsection{Function Documentation}
+\hypertarget{group__messages_g0b94d5352ce3c6df0ca458d3c5cd7e15}{
+\index{messages@{messages}!pmath\_\-message@{pmath\_\-message}}
+\index{pmath\_\-message@{pmath\_\-message}!messages@{messages}}
+\paragraph[{pmath\_\-message}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API void pmath\_\-message ({\bf pmath\_\-symbol\_\-t} {\em symbol}, \/  const char $\ast$ {\em tag}, \/  size\_\-t {\em argcount}, \/   {\em ...})}\hfill}
+\label{group__messages_g0b94d5352ce3c6df0ca458d3c5cd7e15}
+
+
+Print a message with pMath object arguments. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em symbol}]The symbol, that defines the message. It wont be freed. NULL will be treated as \hyperlink{group__helpers_g70aa270956b6c8f8eb43431f9775ae88}{pmath\_\-current\_\-head()}. This is useful, because \hyperlink{group__helpers_g70aa270956b6c8f8eb43431f9775ae88}{pmath\_\-current\_\-head()} returns a reference, but \hyperlink{group__messages_g0b94d5352ce3c6df0ca458d3c5cd7e15}{pmath\_\-message()} would not free it. \item[{\em tag}]The message's tag as a zero-terminated C string. \item[{\em argcount}]The number of following arguments. \item[{\em ...}]Exactly {\em argcount\/} pMath objects. They all will be freed.\end{description}
+\end{Desc}
+\begin{Desc}
+\item[Note:]If symbol==NULL and \hyperlink{group__helpers_g70aa270956b6c8f8eb43431f9775ae88}{pmath\_\-current\_\-head()} is an expression f(), the function acts as if \hyperlink{group__helpers_g70aa270956b6c8f8eb43431f9775ae88}{pmath\_\-current\_\-head()} was f.
+
+All the symbols and expressions in ... will be embedded in HoldForm(...), because Message() would evaluate them. If you want one of the values to be evaluated, do it manually. \end{Desc}
+\hypertarget{group__messages_gc917f491312d93a2f437e287ec8baefe}{
+\index{messages@{messages}!pmath\_\-message\_\-argxxx@{pmath\_\-message\_\-argxxx}}
+\index{pmath\_\-message\_\-argxxx@{pmath\_\-message\_\-argxxx}!messages@{messages}}
+\paragraph[{pmath\_\-message\_\-argxxx}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API void pmath\_\-message\_\-argxxx (size\_\-t {\em given}, \/  size\_\-t {\em min}, \/  size\_\-t {\em max})}\hfill}
+\label{group__messages_gc917f491312d93a2f437e287ec8baefe}
+
+
+Generate a General::arg$\ast$ message (invalid argument count). 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em given}]The given number of arguments. \item[{\em min}]The minimum expected number of arguments. \item[{\em max}]The maximum expected number of arguments. \end{description}
+\end{Desc}
+\hypertarget{group__messages_g7759741a35c086736838a677b5facc21}{
+\index{messages@{messages}!pmath\_\-message\_\-find\_\-text@{pmath\_\-message\_\-find\_\-text}}
+\index{pmath\_\-message\_\-find\_\-text@{pmath\_\-message\_\-find\_\-text}!messages@{messages}}
+\paragraph[{pmath\_\-message\_\-find\_\-text}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API {\bf pmath\_\-string\_\-t} pmath\_\-message\_\-find\_\-text ({\bf pmath\_\-t} {\em name})}\hfill}
+\label{group__messages_g7759741a35c086736838a677b5facc21}
+
+
+Find a message's text. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em name}]An expression of the form symbol::name (that is MessageName(symbol, \char`\"{}name\char`\"{})). It will be freed. \end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]The message's content or NULL if nothing was found or the \hyperlink{group__objects_ge2646df76dcb0113715322b13a1f36f0}{magic value PMATH\_\-UNDEFINED}, if {\em name\/} does not have the expected form.\end{Desc}
+This function can be used in front-ends that overwrite the built-in Message function. \hypertarget{group__messages_g1091404d83f219f7e18a70642007be4a}{
+\index{messages@{messages}!pmath\_\-message\_\-syntax\_\-error@{pmath\_\-message\_\-syntax\_\-error}}
+\index{pmath\_\-message\_\-syntax\_\-error@{pmath\_\-message\_\-syntax\_\-error}!messages@{messages}}
+\paragraph[{pmath\_\-message\_\-syntax\_\-error}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API void pmath\_\-message\_\-syntax\_\-error ({\bf pmath\_\-string\_\-t} {\em code}, \/  int {\em position}, \/  {\bf pmath\_\-string\_\-t} {\em filename}, \/  int {\em lines\_\-before\_\-code})}\hfill}
+\label{group__messages_g1091404d83f219f7e18a70642007be4a}
+
+
+Print a syntax warning or error message. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em code}]The code. A pMath string. It wont be freed. \item[{\em position}]The position of the syntax error in the code. \item[{\em filename}]The file from where the input came or NULL to omit it. It will be freed. \item[{\em lines\_\-before\_\-code}]The number of lines in the input file before {\em code\/} was read. This is ignored if {\em filename\/} is NULL.\end{description}
+\end{Desc}
+This function poduces a Syntax::bgn, Syntax::bgnf, Syntax::nxt, Syntax::nxtf, Syntax::more, Syntax::moref, Syntax::newl or Syntax::newlf message, depending on where the syntax error is in the {\em code\/} and whether {\em filename\/} is not NULL. It can be used to report errors/warnings from \hyperlink{group__parser_g877ac507e27c8791a265105f796f3cef}{pmath\_\-spans\_\-from\_\-string()}. 

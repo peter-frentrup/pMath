@@ -1,0 +1,68 @@
+\hypertarget{group__general__types}{
+\subsection{General Purpose Types}
+\label{group__general__types}\index{General Purpose Types@{General Purpose Types}}
+}
+Useful type definitions that do not fit into any other category.  
+
+
+\subsubsection*{Defines}
+\begin{CompactItemize}
+\item 
+\hypertarget{group__general__types_ga93f0eb578d23995850d61f7d61c55c1}{
+\#define \hyperlink{group__general__types_ga93f0eb578d23995850d61f7d61c55c1}{FALSE}~((\hyperlink{group__general__types_gc92090cb0b56345d6c379ed2341d4ef4}{pmath\_\-bool\_\-t})0)}
+\label{group__general__types_ga93f0eb578d23995850d61f7d61c55c1}
+
+\begin{CompactList}\small\item\em The FALSE value for pmath\_\-bool\_\-t. \item\end{CompactList}\item 
+\hypertarget{group__general__types_ga8cecfc5c5c054d2875c03e77b7be15d}{
+\#define \hyperlink{group__general__types_ga8cecfc5c5c054d2875c03e77b7be15d}{TRUE}~(!FALSE)}
+\label{group__general__types_ga8cecfc5c5c054d2875c03e77b7be15d}
+
+\begin{CompactList}\small\item\em The TRUE value for pmath\_\-bool\_\-t. \item\end{CompactList}\end{CompactItemize}
+\subsubsection*{Typedefs}
+\begin{CompactItemize}
+\item 
+typedef char \hyperlink{group__general__types_gc92090cb0b56345d6c379ed2341d4ef4}{pmath\_\-bool\_\-t}
+\begin{CompactList}\small\item\em A boolean type. \item\end{CompactList}\item 
+typedef void($\ast$ \hyperlink{group__general__types_ge1a454657f18f3cc54508adeccccbcbc}{pmath\_\-callback\_\-t} )(void $\ast$)
+\begin{CompactList}\small\item\em A general callback function. \item\end{CompactList}\item 
+typedef void($\ast$ \hyperlink{group__general__types_g781a2e0445795bb4e091470fb20497cc}{pmath\_\-write\_\-func\_\-t} )(void $\ast$user, const uint16\_\-t $\ast$data, int len)
+\begin{CompactList}\small\item\em A UCS-2 writer callback function. \item\end{CompactList}\item 
+\hypertarget{group__general__types_ga04eea54f504dabf2289cf9f62cb6100}{
+typedef void($\ast$ \hyperlink{group__general__types_ga04eea54f504dabf2289cf9f62cb6100}{pmath\_\-write\_\-unichar\_\-func\_\-t} )(void $\ast$user, uint32\_\-t ch)}
+\label{group__general__types_ga04eea54f504dabf2289cf9f62cb6100}
+
+\begin{CompactList}\small\item\em A callback function to write a single unicode character. \item\end{CompactList}\end{CompactItemize}
+
+
+\subsubsection{Detailed Description}
+Useful type definitions that do not fit into any other category. 
+
+\subsubsection{Typedef Documentation}
+\hypertarget{group__general__types_gc92090cb0b56345d6c379ed2341d4ef4}{
+\index{general\_\-types@{general\_\-types}!pmath\_\-bool\_\-t@{pmath\_\-bool\_\-t}}
+\index{pmath\_\-bool\_\-t@{pmath\_\-bool\_\-t}!general_types@{general\_\-types}}
+\paragraph[{pmath\_\-bool\_\-t}]{\setlength{\rightskip}{0pt plus 5cm}typedef char {\bf pmath\_\-bool\_\-t}}\hfill}
+\label{group__general__types_gc92090cb0b56345d6c379ed2341d4ef4}
+
+
+A boolean type. 
+
+C does not define a boolean type, so we do it here for code clarity. The constants TRUE and FALSE can be used as return values for pmath\_\-bool\_\-t, but do not test on these. E.g. use {\tt if(test)...} instead of {\tt if(test == TRUE)...} but {\tt return TRUE;} instead of {\tt return 1;} \hypertarget{group__general__types_ge1a454657f18f3cc54508adeccccbcbc}{
+\index{general\_\-types@{general\_\-types}!pmath\_\-callback\_\-t@{pmath\_\-callback\_\-t}}
+\index{pmath\_\-callback\_\-t@{pmath\_\-callback\_\-t}!general_types@{general\_\-types}}
+\paragraph[{pmath\_\-callback\_\-t}]{\setlength{\rightskip}{0pt plus 5cm}typedef void($\ast$ {\bf pmath\_\-callback\_\-t})(void $\ast$)}\hfill}
+\label{group__general__types_ge1a454657f18f3cc54508adeccccbcbc}
+
+
+A general callback function. 
+
+This is used in various places where a callback function is needed, that does not only work with pMath objects. \hypertarget{group__general__types_g781a2e0445795bb4e091470fb20497cc}{
+\index{general\_\-types@{general\_\-types}!pmath\_\-write\_\-func\_\-t@{pmath\_\-write\_\-func\_\-t}}
+\index{pmath\_\-write\_\-func\_\-t@{pmath\_\-write\_\-func\_\-t}!general_types@{general\_\-types}}
+\paragraph[{pmath\_\-write\_\-func\_\-t}]{\setlength{\rightskip}{0pt plus 5cm}typedef void($\ast$ {\bf pmath\_\-write\_\-func\_\-t})(void $\ast$user, const uint16\_\-t $\ast$data, int len)}\hfill}
+\label{group__general__types_g781a2e0445795bb4e091470fb20497cc}
+
+
+A UCS-2 writer callback function. 
+
+The to-be-written data is not zero-terminated. 

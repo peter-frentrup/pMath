@@ -1,0 +1,68 @@
+\hypertarget{classpmath__string__t}{
+\subsection{pmath\_\-string\_\-t Class Reference}
+\label{classpmath__string__t}\index{pmath\_\-string\_\-t@{pmath\_\-string\_\-t}}
+}
+The string class.  
+
+
+Inherits \hyperlink{classpmath__t}{pmath\_\-t}.
+
+\subsubsection*{Public Member Functions}
+\begin{CompactItemize}
+\item 
+PMATH\_\-API \hyperlink{classpmath__string__t}{pmath\_\-string\_\-t} \hyperlink{group__strings_g9f860fe571fcb87515b82ddc704c93ef}{pmath\_\-string\_\-new} (int capacity)
+\begin{CompactList}\small\item\em Create an empty pMath String. \item\end{CompactList}\item 
+PMATH\_\-API \hyperlink{classpmath__string__t}{pmath\_\-string\_\-t} \hyperlink{group__strings_g0016e7daa5ca421a48b6d8bd3c5f7ff5}{pmath\_\-string\_\-insert\_\-latin1} (\hyperlink{classpmath__string__t}{pmath\_\-string\_\-t} str, int inspos, const char $\ast$ins, int inslen)
+\begin{CompactList}\small\item\em Insert an Latin-1 encoded buffer into a pMath String. \item\end{CompactList}\item 
+PMATH\_\-API \hyperlink{classpmath__string__t}{pmath\_\-string\_\-t} \hyperlink{group__strings_g0591f864ff17f7c27dc7b5032dab7551}{pmath\_\-string\_\-from\_\-utf8} (const char $\ast$str, int len)
+\begin{CompactList}\small\item\em Convert an UTF-8 encoded buffer to a pMath String. \item\end{CompactList}\item 
+PMATH\_\-API char $\ast$ \hyperlink{group__strings_g881c2e70d81dd43a79d5ccbecc933e79}{pmath\_\-string\_\-to\_\-utf8} (\hyperlink{classpmath__string__t}{pmath\_\-string\_\-t} str, int $\ast$result\_\-len)
+\begin{CompactList}\small\item\em Convert a pMath string to a zero-terminated UTF-8 string. \item\end{CompactList}\item 
+PMATH\_\-API \hyperlink{classpmath__string__t}{pmath\_\-string\_\-t} \hyperlink{group__strings_g37cf187968e366edd0998dda0bd5ea7a}{pmath\_\-string\_\-from\_\-native} (const char $\ast$str, int len)
+\begin{CompactList}\small\item\em Convert a string buffer in the current console character encoding to a pMath String. \item\end{CompactList}\item 
+PMATH\_\-API char $\ast$ \hyperlink{group__strings_g7ccade7efa65dc24f7cd573f15fc07e9}{pmath\_\-string\_\-to\_\-native} (\hyperlink{classpmath__string__t}{pmath\_\-string\_\-t} str, int $\ast$result\_\-len)
+\begin{CompactList}\small\item\em Convert a pMath string to a string in the current console character encoding. \item\end{CompactList}\item 
+\hyperlink{group__strings_g63b8849d6cfcfa9d73bd404d7a4071c0}{PMATH\_\-C\_\-STRING}(cstr)
+\begin{CompactList}\small\item\em Short form to convert a C String to a pMath String. \item\end{CompactList}\item 
+PMATH\_\-API \hyperlink{classpmath__string__t}{pmath\_\-string\_\-t} \hyperlink{group__strings_g5008b0b2e682b283772e10bf38666ffe}{pmath\_\-string\_\-insert\_\-codepage} (\hyperlink{classpmath__string__t}{pmath\_\-string\_\-t} str, int inspos, const char $\ast$ins, int inslen, const uint16\_\-t $\ast$cp)
+\begin{CompactList}\small\item\em Insert a byte string into a pMath string using a translation array. \item\end{CompactList}\item 
+PMATH\_\-API \hyperlink{classpmath__string__t}{pmath\_\-string\_\-t} \hyperlink{group__strings_ge49ea36d0f35856b6b9aeb0c4470c614}{pmath\_\-string\_\-insert\_\-ucs2} (\hyperlink{classpmath__string__t}{pmath\_\-string\_\-t} str, int inspos, const uint16\_\-t $\ast$ins, int inslen)
+\begin{CompactList}\small\item\em Insert a UCS-2 buffer into a pMath String. \item\end{CompactList}\item 
+PMATH\_\-API \hyperlink{classpmath__string__t}{pmath\_\-string\_\-t} \hyperlink{group__strings_g563af717f21793d72933a9914b23a6aa}{pmath\_\-string\_\-insert} (\hyperlink{classpmath__string__t}{pmath\_\-string\_\-t} str, int inspos, \hyperlink{classpmath__string__t}{pmath\_\-string\_\-t} ins)
+\begin{CompactList}\small\item\em Insert one pMath String into another pMath String. \item\end{CompactList}\item 
+PMATH\_\-API \hyperlink{classpmath__string__t}{pmath\_\-string\_\-t} \hyperlink{group__strings_g2594ada00fefcbede1420bf19b806de6}{pmath\_\-string\_\-concat} (\hyperlink{classpmath__string__t}{pmath\_\-string\_\-t} prefix, \hyperlink{classpmath__string__t}{pmath\_\-string\_\-t} postfix)
+\begin{CompactList}\small\item\em Concatenate two pMath Strings. \item\end{CompactList}\item 
+PMATH\_\-API \hyperlink{classpmath__string__t}{pmath\_\-string\_\-t} \hyperlink{group__strings_gb99f797d2a7670ff6a44d788d07812cd}{pmath\_\-string\_\-part} (\hyperlink{classpmath__string__t}{pmath\_\-string\_\-t} string, int start, int length)
+\begin{CompactList}\small\item\em Extract a substring of a pMath String. \item\end{CompactList}\item 
+PMATH\_\-API const uint16\_\-t $\ast$ \hyperlink{group__strings_g381c6abdb25ce421c93c72aa51f33c29}{pmath\_\-string\_\-buffer} (\hyperlink{classpmath__string__t}{pmath\_\-string\_\-t} string)
+\begin{CompactList}\small\item\em Get a string's buffer for reading. \item\end{CompactList}\item 
+PMATH\_\-API int \hyperlink{group__strings_g4f5ac7eaecd0c7e9916794145938874d}{pmath\_\-string\_\-length} (\hyperlink{classpmath__string__t}{pmath\_\-string\_\-t} string)
+\begin{CompactList}\small\item\em Get a string's length. \item\end{CompactList}\item 
+PMATH\_\-API \hyperlink{group__general__types_gc92090cb0b56345d6c379ed2341d4ef4}{pmath\_\-bool\_\-t} \hyperlink{group__strings_g710d7a70319d6fa805ddd7ed0ea65365}{pmath\_\-string\_\-equals\_\-latin1} (\hyperlink{classpmath__string__t}{pmath\_\-string\_\-t} string, const char $\ast$latin1)
+\begin{CompactList}\small\item\em Compare a pMth sting with a C string. \item\end{CompactList}\end{CompactItemize}
+\subsubsection*{Related Functions}
+(Note that these are not member functions.) \begin{CompactItemize}
+\item 
+PMATH\_\-API \hyperlink{classpmath__t}{pmath\_\-t} \hyperlink{group__parser_g78a874e9d0b6aca112bad336d319a1c1}{pmath\_\-string\_\-expand\_\-boxes} (\hyperlink{classpmath__string__t}{pmath\_\-string\_\-t} s)
+\begin{CompactList}\small\item\em Expand a string that contains boxes to a list of Strings and Boxes. \item\end{CompactList}\item 
+PMATH\_\-API \hyperlink{classpmath__t}{pmath\_\-t} \hyperlink{group__parser_g30c73f2fbcd116125cb5befd26b35ec4}{pmath\_\-parse\_\-string} (\hyperlink{classpmath__string__t}{pmath\_\-string\_\-t} code)
+\begin{CompactList}\small\item\em Parse a string to an expression. \item\end{CompactList}\item 
+PMATH\_\-API \hyperlink{classpmath__t}{pmath\_\-t} \hyperlink{group__parser_gac02e250fcd91e4fc03f0f7e8a6dd571}{pmath\_\-parse\_\-string\_\-args} (const char $\ast$code, const char $\ast$format,...)
+\begin{CompactList}\small\item\em Parse a string with additional arguments to an expression. \item\end{CompactList}\end{CompactItemize}
+
+
+\subsubsection{Detailed Description}
+The string class. 
+
+Because \hyperlink{classpmath__string__t}{pmath\_\-string\_\-t} is derived from \hyperlink{classpmath__t}{pmath\_\-t}, you can use strings wherever a \hyperlink{classpmath__t}{pmath\_\-t} is accepted. E.g. you compare two strings with \hyperlink{group__objects_gc57589e08f5b3eed28e724c646503735}{pmath\_\-compare()} or \hyperlink{group__objects_g6475af7f7c85777392e38c570ac07892}{pmath\_\-equals()}.
+
+The pmath\_\-type\_\-t of strings is PMATH\_\-TYPE\_\-STRING.
+
+\begin{Desc}
+\item[See also:]\hyperlink{group__objects}{Objects - the Base of pMath} \end{Desc}
+
+
+The documentation for this class was generated from the following files:\begin{CompactItemize}
+\item 
+pmath-core/strings.h\item 
+pmath-language/scanner.h\end{CompactItemize}

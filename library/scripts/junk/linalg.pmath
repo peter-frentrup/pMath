@@ -1,0 +1,175 @@
+
+Begin("System`linalg`")
+
+Unprotect(Cross);
+Cross(~~vectors)::= With({dim:= Dimensions({vectors})}, 
+	Local({e}, 
+		Det({Array(e, dim[2]), vectors}).Replace(e(~i) :> Array(Boole(i===#)&, dim[2]))) 
+	/? dim.Length === 2 && dim[1] + 1 === dim[2])
+Protect(Cross);
+
+
+/* coefficients of the characteristc polynomial 
+   march 2010: This is now implemented in the C code of pMath, see pmath-builtins/lists/det.c
+ */
+berkowitz(~M)::=
+	Local({A,Vect,i,j,r,C,S,Q,n},
+		A:= M;
+		n:= Length(M);
+		C:= Array(n+1);
+		Vect:= S:= Q:= Array(1..n+1);
+		C[1]:= Vect[1]:= -1;
+		Vect[2]:= A[1,1];
+		Do(
+			S:= S.ReplacePart(~i /? i < r :> A[i,r]);
+			C[2]:= A[r,r];
+			Do(
+				C[i+2]:= Plus @@ (A[r,1..r-1] * S[1..r-1]);
+				Do(
+					Q[j]:= Plus @@ (A[j,1..r-1] * S[1..r-1]);
+				,j->1..r-1);
+				S:= S.ReplacePart(~j /? j<r :> Q[j]);
+			,i->1..r-2);
+			C[r+1]:= Plus @@ (A[r,1..r-1] * S[1..r-1]);
+			Do(
+				Q[i]:= Plus @@ (C[i..Max(i+1-r,1)] * Vect[1..Min(r,i)])
+			,i->1..r+1);
+			Vect:= Vect.ReplacePart(~i /? i<=r+1 :> Q[i]);
+		,r->2..n);
+		Vect
+		/* If(Vect[1] = 1 || IsOdd(n),
+			Return(Vect[n+1]));
+		Return(-Vect[n+1]) */
+		)
+
+charPoly(~M, ~x)::= With({n:= Length(M)},
+	berkowitz(M) * Array(x^(n+1-#)&, n+1)
+	);
+
+
+decompLU::sing:= "Matrix `1` is singular.";
+
+/* from Numerical Recipes in C 
+   This is now implemented in the C code of pMath as LUDecomposition
+ */
+decompLU(~M)::=
+	Local({A,n,indx, i,imax,j,k, big,dum,sum, vv,tiny,exact},
+		A:= M;
+		n:= Length(M);
+		indx:= vv:= Array(n);
+		tiny:= Accuracy(A);
+		exact:= tiny===Infinity;
+		tiny:= 10^-tiny;
+		
+		If(exact,
+			For(i:= 1,i <= n,++i,
+				big:= 0;
+				For(j:= 1,j <= n,++j,
+					If((big = 0)===True,
+							big:= A[i,j]));
+				If(big = 0,
+					Message(decompLU::sing, M);
+					Return({A, indx}));
+				)
+		,
+			For(i:= 1,i <= n,++i,
+				big:= 0;
+				For(j:= 1,j <= n,++j,
+					If((big = 0)===True || Abs(A[i,j]) > Abs(big),
+							big:= A[i,j]));
+				If(big = 0,
+					Message(decompLU::sing, M);
+					Return({A, indx}));
+				vv[i]:= 1/big;
+				));
+		
+		For(j:= 1,j <= n,++j,
+			For(i:= 1,i < j,++i,
+				sum:= A[i,j];
+				For(k:= 1,k<i,++k,
+					sum-= A[i,k] * A[k,j]);
+				A[i,j]:= sum);
+			big:= 0;
+			For(i:= j,i <= n,++i,
+				sum:= A[i,j];
+				For(k:= 1,k<j,++k,
+					sum-= A[i,k]*A[k,j]);
+				A[i,j]:= sum;
+				
+				If(exact, 
+					If((big = 0)===True,
+						big:= sum;
+						imax:= i)
+				,
+					If((big = 0)===True || Abs(vv[i] * sum) > Abs(big),
+						big:= vv[i] * sum;
+						imax:= i));
+				);
+			If(j != imax,
+				{A[j], A[imax], indx[j], indx[imax], vv[imax]}:= {A[imax], A[j], indx[imax], indx[j], vv[j]};
+				);
+			If(A[j,j] = 0, 
+				If(exact, 
+					Message(decombLU::sing,M); 
+					Return(A,indx)
+				, 
+					A[j,j]:= tiny));
+			If(j != n,
+				dum:= 1/A[j,j];
+				For(i:= j+1,i <= n,++i,
+					A[i,j]*= dum);
+				);
+			);
+			{A, indx}
+		)
+		
+/* decompLU(~M)::=
+	Local({A,n,indx, i,imax,j,k, big,dum,sum,temp},
+		A:= M;
+		n:= Length(M);
+		indx:= Array(n);
+		
+		For(i:= 1,i <= n,++i,
+			big:= 0;
+			For(j:= 1,j <= n,++j,
+				If((big = 0)===True,
+					big:= A[i,j]));
+			If(big = 0,
+				Message(decompLU::sing, M);
+				Return({A, indx}));
+			);
+		
+		For(j:= 1,j <= n,++j,
+			For(i:= 1,i < j,++i,
+				sum:= A[i,j];
+				For(k:= 1,k<i,++k,
+					sum-= A[i,k] * A[k,j]);
+				A[i,j]:= sum);
+			big:= 0;
+			For(i:= j,i <= n,++i,
+				sum:= A[i,j];
+				For(k:= 1,k<j,++k,
+					sum-= A[i,k]*A[k,j]);
+				A[i,j]:= sum;
+				
+				If((big = 0)===True,
+					big:= sum;
+					imax:= i);
+				);
+			If(j != imax,
+				{A[j], A[imax], indx[j], indx[imax]}:= {A[imax], A[j], indx[imax], indx[j]};
+				);
+			If(j != n,
+				dum:= 1/A[j,j];
+				For(i:= j+1,i <= n,++i,
+					A[i,j]*= dum);
+				);
+			);
+			{A, indx}
+		)*/
+
+splitLU(~M:List)::= {
+	Array(If(#1 > #2, M[#1,#2], If(#1 = #2, 1, 0))&, Dimensions(M)),
+	Array(If(#1 <= #2, M[#1,#2], 0)&, Dimensions(M))}
+
+End()

@@ -1,0 +1,95 @@
+\hypertarget{group__custom}{
+\subsection{Custom Objects}
+\label{group__custom}\index{Custom Objects@{Custom Objects}}
+}
+Encapsulate arbitrary data in pMath objects.  
+
+
+\subsubsection*{Data Structures}
+\begin{CompactItemize}
+\item 
+class \hyperlink{classpmath__custom__t}{pmath\_\-custom\_\-t}
+\begin{CompactList}\small\item\em The Custom Object class. \item\end{CompactList}\end{CompactItemize}
+\subsubsection*{Functions}
+\begin{CompactItemize}
+\item 
+PMATH\_\-API \hyperlink{classpmath__custom__t}{pmath\_\-custom\_\-t} \hyperlink{group__custom_g2ffdd4054c43b543bed1e5238ab7342c}{pmath\_\-custom\_\-t::pmath\_\-custom\_\-new} (void $\ast$data, \hyperlink{group__general__types_ge1a454657f18f3cc54508adeccccbcbc}{pmath\_\-callback\_\-t} destructor)
+\begin{CompactList}\small\item\em Create a custom object. \item\end{CompactList}\item 
+PMATH\_\-API void $\ast$ \hyperlink{group__custom_ge7902883fc5e8f88b60410950564fdcd}{pmath\_\-custom\_\-t::pmath\_\-custom\_\-get\_\-data} (\hyperlink{classpmath__custom__t}{pmath\_\-custom\_\-t} custom)
+\begin{CompactList}\small\item\em Get a custom object's data member. \item\end{CompactList}\item 
+PMATH\_\-API \hyperlink{group__general__types_gc92090cb0b56345d6c379ed2341d4ef4}{pmath\_\-bool\_\-t} \hyperlink{group__custom_g0847bc90fa81ddfdf0f3ff84d32947cf}{pmath\_\-custom\_\-t::pmath\_\-custom\_\-has\_\-destructor} (\hyperlink{classpmath__custom__t}{pmath\_\-custom\_\-t} custom, \hyperlink{group__general__types_ge1a454657f18f3cc54508adeccccbcbc}{pmath\_\-callback\_\-t} dtor)
+\begin{CompactList}\small\item\em Get a custom object's data destructor. \item\end{CompactList}\end{CompactItemize}
+
+
+\subsubsection{Detailed Description}
+Encapsulate arbitrary data in pMath objects. 
+
+Custom Objects consist of a pointer and a destructor. The destructor is called (with the pointer as its argument) when the custom object's reference pointer yields zero.
+
+Custom Objects are not evaluateable. This means evaluation of such an object returns NULL. But you can store custom objects in symbols (directly with \hyperlink{group__symbols_g8344005c16b86be82d2efdedb0795a0c}{pmath\_\-symbol\_\-set\_\-value()}).
+
+A symbol that holds a custom object remains unevaluated. It can also contain function definitions. But those must be set {\em after\/} setting the value with pmath\_\-symbol\_\-set\_\-value(my\_\-symbol, my\_\-custom\_\-object):
+
+Example: You want to store a custom object and a function definition in a symbol (my\_\-symbol/: answer(my\_\-symbol):= 42). 
+
+\begin{Code}\begin{verbatim}pmath_custom_t my_custom_object = pmath_custom_new(my_data, my_destructor);
+pmath_symbol_set_value(my_symbol, my_custom_object);
+
+pmath_unref(pmath_evaluate(
+  pmath_parse_string("`1`/: answer(`1`):= 42", 1, pmath_ref(my_symbol))));
+\end{verbatim}
+\end{Code}
+
+ 
+
+\subsubsection{Function Documentation}
+\hypertarget{group__custom_g2ffdd4054c43b543bed1e5238ab7342c}{
+\index{custom@{custom}!pmath\_\-custom\_\-new@{pmath\_\-custom\_\-new}}
+\index{pmath\_\-custom\_\-new@{pmath\_\-custom\_\-new}!custom@{custom}}
+\paragraph[{pmath\_\-custom\_\-new}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API {\bf pmath\_\-custom\_\-t} pmath\_\-custom\_\-new (void $\ast$ {\em data}, \/  {\bf pmath\_\-callback\_\-t} {\em destructor})\hspace{0.3cm}{\tt  \mbox{[}inherited\mbox{]}}}\hfill}
+\label{group__custom_g2ffdd4054c43b543bed1e5238ab7342c}
+
+
+Create a custom object. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em data}]An arbitrary pointer. \item[{\em destructor}]A function that will be called on object destruction to enable freeing of {\em data\/}. \end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]A custom object or NULL on failure (in that case, {\em destructor(data)\/} is called immediately). \end{Desc}
+\hypertarget{group__custom_ge7902883fc5e8f88b60410950564fdcd}{
+\index{custom@{custom}!pmath\_\-custom\_\-get\_\-data@{pmath\_\-custom\_\-get\_\-data}}
+\index{pmath\_\-custom\_\-get\_\-data@{pmath\_\-custom\_\-get\_\-data}!custom@{custom}}
+\paragraph[{pmath\_\-custom\_\-get\_\-data}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API void $\ast$ pmath\_\-custom\_\-get\_\-data ({\bf pmath\_\-custom\_\-t} {\em custom})\hspace{0.3cm}{\tt  \mbox{[}inherited\mbox{]}}}\hfill}
+\label{group__custom_ge7902883fc5e8f88b60410950564fdcd}
+
+
+Get a custom object's data member. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em custom}]A custom object. \end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]The objects data member or NULL if {\em custom\/} is NULL.\end{Desc}
+Note that you cannot assume anything about the content of this pointer unless you know its destructor (check \hyperlink{group__custom_g0847bc90fa81ddfdf0f3ff84d32947cf}{pmath\_\-custom\_\-has\_\-destructor} ).
+
+All access to $\ast$data must be threadsafe/synchronized. By convention, you are the onlyx one who moves custom objects with your destructor around (other modules should not handle custom objects, whose destructor they do not know). And normally, each of your custom objects are stored in one symbols. So synchronization can be done with \hyperlink{group__symbols_g95b141d9cb33fba80d6a807f304ee3b7}{pmath\_\-symbol\_\-synchronized()}. If one of these conditions is not met and a custom object could be accessd from multiple threads ( \hyperlink{group__threads}{Multithreading with pMath} ), you must also store a synchronization object (e.g. symbol or threadlock) in the {\em data\/} member und use this. \hypertarget{group__custom_g0847bc90fa81ddfdf0f3ff84d32947cf}{
+\index{custom@{custom}!pmath\_\-custom\_\-has\_\-destructor@{pmath\_\-custom\_\-has\_\-destructor}}
+\index{pmath\_\-custom\_\-has\_\-destructor@{pmath\_\-custom\_\-has\_\-destructor}!custom@{custom}}
+\paragraph[{pmath\_\-custom\_\-has\_\-destructor}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API {\bf pmath\_\-bool\_\-t} pmath\_\-custom\_\-has\_\-destructor ({\bf pmath\_\-custom\_\-t} {\em custom}, \/  {\bf pmath\_\-callback\_\-t} {\em dtor})\hspace{0.3cm}{\tt  \mbox{[}inherited\mbox{]}}}\hfill}
+\label{group__custom_g0847bc90fa81ddfdf0f3ff84d32947cf}
+
+
+Get a custom object's data destructor. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em custom}]A custom object. \item[{\em dtor}]A callback function. \end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]TRUE if the object's destructor is {\em dtor\/}. \end{Desc}

@@ -1,0 +1,781 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_layout_file>
+	<ActiveTarget name="Windows-Debug" />
+	<File name="doc\html\index.html" open="0" top="0" tabpos="0">
+		<Cursor position="1178" topLine="8" />
+	</File>
+	<File name="include\pmath-builtins\all-symbols-private.h" open="1" top="0" tabpos="2">
+		<Cursor position="1337" topLine="4" />
+	</File>
+	<File name="include\pmath-builtins\all-symbols.h" open="1" top="0" tabpos="1">
+		<Cursor position="47728" topLine="574" />
+	</File>
+	<File name="include\pmath-builtins\arithmetic-private.h" open="0" top="0" tabpos="8">
+		<Cursor position="849" topLine="3" />
+	</File>
+	<File name="include\pmath-builtins\build-expr-private.h" open="1" top="0" tabpos="11">
+		<Cursor position="213" topLine="0" />
+	</File>
+	<File name="include\pmath-builtins\control-private.h" open="0" top="0" tabpos="10">
+		<Cursor position="273" topLine="0" />
+	</File>
+	<File name="include\pmath-builtins\control\definitions-private.h" open="0" top="0" tabpos="0">
+		<Cursor position="1369" topLine="26" />
+	</File>
+	<File name="include\pmath-builtins\control\flow-private.h" open="0" top="0" tabpos="0">
+		<Cursor position="433" topLine="0" />
+	</File>
+	<File name="include\pmath-builtins\control\messages-private.h" open="0" top="0" tabpos="0">
+		<Cursor position="405" topLine="0" />
+	</File>
+	<File name="include\pmath-builtins\formating-private.h" open="0" top="0" tabpos="12">
+		<Cursor position="746" topLine="9" />
+	</File>
+	<File name="include\pmath-builtins\io-private.h" open="0" top="0" tabpos="0">
+		<Cursor position="520" topLine="0" />
+	</File>
+	<File name="include\pmath-builtins\language-private.h" open="0" top="0" tabpos="0">
+		<Cursor position="274" topLine="0" />
+	</File>
+	<File name="include\pmath-builtins\lists-private.h" open="1" top="0" tabpos="8">
+		<Cursor position="2610" topLine="134" />
+	</File>
+	<File name="include\pmath-builtins\manipulate-private.h" open="0" top="0" tabpos="0">
+		<Cursor position="288" topLine="0" />
+	</File>
+	<File name="include\pmath-builtins\number-theory-private.h" open="0" top="0" tabpos="0">
+		<Cursor position="577" topLine="24" />
+	</File>
+	<File name="include\pmath-builtins\parallel-private.h" open="0" top="0" tabpos="0">
+		<Cursor position="334" topLine="0" />
+	</File>
+	<File name="include\pmath-config.h" open="0" top="0" tabpos="5">
+		<Cursor position="3412" topLine="103" />
+	</File>
+	<File name="include\pmath-core\custom-private.h" open="0" top="0" tabpos="0">
+		<Cursor position="202" topLine="0" />
+	</File>
+	<File name="include\pmath-core\custom.h" open="0" top="0" tabpos="11">
+		<Cursor position="157" topLine="0" />
+	</File>
+	<File name="include\pmath-core\expressions-private.h" open="0" top="0" tabpos="16">
+		<Cursor position="267" topLine="0" />
+	</File>
+	<File name="include\pmath-core\expressions.h" open="0" top="0" tabpos="12">
+		<Cursor position="7060" topLine="170" />
+	</File>
+	<File name="include\pmath-core\numbers-private.h" open="0" top="0" tabpos="13">
+		<Cursor position="2545" topLine="85" />
+	</File>
+	<File name="include\pmath-core\numbers.h" open="0" top="0" tabpos="9">
+		<Cursor position="3967" topLine="121" />
+	</File>
+	<File name="include\pmath-core\objects-inline.h" open="0" top="0" tabpos="20">
+		<Cursor position="1751" topLine="40" />
+	</File>
+	<File name="include\pmath-core\objects-private.h" open="0" top="0" tabpos="10">
+		<Cursor position="507" topLine="0" />
+	</File>
+	<File name="include\pmath-core\objects.h" open="0" top="0" tabpos="12">
+		<Cursor position="3886" topLine="127" />
+	</File>
+	<File name="include\pmath-core\strings-private.h" open="0" top="0" tabpos="11">
+		<Cursor position="949" topLine="15" />
+	</File>
+	<File name="include\pmath-core\strings.h" open="0" top="0" tabpos="7">
+		<Cursor position="8857" topLine="236" />
+	</File>
+	<File name="include\pmath-core\symbols-private.h" open="0" top="0" tabpos="9">
+		<Cursor position="883" topLine="8" />
+	</File>
+	<File name="include\pmath-core\symbols.h" open="0" top="0" tabpos="14">
+		<Cursor position="9231" topLine="236" />
+	</File>
+	<File name="include\pmath-cpp.h" open="0" top="0" tabpos="14">
+		<Cursor position="23831" topLine="666" />
+	</File>
+	<File name="include\pmath-language\charnames.h" open="0" top="0" tabpos="0">
+		<Cursor position="513" topLine="0" />
+	</File>
+	<File name="include\pmath-language\patterns-private.h" open="0" top="0" tabpos="18">
+		<Cursor position="1469" topLine="31" />
+	</File>
+	<File name="include\pmath-language\regex-private.h" open="0" top="0" tabpos="13">
+		<Cursor position="469" topLine="0" />
+	</File>
+	<File name="include\pmath-language\scanner.h" open="0" top="0" tabpos="20">
+		<Cursor position="459" topLine="3" />
+	</File>
+	<File name="include\pmath-language\tokens.h" open="0" top="0" tabpos="8">
+		<Cursor position="5089" topLine="147" />
+	</File>
+	<File name="include\pmath-private.h" open="0" top="0" tabpos="0">
+		<Cursor position="149" topLine="0" />
+	</File>
+	<File name="include\pmath-types.h" open="0" top="0" tabpos="0">
+		<Cursor position="626" topLine="18" />
+	</File>
+	<File name="include\pmath-util\approximate.h" open="0" top="0" tabpos="13">
+		<Cursor position="1831" topLine="47" />
+	</File>
+	<File name="include\pmath-util\concurrency\atomic-private.h" open="0" top="0" tabpos="22">
+		<Cursor position="1029" topLine="26" />
+	</File>
+	<File name="include\pmath-util\concurrency\atomic.h" open="0" top="0" tabpos="10">
+		<Cursor position="349" topLine="2" />
+	</File>
+	<File name="include\pmath-util\concurrency\atomic\gcc\built_in_functions.h" open="0" top="0" tabpos="9">
+		<Cursor position="896" topLine="8" />
+	</File>
+	<File name="include\pmath-util\concurrency\atomic\gcc\sun.h" open="0" top="0" tabpos="0">
+		<Cursor position="811" topLine="24" />
+	</File>
+	<File name="include\pmath-util\concurrency\atomic\gcc\x86-64.h" open="0" top="0" tabpos="0">
+		<Cursor position="3322" topLine="114" />
+	</File>
+	<File name="include\pmath-util\concurrency\atomic\gcc\x86.h" open="0" top="0" tabpos="0">
+		<Cursor position="3313" topLine="114" />
+	</File>
+	<File name="include\pmath-util\concurrency\atomic\msvc\intrinsic_functions.h" open="0" top="0" tabpos="0">
+		<Cursor position="2750" topLine="58" />
+	</File>
+	<File name="include\pmath-util\concurrency\atomic\non-atomic.h" open="0" top="0" tabpos="0">
+		<Cursor position="4871" topLine="157" />
+	</File>
+	<File name="include\pmath-util\concurrency\threadlocks-private.h" open="0" top="0" tabpos="0">
+		<Cursor position="297" topLine="0" />
+	</File>
+	<File name="include\pmath-util\concurrency\threadlocks.h" open="0" top="0" tabpos="0">
+		<Cursor position="1033" topLine="1" />
+	</File>
+	<File name="include\pmath-util\concurrency\threadmsg-private.h" open="0" top="0" tabpos="13">
+		<Cursor position="329" topLine="0" />
+	</File>
+	<File name="include\pmath-util\concurrency\threadmsg.h" open="0" top="0" tabpos="12">
+		<Cursor position="4600" topLine="117" />
+	</File>
+	<File name="include\pmath-util\concurrency\threadpool-private.h" open="0" top="0" tabpos="12">
+		<Cursor position="563" topLine="5" />
+	</File>
+	<File name="include\pmath-util\concurrency\threadpool.h" open="0" top="0" tabpos="11">
+		<Cursor position="1517" topLine="40" />
+	</File>
+	<File name="include\pmath-util\concurrency\threads-private.h" open="0" top="0" tabpos="12">
+		<Cursor position="1782" topLine="5" />
+	</File>
+	<File name="include\pmath-util\concurrency\threads.h" open="0" top="0" tabpos="21">
+		<Cursor position="5713" topLine="134" />
+	</File>
+	<File name="include\pmath-util\debug.h" open="0" top="0" tabpos="26">
+		<Cursor position="1081" topLine="10" />
+	</File>
+	<File name="include\pmath-util\dlmalloc.h" open="0" top="0" tabpos="0">
+		<Cursor position="26770" topLine="515" />
+	</File>
+	<File name="include\pmath-util\dynamic-private.h" open="0" top="0" tabpos="9">
+		<Cursor position="668" topLine="0" />
+	</File>
+	<File name="include\pmath-util\evaluation.h" open="0" top="0" tabpos="15">
+		<Cursor position="323" topLine="0" />
+	</File>
+	<File name="include\pmath-util\files.h" open="0" top="0" tabpos="14">
+		<Cursor position="5219" topLine="141" />
+	</File>
+	<File name="include\pmath-util\hashtables-private.h" open="0" top="0" tabpos="23">
+		<Cursor position="1191" topLine="33" />
+	</File>
+	<File name="include\pmath-util\helpers.h" open="0" top="0" tabpos="22">
+		<Cursor position="2463" topLine="65" />
+	</File>
+	<File name="include\pmath-util\incremental-hash-private.h" open="0" top="0" tabpos="0">
+		<Cursor position="240" topLine="0" />
+	</File>
+	<File name="include\pmath-util\memory.h" open="0" top="0" tabpos="31">
+		<Cursor position="395" topLine="18" />
+	</File>
+	<File name="include\pmath-util\messages.h" open="0" top="0" tabpos="23">
+		<Cursor position="2611" topLine="50" />
+	</File>
+	<File name="include\pmath-util\modules-private.h" open="0" top="0" tabpos="13">
+		<Cursor position="179" topLine="0" />
+	</File>
+	<File name="include\pmath-util\serialize.h" open="0" top="0" tabpos="0">
+		<Cursor position="1111" topLine="1" />
+	</File>
+	<File name="include\pmath-util\stacks-private.h" open="0" top="0" tabpos="0">
+		<Cursor position="377" topLine="0" />
+	</File>
+	<File name="include\pmath-util\stacks.h" open="0" top="0" tabpos="0">
+		<Cursor position="620" topLine="12" />
+	</File>
+	<File name="include\pmath-util\symbol-values-private.h" open="0" top="0" tabpos="0">
+		<Cursor position="860" topLine="1" />
+	</File>
+	<File name="include\pmath.h" open="0" top="0" tabpos="12">
+		<Cursor position="2232" topLine="63" />
+	</File>
+	<File name="scripts\maininit.pmath" open="0" top="0" tabpos="0">
+		<Cursor position="2196" topLine="70" />
+	</File>
+	<File name="scripts\messages.pmath" open="0" top="0" tabpos="0">
+		<Cursor position="1488" topLine="14" />
+	</File>
+	<File name="scripts\syntaxinformation.pmath" open="0" top="0" tabpos="0">
+		<Cursor position="9216" topLine="310" />
+	</File>
+	<File name="scripts\usage.pmath" open="0" top="0" tabpos="0">
+		<Cursor position="30046" topLine="115" />
+	</File>
+	<File name="src\pmath-builtins\all-symbols.c" open="1" top="0" tabpos="3">
+		<Cursor position="105228" topLine="1369" />
+	</File>
+	<File name="src\pmath-builtins\arithmetic\abs-and-sign.c" open="0" top="0" tabpos="0">
+		<Cursor position="848" topLine="20" />
+	</File>
+	<File name="src\pmath-builtins\arithmetic\approximate.c" open="0" top="0" tabpos="12">
+		<Cursor position="6077" topLine="236" />
+	</File>
+	<File name="src\pmath-builtins\arithmetic\arcsin.c" open="0" top="0" tabpos="0">
+		<Cursor position="595" topLine="3" />
+	</File>
+	<File name="src\pmath-builtins\arithmetic\arctan.c" open="0" top="0" tabpos="0">
+		<Cursor position="343" topLine="1" />
+	</File>
+	<File name="src\pmath-builtins\arithmetic\arg.c" open="0" top="0" tabpos="0">
+		<Cursor position="1285" topLine="0" />
+	</File>
+	<File name="src\pmath-builtins\arithmetic\complex-re-im.c" open="0" top="0" tabpos="0">
+		<Cursor position="634" topLine="0" />
+	</File>
+	<File name="src\pmath-builtins\arithmetic\complexinfinity.c" open="0" top="0" tabpos="0">
+		<Cursor position="1201" topLine="43" />
+	</File>
+	<File name="src\pmath-builtins\arithmetic\cos.c" open="0" top="0" tabpos="0">
+		<Cursor position="744" topLine="17" />
+	</File>
+	<File name="src\pmath-builtins\arithmetic\cosh.c" open="0" top="0" tabpos="0">
+		<Cursor position="4060" topLine="107" />
+	</File>
+	<File name="src\pmath-builtins\arithmetic\gamma.c" open="0" top="0" tabpos="6">
+		<Cursor position="111" topLine="0" />
+	</File>
+	<File name="src\pmath-builtins\arithmetic\log.c" open="0" top="0" tabpos="0">
+		<Cursor position="630" topLine="0" />
+	</File>
+	<File name="src\pmath-builtins\arithmetic\plus.c" open="0" top="0" tabpos="0">
+		<Cursor position="16244" topLine="577" />
+	</File>
+	<File name="src\pmath-builtins\arithmetic\power.c" open="0" top="0" tabpos="10">
+		<Cursor position="22802" topLine="0" />
+	</File>
+	<File name="src\pmath-builtins\arithmetic\sin.c" open="0" top="0" tabpos="0">
+		<Cursor position="516" topLine="14" />
+	</File>
+	<File name="src\pmath-builtins\arithmetic\sinh.c" open="0" top="0" tabpos="0">
+		<Cursor position="744" topLine="20" />
+	</File>
+	<File name="src\pmath-builtins\arithmetic\tan.c" open="0" top="0" tabpos="0">
+		<Cursor position="545" topLine="12" />
+	</File>
+	<File name="src\pmath-builtins\arithmetic\tanh.c" open="0" top="0" tabpos="0">
+		<Cursor position="851" topLine="18" />
+	</File>
+	<File name="src\pmath-builtins\arithmetic\times.c" open="0" top="0" tabpos="0">
+		<Cursor position="375" topLine="6" />
+	</File>
+	<File name="src\pmath-builtins\control\bytecount.c" open="0" top="0" tabpos="0">
+		<Cursor position="2442" topLine="54" />
+	</File>
+	<File name="src\pmath-builtins\control\count.c" open="0" top="0" tabpos="0">
+		<Cursor position="1569" topLine="54" />
+	</File>
+	<File name="src\pmath-builtins\control\definitions\assign.c" open="0" top="0" tabpos="18">
+		<Cursor position="12668" topLine="499" />
+	</File>
+	<File name="src\pmath-builtins\control\definitions\attributes.c" open="0" top="0" tabpos="0">
+		<Cursor position="3442" topLine="56" />
+	</File>
+	<File name="src\pmath-builtins\control\definitions\default.c" open="0" top="0" tabpos="0">
+		<Cursor position="671" topLine="6" />
+	</File>
+	<File name="src\pmath-builtins\control\definitions\divideby-and-timesby.c" open="0" top="0" tabpos="0">
+		<Cursor position="866" topLine="20" />
+	</File>
+	<File name="src\pmath-builtins\control\definitions\inc-and-dec.c" open="0" top="0" tabpos="0">
+		<Cursor position="1041" topLine="23" />
+	</File>
+	<File name="src\pmath-builtins\control\definitions\options.c" open="0" top="0" tabpos="6">
+		<Cursor position="8894" topLine="341" />
+	</File>
+	<File name="src\pmath-builtins\control\definitions\protect-and-unprotect.c" open="0" top="0" tabpos="15">
+		<Cursor position="1256" topLine="34" />
+	</File>
+	<File name="src\pmath-builtins\control\definitions\showdefinition.c" open="0" top="0" tabpos="9">
+		<Cursor position="547" topLine="3" />
+	</File>
+	<File name="src\pmath-builtins\control\definitions\symbol-rules.c" open="0" top="0" tabpos="10">
+		<Cursor position="6589" topLine="254" />
+	</File>
+	<File name="src\pmath-builtins\control\flow\do.c" open="0" top="0" tabpos="9">
+		<Cursor position="748" topLine="13" />
+	</File>
+	<File name="src\pmath-builtins\control\flow\evaluate.c" open="0" top="0" tabpos="0">
+		<Cursor position="839" topLine="6" />
+	</File>
+	<File name="src\pmath-builtins\control\flow\finally.c" open="0" top="0" tabpos="19">
+		<Cursor position="1450" topLine="27" />
+	</File>
+	<File name="src\pmath-builtins\control\flow\for.c" open="0" top="0" tabpos="0">
+		<Cursor position="1403" topLine="21" />
+	</File>
+	<File name="src\pmath-builtins\control\flow\function.c" open="0" top="0" tabpos="0">
+		<Cursor position="799" topLine="3" />
+	</File>
+	<File name="src\pmath-builtins\control\flow\if.c" open="0" top="0" tabpos="0">
+		<Cursor position="1387" topLine="23" />
+	</File>
+	<File name="src\pmath-builtins\control\flow\local.c" open="0" top="0" tabpos="12">
+		<Cursor position="428" topLine="7" />
+	</File>
+	<File name="src\pmath-builtins\control\flow\stack.c" open="0" top="0" tabpos="0">
+		<Cursor position="1557" topLine="44" />
+	</File>
+	<File name="src\pmath-builtins\control\flow\synchronize.c" open="0" top="0" tabpos="11">
+		<Cursor position="2550" topLine="82" />
+	</File>
+	<File name="src\pmath-builtins\control\flow\throw-and-catch.c" open="0" top="0" tabpos="0">
+		<Cursor position="1686" topLine="35" />
+	</File>
+	<File name="src\pmath-builtins\control\flow\while.c" open="0" top="0" tabpos="0">
+		<Cursor position="1115" topLine="9" />
+	</File>
+	<File name="src\pmath-builtins\control\flow\with.c" open="0" top="0" tabpos="0">
+		<Cursor position="428" topLine="6" />
+	</File>
+	<File name="src\pmath-builtins\control\history.c" open="0" top="0" tabpos="0">
+		<Cursor position="1171" topLine="11" />
+	</File>
+	<File name="src\pmath-builtins\control\loadlibrary.c" open="0" top="0" tabpos="15">
+		<Cursor position="657" topLine="10" />
+	</File>
+	<File name="src\pmath-builtins\control\match.c" open="0" top="0" tabpos="0">
+		<Cursor position="1072" topLine="17" />
+	</File>
+	<File name="src\pmath-builtins\control\memoryusage.c" open="0" top="0" tabpos="0">
+		<Cursor position="814" topLine="2" />
+	</File>
+	<File name="src\pmath-builtins\control\messages\isvalidargumentcount.c" open="0" top="0" tabpos="0">
+		<Cursor position="561" topLine="16" />
+	</File>
+	<File name="src\pmath-builtins\control\messages\message.c" open="0" top="0" tabpos="0">
+		<Cursor position="469" topLine="11" />
+	</File>
+	<File name="src\pmath-builtins\control\messages\messagename.c" open="0" top="0" tabpos="6">
+		<Cursor position="5087" topLine="173" />
+	</File>
+	<File name="src\pmath-builtins\control\messages\messages.c" open="0" top="0" tabpos="0">
+		<Cursor position="2424" topLine="48" />
+	</File>
+	<File name="src\pmath-builtins\control\messages\on-and-off.c" open="0" top="0" tabpos="0">
+		<Cursor position="1004" topLine="21" />
+	</File>
+	<File name="src\pmath-builtins\control\messages\try.c" open="0" top="0" tabpos="6">
+		<Cursor position="433" topLine="0" />
+	</File>
+	<File name="src\pmath-builtins\control\pause.c" open="0" top="0" tabpos="11">
+		<Cursor position="1947" topLine="45" />
+	</File>
+	<File name="src\pmath-builtins\control\position.c" open="0" top="0" tabpos="0">
+		<Cursor position="1236" topLine="21" />
+	</File>
+	<File name="src\pmath-builtins\control\replace.c" open="0" top="0" tabpos="21">
+		<Cursor position="5544" topLine="140" />
+	</File>
+	<File name="src\pmath-builtins\control\time-related.c" open="0" top="0" tabpos="10">
+		<Cursor position="3433" topLine="99" />
+	</File>
+	<File name="src\pmath-builtins\formating\makeboxes.c" open="1" top="0" tabpos="5">
+		<Cursor position="13915" topLine="403" />
+	</File>
+	<File name="src\pmath-builtins\formating\stringform.c" open="0" top="0" tabpos="0">
+		<Cursor position="8118" topLine="342" />
+	</File>
+	<File name="src\pmath-builtins\formating\syntaxinformation.c" open="0" top="0" tabpos="11">
+		<Cursor position="2494" topLine="4" />
+	</File>
+	<File name="src\pmath-builtins\formating\toboxes.c" open="0" top="0" tabpos="18">
+		<Cursor position="480" topLine="7" />
+	</File>
+	<File name="src\pmath-builtins\formating\tostring.c" open="0" top="0" tabpos="0">
+		<Cursor position="1111" topLine="16" />
+	</File>
+	<File name="src\pmath-builtins\gui\button.c" open="0" top="0" tabpos="8">
+		<Cursor position="0" topLine="4" />
+	</File>
+	<File name="src\pmath-builtins\gui\dynamic.c" open="0" top="0" tabpos="12">
+		<Cursor position="1877" topLine="57" />
+	</File>
+	<File name="src\pmath-builtins\io\binaryread.c" open="0" top="0" tabpos="10">
+		<Cursor position="15564" topLine="493" />
+	</File>
+	<File name="src\pmath-builtins\io\binarywrite.c" open="0" top="0" tabpos="0">
+		<Cursor position="21659" topLine="647" />
+	</File>
+	<File name="src\pmath-builtins\io\characters.c" open="0" top="0" tabpos="0">
+		<Cursor position="1099" topLine="11" />
+	</File>
+	<File name="src\pmath-builtins\io\copydirectory-and-copyfile.c" open="0" top="0" tabpos="0">
+		<Cursor position="8384" topLine="295" />
+	</File>
+	<File name="src\pmath-builtins\io\createdirectory.c" open="0" top="0" tabpos="0">
+		<Cursor position="2498" topLine="83" />
+	</File>
+	<File name="src\pmath-builtins\io\deletedirectory-and-deletefile.c" open="0" top="0" tabpos="0">
+		<Cursor position="7482" topLine="303" />
+	</File>
+	<File name="src\pmath-builtins\io\directory.c" open="0" top="0" tabpos="11">
+		<Cursor position="4547" topLine="180" />
+	</File>
+	<File name="src\pmath-builtins\io\environment.c" open="1" top="0" tabpos="4">
+		<Cursor position="2859" topLine="0" />
+	</File>
+	<File name="src\pmath-builtins\io\filebytecount.c" open="0" top="0" tabpos="0">
+		<Cursor position="2208" topLine="80" />
+	</File>
+	<File name="src\pmath-builtins\io\filenames.c" open="0" top="0" tabpos="0">
+		<Cursor position="247" topLine="7" />
+	</File>
+	<File name="src\pmath-builtins\io\filetype.c" open="0" top="0" tabpos="0">
+		<Cursor position="2146" topLine="70" />
+	</File>
+	<File name="src\pmath-builtins\io\find.c" open="0" top="0" tabpos="7">
+		<Cursor position="4904" topLine="174" />
+	</File>
+	<File name="src\pmath-builtins\io\get.c" open="0" top="0" tabpos="16">
+		<Cursor position="3659" topLine="113" />
+	</File>
+	<File name="src\pmath-builtins\io\open-close.c" open="0" top="0" tabpos="9">
+		<Cursor position="4924" topLine="172" />
+	</File>
+	<File name="src\pmath-builtins\io\print.c" open="0" top="0" tabpos="0">
+		<Cursor position="1727" topLine="35" />
+	</File>
+	<File name="src\pmath-builtins\io\read.c" open="0" top="0" tabpos="13">
+		<Cursor position="897" topLine="19" />
+	</File>
+	<File name="src\pmath-builtins\io\renamedirectory-and-renamefile.c" open="0" top="0" tabpos="0">
+		<Cursor position="6158" topLine="196" />
+	</File>
+	<File name="src\pmath-builtins\io\stringcases.c" open="0" top="0" tabpos="0">
+		<Cursor position="2258" topLine="53" />
+	</File>
+	<File name="src\pmath-builtins\io\stringdrop.c" open="0" top="0" tabpos="0">
+		<Cursor position="686" topLine="0" />
+	</File>
+	<File name="src\pmath-builtins\io\stringexpression.c" open="0" top="0" tabpos="0">
+		<Cursor position="711" topLine="26" />
+	</File>
+	<File name="src\pmath-builtins\io\stringmatch.c" open="0" top="0" tabpos="0">
+		<Cursor position="1675" topLine="29" />
+	</File>
+	<File name="src\pmath-builtins\io\stringposition.c" open="0" top="0" tabpos="0">
+		<Cursor position="2424" topLine="81" />
+	</File>
+	<File name="src\pmath-builtins\io\stringreplace-stringsplit.c" open="0" top="0" tabpos="11">
+		<Cursor position="10193" topLine="346" />
+	</File>
+	<File name="src\pmath-builtins\io\stringtake.c" open="0" top="0" tabpos="0">
+		<Cursor position="686" topLine="2" />
+	</File>
+	<File name="src\pmath-builtins\io\tofilename.c" open="0" top="0" tabpos="0">
+		<Cursor position="656" topLine="4" />
+	</File>
+	<File name="src\pmath-builtins\io\write.c" open="0" top="0" tabpos="0">
+		<Cursor position="861" topLine="18" />
+	</File>
+	<File name="src\pmath-builtins\language\begin-and-end.c" open="0" top="0" tabpos="12">
+		<Cursor position="638" topLine="11" />
+	</File>
+	<File name="src\pmath-builtins\language\boxestoexpression.c" open="0" top="0" tabpos="12">
+		<Cursor position="53451" topLine="1879" />
+	</File>
+	<File name="src\pmath-builtins\language\is-object-type.c" open="0" top="0" tabpos="0">
+		<Cursor position="406" topLine="2" />
+	</File>
+	<File name="src\pmath-builtins\language\names.c" open="0" top="0" tabpos="14">
+		<Cursor position="945" topLine="25" />
+	</File>
+	<File name="src\pmath-builtins\language\namespace.c" open="0" top="0" tabpos="0">
+		<Cursor position="874" topLine="21" />
+	</File>
+	<File name="src\pmath-builtins\language\remove.c" open="0" top="0" tabpos="0">
+		<Cursor position="406" topLine="1" />
+	</File>
+	<File name="src\pmath-builtins\language\stringtoboxes.c" open="0" top="0" tabpos="8">
+		<Cursor position="1109" topLine="26" />
+	</File>
+	<File name="src\pmath-builtins\language\symbolname.c" open="0" top="0" tabpos="0">
+		<Cursor position="296" topLine="18" />
+	</File>
+	<File name="src\pmath-builtins\lists\append.c" open="0" top="0" tabpos="0">
+		<Cursor position="1131" topLine="10" />
+	</File>
+	<File name="src\pmath-builtins\lists\apply.c" open="0" top="0" tabpos="0">
+		<Cursor position="711" topLine="27" />
+	</File>
+	<File name="src\pmath-builtins\lists\array.c" open="0" top="0" tabpos="0">
+		<Cursor position="363" topLine="0" />
+	</File>
+	<File name="src\pmath-builtins\lists\cases.c" open="0" top="0" tabpos="0">
+		<Cursor position="996" topLine="30" />
+	</File>
+	<File name="src\pmath-builtins\lists\complement.c" open="0" top="0" tabpos="8">
+		<Cursor position="1285" topLine="46" />
+	</File>
+	<File name="src\pmath-builtins\lists\depth.c" open="0" top="0" tabpos="0">
+		<Cursor position="626" topLine="13" />
+	</File>
+	<File name="src\pmath-builtins\lists\det.c" open="0" top="0" tabpos="5">
+		<Cursor position="6590" topLine="203" />
+	</File>
+	<File name="src\pmath-builtins\lists\diagonalmatrix.c" open="0" top="0" tabpos="0">
+		<Cursor position="1387" topLine="18" />
+	</File>
+	<File name="src\pmath-builtins\lists\dimensions.c" open="0" top="0" tabpos="0">
+		<Cursor position="636" topLine="12" />
+	</File>
+	<File name="src\pmath-builtins\lists\dot-inner.c" open="0" top="0" tabpos="0">
+		<Cursor position="6703" topLine="71" />
+	</File>
+	<File name="src\pmath-builtins\lists\drop-and-take.c" open="0" top="0" tabpos="0">
+		<Cursor position="3578" topLine="124" />
+	</File>
+	<File name="src\pmath-builtins\lists\emit-and-gather.c" open="0" top="0" tabpos="0">
+		<Cursor position="1984" topLine="62" />
+	</File>
+	<File name="src\pmath-builtins\lists\extract-and-part.c" open="0" top="0" tabpos="13">
+		<Cursor position="1728" topLine="67" />
+	</File>
+	<File name="src\pmath-builtins\lists\first-last-most-rest.c" open="0" top="0" tabpos="0">
+		<Cursor position="2905" topLine="89" />
+	</File>
+	<File name="src\pmath-builtins\lists\flatten.c" open="1" top="0" tabpos="9">
+		<Cursor position="891" topLine="25" />
+	</File>
+	<File name="src\pmath-builtins\lists\fold-and-foldlist.c" open="0" top="0" tabpos="0">
+		<Cursor position="1349" topLine="5" />
+	</File>
+	<File name="src\pmath-builtins\lists\intersection.c" open="0" top="0" tabpos="0">
+		<Cursor position="1919" topLine="50" />
+	</File>
+	<File name="src\pmath-builtins\lists\isarray.c" open="1" top="0" tabpos="7">
+		<Cursor position="1116" topLine="40" />
+	</File>
+	<File name="src\pmath-builtins\lists\isfreeof.c" open="0" top="0" tabpos="0">
+		<Cursor position="3243" topLine="117" />
+	</File>
+	<File name="src\pmath-builtins\lists\isordered.c" open="0" top="0" tabpos="0">
+		<Cursor position="0" topLine="12" />
+	</File>
+	<File name="src\pmath-builtins\lists\join.c" open="0" top="0" tabpos="0">
+		<Cursor position="1961" topLine="60" />
+	</File>
+	<File name="src\pmath-builtins\lists\leafcount.c" open="0" top="0" tabpos="0">
+		<Cursor position="1104" topLine="15" />
+	</File>
+	<File name="src\pmath-builtins\lists\length.c" open="0" top="0" tabpos="0">
+		<Cursor position="0" topLine="23" />
+	</File>
+	<File name="src\pmath-builtins\lists\level.c" open="0" top="0" tabpos="16">
+		<Cursor position="1749" topLine="85" />
+	</File>
+	<File name="src\pmath-builtins\lists\ludecomposition.c" open="1" top="0" tabpos="6">
+		<Cursor position="6566" topLine="220" />
+	</File>
+	<File name="src\pmath-builtins\lists\map.c" open="0" top="0" tabpos="0">
+		<Cursor position="2384" topLine="0" />
+	</File>
+	<File name="src\pmath-builtins\lists\max-and-min.c" open="1" top="1" tabpos="10">
+		<Cursor position="2880" topLine="89" />
+	</File>
+	<File name="src\pmath-builtins\lists\operate.c" open="0" top="0" tabpos="0">
+		<Cursor position="1734" topLine="40" />
+	</File>
+	<File name="src\pmath-builtins\lists\partition.c" open="0" top="0" tabpos="0">
+		<Cursor position="7621" topLine="342" />
+	</File>
+	<File name="src\pmath-builtins\lists\prepend.c" open="0" top="0" tabpos="0">
+		<Cursor position="1790" topLine="39" />
+	</File>
+	<File name="src\pmath-builtins\lists\range.c" open="0" top="0" tabpos="17">
+		<Cursor position="5287" topLine="193" />
+	</File>
+	<File name="src\pmath-builtins\lists\replacepart.c" open="0" top="0" tabpos="0">
+		<Cursor position="11665" topLine="440" />
+	</File>
+	<File name="src\pmath-builtins\lists\reverse.c" open="0" top="0" tabpos="0">
+		<Cursor position="2347" topLine="65" />
+	</File>
+	<File name="src\pmath-builtins\lists\scan.c" open="0" top="0" tabpos="0">
+		<Cursor position="3064" topLine="94" />
+	</File>
+	<File name="src\pmath-builtins\lists\select.c" open="0" top="0" tabpos="0">
+		<Cursor position="1163" topLine="20" />
+	</File>
+	<File name="src\pmath-builtins\lists\sort.c" open="0" top="0" tabpos="7">
+		<Cursor position="5326" topLine="205" />
+	</File>
+	<File name="src\pmath-builtins\lists\table.c" open="0" top="0" tabpos="0">
+		<Cursor position="1733" topLine="40" />
+	</File>
+	<File name="src\pmath-builtins\lists\thread.c" open="0" top="0" tabpos="0">
+		<Cursor position="1731" topLine="35" />
+	</File>
+	<File name="src\pmath-builtins\lists\through.c" open="0" top="0" tabpos="0">
+		<Cursor position="1694" topLine="41" />
+	</File>
+	<File name="src\pmath-builtins\lists\union.c" open="0" top="0" tabpos="0">
+		<Cursor position="0" topLine="50" />
+	</File>
+	<File name="src\pmath-builtins\logic\and.c" open="0" top="0" tabpos="0">
+		<Cursor position="691" topLine="19" />
+	</File>
+	<File name="src\pmath-builtins\logic\comparisions.c" open="0" top="0" tabpos="0">
+		<Cursor position="16912" topLine="505" />
+	</File>
+	<File name="src\pmath-builtins\logic\identical.c" open="0" top="0" tabpos="0">
+		<Cursor position="1371" topLine="26" />
+	</File>
+	<File name="src\pmath-builtins\logic\not.c" open="0" top="0" tabpos="0">
+		<Cursor position="0" topLine="13" />
+	</File>
+	<File name="src\pmath-builtins\logic\or.c" open="0" top="0" tabpos="0">
+		<Cursor position="755" topLine="20" />
+	</File>
+	<File name="src\pmath-builtins\manipulate\expand.c" open="0" top="0" tabpos="0">
+		<Cursor position="7918" topLine="259" />
+	</File>
+	<File name="src\pmath-builtins\number-theory\isnumeric.c" open="0" top="0" tabpos="0">
+		<Cursor position="813" topLine="6" />
+	</File>
+	<File name="src\pmath-builtins\number-theory\isprime.c" open="0" top="0" tabpos="24">
+		<Cursor position="4132" topLine="152" />
+	</File>
+	<File name="src\pmath-builtins\number-theory\nextprime.c" open="0" top="0" tabpos="0">
+		<Cursor position="878" topLine="1" />
+	</File>
+	<File name="src\pmath-builtins\number-theory\random.c" open="0" top="0" tabpos="18">
+		<Cursor position="11261" topLine="405" />
+	</File>
+	<File name="src\pmath-builtins\parallel\abort.c" open="0" top="0" tabpos="0">
+		<Cursor position="1385" topLine="31" />
+	</File>
+	<File name="src\pmath-builtins\parallel\getthreadid.c" open="0" top="0" tabpos="10">
+		<Cursor position="705" topLine="0" />
+	</File>
+	<File name="src\pmath-builtins\parallel\newtask-and-wait.c" open="0" top="0" tabpos="17">
+		<Cursor position="3402" topLine="122" />
+	</File>
+	<File name="src\pmath-builtins\parallel\parallelmap.c" open="0" top="0" tabpos="15">
+		<Cursor position="4328" topLine="136" />
+	</File>
+	<File name="src\pmath-builtins\parallel\parallelscan.c" open="0" top="0" tabpos="16">
+		<Cursor position="5434" topLine="165" />
+	</File>
+	<File name="src\pmath-builtins\parallel\paralleltry.c" open="0" top="0" tabpos="0">
+		<Cursor position="5377" topLine="120" />
+	</File>
+	<File name="src\pmath-core\custom.c" open="0" top="0" tabpos="22">
+		<Cursor position="504" topLine="7" />
+	</File>
+	<File name="src\pmath-core\expressions.c" open="0" top="0" tabpos="23">
+		<Cursor position="35217" topLine="1186" />
+	</File>
+	<File name="src\pmath-core\numbers.c" open="0" top="0" tabpos="27">
+		<Cursor position="1326" topLine="36" />
+	</File>
+	<File name="src\pmath-core\objects-inline.c" open="0" top="0" tabpos="19">
+		<Cursor position="631" topLine="0" />
+	</File>
+	<File name="src\pmath-core\objects.c" open="0" top="0" tabpos="32">
+		<Cursor position="1130" topLine="35" />
+	</File>
+	<File name="src\pmath-core\strings.c" open="0" top="0" tabpos="20">
+		<Cursor position="20776" topLine="861" />
+	</File>
+	<File name="src\pmath-core\symbols.c" open="0" top="0" tabpos="11">
+		<Cursor position="24290" topLine="927" />
+	</File>
+	<File name="src\pmath-language\charnames.c" open="0" top="0" tabpos="7">
+		<Cursor position="7070" topLine="255" />
+	</File>
+	<File name="src\pmath-language\patterns-private.c" open="0" top="0" tabpos="34">
+		<Cursor position="20928" topLine="765" />
+	</File>
+	<File name="src\pmath-language\regex-private.c" open="0" top="0" tabpos="12">
+		<Cursor position="614" topLine="12" />
+	</File>
+	<File name="src\pmath-language\scanner.c" open="0" top="0" tabpos="10">
+		<Cursor position="7295" topLine="80" />
+	</File>
+	<File name="src\pmath-language\tokens.c" open="0" top="0" tabpos="9">
+		<Cursor position="0" topLine="391" />
+	</File>
+	<File name="src\pmath-util\approximate.c" open="0" top="0" tabpos="13">
+		<Cursor position="8899" topLine="336" />
+	</File>
+	<File name="src\pmath-util\concurrency\threadlocks.c" open="0" top="0" tabpos="17">
+		<Cursor position="6469" topLine="213" />
+	</File>
+	<File name="src\pmath-util\concurrency\threadmsg.c" open="0" top="0" tabpos="11">
+		<Cursor position="7675" topLine="314" />
+	</File>
+	<File name="src\pmath-util\concurrency\threadpool.c" open="0" top="0" tabpos="13">
+		<Cursor position="24739" topLine="1003" />
+	</File>
+	<File name="src\pmath-util\concurrency\threads.c" open="0" top="0" tabpos="29">
+		<Cursor position="8369" topLine="347" />
+	</File>
+	<File name="src\pmath-util\debug.c" open="0" top="0" tabpos="0">
+		<Cursor position="1236" topLine="12" />
+	</File>
+	<File name="src\pmath-util\dlmalloc.c" open="0" top="0" tabpos="0">
+		<Cursor position="423" topLine="5" />
+	</File>
+	<File name="src\pmath-util\dynamic.c" open="0" top="0" tabpos="14">
+		<Cursor position="7200" topLine="293" />
+	</File>
+	<File name="src\pmath-util\evaluation.c" open="0" top="0" tabpos="16">
+		<Cursor position="3146" topLine="109" />
+	</File>
+	<File name="src\pmath-util\files.c" open="0" top="0" tabpos="12">
+		<Cursor position="1762" topLine="59" />
+	</File>
+	<File name="src\pmath-util\hashtables-private.c" open="0" top="0" tabpos="24">
+		<Cursor position="6596" topLine="294" />
+	</File>
+	<File name="src\pmath-util\helpers.c" open="0" top="0" tabpos="7">
+		<Cursor position="20153" topLine="758" />
+	</File>
+	<File name="src\pmath-util\memory.c" open="0" top="0" tabpos="6">
+		<Cursor position="986" topLine="24" />
+	</File>
+	<File name="src\pmath-util\messages.c" open="0" top="0" tabpos="14">
+		<Cursor position="1080" topLine="52" />
+	</File>
+	<File name="src\pmath-util\modules-private.c" open="0" top="0" tabpos="6">
+		<Cursor position="2653" topLine="194" />
+	</File>
+	<File name="src\pmath-util\serialize.c" open="0" top="0" tabpos="7">
+		<Cursor position="3199" topLine="96" />
+	</File>
+	<File name="src\pmath-util\stacks.c" open="0" top="0" tabpos="0">
+		<Cursor position="2502" topLine="78" />
+	</File>
+	<File name="src\pmath-util\symbol-values-private.c" open="0" top="0" tabpos="21">
+		<Cursor position="26535" topLine="949" />
+	</File>
+	<File name="src\pmath.c" open="0" top="0" tabpos="4">
+		<Cursor position="0" topLine="0" />
+	</File>
+</CodeBlocks_layout_file>

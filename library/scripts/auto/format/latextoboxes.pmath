@@ -1,0 +1,328 @@
+/* scan(~s)::= Flatten({StringReplace(s, 
+	t:(("\\" ++ Longest(("a".."z"|"A".."Z")**)) 
+	| ("\\" ++ ~)
+	| "$$" 
+	| Except(WhitespaceCharacter | "\\") 
+	| WhitespaceCharacter**) :> {t}).Replace(
+		StringExpression->List,Heads->True).StringReplace({(StartOfString ++ WhitespaceCharacter** ++ EndOfString) -> " ", (StartOfString ++ "\\" ++ ~~~m) :> macro(m)})})
+
+$mathmode:= True
+
+arguments(~):= {};  / * list of True|False, which say whether the i-th argument is optional * /
+arguments("frac"):= {False,False}
+arguments("sqrt"):= {True,False}
+
+next({})::= 
+
+latexToBoxes(~s)::= Local(
+	{m:= $mathmode},
+	(
+		Gather()[2]
+	).Finally(
+		$mathmode:= m))
+
+
+*/
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ * Convert LaTeX formulas to pMath boxed form.                                                   *
+ *                                                                                               *
+ * Example: RawBoxes(System`Util`latexToBoxes("\\frac {\\alpha_1^2+5\\sqrt[n]\\beta}2"))         *
+ *                                                                                               *
+ * Todo:                                                                                         *
+ *   - Matrices                                                                                  *
+ *   - allow optional arguments                                                                  *
+ *   - Operator precedence. "a+bc" currently gives {"a", "+", "b", " ", "c"}, but should instead *
+ *     give {"a", "+", {"b", " ", "c"}}. It should later be possible to call                     *
+ *     "latex-code".System`Util`latexToBoxes.BoxesToExpression                                   *
+ *   - \mathrm, ...                                                                              *
+ *                                                                                               *
+ * Peter Frentrup,  29. 12. 2009                                                                 *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+System`Util`latexToBoxes
+
+BeginPackage("System`Util`")
+
+Attributes(latexToBoxes):= {};
+Clear(latexToBoxes)
+
+Begin("System`Util`latexToBoxes`Private`")
+
+$ownaliases;
+$fnaliases;
+$aliases;
+$autoLimits;
+
+scan(~s)::= Flatten({StringReplace(s, 
+	t:(("\\" ++ Longest(("a".."z"|"A".."Z"|"0".."9")**)) 
+	| ("\\" ++ ~)
+	| "$$" 
+	| Except(WhitespaceCharacter | "\\") 
+	| WhitespaceCharacter**) :> {t}).Replace(
+		StringExpression->List,Heads->True).StringReplace({(StartOfString ++ WhitespaceCharacter** ++ EndOfString) -> " ", (StartOfString ++ "\\" ++ ~~~m) :> macro(m)})})
+
+
+
+argIsMath(~):= True;
+argIsMath("begin"):= 
+argIsMath("end"):= 
+argIsMath("text"):= False;
+
+argcount(~):= 0;
+argcount("text"):= 
+argcount("sqrt"):= 
+argcount("xrightarrow"):= 
+argcount("begin"):= 
+argcount("end"):= 
+argcount("left"):= 
+argcount("right"):= 1;
+argcount("frac"):= 2;
+cntbox(~name, ~opts, ~args, 0)::= box(name, opts, args)
+
+
+parse(~x:List)::= parse2(x, {})
+parse(~x)::= x
+
+parse2({}, ~done)::= collectargs(done, {})
+/* parse2({" ", ~~~rest}, ~done)::= parse2({rest}, done) */
+parse2({~x, ~~~rest}, {~~~done})::= parse2({rest}, {done, parse(x)})
+parse2({macro(~name), ~~~rest}, {~~~done})::= parse2({rest}, {done, cntbox(name, {}, {}, argcount(name))})
+parse2({b:box(~name, ~opts, ~args) /? argcount(b) > 0, ~~~rest}, {~~~done})::= parse2({rest}, {done, cntbox(b, {}, {}, argcount(b))})
+/* parse2({"[", "]", ~~~rest}, ~done)::= parse2({rest}, done)
+parse2({"[", ~~~rest}, {~~~done})::= parse2({rest}, {done, startopt})
+parse2({"]", ~~~rest}, {~~~done, startopt, ~~x})::= parse2({rest}, {done, opt(x)}) */
+parse2({"{", ~~~rest}, {~~~done})::= parse2({rest}, {done, start})
+parse2({"}", ~~~rest}, {~~~done, start, ~~~x})::= parse2({rest}, {done, parse({x})})
+parse2({"^", ~~~rest}, {~~~done, cntbox(" _", {}, {~x}, 1), ~y})::= parse2({rest}, {done, cntbox(" _^", {}, {x, parse(y)}, 1)})
+parse2({"_", ~~~rest}, {~~~done, cntbox(" ^", {}, {~x}, 1), ~y})::= parse2({rest}, {done, cntbox(" ^_", {}, {x, parse(y)}, 1)})
+parse2({"^", ~~~rest}, {~~~done, ~c:cntbox, ~x})::= parse2({rest}, {done, cntbox(" ^", {}, {parse({c, x})}, 1)})
+parse2({"_", ~~~rest}, {~~~done, ~c:cntbox, ~x})::= parse2({rest}, {done, cntbox(" _", {}, {parse({c, x})}, 1)})
+parse2({"^", ~~~rest}, {~~~done, ~x})::= parse2({rest}, {done, cntbox(" ^", {}, {x}, 1)})
+parse2({"_", ~~~rest}, {~~~done, ~x})::= parse2({rest}, {done, cntbox(" _", {}, {x}, 1)})
+
+
+
+firstIsOpening(~):= False;
+firstIsDigit(~):= False;
+firstIsName(~):= False;
+lastIsOpening(~):= False;
+lastIsDigit(~):= False;
+lastIsName(~):= False;
+firstIsOpening({~s, ~~~})::= firstIsOpening(s)
+firstIsDigit({~s, ~~~})::= firstIsDigit(s)
+firstIsName({~s, ~~~})::= firstIsName(s)
+lastIsOpening({~~~,~s})::= lastIsOpening(s)
+lastIsDigit({~~~,~s})::= firstIsDigit(s)
+lastIsName({~~~,~s})::= firstIsName(s)
+firstIsOpening(~s:String)::= StringMatch(s, StartOfString ++ ("(" | "[" | "\u27E6"));
+firstIsDigit(~s:String)::= StringMatch(s, StartOfString ++ "0".."9");
+firstIsName(~s:String)::= StringMatch(s, RegularExpression("^[$_\\p{L}\\p{N}]"))
+lastIsOpening(~s:String)::= StringMatch(s, ("(" | "[" | "\u27E6") ++ EndOfString);
+lastIsDigit(~s:String)::= StringMatch(s, "0".."9" ++ EndOfString);
+lastIsName(~s:String)::= StringMatch(s, RegularExpression("[$_\\p{L}\\p{N}]$"))
+
+
+skipspace(~l:List)::= skipspace2(l, {})
+skipspace(" ")::= ""
+skipspace(~l)::= l
+
+skipspace2({}, ~done)::= done;
+skipspace2({" ", ~~~rest}, ~done)::= skipspace2({rest}, done)
+skipspace2({~x, ~~~rest}, {~~~done})::= skipspace2({rest}, {done, skipspace(x)})
+
+
+textarg(~l:List)::= textarg2(l, {})
+textarg(~l)::= l
+
+textarg2({}, ~done)::= done
+textarg2({~y:String ? firstIsName, ~~~rest}, {~~~done, ~x:String ? lastIsName})::= textarg2({rest}, {done, x++y});
+textarg2({~x, ~~~rest}, {~~~done})::= textarg2({rest}, {done, textarg(x)});
+
+
+
+collectargs({}, ~done)::= group(done, {})
+collectargs({~x, ~~~rest}, {~~~done})::= collectargs({rest}, {done, x})
+
+collectargs({box(~name, {~~~opts}, {}), opt(~o), ~~~rest}, ~done)::= 
+	collectargs({box(name, {opts, If(argIsMath(name), skipspace(o), o)}, {}), rest}, done)
+	
+collectargs({~b:box, opt(~o), ~~~rest}, ~done)::= 
+	collectargs({box(b, {If(argIsMath(b), skipspace(o), o)}, {}), rest}, done)
+	
+collectargs({cntbox(~name, {~~~opts}, ~args, ~cnt), opt(~o), ~~~rest}, ~done)::= 
+	collectargs({cntbox(name, {opts, If(argIsMath(name), skipspace(o), o)}, args, cnt), rest}, done)
+	
+collectargs({cntbox(~name, {~~~opts}, ~args, ~cnt), opt(o:Repeated(~,2..)), ~~~rest}, ~done)::= 
+	collectargs({cntbox(name, {opts, If(argIsMath(name), skipspace({o}), {o})}, args, cnt), rest}, done)
+	
+collectargs({~c:cntbox, ~c2:cntbox, ~~~rest}, ~done)::= 
+	collectargs(Prepend(collectargs({c2,rest}, {}), c), done)
+
+collectargs({c:cntbox(~name, ~opts, ~args, ~cnt), a:Except(~:cntbox), ~~~rest}, ~done)::= 
+	Local({a2},
+		If(argIsMath(name),
+			a2:= skipspace(a);
+			If(a2 === "",
+				Return(collectargs({c, rest}, done)));
+			Return(collectargs({cntbox(name, opts, Append(args, a2), cnt-1), rest}, done));
+			);
+		Return(collectargs({cntbox(name, opts, Append(args, textarg(a)), cnt-1), rest}, done));
+		)
+
+
+
+rightend(~):= $Failed;
+rightend(box("left",{},~)):= box("right",{},~);
+rightend(box("begin",~,{~env}))::= box("end",{},{env});
+
+group({}, ~done)::= done
+group({~x, ~~~rest}, {~~~done, opengroup(~l, ~p, {~~~args}), ~a})::= group({x,rest}, {done, opengroup(l, p, {args,a})})
+group({~x, ~~~rest}, {~~~done})::= Local(
+	{p:= rightend(x)},
+	If(p === $Failed,
+		group({rest},{done,x})
+	,
+		group({rest},{done, opengroup(x, p, {})})));
+group({~r, ~~~rest}, {~~~done, opengroup(~l, ~p, ~a)}) /? r.Match(p) ::= group({rest}, {done, closedgroup(l, a, r)})
+
+If(HoldComplete($ownaliases) === HoldComplete @@ {$ownaliases}, $ownaliases:= {});
+If(HoldComplete($fnaliases)  === HoldComplete @@ {$fnaliases},  $fnaliases:= {});
+If(HoldComplete($aliases)    === HoldComplete @@ {$aliases},    $aliases:= {});
+If(HoldComplete($autoLimits) === HoldComplete @@ {$autoLimits}, $autoLimits:= {});
+
+$ownaliases:= Join($ownaliases, {"\\", "{", "}", "^", "_"});
+$fnaliases:= Join($fnaliases, {
+	"arccos" -> ArcCos,
+	"arccot" -> ArcCot,
+	"arccsc" -> ArcCsc,
+	"arcsec" -> ArcSec,
+	"arcsin" -> ArcSin,
+	"arctan" -> ArcTan,
+	"arg" -> Arg,
+	"cos" -> Cos,
+	"cosh" -> Cosh,
+	"cot" -> Cot,
+	"coth" -> Coth,
+	"csc" -> Csc,
+	"exp" -> Exp,
+	"gcd" -> GCD,
+	"lg" -> (Log(10,#)&),
+	"ln" -> Log,
+	"log" -> Log,
+	"sec" -> Sec,
+	"sgn" -> Sign,
+	"sin" -> Sin,
+	"sinh" -> Sinh,
+	"tan" -> Tan,
+	"tanh" -> Tanh});
+$aliases:= Join($aliases, {
+	"sum" -> "\u2211",
+	"int" -> "\u222B",
+	
+	"alpha" -> "\u03B1", 
+	"beta" -> "\u03B2", 
+	"gamma" -> "\u03B3",
+	"delta" -> "\u03B4",
+	"varepsilon" -> "\u03B5",
+	"epsilon" -> "\u03F5",
+	"zeta" -> "\u03B6",
+	"eta" -> "\u03B7",
+	"theta" -> "\u03B8",
+	"vartheta" -> "\u03D1",
+	"iota" -> "\u03B9",
+	"kappa" -> "\u03BA",
+	"lambda" -> "\u03BB",
+	"mu" -> "\u03BC",
+	"nu" -> "\u03BD",
+	"xi" -> "\u03BE",
+	"pi" -> "\u03C0",
+	"varpi" -> "\u03D6",
+	"rho" -> "\u03C1",
+	"varrho" -> "\u03F1",
+	"sigma" -> "\u03C3",
+	"varsigma" -> "\u03C2",
+	"tau" -> "\u03C4",
+	"upsilon" -> "\u03C5",
+	"phi" -> "\u03D5",
+	"varphi" -> "\u03C6",
+	"chi" -> "\u03C7",
+	"psi" -> "\u03C8",
+	"omega" -> "\u03C9"});
+$autoLimits:= Join($autoLimits, {"\u2211"});
+
+doAutoLimit(~x)::= $autoLimits.Position(x) =!= {}
+
+row(~~~x, {~~~y}, ~~~z)::= row(x,y,z)
+row(~x)::= x
+
+row2(~~~x)::= spaces({x},{})
+spaces({}, ~done)::= done
+spaces({~x}, {~~~done})::= {done,x}
+spaces({x:InterpretationBox(~,~), ~y, ~~~rest}, {~~~done})::= spaces({y,rest},{done,x,"\u2061"})
+spaces({~x,~y,~~~rest}, {~~~done})::= (
+	If(firstIsName(y) && lastIsName(x) && !lastIsDigit(x),
+		spaces({y,rest},{done,x,"  "})
+	,
+		If(IsString(x) && IsString(y) && StringMatch(x ++ y, StartOfString ++ ("0".."9")** ++ EndOfString),
+			spaces({x ++ y,rest},{done})
+		,
+			spaces({y,rest},{done,x}))))
+
+box2(~al, {}, {})::= Local({c},
+	c:= Replace(al, $aliases.Append(~ -> $Failed));
+	If(c === $Failed,
+		c:= Replace(al, $fnaliases.Append(~ -> $Failed));
+		If(c =!= $Failed,
+			c:= InterpretationBox @@ {al, c}
+		,
+			If($ownaliases.Position(al) =!= {},
+				c:= al)));
+	c /? c =!= $Failed)
+box2(" _", {}, {~x,~y})::= If(doAutoLimit(x), UnderscriptBox(row(x), row(y)), row(x, SubscriptBox(row(y))))
+box2(" ^", {}, {~x,~y})::= If(doAutoLimit(x), OverscriptBox(row(x), row(y)), row(x, SuperscriptBox(row(y))))
+box2(" _^", {}, {~x,~y,~z})::= If(doAutoLimit(x), UnderoverscriptBox(row(x), row(y), row(z)), row(x, SubsuperscriptBox(row(y),row(z))))
+box2(" ^_", {}, {~x,~y,~z})::= If(doAutoLimit(x), UnderoverscriptBox(row(x), row(z), row(y)), row(x, SubsuperscriptBox(row(z),row(y))))
+box2("sqrt", {}, {~r})::= SqrtBox(row(r))
+box2("sqrt", {~e}, {~r})::= RadicalBox(row(r), row(e))
+box2("frac", {}, {~n, ~d})::= FractionBox(row(n), row(d))
+box2("text", {}, {~t})::= StyleBox(row(t), "Text")
+box2("xrightarrow", {}, {~over})::= OverscriptBox("\u2192", row(over))
+box2("xrightarrow", {~under}, {~over})::= UnderoverscriptBox("\u2192", row(under), row(over))
+
+closedgroup2(box("left",{},{"."}), ~a, box("right", {}, {"."}))::=    row(a)
+closedgroup2(box("left",{},{"."}), ~a, box("right", {}, {~r}))::=     row(a, r)
+closedgroup2(box("left",{},{~l}),  ~a, box("right", {}, {"."}))::= row(l, a)
+closedgroup2(box("left",{},{~l}),  ~a, box("right", {}, {~r}))::=  row(l, a, r)
+
+err(~b)::= StyleBox(FrameBox(b), Background->RGBColor(1,0.9,0.9), FontColor->RGBColor(1,0.33,0.33))
+
+box2(~name, {}, {})::= err(row("\\", name))
+box2(~name, ~opts, {})::= err(row(row("\\", name), "[", row(opts), "]"))
+box2(~name, {}, ~args)::= err(row(row("\\", name), "{", row(args), "}"))
+box2(~name, ~opts, ~args)::= err(row(row(row("\\", name), "[", opts, "]"), "{", row(args), "}"))
+cntbox2(~name, ~opts, ~args, ~)::= box2(name,opts,args)
+opengroup2(~left,~,~args)::= err(row(left,args))
+closedgroup2(~l,~a,~r)::= err(row(l, a, r))
+
+convert(~boxes)::= row(boxes).Replace(
+			closedgroup->closedgroup2,
+		Heads->True
+	).Replace({
+			box->box2,
+			cntbox->cntbox2, 
+			opengroup->opengroup2, 
+			start->err("\"unmatched {\""),
+			startopt->err("\"unmatched [\"")}, 
+		Heads->True
+	).Replace(
+			row->row2, 
+		Heads->True)
+
+latexToBoxes(~s:String)::= convert(parse(scan(s)))
+
+End()
+
+Protect(latexToBoxes)
+
+EndPackage()

@@ -1,0 +1,91 @@
+\hypertarget{classpmath__expression__t}{
+\subsection{pmath\_\-expression\_\-t Class Reference}
+\label{classpmath__expression__t}\index{pmath\_\-expression\_\-t@{pmath\_\-expression\_\-t}}
+}
+The Expression class.  
+
+
+Inherits \hyperlink{classpmath__object__t}{pmath\_\-object\_\-t}.
+
+\subsubsection*{Public Member Functions}
+\begin{CompactItemize}
+\item 
+PMATH\_\-API \hyperlink{classpmath__expression__t}{pmath\_\-expression\_\-t} \hyperlink{group__expressions_gdd5c08385781b3512f5d80309da1d0cd}{pmath\_\-expression\_\-new} (\hyperlink{classpmath__object__t}{pmath\_\-object\_\-t} head, size\_\-t length)
+\begin{CompactList}\small\item\em Create a new expression. \item\end{CompactList}\item 
+PMATH\_\-API \hyperlink{classpmath__expression__t}{pmath\_\-expression\_\-t} \hyperlink{group__expressions_g02d9b2de38b9a64846443f7299c456e2}{pmath\_\-expression\_\-new\_\-extended} (\hyperlink{classpmath__object__t}{pmath\_\-object\_\-t} head, size\_\-t length,...)
+\begin{CompactList}\small\item\em Create a new expression with all items given. \item\end{CompactList}\item 
+PMATH\_\-API \hyperlink{classpmath__expression__t}{pmath\_\-expression\_\-t} \hyperlink{group__expressions_ga7761cd2d56aa6fe3a91c9ea9025bca5}{pmath\_\-expression\_\-resize} (\hyperlink{classpmath__expression__t}{pmath\_\-expression\_\-t} expr, size\_\-t new\_\-length)
+\begin{CompactList}\small\item\em Resize an expression. \item\end{CompactList}\item 
+PMATH\_\-API \hyperlink{classpmath__expression__t}{pmath\_\-expression\_\-t} \hyperlink{group__expressions_g28eed1a67a5e7d7caf89b6a58f46f3b0}{pmath\_\-expression\_\-append} (\hyperlink{classpmath__expression__t}{pmath\_\-expression\_\-t} expr, size\_\-t count,...)
+\begin{CompactList}\small\item\em Append some items to an expression. \item\end{CompactList}\item 
+PMATH\_\-API size\_\-t \hyperlink{group__expressions_g78702d12559a839077fa2dec0069ca9d}{pmath\_\-expression\_\-length} (\hyperlink{classpmath__expression__t}{pmath\_\-expression\_\-t} expr)
+\begin{CompactList}\small\item\em Get an expression's length. \item\end{CompactList}\item 
+PMATH\_\-API \hyperlink{classpmath__object__t}{pmath\_\-object\_\-t} \hyperlink{group__expressions_g0688f73dc8749112b41b226b3feb8997}{pmath\_\-expression\_\-get\_\-item} (\hyperlink{classpmath__expression__t}{pmath\_\-expression\_\-t} expr, size\_\-t index)
+\begin{CompactList}\small\item\em Get an item from an expression. \item\end{CompactList}\item 
+PMATH\_\-API \hyperlink{classpmath__expression__t}{pmath\_\-expression\_\-t} \hyperlink{group__expressions_gaa1a1070757eae4fa5b9a96f54948755}{pmath\_\-expression\_\-get\_\-item\_\-range} (\hyperlink{classpmath__expression__t}{pmath\_\-expression\_\-t} expr, size\_\-t start, size\_\-t length)
+\begin{CompactList}\small\item\em Get multiple items from an expression. \item\end{CompactList}\item 
+PMATH\_\-API \hyperlink{classpmath__expression__t}{pmath\_\-expression\_\-t} \hyperlink{group__expressions_gc4b56f0dc4437bdbb4b3d721f1396fc5}{pmath\_\-expression\_\-set\_\-item} (\hyperlink{classpmath__expression__t}{pmath\_\-expression\_\-t} expr, size\_\-t index, \hyperlink{classpmath__object__t}{pmath\_\-object\_\-t} item)
+\begin{CompactList}\small\item\em Set an item in an expression. \item\end{CompactList}\item 
+PMATH\_\-API \hyperlink{classpmath__expression__t}{pmath\_\-expression\_\-t} \hyperlink{group__expressions_gf23c4a25e9ec0e5018b23d2fb6dca4a2}{pmath\_\-expression\_\-remove\_\-all} (\hyperlink{classpmath__expression__t}{pmath\_\-expression\_\-t} expr, \hyperlink{classpmath__object__t}{pmath\_\-object\_\-t} rem)
+\begin{CompactList}\small\item\em Remove all occurencies of an object from an expression. \item\end{CompactList}\item 
+PMATH\_\-API \hyperlink{classpmath__expression__t}{pmath\_\-expression\_\-t} \hyperlink{group__expressions_g98e7293a37e8498df0a7f6171a1fc0f6}{pmath\_\-expression\_\-sort} (\hyperlink{classpmath__expression__t}{pmath\_\-expression\_\-t} expr)
+\begin{CompactList}\small\item\em Sort an expression. \item\end{CompactList}\item 
+PMATH\_\-API \hyperlink{classpmath__expression__t}{pmath\_\-expression\_\-t} \hyperlink{group__expressions_g03458ea9be906b9efc8bcb1d66d62c90}{pmath\_\-expression\_\-flatten} (\hyperlink{classpmath__expression__t}{pmath\_\-expression\_\-t} expr, \hyperlink{classpmath__object__t}{pmath\_\-object\_\-t} head, size\_\-t depth)
+\begin{CompactList}\small\item\em Flatten an expression. \item\end{CompactList}\end{CompactItemize}
+\subsubsection*{Related Functions}
+(Note that these are not member functions.) \begin{CompactItemize}
+\item 
+PMATH\_\-API \hyperlink{classpmath__object__t}{pmath\_\-object\_\-t} \hyperlink{classpmath__expression__t_cbcaa73e8ae48c8798da28f8fbc59cfd}{pmath\_\-evaluate\_\-expression} (\hyperlink{classpmath__expression__t}{pmath\_\-expression\_\-t} expr, \hyperlink{group__general__types_g8e45b3972d0a6a89b2b45eb9eae6d8f7}{pmath\_\-boolean\_\-t} apply\_\-rules)
+\begin{CompactList}\small\item\em Partly evaluate an expression. \item\end{CompactList}\item 
+PMATH\_\-API void \hyperlink{group__helpers_g191ffdccf982321cb55d97c3f37af106}{pmath\_\-object\_\-gather\_\-begin} (\hyperlink{classpmath__object__t}{pmath\_\-object\_\-t} pattern)
+\begin{CompactList}\small\item\em Start gathering emitted objects. \item\end{CompactList}\item 
+PMATH\_\-API \hyperlink{classpmath__expression__t}{pmath\_\-expression\_\-t} \hyperlink{group__helpers_g6c69ddaa79a2599aa602510bd12a5df4}{pmath\_\-object\_\-gather\_\-end} (void)
+\begin{CompactList}\small\item\em Finish gathering emitted objects. \item\end{CompactList}\item 
+PMATH\_\-API void \hyperlink{group__helpers_g1349f6136b7b99695f2b315cae24da5e}{pmath\_\-object\_\-emit} (\hyperlink{classpmath__object__t}{pmath\_\-object\_\-t} object, \hyperlink{classpmath__object__t}{pmath\_\-object\_\-t} tag)
+\begin{CompactList}\small\item\em Emit an object to be gathered by the appropriate surounding \hyperlink{group__helpers_g191ffdccf982321cb55d97c3f37af106}{pmath\_\-object\_\-gather\_\-begin()} ... \hyperlink{group__helpers_g6c69ddaa79a2599aa602510bd12a5df4}{pmath\_\-object\_\-gather\_\-end()} function pair. \item\end{CompactList}\item 
+PMATH\_\-API \hyperlink{classpmath__expression__t}{pmath\_\-expression\_\-t} \hyperlink{group__helpers_gc24933fbc4e7d0844dffbffa8b018e57}{pmath\_\-tuple\_\-new\_\-v} (const char $\ast$format, va\_\-list args)
+\begin{CompactList}\small\item\em Generate a List of objects with a format string. \item\end{CompactList}\item 
+PMATH\_\-API \hyperlink{classpmath__expression__t}{pmath\_\-expression\_\-t} \hyperlink{group__helpers_g79850326b7731d00f4e439e0b7845cdd}{pmath\_\-tuple\_\-new} (const char $\ast$format,...)
+\begin{CompactList}\small\item\em Generate a List of objects with a format string. \item\end{CompactList}\item 
+PMATH\_\-API \hyperlink{classpmath__expression__t}{pmath\_\-expression\_\-t} \hyperlink{group__helpers_gdb685758101df62e4a2857044be06f5d}{pmath\_\-options\_\-extract} (\hyperlink{classpmath__expression__t}{pmath\_\-expression\_\-t} expr, size\_\-t last\_\-nonoption)
+\begin{CompactList}\small\item\em Extract custom option values from an expression. \item\end{CompactList}\item 
+PMATH\_\-API \hyperlink{classpmath__object__t}{pmath\_\-object\_\-t} \hyperlink{group__helpers_gf9c1c133ea08ab3c0cd579b1db635f5a}{pmath\_\-option\_\-value} (\hyperlink{classpmath__object__t}{pmath\_\-object\_\-t} fn, \hyperlink{classpmath__object__t}{pmath\_\-object\_\-t} name, \hyperlink{classpmath__object__t}{pmath\_\-object\_\-t} extra)
+\begin{CompactList}\small\item\em Retrieve a option value of a given function. \item\end{CompactList}\end{CompactItemize}
+
+
+\subsubsection{Detailed Description}
+The Expression class. 
+
+Because \hyperlink{classpmath__expression__t}{pmath\_\-expression\_\-t} is derived from \hyperlink{classpmath__object__t}{pmath\_\-object\_\-t}, you can use expressions wherever a \hyperlink{classpmath__object__t}{pmath\_\-object\_\-t} is accepted. E.g. you calculate an expression's hash value with with \hyperlink{group__objects_g472762687d2a2b772beb00c7da677543}{pmath\_\-hash()}.
+
+The pmath\_\-type\_\-t of strings is PMATH\_\-TYPE\_\-EXPRESSION.
+
+Expressions are arranged as array of objects. At index 0 is allways the head (function name). All arguments are at indices 1 to the length of the expression (including).
+
+At the pMath language level, any exprssion can be entered in the form `f(a,b,c,...)` or `a.f(b,c,...)`. For expressions with only one argument, `a.f` can be used instead of `a.f()`. 
+
+\subsubsection{Friends And Related Function Documentation}
+\hypertarget{classpmath__expression__t_cbcaa73e8ae48c8798da28f8fbc59cfd}{
+\index{pmath\_\-expression\_\-t@{pmath\_\-expression\_\-t}!pmath\_\-evaluate\_\-expression@{pmath\_\-evaluate\_\-expression}}
+\index{pmath\_\-evaluate\_\-expression@{pmath\_\-evaluate\_\-expression}!pmath_expression_t@{pmath\_\-expression\_\-t}}
+\paragraph[{pmath\_\-evaluate\_\-expression}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API {\bf pmath\_\-object\_\-t} pmath\_\-evaluate\_\-expression ({\bf pmath\_\-expression\_\-t} {\em expr}, \/  {\bf pmath\_\-boolean\_\-t} {\em apply\_\-rules})\hspace{0.3cm}{\tt  \mbox{[}related\mbox{]}}}\hfill}
+\label{classpmath__expression__t_cbcaa73e8ae48c8798da28f8fbc59cfd}
+
+
+Partly evaluate an expression. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em expr}]A pMath expression. It will be freed. Do not use it afterwards. \item[{\em apply\_\-rules}]Whether to apply custom rules the the whole expression or not. \end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]A new object produced by pMath's and user defined evaluation rules.\end{Desc}
+This function prepares an expression for evaluation (evaluates its items, ...). \par
+ Unlike \hyperlink{classpmath__object__t_adc70af9d7f05843d71d1fc4d3970621}{pmath\_\-evaluate()}, it does not evaluate its result. In fact, \hyperlink{classpmath__object__t_adc70af9d7f05843d71d1fc4d3970621}{pmath\_\-evaluate()} is basically a loop that calls \hyperlink{classpmath__expression__t_cbcaa73e8ae48c8798da28f8fbc59cfd}{pmath\_\-evaluate\_\-expression()} until the result does not change any more. 
+
+The documentation for this class was generated from the following files:\begin{CompactItemize}
+\item 
+pmath-core/expressions.h\item 
+pmath-util/evaluation.h\item 
+pmath-util/helpers.h\end{CompactItemize}

@@ -1,0 +1,347 @@
+\hypertarget{group__objects}{
+\subsection{Objects - the Base of pMath}
+\label{group__objects}\index{Objects - the Base of pMath@{Objects - the Base of pMath}}
+}
+The basic class for all pMath objects.  
+
+
+\subsubsection*{Data Structures}
+\begin{CompactItemize}
+\item 
+class \hyperlink{classpmath__t}{pmath\_\-t}
+\begin{CompactList}\small\item\em The basic type of all pMath objects. \item\end{CompactList}\end{CompactItemize}
+\subsubsection*{Defines}
+\begin{CompactItemize}
+\item 
+\#define \hyperlink{group__objects_g6251ebcdaf2f71e5db906a65a8efa621}{PMATH\_\-IS\_\-MAGIC}(obj)
+\begin{CompactList}\small\item\em Fast test, whether an object is a `magic value`. \item\end{CompactList}\item 
+\hyperlink{group__objects_gfa4048bca71f5022d1fb979a5b930a11}{pmath\_\-t::PMATH\_\-IS\_\-MAGIC}(obj)
+\begin{CompactList}\small\item\em Fast test, whether an object is a `magic value`. \item\end{CompactList}\end{CompactItemize}
+\subsubsection*{Typedefs}
+\begin{CompactItemize}
+\item 
+typedef int \hyperlink{group__objects_ge2646df76dcb0113715322b13a1f36f0}{pmath\_\-type\_\-t}
+\begin{CompactList}\small\item\em The type or class of a pMath object. \item\end{CompactList}\item 
+typedef int \hyperlink{group__objects_gd83ea6a616c49cbe35b5d3dafb877f7e}{pmath\_\-write\_\-options\_\-t}
+\begin{CompactList}\small\item\em Options for \hyperlink{group__objects_g9f909b9eb04317260ee8630d10e5a7c6}{pmath\_\-write()}. \item\end{CompactList}\item 
+typedef void($\ast$ \hyperlink{group__objects_g6c56c2d026f4cc8603a217291a8a35fb}{pmath\_\-proc\_\-t} )(\hyperlink{classpmath__t}{pmath\_\-t})
+\begin{CompactList}\small\item\em A simple procedure operating on an object. \item\end{CompactList}\item 
+typedef void($\ast$ \hyperlink{group__objects_g3ae604b25e05979c1e7ff48524636b3e}{pmath\_\-param\_\-proc\_\-t} )(void $\ast$, \hyperlink{classpmath__t}{pmath\_\-t})
+\begin{CompactList}\small\item\em A parameterized procedure operating on an object. \item\end{CompactList}\item 
+typedef \hyperlink{classpmath__t}{pmath\_\-t}($\ast$ \hyperlink{group__objects_g9dd57b578f42f0556a7d1c1709f97847}{pmath\_\-func\_\-t} )(\hyperlink{classpmath__t}{pmath\_\-t})
+\begin{CompactList}\small\item\em A simple function operating on an object and returning one. \item\end{CompactList}\item 
+typedef unsigned int($\ast$ \hyperlink{group__objects_gf7afa773c11a686f6abd7586e0a6a33d}{pmath\_\-hash\_\-func\_\-t} )(\hyperlink{classpmath__t}{pmath\_\-t})
+\begin{CompactList}\small\item\em A hash function for an object. \item\end{CompactList}\item 
+typedef \hyperlink{group__general__types_gc92090cb0b56345d6c379ed2341d4ef4}{pmath\_\-bool\_\-t}($\ast$ \hyperlink{group__objects_g3596be6b7da718f547985fdde3d8edd1}{pmath\_\-equal\_\-func\_\-t} )(\hyperlink{classpmath__t}{pmath\_\-t}, \hyperlink{classpmath__t}{pmath\_\-t})
+\begin{CompactList}\small\item\em A comparision function for two objects. \item\end{CompactList}\item 
+typedef int($\ast$ \hyperlink{group__objects_g9180e6d1f4ba84b77ea71414ce57677f}{pmath\_\-compare\_\-func\_\-t} )(\hyperlink{classpmath__t}{pmath\_\-t}, \hyperlink{classpmath__t}{pmath\_\-t})
+\begin{CompactList}\small\item\em A comparision function to determine the order of two objects. \item\end{CompactList}\end{CompactItemize}
+\subsubsection*{Functions}
+\begin{CompactItemize}
+\item 
+PMATH\_\-API unsigned int \hyperlink{group__objects_g9413cfb0b3fd00d361046189853a11d8}{pmath\_\-t::pmath\_\-hash} (\hyperlink{classpmath__t}{pmath\_\-t} obj)
+\begin{CompactList}\small\item\em Calculates an object's hash value. \item\end{CompactList}\item 
+PMATH\_\-API \hyperlink{group__general__types_gc92090cb0b56345d6c379ed2341d4ef4}{pmath\_\-bool\_\-t} \hyperlink{group__objects_g6475af7f7c85777392e38c570ac07892}{pmath\_\-t::pmath\_\-equals} (\hyperlink{classpmath__t}{pmath\_\-t} objA, \hyperlink{classpmath__t}{pmath\_\-t} objB)
+\begin{CompactList}\small\item\em Compares two objects for identity. \item\end{CompactList}\item 
+PMATH\_\-API int \hyperlink{group__objects_gc57589e08f5b3eed28e724c646503735}{pmath\_\-t::pmath\_\-compare} (\hyperlink{classpmath__t}{pmath\_\-t} objA, \hyperlink{classpmath__t}{pmath\_\-t} objB)
+\begin{CompactList}\small\item\em Compares two objects syntactically. \item\end{CompactList}\item 
+PMATH\_\-API void \hyperlink{group__objects_g9f909b9eb04317260ee8630d10e5a7c6}{pmath\_\-t::pmath\_\-write} (\hyperlink{classpmath__t}{pmath\_\-t} obj, \hyperlink{group__objects_gd83ea6a616c49cbe35b5d3dafb877f7e}{pmath\_\-write\_\-options\_\-t} options, \hyperlink{group__general__types_g781a2e0445795bb4e091470fb20497cc}{pmath\_\-write\_\-func\_\-t} write, void $\ast$user)
+\begin{CompactList}\small\item\em Write an object to a stream. \item\end{CompactList}\item 
+PMATH\_\-API \hyperlink{group__general__types_gc92090cb0b56345d6c379ed2341d4ef4}{pmath\_\-bool\_\-t} \hyperlink{group__objects_gb26224de5170fa688fa67dd2e85834e3}{pmath\_\-t::pmath\_\-is\_\-evaluated} (\hyperlink{classpmath__t}{pmath\_\-t} obj)
+\begin{CompactList}\small\item\em Test whether an object is already evaluated. \item\end{CompactList}\end{CompactItemize}
+
+
+\subsubsection{Detailed Description}
+The basic class for all pMath objects. 
+
+pMath works on objects. They can be expressions (trees of pMath objects), symbols, values, strings or `magic objects` (integer value between 0 and 255).
+
+\begin{Desc}
+\item[See also:]\hyperlink{group__helpers}{Object Utility Functions} \end{Desc}
+
+
+\subsubsection{Define Documentation}
+\hypertarget{group__objects_g6251ebcdaf2f71e5db906a65a8efa621}{
+\index{objects@{objects}!PMATH\_\-IS\_\-MAGIC@{PMATH\_\-IS\_\-MAGIC}}
+\index{PMATH\_\-IS\_\-MAGIC@{PMATH\_\-IS\_\-MAGIC}!objects@{objects}}
+\paragraph[{PMATH\_\-IS\_\-MAGIC}]{\setlength{\rightskip}{0pt plus 5cm}\#define PMATH\_\-IS\_\-MAGIC(obj)}\hfill}
+\label{group__objects_g6251ebcdaf2f71e5db906a65a8efa621}
+
+
+Fast test, whether an object is a `magic value`. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em obj}]A pMath object \end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]A boolean value.\end{Desc}
+This is the faster equivalent to pmath\_\-instance\_\-of(obj, PMATH\_\-TYPE\_\-MAGIC).
+
+\begin{Desc}
+\item[See also:]\hyperlink{classpmath__t_0bd527f1ec2db8f1eba58e1fd84babbc}{pmath\_\-instance\_\-of()} \end{Desc}
+\hypertarget{group__objects_gfa4048bca71f5022d1fb979a5b930a11}{
+\index{objects@{objects}!PMATH\_\-IS\_\-MAGIC@{PMATH\_\-IS\_\-MAGIC}}
+\index{PMATH\_\-IS\_\-MAGIC@{PMATH\_\-IS\_\-MAGIC}!objects@{objects}}
+\paragraph[{PMATH\_\-IS\_\-MAGIC}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-IS\_\-MAGIC(obj)\hspace{0.3cm}{\tt  \mbox{[}inherited\mbox{]}}}\hfill}
+\label{group__objects_gfa4048bca71f5022d1fb979a5b930a11}
+
+
+Fast test, whether an object is a `magic value`. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em obj}]A pMath object \end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]A boolean value.\end{Desc}
+This is the faster equivalent to pmath\_\-instance\_\-of(obj, PMATH\_\-TYPE\_\-MAGIC).
+
+\begin{Desc}
+\item[See also:]\hyperlink{classpmath__t_0bd527f1ec2db8f1eba58e1fd84babbc}{pmath\_\-instance\_\-of()} \end{Desc}
+
+
+\subsubsection{Typedef Documentation}
+\hypertarget{group__objects_ge2646df76dcb0113715322b13a1f36f0}{
+\index{objects@{objects}!pmath\_\-type\_\-t@{pmath\_\-type\_\-t}}
+\index{pmath\_\-type\_\-t@{pmath\_\-type\_\-t}!objects@{objects}}
+\paragraph[{pmath\_\-type\_\-t}]{\setlength{\rightskip}{0pt plus 5cm}typedef int {\bf pmath\_\-type\_\-t}}\hfill}
+\label{group__objects_ge2646df76dcb0113715322b13a1f36f0}
+
+
+The type or class of a pMath object. 
+
+This is a bitset of the {\tt PMATH\_\-TYPE\_\-XXX} constants:
+
+\begin{itemize}
+\item {\tt PMATH\_\-TYPE\_\-MAGIC} PMATH\_\-TYPE\_\-MAGIC: The object is a `magic number`, which is any integer value between 0 and 255 cast to ( \hyperlink{classpmath__t}{pmath\_\-t} ). These values have special meanings:\begin{itemize}
+\item NULL This is simply `nothing`. It is often used to indicate that there is not enough memory.\item PMATH\_\-UNDEFINED PMATH\_\-UNDEFINED Symbol values are initialized with PMATH\_\-UNDEFINED. This is done to enable saving the value NULL in a symbol.\end{itemize}
+\end{itemize}
+
+
+Any function that returns or operates on a \hyperlink{classpmath__t}{pmath\_\-t} may return NULL. Exceptions are allways explicitly stated in the documentation.
+
+\begin{itemize}
+\item {\tt PMATH\_\-TYPE\_\-INTEGER:} The object is an integer value. You can cast it to \hyperlink{classpmath__integer__t}{pmath\_\-integer\_\-t}, \hyperlink{classpmath__rational__t}{pmath\_\-rational\_\-t} and \hyperlink{classpmath__number__t}{pmath\_\-number\_\-t}.\end{itemize}
+
+
+\begin{itemize}
+\item {\tt PMATH\_\-TYPE\_\-QUOTIENT:} The object is a reduced quotient of two integer values, where the denominator is never 0 or 1. Because of this, you almost never test for this type, but for PMATH\_\-TYPE\_\-RATIONAL, since the result of an operation on two quotients may be an integer. You can cast quotient objects to \hyperlink{classpmath__rational__t}{pmath\_\-rational\_\-t} and thus to \hyperlink{classpmath__number__t}{pmath\_\-number\_\-t} too.\end{itemize}
+
+
+\begin{itemize}
+\item {\tt PMATH\_\-TYPE\_\-RATIONAL:} The object is either an integer or a quotient. You can cast it to \hyperlink{classpmath__rational__t}{pmath\_\-rational\_\-t} and thus to \hyperlink{classpmath__number__t}{pmath\_\-number\_\-t} too.\end{itemize}
+
+
+\begin{itemize}
+\item {\tt PMATH\_\-TYPE\_\-MP\_\-FLOAT:} The object is a floating point number with arbitrary precision. You can cast it to \hyperlink{classpmath__float__t}{pmath\_\-float\_\-t} and \hyperlink{classpmath__number__t}{pmath\_\-number\_\-t}.\end{itemize}
+
+
+\begin{itemize}
+\item {\tt PMATH\_\-TYPE\_\-MACHINE\_\-FLOAT:} The object is a floating point number with machine precision. You can cast it to \hyperlink{classpmath__float__t}{pmath\_\-float\_\-t} and \hyperlink{classpmath__number__t}{pmath\_\-number\_\-t}.\end{itemize}
+
+
+\begin{itemize}
+\item {\tt PMATH\_\-TYPE\_\-FLOAT:} The object is either PMATH\_\-TYPE\_\-MP\_\-FLOAT or PMATH\_\-TYPE\_\-MACHINE\_\-FLOAT.\end{itemize}
+
+
+\begin{itemize}
+\item {\tt PMATH\_\-TYPE\_\-NUMBER:} The object is a numerical value (integer, quotient, floating point number). You can cast it to \hyperlink{classpmath__number__t}{pmath\_\-number\_\-t}.\end{itemize}
+
+
+Note that complex numbers are stored as expressions and thus are not numbers in this sense. Additionally, algebraic and special constants as Sqrt(2) or Pi are not numbers, but symbols or expressiones (e.g. Sqrt(2)).
+
+\begin{itemize}
+\item {\tt PMATH\_\-TYPE\_\-STRING:} The object is a string. You can cast it to \hyperlink{classpmath__string__t}{pmath\_\-string\_\-t}.\end{itemize}
+
+
+\begin{itemize}
+\item {\tt PMATH\_\-TYPE\_\-SYMBOL:} The object is a symbol. You can cast it to \hyperlink{classpmath__symbol__t}{pmath\_\-symbol\_\-t}.\end{itemize}
+
+
+\begin{itemize}
+\item {\tt PMATH\_\-TYPE\_\-EXPRESSION:} The object is an expression. You can cast it to \hyperlink{classpmath__expr__t}{pmath\_\-expr\_\-t}.\end{itemize}
+
+
+\begin{itemize}
+\item {\tt PMATH\_\-TYPE\_\-CUSTOM:} The object is a custom object. You can cast it to \hyperlink{classpmath__custom__t}{pmath\_\-custom\_\-t}.\end{itemize}
+
+
+\begin{itemize}
+\item {\tt PMATH\_\-TYPE\_\-EVALUATABLE:} The object is evaluatable. That means, if a symbol has this object as its value, the object will be returned. Function definition rules and custom objects are an example of non-evalutable objects. \end{itemize}
+\hypertarget{group__objects_gd83ea6a616c49cbe35b5d3dafb877f7e}{
+\index{objects@{objects}!pmath\_\-write\_\-options\_\-t@{pmath\_\-write\_\-options\_\-t}}
+\index{pmath\_\-write\_\-options\_\-t@{pmath\_\-write\_\-options\_\-t}!objects@{objects}}
+\paragraph[{pmath\_\-write\_\-options\_\-t}]{\setlength{\rightskip}{0pt plus 5cm}typedef int {\bf pmath\_\-write\_\-options\_\-t}}\hfill}
+\label{group__objects_gd83ea6a616c49cbe35b5d3dafb877f7e}
+
+
+Options for \hyperlink{group__objects_g9f909b9eb04317260ee8630d10e5a7c6}{pmath\_\-write()}. 
+
+These options can be one or more of the following:\begin{itemize}
+\item PMATH\_\-WRITE\_\-OPTIONS\_\-FULLEXPR All expressions are written in the form f(a, b, ...) without any syntactic sugar.\end{itemize}
+
+
+Supersedes PMATH\_\-WRITE\_\-OPTIONS\_\-INPUTEXPR.
+
+\begin{itemize}
+\item PMATH\_\-WRITE\_\-OPTIONS\_\-FULLSTR Strings are written with quotes and escape sequences.\end{itemize}
+
+
+\begin{itemize}
+\item PMATH\_\-WRITE\_\-OPTIONS\_\-FULLNAME Names are written with their full namespace path.\end{itemize}
+
+
+\begin{itemize}
+\item PMATH\_\-WRITE\_\-OPTIONS\_\-INPUTEXPR Expressions are written in a form that is valid pMath input.\end{itemize}
+
+
+Note that this does not automatically imply PMATH\_\-WRITE\_\-OPTIONS\_\-FULLSTR. \hypertarget{group__objects_g6c56c2d026f4cc8603a217291a8a35fb}{
+\index{objects@{objects}!pmath\_\-proc\_\-t@{pmath\_\-proc\_\-t}}
+\index{pmath\_\-proc\_\-t@{pmath\_\-proc\_\-t}!objects@{objects}}
+\paragraph[{pmath\_\-proc\_\-t}]{\setlength{\rightskip}{0pt plus 5cm}typedef void($\ast$ {\bf pmath\_\-proc\_\-t})({\bf pmath\_\-t})}\hfill}
+\label{group__objects_g6c56c2d026f4cc8603a217291a8a35fb}
+
+
+A simple procedure operating on an object. 
+
+It depends on the context whether the argument is destroyed by the procedure or not. \hypertarget{group__objects_g3ae604b25e05979c1e7ff48524636b3e}{
+\index{objects@{objects}!pmath\_\-param\_\-proc\_\-t@{pmath\_\-param\_\-proc\_\-t}}
+\index{pmath\_\-param\_\-proc\_\-t@{pmath\_\-param\_\-proc\_\-t}!objects@{objects}}
+\paragraph[{pmath\_\-param\_\-proc\_\-t}]{\setlength{\rightskip}{0pt plus 5cm}typedef void($\ast$ {\bf pmath\_\-param\_\-proc\_\-t})(void $\ast$, {\bf pmath\_\-t})}\hfill}
+\label{group__objects_g3ae604b25e05979c1e7ff48524636b3e}
+
+
+A parameterized procedure operating on an object. 
+
+It depends on the context whether the (second) argument is destroyed by the procedure or not. \hypertarget{group__objects_g9dd57b578f42f0556a7d1c1709f97847}{
+\index{objects@{objects}!pmath\_\-func\_\-t@{pmath\_\-func\_\-t}}
+\index{pmath\_\-func\_\-t@{pmath\_\-func\_\-t}!objects@{objects}}
+\paragraph[{pmath\_\-func\_\-t}]{\setlength{\rightskip}{0pt plus 5cm}typedef {\bf pmath\_\-t}($\ast$ {\bf pmath\_\-func\_\-t})({\bf pmath\_\-t})}\hfill}
+\label{group__objects_g9dd57b578f42f0556a7d1c1709f97847}
+
+
+A simple function operating on an object and returning one. 
+
+It depends on the context whether the argument is destroyed by the function or not. \hypertarget{group__objects_gf7afa773c11a686f6abd7586e0a6a33d}{
+\index{objects@{objects}!pmath\_\-hash\_\-func\_\-t@{pmath\_\-hash\_\-func\_\-t}}
+\index{pmath\_\-hash\_\-func\_\-t@{pmath\_\-hash\_\-func\_\-t}!objects@{objects}}
+\paragraph[{pmath\_\-hash\_\-func\_\-t}]{\setlength{\rightskip}{0pt plus 5cm}typedef unsigned int($\ast$ {\bf pmath\_\-hash\_\-func\_\-t})({\bf pmath\_\-t})}\hfill}
+\label{group__objects_gf7afa773c11a686f6abd7586e0a6a33d}
+
+
+A hash function for an object. 
+
+If two objects equal, their hash values equal. \hypertarget{group__objects_g3596be6b7da718f547985fdde3d8edd1}{
+\index{objects@{objects}!pmath\_\-equal\_\-func\_\-t@{pmath\_\-equal\_\-func\_\-t}}
+\index{pmath\_\-equal\_\-func\_\-t@{pmath\_\-equal\_\-func\_\-t}!objects@{objects}}
+\paragraph[{pmath\_\-equal\_\-func\_\-t}]{\setlength{\rightskip}{0pt plus 5cm}typedef {\bf pmath\_\-bool\_\-t}($\ast$ {\bf pmath\_\-equal\_\-func\_\-t})({\bf pmath\_\-t}, {\bf pmath\_\-t})}\hfill}
+\label{group__objects_g3596be6b7da718f547985fdde3d8edd1}
+
+
+A comparision function for two objects. 
+
+The return value is nonzero, if both objects equal and zero otherwise. Note that a pmath\_\-compare\_\-func\_\-t cannot be cast to pmath\_\-equal\_\-func\_\-t, because their return values have opposite meanings. \hypertarget{group__objects_g9180e6d1f4ba84b77ea71414ce57677f}{
+\index{objects@{objects}!pmath\_\-compare\_\-func\_\-t@{pmath\_\-compare\_\-func\_\-t}}
+\index{pmath\_\-compare\_\-func\_\-t@{pmath\_\-compare\_\-func\_\-t}!objects@{objects}}
+\paragraph[{pmath\_\-compare\_\-func\_\-t}]{\setlength{\rightskip}{0pt plus 5cm}typedef int($\ast$ {\bf pmath\_\-compare\_\-func\_\-t})({\bf pmath\_\-t}, {\bf pmath\_\-t})}\hfill}
+\label{group__objects_g9180e6d1f4ba84b77ea71414ce57677f}
+
+
+A comparision function to determine the order of two objects. 
+
+The return value is $<$0, =0 or $>$0, if the first argument is less, equal to or greater than the second respectively. Both arguments won't be destroyed by the function. 
+
+\subsubsection{Function Documentation}
+\hypertarget{group__objects_g9413cfb0b3fd00d361046189853a11d8}{
+\index{objects@{objects}!pmath\_\-hash@{pmath\_\-hash}}
+\index{pmath\_\-hash@{pmath\_\-hash}!objects@{objects}}
+\paragraph[{pmath\_\-hash}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API unsigned int pmath\_\-hash ({\bf pmath\_\-t} {\em obj})\hspace{0.3cm}{\tt  \mbox{[}inherited\mbox{]}}}\hfill}
+\label{group__objects_g9413cfb0b3fd00d361046189853a11d8}
+
+
+Calculates an object's hash value. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em obj}]The object. \end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]A hash value.\end{Desc}
+pmath\_\-equals(A, B) implies pmath\_\-hash(A) == pmath\_\-hash(B). \hypertarget{group__objects_g6475af7f7c85777392e38c570ac07892}{
+\index{objects@{objects}!pmath\_\-equals@{pmath\_\-equals}}
+\index{pmath\_\-equals@{pmath\_\-equals}!objects@{objects}}
+\paragraph[{pmath\_\-equals}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API {\bf pmath\_\-bool\_\-t} pmath\_\-equals ({\bf pmath\_\-t} {\em objA}, \/  {\bf pmath\_\-t} {\em objB})\hspace{0.3cm}{\tt  \mbox{[}inherited\mbox{]}}}\hfill}
+\label{group__objects_g6475af7f7c85777392e38c570ac07892}
+
+
+Compares two objects for identity. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em objA}]The first object. \item[{\em objB}]The second one. \end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]TRUE iff both objects are identical.\end{Desc}
+`identity` means, that X != Y is possible, even if X and Y evaluate to the same value.
+
+If objA and objB are symbols, the result is identical to testing objA == objB.
+
+\begin{Desc}
+\item[Note:]pmath\_\-equals(A, B) might return FALSE although pmath\_\-compare(A, B) == 0 e.g. for an integer A and q floating point value B. \end{Desc}
+\hypertarget{group__objects_gc57589e08f5b3eed28e724c646503735}{
+\index{objects@{objects}!pmath\_\-compare@{pmath\_\-compare}}
+\index{pmath\_\-compare@{pmath\_\-compare}!objects@{objects}}
+\paragraph[{pmath\_\-compare}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API int pmath\_\-compare ({\bf pmath\_\-t} {\em objA}, \/  {\bf pmath\_\-t} {\em objB})\hspace{0.3cm}{\tt  \mbox{[}inherited\mbox{]}}}\hfill}
+\label{group__objects_gc57589e08f5b3eed28e724c646503735}
+
+
+Compares two objects syntactically. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em objA}]The first object. \item[{\em objB}]The second one. \end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]$<$ 0 if {\em objA\/} is less than {\em objB\/}, == 0 if both are equal and $>$ 0 if {\em objA\/} is greater than {\em objB\/}.\end{Desc}
+`syntactically` means that for two symbols X and Y, pmath\_\-compare(X, Y) $<$ 0 even if X:=2 and Y:=1, because X appears before Y in the alphabet.
+
+\begin{Desc}
+\item[Note:]pmath\_\-equals(A, B) might return FALSE although pmath\_\-compare(A, B) == 0 e.g. for an integer A and q floating point value B. \end{Desc}
+\hypertarget{group__objects_g9f909b9eb04317260ee8630d10e5a7c6}{
+\index{objects@{objects}!pmath\_\-write@{pmath\_\-write}}
+\index{pmath\_\-write@{pmath\_\-write}!objects@{objects}}
+\paragraph[{pmath\_\-write}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API void pmath\_\-write ({\bf pmath\_\-t} {\em obj}, \/  {\bf pmath\_\-write\_\-options\_\-t} {\em options}, \/  {\bf pmath\_\-write\_\-func\_\-t} {\em write}, \/  void $\ast$ {\em user})\hspace{0.3cm}{\tt  \mbox{[}inherited\mbox{]}}}\hfill}
+\label{group__objects_g9f909b9eb04317260ee8630d10e5a7c6}
+
+
+Write an object to a stream. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em obj}]The object to be written. \item[{\em options}]Some options defining the format. \item[{\em write}]The stream's output function. \item[{\em user}]The user-argument of write (e.g. the stream itself).\end{description}
+\end{Desc}
+\begin{Desc}
+\item[See also:]\hyperlink{group__strings_g5e7a9b1a5eb8861e94dc1bea92c77424}{pmath\_\-utf8\_\-writer} \end{Desc}
+\hypertarget{group__objects_gb26224de5170fa688fa67dd2e85834e3}{
+\index{objects@{objects}!pmath\_\-is\_\-evaluated@{pmath\_\-is\_\-evaluated}}
+\index{pmath\_\-is\_\-evaluated@{pmath\_\-is\_\-evaluated}!objects@{objects}}
+\paragraph[{pmath\_\-is\_\-evaluated}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API {\bf pmath\_\-bool\_\-t} pmath\_\-is\_\-evaluated ({\bf pmath\_\-t} {\em obj})\hspace{0.3cm}{\tt  \mbox{[}inherited\mbox{]}}}\hfill}
+\label{group__objects_gb26224de5170fa688fa67dd2e85834e3}
+
+
+Test whether an object is already evaluated. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em obj}]Any pMath object. It will $\ast$not$\ast$ be freed. \end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]TRUE if a call to pmath\_\-evaluate would not change the object. \end{Desc}

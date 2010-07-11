@@ -1,0 +1,71 @@
+[OPTIONS]
+Compatibility=1.1
+Full-text search=Yes
+Contents file=index.hhc
+Default Window=main
+Default topic=index.html
+Index file=index.hhk
+Language=0x409 English (United States)
+Title=pMath
+
+[WINDOWS]
+main="pMath","index.hhc","index.hhk","index.html","index.html",,,,,0x23520,,0x10387e,,,,,,,,0
+
+[FILES]
+index.html
+pages.html
+todo.html
+deprecated.html
+group__custom.html
+group__expressions.html
+group__numbers.html
+group__objects.html
+group__strings.html
+group__symbols.html
+group__cpp__binding.html
+group__parser.html
+group__general__types.html
+group__atomic__ops.html
+group__threadmsg.html
+group__threads.html
+group__debug.html
+group__file__api.html
+group__helpers.html
+group__memory.html
+group__messages.html
+group__stacks.html
+group__frontend.html
+modules.html
+annotated.html
+classes.html
+hierarchy.html
+functions.html
+functions_func.html
+functions_vars.html
+functions_rela.html
+structpmath__binary__file__api__t.html
+structpmath__cstr__writer__info__t.html
+classpmath__custom__t.html
+classpmath__expr__t.html
+classpmath__float__t.html
+classpmath__integer__t.html
+classpmath__messages__t.html
+classpmath__number__t.html
+classpmath__quotient__t.html
+classpmath__rational__t.html
+classpmath__span__array__t.html
+classpmath__span__t.html
+classpmath__stack__t.html
+classpmath__string__t.html
+classpmath__symbol__t.html
+classpmath__t.html
+structpmath__text__file__api__t.html
+classpmath__thread__t.html
+classpmath__threadlock__t.html
+classpmath_1_1_expr.html
+classpmath_1_1_string.html
+classpmath_1_1_gather.html
+tabs.css
+tab_b.gif
+tab_l.gif
+tab_r.gif

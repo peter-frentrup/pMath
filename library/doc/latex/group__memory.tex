@@ -1,0 +1,108 @@
+\hypertarget{group__memory}{
+\subsection{Memory Management}
+\label{group__memory}\index{Memory Management@{Memory Management}}
+}
+Memory management for pMath.  
+
+
+\subsubsection*{Functions}
+\begin{CompactItemize}
+\item 
+PMATH\_\-API void $\ast$ \hyperlink{group__memory_g856c326c830629de5637912fa8bc2bc9}{pmath\_\-mem\_\-alloc} (size\_\-t size)
+\begin{CompactList}\small\item\em Allocate some amount of memory. \item\end{CompactList}\item 
+PMATH\_\-API void $\ast$ \hyperlink{group__memory_g59dc67a7de0dc3111dfb0424df8d8244}{pmath\_\-mem\_\-realloc} (void $\ast$p, size\_\-t new\_\-size)
+\begin{CompactList}\small\item\em Change the size of a memory-chunk. \item\end{CompactList}\item 
+PMATH\_\-API void $\ast$ \hyperlink{group__memory_g212c329fa5e691842e46580bd94f6e4c}{pmath\_\-mem\_\-realloc\_\-no\_\-failfree} (void $\ast$p, size\_\-t new\_\-size)
+\begin{CompactList}\small\item\em Change the size of a memory-chunk. \item\end{CompactList}\item 
+PMATH\_\-API void \hyperlink{group__memory_g936d3001151c35052812e597eb7dce4f}{pmath\_\-mem\_\-free} (void $\ast$p)
+\begin{CompactList}\small\item\em Free a memory-chunk. \item\end{CompactList}\item 
+PMATH\_\-API void \hyperlink{group__memory_gfabd51edae8c23c11efdc4540d7b6a0d}{pmath\_\-mem\_\-usage} (size\_\-t $\ast$current, size\_\-t $\ast$max)
+\begin{CompactList}\small\item\em Get memory usage information. \item\end{CompactList}\end{CompactItemize}
+
+
+\subsubsection{Detailed Description}
+Memory management for pMath. 
+
+These functions may return NULL. In this case, the current evaluation will abort and used cache will be freed to safe memory (the garbage collector is invoked and a pMath exception is thrown so \hyperlink{group__threads_gb75a9c87401fddb42b297ddb0495415f}{pmath\_\-aborting()} yields TRUE). 
+
+\subsubsection{Function Documentation}
+\hypertarget{group__memory_g856c326c830629de5637912fa8bc2bc9}{
+\index{memory@{memory}!pmath\_\-mem\_\-alloc@{pmath\_\-mem\_\-alloc}}
+\index{pmath\_\-mem\_\-alloc@{pmath\_\-mem\_\-alloc}!memory@{memory}}
+\paragraph[{pmath\_\-mem\_\-alloc}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API void$\ast$ pmath\_\-mem\_\-alloc (size\_\-t {\em size})}\hfill}
+\label{group__memory_g856c326c830629de5637912fa8bc2bc9}
+
+
+Allocate some amount of memory. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em size}]The number of bytes to be allocated. \end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]A pointer to a block of mamory of at least size bytes or NULL.\end{Desc}
+You must free the result with \hyperlink{group__memory_g936d3001151c35052812e597eb7dce4f}{pmath\_\-mem\_\-free()} or indirectly via \hyperlink{group__memory_g59dc67a7de0dc3111dfb0424df8d8244}{pmath\_\-mem\_\-realloc()}. \hypertarget{group__memory_g59dc67a7de0dc3111dfb0424df8d8244}{
+\index{memory@{memory}!pmath\_\-mem\_\-realloc@{pmath\_\-mem\_\-realloc}}
+\index{pmath\_\-mem\_\-realloc@{pmath\_\-mem\_\-realloc}!memory@{memory}}
+\paragraph[{pmath\_\-mem\_\-realloc}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API void$\ast$ pmath\_\-mem\_\-realloc (void $\ast$ {\em p}, \/  size\_\-t {\em new\_\-size})}\hfill}
+\label{group__memory_g59dc67a7de0dc3111dfb0424df8d8244}
+
+
+Change the size of a memory-chunk. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em p}]NULL or a pointer to a block of old\_\-size bytes allocated with \hyperlink{group__memory_g856c326c830629de5637912fa8bc2bc9}{pmath\_\-mem\_\-alloc()} or \hyperlink{group__memory_g59dc67a7de0dc3111dfb0424df8d8244}{pmath\_\-mem\_\-realloc()}. \item[{\em new\_\-size}]The requested new size. \end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]A pointer to a block of at least new\_\-size bytes or NULL.\end{Desc}
+If there is not enough memory available or if new\_\-size == 0, NULL is returned. Otherwise, the result points to a block of new\_\-size bytes, whose first min(old\_\-size,new\_\-size) bytes are copied from the old p. The rest is initialized with 0.
+
+The old pointer p will \_\-allways\_\-be freed. even, if the result is NULL because there is not enough memory.
+
+You must free the result with \hyperlink{group__memory_g936d3001151c35052812e597eb7dce4f}{pmath\_\-mem\_\-free()} or indirectly via \hyperlink{group__memory_g59dc67a7de0dc3111dfb0424df8d8244}{pmath\_\-mem\_\-realloc()}. \hypertarget{group__memory_g212c329fa5e691842e46580bd94f6e4c}{
+\index{memory@{memory}!pmath\_\-mem\_\-realloc\_\-no\_\-failfree@{pmath\_\-mem\_\-realloc\_\-no\_\-failfree}}
+\index{pmath\_\-mem\_\-realloc\_\-no\_\-failfree@{pmath\_\-mem\_\-realloc\_\-no\_\-failfree}!memory@{memory}}
+\paragraph[{pmath\_\-mem\_\-realloc\_\-no\_\-failfree}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API void$\ast$ pmath\_\-mem\_\-realloc\_\-no\_\-failfree (void $\ast$ {\em p}, \/  size\_\-t {\em new\_\-size})}\hfill}
+\label{group__memory_g212c329fa5e691842e46580bd94f6e4c}
+
+
+Change the size of a memory-chunk. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em p}]NULL or a pointer to a block of old\_\-size bytes allocated with \hyperlink{group__memory_g856c326c830629de5637912fa8bc2bc9}{pmath\_\-mem\_\-alloc()} or \hyperlink{group__memory_g59dc67a7de0dc3111dfb0424df8d8244}{pmath\_\-mem\_\-realloc()}. \item[{\em new\_\-size}]The requested new size. \end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]A pointer to a block of at least new\_\-size bytes or NULL.\end{Desc}
+If there is enough memory, this acts like \hyperlink{group__memory_g59dc67a7de0dc3111dfb0424df8d8244}{pmath\_\-mem\_\-realloc()}. Otherwise, p is {\em not\/} freed and NULL is returned. \hypertarget{group__memory_g936d3001151c35052812e597eb7dce4f}{
+\index{memory@{memory}!pmath\_\-mem\_\-free@{pmath\_\-mem\_\-free}}
+\index{pmath\_\-mem\_\-free@{pmath\_\-mem\_\-free}!memory@{memory}}
+\paragraph[{pmath\_\-mem\_\-free}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API void pmath\_\-mem\_\-free (void $\ast$ {\em p})}\hfill}
+\label{group__memory_g936d3001151c35052812e597eb7dce4f}
+
+
+Free a memory-chunk. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em p}]NULL or a pointer to a block of old\_\-size bytes allocated with \hyperlink{group__memory_g856c326c830629de5637912fa8bc2bc9}{pmath\_\-mem\_\-alloc()} or \hyperlink{group__memory_g59dc67a7de0dc3111dfb0424df8d8244}{pmath\_\-mem\_\-realloc()}. \end{description}
+\end{Desc}
+\hypertarget{group__memory_gfabd51edae8c23c11efdc4540d7b6a0d}{
+\index{memory@{memory}!pmath\_\-mem\_\-usage@{pmath\_\-mem\_\-usage}}
+\index{pmath\_\-mem\_\-usage@{pmath\_\-mem\_\-usage}!memory@{memory}}
+\paragraph[{pmath\_\-mem\_\-usage}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API void pmath\_\-mem\_\-usage (size\_\-t $\ast$ {\em current}, \/  size\_\-t $\ast$ {\em max})}\hfill}
+\label{group__memory_gfabd51edae8c23c11efdc4540d7b6a0d}
+
+
+Get memory usage information. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em current}]Here goes the number of currently allocated bytes. \item[{\em max}]here goes the maximum number of allocated bytes until now. \end{description}
+\end{Desc}

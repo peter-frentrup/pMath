@@ -1,0 +1,3546 @@
+(* Content-type: application/mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 6.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       145,          7]
+NotebookDataLength[    122960,       3537]
+NotebookOptionsPosition[    122139,       3503]
+NotebookOutlinePosition[    122591,       3522]
+CellTagsIndexPosition[    122548,       3519]
+WindowFrame->Normal
+ContainsDynamic->True *)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell["Power function \[LongDash] Corner Cases", "Title",
+ CellChangeTimes->{{3.446920704600738*^9, 3.446920726729738*^9}}],
+
+Cell[CellGroupData[{
+
+Cell["Code", "Section",
+ CellChangeTimes->{{3.446048628323*^9, 3.446048630716*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"tstyle", "=", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"FontColor", "\[Rule]", 
+      RowBox[{"RGBColor", "[", 
+       RowBox[{"0", ",", "0.5", ",", "0"}], "]"}]}], ",", 
+     RowBox[{"FontWeight", "\[Rule]", "\"\<Bold\>\""}]}], "}"}]}], 
+  ";"}]], "Input",
+ InitializationCell->True,
+ CellChangeTimes->{3.446050496335*^9}],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"Clear", "[", "style", "]"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"style", "[", "Indeterminate", "]"}], ":=", 
+   RowBox[{"Style", "[", 
+    RowBox[{"\"\<indet\>\"", ",", "Red"}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"style", "[", "ComplexInfinity", "]"}], ":=", 
+   RowBox[{"Style", "[", 
+    RowBox[{
+     RowBox[{"Row", "[", 
+      RowBox[{"{", "\"\<uinf\>\"", "}"}], "]"}], ",", "Purple"}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"style", "[", 
+   RowBox[{"inf", ":", 
+    RowBox[{"DirectedInfinity", "[", "dir_", "]"}]}], "]"}], ":=", 
+  RowBox[{"Style", "[", 
+   RowBox[{
+    RowBox[{"If", "[", 
+     RowBox[{
+      RowBox[{"MemberQ", "[", 
+       RowBox[{
+        RowBox[{"{", 
+         RowBox[{
+          RowBox[{"-", "1"}], ",", "1", ",", "\[ImaginaryI]", ",", 
+          RowBox[{"-", "\[ImaginaryI]"}]}], "}"}], ",", "dir"}], "]"}], ",", 
+      "inf", ",", 
+      RowBox[{"Row", "[", 
+       RowBox[{"{", 
+        RowBox[{"dir", ",", "\"\< \[Infinity]\>\""}], "}"}], "]"}]}], "]"}], 
+    ",", "Blue"}], "]"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"style", "[", "x_", "]"}], ":=", "x"}], ";"}]}], "Input",
+ InitializationCell->True,
+ CellChangeTimes->{{3.446038737784*^9, 3.44603881316*^9}, {3.446039036943*^9, 
+   3.446039229231*^9}, {3.44603927185*^9, 3.446039500618*^9}, 
+   3.446042539543*^9}]
+}, Closed]],
+
+Cell[CellGroupData[{
+
+Cell["Output", "Section",
+ CellChangeTimes->{{3.44604863704*^9, 3.446048638764*^9}}],
+
+Cell[TextData[{
+ "Click on the items to change their color/state.\nallready implemented \
+\[Equal] ",
+ Cell[BoxData[
+  GraphicsBox[
+   {RGBColor[0, 1, 0], RectangleBox[{0, 0}]},
+   ImageSize->20]]]
+}], "Text",
+ CellChangeTimes->{{3.446049861236*^9, 3.446049886634*^9}, {
+  3.446920603948738*^9, 3.446920626014738*^9}, {3.4469208486577377`*^9, 
+  3.4469208789517384`*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"DynamicModule", "[", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{"t", ",", "values", ",", "toggle", ",", "bg", ",", "f"}], "}"}], 
+   ",", "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"values", "=", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"-", "\[Infinity]"}], ",", 
+       RowBox[{
+        RowBox[{"-", "7"}], "/", "3"}], ",", 
+       RowBox[{"-", "1"}], ",", 
+       RowBox[{
+        RowBox[{"-", "1"}], "/", "3"}], ",", "0", ",", 
+       RowBox[{"1", "/", "3"}], ",", "1", ",", 
+       RowBox[{"7", "/", "3"}], ",", "\[Infinity]", ",", "X", ",", 
+       RowBox[{"I", "/", "5"}], ",", 
+       RowBox[{"I", " ", "\[Infinity]"}], ",", "ComplexInfinity"}], "}"}]}], 
+    ";", "\[IndentingNewLine]", 
+    RowBox[{"t", "=", 
+     RowBox[{"ConstantArray", "[", 
+      RowBox[{"False", ",", 
+       RowBox[{"{", 
+        RowBox[{
+         RowBox[{"Length", "[", "values", "]"}], ",", 
+         RowBox[{"Length", "[", "values", "]"}]}], "}"}]}], "]"}]}], ";", 
+    "\[IndentingNewLine]", 
+    RowBox[{
+     RowBox[{"toggle", "[", 
+      RowBox[{
+       RowBox[{"x", ":", 
+        RowBox[{"(", 
+         RowBox[{"SpanFromLeft", "|", "SpanFromAbove", "|", "SpanFromBoth"}], 
+         ")"}]}], ",", "i_", ",", "j_"}], "]"}], ":=", "x"}], ";", 
+    "\[IndentingNewLine]", 
+    RowBox[{
+     RowBox[{"toggle", "[", 
+      RowBox[{"x_", ",", "0", ",", "j_"}], "]"}], ":=", 
+     RowBox[{"Button", "[", 
+      RowBox[{"x", ",", 
+       RowBox[{
+        RowBox[{"t", "\[LeftDoubleBracket]", 
+         RowBox[{"All", ",", "j"}], "\[RightDoubleBracket]"}], "=", 
+        RowBox[{"!", 
+         RowBox[{"t", "\[LeftDoubleBracket]", 
+          RowBox[{"1", ",", "j"}], "\[RightDoubleBracket]"}]}]}], ",", 
+       RowBox[{"Appearance", "\[Rule]", "\"\<Frameless\>\""}]}], "]"}]}], ";",
+     "\[IndentingNewLine]", 
+    RowBox[{
+     RowBox[{"toggle", "[", 
+      RowBox[{"x_", ",", "i_", ",", "0"}], "]"}], ":=", 
+     RowBox[{"Button", "[", 
+      RowBox[{"x", ",", 
+       RowBox[{
+        RowBox[{"t", "\[LeftDoubleBracket]", 
+         RowBox[{"i", ",", "All"}], "\[RightDoubleBracket]"}], "=", 
+        RowBox[{"!", 
+         RowBox[{"t", "\[LeftDoubleBracket]", 
+          RowBox[{"i", ",", "1"}], "\[RightDoubleBracket]"}]}]}], ",", 
+       RowBox[{"Appearance", "\[Rule]", "\"\<Frameless\>\""}]}], "]"}]}], ";",
+     "\[IndentingNewLine]", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"toggle", "[", 
+       RowBox[{"x_", ",", "i_", ",", "j_"}], "]"}], "/;", 
+      RowBox[{
+       RowBox[{"i", ">", "0"}], "&&", 
+       RowBox[{"j", ">", "0"}]}]}], ":=", 
+     RowBox[{"Button", "[", 
+      RowBox[{"x", ",", 
+       RowBox[{
+        RowBox[{"t", "\[LeftDoubleBracket]", 
+         RowBox[{"i", ",", "j"}], "\[RightDoubleBracket]"}], "=", 
+        RowBox[{"!", 
+         RowBox[{"t", "\[LeftDoubleBracket]", 
+          RowBox[{"i", ",", "j"}], "\[RightDoubleBracket]"}]}]}], ",", 
+       RowBox[{"Appearance", "\[Rule]", "\"\<Frameless\>\""}]}], "]"}]}], ";",
+     "\[IndentingNewLine]", 
+    RowBox[{
+     RowBox[{"toggle", "[", 
+      RowBox[{"x_", ",", "_", ",", "_"}], "]"}], ":=", "x"}], ";", 
+    "\[IndentingNewLine]", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"bg", "[", 
+       RowBox[{"x_", ",", "i_", ",", "j_"}], "]"}], "/;", 
+      RowBox[{
+       RowBox[{"i", ">", "0"}], "&&", 
+       RowBox[{"j", ">", "0"}]}]}], ":=", 
+     RowBox[{"Item", "[", 
+      RowBox[{"x", ",", 
+       RowBox[{"Background", "\[Rule]", 
+        RowBox[{"Dynamic", "[", 
+         RowBox[{"If", "[", 
+          RowBox[{
+           RowBox[{"t", "\[LeftDoubleBracket]", 
+            RowBox[{"i", ",", "j"}], "\[RightDoubleBracket]"}], ",", "Green", 
+           ",", "Automatic", ",", "Automatic"}], "]"}], "]"}]}]}], "]"}]}], 
+    ";", "\[IndentingNewLine]", 
+    RowBox[{
+     RowBox[{"bg", "[", 
+      RowBox[{"x_", ",", "_", ",", "_"}], "]"}], ":=", "x"}], ";", 
+    "\[IndentingNewLine]", 
+    RowBox[{
+     RowBox[{"f", "[", 
+      RowBox[{
+       RowBox[{"-", "1"}], ",", 
+       RowBox[{"-", "1"}]}], "]"}], ":=", 
+     "\"\<\!\(\*SuperscriptBox[\(x\), \(y\)]\)\>\""}], ";", 
+    "\[IndentingNewLine]", 
+    RowBox[{
+     RowBox[{"f", "[", 
+      RowBox[{
+       RowBox[{"-", "1"}], ",", "0"}], "]"}], ":=", "SpanFromLeft"}], ";", 
+    "\[IndentingNewLine]", 
+    RowBox[{
+     RowBox[{"f", "[", 
+      RowBox[{"0", ",", 
+       RowBox[{"-", "1"}]}], "]"}], ":=", "SpanFromAbove"}], ";", 
+    "\[IndentingNewLine]", 
+    RowBox[{
+     RowBox[{"f", "[", 
+      RowBox[{"0", ",", "0"}], "]"}], ":=", "SpanFromBoth"}], ";", 
+    "\[IndentingNewLine]", 
+    RowBox[{
+     RowBox[{"f", "[", 
+      RowBox[{
+       RowBox[{"-", "1"}], ",", "1"}], "]"}], ":=", "\"\<y\>\""}], ";", 
+    "\[IndentingNewLine]", 
+    RowBox[{
+     RowBox[{"f", "[", 
+      RowBox[{
+       RowBox[{"-", "1"}], ",", "_"}], "]"}], ":=", "SpanFromLeft"}], ";", 
+    "\[IndentingNewLine]", 
+    RowBox[{
+     RowBox[{"f", "[", 
+      RowBox[{"1", ",", 
+       RowBox[{"-", "1"}]}], "]"}], ":=", "\"\<x\>\""}], ";", 
+    "\[IndentingNewLine]", 
+    RowBox[{
+     RowBox[{"f", "[", 
+      RowBox[{"_", ",", 
+       RowBox[{"-", "1"}]}], "]"}], ":=", "SpanFromAbove"}], ";", 
+    "\[IndentingNewLine]", 
+    RowBox[{
+     RowBox[{"f", "[", 
+      RowBox[{"i_", ",", "0"}], "]"}], ":=", 
+     RowBox[{
+     "values", "\[LeftDoubleBracket]", "i", "\[RightDoubleBracket]"}]}], ";", 
+    "\[IndentingNewLine]", 
+    RowBox[{
+     RowBox[{"f", "[", 
+      RowBox[{"0", ",", "j_"}], "]"}], ":=", 
+     RowBox[{
+     "values", "\[LeftDoubleBracket]", "j", "\[RightDoubleBracket]"}]}], ";", 
+    "\[IndentingNewLine]", 
+    RowBox[{
+     RowBox[{"f", "[", 
+      RowBox[{"i_", ",", "j_"}], "]"}], ":=", 
+     RowBox[{"Quiet", "[", 
+      RowBox[{
+       RowBox[{
+       "values", "\[LeftDoubleBracket]", "i", "\[RightDoubleBracket]"}], "^", 
+       
+       RowBox[{
+       "values", "\[LeftDoubleBracket]", "j", "\[RightDoubleBracket]"}]}], 
+      "]"}]}], ";", "\[IndentingNewLine]", 
+    RowBox[{"Grid", "[", 
+     RowBox[{
+      RowBox[{"Table", "[", 
+       RowBox[{
+        RowBox[{"bg", "[", 
+         RowBox[{
+          RowBox[{"toggle", "[", 
+           RowBox[{
+            RowBox[{"style", "[", 
+             RowBox[{"f", "[", 
+              RowBox[{"i", ",", "j"}], "]"}], "]"}], ",", "i", ",", "j"}], 
+           "]"}], ",", "i", ",", "j"}], "]"}], ",", 
+        RowBox[{"{", 
+         RowBox[{"i", ",", 
+          RowBox[{"-", "1"}], ",", 
+          RowBox[{"Length", "[", "values", "]"}]}], "}"}], ",", 
+        RowBox[{"{", 
+         RowBox[{"j", ",", 
+          RowBox[{"-", "1"}], ",", 
+          RowBox[{"Length", "[", "values", "]"}]}], "}"}]}], "]"}], ",", 
+      RowBox[{"Frame", "\[Rule]", "All"}], ",", 
+      RowBox[{"Alignment", "\[Rule]", 
+       RowBox[{"{", 
+        RowBox[{"Center", ",", "Center"}], "}"}]}], ",", 
+      RowBox[{"ItemSize", "\[Rule]", "Full"}], ",", 
+      RowBox[{"Background", "\[Rule]", 
+       RowBox[{"{", 
+        RowBox[{
+         RowBox[{"{", 
+          RowBox[{
+          "Gray", ",", "LightGray", ",", "None", ",", "None", ",", "None", 
+           ",", "None", ",", "Pink", ",", "None", ",", "None", ",", "None", 
+           ",", "None", ",", "Pink", ",", "Pink", ",", "Pink", ",", "Pink"}], 
+          "}"}], ",", 
+         RowBox[{"{", 
+          RowBox[{
+          "Gray", ",", "LightGray", ",", "None", ",", "None", ",", "None", 
+           ",", "None", ",", "Pink", ",", "None", ",", "None", ",", "None", 
+           ",", "None", ",", "Pink", ",", "Pink", ",", "Pink", ",", "Pink"}], 
+          "}"}]}], "}"}]}]}], "]"}]}]}], "\[IndentingNewLine]", 
+  "]"}]], "Input",
+ CellChangeTimes->{{3.4460503974820004`*^9, 3.4460504637720003`*^9}, {
+  3.446050646396*^9, 3.446050687041*^9}, {3.446050773491*^9, 
+  3.446050817115*^9}}],
+
+Cell[BoxData[
+ DynamicModuleBox[{$CellContext`t$$ = {{
+   True, True, True, True, True, True, True, True, True, True, True, True, 
+    True}, {True, False, False, False, True, False, True, False, True, True, 
+    False, True, True}, {
+   True, False, False, False, True, False, True, False, True, True, False, 
+    True, True}, {
+   True, False, False, False, True, False, True, False, True, True, False, 
+    True, True}, {
+   True, True, True, True, True, True, True, True, True, True, True, True, 
+    True}, {True, False, False, False, True, False, True, False, True, True, 
+    False, True, True}, {
+   True, True, True, True, True, True, True, True, True, True, True, True, 
+    True}, {True, False, False, False, True, False, True, False, True, True, 
+    False, True, True}, {
+   True, True, True, True, True, True, True, True, True, True, True, True, 
+    True}, {True, True, True, True, True, True, True, True, True, True, True, 
+    True, True}, {
+   True, False, False, False, True, False, True, False, True, True, False, 
+    True, True}, {
+   True, True, True, True, True, True, True, True, True, True, True, True, 
+    True}, {True, True, True, True, True, True, True, True, True, True, True, 
+    True, True}}, $CellContext`values$$ = {
+   DirectedInfinity[-1], 
+   Rational[-7, 3], -1, 
+   Rational[-1, 3], 0, 
+   Rational[1, 3], 1, 
+   Rational[7, 3], 
+   DirectedInfinity[1], $CellContext`X, 
+   Complex[0, 
+    Rational[1, 5]], 
+   DirectedInfinity[
+    Complex[0, 1]], 
+   DirectedInfinity[]}, $CellContext`toggle$$, $CellContext`bg$$, \
+$CellContext`f$$}, 
+  TagBox[GridBox[{
+     {"\<\"\\!\\(\\*SuperscriptBox[\\(x\\), \\(y\\)]\\)\"\>", 
+      "\[SpanFromLeft]", "\<\"y\"\>", "\[SpanFromLeft]", "\[SpanFromLeft]", 
+      "\[SpanFromLeft]", "\[SpanFromLeft]", "\[SpanFromLeft]", 
+      "\[SpanFromLeft]", "\[SpanFromLeft]", "\[SpanFromLeft]", 
+      "\[SpanFromLeft]", "\[SpanFromLeft]", "\[SpanFromLeft]", 
+      "\[SpanFromLeft]"},
+     {"\[SpanFromAbove]", "\[SpanFromBoth]", 
+      ButtonBox[
+       StyleBox[
+        RowBox[{"-", "\[Infinity]"}],
+        StripOnInput->False,
+        FrontFaceColor->RGBColor[0, 0, 1],
+        BackFaceColor->RGBColor[0, 0, 1],
+        GraphicsColor->RGBColor[0, 0, 1],
+        FontColor->RGBColor[0, 0, 1]],
+       Appearance->"Frameless",
+       ButtonFrame->"Frameless",
+       ButtonFunction:>(Part[$CellContext`t$$, All, 1] = Not[
+          Part[$CellContext`t$$, 1, 1]]),
+       Evaluator->Automatic,
+       Method->"Preemptive"], 
+      ButtonBox[
+       RowBox[{"-", 
+        FractionBox["7", "3"]}],
+       Appearance->"Frameless",
+       ButtonFrame->"Frameless",
+       ButtonFunction:>(Part[$CellContext`t$$, All, 2] = Not[
+          Part[$CellContext`t$$, 1, 2]]),
+       Evaluator->Automatic,
+       Method->"Preemptive"], 
+      ButtonBox[
+       RowBox[{"-", "1"}],
+       Appearance->"Frameless",
+       ButtonFrame->"Frameless",
+       ButtonFunction:>(Part[$CellContext`t$$, All, 3] = Not[
+          Part[$CellContext`t$$, 1, 3]]),
+       Evaluator->Automatic,
+       Method->"Preemptive"], 
+      ButtonBox[
+       RowBox[{"-", 
+        FractionBox["1", "3"]}],
+       Appearance->"Frameless",
+       ButtonFrame->"Frameless",
+       ButtonFunction:>(Part[$CellContext`t$$, All, 4] = Not[
+          Part[$CellContext`t$$, 1, 4]]),
+       Evaluator->Automatic,
+       Method->"Preemptive"], 
+      ButtonBox["0",
+       Appearance->"Frameless",
+       ButtonFrame->"Frameless",
+       ButtonFunction:>(Part[$CellContext`t$$, All, 5] = Not[
+          Part[$CellContext`t$$, 1, 5]]),
+       Evaluator->Automatic,
+       Method->"Preemptive"], 
+      ButtonBox[
+       FractionBox["1", "3"],
+       Appearance->"Frameless",
+       ButtonFrame->"Frameless",
+       ButtonFunction:>(Part[$CellContext`t$$, All, 6] = Not[
+          Part[$CellContext`t$$, 1, 6]]),
+       Evaluator->Automatic,
+       Method->"Preemptive"], 
+      ButtonBox["1",
+       Appearance->"Frameless",
+       ButtonFrame->"Frameless",
+       ButtonFunction:>(Part[$CellContext`t$$, All, 7] = Not[
+          Part[$CellContext`t$$, 1, 7]]),
+       Evaluator->Automatic,
+       Method->"Preemptive"], 
+      ButtonBox[
+       FractionBox["7", "3"],
+       Appearance->"Frameless",
+       ButtonFrame->"Frameless",
+       ButtonFunction:>(Part[$CellContext`t$$, All, 8] = Not[
+          Part[$CellContext`t$$, 1, 8]]),
+       Evaluator->Automatic,
+       Method->"Preemptive"], 
+      ButtonBox[
+       StyleBox["\[Infinity]",
+        StripOnInput->False,
+        FrontFaceColor->RGBColor[0, 0, 1],
+        BackFaceColor->RGBColor[0, 0, 1],
+        GraphicsColor->RGBColor[0, 0, 1],
+        FontColor->RGBColor[0, 0, 1]],
+       Appearance->"Frameless",
+       ButtonFrame->"Frameless",
+       ButtonFunction:>(Part[$CellContext`t$$, All, 9] = Not[
+          Part[$CellContext`t$$, 1, 9]]),
+       Evaluator->Automatic,
+       Method->"Preemptive"], 
+      ButtonBox["X",
+       Appearance->"Frameless",
+       ButtonFrame->"Frameless",
+       ButtonFunction:>(Part[$CellContext`t$$, All, 10] = Not[
+          Part[$CellContext`t$$, 1, 10]]),
+       Evaluator->Automatic,
+       Method->"Preemptive"], 
+      ButtonBox[
+       FractionBox["\[ImaginaryI]", "5"],
+       Appearance->"Frameless",
+       ButtonFrame->"Frameless",
+       ButtonFunction:>(Part[$CellContext`t$$, All, 11] = Not[
+          Part[$CellContext`t$$, 1, 11]]),
+       Evaluator->Automatic,
+       Method->"Preemptive"], 
+      ButtonBox[
+       StyleBox[
+        TagBox[
+         RowBox[{
+          TagBox["\[ImaginaryI]",
+           "DirectedInfinityCoefficient",
+           Editable->True], " ", "\[Infinity]"}],
+         DirectedInfinity,
+         Editable->False],
+        StripOnInput->False,
+        FrontFaceColor->RGBColor[0, 0, 1],
+        BackFaceColor->RGBColor[0, 0, 1],
+        GraphicsColor->RGBColor[0, 0, 1],
+        FontColor->RGBColor[0, 0, 1]],
+       Appearance->"Frameless",
+       ButtonFrame->"Frameless",
+       ButtonFunction:>(Part[$CellContext`t$$, All, 12] = Not[
+          Part[$CellContext`t$$, 1, 12]]),
+       Evaluator->Automatic,
+       Method->"Preemptive"], 
+      ButtonBox[
+       StyleBox[
+        InterpretationBox["\<\"uinf\"\>",
+         Row[{"uinf"}]],
+        StripOnInput->False,
+        FrontFaceColor->RGBColor[0.5, 0, 0.5],
+        BackFaceColor->RGBColor[0.5, 0, 0.5],
+        GraphicsColor->RGBColor[0.5, 0, 0.5],
+        FontColor->RGBColor[0.5, 0, 0.5]],
+       Appearance->"Frameless",
+       ButtonFrame->"Frameless",
+       ButtonFunction:>(Part[$CellContext`t$$, All, 13] = Not[
+          Part[$CellContext`t$$, 1, 13]]),
+       Evaluator->Automatic,
+       Method->"Preemptive"]},
+     {"\<\"x\"\>", 
+      ButtonBox[
+       StyleBox[
+        RowBox[{"-", "\[Infinity]"}],
+        StripOnInput->False,
+        FrontFaceColor->RGBColor[0, 0, 1],
+        BackFaceColor->RGBColor[0, 0, 1],
+        GraphicsColor->RGBColor[0, 0, 1],
+        FontColor->RGBColor[0, 0, 1]],
+       Appearance->"Frameless",
+       ButtonFrame->"Frameless",
+       ButtonFunction:>(Part[$CellContext`t$$, 1, All] = Not[
+          Part[$CellContext`t$$, 1, 1]]),
+       Evaluator->Automatic,
+       Method->"Preemptive"], 
+      ItemBox[
+       ButtonBox["0",
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 1, 1] = Not[
+           Part[$CellContext`t$$, 1, 1]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 1, 1], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox["0",
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 1, 2] = Not[
+           Part[$CellContext`t$$, 1, 2]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 1, 2], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox["0",
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 1, 3] = Not[
+           Part[$CellContext`t$$, 1, 3]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 1, 3], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox["0",
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 1, 4] = Not[
+           Part[$CellContext`t$$, 1, 4]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 1, 4], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        StyleBox["\<\"indet\"\>",
+         StripOnInput->False,
+         FrontFaceColor->RGBColor[1, 0, 0],
+         BackFaceColor->RGBColor[1, 0, 0],
+         GraphicsColor->RGBColor[1, 0, 0],
+         FontColor->RGBColor[1, 0, 0]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 1, 5] = Not[
+           Part[$CellContext`t$$, 1, 5]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 1, 5], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        StyleBox[
+         InterpretationBox[
+          RowBox[{
+           SuperscriptBox[
+            RowBox[{"(", 
+             RowBox[{"-", "1"}], ")"}], 
+            RowBox[{"1", "/", "3"}]], 
+           "\[InvisibleSpace]", "\<\" \[Infinity]\"\>"}],
+          Row[{(-1)^Rational[1, 3], " \[Infinity]"}]],
+         StripOnInput->False,
+         FrontFaceColor->RGBColor[0, 0, 1],
+         BackFaceColor->RGBColor[0, 0, 1],
+         GraphicsColor->RGBColor[0, 0, 1],
+         FontColor->RGBColor[0, 0, 1]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 1, 6] = Not[
+           Part[$CellContext`t$$, 1, 6]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 1, 6], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        StyleBox[
+         RowBox[{"-", "\[Infinity]"}],
+         StripOnInput->False,
+         FrontFaceColor->RGBColor[0, 0, 1],
+         BackFaceColor->RGBColor[0, 0, 1],
+         GraphicsColor->RGBColor[0, 0, 1],
+         FontColor->RGBColor[0, 0, 1]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 1, 7] = Not[
+           Part[$CellContext`t$$, 1, 7]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 1, 7], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        StyleBox[
+         InterpretationBox[
+          RowBox[{
+           SuperscriptBox[
+            RowBox[{"(", 
+             RowBox[{"-", "1"}], ")"}], 
+            RowBox[{"1", "/", "3"}]], 
+           "\[InvisibleSpace]", "\<\" \[Infinity]\"\>"}],
+          Row[{(-1)^Rational[1, 3], " \[Infinity]"}]],
+         StripOnInput->False,
+         FrontFaceColor->RGBColor[0, 0, 1],
+         BackFaceColor->RGBColor[0, 0, 1],
+         GraphicsColor->RGBColor[0, 0, 1],
+         FontColor->RGBColor[0, 0, 1]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 1, 8] = Not[
+           Part[$CellContext`t$$, 1, 8]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 1, 8], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        StyleBox[
+         InterpretationBox["\<\"uinf\"\>",
+          Row[{"uinf"}]],
+         StripOnInput->False,
+         FrontFaceColor->RGBColor[0.5, 0, 0.5],
+         BackFaceColor->RGBColor[0.5, 0, 0.5],
+         GraphicsColor->RGBColor[0.5, 0, 0.5],
+         FontColor->RGBColor[0.5, 0, 0.5]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 1, 9] = Not[
+           Part[$CellContext`t$$, 1, 9]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 1, 9], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        StyleBox["\<\"indet\"\>",
+         StripOnInput->False,
+         FrontFaceColor->RGBColor[1, 0, 0],
+         BackFaceColor->RGBColor[1, 0, 0],
+         GraphicsColor->RGBColor[1, 0, 0],
+         FontColor->RGBColor[1, 0, 0]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 1, 10] = Not[
+           Part[$CellContext`t$$, 1, 10]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 1, 10], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        StyleBox["\<\"indet\"\>",
+         StripOnInput->False,
+         FrontFaceColor->RGBColor[1, 0, 0],
+         BackFaceColor->RGBColor[1, 0, 0],
+         GraphicsColor->RGBColor[1, 0, 0],
+         FontColor->RGBColor[1, 0, 0]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 1, 11] = Not[
+           Part[$CellContext`t$$, 1, 11]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 1, 11], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        StyleBox["\<\"indet\"\>",
+         StripOnInput->False,
+         FrontFaceColor->RGBColor[1, 0, 0],
+         BackFaceColor->RGBColor[1, 0, 0],
+         GraphicsColor->RGBColor[1, 0, 0],
+         FontColor->RGBColor[1, 0, 0]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 1, 12] = Not[
+           Part[$CellContext`t$$, 1, 12]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 1, 12], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        StyleBox["\<\"indet\"\>",
+         StripOnInput->False,
+         FrontFaceColor->RGBColor[1, 0, 0],
+         BackFaceColor->RGBColor[1, 0, 0],
+         GraphicsColor->RGBColor[1, 0, 0],
+         FontColor->RGBColor[1, 0, 0]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 1, 13] = Not[
+           Part[$CellContext`t$$, 1, 13]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 1, 13], Green, Automatic, Automatic]],
+       StripOnInput->False]},
+     {"\[SpanFromAbove]", 
+      ButtonBox[
+       RowBox[{"-", 
+        FractionBox["7", "3"]}],
+       Appearance->"Frameless",
+       ButtonFrame->"Frameless",
+       ButtonFunction:>(Part[$CellContext`t$$, 2, All] = Not[
+          Part[$CellContext`t$$, 2, 1]]),
+       Evaluator->Automatic,
+       Method->"Preemptive"], 
+      ItemBox[
+       ButtonBox["0",
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 2, 1] = Not[
+           Part[$CellContext`t$$, 2, 1]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 2, 1], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        RowBox[{
+         RowBox[{"-", 
+          FractionBox["9", "49"]}], " ", 
+         SuperscriptBox[
+          RowBox[{"(", 
+           RowBox[{"-", "1"}], ")"}], 
+          RowBox[{"2", "/", "3"}]], " ", 
+         SuperscriptBox[
+          RowBox[{"(", 
+           FractionBox["3", "7"], ")"}], 
+          RowBox[{"1", "/", "3"}]]}],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 2, 2] = Not[
+           Part[$CellContext`t$$, 2, 2]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 2, 2], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        RowBox[{"-", 
+         FractionBox["3", "7"]}],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 2, 3] = Not[
+           Part[$CellContext`t$$, 2, 3]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 2, 3], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        RowBox[{
+         RowBox[{"-", 
+          SuperscriptBox[
+           RowBox[{"(", 
+            RowBox[{"-", "1"}], ")"}], 
+           RowBox[{"2", "/", "3"}]]}], " ", 
+         SuperscriptBox[
+          RowBox[{"(", 
+           FractionBox["3", "7"], ")"}], 
+          RowBox[{"1", "/", "3"}]]}],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 2, 4] = Not[
+           Part[$CellContext`t$$, 2, 4]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 2, 4], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox["1",
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 2, 5] = Not[
+           Part[$CellContext`t$$, 2, 5]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 2, 5], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        SuperscriptBox[
+         RowBox[{"(", 
+          RowBox[{"-", 
+           FractionBox["7", "3"]}], ")"}], 
+         RowBox[{"1", "/", "3"}]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 2, 6] = Not[
+           Part[$CellContext`t$$, 2, 6]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 2, 6], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        RowBox[{"-", 
+         FractionBox["7", "3"]}],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 2, 7] = Not[
+           Part[$CellContext`t$$, 2, 7]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 2, 7], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        RowBox[{
+         FractionBox["49", "9"], " ", 
+         SuperscriptBox[
+          RowBox[{"(", 
+           RowBox[{"-", 
+            FractionBox["7", "3"]}], ")"}], 
+          RowBox[{"1", "/", "3"}]]}],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 2, 8] = Not[
+           Part[$CellContext`t$$, 2, 8]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 2, 8], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        StyleBox[
+         InterpretationBox["\<\"uinf\"\>",
+          Row[{"uinf"}]],
+         StripOnInput->False,
+         FrontFaceColor->RGBColor[0.5, 0, 0.5],
+         BackFaceColor->RGBColor[0.5, 0, 0.5],
+         GraphicsColor->RGBColor[0.5, 0, 0.5],
+         FontColor->RGBColor[0.5, 0, 0.5]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 2, 9] = Not[
+           Part[$CellContext`t$$, 2, 9]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 2, 9], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        SuperscriptBox[
+         RowBox[{"(", 
+          RowBox[{"-", 
+           FractionBox["7", "3"]}], ")"}], "X"],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 2, 10] = Not[
+           Part[$CellContext`t$$, 2, 10]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 2, 10], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        SuperscriptBox[
+         RowBox[{"(", 
+          RowBox[{"-", 
+           FractionBox["7", "3"]}], ")"}], 
+         FractionBox["\[ImaginaryI]", "5"]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 2, 11] = Not[
+           Part[$CellContext`t$$, 2, 11]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 2, 11], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        StyleBox["\<\"indet\"\>",
+         StripOnInput->False,
+         FrontFaceColor->RGBColor[1, 0, 0],
+         BackFaceColor->RGBColor[1, 0, 0],
+         GraphicsColor->RGBColor[1, 0, 0],
+         FontColor->RGBColor[1, 0, 0]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 2, 12] = Not[
+           Part[$CellContext`t$$, 2, 12]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 2, 12], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        StyleBox["\<\"indet\"\>",
+         StripOnInput->False,
+         FrontFaceColor->RGBColor[1, 0, 0],
+         BackFaceColor->RGBColor[1, 0, 0],
+         GraphicsColor->RGBColor[1, 0, 0],
+         FontColor->RGBColor[1, 0, 0]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 2, 13] = Not[
+           Part[$CellContext`t$$, 2, 13]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 2, 13], Green, Automatic, Automatic]],
+       StripOnInput->False]},
+     {"\[SpanFromAbove]", 
+      ButtonBox[
+       RowBox[{"-", "1"}],
+       Appearance->"Frameless",
+       ButtonFrame->"Frameless",
+       ButtonFunction:>(Part[$CellContext`t$$, 3, All] = Not[
+          Part[$CellContext`t$$, 3, 1]]),
+       Evaluator->Automatic,
+       Method->"Preemptive"], 
+      ItemBox[
+       ButtonBox[
+        StyleBox["\<\"indet\"\>",
+         StripOnInput->False,
+         FrontFaceColor->RGBColor[1, 0, 0],
+         BackFaceColor->RGBColor[1, 0, 0],
+         GraphicsColor->RGBColor[1, 0, 0],
+         FontColor->RGBColor[1, 0, 0]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 3, 1] = Not[
+           Part[$CellContext`t$$, 3, 1]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 3, 1], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        RowBox[{"-", 
+         SuperscriptBox[
+          RowBox[{"(", 
+           RowBox[{"-", "1"}], ")"}], 
+          RowBox[{"2", "/", "3"}]]}],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 3, 2] = Not[
+           Part[$CellContext`t$$, 3, 2]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 3, 2], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        RowBox[{"-", "1"}],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 3, 3] = Not[
+           Part[$CellContext`t$$, 3, 3]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 3, 3], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        RowBox[{"-", 
+         SuperscriptBox[
+          RowBox[{"(", 
+           RowBox[{"-", "1"}], ")"}], 
+          RowBox[{"2", "/", "3"}]]}],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 3, 4] = Not[
+           Part[$CellContext`t$$, 3, 4]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 3, 4], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox["1",
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 3, 5] = Not[
+           Part[$CellContext`t$$, 3, 5]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 3, 5], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        SuperscriptBox[
+         RowBox[{"(", 
+          RowBox[{"-", "1"}], ")"}], 
+         RowBox[{"1", "/", "3"}]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 3, 6] = Not[
+           Part[$CellContext`t$$, 3, 6]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 3, 6], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        RowBox[{"-", "1"}],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 3, 7] = Not[
+           Part[$CellContext`t$$, 3, 7]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 3, 7], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        SuperscriptBox[
+         RowBox[{"(", 
+          RowBox[{"-", "1"}], ")"}], 
+         RowBox[{"1", "/", "3"}]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 3, 8] = Not[
+           Part[$CellContext`t$$, 3, 8]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 3, 8], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        StyleBox["\<\"indet\"\>",
+         StripOnInput->False,
+         FrontFaceColor->RGBColor[1, 0, 0],
+         BackFaceColor->RGBColor[1, 0, 0],
+         GraphicsColor->RGBColor[1, 0, 0],
+         FontColor->RGBColor[1, 0, 0]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 3, 9] = Not[
+           Part[$CellContext`t$$, 3, 9]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 3, 9], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        SuperscriptBox[
+         RowBox[{"(", 
+          RowBox[{"-", "1"}], ")"}], "X"],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 3, 10] = Not[
+           Part[$CellContext`t$$, 3, 10]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 3, 10], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        SuperscriptBox[
+         RowBox[{"(", 
+          RowBox[{"-", "1"}], ")"}], 
+         FractionBox["\[ImaginaryI]", "5"]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 3, 11] = Not[
+           Part[$CellContext`t$$, 3, 11]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 3, 11], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        StyleBox["\<\"indet\"\>",
+         StripOnInput->False,
+         FrontFaceColor->RGBColor[1, 0, 0],
+         BackFaceColor->RGBColor[1, 0, 0],
+         GraphicsColor->RGBColor[1, 0, 0],
+         FontColor->RGBColor[1, 0, 0]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 3, 12] = Not[
+           Part[$CellContext`t$$, 3, 12]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 3, 12], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        StyleBox["\<\"indet\"\>",
+         StripOnInput->False,
+         FrontFaceColor->RGBColor[1, 0, 0],
+         BackFaceColor->RGBColor[1, 0, 0],
+         GraphicsColor->RGBColor[1, 0, 0],
+         FontColor->RGBColor[1, 0, 0]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 3, 13] = Not[
+           Part[$CellContext`t$$, 3, 13]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 3, 13], Green, Automatic, Automatic]],
+       StripOnInput->False]},
+     {"\[SpanFromAbove]", 
+      ButtonBox[
+       RowBox[{"-", 
+        FractionBox["1", "3"]}],
+       Appearance->"Frameless",
+       ButtonFrame->"Frameless",
+       ButtonFunction:>(Part[$CellContext`t$$, 4, All] = Not[
+          Part[$CellContext`t$$, 4, 1]]),
+       Evaluator->Automatic,
+       Method->"Preemptive"], 
+      ItemBox[
+       ButtonBox[
+        StyleBox[
+         InterpretationBox["\<\"uinf\"\>",
+          Row[{"uinf"}]],
+         StripOnInput->False,
+         FrontFaceColor->RGBColor[0.5, 0, 0.5],
+         BackFaceColor->RGBColor[0.5, 0, 0.5],
+         GraphicsColor->RGBColor[0.5, 0, 0.5],
+         FontColor->RGBColor[0.5, 0, 0.5]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 4, 1] = Not[
+           Part[$CellContext`t$$, 4, 1]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 4, 1], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        RowBox[{
+         RowBox[{"-", "9"}], " ", 
+         SuperscriptBox[
+          RowBox[{"(", 
+           RowBox[{"-", "1"}], ")"}], 
+          RowBox[{"2", "/", "3"}]], " ", 
+         SuperscriptBox["3", 
+          RowBox[{"1", "/", "3"}]]}],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 4, 2] = Not[
+           Part[$CellContext`t$$, 4, 2]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 4, 2], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        RowBox[{"-", "3"}],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 4, 3] = Not[
+           Part[$CellContext`t$$, 4, 3]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 4, 3], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        RowBox[{
+         RowBox[{"-", 
+          SuperscriptBox[
+           RowBox[{"(", 
+            RowBox[{"-", "1"}], ")"}], 
+           RowBox[{"2", "/", "3"}]]}], " ", 
+         SuperscriptBox["3", 
+          RowBox[{"1", "/", "3"}]]}],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 4, 4] = Not[
+           Part[$CellContext`t$$, 4, 4]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 4, 4], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox["1",
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 4, 5] = Not[
+           Part[$CellContext`t$$, 4, 5]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 4, 5], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        SuperscriptBox[
+         RowBox[{"(", 
+          RowBox[{"-", 
+           FractionBox["1", "3"]}], ")"}], 
+         RowBox[{"1", "/", "3"}]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 4, 6] = Not[
+           Part[$CellContext`t$$, 4, 6]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 4, 6], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        RowBox[{"-", 
+         FractionBox["1", "3"]}],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 4, 7] = Not[
+           Part[$CellContext`t$$, 4, 7]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 4, 7], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        RowBox[{
+         FractionBox["1", "9"], " ", 
+         SuperscriptBox[
+          RowBox[{"(", 
+           RowBox[{"-", 
+            FractionBox["1", "3"]}], ")"}], 
+          RowBox[{"1", "/", "3"}]]}],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 4, 8] = Not[
+           Part[$CellContext`t$$, 4, 8]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 4, 8], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox["0",
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 4, 9] = Not[
+           Part[$CellContext`t$$, 4, 9]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 4, 9], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        SuperscriptBox[
+         RowBox[{"(", 
+          RowBox[{"-", 
+           FractionBox["1", "3"]}], ")"}], "X"],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 4, 10] = Not[
+           Part[$CellContext`t$$, 4, 10]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 4, 10], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        SuperscriptBox[
+         RowBox[{"(", 
+          RowBox[{"-", 
+           FractionBox["1", "3"]}], ")"}], 
+         FractionBox["\[ImaginaryI]", "5"]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 4, 11] = Not[
+           Part[$CellContext`t$$, 4, 11]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 4, 11], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        StyleBox["\<\"indet\"\>",
+         StripOnInput->False,
+         FrontFaceColor->RGBColor[1, 0, 0],
+         BackFaceColor->RGBColor[1, 0, 0],
+         GraphicsColor->RGBColor[1, 0, 0],
+         FontColor->RGBColor[1, 0, 0]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 4, 12] = Not[
+           Part[$CellContext`t$$, 4, 12]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 4, 12], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        StyleBox["\<\"indet\"\>",
+         StripOnInput->False,
+         FrontFaceColor->RGBColor[1, 0, 0],
+         BackFaceColor->RGBColor[1, 0, 0],
+         GraphicsColor->RGBColor[1, 0, 0],
+         FontColor->RGBColor[1, 0, 0]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 4, 13] = Not[
+           Part[$CellContext`t$$, 4, 13]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 4, 13], Green, Automatic, Automatic]],
+       StripOnInput->False]},
+     {"\[SpanFromAbove]", 
+      ButtonBox["0",
+       Appearance->"Frameless",
+       ButtonFrame->"Frameless",
+       ButtonFunction:>(Part[$CellContext`t$$, 5, All] = Not[
+          Part[$CellContext`t$$, 5, 1]]),
+       Evaluator->Automatic,
+       Method->"Preemptive"], 
+      ItemBox[
+       ButtonBox[
+        StyleBox[
+         InterpretationBox["\<\"uinf\"\>",
+          Row[{"uinf"}]],
+         StripOnInput->False,
+         FrontFaceColor->RGBColor[0.5, 0, 0.5],
+         BackFaceColor->RGBColor[0.5, 0, 0.5],
+         GraphicsColor->RGBColor[0.5, 0, 0.5],
+         FontColor->RGBColor[0.5, 0, 0.5]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 5, 1] = Not[
+           Part[$CellContext`t$$, 5, 1]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 5, 1], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        StyleBox[
+         InterpretationBox["\<\"uinf\"\>",
+          Row[{"uinf"}]],
+         StripOnInput->False,
+         FrontFaceColor->RGBColor[0.5, 0, 0.5],
+         BackFaceColor->RGBColor[0.5, 0, 0.5],
+         GraphicsColor->RGBColor[0.5, 0, 0.5],
+         FontColor->RGBColor[0.5, 0, 0.5]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 5, 2] = Not[
+           Part[$CellContext`t$$, 5, 2]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 5, 2], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        StyleBox[
+         InterpretationBox["\<\"uinf\"\>",
+          Row[{"uinf"}]],
+         StripOnInput->False,
+         FrontFaceColor->RGBColor[0.5, 0, 0.5],
+         BackFaceColor->RGBColor[0.5, 0, 0.5],
+         GraphicsColor->RGBColor[0.5, 0, 0.5],
+         FontColor->RGBColor[0.5, 0, 0.5]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 5, 3] = Not[
+           Part[$CellContext`t$$, 5, 3]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 5, 3], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        StyleBox[
+         InterpretationBox["\<\"uinf\"\>",
+          Row[{"uinf"}]],
+         StripOnInput->False,
+         FrontFaceColor->RGBColor[0.5, 0, 0.5],
+         BackFaceColor->RGBColor[0.5, 0, 0.5],
+         GraphicsColor->RGBColor[0.5, 0, 0.5],
+         FontColor->RGBColor[0.5, 0, 0.5]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 5, 4] = Not[
+           Part[$CellContext`t$$, 5, 4]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 5, 4], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        StyleBox["\<\"indet\"\>",
+         StripOnInput->False,
+         FrontFaceColor->RGBColor[1, 0, 0],
+         BackFaceColor->RGBColor[1, 0, 0],
+         GraphicsColor->RGBColor[1, 0, 0],
+         FontColor->RGBColor[1, 0, 0]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 5, 5] = Not[
+           Part[$CellContext`t$$, 5, 5]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 5, 5], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox["0",
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 5, 6] = Not[
+           Part[$CellContext`t$$, 5, 6]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 5, 6], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox["0",
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 5, 7] = Not[
+           Part[$CellContext`t$$, 5, 7]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 5, 7], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox["0",
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 5, 8] = Not[
+           Part[$CellContext`t$$, 5, 8]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 5, 8], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox["0",
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 5, 9] = Not[
+           Part[$CellContext`t$$, 5, 9]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 5, 9], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        SuperscriptBox["0", "X"],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 5, 10] = Not[
+           Part[$CellContext`t$$, 5, 10]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 5, 10], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        StyleBox["\<\"indet\"\>",
+         StripOnInput->False,
+         FrontFaceColor->RGBColor[1, 0, 0],
+         BackFaceColor->RGBColor[1, 0, 0],
+         GraphicsColor->RGBColor[1, 0, 0],
+         FontColor->RGBColor[1, 0, 0]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 5, 11] = Not[
+           Part[$CellContext`t$$, 5, 11]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 5, 11], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        StyleBox["\<\"indet\"\>",
+         StripOnInput->False,
+         FrontFaceColor->RGBColor[1, 0, 0],
+         BackFaceColor->RGBColor[1, 0, 0],
+         GraphicsColor->RGBColor[1, 0, 0],
+         FontColor->RGBColor[1, 0, 0]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 5, 12] = Not[
+           Part[$CellContext`t$$, 5, 12]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 5, 12], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        StyleBox["\<\"indet\"\>",
+         StripOnInput->False,
+         FrontFaceColor->RGBColor[1, 0, 0],
+         BackFaceColor->RGBColor[1, 0, 0],
+         GraphicsColor->RGBColor[1, 0, 0],
+         FontColor->RGBColor[1, 0, 0]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 5, 13] = Not[
+           Part[$CellContext`t$$, 5, 13]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 5, 13], Green, Automatic, Automatic]],
+       StripOnInput->False]},
+     {"\[SpanFromAbove]", 
+      ButtonBox[
+       FractionBox["1", "3"],
+       Appearance->"Frameless",
+       ButtonFrame->"Frameless",
+       ButtonFunction:>(Part[$CellContext`t$$, 6, All] = Not[
+          Part[$CellContext`t$$, 6, 1]]),
+       Evaluator->Automatic,
+       Method->"Preemptive"], 
+      ItemBox[
+       ButtonBox[
+        StyleBox["\[Infinity]",
+         StripOnInput->False,
+         FrontFaceColor->RGBColor[0, 0, 1],
+         BackFaceColor->RGBColor[0, 0, 1],
+         GraphicsColor->RGBColor[0, 0, 1],
+         FontColor->RGBColor[0, 0, 1]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 6, 1] = Not[
+           Part[$CellContext`t$$, 6, 1]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 6, 1], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        RowBox[{"9", " ", 
+         SuperscriptBox["3", 
+          RowBox[{"1", "/", "3"}]]}],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 6, 2] = Not[
+           Part[$CellContext`t$$, 6, 2]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 6, 2], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox["3",
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 6, 3] = Not[
+           Part[$CellContext`t$$, 6, 3]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 6, 3], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        SuperscriptBox["3", 
+         RowBox[{"1", "/", "3"}]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 6, 4] = Not[
+           Part[$CellContext`t$$, 6, 4]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 6, 4], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox["1",
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 6, 5] = Not[
+           Part[$CellContext`t$$, 6, 5]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 6, 5], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        FractionBox["1", 
+         SuperscriptBox["3", 
+          RowBox[{"1", "/", "3"}]]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 6, 6] = Not[
+           Part[$CellContext`t$$, 6, 6]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 6, 6], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        FractionBox["1", "3"],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 6, 7] = Not[
+           Part[$CellContext`t$$, 6, 7]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 6, 7], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        FractionBox["1", 
+         RowBox[{"9", " ", 
+          SuperscriptBox["3", 
+           RowBox[{"1", "/", "3"}]]}]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 6, 8] = Not[
+           Part[$CellContext`t$$, 6, 8]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 6, 8], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox["0",
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 6, 9] = Not[
+           Part[$CellContext`t$$, 6, 9]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 6, 9], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        SuperscriptBox["3", 
+         RowBox[{"-", "X"}]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 6, 10] = Not[
+           Part[$CellContext`t$$, 6, 10]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 6, 10], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        SuperscriptBox[
+         RowBox[{"(", 
+          FractionBox["1", "3"], ")"}], 
+         FractionBox["\[ImaginaryI]", "5"]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 6, 11] = Not[
+           Part[$CellContext`t$$, 6, 11]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 6, 11], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        StyleBox["\<\"indet\"\>",
+         StripOnInput->False,
+         FrontFaceColor->RGBColor[1, 0, 0],
+         BackFaceColor->RGBColor[1, 0, 0],
+         GraphicsColor->RGBColor[1, 0, 0],
+         FontColor->RGBColor[1, 0, 0]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 6, 12] = Not[
+           Part[$CellContext`t$$, 6, 12]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 6, 12], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        StyleBox["\<\"indet\"\>",
+         StripOnInput->False,
+         FrontFaceColor->RGBColor[1, 0, 0],
+         BackFaceColor->RGBColor[1, 0, 0],
+         GraphicsColor->RGBColor[1, 0, 0],
+         FontColor->RGBColor[1, 0, 0]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 6, 13] = Not[
+           Part[$CellContext`t$$, 6, 13]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 6, 13], Green, Automatic, Automatic]],
+       StripOnInput->False]},
+     {"\[SpanFromAbove]", 
+      ButtonBox["1",
+       Appearance->"Frameless",
+       ButtonFrame->"Frameless",
+       ButtonFunction:>(Part[$CellContext`t$$, 7, All] = Not[
+          Part[$CellContext`t$$, 7, 1]]),
+       Evaluator->Automatic,
+       Method->"Preemptive"], 
+      ItemBox[
+       ButtonBox[
+        StyleBox["\<\"indet\"\>",
+         StripOnInput->False,
+         FrontFaceColor->RGBColor[1, 0, 0],
+         BackFaceColor->RGBColor[1, 0, 0],
+         GraphicsColor->RGBColor[1, 0, 0],
+         FontColor->RGBColor[1, 0, 0]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 7, 1] = Not[
+           Part[$CellContext`t$$, 7, 1]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 7, 1], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox["1",
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 7, 2] = Not[
+           Part[$CellContext`t$$, 7, 2]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 7, 2], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox["1",
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 7, 3] = Not[
+           Part[$CellContext`t$$, 7, 3]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 7, 3], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox["1",
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 7, 4] = Not[
+           Part[$CellContext`t$$, 7, 4]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 7, 4], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox["1",
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 7, 5] = Not[
+           Part[$CellContext`t$$, 7, 5]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 7, 5], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox["1",
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 7, 6] = Not[
+           Part[$CellContext`t$$, 7, 6]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 7, 6], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox["1",
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 7, 7] = Not[
+           Part[$CellContext`t$$, 7, 7]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 7, 7], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox["1",
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 7, 8] = Not[
+           Part[$CellContext`t$$, 7, 8]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 7, 8], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        StyleBox["\<\"indet\"\>",
+         StripOnInput->False,
+         FrontFaceColor->RGBColor[1, 0, 0],
+         BackFaceColor->RGBColor[1, 0, 0],
+         GraphicsColor->RGBColor[1, 0, 0],
+         FontColor->RGBColor[1, 0, 0]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 7, 9] = Not[
+           Part[$CellContext`t$$, 7, 9]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 7, 9], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox["1",
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 7, 10] = Not[
+           Part[$CellContext`t$$, 7, 10]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 7, 10], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox["1",
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 7, 11] = Not[
+           Part[$CellContext`t$$, 7, 11]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 7, 11], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        StyleBox["\<\"indet\"\>",
+         StripOnInput->False,
+         FrontFaceColor->RGBColor[1, 0, 0],
+         BackFaceColor->RGBColor[1, 0, 0],
+         GraphicsColor->RGBColor[1, 0, 0],
+         FontColor->RGBColor[1, 0, 0]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 7, 12] = Not[
+           Part[$CellContext`t$$, 7, 12]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 7, 12], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        StyleBox["\<\"indet\"\>",
+         StripOnInput->False,
+         FrontFaceColor->RGBColor[1, 0, 0],
+         BackFaceColor->RGBColor[1, 0, 0],
+         GraphicsColor->RGBColor[1, 0, 0],
+         FontColor->RGBColor[1, 0, 0]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 7, 13] = Not[
+           Part[$CellContext`t$$, 7, 13]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 7, 13], Green, Automatic, Automatic]],
+       StripOnInput->False]},
+     {"\[SpanFromAbove]", 
+      ButtonBox[
+       FractionBox["7", "3"],
+       Appearance->"Frameless",
+       ButtonFrame->"Frameless",
+       ButtonFunction:>(Part[$CellContext`t$$, 8, All] = Not[
+          Part[$CellContext`t$$, 8, 1]]),
+       Evaluator->Automatic,
+       Method->"Preemptive"], 
+      ItemBox[
+       ButtonBox["0",
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 8, 1] = Not[
+           Part[$CellContext`t$$, 8, 1]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 8, 1], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        RowBox[{
+         FractionBox["9", "49"], " ", 
+         SuperscriptBox[
+          RowBox[{"(", 
+           FractionBox["3", "7"], ")"}], 
+          RowBox[{"1", "/", "3"}]]}],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 8, 2] = Not[
+           Part[$CellContext`t$$, 8, 2]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 8, 2], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        FractionBox["3", "7"],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 8, 3] = Not[
+           Part[$CellContext`t$$, 8, 3]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 8, 3], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        SuperscriptBox[
+         RowBox[{"(", 
+          FractionBox["3", "7"], ")"}], 
+         RowBox[{"1", "/", "3"}]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 8, 4] = Not[
+           Part[$CellContext`t$$, 8, 4]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 8, 4], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox["1",
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 8, 5] = Not[
+           Part[$CellContext`t$$, 8, 5]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 8, 5], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        SuperscriptBox[
+         RowBox[{"(", 
+          FractionBox["7", "3"], ")"}], 
+         RowBox[{"1", "/", "3"}]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 8, 6] = Not[
+           Part[$CellContext`t$$, 8, 6]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 8, 6], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        FractionBox["7", "3"],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 8, 7] = Not[
+           Part[$CellContext`t$$, 8, 7]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 8, 7], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        RowBox[{
+         FractionBox["49", "9"], " ", 
+         SuperscriptBox[
+          RowBox[{"(", 
+           FractionBox["7", "3"], ")"}], 
+          RowBox[{"1", "/", "3"}]]}],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 8, 8] = Not[
+           Part[$CellContext`t$$, 8, 8]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 8, 8], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        StyleBox["\[Infinity]",
+         StripOnInput->False,
+         FrontFaceColor->RGBColor[0, 0, 1],
+         BackFaceColor->RGBColor[0, 0, 1],
+         GraphicsColor->RGBColor[0, 0, 1],
+         FontColor->RGBColor[0, 0, 1]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 8, 9] = Not[
+           Part[$CellContext`t$$, 8, 9]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 8, 9], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        SuperscriptBox[
+         RowBox[{"(", 
+          FractionBox["7", "3"], ")"}], "X"],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 8, 10] = Not[
+           Part[$CellContext`t$$, 8, 10]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 8, 10], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        SuperscriptBox[
+         RowBox[{"(", 
+          FractionBox["7", "3"], ")"}], 
+         FractionBox["\[ImaginaryI]", "5"]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 8, 11] = Not[
+           Part[$CellContext`t$$, 8, 11]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 8, 11], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        StyleBox["\<\"indet\"\>",
+         StripOnInput->False,
+         FrontFaceColor->RGBColor[1, 0, 0],
+         BackFaceColor->RGBColor[1, 0, 0],
+         GraphicsColor->RGBColor[1, 0, 0],
+         FontColor->RGBColor[1, 0, 0]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 8, 12] = Not[
+           Part[$CellContext`t$$, 8, 12]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 8, 12], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        StyleBox["\<\"indet\"\>",
+         StripOnInput->False,
+         FrontFaceColor->RGBColor[1, 0, 0],
+         BackFaceColor->RGBColor[1, 0, 0],
+         GraphicsColor->RGBColor[1, 0, 0],
+         FontColor->RGBColor[1, 0, 0]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 8, 13] = Not[
+           Part[$CellContext`t$$, 8, 13]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 8, 13], Green, Automatic, Automatic]],
+       StripOnInput->False]},
+     {"\[SpanFromAbove]", 
+      ButtonBox[
+       StyleBox["\[Infinity]",
+        StripOnInput->False,
+        FrontFaceColor->RGBColor[0, 0, 1],
+        BackFaceColor->RGBColor[0, 0, 1],
+        GraphicsColor->RGBColor[0, 0, 1],
+        FontColor->RGBColor[0, 0, 1]],
+       Appearance->"Frameless",
+       ButtonFrame->"Frameless",
+       ButtonFunction:>(Part[$CellContext`t$$, 9, All] = Not[
+          Part[$CellContext`t$$, 9, 1]]),
+       Evaluator->Automatic,
+       Method->"Preemptive"], 
+      ItemBox[
+       ButtonBox["0",
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 9, 1] = Not[
+           Part[$CellContext`t$$, 9, 1]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 9, 1], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox["0",
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 9, 2] = Not[
+           Part[$CellContext`t$$, 9, 2]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 9, 2], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox["0",
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 9, 3] = Not[
+           Part[$CellContext`t$$, 9, 3]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 9, 3], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox["0",
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 9, 4] = Not[
+           Part[$CellContext`t$$, 9, 4]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 9, 4], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        StyleBox["\<\"indet\"\>",
+         StripOnInput->False,
+         FrontFaceColor->RGBColor[1, 0, 0],
+         BackFaceColor->RGBColor[1, 0, 0],
+         GraphicsColor->RGBColor[1, 0, 0],
+         FontColor->RGBColor[1, 0, 0]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 9, 5] = Not[
+           Part[$CellContext`t$$, 9, 5]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 9, 5], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        StyleBox["\[Infinity]",
+         StripOnInput->False,
+         FrontFaceColor->RGBColor[0, 0, 1],
+         BackFaceColor->RGBColor[0, 0, 1],
+         GraphicsColor->RGBColor[0, 0, 1],
+         FontColor->RGBColor[0, 0, 1]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 9, 6] = Not[
+           Part[$CellContext`t$$, 9, 6]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 9, 6], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        StyleBox["\[Infinity]",
+         StripOnInput->False,
+         FrontFaceColor->RGBColor[0, 0, 1],
+         BackFaceColor->RGBColor[0, 0, 1],
+         GraphicsColor->RGBColor[0, 0, 1],
+         FontColor->RGBColor[0, 0, 1]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 9, 7] = Not[
+           Part[$CellContext`t$$, 9, 7]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 9, 7], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        StyleBox["\[Infinity]",
+         StripOnInput->False,
+         FrontFaceColor->RGBColor[0, 0, 1],
+         BackFaceColor->RGBColor[0, 0, 1],
+         GraphicsColor->RGBColor[0, 0, 1],
+         FontColor->RGBColor[0, 0, 1]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 9, 8] = Not[
+           Part[$CellContext`t$$, 9, 8]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 9, 8], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        StyleBox[
+         InterpretationBox["\<\"uinf\"\>",
+          Row[{"uinf"}]],
+         StripOnInput->False,
+         FrontFaceColor->RGBColor[0.5, 0, 0.5],
+         BackFaceColor->RGBColor[0.5, 0, 0.5],
+         GraphicsColor->RGBColor[0.5, 0, 0.5],
+         FontColor->RGBColor[0.5, 0, 0.5]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 9, 9] = Not[
+           Part[$CellContext`t$$, 9, 9]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 9, 9], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        StyleBox["\<\"indet\"\>",
+         StripOnInput->False,
+         FrontFaceColor->RGBColor[1, 0, 0],
+         BackFaceColor->RGBColor[1, 0, 0],
+         GraphicsColor->RGBColor[1, 0, 0],
+         FontColor->RGBColor[1, 0, 0]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 9, 10] = Not[
+           Part[$CellContext`t$$, 9, 10]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 9, 10], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        StyleBox["\<\"indet\"\>",
+         StripOnInput->False,
+         FrontFaceColor->RGBColor[1, 0, 0],
+         BackFaceColor->RGBColor[1, 0, 0],
+         GraphicsColor->RGBColor[1, 0, 0],
+         FontColor->RGBColor[1, 0, 0]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 9, 11] = Not[
+           Part[$CellContext`t$$, 9, 11]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 9, 11], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        StyleBox["\<\"indet\"\>",
+         StripOnInput->False,
+         FrontFaceColor->RGBColor[1, 0, 0],
+         BackFaceColor->RGBColor[1, 0, 0],
+         GraphicsColor->RGBColor[1, 0, 0],
+         FontColor->RGBColor[1, 0, 0]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 9, 12] = Not[
+           Part[$CellContext`t$$, 9, 12]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 9, 12], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        StyleBox["\<\"indet\"\>",
+         StripOnInput->False,
+         FrontFaceColor->RGBColor[1, 0, 0],
+         BackFaceColor->RGBColor[1, 0, 0],
+         GraphicsColor->RGBColor[1, 0, 0],
+         FontColor->RGBColor[1, 0, 0]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 9, 13] = Not[
+           Part[$CellContext`t$$, 9, 13]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 9, 13], Green, Automatic, Automatic]],
+       StripOnInput->False]},
+     {"\[SpanFromAbove]", 
+      ButtonBox["X",
+       Appearance->"Frameless",
+       ButtonFrame->"Frameless",
+       ButtonFunction:>(Part[$CellContext`t$$, 10, All] = Not[
+          Part[$CellContext`t$$, 10, 1]]),
+       Evaluator->Automatic,
+       Method->"Preemptive"], 
+      ItemBox[
+       ButtonBox[
+        StyleBox["\<\"indet\"\>",
+         StripOnInput->False,
+         FrontFaceColor->RGBColor[1, 0, 0],
+         BackFaceColor->RGBColor[1, 0, 0],
+         GraphicsColor->RGBColor[1, 0, 0],
+         FontColor->RGBColor[1, 0, 0]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 10, 1] = Not[
+           Part[$CellContext`t$$, 10, 1]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 10, 1], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        FractionBox["1", 
+         SuperscriptBox["X", 
+          RowBox[{"7", "/", "3"}]]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 10, 2] = Not[
+           Part[$CellContext`t$$, 10, 2]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 10, 2], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        FractionBox["1", "X"],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 10, 3] = Not[
+           Part[$CellContext`t$$, 10, 3]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 10, 3], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        FractionBox["1", 
+         SuperscriptBox["X", 
+          RowBox[{"1", "/", "3"}]]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 10, 4] = Not[
+           Part[$CellContext`t$$, 10, 4]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 10, 4], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox["1",
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 10, 5] = Not[
+           Part[$CellContext`t$$, 10, 5]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 10, 5], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        SuperscriptBox["X", 
+         RowBox[{"1", "/", "3"}]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 10, 6] = Not[
+           Part[$CellContext`t$$, 10, 6]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 10, 6], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox["X",
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 10, 7] = Not[
+           Part[$CellContext`t$$, 10, 7]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 10, 7], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        SuperscriptBox["X", 
+         RowBox[{"7", "/", "3"}]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 10, 8] = Not[
+           Part[$CellContext`t$$, 10, 8]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 10, 8], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        StyleBox["\<\"indet\"\>",
+         StripOnInput->False,
+         FrontFaceColor->RGBColor[1, 0, 0],
+         BackFaceColor->RGBColor[1, 0, 0],
+         GraphicsColor->RGBColor[1, 0, 0],
+         FontColor->RGBColor[1, 0, 0]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 10, 9] = Not[
+           Part[$CellContext`t$$, 10, 9]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 10, 9], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        SuperscriptBox["X", "X"],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 10, 10] = Not[
+           Part[$CellContext`t$$, 10, 10]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 10, 10], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        SuperscriptBox["X", 
+         FractionBox["\[ImaginaryI]", "5"]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 10, 11] = Not[
+           Part[$CellContext`t$$, 10, 11]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 10, 11], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        StyleBox["\<\"indet\"\>",
+         StripOnInput->False,
+         FrontFaceColor->RGBColor[1, 0, 0],
+         BackFaceColor->RGBColor[1, 0, 0],
+         GraphicsColor->RGBColor[1, 0, 0],
+         FontColor->RGBColor[1, 0, 0]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 10, 12] = Not[
+           Part[$CellContext`t$$, 10, 12]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 10, 12], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        StyleBox["\<\"indet\"\>",
+         StripOnInput->False,
+         FrontFaceColor->RGBColor[1, 0, 0],
+         BackFaceColor->RGBColor[1, 0, 0],
+         GraphicsColor->RGBColor[1, 0, 0],
+         FontColor->RGBColor[1, 0, 0]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 10, 13] = Not[
+           Part[$CellContext`t$$, 10, 13]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 10, 13], Green, Automatic, Automatic]],
+       StripOnInput->False]},
+     {"\[SpanFromAbove]", 
+      ButtonBox[
+       FractionBox["\[ImaginaryI]", "5"],
+       Appearance->"Frameless",
+       ButtonFrame->"Frameless",
+       ButtonFunction:>(Part[$CellContext`t$$, 11, All] = Not[
+          Part[$CellContext`t$$, 11, 1]]),
+       Evaluator->Automatic,
+       Method->"Preemptive"], 
+      ItemBox[
+       ButtonBox[
+        StyleBox[
+         InterpretationBox["\<\"uinf\"\>",
+          Row[{"uinf"}]],
+         StripOnInput->False,
+         FrontFaceColor->RGBColor[0.5, 0, 0.5],
+         BackFaceColor->RGBColor[0.5, 0, 0.5],
+         GraphicsColor->RGBColor[0.5, 0, 0.5],
+         FontColor->RGBColor[0.5, 0, 0.5]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 11, 1] = Not[
+           Part[$CellContext`t$$, 11, 1]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 11, 1], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        RowBox[{"25", " ", 
+         SuperscriptBox[
+          RowBox[{"(", 
+           RowBox[{"-", "1"}], ")"}], 
+          RowBox[{"5", "/", "6"}]], " ", 
+         SuperscriptBox["5", 
+          RowBox[{"1", "/", "3"}]]}],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 11, 2] = Not[
+           Part[$CellContext`t$$, 11, 2]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 11, 2], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        RowBox[{
+         RowBox[{"-", "5"}], " ", "\[ImaginaryI]"}],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 11, 3] = Not[
+           Part[$CellContext`t$$, 11, 3]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 11, 3], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        RowBox[{
+         RowBox[{"-", 
+          SuperscriptBox[
+           RowBox[{"(", 
+            RowBox[{"-", "1"}], ")"}], 
+           RowBox[{"5", "/", "6"}]]}], " ", 
+         SuperscriptBox["5", 
+          RowBox[{"1", "/", "3"}]]}],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 11, 4] = Not[
+           Part[$CellContext`t$$, 11, 4]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 11, 4], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox["1",
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 11, 5] = Not[
+           Part[$CellContext`t$$, 11, 5]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 11, 5], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        FractionBox[
+         SuperscriptBox[
+          RowBox[{"(", 
+           RowBox[{"-", "1"}], ")"}], 
+          RowBox[{"1", "/", "6"}]], 
+         SuperscriptBox["5", 
+          RowBox[{"1", "/", "3"}]]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 11, 6] = Not[
+           Part[$CellContext`t$$, 11, 6]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 11, 6], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        FractionBox["\[ImaginaryI]", "5"],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 11, 7] = Not[
+           Part[$CellContext`t$$, 11, 7]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 11, 7], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        RowBox[{"-", 
+         FractionBox[
+          SuperscriptBox[
+           RowBox[{"(", 
+            RowBox[{"-", "1"}], ")"}], 
+           RowBox[{"1", "/", "6"}]], 
+          RowBox[{"25", " ", 
+           SuperscriptBox["5", 
+            RowBox[{"1", "/", "3"}]]}]]}],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 11, 8] = Not[
+           Part[$CellContext`t$$, 11, 8]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 11, 8], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox["0",
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 11, 9] = Not[
+           Part[$CellContext`t$$, 11, 9]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 11, 9], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        SuperscriptBox[
+         RowBox[{"(", 
+          FractionBox["\[ImaginaryI]", "5"], ")"}], "X"],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 11, 10] = Not[
+           Part[$CellContext`t$$, 11, 10]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 11, 10], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        SuperscriptBox[
+         RowBox[{"(", 
+          FractionBox["\[ImaginaryI]", "5"], ")"}], 
+         FractionBox["\[ImaginaryI]", "5"]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 11, 11] = Not[
+           Part[$CellContext`t$$, 11, 11]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 11, 11], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        StyleBox["\<\"indet\"\>",
+         StripOnInput->False,
+         FrontFaceColor->RGBColor[1, 0, 0],
+         BackFaceColor->RGBColor[1, 0, 0],
+         GraphicsColor->RGBColor[1, 0, 0],
+         FontColor->RGBColor[1, 0, 0]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 11, 12] = Not[
+           Part[$CellContext`t$$, 11, 12]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 11, 12], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        StyleBox["\<\"indet\"\>",
+         StripOnInput->False,
+         FrontFaceColor->RGBColor[1, 0, 0],
+         BackFaceColor->RGBColor[1, 0, 0],
+         GraphicsColor->RGBColor[1, 0, 0],
+         FontColor->RGBColor[1, 0, 0]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 11, 13] = Not[
+           Part[$CellContext`t$$, 11, 13]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 11, 13], Green, Automatic, Automatic]],
+       StripOnInput->False]},
+     {"\[SpanFromAbove]", 
+      ButtonBox[
+       StyleBox[
+        TagBox[
+         RowBox[{
+          TagBox["\[ImaginaryI]",
+           "DirectedInfinityCoefficient",
+           Editable->True], " ", "\[Infinity]"}],
+         DirectedInfinity,
+         Editable->False],
+        StripOnInput->False,
+        FrontFaceColor->RGBColor[0, 0, 1],
+        BackFaceColor->RGBColor[0, 0, 1],
+        GraphicsColor->RGBColor[0, 0, 1],
+        FontColor->RGBColor[0, 0, 1]],
+       Appearance->"Frameless",
+       ButtonFrame->"Frameless",
+       ButtonFunction:>(Part[$CellContext`t$$, 12, All] = Not[
+          Part[$CellContext`t$$, 12, 1]]),
+       Evaluator->Automatic,
+       Method->"Preemptive"], 
+      ItemBox[
+       ButtonBox["0",
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 12, 1] = Not[
+           Part[$CellContext`t$$, 12, 1]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 12, 1], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox["0",
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 12, 2] = Not[
+           Part[$CellContext`t$$, 12, 2]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 12, 2], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox["0",
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 12, 3] = Not[
+           Part[$CellContext`t$$, 12, 3]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 12, 3], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox["0",
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 12, 4] = Not[
+           Part[$CellContext`t$$, 12, 4]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 12, 4], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        StyleBox["\<\"indet\"\>",
+         StripOnInput->False,
+         FrontFaceColor->RGBColor[1, 0, 0],
+         BackFaceColor->RGBColor[1, 0, 0],
+         GraphicsColor->RGBColor[1, 0, 0],
+         FontColor->RGBColor[1, 0, 0]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 12, 5] = Not[
+           Part[$CellContext`t$$, 12, 5]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 12, 5], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        StyleBox[
+         InterpretationBox[
+          RowBox[{
+           SuperscriptBox[
+            RowBox[{"(", 
+             RowBox[{"-", "1"}], ")"}], 
+            RowBox[{"1", "/", "6"}]], 
+           "\[InvisibleSpace]", "\<\" \[Infinity]\"\>"}],
+          Row[{(-1)^Rational[1, 6], " \[Infinity]"}]],
+         StripOnInput->False,
+         FrontFaceColor->RGBColor[0, 0, 1],
+         BackFaceColor->RGBColor[0, 0, 1],
+         GraphicsColor->RGBColor[0, 0, 1],
+         FontColor->RGBColor[0, 0, 1]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 12, 6] = Not[
+           Part[$CellContext`t$$, 12, 6]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 12, 6], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        StyleBox[
+         TagBox[
+          RowBox[{
+           TagBox["\[ImaginaryI]",
+            "DirectedInfinityCoefficient",
+            Editable->True], " ", "\[Infinity]"}],
+          DirectedInfinity,
+          Editable->False],
+         StripOnInput->False,
+         FrontFaceColor->RGBColor[0, 0, 1],
+         BackFaceColor->RGBColor[0, 0, 1],
+         GraphicsColor->RGBColor[0, 0, 1],
+         FontColor->RGBColor[0, 0, 1]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 12, 7] = Not[
+           Part[$CellContext`t$$, 12, 7]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 12, 7], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        StyleBox[
+         InterpretationBox[
+          RowBox[{
+           RowBox[{"-", 
+            SuperscriptBox[
+             RowBox[{"(", 
+              RowBox[{"-", "1"}], ")"}], 
+             RowBox[{"1", "/", "6"}]]}], 
+           "\[InvisibleSpace]", "\<\" \[Infinity]\"\>"}],
+          Row[{-(-1)^Rational[1, 6], " \[Infinity]"}]],
+         StripOnInput->False,
+         FrontFaceColor->RGBColor[0, 0, 1],
+         BackFaceColor->RGBColor[0, 0, 1],
+         GraphicsColor->RGBColor[0, 0, 1],
+         FontColor->RGBColor[0, 0, 1]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 12, 8] = Not[
+           Part[$CellContext`t$$, 12, 8]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 12, 8], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        StyleBox[
+         InterpretationBox["\<\"uinf\"\>",
+          Row[{"uinf"}]],
+         StripOnInput->False,
+         FrontFaceColor->RGBColor[0.5, 0, 0.5],
+         BackFaceColor->RGBColor[0.5, 0, 0.5],
+         GraphicsColor->RGBColor[0.5, 0, 0.5],
+         FontColor->RGBColor[0.5, 0, 0.5]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 12, 9] = Not[
+           Part[$CellContext`t$$, 12, 9]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 12, 9], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        StyleBox["\<\"indet\"\>",
+         StripOnInput->False,
+         FrontFaceColor->RGBColor[1, 0, 0],
+         BackFaceColor->RGBColor[1, 0, 0],
+         GraphicsColor->RGBColor[1, 0, 0],
+         FontColor->RGBColor[1, 0, 0]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 12, 10] = Not[
+           Part[$CellContext`t$$, 12, 10]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 12, 10], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        StyleBox["\<\"indet\"\>",
+         StripOnInput->False,
+         FrontFaceColor->RGBColor[1, 0, 0],
+         BackFaceColor->RGBColor[1, 0, 0],
+         GraphicsColor->RGBColor[1, 0, 0],
+         FontColor->RGBColor[1, 0, 0]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 12, 11] = Not[
+           Part[$CellContext`t$$, 12, 11]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 12, 11], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        StyleBox["\<\"indet\"\>",
+         StripOnInput->False,
+         FrontFaceColor->RGBColor[1, 0, 0],
+         BackFaceColor->RGBColor[1, 0, 0],
+         GraphicsColor->RGBColor[1, 0, 0],
+         FontColor->RGBColor[1, 0, 0]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 12, 12] = Not[
+           Part[$CellContext`t$$, 12, 12]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 12, 12], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        StyleBox["\<\"indet\"\>",
+         StripOnInput->False,
+         FrontFaceColor->RGBColor[1, 0, 0],
+         BackFaceColor->RGBColor[1, 0, 0],
+         GraphicsColor->RGBColor[1, 0, 0],
+         FontColor->RGBColor[1, 0, 0]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 12, 13] = Not[
+           Part[$CellContext`t$$, 12, 13]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 12, 13], Green, Automatic, Automatic]],
+       StripOnInput->False]},
+     {"\[SpanFromAbove]", 
+      ButtonBox[
+       StyleBox[
+        InterpretationBox["\<\"uinf\"\>",
+         Row[{"uinf"}]],
+        StripOnInput->False,
+        FrontFaceColor->RGBColor[0.5, 0, 0.5],
+        BackFaceColor->RGBColor[0.5, 0, 0.5],
+        GraphicsColor->RGBColor[0.5, 0, 0.5],
+        FontColor->RGBColor[0.5, 0, 0.5]],
+       Appearance->"Frameless",
+       ButtonFrame->"Frameless",
+       ButtonFunction:>(Part[$CellContext`t$$, 13, All] = Not[
+          Part[$CellContext`t$$, 13, 1]]),
+       Evaluator->Automatic,
+       Method->"Preemptive"], 
+      ItemBox[
+       ButtonBox["0",
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 13, 1] = Not[
+           Part[$CellContext`t$$, 13, 1]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 13, 1], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox["0",
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 13, 2] = Not[
+           Part[$CellContext`t$$, 13, 2]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 13, 2], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox["0",
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 13, 3] = Not[
+           Part[$CellContext`t$$, 13, 3]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 13, 3], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox["0",
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 13, 4] = Not[
+           Part[$CellContext`t$$, 13, 4]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 13, 4], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        StyleBox["\<\"indet\"\>",
+         StripOnInput->False,
+         FrontFaceColor->RGBColor[1, 0, 0],
+         BackFaceColor->RGBColor[1, 0, 0],
+         GraphicsColor->RGBColor[1, 0, 0],
+         FontColor->RGBColor[1, 0, 0]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 13, 5] = Not[
+           Part[$CellContext`t$$, 13, 5]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 13, 5], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        StyleBox[
+         InterpretationBox["\<\"uinf\"\>",
+          Row[{"uinf"}]],
+         StripOnInput->False,
+         FrontFaceColor->RGBColor[0.5, 0, 0.5],
+         BackFaceColor->RGBColor[0.5, 0, 0.5],
+         GraphicsColor->RGBColor[0.5, 0, 0.5],
+         FontColor->RGBColor[0.5, 0, 0.5]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 13, 6] = Not[
+           Part[$CellContext`t$$, 13, 6]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 13, 6], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        StyleBox[
+         InterpretationBox["\<\"uinf\"\>",
+          Row[{"uinf"}]],
+         StripOnInput->False,
+         FrontFaceColor->RGBColor[0.5, 0, 0.5],
+         BackFaceColor->RGBColor[0.5, 0, 0.5],
+         GraphicsColor->RGBColor[0.5, 0, 0.5],
+         FontColor->RGBColor[0.5, 0, 0.5]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 13, 7] = Not[
+           Part[$CellContext`t$$, 13, 7]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 13, 7], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        StyleBox[
+         InterpretationBox["\<\"uinf\"\>",
+          Row[{"uinf"}]],
+         StripOnInput->False,
+         FrontFaceColor->RGBColor[0.5, 0, 0.5],
+         BackFaceColor->RGBColor[0.5, 0, 0.5],
+         GraphicsColor->RGBColor[0.5, 0, 0.5],
+         FontColor->RGBColor[0.5, 0, 0.5]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 13, 8] = Not[
+           Part[$CellContext`t$$, 13, 8]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 13, 8], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        StyleBox[
+         InterpretationBox["\<\"uinf\"\>",
+          Row[{"uinf"}]],
+         StripOnInput->False,
+         FrontFaceColor->RGBColor[0.5, 0, 0.5],
+         BackFaceColor->RGBColor[0.5, 0, 0.5],
+         GraphicsColor->RGBColor[0.5, 0, 0.5],
+         FontColor->RGBColor[0.5, 0, 0.5]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 13, 9] = Not[
+           Part[$CellContext`t$$, 13, 9]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 13, 9], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        StyleBox["\<\"indet\"\>",
+         StripOnInput->False,
+         FrontFaceColor->RGBColor[1, 0, 0],
+         BackFaceColor->RGBColor[1, 0, 0],
+         GraphicsColor->RGBColor[1, 0, 0],
+         FontColor->RGBColor[1, 0, 0]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 13, 10] = Not[
+           Part[$CellContext`t$$, 13, 10]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 13, 10], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        StyleBox["\<\"indet\"\>",
+         StripOnInput->False,
+         FrontFaceColor->RGBColor[1, 0, 0],
+         BackFaceColor->RGBColor[1, 0, 0],
+         GraphicsColor->RGBColor[1, 0, 0],
+         FontColor->RGBColor[1, 0, 0]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 13, 11] = Not[
+           Part[$CellContext`t$$, 13, 11]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 13, 11], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        StyleBox["\<\"indet\"\>",
+         StripOnInput->False,
+         FrontFaceColor->RGBColor[1, 0, 0],
+         BackFaceColor->RGBColor[1, 0, 0],
+         GraphicsColor->RGBColor[1, 0, 0],
+         FontColor->RGBColor[1, 0, 0]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 13, 12] = Not[
+           Part[$CellContext`t$$, 13, 12]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 13, 12], Green, Automatic, Automatic]],
+       StripOnInput->False], 
+      ItemBox[
+       ButtonBox[
+        StyleBox["\<\"indet\"\>",
+         StripOnInput->False,
+         FrontFaceColor->RGBColor[1, 0, 0],
+         BackFaceColor->RGBColor[1, 0, 0],
+         GraphicsColor->RGBColor[1, 0, 0],
+         FontColor->RGBColor[1, 0, 0]],
+        Appearance->"Frameless",
+        ButtonFrame->"Frameless",
+        ButtonFunction:>(Part[$CellContext`t$$, 13, 13] = Not[
+           Part[$CellContext`t$$, 13, 13]]),
+        Evaluator->Automatic,
+        Method->"Preemptive"],
+       Background->Dynamic[
+         If[
+          Part[$CellContext`t$$, 13, 13], Green, Automatic, Automatic]],
+       StripOnInput->False]}
+    },
+    ColumnsEqual->False,
+    GridBoxAlignment->{"Columns" -> {{Center}}, "Rows" -> {{Center}}},
+    GridBoxBackground->{"Columns" -> {
+        GrayLevel[0.5], 
+        GrayLevel[0.85], None, None, None, None, 
+        RGBColor[1, 0.5, 0.5], None, None, None, None, 
+        RGBColor[1, 0.5, 0.5], 
+        RGBColor[1, 0.5, 0.5], 
+        RGBColor[1, 0.5, 0.5], 
+        RGBColor[1, 0.5, 0.5]}, "Rows" -> {
+        GrayLevel[0.5], 
+        GrayLevel[0.85], None, None, None, None, 
+        RGBColor[1, 0.5, 0.5], None, None, None, None, 
+        RGBColor[1, 0.5, 0.5], 
+        RGBColor[1, 0.5, 0.5], 
+        RGBColor[1, 0.5, 0.5], 
+        RGBColor[1, 0.5, 0.5]}},
+    GridBoxFrame->{"Columns" -> {{True}}, "Rows" -> {{True}}},
+    GridBoxItemSize->{"Columns" -> {{All}}, "Rows" -> {{All}}},
+    RowsEqual->False],
+   "Grid"],
+  DynamicModuleValues:>{{DownValues[$CellContext`toggle$$] = {HoldPattern[
+         $CellContext`toggle$$[
+          Pattern[$CellContext`x, 
+           Alternatives[SpanFromLeft, SpanFromAbove, SpanFromBoth]], 
+          Pattern[$CellContext`i, 
+           Blank[]], 
+          Pattern[$CellContext`j, 
+           Blank[]]]] :> $CellContext`x, HoldPattern[
+         $CellContext`toggle$$[
+          Pattern[$CellContext`x$, 
+           Blank[]], 0, 
+          Pattern[$CellContext`j$, 
+           Blank[]]]] :> 
+       Button[$CellContext`x$, Part[$CellContext`t$$, All, $CellContext`j$] = 
+         Not[
+           Part[$CellContext`t$$, 1, $CellContext`j$]], Appearance -> 
+         "Frameless"], HoldPattern[
+         $CellContext`toggle$$[
+          Pattern[$CellContext`x$, 
+           Blank[]], 
+          Pattern[$CellContext`i$, 
+           Blank[]], 0]] :> 
+       Button[$CellContext`x$, Part[$CellContext`t$$, $CellContext`i$, All] = 
+         Not[
+           Part[$CellContext`t$$, $CellContext`i$, 1]], Appearance -> 
+         "Frameless"], HoldPattern[
+         Condition[
+          $CellContext`toggle$$[
+           Pattern[$CellContext`x$, 
+            Blank[]], 
+           Pattern[$CellContext`i$, 
+            Blank[]], 
+           Pattern[$CellContext`j$, 
+            Blank[]]], 
+          And[$CellContext`i$ > 0, $CellContext`j$ > 0]]] :> 
+       Button[$CellContext`x$, 
+         Part[$CellContext`t$$, $CellContext`i$, $CellContext`j$] = Not[
+           Part[$CellContext`t$$, $CellContext`i$, $CellContext`j$]], 
+         Appearance -> "Frameless"], HoldPattern[
+         $CellContext`toggle$$[
+          Pattern[$CellContext`x, 
+           Blank[]], 
+          Blank[], 
+          Blank[]]] :> $CellContext`x}}, {
+    DownValues[$CellContext`bg$$] = {HoldPattern[
+         Condition[
+          $CellContext`bg$$[
+           Pattern[$CellContext`x$, 
+            Blank[]], 
+           Pattern[$CellContext`i$, 
+            Blank[]], 
+           Pattern[$CellContext`j$, 
+            Blank[]]], 
+          And[$CellContext`i$ > 0, $CellContext`j$ > 0]]] :> 
+       Item[$CellContext`x$, Background -> Dynamic[
+           If[
+            Part[$CellContext`t$$, $CellContext`i$, $CellContext`j$], Green, 
+            Automatic, Automatic]]], HoldPattern[
+         $CellContext`bg$$[
+          Pattern[$CellContext`x, 
+           Blank[]], 
+          Blank[], 
+          Blank[]]] :> $CellContext`x}}, {
+    DownValues[$CellContext`f$$] = {HoldPattern[
+         $CellContext`f$$[-1, -1]] :> "\!\(\*SuperscriptBox[\(x\), \(y\)]\)", 
+       HoldPattern[
+         $CellContext`f$$[-1, 0]] :> SpanFromLeft, HoldPattern[
+         $CellContext`f$$[-1, 1]] :> "y", HoldPattern[
+         $CellContext`f$$[0, -1]] :> SpanFromAbove, HoldPattern[
+         $CellContext`f$$[0, 0]] :> SpanFromBoth, HoldPattern[
+         $CellContext`f$$[1, -1]] :> "x", HoldPattern[
+         $CellContext`f$$[-1, 
+          Blank[]]] :> SpanFromLeft, HoldPattern[
+         $CellContext`f$$[
+          Blank[], -1]] :> SpanFromAbove, HoldPattern[
+         $CellContext`f$$[
+          Pattern[$CellContext`i$, 
+           Blank[]], 0]] :> Part[$CellContext`values$$, $CellContext`i$], 
+       HoldPattern[
+         $CellContext`f$$[0, 
+          Pattern[$CellContext`j$, 
+           Blank[]]]] :> Part[$CellContext`values$$, $CellContext`j$], 
+       HoldPattern[
+         $CellContext`f$$[
+          Pattern[$CellContext`i$, 
+           Blank[]], 
+          Pattern[$CellContext`j$, 
+           Blank[]]]] :> 
+       Quiet[Part[$CellContext`values$$, $CellContext`i$]^
+         Part[$CellContext`values$$, $CellContext`j$]]}}}]], "Output",
+ CellChangeTimes->{
+  3.4460504715179996`*^9, 3.446050709832*^9, {3.446050757891*^9, 
+   3.4460508179849997`*^9}}]
+}, {2}]]
+}, Open  ]]
+}, Open  ]]
+},
+AutoGeneratedPackage->None,
+WindowSize->{864, 565},
+WindowMargins->{{63, Automatic}, {Automatic, 3}},
+PrintingCopies->1,
+PrintingPageRange->{Automatic, Automatic},
+ShowSelection->True,
+FrontEndVersion->"6.0 for Microsoft Windows (32-bit) (April 28, 2007)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[590, 23, 122, 1, 83, "Title"],
+Cell[CellGroupData[{
+Cell[737, 28, 83, 1, 71, "Section"],
+Cell[823, 31, 361, 11, 31, "Input",
+ InitializationCell->True],
+Cell[1187, 44, 1451, 42, 112, "Input",
+ InitializationCell->True]
+}, Closed]],
+Cell[CellGroupData[{
+Cell[2675, 91, 84, 1, 41, "Section"],
+Cell[2762, 94, 371, 10, 52, "Text"],
+Cell[CellGroupData[{
+Cell[3158, 108, 7757, 212, 512, "Input"],
+Cell[10918, 322, 111184, 3176, 438, "Output"]
+}, {2}]]
+}, Open  ]]
+}, Open  ]]
+}
+]
+*)
+
+(* End of internal cache information *)

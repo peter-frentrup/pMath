@@ -1,0 +1,116 @@
+﻿LIBRARY
+
+Button("Math in Text",DocumentApply(SelectedDocument(),"\({\"\"}\)"))
+Button("italic",DocumentApply(SelectedDocument(),StyleBox("",FontSlant->Italic)))
+Button("Arg Style",DocumentApply(SelectedDocument(),StyleBox("","Arg")))
+
+?! change double-comparisions a==b to is_near_zero(a-b) with #define is_near_zero(x)  (-DPL_EPSILON <= (x) && (x) <= DPL_EPSILON)
+	A double could actually be held in an 80bit x87 floating point register and thus be != 0, but when converted to double (written to memory), it becomes 0, 
+	So "if(x!=0){ some_x_invariant_code_that_prevents_optimizing_the_assert_away; assert(x!=0); }" can actually crash!
+	[See "The pitfalls of verifying floating-point computations", Monniaux : http://hal.archives-ouvertes.fr/docs/00/28/14/29/PDF/floating-point-article.pdf]
+
+? change Range: start..delta..end = Range(start, delta, end) or Range(start, end, delta)  instead of start..end..delta = Range(start, Range(end,delta))
+
+? implement Symbol <-> Id multimap (for Dynamic()) as two pMath functions instead of two pmath_hashtable_t
+  Internal`DynamicSymbolReferences(sym) = {ref1, ref2, ...}
+  Internal`DynamicReferenceSymbols(ref) = HoldComplete(sym1, sym2, ...)
+
+- add counter for regex cache in debug mode
+
+- allow v[1..5]:= {a,b,c,d,e}
+
+- implement Cross as Det(...), see scripts/junk/linalg.pmath
+
+? GUI: add ALT+Left/Right/Up/Down to move in the expression tree
+
+- eval Complex(0, x)^q with rational q
+
+- add ParallelFold() [better name?], Nest(), NestList(), NestWhile(), NestListWhile(),
+  FixedPoint(), FixedPointList(), TakeWhile(), LengthWhile()
+
+- add KroneckerProduct(), ArrayFlatten(),
+	Norm(), Cross(), Total(), LinearSolve(), Inverse(), PseudoInverse(), RowReduce(), MatrixRank(), Normalize(), 
+	Projection(), Orthogonalize(), Transpose(), ConjugateTranspose(),
+	IdentityMatrix(), ChracteristicPolynomial(), QRDecomposition(), Eigenvalues(), Eigenvectors()
+
+- add InterpretTemplate(), see Mathematica's ToBoxes[SuperscriptBox[1,2]]
+
+- add option to write a BOM to unicode files. currently, it is added for "UTF-16" and "UTF-32"
+  add the BOM automatically for UTF-8 on Windows but not on UNIX
+
+? Test what happens, when a thread-message is send to a parent thread (which waits for its children to finish). 
+	The message _should_ be handled by the currently waited-for child thread, but I have never tested it.
+	
+	TimeContrained() is implemented by letting the timer_thread (= low-prio GC thread) send a `Throw(...)` message in xx seconds.
+	That should also abort any child threads.
+
+?? remove Syntax f[[opt]] as a short form for OptionValue(f, opt)
+		
+? [try to] use Apps Hungarian Notation for function argument names. This conflicts a bit with our long names pmath_xxx.
+
+- add ToExpression(x) which is x.StringToBoxes.BoxesToExpression for strings x and BoxesToExpression(x) for anything else
+
+! inspect numerical instability [introduced with EARLYCODE before pmath_expression_sort for Plus,Times]:
+        Local({x:=1/Pi},Do(x:=3.5*x*(1-x),10^6);x)
+        0.5008842103072179`
+   was: 0.5008842103072177` (=same as early code after pmath_expression_sort and same as Mathematica)
+    
+	The reason is that floating point numbers are not an associative field, so sorting before calling Plus/Times is important to remain consistency, because a*b*c is calculated as (a*b)*c, so with sorting it is allways (min(a,b,c) * median(a,b,c))*max(a,b,c)
+
+ Timing(Local({x:=1/Pi},Do(x:=3.5`20*x*(1-x),100);x))
+
+? remove IsHeld() ?
+
+- use General::privv in more situations (e.g. when opening files instead of just General::noopen)
+- generate General::optx in pmath_options_extract() for any rules that do not define valid options
+
+- add Parenthesize(expr, prio), same as MakeBoxes(expr), but changes priority to prio
+ => Parenthesize(a+b, Range)*c --> "a+b*c" instead of normal "(a+b)*c"
+    Parenthesize(a*b, Times)+c --> "(a*b)+c" instead of normal "a*b+c"
+
+- hide/remove pmath_symbol_[get|set]_value(), 
+  ? publish _pmath_assign() from "src/pmath-builtins/control-private/assign.c" as pmath_symbol_assign()
+  ? publish pmath_symbol_find_value() from <pmath-util/symbol-values-private.h>
+
+- add pmath_atomic_fetch_and_bitand(), pmath_atomic_fetch_and_bitor()
+  add pmath_symbol_add_attributes(), pmath_symbol_remove_attributes()
+
+- add Precedence(), PrecedenceForm()
+
+- add Quiet()
+
+- add Insert()
+
+- add Conjugate(), improve Abs() => complex values
+  
+- implement hyperbolic funtions and inverse trigonometric/hyperbolic functions
+
+- add Outer()
+
+? add IsRule(), IsRuleList(), IsRuleOrRuleList(), IsMatch(p)()
+
+- add FilterRules(rules, {pat1, ...}), picks only those rules, whose lhs match any patn.
+
+- add ascii syntax for \mapsto character: x |-> f(x)
+
+? add symbol "Rational" and make rational numbers match ~(~,~)  (items: Rational, numerator, denominator).
+
+!! when and where do we need memory barriers ?
+  see:
+    * http://www.google.com/codesearch?hl=de&q=show:PBE7MtaLlk0:xpcZYsLsbi4:9oPi5mTcNcs&sa=N&ct=rd&cs_p=http://webauth.stanford.edu/source/libgcc-3.4.4.tar.bz2&cs_f=gcc-3.4.4/libjava/sysdep/powerpc/locks.h
+    * http://lxr.linux.no/linux/Documentation/memory-barriers.txt
+
+- optimize pmath_expr_t for (multidimensional) rectangular arrays of intptr_t/double with List as head of all sublists
+
+- add support for file io in richmath (graphical frontend) and write help files for every symbol
+
+- builtin_power: handle approximate complex arguments (real or imaginary part is pmath_float_t)
+- builtin_power: handle special complex values (E^(I Pi) = -1, ...). 
+
+- !!! implement FactorInteger() to factorize integers.
+
+? implement named pipes. E.g. as in Mathematica: OpenRead("!exec") opens a pipe or starts an application exec and reads from its stdout.
+_____________
+might be useful: ilog2:
+	* http://www.google.com/codesearch?hl=de&q=ilog2+asm+lang:c+show:CJxDAk0V72g:yNp7vgDS2bo:dSU16tYYx2w&sa=N&cd=1&ct=rc&cs_p=
+	* http://gentoo.osuosl.org/distfiles/asterisk-1.2.17.tar.gz&cs_f=asterisk-1.2.17/codecs/log2comp.h

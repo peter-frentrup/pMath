@@ -1,0 +1,121 @@
+(gdb) run
+Starting program: /usr/math/s1_sunu14/frentrup/develop/pmath/test/bin/linux/test
+[Thread debugging using libthread_db enabled]
+[attach process]
+[New Thread 0x7ffff6c59950 (LWP 32590)]
+[New Thread 0x7ffff6458950 (LWP 32591)]
+[New Thread 0x7ffff5c57950 (LWP 32592)]
+[New Thread 0x7ffff5456950 (LWP 32593)]
+[New Thread 0x7ffff4c55950 (LWP 32594)]
+[New Thread 0x7ffff4454950 (LWP 32595)]
+[New Thread 0x7ffff3c53950 (LWP 32596)]
+[New Thread 0x7ffff3452950 (LWP 32597)]
+[New Thread 0x7ffff2c51950 (LWP 32598)]
+[New Thread 0x7ffff2450950 (LWP 32599)]
+[New Thread 0x7ffff1c4f950 (LWP 32600)]
+[New Thread 0x7ffff144e950 (LWP 32601)]
+[New Thread 0x7ffff0c4d950 (LWP 32602)]
+[New Thread 0x7ffff044c950 (LWP 32603)]
+[New Thread 0x7fffefc4b950 (LWP 32604)]
+[New Thread 0x7fffef44a950 (LWP 32605)]
+Exit with `Quit()`.
+
+pmath> maketree(0,~v)::= v
+
+pmath>  maketree(~d,~v)::= {maketree(d-1,v+1),v,maketree(d-1,v+1)}
+
+pmath>  walk({~l,~v,~r})::= walk(l) + walk(r) + doit(v)
+
+pmath>  walk(~v)::= doit(v)
+
+pmath>  walk2({~l,~v,~r})::= Local({t1:=NewTask(walk2(l)), t2:=NewTask(walk2(r))}, Wait(t1) + Wait(t2) + doit(v))
+
+pmath>  walk2(~v)::= doit(v)
+
+pmath>  doit(~)::= (Pause(0.01);1)
+
+pmath>  t:=maketree(9,1);
+
+pmath> walk2(t).Timing
+       {1.335`, 1023}
+
+pmath> Quit()
+...gc_thread_proc
+[worker 14] stop [0x7fffefc4b950]
+[worker 12] stop [0x7ffff0c4d950]
+[worker 13] stop [0x7ffff044c950]
+[worker 9] stop [0x7ffff2450950]
+[worker 10] stop [0x7ffff1c4f950]
+[worker 11] stop [0x7ffff144e950]
+[worker 8] stop [0x7ffff2c51950]
+[worker 7] stop [0x7ffff3452950]
+[worker 6] stop [0x7ffff3c53950]
+[worker 5] stop [0x7ffff4454950]
+[worker 1] stop [0x7ffff6458950]
+[worker 4] stop [0x7ffff4c55950]
+[worker 3] stop [0x7ffff5456950]
+[worker 2] stop [0x7ffff5c57950]
+[worker 0] stop [0x7ffff6c59950]
+[Thread 0x7fffef44a950 (LWP 32605) exited]
+[Thread 0x7ffff2c51950 (LWP 32598) exited]
+[Thread 0x7fffefc4b950 (LWP 32604) exited]
+[Thread 0x7ffff144e950 (LWP 32601) exited]
+[Thread 0x7ffff5c57950 (LWP 32592) exited]
+[Thread 0x7ffff6c59950 (LWP 32590) exited]
+[Thread 0x7ffff5456950 (LWP 32593) exited]
+[Thread 0x7ffff1c4f950 (LWP 32600) exited]
+[Thread 0x7ffff3c53950 (LWP 32596) exited]
+[Thread 0x7ffff2450950 (LWP 32599) exited]
+[Thread 0x7ffff4c55950 (LWP 32594) exited]
+[Thread 0x7ffff3452950 (LWP 32597) exited]
+[Thread 0x7ffff4454950 (LWP 32595) exited]
+[Thread 0x7ffff0c4d950 (LWP 32602) exited]
+[Thread 0x7ffff044c950 (LWP 32603) exited]
+[Thread 0x7ffff6458950 (LWP 32591) exited]
+Symbol 'Global`t2$' (0x7fffe0009130) still has 1 reference(s)
+Symbol 'Global`t1$' (0x7fffe0001280) still has 1 reference(s)
+
+type                 allocations
+float (machine prec)      5
+float (multi prec)        1
+integer                1167
+quotient                  1
+string                 5138
+symbol                  591
+expression (general)  31862
+expression (part)         0
+symbol rule               7
+custom                 1022
+total object allocations: 39794
+global_timer = 85684
+
+    size allocs resize    sum
+<=     4     28      0     28
+<=     8   2192      0   2192
+<=    12      0      0      0
+<=    16    890   1146   2036
+<=    20      0      0      0
+<=    24   3785      2   3787
+<=    28      0      0      0
+<=    32   1245      1   1246
+<=    48  18325      2  18327
+<=    56  22161      1  22162
+<=    64   4471      1   4472
+<=    72    635      1    636
+<=    80      7      1      8
+<=    96   2060      2   2062
+<=   128   2346      4   2350
+<=   192     16      6     22
+<=   256     11      0     11
+<=   512   3098      0   3098
+<=  1024      5      0      5
+>   1024      9      0      9
+
+total:    61284   1167  62451
+
+memory: 0 (should be 0)
+max. used: 305776
+[detach process]
+
+Program exited normally.
+(gdb)

@@ -1,0 +1,69 @@
+\hypertarget{classpmath__thread__t}{
+\subsection{pmath\_\-thread\_\-t Class Reference}
+\label{classpmath__thread__t}\index{pmath\_\-thread\_\-t@{pmath\_\-thread\_\-t}}
+}
+The Representation of a thread.  
+
+
+\subsubsection*{Related Functions}
+(Note that these are not member functions.) \begin{CompactItemize}
+\item 
+PMATH\_\-API \hyperlink{classpmath__messages__t}{pmath\_\-messages\_\-t} \hyperlink{classpmath__thread__t_e6fbf23fd1e7470c0bae379978902830}{pmath\_\-thread\_\-fork\_\-daemon} (\hyperlink{group__general__types_ge1a454657f18f3cc54508adeccccbcbc}{pmath\_\-callback\_\-t} callback, \hyperlink{group__general__types_ge1a454657f18f3cc54508adeccccbcbc}{pmath\_\-callback\_\-t} kill, void $\ast$data)
+\begin{CompactList}\small\item\em Create a new deamon thread. \item\end{CompactList}\item 
+PMATH\_\-API \hyperlink{classpmath__thread__t}{pmath\_\-thread\_\-t} \hyperlink{group__threads_g908b6ee94115539a20530cfb051dc52c}{pmath\_\-thread\_\-get\_\-current} (void)
+\begin{CompactList}\small\item\em Get the current pMath thread. \item\end{CompactList}\item 
+PMATH\_\-API \hyperlink{classpmath__thread__t}{pmath\_\-thread\_\-t} \hyperlink{group__threads_gb0e137fb921f9b329a8a9e7c4efa3b3d}{pmath\_\-thread\_\-get\_\-parent} (\hyperlink{classpmath__thread__t}{pmath\_\-thread\_\-t} thread)
+\begin{CompactList}\small\item\em Get a thread's direct parent. \item\end{CompactList}\item 
+PMATH\_\-API \hyperlink{group__general__types_gc92090cb0b56345d6c379ed2341d4ef4}{pmath\_\-bool\_\-t} \hyperlink{group__threads_g4409c7f042a1809eee72329002635fb9}{pmath\_\-thread\_\-is\_\-parent} (\hyperlink{classpmath__thread__t}{pmath\_\-thread\_\-t} parent, \hyperlink{classpmath__thread__t}{pmath\_\-thread\_\-t} child)
+\begin{CompactList}\small\item\em Queries whether a thread is one of the parents of another. \item\end{CompactList}\item 
+PMATH\_\-API \hyperlink{group__general__types_gc92090cb0b56345d6c379ed2341d4ef4}{pmath\_\-bool\_\-t} \hyperlink{group__threads_g3932a5c364197c999dfab0aeb28e8779}{pmath\_\-thread\_\-aborting} (\hyperlink{classpmath__thread__t}{pmath\_\-thread\_\-t} thread)
+\begin{CompactList}\small\item\em Queries whether pMath was requested to abort the evaluation of a specific thread or its parents. \item\end{CompactList}\end{CompactItemize}
+
+
+\subsubsection{Detailed Description}
+The Representation of a thread. 
+
+Every operating system thread that runs pMath functions has its own \hyperlink{classpmath__thread__t}{pmath\_\-thread\_\-t} after it successfuly initialized with \hyperlink{group__frontend_gfb9f2c789bee5295c6794d16c0164943}{pmath\_\-init()}. \begin{Desc}
+\item[\hyperlink{todo__todo000004}{Todo}]Implement pmath\_\-run\_\-parallel(number\_\-of\_\-parallel\_\-threads, callback). \end{Desc}
+
+
+\subsubsection{Friends And Related Function Documentation}
+\hypertarget{classpmath__thread__t_e6fbf23fd1e7470c0bae379978902830}{
+\index{pmath\_\-thread\_\-t@{pmath\_\-thread\_\-t}!pmath\_\-thread\_\-fork\_\-daemon@{pmath\_\-thread\_\-fork\_\-daemon}}
+\index{pmath\_\-thread\_\-fork\_\-daemon@{pmath\_\-thread\_\-fork\_\-daemon}!pmath_thread_t@{pmath\_\-thread\_\-t}}
+\paragraph[{pmath\_\-thread\_\-fork\_\-daemon}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API {\bf pmath\_\-messages\_\-t} pmath\_\-thread\_\-fork\_\-daemon ({\bf pmath\_\-callback\_\-t} {\em callback}, \/  {\bf pmath\_\-callback\_\-t} {\em kill}, \/  void $\ast$ {\em data})\hspace{0.3cm}{\tt  \mbox{[}related\mbox{]}}}\hfill}
+\label{classpmath__thread__t_e6fbf23fd1e7470c0bae379978902830}
+
+
+Create a new deamon thread. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em callback}]The thread function. \item[{\em kill}]An optional function to inform the thread that it will be killed. \item[{\em data}]A pointer to be passed to callback() and kill() \end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]A reference to the new thread's message queue or NULL on error. You have to destroy the result.\end{Desc}
+pMath will automatically kill any daemon thread when there are no other threads remaining (normaly, when \hyperlink{group__frontend_g012705e1fd248a7cebf738bae6375dd9}{pmath\_\-done()} is called from main()). Killing deamons works as follows:
+
+
+
+\begin{Code}\begin{verbatim}for each deamon thread t:
+    call t->kill() if the method exists
+    throw PMATH_ABORT_EXCEPTION in t
+    
+for each deamon thread t:
+    wait for t to finish (to return from t->callback)
+\end{verbatim}
+\end{Code}
+
+
+
+\hyperlink{group__frontend_gfb9f2c789bee5295c6794d16c0164943}{pmath\_\-init()} will be called automatically before callback() and \hyperlink{group__frontend_g012705e1fd248a7cebf738bae6375dd9}{pmath\_\-done()} after callback returns. So the pMath thread (pmath\_\-get\_\-current()) will be allready initialized and you must not call these two functions in the {\em callback\/} routine.
+
+You can use the {\em kill\/} function to set your own abort-please-flags if nessecary. 
+
+The documentation for this class was generated from the following files:\begin{CompactItemize}
+\item 
+pmath-util/concurrency/threads.h\item 
+pmath-util/concurrency/threadpool.h\end{CompactItemize}
