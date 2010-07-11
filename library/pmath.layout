@@ -13,7 +13,7 @@
 	<File name="include\pmath-builtins\arithmetic-private.h" open="0" top="0" tabpos="8">
 		<Cursor position="849" topLine="3" />
 	</File>
-	<File name="include\pmath-builtins\build-expr-private.h" open="1" top="0" tabpos="11">
+	<File name="include\pmath-builtins\build-expr-private.h" open="0" top="0" tabpos="11">
 		<Cursor position="213" topLine="0" />
 	</File>
 	<File name="include\pmath-builtins\control-private.h" open="0" top="0" tabpos="10">
@@ -37,7 +37,7 @@
 	<File name="include\pmath-builtins\language-private.h" open="0" top="0" tabpos="0">
 		<Cursor position="274" topLine="0" />
 	</File>
-	<File name="include\pmath-builtins\lists-private.h" open="1" top="0" tabpos="8">
+	<File name="include\pmath-builtins\lists-private.h" open="0" top="0" tabpos="8">
 		<Cursor position="2610" topLine="134" />
 	</File>
 	<File name="include\pmath-builtins\manipulate-private.h" open="0" top="0" tabpos="0">
@@ -559,7 +559,7 @@
 	<File name="src\pmath-builtins\lists\first-last-most-rest.c" open="0" top="0" tabpos="0">
 		<Cursor position="2905" topLine="89" />
 	</File>
-	<File name="src\pmath-builtins\lists\flatten.c" open="1" top="0" tabpos="9">
+	<File name="src\pmath-builtins\lists\flatten.c" open="1" top="1" tabpos="7">
 		<Cursor position="891" topLine="25" />
 	</File>
 	<File name="src\pmath-builtins\lists\fold-and-foldlist.c" open="0" top="0" tabpos="0">
@@ -568,8 +568,8 @@
 	<File name="src\pmath-builtins\lists\intersection.c" open="0" top="0" tabpos="0">
 		<Cursor position="1919" topLine="50" />
 	</File>
-	<File name="src\pmath-builtins\lists\isarray.c" open="1" top="0" tabpos="7">
-		<Cursor position="1116" topLine="40" />
+	<File name="src\pmath-builtins\lists\isarray.c" open="0" top="0" tabpos="7">
+		<Cursor position="1158" topLine="40" />
 	</File>
 	<File name="src\pmath-builtins\lists\isfreeof.c" open="0" top="0" tabpos="0">
 		<Cursor position="3243" topLine="117" />
@@ -595,7 +595,7 @@
 	<File name="src\pmath-builtins\lists\map.c" open="0" top="0" tabpos="0">
 		<Cursor position="2384" topLine="0" />
 	</File>
-	<File name="src\pmath-builtins\lists\max-and-min.c" open="1" top="1" tabpos="10">
+	<File name="src\pmath-builtins\lists\max-and-min.c" open="0" top="0" tabpos="10">
 		<Cursor position="2880" topLine="89" />
 	</File>
 	<File name="src\pmath-builtins\lists\operate.c" open="0" top="0" tabpos="0">

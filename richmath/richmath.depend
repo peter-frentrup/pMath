@@ -1,0 +1,3744 @@
+# depslib dependency file v1.0
+1261231404 source:d:\peter\programmieren\richmath\4\src\util\base.cpp
+	<util/base.h>
+	<cmath>
+	<cstdio>
+	<pmath-util/concurrency/atomic.h>
+
+1261231387 d:\peter\programmieren\richmath\4\include\util\base.h
+	<stdint.h>
+
+1230068907 d:\peter\programmieren\richmath\4\include\util\debug.h
+	<stdio.h>
+
+1222991310 source:d:\peter\programmieren\richmath\4\main.cpp
+	<math.h>
+	<stdint.h>
+	<stdlib.h>
+	<cairo.h>
+	<pmath.h>
+	<windows.h>
+	<util/array.h>
+	<util/base.h>
+	<util/callback.h>
+	<util/debug.h>
+	<util/hashtable.h>
+	<util/matrix.h>
+	<util/pmath-cpp.h>
+	<util/sharedptr.h>
+	<graphics/canvas.h>
+	<graphics/shapers.h>
+	<boxes/box.h>
+
+1262121920 source:d:\peter\programmieren\richmath\4\src\util\pmath-cpp.cpp
+	<util/pmath-cpp.h>
+	<cstring>
+	<cmath>
+
+1274621453 d:\peter\programmieren\pmath_project\library\include\pmath.h
+	<pmath-config.h>
+	<pmath-types.h>
+	<pmath-util/concurrency/atomic.h>
+	<pmath-core/objects.h>
+	<pmath-core/custom.h>
+	<pmath-core/expressions.h>
+	<pmath-core/numbers.h>
+	<pmath-core/strings.h>
+	<pmath-core/symbols.h>
+	<pmath-builtins/all-symbols.h>
+	<pmath-language/charnames.h>
+	<pmath-language/scanner.h>
+	<pmath-language/tokens.h>
+	<pmath-util/approximate.h>
+	<pmath-util/concurrency/threadlocks.h>
+	<pmath-util/concurrency/threadmsg.h>
+	<pmath-util/concurrency/threadpool.h>
+	<pmath-util/concurrency/threads.h>
+	<pmath-util/debug.h>
+	<pmath-util/evaluation.h>
+	<pmath-util/files.h>
+	<pmath-util/helpers.h>
+	<pmath-util/memory.h>
+	<pmath-util/messages.h>
+	<pmath-util/serialize.h>
+	<pmath-util/stacks.h>
+	<pmath-core/objects-inline.h>
+
+1274621453 d:\peter\programmieren\pmath_project\library\include\pmath-config.h
+	<sal.h>
+
+1274621453 d:\peter\programmieren\pmath_project\library\include\pmath-types.h
+
+1237589947 d:\peter\programmieren\pmath_project\library\include\pmath-objects.h
+
+1237500993 d:\peter\programmieren\pmath_project\library\include\pmath-custom.h
+
+1237500993 d:\peter\programmieren\pmath_project\library\include\pmath-expressions.h
+
+1237500994 d:\peter\programmieren\pmath_project\library\include\pmath-numbers.h
+
+1237500994 d:\peter\programmieren\pmath_project\library\include\pmath-strings.h
+
+1237500993 d:\peter\programmieren\pmath_project\library\include\pmath-symbols.h
+
+1252272675 d:\peter\programmieren\pmath_project\library\include\pmath-builtins\symbols.h
+
+1222342806 d:\peter\programmieren\pmath_project\library\include\pmath-language\parser.h
+
+1271265810 d:\peter\programmieren\pmath_project\library\include\pmath-language\parser-helpers.h
+
+1274621453 d:\peter\programmieren\pmath_project\library\include\pmath-language\scanner.h
+
+1237503564 d:\peter\programmieren\pmath_project\library\include\pmath-messages.h
+
+1274621453 d:\peter\programmieren\pmath_project\library\include\pmath-util\helpers.h
+
+1227084283 d:\peter\programmieren\pmath_project\library\include\pmath-util\tasklocks.h
+
+1228994277 d:\peter\programmieren\pmath_project\library\include\pmath-util\tasks.h
+
+1274621453 d:\peter\programmieren\pmath_project\library\include\pmath-util\memory.h
+	<pmath-util/concurrency/atomic.h>
+
+1237243354 d:\peter\programmieren\pmath_project\library\include\pmath-util\atomic.h
+	<assert.h>
+	<pmath-config.h>
+	<pmath-types.h>
+	<inttypes.h>
+	<pmath-util/atomic/gcc/x86.h>
+	<pmath-util/atomic/gcc/x86-x64.h>
+	<pmath-util/atomic/gcc/built_in_functions.h>
+	<pmath-util/atomic/non-atomic.h>
+	<pmath-util/atomic/msvc/intrinsic_functions.h>
+	<pmath-util/atomic/non-atomic.h>
+
+1226426827 d:\peter\programmieren\pmath_project\library\include\pmath-util\atomic\gcc\x86_and_x64.h
+
+1237237428 d:\peter\programmieren\pmath_project\library\include\pmath-util\atomic\gcc\built_in_functions.h
+
+1237237378 d:\peter\programmieren\pmath_project\library\include\pmath-util\atomic\non-atomic.h
+
+1237237622 d:\peter\programmieren\pmath_project\library\include\pmath-util\atomic\msvc\intrinsic_functions.h
+	<intrin.h>
+
+1274621453 d:\peter\programmieren\pmath_project\library\include\pmath-util\stacks.h
+
+1235424748 d:\peter\programmieren\pmath_project\library\include\pmath-debug.h
+
+1262121919 d:\peter\programmieren\richmath\4\include\util\pmath-cpp.h
+	<cstdlib>
+	<stdint.h>
+	<pmath.h>
+	<util/base.h>
+
+1210885028 d:\programme\gtk\include\cairo\cairo.h
+	<cairo-features.h>
+	<cairo-deprecated.h>
+
+1210885028 d:\programme\gtk\include\cairo\cairo-features.h
+
+1210885028 d:\programme\gtk\include\cairo\cairo-deprecated.h
+
+1266538915 d:\peter\programmieren\richmath\4\include\util\array.h
+	<cassert>
+	<cstring>
+
+1220047272 d:\peter\programmieren\richmath\4\include\util\callback.h
+
+1257537347 d:\peter\programmieren\richmath\4\include\util\hashtable.h
+	<cassert>
+	<cstdlib>
+	<cstring>
+	<util/base.h>
+
+1248364989 d:\peter\programmieren\richmath\4\include\util\matrix.h
+	<util/array.h>
+
+1261739629 d:\peter\programmieren\richmath\4\include\util\sharedptr.h
+
+1218304349 source:d:\peter\programmieren\richmath\4\src\util\debug.cpp
+	<util/debug.h>
+	<inttypes.h>
+
+1261920102 source:d:\peter\programmieren\richmath\4\src\boxes\box.cpp
+	<boxes/box.h>
+	<graphics/context.h>
+	<gui/native-widget.h>
+
+1262121885 d:\peter\programmieren\richmath\4\include\boxes\box.h
+	<graphics/shapers.h>
+	<util/pmath-cpp.h>
+	<util/sharedptr.h>
+	<util/style.h>
+
+1267709416 source:d:\peter\programmieren\richmath\4\src\graphics\canvas.cpp
+	<graphics/canvas.h>
+	<cmath>
+	<cairo-win32.h>
+	<Windows.h>
+	<cairo-win32.h>
+
+1210885028 d:\programme\gtk\include\cairo\cairo-win32.h
+	<cairo.h>
+	<windows.h>
+
+1267709416 d:\peter\programmieren\richmath\4\include\graphics\canvas.h
+	<graphics/fonts.h>
+
+1254347517 source:d:\peter\programmieren\richmath\4\src\graphics\mathematica-shaper.cpp
+	<graphics/mathematica-shaper.h>
+	<graphics/context.h>
+
+1266539871 d:\peter\programmieren\richmath\4\include\graphics\shapers.h
+	<graphics/canvas.h>
+	<util/array.h>
+	<util/hashtable.h>
+	<util/sharedptr.h>
+
+1254237968 d:\peter\programmieren\richmath\4\include\graphics\mathematica-shaper.h
+	<graphics/shapers.h>
+
+1266539560 source:d:\peter\programmieren\richmath\4\src\graphics\shapers.cpp
+	<graphics/shapers.h>
+	<cmath>
+	<boxes/sequence.h>
+	<graphics/context.h>
+	<graphics/win32-shaper.h>
+
+1267822286 source:d:\peter\programmieren\richmath\4\src\main.cpp
+	<cmath>
+	<cstdio>
+	<ctime>
+	<boxes/section.h>
+	<boxes/sequence.h>
+	<eval/binding.h>
+	<eval/client.h>
+	<eval/server.h>
+	<graphics/win32-shaper.h>
+	<graphics/config-shaper.h>
+	<graphics/ot-math-shaper.h>
+	<gui/control-painter.h>
+	<gui/win32/win32-clipboard.h>
+	<gui/win32/win32-document-window.h>
+	<gui/win32/win32-themes.h>
+	<resources.h>
+
+1254250736 source:d:\peter\programmieren\richmath\4\src\graphics\cambria-shaper.cpp
+	<graphics/cambria-shaper.h>
+	<graphics/context.h>
+
+1254237942 d:\peter\programmieren\richmath\4\include\graphics\cambria-shaper.h
+	<graphics/shapers.h>
+
+1223310696 d:\peter\programmieren\richmath\4\include\graphics\win32-private.h
+
+1223312873 source:d:\peter\programmieren\richmath\4\src\graphics\win32-private.cpp
+	<stdint.h>
+	<stdlib.h>
+	<cairo.h>
+	<cairo-win32.h>
+	<pmath.h>
+	<windows.h>
+	<util/base.h>
+	<util/pmath-cpp.h>
+	<util/sharedptr.h>
+	<graphics/canvas.h>
+	<graphics/shapers.h>
+	<graphics/win32-private.h>
+
+1267669362 d:\peter\programmieren\richmath\4\include\graphics\context.h
+	<util/array.h>
+	<util/pmath-cpp.h>
+	<util/sharedptr.h>
+	<graphics/canvas.h>
+
+1267623223 source:d:\peter\programmieren\richmath\4\src\boxes\sequence.cpp
+	<boxes/sequence.h>
+	<climits>
+	<cmath>
+	<boxes/buttonbox.h>
+	<boxes/errorbox.h>
+	<boxes/fillbox.h>
+	<boxes/fractionbox.h>
+	<boxes/framebox.h>
+	<boxes/gridbox.h>
+	<boxes/inputbox.h>
+	<boxes/interpretationbox.h>
+	<boxes/numberbox.h>
+	<boxes/ownerbox.h>
+	<boxes/radicalbox.h>
+	<boxes/section.h>
+	<boxes/stylebox.h>
+	<boxes/subsuperscriptbox.h>
+	<boxes/transformationbox.h>
+	<boxes/underoverscriptbox.h>
+	<eval/binding.h>
+	<eval/client.h>
+	<graphics/context.h>
+	<util/spanexpr.h>
+
+1267567909 d:\peter\programmieren\richmath\4\include\boxes\sequence.h
+	<boxes/boxreference.h>
+	<util/array.h>
+	<util/syntax-state.h>
+
+1267670160 source:d:\peter\programmieren\richmath\4\src\boxes\radicalbox.cpp
+	<boxes/radicalbox.h>
+	<boxes/sequence.h>
+	<graphics/buffer.h>
+	<graphics/context.h>
+
+1262121886 d:\peter\programmieren\richmath\4\include\boxes\radicalbox.h
+	<boxes/box.h>
+
+1227633220 source:d:\peter\programmieren\richmath\4\src\graphics\win32-decoder.cpp
+	<stdint.h>
+	<stdlib.h>
+	<cairo.h>
+	<cairo-win32.h>
+	<pmath.h>
+	<windows.h>
+	<util/base.h>
+	<util/pmath-cpp.h>
+	<util/sharedptr.h>
+	<graphics/canvas.h>
+	<graphics/context.h>
+	<graphics/shapers.h>
+	<graphics/win32-decoder.h>
+
+1228050332 d:\peter\programmieren\richmath\4\include\graphics\win32-decoder.h
+
+1267714521 source:d:\peter\programmieren\richmath\4\src\graphics\context.cpp
+	<graphics/context.h>
+	<cmath>
+	<cairo-win32.h>
+	<boxes/box.h>
+	<graphics/buffer.h>
+	<graphics/shapers.h>
+	<gui/control-painter.h>
+	<util/syntax-state.h>
+
+1267663449 source:d:\peter\programmieren\richmath\4\src\boxes\section.cpp
+	<boxes/section.h>
+	<cmath>
+	<boxes/sectionlist.h>
+	<boxes/sequence.h>
+	<eval/client.h>
+	<graphics/context.h>
+
+1262121886 d:\peter\programmieren\richmath\4\include\boxes\section.h
+	<boxes/boxreference.h>
+	<util/array.h>
+
+1248891660 source:d:\peter\programmieren\richmath\4\src\boxes\document.cpp
+	<boxes/document.h>
+	<boxes/section.h>
+	<graphics/context.h>
+
+1248891658 d:\peter\programmieren\richmath\4\include\boxes\document.h
+	<boxes/boxreference.h>
+	<util/array.h>
+
+1225388767 source:d:\peter\programmieren\richmath\4\src\boxes\minidocument.cpp
+	<assert.h>
+	<math.h>
+	<stdlib.h>
+	<stdint.h>
+	<cairo.h>
+	<pmath.h>
+	<util/array.h>
+	<util/base.h>
+	<util/pmath-cpp.h>
+	<util/sharedptr.h>
+	<graphics/canvas.h>
+	<graphics/context.h>
+	<graphics/shapers.h>
+	<boxes/box.h>
+	<boxes/minidocument.h>
+	<boxes/section.h>
+
+1225388737 d:\peter\programmieren\richmath\4\include\boxes\minidocument.h
+
+1266537748 source:d:\peter\programmieren\richmath\4\src\boxes\subsuperscriptbox.cpp
+	<boxes/subsuperscriptbox.h>
+	<cmath>
+	<boxes/sequence.h>
+	<graphics/context.h>
+
+1262121887 d:\peter\programmieren\richmath\4\include\boxes\subsuperscriptbox.h
+	<boxes/box.h>
+
+1262121887 source:d:\peter\programmieren\richmath\4\src\boxes\errorbox.cpp
+	<boxes/errorbox.h>
+	<graphics/context.h>
+
+1262121885 d:\peter\programmieren\richmath\4\include\boxes\errorbox.h
+	<boxes/box.h>
+
+1237237525 d:\peter\programmieren\pmath_project\library\include\pmath-util\atomic\gcc\x86.h
+
+1237589947 d:\peter\programmieren\pmath_project\library\include\pmath-objects-inline.h
+
+1248364934 d:\peter\programmieren\richmath\4\include\util\concurrent-queue.h
+	<util/pmath-cpp.h>
+	<pmath-util/concurrency/atomic.h>
+
+1248365854 source:d:\peter\programmieren\richmath\4\src\util\threads.cpp
+	<util/threads.h>
+	<process.h>
+
+1248365274 d:\peter\programmieren\richmath\4\include\util\threads.h
+	<windows.h>
+	<pthread.h>
+	<util/base.h>
+
+1227464617 source:d:\peter\programmieren\richmath\4\src\util\evaluator.cpp
+	<stdint.h>
+	<stdlib.h>
+	<process.h>
+	<pmath.h>
+	<util/base.h>
+	<util/pmath-cpp.h>
+	<util/concurrent-queue.h>
+	<util/threads.h>
+	<util/evaluator.h>
+
+1227463814 d:\peter\programmieren\richmath\4\include\util\evaluator.h
+
+1248364486 source:d:\peter\programmieren\richmath\4\src\util\semaphore.cpp
+	<util/semaphore.h>
+
+1248364230 d:\peter\programmieren\richmath\4\include\util\semaphore.h
+	<Windows.h>
+	<sem.h>
+	<util/base.h>
+
+1254506333 source:d:\peter\programmieren\richmath\4\src\graphics\win32-shaper.cpp
+	<graphics/win32-shaper.h>
+	<windows.h>
+	<usp10.h>
+	<cairo-win32.h>
+	<graphics/context.h>
+	<util/array.h>
+
+1254521812 d:\peter\programmieren\richmath\4\include\graphics\win32-shaper.h
+	<graphics/shapers.h>
+
+1262121919 source:d:\peter\programmieren\richmath\4\src\boxes\framebox.cpp
+	<boxes/framebox.h>
+	<boxes/sequence.h>
+	<graphics/context.h>
+
+1262121885 d:\peter\programmieren\richmath\4\include\boxes\framebox.h
+	<boxes/ownerbox.h>
+
+1266537377 source:d:\peter\programmieren\richmath\4\src\boxes\underoverscriptbox.cpp
+	<boxes/underoverscriptbox.h>
+	<cmath>
+	<boxes/sequence.h>
+	<graphics/context.h>
+
+1262121887 d:\peter\programmieren\richmath\4\include\boxes\underoverscriptbox.h
+	<boxes/box.h>
+
+1267667989 source:d:\peter\programmieren\richmath\4\src\boxes\ownerbox.cpp
+	<boxes/ownerbox.h>
+	<boxes/sequence.h>
+	<graphics/context.h>
+
+1262121886 d:\peter\programmieren\richmath\4\include\boxes\ownerbox.h
+	<boxes/boxreference.h>
+
+1228143652 source:d:\peter\programmieren\richmath\4\src\boxes\rotationbox.cpp
+	<assert.h>
+	<math.h>
+	<stdlib.h>
+	<stdint.h>
+	<string.h>
+	<cairo.h>
+	<pmath.h>
+	<util/array.h>
+	<util/base.h>
+	<util/pmath-cpp.h>
+	<util/sharedptr.h>
+	<graphics/canvas.h>
+	<graphics/context.h>
+	<graphics/shapers.h>
+	<boxes/box.h>
+	<boxes/ownerbox.h>
+	<boxes/rotationbox.h>
+	<boxes/sequence.h>
+
+1228141134 d:\peter\programmieren\richmath\4\include\boxes\rotationbox.h
+
+1267621641 source:d:\peter\programmieren\richmath\4\src\boxes\fractionbox.cpp
+	<boxes/fractionbox.h>
+	<cmath>
+	<boxes/sequence.h>
+	<graphics/context.h>
+
+1262121885 d:\peter\programmieren\richmath\4\include\boxes\fractionbox.h
+	<boxes/box.h>
+
+1262121887 d:\peter\programmieren\richmath\4\include\boxes\transformationbox.h
+	<boxes/ownerbox.h>
+
+1262121920 source:d:\peter\programmieren\richmath\4\src\boxes\transformationbox.cpp
+	<boxes/transformationbox.h>
+	<cmath>
+	<boxes/sequence.h>
+	<graphics/context.h>
+
+1262095378 source:d:\peter\programmieren\richmath\4\resources\richmath.rc
+	<windows.h>
+	"resources.h"
+
+1261957138 d:\peter\programmieren\richmath\4\resources\resources.h
+
+1228998688 d:\peter\programmieren\pmath_project\library\include\pmath-util\main-thread.h
+
+1259010936 source:d:\peter\programmieren\richmath\4\src\boxes\boxreference.cpp
+	<boxes/boxreference.h>
+
+1259010772 d:\peter\programmieren\richmath\4\include\boxes\boxreference.h
+	<boxes/box.h>
+
+1257971976 source:d:\peter\programmieren\richmath\4\src\gui\documentwidget.cpp
+	<gui/documentwidget.h>
+	<cmath>
+	<cstdio>
+	<boxes/buttonbox.h>
+	<boxes/fractionbox.h>
+	<boxes/gridbox.h>
+	<boxes/radicalbox.h>
+	<boxes/section.h>
+	<boxes/sequence.h>
+	<boxes/subsuperscriptbox.h>
+	<boxes/underoverscriptbox.h>
+	<eval/binding.h>
+	<gui/native-widget.h>
+
+1257517560 d:\peter\programmieren\richmath\4\include\gui\documentwidget.h
+	<boxes/sectionlist.h>
+	<graphics/context.h>
+
+1248883017 source:d:\peter\programmieren\richmath\4\src\gui\windows.cpp
+	<gui/windows.h>
+	<climits>
+	<cmath>
+	<cstdio>
+	<cairo-win32.h>
+	<boxes/buttonbox.h>
+	<boxes/section.h>
+	<boxes/sequence.h>
+	<eval/binding.h>
+	<eval/client.h>
+	<eval/job.h>
+	<graphics/asana-shaper.h>
+	<graphics/cambria-shaper.h>
+	<graphics/mathematica-shaper.h>
+	<gui/control-painter.h>
+	<resources.h>
+
+1248864199 d:\peter\programmieren\richmath\4\include\gui\windows.h
+	<windows.h>
+	<gui/documentwidget.h>
+	<gui/native-widget.h>
+
+1237500995 d:\peter\programmieren\pmath_project\library\include\pmath-util\threads.h
+
+1235424748 d:\peter\programmieren\pmath_project\library\include\pmath-util\threadlocks.h
+
+1236814435 d:\peter\programmieren\pmath_project\library\include\pmath-util\main.h
+
+1237500995 d:\peter\programmieren\pmath_project\library\include\pmath-util\threadpool.h
+
+1208421684 d:\peter\programmieren\bibliotheken\cairo\cairo-dev-1.6.4\include\cairo\cairo.h
+	<cairo-features.h>
+	<cairo-deprecated.h>
+
+1208421684 d:\peter\programmieren\bibliotheken\cairo\cairo-dev-1.6.4\include\cairo\cairo-features.h
+
+1208421684 d:\peter\programmieren\bibliotheken\cairo\cairo-dev-1.6.4\include\cairo\cairo-deprecated.h
+
+1208421686 d:\peter\programmieren\bibliotheken\cairo\cairo-dev-1.6.4\include\cairo\cairo-win32.h
+	<cairo.h>
+	<windows.h>
+
+1267621600 source:d:\peter\programmieren\richmath\4\src\boxes\gridbox.cpp
+	<boxes/gridbox.h>
+	<boxes/sequence.h>
+	<graphics/context.h>
+
+1262121886 d:\peter\programmieren\richmath\4\include\boxes\gridbox.h
+	<boxes/ownerbox.h>
+	<util/matrix.h>
+
+1254527883 source:d:\peter\programmieren\richmath\4\src\graphics\asana-shaper.cpp
+	<graphics/asana-shaper.h>
+	<graphics/context.h>
+
+1254527048 d:\peter\programmieren\richmath\4\include\graphics\asana-shaper.h
+	<graphics/shapers.h>
+
+1235938183 d:\peter\programmieren\richmath\4\include\util\style-state.h
+
+1235938186 source:d:\peter\programmieren\richmath\4\src\util\style-state.cpp
+	<math.h>
+	<stdint.h>
+	<stdlib.h>
+	<string.h>
+	<pmath.h>
+	<util/base.h>
+	<util/array.h>
+	<util/hashtable.h>
+	<util/pmath-cpp.h>
+	<util/style-state.h>
+
+1253897279 d:\peter\programmieren\richmath\4\include\util\syntax-state.h
+	<util/hashtable.h>
+	<util/pmath-cpp.h>
+	<util/sharedptr.h>
+
+1267206525 source:d:\peter\programmieren\richmath\4\src\util\syntax-state.cpp
+	<util/syntax-state.h>
+	<climits>
+	<eval/binding.h>
+	<eval/client.h>
+	<graphics/shapers.h>
+
+1239630446 source:d:\peter\programmieren\richmath\4\src\graphics\style.cpp
+	<assert.h>
+	<math.h>
+	<limits.h>
+	<stdint.h>
+	<stdlib.h>
+	<string.h>
+	<cairo.h>
+	<pmath.h>
+	<util/base.h>
+	<util/hashtable.h>
+	<util/sharedptr.h>
+	<util/pmath-cpp.h>
+	<graphics/canvas.h>
+	<graphics/context.h>
+	<graphics/shapers.h>
+	<graphics/style.h>
+
+1239630422 d:\peter\programmieren\richmath\4\include\graphics\style.h
+
+1237500993 d:\peter\programmieren\pmath_project\library\include\pmath-evaluation.h
+
+1274621453 d:\peter\programmieren\pmath_project\library\include\pmath-core\objects.h
+
+1274621453 d:\peter\programmieren\pmath_project\library\include\pmath-core\custom.h
+
+1274621453 d:\peter\programmieren\pmath_project\library\include\pmath-core\expressions.h
+
+1274621453 d:\peter\programmieren\pmath_project\library\include\pmath-core\numbers.h
+
+1274621453 d:\peter\programmieren\pmath_project\library\include\pmath-core\strings.h
+
+1274621453 d:\peter\programmieren\pmath_project\library\include\pmath-core\symbols.h
+
+1274621453 d:\peter\programmieren\pmath_project\library\include\pmath-util\debug.h
+
+1274621453 d:\peter\programmieren\pmath_project\library\include\pmath-util\evaluation.h
+
+1274621453 d:\peter\programmieren\pmath_project\library\include\pmath-util\concurrency\atomic.h
+	<assert.h>
+	<pmath-config.h>
+	<pmath-types.h>
+	<inttypes.h>
+	<pmath-util/concurrency/atomic/non-atomic.h>
+	<pmath-util/concurrency/atomic/gcc/built_in_functions.h>
+	<pmath-util/concurrency/atomic/gcc/x86.h>
+	<pmath-util/concurrency/atomic/gcc/x86-64.h>
+	<pmath-util/concurrency/atomic/gcc/sun.h>
+	<pmath-util/concurrency/atomic/non-atomic.h>
+	<pmath-util/concurrency/atomic/msvc/intrinsic_functions.h>
+	<pmath-util/concurrency/atomic/non-atomic.h>
+
+1274621454 d:\peter\programmieren\pmath_project\library\include\pmath-util\concurrency\atomic\gcc\x86.h
+
+1274621454 d:\peter\programmieren\pmath_project\library\include\pmath-util\concurrency\atomic\gcc\x86-64.h
+
+1274621454 d:\peter\programmieren\pmath_project\library\include\pmath-util\concurrency\atomic\gcc\built_in_functions.h
+
+1274621454 d:\peter\programmieren\pmath_project\library\include\pmath-util\concurrency\atomic\non-atomic.h
+
+1274621454 d:\peter\programmieren\pmath_project\library\include\pmath-util\concurrency\atomic\msvc\intrinsic_functions.h
+	<intrin.h>
+
+1274621453 d:\peter\programmieren\pmath_project\library\include\pmath-util\messages.h
+
+1253730984 d:\peter\programmieren\pmath_project\library\include\pmath-util\concurrency\main.h
+
+1274621453 d:\peter\programmieren\pmath_project\library\include\pmath-util\concurrency\threadlocks.h
+
+1274621453 d:\peter\programmieren\pmath_project\library\include\pmath-util\concurrency\threadpool.h
+
+1274621454 d:\peter\programmieren\pmath_project\library\include\pmath-util\concurrency\threads.h
+
+1274621453 d:\peter\programmieren\pmath_project\library\include\pmath-core\objects-inline.h
+
+1262121984 source:d:\peter\programmieren\richmath\4\src\eval\server.cpp
+	<eval/server.h>
+	<cstdio>
+	<windows.h>
+	<process.h>
+	<pthread.h>
+	<eval/client.h>
+	<util/concurrent-queue.h>
+
+1267744424 source:d:\peter\programmieren\richmath\4\src\eval\client.cpp
+	<eval/client.h>
+	<cmath>
+	<cstdio>
+	<boxes/section.h>
+	<graphics/config-shaper.h>
+	<gui/win32/basic-win32-widget.h>
+	<gui/document.h>
+	<eval/binding.h>
+	<eval/job.h>
+	<eval/server.h>
+	<util/concurrent-queue.h>
+	<util/semaphore.h>
+	<windows.h>
+	<resources.h>
+
+1261929457 d:\peter\programmieren\richmath\4\include\eval\server.h
+	<util/pmath-cpp.h>
+	<util/sharedptr.h>
+
+1261933365 d:\peter\programmieren\richmath\4\include\eval\client.h
+	<util/hashtable.h>
+	<util/pmath-cpp.h>
+	<util/sharedptr.h>
+
+1261925870 d:\peter\programmieren\richmath\4\include\eval\job.h
+	<util/pmath-cpp.h>
+
+1262121920 source:d:\peter\programmieren\richmath\4\src\eval\job.cpp
+	<eval/job.h>
+	<boxes/section.h>
+	<boxes/sequence.h>
+	<eval/client.h>
+	<eval/server.h>
+	<gui/document.h>
+
+1239620978 d:\peter\programmieren\richmath\4\include\util\styleoptions.h
+
+1239623338 source:d:\peter\programmieren\richmath\4\src\util\styleoptions.cpp
+	<assert.h>
+	<math.h>
+	<limits.h>
+	<stdint.h>
+	<stdlib.h>
+	<string.h>
+	<pmath.h>
+	<util/base.h>
+	<util/hashtable.h>
+	<util/pmath-cpp.h>
+	<util/sharedptr.h>
+	<util/styleoptions.h>
+
+1267663137 d:\peter\programmieren\richmath\4\include\util\style.h
+	<util/hashtable.h>
+	<util/pmath-cpp.h>
+	<util/sharedptr.h>
+
+1267666170 source:d:\peter\programmieren\richmath\4\src\util\style.cpp
+	<util/style.h>
+	<climits>
+	<cmath>
+	<gui/control-painter.h>
+
+1262121984 source:d:\peter\programmieren\richmath\4\src\boxes\interpretationbox.cpp
+	<boxes/interpretationbox.h>
+	<boxes/sequence.h>
+	<graphics/context.h>
+
+1262121886 d:\peter\programmieren\richmath\4\include\boxes\interpretationbox.h
+	<boxes/ownerbox.h>
+
+1258220057 d:\peter\programmieren\richmath\4\include\eval\binding.h
+	<util/hashtable.h>
+	<util/pmath-cpp.h>
+
+1266526402 source:d:\peter\programmieren\richmath\4\src\eval\binding.cpp
+	<eval/binding.h>
+	<boxes/section.h>
+	<boxes/sequence.h>
+	<eval/client.h>
+	<eval/job.h>
+	<gui/document.h>
+	<gui/native-widget.h>
+
+1248378893 d:\peter\programmieren\richmath\4\include\gui\controls.h
+	<graphics/shapers.h>
+
+1248378942 source:d:\peter\programmieren\richmath\4\src\gui\controls.cpp
+	<gui/controls.h>
+	<graphics/context.h>
+
+1242415155 d:\peter\programmieren\richmath\4\include\boxes\tagbox.h
+
+1242415212 source:d:\peter\programmieren\richmath\4\src\boxes\tagbox.cpp
+	<cassert>
+	<cmath>
+	<cstdlib>
+	<cstring>
+	<new>
+	<stdint.h>
+	<cairo.h>
+	<pmath.h>
+	<util/base.h>
+	<util/array.h>
+	<util/hashtable.h>
+	<util/pmath-cpp.h>
+	<util/sharedptr.h>
+	<util/style.h>
+	<util/syntax-state.h>
+	<graphics/canvas.h>
+	<graphics/context.h>
+	<graphics/shapers.h>
+	<boxes/box.h>
+	<boxes/boxreference.h>
+	<boxes/ownerbox.h>
+	<boxes/sequence.h>
+	<boxes/tagbox.h>
+
+1262121967 source:d:\peter\programmieren\richmath\4\src\boxes\buttonbox.cpp
+	<boxes/buttonbox.h>
+	<cmath>
+	<boxes/sequence.h>
+	<eval/client.h>
+	<eval/job.h>
+	<gui/document.h>
+	<gui/native-widget.h>
+
+1262121885 d:\peter\programmieren\richmath\4\include\boxes\buttonbox.h
+	<boxes/containerwidgetbox.h>
+
+1267652803 d:\peter\programmieren\richmath\4\include\boxes\stylebox.h
+	<boxes/ownerbox.h>
+
+1267654504 source:d:\peter\programmieren\richmath\4\src\boxes\stylebox.cpp
+	<boxes/stylebox.h>
+	<cmath>
+	<boxes/sequence.h>
+	<graphics/context.h>
+
+1248370256 source:d:\peter\programmieren\richmath\4\src\util\spanexpr.cpp
+	<util/spanexpr.h>
+
+1267470460 d:\peter\programmieren\richmath\4\include\util\spanexpr.h
+	<util/pmath-cpp.h>
+	<boxes/sequence.h>
+
+1251848671 d:\peter\programmieren\pmath_project\msvc-c99\stdint.h
+	<stddef.h>
+
+1251848671 d:\peter\programmieren\pmath_project\msvc-c99\inttypes.h
+
+1253745064 source:d:\peter\programmieren\richmath\4\src\graphics\config-shapers.cpp
+	<graphics/config-shapers.h>
+	<climits>
+	<cstdio>
+
+1250804378 d:\peter\programmieren\richmath\4\include\graphics\config-shapers.h
+	<graphics/shapers.h>
+	<util/array.h>
+	<util/hashtable.h>
+
+1248374080 source:d:\peter\programmieren\richmath\4\src\gui\vista.cpp
+	<gui/vista.h>
+
+1248374067 d:\peter\programmieren\richmath\4\include\gui\vista.h
+	<windows.h>
+
+1261781845 d:\peter\programmieren\richmath\4\include\gui\control-painter.h
+	<graphics/animation.h>
+	<graphics/shapers.h>
+	<util/hashtable.h>
+
+1261781822 source:d:\peter\programmieren\richmath\4\src\gui\control-painter.cpp
+	<gui/control-painter.h>
+	<cmath>
+	<boxes/boxreference.h>
+	<gui/document.h>
+	<gui/native-widget.h>
+	<graphics/context.h>
+
+1248881408 source:d:\peter\programmieren\richmath\4\src\gui\win32-control-painter.cpp
+	<gui/win32-control-painter.h>
+	<cmath>
+	<cstdio>
+	<windows.h>
+	<cairo-win32.h>
+	<graphics/context.h>
+	<util/array.h>
+	<util/style.h>
+
+1248871893 d:\peter\programmieren\richmath\4\include\gui\win32-control-painter.h
+	<gui/control-painter.h>
+
+1261782303 source:d:\peter\programmieren\richmath\4\src\gui\native-widget.cpp
+	<gui/native-widget.h>
+	<climits>
+	<cmath>
+	<gui/document.h>
+
+1267738917 d:\peter\programmieren\richmath\4\include\gui\native-widget.h
+	<util/base.h>
+	<gui/control-painter.h>
+
+1267744246 source:d:\peter\programmieren\richmath\4\src\gui\win32\win32-control-painter.cpp
+	<gui/win32/win32-control-painter.h>
+	<cmath>
+	<cstdio>
+	<cwchar>
+	<windows.h>
+	<uxtheme.h>
+	<cairo-win32.h>
+	<graphics/context.h>
+	<gui/win32/basic-win32-widget.h>
+	<gui/win32/win32-themes.h>
+	<util/array.h>
+	<util/style.h>
+
+1267713748 d:\peter\programmieren\richmath\4\include\gui\win32\win32-control-painter.h
+	<windows.h>
+	<gui/control-painter.h>
+
+1267833410 source:d:\peter\programmieren\richmath\4\src\gui\win32\win32-widget.cpp
+	<gui/win32/win32-widget.h>
+	<climits>
+	<cmath>
+	<cstdio>
+	<cairo-win32.h>
+	<boxes/buttonbox.h>
+	<boxes/section.h>
+	<boxes/sequence.h>
+	<eval/binding.h>
+	<eval/client.h>
+	<eval/job.h>
+	<gui/control-painter.h>
+	<resources.h>
+
+1267830538 d:\peter\programmieren\richmath\4\include\gui\win32\win32-widget.h
+	<boxes/widgetbox.h>
+	<gui/document.h>
+	<gui/native-widget.h>
+	<gui/win32/basic-win32-widget.h>
+
+1248886239 source:d:\peter\programmieren\richmath\4\src\gui\win32\win32-menu.cpp
+	<gui/win32/win32-menu.h>
+	<Windows.h>
+
+1248890070 d:\peter\programmieren\richmath\4\include\gui\win32\win32-menu.h
+	<gui/win32/basic-win32-widget.h>
+
+1267744443 d:\peter\programmieren\richmath\4\include\gui\win32\basic-win32-widget.h
+	<windows.h>
+	<util/base.h>
+
+1267822584 source:d:\peter\programmieren\richmath\4\src\gui\win32\basic-win32-widget.cpp
+	<gui/win32/basic-win32-widget.h>
+	<cstdio>
+	<gui/win32/win32-themes.h>
+	<resources.h>
+
+1249056305 source:d:\peter\programmieren\richmath\4\src\gui\win32\toplevel-win32-widget.cpp
+	<gui/win32/toplevel-win32-widget.h>
+	<commctrl.h>
+	<cmath>
+	<cstdio>
+	<gdiplus.h>
+	<boxes/section.h>
+	<eval/client.h>
+	<gui/control-painter.h>
+	<resources.h>
+
+1249053013 d:\peter\programmieren\richmath\4\include\gui\win32\toplevel-win32-widget.h
+	<gui/win32/win32-widget.h>
+
+1262121886 d:\peter\programmieren\richmath\4\include\boxes\sectionlist.h
+	<boxes/boxreference.h>
+	<util/array.h>
+
+1267714042 source:d:\peter\programmieren\richmath\4\src\boxes\sectionlist.cpp
+	<boxes/sectionlist.h>
+	<cmath>
+	<boxes/section.h>
+	<graphics/context.h>
+
+1236688435 d:\peter\programmieren\bibliotheken\mingw_gdiplus\include\gdiplus.h
+	"gdiplus/ms_classes.h"
+
+1236652008 d:\peter\programmieren\bibliotheken\mingw_gdiplus\include\gdiplus\ms_classes.h
+	"ms_flat_api.h"
+	"ms_classes/GdiPlusBase.h"
+	"ms_classes/GdiplusHeaders.h"
+	"ms_classes/GdiplusImageAttributes.h"
+	"ms_classes/GdiplusMatrix.h"
+	"ms_classes/GdiplusBrush.h"
+	"ms_classes/GdiplusPen.h"
+	"ms_classes/GdiplusStringFormat.h"
+	"ms_classes/GdiplusPath.h"
+	"ms_classes/GdiplusMetafile.h"
+	"ms_classes/GdiplusGraphics.h"
+	"ms_classes/GdiplusFontFamily.h"
+	"ms_classes/GdiplusFont.h"
+	"ms_classes/GdiplusLineCaps.h"
+	"ms_classes/GdiplusCachedBitmap.h"
+	"ms_classes/GdiplusRegion.h"
+	"ms_classes/GdiplusFontCollection.h"
+	"ms_classes/GdiplusBitmap.h"
+	"ms_classes/GdiplusImageCodec.h"
+
+1236652429 d:\peter\programmieren\bibliotheken\mingw_gdiplus\include\gdiplus\ms_flat_api.h
+	<algorithm>
+	"ms_flat_api/GdiplusEnums.h"
+	"ms_flat_api/GdiplusTypes.h"
+	"ms_flat_api/GdiplusInit.h"
+	"ms_flat_api/GdiplusPixelFormats.h"
+	"ms_flat_api/GdiplusColor.h"
+	"ms_flat_api/GdiplusMetaHeader.h"
+	"ms_flat_api/GdiplusImaging.h"
+	"ms_flat_api/GdiplusColorMatrix.h"
+	"ms_flat_api/GdiplusGpStubs.h"
+	"ms_flat_api/GdiplusMem.h"
+	"ms_flat_api/GdiplusFlat.h"
+
+1236688769 d:\peter\programmieren\bibliotheken\mingw_gdiplus\include\gdiplus\ms_flat_api\gdiplusenums.h
+
+1236688808 d:\peter\programmieren\bibliotheken\mingw_gdiplus\include\gdiplus\ms_flat_api\gdiplustypes.h
+
+1236688788 d:\peter\programmieren\bibliotheken\mingw_gdiplus\include\gdiplus\ms_flat_api\gdiplusinit.h
+
+1236688803 d:\peter\programmieren\bibliotheken\mingw_gdiplus\include\gdiplus\ms_flat_api\gdipluspixelformats.h
+
+1236688753 d:\peter\programmieren\bibliotheken\mingw_gdiplus\include\gdiplus\ms_flat_api\gdipluscolor.h
+
+1236688798 d:\peter\programmieren\bibliotheken\mingw_gdiplus\include\gdiplus\ms_flat_api\gdiplusmetaheader.h
+	<pshpack2.h>
+	<poppack.h>
+
+1236688783 d:\peter\programmieren\bibliotheken\mingw_gdiplus\include\gdiplus\ms_flat_api\gdiplusimaging.h
+
+1236688764 d:\peter\programmieren\bibliotheken\mingw_gdiplus\include\gdiplus\ms_flat_api\gdipluscolormatrix.h
+
+1236688779 d:\peter\programmieren\bibliotheken\mingw_gdiplus\include\gdiplus\ms_flat_api\gdiplusgpstubs.h
+
+1236688793 d:\peter\programmieren\bibliotheken\mingw_gdiplus\include\gdiplus\ms_flat_api\gdiplusmem.h
+
+1236688774 d:\peter\programmieren\bibliotheken\mingw_gdiplus\include\gdiplus\ms_flat_api\gdiplusflat.h
+
+1236622802 d:\peter\programmieren\bibliotheken\mingw_gdiplus\include\gdiplus\ms_classes\gdiplusbase.h
+
+1236622845 d:\peter\programmieren\bibliotheken\mingw_gdiplus\include\gdiplus\ms_classes\gdiplusheaders.h
+
+1236622850 d:\peter\programmieren\bibliotheken\mingw_gdiplus\include\gdiplus\ms_classes\gdiplusimageattributes.h
+
+1236622864 d:\peter\programmieren\bibliotheken\mingw_gdiplus\include\gdiplus\ms_classes\gdiplusmatrix.h
+
+1236622816 d:\peter\programmieren\bibliotheken\mingw_gdiplus\include\gdiplus\ms_classes\gdiplusbrush.h
+
+1236622878 d:\peter\programmieren\bibliotheken\mingw_gdiplus\include\gdiplus\ms_classes\gdipluspen.h
+
+1236628043 d:\peter\programmieren\bibliotheken\mingw_gdiplus\include\gdiplus\ms_classes\gdiplusstringformat.h
+
+1236622873 d:\peter\programmieren\bibliotheken\mingw_gdiplus\include\gdiplus\ms_classes\gdipluspath.h
+
+1236628096 d:\peter\programmieren\bibliotheken\mingw_gdiplus\include\gdiplus\ms_classes\gdiplusmetafile.h
+
+1236622841 d:\peter\programmieren\bibliotheken\mingw_gdiplus\include\gdiplus\ms_classes\gdiplusgraphics.h
+
+1236622836 d:\peter\programmieren\bibliotheken\mingw_gdiplus\include\gdiplus\ms_classes\gdiplusfontfamily.h
+
+1236622826 d:\peter\programmieren\bibliotheken\mingw_gdiplus\include\gdiplus\ms_classes\gdiplusfont.h
+
+1236622859 d:\peter\programmieren\bibliotheken\mingw_gdiplus\include\gdiplus\ms_classes\gdipluslinecaps.h
+
+1236622821 d:\peter\programmieren\bibliotheken\mingw_gdiplus\include\gdiplus\ms_classes\gdipluscachedbitmap.h
+
+1236622883 d:\peter\programmieren\bibliotheken\mingw_gdiplus\include\gdiplus\ms_classes\gdiplusregion.h
+
+1236622831 d:\peter\programmieren\bibliotheken\mingw_gdiplus\include\gdiplus\ms_classes\gdiplusfontcollection.h
+
+1236622810 d:\peter\programmieren\bibliotheken\mingw_gdiplus\include\gdiplus\ms_classes\gdiplusbitmap.h
+
+1236622855 d:\peter\programmieren\bibliotheken\mingw_gdiplus\include\gdiplus\ms_classes\gdiplusimagecodec.h
+
+1259863223 d:\peter\programmieren\richmath\4\include\boxes\widgetbox.h
+	<boxes/stylebox.h>
+
+1262121919 source:d:\peter\programmieren\richmath\4\src\boxes\inputbox.cpp
+	<boxes/inputbox.h>
+	<cmath>
+	<boxes/sequence.h>
+	<gui/document.h>
+	<gui/native-widget.h>
+
+1262121886 d:\peter\programmieren\richmath\4\include\boxes\inputbox.h
+	<boxes/containerwidgetbox.h>
+
+1250535049 source:d:\peter\programmieren\richmath\4\src\boxes\widgetbox.cpp
+	<boxes/widgetbox.h>
+
+1262121919 source:d:\peter\programmieren\richmath\4\src\boxes\fillbox.cpp
+	<boxes/fillbox.h>
+	<cmath>
+	<boxes/sequence.h>
+	<graphics/context.h>
+
+1262121885 d:\peter\programmieren\richmath\4\include\boxes\fillbox.h
+	<boxes/ownerbox.h>
+
+1261781822 d:\peter\programmieren\richmath\4\include\boxes\containerwidgetbox.h
+	<boxes/widgetbox.h>
+	<gui/control-painter.h>
+
+1267709512 source:d:\peter\programmieren\richmath\4\src\boxes\containerwidgetbox.cpp
+	<boxes/containerwidgetbox.h>
+	<cmath>
+	<boxes/sequence.h>
+	<gui/document.h>
+	<gui/native-widget.h>
+
+1267833624 source:d:\peter\programmieren\richmath\4\src\gui\win32\win32-document-window.cpp
+	<gui/win32/win32-document-window.h>
+	<cmath>
+	<cstdio>
+	<cairo-win32.h>
+	<boxes/section.h>
+	<eval/binding.h>
+	<eval/client.h>
+	<gui/control-painter.h>
+	<gui/win32/win32-control-painter.h>
+	<gui/win32/win32-menubar.h>
+	<gui/win32/win32-themes.h>
+	<resources.h>
+
+1267832618 d:\peter\programmieren\richmath\4\include\gui\win32\win32-document-window.h
+	<gui/win32/basic-win32-window.h>
+	<gui/win32/win32-widget.h>
+
+1249060685 source:d:\peter\programmieren\richmath\4\src\gui\win32\win32-menu-window.cpp
+	<gui/win32/win32-menu-window.h>
+	<cstdio>
+	<gui/win32/win32-document-window.h>
+	<resources.h>
+
+1249060525 d:\peter\programmieren\richmath\4\include\gui\win32\win32-menu-window.h
+	<gui/win32/basic-win32-widget.h>
+
+1260625166 d:\peter\programmieren\richmath\4\include\gui\win32\win32-menubar.h
+	<windows.h>
+	<util/base.h>
+
+1261695490 source:d:\peter\programmieren\richmath\4\src\gui\win32\win32-menubar.cpp
+	<gui/win32/win32-menubar.h>
+	<cstdio>
+	<cctype>
+	<commctrl.h>
+	<util/array.h>
+	<gui/win32/win32-control-painter.h>
+	<gui/win32/win32-document-window.h>
+	<gui/win32/win32-themes.h>
+	<resources.h>
+
+1190895596 c:\program files\microsoft sdks\windows\v6.0a\include\windows.h
+	<sdkddkver.h>
+	<winresrc.h>
+	<excpt.h>
+	<stdarg.h>
+	<windef.h>
+	<winbase.h>
+	<wingdi.h>
+	<winuser.h>
+	<winnls.h>
+	<wincon.h>
+	<winver.h>
+	<winreg.h>
+	<winnetwk.h>
+	<cderr.h>
+	<dde.h>
+	<ddeml.h>
+	<dlgs.h>
+	<lzexpand.h>
+	<mmsystem.h>
+	<nb30.h>
+	<rpc.h>
+	<shellapi.h>
+	<winperf.h>
+	<winsock.h>
+	<wincrypt.h>
+	<winefs.h>
+	<winscard.h>
+	<winspool.h>
+	<ole.h>
+	<ole2.h>
+	<commdlg.h>
+	<stralign.h>
+	<winwlm.h>
+	<ole2.h>
+	<winsvc.h>
+	<mcx.h>
+	<imm.h>
+
+1190895592 c:\program files\microsoft sdks\windows\v6.0a\include\sdkddkver.h
+
+1190895596 c:\program files\microsoft sdks\windows\v6.0a\include\winresrc.h
+	<winuser.rh>
+	<commctrl.rh>
+	<dde.rh>
+	<winnt.rh>
+	<dlgs.h>
+	<winver.h>
+
+1190895596 c:\program files\microsoft sdks\windows\v6.0a\include\winuser.rh
+
+1190895578 c:\program files\microsoft sdks\windows\v6.0a\include\commctrl.rh
+
+1190895580 c:\program files\microsoft sdks\windows\v6.0a\include\dde.rh
+
+1190895596 c:\program files\microsoft sdks\windows\v6.0a\include\winnt.rh
+
+1190895580 c:\program files\microsoft sdks\windows\v6.0a\include\dlgs.h
+
+1190895596 c:\program files\microsoft sdks\windows\v6.0a\include\winver.h
+	<SpecStrings.h>
+
+1190895592 c:\program files\microsoft sdks\windows\v6.0a\include\specstrings.h
+	<sal.h>
+	<specstrings_adt.h>
+	<specstrings_strict.h>
+
+1190895592 c:\program files\microsoft sdks\windows\v6.0a\include\specstrings_adt.h
+
+1190895592 c:\program files\microsoft sdks\windows\v6.0a\include\specstrings_strict.h
+	<specstrings_undef.h>
+
+1190895592 c:\program files\microsoft sdks\windows\v6.0a\include\specstrings_undef.h
+
+1190895596 c:\program files\microsoft sdks\windows\v6.0a\include\windef.h
+	<winnt.h>
+	<specstrings.h>
+
+1190895596 c:\program files\microsoft sdks\windows\v6.0a\include\winnt.h
+	<ctype.h>
+	<specstrings.h>
+	<basetsd.h>
+	<guiddef.h>
+	<sdkddkver.h>
+	<pshpack4.h>
+	<poppack.h>
+	"pshpack4.h"
+	"pshpack2.h"
+	"pshpack1.h"
+	"poppack.h"
+	"pshpack2.h"
+	<pshpack2.h>
+	<poppack.h>
+	"poppack.h"
+	"pshpack8.h"
+	"poppack.h"
+	"poppack.h"
+	<string.h>
+	<string.h>
+	<ktmtypes.h>
+
+1190895578 c:\program files\microsoft sdks\windows\v6.0a\include\basetsd.h
+
+1190895582 c:\program files\microsoft sdks\windows\v6.0a\include\guiddef.h
+	<string.h>
+
+1190895590 c:\program files\microsoft sdks\windows\v6.0a\include\pshpack4.h
+
+1190895590 c:\program files\microsoft sdks\windows\v6.0a\include\poppack.h
+
+1190895590 c:\program files\microsoft sdks\windows\v6.0a\include\pshpack2.h
+
+1190895590 c:\program files\microsoft sdks\windows\v6.0a\include\pshpack1.h
+
+1190895590 c:\program files\microsoft sdks\windows\v6.0a\include\pshpack8.h
+
+1190895584 c:\program files\microsoft sdks\windows\v6.0a\include\ktmtypes.h
+
+1190895596 c:\program files\microsoft sdks\windows\v6.0a\include\winbase.h
+	<macwin32.h>
+	<winerror.h>
+	"winbase.inl"
+
+1190895596 c:\program files\microsoft sdks\windows\v6.0a\include\winerror.h
+	<specstrings.h>
+
+1190895596 c:\program files\microsoft sdks\windows\v6.0a\include\winbase.inl
+
+1190895596 c:\program files\microsoft sdks\windows\v6.0a\include\wingdi.h
+	<macwin32.h>
+	<pshpack1.h>
+	<poppack.h>
+	<pshpack2.h>
+	<poppack.h>
+	<pshpack2.h>
+	<poppack.h>
+	<pshpack4.h>
+	<poppack.h>
+	<pshpack4.h>
+	<poppack.h>
+	"pshpack4.h"
+	"poppack.h"
+
+1190895596 c:\program files\microsoft sdks\windows\v6.0a\include\winuser.h
+	<macwin32.h>
+	<stdarg.h>
+	<pshpack2.h>
+	<poppack.h>
+	<tvout.h>
+	"winuser.inl"
+
+1190895594 c:\program files\microsoft sdks\windows\v6.0a\include\tvout.h
+	<guiddef.h>
+
+1190895596 c:\program files\microsoft sdks\windows\v6.0a\include\winuser.inl
+
+1190895596 c:\program files\microsoft sdks\windows\v6.0a\include\winnls.h
+	<macwin32.h>
+
+1190895596 c:\program files\microsoft sdks\windows\v6.0a\include\wincon.h
+	<wingdi.h>
+
+1190895596 c:\program files\microsoft sdks\windows\v6.0a\include\winreg.h
+	<macwin32.h>
+	<reason.h>
+
+1190895590 c:\program files\microsoft sdks\windows\v6.0a\include\reason.h
+
+1190895596 c:\program files\microsoft sdks\windows\v6.0a\include\winnetwk.h
+
+1190895578 c:\program files\microsoft sdks\windows\v6.0a\include\cderr.h
+
+1190895580 c:\program files\microsoft sdks\windows\v6.0a\include\dde.h
+	<windef.h>
+
+1190895580 c:\program files\microsoft sdks\windows\v6.0a\include\ddeml.h
+
+1190895584 c:\program files\microsoft sdks\windows\v6.0a\include\lzexpand.h
+
+1190895586 c:\program files\microsoft sdks\windows\v6.0a\include\mmsystem.h
+	<pshpack1.h>
+	<macwin32.h>
+	<poppack.h>
+
+1190895588 c:\program files\microsoft sdks\windows\v6.0a\include\nb30.h
+
+1190895592 c:\program files\microsoft sdks\windows\v6.0a\include\rpc.h
+	<windows.h>
+	<pshpack2.h>
+	<basetsd.h>
+	<pshpack8.h>
+	<setjmp.h>
+	<rpcdce.h>
+	<rpcnsi.h>
+	<rpcerr.h>
+	<rpcmac.h>
+	<poppack.h>
+	<rpcdce.h>
+	<rpcnsi.h>
+	<rpcnterr.h>
+	<excpt.h>
+	<winerror.h>
+	<rpcasync.h>
+	<poppack.h>
+
+1190895592 c:\program files\microsoft sdks\windows\v6.0a\include\rpcdce.h
+	<specstrings.h>
+	<guiddef.h>
+	<rpcdcep.h>
+
+1190895592 c:\program files\microsoft sdks\windows\v6.0a\include\rpcdcep.h
+
+1190895592 c:\program files\microsoft sdks\windows\v6.0a\include\rpcnsi.h
+
+1190895592 c:\program files\microsoft sdks\windows\v6.0a\include\rpcnterr.h
+
+1190895592 c:\program files\microsoft sdks\windows\v6.0a\include\rpcasync.h
+	<pshpack8.h>
+	<ntddk.h>
+	<windef.h>
+	<poppack.h>
+
+1190895592 c:\program files\microsoft sdks\windows\v6.0a\include\shellapi.h
+	<SpecStrings.h>
+	<pshpack1.h>
+	<poppack.h>
+
+1190895596 c:\program files\microsoft sdks\windows\v6.0a\include\winperf.h
+	<pshpack8.h>
+	<poppack.h>
+
+1190895596 c:\program files\microsoft sdks\windows\v6.0a\include\winsock.h
+	<windows.h>
+	<inaddr.h>
+
+1190895584 c:\program files\microsoft sdks\windows\v6.0a\include\inaddr.h
+
+1190895596 c:\program files\microsoft sdks\windows\v6.0a\include\wincrypt.h
+	<specstrings.h>
+	<bcrypt.h>
+	<ncrypt.h>
+
+1190895578 c:\program files\microsoft sdks\windows\v6.0a\include\bcrypt.h
+
+1190895588 c:\program files\microsoft sdks\windows\v6.0a\include\ncrypt.h
+	<bcrypt.h>
+
+1190895596 c:\program files\microsoft sdks\windows\v6.0a\include\winefs.h
+
+1190895596 c:\program files\microsoft sdks\windows\v6.0a\include\winscard.h
+	<wtypes.h>
+	<winioctl.h>
+	"winsmcrd.h"
+	"SCardErr.h"
+
+1190895598 c:\program files\microsoft sdks\windows\v6.0a\include\wtypes.h
+	"rpc.h"
+	"rpcndr.h"
+	"basetsd.h"
+	"guiddef.h"
+
+1190895592 c:\program files\microsoft sdks\windows\v6.0a\include\rpcndr.h
+	<pshpack8.h>
+	<basetsd.h>
+	<rpcnsip.h>
+	<rpcsal.h>
+	<poppack.h>
+
+1190895592 c:\program files\microsoft sdks\windows\v6.0a\include\rpcnsip.h
+
+1190895592 c:\program files\microsoft sdks\windows\v6.0a\include\rpcsal.h
+	<specstrings.h>
+
+1190895596 c:\program files\microsoft sdks\windows\v6.0a\include\winioctl.h
+	<pshpack1.h>
+	<poppack.h>
+	<pshpack1.h>
+	<poppack.h>
+	<pshpack1.h>
+	<poppack.h>
+	<pshpack1.h>
+	<poppack.h>
+	<pshpack1.h>
+	<poppack.h>
+	<pshpack1.h>
+	<poppack.h>
+
+1190895596 c:\program files\microsoft sdks\windows\v6.0a\include\winsmcrd.h
+
+1190895592 c:\program files\microsoft sdks\windows\v6.0a\include\scarderr.h
+
+1190895596 c:\program files\microsoft sdks\windows\v6.0a\include\winspool.h
+	<prsht.h>
+
+1190895590 c:\program files\microsoft sdks\windows\v6.0a\include\prsht.h
+	<pshpack8.h>
+	<pshpack4.h>
+	"prsht.inl"
+	<poppack.h>
+
+1190895590 c:\program files\microsoft sdks\windows\v6.0a\include\prsht.inl
+
+1190895590 c:\program files\microsoft sdks\windows\v6.0a\include\ole.h
+	<pshpack1.h>
+	<poppack.h>
+
+1190895590 c:\program files\microsoft sdks\windows\v6.0a\include\ole2.h
+	<pshpack8.h>
+	<winerror.h>
+	<objbase.h>
+	<oleauto.h>
+	<oleidl.h>
+	<poppack.h>
+
+1190895590 c:\program files\microsoft sdks\windows\v6.0a\include\objbase.h
+	<rpc.h>
+	<rpcndr.h>
+	<pshpack8.h>
+	<stdlib.h>
+	<wtypes.h>
+	<unknwn.h>
+	<objidl.h>
+	<guiddef.h>
+	<cguid.h>
+	<urlmon.h>
+	<propidl.h>
+	<poppack.h>
+
+1190895594 c:\program files\microsoft sdks\windows\v6.0a\include\unknwn.h
+	"rpc.h"
+	"rpcndr.h"
+	"windows.h"
+	"ole2.h"
+	"wtypes.h"
+
+1190895590 c:\program files\microsoft sdks\windows\v6.0a\include\objidl.h
+	"rpc.h"
+	"rpcndr.h"
+	"windows.h"
+	"ole2.h"
+	"unknwn.h"
+
+1190895578 c:\program files\microsoft sdks\windows\v6.0a\include\cguid.h
+
+1190895594 c:\program files\microsoft sdks\windows\v6.0a\include\urlmon.h
+	"rpc.h"
+	"rpcndr.h"
+	"windows.h"
+	"ole2.h"
+	"objidl.h"
+	"oleidl.h"
+	"servprov.h"
+	"msxml.h"
+
+1190895590 c:\program files\microsoft sdks\windows\v6.0a\include\oleidl.h
+	"rpc.h"
+	"rpcndr.h"
+	"windows.h"
+	"ole2.h"
+	"objidl.h"
+
+1190895592 c:\program files\microsoft sdks\windows\v6.0a\include\servprov.h
+	"rpc.h"
+	"rpcndr.h"
+	"windows.h"
+	"ole2.h"
+	"objidl.h"
+
+1190895588 c:\program files\microsoft sdks\windows\v6.0a\include\msxml.h
+	"rpc.h"
+	"rpcndr.h"
+	"unknwn.h"
+	"objidl.h"
+	"oaidl.h"
+
+1190895590 c:\program files\microsoft sdks\windows\v6.0a\include\oaidl.h
+	"rpc.h"
+	"rpcndr.h"
+	"windows.h"
+	"ole2.h"
+	"objidl.h"
+
+1190895590 c:\program files\microsoft sdks\windows\v6.0a\include\propidl.h
+	"rpc.h"
+	"rpcndr.h"
+	"windows.h"
+	"ole2.h"
+	"objidl.h"
+	"oaidl.h"
+
+1190895590 c:\program files\microsoft sdks\windows\v6.0a\include\oleauto.h
+	<pshpack8.h>
+	<oaidl.h>
+	<poppack.h>
+
+1190895578 c:\program files\microsoft sdks\windows\v6.0a\include\commdlg.h
+	<prsht.h>
+	<pshpack1.h>
+	"commdlg.inl"
+	<poppack.h>
+
+1190895578 c:\program files\microsoft sdks\windows\v6.0a\include\commdlg.inl
+
+1190895594 c:\program files\microsoft sdks\windows\v6.0a\include\stralign.h
+
+1190895596 c:\program files\microsoft sdks\windows\v6.0a\include\winsvc.h
+
+1190895586 c:\program files\microsoft sdks\windows\v6.0a\include\mcx.h
+
+1190895584 c:\program files\microsoft sdks\windows\v6.0a\include\imm.h
+
+1190895594 c:\program files\microsoft sdks\windows\v6.0a\include\usp10.h
+	<windows.h>
+	<specstrings.h>
+
+1190895578 c:\program files\microsoft sdks\windows\v6.0a\include\commctrl.h
+	<prsht.h>
+	<pshpack1.h>
+	<poppack.h>
+	<pshpack1.h>
+	<poppack.h>
+	<pshpack1.h>
+	<poppack.h>
+	<pshpack1.h>
+	<poppack.h>
+	<pshpack1.h>
+	<poppack.h>
+	"commctrl.inl"
+
+1190895578 c:\program files\microsoft sdks\windows\v6.0a\include\commctrl.inl
+
+1274621453 d:\peter\programmieren\pmath_project\library\include\pmath-util\files.h
+
+1275690700 d:\peter\programmieren\pmath_project\library\include\pmath-builtins\all-symbols.h
+
+1274621453 d:\peter\programmieren\pmath_project\library\include\pmath-util\serialize.h
+
+1274621453 d:\peter\programmieren\pmath_project\library\include\pmath-util\approximate.h
+
+1262121919 source:d:\peter\programmieren\richmath\4\src\boxes\numberbox.cpp
+	<boxes/numberbox.h>
+	<cfloat>
+	<boxes/sequence.h>
+	<boxes/subsuperscriptbox.h>
+	<eval/binding.h>
+	<graphics/context.h>
+
+1262121886 d:\peter\programmieren\richmath\4\include\boxes\numberbox.h
+	<boxes/ownerbox.h>
+
+1261182150 d:\peter\programmieren\pmath_project\library\include\pmath-util\concurrency\main-thread.h
+
+1266539596 d:\peter\programmieren\richmath\4\include\graphics\config-shaper.h
+	<graphics/shapers.h>
+	<util/array.h>
+	<util/pmath-cpp.h>
+
+1266539937 source:d:\peter\programmieren\richmath\4\src\graphics\config-shaper.cpp
+	<graphics/config-shaper.h>
+	<cstdio>
+	<boxes/sequence.h>
+	<graphics/context.h>
+	<graphics/ot-math-shaper.h>
+	<util/style.h>
+	<util/syntax-state.h>
+
+1254573136 d:\peter\programmieren\richmath\4\include\graphics\fonts.h
+	<cairo.h>
+	<util/pmath-cpp.h>
+	<util/hashtable.h>
+
+1262121984 source:d:\peter\programmieren\richmath\4\src\graphics\fonts.cpp
+	<graphics/fonts.h>
+	<windows.h>
+	<usp10.h>
+	<cairo-win32.h>
+	<graphics/canvas.h>
+	<util/array.h>
+
+1267708697 source:d:\peter\programmieren\richmath\4\src\graphics\ot-math-shaper.cpp
+	<graphics/ot-math-shaper.h>
+	<cmath>
+	<boxes/sequence.h>
+	<graphics/context.h>
+	<util/style.h>
+	<util/syntax-state.h>
+
+1267055476 d:\peter\programmieren\richmath\4\include\graphics\ot-math-shaper.h
+	<graphics/shapers.h>
+	<util/array.h>
+	<util/pmath-cpp.h>
+
+1274621454 d:\peter\programmieren\pmath_project\library\include\pmath-util\concurrency\atomic\gcc\sun.h
+	<sys/atomic.h>
+
+1261957854 d:\peter\programmieren\richmath\4\include\gui\document.h
+	<boxes/sectionlist.h>
+	<graphics/context.h>
+
+1267713275 source:d:\peter\programmieren\richmath\4\src\gui\document.cpp
+	<gui/document.h>
+	<cmath>
+	<cstdio>
+	<boxes/buttonbox.h>
+	<boxes/fractionbox.h>
+	<boxes/gridbox.h>
+	<boxes/inputbox.h>
+	<boxes/radicalbox.h>
+	<boxes/section.h>
+	<boxes/sequence.h>
+	<boxes/subsuperscriptbox.h>
+	<boxes/underoverscriptbox.h>
+	<eval/binding.h>
+	<gui/clipboard.h>
+	<gui/native-widget.h>
+
+1267787450 d:\peter\programmieren\richmath\4\include\gui\win32\win32-themes.h
+	<Windows.h>
+	<util/base.h>
+
+1267787486 source:d:\peter\programmieren\richmath\4\src\gui\win32\win32-themes.cpp
+	<gui/win32/win32-themes.h>
+	<cwchar>
+	<util/array.h>
+
+1267709590 source:d:\peter\programmieren\richmath\4\src\graphics\buffer.cpp
+	<graphics/buffer.h>
+	<cmath>
+	<cairo-win32.h>
+	<graphics/shapers.h>
+
+1267707971 d:\peter\programmieren\richmath\4\include\graphics\buffer.h
+	<graphics/canvas.h>
+	<util/sharedptr.h>
+
+1274621453 d:\peter\programmieren\pmath_project\library\include\pmath-util\concurrency\threadmsg.h
+
+1261767355 source:d:\peter\programmieren\richmath\4\src\gui\menu.cpp
+	<gui/menu.h>
+	<boxes/section.h>
+
+1261767339 d:\peter\programmieren\richmath\4\include\gui\menu.h
+	<gui/document.h>
+
+1261783500 d:\peter\programmieren\richmath\4\include\graphics\animation.h
+	<ctime>
+	<graphics/buffer.h>
+
+1267655483 source:d:\peter\programmieren\richmath\4\src\graphics\animation.cpp
+	<graphics/animation.h>
+	<boxes/boxreference.h>
+	<gui/document.h>
+	<gui/native-widget.h>
+
+1261956066 source:d:\peter\programmieren\richmath\4\src\gui\clipboard.cpp
+	<gui/clipboard.h>
+
+1261956684 d:\peter\programmieren\richmath\4\include\gui\clipboard.h
+	<util/sharedptr.h>
+	<util/pmath-cpp.h>
+
+1261954530 d:\peter\programmieren\richmath\4\include\gui\win32\win32-clipboard.h
+	<gui/clipboard.h>
+	<util/hashtable.h>
+
+1267744226 source:d:\peter\programmieren\richmath\4\src\gui\win32\win32-clipboard.cpp
+	<gui/win32/win32-clipboard.h>
+	<gui/win32/basic-win32-widget.h>
+
+1274621453 d:\peter\programmieren\pmath_project\library\include\pmath-language\tokens.h
+
+1267833918 source:d:\peter\programmieren\richmath\4\src\gui\win32\basic-win32-window.cpp
+	<stdio.h>
+	<cairo-win32.h>
+	<graphics/canvas.h>
+	<gui/win32/basic-win32-window.h>
+
+1267833702 d:\peter\programmieren\richmath\4\include\gui\win32\basic-win32-window.h
+	<graphics/canvas.h>
+	<gui/win32/basic-win32-widget.h>
+	<gui/win32/win32-themes.h>
+	<gui/control-painter.h>
+	<util/hashtable.h>
+
+1271004966 source:d:\peter\programmieren\richmath\5\resources\richmath.rc
+	<windows.h>
+	"resources.h"
+
+1270997705 d:\peter\programmieren\richmath\5\resources\resources.h
+
+1270950260 source:d:\peter\programmieren\richmath\5\src\boxes\box.cpp
+	<boxes/box.h>
+	<graphics/context.h>
+	<gui/native-widget.h>
+
+1274304707 d:\peter\programmieren\richmath\5\include\boxes\box.h
+	<graphics/shapers.h>
+	<util/pmath-extra.h>
+	<util/sharedptr.h>
+	<util/style.h>
+
+1268925905 d:\peter\programmieren\richmath\5\include\graphics\shapers.h
+	<graphics/canvas.h>
+	<util/array.h>
+	<util/hashtable.h>
+	<util/sharedptr.h>
+
+1269715131 d:\peter\programmieren\richmath\5\include\graphics\canvas.h
+	<graphics/fonts.h>
+
+1268424732 d:\peter\programmieren\richmath\5\include\graphics\fonts.h
+	<cairo.h>
+	<util/pmath-extra.h>
+	<util/hashtable.h>
+
+1268412876 d:\peter\programmieren\richmath\5\include\util\pmath-cpp.h
+	<pmath-cpp.h>
+	<util/base.h>
+
+1270910763 d:\peter\programmieren\richmath\5\include\util\base.h
+	<stdint.h>
+
+1270940290 d:\peter\programmieren\richmath\5\include\util\hashtable.h
+	<cassert>
+	<cstdlib>
+	<cstring>
+	<util/base.h>
+
+1266542515 d:\peter\programmieren\richmath\5\include\util\array.h
+	<cassert>
+	<cstring>
+
+1261743229 d:\peter\programmieren\richmath\5\include\util\sharedptr.h
+
+1268424734 d:\peter\programmieren\richmath\5\include\util\style.h
+	<util/hashtable.h>
+	<util/pmath-extra.h>
+	<util/sharedptr.h>
+
+1268424733 d:\peter\programmieren\richmath\5\include\graphics\context.h
+	<util/array.h>
+	<util/pmath-extra.h>
+	<util/sharedptr.h>
+	<graphics/canvas.h>
+
+1271014141 d:\peter\programmieren\richmath\5\include\gui\native-widget.h
+	<util/base.h>
+	<gui/control-painter.h>
+
+1261785445 d:\peter\programmieren\richmath\5\include\gui\control-painter.h
+	<graphics/animation.h>
+	<graphics/shapers.h>
+	<util/hashtable.h>
+
+1261787100 d:\peter\programmieren\richmath\5\include\graphics\animation.h
+	<ctime>
+	<graphics/buffer.h>
+
+1267711571 d:\peter\programmieren\richmath\5\include\graphics\buffer.h
+	<graphics/canvas.h>
+	<util/sharedptr.h>
+
+1268067160 source:d:\peter\programmieren\richmath\5\src\boxes\boxreference.cpp
+	<boxes/boxreference.h>
+
+1268067024 d:\peter\programmieren\richmath\5\include\boxes\boxreference.h
+	<boxes/box.h>
+
+1270950266 source:d:\peter\programmieren\richmath\5\src\boxes\buttonbox.cpp
+	<boxes/buttonbox.h>
+	<cmath>
+	<boxes/mathsequence.h>
+	<eval/client.h>
+	<eval/job.h>
+	<gui/document.h>
+	<gui/native-widget.h>
+
+1268925904 d:\peter\programmieren\richmath\5\include\boxes\buttonbox.h
+	<boxes/containerwidgetbox.h>
+
+1268925904 d:\peter\programmieren\richmath\5\include\boxes\containerwidgetbox.h
+	<boxes/stylebox.h>
+	<gui/control-painter.h>
+
+1268088118 d:\peter\programmieren\richmath\5\include\boxes\widgetbox.h
+	<boxes/stylebox.h>
+
+1268925904 d:\peter\programmieren\richmath\5\include\boxes\stylebox.h
+	<boxes/ownerbox.h>
+
+1268925904 d:\peter\programmieren\richmath\5\include\boxes\ownerbox.h
+	<boxes/box.h>
+
+1268864455 d:\peter\programmieren\richmath\5\include\boxes\sequence.h
+	<boxes/box.h>
+	<util/array.h>
+	<util/syntax-state.h>
+
+1268424734 d:\peter\programmieren\richmath\5\include\util\syntax-state.h
+	<util/hashtable.h>
+	<util/pmath-extra.h>
+	<util/sharedptr.h>
+
+1274304949 d:\peter\programmieren\richmath\5\include\eval\client.h
+	<util/hashtable.h>
+	<util/pmath-extra.h>
+	<util/sharedptr.h>
+
+1271014843 d:\peter\programmieren\richmath\5\include\eval\job.h
+	<util/pmath-extra.h>
+	<util/sharedptr.h>
+
+1270898764 d:\peter\programmieren\richmath\5\include\gui\document.h
+	<boxes/sectionlist.h>
+	<graphics/context.h>
+
+1270943667 d:\peter\programmieren\richmath\5\include\boxes\sectionlist.h
+	<boxes/box.h>
+	<util/array.h>
+
+1270950284 source:d:\peter\programmieren\richmath\5\src\boxes\containerwidgetbox.cpp
+	<boxes/containerwidgetbox.h>
+	<cmath>
+	<boxes/mathsequence.h>
+	<gui/document.h>
+	<gui/native-widget.h>
+
+1262125487 source:d:\peter\programmieren\richmath\5\src\boxes\errorbox.cpp
+	<boxes/errorbox.h>
+	<graphics/context.h>
+
+1262125485 d:\peter\programmieren\richmath\5\include\boxes\errorbox.h
+	<boxes/box.h>
+
+1270898366 source:d:\peter\programmieren\richmath\5\src\boxes\fillbox.cpp
+	<boxes/fillbox.h>
+	<cmath>
+	<boxes/mathsequence.h>
+	<graphics/context.h>
+
+1268925904 d:\peter\programmieren\richmath\5\include\boxes\fillbox.h
+	<boxes/ownerbox.h>
+
+1268925902 source:d:\peter\programmieren\richmath\5\src\boxes\fractionbox.cpp
+	<boxes/fractionbox.h>
+	<cmath>
+	<boxes/mathsequence.h>
+	<graphics/context.h>
+
+1268925904 d:\peter\programmieren\richmath\5\include\boxes\fractionbox.h
+	<boxes/box.h>
+
+1268925902 source:d:\peter\programmieren\richmath\5\src\boxes\framebox.cpp
+	<boxes/framebox.h>
+	<boxes/mathsequence.h>
+	<graphics/context.h>
+
+1268925904 d:\peter\programmieren\richmath\5\include\boxes\framebox.h
+	<boxes/ownerbox.h>
+
+1268925902 source:d:\peter\programmieren\richmath\5\src\boxes\gridbox.cpp
+	<boxes/gridbox.h>
+	<boxes/mathsequence.h>
+	<graphics/context.h>
+
+1268755285 d:\peter\programmieren\richmath\5\include\boxes\gridbox.h
+	<boxes/ownerbox.h>
+	<util/matrix.h>
+
+1248368589 d:\peter\programmieren\richmath\5\include\util\matrix.h
+	<util/array.h>
+
+1270950298 source:d:\peter\programmieren\richmath\5\src\boxes\inputbox.cpp
+	<boxes/inputbox.h>
+	<cmath>
+	<boxes/mathsequence.h>
+	<gui/document.h>
+	<gui/native-widget.h>
+
+1268925904 d:\peter\programmieren\richmath\5\include\boxes\inputbox.h
+	<boxes/containerwidgetbox.h>
+
+1268925903 source:d:\peter\programmieren\richmath\5\src\boxes\interpretationbox.cpp
+	<boxes/interpretationbox.h>
+	<boxes/mathsequence.h>
+	<graphics/context.h>
+
+1268925904 d:\peter\programmieren\richmath\5\include\boxes\interpretationbox.h
+	<boxes/ownerbox.h>
+
+1269651347 source:d:\peter\programmieren\richmath\5\src\boxes\numberbox.cpp
+	<boxes/numberbox.h>
+	<cfloat>
+	<boxes/mathsequence.h>
+	<boxes/subsuperscriptbox.h>
+	<eval/binding.h>
+	<graphics/context.h>
+
+1268925904 d:\peter\programmieren\richmath\5\include\boxes\numberbox.h
+	<boxes/ownerbox.h>
+
+1268925904 d:\peter\programmieren\richmath\5\include\boxes\subsuperscriptbox.h
+	<boxes/box.h>
+
+1268424732 d:\peter\programmieren\richmath\5\include\eval\binding.h
+	<util/hashtable.h>
+	<util/pmath-extra.h>
+
+1268925903 source:d:\peter\programmieren\richmath\5\src\boxes\ownerbox.cpp
+	<boxes/ownerbox.h>
+	<boxes/mathsequence.h>
+	<graphics/context.h>
+
+1268925903 source:d:\peter\programmieren\richmath\5\src\boxes\radicalbox.cpp
+	<boxes/radicalbox.h>
+	<boxes/mathsequence.h>
+	<graphics/buffer.h>
+	<graphics/context.h>
+
+1268925904 d:\peter\programmieren\richmath\5\include\boxes\radicalbox.h
+	<boxes/box.h>
+
+1270943583 source:d:\peter\programmieren\richmath\5\src\boxes\section.cpp
+	<boxes/section.h>
+	<cmath>
+	<boxes/sectionlist.h>
+	<boxes/mathsequence.h>
+	<eval/client.h>
+	<graphics/context.h>
+
+1270943514 d:\peter\programmieren\richmath\5\include\boxes\section.h
+	<boxes/box.h>
+	<util/array.h>
+
+1270981792 source:d:\peter\programmieren\richmath\5\src\boxes\sectionlist.cpp
+	<boxes/sectionlist.h>
+	<cmath>
+	<boxes/section.h>
+	<graphics/context.h>
+
+1268867076 source:d:\peter\programmieren\richmath\5\src\boxes\sequence.cpp
+	<boxes/sequence.h>
+	<climits>
+	<cmath>
+	<boxes/buttonbox.h>
+	<boxes/errorbox.h>
+	<boxes/fillbox.h>
+	<boxes/fractionbox.h>
+	<boxes/framebox.h>
+	<boxes/gridbox.h>
+	<boxes/inputbox.h>
+	<boxes/interpretationbox.h>
+	<boxes/numberbox.h>
+	<boxes/ownerbox.h>
+	<boxes/radicalbox.h>
+	<boxes/section.h>
+	<boxes/stylebox.h>
+	<boxes/subsuperscriptbox.h>
+	<boxes/transformationbox.h>
+	<boxes/underoverscriptbox.h>
+	<eval/binding.h>
+	<eval/client.h>
+	<graphics/context.h>
+	<util/spanexpr.h>
+
+1268081758 d:\peter\programmieren\richmath\5\include\boxes\transformationbox.h
+	<boxes/ownerbox.h>
+
+1268925904 d:\peter\programmieren\richmath\5\include\boxes\underoverscriptbox.h
+	<boxes/box.h>
+
+1271274837 d:\peter\programmieren\richmath\5\include\util\spanexpr.h
+	<util/pmath-extra.h>
+	<boxes/mathsequence.h>
+
+1268925903 source:d:\peter\programmieren\richmath\5\src\boxes\stylebox.cpp
+	<boxes/stylebox.h>
+	<cmath>
+	<boxes/mathsequence.h>
+	<graphics/context.h>
+
+1268925903 source:d:\peter\programmieren\richmath\5\src\boxes\subsuperscriptbox.cpp
+	<boxes/subsuperscriptbox.h>
+	<cmath>
+	<boxes/mathsequence.h>
+	<graphics/context.h>
+
+1268925871 source:d:\peter\programmieren\richmath\5\src\boxes\transformationbox.cpp
+	<boxes/transformationbox.h>
+	<cmath>
+	<boxes/mathsequence.h>
+	<graphics/context.h>
+
+1268925903 source:d:\peter\programmieren\richmath\5\src\boxes\underoverscriptbox.cpp
+	<boxes/underoverscriptbox.h>
+	<cmath>
+	<boxes/mathsequence.h>
+	<graphics/context.h>
+
+1250535049 source:d:\peter\programmieren\richmath\5\src\boxes\widgetbox.cpp
+	<boxes/widgetbox.h>
+
+1274305359 source:d:\peter\programmieren\richmath\5\src\eval\binding.cpp
+	<eval/binding.h>
+	<boxes/section.h>
+	<boxes/mathsequence.h>
+	<eval/client.h>
+	<eval/job.h>
+	<gui/document.h>
+	<gui/native-widget.h>
+
+1274305177 source:d:\peter\programmieren\richmath\5\src\eval\client.cpp
+	<eval/client.h>
+	<cmath>
+	<cstdio>
+	<boxes/section.h>
+	<graphics/config-shaper.h>
+	<gui/win32/basic-win32-widget.h>
+	<gui/document.h>
+	<eval/binding.h>
+	<eval/job.h>
+	<eval/server.h>
+	<util/concurrent-queue.h>
+	<util/semaphore.h>
+	<windows.h>
+	<resources.h>
+
+1268925905 d:\peter\programmieren\richmath\5\include\graphics\config-shaper.h
+	<graphics/shapers.h>
+	<util/array.h>
+	<util/pmath-extra.h>
+
+1276357822 d:\peter\programmieren\richmath\5\include\gui\win32\basic-win32-widget.h
+	<windows.h>
+	<util/base.h>
+
+1270944065 d:\peter\programmieren\richmath\5\include\eval\server.h
+	<util/pmath-extra.h>
+	<util/sharedptr.h>
+
+1270948509 d:\peter\programmieren\richmath\5\include\util\concurrent-queue.h
+	<util/pmath-extra.h>
+	<pmath-util/concurrency/atomic.h>
+
+1270999748 d:\peter\programmieren\richmath\5\include\util\semaphore.h
+	<Windows.h>
+	<sem.h>
+	<util/base.h>
+
+1271015099 source:d:\peter\programmieren\richmath\5\src\eval\job.cpp
+	<eval/job.h>
+	<boxes/section.h>
+	<boxes/mathsequence.h>
+	<eval/client.h>
+	<eval/server.h>
+	<gui/document.h>
+	<gui/native-widget.h>
+
+1271004153 source:d:\peter\programmieren\richmath\5\src\eval\server.cpp
+	<eval/server.h>
+	<cstdio>
+	<windows.h>
+	<process.h>
+	<pthread.h>
+	<eval/client.h>
+	<util/concurrent-queue.h>
+
+1276283497 source:d:\peter\programmieren\richmath\5\src\graphics\animation.cpp
+	<graphics/animation.h>
+	<gui/document.h>
+	<gui/native-widget.h>
+
+1267713190 source:d:\peter\programmieren\richmath\5\src\graphics\buffer.cpp
+	<graphics/buffer.h>
+	<cmath>
+	<cairo-win32.h>
+	<graphics/shapers.h>
+
+1270411770 source:d:\peter\programmieren\richmath\5\src\graphics\canvas.cpp
+	<graphics/canvas.h>
+	<cmath>
+	<cairo-win32.h>
+	<Windows.h>
+	<cairo-win32.h>
+
+1270940256 source:d:\peter\programmieren\richmath\5\src\graphics\config-shaper.cpp
+	<graphics/config-shaper.h>
+	<cstdio>
+	<boxes/mathsequence.h>
+	<graphics/context.h>
+	<graphics/ot-math-shaper.h>
+	<util/style.h>
+	<util/syntax-state.h>
+
+1268925905 d:\peter\programmieren\richmath\5\include\graphics\ot-math-shaper.h
+	<graphics/shapers.h>
+	<util/array.h>
+	<util/pmath-extra.h>
+
+1270411866 source:d:\peter\programmieren\richmath\5\src\graphics\context.cpp
+	<graphics/context.h>
+	<cmath>
+	<cairo-win32.h>
+	<boxes/box.h>
+	<graphics/buffer.h>
+	<graphics/shapers.h>
+	<gui/control-painter.h>
+	<util/syntax-state.h>
+
+1268862649 source:d:\peter\programmieren\richmath\5\src\graphics\fonts.cpp
+	<graphics/fonts.h>
+	<windows.h>
+	<usp10.h>
+	<cairo-win32.h>
+	<graphics/canvas.h>
+	<util/array.h>
+
+1271520121 source:d:\peter\programmieren\richmath\5\src\graphics\ot-math-shaper.cpp
+	<graphics/ot-math-shaper.h>
+	<cmath>
+	<boxes/mathsequence.h>
+	<graphics/context.h>
+	<util/style.h>
+	<util/syntax-state.h>
+
+1268925903 source:d:\peter\programmieren\richmath\5\src\graphics\shapers.cpp
+	<graphics/shapers.h>
+	<cmath>
+	<boxes/mathsequence.h>
+	<graphics/context.h>
+	<graphics/win32-shaper.h>
+
+1254525412 d:\peter\programmieren\richmath\5\include\graphics\win32-shaper.h
+	<graphics/shapers.h>
+
+1268409839 source:d:\peter\programmieren\richmath\5\src\graphics\win32-shaper.cpp
+	<graphics/win32-shaper.h>
+	<windows.h>
+	<usp10.h>
+	<cairo-win32.h>
+	<graphics/context.h>
+	<util/array.h>
+
+1268149254 source:d:\peter\programmieren\richmath\5\src\gui\clipboard.cpp
+	<gui/clipboard.h>
+
+1268424733 d:\peter\programmieren\richmath\5\include\gui\clipboard.h
+	<util/sharedptr.h>
+	<util/pmath-extra.h>
+
+1276369606 source:d:\peter\programmieren\richmath\5\src\gui\control-painter.cpp
+	<gui/control-painter.h>
+	<cmath>
+	<boxes/box.h>
+	<gui/document.h>
+	<gui/native-widget.h>
+	<graphics/context.h>
+
+1271520290 source:d:\peter\programmieren\richmath\5\src\gui\document.cpp
+	<gui/document.h>
+	<cmath>
+	<cstdio>
+	<boxes/buttonbox.h>
+	<boxes/fractionbox.h>
+	<boxes/gridbox.h>
+	<boxes/inputbox.h>
+	<boxes/radicalbox.h>
+	<boxes/section.h>
+	<boxes/mathsequence.h>
+	<boxes/subsuperscriptbox.h>
+	<boxes/underoverscriptbox.h>
+	<eval/binding.h>
+	<eval/client.h>
+	<gui/clipboard.h>
+	<gui/native-widget.h>
+
+1267913203 source:d:\peter\programmieren\richmath\5\src\gui\menu.cpp
+	<gui/menu.h>
+	<boxes/section.h>
+
+1261770939 d:\peter\programmieren\richmath\5\include\gui\menu.h
+	<gui/document.h>
+
+1271014152 source:d:\peter\programmieren\richmath\5\src\gui\native-widget.cpp
+	<gui/native-widget.h>
+	<climits>
+	<cmath>
+	<gui/document.h>
+
+1276276690 source:d:\peter\programmieren\richmath\5\src\gui\win32\basic-win32-widget.cpp
+	<gui/win32/basic-win32-widget.h>
+	<cstdio>
+	<gui/win32/win32-themes.h>
+	<resources.h>
+
+1267791050 d:\peter\programmieren\richmath\5\include\gui\win32\win32-themes.h
+	<Windows.h>
+	<util/base.h>
+
+1268416941 source:d:\peter\programmieren\richmath\5\src\gui\win32\win32-clipboard.cpp
+	<gui/win32/win32-clipboard.h>
+	<gui/win32/basic-win32-widget.h>
+
+1261958130 d:\peter\programmieren\richmath\5\include\gui\win32\win32-clipboard.h
+	<gui/clipboard.h>
+	<util/hashtable.h>
+
+1276372182 source:d:\peter\programmieren\richmath\5\src\gui\win32\win32-control-painter.cpp
+	<gui/win32/win32-control-painter.h>
+	<cmath>
+	<cstdio>
+	<cwchar>
+	<windows.h>
+	<cairo-win32.h>
+	<graphics/context.h>
+	<gui/win32/basic-win32-widget.h>
+	<gui/win32/win32-themes.h>
+	<util/array.h>
+	<util/style.h>
+
+1267717348 d:\peter\programmieren\richmath\5\include\gui\win32\win32-control-painter.h
+	<windows.h>
+	<gui/control-painter.h>
+
+1276370507 source:d:\peter\programmieren\richmath\5\src\gui\win32\win32-document-window.cpp
+	<gui/win32/win32-document-window.h>
+	<cmath>
+	<cstdio>
+	<cairo-win32.h>
+	<boxes/section.h>
+	<eval/binding.h>
+	<eval/client.h>
+	<gui/control-painter.h>
+	<gui/win32/win32-control-painter.h>
+	<gui/win32/win32-menubar.h>
+	<gui/win32/win32-themes.h>
+	<resources.h>
+
+1276281997 d:\peter\programmieren\richmath\5\include\gui\win32\win32-document-window.h
+	<gui/win32/basic-win32-window.h>
+	<gui/win32/win32-widget.h>
+
+1276276855 d:\peter\programmieren\richmath\5\include\gui\win32\basic-win32-window.h
+	<graphics/canvas.h>
+	<gui/win32/basic-win32-widget.h>
+	<gui/win32/win32-themes.h>
+	<gui/control-painter.h>
+	<util/hashtable.h>
+
+1274305975 d:\peter\programmieren\richmath\5\include\gui\win32\win32-widget.h
+	<gui/document.h>
+	<gui/native-widget.h>
+	<gui/win32/basic-win32-widget.h>
+
+1260628766 d:\peter\programmieren\richmath\5\include\gui\win32\win32-menubar.h
+	<windows.h>
+	<util/base.h>
+
+1276462522 source:d:\peter\programmieren\richmath\5\src\gui\win32\win32-menubar.cpp
+	<gui/win32/win32-menubar.h>
+	<cstdio>
+	<cctype>
+	<commctrl.h>
+	<util/array.h>
+	<gui/win32/win32-control-painter.h>
+	<gui/win32/win32-document-window.h>
+	<gui/win32/win32-themes.h>
+	<resources.h>
+
+1267791086 source:d:\peter\programmieren\richmath\5\src\gui\win32\win32-themes.cpp
+	<gui/win32/win32-themes.h>
+	<cwchar>
+	<util/array.h>
+
+1274306647 source:d:\peter\programmieren\richmath\5\src\gui\win32\win32-widget.cpp
+	<gui/win32/win32-widget.h>
+	<climits>
+	<cmath>
+	<cstdio>
+	<cairo-win32.h>
+	<boxes/buttonbox.h>
+	<boxes/section.h>
+	<boxes/mathsequence.h>
+	<eval/binding.h>
+	<eval/client.h>
+	<eval/job.h>
+	<gui/control-painter.h>
+	<resources.h>
+
+1276368979 source:d:\peter\programmieren\richmath\5\src\main.cpp
+	<cmath>
+	<cstdio>
+	<ctime>
+	<boxes/section.h>
+	<boxes/mathsequence.h>
+	<eval/binding.h>
+	<eval/client.h>
+	<eval/server.h>
+	<graphics/win32-shaper.h>
+	<graphics/config-shaper.h>
+	<graphics/ot-math-shaper.h>
+	<gui/control-painter.h>
+	<gui/win32/win32-clipboard.h>
+	<gui/win32/win32-document-window.h>
+	<gui/win32/win32-themes.h>
+	<resources.h>
+
+1267901821 source:d:\peter\programmieren\richmath\5\src\util\base.cpp
+	<util/base.h>
+	<cmath>
+	<cstdio>
+	<pmath-util/concurrency/atomic.h>
+
+1268411241 source:d:\peter\programmieren\richmath\5\src\util\pmath-cpp.cpp
+	<util/pmath-cpp.h>
+	<cstring>
+	<cmath>
+
+1271000062 source:d:\peter\programmieren\richmath\5\src\util\semaphore.cpp
+	<util/semaphore.h>
+
+1271276112 source:d:\peter\programmieren\richmath\5\src\util\spanexpr.cpp
+	<util/spanexpr.h>
+	<boxes/interpretationbox.h>
+	<boxes/stylebox.h>
+	<boxes/subsuperscriptbox.h>
+	<boxes/underoverscriptbox.h>
+
+1268267142 source:d:\peter\programmieren\richmath\5\src\util\style.cpp
+	<util/style.h>
+	<climits>
+	<cmath>
+	<gui/control-painter.h>
+
+1270841663 source:d:\peter\programmieren\richmath\5\src\util\syntax-state.cpp
+	<util/syntax-state.h>
+	<climits>
+	<eval/binding.h>
+	<eval/client.h>
+	<graphics/shapers.h>
+
+1276278880 source:d:\peter\programmieren\richmath\5\src\gui\win32\basic-win32-window.cpp
+	<stdio.h>
+	<cairo-win32.h>
+	<graphics/canvas.h>
+	<gui/win32/basic-win32-window.h>
+
+1266675142 d:\peter\programmieren\bibliotheken\cairo\include\cairo\cairo.h
+	"cairo-version.h"
+	"cairo-features.h"
+	"cairo-deprecated.h"
+
+1266675142 d:\peter\programmieren\bibliotheken\cairo\include\cairo\cairo-version.h
+
+1266675142 d:\peter\programmieren\bibliotheken\cairo\include\cairo\cairo-features.h
+
+1266675142 d:\peter\programmieren\bibliotheken\cairo\include\cairo\cairo-deprecated.h
+
+1266675142 d:\peter\programmieren\bibliotheken\cairo\include\cairo\cairo-win32.h
+	"cairo.h"
+	<windows.h>
+
+1274621453 d:\peter\programmieren\pmath_project\library\include\pmath-cpp.h
+	<cstdlib>
+	<limits>
+	<stdint.h>
+	<pmath.h>
+
+1271264386 d:\peter\programmieren\richmath\5\include\util\pmath-extra.h
+	<pmath-cpp.h>
+	<util/base.h>
+
+1268424806 source:d:\peter\programmieren\richmath\5\src\util\pmath-extra.cpp
+	<util/pmath-extra.h>
+	<cstring>
+	<cmath>
+
+1265621270 d:\programme\gtk\include\pango-1.0\pango\pango.h
+	<pango/pango-attributes.h>
+	<pango/pango-bidi-type.h>
+	<pango/pango-break.h>
+	<pango/pango-context.h>
+	<pango/pango-coverage.h>
+	<pango/pango-engine.h>
+	<pango/pango-enum-types.h>
+	<pango/pango-features.h>
+	<pango/pango-font.h>
+	<pango/pango-fontmap.h>
+	<pango/pango-fontset.h>
+	<pango/pango-glyph.h>
+	<pango/pango-glyph-item.h>
+	<pango/pango-gravity.h>
+	<pango/pango-item.h>
+	<pango/pango-layout.h>
+	<pango/pango-matrix.h>
+	<pango/pango-renderer.h>
+	<pango/pango-script.h>
+	<pango/pango-tabs.h>
+	<pango/pango-types.h>
+	<pango/pango-utils.h>
+
+1265621270 d:\programme\gtk\include\pango-1.0\pango\pango-attributes.h
+	<pango/pango-font.h>
+	<glib-object.h>
+
+1265621270 d:\programme\gtk\include\pango-1.0\pango\pango-font.h
+	<pango/pango-coverage.h>
+	<pango/pango-types.h>
+	<glib-object.h>
+
+1265621270 d:\programme\gtk\include\pango-1.0\pango\pango-coverage.h
+	<glib.h>
+
+1262858320 d:\programme\gtk\include\glib-2.0\glib.h
+	<glib/galloca.h>
+	<glib/garray.h>
+	<glib/gasyncqueue.h>
+	<glib/gatomic.h>
+	<glib/gbacktrace.h>
+	<glib/gbase64.h>
+	<glib/gbookmarkfile.h>
+	<glib/gcache.h>
+	<glib/gchecksum.h>
+	<glib/gcompletion.h>
+	<glib/gconvert.h>
+	<glib/gdataset.h>
+	<glib/gdate.h>
+	<glib/gdir.h>
+	<glib/gerror.h>
+	<glib/gfileutils.h>
+	<glib/ghash.h>
+	<glib/ghook.h>
+	<glib/ghostutils.h>
+	<glib/giochannel.h>
+	<glib/gkeyfile.h>
+	<glib/glist.h>
+	<glib/gmacros.h>
+	<glib/gmain.h>
+	<glib/gmappedfile.h>
+	<glib/gmarkup.h>
+	<glib/gmem.h>
+	<glib/gmessages.h>
+	<glib/gnode.h>
+	<glib/goption.h>
+	<glib/gpattern.h>
+	<glib/gpoll.h>
+	<glib/gprimes.h>
+	<glib/gqsort.h>
+	<glib/gquark.h>
+	<glib/gqueue.h>
+	<glib/grand.h>
+	<glib/grel.h>
+	<glib/gregex.h>
+	<glib/gscanner.h>
+	<glib/gsequence.h>
+	<glib/gshell.h>
+	<glib/gslice.h>
+	<glib/gslist.h>
+	<glib/gspawn.h>
+	<glib/gstrfuncs.h>
+	<glib/gstring.h>
+	<glib/gtestutils.h>
+	<glib/gthread.h>
+	<glib/gthreadpool.h>
+	<glib/gtimer.h>
+	<glib/gtree.h>
+	<glib/gtypes.h>
+	<glib/gunicode.h>
+	<glib/gurifuncs.h>
+	<glib/gutils.h>
+	<glib/gwin32.h>
+
+1262858320 d:\programme\gtk\include\glib-2.0\glib\galloca.h
+	<glib/gtypes.h>
+	<alloca.h>
+	<malloc.h>
+
+1262858320 d:\programme\gtk\include\glib-2.0\glib\gtypes.h
+	<glibconfig.h>
+	<glib/gmacros.h>
+
+1262858268 d:\programme\gtk\lib\glib-2.0\include\glibconfig.h
+	<glib/gmacros.h>
+	<limits.h>
+	<float.h>
+
+1262858320 d:\programme\gtk\include\glib-2.0\glib\gmacros.h
+	<stddef.h>
+
+1262858320 d:\programme\gtk\include\glib-2.0\glib\garray.h
+	<glib/gtypes.h>
+
+1262858320 d:\programme\gtk\include\glib-2.0\glib\gasyncqueue.h
+	<glib/gthread.h>
+
+1262858320 d:\programme\gtk\include\glib-2.0\glib\gthread.h
+	<glib/gerror.h>
+	<glib/gtypes.h>
+	<glib/gutils.h>
+	<glib/gatomic.h>
+
+1262858320 d:\programme\gtk\include\glib-2.0\glib\gerror.h
+	<stdarg.h>
+	<glib/gquark.h>
+
+1262858320 d:\programme\gtk\include\glib-2.0\glib\gquark.h
+	<glib/gtypes.h>
+
+1262858320 d:\programme\gtk\include\glib-2.0\glib\gutils.h
+	<glib/gtypes.h>
+	<stdarg.h>
+
+1262858320 d:\programme\gtk\include\glib-2.0\glib\gatomic.h
+	<glib/gtypes.h>
+
+1262858320 d:\programme\gtk\include\glib-2.0\glib\gbacktrace.h
+	<glib/gtypes.h>
+	<signal.h>
+
+1262858320 d:\programme\gtk\include\glib-2.0\glib\gbase64.h
+	<glib/gtypes.h>
+
+1262858320 d:\programme\gtk\include\glib-2.0\glib\gbookmarkfile.h
+	<glib/gerror.h>
+	<time.h>
+
+1262858320 d:\programme\gtk\include\glib-2.0\glib\gcache.h
+	<glib/glist.h>
+
+1262858320 d:\programme\gtk\include\glib-2.0\glib\glist.h
+	<glib/gmem.h>
+
+1262858320 d:\programme\gtk\include\glib-2.0\glib\gmem.h
+	<glib/gslice.h>
+	<glib/gtypes.h>
+
+1262858320 d:\programme\gtk\include\glib-2.0\glib\gslice.h
+	<glib/gtypes.h>
+
+1262858320 d:\programme\gtk\include\glib-2.0\glib\gchecksum.h
+	<glib/gtypes.h>
+
+1262858320 d:\programme\gtk\include\glib-2.0\glib\gcompletion.h
+	<glib/glist.h>
+
+1262858320 d:\programme\gtk\include\glib-2.0\glib\gconvert.h
+	<glib/gerror.h>
+
+1262858320 d:\programme\gtk\include\glib-2.0\glib\gdataset.h
+	<glib/gquark.h>
+
+1262858320 d:\programme\gtk\include\glib-2.0\glib\gdate.h
+	<time.h>
+	<glib/gtypes.h>
+	<glib/gquark.h>
+
+1262858320 d:\programme\gtk\include\glib-2.0\glib\gdir.h
+	<glib/gerror.h>
+
+1262858320 d:\programme\gtk\include\glib-2.0\glib\gfileutils.h
+	<glib/gerror.h>
+
+1262858320 d:\programme\gtk\include\glib-2.0\glib\ghash.h
+	<glib/gtypes.h>
+	<glib/glist.h>
+
+1262858320 d:\programme\gtk\include\glib-2.0\glib\ghook.h
+	<glib/gmem.h>
+
+1262858320 d:\programme\gtk\include\glib-2.0\glib\giochannel.h
+	<glib/gconvert.h>
+	<glib/gmain.h>
+	<glib/gstring.h>
+
+1262858320 d:\programme\gtk\include\glib-2.0\glib\gmain.h
+	<glib/gpoll.h>
+	<glib/gslist.h>
+	<glib/gthread.h>
+
+1262858320 d:\programme\gtk\include\glib-2.0\glib\gslist.h
+	<glib/gmem.h>
+
+1262858320 d:\programme\gtk\include\glib-2.0\glib\gstring.h
+	<glib/gtypes.h>
+	<glib/gunicode.h>
+	<glib/gutils.h>
+
+1262858320 d:\programme\gtk\include\glib-2.0\glib\gunicode.h
+	<glib/gerror.h>
+	<glib/gtypes.h>
+
+1262858320 d:\programme\gtk\include\glib-2.0\glib\gkeyfile.h
+	<glib/gerror.h>
+
+1262858320 d:\programme\gtk\include\glib-2.0\glib\gmappedfile.h
+	<glib/gerror.h>
+
+1262858320 d:\programme\gtk\include\glib-2.0\glib\gmarkup.h
+	<stdarg.h>
+	<glib/gerror.h>
+	<glib/gslist.h>
+
+1262858320 d:\programme\gtk\include\glib-2.0\glib\gmessages.h
+	<stdarg.h>
+	<glib/gtypes.h>
+	<glib/gmacros.h>
+
+1262858320 d:\programme\gtk\include\glib-2.0\glib\gnode.h
+	<glib/gmem.h>
+
+1262858320 d:\programme\gtk\include\glib-2.0\glib\goption.h
+	<glib/gerror.h>
+	<glib/gquark.h>
+
+1262858320 d:\programme\gtk\include\glib-2.0\glib\gpattern.h
+	<glib/gtypes.h>
+
+1262858320 d:\programme\gtk\include\glib-2.0\glib\gprimes.h
+	<glib/gtypes.h>
+
+1262858320 d:\programme\gtk\include\glib-2.0\glib\gqsort.h
+	<glib/gtypes.h>
+
+1262858320 d:\programme\gtk\include\glib-2.0\glib\gqueue.h
+	<glib/glist.h>
+
+1262858320 d:\programme\gtk\include\glib-2.0\glib\grand.h
+	<glib/gtypes.h>
+
+1262858320 d:\programme\gtk\include\glib-2.0\glib\grel.h
+	<glib/gtypes.h>
+
+1262858320 d:\programme\gtk\include\glib-2.0\glib\gregex.h
+	<glib/gerror.h>
+	<glib/gstring.h>
+
+1262858320 d:\programme\gtk\include\glib-2.0\glib\gscanner.h
+	<glib/gdataset.h>
+	<glib/ghash.h>
+
+1262858320 d:\programme\gtk\include\glib-2.0\glib\gsequence.h
+	<glib/gtypes.h>
+
+1262858320 d:\programme\gtk\include\glib-2.0\glib\gshell.h
+	<glib/gerror.h>
+
+1262858320 d:\programme\gtk\include\glib-2.0\glib\gspawn.h
+	<glib/gerror.h>
+
+1262858320 d:\programme\gtk\include\glib-2.0\glib\gstrfuncs.h
+	<stdarg.h>
+	<glib/gtypes.h>
+
+1262858320 d:\programme\gtk\include\glib-2.0\glib\gtestutils.h
+	<glib.h>
+
+1262858320 d:\programme\gtk\include\glib-2.0\glib\gthreadpool.h
+	<glib/gthread.h>
+
+1262858320 d:\programme\gtk\include\glib-2.0\glib\gtimer.h
+	<glib/gtypes.h>
+
+1262858320 d:\programme\gtk\include\glib-2.0\glib\gtree.h
+	<glib/gnode.h>
+
+1262858320 d:\programme\gtk\include\glib-2.0\glib\gurifuncs.h
+	<glib.h>
+
+1262858320 d:\programme\gtk\include\glib-2.0\glib\gwin32.h
+	<glib/gtypes.h>
+
+1265621270 d:\programme\gtk\include\pango-1.0\pango\pango-types.h
+	<glib.h>
+	<glib-object.h>
+	<pango/pango-gravity.h>
+	<pango/pango-language.h>
+	<pango/pango-matrix.h>
+	<pango/pango-script.h>
+	<pango/pango-bidi-type.h>
+
+1262858320 d:\programme\gtk\include\glib-2.0\glib-object.h
+	<gobject/gboxed.h>
+	<gobject/genums.h>
+	<gobject/gobject.h>
+	<gobject/gparam.h>
+	<gobject/gparamspecs.h>
+	<gobject/gsignal.h>
+	<gobject/gsourceclosure.h>
+	<gobject/gtype.h>
+	<gobject/gtypemodule.h>
+	<gobject/gtypeplugin.h>
+	<gobject/gvalue.h>
+	<gobject/gvaluearray.h>
+	<gobject/gvaluetypes.h>
+
+1262858388 d:\programme\gtk\include\glib-2.0\gobject\gboxed.h
+	<gobject/gtype.h>
+
+1262858388 d:\programme\gtk\include\glib-2.0\gobject\gtype.h
+	<glib.h>
+
+1262858388 d:\programme\gtk\include\glib-2.0\gobject\genums.h
+	<gobject/gtype.h>
+
+1262858388 d:\programme\gtk\include\glib-2.0\gobject\gobject.h
+	<gobject/gtype.h>
+	<gobject/gvalue.h>
+	<gobject/gparam.h>
+	<gobject/gclosure.h>
+	<gobject/gsignal.h>
+
+1262858388 d:\programme\gtk\include\glib-2.0\gobject\gvalue.h
+	<gobject/gtype.h>
+
+1262858388 d:\programme\gtk\include\glib-2.0\gobject\gparam.h
+	<gobject/gvalue.h>
+
+1262858388 d:\programme\gtk\include\glib-2.0\gobject\gclosure.h
+	<gobject/gtype.h>
+
+1262858388 d:\programme\gtk\include\glib-2.0\gobject\gsignal.h
+	<gobject/gclosure.h>
+	<gobject/gvalue.h>
+	<gobject/gparam.h>
+	<gobject/gmarshal.h>
+
+1262858388 d:\programme\gtk\include\glib-2.0\gobject\gmarshal.h
+
+1262858388 d:\programme\gtk\include\glib-2.0\gobject\gparamspecs.h
+	<gobject/gvalue.h>
+	<gobject/genums.h>
+	<gobject/gboxed.h>
+	<gobject/gobject.h>
+
+1262858388 d:\programme\gtk\include\glib-2.0\gobject\gsourceclosure.h
+	<gobject/gclosure.h>
+
+1262858388 d:\programme\gtk\include\glib-2.0\gobject\gtypemodule.h
+	<gobject/gobject.h>
+	<gobject/genums.h>
+
+1262858388 d:\programme\gtk\include\glib-2.0\gobject\gtypeplugin.h
+	<gobject/gtype.h>
+
+1262858388 d:\programme\gtk\include\glib-2.0\gobject\gvaluearray.h
+	<gobject/gvalue.h>
+
+1262858388 d:\programme\gtk\include\glib-2.0\gobject\gvaluetypes.h
+	<gobject/gvalue.h>
+
+1265621270 d:\programme\gtk\include\pango-1.0\pango\pango-gravity.h
+	<glib.h>
+	<pango/pango-matrix.h>
+	<pango/pango-script.h>
+
+1265621270 d:\programme\gtk\include\pango-1.0\pango\pango-matrix.h
+	<glib.h>
+	<glib-object.h>
+	<pango/pango-types.h>
+
+1265621270 d:\programme\gtk\include\pango-1.0\pango\pango-script.h
+	<glib.h>
+	<pango/pango-language.h>
+
+1265621270 d:\programme\gtk\include\pango-1.0\pango\pango-language.h
+	<glib.h>
+	<glib-object.h>
+	<pango/pango-script.h>
+
+1265621270 d:\programme\gtk\include\pango-1.0\pango\pango-break.h
+	<glib.h>
+	<pango/pango-item.h>
+
+1265621270 d:\programme\gtk\include\pango-1.0\pango\pango-item.h
+	<pango/pango-types.h>
+
+1265621270 d:\programme\gtk\include\pango-1.0\pango\pango-context.h
+	<pango/pango-font.h>
+	<pango/pango-fontmap.h>
+	<pango/pango-attributes.h>
+
+1265621270 d:\programme\gtk\include\pango-1.0\pango\pango-fontmap.h
+	<pango/pango-font.h>
+	<pango/pango-fontset.h>
+
+1265621270 d:\programme\gtk\include\pango-1.0\pango\pango-fontset.h
+	<pango/pango-coverage.h>
+	<pango/pango-types.h>
+	<glib-object.h>
+
+1265621270 d:\programme\gtk\include\pango-1.0\pango\pango-engine.h
+	<pango/pango-types.h>
+	<pango/pango-item.h>
+	<pango/pango-font.h>
+	<pango/pango-glyph.h>
+	<pango/pango-script.h>
+	<gmodule.h>
+
+1265621270 d:\programme\gtk\include\pango-1.0\pango\pango-glyph.h
+	<pango/pango-types.h>
+	<pango/pango-item.h>
+
+1265621270 d:\programme\gtk\include\pango-1.0\pango\pango-enum-types.h
+	<glib-object.h>
+
+1265621270 d:\programme\gtk\include\pango-1.0\pango\pango-features.h
+
+1265621270 d:\programme\gtk\include\pango-1.0\pango\pango-glyph-item.h
+	<pango/pango-attributes.h>
+	<pango/pango-break.h>
+	<pango/pango-item.h>
+	<pango/pango-glyph.h>
+
+1265621270 d:\programme\gtk\include\pango-1.0\pango\pango-layout.h
+	<pango/pango-attributes.h>
+	<pango/pango-context.h>
+	<pango/pango-glyph-item.h>
+	<pango/pango-tabs.h>
+
+1265621270 d:\programme\gtk\include\pango-1.0\pango\pango-tabs.h
+	<pango/pango-types.h>
+
+1265621270 d:\programme\gtk\include\pango-1.0\pango\pango-renderer.h
+	<pango/pango-layout.h>
+
+1265621270 d:\programme\gtk\include\pango-1.0\pango\pango-utils.h
+	<stdio.h>
+	<glib.h>
+	<pango/pango-font.h>
+
+1265621270 d:\programme\gtk\include\pango-1.0\pango\pangocairo.h
+	<pango/pango.h>
+	<cairo.h>
+
+1268866479 source:d:\peter\programmieren\richmath\5\src\boxes\textbox.cpp
+	<boxes/textbox.h>
+	<cstdlib>
+
+1268866541 d:\peter\programmieren\richmath\5\include\boxes\textbox.h
+	<pango/pangocairo.h>
+	<boxes/box.h>
+
+1270898393 d:\peter\programmieren\richmath\5\include\boxes\mathsequence.h
+	<boxes/box.h>
+	<util/array.h>
+	<util/syntax-state.h>
+
+1276902405 source:d:\peter\programmieren\richmath\5\src\boxes\mathsequence.cpp
+	<boxes/mathsequence.h>
+	<climits>
+	<cmath>
+	<boxes/buttonbox.h>
+	<boxes/dynamicbox.h>
+	<boxes/errorbox.h>
+	<boxes/fillbox.h>
+	<boxes/fractionbox.h>
+	<boxes/framebox.h>
+	<boxes/gridbox.h>
+	<boxes/inputbox.h>
+	<boxes/interpretationbox.h>
+	<boxes/numberbox.h>
+	<boxes/ownerbox.h>
+	<boxes/radicalbox.h>
+	<boxes/section.h>
+	<boxes/stylebox.h>
+	<boxes/subsuperscriptbox.h>
+	<boxes/transformationbox.h>
+	<boxes/underoverscriptbox.h>
+	<eval/binding.h>
+	<eval/client.h>
+	<graphics/context.h>
+	<util/spanexpr.h>
+
+1269784608 source:d:\peter\programmieren\richmath\5\src\boxes\textsequence.cpp
+	<boxes/textsequence.h>
+	<cstdlib>
+	<graphics/context.h>
+
+1269779458 d:\peter\programmieren\richmath\5\include\boxes\textsequence.h
+	<pango/pangocairo.h>
+	<boxes/box.h>
+
+1262858320 d:\programme\gtk\include\glib-2.0\glib\ghostutils.h
+	<glib/gtypes.h>
+
+1262858320 d:\programme\gtk\include\glib-2.0\glib\gpoll.h
+	<glib/gtypes.h>
+
+1265621270 d:\programme\gtk\include\pango-1.0\pango\pango-bidi-type.h
+	<glib.h>
+
+1262858356 d:\programme\gtk\include\glib-2.0\gmodule.h
+	<glib.h>
+
+1274621453 d:\peter\programmieren\pmath_project\library\include\pmath-language\charnames.h
+
+1275838937 source:d:\peter\programmieren\richmath\5\src\boxes\dynamicbox.cpp
+	<boxes/dynamicbox.h>
+	<boxes/mathsequence.h>
+	<eval/client.h>
+	<graphics/context.h>
+
+1274305642 d:\peter\programmieren\richmath\5\include\boxes\dynamicbox.h
+	<boxes/ownerbox.h>
+
+1278847627 source:d:\peter\programmieren\pmath\trunk\richmath\resources\richmath.rc
+	<windows.h>
+	"resources.h"
+
+1278847627 d:\peter\programmieren\pmath\trunk\richmath\resources\resources.h
+
+1278847622 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\box.cpp
+	<boxes/box.h>
+	<graphics/context.h>
+	<gui/native-widget.h>
+
+1278847621 d:\peter\programmieren\pmath\trunk\richmath\include\boxes\box.h
+	<graphics/shapers.h>
+	<util/pmath-extra.h>
+	<util/sharedptr.h>
+	<util/style.h>
+
+1278847621 d:\peter\programmieren\pmath\trunk\richmath\include\graphics\shapers.h
+	<graphics/canvas.h>
+	<util/array.h>
+	<util/hashtable.h>
+	<util/sharedptr.h>
+
+1278847621 d:\peter\programmieren\pmath\trunk\richmath\include\graphics\canvas.h
+	<graphics/fonts.h>
+
+1278847621 d:\peter\programmieren\pmath\trunk\richmath\include\graphics\fonts.h
+	<cairo.h>
+	<util/pmath-extra.h>
+	<util/hashtable.h>
+
+1278847621 d:\peter\programmieren\pmath\trunk\richmath\include\util\pmath-extra.h
+	<pmath-cpp.h>
+	<util/base.h>
+
+1274621453 d:\peter\programmieren\pmath\trunk\library\include\pmath-cpp.h
+	<cstdlib>
+	<limits>
+	<stdint.h>
+	<pmath.h>
+
+1274621453 d:\peter\programmieren\pmath\trunk\library\include\pmath.h
+	<pmath-config.h>
+	<pmath-types.h>
+	<pmath-util/concurrency/atomic.h>
+	<pmath-core/objects.h>
+	<pmath-core/custom.h>
+	<pmath-core/expressions.h>
+	<pmath-core/numbers.h>
+	<pmath-core/strings.h>
+	<pmath-core/symbols.h>
+	<pmath-builtins/all-symbols.h>
+	<pmath-language/charnames.h>
+	<pmath-language/scanner.h>
+	<pmath-language/tokens.h>
+	<pmath-util/approximate.h>
+	<pmath-util/concurrency/threadlocks.h>
+	<pmath-util/concurrency/threadmsg.h>
+	<pmath-util/concurrency/threadpool.h>
+	<pmath-util/concurrency/threads.h>
+	<pmath-util/debug.h>
+	<pmath-util/evaluation.h>
+	<pmath-util/files.h>
+	<pmath-util/helpers.h>
+	<pmath-util/memory.h>
+	<pmath-util/messages.h>
+	<pmath-util/serialize.h>
+	<pmath-util/stacks.h>
+	<pmath-core/objects-inline.h>
+
+1274621453 d:\peter\programmieren\pmath\trunk\library\include\pmath-config.h
+	<sal.h>
+
+1274621453 d:\peter\programmieren\pmath\trunk\library\include\pmath-types.h
+
+1274621453 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\concurrency\atomic.h
+	<assert.h>
+	<pmath-config.h>
+	<pmath-types.h>
+	<inttypes.h>
+	<pmath-util/concurrency/atomic/non-atomic.h>
+	<pmath-util/concurrency/atomic/gcc/built_in_functions.h>
+	<pmath-util/concurrency/atomic/gcc/x86.h>
+	<pmath-util/concurrency/atomic/gcc/x86-64.h>
+	<pmath-util/concurrency/atomic/gcc/sun.h>
+	<pmath-util/concurrency/atomic/non-atomic.h>
+	<pmath-util/concurrency/atomic/msvc/intrinsic_functions.h>
+	<pmath-util/concurrency/atomic/non-atomic.h>
+
+1274621454 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\concurrency\atomic\non-atomic.h
+
+1274621454 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\concurrency\atomic\gcc\built_in_functions.h
+
+1274621454 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\concurrency\atomic\gcc\x86.h
+
+1274621454 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\concurrency\atomic\gcc\x86-64.h
+
+1274621454 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\concurrency\atomic\gcc\sun.h
+	<sys/atomic.h>
+
+1274621454 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\concurrency\atomic\msvc\intrinsic_functions.h
+	<intrin.h>
+
+1274621453 d:\peter\programmieren\pmath\trunk\library\include\pmath-core\objects.h
+
+1274621453 d:\peter\programmieren\pmath\trunk\library\include\pmath-core\custom.h
+
+1274621453 d:\peter\programmieren\pmath\trunk\library\include\pmath-core\expressions.h
+
+1274621453 d:\peter\programmieren\pmath\trunk\library\include\pmath-core\numbers.h
+
+1274621453 d:\peter\programmieren\pmath\trunk\library\include\pmath-core\strings.h
+
+1274621453 d:\peter\programmieren\pmath\trunk\library\include\pmath-core\symbols.h
+
+1278776119 d:\peter\programmieren\pmath\trunk\library\include\pmath-builtins\all-symbols.h
+
+1274621453 d:\peter\programmieren\pmath\trunk\library\include\pmath-language\charnames.h
+
+1274621453 d:\peter\programmieren\pmath\trunk\library\include\pmath-language\scanner.h
+
+1274621453 d:\peter\programmieren\pmath\trunk\library\include\pmath-language\tokens.h
+
+1274621453 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\approximate.h
+
+1274621453 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\concurrency\threadlocks.h
+
+1274621453 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\concurrency\threadmsg.h
+
+1274621453 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\concurrency\threadpool.h
+
+1274621454 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\concurrency\threads.h
+
+1274621453 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\debug.h
+
+1274621453 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\evaluation.h
+
+1274621453 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\files.h
+
+1274621453 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\helpers.h
+
+1274621453 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\memory.h
+	<pmath-util/concurrency/atomic.h>
+
+1274621453 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\messages.h
+
+1274621453 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\serialize.h
+
+1274621453 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\stacks.h
+
+1274621453 d:\peter\programmieren\pmath\trunk\library\include\pmath-core\objects-inline.h
+
+1278847621 d:\peter\programmieren\pmath\trunk\richmath\include\util\base.h
+	<stdint.h>
+
+1278847621 d:\peter\programmieren\pmath\trunk\richmath\include\util\hashtable.h
+	<cassert>
+	<cstdlib>
+	<cstring>
+	<util/base.h>
+
+1278847621 d:\peter\programmieren\pmath\trunk\richmath\include\util\array.h
+	<cassert>
+	<cstring>
+
+1278847621 d:\peter\programmieren\pmath\trunk\richmath\include\util\sharedptr.h
+
+1278847621 d:\peter\programmieren\pmath\trunk\richmath\include\util\style.h
+	<util/hashtable.h>
+	<util/pmath-extra.h>
+	<util/sharedptr.h>
+
+1278847621 d:\peter\programmieren\pmath\trunk\richmath\include\graphics\context.h
+	<util/array.h>
+	<util/pmath-extra.h>
+	<util/sharedptr.h>
+	<graphics/canvas.h>
+
+1278847621 d:\peter\programmieren\pmath\trunk\richmath\include\gui\native-widget.h
+	<util/base.h>
+	<gui/control-painter.h>
+
+1278847621 d:\peter\programmieren\pmath\trunk\richmath\include\gui\control-painter.h
+	<graphics/animation.h>
+	<graphics/shapers.h>
+	<util/hashtable.h>
+
+1278847621 d:\peter\programmieren\pmath\trunk\richmath\include\graphics\animation.h
+	<ctime>
+	<graphics/buffer.h>
+
+1278847621 d:\peter\programmieren\pmath\trunk\richmath\include\graphics\buffer.h
+	<graphics/canvas.h>
+	<util/sharedptr.h>
+
+1278847622 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\buttonbox.cpp
+	<boxes/buttonbox.h>
+	<cmath>
+	<boxes/mathsequence.h>
+	<eval/client.h>
+	<eval/job.h>
+	<gui/document.h>
+	<gui/native-widget.h>
+
+1278847621 d:\peter\programmieren\pmath\trunk\richmath\include\boxes\buttonbox.h
+	<boxes/containerwidgetbox.h>
+
+1278847621 d:\peter\programmieren\pmath\trunk\richmath\include\boxes\containerwidgetbox.h
+	<boxes/stylebox.h>
+	<gui/control-painter.h>
+
+1278847621 d:\peter\programmieren\pmath\trunk\richmath\include\boxes\stylebox.h
+	<boxes/ownerbox.h>
+
+1278847621 d:\peter\programmieren\pmath\trunk\richmath\include\boxes\ownerbox.h
+	<boxes/box.h>
+
+1278847621 d:\peter\programmieren\pmath\trunk\richmath\include\boxes\mathsequence.h
+	<boxes/box.h>
+	<util/array.h>
+	<util/syntax-state.h>
+
+1278847621 d:\peter\programmieren\pmath\trunk\richmath\include\util\syntax-state.h
+	<util/hashtable.h>
+	<util/pmath-extra.h>
+	<util/sharedptr.h>
+
+1278847621 d:\peter\programmieren\pmath\trunk\richmath\include\eval\client.h
+	<util/hashtable.h>
+	<util/pmath-extra.h>
+	<util/sharedptr.h>
+
+1278847621 d:\peter\programmieren\pmath\trunk\richmath\include\eval\job.h
+	<util/pmath-extra.h>
+	<util/sharedptr.h>
+
+1278847621 d:\peter\programmieren\pmath\trunk\richmath\include\gui\document.h
+	<boxes/sectionlist.h>
+	<graphics/context.h>
+
+1278847621 d:\peter\programmieren\pmath\trunk\richmath\include\boxes\sectionlist.h
+	<boxes/box.h>
+	<util/array.h>
+
+1278847621 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\containerwidgetbox.cpp
+	<boxes/containerwidgetbox.h>
+	<cmath>
+	<boxes/mathsequence.h>
+	<gui/document.h>
+	<gui/native-widget.h>
+
+1278847622 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\dynamicbox.cpp
+	<boxes/dynamicbox.h>
+	<boxes/mathsequence.h>
+	<eval/client.h>
+	<graphics/context.h>
+
+1278847621 d:\peter\programmieren\pmath\trunk\richmath\include\boxes\dynamicbox.h
+	<boxes/ownerbox.h>
+
+1278847622 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\errorbox.cpp
+	<boxes/errorbox.h>
+	<graphics/context.h>
+
+1278847621 d:\peter\programmieren\pmath\trunk\richmath\include\boxes\errorbox.h
+	<boxes/box.h>
+
+1278847621 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\fillbox.cpp
+	<boxes/fillbox.h>
+	<cmath>
+	<boxes/mathsequence.h>
+	<graphics/context.h>
+
+1278847621 d:\peter\programmieren\pmath\trunk\richmath\include\boxes\fillbox.h
+	<boxes/ownerbox.h>
+
+1278847622 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\fractionbox.cpp
+	<boxes/fractionbox.h>
+	<cmath>
+	<boxes/mathsequence.h>
+	<graphics/context.h>
+
+1278847621 d:\peter\programmieren\pmath\trunk\richmath\include\boxes\fractionbox.h
+	<boxes/box.h>
+
+1278847622 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\framebox.cpp
+	<boxes/framebox.h>
+	<boxes/mathsequence.h>
+	<graphics/context.h>
+
+1278847621 d:\peter\programmieren\pmath\trunk\richmath\include\boxes\framebox.h
+	<boxes/ownerbox.h>
+
+1278847621 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\gridbox.cpp
+	<boxes/gridbox.h>
+	<boxes/mathsequence.h>
+	<graphics/context.h>
+
+1278847621 d:\peter\programmieren\pmath\trunk\richmath\include\boxes\gridbox.h
+	<boxes/ownerbox.h>
+	<util/matrix.h>
+
+1278847621 d:\peter\programmieren\pmath\trunk\richmath\include\util\matrix.h
+	<util/array.h>
+
+1278847622 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\inputbox.cpp
+	<boxes/inputbox.h>
+	<cmath>
+	<boxes/mathsequence.h>
+	<gui/document.h>
+	<gui/native-widget.h>
+
+1278847621 d:\peter\programmieren\pmath\trunk\richmath\include\boxes\inputbox.h
+	<boxes/containerwidgetbox.h>
+
+1278847622 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\interpretationbox.cpp
+	<boxes/interpretationbox.h>
+	<boxes/mathsequence.h>
+	<graphics/context.h>
+
+1278847621 d:\peter\programmieren\pmath\trunk\richmath\include\boxes\interpretationbox.h
+	<boxes/ownerbox.h>
+
+1278847622 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\mathsequence.cpp
+	<boxes/mathsequence.h>
+	<climits>
+	<cmath>
+	<boxes/buttonbox.h>
+	<boxes/dynamicbox.h>
+	<boxes/errorbox.h>
+	<boxes/fillbox.h>
+	<boxes/fractionbox.h>
+	<boxes/framebox.h>
+	<boxes/gridbox.h>
+	<boxes/inputbox.h>
+	<boxes/interpretationbox.h>
+	<boxes/numberbox.h>
+	<boxes/ownerbox.h>
+	<boxes/radicalbox.h>
+	<boxes/section.h>
+	<boxes/stylebox.h>
+	<boxes/subsuperscriptbox.h>
+	<boxes/transformationbox.h>
+	<boxes/underoverscriptbox.h>
+	<eval/binding.h>
+	<eval/client.h>
+	<graphics/context.h>
+	<util/spanexpr.h>
+
+1278847621 d:\peter\programmieren\pmath\trunk\richmath\include\boxes\numberbox.h
+	<boxes/ownerbox.h>
+
+1278847621 d:\peter\programmieren\pmath\trunk\richmath\include\boxes\radicalbox.h
+	<boxes/box.h>
+
+1278847621 d:\peter\programmieren\pmath\trunk\richmath\include\boxes\section.h
+	<boxes/box.h>
+	<util/array.h>
+
+1278847621 d:\peter\programmieren\pmath\trunk\richmath\include\boxes\subsuperscriptbox.h
+	<boxes/box.h>
+
+1278847621 d:\peter\programmieren\pmath\trunk\richmath\include\boxes\transformationbox.h
+	<boxes/ownerbox.h>
+
+1278847621 d:\peter\programmieren\pmath\trunk\richmath\include\boxes\underoverscriptbox.h
+	<boxes/box.h>
+
+1278847621 d:\peter\programmieren\pmath\trunk\richmath\include\eval\binding.h
+	<util/hashtable.h>
+	<util/pmath-extra.h>
+
+1278847621 d:\peter\programmieren\pmath\trunk\richmath\include\util\spanexpr.h
+	<util/pmath-extra.h>
+	<boxes/mathsequence.h>
+
+1278847622 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\numberbox.cpp
+	<boxes/numberbox.h>
+	<cfloat>
+	<boxes/mathsequence.h>
+	<boxes/subsuperscriptbox.h>
+	<eval/binding.h>
+	<graphics/context.h>
+
+1278847622 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\ownerbox.cpp
+	<boxes/ownerbox.h>
+	<boxes/mathsequence.h>
+	<graphics/context.h>
+
+1278847622 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\radicalbox.cpp
+	<boxes/radicalbox.h>
+	<boxes/mathsequence.h>
+	<graphics/buffer.h>
+	<graphics/context.h>
+
+1278847622 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\section.cpp
+	<boxes/section.h>
+	<cmath>
+	<boxes/sectionlist.h>
+	<boxes/mathsequence.h>
+	<eval/client.h>
+	<graphics/context.h>
+
+1278847622 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\sectionlist.cpp
+	<boxes/sectionlist.h>
+	<cmath>
+	<boxes/section.h>
+	<graphics/context.h>
+
+1278847622 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\stylebox.cpp
+	<boxes/stylebox.h>
+	<cmath>
+	<boxes/mathsequence.h>
+	<graphics/context.h>
+
+1278847622 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\subsuperscriptbox.cpp
+	<boxes/subsuperscriptbox.h>
+	<cmath>
+	<boxes/mathsequence.h>
+	<graphics/context.h>
+
+1278847622 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\textsequence.cpp
+	<boxes/textsequence.h>
+	<cstdlib>
+	<graphics/context.h>
+
+1278847621 d:\peter\programmieren\pmath\trunk\richmath\include\boxes\textsequence.h
+	<pango/pangocairo.h>
+	<boxes/box.h>
+
+1278847622 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\transformationbox.cpp
+	<boxes/transformationbox.h>
+	<cmath>
+	<boxes/mathsequence.h>
+	<graphics/context.h>
+
+1278847622 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\underoverscriptbox.cpp
+	<boxes/underoverscriptbox.h>
+	<cmath>
+	<boxes/mathsequence.h>
+	<graphics/context.h>
+
+1278847622 source:d:\peter\programmieren\pmath\trunk\richmath\src\eval\binding.cpp
+	<eval/binding.h>
+	<boxes/section.h>
+	<boxes/mathsequence.h>
+	<eval/client.h>
+	<eval/job.h>
+	<gui/document.h>
+	<gui/native-widget.h>
+
+1278847622 source:d:\peter\programmieren\pmath\trunk\richmath\src\eval\client.cpp
+	<eval/client.h>
+	<cmath>
+	<cstdio>
+	<boxes/section.h>
+	<graphics/config-shaper.h>
+	<gui/win32/basic-win32-widget.h>
+	<gui/document.h>
+	<eval/binding.h>
+	<eval/job.h>
+	<eval/server.h>
+	<util/concurrent-queue.h>
+	<util/semaphore.h>
+	<windows.h>
+	<resources.h>
+
+1278847621 d:\peter\programmieren\pmath\trunk\richmath\include\graphics\config-shaper.h
+	<graphics/shapers.h>
+	<util/array.h>
+	<util/pmath-extra.h>
+
+1278847621 d:\peter\programmieren\pmath\trunk\richmath\include\gui\win32\basic-win32-widget.h
+	<windows.h>
+	<util/base.h>
+
+1278847621 d:\peter\programmieren\pmath\trunk\richmath\include\eval\server.h
+	<util/pmath-extra.h>
+	<util/sharedptr.h>
+
+1278847621 d:\peter\programmieren\pmath\trunk\richmath\include\util\concurrent-queue.h
+	<util/pmath-extra.h>
+	<pmath-util/concurrency/atomic.h>
+
+1278847621 d:\peter\programmieren\pmath\trunk\richmath\include\util\semaphore.h
+	<Windows.h>
+	<sem.h>
+	<util/base.h>
+
+1278847622 source:d:\peter\programmieren\pmath\trunk\richmath\src\eval\job.cpp
+	<eval/job.h>
+	<boxes/section.h>
+	<boxes/mathsequence.h>
+	<eval/client.h>
+	<eval/server.h>
+	<gui/document.h>
+	<gui/native-widget.h>
+
+1278847622 source:d:\peter\programmieren\pmath\trunk\richmath\src\eval\server.cpp
+	<eval/server.h>
+	<cstdio>
+	<windows.h>
+	<process.h>
+	<pthread.h>
+	<eval/client.h>
+	<util/concurrent-queue.h>
+
+1278847622 source:d:\peter\programmieren\pmath\trunk\richmath\src\graphics\animation.cpp
+	<graphics/animation.h>
+	<gui/document.h>
+	<gui/native-widget.h>
+
+1278847622 source:d:\peter\programmieren\pmath\trunk\richmath\src\graphics\buffer.cpp
+	<graphics/buffer.h>
+	<cmath>
+	<cairo-win32.h>
+	<graphics/shapers.h>
+
+1278847622 source:d:\peter\programmieren\pmath\trunk\richmath\src\graphics\canvas.cpp
+	<graphics/canvas.h>
+	<cmath>
+	<cairo-win32.h>
+	<Windows.h>
+	<cairo-win32.h>
+
+1278847622 source:d:\peter\programmieren\pmath\trunk\richmath\src\graphics\config-shaper.cpp
+	<graphics/config-shaper.h>
+	<cstdio>
+	<boxes/mathsequence.h>
+	<graphics/context.h>
+	<graphics/ot-math-shaper.h>
+	<util/style.h>
+	<util/syntax-state.h>
+
+1278847621 d:\peter\programmieren\pmath\trunk\richmath\include\graphics\ot-math-shaper.h
+	<graphics/shapers.h>
+	<util/array.h>
+	<util/pmath-extra.h>
+
+1278847622 source:d:\peter\programmieren\pmath\trunk\richmath\src\graphics\context.cpp
+	<graphics/context.h>
+	<cmath>
+	<cairo-win32.h>
+	<boxes/box.h>
+	<graphics/buffer.h>
+	<graphics/shapers.h>
+	<gui/control-painter.h>
+	<util/syntax-state.h>
+
+1278847622 source:d:\peter\programmieren\pmath\trunk\richmath\src\graphics\fonts.cpp
+	<graphics/fonts.h>
+	<windows.h>
+	<usp10.h>
+	<cairo-win32.h>
+	<graphics/canvas.h>
+	<util/array.h>
+
+1278847622 source:d:\peter\programmieren\pmath\trunk\richmath\src\graphics\ot-math-shaper.cpp
+	<graphics/ot-math-shaper.h>
+	<cmath>
+	<boxes/mathsequence.h>
+	<graphics/context.h>
+	<util/style.h>
+	<util/syntax-state.h>
+
+1278847622 source:d:\peter\programmieren\pmath\trunk\richmath\src\graphics\shapers.cpp
+	<graphics/shapers.h>
+	<cmath>
+	<boxes/mathsequence.h>
+	<graphics/context.h>
+	<graphics/win32-shaper.h>
+
+1278847621 d:\peter\programmieren\pmath\trunk\richmath\include\graphics\win32-shaper.h
+	<graphics/shapers.h>
+
+1278847622 source:d:\peter\programmieren\pmath\trunk\richmath\src\graphics\win32-shaper.cpp
+	<graphics/win32-shaper.h>
+	<windows.h>
+	<usp10.h>
+	<cairo-win32.h>
+	<graphics/context.h>
+	<util/array.h>
+
+1278847622 source:d:\peter\programmieren\pmath\trunk\richmath\src\gui\clipboard.cpp
+	<gui/clipboard.h>
+
+1278847621 d:\peter\programmieren\pmath\trunk\richmath\include\gui\clipboard.h
+	<util/sharedptr.h>
+	<util/pmath-extra.h>
+
+1278847622 source:d:\peter\programmieren\pmath\trunk\richmath\src\gui\control-painter.cpp
+	<gui/control-painter.h>
+	<cmath>
+	<boxes/box.h>
+	<gui/document.h>
+	<gui/native-widget.h>
+	<graphics/context.h>
+
+1278847622 source:d:\peter\programmieren\pmath\trunk\richmath\src\gui\document.cpp
+	<gui/document.h>
+	<cmath>
+	<cstdio>
+	<boxes/buttonbox.h>
+	<boxes/fractionbox.h>
+	<boxes/gridbox.h>
+	<boxes/inputbox.h>
+	<boxes/radicalbox.h>
+	<boxes/section.h>
+	<boxes/mathsequence.h>
+	<boxes/subsuperscriptbox.h>
+	<boxes/underoverscriptbox.h>
+	<eval/binding.h>
+	<eval/client.h>
+	<gui/clipboard.h>
+	<gui/native-widget.h>
+
+1278847622 source:d:\peter\programmieren\pmath\trunk\richmath\src\gui\menu.cpp
+	<gui/menu.h>
+	<boxes/section.h>
+
+1278847621 d:\peter\programmieren\pmath\trunk\richmath\include\gui\menu.h
+	<gui/document.h>
+
+1278847622 source:d:\peter\programmieren\pmath\trunk\richmath\src\gui\native-widget.cpp
+	<gui/native-widget.h>
+	<climits>
+	<cmath>
+	<gui/document.h>
+
+1278847622 source:d:\peter\programmieren\pmath\trunk\richmath\src\gui\win32\basic-win32-widget.cpp
+	<gui/win32/basic-win32-widget.h>
+	<cstdio>
+	<gui/win32/win32-themes.h>
+	<resources.h>
+
+1278847621 d:\peter\programmieren\pmath\trunk\richmath\include\gui\win32\win32-themes.h
+	<Windows.h>
+	<util/base.h>
+
+1278847622 source:d:\peter\programmieren\pmath\trunk\richmath\src\gui\win32\basic-win32-window.cpp
+	<stdio.h>
+	<cairo-win32.h>
+	<graphics/canvas.h>
+	<gui/win32/basic-win32-window.h>
+
+1278847621 d:\peter\programmieren\pmath\trunk\richmath\include\gui\win32\basic-win32-window.h
+	<graphics/canvas.h>
+	<gui/win32/basic-win32-widget.h>
+	<gui/win32/win32-themes.h>
+	<gui/control-painter.h>
+	<util/hashtable.h>
+
+1278847622 source:d:\peter\programmieren\pmath\trunk\richmath\src\gui\win32\win32-clipboard.cpp
+	<gui/win32/win32-clipboard.h>
+	<gui/win32/basic-win32-widget.h>
+
+1278847621 d:\peter\programmieren\pmath\trunk\richmath\include\gui\win32\win32-clipboard.h
+	<gui/clipboard.h>
+	<util/hashtable.h>
+
+1278847622 source:d:\peter\programmieren\pmath\trunk\richmath\src\gui\win32\win32-control-painter.cpp
+	<gui/win32/win32-control-painter.h>
+	<cmath>
+	<cstdio>
+	<cwchar>
+	<windows.h>
+	<cairo-win32.h>
+	<graphics/context.h>
+	<gui/win32/basic-win32-widget.h>
+	<gui/win32/win32-themes.h>
+	<util/array.h>
+	<util/style.h>
+
+1278847621 d:\peter\programmieren\pmath\trunk\richmath\include\gui\win32\win32-control-painter.h
+	<windows.h>
+	<gui/control-painter.h>
+
+1278847622 source:d:\peter\programmieren\pmath\trunk\richmath\src\gui\win32\win32-document-window.cpp
+	<gui/win32/win32-document-window.h>
+	<cmath>
+	<cstdio>
+	<cairo-win32.h>
+	<boxes/section.h>
+	<eval/binding.h>
+	<eval/client.h>
+	<gui/control-painter.h>
+	<gui/win32/win32-control-painter.h>
+	<gui/win32/win32-menubar.h>
+	<gui/win32/win32-themes.h>
+	<resources.h>
+
+1278847621 d:\peter\programmieren\pmath\trunk\richmath\include\gui\win32\win32-document-window.h
+	<gui/win32/basic-win32-window.h>
+	<gui/win32/win32-widget.h>
+
+1278847621 d:\peter\programmieren\pmath\trunk\richmath\include\gui\win32\win32-widget.h
+	<gui/document.h>
+	<gui/native-widget.h>
+	<gui/win32/basic-win32-widget.h>
+
+1278847621 d:\peter\programmieren\pmath\trunk\richmath\include\gui\win32\win32-menubar.h
+	<windows.h>
+	<util/base.h>
+
+1278847622 source:d:\peter\programmieren\pmath\trunk\richmath\src\gui\win32\win32-menubar.cpp
+	<gui/win32/win32-menubar.h>
+	<cstdio>
+	<cctype>
+	<commctrl.h>
+	<util/array.h>
+	<gui/win32/win32-control-painter.h>
+	<gui/win32/win32-document-window.h>
+	<gui/win32/win32-themes.h>
+	<resources.h>
+
+1278847622 source:d:\peter\programmieren\pmath\trunk\richmath\src\gui\win32\win32-themes.cpp
+	<gui/win32/win32-themes.h>
+	<cwchar>
+	<util/array.h>
+
+1278847622 source:d:\peter\programmieren\pmath\trunk\richmath\src\gui\win32\win32-widget.cpp
+	<gui/win32/win32-widget.h>
+	<climits>
+	<cmath>
+	<cstdio>
+	<cairo-win32.h>
+	<boxes/buttonbox.h>
+	<boxes/section.h>
+	<boxes/mathsequence.h>
+	<eval/binding.h>
+	<eval/client.h>
+	<eval/job.h>
+	<gui/control-painter.h>
+	<resources.h>
+
+1278847622 source:d:\peter\programmieren\pmath\trunk\richmath\src\main.cpp
+	<cmath>
+	<cstdio>
+	<ctime>
+	<boxes/section.h>
+	<boxes/mathsequence.h>
+	<eval/binding.h>
+	<eval/client.h>
+	<eval/server.h>
+	<graphics/win32-shaper.h>
+	<graphics/config-shaper.h>
+	<graphics/ot-math-shaper.h>
+	<gui/control-painter.h>
+	<gui/win32/win32-clipboard.h>
+	<gui/win32/win32-document-window.h>
+	<gui/win32/win32-themes.h>
+	<resources.h>
+
+1278847622 source:d:\peter\programmieren\pmath\trunk\richmath\src\util\base.cpp
+	<util/base.h>
+	<cmath>
+	<cstdio>
+	<pmath-util/concurrency/atomic.h>
+
+1278847622 source:d:\peter\programmieren\pmath\trunk\richmath\src\util\pmath-extra.cpp
+	<util/pmath-extra.h>
+	<cstring>
+	<cmath>
+
+1278847622 source:d:\peter\programmieren\pmath\trunk\richmath\src\util\semaphore.cpp
+	<util/semaphore.h>
+
+1278847622 source:d:\peter\programmieren\pmath\trunk\richmath\src\util\spanexpr.cpp
+	<util/spanexpr.h>
+	<boxes/interpretationbox.h>
+	<boxes/stylebox.h>
+	<boxes/subsuperscriptbox.h>
+	<boxes/underoverscriptbox.h>
+
+1278847622 source:d:\peter\programmieren\pmath\trunk\richmath\src\util\style.cpp
+	<util/style.h>
+	<climits>
+	<cmath>
+	<gui/control-painter.h>
+
+1278847622 source:d:\peter\programmieren\pmath\trunk\richmath\src\util\syntax-state.cpp
+	<util/syntax-state.h>
+	<climits>
+	<eval/binding.h>
+	<eval/client.h>
+	<graphics/shapers.h>
+
