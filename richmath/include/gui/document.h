@@ -109,7 +109,10 @@ namespace richmath{
       SharedPtr<Stylesheet> stylesheet(){ return context.stylesheet; }
       
       void paint_resize(Canvas *canvas, bool resize_only);
-
+    
+    public:
+      Document *main_document; // not owned
+    
     protected:
       void raw_select(Box *box, int start, int end);
       

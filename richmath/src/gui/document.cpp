@@ -153,31 +153,6 @@ int richmath::box_order(Box *b1, int i1, Box *b2, int i2){
   return i1 - i2;
 }
 
-/*static void show_highlight(Canvas *canvas, int color, Box *box){
-  if(box && box->parent()){
-    cairo_matrix_t mat;
-    cairo_matrix_init_identity(&mat);
-    box->transformation(0, &mat);
-    
-    canvas->save();
-    canvas->transform(mat);
-    
-    canvas->pixrect(
-      0,
-      - box->extents().ascent,
-      box->extents().width,
-      box->extents().descent,
-      false);
-    
-    canvas->restore();
-    
-    int c = canvas->get_color();
-    canvas->set_color(color);
-    canvas->show_blur_stroke(4, false);
-    canvas->set_color(c);
-  }
-}*/
-
 void richmath::selection_outline(
   Box          *box, 
   int           start, 
@@ -599,6 +574,7 @@ static bool selection_is_name(Document *doc){
 
 Document::Document()
 : SectionList(),
+  main_document(0),
   best_index_rel_x(0),
   auto_scroll(false),
   prev_sel_line(-1),
@@ -1522,59 +1498,8 @@ void Document::raw_select(Box *box, int start, int end){
       b->on_enter();
       b = b->parent();
     }
-//    if(selection_box() != box){
-//      if(selection_box())
-//        selection_box()->on_exit();
-//      
-//      if(box)
-//        box->on_enter();
-//    }
     
     context.selection.set(box, start, end);
-    
-    /*while(box && !box->highlight_inside())
-      box = box->parent();
-      
-    context.highlight_inside_box = box;
-    
-    box = selection_box();
-    
-    bool kill_old_focus = true;
-    while(box){
-      WidgetBox *widget = dynamic_cast<WidgetBox*>(box);
-      
-      if(widget){
-        if(context.focused_widget_id == widget->id()){
-          kill_old_focus = false;
-          break;
-        }
-        
-//        if(widget->set_focus()){
-//          kill_old_focus = false;
-//          
-//          if(context.focused_widget_id){
-//            WidgetBox *old = dynamic_cast<WidgetBox*>(BoxReference::find(context.focused_widget_id));
-//
-//            if(old)
-//              old->focus_killed();
-//          }
-//          
-//          context.focused_widget_id = widget->id();
-//          break;
-//        }
-      }
-      
-      box = box->parent();
-    }*/
-    
-//    if(kill_old_focus && context.focused_widget_id){
-//      WidgetBox *old = dynamic_cast<WidgetBox*>(Box::find(context.focused_widget_id));
-//
-//      if(old)
-//        old->focus_killed();
-//
-//      context.focused_widget_id = 0;
-//    }
     
     native()->invalidate();
   }
@@ -1588,7 +1513,7 @@ void Document::select(Box *box, int start, int end){
   
   sel_last.set(box, start, end);
   sel_first = sel_last;
-  auto_scroll = mouse_down_counter == 0; // true
+  auto_scroll = mouse_down_counter == 0;
   
   raw_select(box, start, end);
 }
@@ -1848,7 +1773,7 @@ void Document::move_start_end(
   && direction == Forward)
     index = context.selection.end;
   
-  while(box && !dynamic_cast<Section*>(box->parent())){
+  while(box->parent() && box->parent()->selectable()){
     index = box->index();
     box = box->parent();
   }
@@ -3372,7 +3297,6 @@ void Document::paint_resize(Canvas *canvas, bool resize_only){
         
         if(line != prev_sel_line){
           flashing_cursor = new BoxRepaintEvent(id(), 0);
-//          native()->beep();
         }
       }
       

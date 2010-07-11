@@ -3191,7 +3191,7 @@
 	<util/pmath-extra.h>
 	<util/sharedptr.h>
 
-1278847621 d:\peter\programmieren\pmath\trunk\richmath\include\gui\document.h
+1278857283 d:\peter\programmieren\pmath\trunk\richmath\include\gui\document.h
 	<boxes/sectionlist.h>
 	<graphics/context.h>
 
@@ -3397,7 +3397,7 @@
 	<boxes/mathsequence.h>
 	<graphics/context.h>
 
-1278847622 source:d:\peter\programmieren\pmath\trunk\richmath\src\eval\binding.cpp
+1278858445 source:d:\peter\programmieren\pmath\trunk\richmath\src\eval\binding.cpp
 	<eval/binding.h>
 	<boxes/section.h>
 	<boxes/mathsequence.h>
@@ -3553,7 +3553,7 @@
 	<gui/native-widget.h>
 	<graphics/context.h>
 
-1278847622 source:d:\peter\programmieren\pmath\trunk\richmath\src\gui\document.cpp
+1278857386 source:d:\peter\programmieren\pmath\trunk\richmath\src\gui\document.cpp
 	<gui/document.h>
 	<cmath>
 	<cstdio>
@@ -3615,7 +3615,7 @@
 	<gui/clipboard.h>
 	<util/hashtable.h>
 
-1278847622 source:d:\peter\programmieren\pmath\trunk\richmath\src\gui\win32\win32-control-painter.cpp
+1278861920 source:d:\peter\programmieren\pmath\trunk\richmath\src\gui\win32\win32-control-painter.cpp
 	<gui/win32/win32-control-painter.h>
 	<cmath>
 	<cstdio>
@@ -3632,7 +3632,7 @@
 	<windows.h>
 	<gui/control-painter.h>
 
-1278847622 source:d:\peter\programmieren\pmath\trunk\richmath\src\gui\win32\win32-document-window.cpp
+1278860796 source:d:\peter\programmieren\pmath\trunk\richmath\src\gui\win32\win32-document-window.cpp
 	<gui/win32/win32-document-window.h>
 	<cmath>
 	<cstdio>
@@ -3675,7 +3675,7 @@
 	<cwchar>
 	<util/array.h>
 
-1278847622 source:d:\peter\programmieren\pmath\trunk\richmath\src\gui\win32\win32-widget.cpp
+1278857814 source:d:\peter\programmieren\pmath\trunk\richmath\src\gui\win32\win32-widget.cpp
 	<gui/win32/win32-widget.h>
 	<climits>
 	<cmath>
@@ -3690,7 +3690,7 @@
 	<gui/control-painter.h>
 	<resources.h>
 
-1278847622 source:d:\peter\programmieren\pmath\trunk\richmath\src\main.cpp
+1278859752 source:d:\peter\programmieren\pmath\trunk\richmath\src\main.cpp
 	<cmath>
 	<cstdio>
 	<ctime>

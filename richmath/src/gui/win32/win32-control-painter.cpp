@@ -194,6 +194,32 @@ bool Win32ControlPainter::is_very_transparent(ContainerType type, ControlState s
   return false;
 }
 
+  static bool rect_in_clip(
+    Canvas *canvas,
+    float   x,
+    float   y,
+    float   width,
+    float   height
+  ){
+    cairo_rectangle_list_t *clip_rects = cairo_copy_clip_rectangle_list(canvas->cairo());
+    
+    if(clip_rects->status == CAIRO_STATUS_SUCCESS){
+      for(int i = 0;i < clip_rects->num_rectangles;++i){
+        cairo_rectangle_t *rect = &clip_rects->rectangles[i];
+        if(x          >= rect->x 
+        && y          >= rect->y 
+        && x + width  <= rect->x + rect->width
+        && y + height <= rect->y + rect->height){
+          cairo_rectangle_list_destroy(clip_rects);
+          return true;
+        }
+      }
+    }
+    
+    cairo_rectangle_list_destroy(clip_rects);
+    return false;
+  }
+
 void Win32ControlPainter::draw_container(
   Canvas        *canvas,
   ContainerType  type,
@@ -281,15 +307,15 @@ void Win32ControlPainter::draw_container(
   int dc_x = 0;
   int dc_y = 0;
   
-  float uw, uh, dummy;
-  uw = width; dummy = 0;
-  canvas->user_to_device_dist(&uw, &dummy);
-  uw = fabs(uw);
+  float uw, uh, a, b;
+  a = width; b = 0;
+  canvas->user_to_device_dist(&a, &b);
+  uw = sqrt(a*a + b*b);
   int w = (int)ceil(uw);
   
-  uh = height; dummy = 0;
-  canvas->user_to_device_dist(&dummy, &uh);
-  uh = fabs(uh);
+  a = 0; b = height;
+  canvas->user_to_device_dist(&a, &b);
+  uh = sqrt(a*a + b*b);
   int h = (int)ceil(uh);
   
   if(w == 0 || h == 0)
@@ -299,12 +325,15 @@ void Win32ControlPainter::draw_container(
   
   HDC dc = cairo_win32_surface_get_dc(cairo_get_target(canvas->cairo()));
   cairo_surface_t *surface = 0;
-
+  
   if(dc){
     cairo_matrix_t ctm;
     cairo_get_matrix(canvas->cairo(), &ctm);
     
-    if(ctm.xx > 0 && ctm.yy > 0 && ctm.xy == 0 && ctm.yx == 0){
+    if((ctm.xx == 0) == (ctm.yy == 0) 
+    && (ctm.xy == 0) == (ctm.yx == 0)
+    && (ctm.xx == 0) != (ctm.xy == 0)
+    && rect_in_clip(canvas, x, y, width, height)){
       float ux = x;
       float uy = y;
       canvas->user_to_device(&ux, &uy);
@@ -422,7 +451,7 @@ void Win32ControlPainter::draw_container(
     
     canvas->save();
     
-    cairo_reset_clip(canvas->cairo());
+    //cairo_reset_clip(canvas->cairo());
     
     cairo_set_source_surface(
       canvas->cairo(), 

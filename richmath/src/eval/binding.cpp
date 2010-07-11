@@ -286,11 +286,30 @@ static bool find_matching_fence_cmd(Expr cmd){
 static bool select_all_cmd(Expr cmd){
   Document *doc = get_current_document();
   
-  if(!doc || !doc->selectable())
+  if(!doc)
     return false;
   
-  doc->select(doc, 0, doc->length());
-  return true;
+  if(doc->selectable()){
+    doc->select(doc, 0, doc->length());
+    return true;
+  }
+  
+  Box *sel = doc->selection_box();
+  if(!sel)
+    return false;
+  
+  Box *next = sel;
+  while(next && next->selectable()){
+    sel = next;
+    next = next->parent();
+  }
+  
+  if(sel->selectable()){
+    doc->select(sel, 0, sel->length());
+    return true;
+  }
+  
+  return false;
 }
 
 

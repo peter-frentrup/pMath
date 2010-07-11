@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_layout_file>
 	<ActiveTarget name="Windows-Debug" />
-	<File name="include\boxes\box.h" open="0" top="0" tabpos="12">
-		<Cursor position="3513" topLine="126" />
+	<File name="include\boxes\box.h" open="1" top="0" tabpos="14">
+		<Cursor position="3382" topLine="134" />
 	</File>
 	<File name="include\boxes\buttonbox.h" open="0" top="0" tabpos="11">
 		<Cursor position="295" topLine="0" />
@@ -29,7 +29,7 @@
 		<Cursor position="603" topLine="36" />
 	</File>
 	<File name="include\boxes\inputbox.h" open="0" top="0" tabpos="5">
-		<Cursor position="208" topLine="8" />
+		<Cursor position="488" topLine="8" />
 	</File>
 	<File name="include\boxes\interpretationbox.h" open="0" top="0" tabpos="7">
 		<Cursor position="254" topLine="0" />
@@ -67,8 +67,8 @@
 	<File name="include\boxes\underoverscriptbox.h" open="0" top="0" tabpos="9">
 		<Cursor position="1413" topLine="11" />
 	</File>
-	<File name="include\eval\binding.h" open="0" top="0" tabpos="15">
-		<Cursor position="271" topLine="0" />
+	<File name="include\eval\binding.h" open="1" top="0" tabpos="10">
+		<Cursor position="418" topLine="0" />
 	</File>
 	<File name="include\eval\client.h" open="0" top="0" tabpos="6">
 		<Cursor position="404" topLine="21" />
@@ -80,7 +80,7 @@
 		<Cursor position="415" topLine="0" />
 	</File>
 	<File name="include\graphics\animation.h" open="0" top="0" tabpos="20">
-		<Cursor position="951" topLine="18" />
+		<Cursor position="594" topLine="17" />
 	</File>
 	<File name="include\graphics\buffer.h" open="0" top="0" tabpos="2">
 		<Cursor position="1138" topLine="5" />
@@ -112,8 +112,8 @@
 	<File name="include\gui\control-painter.h" open="0" top="0" tabpos="19">
 		<Cursor position="311" topLine="10" />
 	</File>
-	<File name="include\gui\document.h" open="0" top="0" tabpos="5">
-		<Cursor position="337" topLine="9" />
+	<File name="include\gui\document.h" open="1" top="0" tabpos="11">
+		<Cursor position="2028" topLine="56" />
 	</File>
 	<File name="include\gui\menu.h" open="0" top="0" tabpos="5">
 		<Cursor position="292" topLine="0" />
@@ -124,7 +124,7 @@
 	<File name="include\gui\win32\basic-win32-widget.h" open="0" top="0" tabpos="8">
 		<Cursor position="179" topLine="3" />
 	</File>
-	<File name="include\gui\win32\basic-win32-window.h" open="1" top="0" tabpos="10">
+	<File name="include\gui\win32\basic-win32-window.h" open="1" top="0" tabpos="9">
 		<Cursor position="1134" topLine="41" />
 	</File>
 	<File name="include\gui\win32\win32-clipboard.h" open="0" top="0" tabpos="9">
@@ -133,8 +133,8 @@
 	<File name="include\gui\win32\win32-control-painter.h" open="0" top="0" tabpos="23">
 		<Cursor position="437" topLine="0" />
 	</File>
-	<File name="include\gui\win32\win32-document-window.h" open="0" top="0" tabpos="12">
-		<Cursor position="227" topLine="0" />
+	<File name="include\gui\win32\win32-document-window.h" open="1" top="0" tabpos="12">
+		<Cursor position="227" topLine="36" />
 	</File>
 	<File name="include\gui\win32\win32-menubar.h" open="0" top="0" tabpos="11">
 		<Cursor position="830" topLine="23" />
@@ -143,7 +143,7 @@
 		<Cursor position="415" topLine="7" />
 	</File>
 	<File name="include\gui\win32\win32-widget.h" open="0" top="0" tabpos="9">
-		<Cursor position="157" topLine="0" />
+		<Cursor position="157" topLine="24" />
 	</File>
 	<File name="include\util\array.h" open="0" top="0" tabpos="9">
 		<Cursor position="5258" topLine="192" />
@@ -160,8 +160,8 @@
 	<File name="include\util\matrix.h" open="0" top="0" tabpos="7">
 		<Cursor position="4051" topLine="25" />
 	</File>
-	<File name="include\util\pmath-extra.h" open="1" top="1" tabpos="13">
-		<Cursor position="338" topLine="0" />
+	<File name="include\util\pmath-extra.h" open="0" top="0" tabpos="13">
+		<Cursor position="387" topLine="0" />
 	</File>
 	<File name="include\util\semaphore.h" open="0" top="0" tabpos="12">
 		<Cursor position="351" topLine="0" />
@@ -187,8 +187,8 @@
 	<File name="scripts\frontinit.pmath" open="0" top="0" tabpos="0">
 		<Cursor position="355" topLine="8" />
 	</File>
-	<File name="src\boxes\box.cpp" open="0" top="0" tabpos="20">
-		<Cursor position="4637" topLine="232" />
+	<File name="src\boxes\box.cpp" open="1" top="0" tabpos="15">
+		<Cursor position="3765" topLine="201" />
 	</File>
 	<File name="src\boxes\buttonbox.cpp" open="0" top="0" tabpos="12">
 		<Cursor position="2679" topLine="88" />
@@ -197,7 +197,7 @@
 		<Cursor position="4406" topLine="179" />
 	</File>
 	<File name="src\boxes\dynamicbox.cpp" open="1" top="0" tabpos="6">
-		<Cursor position="1203" topLine="28" />
+		<Cursor position="754" topLine="28" />
 	</File>
 	<File name="src\boxes\errorbox.cpp" open="0" top="0" tabpos="12">
 		<Cursor position="827" topLine="27" />
@@ -214,14 +214,14 @@
 	<File name="src\boxes\gridbox.cpp" open="0" top="0" tabpos="6">
 		<Cursor position="14081" topLine="555" />
 	</File>
-	<File name="src\boxes\inputbox.cpp" open="0" top="0" tabpos="23">
-		<Cursor position="5785" topLine="243" />
+	<File name="src\boxes\inputbox.cpp" open="1" top="0" tabpos="16">
+		<Cursor position="3813" topLine="236" />
 	</File>
 	<File name="src\boxes\interpretationbox.cpp" open="0" top="0" tabpos="8">
 		<Cursor position="1582" topLine="29" />
 	</File>
 	<File name="src\boxes\mathsequence.cpp" open="1" top="0" tabpos="4">
-		<Cursor position="85224" topLine="3279" />
+		<Cursor position="84822" topLine="3279" />
 	</File>
 	<File name="src\boxes\numberbox.cpp" open="0" top="0" tabpos="25">
 		<Cursor position="4050" topLine="129" />
@@ -253,8 +253,8 @@
 	<File name="src\boxes\underoverscriptbox.cpp" open="0" top="0" tabpos="10">
 		<Cursor position="7505" topLine="253" />
 	</File>
-	<File name="src\eval\binding.cpp" open="1" top="0" tabpos="7">
-		<Cursor position="15073" topLine="563" />
+	<File name="src\eval\binding.cpp" open="1" top="0" tabpos="13">
+		<Cursor position="6545" topLine="215" />
 	</File>
 	<File name="src\eval\client.cpp" open="0" top="0" tabpos="5">
 		<Cursor position="14945" topLine="582" />
@@ -296,49 +296,49 @@
 		<Cursor position="356" topLine="36" />
 	</File>
 	<File name="src\gui\control-painter.cpp" open="0" top="0" tabpos="21">
-		<Cursor position="1346" topLine="33" />
+		<Cursor position="3409" topLine="129" />
 	</File>
-	<File name="src\gui\document.cpp" open="0" top="0" tabpos="4">
-		<Cursor position="14818" topLine="617" />
+	<File name="src\gui\document.cpp" open="1" top="1" tabpos="18">
+		<Cursor position="42142" topLine="1759" />
 	</File>
 	<File name="src\gui\menu.cpp" open="0" top="0" tabpos="4">
 		<Cursor position="946" topLine="6" />
 	</File>
 	<File name="src\gui\native-widget.cpp" open="0" top="0" tabpos="13">
-		<Cursor position="1036" topLine="18" />
+		<Cursor position="660" topLine="18" />
 	</File>
 	<File name="src\gui\win32\basic-win32-widget.cpp" open="0" top="0" tabpos="10">
 		<Cursor position="2760" topLine="119" />
 	</File>
-	<File name="src\gui\win32\basic-win32-window.cpp" open="1" top="0" tabpos="9">
+	<File name="src\gui\win32\basic-win32-window.cpp" open="1" top="0" tabpos="8">
 		<Cursor position="17421" topLine="683" />
 	</File>
 	<File name="src\gui\win32\win32-clipboard.cpp" open="0" top="0" tabpos="8">
 		<Cursor position="3735" topLine="137" />
 	</File>
-	<File name="src\gui\win32\win32-control-painter.cpp" open="1" top="0" tabpos="11">
-		<Cursor position="6820" topLine="199" />
+	<File name="src\gui\win32\win32-control-painter.cpp" open="1" top="0" tabpos="17">
+		<Cursor position="8892" topLine="274" />
 	</File>
-	<File name="src\gui\win32\win32-document-window.cpp" open="1" top="0" tabpos="8">
-		<Cursor position="4852" topLine="87" />
+	<File name="src\gui\win32\win32-document-window.cpp" open="1" top="0" tabpos="7">
+		<Cursor position="22741" topLine="478" />
 	</File>
-	<File name="src\gui\win32\win32-menubar.cpp" open="1" top="0" tabpos="12">
+	<File name="src\gui\win32\win32-menubar.cpp" open="0" top="0" tabpos="12">
 		<Cursor position="293" topLine="0" />
 	</File>
 	<File name="src\gui\win32\win32-themes.cpp" open="0" top="0" tabpos="19">
 		<Cursor position="2799" topLine="42" />
 	</File>
 	<File name="src\gui\win32\win32-widget.cpp" open="0" top="0" tabpos="10">
-		<Cursor position="295" topLine="0" />
+		<Cursor position="23783" topLine="889" />
 	</File>
 	<File name="src\main.cpp" open="1" top="0" tabpos="1">
-		<Cursor position="17455" topLine="548" />
+		<Cursor position="17722" topLine="551" />
 	</File>
 	<File name="src\util\base.cpp" open="0" top="0" tabpos="2">
 		<Cursor position="971" topLine="34" />
 	</File>
 	<File name="src\util\pmath-extra.cpp" open="0" top="0" tabpos="18">
-		<Cursor position="1217" topLine="48" />
+		<Cursor position="431" topLine="19" />
 	</File>
 	<File name="src\util\semaphore.cpp" open="0" top="0" tabpos="0">
 		<Cursor position="1144" topLine="41" />

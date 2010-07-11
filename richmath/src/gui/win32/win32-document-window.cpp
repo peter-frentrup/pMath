@@ -497,97 +497,10 @@ void Win32DocumentWindow::after_construction(){
   _bottom_area->init();
   _bottom_glass_area->init();
   
-//  _working_area->_autohide_vertical_scrollbar = true;
-//  _working_area->auto_size = true;
-  
-//  _top_glass_area->document()->insert(0, 
-//    Section::create_from_object(Expr(run(
-//      "Section(BoxData("
-//        "{\"\\\" Help Topic:  \\\"\","
-//          "FillBox(InputBox(\"\")),"
-//          "ButtonBox("
-//            "\"\\\" Go \\\"\","
-//            "ButtonFrame->\"Palette\")}),"
-//        "\"Docked\","
-//        "LineBreakWithin->False,"
-//        "SectionMargins->{0.75, 0.75, 3, 4.5},"
-//        "SectionFrameMargins->0)"
-//      ))));
-//  
-//  _top_area->document()->insert(0, 
-//    Section::create_from_object(Expr(run(
-//      "Section(BoxData("
-//        "{\"\\\"There is an Update available. \","
-//          "FillBox(\"\"),"
-//          "ButtonBox(\"\\\"Download\\\"\"),"
-//          "\" \","
-//          "ButtonBox("
-//            "StyleBox("
-//              "\"\\\"\xD7\\\"\","
-//              "FontColor->RGBColor(0.8,0,0),"
-//              "FontWeight->\"Bold\","
-//              "FontSize->11),"
-//            "ButtonFrame->\"Palette\"),"
-//          "\"\\\"\"}),"
-//        "\"Docked\","
-//        "Background->RGBColor(0.964706, 0.941176, 0.745098),"
-////        "SectionFrame->{0.75,0.75,0.75,1},"
-//        "SectionFrame->{0,0,0.5,1},"
-//        "SectionFrameMargins->{Inherited,0.75,1.5,1.5},"
-//        "SectionFrameColor->RGBColor(0.792157, 0.72549, 0.109804))"
-//      ))));
-      
-//  _top_area->document()->insert(0, 
-//    Section::create_from_object(Expr(run(
-//      "Section(BoxData("
-//        "{\"\\\"This is a Toolbar.\\\"\"}),"
-//        "\"Docked\","
-//        "SectionFrame->{0,0,0,1},"
-//        "SectionFrameColor->GrayLevel(0.5))"
-//      ))));
-  
-//  _bottom_area->document()->insert(0, 
-//    Section::create_from_object(Expr(run(
-//      "Section(BoxData({" 
-//        "\"Status Text\","
-//        "FillBox(\"\")"
-//        "}),\"Docked\","
-//        "SectionFrame->{0,0,0.5,0},"
-//        "SectionFrameColor->GrayLevel(0.5),"
-//        "SectionFrameMargins->{3,12,3,3},"
-//        "SectionMargins->0,"
-//        "LineBreakWithin->False)"
-//      ))));
-//  
-//  _bottom_glass_area->document()->insert(0, 
-//    Section::create_from_object(Expr(run(
-//      "Section(BoxData({"
-//        "ButtonBox("
-//            "StyleBox("
-//              "\"\\\"\xD7\\\"\","
-//              "FontColor->RGBColor(0.8,0,0),"
-//              "FontWeight->\"Bold\","
-//              "FontSize->11),"
-//            "ButtonFrame->\"Palette\"),"
-//          "InputBox(\"\"),"
-//          "ButtonBox(\"\\\"Suchen\\\"\",ButtonFrame->\"Palette\"),"
-//          "FillBox(\"\"),"
-//          "ButtonBox(\"\\\"...\\\"\",ButtonFrame->\"Palette\")"
-//        "}),\"Docked\","
-//        "LineBreakWithin->False,"
-//        "SectionMargins->{0.75, 12, 4, 0.75},"
-//        "SectionFrameMargins->0)"
-//      ))));
-//  _bottom_glass_area->document()->insert(0,
-//    Section::create_from_object(Expr(run(
-//      "Section(BoxData({"
-//          "ButtonBox("
-//            "\"\\\"Status\\\"\","
-//            "ButtonFrame->\"Palette\")"
-//        "}),\"Docked\","
-//        "LineBreakWithin->False,"
-//        "SectionMargins->{0, 12, 0, 0},"
-//        "SectionFrameMargins->0)"))));
+  top_glass()->main_document    = document();
+  top()->main_document          = document();
+  bottom()->main_document       = document();
+  bottom_glass()->main_document = document();
   
   menubar = new Win32Menubar(
     this, _hwnd,
@@ -610,9 +523,9 @@ void Win32DocumentWindow::after_construction(){
     InsertMenuItemW(sysmenu, GetMenuItemCount(sysmenu), TRUE, &info);
   }
   
-  all_document_ids.set(_working_area->document()->id(), Void());
+  all_document_ids.set(document()->id(), Void());
   if(get_current_document() == 0){
-    set_current_document(_working_area->document());
+    set_current_document(document());
   }
   
   creation = false;

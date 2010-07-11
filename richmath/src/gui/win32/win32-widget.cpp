@@ -893,13 +893,20 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam){
       } return 0;
       
       case WM_SETFOCUS: {
-        document()->focus_set();
+//        document()->focus_set();
+        
+        Box *box = document()->selection_box();
+        if(!box)
+          box = document();
+        
+        if(box->selectable()){
+          set_current_document(document());
+        }
       } return 0;
       
-      case WM_KILLFOCUS: {
-  //      if(document() != get_current_document())
-          document()->focus_killed();
-      } return 0;
+//      case WM_KILLFOCUS: {
+//        document()->focus_killed();
+//      } return 0;
       
       case WM_SYSKEYDOWN:
       case WM_SYSKEYUP: {
