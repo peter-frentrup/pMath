@@ -3182,7 +3182,7 @@
 	<util/pmath-extra.h>
 	<util/sharedptr.h>
 
-1278847621 d:\peter\programmieren\pmath\trunk\richmath\include\eval\client.h
+1279053296 d:\peter\programmieren\pmath\trunk\richmath\include\eval\client.h
 	<util/hashtable.h>
 	<util/pmath-extra.h>
 	<util/sharedptr.h>
@@ -3397,7 +3397,7 @@
 	<boxes/mathsequence.h>
 	<graphics/context.h>
 
-1278858445 source:d:\peter\programmieren\pmath\trunk\richmath\src\eval\binding.cpp
+1279053284 source:d:\peter\programmieren\pmath\trunk\richmath\src\eval\binding.cpp
 	<eval/binding.h>
 	<boxes/section.h>
 	<boxes/mathsequence.h>
@@ -3406,7 +3406,7 @@
 	<gui/document.h>
 	<gui/native-widget.h>
 
-1278847622 source:d:\peter\programmieren\pmath\trunk\richmath\src\eval\client.cpp
+1279053345 source:d:\peter\programmieren\pmath\trunk\richmath\src\eval\client.cpp
 	<eval/client.h>
 	<cmath>
 	<cstdio>
@@ -3659,12 +3659,13 @@
 	<windows.h>
 	<util/base.h>
 
-1278847622 source:d:\peter\programmieren\pmath\trunk\richmath\src\gui\win32\win32-menubar.cpp
+1279053362 source:d:\peter\programmieren\pmath\trunk\richmath\src\gui\win32\win32-menubar.cpp
 	<gui/win32/win32-menubar.h>
 	<cstdio>
 	<cctype>
 	<commctrl.h>
 	<util/array.h>
+	<eval/client.h>
 	<gui/win32/win32-control-painter.h>
 	<gui/win32/win32-document-window.h>
 	<gui/win32/win32-themes.h>
@@ -3690,7 +3691,7 @@
 	<gui/control-painter.h>
 	<resources.h>
 
-1278859752 source:d:\peter\programmieren\pmath\trunk\richmath\src\main.cpp
+1278870468 source:d:\peter\programmieren\pmath\trunk\richmath\src\main.cpp
 	<cmath>
 	<cstdio>
 	<ctime>

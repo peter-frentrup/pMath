@@ -141,6 +141,12 @@ static pmath_t builtin_selecteddocument(pmath_expr_t expr){
 
 //{ menu commands ...
 
+static bool can_copy_cut(Expr cmd){
+  Document *doc = get_current_document();
+  
+  return doc && doc->selection_length() > 0;
+}
+
 static bool copy_cmd(Expr cmd){
   Document *doc = get_current_document();
   
@@ -169,6 +175,12 @@ static bool paste_cmd(Expr cmd){
   
   doc->paste_from_clipboard();
   return true;
+}
+
+static bool can_edit_boxes(Expr cmd){
+  Document *doc = get_current_document();
+  
+  return doc && (doc->selection_length() > 0 || doc->selection_box() != doc);
 }
 
 static bool edit_boxes_cmd(Expr cmd){
@@ -472,6 +484,10 @@ static bool insert_underscript_cmd(Expr cmd){
 
 
 
+static bool can_abort(Expr cmd){
+  return !Client::is_idle();
+}
+
 static bool abort_cmd(Expr cmd){
   Client::interrupt(Call(Symbol(PMATH_SYMBOL_ABORT)));
   //Client::abort_all();
@@ -575,10 +591,10 @@ bool richmath::init_bindings(){
 //  || !BIND_DOWN(PMATH_SYMBOL_DOCUMENTS,    builtin_documents))
 //    return false;
   
-  Client::register_menucommand(String("Copy"),              copy_cmd);
-  Client::register_menucommand(String("Cut"),               cut_cmd);
+  Client::register_menucommand(String("Copy"),              copy_cmd,                 can_copy_cut);
+  Client::register_menucommand(String("Cut"),               cut_cmd,                  can_copy_cut);
   Client::register_menucommand(String("Paste"),             paste_cmd);
-  Client::register_menucommand(String("EditBoxes"),         edit_boxes_cmd);
+  Client::register_menucommand(String("EditBoxes"),         edit_boxes_cmd,           can_edit_boxes);
   Client::register_menucommand(String("ExpandSelection"),   expand_selection_cmd);
   Client::register_menucommand(String("FindMatchingFence"), find_matching_fence_cmd);
   Client::register_menucommand(String("SelectAll"),         select_all_cmd);
@@ -596,11 +612,11 @@ bool richmath::init_bindings(){
   Client::register_menucommand(String("InsertUnderscript"),       insert_underscript_cmd);
   Client::register_menucommand(String("SimilarSectionBelow"),     similar_section_below_cmd);
   
-  Client::register_menucommand(String("EvaluatorAbort"),             abort_cmd);
+  Client::register_menucommand(String("EvaluatorAbort"),             abort_cmd,                 can_abort);
   Client::register_menucommand(String("EvaluateInPlace"),            evaluate_in_place_cmd);
   Client::register_menucommand(String("EvaluateSections"),           evaluate_sections_cmd);
   Client::register_menucommand(String("EvaluateSectionsAndReturn"),  evaluate_sections_cmd);
-  Client::register_menucommand(String("EvaluatorSubsession"),        evaluator_subsession_cmd);
+  Client::register_menucommand(String("EvaluatorSubsession"),        evaluator_subsession_cmd,  can_abort);
   Client::register_menucommand(String("SubsessionEvaluateSections"), subsession_evaluate_sections_cmd);
   
   Client::register_menucommand(Expr(pmath_ref(PMATH_SYMBOL_DOCUMENTAPPLY)), cmd_document_apply);

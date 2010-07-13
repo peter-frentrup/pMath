@@ -9,6 +9,7 @@
 #include <commctrl.h>
 
 #include <util/array.h>
+#include <eval/client.h>
 #include <gui/win32/win32-control-painter.h>
 #include <gui/win32/win32-document-window.h>
 #include <gui/win32/win32-themes.h>
@@ -196,11 +197,22 @@ void Win32Menubar::show_menu(int item){
   if(hook){
     current_popup = GetSubMenu(_menu, item - 1);
     
+    pt.y = tpm.rcExclude.bottom;
+    UINT align;
+    if(GetSystemMetrics(SM_MENUDROPALIGNMENT) == 0){
+      align = TPM_LEFTALIGN;
+      pt.x = tpm.rcExclude.left;
+    }
+    else{
+      align = TPM_RIGHTALIGN;
+      pt.x = tpm.rcExclude.right;
+    }
+    
     int cmd = TrackPopupMenuEx(
       current_popup,
       GetSystemMetrics(SM_MENUDROPALIGNMENT) | TPM_RETURNCMD,
-      tpm.rcExclude.left,
-      tpm.rcExclude.bottom,
+      pt.x,
+      pt.y,
       parent,
       &tpm);
       
@@ -242,10 +254,21 @@ void Win32Menubar::show_sysmenu(){
   if(hook){
     current_popup = GetSystemMenu(parent, FALSE);
     
+    int x;
+    UINT align;
+    if(GetSystemMetrics(SM_MENUDROPALIGNMENT) == 0){
+      align = TPM_LEFTALIGN;
+      x = tpm.rcExclude.left;
+    }
+    else{
+      align = TPM_RIGHTALIGN;
+      x = tpm.rcExclude.right;
+    }
+    
     int cmd = TrackPopupMenuEx(
       current_popup,
       GetSystemMetrics(SM_MENUDROPALIGNMENT) | TPM_RETURNCMD,
-      tpm.rcExclude.left,
+      x,
       tpm.rcExclude.bottom,
       parent,
       &tpm);
@@ -459,6 +482,22 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
         point_to_dword(pt));
     } break;
     
+    case WM_INITMENUPOPUP: {
+      HMENU sub = (HMENU)wParam;
+      
+      for(int i = GetMenuItemCount(sub)-1;i >= 0;--i){
+        UINT flags = MF_BYPOSITION;
+        
+        int id = GetMenuItemID(sub, i);
+        if(Client::is_menucommand_runnable(win32_command_id_to_command_string(id)))
+          flags |= MF_ENABLED;
+        else
+          flags |= MF_GRAYED;
+        
+        EnableMenuItem(sub, i, flags);
+      }
+    } break;
+    
     case WM_NEXTMENU: {
       printf("[next]");
     } break;
@@ -501,25 +540,6 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
         _window->rearrange();
       }
     } break;
-    
-//    case WM_ENTERMENULOOP: {
-////      if(current_popup){
-////        MENUITEMINFOW info;
-////        memset(&info, 0, sizeof(info));
-////        info.cbSize = sizeof(info);
-////        info.fMask = MIIM_STATE;
-////        
-////        GetMenuItemInfoW(current_popup, 0, TRUE, &info);
-////        info.fState|= MFS_HILITE;
-////        SetMenuItemInfoW(current_popup, 0, TRUE, &info);
-////      }
-//    
-//      printf("[enter menu loop]");
-//    } break;
-//    
-//    case WM_EXITMENULOOP: {
-//      printf("[exit menu loop]");
-//    } break;
   }
   return false;
 }

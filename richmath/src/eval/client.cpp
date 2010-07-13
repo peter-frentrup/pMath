@@ -69,6 +69,7 @@ static ConcurrentQueue<ClientNotification>   notifications;
 static SharedPtr<Session>   session = new Session(0);
 
 static Hashtable<Expr, bool (*)(Expr)> menu_commands;
+static Hashtable<Expr, bool (*)(Expr)> menu_command_testers;
 
 static void execute(ClientNotification &cn);
 
@@ -166,16 +167,40 @@ Expr Client::notify_wait(ClientNotificationType type, Expr data){
   return Expr(result);
 }
 
+bool Client::is_menucommand_runnable(Expr cmd){
+  bool (*func)(Expr);
+  
+  func = menu_command_testers[cmd];
+  if(func && !func(cmd))
+    return false;
+  
+  func = menu_command_testers[cmd];
+  if(func && !func(cmd))
+    return false;
+  
+  return true;
+}
+
 void Client::register_menucommand(
   Expr cmd,
-  bool (*func)(Expr cmd)
+  bool (*func)(Expr cmd), 
+  bool (*test)(Expr cmd)
 ){
-  if(!cmd.is_valid())
-    menu_commands.default_value = func;
-  else if(func)
+  if(!cmd.is_valid()){
+    menu_commands.default_value       = func;
+    menu_command_testers.default_value = test;
+    return;
+  }
+  
+  if(func)
     menu_commands.set(cmd, func);
   else
     menu_commands.remove(cmd);
+  
+  if(test)
+    menu_command_testers.set(cmd, test);
+  else
+    menu_command_testers.remove(cmd);
 }
 
 void Client::init(){
@@ -201,8 +226,6 @@ void Client::init(){
     application_directory = application_filename.part(0, i);
   else
     application_directory = application_filename;
-//  
-//  menu_commands.default_value = 0;
 }
 
 int Client::run(){
@@ -256,6 +279,7 @@ void Client::done(){
   
   eval_cache.clear();
   menu_commands.clear();
+  menu_command_testers.clear();
   application_filename = String();
   application_directory = String();
 }

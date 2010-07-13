@@ -33,9 +33,12 @@ namespace richmath{
         notify(CNT_MENUCOMMAND, cmd);
       }
       
+      static bool is_menucommand_runnable(Expr cmd); // call from GUI thread only
+      
       static void register_menucommand(
         Expr cmd, 
-        bool (*func)(Expr cmd));
+        bool (*func)(Expr cmd), 
+        bool (*test)(Expr cmd) = 0);
       
       static void init();
       static int run();
