@@ -4,8 +4,6 @@ Button("Math in Text",DocumentApply(SelectedDocument(),"\({\"\"}\)"))
 Button("italic",DocumentApply(SelectedDocument(),StyleBox("",FontSlant->Italic)))
 Button("Arg Style",DocumentApply(SelectedDocument(),StyleBox("","Arg")))
 
-- BUG: richmath CRASHES when the main window is closed while its system menu (ALT+SPACE) is visible
-
 ?! change double-comparisions a==b to is_near_zero(a-b) with #define is_near_zero(x)  (-DPL_EPSILON <= (x) && (x) <= DPL_EPSILON)
 	A double could actually be held in an 80bit x87 floating point register and thus be != 0, but when converted to double (written to memory), it becomes 0, 
 	So "if(x!=0){ some_x_invariant_code_that_prevents_optimizing_the_assert_away; assert(x!=0); }" can actually crash!

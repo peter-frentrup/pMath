@@ -40,11 +40,17 @@ namespace richmath{
       }
       
       SharedPtr &operator=(const SharedPtr &src){
-        if(src._ptr)
-          src._ptr->ref();
+        /* In bla = bla->next, where bla._ptr.refcount = 1, _ptr would be 
+           deleted and thus src === &bla->next === &bla._ptr->next is lost, so 
+           we need to preserve the value in a local variable.
+         */
+        T *p = src._ptr; 
+        
+        if(p)
+          p->ref();
         if(_ptr)
           _ptr->unref();
-        _ptr = src._ptr;
+        _ptr = p;
         return *this;
       }
       

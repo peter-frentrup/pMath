@@ -3120,7 +3120,7 @@
 	<cassert>
 	<cstring>
 
-1278847621 d:\peter\programmieren\pmath\trunk\richmath\include\util\sharedptr.h
+1279400698 d:\peter\programmieren\pmath\trunk\richmath\include\util\sharedptr.h
 
 1278847621 d:\peter\programmieren\pmath\trunk\richmath\include\util\style.h
 	<util/hashtable.h>
@@ -3406,7 +3406,7 @@
 	<gui/document.h>
 	<gui/native-widget.h>
 
-1279053345 source:d:\peter\programmieren\pmath\trunk\richmath\src\eval\client.cpp
+1279053478 source:d:\peter\programmieren\pmath\trunk\richmath\src\eval\client.cpp
 	<eval/client.h>
 	<cmath>
 	<cstdio>
