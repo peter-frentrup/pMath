@@ -3954,3 +3954,129 @@
 	<bits/wordsize.h>
 	<bits/wordsize.h>
 
+1274696989 source:d:\peter\programmieren\pmath\trunk\library\test\main.c
+	<errno.h>
+	<inttypes.h>
+	<limits.h>
+	<signal.h>
+	<stdint.h>
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<pmath.h>
+	<io.h>
+	<windows.h>
+	<unistd.h>
+	<semaphore.h>
+
+1274621453 d:\peter\programmieren\pmath\trunk\library\include\pmath.h
+	<pmath-config.h>
+	<pmath-types.h>
+	<pmath-util/concurrency/atomic.h>
+	<pmath-core/objects.h>
+	<pmath-core/custom.h>
+	<pmath-core/expressions.h>
+	<pmath-core/numbers.h>
+	<pmath-core/strings.h>
+	<pmath-core/symbols.h>
+	<pmath-builtins/all-symbols.h>
+	<pmath-language/charnames.h>
+	<pmath-language/scanner.h>
+	<pmath-language/tokens.h>
+	<pmath-util/approximate.h>
+	<pmath-util/concurrency/threadlocks.h>
+	<pmath-util/concurrency/threadmsg.h>
+	<pmath-util/concurrency/threadpool.h>
+	<pmath-util/concurrency/threads.h>
+	<pmath-util/debug.h>
+	<pmath-util/evaluation.h>
+	<pmath-util/files.h>
+	<pmath-util/helpers.h>
+	<pmath-util/memory.h>
+	<pmath-util/messages.h>
+	<pmath-util/serialize.h>
+	<pmath-util/stacks.h>
+	<pmath-core/objects-inline.h>
+
+1274621453 d:\peter\programmieren\pmath\trunk\library\include\pmath-config.h
+	<sal.h>
+
+1274621453 d:\peter\programmieren\pmath\trunk\library\include\pmath-types.h
+
+1274621453 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\concurrency\atomic.h
+	<assert.h>
+	<pmath-config.h>
+	<pmath-types.h>
+	<inttypes.h>
+	<pmath-util/concurrency/atomic/non-atomic.h>
+	<pmath-util/concurrency/atomic/gcc/built_in_functions.h>
+	<pmath-util/concurrency/atomic/gcc/x86.h>
+	<pmath-util/concurrency/atomic/gcc/x86-64.h>
+	<pmath-util/concurrency/atomic/gcc/sun.h>
+	<pmath-util/concurrency/atomic/non-atomic.h>
+	<pmath-util/concurrency/atomic/msvc/intrinsic_functions.h>
+	<pmath-util/concurrency/atomic/non-atomic.h>
+
+1274621454 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\concurrency\atomic\non-atomic.h
+
+1274621454 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\concurrency\atomic\gcc\built_in_functions.h
+
+1274621454 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\concurrency\atomic\gcc\x86.h
+
+1274621454 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\concurrency\atomic\gcc\x86-64.h
+
+1274621454 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\concurrency\atomic\gcc\sun.h
+	<sys/atomic.h>
+
+1274621454 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\concurrency\atomic\msvc\intrinsic_functions.h
+	<intrin.h>
+
+1274621453 d:\peter\programmieren\pmath\trunk\library\include\pmath-core\objects.h
+
+1274621453 d:\peter\programmieren\pmath\trunk\library\include\pmath-core\custom.h
+
+1274621453 d:\peter\programmieren\pmath\trunk\library\include\pmath-core\expressions.h
+
+1274621453 d:\peter\programmieren\pmath\trunk\library\include\pmath-core\numbers.h
+
+1274621453 d:\peter\programmieren\pmath\trunk\library\include\pmath-core\strings.h
+
+1274621453 d:\peter\programmieren\pmath\trunk\library\include\pmath-core\symbols.h
+
+1278776119 d:\peter\programmieren\pmath\trunk\library\include\pmath-builtins\all-symbols.h
+
+1274621453 d:\peter\programmieren\pmath\trunk\library\include\pmath-language\charnames.h
+
+1274621453 d:\peter\programmieren\pmath\trunk\library\include\pmath-language\scanner.h
+
+1274621453 d:\peter\programmieren\pmath\trunk\library\include\pmath-language\tokens.h
+
+1274621453 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\approximate.h
+
+1274621453 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\concurrency\threadlocks.h
+
+1274621453 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\concurrency\threadmsg.h
+
+1274621453 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\concurrency\threadpool.h
+
+1274621454 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\concurrency\threads.h
+
+1274621453 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\debug.h
+
+1274621453 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\evaluation.h
+
+1274621453 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\files.h
+
+1274621453 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\helpers.h
+
+1274621453 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\memory.h
+	<pmath-util/concurrency/atomic.h>
+
+1274621453 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\messages.h
+
+1274621453 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\serialize.h
+
+1274621453 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\stacks.h
+
+1274621453 d:\peter\programmieren\pmath\trunk\library\include\pmath-core\objects-inline.h
+

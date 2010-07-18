@@ -4,7 +4,7 @@ Button("Math in Text",DocumentApply(SelectedDocument(),"\({\"\"}\)"))
 Button("italic",DocumentApply(SelectedDocument(),StyleBox("",FontSlant->Italic)))
 Button("Arg Style",DocumentApply(SelectedDocument(),StyleBox("","Arg")))
 
-?! change double-comparisions a==b to is_near_zero(a-b) with #define is_near_zero(x)  (-DPL_EPSILON <= (x) && (x) <= DPL_EPSILON)
+?! change all double-comparisions a==b to almost_equal_machine(a,b)  (as in compare.c)
 	A double could actually be held in an 80bit x87 floating point register and thus be != 0, but when converted to double (written to memory), it becomes 0, 
 	So "if(x!=0){ some_x_invariant_code_that_prevents_optimizing_the_assert_away; assert(x!=0); }" can actually crash!
 	[See "The pitfalls of verifying floating-point computations", Monniaux : http://hal.archives-ouvertes.fr/docs/00/28/14/29/PDF/floating-point-article.pdf]

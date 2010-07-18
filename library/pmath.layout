@@ -11,10 +11,10 @@
 		<Cursor position="47728" topLine="574" />
 	</File>
 	<File name="include\pmath-builtins\arithmetic-private.h" open="0" top="0" tabpos="8">
-		<Cursor position="849" topLine="3" />
+		<Cursor position="191" topLine="0" />
 	</File>
 	<File name="include\pmath-builtins\build-expr-private.h" open="0" top="0" tabpos="11">
-		<Cursor position="213" topLine="0" />
+		<Cursor position="950" topLine="0" />
 	</File>
 	<File name="include\pmath-builtins\control-private.h" open="0" top="0" tabpos="10">
 		<Cursor position="273" topLine="0" />
@@ -64,11 +64,11 @@
 	<File name="include\pmath-core\expressions.h" open="0" top="0" tabpos="12">
 		<Cursor position="7060" topLine="170" />
 	</File>
-	<File name="include\pmath-core\numbers-private.h" open="0" top="0" tabpos="13">
-		<Cursor position="2545" topLine="85" />
+	<File name="include\pmath-core\numbers-private.h" open="0" top="0" tabpos="9">
+		<Cursor position="1200" topLine="58" />
 	</File>
 	<File name="include\pmath-core\numbers.h" open="0" top="0" tabpos="9">
-		<Cursor position="3967" topLine="121" />
+		<Cursor position="11822" topLine="310" />
 	</File>
 	<File name="include\pmath-core\objects-inline.h" open="0" top="0" tabpos="20">
 		<Cursor position="1751" topLine="40" />
@@ -185,7 +185,7 @@
 		<Cursor position="1191" topLine="33" />
 	</File>
 	<File name="include\pmath-util\helpers.h" open="0" top="0" tabpos="22">
-		<Cursor position="2463" topLine="65" />
+		<Cursor position="6130" topLine="136" />
 	</File>
 	<File name="include\pmath-util\incremental-hash-private.h" open="0" top="0" tabpos="0">
 		<Cursor position="240" topLine="0" />
@@ -227,7 +227,7 @@
 		<Cursor position="30046" topLine="115" />
 	</File>
 	<File name="src\pmath-builtins\all-symbols.c" open="1" top="0" tabpos="3">
-		<Cursor position="105228" topLine="1369" />
+		<Cursor position="18385" topLine="321" />
 	</File>
 	<File name="src\pmath-builtins\arithmetic\abs-and-sign.c" open="0" top="0" tabpos="0">
 		<Cursor position="848" topLine="20" />
@@ -266,7 +266,7 @@
 		<Cursor position="16244" topLine="577" />
 	</File>
 	<File name="src\pmath-builtins\arithmetic\power.c" open="0" top="0" tabpos="10">
-		<Cursor position="22802" topLine="0" />
+		<Cursor position="6106" topLine="69" />
 	</File>
 	<File name="src\pmath-builtins\arithmetic\sin.c" open="0" top="0" tabpos="0">
 		<Cursor position="516" topLine="14" />
@@ -281,7 +281,7 @@
 		<Cursor position="851" topLine="18" />
 	</File>
 	<File name="src\pmath-builtins\arithmetic\times.c" open="0" top="0" tabpos="0">
-		<Cursor position="375" topLine="6" />
+		<Cursor position="9474" topLine="337" />
 	</File>
 	<File name="src\pmath-builtins\control\bytecount.c" open="0" top="0" tabpos="0">
 		<Cursor position="2442" topLine="54" />
@@ -559,8 +559,8 @@
 	<File name="src\pmath-builtins\lists\first-last-most-rest.c" open="0" top="0" tabpos="0">
 		<Cursor position="2905" topLine="89" />
 	</File>
-	<File name="src\pmath-builtins\lists\flatten.c" open="1" top="1" tabpos="7">
-		<Cursor position="891" topLine="25" />
+	<File name="src\pmath-builtins\lists\flatten.c" open="1" top="0" tabpos="7">
+		<Cursor position="979" topLine="25" />
 	</File>
 	<File name="src\pmath-builtins\lists\fold-and-foldlist.c" open="0" top="0" tabpos="0">
 		<Cursor position="1349" topLine="5" />
@@ -575,7 +575,7 @@
 		<Cursor position="3243" topLine="117" />
 	</File>
 	<File name="src\pmath-builtins\lists\isordered.c" open="0" top="0" tabpos="0">
-		<Cursor position="0" topLine="12" />
+		<Cursor position="1702" topLine="48" />
 	</File>
 	<File name="src\pmath-builtins\lists\join.c" open="0" top="0" tabpos="0">
 		<Cursor position="1961" topLine="60" />
@@ -640,8 +640,8 @@
 	<File name="src\pmath-builtins\logic\and.c" open="0" top="0" tabpos="0">
 		<Cursor position="691" topLine="19" />
 	</File>
-	<File name="src\pmath-builtins\logic\comparisions.c" open="0" top="0" tabpos="0">
-		<Cursor position="16912" topLine="505" />
+	<File name="src\pmath-builtins\logic\comparisions.c" open="1" top="1" tabpos="8">
+		<Cursor position="1232" topLine="27" />
 	</File>
 	<File name="src\pmath-builtins\logic\identical.c" open="0" top="0" tabpos="0">
 		<Cursor position="1371" topLine="26" />
@@ -692,7 +692,7 @@
 		<Cursor position="35217" topLine="1186" />
 	</File>
 	<File name="src\pmath-core\numbers.c" open="0" top="0" tabpos="27">
-		<Cursor position="1326" topLine="36" />
+		<Cursor position="25133" topLine="906" />
 	</File>
 	<File name="src\pmath-core\objects-inline.c" open="0" top="0" tabpos="19">
 		<Cursor position="631" topLine="0" />
@@ -776,6 +776,6 @@
 		<Cursor position="26535" topLine="949" />
 	</File>
 	<File name="src\pmath.c" open="0" top="0" tabpos="4">
-		<Cursor position="0" topLine="0" />
+		<Cursor position="15196" topLine="486" />
 	</File>
 </CodeBlocks_layout_file>

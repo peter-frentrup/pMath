@@ -55,7 +55,7 @@
 
 struct _pmath_integer_t{
   struct _pmath_t  inherited;
-  mpz_t                   value;
+  mpz_t            value;
 };
 
 /* We don't use mpq_t to store quotients, because this would involve a lot of
@@ -65,20 +65,20 @@ struct _pmath_integer_t{
    to be stored in the integer cache.
  */
 struct _pmath_quotient_t{
-  struct _pmath_t    inherited;
+  struct _pmath_t           inherited;
   struct _pmath_integer_t  *numerator;
   struct _pmath_integer_t  *denominator;
 };
 
 struct _pmath_mp_float_t{
   struct _pmath_t  inherited;
-  mpfr_t                  value;
-  mpfr_t                  error;
+  mpfr_t           value;
+  mpfr_t           error;
 };
 
 struct _pmath_machine_float_t{
   struct _pmath_t  inherited;
-  double                  value;
+  double           value;
 };
 
 /*============================================================================*/

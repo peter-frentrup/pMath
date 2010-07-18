@@ -34,6 +34,120 @@
 #define DIRECTION_EQUAL     (1<<1)
 #define DIRECTION_GREATER   (1<<2)
 
+#define TOLERANCE_FACTOR 64
+
+static pmath_bool_t almost_equal_machine(double a, double b){
+  if(a == b)
+    return TRUE;
+  
+  if((a < 0) != (b < 0))
+    return FALSE;
+  
+  if(a < 0) a = -a;
+  if(b < 0) b = -b;
+  
+  if(a < b){
+    double tmp = a;
+    a = b;
+    b = tmp;
+  }
+  
+  return a <= b * (1 + TOLERANCE_FACTOR * DBL_EPSILON);
+}
+
+static pmath_bool_t almost_equal_mp(
+  struct _pmath_mp_float_t *a, 
+  struct _pmath_mp_float_t *b
+){ 
+  pmath_number_t test;
+  pmath_number_t err;
+  
+  assert(pmath_instance_of((pmath_t)a, PMATH_TYPE_MP_FLOAT));
+  assert(pmath_instance_of((pmath_t)b, PMATH_TYPE_MP_FLOAT));
+  
+  if(mpfr_equal_p(a->value, b->value))
+    return TRUE;
+  
+  if(mpfr_zero_p(a->value) || mpfr_zero_p(b->value))
+    return FALSE;
+  
+  if(mpfr_cmpabs(a->value, b->value) < 0){
+    test = _mul_nn(
+      pmath_ref((pmath_t)b), 
+      _pow_fi(
+        (struct _pmath_mp_float_t*)pmath_ref((pmath_t)a), 
+        -1, 
+        TRUE));
+  }
+  else{
+    test = _mul_nn(
+      pmath_ref((pmath_t)a), 
+      _pow_fi(
+        (struct _pmath_mp_float_t*)pmath_ref((pmath_t)b), 
+        -1, 
+        TRUE));
+  }
+  
+  if(pmath_instance_of(test, PMATH_TYPE_MP_FLOAT)
+  && pmath_number_sign(test) < 0){
+    pmath_unref(test);
+    return FALSE;
+  }
+  
+  err = pmath_ref(test);
+  test = _mul_nn(
+    pmath_rational_new(
+      pmath_integer_new_si(1), 
+      pmath_integer_new_si(TOLERANCE_FACTOR)),
+    _add_nn(test, pmath_integer_new_si(-1)));
+  
+  if(pmath_instance_of(err,  PMATH_TYPE_MP_FLOAT)
+  && pmath_instance_of(test, PMATH_TYPE_MP_FLOAT)){
+    struct _pmath_mp_float_t *_err  = (struct _pmath_mp_float_t*)err;
+    struct _pmath_mp_float_t *_test = (struct _pmath_mp_float_t*)test;
+    
+    // Max(a,b)/Min(a,b) <= 1 + TOLERANCE_FACTOR * epsilon
+    if(mpfr_lessequal_p(_test->value, _err->error)){
+      pmath_unref(err);
+      pmath_unref(test);
+      return TRUE;
+    }
+  }
+  
+  pmath_unref(err);
+  pmath_unref(test);
+  return FALSE;
+}
+
+static pmath_bool_t almost_equal(pmath_t a, pmath_t b){
+  if(PMATH_IS_MAGIC(a) || PMATH_IS_MAGIC(b)){
+    return a == b;
+  }
+  
+  if(a->type_shift == b->type_shift){
+    if(a->type_shift == PMATH_TYPE_SHIFT_MACHINE_FLOAT){
+      return almost_equal_machine(
+        ((struct _pmath_machine_float_t*)a)->value,
+        ((struct _pmath_machine_float_t*)b)->value);
+    }
+    
+    if(a->type_shift == PMATH_TYPE_SHIFT_MP_FLOAT){
+      return almost_equal_mp(
+        (struct _pmath_mp_float_t*)a,
+        (struct _pmath_mp_float_t*)b);
+    }
+  }
+  
+  return pmath_equals(a, b);
+}
+
+static int pmath_fuzzy_compare(pmath_t a, pmath_t b){
+  if(almost_equal(a, b))
+    return 0;
+  
+  return pmath_compare(a, b);
+}
+
 static pmath_t ordered(
   pmath_expr_t expr,      // will be freed
   int                directions // DIRECTION_XXX bitset
@@ -61,7 +175,7 @@ static pmath_t ordered(
             continue;
           }
           
-          c = pmath_compare(prev, n);
+          c = pmath_fuzzy_compare(prev, n);
           
           if((c <  0 && (directions & DIRECTION_LESS) == 0)
           || (c == 0 && (directions & DIRECTION_EQUAL) == 0)
@@ -95,7 +209,7 @@ static pmath_t ordered(
             continue;
           }
           
-          c = pmath_compare(p, next);
+          c = pmath_fuzzy_compare(p, next);
           
           if((c <  0 && (directions & DIRECTION_LESS) == 0)
           || (c == 0 && (directions & DIRECTION_EQUAL) == 0)
@@ -121,7 +235,7 @@ static pmath_t ordered(
       
         if(pmath_instance_of(prev, PMATH_TYPE_NUMBER)
         && pmath_instance_of(next, PMATH_TYPE_NUMBER)){
-          int c = pmath_compare(prev, next);
+          int c = pmath_fuzzy_compare(prev, next);
           
           if((c <  0 && (directions & DIRECTION_LESS) == 0)
           || (c == 0 && (directions & DIRECTION_EQUAL) == 0)
@@ -307,7 +421,7 @@ static pmath_t ordered(
               continue;
             }
             
-            c = pmath_compare(prev, n);
+            c = pmath_fuzzy_compare(prev, n);
             if(c == 0){
               precacc = DBL_MANT_DIG + pmath_accuracy(n);
               n = pmath_approximate(pmath_ref(next), HUGE_VAL, precacc);
@@ -317,7 +431,7 @@ static pmath_t ordered(
                 continue;
               }
               
-              c = pmath_compare(prev, n);
+              c = pmath_fuzzy_compare(prev, n);
             }
             
             pmath_unref(n);
@@ -333,7 +447,7 @@ static pmath_t ordered(
               continue;
             }
             
-            c = pmath_compare(p, next);
+            c = pmath_fuzzy_compare(p, next);
             if(c == 0){
               precacc = DBL_MANT_DIG + pmath_accuracy(p);
               p = pmath_approximate(pmath_ref(prev), HUGE_VAL, precacc);
@@ -343,7 +457,7 @@ static pmath_t ordered(
                 continue;
               }
               
-              c = pmath_compare(p, next);
+              c = pmath_fuzzy_compare(p, next);
             }
             
             pmath_unref(p);
@@ -365,7 +479,7 @@ static pmath_t ordered(
               continue;
             }
             
-            c = pmath_compare(p, n);
+            c = pmath_fuzzy_compare(p, n);
             if(c == 0 && !pmath_aborting()){
               nprec+= 1;
               while(c == 0){
@@ -381,7 +495,7 @@ static pmath_t ordered(
                   break;
                 }
                 
-                c = pmath_compare(p, n);
+                c = pmath_fuzzy_compare(p, n);
                 
                 if(pprec >= DBL_MANT_DIG + pmath_max_extra_precision
                 || nprec >= DBL_MANT_DIG + pmath_max_extra_precision){

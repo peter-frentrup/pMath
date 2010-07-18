@@ -243,7 +243,8 @@ static pmath_t _pow_ri(
   return (pmath_rational_t)_pmath_create_quotient(num, den);
 }
 
-static pmath_t _pow_fi(
+PMATH_PRIVATE 
+pmath_t _pow_fi( // returns struct _pmath_mp_float_t* iff null_on_errors is TRUE
   struct _pmath_mp_float_t *base,  // will be freed. not NULL!
   long                      exponent,
   pmath_bool_t              null_on_errors
