@@ -257,28 +257,50 @@ void Win32ControlPainter::draw_container(
     int c = canvas->get_color();
     
     if(canvas->glass_background){
-//      canvas->pixrect(x, y, x + width, y + height, true);
-//      
-//      cairo_set_line_join(canvas->cairo(), CAIRO_LINE_JOIN_BEVEL);
-//      cairo_set_line_width(canvas->cairo(), 2.25);
-//      cairo_set_source_rgba(canvas->cairo(), 1, 1, 1, 0.6);
-//      canvas->stroke_preserve();
-//      
-//      cairo_set_line_width(canvas->cairo(), 0.75);
+      cairo_pattern_t *pat;
       
-      canvas->pixrect(x - 0.75f, y - 0.75f, x + width + 0.75f, y + height + 0.75f, true);
-      canvas->pixrect(x + width - 0.75f, y + 0.75f, x + 0.75f, y + height - 0.75f, true);
-      cairo_set_source_rgba(canvas->cairo(), 1, 1, 1, 0.7);
-      canvas->fill();
+      float x1, x2, x3, x4, y1, y2, y3, y4;
+      x1 = x4 = x;
+      x2 = x3 = x + width;
+      y1 = y2 = y;
+      y3 = y4 = y + height;
       
-      canvas->pixrect(x, y, x + width, y + height, true);
+      canvas->align_point(&x1, &y1, true);
+      canvas->align_point(&x2, &y2, true);
+      canvas->align_point(&x3, &y3, true);
+      canvas->align_point(&x4, &y4, true);
+      
+      float r = 1;
+      canvas->move_to(x1, y1 + r);
+      canvas->arc(x1 + r, y1 + r, r,   M_PI,   3*M_PI/2, false);
+      canvas->arc(x2 - r, y2 + r, r, 3*M_PI/2, 2*M_PI,   false);
+      canvas->arc(x3 - r, y3 - r, r,        0,   M_PI/2, false);
+      canvas->arc(x4 + r, y4 - r, r,   M_PI/2,   M_PI,   false);
+      canvas->close_path();
+      
+      pat = cairo_pattern_create_linear(x4, y4, x1, y1);
+      cairo_pattern_add_color_stop_rgba(pat, 0, 1, 1, 1, 0.7);
+      cairo_pattern_add_color_stop_rgba(pat, 1, 1, 1, 1, 0.4);
+      cairo_set_source(canvas->cairo(), pat);
+      cairo_pattern_destroy(pat);
+      
+      cairo_set_line_width(canvas->cairo(), 2);
+      canvas->stroke_preserve();
       
       if(state != Normal)
         cairo_set_source_rgba(canvas->cairo(), 1, 1, 1, 0.9);
+      else
+        cairo_set_source_rgba(canvas->cairo(), 1, 1, 1, 0.7);
       canvas->fill_preserve();
       
-      cairo_set_source_rgba(canvas->cairo(), 0, 0, 0, 0.75);
-      canvas->hair_stroke();
+      pat = cairo_pattern_create_linear(x4, y4, x1, y1);
+      cairo_pattern_add_color_stop_rgba(pat, 0, 0, 0, 0, 0.55);
+      cairo_pattern_add_color_stop_rgba(pat, 1, 0, 0, 0, 0.75);
+      cairo_set_source(canvas->cairo(), pat);
+      cairo_pattern_destroy(pat);
+      cairo_set_line_width(canvas->cairo(), 0.75);
+      canvas->stroke();
+      
     }
     else{
       canvas->pixrect(x, y, x + width, y + height, true);

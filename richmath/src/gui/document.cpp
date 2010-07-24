@@ -892,7 +892,9 @@ void Document::on_mouse_move(MouseEvent &event){
   
   if(box->selectable()){
     if(box == this){
-      if(start == end)
+      if(length() == 0)
+        native()->set_cursor(TextNCursor);
+      else if(start == end)
         native()->set_cursor(DocumentCursor);
       else
         native()->set_cursor(SectionCursor);
@@ -2991,23 +2993,38 @@ void Document::paint_resize(Canvas *canvas, bool resize_only){
     // paint cursor (as a horizontal line) at end of document:
     if(context.selection.id == this->id()
     && context.selection.start == context.selection.end){
-      float y;
-      
-      if(context.selection.start < length())
-        y = section(context.selection.start)->y_offset;
-      else
-        y = _extents.descent;
+      if(length() > 0){
+        float y;
+        if(context.selection.start < length())
+          y = section(context.selection.start)->y_offset;
+        else
+          y = _extents.descent;
+          
+        float x1 = sx;
+        float y1 = y + 0.5;
+        float x2 = sx + _extents.width;
+        float y2 = y + 0.5;
         
-      float x1 = sx;
-      float y1 = y + 0.5;
-      float x2 = sx + _extents.width;
-      float y2 = y + 0.5;
-      
-      context.canvas->align_point(&x1, &y1, true);
-      context.canvas->align_point(&x2, &y2, true);
-      context.canvas->move_to(x1, y1);
-      context.canvas->line_to(x2, y2);
-      context.draw_selection_path();
+        context.canvas->align_point(&x1, &y1, true);
+        context.canvas->align_point(&x2, &y2, true);
+        context.canvas->move_to(x1, y1);
+        context.canvas->line_to(x2, y2);
+        context.draw_selection_path();
+      }
+      else{
+        float y = _extents.descent;
+        
+        float x1 = sx + get_style(SectionMarginLeft);
+        float y1 = y  + get_style(SectionMarginTop);
+        float x2 = sx + x1;
+        float y2 = y  + get_style(FontSize) * 1.3;
+        
+        context.canvas->align_point(&x1, &y1, true);
+        context.canvas->align_point(&x2, &y2, true);
+        context.canvas->move_to(x1, y1);
+        context.canvas->line_to(x2, y2);
+        context.draw_selection_path();
+      }
     }
     
     // highlight the current selected word in the whole document:

@@ -85,8 +85,8 @@
 	<File name="include\graphics\buffer.h" open="0" top="0" tabpos="2">
 		<Cursor position="1138" topLine="5" />
 	</File>
-	<File name="include\graphics\canvas.h" open="0" top="0" tabpos="12">
-		<Cursor position="2603" topLine="74" />
+	<File name="include\graphics\canvas.h" open="1" top="0" tabpos="17">
+		<Cursor position="3633" topLine="106" />
 	</File>
 	<File name="include\graphics\config-shaper.h" open="0" top="0" tabpos="8">
 		<Cursor position="4384" topLine="157" />
@@ -119,7 +119,7 @@
 		<Cursor position="292" topLine="0" />
 	</File>
 	<File name="include\gui\native-widget.h" open="0" top="0" tabpos="13">
-		<Cursor position="1756" topLine="53" />
+		<Cursor position="400" topLine="8" />
 	</File>
 	<File name="include\gui\win32\basic-win32-widget.h" open="0" top="0" tabpos="8">
 		<Cursor position="179" topLine="3" />
@@ -256,8 +256,8 @@
 	<File name="src\eval\binding.cpp" open="1" top="0" tabpos="8">
 		<Cursor position="10300" topLine="467" />
 	</File>
-	<File name="src\eval\client.cpp" open="1" top="1" tabpos="11">
-		<Cursor position="6011" topLine="249" />
+	<File name="src\eval\client.cpp" open="1" top="0" tabpos="11">
+		<Cursor position="5834" topLine="249" />
 	</File>
 	<File name="src\eval\job.cpp" open="0" top="0" tabpos="8">
 		<Cursor position="691" topLine="22" />
@@ -272,7 +272,7 @@
 		<Cursor position="9688" topLine="380" />
 	</File>
 	<File name="src\graphics\canvas.cpp" open="0" top="0" tabpos="17">
-		<Cursor position="5960" topLine="285" />
+		<Cursor position="14153" topLine="559" />
 	</File>
 	<File name="src\graphics\config-shaper.cpp" open="0" top="0" tabpos="15">
 		<Cursor position="8405" topLine="369" />
@@ -299,7 +299,7 @@
 		<Cursor position="3409" topLine="129" />
 	</File>
 	<File name="src\gui\document.cpp" open="1" top="0" tabpos="10">
-		<Cursor position="28695" topLine="1188" />
+		<Cursor position="20649" topLine="880" />
 	</File>
 	<File name="src\gui\menu.cpp" open="0" top="0" tabpos="4">
 		<Cursor position="946" topLine="6" />
@@ -311,13 +311,13 @@
 		<Cursor position="2760" topLine="119" />
 	</File>
 	<File name="src\gui\win32\basic-win32-window.cpp" open="1" top="0" tabpos="5">
-		<Cursor position="17421" topLine="683" />
+		<Cursor position="17421" topLine="677" />
 	</File>
 	<File name="src\gui\win32\win32-clipboard.cpp" open="0" top="0" tabpos="8">
 		<Cursor position="3735" topLine="137" />
 	</File>
-	<File name="src\gui\win32\win32-control-painter.cpp" open="0" top="0" tabpos="17">
-		<Cursor position="8892" topLine="274" />
+	<File name="src\gui\win32\win32-control-painter.cpp" open="1" top="1" tabpos="16">
+		<Cursor position="8257" topLine="254" />
 	</File>
 	<File name="src\gui\win32\win32-document-window.cpp" open="0" top="0" tabpos="7">
 		<Cursor position="22741" topLine="478" />
@@ -332,7 +332,7 @@
 		<Cursor position="3756" topLine="86" />
 	</File>
 	<File name="src\main.cpp" open="1" top="0" tabpos="1">
-		<Cursor position="26750" topLine="746" />
+		<Cursor position="8052" topLine="264" />
 	</File>
 	<File name="src\util\base.cpp" open="0" top="0" tabpos="2">
 		<Cursor position="971" topLine="34" />
