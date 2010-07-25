@@ -5,6 +5,7 @@
 
 #include <graphics/canvas.h>
 #include <gui/win32/basic-win32-window.h>
+#include <gui/win32/win32-widget.h>
 
 using namespace richmath;
 
@@ -755,6 +756,27 @@ int BasicWin32Window::get_frame_color(int x, int y){
        | ((color & 0x0000FF) << 16);
 }
 
+  struct redraw_glass_info_t{
+    RECT inner;
+  };
+
+  static BOOL CALLBACK redraw_glass_callback(HWND hwnd, LPARAM lParam){
+    struct redraw_glass_info_t *info = (struct redraw_glass_info_t*)lParam;
+    
+    Win32Widget *wid = dynamic_cast<Win32Widget*>(BasicWin32Widget::from_hwnd(hwnd));
+    if(wid){
+      RECT rect, rect2;
+      GetWindowRect(hwnd, &rect);
+      UnionRect(&rect2, &rect, &info->inner);
+      
+      if(!EqualRect(&info->inner, &rect2)){
+        wid->force_redraw();
+      }
+    }
+    
+    return TRUE;
+  }
+
 LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam){
   LRESULT dwm_result = 0;
   
@@ -767,20 +789,14 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam){
     case WM_NCACTIVATE: {
       _active = wParam;
       
-      RECT outer;
-      RECT inner;
+      struct redraw_glass_info_t info;
       
-      GetClientRect(_hwnd, &outer);
-      get_glassfree_rect(&inner);
+      get_glassfree_rect(&info.inner);
+      POINT *pt = (POINT*)&info.inner;
+      ClientToScreen(_hwnd, &pt[0]);
+      ClientToScreen(_hwnd, &pt[1]);
       
-      HRGN rgn_o = CreateRectRgnIndirect(&outer);
-      HRGN rgn_i = CreateRectRgnIndirect(&inner);
-      CombineRgn(rgn_o, rgn_o, rgn_i, RGN_DIFF);
-      
-      InvalidateRgn(_hwnd, rgn_o, FALSE);
-      
-      DeleteObject(rgn_o);
-      DeleteObject(rgn_i);
+      EnumChildWindows(_hwnd, redraw_glass_callback, (LPARAM)&info);
     } break;
   }
   

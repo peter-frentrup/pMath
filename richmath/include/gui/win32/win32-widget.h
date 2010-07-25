@@ -48,6 +48,8 @@ namespace richmath{
     
       virtual bool register_timed_event(SharedPtr<TimedEvent> event);
       
+      virtual void force_redraw();
+      
     public:
       bool _autohide_vertical_scrollbar;
       cairo_format_t _image_format;

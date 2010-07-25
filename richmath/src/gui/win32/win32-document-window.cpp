@@ -159,18 +159,10 @@ class richmath::WorkingArea: public Win32Widget{
       else
         best_width = best_height = 1;
     }
-
-    virtual LRESULT callback(UINT message, WPARAM wParam, LPARAM lParam){
-      if(!initializing()){
-        switch(message){
-          case WM_PAINT: {
-            Win32Widget::callback(message, wParam, lParam);
-            rearrange();
-          } return 0;
-        }
-      }
-      
-      return Win32Widget::callback(message, wParam, lParam);
+    
+    virtual void on_paint(HDC dc, bool from_wmpaint){
+      Win32Widget::on_paint(dc, from_wmpaint);
+      rearrange();
     }
 };
 
@@ -300,14 +292,14 @@ class richmath::Dock: public Win32Widget {
         parent->rearrange();
     }
     
+    virtual void on_paint(HDC dc, bool from_wmpaint){
+      Win32Widget::on_paint(dc, from_wmpaint);
+      rearrange();
+    }
+
     virtual LRESULT callback(UINT message, WPARAM wParam, LPARAM lParam){
       if(!initializing()){
         switch(message){
-          case WM_PAINT: {
-            Win32Widget::callback(message, wParam, lParam);
-            rearrange();
-          } return 0;
-          
           case WM_MOUSEMOVE: {
             Win32Widget::callback(message, wParam, lParam);
             
@@ -416,6 +408,16 @@ class richmath::GlassDock: public richmath::Dock {
       }
     }
     
+    virtual void on_paint(HDC dc, bool from_wmpaint){
+      if(Win32Themes::IsCompositionActive
+      && Win32Themes::IsCompositionActive())
+        _image_format = CAIRO_FORMAT_ARGB32;
+      else
+        _image_format = CAIRO_FORMAT_RGB24;
+        
+      Dock::on_paint(dc, from_wmpaint);
+    }
+
     virtual LRESULT callback(UINT message, WPARAM wParam, LPARAM lParam){
       if(!initializing()){
         switch(message){
@@ -427,14 +429,6 @@ class richmath::GlassDock: public richmath::Dock {
               SendMessageW(parent->hwnd(), WM_NCLBUTTONDOWN, HTCAPTION, lParam);
             }
           } return 0;
-          
-          case WM_PAINT: {
-            if(Win32Themes::IsCompositionActive
-            && Win32Themes::IsCompositionActive())
-              _image_format = CAIRO_FORMAT_ARGB32;
-            else
-              _image_format = CAIRO_FORMAT_RGB24;
-          } break;
         }
       }
       
@@ -929,65 +923,17 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
           SetFocus(_hwnd);
         }
         
-        //_top_glass_area->invalidate();
-        //_bottom_glass_area->invalidate();
+        //_top_glass_area->force_redraw();
+        //_bottom_glass_area->force_redraw();
       } break;
       
       case WM_ACTIVATEAPP: {
         if(wParam){ // activate
-          if(_is_palette){
-            // bring the appropriate document window to front:
-            Win32DocumentWindow *docwin = 0;
-            
-            FOREACH_WINDOW(win,
-              if(win->_is_palette
-              && win->all_snappers.search(_hwnd)){
-                docwin = win;
-                break;
-              }
-            );
-            
-            if(!docwin){ // no attached/snapped document window => use current document
-              Document *doc = get_current_document();
-              if(doc){
-                FOREACH_WINDOW(win,
-                  if(!win->_is_palette && win->document() == doc){
-                    docwin = win;
-                    break;
-                  }
-                );
-              }
-              
-              if(!docwin){ // no current document => use a random doc. window
-                FOREACH_WINDOW(win,
-                  if(!win->_is_palette){
-                    docwin = win;
-                    break;
-                  }
-                );
-              }
-            }
-            
-            if(docwin){
-              SetActiveWindow(docwin->hwnd());
-            }
-          }
         }
         else{
-          HWND nontop = 0;
-          FOREACH_WINDOW(win,
-            if(!win->_is_palette){
-              nontop = win->hwnd();
-              break;
-            }
-          );
-          
-          if(!nontop)
-            nontop = HWND_NOTOPMOST;
-            
           FOREACH_WINDOW(tool,
             if(tool->_is_palette){
-              SetWindowPos(tool->hwnd(), nontop, 0, 0, 0, 0, 
+              SetWindowPos(tool->hwnd(), HWND_NOTOPMOST, 0, 0, 0, 0, 
                 SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
             }
           );

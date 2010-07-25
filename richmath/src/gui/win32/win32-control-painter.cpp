@@ -270,7 +270,7 @@ void Win32ControlPainter::draw_container(
       canvas->align_point(&x3, &y3, true);
       canvas->align_point(&x4, &y4, true);
       
-      float r = 1;
+      float r = 0.75;
       canvas->move_to(x1, y1 + r);
       canvas->arc(x1 + r, y1 + r, r,   M_PI,   3*M_PI/2, false);
       canvas->arc(x2 - r, y2 + r, r, 3*M_PI/2, 2*M_PI,   false);
