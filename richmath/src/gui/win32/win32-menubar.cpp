@@ -7,6 +7,7 @@
 #include <cctype>
 
 #include <commctrl.h>
+#include <cairo-win32.h>
 
 #include <util/array.h>
 #include <eval/client.h>
@@ -73,16 +74,6 @@ Win32Menubar::Win32Menubar(Win32DocumentWindow *window, HWND parent, HMENU menu)
     0/* id */, 
     GetModuleHandle(0), 
     NULL); 
-  
-//  if(Win32Themes::DwmSetWindowAttribute){
-//    BOOL value = TRUE;
-//    
-//    Win32Themes::DwmSetWindowAttribute(
-//      _hwnd, 
-//      Win32Themes::DWMWA_TRANSITIONS_FORCEDISABLED,
-//      &value,
-//      sizeof(value));
-//  }
   
   SendMessageW(_hwnd, TB_BUTTONSTRUCTSIZE, (WPARAM)sizeof(TBBUTTON), 0);
   
@@ -430,9 +421,40 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
               case CDDS_PREPAINT: {
                 RECT rect;
                 GetClientRect(_hwnd, &rect);
-                Win32ControlPainter::win32_painter.draw_menubar(
+//                Win32ControlPainter::win32_painter.draw_menubar(
+//                  draw->nmcd.hdc, 
+//                  &rect/*&draw->nmcd.rc*/);
+                
+                cairo_surface_t *surface = cairo_win32_surface_create_with_dib(
+                  CAIRO_FORMAT_RGB24,
+                  rect.right  - rect.left, 
+                  rect.bottom - rect.top);
+                
+                HDC bmp_dc = cairo_win32_surface_get_dc(surface);
+                Win32ControlPainter::win32_painter.draw_menubar(bmp_dc, &rect);
+                
+                cairo_surface_mark_dirty(surface);
+                cairo_t *cr = cairo_create(surface);
+                {
+                  Canvas canvas(cr);
+                  
+                  _window->paint_background(&canvas, _hwnd, true);
+                }
+                cairo_destroy(cr);
+                
+                BitBlt(
                   draw->nmcd.hdc, 
-                  &rect/*&draw->nmcd.rc*/);
+                  rect.left, 
+                  rect.top, 
+                  rect.right  - rect.left, 
+                  rect.bottom - rect.top,
+                  bmp_dc, 
+                  0, 
+                  0, 
+                  SRCCOPY);
+                
+                cairo_surface_destroy(surface);
+                
                 *result = CDRF_NOTIFYITEMDRAW;//CDRF_DODEFAULT;
               } return true;
               

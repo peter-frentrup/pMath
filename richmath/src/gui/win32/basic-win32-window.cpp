@@ -923,7 +923,7 @@ void BasicWin32Window::extend_glass(Win32Themes::MARGINS *margins){
   }
 }
 
-void BasicWin32Window::paint_background(Canvas *canvas, HWND child){
+void BasicWin32Window::paint_background(Canvas *canvas, HWND child, bool wallpaper_only){
   RECT rect, child_rect;
   
   GetWindowRect(child, &child_rect);
@@ -932,10 +932,11 @@ void BasicWin32Window::paint_background(Canvas *canvas, HWND child){
   paint_background(
     canvas, 
     child_rect.left - rect.left, 
-    child_rect.top  - rect.top);
+    child_rect.top  - rect.top,
+    wallpaper_only);
 }
 
-void BasicWin32Window::paint_background(Canvas *canvas, int x, int y){
+void BasicWin32Window::paint_background(Canvas *canvas, int x, int y, bool wallpaper_only){
   canvas->save();
   {
     cairo_matrix_t mat;
@@ -957,54 +958,56 @@ void BasicWin32Window::paint_background(Canvas *canvas, int x, int y){
     glassfree.top-=    rect.top;
     glassfree.bottom-= rect.top;
     
-    if(!Win32Themes::IsCompositionActive
-    || !Win32Themes::IsCompositionActive()){
-      if(glass_enabled()){
-        int color;
-        
-        if(_active)
-          color = GetSysColor(COLOR_GRADIENTACTIVECAPTION);
-        else
-          color = GetSysColor(COLOR_GRADIENTINACTIVECAPTION);
+    if(!wallpaper_only){
+      if(!Win32Themes::IsCompositionActive
+      || !Win32Themes::IsCompositionActive()){
+        if(glass_enabled()){
+          int color;
           
-        color = ((color & 0xFF0000) >> 16)
-              |  (color & 0x00FF00)
-              | ((color & 0x0000FF) << 16);
+          if(_active)
+            color = GetSysColor(COLOR_GRADIENTACTIVECAPTION);
+          else
+            color = GetSysColor(COLOR_GRADIENTINACTIVECAPTION);
             
-        canvas->set_color(color);
-        canvas->paint();
+          color = ((color & 0xFF0000) >> 16)
+                |  (color & 0x00FF00)
+                | ((color & 0x0000FF) << 16);
+              
+          canvas->set_color(color);
+          canvas->paint();
+        }
+        else{
+          int color = GetSysColor(COLOR_MENU);
+          
+          color = ((color & 0xFF0000) >> 16)
+                |  (color & 0x00FF00)
+                | ((color & 0x0000FF) << 16);
+                
+          canvas->set_color(color);
+          canvas->paint();
+        }
       }
       else{
+        canvas->set_color(0x000000, 0);
+        canvas->paint();
+      }
+      
+      if(!IsRectEmpty(&glassfree)){
         int color = GetSysColor(COLOR_MENU);
         
         color = ((color & 0xFF0000) >> 16)
               |  (color & 0x00FF00)
               | ((color & 0x0000FF) << 16);
               
+        canvas->move_to(glassfree.left,  glassfree.top);
+        canvas->line_to(glassfree.left,  glassfree.bottom);
+        canvas->line_to(glassfree.right, glassfree.bottom);
+        canvas->line_to(glassfree.right, glassfree.top);
+        canvas->close_path();
+        
         canvas->set_color(color);
-        canvas->paint();
+        canvas->fill();
       }
-    }
-    else{
-      canvas->set_color(0x000000, 0);
-      canvas->paint();
-    }
-    
-    if(!IsRectEmpty(&glassfree)){
-      int color = GetSysColor(COLOR_MENU);
-      
-      color = ((color & 0xFF0000) >> 16)
-            |  (color & 0x00FF00)
-            | ((color & 0x0000FF) << 16);
-            
-      canvas->move_to(glassfree.left,  glassfree.top);
-      canvas->line_to(glassfree.left,  glassfree.bottom);
-      canvas->line_to(glassfree.right, glassfree.bottom);
-      canvas->line_to(glassfree.right, glassfree.top);
-      canvas->close_path();
-      
-      canvas->set_color(color);
-      canvas->fill();
     }
     
     on_paint_background(canvas);

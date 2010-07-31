@@ -2990,7 +2990,7 @@
 	<pmath-cpp.h>
 	<util/base.h>
 
-1280054995 d:\peter\programmieren\pmath\trunk\library\include\pmath-cpp.h
+1280615280 d:\peter\programmieren\pmath\trunk\library\include\pmath-cpp.h
 	<cstdlib>
 	<limits>
 	<stdint.h>
@@ -3248,7 +3248,7 @@
 1280054985 d:\peter\programmieren\pmath\trunk\richmath\include\boxes\framebox.h
 	<boxes/ownerbox.h>
 
-1280054987 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\gridbox.cpp
+1280615552 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\gridbox.cpp
 	<boxes/gridbox.h>
 	<boxes/mathsequence.h>
 	<graphics/context.h>
@@ -3594,7 +3594,7 @@
 	<Windows.h>
 	<util/base.h>
 
-1280594850 source:d:\peter\programmieren\pmath\trunk\richmath\src\gui\win32\basic-win32-window.cpp
+1280601503 source:d:\peter\programmieren\pmath\trunk\richmath\src\gui\win32\basic-win32-window.cpp
 	<math.h>
 	<stdio.h>
 	<cairo-win32.h>
@@ -3604,7 +3604,7 @@
 	<gui/win32/win32-widget.h>
 	<eval/client.h>
 
-1280586424 d:\peter\programmieren\pmath\trunk\richmath\include\gui\win32\basic-win32-window.h
+1280601487 d:\peter\programmieren\pmath\trunk\richmath\include\gui\win32\basic-win32-window.h
 	<graphics/canvas.h>
 	<gui/win32/basic-win32-widget.h>
 	<gui/win32/win32-themes.h>
@@ -3663,11 +3663,12 @@
 	<windows.h>
 	<util/base.h>
 
-1280578971 source:d:\peter\programmieren\pmath\trunk\richmath\src\gui\win32\win32-menubar.cpp
+1280601478 source:d:\peter\programmieren\pmath\trunk\richmath\src\gui\win32\win32-menubar.cpp
 	<gui/win32/win32-menubar.h>
 	<cstdio>
 	<cctype>
 	<commctrl.h>
+	<cairo-win32.h>
 	<util/array.h>
 	<eval/client.h>
 	<gui/win32/win32-control-painter.h>
@@ -3695,7 +3696,7 @@
 	<gui/control-painter.h>
 	<resources.h>
 
-1280594781 source:d:\peter\programmieren\pmath\trunk\richmath\src\main.cpp
+1280615581 source:d:\peter\programmieren\pmath\trunk\richmath\src\main.cpp
 	<cmath>
 	<cstdio>
 	<ctime>

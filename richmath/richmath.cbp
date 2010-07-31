@@ -58,6 +58,7 @@
 					<Add option="-march=i686" />
 					<Add option="-O2" />
 					<Add option="-Wall" />
+					<Add option="-g" />
 					<Add option="-fno-exceptions" />
 					<Add option="-DNDEBUG" />
 					<Add directory="include" />
@@ -69,7 +70,6 @@
 					<Add directory="$(#gtk.include)\pango-1.0" />
 				</Compiler>
 				<Linker>
-					<Add option="-s" />
 					<Add option="-static-libgcc" />
 					<Add library="pmath" />
 					<Add library="cairo" />

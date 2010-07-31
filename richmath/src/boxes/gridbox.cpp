@@ -140,13 +140,19 @@ GridBox *GridBox::create(Expr expr, int opts){
       int cols = (int)matrix[1].expr_length();
       
       if(cols > 0){
-        for(size_t row = 2;row <= matrix.expr_length();++row)
-          if(!matrix[row].instance_of(PMATH_TYPE_EXPRESSION)
-          ||  matrix[row][0] != PMATH_SYMBOL_LIST
-          ||  matrix[row].expr_length() != (size_t)cols){
+        for(size_t row = 2;row <= matrix.expr_length();++row){
+          Expr r = matrix[row];
+          // if we directly write matrix[row] in the following lines, and 
+          // compile with gcc -O1 ..., the app crashes, because matrix[row]._obj
+          // is freed 1 time too often.
+          
+          if(!r.instance_of(PMATH_TYPE_EXPRESSION)
+          ||  r[0] != PMATH_SYMBOL_LIST
+          ||  r.expr_length() != (size_t)cols){
             cols = 0;
             break;
           }
+        }
       }
       
       if(cols > 0){

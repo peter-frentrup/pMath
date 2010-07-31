@@ -488,38 +488,38 @@ int main(){
       550);
     wndMain->init();
     
-    wndMain->top_glass()->insert(0, 
-      Section::create_from_object(Expr(run(
-        "Section(BoxData("
-          "{\"\\\" Help Topic:  \\\"\","
-            "FillBox(InputBox(StyleBox({\"not yet implemented\"},"
-              "FontSlant->Italic,"
-              "FontColor->GrayLevel(0.5)))),"
-            "ButtonBox("
-              "\"\\\" Go \\\"\","
-              "ButtonFrame->\"Palette\")}),"
-          "\"Docked\","
-          "LineBreakWithin->False,"
-          "SectionMargins->{0.75, 0.75, 3, 4.5},"
-          "SectionFrameMargins->0)"
-        ))));
-    
-    wndMain->top()->insert(0,
-      Section::create_from_object(Expr(run(
-        "Section(BoxData({"
-          "GridBox({{"
-            "ButtonBox(\"\\\" a \\\"\", ButtonFrame->\"Palette\"),"
-            "ButtonBox(\"\\\" b \\\"\", ButtonFrame->\"Palette\"),"
-            "ButtonBox(\"\\\" c \\\"\", ButtonFrame->\"Palette\"),"
-            "ButtonBox(\"\\\" d \\\"\", ButtonFrame->\"Palette\"),"
-            "\"\\\" \\u2190 Toolbar\\\"\""
-            "}},"
-            "GridBoxColumnSpacing->0)"
-        "}),\"Docked\","
-        "SectionFrame->{0,0,0,0.5},"
-        "SectionFrameColor->GrayLevel(0.5),"
-        "SectionFrameMargins->{1, 1, 0, 0},"
-        "SectionMargins->0)"))));
+//    wndMain->top_glass()->insert(0, 
+//      Section::create_from_object(Expr(run(
+//        "Section(BoxData("
+//          "{\"\\\" Help Topic:  \\\"\","
+//            "FillBox(InputBox(StyleBox({\"not yet implemented\"},"
+//              "FontSlant->Italic,"
+//              "FontColor->GrayLevel(0.5)))),"
+//            "ButtonBox("
+//              "\"\\\" Go \\\"\","
+//              "ButtonFrame->\"Palette\")}),"
+//          "\"Docked\","
+//          "LineBreakWithin->False,"
+//          "SectionMargins->{0.75, 0.75, 3, 4.5},"
+//          "SectionFrameMargins->0)"
+//        ))));
+//    
+//    wndMain->top()->insert(0,
+//      Section::create_from_object(Expr(run(
+//        "Section(BoxData({"
+//          "GridBox({{"
+//            "ButtonBox(\"\\\" a \\\"\", ButtonFrame->\"Palette\"),"
+//            "ButtonBox(\"\\\" b \\\"\", ButtonFrame->\"Palette\"),"
+//            "ButtonBox(\"\\\" c \\\"\", ButtonFrame->\"Palette\"),"
+//            "ButtonBox(\"\\\" d \\\"\", ButtonFrame->\"Palette\"),"
+//            "\"\\\" \\u2190 Toolbar\\\"\""
+//            "}},"
+//            "GridBoxColumnSpacing->0)"
+//        "}),\"Docked\","
+//        "SectionFrame->{0,0,0,0.5},"
+//        "SectionFrameColor->GrayLevel(0.5),"
+//        "SectionFrameMargins->{1, 1, 0, 0},"
+//        "SectionMargins->0)"))));
         
 //    wndMain->top()->insert(wndMain->top()->length(),
 //    Section::create_from_object(Expr(run(
@@ -688,12 +688,12 @@ int main(){
             "ButtonBox(\"\\[CapitalTheta]\"),"
             "ButtonBox(\"\\[CapitalLambda]\"),"
             "ButtonBox(\"\\[CapitalXi]\")},"
-          "{ButtonBox(\"\\[CapitalPi]\"),"
+          "{""ButtonBox(\"\\[CapitalPi]\"),"
             "ButtonBox(\"\\[CapitalSigma]\"),"
             "ButtonBox(\"\\[CapitalPhi]\"),"
             "ButtonBox(\"\\[CapitalPsi]\"),"
             "ButtonBox(\"\\[CapitalOmega]\")},"
-          "{ButtonBox({\"\\[SelectionPlaceholder]\",SubscriptBox(\"\\[Placeholder]\")}),"
+          "{""ButtonBox({\"\\[SelectionPlaceholder]\",SubscriptBox(\"\\[Placeholder]\")}),"
             "ButtonBox({\"\\[SelectionPlaceholder]\",SubsuperscriptBox(\"\\[Placeholder]\",\"\\[Placeholder]\")}),"
             "ButtonBox(UnderscriptBox(\"\\[SelectionPlaceholder]\", \"\\[Placeholder]\")),"
             "ButtonBox(OverscriptBox(\"\\[SelectionPlaceholder]\", \"\\[Placeholder]\")),"
