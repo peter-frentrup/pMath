@@ -247,7 +247,7 @@ void Win32Menubar::show_sysmenu(){
   
   tpm.rcExclude.left+= GetSystemMetrics(SM_CXSIZEFRAME);
   tpm.rcExclude.top+=  GetSystemMetrics(SM_CYSIZEFRAME);
-  tpm.rcExclude.right  = tpm.rcExclude.left + GetSystemMetrics(SM_CXICON);
+  tpm.rcExclude.right  = tpm.rcExclude.left + GetSystemMetrics(SM_CXSMICON);
   tpm.rcExclude.bottom = tpm.rcExclude.top  + GetSystemMetrics(SM_CYCAPTION);
   
   HHOOK hook = register_hook(-1);

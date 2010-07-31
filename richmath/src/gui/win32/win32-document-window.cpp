@@ -124,13 +124,12 @@ class richmath::WorkingArea: public Win32Widget{
     virtual void paint_background(Canvas *canvas){
       if((auto_size && document()->count() == 0)
       || parent->is_palette()){
-        canvas->set_color(parent->get_frame_color(_hwnd));
+         parent->paint_background(canvas, _hwnd);
+      }
+      else{
+        canvas->set_color(0xffffff);
         canvas->paint();
       }
-      else
-        canvas->set_color(0xffffff);
-      
-      canvas->paint();
     }
     
     virtual void paint_canvas(Canvas *canvas, bool resize_only){
@@ -218,8 +217,8 @@ class richmath::Dock: public Win32Widget {
     bool is_parent_bottom(){
       RECT self_rect;
       RECT parent_rect;
-      GetClientRect(_hwnd,          &self_rect);
-      GetClientRect(parent->hwnd(), &parent_rect);
+      GetClientRect(_hwnd, &self_rect);
+      parent->get_client_rect(&parent_rect);
       
       POINT pt;
       pt.x = 0;
@@ -271,8 +270,7 @@ class richmath::Dock: public Win32Widget {
     }
     
     virtual void paint_background(Canvas *canvas){
-      canvas->set_color(parent->get_frame_color(_hwnd));
-      canvas->paint();
+      parent->paint_background(canvas, _hwnd);
     }
     
     virtual void paint_canvas(Canvas *canvas, bool resize_only){
@@ -359,7 +357,7 @@ class richmath::GlassDock: public richmath::Dock {
            "{-`1`, `2`, GrayLevel(1), `3`},"
            "{ `1`, `2`, GrayLevel(1), `3`}}",
         "(fff)",
-        0.75, 0.75, 2.25)));
+        0.75, 0.75, 4.0)));
       
       set_textshadows();
     }
@@ -391,21 +389,15 @@ class richmath::GlassDock: public richmath::Dock {
       || !Win32Themes::IsCompositionActive()){
         remove_textshadows();
         
-        if(parent->glass_enabled()){
-          canvas->set_color(parent->get_frame_color(_hwnd));
-          canvas->paint();
-          
+        if(parent->glass_enabled())
           canvas->glass_background = true;
-          //paint_size_grip(canvas);
-        }
-        else
-          Dock::paint_background(canvas);
       }
       else{
         set_textshadows();
         canvas->glass_background = true;
-        //paint_size_grip(canvas);
       }
+      
+      Dock::paint_background(canvas);
     }
     
     virtual void on_paint(HDC dc, bool from_wmpaint){
@@ -601,8 +593,8 @@ void Win32DocumentWindow::rearrange(){
   
   int work_height = new_ys[4] - new_ys[3];
   if(_working_area->auto_size){
-    if(work_height != _working_area->best_height
-    || rect.right  != _working_area->best_width){
+    if(work_height            != _working_area->best_height
+    || rect.right - rect.left != _working_area->best_width){
       RECT outer;
       GetWindowRect(_hwnd, &outer);
       
@@ -624,7 +616,7 @@ void Win32DocumentWindow::rearrange(){
       int oldh = outer.bottom - outer.top;
       int oldw = outer.right  - outer.left;
       int newh = oldh - work_height + h;
-      int neww = oldw - rect.right  + w;
+      int neww = oldw - (rect.right - rect.left)  + w;
       
       MONITORINFO monitor_info;
       memset(&monitor_info, 0, sizeof(monitor_info));
@@ -680,7 +672,7 @@ void Win32DocumentWindow::rearrange(){
       _bottom_glass_area->height()};
     
     if(_working_area->document()->count() == 0){
-      if(rect.bottom <= mar.cyTopHeight + mar.cyBottomHeight + 1
+      if(rect.bottom - rect.top <= mar.cyTopHeight + mar.cyBottomHeight + 1
       || _working_area->auto_size){
         mar.cxLeftWidth = mar.cxRightWidth = mar.cyTopHeight = mar.cyBottomHeight = -1;
           
@@ -771,7 +763,7 @@ void Win32DocumentWindow::is_palette(bool value){
     // also enable Minimize/Maximize in system menu:
     SetWindowLongW(_hwnd, GWL_STYLE,
       GetWindowLongW(_hwnd, GWL_STYLE) & ~(WS_MAXIMIZEBOX | WS_MINIMIZEBOX));
-      
+    
     menubar->appearence(MaNeverShow);
   }
   else{
@@ -793,9 +785,8 @@ void Win32DocumentWindow::is_palette(bool value){
   _working_area->document()->border_visible = !_is_palette;
   _working_area->_autohide_vertical_scrollbar = _is_palette;
 //  rearrange();
-
-  SetWindowPos(_hwnd, 0, 0, 0, 0, 0, 
-    SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED | SWP_NOACTIVATE);
+  
+  on_theme_changed();
 }
 
 void Win32DocumentWindow::on_theme_changed(){
@@ -859,33 +850,33 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
       } break;
       
       case WM_ACTIVATE: {
-        if(_is_palette 
-        && !mouse_activated
-        && LOWORD(wParam) == WA_ACTIVE
-        && IsWindowVisible(_hwnd)){
-          Document *doc = get_current_document();
-          if(doc){
-            Win32Widget *w = dynamic_cast<Win32Widget*>(doc->native());
-            
-            if(w){
-              HWND h = w->hwnd();
-              HWND p = GetParent(h);
-              
-              while(h && p){
-                h = p;
-                p = GetParent(h);
-              }
-              
-              if(h){
-                Win32DocumentWindow *wd = dynamic_cast<Win32DocumentWindow*>(
-                  BasicWin32Widget::from_hwnd(h));
-                
-                if(!wd || !wd->_is_palette)
-                  SetActiveWindow(h);
-              }
-            }
-          }
-        }
+//        if(_is_palette 
+//        && !mouse_activated
+//        && LOWORD(wParam) == WA_ACTIVE
+//        && IsWindowVisible(_hwnd)){
+//          Document *doc = get_current_document();
+//          if(doc){
+//            Win32Widget *w = dynamic_cast<Win32Widget*>(doc->native());
+//            
+//            if(w){
+//              HWND h = w->hwnd();
+//              HWND p = GetParent(h);
+//              
+//              while(h && p){
+//                h = p;
+//                p = GetParent(h);
+//              }
+//              
+//              if(h){
+//                Win32DocumentWindow *wd = dynamic_cast<Win32DocumentWindow*>(
+//                  BasicWin32Widget::from_hwnd(h));
+//                
+//                if(!wd || !wd->_is_palette)
+//                  SetActiveWindow(h);
+//              }
+//            }
+//          }
+//        }
         
         mouse_activated = false;
         

@@ -106,7 +106,57 @@ namespace richmath{
         TS_TRUE,
         TS_DRAW
       } THEME_SIZE;
-
+      
+      typedef int (WINAPI *DTT_CALLBACK_PROC)(HDC,LPWSTR,int,LPRECT,UINT,LPARAM);
+      
+      typedef struct _DTTOPTS {
+        DWORD dwSize;
+        DWORD dwFlags;
+        COLORREF crText;
+        COLORREF crBorder;
+        COLORREF crShadow;
+        int iTextShadowType;
+        POINT ptShadowOffset;
+        int iBorderSize;
+        int iFontPropId;
+        int iColorPropId;
+        int iStateId;
+        BOOL fApplyOverlay;
+        int iGlowSize;
+        DTT_CALLBACK_PROC pfnDrawTextCallback;
+        LPARAM lParam;
+      } DTTOPTS, *PDTTOPTS;
+      
+      #ifndef DTT_VALIDBITS
+        #define DTT_TEXTCOLOR       (1UL << 0) 
+        #define DTT_BORDERCOLOR     (1UL << 1) 
+        #define DTT_SHADOWCOLOR     (1UL << 2) 
+        #define DTT_SHADOWTYPE      (1UL << 3) 
+        #define DTT_SHADOWOFFSET    (1UL << 4) 
+        #define DTT_BORDERSIZE      (1UL << 5) 
+        #define DTT_FONTPROP        (1UL << 6) 
+        #define DTT_COLORPROP       (1UL << 7) 
+        #define DTT_STATEID         (1UL << 8) 
+        #define DTT_CALCRECT        (1UL << 9) 
+        #define DTT_APPLYOVERLAY    (1UL << 10)
+        #define DTT_GLOWSIZE        (1UL << 11)
+        #define DTT_CALLBACK        (1UL << 12)
+        #define DTT_COMPOSITED      (1UL << 13)
+        #define DTT_VALIDBITS       (DTT_TEXTCOLOR | \
+                                     DTT_BORDERCOLOR | \
+                                     DTT_SHADOWCOLOR | \
+                                     DTT_SHADOWTYPE | \
+                                     DTT_SHADOWOFFSET | \
+                                     DTT_BORDERSIZE | \
+                                     DTT_FONTPROP | \
+                                     DTT_COLORPROP | \
+                                     DTT_STATEID | \
+                                     DTT_CALCRECT | \
+                                     DTT_APPLYOVERLAY | \
+                                     DTT_GLOWSIZE | \
+                                     DTT_COMPOSITED)
+      #endif
+    
     public:
       static HRESULT (WINAPI *DwmEnableComposition)(UINT);
       static HRESULT (WINAPI *DwmExtendFrameIntoClientArea)(HWND,const MARGINS*);
@@ -114,12 +164,13 @@ namespace richmath{
       static HRESULT (WINAPI *DwmGetCompositionTimingInfo)(HWND,DWM_TIMING_INFO*);
       static HRESULT (WINAPI *DwmDefWindowProc)(HWND,UINT,WPARAM,LPARAM,LRESULT*);
 
-
       static HANDLE (WINAPI *OpenThemeData)(HWND,LPCWSTR);
       static HRESULT (WINAPI *CloseThemeData)(HANDLE);
       static HRESULT (WINAPI *DrawThemeBackground)(HANDLE,HDC,int,int,const RECT*,const RECT*);
       static HRESULT (WINAPI *DrawThemeEdge)(HANDLE,HDC,int,int,LPCRECT,UINT,UINT,LPRECT);
+      static HRESULT (WINAPI *DrawThemeTextEx)(HANDLE,HDC,int,int,LPCWSTR,int,DWORD,LPRECT,const DTTOPTS*);
       static HRESULT (WINAPI *GetThemeSysFont)(HANDLE,int,LOGFONTW*);
+      static COLORREF (WINAPI *GetThemeSysColor)(HANDLE,int);
       static HRESULT (WINAPI *GetThemeBackgroundExtent)(HANDLE,HDC,int,int,LPCRECT,LPRECT);
       static HRESULT (WINAPI *GetThemeBackgroundContentRect)(HANDLE,HDC hdc,int,int,LPCRECT,LPRECT);
       static HRESULT (WINAPI *GetThemeBool)(HANDLE,int,int,int,BOOL*);

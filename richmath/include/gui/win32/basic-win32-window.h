@@ -35,8 +35,11 @@ namespace richmath{
       
       void extend_glass(Win32Themes::MARGINS *margins);
       bool glass_enabled(){ return _glass_enabled; }
-      int get_frame_color(HWND child);
-      int get_frame_color(int x, int y);
+      
+      void paint_background(Canvas *canvas, HWND child);
+      void paint_background(Canvas *canvas, int x, int y);
+      
+      virtual void on_paint_background(Canvas *canvas);
       
     protected:
       int min_client_height;
@@ -50,6 +53,11 @@ namespace richmath{
       virtual void on_move(LPARAM Param);
       
       virtual void on_theme_changed();
+      virtual void paint_themed(HDC hdc);
+      virtual void paint_themed_caption(HDC hdc);
+      virtual LRESULT nc_hit_test(WPARAM wParam, LPARAM lParam);
+      void invalidate_non_child();
+      void invalidate_caption();
       
       virtual LRESULT callback(UINT message, WPARAM wParam, LPARAM lParam);
       
@@ -60,7 +68,8 @@ namespace richmath{
       bool _active;
       bool _glass_enabled;
       bool _snap_affinity;
-      bool _special_frame;
+      bool _themed_frame;
+      bool _mouse_over_caption_buttons;
       Win32Themes::MARGINS _extra_glass;
       
       int snap_correction_x;

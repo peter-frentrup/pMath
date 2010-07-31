@@ -505,44 +505,61 @@ int main(){
         ))));
     
     wndMain->top()->insert(0,
-    Section::create_from_object(Expr(run(
-      "Section(BoxData({"
-          "\"\\\"Warning\\\"\","
-          "FillBox(\"\"),"
-          "ButtonBox(\"\\\" Apply \\\"\"),"
-          "ButtonBox("
-            "StyleBox("
-                "\"\\[Times]\","
-              "FontWeight->Bold,"
-              "FontColor->RGBColor(0.2),"
-              "TextShadow->{{0,0.75,GrayLevel(0.8)}}),"
-            "ButtonFrame->\"Palette\")"
+      Section::create_from_object(Expr(run(
+        "Section(BoxData({"
+          "GridBox({{"
+            "ButtonBox(\"\\\" a \\\"\", ButtonFrame->\"Palette\"),"
+            "ButtonBox(\"\\\" b \\\"\", ButtonFrame->\"Palette\"),"
+            "ButtonBox(\"\\\" c \\\"\", ButtonFrame->\"Palette\"),"
+            "ButtonBox(\"\\\" d \\\"\", ButtonFrame->\"Palette\"),"
+            "\"\\\" \\u2190 Toolbar\\\"\""
+            "}},"
+            "GridBoxColumnSpacing->0)"
         "}),\"Docked\","
-        "Background->RGBColor(1, 0.8, 0.8),"
         "SectionFrame->{0,0,0,0.5},"
         "SectionFrameColor->GrayLevel(0.5),"
-        "SectionFrameMargins->{2, 2, 0, 0},"
+        "SectionFrameMargins->{1, 1, 0, 0},"
         "SectionMargins->0)"))));
-    
-    wndMain->bottom()->insert(0,
-    Section::create_from_object(Expr(run(
-      "Section(BoxData({"
-          "\"\\\"InfoInfoInfoInfo\\\"\","
-          "FillBox(\"\"),"
-          "ButtonBox(\"\\\" Apply \\\"\"),"
-          "ButtonBox("
-            "StyleBox("
-                "\"\\[Times]\","
-              "FontWeight->Bold,"
-              "FontColor->GrayLevel(0.2),"
-              "TextShadow->{{0,0.75,GrayLevel(0.8)}}),"
-            "ButtonFrame->\"Palette\")"
-        "}),\"Docked\","
-        //"Background->RGBColor(1, 0.847, 0),"
-        "SectionFrame->{0,0,0.5,0},"
-        "SectionFrameColor->GrayLevel(0.5),"
-        "SectionFrameMargins->{2, 2, 0, 0},"
-        "SectionMargins->0)"))));
+        
+//    wndMain->top()->insert(wndMain->top()->length(),
+//    Section::create_from_object(Expr(run(
+//      "Section(BoxData({"
+//          "\"\\\"Warning\\\"\","
+//          "FillBox(\"\"),"
+//          "ButtonBox(\"\\\" Apply \\\"\"),"
+//          "ButtonBox("
+//            "StyleBox("
+//                "\"\\[Times]\","
+//              "FontWeight->Bold,"
+//              "FontColor->RGBColor(0.2),"
+//              "TextShadow->{{0,0.75,GrayLevel(0.8)}}),"
+//            "ButtonFrame->\"Palette\")"
+//        "}),\"Docked\","
+//        "Background->RGBColor(1, 0.8, 0.8),"
+//        "SectionFrame->{0,0,0,0.5},"
+//        "SectionFrameColor->GrayLevel(0.5),"
+//        "SectionFrameMargins->{2, 2, 0, 0},"
+//        "SectionMargins->0)"))));
+//    
+//    wndMain->bottom()->insert(0,
+//    Section::create_from_object(Expr(run(
+//      "Section(BoxData({"
+//          "\"\\\"InfoInfoInfoInfo\\\"\","
+//          "FillBox(\"\"),"
+//          "ButtonBox(\"\\\" Apply \\\"\"),"
+//          "ButtonBox("
+//            "StyleBox("
+//                "\"\\[Times]\","
+//              "FontWeight->Bold,"
+//              "FontColor->GrayLevel(0.2),"
+//              "TextShadow->{{0,0.75,GrayLevel(0.8)}}),"
+//            "ButtonFrame->\"Palette\")"
+//        "}),\"Docked\","
+//        //"Background->RGBColor(1, 0.847, 0),"
+//        "SectionFrame->{0,0,0.5,0},"
+//        "SectionFrameColor->GrayLevel(0.5),"
+//        "SectionFrameMargins->{2, 2, 0, 0},"
+//        "SectionMargins->0)"))));
     
     wndMain->bottom_glass()->insert(0,
     Section::create_from_object(Expr(run(
@@ -721,7 +738,6 @@ int main(){
     
     ShowWindow(wndPalette->hwnd(), SW_SHOWNOACTIVATE);
     ShowWindow(wndMain->hwnd(), SW_SHOWNORMAL);
-    
     
 //    {
 //      Win32DocumentWindow *wndInterrupt = new Win32DocumentWindow(

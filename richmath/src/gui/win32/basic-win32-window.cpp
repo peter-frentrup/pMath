@@ -1,16 +1,23 @@
 #define _WIN32_WINNT 0x0600
 
+#include <math.h>
 #include <stdio.h>
 #include <cairo-win32.h>
 
 #include <graphics/canvas.h>
 #include <gui/win32/basic-win32-window.h>
+#include <gui/win32/win32-control-painter.h>
 #include <gui/win32/win32-widget.h>
+
+#include <eval/client.h>
 
 using namespace richmath;
 
 #define CAPTION_BUTTON_INFLATE  (-2)
 #define CAPTION_BUTTON_DIST     (-2)
+
+static cairo_surface_t *background_image = 0;
+int background_image_cnt = 0;
 
 //{ class BasicWin32Window ...
 
@@ -35,14 +42,35 @@ BasicWin32Window::BasicWin32Window(
   max_client_width(-1),
   _active(false),
   _glass_enabled(false),
-  _snap_affinity(0),
-  _special_frame(false),
+  _snap_affinity(false),
+  _themed_frame(false),
+  _mouse_over_caption_buttons(false),
   snap_correction_x(0),
   snap_correction_y(0),
   last_moving_x(0),
   last_moving_y(0)
 {
   memset(&_extra_glass, 0, sizeof(_extra_glass));
+  
+  ++background_image_cnt;
+  if(!background_image){
+    Expr e = Expr(pmath_evaluate(
+      pmath_parse_string(
+        PMATH_C_STRING(
+          "FE`$WindowFrameImage"))));
+      
+    String s(e);
+    if(!s.is_valid())
+      s = Client::application_directory + "\\frame.png";
+    int len;
+    char *imgname = pmath_string_to_utf8(s.get(), &len);
+    
+    if(imgname){
+      background_image = cairo_image_surface_create_from_png(imgname);
+      
+      pmath_mem_free(imgname);
+    }
+  }
 }
 
 void BasicWin32Window::after_construction(){
@@ -50,21 +78,28 @@ void BasicWin32Window::after_construction(){
 }
 
 BasicWin32Window::~BasicWin32Window(){
+  if(--background_image_cnt == 0
+  && background_image){
+    cairo_surface_destroy(background_image);
+    background_image = 0;
+  }
 }
 
 void BasicWin32Window::get_client_rect(RECT *rect){
-//  Win32Themes::MARGINS margins;
-//  RECT winrect;
-//  
-//  GetWindowRect(_hwnd, &winrect);
-//  get_nc_margins(&margins);
-//  
-//  rect->left   = margins.cxLeftWidth;
-//  rect->top    = margins.cyTopHeight;
-//  rect->right  = winrect.right  - winrect.left - margins.cxRightWidth;//   - margins.cxLeftWidth;
-//  rect->bottom = winrect.bottom - winrect.top  - margins.cyBottomHeight;// - margins.cyTopHeight;
-  
-  GetClientRect(_hwnd, rect);
+  if(_themed_frame){
+    Win32Themes::MARGINS margins;
+    RECT winrect;
+    
+    GetWindowRect(_hwnd, &winrect);
+    get_nc_margins(&margins);
+    
+    rect->left   = margins.cxLeftWidth;
+    rect->top    = margins.cyTopHeight;
+    rect->right  = winrect.right  - winrect.left - margins.cxRightWidth;//   - margins.cxLeftWidth;
+    rect->bottom = winrect.bottom - winrect.top  - margins.cyBottomHeight;// - margins.cyTopHeight;
+  }
+  else
+    GetClientRect(_hwnd, rect);
 }
 
 void BasicWin32Window::get_client_size(int *width, int *height){
@@ -92,6 +127,11 @@ void BasicWin32Window::get_glassfree_rect(RECT *rect){
 }
 
 void BasicWin32Window::get_nc_margins(Win32Themes::MARGINS *margins){
+  if(!_themed_frame){
+    memset(margins, 0, sizeof(Win32Themes::MARGINS));
+    return;
+  }
+  
   DWORD style    = GetWindowLongW(_hwnd, GWL_STYLE);
   DWORD ex_style = GetWindowLongW(_hwnd, GWL_EXSTYLE);
   
@@ -698,62 +738,535 @@ void BasicWin32Window::on_move(LPARAM Param){
 
 void BasicWin32Window::on_theme_changed(){
   _glass_enabled = false;
+  _themed_frame = false;
   
   if(Win32Themes::IsCompositionActive
   && Win32Themes::IsCompositionActive()){
     _glass_enabled = true;
-    return;
+    _themed_frame = 0 == (WS_EX_TOOLWINDOW & GetWindowLong(_hwnd, GWL_EXSTYLE));
   }
-  
-  if(Win32Themes::IsThemeActive
+  else if(Win32Themes::IsThemeActive
   && Win32Themes::IsThemeActive()){
     _glass_enabled = Win32Themes::current_theme_is_aero();
+  }
+  
+  extend_glass(&_extra_glass);
+  
+  SetWindowPos(_hwnd, 0, 0, 0, 0, 0, 
+    SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED | SWP_NOACTIVATE);
+}
+
+void BasicWin32Window::paint_themed(HDC hdc){
+  if(_themed_frame){
+    RECT rect;
+    GetClientRect(_hwnd, &rect);
+    
+    cairo_surface_t *surface = cairo_win32_surface_create_with_dib(
+      CAIRO_FORMAT_ARGB32,
+      rect.right  - rect.left, 
+      rect.bottom - rect.top);
+    
+    cairo_t *cr = cairo_create(surface);
+    {
+      Canvas canvas(cr);
+      
+      paint_background(&canvas, 0, 0);
+    }
+    cairo_destroy(cr);
+    
+    HDC bmp_dc = cairo_win32_surface_get_dc(surface);
+    paint_themed_caption(bmp_dc);
+    BitBlt(
+      hdc, 
+      rect.left, 
+      rect.top, 
+      rect.right  - rect.left, 
+      rect.bottom - rect.top,
+      bmp_dc, 
+      0, 
+      0, 
+      SRCCOPY);
+      
+    cairo_surface_destroy(surface);
+  }
+  else{
+  }
+}
+
+  void get_system_button_bounds(HWND hwnd, RECT *rect){
+    //DwmGetWindowAttribute(hwnd, DWMWA_CAPTION_BUTTON_BOUNDS, rect, sizeof(RECT));
+    
+    // TITLEBARINFOEX:
+    struct {
+      DWORD cbSize;
+      RECT rcTitleBar;
+      DWORD rgstate[6];
+      RECT rgrect[6];
+    } tbi;
+    
+    memset(&tbi, 0, sizeof(tbi));
+    tbi.cbSize = sizeof(tbi);
+    
+    // WM_GETTITLEBARINFOEX = 0x033F
+    SendMessageW(hwnd, 0x033F, 0, (LPARAM)&tbi);
+    
+    memset(rect, 0, sizeof(RECT));
+    for(int i = 2;i <= 5;++i)
+      UnionRect(rect, rect, &tbi.rgrect[i]);
+    
+    POINT *pt = (POINT*)rect;
+    ScreenToClient(hwnd, &pt[0]);
+    ScreenToClient(hwnd, &pt[1]);
+  }
+
+void BasicWin32Window::paint_themed_caption(HDC hdc_bitmap){
+  if(!_themed_frame
+  || !Win32Themes::OpenThemeData
+  || !Win32Themes::CloseThemeData
+  || !Win32Themes::GetThemeSysColor
+  || !Win32Themes::GetThemeSysFont
+  || !Win32Themes::DrawThemeTextEx)
     return;
+
+  HANDLE theme = Win32Themes::OpenThemeData(NULL, L"CompositedWindow::Window");
+  if(theme){
+    Win32Themes::DTTOPTS dtt_opts;
+    memset(&dtt_opts, 0, sizeof(dtt_opts));
+    dtt_opts.crText = Win32Themes::GetThemeSysColor(theme, _active ? COLOR_CAPTIONTEXT : COLOR_INACTIVECAPTIONTEXT);
+    dtt_opts.dwSize = sizeof(dtt_opts);
+    dtt_opts.dwFlags = DTT_COMPOSITED | DTT_GLOWSIZE | DTT_TEXTCOLOR;
+    dtt_opts.iGlowSize = 10;
+    
+    #define MAX_STR_LEN 1024
+    WCHAR str[MAX_STR_LEN];
+    GetWindowTextW(_hwnd, str, MAX_STR_LEN);
+    str[MAX_STR_LEN-1] = '\0';
+    
+    LOGFONTW log_font;
+    HFONT old_font = NULL;
+    if(SUCCEEDED(Win32Themes::GetThemeSysFont(theme, 801, &log_font))){
+    // TMT_CAPTIONFONT = 801
+      HFONT font = CreateFontIndirectW(&log_font);
+      old_font = (HFONT)SelectObject(hdc_bitmap, font);
+    }
+    
+    int frame_x = GetSystemMetrics(SM_CXSIZEFRAME);
+    int frame_y = GetSystemMetrics(SM_CYSIZEFRAME);
+    
+    RECT rect;
+    get_system_button_bounds(_hwnd, &rect);
+    rect.right  = rect.left;
+    rect.left   = frame_x + GetSystemMetrics(SM_CXSMICON) + 4;
+    rect.top    = frame_y;
+    rect.bottom = rect.top + GetSystemMetrics(SM_CYCAPTION);
+    
+    Win32Themes::DrawThemeTextEx(
+      theme,
+      hdc_bitmap, 
+      0, 0, 
+      str, -1, 
+      DT_LEFT | DT_END_ELLIPSIS, 
+      &rect, 
+      &dtt_opts);
+    
+    if(GetClassNameW(_hwnd, str, MAX_STR_LEN)){
+      WNDCLASSEXW wndcl;
+      memset(&wndcl, 0, sizeof(wndcl));
+      
+      GetClassInfoExW(GetModuleHandle(0), str, &wndcl);
+      HICON icon = wndcl.hIconSm;
+      if(!icon) icon = wndcl.hIcon;
+      if(icon){
+        DrawIconEx(hdc_bitmap, frame_x, frame_y, icon,
+          GetSystemMetrics(SM_CXSMICON),
+          GetSystemMetrics(SM_CYSMICON),
+          0,
+          NULL,
+          DI_NORMAL);
+      }
+    }
+    
+    if(old_font){
+      SelectObject(hdc_bitmap, old_font);
+    }
+    Win32Themes::CloseThemeData(theme);
   }
 }
 
 void BasicWin32Window::extend_glass(Win32Themes::MARGINS *margins){
-  memcpy(&_extra_glass, margins, sizeof(_extra_glass));
+  if(margins != &_extra_glass)
+    memcpy(&_extra_glass, margins, sizeof(_extra_glass));
   
-  if(Win32Themes::DwmExtendFrameIntoClientArea)
-    Win32Themes::DwmExtendFrameIntoClientArea(_hwnd, margins);
+  if(Win32Themes::DwmExtendFrameIntoClientArea){
+    Win32Themes::MARGINS nc;
+    get_nc_margins(&nc);
+    
+    nc.cxLeftWidth+=    margins->cxLeftWidth;
+    nc.cxRightWidth+=   margins->cxRightWidth;
+    nc.cyTopHeight+=    margins->cyTopHeight;
+    nc.cyBottomHeight+= margins->cyBottomHeight;
+    
+    Win32Themes::DwmExtendFrameIntoClientArea(_hwnd, &nc);
+  
+    RECT client;
+    GetWindowRect(_hwnd, &client);
+
+    // Inform application of the frame change.
+    SetWindowPos(
+      _hwnd, 
+      NULL, 
+      client.left, 
+      client.top,
+      client.right  - client.left, 
+      client.bottom - client.top,
+      SWP_FRAMECHANGED);
+  }
 }
 
-int BasicWin32Window::get_frame_color(HWND child){
-  RECT rect;
-  GetWindowRect(child, &rect);
+void BasicWin32Window::paint_background(Canvas *canvas, HWND child){
+  RECT rect, child_rect;
   
-  POINT pt = {rect.left + (rect.right  - rect.right)/2,
-              rect.top  + (rect.bottom - rect.top)/2};
+  GetWindowRect(child, &child_rect);
+  GetWindowRect(_hwnd, &rect);
   
-  ScreenToClient(_hwnd, &pt);
-  
-  return get_frame_color(pt.x, pt.y);
+  paint_background(
+    canvas, 
+    child_rect.left - rect.left, 
+    child_rect.top  - rect.top);
 }
 
-int BasicWin32Window::get_frame_color(int x, int y){
-  int color = GetSysColor(COLOR_MENU);
-  
-  if(glass_enabled()){
+void BasicWin32Window::paint_background(Canvas *canvas, int x, int y){
+  canvas->save();
+  {
+    cairo_matrix_t mat;
+    cairo_matrix_init_identity(&mat);
+    cairo_set_matrix(canvas->cairo(), &mat);
+    
+    cairo_reset_clip(canvas->cairo());
+    
+    RECT rect;
+    GetWindowRect(_hwnd, &rect);
+    ScreenToClient(_hwnd, (POINT*)&rect);
+    
+    canvas->translate(-x, -y);
+    
     RECT glassfree;
     get_glassfree_rect(&glassfree);
+    glassfree.left-=   rect.left;
+    glassfree.right-=  rect.left;
+    glassfree.top-=    rect.top;
+    glassfree.bottom-= rect.top;
     
-    POINT pt = {x, y};
-    if(!PtInRect(&glassfree, pt)){
-      if(Win32Themes::IsCompositionActive
-      && Win32Themes::IsCompositionActive())
-        return -1;
+    if(!Win32Themes::IsCompositionActive
+    || !Win32Themes::IsCompositionActive()){
+      if(glass_enabled()){
+        int color;
+        
+        if(_active)
+          color = GetSysColor(COLOR_GRADIENTACTIVECAPTION);
+        else
+          color = GetSysColor(COLOR_GRADIENTINACTIVECAPTION);
+          
+        color = ((color & 0xFF0000) >> 16)
+              |  (color & 0x00FF00)
+              | ((color & 0x0000FF) << 16);
+            
+        canvas->set_color(color);
+        canvas->paint();
+      }
+      else{
+        int color = GetSysColor(COLOR_MENU);
+        
+        color = ((color & 0xFF0000) >> 16)
+              |  (color & 0x00FF00)
+              | ((color & 0x0000FF) << 16);
+              
+        canvas->set_color(color);
+        canvas->paint();
+      }
+    }
+    else{
+      canvas->set_color(0x000000, 0);
+      canvas->paint();
+    }
+    
+    if(!IsRectEmpty(&glassfree)){
+      int color = GetSysColor(COLOR_MENU);
       
-      if(_active)
-        color = GetSysColor(COLOR_GRADIENTACTIVECAPTION);
-      else
-        color = GetSysColor(COLOR_GRADIENTINACTIVECAPTION);
+      color = ((color & 0xFF0000) >> 16)
+            |  (color & 0x00FF00)
+            | ((color & 0x0000FF) << 16);
+            
+      canvas->move_to(glassfree.left,  glassfree.top);
+      canvas->line_to(glassfree.left,  glassfree.bottom);
+      canvas->line_to(glassfree.right, glassfree.bottom);
+      canvas->line_to(glassfree.right, glassfree.top);
+      canvas->close_path();
+      
+      canvas->set_color(color);
+      canvas->fill();
+    }
+    
+    on_paint_background(canvas);
+    
+    if(_themed_frame){
+      LONG style_ex = GetWindowLong(_hwnd, GWL_EXSTYLE);
+      RECT rect, glassfree;
+      GetClientRect(_hwnd, &rect);
+      get_glassfree_rect(&glassfree);
+      
+      cairo_reset_clip(canvas->cairo());
+      
+      { // ensure maximum alpha of 0.8 on the glass area border
+        cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_DEST_OUT);
+        
+        canvas->move_to(rect.left,  rect.top);
+        canvas->line_to(rect.right, rect.top);
+        canvas->line_to(rect.right, rect.bottom);
+        canvas->line_to(rect.left,  rect.bottom);
+        canvas->close_path();
+        
+        canvas->move_to(glassfree.left,  glassfree.top);
+        canvas->line_to(glassfree.left,  glassfree.bottom);
+        canvas->line_to(glassfree.right, glassfree.bottom);
+        canvas->line_to(glassfree.right, glassfree.top);
+        canvas->close_path();
+        
+        canvas->clip();
+        //canvas->paint_with_alpha(1 - 0.8);
+        
+        cairo_set_line_width(canvas->cairo(), 3);
+        
+        canvas->move_to(rect.left,  rect.top);
+        canvas->line_to(rect.right, rect.top);
+        canvas->line_to(rect.right, rect.bottom);
+        canvas->line_to(rect.left,  rect.bottom);
+        canvas->close_path();
+        
+        canvas->move_to(glassfree.left,  glassfree.top);
+        canvas->line_to(glassfree.left,  glassfree.bottom);
+        canvas->line_to(glassfree.right, glassfree.bottom);
+        canvas->line_to(glassfree.right, glassfree.top);
+        canvas->close_path();
+        
+        canvas->set_color(0xffffff, 1 - 0.1);
+        canvas->stroke();
+        
+        cairo_reset_clip(canvas->cairo());
+      }
+      
+      { // small alpha value above the min/max/close buttons
+        RECT buttons;
+        get_system_button_bounds(_hwnd, &buttons);
+        
+        if(style_ex & WS_EX_TOOLWINDOW){
+          canvas->move_to(buttons.left,  buttons.top);
+          canvas->line_to(buttons.right, buttons.top);
+          canvas->line_to(buttons.right, buttons.bottom);
+          canvas->line_to(buttons.left,  buttons.bottom);
+          canvas->close_path();
+        }
+        else{
+          int buttonradius = 5;
+          canvas->move_to(     buttons.left+0.5,   buttons.top);
+          canvas->arc(buttons.left+0.5  + buttonradius, buttons.bottom-0.5 - buttonradius, buttonradius, M_PI,   M_PI/2, true);
+          canvas->arc(buttons.right-0.5 - buttonradius, buttons.bottom-0.5 - buttonradius, buttonradius, M_PI/2, 0,      true);
+          canvas->line_to(     buttons.right-0.5,  buttons.top);
+          canvas->close_path();
+        }
+        
+        if(_mouse_over_caption_buttons){
+          cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_CLEAR);
+        }
+        else if(_active){
+          canvas->set_color(0xffffff, 1 - 0.2);
+          cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_DEST_OUT);
+        }
+        else{
+          canvas->set_color(0xffffff, 1 - 0.6);
+          cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_DEST_OUT);
+        }
+        
+        canvas->fill();
+      }
+      
+      { // make the edges round again
+        int frameradius;
+        
+        if(style_ex & WS_EX_TOOLWINDOW)
+          frameradius = 1;
+        else
+          frameradius = GetSystemMetrics(SM_CXFRAME)-2;
+        
+        canvas->move_to(rect.left,  rect.top);
+        canvas->line_to(rect.left,  rect.bottom);
+        canvas->line_to(rect.right, rect.bottom);
+        canvas->line_to(rect.right, rect.top);
+        canvas->close_path();
+        
+        {
+          InflateRect(&rect, -1, -1);
+          canvas->move_to(rect.left, rect.top + frameradius);
+          canvas->arc(rect.left  + frameradius, rect.top    + frameradius, frameradius, M_PI,     3*M_PI/2, false);
+          canvas->arc(rect.right - frameradius, rect.top    + frameradius, frameradius, 3*M_PI/2, 2*M_PI,   false);
+          canvas->arc(rect.right - frameradius, rect.bottom - frameradius, frameradius, 0,          M_PI/2, false);
+          canvas->arc(rect.left  + frameradius, rect.bottom - frameradius, frameradius, M_PI/2,     M_PI,   false);
+          canvas->close_path();
+          
+          InflateRect(&rect, 1, 1);
+        }
+        
+        cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_CLEAR);
+        canvas->fill();
+      }
     }
   }
+  canvas->restore();
+}
+
+void BasicWin32Window::on_paint_background(Canvas *canvas){
+  if(!_themed_frame)
+    return;
+
+  if(background_image 
+  && cairo_surface_status(background_image) == CAIRO_STATUS_SUCCESS){
+    RECT rect, glassfree;
+    GetClientRect(_hwnd, &rect);
+    get_glassfree_rect(&glassfree);
+    
+    int x = rect.right - cairo_image_surface_get_width(background_image);
+    cairo_set_source_surface(canvas->cairo(), background_image, x, 0);
+    //canvas->set_color(0xff0000);
+    
+    canvas->move_to(rect.left,  rect.top);
+    canvas->line_to(rect.right, rect.top);
+    canvas->line_to(rect.right, rect.bottom);
+    canvas->line_to(rect.left,  rect.bottom);
+    canvas->close_path();
+    
+    canvas->move_to(glassfree.left,  glassfree.top);
+    canvas->line_to(glassfree.left,  glassfree.bottom);
+    canvas->line_to(glassfree.right, glassfree.bottom);
+    canvas->line_to(glassfree.right, glassfree.top);
+    canvas->close_path();
+    
+    canvas->clip();
+    canvas->paint_with_alpha(0.8);
+    
+    cairo_reset_clip(canvas->cairo());
+    canvas->move_to(glassfree.left,  glassfree.top);
+    canvas->line_to(glassfree.left,  glassfree.bottom);
+    canvas->line_to(glassfree.right, glassfree.bottom);
+    canvas->line_to(glassfree.right, glassfree.top);
+    canvas->close_path();
+    canvas->clip();
+    
+    canvas->paint_with_alpha(0.4);
+  }
+}
+
+LRESULT BasicWin32Window::nc_hit_test(WPARAM wParam, LPARAM lParam){
+  POINT ptMouse = { (short)LOWORD(lParam), (short)HIWORD(lParam)};
   
-  return ((color & 0xFF0000) >> 16)
-       |  (color & 0x00FF00)
-       | ((color & 0x0000FF) << 16);
+  Win32Themes::MARGINS margins;
+  get_nc_margins(&margins);
+  margins.cxLeftWidth   += _extra_glass.cxLeftWidth;
+  margins.cxRightWidth  += _extra_glass.cxRightWidth;
+  margins.cyTopHeight   += _extra_glass.cyTopHeight;
+  margins.cyBottomHeight+= _extra_glass.cyBottomHeight;
+  
+  RECT rcWindow;
+  GetWindowRect(_hwnd, &rcWindow);
+
+  RECT rcFrame = { 0,0,0,0 };
+  AdjustWindowRectEx(&rcFrame, WS_OVERLAPPEDWINDOW & ~WS_CAPTION, FALSE, NULL);
+
+  USHORT uRow = 1;
+  USHORT uCol = 1;
+  bool fOnResizeBorder = false;
+  
+  if(ptMouse.y >= rcWindow.top 
+  && ptMouse.y < rcWindow.top + margins.cyTopHeight){
+    fOnResizeBorder = (ptMouse.y < (rcWindow.top - rcFrame.top));
+    uRow = 0;
+  }
+  else if(ptMouse.y < rcWindow.bottom 
+  && ptMouse.y >= rcWindow.bottom - margins.cyBottomHeight){
+    uRow = 2;
+  }
+
+  if(ptMouse.x >= rcWindow.left 
+  && ptMouse.x < rcWindow.left + margins.cxLeftWidth){
+    uCol = 0;
+  }
+  else if(ptMouse.x < rcWindow.right 
+  && ptMouse.x >= rcWindow.right - margins.cxRightWidth){
+    uCol = 2;
+  }
+  
+  if(!fOnResizeBorder 
+  && ptMouse.x <= rcWindow.left + GetSystemMetrics(SM_CXSMICON) - rcFrame.left
+  && ptMouse.y <= rcWindow.top  + GetSystemMetrics(SM_CYSMICON) - rcFrame.top){
+    return HTSYSMENU;
+  }
+  
+  LRESULT hitTests[3][3] = {
+    { fOnResizeBorder ? HTTOPLEFT : HTLEFT, fOnResizeBorder ? HTTOP : HTCAPTION, fOnResizeBorder ? HTTOPRIGHT : HTRIGHT },
+    { HTLEFT,                               HTCLIENT,                            HTRIGHT       },
+    { HTBOTTOMLEFT,                         HTBOTTOM,                            HTBOTTOMRIGHT },
+  };
+
+  return hitTests[uRow][uCol];
+}
+
+  struct remove_child_rgn_info_t{
+    HWND parent;
+    HRGN region;
+  };
+
+  static BOOL CALLBACK remove_child_rgn_callback(HWND hwnd, LPARAM lParam){
+    struct remove_child_rgn_info_t *info = (struct remove_child_rgn_info_t*)lParam;
+    
+    RECT rect;
+    GetWindowRect(hwnd, &rect);
+    MapWindowPoints(NULL, info->parent, (POINT*)&rect, 2);
+    
+    HRGN rectrgn = CreateRectRgnIndirect(&rect);
+    CombineRgn(info->region, info->region, rectrgn, RGN_DIFF);
+    DeleteObject(rectrgn);
+    
+    return TRUE;
+  }
+  
+void BasicWin32Window::invalidate_non_child(){
+  if(!_themed_frame)
+    return;
+    
+  struct remove_child_rgn_info_t info;
+  
+  RECT rect;
+  GetClientRect(_hwnd, &rect);
+  
+  info.parent = _hwnd;
+  info.region = CreateRectRgnIndirect(&rect);
+  
+  EnumChildWindows(_hwnd, remove_child_rgn_callback, (LPARAM)&info);
+  
+  InvalidateRgn(_hwnd, info.region, FALSE);
+  
+  DeleteObject(info.region);
+}
+
+void BasicWin32Window::invalidate_caption(){
+  if(_themed_frame){
+    RECT rect;
+    Win32Themes::MARGINS mar;
+    GetClientRect(_hwnd, &rect);
+    get_nc_margins(&mar);
+    
+    rect.bottom = mar.cyTopHeight;
+    InvalidateRect(_hwnd, &rect, FALSE);
+  }
 }
 
   struct redraw_glass_info_t{
@@ -787,16 +1300,30 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam){
   
   switch(message){
     case WM_NCACTIVATE: {
+      if(wParam){
+        struct redraw_glass_info_t info;
+        
+        get_glassfree_rect(&info.inner);
+        POINT *pt = (POINT*)&info.inner;
+        ClientToScreen(_hwnd, &pt[0]);
+        ClientToScreen(_hwnd, &pt[1]);
+        
+        EnumChildWindows(_hwnd, redraw_glass_callback, (LPARAM)&info);
+      }
+      
       _active = wParam;
-      
-      struct redraw_glass_info_t info;
-      
-      get_glassfree_rect(&info.inner);
-      POINT *pt = (POINT*)&info.inner;
-      ClientToScreen(_hwnd, &pt[0]);
-      ClientToScreen(_hwnd, &pt[1]);
-      
-      EnumChildWindows(_hwnd, redraw_glass_callback, (LPARAM)&info);
+      if(_themed_frame){
+        HDC hdc = GetDC(_hwnd);
+        
+        RECT rect;
+        GetClientRect(_hwnd, &rect);
+        IntersectClipRect(hdc, 0, 0, 
+          rect.right, 
+          GetSystemMetrics(SM_CYFRAME) + GetSystemMetrics(SM_CYCAPTION));
+        paint_themed(hdc);
+        
+        ReleaseDC(_hwnd, hdc);
+      }
     } break;
   }
   
@@ -809,6 +1336,10 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam){
       
       case WM_MOVING: {
         on_moving((RECT*)lParam);
+      } break;
+      
+      case WM_SIZE: {
+        invalidate_non_child();
       } break;
       
       case WM_MOVE: {
@@ -839,6 +1370,127 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam){
       
       case WM_ERASEBKGND:
         return 1;
+        
+      case WM_PAINT: {
+        if(_themed_frame){
+          RECT client;
+          GetClientRect(_hwnd, &client);
+          
+          PAINTSTRUCT ps;
+          HDC hdc = BeginPaint(_hwnd, &ps);
+          paint_themed(hdc);
+          EndPaint(_hwnd, &ps);
+          return 0;
+        }
+      } break;
+      
+      case WM_NCHITTEST: {
+        if(!calldwp)
+          return dwm_result;
+        
+        if(_themed_frame)
+          return nc_hit_test(wParam, lParam);
+      } break;
+      
+      case WM_NCCALCSIZE: {
+        if(wParam && _themed_frame)
+          return 0;//WVR_ALIGNTOP | WVR_ALIGNRIGHT;
+      } break;
+      
+      case WM_NCMOUSEMOVE: {
+        if(wParam == HTMINBUTTON 
+        || wParam == HTMAXBUTTON 
+        || wParam == HTCLOSE
+        || wParam == HTHELP){
+          if(!_mouse_over_caption_buttons)
+            invalidate_caption();
+          _mouse_over_caption_buttons = true;
+        }
+        else{
+          if(_mouse_over_caption_buttons)
+            invalidate_caption();
+          _mouse_over_caption_buttons = false;
+        }
+      } break;
+      
+      case WM_NCMOUSELEAVE: {
+        if(_mouse_over_caption_buttons)
+          invalidate_caption();
+          
+        _mouse_over_caption_buttons = false;
+      } break;
+      
+      case WM_NCRBUTTONUP: {
+        if(_themed_frame
+        && (wParam == HTCAPTION || wParam == HTSYSMENU)){
+          HMENU menu = GetSystemMenu(_hwnd, FALSE);
+          
+          if(menu){
+            POINT pt;
+            pt.x = (short)LOWORD(lParam);
+            pt.y = (short)HIWORD(lParam);
+            
+            int cmd = TrackPopupMenu(
+              menu,
+              GetSystemMetrics(SM_MENUDROPALIGNMENT) | TPM_RETURNCMD,
+              pt.x,
+              pt.y,
+              0,
+              _hwnd,
+              NULL);
+              
+            if(cmd)
+              SendMessageW(_hwnd, WM_SYSCOMMAND, cmd, 0);
+            return 0;
+          }
+        }
+      } break;
+      
+      case WM_NCLBUTTONUP: {
+        if(_themed_frame
+        && wParam == HTSYSMENU){
+          HMENU menu = GetSystemMenu(_hwnd, FALSE);
+          
+          if(menu){
+            TPMPARAMS tpm;
+            memset(&tpm, 0, sizeof(tpm));
+            tpm.cbSize = sizeof(tpm);
+            GetWindowRect(_hwnd, &tpm.rcExclude);
+            
+            tpm.rcExclude.left+=  GetSystemMetrics(SM_CXSIZEFRAME);
+            tpm.rcExclude.top+=   GetSystemMetrics(SM_CYSIZEFRAME);
+            tpm.rcExclude.right-= GetSystemMetrics(SM_CXSIZEFRAME);
+            tpm.rcExclude.bottom = tpm.rcExclude.top  + GetSystemMetrics(SM_CYCAPTION);
+            
+            POINT pt;
+            pt.x = (short)LOWORD(lParam);
+            pt.y = (short)HIWORD(lParam);
+            
+            int x;
+            UINT align;
+            if(GetSystemMetrics(SM_MENUDROPALIGNMENT) == 0){
+              align = TPM_LEFTALIGN;
+              x = tpm.rcExclude.left;
+            }
+            else{
+              align = TPM_RIGHTALIGN;
+              x = tpm.rcExclude.right;
+            }
+            
+            int cmd = TrackPopupMenuEx(
+              menu,
+              GetSystemMetrics(SM_MENUDROPALIGNMENT) | TPM_RETURNCMD | TPM_NONOTIFY,
+              x,
+              tpm.rcExclude.bottom,
+              _hwnd,
+              &tpm);
+              
+            if(cmd)
+              SendMessageW(_hwnd, WM_SYSCOMMAND, cmd, 0);
+            return 0;
+          }
+        }
+      } break;
       
       default: break;
     }

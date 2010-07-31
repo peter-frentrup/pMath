@@ -16,7 +16,9 @@ HANDLE (WINAPI *Win32Themes::OpenThemeData)(HWND,LPCWSTR) = 0;
 HRESULT (WINAPI *Win32Themes::CloseThemeData)(HANDLE) = 0;
 HRESULT (WINAPI *Win32Themes::DrawThemeBackground)(HANDLE,HDC,int,int,const RECT*,const RECT*) = 0;
 HRESULT (WINAPI *Win32Themes::DrawThemeEdge)(HANDLE,HDC,int,int,LPCRECT,UINT,UINT,LPRECT) = 0;
+HRESULT (WINAPI *Win32Themes::DrawThemeTextEx)(HANDLE,HDC,int,int,LPCWSTR,int,DWORD,LPRECT,const DTTOPTS*) = 0;
 HRESULT (WINAPI *Win32Themes::GetThemeSysFont)(HANDLE,int,LOGFONTW*) = 0;
+COLORREF (WINAPI *Win32Themes::GetThemeSysColor)(HANDLE,int) = 0;
 HRESULT (WINAPI *Win32Themes::GetThemeBackgroundExtent)(HANDLE,HDC,int,int,LPCRECT,LPRECT) = 0;
 HRESULT (WINAPI *Win32Themes::GetThemeBackgroundContentRect)(HANDLE,HDC hdc,int,int,LPCRECT,LPRECT) = 0;
 HRESULT (WINAPI *Win32Themes::GetThemeBool)(HANDLE,int,int,int,BOOL*) = 0;
@@ -80,8 +82,14 @@ Win32Themes::Win32Themes(): Base(){
     DrawThemeEdge = (HRESULT (WINAPI *)(HANDLE,HDC,int,int,LPCRECT,UINT,UINT,LPRECT))
       GetProcAddress(uxtheme, "DrawThemeEdge");
     
+    DrawThemeTextEx = (HRESULT (WINAPI *)(HANDLE,HDC,int,int,LPCWSTR,int,DWORD,LPRECT,const DTTOPTS*))
+      GetProcAddress(uxtheme, "DrawThemeTextEx");
+    
     GetThemeSysFont = (HRESULT (WINAPI *)(HANDLE,int,LOGFONTW*))
       GetProcAddress(uxtheme, "GetThemeSysFont");
+    
+    GetThemeSysColor = (COLORREF (WINAPI *)(HANDLE,int))
+      GetProcAddress(uxtheme, "GetThemeSysColor");
     
     GetThemeBackgroundExtent = (HRESULT (WINAPI *)(HANDLE,HDC,int,int,LPCRECT,LPRECT))
       GetProcAddress(uxtheme, "GetThemeBackgroundExtent");
@@ -167,7 +175,9 @@ Win32Themes::~Win32Themes(){
   CloseThemeData = 0;
   DrawThemeBackground = 0;
   DrawThemeEdge = 0;
+  DrawThemeTextEx = 0;
   GetThemeSysFont = 0;
+  GetThemeSysColor = 0;
   GetThemeBackgroundExtent = 0;
   GetThemeBackgroundContentRect = 0;
   GetThemeBool = 0;

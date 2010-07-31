@@ -47,6 +47,10 @@ SectionsToBoxes(~b)::= ReplaceRepeated(b, {Section(BoxData(~x), ~~~) :> {x, "\n"
 
 $NamespacePath:= oldNamespacePath
 
+If(Length($CommandLine) > 1 && StringMatch($CommandLine[2], ~ ++ ".png"),
+	FE`$WindowFrameImage:= $CommandLine[2];
+	)
+
 End()
 
 EndPackage()
