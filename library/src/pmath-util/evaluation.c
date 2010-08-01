@@ -39,8 +39,6 @@
 #include <pmath-builtins/lists-private.h>
 
 // pmath_maxrecursion is in pmath-objects.h
-//static int max_recursion = 16;//256;
-//static int max_iterations = 64;//1024;
 
 //#define DEBUG_LOG_EVAL
 
@@ -631,7 +629,8 @@ static pmath_t evaluate_symbol(
   
   value = _pmath_symbol_value_prepare(sym, value);
   
-  if(pmath_instance_of(value, PMATH_TYPE_EVALUATABLE))
+  if(pmath_instance_of(value, PMATH_TYPE_EVALUATABLE)
+  || !value)
     return value;
   
   pmath_unref(value);

@@ -5,6 +5,8 @@
 #include <cstdio>
 #include <ctime>
 
+#include <pango/pangocairo.h>
+
 #include <boxes/section.h>
 #include <boxes/mathsequence.h>
 #include <eval/binding.h>
@@ -147,6 +149,7 @@ static void load_aliases(
 
 int main(){
   printf("cairo version: %s\n", cairo_version_string());
+  printf("pango version: %s\n", pango_version_string());
   printf("sizeof(Entry<int,Void>) = %d\n", sizeof(Entry<int,Void>));
   printf("sizeof(Box) = %d\n", sizeof(Box));
   printf("sizeof(MathSequence) = %d\n", sizeof(MathSequence));
@@ -590,8 +593,8 @@ int main(){
     todo(doc, "\"Implement Options(FrontEndObject(id), option).\"");
     todo(doc, "\"Use/test the Menu class.\"");
     doc->select(doc,0,0);
-    
-    
+    doc->move_horizontal(Forward, true);
+    doc->move_horizontal(Backward, false);
     
     wndPalette = new Win32DocumentWindow(
       new Document,

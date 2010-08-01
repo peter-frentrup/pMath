@@ -3122,7 +3122,7 @@
 
 1280054986 d:\peter\programmieren\pmath\trunk\richmath\include\util\sharedptr.h
 
-1280054986 d:\peter\programmieren\pmath\trunk\richmath\include\util\style.h
+1280674328 d:\peter\programmieren\pmath\trunk\richmath\include\util\style.h
 	<util/hashtable.h>
 	<util/pmath-extra.h>
 	<util/sharedptr.h>
@@ -3594,7 +3594,7 @@
 	<Windows.h>
 	<util/base.h>
 
-1280601503 source:d:\peter\programmieren\pmath\trunk\richmath\src\gui\win32\basic-win32-window.cpp
+1280670628 source:d:\peter\programmieren\pmath\trunk\richmath\src\gui\win32\basic-win32-window.cpp
 	<math.h>
 	<stdio.h>
 	<cairo-win32.h>
@@ -3696,10 +3696,11 @@
 	<gui/control-painter.h>
 	<resources.h>
 
-1280615581 source:d:\peter\programmieren\pmath\trunk\richmath\src\main.cpp
+1280669354 source:d:\peter\programmieren\pmath\trunk\richmath\src\main.cpp
 	<cmath>
 	<cstdio>
 	<ctime>
+	<pango/pangocairo.h>
 	<boxes/section.h>
 	<boxes/mathsequence.h>
 	<eval/binding.h>

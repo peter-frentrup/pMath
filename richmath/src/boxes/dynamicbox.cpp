@@ -45,7 +45,11 @@ void DynamicBox::paint_content(Context *context){
     //       a result is calculated.
     run = Client::interrupt(run, Client::dynamic_timeout);
     
-    content()->load_from_object(run, BoxOptionFormatNumbers);
+    int opt = BoxOptionDefault;
+    if(get_style(AutoNumberFormating))
+      opt |= BoxOptionFormatNumbers;
+      
+    content()->load_from_object(run, opt);
     invalidate();
     //request_repaint_all();
   }

@@ -17,7 +17,56 @@ using namespace richmath;
 #define CAPTION_BUTTON_DIST     (-2)
 
 static cairo_surface_t *background_image = 0;
-int background_image_cnt = 0;
+static HANDLE composition_window_theme = 0;
+
+static void init_basic_window_data(){
+  if(!background_image){
+    Expr e = Expr(pmath_evaluate(
+      pmath_parse_string(
+        PMATH_C_STRING(
+          "FE`$WindowFrameImage"))));
+      
+    String s(e);
+    if(!s.is_valid())
+      s = Client::application_directory + "\\frame.png";
+    int len;
+    char *imgname = pmath_string_to_utf8(s.get(), &len);
+    
+    if(imgname){
+      background_image = cairo_image_surface_create_from_png(imgname);
+      
+      pmath_mem_free(imgname);
+    }
+  }
+
+  if(!composition_window_theme
+  && Win32Themes::OpenThemeData){
+    composition_window_theme = Win32Themes::OpenThemeData(NULL, L"CompositedWindow::Window");
+  }
+}
+
+static int basic_window_count = 0;
+static void add_basic_window(){
+  ++basic_window_count;
+  
+  init_basic_window_data();
+}
+
+static void remove_basic_window(){
+  if(--basic_window_count != 0)
+    return;
+  
+  if(background_image){
+    cairo_surface_destroy(background_image);
+    background_image = 0;
+  }
+  
+  if(composition_window_theme
+  && Win32Themes::CloseThemeData){
+    Win32Themes::CloseThemeData(composition_window_theme);
+    composition_window_theme = 0;
+  }
+}
 
 //{ class BasicWin32Window ...
 
@@ -52,25 +101,7 @@ BasicWin32Window::BasicWin32Window(
 {
   memset(&_extra_glass, 0, sizeof(_extra_glass));
   
-  ++background_image_cnt;
-  if(!background_image){
-    Expr e = Expr(pmath_evaluate(
-      pmath_parse_string(
-        PMATH_C_STRING(
-          "FE`$WindowFrameImage"))));
-      
-    String s(e);
-    if(!s.is_valid())
-      s = Client::application_directory + "\\frame.png";
-    int len;
-    char *imgname = pmath_string_to_utf8(s.get(), &len);
-    
-    if(imgname){
-      background_image = cairo_image_surface_create_from_png(imgname);
-      
-      pmath_mem_free(imgname);
-    }
-  }
+  add_basic_window();
 }
 
 void BasicWin32Window::after_construction(){
@@ -78,11 +109,7 @@ void BasicWin32Window::after_construction(){
 }
 
 BasicWin32Window::~BasicWin32Window(){
-  if(--background_image_cnt == 0
-  && background_image){
-    cairo_surface_destroy(background_image);
-    background_image = 0;
-  }
+  remove_basic_window();
 }
 
 void BasicWin32Window::get_client_rect(RECT *rect){
@@ -750,6 +777,12 @@ void BasicWin32Window::on_theme_changed(){
     _glass_enabled = Win32Themes::current_theme_is_aero();
   }
   
+  if(composition_window_theme
+  && Win32Themes::CloseThemeData){
+    Win32Themes::CloseThemeData(composition_window_theme);
+    composition_window_theme = 0;
+  }
+  
   extend_glass(&_extra_glass);
   
   SetWindowPos(_hwnd, 0, 0, 0, 0, 0, 
@@ -827,12 +860,13 @@ void BasicWin32Window::paint_themed_caption(HDC hdc_bitmap){
   || !Win32Themes::GetThemeSysFont
   || !Win32Themes::DrawThemeTextEx)
     return;
-
-  HANDLE theme = Win32Themes::OpenThemeData(NULL, L"CompositedWindow::Window");
-  if(theme){
+  
+  init_basic_window_data();
+  
+  if(composition_window_theme){
     Win32Themes::DTTOPTS dtt_opts;
     memset(&dtt_opts, 0, sizeof(dtt_opts));
-    dtt_opts.crText = Win32Themes::GetThemeSysColor(theme, _active ? COLOR_CAPTIONTEXT : COLOR_INACTIVECAPTIONTEXT);
+    dtt_opts.crText = Win32Themes::GetThemeSysColor(composition_window_theme, _active ? COLOR_CAPTIONTEXT : COLOR_INACTIVECAPTIONTEXT);
     dtt_opts.dwSize = sizeof(dtt_opts);
     dtt_opts.dwFlags = DTT_COMPOSITED | DTT_GLOWSIZE | DTT_TEXTCOLOR;
     dtt_opts.iGlowSize = 10;
@@ -844,7 +878,7 @@ void BasicWin32Window::paint_themed_caption(HDC hdc_bitmap){
     
     LOGFONTW log_font;
     HFONT old_font = NULL;
-    if(SUCCEEDED(Win32Themes::GetThemeSysFont(theme, 801, &log_font))){
+    if(SUCCEEDED(Win32Themes::GetThemeSysFont(composition_window_theme, 801, &log_font))){
     // TMT_CAPTIONFONT = 801
       HFONT font = CreateFontIndirectW(&log_font);
       old_font = (HFONT)SelectObject(hdc_bitmap, font);
@@ -861,7 +895,7 @@ void BasicWin32Window::paint_themed_caption(HDC hdc_bitmap){
     rect.bottom = rect.top + GetSystemMetrics(SM_CYCAPTION);
     
     Win32Themes::DrawThemeTextEx(
-      theme,
+      composition_window_theme,
       hdc_bitmap, 
       0, 0, 
       str, -1, 
@@ -889,7 +923,6 @@ void BasicWin32Window::paint_themed_caption(HDC hdc_bitmap){
     if(old_font){
       SelectObject(hdc_bitmap, old_font);
     }
-    Win32Themes::CloseThemeData(theme);
   }
 }
 
@@ -1493,6 +1526,11 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam){
             return 0;
           }
         }
+      } break;
+      
+      case WM_SETICON: 
+      case WM_SETTEXT: {
+        invalidate_caption();
       } break;
       
       default: break;
