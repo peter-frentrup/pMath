@@ -226,6 +226,28 @@ namespace richmath{
       
       pmath_t to_pmath(bool parseable){ return NULL; }
   };
+
+  class AbstractSequence: public Box {
+    public:
+      AbstractSequence();
+      virtual ~AbstractSequence();
+      
+      virtual void selection_path(Context *context, int start, int end) = 0;
+      
+      virtual void insert(int pos, const String &s) = 0; // unsafe: allows PMATH_BOX_CHAR
+      virtual void insert(int pos, Box *box) = 0;
+      virtual void remove(int start, int end) = 0;
+      
+      virtual Box *extract_box(int boxindex) = 0;
+      virtual void load_from_object(Expr object, int options) = 0; // BoxOptionXXX
+      
+      BoxSize &var_extents(){ return _extents; }
+      
+      float get_em(){ return em; }
+      
+    protected:
+      float em;
+  };
 }
 
 #endif // __BOXES__BOX_H__

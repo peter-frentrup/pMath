@@ -20,7 +20,7 @@ namespace richmath{
       
       // return number of bytes inserted at pos
       int insert(int pos, const char *ins, int inslen);
-      int insert(int pos, String s);
+      int insert(int pos, const String &s);
       void remove(int pos, int len);
       
       bool is_box_at(int i);
@@ -34,7 +34,7 @@ namespace richmath{
   /* This is a box containing text (no math) and other boxes. 
      It uses Pango for text layout. For math, use class MathSequence.
    */
-  class TextSequence: public Box{
+  class TextSequence: public AbstractSequence{
     public:
       TextSequence();
       virtual ~TextSequence();
@@ -48,19 +48,23 @@ namespace richmath{
       virtual void resize(Context *context);
       virtual void paint(Context *context);
       
-      void selection_path(Context *context, int start, int end);
+      virtual void selection_path(Context *context, int start, int end);
+      
+      virtual pmath_t to_pmath(bool parseable);
+      virtual pmath_t to_pmath(bool parseable, int start, int end);
+      virtual void load_from_object(Expr object, int options); // BoxOptionXXX
       
       void ensure_boxes_valid();
       void ensure_text_valid();
       
       void insert(int pos, const char *utf8, int len);
-      void insert(int pos, String s); // unsafe: allows PMATH_BOX_CHAR
-      void insert(int pos, Box *box);
       void insert(int pos, TextSequence *txt, int start, int end);
-      void remove(int start, int end);
+      virtual void insert(int pos, const String &s); // unsafe: allows PMATH_BOX_CHAR
+      virtual void insert(int pos, Box *box);
+      virtual void remove(int start, int end);
       virtual Box *remove(int *index);
       
-      Box *extract_box(int boxindex);
+      virtual Box *extract_box(int boxindex);
       
       virtual Box *move_logical(
         LogicalDirection  direction, 
@@ -84,10 +88,6 @@ namespace richmath{
         cairo_matrix_t *matrix);
       
       virtual Box *normalize_selection(int *start, int *end);
-      
-//      virtual pmath_t to_pmath(bool parseable);
-//      pmath_t to_pmath(bool parseable, int start, int end);
-//      void load_from_object(const Expr object, int options); // BoxOptionXXX
       
       PangoLayoutIter *get_iter();
       

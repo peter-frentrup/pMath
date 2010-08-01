@@ -10,19 +10,24 @@ using namespace richmath;
 //{ class AbstractStyleBox ...
 
 AbstractStyleBox::AbstractStyleBox(MathSequence *content)
-: OwnerBox(content)
+: OwnerBox(content),
+  show_auto_styles(false)
 {
 }
 
 void AbstractStyleBox::paint_or_resize(Context *context, bool paint){
+  show_auto_styles = context->show_auto_styles;
+  
   if(style){
     float x, y;
     context->canvas->current_pos(&x, &y);
     
-    int i;
     ContextState cc(context);
     cc.begin(style);
     
+    show_auto_styles = context->show_auto_styles;
+    
+    int i;
     if(paint){
       if(context->stylesheet->get(style, Background, &i)){
         if(i >= 0){

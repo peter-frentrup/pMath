@@ -25,7 +25,7 @@ namespace richmath{
   /* This is a box containing math.
      For normal text, use class TextSequence.
    */
-  class MathSequence: public Box {
+  class MathSequence: public AbstractSequence {
     public:
       MathSequence();
       virtual ~MathSequence();
@@ -40,10 +40,10 @@ namespace richmath{
       virtual void clear_coloring();
       virtual void paint(Context *context);
       
-      void selection_path(Context *context, int start, int end);
+      virtual void selection_path(Context *context, int start, int end);
       
       virtual pmath_t to_pmath(bool parseable);
-      pmath_t to_pmath(bool parseable, int start, int end);
+      virtual pmath_t to_pmath(bool parseable, int start, int end);
       
       virtual Box *move_logical(
         LogicalDirection  direction, 
@@ -170,18 +170,15 @@ namespace richmath{
       void insert(int pos, uint16_t chr);                  // unsafe, allows PMATH_BOX_CHAR
       void insert(int pos, const uint16_t *ucs2, int len); // unsafe, allows PMATH_BOX_CHAR
       void insert(int pos, const char *latin1, int len);   // unsafe, allows PMATH_BOX_CHAR
-      void insert(int pos, const String &string);          // unsafe, allows PMATH_BOX_CHAR
-      void insert(int pos, Box *box);
       void insert(int pos, MathSequence *sequence, int start, int end);
-      void remove(int start, int end);
+      virtual void insert(int pos, const String &s);       // unsafe, allows PMATH_BOX_CHAR
+      virtual void insert(int pos, Box *box);
+      virtual void remove(int start, int end);
       virtual Box *remove(int *index);
       
-      Box *extract_box(int boxindex);
+      virtual Box *extract_box(int boxindex);
       
-      void load_from_object(const Expr object, int options); // BoxOptionXXX
-      
-      BoxSize &var_extents(){ return _extents; }
-      float get_em(){ return em; }
+      virtual void load_from_object(Expr object, int options); // BoxOptionXXX
       
       const String text(){ return str; }
       const SpanArray        &span_array(){  return spans; }
@@ -202,8 +199,7 @@ namespace richmath{
       SpanArray        spans;
       Array<GlyphInfo> glyphs;
       Array<Line>      lines;
-            
-      float em;
+      
       bool boxes_invalid;
       bool spans_invalid;
   };

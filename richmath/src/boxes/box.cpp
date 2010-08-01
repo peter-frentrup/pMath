@@ -596,3 +596,15 @@ void Box::abandon(Box *child){
 }
 
 //} ... class Box
+
+//{ class AbstractSequence ...
+
+AbstractSequence::AbstractSequence()
+: Box()
+{
+}
+
+AbstractSequence::~AbstractSequence(){
+}
+
+//} ... class AbstractSequence

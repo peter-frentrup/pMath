@@ -2,6 +2,7 @@
 
 #include <cstdlib>
 
+#include <boxes/mathsequence.h>
 #include <graphics/context.h>
 
 using namespace richmath;
@@ -48,7 +49,7 @@ int TextBuffer::insert(int pos, const char *ins, int inslen){
   return inslen;
 }
 
-int TextBuffer::insert(int pos, String s){
+int TextBuffer::insert(int pos, const String &s){
   int tmplen;
   char *tmp = pmath_string_to_utf8(s.get_as_string(), &tmplen);
   
@@ -81,6 +82,7 @@ class GlobalPangoContext{
   public:
     GlobalPangoContext(){
       PangoCairoFontMap *fontmap = (PangoCairoFontMap*)pango_cairo_font_map_get_default();
+      
       context = pango_cairo_font_map_create_context(fontmap);
     }
     
@@ -97,6 +99,28 @@ class GlobalPangoContext{
         ctx,
         0);
     };
+    
+    void set_font_description(Box *for_box){
+      PangoFontDescription *desc = pango_font_description_new();
+      
+      String name = for_box->get_style(FontFamily);
+      float size  = for_box->get_style(FontSize);
+      int slant   = for_box->get_style(FontSlant);
+      int weight  = for_box->get_style(FontWeight);
+      
+      char *utf8_name = pmath_string_to_utf8(name.get_as_string(), NULL);
+      if(utf8_name)
+        pango_font_description_set_family_static(desc, utf8_name);
+      
+      pango_font_description_set_absolute_size(desc, size * PANGO_SCALE);
+      pango_font_description_set_style( desc, slant  == FontSlantItalic ? PANGO_STYLE_ITALIC : PANGO_STYLE_NORMAL);
+      pango_font_description_set_weight(desc, weight == FontWeightBold  ? PANGO_WEIGHT_BOLD  : PANGO_WEIGHT_NORMAL);
+      
+      pango_context_set_font_description(context, desc);
+      
+      pango_font_description_free(desc);
+      pmath_mem_free(utf8_name);
+    }
     
     static void box_shape_renderer(cairo_t *cr, PangoAttrShape *shape, gboolean do_path, void *data){
       Context *ctx = (Context*)data;
@@ -119,7 +143,7 @@ static GlobalPangoContext global_pango;
 //{ class TextSequence ...
 
 TextSequence::TextSequence()
-: Box(),
+: AbstractSequence(),
   text(0,0),
   _layout(pango_layout_new(global_pango.context))
 {
@@ -136,7 +160,10 @@ void TextSequence::resize(Context *context){
   
   ensure_text_valid();
   
+  em = context->canvas->get_font_size();
+  
   global_pango.update(context);
+  global_pango.set_font_description(this);
   pango_layout_context_changed(_layout);
   
   if(context->width < Infinity)
@@ -156,6 +183,7 @@ void TextSequence::paint(Context *context){
   ensure_text_valid();
   
   global_pango.update(context);
+  global_pango.set_font_description(this);
   pango_layout_context_changed(_layout);
   
 //  context->canvas->rel_move_to(0, -_extents.ascent);
@@ -268,6 +296,116 @@ void TextSequence::selection_path(Context *context, int start, int end){
   }
 }
 
+pmath_t TextSequence::to_pmath(bool parseable){
+  return to_pmath(parseable, 0, text.length());
+}
+
+pmath_t TextSequence::to_pmath(bool parseable, int start, int end){
+  if(end <= start || start < 0 || end > text.length())
+    return pmath_string_new(0);
+  
+  int boxi = 0;
+  while(boxi < boxes.length() && boxes[boxi]->index() < start)
+    ++boxi;
+  
+  if(boxi >= boxes.length() || boxes[boxi]->index() >= end){
+    return pmath_string_from_utf8(text.buffer() + start, end - start);
+  }
+  
+  pmath_gather_begin(NULL);
+  
+  int next = boxes[boxi]->index();
+  while(next < end){
+    if(start < next)
+      pmath_emit(pmath_string_from_utf8(text.buffer() + start, next - start), NULL);
+      
+    pmath_emit(boxes[boxi]->to_pmath(parseable), NULL);
+    
+    start = next + Utf8BoxCharLen;
+    ++boxi;
+    if(boxi >= boxes.length())
+      break;
+    next = boxes[boxi]->index();
+  }
+  
+  if(start < end)
+    pmath_emit(pmath_string_from_utf8(text.buffer() + start, end - start), NULL);
+  
+  return pmath_gather_end();
+}
+
+void TextSequence::load_from_object(Expr object, int options){ // BoxOptionXXX
+  for(int i = 0;i < boxes.length();++i)
+    delete boxes[i];
+  
+  boxes.length(0);
+  text.remove(0, text.length());
+  
+  boxes_invalid = true;
+  text_invalid = true;
+  
+  if(object.instance_of(PMATH_TYPE_STRING)){
+    String s(object.release());
+    
+    // skip PMATH_CHAR_BOX ...
+    const uint16_t *buf = s.buffer();
+    int             len = s.length();
+    
+    int start = 0;
+    while(start < len){
+      int next = start;
+      while(next < len && buf[next] != PMATH_CHAR_BOX)
+        ++next;
+      
+      text.insert(text.length(), s.part(start, next-start));
+      text_invalid = true;
+      
+      start = next + 1;
+    }
+    
+    return;
+  }
+  else if(object[0] == PMATH_SYMBOL_LIST){
+    for(size_t i = 1;i <= object.expr_length();++i){
+      Expr item = object[i];
+      
+      if(item.instance_of(PMATH_TYPE_STRING)){
+        String s(item.release());
+        
+        // skip PMATH_CHAR_BOX ...
+        const uint16_t *buf = s.buffer();
+        int             len = s.length();
+        
+        int start = 0;
+        while(start < len){
+          int next = start;
+          while(next < len && buf[next] != PMATH_CHAR_BOX)
+            ++next;
+          
+          text.insert(text.length(), s.part(start, next-start));
+          text_invalid = true;
+          
+          start = next + 1;
+        }
+      }
+      else{
+        MathSequence *box = new MathSequence(); // TODO: use special container?
+        
+        box->load_from_object(item, options);
+        
+        insert(text.length(), box);
+      }
+    }
+  }
+  else{
+    MathSequence *box = new MathSequence(); // TODO: use special container?
+    
+    box->load_from_object(object, options);
+    
+    insert(text.length(), box);
+  }
+}
+
 void TextSequence::ensure_boxes_valid(){
   if(!boxes_invalid)
     return;
@@ -326,7 +464,7 @@ void TextSequence::insert(int pos, const char *utf8, int len){
   invalidate();
 }
 
-void TextSequence::insert(int pos, String s){
+void TextSequence::insert(int pos, const String &s){
   text.insert(pos, s);
   boxes_invalid = true;
   text_invalid = true;
@@ -537,7 +675,7 @@ Box *TextSequence::move_vertical(
     if(direction == Forward)
       line = 0;
     else
-      line = numlines;
+      line = numlines-1;
   }
   else{
     int px;
@@ -671,8 +809,6 @@ void TextSequence::line_extents(PangoLayoutIter *iter, float *x, float *y, BoxSi
   PangoRectangle rect = {0,0,0,0};
   pango_layout_iter_get_line_extents(iter, 0, &rect);
   int base = pango_layout_iter_get_baseline(iter);
-  
-  pango_layout_iter_free(iter);
   
   if(size){
     size->width   = pango_units_to_double(rect.width);

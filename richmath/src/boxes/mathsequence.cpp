@@ -46,7 +46,7 @@ class ScanData{
 //{ class MathSequence ...
 
 MathSequence::MathSequence()
-: Box(),
+: AbstractSequence(),
   str(""),
   boxes_invalid(false),
   spans_invalid(false)
@@ -3617,10 +3617,10 @@ void MathSequence::insert(int pos, const char *latin1, int len){
   invalidate();
 }
 
-void MathSequence::insert(int pos, const String &string){
+void MathSequence::insert(int pos, const String &s){
   spans_invalid = true;
   boxes_invalid = true;
-  str.insert(pos, string);
+  str.insert(pos, s);
   invalidate();
 }
 
@@ -4007,7 +4007,7 @@ static void make_box(int pos, pmath_t obj, void *data){
   info->boxes->add(new ErrorBox(expr));
 }
 
-void MathSequence::load_from_object(const Expr object, int options){
+void MathSequence::load_from_object(Expr object, int options){
   struct make_box_info_t info;
   
   for(int i = 0;i < boxes.length();++i)

@@ -6,11 +6,12 @@
 
 namespace richmath{
   class MathSequence;
+  class TextSequence;
   
   class Section: public Box {
     public:
       Section(SharedPtr<Style> _style);
-      ~Section();
+      virtual ~Section();
       
       static Section *create_from_object(const Expr object);
       
@@ -77,12 +78,11 @@ namespace richmath{
       Expr _object;
   };
   
-  class MathSection: public Section {
+  class AbstractSequenceSection: public Section {
     public:
-      MathSection(SharedPtr<Style> style);
-      ~MathSection();
+      AbstractSequenceSection(AbstractSequence *content, SharedPtr<Style> style);
+      virtual ~AbstractSequenceSection();
       
-      MathSequence *content(){ return _content; }
       virtual Box *item(int i);
       virtual int count(){ return 1; }
       
@@ -109,15 +109,29 @@ namespace richmath{
         int             index,
         cairo_matrix_t *matrix);
       
-    private:
-      MathSequence *_content;
+    protected:
+      AbstractSequence *_content; // TextSequence or MathSequence
       float cx, cy;
+  };
+  
+  class MathSection: public AbstractSequenceSection {
+    public:
+      MathSection(SharedPtr<Style> style);
+      
+      MathSequence *content(){ return (MathSequence*)_content; }
+  };
+  
+  class TextSection: public AbstractSequenceSection {
+    public:
+      TextSection(SharedPtr<Style> style);
+      
+      TextSection *content(){ return (TextSection*)_content; }
   };
   
   class EditSection: public MathSection {
     public:
       EditSection();
-      ~EditSection();
+      virtual ~EditSection();
       
       virtual pmath_t to_pmath(bool parseable);
       

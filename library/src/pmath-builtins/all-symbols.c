@@ -674,6 +674,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   VERIFY(   PMATH_SYMBOL_COMPLEXINFINITY           = NEW_SYSTEM_SYMBOL("ComplexInfinity"))
   VERIFY(   PMATH_SYMBOL_CONDITION                 = NEW_SYSTEM_SYMBOL("Condition"))
   VERIFY(   PMATH_SYMBOL_CONSTANTARRAY             = NEW_SYSTEM_SYMBOL("ConstantArray"))
+  VERIFY(   PMATH_SYMBOL_CONTENTTYPE               = NEW_SYSTEM_SYMBOL("ContentType"))
   VERIFY(   PMATH_SYMBOL_CONTINUE                  = NEW_SYSTEM_SYMBOL("Continue"))
   VERIFY(   PMATH_SYMBOL_COPYDIRECTORY             = NEW_SYSTEM_SYMBOL("CopyDirectory"))
   VERIFY(   PMATH_SYMBOL_COPYFILE                  = NEW_SYSTEM_SYMBOL("CopyFile"))

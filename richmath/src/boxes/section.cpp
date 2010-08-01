@@ -4,6 +4,7 @@
 
 #include <boxes/sectionlist.h>
 #include <boxes/mathsequence.h>
+#include <boxes/textsequence.h>
 #include <eval/client.h>
 #include <graphics/context.h>
 
@@ -37,20 +38,25 @@ Section *Section::create_from_object(const Expr object){
         int opts = BoxOptionDefault;
         
         Expr content = object[1];
+        Expr stylename = object[2];
+        if(!stylename.instance_of(PMATH_TYPE_STRING))
+          stylename = String("Input");
+        
+        SharedPtr<Style> style = new Style(options);
+        style->set(BaseStyleName, stylename);
+        
+        AbstractSequenceSection *result = 0;
+        
         if(content.expr_length() == 1 && content[0] == PMATH_SYMBOL_BOXDATA){
           content = content[1];
           
-          Expr stylename = object[2];
-          if(!stylename.instance_of(PMATH_TYPE_STRING))
-            stylename = String("Input");
-            
-          SharedPtr<Style> style = new Style(options);
-          style->set(BaseStyleName, stylename);
-          
-          MathSection *result = 0;
-          
           result = new MathSection(style);
-          
+        }
+        else if(content.instance_of(PMATH_TYPE_STRING) || content[0] == PMATH_SYMBOL_LIST){
+          result = new TextSection(style);
+        }
+        
+        if(result){
           Expr label = Expr(pmath_option_value(
             PMATH_SYMBOL_SECTION,
             PMATH_SYMBOL_SECTIONLABEL,
@@ -62,7 +68,7 @@ Section *Section::create_from_object(const Expr object){
           if(result->get_own_style(AutoNumberFormating))
             opts|= BoxOptionFormatNumbers;
           
-          result->content()->load_from_object(content, opts);
+          ((AbstractSequence*)result->item(0))->load_from_object(content, opts);
           
           return result;
         }
@@ -298,24 +304,24 @@ Box *ErrorSection::mouse_selection(
   
 //} ... class ErrorSection
 
-//{ class MathSection ...
+//{ class AbstractSequenceSection ...
 
-MathSection::MathSection(SharedPtr<Style> style)
+AbstractSequenceSection::AbstractSequenceSection(AbstractSequence *content, SharedPtr<Style> style)
 : Section(style),
-  _content(new MathSequence)
+  _content(content)
 {
   adopt(_content, 0);
 }
 
-MathSection::~MathSection(){
+AbstractSequenceSection::~AbstractSequenceSection(){
   delete _content;
 }
 
-Box *MathSection::item(int i){
+Box *AbstractSequenceSection::item(int i){
   return _content;
 }
 
-void MathSection::resize(Context *context){
+void AbstractSequenceSection::resize(Context *context){
   must_resize = false;
   
   FontStyle fs;
@@ -415,7 +421,7 @@ void MathSection::resize(Context *context){
   }
 }
 
-void MathSection::paint(Context *context){
+void AbstractSequenceSection::paint(Context *context){
   float x, y;
   context->canvas->current_pos(&x, &y);
   
@@ -544,19 +550,19 @@ void MathSection::paint(Context *context){
     ssm.swap(context->script_size_multis);
 }
 
-Box *MathSection::remove(int *index){
+Box *AbstractSequenceSection::remove(int *index){
   *index = 0;
   return _content;
 }
 
-pmath_t MathSection::to_pmath(bool parseable){
+pmath_t AbstractSequenceSection::to_pmath(bool parseable){
   pmath_gather_begin(NULL);
   
-  pmath_emit(
-    pmath_expr_new_extended(
-      pmath_ref(PMATH_SYMBOL_BOXDATA), 1,
-      content()->to_pmath(false)), 
-    NULL);
+  pmath_t cont = _content->to_pmath(false);
+  if(dynamic_cast<MathSequence*>(_content))
+    cont = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_BOXDATA), 1, cont);
+  
+  pmath_emit(cont, NULL);
   
   String s;
   
@@ -573,7 +579,7 @@ pmath_t MathSection::to_pmath(bool parseable){
     pmath_ref(PMATH_SYMBOL_SECTION));
 }
 
-Box *MathSection::move_vertical(
+Box *AbstractSequenceSection::move_vertical(
   LogicalDirection  direction, 
   float            *index_rel_x,
   int              *index
@@ -595,7 +601,7 @@ Box *MathSection::move_vertical(
   return this;
 }
   
-Box *MathSection::mouse_selection(
+Box *AbstractSequenceSection::mouse_selection(
   float x,
   float y,
   int   *start,
@@ -605,14 +611,32 @@ Box *MathSection::mouse_selection(
   return _content->mouse_selection(x - cx, y - cy, start, end, eol);
 }
 
-void MathSection::child_transformation(
+void AbstractSequenceSection::child_transformation(
   int             index,
   cairo_matrix_t *matrix
 ){
   cairo_matrix_translate(matrix, cx, cy);
 }
 
+//} ... class AbstractSequenceSection
+
+//{ class MathSection ...
+
+MathSection::MathSection(SharedPtr<Style> style)
+: AbstractSequenceSection(new MathSequence, style)
+{
+}
+
 //} ... class MathSection
+
+//{ class TextSection ...
+
+TextSection::TextSection(SharedPtr<Style> style)
+: AbstractSequenceSection(new TextSequence, style)
+{
+}
+
+//} ... class TextSection
 
 //{ class EditSection ...
 

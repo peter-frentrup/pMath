@@ -166,6 +166,12 @@ void Style::add_pmath(Expr options){
           else if(lhs == PMATH_SYMBOL_BUTTONFUNCTION){
             set(ButtonFunction, rhs);
           }
+          else if(lhs == PMATH_SYMBOL_CONTENTTYPE){
+            if(rhs == PMATH_SYMBOL_BOXDATA)
+              set(ContentType, ContentTypeBoxData);
+            else if(rhs == PMATH_SYMBOL_STRING)
+              set(ContentType, ContentTypeString);
+          }
           else if(lhs == PMATH_SYMBOL_EDITABLE){
             set_pmath_bool(Editable, rhs);
           }
@@ -549,6 +555,23 @@ void Style::emit_to_pmath(
     EMIT_RULE(
       PMATH_SYMBOL_BUTTONFUNCTION, 
       e.release());
+  }
+  
+  if(get(ContentType, &i)){
+    switch(i){
+      case ContentTypeBoxData:
+        EMIT_RULE(
+          PMATH_SYMBOL_CONTENTTYPE, 
+          pmath_ref(PMATH_SYMBOL_BOXDATA));
+        break;
+        
+      case ContentTypeString:
+        EMIT_RULE(
+          PMATH_SYMBOL_CONTENTTYPE, 
+          pmath_ref(PMATH_SYMBOL_STRING));
+        break;
+        
+    }
   }
   
   if(get(Editable, &i)){

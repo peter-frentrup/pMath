@@ -610,5 +610,6 @@ pmath_bool_t pmath_register_approx_code(
 #define PMATH_SYMBOL_MIN                                    PMATH_SYMBOL_BUILTIN(521)
 #define PMATH_SYMBOL_MEAN                                   PMATH_SYMBOL_BUILTIN(522)
 #define PMATH_SYMBOL_TOTAL                                  PMATH_SYMBOL_BUILTIN(523)
+#define PMATH_SYMBOL_CONTENTTYPE                            PMATH_SYMBOL_BUILTIN(524)
 
 #endif /* __PMATH_BUILTINS__SYMBOLS_H__ */
