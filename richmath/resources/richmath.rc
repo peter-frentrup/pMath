@@ -54,7 +54,7 @@ MENU_MAIN MENU
 { 
   POPUP "&File" 
   { 
-    MENUITEM "...", 0
+    MENUITEM "&Close\tAlt+F4", SC_CLOSE
   }
   
   POPUP "&Edit" 

@@ -98,29 +98,24 @@ class GlobalPangoContext{
         box_shape_renderer,
         ctx,
         0);
-    };
-    
-    void set_font_description(Box *for_box){
-      PangoFontDescription *desc = pango_font_description_new();
       
-      String name = for_box->get_style(FontFamily);
-      float size  = for_box->get_style(FontSize);
-      int slant   = for_box->get_style(FontSlant);
-      int weight  = for_box->get_style(FontWeight);
+      PangoFontDescription *desc = pango_font_description_new();
+      String name     = ctx->text_shaper->font_name(0);
+      FontStyle style = ctx->text_shaper->get_style();
       
       char *utf8_name = pmath_string_to_utf8(name.get_as_string(), NULL);
       if(utf8_name)
         pango_font_description_set_family_static(desc, utf8_name);
       
-      pango_font_description_set_absolute_size(desc, size * PANGO_SCALE);
-      pango_font_description_set_style( desc, slant  == FontSlantItalic ? PANGO_STYLE_ITALIC : PANGO_STYLE_NORMAL);
-      pango_font_description_set_weight(desc, weight == FontWeightBold  ? PANGO_WEIGHT_BOLD  : PANGO_WEIGHT_NORMAL);
+      pango_font_description_set_absolute_size(desc, ctx->canvas->get_font_size() * PANGO_SCALE);
+      pango_font_description_set_style( desc, style.italic ? PANGO_STYLE_ITALIC : PANGO_STYLE_NORMAL);
+      pango_font_description_set_weight(desc, style.bold   ? PANGO_WEIGHT_BOLD  : PANGO_WEIGHT_NORMAL);
       
       pango_context_set_font_description(context, desc);
       
       pango_font_description_free(desc);
       pmath_mem_free(utf8_name);
-    }
+    };
     
     static void box_shape_renderer(cairo_t *cr, PangoAttrShape *shape, gboolean do_path, void *data){
       Context *ctx = (Context*)data;
@@ -163,7 +158,6 @@ void TextSequence::resize(Context *context){
   em = context->canvas->get_font_size();
   
   global_pango.update(context);
-  global_pango.set_font_description(this);
   pango_layout_context_changed(_layout);
   
   if(context->width < Infinity)
@@ -183,7 +177,6 @@ void TextSequence::paint(Context *context){
   ensure_text_valid();
   
   global_pango.update(context);
-  global_pango.set_font_description(this);
   pango_layout_context_changed(_layout);
   
 //  context->canvas->rel_move_to(0, -_extents.ascent);

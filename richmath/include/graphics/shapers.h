@@ -33,13 +33,17 @@ namespace richmath{
     FontSlantItalic = 2
   };
   
+  enum{
+    FontInfoGlyphCount = (1 << 4)
+  };
+  
   typedef struct{
     float right;
     float x_offset;
     uint16_t index;
     unsigned style:              5; // GlyphStyleXXX
     
-    unsigned fontinfo:           3;
+    unsigned fontinfo:           4;
     
     unsigned slant:              2; // 0=default, otherwise FontSlantXXX
     
@@ -93,6 +97,7 @@ namespace richmath{
         GlyphInfo      *result) = 0;
       
       virtual FontFace font(uint8_t fontinfo) = 0;
+      virtual String font_name(uint8_t fontinfo) = 0;
       
       virtual void vertical_glyph_size(
         Context         *context,

@@ -31,7 +31,6 @@ WindowsFontShaper::WindowsFontShaper(
   _style(style),
   _font(name, style)
 {
-//  win32_ensure_init_dc();
 }
 
 WindowsFontShaper::~WindowsFontShaper(){
@@ -67,8 +66,8 @@ void WindowsFontShaper::decode_token(
   cg.x = 0;
   cg.y = 0;
   for(int i = 0;i < len;++i){
-    if(is_utf16_high(str[i])
-    && i + 1 < len
+    if(i + 1 < len
+    && is_utf16_high(str[i])
     && is_utf16_low(str[i + 1])){
       SCRIPT_ITEM uniscribe_items[3];
       int num_items;
@@ -83,7 +82,7 @@ void WindowsFontShaper::decode_token(
           &num_items))
       {
         for(int j = 0;j < num_items;++j){
-          SCRIPT_CACHE cache = NULL;
+          SCRIPT_CACHE   cache = NULL;
           WORD           out_glyphs[2];
           SCRIPT_VISATTR vis_attr[  2];
           WORD log_clust[2] = {0,1};

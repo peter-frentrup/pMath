@@ -183,6 +183,7 @@ namespace richmath{
         const GlyphInfo &info);
         
       virtual FontFace font(uint8_t fontinfo);
+      virtual String font_name(uint8_t fontinfo);
       
       virtual float italic_correction(
         Context          *context,

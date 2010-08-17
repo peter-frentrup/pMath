@@ -52,6 +52,7 @@ namespace richmath{
       
       virtual void double_click_dist(float *dx, float *dy) = 0;
       
+      virtual void close() = 0;
       virtual void invalidate() = 0;
       
       virtual void set_cursor(CursorType type) = 0;

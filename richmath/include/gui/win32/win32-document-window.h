@@ -10,7 +10,7 @@ namespace richmath{
   class Win32Menubar;
   class WorkingArea;
   
-  // Must call immediately init after the construction of a derived object!
+  // Must call init() immediately after the construction of a derived object!
   class Win32DocumentWindow: public BasicWin32Window{
     protected:
       virtual void after_construction();

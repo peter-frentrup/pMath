@@ -38,6 +38,8 @@ class DummyNativeWidget: public NativeWidget{
       *dx = *dy = 0;
     }
     
+    virtual void close(){}
+    
     virtual void invalidate(){}
     
     virtual void set_cursor(CursorType type){}

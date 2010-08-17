@@ -8,7 +8,7 @@
 #include <util/hashtable.h>
 
 namespace richmath{
-  // Must call immediately init after the construction of a derived object!
+  // Must call init() immediately after the construction of a derived object!
   class BasicWin32Window: public BasicWin32Widget{
     protected:
       virtual void after_construction();

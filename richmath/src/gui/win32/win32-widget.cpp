@@ -37,6 +37,8 @@ static void add_remove_window(int count){
   static int window_count = 0;
   
   if(window_count == 0){
+    menucommands.set( SC_CLOSE                    , "Close");
+    
     menucommands.set( IDM_EDITBOXES               , "EditBoxes");
     menucommands.set( IDM_EXPANDSELECTION         , "ExpandSelection");
     menucommands.set( IDM_FINDMATCHINGFENCE       , "FindMatchingFence");

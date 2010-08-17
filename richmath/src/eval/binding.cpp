@@ -131,15 +131,18 @@ static pmath_t builtin_selecteddocument(pmath_expr_t expr){
 
 //} ... pmath functions
 
-/*static void write_to_sequence(
-  MathSequence *sequence, 
-  const uint16_t *data, 
-  int len
-){
-  sequence->insert(1000000000, data, len);
-}*/
-
 //{ menu commands ...
+
+static bool close_cmd(Expr cmd){
+  Document *doc = get_current_document();
+  
+  if(!doc)
+    return false;
+  
+  doc->native()->close();
+  return true;
+}
+
 
 static bool can_copy_cut(Expr cmd){
   Document *doc = get_current_document();
@@ -238,13 +241,6 @@ static bool edit_boxes_cmd(Expr cmd){
         doc->select(edit->content(), 0, 0);
         doc->insert_string(obj.to_string(
           PMATH_WRITE_OPTIONS_FULLSTR | PMATH_WRITE_OPTIONS_INPUTEXPR));
-          
-//        pmath_write(
-//          obj.get(), 
-//          PMATH_WRITE_OPTIONS_FULLSTR | PMATH_WRITE_OPTIONS_INPUTEXPR, 
-//          (pmath_write_func_t)write_to_sequence, 
-//          edit->content());
-        
       }
     }
   
@@ -590,6 +586,8 @@ bool richmath::init_bindings(){
 //  if(!BIND_DOWN(PMATH_SYMBOL_SECTIONPRINT, builtin_sectionprint)
 //  || !BIND_DOWN(PMATH_SYMBOL_DOCUMENTS,    builtin_documents))
 //    return false;
+  
+  Client::register_menucommand(String("Close"),             close_cmd);
   
   Client::register_menucommand(String("Copy"),              copy_cmd,                 can_copy_cut);
   Client::register_menucommand(String("Cut"),               cut_cmd,                  can_copy_cut);

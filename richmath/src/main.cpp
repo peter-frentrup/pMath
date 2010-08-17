@@ -153,6 +153,7 @@ int main(){
   printf("sizeof(Entry<int,Void>) = %d\n", sizeof(Entry<int,Void>));
   printf("sizeof(Box) = %d\n", sizeof(Box));
   printf("sizeof(MathSequence) = %d\n", sizeof(MathSequence));
+  printf("sizeof(GlyphInfo) = %d\n", sizeof(GlyphInfo));
   printf("sizeof(Array<int>) = %d\n", sizeof(Array<int>));
   printf("sizeof(Hashtable<int, int>) = %d\n", sizeof(Hashtable<int, int, cast_hash >));
   printf("sizeof(Style) = %d\n", sizeof(Style));

@@ -2955,7 +2955,7 @@
 1274305642 d:\peter\programmieren\richmath\5\include\boxes\dynamicbox.h
 	<boxes/ownerbox.h>
 
-1280054988 source:d:\peter\programmieren\pmath\trunk\richmath\resources\richmath.rc
+1281038209 source:d:\peter\programmieren\pmath\trunk\richmath\resources\richmath.rc
 	<windows.h>
 	"resources.h"
 
@@ -2972,7 +2972,7 @@
 	<util/sharedptr.h>
 	<util/style.h>
 
-1280054985 d:\peter\programmieren\pmath\trunk\richmath\include\graphics\shapers.h
+1281037145 d:\peter\programmieren\pmath\trunk\richmath\include\graphics\shapers.h
 	<graphics/canvas.h>
 	<util/array.h>
 	<util/hashtable.h>
@@ -3133,7 +3133,7 @@
 	<util/sharedptr.h>
 	<graphics/canvas.h>
 
-1280054986 d:\peter\programmieren\pmath\trunk\richmath\include\gui\native-widget.h
+1281038587 d:\peter\programmieren\pmath\trunk\richmath\include\gui\native-widget.h
 	<util/base.h>
 	<gui/control-painter.h>
 
@@ -3377,7 +3377,7 @@
 	<boxes/mathsequence.h>
 	<graphics/context.h>
 
-1280689725 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\textsequence.cpp
+1280693583 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\textsequence.cpp
 	<boxes/textsequence.h>
 	<cstdlib>
 	<boxes/mathsequence.h>
@@ -3399,7 +3399,7 @@
 	<boxes/mathsequence.h>
 	<graphics/context.h>
 
-1280054988 source:d:\peter\programmieren\pmath\trunk\richmath\src\eval\binding.cpp
+1281039094 source:d:\peter\programmieren\pmath\trunk\richmath\src\eval\binding.cpp
 	<eval/binding.h>
 	<boxes/section.h>
 	<boxes/mathsequence.h>
@@ -3424,7 +3424,7 @@
 	<windows.h>
 	<resources.h>
 
-1280054985 d:\peter\programmieren\pmath\trunk\richmath\include\graphics\config-shaper.h
+1280693408 d:\peter\programmieren\pmath\trunk\richmath\include\graphics\config-shaper.h
 	<graphics/shapers.h>
 	<util/array.h>
 	<util/pmath-extra.h>
@@ -3482,7 +3482,7 @@
 	<Windows.h>
 	<cairo-win32.h>
 
-1280054987 source:d:\peter\programmieren\pmath\trunk\richmath\src\graphics\config-shaper.cpp
+1281037692 source:d:\peter\programmieren\pmath\trunk\richmath\src\graphics\config-shaper.cpp
 	<graphics/config-shaper.h>
 	<cstdio>
 	<boxes/mathsequence.h>
@@ -3491,7 +3491,7 @@
 	<util/style.h>
 	<util/syntax-state.h>
 
-1280054985 d:\peter\programmieren\pmath\trunk\richmath\include\graphics\ot-math-shaper.h
+1280693273 d:\peter\programmieren\pmath\trunk\richmath\include\graphics\ot-math-shaper.h
 	<graphics/shapers.h>
 	<util/array.h>
 	<util/pmath-extra.h>
@@ -3529,10 +3529,10 @@
 	<graphics/context.h>
 	<graphics/win32-shaper.h>
 
-1280054985 d:\peter\programmieren\pmath\trunk\richmath\include\graphics\win32-shaper.h
+1280693594 d:\peter\programmieren\pmath\trunk\richmath\include\graphics\win32-shaper.h
 	<graphics/shapers.h>
 
-1280054987 source:d:\peter\programmieren\pmath\trunk\richmath\src\graphics\win32-shaper.cpp
+1281037889 source:d:\peter\programmieren\pmath\trunk\richmath\src\graphics\win32-shaper.cpp
 	<graphics/win32-shaper.h>
 	<windows.h>
 	<usp10.h>
@@ -3580,7 +3580,7 @@
 1280054986 d:\peter\programmieren\pmath\trunk\richmath\include\gui\menu.h
 	<gui/document.h>
 
-1280054988 source:d:\peter\programmieren\pmath\trunk\richmath\src\gui\native-widget.cpp
+1281038590 source:d:\peter\programmieren\pmath\trunk\richmath\src\gui\native-widget.cpp
 	<gui/native-widget.h>
 	<climits>
 	<cmath>
@@ -3638,7 +3638,7 @@
 	<windows.h>
 	<gui/control-painter.h>
 
-1280588954 source:d:\peter\programmieren\pmath\trunk\richmath\src\gui\win32\win32-document-window.cpp
+1281039228 source:d:\peter\programmieren\pmath\trunk\richmath\src\gui\win32\win32-document-window.cpp
 	<gui/win32/win32-document-window.h>
 	<cmath>
 	<cstdio>
@@ -3656,7 +3656,7 @@
 	<gui/win32/basic-win32-window.h>
 	<gui/win32/win32-widget.h>
 
-1280054986 d:\peter\programmieren\pmath\trunk\richmath\include\gui\win32\win32-widget.h
+1281038728 d:\peter\programmieren\pmath\trunk\richmath\include\gui\win32\win32-widget.h
 	<gui/document.h>
 	<gui/native-widget.h>
 	<gui/win32/basic-win32-widget.h>
@@ -3683,7 +3683,7 @@
 	<cwchar>
 	<util/array.h>
 
-1280054987 source:d:\peter\programmieren\pmath\trunk\richmath\src\gui\win32\win32-widget.cpp
+1281039099 source:d:\peter\programmieren\pmath\trunk\richmath\src\gui\win32\win32-widget.cpp
 	<gui/win32/win32-widget.h>
 	<climits>
 	<cmath>
@@ -3698,7 +3698,7 @@
 	<gui/control-painter.h>
 	<resources.h>
 
-1280678741 source:d:\peter\programmieren\pmath\trunk\richmath\src\main.cpp
+1281037966 source:d:\peter\programmieren\pmath\trunk\richmath\src\main.cpp
 	<cmath>
 	<cstdio>
 	<ctime>

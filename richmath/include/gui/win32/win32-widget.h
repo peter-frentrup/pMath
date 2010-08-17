@@ -6,7 +6,7 @@
 #include <gui/win32/basic-win32-widget.h>
 
 namespace richmath{
-  // Must call immediately init after the construction of a derived object!
+  // Must call init() immediately after the construction of a derived object!
   class Win32Widget: public NativeWidget, public BasicWin32Widget{
     protected:
       virtual void after_construction();
@@ -39,6 +39,7 @@ namespace richmath{
       virtual long double_click_time();
       virtual void double_click_dist(float *dx, float *dy);
       
+      virtual void close(){}
       virtual void invalidate();
       virtual void set_cursor(CursorType type);
       

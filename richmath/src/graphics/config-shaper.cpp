@@ -74,17 +74,7 @@ class GlyphGetter: public Base{
     
     uint16_t expr_to_glyph(const Expr expr, uint8_t font){
       if(expr.instance_of(PMATH_TYPE_STRING)){
-//        String s(expr);
-//        
-//        if(font < shapers.length() 
-//        && s.length() <= 2){
-//          GlyphInfo gi[2];
-//          memset(gi, 0, sizeof(gi));
-//          shapers[font]->decode_token(&context, s.length(), s.buffer(), gi);
-//          return gi[0].glyph;
-//        }
-
-        uint16_t res = ps2g[font][String(expr)];
+        uint16_t res = ps2g[font & (FontInfoGlyphCount-1)][String(expr)];
         
         if(!res){
           pmath_debug_print_object("Unknown glyph ", expr.get(), "");
@@ -97,10 +87,8 @@ class GlyphGetter: public Base{
       return expr_to_ui16(expr);
     }
     
-    
-    
   public:
-    Hashtable<String, uint16_t> ps2g[8];
+    Hashtable<String, uint16_t> ps2g[FontInfoGlyphCount];
     cairo_surface_t *surface;
     cairo_t         *cr;
     Context          context;
@@ -206,7 +194,7 @@ bool ConfigShaperDB::verify(){
     return false;
   }
   
-  if(fontnames.length() > 8){ /* GlyphInfo::fontinfo has 3 bits */
+  if(fontnames.length() > FontInfoGlyphCount){
     printf("[%s, %d]", __func__, __LINE__);
     return false;
   }
@@ -1131,6 +1119,13 @@ FontFace ConfigShaper::font(uint8_t fontinfo){
     return font_faces[0];
   
   return font_faces[fontinfo];
+}
+
+String ConfigShaper::font_name(uint8_t fontinfo){
+  if(fontinfo >= db->fontnames.length())
+    return db->fontnames[0];
+  
+  return db->fontnames[fontinfo];
 }
 
 /*void ConfigShaper::script_positions(

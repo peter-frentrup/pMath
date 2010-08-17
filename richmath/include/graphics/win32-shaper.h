@@ -23,6 +23,7 @@ namespace richmath{
         GlyphInfo      *result);
       
       virtual FontFace font(uint8_t fontinfo){ return _font; }
+      virtual String font_name(uint8_t fontinfo){ return _name; }
       virtual FontStyle get_style(){ return _style; }
       
       SharedPtr<TextShaper> set_style(FontStyle style);

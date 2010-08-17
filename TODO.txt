@@ -4,6 +4,15 @@ Button("Math in Text",DocumentApply(SelectedDocument(),"\({\"\"}\)"))
 Button("italic",DocumentApply(SelectedDocument(),StyleBox("",FontSlant->Italic)))
 Button("Arg Style",DocumentApply(SelectedDocument(),StyleBox("","Arg")))
 
+? richmath: get rid of Pango and reimplement TextSequence using freebidi + maybe harfbuzz
+	or find another way to restrict line height (currently huge font heights with Cambria Math/Asana Math).
+	Also, Pango is rather huge, maybe overkill for richmath: Pango does not fit into the rest of the library...
+
+- richmath: add fallback font + draw boxes for unknown characters (using cairo user fonts) instead of drawing nothing
+
+? richmath: in MathSequence: use freebidi inside strings?
+	therefor, two lists for logical<->visible glyph positions must be stored!
+	
 ?! change all double-comparisions a==b to almost_equal_machine(a,b)  (as in compare.c)
 	A double could actually be held in an 80bit x87 floating point register and thus be != 0, but when converted to double (written to memory), it becomes 0, 
 	So "if(x!=0){ some_x_invariant_code_that_prevents_optimizing_the_assert_away; assert(x!=0); }" can actually crash!

@@ -93,6 +93,10 @@ class richmath::WorkingArea: public Win32Widget{
       if(parent)
         parent->title(parent->title());
     }
+    
+    virtual void close(){
+      SendMessageW(parent->hwnd(), WM_CLOSE, 0, 0);
+    }
 
   protected:
     Win32DocumentWindow *parent;
@@ -195,6 +199,10 @@ class richmath::Dock: public Win32Widget {
     virtual void scroll_pos(float *x, float *y){ *x = *y = 0; }
     virtual void scroll_to(float x, float y){}
     
+    virtual void close(){
+      SendMessageW(parent->hwnd(), WM_CLOSE, 0, 0);
+    }
+
     virtual int height(){
       return (int)(document()->extents().height() * scale_factor() + 0.5f);
     }
