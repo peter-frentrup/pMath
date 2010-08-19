@@ -1,0 +1,128 @@
+/* (big endian notation)
+   
+	seeeeeee_eeeemmmm_mmmmmmmm_mmmmmmmm  mmmmmmmm_mmmmmmmm_mmmmmmmm_mmmmmmmm = ieee double
+	
+	x1111111_1111xxxx_xxxxxxxx_xxxxxxxx  xxxxxxxx_xxxxxxxx_xxxxxxxx_xxxxxxxx = ieee NaN/Inf
+ */
+
+#define PMATH_TAGMASK_BITCOUNT   12          /* |||||||| |||| */
+#define PMATH_TAGMASK_NONDOUBLE  0x7FF00000U /* 01111111_11110000_00000000_00000000 0...0 : ieee double NaN or Inf */
+#define PMATH_TAGMASK_OBJECT     0xFFF00000U /* 11111111_11110000_00000000_00000000 0...0 */
+#define PMATH_TAG_NULL           (PMATH_TAGMASK_NONDOUBLE | 0x00000)
+#define PMATH_TAG_MAGIC          (PMATH_TAGMASK_NONDOUBLE | 0x10000)
+#define PMATH_TAG_INT32          (PMATH_TAGMASK_NONDOUBLE | 0x20000)
+
+#define PMATH_PUBLIC_ASSERT  assert
+
+struct pmath_object_t{
+	uintptr_t  typeid;        
+	intptr_t   refcount;
+};
+
+typedef union {
+	uint64_t  as_bits;
+	double    as_double;
+	
+	#if PMATH_BITSIZE == 64
+		struct pmath_object_t *as_pointer_64;
+	#endif
+	
+	struct {
+	    /* most significant word is the tag */
+		#if PMATH_BYTE_ORDER < 0 /* little endian */
+			union{
+				int32_t   as_int32;
+				#if PMATH_BITSIZE == 32
+					struct pmath_object_t *as_pointer_32;
+				#endif
+			} u;
+			uint32_t  tag;
+		#else
+			uint32_t  tag;
+			union{
+				int32_t   as_int32;
+				#if PMATH_BITSIZE == 32
+					struct pmath_object_t *as_pointer_32;
+				#endif
+			} u;
+		#endif
+	} s;
+} pmath_t;
+
+#define PMATH_EQ(a, b)  ((a).as_bits == (b).as_bits)
+
+#define PMATH_IS_DOUBLE(o)   (((o).s.tag & PMATH_TAGMASK_NONDOUBLE) != PMATH_TAGMASK_NONDOUBLE)
+#define PMATH_IS_OBJECT(o)   (((o).s.tag & PMATH_TAGMASK_OBJECT)    == PMATH_TAGMASK_POINTER)
+#define PMATH_IS_OTHER(o)    (((o).s.tag & PMATH_TAGMASK_OBJECT)    == PMATH_TAGMASK_NONDOUBLE)
+#define PMATH_IS_INT32(o)    ((o).s.tag == PMATH_TAG_INT32)
+#define PMATH_IS_NULL(o)     ((o).s.tag == PMATH_TAG_NULL)
+#define PMATH_IS_MAGIC(o)    ((o).s.tag == PMATH_TAG_MAGIC)
+
+
+#define PMATH_TO_DOUBLE(o)  ((o).as_double)
+#define PMATH_TO_OTHER(o)   ((o).s.u.as_int32)
+
+#if PMATH_BITSIZE == 32
+	
+	#define PMATH_TO_OBJECT(o)  ((o).s.u.as_pointer_32)
+	
+#elif PMATH_BITSIZE == 64
+	
+	#define PMATH_TO_OBJECT(o)  ((struct pmath_object_t*)(((o).as_bits << PMATH_TAGMASK_BITCOUNT) >> PMATH_TAGMASK_BITCOUNT))
+	
+#endif
+
+PMATH_FORCE_INLINE
+pmath_t PMATH_FROM_GOOD_DOUBLE(double d){ /* d must not be NaN or Inf */
+	pmath_t result;
+	
+	result.as_double = d;
+	
+	PMATH_PUBLIC_ASSERT(PMATH_IS_DOUBLE(result));
+	
+	return result;
+}
+
+PMATH_FORCE_INLINE
+pmath_t PMATH_FROM_GOOD_OBJECT(struct pmath_object_t *p){ /* p: valid heap pointer, esp. p != NULL */
+/* 64bit system: p must have most significant 12 bits cleared */
+	pmath_t result;
+	
+	PMATH_PUBLIC_ASSERT(p != NULL);
+	
+	#if PMATH_BITSIZE == 32
+		
+		result.s.tag             = PMATH_TAGMASK_POINTER;
+		result.s.u.as_pointer_32 = p
+		
+	#elif PMATH_BITSIZE == 64
+		
+		result.as_bits = (((uint64_t)p) << PMATH_TAGMASK_BITCOUNT) >> PMATH_TAGMASK_BITCOUNT;
+		
+	#endif
+	
+	PMATH_PUBLIC_ASSERT(PMATH_IS_OBJECT(result));
+	
+	return result;
+}
+
+PMATH_FORCE_INLINE
+pmath_t PMATH_FROM_OTHER(uint32_t tag, int32_t value){
+	pmath_t result;
+	
+	result.s.tag        = tag;
+	result.s.u.as_int32 = value;
+	
+	PMATH_PUBLIC_ASSERT(PMATH_IS_OTHER(result));
+	
+	return result;
+}
+
+#define PMATH_NULL        (PMATH_FROM_OTHER(PMATH_TAG_NULL,  0))
+#define PMATH_UNDEFINED   (PMATH_FROM_OTHER(PMATH_TAG_MAGIC, 0))
+#define PMATH_ZERO        (PMATH_FROM_OTHER(PMATH_TAG_INT32, 0))
+
+
+#define pmath_ref(o)        (PMATH_IS_OBJECT((o)) ? (pmath_atomic_fetch_add(&PMATH_TO_OBJECT(o)->refcount, 1), (o)) : (o))
+#define pmath_unref(o)      do{ if(PMATH_IS_OBJECT(o) && pmath_atomic_fetch_add(&PMATH_TO_OBJECT(o)->refcount, -1) == 1) _pmath_destroy(PMATH_TO_OBJECT(o)); }while(0)
+#define pmath_refcount(o)   (PMATH_IS_OBJECT((o)) ? (PMATH_TO_OBJECT(o)->refcount) : 0)

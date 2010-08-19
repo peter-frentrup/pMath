@@ -12,6 +12,29 @@ Button("Arg Style",DocumentApply(SelectedDocument(),StyleBox("","Arg")))
 
 ? richmath: in MathSequence: use freebidi inside strings?
 	therefor, two lists for logical<->visible glyph positions must be stored!
+
+- (long term) pmath: use "fat values": a pmath_t will be an 8-byte struct, that contint small ints and doubles directly, (maybe also small strings). tag bits specify the type 
+	advantage: 
+		- lower memory usage for small ints/machine floats
+		- maybe faster type-testing, because no pointer must be dereferenced
+		- maybe faster arithmetic operations for the same reason
+		- less malloc calls
+	disadvantage:
+		- totally different code/typedefs for LE32, BE32, LE64 and BE64 architectures
+		- note, that we assume ieee-double arithmetic
+		- (?) might need CAS2 operation on 32bit platforms, where simple CAS was enough. CAS2 is not always available
+			_pmath_atomic_lock_ptr() must be rewritten for fat value locking.
+		- (!!!) how to tell apart pointers and doubles on 64bit platforms???
+			solution 1: Heap-pointers are effectivly only 48 bit wide (48bit or 47bit on todays x64, up to 52bit physical addresses for future x64 cpus, 44bit on todays sparc). non-NaN/non-Inf doubles have the 11 exponent bits != all 1, so x1111111 1111xxxx yyyyyyyy yyyyyyyy yyyyyyyy yyyyyyyy yyyyyyyy yyyyyyyy has 5 tag bits (x...xxxx), pointers do not need more than the 48 y's (and can be shifted because of 8-byte alignment -> 3 more bits. in total, this can be expanded to 64-12+3+1 = 56 bits for pointers, when we reserve the first x as a pointer/other-non-double flag and assume, that user-space pointers have a sign bit of 0)
+				CAUTION: this model may cause total damage on other/future systems which have heap addresses above 2^48-1
+			solution 2: use 1 bit of the mantissa to flag double/non-double (= last bit). Pointers are 8-byte aligend, so we have 2 more bits for a non-double tag to tell apart pointers and other stuff. 
+				CAUTION: handle denormalized (=small) numbers; $MachineEpsilon effectively doubles; non-standard arithmetic
+			solution 3: use 1 bit of exponent ... but that leads to a lot of bit-shifting, problems with denormalized numbers
+			solution 4: store double in the heap (but then there is almost no advantage of fat values)
+			solution 5: use 16-byte structs (impossible, since MSVC disallows returning structs of size > 64bit: http://msdn.microsoft.com/en-us/library/7572ztz4.aspx)
+		
+	note, that 8-byte structs are returned in registers (MSVC, GCC), but both compilers handle larger structs different when used as function return values.
+	(see also: http://blog.mozilla.com/rob-sayre/2010/08/02/mozillas-new-javascript-value-representation/)
 	
 ?! change all double-comparisions a==b to almost_equal_machine(a,b)  (as in compare.c)
 	A double could actually be held in an 80bit x87 floating point register and thus be != 0, but when converted to double (written to memory), it becomes 0, 

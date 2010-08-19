@@ -3606,7 +3606,7 @@
 	<gui/win32/win32-widget.h>
 	<eval/client.h>
 
-1280601487 d:\peter\programmieren\pmath\trunk\richmath\include\gui\win32\basic-win32-window.h
+1281039849 d:\peter\programmieren\pmath\trunk\richmath\include\gui\win32\basic-win32-window.h
 	<graphics/canvas.h>
 	<gui/win32/basic-win32-widget.h>
 	<gui/win32/win32-themes.h>
@@ -3638,7 +3638,7 @@
 	<windows.h>
 	<gui/control-painter.h>
 
-1281039228 source:d:\peter\programmieren\pmath\trunk\richmath\src\gui\win32\win32-document-window.cpp
+1282170552 source:d:\peter\programmieren\pmath\trunk\richmath\src\gui\win32\win32-document-window.cpp
 	<gui/win32/win32-document-window.h>
 	<cmath>
 	<cstdio>
@@ -3652,11 +3652,11 @@
 	<gui/win32/win32-themes.h>
 	<resources.h>
 
-1280054986 d:\peter\programmieren\pmath\trunk\richmath\include\gui\win32\win32-document-window.h
+1281039863 d:\peter\programmieren\pmath\trunk\richmath\include\gui\win32\win32-document-window.h
 	<gui/win32/basic-win32-window.h>
 	<gui/win32/win32-widget.h>
 
-1281038728 d:\peter\programmieren\pmath\trunk\richmath\include\gui\win32\win32-widget.h
+1281039866 d:\peter\programmieren\pmath\trunk\richmath\include\gui\win32\win32-widget.h
 	<gui/document.h>
 	<gui/native-widget.h>
 	<gui/win32/basic-win32-widget.h>
@@ -3698,7 +3698,7 @@
 	<gui/control-painter.h>
 	<resources.h>
 
-1281037966 source:d:\peter\programmieren\pmath\trunk\richmath\src\main.cpp
+1282173452 source:d:\peter\programmieren\pmath\trunk\richmath\src\main.cpp
 	<cmath>
 	<cstdio>
 	<ctime>

@@ -824,6 +824,11 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
         _bottom_area->resize();
         _bottom_glass_area->resize();
         rearrange();
+        
+        if(has_themed_frame()){
+          _bottom_area->invalidate();
+          _bottom_glass_area->invalidate();
+        }
       } break;
       
       case WM_MOUSEHWHEEL:

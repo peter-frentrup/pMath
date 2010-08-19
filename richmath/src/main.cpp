@@ -526,7 +526,7 @@ int main(){
 //        "SectionFrameColor->GrayLevel(0.5),"
 //        "SectionFrameMargins->{1, 1, 0, 0},"
 //        "SectionMargins->0)"))));
-        
+//        
 //    wndMain->top()->insert(wndMain->top()->length(),
 //    Section::create_from_object(Expr(run(
 //      "Section(BoxData({"
@@ -582,6 +582,7 @@ int main(){
     
     write_text_section(doc, "Title", "\"Welcome\"");
     write_text_section(doc, "Section", "\"Todo-List\"");
+    todo(doc, "\"Stretch column where FillBox is inside Grid or provide ItemBox options\"");
     todo(doc, "\"Implement Interrupt().\"");
     todo(doc, "\"Leave caret at end of line at automatic line breaks.\"");
     todo(doc, "\"Use Pango for text sections.\"");

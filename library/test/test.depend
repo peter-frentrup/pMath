@@ -4080,3 +4080,8 @@
 
 1280054990 d:\peter\programmieren\pmath\trunk\library\include\pmath-core\objects-inline.h
 
+1280055008 d:\peter\programmieren\pmath\trunk\msvc-c99\inttypes.h
+
+1280055008 d:\peter\programmieren\pmath\trunk\msvc-c99\stdint.h
+	<stddef.h>
+
