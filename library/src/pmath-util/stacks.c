@@ -1,13 +1,7 @@
-#include <assert.h>
-#include <stdint.h>
-#include <stdlib.h>
-
-#include <pmath-config.h>
-#include <pmath-types.h>
-
-#include <pmath-util/memory.h>
-#include <pmath-util/stacks.h>
 #include <pmath-util/stacks-private.h>
+#include <pmath-util/memory.h>
+
+#include <assert.h>
 
 #include <pmath-util/concurrency/atomic.h>
 

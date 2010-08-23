@@ -1,24 +1,14 @@
+#include <pmath-core/numbers.h>
+#include <pmath-core/symbols.h>
+#include <pmath-util/evaluation.h>
+
 #include <stdlib.h>
-#include <stdint.h>
-#include <string.h>
 #include <assert.h>
 
-#include <pmath-config.h>
-#include <pmath-types.h>
-#include <pmath-core/objects.h>
-#include <pmath-core/expressions.h>
-#include <pmath-core/numbers.h>
-#include <pmath-core/strings.h>
-#include <pmath-core/symbols.h>
-
-#include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
 
-#include <pmath-util/concurrency/atomic.h>
 #include <pmath-util/concurrency/threads.h>
-
-#include <pmath-core/objects-inline.h>
 
 #include <pmath-builtins/control/flow-private.h>
 #include <pmath-builtins/control-private.h>
@@ -28,9 +18,9 @@
 
 PMATH_PRIVATE void _pmath_iterate(
   pmath_t             iter, // will be freed
-  void                     (*init)(size_t,pmath_symbol_t,void*),
-  pmath_bool_t          (*next)(void*),
-  void                      *data
+  void              (*init)(size_t,pmath_symbol_t,void*),
+  pmath_bool_t      (*next)(void*),
+  void               *data
 ){
   pmath_thread_t thread = pmath_thread_get_current();
   size_t count;

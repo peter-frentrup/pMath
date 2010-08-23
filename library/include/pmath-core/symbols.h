@@ -1,6 +1,8 @@
 #ifndef __PMATH_CORE__SYMBOLS_H__
 #define __PMATH_CORE__SYMBOLS_H__
 
+#include <pmath-core/strings.h>
+
 /**\defgroup symbols Symbols
    \brief Symbol objects in pMath.
 
@@ -186,8 +188,7 @@ pmath_string_t pmath_symbol_name(pmath_symbol_t symbol);
    \return The symbol's attributes.
  */
 PMATH_API 
-pmath_symbol_attributes_t pmath_symbol_get_attributes(
-  pmath_symbol_t  symbol);
+pmath_symbol_attributes_t pmath_symbol_get_attributes(pmath_symbol_t symbol);
 
 /**\brief Set a symbol's attributes.
    \memberof pmath_symbol_t
@@ -224,7 +225,7 @@ pmath_t pmath_symbol_get_value(pmath_symbol_t symbol);
 PMATH_API 
 void pmath_symbol_set_value(
   pmath_symbol_t symbol,
-  pmath_t value);
+  pmath_t        value);
 
 /**\brief Execute a function synchronized to a symbol.
    \deprecated
@@ -237,9 +238,9 @@ void pmath_symbol_set_value(
  */
 PMATH_API 
 void pmath_symbol_synchronized(
-  pmath_symbol_t          symbol,
+  pmath_symbol_t     symbol,
   pmath_callback_t   callback,
-  void                   *data);
+  void              *data);
 
 /**\brief Update a symbol manually.
    \memberof pmath_symbol_t

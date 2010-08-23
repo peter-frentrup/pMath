@@ -1,21 +1,11 @@
-#include <assert.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include <pmath-config.h>
-#include <pmath-types.h>
-#include <pmath-core/objects.h>
 #include <pmath-core/expressions.h>
-#include <pmath-core/numbers.h>
-#include <pmath-core/strings.h>
 #include <pmath-core/symbols.h>
 
-#include <pmath-util/concurrency/atomic.h>
+#include <assert.h>
+#include <string.h>
+
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
-
-#include <pmath-core/objects-inline.h>
 
 #include <pmath-builtins/lists-private.h>
 #include <pmath-builtins/all-symbols.h>
@@ -24,7 +14,7 @@
 static pmath_bool_t part(
   pmath_expr_t  *list, 
   pmath_expr_t   position, 
-  size_t               position_start
+  size_t         position_start
 ){
   pmath_t pos;
   size_t i, listlen, max_position_start;

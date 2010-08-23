@@ -1,34 +1,26 @@
+#include <pmath-core/expressions.h>
+#include <pmath-core/symbols.h>
+#include <pmath-util/memory.h>
+
 #include <errno.h>
 #include <inttypes.h>
 #include <limits.h>
 #include <stdarg.h>
-#include <stdint.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 
 #include <iconv.h>
 
-#include <pmath-config.h>
-#include <pmath-types.h>
-#include <pmath-core/objects.h>
 #include <pmath-core/custom.h>
-#include <pmath-core/expressions.h>
-#include <pmath-core/strings.h>
-#include <pmath-core/symbols.h>
 
-#include <pmath-util/concurrency/atomic.h>
 #include <pmath-util/concurrency/threads.h>
 #include <pmath-util/debug.h>
 #include <pmath-util/evaluation.h>
 #include <pmath-util/files.h>
 #include <pmath-util/helpers.h>
-#include <pmath-util/memory.h>
 #include <pmath-util/messages.h>
 
 #include <pmath-language/scanner.h>
-
-#include <pmath-core/objects-inline.h>
 
 #include <pmath-builtins/control/definitions-private.h>
 #include <pmath-builtins/control-private.h>

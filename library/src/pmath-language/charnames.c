@@ -1,16 +1,10 @@
-#include <stdint.h>
-#include <stdlib.h>
+#include <pmath-language/charnames.h>
+#include <pmath-core/objects-inline.h>
+#include <pmath-util/incremental-hash-private.h>
+
 #include <string.h>
 
-#include <pmath-config.h>
-#include <pmath-types.h>
-
-#include <pmath-language/charnames.h>
-
-#include <pmath-core/objects.h>
-
 #include <pmath-util/debug.h>
-#include <pmath-util/incremental-hash-private.h>
 #include <pmath-util/hashtables-private.h>
 
 struct named_char_t {

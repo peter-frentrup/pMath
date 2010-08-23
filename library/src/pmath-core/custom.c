@@ -1,22 +1,16 @@
+#include <pmath-core/objects-inline.h>
+#include <pmath-util/memory.h>
+
 #include <assert.h>
 #include <inttypes.h>
-#include <stdint.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 
-#include <pmath-config.h>
-#include <pmath-types.h>
-#include <pmath-core/objects.h>
 #include <pmath-core/custom.h>
 
 #include <pmath-util/debug.h>
 #include <pmath-util/hashtables-private.h>
-#include <pmath-util/memory.h>
 
-#include <pmath-util/concurrency/atomic.h>
-
-#include <pmath-core/objects-inline.h>
 #include <pmath-core/objects-private.h>
 #include <pmath-core/custom-private.h>
 

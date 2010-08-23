@@ -1,6 +1,9 @@
 #ifndef __PMATH_CORE__NUMBERS_H__
 #define __PMATH_CORE__NUMBERS_H__
 
+#include <pmath-core/objects-inline.h>
+#include <stdlib.h>
+
 /**\defgroup numbers Numbers
    \brief Number objects in pMath.
    

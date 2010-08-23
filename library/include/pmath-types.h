@@ -1,6 +1,8 @@
 #ifndef __PMATH_TYPES_H__
 #define __PMATH_TYPES_H__
 
+#include <stdint.h>
+
 /**\defgroup general_types General Purpose Types
    \brief Useful type definitions that do not fit into any other category.
    

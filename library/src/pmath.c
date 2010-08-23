@@ -1,6 +1,8 @@
+#include <pmath-builtins/io-private.h>
+#include <pmath-util/stacks-private.h>
+
 #include <assert.h>
 #include <stdio.h>
-#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -10,7 +12,6 @@
 #include <pmath-util/dynamic-private.h>
 #include <pmath-util/hashtables-private.h>
 #include <pmath-util/modules-private.h>
-#include <pmath-util/stacks-private.h>
 #include <pmath-util/symbol-values-private.h>
 
 #include <pmath-util/concurrency/atomic-private.h> // depends on pmath-objects-inline.h
@@ -32,7 +33,6 @@
 #include <pmath-builtins/control/messages-private.h>
 #include <pmath-builtins/control-private.h>
 #include <pmath-builtins/formating-private.h>
-#include <pmath-builtins/io-private.h>
 #include <pmath-builtins/lists-private.h>
 #include <pmath-builtins/logic-private.h>
 #include <pmath-builtins/manipulate-private.h>

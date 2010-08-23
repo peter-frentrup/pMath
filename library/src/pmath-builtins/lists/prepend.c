@@ -1,22 +1,14 @@
-#include <assert.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include <pmath-config.h>
-#include <pmath-types.h>
-#include <pmath-core/objects.h>
 #include <pmath-core/expressions.h>
 #include <pmath-core/numbers.h>
-#include <pmath-core/strings.h>
 #include <pmath-core/symbols.h>
+
+#include <assert.h>
+#include <string.h>
 
 #include <pmath-util/messages.h>
 
-#include <pmath-util/concurrency/atomic.h>
 #include <pmath-util/concurrency/threads.h>
 
-#include <pmath-core/objects-inline.h>
 #include <pmath-core/strings-private.h>
 
 #include <pmath-builtins/lists-private.h>
@@ -25,7 +17,7 @@
 
 PMATH_PRIVATE pmath_expr_t _pmath_expr_prepend(
   pmath_expr_t expr,  // will be freed
-  pmath_t     item   // will be freed
+  pmath_t      item   // will be freed
 ){
   size_t len = pmath_expr_length(expr);
   

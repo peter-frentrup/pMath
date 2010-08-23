@@ -1,29 +1,20 @@
+#include <pmath-util/memory.h>
+#include <pmath-core/numbers.h>
+#include <pmath-core/symbols.h>
+
 #include <assert.h>
 #include <inttypes.h>
-#include <stdlib.h>
-#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 
-#include <pmath-config.h>
-#include <pmath-types.h>
-#include <pmath-core/objects.h>
-#include <pmath-core/expressions.h>
-#include <pmath-core/strings.h>
-#include <pmath-core/symbols.h>
-#include <pmath-core/numbers.h>
-
-#include <pmath-util/concurrency/atomic.h>
 #include <pmath-util/concurrency/threadlocks.h>
 #include <pmath-util/concurrency/threadlocks-private.h>
 #include <pmath-util/concurrency/threads.h>
 #include <pmath-util/debug.h>
 #include <pmath-util/hashtables-private.h>
-#include <pmath-util/memory.h>
 
 #include <pmath-language/regex-private.h>
 
-#include <pmath-core/objects-inline.h>
 #include <pmath-core/objects-private.h>
 #include <pmath-core/numbers-private.h>
 #include <pmath-core/symbols-private.h>

@@ -1,6 +1,8 @@
 #ifndef __PMATH_UTIL__EVALUATION_H__
 #define __PMATH_UTIL__EVALUATION_H__
 
+#include <pmath-core/expressions.h>
+
 /**\brief Evaluate an object.
    \relates pmath_t
    \param obj Any pMath object. It will be freed. Do not use it afterwards.

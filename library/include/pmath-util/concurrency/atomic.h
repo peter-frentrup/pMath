@@ -1,10 +1,10 @@
 #ifndef __PMATH_UTIL__CONCURRENCY__ATOMIC_H__
 #define __PMATH_UTIL__CONCURRENCY__ATOMIC_H__
 
-#include <assert.h>
 #include <pmath-config.h>
 #include <pmath-types.h>
 
+#include <assert.h>
 #include <inttypes.h>
 
 /**\defgroup atomic_ops Atomic Operations

@@ -1,17 +1,10 @@
+#include <pmath-util/debug.h>
+#include <pmath-core/objects-inline.h>
+
 #include <assert.h>
 #include <stdarg.h>
-#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-#include <pmath-config.h>
-#include <pmath-types.h>
-#include <pmath-core/objects.h>
-
-#include <pmath-util/concurrency/atomic.h>
-#include <pmath-util/debug.h>
-
-#include <pmath-core/objects-inline.h>
 
 #ifdef pmath_debug_print
   #undef pmath_debug_print

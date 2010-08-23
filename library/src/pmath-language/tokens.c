@@ -1,9 +1,3 @@
-#include <stdint.h>
-#include <stdlib.h>
-
-#include <pmath-config.h>
-#include <pmath-types.h>
-
 #include <pmath-language/tokens.h>
 
 struct char_info_t{

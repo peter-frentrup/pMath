@@ -1,21 +1,12 @@
-#include <assert.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include <pmath-config.h>
-#include <pmath-types.h>
-#include <pmath-core/objects.h>
 #include <pmath-core/expressions.h>
 #include <pmath-core/numbers.h>
-#include <pmath-core/strings.h>
 #include <pmath-core/symbols.h>
 
-#include <pmath-util/concurrency/atomic.h>
+#include <assert.h>
+#include <string.h>
+
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
-
-#include <pmath-core/objects-inline.h>
 
 #include <pmath-builtins/all-symbols.h>
 #include <pmath-builtins/all-symbols-private.h>
@@ -28,8 +19,8 @@ PMATH_PRIVATE pmath_t builtin_diagonalmatrix(pmath_expr_t expr){
    diag is the diagonal above the leading diagonal.
  */
   
-  size_t len, i, j;
-  intptr_t diag;
+  size_t       len, i, j;
+  intptr_t     diag;
   pmath_t      mat, zero;
   pmath_expr_t list;
   

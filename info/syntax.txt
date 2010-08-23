@@ -42,7 +42,7 @@ a..b               Range(a,b)
 a -> b             Rule(a,b)
 a:> b              RuleDelayed(a,b)
 {a,b}              List(a,b)
-body _             Function(body)
+body &             Function(body)
 #2                 PureArgument(2)
  ##2                PureArgument(2..)   [?]
 
@@ -57,7 +57,7 @@ a:p                Pattern(a,p)
 ~~~a               Pattern(a,~~~)
 p**                RepeatedPattern(p,1..)
 p***               RepeatedPattern(p,0..)
-p?f                TestPattern(p,f)
+p/?f                TestPattern(p,f)
 p//cond            Condition(p,cond)
 f @ g(...)         Apply(f,g(...))     ---> f(...)
 

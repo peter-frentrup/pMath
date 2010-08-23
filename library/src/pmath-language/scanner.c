@@ -1,35 +1,25 @@
+#include <pmath-core/symbols.h>
+#include <pmath-language/tokens.h>
+#include <pmath-util/evaluation.h>
+#include <pmath-util/memory.h>
+
 #include <assert.h>
 #include <inttypes.h>
 #include <limits.h>
 #include <stdarg.h>
-#include <stdint.h>
-#include <stdlib.h>
 #include <string.h>
 
-#include <pmath-config.h>
-#include <pmath-types.h>
-#include <pmath-core/objects.h>
-#include <pmath-core/expressions.h>
-#include <pmath-core/numbers.h>
-#include <pmath-core/strings.h>
-#include <pmath-core/symbols.h>
-
 #include <pmath-util/debug.h>
-#include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
-#include <pmath-util/memory.h>
 #include <pmath-util/messages.h>
 
-#include <pmath-util/concurrency/atomic.h>
 #include <pmath-util/concurrency/threads.h>
 
-#include <pmath-core/objects-inline.h>
 #include <pmath-core/objects-private.h>
 #include <pmath-core/expressions-private.h>
 #include <pmath-core/strings-private.h>
 
 #include <pmath-language/patterns-private.h>
-#include <pmath-language/tokens.h>
 
 #include <pmath-builtins/lists-private.h>
 #include <pmath-builtins/all-symbols.h>
@@ -2312,8 +2302,6 @@ PMATH_API pmath_t pmath_parse_string(
     pmath_expr_new_extended(
       pmath_ref(PMATH_SYMBOL_BOXESTOEXPRESSION), 1,
       result));
-  
-  //pmath_debug_print_object("parsed: ", result, "\n");
   
   if(!pmath_is_expr_of(result, PMATH_SYMBOL_HOLDCOMPLETE))
     return result;

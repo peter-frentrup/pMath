@@ -1,42 +1,22 @@
+#include <pmath-core/numbers.h>
+#include <pmath-core/symbols.h>
+#include <pmath-util/evaluation.h>
+#include <pmath-util/memory.h>
+
 #include <assert.h>
-#include <stdint.h>
-#include <stdlib.h>
 #include <string.h>
 
-#include <pmath-config.h>
-#include <pmath-types.h>
-#include <pmath-core/objects.h>
-#include <pmath-core/expressions.h>
-#include <pmath-core/numbers.h>
-#include <pmath-core/strings.h>
-#include <pmath-core/symbols.h>
-
-#include <pmath-util/concurrency/atomic.h>
 #include <pmath-util/approximate.h>
-#include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
-#include <pmath-util/memory.h>
 #include <pmath-util/messages.h>
 
-#include <pmath-core/objects-inline.h>
 #include <pmath-core/objects-private.h>
 #include <pmath-core/numbers-private.h>
 
 #include <pmath-builtins/all-symbols.h>
 #include <pmath-builtins/all-symbols-private.h>
+#include <pmath-builtins/build-expr-private.h>
 #include <pmath-builtins/lists-private.h>
-
-#define INT(I)          pmath_integer_new_si(I)
-#define PLUS(X, Y)      pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_PLUS), 2, X, Y)
-#define TIMES(X, Y)     pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_TIMES), 2, X, Y)
-#define TIMES3(X, Y, Z) pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_TIMES), 3, X, Y, Z)
-#define NEG(X)          TIMES(INT(-1), X)
-#define INV(X)          POW(X, INT(-1))
-#define MINUS(X, Y)     PLUS(X, NEG(Y))
-#define DIV(X, Y)       TIMES(X, INV(Y))
-#define POW(X, Y)       pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_POWER), 2, X, Y)
-#define ABS(X)          pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_ABS), 1, X)
-#define GREATER(X,Y)    pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_GREATER), 1, X, Y)
 
 static pmath_bool_t greater(pmath_t a, pmath_t b){
   pmath_t tmp;

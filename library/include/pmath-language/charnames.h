@@ -1,6 +1,9 @@
 #ifndef __PMATH_LANGUAGE__CHARNAMES_H__
 #define __PMATH_LANGUAGE__CHARNAMES_H__
 
+#include <pmath-config.h>
+#include <pmath-types.h>
+
 /**\addtogroup strings
    
    @{

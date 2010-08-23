@@ -1,26 +1,19 @@
+#include <pmath-core/expressions.h>
+#include <pmath-core/symbols.h>
+#include <pmath-util/memory.h>
+
 #include <assert.h>
-#include <stdint.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 
 #define PCRE_STATIC
 #include <pcre.h>
 
-#include <pmath-config.h>
-#include <pmath-types.h>
-#include <pmath-core/objects.h>
-#include <pmath-core/expressions.h>
-#include <pmath-core/strings.h>
-#include <pmath-core/symbols.h>
-
-#include <pmath-util/concurrency/atomic.h>
 #include <pmath-util/concurrency/threads.h>
 #include <pmath-util/debug.h>
 #include <pmath-util/evaluation.h>
 #include <pmath-util/hashtables-private.h>
 #include <pmath-util/helpers.h>
-#include <pmath-util/memory.h>
 #include <pmath-util/messages.h>
 
 #include <pmath-language/patterns-private.h>
@@ -28,8 +21,6 @@
 #include <pmath-builtins/all-symbols.h>
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/lists-private.h>
-
-#include <pmath-core/objects-inline.h>
 
 #include <pmath-util/concurrency/atomic-private.h>
 

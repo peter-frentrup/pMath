@@ -1,10 +1,11 @@
+#include <pmath-core/numbers.h>
+#include <pmath-core/symbols.h>
+#include <pmath-util/evaluation.h>
+#include <pmath-util/memory.h>
+
 #include <assert.h>
 #include <limits.h>
-#include <stdint.h>
-#include <stdlib.h>
 #include <string.h>
-
-#include <pmath-config.h>
 
 #ifdef PMATH_OS_WIN32
   #define WIN32_LEAN_AND_MEAN 
@@ -17,21 +18,10 @@
   #include <unistd.h>
 #endif
 
-#include <pmath-types.h>
-#include <pmath-core/objects.h>
-#include <pmath-core/expressions.h>
-#include <pmath-core/numbers.h>
-#include <pmath-core/strings.h>
-#include <pmath-core/symbols.h>
-
-#include <pmath-util/concurrency/atomic.h>
 #include <pmath-util/concurrency/threads.h>
-#include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
-#include <pmath-util/memory.h>
 #include <pmath-util/messages.h>
 
-#include <pmath-core/objects-inline.h>
 #include <pmath-core/objects-private.h>
 #include <pmath-core/strings-private.h>
 
@@ -206,23 +196,7 @@ pmath_t _pmath_canonical_file_name(pmath_string_t relname){
     }
     else
       dir = get_directory();
-    
-//    else if(pmath_string_buffer(relname)[0] == '~'
-//    && (pmath_string_length(relname) == 1
-//     || pmath_string_buffer(relname)[1] == '/')){
-//      dir = pmath_evaluate(
-//        pmath_expr_new_extended(
-//          pmath_ref(PMATH_SYMBOL_ENVIRONMENT), 1,
-//          PMATH_C_STRING("HOME")));
-//      if(dir && !pmath_instance_of(dir, PMATH_TYPE_STRING)){
-//        pmath_unref(dir);
-//        dir = pmath_string_part(pmath_ref(relname), 0, 1);
-//      }
-//      relname = pmath_string_part(relname, 1, INT_MAX);
-//    }
-//    else
-//      dir = get_directory();
-      
+  
     if(!dir){
       pmath_unref(relname);
       return NULL;

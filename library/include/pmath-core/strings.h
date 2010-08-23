@@ -1,6 +1,8 @@
 #ifndef __PMATH_CORE__STRING_H__
 #define __PMATH_CORE__STRING_H__
 
+#include <pmath-core/objects-inline.h>
+
 /**\defgroup strings Strings
    \brief String objects in pMath.
 

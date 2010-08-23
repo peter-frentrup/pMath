@@ -1,20 +1,11 @@
-#include <assert.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include <pmath-config.h>
-#include <pmath-types.h>
-#include <pmath-core/objects.h>
 #include <pmath-core/expressions.h>
 #include <pmath-core/numbers.h>
-#include <pmath-core/strings.h>
 #include <pmath-core/symbols.h>
 
-#include <pmath-util/concurrency/atomic.h>
-#include <pmath-util/messages.h>
+#include <assert.h>
+#include <string.h>
 
-#include <pmath-core/objects-inline.h>
+#include <pmath-util/messages.h>
 
 #include <pmath-builtins/all-symbols.h>
 #include <pmath-builtins/all-symbols-private.h>
@@ -22,7 +13,7 @@
 
 PMATH_PRIVATE
 pmath_bool_t _pmath_contains_symbol(
-  pmath_t obj, // wont be freed
+  pmath_t        obj, // wont be freed
   pmath_symbol_t sub  // wont be freed
 ){
   size_t i;

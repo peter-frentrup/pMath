@@ -3,6 +3,8 @@
 	seeeeeee_eeeemmmm_mmmmmmmm_mmmmmmmm  mmmmmmmm_mmmmmmmm_mmmmmmmm_mmmmmmmm = ieee double
 	
 	x1111111_1111xxxx_xxxxxxxx_xxxxxxxx  xxxxxxxx_xxxxxxxx_xxxxxxxx_xxxxxxxx = ieee NaN/Inf
+	
+	I assume same endianness for double and integer.
  */
 
 #define PMATH_TAGMASK_BITCOUNT   12          /* |||||||| |||| */
@@ -17,6 +19,19 @@
 struct pmath_object_t{
 	uintptr_t  typeid;        
 	intptr_t   refcount;
+};
+
+enum{
+	PMATH_TYPEID_EXPR_GENERAL =   0,
+	PMATH_TYPEID_EXPR_PART    =   1,
+	PMATH_TYPEID_MAX_EXPR     =  99,
+	
+	PMATH_TYPEID_SYMBOL       = 100,
+	
+	PMATH_TYPEID_STRING       = 101,
+	PMATH_TYPEID_BIGINT       = 102,
+	PMATH_TYPEID_BIGFLOAT     = 103,
+	PMATH_TYPEID_CUSTOM       = 104
 };
 
 typedef union {
@@ -51,13 +66,19 @@ typedef union {
 
 #define PMATH_EQ(a, b)  ((a).as_bits == (b).as_bits)
 
-#define PMATH_IS_DOUBLE(o)   (((o).s.tag & PMATH_TAGMASK_NONDOUBLE) != PMATH_TAGMASK_NONDOUBLE)
-#define PMATH_IS_OBJECT(o)   (((o).s.tag & PMATH_TAGMASK_OBJECT)    == PMATH_TAGMASK_POINTER)
-#define PMATH_IS_OTHER(o)    (((o).s.tag & PMATH_TAGMASK_OBJECT)    == PMATH_TAGMASK_NONDOUBLE)
-#define PMATH_IS_INT32(o)    ((o).s.tag == PMATH_TAG_INT32)
-#define PMATH_IS_NULL(o)     ((o).s.tag == PMATH_TAG_NULL)
-#define PMATH_IS_MAGIC(o)    ((o).s.tag == PMATH_TAG_MAGIC)
+#define pmath_is_double(o)   (((o).s.tag & PMATH_TAGMASK_NONDOUBLE) != PMATH_TAGMASK_NONDOUBLE)
+#define pmath_is_object(o)   (((o).s.tag & PMATH_TAGMASK_OBJECT)    == PMATH_TAGMASK_POINTER)
+#define pmath_is_other(o)    (((o).s.tag & PMATH_TAGMASK_OBJECT)    == PMATH_TAGMASK_NONDOUBLE)
+#define pmath_is_int32(o)    ((o).s.tag == PMATH_TAG_INT32)
+#define pmath_is_null(o)     ((o).s.tag == PMATH_TAG_NULL)
+#define pmath_is_magic(o)    ((o).s.tag == PMATH_TAG_MAGIC)
 
+#define pmath_is_object_of(o, tid)  (pmath_is_object((o)) && PMATH_TO_OBJECT((o))->typeid == (tid))
+#define pmath_is_expr(o)            (pmath_is_object((o)) && PMATH_TO_OBJECT((o))->typeid <= PMATH_TYPEID_MAX_EXPR)
+#define pmath_is_symbol(o)          pmath_is_object_of((o), PMATH_TYPEID_SYMBOL)
+#define pmath_is_string(o)          pmath_is_object_of((o), PMATH_TYPEID_STRING)
+#define pmath_is_bigint(o)          pmath_is_object_of((o), PMATH_TYPEID_BIGINT)
+#define pmath_is_bigfloat(o)        pmath_is_object_of((o), PMATH_TYPEID_BIGFLOAT)
 
 #define PMATH_TO_DOUBLE(o)  ((o).as_double)
 #define PMATH_TO_OTHER(o)   ((o).s.u.as_int32)
@@ -73,18 +94,18 @@ typedef union {
 #endif
 
 PMATH_FORCE_INLINE
-pmath_t PMATH_FROM_GOOD_DOUBLE(double d){ /* d must not be NaN or Inf */
+pmath_t pmath_from_good_double(double d){ /* d must not be NaN or Inf */
 	pmath_t result;
 	
 	result.as_double = d;
 	
-	PMATH_PUBLIC_ASSERT(PMATH_IS_DOUBLE(result));
+	PMATH_PUBLIC_ASSERT(pmath_is_double(result));
 	
 	return result;
 }
 
 PMATH_FORCE_INLINE
-pmath_t PMATH_FROM_GOOD_OBJECT(struct pmath_object_t *p){ /* p: valid heap pointer, esp. p != NULL */
+pmath_t pmath_from_good_object(struct pmath_object_t *p){ /* p: valid heap pointer, esp. p != NULL */
 /* 64bit system: p must have most significant 12 bits cleared */
 	pmath_t result;
 	
@@ -101,19 +122,19 @@ pmath_t PMATH_FROM_GOOD_OBJECT(struct pmath_object_t *p){ /* p: valid heap point
 		
 	#endif
 	
-	PMATH_PUBLIC_ASSERT(PMATH_IS_OBJECT(result));
+	PMATH_PUBLIC_ASSERT(pmath_is_object(result));
 	
 	return result;
 }
 
 PMATH_FORCE_INLINE
-pmath_t PMATH_FROM_OTHER(uint32_t tag, int32_t value){
+pmath_t pmath_from_other(uint32_t tag, int32_t value){
 	pmath_t result;
 	
 	result.s.tag        = tag;
 	result.s.u.as_int32 = value;
 	
-	PMATH_PUBLIC_ASSERT(PMATH_IS_OTHER(result));
+	PMATH_PUBLIC_ASSERT(pmath_is_other(result));
 	
 	return result;
 }
@@ -122,7 +143,28 @@ pmath_t PMATH_FROM_OTHER(uint32_t tag, int32_t value){
 #define PMATH_UNDEFINED   (PMATH_FROM_OTHER(PMATH_TAG_MAGIC, 0))
 #define PMATH_ZERO        (PMATH_FROM_OTHER(PMATH_TAG_INT32, 0))
 
+PMATH_FORCE_INLINE
+intptr_t pmath_refcount(pmath_t o){
+	if(pmath_is_object(o)){
+		return PMATH_TO_OBJECT(o)->refcount;
+	}
+	else
+		return 0;
+}
 
-#define pmath_ref(o)        (PMATH_IS_OBJECT((o)) ? (pmath_atomic_fetch_add(&PMATH_TO_OBJECT(o)->refcount, 1), (o)) : (o))
-#define pmath_unref(o)      do{ if(PMATH_IS_OBJECT(o) && pmath_atomic_fetch_add(&PMATH_TO_OBJECT(o)->refcount, -1) == 1) _pmath_destroy(PMATH_TO_OBJECT(o)); }while(0)
-#define pmath_refcount(o)   (PMATH_IS_OBJECT((o)) ? (PMATH_TO_OBJECT(o)->refcount) : 0)
+PMATH_FORCE_INLINE
+pmath_t pmath_ref(pmath_t o){
+	if(pmath_is_object(o)){
+		pmath_atomic_fetch_add(&PMATH_TO_OBJECT(o)->refcount, 1);
+	}
+	
+	return 0;
+}
+
+
+PMATH_FORCE_INLINE
+void pmath_unref(pmath_t o){
+	if(pmath_is_object(o) && pmath_atomic_fetch_add(&PMATH_TO_OBJECT(o)->refcount, -1) == 1){
+		_pmath_destroy_object(PMATH_TO_OBJECT(o));
+	}
+}

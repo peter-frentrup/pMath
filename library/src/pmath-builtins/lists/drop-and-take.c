@@ -1,21 +1,12 @@
-#include <assert.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include <pmath-config.h>
-#include <pmath-types.h>
-#include <pmath-core/objects.h>
 #include <pmath-core/expressions.h>
 #include <pmath-core/numbers.h>
-#include <pmath-core/strings.h>
 #include <pmath-core/symbols.h>
-
-#include <pmath-util/concurrency/atomic.h>
 #include <pmath-util/memory.h>
-#include <pmath-util/messages.h>
 
-#include <pmath-core/objects-inline.h>
+#include <assert.h>
+#include <string.h>
+
+#include <pmath-util/messages.h>
 
 #include <pmath-builtins/lists-private.h>
 #include <pmath-builtins/all-symbols.h>
@@ -28,7 +19,7 @@ struct sequence_t{
 };
 
 static pmath_bool_t convert_take_positions(
-  pmath_expr_t  expr, // wont be freed
+  pmath_expr_t        expr, // wont be freed
   size_t              exprstart,
   struct sequence_t  *pos
 ){
@@ -67,7 +58,7 @@ static pmath_bool_t convert_take_positions(
 }
 
 static pmath_bool_t convert_start_end_step(
-  pmath_expr_t  obj, // wont be freed
+  pmath_expr_t        obj, // wont be freed
   struct sequence_t  *pos,
   size_t             *start,
   size_t             *end,
@@ -108,7 +99,7 @@ static pmath_bool_t convert_start_end_step(
 }
 
 static pmath_bool_t drop(
-  pmath_t     *obj,
+  pmath_t            *obj,
   size_t              depth,
   struct sequence_t  *pos
 ){
@@ -155,7 +146,7 @@ static pmath_bool_t drop(
 }
 
 static pmath_bool_t take(
-  pmath_t     *obj,
+  pmath_t            *obj,
   size_t              depth,
   struct sequence_t  *pos
 ){

@@ -1,6 +1,9 @@
 #ifndef __PMATH_CORE__OBJECTS_H__
 #define __PMATH_CORE__OBJECTS_H__
 
+#include <pmath-config.h>
+#include <pmath-types.h>
+
 /**\defgroup objects Objects - the Base of pMath
    \brief The basic class for all pMath objects.
 

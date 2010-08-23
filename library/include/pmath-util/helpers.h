@@ -1,6 +1,9 @@
 #ifndef __PMATH_UTIL__HELPERS_H__
 #define __PMATH_UTIL__HELPERS_H__
 
+#include <pmath-core/symbols.h>
+#include <pmath-core/expressions.h>
+
 /**\defgroup helpers Object Utility Functions
    \brief Utility functuions for pMath Objects and Expressions.
 

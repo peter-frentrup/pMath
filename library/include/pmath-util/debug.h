@@ -1,6 +1,8 @@
 #ifndef __PMATH_DEBUG_H__
 #define __PMATH_DEBUG_H__
 
+#include <pmath-core/objects-inline.h>
+
 /**\defgroup debug Debugging
    
    These functions are for logging purposes. They default to ((void)0) unless

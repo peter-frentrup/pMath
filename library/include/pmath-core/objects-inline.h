@@ -1,6 +1,9 @@
 #ifndef __PMATH_CORE__OBJECTS_INLINE_H__
 #define __PMATH_CORE__OBJECTS_INLINE_H__
 
+#include <pmath-core/objects.h>
+#include <pmath-util/concurrency/atomic.h>
+
 struct _pmath_t{ // do not access members
   unsigned int  type_shift; /* 0..31 */
   PMATH_DECLARE_ATOMIC(refcount);

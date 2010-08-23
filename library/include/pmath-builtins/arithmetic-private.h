@@ -5,6 +5,8 @@
   #error This header file is not part of the public pMath API
 #endif
 
+#include <pmath-core/expressions.h>
+
 /* This header exports all definitions of the sources in
    src/pmath-builtins/arithmetic/
  */

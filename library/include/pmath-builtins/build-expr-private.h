@@ -29,4 +29,6 @@
 #define SIN(X)          FUNC(pmath_ref(PMATH_SYMBOL_SIN), X)
 #define SIGN(X)         FUNC(pmath_ref(PMATH_SYMBOL_SIGN), X)
 
+#define GREATER(X,Y)    pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_GREATER), 1, X, Y)
+
 #endif // __PMATH_BUILTINS__BUILD_EXPR_PRIVATE_H__

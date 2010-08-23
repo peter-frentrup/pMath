@@ -5,6 +5,8 @@
   #error This header file is not part of the public pMath API
 #endif
 
+#include <pmath-core/expressions.h>
+
 #define PMATH_EXPRESSION_FLATTEN_MAX_DEPTH   (8)
 
 struct _pmath_unpacked_expr_t{

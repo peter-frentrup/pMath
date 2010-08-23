@@ -1,11 +1,9 @@
 // algortihm by http://www.azillionmonkeys.com/qed/hash.html
 
-#include <stdint.h>
-#include <stdlib.h>
-
-#include <pmath-config.h>
-
 #include <pmath-util/incremental-hash-private.h>
+
+#include <stdint.h>
+
 
 #if (defined(__GNUC__) && defined(__i386__)) || defined(__WATCOMC__) \
   || defined(_MSC_VER) || defined (__BORLANDC__) || defined (__TURBOC__)
@@ -45,7 +43,7 @@ PMATH_PRIVATE unsigned int incremental_hash(
     case 3: 
       hash+= get16bits (data);
       hash^= hash << 16;
-      hash^= ((char*)data)[sizeof (uint16_t)] << 18;
+      hash^= ((char*)data)[sizeof(uint16_t)] << 18;
       hash+= hash >> 11;
       break;
     case 2: 

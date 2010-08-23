@@ -1,39 +1,23 @@
-#include <assert.h>
-#include <math.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include <pmath-config.h>
-#include <pmath-types.h>
-#include <pmath-core/objects.h>
-#include <pmath-core/custom.h>
 #include <pmath-core/expressions.h>
 #include <pmath-core/numbers.h>
-#include <pmath-core/strings.h>
 #include <pmath-core/symbols.h>
+
+#include <assert.h>
+#include <math.h>
+#include <string.h>
+
+#include <pmath-core/custom.h>
 
 #include <pmath-util/hashtables-private.h>
 #include <pmath-util/messages.h>
 
-#include <pmath-util/concurrency/atomic.h>
 #include <pmath-util/concurrency/threadlocks.h>
 #include <pmath-util/concurrency/threadmsg.h>
 #include <pmath-util/concurrency/threads.h>
 #include <pmath-util/concurrency/threads-private.h>
 
-#include <pmath-core/objects-inline.h>
-
 #include <pmath-builtins/all-symbols.h>
 #include <pmath-builtins/all-symbols-private.h>
-
-//#ifdef PMATH_OS_WIN32
-//  #define NOGDI
-//  #define WIN32_LEAN_AND_MEAN
-//  #include <windows.h>
-//#else
-//  #include <unistd.h>
-//#endif
 
 PMATH_PRIVATE pmath_t builtin_pause(pmath_expr_t expr){
   pmath_t  arg;
@@ -100,60 +84,6 @@ PMATH_PRIVATE pmath_t builtin_pause(pmath_expr_t expr){
       _pmath_thread_throw(current_thread, arg);
     
     pmath_unref(guard);
-//    #ifdef PMATH_OS_WIN32
-//    {
-//      DWORD now = GetTickCount();
-//      DWORD stop = now + (DWORD)(time * 1000.0);
-//      
-//      while(now + 1000 <= stop){
-//        if(pmath_thread_aborting(thread))
-//          return NULL;
-//          
-//        Sleep(1000);
-//        now = GetTickCount();
-//      }
-//      
-//      if(now < stop){
-//        if(pmath_thread_aborting(thread))
-//          return NULL;
-//        
-//        Sleep(stop - now);
-//      }
-//    }
-//    #else
-//    {
-//      double itime, ftime;
-//      
-//      ftime = modf(time, &itime);
-//      
-//      if(itime > 0){
-//        unsigned int torun = (unsigned int)itime;
-//        while(torun-- > 0){
-//          if(pmath_thread_aborting(thread))
-//            return NULL;
-//          
-//          usleep(1000000);
-//        }
-//      }
-//      
-//      if(ftime > 0.0){
-//        usleep((useconds_t)(ftime * 1000000.0));
-////        struct timespec stop;
-////        sem_t never_signaled;
-////        
-////        if(pmath_thread_aborting(thread))
-////          return NULL;
-////        
-////        clock_gettime(CLOCK_MP_FLOATTIME, &stop);
-////        stop.tv_nsec = (long)ftime * 1e9;
-////        
-////        sem_init(&never_signaled, 0, 0);
-////        while(sem_timedwait(&never_signaled, &stop) == -1 && errno == EINTR)
-////            continue;
-////        sem_destroy(&never_signaled);
-//      }
-//    }
-//    #endif
   }
   
   return NULL;

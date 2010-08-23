@@ -26,26 +26,23 @@
    
  */
 
-#include <pmath-config.h>
-#include <pmath-types.h>
-#include <pmath-util/concurrency/atomic.h>
-
 #ifdef __cplusplus
   extern "C" {
 #endif
 
-#include <pmath-core/objects.h>
-#include <pmath-core/custom.h>
 #include <pmath-core/expressions.h>
 #include <pmath-core/numbers.h>
-#include <pmath-core/strings.h>
 #include <pmath-core/symbols.h>
+#include <pmath-language/tokens.h>
+#include <pmath-util/memory.h>
+
+
+#include <pmath-core/custom.h>
 
 #include <pmath-builtins/all-symbols.h>
 
 #include <pmath-language/charnames.h>
 #include <pmath-language/scanner.h>
-#include <pmath-language/tokens.h>
 
 #include <pmath-util/approximate.h>
 #include <pmath-util/concurrency/threadlocks.h>
@@ -56,12 +53,9 @@
 #include <pmath-util/evaluation.h>
 #include <pmath-util/files.h>
 #include <pmath-util/helpers.h>
-#include <pmath-util/memory.h>
 #include <pmath-util/messages.h>
 #include <pmath-util/serialize.h>
 #include <pmath-util/stacks.h>
-
-#include <pmath-core/objects-inline.h>
 
 /**\defgroup frontend Front-ends
    \brief Functions for use front-ends.

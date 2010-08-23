@@ -1,6 +1,8 @@
 #ifndef __PMATH_UTIL__STACKS_H__
 #define __PMATH_UTIL__STACKS_H__
 
+#include <pmath-config.h>
+
 /**\defgroup stacks Threadsafe Stacks
    \brief Fast threadsafe stacks in pMath.
    

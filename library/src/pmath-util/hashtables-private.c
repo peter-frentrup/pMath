@@ -1,19 +1,13 @@
-#include <assert.h>
-#include <math.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include <pmath-config.h>
-#include <pmath-types.h>
-#include <pmath-core/objects.h>
-
-#include <pmath-util/concurrency/atomic.h>
-#include <pmath-util/debug.h>
-#include <pmath-util/hashtables-private.h>
+#include <pmath-core/objects-inline.h>
 #include <pmath-util/memory.h>
 
-#include <pmath-core/objects-inline.h>
+#include <assert.h>
+#include <math.h>
+#include <string.h>
+
+#include <pmath-util/debug.h>
+#include <pmath-util/hashtables-private.h>
+
 
 #define HT_MINSIZE   (8)  /* power of 2, >= 2 */
 

@@ -4,8 +4,9 @@
    primes(2^16) 
  */ 
 
-#include <stdint.h>
 #include <pmath-config.h>
+
+#include <stdint.h>
  
 PMATH_PRIVATE const uint16_t _pmath_primes16bit[] = {
 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 

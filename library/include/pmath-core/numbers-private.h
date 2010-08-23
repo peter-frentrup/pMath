@@ -5,12 +5,12 @@
   #error This header file is not part of the public pMath API
 #endif
 
+#include <pmath-core/numbers.h>
+
 #include <float.h>
 #include <math.h>
 #include <gmp.h>
 #include <mpfr.h>
-#include <pmath-util/concurrency/atomic.h>
-#include <pmath-core/objects-inline.h>
 
 #ifdef PMATH_OS_WIN32
   #define exp2(x)      pow(2, x)

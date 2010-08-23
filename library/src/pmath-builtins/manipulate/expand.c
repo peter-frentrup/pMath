@@ -1,22 +1,13 @@
+#include <pmath-core/numbers.h>
+#include <pmath-core/symbols.h>
+#include <pmath-util/evaluation.h>
+
 #include <assert.h>
-#include <stdint.h>
-#include <stdlib.h>
 #include <string.h>
 
-#include <pmath-config.h>
-#include <pmath-types.h>
-#include <pmath-core/objects.h>
-#include <pmath-core/expressions.h>
-#include <pmath-core/numbers.h>
-#include <pmath-core/strings.h>
-#include <pmath-core/symbols.h>
-
-#include <pmath-util/concurrency/atomic.h>
-#include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
 
-#include <pmath-core/objects-inline.h>
 #include <pmath-core/objects-private.h>
 #include <pmath-core/numbers-private.h>
 
@@ -92,167 +83,6 @@ static pmath_t expand_ui_power(pmath_t sum, unsigned long n){
   pmath_unref(b);
   return pmath_expr_set_item(pmath_gather_end(), 0, pmath_ref(PMATH_SYMBOL_PLUS));
 }
-
-/*static pmath_t expand_power(pmath_t expr, pmath_bool_t all){
-  pmath_t exp = pmath_expr_get_item(expr, 2);
-  
-  if(pmath_instance_of(exp, PMATH_TYPE_INTEGER)){
-    if(pmath_integer_fits_ui(exp)){
-      unsigned long uexp = pmath_integer_get_ui(exp);
-      
-      if(uexp + 1 != 0){
-        pmath_t base;
-        
-        base = pmath_expr_get_item(expr, 1);
-        
-        base = pmath_evaluate(_pmath_expand(base, all));
-        if(pmath_is_expr_of(base, PMATH_SYMBOL_PLUS)){
-          pmath_unref(exp);
-          pmath_unref(expr);
-          
-          return expand_ui_power(base, uexp, all);
-        }
-        
-        expr = pmath_expr_set_item(expr, 1, base);
-      }
-    }
-    
-    if(all && pmath_number_sign(exp) < 0){
-      exp = pmath_number_neg(exp);
-      
-      expr = pmath_expr_set_item(expr, 2, exp);
-      expr = expand_power(expr, TRUE);
-      
-      return pmath_expr_new_extended(
-        pmath_ref(PMATH_SYMBOL_POWER), 2,
-        expr,
-        pmath_integer_new_si(-1));
-    }
-  }
-  else if(pmath_instance_of(exp, PMATH_TYPE_RATIONAL)){
-    pmath_integer_t num, den;
-    int sgn = 1;
-    
-    if(all && pmath_number_sign(exp) < 0){
-      exp = pmath_number_neg(exp);
-      sgn = -1;
-    }
-    
-    num = pmath_rational_numerator(exp);
-    den = pmath_rational_denominator(exp);
-    
-    if(pmath_compare(num, den) > 0){
-      struct _pmath_integer_t *q = _pmath_create_integer();
-      struct _pmath_integer_t *r = _pmath_create_integer();
-      
-      if(q && r){
-//        pmath_t base;
-        
-        mpz_fdiv_qr(
-          q->value,
-          r->value,
-          ((struct _pmath_integer_t*)num)->value,
-          ((struct _pmath_integer_t*)den)->value);
-        
-        pmath_unref(num);
-        pmath_unref(exp);
-        exp = pmath_rational_new((pmath_integer_t)r, den);
-        exp = pmath_expr_new_extended(
-          pmath_ref(PMATH_SYMBOL_TIMES), 2,
-          pmath_expr_set_item(pmath_ref(expr), 2, (pmath_t)q),
-          pmath_expr_set_item(pmath_ref(expr), 2, exp));
-        
-        pmath_unref(expr);
-        if(sgn > 0)
-          return _pmath_expand(exp, all);
-        
-        return pmath_expr_new_extended(
-          pmath_ref(PMATH_SYMBOL_POWER), 2,
-          _pmath_expand(exp, all),
-          pmath_integer_new_si(-1));
-      }
-      
-      pmath_unref((pmath_t)q);
-      pmath_unref((pmath_t)r);
-    }
-    
-    pmath_unref(num);
-    pmath_unref(den);
-  }
-  
-  if(all){
-    pmath_t base = pmath_expr_get_item(expr, 1);
-    base = _pmath_expand(base, TRUE);
-    expr = pmath_expr_set_item(expr, 1, base);
-  }
-  
-  pmath_unref(exp);
-  return expr;
-}*/
-
-/*PMATH_PRIVATE
-pmath_t _pmath_expand(pmath_t expr, pmath_bool_t all){
-  if(pmath_instance_of(expr, PMATH_TYPE_EXPRESSION)){
-    pmath_t item = pmath_expr_get_item(expr, 0);
-    pmath_unref(item);
-    
-    if(item == PMATH_SYMBOL_TIMES){
-      size_t i;
-      for(i = pmath_expr_length(expr);i > 0;--i){
-        item = pmath_expr_get_item(expr, i);
-        
-        if(pmath_is_expr_of_len(item, PMATH_SYMBOL_POWER, 2)){
-          item = expand_power(item, all);
-          expr = pmath_expr_set_item(expr, i, pmath_ref(item));
-        }
-        
-        if(pmath_is_expr_of(item, PMATH_SYMBOL_TIMES)){
-          item = _pmath_expand(item, all);
-          expr = pmath_expr_set_item(expr, i, pmath_ref(item));
-        }
-        
-        if(pmath_is_expr_of(item, PMATH_SYMBOL_PLUS)){
-          size_t j;
-          
-          for(j = pmath_expr_length(item);j > 0;--j){
-            expr = pmath_expr_set_item(
-              expr, i, 
-              pmath_expr_get_item(item, j));
-              
-            item = pmath_expr_set_item(item, j, pmath_ref(expr));
-          }
-          
-          pmath_unref(expr);
-          return _pmath_expand(pmath_evaluate(item), all);
-        }
-        
-        pmath_unref(item);
-      }
-      
-      return expr;
-    }
-    
-    if(item == PMATH_SYMBOL_POWER && pmath_expr_length(expr) == 2){
-      return expand_power(expr, all);
-    }
-    
-    if(item == PMATH_SYMBOL_PLUS){
-      size_t i;
-      for(i = pmath_expr_length(expr);i > 0;--i){
-        item = pmath_expr_get_item(expr, i);
-        expr = pmath_expr_set_item(expr, i, NULL);
-        
-        item = _pmath_expand(item, all);
-        
-        expr = pmath_expr_set_item(expr, i, item);
-      }
-      
-      return expr;
-    }
-  }
-  
-  return expr;
-}*/
 
 static pmath_t expand_product(pmath_t expr, pmath_bool_t *changed){
   if(pmath_instance_of(expr, PMATH_TYPE_EXPRESSION)){

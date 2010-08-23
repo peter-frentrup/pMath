@@ -5,6 +5,9 @@
   #error This header file is not part of the public pMath API
 #endif
 
+#include <stdlib.h>
+#include <pmath-config.h>
+
 PMATH_PRIVATE 
 unsigned int incremental_hash(
   const void   *data, 
