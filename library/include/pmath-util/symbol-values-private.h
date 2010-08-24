@@ -5,6 +5,9 @@
   #error This header file is not part of the public pMath API
 #endif
 
+#include <pmath-core/symbols.h>
+#include <pmath-util/hashtables-private.h>
+
 struct _pmath_rulecache_t{ // do not access members directly, init all with NULL
   void                      * volatile _table; // const patterns, no condition in rhs
   struct _pmath_multirule_t * volatile _more;

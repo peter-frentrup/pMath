@@ -1,3 +1,6 @@
+#include <pmath-core/objects-private.h>
+#include <pmath-core/strings-private.h>
+
 #include <pmath-builtins/io-private.h>
 #include <pmath-language/tokens.h>
 #include <pmath-util/memory.h>
@@ -6,16 +9,11 @@
 #include <assert.h>
 #include <errno.h>
 #include <string.h>
-
 #include <iconv.h>
-
 
 #include <pmath-util/debug.h>
 
 #include <pmath-util/concurrency/threads.h>
-
-#include <pmath-core/objects-private.h>
-#include <pmath-core/strings-private.h>
 
 #include <pmath-language/charnames.h>
 

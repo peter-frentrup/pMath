@@ -1,21 +1,10 @@
-#include <pmath-core/expressions.h>
-#include <pmath-core/numbers.h>
-#include <pmath-core/symbols.h>
-
-#include <assert.h>
-#include <string.h>
-
-#include <pmath-util/evaluation.h>
-#include <pmath-util/messages.h>
-
 #include <pmath-core/numbers-private.h>
 
+#include <pmath-util/messages.h>
+
+#include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/arithmetic-private.h>
 #include <pmath-builtins/build-expr-private.h>
-#include <pmath-builtins/lists-private.h>
-#include <pmath-builtins/number-theory-private.h>
-#include <pmath-builtins/all-symbols.h>
-#include <pmath-builtins/all-symbols-private.h>
 
 PMATH_PRIVATE pmath_t builtin_cosh(pmath_expr_t expr){
   pmath_t x;

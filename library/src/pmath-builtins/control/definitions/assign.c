@@ -1,24 +1,13 @@
-#include <pmath-core/expressions.h>
-#include <pmath-core/symbols.h>
+#include <pmath-core/symbols-private.h>
 
-#include <assert.h>
-#include <string.h>
-
-#include <pmath-core/custom.h>
-
-#include <pmath-util/debug.h>
 #include <pmath-util/evaluation.h>
-#include <pmath-util/hashtables-private.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
 #include <pmath-util/symbol-values-private.h>
 
-#include <pmath-private.h>
-#include <pmath-core/objects-private.h>
-#include <pmath-core/symbols-private.h>
-
-#include <pmath-builtins/all-symbols.h>
 #include <pmath-builtins/all-symbols-private.h>
+
+#include <pmath-private.h>
 
 #define ALL_RULES     0
 #define OWN_RULES     1

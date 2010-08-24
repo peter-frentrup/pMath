@@ -1,21 +1,12 @@
-#include <pmath-core/expressions.h>
-#include <pmath-core/numbers.h>
-#include <pmath-core/symbols.h>
+#include <pmath-core/numbers-private.h>
 
-#include <assert.h>
-#include <string.h>
-
-#include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
 
-#include <pmath-core/numbers-private.h>
-
+#include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/arithmetic-private.h>
 #include <pmath-builtins/build-expr-private.h>
 #include <pmath-builtins/number-theory-private.h>
-#include <pmath-builtins/all-symbols.h>
-#include <pmath-builtins/all-symbols-private.h>
 
 static pmath_t arcsin_as_log(pmath_t x){
   // -I Log(I x + Sqrt(1 - x^2))

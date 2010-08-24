@@ -1,6 +1,13 @@
 #ifndef __PMATH_CORE__STRINGS_PRIVATE_H__
 #define __PMATH_CORE__STRINGS_PRIVATE_H__
 
+#ifndef BUILDING_PMATH
+  #error This header file is not part of the public pMath API
+#endif
+
+#include <pmath-core/objects-inline.h>
+#include <stdlib.h>
+
 /* Strings are not zero-terminated.
    Strings can be a buffer themselves or point to a buffer. This reduces memory
    usage, because when reading a part of a string into a new string, the actual

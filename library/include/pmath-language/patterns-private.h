@@ -5,6 +5,10 @@
   #error This header file is not part of the public pMath API
 #endif
 
+#include <pmath-core/expressions.h>
+#include <pmath-util/hashtables-private.h>
+#include <stdlib.h>
+
 // initialized in pmath_init():
 extern PMATH_PRIVATE pmath_t _pmath_object_range_from_one; /* Range(1,()) readonly */
 extern PMATH_PRIVATE pmath_t _pmath_object_range_from_zero; /* Range(0,()) readonly */

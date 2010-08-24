@@ -1,6 +1,9 @@
 #ifndef __PMATH_BUILTINS__SYMBOLS_H__
 #define __PMATH_BUILTINS__SYMBOLS_H__
 
+#include <pmath-core/expressions.h>
+#include <pmath-core/symbols.h>
+
 /**\addtogroup symbols
 
    @{

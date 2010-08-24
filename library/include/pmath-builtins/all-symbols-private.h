@@ -5,6 +5,8 @@
   #error This header file is not part of the public pMath API
 #endif
 
+#include <pmath-builtins/all-symbols.h>
+
 #define PMATH_SYMBOL_BUILTIN(index)  _pmath_builtin_symbol_array[(index)]
 
 static const pmath_code_usage_t PMATH_CODE_USAGE_APPROX = (pmath_code_usage_t)3;

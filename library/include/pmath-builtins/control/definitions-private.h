@@ -5,14 +5,12 @@
   #error This header file is not part of the public pMath API
 #endif
 
+#include <pmath-core/expressions.h>
+#include <pmath-core/symbols.h>
+
 /* This header exports all definitions of the sources in
    src/pmath-builtins/control/definitions/
  */
-
-//PMATH_PRIVATE void _pmath_assign_attributes(
-//  pmath_expr_t lhs,  // will be freed
-//  pmath_t     rhs   // wont be freed
-//);
 
 PMATH_PRIVATE
 pmath_t _pmath_extract_holdpattern(pmath_t pat); // pat will be freed

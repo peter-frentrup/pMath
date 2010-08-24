@@ -1,19 +1,10 @@
-#include <pmath-core/expressions.h>
-#include <pmath-core/numbers.h>
-#include <pmath-core/symbols.h>
-
-#include <assert.h>
-#include <string.h>
+#include <pmath-core/numbers-private.h>
 
 #include <pmath-util/evaluation.h>
 #include <pmath-util/messages.h>
 
-#include <pmath-core/numbers-private.h>
-
-#include <pmath-builtins/arithmetic-private.h>
-#include <pmath-builtins/number-theory-private.h>
-#include <pmath-builtins/all-symbols.h>
 #include <pmath-builtins/all-symbols-private.h>
+#include <pmath-builtins/number-theory-private.h>
 
 PMATH_PRIVATE
 pmath_bool_t _pmath_is_infinite(pmath_t obj){
@@ -78,8 +69,10 @@ PMATH_PRIVATE pmath_t builtin_operate_indeterminate(pmath_expr_t expr){
 PMATH_PRIVATE pmath_t builtin_directedinfinity(pmath_expr_t expr){
   pmath_t item, sign;
   size_t len = pmath_expr_length(expr);
+  
   if(len == 0)
     return expr;
+    
   if(len > 1){
     pmath_message_argxxx(pmath_expr_length(expr), 0, 1);
     return expr;
@@ -88,7 +81,7 @@ PMATH_PRIVATE pmath_t builtin_directedinfinity(pmath_expr_t expr){
   item = pmath_expr_get_item(expr, 1);
   if(item == PMATH_SYMBOL_INDETERMINATE
   || (pmath_instance_of(item, PMATH_TYPE_NUMBER)
-  && pmath_number_sign((pmath_number_t)item) == 0)){
+   && pmath_number_sign((pmath_number_t)item) == 0)){
     pmath_unref(item);
     pmath_unref(expr);
     return pmath_ref(_pmath_object_complex_infinity);

@@ -1,24 +1,16 @@
-#include <pmath-core/expressions.h>
-#include <pmath-core/numbers.h>
-#include <pmath-core/symbols.h>
-
-#include <assert.h>
-#include <limits.h> // ULONG_MAX
-#include <string.h>
-
-#include <pmath-util/approximate.h>
-#include <pmath-util/debug.h>
-#include <pmath-util/evaluation.h>
-#include <pmath-util/helpers.h>
-#include <pmath-util/messages.h>
-
 #include <pmath-core/numbers-private.h>
 
+#include <pmath-util/approximate.h>
+#include <pmath-util/evaluation.h>
+#include <pmath-util/messages.h>
+#include <pmath-util/helpers.h>
+
+#include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/arithmetic-private.h>
 #include <pmath-builtins/build-expr-private.h>
 #include <pmath-builtins/number-theory-private.h>
-#include <pmath-builtins/all-symbols.h>
-#include <pmath-builtins/all-symbols-private.h>
+
+#include <limits.h> // LONG_MAX
 
 PMATH_PRIVATE 
 pmath_bool_t _pmath_equals_rational(pmath_t obj, int n, int d){

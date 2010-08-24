@@ -5,6 +5,8 @@
   #error This header file is not part of the public pMath API
 #endif
 
+#include <pmath-core/numbers.h>
+
 /* This header exports all definitions of the sources in
    src/pmath-builtins/number-theory/
  */
@@ -64,6 +66,6 @@ PMATH_PRIVATE void         _pmath_numeric_done(void);
    in isprime.c
  */
 PMATH_PRIVATE pmath_bool_t _pmath_primetest_init(void);
-PMATH_PRIVATE void            _pmath_primetest_done(void);
+PMATH_PRIVATE void         _pmath_primetest_done(void);
 
 #endif /* __PMATH_BUILTINS__NUMBER_THEORY_PRIVATE_H__ */

@@ -5,6 +5,9 @@
   #error This header file is not part of the public pMath API
 #endif
 
+#include <pmath-core/objects-inline.h>
+#include <stdlib.h>
+
 /*----------------------------------------------------------------------------*/
 
 /* Non-recursive pointer and lock.

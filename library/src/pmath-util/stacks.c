@@ -1,10 +1,6 @@
 #include <pmath-util/stacks-private.h>
 #include <pmath-util/memory.h>
 
-#include <assert.h>
-
-#include <pmath-util/concurrency/atomic.h>
-
 static pmath_bool_t have_cas2;
 
 PMATH_API 

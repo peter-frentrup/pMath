@@ -1,6 +1,8 @@
 #ifndef __PMATH_UTIL__CONCURRENCY__THREADS_H__
 #define __PMATH_UTIL__CONCURRENCY__THREADS_H__
 
+#include <pmath-core/objects-inline.h>
+
 /**\defgroup threads Multithreading with pMath
    \brief The Thread abstraction in pMath.
    

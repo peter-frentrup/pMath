@@ -1,16 +1,8 @@
-#include <pmath-core/expressions.h>
-#include <pmath-core/symbols.h>
-
-#include <string.h>
-#include <assert.h>
-
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
 
-#include <pmath-builtins/control/definitions-private.h>
-#include <pmath-builtins/lists-private.h>
-#include <pmath-builtins/all-symbols.h>
 #include <pmath-builtins/all-symbols-private.h>
+#include <pmath-builtins/control/definitions-private.h>
 
 PMATH_PRIVATE pmath_bool_t _pmath_get_attributes(
   pmath_symbol_attributes_t *attr,

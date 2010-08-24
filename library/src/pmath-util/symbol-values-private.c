@@ -1,28 +1,20 @@
-#include <pmath-core/symbols.h>
-#include <pmath-util/evaluation.h>
-#include <pmath-util/memory.h>
-
-#include <assert.h>
-#include <inttypes.h>
-#include <stdio.h>
-#include <string.h>
-
-#include <pmath-util/debug.h>
-#include <pmath-util/hashtables-private.h>
-#include <pmath-util/helpers.h>
-#include <pmath-util/messages.h>
 #include <pmath-util/symbol-values-private.h>
 
 #include <pmath-core/objects-private.h>
 
-#include <pmath-builtins/control-private.h>
-#include <pmath-builtins/lists-private.h>
-#include <pmath-builtins/all-symbols.h>
-#include <pmath-builtins/all-symbols-private.h>
-
 #include <pmath-language/patterns-private.h>
 
 #include <pmath-util/concurrency/atomic-private.h> // depends on pmath-objects-inline.h
+#include <pmath-util/evaluation.h>
+#include <pmath-util/helpers.h>
+#include <pmath-util/memory.h>
+
+#include <pmath-builtins/all-symbols-private.h>
+
+#include <string.h>
+
+
+
 
 struct _pmath_multirule_t{
   struct _pmath_t   inherited;

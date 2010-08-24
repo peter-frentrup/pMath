@@ -1,4 +1,5 @@
 #include <pmath-core/numbers-private.h>
+
 #include <pmath-core/symbols.h>
 #include <pmath-util/incremental-hash-private.h>
 #include <pmath-util/memory.h>

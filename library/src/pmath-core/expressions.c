@@ -1,4 +1,7 @@
-#include <pmath-core/numbers.h>
+#include <pmath-core/strings-private.h>
+#include <pmath-core/expressions-private.h>
+#include <pmath-core/numbers-private.h>
+
 #include <pmath-core/symbols.h>
 #include <pmath-language/tokens.h>
 #include <pmath-util/evaluation.h>
@@ -17,10 +20,6 @@
 
 #include <pmath-util/concurrency/threads.h>
 
-#include <pmath-core/objects-private.h>
-#include <pmath-core/numbers-private.h>
-#include <pmath-core/expressions-private.h>
-#include <pmath-core/strings-private.h>
 #include <pmath-core/symbols-private.h>
 
 #include <pmath-builtins/all-symbols.h>

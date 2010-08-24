@@ -1,22 +1,13 @@
-#include <pmath-core/expressions.h>
-#include <pmath-core/numbers.h>
-#include <pmath-core/symbols.h>
-
-#include <assert.h>
-#include <string.h>
+#include <pmath-core/numbers-private.h>
 
 #include <pmath-util/approximate.h>
-#include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
 
-#include <pmath-core/numbers-private.h>
-
+#include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/arithmetic-private.h>
 #include <pmath-builtins/build-expr-private.h>
 #include <pmath-builtins/number-theory-private.h>
-#include <pmath-builtins/all-symbols.h>
-#include <pmath-builtins/all-symbols-private.h>
 
 static pmath_integer_t logii(pmath_integer_t base, pmath_integer_t z){
   struct _pmath_integer_t *bi = (struct _pmath_integer_t*)base;

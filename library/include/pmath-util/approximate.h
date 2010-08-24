@@ -1,6 +1,8 @@
 #ifndef __PMATH_UTIL__APPROXIMATE_H__
 #define __PMATH_UTIL__APPROXIMATE_H__
 
+#include <pmath-core/objects-inline.h>
+
 /**\addtogroup numbers
 
    @{

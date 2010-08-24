@@ -5,6 +5,8 @@
   #error This header file is not part of the public pMath API
 #endif
 
+#include <pmath-core/symbols.h>
+
 typedef enum{
   RULES_READ,
   RULES_WRITEOPTIONS, // writeable even if symbol is Protected

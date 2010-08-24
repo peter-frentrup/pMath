@@ -1,5 +1,4 @@
-#include <pmath-core/expressions.h>
-#include <pmath-core/symbols.h>
+#include <pmath-builtins/all-symbols-private.h>
 #include <pmath-util/memory.h>
 
 #include <assert.h>
@@ -11,8 +10,6 @@
 #include <pmath-util/messages.h>
 
 
-#include <pmath-builtins/all-symbols.h>
-#include <pmath-builtins/all-symbols-private.h>
 
 #include <pmath-language/scanner.h>
 

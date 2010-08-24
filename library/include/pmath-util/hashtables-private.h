@@ -5,6 +5,8 @@
   #error This header file is not part of the public pMath API
 #endif
 
+#include <pmath-core/objects-inline.h>
+
 typedef struct _pmath_hashtable_t *pmath_hashtable_t; // not threadsafe
 
 typedef void (*pmath_ht_entry_callback_t)(void *entry, void *data);

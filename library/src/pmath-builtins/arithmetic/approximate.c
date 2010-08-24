@@ -1,25 +1,15 @@
-#include <pmath-core/expressions.h>
-#include <pmath-core/numbers.h>
-#include <pmath-core/symbols.h>
-
-#include <assert.h>
-#include <string.h>
-
 #include <pmath-util/approximate.h>
+
+#include <pmath-core/symbols-private.h>
+#include <pmath-core/numbers-private.h>
+
 #include <pmath-util/evaluation.h>
-#include <pmath-util/hashtables-private.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
 #include <pmath-util/symbol-values-private.h>
 
-#include <pmath-core/objects-private.h>
-#include <pmath-core/symbols-private.h>
-#include <pmath-core/numbers-private.h>
-
-#include <pmath-builtins/arithmetic-private.h>
-#include <pmath-builtins/lists-private.h>
-#include <pmath-builtins/all-symbols.h>
 #include <pmath-builtins/all-symbols-private.h>
+#include <pmath-builtins/lists-private.h>
 
 PMATH_PRIVATE double pmath_max_extra_precision = 50 * LOG2_10;
 
