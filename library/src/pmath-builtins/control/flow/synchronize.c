@@ -1,24 +1,10 @@
-#include <pmath-util/evaluation.h>
+#include <pmath-core/expressions-private.h>
 #include <pmath-core/numbers.h>
-#include <pmath-core/symbols.h>
 
-#include <assert.h>
-#include <string.h>
-#include <time.h>
-
-
-#include <pmath-util/hashtables-private.h>
+#include <pmath-util/concurrency/threads-private.h>
+#include <pmath-util/evaluation.h>
 #include <pmath-util/messages.h>
 
-#include <pmath-util/concurrency/threadlocks.h>
-#include <pmath-util/concurrency/threads.h>
-#include <pmath-util/concurrency/threads-private.h>
-
-#include <pmath-core/objects-private.h>
-#include <pmath-core/expressions-private.h>
-
-#include <pmath-builtins/control-private.h>
-#include <pmath-builtins/all-symbols.h>
 #include <pmath-builtins/all-symbols-private.h>
 
 static void synchronize_callback(pmath_t *block){

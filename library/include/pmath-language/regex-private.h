@@ -1,6 +1,8 @@
 #ifndef __PMATH_LANGUAGE__REGEX_PRIVATE_H__
 #define __PMATH_LANGUAGE__REGEX_PRIVATE_H__
 
+#include <pmath-core/objects-inline.h>
+
 struct _capture_t{
   int *ovector;
   int ovecsize;

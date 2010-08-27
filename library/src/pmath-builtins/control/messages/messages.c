@@ -1,32 +1,15 @@
-#include <pmath-core/expressions.h>
-#include <pmath-core/symbols.h>
-#include <pmath-util/memory.h>
+#include <pmath-core/symbols-private.h>
 
-#include <assert.h>
-#include <string.h>
-
-#include <pmath-util/debug.h>
-#include <pmath-util/hashtables-private.h>
+#include <pmath-util/concurrency/atomic-private.h>
 #include <pmath-util/helpers.h>
+#include <pmath-util/memory.h>
 #include <pmath-util/messages.h>
 #include <pmath-util/symbol-values-private.h>
 
-#include <pmath-util/concurrency/threadlocks.h>
-#include <pmath-util/concurrency/threads.h>
-#include <pmath-util/concurrency/threads-private.h>
-
-#include <pmath-core/objects-private.h>
-#include <pmath-core/expressions-private.h>
-#include <pmath-core/symbols-private.h>
-
+#include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/control/definitions-private.h>
 #include <pmath-builtins/control/messages-private.h>
 #include <pmath-builtins/control-private.h>
-#include <pmath-builtins/lists-private.h>
-#include <pmath-builtins/all-symbols.h>
-#include <pmath-builtins/all-symbols-private.h>
-
-#include <pmath-util/concurrency/atomic-private.h>
 
 PMATH_PRIVATE pmath_t builtin_assign_messages(pmath_expr_t expr){
   struct _pmath_symbol_rules_t  *rules;

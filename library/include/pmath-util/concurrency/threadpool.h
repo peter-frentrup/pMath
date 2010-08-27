@@ -1,6 +1,8 @@
 #ifndef __PMATH_UTIL__CONCURRENCY__THREADPOOL_H__
 #define __PMATH_UTIL__CONCURRENCY__THREADPOOL_H__
 
+#include <pmath-util/concurrency/threadmsg.h>
+
 /** \todo document pmath-util/concurrency/threadpool.h */
 
 typedef struct _pmath_task_t *pmath_task_t;

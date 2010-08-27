@@ -1,38 +1,22 @@
-#include <pmath-builtins/io-private.h>
-#include <pmath-core/numbers.h>
-#include <pmath-core/symbols.h>
 #include <pmath-util/evaluation.h>
-#include <pmath-util/memory.h>
-
-#include <assert.h>
-#include <string.h>
-#include <wchar.h>
-
-#include <pmath-core/custom.h>
-
 #include <pmath-util/approximate.h>
-#include <pmath-util/debug.h>
 #include <pmath-util/files.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
 #include <pmath-util/serialize.h>
 
-#include <pmath-language/scanner.h>
-
-#include <pmath-core/objects-private.h>
-#include <pmath-core/numbers-private.h>
-
 #include <pmath-builtins/arithmetic-private.h>
-#include <pmath-builtins/control-private.h>
-#include <pmath-builtins/lists-private.h>
-#include <pmath-builtins/all-symbols.h>
 #include <pmath-builtins/all-symbols-private.h>
+#include <pmath-builtins/control-private.h>
+#include <pmath-builtins/io-private.h>
+
+#include <string.h>
 
 static pmath_bool_t binary_write(
   pmath_t  file,         // wont be freed
   pmath_t  value,        // will be freed
   pmath_t  type,         // will be freed
-  int             byte_ordering
+  int      byte_ordering
 ){
   if(type == PMATH_SYMBOL_EXPRESSION
   || (pmath_instance_of(type, PMATH_TYPE_STRING)

@@ -1,25 +1,12 @@
-#include <pmath-core/expressions.h>
-#include <pmath-core/symbols.h>
-
-#include <assert.h>
-#include <string.h>
-
-#include <pmath-core/custom.h>
-
-#include <pmath-util/hashtables-private.h>
-#include <pmath-util/helpers.h>
-#include <pmath-util/messages.h>
-#include <pmath-util/symbol-values-private.h>
-
-#include <pmath-private.h>
-#include <pmath-core/objects-private.h>
 #include <pmath-core/symbols-private.h>
 
+#include <pmath-util/helpers.h>
+#include <pmath-util/symbol-values-private.h>
+#include <pmath-util/messages.h>
+
+#include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/control/definitions-private.h>
 #include <pmath-builtins/control-private.h>
-#include <pmath-builtins/lists-private.h>
-#include <pmath-builtins/all-symbols.h>
-#include <pmath-builtins/all-symbols-private.h>
 
 PMATH_PRIVATE
 pmath_t _pmath_extract_holdpattern(pmath_t pat){

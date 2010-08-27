@@ -1,11 +1,10 @@
-#include <pmath-builtins/io-private.h>
-#include <pmath-core/numbers.h>
-#include <pmath-core/symbols.h>
 #include <pmath-util/memory.h>
+#include <pmath-util/messages.h>
 
-#include <assert.h>
+#include <pmath-builtins/all-symbols-private.h>
+#include <pmath-builtins/io-private.h>
+
 #include <limits.h>
-#include <string.h>
 
 #ifdef PMATH_OS_WIN32
   #define WIN32_LEAN_AND_MEAN 
@@ -15,16 +14,6 @@
   #include <errno.h>
   #include <sys/stat.h>
 #endif
-
-#include <pmath-util/concurrency/threads.h>
-#include <pmath-util/messages.h>
-
-#include <pmath-core/objects-private.h>
-#include <pmath-core/strings-private.h>
-
-#include <pmath-builtins/all-symbols.h>
-#include <pmath-builtins/all-symbols-private.h>
-#include <pmath-builtins/lists-private.h>
 
 PMATH_PRIVATE pmath_t builtin_createdirectory(pmath_expr_t expr){
 /* CreateDirectory(name)

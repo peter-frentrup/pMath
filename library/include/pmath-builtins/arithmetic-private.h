@@ -6,13 +6,13 @@
 #endif
 
 #include <pmath-core/expressions.h>
+#include <pmath-core/numbers.h>
 
 /* This header exports all definitions of the sources in
    src/pmath-builtins/arithmetic/
  */
 
-#include <gmp.h>
-#include <mpfr.h>
+#include <pmath-core/numbers-private.h>
 
 PMATH_PRIVATE 
 PMATH_ATTRIBUTE_USE_RESULT

@@ -1,24 +1,14 @@
-#include <pmath-util/evaluation.h>
-#include <pmath-core/symbols.h>
-
-#include <assert.h>
-#include <string.h>
-#include <time.h>
-
-#include <pmath-util/hashtables-private.h>
-#include <pmath-util/messages.h>
-
-#include <pmath-util/concurrency/threadlocks.h>
-#include <pmath-util/concurrency/threads.h>
-#include <pmath-util/concurrency/threads-private.h>
-
-#include <pmath-builtins/control-private.h>
-#include <pmath-builtins/all-symbols.h>
-#include <pmath-builtins/all-symbols-private.h>
-
 #include <pmath-language/patterns-private.h>
 
+#include <pmath-util/concurrency/threads.h>
+#include <pmath-util/evaluation.h>
+#include <pmath-util/messages.h>
+
+#include <pmath-builtins/all-symbols-private.h>
+
 PMATH_PRIVATE pmath_t builtin_throw(pmath_expr_t expr){
+/* Throw(expr)
+ */
   if(pmath_expr_length(expr) != 1){
     pmath_message_argxxx(pmath_expr_length(expr), 1, 1);
     return expr;

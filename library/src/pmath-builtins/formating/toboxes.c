@@ -1,19 +1,13 @@
-#include <pmath-util/evaluation.h>
 #include <pmath-core/numbers.h>
-#include <pmath-core/symbols.h>
+
 #include <pmath-language/tokens.h>
+#include <pmath-language/scanner.h>
 
-#include <assert.h>
-#include <string.h>
-
+#include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
 
-#include <pmath-language/scanner.h>
-
-#include <pmath-builtins/all-symbols.h>
 #include <pmath-builtins/all-symbols-private.h>
-#include <pmath-builtins/formating-private.h>
 #include <pmath-builtins/lists-private.h>
 
 PMATH_PRIVATE 

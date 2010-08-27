@@ -1,34 +1,23 @@
-#include <pmath-core/strings-private.h>
 #include <pmath-core/expressions-private.h>
 #include <pmath-core/numbers-private.h>
+#include <pmath-core/strings-private.h>
 
-#include <pmath-core/symbols.h>
-#include <pmath-language/tokens.h>
-#include <pmath-util/evaluation.h>
-#include <pmath-util/memory.h>
-#include <pmath-util/incremental-hash-private.h>
-
-#include <assert.h>
-#include <inttypes.h>
-#include <stdarg.h>
-#include <string.h>
-
-#include <pmath-util/debug.h>
-#include <pmath-util/hashtables-private.h>
-#include <pmath-util/helpers.h>
-#include <pmath-util/messages.h>
+#include <pmath-language/patterns-private.h>
 
 #include <pmath-util/concurrency/threads.h>
+#include <pmath-util/debug.h>
+#include <pmath-util/evaluation.h>
+#include <pmath-util/helpers.h>
+#include <pmath-util/incremental-hash-private.h>
+#include <pmath-util/memory.h>
+#include <pmath-util/messages.h>
 
-#include <pmath-core/symbols-private.h>
-
-#include <pmath-builtins/all-symbols.h>
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/arithmetic-private.h>
 #include <pmath-builtins/formating-private.h>
 #include <pmath-builtins/lists-private.h>
 
-#include <pmath-language/patterns-private.h>
+#include <string.h>
 
 struct _pmath_unpacked_expr_part_t{
   struct _pmath_unpacked_expr_t   inherited; // item: length = 1

@@ -1,13 +1,6 @@
-#include <pmath-core/expressions.h>
-#include <pmath-core/symbols.h>
-
-#include <assert.h>
-#include <string.h>
-
 #include <pmath-util/messages.h>
 #include <pmath-util/modules-private.h>
 
-#include <pmath-builtins/all-symbols.h>
 #include <pmath-builtins/all-symbols-private.h>
 
 PMATH_PRIVATE pmath_t builtin_loadlibrary(pmath_expr_t expr){

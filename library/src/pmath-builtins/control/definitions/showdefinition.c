@@ -1,18 +1,12 @@
 #include <pmath-core/expressions.h>
 #include <pmath-core/symbols.h>
 
-#include <assert.h>
-#include <string.h>
-
-#include <pmath-core/custom.h>
+#include <pmath-language/scanner.h>
 
 #include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
 
-#include <pmath-language/scanner.h>
-
-#include <pmath-builtins/all-symbols.h>
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/control-private.h>
 

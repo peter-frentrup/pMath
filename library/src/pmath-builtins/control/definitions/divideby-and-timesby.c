@@ -1,17 +1,8 @@
-#include <pmath-core/expressions.h>
 #include <pmath-core/numbers.h>
-#include <pmath-core/symbols.h>
-
-#include <assert.h>
-#include <string.h>
-
-#include <pmath-core/custom.h>
 
 #include <pmath-util/evaluation.h>
 #include <pmath-util/messages.h>
 
-#include <pmath-builtins/control-private.h>
-#include <pmath-builtins/all-symbols.h>
 #include <pmath-builtins/all-symbols-private.h>
 
 PMATH_PRIVATE pmath_t builtin_divideby_or_timesby(pmath_expr_t expr){

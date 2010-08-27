@@ -3,6 +3,7 @@
 
 #include <pmath-core/symbols.h>
 #include <pmath-core/expressions.h>
+#include <stdarg.h>
 
 /**\defgroup helpers Object Utility Functions
    \brief Utility functuions for pMath Objects and Expressions.
@@ -94,13 +95,10 @@ pmath_bool_t pmath_is_expr_of_len(
 
 /*============================================================================*/
 
-#ifdef va_start
 /**\brief Generate a List of objects with a format string.
    \relates pmath_t
    \param format A string that specifies the tuple's item's type.
    \param args A va_list - variable argument list.
-   
-   This function interface is only given if stdarg.h was included before.
    
    \see pmath_build_value
  */
@@ -108,7 +106,6 @@ PMATH_API
 PMATH_ATTRIBUTE_USE_RESULT
 PMATH_ATTRIBUTE_NONNULL(1)
 pmath_t pmath_build_value_v(const char *format, va_list args);
-#endif
 
 /**\brief Generate a List of objects with a format string.
    \relates pmath_t

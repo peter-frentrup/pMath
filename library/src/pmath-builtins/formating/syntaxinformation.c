@@ -1,26 +1,12 @@
-#include <pmath-util/evaluation.h>
+#include <pmath-core/expressions-private.h>
 #include <pmath-core/numbers.h>
-#include <pmath-core/symbols.h>
-#include <pmath-util/memory.h>
 
-#include <assert.h>
-#include <string.h>
-
-#include <pmath-core/custom.h>
-
-#include <pmath-util/debug.h>
-#include <pmath-util/hashtables-private.h>
+#include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
 
-#include <pmath-core/objects-private.h>
-#include <pmath-core/expressions-private.h>
-
-#include <pmath-builtins/all-symbols.h>
 #include <pmath-builtins/all-symbols-private.h>
-#include <pmath-util/concurrency/atomic-private.h>
 #include <pmath-builtins/control/definitions-private.h>
-#include <pmath-builtins/formating-private.h>
 
 PMATH_PRIVATE pmath_t builtin_assign_syntaxinformation(pmath_expr_t expr){
   pmath_t tag;

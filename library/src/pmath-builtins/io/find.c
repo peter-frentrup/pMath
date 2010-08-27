@@ -1,38 +1,21 @@
-#include <pmath-builtins/io-private.h>
-#include <pmath-core/symbols.h>
-#include <pmath-util/evaluation.h>
-#include <pmath-util/memory.h>
-
-#include <assert.h>
-#include <string.h>
-#include <wchar.h>
-
-#include <pmath-core/custom.h>
-
-#include <pmath-util/approximate.h>
-#include <pmath-util/concurrency/threads.h>
-#include <pmath-util/debug.h>
-#include <pmath-util/files.h>
-#include <pmath-util/helpers.h>
-#include <pmath-util/messages.h>
-
-#define PCRE_STATIC
-#include <pcre.h>
-
-#include <pmath-language/scanner.h>
-
-#include <pmath-core/objects-private.h>
-#include <pmath-core/expressions-private.h>
 #include <pmath-core/numbers-private.h>
 
 #include <pmath-language/regex-private.h>
+#include <pmath-language/scanner.h>
 
-#include <pmath-builtins/arithmetic-private.h>
-#include <pmath-builtins/control-private.h>
-#include <pmath-builtins/language-private.h>
-#include <pmath-builtins/lists-private.h>
-#include <pmath-builtins/all-symbols.h>
+#include <pmath-util/concurrency/threads.h>
+#include <pmath-util/evaluation.h>
+#include <pmath-util/files.h>
+#include <pmath-util/helpers.h>
+#include <pmath-util/memory.h>
+#include <pmath-util/messages.h>
+
 #include <pmath-builtins/all-symbols-private.h>
+#include <pmath-builtins/control-private.h>
+#include <pmath-builtins/io-private.h>
+
+#define PCRE_STATIC
+#include <pcre.h>
 
 PMATH_PRIVATE pmath_t builtin_find(pmath_expr_t expr){
 /* Find(file, regex)

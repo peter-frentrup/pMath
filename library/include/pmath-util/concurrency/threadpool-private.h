@@ -5,6 +5,9 @@
   #error This header file is not part of the public pMath API
 #endif
 
+#include <pmath-util/concurrency/threadpool.h>
+#include <pmath-util/concurrency/threads.h>
+
 struct _pmath_timed_message_t{
   struct _pmath_timed_message_t *_reserved_next;
   

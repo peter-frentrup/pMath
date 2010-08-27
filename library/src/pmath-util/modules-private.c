@@ -1,33 +1,18 @@
-#include <pmath-builtins/io-private.h>
-#include <pmath-core/symbols.h>
-#include <pmath-util/memory.h>
-
-#include <assert.h>
-#include <inttypes.h>
-#include <limits.h>
-#include <string.h>
+#include <pmath-util/modules-private.h>
 
 #include <pmath-core/custom.h>
 
-#include <pmath-util/debug.h>
-#include <pmath-util/hashtables-private.h>
-#include <pmath-util/messages.h>
-#include <pmath-util/modules-private.h>
-#include <pmath-util/symbol-values-private.h>
-
 #include <pmath-util/concurrency/threadlocks.h>
-#include <pmath-util/concurrency/threads.h>
-#include <pmath-util/concurrency/threads-private.h>
+#include <pmath-util/hashtables-private.h>
+#include <pmath-util/memory.h>
+#include <pmath-util/messages.h>
 
-#include <pmath-core/objects-private.h>
-#include <pmath-core/expressions-private.h>
-#include <pmath-core/strings-private.h>
-#include <pmath-core/symbols-private.h>
-
-#include <pmath-builtins/all-symbols.h>
 #include <pmath-builtins/all-symbols-private.h>
+#include <pmath-builtins/io-private.h>
 
 #include <pmath-private.h>
+
+#include <limits.h>
 
 // initialized in pmath_init():
 PMATH_PRIVATE pmath_t _pmath_object_loadlibrary_load_message;

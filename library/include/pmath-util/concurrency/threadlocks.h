@@ -1,6 +1,9 @@
 #ifndef __PMATH_UTIL__CONCURRENCY__THREADLOCKS_H__
 #define __PMATH_UTIL__CONCURRENCY__THREADLOCKS_H__
 
+#include <pmath-config.h>
+#include <pmath-types.h>
+
 /**\addtogroup threads
    @{
  */

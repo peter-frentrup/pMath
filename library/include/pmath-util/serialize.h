@@ -1,6 +1,8 @@
 #ifndef __PMATH_UTIL__SERIALIZE_H__
 #define __PMATH_UTIL__SERIALIZE_H__
 
+#include <pmath-core/objects-inline.h>
+
 /**\brief (De-)Serialization error codes.
  */
 typedef enum{

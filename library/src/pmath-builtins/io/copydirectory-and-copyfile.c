@@ -1,11 +1,10 @@
-#include <pmath-builtins/io-private.h>
-#include <pmath-core/numbers.h>
-#include <pmath-core/symbols.h>
 #include <pmath-util/memory.h>
+#include <pmath-util/messages.h>
 
-#include <assert.h>
+#include <pmath-builtins/all-symbols-private.h>
+#include <pmath-builtins/io-private.h>
+
 #include <limits.h>
-#include <string.h>
 
 #ifdef PMATH_OS_WIN32
   #define WIN32_LEAN_AND_MEAN 
@@ -19,16 +18,6 @@
   #include <sys/types.h>
   #include <sys/stat.h>
 #endif
-
-#include <pmath-util/concurrency/threads.h>
-#include <pmath-util/messages.h>
-
-#include <pmath-core/objects-private.h>
-#include <pmath-core/strings-private.h>
-
-#include <pmath-builtins/all-symbols.h>
-#include <pmath-builtins/all-symbols-private.h>
-#include <pmath-builtins/lists-private.h>
 
 #ifndef PMATH_OS_WIN32
 static pmath_bool_t copy_file_or_dir(

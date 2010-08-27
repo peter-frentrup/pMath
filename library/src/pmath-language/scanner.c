@@ -1,30 +1,19 @@
-#include <pmath-core/symbols.h>
-#include <pmath-language/tokens.h>
-#include <pmath-util/evaluation.h>
-#include <pmath-util/memory.h>
-
-#include <assert.h>
-#include <inttypes.h>
-#include <limits.h>
-#include <stdarg.h>
-#include <string.h>
-
-#include <pmath-util/debug.h>
-#include <pmath-util/helpers.h>
-#include <pmath-util/messages.h>
-
-#include <pmath-util/concurrency/threads.h>
-
-#include <pmath-core/objects-private.h>
-#include <pmath-core/expressions-private.h>
 #include <pmath-core/strings-private.h>
 
 #include <pmath-language/patterns-private.h>
-
-#include <pmath-builtins/lists-private.h>
-#include <pmath-builtins/all-symbols.h>
-#include <pmath-builtins/all-symbols-private.h>
 #include <pmath-language/scanner.h>
+#include <pmath-language/tokens.h>
+
+#include <pmath-util/concurrency/threads.h>
+#include <pmath-util/evaluation.h>
+#include <pmath-util/helpers.h>
+#include <pmath-util/memory.h>
+#include <pmath-util/messages.h>
+
+#include <pmath-builtins/all-symbols-private.h>
+
+#include <limits.h>
+#include <string.h>
 
 //{ spans ...
 
@@ -1893,23 +1882,6 @@ typedef struct{
   void                *data;
 }_pmath_ungroup_t;
 
-/*static pmath_t ungroup_prepare_strings(pmath_t obj){
-  if(pmath_instance_of(obj, PMATH_TYPE_STRING))
-    return pmath_string_expand_boxes(obj);
-  
-  if(pmath_instance_of(obj, PMATH_TYPE_EXPRESSION)){
-    size_t i;
-    for(i = pmath_expr_length(obj);i > 0;--i){
-      obj = pmath_expr_set_item(
-        obj, i, 
-        ungroup_prepare_strings(
-          pmath_expr_get_item(obj, i)));
-    }
-  }
-  
-  return obj;
-}*/
-
 static int ungrouped_string_length(pmath_t box){ // box wont be freed
   if(pmath_instance_of(box, PMATH_TYPE_STRING)){
     const uint16_t *str = pmath_string_buffer((pmath_string_t)box);
@@ -2010,26 +1982,8 @@ static void ungroup(
           i, l);
         
         sub = pmath_string_buffer(box_in_str);
-//        k = 0;
-//        for(j = 0;sub && j < pmath_string_length(box_in_str);++j){
-//          if(sub[j] == PMATH_CHAR_LEFT_BOX)
-//            ++k;
-//          else if(sub[j] == PMATH_CHAR_RIGHT_BOX)
-//            --k;
-//          else if(sub[j] == '\\' && k == 0){
-//            pmath_string_t postfix = pmath_string_part(
-//              pmath_ref(box_in_str), j + 1, l);
-//            
-//            box_in_str = pmath_string_part(box_in_str, 0, j);
-//            
-//            box_in_str = pmath_string_concat(box_in_str, postfix);
-//            sub = pmath_string_buffer(box_in_str);
-////            --j;
-//          }
-//        }
         
         if(g->make_box){
-          pmath_debug_print_object("\nParse: ",box_in_str,"\n");
           g->make_box(
             g->pos, 
             pmath_parse_string(box_in_str), 
@@ -2139,8 +2093,6 @@ PMATH_API pmath_span_array_t *pmath_spans_from_boxes(
   
   assert(result_string);
   
-//  boxes = ungroup_prepare_strings(boxes);
-  
   g.spans = create_span_array(
     ungrouped_string_length(boxes));
   if(!g.spans){
@@ -2164,18 +2116,6 @@ PMATH_API pmath_span_array_t *pmath_spans_from_boxes(
   
   if(g.spans->length > 0)
     g.spans->items[0]|= 2; // operand start
-  
-//  s = SPAN_PTR(g.spans->items[0]);
-//  if(s && s->end < g.pos - 1){
-//    pmath_span_t *all = (pmath_span_t*)pmath_mem_alloc(sizeof(pmath_span_t));
-//    if(s){
-//      all->next = s;
-//      all->end = g.pos - 1;
-//      g.spans->items[0] = (uintptr_t)all
-//        | SPAN_TOK(g.spans->items[0])
-//        | SPAN_OP( g.spans->items[0]);
-//    }
-//  }
   
   assert(g.pos == g.spans->length);
   return g.spans;

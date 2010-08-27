@@ -1,23 +1,15 @@
-#include <pmath-core/expressions.h>
-#include <pmath-language/tokens.h>
-#include <pmath-core/symbols.h>
+#include <pmath-core/strings-private.h>
 
-#include <assert.h>
-#include <stdio.h>
-#include <string.h>
+#include <pmath-language/scanner.h>
+#include <pmath-language/tokens.h>
 
 #include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
-#include <pmath-util/messages.h>
 
-#include <pmath-core/strings-private.h>
-
-#include <pmath-builtins/formating-private.h>
-#include <pmath-builtins/lists-private.h>
-#include <pmath-builtins/all-symbols.h>
 #include <pmath-builtins/all-symbols-private.h>
+#include <pmath-builtins/formating-private.h>
 
-#include <pmath-language/scanner.h>
+#include <string.h>
 
 PMATH_PRIVATE
 pmath_t _pmath_expand_string( // result is string or expression

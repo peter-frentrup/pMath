@@ -1,17 +1,10 @@
+#include <pmath-language/patterns-private.h>
+
 #include <pmath-util/evaluation.h>
-#include <pmath-core/symbols.h>
-
-#include <assert.h>
-#include <inttypes.h>
-#include <string.h>
-
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
 
-#include <pmath-builtins/all-symbols.h>
 #include <pmath-builtins/all-symbols-private.h>
-
-#include <pmath-language/patterns-private.h>
 
 PMATH_PRIVATE pmath_t builtin_local(pmath_expr_t expr){
   pmath_expr_t symbols;

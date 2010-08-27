@@ -1,22 +1,8 @@
-#include <pmath-core/expressions.h>
-#include <pmath-core/symbols.h>
+#include <pmath-language/patterns-private.h>
 
-#include <assert.h>
-#include <limits.h>
-#include <string.h>
-
-#include <pmath-util/debug.h>
-#include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
 
-#include <pmath-core/objects-private.h>
-#include <pmath-core/numbers-private.h>
-
-#include <pmath-builtins/lists-private.h>
-#include <pmath-builtins/all-symbols.h>
 #include <pmath-builtins/all-symbols-private.h>
-
-#include <pmath-language/patterns-private.h>
 
 PMATH_PRIVATE pmath_t builtin_match(pmath_expr_t expr){
   /* Match(obj, pattern)

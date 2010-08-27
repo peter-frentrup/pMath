@@ -1,30 +1,19 @@
-#include <pmath-builtins/io-private.h>
-#include <pmath-core/numbers.h>
-#include <pmath-core/symbols.h>
-#include <pmath-util/evaluation.h>
-
-#include <assert.h>
-#include <limits.h>
-#include <stdio.h>
-#include <string.h>
-
-#include <pmath-util/concurrency/threads.h>
-#include <pmath-util/concurrency/threadlocks.h>
-#include <pmath-util/debug.h>
-#include <pmath-util/files.h>
-#include <pmath-util/helpers.h>
-#include <pmath-util/messages.h>
-#include <pmath-util/modules-private.h>
-
-#include <pmath-core/objects-private.h>
 #include <pmath-core/strings-private.h>
+#include <pmath-core/numbers.h>
 
 #include <pmath-language/scanner.h>
 
-#include <pmath-builtins/all-symbols.h>
+#include <pmath-util/concurrency/threads.h>
+#include <pmath-util/evaluation.h>
+#include <pmath-util/files.h>
+#include <pmath-util/helpers.h>
+#include <pmath-util/messages.h>
+
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/language-private.h>
-#include <pmath-builtins/lists-private.h>
+#include <pmath-builtins/io-private.h>
+
+#include <string.h>
 
 static pmath_bool_t check_path(pmath_t path){
   size_t i;

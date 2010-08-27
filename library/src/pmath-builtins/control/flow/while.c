@@ -1,15 +1,9 @@
-#include <pmath-util/evaluation.h>
-#include <pmath-core/symbols.h>
-
-#include <string.h>
-#include <assert.h>
-
 #include <pmath-util/concurrency/threads.h>
+#include <pmath-util/evaluation.h>
 #include <pmath-util/messages.h>
 
-#include <pmath-builtins/control/flow-private.h>
-#include <pmath-builtins/all-symbols.h>
 #include <pmath-builtins/all-symbols-private.h>
+#include <pmath-builtins/control/flow-private.h>
 
 PMATH_PRIVATE pmath_t builtin_while(pmath_expr_t expr){
 /* While(cond, block)

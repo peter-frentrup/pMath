@@ -1,18 +1,7 @@
-#include <pmath-core/objects-inline.h>
-#include <pmath-util/memory.h>
-
-#include <assert.h>
-#include <inttypes.h>
-#include <stdio.h>
-#include <string.h>
-
-#include <pmath-core/custom.h>
-
-#include <pmath-util/debug.h>
-#include <pmath-util/hashtables-private.h>
-
-#include <pmath-core/objects-private.h>
 #include <pmath-core/custom-private.h>
+#include <pmath-core/custom.h>
+#include <pmath-core/objects-private.h>
+#include <pmath-util/memory.h>
 
 struct custom_t{
   struct _pmath_t    inherited;

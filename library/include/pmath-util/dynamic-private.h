@@ -5,6 +5,8 @@
   #error This header file is not part of the public pMath API
 #endif
 
+#include <pmath-core/symbols.h>
+
 PMATH_PRIVATE extern volatile intptr_t _pmath_dynamic_trackers;
 
 PMATH_PRIVATE void         _pmath_dynamic_bind(pmath_symbol_t symbol, intptr_t id); // symbol wont be freed

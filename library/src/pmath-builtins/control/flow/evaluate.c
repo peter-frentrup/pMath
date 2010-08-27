@@ -1,27 +1,12 @@
-#include <pmath-core/expressions.h>
-#include <pmath-core/numbers.h>
-#include <pmath-core/symbols.h>
-
-#include <assert.h>
-#include <string.h>
-#include <time.h>
-
-#include <pmath-core/custom.h>
+#include <pmath-core/numbers-private.h>
 
 #include <pmath-util/approximate.h>
+#include <pmath-util/concurrency/threadmsg.h>
+#include <pmath-util/concurrency/threads-private.h>
 #include <pmath-util/evaluation.h>
-#include <pmath-util/hashtables-private.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
 
-#include <pmath-util/concurrency/threadlocks.h>
-#include <pmath-util/concurrency/threadmsg.h>
-#include <pmath-util/concurrency/threads.h>
-#include <pmath-util/concurrency/threads-private.h>
-
-#include <pmath-core/numbers-private.h>
-
-#include <pmath-builtins/all-symbols.h>
 #include <pmath-builtins/all-symbols-private.h>
 
 PMATH_PRIVATE pmath_bool_t _pmath_run(pmath_t *in_out){

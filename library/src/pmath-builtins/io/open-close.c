@@ -1,32 +1,18 @@
-#include <pmath-builtins/io-private.h>
-#include <pmath-core/symbols.h>
-#include <pmath-util/evaluation.h>
-#include <pmath-util/memory.h>
-
-#include <assert.h>
-#include <ctype.h>
-#include <errno.h>
-#include <stdio.h>
-#include <string.h>
-#include <wchar.h>
-
-#include <iconv.h>
-
-#include <pmath-core/custom.h>
-
-#include <pmath-util/debug.h>
-#include <pmath-util/files.h>
-#include <pmath-util/helpers.h>
-#include <pmath-util/messages.h>
-
 #include <pmath-language/scanner.h>
 
-#include <pmath-core/objects-private.h>
-#include <pmath-core/strings-private.h>
+#include <pmath-util/debug.h>
+#include <pmath-util/evaluation.h>
+#include <pmath-util/files.h>
+#include <pmath-util/helpers.h>
+#include <pmath-util/memory.h>
+#include <pmath-util/messages.h>
 
-#include <pmath-builtins/lists-private.h>
-#include <pmath-builtins/all-symbols.h>
 #include <pmath-builtins/all-symbols-private.h>
+
+#include <ctype.h>
+#include <stdio.h>
+
+#include <iconv.h>
 
 #ifdef PMATH_OS_WIN32
   #define NOGDI

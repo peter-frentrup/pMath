@@ -5,6 +5,8 @@
   #error This header file is not part of the public pMath API
 #endif
 
+#include <pmath-core/strings.h>
+
 /* This header exports definitions of the sources in
    src/pmath-builtins/language/
  */

@@ -1,11 +1,15 @@
 #include <pmath-core/numbers.h>
-#include <pmath-core/symbols.h>
-#include <pmath-util/evaluation.h>
-#include <pmath-util/memory.h>
+#include <pmath-core/strings-private.h>
 
-#include <assert.h>
+#include <pmath-util/concurrency/threads.h>
+#include <pmath-util/evaluation.h>
+#include <pmath-util/helpers.h>
+#include <pmath-util/memory.h>
+#include <pmath-util/messages.h>
+
+#include <pmath-builtins/all-symbols-private.h>
+
 #include <limits.h>
-#include <string.h>
 
 #ifdef PMATH_OS_WIN32
   #define WIN32_LEAN_AND_MEAN 
@@ -17,16 +21,6 @@
   #include <errno.h>
   #include <unistd.h>
 #endif
-
-#include <pmath-util/concurrency/threads.h>
-#include <pmath-util/helpers.h>
-#include <pmath-util/messages.h>
-
-#include <pmath-core/objects-private.h>
-#include <pmath-core/strings-private.h>
-
-#include <pmath-builtins/all-symbols.h>
-#include <pmath-builtins/all-symbols-private.h>
 
 static pmath_string_t get_directory(){
   #ifdef PMATH_OS_WIN32

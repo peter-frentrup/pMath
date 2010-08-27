@@ -1,20 +1,14 @@
 #include <pmath-core/numbers.h>
-#include <pmath-core/symbols.h>
+
+#include <pmath-util/concurrency/threads.h>
 #include <pmath-util/evaluation.h>
-
-#include <stdlib.h>
-#include <assert.h>
-
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
 
-#include <pmath-util/concurrency/threads.h>
-
-#include <pmath-builtins/control/flow-private.h>
-#include <pmath-builtins/control-private.h>
-#include <pmath-builtins/all-symbols.h>
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/lists-private.h>
+#include <pmath-builtins/control/flow-private.h>
+#include <pmath-builtins/control-private.h>
 
 PMATH_PRIVATE void _pmath_iterate(
   pmath_t             iter, // will be freed

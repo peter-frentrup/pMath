@@ -1,6 +1,8 @@
 #ifndef __PMATH_CORE__CUSTOM_H__
 #define __PMATH_CORE__CUSTOM_H__
 
+#include <pmath-core/objects-inline.h>
+
 /**\defgroup custom Custom Objects
    \brief Encapsulate arbitrary data in pMath objects.
 

@@ -5,18 +5,22 @@
   #error This header file is not part of the public pMath API
 #endif
 
+#include <pmath-util/concurrency/threadlocks.h>
+#include <pmath-util/concurrency/threads.h>
+#include <pmath-util/hashtables-private.h>
+
 struct _pmath_stack_info_t{
   struct _pmath_stack_info_t  *next;
-  pmath_t               value;
+  pmath_t                      value;
 };
 
 struct _pmath_gather_info_t{
-  struct _pmath_gather_info_t *next; // thread-local write, readable from child-threads
-  pmath_t pattern;          // dito.
+  struct _pmath_gather_info_t *next;    // thread-local write, readable from child-threads
+  pmath_t                      pattern; // dito.
 
   PMATH_DECLARE_ATOMIC(value_count);
   union{
-    struct _pmath_stack_info_t *ptr; // child threads may only push items => CAS2 operation not needed
+    struct _pmath_stack_info_t *ptr;    // child threads may only push items => CAS2 operation not needed
     intptr_t                    intptr; // "Dereferencing type-punned pointers ..."
   } emitted_values;
 };

@@ -1,31 +1,23 @@
-#include <pmath-core/expressions.h>
-#include <pmath-core/symbols.h>
-#include <pmath-util/memory.h>
-
-#include <errno.h>
-#include <inttypes.h>
-#include <limits.h>
-#include <stdarg.h>
-#include <stdio.h>
-#include <string.h>
-
-#include <iconv.h>
+#include <pmath-util/files.h>
 
 #include <pmath-core/custom.h>
 
-#include <pmath-util/concurrency/threads.h>
-#include <pmath-util/debug.h>
-#include <pmath-util/evaluation.h>
-#include <pmath-util/files.h>
-#include <pmath-util/helpers.h>
-#include <pmath-util/messages.h>
-
 #include <pmath-language/scanner.h>
 
-#include <pmath-builtins/control/definitions-private.h>
-#include <pmath-builtins/control-private.h>
-#include <pmath-builtins/all-symbols.h>
+#include <pmath-util/concurrency/threads.h>
+#include <pmath-util/evaluation.h>
+#include <pmath-util/helpers.h>
+#include <pmath-util/memory.h>
+#include <pmath-util/messages.h>
+
 #include <pmath-builtins/all-symbols-private.h>
+#include <pmath-builtins/control-private.h>
+#include <pmath-builtins/control/definitions-private.h>
+
+#include <limits.h>
+#include <string.h>
+
+#include <iconv.h>
 
 struct _file_t{
   volatile intptr_t _lock;

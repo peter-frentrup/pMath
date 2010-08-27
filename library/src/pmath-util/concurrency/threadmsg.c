@@ -1,31 +1,13 @@
-#include <pmath-core/symbols.h>
+#include <pmath-util/concurrency/atomic-private.h>
+#include <pmath-util/concurrency/threadpool-private.h>
+#include <pmath-util/concurrency/threads-private.h>
+#include <pmath-util/evaluation.h>
 #include <pmath-util/memory.h>
 
-#include <assert.h>
-#include <errno.h>
-#include <inttypes.h>
-#include <math.h>
-#include <string.h>
-
-#include <pmath-core/custom.h>
-
-#include <pmath-util/debug.h>
-#include <pmath-util/evaluation.h>
-#include <pmath-util/hashtables-private.h>
-
-#include <pmath-util/concurrency/threadlocks.h>
-#include <pmath-util/concurrency/threadmsg.h>
-#include <pmath-util/concurrency/threadmsg-private.h>
-#include <pmath-util/concurrency/threads.h>
-#include <pmath-util/concurrency/threads-private.h>
-#include <pmath-util/concurrency/threadpool.h>
-#include <pmath-util/concurrency/threadpool-private.h>
-
-#include <pmath-private.h>
-#include <pmath-builtins/all-symbols.h>
 #include <pmath-builtins/all-symbols-private.h>
 
-#include <pmath-util/concurrency/atomic-private.h>
+#include <errno.h>
+#include <math.h>
 
 /* TODO: use auto-reset events instead of semaphores?
  */

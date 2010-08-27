@@ -1,15 +1,7 @@
-#include <pmath-core/expressions.h>
-#include <pmath-core/symbols.h>
-
-#include <string.h>
-#include <assert.h>
+#include <pmath-builtins/all-symbols-private.h>
 
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
-
-#include <pmath-builtins/control-private.h>
-#include <pmath-builtins/all-symbols.h>
-#include <pmath-builtins/all-symbols-private.h>
 
 static void protect_callback(pmath_symbol_t symbol){
   pmath_symbol_attributes_t attr = pmath_symbol_get_attributes(symbol);

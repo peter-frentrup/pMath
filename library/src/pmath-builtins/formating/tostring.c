@@ -1,16 +1,5 @@
 #include <pmath-core/expressions.h>
-#include <pmath-core/numbers.h>
-#include <pmath-core/symbols.h>
-#include <pmath-util/memory.h>
-
-#include <assert.h>
-#include <string.h>
-
-#include <pmath-util/messages.h>
-
-#include <pmath-builtins/all-symbols.h>
-#include <pmath-builtins/all-symbols-private.h>
-#include <pmath-builtins/formating-private.h>
+#include <pmath-core/strings.h>
 
 PMATH_PRIVATE
 void _pmath_write_to_string(

@@ -1,6 +1,8 @@
 #ifndef __PMATH_LANGUAGE__SCANNER_H__
 #define __PMATH_LANGUAGE__SCANNER_H__
 
+#include <pmath-core/strings.h>
+
 /**\defgroup parser Parsing Code
    \brief Translating pMath code or boxes to pMath objects.
    

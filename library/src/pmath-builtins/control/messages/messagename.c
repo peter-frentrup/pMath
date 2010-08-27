@@ -1,27 +1,13 @@
+#include <pmath-core/symbols-private.h>
+
+#include <pmath-util/concurrency/atomic-private.h>
 #include <pmath-util/evaluation.h>
-#include <pmath-core/symbols.h>
 #include <pmath-util/memory.h>
-
-#include <assert.h>
-#include <string.h>
-
-#include <pmath-util/debug.h>
-#include <pmath-util/hashtables-private.h>
 #include <pmath-util/messages.h>
 #include <pmath-util/symbol-values-private.h>
 
-#include <pmath-util/concurrency/threadlocks.h>
-#include <pmath-util/concurrency/threads.h>
-#include <pmath-util/concurrency/threads-private.h>
-
-#include <pmath-core/objects-private.h>
-#include <pmath-core/symbols-private.h>
-
-#include <pmath-builtins/control/definitions-private.h>
-#include <pmath-builtins/all-symbols.h>
 #include <pmath-builtins/all-symbols-private.h>
-
-#include <pmath-util/concurrency/atomic-private.h>
+#include <pmath-builtins/control/definitions-private.h>
 
 PMATH_PRIVATE pmath_bool_t _pmath_is_valid_messagename(pmath_t msg){
   pmath_t obj;

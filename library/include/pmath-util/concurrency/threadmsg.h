@@ -1,6 +1,8 @@
 #ifndef __PMATH_UTIL__CONCURRENCY__THREADMSG_H__
 #define __PMATH_UTIL__CONCURRENCY__THREADMSG_H__
 
+#include <pmath-core/custom.h>
+
 /**\defgroup threadmsg Thread Messaging
    \brief Sending messages to other threads.
    

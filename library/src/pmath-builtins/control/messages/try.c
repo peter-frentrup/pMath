@@ -1,26 +1,13 @@
-#include <pmath-util/evaluation.h>
-#include <pmath-core/symbols.h>
-
-#include <assert.h>
-#include <string.h>
-
-#include <pmath-util/debug.h>
-#include <pmath-util/hashtables-private.h>
-#include <pmath-util/helpers.h>
-#include <pmath-util/messages.h>
-
-#include <pmath-util/concurrency/threadlocks.h>
-#include <pmath-util/concurrency/threads.h>
-#include <pmath-util/concurrency/threads-private.h>
-
 #include <pmath-language/patterns-private.h>
 #include <pmath-language/scanner.h>
 
-#include <pmath-builtins/control/messages-private.h>
-#include <pmath-builtins/all-symbols.h>
-#include <pmath-builtins/all-symbols-private.h>
+#include <pmath-util/concurrency/threads-private.h>
+#include <pmath-util/evaluation.h>
+#include <pmath-util/helpers.h>
+#include <pmath-util/messages.h>
 
-#include <pmath-language/patterns-private.h>
+#include <pmath-builtins/all-symbols-private.h>
+#include <pmath-builtins/control/messages-private.h>
 
 static void make_critical_message(pmath_t msg){ // msg will be freed
   if(pmath_instance_of(msg, PMATH_TYPE_SYMBOL)){

@@ -5,6 +5,8 @@
   #error This header file is not part of the public pMath API
 #endif
 
+#include <pmath-core/strings.h>
+
 // initialized in pmath_init():
 PMATH_PRIVATE extern pmath_t _pmath_object_loadlibrary_load_message;
 PMATH_PRIVATE extern pmath_t _pmath_object_get_load_message;
