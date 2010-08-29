@@ -3,6 +3,7 @@
 
 #include <pmath-core/objects.h>
 #include <pmath-util/concurrency/atomic.h>
+#include <assert.h>
 
 struct _pmath_t{ // do not access members
   unsigned int  type_shift; /* 0..31 */

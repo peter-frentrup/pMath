@@ -1,3 +1,4 @@
+#include <pmath-util/concurrency/threads.h>
 #include <pmath-util/memory.h>
 #include <pmath-util/messages.h>
 
@@ -15,6 +16,7 @@
   #include <dirent.h>
   #include <errno.h>
   #include <stdio.h>
+  #include <string.h>
   #include <sys/types.h>
   #include <sys/stat.h>
 #endif

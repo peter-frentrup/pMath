@@ -88,6 +88,7 @@ void WindowsFontShaper::decode_token(
           WORD log_clust[2] = {0,1};
           int num_glyphs;
           
+          // todo: use ScriptShapeOpenType when available
           if(!ScriptShape(
               dc.handle,
               &cache,

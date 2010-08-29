@@ -8,6 +8,7 @@
 
 #include <errno.h>
 #include <math.h>
+#include <string.h>
 
 /* TODO: use auto-reset events instead of semaphores?
  */

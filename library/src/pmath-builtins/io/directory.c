@@ -16,9 +16,10 @@
   #define NOGDI
   #include <Windows.h>
 #else
-  #include <sys/types.h>
-  #include <pwd.h>
   #include <errno.h>
+  #include <pwd.h>
+  #include <string.h>
+  #include <sys/types.h>
   #include <unistd.h>
 #endif
 

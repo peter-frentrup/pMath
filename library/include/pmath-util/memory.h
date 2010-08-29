@@ -1,8 +1,9 @@
 #ifndef __PATH_UTIL__MEMORY_H__
 #define __PATH_UTIL__MEMORY_H__
 
-#include <stdlib.h>
 #include <pmath-config.h>
+#include <pmath-types.h>
+#include <stdlib.h>
 
 /**\defgroup memory Memory Management
    \brief Memory management for pMath.

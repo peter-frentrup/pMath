@@ -12,6 +12,7 @@
 
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/control-private.h>
+#include <pmath-builtins/io-private.h>
 
 #include <limits.h>
 
@@ -21,6 +22,7 @@
   #include <Windows.h>
 #else
   #include <dirent.h>
+  #include <string.h>
 #endif
 
 #define PCRE_STATIC

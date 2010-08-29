@@ -1,3 +1,4 @@
+#include <pmath-util/concurrency/atomic-private.h>
 #include <pmath-util/stacks-private.h>
 #include <pmath-util/memory.h>
 

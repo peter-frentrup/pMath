@@ -13,6 +13,7 @@
 #include <pmath-private.h>
 
 #include <limits.h>
+#include <string.h>
 
 // initialized in pmath_init():
 PMATH_PRIVATE pmath_t _pmath_object_loadlibrary_load_message;
