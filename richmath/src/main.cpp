@@ -510,22 +510,22 @@ int main(){
       550);
     wndMain->init();
     
-//    wndMain->top_glass()->insert(0, 
-//      Section::create_from_object(Expr(run(
-//        "Section(BoxData("
-//          "{\"\\\" Help Topic:  \\\"\","
-//            "FillBox(InputBox(StyleBox({\"not yet implemented\"},"
-//              "FontSlant->Italic,"
-//              "FontColor->GrayLevel(0.5)))),"
-//            "ButtonBox("
-//              "\"\\\" Go \\\"\","
-//              "ButtonFrame->\"Palette\")}),"
-//          "\"Docked\","
-//          "LineBreakWithin->False,"
-//          "SectionMargins->{0.75, 0.75, 3, 4.5},"
-//          "SectionFrameMargins->0)"
-//        ))));
-//    
+    wndMain->top_glass()->insert(0, 
+      Section::create_from_object(Expr(run(
+        "Section(BoxData("
+          "{\"\\\" Help Topic:  \\\"\","
+            "FillBox(InputBox(StyleBox({\"not yet implemented\"},"
+              "FontSlant->Italic,"
+              "FontColor->GrayLevel(0.5)))),"
+            "ButtonBox("
+              "\"\\\" Go \\\"\","
+              "ButtonFrame->\"Palette\")}),"
+          "\"Docked\","
+          "LineBreakWithin->False,"
+          "SectionMargins->{0.75, 0.75, 3, 4.5},"
+          "SectionFrameMargins->0)"
+        ))));
+    
 //    wndMain->top()->insert(0,
 //      Section::create_from_object(Expr(run(
 //        "Section(BoxData({"

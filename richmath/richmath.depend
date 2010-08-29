@@ -3057,7 +3057,8 @@
 	<pmath-config.h>
 	<pmath-types.h>
 
-1280054990 d:\peter\programmieren\pmath\trunk\library\include\pmath-core\custom.h
+1282936232 d:\peter\programmieren\pmath\trunk\library\include\pmath-core\custom.h
+	<pmath-core/objects-inline.h>
 
 1282579101 d:\peter\programmieren\pmath\trunk\library\include\pmath-core\expressions.h
 	<pmath-core/objects-inline.h>
@@ -3081,7 +3082,8 @@
 	<pmath-config.h>
 	<pmath-types.h>
 
-1280054995 d:\peter\programmieren\pmath\trunk\library\include\pmath-language\scanner.h
+1282938491 d:\peter\programmieren\pmath\trunk\library\include\pmath-language\scanner.h
+	<pmath-core/strings.h>
 
 1282573271 d:\peter\programmieren\pmath\trunk\library\include\pmath-language\tokens.h
 	<stdlib.h>
@@ -3091,11 +3093,15 @@
 1282669505 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\approximate.h
 	<pmath-core/objects-inline.h>
 
-1280054993 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\concurrency\threadlocks.h
+1282936513 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\concurrency\threadlocks.h
+	<pmath-config.h>
+	<pmath-types.h>
 
-1280054993 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\concurrency\threadmsg.h
+1282936196 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\concurrency\threadmsg.h
+	<pmath-core/custom.h>
 
-1280054993 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\concurrency\threadpool.h
+1282936715 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\concurrency\threadpool.h
+	<pmath-util/concurrency/threadmsg.h>
 
 1282672524 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\concurrency\threads.h
 	<pmath-core/objects-inline.h>
@@ -3106,11 +3112,14 @@
 1282589032 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\evaluation.h
 	<pmath-core/expressions.h>
 
-1280054994 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\files.h
+1282941347 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\files.h
+	<pmath-core/symbols.h>
+	<stdlib.h>
 
-1282589299 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\helpers.h
+1282938834 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\helpers.h
 	<pmath-core/symbols.h>
 	<pmath-core/expressions.h>
+	<stdarg.h>
 
 1282573381 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\memory.h
 	<stdlib.h>
@@ -3121,7 +3130,8 @@
 	<pmath-core/symbols.h>
 	<stdlib.h>
 
-1280054994 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\serialize.h
+1282941242 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\serialize.h
+	<pmath-core/objects-inline.h>
 
 1282575293 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\stacks.h
 	<pmath-config.h>
@@ -3545,7 +3555,7 @@
 	<util/style.h>
 	<util/syntax-state.h>
 
-1280054987 source:d:\peter\programmieren\pmath\trunk\richmath\src\graphics\shapers.cpp
+1283077416 source:d:\peter\programmieren\pmath\trunk\richmath\src\graphics\shapers.cpp
 	<graphics/shapers.h>
 	<cmath>
 	<boxes/mathsequence.h>
@@ -3721,7 +3731,7 @@
 	<gui/control-painter.h>
 	<resources.h>
 
-1282847170 source:d:\peter\programmieren\pmath\trunk\richmath\src\main.cpp
+1283077012 source:d:\peter\programmieren\pmath\trunk\richmath\src\main.cpp
 	<cmath>
 	<cstdio>
 	<ctime>

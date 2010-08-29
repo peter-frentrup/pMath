@@ -933,29 +933,18 @@
 	<pmath-builtins/io-private.h>
 	<string.h>
 
-1282593593 source:d:\peter\programmieren\pmath\trunk\library\src\pmath-builtins\io\open-close.c
-	<pmath-builtins/io-private.h>
-	<pmath-core/symbols.h>
-	<pmath-util/evaluation.h>
-	<pmath-util/memory.h>
-	<assert.h>
-	<ctype.h>
-	<errno.h>
-	<stdio.h>
-	<string.h>
-	<wchar.h>
-	<iconv.h>
-	<pmath-core/custom.h>
+1282943121 source:d:\peter\programmieren\pmath\trunk\library\src\pmath-builtins\io\open-close.c
+	<pmath-language/scanner.h>
 	<pmath-util/debug.h>
+	<pmath-util/evaluation.h>
 	<pmath-util/files.h>
 	<pmath-util/helpers.h>
+	<pmath-util/memory.h>
 	<pmath-util/messages.h>
-	<pmath-language/scanner.h>
-	<pmath-core/objects-private.h>
-	<pmath-core/strings-private.h>
-	<pmath-builtins/lists-private.h>
-	<pmath-builtins/all-symbols.h>
 	<pmath-builtins/all-symbols-private.h>
+	<ctype.h>
+	<stdio.h>
+	<iconv.h>
 	<windows.h>
 	<langinfo.h>
 	<locale.h>
