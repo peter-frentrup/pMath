@@ -106,8 +106,8 @@ void Win32ControlPainter::calc_container_size(
   }
   
   if(type == InputField){
-    extents->width+=   3;
-    extents->ascent+=  1.5;
+    extents->width+=   3.75;
+    extents->ascent+=  2.25;
     extents->descent+= 1.5;
     return;
   }
@@ -250,6 +250,8 @@ void Win32ControlPainter::draw_container(
   }
   
   if(type == InputField
+  && Win32Themes::IsThemeActive
+  && Win32Themes::IsThemeActive()
   && Win32Themes::OpenThemeData 
   && Win32Themes::CloseThemeData 
   && Win32Themes::DrawThemeBackground){
@@ -345,7 +347,7 @@ void Win32ControlPainter::draw_container(
   
   canvas->align_point(&x, &y, false);
   
-  HDC dc = cairo_win32_surface_get_dc(cairo_get_target(canvas->cairo()));
+  HDC dc = cairo_win32_surface_get_dc(canvas->target());
   cairo_surface_t *surface = 0;
   
   if(dc){
@@ -361,15 +363,18 @@ void Win32ControlPainter::draw_container(
       canvas->user_to_device(&ux, &uy);
       dc_x = (int)floor(ux + 0.5);
       dc_y = (int)floor(uy + 0.5);
-      
       cairo_surface_flush(cairo_get_target(canvas->cairo()));
     }
-    else
+    else{
       dc = 0;
+    }
   }
   
   if(!dc){
-    if(Win32Themes::OpenThemeData 
+    if(Win32Themes::IsThemeActive
+    && Win32Themes::IsThemeActive()
+    && Win32Themes::IsCompositionActive /* XP not enough */
+    && Win32Themes::OpenThemeData 
     && Win32Themes::CloseThemeData
     && Win32Themes::DrawThemeBackground){
       surface = cairo_win32_surface_create_with_dib(
@@ -401,6 +406,10 @@ void Win32ControlPainter::draw_container(
     if(!theme)
       goto FALLBACK;
     
+    if(!Win32Themes::IsCompositionActive){ /* XP not enough */
+      FillRect(dc, &rect, (HBRUSH)(COLOR_BTNFACE + 1));
+    }
+    
     Win32Themes::DrawThemeBackground(
       theme,
       dc,
@@ -408,10 +417,6 @@ void Win32ControlPainter::draw_container(
       _state,
       &rect,
       0);
-      
-//    if(Win32Themes::DrawThemeEdge && type == PaletteButton){
-//      Win32Themes::DrawThemeEdge(theme, dc, _part, _state, &rect, BDR_SUNKENOUTER, BF_RECT, 0);
-//    }
   }
   else{ FALLBACK: ;
     UINT _state = 0;
@@ -421,7 +426,7 @@ void Win32ControlPainter::draw_container(
         break;
         
       case PaletteButton: {
-        FillRect(dc, &rect, GetSysColorBrush(COLOR_BTNFACE));
+        FillRect(dc, &rect, (HBRUSH)(COLOR_BTNFACE + 1));
         
         if(state == Pressed)
           DrawEdge(dc, &rect, BDR_SUNKENOUTER, BF_RECT);
@@ -502,15 +507,15 @@ void Win32ControlPainter::draw_container(
 }
 
 SharedPtr<BoxAnimation> Win32ControlPainter::control_transition(
-  int                          widget_id,
-  Canvas                      *canvas,
-  ContainerType                type,
-  ControlState                 state1,
-  ControlState                 state2,
-  float                        x,
-  float                        y,
-  float                        width,
-  float                        height
+  int            widget_id,
+  Canvas        *canvas,
+  ContainerType  type,
+  ControlState   state1,
+  ControlState   state2,
+  float          x,
+  float          y,
+  float          width,
+  float          height
 ){
   if(!Win32Themes::GetThemeTransitionDuration 
   || widget_id == 0) 
@@ -970,7 +975,7 @@ void Win32ControlPainter::draw_menubar(HDC dc, RECT *rect){
     Win32Themes::CloseThemeData(theme);
   }
   else{ FALLBACK: ;
-    FillRect(dc, rect, GetSysColorBrush(COLOR_MENU));
+    FillRect(dc, rect, GetSysColorBrush(COLOR_BTNFACE));
   }
 }
 

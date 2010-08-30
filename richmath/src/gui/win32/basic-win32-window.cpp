@@ -1010,7 +1010,7 @@ void BasicWin32Window::paint_background(Canvas *canvas, int x, int y, bool wallp
           canvas->paint();
         }
         else{
-          int color = GetSysColor(COLOR_MENU);
+          int color = GetSysColor(COLOR_BTNFACE);
           
           color = ((color & 0xFF0000) >> 16)
                 |  (color & 0x00FF00)
@@ -1026,7 +1026,7 @@ void BasicWin32Window::paint_background(Canvas *canvas, int x, int y, bool wallp
       }
       
       if(!IsRectEmpty(&glassfree)){
-        int color = GetSysColor(COLOR_MENU);
+        int color = GetSysColor(COLOR_BTNFACE);
         
         color = ((color & 0xFF0000) >> 16)
               |  (color & 0x00FF00)
