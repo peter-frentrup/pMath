@@ -770,7 +770,7 @@ void BasicWin32Window::on_theme_changed(){
   if(Win32Themes::IsCompositionActive
   && Win32Themes::IsCompositionActive()){
     _glass_enabled = true;
-    _themed_frame = 0 == (WS_EX_TOOLWINDOW & GetWindowLong(_hwnd, GWL_EXSTYLE));
+    _themed_frame = 0 == (WS_EX_TOOLWINDOW & GetWindowLongW(_hwnd, GWL_EXSTYLE));
   }
   else if(Win32Themes::IsThemeActive
   && Win32Themes::IsThemeActive()){
@@ -1046,7 +1046,7 @@ void BasicWin32Window::paint_background(Canvas *canvas, int x, int y, bool wallp
     on_paint_background(canvas);
     
     if(_themed_frame){
-      LONG style_ex = GetWindowLong(_hwnd, GWL_EXSTYLE);
+      LONG style_ex = GetWindowLongW(_hwnd, GWL_EXSTYLE);
       RECT rect, glassfree;
       GetClientRect(_hwnd, &rect);
       get_glassfree_rect(&glassfree);
@@ -1336,7 +1336,10 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam){
   
   switch(message){
     case WM_NCACTIVATE: {
-      if(wParam){
+      _active = wParam;
+      
+      if(!Win32Themes::IsCompositionActive
+      || !Win32Themes::IsCompositionActive()){
         struct redraw_glass_info_t info;
         
         get_glassfree_rect(&info.inner);
@@ -1347,7 +1350,6 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam){
         EnumChildWindows(_hwnd, redraw_glass_callback, (LPARAM)&info);
       }
       
-      _active = wParam;
       if(_themed_frame){
         HDC hdc = GetDC(_hwnd);
         

@@ -119,7 +119,7 @@ Win32Menubar::~Win32Menubar(){
 }
 
 bool Win32Menubar::visible(){
-  return (GetWindowLong(_hwnd, GWL_STYLE) & WS_VISIBLE) != 0;
+  return (GetWindowLongW(_hwnd, GWL_STYLE) & WS_VISIBLE) != 0;
 }
 
 int Win32Menubar::height(){

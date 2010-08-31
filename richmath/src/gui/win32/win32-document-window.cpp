@@ -436,12 +436,6 @@ class richmath::GlassDock: public richmath::Dock {
     }
 };
 
-//  static pmath_t run(const char *code){
-//    return pmath_evaluate(
-//      pmath_parse_string(
-//        PMATH_C_STRING(code)));
-//  }
-
 //{ class Win32DocumentWindow ...
 
 Win32DocumentWindow::Win32DocumentWindow(
@@ -683,10 +677,7 @@ void Win32DocumentWindow::rearrange(){
       if(rect.bottom - rect.top <= mar.cyTopHeight + mar.cyBottomHeight + 1
       || _working_area->auto_size){
         mar.cxLeftWidth = mar.cxRightWidth = mar.cyTopHeight = mar.cyBottomHeight = -1;
-          
-//        SetWindowLongW(  _working_area->hwnd(), GWL_EXSTYLE, 
-//          GetWindowLongW(_working_area->hwnd(), GWL_EXSTYLE) & ~WS_EX_CLIENTEDGE);
-          
+        
         SetWindowPos(_working_area->hwnd(), 0, 0, 0, 0, 0, 
           SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
       }
@@ -806,6 +797,16 @@ void Win32DocumentWindow::on_theme_changed(){
     menubar->appearence(MaAutoShow);
   else
     menubar->appearence(MaAllwaysShow);
+  
+  DWORD style_ex = GetWindowLongW(_working_area->hwnd(), GWL_EXSTYLE);
+  if(Win32Themes::IsCompositionActive
+  && Win32Themes::IsCompositionActive()){
+    style_ex = style_ex & ~WS_EX_STATICEDGE;
+  }
+  else{
+    style_ex = style_ex | WS_EX_STATICEDGE;
+  }
+  SetWindowLongW(_working_area->hwnd(), GWL_EXSTYLE, style_ex);
   
   rearrange();
 }

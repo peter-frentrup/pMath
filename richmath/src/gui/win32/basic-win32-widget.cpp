@@ -80,7 +80,7 @@ BasicWin32Widget *BasicWin32Widget::parent(){
   HWND p = GetParent(_hwnd);
   
   if(p)
-    return (BasicWin32Widget*)GetWindowLongPtr(p, GWLP_USERDATA);
+    return (BasicWin32Widget*)GetWindowLongPtrW(p, GWLP_USERDATA);
   
   return 0;
 }
@@ -92,7 +92,7 @@ BasicWin32Widget *BasicWin32Widget::from_hwnd(HWND hwnd){
   
   if(GetWindowInfo(hwnd, &info)
   && info.atomWindowType == win32_widget_class){
-    return (BasicWin32Widget*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+    return (BasicWin32Widget*)GetWindowLongPtrW(hwnd, GWLP_USERDATA);
   }
   
   return 0;
@@ -144,7 +144,7 @@ void BasicWin32Widget::init_window_class(){
 }
 
 LRESULT CALLBACK BasicWin32Widget::window_proc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam){
-  BasicWin32Widget *widget = (BasicWin32Widget*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+  BasicWin32Widget *widget = (BasicWin32Widget*)GetWindowLongPtrW(hwnd, GWLP_USERDATA);
   
   if(!widget && message == WM_NCCREATE){
     widget = (BasicWin32Widget*)(((CREATESTRUCT*)lParam)->lpCreateParams);

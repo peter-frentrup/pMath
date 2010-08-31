@@ -234,6 +234,10 @@ void MathSequence::resize(Context *context){
   _extents.ascent = lines[0].ascent;
   _extents.descent+= lines[line].ascent + lines[line].descent - lines[0].ascent;
   
+  if(_extents.width < 0.75 && lines.length() > 1){
+    _extents.width = 0.75;
+  }
+  
   if(context->sequence_unfilled_width == -HUGE_VAL)
     context->sequence_unfilled_width = _extents.width;
 }
@@ -893,7 +897,7 @@ Box *MathSequence::mouse_selection(
       if(line_start + x > (prev + glyphs[*start].right) / 2){
         ++*start;
         *end = *start;
-        *eol = *start + 1 == lines[line].end;
+        *eol = *start + 1 >= lines[line].end;
         return this;
       }
       
@@ -906,7 +910,7 @@ Box *MathSequence::mouse_selection(
   }
   
   if(*start > 0){
-    if(buf[*start - 1] == '\n'){
+    if(buf[*start - 1] == '\n' && (line == 0 || lines[line - 1].end != lines[line].end)){
       --*start;
     }
     else if(buf[*start - 1] == ' '

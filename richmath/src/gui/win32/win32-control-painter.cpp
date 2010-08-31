@@ -18,13 +18,11 @@
 
 using namespace richmath;
 
-static HWND hwnd_message = HWND_MESSAGE;
-
 class Win32ControlPainterInfo: public BasicWin32Widget{
   public:
     Win32ControlPainterInfo()
-    : BasicWin32Widget(0, 0, 0, 0, 0, 0, &hwnd_message)
-    {
+    : BasicWin32Widget(0, 0, 0, 0, 0, 0, NULL)
+    {  
       init(); // total exception!!! normally not callable in constructor
     }
   
@@ -106,9 +104,17 @@ void Win32ControlPainter::calc_container_size(
   }
   
   if(type == InputField){
-    extents->width+=   3.75;
-    extents->ascent+=  2.25;
-    extents->descent+= 1.5;
+    if(Win32Themes::IsThemeActive
+    && Win32Themes::IsThemeActive()){
+      extents->width+=   3;
+      extents->ascent+=  1.5;
+      extents->descent+= 1.5;
+      return;
+    }
+    
+    extents->width+=   5.25;
+    extents->ascent+=  3;
+    extents->descent+= 2.25;
     return;
   }
   
