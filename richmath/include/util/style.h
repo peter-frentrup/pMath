@@ -141,6 +141,11 @@ namespace richmath{
       bool get(SharedPtr<Style> s, StringStyleOptionName n, String *value);
       bool get(SharedPtr<Style> s, ObjectStyleOptionName n, Expr   *value);
       
+      int    get_with_base(SharedPtr<Style> s, IntStyleOptionName    n);
+      float  get_with_base(SharedPtr<Style> s, FloatStyleOptionName  n);
+      String get_with_base(SharedPtr<Style> s, StringStyleOptionName n);
+      Expr   get_with_base(SharedPtr<Style> s, ObjectStyleOptionName n);
+      
     public:
       static SharedPtr<Stylesheet> Default;
   };

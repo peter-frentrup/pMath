@@ -162,6 +162,10 @@ namespace richmath{
     public:
       virtual ~ConfigShaper();
       
+      virtual uint8_t num_fonts(){ return (uint8_t)font_faces.length(); }
+      virtual FontFace font(uint8_t fontinfo);
+      virtual String font_name(uint8_t fontinfo);
+      
       virtual void decode_token(
         Context        *context,
         int             len,
@@ -182,9 +186,6 @@ namespace richmath{
         const uint16_t   ch,
         const GlyphInfo &info);
         
-      virtual FontFace font(uint8_t fontinfo);
-      virtual String font_name(uint8_t fontinfo);
-      
       virtual float italic_correction(
         Context          *context,
         uint16_t          ch,

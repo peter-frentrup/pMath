@@ -583,16 +583,16 @@ int main(){
 //        "SectionFrameMargins->{2, 2, 0, 0},"
 //        "SectionMargins->0)"))));
     
-    wndMain->bottom_glass()->insert(0,
-    Section::create_from_object(Expr(run(
-      "Section(BoxData({"
-          "ButtonBox("
-            "\"\\\"Status\\\"\","
-            "ButtonFrame->\"Palette\")"
-        "}),\"Docked\","
-        "LineBreakWithin->False,"
-        "SectionMargins->{0, 12, 0, 0},"
-        "SectionFrameMargins->0)"))));
+//    wndMain->bottom_glass()->insert(0,
+//    Section::create_from_object(Expr(run(
+//      "Section(BoxData({"
+//          "ButtonBox("
+//            "\"\\\"Status\\\"\","
+//            "ButtonFrame->\"Palette\")"
+//        "}),\"Docked\","
+//        "LineBreakWithin->False,"
+//        "SectionMargins->{0, 12, 0, 0},"
+//        "SectionFrameMargins->0)"))));
         
     doc = wndMain->document();
     

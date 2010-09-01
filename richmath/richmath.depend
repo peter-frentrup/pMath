@@ -2972,7 +2972,7 @@
 	<util/sharedptr.h>
 	<util/style.h>
 
-1281037145 d:\peter\programmieren\pmath\trunk\richmath\include\graphics\shapers.h
+1283371335 d:\peter\programmieren\pmath\trunk\richmath\include\graphics\shapers.h
 	<graphics/canvas.h>
 	<util/array.h>
 	<util/hashtable.h>
@@ -3157,7 +3157,7 @@
 
 1280054986 d:\peter\programmieren\pmath\trunk\richmath\include\util\sharedptr.h
 
-1280678522 d:\peter\programmieren\pmath\trunk\richmath\include\util\style.h
+1283372702 d:\peter\programmieren\pmath\trunk\richmath\include\util\style.h
 	<util/hashtable.h>
 	<util/pmath-extra.h>
 	<util/sharedptr.h>
@@ -3385,7 +3385,7 @@
 	<graphics/buffer.h>
 	<graphics/context.h>
 
-1280684176 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\section.cpp
+1283373553 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\section.cpp
 	<boxes/section.h>
 	<cmath>
 	<boxes/sectionlist.h>
@@ -3400,7 +3400,7 @@
 	<boxes/section.h>
 	<graphics/context.h>
 
-1280677407 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\stylebox.cpp
+1283373420 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\stylebox.cpp
 	<boxes/stylebox.h>
 	<cmath>
 	<boxes/mathsequence.h>
@@ -3459,7 +3459,7 @@
 	<windows.h>
 	<resources.h>
 
-1280693408 d:\peter\programmieren\pmath\trunk\richmath\include\graphics\config-shaper.h
+1283366628 d:\peter\programmieren\pmath\trunk\richmath\include\graphics\config-shaper.h
 	<graphics/shapers.h>
 	<util/array.h>
 	<util/pmath-extra.h>
@@ -3517,7 +3517,7 @@
 	<Windows.h>
 	<cairo-win32.h>
 
-1281037692 source:d:\peter\programmieren\pmath\trunk\richmath\src\graphics\config-shaper.cpp
+1283368172 source:d:\peter\programmieren\pmath\trunk\richmath\src\graphics\config-shaper.cpp
 	<graphics/config-shaper.h>
 	<cstdio>
 	<boxes/mathsequence.h>
@@ -3526,12 +3526,12 @@
 	<util/style.h>
 	<util/syntax-state.h>
 
-1280693273 d:\peter\programmieren\pmath\trunk\richmath\include\graphics\ot-math-shaper.h
+1283366308 d:\peter\programmieren\pmath\trunk\richmath\include\graphics\ot-math-shaper.h
 	<graphics/shapers.h>
 	<util/array.h>
 	<util/pmath-extra.h>
 
-1280054987 source:d:\peter\programmieren\pmath\trunk\richmath\src\graphics\context.cpp
+1283374583 source:d:\peter\programmieren\pmath\trunk\richmath\src\graphics\context.cpp
 	<graphics/context.h>
 	<cmath>
 	<cairo-win32.h>
@@ -3557,17 +3557,17 @@
 	<util/style.h>
 	<util/syntax-state.h>
 
-1283077416 source:d:\peter\programmieren\pmath\trunk\richmath\src\graphics\shapers.cpp
+1283375415 source:d:\peter\programmieren\pmath\trunk\richmath\src\graphics\shapers.cpp
 	<graphics/shapers.h>
 	<cmath>
 	<boxes/mathsequence.h>
 	<graphics/context.h>
 	<graphics/win32-shaper.h>
 
-1280693594 d:\peter\programmieren\pmath\trunk\richmath\include\graphics\win32-shaper.h
+1283367316 d:\peter\programmieren\pmath\trunk\richmath\include\graphics\win32-shaper.h
 	<graphics/shapers.h>
 
-1283097265 source:d:\peter\programmieren\pmath\trunk\richmath\src\graphics\win32-shaper.cpp
+1283367426 source:d:\peter\programmieren\pmath\trunk\richmath\src\graphics\win32-shaper.cpp
 	<graphics/win32-shaper.h>
 	<windows.h>
 	<usp10.h>
@@ -3733,7 +3733,7 @@
 	<gui/control-painter.h>
 	<resources.h>
 
-1283193556 source:d:\peter\programmieren\pmath\trunk\richmath\src\main.cpp
+1283375084 source:d:\peter\programmieren\pmath\trunk\richmath\src\main.cpp
 	<cmath>
 	<cstdio>
 	<ctime>
@@ -3774,7 +3774,7 @@
 	<boxes/subsuperscriptbox.h>
 	<boxes/underoverscriptbox.h>
 
-1280678616 source:d:\peter\programmieren\pmath\trunk\richmath\src\util\style.cpp
+1283372970 source:d:\peter\programmieren\pmath\trunk\richmath\src\util\style.cpp
 	<util/style.h>
 	<climits>
 	<cmath>

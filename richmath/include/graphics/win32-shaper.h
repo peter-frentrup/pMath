@@ -11,8 +11,8 @@ namespace richmath{
   class WindowsFontShaper: public TextShaper{
     public:
       WindowsFontShaper(
-        const String  &name,
-        FontStyle      style);
+        const String          &name,
+        FontStyle              style);
         
       virtual ~WindowsFontShaper();
       
@@ -22,6 +22,7 @@ namespace richmath{
         const uint16_t *str, 
         GlyphInfo      *result);
       
+      virtual uint8_t num_fonts(){ return 1; }
       virtual FontFace font(uint8_t fontinfo){ return _font; }
       virtual String font_name(uint8_t fontinfo){ return _name; }
       virtual FontStyle get_style(){ return _style; }

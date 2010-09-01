@@ -74,7 +74,7 @@ class GlyphGetter: public Base{
     
     uint16_t expr_to_glyph(const Expr expr, uint8_t font){
       if(expr.instance_of(PMATH_TYPE_STRING)){
-        uint16_t res = ps2g[font & (FontInfoGlyphCount-1)][String(expr)];
+        uint16_t res = ps2g[font & (FontsPerGlyphCount-1)][String(expr)];
         
         if(!res){
           pmath_debug_print_object("Unknown glyph ", expr.get(), "");
@@ -88,7 +88,7 @@ class GlyphGetter: public Base{
     }
     
   public:
-    Hashtable<String, uint16_t> ps2g[FontInfoGlyphCount];
+    Hashtable<String, uint16_t> ps2g[FontsPerGlyphCount];
     cairo_surface_t *surface;
     cairo_t         *cr;
     Context          context;
@@ -194,7 +194,7 @@ bool ConfigShaperDB::verify(){
     return false;
   }
   
-  if(fontnames.length() > FontInfoGlyphCount){
+  if(fontnames.length() > FontsPerGlyphCount){
     printf("[%s, %d]", __func__, __LINE__);
     return false;
   }
@@ -801,6 +801,20 @@ ConfigShaper::ConfigShaper(SharedPtr<ConfigShaperDB> _db, FontStyle _style)
 ConfigShaper::~ConfigShaper(){
 }
 
+FontFace ConfigShaper::font(uint8_t fontinfo){
+  if(fontinfo >= font_faces.length())
+    return font_faces[0];
+  
+  return font_faces[fontinfo];
+}
+
+String ConfigShaper::font_name(uint8_t fontinfo){
+  if(fontinfo >= db->fontnames.length())
+    return db->fontnames[0];
+  
+  return db->fontnames[fontinfo];
+}
+
 void ConfigShaper::decode_token(
   Context        *context,
   int             len,
@@ -1113,90 +1127,6 @@ void ConfigShaper::show_glyph(
   
   SimpleMathShaper::show_glyph(context, x, y, ch, info);
 }
-  
-FontFace ConfigShaper::font(uint8_t fontinfo){
-  if(fontinfo >= font_faces.length())
-    return font_faces[0];
-  
-  return font_faces[fontinfo];
-}
-
-String ConfigShaper::font_name(uint8_t fontinfo){
-  if(fontinfo >= db->fontnames.length())
-    return db->fontnames[0];
-  
-  return db->fontnames[fontinfo];
-}
-
-/*void ConfigShaper::script_positions(
-  ScriptPosition  pos,
-  MathSequence       *base,
-  int             base_index,
-  MathSequence       *upper,
-  MathSequence       *lower,
-  float          *dx_upper,
-  float          *dy_upper,
-  float          *dx_lower,
-  float          *dy_lower
-){
-  if(base_index < base->length()){
-    switch(base->glyph_array()[base_index].slant){
-      case FontSlantItalic: 
-        if(!style.italic){
-          math_set_style(style + Italic)->script_positions(
-            pos, base, base_index, upper, lower, dx_upper, dy_upper, dx_lower, dy_lower);
-          return;
-        }
-        break;
-        
-      case FontSlantPlain: 
-        if(style.italic){
-          math_set_style(style - Italic)->script_positions(
-            pos, base, base_index, upper, lower, dx_upper, dy_upper, dx_lower, dy_lower);
-          return;
-        }
-        break;
-    }
-  }
-  
-  SimpleMathShaper::script_positions(
-    pos, base, base_index, upper, lower, dx_upper, dy_upper, dx_lower, dy_lower);
-  
-  if(style.italic){
-    if(upper)
-      *dx_upper += ScriptIndent::EmPerOffset
-        * (db->italic_script_indent.super + db->italic_script_indent.center);
-    
-    if(lower)
-      *dx_lower += ScriptIndent::EmPerOffset
-        * (db->italic_script_indent.sub + db->italic_script_indent.center);
-  }
-  
-  if(base_index < base->length()){
-    const GlyphInfo &info = base->glyph_array()[base_index];
-    uint16_t ch = base->text()[base_index];
-    uint32_t key;
-    
-    if(info.composed)
-      key = (3 << 30) | ch;
-    else
-      key = (uint32_t)info.index | (((uint32_t)info.fontinfo) << 16);
-    
-    ScriptIndent *si = db->script_indents.search(key);
-    if(!si){
-      key = (1 << 31) | ch;
-      si = db->script_indents.search(key);
-    }
-    
-    if(si){
-      if(upper)
-        *dx_upper += ScriptIndent::EmPerOffset * (si->super + si->center);
-        
-      if(lower)
-        *dx_lower += ScriptIndent::EmPerOffset * (si->sub + si->center);
-    }
-  }
-}*/
 
 float ConfigShaper::italic_correction(
   Context          *context,

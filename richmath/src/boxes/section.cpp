@@ -324,24 +324,12 @@ Box *AbstractSequenceSection::item(int i){
 void AbstractSequenceSection::resize(Context *context){
   must_resize = false;
   
-  FontStyle fs;
-  String s = get_style(FontFamily);
+  float old_scww = context->section_content_window_width;
+  ContextState cc(context);
+  cc.begin(style);
   
-  if(get_style(FontSlant) == FontSlantItalic) fs+= Italic;
-  if(get_style(FontWeight) == FontWeightBold) fs+= Bold;
-  
-  if(!s.length())
-    context->text_shaper = context->math_shaper->set_style(fs);
-  else
-    context->text_shaper = TextShaper::find(s, fs);
-  
-  context->math_shaper = context->math_shaper->math_set_style(fs);
-    
-  context->canvas->set_font_size(get_style(FontSize)/* * 4/3. */);
-  
-  context->show_auto_styles       = get_style(ShowAutoStyles);
-  context->show_string_characters = get_style(ShowStringCharacters);
-  context->math_spacing = true;//context->show_auto_styles;
+  // take document option if not set for this Section alone:
+  context->show_auto_styles = get_style(ShowAutoStyles); 
   
   context->script_indent = 0;
   
@@ -374,22 +362,14 @@ void AbstractSequenceSection::resize(Context *context){
   }
   
   horz_border+= cx;
-  
-  float old_w    = context->width;
-  float old_scww = context->section_content_window_width;
-  
-  if(get_style(LineBreakWithin))
-    context->width-= horz_border;
-  else
-    context->width = HUGE_VAL;
-    
+  context->width-= horz_border;
   context->section_content_window_width-= horz_border;
-  
+    
   _content->resize(context);
   
   unfilled_width = context->sequence_unfilled_width + horz_border;
   
-  if(/*get_style(ShowAutoStyles)*/context->show_auto_styles){ // todo: additional pMath option?
+  if(context->show_auto_styles){
     SyntaxState syntax;
     _content->colorize_scope(&syntax);
   }
@@ -408,8 +388,8 @@ void AbstractSequenceSection::resize(Context *context){
   && _content->var_extents().width < context->width)
      _content->var_extents().width = context->width;
   
-  context->width                        = old_w;
   context->section_content_window_width = old_scww;
+  cc.end();
   
   _extents.width = cx + _content->extents().width;
   
@@ -425,31 +405,9 @@ void AbstractSequenceSection::paint(Context *context){
   float x, y;
   context->canvas->current_pos(&x, &y);
   
-//  context->canvas->save();
-  int i;
-  cairo_antialias_t old_anti = cairo_get_antialias(context->canvas->cairo());
-  if(context->stylesheet->get(style, Antialiasing, &i)){
-    switch(i){
-      case 0: 
-        cairo_set_antialias(
-          context->canvas->cairo(), 
-          CAIRO_ANTIALIAS_NONE);
-        break;
-        
-      case 1: 
-        cairo_set_antialias(
-          context->canvas->cairo(), 
-          CAIRO_ANTIALIAS_GRAY);
-        break;
-        
-      case 2: 
-        cairo_set_antialias(
-          context->canvas->cairo(), 
-          CAIRO_ANTIALIAS_DEFAULT);
-        break;
-        
-    }
-  }
+  ContextState cc(context);
+  cc.begin(style);
+  
   float left_margin = get_style(SectionMarginLeft);
   int   background  = get_style(Background);
   
@@ -478,38 +436,11 @@ void AbstractSequenceSection::paint(Context *context){
   context->canvas->align_point(&xx, &yy, false);
   context->canvas->move_to(xx, yy);
   
-  FontStyle fs;
-  String s = get_style(FontFamily);
-  
-  if(get_style(FontSlant) == FontSlantItalic) fs+= Italic;
-  if(get_style(FontWeight) == FontWeightBold) fs+= Bold;
-  
-  if(!s.length())
-    context->text_shaper = context->math_shaper->set_style(fs);
-  else
-    context->text_shaper = TextShaper::find(s, fs);
-  
-  context->math_shaper = context->math_shaper->math_set_style(fs);
-  
-  Array<float> ssm;
-  Expr expr;
-  if(context->stylesheet->get(style, ScriptSizeMultipliers, &expr)){
-    ssm.swap(context->script_size_multis);
-    context->set_script_size_multis(expr);
-  }
-  
   context->canvas->set_color(get_style(FontColor));
-  context->canvas->set_font_size(get_style(FontSize)/* * 4/3. */);
   
-  context->show_auto_styles       = get_style(ShowAutoStyles);
-  context->show_string_characters = get_style(ShowStringCharacters);
-  context->math_spacing = true;//context->show_auto_styles;
-  
-  
+  Expr expr;
   context->stylesheet->get(style, TextShadow, &expr);
   context->draw_with_text_shadows(_content, expr);
-//  _content->paint(context);
-  
   
   float l = get_style(SectionFrameLeft);
   float r = get_style(SectionFrameRight);
@@ -545,9 +476,7 @@ void AbstractSequenceSection::paint(Context *context){
     context->canvas->fill();
   }
 
-  cairo_set_antialias(context->canvas->cairo(), old_anti);
-  if(ssm.length() > 0)
-    ssm.swap(context->script_size_multis);
+  cc.end();
 }
 
 Box *AbstractSequenceSection::remove(int *index){

@@ -151,20 +151,20 @@ SharedPtr<TextShaper> TextShaper::find(
 ){
   FontKey key(name, style);
   SharedPtr<TextShaper> *result = shapers.search(key);
-  SharedPtr<TextShaper> fd;
+  SharedPtr<TextShaper> fs;
   
   if(result)
     return *result;
   
-  fd =
+  fs =
     #ifdef CAIRO_HAS_WIN32_FONT
       new WindowsFontShaper(name, style);
     #else
       no support for font backend
     #endif
     
-  shapers.set(key, fd);
-  return fd;
+  shapers.set(key, fs);
+  return fs;
 }
 
 uint32_t TextShaper::get_accent_char(uint32_t input_char){
@@ -187,6 +187,198 @@ void TextShaper::clear_cache(){
 }
 
 //} ... class TextShaper
+
+//{ class FallbackTextShaper ...
+
+FallbackTextShaper::FallbackTextShaper(SharedPtr<TextShaper> default_shaper)
+: TextShaper()
+{
+  assert(default_shaper.is_valid());
+  _shapers.add(default_shaper);
+}
+
+FallbackTextShaper::~FallbackTextShaper(){
+}
+
+int FallbackTextShaper::fallback_index(uint8_t *fontinfo){
+  int i = 0;
+  while(i < _shapers.length() - 1){
+    if(*fontinfo < _shapers[i]->num_fonts())
+      return i;
+    
+    *fontinfo-= _shapers[i]->num_fonts();
+    ++i;
+  }
+  
+  return i;
+}
+
+int FallbackTextShaper::first_missing_glyph(int len, const GlyphInfo *glyphs){
+  int result = 0;
+  while(result < len && glyphs[result].index != 0xFFFF)
+    ++result;
+  
+  return result;
+}
+
+void FallbackTextShaper::add(SharedPtr<TextShaper> fallback){
+  assert(fallback.is_valid());
+  
+  int own_num = num_fonts();
+  if(own_num + fallback->num_fonts() > FontsPerGlyphCount){
+    FallbackTextShaper *fts = dynamic_cast<FallbackTextShaper*>(fallback.ptr());
+    
+    if(fts){
+      for(int i = 0;i < fts->_shapers.length();++i)
+        add(fts->_shapers[i]);
+    }
+  }
+  else{
+    _shapers.add(fallback);
+  }
+}
+
+uint8_t FallbackTextShaper::num_fonts(){
+  uint8_t result = 0;
+  
+  for(int i = 0;i < _shapers.length() && result < FontsPerGlyphCount;++i){
+    result+= _shapers[i]->num_fonts();
+  }
+  
+  return result;
+}
+
+FontFace FallbackTextShaper::font(uint8_t fontinfo){
+  int i = fallback_index(&fontinfo);
+  
+  return _shapers[i]->font(fontinfo);
+}
+
+String FallbackTextShaper::font_name(uint8_t fontinfo){
+  int i = fallback_index(&fontinfo);
+  
+  return _shapers[i]->font_name(fontinfo);
+}
+
+void FallbackTextShaper::decode_token(
+  Context        *context,
+  int             len,
+  const uint16_t *str, 
+  GlyphInfo      *result
+){
+  TextShaper *ts = _shapers[0].ptr();
+  
+  ts->decode_token(context, len, str, result);
+  uint8_t inc_fontinfo = ts->num_fonts();
+  
+  for(int i = 1;i < _shapers.length();++i){
+    int first = first_missing_glyph(len, result);
+    int start = first;
+    int end = len;
+    
+    if(start >= len)
+      break;
+    
+    ts = _shapers[i].ptr();
+    
+    do{
+      int next = start;
+      while(next < len && result[next].index == 0xFFFF)
+        ++next;
+      
+      ts->decode_token(
+        context, 
+        next - start, 
+        str + start, 
+        result + start);
+      
+      for(;start < next;++start){
+        result[start].fontinfo+= inc_fontinfo;
+      }
+      
+      end = next;
+      while(start < len && result[start].index != 0xFFFF)
+        ++start;
+    }while(start < len);
+    
+    str   += first;
+    result+= first;
+    len    = end - first;
+    
+    inc_fontinfo+= ts->num_fonts();
+  }
+}
+
+void FallbackTextShaper::vertical_glyph_size(
+  Context         *context,
+  const uint16_t   ch,
+  const GlyphInfo &info,
+  float           *ascent,
+  float           *descent
+){
+  uint8_t fontinfo = info.fontinfo;
+  int i = fallback_index(&fontinfo);
+  
+  if(i == 0){
+    _shapers[0]->vertical_glyph_size(context, ch, info, ascent, descent);
+  }
+  else{
+    GlyphInfo gi;
+    memcpy(&gi, &info, sizeof(gi));
+    
+    gi.fontinfo = fontinfo;
+    
+    _shapers[i]->vertical_glyph_size(context, ch, gi, ascent, descent);
+  }
+}
+
+void FallbackTextShaper::show_glyph(
+  Context         *context, 
+  float            x,
+  float            y,
+  const uint16_t   ch,
+  const GlyphInfo &info
+){
+  uint8_t fontinfo = info.fontinfo;
+  int i = fallback_index(&fontinfo);
+  
+  if(i == 0){
+    _shapers[0]->show_glyph(context, x, y, ch, info);
+  }
+  else{
+    GlyphInfo gi;
+    memcpy(&gi, &info, sizeof(gi));
+    
+    gi.fontinfo = fontinfo;
+    
+    _shapers[i]->show_glyph(context, x, y, ch, gi);
+  }
+}
+  
+SharedPtr<TextShaper> FallbackTextShaper::set_style(FontStyle style){
+  if(style == get_style()){
+    ref();
+    return SharedPtr<TextShaper>(this);
+  }
+  
+  FallbackTextShaper *fts = new FallbackTextShaper(_shapers[0]->set_style(style));
+  
+   /* Array's effectively don't shrink, so we set the final buffer size once: */
+  fts->_shapers.length(_shapers.length());
+  fts->_shapers.length(1);
+  
+  for(int i = 0;i < _shapers.length();++i){
+    fts->add(_shapers[i]->set_style(style));
+  }
+  
+  return SharedPtr<TextShaper>(fts);
+}
+
+FontStyle FallbackTextShaper::get_style(){
+  return _shapers[0]->get_style();
+}
+      
+//} ... class FallbackTextShaper
 
 //{ class MathShaper ...
 

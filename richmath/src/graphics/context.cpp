@@ -360,7 +360,6 @@ void ContextState::begin(SharedPtr<Style> style){
     String s;
     Expr expr;
     
-    
     if(ctx->stylesheet->get(style, Antialiasing, &i)){
       old_antialiasing = cairo_get_antialias(ctx->canvas->cairo());
       switch(i){
@@ -405,6 +404,10 @@ void ContextState::begin(SharedPtr<Style> style){
         ctx->text_shaper = ctx->math_shaper->set_style(fs);
       else
         ctx->text_shaper = TextShaper::find(s, fs);
+      
+      FallbackTextShaper *fts = new FallbackTextShaper(ctx->text_shaper);
+      fts->add(TextShaper::find("Arial Unicode MS", fs));
+      ctx->text_shaper = fts;
     }
     else
       ctx->text_shaper = ctx->text_shaper->set_style(fs);
@@ -436,12 +439,13 @@ void ContextState::begin(SharedPtr<Style> style){
   //    show_auto_styles = i;
     }
     
-    if(ctx->stylesheet->get(style, ShowStringCharacters, &i))
+    if(ctx->stylesheet->get(style, ShowStringCharacters, &i)){
       ctx->show_string_characters = i;
+    }
     
-    
-    if(ctx->stylesheet->get(style, LineBreakWithin, &i) && !i)
+    if(ctx->stylesheet->get(style, LineBreakWithin, &i) && !i){
       ctx->width = Infinity;
+    }
   }
 }
 

@@ -34,7 +34,7 @@ namespace richmath{
   };
   
   enum{
-    FontInfoGlyphCount = (1 << 4)
+    FontsPerGlyphCount = (1 << 4)
   };
   
   typedef struct{
@@ -55,7 +55,7 @@ namespace richmath{
   
   class Context;
   
-  class BoxSize{
+  class BoxSize {
     public:
       BoxSize(): width(0), ascent(0), descent(0){}
       BoxSize(float w, float a, float d): width(w), ascent(a), descent(d){}
@@ -85,19 +85,20 @@ namespace richmath{
       };
   };
   
-  class TextShaper: public Shareable{
+  class TextShaper: public Shareable {
     public:
       TextShaper(): Shareable(){}
       virtual ~TextShaper(){}
+      
+      virtual uint8_t num_fonts() = 0;
+      virtual FontFace font(uint8_t fontinfo) = 0;
+      virtual String font_name(uint8_t fontinfo) = 0;
       
       virtual void decode_token(
         Context        *context,
         int             len,
         const uint16_t *str, 
         GlyphInfo      *result) = 0;
-      
-      virtual FontFace font(uint8_t fontinfo) = 0;
-      virtual String font_name(uint8_t fontinfo) = 0;
       
       virtual void vertical_glyph_size(
         Context         *context,
@@ -125,6 +126,49 @@ namespace richmath{
       static void clear_cache();
   };
   
+  class FallbackTextShaper: public TextShaper {
+    public:
+      FallbackTextShaper(SharedPtr<TextShaper> default_shaper);
+      virtual ~FallbackTextShaper();
+      
+      void add(SharedPtr<TextShaper> fallback);
+      
+      virtual uint8_t num_fonts();
+      virtual FontFace font(uint8_t fontinfo);
+      virtual String font_name(uint8_t fontinfo);
+      
+      virtual void decode_token(
+        Context        *context,
+        int             len,
+        const uint16_t *str, 
+        GlyphInfo      *result);
+        
+      virtual void vertical_glyph_size(
+        Context         *context,
+        const uint16_t   ch,
+        const GlyphInfo &info,
+        float           *ascent,
+        float           *descent);
+      
+      virtual void show_glyph(
+        Context         *context, 
+        float            x,
+        float            y,
+        const uint16_t   ch,
+        const GlyphInfo &info);
+        
+      virtual SharedPtr<TextShaper> set_style(FontStyle style);
+      
+      virtual FontStyle get_style();
+    
+    protected:
+      int fallback_index(uint8_t *fontinfo);
+      int first_missing_glyph(int len, const GlyphInfo *glyphs);
+    
+    private:
+      Array<SharedPtr<TextShaper> > _shapers;
+  };
+  
   class RadicalShapeInfo{
     public:
       int   size; // negative => small root, otherwise # of vertical pieces
@@ -141,7 +185,7 @@ namespace richmath{
   
   class MathSequence;
   
-  class MathShaper: public TextShaper{
+  class MathShaper: public TextShaper {
     public:
       virtual bool horizontal_stretch_char(
         Context        *context,
@@ -225,7 +269,7 @@ namespace richmath{
       static Hashtable<String, SharedPtr<MathShaper> > available_shapers;
   };
 
-  class SmallRadicalGlyph{
+  class SmallRadicalGlyph {
     public:
       SmallRadicalGlyph(){
       }
@@ -251,7 +295,7 @@ namespace richmath{
       float    rel_exp_y; // from top
   };
   
-  class SimpleMathShaper: public MathShaper{
+  class SimpleMathShaper: public MathShaper {
     public:
       SimpleMathShaper(int _radicalfont);
       ~SimpleMathShaper();
