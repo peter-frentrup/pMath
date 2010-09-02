@@ -358,7 +358,7 @@ void FallbackTextShaper::show_glyph(
 SharedPtr<TextShaper> FallbackTextShaper::set_style(FontStyle style){
   if(style == get_style()){
     ref();
-    return SharedPtr<TextShaper>(this);
+    return this;
   }
   
   FallbackTextShaper *fts = new FallbackTextShaper(_shapers[0]->set_style(style));
@@ -379,6 +379,155 @@ FontStyle FallbackTextShaper::get_style(){
 }
       
 //} ... class FallbackTextShaper
+
+//{ class CharBoxTextShaper ...
+
+FontFace digit_font;
+static int num_cbts = 0;
+
+CharBoxTextShaper::CharBoxTextShaper()
+: TextShaper()
+{
+  if(++num_cbts == 1){
+    digit_font = FontFace("sans", NoStyle);
+  }
+}
+
+CharBoxTextShaper::~CharBoxTextShaper(){
+  if(--num_cbts == 0){
+    digit_font = FontFace();
+  }
+}
+
+void CharBoxTextShaper::decode_token(
+  Context        *context,
+  int             len,
+  const uint16_t *str, 
+  GlyphInfo      *result
+){
+  float em = context->canvas->get_font_size();
+  
+  for(int i = 0;i < len;++i){
+    if(i + 1 < len
+    && is_utf16_high(str[i])
+    && is_utf16_low(str[i+1])){
+      result[i].index = str[i+1];
+      result[i].right = em;
+      
+      result[i+1].index = 3;
+      result[i+1].right = 0.0;
+      ++i;
+    }
+    else if(is_utf16_low(str[i])){
+      result[i].index = 2;
+      result[i].right = em;
+    }
+    else{
+      result[i].index = 1;
+      result[i].right = em;
+    }
+  }
+}
+  
+void CharBoxTextShaper::vertical_glyph_size(
+  Context         *context,
+  const uint16_t   ch,
+  const GlyphInfo &info,
+  float           *ascent,
+  float           *descent
+){
+  float em = context->canvas->get_font_size();
+  
+  *ascent  = 0.75 * em;
+  *descent = 0.25 * em;
+}
+
+void CharBoxTextShaper::show_glyph(
+  Context         *context, 
+  float            x,
+  float            y,
+  const uint16_t   ch,
+  const GlyphInfo &info
+){
+  static const char *hex = "0123456789ABCDEF";
+  char str1[4] = "? ?";
+  char str2[4] = "? ?";
+  
+  if(is_utf16_high(ch)){
+    uint32_t unicode = 0x10000 + ((((uint32_t)ch & 0x03FF) << 10) | (info.index & 0x03FF));
+    
+    str1[0] = hex[(unicode & 0xF00000) >> 20];
+    str1[1] = hex[(unicode & 0x0F0000) >> 16];
+    str1[2] = hex[(unicode & 0x00F000) >> 12];
+    
+    str2[0] = hex[(unicode & 0x000F00) >> 8];
+    str2[1] = hex[(unicode & 0x0000F0) >> 4];
+    str2[2] = hex[ unicode & 0x00000F];
+    
+  }
+  else if(info.index == 1){
+    str1[0] = hex[(ch & 0xF000) >> 12];
+    str1[2] = hex[(ch & 0x0F00) >> 8];
+    
+    str2[0] = hex[(ch & 0x00F0) >> 4];
+    str2[2] = hex[ ch & 0x000F];
+  }
+  else if(info.index != 2)
+    return;
+  
+  float em = context->canvas->get_font_size();
+  y-= 0.75 * em;
+  
+  bool sot = context->canvas->show_only_text; 
+  context->canvas->show_only_text = false;
+  context->canvas->set_font_size(0.4 * em);
+  context->canvas->set_font_face(digit_font);
+  
+  context->canvas->pixframe(x, y, x + em, y + em, 0.1 * em);
+  context->canvas->fill();
+  
+  float inner = 0.8 * em;
+  x+= 0.1 * em;
+  y+= 0.1 * em;
+  
+  cairo_text_extents_t te1, te2;
+  cairo_text_extents(context->canvas->cairo(), str1, &te1);
+  cairo_text_extents(context->canvas->cairo(), str2, &te2);
+  
+  context->canvas->move_to(
+    x + (inner   - te1.width)/2  - te1.x_bearing, 
+    y + (inner/2 - te1.height)/2 - te1.y_bearing);
+    
+  if(context->canvas->native_show_glyphs){
+    cairo_show_text(context->canvas->cairo(), str1);
+  }
+  else{
+    cairo_text_path(context->canvas->cairo(), str1);
+    context->canvas->fill();
+  }
+  
+  context->canvas->move_to(
+    x +           (inner   - te2.width)/2  - te2.x_bearing, 
+    y + inner/2 + (inner/2 - te2.height)/2 - te2.y_bearing);
+    
+  if(context->canvas->native_show_glyphs){
+    cairo_show_text(context->canvas->cairo(), str2);
+  }
+  else{
+    cairo_text_path(context->canvas->cairo(), str2);
+    context->canvas->fill();
+  }
+  
+  context->canvas->set_font_size(em);
+  context->canvas->show_only_text = sot;
+}
+
+SharedPtr<TextShaper> CharBoxTextShaper::set_style(FontStyle style){
+  ref();
+  return this;
+}
+  
+//} ... class CharBoxTextShaper
 
 //{ class MathShaper ...
 

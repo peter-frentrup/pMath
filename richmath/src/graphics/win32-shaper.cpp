@@ -79,59 +79,59 @@ void WindowsFontShaper::decode_token(
           NULL,
           NULL,
           uniscribe_items,
-          &num_items))
+          &num_items)
+      && num_items == 1)
       {
-        for(int j = 0;j < num_items;++j){
-          SCRIPT_CACHE   cache = NULL;
-          WORD           out_glyphs[2];
-          SCRIPT_VISATTR vis_attr[  2];
-          WORD log_clust[2] = {0,1};
-          int num_glyphs;
+        SCRIPT_CACHE   cache = NULL;
+        WORD           out_glyphs[2];
+        SCRIPT_VISATTR vis_attr[  2];
+        WORD log_clust[2] = {0,1};
+        int num_glyphs;
+        
+        // todo: use ScriptShapeOpenType when available
+        if(!ScriptShape(
+            dc.handle,
+            &cache,
+            (const WCHAR*)str + i + uniscribe_items[0].iCharPos,
+            uniscribe_items[1].iCharPos - uniscribe_items[0].iCharPos,
+            2,
+            &uniscribe_items[0].a,
+            out_glyphs,
+            log_clust,
+            vis_attr,
+            &num_glyphs)
+        && num_glyphs == 1
+        && out_glyphs[0] != 0)
+        {
+          result[i].index = cg.index = out_glyphs[0];
           
-          // todo: use ScriptShapeOpenType when available
-          if(!ScriptShape(
-              dc.handle,
-              &cache,
-              (const WCHAR*)str + i + uniscribe_items[j].iCharPos,
-              uniscribe_items[j + 1].iCharPos - uniscribe_items[j].iCharPos,
-              2,
-              &uniscribe_items[j].a,
-              out_glyphs,
-              log_clust,
-              vis_attr,
-              &num_glyphs)
-            && num_glyphs == 1)
-          {
-            result[i + j].index = cg.index = out_glyphs[0];
-            result[i + j].fontinfo = 0;
-            result[i + j].composed = 0;
-            result[i + j].is_normal_text = 0;
-            
-            cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
-            result[i + j].right = cte.x_advance;
-            result[i + j].x_offset = 0;
-            //j+= num_glyphs - 1;
-          }
+          cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
+          result[i].right = cte.x_advance;
+          
+          result[i + 1].index = 0;
+        }
+        else{
+          result[i].index = result[i+1].index = 0xFFFF;
+          result[i].right = 0.0;
         }
         
-        for(int j = num_items;j < 2;++j){
-          result[i + j].index = 0;
-          result[i + j].fontinfo = 0;
-          result[i + j].composed = 0;
-          result[i + j].is_normal_text = 0;
-            
-          result[i + j].right = 0;
-          result[i + j].x_offset = 0;
-        }
+        result[i].fontinfo           = 0;
+        result[i].composed           = 0;
+        result[i].x_offset           = 0.0;
         
         ++i;
+        
+        result[i].fontinfo       = 0;
+        result[i].composed       = 0;
+        result[i].right          = 0.0;
+        result[i].x_offset       = 0.0;
+        
         continue;
       }
     }
     
     result[i].fontinfo = 0;
     result[i].composed = 0;
-    result[i].is_normal_text = 0;
     
     result[i].index = cg.index = indices[i];
     

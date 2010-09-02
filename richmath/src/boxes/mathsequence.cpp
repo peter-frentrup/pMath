@@ -1395,16 +1395,7 @@ void MathSequence::resize_span(
           glyphs.items() + *pos);
         
         for(int i = *pos;i < next;++i){
-          if(glyphs[i].index){
-            glyphs[i].is_normal_text = 1;
-          }
-          else{
-            context->math_shaper->decode_token(
-              context,
-              1,
-              buf + i,
-              glyphs.items() + i);
-          }
+          glyphs[i].is_normal_text = 1;
         }
         
         *pos = next;

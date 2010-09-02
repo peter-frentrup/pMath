@@ -2972,7 +2972,7 @@
 	<util/sharedptr.h>
 	<util/style.h>
 
-1283371335 d:\peter\programmieren\pmath\trunk\richmath\include\graphics\shapers.h
+1283463443 d:\peter\programmieren\pmath\trunk\richmath\include\graphics\shapers.h
 	<graphics/canvas.h>
 	<util/array.h>
 	<util/hashtable.h>
@@ -3313,7 +3313,7 @@
 1280054985 d:\peter\programmieren\pmath\trunk\richmath\include\boxes\interpretationbox.h
 	<boxes/ownerbox.h>
 
-1283285860 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\mathsequence.cpp
+1283462493 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\mathsequence.cpp
 	<boxes/mathsequence.h>
 	<climits>
 	<cmath>
@@ -3459,7 +3459,7 @@
 	<windows.h>
 	<resources.h>
 
-1283366628 d:\peter\programmieren\pmath\trunk\richmath\include\graphics\config-shaper.h
+1283463486 d:\peter\programmieren\pmath\trunk\richmath\include\graphics\config-shaper.h
 	<graphics/shapers.h>
 	<util/array.h>
 	<util/pmath-extra.h>
@@ -3526,12 +3526,12 @@
 	<util/style.h>
 	<util/syntax-state.h>
 
-1283366308 d:\peter\programmieren\pmath\trunk\richmath\include\graphics\ot-math-shaper.h
+1283463216 d:\peter\programmieren\pmath\trunk\richmath\include\graphics\ot-math-shaper.h
 	<graphics/shapers.h>
 	<util/array.h>
 	<util/pmath-extra.h>
 
-1283374583 source:d:\peter\programmieren\pmath\trunk\richmath\src\graphics\context.cpp
+1283462531 source:d:\peter\programmieren\pmath\trunk\richmath\src\graphics\context.cpp
 	<graphics/context.h>
 	<cmath>
 	<cairo-win32.h>
@@ -3557,7 +3557,7 @@
 	<util/style.h>
 	<util/syntax-state.h>
 
-1283375415 source:d:\peter\programmieren\pmath\trunk\richmath\src\graphics\shapers.cpp
+1283462878 source:d:\peter\programmieren\pmath\trunk\richmath\src\graphics\shapers.cpp
 	<graphics/shapers.h>
 	<cmath>
 	<boxes/mathsequence.h>
@@ -3567,7 +3567,7 @@
 1283367316 d:\peter\programmieren\pmath\trunk\richmath\include\graphics\win32-shaper.h
 	<graphics/shapers.h>
 
-1283367426 source:d:\peter\programmieren\pmath\trunk\richmath\src\graphics\win32-shaper.cpp
+1283462368 source:d:\peter\programmieren\pmath\trunk\richmath\src\graphics\win32-shaper.cpp
 	<graphics/win32-shaper.h>
 	<windows.h>
 	<usp10.h>

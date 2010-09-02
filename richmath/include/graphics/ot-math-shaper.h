@@ -363,6 +363,7 @@ namespace richmath{
       
     protected:
       SharedPtr<OTMathShaperDB>  db;
+      SharedPtr<TextShaper>      orig_text_shaper;
       SharedPtr<TextShaper>      text_shaper;
       FontStyle                  style;
       FontInfo                   fi;

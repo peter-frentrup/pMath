@@ -399,21 +399,22 @@ void ContextState::begin(SharedPtr<Style> style){
         fs-= Bold;
     }
     
+    ctx->math_shaper = ctx->math_shaper->math_set_style(fs);
+    
     if(ctx->stylesheet->get(style, FontFamily, &s)){
       if(s.length() == 0)
-        ctx->text_shaper = ctx->math_shaper->set_style(fs);
+        ctx->text_shaper = ctx->math_shaper;
       else
         ctx->text_shaper = TextShaper::find(s, fs);
       
       FallbackTextShaper *fts = new FallbackTextShaper(ctx->text_shaper);
       fts->add(TextShaper::find("Arial Unicode MS", fs));
+      fts->add(ctx->math_shaper);
+      fts->add(new CharBoxTextShaper());
       ctx->text_shaper = fts;
     }
     else
       ctx->text_shaper = ctx->text_shaper->set_style(fs);
-      
-    ctx->math_shaper = ctx->math_shaper->math_set_style(fs);
-    
     
     if(old_text_shaper != ctx->text_shaper)
       ctx->canvas->reset_font_cache();

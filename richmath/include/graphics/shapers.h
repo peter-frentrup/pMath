@@ -169,6 +169,40 @@ namespace richmath{
       Array<SharedPtr<TextShaper> > _shapers;
   };
   
+  class CharBoxTextShaper: public TextShaper {
+    public:
+      CharBoxTextShaper();
+      virtual ~CharBoxTextShaper();
+      
+      virtual uint8_t num_fonts(){                return 1; }
+      virtual FontFace font(uint8_t fontinfo){    return FontFace(); }
+      virtual String font_name(uint8_t fontinfo){ return ""; }
+      
+      virtual void decode_token(
+        Context        *context,
+        int             len,
+        const uint16_t *str, 
+        GlyphInfo      *result);
+        
+      virtual void vertical_glyph_size(
+        Context         *context,
+        const uint16_t   ch,
+        const GlyphInfo &info,
+        float           *ascent,
+        float           *descent);
+      
+      virtual void show_glyph(
+        Context         *context, 
+        float            x,
+        float            y,
+        const uint16_t   ch,
+        const GlyphInfo &info);
+        
+      virtual SharedPtr<TextShaper> set_style(FontStyle style);
+      
+      virtual FontStyle get_style(){ return NoStyle; }
+  };
+  
   class RadicalShapeInfo{
     public:
       int   size; // negative => small root, otherwise # of vertical pieces
