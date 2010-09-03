@@ -189,17 +189,22 @@ void ConfigShaperDB::clear_all(){
 }
 
 bool ConfigShaperDB::verify(){
-  if(fontnames.length() < 1){
+  if(math_fontnames.length() < 1){
     printf("[%s, %d]", __func__, __LINE__);
     return false;
   }
   
-  if(fontnames.length() > FontsPerGlyphCount){
+  if(text_fontnames.length() < 1){
     printf("[%s, %d]", __func__, __LINE__);
     return false;
   }
   
-  if(radical.font >= fontnames.length()){
+  if(math_fontnames.length() + text_fontnames.length() > FontsPerGlyphCount){
+    printf("[%s, %d]", __func__, __LINE__);
+    return false;
+  }
+  
+  if(radical.font >= math_fontnames.length()){
     printf("[%s, %d]", __func__, __LINE__);
     return false;
   }
@@ -262,7 +267,7 @@ bool ConfigShaperDB::verify(){
       }
       
       for(int j = 0;j < e->value.fonts.length();++j){
-        if(e->value.fonts[j] >= fontnames.length()){
+        if(e->value.fonts[j] >= math_fontnames.length()){
           printf("[%s, %d, %x, %d]", __func__, __LINE__, e->key, j);
           return false;
         }
@@ -277,12 +282,12 @@ bool ConfigShaperDB::verify(){
     if(e){
       --c;
       
-      if(e->value.tbms_font >= fontnames.length()){
+      if(e->value.tbms_font >= math_fontnames.length()){
         printf("[%s, %d, %x]", __func__, __LINE__, e->key);
         return false;
       }
       
-      if(e->value.ul_font >= fontnames.length()){
+      if(e->value.ul_font >= math_fontnames.length()){
         printf("[%s, %d, %x]", __func__, __LINE__, e->key);
         return false;
       }
@@ -327,7 +332,7 @@ bool ConfigShaperDB::verify(){
         printf("not found: U+%04x\n", (int)e->key);
       }
       
-      if(e->value.font >= fontnames.length()){
+      if(e->value.font >= math_fontnames.length()){
         printf("[%s, %d]", __func__, __LINE__);
         return false;
       }
@@ -347,7 +352,7 @@ bool ConfigShaperDB::verify(){
       }
       
       for(int j = 0;j < e->value.length();++j){
-        if(e->value[j].font >= fontnames.length()){
+        if(e->value[j].font >= math_fontnames.length()){
           printf("[%s, %d]", __func__, __LINE__);
           return false;
         }
@@ -363,7 +368,7 @@ bool ConfigShaperDB::verify(){
       --c;
       
       for(int j = 0;j < e->value.length();++j){
-        if(e->value[j].font >= fontnames.length()){
+        if(e->value[j].font >= math_fontnames.length()){
           printf("[%s, %d]", __func__, __LINE__);
           return false;
         }
@@ -401,17 +406,34 @@ SharedPtr<ConfigShaperDB> ConfigShaperDB::load_from_object(const Expr expr){
       String lhs = expr[i][1];
       Expr   rhs = expr[i][2];
       
-      if(lhs.equals("Fonts")){
+      if(lhs.equals("MathFonts")){
         if(rhs.instance_of(PMATH_TYPE_STRING)){
-          db->fontnames.length(1);
-          db->fontnames[0] = String(rhs);
+          db->math_fontnames.length(1);
+          db->math_fontnames[0] = String(rhs);
         }
         
         if(rhs[0] == PMATH_SYMBOL_LIST){
-          db->fontnames.length(rhs.expr_length());
+          db->math_fontnames.length(rhs.expr_length());
           
-          for(int j = 0;j < db->fontnames.length();++j){
-            db->fontnames[j] = String(rhs[j+1]);
+          for(int j = 0;j < db->math_fontnames.length();++j){
+            db->math_fontnames[j] = String(rhs[j+1]);
+          }
+        }
+        
+        continue;
+      }
+      
+      if(lhs.equals("TextFonts")){
+        if(rhs.instance_of(PMATH_TYPE_STRING)){
+          db->text_fontnames.length(1);
+          db->text_fontnames[0] = String(rhs);
+        }
+        
+        if(rhs[0] == PMATH_SYMBOL_LIST){
+          db->text_fontnames.length(rhs.expr_length());
+          
+          for(int j = 0;j < db->text_fontnames.length();++j){
+            db->text_fontnames[j] = String(rhs[j+1]);
           }
         }
         
@@ -709,8 +731,8 @@ SharedPtr<ConfigShaperDB> ConfigShaperDB::load_from_object(const Expr expr){
           for(size_t j = 1;j <= rhs.expr_length();++j){
             uint8_t font = expr_to_ui8(rhs[j]) - 1;
             
-            if(font < db->fontnames.length()){
-              FontInfo(FontFace(db->fontnames[font], NoStyle)).get_postscript_names(
+            if(font < db->math_fontnames.length()){
+              FontInfo(FontFace(db->math_fontnames[font], NoStyle)).get_postscript_names(
                 &GG.ps2g[font], 0);
             }
           }
@@ -718,8 +740,8 @@ SharedPtr<ConfigShaperDB> ConfigShaperDB::load_from_object(const Expr expr){
         else{
           uint8_t font = expr_to_ui8(rhs) - 1;
           
-          if(font < db->fontnames.length()){
-            FontInfo(FontFace(db->fontnames[font], NoStyle)).get_postscript_names(
+          if(font < db->math_fontnames.length()){
+            FontInfo(FontFace(db->math_fontnames[font], NoStyle)).get_postscript_names(
               &GG.ps2g[font], 0);
           }
         }
@@ -731,9 +753,9 @@ SharedPtr<ConfigShaperDB> ConfigShaperDB::load_from_object(const Expr expr){
     }
   }
   
-  if(db->fontnames.length() > 0){
+  if(db->math_fontnames.length() > 0){
     
-    SharedPtr<TextShaper> shaper = TextShaper::find(db->fontnames[0], NoStyle);
+    SharedPtr<TextShaper> shaper = TextShaper::find(db->math_fontnames[0], NoStyle);
     GlyphInfo glyphs[4];
     uint16_t  str[4];
     ComposedGlyph cg;
@@ -790,29 +812,38 @@ SharedPtr<ConfigShaper> ConfigShaperDB::find(FontStyle style){
 ConfigShaper::ConfigShaper(SharedPtr<ConfigShaperDB> _db, FontStyle _style)
 : SimpleMathShaper(_db->radical.font),
   db(_db),
-  text_shaper(TextShaper::find(_db->fontnames[0], _style)),
-  font_faces(_db->fontnames.length()),
+  text_shaper(new FallbackTextShaper(TextShaper::find(db->text_fontnames[0], _style))),
+  math_font_faces(_db->math_fontnames.length()),
   style(_style)
 {
-  for(int i = 0;i < font_faces.length();++i)
-    font_faces[i] = FontFace(db->fontnames[i], style);
+  for(int i = 1;i < db->text_fontnames.length();++i)
+    text_shaper->add(TextShaper::find(db->text_fontnames[i], style));
+  
+  text_shaper->add_default();
+
+  for(int i = 0;i < math_font_faces.length();++i)
+    math_font_faces[i] = FontFace(db->math_fontnames[i], style);
 } 
 
 ConfigShaper::~ConfigShaper(){
 }
 
+uint8_t ConfigShaper::num_fonts(){
+  return (uint8_t)math_font_faces.length() + text_shaper->num_fonts();
+}
+
 FontFace ConfigShaper::font(uint8_t fontinfo){
-  if(fontinfo >= font_faces.length())
-    return font_faces[0];
+  if(fontinfo >= math_font_faces.length())
+    return text_shaper->font(fontinfo - (uint8_t)math_font_faces.length());
   
-  return font_faces[fontinfo];
+  return math_font_faces[fontinfo];
 }
 
 String ConfigShaper::font_name(uint8_t fontinfo){
-  if(fontinfo >= db->fontnames.length())
-    return db->fontnames[0];
+  if(fontinfo >= db->math_fontnames.length())
+    return text_shaper->font_name(fontinfo - (uint8_t)math_font_faces.length());
   
-  return db->fontnames[fontinfo];
+  return db->math_fontnames[fontinfo];
 }
 
 void ConfigShaper::decode_token(
@@ -899,8 +930,11 @@ void ConfigShaper::decode_token(
         utf16, 
         r);
       
-      if(r->index){
+      if(r->index != 0
+      && r->index != 0xFFFF 
+      && r->fontinfo < db->text_fontnames.length()){ /* prevent box-drawing fallback font */
         memcpy(result, r, sizeof(GlyphInfo));
+        result->fontinfo+= math_font_faces.length();
         return;
       }
       
@@ -1014,6 +1048,9 @@ void ConfigShaper::decode_token(
         sub_len, 
         str, 
         result);
+      
+      for(int i = 0;i < sub_len;++i)
+        result[i].fontinfo+= math_font_faces.length();
     
       str   += sub_len;
       result+= sub_len;
@@ -1063,6 +1100,16 @@ void ConfigShaper::vertical_glyph_size(
   float           *ascent,
   float           *descent
 ){
+  if(info.fontinfo >= math_font_faces.length()){
+    GlyphInfo gi;
+    memcpy(&gi, &info, sizeof(GlyphInfo));
+    
+    gi.fontinfo-= math_font_faces.length();
+    text_shaper->vertical_glyph_size(context, ch, gi, ascent, descent);
+    
+    return;
+  }
+  
   if(info.composed){
     Array<GlyphFontOffset> *arr = db->complex_glyphs.search(ch);
     
@@ -1096,6 +1143,16 @@ void ConfigShaper::show_glyph(
   const uint16_t   ch,
   const GlyphInfo &info
 ){
+  if(info.fontinfo >= math_font_faces.length()){
+    GlyphInfo gi;
+    memcpy(&gi, &info, sizeof(GlyphInfo));
+    
+    gi.fontinfo-= math_font_faces.length();
+    text_shaper->show_glyph(context, x, y, ch, gi);
+    
+    return;
+  }
+  
   if(info.composed){
     Array<GlyphFontOffset> *arr = db->complex_glyphs.search(ch);
     

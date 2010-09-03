@@ -728,10 +728,11 @@ Array<MathGlyphPartRecord> *OTMathShaperDB::get_horz_assembly(uint32_t ch, uint1
 OTMathShaper::OTMathShaper(SharedPtr<OTMathShaperDB> _db, FontStyle _style)
 : MathShaper(),
   db(_db),
-  text_shaper(TextShaper::find(_db->name, _style)),
+  text_shaper(new FallbackTextShaper(TextShaper::find(_db->name, _style))),
   style(_style),
   fi(text_shaper->font(0))
 {
+  text_shaper->add_default();
 }
 
 OTMathShaper::~OTMathShaper(){
@@ -819,7 +820,8 @@ void OTMathShaper::decode_token(
         utf16, 
         r);
       
-      if(r->index){
+      if(r->index != 0
+      && r->index != 0xFFFF){
         if(style.italic){
           result->slant = FontSlantPlain;
           math_set_style(style - Italic)->decode_token(context, len, str, result);
@@ -940,6 +942,11 @@ void OTMathShaper::vertical_glyph_size(
   float           *ascent,
   float           *descent
 ){
+  if(info.fontinfo > 0){
+    text_shaper->vertical_glyph_size(context, ch, info, ascent, descent);
+    return;
+  }
+  
   if(info.composed){
     if(style.italic){
       math_set_style(style - Italic)->vertical_glyph_size(
@@ -1015,6 +1022,11 @@ void OTMathShaper::show_glyph(
   const uint16_t   ch,
   const GlyphInfo &info
 ){
+  if(info.fontinfo > 0){
+    text_shaper->show_glyph(context, x, y, ch, info);
+    return;
+  }
+  
   if(info.composed){
     if(style.italic){
       math_set_style(style - Italic)->show_glyph(

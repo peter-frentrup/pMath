@@ -408,9 +408,9 @@ void ContextState::begin(SharedPtr<Style> style){
         ctx->text_shaper = TextShaper::find(s, fs);
       
       FallbackTextShaper *fts = new FallbackTextShaper(ctx->text_shaper);
-      fts->add(TextShaper::find("Arial Unicode MS", fs));
+//      fts->add(TextShaper::find("Arial Unicode MS", fs));
       fts->add(ctx->math_shaper);
-      fts->add(new CharBoxTextShaper());
+//      fts->add(new CharBoxTextShaper());
       ctx->text_shaper = fts;
     }
     else

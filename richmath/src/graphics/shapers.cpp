@@ -109,25 +109,15 @@ void TextShaper::show_glyph(
       To see the difference, draw something to the glass area of the window (an 
       ARGB32-image surface is used there) with and without this workaround.
    */
-    static GlyphInfo space_glyph;
-    static TextShaper *last_space_shaper = 0;
-    
-    if(last_space_shaper != this){
-      static const uint16_t space_char = ' ';
-      
-      last_space_shaper = this;
-      
-      decode_token(context, 1, &space_char, &space_glyph);
-    }
-    
+    static const uint16_t InvisibleGlyph = 1; // = ".null"
     cairo_glyph_t cg[3];
-    cg[0].index = space_glyph.index; // invisible
+    cg[0].index = InvisibleGlyph;
     cg[0].x = x - 3.0;
     cg[0].y = y;
     cg[1].index = info.index;
     cg[1].x = x + info.x_offset;
     cg[1].y = y;
-    cg[2].index = space_glyph.index; // invisible
+    cg[2].index = InvisibleGlyph;
     cg[2].x = x + info.right + 3.0;
     cg[2].y = y;
     
@@ -236,6 +226,15 @@ void FallbackTextShaper::add(SharedPtr<TextShaper> fallback){
   else{
     _shapers.add(fallback);
   }
+}
+
+void FallbackTextShaper::add_default(){
+  int own_num = num_fonts();
+  
+  if(own_num + 1 < FontsPerGlyphCount)
+    add(TextShaper::find("Arial Unicode MS", get_style()));
+  
+  add(new CharBoxTextShaper);
 }
 
 uint8_t FallbackTextShaper::num_fonts(){

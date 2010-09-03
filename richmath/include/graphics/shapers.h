@@ -132,6 +132,7 @@ namespace richmath{
       virtual ~FallbackTextShaper();
       
       void add(SharedPtr<TextShaper> fallback);
+      void add_default();
       
       virtual uint8_t num_fonts();
       virtual FontFace font(uint8_t fontinfo);

@@ -271,7 +271,7 @@ namespace richmath{
         float            y,
         const uint16_t   ch,
         const GlyphInfo &info);
-        
+      
       virtual bool horizontal_stretch_char(
         Context        *context,
         float           width,
@@ -362,11 +362,10 @@ namespace richmath{
       OTMathShaper(SharedPtr<OTMathShaperDB> _db, FontStyle _style);
       
     protected:
-      SharedPtr<OTMathShaperDB>  db;
-      SharedPtr<TextShaper>      orig_text_shaper;
-      SharedPtr<TextShaper>      text_shaper;
-      FontStyle                  style;
-      FontInfo                   fi;
+      SharedPtr<OTMathShaperDB>      db;
+      SharedPtr<FallbackTextShaper>  text_shaper;
+      FontStyle                      style;
+      FontInfo                       fi;
   };
 };
 

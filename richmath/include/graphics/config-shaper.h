@@ -153,7 +153,8 @@ namespace richmath{
       
       RadicalGlyphs radical;
       
-      Array<String> fontnames;
+      Array<String> math_fontnames;
+      Array<String> text_fontnames;
       String shaper_name;
   };
   
@@ -162,7 +163,7 @@ namespace richmath{
     public:
       virtual ~ConfigShaper();
       
-      virtual uint8_t num_fonts(){ return (uint8_t)font_faces.length(); }
+      virtual uint8_t num_fonts();
       virtual FontFace font(uint8_t fontinfo);
       virtual String font_name(uint8_t fontinfo);
       
@@ -185,7 +186,7 @@ namespace richmath{
         float            y,
         const uint16_t   ch,
         const GlyphInfo &info);
-        
+      
       virtual float italic_correction(
         Context          *context,
         uint16_t          ch,
@@ -195,8 +196,8 @@ namespace richmath{
         Context           *context,
         uint16_t           base_char, 
         const GlyphInfo   &base_info,
-        MathSequence          *sub,
-        MathSequence          *super,
+        MathSequence      *sub,
+        MathSequence      *super,
         float              sub_y,
         float              super_y,
         float             *sub_x,
@@ -252,10 +253,10 @@ namespace richmath{
         float        *_rel_exp_y);
         
     protected:
-      SharedPtr<ConfigShaperDB>  db;
-      SharedPtr<TextShaper>      text_shaper;
-      Array<FontFace>            font_faces;
-      FontStyle                  style;
+      SharedPtr<ConfigShaperDB>      db;
+      SharedPtr<FallbackTextShaper>  text_shaper;
+      Array<FontFace>                math_font_faces;
+      FontStyle                      style;
   };
 }
 
