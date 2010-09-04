@@ -393,16 +393,36 @@ class richmath::GlassDock: public richmath::Dock {
     }
     
     virtual void paint_background(Canvas *canvas){
-      if(!Win32Themes::IsCompositionActive
-      || !Win32Themes::IsCompositionActive()){
+      if(Win32Themes::IsCompositionActive
+      && Win32Themes::IsCompositionActive()){
+        set_textshadows();
+        canvas->glass_background = true;
+        
+        /* Workaround a Cairo (1.8.8) Bug:
+            Platform: Windows, Cleartype on, ARGB32 image or HDC
+            
+            The last (cleartype-blured) pixel column of the last glyph and the zero-th 
+            column (also cleartype-blured) of the first pixel in a glyph-string wont 
+            be drawn. That looks ugly.
+            
+            To see the difference, comment out the following lines.
+         */
+        BOOL haveFontSmoothing = FALSE;
+        UINT fontSmoothingType = FE_FONTSMOOTHINGSTANDARD; 
+        
+        SystemParametersInfo(SPI_GETFONTSMOOTHING,     0, &haveFontSmoothing, 0);
+        SystemParametersInfo(SPI_GETFONTSMOOTHINGTYPE, 0, &fontSmoothingType, 0);
+        
+        if(haveFontSmoothing && fontSmoothingType == FE_FONTSMOOTHINGCLEARTYPE)
+          canvas->native_show_glyphs = false;
+      }
+      else{
         remove_textshadows();
+        
+        canvas->native_show_glyphs = true;
         
         if(parent->glass_enabled())
           canvas->glass_background = true;
-      }
-      else{
-        set_textshadows();
-        canvas->glass_background = true;
       }
       
       Dock::paint_background(canvas);

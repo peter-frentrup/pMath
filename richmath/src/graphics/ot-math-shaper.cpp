@@ -768,12 +768,6 @@ void OTMathShaper::decode_token(
       ch = 0;
     
     if(ch){
-//      if(style.italic){
-//        result->slant = FontSlantPlain;
-//        math_set_style(style - Italic)->decode_token(context, len, str, result);
-//        return;
-//      }
-      
       uint16_t glyph = db->private_characters[ch];
       if(glyph){
         if(style.italic){
@@ -814,14 +808,17 @@ void OTMathShaper::decode_token(
         ch+= 0x10000;
       }
       
+      bool old_boxchar_fallback_enabled = context->boxchar_fallback_enabled;
+      context->boxchar_fallback_enabled = false;
       text_shaper->decode_token(
         context, 
         ch <= 0xFFFF ? 1 : 2, 
         utf16, 
         r);
+      context->boxchar_fallback_enabled = old_boxchar_fallback_enabled;
       
       if(r->index != 0
-      && r->index != 0xFFFF){
+      && r->index != UnknownGlyph){
         if(style.italic){
           result->slant = FontSlantPlain;
           math_set_style(style - Italic)->decode_token(context, len, str, result);

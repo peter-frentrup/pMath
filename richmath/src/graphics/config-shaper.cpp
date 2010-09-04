@@ -924,15 +924,17 @@ void ConfigShaper::decode_token(
         ch+= 0x10000;
       }
       
+      bool old_boxchar_fallback_enabled = context->boxchar_fallback_enabled;
+      context->boxchar_fallback_enabled = false;
       text_shaper->decode_token(
         context, 
         ch <= 0xFFFF ? 1 : 2, 
         utf16, 
         r);
+      context->boxchar_fallback_enabled = old_boxchar_fallback_enabled;
       
       if(r->index != 0
-      && r->index != 0xFFFF 
-      && r->fontinfo < db->text_fontnames.length()){ /* prevent box-drawing fallback font */
+      && r->index != UnknownGlyph){
         memcpy(result, r, sizeof(GlyphInfo));
         result->fontinfo+= math_font_faces.length();
         return;

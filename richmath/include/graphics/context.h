@@ -80,6 +80,7 @@ namespace richmath{
       bool math_spacing;
       bool smaller_fraction_parts;
       bool single_letter_italics;
+      bool boxchar_fallback_enabled;
       
       int          script_indent;
       float        script_size_min;

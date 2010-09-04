@@ -77,6 +77,7 @@ Context::Context()
   math_spacing(true),
   smaller_fraction_parts(false),
   single_letter_italics(true),
+  boxchar_fallback_enabled(true),
   script_indent(0),
   script_size_min(5),
 //  caret(&Caret::dummy),
@@ -408,9 +409,7 @@ void ContextState::begin(SharedPtr<Style> style){
         ctx->text_shaper = TextShaper::find(s, fs);
       
       FallbackTextShaper *fts = new FallbackTextShaper(ctx->text_shaper);
-//      fts->add(TextShaper::find("Arial Unicode MS", fs));
       fts->add(ctx->math_shaper);
-//      fts->add(new CharBoxTextShaper());
       ctx->text_shaper = fts;
     }
     else

@@ -53,6 +53,9 @@ namespace richmath{
     unsigned missing_after:      1;
   }GlyphInfo;
   
+  const uint16_t IgnoreGlyph = 0x0000;
+  const uint16_t UnknownGlyph = 0xFFFF;
+  
   class Context;
   
   class BoxSize {

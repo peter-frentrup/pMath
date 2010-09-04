@@ -84,47 +84,47 @@ void TextShaper::show_glyph(
   const uint16_t   ch,
   const GlyphInfo &info
 ){
-  bool workaround = false;
-  
-  cairo_surface_t *target = context->canvas->target();
-  switch(cairo_surface_get_type(target)){
-    case CAIRO_SURFACE_TYPE_IMAGE:
-    case CAIRO_SURFACE_TYPE_WIN32:
-      workaround = (cairo_image_surface_get_format(target) == CAIRO_FORMAT_ARGB32);
-      break;
-    
-    default:
-      break;
-  }
-  
-  if(workaround){
-  /* Workaround a Cairo (1.8.8) Bug:
-      Platform: Windows, Cleartype on, ARGB32 image or HDC
-      The last (cleartype-blured) pixel column of the last glyph and the zero-th 
-      column (also cleartype-blured) of the first pixel in a glyph-string wont 
-      be drawn. 
-      That looks ugly, so we add invisible glyphs at the first and the last
-      index with adjusted x-positions.
-      
-      To see the difference, draw something to the glass area of the window (an 
-      ARGB32-image surface is used there) with and without this workaround.
-   */
-    static const uint16_t InvisibleGlyph = 1; // = ".null"
-    cairo_glyph_t cg[3];
-    cg[0].index = InvisibleGlyph;
-    cg[0].x = x - 3.0;
-    cg[0].y = y;
-    cg[1].index = info.index;
-    cg[1].x = x + info.x_offset;
-    cg[1].y = y;
-    cg[2].index = InvisibleGlyph;
-    cg[2].x = x + info.right + 3.0;
-    cg[2].y = y;
-    
-    context->canvas->set_font_face(font(info.fontinfo));
-    context->canvas->show_glyphs(cg, 3);
-  }
-  else{
+//  bool workaround = false;
+//  
+//  cairo_surface_t *target = context->canvas->target();
+//  switch(cairo_surface_get_type(target)){
+//    case CAIRO_SURFACE_TYPE_IMAGE:
+//    case CAIRO_SURFACE_TYPE_WIN32:
+//      workaround = (cairo_image_surface_get_format(target) == CAIRO_FORMAT_ARGB32);
+//      break;
+//    
+//    default:
+//      break;
+//  }
+//  
+//  if(workaround){
+//  /* Workaround a Cairo (1.8.8) Bug:
+//      Platform: Windows, Cleartype on, ARGB32 image or HDC
+//      The last (cleartype-blured) pixel column of the last glyph and the zero-th 
+//      column (also cleartype-blured) of the first pixel in a glyph-string wont 
+//      be drawn. 
+//      That looks ugly, so we add invisible glyphs at the first and the last
+//      index with adjusted x-positions.
+//      
+//      To see the difference, draw something to the glass area of the window (an 
+//      ARGB32-image surface is used there) with and without this workaround.
+//   */
+//    static const uint16_t InvisibleGlyph = 1; // = ".null", does not work for AsanaMath
+//    cairo_glyph_t cg[3];
+//    cg[0].index = InvisibleGlyph;
+//    cg[0].x = x - 3.0;
+//    cg[0].y = y;
+//    cg[1].index = info.index;
+//    cg[1].x = x + info.x_offset;
+//    cg[1].y = y;
+//    cg[2].index = InvisibleGlyph;
+//    cg[2].x = x + info.right + 3.0;
+//    cg[2].y = y;
+//    
+//    context->canvas->set_font_face(font(info.fontinfo));
+//    context->canvas->show_glyphs(cg, 3);
+//  }
+//  else{
     cairo_glyph_t cg;
     cg.index = info.index;
     cg.x = x + info.x_offset;
@@ -132,7 +132,7 @@ void TextShaper::show_glyph(
     
     context->canvas->set_font_face(font(info.fontinfo));
     context->canvas->show_glyphs(&cg, 1);
-  }
+//  }
 }
 
 SharedPtr<TextShaper> TextShaper::find(
@@ -180,14 +180,28 @@ void TextShaper::clear_cache(){
 
 //{ class FallbackTextShaper ...
 
+static Expr default_fallback_fontlist;
+static int fallback_shaper_count = 0;
+
 FallbackTextShaper::FallbackTextShaper(SharedPtr<TextShaper> default_shaper)
 : TextShaper()
 {
   assert(default_shaper.is_valid());
   _shapers.add(default_shaper);
+  
+  if(++fallback_shaper_count == 1){
+    default_fallback_fontlist = Expr(pmath_evaluate(
+      pmath_parse_string(
+        PMATH_C_STRING("FE`$FallbackFonts"))));
+    
+    if(default_fallback_fontlist[0] != PMATH_SYMBOL_LIST)
+      default_fallback_fontlist = Expr();
+  }
 }
 
 FallbackTextShaper::~FallbackTextShaper(){
+  if(--fallback_shaper_count == 0)
+    default_fallback_fontlist = Expr();
 }
 
 int FallbackTextShaper::fallback_index(uint8_t *fontinfo){
@@ -205,7 +219,7 @@ int FallbackTextShaper::fallback_index(uint8_t *fontinfo){
 
 int FallbackTextShaper::first_missing_glyph(int len, const GlyphInfo *glyphs){
   int result = 0;
-  while(result < len && glyphs[result].index != 0xFFFF)
+  while(result < len && glyphs[result].index != UnknownGlyph)
     ++result;
   
   return result;
@@ -229,11 +243,17 @@ void FallbackTextShaper::add(SharedPtr<TextShaper> fallback){
 }
 
 void FallbackTextShaper::add_default(){
-  int own_num = num_fonts();
+  for(size_t i = 1;i <= default_fallback_fontlist.expr_length();++i){
+    String s = String(default_fallback_fontlist[i]);
+    
+    if(s.length() > 0)
+      add(TextShaper::find(s, get_style()));
+  }
   
-  if(own_num + 1 < FontsPerGlyphCount)
-    add(TextShaper::find("Arial Unicode MS", get_style()));
-  
+  // todo: Ensure that CharBoxTextShaper is allways available (i.e. no more
+  //       than 15 other fonts before) Note that there might be other fonts 
+  //       before this FallbackTextShaper, so we do not know the number of fonts
+  //       here.
   add(new CharBoxTextShaper);
 }
 
@@ -282,7 +302,7 @@ void FallbackTextShaper::decode_token(
     
     do{
       int next = start;
-      while(next < len && result[next].index == 0xFFFF)
+      while(next < len && result[next].index == UnknownGlyph)
         ++next;
       
       ts->decode_token(
@@ -296,7 +316,7 @@ void FallbackTextShaper::decode_token(
       }
       
       end = next;
-      while(start < len && result[start].index != 0xFFFF)
+      while(start < len && result[start].index != UnknownGlyph)
         ++start;
     }while(start < len);
     
@@ -381,6 +401,9 @@ FontStyle FallbackTextShaper::get_style(){
 
 //{ class CharBoxTextShaper ...
 
+static const uint16_t CharBoxError  = 1;
+static const uint16_t CharBoxSingle = 2;
+
 FontFace digit_font;
 static int num_cbts = 0;
 
@@ -404,6 +427,13 @@ void CharBoxTextShaper::decode_token(
   const uint16_t *str, 
   GlyphInfo      *result
 ){
+  if(!context->boxchar_fallback_enabled){
+    for(int i = 0;i < len;++i)
+      result[i].index = UnknownGlyph;
+    
+    return;
+  }
+  
   float em = context->canvas->get_font_size();
   
   for(int i = 0;i < len;++i){
@@ -413,16 +443,19 @@ void CharBoxTextShaper::decode_token(
       result[i].index = str[i+1];
       result[i].right = em;
       
-      result[i+1].index = 3;
+      result[i+1].index = IgnoreGlyph;
       result[i+1].right = 0.0;
       ++i;
     }
-    else if(is_utf16_low(str[i])){
-      result[i].index = 2;
+    else if(is_utf16_low(str[i]) || is_utf16_high(str[i])){
+      result[i].index = CharBoxError;
       result[i].right = em;
     }
+    else if(str[i] == '\n'){
+      result[i].index = IgnoreGlyph;
+    }
     else{
-      result[i].index = 1;
+      result[i].index = CharBoxSingle;
       result[i].right = em;
     }
   }
@@ -452,7 +485,7 @@ void CharBoxTextShaper::show_glyph(
   char str1[4] = "? ?";
   char str2[4] = "? ?";
   
-  if(is_utf16_high(ch)){
+  if(is_utf16_low(info.index)){
     uint32_t unicode = 0x10000 + ((((uint32_t)ch & 0x03FF) << 10) | (info.index & 0x03FF));
     
     str1[0] = hex[(unicode & 0xF00000) >> 20];
@@ -464,14 +497,14 @@ void CharBoxTextShaper::show_glyph(
     str2[2] = hex[ unicode & 0x00000F];
     
   }
-  else if(info.index == 1){
+  else if(info.index == CharBoxSingle){
     str1[0] = hex[(ch & 0xF000) >> 12];
     str1[2] = hex[(ch & 0x0F00) >> 8];
     
     str2[0] = hex[(ch & 0x00F0) >> 4];
     str2[2] = hex[ ch & 0x000F];
   }
-  else if(info.index != 2)
+  else if(info.index != CharBoxError)
     return;
   
   float em = context->canvas->get_font_size();
@@ -612,7 +645,7 @@ void SimpleMathShaper::vertical_glyph_size(
         }
       }
     }
-    else if(info.index == 0xFFFF){
+    else if(info.index == UnknownGlyph){
       uint16_t upper, lower;
       v_stretch_pair_glyphs(
         ch,
@@ -773,7 +806,7 @@ void SimpleMathShaper::show_glyph(
         }
       }
     }
-    else if(info.index == 0xFFFF){
+    else if(info.index == UnknownGlyph){
       uint16_t upper, lower;
       v_stretch_pair_glyphs(
         ch,
@@ -1108,7 +1141,7 @@ void SimpleMathShaper::vertical_stretch_char(
         cg.index = upper;
         cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
         
-        result->index = 0xFFFF;
+        result->index = UnknownGlyph;
         result->composed = 1;
         result->is_normal_text = 0;
         result->fontinfo = ulfontindex;

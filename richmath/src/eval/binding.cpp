@@ -189,7 +189,7 @@ static bool can_edit_boxes(Expr cmd){
 static bool edit_boxes_cmd(Expr cmd){
   Document *doc = get_current_document();
   
-  if(!doc)
+  if(!doc || !doc->selectable(-1))
     return false;
   
   int a, b;

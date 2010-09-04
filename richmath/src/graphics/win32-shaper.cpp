@@ -61,7 +61,7 @@ void WindowsFontShaper::decode_token(
     (const WCHAR*)str, 
     len, 
     indices.items(),
-    GGI_MARK_NONEXISTING_GLYPHS); /* marks nonexistent glyphs with 0xffff */
+    GGI_MARK_NONEXISTING_GLYPHS); /* marks nonexistent glyphs with 0xffff = UnknownGlyph */
   
   cg.x = 0;
   cg.y = 0;
@@ -111,7 +111,7 @@ void WindowsFontShaper::decode_token(
           result[i + 1].index = 0;
         }
         else{
-          result[i].index = result[i+1].index = 0xFFFF;
+          result[i].index = result[i+1].index = UnknownGlyph;
           result[i].right = 0.0;
         }
         

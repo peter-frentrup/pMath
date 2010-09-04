@@ -1620,7 +1620,7 @@ void MathSequence::syntax_restyle_span(
     }
   }
   
-  if(closing == 0xFFFF){
+  if(closing == UnknownGlyph){
     glyphs[opening_pos].style = GlyphStyleNone;
     
     while(*pos <= span.end())
