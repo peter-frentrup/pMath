@@ -143,12 +143,27 @@ void Context::draw_selection_path(){
   }
   else{
     if(active){
-      canvas->set_color(
-        SelectionColor, //ControlPainter::std->selection_color() 
-        SelectionAlpha);
-      canvas->fill();
+      cairo_push_group(canvas->cairo());
+      {
+        canvas->save();
+        {
+          cairo_matrix_t idmat;
+          cairo_matrix_init_identity(&idmat);
+          cairo_set_matrix(canvas->cairo(), &idmat);
+          cairo_set_line_width(canvas->cairo(), 2.0);
+          canvas->set_color(SelectionBorderColor);
+          canvas->stroke_preserve();
+        }
+        canvas->restore();
+        
+        canvas->set_color(SelectionFillColor); //ControlPainter::std->selection_color() 
+        canvas->fill();
+      }
+      cairo_pop_group_to_source(canvas->cairo());
+      canvas->paint_with_alpha(SelectionAlpha);
     }
     else{
+      // todo: use a checkerboard source instead of dashes.
       double dashes[] = {
        1.0,  /* ink */
        1.0   /* skip*/

@@ -219,8 +219,6 @@ static bool edit_boxes_cmd(Expr cmd){
           doc->native()->beep();//MessageBeep(MB_ICONEXCLAMATION);
         }
         else{
-          pmath_debug_print_object("\nctrl+e: ",parsed.get(),"\n");
-          
           Section *sect = Section::create_from_object(parsed);
           sect->swap_id(edit);
           

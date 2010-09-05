@@ -57,10 +57,10 @@ namespace richmath{
       void ensure_boxes_valid();
       void ensure_text_valid();
       
-      void insert(int pos, const char *utf8, int len);
-      void insert(int pos, TextSequence *txt, int start, int end);
-      virtual void insert(int pos, const String &s); // unsafe: allows PMATH_BOX_CHAR
-      virtual void insert(int pos, Box *box);
+      int insert(int pos, const char *utf8, int len);
+      int insert(int pos, TextSequence *txt, int start, int end);
+      virtual int insert(int pos, const String &s); // unsafe: allows PMATH_BOX_CHAR
+      virtual int insert(int pos, Box *box);
       virtual void remove(int start, int end);
       virtual Box *remove(int *index);
       
@@ -89,14 +89,16 @@ namespace richmath{
       
       virtual Box *normalize_selection(int *start, int *end);
       
+      PangoLayout     *get_layout(){ return _layout; }
       PangoLayoutIter *get_iter();
       
-      void line_extents(PangoLayoutIter *iter, float *x, float *y, BoxSize *size);
+      void line_extents(PangoLayoutIter *iter, int line, float *x, float *y, BoxSize *size);
       void line_extents(int line, float *x, float *y, BoxSize *size);
     
     private:
       Array<Box*>  boxes;
       TextBuffer   text;
+      Array<int>   line_y_corrections;
       
       PangoLayout *_layout;
       

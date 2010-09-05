@@ -1,6 +1,5 @@
 #include <gui/control-painter.h>
 
-#define _USE_MATH_DEFINES
 #include <cmath>
 
 #include <boxes/box.h>

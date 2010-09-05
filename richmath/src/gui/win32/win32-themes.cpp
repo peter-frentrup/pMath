@@ -45,7 +45,7 @@ HMODULE Win32Themes::dwmapi = 0;
 HMODULE Win32Themes::uxtheme = 0;
 
 void Win32Themes::init(){
-  static Win32Themes::Win32Themes w;
+  static Win32Themes w;
 }
 
 Win32Themes::Win32Themes(): Base(){

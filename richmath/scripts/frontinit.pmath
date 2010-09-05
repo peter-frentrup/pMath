@@ -49,7 +49,7 @@ SymbolInfo(~name:String)::= Try(
 		),
 	Syntax)
 
-SectionsToBoxes(~b)::= ReplaceRepeated(b, {Section(BoxData(~x), ~~~) :> {x, "\n"}, SectionGroup(~x, ~) :> x})
+SectionsToBoxes(~b)::= ReplaceRepeated(b, {Section(BoxData(~x), ~~~) :> {x, "\n"}, Section(~x, ~~~) :> {x, "\n"}, SectionGroup(~x, ~) :> x})
 
 $NamespacePath:= oldNamespacePath
 

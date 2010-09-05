@@ -248,9 +248,9 @@ namespace richmath{
     public:
       virtual ~OTMathShaper();
       
-      virtual uint8_t num_fonts(){ return 1; }
-      virtual FontFace font(   uint8_t fontinfo){ return text_shaper->font(0); }
-      virtual String font_name(uint8_t fontinfo){ return text_shaper->font_name(0); }
+      virtual uint8_t num_fonts(){ return text_shaper->num_fonts(); }
+      virtual FontFace font(   uint8_t fontinfo){ return text_shaper->font(fontinfo); }
+      virtual String font_name(uint8_t fontinfo){ return text_shaper->font_name(fontinfo); }
       
       virtual void decode_token(
         Context        *context,

@@ -102,34 +102,35 @@
   #endif
 #endif
 
-/* PMATH_MODULE, PMATH_API, PMATH_PRIVATE
+#ifdef __cplusplus
+  #define PMATH_EXTERN_C  extern "C"
+#else
+  #define PMATH_EXTERN_C
+#endif
+
+/* PMATH_API, PMATH_PRIVATE
  */
 #ifdef PMATH_OS_WIN32
   #ifdef __GNUC__
-    #define PMATH_MODULE   __attribute__((cdecl, dllexport))
-    
     #ifdef BUILDING_PMATH
-      #define PMATH_API      __attribute__((cdecl, dllexport))
+      #define PMATH_API      PMATH_EXTERN_C __attribute__((cdecl, dllexport))
       #define PMATH_PRIVATE  
     #else
-      #define PMATH_API      __attribute__((cdecl, dllimport))
+      #define PMATH_API      PMATH_EXTERN_C __attribute__((cdecl, dllimport))
     #endif
   #else
-    #define PMATH_MODULE   __declspec(dllexport)
-    
     #ifdef BUILDING_PMATH
-      #define PMATH_API      __declspec(dllexport)
+      #define PMATH_API      PMATH_EXTERN_C __declspec(dllexport)
       #define PMATH_PRIVATE
     #else
-      #define PMATH_API      __declspec(dllimport)
+      #define PMATH_API      PMATH_EXTERN_C __declspec(dllimport)
     #endif
   #endif
 #else
-  #define PMATH_MODULE   __attribute__((__visibility__("default")))
-  #define PMATH_API      __attribute__((__visibility__("default")))
+  #define PMATH_API        PMATH_EXTERN_C __attribute__((__visibility__("default")))
   
   #ifdef BUILDING_PMATH
-    #define PMATH_PRIVATE  __attribute__((__visibility__("hidden")))
+    #define PMATH_PRIVATE  PMATH_EXTERN_C __attribute__((__visibility__("hidden")))
   #endif
 #endif
 

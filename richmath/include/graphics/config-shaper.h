@@ -24,7 +24,7 @@ namespace richmath{
       uint8_t  font;
       int8_t   offset;
       
-      static const float EmPerOffset = 1/72.0f;
+      static const float EmPerOffset;
   };
   
   class ScriptIndent{
@@ -39,8 +39,6 @@ namespace richmath{
       }
       
       explicit ScriptIndent(Expr expr);
-      
-      static const float EmPerOffset = 1/72.0f;
   };
   
   class StretchGlyphArray{

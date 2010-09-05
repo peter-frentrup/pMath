@@ -29,15 +29,7 @@ Button("Arg Style",DocumentApply(SelectedDocument(),StyleBox("","Arg")))
 	note, that 8-byte structs are returned in registers (MSVC, GCC), but both compilers handle larger structs different when used as function return values, so we cannot use a bigger type
 	see also: http://blog.mozilla.com/rob-sayre/2010/08/02/mozillas-new-javascript-value-representation
 	
-? richmath: get rid of Pango and reimplement TextSequence using freebidi + maybe harfbuzz
-	or find another way to restrict line height (currently huge font heights with Cambria Math/Asana Math).
-	Also, Pango is rather huge, maybe overkill for richmath: Pango does not fit into the rest of the library...
-
-- richmath: add fallback font + draw boxes for unknown characters (using cairo user fonts) instead of drawing nothing
-
-? richmath: in MathSequence: use freebidi inside strings?
-	therefor, two lists for logical<->visible glyph positions must be stored!
-
+- richmath: implement bidirectional text for MathSequences. Maybe get rid of Pango and reimplement TextSequence using freebidi + maybe harfbuzz?
 
 ?! change all double-comparisions a==b to almost_equal_machine(a,b)  (as in compare.c)
 	A double could actually be held in an 80bit x87 floating point register and thus be != 0, but when converted to double (written to memory), it becomes 0, 

@@ -26,10 +26,6 @@
    
  */
 
-#ifdef __cplusplus
-  extern "C" {
-#endif
-
 #include <pmath-core/expressions.h>
 #include <pmath-core/numbers.h>
 #include <pmath-core/symbols.h>
@@ -98,9 +94,5 @@ PMATH_API
 void pmath_done(void);
 
 /*@}*/
-
-#ifdef __cplusplus
-  } /* extern "C" */
-#endif
 
 #endif /* __PMATH_H__ */

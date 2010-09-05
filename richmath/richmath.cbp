@@ -39,6 +39,7 @@
 					<Add library="gdi32" />
 					<Add library="usp10" />
 					<Add library="comctl32" />
+					<Add library="user32" />
 					<Add directory="..\library\bin\windows\debug" />
 					<Add directory="$(#cairo.lib)" />
 					<Add directory="$(#gtk.lib)" />
@@ -81,6 +82,7 @@
 					<Add library="gdi32" />
 					<Add library="usp10" />
 					<Add library="comctl32" />
+					<Add library="user32" />
 					<Add directory="..\library\bin\windows\release" />
 					<Add directory="$(#cairo.lib)" />
 					<Add directory="$(#gtk.lib)" />
@@ -106,6 +108,7 @@
 					<Add option="/wd4800 /wd4710 /wd4711 /wd4738" />
 					<Add option="/DNDEBUG" />
 					<Add option="/D_STATIC_CPPLIB" />
+					<Add option="/D_USE_MATH_DEFINES" />
 					<Add directory="include" />
 					<Add directory="resources" />
 					<Add directory="..\library\include" />
@@ -127,6 +130,7 @@
 					<Add library="gdi32" />
 					<Add library="usp10" />
 					<Add library="comctl32" />
+					<Add library="user32" />
 					<Add directory="..\library\bin\windows\msvc" />
 					<Add directory="$(#cairo.lib)" />
 					<Add directory="$(#gtk.lib)" />

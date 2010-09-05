@@ -1,6 +1,5 @@
 #include <gui/native-widget.h>
 
-#define _USE_MATH_DEFINES
 #include <climits>
 #include <cmath>
 

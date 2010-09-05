@@ -1,6 +1,5 @@
 #include <graphics/canvas.h>
 
-#define _USE_MATH_DEFINES
 #include <cmath>
 
 #ifdef CAIRO_HAS_WIN32_FONT
@@ -256,10 +255,10 @@ void Canvas::pixrect(float x1, float y1, float x2, float y2, bool tostroke){
         y2 = floor(y2 + 0.5);
       }
       
-      if(x1 == x2)
-        x2+= 1;
-      if(y1 == y2)
-        y2+= 1;
+//      if(x1 == x2)
+//        x2+= 1;
+//      if(y1 == y2)
+//        y2+= 1;
     }
     device_to_user(&x1, &y1);
     device_to_user(&x2, &y2);

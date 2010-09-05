@@ -318,6 +318,9 @@ void MathSequence::paint(Context *context){
       y+= lines[line].ascent;
       
       for(;pos < lines[line].end;++pos){
+        if(buf[pos] <= '\n')
+          continue;
+        
         if(have_style || glyphs[pos].style){
           int color = context->syntax->glyph_style_colors[glyphs[pos].style];
           
@@ -3326,37 +3329,40 @@ int MathSequence::fill_penalty_array(
       }
     }
     
-    if(buf[pos] == PMATH_CHAR_BOX
-    && pos > 0
-    && spans.is_operand_start(pos-1)){
+    if(buf[pos] == PMATH_CHAR_BOX && pos > 0){
       ensure_boxes_valid();
       
-      while(boxes[*box]->index() < pos)
-        ++*box;
-      
-      GridBox *grid = dynamic_cast<GridBox*>(boxes[*box]);
-      if(grid){
-        if(pos > 0 && spans.is_operand_start(pos-1)){
-          if(buf[pos-1] == PMATH_CHAR_PIECEWISE){
-            penalty_array[pos-1] = Infinity;
-            return pos+1;
+      if(spans.is_operand_start(pos-1)){
+        while(boxes[*box]->index() < pos)
+          ++*box;
+        
+        GridBox *grid = dynamic_cast<GridBox*>(boxes[*box]);
+        if(grid){
+          if(pos > 0 && spans.is_operand_start(pos-1)){
+            if(buf[pos-1] == PMATH_CHAR_PIECEWISE){
+              penalty_array[pos-1] = Infinity;
+              return pos+1;
+            }
+            
+            pmath_token_t tok = pmath_token_analyse(buf + pos - 1, 1, NULL);
+            
+            if(tok == PMATH_TOK_LEFT
+            || tok == PMATH_TOK_LEFTCALL)
+              penalty_array[pos-1] = Infinity;
           }
           
-          pmath_token_t tok = pmath_token_analyse(buf + pos - 1, 1, NULL);
-          
-          if(tok == PMATH_TOK_LEFT
-          || tok == PMATH_TOK_LEFTCALL)
-            penalty_array[pos-1] = Infinity;
-        }
-        
-        if(pos+1 < glyphs.length()){
-          pmath_token_t tok = pmath_token_analyse(buf + pos + 1, 1, NULL);
-          
-          if(tok == PMATH_TOK_RIGHT)
-            penalty_array[pos] = Infinity;
-          return pos+1;
+          if(pos+1 < glyphs.length()){
+            pmath_token_t tok = pmath_token_analyse(buf + pos + 1, 1, NULL);
+            
+            if(tok == PMATH_TOK_RIGHT)
+              penalty_array[pos] = Infinity;
+            return pos+1;
+          }
         }
       }
+      
+      if(dynamic_cast<SubsuperscriptBox*>(boxes[*box]))
+        penalty_array[pos-1] = Infinity;
     }
     
     if(!spans.is_operand_start(pos))
@@ -3591,42 +3597,46 @@ void MathSequence::hstretch_lines(
 
 //{ insert/remove ...
 
-void MathSequence::insert(int pos, uint16_t chr){
+int MathSequence::insert(int pos, uint16_t chr){
   spans_invalid = true;
   boxes_invalid = true;
   str.insert(pos, &chr, 1);
   invalidate();
+  return pos + 1;
 }
 
-void MathSequence::insert(int pos, const uint16_t *ucs2, int len){
+int MathSequence::insert(int pos, const uint16_t *ucs2, int len){
   spans_invalid = true;
   boxes_invalid = true;
   str.insert(pos, ucs2, len);
   invalidate();
+  return pos + len;
 }
 
-void MathSequence::insert(int pos, const char *latin1, int len){
+int MathSequence::insert(int pos, const char *latin1, int len){
   spans_invalid = true;
   boxes_invalid = true;
   str.insert(pos, latin1, len);
   invalidate();
+  return pos + len;
 }
 
-void MathSequence::insert(int pos, const String &s){
+int MathSequence::insert(int pos, const String &s){
   spans_invalid = true;
   boxes_invalid = true;
   str.insert(pos, s);
   invalidate();
+  return pos + s.length();
 }
 
-void MathSequence::insert(int pos, Box *box){
+int MathSequence::insert(int pos, Box *box){
   if(pos > length())
     pos = length();
     
   if(MathSequence *sequence = dynamic_cast<MathSequence*>(box)){
-    insert(pos, sequence, 0, sequence->length());
+    pos = insert(pos, sequence, 0, sequence->length());
     delete sequence;
-    return;
+    return pos;
   }
   
   ensure_boxes_valid();
@@ -3641,9 +3651,10 @@ void MathSequence::insert(int pos, Box *box){
     ++i;
   boxes.insert(i, 1, &box);
   invalidate();
+  return pos + 1;
 }
 
-void MathSequence::insert(int pos, MathSequence *sequence, int start, int end){
+int MathSequence::insert(int pos, MathSequence *sequence, int start, int end){
   if(pos > length())
     pos = length();
   
@@ -3656,8 +3667,7 @@ void MathSequence::insert(int pos, MathSequence *sequence, int start, int end){
     while(next < end && buf[next] != PMATH_CHAR_BOX)
       ++next;
     
-    insert(pos, buf + start, next - start);
-    pos+= next - start;
+    pos = insert(pos, buf + start, next - start);
     
     if(next < end/* && buf[next] == PMATH_CHAR_BOX*/){
       if(box < 0){
@@ -3666,11 +3676,13 @@ void MathSequence::insert(int pos, MathSequence *sequence, int start, int end){
           ++box;
       }
       
-      insert(pos++, sequence->extract_box(box++));
+      pos = insert(pos, sequence->extract_box(box++));
     }
       
     start = next + 1;
   }
+  
+  return pos;
 }
 
 void MathSequence::remove(int start, int end){

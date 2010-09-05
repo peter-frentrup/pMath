@@ -153,6 +153,8 @@ int richmath::box_order(Box *b1, int i1, Box *b2, int i2){
   return i1 - i2;
 }
 
+// todo: make this a member function of Box/use selection_path
+//       but MathSequence::selection_path() depends on the selected font...
 void richmath::selection_outline(
   Box          *box, 
   int           start, 
@@ -344,6 +346,9 @@ void richmath::selection_outline(
     pts[2].y = pts[3].y = y2;
   }
   else if(box){
+    if(end > box->count())
+      end = box->count();
+    
     for(int i = start;i < end;++i){
       Box *b = box->item(i);
       
@@ -589,7 +594,8 @@ Document::Document()
 {
   context.selection.set(this, 0, 0);
   context.math_shaper = MathShaper::available_shapers.default_value;
-  context.text_shaper = TextShaper::find("Arial", NoStyle);
+  context.text_shaper = context.math_shaper;
+  //context.text_shaper = TextShaper::find("Arial", NoStyle);
   context.stylesheet = Stylesheet::Default;
   
   context.set_script_size_multis(Expr());
@@ -1187,7 +1193,7 @@ void Document::on_key_press(uint32_t unichar){
     
     if(pmath_char_is_left(unichar)){
       uint32_t right = pmath_right_fence(unichar);
-      MathSequence *seq = dynamic_cast<MathSequence*>(context.selection.get());
+      AbstractSequence *seq = dynamic_cast<AbstractSequence*>(context.selection.get());
       
       if(seq && right && right < 0xFFFF){
         seq->insert(context.selection.end,   right);
@@ -1199,7 +1205,7 @@ void Document::on_key_press(uint32_t unichar){
     }
     else if(PMATH_TOK_RIGHT == pmath_token_analyse(&ch, 1, &prec)){
       uint32_t left = (uint32_t)((int)unichar + prec);
-      MathSequence *seq = dynamic_cast<MathSequence*>(context.selection.get());
+      AbstractSequence *seq = dynamic_cast<AbstractSequence*>(context.selection.get());
       
       if(seq && left && left < 0xFFFF){
         seq->insert(context.selection.end,   ch);
@@ -1213,18 +1219,20 @@ void Document::on_key_press(uint32_t unichar){
   
   remove_selection(false);
   
-  MathSequence *seq = dynamic_cast<MathSequence*>(context.selection.get());
+  AbstractSequence *seq = dynamic_cast<AbstractSequence*>(context.selection.get());
   if(seq){
+    MathSequence *mseq = dynamic_cast<MathSequence*>(seq);
+    
     // handle "CAPSLOCK xxx CAPSLOCK" macros:
-    if(unichar == PMATH_CHAR_ALIASDELIMITER){
-      const uint16_t *buf = seq->text().buffer();
+    if(mseq && unichar == PMATH_CHAR_ALIASDELIMITER){
+      const uint16_t *buf = mseq->text().buffer();
       
       int i = context.selection.start - 1;
       while(i >= 0 && buf[i] != PMATH_CHAR_ALIASDELIMITER)
         --i;
       
       if(i >= 0 && buf[i] == PMATH_CHAR_ALIASDELIMITER){
-        String alias = seq->text().part(i + 1, context.selection.start - i - 1);
+        String alias = mseq->text().part(i + 1, context.selection.start - i - 1);
         Expr repl = String::FromChar(unicode_to_utf32(alias));
         
         if(!repl.is_valid())
@@ -1236,8 +1244,8 @@ void Document::on_key_press(uint32_t unichar){
           String s(repl);
           
           if(s.is_valid()){
-            seq->remove(i, context.selection.start);
-            seq->insert(i, s);
+            mseq->remove(i, context.selection.start);
+            mseq->insert(i, s);
             
             move_to(context.selection.get(), i + s.length());
             return;
@@ -1246,7 +1254,7 @@ void Document::on_key_press(uint32_t unichar){
             MathSequence *repl_seq = new MathSequence();
             repl_seq->load_from_object(repl, BoxOptionDefault);
             
-            seq->remove(i, context.selection.start);
+            mseq->remove(i, context.selection.start);
             move_to(context.selection.get(), i);
             insert_box(repl_seq, true);
             return;
@@ -1259,48 +1267,50 @@ void Document::on_key_press(uint32_t unichar){
     && !is_inside_alias())
       handle_immediate_macros();
     
-    seq->insert(context.selection.start, unichar);
-    move_to(seq, selection_start() + 1);
+    int newpos = seq->insert(context.selection.start, unichar);
+    move_to(seq, newpos);
     
-    // handle \xxx macros:
-    if(unichar == ' ' && !is_inside_string()){
-      context.selection.start--;
-      context.selection.end--;
-      
-      bool ok = handle_macros();
-      
-      if(seq == context.selection.get()
-      && context.selection.start < seq->length()
-      && seq->text()[context.selection.start] == ' '){
-        context.selection.end++;
+    if(mseq){
+      // handle \xxx macros:
+      if(unichar == ' ' && !is_inside_string()){
+        context.selection.start--;
+        context.selection.end--;
         
-        if(ok)
-          remove_selection(false);
-        else
-          context.selection.start++;
+        bool ok = handle_macros();
+        
+        if(mseq == context.selection.get()
+        && context.selection.start < mseq->length()
+        && mseq->text()[context.selection.start] == ' '){
+          context.selection.end++;
+          
+          if(ok)
+            remove_selection(false);
+          else
+            context.selection.start++;
+        }
       }
-    }
-    
-    // handle \[alias]:
-    int i = context.selection.start;
-    const uint16_t *buf = seq->text().buffer();
-    while(i < seq->length() 
-    && buf[i] <= 0x7F 
-    && buf[i] != ']' 
-    && buf[i] != '['
-    && i - context.selection.start < 64){
-      ++i;
-    }
-    
-    if(i < seq->length() && buf[i] == ']'){
-      int start = context.selection.start;
       
-      move_to(seq, i + 1);
-      context.selection.start = i+1;
-      context.selection.end = i+1;
+      // handle \[alias]:
+      int i = context.selection.start;
+      const uint16_t *buf = mseq->text().buffer();
+      while(i < mseq->length() 
+      && buf[i] <= 0x7F 
+      && buf[i] != ']' 
+      && buf[i] != '['
+      && i - context.selection.start < 64){
+        ++i;
+      }
       
-      if(!handle_macros())
-        move_to(seq, start);
+      if(i < mseq->length() && buf[i] == ']'){
+        int start = context.selection.start;
+        
+        move_to(mseq, i + 1);
+        context.selection.start = i+1;
+        context.selection.end = i+1;
+        
+        if(!handle_macros())
+          move_to(mseq, start);
+      }
     }
   }
   else
@@ -1616,8 +1626,7 @@ void Document::move_start_end(
     box = box->parent();
   }
   
-  MathSequence *seq = dynamic_cast<MathSequence*>(box);
-  if(seq){
+  if(MathSequence *seq = dynamic_cast<MathSequence*>(box)){
     int l = seq->line_array().length() - 1;
     while(l > 0 && seq->line_array()[l - 1].end > index)
       --l;
@@ -2748,37 +2757,43 @@ bool Document::remove_selection(bool insert_default){
   if(selection_box() && !selection_box()->edit_selection(&context))
     return false;
   
-  MathSequence *seq = dynamic_cast<MathSequence*>(context.selection.get());
+  AbstractSequence *seq = dynamic_cast<AbstractSequence*>(context.selection.get());
   if(seq){
-    bool was_empty = seq->length() == 0
-      || (seq->length() == 1 && seq->text()[0] == PMATH_CHAR_PLACEHOLDER);
-    
     seq->remove(context.selection.start, context.selection.end);
-    if(insert_default 
-    && was_empty 
-    && seq->parent()
-    && seq->parent()->remove_inserts_placeholder()){
-      int index = seq->index();
-      Box *box = seq->parent()->remove(&index);
+    
+    if(MathSequence *mseq = dynamic_cast<MathSequence*>(seq)){
+      bool was_empty = mseq->length() == 0
+        || (mseq->length() == 1 && mseq->text()[0] == PMATH_CHAR_PLACEHOLDER);
       
-      seq = dynamic_cast<MathSequence*>(box);
-      if(insert_default && seq && seq->length() == 0){
-        seq->insert(0, PMATH_CHAR_PLACEHOLDER);
-        select(seq, 0, 1);
+      if(insert_default 
+      && was_empty 
+      && mseq->parent()
+      && mseq->parent()->remove_inserts_placeholder()){
+        int index = mseq->index();
+        Box *box = mseq->parent()->remove(&index);
+        
+        mseq = dynamic_cast<MathSequence*>(box);
+        if(insert_default && mseq && mseq->length() == 0){
+          mseq->insert(0, PMATH_CHAR_PLACEHOLDER);
+          select(mseq, 0, 1);
+        }
+        else
+          move_to(box, index);
+        
+        return true;
       }
-      else
-        move_to(box, index);
-    }
-    else if(insert_default 
-    && seq->length() == 0 
-    && seq->parent()
-    && seq->parent()->remove_inserts_placeholder()){
-      seq->insert(0, PMATH_CHAR_PLACEHOLDER);
-      select(seq, 0, 1);
-    }
-    else
-      move_to(context.selection.get(), context.selection.start);
       
+      if(insert_default 
+      && mseq->length() == 0 
+      && mseq->parent()
+      && mseq->parent()->remove_inserts_placeholder()){
+        mseq->insert(0, PMATH_CHAR_PLACEHOLDER);
+        select(mseq, 0, 1);
+        return true;
+      }
+    }
+    
+    move_to(context.selection.get(), context.selection.start);
     return true;
   }
   

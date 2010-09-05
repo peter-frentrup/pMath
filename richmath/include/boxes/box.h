@@ -234,8 +234,9 @@ namespace richmath{
       
       virtual void selection_path(Context *context, int start, int end) = 0;
       
-      virtual void insert(int pos, const String &s) = 0; // unsafe: allows PMATH_BOX_CHAR
-      virtual void insert(int pos, Box *box) = 0;
+      virtual int insert(int pos, uint16_t chr){ return insert(pos, String::FromChar(chr)); }
+      virtual int insert(int pos, const String &s) = 0; // unsafe: allows PMATH_BOX_CHAR
+      virtual int insert(int pos, Box *box) = 0;
       virtual void remove(int start, int end) = 0;
       
       virtual Box *extract_box(int boxindex) = 0;

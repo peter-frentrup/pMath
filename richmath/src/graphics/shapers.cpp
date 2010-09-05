@@ -451,9 +451,6 @@ void CharBoxTextShaper::decode_token(
       result[i].index = CharBoxError;
       result[i].right = em;
     }
-    else if(str[i] == '\n'){
-      result[i].index = IgnoreGlyph;
-    }
     else{
       result[i].index = CharBoxSingle;
       result[i].right = em;

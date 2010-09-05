@@ -7,7 +7,8 @@ namespace richmath{
   class Base;
   
   static const float SelectionAlpha = 0.4f;
-  static const int SelectionColor = 0x6699FF;
+  static const int SelectionFillColor = 0x6699FF;
+  static const int SelectionBorderColor = 0x0000FF;
   
   class Point{
     public:

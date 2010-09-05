@@ -100,6 +100,8 @@ static GlyphGetter GG;
 
 //{ class GlyphFontOffset ...
 
+const float GlyphFontOffset::EmPerOffset = 1/72.0f;
+
 GlyphFontOffset::GlyphFontOffset(Expr expr)
 : glyph(0), font(0), offset(0)
 {
@@ -133,20 +135,20 @@ ScriptIndent::ScriptIndent(Expr expr)
   if(expr[0] == PMATH_SYMBOL_LIST){
     if(expr.expr_length() == 2){
       f = expr[1].to_double();
-      super = (uint8_t)(f / EmPerOffset + 0.5f); 
+      super = (uint8_t)(f / GlyphFontOffset::EmPerOffset + 0.5f); 
       
       f = expr[2].to_double();
-      sub = (uint8_t)(f / EmPerOffset + 0.5f); 
+      sub = (uint8_t)(f / GlyphFontOffset::EmPerOffset + 0.5f); 
     }
     else if(expr.expr_length() == 3){
       f = expr[1].to_double();
-      super = (uint8_t)(f / EmPerOffset + 0.5f); 
+      super = (uint8_t)(f / GlyphFontOffset::EmPerOffset + 0.5f); 
       
       f = expr[2].to_double();
-      sub = (uint8_t)(f / EmPerOffset + 0.5f); 
+      sub = (uint8_t)(f / GlyphFontOffset::EmPerOffset + 0.5f); 
       
       f = expr[3].to_double();
-      center = (uint8_t)(f / EmPerOffset + 0.5f); 
+      center = (uint8_t)(f / GlyphFontOffset::EmPerOffset + 0.5f); 
     }
   }
 }
@@ -189,23 +191,25 @@ void ConfigShaperDB::clear_all(){
 }
 
 bool ConfigShaperDB::verify(){
+#define FUNC_NAME  "ConfigShaperDB::verify"
+
   if(math_fontnames.length() < 1){
-    printf("[%s, %d]", __func__, __LINE__);
+    printf("[%s, %d]", FUNC_NAME, __LINE__);
     return false;
   }
   
   if(text_fontnames.length() < 1){
-    printf("[%s, %d]", __func__, __LINE__);
+    printf("[%s, %d]", FUNC_NAME, __LINE__);
     return false;
   }
   
   if(math_fontnames.length() + text_fontnames.length() > FontsPerGlyphCount){
-    printf("[%s, %d]", __func__, __LINE__);
+    printf("[%s, %d]", FUNC_NAME, __LINE__);
     return false;
   }
   
   if(radical.font >= math_fontnames.length()){
-    printf("[%s, %d]", __func__, __LINE__);
+    printf("[%s, %d]", FUNC_NAME, __LINE__);
     return false;
   }
   
@@ -213,32 +217,32 @@ bool ConfigShaperDB::verify(){
     SmallRadicalGlyph &last = radical.small[radical.small.length()-1];
     
     if(last.index != 0){
-      printf("[%s, %d]", __func__, __LINE__);
+      printf("[%s, %d]", FUNC_NAME, __LINE__);
       return false;
     }
       
     if(last.hbar_index != 0){
-      printf("[%s, %d]", __func__, __LINE__);
+      printf("[%s, %d]", FUNC_NAME, __LINE__);
       return false;
     }
       
     if(last.rel_ascent != 0){
-      printf("[%s, %d]", __func__, __LINE__);
+      printf("[%s, %d]", FUNC_NAME, __LINE__);
       return false;
     }
       
     if(last.rel_exp_x != 0){
-      printf("[%s, %d]", __func__, __LINE__);
+      printf("[%s, %d]", FUNC_NAME, __LINE__);
       return false;
     }
       
     if(last.rel_exp_y != 0){
-      printf("[%s, %d]", __func__, __LINE__);
+      printf("[%s, %d]", FUNC_NAME, __LINE__);
       return false;
     }
   }
   else{
-    printf("[%s, %d]", __func__, __LINE__);
+    printf("[%s, %d]", FUNC_NAME, __LINE__);
     return false;
   }
   
@@ -250,25 +254,25 @@ bool ConfigShaperDB::verify(){
       --c;
       
       if(e->value.glyphs.length() == 0){
-        printf("[%s, %d, %x]", __func__, __LINE__, e->key);
+        printf("[%s, %d, %x]", FUNC_NAME, __LINE__, e->key);
         return false;
       }
         
       if(e->value.glyphs.length() != e->value.fonts.length()){
-        printf("[%s, %d, %x]", __func__, __LINE__, e->key);
+        printf("[%s, %d, %x]", FUNC_NAME, __LINE__, e->key);
         return false;
       }
       
       for(int j = 0;j < e->value.glyphs.length();++j){
         if(e->value.glyphs[j] == 0){
-          printf("[%s, %d, %x, %d]", __func__, __LINE__, e->key, j);
+          printf("[%s, %d, %x, %d]", FUNC_NAME, __LINE__, e->key, j);
           return false;
         }
       }
       
       for(int j = 0;j < e->value.fonts.length();++j){
         if(e->value.fonts[j] >= math_fontnames.length()){
-          printf("[%s, %d, %x, %d]", __func__, __LINE__, e->key, j);
+          printf("[%s, %d, %x, %d]", FUNC_NAME, __LINE__, e->key, j);
           return false;
         }
       }
@@ -283,39 +287,39 @@ bool ConfigShaperDB::verify(){
       --c;
       
       if(e->value.tbms_font >= math_fontnames.length()){
-        printf("[%s, %d, %x]", __func__, __LINE__, e->key);
+        printf("[%s, %d, %x]", FUNC_NAME, __LINE__, e->key);
         return false;
       }
       
       if(e->value.ul_font >= math_fontnames.length()){
-        printf("[%s, %d, %x]", __func__, __LINE__, e->key);
+        printf("[%s, %d, %x]", FUNC_NAME, __LINE__, e->key);
         return false;
       }
       
       if(e->value.vertical){
         if(e->value.top == 0 && e->value.bottom != 0){
-          printf("[%s, %d, %x]", __func__, __LINE__, e->key);
+          printf("[%s, %d, %x]", FUNC_NAME, __LINE__, e->key);
           return false;
         }
           
         if(e->value.top != 0 && e->value.bottom == 0){
-          printf("[%s, %d, %x]", __func__, __LINE__, e->key);
+          printf("[%s, %d, %x]", FUNC_NAME, __LINE__, e->key);
           return false;
         }
       }
       
       if(e->value.middle == 0 && e->value.special_center != 0){
-        printf("[%s, %d, %x]", __func__, __LINE__, e->key);
+        printf("[%s, %d, %x]", FUNC_NAME, __LINE__, e->key);
         return false;
       }
       
       if(e->value.upper == 0 && e->value.lower != 0){
-        printf("[%s, %d, %x]", __func__, __LINE__, e->key);
+        printf("[%s, %d, %x]", FUNC_NAME, __LINE__, e->key);
         return false;
       }
         
       if(e->value.upper != 0 && e->value.lower == 0){
-        printf("[%s, %d, %x]", __func__, __LINE__, e->key);
+        printf("[%s, %d, %x]", FUNC_NAME, __LINE__, e->key);
         return false;
       }
     }
@@ -333,7 +337,7 @@ bool ConfigShaperDB::verify(){
       }
       
       if(e->value.font >= math_fontnames.length()){
-        printf("[%s, %d]", __func__, __LINE__);
+        printf("[%s, %d]", FUNC_NAME, __LINE__);
         return false;
       }
     }
@@ -347,13 +351,13 @@ bool ConfigShaperDB::verify(){
       --c;
       
       if(e->value.length() > e->key.length()){
-        printf("[%s, %d]", __func__, __LINE__);
+        printf("[%s, %d]", FUNC_NAME, __LINE__);
         return false;
       }
       
       for(int j = 0;j < e->value.length();++j){
         if(e->value[j].font >= math_fontnames.length()){
-          printf("[%s, %d]", __func__, __LINE__);
+          printf("[%s, %d]", FUNC_NAME, __LINE__);
           return false;
         }
       }
@@ -369,7 +373,7 @@ bool ConfigShaperDB::verify(){
       
       for(int j = 0;j < e->value.length();++j){
         if(e->value[j].font >= math_fontnames.length()){
-          printf("[%s, %d]", __func__, __LINE__);
+          printf("[%s, %d]", FUNC_NAME, __LINE__);
           return false;
         }
       }
@@ -1192,7 +1196,7 @@ float ConfigShaper::italic_correction(
   uint16_t          ch,
   const GlyphInfo  &info
 ){
-  float result = db->italic_script_indent.center * ScriptIndent::EmPerOffset;
+  float result = db->italic_script_indent.center * GlyphFontOffset::EmPerOffset;
   
   uint32_t key;
   if(info.composed)
@@ -1202,14 +1206,14 @@ float ConfigShaper::italic_correction(
   
   ScriptIndent *si = db->script_indents.search(key);
   if(si)
-    return result + si->center * ScriptIndent::EmPerOffset;
+    return result + si->center * GlyphFontOffset::EmPerOffset;
   
   if(!info.composed){
     key = (1 << 31) | ch;
     
     si = db->script_indents.search(key);
     if(si)
-      return result + si->center * ScriptIndent::EmPerOffset;
+      return result + si->center * GlyphFontOffset::EmPerOffset;
   }
   
   return result;
@@ -1250,8 +1254,8 @@ void ConfigShaper::script_corrections(
   *sub_x = *super_x = 0;
   
   if(style.italic){
-    *super_x += db->italic_script_indent.super  * ScriptIndent::EmPerOffset * em;
-    *sub_x   += db->italic_script_indent.center * ScriptIndent::EmPerOffset * em;
+    *super_x += db->italic_script_indent.super  * GlyphFontOffset::EmPerOffset * em;
+    *sub_x   += db->italic_script_indent.center * GlyphFontOffset::EmPerOffset * em;
   }
   
   uint32_t key;
@@ -1262,9 +1266,9 @@ void ConfigShaper::script_corrections(
   
   ScriptIndent *si = db->script_indents.search(key);
   if(si){
-    *super_x += si->super  * ScriptIndent::EmPerOffset * em;
-//    *center+= si->center * ScriptIndent::EmPerOffset * em;
-    *sub_x   += si->sub    * ScriptIndent::EmPerOffset * em;
+    *super_x += si->super  * GlyphFontOffset::EmPerOffset * em;
+//    *center+= si->center * GlyphFontOffset::EmPerOffset * em;
+    *sub_x   += si->sub    * GlyphFontOffset::EmPerOffset * em;
     
     return;
   }
@@ -1273,9 +1277,9 @@ void ConfigShaper::script_corrections(
     
     si = db->script_indents.search(key);
     if(si){
-      *super_x += si->super  * ScriptIndent::EmPerOffset * em;
-//      *center+= si->center * ScriptIndent::EmPerOffset * em;
-      *sub_x   += si->sub    * ScriptIndent::EmPerOffset * em;
+      *super_x += si->super  * GlyphFontOffset::EmPerOffset * em;
+//      *center+= si->center * GlyphFontOffset::EmPerOffset * em;
+      *sub_x   += si->sub    * GlyphFontOffset::EmPerOffset * em;
       
       return;
     }

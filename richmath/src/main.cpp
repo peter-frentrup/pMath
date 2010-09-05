@@ -54,10 +54,8 @@ static void write_text_section(Document *doc, String style, String text){
   write_section(doc, 
     pmath_expr_new_extended(
       pmath_ref(PMATH_SYMBOL_SECTION), 2,
-      pmath_expr_new_extended(
-        pmath_ref(PMATH_SYMBOL_BOXDATA), 1,
-        text.release()),
-     style.release()));
+      text.release(),
+      style.release()));
 }
 
 static void todo(Document *doc, String msg){
@@ -153,7 +151,8 @@ void remove_current_directory_from_dll_search_path(){
   HMODULE kernel32 = GetModuleHandleW(L"Kernel32");
   
   if(kernel32){
-    BOOL WINAPI (*SetDllDirectoryW_ptr)(const WCHAR*) = (BOOL WINAPI(*)(const WCHAR*))
+    BOOL (WINAPI *SetDllDirectoryW_ptr)(const WCHAR*);
+    SetDllDirectoryW_ptr = (BOOL (WINAPI*)(const WCHAR*))
       GetProcAddress(kernel32, "SetDllDirectoryW");
     
     if(SetDllDirectoryW_ptr)
@@ -515,7 +514,7 @@ int main(){
         "Section(BoxData("
           "{\"\\\" Help Topic:  \\\"\","
             "FillBox(InputBox(StyleBox({\"not yet implemented\"},"
-//              "FontSlant->Italic,"
+              "FontSlant->Italic,"
               "FontColor->GrayLevel(0.5)))),"
             "ButtonBox("
               "\"\\\" Go \\\"\","
@@ -596,22 +595,22 @@ int main(){
         
     doc = wndMain->document();
     
-    write_text_section(doc, "Title", "\"Welcome\"");
-    write_text_section(doc, "Section", "\"Todo-List\"");
-    todo(doc, "\"Stretch column where FillBox is inside Grid or provide ItemBox options\"");
-    todo(doc, "\"Implement Interrupt().\"");
-    todo(doc, "\"Leave caret at end of line at automatic line breaks.\"");
-    todo(doc, "\"Use Pango for text sections.\"");
-    todo(doc, "\"Navigation: ALT-left/right: previous/next span.\"");
-    todo(doc, "\"Resize every section, not only the visible ones.\"");
-    todo(doc, "\"Add option to allways show menu bar.\"");
-    todo(doc, "\"Add ConfigShaper scripts for STIX fonts.\"");
-    todo(doc, "\"Build menu and keybord accelerators at runtime from a script.\"");
-    todo(doc, "\"Improve support for more OpenType MATH Table values (esp. device tables).\"");
-    todo(doc, "\"CTRL-R to refactor local variable names.\"");
-    todo(doc, "\"Add CounterBox, CounterAssignments, CounterIncrements.\"");
-    todo(doc, "\"Implement Options(FrontEndObject(id), option).\"");
-    todo(doc, "\"Use/test the Menu class.\"");
+    write_text_section(doc, "Title", "Welcome");
+    write_text_section(doc, "Section", "Todo-List");
+    todo(doc, "Support pasting into TextSequence");
+    todo(doc, "CTRL-9 to insert inline text/math section into math/text sequence.");
+    todo(doc, "Implement Interrupt().");
+    todo(doc, "Leave caret at end of line at automatic line breaks.");
+    todo(doc, "Navigation: ALT-left/right: previous/next span/sentence.");
+    todo(doc, "Resize every section, not only the visible ones.");
+    todo(doc, "Add option to allways show menu bar.");
+    todo(doc, "Add ConfigShaper scripts for STIX fonts.");
+    todo(doc, "Build menu and keybord accelerators at runtime from a script.");
+    todo(doc, "Improve support for more OpenType MATH Table values (esp. device tables).");
+    todo(doc, "CTRL-R to refactor local variable names.");
+    todo(doc, "Add CounterBox, CounterAssignments, CounterIncrements.");
+    todo(doc, "Implement Options(FrontEndObject(id), option).");
+    todo(doc, "Use/test the Menu class.");
     doc->select(doc,0,0);
     doc->move_horizontal(Forward, true);
     doc->move_horizontal(Backward, false);

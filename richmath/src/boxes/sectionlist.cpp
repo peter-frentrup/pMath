@@ -654,8 +654,10 @@ void SectionList::paint_section_brackets(Context *context, int i, float right, f
       int end = _group_info[start].end;
       
       if(start < end){
+        float pixel = section_bracket_width / 8;
         x1 = x2;
         x2 = x1 + section_bracket_width;
+        x1+= pixel;
         
         if(_group_info[start].close_rel + start == s){
           if(start < s)
@@ -685,8 +687,24 @@ void SectionList::paint_section_brackets(Context *context, int i, float right, f
         style = style & ~BorderBottomArrow;
         
         if(sel_depth-- == 0){
+          context->canvas->save();
+          if((style & BorderNoTop) || (style & BorderNoBottom)){
+            float clip_top    = sel_y1;
+            float clip_bottom = sel_y2;
+            
+            if((style & BorderNoTop) == 0)
+              clip_top-= pixel;
+              
+            if((style & BorderNoBottom) == 0)
+              clip_bottom+= pixel;
+            
+            context->canvas->pixrect(x1 - pixel, clip_top, x2 + pixel, clip_bottom, false);
+            context->canvas->clip();
+          }
+          
           context->canvas->pixrect(x1, sel_y1, x2, sel_y2, false);
           context->draw_selection_path();
+          context->canvas->restore();
         }
       }
       

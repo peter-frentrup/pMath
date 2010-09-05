@@ -167,12 +167,12 @@ namespace richmath{
       void new_line(int pos, unsigned int indent, bool continuation = false);
       
     public:
-      void insert(int pos, uint16_t chr);                  // unsafe, allows PMATH_BOX_CHAR
-      void insert(int pos, const uint16_t *ucs2, int len); // unsafe, allows PMATH_BOX_CHAR
-      void insert(int pos, const char *latin1, int len);   // unsafe, allows PMATH_BOX_CHAR
-      void insert(int pos, MathSequence *sequence, int start, int end);
-      virtual void insert(int pos, const String &s);       // unsafe, allows PMATH_BOX_CHAR
-      virtual void insert(int pos, Box *box);
+      int insert(int pos, uint16_t chr);                  // unsafe, allows PMATH_BOX_CHAR
+      int insert(int pos, const uint16_t *ucs2, int len); // unsafe, allows PMATH_BOX_CHAR
+      int insert(int pos, const char *latin1, int len);   // unsafe, allows PMATH_BOX_CHAR
+      int insert(int pos, MathSequence *sequence, int start, int end);
+      virtual int insert(int pos, const String &s);       // unsafe, allows PMATH_BOX_CHAR
+      virtual int insert(int pos, Box *box);
       virtual void remove(int start, int end);
       virtual Box *remove(int *index);
       
