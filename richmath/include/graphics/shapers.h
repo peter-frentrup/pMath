@@ -34,7 +34,7 @@ namespace richmath{
   };
   
   enum{
-    FontsPerGlyphCount = (1 << 4)
+    FontsPerGlyphCount = (1 << 5)
   };
   
   typedef struct{
@@ -43,7 +43,7 @@ namespace richmath{
     uint16_t index;
     unsigned style:              5; // GlyphStyleXXX
     
-    unsigned fontinfo:           4;
+    unsigned fontinfo:           5;
     
     unsigned slant:              2; // 0=default, otherwise FontSlantXXX
     

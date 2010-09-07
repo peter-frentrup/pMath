@@ -23,7 +23,7 @@ Protect($MathShapers)
 
 
 /* should not contain more than 6 fonts: */
-$FallbackFonts:= {"Asana Math", "Arial Unicode MS", "Unifont"}
+$FallbackFonts:= {"pMathFallback", "Asana Math", "Arial Unicode MS", "Unifont"}
 Protect($FallbackFonts)
 
 

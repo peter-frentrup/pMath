@@ -84,17 +84,19 @@ bool TextBuffer::is_box_at(int i){
 
 class GlobalPangoContext{
   public:
-    GlobalPangoContext(){
-      PangoCairoFontMap *fontmap = (PangoCairoFontMap*)pango_cairo_font_map_get_default();
+    static PangoContext *get_context(){
+      if(!singleton.context){
+        PangoCairoFontMap *fontmap = (PangoCairoFontMap*)pango_cairo_font_map_get_default();
       
-      context = pango_cairo_font_map_create_context(fontmap);
-    }
-    
-    ~GlobalPangoContext(){
-      g_object_unref(context);
+        singleton.context = pango_cairo_font_map_create_context(fontmap);
+      }
+      
+      return singleton.context;
     }
     
     static void update(Context *ctx){
+      get_context();
+      
       pango_cairo_update_context(ctx->canvas->cairo(), singleton.context);
       
       pango_cairo_context_set_shape_renderer(
@@ -142,9 +144,22 @@ class GlobalPangoContext{
       box->paint(ctx);
     }
     
-  public:
+  private:
+    GlobalPangoContext(){
+      // lazy initialization, because main() wants to add some fonts to the 
+      // system.
+      context = 0;
+    }
+    
+    ~GlobalPangoContext(){
+      if(context)
+        g_object_unref(context);
+    }
+    
+  private:
     PangoContext *context;
     
+  public:
     static GlobalPangoContext singleton;
 };
 
@@ -155,7 +170,7 @@ GlobalPangoContext GlobalPangoContext::singleton;
 TextSequence::TextSequence()
 : AbstractSequence(),
   text(0,0),
-  _layout(pango_layout_new(GlobalPangoContext::singleton.context))
+  _layout(pango_layout_new(GlobalPangoContext::get_context()))
 {
   pango_layout_set_spacing(_layout, pango_units_from_double(1.5));
   pango_layout_set_wrap(   _layout, PANGO_WRAP_WORD_CHAR);
@@ -239,7 +254,7 @@ void TextSequence::paint(Context *context){
   ensure_text_valid();
   
   GlobalPangoContext::update(context);
-  pango_layout_context_changed(_layout);
+  //pango_layout_context_changed(_layout);
   
   y0-= _extents.ascent;
   double clip_x1, clip_y1, clip_x2, clip_y2;

@@ -23,6 +23,9 @@
 #ifndef WM_MOUSEHWHEEL
   #define WM_MOUSEHWHEEL  0x020E
 #endif
+#ifndef SPI_GETWHEELSCROLLCHARS
+  #define SPI_GETWHEELSCROLLCHARS   0x006C
+#endif
 
 #define TID_SCROLL   1
 #define TID_ANIMATE  2

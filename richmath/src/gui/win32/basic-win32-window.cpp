@@ -16,6 +16,10 @@ using namespace richmath;
 #define CAPTION_BUTTON_INFLATE  (-2)
 #define CAPTION_BUTTON_DIST     (-2)
 
+#ifndef WM_DWMCOMPOSITIONCHANGED
+  #define WM_DWMCOMPOSITIONCHANGED   0x031E
+#endif
+
 static cairo_surface_t *background_image = 0;
 static HANDLE composition_window_theme = 0;
 

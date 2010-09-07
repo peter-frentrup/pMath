@@ -2972,7 +2972,7 @@
 	<util/sharedptr.h>
 	<util/style.h>
 
-1283554020 d:\peter\programmieren\pmath\trunk\richmath\include\graphics\shapers.h
+1283708090 d:\peter\programmieren\pmath\trunk\richmath\include\graphics\shapers.h
 	<graphics/canvas.h>
 	<util/array.h>
 	<util/hashtable.h>
@@ -3412,7 +3412,7 @@
 	<boxes/mathsequence.h>
 	<graphics/context.h>
 
-1283634706 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\textsequence.cpp
+1283885571 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\textsequence.cpp
 	<boxes/textsequence.h>
 	<cstdlib>
 	<boxes/mathsequence.h>
@@ -3631,7 +3631,7 @@
 	<Windows.h>
 	<util/base.h>
 
-1283283739 source:d:\peter\programmieren\pmath\trunk\richmath\src\gui\win32\basic-win32-window.cpp
+1283885806 source:d:\peter\programmieren\pmath\trunk\richmath\src\gui\win32\basic-win32-window.cpp
 	<math.h>
 	<stdio.h>
 	<cairo-win32.h>
@@ -3656,7 +3656,7 @@
 	<gui/clipboard.h>
 	<util/hashtable.h>
 
-1283282962 source:d:\peter\programmieren\pmath\trunk\richmath\src\gui\win32\win32-control-painter.cpp
+1283885816 source:d:\peter\programmieren\pmath\trunk\richmath\src\gui\win32\win32-control-painter.cpp
 	<gui/win32/win32-control-painter.h>
 	<cmath>
 	<cstdio>
@@ -3718,7 +3718,7 @@
 	<cwchar>
 	<util/array.h>
 
-1281039099 source:d:\peter\programmieren\pmath\trunk\richmath\src\gui\win32\win32-widget.cpp
+1283885955 source:d:\peter\programmieren\pmath\trunk\richmath\src\gui\win32\win32-widget.cpp
 	<gui/win32/win32-widget.h>
 	<climits>
 	<cmath>
@@ -3733,11 +3733,10 @@
 	<gui/control-painter.h>
 	<resources.h>
 
-1283638604 source:d:\peter\programmieren\pmath\trunk\richmath\src\main.cpp
+1283885592 source:d:\peter\programmieren\pmath\trunk\richmath\src\main.cpp
 	<cmath>
 	<cstdio>
 	<ctime>
-	<pango/pangocairo.h>
 	<boxes/section.h>
 	<boxes/mathsequence.h>
 	<eval/binding.h>
@@ -3751,6 +3750,8 @@
 	<gui/win32/win32-document-window.h>
 	<gui/win32/win32-themes.h>
 	<resources.h>
+	<pango/pangocairo.h>
+	<pango/pangowin32.h>
 	<Windows.h>
 
 1280054988 source:d:\peter\programmieren\pmath\trunk\richmath\src\util\base.cpp
@@ -3791,4 +3792,10 @@
 	<stddef.h>
 
 1280055008 d:\peter\programmieren\pmath\trunk\msvc-c99\inttypes.h
+
+1265621270 d:\programme\gtk\include\pango-1.0\pango\pangowin32.h
+	<glib.h>
+	<pango/pango-font.h>
+	<pango/pango-layout.h>
+	<windows.h>
 

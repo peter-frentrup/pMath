@@ -16,6 +16,10 @@
 #include <util/array.h>
 #include <util/style.h>
 
+#ifndef WM_DWMCOMPOSITIONCHANGED
+  #define WM_DWMCOMPOSITIONCHANGED   0x031E
+#endif
+
 using namespace richmath;
 
 class Win32ControlPainterInfo: public BasicWin32Widget{

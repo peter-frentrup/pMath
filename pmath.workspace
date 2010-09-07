@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_workspace_file>
 	<Workspace title="Workspace">
-		<Project filename="library/pmath.cbp" />
-		<Project filename="library/test/test.cbp" active="1">
+		<Project filename="library/pmath.cbp" active="1" />
+		<Project filename="library/test/test.cbp">
 			<Depends filename="library/pmath.cbp" />
 		</Project>
 	</Workspace>

@@ -5,8 +5,6 @@
 #include <cstdio>
 #include <ctime>
 
-#include <pango/pangocairo.h>
-
 #include <boxes/section.h>
 #include <boxes/mathsequence.h>
 #include <eval/binding.h>
@@ -21,6 +19,11 @@
 #include <gui/win32/win32-themes.h>
 
 #include <resources.h>
+
+#undef STRICT
+
+#include <pango/pangocairo.h>
+#include <pango/pangowin32.h>
 
 #include <Windows.h>
 
@@ -62,46 +65,50 @@ static void todo(Document *doc, String msg){
   write_text_section(doc, "Todo", msg);
 }
 
-class PrivateAsanaFont{
+class PrivateFont: public Shareable{
   public:
-    static bool load(){
-      if(guard.filename.length())
-        return true;
-        
-      String file = Client::application_directory + "/Asana-Math.otf";
+    static bool load(String name){
+      name+= String::FromChar(0);
       
-      file+= String::FromChar(0);
+      String file = Client::application_directory + "/" + name;
       
-      guard.filename.length(file.length());
+      guard = new PrivateFont(guard);
+      guard->filename.length(file.length());
       memcpy(
-        guard.filename.items(), 
+        guard->filename.items(), 
         file.buffer(), 
-        guard.filename.length() * sizeof(uint16_t));
+        guard->filename.length() * sizeof(uint16_t));
       
-      if(AddFontResourceExW(guard.filename.items(), FR_PRIVATE, 0) > 0){
+      if(AddFontResourceExW(guard->filename.items(), FR_PRIVATE, 0) > 0){
         return true;
       }
       
-      guard.filename.length(0);
+      guard = guard->next;
       return false;
     }
     
   private:
-    PrivateAsanaFont(): filename(0){}
+    PrivateFont(SharedPtr<PrivateFont> _next)
+    : Shareable(),
+      filename(0),
+      next(_next)
+    {
+    }
     
-    ~PrivateAsanaFont(){
+    ~PrivateFont(){
       if(filename.length() > 0){
-        RemoveFontResourceExW(guard.filename.items(), FR_PRIVATE, 0);
+        RemoveFontResourceExW(filename.items(), FR_PRIVATE, 0);
       }
     }
     
   private:
-    static PrivateAsanaFont guard;
+    static SharedPtr<PrivateFont> guard;
     
     Array<WCHAR> filename;
+    SharedPtr<PrivateFont> next;
 };
 
-PrivateAsanaFont PrivateAsanaFont::guard;
+SharedPtr<PrivateFont> PrivateFont::guard = 0;
 
 static void load_aliases(
   Expr                                  aliases,
@@ -185,7 +192,6 @@ int main(){
   Server::init_local_server();
   
   GeneralSyntaxInfo::std = new GeneralSyntaxInfo;
-  
   Win32Clipboard::init();
   
   PMATH_RUN("BeginPackage(\"FE`\")");
@@ -198,7 +204,11 @@ int main(){
     }
     
     if(!fonttable.search("Asana Math")){
-      PrivateAsanaFont::load();
+      PrivateFont::load("Asana-Math.otf");
+    }
+    
+    if(!fonttable.search("pMathFallback")){
+      PrivateFont::load("pMathFallback.otf");
     }
     
     PMATH_RUN(
