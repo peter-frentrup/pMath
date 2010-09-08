@@ -140,10 +140,7 @@ static pmath_t open_bin_file(
   return pmath_file_create_binary(f, (void(*)(void*))bin_file_destroy, &api);
 }
 
-PMATH_PRIVATE pmath_bool_t _pmath_file_check(
-  pmath_t file, 
-  int            properties
-){
+PMATH_PRIVATE pmath_bool_t _pmath_file_check(pmath_t file, int properties){
   if(pmath_is_expr_of(file, PMATH_SYMBOL_LIST)
   && (properties & OPEN_READ) == 0){
     pmath_bool_t result = TRUE;

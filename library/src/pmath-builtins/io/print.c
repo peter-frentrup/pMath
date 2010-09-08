@@ -1,20 +1,12 @@
 #include <pmath-core/expressions.h>
 #include <pmath-core/symbols.h>
 
-#include <assert.h>
-#include <limits.h>
-#include <stdio.h>
-#include <string.h>
-
-#include <pmath-util/concurrency/threads.h>
 #include <pmath-util/concurrency/threadlocks.h>
 
-#include <pmath-core/objects-private.h>
-#include <pmath-core/strings-private.h>
-
-#include <pmath-builtins/lists-private.h>
-#include <pmath-builtins/all-symbols.h>
 #include <pmath-builtins/all-symbols-private.h>
+
+#include <stdio.h>
+#include <string.h>
 
 static void write_to_file(FILE *file, const char *cstr){
   fwrite(cstr, 1, strlen(cstr), file);

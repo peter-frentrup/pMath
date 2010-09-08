@@ -942,7 +942,7 @@
 1282942718 d:\peter\programmieren\pmath\trunk\library\include\pmath-builtins\language-private.h
 	<pmath-core/strings.h>
 
-1283095711 source:d:\peter\programmieren\pmath\trunk\library\src\pmath-builtins\io\open-close.c
+1283970705 source:d:\peter\programmieren\pmath\trunk\library\src\pmath-builtins\io\open-close.c
 	<pmath-language/scanner.h>
 	<pmath-util/debug.h>
 	<pmath-util/evaluation.h>
@@ -959,22 +959,15 @@
 	<langinfo.h>
 	<locale.h>
 
-1282593604 source:d:\peter\programmieren\pmath\trunk\library\src\pmath-builtins\io\print.c
+1283968207 source:d:\peter\programmieren\pmath\trunk\library\src\pmath-builtins\io\print.c
 	<pmath-core/expressions.h>
 	<pmath-core/symbols.h>
-	<assert.h>
-	<limits.h>
+	<pmath-util/concurrency/threadlocks.h>
+	<pmath-builtins/all-symbols-private.h>
 	<stdio.h>
 	<string.h>
-	<pmath-util/concurrency/threads.h>
-	<pmath-util/concurrency/threadlocks.h>
-	<pmath-core/objects-private.h>
-	<pmath-core/strings-private.h>
-	<pmath-builtins/lists-private.h>
-	<pmath-builtins/all-symbols.h>
-	<pmath-builtins/all-symbols-private.h>
 
-1282593627 source:d:\peter\programmieren\pmath\trunk\library\src\pmath-builtins\io\read.c
+1283970215 source:d:\peter\programmieren\pmath\trunk\library\src\pmath-builtins\io\read.c
 	<pmath-builtins/io-private.h>
 	<pmath-core/symbols.h>
 	<pmath-language/tokens.h>
@@ -998,7 +991,6 @@
 	<pmath-builtins/control-private.h>
 	<pmath-builtins/language-private.h>
 	<pmath-builtins/lists-private.h>
-	<pmath-builtins/all-symbols.h>
 	<pmath-builtins/all-symbols-private.h>
 
 1282593643 source:d:\peter\programmieren\pmath\trunk\library\src\pmath-builtins\io\renamedirectory-and-renamefile.c

@@ -6,6 +6,8 @@ Button("Arg Style",DocumentApply(SelectedDocument(),StyleBox("","Arg")))
 
 - pmath: #include headers directly from other headers that depend on them => reduce #include in .c files
 
+- pmath: use static win_iconv library instead of iconv.dll?
+
 - pmath: use "fat values": a pmath_t will be an 8-byte struct, that contains small ints and doubles directly, (maybe also small strings). tag bits specify the type 
 	advantage: 
 		- lower memory usage for small ints/machine floats

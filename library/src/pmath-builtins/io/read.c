@@ -1,34 +1,18 @@
-#include <pmath-builtins/io-private.h>
-#include <pmath-core/symbols.h>
-#include <pmath-language/tokens.h>
-#include <pmath-util/evaluation.h>
-#include <pmath-util/memory.h>
+#include <pmath-core/numbers-private.h>
 
-#include <assert.h>
-#include <string.h>
-#include <wchar.h>
-
-#include <pmath-core/custom.h>
+#include <pmath-language/scanner.h>
 
 #include <pmath-util/approximate.h>
 #include <pmath-util/concurrency/threads.h>
-#include <pmath-util/debug.h>
+#include <pmath-util/evaluation.h>
 #include <pmath-util/files.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
 
-#include <pmath-language/scanner.h>
-
-#include <pmath-core/objects-private.h>
-#include <pmath-core/expressions-private.h>
-#include <pmath-core/numbers-private.h>
-
-#include <pmath-builtins/arithmetic-private.h>
-#include <pmath-builtins/control-private.h>
-#include <pmath-builtins/language-private.h>
-#include <pmath-builtins/lists-private.h>
-#include <pmath-builtins/all-symbols.h>
 #include <pmath-builtins/all-symbols-private.h>
+#include <pmath-builtins/control-private.h>
+#include <pmath-builtins/io-private.h>
+#include <pmath-builtins/language-private.h>
 
 static void syntax_error(pmath_string_t code, int pos, void *data, pmath_bool_t critical){
   pmath_message_syntax_error(code, pos, NULL, 0);
