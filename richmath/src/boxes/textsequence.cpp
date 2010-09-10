@@ -183,14 +183,19 @@ TextSequence::~TextSequence(){
 }
 
 void TextSequence::resize(Context *context){
+  em = context->canvas->get_font_size();
+  
+  PangoTabArray *tabs = pango_tab_array_new(1, FALSE);
+  pango_tab_array_set_tab(tabs, 0, PANGO_TAB_LEFT, pango_units_from_double(72/2.54)); // 1cm
+  pango_layout_set_tabs(_layout, tabs);
+  pango_tab_array_free(tabs);
+  
   ensure_boxes_valid();
   for(int i = 0;i < boxes.length();++i)
     boxes[i]->resize(context);
   
   text_invalid = true;
   ensure_text_valid();
-  
-  em = context->canvas->get_font_size();
   
   GlobalPangoContext::update(context);
   pango_layout_context_changed(_layout);
@@ -254,7 +259,6 @@ void TextSequence::paint(Context *context){
   ensure_text_valid();
   
   GlobalPangoContext::update(context);
-  //pango_layout_context_changed(_layout);
   
   y0-= _extents.ascent;
   double clip_x1, clip_y1, clip_x2, clip_y2;
@@ -281,7 +285,7 @@ void TextSequence::paint(Context *context){
       int base = pango_layout_iter_get_baseline(iter) - line_y_corrections[line];
       
       context->canvas->move_to(
-        x0 + pango_units_to_double(rect.x),
+        x0,
         y0 + pango_units_to_double(base));
       
       pango_cairo_show_layout_line(
@@ -434,6 +438,9 @@ void TextSequence::load_from_object(Expr object, int options){ // BoxOptionXXX
   
   boxes_invalid = true;
   text_invalid = true;
+  
+  if(object.instance_of(PMATH_TYPE_STRING))
+    object = expand_string_boxes(String(object));
   
   if(object.instance_of(PMATH_TYPE_STRING)){
     String s(object.release());
@@ -675,12 +682,18 @@ Box *TextSequence::move_logical(
       return this;
     }
     
-    const char *s = text.buffer() + *index;
+    const char *s     = text.buffer() + *index;
+    const char *s_end = text.buffer() + text.length();
     
     if(text.is_box_at(*index)){
       if(jumping){
-        s = g_utf8_next_char(s);
-        *index = (int)((size_t)s - (size_t)text.buffer());
+        s = g_utf8_find_next_char(s, s_end);
+        
+        if(s)
+          *index = (int)((size_t)s - (size_t)text.buffer());
+        else
+          *index = text.length();
+          
         return this;
       }
       
@@ -709,8 +722,12 @@ Box *TextSequence::move_logical(
       return this;
     }
     
-    s = g_utf8_next_char(s);
-    *index = (int)((size_t)s - (size_t)text.buffer());
+    s = g_utf8_find_next_char(s, s_end);
+    if(s)
+      *index = (int)((size_t)s - (size_t)text.buffer());
+    else
+      *index = text.length();
+    
     return this;
   }
   
@@ -816,15 +833,20 @@ Box *TextSequence::move_vertical(
       return boxes[b]->move_vertical(direction, index_rel_x, index);
     }
     
-    char *s = text.buffer() + i;
+    char *s     = text.buffer() + i;
+    char *s_end = text.buffer() + text.length();
     while(tr-- > 0)
-      s = g_utf8_next_char(s);
+      s = g_utf8_find_next_char(s, s_end);
     
     int px;
     pango_layout_line_index_to_x(pll, i, 0, &px);
     *index_rel_x = pango_units_to_double(px) - x;
     
-    *index = (int)((size_t)s - (size_t)text.buffer());
+    if(s)
+      *index = (int)((size_t)s - (size_t)text.buffer());
+    else
+      *index = text.length();
+    
     return this;
   }
   
@@ -890,11 +912,16 @@ Box *TextSequence::mouse_selection(
   //       s = (tr == 0) ? left : right.
   //       That would be a rather big change all over the library, but we could 
   //       get rid of the eol parameter, which isn't really used anywhere now.
-  char *s = text.buffer() + i;
+  char *s     = text.buffer() + i;
+  char *s_end = text.buffer() + text.length();
   while(tr-- > 0)
-    s = g_utf8_next_char(s);
+    s = g_utf8_find_next_char(s, s_end);
   
-  *start = *end = (int)((size_t)s - (size_t)text.buffer());
+  if(s)
+    *start = *end = (int)((size_t)s - (size_t)text.buffer());
+  else
+    *start = *end = text.length();
+  
   return this;
 }
 

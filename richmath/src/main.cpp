@@ -422,8 +422,10 @@ int main(){
     s->set(ShowAutoStyles,       false);
     s->set(ShowStringCharacters, false);
     s->set(SectionFrameColor, /*0x008000*/0xAACC99);
-    s->set(SectionFrameLeft,  1.5);
-    s->set(SectionFrameTop,   0.75);
+    s->set(SectionFrameLeft,   0.75);
+    s->set(SectionFrameRight,  0.75);
+    s->set(SectionFrameTop,    0.75);
+    s->set(SectionFrameBottom, 0.75);
     s->set(SectionFrameMarginLeft,   6.0);
     s->set(SectionFrameMarginRight,  6.0);
     s->set(SectionFrameMarginTop,    6.0);
@@ -519,21 +521,19 @@ int main(){
       550);
     wndMain->init();
     
-    wndMain->top_glass()->insert(0, 
-      Section::create_from_object(Expr(run(
-        "Section(BoxData("
-          "{\"\\\" Help Topic:  \\\"\","
-            "FillBox(InputBox(StyleBox({\"not yet implemented\"},"
-              "FontSlant->Italic,"
-              "FontColor->GrayLevel(0.5)))),"
-            "ButtonBox("
-              "\"\\\" Go \\\"\","
-              "ButtonFrame->\"Palette\")}),"
-          "\"Docked\","
-          "LineBreakWithin->False,"
-          "SectionMargins->{0.75, 0.75, 3, 4.5},"
-          "SectionFrameMargins->0)"
-        ))));
+//    wndMain->top_glass()->insert(0, 
+//      Section::create_from_object(Expr(run(
+//        "Section(BoxData("
+//          "{\"\\\" Help Topic:  \\\"\","
+//            "FillBox(InputBox(\"not yet implemented\")),"
+//            "ButtonBox("
+//              "\"\\\" Go \\\"\","
+//              "ButtonFrame->\"Palette\")}),"
+//          "\"Docked\","
+//          "LineBreakWithin->False,"
+//          "SectionMargins->{0.75, 0.75, 3, 4.5},"
+//          "SectionFrameMargins->0)"
+//        ))));
     
 //    wndMain->top()->insert(0,
 //      Section::create_from_object(Expr(run(

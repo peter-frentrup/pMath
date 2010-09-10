@@ -19,6 +19,8 @@ namespace richmath{
   // 0xFFFFFFFFU on error
   uint32_t unicode_to_utf32(String s);
   
+  Expr expand_string_boxes(String s);
+  
   class Span{
     public:
       Span(pmath_span_t *data): _data(data){}

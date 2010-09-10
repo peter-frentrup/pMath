@@ -413,13 +413,19 @@ class richmath::GlassDock: public richmath::Dock {
         SystemParametersInfo(SPI_GETFONTSMOOTHING,     0, &haveFontSmoothing, 0);
         SystemParametersInfo(SPI_GETFONTSMOOTHINGTYPE, 0, &fontSmoothingType, 0);
         
-        if(haveFontSmoothing && fontSmoothingType == FE_FONTSMOOTHINGCLEARTYPE)
-          canvas->native_show_glyphs = false;
+        if(haveFontSmoothing && fontSmoothingType == FE_FONTSMOOTHINGCLEARTYPE){
+          //canvas->native_show_glyphs = false;
+          
+          cairo_font_options_t *opt = cairo_font_options_create();
+          cairo_font_options_set_antialias(opt, CAIRO_ANTIALIAS_GRAY);
+          cairo_set_font_options(canvas->cairo(), opt);
+          cairo_font_options_destroy(opt);
+        }
       }
       else{
         remove_textshadows();
         
-        canvas->native_show_glyphs = true;
+        //canvas->native_show_glyphs = true;
         
         if(parent->glass_enabled())
           canvas->glass_background = true;

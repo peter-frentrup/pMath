@@ -64,6 +64,59 @@ uint32_t richmath::unicode_to_utf32(String s){
   return 0xFFFFFFFFU;
 }
 
+Expr richmath::expand_string_boxes(String s){
+  const uint16_t *buf = s.buffer();
+  const int len = s.length();
+  
+  Gather list;
+  
+  int i = 0;
+  while(i < len){
+    int j = i;
+    
+    while(j < len){
+      if(buf[j] == PMATH_CHAR_LEFT_BOX){
+        if(i < j)
+          list.emit(s.part(i, j - i));
+        
+        i = ++j;
+        int k = 1;
+        while(j < len){
+          if(buf[j] == PMATH_CHAR_LEFT_BOX){
+            ++k;
+          }
+          else if(buf[j] == PMATH_CHAR_RIGHT_BOX){
+            if(--k == 0){
+              ++j;
+              break;
+            }
+          }
+          ++j;
+        }
+        
+        if(k == 0){
+          String code = s.part(i, j-i-1);
+          list.emit(Expr(pmath_parse_string(code.release())));
+        }
+        
+        i = j;
+        break;
+      }
+      ++j;
+    }
+      
+    if(i < j)
+      list.emit(s.part(i, j - i));
+    
+    i = j;
+  }
+  
+  Expr result = list.end();
+  if(result.expr_length() == 1)
+    return result[1];
+  return result;
+}
+
 //{ class SpanArray ...
 
 SpanArray::SpanArray(pmath_span_array_t *spans)

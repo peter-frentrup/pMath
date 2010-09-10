@@ -523,7 +523,7 @@ namespace pmath{
       }
       
       /**\brief emit a value to be gathered. */
-      static void Emit(Expr e){
+      static void emit(Expr e){
         pmath_emit(e.release(), 0);
       }
     

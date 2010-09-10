@@ -1149,7 +1149,7 @@ void ConfigShaper::show_glyph(
   const uint16_t   ch,
   const GlyphInfo &info
 ){
-  if(info.fontinfo >= math_font_faces.length()){
+  if(info.fontinfo >= (unsigned)math_font_faces.length()){
     GlyphInfo gi;
     memcpy(&gi, &info, sizeof(GlyphInfo));
     

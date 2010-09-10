@@ -11,6 +11,7 @@
 #include <boxes/section.h>
 #include <boxes/mathsequence.h>
 #include <boxes/subsuperscriptbox.h>
+#include <boxes/textsequence.h>
 #include <boxes/underoverscriptbox.h>
 #include <eval/binding.h>
 #include <eval/client.h>
@@ -28,8 +29,7 @@ Box *richmath::expand_selection(Box *box, int *start, int *end){
   if(!box)
     return 0;
   
-  MathSequence *seq = dynamic_cast<MathSequence*>(box);
-  if(seq){
+  if(MathSequence *seq = dynamic_cast<MathSequence*>(box)){
     for(int i = *start;i < *end;++i){
       if(seq->span_array().is_token_end(i))
         goto MULTIPLE_TOKENS;
@@ -96,11 +96,103 @@ Box *richmath::expand_selection(Box *box, int *start, int *end){
       return seq;
     }
   }
+  else if(TextSequence *seq = dynamic_cast<TextSequence*>(box)){
+    if(*start > 0 || *end < seq->length()){
+      PangoLogAttr *attrs;
+      int n_attrs;
+      pango_layout_get_log_attrs(seq->get_layout(), &attrs, &n_attrs);
+      
+      const char *buf = seq->text_buffer().buffer();
+      const char *s              = buf;
+      const char *s_end          = buf + seq->length();
+      const char *word_start     = buf;
+      
+      int i = 0;
+      while(s && (size_t)s - (size_t)buf <= (size_t)*start){
+        if(attrs[i].is_word_start)
+          word_start = s;
+        
+        ++i;
+        s = g_utf8_find_next_char(s, s_end);
+      }
+      
+      const char *word_end = NULL;
+      
+      while(s && !word_end){
+        if(attrs[i].is_word_boundary && word_end != word_start)
+          word_end = s;
+        
+        ++i;
+        s = g_utf8_find_next_char(s, s_end);
+      }
+      
+      g_free(attrs);
+      attrs = NULL;
+      
+      if(!word_end)
+        word_end = s_end;
+      
+      if((size_t)word_end - (size_t)buf >= (size_t)*end
+      && (size_t)word_end - (size_t)word_start > (size_t)*end - (size_t)*start){
+        *start = (int)((size_t)word_start - (size_t)buf);
+        *end   = (int)((size_t)word_end   - (size_t)buf);
+      }
+      else{
+        GSList *lines = pango_layout_get_lines_readonly(seq->get_layout());
+        
+        int prev_par_start = 0;
+        int paragraph_start = 0;
+        while(lines){
+          PangoLayoutLine *line = (PangoLayoutLine*)lines->data;
+          
+          if(line->is_paragraph_start && line->start_index <= *start){
+            prev_par_start = paragraph_start;
+            paragraph_start = line->start_index;
+          }
+          
+          if(line->start_index + line->length >= *end){
+            if(line->start_index <= *start && *end - *start < line->length){
+              *start = line->start_index;
+              *end = line->start_index + line->length;
+              break;
+            }
+            
+            int old_end = *end;
+            
+            lines = lines->next;
+            while(lines){
+              PangoLayoutLine *line = (PangoLayoutLine*)lines->data;
+              if(line->is_paragraph_start && line->start_index >= *end){
+                *end = line->start_index;
+                break;
+              }
+              
+              lines = lines->next;
+            }
+            
+            if(!lines)
+              *end = seq->length();
+            
+            if(old_end - *start < *end - paragraph_start)
+              *start = paragraph_start;
+            else
+              *start = prev_par_start;
+            
+            break;
+          }
+          
+          lines = lines->next;
+        }
+      }
+      
+      return seq;
+    }
+  }
   
   int index = box->index();
   Box *box2 = box->parent();
   while(box2){
-    if(dynamic_cast<MathSequence*>(box2)){
+    if(dynamic_cast<AbstractSequence*>(box2)){
       *start = index;
       *end = index + 1;
       return box2;
@@ -1647,6 +1739,37 @@ void Document::move_start_end(
       }
     }
   }
+  else if(TextSequence *seq = dynamic_cast<TextSequence*>(box)){
+    GSList *lines = pango_layout_get_lines_readonly(seq->get_layout());
+    
+    if(direction == Backward){
+      while(lines){
+        PangoLayoutLine *line = (PangoLayoutLine*)lines->data;
+        
+        if(line->start_index + line->length >= index){
+          index = line->start_index;
+          break;
+        }
+        
+        lines = lines->next;
+      }
+    }
+    else{
+      const char *s = seq->text_buffer().buffer();
+      while(lines){
+        PangoLayoutLine *line = (PangoLayoutLine*)lines->data;
+        
+        if(line->start_index + line->length >= index){
+          index = line->start_index + line->length;
+          if(index > 0 && s[index - 1] == ' ')
+            --index;
+          break;
+        }
+        
+        lines = lines->next;
+      }
+    }
+  }
   else if(context.selection.start < context.selection.end 
   && length() > 0){
     index = context.selection.start;
@@ -1763,6 +1886,9 @@ bool Document::is_inside_alias(){
 
 bool Document::is_tabkey_only_moving(){
   Box *selbox = context.selection.get();
+  
+  if(dynamic_cast<TextSequence*>(selbox))
+    return false;
   
   if(context.selection.start != context.selection.end)
     return true;

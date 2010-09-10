@@ -2986,11 +2986,11 @@
 	<util/pmath-extra.h>
 	<util/hashtable.h>
 
-1280054986 d:\peter\programmieren\pmath\trunk\richmath\include\util\pmath-extra.h
+1284133828 d:\peter\programmieren\pmath\trunk\richmath\include\util\pmath-extra.h
 	<pmath-cpp.h>
 	<util/base.h>
 
-1280615280 d:\peter\programmieren\pmath\trunk\library\include\pmath-cpp.h
+1284133982 d:\peter\programmieren\pmath\trunk\library\include\pmath-cpp.h
 	<cstdlib>
 	<limits>
 	<stdint.h>
@@ -3412,7 +3412,7 @@
 	<boxes/mathsequence.h>
 	<graphics/context.h>
 
-1283885571 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\textsequence.cpp
+1284149005 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\textsequence.cpp
 	<boxes/textsequence.h>
 	<cstdlib>
 	<boxes/mathsequence.h>
@@ -3517,7 +3517,7 @@
 	<Windows.h>
 	<cairo-win32.h>
 
-1283638258 source:d:\peter\programmieren\pmath\trunk\richmath\src\graphics\config-shaper.cpp
+1284151365 source:d:\peter\programmieren\pmath\trunk\richmath\src\graphics\config-shaper.cpp
 	<graphics/config-shaper.h>
 	<cstdio>
 	<boxes/mathsequence.h>
@@ -3590,7 +3590,7 @@
 	<gui/native-widget.h>
 	<graphics/context.h>
 
-1283636048 source:d:\peter\programmieren\pmath\trunk\richmath\src\gui\document.cpp
+1284147279 source:d:\peter\programmieren\pmath\trunk\richmath\src\gui\document.cpp
 	<gui/document.h>
 	<cmath>
 	<cstdio>
@@ -3602,6 +3602,7 @@
 	<boxes/section.h>
 	<boxes/mathsequence.h>
 	<boxes/subsuperscriptbox.h>
+	<boxes/textsequence.h>
 	<boxes/underoverscriptbox.h>
 	<eval/binding.h>
 	<eval/client.h>
@@ -3673,7 +3674,7 @@
 	<windows.h>
 	<gui/control-painter.h>
 
-1283555144 source:d:\peter\programmieren\pmath\trunk\richmath\src\gui\win32\win32-document-window.cpp
+1284062884 source:d:\peter\programmieren\pmath\trunk\richmath\src\gui\win32\win32-document-window.cpp
 	<gui/win32/win32-document-window.h>
 	<cmath>
 	<cstdio>
@@ -3733,7 +3734,7 @@
 	<gui/control-painter.h>
 	<resources.h>
 
-1283885592 source:d:\peter\programmieren\pmath\trunk\richmath\src\main.cpp
+1284151182 source:d:\peter\programmieren\pmath\trunk\richmath\src\main.cpp
 	<cmath>
 	<cstdio>
 	<ctime>
@@ -3760,7 +3761,7 @@
 	<cstdio>
 	<pmath-util/concurrency/atomic.h>
 
-1280054988 source:d:\peter\programmieren\pmath\trunk\richmath\src\util\pmath-extra.cpp
+1284135339 source:d:\peter\programmieren\pmath\trunk\richmath\src\util\pmath-extra.cpp
 	<util/pmath-extra.h>
 	<cstring>
 	<cmath>
