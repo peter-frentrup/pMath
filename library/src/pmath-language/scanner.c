@@ -1121,6 +1121,7 @@ static void parse_prim(parser_t *parser, pmath_bool_t prim_optional){
       
       if(tok == PMATH_TOK_COLON){ // x:pattern
         skip_to(parser, next, FALSE);
+        next = parser->tokens.pos;
         parse_prim(parser, FALSE);
         parse_rest(parser, next, PMATH_PREC_ALT);
       }
@@ -1184,6 +1185,7 @@ static void parse_prim(parser_t *parser, pmath_bool_t prim_optional){
       
       if(tok == PMATH_TOK_COLON){ // ?x:type  ?:type
         skip_to(parser, next, FALSE);
+        next = parser->tokens.pos;
         parse_prim(parser, FALSE);
         parse_rest(parser, next, PMATH_PREC_CIRCMUL);
       }
@@ -1239,6 +1241,7 @@ static void parse_prim(parser_t *parser, pmath_bool_t prim_optional){
     case PMATH_TOK_INTEGRAL: { DO_PREFIX:
       parser->spans->items[start] |= 2; //operand start
       skip_to(parser, next, FALSE);
+      next = parser->tokens.pos;
       parse_prim(parser, FALSE);
       parse_rest(parser, next, prec);
     } break;

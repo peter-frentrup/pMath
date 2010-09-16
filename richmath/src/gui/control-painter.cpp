@@ -53,6 +53,15 @@ void ControlPainter::calc_container_size(
       extents->ascent+=  3.0;
       extents->descent+= 3.0;
     } break;
+    
+    case SliderHorzChannel: {
+      extents->ascent  = 3.0;
+      extents->descent = 1.0;
+    } break;
+    
+    case SliderHorzThumb: {
+      extents->width = extents->height() / 2;
+    } break;
   }
 }
 
@@ -189,6 +198,15 @@ void ControlPainter::draw_container(
     case InputField: 
       paint_frame(canvas, x, y, width, height, true, 0xFFFFFF);
       break;
+    
+    case SliderHorzChannel: {
+      paint_frame(canvas, x, y, width, height, true);
+    } break;
+    
+    case SliderHorzThumb: {
+      paint_frame(canvas, x, y, width, height, false);
+    } break;
+      
   }
 
   canvas->restore();

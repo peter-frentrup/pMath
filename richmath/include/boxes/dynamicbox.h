@@ -19,6 +19,8 @@ namespace richmath{
     
     public:
       Expr dynamic_content;
+    
+    protected:
       bool must_update;
   };
 };

@@ -54,6 +54,7 @@ Win32ControlPainter::Win32ControlPainter()
   button_theme(0),
   edit_theme(0),
   scrollbar_theme(0),
+  slider_theme(0),
   toolbar_theme(0)
 {
   ControlPainter::std = this;
@@ -172,7 +173,12 @@ int Win32ControlPainter::control_font_color(ContainerType type, ControlState sta
            |  (col & 0x00FF00)
            | ((col & 0x0000FF) << 16);
     } break;
+    
+    case SliderHorzChannel:
+    case SliderHorzThumb:
+      break;
   }
+  
   return -1;
 }
 
@@ -411,6 +417,15 @@ void Win32ControlPainter::draw_container(
   if(Win32Themes::OpenThemeData 
   && Win32Themes::CloseThemeData 
   && Win32Themes::DrawThemeBackground){
+    
+    bool two_times = false;
+    if(canvas->glass_background && type == PaletteButton){
+      if(state == Normal)
+        state = Hovered;
+      else if(state == Hovered)
+        two_times = true;
+    }
+    
     int _part, _state;
     HANDLE theme = get_control_theme(type, state, &_part, &_state);
     if(!theme)
@@ -427,12 +442,31 @@ void Win32ControlPainter::draw_container(
       _state,
       &rect,
       0);
+    
+    if(two_times){
+      Win32Themes::DrawThemeBackground(
+        theme,
+        dc,
+        _part,
+        _state,
+        &rect,
+        0);
+      Win32Themes::DrawThemeBackground(
+        theme,
+        dc,
+        _part,
+        _state,
+        &rect,
+        0);
+    }
   }
   else{ FALLBACK: ;
     UINT _state = 0;
     
     switch(type){
       case FramelessButton:
+      case SliderHorzChannel: 
+      case SliderHorzThumb: 
         break;
         
       case PaletteButton: {
@@ -531,9 +565,6 @@ SharedPtr<BoxAnimation> Win32ControlPainter::control_transition(
   || widget_id == 0) 
     return 0;
   
-//  if(state2 == Pressed/* || state1 == Normal*/)
-//    return 0;
-  
   bool repeat = false;
   if(type == DefaultPushButton && state1 == Normal && state2 == Normal){
     state2 = Hot;
@@ -546,6 +577,12 @@ SharedPtr<BoxAnimation> Win32ControlPainter::control_transition(
   if(!theme)
     return 0;
   
+  if(type == PushButton
+  || type == DefaultPushButton
+  || type == PaletteButton){
+    if(state2 == Pressed/* || state1 == Normal*/)
+      return 0;
+  }
   DWORD duration = 0;
   /* TMT_TRANSITIONDURATIONS = 6000 */
   Win32Themes::GetThemeTransitionDuration(
@@ -1073,6 +1110,14 @@ HANDLE Win32ControlPainter::get_control_theme(
       theme = edit_theme;
     } break;
     
+    case SliderHorzChannel: 
+    case SliderHorzThumb: {
+      if(!slider_theme)
+        slider_theme = Win32Themes::OpenThemeData(0, L"TRACKBAR");
+      
+      theme = slider_theme;
+    } break;
+    
     default: return 0;
   }
   
@@ -1101,6 +1146,7 @@ HANDLE Win32ControlPainter::get_control_theme(
           else
             *theme_state = 2;
         } break;
+        
         case Normal:
           if(type == DefaultPushButton){
 //            if(state == Hot
@@ -1128,6 +1174,22 @@ HANDLE Win32ControlPainter::get_control_theme(
       }
     } break;
     
+    case SliderHorzChannel: {
+      *theme_part = 1;
+      *theme_state = 1;
+    } break;
+    
+    case SliderHorzThumb: {
+      *theme_part = 3;
+      switch(state){
+        case Normal:   *theme_state = 1; break;
+        case Hot: 
+        case Hovered:  *theme_state = 2; break;
+        case Pressed:  *theme_state = 3; break;
+        case Disabled: *theme_state = 4; break;
+      }
+    } break;
+    
     default: break;
   }
   
@@ -1144,10 +1206,13 @@ void Win32ControlPainter::clear_cache(){
     
     if(scrollbar_theme)
       Win32Themes::CloseThemeData(scrollbar_theme);
-      
+    
+    if(slider_theme)
+      Win32Themes::CloseThemeData(slider_theme);
+    
     if(toolbar_theme)
       Win32Themes::CloseThemeData(toolbar_theme);
   }
   
-  button_theme = edit_theme = scrollbar_theme = toolbar_theme = 0;
+  button_theme = edit_theme = scrollbar_theme = slider_theme = toolbar_theme = 0;
 }

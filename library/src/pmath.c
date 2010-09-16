@@ -698,8 +698,6 @@ PMATH_API pmath_bool_t pmath_init(void){
     { // loading maininit.pmath
       pmath_string_t exe = get_exe_name();
       
-      pmath_debug_print_object("exe = ", exe, "\n");
-      
       #ifdef PMATH_OS_UNIX
         #define OS_SPECIFIC_PATH \
           "{\"/etc/pmath\"," \
@@ -708,8 +706,8 @@ PMATH_API pmath_bool_t pmath_init(void){
           "\"/usr/local/share/pmath\"},"
       #elif defined(PMATH_OS_WIN32)
         #define OS_SPECIFIC_PATH \
-          "If(# =!= $Failed,{ToFileName(#,\"pmath\")},{})&(Environment(\"CommonProgramFiles\"))," \
-          "If(# =!= $Failed,{ToFileName(#,\"pmath\")},{})&(Environment(\"ProgramFiles\")),"
+          "(If(# =!= $Failed,{ToFileName(#,\"pmath\")},{})&)(Environment(\"CommonProgramFiles\"))," \
+          "(If(# =!= $Failed,{ToFileName(#,\"pmath\")},{})&)(Environment(\"ProgramFiles\")),"
       #else
         #define OS_SPECIFIC_PATH ""
       #endif

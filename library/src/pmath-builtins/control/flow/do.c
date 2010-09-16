@@ -186,7 +186,7 @@ PMATH_PRIVATE pmath_t builtin_do(pmath_expr_t expr){
 
   _pmath_iterate(
     iter,
-    (void(*)(size_t,pmath_symbol_t,void*))    init_do,
+    (void(*)(size_t,pmath_symbol_t,void*)) init_do,
     (pmath_bool_t(*)(void*))               do_next,
     &data);
 

@@ -1,0 +1,21 @@
+/* Generating Boxes from Gui constructs */
+
+Begin("System`Private`GuiBoxes`")
+
+isDynamic(~):= False
+isDynamic(Dynamic(~)):= True
+isDynamic(Dynamic(~,~)):= True
+isNumberOrDynamic(~x)::= IsNumber(x) || isDynamic(x)
+
+toBeProtected:= Unprotect(Button, Dynamic, Slider)
+
+MakeBoxes(Button(~text, ~code, options:OptionPattern()))::= ButtonBox(MakeBoxes(text), ButtonFunction -> (code &), options)
+
+MakeBoxes(Dynamic(~var))::= DynamicBox(var)
+
+MakeBoxes(Slider(~val ? isNumberOrDynamic))::=             SliderBox(val, 0..1)
+MakeBoxes(Slider(~val ? isNumberOrDynamic, ~min..~max))::= SliderBox(val, min..max)
+
+Protect @@ toBeProtected
+
+End()

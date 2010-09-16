@@ -16,7 +16,11 @@ namespace richmath{
     PushButton,
     DefaultPushButton,
     PaletteButton,
-    InputField
+    InputField,
+    
+    // not realy a container:
+    SliderHorzChannel,
+    SliderHorzThumb
   }ContainerType;
   
   typedef enum{

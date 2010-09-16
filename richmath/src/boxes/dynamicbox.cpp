@@ -4,6 +4,8 @@
 #include <eval/client.h>
 #include <graphics/context.h>
 
+#include <stdio.h>
+
 using namespace richmath;
 
 //{ class DynamicBox ...abandon
@@ -44,14 +46,15 @@ void DynamicBox::paint_content(Context *context){
     // TODO: Add option to not wait for result here, but to inform this box when 
     //       a result is calculated.
     run = Client::interrupt(run, Client::dynamic_timeout);
+    if(run == PMATH_UNDEFINED)
+      run = String("$Aborted");
     
     int opt = BoxOptionDefault;
     if(get_style(AutoNumberFormating))
       opt |= BoxOptionFormatNumbers;
-      
+    
     content()->load_from_object(run, opt);
     invalidate();
-    //request_repaint_all();
   }
 }
 

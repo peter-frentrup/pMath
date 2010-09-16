@@ -13,7 +13,7 @@ PMATH_PRIVATE pmath_t builtin_assign_syntaxinformation(pmath_expr_t expr){
   pmath_t lhs;
   pmath_t rhs;
   pmath_t sym;
-  int            assignment;
+  int     assignment;
   
   assignment = _pmath_is_assignment(expr, &tag, &lhs, &rhs);
   
@@ -35,6 +35,14 @@ PMATH_PRIVATE pmath_t builtin_assign_syntaxinformation(pmath_expr_t expr){
     pmath_unref(lhs);
     pmath_unref(rhs);
     return expr;
+  }
+  
+  if(rhs == PMATH_UNDEFINED){
+    pmath_unref(expr);
+    return pmath_expr_new_extended(
+      pmath_ref(PMATH_SYMBOL_TAGUNASSIGN), 2,
+      sym,
+      lhs);
   }
   
   if(assignment < 0)

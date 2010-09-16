@@ -16,7 +16,7 @@ PMATH_PRIVATE pmath_t builtin_assign_options(pmath_expr_t expr){
   pmath_t lhs;
   pmath_t rhs;
   pmath_t sym;
-  int            assignment;
+  int     assignment;
   
   assignment = _pmath_is_assignment(expr, &tag, &lhs, &rhs);
   

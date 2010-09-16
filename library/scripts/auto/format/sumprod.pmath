@@ -14,7 +14,11 @@ BoxesToExpression({UnderoverscriptBox("\u220F", {~i, "=", ~a}, ~b), ~body})::=
 Protect(BoxesToExpression)
 
 
+Unprotect(Sum, Product)
+
 MakeBoxes(Sum(    ~body, ~i->~a..~b))::= {UnderoverscriptBox("\u2211", MakeBoxes(i=a), MakeBoxes(b)), ParenthesizeBoxes(MakeBoxes(body), Plus, "Prefix")}
 MakeBoxes(Product(~body, ~i->~a..~b))::= {UnderoverscriptBox("\u220F", MakeBoxes(i=a), MakeBoxes(b)), ParenthesizeBoxes(MakeBoxes(body), Plus, "Prefix")}
+
+Protect(Sum, Product)
 
 End()

@@ -117,6 +117,7 @@ PMATH_PRIVATE pmath_t builtin_approximate_machineprecision(pmath_t obj, double p
 PMATH_PRIVATE pmath_t builtin_approximate_pi(              pmath_t obj, double prec, double acc);
 PMATH_PRIVATE pmath_t builtin_approximate_power(           pmath_t obj, double prec, double acc);
 
+PMATH_PRIVATE pmath_t builtin_assign_approximate(      pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_assign_maxextraprecision(pmath_expr_t expr);
 
 PMATH_PRIVATE pmath_t builtin_operate_indeterminate(pmath_expr_t expr);
@@ -224,6 +225,7 @@ PMATH_PRIVATE pmath_t builtin_parenthesizeboxes(pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_toboxes(          pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_tostring(         pmath_expr_t expr);
 
+PMATH_PRIVATE pmath_t builtin_assign_makeboxes(        pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_assign_syntaxinformation(pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_syntaxinformation(       pmath_expr_t expr);
 //} ============================================================================
@@ -747,6 +749,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   VERIFY(   PMATH_SYMBOL_FONTSLANT                 = NEW_SYSTEM_SYMBOL("FontSlant"))
   VERIFY(   PMATH_SYMBOL_FONTWEIGHT                = NEW_SYSTEM_SYMBOL("FontWeight"))
   VERIFY(   PMATH_SYMBOL_FOR                       = NEW_SYSTEM_SYMBOL("For"))
+  VERIFY(   PMATH_SYMBOL_FORMATRULES               = NEW_SYSTEM_SYMBOL("FormatRules"))
   VERIFY(   PMATH_SYMBOL_FRACTIONBOX               = NEW_SYSTEM_SYMBOL("FractionBox"))
   VERIFY(   PMATH_SYMBOL_FRAMEBOX                  = NEW_SYSTEM_SYMBOL("FrameBox"))
   VERIFY(   PMATH_SYMBOL_FRAMED                    = NEW_SYSTEM_SYMBOL("Framed"))
@@ -1015,6 +1018,8 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   VERIFY(   PMATH_SYMBOL_SINH                      = NEW_SYSTEM_SYMBOL("Sinh"))
   VERIFY(   PMATH_SYMBOL_SINGLEMATCH               = NEW_SYSTEM_SYMBOL("SingleMatch"))
   VERIFY(   PMATH_SYMBOL_SKELETON                  = NEW_SYSTEM_SYMBOL("Skeleton"))
+  VERIFY(   PMATH_SYMBOL_SLIDER                    = NEW_SYSTEM_SYMBOL("Slider"))
+  VERIFY(   PMATH_SYMBOL_SLIDERBOX                 = NEW_SYSTEM_SYMBOL("SliderBox"))
   VERIFY(   PMATH_SYMBOL_SORT                      = NEW_SYSTEM_SYMBOL("Sort"))
   VERIFY(   PMATH_SYMBOL_SORTBY                    = NEW_SYSTEM_SYMBOL("SortBy"))
   VERIFY(   PMATH_SYMBOL_SPECIAL                   = NEW_SYSTEM_SYMBOL("Special"))
@@ -1128,6 +1133,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
     BIND_SUB(    PMATH_SYMBOL_FUNCTION,                    builtin_call_function)
     BIND_SUB(    PMATH_SYMBOL_ISHELD,                      builtin_call_isheld)
     
+    BIND_UP(     PMATH_SYMBOL_N,                           builtin_assign_approximate)
     BIND_UP(     PMATH_SYMBOL_NRULES,                      builtin_assign_symbol_rules)
     BIND_UP(     PMATH_SYMBOL_ATTRIBUTES,                  builtin_assign_attributes)
     BIND_UP(     PMATH_SYMBOL_CURRENTNAMESPACE,            builtin_assign_namespace)
@@ -1135,9 +1141,11 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
     BIND_UP(     PMATH_SYMBOL_DEFAULTRULES,                builtin_assign_symbol_rules)
     BIND_UP(     PMATH_SYMBOL_DOWNRULES,                   builtin_assign_symbol_rules)
     BIND_UP(     PMATH_SYMBOL_ENVIRONMENT,                 builtin_assign_environment)
+    BIND_UP(     PMATH_SYMBOL_FORMATRULES,                 builtin_assign_symbol_rules)
     BIND_UP(     PMATH_SYMBOL_INTERNAL_NAMESPACESTACK,     builtin_assign_namespacepath)
     BIND_UP(     PMATH_SYMBOL_ISNUMERIC,                   builtin_assign_isnumeric)
     BIND_UP(     PMATH_SYMBOL_LIST,                        builtin_assign_list)
+    BIND_UP(     PMATH_SYMBOL_MAKEBOXES,                   builtin_assign_makeboxes)
     BIND_UP(     PMATH_SYMBOL_MAXEXTRAPRECISION,           builtin_assign_maxextraprecision)
     BIND_UP(     PMATH_SYMBOL_MESSAGENAME,                 builtin_assign_messagename)
     BIND_UP(     PMATH_SYMBOL_MESSAGES,                    builtin_assign_messages)
@@ -1146,6 +1154,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
     BIND_UP(     PMATH_SYMBOL_OWNRULES,                    builtin_assign_ownrules)
     BIND_UP(     PMATH_SYMBOL_PART,                        builtin_assign_part)
     BIND_UP(     PMATH_SYMBOL_SUBRULES,                    builtin_assign_symbol_rules)
+    BIND_UP(     PMATH_SYMBOL_SYNTAXINFORMATION,           builtin_assign_syntaxinformation)
     BIND_UP(     PMATH_SYMBOL_UPRULES,                     builtin_assign_symbol_rules)
     
     BIND_UP(     PMATH_SYMBOL_INDETERMINATE,               builtin_operate_indeterminate)
@@ -1248,6 +1257,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
     BIND_DOWN(   PMATH_SYMBOL_FOLD,                        builtin_fold)
     BIND_DOWN(   PMATH_SYMBOL_FOLDLIST,                    builtin_foldlist)
     BIND_DOWN(   PMATH_SYMBOL_FOR,                         builtin_for)
+    BIND_DOWN(   PMATH_SYMBOL_FORMATRULES,                 builtin_symbol_rules)
     BIND_DOWN(   PMATH_SYMBOL_FRONTENDTOKENEXECUTE,        general_builtin_nofront)
     BIND_DOWN(   PMATH_SYMBOL_FUNCTION,                    builtin_function)
     BIND_DOWN(   PMATH_SYMBOL_GAMMA,                       builtin_gamma)
@@ -1529,6 +1539,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   SET_ATTRIB( PMATH_SYMBOL_FACTORIAL2,                    LISTABLE | NUMERICFUNCTION);
   SET_ATTRIB( PMATH_SYMBOL_FLOOR,                         LISTABLE | NUMERICFUNCTION);
   SET_ATTRIB( PMATH_SYMBOL_FOR,                           HOLDALL);
+  SET_ATTRIB( PMATH_SYMBOL_FORMATRULES,                   HOLDALL);
   SET_ATTRIB( PMATH_SYMBOL_FUNCTION,                      DEEPHOLDALL | HOLDALL);
   SET_ATTRIB( PMATH_SYMBOL_GAMMA,                         LISTABLE | NUMERICFUNCTION);
   SET_ATTRIB( PMATH_SYMBOL_GATHER,                        HOLDFIRST);
@@ -1672,7 +1683,6 @@ PMATH_PRIVATE void _pmath_symbol_builtins_protect_all(void){
   UNPROTECT( PMATH_SYMBOL_INTERNAL_NAMESPACEPATHSTACK);
   UNPROTECT( PMATH_SYMBOL_INTERNAL_NAMESPACESTACK);
   UNPROTECT( PMATH_SYMBOL_LINE);
-  UNPROTECT( PMATH_SYMBOL_MAKEBOXES);
   UNPROTECT( PMATH_SYMBOL_MAXEXTRAPRECISION);
   UNPROTECT( PMATH_SYMBOL_MESSAGECOUNT);
   UNPROTECT( PMATH_SYMBOL_NAMESPACEPATH);

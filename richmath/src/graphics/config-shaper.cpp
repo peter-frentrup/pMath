@@ -912,37 +912,38 @@ void ConfigShaper::decode_token(
         return;
       }
       
-      uint16_t utf16[2];
-      GlyphInfo r[2];
-      memset(r, 0, sizeof(r));
-      
-      if(ch <= 0xFFFF){
-        utf16[0] = ch;
-      }
-      else{
-        ch-= 0x10000;
-        
-        utf16[0] = 0xD800 | (ch >> 10);
-        utf16[1] = 0xDC00 | (ch & 0x03FF);
-        
-        ch+= 0x10000;
-      }
-      
-      bool old_boxchar_fallback_enabled = context->boxchar_fallback_enabled;
-      context->boxchar_fallback_enabled = false;
-      text_shaper->decode_token(
-        context, 
-        ch <= 0xFFFF ? 1 : 2, 
-        utf16, 
-        r);
-      context->boxchar_fallback_enabled = old_boxchar_fallback_enabled;
-      
-      if(r->index != 0
-      && r->index != UnknownGlyph){
-        memcpy(result, r, sizeof(GlyphInfo));
-        result->fontinfo+= math_font_faces.length();
-        return;
-      }
+//      uint16_t utf16[2];
+//      GlyphInfo r[2];
+//      memset(r, 0, sizeof(r));
+//      
+//      if(ch <= 0xFFFF){
+//        utf16[0] = ch;
+//      }
+//      else{
+//        ch-= 0x10000;
+//        
+//        utf16[0] = 0xD800 | (ch >> 10);
+//        utf16[1] = 0xDC00 | (ch & 0x03FF);
+//        
+//        ch+= 0x10000;
+//      }
+//      
+//      bool old_boxchar_fallback_enabled = context->boxchar_fallback_enabled;
+//      context->boxchar_fallback_enabled = false;
+//      text_shaper->decode_token(
+//        context, 
+//        ch <= 0xFFFF ? 1 : 2, 
+//        utf16, 
+//        r);
+//      context->boxchar_fallback_enabled = old_boxchar_fallback_enabled;
+//      
+//      if(r->index != 0
+//      && r->index != UnknownGlyph
+//      && r->fontinfo < math_font_faces.length()){
+//        memcpy(result, r, sizeof(GlyphInfo));
+//        result->fontinfo+= math_font_faces.length();
+//        return;
+//      }
       
       if(!style.italic){
         result->slant = FontSlantItalic;

@@ -19,6 +19,7 @@ struct _pmath_symbol_rules_t{ // init all with NULL
   struct _pmath_rulecache_t  sub_rules;     // f(~~~)(~~~)...
   struct _pmath_rulecache_t  approx_rules;  // Approximate(~~~)
   struct _pmath_rulecache_t  default_rules; // Default(~~~), Options(~~~)
+  struct _pmath_rulecache_t  format_rules;  // MakeBoxes(~~~)
   
   void * volatile _messages; // only access with _pmath_atomic_[un]lock_ptr()
                              // this is a hashtable of class pmath_ht_obj_class

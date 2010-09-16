@@ -7,17 +7,17 @@ namespace richmath{
   class ErrorBox: public Box{
     public:
       ErrorBox(const Expr object);
-      ~ErrorBox();
+      virtual ~ErrorBox();
       
-      Box *item(int i){ return NULL; }
-      int count(){ return 0; }
+      virtual Box *item(int i){ return NULL; }
+      virtual int count(){ return 0; }
       
-      void resize(Context *context);
-      void paint(Context *context);
+      virtual void resize(Context *context);
+      virtual void paint(Context *context);
       
-      Box *remove(int *index){ return this; }
+      virtual Box *remove(int *index){ return this; }
       
-      pmath_t to_pmath(bool parseable);
+      virtual pmath_t to_pmath(bool parseable);
       
     private:
       Expr _object;

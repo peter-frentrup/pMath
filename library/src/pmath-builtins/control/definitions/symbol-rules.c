@@ -156,6 +156,7 @@ PMATH_PRIVATE pmath_t builtin_assign_symbol_rules(pmath_expr_t expr){
   
   if(kind != PMATH_SYMBOL_DEFAULTRULES
   && kind != PMATH_SYMBOL_DOWNRULES
+  && kind != PMATH_SYMBOL_FORMATRULES
   && kind != PMATH_SYMBOL_NRULES
   && kind != PMATH_SYMBOL_SUBRULES
   && kind != PMATH_SYMBOL_UPRULES){
@@ -212,6 +213,7 @@ PMATH_PRIVATE pmath_t builtin_assign_symbol_rules(pmath_expr_t expr){
   
   if(     kind == PMATH_SYMBOL_DEFAULTRULES) rc = &rules->default_rules;
   else if(kind == PMATH_SYMBOL_DOWNRULES)    rc = &rules->down_rules;
+  else if(kind == PMATH_SYMBOL_FORMATRULES)  rc = &rules->format_rules;
   else if(kind == PMATH_SYMBOL_NRULES)       rc = &rules->approx_rules;
   else if(kind == PMATH_SYMBOL_SUBRULES)     rc = &rules->sub_rules;
   else if(kind == PMATH_SYMBOL_UPRULES)      rc = &rules->up_rules;
@@ -340,6 +342,7 @@ PMATH_PRIVATE pmath_t builtin_symbol_rules(pmath_expr_t expr){
   if(rules){
     if(     head == PMATH_SYMBOL_DEFAULTRULES) _pmath_rulecache_emit(&rules->default_rules);
     else if(head == PMATH_SYMBOL_DOWNRULES)    _pmath_rulecache_emit(&rules->down_rules);
+    else if(head == PMATH_SYMBOL_FORMATRULES)  _pmath_rulecache_emit(&rules->format_rules);
     else if(head == PMATH_SYMBOL_NRULES)       _pmath_rulecache_emit(&rules->approx_rules);
     else if(head == PMATH_SYMBOL_SUBRULES)     _pmath_rulecache_emit(&rules->sub_rules);
     else if(head == PMATH_SYMBOL_UPRULES)      _pmath_rulecache_emit(&rules->up_rules);

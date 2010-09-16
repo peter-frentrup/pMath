@@ -1160,18 +1160,24 @@ void Document::on_key_down(SpecialKeyEvent &event){
         MathSequence *seq = dynamic_cast<MathSequence*>(selbox);
         
         if(seq && seq->text()[context.selection.start - 1] == PMATH_CHAR_BOX){
+          int boxi = 0;
+          while(seq->item(boxi)->index() < context.selection.start - 1)
+            ++boxi;
+          
+          if(seq->item(boxi)->length() == 0){
+            move_horizontal(Backward, event.ctrl, true);
+            event.key = KeyUnknown;
+            return;
+          }
+          
           move_horizontal(Backward, event.ctrl, event.shift);
         }
         else
           move_horizontal(Backward, event.ctrl, true);
         
-        if(!event.ctrl){
-          seq = dynamic_cast<MathSequence*>(selbox);
-          
-          if(seq && seq->text()[context.selection.start] == PMATH_CHAR_BOX){
-            event.key = KeyUnknown;
-            return;
-          }
+        if(!event.ctrl && seq && seq->text()[context.selection.start] == PMATH_CHAR_BOX){
+          event.key = KeyUnknown;
+          return;
         }
         
         if(old == context.selection.id){
@@ -2885,11 +2891,11 @@ bool Document::remove_selection(bool insert_default){
   
   AbstractSequence *seq = dynamic_cast<AbstractSequence*>(context.selection.get());
   if(seq){
-    seq->remove(context.selection.start, context.selection.end);
-    
     if(MathSequence *mseq = dynamic_cast<MathSequence*>(seq)){
       bool was_empty = mseq->length() == 0
         || (mseq->length() == 1 && mseq->text()[0] == PMATH_CHAR_PLACEHOLDER);
+      
+      mseq->remove(context.selection.start, context.selection.end);
       
       if(insert_default 
       && was_empty 
@@ -2918,6 +2924,8 @@ bool Document::remove_selection(bool insert_default){
         return true;
       }
     }
+    else
+      seq->remove(context.selection.start, context.selection.end);
     
     move_to(context.selection.get(), context.selection.start);
     return true;
@@ -3036,10 +3044,12 @@ void Document::paint_resize(Canvas *canvas, bool resize_only){
   
   int i = 0;
   
-  while(i < length()
-  && _extents.descent + section(i)->extents().height() < sy){
-    if(section(i)->must_resize && i == sel_sect)
+  while(i < length()){
+    if(section(i)->must_resize || i == sel_sect)
       resize_section(&context, i);
+    
+    if(_extents.descent + section(i)->extents().height() >= sy)
+      break;
     
     section(i)->y_offset = _extents.descent;
     if(section(i)->visible)

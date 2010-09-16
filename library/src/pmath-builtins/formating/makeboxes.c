@@ -1,4 +1,5 @@
 #include <pmath-core/numbers-private.h>
+#include <pmath-core/symbols-private.h>
 
 #include <pmath-language/patterns-private.h>
 #include <pmath-language/tokens.h>
@@ -7,8 +8,10 @@
 #include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
+#include <pmath-util/symbol-values-private.h>
 
 #include <pmath-builtins/all-symbols-private.h>
+#include <pmath-builtins/control/definitions-private.h>
 #include <pmath-builtins/formating-private.h>
 #include <pmath-builtins/lists-private.h>
 
@@ -698,7 +701,7 @@ static pmath_t range_to_boxes(
     return nary_to_boxes(
       thread,
       expr,
-      PMATH_C_STRING("::"),
+      PMATH_C_STRING(".."),
       PMATH_PREC_RANGE,
       PMATH_PREC_RANGE + 1,
       TRUE);
@@ -2360,69 +2363,6 @@ static pmath_t skeleton_to_boxes(
 
 //{ boxforms valid for StandardForm ...
 
-static pmath_t button_to_boxes(
-  pmath_thread_t thread,
-  pmath_expr_t   expr    // will be freed
-){
-  if(pmath_expr_length(expr) >= 2){
-    pmath_expr_t options = pmath_options_extract(expr, 2);
-    
-    if(options){
-      pmath_gather_begin(NULL);
-      
-      pmath_emit(
-        object_to_boxes(
-          thread,
-          pmath_expr_get_item(expr, 1)),
-        NULL);
-      
-      pmath_emit(
-        pmath_expr_new_extended(
-          pmath_ref(PMATH_SYMBOL_RULE), 2,
-          pmath_ref(PMATH_SYMBOL_BUTTONFUNCTION),
-          pmath_expr_new_extended(
-            pmath_ref(PMATH_SYMBOL_FUNCTION), 1,
-            pmath_expr_get_item(expr, 2))),
-        NULL);
-      
-      pmath_unref(expr);
-      if(options != PMATH_UNDEFINED){
-        size_t i;
-        for(i = 1;i <= pmath_expr_length(options);++i){
-          pmath_t opt = pmath_expr_get_item(options, i);
-          
-          pmath_emit(opt, NULL);
-        }
-        
-        pmath_unref(options);
-      }
-      
-      return pmath_expr_set_item(
-        pmath_gather_end(), 0,
-        pmath_ref(PMATH_SYMBOL_BUTTONBOX));
-    }
-  }
-
-  return call_to_boxes(thread, expr);
-}
-
-static pmath_t dynamic_to_boxes(
-  pmath_thread_t thread,
-  pmath_expr_t   expr    // will be freed
-){
-  if(pmath_expr_length(expr) >= 1){
-    pmath_expr_t options = pmath_options_extract(expr, 1);
-    
-    if(options){
-      pmath_unref(options);
-      
-      return pmath_expr_set_item(expr, 0, pmath_ref(PMATH_SYMBOL_DYNAMICBOX));
-    }
-  }
-
-  return call_to_boxes(thread, expr);
-}
-
 static pmath_t framed_to_boxes(
   pmath_thread_t thread,
   pmath_expr_t   expr    // will be freed
@@ -2760,12 +2700,6 @@ static pmath_t expr_to_boxes(pmath_thread_t thread, pmath_expr_t expr){
       
       /*----------------------------------------------------------------------*/
       if(thread->boxform < BOXFORM_OUTPUT){
-        if(head == PMATH_SYMBOL_BUTTON)
-          return button_to_boxes(thread, expr);
-        
-        if(head == PMATH_SYMBOL_DYNAMIC)
-          return dynamic_to_boxes(thread, expr);
-        
         if(head == PMATH_SYMBOL_FRAMED)
           return framed_to_boxes(thread, expr);
           
@@ -2792,6 +2726,37 @@ static pmath_t expr_to_boxes(pmath_thread_t thread, pmath_expr_t expr){
   return call_to_boxes(thread, expr);
 }
 
+  static pmath_bool_t user_make_boxes(pmath_t *obj){
+    if(pmath_instance_of(*obj, PMATH_TYPE_EXPRESSION | PMATH_TYPE_SYMBOL)){
+      pmath_symbol_t head = _pmath_topmost_symbol(*obj);
+      
+      if(head){
+        struct _pmath_symbol_rules_t *rules;
+        
+        rules = _pmath_symbol_get_rules(head, RULES_READ);
+        
+        if(rules){
+          pmath_t result = pmath_expr_new_extended(
+            pmath_ref(PMATH_SYMBOL_MAKEBOXES), 1,
+            pmath_ref(*obj));
+            
+          if(_pmath_rulecache_find(&rules->format_rules, &result)){
+            pmath_unref(head);
+            pmath_unref(*obj);
+            *obj = pmath_evaluate(result);
+            return TRUE;
+          }
+          
+          pmath_unref(result);
+        }
+        
+        pmath_unref(head);
+      }
+    }
+    
+    return FALSE;
+  }
+
 static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj){
   if(!obj)
     return PMATH_C_STRING("/\\/");
@@ -2801,6 +2766,10 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj){
     snprintf(s, sizeof(s), "<<\? 0x%"PRIxPTR" \?>>", (uintptr_t)obj);
     return PMATH_C_STRING(s);
   }
+  
+  if(thread->boxform < BOXFORM_OUTPUT
+  && user_make_boxes(&obj))
+    return obj;
 
   switch(obj->type_shift){
     case PMATH_TYPE_SHIFT_SYMBOL: {
@@ -2830,6 +2799,11 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj){
         &s);
       pmath_unref(obj);
       return s;
+    }
+    
+    case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL:
+    case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL_PART: {
+      return expr_to_boxes(thread, obj);
     }
     
     case PMATH_TYPE_SHIFT_MACHINE_FLOAT:
@@ -2908,16 +2882,6 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj){
     }
   }
   
-  if(pmath_instance_of(obj, PMATH_TYPE_EXPRESSION)){
-    if(thread->boxform >= BOXFORM_OUTPUT)
-      return expr_to_boxes(thread, obj);
-    
-    return pmath_evaluate(
-      pmath_expr_new_extended(
-        pmath_ref(PMATH_SYMBOL_MAKEBOXES), 1,
-        obj));
-  }
-  
   pmath_unref(obj);
   return PMATH_C_STRING("<<\? unprintable \?>>");
 }
@@ -2946,10 +2910,56 @@ PMATH_PRIVATE pmath_t builtin_makeboxes(pmath_expr_t expr){
   obj = pmath_expr_get_item(expr, 1);
   pmath_unref(expr);
   
-  if(pmath_instance_of(obj, PMATH_TYPE_EXPRESSION))
-    return expr_to_boxes(thread, obj);
-    
   return object_to_boxes(thread, obj);
+}
+
+PMATH_PRIVATE pmath_t builtin_assign_makeboxes(pmath_expr_t expr){
+  struct _pmath_symbol_rules_t *rules;
+  pmath_t tag;
+  pmath_t lhs;
+  pmath_t rhs;
+  pmath_t sym;
+  pmath_t arg;
+  
+  if(!_pmath_is_assignment(expr, &tag, &lhs, &rhs))
+    return expr;
+  
+  if(!pmath_is_expr_of_len(lhs, PMATH_SYMBOL_MAKEBOXES, 1)){
+    pmath_unref(tag);
+    pmath_unref(lhs);
+    pmath_unref(rhs);
+    return expr;
+  }
+  
+  arg = pmath_expr_get_item(lhs, 1);
+  sym = _pmath_topmost_symbol(arg);
+  pmath_unref(arg);
+  
+  if(tag != PMATH_UNDEFINED && tag != sym){
+    pmath_message(NULL, "tag", 2, tag, lhs);
+    
+    pmath_unref(sym);
+    pmath_unref(expr);
+    if(rhs == PMATH_UNDEFINED)
+      return pmath_ref(PMATH_SYMBOL_FAILED);
+    return rhs;
+  }
+  
+  pmath_unref(tag);
+  pmath_unref(expr);
+  
+  rules = _pmath_symbol_get_rules(sym, RULES_WRITE);
+  pmath_unref(sym);
+  
+  if(!rules){
+    pmath_unref(lhs);
+    pmath_unref(rhs);
+    return pmath_ref(PMATH_SYMBOL_FAILED);
+  }
+  
+  _pmath_rulecache_change(&rules->format_rules, lhs, rhs);
+  
+  return NULL;
 }
 
 PMATH_PRIVATE pmath_t builtin_parenthesizeboxes(pmath_expr_t expr){

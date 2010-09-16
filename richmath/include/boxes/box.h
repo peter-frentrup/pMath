@@ -13,7 +13,6 @@ namespace richmath{
   } LogicalDirection;
   
   class Box;
-  class MathSequence;
   class SyntaxState;
   
   class MouseEvent{
@@ -100,7 +99,6 @@ namespace richmath{
       
       static Box *common_parent(Box *a, Box *b);
       
-      virtual MathSequence *as_sequence(){ return 0; }
       virtual Box *item(int i) = 0;
       virtual int count() = 0;
       virtual int length(){ return count(); }

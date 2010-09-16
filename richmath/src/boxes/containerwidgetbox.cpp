@@ -14,7 +14,6 @@ ContainerWidgetBox::ContainerWidgetBox(ContainerType _type, MathSequence *conten
 : AbstractStyleBox(content),
   type(_type),
   old_state(Normal),
-  new_state(Normal),
   mouse_inside(false),
   mouse_left_down(false),
   mouse_middle_down(false),
@@ -57,20 +56,19 @@ void ContainerWidgetBox::paint(Context *context){
   
   ControlState state = calc_state(context);
   
-  if(state != new_state || !animation){
+  if(state != old_state || !animation){
     animation = ControlPainter::std->control_transition(
       id(),
       context->canvas,
       type,
-      new_state,
+      old_state,
       state,
       x,
       y - _extents.ascent,
       _extents.width,
       _extents.height());
     
-    old_state = new_state;
-    new_state = state;
+    old_state = state;
   }
 
   bool need_bg = true;
@@ -80,14 +78,13 @@ void ContainerWidgetBox::paint(Context *context){
     }
     else{
       animation = 0;
-      old_state = new_state;
       
       animation = ControlPainter::std->control_transition(
         id(),
         context->canvas,
         type,
-        new_state,
-        new_state,
+        old_state,
+        old_state,
         x,
         y - _extents.ascent,
         _extents.width,

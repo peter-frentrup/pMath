@@ -162,6 +162,7 @@
 		<Unit filename="include\boxes\radicalbox.h" />
 		<Unit filename="include\boxes\section.h" />
 		<Unit filename="include\boxes\sectionlist.h" />
+		<Unit filename="include\boxes\sliderbox.h" />
 		<Unit filename="include\boxes\stylebox.h" />
 		<Unit filename="include\boxes\subsuperscriptbox.h" />
 		<Unit filename="include\boxes\textsequence.h" />
@@ -228,6 +229,7 @@
 		<Unit filename="src\boxes\radicalbox.cpp" />
 		<Unit filename="src\boxes\section.cpp" />
 		<Unit filename="src\boxes\sectionlist.cpp" />
+		<Unit filename="src\boxes\sliderbox.cpp" />
 		<Unit filename="src\boxes\stylebox.cpp" />
 		<Unit filename="src\boxes\subsuperscriptbox.cpp" />
 		<Unit filename="src\boxes\textsequence.cpp" />

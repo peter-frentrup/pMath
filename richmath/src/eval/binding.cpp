@@ -483,7 +483,9 @@ static bool can_abort(Expr cmd){
 }
 
 static bool abort_cmd(Expr cmd){
-  Client::interrupt(Call(Symbol(PMATH_SYMBOL_ABORT)));
+  // non-blocking interrupt
+  Client::execute_for(Call(Symbol(PMATH_SYMBOL_ABORT)), 0, Infinity);
+  //Client::interrupt(Call(Symbol(PMATH_SYMBOL_ABORT)));
   //Client::abort_all();
   return true;
 }

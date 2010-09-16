@@ -265,12 +265,12 @@ pmath_bool_t _pmath_assign(
 PMATH_PRIVATE
 int _pmath_is_assignment(
   pmath_expr_t  expr,  // wont be freed
-  pmath_t     *tag,   // out, may be PMATH_UNDEFINED
-  pmath_t     *lhs,   // out
-  pmath_t     *rhs    // out, may be PMATH_UNDEFINED
+  pmath_t      *tag,   // out, may be PMATH_UNDEFINED
+  pmath_t      *lhs,   // out
+  pmath_t      *rhs    // out, may be PMATH_UNDEFINED
 ){
   pmath_t head;
-  size_t         len;
+  size_t  len;
   
   *tag = PMATH_UNDEFINED;
   *lhs = NULL;

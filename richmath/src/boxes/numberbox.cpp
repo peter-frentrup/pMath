@@ -130,6 +130,64 @@ pmath_t NumberBox::prepare_boxes(pmath_t boxes){
   return boxes;
 }
 
+  static String round_digits(String number, int maxdigits){ // xxx.xxx, without sign or xponent or trailing "`"
+    
+    static Array<uint16_t> newbuf_array;
+    
+    const uint16_t *buf = number.buffer();
+    int             len  = number.length();
+    
+    if(maxdigits < 1)
+      maxdigits = 1;
+    
+    int decimal_point = 0;
+    while(decimal_point < len && '0' <= buf[decimal_point] && buf[decimal_point] <= '9')
+      ++decimal_point;
+    
+    if(decimal_point == len || buf[decimal_point] != '.')
+      return number;
+    
+    newbuf_array.length(len);
+    uint16_t *newbuf = newbuf_array.items();
+    memcpy(newbuf, buf, decimal_point * sizeof(uint16_t));
+    
+    int i;
+    for(i = decimal_point+1;i < len && '0' <= buf[i] && buf[i] <= '9';++i)
+      newbuf[i-1] = buf[i];
+    
+    if(i != len || len <= maxdigits + 1)
+      return number;
+    
+    bool round_up = newbuf[maxdigits] >= '5';
+    
+    i = maxdigits-1;
+    if(round_up){
+      while(i >= 0){
+        if(newbuf[i] == '9'){
+          newbuf[i] = '0';
+          --i;
+        }
+        else{
+          newbuf[i] = newbuf[i] + 1;
+          break;
+        }
+      }
+    }
+    
+    while(maxdigits > decimal_point+1 && newbuf[maxdigits-1] == '0')
+      --maxdigits;
+    
+    String num;
+    if(maxdigits <= decimal_point)
+      num = String::FromUcs2(newbuf, decimal_point) + ".0";
+    else
+      num = String::FromUcs2(newbuf, decimal_point) + "." + String::FromUcs2(newbuf + decimal_point, maxdigits - decimal_point);
+    
+    if(i < 0)
+      return String("1") + num;
+    return num;
+  }
+
 void NumberBox::set_number(String n){
   _number = n;
   _exponent = 0;
@@ -141,10 +199,17 @@ void NumberBox::set_number(String n){
   while(_numend < len && buf[_numend] != '`')
     ++_numend;
   
-  _content->remove(0, _content->length());
-  _content->insert(0, _number.part(0, _numend));
-  
   _expstart = _numend;
+  _content->remove(0, _content->length());
+  
+  if(_numend + 1 == len
+  || (_numend + 1 < len && buf[_numend + 1] != '`')){
+    // machine number: do not show all digits
+    _content->insert(0, round_digits(_number.part(0, _numend), 6));
+  }
+  else
+    _content->insert(0, _number.part(0, _numend));
+    
   while(_expstart < len && buf[_expstart] != '^')
     ++_expstart;
   

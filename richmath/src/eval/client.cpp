@@ -30,11 +30,21 @@ using namespace richmath;
 namespace{
   class ClientNotification {
     public:
-      ClientNotification(): sem(0), result_ptr(0) {}
+      ClientNotification(): finished(0), result_ptr(0) {}
       
+      void done(){
+        if(finished){
+          result_ptr = NULL;
+          *finished = true;
+          pmath_thread_wakeup(notify_queue.get());
+        }
+      }
+      
+    public:  
       ClientNotificationType  type;
       Expr                    data;
-      SharedPtr<Semaphore>    sem;
+      Expr                    notify_queue;
+      volatile bool          *finished;
       
       pmath_t *result_ptr;
   };
@@ -77,6 +87,7 @@ static EvaluationPosition print_pos;
 static EvaluationPosition old_job;
 
 static HWND hwnd_message = HWND_MESSAGE;
+static Expr main_message_queue;
 
 class ClientInfoWindow: public BasicWin32Widget{
   public:
@@ -124,8 +135,8 @@ class ClientInfoWindow: public BasicWin32Widget{
 static ClientInfoWindow info_window;
 
 double Client::interrupt_timeout = 0.3;
-double Client::button_timeout = 4.0;
-double Client::dynamic_timeout = 4.0;
+double Client::button_timeout    = 4.0;
+double Client::dynamic_timeout   = 4.0;
 String Client::application_filename;
 String Client::application_directory;
 
@@ -140,6 +151,7 @@ void Client::notify(ClientNotificationType type, Expr data){
   cn.data = data;
   
   notifications.put(cn);
+  pmath_thread_wakeup(main_message_queue.get());
   PostMessage(info_window.hwnd(), WM_CLIENTNOTIFY, 0, 0);
 }
 
@@ -152,18 +164,28 @@ Expr Client::notify_wait(ClientNotificationType type, Expr data){
     return Expr(pmath_ref(PMATH_SYMBOL_FAILED));
   }
   
-  pmath_t result = NULL;
-  SharedPtr<Semaphore> sem = new Semaphore;
+  volatile bool finished = false;
+  pmath_t result = PMATH_UNDEFINED;
+  //SharedPtr<Semaphore> sem = new Semaphore;
   ClientNotification cn;
-  cn.sem = sem;
+  cn.finished = &finished;
+  cn.notify_queue = Expr(pmath_thread_get_queue());
+  //cn.sem = sem;
   cn.type = type;
   cn.data = data;
   cn.result_ptr = &result;
   
   notifications.put(cn);
+  pmath_thread_wakeup(main_message_queue.get());
   PostMessage(info_window.hwnd(), WM_CLIENTNOTIFY, 0, 0);
   
-  sem->wait();
+  while(!finished){
+    pmath_thread_sleep();
+    pmath_debug_print("w");
+  }
+  pmath_debug_print("W");
+  
+  //sem->wait();
   return Expr(result);
 }
 
@@ -204,6 +226,8 @@ void Client::register_menucommand(
 }
 
 void Client::init(){
+  main_message_queue = Expr(pmath_thread_get_queue());
+  
   main_thread_id = GetCurrentThreadId();
   if(!info_window.hwnd())
     PostQuitMessage(1);
@@ -273,8 +297,9 @@ void Client::done(){
   
   ClientNotification cn;
   while(notifications.get(&cn)){
-    if(cn.sem)
-      cn.sem->post();
+    cn.done();
+//    if(cn.sem)
+//      cn.sem->post();
   }
   
   eval_cache.clear();
@@ -282,6 +307,7 @@ void Client::done(){
   menu_command_testers.clear();
   application_filename = String();
   application_directory = String();
+  main_message_queue = Expr();
 }
 
 void Client::add_job(SharedPtr<Job> job){
@@ -310,8 +336,17 @@ bool Client::is_idle(int document_id){
   return true;
 }
 
+  static void interrupt_wait_idle(void *data){
+    // do nothing currently
+    // We cannot process all notifications here, because boxes must not be 
+    // changed when we hit this code path (we could be between resize() and 
+    // paint() of a box)
+    // On the other hand, some blocking notifications should be regarded e.g. to 
+    // answer questions to the frontend (Documents() calls and more)
+  }
+  
 Expr Client::interrupt(Expr expr, double seconds){
-  return Server::local_server->interrupt_wait(expr, seconds);
+  return Server::local_server->interrupt_wait(expr, seconds, interrupt_wait_idle, NULL);
 }
 
 Expr Client::interrupt(Expr expr){
@@ -640,6 +675,7 @@ static void execute(ClientNotification &cn){
     } break;
   }
   
-  if(cn.sem)
-    cn.sem->post();
+  cn.done();
+//  if(cn.sem)
+//    cn.sem->post();
 }

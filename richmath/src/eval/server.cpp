@@ -85,7 +85,6 @@ class LocalServer: public Server{
         Expr object;
         bool boxes;
         
-        // returns true iff evaluation was aborted
         ResultKind execute(Expr *return_from_dialog){
           pmath_bool_t aborted = FALSE;
           ResultKind rkind = Normal;
@@ -215,12 +214,14 @@ class LocalServer: public Server{
       }
     }
       
-    virtual Expr interrupt_wait(Expr expr, double timeout_seconds){
+    virtual Expr interrupt_wait(Expr expr, double timeout_seconds, void (*idle_function)(void*), void *idle_data){
       if(data && !data->do_quit){
         return Expr(pmath_thread_send_wait(
           message_queue.get(), 
           expr.release(),
-          timeout_seconds));
+          timeout_seconds,
+          idle_function,
+          idle_data));
       }
       else
         return Expr();
@@ -303,7 +304,7 @@ class LocalServer: public Server{
       }
       
       // in another thread => send to main thread
-      return pmath_thread_send_wait(ls->message_queue.get(), expr, Infinity);
+      return pmath_thread_send_wait(ls->message_queue.get(), expr, Infinity, NULL, NULL);
     }
     
     static Expr dialog(Data *me, Expr firsteval){

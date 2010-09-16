@@ -29,7 +29,6 @@ namespace richmath{
       SharedPtr<BoxAnimation> animation;
       ContainerType type;
       ControlState  old_state;
-      ControlState  new_state;
       
       bool mouse_inside;
       bool mouse_left_down;

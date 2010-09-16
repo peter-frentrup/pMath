@@ -9,6 +9,7 @@
 #include <pmath-util/symbol-values-private.h>
 
 #include <pmath-builtins/all-symbols-private.h>
+#include <pmath-builtins/control/definitions-private.h>
 #include <pmath-builtins/lists-private.h>
 
 PMATH_PRIVATE double pmath_max_extra_precision = 50 * LOG2_10;
@@ -132,7 +133,7 @@ PMATH_PRIVATE pmath_t _pmath_approximate_step(
 
 PMATH_PRIVATE pmath_bool_t _pmath_to_precision(
   pmath_t  obj, // wont be freed
-  double         *result
+  double  *result
 ){
   if(obj == PMATH_SYMBOL_MACHINEPRECISION){
     *result = -HUGE_VAL;
@@ -154,8 +155,8 @@ PMATH_PRIVATE pmath_bool_t _pmath_to_precision(
 
 static pmath_bool_t obj_to_accprec(
   pmath_t  obj, // will be freed
-  double         *acc,
-  double         *prec
+  double  *acc,
+  double  *prec
 ){
   *acc = HUGE_VAL;
   if(!_pmath_to_precision(obj, prec)){
@@ -219,6 +220,61 @@ PMATH_PRIVATE pmath_t builtin_approximate(pmath_expr_t expr){
   pmath_unref(expr);
   
   return pmath_approximate(obj, prec_goal, acc_goal);
+}
+
+PMATH_PRIVATE pmath_t builtin_assign_approximate(pmath_expr_t expr){
+  struct _pmath_symbol_rules_t *rules;
+  pmath_t tag;
+  pmath_t lhs;
+  pmath_t rhs;
+  pmath_t sym;
+  pmath_t arg;
+  
+  if(!_pmath_is_assignment(expr, &tag, &lhs, &rhs))
+    return expr;
+  
+  if(!pmath_is_expr_of(lhs, PMATH_SYMBOL_N)
+  && pmath_expr_length(lhs) != 1
+  && pmath_expr_length(lhs) != 2){
+    pmath_unref(tag);
+    pmath_unref(lhs);
+    pmath_unref(rhs);
+    return expr;
+  }
+  
+  if(pmath_expr_length(lhs) == 1){
+    lhs = pmath_expr_append(lhs, 1, precacc_to_obj(-HUGE_VAL, -HUGE_VAL));
+  }
+  
+  arg = pmath_expr_get_item(lhs, 1);
+  sym = _pmath_topmost_symbol(arg);
+  pmath_unref(arg);
+  
+  if(tag != PMATH_UNDEFINED && tag != sym){
+    pmath_message(NULL, "tag", 2, tag, lhs);
+    
+    pmath_unref(sym);
+    pmath_unref(expr);
+    if(rhs == PMATH_UNDEFINED)
+      return pmath_ref(PMATH_SYMBOL_FAILED);
+    return rhs;
+  }
+  
+  pmath_unref(tag);
+  pmath_unref(expr);
+  
+  rules = _pmath_symbol_get_rules(sym, RULES_WRITE);
+  pmath_unref(sym);
+  
+  if(!rules){
+    pmath_unref(lhs);
+    pmath_unref(rhs);
+    return pmath_ref(PMATH_SYMBOL_FAILED);
+  }
+  
+  _pmath_rulecache_change(&rules->approx_rules, lhs, rhs);
+  
+  return NULL;
 }
 
 PMATH_PRIVATE pmath_t builtin_approximate_e(pmath_t obj, double prec, double acc){

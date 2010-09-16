@@ -1057,7 +1057,7 @@ void BasicWin32Window::paint_background(Canvas *canvas, int x, int y, bool wallp
       
       cairo_reset_clip(canvas->cairo());
       
-      { // ensure maximum alpha of 0.8 on the glass area border
+      { // show border between glass/nonglass
         cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_DEST_OUT);
         
         canvas->move_to(rect.left,  rect.top);
@@ -1073,7 +1073,6 @@ void BasicWin32Window::paint_background(Canvas *canvas, int x, int y, bool wallp
         canvas->close_path();
         
         canvas->clip();
-        //canvas->paint_with_alpha(1 - 0.8);
         
         cairo_set_line_width(canvas->cairo(), 3);
         
@@ -1108,10 +1107,10 @@ void BasicWin32Window::paint_background(Canvas *canvas, int x, int y, bool wallp
         }
         else{
           int buttonradius = 5;
-          canvas->move_to(     buttons.left+0.5,   buttons.top);
-          canvas->arc(buttons.left+0.5  + buttonradius, buttons.bottom-0.5 - buttonradius, buttonradius, M_PI,   M_PI/2, true);
-          canvas->arc(buttons.right-0.5 - buttonradius, buttons.bottom-0.5 - buttonradius, buttonradius, M_PI/2, 0,      true);
-          canvas->line_to(     buttons.right-0.5,  buttons.top);
+          canvas->move_to(buttons.left+0.5,   buttons.top);
+          canvas->arc(    buttons.left+0.5  + buttonradius, buttons.bottom-0.5 - buttonradius, buttonradius, M_PI,   M_PI/2, true);
+          canvas->arc(    buttons.right-0.5 - buttonradius, buttons.bottom-0.5 - buttonradius, buttonradius, M_PI/2, 0,      true);
+          canvas->line_to(buttons.right-0.5,  buttons.top);
           canvas->close_path();
         }
         
@@ -1201,7 +1200,7 @@ void BasicWin32Window::on_paint_background(Canvas *canvas){
     canvas->close_path();
     canvas->clip();
     
-    canvas->paint_with_alpha(0.4);
+    canvas->paint_with_alpha(0.25);
   }
 }
 

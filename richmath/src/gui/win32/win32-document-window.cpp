@@ -398,29 +398,29 @@ class richmath::GlassDock: public richmath::Dock {
         set_textshadows();
         canvas->glass_background = true;
         
-        /* Workaround a Cairo (1.8.8) Bug:
-            Platform: Windows, Cleartype on, ARGB32 image or HDC
-            
-            The last (cleartype-blured) pixel column of the last glyph and the zero-th 
-            column (also cleartype-blured) of the first pixel in a glyph-string wont 
-            be drawn. That looks ugly.
-            
-            To see the difference, comment out the following lines.
-         */
-        BOOL haveFontSmoothing = FALSE;
-        UINT fontSmoothingType = FE_FONTSMOOTHINGSTANDARD; 
-        
-        SystemParametersInfo(SPI_GETFONTSMOOTHING,     0, &haveFontSmoothing, 0);
-        SystemParametersInfo(SPI_GETFONTSMOOTHINGTYPE, 0, &fontSmoothingType, 0);
-        
-        if(haveFontSmoothing && fontSmoothingType == FE_FONTSMOOTHINGCLEARTYPE){
-          //canvas->native_show_glyphs = false;
-          
-          cairo_font_options_t *opt = cairo_font_options_create();
-          cairo_font_options_set_antialias(opt, CAIRO_ANTIALIAS_GRAY);
-          cairo_set_font_options(canvas->cairo(), opt);
-          cairo_font_options_destroy(opt);
-        }
+//        /* Workaround a Cairo (1.8.8) Bug:
+//            Platform: Windows, Cleartype on, ARGB32 image or HDC
+//            
+//            The last (cleartype-blured) pixel column of the last glyph and the zero-th 
+//            column (also cleartype-blured) of the first pixel in a glyph-string wont 
+//            be drawn. That looks ugly.
+//            
+//            To see the difference, comment out the following lines.
+//         */
+//        BOOL haveFontSmoothing = FALSE;
+//        UINT fontSmoothingType = FE_FONTSMOOTHINGSTANDARD; 
+//        
+//        SystemParametersInfo(SPI_GETFONTSMOOTHING,     0, &haveFontSmoothing, 0);
+//        SystemParametersInfo(SPI_GETFONTSMOOTHINGTYPE, 0, &fontSmoothingType, 0);
+//        
+//        if(haveFontSmoothing && fontSmoothingType == FE_FONTSMOOTHINGCLEARTYPE){
+//          //canvas->native_show_glyphs = false;
+//          
+//          cairo_font_options_t *opt = cairo_font_options_create();
+//          cairo_font_options_set_antialias(opt, CAIRO_ANTIALIAS_GRAY);
+//          cairo_set_font_options(canvas->cairo(), opt);
+//          cairo_font_options_destroy(opt);
+//        }
       }
       else{
         remove_textshadows();
@@ -759,6 +759,13 @@ void Win32DocumentWindow::rearrange(){
     min_client_width = 0;
     max_client_width = -1;
   }
+
+  if(has_themed_frame()){
+    _top_glass_area->invalidate();
+    _top_area->invalidate();
+    _bottom_area->invalidate();
+    _bottom_glass_area->invalidate();
+  }
 }
 
 void Win32DocumentWindow::title(String text){
@@ -851,11 +858,6 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
         _bottom_area->resize();
         _bottom_glass_area->resize();
         rearrange();
-        
-        if(has_themed_frame()){
-          _bottom_area->invalidate();
-          _bottom_glass_area->invalidate();
-        }
       } break;
       
       case WM_MOUSEHWHEEL:

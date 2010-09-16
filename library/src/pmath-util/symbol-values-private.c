@@ -133,6 +133,7 @@ void _pmath_symbol_rules_copy(
   _pmath_rulecache_copy(&dst->sub_rules,     &src->sub_rules);
   _pmath_rulecache_copy(&dst->approx_rules,  &src->approx_rules);
   _pmath_rulecache_copy(&dst->default_rules, &src->default_rules);
+  _pmath_rulecache_copy(&dst->format_rules,  &src->format_rules);
   
   src_messages = (pmath_hashtable_t)_pmath_atomic_lock_ptr(&src->_messages);
   
@@ -168,6 +169,7 @@ void _pmath_symbol_rules_done(struct _pmath_symbol_rules_t *rules){
   _pmath_rulecache_done(&rules->sub_rules);
   _pmath_rulecache_done(&rules->approx_rules);
   _pmath_rulecache_done(&rules->default_rules);
+  _pmath_rulecache_done(&rules->format_rules);
     
   pmath_ht_destroy((pmath_hashtable_t)rules->_messages);
 }
@@ -300,6 +302,7 @@ pmath_bool_t _pmath_symbol_rules_visit(
   if(!_pmath_rulecache_visit(&rules->sub_rules,     callback, closure)) return FALSE;
   if(!_pmath_rulecache_visit(&rules->approx_rules,  callback, closure)) return FALSE;
   if(!_pmath_rulecache_visit(&rules->default_rules, callback, closure)) return FALSE;
+  if(!_pmath_rulecache_visit(&rules->format_rules,  callback, closure)) return FALSE;
   
   table = (pmath_hashtable_t)_pmath_atomic_lock_ptr(&rules->_messages);
   result = object_table_visit(table, callback, closure);
@@ -412,6 +415,7 @@ void _pmath_symbol_rules_remove_all(
   _pmath_rulecache_remove_all(&rules->sub_rules,     to_be_removed, replacement);
   _pmath_rulecache_remove_all(&rules->approx_rules,  to_be_removed, replacement);
   _pmath_rulecache_remove_all(&rules->default_rules, to_be_removed, replacement);
+  _pmath_rulecache_remove_all(&rules->format_rules,  to_be_removed, replacement);
   
   table = (pmath_hashtable_t)_pmath_atomic_lock_ptr(&rules->_messages);
   object_table_remove_all(table, to_be_removed, replacement);
@@ -818,6 +822,7 @@ void _pmath_symbol_rules_clear(struct _pmath_symbol_rules_t *rules){
   _pmath_rulecache_clear(&rules->sub_rules);
   _pmath_rulecache_clear(&rules->approx_rules);
   _pmath_rulecache_clear(&rules->default_rules);
+  _pmath_rulecache_clear(&rules->format_rules);
   
   messages = (pmath_hashtable_t)_pmath_atomic_lock_ptr(&rules->_messages);
   _pmath_atomic_unlock_ptr(&rules->_messages, NULL);

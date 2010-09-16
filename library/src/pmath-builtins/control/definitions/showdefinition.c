@@ -16,9 +16,9 @@
       (code), (format), __VA_ARGS__))
 
 static void print_rule_defs(
-  pmath_symbol_t   sym,   // wont be freed
-  pmath_t   rules, // will be freed
-  pmath_bool_t  tagged
+  pmath_symbol_t  sym,   // wont be freed
+  pmath_t         rules, // will be freed
+  pmath_bool_t    tagged
 ){
   size_t i;
   
@@ -42,7 +42,7 @@ static void print_rule_defs(
     if(tagged){
       if(pmath_is_evaluated(rhs)){
         PMATH_RUN_ARGS(
-            "SectionPrint(\"Print\", HoldForm(`1`/: `2`:= `3`))", 
+            "SectionPrint(\"Print\", HoldForm(InputForm(`1`/: `2`:= `3`)))", 
           "(ooo)", 
           pmath_ref(sym),
           lhs,
@@ -50,7 +50,7 @@ static void print_rule_defs(
       }
       else{
         PMATH_RUN_ARGS(
-            "SectionPrint(\"Print\", HoldForm(`1`/: `2`::= `3`))", 
+            "SectionPrint(\"Print\", HoldForm(InputForm(`1`/: `2`::= `3`)))", 
           "(ooo)", 
           pmath_ref(sym),
           lhs,
@@ -60,14 +60,14 @@ static void print_rule_defs(
     else{
       if(pmath_is_evaluated(rhs)){
         PMATH_RUN_ARGS(
-            "SectionPrint(\"Print\", HoldForm(`1`:= `2`))", 
+            "SectionPrint(\"Print\", HoldForm(InputForm(`1`:= `2`)))", 
           "(oo)", 
           lhs,
           rhs);
       }
       else{
         PMATH_RUN_ARGS(
-            "SectionPrint(\"Print\", HoldForm(`1`::= `2`))", 
+            "SectionPrint(\"Print\", HoldForm(InputForm(`1`::= `2`)))", 
           "(oo)", 
           lhs,
           rhs);
@@ -170,6 +170,9 @@ PMATH_PRIVATE pmath_t builtin_showdefinition(pmath_expr_t expr){
     obj = EVAL_CODE_ARGS("DefaultRules(`1`)", "(o)", pmath_ref(sym));
     print_rule_defs(sym, obj, FALSE);
     
+    obj = EVAL_CODE_ARGS("NRules(`1`)", "(o)", pmath_ref(sym));
+    print_rule_defs(sym, obj, FALSE);
+    
     obj = EVAL_CODE_ARGS("DownRules(`1`)", "(o)", pmath_ref(sym));
     print_rule_defs(sym, obj, FALSE);
     
@@ -179,10 +182,8 @@ PMATH_PRIVATE pmath_t builtin_showdefinition(pmath_expr_t expr){
     obj = EVAL_CODE_ARGS("UpRules(`1`)", "(o)", pmath_ref(sym));
     print_rule_defs(sym, obj, TRUE);
     
-  //  obj = EVAL_CODE_ARGS("NRules(`1`)", "(o)", pmath_ref(sym));
-  //  print_rule_defs(sym, obj, TRUE);
-    
-    
+    obj = EVAL_CODE_ARGS("FormatRules(`1`)", "(o)", pmath_ref(sym));
+    print_rule_defs(sym, obj, FALSE);
     
     obj = pmath_symbol_get_value(sym);
     if(obj != PMATH_UNDEFINED){

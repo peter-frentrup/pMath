@@ -535,6 +535,11 @@ int main(){
 //          "SectionFrameMargins->0)"
 //        ))));
     
+//    wndMain->top_glass()->insert(1, 
+//      Section::create_from_object(Expr(run(
+//        "Section({\" Help Topic: \n not yet implemented\"},"
+//          "\"Docked\")"))));
+    
 //    wndMain->top()->insert(0,
 //      Section::create_from_object(Expr(run(
 //        "Section(BoxData({"

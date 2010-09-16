@@ -470,20 +470,22 @@ void pmath_thread_send(pmath_messages_t mq, pmath_t msg){
 PMATH_API
 pmath_t pmath_thread_send_wait(
   pmath_messages_t mq, 
-  pmath_t   msg,
-  double           timeout_seconds
+  pmath_t          msg,
+  double           timeout_seconds,
+  void           (*idle_function)(void*),
+  void            *idle_data
 ){
   struct msg_queue_t  *my_mq_data;
   struct msg_queue_t  *mq_data;
   struct message_t    *msg_struct;
   pmath_thread_t       me;
-  pmath_t       answer;
-  pmath_t       interrupt;
+  pmath_t              answer;
+  pmath_t              interrupt;
   pmath_symbol_t       result_symbol;
   pmath_symbol_t       timeout_guard;
   
   answer = PMATH_UNDEFINED;
-  me = pmath_thread_get_current();;
+  me = pmath_thread_get_current();
   if(!me || pmath_thread_aborting(me)){
     pmath_unref(msg);
     return answer;
@@ -548,6 +550,9 @@ pmath_t pmath_thread_send_wait(
       
       if(!pmath_equals(answer, interrupt))
         break;
+      
+      if(idle_function)
+        idle_function(idle_data);
     }
     
     if(pmath_thread_aborting(me)){

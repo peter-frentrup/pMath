@@ -84,55 +84,71 @@ void TextShaper::show_glyph(
   const uint16_t   ch,
   const GlyphInfo &info
 ){
-//  bool workaround = false;
-//  
-//  cairo_surface_t *target = context->canvas->target();
-//  switch(cairo_surface_get_type(target)){
-//    case CAIRO_SURFACE_TYPE_IMAGE:
-//    case CAIRO_SURFACE_TYPE_WIN32:
-//      workaround = (cairo_image_surface_get_format(target) == CAIRO_FORMAT_ARGB32);
-//      break;
-//    
-//    default:
-//      break;
-//  }
-//  
-//  if(workaround){
-//  /* Workaround a Cairo (1.8.8) Bug:
-//      Platform: Windows, Cleartype on, ARGB32 image or HDC
-//      The last (cleartype-blured) pixel column of the last glyph and the zero-th 
-//      column (also cleartype-blured) of the first pixel in a glyph-string wont 
-//      be drawn. 
-//      That looks ugly, so we add invisible glyphs at the first and the last
-//      index with adjusted x-positions.
-//      
-//      To see the difference, draw something to the glass area of the window (an 
-//      ARGB32-image surface is used there) with and without this workaround.
-//   */
-//    static const uint16_t InvisibleGlyph = 1; // = ".null", does not work for AsanaMath
-//    cairo_glyph_t cg[3];
-//    cg[0].index = InvisibleGlyph;
-//    cg[0].x = x - 3.0;
-//    cg[0].y = y;
-//    cg[1].index = info.index;
-//    cg[1].x = x + info.x_offset;
-//    cg[1].y = y;
-//    cg[2].index = InvisibleGlyph;
-//    cg[2].x = x + info.right + 3.0;
-//    cg[2].y = y;
-//    
-//    context->canvas->set_font_face(font(info.fontinfo));
-//    context->canvas->show_glyphs(cg, 3);
-//  }
-//  else{
+  bool workaround = false;
+  
+  cairo_surface_t *target = context->canvas->target();
+  switch(cairo_surface_get_type(target)){
+    case CAIRO_SURFACE_TYPE_IMAGE:
+    case CAIRO_SURFACE_TYPE_WIN32:
+      workaround = (cairo_image_surface_get_format(target) == CAIRO_FORMAT_ARGB32);
+      break;
+    
+    default:
+      break;
+  }
+  
+  FontFace ff = font(info.fontinfo);
+  
+  static GlyphInfo space_glyph;
+  if(workaround){
+  /* Workaround a Cairo (1.8.8) bug:
+      Platform: Windows, Cleartype on, ARGB32 image or HDC
+      The last (cleartype-blured) pixel column of the last glyph and the zero-th 
+      column (also cleartype-blured) of the first pixel in a glyph-string wont 
+      be drawn. 
+      That looks ugly, so we add invisible glyphs at the first and the last
+      index with adjusted x-positions.
+      
+      To see the difference, draw something to the glass area of the window (an 
+      ARGB32-image surface is used there) with and without this workaround.
+   */
+    //static const uint16_t InvisibleGlyph = 1; // = ".null", does not work for AsanaMath
+    static cairo_font_face_t *prev_font = NULL;
+    if(prev_font != ff.cairo()){
+      prev_font = ff.cairo();
+      
+      memset(&space_glyph, 0, sizeof(space_glyph));
+      const uint16_t space = ' ';
+      decode_token(context, 1, &space, &space_glyph);
+    }
+    
+    workaround = space_glyph.fontinfo == info.fontinfo && space_glyph.index != 0xFFFF;
+  }  
+  
+  if(workaround){
+    cairo_glyph_t cg[3];
+    cg[0].index = space_glyph.index;
+    cg[0].x = x - 3.0;
+    cg[0].y = y;
+    cg[1].index = info.index;
+    cg[1].x = x + info.x_offset;
+    cg[1].y = y;
+    cg[2].index = space_glyph.index;
+    cg[2].x = x + info.right + 3.0;
+    cg[2].y = y;
+    
+    context->canvas->set_font_face(ff);
+    context->canvas->show_glyphs(cg, 3);
+  }
+  else{
     cairo_glyph_t cg;
     cg.index = info.index;
     cg.x = x + info.x_offset;
     cg.y = y;
     
-    context->canvas->set_font_face(font(info.fontinfo));
+    context->canvas->set_font_face(ff);
     context->canvas->show_glyphs(&cg, 1);
-//  }
+  }
 }
 
 SharedPtr<TextShaper> TextShaper::find(

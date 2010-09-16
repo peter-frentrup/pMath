@@ -16,6 +16,7 @@
 #include <boxes/ownerbox.h>
 #include <boxes/radicalbox.h>
 #include <boxes/section.h>
+#include <boxes/sliderbox.h>
 #include <boxes/stylebox.h>
 #include <boxes/subsuperscriptbox.h>
 #include <boxes/transformationbox.h>
@@ -3884,6 +3885,14 @@ static void make_box(int pos, pmath_t obj, void *data){
   
   if(expr[0] == PMATH_SYMBOL_ROTATIONBOX){
     RotationBox *box = RotationBox::create(expr, info->options);
+    if(box){
+      info->boxes->add(box);
+      return;
+    }
+  }
+  
+  if(expr[0] == PMATH_SYMBOL_SLIDERBOX){
+    SliderBox *box = SliderBox::create(expr);
     if(box){
       info->boxes->add(box);
       return;
