@@ -1,0 +1,24 @@
+/* Parsing and Printing Sums ans Products in traditional form
+ */
+
+Begin("System`Private`")
+
+Unprotect(BoxesToExpression)
+
+BoxesToExpression({UnderoverscriptBox("\u2211", {~i, "=", ~a}, ~b), ~body})::= 
+	BoxesToExpression({"Sum", "(", {body, ",", {i, "->", {a, "..", b}}}, ")"})
+
+BoxesToExpression({UnderoverscriptBox("\u220F", {~i, "=", ~a}, ~b), ~body})::= 
+	BoxesToExpression({"Product", "(", {body, ",", {i, "->", {a, "..", b}}}, ")"})
+
+Protect(BoxesToExpression)
+
+
+Unprotect(Sum, Product)
+
+MakeBoxes(Sum(    ~body, ~i->~a..~b))::= {UnderoverscriptBox("\u2211", MakeBoxes(i=a), MakeBoxes(b)), ParenthesizeBoxes(MakeBoxes(body), Plus, "Prefix")}
+MakeBoxes(Product(~body, ~i->~a..~b))::= {UnderoverscriptBox("\u220F", MakeBoxes(i=a), MakeBoxes(b)), ParenthesizeBoxes(MakeBoxes(body), Plus, "Prefix")}
+
+Protect(Sum, Product)
+
+End()
