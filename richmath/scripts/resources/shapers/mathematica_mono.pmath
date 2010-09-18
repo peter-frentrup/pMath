@@ -225,7 +225,7 @@
 		"\u223C" -> {"similar", 1}, /* similar / tilde */
 		"~" -> {"similar", 1},
 		"\u23AF" -> {"fractionbar", 1}, /* fraction line */
-		"\uF764" -> {"alias", 1}, /* alias */
+		/* "\uF764" -> {"alias", 1}, alias */
 		"\u001A" -> {"solidplacer", 1}, /* replacement */
 		"\u220E" -> {"solidplacer", 1}, /* end of proof */
 		"\uFFFD" -> {"placer", 1}, /* placeholder */

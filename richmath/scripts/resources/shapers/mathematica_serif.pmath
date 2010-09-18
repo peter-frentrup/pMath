@@ -227,7 +227,7 @@
 		"\u223C" -> {"asciitilde", 1}, /* similar / tilde */
 		"~" -> {"asciitilde", 1},
 		"\u23AF" -> {99, 1}, /* fraction line */
-		"\uF764" -> {100, 1}, /* alias */
+		/* "\uF764" -> {100, 1}, alias */
 		"\u001A" -> {101, 1}, /* replacement */
 		"\u220E" -> {101, 1}, /* end of proof */
 		"\uFFFD" -> {102, 1}, /* placeholder */

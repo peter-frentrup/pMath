@@ -1,15 +1,9 @@
-#include <pmath-core/expressions.h>
-#include <pmath-core/symbols.h>
-
-#include <assert.h>
-#include <string.h>
-
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
 
-#include <pmath-builtins/lists-private.h>
-#include <pmath-builtins/all-symbols.h>
 #include <pmath-builtins/all-symbols-private.h>
+#include <pmath-builtins/lists-private.h>
+
 
 static pmath_bool_t part(
   pmath_expr_t  *list, 

@@ -270,6 +270,6 @@ pmath_t pmath_parse_string_args(
       pmath_parse_string_args( \
         (code), (format), __VA_ARGS__)))
 
-/*@}*/
+/** @} */
 
 #endif // __PMATH_LANGUAGE__SCANNER_H__

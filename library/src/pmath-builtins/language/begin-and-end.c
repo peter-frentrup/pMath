@@ -1,25 +1,17 @@
+#include <pmath-core/expressions-private.h>
 #include <pmath-core/numbers.h>
-#include <pmath-core/symbols.h>
-#include <pmath-language/tokens.h>
-#include <pmath-util/evaluation.h>
 
-#include <assert.h>
-#include <string.h>
+#include <pmath-language/scanner.h>
+#include <pmath-language/tokens.h>
 
 #include <pmath-util/concurrency/threads.h>
-#include <pmath-util/debug.h>
+#include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
 
-#include <pmath-core/objects-private.h>
-#include <pmath-core/expressions-private.h>
-
-#include <pmath-language/scanner.h>
-
-#include <pmath-builtins/all-symbols.h>
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/control/definitions-private.h>
-#include <pmath-builtins/lists-private.h>
+
 
 PMATH_PRIVATE pmath_bool_t _pmath_is_namespace(pmath_t name){
   const uint16_t *buf;

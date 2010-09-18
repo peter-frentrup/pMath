@@ -771,9 +771,9 @@ int main(){
       SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE);
     
     // override CreateProcess STARTF_USESHOWWINDOW flag:
-    ShowWindow(wndMain->hwnd(), SW_SHOWDEFAULT);
+    //ShowWindow(wndMain->hwnd(), SW_SHOWDEFAULT);
     
-    ShowWindow(wndPalette->hwnd(), SW_SHOWNOACTIVATE);
+    ShowWindow(wndPalette->hwnd(), SW_SHOWNORMAL);
     ShowWindow(wndMain->hwnd(), SW_SHOWNORMAL);
     
 //    {
@@ -808,6 +808,9 @@ int main(){
 //      
 //      ShowWindow(wndInterrupt->hwnd(), SW_SHOWNORMAL);
 //    }
+      
+    Client::doevents();
+    SetActiveWindow(wndMain->hwnd());
     
   }
   

@@ -23,7 +23,7 @@ uint32_t pmath_char_from_name(const char *name);
 PMATH_API
 const char *pmath_char_to_name(uint32_t unichar);
 
-/*@}*/
+/** @} */
 /*============================================================================*/
 
 #ifdef BUILDING_PMATH

@@ -1,19 +1,10 @@
-#include <pmath-core/expressions.h>
-#include <pmath-core/numbers.h>
-#include <pmath-core/symbols.h>
-
-#include <assert.h>
-#include <string.h>
-
 #include <pmath-util/debug.h>
 #include <pmath-util/messages.h>
 
-#include <pmath-core/numbers-private.h>
-
+#include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/arithmetic-private.h>
 #include <pmath-builtins/number-theory-private.h>
-#include <pmath-builtins/all-symbols.h>
-#include <pmath-builtins/all-symbols-private.h>
+
 
 // product of all primes up to 97
 #define PRODUCT_OF_SMALL_PRIMES_HEX \
@@ -171,7 +162,7 @@ PMATH_PRIVATE pmath_t builtin_isprime(pmath_expr_t expr){
   
   /* verify that _pmath_primes16bit contains all the 6542 primes less than 2^16
    */
-  void VERIFY_PRIMES16BIT_SANE(){
+  void VERIFY_PRIMES16BIT_SANE(void){
     int i;
     
     assert(_pmath_primes16bit_count == 6542);
@@ -203,7 +194,7 @@ PMATH_PRIVATE pmath_t builtin_isprime(pmath_expr_t expr){
      returns TRUE on success, FALSE on out-of-memory and does not return on 
      falsification
    */
-  pmath_bool_t VERIFY_SMALL_PRIMES(){
+  pmath_bool_t VERIFY_SMALL_PRIMES(void){
     int i;
     struct _pmath_integer_t *tmp = _pmath_create_integer();
     
@@ -235,7 +226,7 @@ PMATH_PRIVATE pmath_t builtin_isprime(pmath_expr_t expr){
      returns TRUE on success, FALSE on out-of-memory and does not return on 
      falsification
    */
-  pmath_bool_t VERIFY_MEDIUM_PRIMES(){
+  pmath_bool_t VERIFY_MEDIUM_PRIMES(void){
     int i;
     struct _pmath_integer_t *tmp = _pmath_create_integer();
     

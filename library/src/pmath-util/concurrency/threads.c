@@ -1,47 +1,33 @@
-#include <pmath-core/symbols.h>
-#include <pmath-util/memory.h>
-
-#include <assert.h>
-#include <errno.h>
-#include <inttypes.h>
-#include <string.h>
-#include <time.h>
-
-#include <pmath-core/custom.h>
-
-#include <pmath-util/debug.h>
-#include <pmath-util/evaluation.h>
-#include <pmath-util/hashtables-private.h>
-#include <pmath-util/messages.h>
-
-#include <pmath-util/concurrency/threadlocks.h>
-#include <pmath-util/concurrency/threadmsg.h>
-#include <pmath-util/concurrency/threadmsg-private.h>
-#include <pmath-util/concurrency/threads.h>
 #include <pmath-util/concurrency/threads-private.h>
 
-#include <pmath-private.h>
-#include <pmath-core/objects-private.h>
 #include <pmath-core/symbols-private.h>
 
-#include <pmath-builtins/control/definitions-private.h>
-#include <pmath-builtins/all-symbols.h>
+#include <pmath-util/concurrency/threadmsg-private.h>
+#include <pmath-util/debug.h>
+#include <pmath-util/memory.h>
+#include <pmath-util/messages.h>
+
 #include <pmath-builtins/all-symbols-private.h>
+#include <pmath-builtins/control/definitions-private.h>
 
-#include <pmath-language/patterns-private.h>
+#include <pmath-private.h>
 
-#ifdef PMATH_OS_UNIX
-  #include <sys/time.h>
-#endif
 
 #if PMATH_USE_PTHREAD
+
+  #include <errno.h>
   #include <pthread.h>
+  
 #elif PMATH_USE_WINDOWS_THREADS
+
   #define NOGDI
   #define WIN32_LEAN_AND_MEAN
   #include <windows.h>
+  
 #else
+
   #error Either PThread or Windows Threads must be used
+  
 #endif
 
 #if PMATH_USE_PTHREAD
@@ -282,7 +268,7 @@ static PMATH_DECLARE_ATOMIC(suspending) = 0;
   static volatile DWORD      suspender;
 #endif
 
-static void do_suspend(){
+static void do_suspend(void){
   pmath_atomic_lock(&suspending_spin);
   
   if(suspending){
@@ -533,25 +519,8 @@ PMATH_PRIVATE void _pmath_thread_free(pmath_thread_t thread){
 
 /*============================================================================*/
 
-#ifdef PMATH_OS_WIN32
-static uint64_t win2unix_epoch;
-#endif
-
 PMATH_PRIVATE pmath_bool_t _pmath_threads_init(void){
   {
-    #ifdef PMATH_OS_WIN32
-    {
-      SYSTEMTIME unix_epoch;
-      memset(&unix_epoch, 0, sizeof(unix_epoch));
-      unix_epoch.wYear  = 1970;
-      unix_epoch.wMonth = 1;
-      unix_epoch.wDay   = 1;
-      
-      win2unix_epoch = 0;
-      SystemTimeToFileTime(&unix_epoch, (FILETIME*)&win2unix_epoch);
-    }
-    #endif
-    
     aborting = FALSE;
     _pmath_abort_reasons = 0;
     
@@ -607,24 +576,6 @@ PMATH_PRIVATE void _pmath_threads_done(void){
   
   if(_pmath_abort_reasons != 0){
     pmath_debug_print("\a_pmath_abort_reasons = %d\n", (int)_pmath_abort_reasons);
-  }
-  #endif
-}
-
-PMATH_PRIVATE double _pmath_tickcount(void){
-  #ifdef PMATH_OS_WIN32
-  {
-    uint64_t ft;
-    GetSystemTimeAsFileTime((FILETIME*)&ft);
-    return (ft - win2unix_epoch) * 1e-7;
-//    return GetTickCount();
-  }
-  #else
-  {
-    // return clock() / (CLOCKS_PER_SEC / 1000.0); // count() overflows after 72 minutes
-    struct timeval tv;
-    gettimeofday(&tv, NULL); // too slow?
-    return tv.tv_sec + tv.tv_usec * 1e-6;
   }
   #endif
 }

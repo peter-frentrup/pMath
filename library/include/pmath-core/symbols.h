@@ -293,6 +293,6 @@ pmath_unref(iter);
  */
 PMATH_API pmath_symbol_t pmath_symbol_iter_next(pmath_symbol_t old);
 
-/*@}*/
+/** @} */
 
 #endif /* __PMATH_CORE__SYMBOLS_H__ */

@@ -1,22 +1,15 @@
-#include <pmath-core/numbers.h>
-#include <pmath-core/symbols.h>
-#include <pmath-util/evaluation.h>
-#include <pmath-util/memory.h>
-
-#include <assert.h>
-#include <string.h>
-
-#include <pmath-util/approximate.h>
-#include <pmath-util/helpers.h>
-#include <pmath-util/messages.h>
-
-#include <pmath-core/objects-private.h>
 #include <pmath-core/numbers-private.h>
 
-#include <pmath-builtins/all-symbols.h>
+#include <pmath-util/approximate.h>
+#include <pmath-util/evaluation.h>
+#include <pmath-util/helpers.h>
+#include <pmath-util/memory.h>
+#include <pmath-util/messages.h>
+
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/build-expr-private.h>
 #include <pmath-builtins/lists-private.h>
+
 
 static pmath_bool_t greater(pmath_t a, pmath_t b){
   pmath_t tmp;

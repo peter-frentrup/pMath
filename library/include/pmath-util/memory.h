@@ -78,7 +78,7 @@ void pmath_mem_free(void *p);
 PMATH_API 
 void pmath_mem_usage(size_t *current, size_t *max);
 
-/*@}*/
+/** @} */
 /*============================================================================*/
 
 #ifdef BUILDING_PMATH

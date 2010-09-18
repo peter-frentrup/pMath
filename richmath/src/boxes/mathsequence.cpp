@@ -2122,7 +2122,7 @@ void MathSequence::scope_colorize_spanexpr(SyntaxState *state, SpanExpr *se){
     }
   }
   
-  if(se->count() >= 2 && se->count() <= 3){ // ~:t  x->y   x:=y   bigops
+  if(se->count() >= 2 && se->count() <= 3){ // ~:t  x->y   x:=y   integrals   bigops
     if(se->item_as_char(1) == ':'
     && se->item_first_char(0) == '~'){
       for(int i = se->start();i <= se->end();++i)
@@ -2221,6 +2221,46 @@ void MathSequence::scope_colorize_spanexpr(SyntaxState *state, SpanExpr *se){
       return;
     }
     
+    bool have_integral = false;
+    if(pmath_char_is_integral(se->item_as_char(0))){
+      have_integral = true;
+    }
+    else{
+      UnderoverscriptBox *uo = dynamic_cast<UnderoverscriptBox*>(se->item_as_box(0));
+      
+      if(uo 
+      && uo->base()->length() == 1 
+      && pmath_char_is_integral(uo->base()->text()[0])){
+        have_integral = true;
+      }
+    }
+    
+    if(have_integral){
+      SpanExpr *integrand = se->item(se->count()-1);
+      
+      if(integrand && integrand->count() >= 1){
+        SpanExpr *dx = integrand->item(integrand->count()-1);
+        
+        if(dx 
+        && dx->count() == 2 
+        && dx->item_as_char(0) == PMATH_CHAR_INTEGRAL_D
+        && pmath_char_is_name(dx->item_first_char(1))){
+          for(int i = 0;i < se->count() - 1;++i)
+            scope_colorize_spanexpr(state, se->item(i));
+          
+          SharedPtr<ScopePos> next_scope = state->new_scope();
+          state->new_scope();
+          
+          symbol_colorize(state, dx->item_pos(1), Special);
+          
+          for(int i = 0;i < integrand->count() - 1;++i)
+            scope_colorize_spanexpr(state, integrand->item(i));
+          
+          state->current_pos = next_scope;
+          return;
+        }
+      }
+    }
     
     MathSequence *bigop_init = 0;
     int next_item = 1;
@@ -2269,7 +2309,7 @@ void MathSequence::scope_colorize_spanexpr(SyntaxState *state, SpanExpr *se){
     }
   }
   
-  if(se->count() >= 3 && se->count() <= 4){ // F(x)  ~x:t
+  if(se->count() >= 3 && se->count() <= 4){ // F(x)   ~x:t
     if(se->item_as_char(1) == '('
     && pmath_char_is_name(se->item_first_char(0))){
       String name = se->item_as_text(0);
@@ -2411,7 +2451,7 @@ void MathSequence::scope_colorize_spanexpr(SyntaxState *state, SpanExpr *se){
     
   }
   
-  if(se->count() >= 4 && se->count() <= 5){ // x/:y:=z    integrals
+  if(se->count() >= 4 && se->count() <= 5){ // x/:y:=z   x/:y::=z
     if(se->item_equals(1, "/:")){
       if(se->item_as_char(3) == PMATH_CHAR_ASSIGN
       || se->item_equals(3, ":=")){
@@ -2464,51 +2504,6 @@ void MathSequence::scope_colorize_spanexpr(SyntaxState *state, SpanExpr *se){
         state->current_pos = next_scope;
         return;
       }
-    }
-    
-    if(se->item_as_char(2) == PMATH_CHAR_INTEGRAL_D
-    && se->count() == 4
-    && pmath_char_is_name(se->item_first_char(3))){
-      bool integral = pmath_char_is_integral(se->item_as_char(0));
-      
-      if(!integral){
-        UnderoverscriptBox *uo = dynamic_cast<UnderoverscriptBox*>(se->item_as_box(0));
-        
-        integral = uo && uo->base()->length() == 1 
-          && pmath_char_is_integral(uo->base()->text()[0]);
-      }
-      
-      if(integral){
-        scope_colorize_spanexpr(state, se->item(0));
-        
-        SharedPtr<ScopePos> next_scope = state->new_scope();
-        state->new_scope();
-        
-        symbol_colorize(state, se->item_pos(3), Special);
-        
-        scope_colorize_spanexpr(state, se->item(1));
-        
-        state->current_pos = next_scope;
-        return;
-      }
-    }
-    else if(se->item_as_char(3) == PMATH_CHAR_INTEGRAL_D
-    && se->count() == 5
-    && pmath_char_is_name(se->item_first_char(4))
-    && pmath_char_is_integral(se->item_as_char(0))
-    && dynamic_cast<SubsuperscriptBox*>(se->item_as_box(1))){
-      scope_colorize_spanexpr(state, se->item(0));
-      scope_colorize_spanexpr(state, se->item(1));
-        
-      SharedPtr<ScopePos> next_scope = state->new_scope();
-      state->new_scope();
-      
-      symbol_colorize(state, se->item_pos(4), Special);
-      
-      scope_colorize_spanexpr(state,se->item(2));
-      
-      state->current_pos = next_scope;
-      return;
     }
   }
   

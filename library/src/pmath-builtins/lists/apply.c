@@ -1,17 +1,10 @@
-#include <pmath-core/symbols.h>
 #include <pmath-util/evaluation.h>
-
-#include <assert.h>
-#include <limits.h>
-#include <string.h>
-
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
 
+#include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/control-private.h>
 #include <pmath-builtins/lists-private.h>
-#include <pmath-builtins/all-symbols.h>
-#include <pmath-builtins/all-symbols-private.h>
 
 struct apply_info_t{
   pmath_bool_t with_heads;
@@ -21,9 +14,9 @@ struct apply_info_t{
 
 static pmath_t apply(
   struct apply_info_t *info,
-  pmath_t       f,    // wont be freed
-  pmath_t       list, // will be freed
-  long level
+  pmath_t              f,    // wont be freed
+  pmath_t              list, // will be freed
+  long                 level
 ){
   if(pmath_instance_of(list, PMATH_TYPE_EXPRESSION)){
     int reldepth = _pmath_object_in_levelspec(

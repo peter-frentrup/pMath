@@ -15,15 +15,16 @@
 #include <limits.h>
 #include <string.h>
 
-// initialized in pmath_init():
-PMATH_PRIVATE pmath_t _pmath_object_loadlibrary_load_message;
-PMATH_PRIVATE pmath_t _pmath_object_get_load_message;
-
 #ifdef PMATH_OS_WIN32
   #include <windows.h>
 #elif defined(PMATH_OS_UNIX)
   #include <dlfcn.h>
 #endif
+
+
+// initialized in pmath_init():
+PMATH_PRIVATE pmath_t _pmath_object_loadlibrary_load_message;
+PMATH_PRIVATE pmath_t _pmath_object_get_load_message;
 
 struct _module_t{
   void (*done)(void);
@@ -63,7 +64,7 @@ static void destroy_module(void *ptr){
     struct _load_info_t          *info = (struct _load_info_t*)data;
     struct _module_t             *mod;
     struct _pmath_object_entry_t *entry;
-    pmath_custom_t mod_obj;
+    pmath_custom_t                mod_obj;
     
     pmath_bool_t (*init_func)(void);
     void         (*done_func)(void);

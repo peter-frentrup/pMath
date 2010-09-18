@@ -1,19 +1,13 @@
 #include <pmath-builtins/all-symbols-private.h>
-#include <pmath-util/memory.h>
 
-#include <assert.h>
-#include <inttypes.h>
-#include <string.h>
-
+#include <pmath-util/concurrency/atomic-private.h>
 #include <pmath-util/debug.h>
 #include <pmath-util/hashtables-private.h>
+#include <pmath-util/memory.h>
 #include <pmath-util/messages.h>
 
+#include <string.h>
 
-
-#include <pmath-language/scanner.h>
-
-#include <pmath-util/concurrency/atomic-private.h> // depends on <pmath-core/objects-inline.h>
 
 PMATH_PRIVATE pmath_symbol_t _pmath_builtin_symbol_array[PMATH_BUILTIN_SYMBOL_COUNT];
 

@@ -268,6 +268,6 @@ pmath_t pmath_session_start(void);
 PMATH_API 
 void pmath_session_end(pmath_t old_state);
 
-/*@}*/
+/** @} */
 
 #endif /* __PMATH_UTIL__HELPERS_H__ */

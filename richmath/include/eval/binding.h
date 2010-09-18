@@ -11,6 +11,8 @@ namespace richmath{
     NumberBoxSymbol,
     SymbolInfoSymbol,
     AddConfigShaperSymbol,
+    
+    FrontEndSymbolsCount
   }FrontEndSymbolIndex;
   
   bool init_bindings();

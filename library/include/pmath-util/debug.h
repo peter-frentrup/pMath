@@ -39,7 +39,7 @@ void pmath_debug_print_object(
   #define pmath_debug_print_object(PRE, OBJ, POST)  ((void)0)
 #endif /* PMATH_DEBUG_LOG */
 
-/*@}*/
+/** @} */
 
 #ifdef BUILDING_PMATH
   PMATH_PRIVATE pmath_bool_t _pmath_debug_library_init(void);

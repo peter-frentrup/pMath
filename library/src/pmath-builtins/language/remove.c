@@ -1,15 +1,8 @@
-#include <pmath-core/symbols.h>
 #include <pmath-util/evaluation.h>
-
-#include <string.h>
-#include <assert.h>
-
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
 
-#include <pmath-builtins/all-symbols.h>
 #include <pmath-builtins/all-symbols-private.h>
-#include <pmath-builtins/control-private.h>
 
 PMATH_PRIVATE pmath_t builtin_remove(pmath_expr_t expr){
 /* Remove("symbol1", "symbol2", ...)

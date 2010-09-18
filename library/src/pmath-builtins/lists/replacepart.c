@@ -1,26 +1,18 @@
-#include <pmath-core/numbers.h>
-#include <pmath-core/symbols.h>
-#include <pmath-util/memory.h>
+#include <pmath-core/numbers-private.h>
+
 #include <pmath-util/evaluation.h>
-
-#include <assert.h>
-#include <inttypes.h>
-#include <string.h>
-
-#include <pmath-util/hashtables-private.h>
 #include <pmath-util/helpers.h>
+#include <pmath-util/memory.h>
 #include <pmath-util/messages.h>
 #include <pmath-util/symbol-values-private.h>
 
-#include <pmath-core/numbers-private.h>
-
-#include <pmath-builtins/control/definitions-private.h>
-#include <pmath-builtins/control-private.h>
-#include <pmath-builtins/lists-private.h>
-#include <pmath-builtins/all-symbols.h>
 #include <pmath-builtins/all-symbols-private.h>
+#include <pmath-builtins/control-private.h>
+#include <pmath-builtins/control/definitions-private.h>
+#include <pmath-builtins/lists-private.h>
 
 #include <pmath-language/patterns-private.h>
+
 
 /* TODO: allow ReplacePart({{a, b, c}, {d, e}, {f}}, {~~~, -1} -> xx)
                                                            ==

@@ -262,12 +262,14 @@
     <UL>
     <LI><OBJECT type="text/sitemap"><param name="Name" value="Functions"><param name="Local" value="group__threadmsg.html"><param name="ImageNumber" value="1"></OBJECT>
       <UL>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="pmath_tickcount"><param name="Local" value="group__threadmsg.html#geff0c8bdc4ab3fb6a0d8abb3ebf07532"><param name="ImageNumber" value="11"></OBJECT>
       <LI><OBJECT type="text/sitemap"><param name="Name" value="pmath_is_message_queue"><param name="Local" value="group__threadmsg.html#g93b45ad8c3063c94602c8bbaaf3c2613"><param name="ImageNumber" value="11"></OBJECT>
       <LI><OBJECT type="text/sitemap"><param name="Name" value="pmath_thread_get_queue"><param name="Local" value="group__threadmsg.html#gf4d69db0ffe06846e57df7cadcd3dab6"><param name="ImageNumber" value="11"></OBJECT>
       <LI><OBJECT type="text/sitemap"><param name="Name" value="pmath_thread_sleep"><param name="Local" value="group__threadmsg.html#gce6da6e34b0aeab35094ddccdd9a3e55"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="pmath_thread_sleep_timeout"><param name="Local" value="group__threadmsg.html#g199f3dc07d4b89174e641fa4b0b757db"><param name="ImageNumber" value="11"></OBJECT>
       <LI><OBJECT type="text/sitemap"><param name="Name" value="pmath_thread_wakeup"><param name="Local" value="group__threadmsg.html#gbf90d49f5c42ccaa736ae5e56af6a4a6"><param name="ImageNumber" value="11"></OBJECT>
       <LI><OBJECT type="text/sitemap"><param name="Name" value="pmath_thread_send"><param name="Local" value="group__threadmsg.html#ga3867a708fb07b86e017e8f201ef7edd"><param name="ImageNumber" value="11"></OBJECT>
-      <LI><OBJECT type="text/sitemap"><param name="Name" value="pmath_thread_send_wait"><param name="Local" value="group__threadmsg.html#g0466f7731e5e7cc3c4361f9512795a1c"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="pmath_thread_send_wait"><param name="Local" value="group__threadmsg.html#g4ce8afcfec001a88441bdf8b50bcd157"><param name="ImageNumber" value="11"></OBJECT>
       <LI><OBJECT type="text/sitemap"><param name="Name" value="pmath_thread_send_delayed"><param name="Local" value="group__threadmsg.html#g75339d9dd1902293cb72b38e77caa742"><param name="ImageNumber" value="11"></OBJECT>
       </UL>
     <LI><OBJECT type="text/sitemap"><param name="Name" value="Data Structures"><param name="Local" value="group__threadmsg.html"><param name="ImageNumber" value="1"></OBJECT>

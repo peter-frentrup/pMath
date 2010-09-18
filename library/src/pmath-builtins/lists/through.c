@@ -1,14 +1,7 @@
-#include <pmath-core/expressions.h>
-#include <pmath-core/symbols.h>
-
-#include <assert.h>
-#include <string.h>
-
 #include <pmath-util/messages.h>
 
-#include <pmath-builtins/lists-private.h>
-#include <pmath-builtins/all-symbols.h>
 #include <pmath-builtins/all-symbols-private.h>
+
 
 PMATH_PRIVATE pmath_t builtin_through(pmath_expr_t expr){
   /* Through(p(f1, f2)(x))  =  p(f1(x), f2(x))

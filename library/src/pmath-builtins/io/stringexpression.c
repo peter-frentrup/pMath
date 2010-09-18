@@ -1,17 +1,3 @@
-#include <pmath-core/expressions.h>
-#include <pmath-core/symbols.h>
-
-#include <assert.h>
-#include <string.h>
-
-#include <pmath-util/messages.h>
-
-#include <pmath-util/concurrency/threads.h>
-
-#include <pmath-core/strings-private.h>
-
-#include <pmath-builtins/lists-private.h>
-#include <pmath-builtins/all-symbols.h>
 #include <pmath-builtins/all-symbols-private.h>
 
 PMATH_PRIVATE pmath_t builtin_stringexpression(pmath_expr_t expr){

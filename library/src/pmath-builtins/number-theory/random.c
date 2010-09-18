@@ -1,22 +1,11 @@
-#include <pmath-core/expressions.h>
-#include <pmath-core/numbers.h>
-#include <pmath-core/symbols.h>
-
-#include <assert.h>
-#include <string.h>
-
 #include <pmath-util/approximate.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
 
-#include <pmath-core/numbers-private.h>
-
+#include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/arithmetic-private.h>
 #include <pmath-builtins/control-private.h>
-#include <pmath-builtins/lists-private.h>
-#include <pmath-builtins/number-theory-private.h>
-#include <pmath-builtins/all-symbols.h>
-#include <pmath-builtins/all-symbols-private.h>
+
 
 static pmath_t stretch(
   pmath_t x,   // will be freed

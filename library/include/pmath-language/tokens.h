@@ -322,6 +322,6 @@ static PMATH_INLINE pmath_bool_t pmath_char_is_hexdigit(uint16_t ch){
       || (ch >= 'A' && ch <= 'F');
 }
 
-/*@}*/
+/** @} */
 
 #endif /* __PMATH_LANGUAGE__TOKENS_H__ */

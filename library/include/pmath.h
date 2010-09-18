@@ -21,7 +21,6 @@
    pMath is build on top of several open source libraries:
     - GMP (http://gmplib.org)
     - MPFR (http://www.mpfr.org)
-    - iconv (e.g. http://www.gnu.org/software/libiconv)
     - PCRE (http://www.pcre.org)
    
  */
@@ -93,6 +92,6 @@ pmath_bool_t pmath_init(void);
 PMATH_API
 void pmath_done(void);
 
-/*@}*/
+/** @} */
 
 #endif /* __PMATH_H__ */

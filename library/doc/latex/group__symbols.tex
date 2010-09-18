@@ -21,7 +21,7 @@ typedef int \hyperlink{group__symbols_g5d508ec0d32d617b6c642de54907ee17}{pmath\_
 \begin{CompactItemize}
 \item 
 enum \hyperlink{group__symbols_g957dfb51b09e821a8fc052835ea66670}{pmath\_\-code\_\-usage\_\-t} 
-\begin{CompactList}\small\item\em Constants saying when to call a binded function. May f be the pMath symbol. \item\end{CompactList}\end{CompactItemize}
+\begin{CompactList}\small\item\em Constants determining when to call a binded function. Let f be the pMath symbol. \item\end{CompactList}\end{CompactItemize}
 \subsubsection*{Functions}
 \begin{CompactItemize}
 \item 
@@ -147,7 +147,7 @@ A pMath symbol (here called `sym`) can have one or more of the following values 
 \label{group__symbols_g957dfb51b09e821a8fc052835ea66670}
 
 
-Constants saying when to call a binded function. May f be the pMath symbol. 
+Constants determining when to call a binded function. Let f be the pMath symbol. 
 
 \begin{itemize}
 \item PMATH\_\-CODE\_\-USAGE\_\-DOWNCALL Call binded function when evaluating `f(...)`\end{itemize}
@@ -212,13 +212,13 @@ Bind a pMath symbol to some native code for approximation.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em symbol}]The symbol. It wont be freed. \item[{\em func}]A native function. \end{description}
+\item[{\em symbol}]The symbol. It wont be freed. \item[{\em func}]A native function that frees/takes ownership of its first argument. \end{description}
 \end{Desc}
 \begin{Desc}
 \item[Returns:]Whether the binding succeded.\end{Desc}
 Any previous approximation-binding to the symbol will be overwritten.
 
-The native function will be calledd when evaluating the pMath expression {\tt N(obj, \{precision, accuracy\})} as {\tt func(obj, precision, accuracy)}, where obj is either `symbol` or `symbol(...)`. \hypertarget{group__symbols_g78e6e98a2973c5e2b073b885269b12e4}{
+The native function will be called as {\tt func(obj, precision, accuracy)} when evaluating the pMath expression {\tt N(obj, \{precision, accuracy\})}, where obj is either `symbol` or `symbol(...)`. \hypertarget{group__symbols_g78e6e98a2973c5e2b073b885269b12e4}{
 \index{symbols@{symbols}!pmath\_\-symbol\_\-remove@{pmath\_\-symbol\_\-remove}}
 \index{pmath\_\-symbol\_\-remove@{pmath\_\-symbol\_\-remove}!symbols@{symbols}}
 \paragraph[{pmath\_\-symbol\_\-remove}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API void pmath\_\-symbol\_\-remove ({\bf pmath\_\-symbol\_\-t} {\em symbol})}\hfill}
@@ -429,6 +429,6 @@ Update a symbol manually.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em symbol}]A pMath symbol.\end{description}
+\item[{\em symbol}]A pMath symbol. It wont be freed.\end{description}
 \end{Desc}
 You normally do not have to call this, since every change in a symbol yields an update. But there are some situations where you might to update it manually. The update mechanism is an optimization. Any expresseion or symbol, that is up to date while evaluation, wont be evaluated again. After an evaluation, expressions are updated automatically. 

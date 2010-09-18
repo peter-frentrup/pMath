@@ -345,6 +345,6 @@ PMATH_API
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_number_t pmath_number_neg(pmath_number_t num);
 
-/*@}*/
+/** @} */
 
 #endif /* __PMATH_CORE__NUMBERS_H__ */

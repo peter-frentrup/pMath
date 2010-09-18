@@ -1,17 +1,12 @@
-#include <pmath-core/symbols.h>
 #include <pmath-util/evaluation.h>
-
-#include <assert.h>
-#include <string.h>
-
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
 
-#include <pmath-builtins/control/flow-private.h>
-#include <pmath-builtins/control-private.h>
-#include <pmath-builtins/lists-private.h>
-#include <pmath-builtins/all-symbols.h>
 #include <pmath-builtins/all-symbols-private.h>
+#include <pmath-builtins/control-private.h>
+#include <pmath-builtins/control/flow-private.h>
+#include <pmath-builtins/lists-private.h>
+
 
 PMATH_PRIVATE
 pmath_bool_t _pmath_scan(

@@ -1,11 +1,11 @@
 #include <pmath-language/charnames.h>
-#include <pmath-core/objects-inline.h>
+
+#include <pmath-util/debug.h>
+#include <pmath-util/hashtables-private.h>
 #include <pmath-util/incremental-hash-private.h>
 
 #include <string.h>
 
-#include <pmath-util/debug.h>
-#include <pmath-util/hashtables-private.h>
 
 struct named_char_t {
   uint32_t unichar;

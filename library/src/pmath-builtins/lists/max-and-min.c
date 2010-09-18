@@ -1,21 +1,11 @@
-#include <pmath-core/numbers.h>
-#include <pmath-core/symbols.h>
-#include <pmath-util/evaluation.h>
-
-#include <assert.h>
-#include <string.h>
-
-#include <pmath-util/helpers.h>
-#include <pmath-util/messages.h>
-
-#include <pmath-core/objects-private.h>
-#include <pmath-core/expressions-private.h>
 #include <pmath-core/numbers-private.h>
 
-#include <pmath-builtins/all-symbols.h>
+#include <pmath-util/evaluation.h>
+#include <pmath-util/helpers.h>
+
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/build-expr-private.h>
-#include <pmath-builtins/lists-private.h>
+
 
 static pmath_expr_t find_best(
   pmath_expr_t list,  // will be freed

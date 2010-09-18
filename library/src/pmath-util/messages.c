@@ -1,29 +1,20 @@
+#include <pmath-util/messages.h>
+
 #include <pmath-core/numbers.h>
 #include <pmath-core/symbols.h>
 #include <pmath-util/evaluation.h>
 
-#include <assert.h>
-#include <stdarg.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include <pmath-util/debug.h>
-#include <pmath-util/hashtables-private.h>
-#include <pmath-util/helpers.h>
-#include <pmath-util/messages.h>
-#include <pmath-util/symbol-values-private.h>
-
-#include <pmath-util/concurrency/threads.h>
-
-#include <pmath-core/objects-private.h>
 #include <pmath-core/symbols-private.h>
 
+#include <pmath-util/concurrency/atomic-private.h>
+#include <pmath-util/concurrency/threads.h>
+#include <pmath-util/helpers.h>
+#include <pmath-util/symbol-values-private.h>
+
+#include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/control/messages-private.h>
 #include <pmath-builtins/lists-private.h>
-#include <pmath-builtins/all-symbols.h>
-#include <pmath-builtins/all-symbols-private.h>
 
-#include <pmath-util/concurrency/atomic-private.h>
 
 PMATH_API void pmath_message(
   pmath_symbol_t symbol,

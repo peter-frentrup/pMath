@@ -112,7 +112,6 @@ void TextShaper::show_glyph(
       To see the difference, draw something to the glass area of the window (an 
       ARGB32-image surface is used there) with and without this workaround.
    */
-    //static const uint16_t InvisibleGlyph = 1; // = ".null", does not work for AsanaMath
     static cairo_font_face_t *prev_font = NULL;
     if(prev_font != ff.cairo()){
       prev_font = ff.cairo();

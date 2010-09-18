@@ -1,16 +1,9 @@
-#include <pmath-core/symbols.h>
-#include <pmath-util/evaluation.h>
-
-#include <assert.h>
-#include <string.h>
-
-#include <pmath-util/messages.h>
-
-#include <pmath-core/objects-private.h>
 #include <pmath-core/expressions-private.h>
 
-#include <pmath-builtins/all-symbols.h>
+#include <pmath-util/evaluation.h>
+
 #include <pmath-builtins/all-symbols-private.h>
+
 
 PMATH_PRIVATE pmath_t builtin_and(pmath_expr_t expr){
   pmath_bool_t have_null = FALSE;

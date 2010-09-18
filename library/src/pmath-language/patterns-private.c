@@ -1,26 +1,18 @@
-#include <pmath-core/symbols.h>
+#include <pmath-language/patterns-private.h>
+
+#include <pmath-util/debug.h>
+#include <pmath-util/helpers.h>
 #include <pmath-util/evaluation.h>
 #include <pmath-util/memory.h>
 
-#include <assert.h>
-#include <inttypes.h>
-#include <string.h>
-
-#include <pmath-util/debug.h>
-#include <pmath-util/hashtables-private.h>
-#include <pmath-util/helpers.h>
-#include <pmath-util/messages.h>
-
 #include <pmath-util/concurrency/threads.h>
 
-#include <pmath-core/objects-private.h>
-#include <pmath-core/symbols-private.h>
-
-#include <pmath-builtins/all-symbols.h>
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/lists-private.h>
 
-#include <pmath-language/patterns-private.h>
+#include <inttypes.h>
+#include <string.h>
+
 
 #define MAGIC_PATTERN_FOUND     ((void*)1)
 #define MAGIC_PATTERN_SEQUENCE  ((void*)2)

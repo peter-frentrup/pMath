@@ -251,7 +251,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_open_tmp(
 PMATH_PRIVATE const char *_pmath_native_encoding = "ISO-8859-1";
 PMATH_PRIVATE pmath_bool_t _pmath_native_encoding_is_utf8 = FALSE;
 
-PMATH_PRIVATE void _init_pmath_native_encoding(){
+PMATH_PRIVATE void _init_pmath_native_encoding(void){
   iconv_t cd;
   
   #ifdef PMATH_OS_WIN32

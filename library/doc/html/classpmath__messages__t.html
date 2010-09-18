@@ -45,15 +45,18 @@ Inherits <a class="el" href="classpmath__custom__t.html">pmath_custom_t</a>.
 <tr><td class="memItemLeft" nowrap align="right" valign="top">PMATH_API void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__threadmsg.html#gce6da6e34b0aeab35094ddccdd9a3e55">pmath_thread_sleep</a> (void)</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Send the current thread to sleep.  <a href="group__threadmsg.html#gce6da6e34b0aeab35094ddccdd9a3e55"></a><br></td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">PMATH_API void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__threadmsg.html#g199f3dc07d4b89174e641fa4b0b757db">pmath_thread_sleep_timeout</a> (double abs_timeout)</td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Send the current thread to sleep.  <a href="group__threadmsg.html#g199f3dc07d4b89174e641fa4b0b757db"></a><br></td></tr>
 <tr><td class="memItemLeft" nowrap align="right" valign="top">PMATH_API void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__threadmsg.html#gbf90d49f5c42ccaa736ae5e56af6a4a6">pmath_thread_wakeup</a> (<a class="el" href="classpmath__messages__t.html">pmath_messages_t</a> mq)</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Wake up another thread.  <a href="group__threadmsg.html#gbf90d49f5c42ccaa736ae5e56af6a4a6"></a><br></td></tr>
 <tr><td class="memItemLeft" nowrap align="right" valign="top">PMATH_API void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__threadmsg.html#ga3867a708fb07b86e017e8f201ef7edd">pmath_thread_send</a> (<a class="el" href="classpmath__messages__t.html">pmath_messages_t</a> mq, <a class="el" href="classpmath__t.html">pmath_t</a> msg)</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Asynchronously send a message to another thread.  <a href="group__threadmsg.html#ga3867a708fb07b86e017e8f201ef7edd"></a><br></td></tr>
-<tr><td class="memItemLeft" nowrap align="right" valign="top">PMATH_API <a class="el" href="classpmath__t.html">pmath_t</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__threadmsg.html#g0466f7731e5e7cc3c4361f9512795a1c">pmath_thread_send_wait</a> (<a class="el" href="classpmath__messages__t.html">pmath_messages_t</a> mq, <a class="el" href="classpmath__t.html">pmath_t</a> msg, double timeout_seconds)</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">PMATH_API <a class="el" href="classpmath__t.html">pmath_t</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__threadmsg.html#g4ce8afcfec001a88441bdf8b50bcd157">pmath_thread_send_wait</a> (<a class="el" href="classpmath__messages__t.html">pmath_messages_t</a> mq, <a class="el" href="classpmath__t.html">pmath_t</a> msg, double timeout_seconds, void(*idle_function)(void *), void *idle_data)</td></tr>
 
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Send a message to another thread and wait for the answer.  <a href="group__threadmsg.html#g0466f7731e5e7cc3c4361f9512795a1c"></a><br></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Send a message to another thread and wait for the answer.  <a href="group__threadmsg.html#g4ce8afcfec001a88441bdf8b50bcd157"></a><br></td></tr>
 <tr><td class="memItemLeft" nowrap align="right" valign="top">PMATH_API void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__threadmsg.html#g75339d9dd1902293cb72b38e77caa742">pmath_thread_send_delayed</a> (<a class="el" href="classpmath__messages__t.html">pmath_messages_t</a> mq, <a class="el" href="classpmath__t.html">pmath_t</a> msg, double seconds)</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Asynchronously send a message to a thread sometime in the future.  <a href="group__threadmsg.html#g75339d9dd1902293cb72b38e77caa742"></a><br></td></tr>
@@ -62,7 +65,7 @@ Inherits <a class="el" href="classpmath__custom__t.html">pmath_custom_t</a>.
 A message queue for interthread communication. <hr>The documentation for this class was generated from the following file:<ul>
 <li>pmath-util/concurrency/threadmsg.h</ul>
 </div>
-<hr size="1"><address style="text-align: right;"><small>Generated on Sun Apr 18 19:34:50 2010 for pMath by&nbsp;
+<hr size="1"><address style="text-align: right;"><small>Generated on Sat Sep 18 18:13:04 2010 for pMath by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.5.9 </small></address>
 </body>

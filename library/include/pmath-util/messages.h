@@ -92,6 +92,6 @@ void pmath_message_syntax_error(
   pmath_string_t  filename,
   int             lines_before_code);
 
-/*@}*/
+/** @} */
 
 #endif /* __PMATH_UTIL__MESSAGES_H__ */

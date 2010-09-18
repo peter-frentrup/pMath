@@ -70,6 +70,29 @@ while(!pmath_aborting() && some_wait_condition){
 PMATH_API
 void pmath_thread_sleep(void);
 
+/**\brief Send the current thread to sleep.
+   \relates pmath_thread_t
+   \relates pmath_messages_t
+   \param abs_timeout Timeout in seconds since January 1, 1970 (UTC).
+   
+   The thread will fall asleep until 
+   - it receives a message or 
+   - it is waken up with pmath_thread_wakeup() or 
+   - an abort-condition (pmath_abort_please() or pmath_throw()) is met \em 
+     anywhere in the system or
+   - \arg abs_timeout is passed.
+   
+   \see pmath_thread_sleep, pmath_tickcount
+ */
+PMATH_API
+void pmath_thread_sleep_timeout(double abs_timeout);
+
+/**\brief Gives the seconds since January 1, 1970 (UTC)
+   \return The number of seconds since January 1, 1970 (UTC)
+ */
+PMATH_API
+double pmath_tickcount(void);
+
 /**\brief Wake up another thread.
    \relates pmath_thread_t
    \relates pmath_messages_t
@@ -156,6 +179,6 @@ void pmath_thread_send_delayed(
   pmath_t          msg,
   double           seconds);
 
-/*@}*/
+/** @} */
 
 #endif /* __PMATH_UTIL__CONCURRENCY__THREADMSG_H__ */

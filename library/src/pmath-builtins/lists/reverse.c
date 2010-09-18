@@ -1,15 +1,10 @@
-#include <pmath-core/expressions.h>
 #include <pmath-core/numbers.h>
-#include <pmath-core/symbols.h>
-
-#include <assert.h>
-#include <string.h>
 
 #include <pmath-util/messages.h>
 
-#include <pmath-builtins/lists-private.h>
-#include <pmath-builtins/all-symbols.h>
 #include <pmath-builtins/all-symbols-private.h>
+#include <pmath-builtins/lists-private.h>
+
 
 struct reverse_info_t{
   long levelmin;

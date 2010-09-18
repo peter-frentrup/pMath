@@ -577,7 +577,7 @@ static bool cmd_document_apply(Expr cmd){
 
 //} ... menu commands
 
-static pmath_symbol_t fe_symbols[2];
+static pmath_symbol_t fe_symbols[FrontEndSymbolsCount];
 
 bool richmath::init_bindings(){
   #define BIND_DOWN(SYMBOL, FUNC)  pmath_register_code(SYMBOL, FUNC, PMATH_CODE_USAGE_DOWNCALL)
@@ -642,7 +642,7 @@ bool richmath::init_bindings(){
   return true;
   
  FAIL_SYMBOLS:
-  for(size_t i = 0;i <= sizeof(fe_symbols) / sizeof(fe_symbols[0]);++i)
+  for(size_t i = 0;i < FrontEndSymbolsCount;++i)
     pmath_unref(fe_symbols[i]);
     
   memset(fe_symbols, 0, sizeof(fe_symbols));
@@ -650,14 +650,14 @@ bool richmath::init_bindings(){
 }
 
 void richmath::done_bindings(){
-  for(size_t i = 0;i <= sizeof(fe_symbols) / sizeof(fe_symbols[0]);++i)
+  for(size_t i = 0;i < FrontEndSymbolsCount;++i)
     pmath_unref(fe_symbols[i]);
   
   memset(fe_symbols, 0, sizeof(fe_symbols));
 }
 
 pmath_symbol_t richmath::GetSymbol(FrontEndSymbolIndex i){
-  if((size_t)i >= sizeof(fe_symbols) / sizeof(fe_symbols[0]))
+  if((size_t)i >= (size_t)FrontEndSymbolsCount)
     return NULL;
   
   return fe_symbols[(size_t)i];

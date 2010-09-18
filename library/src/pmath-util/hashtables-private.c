@@ -1,12 +1,9 @@
-#include <pmath-core/objects-inline.h>
-#include <pmath-util/memory.h>
-
-#include <assert.h>
-#include <math.h>
-#include <string.h>
+#include <pmath-util/hashtables-private.h>
 
 #include <pmath-util/debug.h>
-#include <pmath-util/hashtables-private.h>
+#include <pmath-util/memory.h>
+
+#include <string.h>
 
 
 #define HT_MINSIZE   (8)  /* power of 2, >= 2 */

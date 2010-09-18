@@ -1,16 +1,9 @@
-#include <pmath-core/expressions.h>
-#include <pmath-core/symbols.h>
-
-#include <string.h>
-#include <assert.h>
+#include <pmath-language/scanner.h>
 
 #include <pmath-util/messages.h>
 
-#include <pmath-builtins/control-private.h>
-#include <pmath-builtins/all-symbols.h>
 #include <pmath-builtins/all-symbols-private.h>
 
-#include <pmath-language/scanner.h>
 
 static void syntax_error(pmath_string_t code, int pos, void *flag, pmath_bool_t critical){
   if(critical)

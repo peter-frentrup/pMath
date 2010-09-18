@@ -85,6 +85,6 @@ pmath_bool_t pmath_custom_has_destructor(
   pmath_custom_t         custom, 
   pmath_callback_t  dtor);
 
-/*@}*/
+/** @} */
 
 #endif /* __PMATH_CORE__CUSTOM_H__ */

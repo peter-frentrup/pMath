@@ -1,22 +1,13 @@
 #include <pmath-core/numbers.h>
-#include <pmath-core/symbols.h>
+
+#include <pmath-util/concurrency/threads.h>
 #include <pmath-util/evaluation.h>
-
-#include <assert.h>
-#include <string.h>
-
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
 
-#include <pmath-util/concurrency/threads.h>
-
-#include <pmath-core/numbers-private.h>
-
-#include <pmath-builtins/all-symbols.h>
-#include <pmath-builtins/lists-private.h>
 #include <pmath-builtins/all-symbols-private.h>
+#include <pmath-builtins/lists-private.h>
 
-//PMATH_PRIVATE pmath_t builtin_rangearray(pmath_expr_t expr);
 
 PMATH_PRIVATE 
 pmath_symbol_t _pmath_topmost_symbol(pmath_t obj){ // obj wont be freed

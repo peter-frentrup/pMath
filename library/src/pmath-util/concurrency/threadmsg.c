@@ -1,4 +1,5 @@
 #include <pmath-util/concurrency/atomic-private.h>
+#include <pmath-util/concurrency/event-private.h>
 #include <pmath-util/concurrency/threadpool-private.h>
 #include <pmath-util/concurrency/threads-private.h>
 #include <pmath-util/evaluation.h>
@@ -10,43 +11,16 @@
 #include <math.h>
 #include <string.h>
 
-/* TODO: use auto-reset events instead of semaphores?
- */
-#ifdef PMATH_OS_WIN32
-  #define NOGDI
-  #define WIN32_LEAN_AND_MEAN
-  #include <windows.h>
-  #include <process.h> // _beginthreadex
-
-  typedef HANDLE sem_t;
-
-  static int sem_init(sem_t *sem, int pshared, unsigned int value){
-    *sem = CreateSemaphore(0, value, 0x7FFFFFFF, 0);
-    return *sem == 0 ? -1 : 0;
-  }
-
-  static int sem_destroy(sem_t *sem){
-    return CloseHandle(*sem) ? 0 : -1;
-  }
-
-  static int sem_wait(sem_t *sem){
-    errno = 0;
-    return WaitForSingleObject(*sem, INFINITE) == WAIT_OBJECT_0 ? 0 : -1;
-  }
-
-  static int sem_post(sem_t *sem){
-    return ReleaseSemaphore(*sem, 1, 0) ? 0 : -1;
-  }
-#else
-  #include <unistd.h>
-  #include <semaphore.h>
-  #include <time.h>
+#ifdef PMATH_OS_UNIX
+  
+  #include <sys/time.h>
+  
 #endif
 
 struct message_t{
   struct message_t *next;
   
-  pmath_t   subject;
+  pmath_t          subject;
   pmath_symbol_t   result_symbol;
   pmath_messages_t sender;
 };
@@ -61,7 +35,7 @@ struct msg_queue_t{
   PMATH_DECLARE_ATOMIC(head_spin);
   PMATH_DECLARE_ATOMIC(tail_spin);
   
-  sem_t sleep_sem;
+  pmath_event_t sleep_event;
   pmath_t _sleep_result; // access with _pmath_object_atomic_[read|write]
   
   pmath_messages_t _child_messages; // access with _pmath_object_atomic_[read|write]
@@ -71,6 +45,10 @@ struct msg_queue_t{
 
 static PMATH_DECLARE_ATOMIC(sleeplist_spin);
 static struct msg_queue_t * volatile sleeplist = NULL;
+
+#ifdef PMATH_OS_WIN32
+  static uint64_t win2unix_epoch;
+#endif
 
 /*============================================================================*/
 
@@ -99,7 +77,7 @@ static void wakeup_msg_queue(struct msg_queue_t *mq_data){
     pmath_atomic_unlock(&sleeplist_spin);
     
     pmath_atomic_barrier();
-    sem_post(&mq_data->sleep_sem);
+    _pmath_event_signal(&mq_data->sleep_event);
     
     child_mq = _pmath_object_atomic_read(&mq_data->_child_messages);
     if(child_mq){
@@ -140,8 +118,39 @@ static void msg_queue_sleep(struct msg_queue_t *mq_data){
   
   pmath_atomic_unlock(&sleeplist_spin);
   
-  while(sem_wait(&mq_data->sleep_sem) == -1 && errno == EINTR)
-    continue;
+  _pmath_event_wait(&mq_data->sleep_event);
+}
+
+// may only be called from the current thread / not reentrant
+static void msg_queue_sleep_timeout(struct msg_queue_t *mq_data, double abs_timeout){
+  struct msg_queue_t *sl;
+  struct msg_queue_t *sl_next;
+  struct msg_queue_t *mq_prev;
+  
+  assert(mq_data != NULL);
+  assert(!mq_data->is_dead);
+  assert(pmath_custom_get_data(pmath_thread_get_current()->message_queue) == mq_data);
+  
+  pmath_atomic_lock(&sleeplist_spin);
+  
+  sl = sleeplist;
+  if(sl){
+    sl_next = sl->next;
+    mq_prev = mq_data->prev;
+    
+    sl_next->prev = mq_prev;
+    mq_prev->next = sl_next;
+    
+    sl->next = mq_data;
+    mq_data->prev = sl;
+  }
+  else{
+    sleeplist = mq_data;
+  }
+  
+  pmath_atomic_unlock(&sleeplist_spin);
+  
+  _pmath_event_timedwait(&mq_data->sleep_event, abs_timeout);
 }
 
 PMATH_PRIVATE
@@ -171,7 +180,7 @@ void _pmath_msq_queue_awake_all(void){
     pmath_atomic_unlock(&sleeplist_spin);
     
     if(sl){
-      sem_post(&sl->sleep_sem);
+      _pmath_event_signal(&sl->sleep_event);
     }
     else break;
   }
@@ -218,7 +227,7 @@ static void destroy_msg_queue(void *mq_data){
   }
   destroy_msg(mq->tail);
   
-  sem_destroy(&mq->sleep_sem);
+  _pmath_event_destroy(&mq->sleep_event);
   _pmath_object_atomic_write(&mq->_sleep_result, NULL);
   
   pmath_mem_free(mq);
@@ -306,7 +315,7 @@ pmath_messages_t _pmath_msg_queue_create(void){
   memset(dummy_msg, 0, sizeof(struct message_t));
   
   memset(mq, 0, sizeof(struct msg_queue_t));
-  if(sem_init(&mq->sleep_sem, 0, 0) != 0){
+  if(!_pmath_event_init(&mq->sleep_event)){
     pmath_mem_free(mq);
     pmath_mem_free(dummy_msg);
     return NULL;
@@ -436,6 +445,38 @@ void pmath_thread_sleep(void){
 }
 
 PMATH_API
+void pmath_thread_sleep_timeout(double abs_timeout){
+  struct msg_queue_t *mq_data;
+  pmath_thread_t me = pmath_thread_get_current();
+  
+  if(!me || !me->message_queue)
+    return;
+  
+  mq_data = pmath_custom_get_data(me->message_queue);
+  assert(mq_data != NULL);
+  msg_queue_sleep_timeout(mq_data, abs_timeout);
+  
+  _pmath_msq_queue_handle_next(me);
+}
+
+PMATH_API
+double pmath_tickcount(void){
+  #ifdef PMATH_OS_WIN32
+  {
+    uint64_t ft;
+    GetSystemTimeAsFileTime((FILETIME*)&ft);
+    return (ft - win2unix_epoch) * 1e-7;
+  }
+  #else
+  {
+    struct timeval tv;
+    gettimeofday(&tv, NULL); // too slow?
+    return (double)tv.tv_sec + tv.tv_usec * 1e-6;
+  }
+  #endif
+}
+
+PMATH_API
 void pmath_thread_wakeup(pmath_messages_t mq){
   if(pmath_instance_of(mq, PMATH_TYPE_CUSTOM)
   && pmath_custom_has_destructor(mq, destroy_msg_queue)){
@@ -482,7 +523,7 @@ pmath_t pmath_thread_send_wait(
   pmath_t              answer;
   pmath_t              interrupt;
   pmath_symbol_t       result_symbol;
-  pmath_symbol_t       timeout_guard;
+  double               end_time;
   
   answer = PMATH_UNDEFINED;
   me = pmath_thread_get_current();
@@ -504,26 +545,9 @@ pmath_t pmath_thread_send_wait(
     
     result_symbol = pmath_symbol_create_temporary(PMATH_C_STRING("Internal`sendWait"), TRUE);
     
-    if(timeout_seconds > 0 && timeout_seconds < HUGE_VAL){
-      timeout_guard = pmath_symbol_create_temporary(
-        PMATH_C_STRING("System`TimeConstrained`stop"), TRUE);
-      
-      pmath_symbol_set_value(timeout_guard, 
-        pmath_expr_new_extended(
-          pmath_ref(PMATH_SYMBOL_THROW), 1,
-          pmath_expr_new_extended(
-            pmath_ref(PMATH_SYMBOL_UNEVALUATED), 1,
-            pmath_ref(timeout_guard))));
-      
-      if(timeout_guard){
-        pmath_thread_send_delayed(
-          me->message_queue, 
-          pmath_ref(timeout_guard), 
-          timeout_seconds);
-      }
-    }
-    else
-      timeout_guard = NULL;
+    msg = pmath_expr_new_extended(
+      pmath_ref(PMATH_SYMBOL_CATCH), 1,
+      msg);
     
     interrupt = pmath_expr_new_extended(
       pmath_ref(PMATH_SYMBOL_THROW), 1,
@@ -532,6 +556,8 @@ pmath_t pmath_thread_send_wait(
         pmath_ref(result_symbol)));
         
     pmath_symbol_set_value(result_symbol, pmath_ref(interrupt));
+    
+    end_time = pmath_tickcount() + timeout_seconds;
     
     memset(msg_struct, 0, sizeof(struct message_t));
     msg_struct->subject = msg;
@@ -542,8 +568,8 @@ pmath_t pmath_thread_send_wait(
     my_mq_data = pmath_custom_get_data(me->message_queue);
     assert(my_mq_data != NULL);
     
-    while(!pmath_thread_aborting(me)){
-      msg_queue_sleep(my_mq_data);
+    while(!pmath_thread_aborting(me) && pmath_tickcount() < end_time){
+      msg_queue_sleep_timeout(my_mq_data, end_time);
       
       pmath_unref(answer);
       answer = pmath_symbol_get_value(result_symbol);
@@ -555,7 +581,7 @@ pmath_t pmath_thread_send_wait(
         idle_function(idle_data);
     }
     
-    if(pmath_thread_aborting(me)){
+    if(pmath_thread_aborting(me) || pmath_tickcount() >= end_time){
       /* If the evaluation did not already end, result_symbol still holds 
          `interrupt` which is Throw(...). Sending result_symbol then causes the
          evalutation to stop.
@@ -573,22 +599,6 @@ pmath_t pmath_thread_send_wait(
     }
     
     pmath_unref(interrupt);
-    
-    if(timeout_guard){
-      pmath_symbol_set_value(timeout_guard, PMATH_UNDEFINED);
-      
-      interrupt = pmath_catch();
-      if(interrupt == timeout_guard){
-        pmath_unref(interrupt);
-        pmath_unref(answer);
-        answer = PMATH_UNDEFINED;
-      }
-      else if(interrupt != PMATH_UNDEFINED)
-        pmath_throw(interrupt);
-      
-      pmath_unref(timeout_guard);
-    }
-    
     pmath_unref(result_symbol);
   }
   else
@@ -620,7 +630,29 @@ void pmath_thread_send_delayed(
   memset(timed_msg, 0, sizeof(struct _pmath_timed_message_t));
   timed_msg->message_queue = pmath_ref(mq);
   timed_msg->subject = msg;
-  timed_msg->absolute_time = _pmath_tickcount() + seconds;
+  timed_msg->absolute_time = pmath_tickcount() + seconds;
   
   _pmath_register_timed_msg(timed_msg);
 }
+
+PMATH_PRIVATE pmath_bool_t _pmath_threadmsg_init(void){
+  #ifdef PMATH_OS_WIN32
+  {
+    SYSTEMTIME unix_epoch;
+    memset(&unix_epoch, 0, sizeof(unix_epoch));
+    unix_epoch.wYear  = 1970;
+    unix_epoch.wMonth = 1;
+    unix_epoch.wDay   = 1;
+    
+    win2unix_epoch = 0;
+    SystemTimeToFileTime(&unix_epoch, (FILETIME*)&win2unix_epoch);
+  }
+  #endif
+  
+  return TRUE;
+}
+
+PMATH_PRIVATE void _pmath_threadmsg_done(void){
+  
+}
+

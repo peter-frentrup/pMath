@@ -1,14 +1,9 @@
-#include <pmath-core/symbols.h>
 #include <pmath-util/evaluation.h>
-
-#include <string.h>
-#include <assert.h>
-
 #include <pmath-util/messages.h>
 
-#include <pmath-builtins/control/flow-private.h>
-#include <pmath-builtins/all-symbols.h>
 #include <pmath-builtins/all-symbols-private.h>
+#include <pmath-builtins/control/flow-private.h>
+
 
 typedef struct{
   pmath_t      body;

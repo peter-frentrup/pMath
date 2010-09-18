@@ -1,22 +1,15 @@
-#include <pmath-core/expressions.h>
 #include <pmath-core/numbers.h>
-#include <pmath-core/symbols.h>
 
-#include <assert.h>
-#include <string.h>
-
-#include <pmath-util/messages.h>
-
-#include <pmath-core/numbers-private.h>
-
-#include <pmath-builtins/all-symbols.h>
 #include <pmath-builtins/all-symbols-private.h>
 
 #if PMATH_USE_PTHREAD
+  #include <pmath-core/numbers-private.h>
+  
   #include <pthread.h>
 #elif PMATH_USE_WINDOWS_THREADS
   #include <windows.h>
 #endif
+
 
 PMATH_PRIVATE pmath_t builtin_getthreadid(pmath_expr_t expr){
   pmath_unref(expr);

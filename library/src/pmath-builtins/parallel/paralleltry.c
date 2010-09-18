@@ -1,32 +1,15 @@
+#include <pmath-core/expressions-private.h>
 #include <pmath-core/numbers.h>
-#include <pmath-core/symbols.h>
+
 #include <pmath-util/evaluation.h>
 #include <pmath-util/memory.h>
-
-#include <assert.h>
-#include <string.h>
-
-#include <pmath-core/custom.h>
-
-#include <pmath-util/hashtables-private.h>
-#include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
 
-#include <pmath-util/concurrency/threadlocks.h>
-#include <pmath-util/concurrency/threadmsg.h>
-#include <pmath-util/concurrency/threads.h>
 #include <pmath-util/concurrency/threads-private.h>
-#include <pmath-util/concurrency/threadpool.h>
 #include <pmath-util/concurrency/threadpool-private.h>
 
-#include <pmath-core/objects-private.h>
-#include <pmath-core/expressions-private.h>
-
-#include <pmath-builtins/control/flow-private.h>
-#include <pmath-builtins/lists-private.h>
-#include <pmath-builtins/parallel-private.h>
-#include <pmath-builtins/all-symbols.h>
 #include <pmath-builtins/all-symbols-private.h>
+
 
 struct parallel_try_info_t{
   pmath_thread_t parent;

@@ -1,19 +1,9 @@
-#include <pmath-core/expressions.h>
 #include <pmath-core/numbers.h>
-#include <pmath-core/symbols.h>
-
-#include <assert.h>
-#include <string.h>
 
 #include <pmath-util/messages.h>
 
-#include <pmath-util/concurrency/threads.h>
-
-#include <pmath-core/strings-private.h>
-
-#include <pmath-builtins/lists-private.h>
-#include <pmath-builtins/all-symbols.h>
 #include <pmath-builtins/all-symbols-private.h>
+
 
 PMATH_PRIVATE pmath_expr_t _pmath_expr_prepend(
   pmath_expr_t expr,  // will be freed

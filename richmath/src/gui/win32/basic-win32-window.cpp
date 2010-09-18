@@ -158,11 +158,6 @@ void BasicWin32Window::get_glassfree_rect(RECT *rect){
 }
 
 void BasicWin32Window::get_nc_margins(Win32Themes::MARGINS *margins){
-  if(!_themed_frame){
-    memset(margins, 0, sizeof(Win32Themes::MARGINS));
-    return;
-  }
-  
   DWORD style    = GetWindowLongW(_hwnd, GWL_STYLE);
   DWORD ex_style = GetWindowLongW(_hwnd, GWL_EXSTYLE);
   
@@ -615,7 +610,7 @@ void BasicWin32Window::on_sizing(WPARAM wParam, RECT *lParam){
   if(lParam->right - lParam->left < minw){
     if(wParam == WMSZ_LEFT
     || wParam == WMSZ_TOPLEFT
-    || wParam == WMSZ_TOPRIGHT)
+    || wParam == WMSZ_BOTTOMLEFT)
       lParam->left = lParam->right - minw;
     else
       lParam->right = lParam->left + minw;
@@ -626,7 +621,7 @@ void BasicWin32Window::on_sizing(WPARAM wParam, RECT *lParam){
   if(lParam->right - lParam->left > maxw && max_client_width > 0){
     if(wParam == WMSZ_LEFT
     || wParam == WMSZ_TOPLEFT
-    || wParam == WMSZ_TOPRIGHT)
+    || wParam == WMSZ_BOTTOMLEFT)
       lParam->left = lParam->right - maxw;
     else
       lParam->right = lParam->left + maxw;
@@ -936,7 +931,9 @@ void BasicWin32Window::extend_glass(Win32Themes::MARGINS *margins){
   
   if(Win32Themes::DwmExtendFrameIntoClientArea){
     Win32Themes::MARGINS nc;
-    get_nc_margins(&nc);
+    memset(&nc, 0, sizeof(nc));
+    if(_themed_frame)
+      get_nc_margins(&nc);
     
     nc.cxLeftWidth+=    margins->cxLeftWidth;
     nc.cxRightWidth+=   margins->cxRightWidth;

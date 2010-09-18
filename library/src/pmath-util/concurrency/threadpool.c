@@ -1,38 +1,21 @@
-#include <pmath-core/symbols.h>
-#include <pmath-util/memory.h>
-#include <pmath-util/stacks-private.h>
-
-#include <assert.h>
-#include <errno.h>
-#include <inttypes.h>
-#include <math.h>
-#include <string.h>
-#include <stdio.h>
-
-#include <pmath-core/custom.h>
-
-#include <pmath-util/debug.h>
-#include <pmath-util/hashtables-private.h>
-#include <pmath-util/helpers.h>
-#include <pmath-util/messages.h>
-#include <pmath-util/symbol-values-private.h>
-
-#include <pmath-util/concurrency/threadlocks.h>
-#include <pmath-util/concurrency/threadmsg.h>
-#include <pmath-util/concurrency/threadmsg-private.h>
-#include <pmath-util/concurrency/threads.h>
-#include <pmath-util/concurrency/threads-private.h>
-#include <pmath-util/concurrency/threadpool.h>
 #include <pmath-util/concurrency/threadpool-private.h>
 
-#include <pmath-private.h>
 #include <pmath-core/objects-private.h>
 #include <pmath-core/symbols-private.h>
 
-#include <pmath-builtins/all-symbols.h>
+#include <pmath-util/concurrency/threadmsg-private.h>
+#include <pmath-util/concurrency/threads-private.h>
+#include <pmath-util/debug.h>
+#include <pmath-util/memory.h>
+#include <pmath-util/messages.h>
+#include <pmath-util/stacks-private.h>
+#include <pmath-util/symbol-values-private.h>
+
 #include <pmath-builtins/all-symbols-private.h>
 
-#include <pmath-language/patterns-private.h>
+#include <errno.h>
+#include <math.h>
+
 
 #if PMATH_USE_PTHREAD
   #include <pthread.h>
@@ -65,92 +48,100 @@
     return ReleaseSemaphore(*sem, 1, 0) ? 0 : -1;
   }
 
-#elif defined(__APPLE__)
-/* Mac OS X has no sem_timedwait. We use pthread_mutex_t with pthread_cond_t 
-   instead. See Firebird: src/common/classes/semaphore.h for the idea.
- */
-  
-  typedef struct{
-    pthread_mutex_t mutex;
-    pthread_cond_t  cond;
-  } sem_t;
-  
-  static int sem_init(sem_t *sem, int pshared, unsigned int value){
-    int err;
-    
-    err = pthread_mutex_init(&sem->mutex, NULL);
-    if(err)
-      return -1;
-    
-    err = pthread_cond_init(&sem->cond, NULL);
-    return err ? -1 : 0;
-  }
-
-  static int sem_destroy(sem_t *sem){
-    int err;
-    
-    err = pthread_mutex_destroy(&sem->mutex);
-    if(err)
-      return -1;
-    
-    err = pthread_cond_destroy(&sem->cond);
-    return err ? -1 : 0;
-  }
-
-  static int sem_wait(sem_t *sem){
-    int err;
-    errno = 0;
-    
-    err = pthread_mutex_lock(&sem->mutex);
-    if(err)
-      return -1;
-    
-    do{
-      err = pthread_cond_wait(&sem->cond, &sem->mutex);
-    }while(err == EINTR);
-    
-    pthread_mutex_unlock(&sem->mutex);
-    
-    errno = 0;
-    return 0;
-  }
-
-  static int sem_timedwait(sem_t *sem, const struct timespec *abs_timeout){
-    int err;
-    errno = 0;
-    
-    err = pthread_mutex_lock(&sem->mutex);
-    if(err)
-      return -1;
-    
-    do{
-      err = pthread_cond_timedwait(&sem->cond, &sem->mutex, abs_timeout);
-    }while(err == EINTR);
-    
-    pthread_mutex_unlock(&sem->mutex);
-    
-    errno = 0;
-    return 0;
-  }
-  
-  static int sem_post(sem_t *sem){
-    int err;
-    errno = 0;
-    
-    err = pthread_mutex_lock(&sem->mutex);
-    if(err)
-      return -1;
-    
-    err = pthread_cond_broadcast(&sem->cond);
-    
-    pthread_mutex_unlock(&sem->mutex);
-    return err ? -1 : 0;
-  }
-  
 #else
-  #include <unistd.h>
-  #include <semaphore.h>
-  #include <time.h>
+
+  #include <stdio.h>
+  #include <string.h>
+  
+  #ifdef __APPLE__
+  /* Mac OS X has no sem_timedwait. We use pthread_mutex_t with pthread_cond_t 
+     instead. See Firebird: src/common/classes/semaphore.h for the idea.
+   */
+    
+    typedef struct{
+      pthread_mutex_t mutex;
+      pthread_cond_t  cond;
+    } sem_t;
+    
+    static int sem_init(sem_t *sem, int pshared, unsigned int value){
+      int err;
+      
+      err = pthread_mutex_init(&sem->mutex, NULL);
+      if(err)
+        return -1;
+      
+      err = pthread_cond_init(&sem->cond, NULL);
+      return err ? -1 : 0;
+    }
+
+    static int sem_destroy(sem_t *sem){
+      int err;
+      
+      err = pthread_mutex_destroy(&sem->mutex);
+      if(err)
+        return -1;
+      
+      err = pthread_cond_destroy(&sem->cond);
+      return err ? -1 : 0;
+    }
+
+    static int sem_wait(sem_t *sem){
+      int err;
+      errno = 0;
+      
+      err = pthread_mutex_lock(&sem->mutex);
+      if(err)
+        return -1;
+      
+      do{
+        err = pthread_cond_wait(&sem->cond, &sem->mutex);
+      }while(err == EINTR);
+      
+      pthread_mutex_unlock(&sem->mutex);
+      
+      errno = 0;
+      return 0;
+    }
+
+    static int sem_timedwait(sem_t *sem, const struct timespec *abs_timeout){
+      int err;
+      errno = 0;
+      
+      err = pthread_mutex_lock(&sem->mutex);
+      if(err)
+        return -1;
+      
+      do{
+        err = pthread_cond_timedwait(&sem->cond, &sem->mutex, abs_timeout);
+      }while(err == EINTR);
+      
+      pthread_mutex_unlock(&sem->mutex);
+      
+      errno = 0;
+      return 0;
+    }
+    
+    static int sem_post(sem_t *sem){
+      int err;
+      errno = 0;
+      
+      err = pthread_mutex_lock(&sem->mutex);
+      if(err)
+        return -1;
+      
+      err = pthread_cond_broadcast(&sem->cond);
+      
+      pthread_mutex_unlock(&sem->mutex);
+      return err ? -1 : 0;
+    }
+    
+  #else
+
+    #include <semaphore.h>
+    #include <time.h>
+    #include <unistd.h>
+    
+  #endif
 #endif
 
 struct _pmath_task_t{
@@ -250,7 +241,6 @@ PMATH_API
 void pmath_task_unref(pmath_task_t task){
   if(PMATH_LIKELY(task)
   && 1 == pmath_atomic_fetch_add(&task->refcount, -1)){
-//    printf("delete task %p (status: %d)\n", task, task->status);
     task->destroy(task->data);
     _pmath_thread_free(task->thread);
     sem_destroy(&task->done);
@@ -343,7 +333,6 @@ void pmath_task_wait(pmath_task_t task){
     }
 
     if(status == TASK_IDLE){
-  //    printf("wait-run %p\n", (int)task);
       run_task(task);
     }
 
@@ -365,7 +354,6 @@ void pmath_task_abort(pmath_task_t task){
         child,
         PMATH_ABORT_EXCEPTION);
         
-      // ...._pmath_msq_queue_set_child();
       if(child){
         me = pmath_thread_get_current();
         _pmath_msq_queue_set_child(me, child);
@@ -506,13 +494,6 @@ PMATH_PRIVATE void _pmath_threadpool_kill_daemons(void){
   
   all = (struct daemon_t*)pmath_atomic_fetch_set((intptr_t*)&all_daemons, 0);
   while(all){
-//  pmath_atomic_lock(&daemon_spin);
-//  {
-//    all = all_daemons;
-//    all_daemons = NULL;
-//  }
-//  pmath_atomic_unlock(&daemon_spin);
-  
     daemon = all;
     do{
       if(daemon->kill)
@@ -598,7 +579,7 @@ pmath_messages_t pmath_thread_fork_daemon(
       NULL,     // default security
       0,        // default stack size
       daemon_proc,
-      daemon,     // argument
+      daemon,   // argument
       0,        // running
       NULL);    // do not need thread id
     
@@ -796,8 +777,6 @@ static void run_gc(void){
              by temp. symbols and so was visited by the gc in the previous loop.
            */
           if(all_visited){
-//            pmath_debug_print_object("[collect: ", sym, "]");
-            
             pmath_symbol_set_attributes(sym, PMATH_SYMBOL_ATTRIBUTE_TEMPORARY);
             _pmath_symbol_set_global_value(sym, PMATH_UNDEFINED);
             
@@ -812,10 +791,6 @@ static void run_gc(void){
             pmath_register_code(sym, NULL, PMATH_CODE_USAGE_SUBCALL);
           }
         }
-        
-//        if(!all_visited){
-//          pmath_debug_print_object("[no collect: ", sym, "]");
-//        }
       }
     }
     
@@ -867,15 +842,10 @@ static THREAD_PROC(timer_thread_proc, dummy){
     SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_IDLE);
   #endif
   
-  now = _pmath_tickcount();
+  now = pmath_tickcount();
   last_gc_time = now;
   next_event = last_gc_time + GC_WAIT_SEC;
   while(!stop_threadpool){
-//    
-//    if(noop){
-//      pmath_debug_print("[..noop]");
-//    }
-    
     #ifdef PMATH_OS_WIN32
     {
       DWORD rel;
@@ -884,7 +854,6 @@ static THREAD_PROC(timer_thread_proc, dummy){
       if((int)rel < 0)
         rel = 0;
         
-//      pmath_debug_print("[t:%dms]",(int)rel);
       WaitForSingleObject(timer_thread_sem, rel);
     }
     #else
@@ -894,10 +863,6 @@ static THREAD_PROC(timer_thread_proc, dummy){
       ts.tv_sec  = (time_t)next_event;
       ts.tv_nsec = (long)fmod(next_event * 1e9, 1e9);
       
-//      pmath_debug_print("[t:%ds+%dns]",(int)ts.tv_sec, (int)ts.tv_nsec);
-//      clock_gettime(CLOCK_REALTIME, &ts);
-//      ts.tv_sec+= GC_WAIT_SEC;
-
       while(sem_timedwait(&timer_thread_sem, &ts) == -1 && errno == EINTR)
         continue;
     }
@@ -925,7 +890,7 @@ static THREAD_PROC(timer_thread_proc, dummy){
       noop = FALSE;
     }
     
-    now = _pmath_tickcount() + 0.001;
+    now = pmath_tickcount() + 0.001;
     while(sorted_msgs){
       msg = sorted_msgs;
       

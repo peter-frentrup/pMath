@@ -41,6 +41,7 @@ namespace richmath{
         bool (*test)(Expr cmd) = 0);
       
       static void init();
+      static void doevents();
       static int run();
       static void done();
       

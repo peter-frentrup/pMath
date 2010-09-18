@@ -1,52 +1,56 @@
 #include <pmath-util/memory.h>
-#include <pmath-core/numbers.h>
-#include <pmath-core/symbols.h>
 
-#include <assert.h>
-#include <inttypes.h>
-#include <stdio.h>
-#include <string.h>
-
-#include <pmath-util/concurrency/threadlocks.h>
-#include <pmath-util/concurrency/threadlocks-private.h>
-#include <pmath-util/concurrency/threads.h>
-#include <pmath-util/debug.h>
-#include <pmath-util/hashtables-private.h>
-
-#include <pmath-language/regex-private.h>
-
-#include <pmath-core/objects-private.h>
 #include <pmath-core/numbers-private.h>
 #include <pmath-core/symbols-private.h>
 
+#include <pmath-language/regex-private.h>
+
+#include <pmath-util/concurrency/threadlocks-private.h>
+#include <pmath-util/concurrency/threads.h>
+#include <pmath-util/debug.h>
+
+#include <stdio.h>
+#include <string.h>
+
+
 #ifdef PMATH_USE_DLMALLOC
+
   #include <pmath-util/dlmalloc.h>
+
 #else
+
   #include <malloc.h>
+
 #endif
 
 #if defined(PMATH_DEBUG_MEMORY) && PMATH_USE_PTHREAD
+
   #include <pthread.h>
+
 #endif
 
 #ifdef PMATH_OS_WIN32
+
   #ifndef _WIN32_WINNT
     #define _WIN32_WINNT 0x0501 /* Windows XP for HEAP_INFORMATION_CLASS */
   #endif
   #define NOGDI
   #define WIN32_LEAN_AND_MEAN
   #include <windows.h>
+
 #endif
 
 #define round_up_int(x, r) ((((x) + (r) - 1) / (r)) * (r))
 
 #ifdef PMATH_USE_DLMALLOC
+  
   #define memory_allocate(s)      dlmalloc((s))
   #define memory_reallocate(p,s)  dlrealloc((p), (s))
   #define memory_free(p)          dlfree((p))
   #define memory_size(p)          dlmalloc_usable_size((p))
 
   #define init_platform_memory_manager(o) ((void)0)
+
 #elif defined(PMATH_OS_WIN32)
 /* Using Low-fragmentation Heap on Windows (XP, Server 2003 or newer). 
    See http://msdn2.microsoft.com/en-us/library/aa366750.aspx

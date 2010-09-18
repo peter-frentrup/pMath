@@ -1,17 +1,13 @@
 #include <pmath-core/numbers.h>
-#include <pmath-core/symbols.h>
+
 #include <pmath-util/evaluation.h>
-
-#include <assert.h>
-#include <string.h>
-
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
 
-#include <pmath-language/patterns-private.h>
-#include <pmath-builtins/lists-private.h>
-#include <pmath-builtins/all-symbols.h>
 #include <pmath-builtins/all-symbols-private.h>
+#include <pmath-builtins/lists-private.h>
+#include <pmath-language/patterns-private.h>
+
 
 static pmath_bool_t all_nonlists(pmath_expr_t expr, size_t level){
   if(level > 0){

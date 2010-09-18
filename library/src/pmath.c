@@ -9,17 +9,6 @@
 #include <pmath.h>
 #include <pmath-private.h>
 
-#include <pmath-util/dynamic-private.h>
-#include <pmath-util/hashtables-private.h>
-#include <pmath-util/modules-private.h>
-#include <pmath-util/symbol-values-private.h>
-
-#include <pmath-util/concurrency/atomic-private.h> // depends on pmath-objects-inline.h
-#include <pmath-util/concurrency/threadlocks-private.h>
-#include <pmath-util/concurrency/threadmsg-private.h>
-#include <pmath-util/concurrency/threadpool-private.h>
-#include <pmath-util/concurrency/threads-private.h>
-
 #include <pmath-core/objects-private.h>
 #include <pmath-core/strings-private.h>
 #include <pmath-core/expressions-private.h>
@@ -27,21 +16,21 @@
 #include <pmath-core/numbers-private.h>
 #include <pmath-core/symbols-private.h>
 
-#include <pmath-builtins/arithmetic-private.h>
-#include <pmath-builtins/control/definitions-private.h>
-#include <pmath-builtins/control/flow-private.h>
-#include <pmath-builtins/control/messages-private.h>
-#include <pmath-builtins/control-private.h>
-#include <pmath-builtins/formating-private.h>
-#include <pmath-builtins/lists-private.h>
-#include <pmath-builtins/logic-private.h>
-#include <pmath-builtins/manipulate-private.h>
-#include <pmath-builtins/number-theory-private.h>
-#include <pmath-builtins/parallel-private.h>
-#include <pmath-builtins/all-symbols-private.h>
-
 #include <pmath-language/patterns-private.h>
 #include <pmath-language/regex-private.h>
+
+#include <pmath-util/concurrency/atomic-private.h>
+#include <pmath-util/concurrency/threadlocks-private.h>
+#include <pmath-util/concurrency/threadmsg-private.h>
+#include <pmath-util/concurrency/threadpool-private.h>
+#include <pmath-util/concurrency/threads-private.h>
+#include <pmath-util/dynamic-private.h>
+#include <pmath-util/hashtables-private.h>
+#include <pmath-util/modules-private.h>
+#include <pmath-util/symbol-values-private.h>
+
+#include <pmath-builtins/all-symbols-private.h>
+#include <pmath-builtins/number-theory-private.h>
 
 #ifdef PMATH_OS_WIN32
   #define NOGDI
@@ -59,6 +48,7 @@
 #if PMATH_USE_PTHREAD
   #include <pthread.h>
 #endif
+
 
 static volatile enum{
   PMATH_STATUS_NONE,
@@ -344,6 +334,7 @@ PMATH_API pmath_bool_t pmath_init(void){
     if(!_pmath_symbol_values_init())          goto FAIL_SYMBOL_VALUES;
     if(!_pmath_symbol_builtins_init())        goto FAIL_BUILTINS;
     if(!_pmath_custom_objects_init())         goto FAIL_CUSTOM;
+    if(!_pmath_threadmsg_init())              goto FAIL_THREADMSG;
     if(!_pmath_threadpool_init())             goto FAIL_THREADPOOL;
     if(!_pmath_regex_init())                  goto FAIL_REGEX;
     if(!_pmath_modules_init())                goto FAIL_MODULES;
@@ -759,7 +750,8 @@ PMATH_API pmath_bool_t pmath_init(void){
    FAIL_DYNAMIC:           _pmath_modules_done();
    FAIL_MODULES:           _pmath_regex_done();
    FAIL_REGEX:             _pmath_threadpool_done();
-   FAIL_THREADPOOL:        _pmath_custom_objects_done();
+   FAIL_THREADPOOL:        _pmath_threadmsg_done();
+   FAIL_THREADMSG:         _pmath_custom_objects_done();
    FAIL_CUSTOM:            _pmath_symbol_builtins_done();
    FAIL_BUILTINS:          _pmath_symbol_values_done();
    FAIL_SYMBOL_VALUES:     _pmath_numeric_done();
@@ -770,9 +762,8 @@ PMATH_API pmath_bool_t pmath_init(void){
    FAIL_STRINGS:           _pmath_objects_done();
    FAIL_OBJECTS:           _pmath_charnames_done();
    FAIL_CHARNAMES:         _pmath_threadlocks_done();
-   FAIL_THREADLOCKS:
-     _pmath_thread_set_current(NULL);
-     _pmath_thread_free(thread);
+   FAIL_THREADLOCKS:       _pmath_thread_set_current(NULL);
+                           _pmath_thread_free(thread);
    FAIL_THIS_THREAD:       _pmath_threads_done();
    FAIL_THREADS:           _pmath_memory_manager_done();
    FAIL_MEMORY_MANAGER:
@@ -842,6 +833,7 @@ PMATH_API void pmath_done(void){
     _pmath_modules_done();
     _pmath_regex_done();
     _pmath_threadpool_done();
+    _pmath_threadmsg_done();
     _pmath_custom_objects_done();
     _pmath_symbol_builtins_done();
     _pmath_symbol_values_done();

@@ -293,6 +293,6 @@ PMATH_API
 PMATH_ATTRIBUTE_PURE
 pmath_bool_t pmath_is_evaluated(pmath_t obj);
 
-/*@}*/
+/** @} */
 
 #endif /* __PMATH_CORE__OBJECTS_H__ */

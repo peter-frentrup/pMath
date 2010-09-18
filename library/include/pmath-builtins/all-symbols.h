@@ -83,7 +83,7 @@ pmath_bool_t pmath_register_approx_code(
   pmath_symbol_t   symbol,
   pmath_t        (*func)(pmath_t, double, double));
 
-/*@}*/
+/** @} */
 
 #ifndef BUILDING_PMATH
   #define PMATH_SYMBOL_BUILTIN(index)  pmath_symbol_builtin((index))

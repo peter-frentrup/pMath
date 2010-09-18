@@ -1,19 +1,10 @@
-#include <pmath-core/expressions.h>
-#include <pmath-core/symbols.h>
-
-#include <assert.h>
-#include <string.h>
+#include <pmath-language/scanner.h>
 
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
 
-#include <pmath-language/scanner.h>
-
-#include <pmath-core/objects-private.h>
-#include <pmath-core/symbols-private.h>
-
-#include <pmath-builtins/all-symbols.h>
 #include <pmath-builtins/all-symbols-private.h>
+
 
 PMATH_PRIVATE pmath_t builtin_names(pmath_expr_t expr){
 /* Names("wildcardstring")

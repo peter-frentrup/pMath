@@ -1,32 +1,26 @@
-#include <pmath-core/expressions.h>
+#include <pmath-core/expressions-private.h>
 #include <pmath-core/numbers.h>
-#include <pmath-core/symbols.h>
-#include <pmath-util/memory.h>
 
-#include <assert.h>
-#include <string.h>
-
-#include <pmath-util/debug.h>
 #include <pmath-util/helpers.h>
+#include <pmath-util/memory.h>
 #include <pmath-util/messages.h>
 
-#include <pmath-core/objects-private.h>
-#include <pmath-core/expressions-private.h>
-
 #include <pmath-builtins/lists-private.h>
-#include <pmath-builtins/all-symbols.h>
 #include <pmath-builtins/all-symbols-private.h>
+
+#include <string.h>
+
 
 #define ceildiv(x, y) (((x) + (y) - 1) / (y))
 
 static pmath_bool_t next(
-  long *in_i,          // all 0-indexed
-  long *out_i,         // all 0-indexed
+  long       *in_i,    // all 0-indexed
+  long       *out_i,   // all 0-indexed
   const long *pad, 
   const long *n,       // all >= 0
   const long *d,       // all >= 0
   const long *blocks,
-  long depth
+  long        depth
 ){
   long k = depth - 1;
   do{

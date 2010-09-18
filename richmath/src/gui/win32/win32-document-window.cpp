@@ -486,7 +486,6 @@ Win32DocumentWindow::Win32DocumentWindow(
   _bottom_glass_area(0),
   menubar(0),
   creation(true),
-  mouse_activated(false),
   _is_palette(false)
 {
   _working_area = new WorkingArea(
@@ -589,16 +588,6 @@ void Win32DocumentWindow::rearrange(){
   
   RECT rect;
   get_client_rect(&rect);
-  
-//  if(_working_area->auto_size){
-//    _bottom_glass_area->size_grip = false;
-//    _bottom_area->size_grip       = false;
-//  }
-//  else{
-//    _bottom_glass_area->size_grip = _bottom_glass_area->height() > 0;
-//    _bottom_area->size_grip       = !_bottom_glass_area->size_grip;
-//  }
-  
   
   #define PARTCOUNT  6
   HWND widgets[PARTCOUNT];
@@ -832,8 +821,9 @@ void Win32DocumentWindow::on_theme_changed(){
     menubar->appearence(MaAllwaysShow);
   
   DWORD style_ex = GetWindowLongW(_working_area->hwnd(), GWL_EXSTYLE);
-  if(Win32Themes::IsCompositionActive
-  && Win32Themes::IsCompositionActive()){
+  if((Win32Themes::IsCompositionActive
+   && Win32Themes::IsCompositionActive())
+  || _is_palette){
     style_ex = style_ex & ~WS_EX_STATICEDGE;
   }
   else{
@@ -880,48 +870,7 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
         }
       } break;
       
-      case WM_MOUSEACTIVATE: {
-        /* When the close button of a palette is clicked directly (while the 
-           palette window is not active), WM_ACTIVATE will be called with 
-           wParam == WA_ACTIVE instead of wParam == WA_CLICKACTIVE, so the 
-           window would not be activated (see WM_ACTIVATE handler below) and 
-           thus not be closed. 
-           We word around this issue by introducing the mouse_activated flag.
-         */
-        mouse_activated = true;
-      } break;
-      
       case WM_ACTIVATE: {
-//        if(_is_palette 
-//        && !mouse_activated
-//        && LOWORD(wParam) == WA_ACTIVE
-//        && IsWindowVisible(_hwnd)){
-//          Document *doc = get_current_document();
-//          if(doc){
-//            Win32Widget *w = dynamic_cast<Win32Widget*>(doc->native());
-//            
-//            if(w){
-//              HWND h = w->hwnd();
-//              HWND p = GetParent(h);
-//              
-//              while(h && p){
-//                h = p;
-//                p = GetParent(h);
-//              }
-//              
-//              if(h){
-//                Win32DocumentWindow *wd = dynamic_cast<Win32DocumentWindow*>(
-//                  BasicWin32Widget::from_hwnd(h));
-//                
-//                if(!wd || !wd->_is_palette)
-//                  SetActiveWindow(h);
-//              }
-//            }
-//          }
-//        }
-        
-        mouse_activated = false;
-        
         if(HIWORD(wParam)){ // minimizing
           bool have_only_palettes = true;
           
@@ -946,7 +895,8 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
         else if(LOWORD(wParam) != WA_INACTIVE){ // restore & activate
           if(!_is_palette){
             FOREACH_WINDOW(tool,
-              if(tool->_is_palette){
+              if(tool->_is_palette
+              && IsWindowVisible(tool->hwnd())){
                 SetWindowPos(tool->hwnd(), HWND_TOPMOST, 0, 0, 0, 0, 
                   SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
               }
@@ -961,7 +911,18 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
       } break;
       
       case WM_ACTIVATEAPP: {
+        static bool already_activated = false;
+        
         if(wParam){ // activate
+          if(!already_activated){
+            FOREACH_WINDOW(wnd,
+              if(!wnd->_is_palette){
+                SetWindowPos(wnd->hwnd(), HWND_TOP, 0, 0, 0, 0, 
+                  SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
+              }
+            );
+          }
+          already_activated = true;
         }
         else{
           FOREACH_WINDOW(tool,
@@ -970,8 +931,59 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
                 SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
             }
           );
+          already_activated = false;
         }
       } break;
+      
+//      case WM_SHOWWINDOW: {
+//        if(wParam){ // shown
+//          if(_is_palette){
+//            Document *doc = get_current_document();
+//            HWND main_window = NULL;
+//            
+//            if(doc){
+//              Win32Widget *widget = dynamic_cast<Win32Widget*>(doc->native());
+//              
+//              if(widget){
+//                main_window = widget->hwnd();
+//                
+//                while(GetParent(main_window))
+//                  main_window = GetParent(main_window);
+//                
+//                if(main_window 
+//                && IsWindowVisible(main_window)
+//                && (GetWindowLongW(main_window, GWL_STYLE) & WS_MINIMIZE) == 0){
+//                  Win32DocumentWindow *window = dynamic_cast<Win32DocumentWindow*>(BasicWin32Widget::from_hwnd(main_window));
+//                  if(window && window->_is_palette)
+//                    main_window = NULL;
+//                }
+//                else
+//                  main_window = NULL;
+//              }
+//            }
+//            
+//            if(!main_window){
+//              FOREACH_WINDOW(wnd,
+//                if(wnd != this 
+//                && !wnd->_is_palette
+//                && IsWindowVisible(wnd->hwnd())
+//                && (GetWindowLongW(wnd->hwnd(), GWL_STYLE) & WS_MINIMIZE) == 0){
+//                  main_window = wnd->hwnd();
+//                  break;
+//                }
+//              );
+//            }
+//            
+//            if(!main_window)
+//              printf("[no main_window]");
+//            else
+//              SetFocus(main_window);
+//          }
+//          else{
+//            printf("[show non-palette]");
+//          }
+//        }
+//      } break;
       
       case WM_COMMAND: {
         SharedPtr<MathShaper> ms = _working_area->document_context()->math_shaper;

@@ -13,17 +13,21 @@ class \hyperlink{classpmath__messages__t}{pmath\_\-messages\_\-t}
 \subsubsection*{Functions}
 \begin{CompactItemize}
 \item 
+PMATH\_\-API double \hyperlink{group__threadmsg_geff0c8bdc4ab3fb6a0d8abb3ebf07532}{pmath\_\-tickcount} (void)
+\begin{CompactList}\small\item\em Gives the seconds since January 1, 1970 (UTC). \item\end{CompactList}\item 
 PMATH\_\-API \hyperlink{group__general__types_gc92090cb0b56345d6c379ed2341d4ef4}{pmath\_\-bool\_\-t} \hyperlink{group__threadmsg_g93b45ad8c3063c94602c8bbaaf3c2613}{pmath\_\-messages\_\-t::pmath\_\-is\_\-message\_\-queue} (\hyperlink{classpmath__t}{pmath\_\-t} obj)
 \begin{CompactList}\small\item\em Test if an object is a message queue. \item\end{CompactList}\item 
 PMATH\_\-API \hyperlink{classpmath__messages__t}{pmath\_\-messages\_\-t} \hyperlink{group__threadmsg_gf4d69db0ffe06846e57df7cadcd3dab6}{pmath\_\-messages\_\-t::pmath\_\-thread\_\-get\_\-queue} (void)
 \begin{CompactList}\small\item\em Get the current thread's message queue. \item\end{CompactList}\item 
 PMATH\_\-API void \hyperlink{group__threadmsg_gce6da6e34b0aeab35094ddccdd9a3e55}{pmath\_\-messages\_\-t::pmath\_\-thread\_\-sleep} (void)
 \begin{CompactList}\small\item\em Send the current thread to sleep. \item\end{CompactList}\item 
+PMATH\_\-API void \hyperlink{group__threadmsg_g199f3dc07d4b89174e641fa4b0b757db}{pmath\_\-messages\_\-t::pmath\_\-thread\_\-sleep\_\-timeout} (double abs\_\-timeout)
+\begin{CompactList}\small\item\em Send the current thread to sleep. \item\end{CompactList}\item 
 PMATH\_\-API void \hyperlink{group__threadmsg_gbf90d49f5c42ccaa736ae5e56af6a4a6}{pmath\_\-messages\_\-t::pmath\_\-thread\_\-wakeup} (\hyperlink{classpmath__messages__t}{pmath\_\-messages\_\-t} mq)
 \begin{CompactList}\small\item\em Wake up another thread. \item\end{CompactList}\item 
 PMATH\_\-API void \hyperlink{group__threadmsg_ga3867a708fb07b86e017e8f201ef7edd}{pmath\_\-messages\_\-t::pmath\_\-thread\_\-send} (\hyperlink{classpmath__messages__t}{pmath\_\-messages\_\-t} mq, \hyperlink{classpmath__t}{pmath\_\-t} msg)
 \begin{CompactList}\small\item\em Asynchronously send a message to another thread. \item\end{CompactList}\item 
-PMATH\_\-API \hyperlink{classpmath__t}{pmath\_\-t} \hyperlink{group__threadmsg_g0466f7731e5e7cc3c4361f9512795a1c}{pmath\_\-messages\_\-t::pmath\_\-thread\_\-send\_\-wait} (\hyperlink{classpmath__messages__t}{pmath\_\-messages\_\-t} mq, \hyperlink{classpmath__t}{pmath\_\-t} msg, double timeout\_\-seconds)
+PMATH\_\-API \hyperlink{classpmath__t}{pmath\_\-t} \hyperlink{group__threadmsg_g4ce8afcfec001a88441bdf8b50bcd157}{pmath\_\-messages\_\-t::pmath\_\-thread\_\-send\_\-wait} (\hyperlink{classpmath__messages__t}{pmath\_\-messages\_\-t} mq, \hyperlink{classpmath__t}{pmath\_\-t} msg, double timeout\_\-seconds, void($\ast$idle\_\-function)(void $\ast$), void $\ast$idle\_\-data)
 \begin{CompactList}\small\item\em Send a message to another thread and wait for the answer. \item\end{CompactList}\item 
 PMATH\_\-API void \hyperlink{group__threadmsg_g75339d9dd1902293cb72b38e77caa742}{pmath\_\-messages\_\-t::pmath\_\-thread\_\-send\_\-delayed} (\hyperlink{classpmath__messages__t}{pmath\_\-messages\_\-t} mq, \hyperlink{classpmath__t}{pmath\_\-t} msg, double seconds)
 \begin{CompactList}\small\item\em Asynchronously send a message to a thread sometime in the future. \item\end{CompactList}\end{CompactItemize}
@@ -43,6 +47,17 @@ Technical Note: Pending messages are handled as soon as time \hyperlink{group__t
 
 
 \subsubsection{Function Documentation}
+\hypertarget{group__threadmsg_geff0c8bdc4ab3fb6a0d8abb3ebf07532}{
+\index{threadmsg@{threadmsg}!pmath\_\-tickcount@{pmath\_\-tickcount}}
+\index{pmath\_\-tickcount@{pmath\_\-tickcount}!threadmsg@{threadmsg}}
+\paragraph[{pmath\_\-tickcount}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API double pmath\_\-tickcount (void)}\hfill}
+\label{group__threadmsg_geff0c8bdc4ab3fb6a0d8abb3ebf07532}
+
+
+Gives the seconds since January 1, 1970 (UTC). 
+
+\begin{Desc}
+\item[Returns:]The number of seconds since January 1, 1970 (UTC) \end{Desc}
 \hypertarget{group__threadmsg_g93b45ad8c3063c94602c8bbaaf3c2613}{
 \index{threadmsg@{threadmsg}!pmath\_\-is\_\-message\_\-queue@{pmath\_\-is\_\-message\_\-queue}}
 \index{pmath\_\-is\_\-message\_\-queue@{pmath\_\-is\_\-message\_\-queue}!threadmsg@{threadmsg}}
@@ -91,7 +106,27 @@ Because of the last point, this function is normally called in a loop:
 \end{verbatim}
 \end{Code}
 
- \hypertarget{group__threadmsg_gbf90d49f5c42ccaa736ae5e56af6a4a6}{
+ \hypertarget{group__threadmsg_g199f3dc07d4b89174e641fa4b0b757db}{
+\index{threadmsg@{threadmsg}!pmath\_\-thread\_\-sleep\_\-timeout@{pmath\_\-thread\_\-sleep\_\-timeout}}
+\index{pmath\_\-thread\_\-sleep\_\-timeout@{pmath\_\-thread\_\-sleep\_\-timeout}!threadmsg@{threadmsg}}
+\paragraph[{pmath\_\-thread\_\-sleep\_\-timeout}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API void pmath\_\-thread\_\-sleep\_\-timeout (double {\em abs\_\-timeout})\hspace{0.3cm}{\tt  \mbox{[}related, inherited\mbox{]}}}\hfill}
+\label{group__threadmsg_g199f3dc07d4b89174e641fa4b0b757db}
+
+
+Send the current thread to sleep. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em abs\_\-timeout}]Timeout in seconds since January 1, 1970 (UTC).\end{description}
+\end{Desc}
+The thread will fall asleep until\begin{itemize}
+\item it receives a message or\item it is waken up with \hyperlink{group__threadmsg_gbf90d49f5c42ccaa736ae5e56af6a4a6}{pmath\_\-thread\_\-wakeup()} or\item an abort-condition (\hyperlink{group__threads_g84e45036b76764def6390af12d2070bf}{pmath\_\-abort\_\-please()} or \hyperlink{group__threads_gf1aa6d6603faaa4120207be6108e356c}{pmath\_\-throw()}) is met {\em anywhere\/} in the system or\item \begin{itemize}
+\item abs\_\-timeout is passed.\end{itemize}
+\begin{Desc}
+\item[See also:]\hyperlink{group__threadmsg_gce6da6e34b0aeab35094ddccdd9a3e55}{pmath\_\-thread\_\-sleep}, \hyperlink{group__threadmsg_geff0c8bdc4ab3fb6a0d8abb3ebf07532}{pmath\_\-tickcount} \end{Desc}
+\end{itemize}
+\hypertarget{group__threadmsg_gbf90d49f5c42ccaa736ae5e56af6a4a6}{
 \index{threadmsg@{threadmsg}!pmath\_\-thread\_\-wakeup@{pmath\_\-thread\_\-wakeup}}
 \index{pmath\_\-thread\_\-wakeup@{pmath\_\-thread\_\-wakeup}!threadmsg@{threadmsg}}
 \paragraph[{pmath\_\-thread\_\-wakeup}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API void pmath\_\-thread\_\-wakeup ({\bf pmath\_\-messages\_\-t} {\em mq})\hspace{0.3cm}{\tt  \mbox{[}related, inherited\mbox{]}}}\hfill}
@@ -123,11 +158,11 @@ Asynchronously send a message to another thread.
 \end{Desc}
 The message will be evaluated by the receiver. This function returns immediately. If the receiver cannot handle the message (since it is dead or there is not enough memory), the message will be deleted.
 
-Note that messages might not be handled in the order they were send. \hypertarget{group__threadmsg_g0466f7731e5e7cc3c4361f9512795a1c}{
+Note that messages might not be handled in the order they were send. \hypertarget{group__threadmsg_g4ce8afcfec001a88441bdf8b50bcd157}{
 \index{threadmsg@{threadmsg}!pmath\_\-thread\_\-send\_\-wait@{pmath\_\-thread\_\-send\_\-wait}}
 \index{pmath\_\-thread\_\-send\_\-wait@{pmath\_\-thread\_\-send\_\-wait}!threadmsg@{threadmsg}}
-\paragraph[{pmath\_\-thread\_\-send\_\-wait}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API {\bf pmath\_\-t} pmath\_\-thread\_\-send\_\-wait ({\bf pmath\_\-messages\_\-t} {\em mq}, \/  {\bf pmath\_\-t} {\em msg}, \/  double {\em timeout\_\-seconds})\hspace{0.3cm}{\tt  \mbox{[}related, inherited\mbox{]}}}\hfill}
-\label{group__threadmsg_g0466f7731e5e7cc3c4361f9512795a1c}
+\paragraph[{pmath\_\-thread\_\-send\_\-wait}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API {\bf pmath\_\-t} pmath\_\-thread\_\-send\_\-wait ({\bf pmath\_\-messages\_\-t} {\em mq}, \/  {\bf pmath\_\-t} {\em msg}, \/  double {\em timeout\_\-seconds}, \/  void($\ast$)(void $\ast$) {\em idle\_\-function}, \/  void $\ast$ {\em idle\_\-data})\hspace{0.3cm}{\tt  \mbox{[}related, inherited\mbox{]}}}\hfill}
+\label{group__threadmsg_g4ce8afcfec001a88441bdf8b50bcd157}
 
 
 Send a message to another thread and wait for the answer. 
@@ -135,7 +170,9 @@ Send a message to another thread and wait for the answer.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em mq}]The receivers message queue. It wont be freed. \item[{\em msg}]The message. It will be freed. \item[{\em timeout\_\-seconds}]The maximum number of seconds tho wait for the answer. Use HUGE\_\-VAL if you do not want a timeout. \end{description}
+\item[{\em mq}]The receivers message queue. It wont be freed. \item[{\em msg}]The message. It will be freed. \item[{\em timeout\_\-seconds}]The maximum number of seconds tho wait for the answer. Use HUGE\_\-VAL if you do not want a timeout. \item[{\em idle\_\-function}]An optional function that will be called any time the waiting thread wakes up but there is no answer yet. \item[{\em idle\_\-data}]Argument for \begin{itemize}
+\item idle\_\-function. \end{itemize}
+\end{description}
 \end{Desc}
 \begin{Desc}
 \item[Returns:]The result of pmath\_\-evaluate(message) called by the receiver or PMATH\_\-UNDEFINED in case of an error.\end{Desc}

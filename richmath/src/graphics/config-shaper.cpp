@@ -1107,7 +1107,7 @@ void ConfigShaper::vertical_glyph_size(
   float           *ascent,
   float           *descent
 ){
-  if(info.fontinfo >= math_font_faces.length()){
+  if((int)info.fontinfo >= math_font_faces.length()){
     GlyphInfo gi;
     memcpy(&gi, &info, sizeof(GlyphInfo));
     

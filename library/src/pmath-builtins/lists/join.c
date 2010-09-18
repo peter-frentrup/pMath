@@ -1,19 +1,13 @@
-#include <pmath-core/expressions.h>
+#include <pmath-core/strings-private.h>
 #include <pmath-core/numbers.h>
-#include <pmath-core/symbols.h>
-
-#include <assert.h>
-#include <string.h>
-
-#include <pmath-util/messages.h>
 
 #include <pmath-util/concurrency/threads.h>
+#include <pmath-util/messages.h>
 
-#include <pmath-core/strings-private.h>
-
-#include <pmath-builtins/lists-private.h>
-#include <pmath-builtins/all-symbols.h>
 #include <pmath-builtins/all-symbols-private.h>
+
+#include <string.h>
+
 
 static pmath_t concat_expressions(pmath_expr_t expr){
   size_t i, len, length, resi;

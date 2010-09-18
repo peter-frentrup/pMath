@@ -1,8 +1,11 @@
-#include <pmath-builtins/io-private.h>
 #include <pmath-core/symbols.h>
-#include <pmath-util/memory.h>
 
-#include <assert.h>
+#include <pmath-util/memory.h>
+#include <pmath-util/messages.h>
+
+#include <pmath-builtins/all-symbols-private.h>
+#include <pmath-builtins/io-private.h>
+
 #include <limits.h>
 #include <string.h>
 
@@ -15,16 +18,6 @@
   #include <stdio.h>
   #include <sys/stat.h>
 #endif
-
-#include <pmath-util/concurrency/threads.h>
-#include <pmath-util/messages.h>
-
-#include <pmath-core/objects-private.h>
-#include <pmath-core/strings-private.h>
-
-#include <pmath-builtins/all-symbols.h>
-#include <pmath-builtins/all-symbols-private.h>
-#include <pmath-builtins/lists-private.h>
 
 PMATH_PRIVATE pmath_t builtin_renamedirectory_and_renamefile(pmath_expr_t expr){
 /* RenameDirectory(name1, name2)

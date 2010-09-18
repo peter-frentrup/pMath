@@ -299,6 +299,6 @@ pmath_bool_t pmath_string_equals_latin1(
   pmath_string_t  string, 
   const char     *latin1);
 
-/*@}*/
+/** @} */
 
 #endif /* __PMATH_CORE__STRING_H__ */

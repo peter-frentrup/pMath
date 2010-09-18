@@ -1,10 +1,5 @@
 #include <pmath-core/objects-inline.h>
 
-#include <stdio.h>
-#include <stdlib.h>
-
-#include <pmath-util/debug.h>
-#include <pmath-util/concurrency/atomic-private.h> // depends on pmath-objects-inline.h
 
 #undef pmath_ref
 #undef pmath_unref

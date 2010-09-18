@@ -52,6 +52,6 @@ typedef void (*pmath_write_func_t)(void *user, const uint16_t *data, int len);
  */
 typedef void (*pmath_write_unichar_func_t)(void *user, uint32_t ch);
 
-/*@}*/
+/** @} */
 
 #endif /* __PMATH_TYPES_H__ */

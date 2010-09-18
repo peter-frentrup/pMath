@@ -67,6 +67,6 @@ PMATH_ATTRIBUTE_USE_RESULT
 PMATH_ATTRIBUTE_NONNULL(1)
 void *pmath_stack_pop(pmath_stack_t stack);
 
-/*@}*/
+/** @} */
 
 #endif /* __PMATH_UTIL__STACKS_H__ */

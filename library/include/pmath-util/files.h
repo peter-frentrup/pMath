@@ -326,6 +326,6 @@ void pmath_file_binary_buffer_manipulate(
   void    (*callback)(uint8_t *readable, uint8_t *writable, const uint8_t *end, void *closure),
   void     *closure);
 
-/*@}*/
+/** @} */
 
 #endif /* __PMATH_UTIL__FILES_H__ */

@@ -1,25 +1,28 @@
 #include <pmath-util/debug.h>
-#include <pmath-core/objects-inline.h>
 
-#include <assert.h>
 #include <stdarg.h>
 #include <stdio.h>
-#include <stdlib.h>
+
 
 #ifdef pmath_debug_print
+
   #undef pmath_debug_print
   #undef pmath_debug_print_object
+  
 #endif
 
 #ifdef PMATH_OS_WIN32
   /* no flockfile()/funlockfile() on windows/mingw -> do it your self */
   #if PMATH_USE_PTHREAD
+  
     #include <pthread.h>
     static pthread_mutex_t  debuglog_mutex;
 
     #define flockfile(  file)  ((void)pthread_mutex_lock(  &debuglog_mutex))
     #define funlockfile(file)  ((void)pthread_mutex_unlock(&debuglog_mutex))
+  
   #elif PMATH_USE_WINDOWS_THREADS
+  
     #define NOGDI
     #define WIN32_LEAN_AND_MEAN
     #include <windows.h>
@@ -27,8 +30,11 @@
 
     #define flockfile(  file)  ((void)EnterCriticalSection(&debuglog_critical_section))
     #define funlockfile(file)  ((void)LeaveCriticalSection(&debuglog_critical_section))
+  
   #else
+  
     #error Either PThread or Windows Threads must be used
+  
   #endif
 #endif
 

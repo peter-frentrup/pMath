@@ -86,6 +86,7 @@ static void execute(ClientNotification &cn);
 static EvaluationPosition print_pos;
 static EvaluationPosition old_job;
 
+static HACCEL keyboard_accelerators;
 static HWND hwnd_message = HWND_MESSAGE;
 static Expr main_message_queue;
 
@@ -250,6 +251,24 @@ void Client::init(){
     application_directory = application_filename.part(0, i);
   else
     application_directory = application_filename;
+  
+  keyboard_accelerators = LoadAcceleratorsW(GetModuleHandle(0), MAKEINTRESOURCEW(ACC_TABLE));
+}
+
+void Client::doevents(){
+  MSG msg;
+  
+  ClientState old_state = state;
+  state = Running;
+  
+  while(PeekMessageW(&msg, NULL, 0, 0, PM_REMOVE)){
+    if(!TranslateAcceleratorW(GetFocus(), keyboard_accelerators, &msg)){
+      TranslateMessage(&msg); 
+      DispatchMessageW(&msg); 
+    }
+  }
+  
+  state = old_state;
 }
 
 int Client::run(){
@@ -260,16 +279,14 @@ int Client::run(){
     return 1;
   
   state = Running;
-
-  HACCEL accel = LoadAcceleratorsW(GetModuleHandle(0), MAKEINTRESOURCEW(ACC_TABLE));
-
+  
   while((bRet = GetMessageW(&msg, NULL, 0, 0)) != 0){
     if(bRet == -1) {
       state = Quitting;
       return 1;
     }
     
-    if(!TranslateAcceleratorW(GetFocus(), accel, &msg)){
+    if(!TranslateAcceleratorW(GetFocus(), keyboard_accelerators, &msg)){
       TranslateMessage(&msg); 
       DispatchMessageW(&msg); 
     }
@@ -280,6 +297,7 @@ int Client::run(){
 }
 
 void Client::done(){
+  DestroyAcceleratorTable(keyboard_accelerators);
   while(session){
     SharedPtr<Job> job = session->current_job;
     session->current_job = 0;
@@ -354,7 +372,8 @@ Expr Client::interrupt(Expr expr){
 }
 
 void Client::execute_for(Expr expr, Box *box, double seconds){
-  print_pos = EvaluationPosition(box);
+  if(box)
+    print_pos = EvaluationPosition(box);
   
   Server::local_server->interrupt(expr, seconds);
 }
@@ -574,8 +593,9 @@ static void execute(ClientNotification &cn){
         
         sect = Section::create_from_object(cn.data);
         if(sect){
-          print_pos.section_id = sect->id();
           doc->insert(index, sect);
+          
+          print_pos = EvaluationPosition(sect);
         
           if(doc->selection_box() == doc
           && doc->selection_start() >= index

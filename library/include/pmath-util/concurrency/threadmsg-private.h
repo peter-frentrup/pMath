@@ -28,4 +28,7 @@ void _pmath_msq_queue_set_child(
   struct _pmath_thread_t *me, 
   struct _pmath_thread_t *child);
 
+PMATH_PRIVATE pmath_bool_t _pmath_threadmsg_init(void);
+PMATH_PRIVATE void         _pmath_threadmsg_done(void);
+
 #endif /* __PMATH_UTIL__CONCURRENCY__THREADMSG_PRIVATE_H__ */

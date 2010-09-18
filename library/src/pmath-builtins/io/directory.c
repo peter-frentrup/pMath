@@ -23,7 +23,7 @@
   #include <unistd.h>
 #endif
 
-static pmath_string_t get_directory(){
+static pmath_string_t get_directory(void){
   #ifdef PMATH_OS_WIN32
   {
     struct _pmath_string_t *result;

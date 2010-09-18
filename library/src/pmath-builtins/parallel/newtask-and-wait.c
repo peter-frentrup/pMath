@@ -1,21 +1,11 @@
-#include <pmath-core/symbols.h>
-#include <pmath-util/evaluation.h>
-#include <pmath-util/memory.h>
-
-#include <assert.h>
-#include <string.h>
-
-#include <pmath-core/custom.h>
-
-#include <pmath-util/messages.h>
-
-#include <pmath-util/concurrency/threadmsg.h>
 #include <pmath-util/concurrency/threadpool.h>
 #include <pmath-util/concurrency/threads.h>
+#include <pmath-util/evaluation.h>
+#include <pmath-util/memory.h>
+#include <pmath-util/messages.h>
 
-#include <pmath-builtins/parallel-private.h>
-#include <pmath-builtins/all-symbols.h>
 #include <pmath-builtins/all-symbols-private.h>
+
 
 struct custom_task_data{
   volatile pmath_t value;

@@ -58,7 +58,6 @@ namespace richmath{
       Win32Menubar *menubar;
       bool creation;
       
-      bool mouse_activated;
       bool _is_palette;
       
       String _title;

@@ -100,11 +100,11 @@ PMATH_PRIVATE pmath_t builtin_timing(pmath_expr_t expr){
     return expr;
   }
   
-  start = _pmath_tickcount();
+  start = pmath_tickcount();
   obj = pmath_evaluate(pmath_expr_get_item(expr, 1));
   pmath_unref(expr);
   
-  end = _pmath_tickcount();
+  end = pmath_tickcount();
   
   return pmath_expr_new_extended(
     pmath_ref(PMATH_SYMBOL_LIST), 2,

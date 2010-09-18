@@ -1,20 +1,13 @@
-#include <pmath-core/expressions.h>
-#include <pmath-core/numbers.h>
-#include <pmath-core/symbols.h>
-#include <pmath-util/memory.h>
-
-#include <string.h>
-
-#include <pmath-util/files.h>
-#include <pmath-util/hashtables-private.h>
 #include <pmath-util/serialize.h>
 
-#include <pmath-core/objects-private.h>
+#include <pmath-core/expressions.h>
 #include <pmath-core/numbers-private.h>
 #include <pmath-core/strings-private.h>
 
-#include <pmath-builtins/all-symbols.h>
-#include <pmath-builtins/all-symbols-private.h>
+#include <pmath-util/files.h>
+#include <pmath-util/hashtables-private.h>
+#include <pmath-util/memory.h>
+
 
 /* Data format   (LE = little endian)
 
@@ -37,6 +30,7 @@
    - integers:           7,L,N,N,...
                              \_____/ = abs(L) * 1 byte   (N,N,... = data in LE)
                                                          (sign(L) = sign)
+                                                         (L       = 32BitLE length)
                              
    - quotients:          8,n,d         (n/d = serialized numerator/denomonator)
    

@@ -1,19 +1,13 @@
-#include <pmath-core/numbers.h>
-#include <pmath-core/symbols.h>
+#include <pmath-core/numbers-private.h>
+
 #include <pmath-util/evaluation.h>
-
-#include <assert.h>
-#include <limits.h>
-#include <string.h>
-
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
 
-#include <pmath-core/numbers-private.h>
-
-#include <pmath-builtins/all-symbols.h>
 #include <pmath-builtins/all-symbols-private.h>
-#include <pmath-builtins/lists-private.h>
+
+#include <limits.h>
+
 
 PMATH_PRIVATE pmath_bool_t extract_number(
   pmath_t number,

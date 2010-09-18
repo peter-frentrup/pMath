@@ -8,6 +8,31 @@
 using namespace richmath;
 using namespace std;
 
+#ifdef _MSC_VER
+  
+  #define isnan  _isnan
+  
+#endif
+
+#ifndef NAN
+  
+  #define NAN  (make_nan())
+  static double make_nan(){
+    union {
+      uint64_t i;
+      double   d;
+    } u;
+    
+    u.i = 0x7ff8000000000000ULL;
+    
+    assert(isnan(u.d));
+    assert(isnan((float)u.d));
+    
+    return u.d;
+  }
+  
+#endif
+
 //{ class SliderBox ...
 
 SliderBox::SliderBox()
@@ -96,7 +121,7 @@ void SliderBox::paint(Context *context){
       val = Client::interrupt(run, Client::dynamic_timeout);
     }
     
-    value = val.to_double(value);
+    value = val.to_double(NAN);
   }
   
   float x, y;
@@ -107,31 +132,32 @@ void SliderBox::paint(Context *context){
   
   float thumb_x = x + calc_thumb_pos(value);
   
+  if(isnan(value)){
+    float rx = x + _extents.width/2;
+    
+    context->canvas->set_color(0xFF0000, 0.2);
+    for(int i = -2;i <= 2;++i){
+      context->canvas->arc(rx + i * h/6, y + h/2, h/2, 0, 2 * M_PI, false);
+      context->canvas->fill();
+    }
+  }
   if(value < min && value < max){
     float rx = x + h/2;
     
     context->canvas->set_color(0xFF0000, 0.2);
-    context->canvas->arc(rx + h/3, y + h/2, h/2, 0, 2 * M_PI, false);
-    context->canvas->fill();
-    
-    context->canvas->arc(rx + h/6, y + h/2, h/2, 0, 2 * M_PI, false);
-    context->canvas->fill();
-    
-    context->canvas->arc(rx, y + h/2, h/2, 0, 2 * M_PI, false);
-    context->canvas->fill();
+    for(int i = 0;i <= 2;++i){
+      context->canvas->arc(rx + i * h/6, y + h/2, h/2, 0, 2 * M_PI, false);
+      context->canvas->fill();
+    }
   }
   else if(value > max && value > min){
     float rx = x + _extents.width - h/2;
     
     context->canvas->set_color(0xFF0000, 0.2);
-    context->canvas->arc(rx - h/3, y + h/2, h/2, 0, 2 * M_PI, false);
-    context->canvas->fill();
-    
-    context->canvas->arc(rx - h/6, y + h/2, h/2, 0, 2 * M_PI, false);
-    context->canvas->fill();
-    
-    context->canvas->arc(rx, y + h/2, h/2, 0, 2 * M_PI, false);
-    context->canvas->fill();
+    for(int i = -2;i <= 0;++i){
+      context->canvas->arc(rx + i * h/6, y + h/2, h/2, 0, 2 * M_PI, false);
+      context->canvas->fill();
+    }
   }
   
   ControlPainter::std->draw_container(
@@ -187,6 +213,9 @@ void SliderBox::paint(Context *context){
 }
 
 float SliderBox::calc_thumb_pos(double val){
+  if(isnan(val))
+    return _extents.width/2 - thumb_width/2;
+  
   if(min < max){
     if(val < min)
       return 0;
@@ -271,6 +300,8 @@ void SliderBox::assign_dynamic_value(double d){
   if(!have_drawn)
     return;
   
+  value = d;
+  
   have_drawn = false;
   if(dynamic_value[0] == PMATH_SYMBOL_DYNAMIC){
     Expr run;
@@ -285,7 +316,6 @@ void SliderBox::assign_dynamic_value(double d){
     return;
   }
   
-  value = d;
   dynamic_value = Expr(d);
 }
 

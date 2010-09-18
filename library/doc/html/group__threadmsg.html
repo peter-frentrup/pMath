@@ -26,6 +26,9 @@
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">A message queue for interthread communication.  <a href="classpmath__messages__t.html#_details">More...</a><br></td></tr>
 <tr><td colspan="2"><br><h2>Functions</h2></td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">PMATH_API double&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__threadmsg.html#geff0c8bdc4ab3fb6a0d8abb3ebf07532">pmath_tickcount</a> (void)</td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Gives the seconds since January 1, 1970 (UTC).  <a href="#geff0c8bdc4ab3fb6a0d8abb3ebf07532"></a><br></td></tr>
 <tr><td class="memItemLeft" nowrap align="right" valign="top">PMATH_API <a class="el" href="group__general__types.html#gc92090cb0b56345d6c379ed2341d4ef4">pmath_bool_t</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__threadmsg.html#g93b45ad8c3063c94602c8bbaaf3c2613">pmath_messages_t::pmath_is_message_queue</a> (<a class="el" href="classpmath__t.html">pmath_t</a> obj)</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Test if an object is a message queue.  <a href="#g93b45ad8c3063c94602c8bbaaf3c2613"></a><br></td></tr>
@@ -35,15 +38,18 @@
 <tr><td class="memItemLeft" nowrap align="right" valign="top">PMATH_API void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__threadmsg.html#gce6da6e34b0aeab35094ddccdd9a3e55">pmath_messages_t::pmath_thread_sleep</a> (void)</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Send the current thread to sleep.  <a href="#gce6da6e34b0aeab35094ddccdd9a3e55"></a><br></td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">PMATH_API void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__threadmsg.html#g199f3dc07d4b89174e641fa4b0b757db">pmath_messages_t::pmath_thread_sleep_timeout</a> (double abs_timeout)</td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Send the current thread to sleep.  <a href="#g199f3dc07d4b89174e641fa4b0b757db"></a><br></td></tr>
 <tr><td class="memItemLeft" nowrap align="right" valign="top">PMATH_API void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__threadmsg.html#gbf90d49f5c42ccaa736ae5e56af6a4a6">pmath_messages_t::pmath_thread_wakeup</a> (<a class="el" href="classpmath__messages__t.html">pmath_messages_t</a> mq)</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Wake up another thread.  <a href="#gbf90d49f5c42ccaa736ae5e56af6a4a6"></a><br></td></tr>
 <tr><td class="memItemLeft" nowrap align="right" valign="top">PMATH_API void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__threadmsg.html#ga3867a708fb07b86e017e8f201ef7edd">pmath_messages_t::pmath_thread_send</a> (<a class="el" href="classpmath__messages__t.html">pmath_messages_t</a> mq, <a class="el" href="classpmath__t.html">pmath_t</a> msg)</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Asynchronously send a message to another thread.  <a href="#ga3867a708fb07b86e017e8f201ef7edd"></a><br></td></tr>
-<tr><td class="memItemLeft" nowrap align="right" valign="top">PMATH_API <a class="el" href="classpmath__t.html">pmath_t</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__threadmsg.html#g0466f7731e5e7cc3c4361f9512795a1c">pmath_messages_t::pmath_thread_send_wait</a> (<a class="el" href="classpmath__messages__t.html">pmath_messages_t</a> mq, <a class="el" href="classpmath__t.html">pmath_t</a> msg, double timeout_seconds)</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">PMATH_API <a class="el" href="classpmath__t.html">pmath_t</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__threadmsg.html#g4ce8afcfec001a88441bdf8b50bcd157">pmath_messages_t::pmath_thread_send_wait</a> (<a class="el" href="classpmath__messages__t.html">pmath_messages_t</a> mq, <a class="el" href="classpmath__t.html">pmath_t</a> msg, double timeout_seconds, void(*idle_function)(void *), void *idle_data)</td></tr>
 
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Send a message to another thread and wait for the answer.  <a href="#g0466f7731e5e7cc3c4361f9512795a1c"></a><br></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Send a message to another thread and wait for the answer.  <a href="#g4ce8afcfec001a88441bdf8b50bcd157"></a><br></td></tr>
 <tr><td class="memItemLeft" nowrap align="right" valign="top">PMATH_API void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__threadmsg.html#g75339d9dd1902293cb72b38e77caa742">pmath_messages_t::pmath_thread_send_delayed</a> (<a class="el" href="classpmath__messages__t.html">pmath_messages_t</a> mq, <a class="el" href="classpmath__t.html">pmath_t</a> msg, double seconds)</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Asynchronously send a message to a thread sometime in the future.  <a href="#g75339d9dd1902293cb72b38e77caa742"></a><br></td></tr>
@@ -56,6 +62,29 @@ Threads can go to sleep when they have no work to do. They will be awaken any ti
 Technical Note: Pending messages are handled as soon as time <a class="el" href="group__threads.html#gb75a9c87401fddb42b297ddb0495415f" title="Queries whether pMath was requested to abort the evaluation of the current thread...">pmath_aborting()</a> is called, which happens periodically. For the pMath code, it looks like asynchronous signals, because messages can occur any time during the evaluation. But from the native code's point of view, messages are synchronous, because they can only occur during <a class="el" href="group__threads.html#gb75a9c87401fddb42b297ddb0495415f" title="Queries whether pMath was requested to abort the evaluation of the current thread...">pmath_aborting()</a>.<p>
 <dl class="note" compact><dt><b>Note:</b></dt><dd>Message passing is not signal-safe. You must not send any messages from within a UNIX signal handler. </dd></dl>
 <hr><h2>Function Documentation</h2>
+<a class="anchor" name="geff0c8bdc4ab3fb6a0d8abb3ebf07532"></a><!-- doxytag: member="threadmsg.h::pmath_tickcount" ref="geff0c8bdc4ab3fb6a0d8abb3ebf07532" args="(void)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">PMATH_API double pmath_tickcount           </td>
+          <td>(</td>
+          <td class="paramtype">void&nbsp;</td>
+          <td class="paramname">          </td>
+          <td>&nbsp;)&nbsp;</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>
+Gives the seconds since January 1, 1970 (UTC). 
+<p>
+<dl class="return" compact><dt><b>Returns:</b></dt><dd>The number of seconds since January 1, 1970 (UTC) </dd></dl>
+
+</div>
+</div><p>
 <a class="anchor" name="g93b45ad8c3063c94602c8bbaaf3c2613"></a><!-- doxytag: member="pmath_messages_t::pmath_is_message_queue" ref="g93b45ad8c3063c94602c8bbaaf3c2613" args="(pmath_t obj)" -->
 <div class="memitem">
 <div class="memproto">
@@ -135,6 +164,39 @@ Because of the last point, this function is normally called in a loop: <div clas
 </pre></div> 
 </div>
 </div><p>
+<a class="anchor" name="g199f3dc07d4b89174e641fa4b0b757db"></a><!-- doxytag: member="pmath_messages_t::pmath_thread_sleep_timeout" ref="g199f3dc07d4b89174e641fa4b0b757db" args="(double abs_timeout)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">PMATH_API void pmath_thread_sleep_timeout           </td>
+          <td>(</td>
+          <td class="paramtype">double&nbsp;</td>
+          <td class="paramname"> <em>abs_timeout</em>          </td>
+          <td>&nbsp;)&nbsp;</td>
+          <td><code> [related, inherited]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>
+Send the current thread to sleep. 
+<p>
+<dl compact><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"></td><td valign="top"><em>abs_timeout</em>&nbsp;</td><td>Timeout in seconds since January 1, 1970 (UTC).</td></tr>
+  </table>
+</dl>
+The thread will fall asleep until<ul>
+<li>it receives a message or</li><li>it is waken up with <a class="el" href="group__threadmsg.html#gbf90d49f5c42ccaa736ae5e56af6a4a6" title="Wake up another thread.">pmath_thread_wakeup()</a> or</li><li>an abort-condition (<a class="el" href="group__threads.html#g84e45036b76764def6390af12d2070bf" title="Requests pMath to abort the current evaluation.">pmath_abort_please()</a> or <a class="el" href="group__threads.html#gf1aa6d6603faaa4120207be6108e356c" title="Throw an exception.">pmath_throw()</a>) is met <em>anywhere</em> in the system or</li><li><ul>
+<li>abs_timeout is passed.</li>
+</ul>
+<dl class="see" compact><dt><b>See also:</b></dt><dd><a class="el" href="group__threadmsg.html#gce6da6e34b0aeab35094ddccdd9a3e55" title="Send the current thread to sleep.">pmath_thread_sleep</a>, <a class="el" href="group__threadmsg.html#geff0c8bdc4ab3fb6a0d8abb3ebf07532" title="Gives the seconds since January 1, 1970 (UTC).">pmath_tickcount</a> </dd></dl>
+</li></ul>
+
+</div>
+</div><p>
 <a class="anchor" name="gbf90d49f5c42ccaa736ae5e56af6a4a6"></a><!-- doxytag: member="pmath_messages_t::pmath_thread_wakeup" ref="gbf90d49f5c42ccaa736ae5e56af6a4a6" args="(pmath_messages_t mq)" -->
 <div class="memitem">
 <div class="memproto">
@@ -201,7 +263,7 @@ The message will be evaluated by the receiver. This function returns immediately
 Note that messages might not be handled in the order they were send. 
 </div>
 </div><p>
-<a class="anchor" name="g0466f7731e5e7cc3c4361f9512795a1c"></a><!-- doxytag: member="pmath_messages_t::pmath_thread_send_wait" ref="g0466f7731e5e7cc3c4361f9512795a1c" args="(pmath_messages_t mq, pmath_t msg, double timeout_seconds)" -->
+<a class="anchor" name="g4ce8afcfec001a88441bdf8b50bcd157"></a><!-- doxytag: member="pmath_messages_t::pmath_thread_send_wait" ref="g4ce8afcfec001a88441bdf8b50bcd157" args="(pmath_messages_t mq, pmath_t msg, double timeout_seconds, void(*idle_function)(void *), void *idle_data)" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -221,7 +283,19 @@ Note that messages might not be handled in the order they were send.
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">double&nbsp;</td>
-          <td class="paramname"> <em>timeout_seconds</em></td><td>&nbsp;</td>
+          <td class="paramname"> <em>timeout_seconds</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void(*)(void *)&nbsp;</td>
+          <td class="paramname"> <em>idle_function</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&nbsp;</td>
+          <td class="paramname"> <em>idle_data</em></td><td>&nbsp;</td>
         </tr>
         <tr>
           <td></td>
@@ -240,6 +314,11 @@ Send a message to another thread and wait for the answer.
     <tr><td valign="top"></td><td valign="top"><em>mq</em>&nbsp;</td><td>The receivers message queue. It wont be freed. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>msg</em>&nbsp;</td><td>The message. It will be freed. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>timeout_seconds</em>&nbsp;</td><td>The maximum number of seconds tho wait for the answer. Use HUGE_VAL if you do not want a timeout. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>idle_function</em>&nbsp;</td><td>An optional function that will be called any time the waiting thread wakes up but there is no answer yet. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>idle_data</em>&nbsp;</td><td>Argument for <ul>
+<li>idle_function. </li>
+</ul>
+</td></tr>
   </table>
 </dl>
 <dl class="return" compact><dt><b>Returns:</b></dt><dd>The result of pmath_evaluate(message) called by the receiver or PMATH_UNDEFINED in case of an error.</dd></dl>
@@ -297,7 +376,7 @@ The message will be evaluated by the receiver. This function returns immediately
 </div>
 </div><p>
 </div>
-<hr size="1"><address style="text-align: right;"><small>Generated on Sun Apr 18 19:34:50 2010 for pMath by&nbsp;
+<hr size="1"><address style="text-align: right;"><small>Generated on Sat Sep 18 18:13:03 2010 for pMath by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.5.9 </small></address>
 </body>

@@ -189,6 +189,6 @@ PMATH_FORCE_INLINE void pmath_atomic_unlock(
 PMATH_FORCE_INLINE void pmath_atomic_loop_nop(void){
 }
 
-/*@}*/
+/** @} */
 
 #endif /* __PMATH_UTIL__CONCURRENCY__ATOMIC__NON_ATOMIC_H__ */

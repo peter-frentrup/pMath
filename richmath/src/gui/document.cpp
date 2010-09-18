@@ -1338,7 +1338,7 @@ void Document::on_key_press(uint32_t unichar){
         if(!repl.is_valid())
           repl = global_macros[alias];
           
-        if(repl.is_valid() > 0){
+        if(repl.is_valid()){
           String s(repl);
           
           if(s.is_valid()){
@@ -3448,7 +3448,7 @@ bool Document::handle_immediate_macros(
     
     Expr repl = table[seq->text().part(i, e - i + 1)];
     
-    if(repl.is_valid() > 0){
+    if(repl.is_valid()){
       String s(repl);
       
       if(s.is_valid()){

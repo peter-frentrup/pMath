@@ -1,37 +1,31 @@
-#include <pmath-core/symbols.h>
+#include <pmath-util/concurrency/threadlocks-private.h>
+
+#include <pmath-util/concurrency/atomic-private.h>
+#include <pmath-util/concurrency/threads-private.h>
+#include <pmath-util/evaluation.h>
 #include <pmath-util/memory.h>
+#include <pmath-util/messages.h>
 #include <pmath-util/stacks-private.h>
 
-#include <assert.h>
-#include <errno.h>
-#include <inttypes.h>
-#include <string.h>
-#include <time.h>
-
-#include <pmath-util/debug.h>
-#include <pmath-util/evaluation.h>
-#include <pmath-util/hashtables-private.h>
-#include <pmath-util/messages.h>
-
-#include <pmath-util/concurrency/threadlocks.h>
-#include <pmath-util/concurrency/threadlocks-private.h>
-#include <pmath-util/concurrency/threads.h>
-#include <pmath-util/concurrency/threads-private.h>
-
-
-#include <pmath-util/concurrency/atomic-private.h> // depends on pmath-objects-inline.h
-
-#include <pmath-builtins/all-symbols.h>
 #include <pmath-builtins/all-symbols-private.h>
 
+
 #if PMATH_USE_PTHREAD
+
+  #include <errno.h>
   #include <pthread.h>
+  #include <string.h>
+
 #elif PMATH_USE_WINDOWS_THREADS
+
   #define NOGDI
   #define WIN32_LEAN_AND_MEAN
   #include <windows.h>
+
 #else
+
   #error Either PThread or Windows Threads must be used
+
 #endif
 
 typedef struct _threadlock_owners_t{

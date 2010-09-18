@@ -1,15 +1,9 @@
-#include <pmath-core/expressions.h>
 #include <pmath-core/numbers.h>
-#include <pmath-core/symbols.h>
-
-#include <assert.h>
-#include <string.h>
 
 #include <pmath-util/messages.h>
 
-#include <pmath-builtins/lists-private.h>
-#include <pmath-builtins/all-symbols.h>
 #include <pmath-builtins/all-symbols-private.h>
+
 
 static pmath_t operate(
   pmath_t expr, // will be freed

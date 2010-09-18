@@ -35,7 +35,7 @@
 <tr><td colspan="2"><br><h2>Enumerations</h2></td></tr>
 <tr><td class="memItemLeft" nowrap align="right" valign="top">enum &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__symbols.html#g957dfb51b09e821a8fc052835ea66670">pmath_code_usage_t</a> </td></tr>
 
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Constants saying when to call a binded function. May f be the pMath symbol.  <a href="group__symbols.html#g957dfb51b09e821a8fc052835ea66670">More...</a><br></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Constants determining when to call a binded function. Let f be the pMath symbol.  <a href="group__symbols.html#g957dfb51b09e821a8fc052835ea66670">More...</a><br></td></tr>
 <tr><td colspan="2"><br><h2>Functions</h2></td></tr>
 <tr><td class="memItemLeft" nowrap align="right" valign="top">PMATH_API <a class="el" href="classpmath__symbol__t.html">pmath_symbol_t</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__symbols.html#ge9a166b048d04e6ef25632127f0172ba">pmath_symbol_builtin</a> (int index)</td></tr>
 
@@ -206,7 +206,7 @@ A pMath symbol (here called `sym`) can have one or more of the following values 
 <div class="memdoc">
 
 <p>
-Constants saying when to call a binded function. May f be the pMath symbol. 
+Constants determining when to call a binded function. Let f be the pMath symbol. 
 <p>
 <ul>
 <li>PMATH_CODE_USAGE_DOWNCALL Call binded function when evaluating `f(...)`</li></ul>
@@ -327,12 +327,12 @@ Bind a pMath symbol to some native code for approximation.
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
     <tr><td valign="top"></td><td valign="top"><em>symbol</em>&nbsp;</td><td>The symbol. It wont be freed. </td></tr>
-    <tr><td valign="top"></td><td valign="top"><em>func</em>&nbsp;</td><td>A native function. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>func</em>&nbsp;</td><td>A native function that frees/takes ownership of its first argument. </td></tr>
   </table>
 </dl>
 <dl class="return" compact><dt><b>Returns:</b></dt><dd>Whether the binding succeded.</dd></dl>
 Any previous approximation-binding to the symbol will be overwritten.<p>
-The native function will be calledd when evaluating the pMath expression <code>N(obj, {precision, accuracy})</code> as <code>func(obj, precision, accuracy)</code>, where obj is either `symbol` or `symbol(...)`. 
+The native function will be called as <code>func(obj, precision, accuracy)</code> when evaluating the pMath expression <code>N(obj, {precision, accuracy})</code>, where obj is either `symbol` or `symbol(...)`. 
 </div>
 </div><p>
 <a class="anchor" name="g78e6e98a2973c5e2b073b885269b12e4"></a><!-- doxytag: member="symbols.h::pmath_symbol_remove" ref="g78e6e98a2973c5e2b073b885269b12e4" args="(pmath_symbol_t symbol)" -->
@@ -744,14 +744,14 @@ Update a symbol manually.
 <p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>symbol</em>&nbsp;</td><td>A pMath symbol.</td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>symbol</em>&nbsp;</td><td>A pMath symbol. It wont be freed.</td></tr>
   </table>
 </dl>
 You normally do not have to call this, since every change in a symbol yields an update. But there are some situations where you might to update it manually. The update mechanism is an optimization. Any expresseion or symbol, that is up to date while evaluation, wont be evaluated again. After an evaluation, expressions are updated automatically. 
 </div>
 </div><p>
 </div>
-<hr size="1"><address style="text-align: right;"><small>Generated on Sun Apr 18 19:34:49 2010 for pMath by&nbsp;
+<hr size="1"><address style="text-align: right;"><small>Generated on Sat Sep 18 18:13:03 2010 for pMath by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.5.9 </small></address>
 </body>

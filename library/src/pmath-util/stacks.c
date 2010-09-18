@@ -1,5 +1,6 @@
-#include <pmath-util/concurrency/atomic-private.h>
 #include <pmath-util/stacks-private.h>
+
+#include <pmath-util/concurrency/atomic-private.h>
 #include <pmath-util/memory.h>
 
 static pmath_bool_t have_cas2;

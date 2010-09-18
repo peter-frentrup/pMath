@@ -55,7 +55,7 @@ static pmath_thread_t            main_thread  = 0;
 static volatile pmath_messages_t main_mq       = 0;
 static PMATH_DECLARE_ATOMIC(     main_mq_lock) = 0;
 
-static pmath_messages_t get_main_mq(){
+static pmath_messages_t get_main_mq(void){
   pmath_messages_t mq;
   
   pmath_atomic_lock(&main_mq_lock);

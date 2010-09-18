@@ -1,21 +1,18 @@
 #include <pmath-core/objects-private.h>
 #include <pmath-core/strings-private.h>
 
-#include <pmath-builtins/io-private.h>
+#include <pmath-language/charnames.h>
 #include <pmath-language/tokens.h>
-#include <pmath-util/memory.h>
-#include <pmath-util/incremental-hash-private.h>
-
-#include <assert.h>
-#include <errno.h>
-#include <string.h>
-#include <iconv.h>
-
-#include <pmath-util/debug.h>
 
 #include <pmath-util/concurrency/threads.h>
+#include <pmath-util/incremental-hash-private.h>
+#include <pmath-util/memory.h>
 
-#include <pmath-language/charnames.h>
+#include <pmath-builtins/io-private.h>
+
+#include <iconv.h>
+#include <string.h>
+
 
 static iconv_t to_utf8   = (iconv_t)-1;
 static iconv_t from_utf8 = (iconv_t)-1;

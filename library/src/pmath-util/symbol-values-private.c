@@ -14,8 +14,6 @@
 #include <string.h>
 
 
-
-
 struct _pmath_multirule_t{
   struct _pmath_t   inherited;
   

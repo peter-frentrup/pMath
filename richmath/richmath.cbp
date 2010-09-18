@@ -105,7 +105,7 @@
 					<Add option="/GF" />
 					<Add option="/Ox" />
 					<Add option="/W3" />
-					<Add option="/wd4800 /wd4710 /wd4711 /wd4738 /wd4244 /wd4146" />
+					<Add option="/wd4800 /wd4710 /wd4711 /wd4738 /wd4244 /wd4146 /wd4305" />
 					<Add option="/DNDEBUG" />
 					<Add option="/D_STATIC_CPPLIB" />
 					<Add option="/D_USE_MATH_DEFINES" />

@@ -38,6 +38,6 @@ void pmath_thread_call_locked(
   pmath_callback_t     callback,
   void                *data);
 
-/*@}*/
+/** @} */
 
 #endif /* __PMATH_UTIL__CONCURRENCY__THREADLOCKS_H__ */

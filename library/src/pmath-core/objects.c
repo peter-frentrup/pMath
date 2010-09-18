@@ -1,22 +1,16 @@
 #include <pmath-core/objects-private.h>
-#include <pmath-core/symbols.h>
-#include <pmath-util/memory.h>
-
-#include <assert.h>
-#include <inttypes.h>
-#include <stdio.h>
-#include <string.h>
-
-#include <pmath-util/debug.h>
 
 #include <pmath-core/expressions-private.h>
 #include <pmath-core/strings-private.h>
 
-#include <pmath-builtins/lists-private.h>
-#include <pmath-builtins/all-symbols.h>
+#include <pmath-util/debug.h>
+#include <pmath-util/memory.h>
+
 #include <pmath-builtins/all-symbols-private.h>
 
-#include <pmath-language/patterns-private.h>
+#include <stdio.h>
+#include <string.h>
+
 
 #define PMATH_VALID_TYPE_SHIFT(ts)  (((unsigned int)ts) < PMATH_TYPE_SHIFT_COUNT)
 

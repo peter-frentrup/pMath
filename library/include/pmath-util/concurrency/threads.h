@@ -202,6 +202,6 @@ void pmath_suspend_all_please(void);
 PMATH_API 
 void pmath_resume_all(void);
 
-/*@}*/
+/** @} */
 
 #endif /* __PMATH_UTIL__CONCURRENCY__THREADS_H__ */

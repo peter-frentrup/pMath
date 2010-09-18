@@ -1,36 +1,47 @@
-#include <pmath-core/expressions-private.h>
 #include <pmath-core/symbols-private.h>
-#include <pmath-util/evaluation.h>
-#include <pmath-util/incremental-hash-private.h>
-#include <pmath-util/memory.h>
-#include <pmath-util/stacks-private.h>
 
-#include <assert.h>
-#include <inttypes.h>
+#include <pmath-core/expressions-private.h>
+
+#include <pmath-util/concurrency/atomic-private.h>
+#include <pmath-util/concurrency/threadmsg.h>
+#include <pmath-util/concurrency/threads-private.h>
+#include <pmath-util/debug.h>
+#include <pmath-util/dynamic-private.h>
+#include <pmath-util/evaluation.h>
+#include <pmath-util/memory.h>
+#include <pmath-util/messages.h>
+#include <pmath-util/stacks-private.h>
+#include <pmath-util/symbol-values-private.h>
+
+#include <pmath-builtins/all-symbols-private.h>
+#include <pmath-builtins/control/definitions-private.h>
+
+#include <pmath-private.h>
+
 #include <limits.h>
 #include <stdio.h>
 #include <string.h>
 
-#include <pmath-util/debug.h>
-#include <pmath-util/dynamic-private.h>
-#include <pmath-util/hashtables-private.h>
-#include <pmath-util/messages.h>
-#include <pmath-util/symbol-values-private.h>
-
-#include <pmath-util/concurrency/threadlocks.h>
-#include <pmath-util/concurrency/threads.h>
-#include <pmath-util/concurrency/threads-private.h>
-
-#include <pmath-private.h>
-
-#include <pmath-builtins/all-symbols.h>
-#include <pmath-builtins/all-symbols-private.h>
-#include <pmath-builtins/control/definitions-private.h>
-
-#include <pmath-util/concurrency/atomic-private.h> // depends on pmath-objects-inline.h
 
 #ifdef _MSC_VER
   #define snprintf sprintf_s
+#endif
+
+#ifdef __PMATH_DEBUG_H__
+
+  #define PMATH_DEBUG_TIMING(CODE) \
+    do{ \
+      double PMATH_DEBUG_TIMING_START = pmath_tickcount(); \
+      CODE \
+      if(pmath_tickcount() - PMATH_DEBUG_TIMING_START > 1.0){ \
+        pmath_debug_print("%s line %d: LONG WAIT (%f sec)\n", __FILE__, __LINE__, pmath_tickcount() - PMATH_DEBUG_TIMING_START); \
+      } \
+    }while(0)
+  
+#else
+  
+  #define PMATH_DEBUG_TIMING(CODE)  do{ CODE }while(0)
+  
 #endif
 
 struct _pmath_symbol_t{
@@ -170,30 +181,16 @@ PMATH_API pmath_symbol_t pmath_symbol_iter_next(pmath_symbol_t old){
   if(!old)
     return NULL;
   
-  pmath_atomic_lock(&global_symbol_table_lock);
-  {
-    result = pmath_ref((pmath_symbol_t)((struct _pmath_symbol_t*)old)->next);
-  }
-  pmath_atomic_unlock(&global_symbol_table_lock);
+  PMATH_DEBUG_TIMING(
+    pmath_atomic_lock(&global_symbol_table_lock);
+    {
+      result = pmath_ref((pmath_symbol_t)((struct _pmath_symbol_t*)old)->next);
+    }
+    pmath_atomic_unlock(&global_symbol_table_lock);
+  );
   
   pmath_unref(old);
   return result;
-//  pmath_symbol_t result;
-//  
-//  pmath_atomic_lock(&global_symbol_table_lock);
-//  {
-//    unsigned int cap = pmath_ht_capacity(global_symbol_table);
-//    
-//    while(*i < cap){
-//      result = pmath_ref(pmath_ht_entry(global_symbol_table, *i));
-//      ++*i;
-//      if(result)
-//        break;
-//    }
-//  }
-//  pmath_atomic_unlock(&global_symbol_table_lock);
-//  
-//  return result;
 }
 
 /*----------------------------------------------------------------------------*/
@@ -228,11 +225,13 @@ PMATH_API pmath_symbol_t pmath_symbol_get(
     }
   }
   
-  pmath_atomic_lock(&global_symbol_table_lock);
-  {
-    result = pmath_ref(pmath_ht_search(global_symbol_table, name));
-  }
-  pmath_atomic_unlock(&global_symbol_table_lock);
+  PMATH_DEBUG_TIMING(
+    pmath_atomic_lock(&global_symbol_table_lock);
+    {
+      result = pmath_ref(pmath_ht_search(global_symbol_table, name));
+    }
+    pmath_atomic_unlock(&global_symbol_table_lock);
+  );
   
   if(result){
     pmath_unref(name);
@@ -254,14 +253,16 @@ PMATH_API pmath_symbol_t pmath_symbol_get(
     new_symbol->value       = PMATH_UNDEFINED;
     new_symbol->u.rules     = NULL;
     
-    pmath_atomic_lock(&global_symbol_table_lock);
-    {
-      pre_insert(new_symbol);
-      entry = pmath_ht_insert(global_symbol_table, new_symbol);
-      if(entry)
-        post_remove(entry);
-    }
-    pmath_atomic_unlock(&global_symbol_table_lock);
+    PMATH_DEBUG_TIMING(
+      pmath_atomic_lock(&global_symbol_table_lock);
+      {
+        pre_insert(new_symbol);
+        entry = pmath_ht_insert(global_symbol_table, new_symbol);
+        if(entry)
+          post_remove(entry);
+      }
+      pmath_atomic_unlock(&global_symbol_table_lock);
+    );
     
     if(entry){
       symbol_entry_destructor(entry);
@@ -332,12 +333,14 @@ PMATH_API pmath_symbol_t pmath_symbol_create_temporary(
   }
   else
     name = pmath_string_insert_latin1(name, INT_MAX, "$", 1);
-      
-  pmath_atomic_lock(&global_symbol_table_lock);
-  {
-    result = pmath_ref(pmath_ht_search(global_symbol_table, name));
-  }
-  pmath_atomic_unlock(&global_symbol_table_lock);
+  
+  PMATH_DEBUG_TIMING(
+    pmath_atomic_lock(&global_symbol_table_lock);
+    {
+      result = pmath_ref(pmath_ht_search(global_symbol_table, name));
+    }
+    pmath_atomic_unlock(&global_symbol_table_lock);
+  );
   
   if(!result){
     void *entry;
@@ -354,15 +357,17 @@ PMATH_API pmath_symbol_t pmath_symbol_create_temporary(
     new_symbol->attributes  = PMATH_SYMBOL_ATTRIBUTE_TEMPORARY;
     new_symbol->value       = PMATH_UNDEFINED;
     new_symbol->u.rules     = NULL;
-
-    pmath_atomic_lock(&global_symbol_table_lock);
-    {
-      pre_insert(new_symbol);
-      entry = pmath_ht_insert(global_symbol_table, new_symbol);
-      if(entry)
-        post_remove(entry);
-    }
-    pmath_atomic_unlock(&global_symbol_table_lock);
+    
+    PMATH_DEBUG_TIMING(
+      pmath_atomic_lock(&global_symbol_table_lock);
+      {
+        pre_insert(new_symbol);
+        entry = pmath_ht_insert(global_symbol_table, new_symbol);
+        if(entry)
+          post_remove(entry);
+      }
+      pmath_atomic_unlock(&global_symbol_table_lock);
+    );
     
     if(entry){
       symbol_entry_destructor(entry);
@@ -863,11 +868,13 @@ void pmath_symbol_remove(pmath_symbol_t symbol){
       
       // We do not have to reevaluate pmath_ht_capacity() in the loop,
       // because a hashtable never shrinks.
-      pmath_atomic_lock(&global_symbol_table_lock);
-      {
-        cap = pmath_ht_capacity(global_symbol_table);
-      }
-      pmath_atomic_unlock(&global_symbol_table_lock);
+      PMATH_DEBUG_TIMING(
+        pmath_atomic_lock(&global_symbol_table_lock);
+        {
+          cap = pmath_ht_capacity(global_symbol_table);
+        }
+        pmath_atomic_unlock(&global_symbol_table_lock);
+      );
       
       replacement = pmath_expr_new_extended(
         pmath_ref(PMATH_SYMBOL_SYMBOL), 1,
@@ -876,11 +883,13 @@ void pmath_symbol_remove(pmath_symbol_t symbol){
       for(i = 0;i < cap && symbol->refcount > 1;++i){
         pmath_symbol_t entry;
         
-        pmath_atomic_lock(&global_symbol_table_lock);
-        {
-          entry = pmath_ref(pmath_ht_entry(global_symbol_table, i));
-        }
-        pmath_atomic_unlock(&global_symbol_table_lock);
+        PMATH_DEBUG_TIMING(
+          pmath_atomic_lock(&global_symbol_table_lock);
+          {
+            entry = pmath_ref(pmath_ht_entry(global_symbol_table, i));
+          }
+          pmath_atomic_unlock(&global_symbol_table_lock);
+        );
         
         if(entry){
           pmath_t value;
@@ -925,15 +934,17 @@ static void destroy_symbol(struct _pmath_symbol_t *symbol){
       assert(symbol->name->type_shift == PMATH_TYPE_SHIFT_STRING);
       
       {
-        pmath_atomic_lock(&global_symbol_table_lock);
-        {
-          removed_entry = pmath_ht_remove(
-            global_symbol_table, 
-            symbol->name);
-          if(removed_entry)
-            post_remove(removed_entry);
-        }
-        pmath_atomic_unlock(&global_symbol_table_lock);
+        PMATH_DEBUG_TIMING(
+          pmath_atomic_lock(&global_symbol_table_lock);
+          {
+            removed_entry = pmath_ht_remove(
+              global_symbol_table, 
+              symbol->name);
+            if(removed_entry)
+              post_remove(removed_entry);
+          }
+          pmath_atomic_unlock(&global_symbol_table_lock);
+        );
         
         #ifdef PMATH_DEBUG_LOG
         if(removed_entry != symbol 
@@ -941,12 +952,14 @@ static void destroy_symbol(struct _pmath_symbol_t *symbol){
           pmath_symbol_t entry;
           unsigned int count, cap, i;
           
-          pmath_atomic_lock(&global_symbol_table_lock);
-          {
-            count = pmath_ht_count(   global_symbol_table);
-            cap   = pmath_ht_capacity(global_symbol_table);
-          }
-          pmath_atomic_unlock(&global_symbol_table_lock);
+          PMATH_DEBUG_TIMING(
+            pmath_atomic_lock(&global_symbol_table_lock);
+            {
+              count = pmath_ht_count(   global_symbol_table);
+              cap   = pmath_ht_capacity(global_symbol_table);
+            }
+            pmath_atomic_unlock(&global_symbol_table_lock);
+          );
           
           pmath_debug_print_object("\aHashtable corrupted?: ",(pmath_symbol_t)symbol,"");
           pmath_debug_print(" [hash= %u]\n", pmath_hash((pmath_symbol_t)symbol));
@@ -959,11 +972,13 @@ static void destroy_symbol(struct _pmath_symbol_t *symbol){
           for(i = 0;i < cap;++i){
             pmath_debug_print("\t%u:\t", i);
             
-            pmath_atomic_lock(&global_symbol_table_lock);
-            {
-              entry = pmath_ref(pmath_ht_entry(global_symbol_table, i));
-            }
-            pmath_atomic_unlock(&global_symbol_table_lock);
+            PMATH_DEBUG_TIMING(
+              pmath_atomic_lock(&global_symbol_table_lock);
+              {
+                entry = pmath_ref(pmath_ht_entry(global_symbol_table, i));
+              }
+              pmath_atomic_unlock(&global_symbol_table_lock);
+            );
             
             if(!entry){
               pmath_debug_print("NULL\n");
@@ -976,14 +991,16 @@ static void destroy_symbol(struct _pmath_symbol_t *symbol){
           }
           pmath_debug_print("<-------------------------------\n");
           
-          pmath_atomic_lock(&global_symbol_table_lock);
-          {
-            pre_insert(removed_entry);
-            removed_entry = pmath_ht_insert(global_symbol_table, removed_entry);
-            if(removed_entry)
-              post_remove(removed_entry);
-          }
-          pmath_atomic_unlock(&global_symbol_table_lock);
+          PMATH_DEBUG_TIMING(
+            pmath_atomic_lock(&global_symbol_table_lock);
+            {
+              pre_insert(removed_entry);
+              removed_entry = pmath_ht_insert(global_symbol_table, removed_entry);
+              if(removed_entry)
+                post_remove(removed_entry);
+            }
+            pmath_atomic_unlock(&global_symbol_table_lock);
+          );
         }
         #endif
       }

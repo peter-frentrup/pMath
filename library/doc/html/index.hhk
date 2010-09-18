@@ -33,7 +33,7 @@
     <LI><OBJECT type="text/sitemap"><param name="Local" value="group__debug.html#gdc8dcb307ec9ead7a2064a19c8f837cf"><param name="Name" value="pmath_debug_print"></OBJECT>
     <LI><OBJECT type="text/sitemap"><param name="Local" value="group__debug.html#g05424b6252f7de0e25b31aa10328c64a"><param name="Name" value="pmath_debug_print_object"></OBJECT>
   </UL>
-  <LI><OBJECT type="text/sitemap"><param name="Local" value="classpmath_1_1_gather.html#a7bde9ff3101ed9e9935617381d508e9"><param name="Name" value="Emit"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="classpmath_1_1_gather.html#18b782b18cbf0e217519266892d2338e"><param name="Name" value="emit"></OBJECT>
   <LI><OBJECT type="text/sitemap"><param name="Local" value="classpmath_1_1_gather.html#d686bb5cc8ffc544bff3f7aaa3723061"><param name="Name" value="end"></OBJECT>
   <LI><OBJECT type="text/sitemap"><param name="Local" value="classpmath_1_1_string.html#19b347bcc659699387241633e22fbb82"><param name="Name" value="equals"></OBJECT>
   <LI><OBJECT type="text/sitemap"><param name="Local" value="classpmath_1_1_expr.html#d94402d41c5577a24eb8775d01f70dce"><param name="Name" value="Expr"></OBJECT>
@@ -272,7 +272,7 @@
   </UL>
   <LI><OBJECT type="text/sitemap"><param name="Local" value="classpmath_1_1_gather.html"><param name="Name" value="pmath::Gather"></OBJECT>
   <UL>
-    <LI><OBJECT type="text/sitemap"><param name="Local" value="classpmath_1_1_gather.html#a7bde9ff3101ed9e9935617381d508e9"><param name="Name" value="Emit"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="classpmath_1_1_gather.html#18b782b18cbf0e217519266892d2338e"><param name="Name" value="emit"></OBJECT>
     <LI><OBJECT type="text/sitemap"><param name="Local" value="classpmath_1_1_gather.html#d686bb5cc8ffc544bff3f7aaa3723061"><param name="Name" value="end"></OBJECT>
     <LI><OBJECT type="text/sitemap"><param name="Local" value="classpmath_1_1_gather.html#500b90b7db7cf1efd445d450cb184724"><param name="Name" value="Gather"></OBJECT>
   </UL>
@@ -631,8 +631,9 @@
     <LI><OBJECT type="text/sitemap"><param name="Local" value="classpmath__messages__t.html#gf4d69db0ffe06846e57df7cadcd3dab6"><param name="Name" value="pmath_thread_get_queue"></OBJECT>
     <LI><OBJECT type="text/sitemap"><param name="Local" value="classpmath__messages__t.html#ga3867a708fb07b86e017e8f201ef7edd"><param name="Name" value="pmath_thread_send"></OBJECT>
     <LI><OBJECT type="text/sitemap"><param name="Local" value="classpmath__messages__t.html#g75339d9dd1902293cb72b38e77caa742"><param name="Name" value="pmath_thread_send_delayed"></OBJECT>
-    <LI><OBJECT type="text/sitemap"><param name="Local" value="classpmath__messages__t.html#g0466f7731e5e7cc3c4361f9512795a1c"><param name="Name" value="pmath_thread_send_wait"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="classpmath__messages__t.html#g4ce8afcfec001a88441bdf8b50bcd157"><param name="Name" value="pmath_thread_send_wait"></OBJECT>
     <LI><OBJECT type="text/sitemap"><param name="Local" value="classpmath__messages__t.html#gce6da6e34b0aeab35094ddccdd9a3e55"><param name="Name" value="pmath_thread_sleep"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="classpmath__messages__t.html#g199f3dc07d4b89174e641fa4b0b757db"><param name="Name" value="pmath_thread_sleep_timeout"></OBJECT>
     <LI><OBJECT type="text/sitemap"><param name="Local" value="classpmath__messages__t.html#gbf90d49f5c42ccaa736ae5e56af6a4a6"><param name="Name" value="pmath_thread_wakeup"></OBJECT>
   </UL>
   <LI><OBJECT type="text/sitemap"><param name="Local" value="group__strings.html#ga3ecac6a71274a3e43cedadb10085f2b"><param name="Name" value="pmath_native_writer"></OBJECT>
@@ -999,15 +1000,20 @@
     <LI><OBJECT type="text/sitemap"><param name="Local" value="group__threadmsg.html#g75339d9dd1902293cb72b38e77caa742"><param name="Name" value="pmath_messages_t"></OBJECT>
     <LI><OBJECT type="text/sitemap"><param name="Local" value="group__threadmsg.html#g75339d9dd1902293cb72b38e77caa742"><param name="Name" value="threadmsg"></OBJECT>
   </UL>
-  <LI><OBJECT type="text/sitemap"><param name="Local" value="group__threadmsg.html#g0466f7731e5e7cc3c4361f9512795a1c"><param name="Name" value="pmath_thread_send_wait"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="group__threadmsg.html#g4ce8afcfec001a88441bdf8b50bcd157"><param name="Name" value="pmath_thread_send_wait"></OBJECT>
   <UL>
-    <LI><OBJECT type="text/sitemap"><param name="Local" value="group__threadmsg.html#g0466f7731e5e7cc3c4361f9512795a1c"><param name="Name" value="pmath_messages_t"></OBJECT>
-    <LI><OBJECT type="text/sitemap"><param name="Local" value="group__threadmsg.html#g0466f7731e5e7cc3c4361f9512795a1c"><param name="Name" value="threadmsg"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="group__threadmsg.html#g4ce8afcfec001a88441bdf8b50bcd157"><param name="Name" value="pmath_messages_t"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="group__threadmsg.html#g4ce8afcfec001a88441bdf8b50bcd157"><param name="Name" value="threadmsg"></OBJECT>
   </UL>
   <LI><OBJECT type="text/sitemap"><param name="Local" value="group__threadmsg.html#gce6da6e34b0aeab35094ddccdd9a3e55"><param name="Name" value="pmath_thread_sleep"></OBJECT>
   <UL>
     <LI><OBJECT type="text/sitemap"><param name="Local" value="group__threadmsg.html#gce6da6e34b0aeab35094ddccdd9a3e55"><param name="Name" value="pmath_messages_t"></OBJECT>
     <LI><OBJECT type="text/sitemap"><param name="Local" value="group__threadmsg.html#gce6da6e34b0aeab35094ddccdd9a3e55"><param name="Name" value="threadmsg"></OBJECT>
+  </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="group__threadmsg.html#g199f3dc07d4b89174e641fa4b0b757db"><param name="Name" value="pmath_thread_sleep_timeout"></OBJECT>
+  <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="group__threadmsg.html#g199f3dc07d4b89174e641fa4b0b757db"><param name="Name" value="pmath_messages_t"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="group__threadmsg.html#g199f3dc07d4b89174e641fa4b0b757db"><param name="Name" value="threadmsg"></OBJECT>
   </UL>
   <LI><OBJECT type="text/sitemap"><param name="Local" value="classpmath__thread__t.html"><param name="Name" value="pmath_thread_t"></OBJECT>
   <UL>
@@ -1024,6 +1030,7 @@
   </UL>
   <LI><OBJECT type="text/sitemap"><param name="Local" value="classpmath__threadlock__t.html"><param name="Name" value="pmath_threadlock_t"></OBJECT>
   <LI><OBJECT type="text/sitemap"><param name="Local" value="group__threads.html#gf1aa6d6603faaa4120207be6108e356c"><param name="Name" value="pmath_throw"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="group__threadmsg.html#geff0c8bdc4ab3fb6a0d8abb3ebf07532"><param name="Name" value="pmath_tickcount"></OBJECT>
   <LI><OBJECT type="text/sitemap"><param name="Local" value="group__parser.html#g0cfde53ccdddc80d034dc5ee1ea54508"><param name="Name" value="pmath_token_analyse"></OBJECT>
   <LI><OBJECT type="text/sitemap"><param name="Local" value="group__parser.html#g28b52f6d7919338f54072961e86bb686"><param name="Name" value="pmath_token_maybe_bigop"></OBJECT>
   <LI><OBJECT type="text/sitemap"><param name="Local" value="group__parser.html#gb35bd0bbe60489c1169902df67c3714b"><param name="Name" value="pmath_token_maybe_first"></OBJECT>
@@ -1113,9 +1120,11 @@
     <LI><OBJECT type="text/sitemap"><param name="Local" value="group__threadmsg.html#gf4d69db0ffe06846e57df7cadcd3dab6"><param name="Name" value="pmath_thread_get_queue"></OBJECT>
     <LI><OBJECT type="text/sitemap"><param name="Local" value="group__threadmsg.html#ga3867a708fb07b86e017e8f201ef7edd"><param name="Name" value="pmath_thread_send"></OBJECT>
     <LI><OBJECT type="text/sitemap"><param name="Local" value="group__threadmsg.html#g75339d9dd1902293cb72b38e77caa742"><param name="Name" value="pmath_thread_send_delayed"></OBJECT>
-    <LI><OBJECT type="text/sitemap"><param name="Local" value="group__threadmsg.html#g0466f7731e5e7cc3c4361f9512795a1c"><param name="Name" value="pmath_thread_send_wait"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="group__threadmsg.html#g4ce8afcfec001a88441bdf8b50bcd157"><param name="Name" value="pmath_thread_send_wait"></OBJECT>
     <LI><OBJECT type="text/sitemap"><param name="Local" value="group__threadmsg.html#gce6da6e34b0aeab35094ddccdd9a3e55"><param name="Name" value="pmath_thread_sleep"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="group__threadmsg.html#g199f3dc07d4b89174e641fa4b0b757db"><param name="Name" value="pmath_thread_sleep_timeout"></OBJECT>
     <LI><OBJECT type="text/sitemap"><param name="Local" value="group__threadmsg.html#gbf90d49f5c42ccaa736ae5e56af6a4a6"><param name="Name" value="pmath_thread_wakeup"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="group__threadmsg.html#geff0c8bdc4ab3fb6a0d8abb3ebf07532"><param name="Name" value="pmath_tickcount"></OBJECT>
   </UL>
   <LI><OBJECT type="text/sitemap"><param name="Local" value="group__threads.html"><param name="Name" value="threads"></OBJECT>
   <UL>

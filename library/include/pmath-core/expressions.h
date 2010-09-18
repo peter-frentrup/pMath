@@ -205,6 +205,6 @@ pmath_expr_t pmath_expr_flatten(
   pmath_t       head,
   size_t        depth);
 
-/*@}*/
+/** @} */
 
 #endif /* __PMATH_CORE__EXPRESSIONS_H__ */

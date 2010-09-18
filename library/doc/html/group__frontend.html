@@ -183,7 +183,7 @@ Initialize the pMath CAS library.
 Any thread must call <a class="el" href="group__frontend.html#gfb9f2c789bee5295c6794d16c0164943" title="Initialize the pMath CAS library.">pmath_init()</a> before using any other pMath function (exception: <a class="el" href="group__atomic__ops.html">Atomic Operations</a>). If the initialization fails, the thread should stop. Otherwise, <a class="el" href="group__frontend.html#g012705e1fd248a7cebf738bae6375dd9" title="Free all resources used by the pMath CAS library and unload all modules.">pmath_done()</a> must be called before the thread ends.<p>
 When this function is called for the first time, the <code>maininit.pmath</code> file is executed. This file is searched in the following directories in order:<ol type=1>
 <li>The application directory</li><li>The directory specified in the <code>PMATH_BASEDIRECTORY</code> environment variable</li><li>Some operating system specific directories:<ul>
-<li>/etc/pmath, /etc/local/pmath, /usr/share/pmath, /usr/share/local/pmath on Unix like systems</li><li>The "common program files" and "program files" directories on Microsoft Windows. </li></ul>
+<li>/etc/pmath, /etc/local/pmath, /usr/share/pmath, /usr/share/local/pmath on Unix like systems</li><li>The "pmath" subfolder in the "common program files" and "program files" directories on Microsoft Windows, if existent. </li></ul>
 </li></ol>
 
 </div>
@@ -212,7 +212,7 @@ Free all resources used by the pMath CAS library and unload all modules.
 </div>
 </div><p>
 </div>
-<hr size="1"><address style="text-align: right;"><small>Generated on Sun Apr 18 19:34:50 2010 for pMath by&nbsp;
+<hr size="1"><address style="text-align: right;"><small>Generated on Sat Sep 18 18:13:03 2010 for pMath by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.5.9 </small></address>
 </body>

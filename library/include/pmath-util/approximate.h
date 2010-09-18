@@ -81,6 +81,6 @@ pmath_t pmath_approximate(
   double  prec, // -inf = MachinePrecision
   double  acc); // -inf = MachinePrecision
 
-/*@}*/
+/** @} */
 
 #endif /* __PMATH_UTIL__APPROXIMATE_H__ */

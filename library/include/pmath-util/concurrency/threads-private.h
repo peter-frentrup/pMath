@@ -96,10 +96,6 @@ PMATH_PRIVATE void           _pmath_thread_clean(pmath_bool_t final);
 PMATH_PRIVATE void           _pmath_thread_free(pmath_thread_t thread);
 
 PMATH_PRIVATE pmath_bool_t _pmath_threads_init(void);
-PMATH_PRIVATE void            _pmath_threads_done(void);
-
-/* seconds since January 1, 1970 (UTC)
- */
-PMATH_PRIVATE double _pmath_tickcount(void);
+PMATH_PRIVATE void         _pmath_threads_done(void);
 
 #endif /* __PMATH_UTIL__CONCURRENCY__THREADS_PRIVATE_H__ */
