@@ -166,10 +166,10 @@ PMATH_PRIVATE pmath_t builtin_showdefinition(pmath_expr_t expr){
   else
     pmath_unref(obj);
   
-  if((pmath_symbol_get_attributes(sym) & PMATH_SYMBOL_ATTRIBUTE_READPROTECTED) == 0){
-    obj = EVAL_CODE_ARGS("DefaultRules(`1`)", "(o)", pmath_ref(sym));
-    print_rule_defs(sym, obj, FALSE);
+  obj = EVAL_CODE_ARGS("DefaultRules(`1`)", "(o)", pmath_ref(sym));
+  print_rule_defs(sym, obj, FALSE);
     
+  if((pmath_symbol_get_attributes(sym) & PMATH_SYMBOL_ATTRIBUTE_READPROTECTED) == 0){
     obj = EVAL_CODE_ARGS("NRules(`1`)", "(o)", pmath_ref(sym));
     print_rule_defs(sym, obj, FALSE);
     

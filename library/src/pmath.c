@@ -564,6 +564,10 @@ PMATH_API pmath_bool_t pmath_init(void){
     
     PMATH_RUN("Options(Complement):={SameTest->Automatic}");
     
+    PMATH_RUN(
+      "Options(Dynamic):="
+      "Options(DynamicBox):={SynchronousUpdating->True}");
+    
     PMATH_RUN("Options(BinaryRead):=Options(BinaryWrite):={"
       "ByteOrdering:>$ByteOrdering}");
     

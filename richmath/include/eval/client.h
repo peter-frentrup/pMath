@@ -40,6 +40,8 @@ namespace richmath{
         bool (*func)(Expr cmd), 
         bool (*test)(Expr cmd) = 0);
       
+      static void gui_print_section(Expr expr); // call from GUI thread only
+      
       static void init();
       static void doevents();
       static int run();

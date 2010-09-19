@@ -1052,6 +1052,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   VERIFY(   PMATH_SYMBOL_SYMBOLNAME                = NEW_SYSTEM_SYMBOL("SymbolName"))
   VERIFY(   PMATH_SYMBOL_SYMMETRIC                 = NEW_SYSTEM_SYMBOL("Symmetric"))
   VERIFY(   PMATH_SYMBOL_SYNCHRONIZE               = NEW_SYSTEM_SYMBOL("Synchronize"))
+  VERIFY(   PMATH_SYMBOL_SYNCHRONOUSUPDATING       = NEW_SYSTEM_SYMBOL("SynchronousUpdating"))
   VERIFY(   PMATH_SYMBOL_SYNTAX                    = NEW_SYSTEM_SYMBOL("Syntax"))
   VERIFY(   PMATH_SYMBOL_SYNTAXINFORMATION         = NEW_SYSTEM_SYMBOL("SyntaxInformation"))
   VERIFY(   PMATH_SYMBOL_SYSTEMCHARACTERENCODING   = NEW_SYSTEM_SYMBOL("$SystemCharacterEncoding"))

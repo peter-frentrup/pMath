@@ -253,6 +253,9 @@ void Style::add_pmath(Expr options){
           else if(lhs == PMATH_SYMBOL_SHOWSTRINGCHARACTERS){
             set_pmath_bool(ShowStringCharacters, rhs);
           }
+          else if(lhs == PMATH_SYMBOL_SYNCHRONOUSUPDATING){
+            set_pmath_bool_auto(SynchronousUpdating, rhs);
+          }
           else if(lhs == PMATH_SYMBOL_TEXTSHADOW){
             set(TextShadow, rhs);
           }
@@ -682,6 +685,13 @@ void Style::emit_to_pmath(
     EMIT_RULE(
       PMATH_SYMBOL_SHOWSTRINGCHARACTERS, 
       pmath_ref(i ? PMATH_SYMBOL_TRUE : PMATH_SYMBOL_FALSE));
+  }
+  
+  if(get(SynchronousUpdating, &i)){
+    EMIT_RULE(
+      PMATH_SYMBOL_SYNCHRONOUSUPDATING, 
+      pmath_ref(i == 0 ? PMATH_SYMBOL_FALSE : 
+        (i == 1 ? PMATH_SYMBOL_TRUE : PMATH_SYMBOL_AUTOMATIC)));
   }
   
   if(get(TextShadow, &e)){

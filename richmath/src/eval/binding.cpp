@@ -15,6 +15,75 @@ static int current_document_id = 0;
 
 //{ pmath functions ...
 
+static pmath_t builtin_addconfigshaper(pmath_expr_t expr){
+  Expr data = Expr(
+    pmath_evaluate(
+      pmath_expr_new_extended(
+        pmath_ref(PMATH_SYMBOL_GET), 1,
+        pmath_expr_get_item(expr, 1))));
+  
+  pmath_unref(expr);
+  
+  Client::notify(CNT_ADDCONFIGSHAPER, data);
+  return NULL;
+}
+
+static pmath_t builtin_documentapply(pmath_expr_t _expr){
+  Expr expr(_expr);
+  
+  if(expr.expr_length() != 2){
+    pmath_message_argxxx(expr.expr_length(), 2, 2);
+    return expr.release();
+  }
+  
+  Client::notify_wait(CNT_MENUCOMMAND, expr);
+  
+  return NULL;
+}
+
+static pmath_t builtin_documents(pmath_expr_t expr){
+  if(pmath_expr_length(expr) > 0){
+    pmath_message_argxxx(pmath_expr_length(expr), 0, 0);
+    return expr;
+  }
+  
+  pmath_unref(expr);
+  
+  return Client::notify_wait(CNT_GETDOCUMENTS, Expr()).release();
+}
+
+static pmath_t builtin_internal_dynamicupdated(pmath_expr_t expr){
+  Client::notify(CNT_DYNAMICUPDATE, Expr(expr));
+  return NULL;
+}
+
+static pmath_t builtin_feo_options(pmath_expr_t _expr){
+  Expr expr(_expr);
+  
+  if(expr[0] == PMATH_SYMBOL_OPTIONS
+  && expr.expr_length() == 1){
+    Expr opts = Client::notify_wait(CNT_GETOPTIONS, expr[1]);
+    
+    return opts.release();
+  }
+  
+  return expr.release();
+}
+
+static pmath_t builtin_frontendtokenexecute(pmath_expr_t expr){
+  if(pmath_expr_length(expr) != 1){
+    pmath_message_argxxx(pmath_expr_length(expr), 1, 1);
+    return expr;
+  }
+  
+  Expr cmd = Expr(pmath_expr_get_item(expr, 1));
+  pmath_unref(expr);
+  
+  Client::run_menucommand(cmd);
+  
+  return NULL;
+}
+
 static pmath_t builtin_sectionprint(pmath_expr_t expr){
   if(pmath_expr_length(expr) == 2){
     pmath_t style = pmath_expr_get_item(expr, 1);
@@ -44,76 +113,6 @@ static pmath_t builtin_sectionprint(pmath_expr_t expr){
   }
   
   return expr;
-}
-
-static pmath_t builtin_documentapply(pmath_expr_t _expr){
-  Expr expr(_expr);
-  
-  if(expr.expr_length() != 2){
-    pmath_message_argxxx(expr.expr_length(), 2, 2);
-    return expr.release();
-  }
-  
-  Client::notify_wait(CNT_MENUCOMMAND, expr);
-  
-  return NULL;
-}
-
-static pmath_t builtin_documents(pmath_expr_t expr){
-  if(pmath_expr_length(expr) > 0){
-    pmath_message_argxxx(pmath_expr_length(expr), 0, 0);
-    return expr;
-  }
-  
-  pmath_unref(expr);
-  
-  return pmath_ref(
-    Client::notify_wait(CNT_GETDOCUMENTS, Expr()).get());
-}
-
-static pmath_t builtin_internal_dynamicupdated(pmath_expr_t expr){
-  Client::notify(CNT_DYNAMICUPDATE, Expr(expr));
-  return NULL;
-}
-
-static pmath_t builtin_frontendtokenexecute(pmath_expr_t expr){
-  if(pmath_expr_length(expr) != 1){
-    pmath_message_argxxx(pmath_expr_length(expr), 1, 1);
-    return expr;
-  }
-  
-  Expr cmd = Expr(pmath_expr_get_item(expr, 1));
-  pmath_unref(expr);
-  
-  Client::run_menucommand(cmd);
-  
-  return NULL;
-}
-
-static pmath_t builtin_feo_options(pmath_expr_t _expr){
-  Expr expr(_expr);
-  
-  if(expr[0] == PMATH_SYMBOL_OPTIONS
-  && expr.expr_length() == 1){
-    Expr opts = Client::notify_wait(CNT_GETOPTIONS, expr[1]);
-    
-    return opts.release();
-  }
-  
-  return expr.release();
-}
-
-static pmath_t builtin_addconfigshaper(pmath_expr_t expr){
-  Expr data = Expr(
-    pmath_evaluate(
-      pmath_expr_new_extended(
-        pmath_ref(PMATH_SYMBOL_GET), 1,
-        pmath_expr_get_item(expr, 1))));
-  
-  pmath_unref(expr);
-  
-  Client::notify(CNT_ADDCONFIGSHAPER, data);
-  return NULL;
 }
 
 static pmath_t builtin_selecteddocument(pmath_expr_t expr){
@@ -617,7 +616,7 @@ bool richmath::init_bindings(){
   Client::register_menucommand(String("EvaluatorSubsession"),        evaluator_subsession_cmd,  can_abort);
   Client::register_menucommand(String("SubsessionEvaluateSections"), subsession_evaluate_sections_cmd);
   
-  Client::register_menucommand(Expr(pmath_ref(PMATH_SYMBOL_DOCUMENTAPPLY)), cmd_document_apply);
+  Client::register_menucommand(Symbol(PMATH_SYMBOL_DOCUMENTAPPLY), cmd_document_apply);
   
   #define VERIFY(x)  if(0 == (x)) goto FAIL_SYMBOLS;
   #define NEW_SYMBOL(name)     pmath_symbol_get(PMATH_C_STRING(name), TRUE)

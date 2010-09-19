@@ -26,12 +26,16 @@ namespace richmath{
       
       virtual void enqueued() = 0;
       virtual bool start() = 0;
+      virtual void returned(Expr expr) = 0;
+      virtual void returned_boxes(Expr expr) = 0;
       virtual void end() = 0;
       
       Document *prepare_print(int *output_index);
       
-    public:
-      EvaluationPosition pos;
+      const EvaluationPosition &position(){ return _position; }
+      
+    protected:
+      EvaluationPosition _position;
       bool have_printed;
   };
   
@@ -41,6 +45,8 @@ namespace richmath{
       
       virtual void enqueued();
       virtual bool start();
+      virtual void returned(Expr expr);
+      virtual void returned_boxes(Expr expr);
       virtual void end();
   };
   
@@ -55,11 +61,22 @@ namespace richmath{
       Expr _expr;
   };
   
+  class DynamicEvaluationJob: public EvaluationJob{
+    public:
+      explicit DynamicEvaluationJob(Expr info, Expr expr, Box *box);
+      
+      virtual void returned(Expr expr);
+    
+    protected:
+      Expr _info;
+  };
+  
   class ReplacementJob: public InputJob{
     public:
       explicit ReplacementJob(MathSequence *seq, int start, int end);
       
       virtual bool start();
+      virtual void returned_boxes(Expr expr);
       virtual void end();
       
     public:

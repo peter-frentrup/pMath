@@ -153,6 +153,7 @@ namespace richmath{
       virtual Box *normalize_selection(int *start, int *end);
       
       virtual void dynamic_updated(){}
+      virtual void dynamic_finished(Expr info, Expr result){}
       bool request_repaint_all();
       virtual bool request_repaint(float x, float y, float w, float h);
       virtual void invalidate();

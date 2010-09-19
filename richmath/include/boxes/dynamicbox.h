@@ -17,6 +17,8 @@ namespace richmath{
       virtual pmath_t to_pmath(bool parseable);
       
       virtual void dynamic_updated();
+      virtual void dynamic_finished(Expr info, Expr result);
+      virtual bool edit_selection(Context *context){ return false; }
     
     public:
       Expr dynamic_content;

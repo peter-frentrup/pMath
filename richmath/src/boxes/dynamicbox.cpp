@@ -2,6 +2,7 @@
 
 #include <boxes/mathsequence.h>
 #include <eval/client.h>
+#include <eval/job.h>
 #include <graphics/context.h>
 
 #include <stdio.h>
@@ -24,8 +25,21 @@ DynamicBox::~DynamicBox(){
 
 DynamicBox *DynamicBox::create(Expr expr, int opts){
   if(expr[0] == PMATH_SYMBOL_DYNAMICBOX
-  && expr.expr_length() == 1){
-    return new DynamicBox(expr[1]);
+  && expr.expr_length() >= 1){
+    Expr options = Expr(pmath_options_extract(expr.get(), 1));
+    
+    if(options.is_valid()){
+      DynamicBox *box = new DynamicBox(expr[1]);
+      
+      if(options != PMATH_UNDEFINED){
+        if(box->style)
+          box->style->add_pmath(options);
+        else
+          box->style = new Style(options);
+      }
+    
+      return box;
+    }
   }
   
   return 0;
@@ -64,19 +78,21 @@ void DynamicBox::paint_content(Context *context){
         dynamic_content),
       this->id());
     
-    // TODO: Add option to not wait for result here, but to inform this box when 
-    //       a result is calculated.
-    run = Client::interrupt(run, Client::dynamic_timeout);
-    if(run == PMATH_UNDEFINED)
-      run = String("$Aborted");
-    
-    int opt = BoxOptionDefault;
-    if(get_style(AutoNumberFormating))
-      opt |= BoxOptionFormatNumbers;
-    
-    content()->load_from_object(run, opt);
-    invalidate();
-    must_resize = true;
+    if(get_style(SynchronousUpdating, 1) != 0){
+      run = Client::interrupt(run, Client::dynamic_timeout);
+      if(run == PMATH_UNDEFINED)
+        run = String("$Aborted");
+      
+      int opt = BoxOptionDefault;
+      if(get_style(AutoNumberFormating))
+        opt |= BoxOptionFormatNumbers;
+      
+      content()->load_from_object(run, opt);
+      invalidate();
+      must_resize = true;
+    }
+    else
+      Client::add_job(new DynamicEvaluationJob(Expr(), run, this));
   }
 }
 
@@ -91,6 +107,16 @@ void DynamicBox::dynamic_updated(){
   
   must_update = true;
   request_repaint_all();
+}
+
+void DynamicBox::dynamic_finished(Expr info, Expr result){
+  int opt = BoxOptionDefault;
+  if(get_style(AutoNumberFormating))
+    opt |= BoxOptionFormatNumbers;
+  
+  content()->load_from_object(result, opt);
+  invalidate();
+  must_resize = true;
 }
 
 //} ... class DynamicBox

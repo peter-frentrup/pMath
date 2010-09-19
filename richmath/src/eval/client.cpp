@@ -116,7 +116,7 @@ class ClientInfoWindow: public BasicWin32Widget{
                   old_job = print_pos;
                   
                   if(session->current_job->start()){
-                    print_pos = session->current_job->pos;
+                    print_pos = session->current_job->position();
                     
                     break;
                   }
@@ -158,20 +158,18 @@ void Client::notify(ClientNotificationType type, Expr data){
 
 Expr Client::notify_wait(ClientNotificationType type, Expr data){
   if(state != Running)
-    return Expr(pmath_ref(PMATH_SYMBOL_FAILED));
+    return Symbol(PMATH_SYMBOL_FAILED);
     
   if(GetCurrentThreadId() == main_thread_id){
     notify(type, data);
-    return Expr(pmath_ref(PMATH_SYMBOL_FAILED));
+    return Symbol(PMATH_SYMBOL_FAILED);
   }
   
   volatile bool finished = false;
   pmath_t result = PMATH_UNDEFINED;
-  //SharedPtr<Semaphore> sem = new Semaphore;
   ClientNotification cn;
   cn.finished = &finished;
   cn.notify_queue = Expr(pmath_thread_get_queue());
-  //cn.sem = sem;
   cn.type = type;
   cn.data = data;
   cn.result_ptr = &result;
@@ -186,7 +184,6 @@ Expr Client::notify_wait(ClientNotificationType type, Expr data){
   }
   pmath_debug_print("W");
   
-  //sem->wait();
   return Expr(result);
 }
 
@@ -224,6 +221,71 @@ void Client::register_menucommand(
     menu_command_testers.set(cmd, test);
   else
     menu_command_testers.remove(cmd);
+}
+
+  static void write_data(FILE *file, const uint16_t *data, int len){
+    #define BUFSIZE 200
+    char buf[BUFSIZE];
+    while(len > 0){
+      int tmplen = len < BUFSIZE ? len : BUFSIZE;
+      char *bufptr = buf;
+      while(tmplen-- > 0){
+        if(*data <= 0xFF){
+          *bufptr++ = (unsigned char)*data++;
+        }
+        else{
+          ++data;
+          *bufptr++ = '?';
+        }
+      }
+      if(pmath_aborting())
+        return;
+      fwrite(buf, 1, len < BUFSIZE ? len : BUFSIZE, file);
+      len-= BUFSIZE;
+    }
+    #undef BUFSIZE
+  }
+
+void Client::gui_print_section(Expr expr){
+  Document *doc = dynamic_cast<Document*>(
+    Box::find(print_pos.document_id));
+    
+  Section *sect = dynamic_cast<Section*>(
+    Box::find(print_pos.section_id));
+  
+  if(doc){
+    int index;
+    if(sect && sect->parent() == doc){
+      index = sect->index() + 1;
+      
+      while(index < doc->count()){
+        Section *s = doc->section(index);
+        if(!s || !s->get_style(SectionGenerated))
+          break;
+        
+        doc->remove(index, index + 1);
+      }
+    }
+    else
+      index = doc->length();
+    
+    sect = Section::create_from_object(expr);
+    if(sect){
+      doc->insert(index, sect);
+      
+      print_pos = EvaluationPosition(sect);
+    
+      if(doc->selection_box() == doc
+      && doc->selection_start() >= index
+      && doc->selection_end() >= index)
+        doc->move_to(doc, index + 1);
+    }
+  }
+  else{
+    printf("\n");
+    pmath_write(expr.get(), 0, (pmath_write_func_t)write_data, stdout);
+    printf("\n");
+  }
 }
 
 void Client::init(){
@@ -345,7 +407,7 @@ bool Client::is_idle(int document_id){
   
   while(s){
     SharedPtr<Job> job = s->current_job;
-    if(job && job->pos.document_id == document_id)
+    if(job && job->position().document_id == document_id)
       return false;
     
     s = s->next;
@@ -404,34 +466,13 @@ Expr Client::interrupt_cached(Expr expr){
   return interrupt_cached(expr, interrupt_timeout);
 }
 
-  static void write_data(FILE *file, const uint16_t *data, int len){
-    #define BUFSIZE 200
-    char buf[BUFSIZE];
-    while(len > 0){
-      int tmplen = len < BUFSIZE ? len : BUFSIZE;
-      char *bufptr = buf;
-      while(tmplen-- > 0){
-        if(*data <= 0xFF){
-          *bufptr++ = (unsigned char)*data++;
-        }
-        else{
-          ++data;
-          *bufptr++ = '?';
-        }
-      }
-      if(pmath_aborting())
-        return;
-      fwrite(buf, 1, len < BUFSIZE ? len : BUFSIZE, file);
-      len-= BUFSIZE;
-    }
-    #undef BUFSIZE
-  }
-
 static void execute(ClientNotification &cn){
   switch(cn.type){
     case CNT_STARTSESSION: {
       if(session->current_job){
-        Section *sect = dynamic_cast<Section*>(Box::find(session->current_job->pos.section_id));
+        Section *sect = dynamic_cast<Section*>(
+          Box::find(session->current_job->position().section_id));
+        
         if(sect){
           sect->dialog_start = true;
           sect->request_repaint_all();
@@ -454,7 +495,9 @@ static void execute(ClientNotification &cn){
       }
       
       if(session->current_job){
-        Section *sect = dynamic_cast<Section*>(Box::find(session->current_job->pos.section_id));
+        Section *sect = dynamic_cast<Section*>(
+          Box::find(session->current_job->position().section_id));
+          
         if(sect){
           sect->dialog_start = false;
           sect->request_repaint_all();
@@ -507,7 +550,7 @@ static void execute(ClientNotification &cn){
           old_job = print_pos;
           
           if(session->current_job->start()){
-            print_pos = session->current_job->pos;
+            print_pos = session->current_job->position();
             
             more = true;
             break;
@@ -542,72 +585,19 @@ static void execute(ClientNotification &cn){
     } break;
     
     case CNT_RETURN: {
-      cn.type = CNT_RETURNBOX;
-      cn.data = to_boxes(cn.data);
-      execute(cn);
-      return;
+      if(session->current_job){
+        session->current_job->returned(cn.data);
+      }
     } break;
     
     case CNT_RETURNBOX: {
-      ReplacementJob *job = dynamic_cast<ReplacementJob*>(session->current_job.ptr());
-      
-      if(job){
-        if(cn.data.is_valid()){
-          job->have_result = true;
-          job->result = cn.data;
-          break;
-        }
+      if(session->current_job){
+        session->current_job->returned_boxes(cn.data);
       }
-      
-      if(String(cn.data).equals("/\\/"))
-        break;
-      
-      cn.type = CNT_PRINTSECTION;
-      cn.data = generate_section("Output", cn.data);
-      execute(cn);
-      return;
     } break;
     
     case CNT_PRINTSECTION: {
-      Document *doc = dynamic_cast<Document*>(
-        Box::find(print_pos.document_id));
-        
-      Section *sect = dynamic_cast<Section*>(
-        Box::find(print_pos.section_id));
-      
-      if(doc){
-        int index;
-        if(sect && sect->parent() == doc){
-          index = sect->index() + 1;
-          
-          while(index < doc->count()){
-            Section *s = doc->section(index);
-            if(!s || !s->get_style(SectionGenerated))
-              break;
-            
-            doc->remove(index, index + 1);
-          }
-        }
-        else
-          index = doc->length();
-        
-        sect = Section::create_from_object(cn.data);
-        if(sect){
-          doc->insert(index, sect);
-          
-          print_pos = EvaluationPosition(sect);
-        
-          if(doc->selection_box() == doc
-          && doc->selection_start() >= index
-          && doc->selection_end() >= index)
-            doc->move_to(doc, index + 1);
-        }
-      }
-      else{
-        printf("\n");
-        pmath_write(cn.data.get(), 0, (pmath_write_func_t)write_data, stdout);
-        printf("\n");
-      }
+      Client::gui_print_section(cn.data);
     } break;
   
     case CNT_GETDOCUMENTS: {
