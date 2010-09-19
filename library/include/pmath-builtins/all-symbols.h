@@ -617,5 +617,7 @@ pmath_bool_t pmath_register_approx_code(
 #define PMATH_SYMBOL_SLIDER                                 PMATH_SYMBOL_BUILTIN(525)
 #define PMATH_SYMBOL_SLIDERBOX                              PMATH_SYMBOL_BUILTIN(526)
 #define PMATH_SYMBOL_FORMATRULES                            PMATH_SYMBOL_BUILTIN(527)
+#define PMATH_SYMBOL_CLEARALL                               PMATH_SYMBOL_BUILTIN(528)
+#define PMATH_SYMBOL_INTERNAL_THREADIDLE                    PMATH_SYMBOL_BUILTIN(529)
 
 #endif /* __PMATH_BUILTINS__SYMBOLS_H__ */

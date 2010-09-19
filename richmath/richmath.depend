@@ -2996,7 +2996,7 @@
 	<stdint.h>
 	<pmath.h>
 
-1284805259 d:\peter\programmieren\pmath\trunk\library\include\pmath.h
+1284826460 d:\peter\programmieren\pmath\trunk\library\include\pmath.h
 	<pmath-core/expressions.h>
 	<pmath-core/numbers.h>
 	<pmath-core/symbols.h>
@@ -3074,7 +3074,7 @@
 1284805259 d:\peter\programmieren\pmath\trunk\library\include\pmath-core\symbols.h
 	<pmath-core/strings.h>
 
-1284805253 d:\peter\programmieren\pmath\trunk\library\include\pmath-builtins\all-symbols.h
+1284908988 d:\peter\programmieren\pmath\trunk\library\include\pmath-builtins\all-symbols.h
 	<pmath-core/expressions.h>
 	<pmath-core/symbols.h>
 
@@ -3241,14 +3241,14 @@
 	<gui/document.h>
 	<gui/native-widget.h>
 
-1284581680 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\dynamicbox.cpp
+1284900067 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\dynamicbox.cpp
 	<boxes/dynamicbox.h>
 	<boxes/mathsequence.h>
 	<eval/client.h>
 	<graphics/context.h>
 	<stdio.h>
 
-1284296712 d:\peter\programmieren\pmath\trunk\richmath\include\boxes\dynamicbox.h
+1284898500 d:\peter\programmieren\pmath\trunk\richmath\include\boxes\dynamicbox.h
 	<boxes/ownerbox.h>
 
 1280054987 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\errorbox.cpp
@@ -3314,7 +3314,7 @@
 1280054985 d:\peter\programmieren\pmath\trunk\richmath\include\boxes\interpretationbox.h
 	<boxes/ownerbox.h>
 
-1284307408 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\mathsequence.cpp
+1284814312 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\mathsequence.cpp
 	<boxes/mathsequence.h>
 	<climits>
 	<cmath>
@@ -3634,7 +3634,7 @@
 	<Windows.h>
 	<util/base.h>
 
-1284757059 source:d:\peter\programmieren\pmath\trunk\richmath\src\gui\win32\basic-win32-window.cpp
+1284911139 source:d:\peter\programmieren\pmath\trunk\richmath\src\gui\win32\basic-win32-window.cpp
 	<math.h>
 	<stdio.h>
 	<cairo-win32.h>
@@ -3644,7 +3644,7 @@
 	<gui/win32/win32-widget.h>
 	<eval/client.h>
 
-1281039849 d:\peter\programmieren\pmath\trunk\richmath\include\gui\win32\basic-win32-window.h
+1284911319 d:\peter\programmieren\pmath\trunk\richmath\include\gui\win32\basic-win32-window.h
 	<graphics/canvas.h>
 	<gui/win32/basic-win32-widget.h>
 	<gui/win32/win32-themes.h>
@@ -3676,7 +3676,7 @@
 	<windows.h>
 	<gui/control-painter.h>
 
-1284763644 source:d:\peter\programmieren\pmath\trunk\richmath\src\gui\win32\win32-document-window.cpp
+1284911998 source:d:\peter\programmieren\pmath\trunk\richmath\src\gui\win32\win32-document-window.cpp
 	<gui/win32/win32-document-window.h>
 	<cmath>
 	<cstdio>
@@ -3736,7 +3736,7 @@
 	<gui/control-painter.h>
 	<resources.h>
 
-1284763588 source:d:\peter\programmieren\pmath\trunk\richmath\src\main.cpp
+1284911145 source:d:\peter\programmieren\pmath\trunk\richmath\src\main.cpp
 	<cmath>
 	<cstdio>
 	<ctime>
@@ -3802,7 +3802,7 @@
 	<pango/pango-layout.h>
 	<windows.h>
 
-1284748296 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\sliderbox.cpp
+1284843180 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\sliderbox.cpp
 	<boxes/sliderbox.h>
 	<eval/client.h>
 	<gui/document.h>

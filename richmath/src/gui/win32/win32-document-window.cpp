@@ -1,4 +1,5 @@
 #define _WIN32_WINNT 0x0600
+#define WINVER       0x0600
 
 #include <gui/win32/win32-document-window.h>
 
@@ -21,45 +22,30 @@
 
 using namespace richmath;
 
-//{ FOREACH_DOCUMENT, FOREACH_WIDGET, FOREACH_WINDOW ...
-#define FOREACH_DOCUMENT(NAME, PROC) \
-  for( \
-    unsigned int _fe_doc_count = 0, _fe_doc_i = 0; \
-    _fe_doc_count < all_document_ids.size(); \
-    ++_fe_doc_i \
-  ){ \
-    if(all_document_ids.entry(_fe_doc_i)){ \
-      ++_fe_doc_count; \
-       \
-      Document *NAME = dynamic_cast<Document*>( \
-        Box::find(all_document_ids.entry(_fe_doc_i)->key)); \
-       \
-      assert(NAME); \
-       \
-      { \
-        PROC \
-      } \
-    } \
-  }
-
-#define FOREACH_WIDGET(NAME, PROC) \
-  FOREACH_DOCUMENT(_fe_widget_doc, \
-    BasicWin32Widget *NAME = dynamic_cast<BasicWin32Widget*>( \
-      _fe_widget_doc->native()); \
-     \
-    if(NAME){ \
-      PROC \
-    } \
-  )
+//{ FOREACH_WINDOW ...
 
 #define FOREACH_WINDOW(NAME, PROC) \
-  FOREACH_WIDGET(_fe_window_widget, \
-    Win32DocumentWindow *NAME = _fe_window_widget->find_parent<Win32DocumentWindow>(); \
+  do{ \
+    BasicWin32Window *_FOREACH_WINDOW_FIRST = BasicWin32Window::first_window(); \
      \
-    if(NAME){ \
-      PROC \
+    if(_FOREACH_WINDOW_FIRST){ \
+      bool _FOREACH_WINDOW_FIRST_TIME = true; \
+       \
+      for( \
+          BasicWin32Window *_FOREACH_WINDOW_NEXT = _FOREACH_WINDOW_FIRST; \
+          _FOREACH_WINDOW_FIRST_TIME || _FOREACH_WINDOW_NEXT != _FOREACH_WINDOW_FIRST; \
+          _FOREACH_WINDOW_NEXT = _FOREACH_WINDOW_NEXT->next_window() \
+      ){ \
+        _FOREACH_WINDOW_FIRST_TIME = false; \
+        Win32DocumentWindow *NAME = dynamic_cast<Win32DocumentWindow*>(_FOREACH_WINDOW_NEXT); \
+         \
+        if(NAME){ \
+          PROC \
+        } \
+      } \
     } \
-  )
+  }while(0)
+
 //}
 
 class richmath::WorkingArea: public Win32Widget{
@@ -559,20 +545,34 @@ Win32DocumentWindow::~Win32DocumentWindow(){
   delete _working_area;
   delete menubar;
   
-  bool have_only_palettes = true;
-  FOREACH_WINDOW(win,
-    if(!win->_is_palette){
-      have_only_palettes = false;
-      break;
-    }
-  );
+  static bool deleting_all = false;
   
-  if(have_only_palettes){
+  if(!deleting_all){
+    bool have_only_palettes = true;
     FOREACH_WINDOW(win,
-      delete win;
+      if(win != this && !win->_is_palette){
+        have_only_palettes = false;
+        break;
+      }
     );
     
-    PostQuitMessage(0);
+    if(have_only_palettes){
+      static Array<Win32DocumentWindow*> all_windows;
+      
+      all_windows.length(0);
+      FOREACH_WINDOW(win,
+        if(win != this)
+          all_windows.add(win);
+      );
+      
+      deleting_all = true;
+      for(int i = 0;i < all_windows.length();++i){
+        delete all_windows[i];
+      }
+      deleting_all = false;
+      
+      PostQuitMessage(0);
+    }
   }
 }
 
@@ -774,13 +774,14 @@ void Win32DocumentWindow::is_palette(bool value){
   
   _is_palette = value;
   
-  snap_affinity(_is_palette ? 1 : 0);
-  
   if(_is_palette){
-    // tool window caption and allways on top:
+    // tool window caption:
     SetWindowLongW(_hwnd, GWL_EXSTYLE, 
-      GetWindowLongW(_hwnd, GWL_EXSTYLE) | WS_EX_TOOLWINDOW | WS_EX_TOPMOST);
-      
+      GetWindowLongW(_hwnd, GWL_EXSTYLE) | WS_EX_TOOLWINDOW);
+    
+    // in front of non-palettes:
+    zorder_level = 1;
+    
     // also enable Minimize/Maximize in system menu:
     SetWindowLongW(_hwnd, GWL_STYLE,
       GetWindowLongW(_hwnd, GWL_STYLE) & ~(WS_MAXIMIZEBOX | WS_MINIMIZEBOX));
@@ -788,9 +789,12 @@ void Win32DocumentWindow::is_palette(bool value){
     menubar->appearence(MaNeverShow);
   }
   else{
-    // normal window caption and position:
+    // normal window caption:
     SetWindowLongW(_hwnd, GWL_EXSTYLE, 
-      GetWindowLongW(_hwnd, GWL_EXSTYLE) & ~(WS_EX_TOOLWINDOW | WS_EX_TOPMOST));
+      GetWindowLongW(_hwnd, GWL_EXSTYLE) & ~(WS_EX_TOOLWINDOW));
+    
+    // behind palettes:
+    zorder_level = 0;
     
     // also enable Minimize/Maximize in system menu:
     SetWindowLongW(_hwnd, GWL_STYLE,
@@ -805,7 +809,6 @@ void Win32DocumentWindow::is_palette(bool value){
   _working_area->auto_size = _is_palette;
   _working_area->document()->border_visible = !_is_palette;
   _working_area->_autohide_vertical_scrollbar = _is_palette;
-//  rearrange();
   
   on_theme_changed();
 }
@@ -893,28 +896,15 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
           }
         }
         else if(LOWORD(wParam) != WA_INACTIVE){ // restore & activate
-          if(!_is_palette){
-            FOREACH_WINDOW(tool,
-              if(tool->_is_palette
-              && IsWindowVisible(tool->hwnd())){
-                SetWindowPos(tool->hwnd(), HWND_TOPMOST, 0, 0, 0, 0, 
-                  SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
-              }
-            );
-          }
-            
           SetFocus(_hwnd);
         }
-        
-        //_top_glass_area->force_redraw();
-        //_bottom_glass_area->force_redraw();
       } break;
       
       case WM_ACTIVATEAPP: {
         static bool already_activated = false;
         
         if(wParam){ // activate
-          if(!already_activated){
+          if(!already_activated){            
             FOREACH_WINDOW(wnd,
               if(!wnd->_is_palette){
                 SetWindowPos(wnd->hwnd(), HWND_TOP, 0, 0, 0, 0, 
@@ -925,65 +915,9 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
           already_activated = true;
         }
         else{
-          FOREACH_WINDOW(tool,
-            if(tool->_is_palette){
-              SetWindowPos(tool->hwnd(), HWND_NOTOPMOST, 0, 0, 0, 0, 
-                SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
-            }
-          );
           already_activated = false;
         }
       } break;
-      
-//      case WM_SHOWWINDOW: {
-//        if(wParam){ // shown
-//          if(_is_palette){
-//            Document *doc = get_current_document();
-//            HWND main_window = NULL;
-//            
-//            if(doc){
-//              Win32Widget *widget = dynamic_cast<Win32Widget*>(doc->native());
-//              
-//              if(widget){
-//                main_window = widget->hwnd();
-//                
-//                while(GetParent(main_window))
-//                  main_window = GetParent(main_window);
-//                
-//                if(main_window 
-//                && IsWindowVisible(main_window)
-//                && (GetWindowLongW(main_window, GWL_STYLE) & WS_MINIMIZE) == 0){
-//                  Win32DocumentWindow *window = dynamic_cast<Win32DocumentWindow*>(BasicWin32Widget::from_hwnd(main_window));
-//                  if(window && window->_is_palette)
-//                    main_window = NULL;
-//                }
-//                else
-//                  main_window = NULL;
-//              }
-//            }
-//            
-//            if(!main_window){
-//              FOREACH_WINDOW(wnd,
-//                if(wnd != this 
-//                && !wnd->_is_palette
-//                && IsWindowVisible(wnd->hwnd())
-//                && (GetWindowLongW(wnd->hwnd(), GWL_STYLE) & WS_MINIMIZE) == 0){
-//                  main_window = wnd->hwnd();
-//                  break;
-//                }
-//              );
-//            }
-//            
-//            if(!main_window)
-//              printf("[no main_window]");
-//            else
-//              SetFocus(main_window);
-//          }
-//          else{
-//            printf("[show non-palette]");
-//          }
-//        }
-//      } break;
       
       case WM_COMMAND: {
         SharedPtr<MathShaper> ms = _working_area->document_context()->math_shaper;

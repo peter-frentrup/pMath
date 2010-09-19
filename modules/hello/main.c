@@ -34,6 +34,7 @@ pmath_bool_t pmath_module_init(void){
 #undef NEW_SYMBOL
 #undef BIND
 #undef BIND_DOWN
+#undef PROTECT
 }
 
 PMATH_MODULE

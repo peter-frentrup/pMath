@@ -42,6 +42,7 @@
 {"CirclePlus", {"ArgumentCount" -> 2..}},
 {"CircleTimes", {"ArgumentCount" -> 2..}},
 {"Clear", {"ArgumentCount" -> 1..}},
+{"ClearAll", {"ArgumentCount" -> 1..}},
 {"Close", {"ArgumentCount" -> 1}},
 {"Colon", {"ArgumentCount" -> 2..}},
 {"Complement", {"ArgumentCount" -> 1..}},

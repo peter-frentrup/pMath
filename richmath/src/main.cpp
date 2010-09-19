@@ -298,7 +298,7 @@ int main(){
     Stylesheet::Default->base->set(FontWeight,             FontWeightPlain);
     
     Stylesheet::Default->base->set(AutoDelete,             false);
-    Stylesheet::Default->base->set(AutoNumberFormating,    false);
+    Stylesheet::Default->base->set(AutoNumberFormating,    true);
     Stylesheet::Default->base->set(AutoSpacing,            false);
     Stylesheet::Default->base->set(ContentType,            ContentTypeBoxData);
     Stylesheet::Default->base->set(Editable,               true);
@@ -359,8 +359,9 @@ int main(){
     Stylesheet::Default->styles.set("Arg", s);
     
     s = new Style;
-    s->set(AutoSpacing, true);
-    s->set(ShowAutoStyles, true);
+    s->set(AutoSpacing,         true);
+    s->set(AutoNumberFormating, false);
+    s->set(ShowAutoStyles,      true);
     s->set(FontSize,                11.0);
     s->set(SectionMarginLeft,       56.0);
     s->set(SectionMarginTop,        10.0);
@@ -369,8 +370,8 @@ int main(){
     
     s = new Style;
     s->set(BaseStyleName, "Input");
-    s->set(AutoNumberFormating, true);
-    s->set(ShowAutoStyles, false);
+    s->set(AutoNumberFormating,  true);
+    s->set(ShowAutoStyles,       false);
     s->set(ShowStringCharacters, false);
     s->set(SectionGroupPrecedence,  10);
     s->set(SectionMarginTop,         5.0);
@@ -597,15 +598,22 @@ int main(){
 //        "SectionFrameMargins->{2, 2, 0, 0},"
 //        "SectionMargins->0)"))));
     
+    PMATH_RUN(
+//      "FE`$StatusSlider:= 0.5;"
+      "FE`$StatusText:=\"Press ALT to show the menu.\"");
+    
     wndMain->bottom_glass()->insert(0,
     Section::create_from_object(Expr(run(
       "Section(BoxData({"
-          "ButtonBox("
-            "\"\\\"Status\\\"\","
-            "ButtonFrame->\"Palette\")"
+          "DynamicBox(FE`$StatusText),"
+          "FillBox(\"\")"
+//          ",\"\\[CircleMinus]\","
+//          "SliderBox(Dynamic(FE`$StatusSlider, "
+//            "With({val:= If(Abs(# - 0.5) < 0.05, 0.5, #)}, If(val != FE`$StatusSlider, FE`$StatusSlider:= val))&),0..1),"
+//          "\"\\[CirclePlus]\""
         "}),\"Docked\","
         "LineBreakWithin->False,"
-        "SectionMargins->{0, 12, 0, 0},"
+        "SectionMargins->{0, 12, 1, 0},"
         "SectionFrameMargins->0)"))));
         
     doc = wndMain->document();
@@ -772,42 +780,52 @@ int main(){
     
     // override CreateProcess STARTF_USESHOWWINDOW flag:
     //ShowWindow(wndMain->hwnd(), SW_SHOWDEFAULT);
-    
     ShowWindow(wndPalette->hwnd(), SW_SHOWNORMAL);
     ShowWindow(wndMain->hwnd(), SW_SHOWNORMAL);
     
-//    {
-//      Win32DocumentWindow *wndInterrupt = new Win32DocumentWindow(
-//        new Document,
-//        0, WS_OVERLAPPEDWINDOW,
-//        CW_USEDEFAULT,
-//        CW_USEDEFAULT,
-//        0,
-//        0);
-//      wndInterrupt->init();
-//        
-//      wndInterrupt->is_palette(true);
-//      doc = wndInterrupt->document();
-//      
-//      doc->style->set(Editable, false);
-//      doc->style->set(Selectable, false);
-//      
-//      wndInterrupt->title("Kernel Interrupt");
-//      write_section(doc, run(
-//        "Section(BoxData("
-//          "GridBox({"
-//            "{ButtonBox(\"\\\"Abort Command Being Evaluated\\\"\")},"
-//            "{ButtonBox(\"\\\"Enter Subsession\\\"\")},"
-//            "{ButtonBox(\"\\\"Continue Evaluation\\\"\")}})),"
-//          "\"ControlStyle\"," 
-//          "FontSize->9,"
-//          "ShowSectionBracket->False," 
-//          "ShowStringCharacters->False)"));
-//      
-//      doc->select(0,0,0);
-//      
-//      ShowWindow(wndInterrupt->hwnd(), SW_SHOWNORMAL);
-//    }
+    for(int i = 0;i < 0;++i){
+      wndMain = new Win32DocumentWindow(
+        new Document,
+        0, WS_OVERLAPPEDWINDOW,
+        CW_USEDEFAULT,
+        CW_USEDEFAULT,
+        500,
+        550);
+      wndMain->init();
+      ShowWindow(wndMain->hwnd(), SW_SHOWNORMAL);
+    }
+    
+    if(0){
+      Win32DocumentWindow *wndInterrupt = new Win32DocumentWindow(
+        new Document,
+        0, WS_OVERLAPPEDWINDOW,
+        CW_USEDEFAULT,
+        CW_USEDEFAULT,
+        0,
+        0);
+      wndInterrupt->init();
+        
+      wndInterrupt->is_palette(true);
+      doc = wndInterrupt->document();
+      
+      doc->style->set(Editable, false);
+      doc->style->set(Selectable, false);
+      
+      wndInterrupt->title("Kernel Interrupt");
+      write_section(doc, run(
+        "Section(BoxData("
+          "GridBox({"
+            "{ButtonBox(\"\\\"Abort Command Being Evaluated\\\"\")},"
+            "{ButtonBox(\"\\\"Enter Subsession\\\"\")},"
+            "{ButtonBox(\"\\\"Continue Evaluation\\\"\")}})),"
+          "\"ControlStyle\"," 
+          "FontSize->9,"
+          "ShowSectionBracket->False," 
+          "ShowStringCharacters->False)"));
+      
+      doc->select(0,0,0);
+      ShowWindow(wndInterrupt->hwnd(), SW_SHOWNORMAL);
+    }
       
     Client::doevents();
     SetActiveWindow(wndMain->hwnd());

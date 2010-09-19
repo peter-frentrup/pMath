@@ -74,6 +74,8 @@ static void remove_basic_window(){
 
 //{ class BasicWin32Window ...
 
+static BasicWin32Window *_first_window = NULL;
+
 BasicWin32Window::BasicWin32Window(
   DWORD style_ex, 
   DWORD style,
@@ -93,19 +95,31 @@ BasicWin32Window::BasicWin32Window(
   max_client_height(-1),
   min_client_width(0),
   max_client_width(-1),
+  zorder_level(0),
   _active(false),
   _glass_enabled(false),
-  _snap_affinity(false),
   _themed_frame(false),
   _mouse_over_caption_buttons(false),
   snap_correction_x(0),
   snap_correction_y(0),
   last_moving_x(0),
-  last_moving_y(0)
+  last_moving_y(0),
+  _prev_window(this),
+  _next_window(this)
 {
   memset(&_extra_glass, 0, sizeof(_extra_glass));
   
   add_basic_window();
+  
+  if(_first_window){
+    _prev_window = _first_window->_prev_window;
+    _prev_window->_next_window = this;
+    _next_window = _first_window;
+    _first_window->_prev_window = this;
+  }
+  else{
+    _first_window = this;
+  }
 }
 
 void BasicWin32Window::after_construction(){
@@ -114,6 +128,15 @@ void BasicWin32Window::after_construction(){
 
 BasicWin32Window::~BasicWin32Window(){
   remove_basic_window();
+  
+  if(_first_window == this){
+    _first_window = _next_window;
+    if(_first_window == this)
+      _first_window = 0;
+  }
+  
+  _next_window->_prev_window = _prev_window;
+  _prev_window->_next_window = _next_window;
 }
 
 void BasicWin32Window::get_client_rect(RECT *rect){
@@ -171,14 +194,6 @@ void BasicWin32Window::get_nc_margins(Win32Themes::MARGINS *margins){
 }
 
 //{ snapping windows & alignment ...
-
-void BasicWin32Window::snap_affinity(int value){
-  if(_snap_affinity == value)
-    return;
-  
-  _snap_affinity = value;
-  all_snappers.clear();
-}
 
   static bool snap_inside(
     const RECT &orig,
@@ -404,7 +419,7 @@ void BasicWin32Window::snap_rect_or_pt(RECT *windowrect, POINT *pt){
   struct find_snap_info_t{
     HWND dst;
     RECT dst_rect;
-    int min_affinity;
+    int min_level;
     Hashtable<HWND,Void,cast_hash> *snappers;
   };
   
@@ -415,7 +430,7 @@ BOOL CALLBACK BasicWin32Window::find_snap_hwnd(HWND hwnd, LPARAM lParam){
     BasicWin32Window *win = dynamic_cast<BasicWin32Window*>(
       BasicWin32Widget::from_hwnd(hwnd));
     
-    if(win && win->_snap_affinity <= info->min_affinity)
+    if(win && win->zorder_level <= info->min_level)
       return TRUE;
     
     RECT rect;
@@ -449,7 +464,7 @@ void BasicWin32Window::find_all_snappers(){
   all_snappers.clear();
   
   info.dst = _hwnd;
-  info.min_affinity = _snap_affinity;
+  info.min_level = zorder_level;
   GetWindowRect(info.dst, &info.dst_rect);
   info.snappers = &all_snappers;
   
@@ -1161,10 +1176,8 @@ void BasicWin32Window::paint_background(Canvas *canvas, int x, int y, bool wallp
 }
 
 void BasicWin32Window::on_paint_background(Canvas *canvas){
-  if(!_themed_frame)
-    return;
-
-  if(background_image 
+  if(_themed_frame 
+  && background_image 
   && cairo_surface_status(background_image) == CAIRO_STATUS_SUCCESS){
     RECT rect, glassfree;
     GetClientRect(_hwnd, &rect);
@@ -1199,6 +1212,10 @@ void BasicWin32Window::on_paint_background(Canvas *canvas){
     
     canvas->paint_with_alpha(0.25);
   }
+}
+
+BasicWin32Window *BasicWin32Window::first_window(){
+  return _first_window;
 }
 
 LRESULT BasicWin32Window::nc_hit_test(WPARAM wParam, LPARAM lParam){
@@ -1397,6 +1414,69 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam){
         all_snappers.clear();
       } break;
       //} ... sizing & moving
+      
+      case WM_WINDOWPOSCHANGING: {
+        WINDOWPOS *pos = (WINDOWPOS*)lParam;
+        static bool during_pos_changing = false;
+        
+        if(!during_pos_changing
+        && 0 == (pos->flags & SWP_NOZORDER)){
+          during_pos_changing = true; // prevent recursive call
+          // place behind all windows with higher zorder_level
+          
+          BasicWin32Window *last_higher = 0;
+          BasicWin32Window *next = _next_window;
+          while(next != this){
+            if(next->zorder_level > zorder_level){
+              last_higher = next;
+              break;
+            }
+            next = next->_next_window;
+          }
+          
+          // get all windows from higher level, sorted from back to front
+          static Array<BasicWin32Window*> all_higher;
+          all_higher.length(0);
+          if(last_higher){
+            HWND next_hwnd = GetNextWindow(last_higher->hwnd(), GW_HWNDNEXT);
+            while(next_hwnd){
+              BasicWin32Window *wnd = dynamic_cast<BasicWin32Window*>(
+                BasicWin32Widget::from_hwnd(next_hwnd));
+              
+              if(wnd && wnd->zorder_level > zorder_level)
+                last_higher = wnd;
+                
+              next_hwnd = GetNextWindow(next_hwnd, GW_HWNDNEXT);
+            }
+            
+            all_higher.add(last_higher);
+            
+            next_hwnd = GetNextWindow(last_higher->hwnd(), GW_HWNDPREV);
+            while(next_hwnd){
+              BasicWin32Window *wnd = dynamic_cast<BasicWin32Window*>(
+                BasicWin32Widget::from_hwnd(next_hwnd));
+              
+              if(wnd && wnd->zorder_level > zorder_level)
+                all_higher.add(wnd);
+                
+              next_hwnd = GetNextWindow(next_hwnd, GW_HWNDPREV);
+            }
+          }
+          
+          /* Put the higher-level windows to the top again and place this window 
+             behind. */
+          if(all_higher.length() > 0){
+            pos->hwndInsertAfter = all_higher[0]->hwnd();
+            
+            for(int i = 0;i < all_higher.length();++i){
+              SetWindowPos(all_higher[i]->hwnd(), HWND_TOP, 0, 0, 0, 0, 
+                SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
+            }
+          }
+          
+          during_pos_changing = false;
+        }
+      } break;
       
       case WM_THEMECHANGED:
       case WM_DWMCOMPOSITIONCHANGED: {

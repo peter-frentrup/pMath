@@ -426,7 +426,7 @@ pmath_t pmath_build_value(
 
 PMATH_API pmath_expr_t pmath_options_extract(
   pmath_expr_t expr,
-  size_t             last_nonoption
+  size_t       last_nonoption
 ){
   pmath_t option;
   size_t i, len;
@@ -750,7 +750,7 @@ pmath_t pmath_session_start(void){
     return NULL;
   }
   
-  _pmath_clear(PMATH_SYMBOL_MESSAGECOUNT);
+  _pmath_clear(PMATH_SYMBOL_MESSAGECOUNT, FALSE);
   return pmath_build_value("(ooo)", old_dlvl, old_line, old_msgcnt);
 }
 

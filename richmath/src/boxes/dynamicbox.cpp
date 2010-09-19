@@ -13,7 +13,8 @@ using namespace richmath;
 DynamicBox::DynamicBox(Expr _dynamic_content)
 : OwnerBox(),
   dynamic_content(_dynamic_content),
-  must_update(true)
+  must_update(true),
+  must_resize(false)
 {
 }
 
@@ -30,7 +31,27 @@ DynamicBox *DynamicBox::create(Expr expr, int opts){
   return 0;
 }
 
+void DynamicBox::resize(Context *context){
+  OwnerBox::resize(context);
+  must_resize = false;
+  
+  if(_extents.width <= 0)
+     _extents.width = 0.75;
+  
+  if(_extents.height() <= 0){
+    _extents.ascent  = 0.75;
+    _extents.descent = 0.0;
+  }
+}
+
 void DynamicBox::paint_content(Context *context){
+  if(must_resize){
+    context->canvas->save();
+    OwnerBox::resize(context);
+    must_resize = false;
+    context->canvas->restore();
+  }
+  
   OwnerBox::paint_content(context);
   
   if(must_update){
@@ -55,6 +76,7 @@ void DynamicBox::paint_content(Context *context){
     
     content()->load_from_object(run, opt);
     invalidate();
+    must_resize = true;
   }
 }
 

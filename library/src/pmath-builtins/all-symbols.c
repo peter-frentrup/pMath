@@ -386,6 +386,8 @@ PMATH_PRIVATE pmath_t builtin_parallelmap( pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_parallelscan(pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_paralleltry( pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_wait(        pmath_expr_t expr);
+
+PMATH_PRIVATE pmath_t builtin_internal_threadidle(pmath_expr_t expr);
 //} ============================================================================
 
 //{ general purpose builtin functions ...
@@ -581,6 +583,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   VERIFY(   PMATH_SYMBOL_INTERNAL_ISCRITICALMESSAGE  = NEW_SYMBOL("Internal`IsCriticalMessage"))
   VERIFY(   PMATH_SYMBOL_INTERNAL_NAMESPACEPATHSTACK = NEW_SYMBOL("Internal`$NamespacePathStack"))
   VERIFY(   PMATH_SYMBOL_INTERNAL_NAMESPACESTACK     = NEW_SYMBOL("Internal`$NamespaceStack"))
+  VERIFY(   PMATH_SYMBOL_INTERNAL_THREADIDLE         = NEW_SYMBOL("Internal`ThreadIdle"))
   
   VERIFY(   PMATH_SYMBOL_UTILITIES_GETSYSTEMSYNTAXINFORMATION  = NEW_SYMBOL("System`Utilities`GetSystemSyntaxInformation"))
   
@@ -650,6 +653,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   VERIFY(   PMATH_SYMBOL_CIRCLEPLUS                = NEW_SYSTEM_SYMBOL("CirclePlus"))
   VERIFY(   PMATH_SYMBOL_CIRCLETIMES               = NEW_SYSTEM_SYMBOL("CircleTimes"))
   VERIFY(   PMATH_SYMBOL_CLEAR                     = NEW_SYSTEM_SYMBOL("Clear"))
+  VERIFY(   PMATH_SYMBOL_CLEARALL                  = NEW_SYSTEM_SYMBOL("ClearAll"))
   VERIFY(   PMATH_SYMBOL_CLOSE                     = NEW_SYSTEM_SYMBOL("Close"))
   VERIFY(   PMATH_SYMBOL_COLON                     = NEW_SYSTEM_SYMBOL("Colon"))
   VERIFY(   PMATH_SYMBOL_COMMANDLINE               = NEW_SYSTEM_SYMBOL("$CommandLine"))
@@ -1164,6 +1168,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
     BIND_DOWN(   PMATH_SYMBOL_INTERNAL_DYNAMICREMOVE,      builtin_internal_dynamicremove)
     BIND_DOWN(   PMATH_SYMBOL_INTERNAL_GETTHREADID,        builtin_getthreadid)
     BIND_DOWN(   PMATH_SYMBOL_INTERNAL_ISCRITICALMESSAGE,  builtin_iscriticalmessage)
+    BIND_DOWN(   PMATH_SYMBOL_INTERNAL_THREADIDLE,         builtin_internal_threadidle)
     
     BIND_DOWN(   PMATH_SYMBOL_ABORT,                       builtin_abort)
     BIND_DOWN(   PMATH_SYMBOL_ABS,                         builtin_abs)
@@ -1194,6 +1199,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
     BIND_DOWN(   PMATH_SYMBOL_CHARACTERS,                  builtin_characters)
     BIND_DOWN(   PMATH_SYMBOL_CHOP,                        builtin_chop)
     BIND_DOWN(   PMATH_SYMBOL_CLEAR,                       builtin_clear)
+    BIND_DOWN(   PMATH_SYMBOL_CLEARALL,                    builtin_clear)
     BIND_DOWN(   PMATH_SYMBOL_CLOSE,                       builtin_close)
     BIND_DOWN(   PMATH_SYMBOL_COMPLEMENT,                  builtin_complement)
     BIND_DOWN(   PMATH_SYMBOL_COMPLEX,                     builtin_complex)
@@ -1504,6 +1510,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   SET_ATTRIB( PMATH_SYMBOL_CEILING,                       LISTABLE | NUMERICFUNCTION);
   SET_ATTRIB( PMATH_SYMBOL_CHARACTERS,                    LISTABLE);
   SET_ATTRIB( PMATH_SYMBOL_CLEAR,                         HOLDALL);
+  SET_ATTRIB( PMATH_SYMBOL_CLEARALL,                      HOLDALL);
   SET_ATTRIB( PMATH_SYMBOL_CLOSE,                         LISTABLE);
   SET_ATTRIB( PMATH_SYMBOL_COMPLEX,                       NUMERICFUNCTION);
   SET_ATTRIB( PMATH_SYMBOL_CONDITION,                     HOLDALL);

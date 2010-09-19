@@ -28,9 +28,6 @@ namespace richmath{
       void get_glassfree_rect(RECT *rect);
       void get_nc_margins(Win32Themes::MARGINS *margins);
       
-      void snap_affinity(int value);
-      bool snap_affinity(){ return _snap_affinity; }
-      
       void get_snap_alignment(bool *right, bool *bottom);
       
       void extend_glass(Win32Themes::MARGINS *margins);
@@ -42,11 +39,22 @@ namespace richmath{
       virtual void on_paint_background(Canvas *canvas);
       bool has_themed_frame(){ return _themed_frame; }
       
+      // all windows are arranged in a ring buffer:
+      static BasicWin32Window *first_window();
+      BasicWin32Window *prev_window(){ return _prev_window; }
+      BasicWin32Window *next_window(){ return _next_window; }
+      
     protected:
       int min_client_height;
       int max_client_height;
       int min_client_width;
       int max_client_width;
+      
+      // All windows with zorder_level = i are always in front of all
+      // windows with zorder_level < i.
+      // Snap affinity is also guided by zorder_level: a window carries any
+      // bordering window whit a higher zorder_level when moved.
+      int zorder_level;
       
     protected:
       virtual void on_sizing(WPARAM wParam, RECT *lParam);
@@ -68,7 +76,6 @@ namespace richmath{
     private:
       bool _active;
       bool _glass_enabled;
-      bool _snap_affinity;
       bool _themed_frame;
       bool _mouse_over_caption_buttons;
       Win32Themes::MARGINS _extra_glass;
@@ -77,6 +84,9 @@ namespace richmath{
       int snap_correction_y;
       int last_moving_x;
       int last_moving_y;
+      
+      BasicWin32Window *_prev_window;
+      BasicWin32Window *_next_window;
       
     private:
       static BOOL CALLBACK find_snap_hwnd(HWND hwnd, LPARAM lParam);

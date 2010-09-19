@@ -349,7 +349,7 @@ PMATH_API pmath_bool_t pmath_continue_after_abort(void){
   
   pmath_unref(pmath_catch());
   
-  _pmath_clear(PMATH_SYMBOL_MESSAGECOUNT);
+  _pmath_clear(PMATH_SYMBOL_MESSAGECOUNT, FALSE);
   return was_set;
 }
 

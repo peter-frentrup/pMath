@@ -4,9 +4,7 @@ Button("Math in Text",DocumentApply(SelectedDocument(),"\({\"\"}\)"))
 Button("italic",DocumentApply(SelectedDocument(),StyleBox("",FontSlant->Italic)))
 Button("Arg Style",DocumentApply(SelectedDocument(),StyleBox("","Arg")))
 
-- pmath: #include headers directly from other headers that depend on them => reduce #include in .c files
-
-- pmath: use static win_iconv library instead of iconv.dll?
+? pmath: use static win_iconv library instead of iconv.dll
 
 - pmath: use "fat values": a pmath_t will be an 8-byte struct, that contains small ints and doubles directly, (maybe also small strings). tag bits specify the type 
 	advantage: 
@@ -31,7 +29,7 @@ Button("Arg Style",DocumentApply(SelectedDocument(),StyleBox("","Arg")))
 	note, that 8-byte structs are returned in registers (MSVC, GCC), but both compilers handle larger structs different when used as function return values, so we cannot use a bigger type
 	see also: http://blog.mozilla.com/rob-sayre/2010/08/02/mozillas-new-javascript-value-representation
 	
-- richmath: implement bidirectional text for MathSequences. Maybe get rid of Pango and reimplement TextSequence using freebidi + maybe harfbuzz?
+- richmath: implement bidirectional text for MathSequences.
 
 ?! change all double-comparisions a==b to almost_equal_machine(a,b)  (as in compare.c)
 	A double could actually be held in an 80bit x87 floating point register and thus be != 0, but when converted to double (written to memory), it becomes 0, 
@@ -75,8 +73,6 @@ Button("Arg Style",DocumentApply(SelectedDocument(),StyleBox("","Arg")))
 	That should also abort any child threads.
 
 ?? remove Syntax f[[opt]] as a short form for OptionValue(f, opt)
-		
-? [try to] use Apps Hungarian Notation for function argument names. This conflicts a bit with our long names pmath_xxx.
 
 - add ToExpression(x) which is x.StringToBoxes.BoxesToExpression for strings x and BoxesToExpression(x) for anything else
 

@@ -860,7 +860,7 @@ void pmath_symbol_remove(pmath_symbol_t symbol){
     }
     
     pmath_symbol_set_attributes(symbol, attr | PMATH_SYMBOL_ATTRIBUTE_TEMPORARY);
-    _pmath_clear(symbol);
+    _pmath_clear(symbol, TRUE);
     
     {
       unsigned int i, cap;

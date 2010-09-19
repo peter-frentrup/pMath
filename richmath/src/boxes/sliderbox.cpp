@@ -103,6 +103,9 @@ void SliderBox::resize(Context *context){
 }
 
 void SliderBox::paint(Context *context){
+  if(context->canvas->show_only_text)
+    return;
+  
   have_drawn = true;
   
   double old_value = value;
@@ -135,29 +138,35 @@ void SliderBox::paint(Context *context){
   if(isnan(value)){
     float rx = x + _extents.width/2;
     
+    context->canvas->save();
     context->canvas->set_color(0xFF0000, 0.2);
     for(int i = -2;i <= 2;++i){
       context->canvas->arc(rx + i * h/6, y + h/2, h/2, 0, 2 * M_PI, false);
       context->canvas->fill();
     }
+    context->canvas->restore();
   }
   if(value < min && value < max){
     float rx = x + h/2;
     
+    context->canvas->save();
     context->canvas->set_color(0xFF0000, 0.2);
     for(int i = 0;i <= 2;++i){
       context->canvas->arc(rx + i * h/6, y + h/2, h/2, 0, 2 * M_PI, false);
       context->canvas->fill();
     }
+    context->canvas->restore();
   }
   else if(value > max && value > min){
     float rx = x + _extents.width - h/2;
     
+    context->canvas->save();
     context->canvas->set_color(0xFF0000, 0.2);
     for(int i = -2;i <= 0;++i){
       context->canvas->arc(rx + i * h/6, y + h/2, h/2, 0, 2 * M_PI, false);
       context->canvas->fill();
     }
+    context->canvas->restore();
   }
   
   ControlPainter::std->draw_container(
@@ -300,8 +309,6 @@ void SliderBox::assign_dynamic_value(double d){
   if(!have_drawn)
     return;
   
-  value = d;
-  
   have_drawn = false;
   if(dynamic_value[0] == PMATH_SYMBOL_DYNAMIC){
     Expr run;
@@ -316,6 +323,7 @@ void SliderBox::assign_dynamic_value(double d){
     return;
   }
   
+  value = d;
   dynamic_value = Expr(d);
 }
 

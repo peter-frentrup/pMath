@@ -4328,7 +4328,7 @@
 	<bits/wordsize.h>
 	<bits/wordsize.h>
 
-1282570495 source:d:\peter\programmieren\pmath\trunk\library\test\main.c
+1284830895 source:d:\peter\programmieren\pmath\trunk\library\test\main.c
 	<errno.h>
 	<inttypes.h>
 	<limits.h>
@@ -4342,7 +4342,7 @@
 	<unistd.h>
 	<semaphore.h>
 
-1283636918 d:\peter\programmieren\pmath\trunk\library\include\pmath.h
+1284826460 d:\peter\programmieren\pmath\trunk\library\include\pmath.h
 	<pmath-core/expressions.h>
 	<pmath-core/numbers.h>
 	<pmath-core/symbols.h>
@@ -4370,7 +4370,7 @@
 1283636869 d:\peter\programmieren\pmath\trunk\library\include\pmath-config.h
 	<sal.h>
 
-1282569820 d:\peter\programmieren\pmath\trunk\library\include\pmath-types.h
+1284805259 d:\peter\programmieren\pmath\trunk\library\include\pmath-types.h
 	<stdint.h>
 
 1282572587 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\concurrency\atomic.h
@@ -4387,7 +4387,7 @@
 	<pmath-util/concurrency/atomic/msvc/intrinsic_functions.h>
 	<pmath-util/concurrency/atomic/non-atomic.h>
 
-1280054993 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\concurrency\atomic\non-atomic.h
+1284805259 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\concurrency\atomic\non-atomic.h
 
 1280054993 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\concurrency\atomic\gcc\built_in_functions.h
 
@@ -4401,57 +4401,57 @@
 1280054993 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\concurrency\atomic\msvc\intrinsic_functions.h
 	<intrin.h>
 
-1282572548 d:\peter\programmieren\pmath\trunk\library\include\pmath-core\objects.h
+1284805259 d:\peter\programmieren\pmath\trunk\library\include\pmath-core\objects.h
 	<pmath-config.h>
 	<pmath-types.h>
 
 1282936513 es.h>
 
-1282936232 d:\peter\programmieren\pmath\trunk\library\include\pmath-core\custom.h
+1284805259 d:\peter\programmieren\pmath\trunk\library\include\pmath-core\custom.h
 	<pmath-core/objects-inline.h>
 
-1282579101 d:\peter\programmieren\pmath\trunk\library\include\pmath-core\expressions.h
-	<pmath-core/objects-inline.h>
-	<stdlib.h>
-
-1282592020 d:\peter\programmieren\pmath\trunk\library\include\pmath-core\numbers.h
+1284805259 d:\peter\programmieren\pmath\trunk\library\include\pmath-core\expressions.h
 	<pmath-core/objects-inline.h>
 	<stdlib.h>
 
-1282589434 d:\peter\programmieren\pmath\trunk\library\include\pmath-core\strings.h
+1284805259 d:\peter\programmieren\pmath\trunk\library\include\pmath-core\numbers.h
+	<pmath-core/objects-inline.h>
+	<stdlib.h>
+
+1284805259 d:\peter\programmieren\pmath\trunk\library\include\pmath-core\strings.h
 	<pmath-core/objects-inline.h>
 
-1282589621 d:\peter\programmieren\pmath\trunk\library\include\pmath-core\symbols.h
+1284805259 d:\peter\programmieren\pmath\trunk\library\include\pmath-core\symbols.h
 	<pmath-core/strings.h>
 
 1282938491 e/strings.h>
 
-1284571957 d:\peter\programmieren\pmath\trunk\library\include\pmath-builtins\all-symbols.h
+1284908988 d:\peter\programmieren\pmath\trunk\library\include\pmath-builtins\all-symbols.h
 	<pmath-core/expressions.h>
 	<pmath-core/symbols.h>
 
 1282669781 e/symbols.h>
 
-1282578484 d:\peter\programmieren\pmath\trunk\library\include\pmath-language\charnames.h
+1284805259 d:\peter\programmieren\pmath\trunk\library\include\pmath-language\charnames.h
 	<pmath-config.h>
 	<pmath-types.h>
 
-1282938491 d:\peter\programmieren\pmath\trunk\library\include\pmath-language\scanner.h
+1284805259 d:\peter\programmieren\pmath\trunk\library\include\pmath-language\scanner.h
 	<pmath-core/strings.h>
 
-1282573271 d:\peter\programmieren\pmath\trunk\library\include\pmath-language\tokens.h
+1284805259 d:\peter\programmieren\pmath\trunk\library\include\pmath-language\tokens.h
 	<stdlib.h>
 	<pmath-config.h>
 	<pmath-types.h>
 
-1282669505 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\approximate.h
+1284805259 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\approximate.h
 	<pmath-core/objects-inline.h>
 
-1282936513 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\concurrency\threadlocks.h
+1284805259 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\concurrency\threadlocks.h
 	<pmath-config.h>
 	<pmath-types.h>
 
-1284804647 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\concurrency\threadmsg.h
+1284807173 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\concurrency\threadmsg.h
 	<pmath-core/custom.h>
 
 1282936196 e/custom.h>
@@ -4461,10 +4461,10 @@
 
 1282936715 l/concurrency/threadmsg.h>
 
-1282672524 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\concurrency\threads.h
+1284805259 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\concurrency\threads.h
 	<pmath-core/objects-inline.h>
 
-1282578395 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\debug.h
+1284805259 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\debug.h
 	<pmath-core/objects-inline.h>
 
 1282589032 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\evaluation.h
@@ -4472,29 +4472,29 @@
 
 1282589032 e/expressions.h>
 
-1282941347 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\files.h
+1284805259 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\files.h
 	<pmath-core/symbols.h>
 	<stdlib.h>
 
-1282938834 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\helpers.h
+1284805259 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\helpers.h
 	<pmath-core/symbols.h>
 	<pmath-core/expressions.h>
 	<stdarg.h>
 
-1283100789 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\memory.h
+1284805259 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\memory.h
 	<pmath-config.h>
 	<pmath-types.h>
 	<stdlib.h>
 	<pmath-util/concurrency/atomic.h>
 
-1282670551 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\messages.h
+1284805259 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\messages.h
 	<pmath-core/symbols.h>
 	<stdlib.h>
 
 1282941242 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\serialize.h
 	<pmath-core/objects-inline.h>
 
-1282575293 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\stacks.h
+1284805259 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\stacks.h
 	<pmath-config.h>
 
 1282575293 fig.h>

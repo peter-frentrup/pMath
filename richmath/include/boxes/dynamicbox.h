@@ -11,6 +11,7 @@ namespace richmath{
       
       static DynamicBox *create(Expr expr, int opts);
       
+      virtual void resize(Context *context);
       virtual void paint_content(Context *context);
       
       virtual pmath_t to_pmath(bool parseable);
@@ -22,6 +23,7 @@ namespace richmath{
     
     protected:
       bool must_update;
+      bool must_resize;
   };
 };
 

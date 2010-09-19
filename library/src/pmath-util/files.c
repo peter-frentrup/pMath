@@ -622,7 +622,7 @@ pmath_bool_t pmath_file_close(pmath_t file){
       pmath_bool_t result;
       
       pmath_symbol_set_attributes(file, PMATH_SYMBOL_ATTRIBUTE_TEMPORARY);
-      result = _pmath_clear(file);
+      result = _pmath_clear(file, TRUE);
       pmath_unref(custom);
       pmath_unref(file);
       return result;
