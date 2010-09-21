@@ -2,11 +2,11 @@
 #define __BOXES__DYNAMICBOX_H__
 
 #include <boxes/ownerbox.h>
+#include <eval/dynamic.h>
 
 namespace richmath{
   class DynamicBox: public OwnerBox{
     public:
-      explicit DynamicBox(Expr _dynamic_content);
       virtual ~DynamicBox();
       
       static DynamicBox *create(Expr expr, int opts);
@@ -20,8 +20,11 @@ namespace richmath{
       virtual void dynamic_finished(Expr info, Expr result);
       virtual bool edit_selection(Context *context){ return false; }
     
+    protected:
+      explicit DynamicBox();
+    
     public:
-      Expr dynamic_content;
+      Dynamic dynamic;
     
     protected:
       bool must_update;

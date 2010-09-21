@@ -2,6 +2,7 @@
 #define __RICHMATH__BOXES__SLIDERBOX_H__
 
 #include <boxes/box.h>
+#include <eval/dynamic.h>
 #include <gui/control-painter.h>
 
 namespace richmath{
@@ -22,6 +23,7 @@ namespace richmath{
       virtual pmath_t to_pmath(bool parseable);
       
       virtual void dynamic_updated();
+      virtual void dynamic_finished(Expr info, Expr result);
       
       virtual Box *mouse_selection(
         float x,
@@ -48,7 +50,7 @@ namespace richmath{
       double min;
       double max;
       double value;
-      Expr dynamic_value;
+      Dynamic dynamic;
       
       SharedPtr<BoxAnimation> animation;
       ControlState old_thumb_state;

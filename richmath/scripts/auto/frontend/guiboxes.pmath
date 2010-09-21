@@ -7,11 +7,17 @@ isDynamic(Dynamic(~)):= True
 isDynamic(Dynamic(~,~)):= True
 isNumberOrDynamic(~x)::= IsNumber(x) || isDynamic(x)
 
-toBeProtected:= Unprotect(Button, Dynamic, Slider)
+toBeProtected:= Unprotect(Button, Dynamic, Setter, Slider)
 
 MakeBoxes(Button(~text, ~code, options:OptionPattern()))::= ButtonBox(MakeBoxes(text), ButtonFunction -> (code &), options)
 
-MakeBoxes(Dynamic(~var, options:OptionPattern()))::= DynamicBox(var, options)
+MakeBoxes(Dynamic(~var, options:OptionPattern()))::= DynamicBox(ToBoxes(var), options)
+
+MakeBoxes(Setter(~var, ~value, options:OptionPattern()))::=         SetterBox(var, value, MakeBoxes(value), options)
+MakeBoxes(Setter(~var, ~value, ~label, options:OptionPattern()))::= SetterBox(var, value, MakeBoxes(label), options)
+
+SetterBar(~var, values:{((~ -> ~) | (~ :> ~))**}, options:OptionPattern()) ::= Row(values.Map(Setter(var, #[1], #[2], options)&), "\[InvisibleSpace]")
+SetterBar(~var, values:{~~}, options:OptionPattern()) ::= Row(values.Map(Setter(var, #, options)&), "\[InvisibleSpace]")
 
 MakeBoxes(Slider(~val ? isNumberOrDynamic))::=             SliderBox(val, 0..1)
 MakeBoxes(Slider(~val ? isNumberOrDynamic, ~min..~max))::= SliderBox(val, min..max)

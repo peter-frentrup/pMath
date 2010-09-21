@@ -73,6 +73,16 @@ static const struct char_info_t u0000_u00ff[256] = {
 /* 00F */ ID,  ID,  ID,  ID,  ID,  ID,  ID,  DIV, ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID
 };
 
+static const struct char_info_t u2000_u206f[112] = {
+/*         0    1    2    3    4    5    6    7    8    9    A    B    C    D    E    F  */
+/* 200 */ ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___,
+/* 201 */ ID2, ID2, ID2, ID2, ID2, ID2, ID2, ID2, ID2, ID2, ID2, ID2, ID2, ID2, ID2, ID2, 
+/* 202 */ ID2, ID2, ID2, ID2, ID2, ID2, ID2, ID2, ID2, ID2, ID2, ID2, ID2, ID2, ID2, ID2, 
+/* 203 */ ID2, ID2, ID2, ID2, ID2, ID2, ID2, ID2, ID2, LEF, RI1, ID2, ID2, ID2, ID2, ID2, 
+/* 204 */ ID2, ID2, ID2, ID2, DIV, LEF, RI1, ID2, ID2, ID2, ID2, ID2, ID2, ID2, ID2, ID2, 
+/* 205 */ ID,  APL, MUL, SEQ, ADD, ERR, ERR, ERR, ERR, ERR, ID,  ID,  ID,  ID,  ID,  ID
+};
+
 static const struct char_info_t u2100_u22ff[512] = {
 /*         0    1    2    3    4    5    6    7    8    9    A    B    C    D    E    F  */
 /* 210 */ ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID, 
@@ -159,6 +169,9 @@ static const struct char_info_t *find_char_info(uint16_t ch){
   
   if(ch <= 0x00FF)
     return &u0000_u00ff[ch];
+  
+  if(ch >= 0x2000 && ch <= 0x206F)
+    return &u2000_u206f[ch - 0x2000];
   
   if(ch >= 0x2100 && ch <= 0x22FF)
     return &u2100_u22ff[ch - 0x2100];

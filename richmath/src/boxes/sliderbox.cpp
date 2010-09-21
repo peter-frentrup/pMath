@@ -40,6 +40,7 @@ SliderBox::SliderBox()
   min(0.0),
   max(1.0),
   value(0.5),
+  dynamic(this, Expr()),
   old_thumb_state(Normal),
   new_thumb_state(Normal),
   thumb_width(1),
@@ -63,7 +64,7 @@ SliderBox *SliderBox::create(Expr expr){
     return 0;
   
   SliderBox *sb = new SliderBox();
-  sb->dynamic_value = expr[1];
+  sb->dynamic = expr[1];
   
   sb->style = new Style(options);
   
@@ -113,18 +114,10 @@ void SliderBox::paint(Context *context){
   if(must_update){
     must_update = false;
     
-    Expr val = dynamic_value;
-    
-    if(val[0] == PMATH_SYMBOL_DYNAMIC
-    && val.expr_length() >= 1){
-      Expr run = Call(
-        Symbol(PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATE),
-        val[1],
-        this->id());
-      val = Client::interrupt(run, Client::dynamic_timeout);
+    Expr val;
+    if(dynamic.get_value(&val)){
+      value = val.to_double(NAN);
     }
-    
-    value = val.to_double(NAN);
   }
   
   float x, y;
@@ -278,7 +271,7 @@ double SliderBox::mouse_to_val(double mouse_x){
 pmath_t SliderBox::to_pmath(bool parseable){
   return pmath_expr_new_extended(
     pmath_ref(PMATH_SYMBOL_SLIDERBOX), 2,
-    pmath_ref(dynamic_value.get()),
+    dynamic.expr().release(),
     pmath_expr_new_extended(
       pmath_ref(PMATH_SYMBOL_RANGE), 2,
       pmath_build_value("f", min),
@@ -305,26 +298,19 @@ void SliderBox::dynamic_updated(){
   request_repaint_all();
 }
 
+void SliderBox::dynamic_finished(Expr info, Expr result){
+  double new_value = result.to_double(NAN);
+  
+  if(value != new_value)
+    request_repaint_all();
+}
+
 void SliderBox::assign_dynamic_value(double d){
   if(!have_drawn)
     return;
   
   have_drawn = false;
-  if(dynamic_value[0] == PMATH_SYMBOL_DYNAMIC){
-    Expr run;
-    
-    if(dynamic_value.expr_length() >= 2) 
-      run = Call(dynamic_value[2], Expr(d));
-    else
-      run = Call(Symbol(PMATH_SYMBOL_ASSIGN), dynamic_value[1], Expr(d));
-    
-    Client::execute_for(run, this, Client::dynamic_timeout);
-    
-    return;
-  }
-  
-  value = d;
-  dynamic_value = Expr(d);
+  dynamic.assign(Expr(d));
 }
 
 void SliderBox::on_mouse_enter(){

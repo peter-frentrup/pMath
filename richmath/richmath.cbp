@@ -162,6 +162,7 @@
 		<Unit filename="include\boxes\radicalbox.h" />
 		<Unit filename="include\boxes\section.h" />
 		<Unit filename="include\boxes\sectionlist.h" />
+		<Unit filename="include\boxes\setterbox.h" />
 		<Unit filename="include\boxes\sliderbox.h" />
 		<Unit filename="include\boxes\stylebox.h" />
 		<Unit filename="include\boxes\subsuperscriptbox.h" />
@@ -170,6 +171,7 @@
 		<Unit filename="include\boxes\underoverscriptbox.h" />
 		<Unit filename="include\eval\binding.h" />
 		<Unit filename="include\eval\client.h" />
+		<Unit filename="include\eval\dynamic.h" />
 		<Unit filename="include\eval\job.h" />
 		<Unit filename="include\eval\server.h" />
 		<Unit filename="include\graphics\animation.h" />
@@ -229,6 +231,7 @@
 		<Unit filename="src\boxes\radicalbox.cpp" />
 		<Unit filename="src\boxes\section.cpp" />
 		<Unit filename="src\boxes\sectionlist.cpp" />
+		<Unit filename="src\boxes\setterbox.cpp" />
 		<Unit filename="src\boxes\sliderbox.cpp" />
 		<Unit filename="src\boxes\stylebox.cpp" />
 		<Unit filename="src\boxes\subsuperscriptbox.cpp" />
@@ -237,6 +240,7 @@
 		<Unit filename="src\boxes\underoverscriptbox.cpp" />
 		<Unit filename="src\eval\binding.cpp" />
 		<Unit filename="src\eval\client.cpp" />
+		<Unit filename="src\eval\dynamic.cpp" />
 		<Unit filename="src\eval\job.cpp" />
 		<Unit filename="src\eval\server.cpp" />
 		<Unit filename="src\graphics\animation.cpp" />

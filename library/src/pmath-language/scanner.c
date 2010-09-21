@@ -190,10 +190,7 @@ static void span(scanner_t *tokens, int start){
   
   end = tokens->pos-1;
   while(end > start 
-  && (tokens->str[end] == ' ' 
-   || tokens->str[end] == 0x00A0 // non breaking space
-   || tokens->str[end] == '\r'
-   || tokens->str[end] == '\t'))
+  && pmath_token_analyse(&tokens->str[end], 1, NULL) == PMATH_TOK_SPACE)
     --end;
   
   if(end < start)
@@ -1687,7 +1684,7 @@ typedef struct{
 static void skip_whitespace(_pmath_group_t *group){
   for(;;){
     while(group->pos < group->spans->length 
-    && group->str[group->pos] <= ' ')
+    && pmath_token_analyse(&group->str[group->pos], 1, NULL) == PMATH_TOK_SPACE)
       ++group->pos;
     
     if(group->pos + 1 < group->spans->length 

@@ -78,9 +78,6 @@ void ButtonBox::on_mouse_down(MouseEvent &event){
 }
 
 void ButtonBox::on_mouse_move(MouseEvent &event){
-//  event.set_source(this);
-//  pmath_debug_print("(%.2f, %.2f)", event.x, event.y);
-  
   Document *doc = find_parent<Document>(false);
   
   if(doc && doc->native()){

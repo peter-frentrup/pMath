@@ -605,7 +605,7 @@ int main(){
     wndMain->bottom_glass()->insert(0,
     Section::create_from_object(Expr(run(
       "Section(BoxData({"
-          "DynamicBox(FE`$StatusText),"
+          "DynamicBox(ToBoxes(FE`$StatusText)),"
           "FillBox(\"\")"
 //          ",\"\\[CircleMinus]\","
 //          "SliderBox(Dynamic(FE`$StatusSlider, "

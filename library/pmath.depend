@@ -89,10 +89,10 @@
 1284805259 d:\peter\programmieren\pmath\trunk\library\include\pmath-core\strings.h
 	<pmath-core/objects-inline.h>
 
-1284925967 d:\peter\programmieren\pmath\trunk\library\include\pmath-builtins\all-symbols-private.h
+1285095268 d:\peter\programmieren\pmath\trunk\library\include\pmath-builtins\all-symbols-private.h
 	<pmath-builtins/all-symbols.h>
 
-1284925959 d:\peter\programmieren\pmath\trunk\library\include\pmath-builtins\all-symbols.h
+1285095050 d:\peter\programmieren\pmath\trunk\library\include\pmath-builtins\all-symbols.h
 	<pmath-core/expressions.h>
 	<pmath-core/symbols.h>
 
@@ -687,7 +687,7 @@
 	<pmath-builtins/lists-private.h>
 	<stdio.h>
 
-1284805259 d:\peter\programmieren\pmath\trunk\library\include\pmath-language\tokens.h
+1285094420 d:\peter\programmieren\pmath\trunk\library\include\pmath-language\tokens.h
 	<stdlib.h>
 	<pmath-config.h>
 	<pmath-types.h>
@@ -1703,7 +1703,7 @@
 	<string.h>
 	<pcre.h>
 
-1284825306 source:d:\peter\programmieren\pmath\trunk\library\src\pmath-language\scanner.c
+1285094427 source:d:\peter\programmieren\pmath\trunk\library\src\pmath-language\scanner.c
 	<pmath-core/strings-private.h>
 	<pmath-language/patterns-private.h>
 	<pmath-language/scanner.h>
@@ -1717,7 +1717,7 @@
 	<limits.h>
 	<string.h>
 
-1282573276 source:d:\peter\programmieren\pmath\trunk\library\src\pmath-language\tokens.c
+1285094196 source:d:\peter\programmieren\pmath\trunk\library\src\pmath-language\tokens.c
 	<pmath-language/tokens.h>
 
 1284825892 source:d:\peter\programmieren\pmath\trunk\library\src\pmath-util\approximate.c
@@ -1972,4 +1972,82 @@
 	<pmath-util/memory.h>
 	<pmath-builtins/all-symbols-private.h>
 	<string.h>
+
+1285010311 source:d:\peter\programmieren\pmath\trunk\library\src\pmath-builtins\all-symbols.c
+	<pmath-builtins/all-symbols-private.h>
+	<pmath-util/concurrency/atomic-private.h>
+	<pmath-util/debug.h>
+	<pmath-util/hashtables-private.h>
+	<pmath-util/memory.h>
+	<pmath-util/messages.h>
+	<string.h>
+
+1284925923 source:d:\peter\programmieren\pmath\trunk\library\src\pmath-builtins\control\definitions\showdefinition.c
+	<pmath-core/expressions.h>
+	<pmath-core/symbols.h>
+	<pmath-language/scanner.h>
+	<pmath-util/evaluation.h>
+	<pmath-util/helpers.h>
+	<pmath-util/messages.h>
+	<pmath-builtins/all-symbols-private.h>
+	<pmath-builtins/control-private.h>
+
+1285010030 source:d:\peter\programmieren\pmath\trunk\library\src\pmath.c
+	<pmath-builtins/io-private.h>
+	<pmath-util/stacks-private.h>
+	<assert.h>
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<pmath.h>
+	<pmath-private.h>
+	<pmath-core/objects-private.h>
+	<pmath-core/strings-private.h>
+	<pmath-core/expressions-private.h>
+	<pmath-core/custom-private.h>
+	<pmath-core/numbers-private.h>
+	<pmath-core/symbols-private.h>
+	<pmath-language/patterns-private.h>
+	<pmath-language/regex-private.h>
+	<pmath-util/concurrency/atomic-private.h>
+	<pmath-util/concurrency/threadlocks-private.h>
+	<pmath-util/concurrency/threadmsg-private.h>
+	<pmath-util/concurrency/threadpool-private.h>
+	<pmath-util/concurrency/threads-private.h>
+	<pmath-util/dynamic-private.h>
+	<pmath-util/hashtables-private.h>
+	<pmath-util/modules-private.h>
+	<pmath-util/symbol-values-private.h>
+	<pmath-builtins/all-symbols-private.h>
+	<pmath-builtins/number-theory-private.h>
+	<windows.h>
+	<shellapi.h>
+	<CoreServices/CoreServices.h>
+	<dlfcn.h>
+	<link.h>
+	<unistd.h>
+	<pthread.h>
+
+1284826460 d:\peter\programmieren\pmath\trunk\library\include\pmath.h
+	<pmath-core/expressions.h>
+	<pmath-core/numbers.h>
+	<pmath-core/symbols.h>
+	<pmath-language/tokens.h>
+	<pmath-util/memory.h>
+	<pmath-core/custom.h>
+	<pmath-builtins/all-symbols.h>
+	<pmath-language/charnames.h>
+	<pmath-language/scanner.h>
+	<pmath-util/approximate.h>
+	<pmath-util/concurrency/threadlocks.h>
+	<pmath-util/concurrency/threadmsg.h>
+	<pmath-util/concurrency/threadpool.h>
+	<pmath-util/concurrency/threads.h>
+	<pmath-util/debug.h>
+	<pmath-util/evaluation.h>
+	<pmath-util/files.h>
+	<pmath-util/helpers.h>
+	<pmath-util/messages.h>
+	<pmath-util/serialize.h>
+	<pmath-util/stacks.h>
 

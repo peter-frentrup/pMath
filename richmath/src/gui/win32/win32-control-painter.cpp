@@ -461,12 +461,8 @@ void Win32ControlPainter::draw_container(
     }
   }
   else{ FALLBACK: ;
-    UINT _state = 0;
-    
     switch(type){
       case FramelessButton:
-      case SliderHorzChannel: 
-      case SliderHorzThumb: 
         break;
         
       case PaletteButton: {
@@ -482,7 +478,7 @@ void Win32ControlPainter::draw_container(
       case DefaultPushButton: 
       case GenericButton:
       case PushButton: {
-        _state|= DFCS_BUTTONPUSH;
+        UINT _state = DFCS_BUTTONPUSH;
         
         switch(state){
           case Disabled: _state|= DFCS_INACTIVE; break;
@@ -513,6 +509,24 @@ void Win32ControlPainter::draw_container(
           &rect,
           EDGE_SUNKEN,
           BF_RECT);
+      } break;
+      
+      case SliderHorzChannel: {
+        FillRect(dc, &rect, (HBRUSH)(COLOR_BTNFACE + 1));
+
+        DrawEdge(
+          dc,
+          &rect,
+          EDGE_SUNKEN,
+          BF_RECT);
+      } break;
+      
+      case SliderHorzThumb: {
+        DrawFrameControl(
+          dc,
+          &rect,
+          DFC_BUTTON,
+          DFCS_BUTTONPUSH);
       } break;
     }
   }

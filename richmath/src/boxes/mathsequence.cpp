@@ -16,6 +16,7 @@
 #include <boxes/ownerbox.h>
 #include <boxes/radicalbox.h>
 #include <boxes/section.h>
+#include <boxes/setterbox.h>
 #include <boxes/sliderbox.h>
 #include <boxes/stylebox.h>
 #include <boxes/subsuperscriptbox.h>
@@ -2861,6 +2862,7 @@ void MathSequence::enlarge_space(Context *context){
   int i;
   bool last_was_factor = false;
   bool last_was_number = false;
+  bool last_was_space = false;
   
   int e = -1;
   while(true){
@@ -3095,7 +3097,7 @@ void MathSequence::enlarge_space(Context *context){
         space_left = space_right = em * 4/18;
         break;
       
-      case PMATH_TOK_SPACE:
+      case PMATH_TOK_SPACE: {
         // implicit multiplication:
         if(buf[i] == ' ' 
         && e + 1 < glyphs.length()
@@ -3117,7 +3119,11 @@ void MathSequence::enlarge_space(Context *context){
             glyphs[i].style = GlyphStyleImplicit;
           }
         }
-        break;
+        else{
+          last_was_space = true;
+          continue;
+        }  
+      } break;
         
       case PMATH_TOK_DIGIT:
       case PMATH_TOK_STRING:
@@ -3155,6 +3161,11 @@ void MathSequence::enlarge_space(Context *context){
     
     last_was_number = tok == PMATH_TOK_DIGIT;
     last_was_factor = lwf;
+    
+    if(last_was_space){
+      last_was_space = false;
+      continue;
+    }
     
     if(i > 0 || e+1 < glyphs.length()){
       glyphs[i].x_offset+= space_left;
@@ -3880,6 +3891,14 @@ static void make_box(int pos, pmath_t obj, void *data){
   
   if(expr[0] == PMATH_SYMBOL_ROTATIONBOX){
     RotationBox *box = RotationBox::create(expr, info->options);
+    if(box){
+      info->boxes->add(box);
+      return;
+    }
+  }
+  
+  if(expr[0] == PMATH_SYMBOL_SETTERBOX){
+    SetterBox *box = SetterBox::create(expr, info->options);
     if(box){
       info->boxes->add(box);
       return;

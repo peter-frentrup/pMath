@@ -11,9 +11,9 @@ using namespace richmath;
 
 //{ class DynamicBox ...abandon
 
-DynamicBox::DynamicBox(Expr _dynamic_content)
+DynamicBox::DynamicBox()
 : OwnerBox(),
-  dynamic_content(_dynamic_content),
+  dynamic(this, Expr()),
   must_update(true),
   must_resize(false)
 {
@@ -29,14 +29,10 @@ DynamicBox *DynamicBox::create(Expr expr, int opts){
     Expr options = Expr(pmath_options_extract(expr.get(), 1));
     
     if(options.is_valid()){
-      DynamicBox *box = new DynamicBox(expr[1]);
+      DynamicBox *box = new DynamicBox();
       
-      if(options != PMATH_UNDEFINED){
-        if(box->style)
-          box->style->add_pmath(options);
-        else
-          box->style = new Style(options);
-      }
+      expr.set(0, Symbol(PMATH_SYMBOL_DYNAMIC));
+      box->dynamic = expr;
     
       return box;
     }
@@ -71,34 +67,23 @@ void DynamicBox::paint_content(Context *context){
   if(must_update){
     must_update = false;
     
-    Expr run = Call(
-      Symbol(PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATE),
-      Call(
-        Symbol(PMATH_SYMBOL_TOBOXES),
-        dynamic_content),
-      this->id());
-    
-    if(get_style(SynchronousUpdating, 1) != 0){
-      run = Client::interrupt(run, Client::dynamic_timeout);
-      if(run == PMATH_UNDEFINED)
-        run = String("$Aborted");
-      
+    Expr result;
+    if(dynamic.get_value(&result)){
       int opt = BoxOptionDefault;
       if(get_style(AutoNumberFormating))
         opt |= BoxOptionFormatNumbers;
       
-      content()->load_from_object(run, opt);
+      content()->load_from_object(result, opt);
       invalidate();
       must_resize = true;
     }
-    else
-      Client::add_job(new DynamicEvaluationJob(Expr(), run, this));
   }
 }
 
 pmath_t DynamicBox::to_pmath(bool parseable){
-  return pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_DYNAMICBOX), 1, 
-    pmath_ref(dynamic_content.get()));
+  return pmath_expr_set_item(
+    dynamic.expr().release(), 0,
+    pmath_ref(PMATH_SYMBOL_DYNAMICBOX));
 }
 
 void DynamicBox::dynamic_updated(){

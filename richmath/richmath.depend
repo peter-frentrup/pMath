@@ -3074,7 +3074,7 @@
 1284805259 d:\peter\programmieren\pmath\trunk\library\include\pmath-core\symbols.h
 	<pmath-core/strings.h>
 
-1284925959 d:\peter\programmieren\pmath\trunk\library\include\pmath-builtins\all-symbols.h
+1285095050 d:\peter\programmieren\pmath\trunk\library\include\pmath-builtins\all-symbols.h
 	<pmath-core/expressions.h>
 	<pmath-core/symbols.h>
 
@@ -3085,7 +3085,7 @@
 1284805259 d:\peter\programmieren\pmath\trunk\library\include\pmath-language\scanner.h
 	<pmath-core/strings.h>
 
-1284805259 d:\peter\programmieren\pmath\trunk\library\include\pmath-language\tokens.h
+1285094420 d:\peter\programmieren\pmath\trunk\library\include\pmath-language\tokens.h
 	<stdlib.h>
 	<pmath-config.h>
 	<pmath-types.h>
@@ -3157,7 +3157,7 @@
 
 1280054986 d:\peter\programmieren\pmath\trunk\richmath\include\util\sharedptr.h
 
-1284926197 d:\peter\programmieren\pmath\trunk\richmath\include\util\style.h
+1285087299 d:\peter\programmieren\pmath\trunk\richmath\include\util\style.h
 	<util/hashtable.h>
 	<util/pmath-extra.h>
 	<util/sharedptr.h>
@@ -3185,7 +3185,7 @@
 	<graphics/canvas.h>
 	<util/sharedptr.h>
 
-1280054987 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\buttonbox.cpp
+1285011720 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\buttonbox.cpp
 	<boxes/buttonbox.h>
 	<cmath>
 	<boxes/mathsequence.h>
@@ -3194,7 +3194,7 @@
 	<gui/document.h>
 	<gui/native-widget.h>
 
-1280054985 d:\peter\programmieren\pmath\trunk\richmath\include\boxes\buttonbox.h
+1285010411 d:\peter\programmieren\pmath\trunk\richmath\include\boxes\buttonbox.h
 	<boxes/containerwidgetbox.h>
 
 1284314046 d:\peter\programmieren\pmath\trunk\richmath\include\boxes\containerwidgetbox.h
@@ -3241,7 +3241,7 @@
 	<gui/document.h>
 	<gui/native-widget.h>
 
-1284925643 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\dynamicbox.cpp
+1285087374 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\dynamicbox.cpp
 	<boxes/dynamicbox.h>
 	<boxes/mathsequence.h>
 	<eval/client.h>
@@ -3249,8 +3249,9 @@
 	<graphics/context.h>
 	<stdio.h>
 
-1284925298 d:\peter\programmieren\pmath\trunk\richmath\include\boxes\dynamicbox.h
+1285086921 d:\peter\programmieren\pmath\trunk\richmath\include\boxes\dynamicbox.h
 	<boxes/ownerbox.h>
+	<eval/dynamic.h>
 
 1280054987 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\errorbox.cpp
 	<boxes/errorbox.h>
@@ -3315,7 +3316,7 @@
 1280054985 d:\peter\programmieren\pmath\trunk\richmath\include\boxes\interpretationbox.h
 	<boxes/ownerbox.h>
 
-1284814312 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\mathsequence.cpp
+1285094741 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\mathsequence.cpp
 	<boxes/mathsequence.h>
 	<climits>
 	<cmath>
@@ -3332,6 +3333,7 @@
 	<boxes/ownerbox.h>
 	<boxes/radicalbox.h>
 	<boxes/section.h>
+	<boxes/setterbox.h>
 	<boxes/sliderbox.h>
 	<boxes/stylebox.h>
 	<boxes/subsuperscriptbox.h>
@@ -3660,7 +3662,7 @@
 	<gui/clipboard.h>
 	<util/hashtable.h>
 
-1284579082 source:d:\peter\programmieren\pmath\trunk\richmath\src\gui\win32\win32-control-painter.cpp
+1285088019 source:d:\peter\programmieren\pmath\trunk\richmath\src\gui\win32\win32-control-painter.cpp
 	<gui/win32/win32-control-painter.h>
 	<cmath>
 	<cstdio>
@@ -3737,7 +3739,7 @@
 	<gui/control-painter.h>
 	<resources.h>
 
-1284912213 source:d:\peter\programmieren\pmath\trunk\richmath\src\main.cpp
+1285012898 source:d:\peter\programmieren\pmath\trunk\richmath\src\main.cpp
 	<cmath>
 	<cstdio>
 	<ctime>
@@ -3779,7 +3781,7 @@
 	<boxes/subsuperscriptbox.h>
 	<boxes/underoverscriptbox.h>
 
-1284926250 source:d:\peter\programmieren\pmath\trunk\richmath\src\util\style.cpp
+1285087298 source:d:\peter\programmieren\pmath\trunk\richmath\src\util\style.cpp
 	<util/style.h>
 	<climits>
 	<cmath>
@@ -3803,14 +3805,31 @@
 	<pango/pango-layout.h>
 	<windows.h>
 
-1284843180 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\sliderbox.cpp
+1285015136 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\sliderbox.cpp
 	<boxes/sliderbox.h>
 	<eval/client.h>
 	<gui/document.h>
 	<gui/native-widget.h>
 	<cmath>
 
-1284313888 d:\peter\programmieren\pmath\trunk\richmath\include\boxes\sliderbox.h
+1285014936 d:\peter\programmieren\pmath\trunk\richmath\include\boxes\sliderbox.h
 	<boxes/box.h>
+	<eval/dynamic.h>
 	<gui/control-painter.h>
+
+1285014030 d:\peter\programmieren\pmath\trunk\richmath\include\boxes\setterbox.h
+	<boxes/containerwidgetbox.h>
+	<eval/dynamic.h>
+
+1285086946 d:\peter\programmieren\pmath\trunk\richmath\include\eval\dynamic.h
+	<boxes/box.h>
+
+1285094962 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\setterbox.cpp
+	<boxes/setterbox.h>
+	<boxes/mathsequence.h>
+
+1285087487 source:d:\peter\programmieren\pmath\trunk\richmath\src\eval\dynamic.cpp
+	<eval/dynamic.h>
+	<eval/client.h>
+	<eval/job.h>
 

@@ -184,17 +184,6 @@ static PMATH_INLINE pmath_bool_t pmath_char_is_left(uint16_t ch){
   
   tok = pmath_token_analyse(&ch, 1, NULL);
   return tok == PMATH_TOK_LEFT || tok == PMATH_TOK_LEFTCALL;
-  /*return ch == '(' 
-      || ch == '[' 
-      || ch == '{' 
-      || ch == 0x2045 
-      || ch == 0x2308 
-      || ch == 0x230A 
-      || ch == 0x2329 
-      || ch == 0x27E6 
-      || ch == 0x27E8 
-      || ch == 0x27EA
-      || ch == PMATH_CHAR_PIECEWISE;*/
 }
 
 /**\brief Get the corresponding right bracket to a given left bracket or 0.
@@ -216,35 +205,12 @@ static PMATH_INLINE uint16_t pmath_right_fence(uint16_t left){
     return left;
   
   return 0;
-  /*switch(left){
-    case '(': return ')';
-    case '[': return ']';
-    case '{': return '}';
-	  case 0x2045: return 0x2046;
-    case 0x2308: return 0x2309;
-    case 0x230A: return 0x230B;
-    case 0x2329: return 0x232A;
-    case 0x27E6: return 0x27E7;
-    case 0x27E8: return 0x27E9;
-    case 0x27EA: return 0x27EB;
-  }
-  return 0;*/
 }
 
 /**\brief Test if a unicode character is a right bracket
  */
 static PMATH_INLINE pmath_bool_t pmath_char_is_right(uint16_t ch){
   return PMATH_TOK_RIGHT == pmath_token_analyse(&ch, 1, NULL);
-       /*ch == ')'
-      || ch == ']'
-      || ch == '}'
-	    || ch == 0x2046
-      || ch == 0x2309
-      || ch == 0x230B
-      || ch == 0x232A
-      || ch == 0x27E7
-      || ch == 0x27E9
-      || ch == 0x27EB;*/
 }
 
 /**\brief Test if a unicode character can be the start of an identifier/name.
@@ -275,18 +241,6 @@ static PMATH_INLINE pmath_bool_t pmath_token_maybe_bigop(pmath_token_t tok){
  */
 static PMATH_INLINE pmath_bool_t pmath_char_maybe_bigop(uint16_t ch){
   return pmath_token_maybe_bigop(pmath_token_analyse(&ch, 1, NULL));
-  /*return (ch >= 0x2200 && ch <= 0x2204)
-      || (ch >= 0x220F && ch <= 0x2211)
-      
-      || (ch >= 0x22C0 && ch <= 0x22C3)
-      || (ch >= 0x2A00 && ch <= 0x2A0B)
-      || (ch >= 0x2A1D && ch <= 0x2A65)
-      
-      || (ch >= 0x2227 && ch <= 0x222A)
-      || (ch >= 0x228C && ch <= 0x228E)
-      || (ch >= 0x2295 && ch <= 0x22A1)
-      || (ch >= 0x22BB && ch <= 0x22BD)
-      ||  ch == 0x00D7;*/
 }
 
 /**\brief Test if a unicode character is a digit '0' - '9'.

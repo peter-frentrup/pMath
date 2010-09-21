@@ -4,7 +4,7 @@ Button("Math in Text",DocumentApply(SelectedDocument(),"\({\"\"}\)"))
 Button("italic",DocumentApply(SelectedDocument(),StyleBox("",FontSlant->Italic)))
 Button("Arg Style",DocumentApply(SelectedDocument(),StyleBox("","Arg")))
 
-? pmath: use static win_iconv library instead of iconv.dll
+- pmath: implement Mean and Total. The symbols already exist
 
 - pmath: use "fat values": a pmath_t will be an 8-byte struct, that contains small ints and doubles directly, (maybe also small strings). tag bits specify the type 
 	advantage: 

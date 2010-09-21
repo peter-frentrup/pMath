@@ -16,7 +16,6 @@ namespace richmath{
     SectionFrameColor,
     
     Antialiasing, // 0=off, 1=on, 2=default
-    SynchronousUpdating, // 0=False, 1=True, 2=Automatic
     
     FontSlant,
     FontWeight,

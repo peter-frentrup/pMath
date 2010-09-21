@@ -571,6 +571,10 @@ PMATH_API pmath_bool_t pmath_init(void){
     PMATH_RUN("Options(BinaryRead):=Options(BinaryWrite):={"
       "ByteOrdering:>$ByteOrdering}");
     
+    PMATH_RUN("Options(BoxesToExpression):={"
+      "ParserArguments->Automatic,"
+      "ParseSymbols->Automatic}");
+      
     PMATH_RUN("Options(Button):={"
       "ButtonFrame->Automatic,"
       "Method->\"Preemptive\"}");
@@ -619,10 +623,6 @@ PMATH_API pmath_bool_t pmath_init(void){
     PMATH_RUN("Options(RotationBox):={BoxRotation->0}");
     PMATH_RUN("Options(TransformationBox):={BoxTransformation->{{1,0},{0,1}}}");
     
-    PMATH_RUN("Options(BoxesToExpression):={"
-      "ParserArguments->Automatic,"
-      "ParseSymbols->Automatic}");
-      
     PMATH_RUN("Options(StringCases):={IgnoreCase->False,Overlaps->False}");
     PMATH_RUN("Options(StringPosition):={IgnoreCase->False,Overlaps->True}");
     
