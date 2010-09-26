@@ -398,6 +398,23 @@ void Client::add_job(SharedPtr<Job> job){
   }
 }
 
+void Client::abort_all_jobs(){
+  Server::local_server->interrupt(Call(Symbol(PMATH_SYMBOL_ABORT)));
+  
+  if(session){
+    SharedPtr<Job> job = session->current_job;
+    session->current_job = 0;
+    if(job){
+      job->end();
+    }
+    
+    while(session->jobs.get(&job)){
+      if(job)
+        job->end();
+    }
+  }
+}
+
 bool Client::is_idle(){
   return !session->current_job.is_valid();
 }

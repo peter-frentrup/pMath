@@ -8,10 +8,10 @@ using namespace richmath;
 
 SetterBox::SetterBox(MathSequence *content)
 : ContainerWidgetBox(PaletteButton, content),
-  dynamic(this, Expr()),
   must_update(true),
   is_down(false)
 {
+  dynamic.init(this, Expr());
 }
 
 SetterBox *SetterBox::create(Expr expr, int opts){

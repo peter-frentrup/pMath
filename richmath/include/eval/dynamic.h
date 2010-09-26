@@ -6,7 +6,11 @@
 namespace richmath{
   class Dynamic: public Base {
     public:
+      Dynamic();
       Dynamic(Box *owner, Expr expr);
+      
+      // when default constructor is used, init() must be called before use
+      void init(Box *owner, Expr expr);
       
       Expr operator=(Expr expr);
       

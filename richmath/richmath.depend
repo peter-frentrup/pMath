@@ -3217,7 +3217,7 @@
 	<util/pmath-extra.h>
 	<util/sharedptr.h>
 
-1284923865 d:\peter\programmieren\pmath\trunk\richmath\include\eval\client.h
+1285267813 d:\peter\programmieren\pmath\trunk\richmath\include\eval\client.h
 	<util/hashtable.h>
 	<util/pmath-extra.h>
 	<util/sharedptr.h>
@@ -3241,7 +3241,7 @@
 	<gui/document.h>
 	<gui/native-widget.h>
 
-1285087374 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\dynamicbox.cpp
+1285260981 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\dynamicbox.cpp
 	<boxes/dynamicbox.h>
 	<boxes/mathsequence.h>
 	<eval/client.h>
@@ -3439,7 +3439,7 @@
 	<boxes/mathsequence.h>
 	<graphics/context.h>
 
-1284923563 source:d:\peter\programmieren\pmath\trunk\richmath\src\eval\binding.cpp
+1285268494 source:d:\peter\programmieren\pmath\trunk\richmath\src\eval\binding.cpp
 	<eval/binding.h>
 	<boxes/section.h>
 	<boxes/mathsequence.h>
@@ -3448,7 +3448,7 @@
 	<gui/document.h>
 	<gui/native-widget.h>
 
-1284925168 source:d:\peter\programmieren\pmath\trunk\richmath\src\eval\client.cpp
+1285267938 source:d:\peter\programmieren\pmath\trunk\richmath\src\eval\client.cpp
 	<eval/client.h>
 	<cmath>
 	<cstdio>
@@ -3739,7 +3739,7 @@
 	<gui/control-painter.h>
 	<resources.h>
 
-1285012898 source:d:\peter\programmieren\pmath\trunk\richmath\src\main.cpp
+1285261152 source:d:\peter\programmieren\pmath\trunk\richmath\src\main.cpp
 	<cmath>
 	<cstdio>
 	<ctime>
@@ -3805,7 +3805,7 @@
 	<pango/pango-layout.h>
 	<windows.h>
 
-1285015136 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\sliderbox.cpp
+1285260998 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\sliderbox.cpp
 	<boxes/sliderbox.h>
 	<eval/client.h>
 	<gui/document.h>
@@ -3821,14 +3821,14 @@
 	<boxes/containerwidgetbox.h>
 	<eval/dynamic.h>
 
-1285086946 d:\peter\programmieren\pmath\trunk\richmath\include\eval\dynamic.h
+1285261066 d:\peter\programmieren\pmath\trunk\richmath\include\eval\dynamic.h
 	<boxes/box.h>
 
-1285094962 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\setterbox.cpp
+1285260992 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\setterbox.cpp
 	<boxes/setterbox.h>
 	<boxes/mathsequence.h>
 
-1285087487 source:d:\peter\programmieren\pmath\trunk\richmath\src\eval\dynamic.cpp
+1285261100 source:d:\peter\programmieren\pmath\trunk\richmath\src\eval\dynamic.cpp
 	<eval/dynamic.h>
 	<eval/client.h>
 	<eval/job.h>

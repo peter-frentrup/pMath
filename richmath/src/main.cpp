@@ -613,7 +613,7 @@ int main(){
 //          "\"\\[CirclePlus]\""
         "}),\"Docked\","
         "LineBreakWithin->False,"
-        "SectionMargins->{0, 12, 1, 0},"
+        "SectionMargins->{0, 12, 1.5, 0},"
         "SectionFrameMargins->0)"))));
         
     doc = wndMain->document();

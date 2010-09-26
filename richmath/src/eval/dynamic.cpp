@@ -7,12 +7,25 @@ using namespace richmath;
 
 //{ class Dynamic ...
 
-Dynamic::Dynamic(Box *owner, Expr expr)
-: _owner(owner),
-  _expr(expr),
+Dynamic::Dynamic()
+: Base(),
+  _owner(0),
   synchronous_updating(0)
 {
-  assert(_owner != 0);
+}
+
+Dynamic::Dynamic(Box *owner, Expr expr)
+: Base(),
+  _owner(0),
+  synchronous_updating(0)
+{
+  init(owner, expr);
+}
+
+void Dynamic::init(Box *owner, Expr expr){
+  assert(_owner == 0 && owner != 0);
+  
+  _owner = owner;
   *this = _expr;
 }
 

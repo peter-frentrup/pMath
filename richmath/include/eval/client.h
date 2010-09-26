@@ -48,6 +48,7 @@ namespace richmath{
       static void done();
       
       static void add_job(SharedPtr<Job> job);
+      static void abort_all_jobs();
       
       static bool is_idle();
       static bool is_idle(int document_id);

@@ -40,7 +40,6 @@ SliderBox::SliderBox()
   min(0.0),
   max(1.0),
   value(0.5),
-  dynamic(this, Expr()),
   old_thumb_state(Normal),
   new_thumb_state(Normal),
   thumb_width(1),
@@ -49,6 +48,7 @@ SliderBox::SliderBox()
   have_drawn(false),
   mouse_down(false)
 {
+  dynamic.init(this, Expr());
 }
 
 SliderBox::~SliderBox(){

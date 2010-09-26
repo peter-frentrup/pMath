@@ -2051,3 +2051,8 @@
 	<pmath-util/serialize.h>
 	<pmath-util/stacks.h>
 
+1280055008 d:\peter\programmieren\pmath\trunk\msvc-c99\stdint.h
+	<stddef.h>
+
+1280055008 d:\peter\programmieren\pmath\trunk\msvc-c99\inttypes.h
+

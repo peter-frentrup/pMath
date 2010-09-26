@@ -13,10 +13,10 @@ using namespace richmath;
 
 DynamicBox::DynamicBox()
 : OwnerBox(),
-  dynamic(this, Expr()),
   must_update(true),
   must_resize(false)
 {
+  dynamic.init(this, Expr());
 }
 
 DynamicBox::~DynamicBox(){

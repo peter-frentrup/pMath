@@ -387,13 +387,17 @@ static bool similar_section_below_cmd(Expr cmd){
     box = box->parent();
   }
   
-  if(dynamic_cast<MathSection*>(box)){
+  if(dynamic_cast<AbstractSequenceSection*>(box)){
     Style *style = new Style;
     style->merge(static_cast<Section*>(box)->style);
     style->remove(SectionLabel);
     style->remove(SectionGenerated);
     
-    Section *section = new MathSection(style);
+    Section *section;
+    if(dynamic_cast<TextSection*>(box))
+      section = new TextSection(style);
+    else
+      section = new MathSection(style);
     
     doc->insert(box->index() + 1, section);
     doc->move_to(doc, box->index() + 1);
@@ -482,10 +486,7 @@ static bool can_abort(Expr cmd){
 }
 
 static bool abort_cmd(Expr cmd){
-  // non-blocking interrupt
-  Client::execute_for(Call(Symbol(PMATH_SYMBOL_ABORT)), 0, Infinity);
-  //Client::interrupt(Call(Symbol(PMATH_SYMBOL_ABORT)));
-  //Client::abort_all();
+  Client::abort_all_jobs();
   return true;
 }
 
@@ -598,6 +599,7 @@ bool richmath::init_bindings(){
   
   Client::register_menucommand(String("DuplicatePreviousInput"),  duplicate_previous_input_output_cmd);
   Client::register_menucommand(String("DuplicatePreviousOutput"), duplicate_previous_input_output_cmd);
+  Client::register_menucommand(String("SimilarSectionBelow"),     similar_section_below_cmd);
   Client::register_menucommand(String("InsertColumn"),            insert_column_cmd);
   Client::register_menucommand(String("InsertFraction"),          insert_fraction_cmd);
   Client::register_menucommand(String("InsertOpposite"),          insert_opposite_cmd);
@@ -607,7 +609,6 @@ bool richmath::init_bindings(){
   Client::register_menucommand(String("InsertSubscript"),         insert_subscript_cmd);
   Client::register_menucommand(String("InsertSuperscript"),       insert_superscript_cmd);
   Client::register_menucommand(String("InsertUnderscript"),       insert_underscript_cmd);
-  Client::register_menucommand(String("SimilarSectionBelow"),     similar_section_below_cmd);
   
   Client::register_menucommand(String("EvaluatorAbort"),             abort_cmd,                 can_abort);
   Client::register_menucommand(String("EvaluateInPlace"),            evaluate_in_place_cmd);
