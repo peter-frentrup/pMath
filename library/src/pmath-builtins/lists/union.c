@@ -1,7 +1,7 @@
 #include <pmath-core/expressions-private.h>
 #include <pmath-core/numbers.h>
 
-#include <pmath-util/helpers.h>
+#include <pmath-util/emit-and-gather.h>
 #include <pmath-util/messages.h>
 
 #include <pmath-builtins/all-symbols-private.h>

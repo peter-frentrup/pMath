@@ -1,3 +1,4 @@
+#include <pmath-util/emit-and-gather.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
 
@@ -47,6 +48,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_get_attributes(
   else if(obj == PMATH_SYMBOL_ONEIDENTITY)          *attr = PMATH_SYMBOL_ATTRIBUTE_ONEIDENTITY;
   else if(obj == PMATH_SYMBOL_PROTECTED)            *attr = PMATH_SYMBOL_ATTRIBUTE_PROTECTED;
   else if(obj == PMATH_SYMBOL_READPROTECTED)        *attr = PMATH_SYMBOL_ATTRIBUTE_READPROTECTED;
+  else if(obj == PMATH_SYMBOL_SEQUENCEHOLD)         *attr = PMATH_SYMBOL_ATTRIBUTE_SEQUENCEHOLD;
   else if(obj == PMATH_SYMBOL_SYMMETRIC)            *attr = PMATH_SYMBOL_ATTRIBUTE_SYMMETRIC;
   else if(obj == PMATH_SYMBOL_TEMPORARY)            *attr = PMATH_SYMBOL_ATTRIBUTE_TEMPORARY;
   else if(obj == PMATH_SYMBOL_THREADLOCAL)          *attr = PMATH_SYMBOL_ATTRIBUTE_THREADLOCAL;
@@ -188,6 +190,9 @@ PMATH_PRIVATE pmath_t builtin_attributes(pmath_expr_t expr){
 
     if(attr & PMATH_SYMBOL_ATTRIBUTE_READPROTECTED)
       pmath_emit(pmath_ref(PMATH_SYMBOL_READPROTECTED), NULL);
+
+    if(attr & PMATH_SYMBOL_ATTRIBUTE_SEQUENCEHOLD)
+      pmath_emit(pmath_ref(PMATH_SYMBOL_SEQUENCEHOLD), NULL);
 
     if(attr & PMATH_SYMBOL_ATTRIBUTE_SYMMETRIC)
       pmath_emit(pmath_ref(PMATH_SYMBOL_SYMMETRIC), NULL);

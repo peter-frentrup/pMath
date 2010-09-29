@@ -261,4 +261,7 @@ Thread::len:= "Cannot combine expressions of unequal length in `1`."
 
 Throw::nocatch:= "Uncaught exception `1`."
 
+Transpose::perm1:= "Entry `1` in permutation `2` is not a positive machine integer."
+Transpose::perm2:= "Entry `1` is out of bounds for permutation `2`."
+
 Try::nomsgs:= "`1` is neither a valid message name nor a list of valid message names."

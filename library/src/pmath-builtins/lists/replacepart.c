@@ -1,17 +1,15 @@
 #include <pmath-core/numbers-private.h>
 
+#include <pmath-language/patterns-private.h>
+
 #include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/memory.h>
 #include <pmath-util/messages.h>
-#include <pmath-util/symbol-values-private.h>
 
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/control-private.h>
-#include <pmath-builtins/control/definitions-private.h>
 #include <pmath-builtins/lists-private.h>
-
-#include <pmath-language/patterns-private.h>
 
 
 /* TODO: allow ReplacePart({{a, b, c}, {d, e}, {f}}, {~~~, -1} -> xx)
@@ -402,111 +400,4 @@ PMATH_PRIVATE pmath_t builtin_replacepart(pmath_expr_t expr){
 
   pmath_unref(rules);
   return list;
-}
-
-PMATH_PRIVATE pmath_t builtin_assign_part(pmath_expr_t expr){
-  pmath_t tag;
-  pmath_t lhs;
-  pmath_t rhs;
-  pmath_t sym;
-  int assignment;
-  pmath_bool_t error;
-  
-  assignment = _pmath_is_assignment(expr, &tag, &lhs, &rhs);
-  if(!assignment)
-    return expr;
-  
-  if(!pmath_instance_of(lhs, PMATH_TYPE_EXPRESSION)
-  || pmath_expr_length(lhs) <= 1
-  || rhs == PMATH_UNDEFINED){
-    pmath_unref(tag);
-    pmath_unref(lhs);
-    pmath_unref(rhs);
-    return expr;
-  }
-  
-  sym = pmath_expr_get_item(lhs, 0);
-  pmath_unref(sym);
-  
-  if(sym == PMATH_SYMBOL_PART){
-    size_t i;
-    
-    pmath_unref(expr);
-    for(i = pmath_expr_length(lhs);i > 1;--i){
-      pmath_t item = pmath_expr_get_item(lhs, i);
-      item = pmath_evaluate(item);
-      lhs = pmath_expr_set_item(lhs, i, item);
-    }
-  }
-  else{
-    pmath_unref(tag);
-    pmath_unref(lhs);
-    pmath_unref(rhs);
-    return expr;
-  }
-  
-  sym = pmath_expr_get_item(lhs, 1);
-  if(!pmath_instance_of(sym, PMATH_TYPE_SYMBOL)){
-    pmath_message(NULL, "nosym", 1, sym);
-    pmath_unref(tag);
-    pmath_unref(lhs);
-    
-    if(assignment < 0){
-      pmath_unref(rhs);
-      return pmath_ref(PMATH_SYMBOL_FAILED);
-    }
-    
-    return rhs;
-  }
-  
-  if(tag != PMATH_UNDEFINED && tag != sym){
-    pmath_message(NULL, "tag", 1, lhs, sym);
-    pmath_unref(tag);
-    
-    if(assignment < 0){
-      pmath_unref(rhs);
-      return pmath_ref(PMATH_SYMBOL_FAILED);
-    }
-    
-    return rhs;
-  }
-  
-  pmath_unref(tag);
-  tag = pmath_symbol_get_value(sym);
-  tag = _pmath_symbol_value_prepare(sym, tag);
-  
-  error = FALSE;
-  tag = replace_const_part(tag, lhs, 2, TRUE, rhs, &error);
-  pmath_unref(lhs);
-  
-  if(error){
-    pmath_unref(tag);
-    pmath_unref(sym);
-    
-    if(assignment < 0){
-      pmath_unref(rhs);
-      return pmath_ref(PMATH_SYMBOL_FAILED);
-    }
-    
-    return rhs;
-  }
-  
-  if(!_pmath_assign(sym, pmath_ref(sym), tag)){
-    pmath_unref(sym);
-    
-    if(assignment < 0){
-      pmath_unref(rhs);
-      return pmath_ref(PMATH_SYMBOL_FAILED);
-    }
-    
-    return rhs;
-  }
-  
-  pmath_unref(sym);
-  if(assignment < 0){
-    pmath_unref(rhs);
-    return NULL;
-  }
-  
-  return rhs;
 }

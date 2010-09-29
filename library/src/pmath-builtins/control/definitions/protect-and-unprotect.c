@@ -1,6 +1,6 @@
 #include <pmath-builtins/all-symbols-private.h>
 
-#include <pmath-util/helpers.h>
+#include <pmath-util/emit-and-gather.h>
 #include <pmath-util/messages.h>
 
 static void protect_callback(pmath_symbol_t symbol){

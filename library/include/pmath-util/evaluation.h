@@ -29,6 +29,6 @@ PMATH_API
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_t pmath_evaluate_expression(
   pmath_expr_t  expr,
-  pmath_bool_t     apply_rules);
+  pmath_bool_t  apply_rules);
   
 #endif /* __PMATH_UTIL__EVALUATION_H__ */

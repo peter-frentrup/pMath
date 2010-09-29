@@ -1,6 +1,6 @@
 #include <pmath-language/scanner.h>
 
-#include <pmath-util/helpers.h>
+#include <pmath-util/emit-and-gather.h>
 #include <pmath-util/messages.h>
 
 #include <pmath-builtins/all-symbols-private.h>

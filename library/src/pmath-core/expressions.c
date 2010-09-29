@@ -819,10 +819,10 @@ PMATH_API pmath_expr_t pmath_expr_sort(
   }
 
   static void flatten_rearrange(
-    pmath_t **result,   // [in/out] pointer to an array position
-    pmath_expr_t  expr,  // wont be freed
-    pmath_t      head,  // wont be freed
-    size_t              depth
+    pmath_t      **result,   // [in/out] pointer to an array position
+    pmath_expr_t   expr,  // wont be freed
+    pmath_t        head,  // wont be freed
+    size_t         depth
   ){
     struct{
       pmath_expr_t expr;

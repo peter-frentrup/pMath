@@ -324,6 +324,7 @@
 		<Unit filename="include\pmath-util\debug.h" />
 		<Unit filename="include\pmath-util\dlmalloc.h" />
 		<Unit filename="include\pmath-util\dynamic-private.h" />
+		<Unit filename="include\pmath-util\emit-and-gather.h" />
 		<Unit filename="include\pmath-util\evaluation.h" />
 		<Unit filename="include\pmath-util\files.h" />
 		<Unit filename="include\pmath-util\hashtables-private.h" />
@@ -740,6 +741,9 @@
 		<Unit filename="src\pmath-builtins\lists\max-and-min.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="src\pmath-builtins\lists\mean.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="src\pmath-builtins\lists\operate.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -774,6 +778,12 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src\pmath-builtins\lists\through.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\pmath-builtins\lists\total.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\pmath-builtins\lists\transpose.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src\pmath-builtins\lists\union.c">
@@ -897,6 +907,9 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src\pmath-util\dynamic-private.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\pmath-util\emit-and-gather.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src\pmath-util\evaluation.c">

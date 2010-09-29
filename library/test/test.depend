@@ -4342,7 +4342,7 @@
 	<unistd.h>
 	<semaphore.h>
 
-1284826460 d:\peter\programmieren\pmath\trunk\library\include\pmath.h
+1285690669 d:\peter\programmieren\pmath\trunk\library\include\pmath.h
 	<pmath-core/expressions.h>
 	<pmath-core/numbers.h>
 	<pmath-core/symbols.h>
@@ -4358,6 +4358,7 @@
 	<pmath-util/concurrency/threadpool.h>
 	<pmath-util/concurrency/threads.h>
 	<pmath-util/debug.h>
+	<pmath-util/emit-and-gather.h>
 	<pmath-util/evaluation.h>
 	<pmath-util/files.h>
 	<pmath-util/helpers.h>
@@ -4421,12 +4422,12 @@
 1284805259 d:\peter\programmieren\pmath\trunk\library\include\pmath-core\strings.h
 	<pmath-core/objects-inline.h>
 
-1284805259 d:\peter\programmieren\pmath\trunk\library\include\pmath-core\symbols.h
+1285791046 d:\peter\programmieren\pmath\trunk\library\include\pmath-core\symbols.h
 	<pmath-core/strings.h>
 
 1282938491 e/strings.h>
 
-1284908988 d:\peter\programmieren\pmath\trunk\library\include\pmath-builtins\all-symbols.h
+1285791116 d:\peter\programmieren\pmath\trunk\library\include\pmath-builtins\all-symbols.h
 	<pmath-core/expressions.h>
 	<pmath-core/symbols.h>
 
@@ -4439,7 +4440,7 @@
 1284805259 d:\peter\programmieren\pmath\trunk\library\include\pmath-language\scanner.h
 	<pmath-core/strings.h>
 
-1284805259 d:\peter\programmieren\pmath\trunk\library\include\pmath-language\tokens.h
+1285094420 d:\peter\programmieren\pmath\trunk\library\include\pmath-language\tokens.h
 	<stdlib.h>
 	<pmath-config.h>
 	<pmath-types.h>
@@ -4467,7 +4468,7 @@
 1284805259 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\debug.h
 	<pmath-core/objects-inline.h>
 
-1282589032 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\evaluation.h
+1285792614 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\evaluation.h
 	<pmath-core/expressions.h>
 
 1282589032 e/expressions.h>
@@ -4476,7 +4477,7 @@
 	<pmath-core/symbols.h>
 	<stdlib.h>
 
-1284805259 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\helpers.h
+1285690740 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\helpers.h
 	<pmath-core/symbols.h>
 	<pmath-core/expressions.h>
 	<stdarg.h>
@@ -4758,4 +4759,7 @@
 1282575293 /home/pubuntu/pmath_trunk/library/include/pmath-util/stacks.h
 	<pmath-config.h>
 	<pmath-config.h>
+
+1285690893 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\emit-and-gather.h
+	<pmath-core/expressions.h>
 

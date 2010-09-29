@@ -169,6 +169,7 @@ static pmath_t evaluate_expression(
   pmath_bool_t                   hold_complete;
   pmath_bool_t                   listable;
   pmath_bool_t                   associative;
+  pmath_bool_t                   sequence_hold;
   pmath_bool_t                   symmetric;
   pmath_t                        item;
   pmath_expr_t                   expr_with_unevaluated;
@@ -240,15 +241,17 @@ static pmath_t evaluate_expression(
   hold_complete = FALSE;
   listable      = FALSE;
   associative   = FALSE;
+  sequence_hold = FALSE;
   symmetric     = FALSE;
   if(head_sym == head){
     hold_complete = (attr & PMATH_SYMBOL_ATTRIBUTE_HOLDALLCOMPLETE) != 0;
     if(!hold_complete){
-      hold_first  = (attr & PMATH_SYMBOL_ATTRIBUTE_HOLDFIRST) != 0;
-      hold_rest   = (attr & PMATH_SYMBOL_ATTRIBUTE_HOLDREST)  != 0;
-      listable    = (attr & PMATH_SYMBOL_ATTRIBUTE_LISTABLE) != 0;
-      associative = (attr & PMATH_SYMBOL_ATTRIBUTE_ASSOCIATIVE) != 0;
-      symmetric   = (attr & PMATH_SYMBOL_ATTRIBUTE_SYMMETRIC) != 0;
+      hold_first    = (attr & PMATH_SYMBOL_ATTRIBUTE_HOLDFIRST) != 0;
+      hold_rest     = (attr & PMATH_SYMBOL_ATTRIBUTE_HOLDREST)  != 0;
+      listable      = (attr & PMATH_SYMBOL_ATTRIBUTE_LISTABLE) != 0;
+      associative   = (attr & PMATH_SYMBOL_ATTRIBUTE_ASSOCIATIVE) != 0;
+      sequence_hold = (attr & PMATH_SYMBOL_ATTRIBUTE_SEQUENCEHOLD) != 0;
+      symmetric     = (attr & PMATH_SYMBOL_ATTRIBUTE_SYMMETRIC) != 0;
     }
   }
   else{
@@ -390,6 +393,42 @@ static pmath_t evaluate_expression(
         expr,
         pmath_ref(head),
         PMATH_EXPRESSION_FLATTEN_MAX_DEPTH);
+    }
+    
+    if(!sequence_hold){
+      pmath_bool_t more = TRUE;
+      
+      while(more){
+        more = FALSE;
+        
+        for(i = 1;i <= exprlen;++i){
+          item = pmath_expr_get_item(expr, i);
+          
+          if(pmath_is_expr_of(item, PMATH_SYMBOL_SEQUENCE)){
+            pmath_unref(item);
+            expr = pmath_expr_flatten(
+              expr,
+              pmath_ref(PMATH_SYMBOL_SEQUENCE),
+              PMATH_EXPRESSION_FLATTEN_MAX_DEPTH);
+            
+            more = associative;
+            break;
+          }
+          
+          if(associative && pmath_is_expr_of(item, head)){
+            pmath_unref(item);
+            expr = pmath_expr_flatten(
+              expr,
+              pmath_ref(head),
+              PMATH_EXPRESSION_FLATTEN_MAX_DEPTH);
+            
+            more = TRUE;
+            break;
+          }
+          
+          pmath_unref(item);
+        }
+      }
     }
     
     if(symmetric)

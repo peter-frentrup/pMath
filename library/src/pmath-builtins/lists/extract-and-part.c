@@ -1,7 +1,12 @@
+#include <pmath-core/expressions-private.h>
+
+#include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
+#include <pmath-util/symbol-values-private.h>
 
 #include <pmath-builtins/all-symbols-private.h>
+#include <pmath-builtins/control/definitions-private.h>
 #include <pmath-builtins/lists-private.h>
 
 
@@ -200,4 +205,339 @@ PMATH_PRIVATE pmath_t builtin_part(pmath_expr_t expr){
   
   pmath_unref(expr);
   return list;
+}
+
+static pmath_t assign_part(
+  pmath_t       list,            // will be freed
+  pmath_expr_t  position,        // wont be freed
+  size_t        position_start,
+  pmath_t       new_value,       // wont be freed
+  pmath_bool_t *error
+){
+  size_t listlen;
+  pmath_t index;
+  
+  if(position_start > pmath_expr_length(position)){
+    pmath_unref(list);
+    return pmath_ref(new_value);
+  }
+  
+  if(!pmath_instance_of(list, PMATH_TYPE_EXPRESSION)){
+    if(!*error)
+      pmath_message(NULL, "partd", 1, pmath_ref(position));
+    *error = TRUE;
+    return list;
+  }
+  
+  listlen = pmath_expr_length(list);
+  index = pmath_expr_get_item(position, position_start);
+  
+  if(pmath_instance_of(index, PMATH_TYPE_INTEGER)){
+    size_t i = SIZE_MAX;
+    
+    if(!extract_number(index, listlen, &i)){
+      if(*error)
+        pmath_unref(index);
+      else
+        pmath_message(NULL, "pspec", 1, index);
+      *error = TRUE;
+      return list;
+    }
+    if(i > listlen){
+      if(*error)
+        pmath_unref(index);
+      else
+        pmath_message(NULL, "partw", 2, pmath_ref(list), index);
+      *error = TRUE;
+      return list;
+    }
+    
+    pmath_unref(index);
+    index = pmath_expr_get_item(list, i);
+    list = pmath_expr_set_item(list, i, NULL);
+    return pmath_expr_set_item(list, i, 
+      assign_part(index, position, position_start + 1, new_value, error));
+  }
+  
+  if(pmath_is_expr_of(index, PMATH_SYMBOL_RANGE)){
+    pmath_bool_t reverse = FALSE;
+    size_t start_index = 1;
+    size_t end_index = listlen;
+    
+    if(!extract_range(index, &start_index, &end_index, TRUE)){
+      if(*error)
+        pmath_unref(index);
+      else
+        pmath_message(NULL, "pspec", 1, index);
+      *error = TRUE;
+      return list;
+    }
+    
+    if(start_index > listlen || end_index > listlen){
+      if(*error)
+        pmath_unref(index);
+      else
+        pmath_message(NULL, "partw", 2, pmath_ref(list), index);
+      *error = TRUE;
+      return list;
+    }
+    
+    if(start_index > end_index){
+      size_t t = start_index;
+      start_index = end_index;
+      end_index = t;
+      
+      reverse = TRUE;
+    }
+    
+    pmath_unref(index);
+    index = NULL;
+    
+    if(pmath_is_expr_of_len(new_value, PMATH_SYMBOL_LIST, end_index + 1 - start_index)){
+      size_t i;
+      
+      if(reverse){
+        for(i = start_index;i <= end_index;++i){
+          pmath_t item     = pmath_expr_get_item(list,      i);
+          pmath_t new_item = pmath_expr_get_item(new_value, end_index + 1 - i);
+          
+          list = pmath_expr_set_item(list, i, NULL);
+          list = pmath_expr_set_item(list, i, 
+            assign_part(item, position, position_start + 1, new_item, error));
+          
+          pmath_unref(new_item);
+        }
+      }
+      else{
+        for(i = start_index;i <= end_index;++i){
+          pmath_t item     = pmath_expr_get_item(list,      i);
+          pmath_t new_item = pmath_expr_get_item(new_value, i - start_index + 1);
+          
+          list = pmath_expr_set_item(list, i, NULL);
+          list = pmath_expr_set_item(list, i, 
+            assign_part(item, position, position_start + 1, new_item, error));
+          
+          pmath_unref(new_item);
+        }
+      }
+    }
+    else{
+      size_t i;
+      
+      for(i = start_index;i <= end_index;++i){
+        pmath_t item = pmath_expr_get_item(list, i);
+        
+        list = pmath_expr_set_item(list, i, NULL);
+        list = pmath_expr_set_item(list, i, 
+          assign_part(item, position, position_start + 1, new_value, error));
+      }
+    }
+    
+    return list;
+  }
+
+  if(pmath_is_expr_of(index, PMATH_SYMBOL_LIST)){
+    size_t i;
+    size_t indexlen = pmath_expr_length(index);
+    
+    for(i = 1;i <= indexlen;++i){
+      pmath_t subindex = pmath_expr_get_item(index, i);
+      size_t list_i = SIZE_MAX;
+      
+      if(!extract_number(subindex, listlen, &list_i)){
+        if(*error)
+          pmath_unref(subindex);
+        else
+          pmath_message(NULL, "pspec", 1, subindex);
+        *error = TRUE;
+        pmath_unref(index);
+        return list;
+      }
+      
+      if(list_i > listlen){
+        if(*error)
+          pmath_unref(subindex);
+        else
+          pmath_message(NULL, "partw", 2, 
+            pmath_ref(list), 
+            subindex);
+        *error = TRUE;
+        pmath_unref(index);
+        return list;
+      }
+      
+      pmath_unref(subindex);
+      
+      if(pmath_is_expr_of_len(new_value, PMATH_SYMBOL_LIST, indexlen)){
+        pmath_t item     = pmath_expr_get_item(list,      list_i);
+        pmath_t new_item = pmath_expr_get_item(new_value, i);
+        
+        list = pmath_expr_set_item(list, list_i, NULL);
+        list = pmath_expr_set_item(list, list_i, 
+          assign_part(item, position, position_start + 1, new_item, error));
+        
+        pmath_unref(new_item);
+      }
+      else{
+        pmath_t item = pmath_expr_get_item(list, list_i);
+        
+        list = pmath_expr_set_item(list, list_i, NULL);
+        list = pmath_expr_set_item(list, list_i, 
+          assign_part(item, position, position_start + 1, new_value, error));
+      }
+    }
+    
+    pmath_unref(index);
+    return list;
+  }
+
+  if(index == PMATH_SYMBOL_ALL){
+    size_t i;
+    pmath_unref(index);
+    index = NULL;
+    
+    if(pmath_is_expr_of_len(new_value, PMATH_SYMBOL_LIST, listlen)){
+      for(i = 1;i <= listlen;++i){
+        pmath_t item     = pmath_expr_get_item(list, i);
+        pmath_t new_item = pmath_expr_get_item(new_value, i);
+        
+        list = pmath_expr_set_item(list, i, NULL);
+        list = pmath_expr_set_item(list, i,
+          assign_part(item, position, position_start + 1, new_item, error));
+        
+        pmath_unref(new_item);
+      }
+        
+      return list;
+    }
+    
+    for(i = 1;i <= listlen;++i){
+      pmath_t item = pmath_expr_get_item(list, i);
+      
+      list = pmath_expr_set_item(list, i, NULL);
+      list = pmath_expr_set_item(list, i,
+        assign_part(item, position, position_start + 1, new_value, error));
+    }
+    
+    return list;
+  }
+  
+  *error = TRUE;
+  if(*error)
+    pmath_unref(index);
+  else
+    pmath_message(NULL, "pspec", 1, index);
+  return list;
+}
+
+PMATH_PRIVATE pmath_t builtin_assign_part(pmath_expr_t expr){
+  pmath_t tag;
+  pmath_t lhs;
+  pmath_t rhs;
+  pmath_t sym;
+  pmath_t list;
+  int assignment;
+  pmath_bool_t error;
+  
+  assignment = _pmath_is_assignment(expr, &tag, &lhs, &rhs);
+  if(!assignment)
+    return expr;
+  
+  if(!pmath_instance_of(lhs, PMATH_TYPE_EXPRESSION)
+  || pmath_expr_length(lhs) <= 1
+  || rhs == PMATH_UNDEFINED){
+    pmath_unref(tag);
+    pmath_unref(lhs);
+    pmath_unref(rhs);
+    return expr;
+  }
+  
+  sym = pmath_expr_get_item(lhs, 0);
+  pmath_unref(sym);
+  
+  if(sym == PMATH_SYMBOL_PART){
+    size_t i;
+    
+    pmath_unref(expr);
+    for(i = pmath_expr_length(lhs);i > 1;--i){
+      pmath_t item = pmath_expr_get_item(lhs, i);
+      item = pmath_evaluate(item);
+      lhs = pmath_expr_set_item(lhs, i, item);
+    }
+  }
+  else{
+    pmath_unref(tag);
+    pmath_unref(lhs);
+    pmath_unref(rhs);
+    return expr;
+  }
+  
+  sym = pmath_expr_get_item(lhs, 1);
+  if(!pmath_instance_of(sym, PMATH_TYPE_SYMBOL)){
+    pmath_message(NULL, "nosym", 1, sym);
+    pmath_unref(tag);
+    pmath_unref(lhs);
+    
+    if(assignment < 0){
+      pmath_unref(rhs);
+      return pmath_ref(PMATH_SYMBOL_FAILED);
+    }
+    
+    return rhs;
+  }
+  
+  if(tag != PMATH_UNDEFINED && tag != sym){
+    pmath_message(NULL, "tag", 1, lhs, sym);
+    pmath_unref(tag);
+    
+    if(assignment < 0){
+      pmath_unref(rhs);
+      return pmath_ref(PMATH_SYMBOL_FAILED);
+    }
+    
+    return rhs;
+  }
+  
+  pmath_unref(tag);
+  list = pmath_symbol_get_value(sym);
+  list = _pmath_symbol_value_prepare(sym, list);
+  
+  lhs = pmath_expr_flatten(
+    lhs, 
+    pmath_ref(PMATH_SYMBOL_SEQUENCE),
+    PMATH_EXPRESSION_FLATTEN_MAX_DEPTH);
+  error = FALSE;
+  list = assign_part(list, lhs, 2, rhs, &error);
+  pmath_unref(lhs);
+  
+  if(error){
+    pmath_unref(list);
+    pmath_unref(sym);
+    
+    if(assignment < 0){
+      pmath_unref(rhs);
+      return pmath_ref(PMATH_SYMBOL_FAILED);
+    }
+    
+    return rhs;
+  }
+  
+  if(!_pmath_assign(sym, pmath_ref(sym), list)){
+    pmath_unref(sym);
+    
+    if(assignment < 0){
+      pmath_unref(rhs);
+      return pmath_ref(PMATH_SYMBOL_FAILED);
+    }
+    
+    return rhs;
+  }
+  
+  pmath_unref(sym);
+  if(assignment < 0){
+    pmath_unref(rhs);
+    return NULL;
+  }
+  
+  return rhs;
 }

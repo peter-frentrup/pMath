@@ -2,8 +2,8 @@
 #include <pmath-core/numbers.h>
 
 #include <pmath-util/concurrency/threads-private.h>
+#include <pmath-util/emit-and-gather.h>
 #include <pmath-util/evaluation.h>
-#include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
 #include <pmath-util/modules-private.h>
 

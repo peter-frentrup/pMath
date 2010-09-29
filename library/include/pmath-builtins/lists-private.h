@@ -61,14 +61,14 @@ pmath_bool_t extract_delta_range(
   pmath_t  range,
   pmath_t *start,
   pmath_t *delta,
-  size_t         *count);
+  size_t  *count);
 
 PMATH_PRIVATE
 pmath_bool_t _pmath_extract_longrange(
   pmath_t  range,
-  long           *start,
-  long           *end,
-  long           *step);
+  long    *start,
+  long    *end,
+  long    *step);
 
 PMATH_PRIVATE
 pmath_symbol_t _pmath_topmost_symbol(pmath_t obj); // obj wont be freed

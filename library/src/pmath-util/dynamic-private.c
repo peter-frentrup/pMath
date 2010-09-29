@@ -3,9 +3,9 @@
 #include <pmath-core/numbers.h>
 
 #include <pmath-util/concurrency/atomic-private.h>
+#include <pmath-util/emit-and-gather.h>
 #include <pmath-util/evaluation.h>
 #include <pmath-util/hashtables-private.h>
-#include <pmath-util/helpers.h>
 #include <pmath-util/memory.h>
 
 #include <pmath-builtins/all-symbols-private.h>

@@ -74,26 +74,19 @@ System`Utilities`GetSystemSyntaxInformation(~symbol:Symbol)::=
 		)
 Protect(System`Utilities`GetSystemSyntaxInformation)
 
-
-/*
-f:= ToFileName({$BaseDirectory, "auto"}, "latextoboxes.pmath")
-If(FileType(f) === File,
-	Replace(
-			Unevaluated(System`Util`latexToBoxes::= (
-				Unprotect(System`Util`latexToBoxes);
-				Clear(System`Util`latexToBoxes);
-				Get(f);
-				System`Util`latexToBoxes
-				)),
-		HoldPattern(f)->f))*/
 Protect(System`Util`latexToBoxes)
 
 
 End()
 
-AutoLoad(Hold(ArcCos,ArcCot,ArcCsc,ArcSec,ArcSin,ArcTan, Cos,Cot,Csc,Sec,Sin,Tan, ArcCosh,ArcCoth,ArcCsch,ArcSech,ArcSinh,ArcTanh, Cosh,Coth,Csch,Sech,Sinh,Tanh), ToFileName({$BaseDirectory, "auto"}, "trig.pmath"))
-AutoLoad(Hold(BernoulliB,Gamma), ToFileName({$BaseDirectory, "auto", "core"}, "gammazeta.pmath"))
-AutoLoad(Hold(System`Util`latexToBoxes), ToFileName({$BaseDirectory, "auto", "core", "format"}, "latextoboxes.pmath"))
+AutoLoad(Hold(ArcCos,ArcCot,ArcCsc,ArcSec,ArcSin,ArcTan, Cos,Cot,Csc,Sec,Sin,Tan, ArcCosh,ArcCoth,ArcCsch,ArcSech,ArcSinh,ArcTanh, Cosh,Coth,Csch,Sech,Sinh,Tanh), 
+	ToFileName({$BaseDirectory, "auto", "core"}, "trig.pmath"))
+AutoLoad(Hold(BernoulliB,Gamma), 
+	ToFileName({$BaseDirectory, "auto", "core"}, "gammazeta.pmath"))
+AutoLoad(Hold(Transpose), 
+	ToFileName({$BaseDirectory, "auto", "core"}, "transpose.pmath"))
+AutoLoad(Hold(System`Util`latexToBoxes), 
+	ToFileName({$BaseDirectory, "auto", "core", "format"}, "latextoboxes.pmath"))
 
 Get(ToFileName({$BaseDirectory, "auto", "core"}, "colors.pmath"));
 Get(ToFileName({$BaseDirectory, "auto", "core", "format"}, "sumprod.pmath"));

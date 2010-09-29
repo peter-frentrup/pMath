@@ -4,8 +4,9 @@ Button("Math in Text",DocumentApply(SelectedDocument(),"\({\"\"}\)"))
 Button("italic",DocumentApply(SelectedDocument(),StyleBox("",FontSlant->Italic)))
 Button("Arg Style",DocumentApply(SelectedDocument(),StyleBox("","Arg")))
 
-- pmath: implement Mean and Total. The symbols already exist
-  for Total, see Kahan summation algorithm
+- richmath: f @@ g() ==> memory leak    (not in console pmath)
+
+? pmath: implement Transpose in C code (see transpose.pmath)
 
 - pmath: use "fat values": a pmath_t will be an 8-byte struct, that contains small ints and doubles directly, (maybe also small strings). tag bits specify the type 
 	advantage: 
@@ -45,9 +46,6 @@ Button("Arg Style",DocumentApply(SelectedDocument(),StyleBox("","Arg")))
 
 - add counter for regex cache in debug mode
 
-- allow v[1..5]:= {a,b,c,d,e}
-	v[{1,3,7}]:= {x,y,z}
-
 - implement Cross as Det(...), see scripts/junk/linalg.pmath
 
 ? GUI: add ALT+Left/Right/Up/Down to move in the expression tree
@@ -59,7 +57,7 @@ Button("Arg Style",DocumentApply(SelectedDocument(),StyleBox("","Arg")))
 
 - add KroneckerProduct(), ArrayFlatten(),
 	Norm(), Cross(), Total(), LinearSolve(), Inverse(), PseudoInverse(), RowReduce(), MatrixRank(), Normalize(), 
-	Projection(), Orthogonalize(), Transpose(), ConjugateTranspose(),
+	Projection(), Orthogonalize(), ConjugateTranspose(),
 	IdentityMatrix(), ChracteristicPolynomial(), QRDecomposition(), Eigenvalues(), Eigenvectors()
 
 - add InterpretTemplate(), see Mathematica's ToBoxes[SuperscriptBox[1,2]]
