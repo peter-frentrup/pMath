@@ -17,6 +17,7 @@ FE`BoxesToText("\u2265"):= ">=";
 FE`BoxesToText("\u27E6"):= "[[";
 FE`BoxesToText("\u27E7"):= "]]";
 
+/*  TODO: {"a1", "b"}  becomes  "a1b"  but should be "a1 b" */
 FE`BoxesToText(~b:List)::= StringExpression @@ b.Map(FE`BoxesToText)
 FE`BoxesToText(~b:/\/)::= StringExpression @@ b.Map(FE`BoxesToText)
 

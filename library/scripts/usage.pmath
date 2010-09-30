@@ -108,6 +108,7 @@ Cos::usage:= "Cos(\(\"z\".StyleBox(\"Arg\")\)) gives the cosine of \(\"z\".Style
 Cosh::usage:= "Cosh(\(\"z\".StyleBox(\"Arg\")\)) gives the hyperbolic cosine of \(\"z\".StyleBox(\"Arg\")\)."
 Cot::usage:= "Cot(\(\"z\".StyleBox(\"Arg\")\)) gives the cotangent of \(\"z\".StyleBox(\"Arg\")\)."
 Coth::usage:= "Coth(\(\"z\".StyleBox(\"Arg\")\)) gives the hyperbolic cotangent of \(\"z\".StyleBox(\"Arg\")\)."
+Count::usage:= "Count(\(StyleBox(\"list\", BaseStyle -> \"Arg\")\), \(StyleBox(\"pattern\", BaseStyle -> \"Arg\")\)) gives the number of elements in \(StyleBox(\"list\", BaseStyle -> \"Arg\")\) that match \(StyleBox(\"pattern\", BaseStyle -> \"Arg\")\).\nCount(\(StyleBox(\"expr\", BaseStyle -> \"Arg\")\), \(StyleBox(\"pattern\", BaseStyle -> \"Arg\")\), \(StyleBox(\"levelspec\", BaseStyle -> \"Arg\")\)) gives the total number of subexpressions matching \(StyleBox(\"pattern\", BaseStyle -> \"Arg\")\) that appear at the levels in \(StyleBox(\"expr\", BaseStyle -> \"Arg\")\) specified by \(StyleBox(\"levelspec\", BaseStyle -> \"Arg\")\)."
 CreateDirectory::usage:= "Create(\"\(\"dir\".StyleBox(\"Arg\")\) \") creates a directory with name \(\"dir\".StyleBox(\"Arg\")\)."
 Cross::usage:= "Cross(\(StyleBox(\"a\", BaseStyle -> \"Arg\")\), \(StyleBox(\"b\", BaseStyle -> \"Arg\")\)) gives the vector cross product of \(StyleBox(\"a\", BaseStyle -> \"Arg\")\) and \(StyleBox(\"b\", BaseStyle -> \"Arg\")\)."
 Csc::usage:= "Csc(\(\"z\".StyleBox(\"Arg\")\)) gives the cosecant of \(\"z\".StyleBox(\"Arg\")\)."

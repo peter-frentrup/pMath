@@ -261,6 +261,8 @@ Thread::len:= "Cannot combine expressions of unequal length in `1`."
 
 Throw::nocatch:= "Uncaught exception `1`."
 
+Transpose::diagnl:= "Level rearrangement `1` would require collapsing dimensions of unequal lengths."
+Transpose::newdims:= "Level rearrangement `1` does not specify destination for level `2`."
 Transpose::perm1:= "Entry `1` in permutation `2` is not a positive machine integer."
 Transpose::perm2:= "Entry `1` is out of bounds for permutation `2`."
 

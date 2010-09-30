@@ -104,8 +104,8 @@ BasicWin32Window::BasicWin32Window(
   snap_correction_y(0),
   last_moving_x(0),
   last_moving_y(0),
-  _prev_window(this),
-  _next_window(this)
+  _prev_window(0),
+  _next_window(0)
 {
   memset(&_extra_glass, 0, sizeof(_extra_glass));
   
@@ -119,6 +119,8 @@ BasicWin32Window::BasicWin32Window(
   }
   else{
     _first_window = this;
+    _prev_window = this;
+    _next_window = this;
   }
 }
 

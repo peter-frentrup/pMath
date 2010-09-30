@@ -1,0 +1,46 @@
+Begin("System`linalg`")
+
+Cross(~~vectors)::= With({dim:= Dimensions({vectors})},
+	(-1)^dim[1] Array(
+		Function({k}, Det({Array(Boole(#===k)&, dim[2]), vectors})),
+		dim[2]) 
+	/? dim.Length === 2 && dim[1] + 1 === dim[2])
+
+
+Transpose(~tensor, ?perm:{2,1})::= With({result:= Catch(transposeHelper(tensor, perm), $Failed)}, result /? result =!= $Failed)
+
+transposeHelper(~tensor, ~perm:List)::= Local({tdim, rdim, invperm, indices, result, is, tis, i},
+	Do(
+		If(!IsInteger(i) || i <= 0, 
+			Message(Transpose::perm1, i, perm); 
+			Throw($Failed));
+		If(i > Length(perm),
+			Message(Transpose::perm2, i, perm); 
+			Throw($Failed)), 
+		i -> perm);
+		
+	invperm:=Table(
+		Select(Array(Length(perm)), perm[#] = ri &),
+		ri -> 1..Max(perm));
+	tdim:= Dimensions(tensor);
+	rdim:= Table(
+		If(Length(invperm[i]) < 1, 
+			Message(Transpose::newdims, perm, i); 
+			Throw($Failed));
+		If(Length(Union(tdim[invperm[i]])) != 1, 
+			Message(Transpose::diagnl, perm);
+			Throw($Failed));
+		tdim[First(invperm[i])],
+		i -> 1..Length(invperm));
+	result:= Array(List, rdim);
+	indices:= Flatten(result, Length(rdim)-1);
+	tis:= ConstantArray(0, Length(tdim));
+	Do(
+		Do(
+			tis[invperm[i]]:= is[i],
+			i -> 1..Length(is));
+		result[Sequence @@ is]:= tensor[Sequence @@ tis],
+		is -> indices);
+	Return(result))
+
+End()

@@ -3418,7 +3418,7 @@
 	<boxes/mathsequence.h>
 	<graphics/context.h>
 
-1284149005 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\textsequence.cpp
+1285872097 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\textsequence.cpp
 	<boxes/textsequence.h>
 	<cstdlib>
 	<boxes/mathsequence.h>
@@ -3638,7 +3638,7 @@
 	<Windows.h>
 	<util/base.h>
 
-1284911139 source:d:\peter\programmieren\pmath\trunk\richmath\src\gui\win32\basic-win32-window.cpp
+1285872432 source:d:\peter\programmieren\pmath\trunk\richmath\src\gui\win32\basic-win32-window.cpp
 	<math.h>
 	<stdio.h>
 	<cairo-win32.h>

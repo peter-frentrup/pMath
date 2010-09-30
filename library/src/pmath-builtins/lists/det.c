@@ -133,9 +133,6 @@ static pmath_t symbolic_det(pmath_expr_t matrix){ // matrix will be freed
   pmath_unref(char_poly);
   pmath_unref(matrix);
   
-  if(n & 1) // odd degree
-    return NEG(det);
-  
   return det;
 }
 

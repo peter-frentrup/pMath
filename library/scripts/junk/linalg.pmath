@@ -1,13 +1,6 @@
 
 Begin("System`linalg`")
 
-Unprotect(Cross);
-Cross(~~vectors)::= With({dim:= Dimensions({vectors})}, 
-	Local({e}, 
-		Det({Array(e, dim[2]), vectors}).Replace(e(~i) :> Array(Boole(i===#)&, dim[2]))) 
-	/? dim.Length === 2 && dim[1] + 1 === dim[2])
-Protect(Cross);
-
 
 /* coefficients of the characteristc polynomial 
    march 2010: This is now implemented in the C code of pMath, see pmath-builtins/lists/det.c
