@@ -552,6 +552,8 @@ static pmath_t call_to_boxes(
         TRUE),
       NULL);
   }
+  else
+    pmath_unref(expr);
   
   pmath_emit(PMATH_C_STRING(")"), NULL);
   
@@ -1680,109 +1682,36 @@ static pmath_t directedinfinity_to_boxes(
 
 //{ boxforms valid for OutputForm ...
 
-static pmath_t row_to_boxes(
+static pmath_t column_to_boxes(
   pmath_thread_t thread,
   pmath_expr_t   expr    // will be freed
 ){
-  size_t len = pmath_expr_length(expr);
-
-  assert(thread != NULL);
-  
-  if(len == 1){
+  if(pmath_expr_length(expr) == 1){
     pmath_t list = pmath_expr_get_item(expr, 1);
     
     if(pmath_is_expr_of(list, PMATH_SYMBOL_LIST)){
       size_t i;
       
       pmath_unref(expr);
-      pmath_gather_begin(NULL);
       
-      for(i = 1;i <= pmath_expr_length(list);++i){
-        pmath_t item = pmath_expr_get_item(list, i);
-        item = object_to_boxes(thread, item);
-        pmath_emit(item, NULL);
+      for(i = pmath_expr_length(list);i > 0;--i){
+        list = pmath_expr_set_item(list, i,
+          pmath_expr_new_extended(
+            pmath_ref(PMATH_SYMBOL_LIST), 1,
+            object_to_boxes(
+              thread,
+              pmath_expr_get_item(list, i))));
       }
       
-      pmath_unref(list);
-      return pmath_gather_end();
+      return pmath_expr_new_extended(
+        pmath_ref(PMATH_SYMBOL_TAGBOX), 2,
+        pmath_expr_new_extended(
+          pmath_ref(PMATH_SYMBOL_GRIDBOX), 1,
+          list),
+        PMATH_C_STRING("Column"));
     }
     
     pmath_unref(list);
-  }
-  else if(len == 2){
-    pmath_t list = pmath_expr_get_item(expr, 1);
-    
-    if(pmath_is_expr_of(list, PMATH_SYMBOL_LIST)){
-      pmath_t delim = pmath_expr_get_item(expr, 2);
-      
-      if(!pmath_instance_of(delim, PMATH_TYPE_STRING))
-        delim = object_to_boxes(thread, delim);
-      
-      pmath_unref(expr);
-      
-      return nary_to_boxes(
-        thread,
-        list,
-        delim,
-        PMATH_PREC_ANY,
-        PMATH_PREC_ANY,
-        TRUE);
-    }
-    pmath_unref(list);
-  }
-  
-  return call_to_boxes(thread, expr);
-}
-
-static pmath_t underscript_or_overscript_to_boxes(
-  pmath_thread_t thread,
-  pmath_expr_t   expr    // will be freed
-){
-  if(pmath_expr_length(expr) == 2){
-    pmath_t head  = pmath_expr_get_item(expr, 0);
-    pmath_t base  = pmath_expr_get_item(expr, 1);
-    pmath_t small = pmath_expr_get_item(expr, 2);
-
-    pmath_unref(head);
-    pmath_unref(expr);
-
-    base  = object_to_boxes(thread, base);
-    small = object_to_boxes(thread, small);
-
-    if(head == PMATH_SYMBOL_UNDERSCRIPT)
-      head = pmath_ref(PMATH_SYMBOL_UNDERSCRIPTBOX);
-    else
-      head = pmath_ref(PMATH_SYMBOL_OVERSCRIPTBOX);
-
-    return pmath_expr_new_extended(
-      head, 2,
-      base,
-      small);
-  }
-
-  return call_to_boxes(thread, expr);
-}
-
-static pmath_t underoverscript_to_boxes(
-  pmath_thread_t thread,
-  pmath_expr_t   expr    // will be freed
-){
-  if(pmath_expr_length(expr) == 3){
-    pmath_t base  = pmath_expr_get_item(expr, 1);
-    pmath_t under = pmath_expr_get_item(expr, 2);
-    pmath_t over  = pmath_expr_get_item(expr, 3);
-
-    pmath_unref(expr);
-
-    base  = object_to_boxes(thread, base);
-    under = object_to_boxes(thread, under);
-    over  = object_to_boxes(thread, over);
-
-    return pmath_expr_new_extended(
-      pmath_ref(PMATH_SYMBOL_UNDEROVERSCRIPTBOX), 3,
-      base,
-      under,
-      over);
   }
 
   return call_to_boxes(thread, expr);
@@ -1925,6 +1854,21 @@ static pmath_t fullform_to_boxes(
   return call_to_boxes(thread, expr);
 }
 
+static pmath_t holdform_to_boxes(
+  pmath_thread_t thread,
+  pmath_expr_t   expr    // will be freed
+){
+  if(pmath_expr_length(expr) == 1){
+    pmath_t obj = pmath_expr_get_item(expr, 1);
+    
+    pmath_unref(expr);
+    
+    return object_to_boxes(thread, obj);
+  }
+  
+  return call_to_boxes(thread, expr);
+}
+
 static pmath_t inputform_to_boxes(
   pmath_thread_t thread,
   pmath_expr_t   expr    // will be freed
@@ -1959,40 +1903,23 @@ static pmath_t inputform_to_boxes(
   return call_to_boxes(thread, expr);
 }
 
-static pmath_t outputform_to_boxes(
+static pmath_t interpretation_to_boxes(
   pmath_thread_t thread,
   pmath_expr_t   expr    // will be freed
 ){
-  if(pmath_expr_length(expr) == 1){
-    pmath_t result;
-    uint8_t old_boxform = thread->boxform;
-    thread->boxform = BOXFORM_OUTPUT;
+  if(pmath_expr_length(expr) == 2){
+    pmath_t form  = pmath_expr_get_item(expr, 1);
+    pmath_t value = pmath_expr_get_item(expr, 2);
 
-    result = object_to_boxes(thread, pmath_expr_get_item(expr, 1));
-
-    thread->boxform = old_boxform;
+    pmath_unref(expr);
+    form = object_to_boxes(thread, form);
 
     return pmath_expr_new_extended(
       pmath_ref(PMATH_SYMBOL_INTERPRETATIONBOX), 2,
-      result,
-      expr);
+      form,
+      value);
   }
 
-  return call_to_boxes(thread, expr);
-}
-
-static pmath_t holdform_to_boxes(
-  pmath_thread_t thread,
-  pmath_expr_t   expr    // will be freed
-){
-  if(pmath_expr_length(expr) == 1){
-    pmath_t obj = pmath_expr_get_item(expr, 1);
-    
-    pmath_unref(expr);
-    
-    return object_to_boxes(thread, obj);
-  }
-  
   return call_to_boxes(thread, expr);
 }
 
@@ -2068,7 +1995,7 @@ static pmath_t longform_to_boxes(
       obj = pmath_expr_new_extended(
         pmath_ref(PMATH_SYMBOL_TAGBOX), 2,
         obj,
-        PMATH_C_STRING("Column"));
+        pmath_ref(PMATH_SYMBOL_COLUMN));
       
       return pmath_build_value("sos", "(", obj, ")");
     }
@@ -2092,119 +2019,77 @@ static pmath_t matrixform_to_boxes(
   return call_to_boxes(thread, expr);
 }
 
-static pmath_t interpretation_to_boxes(
+static pmath_t outputform_to_boxes(
   pmath_thread_t thread,
   pmath_expr_t   expr    // will be freed
 ){
-  if(pmath_expr_length(expr) == 2){
-    pmath_t form  = pmath_expr_get_item(expr, 1);
-    pmath_t value = pmath_expr_get_item(expr, 2);
+  if(pmath_expr_length(expr) == 1){
+    pmath_t result;
+    uint8_t old_boxform = thread->boxform;
+    thread->boxform = BOXFORM_OUTPUT;
 
-    pmath_unref(expr);
-    form = object_to_boxes(thread, form);
+    result = object_to_boxes(thread, pmath_expr_get_item(expr, 1));
+
+    thread->boxform = old_boxform;
 
     return pmath_expr_new_extended(
       pmath_ref(PMATH_SYMBOL_INTERPRETATIONBOX), 2,
-      form,
-      value);
+      result,
+      expr);
   }
 
   return call_to_boxes(thread, expr);
 }
 
-  static void emit_stylebox_options(pmath_expr_t expr, size_t start){ // expr wont be freed
-    size_t i;
-    
-    for(i = start;i <= pmath_expr_length(expr);++i){
-      pmath_t item = pmath_expr_get_item(expr, i);
-      
-      if(item == PMATH_SYMBOL_BOLD){
-        pmath_emit(
-          pmath_expr_new_extended(
-            pmath_ref(PMATH_SYMBOL_RULE), 2, 
-            pmath_ref(PMATH_SYMBOL_FONTWEIGHT),
-            item),
-          NULL);
-        continue;
-      }
-      
-      if(item == PMATH_SYMBOL_ITALIC){
-        pmath_emit(
-          pmath_expr_new_extended(
-            pmath_ref(PMATH_SYMBOL_RULE), 2, 
-            pmath_ref(PMATH_SYMBOL_FONTSLANT),
-            item),
-          NULL);
-        continue;
-      }
-      
-      if(item == PMATH_SYMBOL_PLAIN){
-        pmath_emit(
-          pmath_expr_new_extended(
-            pmath_ref(PMATH_SYMBOL_RULE), 2, 
-            pmath_ref(PMATH_SYMBOL_FONTSLANT),
-            pmath_ref(item)),
-          NULL);
-        pmath_emit(
-          pmath_expr_new_extended(
-            pmath_ref(PMATH_SYMBOL_RULE), 2, 
-            pmath_ref(PMATH_SYMBOL_FONTWEIGHT),
-            item),
-          NULL);
-        continue;
-      }
-      
-      if(pmath_instance_of(item, PMATH_TYPE_NUMBER)){
-        pmath_emit(
-          pmath_expr_new_extended(
-            pmath_ref(PMATH_SYMBOL_RULE), 2, 
-            pmath_ref(PMATH_SYMBOL_FONTSIZE),
-            item),
-          NULL);
-        continue;
-      }
-      
-      if(pmath_is_expr_of(item, PMATH_SYMBOL_LIST)){
-        emit_stylebox_options(expr, 1);
-        pmath_unref(item);
-        continue;
-      }
-      
-      if(pmath_is_expr_of_len(item, PMATH_SYMBOL_GRAYLEVEL, 1)
-      || pmath_is_expr_of_len(item, PMATH_SYMBOL_RGBCOLOR, 3)){
-        pmath_emit(
-          pmath_expr_new_extended(
-            pmath_ref(PMATH_SYMBOL_RULE), 2, 
-            pmath_ref(PMATH_SYMBOL_FONTCOLOR),
-            item),
-          NULL);
-        continue;
-      }
-      
-      pmath_emit(item, NULL);
-    }
-  }
-
-static pmath_t style_to_boxes(
+static pmath_t row_to_boxes(
   pmath_thread_t thread,
   pmath_expr_t   expr    // will be freed
 ){
   size_t len = pmath_expr_length(expr);
+
+  assert(thread != NULL);
   
-  if(len >= 1){
-    pmath_gather_begin(NULL);
-    pmath_emit(object_to_boxes(thread, pmath_expr_get_item(expr, 1)), NULL);
+  if(len == 1){
+    pmath_t list = pmath_expr_get_item(expr, 1);
     
-    emit_stylebox_options(expr, 2);
-    pmath_unref(expr);
+    if(pmath_is_expr_of(list, PMATH_SYMBOL_LIST)){
+      size_t i;
+      
+      pmath_unref(expr);
+      pmath_gather_begin(NULL);
+      
+      for(i = 1;i <= pmath_expr_length(list);++i){
+        pmath_t item = pmath_expr_get_item(list, i);
+        item = object_to_boxes(thread, item);
+        pmath_emit(item, NULL);
+      }
+      
+      pmath_unref(list);
+      return pmath_gather_end();
+    }
     
-    expr = pmath_gather_end();
-    return pmath_expr_set_item(expr, 0, pmath_ref(PMATH_SYMBOL_STYLEBOX));
+    pmath_unref(list);
   }
-  else if(len == 1){
-    pmath_t item = pmath_expr_get_item(expr, 1);
-    pmath_unref(expr);
-    return object_to_boxes(thread, item);
+  else if(len == 2){
+    pmath_t list = pmath_expr_get_item(expr, 1);
+    
+    if(pmath_is_expr_of(list, PMATH_SYMBOL_LIST)){
+      pmath_t delim = pmath_expr_get_item(expr, 2);
+      
+      if(!pmath_instance_of(delim, PMATH_TYPE_STRING))
+        delim = object_to_boxes(thread, delim);
+      
+      pmath_unref(expr);
+      
+      return nary_to_boxes(
+        thread,
+        list,
+        delim,
+        PMATH_PREC_ANY,
+        PMATH_PREC_ANY,
+        TRUE);
+    }
+    pmath_unref(list);
   }
   
   return call_to_boxes(thread, expr);
@@ -2355,6 +2240,158 @@ static pmath_t skeleton_to_boxes(
     }
     
     return pmath_build_value("(sos)", "<<", object_to_boxes(thread, obj), ">>");
+  }
+
+  return call_to_boxes(thread, expr);
+}
+
+  static void emit_stylebox_options(pmath_expr_t expr, size_t start){ // expr wont be freed
+    size_t i;
+    
+    for(i = start;i <= pmath_expr_length(expr);++i){
+      pmath_t item = pmath_expr_get_item(expr, i);
+      
+      if(item == PMATH_SYMBOL_BOLD){
+        pmath_emit(
+          pmath_expr_new_extended(
+            pmath_ref(PMATH_SYMBOL_RULE), 2, 
+            pmath_ref(PMATH_SYMBOL_FONTWEIGHT),
+            item),
+          NULL);
+        continue;
+      }
+      
+      if(item == PMATH_SYMBOL_ITALIC){
+        pmath_emit(
+          pmath_expr_new_extended(
+            pmath_ref(PMATH_SYMBOL_RULE), 2, 
+            pmath_ref(PMATH_SYMBOL_FONTSLANT),
+            item),
+          NULL);
+        continue;
+      }
+      
+      if(item == PMATH_SYMBOL_PLAIN){
+        pmath_emit(
+          pmath_expr_new_extended(
+            pmath_ref(PMATH_SYMBOL_RULE), 2, 
+            pmath_ref(PMATH_SYMBOL_FONTSLANT),
+            pmath_ref(item)),
+          NULL);
+        pmath_emit(
+          pmath_expr_new_extended(
+            pmath_ref(PMATH_SYMBOL_RULE), 2, 
+            pmath_ref(PMATH_SYMBOL_FONTWEIGHT),
+            item),
+          NULL);
+        continue;
+      }
+      
+      if(pmath_instance_of(item, PMATH_TYPE_NUMBER)){
+        pmath_emit(
+          pmath_expr_new_extended(
+            pmath_ref(PMATH_SYMBOL_RULE), 2, 
+            pmath_ref(PMATH_SYMBOL_FONTSIZE),
+            item),
+          NULL);
+        continue;
+      }
+      
+      if(pmath_is_expr_of(item, PMATH_SYMBOL_LIST)){
+        emit_stylebox_options(expr, 1);
+        pmath_unref(item);
+        continue;
+      }
+      
+      if(pmath_is_expr_of_len(item, PMATH_SYMBOL_GRAYLEVEL, 1)
+      || pmath_is_expr_of_len(item, PMATH_SYMBOL_RGBCOLOR, 3)){
+        pmath_emit(
+          pmath_expr_new_extended(
+            pmath_ref(PMATH_SYMBOL_RULE), 2, 
+            pmath_ref(PMATH_SYMBOL_FONTCOLOR),
+            item),
+          NULL);
+        continue;
+      }
+      
+      pmath_emit(item, NULL);
+    }
+  }
+
+static pmath_t style_to_boxes(
+  pmath_thread_t thread,
+  pmath_expr_t   expr    // will be freed
+){
+  size_t len = pmath_expr_length(expr);
+  
+  if(len >= 1){
+    pmath_gather_begin(NULL);
+    pmath_emit(object_to_boxes(thread, pmath_expr_get_item(expr, 1)), NULL);
+    
+    emit_stylebox_options(expr, 2);
+    pmath_unref(expr);
+    
+    expr = pmath_gather_end();
+    return pmath_expr_set_item(expr, 0, pmath_ref(PMATH_SYMBOL_STYLEBOX));
+  }
+  else if(len == 1){
+    pmath_t item = pmath_expr_get_item(expr, 1);
+    pmath_unref(expr);
+    return object_to_boxes(thread, item);
+  }
+  
+  return call_to_boxes(thread, expr);
+}
+
+static pmath_t underscript_or_overscript_to_boxes(
+  pmath_thread_t thread,
+  pmath_expr_t   expr    // will be freed
+){
+  if(pmath_expr_length(expr) == 2){
+    pmath_t head  = pmath_expr_get_item(expr, 0);
+    pmath_t base  = pmath_expr_get_item(expr, 1);
+    pmath_t small = pmath_expr_get_item(expr, 2);
+
+    pmath_unref(head);
+    pmath_unref(expr);
+
+    base  = object_to_boxes(thread, base);
+    small = object_to_boxes(thread, small);
+
+    if(head == PMATH_SYMBOL_UNDERSCRIPT)
+      head = pmath_ref(PMATH_SYMBOL_UNDERSCRIPTBOX);
+    else
+      head = pmath_ref(PMATH_SYMBOL_OVERSCRIPTBOX);
+
+    return pmath_expr_new_extended(
+      head, 2,
+      base,
+      small);
+  }
+
+  return call_to_boxes(thread, expr);
+}
+
+static pmath_t underoverscript_to_boxes(
+  pmath_thread_t thread,
+  pmath_expr_t   expr    // will be freed
+){
+  if(pmath_expr_length(expr) == 3){
+    pmath_t base  = pmath_expr_get_item(expr, 1);
+    pmath_t under = pmath_expr_get_item(expr, 2);
+    pmath_t over  = pmath_expr_get_item(expr, 3);
+
+    pmath_unref(expr);
+
+    base  = object_to_boxes(thread, base);
+    under = object_to_boxes(thread, under);
+    over  = object_to_boxes(thread, over);
+
+    return pmath_expr_new_extended(
+      pmath_ref(PMATH_SYMBOL_UNDEROVERSCRIPTBOX), 3,
+      base,
+      under,
+      over);
   }
 
   return call_to_boxes(thread, expr);
@@ -2634,39 +2671,23 @@ static pmath_t expr_to_boxes(pmath_thread_t thread, pmath_expr_t expr){
     
     /*------------------------------------------------------------------------*/
     if(thread->boxform < BOXFORM_INPUT){
-      if(head == PMATH_SYMBOL_ROW)
-        return row_to_boxes(thread, expr);
-        
-      if(head == PMATH_SYMBOL_SUBSCRIPT)
-        return subscript_to_boxes(thread, expr);
-      
-      if(head == PMATH_SYMBOL_SUBSUPERSCRIPT)
-        return subsuperscript_to_boxes(thread, expr);
-      
-      if(head == PMATH_SYMBOL_SUPERSCRIPT)
-        return superscript_to_boxes(thread, expr);
-      
-      if(head == PMATH_SYMBOL_UNDERSCRIPT
-      || head == PMATH_SYMBOL_OVERSCRIPT)
-        return underscript_or_overscript_to_boxes(thread, expr);
-      
-      if(head == PMATH_SYMBOL_UNDEROVERSCRIPTBOX)
-        return underoverscript_to_boxes(thread, expr);
-      
-      if(head == PMATH_SYMBOL_GRID)
-        return grid_to_boxes(thread, expr);
+      if(head == PMATH_SYMBOL_COLUMN)
+        return column_to_boxes(thread, expr);
       
       if(head == PMATH_SYMBOL_FULLFORM)
         return fullform_to_boxes(thread, expr);
       
-      if(head == PMATH_SYMBOL_INPUTFORM)
-        return inputform_to_boxes(thread, expr);
-      
-      if(head == PMATH_SYMBOL_OUTPUTFORM)
-        return outputform_to_boxes(thread, expr);
+      if(head == PMATH_SYMBOL_GRID)
+        return grid_to_boxes(thread, expr);
       
       if(head == PMATH_SYMBOL_HOLDFORM)
         return holdform_to_boxes(thread, expr);
+      
+      if(head == PMATH_SYMBOL_INPUTFORM)
+        return inputform_to_boxes(thread, expr);
+      
+      if(head == PMATH_SYMBOL_INTERPRETATION)
+        return interpretation_to_boxes(thread, expr);
       
       if(head == PMATH_SYMBOL_LONGFORM)
         return longform_to_boxes(thread, expr);
@@ -2674,11 +2695,11 @@ static pmath_t expr_to_boxes(pmath_thread_t thread, pmath_expr_t expr){
       if(head == PMATH_SYMBOL_MATRIXFORM)
         return matrixform_to_boxes(thread, expr);
       
-      if(head == PMATH_SYMBOL_INTERPRETATION)
-        return interpretation_to_boxes(thread, expr);
-      
-      if(head == PMATH_SYMBOL_STYLE)
-        return style_to_boxes(thread, expr);
+      if(head == PMATH_SYMBOL_OUTPUTFORM)
+        return outputform_to_boxes(thread, expr);
+        
+      if(head == PMATH_SYMBOL_ROW)
+        return row_to_boxes(thread, expr);
       
       if(head == PMATH_SYMBOL_SHALLOW)
         return shallow_to_boxes(thread, expr);
@@ -2698,6 +2719,25 @@ static pmath_t expr_to_boxes(pmath_thread_t thread, pmath_expr_t expr){
         
         return call_to_boxes(thread, expr);
       }
+        
+      if(head == PMATH_SYMBOL_SUBSCRIPT)
+        return subscript_to_boxes(thread, expr);
+      
+      if(head == PMATH_SYMBOL_SUBSUPERSCRIPT)
+        return subsuperscript_to_boxes(thread, expr);
+      
+      if(head == PMATH_SYMBOL_SUPERSCRIPT)
+        return superscript_to_boxes(thread, expr);
+      
+      if(head == PMATH_SYMBOL_STYLE)
+        return style_to_boxes(thread, expr);
+      
+      if(head == PMATH_SYMBOL_UNDERSCRIPT
+      || head == PMATH_SYMBOL_OVERSCRIPT)
+        return underscript_or_overscript_to_boxes(thread, expr);
+      
+      if(head == PMATH_SYMBOL_UNDEROVERSCRIPTBOX)
+        return underoverscript_to_boxes(thread, expr);
       
       /*----------------------------------------------------------------------*/
       if(thread->boxform < BOXFORM_OUTPUT){

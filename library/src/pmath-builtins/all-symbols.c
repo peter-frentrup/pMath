@@ -659,6 +659,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   VERIFY(   PMATH_SYMBOL_CLEARALL                  = NEW_SYSTEM_SYMBOL("ClearAll"))
   VERIFY(   PMATH_SYMBOL_CLOSE                     = NEW_SYSTEM_SYMBOL("Close"))
   VERIFY(   PMATH_SYMBOL_COLON                     = NEW_SYSTEM_SYMBOL("Colon"))
+  VERIFY(   PMATH_SYMBOL_COLUMN                    = NEW_SYSTEM_SYMBOL("Column"))
   VERIFY(   PMATH_SYMBOL_COMMANDLINE               = NEW_SYSTEM_SYMBOL("$CommandLine"))
   VERIFY(   PMATH_SYMBOL_COMPLEMENT                = NEW_SYSTEM_SYMBOL("Complement"))
   VERIFY(   PMATH_SYMBOL_COMPLEX                   = NEW_SYSTEM_SYMBOL("Complex"))

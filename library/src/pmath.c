@@ -600,7 +600,7 @@ PMATH_API pmath_bool_t pmath_init(void){
     PMATH_RUN("Options(GridBox):=Options(Grid):={"
       "GridBoxColumnSpacing->Inherited,"
       "GridBoxRowSpacing->Inherited}");
-      
+    
     PMATH_RUN("Options(InterpretationBox):=Options(Interpretation):={"
       "AutoDelete->False,"
       "Editable->False"

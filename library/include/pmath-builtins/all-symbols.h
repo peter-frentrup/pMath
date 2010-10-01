@@ -625,5 +625,6 @@ pmath_bool_t pmath_register_approx_code(
 #define PMATH_SYMBOL_SETTERBAR                              PMATH_SYMBOL_BUILTIN(533)
 #define PMATH_SYMBOL_TRANSPOSE                              PMATH_SYMBOL_BUILTIN(534)
 #define PMATH_SYMBOL_SEQUENCEHOLD                           PMATH_SYMBOL_BUILTIN(535)
+#define PMATH_SYMBOL_COLUMN                                 PMATH_SYMBOL_BUILTIN(536)
 
 #endif /* __PMATH_BUILTINS__SYMBOLS_H__ */

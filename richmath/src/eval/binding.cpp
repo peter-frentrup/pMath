@@ -583,10 +583,6 @@ bool richmath::init_bindings(){
   #define BIND_DOWN(SYMBOL, FUNC)  pmath_register_code(SYMBOL, FUNC, PMATH_CODE_USAGE_DOWNCALL)
   #define BIND_UP(  SYMBOL, FUNC)  pmath_register_code(SYMBOL, FUNC, PMATH_CODE_USAGE_UPCALL)
   
-//  if(!BIND_DOWN(PMATH_SYMBOL_SECTIONPRINT, builtin_sectionprint)
-//  || !BIND_DOWN(PMATH_SYMBOL_DOCUMENTS,    builtin_documents))
-//    return false;
-  
   Client::register_menucommand(String("Close"),             close_cmd);
   
   Client::register_menucommand(String("Copy"),              copy_cmd,                 can_copy_cut);
