@@ -180,6 +180,8 @@ Partition::ohp:= "Overhang parameters in `1` must be nonzero machine-size intege
 Partition::ohpdm:= "The `1`-dimensional overhang parameter cannot indicate position in the `2`-dimensional block."
 Partition::pdep:= "Depth `1` requested in object with dimensions `2`."
 
+Piecewise::pairs:= "The first argument `1` of Piecewise is not a list of pairs."
+
 Read::readf:= "`1` is not a valid format specification."
 Read::readn:= "Invalid real number found."
 

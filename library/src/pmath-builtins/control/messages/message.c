@@ -4,6 +4,7 @@
 #include <pmath-util/concurrency/threads-private.h>
 #include <pmath-util/emit-and-gather.h>
 #include <pmath-util/evaluation.h>
+#include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
 #include <pmath-util/modules-private.h>
 
@@ -20,7 +21,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_message_is_default_off(pmath_t msg){
 PMATH_PRIVATE pmath_t builtin_message(pmath_expr_t expr){
  /* Message(symbol::tag, arg1, arg2, ...)
   */
-  pmath_t name, off;
+  pmath_t name, alloff, off;
   pmath_string_t text;
   pmath_bool_t stop_msg = FALSE;
   pmath_thread_t thread;
@@ -35,13 +36,29 @@ PMATH_PRIVATE pmath_t builtin_message(pmath_expr_t expr){
   thread = pmath_thread_get_current();
   off = _pmath_thread_local_load_with(name, thread);
   pmath_unref(off);
-  
-  if(off == PMATH_SYMBOL_OFF
-  || (off != PMATH_SYMBOL_ON && _pmath_message_is_default_off(name))){
+    
+  if(off == PMATH_SYMBOL_OFF){
     pmath_unref(name);
     pmath_unref(expr);
     return NULL;
   }
+  
+  alloff = PMATH_UNDEFINED;
+  if(pmath_is_expr_of_len(name, PMATH_SYMBOL_MESSAGENAME, 2)){
+    pmath_t varname = pmath_expr_set_item(pmath_ref(name), 2, NULL);
+    
+    alloff = _pmath_thread_local_load_with(varname, thread);
+    pmath_unref(alloff);
+    pmath_unref(varname);
+  }
+  
+  if(off != PMATH_SYMBOL_ON 
+  && (alloff == PMATH_SYMBOL_OFF || _pmath_message_is_default_off(name))){
+    pmath_unref(name);
+    pmath_unref(expr);
+    return NULL;
+  }
+  
   
   if(!pmath_equals(_pmath_object_stop_message, name)){
     off = pmath_evaluate(

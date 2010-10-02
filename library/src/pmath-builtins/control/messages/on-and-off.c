@@ -21,7 +21,14 @@ PMATH_PRIVATE pmath_t builtin_on_or_off(pmath_expr_t expr){
   
   for(i = 1;i <= len;++i){
     pmath_t message = pmath_expr_get_item(expr, i);
-    if(!_pmath_is_valid_messagename(message)){
+    
+    if(pmath_instance_of(message, PMATH_TYPE_SYMBOL)){
+      message = pmath_expr_new_extended(
+        pmath_ref(PMATH_SYMBOL_MESSAGENAME), 2, 
+        message,
+        NULL);
+    }
+    else if(!_pmath_is_valid_messagename(message)){
       pmath_message(PMATH_SYMBOL_MESSAGE, "name", 1, message);
       pmath_unref(head);
       return expr;
@@ -55,9 +62,7 @@ PMATH_PRIVATE pmath_t builtin_on_or_off(pmath_expr_t expr){
             pmath_ref(head)));
       }
     }
-//    pmath_unref(pmath_thread_local_save(
-//      message,
-//      pmath_ref(on_off)));
+    
     pmath_unref(message);
   }
 

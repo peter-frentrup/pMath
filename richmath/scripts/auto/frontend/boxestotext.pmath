@@ -20,6 +20,7 @@ FE`BoxesToText("\u27E7"):= "]]";
 /*  TODO: {"a1", "b"}  becomes  "a1b"  but should be "a1 b" */
 FE`BoxesToText(~b:List)::= StringExpression @@ b.Map(FE`BoxesToText)
 FE`BoxesToText(~b:/\/)::= StringExpression @@ b.Map(FE`BoxesToText)
+FE`BoxesToText({"\[Piecewise]", ~~b})::= "Piecewise(" ++ FE`BoxesToText({b}) ++ ")"
 
 FE`BoxesToText(SqrtBox(~x))::= "Sqrt(" ++ FE`BoxesToText(x) ++ ")"
 FE`BoxesToText(RadicalBox(~x,~y))::= FE`BoxesToText({x, SuperscriptBox(FractionBox("1", y))})
@@ -36,7 +37,7 @@ FE`BoxesToText(UnderscriptBox(~x,~y))::= "Underscript(" ++ FE`BoxesToText(x) ++ 
 FE`BoxesToText(OverscriptBox(~x,~y))::= "Overscript(" ++ FE`BoxesToText(x) ++ ", " ++ FE`BoxesToText(y) ++ ")"
 FE`BoxesToText(UnderoverscriptBox(~x,~y,~z))::= FE`BoxesToText(OverscriptBox(UnderscriptBox(x, y), z))
 
-FE`BoxesToText(FrameBox(~x,~~~))::= "Framed(" ++ x ++ ")"
+FE`BoxesToText(FrameBox(~x,~~~))::= "Framed(" ++ FE`BoxesToText(x) ++ ")"
 FE`BoxesToText(StyleBox(~x,~~~))::= FE`BoxesToText(x)
 FE`BoxesToText(TagBox(~x,~~~))::= FE`BoxesToText(x)
 FE`BoxesToText(InterpretationBox(~x,~~~))::= FE`BoxesToText(x)

@@ -499,12 +499,13 @@ int main(){
     Stylesheet::Default->styles.set("Section", s);
     
     s = new Style;
-    s->set(Background, 0xFFF8CC);
-    s->set(FontColor,  0x808080);//0xE9E381
-    s->set(FontSize,   9.0);
-    s->set(Placeholder, true);
-    s->set(Selectable, false);
-    s->set(ShowAutoStyles, false);
+    s->set(Background,           0xFFF8CC);
+    s->set(FontColor,            0x808080);//0xE9E381
+    s->set(FontSize,             9.0);
+    s->set(Placeholder,          true);
+    s->set(Selectable,           false);
+    s->set(ShowAutoStyles,       false);
+    s->set(ShowStringCharacters, false);
     Stylesheet::Default->styles.set("Placeholder", s);
   }
   

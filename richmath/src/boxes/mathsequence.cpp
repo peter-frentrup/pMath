@@ -2874,11 +2874,9 @@ void MathSequence::enlarge_space(Context *context){
       ++e;
     
     // italic correction
-    if((e + 1 < glyphs.length()
-     && glyphs[e].slant != glyphs[e+1].slant)
-    || (buf[e] != PMATH_CHAR_BOX
-     && (glyphs[e].slant == FontSlantItalic
-      || context->math_shaper->get_style().italic))){
+    if(glyphs[e].slant == FontSlantItalic
+    && buf[e] != PMATH_CHAR_BOX
+    && (e + 1 == glyphs.length() || glyphs[e+1].slant != FontSlantItalic)){
       float ital_corr = context->math_shaper->italic_correction(
         context,
         buf[e],
@@ -3086,6 +3084,7 @@ void MathSequence::enlarge_space(Context *context){
       case PMATH_TOK_POSTFIX: { POSTFIX:
         switch(prec){
           case PMATH_PREC_FAC:
+          case PMATH_PREC_FUNC:
             space_left = em * 2/18;
             break;
           
@@ -3275,6 +3274,10 @@ void MathSequence::split_lines(Context *context){
           newline_penalty = p;
         }
       }
+      
+      while(newline_pos+1 < glyphs.length() 
+      && buf[newline_pos+1] == ' ')
+        ++newline_pos;
     }
     
     if(newline_penalty < HUGE_VAL){

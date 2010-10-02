@@ -46,8 +46,6 @@ static pmath_t evaluate(
   pmath_t  obj,
   pmath_thread_t *thread_ptr
 ){
-//  int iter = 0;
-  
   #ifdef DEBUG_LOG_EVAL
     int iter = 0;
     ++indented;
@@ -89,17 +87,6 @@ static pmath_t evaluate(
       pmath_unref(obj);
       obj = result;
     }
-    
-//    if(++iter >= max_iterations){
-//      pmath_debug_print_object("itlim with ", obj, "\n");
-//      pmath_message(
-//        PMATH_SYMBOL_GENERAL, "itlim", 1,
-//        pmath_integer_new_si(max_iterations));
-//        
-//      obj = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_HOLD), 1, obj);
-//      _pmath_expr_update(obj);
-//      goto FINISH;
-//    }
   }
   
  FINISH:
@@ -318,21 +305,6 @@ static pmath_t evaluate_expression(
           }
         }
       }
-      
-//      builtin = _pmath_need_code(head, PMATH_CODE_USAGE_EARLYCALL);
-//      if(builtin){
-//        if(symmetric)
-//          expr = pmath_expr_sort(expr);
-//          
-//        expr_changes = _pmath_expr_last_change(expr);
-//        
-//        expr = builtin(expr);
-//            
-//        if(!pmath_instance_of(expr, PMATH_TYPE_EXPRESSION)
-//        || expr_changes != _pmath_expr_last_change(expr)){
-//          goto FINISH;
-//        }
-//      }
     }
     
     if(listable){
@@ -505,22 +477,6 @@ static pmath_t evaluate_expression(
           }
           
           pmath_unref(sym);
-      
-//          builtin = _pmath_need_code(sym, PMATH_CODE_USAGE_UPCALL);
-//          if(builtin){
-//            pmath_unref(stack_frame.value);
-//            stack_frame.value = pmath_ref(sym);
-//            
-//            expr = builtin(expr);
-//            
-//            if(!pmath_instance_of(expr, PMATH_TYPE_EXPRESSION)
-//            || expr_changes != _pmath_expr_last_change(expr)){
-//              pmath_unref(sym);
-//              goto FINISH;
-//            }
-//          }
-//          
-//          pmath_unref(sym);
         }
       }
     }
@@ -535,19 +491,6 @@ static pmath_t evaluate_expression(
           goto FINISH;
         }
       }
-      
-//      builtin = _pmath_need_code(head_sym, PMATH_CODE_USAGE_DOWNCALL);
-//      
-//      if(builtin){
-//        pmath_unref(stack_frame.value);
-//        stack_frame.value = pmath_ref(head_sym);
-//        
-//        expr = builtin(expr);
-//        
-//        if(!pmath_instance_of(expr, PMATH_TYPE_EXPRESSION)
-//        || expr_changes != _pmath_expr_last_change(expr))
-//          goto FINISH;
-//      }
     }
     else{ // sub code
       pmath_unref(stack_frame.value);
@@ -559,18 +502,6 @@ static pmath_t evaluate_expression(
           goto FINISH;
         }
       }
-//      builtin = _pmath_need_code(head_sym, PMATH_CODE_USAGE_SUBCALL);
-//      
-//      if(builtin){
-//        pmath_unref(stack_frame.value);
-//        stack_frame.value = pmath_ref(head_sym);
-//        
-//        expr = builtin(expr);
-//        
-//        if(!pmath_instance_of(expr, PMATH_TYPE_EXPRESSION)
-//        || expr_changes != _pmath_expr_last_change(expr))
-//          goto FINISH;
-//      }
     }
 
     

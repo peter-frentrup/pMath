@@ -28,7 +28,7 @@ static unsigned int lookup(
   pmath_hashtable_t   ht, 
   void               *key_or_entry,
   unsigned int      (*hash)(void*),
-  pmath_bool_t   (*entry_equals_key)(void*,void*)
+  pmath_bool_t      (*entry_equals_key)(void*,void*)
 ){
   unsigned int freeslot = -(unsigned int)1;
   unsigned int h, index;

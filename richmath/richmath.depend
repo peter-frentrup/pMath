@@ -3075,7 +3075,7 @@
 1285791046 d:\peter\programmieren\pmath\trunk\library\include\pmath-core\symbols.h
 	<pmath-core/strings.h>
 
-1285943945 d:\peter\programmieren\pmath\trunk\library\include\pmath-builtins\all-symbols.h
+1286041197 d:\peter\programmieren\pmath\trunk\library\include\pmath-builtins\all-symbols.h
 	<pmath-core/expressions.h>
 	<pmath-core/symbols.h>
 
@@ -3208,7 +3208,7 @@
 1280054985 d:\peter\programmieren\pmath\trunk\richmath\include\boxes\ownerbox.h
 	<boxes/box.h>
 
-1283630739 d:\peter\programmieren\pmath\trunk\richmath\include\boxes\mathsequence.h
+1286050707 d:\peter\programmieren\pmath\trunk\richmath\include\boxes\mathsequence.h
 	<boxes/box.h>
 	<util/array.h>
 	<util/syntax-state.h>
@@ -3218,7 +3218,7 @@
 	<util/pmath-extra.h>
 	<util/sharedptr.h>
 
-1285267813 d:\peter\programmieren\pmath\trunk\richmath\include\eval\client.h
+1286053361 d:\peter\programmieren\pmath\trunk\richmath\include\eval\client.h
 	<util/hashtable.h>
 	<util/pmath-extra.h>
 	<util/sharedptr.h>
@@ -3317,7 +3317,7 @@
 1280054985 d:\peter\programmieren\pmath\trunk\richmath\include\boxes\interpretationbox.h
 	<boxes/ownerbox.h>
 
-1285094741 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\mathsequence.cpp
+1286055146 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\mathsequence.cpp
 	<boxes/mathsequence.h>
 	<climits>
 	<cmath>
@@ -3412,7 +3412,7 @@
 	<boxes/mathsequence.h>
 	<graphics/context.h>
 
-1280054987 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\subsuperscriptbox.cpp
+1286062494 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\subsuperscriptbox.cpp
 	<boxes/subsuperscriptbox.h>
 	<cmath>
 	<boxes/mathsequence.h>
@@ -3440,7 +3440,7 @@
 	<boxes/mathsequence.h>
 	<graphics/context.h>
 
-1285268494 source:d:\peter\programmieren\pmath\trunk\richmath\src\eval\binding.cpp
+1285950812 source:d:\peter\programmieren\pmath\trunk\richmath\src\eval\binding.cpp
 	<eval/binding.h>
 	<boxes/section.h>
 	<boxes/mathsequence.h>
@@ -3449,7 +3449,7 @@
 	<gui/document.h>
 	<gui/native-widget.h>
 
-1285267938 source:d:\peter\programmieren\pmath\trunk\richmath\src\eval\client.cpp
+1286053481 source:d:\peter\programmieren\pmath\trunk\richmath\src\eval\client.cpp
 	<eval/client.h>
 	<cmath>
 	<cstdio>
@@ -3532,7 +3532,7 @@
 	<util/style.h>
 	<util/syntax-state.h>
 
-1283620421 d:\peter\programmieren\pmath\trunk\richmath\include\graphics\ot-math-shaper.h
+1286030748 d:\peter\programmieren\pmath\trunk\richmath\include\graphics\ot-math-shaper.h
 	<graphics/shapers.h>
 	<util/array.h>
 	<util/pmath-extra.h>
@@ -3555,7 +3555,7 @@
 	<graphics/canvas.h>
 	<util/array.h>
 
-1283554021 source:d:\peter\programmieren\pmath\trunk\richmath\src\graphics\ot-math-shaper.cpp
+1286037167 source:d:\peter\programmieren\pmath\trunk\richmath\src\graphics\ot-math-shaper.cpp
 	<graphics/ot-math-shaper.h>
 	<cmath>
 	<boxes/mathsequence.h>
@@ -3596,7 +3596,7 @@
 	<gui/native-widget.h>
 	<graphics/context.h>
 
-1284748614 source:d:\peter\programmieren\pmath\trunk\richmath\src\gui\document.cpp
+1286053461 source:d:\peter\programmieren\pmath\trunk\richmath\src\gui\document.cpp
 	<gui/document.h>
 	<cmath>
 	<cstdio>
@@ -3740,7 +3740,7 @@
 	<gui/control-painter.h>
 	<resources.h>
 
-1285261152 source:d:\peter\programmieren\pmath\trunk\richmath\src\main.cpp
+1286047583 source:d:\peter\programmieren\pmath\trunk\richmath\src\main.cpp
 	<cmath>
 	<cstdio>
 	<ctime>

@@ -4,6 +4,8 @@
 #include <pmath-builtins/all-symbols-private.h>
 
 PMATH_PRIVATE pmath_t builtin_loadlibrary(pmath_expr_t expr){
+/* LoadLibrary(filename)
+ */
   pmath_t filename;
   
   if(pmath_expr_length(expr) != 1){

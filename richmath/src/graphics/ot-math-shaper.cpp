@@ -744,7 +744,9 @@ void OTMathShaper::decode_token(
   const uint16_t *str, 
   GlyphInfo      *result
 ){
-  if(len == 1 && context->math_spacing && context->single_letter_italics){
+  if(len == 1 
+  && context->math_spacing 
+  && context->single_letter_italics){
     uint32_t ch = *str;
     if(ch >= 'a' && ch <= 'z')
       ch = 0x1D44E + ch - 'a';
@@ -771,8 +773,8 @@ void OTMathShaper::decode_token(
       uint16_t glyph = db->private_characters[ch];
       if(glyph){
         if(style.italic){
-          result->slant = FontSlantPlain;
           math_set_style(style - Italic)->decode_token(context, len, str, result);
+          result->slant = FontSlantPlain;
           return;
         }
         
@@ -820,8 +822,8 @@ void OTMathShaper::decode_token(
       if(r->index != 0
       && r->index != UnknownGlyph){
         if(style.italic){
-          result->slant = FontSlantPlain;
           math_set_style(style - Italic)->decode_token(context, len, str, result);
+          result->slant = FontSlantPlain;
           return;
         }
         
@@ -830,8 +832,8 @@ void OTMathShaper::decode_token(
       }
       
       if(!style.italic){
-        result->slant = FontSlantItalic;
         math_set_style(style + Italic)->decode_token(context, len, str, result);
+        result->slant = FontSlantItalic;
         return;
       }
     }
@@ -1466,8 +1468,8 @@ void OTMathShaper::script_positions(
   Context           *context,
   float              base_ascent,
   float              base_descent,
-  MathSequence          *sub,
-  MathSequence          *super,
+  MathSequence      *sub,
+  MathSequence      *super,
   float             *sub_y,
   float             *super_y
 ){
@@ -1516,8 +1518,8 @@ void OTMathShaper::script_corrections(
   Context           *context,
   uint16_t           base_char, 
   const GlyphInfo   &base_info,
-  MathSequence          *sub,
-  MathSequence          *super,
+  MathSequence      *sub,
+  MathSequence      *super,
   float              sub_y,
   float              super_y,
   float             *sub_x,

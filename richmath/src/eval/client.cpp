@@ -135,9 +135,10 @@ class ClientInfoWindow: public BasicWin32Widget{
 
 static ClientInfoWindow info_window;
 
-double Client::interrupt_timeout = 0.3;
-double Client::button_timeout    = 4.0;
-double Client::dynamic_timeout   = 4.0;
+double Client::edit_interrupt_timeout = 2.0;
+double Client::interrupt_timeout      = 0.3;
+double Client::button_timeout         = 4.0;
+double Client::dynamic_timeout        = 4.0;
 String Client::application_filename;
 String Client::application_directory;
 

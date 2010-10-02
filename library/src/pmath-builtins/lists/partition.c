@@ -594,7 +594,7 @@ PMATH_PRIVATE pmath_t builtin_partition(pmath_expr_t expr){
    The last element of list should appear at or after position kR in the last 
    sublist.
    If additional elements are needed, they are taken from pad cyclically.
-   If pad = {}, no padding is done, and so the sublists might have diffenrent
+   If pad = {}, no padding is done, and so the sublists might have different
    lengths.
  */
   pmath_t list;

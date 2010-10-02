@@ -301,8 +301,8 @@ namespace richmath{
         Context           *context,
         float              base_ascent,
         float              base_descent,
-        MathSequence          *sub,
-        MathSequence          *super,
+        MathSequence      *sub,
+        MathSequence      *super,
         float             *sub_y,
         float             *super_y);
       
@@ -310,8 +310,8 @@ namespace richmath{
         Context           *context,
         uint16_t           base_char, 
         const GlyphInfo   &base_info,
-        MathSequence          *sub,
-        MathSequence          *super,
+        MathSequence      *sub,
+        MathSequence      *super,
         float              sub_y,
         float              super_y,
         float             *sub_x,

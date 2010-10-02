@@ -154,12 +154,11 @@ static int expr_precedence(pmath_t box, int *pos){ // box wont be freed
       
       case PMATH_TOK_PRETEXT:
       case PMATH_TOK_QUESTION:
-        if(len == 2){
-          *pos = -1;
-          prec = PMATH_PREC_CALL;
-          goto FINISH;
-        }
-        return PMATH_PREC_CALL;
+        *pos = -1;
+        if(len == 4)
+          prec = PMATH_PREC_CIRCMUL;
+        
+        goto FINISH;
     }
     
     tok = box_token_analyse(pmath_expr_get_item(box, 2), &prec);
@@ -466,252 +465,62 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj);
 
 //{ boxforms valid for InputForm ...
 
-static pmath_t nary_to_boxes(
-  pmath_thread_t thread, 
-  pmath_expr_t   expr,        // will be freed
-  pmath_t        op_box,      // will be freed
-  int            firstprec, 
-  int            restprec, 
-  pmath_bool_t   skip_null
-){
-  pmath_t item;
-  size_t len = pmath_expr_length(expr);
-  size_t i;
-  
-  pmath_gather_begin(NULL);
-  
-  item = pmath_expr_get_item(expr, 1);
-  if(item || !skip_null){
-    pmath_emit(
-      ensure_min_precedence(
-        object_to_boxes(thread, item), 
-        firstprec,
-        -1), 
-      NULL);
-  }
-  
-  if(len > 1){
-    for(i = 2;i < len;++i){
-      pmath_emit(pmath_ref(op_box), NULL);
-      
-      item = pmath_expr_get_item(expr, i);
-      if(item || !skip_null){
-        pmath_emit(
-          ensure_min_precedence(
-            object_to_boxes(thread, item), 
-            restprec,
-            0),
-          NULL);
-      }
-    }
-    
-    pmath_emit(pmath_ref(op_box), NULL);
-    
-    item = pmath_expr_get_item(expr, len);
-    if(item || !skip_null){
-      pmath_emit(
-        ensure_min_precedence(
-          object_to_boxes(thread, item), 
-          restprec,
-          +1),
-        NULL);
-    }
-  }
-  
-  pmath_unref(expr);
-  pmath_unref(op_box);
-  return pmath_gather_end();
-}
-
-static pmath_t call_to_boxes(
-  pmath_thread_t thread,
-  pmath_expr_t   expr    // will be freed
-){
-  pmath_t item;
-  
-  pmath_gather_begin(NULL);
-  
-  item = pmath_expr_get_item(expr, 0);
-  pmath_emit(
-    ensure_min_precedence(
-      object_to_boxes(thread, item), 
-      PMATH_PREC_CALL,
-      -1), 
-    NULL);
-  
-  pmath_emit(PMATH_C_STRING("("), NULL);
-  
-  if(pmath_expr_length(expr) > 0){
-    pmath_emit(
-      nary_to_boxes(
-        thread, 
-        expr, 
-        PMATH_C_STRING(","), 
-        PMATH_PREC_SEQ+1, 
-        PMATH_PREC_SEQ+1,
-        TRUE),
-      NULL);
-  }
-  else
-    pmath_unref(expr);
-  
-  pmath_emit(PMATH_C_STRING(")"), NULL);
-  
-  return pmath_gather_end();
-}
-
-static pmath_t evaluationsequence_to_boxes(
-  pmath_thread_t thread,
-  pmath_expr_t   expr    // will be freed
-){
-  if(pmath_expr_length(expr) > 1){
-    return nary_to_boxes(
-      thread,
-      expr,
-      PMATH_C_STRING(";"),
-      PMATH_PREC_EVAL + 1,
-      PMATH_PREC_EVAL + 1,
-      TRUE);
-  }
-
-  return call_to_boxes(thread, expr);
-}
-
-static pmath_t tagassign_to_boxes(
-  pmath_thread_t thread,
-  pmath_expr_t   expr    // will be freed
-){
-  pmath_t head, op;
-  size_t len;
-
-  assert(thread != NULL);
-
-  len = pmath_expr_length(expr);
-  head = pmath_expr_get_item(expr, 0);
-  pmath_unref(head);
-  
-  if(len == 3){
-    op = NULL;
-    if(thread->boxform < BOXFORM_OUTPUT){
-      if(head == PMATH_SYMBOL_TAGASSIGN)
-        op = pmath_build_value("c", PMATH_CHAR_ASSIGN);
-      else if(head == PMATH_SYMBOL_TAGASSIGNDELAYED)
-        op = pmath_build_value("c", PMATH_CHAR_ASSIGNDELAYED);
-    }
-    else{
-      if(head == PMATH_SYMBOL_TAGASSIGN)
-        op = PMATH_C_STRING(":=");
-      else if(head == PMATH_SYMBOL_TAGASSIGNDELAYED)
-        op = PMATH_C_STRING("::=");
-    }
-    
-    if(op){
-      pmath_t item;
-      
-      pmath_gather_begin(NULL);
-      
-      item = pmath_expr_get_item(expr, 1);
-      pmath_emit(
-        ensure_min_precedence(
-          object_to_boxes(thread, item), 
-          PMATH_PREC_ASS+1,
-          -1), 
-        NULL);
-      
-      pmath_emit(PMATH_C_STRING("/:"), NULL);
-      
-      item = pmath_expr_get_item(expr, 2);
-      pmath_emit(
-        ensure_min_precedence(
-          object_to_boxes(thread, item), 
-          PMATH_PREC_ASS+1,
-          0), 
-        NULL);
-      
-      pmath_emit(op, NULL);
-      
-      item = pmath_expr_get_item(expr, 3);
-      pmath_emit(
-        ensure_min_precedence(
-          object_to_boxes(thread, item), 
-          PMATH_PREC_ASS,
-          +1), 
-        NULL);
-      
-      pmath_unref(expr);
-      return pmath_gather_end();
-    }
-  }
-
-  return call_to_boxes(thread, expr);
-}
-
-static pmath_t inequation_to_boxes(
-  pmath_thread_t thread,
-  pmath_expr_t   expr    // will be freed
-){
-  size_t len = pmath_expr_length(expr);
-
-  if((len & 1) == 1 && len >= 3){
+  static pmath_t nary_to_boxes(
+    pmath_thread_t thread, 
+    pmath_expr_t   expr,        // will be freed
+    pmath_t        op_box,      // will be freed
+    int            firstprec, 
+    int            restprec, 
+    pmath_bool_t   skip_null
+  ){
     pmath_t item;
+    size_t len = pmath_expr_length(expr);
     size_t i;
     
     pmath_gather_begin(NULL);
     
     item = pmath_expr_get_item(expr, 1);
-    pmath_emit(
-      ensure_min_precedence(
-        object_to_boxes(thread, item), 
-        PMATH_PREC_REL+1,
-        -1), 
-      NULL);
-    
-    for(i = 1;i <= len/2;++i){
-      pmath_t op;
-      
-      item = pmath_expr_get_item(expr, 2*i);
-      op = relation(item, thread->boxform);
-      pmath_unref(item);
-      
-      if(!op){
-        pmath_unref(pmath_gather_end());
-        return call_to_boxes(thread, expr);
-      }
-      
-      pmath_emit(op, NULL);
-      
-      item = pmath_expr_get_item(expr, 2*i+1);
+    if(item || !skip_null){
       pmath_emit(
         ensure_min_precedence(
           object_to_boxes(thread, item), 
-          PMATH_PREC_REL+1,
-          (2*i+1 == len) ? +1 : 0), 
+          firstprec,
+          -1), 
         NULL);
     }
     
+    if(len > 1){
+      for(i = 2;i < len;++i){
+        pmath_emit(pmath_ref(op_box), NULL);
+        
+        item = pmath_expr_get_item(expr, i);
+        if(item || !skip_null){
+          pmath_emit(
+            ensure_min_precedence(
+              object_to_boxes(thread, item), 
+              restprec,
+              0),
+            NULL);
+        }
+      }
+      
+      pmath_emit(pmath_ref(op_box), NULL);
+      
+      item = pmath_expr_get_item(expr, len);
+      if(item || !skip_null){
+        pmath_emit(
+          ensure_min_precedence(
+            object_to_boxes(thread, item), 
+            restprec,
+            +1),
+          NULL);
+      }
+    }
+    
     pmath_unref(expr);
+    pmath_unref(op_box);
     return pmath_gather_end();
   }
-
-  return call_to_boxes(thread, expr);
-}
-
-static pmath_t range_to_boxes(
-  pmath_thread_t thread,
-  pmath_expr_t   expr    // will be freed
-){
-  if(pmath_expr_length(expr) > 1){
-    return nary_to_boxes(
-      thread,
-      expr,
-      PMATH_C_STRING(".."),
-      PMATH_PREC_RANGE,
-      PMATH_PREC_RANGE + 1,
-      TRUE);
-  }
-
-  return call_to_boxes(thread, expr);
-}
 
   // *box = {"-", x}     -->  *box = x      and return value is "-"
   // otherwise *box unchanged and return value is NULL
@@ -733,51 +542,6 @@ static pmath_t range_to_boxes(
     return NULL;
   }
 
-static pmath_t plus_to_boxes(
-  pmath_thread_t thread,
-  pmath_expr_t   expr    // will be freed
-){
-  size_t len = pmath_expr_length(expr);
-
-  if(len >= 2){
-    pmath_t item, minus;
-    size_t i;
-    
-    pmath_gather_begin(NULL);
-    
-    item = pmath_expr_get_item(expr, 1);
-    pmath_emit(
-      ensure_min_precedence(
-        object_to_boxes(thread, item), 
-        PMATH_PREC_ADD+1,
-        -1), 
-      NULL);
-    
-    for(i = 2;i <= len;++i){
-      item = pmath_expr_get_item(expr, i);
-      item = object_to_boxes(thread, item);
-      
-      minus = extract_minus(&item);
-      if(minus)
-        pmath_emit(minus, NULL);
-      else
-        pmath_emit(PMATH_C_STRING("+"), NULL);
-      
-      pmath_emit(
-        ensure_min_precedence(
-          item, 
-          PMATH_PREC_ADD+1,
-          (i == len) ? +1 : 0), 
-        NULL);
-    }
-    
-    pmath_unref(expr);
-    return pmath_gather_end();
-  }
-
-  return call_to_boxes(thread, expr);
-}
-  
   // x^-n  ==>  x^n
   static pmath_bool_t negate_exponent(pmath_t *obj){
     if(pmath_is_expr_of_len(*obj, PMATH_SYMBOL_POWER, 2)){
@@ -948,6 +712,834 @@ static pmath_t plus_to_boxes(
     pmath_unref(product);
   }
   
+static pmath_t call_to_boxes(
+  pmath_thread_t thread,
+  pmath_expr_t   expr    // will be freed
+){
+  pmath_t item;
+  
+  pmath_gather_begin(NULL);
+  
+  item = pmath_expr_get_item(expr, 0);
+  pmath_emit(
+    ensure_min_precedence(
+      object_to_boxes(thread, item), 
+      PMATH_PREC_CALL,
+      -1), 
+    NULL);
+  
+  pmath_emit(PMATH_C_STRING("("), NULL);
+  
+  if(pmath_expr_length(expr) > 0){
+    pmath_emit(
+      nary_to_boxes(
+        thread, 
+        expr, 
+        PMATH_C_STRING(","), 
+        PMATH_PREC_SEQ+1, 
+        PMATH_PREC_SEQ+1,
+        TRUE),
+      NULL);
+  }
+  else
+    pmath_unref(expr);
+  
+  pmath_emit(PMATH_C_STRING(")"), NULL);
+  
+  return pmath_gather_end();
+}
+
+static pmath_t complex_to_boxes(
+  pmath_thread_t thread,
+  pmath_expr_t   expr    // will be freed
+){
+  if(pmath_expr_length(expr) == 2){
+    pmath_t re = pmath_expr_get_item(expr, 1);
+    pmath_t im = pmath_expr_get_item(expr, 2);
+    
+    if(pmath_equals(re, PMATH_NUMBER_ZERO)){
+      if(pmath_equals(im, PMATH_NUMBER_ONE)){
+        pmath_unref(expr);
+        pmath_unref(re);
+        pmath_unref(im);
+        
+        if(thread->boxform < BOXFORM_OUTPUT)
+          return pmath_build_value("c", 0x2148);
+          
+        return PMATH_C_STRING("I");
+      }
+      
+      if(pmath_instance_of(im, PMATH_TYPE_NUMBER)){
+        pmath_unref(re);
+        expr = pmath_expr_set_item(expr, 2, pmath_integer_new_si(1));
+        
+        return object_to_boxes(thread,
+          pmath_expr_new_extended(
+            pmath_ref(PMATH_SYMBOL_TIMES), 2,
+            im,
+            expr));
+      }
+    }
+    else if(pmath_instance_of(re, PMATH_TYPE_NUMBER)
+    && pmath_instance_of(im, PMATH_TYPE_NUMBER)){
+      pmath_unref(im);
+      expr = pmath_expr_set_item(expr, 1, pmath_integer_new_si(0));
+      
+      return object_to_boxes(thread,
+        pmath_expr_new_extended(
+          pmath_ref(PMATH_SYMBOL_PLUS), 2,
+          re,
+          expr));
+    }
+  }
+
+  return call_to_boxes(thread, expr);
+}
+
+static pmath_t directedinfinity_to_boxes(
+  pmath_thread_t thread,
+  pmath_expr_t   expr    // will be freed
+){
+  if(pmath_expr_length(expr) == 1){
+    pmath_t dir = pmath_expr_get_item(expr, 1);
+    
+    if(pmath_equals(dir, PMATH_NUMBER_ONE)){
+      pmath_unref(expr);
+      pmath_unref(dir);
+      
+      return object_to_boxes(thread, pmath_ref(PMATH_SYMBOL_INFINITY));
+    }
+    
+    if(pmath_equals(dir, PMATH_NUMBER_MINUSONE)){
+      pmath_unref(expr);
+      pmath_unref(dir);
+      
+      return object_to_boxes(thread, 
+        pmath_expr_new_extended(
+          pmath_ref(PMATH_SYMBOL_TIMES), 2,
+          pmath_integer_new_si(-1),
+          pmath_ref(PMATH_SYMBOL_INFINITY)));
+    }
+    
+    if(pmath_is_expr_of_len(dir, PMATH_SYMBOL_COMPLEX, 2)){
+      pmath_t x = pmath_expr_get_item(dir, 1);
+      
+      if(pmath_equals(x, PMATH_NUMBER_ZERO)){
+        pmath_unref(x);
+        x = pmath_expr_get_item(dir, 2);
+        
+        if(pmath_equals(x, PMATH_NUMBER_ONE)){
+          pmath_unref(expr);
+          pmath_unref(dir);
+          pmath_unref(x);
+          
+          return object_to_boxes(thread, 
+            pmath_expr_new_extended(
+              pmath_ref(PMATH_SYMBOL_TIMES), 2,
+              pmath_expr_new_extended(
+                pmath_ref(PMATH_SYMBOL_COMPLEX), 2,
+                pmath_integer_new_si(0),
+                pmath_integer_new_si(1)),
+              pmath_ref(PMATH_SYMBOL_INFINITY)));
+        }
+        
+        if(pmath_equals(x, PMATH_NUMBER_MINUSONE)){
+          pmath_unref(expr);
+          pmath_unref(dir);
+          pmath_unref(x);
+          
+          return object_to_boxes(thread, 
+            pmath_expr_new_extended(
+              pmath_ref(PMATH_SYMBOL_TIMES), 2,
+              pmath_expr_new_extended(
+                pmath_ref(PMATH_SYMBOL_COMPLEX), 2,
+                pmath_integer_new_si(0),
+                pmath_integer_new_si(-1)),
+              pmath_ref(PMATH_SYMBOL_INFINITY)));
+        }
+      }
+      
+      pmath_unref(x);
+    }
+    
+    pmath_unref(dir);
+  }
+  else if(pmath_expr_length(expr) == 0){
+    pmath_unref(expr);
+    return object_to_boxes(thread, pmath_ref(PMATH_SYMBOL_COMPLEXINFINITY));
+  }
+  
+  return call_to_boxes(thread, expr);
+}
+
+static pmath_t evaluationsequence_to_boxes(
+  pmath_thread_t thread,
+  pmath_expr_t   expr    // will be freed
+){
+  if(pmath_expr_length(expr) > 1){
+    return nary_to_boxes(
+      thread,
+      expr,
+      PMATH_C_STRING(";"),
+      PMATH_PREC_EVAL + 1,
+      PMATH_PREC_EVAL + 1,
+      TRUE);
+  }
+
+  return call_to_boxes(thread, expr);
+}
+
+static pmath_t list_to_boxes(
+  pmath_thread_t thread,
+  pmath_expr_t   expr    // will be freed
+){
+  if(pmath_expr_length(expr) == 0){
+    pmath_unref(expr);
+    return pmath_build_value("ss", "{", "}");
+  }
+  
+  return pmath_build_value("sos", 
+    "{", 
+    nary_to_boxes(
+      thread, 
+      expr,
+      PMATH_C_STRING(","),
+      PMATH_PREC_SEQ+1,
+      PMATH_PREC_SEQ+1,
+      TRUE), 
+    "}");
+}
+
+static pmath_t tagassign_to_boxes(
+  pmath_thread_t thread,
+  pmath_expr_t   expr    // will be freed
+){
+  pmath_t head, op;
+  size_t len;
+
+  assert(thread != NULL);
+
+  len = pmath_expr_length(expr);
+  head = pmath_expr_get_item(expr, 0);
+  pmath_unref(head);
+  
+  if(len == 3){
+    op = NULL;
+    if(thread->boxform < BOXFORM_OUTPUT){
+      if(head == PMATH_SYMBOL_TAGASSIGN)
+        op = pmath_build_value("c", PMATH_CHAR_ASSIGN);
+      else if(head == PMATH_SYMBOL_TAGASSIGNDELAYED)
+        op = pmath_build_value("c", PMATH_CHAR_ASSIGNDELAYED);
+    }
+    else{
+      if(head == PMATH_SYMBOL_TAGASSIGN)
+        op = PMATH_C_STRING(":=");
+      else if(head == PMATH_SYMBOL_TAGASSIGNDELAYED)
+        op = PMATH_C_STRING("::=");
+    }
+    
+    if(op){
+      pmath_t item;
+      
+      pmath_gather_begin(NULL);
+      
+      item = pmath_expr_get_item(expr, 1);
+      pmath_emit(
+        ensure_min_precedence(
+          object_to_boxes(thread, item), 
+          PMATH_PREC_ASS+1,
+          -1), 
+        NULL);
+      
+      pmath_emit(PMATH_C_STRING("/:"), NULL);
+      
+      item = pmath_expr_get_item(expr, 2);
+      pmath_emit(
+        ensure_min_precedence(
+          object_to_boxes(thread, item), 
+          PMATH_PREC_ASS+1,
+          0), 
+        NULL);
+      
+      pmath_emit(op, NULL);
+      
+      item = pmath_expr_get_item(expr, 3);
+      pmath_emit(
+        ensure_min_precedence(
+          object_to_boxes(thread, item), 
+          PMATH_PREC_ASS,
+          +1), 
+        NULL);
+      
+      pmath_unref(expr);
+      return pmath_gather_end();
+    }
+  }
+
+  return call_to_boxes(thread, expr);
+}
+
+static pmath_t inequation_to_boxes(
+  pmath_thread_t thread,
+  pmath_expr_t   expr    // will be freed
+){
+  size_t len = pmath_expr_length(expr);
+
+  if((len & 1) == 1 && len >= 3){
+    pmath_t item;
+    size_t i;
+    
+    pmath_gather_begin(NULL);
+    
+    item = pmath_expr_get_item(expr, 1);
+    pmath_emit(
+      ensure_min_precedence(
+        object_to_boxes(thread, item), 
+        PMATH_PREC_REL+1,
+        -1), 
+      NULL);
+    
+    for(i = 1;i <= len/2;++i){
+      pmath_t op;
+      
+      item = pmath_expr_get_item(expr, 2*i);
+      op = relation(item, thread->boxform);
+      pmath_unref(item);
+      
+      if(!op){
+        pmath_unref(pmath_gather_end());
+        return call_to_boxes(thread, expr);
+      }
+      
+      pmath_emit(op, NULL);
+      
+      item = pmath_expr_get_item(expr, 2*i+1);
+      pmath_emit(
+        ensure_min_precedence(
+          object_to_boxes(thread, item), 
+          PMATH_PREC_REL+1,
+          (2*i+1 == len) ? +1 : 0), 
+        NULL);
+    }
+    
+    pmath_unref(expr);
+    return pmath_gather_end();
+  }
+
+  return call_to_boxes(thread, expr);
+}
+
+static pmath_t optional_to_boxes(
+  pmath_thread_t thread,
+  pmath_expr_t   expr    // will be freed
+){
+  if(pmath_expr_length(expr) == 1){
+    pmath_t name = pmath_expr_get_item(expr, 1);
+    
+    if(pmath_instance_of(name, PMATH_TYPE_SYMBOL)){
+      pmath_unref(expr);
+      
+      name = object_to_boxes(thread, name);
+      name = ensure_min_precedence(name, PMATH_PREC_PRIM, 0);
+      
+      return pmath_build_value("so", "?", name);
+    }
+  }
+  else if(pmath_expr_length(expr) == 2){
+    pmath_t name = pmath_expr_get_item(expr, 1);
+    pmath_t value =  pmath_expr_get_item(expr, 2);
+
+    if(pmath_instance_of(name, PMATH_TYPE_SYMBOL)){
+      pmath_unref(expr);
+
+      name = object_to_boxes(thread, name);
+      name = ensure_min_precedence(name, PMATH_PREC_PRIM, 0);
+
+      value = object_to_boxes(thread, value);
+      value = ensure_min_precedence(value, PMATH_PREC_CIRCMUL+1, +1);
+
+      return pmath_build_value("soso", "?", name, ":", value);
+    }
+
+    pmath_unref(name);
+    pmath_unref(value);
+  }
+
+  return call_to_boxes(thread, expr);
+}
+
+static pmath_t pattern_to_boxes(
+  pmath_thread_t thread,
+  pmath_expr_t   expr    // will be freed
+){
+  if(pmath_expr_length(expr) == 2){
+    pmath_t name = pmath_expr_get_item(expr, 1);
+
+    if(pmath_instance_of(name, PMATH_TYPE_SYMBOL)){
+      pmath_t pat =  pmath_expr_get_item(expr, 2);
+
+      name = object_to_boxes(thread, name);
+      name = ensure_min_precedence(name, PMATH_PREC_PRIM, 0);
+
+      pmath_unref(expr);
+
+      if(pmath_equals(pat, _pmath_object_singlematch)){
+        pmath_unref(pat);
+
+        return pmath_build_value("so", "~", name);
+      }
+      
+      if(pmath_is_expr_of_len(pat, PMATH_SYMBOL_SINGLEMATCH, 1)){
+        pmath_t type = pmath_expr_get_item(pat, 1);
+        
+        pmath_unref(pat);
+        type = object_to_boxes(thread, type);
+        type = ensure_min_precedence(type, PMATH_PREC_PRIM, +1);
+      
+        return pmath_build_value("soso", "~", name, ":", type);
+      }
+      
+      if(pmath_equals(pat, _pmath_object_multimatch)){
+        pmath_unref(pat);
+        
+        return pmath_build_value("so", "~~", name);
+      }
+
+      if(pmath_equals(pat, _pmath_object_zeromultimatch)){
+        pmath_unref(pat);
+        
+        return pmath_build_value("so", "~~~", name);
+      }
+      
+      if(pmath_is_expr_of_len(pat, PMATH_SYMBOL_REPEATED, 2)){
+        pmath_t rep = pmath_expr_get_item(pat, 1);
+        
+        if(pmath_is_expr_of_len(rep, PMATH_SYMBOL_SINGLEMATCH, 1)){
+          pmath_t range = pmath_expr_get_item(pat, 2);
+          
+          if(pmath_equals(range, _pmath_object_range_from_one)){
+            pmath_t type = pmath_expr_get_item(rep, 1);
+            
+            pmath_unref(rep);
+            pmath_unref(range);
+            pmath_unref(pat);
+            type = object_to_boxes(thread, type);
+            type = ensure_min_precedence(type, PMATH_PREC_PRIM, +1);
+          
+            return pmath_build_value("soso", "~~", name, ":", type);
+          }
+          
+          if(pmath_equals(range, _pmath_object_range_from_zero)){
+            pmath_t type = pmath_expr_get_item(rep, 1);
+            
+            pmath_unref(rep);
+            pmath_unref(range);
+            pmath_unref(pat);
+            type = object_to_boxes(thread, type);
+            type = ensure_min_precedence(type, PMATH_PREC_PRIM, +1);
+            
+            return pmath_build_value("soso", "~~~", name, ":", type);
+          }
+          
+          pmath_unref(range);
+        }
+        
+        pmath_unref(rep);
+      }
+      
+      pat = object_to_boxes(thread, pat);
+      pat = ensure_min_precedence(pat, PMATH_PREC_MUL+1, +1);
+
+      return pmath_build_value("oso", name, ":", pat);
+    }
+
+    pmath_unref(name);
+  }
+
+  return call_to_boxes(thread, expr);
+}
+
+static pmath_t plus_to_boxes(
+  pmath_thread_t thread,
+  pmath_expr_t   expr    // will be freed
+){
+  size_t len = pmath_expr_length(expr);
+
+  if(len >= 2){
+    pmath_t item, minus;
+    size_t i;
+    
+    pmath_gather_begin(NULL);
+    
+    item = pmath_expr_get_item(expr, 1);
+    pmath_emit(
+      ensure_min_precedence(
+        object_to_boxes(thread, item), 
+        PMATH_PREC_ADD+1,
+        -1), 
+      NULL);
+    
+    for(i = 2;i <= len;++i){
+      item = pmath_expr_get_item(expr, i);
+      item = object_to_boxes(thread, item);
+      
+      minus = extract_minus(&item);
+      if(minus)
+        pmath_emit(minus, NULL);
+      else
+        pmath_emit(PMATH_C_STRING("+"), NULL);
+      
+      pmath_emit(
+        ensure_min_precedence(
+          item, 
+          PMATH_PREC_ADD+1,
+          (i == len) ? +1 : 0), 
+        NULL);
+    }
+    
+    pmath_unref(expr);
+    return pmath_gather_end();
+  }
+
+  return call_to_boxes(thread, expr);
+}
+  
+  static pmath_t enclose_subsuper_base(pmath_t box){
+    if(pmath_is_expr_of(box, PMATH_SYMBOL_FRACTIONBOX))
+      return pmath_build_value("(sos)", "(", box, ")");
+    
+    return ensure_min_precedence(box, PMATH_PREC_POW+1, -1);
+  }
+
+static pmath_t power_to_boxes(
+  pmath_thread_t thread,
+  pmath_expr_t   expr  // will be freed
+){
+  if(pmath_expr_length(expr) == 2){
+    pmath_t base, exp;
+    pmath_bool_t fraction = FALSE;
+
+    base = pmath_expr_get_item(expr, 1);
+    exp = pmath_expr_get_item(expr, 2);
+
+    pmath_unref(expr);
+    
+    if(pmath_instance_of(exp, PMATH_TYPE_NUMBER)
+    && pmath_number_sign(exp) < 0){
+      exp = pmath_number_neg(exp);
+      fraction = TRUE;
+    }
+
+    if(pmath_equals(exp, _pmath_one_half)){
+      pmath_unref(exp);
+      
+      if(thread->boxform < BOXFORM_OUTPUT){
+        expr = pmath_expr_new_extended(
+          pmath_ref(PMATH_SYMBOL_SQRTBOX), 1,
+          object_to_boxes(thread, base));
+      }
+      else{
+        expr = pmath_expr_new_extended(
+          pmath_ref(PMATH_SYMBOL_LIST), 4,
+          PMATH_C_STRING("Sqrt"),
+          PMATH_C_STRING("("),
+          object_to_boxes(thread, base),
+          PMATH_C_STRING(")"));
+      }
+      
+      if(fraction){
+        if(thread->boxform != BOXFORM_STANDARDEXPONENT
+        && thread->boxform != BOXFORM_OUTPUTEXPONENT
+        && thread->boxform <= BOXFORM_OUTPUT){
+          return pmath_expr_new_extended(
+            pmath_ref(PMATH_SYMBOL_FRACTIONBOX), 2,
+            PMATH_C_STRING("1"),
+            expr);
+        }
+        else{
+          if(first_char(expr) == '?')
+            expr = pmath_build_value("(so)", " ", expr);
+          return pmath_build_value("(sso)", "1", "/", expr);
+        }
+      }
+      
+      return expr;
+    }
+
+    if(!pmath_equals(exp, PMATH_NUMBER_ONE)){
+      int old_boxform = thread->boxform;
+      
+      if(thread->boxform == BOXFORM_STANDARD)
+        thread->boxform = BOXFORM_STANDARDEXPONENT;
+      else if(thread->boxform == BOXFORM_OUTPUT)
+        thread->boxform = BOXFORM_OUTPUTEXPONENT;
+        
+      exp = object_to_boxes(thread, exp);
+      thread->boxform = old_boxform;
+      
+      if(thread->boxform < BOXFORM_INPUT){
+        if(pmath_is_expr_of(base, PMATH_SYMBOL_SUBSCRIPT)
+        && pmath_expr_length(base) >= 2){
+          pmath_expr_t indices;
+
+          expr = base;
+          base = pmath_expr_get_item(expr, 1);
+          indices = pmath_expr_get_item_range(expr, 2, SIZE_MAX);
+          pmath_unref(expr);
+
+          exp = pmath_expr_new_extended(
+            pmath_ref(PMATH_SYMBOL_SUBSUPERSCRIPTBOX), 2,
+            nary_to_boxes(
+              thread,
+              indices,
+              PMATH_C_STRING(","),
+              PMATH_PREC_SEQ+1,
+              PMATH_PREC_SEQ+1,
+              TRUE),
+            exp);
+        }
+        else
+          exp = pmath_expr_new_extended(
+            pmath_ref(PMATH_SYMBOL_SUPERSCRIPTBOX), 1,
+            exp);
+      }
+      else
+        exp = ensure_min_precedence(exp, PMATH_PREC_POW, +1);
+    }
+    else{ // exp = 1
+      pmath_unref(exp);
+      exp = NULL;
+    }
+    
+    base = object_to_boxes(thread, base);
+    base = enclose_subsuper_base(base);
+
+    if(exp){
+      if(thread->boxform <= BOXFORM_OUTPUT)
+        expr = pmath_build_value("(oo)", base, exp);
+      else
+        expr = pmath_build_value("(oso)", base, "^", exp);
+    }
+    else
+      expr = base;
+
+    if(fraction){
+      if(thread->boxform != BOXFORM_STANDARDEXPONENT
+      && thread->boxform != BOXFORM_OUTPUTEXPONENT
+      && thread->boxform <= BOXFORM_OUTPUT){
+        return pmath_expr_new_extended(
+          pmath_ref(PMATH_SYMBOL_FRACTIONBOX), 2,
+          PMATH_C_STRING("1"),
+          expr);
+      }
+      else{
+        if(first_char(expr) == '?')
+          expr = pmath_build_value("(so)", " ", expr);
+        return pmath_build_value("(sso)", "1", "/", expr);
+      }
+    }
+    
+    return expr;
+  }
+
+  return call_to_boxes(thread, expr);
+}
+
+static pmath_t range_to_boxes(
+  pmath_thread_t thread,
+  pmath_expr_t   expr    // will be freed
+){
+  if(pmath_expr_length(expr) > 1){
+    return nary_to_boxes(
+      thread,
+      expr,
+      PMATH_C_STRING(".."),
+      PMATH_PREC_RANGE,
+      PMATH_PREC_RANGE + 1,
+      TRUE);
+  }
+
+  return call_to_boxes(thread, expr);
+}
+
+static pmath_t repeated_to_boxes(
+  pmath_thread_t thread,
+  pmath_expr_t   expr    // will be freed
+){
+  assert(thread != NULL);
+
+  if(pmath_expr_length(expr) == 2){
+    pmath_t item = pmath_expr_get_item(expr, 2);
+
+    if(pmath_equals(item, _pmath_object_range_from_one)){
+      pmath_unref(item);
+
+      item = pmath_expr_get_item(expr, 1);
+      pmath_unref(expr);
+
+      if(pmath_equals(item, _pmath_object_singlematch)){
+        pmath_unref(item);
+        return PMATH_C_STRING("~~");
+      }
+      
+      if(pmath_is_expr_of_len(item, PMATH_SYMBOL_SINGLEMATCH, 1)){
+        pmath_t type = pmath_expr_get_item(item, 1);
+        
+        pmath_unref(item);
+        type = object_to_boxes(thread, type);
+        type = ensure_min_precedence(type, PMATH_PREC_PRIM, +1);
+      
+        return pmath_build_value("(sso)", "~~", ":", type);
+      }
+
+      item = object_to_boxes(thread, item);
+      item = ensure_min_precedence(item, PMATH_PREC_REPEAT+1, -1);
+
+      return pmath_build_value("(os)", item, "**");
+    }
+
+    if(pmath_equals(item, _pmath_object_range_from_zero)){
+      pmath_unref(item);
+
+      item = pmath_expr_get_item(expr, 1);
+      pmath_unref(expr);
+
+      if(pmath_equals(item, _pmath_object_singlematch)){
+        pmath_unref(item);
+        return PMATH_C_STRING("~~~");
+      }
+      
+      if(pmath_is_expr_of_len(item, PMATH_SYMBOL_SINGLEMATCH, 1)){
+        pmath_t type = pmath_expr_get_item(item, 1);
+        
+        pmath_unref(item);
+        type = object_to_boxes(thread, type);
+        type = ensure_min_precedence(type, PMATH_PREC_PRIM, +1);
+      
+        return pmath_build_value("(sso)", "~~~", ":", type);
+      }
+
+      item = object_to_boxes(thread, item);
+      item = ensure_min_precedence(item, PMATH_PREC_REPEAT+1, -1);
+
+      return pmath_build_value("(os)", item, "***");
+    }
+
+    pmath_unref(item);
+  }
+
+  return call_to_boxes(thread, expr);
+}
+
+static pmath_t singlematch_to_boxes(
+  pmath_thread_t thread,
+  pmath_expr_t   expr    // will be freed
+){
+  if(pmath_expr_length(expr) == 0){
+    pmath_unref(expr);
+    return PMATH_C_STRING("~");
+  }
+  
+  if(pmath_expr_length(expr) == 1){
+    pmath_t type = pmath_expr_get_item(expr, 1);
+    
+    pmath_unref(expr);
+    type = object_to_boxes(thread, type);
+    type = ensure_min_precedence(type, PMATH_PREC_PRIM, +1);
+  
+    return pmath_build_value("sso", "~", ":", type);
+  }
+
+  return call_to_boxes(thread, expr);
+}
+
+static pmath_t subscript_to_boxes(
+  pmath_thread_t thread,
+  pmath_expr_t   expr    // will be freed
+){
+  if(pmath_expr_length(expr) >= 2){
+    pmath_t base;
+    pmath_expr_t indices;
+
+    base =  pmath_expr_get_item(expr, 1);
+    indices = pmath_expr_get_item_range(expr, 2, SIZE_MAX);
+    pmath_unref(expr);
+    
+    base = object_to_boxes(thread, base);
+    base = enclose_subsuper_base(base);
+
+    indices = pmath_expr_new_extended(
+      pmath_ref(PMATH_SYMBOL_SUBSCRIPTBOX), 1,
+      nary_to_boxes(
+        thread,
+        indices,
+        PMATH_C_STRING(","),
+        PMATH_PREC_SEQ+1,
+        PMATH_PREC_SEQ+1,
+        TRUE));
+
+    return pmath_build_value("(oo)", base, indices);
+  }
+
+  return call_to_boxes(thread, expr);
+}
+
+static pmath_t subsuperscript_to_boxes(
+  pmath_thread_t thread,
+  pmath_expr_t   expr    // will be freed
+){
+  if(pmath_expr_length(expr) == 3){
+    pmath_t base;
+    pmath_t sub;
+    pmath_t super;
+
+    base  = pmath_expr_get_item(expr, 1);
+    sub   = pmath_expr_get_item(expr, 2);
+    super = pmath_expr_get_item(expr, 3);
+    pmath_unref(expr);
+    
+    base  = object_to_boxes(thread, base);
+    sub   = object_to_boxes(thread, sub);
+    super = object_to_boxes(thread, super);
+    base = enclose_subsuper_base(base);
+    
+    return pmath_build_value("(oo)", 
+      base,
+      pmath_expr_new_extended(
+        pmath_ref(PMATH_SYMBOL_SUBSUPERSCRIPTBOX), 2,
+        sub,
+        super));
+  }
+
+  return call_to_boxes(thread, expr);
+}
+
+static pmath_t superscript_to_boxes(
+  pmath_thread_t thread,
+  pmath_expr_t   expr  // will be freed
+){
+  if(pmath_expr_length(expr) == 2){
+    pmath_t base;
+    pmath_t super;
+
+    base  = pmath_expr_get_item(expr, 1);
+    super = pmath_expr_get_item(expr, 2);
+    pmath_unref(expr);
+
+    base  = object_to_boxes(thread, base);
+    super = object_to_boxes(thread, super);
+    base = enclose_subsuper_base(base);
+    
+    return pmath_build_value("(oo)",
+      base,
+      pmath_expr_new_extended(
+        pmath_ref(PMATH_SYMBOL_SUPERSCRIPTBOX), 1,
+        super));
+  }
+
+  return call_to_boxes(thread, expr);
+}
+
 static pmath_t times_to_boxes(
   pmath_thread_t thread,
   pmath_expr_t   expr  // will be freed
@@ -1127,554 +1719,6 @@ static pmath_t times_to_boxes(
     return expr;
   }
 
-  return call_to_boxes(thread, expr);
-}
-
-  static pmath_t enclose_subsuper_base(pmath_t box){
-    if(pmath_is_expr_of(box, PMATH_SYMBOL_FRACTIONBOX))
-      return pmath_build_value("(sos)", "(", box, ")");
-    
-    return ensure_min_precedence(box, PMATH_PREC_POW+1, -1);
-  }
-
-static pmath_t power_to_boxes(
-  pmath_thread_t thread,
-  pmath_expr_t   expr  // will be freed
-){
-  if(pmath_expr_length(expr) == 2){
-    pmath_t base, exp;
-    pmath_bool_t fraction = FALSE;
-
-    base = pmath_expr_get_item(expr, 1);
-    exp = pmath_expr_get_item(expr, 2);
-
-    pmath_unref(expr);
-    
-    if(pmath_instance_of(exp, PMATH_TYPE_NUMBER)
-    && pmath_number_sign(exp) < 0){
-      exp = pmath_number_neg(exp);
-      fraction = TRUE;
-    }
-
-    if(pmath_equals(exp, _pmath_one_half)){
-      pmath_unref(exp);
-      
-      if(thread->boxform < BOXFORM_OUTPUT){
-        expr = pmath_expr_new_extended(
-          pmath_ref(PMATH_SYMBOL_SQRTBOX), 1,
-          object_to_boxes(thread, base));
-      }
-      else{
-        expr = pmath_expr_new_extended(
-          pmath_ref(PMATH_SYMBOL_LIST), 4,
-          PMATH_C_STRING("Sqrt"),
-          PMATH_C_STRING("("),
-          object_to_boxes(thread, base),
-          PMATH_C_STRING(")"));
-      }
-      
-      if(fraction){
-        if(thread->boxform != BOXFORM_STANDARDEXPONENT
-        && thread->boxform != BOXFORM_OUTPUTEXPONENT
-        && thread->boxform <= BOXFORM_OUTPUT){
-          return pmath_expr_new_extended(
-            pmath_ref(PMATH_SYMBOL_FRACTIONBOX), 2,
-            PMATH_C_STRING("1"),
-            expr);
-        }
-        else
-          return pmath_build_value("(sso)", "1", "/", expr);
-      }
-      
-      return expr;
-    }
-
-    if(!pmath_equals(exp, PMATH_NUMBER_ONE)){
-      int old_boxform = thread->boxform;
-      
-      if(thread->boxform == BOXFORM_STANDARD)
-        thread->boxform = BOXFORM_STANDARDEXPONENT;
-      else if(thread->boxform == BOXFORM_OUTPUT)
-        thread->boxform = BOXFORM_OUTPUTEXPONENT;
-        
-      exp = object_to_boxes(thread, exp);
-      thread->boxform = old_boxform;
-      
-      if(thread->boxform < BOXFORM_INPUT){
-        if(pmath_is_expr_of(base, PMATH_SYMBOL_SUBSCRIPT)
-        && pmath_expr_length(base) >= 2){
-          pmath_expr_t indices;
-
-          expr = base;
-          base = pmath_expr_get_item(expr, 1);
-          indices = pmath_expr_get_item_range(expr, 2, SIZE_MAX);
-          pmath_unref(expr);
-
-          exp = pmath_expr_new_extended(
-            pmath_ref(PMATH_SYMBOL_SUBSUPERSCRIPTBOX), 2,
-            nary_to_boxes(
-              thread,
-              indices,
-              PMATH_C_STRING(","),
-              PMATH_PREC_SEQ+1,
-              PMATH_PREC_SEQ+1,
-              TRUE),
-            exp);
-        }
-        else
-          exp = pmath_expr_new_extended(
-            pmath_ref(PMATH_SYMBOL_SUPERSCRIPTBOX), 1,
-            exp);
-      }
-      else
-        exp = ensure_min_precedence(exp, PMATH_PREC_POW, +1);
-    }
-    else{ // exp = 1
-      pmath_unref(exp);
-      exp = NULL;
-    }
-    
-    base = object_to_boxes(thread, base);
-    base = enclose_subsuper_base(base);
-
-    if(exp){
-      if(thread->boxform <= BOXFORM_OUTPUT)
-        expr = pmath_build_value("(oo)", base, exp);
-      else
-        expr = pmath_build_value("(oso)", base, "^", exp);
-    }
-    else
-      expr = base;
-
-    if(fraction){
-      if(thread->boxform != BOXFORM_STANDARDEXPONENT
-      && thread->boxform != BOXFORM_OUTPUTEXPONENT
-      && thread->boxform <= BOXFORM_OUTPUT){
-        return pmath_expr_new_extended(
-          pmath_ref(PMATH_SYMBOL_FRACTIONBOX), 2,
-          PMATH_C_STRING("1"),
-          expr);
-      }
-      else
-        return pmath_build_value("(sso)", "1", "/", expr);
-    }
-    
-    return expr;
-  }
-
-  return call_to_boxes(thread, expr);
-}
-
-static pmath_t subscript_to_boxes(
-  pmath_thread_t thread,
-  pmath_expr_t   expr    // will be freed
-){
-  if(pmath_expr_length(expr) >= 2){
-    pmath_t base;
-    pmath_expr_t indices;
-
-    base =  pmath_expr_get_item(expr, 1);
-    indices = pmath_expr_get_item_range(expr, 2, SIZE_MAX);
-    pmath_unref(expr);
-    
-    base = object_to_boxes(thread, base);
-    base = enclose_subsuper_base(base);
-
-    indices = pmath_expr_new_extended(
-      pmath_ref(PMATH_SYMBOL_SUBSCRIPTBOX), 1,
-      nary_to_boxes(
-        thread,
-        indices,
-        PMATH_C_STRING(","),
-        PMATH_PREC_SEQ+1,
-        PMATH_PREC_SEQ+1,
-        TRUE));
-
-    return pmath_build_value("(oo)", base, indices);
-  }
-
-  return call_to_boxes(thread, expr);
-}
-
-static pmath_t subsuperscript_to_boxes(
-  pmath_thread_t thread,
-  pmath_expr_t   expr    // will be freed
-){
-  if(pmath_expr_length(expr) == 3){
-    pmath_t base;
-    pmath_t sub;
-    pmath_t super;
-
-    base  = pmath_expr_get_item(expr, 1);
-    sub   = pmath_expr_get_item(expr, 2);
-    super = pmath_expr_get_item(expr, 3);
-    pmath_unref(expr);
-    
-    base  = object_to_boxes(thread, base);
-    sub   = object_to_boxes(thread, sub);
-    super = object_to_boxes(thread, super);
-    base = enclose_subsuper_base(base);
-    
-    return pmath_build_value("(oo)", 
-      base,
-      pmath_expr_new_extended(
-        pmath_ref(PMATH_SYMBOL_SUBSUPERSCRIPTBOX), 2,
-        sub,
-        super));
-  }
-
-  return call_to_boxes(thread, expr);
-}
-
-static pmath_t superscript_to_boxes(
-  pmath_thread_t thread,
-  pmath_expr_t   expr  // will be freed
-){
-  if(pmath_expr_length(expr) == 2){
-    pmath_t base;
-    pmath_t super;
-
-    base  = pmath_expr_get_item(expr, 1);
-    super = pmath_expr_get_item(expr, 2);
-    pmath_unref(expr);
-
-    base  = object_to_boxes(thread, base);
-    super = object_to_boxes(thread, super);
-    base = enclose_subsuper_base(base);
-    
-    return pmath_build_value("(oo)",
-      base,
-      pmath_expr_new_extended(
-        pmath_ref(PMATH_SYMBOL_SUPERSCRIPTBOX), 1,
-        super));
-  }
-
-  return call_to_boxes(thread, expr);
-}
-
-static pmath_t repeated_to_boxes(
-  pmath_thread_t thread,
-  pmath_expr_t   expr    // will be freed
-){
-  assert(thread != NULL);
-
-  if(pmath_expr_length(expr) == 2){
-    pmath_t item = pmath_expr_get_item(expr, 2);
-
-    if(pmath_equals(item, _pmath_object_range_from_one)){
-      pmath_unref(item);
-
-      item = pmath_expr_get_item(expr, 1);
-      pmath_unref(expr);
-
-      if(pmath_equals(item, _pmath_object_singlematch)){
-        pmath_unref(item);
-        return PMATH_C_STRING("~~");
-      }
-      
-      if(pmath_is_expr_of_len(item, PMATH_SYMBOL_SINGLEMATCH, 1)){
-        pmath_t type = pmath_expr_get_item(item, 1);
-        
-        pmath_unref(item);
-        type = object_to_boxes(thread, type);
-        type = ensure_min_precedence(type, PMATH_PREC_PRIM, +1);
-      
-        return pmath_build_value("(sso)", "~~", ":", type);
-      }
-
-      item = object_to_boxes(thread, item);
-      item = ensure_min_precedence(item, PMATH_PREC_REPEAT+1, -1);
-
-      return pmath_build_value("(os)", item, "**");
-    }
-
-    if(pmath_equals(item, _pmath_object_range_from_zero)){
-      pmath_unref(item);
-
-      item = pmath_expr_get_item(expr, 1);
-      pmath_unref(expr);
-
-      if(pmath_equals(item, _pmath_object_singlematch)){
-        pmath_unref(item);
-        return PMATH_C_STRING("~~~");
-      }
-      
-      if(pmath_is_expr_of_len(item, PMATH_SYMBOL_SINGLEMATCH, 1)){
-        pmath_t type = pmath_expr_get_item(item, 1);
-        
-        pmath_unref(item);
-        type = object_to_boxes(thread, type);
-        type = ensure_min_precedence(type, PMATH_PREC_PRIM, +1);
-      
-        return pmath_build_value("(sso)", "~~~", ":", type);
-      }
-
-      item = object_to_boxes(thread, item);
-      item = ensure_min_precedence(item, PMATH_PREC_REPEAT+1, -1);
-
-      return pmath_build_value("(os)", item, "***");
-    }
-
-    pmath_unref(item);
-  }
-
-  return call_to_boxes(thread, expr);
-}
-
-static pmath_t pattern_to_boxes(
-  pmath_thread_t thread,
-  pmath_expr_t   expr    // will be freed
-){
-  if(pmath_expr_length(expr) == 2){
-    pmath_t name = pmath_expr_get_item(expr, 1);
-
-    if(pmath_instance_of(name, PMATH_TYPE_SYMBOL)){
-      pmath_t pat =  pmath_expr_get_item(expr, 2);
-
-      name = object_to_boxes(thread, name);
-      name = ensure_min_precedence(name, PMATH_PREC_PRIM, 0);
-
-      pmath_unref(expr);
-
-      if(pmath_equals(pat, _pmath_object_singlematch)){
-        pmath_unref(pat);
-
-        return pmath_build_value("so", "~", name);
-      }
-      
-      if(pmath_is_expr_of_len(pat, PMATH_SYMBOL_SINGLEMATCH, 1)){
-        pmath_t type = pmath_expr_get_item(pat, 1);
-        
-        pmath_unref(pat);
-        type = object_to_boxes(thread, type);
-        type = ensure_min_precedence(type, PMATH_PREC_PRIM, +1);
-      
-        return pmath_build_value("soso", "~", name, ":", type);
-      }
-      
-      if(pmath_equals(pat, _pmath_object_multimatch)){
-        pmath_unref(pat);
-        
-        return pmath_build_value("so", "~~", name);
-      }
-
-      if(pmath_equals(pat, _pmath_object_zeromultimatch)){
-        pmath_unref(pat);
-        
-        return pmath_build_value("so", "~~~", name);
-      }
-      
-      if(pmath_is_expr_of_len(pat, PMATH_SYMBOL_REPEATED, 2)){
-        pmath_t rep = pmath_expr_get_item(pat, 1);
-        
-        if(pmath_is_expr_of_len(rep, PMATH_SYMBOL_SINGLEMATCH, 1)){
-          pmath_t range = pmath_expr_get_item(pat, 2);
-          
-          if(pmath_equals(range, _pmath_object_range_from_one)){
-            pmath_t type = pmath_expr_get_item(rep, 1);
-            
-            pmath_unref(rep);
-            pmath_unref(range);
-            pmath_unref(pat);
-            type = object_to_boxes(thread, type);
-            type = ensure_min_precedence(type, PMATH_PREC_PRIM, +1);
-          
-            return pmath_build_value("soso", "~~", name, ":", type);
-          }
-          
-          if(pmath_equals(range, _pmath_object_range_from_zero)){
-            pmath_t type = pmath_expr_get_item(rep, 1);
-            
-            pmath_unref(rep);
-            pmath_unref(range);
-            pmath_unref(pat);
-            type = object_to_boxes(thread, type);
-            type = ensure_min_precedence(type, PMATH_PREC_PRIM, +1);
-            
-            return pmath_build_value("soso", "~~~", name, ":", type);
-          }
-          
-          pmath_unref(range);
-        }
-        
-        pmath_unref(rep);
-      }
-      
-      pat = object_to_boxes(thread, pat);
-      pat = ensure_min_precedence(pat, PMATH_PREC_MUL+1, +1);
-
-      return pmath_build_value("oso", name, ":", pat);
-    }
-
-    pmath_unref(name);
-  }
-
-  return call_to_boxes(thread, expr);
-}
-
-static pmath_t singlematch_to_boxes(
-  pmath_thread_t thread,
-  pmath_expr_t   expr    // will be freed
-){
-  if(pmath_expr_length(expr) == 0){
-    pmath_unref(expr);
-    return PMATH_C_STRING("~");
-  }
-  
-  if(pmath_expr_length(expr) == 1){
-    pmath_t type = pmath_expr_get_item(expr, 1);
-    
-    pmath_unref(expr);
-    type = object_to_boxes(thread, type);
-    type = ensure_min_precedence(type, PMATH_PREC_PRIM, +1);
-  
-    return pmath_build_value("sso", "~", ":", type);
-  }
-
-  return call_to_boxes(thread, expr);
-}
-
-static pmath_t list_to_boxes(
-  pmath_thread_t thread,
-  pmath_expr_t   expr    // will be freed
-){
-  if(pmath_expr_length(expr) == 0){
-    pmath_unref(expr);
-    return pmath_build_value("ss", "{", "}");
-  }
-  
-  return pmath_build_value("sos", 
-    "{", 
-    nary_to_boxes(
-      thread, 
-      expr,
-      PMATH_C_STRING(","),
-      PMATH_PREC_SEQ+1,
-      PMATH_PREC_SEQ+1,
-      TRUE), 
-    "}");
-}
-
-static pmath_t complex_to_boxes(
-  pmath_thread_t thread,
-  pmath_expr_t   expr    // will be freed
-){
-  if(pmath_expr_length(expr) == 2){
-    pmath_t re = pmath_expr_get_item(expr, 1);
-    pmath_t im = pmath_expr_get_item(expr, 2);
-    
-    if(pmath_equals(re, PMATH_NUMBER_ZERO)){
-      if(pmath_equals(im, PMATH_NUMBER_ONE)){
-        pmath_unref(expr);
-        pmath_unref(re);
-        pmath_unref(im);
-        
-        if(thread->boxform < BOXFORM_OUTPUT)
-          return pmath_build_value("c", 0x2148);
-          
-        return PMATH_C_STRING("I");
-      }
-      
-      if(pmath_instance_of(im, PMATH_TYPE_NUMBER)){
-        pmath_unref(re);
-        expr = pmath_expr_set_item(expr, 2, pmath_integer_new_si(1));
-        
-        return object_to_boxes(thread,
-          pmath_expr_new_extended(
-            pmath_ref(PMATH_SYMBOL_TIMES), 2,
-            im,
-            expr));
-      }
-    }
-    else if(pmath_instance_of(re, PMATH_TYPE_NUMBER)
-    && pmath_instance_of(im, PMATH_TYPE_NUMBER)){
-      pmath_unref(im);
-      expr = pmath_expr_set_item(expr, 1, pmath_integer_new_si(0));
-      
-      return object_to_boxes(thread,
-        pmath_expr_new_extended(
-          pmath_ref(PMATH_SYMBOL_PLUS), 2,
-          re,
-          expr));
-    }
-  }
-
-  return call_to_boxes(thread, expr);
-}
-
-static pmath_t directedinfinity_to_boxes(
-  pmath_thread_t thread,
-  pmath_expr_t   expr    // will be freed
-){
-  if(pmath_expr_length(expr) == 1){
-    pmath_t dir = pmath_expr_get_item(expr, 1);
-    
-    if(pmath_equals(dir, PMATH_NUMBER_ONE)){
-      pmath_unref(expr);
-      pmath_unref(dir);
-      
-      return object_to_boxes(thread, pmath_ref(PMATH_SYMBOL_INFINITY));
-    }
-    
-    if(pmath_equals(dir, PMATH_NUMBER_MINUSONE)){
-      pmath_unref(expr);
-      pmath_unref(dir);
-      
-      return object_to_boxes(thread, 
-        pmath_expr_new_extended(
-          pmath_ref(PMATH_SYMBOL_TIMES), 2,
-          pmath_integer_new_si(-1),
-          pmath_ref(PMATH_SYMBOL_INFINITY)));
-    }
-    
-    if(pmath_is_expr_of_len(dir, PMATH_SYMBOL_COMPLEX, 2)){
-      pmath_t x = pmath_expr_get_item(dir, 1);
-      
-      if(pmath_equals(x, PMATH_NUMBER_ZERO)){
-        pmath_unref(x);
-        x = pmath_expr_get_item(dir, 2);
-        
-        if(pmath_equals(x, PMATH_NUMBER_ONE)){
-          pmath_unref(expr);
-          pmath_unref(dir);
-          pmath_unref(x);
-          
-          return object_to_boxes(thread, 
-            pmath_expr_new_extended(
-              pmath_ref(PMATH_SYMBOL_TIMES), 2,
-              pmath_expr_new_extended(
-                pmath_ref(PMATH_SYMBOL_COMPLEX), 2,
-                pmath_integer_new_si(0),
-                pmath_integer_new_si(1)),
-              pmath_ref(PMATH_SYMBOL_INFINITY)));
-        }
-        
-        if(pmath_equals(x, PMATH_NUMBER_MINUSONE)){
-          pmath_unref(expr);
-          pmath_unref(dir);
-          pmath_unref(x);
-          
-          return object_to_boxes(thread, 
-            pmath_expr_new_extended(
-              pmath_ref(PMATH_SYMBOL_TIMES), 2,
-              pmath_expr_new_extended(
-                pmath_ref(PMATH_SYMBOL_COMPLEX), 2,
-                pmath_integer_new_si(0),
-                pmath_integer_new_si(-1)),
-              pmath_ref(PMATH_SYMBOL_INFINITY)));
-        }
-      }
-      
-      pmath_unref(x);
-    }
-    
-    pmath_unref(dir);
-  }
-  else if(pmath_expr_length(expr) == 0){
-    pmath_unref(expr);
-    return object_to_boxes(thread, pmath_ref(PMATH_SYMBOL_COMPLEXINFINITY));
-  }
-  
   return call_to_boxes(thread, expr);
 }
 
@@ -2629,45 +2673,48 @@ static pmath_t expr_to_boxes(pmath_thread_t thread, pmath_expr_t expr){
   
     pmath_unref(head);
     
-    if(head == PMATH_SYMBOL_EVALUATIONSEQUENCE)
-      return evaluationsequence_to_boxes(thread, expr);
-    
-    if(head == PMATH_SYMBOL_TAGASSIGN
-    || head == PMATH_SYMBOL_TAGASSIGNDELAYED)
-      return tagassign_to_boxes(thread, expr);
-    
-    if(head == PMATH_SYMBOL_INEQUATION)
-      return inequation_to_boxes(thread, expr);
-    
-    if(head == PMATH_SYMBOL_RANGE)
-      return range_to_boxes(thread, expr);
-    
-    if(head == PMATH_SYMBOL_PLUS)
-      return plus_to_boxes(thread, expr);
-    
-    if(head == PMATH_SYMBOL_TIMES)
-      return times_to_boxes(thread, expr);
-    
-    if(head == PMATH_SYMBOL_POWER)
-      return power_to_boxes(thread, expr);
-    
-    if(head == PMATH_SYMBOL_REPEATED)
-      return repeated_to_boxes(thread, expr);
-    
-    if(head == PMATH_SYMBOL_PATTERN)
-      return pattern_to_boxes(thread, expr);
-    
-    if(head == PMATH_SYMBOL_SINGLEMATCH)
-      return singlematch_to_boxes(thread, expr);
-    
-    if(head == PMATH_SYMBOL_LIST)
-      return list_to_boxes(thread, expr);
-    
     if(head == PMATH_SYMBOL_COMPLEX)
       return complex_to_boxes(thread, expr);
     
     if(head == PMATH_SYMBOL_DIRECTEDINFINITY)
       return directedinfinity_to_boxes(thread, expr);
+    
+    if(head == PMATH_SYMBOL_EVALUATIONSEQUENCE)
+      return evaluationsequence_to_boxes(thread, expr);
+    
+    if(head == PMATH_SYMBOL_INEQUATION)
+      return inequation_to_boxes(thread, expr);
+    
+    if(head == PMATH_SYMBOL_LIST)
+      return list_to_boxes(thread, expr);
+    
+    if(head == PMATH_SYMBOL_OPTIONAL)
+      return optional_to_boxes(thread, expr);
+    
+    if(head == PMATH_SYMBOL_PATTERN)
+      return pattern_to_boxes(thread, expr);
+    
+    if(head == PMATH_SYMBOL_PLUS)
+      return plus_to_boxes(thread, expr);
+    
+    if(head == PMATH_SYMBOL_POWER)
+      return power_to_boxes(thread, expr);
+    
+    if(head == PMATH_SYMBOL_RANGE)
+      return range_to_boxes(thread, expr);
+    
+    if(head == PMATH_SYMBOL_REPEATED)
+      return repeated_to_boxes(thread, expr);
+    
+    if(head == PMATH_SYMBOL_SINGLEMATCH)
+      return singlematch_to_boxes(thread, expr);
+    
+    if(head == PMATH_SYMBOL_TAGASSIGN
+    || head == PMATH_SYMBOL_TAGASSIGNDELAYED)
+      return tagassign_to_boxes(thread, expr);
+    
+    if(head == PMATH_SYMBOL_TIMES)
+      return times_to_boxes(thread, expr);
     
     /*------------------------------------------------------------------------*/
     if(thread->boxform < BOXFORM_INPUT){

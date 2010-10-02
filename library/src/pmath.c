@@ -547,8 +547,9 @@ PMATH_API pmath_bool_t pmath_init(void){
     PMATH_RUN("IsNumeric(E):=True");
     PMATH_RUN("IsNumeric(MachinePrecision):=True");
     
+    PMATH_RUN("Default(Piecewise, 2):=0");
     PMATH_RUN("Default(Plus):=0");
-    PMATH_RUN("Default(Power):=1"); // PMATH_RUN("Default(Power, 2):= 1");
+    PMATH_RUN("Default(Power, 2):= 1");
     PMATH_RUN("Default(Times):=1");
     
     PMATH_RUN(
@@ -557,6 +558,8 @@ PMATH_API pmath_bool_t pmath_init(void){
       "Options(Count):="
       "Options(Level):="
       "Options(Map):="
+      "Options(ParallelMap):="
+      "Options(ParallelScan):="
       "Options(Replace):="
       "Options(ReplaceList):="
       "Options(ReplaceRepeated):="

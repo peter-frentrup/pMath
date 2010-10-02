@@ -91,7 +91,7 @@ static int find_tag( // SYM_SEARCH_XXX
       
       if(item == PMATH_SYMBOL_EXCEPT
       || item == PMATH_SYMBOL_OPTIONAL
-      || item == PMATH_SYMBOL_OPTIONPATTERN
+      || item == PMATH_SYMBOL_OPTIONSPATTERN
       || item == PMATH_SYMBOL_PATTERNSEQUENCE){
         pmath_unref(item);
         return SYM_SEARCH_NOTFOUND;

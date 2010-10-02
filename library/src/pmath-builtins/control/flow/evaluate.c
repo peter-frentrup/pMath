@@ -48,6 +48,8 @@ PMATH_PRIVATE pmath_bool_t _pmath_run(pmath_t *in_out){
 }
 
 PMATH_PRIVATE pmath_t builtin_evaluate(pmath_expr_t expr){
+/* Evaluate(expr)
+ */
   pmath_t result;
 
   if(pmath_expr_length(expr) != 1){
@@ -61,6 +63,8 @@ PMATH_PRIVATE pmath_t builtin_evaluate(pmath_expr_t expr){
 }
 
 PMATH_PRIVATE pmath_t builtin_evaluatedelayed(pmath_expr_t expr){
+/* EvaluateDelayed(expr, time)
+ */
   pmath_messages_t mq;
   pmath_t reltime_obj;
   double seconds = 0;
@@ -90,6 +94,8 @@ PMATH_PRIVATE pmath_t builtin_evaluatedelayed(pmath_expr_t expr){
 }
 
 PMATH_PRIVATE pmath_t builtin_release(pmath_expr_t expr){
+/* Release(expr)
+ */
   pmath_expr_t result;
 
   if(pmath_expr_length(expr) != 1){
@@ -120,6 +126,8 @@ PMATH_PRIVATE pmath_t builtin_release(pmath_expr_t expr){
 }
 
 PMATH_PRIVATE pmath_t builtin_evaluationsequence(pmath_expr_t expr){
+/* expr1; expr2; ...
+ */
   pmath_bool_t have_label;
   pmath_t result;
   size_t i;

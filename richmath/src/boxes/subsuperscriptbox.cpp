@@ -74,6 +74,12 @@ void SubsuperscriptBox::stretch(Context *context, const BoxSize &base){
   _extents.descent = base.descent;
   _extents.width   = 0;
   
+  if(_extents.ascent < em * 0.5)
+     _extents.ascent = em * 0.5;
+  
+  if(_extents.descent < 0)
+     _extents.descent = 0;
+  
   if(_subscript){
     if(_extents.descent < sub_y + _subscript->extents().descent)
        _extents.descent = sub_y + _subscript->extents().descent;

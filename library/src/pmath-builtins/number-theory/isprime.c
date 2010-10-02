@@ -117,17 +117,9 @@ PMATH_PRIVATE pmath_t builtin_isprime(pmath_expr_t expr){
     return pmath_ref(result ? PMATH_SYMBOL_TRUE : PMATH_SYMBOL_FALSE);
   }
 
-  if(pmath_instance_of(n, PMATH_TYPE_NUMBER)
-  || _pmath_is_nonreal_complex(n)
-  || n == PMATH_SYMBOL_PI
-  || n == PMATH_SYMBOL_E){
-    pmath_unref(n);
-    pmath_unref(expr);
-    return pmath_ref(PMATH_SYMBOL_FALSE);
-  }
-
   pmath_unref(n);
-  return expr;
+  pmath_unref(expr);
+  return pmath_ref(PMATH_SYMBOL_FALSE);
 }
 
 /*============================================================================*/

@@ -180,7 +180,7 @@ namespace richmath{
       
       virtual void load_from_object(Expr object, int options); // BoxOptionXXX
       
-      const String text(){ return str; }
+      const String &text(){ return str; }
       const SpanArray        &span_array(){  return spans; }
       const Array<Line>      &line_array(){  return lines; }
       const Array<GlyphInfo> &glyph_array(){ return glyphs; }

@@ -1285,32 +1285,53 @@ void Document::on_key_press(uint32_t unichar){
     prev_sel_line = -1;
   
   // handle parenthesis surrounding of selections:
-  if(context.selection.start < context.selection.end && unichar < 0xFFFF){
+  if(context.selection.start < context.selection.end 
+  && unichar < 0xFFFF){
     int prec;
     uint16_t ch = (uint16_t)unichar;
+    String selstr;
     
-    if(pmath_char_is_left(unichar)){
-      uint32_t right = pmath_right_fence(unichar);
-      AbstractSequence *seq = dynamic_cast<AbstractSequence*>(context.selection.get());
-      
-      if(seq && right && right < 0xFFFF){
-        seq->insert(context.selection.end,   right);
-        seq->insert(context.selection.start, unichar);
-        select(seq, context.selection.start, context.selection.end + 2);
-        
-        return;
-      }
+    if(TextSequence *seq = dynamic_cast<TextSequence*>(context.selection.get())){
+      selstr = String::FromUtf8(
+        seq->text_buffer().buffer() + context.selection.start, 
+        context.selection.end - context.selection.start);
     }
-    else if(PMATH_TOK_RIGHT == pmath_token_analyse(&ch, 1, &prec)){
-      uint32_t left = (uint32_t)((int)unichar + prec);
-      AbstractSequence *seq = dynamic_cast<AbstractSequence*>(context.selection.get());
-      
-      if(seq && left && left < 0xFFFF){
-        seq->insert(context.selection.end,   ch);
-        seq->insert(context.selection.start, left);
-        select(seq, context.selection.start, context.selection.end + 2);
+    else if(MathSequence *seq = dynamic_cast<MathSequence*>(context.selection.get())){
+      selstr = seq->text().part(
+        context.selection.start,
+        context.selection.end - context.selection.start);
+    }
+    
+    bool can_surround = true;
+    if(selstr.length() == 1){
+      can_surround = !pmath_char_is_left( *selstr.buffer())
+                  && !pmath_char_is_right(*selstr.buffer());
+    }
+    
+    if(can_surround){
+      if(pmath_char_is_left(unichar)){
+        uint32_t right = pmath_right_fence(unichar);
+        AbstractSequence *seq = dynamic_cast<AbstractSequence*>(context.selection.get());
         
-        return;
+        if(seq && right && right < 0xFFFF){
+          seq->insert(context.selection.end,   right);
+          seq->insert(context.selection.start, unichar);
+          select(seq, context.selection.start, context.selection.end + 2);
+          
+          return;
+        }
+      }
+      else if(PMATH_TOK_RIGHT == pmath_token_analyse(&ch, 1, &prec)){
+        uint32_t left = (uint32_t)((int)unichar + prec);
+        AbstractSequence *seq = dynamic_cast<AbstractSequence*>(context.selection.get());
+        
+        if(seq && left && left < 0xFFFF){
+          seq->insert(context.selection.end,   ch);
+          seq->insert(context.selection.start, left);
+          select(seq, context.selection.start, context.selection.end + 2);
+          
+          return;
+        }
       }
     }
   }
@@ -2004,7 +2025,8 @@ void Document::copy_to_clipboard(){
     pmath_parse_string_args(
           "FE`BoxesToText(`1`)",//"Try(FE`BoxesToText(`1`),$Failed)",
         "(o)",
-        pmath_ref(boxes.get()))));
+        pmath_ref(boxes.get()))),
+    Client::edit_interrupt_timeout);
   
   cb->add_text(Clipboard::PlainText, text.to_string());
 }
@@ -2019,7 +2041,8 @@ void Document::paste_from_clipboard(){
     String s = Clipboard::std->read_as_text(Clipboard::BoxesText);
     
     Expr parsed = Client::interrupt(Expr(
-      pmath_parse_string(s.release())));
+      pmath_parse_string(s.release())),
+      Client::edit_interrupt_timeout);
     
     if(context.selection.get() == this && get_style(Editable, true)
     && (parsed[0] == PMATH_SYMBOL_SECTION
@@ -2037,7 +2060,8 @@ void Document::paste_from_clipboard(){
     parsed = Client::interrupt(Expr(pmath_parse_string_args(
         "FE`SectionsToBoxes(`1`)",
       "(o)",
-      parsed.release())));
+      parsed.release())),
+      Client::edit_interrupt_timeout);
     MathSequence *tmp = new MathSequence;
     tmp->load_from_object(parsed, BoxOptionFormatNumbers);
     

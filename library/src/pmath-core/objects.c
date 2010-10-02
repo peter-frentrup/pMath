@@ -108,7 +108,7 @@ PMATH_API unsigned int pmath_hash(pmath_t obj){
   
   hash = pmath_type_imps[obj->type_shift].hash;
   assert(hash != NULL);
-  return hash(obj) ^ obj->type_shift;
+  return hash(obj);
 }
 
 PMATH_API pmath_bool_t pmath_equals(

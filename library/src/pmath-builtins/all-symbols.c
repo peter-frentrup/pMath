@@ -186,10 +186,11 @@ PMATH_PRIVATE pmath_t builtin_call_function(pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_local(pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_with( pmath_expr_t expr);
 
-PMATH_PRIVATE pmath_t builtin_if(   pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_do(   pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_for(  pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_while(pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_if(       pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_do(       pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_for(      pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_piecewise(pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_while(    pmath_expr_t expr);
 
 PMATH_PRIVATE pmath_t builtin_begin(       pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_beginpackage(pmath_expr_t expr);
@@ -900,7 +901,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   VERIFY(   PMATH_SYMBOL_OPENWRITE                 = NEW_SYSTEM_SYMBOL("OpenWrite"))
   VERIFY(   PMATH_SYMBOL_OPERATE                   = NEW_SYSTEM_SYMBOL("Operate"))
   VERIFY(   PMATH_SYMBOL_OPTIONAL                  = NEW_SYSTEM_SYMBOL("Optional"))
-  VERIFY(   PMATH_SYMBOL_OPTIONPATTERN             = NEW_SYSTEM_SYMBOL("OptionPattern"))
+  VERIFY(   PMATH_SYMBOL_OPTIONSPATTERN            = NEW_SYSTEM_SYMBOL("OptionsPattern"))
   VERIFY(   PMATH_SYMBOL_OPTIONS                   = NEW_SYSTEM_SYMBOL("Options"))
   VERIFY(   PMATH_SYMBOL_OPTIONVALUE               = NEW_SYSTEM_SYMBOL("OptionValue"))
   VERIFY(   PMATH_SYMBOL_OR                        = NEW_SYSTEM_SYMBOL("Or"))
@@ -1354,7 +1355,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
     BIND_DOWN(   PMATH_SYMBOL_OPENREAD,                    builtin_open)
     BIND_DOWN(   PMATH_SYMBOL_OPENWRITE,                   builtin_open)
     BIND_DOWN(   PMATH_SYMBOL_OPERATE,                     builtin_operate)
-    BIND_DOWN(   PMATH_SYMBOL_OPTIONPATTERN,               general_builtin_zeroonearg)
+    BIND_DOWN(   PMATH_SYMBOL_OPTIONSPATTERN,              general_builtin_zeroonearg)
     BIND_DOWN(   PMATH_SYMBOL_OPTIONS,                     builtin_options)
     BIND_DOWN(   PMATH_SYMBOL_OPTIONVALUE,                 builtin_optionvalue)
     BIND_DOWN(   PMATH_SYMBOL_OVERFLOW,                    general_builtin_zeroargs)
@@ -1366,6 +1367,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
     BIND_DOWN(   PMATH_SYMBOL_PART,                        builtin_part)
     BIND_DOWN(   PMATH_SYMBOL_PARTITION,                   builtin_partition)
     BIND_DOWN(   PMATH_SYMBOL_PAUSE,                       builtin_pause)
+    BIND_DOWN(   PMATH_SYMBOL_PIECEWISE,                   builtin_piecewise)
     BIND_DOWN(   PMATH_SYMBOL_POSITION,                    builtin_position)
     BIND_DOWN(   PMATH_SYMBOL_POSTDECREMENT,               builtin_dec_or_inc_or_postdec_or_postinc)
     BIND_DOWN(   PMATH_SYMBOL_POSTINCREMENT,               builtin_dec_or_inc_or_postdec_or_postinc)

@@ -54,6 +54,8 @@ static pmath_t nest_integer(
 }
 
 PMATH_PRIVATE pmath_t builtin_gcd(pmath_expr_t expr){
+/* GCD(x1, x2, ...) 
+ */
   size_t len = pmath_expr_length(expr);
   if(len == 0){
     pmath_unref(expr);
@@ -64,5 +66,7 @@ PMATH_PRIVATE pmath_t builtin_gcd(pmath_expr_t expr){
 }
 
 PMATH_PRIVATE pmath_t builtin_lcm(pmath_expr_t expr){
+/* LCM(x1, x2, ...) 
+ */
   return nest_integer(expr, mpz_lcm);
 }

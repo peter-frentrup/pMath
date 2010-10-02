@@ -1,10 +1,8 @@
 ﻿LIBRARY
 
-Button("Math in Text",DocumentApply(SelectedDocument(),"\({\"\"}\)"))
-Button("italic",DocumentApply(SelectedDocument(),StyleBox("",FontSlant->Italic)))
-Button("Arg Style",DocumentApply(SelectedDocument(),StyleBox("","Arg")))
-
-- richmath: f @@ g() ==> memory leak    (not in console pmath)
+Row({Button("Math in Text",DocumentApply(SelectedDocument(),"\({\"\"}\)")),
+	Button("italic",DocumentApply(SelectedDocument(),StyleBox("",FontSlant->Italic))),
+	Button("Arg Style",DocumentApply(SelectedDocument(),StyleBox("","Arg")))})
 
 ? pmath: implement Transpose in C code (see transpose.pmath)
 
@@ -46,8 +44,6 @@ Button("Arg Style",DocumentApply(SelectedDocument(),StyleBox("","Arg")))
 
 - add counter for regex cache in debug mode
 
-- implement Cross as Det(...), see scripts/junk/linalg.pmath
-
 ? GUI: add ALT+Left/Right/Up/Down to move in the expression tree
 
 - eval Complex(0, x)^q with rational q
@@ -60,7 +56,7 @@ Button("Arg Style",DocumentApply(SelectedDocument(),StyleBox("","Arg")))
 	Projection(), Orthogonalize(), ConjugateTranspose(),
 	IdentityMatrix(), ChracteristicPolynomial(), QRDecomposition(), Eigenvalues(), Eigenvectors()
 
-- add InterpretTemplate(), see Mathematica's ToBoxes[SuperscriptBox[1,2]]
+- add InterpretTemplate(), see Mathematica's ToBoxes[Superscript[1,2]]
 
 - add option to write a BOM to unicode files. currently, it is added for "UTF-16" and "UTF-32"
   add the BOM automatically for UTF-8 on Windows but not on UNIX

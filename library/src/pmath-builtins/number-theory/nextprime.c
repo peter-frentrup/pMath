@@ -1,6 +1,7 @@
 #include <pmath-core/numbers-private.h>
 
 #include <pmath-util/concurrency/threads.h>
+#include <pmath-util/evaluation.h>
 #include <pmath-util/messages.h>
 
 #include <pmath-builtins/all-symbols-private.h>
@@ -8,6 +9,8 @@
 
 
 PMATH_PRIVATE pmath_t builtin_nextprime(pmath_expr_t expr){
+/* NextPrime(p)
+ */
   pmath_t n;
   pmath_thread_t thread = pmath_thread_get_current();
 
@@ -17,6 +20,15 @@ PMATH_PRIVATE pmath_t builtin_nextprime(pmath_expr_t expr){
   }
 
   n = pmath_expr_get_item(expr, 1);
+
+  if(!pmath_instance_of(n, PMATH_TYPE_INTEGER)){
+    n = pmath_evaluate(
+      pmath_expr_new_extended(
+        pmath_ref(PMATH_SYMBOL_PLUS), 2,
+        pmath_expr_new_extended(
+          pmath_ref(PMATH_SYMBOL_CEILING), 1, n),
+        pmath_integer_new_si(-1)));
+  }
 
   if(pmath_instance_of(n, PMATH_TYPE_INTEGER)){
     struct _pmath_integer_t *result;
@@ -53,6 +65,7 @@ PMATH_PRIVATE pmath_t builtin_nextprime(pmath_expr_t expr){
 
     return (pmath_integer_t)result;
   }
+  
   pmath_unref(n);
   return expr;
 }

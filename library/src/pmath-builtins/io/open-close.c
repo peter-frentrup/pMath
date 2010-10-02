@@ -357,6 +357,10 @@ PMATH_PRIVATE pmath_t builtin_close(pmath_expr_t expr){
 }
 
 PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr){
+/* OpenAppend(filename)
+   OpenRead(filename)
+   OpenWrite(filename)
+ */
   pmath_expr_t options;
   pmath_t file;
   

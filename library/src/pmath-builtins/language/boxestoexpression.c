@@ -955,10 +955,10 @@ PMATH_PRIVATE pmath_t builtin_boxestoexpression(pmath_expr_t expr){
         pmath_t view = pmath_expr_get_item(expr, 1);
         pmath_t tag  = pmath_expr_get_item(expr, 2);
         
-        if(pmath_instance_of(tag, PMATH_TYPE_STRING)
-        && pmath_is_expr_of(view, PMATH_SYMBOL_GRIDBOX)){
-        
-          if(pmath_string_equals_latin1(tag, "Column")){
+        if(pmath_instance_of(tag, PMATH_TYPE_STRING)){
+          
+          if(pmath_string_equals_latin1(tag, "Column")
+          && pmath_is_expr_of(view, PMATH_SYMBOL_GRIDBOX)){
             pmath_t held;
             pmath_t grid;
             pmath_t matrix;
@@ -1005,8 +1005,30 @@ PMATH_PRIVATE pmath_t builtin_boxestoexpression(pmath_expr_t expr){
             
             goto FAILED;
           }
+        
+          if(pmath_string_equals_latin1(tag, "Placeholder")){
+            if(pmath_is_expr_of(view, PMATH_SYMBOL_FRAMEBOX)){
+              box = pmath_expr_get_item(view, 1);
+              pmath_unref(view);
+              view = box;
+            }
+                
+            if(parse(&view)){
+              pmath_unref(expr);
+              pmath_unref(tag);
+              return HOLDCOMPLETE(
+                pmath_expr_new_extended(
+                  pmath_ref(PMATH_SYMBOL_PLACEHOLDER), 1,
+                  view));
+            }
+            
+            pmath_unref(view);
+            pmath_unref(tag);
+            goto FAILED;
+          }
           
-          if(pmath_string_equals_latin1(tag, "Grid")){
+          if(pmath_string_equals_latin1(tag, "Grid")
+          && pmath_is_expr_of(view, PMATH_SYMBOL_GRIDBOX)){
             box = parse_gridbox(view, FALSE);
             
             pmath_unref(view);

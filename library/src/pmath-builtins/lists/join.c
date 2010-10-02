@@ -169,6 +169,8 @@ static pmath_t concat_strings(pmath_expr_t expr){
 }
 
 PMATH_PRIVATE pmath_t builtin_join(pmath_expr_t expr){
+/* Join(list1, list2, ...)
+ */
   size_t len = pmath_expr_length(expr);
   
   if(len > 0){

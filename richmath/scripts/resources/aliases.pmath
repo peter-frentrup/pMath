@@ -12,7 +12,7 @@
 		"]]" -> "\[RightDoubleBracket]"},
 	"Explicit" -> {
 		"button" -> ButtonBox("\[SelectionPlaceholder]"),
-		"italic" -> StyleBox("\[SelectionPlaceholder]", FontSlant->"Italic"),
+		"italic" -> StyleBox("\[SelectionPlaceholder]", FontSlant->Italic),
 		"repeat" -> FillBox("\[SelectionPlaceholder]"),
 		"hfill" -> FillBox(" "),
 		"framed" -> FrameBox("\[SelectionPlaceholder]"),

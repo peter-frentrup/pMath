@@ -13,22 +13,22 @@ PMATH_PRIVATE pmath_bool_t _pmath_is_valid_messagename(pmath_t msg){
   pmath_t obj;
   
   if(!pmath_instance_of(msg, PMATH_TYPE_EXPRESSION)
-  || pmath_expr_length((pmath_expr_t)msg) != 2)
+  || pmath_expr_length(msg) != 2)
     return FALSE;
   
-  obj = pmath_expr_get_item((pmath_expr_t)msg, 0);
+  obj = pmath_expr_get_item(msg, 0);
   pmath_unref(obj);
   if(obj != PMATH_SYMBOL_MESSAGENAME)
     return FALSE;
   
-  obj = pmath_expr_get_item((pmath_expr_t)msg, 1);
+  obj = pmath_expr_get_item(msg, 1);
   if(!pmath_instance_of(obj, PMATH_TYPE_SYMBOL)){
     pmath_unref(obj);
     return FALSE;
   }
   pmath_unref(obj);
   
-  obj = pmath_expr_get_item((pmath_expr_t)msg, 2);
+  obj = pmath_expr_get_item(msg, 2);
   if(!pmath_instance_of(obj, PMATH_TYPE_STRING)){
     pmath_unref(obj);
     return FALSE;

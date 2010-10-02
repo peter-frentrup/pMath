@@ -1,5 +1,7 @@
 #include <pmath-core/symbols-private.h>
 
+#include <pmath-language/patterns-private.h>
+
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
 #include <pmath-util/symbol-values-private.h>
@@ -17,7 +19,9 @@ PMATH_PRIVATE pmath_t builtin_assign_default(pmath_expr_t expr){
   if(!_pmath_is_assignment(expr, &tag, &lhs, &rhs))
     return expr;
   
-  if(!pmath_is_expr_of_len(lhs, PMATH_SYMBOL_DEFAULT, 1)){
+  if(!pmath_is_expr_of(lhs, PMATH_SYMBOL_DEFAULT)
+  || pmath_expr_length(lhs) < 1
+  || pmath_expr_length(lhs) > 3){
     pmath_unref(tag);
     pmath_unref(lhs);
     pmath_unref(rhs);
@@ -66,14 +70,19 @@ PMATH_PRIVATE pmath_t builtin_assign_default(pmath_expr_t expr){
 }
 
 PMATH_PRIVATE pmath_t builtin_default(pmath_expr_t expr){
+/* Default(f)
+   Default(f, i)
+   Default(f, i, n)
+ */
   struct _pmath_symbol_rules_t *rules;
   pmath_symbol_t sym;
+  size_t exprlen = pmath_expr_length(expr); 
   
-  if(pmath_expr_length(expr) != 1){
-    pmath_message_argxxx(pmath_expr_length(expr), 1, 1);
+  if(exprlen < 1 || exprlen > 3){
+    pmath_message_argxxx(exprlen, 1, 3);
     return expr;
   }
-
+  
   sym = pmath_expr_get_item(expr, 1);
   
   if(pmath_instance_of(sym, PMATH_TYPE_STRING))
@@ -89,7 +98,12 @@ PMATH_PRIVATE pmath_t builtin_default(pmath_expr_t expr){
   pmath_unref(sym);
   
   if(rules){
-    _pmath_rulecache_find(&rules->default_rules, &expr);
+    while(!_pmath_rulecache_find(&rules->default_rules, &expr)
+    && pmath_expr_length(expr) > 1){
+      pmath_t tmp = expr;
+      expr = pmath_expr_get_item_range(tmp, 1, pmath_expr_length(expr) - 1);
+      pmath_unref(tmp);
+    }
   }
   
   return expr;

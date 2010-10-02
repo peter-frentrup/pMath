@@ -1,3 +1,5 @@
+#include <pmath-core/numbers.h>
+
 #include <pmath-language/patterns-private.h>
 
 #include <pmath-util/debug.h>
@@ -660,7 +662,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_pattern_is_const(
   || (head == PMATH_SYMBOL_REPEATED         &&  len == 2)
   || (head == PMATH_SYMBOL_SHORTEST         &&  len == 1)
   || (head == PMATH_SYMBOL_SINGLEMATCH      &&  len <= 1)
-  || (head == PMATH_SYMBOL_OPTIONPATTERN    &&  len <= 1)
+  || (head == PMATH_SYMBOL_OPTIONSPATTERN   &&  len <= 1)
   || (head == PMATH_SYMBOL_TESTPATTERN      &&  len == 2))
     return FALSE;
 
@@ -705,9 +707,9 @@ typedef enum{
 }match_kind_t;
 
 typedef struct{
-  pattern_info_t      *info;
-  pmath_expr_t   pat;       // wont be freed
-  pmath_expr_t   func;      // wont be freed
+  pattern_info_t  *info;
+  pmath_expr_t     pat;       // wont be freed
+  pmath_expr_t     func;      // wont be freed
   
   pmath_bool_t associative;
   pmath_bool_t one_identity;
@@ -716,13 +718,15 @@ typedef struct{
 
 static match_kind_t match_atom(
   pattern_info_t  *info,
-  pmath_t   pat,   // wont be freed
-  pmath_t   arg);  // wont be freed
+  pmath_t          pat,          // wont be freed
+  pmath_t          arg,          // wont be freed
+  size_t           index_of_arg,
+  size_t           count_of_arg);
 
 static match_kind_t match_repeated(
-  pattern_info_t     *info,
-  pmath_t      pat,   // wont be freed
-  pmath_expr_t  arg);  // wont be freed
+  pattern_info_t  *info,
+  pmath_t          pat,   // wont be freed
+  pmath_expr_t     arg);  // wont be freed
 
 static match_kind_t match_func_left( // for non-symmetric functions
   match_func_data_t  *data,
@@ -730,9 +734,9 @@ static match_kind_t match_func_left( // for non-symmetric functions
   size_t              func_start);
   
 static match_kind_t match_func(
-  pattern_info_t     *info,
-  pmath_expr_t  pat,   // wont be freed
-  pmath_expr_t  arg);  // wont be freed
+  pattern_info_t  *info,
+  pmath_expr_t     pat,   // wont be freed
+  pmath_expr_t     arg);  // wont be freed
 
 static pmath_t replace_pattern_var(
   pmath_t pattern,          // will be freed
@@ -746,17 +750,17 @@ static pmath_bool_t replace_exact_once(
   pmath_t  _new);
 
 static pmath_t replace_option_value(
-  pmath_t body,          // will be freed
-  pmath_t default_head,
+  pmath_t      body,          // will be freed
+  pmath_t      default_head,
   pmath_expr_t optionvaluerules);  // form: <T> = <Function>(<OptionValueRules>,<T>)
 
 static pmath_t replace_multiple(
-  pmath_t    object,        // will be freed
+  pmath_t           object,        // will be freed
   pmath_hashtable_t replacements); // entries are struct _pmath_object_entry_t*
 
 static pmath_bool_t varlist_to_hashtable(
   pmath_hashtable_t hashtable,   // entries are struct _pmath_object_entry_t*
-  pmath_expr_t varlist);   // will be freed
+  pmath_expr_t      varlist);    // will be freed
 
 //#define DEBUG_LOG_MATCH
 
@@ -857,7 +861,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_pattern_match(
     pmath_unref(head);
   }
 
-  kind = match_atom(&info, info.pattern, info.func);
+  kind = match_atom(&info, info.pattern, info.func, 0, 0);
 
   if(kind != PMATH_MATCH_KIND_NONE && !pmath_aborting()){
     if(rhs){
@@ -873,7 +877,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_pattern_match(
         if(info.options){
           pmath_t default_head = NULL;
           if(pmath_instance_of(obj, PMATH_TYPE_EXPRESSION))
-            default_head = pmath_expr_get_item((pmath_expr_t)obj, 0);
+            default_head = pmath_expr_get_item(obj, 0);
 
           *rhs = replace_option_value(*rhs, default_head, info.options);
           pmath_unref(default_head);
@@ -969,7 +973,9 @@ PMATH_PRIVATE pmath_bool_t _pmath_pattern_match(
 static match_kind_t match_atom(
   pattern_info_t  *info,
   pmath_t   pat,  // wont be freed
-  pmath_t   arg   // wont be freed
+  pmath_t   arg,  // wont be freed
+  size_t    index_of_arg,
+  size_t    count_of_arg
 ){
   if(pmath_equals(pat, arg))
     return PMATH_MATCH_KIND_LOCAL;
@@ -1056,7 +1062,7 @@ static match_kind_t match_atom(
       pmath_t pattern = pmath_expr_get_item(pat, 1);
       pmath_t test = NULL;
 
-      match_kind_t kind = match_atom(info, pattern, arg);
+      match_kind_t kind = match_atom(info, pattern, arg, index_of_arg, count_of_arg);
       pmath_unref(pattern);
       if(kind != PMATH_MATCH_KIND_LOCAL)
         return kind;
@@ -1128,7 +1134,7 @@ static match_kind_t match_atom(
           return PMATH_MATCH_KIND_NONE;
         }
         
-        kind = match_atom(info, pattern, arg);
+        kind = match_atom(info, pattern, arg, index_of_arg, count_of_arg);
         pmath_unref(pattern);
         return kind;
       }
@@ -1151,7 +1157,7 @@ static match_kind_t match_atom(
       pmath_t pattern = pmath_expr_get_item(
         (pmath_expr_t)pat, 2);
 
-      match_kind_t kind = match_atom(info, pattern, arg);
+      match_kind_t kind = match_atom(info, pattern, arg, index_of_arg, count_of_arg);
       if(kind != PMATH_MATCH_KIND_LOCAL){
         pmath_unref(pattern);
         return kind;
@@ -1175,7 +1181,7 @@ static match_kind_t match_atom(
           name, 2, pmath_ref(arg), info->variables);
         info->pattern = replace_pattern_var(info->pattern, pat, name, arg);
 
-        kind = match_atom(info, info->pattern, info->func);
+        kind = match_atom(info, info->pattern, info->func, 0, 0);
         if(kind != PMATH_MATCH_KIND_NONE){
           pmath_unref(old_pattern);
           pmath_unref(old_variables);
@@ -1198,31 +1204,33 @@ static match_kind_t match_atom(
       match_kind_t   kind;
       
       if(pmath_instance_of(arg, PMATH_TYPE_EXPRESSION)){
-        head = pmath_expr_get_item((pmath_expr_t)arg, 0);
+        head = pmath_expr_get_item(arg, 0);
         pmath_unref(head);
         if(head == MAGIC_PATTERN_SEQUENCE
-        && pmath_expr_length((pmath_expr_t)arg) == 0){
+        && pmath_expr_length(arg) == 0){
           pmath_unref(value);
           if(len == 1){
             value = pmath_evaluate(
               pmath_expr_new_extended(
-                pmath_ref(PMATH_SYMBOL_DEFAULT), 1,
-                pmath_ref(info->current_head)));
+                pmath_ref(PMATH_SYMBOL_DEFAULT), 3,
+                pmath_ref(info->current_head),
+                pmath_integer_new_size(index_of_arg),
+                pmath_integer_new_size(count_of_arg)));
           }
           else
-            value = pmath_expr_get_item((pmath_expr_t)pat, 2);
+            value = pmath_expr_get_item(pat, 2);
         }
       }
       
       old_pattern   = pmath_ref(info->pattern);
       old_variables = pmath_ref(info->variables);
-      name = pmath_expr_get_item((pmath_expr_t)pat, 1);
+      name = pmath_expr_get_item(pat, 1);
 
       info->variables = pmath_expr_new_extended(
         name, 2, value, info->variables);
       info->pattern = replace_pattern_var(info->pattern, pat, name, arg);
 
-      kind = match_atom(info, info->pattern, info->func);
+      kind = match_atom(info, info->pattern, info->func, 0, 0);
       if(kind != PMATH_MATCH_KIND_NONE){
         pmath_unref(old_pattern);
         pmath_unref(old_variables);
@@ -1240,8 +1248,8 @@ static match_kind_t match_atom(
       || head == PMATH_SYMBOL_LONGEST      // Longest(p)
       || head == PMATH_SYMBOL_SHORTEST)    // Shortest(p)
     && len == 1){
-      pmath_t p = pmath_expr_get_item((pmath_expr_t)pat, 1);
-      match_kind_t kind = match_atom(info, p, arg);
+      pmath_t p = pmath_expr_get_item(pat, 1);
+      match_kind_t kind = match_atom(info, p, arg, index_of_arg, count_of_arg);
       pmath_unref(p);
       return kind;
     }
@@ -1250,7 +1258,7 @@ static match_kind_t match_atom(
       size_t i;
       for(i = 1;i <= len;++i){
         pmath_t p = pmath_expr_get_item(pat, i);
-        match_kind_t result = match_atom(info, p, arg);
+        match_kind_t result = match_atom(info, p, arg, index_of_arg, count_of_arg);
         pmath_unref(p);
         if(result != PMATH_MATCH_KIND_NONE)
           return result;
@@ -1258,7 +1266,7 @@ static match_kind_t match_atom(
       return PMATH_MATCH_KIND_NONE;
     }
 
-    if(head == PMATH_SYMBOL_OPTIONPATTERN && len <= 1){ // OptionPattern(), OptionPattern(f)
+    if(head == PMATH_SYMBOL_OPTIONSPATTERN && len <= 1){ // OptionsPattern(), OptionsPattern(f)
       pmath_t arghead;
       size_t i, arglen;
       
@@ -1269,7 +1277,7 @@ static match_kind_t match_atom(
       pmath_unref(arghead);
       if((arghead == PMATH_SYMBOL_RULE || arghead == PMATH_SYMBOL_RULEDELAYED)
       && pmath_expr_length(arg) == 2){
-        goto OPTIONPATTERN_FIT;
+        goto OPTIONSPATTERN_FIT;
       }
 
       if(arghead != MAGIC_PATTERN_SEQUENCE
@@ -1296,7 +1304,7 @@ static match_kind_t match_atom(
         return PMATH_MATCH_KIND_NONE;
       }
 
-     OPTIONPATTERN_FIT:
+     OPTIONSPATTERN_FIT:
       {
         pmath_t old_pattern = pmath_ref(info->pattern);
         pmath_t old_options = pmath_ref(info->options);
@@ -1318,7 +1326,7 @@ static match_kind_t match_atom(
          */
         replace_exact_once(&info->pattern, pat, arg);
 
-        kind = match_atom(info, info->pattern, info->func);
+        kind = match_atom(info, info->pattern, info->func, 0, 0);
         if(kind != PMATH_MATCH_KIND_NONE){
           pmath_unref(old_pattern);
           pmath_unref(old_options);
@@ -1328,7 +1336,7 @@ static match_kind_t match_atom(
         pmath_unref(info->pattern);
         pmath_unref(info->options);
         info->pattern = old_pattern;
-        info->options   = old_options;
+        info->options = old_options;
       }
       return PMATH_MATCH_KIND_NONE;
     }
@@ -1377,7 +1385,7 @@ static match_kind_t match_atom(
     
     if(head == PMATH_SYMBOL_EXCEPT && (len == 1 || len == 2)){ // Except(no) Except(no, but)
       pmath_t p = pmath_expr_get_item(pat, 1);
-      match_kind_t kind = match_atom(info, p, arg);
+      match_kind_t kind = match_atom(info, p, arg, index_of_arg, count_of_arg);
       pmath_unref(p);
       
       if(kind == PMATH_MATCH_KIND_GLOBAL)
@@ -1389,7 +1397,7 @@ static match_kind_t match_atom(
       kind = PMATH_MATCH_KIND_LOCAL;
       if(len == 2){
         p = pmath_expr_get_item(pat, 2);
-        kind = match_atom(info, p, arg);
+        kind = match_atom(info, p, arg, index_of_arg, count_of_arg);
         pmath_unref(p);
       }
       
@@ -1561,7 +1569,7 @@ PMATH_PRIVATE void _pmath_pattern_analyse(
       
       input->pat = tmppat;
     }
-    else if(head == PMATH_SYMBOL_OPTIONPATTERN && len <= 1){ // OptionPattern() or OptionPattern(fn)
+    else if(head == PMATH_SYMBOL_OPTIONSPATTERN && len <= 1){ // OptionsPattern() or OptionsPattern(fn)
       output->min = 0;
       output->max = SIZE_MAX;
     }
@@ -1645,7 +1653,7 @@ PMATH_PRIVATE void _pmath_pattern_analyse(
             pmath_expr_get_item_range(data->func, func_start, n), 
             0, MAGIC_PATTERN_SEQUENCE);
 
-        kind = match_atom(data->info, data->pat, arg);
+        kind = match_atom(data->info, data->pat, arg, func_start, flen);
         pmath_unref(arg);
         
         if(kind == PMATH_MATCH_KIND_GLOBAL)
@@ -1799,7 +1807,7 @@ static match_kind_t match_func_left( // for non-symmetric functions
             0, MAGIC_PATTERN_SEQUENCE);
       }
 
-      kind = match_atom(data->info, patarg.pat, arg);
+      kind = match_atom(data->info, patarg.pat, arg, func_start, flen);
       pmath_unref(arg);
       if(kind == PMATH_MATCH_KIND_GLOBAL){
         pmath_unref(patarg.pat);
@@ -1965,7 +1973,8 @@ static match_kind_t match_func_left( // for non-symmetric functions
               arg = pmath_expr_new(MAGIC_PATTERN_SEQUENCE, n);
 
             for(j = 0;j < n;++j)
-              arg = pmath_expr_set_item((pmath_expr_t)arg, j + 1,
+              arg = pmath_expr_set_item(
+                arg, j + 1,
                 pmath_expr_get_item(data->func, indices[j]));
 
           }
@@ -1976,7 +1985,7 @@ static match_kind_t match_func_left( // for non-symmetric functions
             debug_indent(); show_arg_usage("arg usage: ",args_in_use, flen,"\n\n");
           #endif
 
-          kind = match_atom(data->info, patarg.pat, arg);
+          kind = match_atom(data->info, patarg.pat, arg, 1, flen);
           pmath_unref(arg);
           
           if(kind == PMATH_MATCH_KIND_GLOBAL){
@@ -2016,7 +2025,7 @@ static match_kind_t match_func_left( // for non-symmetric functions
             debug_indent(); show_arg_usage("arg usage: ",args_in_use, flen,"\n\n");
           #endif
           
-          kind = match_atom(data->info, patarg.pat, arg);
+          kind = match_atom(data->info, patarg.pat, arg, 1, flen);
           pmath_unref(arg);
           
           if(kind == PMATH_MATCH_KIND_GLOBAL){
@@ -2064,9 +2073,9 @@ static match_kind_t match_func_left( // for non-symmetric functions
   }
 
 static match_kind_t match_func(
-  pattern_info_t     *info,
-  pmath_expr_t  pat,
-  pmath_expr_t  func
+  pattern_info_t  *info,
+  pmath_expr_t     pat,
+  pmath_expr_t     func
 ){
   pmath_t phead = pmath_expr_get_item(pat, 0);
   pmath_t old_head = info->current_head;
@@ -2074,7 +2083,7 @@ static match_kind_t match_func(
   
   info->current_head = pmath_expr_get_item(func, 0);
 
-  kind = match_atom(info, phead, info->current_head);
+  kind = match_atom(info, phead, info->current_head, 0, pmath_expr_length(func));
   if(kind == PMATH_MATCH_KIND_LOCAL){
     match_func_data_t data;
     
@@ -2292,8 +2301,8 @@ static pmath_t replace_option_value(
   if(!pmath_instance_of(body, PMATH_TYPE_EXPRESSION) || !optionvaluerules)
     return body;
 
-  len = pmath_expr_length((pmath_expr_t)body);
-  head = pmath_expr_get_item((pmath_expr_t)body, 0);
+  len  = pmath_expr_length(body);
+  head = pmath_expr_get_item(body, 0);
   
   if(head == PMATH_SYMBOL_OPTIONVALUE && (len == 1 || len == 2)){
     pmath_t current_fn;
@@ -2302,7 +2311,7 @@ static pmath_t replace_option_value(
     if(len == 1)
       current_fn = pmath_ref(default_head);
     else
-      current_fn = pmath_expr_get_item((pmath_expr_t)body, 1);
+      current_fn = pmath_expr_get_item(body, 1);
 
     iter_optionvaluerules = pmath_ref(optionvaluerules);
     do{
@@ -2311,14 +2320,16 @@ static pmath_t replace_option_value(
       
       if(pmath_equals(fn, current_fn)){
         pmath_t arg = pmath_expr_get_item(iter_optionvaluerules, 1);
+        
         if(pmath_instance_of(arg, PMATH_TYPE_EXPRESSION)){
-          pmath_t arghead = pmath_expr_get_item((pmath_expr_t)arg, 0);
+          pmath_t arghead = pmath_expr_get_item(arg, 0);
           pmath_unref(arghead);
           if(arghead == MAGIC_PATTERN_SEQUENCE)
             arg = pmath_expr_set_item(
-              (pmath_expr_t)arg, 0, pmath_ref(PMATH_SYMBOL_LIST));
+              arg, 0, 
+              pmath_ref(PMATH_SYMBOL_LIST));
 
-          tmp = (pmath_expr_t)body;
+          tmp = body;
           body = pmath_expr_new_extended(
             pmath_ref(PMATH_SYMBOL_OPTIONVALUE), 3,
             current_fn,
@@ -2335,19 +2346,21 @@ static pmath_t replace_option_value(
       pmath_unref(fn);
 
       tmp = iter_optionvaluerules;
-      iter_optionvaluerules = (pmath_expr_t)pmath_expr_get_item(tmp, 2);
+      iter_optionvaluerules = pmath_expr_get_item(tmp, 2);
       pmath_unref(tmp);
     }while(iter_optionvaluerules);
     pmath_unref(current_fn);
   }
 
-  body = pmath_expr_set_item((pmath_expr_t)body, 0,
+  body = pmath_expr_set_item(
+    body, 0,
     replace_option_value(head, default_head, optionvaluerules));
   
   for(i = 1;i <= len;++i){
-    body = pmath_expr_set_item((pmath_expr_t)body, i,
+    body = pmath_expr_set_item(
+      body, i,
       replace_option_value(
-        pmath_expr_get_item((pmath_expr_t)body, i),
+        pmath_expr_get_item(body, i),
         default_head,
         optionvaluerules));
   }

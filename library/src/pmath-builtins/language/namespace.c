@@ -6,6 +6,9 @@
 
 
 PMATH_PRIVATE pmath_t builtin_namespace(pmath_expr_t expr){
+/* Namespace()
+   Namespace(sym)
+ */
   pmath_t sym;
   size_t exprlen = pmath_expr_length(expr);
   

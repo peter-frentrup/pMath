@@ -220,7 +220,7 @@ pmath_bool_t pmath_register_approx_code(
 #define PMATH_SYMBOL_SAMETEST                               PMATH_SYMBOL_BUILTIN(128)
 #define PMATH_SYMBOL_FINALLY                                PMATH_SYMBOL_BUILTIN(129)
 #define PMATH_SYMBOL_OPTIONVALUE                            PMATH_SYMBOL_BUILTIN(130)
-#define PMATH_SYMBOL_OPTIONPATTERN                          PMATH_SYMBOL_BUILTIN(131)
+#define PMATH_SYMBOL_OPTIONSPATTERN                         PMATH_SYMBOL_BUILTIN(131)
 #define PMATH_SYMBOL_CONDITION                              PMATH_SYMBOL_BUILTIN(132)
 #define PMATH_SYMBOL_TAGASSIGN                              PMATH_SYMBOL_BUILTIN(133)
 #define PMATH_SYMBOL_TAGASSIGNDELAYED                       PMATH_SYMBOL_BUILTIN(134)
