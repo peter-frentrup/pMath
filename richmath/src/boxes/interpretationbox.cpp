@@ -29,36 +29,32 @@ InterpretationBox::InterpretationBox(MathSequence *content, Expr _interpretation
   style->set(Editable, false);
 }
 
-pmath_t InterpretationBox::to_pmath(bool parseable){
-  pmath_gather_begin(0);
+Expr InterpretationBox::to_pmath(bool parseable){
+  Gather g;
   
-  pmath_emit(_content->to_pmath(parseable), 0);
+  g.emit(_content->to_pmath(parseable));
   
-  pmath_emit(pmath_ref(interpretation.get()), 0);
+  g.emit(interpretation);
   
   int i;
   
   if(style->get(AutoDelete, &i)){
-    pmath_emit(
-      pmath_expr_new_extended(
-        pmath_ref(PMATH_SYMBOL_RULE), 2,
-        pmath_ref(PMATH_SYMBOL_EDITABLE),
-        pmath_ref(i ? PMATH_SYMBOL_TRUE : PMATH_SYMBOL_FALSE)),
-      NULL);
+    g.emit(
+      Rule(
+        Symbol(PMATH_SYMBOL_EDITABLE),
+        Symbol(i ? PMATH_SYMBOL_TRUE : PMATH_SYMBOL_FALSE)));
   }
   
   if(style->get(Editable, &i) && i){
-    pmath_emit(
-      pmath_expr_new_extended(
-        pmath_ref(PMATH_SYMBOL_RULE), 2,
-        pmath_ref(PMATH_SYMBOL_EDITABLE),
-        pmath_ref(PMATH_SYMBOL_TRUE)),
-      NULL);
+    g.emit(
+      Rule(
+        Symbol(PMATH_SYMBOL_EDITABLE),
+        Symbol(PMATH_SYMBOL_TRUE)));
   }
   
-  return pmath_expr_set_item(
-    pmath_gather_end(), 0,
-    pmath_ref(PMATH_SYMBOL_INTERPRETATIONBOX));
+  Expr e = g.end();
+  e.set(0, Symbol(PMATH_SYMBOL_INTERPRETATIONBOX));
+  return e;
 }
 
 bool InterpretationBox::edit_selection(Context *context){

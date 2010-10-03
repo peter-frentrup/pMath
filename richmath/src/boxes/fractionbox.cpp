@@ -137,9 +137,9 @@ Box *FractionBox::remove(int *index){
   return move_logical(Backward, false, index);
 }
 
-pmath_t FractionBox::to_pmath(bool parseable){
-  return pmath_expr_new_extended(
-    pmath_ref(PMATH_SYMBOL_FRACTIONBOX), 2,
+Expr FractionBox::to_pmath(bool parseable){
+  return Call(
+    Symbol(PMATH_SYMBOL_FRACTIONBOX),
     _numerator->to_pmath(parseable),
     _denominator->to_pmath(parseable));
 }

@@ -80,10 +80,10 @@ void DynamicBox::paint_content(Context *context){
   }
 }
 
-pmath_t DynamicBox::to_pmath(bool parseable){
-  return pmath_expr_set_item(
-    dynamic.expr().release(), 0,
-    pmath_ref(PMATH_SYMBOL_DYNAMICBOX));
+Expr DynamicBox::to_pmath(bool parseable){
+  Expr e = dynamic.expr();
+  e.set(0, Symbol(PMATH_SYMBOL_DYNAMICBOX));
+  return e;
 }
 
 void DynamicBox::dynamic_updated(){

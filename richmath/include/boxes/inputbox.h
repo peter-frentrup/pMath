@@ -18,7 +18,7 @@ namespace richmath{
       
       virtual Box *remove(int *index);
       
-      virtual pmath_t to_pmath(bool parseable);
+      virtual Expr to_pmath(bool parseable);
       
       virtual bool remove_inserts_placeholder(){ return false; }
       

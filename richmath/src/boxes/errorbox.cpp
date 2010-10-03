@@ -40,8 +40,4 @@ void ErrorBox::paint(Context *context){
   context->canvas->restore();
 }
 
-pmath_t ErrorBox::to_pmath(bool parseable){
-  return pmath_ref(_object.get());
-}
-
 //} ... class ErrorBox

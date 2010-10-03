@@ -20,7 +20,7 @@ namespace richmath{
       virtual void paint(Context *context);
       virtual Box *remove(int *index){ return this; }
       
-      virtual pmath_t to_pmath(bool parseable);
+      virtual Expr to_pmath(bool parseable);
       
       virtual void dynamic_updated();
       virtual void dynamic_finished(Expr info, Expr result);

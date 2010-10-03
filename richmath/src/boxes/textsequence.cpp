@@ -391,30 +391,30 @@ void TextSequence::selection_path(Context *context, int start, int end){
   }
 }
 
-pmath_t TextSequence::to_pmath(bool parseable){
+Expr TextSequence::to_pmath(bool parseable){
   return to_pmath(parseable, 0, text.length());
 }
 
-pmath_t TextSequence::to_pmath(bool parseable, int start, int end){
+Expr TextSequence::to_pmath(bool parseable, int start, int end){
   if(end <= start || start < 0 || end > text.length())
-    return pmath_string_new(0);
+    return String("");
   
   int boxi = 0;
   while(boxi < boxes.length() && boxes[boxi]->index() < start)
     ++boxi;
   
   if(boxi >= boxes.length() || boxes[boxi]->index() >= end){
-    return pmath_string_from_utf8(text.buffer() + start, end - start);
+    return String::FromUtf8(text.buffer() + start, end - start);
   }
   
-  pmath_gather_begin(NULL);
+  Gather g;
   
   int next = boxes[boxi]->index();
   while(next < end){
     if(start < next)
-      pmath_emit(pmath_string_from_utf8(text.buffer() + start, next - start), NULL);
+      g.emit(String::FromUtf8(text.buffer() + start, next - start));
       
-    pmath_emit(boxes[boxi]->to_pmath(parseable), NULL);
+    g.emit(boxes[boxi]->to_pmath(parseable));
     
     start = next + Utf8BoxCharLen;
     ++boxi;
@@ -424,9 +424,9 @@ pmath_t TextSequence::to_pmath(bool parseable, int start, int end){
   }
   
   if(start < end)
-    pmath_emit(pmath_string_from_utf8(text.buffer() + start, end - start), NULL);
+    g.emit(String::FromUtf8(text.buffer() + start, end - start));
   
-  return pmath_gather_end();
+  return g.end();
 }
 
 void TextSequence::load_from_object(Expr object, int options){ // BoxOptionXXX

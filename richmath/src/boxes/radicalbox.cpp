@@ -198,15 +198,15 @@ void RadicalBox::complete(){
   }
 }
 
-pmath_t RadicalBox::to_pmath(bool parseable){
+Expr RadicalBox::to_pmath(bool parseable){
   if(_exponent)
-    return pmath_expr_new_extended(
-      pmath_ref(PMATH_SYMBOL_RADICALBOX), 2,
+    return Call(
+      Symbol(PMATH_SYMBOL_RADICALBOX), 
       _radicand->to_pmath(parseable),
       _exponent->to_pmath(parseable));
     
-  return pmath_expr_new_extended(
-    pmath_ref(PMATH_SYMBOL_SQRTBOX), 1,
+  return Call(
+    Symbol(PMATH_SYMBOL_SQRTBOX),
     _radicand->to_pmath(parseable));
 }
 

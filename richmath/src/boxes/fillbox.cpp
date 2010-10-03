@@ -58,20 +58,20 @@ void FillBox::paint_content(Context *context){
   }
 }
 
-pmath_t FillBox::to_pmath(bool parseable){
+Expr FillBox::to_pmath(bool parseable){
   if(parseable)
     return _content->to_pmath(true);
   
   if(weight == 1){
-    return pmath_expr_new_extended(
-      pmath_ref(PMATH_SYMBOL_FILLBOX), 1,
+    return Call(
+      Symbol(PMATH_SYMBOL_FILLBOX),
       _content->to_pmath(false));
   }
 
-  return pmath_expr_new_extended(
-    pmath_ref(PMATH_SYMBOL_FILLBOX), 2,
+  return Call(
+    Symbol(PMATH_SYMBOL_FILLBOX),
     _content->to_pmath(false),
-    double_to_pmath(weight));
+    Number(weight));
 }
 
 Box *FillBox::move_vertical(

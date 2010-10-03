@@ -268,14 +268,14 @@ double SliderBox::mouse_to_val(double mouse_x){
   return val;
 }
 
-pmath_t SliderBox::to_pmath(bool parseable){
-  return pmath_expr_new_extended(
-    pmath_ref(PMATH_SYMBOL_SLIDERBOX), 2,
-    dynamic.expr().release(),
-    pmath_expr_new_extended(
-      pmath_ref(PMATH_SYMBOL_RANGE), 2,
-      pmath_build_value("f", min),
-      pmath_build_value("f", max)));
+Expr SliderBox::to_pmath(bool parseable){
+  return Call(
+    Symbol(PMATH_SYMBOL_SLIDERBOX),
+    dynamic.expr(),
+    Call(
+      Symbol(PMATH_SYMBOL_RANGE),
+      Expr(min),
+      Expr(max)));
 }
 
 Box *SliderBox::mouse_selection(

@@ -8,21 +8,22 @@ namespace richmath{
     public:
       AbstractTransformationBox();
       
-      void resize(Context *context);
-      void paint(Context *context);
+      virtual void resize(Context *context);
+      virtual void paint(Context *context);
       
-      Box *mouse_selection(
+      virtual Box *mouse_selection(
         float x,
         float y,
         int   *start,
         int   *end,
         bool  *eol);
       
-      void child_transformation(
+      virtual void child_transformation(
         int             index,
         cairo_matrix_t *matrix);
         
       const cairo_matrix_t &cairo_matrix(){ return mat; }
+      
     protected:
       cairo_matrix_t mat;
   };
@@ -36,7 +37,7 @@ namespace richmath{
       Expr angle(){ return _angle; }
       bool angle(Expr a);
       
-      pmath_t to_pmath(bool parseable);
+      virtual Expr to_pmath(bool parseable);
     
     private:
       Expr _angle;
@@ -51,7 +52,7 @@ namespace richmath{
       Expr matrix(){ return _matrix; }
       bool matrix(Expr m);
       
-      pmath_t to_pmath(bool parseable);
+      virtual Expr to_pmath(bool parseable);
       
     private:
       Expr _matrix;

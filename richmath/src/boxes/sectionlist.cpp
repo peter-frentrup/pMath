@@ -97,33 +97,31 @@ void SectionList::paint(Context *context){
   context->canvas->restore();
 }
 
-pmath_t SectionList::to_pmath(bool parseable){
+Expr SectionList::to_pmath(bool parseable){
   return to_pmath(parseable, 0, length());
 }
 
-pmath_t SectionList::to_pmath(bool parseable, int start, int end){
-  pmath_gather_begin(NULL);
+Expr SectionList::to_pmath(bool parseable, int start, int end){
+  Gather g;
   
   emit_pmath(parseable, start, end);
   
-  pmath_t group = pmath_gather_end();
+  Expr group = g.end();
   
-  if(pmath_expr_length(group) == 1){
-    pmath_t section = pmath_expr_get_item(group, 1);
-    pmath_unref(group);
-    return section;
+  if(group.expr_length() == 1){
+    return group[1];
   }
   
-  return pmath_expr_new_extended(
-    pmath_ref(PMATH_SYMBOL_SECTIONGROUP), 2,
+  return Call(
+    Symbol(PMATH_SYMBOL_SECTIONGROUP),
     group,
-    pmath_ref(PMATH_SYMBOL_ALL));
+    Symbol(PMATH_SYMBOL_ALL));
 }
 
 void SectionList::emit_pmath(bool parseable, int start, int end){
   while(start < end){
     if(_group_info[start].end == start){
-      pmath_emit(_sections[start]->to_pmath(parseable), NULL);
+      Gather::emit(_sections[start]->to_pmath(parseable));
       ++start;
     }
     else{
@@ -131,25 +129,25 @@ void SectionList::emit_pmath(bool parseable, int start, int end){
       if(e > end+1)
          e = end+1;
       
-      pmath_gather_begin(NULL);
+      Gather g;
       
-      pmath_emit(_sections[start]->to_pmath(parseable), NULL);
+      g.emit(_sections[start]->to_pmath(parseable));
       
       emit_pmath(parseable, start+1, e);
       
-      pmath_t group = pmath_gather_end();
-      pmath_t open;
+      Expr group = g.end();
+      Expr open;
       if(_group_info[start].close_rel >= 0
       && _group_info[start].close_rel <= e)
-        open = pmath_integer_new_si(_group_info[start].close_rel + 1);
+        open = Expr(_group_info[start].close_rel + 1);
       else
-        open = pmath_ref(PMATH_SYMBOL_ALL);
+        open = Symbol(PMATH_SYMBOL_ALL);
       
-      group = pmath_expr_new_extended(
-        pmath_ref(PMATH_SYMBOL_SECTIONGROUP), 2,
+      group = Call(
+        Symbol(PMATH_SYMBOL_SECTIONGROUP),
         group,
         open);
-      pmath_emit(group, NULL);
+      Gather::emit(group);
       
       start = e;
     }

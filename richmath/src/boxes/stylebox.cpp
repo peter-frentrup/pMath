@@ -217,16 +217,16 @@ bool StyleBox::expand(const BoxSize &size){
   return false;
 }
 
-pmath_t StyleBox::to_pmath(bool parseable){
-  pmath_gather_begin(0);
+Expr StyleBox::to_pmath(bool parseable){
+  Gather g;
   
-  pmath_emit(_content->to_pmath(parseable), 0);
+  g.emit(_content->to_pmath(parseable));
   
   style->emit_to_pmath(false, true);
   
-  return pmath_expr_set_item(
-    pmath_gather_end(), 0,
-    pmath_ref(PMATH_SYMBOL_STYLEBOX));
+  Expr e = g.end();
+  e.set(0, Symbol(PMATH_SYMBOL_STYLEBOX));
+  return e;
 }
 
 //} ... class StyleBox
@@ -281,34 +281,30 @@ void TagBox::resize(Context *context){
   AbstractStyleBox::resize(context);
 }
 
-pmath_t TagBox::to_pmath(bool parseable){
-  pmath_gather_begin(0);
+Expr TagBox::to_pmath(bool parseable){
+  Gather g;
   
-  pmath_emit(_content->to_pmath(parseable), 0);
-  pmath_emit(pmath_ref(tag.get()), 0);
+  g.emit(_content->to_pmath(parseable));
+  g.emit(tag);
   
   int i;
   if(style && style->get(AutoDelete, &i)){
-    pmath_emit(
-      pmath_expr_new_extended(
-        pmath_ref(PMATH_SYMBOL_RULE), 2,
-        pmath_ref(PMATH_SYMBOL_EDITABLE),
-        pmath_ref(i ? PMATH_SYMBOL_TRUE : PMATH_SYMBOL_FALSE)),
-      NULL);
+    g.emit(
+      Rule(
+        Symbol(PMATH_SYMBOL_EDITABLE),
+        Symbol(i ? PMATH_SYMBOL_TRUE : PMATH_SYMBOL_FALSE)));
   }
   
   if(style && style->get(Editable, &i) && i){
-    pmath_emit(
-      pmath_expr_new_extended(
-        pmath_ref(PMATH_SYMBOL_RULE), 2,
-        pmath_ref(PMATH_SYMBOL_EDITABLE),
-        pmath_ref(PMATH_SYMBOL_TRUE)),
-      NULL);
+    g.emit(
+      Rule(
+        Symbol(PMATH_SYMBOL_EDITABLE),
+        Symbol(PMATH_SYMBOL_TRUE)));
   }
   
-  return pmath_expr_set_item(
-    pmath_gather_end(), 0,
-    pmath_ref(PMATH_SYMBOL_TAGBOX));
+  Expr e = g.end();
+  e.set(0, Symbol(PMATH_SYMBOL_TAGBOX));
+  return e;
 }
 
 //} ... class TagBox

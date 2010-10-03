@@ -176,14 +176,13 @@ bool RotationBox::angle(Expr a){
   return true;
 }
 
-pmath_t RotationBox::to_pmath(bool parseable){
-  return pmath_expr_new_extended(
-    pmath_ref(PMATH_SYMBOL_ROTATIONBOX), 2,
+Expr RotationBox::to_pmath(bool parseable){
+  return Call(
+    Symbol(PMATH_SYMBOL_ROTATIONBOX),
     _content->to_pmath(parseable),
-    pmath_expr_new_extended(
-      pmath_ref(PMATH_SYMBOL_RULE), 2,
-      pmath_ref(PMATH_SYMBOL_BOXROTATION),
-      pmath_ref(_angle.get())));
+    Rule(
+      Symbol(PMATH_SYMBOL_BOXROTATION),
+      _angle));
 }
 
 //} ... class FrameBox
@@ -239,14 +238,13 @@ bool TransformationBox::matrix(Expr m){
   return false;
 }
 
-pmath_t TransformationBox::to_pmath(bool parseable){
-  return pmath_expr_new_extended(
-    pmath_ref(PMATH_SYMBOL_TRANSFORMATIONBOX), 2,
+Expr TransformationBox::to_pmath(bool parseable){
+  return Call(
+    Symbol(PMATH_SYMBOL_TRANSFORMATIONBOX), 
     _content->to_pmath(parseable),
-    pmath_expr_new_extended(
-      pmath_ref(PMATH_SYMBOL_RULE), 2,
-      pmath_ref(PMATH_SYMBOL_BOXTRANSFORMATION),
-      pmath_ref(_matrix.get())));
+    Rule(
+      Symbol(PMATH_SYMBOL_BOXTRANSFORMATION),
+      _matrix));
 }
 
 //} ... class TransformationBox

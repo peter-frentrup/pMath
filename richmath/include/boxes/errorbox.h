@@ -17,7 +17,7 @@ namespace richmath{
       
       virtual Box *remove(int *index){ return this; }
       
-      virtual pmath_t to_pmath(bool parseable);
+      virtual Expr to_pmath(bool parseable){ return _object; }
       
     private:
       Expr _object;

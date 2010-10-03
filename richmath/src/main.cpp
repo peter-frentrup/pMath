@@ -29,13 +29,7 @@
 
 using namespace richmath;
 
-static pmath_t run(const char *code){
-  return pmath_evaluate(
-    pmath_parse_string(
-      PMATH_C_STRING(code)));
-}
-  
-static void write_section(Document *doc, pmath_t expr){
+static void write_section(Document *doc, Expr expr){
   Box *b = doc->selection_box();
   int i  = doc->selection_end();
   while(b && b != doc){
@@ -48,17 +42,17 @@ static void write_section(Document *doc, pmath_t expr){
     i = doc->length();
   }
   
-  doc->insert(i, Section::create_from_object(Expr(expr)));
+  doc->insert(i, Section::create_from_object(expr));
   
   doc->move_to(b, i + 1);
 }
 
 static void write_text_section(Document *doc, String style, String text){
   write_section(doc, 
-    pmath_expr_new_extended(
-      pmath_ref(PMATH_SYMBOL_SECTION), 2,
-      text.release(),
-      style.release()));
+    Call(
+      Symbol(PMATH_SYMBOL_SECTION),
+      text,
+      style));
 }
 
 static void todo(Document *doc, String msg){
@@ -524,7 +518,7 @@ int main(){
     wndMain->init();
     
 //    wndMain->top_glass()->insert(0, 
-//      Section::create_from_object(Expr(run(
+//      Section::create_from_object(Evaluate(Parse(
 //        "Section(BoxData("
 //          "{\"\\\" Help Topic:  \\\"\","
 //            "FillBox(InputBox(\"not yet implemented\")),"
@@ -538,12 +532,12 @@ int main(){
 //        ))));
     
 //    wndMain->top_glass()->insert(1, 
-//      Section::create_from_object(Expr(run(
+//      Section::create_from_object(Evaluate(Parse(
 //        "Section({\" Help Topic: \n not yet implemented\"},"
 //          "\"Docked\")"))));
     
 //    wndMain->top()->insert(0,
-//      Section::create_from_object(Expr(run(
+//      Section::create_from_object(Evaluate(Parse(
 //        "Section(BoxData({"
 //          "GridBox({{"
 //            "ButtonBox(\"\\\" a \\\"\", ButtonFrame->\"Palette\"),"
@@ -560,7 +554,7 @@ int main(){
 //        "SectionMargins->0)"))));
 //        
 //    wndMain->top()->insert(wndMain->top()->length(),
-//    Section::create_from_object(Expr(run(
+//    Section::create_from_object(Evaluate(Parse(
 //      "Section(BoxData({"
 //          "\"\\\"Warning\\\"\","
 //          "FillBox(\"\"),"
@@ -580,7 +574,7 @@ int main(){
 //        "SectionMargins->0)"))));
 //    
 //    wndMain->bottom()->insert(0,
-//    Section::create_from_object(Expr(run(
+//    Section::create_from_object(Evaluate(Parse(
 //      "Section(BoxData({"
 //          "\"\\\"InfoInfoInfoInfo\\\"\","
 //          "FillBox(\"\"),"
@@ -604,7 +598,7 @@ int main(){
       "FE`$StatusText:=\"Press ALT to show the menu.\"");
     
     wndMain->bottom_glass()->insert(0,
-    Section::create_from_object(Expr(run(
+    Section::create_from_object(Evaluate(Parse(
       "Section(BoxData({"
           "DynamicBox(ToBoxes(FE`$StatusText)),"
           "FillBox(\"\")"
@@ -655,7 +649,7 @@ int main(){
     doc->style->set(Selectable, false);
     
     wndPalette->title("Math Input");
-    write_section(doc, run(
+    write_section(doc, Evaluate(Parse(
       "Section(BoxData("
         "GridBox({"
           "{ButtonBox({\"\\[SelectionPlaceholder]\",SuperscriptBox(\"\\[Placeholder]\")}),\"\\[SpanFromLeft]\",\"\\[SpanFromLeft]\","
@@ -751,7 +745,7 @@ int main(){
         "GridBoxColumnSpacing->0,"
         "GridBoxRowSpacing->0,"
         "SectionMargins->0,"
-        "ShowSectionBracket->False)"));
+        "ShowSectionBracket->False)")));
     
     doc->select(0,0,0);
     
@@ -813,7 +807,7 @@ int main(){
       doc->style->set(Selectable, false);
       
       wndInterrupt->title("Kernel Interrupt");
-      write_section(doc, run(
+      write_section(doc, Evaluate(Parse(
         "Section(BoxData("
           "GridBox({"
             "{ButtonBox(\"\\\"Abort Command Being Evaluated\\\"\")},"
@@ -822,7 +816,7 @@ int main(){
           "\"ControlStyle\"," 
           "FontSize->9,"
           "ShowSectionBracket->False," 
-          "ShowStringCharacters->False)"));
+          "ShowStringCharacters->False)")));
       
       doc->select(0,0,0);
       ShowWindow(wndInterrupt->hwnd(), SW_SHOWNORMAL);

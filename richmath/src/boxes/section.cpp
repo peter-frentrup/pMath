@@ -287,10 +287,6 @@ void ErrorSection::paint(Context *context){
   context->canvas->restore();
 }
 
-pmath_t ErrorSection::to_pmath(bool parseable){
-  return pmath_ref(_object.get());
-}
-
 Box *ErrorSection::mouse_selection(
   float x,
   float y,
@@ -484,28 +480,28 @@ Box *AbstractSequenceSection::remove(int *index){
   return _content;
 }
 
-pmath_t AbstractSequenceSection::to_pmath(bool parseable){
-  pmath_gather_begin(NULL);
+Expr AbstractSequenceSection::to_pmath(bool parseable){
+  Gather g;
   
-  pmath_t cont = _content->to_pmath(false);
+  Expr cont = _content->to_pmath(false);
   if(dynamic_cast<MathSequence*>(_content))
-    cont = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_BOXDATA), 1, cont);
+    cont = Call(Symbol(PMATH_SYMBOL_BOXDATA), cont);
   
-  pmath_emit(cont, NULL);
+  g.emit(cont);
   
   String s;
   
   if(style && style->get(BaseStyleName, &s))
-    pmath_emit(s.release(), NULL);
+    g.emit(s);
   else
-    pmath_emit(PMATH_C_STRING(""), NULL);
+    g.emit(String(""));
   
   if(style)
     style->emit_to_pmath();
   
-  return pmath_expr_set_item(
-    pmath_gather_end(), 0,
-    pmath_ref(PMATH_SYMBOL_SECTION));
+  Expr e = g.end();
+  e.set(0, Symbol(PMATH_SYMBOL_SECTION));
+  return e;
 }
 
 Box *AbstractSequenceSection::move_vertical(
@@ -579,27 +575,19 @@ EditSection::~EditSection(){
   delete original;
 }
 
-pmath_t EditSection::to_pmath(bool parseable){
-  pmath_t result = content()->to_pmath(true);
+Expr EditSection::to_pmath(bool parseable){
+  Expr result = content()->to_pmath(true);
   
-  result = Client::interrupt(Expr(
-    pmath_expr_new_extended(
-      pmath_ref(PMATH_SYMBOL_BOXESTOEXPRESSION), 1,
-      result))).release();
+  result = Client::interrupt(Call(
+    Symbol(PMATH_SYMBOL_BOXESTOEXPRESSION), 
+    result));
   
-  if(pmath_instance_of(result, PMATH_TYPE_EXPRESSION)
-  && pmath_expr_length(result) == 1){
-    pmath_t head = pmath_expr_get_item(result, 0);
-    pmath_unref(head);
-    if(head == PMATH_SYMBOL_HOLDCOMPLETE){
-      head = pmath_expr_get_item(result, 1);
-      pmath_unref(result);
-      return head;
-    }
+  if(result.expr_length() == 1
+  && result[0] == PMATH_SYMBOL_HOLDCOMPLETE){
+    return result[1];
   }
   
-  pmath_unref(result);
-  return 0;
+  return Expr();
 }
 
 //} ... class EditSection

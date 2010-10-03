@@ -59,8 +59,8 @@ namespace richmath{
       virtual void resize(Context *context);
       virtual void paint(Context *context);
       
-      virtual pmath_t to_pmath(bool parseable);
-      virtual pmath_t to_pmath(bool parseable, int start, int end);
+      virtual Expr to_pmath(bool parseable);
+      virtual Expr to_pmath(bool parseable, int start, int end);
       
       virtual Box *move_logical(
         LogicalDirection  direction, 

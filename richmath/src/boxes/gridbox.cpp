@@ -43,7 +43,7 @@ void GridItem::paint(Context *context){
   OwnerBox::paint(context);
 }
 
-pmath_t GridItem::to_pmath(bool parseable){
+Expr GridItem::to_pmath(bool parseable){
   return _content->to_pmath(parseable);
 }
 
@@ -808,11 +808,11 @@ Box *GridBox::remove(int *index){
   return remove_range(index, *index + 1);
 }
 
-pmath_t GridBox::to_pmath(bool parseable){
+Expr GridBox::to_pmath(bool parseable){
   return to_pmath(parseable, 0, count());
 }
 
-pmath_t GridBox::to_pmath(bool parseable, int start, int end){
+Expr GridBox::to_pmath(bool parseable, int start, int end){
   int ax, ay, bx, by;
   items.index_to_yx(start,   &ay, &ax);
   items.index_to_yx(end - 1, &by, &bx);
@@ -829,32 +829,28 @@ pmath_t GridBox::to_pmath(bool parseable, int start, int end){
     by = tmp;
   }
   
-  pmath_t mat = pmath_expr_new(
-    pmath_ref(PMATH_SYMBOL_LIST), by - ay + 1);
+  Expr mat = MakeList(by - ay + 1);
   
   for(int y = ay;y <= by;++y){
-    pmath_t row = pmath_expr_new(
-      pmath_ref(PMATH_SYMBOL_LIST), bx - ax + 1);
+    Expr row = MakeList(bx - ax + 1);
     
     for(int x = ax;x <= bx;++x){
-      row = pmath_expr_set_item(
-        row, x - ax + 1,
+      row.set(x - ax + 1,
         item(y, x)->to_pmath(parseable));
     }
     
-    mat = pmath_expr_set_item(mat, y - ay + 1, row);
+    mat.set(y - ay + 1, row);
   }
   
-  pmath_gather_begin(NULL);
-  
-  pmath_emit(mat, NULL);
+  Gather g;
+  g.emit(mat);
   
   if(style)
     style->emit_to_pmath();
   
-  return pmath_expr_set_item(
-    pmath_gather_end(), 0,
-    pmath_ref(PMATH_SYMBOL_GRIDBOX));
+  Expr e = g.end();
+  e.set(0, Symbol(PMATH_SYMBOL_GRIDBOX));
+  return e;
 }
 
 Box *GridBox::move_vertical(

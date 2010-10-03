@@ -182,21 +182,21 @@ void SubsuperscriptBox::complete(){
   }
 }
 
-pmath_t SubsuperscriptBox::to_pmath(bool parseable){
+Expr SubsuperscriptBox::to_pmath(bool parseable){
   if(_subscript){
     if(_superscript)
-      return pmath_expr_new_extended(
-        pmath_ref(PMATH_SYMBOL_SUBSUPERSCRIPTBOX), 2,
+      return Call(
+        Symbol(PMATH_SYMBOL_SUBSUPERSCRIPTBOX),
         _subscript->to_pmath(parseable),
         _superscript->to_pmath(parseable));
     
-    return pmath_expr_new_extended(
-        pmath_ref(PMATH_SYMBOL_SUBSCRIPTBOX), 1,
+    return Call(
+        Symbol(PMATH_SYMBOL_SUBSCRIPTBOX), 
         _subscript->to_pmath(parseable));
   }
   
-  return pmath_expr_new_extended(
-      pmath_ref(PMATH_SYMBOL_SUPERSCRIPTBOX), 1,
+  return Call(
+      Symbol(PMATH_SYMBOL_SUPERSCRIPTBOX), 
       _superscript->to_pmath(parseable));
 }
 

@@ -65,19 +65,19 @@ void SetterBox::paint(Context *context){
   ContainerWidgetBox::paint(context);
 }
 
-pmath_t SetterBox::to_pmath(bool parseable){
-  pmath_gather_begin(NULL);
+Expr SetterBox::to_pmath(bool parseable){
+  Gather g;
   
-  pmath_emit(dynamic.expr().release(), NULL);
-  pmath_emit(pmath_ref(value.get()), NULL);
-  pmath_emit(_content->to_pmath(false), NULL);
+  g.emit(dynamic.expr());
+  g.emit(value);
+  g.emit(_content->to_pmath(false));
   
   if(style)
     style->emit_to_pmath();
   
-  return pmath_expr_set_item(
-    pmath_gather_end(), 0, 
-    pmath_ref(PMATH_SYMBOL_SETTERBOX));
+  Expr e = g.end();
+  e.set(0, Symbol(PMATH_SYMBOL_SETTERBOX));
+  return e;
 }
 
 void SetterBox::on_mouse_down(MouseEvent &event){

@@ -6,8 +6,7 @@
 #include <util/sharedptr.h>
 
 namespace richmath{
-  pmath_t color_to_pmath(int color);
-  pmath_t double_to_pmath(double value);
+  Expr color_to_pmath(int color);
   int pmath_to_color(Expr obj); // -2 on error, -1=None
   
   enum IntStyleOptionName{

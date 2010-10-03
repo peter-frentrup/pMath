@@ -50,8 +50,8 @@ namespace richmath{
       
       virtual void selection_path(Context *context, int start, int end);
       
-      virtual pmath_t to_pmath(bool parseable);
-      virtual pmath_t to_pmath(bool parseable, int start, int end);
+      virtual Expr to_pmath(bool parseable);
+      virtual Expr to_pmath(bool parseable, int start, int end);
       virtual void load_from_object(Expr object, int options); // BoxOptionXXX
       
       void ensure_boxes_valid();

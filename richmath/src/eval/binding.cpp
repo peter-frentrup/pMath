@@ -652,11 +652,11 @@ void richmath::done_bindings(){
   memset(fe_symbols, 0, sizeof(fe_symbols));
 }
 
-pmath_symbol_t richmath::GetSymbol(FrontEndSymbolIndex i){
+Expr richmath::GetSymbol(FrontEndSymbolIndex i){
   if((size_t)i >= (size_t)FrontEndSymbolsCount)
-    return NULL;
+    return Expr();
   
-  return fe_symbols[(size_t)i];
+  return Symbol(fe_symbols[(size_t)i]);
 }
 
 void richmath::set_current_document(Document *document){

@@ -613,7 +613,7 @@ void MathSequence::selection_path(Context *context, int start, int end){
   }
 }
 
-pmath_t MathSequence::to_pmath(bool parseable){
+Expr MathSequence::to_pmath(bool parseable){
   ScanData data;
   data.sequence = this;
   data.current_box = 0;
@@ -621,15 +621,15 @@ pmath_t MathSequence::to_pmath(bool parseable){
   
   ensure_spans_valid();
   
-  return pmath_boxes_from_spans(
+  return Expr(pmath_boxes_from_spans(
     spans.array(),
     str.get(),
     parseable,
     box_at_index,
-    &data);
+    &data));
 }
 
-pmath_t MathSequence::to_pmath(bool parseable, int start, int end){
+Expr MathSequence::to_pmath(bool parseable, int start, int end){
   if(start == 0 && end >= length())
     return to_pmath(parseable);
     
@@ -644,7 +644,7 @@ pmath_t MathSequence::to_pmath(bool parseable, int start, int end){
   tmp->ensure_spans_valid();
   tmp->ensure_boxes_valid();
   
-  pmath_t result = tmp->to_pmath(parseable);
+  Expr result = tmp->to_pmath(parseable);
   
   for(int i = 0;i < tmp->boxes.length();++i){
     Box *box     = boxes[firstbox + i];
@@ -890,6 +890,19 @@ Box *MathSequence::mouse_selection(
         int b = 0;
         while(b < boxes.length() && boxes[b]->index() < *start)
           ++b;
+        
+        if(x > prev - line_start + boxes[b]->extents().width){
+          ++*start;
+          *end = *start;
+          *eol = false;
+          return this;
+        }
+        
+        if(x < prev - line_start + glyphs[*start].x_offset){
+          *end = *start;
+          *eol = false;
+          return this;
+        }
         
         return boxes[b]->mouse_selection(
           x - prev + line_start, 
@@ -1191,14 +1204,14 @@ pmath_t MathSequence::box_at_index(int i, void *_data){
   int start = data->current_box;
   while(data->current_box < data->sequence->boxes.length()){
     if(data->sequence->boxes[data->current_box]->index() == i)
-      return data->sequence->boxes[data->current_box]->to_pmath(parseable);
+      return data->sequence->boxes[data->current_box]->to_pmath(parseable).release();
     ++data->current_box;
   }
   
   data->current_box = 0;
   while(data->current_box < start){
     if(data->sequence->boxes[data->current_box]->index() == i)
-      return data->sequence->boxes[data->current_box]->to_pmath(parseable);
+      return data->sequence->boxes[data->current_box]->to_pmath(parseable).release();
     ++data->current_box;
   }
   
@@ -1910,10 +1923,9 @@ int MathSequence::symbol_colorize(
     };
     
     if(!info){
-      Expr syminfo = Client::interrupt_cached(Expr(
-        pmath_expr_new_extended(
-          pmath_ref(GetSymbol(SymbolInfoSymbol)), 1,
-          pmath_ref(name.get()))));
+      Expr syminfo = Client::interrupt_cached(Call(
+        GetSymbol(SymbolInfoSymbol),
+        name));
       
       if(syminfo == PMATH_SYMBOL_FALSE)
         style = GlyphStyleNewSymbol;
@@ -4058,7 +4070,7 @@ void MathSequence::load_from_object(Expr object, int options){
     obj = obj[1];
   
   if(options & BoxOptionFormatNumbers){
-    obj = Expr(NumberBox::prepare_boxes(obj.release()));
+    obj = NumberBox::prepare_boxes(obj);
   }
   
   spans = pmath_spans_from_boxes(

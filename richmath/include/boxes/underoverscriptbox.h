@@ -27,7 +27,7 @@ namespace richmath{
       
       virtual void complete();
       
-      virtual pmath_t to_pmath(bool parseable);
+      virtual Expr to_pmath(bool parseable);
       
       virtual Box *move_vertical(
         LogicalDirection  direction, 

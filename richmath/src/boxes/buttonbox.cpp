@@ -58,17 +58,18 @@ void ButtonBox::resize(Context *context){
   context->width = old_width;
 }
 
-pmath_t ButtonBox::to_pmath(bool parseable){
+Expr ButtonBox::to_pmath(bool parseable){
+  Gather g;
   pmath_gather_begin(NULL);
   
-  pmath_emit(_content->to_pmath(parseable), NULL);
+  g.emit(_content->to_pmath(parseable));
   
   if(style)
     style->emit_to_pmath(false, true);
   
-  return pmath_expr_set_item(
-    pmath_gather_end(), 0,
-    pmath_ref(PMATH_SYMBOL_BUTTONBOX));
+  Expr e = g.end();
+  e.set(0, Symbol(PMATH_SYMBOL_BUTTONBOX));
+  return e;
 }
 
 void ButtonBox::on_mouse_down(MouseEvent &event){
@@ -107,11 +108,11 @@ void ButtonBox::click(){
   if(fn.is_valid()){
     String method = get_style(Method);
     
-    fn = Expr(pmath_expr_new_extended(
-      fn.release(), 1,
-      pmath_expr_new_extended(
-        pmath_ref(PMATH_SYMBOL_BOXDATA), 1,
-        _content->to_pmath(false))));
+    fn = Call(
+      fn,
+      Call(
+        Symbol(PMATH_SYMBOL_BOXDATA),
+        _content->to_pmath(false)));
     
     if(method.equals("Preemptive")){
       Client::execute_for(fn, this, Client::button_timeout);

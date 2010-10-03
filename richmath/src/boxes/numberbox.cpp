@@ -93,37 +93,28 @@ bool NumberBox::edit_selection(Context *context){
   return false;
 }
 
-pmath_t NumberBox::to_pmath(bool parseable){
-  return pmath_ref(_number.get());
-}
-
-pmath_t NumberBox::prepare_boxes(pmath_t boxes){
-  if(pmath_instance_of(boxes, PMATH_TYPE_STRING)){
-    const uint16_t *buf = pmath_string_buffer(boxes);
-    const int       len = pmath_string_length(boxes);
+Expr NumberBox::prepare_boxes(Expr boxes){
+  if(boxes.instance_of(PMATH_TYPE_STRING)){
+    String s = String(boxes);
+    
+    const uint16_t *buf = s.buffer();
+    const int       len = s.length();
     
     if(len > 0 && buf[0] >= '0' && buf[1] <= '9'){
       for(int i = 0;i < len;++i)
         if(buf[i] == '`'){
-          return pmath_expr_new_extended(
-            pmath_ref(GetSymbol(NumberBoxSymbol)), 1,
-            boxes);
+          return Call(
+            GetSymbol(NumberBoxSymbol),
+            s);
         }
     }
     
-    return boxes;
+    return s;
   }
   
-  if(pmath_instance_of(boxes, PMATH_TYPE_EXPRESSION)){
-    pmath_t head = pmath_expr_get_item(boxes, 0);
-    pmath_unref(head);
-    
-    if(head != PMATH_SYMBOL_LIST)
-      return boxes;
-    
-    for(size_t i = 0;i <= pmath_expr_length(boxes);++i){
-      boxes = pmath_expr_set_item(boxes, i, 
-        prepare_boxes(pmath_expr_get_item(boxes, i)));
+  if(boxes[0] == PMATH_SYMBOL_LIST){
+    for(size_t i = 0;i <= boxes.expr_length();++i){
+      boxes.set(i, prepare_boxes(boxes[i]));
     }
   }
   

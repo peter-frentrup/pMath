@@ -44,7 +44,7 @@ namespace richmath{
       static StyleBox *create(Expr expr, int opts); // returns 0 on error
       
       virtual bool expand(const BoxSize &size);
-      virtual pmath_t to_pmath(bool parseable);
+      virtual Expr to_pmath(bool parseable);
       
       virtual bool changes_children_style(){ return true; }
       
@@ -59,7 +59,7 @@ namespace richmath{
       virtual bool expand(const BoxSize &size);
       virtual void resize(Context *context);
       
-      virtual pmath_t to_pmath(bool parseable);
+      virtual Expr to_pmath(bool parseable);
       
     public:
       Expr tag;

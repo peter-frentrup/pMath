@@ -49,9 +49,9 @@ void FrameBox::paint(Context *context){
   _content->paint(context);
 }
 
-pmath_t FrameBox::to_pmath(bool parseable){
-  return pmath_expr_new_extended(
-    pmath_ref(PMATH_SYMBOL_FRAMEBOX), 1,
+Expr FrameBox::to_pmath(bool parseable){
+  return Call(
+    Symbol(PMATH_SYMBOL_FRAMEBOX),
     _content->to_pmath(parseable));
 }
 

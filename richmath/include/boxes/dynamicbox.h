@@ -14,7 +14,7 @@ namespace richmath{
       virtual void resize(Context *context);
       virtual void paint_content(Context *context);
       
-      virtual pmath_t to_pmath(bool parseable);
+      virtual Expr to_pmath(bool parseable);
       
       virtual void dynamic_updated();
       virtual void dynamic_finished(Expr info, Expr result);

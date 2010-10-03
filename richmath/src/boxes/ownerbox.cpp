@@ -58,7 +58,7 @@ Box *OwnerBox::remove(int *index){
   return _content;
 }
 
-pmath_t OwnerBox::to_pmath(bool parseable){
+Expr OwnerBox::to_pmath(bool parseable){
   return _content->to_pmath(parseable);
 }
 

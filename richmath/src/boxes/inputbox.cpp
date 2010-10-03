@@ -152,9 +152,9 @@ Box *InputBox::remove(int *index){
   return _content;
 }
 
-pmath_t InputBox::to_pmath(bool parseable){
-  return pmath_expr_new_extended(
-    pmath_ref(PMATH_SYMBOL_INPUTBOX), 1,
+Expr InputBox::to_pmath(bool parseable){
+  return Call(
+    Symbol(PMATH_SYMBOL_INPUTBOX),
     _content->to_pmath(parseable));
 }
 

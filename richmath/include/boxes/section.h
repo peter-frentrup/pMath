@@ -65,7 +65,7 @@ namespace richmath{
       
       virtual Box *remove(int *index){ return this; }
       
-      virtual pmath_t to_pmath(bool parseable);
+      virtual Expr to_pmath(bool parseable){ return _object; }
       
       virtual Box *mouse_selection(
         float x,
@@ -91,7 +91,7 @@ namespace richmath{
       
       virtual Box *remove(int *index);
       
-      virtual pmath_t to_pmath(bool parseable);
+      virtual Expr to_pmath(bool parseable);
       
       virtual Box *move_vertical(
         LogicalDirection  direction, 
@@ -133,7 +133,7 @@ namespace richmath{
       EditSection();
       virtual ~EditSection();
       
-      virtual pmath_t to_pmath(bool parseable);
+      virtual Expr to_pmath(bool parseable);
       
     public:
       Section *original;

@@ -264,23 +264,23 @@ void UnderoverscriptBox::complete(){
   }
 }
 
-pmath_t UnderoverscriptBox::to_pmath(bool parseable){
+Expr UnderoverscriptBox::to_pmath(bool parseable){
   if(_underscript){
     if(_overscript)
-      return pmath_expr_new_extended(
-        pmath_ref(PMATH_SYMBOL_UNDEROVERSCRIPTBOX), 3,
+      return Call(
+        Symbol(PMATH_SYMBOL_UNDEROVERSCRIPTBOX),
         _base->to_pmath(parseable),
         _underscript->to_pmath(parseable),
         _overscript->to_pmath(parseable));
     
-    return pmath_expr_new_extended(
-        pmath_ref(PMATH_SYMBOL_UNDERSCRIPTBOX), 2,
+    return Call(
+        Symbol(PMATH_SYMBOL_UNDERSCRIPTBOX),
         _base->to_pmath(parseable),
         _underscript->to_pmath(parseable));
   }
   
-  return pmath_expr_new_extended(
-      pmath_ref(PMATH_SYMBOL_OVERSCRIPTBOX), 2,
+  return Call(
+      Symbol(PMATH_SYMBOL_OVERSCRIPTBOX),
       _base->to_pmath(parseable),
       _overscript->to_pmath(parseable));
 }

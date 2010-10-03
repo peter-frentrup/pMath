@@ -9,36 +9,36 @@ namespace richmath{
   class RadicalBox: public Box{
     public:
       RadicalBox(MathSequence *radicand = 0, MathSequence *exponent = 0);
-      ~RadicalBox();
+      virtual ~RadicalBox();
       
       MathSequence *radicand(){ return _radicand; }
       MathSequence *exponent(){ return _exponent; }
       
-      Box *item(int i);
-      int count();
+      virtual Box *item(int i);
+      virtual int count();
       
-      void resize(Context *context);
-      void paint(Context *context);
+      virtual void resize(Context *context);
+      virtual void paint(Context *context);
       
-      Box *remove(int *index);
+      virtual Box *remove(int *index);
       
       void complete();
       
-      pmath_t to_pmath(bool parseable);
+      virtual Expr to_pmath(bool parseable);
       
-      Box *move_vertical(
+      virtual Box *move_vertical(
         LogicalDirection  direction, 
         float            *index_rel_x,
         int              *index);
       
-      Box *mouse_selection(
+      virtual Box *mouse_selection(
         float x,
         float y,
         int   *start,
         int   *end,
         bool  *eol);
         
-      void child_transformation(
+      virtual void child_transformation(
         int             index,
         cairo_matrix_t *matrix);
       

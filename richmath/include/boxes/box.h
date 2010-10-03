@@ -113,8 +113,8 @@ namespace richmath{
       
       virtual Box *remove(int *index) = 0;
       
-      virtual pmath_t to_pmath(bool parseable) = 0;
-      virtual pmath_t to_pmath(bool parseable, int start, int end){
+      virtual Expr to_pmath(bool parseable) = 0;
+      virtual Expr to_pmath(bool parseable, int start, int end){
         return to_pmath(parseable);
       }
       
@@ -212,18 +212,18 @@ namespace richmath{
   class DummyBox: public Box {
     public:
       DummyBox(): Box() {}
-      ~DummyBox(){}
+      virtual ~DummyBox(){}
       
-      Box *item(int i){ return 0; }
-      int count(){ return 0; }
-      int length(){ return 0; }
+      virtual Box *item(int i){ return 0; }
+      virtual int count(){ return 0; }
+      virtual int length(){ return 0; }
       
-      void resize(Context *context){}
-      void paint(Context *context){}
+      virtual void resize(Context *context){}
+      virtual void paint(Context *context){}
       
-      Box *remove(int *index){ return this; }
+      virtual Box *remove(int *index){ return this; }
       
-      pmath_t to_pmath(bool parseable){ return NULL; }
+      virtual Expr to_pmath(bool parseable){ return Expr(); }
   };
 
   class AbstractSequence: public Box {

@@ -19,7 +19,7 @@ namespace richmath{
   void done_bindings();
   
   // caller has to reference the result.
-  pmath_symbol_t GetSymbol(FrontEndSymbolIndex i);
+  Expr GetSymbol(FrontEndSymbolIndex i);
   
   void set_current_document(Document *document);
   Document *get_current_document();

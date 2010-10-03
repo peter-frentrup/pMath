@@ -10,9 +10,9 @@ namespace richmath{
       
       virtual bool edit_selection(Context *context);
       
-      virtual pmath_t to_pmath(bool parseable);
+      virtual Expr to_pmath(bool parseable){ return _number; }
       
-      static pmath_t prepare_boxes(pmath_t boxes);
+      static Expr prepare_boxes(Expr boxes);
       
     private:
       void set_number(String n);
