@@ -720,6 +720,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   VERIFY(   PMATH_SYMBOL_ENVIRONMENT               = NEW_SYSTEM_SYMBOL("Environment"))
   VERIFY(   PMATH_SYMBOL_EQUAL                     = NEW_SYSTEM_SYMBOL("Equal"))
   VERIFY(   PMATH_SYMBOL_EULERGAMMA                = NEW_SYSTEM_SYMBOL("EulerGamma"))
+  VERIFY(   PMATH_SYMBOL_EVALUATABLE               = NEW_SYSTEM_SYMBOL("Evaluatable"))
   VERIFY(   PMATH_SYMBOL_EVALUATE                  = NEW_SYSTEM_SYMBOL("Evaluate"))
   VERIFY(   PMATH_SYMBOL_EVALUATEDELAYED           = NEW_SYSTEM_SYMBOL("EvaluateDelayed"))
   VERIFY(   PMATH_SYMBOL_EVALUATIONSEQUENCE        = NEW_SYSTEM_SYMBOL("EvaluationSequence"))

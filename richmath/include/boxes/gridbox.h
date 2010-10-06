@@ -77,6 +77,7 @@ namespace richmath{
       
       virtual void resize(Context *context);
       virtual void paint(Context *context);
+      virtual void selection_path(Canvas *canvas, int start, int end);
       
       Box *remove_range(int *start, int end);
       virtual Box *remove(int *index);

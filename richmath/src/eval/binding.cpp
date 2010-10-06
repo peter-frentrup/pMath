@@ -130,7 +130,159 @@ static pmath_t builtin_selecteddocument(pmath_expr_t expr){
 
 //} ... pmath functions
 
+//{ menu command availability checkers ...
+
+static bool can_abort(Expr cmd){
+  return !Client::is_idle();
+}
+
+static bool can_copy_cut(Expr cmd){
+  Document *doc = get_current_document();
+  
+  if(!doc || doc->selection_length() == 0)
+    return false;
+  
+  if(String(cmd).equals("Cut")){
+    Box *sel = doc->selection_box();
+    return sel && sel->get_style(Editable);
+  }
+  
+  return true;
+}
+
+static bool can_document_apply(Expr cmd){
+  Document *doc = get_current_document();
+  
+  if(!doc)
+    return false;
+  
+  Box *sel = doc->selection_box();
+  return sel && sel->get_style(Editable);
+}
+
+static bool can_duplicate_previous_input_output(Expr cmd){
+  Document *doc = get_current_document();
+  
+  if(!doc)
+    return false;
+  
+  if(doc->selection_box() == doc && doc->selection_length() > 0)
+    return false;
+  
+  Box *box = doc->selection_box();
+  int a = doc->selection_start();
+  int b = doc->selection_end();
+  while(box && box != doc){
+    a = box->index();
+    b = a + 1;
+    box = box->parent();
+  }
+  
+  bool input = String(cmd).equals("DuplicatePreviousInput");
+  
+  for(int i = a - 1;i >= 0;--i){
+    MathSection *math = dynamic_cast<MathSection*>(doc->item(i));
+    
+    if(math 
+    && (( input && math->get_style(Evaluatable))
+     || (!input && math->get_style(SectionGenerated)))){
+      return true;
+    }
+  }
+  
+  return false;
+}
+
+static bool can_edit_boxes(Expr cmd){
+  Document *doc = get_current_document();
+  
+  return doc && (doc->selection_length() > 0 || doc->selection_box() != doc)
+      && doc->get_style(Editable);
+}
+
+static bool can_evaluate_in_place(Expr cmd){
+  Document *doc = get_current_document();
+  
+  return doc && 0 != dynamic_cast<MathSequence*>(doc->selection_box());
+}
+
+static bool can_evaluate_sections(Expr cmd){
+  Document *doc = get_current_document();
+  
+  if(!doc)
+    return false;
+  
+  Box *box = doc->selection_box();
+  
+  if(box == doc){
+    for(int i = doc->selection_start();i < doc->selection_end();++i){
+      MathSection *math = dynamic_cast<MathSection*>(doc->item(i));
+      
+      if(math && math->get_style(Evaluatable))
+        return true;
+    }
+  }
+  else{
+    while(box && !dynamic_cast<MathSection*>(box))
+      box = box->parent();
+    
+    MathSection *math = dynamic_cast<MathSection*>(box);
+    if(math && math->get_style(Evaluatable))
+      return true;
+  }
+  
+  return false;
+}
+
+static bool can_find_matching_fence(Expr cmd){
+  Document *doc = get_current_document();
+  
+  if(!doc)
+    return false;
+  
+  MathSequence *seq = dynamic_cast<MathSequence*>(doc->selection_box());
+  
+  if(seq){
+    int pos = doc->selection_end() - 1;
+    int match = seq->matching_fence(pos);
+    
+    if(match < 0 && doc->selection_start() == doc->selection_end()){
+      ++pos;
+      match = seq->matching_fence(pos);
+    }
+    
+    return match >= 0;
+  }
+  
+  return false;
+}
+
+static bool can_similar_section_below(Expr cmd){
+  Document *doc = get_current_document();
+  
+  if(!doc || !doc->get_style(Editable))
+    return false;
+  
+  Box *box = doc->selection_box();
+  while(box && box->parent() != doc){
+    box = box->parent();
+  }
+  
+  return 0 != dynamic_cast<AbstractSequenceSection*>(box);
+}
+
+static bool can_subsession_evaluate_sections(Expr cmd){
+  return !can_abort(Expr()) && can_evaluate_sections(Expr());
+}
+
+//} ... menu command availability checkers
+
 //{ menu commands ...
+
+static bool abort_cmd(Expr cmd){
+  Client::abort_all_jobs();
+  return true;
+}
 
 static bool close_cmd(Expr cmd){
   Document *doc = get_current_document();
@@ -140,13 +292,6 @@ static bool close_cmd(Expr cmd){
   
   doc->native()->close();
   return true;
-}
-
-
-static bool can_copy_cut(Expr cmd){
-  Document *doc = get_current_document();
-  
-  return doc && doc->selection_length() > 0;
 }
 
 static bool copy_cmd(Expr cmd){
@@ -169,20 +314,55 @@ static bool cut_cmd(Expr cmd){
   return true;
 }
 
-static bool paste_cmd(Expr cmd){
+static bool document_apply_cmd(Expr cmd){
+  Document *doc = dynamic_cast<Document*>(Box::find(cmd[1]));
+  
+  if(!doc)
+    return false;
+  
+  MathSequence *seq = new MathSequence;
+  seq->load_from_object(cmd[2], BoxOptionDefault);
+  doc->insert_box(seq, true);
+  
+  return true;
+}
+
+static bool duplicate_previous_input_output_cmd(Expr cmd){
   Document *doc = get_current_document();
   
   if(!doc)
     return false;
   
-  doc->paste_from_clipboard();
-  return true;
-}
-
-static bool can_edit_boxes(Expr cmd){
-  Document *doc = get_current_document();
+  if(doc->selection_box() == doc && doc->selection_length() > 0)
+    return false;
   
-  return doc && (doc->selection_length() > 0 || doc->selection_box() != doc);
+  Box *box = doc->selection_box();
+  int a = doc->selection_start();
+  int b = doc->selection_end();
+  while(box && box != doc){
+    a = box->index();
+    b = a + 1;
+    box = box->parent();
+  }
+  
+  bool input = String(cmd).equals("DuplicatePreviousInput");
+  
+  for(int i = a - 1;i >= 0;--i){
+    MathSection *math = dynamic_cast<MathSection*>(doc->item(i));
+    
+    if(math 
+    && (( input && math->get_style(Evaluatable))
+     || (!input && math->get_style(SectionGenerated)))){
+      MathSequence *seq = new MathSequence;
+      seq->load_from_object(Expr(math->content()->to_pmath(false)), 0);
+      doc->insert_box(seq);
+      
+      return true;
+    }
+  }
+  
+  doc->native()->beep();
+  return true;
 }
 
 static bool edit_boxes_cmd(Expr cmd){
@@ -247,6 +427,66 @@ static bool edit_boxes_cmd(Expr cmd){
   return true;
 }
 
+static bool evaluate_in_place_cmd(Expr cmd){
+  Document *doc = get_current_document();
+  
+  if(!doc)
+    return false;
+  
+  MathSequence *seq = dynamic_cast<MathSequence*>(doc->selection_box());
+  
+  if(seq){
+    Client::add_job(new ReplacementJob(
+      seq, 
+      doc->selection_start(),
+      doc->selection_end()));
+  }
+  
+  return true;
+}
+
+static bool evaluate_sections_cmd(Expr cmd){
+  Document *doc = get_current_document();
+  
+  if(!doc)
+    return false;
+  
+  Box *box = doc->selection_box();
+  
+  if(box == doc){
+    for(int i = doc->selection_start();i < doc->selection_end();++i){
+      MathSection *math = dynamic_cast<MathSection*>(doc->item(i));
+      
+      if(math && math->get_style(Evaluatable))
+        Client::add_job(new InputJob(math));
+    }
+  }
+  else{
+    while(box && !dynamic_cast<MathSection*>(box))
+      box = box->parent();
+    
+    MathSection *math = dynamic_cast<MathSection*>(box);
+    if(math && math->get_style(Evaluatable))
+      Client::add_job(new InputJob(math));
+  }
+  
+  if(String(cmd).equals("EvaluateSectionsAndReturn")){
+    Client::add_job(new EvaluationJob(Call(Symbol(PMATH_SYMBOL_RETURN))));
+  }
+  
+  return true;
+}
+
+static bool evaluator_subsession_cmd(Expr cmd){
+  if(Client::is_idle())
+    return false;
+  
+  // non-blocking interrupt
+  Client::execute_for(Call(Symbol(PMATH_SYMBOL_DIALOG)), 0, Infinity);
+  
+  return true;
+}
+
 static bool expand_selection_cmd(Expr cmd){
   Document *doc = get_current_document();
   
@@ -288,37 +528,6 @@ static bool find_matching_fence_cmd(Expr cmd){
   return true;
 }
 
-static bool select_all_cmd(Expr cmd){
-  Document *doc = get_current_document();
-  
-  if(!doc)
-    return false;
-  
-  if(doc->selectable()){
-    doc->select(doc, 0, doc->length());
-    return true;
-  }
-  
-  Box *sel = doc->selection_box();
-  if(!sel)
-    return false;
-  
-  Box *next = sel;
-  while(next && next->selectable()){
-    sel = next;
-    next = next->parent();
-  }
-  
-  if(sel->selectable()){
-    doc->select(sel, 0, sel->length());
-    return true;
-  }
-  
-  return false;
-}
-
-
-
 static bool insert_column_cmd(Expr cmd){
   Document *doc = get_current_document();
   
@@ -336,76 +545,6 @@ static bool insert_fraction_cmd(Expr cmd){
     return false;
   
   doc->insert_fraction();
-  return true;
-}
-
-static bool duplicate_previous_input_output_cmd(Expr cmd){
-  Document *doc = get_current_document();
-  
-  if(!doc)
-    return false;
-  
-  if(doc->selection_box() == doc && doc->selection_length() > 0)
-    return false;
-  
-  Box *box = doc->selection_box();
-  int a = doc->selection_start();
-  int b = doc->selection_end();
-  while(box && box != doc){
-    a = box->index();
-    b = a + 1;
-    box = box->parent();
-  }
-  
-  bool input = String(cmd).equals("DuplicatePreviousInput");
-  
-  for(int i = a - 1;i >= 0;--i){
-    MathSection *math = dynamic_cast<MathSection*>(doc->item(i));
-    
-    if(math && ((input && math->get_style(BaseStyleName).equals("Input"))
-     || (!input && math->get_style(SectionGenerated)))){
-      MathSequence *seq = new MathSequence;
-      seq->load_from_object(Expr(math->content()->to_pmath(false)), 0);
-      doc->insert_box(seq);
-      
-      return true;
-    }
-  }
-  
-  doc->native()->beep();
-  return true;
-}
-
-static bool similar_section_below_cmd(Expr cmd){
-  Document *doc = get_current_document();
-  
-  if(!doc)
-    return false;
-  
-  Box *box = doc->selection_box();
-  while(box && box->parent() != doc){
-    box = box->parent();
-  }
-  
-  if(dynamic_cast<AbstractSequenceSection*>(box)){
-    Style *style = new Style;
-    style->merge(static_cast<Section*>(box)->style);
-    style->remove(SectionLabel);
-    style->remove(SectionGenerated);
-    
-    Section *section;
-    if(dynamic_cast<TextSection*>(box))
-      section = new TextSection(style);
-    else
-      section = new MathSection(style);
-    
-    doc->insert(box->index() + 1, section);
-    doc->move_to(doc, box->index() + 1);
-    doc->move_horizontal(Forward, false);
-  }
-  else
-    doc->native()->beep();
-  
   return true;
 }
 
@@ -479,73 +618,74 @@ static bool insert_underscript_cmd(Expr cmd){
   return true;
 }
 
-
-
-static bool can_abort(Expr cmd){
-  return !Client::is_idle();
-}
-
-static bool abort_cmd(Expr cmd){
-  Client::abort_all_jobs();
-  return true;
-}
-
-static bool evaluate_in_place_cmd(Expr cmd){
+static bool paste_cmd(Expr cmd){
   Document *doc = get_current_document();
   
   if(!doc)
     return false;
   
-  MathSequence *seq = dynamic_cast<MathSequence*>(doc->selection_box());
-  
-  if(seq){
-    Client::add_job(new ReplacementJob(
-      seq, 
-      doc->selection_start(),
-      doc->selection_end()));
-  }
-  
+  doc->paste_from_clipboard();
   return true;
 }
 
-static bool evaluate_sections_cmd(Expr cmd){
+static bool select_all_cmd(Expr cmd){
+  Document *doc = get_current_document();
+  
+  if(!doc)
+    return false;
+  
+  if(doc->selectable()){
+    doc->select(doc, 0, doc->length());
+    return true;
+  }
+  
+  Box *sel = doc->selection_box();
+  if(!sel)
+    return false;
+  
+  Box *next = sel;
+  while(next && next->selectable()){
+    sel = next;
+    next = next->parent();
+  }
+  
+  if(sel->selectable()){
+    doc->select(sel, 0, sel->length());
+    return true;
+  }
+  
+  return false;
+}
+
+static bool similar_section_below_cmd(Expr cmd){
   Document *doc = get_current_document();
   
   if(!doc)
     return false;
   
   Box *box = doc->selection_box();
-  
-  if(box == doc){
-    for(int i = doc->selection_start();i < doc->selection_end();++i){
-      MathSection *math = dynamic_cast<MathSection*>(doc->item(i));
-      
-      if(math && math->get_style(BaseStyleName).equals("Input"))
-        Client::add_job(new InputJob(math));
-    }
+  while(box && box->parent() != doc){
+    box = box->parent();
   }
-  else{
-    while(box && !dynamic_cast<MathSection*>(box))
-      box = box->parent();
+  
+  if(dynamic_cast<AbstractSequenceSection*>(box)){
+    Style *style = new Style;
+    style->merge(static_cast<Section*>(box)->style);
+    style->remove(SectionLabel);
+    style->remove(SectionGenerated);
     
-    MathSection *math = dynamic_cast<MathSection*>(box);
-    if(math && math->get_style(BaseStyleName).equals("Input"))
-      Client::add_job(new InputJob(math));
+    Section *section;
+    if(dynamic_cast<TextSection*>(box))
+      section = new TextSection(style);
+    else
+      section = new MathSection(style);
+    
+    doc->insert(box->index() + 1, section);
+    doc->move_to(doc, box->index() + 1);
+    doc->move_horizontal(Forward, false);
   }
-  
-  if(String(cmd).equals("EvaluateSectionsAndReturn")){
-    Client::add_job(new EvaluationJob(Call(Symbol(PMATH_SYMBOL_RETURN))));
-  }
-  
-  return true;
-}
-
-static bool evaluator_subsession_cmd(Expr cmd){
-  if(Client::is_idle())
-    return false;
-  
-  // non-blocking interrupt
-  Client::execute_for(Call(Symbol(PMATH_SYMBOL_DIALOG)), 0, Infinity);
+  else
+    doc->native()->beep();
   
   return true;
 }
@@ -561,20 +701,6 @@ static bool subsession_evaluate_sections_cmd(Expr cmd){
   return false;
 }
 
-
-static bool cmd_document_apply(Expr cmd){
-  Document *doc = dynamic_cast<Document*>(Box::find(cmd[1]));
-  
-  if(!doc)
-    return false;
-  
-  MathSequence *seq = new MathSequence;
-  seq->load_from_object(cmd[2], BoxOptionDefault);
-  doc->insert_box(seq, true);
-  
-  return true;
-}
-
 //} ... menu commands
 
 static pmath_symbol_t fe_symbols[FrontEndSymbolsCount];
@@ -587,33 +713,33 @@ bool richmath::init_bindings(){
   
   Client::register_menucommand(String("Copy"),              copy_cmd,                 can_copy_cut);
   Client::register_menucommand(String("Cut"),               cut_cmd,                  can_copy_cut);
-  Client::register_menucommand(String("Paste"),             paste_cmd);
+  Client::register_menucommand(String("Paste"),             paste_cmd,                can_document_apply);
   Client::register_menucommand(String("EditBoxes"),         edit_boxes_cmd,           can_edit_boxes);
   Client::register_menucommand(String("ExpandSelection"),   expand_selection_cmd);
-  Client::register_menucommand(String("FindMatchingFence"), find_matching_fence_cmd);
+  Client::register_menucommand(String("FindMatchingFence"), find_matching_fence_cmd,  can_find_matching_fence);
   Client::register_menucommand(String("SelectAll"),         select_all_cmd);
   
-  Client::register_menucommand(String("DuplicatePreviousInput"),  duplicate_previous_input_output_cmd);
-  Client::register_menucommand(String("DuplicatePreviousOutput"), duplicate_previous_input_output_cmd);
-  Client::register_menucommand(String("SimilarSectionBelow"),     similar_section_below_cmd);
-  Client::register_menucommand(String("InsertColumn"),            insert_column_cmd);
-  Client::register_menucommand(String("InsertFraction"),          insert_fraction_cmd);
+  Client::register_menucommand(String("DuplicatePreviousInput"),  duplicate_previous_input_output_cmd, can_duplicate_previous_input_output);
+  Client::register_menucommand(String("DuplicatePreviousOutput"), duplicate_previous_input_output_cmd, can_duplicate_previous_input_output);
+  Client::register_menucommand(String("SimilarSectionBelow"),     similar_section_below_cmd,           can_similar_section_below);
+  Client::register_menucommand(String("InsertColumn"),            insert_column_cmd,                   can_document_apply);
+  Client::register_menucommand(String("InsertFraction"),          insert_fraction_cmd,                 can_document_apply);
   Client::register_menucommand(String("InsertOpposite"),          insert_opposite_cmd);
-  Client::register_menucommand(String("InsertOverscript"),        insert_overscript_cmd);
-  Client::register_menucommand(String("InsertRadical"),           insert_radical_cmd);
-  Client::register_menucommand(String("InsertRow"),               insert_row_cmd);
-  Client::register_menucommand(String("InsertSubscript"),         insert_subscript_cmd);
-  Client::register_menucommand(String("InsertSuperscript"),       insert_superscript_cmd);
-  Client::register_menucommand(String("InsertUnderscript"),       insert_underscript_cmd);
+  Client::register_menucommand(String("InsertOverscript"),        insert_overscript_cmd,               can_document_apply);
+  Client::register_menucommand(String("InsertRadical"),           insert_radical_cmd,                  can_document_apply);
+  Client::register_menucommand(String("InsertRow"),               insert_row_cmd,                      can_document_apply);
+  Client::register_menucommand(String("InsertSubscript"),         insert_subscript_cmd,                can_document_apply);
+  Client::register_menucommand(String("InsertSuperscript"),       insert_superscript_cmd,              can_document_apply);
+  Client::register_menucommand(String("InsertUnderscript"),       insert_underscript_cmd,              can_document_apply);
   
-  Client::register_menucommand(String("EvaluatorAbort"),             abort_cmd,                 can_abort);
-  Client::register_menucommand(String("EvaluateInPlace"),            evaluate_in_place_cmd);
-  Client::register_menucommand(String("EvaluateSections"),           evaluate_sections_cmd);
+  Client::register_menucommand(String("EvaluatorAbort"),             abort_cmd,                        can_abort);
+  Client::register_menucommand(String("EvaluateInPlace"),            evaluate_in_place_cmd,            can_evaluate_in_place);
+  Client::register_menucommand(String("EvaluateSections"),           evaluate_sections_cmd,            can_evaluate_sections);
   Client::register_menucommand(String("EvaluateSectionsAndReturn"),  evaluate_sections_cmd);
-  Client::register_menucommand(String("EvaluatorSubsession"),        evaluator_subsession_cmd,  can_abort);
-  Client::register_menucommand(String("SubsessionEvaluateSections"), subsession_evaluate_sections_cmd);
+  Client::register_menucommand(String("EvaluatorSubsession"),        evaluator_subsession_cmd,         can_abort);
+  Client::register_menucommand(String("SubsessionEvaluateSections"), subsession_evaluate_sections_cmd, can_subsession_evaluate_sections);
   
-  Client::register_menucommand(Symbol(PMATH_SYMBOL_DOCUMENTAPPLY), cmd_document_apply);
+  Client::register_menucommand(Symbol(PMATH_SYMBOL_DOCUMENTAPPLY), document_apply_cmd, can_document_apply);
   
   #define VERIFY(x)  if(0 == (x)) goto FAIL_SYMBOLS;
   #define NEW_SYMBOL(name)     pmath_symbol_get(PMATH_C_STRING(name), TRUE)

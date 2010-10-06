@@ -48,7 +48,7 @@ namespace richmath{
       virtual void resize(Context *context);
       virtual void paint(Context *context);
       
-      virtual void selection_path(Context *context, int start, int end);
+      virtual void selection_path(Canvas *canvas, int start, int end);
       
       virtual Expr to_pmath(bool parseable);
       virtual Expr to_pmath(bool parseable, int start, int end);

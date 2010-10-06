@@ -446,6 +446,7 @@ void MathSequence::paint(Context *context){
     
     selection_path(
       context, 
+      context->canvas,
       context->selection.start, 
       context->selection.end);
     
@@ -456,9 +457,14 @@ void MathSequence::paint(Context *context){
   context->math_shaper = default_math_shaper;
 }
 
-void MathSequence::selection_path(Context *context, int start, int end){
+void MathSequence::selection_path(Canvas *canvas, int start, int end){
+  selection_path(0, canvas, start, end);
+}
+
+void MathSequence::selection_path(Context *opt_context, Canvas *canvas, int start, int end){
   float x0, y0, x1, y1, x2, y2;
-  context->canvas->current_pos(&x0, &y0);
+  
+  canvas->current_pos(&x0, &y0);
   
   y0-= lines[0].ascent;
   y1 = y0;
@@ -532,39 +538,43 @@ void MathSequence::selection_path(Context *context, int start, int end){
     float a = 0;
     float d = 0;
     
-    if(start == end){
-      const uint16_t *buf = str.buffer();
-      int box = 0;
-      
-      for(int i = 0;i < start;++i)
-        if(buf[i] == PMATH_CHAR_BOX)
-          ++box;
+    if(opt_context){
+      if(start == end){
+        const uint16_t *buf = str.buffer();
+        int box = 0;
         
-      caret_size(context, start, box, &a, &d);
+        for(int i = 0;i < start;++i)
+          if(buf[i] == PMATH_CHAR_BOX)
+            ++box;
+          
+        caret_size(opt_context, start, box, &a, &d);
+      }
+      else{
+        boxes_size(
+          opt_context, 
+          start,
+          end,
+          &a, &d);
+      }
     }
     else{
-      boxes_size(
-        context, 
-        start,
-        end,
-        &a, &d);
+      a = lines[startline].ascent;
+      d = lines[startline].descent;
     }
-//    a = lines[startline].ascent;
-//    d = lines[startline].descent;
     
     y1+= lines[startline].ascent;
     y2 = y1 + d + 1;
     y1-= a + 1;
     
     if(start == end){
-      context->canvas->align_point(&x1, &y1, true);
-      context->canvas->align_point(&x2, &y2, true);
+      canvas->align_point(&x1, &y1, true);
+      canvas->align_point(&x2, &y2, true);
       
-      context->canvas->move_to(x1, y1);
-      context->canvas->line_to(x2, y2);
+      canvas->move_to(x1, y1);
+      canvas->line_to(x2, y2);
     }
     else
-      context->canvas->pixrect(x1, y1, x2, y2, false);
+      canvas->pixrect(x1, y1, x2, y2, false);
   }
   else{
     y2 = y1;
@@ -592,24 +602,24 @@ void MathSequence::selection_path(Context *context, int start, int end){
     y6 = y2;
     y7 = y8 = y1 + lines[startline].ascent + lines[startline].descent + line_spacing() / 2;
     
-    context->canvas->align_point(&x1, &y1, false);
-    context->canvas->align_point(&x2, &y2, false);
-    context->canvas->align_point(&x3, &y3, false);
-    context->canvas->align_point(&x4, &y4, false);
-    context->canvas->align_point(&x5, &y5, false);
-    context->canvas->align_point(&x6, &y6, false);
-    context->canvas->align_point(&x7, &y7, false);
-    context->canvas->align_point(&x8, &y8, false);
+    canvas->align_point(&x1, &y1, false);
+    canvas->align_point(&x2, &y2, false);
+    canvas->align_point(&x3, &y3, false);
+    canvas->align_point(&x4, &y4, false);
+    canvas->align_point(&x5, &y5, false);
+    canvas->align_point(&x6, &y6, false);
+    canvas->align_point(&x7, &y7, false);
+    canvas->align_point(&x8, &y8, false);
     
-    context->canvas->move_to(x1, y1);
-    context->canvas->line_to(x3, y3);
-    context->canvas->line_to(x4, y4);
-    context->canvas->line_to(x5, y5);
-    context->canvas->line_to(x2, y2);
-    context->canvas->line_to(x6, y6);
-    context->canvas->line_to(x7, y7);
-    context->canvas->line_to(x8, y8);
-    context->canvas->close_path();
+    canvas->move_to(x1, y1);
+    canvas->line_to(x3, y3);
+    canvas->line_to(x4, y4);
+    canvas->line_to(x5, y5);
+    canvas->line_to(x2, y2);
+    canvas->line_to(x6, y6);
+    canvas->line_to(x7, y7);
+    canvas->line_to(x8, y8);
+    canvas->close_path();
   }
 }
 

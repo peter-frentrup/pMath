@@ -130,7 +130,6 @@ namespace richmath{
     protected:
       Context context;
       float   best_index_rel_x;
-      bool    auto_scroll;
       int     prev_sel_line;
       int     prev_sel_box_id;
       int     must_resize_min;
@@ -158,26 +157,6 @@ namespace richmath{
   extern Box *expand_selection(Box *box, int *start, int *end);
   extern int box_depth(Box *box);
   extern int box_order(Box *b1, int i1, Box *b2, int i2);
-  
-  extern void selection_outline(
-    Box          *box, 
-    int           start, 
-    int           end, 
-    Array<Point> &pts);
-  
-  bool bounding_rect(
-    const Array<Point> &pts, 
-    float              *x, 
-    float              *y, 
-    float              *w, 
-    float              *h);
-
-  extern void selection_path( // MathSequence::selection_path is more exact
-    Canvas  *canvas, 
-    Box     *box, 
-    int      start, 
-    int      end, 
-    bool     tostroke);
 }
 
 #endif // __GUI__DOCUMENT_H__

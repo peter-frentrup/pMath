@@ -296,6 +296,7 @@ int main(){
     Stylesheet::Default->base->set(AutoSpacing,            false);
     Stylesheet::Default->base->set(ContentType,            ContentTypeBoxData);
     Stylesheet::Default->base->set(Editable,               true);
+    Stylesheet::Default->base->set(Evaluatable,            false);
     Stylesheet::Default->base->set(LineBreakWithin,        true);
     Stylesheet::Default->base->set(SectionGenerated,       false);
     Stylesheet::Default->base->set(ShowAutoStyles,         false);
@@ -355,6 +356,7 @@ int main(){
     s = new Style;
     s->set(AutoSpacing,         true);
     s->set(AutoNumberFormating, false);
+    s->set(Evaluatable,         true);
     s->set(ShowAutoStyles,      true);
     s->set(FontSize,                11.0);
     s->set(SectionMarginLeft,       56.0);
@@ -365,6 +367,7 @@ int main(){
     s = new Style;
     s->set(BaseStyleName, "Input");
     s->set(AutoNumberFormating,  true);
+    s->set(Evaluatable,          false);
     s->set(ShowAutoStyles,       false);
     s->set(ShowStringCharacters, false);
     s->set(SectionGroupPrecedence,  10);
@@ -615,7 +618,7 @@ int main(){
     
     write_text_section(doc, "Title", "Welcome");
     write_text_section(doc, "Section", "Todo-List");
-    todo(doc, "Support pasting into TextSequence");
+    todo(doc, "Support macros/DocumentApply in TextSequence");
     todo(doc, "CTRL-9 to insert inline text/math section into math/text sequence.");
     todo(doc, "Implement Interrupt().");
     todo(doc, "Leave caret at end of line at automatic line breaks.");

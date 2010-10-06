@@ -665,6 +665,7 @@ PMATH_API pmath_bool_t pmath_init(void){
       "ButtonFunction->(/\\/ &),"
       "ContentType->BoxData,"
       "Editable->True,"
+      "Evaluatable->False,"
       "FontColor->GrayLevel(0),"
       "FontFamily->\"Times\","
       "FontSize->10,"

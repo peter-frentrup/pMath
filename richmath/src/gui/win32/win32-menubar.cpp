@@ -16,6 +16,10 @@
 #include <gui/win32/win32-themes.h>
 #include <resources.h>
 
+#ifndef TPM_NOANIMATION
+  #define TPM_NOANIMATION 0x4000
+#endif
+
 using namespace richmath;
 
 static Win32Menubar *current_menubar = 0;
@@ -106,7 +110,7 @@ Win32Menubar::Win32Menubar(Win32DocumentWindow *window, HWND parent, HMENU menu)
     (LPARAM)buttons.items()); 
   
   SendMessageW(_hwnd, TB_AUTOSIZE, 0, 0); 
-  SendMessageW(_hwnd, TB_SETPADDING, 0, (2 << 16) | 0);
+  SendMessageW(_hwnd, TB_SETPADDING, 0, (4 << 16) | 0);
   SendMessageW(_hwnd, TB_SETBUTTONSIZE, 0, 0x010001);
 }
 
@@ -199,9 +203,13 @@ void Win32Menubar::show_menu(int item){
       pt.x = tpm.rcExclude.right;
     }
     
+    UINT flags = TPM_RETURNCMD | GetSystemMetrics(SM_MENUDROPALIGNMENT);
+    if(!menu_animation)
+      flags |= TPM_NOANIMATION;
+    
     int cmd = TrackPopupMenuEx(
       current_popup,
-      GetSystemMetrics(SM_MENUDROPALIGNMENT) | TPM_RETURNCMD,
+      flags,
       pt.x,
       pt.y,
       parent,
@@ -278,7 +286,9 @@ void Win32Menubar::show_sysmenu(){
 void Win32Menubar::set_focus(int item){
   if(_appearence == MaNeverShow)
     return;
-    
+  
+  next_item = 0;
+  
   if(!visible()){
     ShowWindow(_hwnd, SW_SHOWNOACTIVATE);
     _window->rearrange();
@@ -362,7 +372,7 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
       if(header->hwndFrom == _hwnd){
         switch(header->code){
           case TBN_DROPDOWN: {
-            NMTOOLBAR *tb = (NMTOOLBAR*)lParam;
+            NMTOOLBARW *tb = (NMTOOLBARW*)lParam;
             
             show_menu(tb->iItem);
             
@@ -466,7 +476,7 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
                 }
                 else if(current_item == 0 && next_item == 0
                 && draw->nmcd.uItemState & CDIS_HOT)
-                  state = Pressed;//Hot;
+                  state = Hot;
                 
                 if(!Win32ControlPainter::win32_painter.draw_menubar_itembg(
                     draw->nmcd.hdc, 
@@ -477,7 +487,7 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
                 }
                 
                 draw->nmcd.uItemState = CDIS_DEFAULT;
-                  
+                
                 *result = CDRF_DODEFAULT;
               } return true;
             }
@@ -492,6 +502,8 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
       
       POINT pt = {(rect.left + rect.right)/2, (rect.bottom + rect.top)/2};
       
+      menu_animation = false;
+      
       SendMessageW(
         _hwnd, 
         WM_LBUTTONDOWN, 
@@ -502,6 +514,8 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
         WM_LBUTTONUP, 
         MK_LBUTTON, 
         point_to_dword(pt));
+        
+      menu_animation = true;
     } break;
     
     case WM_INITMENUPOPUP: {

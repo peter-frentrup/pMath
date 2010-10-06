@@ -51,6 +51,7 @@ namespace richmath{
       HMENU _menu;
       
       bool focused;
+      bool menu_animation;
       
       HMENU current_popup;
       int current_item;

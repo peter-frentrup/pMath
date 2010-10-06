@@ -129,6 +129,38 @@ void Box::clear_coloring(){
     item(i)->clear_coloring();
 }
 
+void Box::selection_path(Canvas *canvas, int start, int end){
+  if(end > count())
+    end = count();
+  
+  float x, y;
+  canvas->current_pos(&x, &y);
+  
+  for(int i = start;i < end;++i){
+    Box *b = item(i);
+    
+    float x1 = x;
+    float y1 = y - b->extents().ascent;
+    float x2 = x + b->extents().width;
+    float y2 = y1;
+    float x3 = x2;
+    float y3 = y + b->extents().descent;
+    float x4 = x1;
+    float y4 = y3;
+    
+    canvas->align_point(&x1, &y1, false);
+    canvas->align_point(&x2, &y2, false);
+    canvas->align_point(&x3, &y3, false);
+    canvas->align_point(&x4, &y4, false);
+    
+    canvas->move_to(x1, y1);
+    canvas->line_to(x2, y2);
+    canvas->line_to(x3, y3);
+    canvas->line_to(x4, y4);
+    canvas->close_path();
+  }
+}
+
 Box *Box::move_logical(
   LogicalDirection  direction, 
   bool              jumping, 

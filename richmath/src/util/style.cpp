@@ -164,6 +164,9 @@ void Style::add_pmath(Expr options){
           else if(lhs == PMATH_SYMBOL_EDITABLE){
             set_pmath_bool(Editable, rhs);
           }
+          else if(lhs == PMATH_SYMBOL_EVALUATABLE){
+            set_pmath_bool(Evaluatable, rhs);
+          }
           else if(lhs == PMATH_SYMBOL_FONTCOLOR){
             set_pmath_color(FontColor, rhs);
           }
@@ -540,6 +543,12 @@ void Style::emit_to_pmath(
   if(get(Editable, &i)){
     Gather::emit(Rule(
       Symbol(PMATH_SYMBOL_EDITABLE), 
+      Symbol(i ? PMATH_SYMBOL_TRUE : PMATH_SYMBOL_FALSE)));
+  }
+  
+  if(get(Evaluatable, &i)){
+    Gather::emit(Rule(
+      Symbol(PMATH_SYMBOL_EVALUATABLE), 
       Symbol(i ? PMATH_SYMBOL_TRUE : PMATH_SYMBOL_FALSE)));
   }
   

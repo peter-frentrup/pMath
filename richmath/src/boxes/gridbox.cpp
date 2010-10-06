@@ -578,6 +578,68 @@ void GridBox::paint(Context *context){
   }
 }
 
+void GridBox::selection_path(Canvas *canvas, int start, int end){
+  int ax, ay, bx, by;
+  if(end > start)
+    --end;
+    
+  items.index_to_yx(start, &ay, &ax);
+  items.index_to_yx(end,   &by, &bx);
+  
+  if(bx < ax){
+    int tmp = ax;
+    ax = bx;
+    bx = tmp;
+  }
+  
+  if(by < ay){
+    int tmp = ay;
+    ay = by;
+    by = tmp;
+  }
+  
+  float x1, x2, y1, y2;
+  x1 = xpos[ax];
+  if(bx < cols() - 1)
+    x2 = xpos[bx] + item(by, bx)->extents().width;
+  else
+    x2 = _extents.width;
+    
+  y1 = - _extents.ascent + ypos[ay];
+  if(by < rows() - 1)
+    y2 = - _extents.ascent + ypos[by] + item(by, bx)->extents().height();
+  else
+    y2 = _extents.descent;
+  
+  float x0, y0;
+  canvas->current_pos(&x0, &y0);
+  
+  x1+= x0;
+  y1+= y0;
+  x2+= x0;
+  y2+= y0;
+  
+  float px1 = x1;
+  float py1 = y1;
+  float px2 = x2;
+  float py2 = y1;
+  float px3 = x2;
+  float py3 = y2;
+  float px4 = x1;
+  float py4 = y2;
+  
+  canvas->align_point(&px1, &py1, false);
+  canvas->align_point(&px2, &py2, false);
+  canvas->align_point(&px3, &py3, false);
+  canvas->align_point(&px4, &py4, false);
+  
+  canvas->move_to(px1, py1);
+  canvas->line_to(px2, py2);
+  canvas->line_to(px3, py3);
+  canvas->line_to(px4, py4);
+  canvas->close_path();
+}
+
 Box *GridBox::remove_range(int *start, int end){
   if(*start >= end){
     if(_parent){

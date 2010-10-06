@@ -23,6 +23,7 @@ namespace richmath{
     AutoNumberFormating,
     AutoSpacing,
     Editable,
+    Evaluatable,
     LineBreakWithin,
     Placeholder,
     SectionGenerated,

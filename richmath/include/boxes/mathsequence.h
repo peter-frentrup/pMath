@@ -40,7 +40,7 @@ namespace richmath{
       virtual void clear_coloring();
       virtual void paint(Context *context);
       
-      virtual void selection_path(Context *context, int start, int end);
+      virtual void selection_path(Canvas *canvas, int start, int end);
       
       virtual Expr to_pmath(bool parseable);
       virtual Expr to_pmath(bool parseable, int start, int end);
@@ -78,7 +78,7 @@ namespace richmath{
       
       int matching_fence(int pos); // -1 on error
       
-    private:
+    protected:
       static pmath_bool_t subsuperscriptbox_at_index(int i, void *_data);
       static pmath_string_t underoverscriptbox_at_index(int i, void *_data);
       static void syntax_error(pmath_string_t code, int pos, void *_data, pmath_bool_t err);
@@ -87,6 +87,8 @@ namespace richmath{
       void boxes_size(Context *context, int start, int end, float *a, float *d);
       void box_size(  Context *context, int pos, int box, float *a, float *d);
       void caret_size(Context *context, int pos, int box, float *a, float *d);
+      
+      void selection_path(Context *opt_context, Canvas *canvas, int start, int end);
       
       void resize_span(
         Context *context, 

@@ -63,6 +63,7 @@ Expr Dynamic::operator=(Expr expr){
 void Dynamic::assign(Expr value){
   if(!is_dynamic()){
     _expr = value;
+    _owner->dynamic_updated();
     return;
   }
   
@@ -77,8 +78,9 @@ void Dynamic::assign(Expr value){
 }
 
 Expr Dynamic::get_value_now(){
-  if(!is_dynamic())
+  if(!is_dynamic()){
     return _expr;
+  }
   
   Expr run = Call(
     Symbol(PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATE),
@@ -93,8 +95,9 @@ Expr Dynamic::get_value_now(){
 }
 
 void Dynamic::get_value_later(){
-  if(!is_dynamic())
+  if(!is_dynamic()){
     return;
+  }
   
   Expr run = Call(
     Symbol(PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATE),
@@ -109,7 +112,7 @@ bool Dynamic::get_value(Expr *result){
     *result = Expr();
   
   // TODO: handle synchronous_updating == 2 (Automatic)
-  if(synchronous_updating != 0){
+  if(synchronous_updating != 0 || !is_dynamic()){
     if(result)
       *result = get_value_now();
     else

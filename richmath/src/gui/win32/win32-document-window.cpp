@@ -726,9 +726,12 @@ void Win32DocumentWindow::rearrange(){
     || oldrect.top    != new_ys[j]
     || oldrect.right  != rect.right - rect.left
     || oldrect.bottom != new_ys[j+1] - new_ys[j]){
+      int w = rect.right - rect.left;
+      int h = new_ys[j+1] - new_ys[j];
+      
       SetWindowPos(
         widgets[j], NULL,
-        rect.left, new_ys[j], rect.right - rect.left, new_ys[j+1] - new_ys[j],
+        rect.left, new_ys[j], w, h,
         SWP_NOZORDER);
     }
   }

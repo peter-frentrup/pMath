@@ -301,7 +301,7 @@ void TextSequence::paint(Context *context){
     context->canvas->move_to(x0, y0 + _extents.ascent);
     
     selection_path(
-      context, 
+      context->canvas, 
       context->selection.start, 
       context->selection.end);
     
@@ -309,9 +309,9 @@ void TextSequence::paint(Context *context){
   }
 }
 
-void TextSequence::selection_path(Context *context, int start, int end){
+void TextSequence::selection_path(Canvas *canvas, int start, int end){
   float x0, y0;
-  context->canvas->current_pos(&x0, &y0);
+  canvas->current_pos(&x0, &y0);
   
   ensure_text_valid();
   
@@ -330,11 +330,11 @@ void TextSequence::selection_path(Context *context, int start, int end){
     float x2 = x1;
     float y2 = y0 + y + size.descent + 0.75;
     
-    context->canvas->align_point(&x1, &y1, true);
-    context->canvas->align_point(&x2, &y2, true);
+    canvas->align_point(&x1, &y1, true);
+    canvas->align_point(&x2, &y2, true);
     
-    context->canvas->move_to(x1, y1);
-    context->canvas->line_to(x2, y2);
+    canvas->move_to(x1, y1);
+    canvas->line_to(x2, y2);
   }
   else{
     float last_bottom = 0;
@@ -360,7 +360,7 @@ void TextSequence::selection_path(Context *context, int start, int end){
         
         if(start < line->start_index){
           size.ascent+=  spacing;
-          context->canvas->pixrect(
+          canvas->pixrect(
             x0 + x,
             last_bottom,
             x0 + _extents.width,
@@ -373,7 +373,7 @@ void TextSequence::selection_path(Context *context, int start, int end){
         pango_layout_line_get_x_ranges(line, start, end, &xranges, &num_xranges);
         
         for(int i = 0;i < num_xranges;++i){
-          context->canvas->pixrect(
+          canvas->pixrect(
             x0 + pango_units_to_double(xranges[2*i]),
             y0 + y - size.ascent,
             x0 + pango_units_to_double(xranges[2*i+1]),
@@ -584,7 +584,9 @@ int TextSequence::insert(int pos, Box *box){
   ensure_boxes_valid();
   
   boxes_invalid = true;
-  int result =  pos + text.insert(pos, Utf8BoxChar, Utf8BoxCharLen);
+  text_invalid = true;
+  
+  int result = pos + text.insert(pos, Utf8BoxChar, Utf8BoxCharLen);
   adopt(box, pos);
   int i = 0;
   while(i < boxes.length() && boxes[i]->index() < pos)
@@ -604,7 +606,7 @@ int TextSequence::insert(int pos, TextSequence *txt, int start, int end){
   int box = -1;
   while(start < end){
     int next = start;
-    while(next < end && !text.is_box_at(next))
+    while(next < end && !txt->text.is_box_at(next))
       ++next;
     
     pos = insert(pos, buf + start, next - start);

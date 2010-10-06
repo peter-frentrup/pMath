@@ -86,15 +86,55 @@ void SectionList::paint(Context *context){
     context->canvas->move_to(x1, y1);
     context->canvas->line_to(x2, y2);
     context->draw_selection_path();
-//    context->canvas->paint_selection(
-//      0,
-//      _extents.descent,
-//      _extents.width,
-//      _extents.descent,
-//      false);
   }
 
   context->canvas->restore();
+}
+
+void SectionList::selection_path(Canvas *canvas, int start, int end){
+  float yend;
+  if(end < length())
+    yend = _sections[end]->y_offset;
+  else
+    yend = _extents.height();
+  
+  float x, y;
+  canvas->current_pos(&x, &y);
+  
+  if(start == end){
+    float x1 = x;
+    float y1 = y + yend;
+    float x2 = x + _extents.width;
+    float y2 = y + yend;
+    
+    canvas->align_point(&x1, &y1, true);
+    canvas->align_point(&x2, &y2, true);
+    
+    canvas->move_to(x1, y1);
+    canvas->line_to(x2, y2);
+    canvas->close_path();
+  }
+  else{
+    float x1 = x;
+    float y1 = y + _sections[start]->y_offset;
+    float x2 = x + _extents.width;
+    float y2 = y1;
+    float x3 = x2;
+    float y3 = y + yend;
+    float x4 = x1;
+    float y4 = y3;
+    
+    canvas->align_point(&x1, &y1, false);
+    canvas->align_point(&x2, &y2, false);
+    canvas->align_point(&x3, &y3, false);
+    canvas->align_point(&x4, &y4, false);
+    
+    canvas->move_to(x1, y1);
+    canvas->line_to(x2, y2);
+    canvas->line_to(x3, y3);
+    canvas->line_to(x4, y4);
+    canvas->close_path();
+  }
 }
 
 Expr SectionList::to_pmath(bool parseable){

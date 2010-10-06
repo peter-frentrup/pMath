@@ -245,252 +245,11 @@ int richmath::box_order(Box *b1, int i1, Box *b2, int i2){
   return i1 - i2;
 }
 
-// todo: make this a member function of Box/use selection_path
-//       but MathSequence::selection_path() depends on the selected font...
-void richmath::selection_outline(
-  Box          *box, 
-  int           start, 
-  int           end, 
-  Array<Point> &pts
-){
-  if(MathSequence *seq = dynamic_cast<MathSequence*>(box)){
-    int startline = 0;
-    while(startline < seq->line_array().length() - 1
-    && seq->line_array()[startline].end <= start)
-      ++startline;
-    
-    int endline = startline;
-    while(endline < seq->line_array().length() - 1
-    && seq->line_array()[endline].end <= end)
-      ++endline;
-    
-    if(startline == endline){
-      float x1, x2;
-      x1 = seq->indention_width(seq->line_array()[startline].indent);
-      
-      if(startline > 0){
-        int e = seq->line_array()[startline - 1].end;
-        if(e < seq->glyph_array().length())
-          x1-= seq->glyph_array()[e].x_offset;
-      }
-      
-      x2 = x1;
-      
-      if(start > 0)
-        x1+= seq->glyph_array()[start - 1].right;
-      if(end > 0)
-        x2+= seq->glyph_array()[end - 1].right;
-      
-      if(start < seq->length())
-        x1+= seq->glyph_array()[start].x_offset / 2;
-      if(end < seq->length())
-        x2+= seq->glyph_array()[end].x_offset / 2;
-      
-      if(startline > 0){
-        x1-= seq->glyph_array()[seq->line_array()[startline - 1].end - 1].right;
-        x2-= seq->glyph_array()[seq->line_array()[startline - 1].end - 1].right;
-      }
-      
-      float y = - seq->line_array()[0].ascent;
-      for(int line = 0;line < startline;++line)
-        y+= seq->line_array()[line].ascent + seq->line_array()[line].descent
-          + seq->line_spacing();
-      y+= seq->line_array()[startline].ascent;
-      
-      pts.length(4);
-      pts[0].x = pts[3].x = x1;
-      pts[1].x = pts[2].x = x2;
-      pts[0].y = pts[1].y = y - seq->line_array()[startline].ascent - 1;
-      pts[2].y = pts[3].y = y + seq->line_array()[startline].descent + 1;
-    }
-    else{
-      float x1 = seq->indention_width(seq->line_array()[startline].indent);
-      float x2 = seq->indention_width(seq->line_array()[endline  ].indent);
-      
-      if(startline > 0){
-        int e = seq->line_array()[startline - 1].end;
-        if(e < seq->glyph_array().length())
-          x1-= seq->glyph_array()[seq->line_array()[startline - 1].end].x_offset;
-      }
-      if(endline > 0){
-        int e = seq->line_array()[endline - 1].end;
-        if(e < seq->glyph_array().length())
-          x2-= seq->glyph_array()[seq->line_array()[endline - 1].end].x_offset;
-      }
-      
-      if(start > 0)
-        x1+= seq->glyph_array()[start - 1].right;
-      if(end > 0)
-        x2+= seq->glyph_array()[end - 1].right;
-      
-      if(start < seq->length())
-        x1+= seq->glyph_array()[start].x_offset / 2;
-      if(end < seq->length())
-        x2+= seq->glyph_array()[end].x_offset / 2;
-      
-      if(startline > 0)
-        x1-= seq->glyph_array()[seq->line_array()[startline - 1].end - 1].right;
-      if(endline > 0)
-        x2-= seq->glyph_array()[seq->line_array()[endline - 1].end - 1].right;
-      
-      float y1 = - seq->line_array()[0].ascent;
-      for(int line = 0;line < startline;++line)
-        y1+= seq->line_array()[line].ascent + seq->line_array()[line].descent
-          + seq->line_spacing();
-      
-      float y2 = y1;
-      for(int line = startline;line < endline;++line)
-        y2+= seq->line_array()[line].ascent + seq->line_array()[line].descent
-          + seq->line_spacing();
-          
-      y1+= seq->line_array()[startline].ascent;
-      y2+= seq->line_array()[endline].ascent;
-      
-      pts.length(8);
-      pts[0].x = seq->extents().width;
-      pts[0].y = y2 - seq->line_array()[endline].ascent;
-      
-      pts[1].x = seq->extents().width;
-      pts[1].y = y1 - seq->line_array()[startline].ascent; 
-      
-      pts[2].x = x1;
-      pts[2].y = y1 - seq->line_array()[startline].ascent; 
-      
-      pts[3].x = x1;
-      pts[3].y = y1 + seq->line_array()[startline].descent; 
-      
-      pts[4].x = 0;
-      pts[4].y = y1 + seq->line_array()[startline].descent; 
-      
-      pts[5].x = 0;
-      pts[5].y = y2 + seq->line_array()[endline].descent; 
-      
-      pts[6].x = x2;
-      pts[6].y = y2 + seq->line_array()[endline].descent; 
-      
-      pts[7].x = x2;
-      pts[7].y = y2 - seq->line_array()[endline].ascent; 
-    }
-  }
-  else if(SectionList *slist = dynamic_cast<SectionList*>(box)){
-    float yend;
-    if(end < slist->length())
-      yend = slist->section(end)->y_offset;
-    else
-      yend = slist->extents().height();
-      
-    if(start == end){
-      pts.length(4);
-      
-      pts[0].x = pts[3].x = 0;
-      pts[1].x = pts[2].x = slist->extents().width;
-      pts[0].y = pts[1].y = pts[2].y = pts[3].y = yend;
-    }
-    else{
-      pts.length(4);
-      
-      pts[0].x = pts[3].x = 0;
-      pts[1].x = pts[2].x = slist->extents().width;
-      pts[0].y = pts[1].y = slist->section(start)->y_offset;
-      pts[2].y = pts[3].y = yend;
-    }
-  }
-  else if(GridBox *grid = dynamic_cast<GridBox*>(box)){
-    int ax, ay, bx, by;
-    if(end > start)
-      --end;
-      
-    grid->matrix().index_to_yx(start, &ay, &ax);
-    grid->matrix().index_to_yx(end,   &by, &bx);
-    
-    if(bx < ax){
-      int tmp = ax;
-      ax = bx;
-      bx = tmp;
-    }
-    
-    if(by < ay){
-      int tmp = ay;
-      ay = by;
-      by = tmp;
-    }
-    
-    const Array<float> &xpos = grid->xpos_array();
-    const Array<float> &ypos = grid->ypos_array();
-    
-    float x1, x2, y1, y2;
-    x1 = xpos[ax];
-    if(bx < grid->cols() - 1)
-      x2 = xpos[bx] + grid->item(by, bx)->extents().width;
-    else
-      x2 = grid->extents().width;
-      
-    y1 = - grid->extents().ascent + ypos[ay];
-    if(by < grid->rows() - 1)
-      y2 = - grid->extents().ascent + ypos[by] + grid->item(by, bx)->extents().height();
-    else
-      y2 = grid->extents().descent;
-    
-    pts.length(4);
-    pts[0].x = pts[3].x = x1;
-    pts[1].x = pts[2].x = x2;
-    pts[0].y = pts[1].y = y1;
-    pts[2].y = pts[3].y = y2;
-  }
-  else if(box){
-    if(end > box->count())
-      end = box->count();
-    
-    for(int i = start;i < end;++i){
-      Box *b = box->item(i);
-      
-      pts.length(4);
-      pts[0].x = pts[3].x = 0;
-      pts[1].x = pts[2].x = b->extents().width;
-      pts[0].y = pts[1].y = -b->extents().ascent;
-      pts[2].y = pts[3].y = b->extents().descent;
-    }
-  }
-  else
-    pts.length(0);
-}
-
-bool richmath::bounding_rect(
-  const Array<Point> &pts, 
-  float              *x,
-  float              *y, 
-  float              *w,
-  float              *h
-){
-  if(pts.length() > 0){
-    *x = pts[0].x;
-    *y = pts[0].y;
-    
-    float x2 = *x;
-    float y2 = *y;
-    for(int i = 1;i < pts.length();++i){
-      if(*x > pts[i].x) *x = pts[i].x;
-      if(x2 < pts[i].x) x2 = pts[i].x;
-      
-      if(*y > pts[i].y) *y = pts[i].y;
-      if(y2 < pts[i].y) y2 = pts[i].y;
-    }
-    
-    *w = x2 - *x;
-    *h = y2 - *y;
-    
-    return true;
-  }
-  
-  return false;
-}
-
-void richmath::selection_path(
+static void selection_path(
   Canvas  *canvas, 
   Box     *box, 
   int      start, 
-  int      end, 
-  bool     tostroke
+  int      end
 ){
   if(box){
     canvas->save();
@@ -501,19 +260,8 @@ void richmath::selection_path(
     
     canvas->transform(mat);
     
-    Array<Point> pts(0);
-    selection_outline(box, start, end, pts);
-    if(pts.length() > 0){
-      canvas->align_point(&pts[0].x, &pts[0].y, tostroke);
-      canvas->move_to(pts[0].x, pts[0].y);
-      
-      for(int i = 1;i < pts.length();++i){
-        canvas->align_point(&pts[i].x, &pts[i].y, tostroke);
-        canvas->line_to(pts[i].x, pts[i].y);
-      }
-      
-      canvas->close_path();
-    }
+    canvas->move_to(0, 0);
+    box->selection_path(canvas, start, end);
     
     canvas->restore();
   }
@@ -673,7 +421,6 @@ Document::Document()
 : SectionList(),
   main_document(0),
   best_index_rel_x(0),
-  auto_scroll(false),
   prev_sel_line(-1),
   prev_sel_box_id(0),
   must_resize_min(0),
@@ -1480,7 +1227,6 @@ void Document::select(Box *box, int start, int end){
   
   sel_last.set(box, start, end);
   sel_first = sel_last;
-  auto_scroll = mouse_down_counter == 0;
   
   raw_select(box, start, end);
 }
@@ -1514,7 +1260,6 @@ void Document::select_range(
   
   sel_first.set(box1, start1, end1);
   sel_last.set( box2, start2, end2);
-  auto_scroll = mouse_down_counter == 0; // true
   
   if(end1 < start1){
     int i = start1;
@@ -2062,8 +1807,6 @@ void Document::paste_from_clipboard(){
       "(o)",
       parsed.release())),
       Client::edit_interrupt_timeout);
-    MathSequence *tmp = new MathSequence;
-    tmp->load_from_object(parsed, BoxOptionFormatNumbers);
     
     GridBox *grid = dynamic_cast<GridBox*>(context.selection.get());
     if(grid && grid->get_style(Editable)){
@@ -2074,6 +1817,13 @@ void Document::paste_from_clipboard(){
       
       int w = col2 - col1 + 1;
       int h = row2 - row1 + 1;
+      
+      int options = BoxOptionDefault;
+      if(grid->get_style(AutoNumberFormating))
+        options |= BoxOptionFormatNumbers;
+        
+      MathSequence *tmp = new MathSequence;
+      tmp->load_from_object(parsed, options);
       
       if(tmp->length() == 1 && tmp->count() == 1){
         GridBox *tmpgrid = dynamic_cast<GridBox*>(tmp->item(0));
@@ -2119,7 +1869,7 @@ void Document::paste_from_clipboard(){
       
       MathSequence *sel = grid->item(row1, col1)->content();
       sel->remove(0, 1);
-      sel->insert(0, tmp);
+      sel->insert(0, tmp); tmp = 0;
       move_to(sel, sel->length());
       
       grid->invalidate();
@@ -2129,8 +1879,32 @@ void Document::paste_from_clipboard(){
     remove_selection(false);
     
     if(prepare_insert()){
-      MathSequence *seq = dynamic_cast<MathSequence*>(context.selection.get());
-      if(seq){
+      if(MathSequence *seq = dynamic_cast<MathSequence*>(context.selection.get())){
+        
+        int options = BoxOptionDefault;
+        if(seq->get_style(AutoNumberFormating))
+          options |= BoxOptionFormatNumbers;
+          
+        MathSequence *tmp = new MathSequence;
+        tmp->load_from_object(parsed, options);
+      
+        int newpos = context.selection.end + tmp->length();
+        seq->insert(context.selection.end, tmp);
+        
+        select(seq, newpos, newpos);
+        
+        return;
+      }
+      
+      if(TextSequence *seq = dynamic_cast<TextSequence*>(context.selection.get())){
+        
+        int options = BoxOptionDefault;
+        if(seq->get_style(AutoNumberFormating))
+          options |= BoxOptionFormatNumbers;
+          
+        TextSequence *tmp = new TextSequence;
+        tmp->load_from_object(parsed, options);
+      
         int newpos = context.selection.end + tmp->length();
         seq->insert(context.selection.end, tmp);
         
@@ -2140,7 +1914,6 @@ void Document::paste_from_clipboard(){
       }
     }
     
-    delete tmp;
     native()->beep();
     return;
   }
@@ -3133,14 +2906,7 @@ void Document::paint_resize(Canvas *canvas, bool resize_only){
   int last_visible_section = i - 1;
   
   while(i < length()){
-    if(section(i)->must_resize 
-    && (i == sel_sect 
-     || (auto_scroll 
-      && (i <= sel_sect
-       || (context.selection.id == this->id()
-        && i < context.selection.end)))
-     || i < must_resize_min))
-    {
+    if(section(i)->must_resize && (i == sel_sect || i < must_resize_min)){
       resize_section(&context, i);
       section(i)->y_offset = _extents.descent;
     }
@@ -3226,12 +2992,11 @@ void Document::paint_resize(Canvas *canvas, bool resize_only){
             while(0 != (find = search_string(
                 find, &index, this, last_visible_section+1, s, true))
             ){
-              selection_path(
+              ::selection_path(
                 context.canvas, 
                 find, 
                 index - len, 
-                index, 
-                true);
+                index);
               ++count_occurences;
             }
             
@@ -3272,10 +3037,24 @@ void Document::paint_resize(Canvas *canvas, bool resize_only){
               do_fill = (count_occurences > 1);
             
             if(do_fill){
-              context.canvas->set_color(0xFF6600, 0.2); // 0x66DD66
-              context.canvas->fill_preserve();
-              context.canvas->set_color(0xFF6600, 0.8); // 0x66DD66
-              context.canvas->hair_stroke();
+              cairo_push_group(context.canvas->cairo());
+              {
+                context.canvas->save();
+                {
+                  cairo_matrix_t idmat;
+                  cairo_matrix_init_identity(&idmat);
+                  cairo_set_matrix(context.canvas->cairo(), &idmat);
+                  cairo_set_line_width(context.canvas->cairo(), 2.0);
+                  context.canvas->set_color(0xFF0000);
+                  context.canvas->stroke_preserve();
+                }
+                context.canvas->restore();
+                
+                context.canvas->set_color(0xFF9933); //ControlPainter::std->selection_color() 
+                context.canvas->fill();
+              }
+              cairo_pop_group_to_source(canvas->cairo());
+              canvas->paint_with_alpha(0.3);
             }
             else
               context.canvas->new_path();
@@ -3287,33 +3066,12 @@ void Document::paint_resize(Canvas *canvas, bool resize_only){
     if(DebugFollowMouse){
       b = mouse_move_sel.get();
       if(b){
-        selection_path(canvas, b, mouse_move_sel.start, mouse_move_sel.end, true);
+        ::selection_path(canvas, b, mouse_move_sel.start, mouse_move_sel.end);
         if(is_inside_string(b, mouse_move_sel.start))
           canvas->set_color(0x8000ff);
         else
           canvas->set_color(0xff0000);
         canvas->hair_stroke();
-      }
-    }
-    
-    if(auto_scroll && native()->is_scrollable()){
-      auto_scroll = false;
-      
-      Box *box = sel_last.get();
-      
-      Array<Point> pts(0);
-      selection_outline(box, sel_last.start, sel_last.end, pts);
-      
-      float x,y,w,h;
-      bounding_rect(pts, &x, &y, &w, &h);
-      
-      if(box){
-        cairo_matrix_t mat;
-        cairo_matrix_init_identity(&mat);
-        box->transformation(0, &mat);
-        
-        Canvas::transform_rect(mat, &x, &y, &w, &h);
-        scroll_to(x, y, x + w, y + h);
       }
     }
     

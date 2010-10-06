@@ -110,6 +110,7 @@ namespace richmath{
       virtual void colorize_scope(SyntaxState *state);
       virtual void clear_coloring();
       virtual void paint(Context *context) = 0;
+      virtual void selection_path(Canvas *canvas, int start, int end);
       
       virtual Box *remove(int *index) = 0;
       
@@ -230,8 +231,6 @@ namespace richmath{
     public:
       AbstractSequence();
       virtual ~AbstractSequence();
-      
-      virtual void selection_path(Context *context, int start, int end) = 0;
       
       virtual int insert(int pos, uint16_t chr){ return insert(pos, String::FromChar(chr)); }
       virtual int insert(int pos, const String &s) = 0; // unsafe: allows PMATH_BOX_CHAR
