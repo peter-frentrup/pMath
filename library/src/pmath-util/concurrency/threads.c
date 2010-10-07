@@ -52,7 +52,7 @@ PMATH_API pmath_thread_t pmath_thread_get_current(void){
   #endif
 
 //  if(!thread)
-//    pmath_debug_print("\athread not initialized => FAILURE\n");
+//    pmath_debug_print("thread not initialized\n");
 
   return thread;
 }

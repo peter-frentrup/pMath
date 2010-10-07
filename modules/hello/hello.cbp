@@ -8,10 +8,11 @@
 		<Build>
 			<Target title="Windows-Debug">
 				<Option platforms="Windows;" />
-				<Option output="bin/windows/hello" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj/windows/" />
+				<Option output="bin\windows\hello" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj\windows\" />
 				<Option type="3" />
 				<Option compiler="gcc" />
+				<Option host_application="D:\Peter\Programmieren\pmath\trunk\library\test\bin\windows\debug\test.exe" />
 				<Option createDefFile="1" />
 				<Option createStaticLib="1" />
 				<Compiler>
@@ -23,13 +24,13 @@
 				<Linker>
 					<Add option="-static-libgcc" />
 					<Add library="pmath" />
-					<Add directory="../../library/bin/windows/debug" />
+					<Add directory="..\..\library\bin\windows\debug" />
 				</Linker>
 			</Target>
 			<Target title="Linux-Debug">
 				<Option platforms="Unix;" />
-				<Option output="bin/linux/hello" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj/linux/" />
+				<Option output="bin\linux\hello" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj\linux\" />
 				<Option type="3" />
 				<Option compiler="gcc" />
 				<Option createDefFile="1" />
@@ -43,12 +44,12 @@
 				<Linker>
 					<Add option="-static-libgcc" />
 					<Add library="pmath" />
-					<Add directory="../../library/bin/linux/debug" />
+					<Add directory="..\..\library\bin\linux\debug" />
 				</Linker>
 			</Target>
 		</Build>
 		<Compiler>
-			<Add directory="../../library/include" />
+			<Add directory="..\..\library\include" />
 		</Compiler>
 		<Unit filename="main.c">
 			<Option compilerVar="CC" />

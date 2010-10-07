@@ -1,6 +1,7 @@
 #include <pmath-core/symbols-private.h>
 
 #include <pmath-core/expressions-private.h>
+#include <pmath-core/strings-private.h>
 
 #include <pmath-util/concurrency/atomic-private.h>
 #include <pmath-util/concurrency/threadmsg.h>
@@ -199,6 +200,7 @@ PMATH_API pmath_symbol_t pmath_symbol_get(
   pmath_string_t  name,   // will be freed
   pmath_bool_t    create
 ){
+  pmath_symbol_attributes_t attr;
   pmath_symbol_t result = NULL;
   
   if(pmath_string_length(name) == 1){
@@ -234,8 +236,22 @@ PMATH_API pmath_symbol_t pmath_symbol_get(
   );
   
   if(result){
-    pmath_unref(name);
-    return result;
+    attr = pmath_symbol_get_attributes(result);
+    if(attr & PMATH_SYMBOL_ATTRIBUTE_REMOVED){
+      if(create){
+        pmath_symbol_set_attributes(result, attr & ~PMATH_SYMBOL_ATTRIBUTE_REMOVED);
+        pmath_unref(name);
+        return result;
+      }
+      else{
+        pmath_unref(result);
+        result = NULL;
+      }
+    }
+    else{
+      pmath_unref(name);
+      return result;
+    }
   }
   
   if(create){
@@ -466,7 +482,7 @@ PMATH_API pmath_symbol_t pmath_symbol_find(
   pmath_bool_t    create
 ){
   pmath_symbol_t symbol = pmath_symbol_get(pmath_ref(name), FALSE);
-//  pmath_string_t sub_name;
+  
   const uint16_t *str;
   int i, len;
   
@@ -501,9 +517,16 @@ PMATH_API pmath_symbol_t pmath_symbol_find(
 /*----------------------------------------------------------------------------*/
 
 PMATH_API pmath_string_t pmath_symbol_name(pmath_symbol_t symbol){
+  struct _pmath_symbol_t *_symbol = (struct _pmath_symbol_t*)symbol;
+  
   if(!symbol)
     return NULL;
-  return (pmath_string_t)pmath_ref(((struct _pmath_symbol_t*)symbol)->name);
+  
+//  if(_symbol->attributes & PMATH_SYMBOL_ATTRIBUTE_REMOVED){
+//    return pmath_string_concat(pmath_ref(_symbol->name), PMATH_C_STRING("/*REMOVED*/"));
+//  }
+  
+  return (pmath_string_t)pmath_ref(_symbol->name);
 }
 
 /*----------------------------------------------------------------------------*/
@@ -859,7 +882,7 @@ void pmath_symbol_remove(pmath_symbol_t symbol){
       return;
     }
     
-    pmath_symbol_set_attributes(symbol, attr | PMATH_SYMBOL_ATTRIBUTE_TEMPORARY);
+    pmath_symbol_set_attributes(symbol, attr | PMATH_SYMBOL_ATTRIBUTE_TEMPORARY | PMATH_SYMBOL_ATTRIBUTE_REMOVED);
     _pmath_clear(symbol, TRUE);
     
     {
@@ -1032,6 +1055,14 @@ static void write_symbol(
   name = pmath_symbol_name(symbol);
   len = pmath_string_length(name);
   str = pmath_string_buffer(name);
+  
+  if(pmath_symbol_get_attributes(symbol) & PMATH_SYMBOL_ATTRIBUTE_REMOVED){
+    write_cstr("Symbol(", write, user);
+    pmath_write(name, options, write, user);
+    write_cstr(")", write, user);
+    pmath_unref(name);
+    return;
+  }
 
   if((options & PMATH_WRITE_OPTIONS_FULLNAME) == 0){
     int i = len + 1;

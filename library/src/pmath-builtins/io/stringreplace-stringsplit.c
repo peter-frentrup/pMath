@@ -84,29 +84,21 @@ static pmath_t stringreplace(
       }
     }
     
-    if(last > 0 || (options & SR_EMIT_EMPTY_BOUNDS)){
-      if(last < length || (options & SR_EMIT_EMPTY_BOUNDS)){
-        pmath_emit(
-          pmath_string_from_utf8(
-            subject + last,
-            length - last),
-          NULL);
-      }
-      
-      pmath_unref(obj);
-      obj = pmath_gather_end();
-      if(!(options & SR_EMIT_LIST)){
-        obj = pmath_expr_set_item(obj, 0, 
-          pmath_ref(PMATH_SYMBOL_STRINGEXPRESSION));
-      }
+    if(last < length || (options & SR_EMIT_EMPTY_BOUNDS)){
+      pmath_emit(
+        pmath_string_from_utf8(
+          subject + last,
+          length - last),
+        NULL);
     }
-    else if(options & SR_EMIT_LIST){
-      pmath_unref(obj);
-      obj = pmath_gather_end();
+    
+    pmath_unref(obj);
+    obj = pmath_gather_end();
+    if(!(options & SR_EMIT_LIST)){
+      obj = pmath_expr_set_item(obj, 0, 
+        pmath_ref(PMATH_SYMBOL_STRINGEXPRESSION));
     }
-    else
-      pmath_unref(pmath_gather_end());
-      
+    
     pmath_mem_free(subject);
     return obj;
   }
@@ -153,7 +145,7 @@ static pmath_t replace_all(
   }
   
   count = pmath_expr_length(rules);
-  if(!count){
+  if(count == 0){
     pmath_unref(rules);
     pmath_unref(expr);
     return obj;

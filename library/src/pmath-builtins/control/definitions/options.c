@@ -99,10 +99,47 @@ PMATH_PRIVATE pmath_t builtin_optionvalue(pmath_expr_t expr){
   name = pmath_expr_get_item(expr, len);
   extra = PMATH_UNDEFINED;
   
-  if(len == 3)
+  if(len == 3){
     extra = pmath_expr_get_item(expr, 2);
-
+  }
   pmath_unref(expr);
+  
+  if(pmath_instance_of(fn, PMATH_TYPE_EXPRESSION)){
+    size_t start, end;
+    
+    end = pmath_expr_length(fn);
+    for(start = end;start > 0;--start){
+      pmath_t opt = pmath_expr_get_item(fn, start);
+      
+      if(!_pmath_is_list_of_rules(opt)
+      && !_pmath_is_rule(opt)){
+        pmath_unref(opt);
+        break;
+      }
+      
+      pmath_unref(opt);
+    }
+    ++start;
+    
+    if(start <= end){
+      pmath_t extra2 = pmath_expr_get_item_range(fn, start, SIZE_MAX);
+      
+      extra2 = pmath_expr_set_item(
+        extra2, 0, pmath_ref(PMATH_SYMBOL_LIST));
+      
+      if(extra == PMATH_UNDEFINED){
+        extra = pmath_expr_flatten(extra2, pmath_ref(PMATH_SYMBOL_LIST), SIZE_MAX);
+      }
+      else{
+        extra = pmath_expr_flatten(
+          pmath_expr_new_extended(
+            pmath_ref(PMATH_SYMBOL_LIST), 2,
+            extra2,
+            extra),
+          pmath_ref(PMATH_SYMBOL_LIST), SIZE_MAX);
+      }
+    }
+  }
   
   if(pmath_is_expr_of(name, PMATH_SYMBOL_LIST)){
     size_t i;

@@ -3214,10 +3214,34 @@ static Array<int> indention_array(0);
 static Array<double> penalty_array(0);
 
 static const double DepthPenalty = 1.0;
-static const double WordPenalty = 2.0;
+static const double WordPenalty = 100.0;//2.0;
 static const double BestLineWidth = 0.85;
 static const double LineWidthFactor = 2.0;
+
+class BreakPositionWithPenalty{
+  public:
+    BreakPositionWithPenalty()
+    : text_position(-1),
+      prev_break_index(-1),
+      penalty(Infinity)
+    {
+    }
     
+    BreakPositionWithPenalty(int tpos, int prev, double pen)
+    : text_position(tpos),
+      prev_break_index(prev),
+      penalty(pen)
+    {}
+    
+  public:
+    int text_position; // after that character is a break
+    int prev_break_index;
+    double penalty;
+};
+
+static Array<BreakPositionWithPenalty>  break_array(0);
+static Array<int>                       break_result(0);
+
 void MathSequence::split_lines(Context *context){
   if(glyphs.length() == 0)
     return;
@@ -3257,64 +3281,77 @@ void MathSequence::split_lines(Context *context){
   if(buf[glyphs.length() - 1] != '\n')
     penalty_array[glyphs.length() - 1] = HUGE_VAL;
   
-  float xpos = 0;
-  float indention = 0;
-  pos = 0;
-  for(;;){
-    int end = pos;
-    while(end < glyphs.length() 
-    && buf[end] != '\n'
-    && glyphs[end].right - xpos + indention <= context->width)
-      ++end;
+  _extents.width = context->width;
+  for(int start_of_paragraph = 0;start_of_paragraph < glyphs.length();){
+    int end_of_paragraph = start_of_paragraph + 1;
+    while(end_of_paragraph < glyphs.length() 
+    && buf[end_of_paragraph] != '\n')
+      ++end_of_paragraph;
     
-    if(end > pos && end < glyphs.length() && buf[end] != '\n')
-      --end;
+    break_array.length(0);
+    break_array.add(BreakPositionWithPenalty(start_of_paragraph-1,0,0.0));
     
-    if(end >= glyphs.length())
-      break;
-    
-    int newline_pos = end;
-    double newline_penalty = penalty_array[newline_pos];
-    
-    if(buf[end] != '\n'){
-      double best = (context->width - indention) * BestLineWidth;//(glyphs[end].right - xpos) - em;
-      double factor = 0;
-      if(best > 0)
-        factor = LineWidthFactor/(glyphs[end].right - xpos);
+    for(pos = start_of_paragraph;pos < end_of_paragraph;++pos){
+      float xend = glyphs[pos].right;
       
-      double rel_amplitude = ((glyphs[end].right - xpos) - best) * factor;
-      newline_penalty+= rel_amplitude * rel_amplitude;
+      int current = break_array.length();
+      break_array.add(BreakPositionWithPenalty(pos, -1, Infinity));
       
-      for(;end >= pos;--end){
-        double p = penalty_array[end];
+      for(int i = current - 1;i >= 0;--i){
+        float xstart    = 0;
+        float indention = 0;
+        double penalty  = break_array[i].penalty;
+        if(break_array[i].text_position >= 0){
+          int tp = break_array[i].text_position;
+          xstart    = glyphs[tp].right;
+          indention = indention_width(indention_array[tp+1]);
+          penalty  += penalty_array[tp];
+        }
         
-        rel_amplitude = ((glyphs[end].right - xpos) - best) * factor;
-        p += rel_amplitude * rel_amplitude;
+        if(xend - xstart + indention > context->width
+        && i + 1 < current)
+          break;
         
-        if(p < newline_penalty){
-          newline_pos = end;
-          newline_penalty = p;
+        double best = context->width * BestLineWidth;
+        double factor = 0;
+        if(context->width > 0)
+          factor = LineWidthFactor/context->width;
+        double rel_amplitude = ((xend - xstart + indention) - best) * factor;
+        penalty+= rel_amplitude * rel_amplitude;
+        
+        if(penalty < break_array[current].penalty){
+          break_array[current].penalty = penalty;
+          break_array[current].prev_break_index = i;
         }
       }
-      
-      while(newline_pos+1 < glyphs.length() 
-      && buf[newline_pos+1] == ' ')
-        ++newline_pos;
     }
     
-    if(newline_penalty < HUGE_VAL){
+    int mini = break_array.length() - 1;
+    for(int i = mini - 1;i >= 0 && break_array[i].text_position + 1 == end_of_paragraph;--i){
+      if(break_array[i].penalty < break_array[mini].penalty)
+        mini = i;
+    }
+    
+    if(end_of_paragraph == glyphs.length())
+      mini = break_array[mini].prev_break_index;
+    
+    break_result.length(0);
+    for(int i = mini;i > 0;i = break_array[i].prev_break_index)
+      break_result.add(i);
+    
+    for(int i = break_result.length()-1;i >= 0;--i){
+      int j = break_result[i];
+      pos = break_array[j].text_position;
       new_line(
-        newline_pos + 1, 
-        indention_array[newline_pos + 1], 
-        !spans.is_token_end(newline_pos));
+        pos + 1, 
+        indention_array[pos], 
+        !spans.is_token_end(pos));
     }
     
-    pos = newline_pos + 1;
-    indention = indention_width(indention_array[newline_pos + 1]);
-    xpos = glyphs[newline_pos].right;
+    start_of_paragraph = end_of_paragraph;
   }
   
-  // Move FillBoxes to the beginnign of the next line,
+  // Move FillBoxes to the beginning of the next line,
   // so aaaaaaaaaaaaaa.........bbbbb will become
   //    aaaaaaaaaaaaaa
   //    ............bbbbb

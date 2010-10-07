@@ -519,8 +519,17 @@ PMATH_PRIVATE pmath_t builtin_boxestoexpression(pmath_expr_t expr){
       expr = pmath_evaluate(expr);
       
       pmath_unref(options);
-      pmath_unref(pmath_thread_local_save(PMATH_THREAD_KEY_PARSERARGUMENTS, args));
-      pmath_unref(pmath_thread_local_save(PMATH_THREAD_KEY_PARSESYMBOLS,    syms));
+      if(args != PMATH_SYMBOL_AUTOMATIC){
+        pmath_unref(pmath_thread_local_save(PMATH_THREAD_KEY_PARSERARGUMENTS, args));
+      }
+      else
+        pmath_unref(args);
+      
+      if(syms != PMATH_SYMBOL_AUTOMATIC){
+        pmath_unref(pmath_thread_local_save(PMATH_THREAD_KEY_PARSESYMBOLS, syms));
+      }
+      else
+        pmath_unref(syms);
     }
     
     return expr;

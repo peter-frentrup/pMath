@@ -278,6 +278,11 @@ class LocalServer: public Server{
     static void kill(void *arg){
       Data *me = (Data*)arg;
       me->do_quit = TRUE;
+      
+      LocalServer *ls = dynamic_cast<LocalServer*>(local_server.ptr());
+      
+      if(ls)
+        pmath_thread_wakeup(ls->message_queue.get());
     }
     
     static pmath_t builtin_dialog(pmath_expr_t expr){

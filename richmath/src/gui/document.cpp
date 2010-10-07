@@ -3266,6 +3266,7 @@ bool Document::handle_macros(
     
     int e = selection_start();
     int i = e - 1;
+    
     if(i >= 3 && buf[i] == ']'){
       while(i > 0 && buf[i] != '[' && buf[i] <= 0x7F && e-i-2 < 64)
         --i;
@@ -3293,6 +3294,10 @@ bool Document::handle_macros(
       
       i = e - 1;
     }
+    else if(seq->is_inside_string(i)){
+      return false;
+    }
+    
     while(i >= 0 && buf[i] > ' ' && buf[i] != '\\')
       --i;
     

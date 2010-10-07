@@ -1,6 +1,7 @@
 #include <pmath-util/dynamic-private.h>
 
 #include <pmath-core/numbers.h>
+#include <pmath-core/symbols-private.h>
 
 #include <pmath-util/concurrency/atomic-private.h>
 #include <pmath-util/emit-and-gather.h>
@@ -215,7 +216,10 @@ PMATH_PRIVATE pmath_bool_t _pmath_dynamic_remove(intptr_t id){
       struct symbol_list_t *symbols = i2s_entry->symbols;
       
       while(symbols){
-        struct symbol2ids_t *s2i_entry = pmath_ht_search(s2i_table, symbols->symbol);
+        struct symbol2ids_t *s2i_entry;
+        
+        _pmath_symbol_track_dynamic(symbols->symbol, 0);
+        s2i_entry = pmath_ht_search(s2i_table, symbols->symbol);
         
         if(s2i_entry){
           struct id_list_t *ids, **prev_id;

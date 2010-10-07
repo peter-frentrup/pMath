@@ -40,7 +40,7 @@ pmath_bool_t _pmath_clear(pmath_symbol_t sym, pmath_bool_t all){ // sym wont be 
   if(all){
     // clear all attributes except Temporary and ThreadLocal, if they exist
     pmath_symbol_attributes_t attr = pmath_symbol_get_attributes(sym);
-    pmath_symbol_set_attributes(sym, attr & (PMATH_SYMBOL_ATTRIBUTE_TEMPORARY | PMATH_SYMBOL_ATTRIBUTE_THREADLOCAL));
+    pmath_symbol_set_attributes(sym, attr & (PMATH_SYMBOL_ATTRIBUTE_TEMPORARY | PMATH_SYMBOL_ATTRIBUTE_THREADLOCAL | PMATH_SYMBOL_ATTRIBUTE_REMOVED));
   }
   
   return TRUE;

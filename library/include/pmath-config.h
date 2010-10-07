@@ -112,6 +112,8 @@
  */
 #ifdef PMATH_OS_WIN32
   #ifdef __GNUC__
+    #define PMATH_MODULE     PMATH_EXTERN_C __attribute__((cdecl, dllexport))
+    
     #ifdef BUILDING_PMATH
       #define PMATH_API      PMATH_EXTERN_C __attribute__((cdecl, dllexport))
       #define PMATH_PRIVATE  
@@ -119,6 +121,8 @@
       #define PMATH_API      PMATH_EXTERN_C __attribute__((cdecl, dllimport))
     #endif
   #else
+    #define PMATH_MODULE     PMATH_EXTERN_C __declspec(dllexport)
+    
     #ifdef BUILDING_PMATH
       #define PMATH_API      PMATH_EXTERN_C __declspec(dllexport)
       #define PMATH_PRIVATE
@@ -127,6 +131,8 @@
     #endif
   #endif
 #else
+  #define PMATH_MODULE     PMATH_EXTERN_C __attribute__((__visibility__("default")))
+  
   #define PMATH_API        PMATH_EXTERN_C __attribute__((__visibility__("default")))
   
   #ifdef BUILDING_PMATH

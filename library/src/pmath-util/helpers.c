@@ -387,8 +387,8 @@ static pmath_bool_t find_option_value(
   if(fn != PMATH_UNDEFINED){
     pmath_message(
       PMATH_SYMBOL_OPTIONVALUE, "optnf", 2,
-      pmath_ref(fn),
-      pmath_ref(*optionvalue));
+      pmath_ref(*optionvalue),
+      pmath_ref(fn));
   }
 
   return FALSE;
@@ -428,65 +428,49 @@ PMATH_API pmath_t pmath_option_value(
   pmath_t extra // wont be freed; may be PMATH_UNDEFINED or `a->b` or `{a->b, ...}`.
 ){
   struct _pmath_symbol_rules_t  *rules;
-  pmath_t                 fnoptions;
-  pmath_t                 result;
+  pmath_t fnoptions;
+  pmath_t result;
+  pmath_symbol_t head;
   
   if(fn)
     fn = pmath_ref(fn);
   else
     fn = pmath_current_head();
   
-  fnoptions = NULL;
+  head = NULL;
   if(pmath_instance_of(fn, PMATH_TYPE_SYMBOL)){
-    rules = _pmath_symbol_get_rules(fn, RULES_READ);
+    head = pmath_ref(fn);
+  }
+  else if(pmath_instance_of(fn, PMATH_TYPE_EXPRESSION)){
+    head = pmath_expr_get_item(fn, 0);
+    if(!pmath_instance_of(fn, PMATH_TYPE_SYMBOL)){
+      pmath_unref(head);
+      head = NULL;
+    }
+  }
+  
+  fnoptions = NULL;
+  if(head){
+    rules = _pmath_symbol_get_rules(head, RULES_READ);
     
     if(rules){
       fnoptions = pmath_expr_new_extended(
-        pmath_ref(PMATH_SYMBOL_OPTIONS), 1, pmath_ref(fn));
+        pmath_ref(PMATH_SYMBOL_OPTIONS), 1, pmath_ref(head));
       
       if(!_pmath_rulecache_find(&rules->default_rules, &fnoptions)){
         pmath_unref(fnoptions);
         fnoptions = NULL;
       }
     }
-  }
-  else if(pmath_instance_of(fn, PMATH_TYPE_EXPRESSION)){
-    size_t start, end;
-    pmath_bool_t have_rule_list = FALSE;
     
-    end = pmath_expr_length(fn);
-    for(start = end;start > 0;--start){
-      pmath_t opt = pmath_expr_get_item(fn, start);
-      
-      if(_pmath_is_list_of_rules(opt)){
-        have_rule_list = TRUE;
-      }
-      else if(!_pmath_is_rule(opt)){
-        pmath_unref(opt);
-        break;
-      }
-      
-      pmath_unref(opt);
-    }
-    ++start;
-    
-    if(start <= end){
-      fnoptions = pmath_expr_get_item_range(fn, start, SIZE_MAX);
-      
-      fnoptions = pmath_expr_set_item(
-        fnoptions, 0, pmath_ref(PMATH_SYMBOL_LIST));
-      
-      if(have_rule_list){
-        fnoptions = pmath_expr_flatten(
-          fnoptions, pmath_ref(PMATH_SYMBOL_LIST), SIZE_MAX);
-      }
-    }
+    pmath_unref(head);
   }
   
   if(!fnoptions){
     fnoptions = pmath_ref(_pmath_object_emptylist);
   }
-  else if(!_pmath_is_list_of_rules(fnoptions)){
+  
+  if(!_pmath_is_list_of_rules(fnoptions)){
     pmath_message(PMATH_SYMBOL_OPTIONVALUE, "reps", 1, fnoptions);
     pmath_unref(fn);
     //pmath_unref(extra);
@@ -500,16 +484,20 @@ PMATH_API pmath_t pmath_option_value(
         pmath_ref(PMATH_SYMBOL_LIST), 1, extra);
 
     if(_pmath_is_list_of_rules(extra)){
-      if(verify_subset_is_options_subset(fn, fnoptions, extra)){
-        pmath_t result = pmath_ref(name);
-        if(find_option_value(PMATH_UNDEFINED, extra, &result)){
-          pmath_unref(fn);
-          pmath_unref(fnoptions);
-          pmath_unref(extra);
-          return result;
-        }
-        pmath_unref(result);
+      pmath_t result;
+      
+      if(pmath_instance_of(fn, PMATH_TYPE_SYMBOL))
+        verify_subset_is_options_subset(fn, fnoptions, extra);
+      
+      result = pmath_ref(name);
+      if(find_option_value(PMATH_UNDEFINED, extra, &result)){
+        pmath_unref(fn);
+        pmath_unref(fnoptions);
+        pmath_unref(extra);
+        return result;
       }
+      pmath_unref(result);
+      
     }else
       pmath_message(PMATH_SYMBOL_OPTIONVALUE, "reps", 1, pmath_ref(extra));
 

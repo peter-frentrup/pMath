@@ -142,8 +142,8 @@ static pmath_t handle_explicit_return(pmath_t expr){
 }
 
 static pmath_t evaluate_expression(
-  pmath_expr_t  expr,
-  pmath_thread_t     *thread_ptr,
+  pmath_expr_t     expr,
+  pmath_thread_t  *thread_ptr,
   pmath_bool_t     apply_rules
 ){
   struct _pmath_stack_info_t     stack_frame;

@@ -1298,7 +1298,7 @@ static pmath_t power_to_boxes(
               TRUE),
             exp);
         }
-        else
+        else if(thread->boxform <= BOXFORM_OUTPUT)
           exp = pmath_expr_new_extended(
             pmath_ref(PMATH_SYMBOL_SUPERSCRIPTBOX), 1,
             exp);

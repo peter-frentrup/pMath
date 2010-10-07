@@ -1,5 +1,6 @@
 #include <pmath-language/scanner.h>
 
+#include <pmath-util/debug.h>
 #include <pmath-util/emit-and-gather.h>
 #include <pmath-util/messages.h>
 
@@ -42,7 +43,15 @@ PMATH_PRIVATE pmath_t builtin_names(pmath_expr_t expr){
   {
     pmath_symbol_t sym = pmath_ref(PMATH_SYMBOL_LIST);
     do{
-      pmath_emit(pmath_symbol_name(sym), NULL);
+      pmath_symbol_attributes_t attr = pmath_symbol_get_attributes(sym);
+      
+      if(attr & PMATH_SYMBOL_ATTRIBUTE_REMOVED){
+        pmath_debug_print_object("removed: ", sym, "\n");
+      }
+      else{
+        pmath_emit(pmath_symbol_name(sym), NULL);
+      }
+      
       sym = pmath_symbol_iter_next(sym);
     }while(sym && sym != PMATH_SYMBOL_LIST);
     pmath_unref(sym);
