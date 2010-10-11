@@ -74,8 +74,18 @@ void AbstractStyleBox::paint(Context *context){
 }
 
 void AbstractStyleBox::colorize_scope(SyntaxState *state){
-  if(show_auto_styles)
+  if(show_auto_styles){
+    if(get_own_style(FontColor, -1) != -1){
+      _content->ensure_spans_valid();
+      int i = 0;
+      while(i < _content->length() && !_content->span_array().is_token_end(i))
+        ++i;
+      
+      if(i + 1 >= _content->length())
+        return;
+    }
     OwnerBox::colorize_scope(state);
+  }
 }
 
 Box *AbstractStyleBox::move_logical(
@@ -218,6 +228,10 @@ bool StyleBox::expand(const BoxSize &size){
 }
 
 Expr StyleBox::to_pmath(bool parseable){
+  if(parseable && get_own_style(StripOnInput, true)){
+    return _content->to_pmath(parseable);
+  }
+  
   Gather g;
   
   g.emit(_content->to_pmath(parseable));

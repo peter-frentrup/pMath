@@ -660,6 +660,9 @@
 		<Unit filename="src\pmath-builtins\language\symbolname.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="src\pmath-builtins\language\toexpression.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="src\pmath-builtins\lists\append.c">
 			<Option compilerVar="CC" />
 		</Unit>

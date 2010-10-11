@@ -32,6 +32,7 @@ namespace richmath{
     ShowAutoStyles,
     ShowSectionBracket,
     ShowStringCharacters,
+    StripOnInput,
     
     ButtonFrame // -1 = Automatic,  other: ContainerType value
   };

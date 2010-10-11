@@ -292,6 +292,7 @@ PMATH_PRIVATE pmath_t builtin_namespace(        pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_remove(           pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_stringtoboxes(    pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_symbolname(       pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_toexpression(     pmath_expr_t expr);
 //} ============================================================================
 //{ builtins from src/pmath-builtins/lists/ ...
 PMATH_PRIVATE pmath_t builtin_part(         pmath_expr_t expr);
@@ -1047,6 +1048,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   VERIFY(   PMATH_SYMBOL_STRINGSPLIT               = NEW_SYSTEM_SYMBOL("StringSplit"))
   VERIFY(   PMATH_SYMBOL_STRINGTAKE                = NEW_SYSTEM_SYMBOL("StringTake"))
   VERIFY(   PMATH_SYMBOL_STRINGTOBOXES             = NEW_SYSTEM_SYMBOL("StringToBoxes"))
+  VERIFY(   PMATH_SYMBOL_STRIPONINPUT              = NEW_SYSTEM_SYMBOL("StripOnInput"))
   VERIFY(   PMATH_SYMBOL_STYLE                     = NEW_SYSTEM_SYMBOL("Style"))
   VERIFY(   PMATH_SYMBOL_STYLEBOX                  = NEW_SYSTEM_SYMBOL("StyleBox"))
   VERIFY(   PMATH_SYMBOL_SUBRULES                  = NEW_SYSTEM_SYMBOL("SubRules"))
@@ -1087,6 +1089,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   VERIFY(   PMATH_SYMBOL_TIMESBY                   = NEW_SYSTEM_SYMBOL("TimesBy"))
   VERIFY(   PMATH_SYMBOL_TIMING                    = NEW_SYSTEM_SYMBOL("Timing"))
   VERIFY(   PMATH_SYMBOL_TOBOXES                   = NEW_SYSTEM_SYMBOL("ToBoxes"))
+  VERIFY(   PMATH_SYMBOL_TOEXPRESSION              = NEW_SYSTEM_SYMBOL("ToExpression"))
   VERIFY(   PMATH_SYMBOL_TOFILENAME                = NEW_SYSTEM_SYMBOL("ToFileName"))
   VERIFY(   PMATH_SYMBOL_TOSTRING                  = NEW_SYSTEM_SYMBOL("ToString"))
   VERIFY(   PMATH_SYMBOL_TOTAL                     = NEW_SYSTEM_SYMBOL("Total"))
@@ -1439,6 +1442,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
     BIND_DOWN(   PMATH_SYMBOL_TIMING,                      builtin_timing)
     BIND_DOWN(   PMATH_SYMBOL_TIMESBY,                     builtin_divideby_or_timesby)
     BIND_DOWN(   PMATH_SYMBOL_TOBOXES,                     builtin_toboxes)
+    BIND_DOWN(   PMATH_SYMBOL_TOEXPRESSION,                builtin_toexpression)
     BIND_DOWN(   PMATH_SYMBOL_TOFILENAME,                  builtin_tofilename)
     BIND_DOWN(   PMATH_SYMBOL_TOSTRING,                    builtin_tostring)
     BIND_DOWN(   PMATH_SYMBOL_TOTAL,                       builtin_total)

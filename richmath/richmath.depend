@@ -3075,7 +3075,7 @@
 1286384467 d:\peter\programmieren\pmath\trunk\library\include\pmath-core\symbols.h
 	<pmath-core/strings.h>
 
-1286728547 d:\peter\programmieren\pmath\trunk\library\include\pmath-builtins\all-symbols.h
+1286830893 d:\peter\programmieren\pmath\trunk\library\include\pmath-builtins\all-symbols.h
 	<pmath-core/expressions.h>
 	<pmath-core/symbols.h>
 
@@ -3083,7 +3083,7 @@
 	<pmath-config.h>
 	<pmath-types.h>
 
-1286732503 d:\peter\programmieren\pmath\trunk\library\include\pmath-language\scanner.h
+1286829696 d:\peter\programmieren\pmath\trunk\library\include\pmath-language\scanner.h
 	<pmath-core/strings.h>
 
 1285094420 d:\peter\programmieren\pmath\trunk\library\include\pmath-language\tokens.h
@@ -3158,7 +3158,7 @@
 
 1280054986 d:\peter\programmieren\pmath\trunk\richmath\include\util\sharedptr.h
 
-1286715611 d:\peter\programmieren\pmath\trunk\richmath\include\util\style.h
+1286832351 d:\peter\programmieren\pmath\trunk\richmath\include\util\style.h
 	<util/hashtable.h>
 	<util/pmath-extra.h>
 	<util/sharedptr.h>
@@ -3406,7 +3406,7 @@
 	<boxes/section.h>
 	<graphics/context.h>
 
-1286109793 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\stylebox.cpp
+1286833832 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\stylebox.cpp
 	<boxes/stylebox.h>
 	<cmath>
 	<boxes/mathsequence.h>
@@ -3781,7 +3781,7 @@
 	<boxes/subsuperscriptbox.h>
 	<boxes/underoverscriptbox.h>
 
-1286715849 source:d:\peter\programmieren\pmath\trunk\richmath\src\util\style.cpp
+1286832389 source:d:\peter\programmieren\pmath\trunk\richmath\src\util\style.cpp
 	<util/style.h>
 	<climits>
 	<cmath>

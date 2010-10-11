@@ -574,7 +574,7 @@ PMATH_API pmath_bool_t pmath_init(void){
     PMATH_RUN("Options(BinaryRead):=Options(BinaryWrite):={"
       "ByteOrdering:>$ByteOrdering}");
     
-    PMATH_RUN("Options(BoxesToExpression):={"
+    PMATH_RUN("Options(BoxesToExpression):=Options(ToExpression):={"
       "ParserArguments->Automatic,"
       "ParseSymbols->Automatic}");
       
@@ -652,6 +652,7 @@ PMATH_API pmath_bool_t pmath_init(void){
       "Selectable->Inherited,"
       "ShowAutoStyles->Inherited,"
       "ShowStringCharacters->Inherited,"
+      "StripOnInput->True,"
       "TextShadow->Inherited"
       "}");
           

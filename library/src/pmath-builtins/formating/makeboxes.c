@@ -13,10 +13,12 @@
 
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/control/definitions-private.h>
+#include <pmath-builtins/control-private.h>
 #include <pmath-builtins/formating-private.h>
 #include <pmath-builtins/lists-private.h>
 
 #include <stdio.h>
+#include <string.h>
 
 #ifdef _MSC_VER
   #define snprintf sprintf_s
@@ -2288,8 +2290,16 @@ static pmath_t skeleton_to_boxes(
 
   return call_to_boxes(thread, expr);
 }
-
-  static void emit_stylebox_options(pmath_expr_t expr, size_t start){ // expr wont be freed
+  
+  struct emit_stylebox_options_info_t{
+    pmath_bool_t have_explicit_strip_on_input;
+  };
+  
+  static void emit_stylebox_options(
+    pmath_expr_t                         expr, 
+    size_t                               start, 
+    struct emit_stylebox_options_info_t *info
+  ){ // expr wont be freed
     size_t i;
     
     for(i = start;i <= pmath_expr_length(expr);++i){
@@ -2342,7 +2352,7 @@ static pmath_t skeleton_to_boxes(
       }
       
       if(pmath_is_expr_of(item, PMATH_SYMBOL_LIST)){
-        emit_stylebox_options(expr, 1);
+        emit_stylebox_options(expr, 1, info);
         pmath_unref(item);
         continue;
       }
@@ -2358,6 +2368,15 @@ static pmath_t skeleton_to_boxes(
         continue;
       }
       
+      if(_pmath_is_rule(item)){
+        pmath_t lhs = pmath_expr_get_item(item, 1);
+        pmath_unref(lhs);
+        
+        if(!info->have_explicit_strip_on_input){
+          info->have_explicit_strip_on_input = (lhs == PMATH_SYMBOL_STRIPONINPUT);
+        }
+      }
+      
       pmath_emit(item, NULL);
     }
   }
@@ -2369,19 +2388,26 @@ static pmath_t style_to_boxes(
   size_t len = pmath_expr_length(expr);
   
   if(len >= 1){
+    struct emit_stylebox_options_info_t info;
+    memset(&info, 0, sizeof(info));
+    
     pmath_gather_begin(NULL);
     pmath_emit(object_to_boxes(thread, pmath_expr_get_item(expr, 1)), NULL);
     
-    emit_stylebox_options(expr, 2);
+    emit_stylebox_options(expr, 2, &info);
     pmath_unref(expr);
+    
+    if(!info.have_explicit_strip_on_input){
+      pmath_emit(
+        pmath_expr_new_extended(
+          pmath_ref(PMATH_SYMBOL_RULE), 2,
+          pmath_ref(PMATH_SYMBOL_STRIPONINPUT),
+          pmath_ref(PMATH_SYMBOL_FALSE)),
+        NULL);
+    }
     
     expr = pmath_gather_end();
     return pmath_expr_set_item(expr, 0, pmath_ref(PMATH_SYMBOL_STYLEBOX));
-  }
-  else if(len == 1){
-    pmath_t item = pmath_expr_get_item(expr, 1);
-    pmath_unref(expr);
-    return object_to_boxes(thread, item);
   }
   
   return call_to_boxes(thread, expr);
@@ -2783,7 +2809,7 @@ static pmath_t expr_to_boxes(pmath_thread_t thread, pmath_expr_t expr){
       || head == PMATH_SYMBOL_OVERSCRIPT)
         return underscript_or_overscript_to_boxes(thread, expr);
       
-      if(head == PMATH_SYMBOL_UNDEROVERSCRIPTBOX)
+      if(head == PMATH_SYMBOL_UNDEROVERSCRIPT)
         return underoverscript_to_boxes(thread, expr);
       
       /*----------------------------------------------------------------------*/

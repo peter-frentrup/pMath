@@ -855,7 +855,8 @@ PMATH_PRIVATE pmath_t builtin_boxestoexpression(pmath_expr_t expr){
     pmath_message(NULL, "inv", 1, box);
     return pmath_ref(PMATH_SYMBOL_FAILED);
   }
-  else if(pmath_instance_of(box, PMATH_TYPE_EXPRESSION)){
+  
+  if(pmath_instance_of(box, PMATH_TYPE_EXPRESSION)){
     uint16_t firstchar, secondchar;
     size_t i;
     
@@ -897,8 +898,10 @@ PMATH_PRIVATE pmath_t builtin_boxestoexpression(pmath_expr_t expr){
         
         pmath_unref(num);
         pmath_unref(box);
+        goto FAILED;
       }
-      else if(box == PMATH_SYMBOL_FRAMEBOX && exprlen == 1){
+      
+      if(box == PMATH_SYMBOL_FRAMEBOX && exprlen == 1){
         box = pmath_expr_get_item(expr, 1);
         
         if(parse(&box)){
@@ -908,27 +911,56 @@ PMATH_PRIVATE pmath_t builtin_boxestoexpression(pmath_expr_t expr){
               pmath_ref(PMATH_SYMBOL_FRAMED), 1,
               box));
         }
+        
+        goto FAILED;
       }
-      else if(box == PMATH_SYMBOL_GRIDBOX && exprlen >= 1){
+      
+      if(box == PMATH_SYMBOL_GRIDBOX && exprlen >= 1){
         box = parse_gridbox(expr, TRUE);
+        
         if(box){
           pmath_unref(expr);
           return box;
         }
+        
+        goto FAILED;
       }
-      else if(box == PMATH_SYMBOL_HOLDCOMPLETE){
+      
+      if(box == PMATH_SYMBOL_HOLDCOMPLETE){
         return expr;
       }
-      else if(box == PMATH_SYMBOL_INTERPRETATIONBOX && exprlen >= 2){
+      
+      if(box == PMATH_SYMBOL_INTERPRETATIONBOX && exprlen >= 2){
         pmath_expr_t options = pmath_options_extract(expr, 2);
         pmath_unref(options);
+        
         if(options){
           box = pmath_expr_get_item(expr, 2);
           pmath_unref(expr);
           return HOLDCOMPLETE(box);
         }
+        
+        goto FAILED;
       }
-      else if(box == PMATH_SYMBOL_RADICALBOX && exprlen == 2){
+      
+      if(box == PMATH_SYMBOL_OVERSCRIPTBOX && exprlen == 2){
+        pmath_t base = pmath_expr_get_item(expr, 1);
+        box = pmath_expr_get_item(expr, 2);
+        
+        if(parse(&base) && parse(&box)){
+          expr = pmath_expr_set_item(expr, 1, base);
+          expr = pmath_expr_set_item(expr, 2, box);
+          expr = pmath_expr_set_item(expr, 0, pmath_ref(PMATH_SYMBOL_OVERSCRIPT));
+          
+          return HOLDCOMPLETE(expr);
+        }
+        
+        pmath_unref(base);
+        pmath_unref(box);
+        goto FAILED;
+      }
+      
+      if(box == PMATH_SYMBOL_RADICALBOX && exprlen == 2){
         pmath_t base = pmath_expr_get_item(expr, 1);
         box = pmath_expr_get_item(expr, 2);
         
@@ -947,8 +979,35 @@ PMATH_PRIVATE pmath_t builtin_boxestoexpression(pmath_expr_t expr){
         
         pmath_unref(base);
         pmath_unref(box);
+        goto FAILED;
       }
-      else if(box == PMATH_SYMBOL_SQRTBOX && exprlen == 1){
+      
+      if(box == PMATH_SYMBOL_ROTATIONBOX && exprlen >= 1){
+        pmath_t options = pmath_options_extract(expr, 1);
+        
+        if(options){
+          pmath_t angle = pmath_option_value(
+            PMATH_SYMBOL_ROTATIONBOX,
+            PMATH_SYMBOL_BOXROTATION,
+            options);
+            
+          pmath_unref(options);
+          box = pmath_expr_get_item(expr, 1);
+          
+          if(parse(&box)){
+            pmath_unref(expr);
+            return HOLDCOMPLETE(
+              pmath_expr_new_extended(
+                pmath_ref(PMATH_SYMBOL_ROTATE), 2,
+                box,
+                angle));
+          }
+        }
+        
+        goto FAILED;
+      }
+      
+      if(box == PMATH_SYMBOL_SQRTBOX && exprlen == 1){
         box = pmath_expr_get_item(expr, 1);
         
         if(parse(&box)){
@@ -959,8 +1018,24 @@ PMATH_PRIVATE pmath_t builtin_boxestoexpression(pmath_expr_t expr){
               box,
               pmath_ref(_pmath_one_half)));
         }
+        
+        goto FAILED;
       }
-      else if(box == PMATH_SYMBOL_TAGBOX && exprlen == 2){
+      
+      if(box == PMATH_SYMBOL_STYLEBOX && exprlen >= 1){
+        box = pmath_expr_get_item(expr, 1);
+        
+        if(parse(&box)){
+          expr = pmath_expr_set_item(expr, 1, box);
+          expr = pmath_expr_set_item(expr, 0, pmath_ref(PMATH_SYMBOL_STYLE));
+          
+          return HOLDCOMPLETE(expr);
+        }
+        
+        goto FAILED;
+      }
+      
+      if(box == PMATH_SYMBOL_TAGBOX && exprlen == 2){
         pmath_t view = pmath_expr_get_item(expr, 1);
         pmath_t tag  = pmath_expr_get_item(expr, 2);
         
@@ -1110,28 +1185,43 @@ PMATH_PRIVATE pmath_t builtin_boxestoexpression(pmath_expr_t expr){
         
         pmath_unref(view);
         pmath_unref(tag);
+        goto FAILED;
       }
-      else if(box == PMATH_SYMBOL_ROTATIONBOX && exprlen >= 1){
-        pmath_t options = pmath_options_extract(expr, 1);
+      
+      if(box == PMATH_SYMBOL_UNDERSCRIPTBOX && exprlen == 2){
+        pmath_t base = pmath_expr_get_item(expr, 1);
+        box = pmath_expr_get_item(expr, 2);
         
-        if(options){
-          pmath_t angle = pmath_option_value(
-            PMATH_SYMBOL_ROTATIONBOX,
-            PMATH_SYMBOL_BOXROTATION,
-            options);
-            
-          pmath_unref(options);
-          box = pmath_expr_get_item(expr, 1);
+        if(parse(&base) && parse(&box)){
+          expr = pmath_expr_set_item(expr, 1, base);
+          expr = pmath_expr_set_item(expr, 2, box);
+          expr = pmath_expr_set_item(expr, 0, pmath_ref(PMATH_SYMBOL_UNDERSCRIPT));
           
-          if(parse(&box)){
-            pmath_unref(expr);
-            return HOLDCOMPLETE(
-              pmath_expr_new_extended(
-                pmath_ref(PMATH_SYMBOL_ROTATE), 2,
-                box,
-                angle));
-          }
+          return HOLDCOMPLETE(expr);
         }
+        
+        pmath_unref(base);
+        pmath_unref(box);
+        goto FAILED;
+      }
+      
+      if(box == PMATH_SYMBOL_UNDEROVERSCRIPTBOX && exprlen == 3){
+        pmath_t base = pmath_expr_get_item(expr, 1);
+        pmath_t under = pmath_expr_get_item(expr, 2);
+        box = pmath_expr_get_item(expr, 3);
+        
+        if(parse(&base) && parse(&under) && parse(&box)){
+          expr = pmath_expr_set_item(expr, 1, base);
+          expr = pmath_expr_set_item(expr, 2, under);
+          expr = pmath_expr_set_item(expr, 3, box);
+          expr = pmath_expr_set_item(expr, 0, pmath_ref(PMATH_SYMBOL_UNDEROVERSCRIPT));
+          
+          return HOLDCOMPLETE(expr);
+        }
+        
+        pmath_unref(base);
+        pmath_unref(box);
+        goto FAILED;
       }
       
       goto FAILED;
@@ -2596,6 +2686,6 @@ PMATH_PRIVATE pmath_t builtin_boxestoexpression(pmath_expr_t expr){
     pmath_message(NULL, "inv", 1, expr);
     return pmath_ref(PMATH_SYMBOL_FAILED);
   }
-  else
-    return HOLDCOMPLETE(box);
+  
+  return HOLDCOMPLETE(box);
 }

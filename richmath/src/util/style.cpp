@@ -239,6 +239,9 @@ void Style::add_pmath(Expr options){
           else if(lhs == PMATH_SYMBOL_SHOWSTRINGCHARACTERS){
             set_pmath_bool(ShowStringCharacters, rhs);
           }
+          else if(lhs == PMATH_SYMBOL_STRIPONINPUT){
+            set_pmath_bool(StripOnInput, rhs);
+          }
           else if(lhs == PMATH_SYMBOL_TEXTSHADOW){
             set(TextShadow, rhs);
           }
@@ -630,6 +633,12 @@ void Style::emit_to_pmath(
   if(get(ShowStringCharacters, &i)){
     Gather::emit(Rule(
       Symbol(PMATH_SYMBOL_SHOWSTRINGCHARACTERS), 
+      Symbol(i ? PMATH_SYMBOL_TRUE : PMATH_SYMBOL_FALSE)));
+  }
+  
+  if(get(StripOnInput, &i)){
+    Gather::emit(Rule(
+      Symbol(PMATH_SYMBOL_STRIPONINPUT), 
       Symbol(i ? PMATH_SYMBOL_TRUE : PMATH_SYMBOL_FALSE)));
   }
   

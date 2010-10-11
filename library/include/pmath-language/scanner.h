@@ -126,12 +126,12 @@ PMATH_API int pmath_span_end(pmath_span_t *span);
 
 /**\brief Parses pMath code to a span array.
    \param code A pointer to a pMath string.
-   \param line_reader A function to be called, when there is more input needed. 
-          Its result will be appended to *code.
-   \param subsuperscriptbox_at_index A function that returns TRUE iff at a given
-          position in the code (indicated by the PMATH_CHAR_BOX character) is a
-          SubscriptBox, SuperscriptBox or SubsuperscriptBox.
-   \param underoverscriptbox_at_index  Iff there is an UnderscriptBox, 
+   \param line_reader An optional function to be called, when there is more 
+          input needed. Its result will be appended to *code.
+   \param subsuperscriptbox_at_index An optional function that returns TRUE iff 
+          at a given position in the code (indicated by the PMATH_CHAR_BOX 
+          character) is a SubscriptBox, SuperscriptBox or SubsuperscriptBox.
+   \param underoverscriptbox_at_index (optional) Iff there is an UnderscriptBox, 
           OverscriptBox or UnderoverscriptBox at a given position in the code 
           (indicated by the PMATH_CHAR_BOX character) its base (middle part of
           UnderoverscriptBox) should be returned by this function, otherwise 
@@ -167,9 +167,9 @@ pmath_span_array_t *pmath_spans_from_string(
           pmath_spans_from_boxes().
    \param string The corresponding code to \a span. It wont be freed.
    \param parseable Whether whitespace and comments should be skipped or not.
-   \param box_at_index A function that returns the box at a given position 
-          (indicated by the PMATH_CHAR_BOX character). This function will be 
-          called (at most) one time for every box and in their order of 
+   \param box_at_index An optional function that returns the box at a given 
+          position (indicated by the PMATH_CHAR_BOX character). This function 
+          will be called (at most) one time for every box and in their order of 
           apperance.
    \param data A pointer that will be provided as the last argument to 
           \a box_at_index.
