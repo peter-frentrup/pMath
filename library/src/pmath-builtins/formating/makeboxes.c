@@ -3069,6 +3069,7 @@ PMATH_PRIVATE pmath_t builtin_parenthesizeboxes(pmath_expr_t expr){
   if(pmath_instance_of(posobj, PMATH_TYPE_STRING)){
     if(     pmath_string_equals_latin1(posobj, "Prefix"))  pos = +1;
     else if(pmath_string_equals_latin1(posobj, "Postfix")) pos = -1;
+    else if(pmath_string_equals_latin1(posobj, "Infix"))   pos = 0;
   }
   
   prec = _pmath_symbol_to_precedence(precobj);

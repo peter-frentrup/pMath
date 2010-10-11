@@ -1,4 +1,4 @@
-#include <boxes/inputbox.h>
+#include <boxes/inputfieldbox.h>
 
 #include <cmath>
 
@@ -8,9 +8,9 @@
 
 using namespace richmath;
 
-//{ class InputBox ...
+//{ class InputFieldBox ...
 
-InputBox::InputBox(MathSequence *content)
+InputFieldBox::InputFieldBox(MathSequence *content)
 : ContainerWidgetBox(InputField, content),
   transparent(false),
   autoscroll(false),
@@ -23,19 +23,19 @@ InputBox::InputBox(MathSequence *content)
   cx = 0;
 }
 
-ControlState InputBox::calc_state(Context *context){
+ControlState InputFieldBox::calc_state(Context *context){
   if(selection_inside)
     return Pressed;
   
   return ContainerWidgetBox::calc_state(context);
 }
 
-bool InputBox::expand(const BoxSize &size){
+bool InputFieldBox::expand(const BoxSize &size){
   _extents = size;
   return true;
 }
 
-void InputBox::resize(Context *context){
+void InputFieldBox::resize(Context *context){
   bool  old_math_spacing = context->math_spacing;
   float old_width        = context->width;
   context->math_spacing = false;
@@ -69,7 +69,7 @@ void InputBox::resize(Context *context){
   cx+= frame_x;
 }
 
-void InputBox::paint_content(Context *context){
+void InputFieldBox::paint_content(Context *context){
   float x, y;
   context->canvas->current_pos(&x, &y);
   
@@ -132,7 +132,7 @@ void InputBox::paint_content(Context *context){
   context->canvas->restore();
 }
 
-void InputBox::scroll_to(float x, float y, float w, float h){
+void InputFieldBox::scroll_to(float x, float y, float w, float h){
   if(x + cx < frame_x){
     cx = frame_x - x;
     
@@ -157,27 +157,27 @@ void InputBox::scroll_to(float x, float y, float w, float h){
     cx = frame_x;
 }
 
-Box *InputBox::remove(int *index){
+Box *InputFieldBox::remove(int *index){
   *index = 0;
   _content->remove(0, _content->length());
   return _content;
 }
 
-Expr InputBox::to_pmath(bool parseable){
+Expr InputFieldBox::to_pmath(bool parseable){
   return Call(
-    Symbol(PMATH_SYMBOL_INPUTBOX),
+    Symbol(PMATH_SYMBOL_INPUTFIELDBOX),
     _content->to_pmath(parseable));
 }
 
-bool InputBox::exitable(){
+bool InputFieldBox::exitable(){
   return false;//_parent && _parent->selectable();
 }
       
-bool InputBox::selectable(int i){
+bool InputFieldBox::selectable(int i){
   return i >= 0;
 }
 
-void InputBox::on_mouse_down(MouseEvent &event){
+void InputFieldBox::on_mouse_down(MouseEvent &event){
   Document *doc = find_parent<Document>(false);
   if(doc){
     if(event.left){
@@ -222,7 +222,7 @@ void InputBox::on_mouse_down(MouseEvent &event){
   ContainerWidgetBox::on_mouse_down(event);
 }
 
-void InputBox::on_mouse_move(MouseEvent &event){
+void InputFieldBox::on_mouse_move(MouseEvent &event){
   Document *doc = find_parent<Document>(false);
   
   if(doc){
@@ -242,7 +242,7 @@ void InputBox::on_mouse_move(MouseEvent &event){
   ContainerWidgetBox::on_mouse_move(event);
 }
 
-void InputBox::on_enter(){
+void InputFieldBox::on_enter(){
   if(transparent){
     request_repaint_all();
   }
@@ -250,7 +250,7 @@ void InputBox::on_enter(){
   ContainerWidgetBox::on_enter();
 }
 
-void InputBox::on_exit(){
+void InputFieldBox::on_exit(){
   if(transparent){
     request_repaint_all();
   }
@@ -258,7 +258,7 @@ void InputBox::on_exit(){
   ContainerWidgetBox::on_exit();
 }
 
-void InputBox::on_key_down(SpecialKeyEvent &event){
+void InputFieldBox::on_key_down(SpecialKeyEvent &event){
   switch(event.key){
     case KeyReturn:
     case KeyTab:
@@ -276,11 +276,11 @@ void InputBox::on_key_down(SpecialKeyEvent &event){
   ContainerWidgetBox::on_key_down(event);
 }
 
-void InputBox::on_key_press(uint32_t unichar){
+void InputFieldBox::on_key_press(uint32_t unichar){
   if(unichar != '\n' || unichar != '\t'){
     autoscroll = true;
     ContainerWidgetBox::on_key_press(unichar);
   }
 }
 
-//} ... class InputBox
+//} ... class InputFieldBox

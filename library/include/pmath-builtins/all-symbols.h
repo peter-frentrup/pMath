@@ -410,7 +410,7 @@ pmath_bool_t pmath_register_approx_code(
 #define PMATH_SYMBOL_PIECEWISE                              PMATH_SYMBOL_BUILTIN(318)
 #define PMATH_SYMBOL_SETACCURACY                            PMATH_SYMBOL_BUILTIN(319)
 #define PMATH_SYMBOL_SETPRECISION                           PMATH_SYMBOL_BUILTIN(320)
-#define PMATH_SYMBOL_INPUTBOX                               PMATH_SYMBOL_BUILTIN(321)
+#define PMATH_SYMBOL_INPUTFIELDBOX                          PMATH_SYMBOL_BUILTIN(321)
 #define PMATH_SYMBOL_FILLBOX                                PMATH_SYMBOL_BUILTIN(322)
 #define PMATH_SYMBOL_ISSYMBOL                               PMATH_SYMBOL_BUILTIN(323)
 #define PMATH_SYMBOL_N                                      PMATH_SYMBOL_BUILTIN(324)
@@ -613,7 +613,7 @@ pmath_bool_t pmath_register_approx_code(
 #define PMATH_SYMBOL_MIN                                    PMATH_SYMBOL_BUILTIN(521)
 #define PMATH_SYMBOL_MEAN                                   PMATH_SYMBOL_BUILTIN(522)
 #define PMATH_SYMBOL_TOTAL                                  PMATH_SYMBOL_BUILTIN(523)
-#define PMATH_SYMBOL_CONTENTTYPE                            PMATH_SYMBOL_BUILTIN(524)
+#define PMATH_SYMBOL_EVALUATABLE                            PMATH_SYMBOL_BUILTIN(524)
 #define PMATH_SYMBOL_SLIDER                                 PMATH_SYMBOL_BUILTIN(525)
 #define PMATH_SYMBOL_SLIDERBOX                              PMATH_SYMBOL_BUILTIN(526)
 #define PMATH_SYMBOL_FORMATRULES                            PMATH_SYMBOL_BUILTIN(527)
@@ -626,6 +626,5 @@ pmath_bool_t pmath_register_approx_code(
 #define PMATH_SYMBOL_TRANSPOSE                              PMATH_SYMBOL_BUILTIN(534)
 #define PMATH_SYMBOL_SEQUENCEHOLD                           PMATH_SYMBOL_BUILTIN(535)
 #define PMATH_SYMBOL_COLUMN                                 PMATH_SYMBOL_BUILTIN(536)
-#define PMATH_SYMBOL_EVALUATABLE                            PMATH_SYMBOL_BUILTIN(537)
 
 #endif /* __PMATH_BUILTINS__SYMBOLS_H__ */

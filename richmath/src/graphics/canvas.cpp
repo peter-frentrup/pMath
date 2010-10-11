@@ -23,7 +23,6 @@ Canvas::Canvas(cairo_t *cr)
   native_show_glyphs(true),
   show_only_text(false),
   _cr(cr),
-  _font(0),
   _font_size(10),
   _color(0)
 {
@@ -166,11 +165,7 @@ int Canvas::get_color(){ // 0xRRGGBB
 }
 
 void Canvas::set_font_face(FontFace font){
-  if(_font == font.cairo())
-    return;
-  
-  _font = font.cairo();
-  cairo_set_font_face(_cr, cairo_font_face_reference(_font));
+  cairo_set_font_face(_cr, cairo_font_face_reference(font.cairo()));
 }
 
 void Canvas::set_font_size(float size){

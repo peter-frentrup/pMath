@@ -18,6 +18,9 @@
 		"framed" -> FrameBox("\[SelectionPlaceholder]"),
 		"lorem" -> "Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquid ex ea commodi consequat. Quis aute iure reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint obcaecat cupiditat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
 		
+		"LaTeX" -> StyleBox({{"L",SuperscriptBox("A")},StyleBox({"T",SubscriptBox("E")},ScriptSizeMultipliers->{1}),"X"},AutoSpacing->False,ShowAutoStyles->False),
+		"TeX" -> StyleBox({StyleBox({"T",SubscriptBox("E")},ScriptSizeMultipliers->{1}),"X"},AutoSpacing->False,ShowAutoStyles->False),
+		
 		"cases" -> {"\[Piecewise]", GridBox({{"\[SelectionPlaceholder]", "\[Placeholder]"}, {"\[Placeholder]", "\[Placeholder]"}})},
 		"pmatrix" -> {"(", GridBox({{"\[SelectionPlaceholder]", "\[Placeholder]"}, {"\[Placeholder]", "\[Placeholder]"}}), ")"},
 		"intt" -> {"\[Integral]", "\[SelectionPlaceholder]", "\[DifferentialD]", "\[Placeholder]"},
@@ -27,7 +30,7 @@
 		"sumt" -> {UnderoverscriptBox("\[Sum]", {"\[SelectionPlaceholder]", "=", "\[Placeholder]"}, "\[Placeholder]"), "\[Placeholder]"},
 		"prodt" -> {UnderoverscriptBox("\[Product]", {"\[SelectionPlaceholder]", "=", "\[Placeholder]"}, "\[Placeholder]"), "\[Placeholder]"},
 		
-		"input" -> InputBox("\[SelectionPlaceholder]"),
+		"input" -> InputFieldBox("\[SelectionPlaceholder]"),
 		"rot" -> RotationBox("\[SelectionPlaceholder]", BoxRotation->Pi/4),
 		"scale" -> TransformationBox("\[SelectionPlaceholder]", BoxTransformation->{{2,0},{0,2}}),
 		"trans" -> TransformationBox("\[SelectionPlaceholder]", BoxTransformation->{{1,0.3},{0,1}}),

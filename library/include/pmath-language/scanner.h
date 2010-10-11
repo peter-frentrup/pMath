@@ -157,7 +157,7 @@ PMATH_ATTRIBUTE_USE_RESULT
 pmath_span_array_t *pmath_spans_from_string(
   pmath_string_t   *code,
   pmath_string_t  (*line_reader)(void*),
-  pmath_bool_t (*subsuperscriptbox_at_index)(int,void*),
+  pmath_bool_t    (*subsuperscriptbox_at_index)(int,void*),
   pmath_string_t  (*underoverscriptbox_at_index)(int,void*),
   void            (*error)(pmath_string_t,int,void*,pmath_bool_t), //does not free 1st arg
   void             *data);

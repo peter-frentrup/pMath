@@ -10,7 +10,7 @@
 #include <boxes/fractionbox.h>
 #include <boxes/framebox.h>
 #include <boxes/gridbox.h>
-#include <boxes/inputbox.h>
+#include <boxes/inputfieldbox.h>
 #include <boxes/interpretationbox.h>
 #include <boxes/numberbox.h>
 #include <boxes/ownerbox.h>
@@ -58,6 +58,11 @@ MathSequence::MathSequence()
 MathSequence::~MathSequence(){
   for(int i = 0;i < boxes.length();++i)
     delete boxes[i];
+}
+
+Box *MathSequence::item(int i){ 
+  ensure_boxes_valid();
+  return boxes[i]; 
 }
 
 bool MathSequence::expand(const BoxSize &size){
@@ -424,19 +429,6 @@ void MathSequence::paint(Context *context){
       }
       
       y+= lines[line].descent + line_spacing();
-  //    if(line + 1 < lines.length()){
-  //      if(pos > 0)
-  //        x_extra = -glyphs[pos - 1].right;
-  //      else
-  //        x_extra = 0;
-  //        
-  //      if(pos < glyphs.length())
-  //        x_extra-= glyphs[pos].x_offset;
-  //        
-  //      x_extra+= x0 + indention_width(lines[line + 1].indent);
-  //      
-  //      y+= lines[line].descent + line_spacing();
-  //    }
     }
     
   }
@@ -1728,8 +1720,6 @@ void MathSequence::check_argcount_span(
           
           ++n;
         }
-//        && (pmath_char_is_name(buf[n]) || pmath_char_is_digit(buf[n])))
-//          ++n;
         
         name = str.part(third, n - third);
       }
@@ -1745,8 +1735,6 @@ void MathSequence::check_argcount_span(
         
         ++n;
       }
-//      && (pmath_char_is_name(buf[n]) || pmath_char_is_digit(buf[n])))
-//        ++n;
       
       name = str.part(*pos, n - *pos);
     }
@@ -3202,12 +3190,12 @@ void MathSequence::enlarge_space(Context *context){
 }
 
 /* indention_array[i]: indention of the next line, if there is a line break 
-   after the i-th character.
+   before the i-th character.
  */
 static Array<int> indention_array(0);
 
 /* penalty_array[i]: A penalty value, which is used to decide whether a line
-   break should be placed after the i-th character.
+   break should be placed after (testme: before???) the i-th character.
    The higher this value is, the lower is the probability of a line break after
    character i.
  */
@@ -3215,7 +3203,7 @@ static Array<double> penalty_array(0);
 
 static const double DepthPenalty = 1.0;
 static const double WordPenalty = 100.0;//2.0;
-static const double BestLineWidth = 0.85;
+static const double BestLineWidth = 0.9;
 static const double LineWidthFactor = 2.0;
 
 class BreakPositionWithPenalty{
@@ -3285,7 +3273,7 @@ void MathSequence::split_lines(Context *context){
   for(int start_of_paragraph = 0;start_of_paragraph < glyphs.length();){
     int end_of_paragraph = start_of_paragraph + 1;
     while(end_of_paragraph < glyphs.length() 
-    && buf[end_of_paragraph] != '\n')
+    && buf[end_of_paragraph-1] != '\n')
       ++end_of_paragraph;
     
     break_array.length(0);
@@ -3304,7 +3292,7 @@ void MathSequence::split_lines(Context *context){
         if(break_array[i].text_position >= 0){
           int tp = break_array[i].text_position;
           xstart    = glyphs[tp].right;
-          indention = indention_width(indention_array[tp+1]);
+          indention = indention_width(indention_array[tp + 1]);
           penalty  += penalty_array[tp];
         }
         
@@ -3313,13 +3301,16 @@ void MathSequence::split_lines(Context *context){
           break;
         
         double best = context->width * BestLineWidth;
-        double factor = 0;
-        if(context->width > 0)
-          factor = LineWidthFactor/context->width;
-        double rel_amplitude = ((xend - xstart + indention) - best) * factor;
-        penalty+= rel_amplitude * rel_amplitude;
+        if(pos + 1 < end_of_paragraph 
+        || best < xend - xstart + indention){
+          double factor = 0;
+          if(context->width > 0)
+            factor = LineWidthFactor/context->width;
+          double rel_amplitude = ((xend - xstart + indention) - best) * factor;
+          penalty+= rel_amplitude * rel_amplitude;
+        }
         
-        if(penalty < break_array[current].penalty){
+        if(!(penalty > break_array[current].penalty)){
           break_array[current].penalty = penalty;
           break_array[current].prev_break_index = i;
         }
@@ -3332,7 +3323,7 @@ void MathSequence::split_lines(Context *context){
         mini = i;
     }
     
-    if(end_of_paragraph == glyphs.length())
+    if(buf[end_of_paragraph - 1] != '\n')
       mini = break_array[mini].prev_break_index;
     
     break_result.length(0);
@@ -3342,10 +3333,16 @@ void MathSequence::split_lines(Context *context){
     for(int i = break_result.length()-1;i >= 0;--i){
       int j = break_result[i];
       pos = break_array[j].text_position;
-      new_line(
-        pos + 1, 
-        indention_array[pos], 
-        !spans.is_token_end(pos));
+      
+      while(pos+1 < end_of_paragraph && buf[pos+1] == ' ')
+        ++pos;
+      
+      if(pos < end_of_paragraph){
+        new_line(
+          pos + 1, 
+          indention_array[pos + 1], 
+          !spans.is_token_end(pos));
+      }
     }
     
     start_of_paragraph = end_of_paragraph;
@@ -3400,38 +3397,38 @@ int MathSequence::fill_penalty_array(
     
     if(buf[pos] == PMATH_CHAR_BOX && pos > 0){
       ensure_boxes_valid();
+    
+      while(boxes[*box]->index() < pos)
+        ++*box;
       
-      if(spans.is_operand_start(pos-1)){
-        while(boxes[*box]->index() < pos)
-          ++*box;
-        
-        GridBox *grid = dynamic_cast<GridBox*>(boxes[*box]);
-        if(grid){
-          if(pos > 0 && spans.is_operand_start(pos-1)){
-            if(buf[pos-1] == PMATH_CHAR_PIECEWISE){
-              penalty_array[pos-1] = Infinity;
-              return pos+1;
-            }
-            
-            pmath_token_t tok = pmath_token_analyse(buf + pos - 1, 1, NULL);
-            
-            if(tok == PMATH_TOK_LEFT
-            || tok == PMATH_TOK_LEFTCALL)
-              penalty_array[pos-1] = Infinity;
-          }
-          
-          if(pos+1 < glyphs.length()){
-            pmath_token_t tok = pmath_token_analyse(buf + pos + 1, 1, NULL);
-            
-            if(tok == PMATH_TOK_RIGHT)
-              penalty_array[pos] = Infinity;
-            return pos+1;
-          }
-        }
+      if(dynamic_cast<SubsuperscriptBox*>(boxes[*box])){
+        penalty_array[pos-1] = Infinity;
+        return pos+1;
       }
       
-      if(dynamic_cast<SubsuperscriptBox*>(boxes[*box]))
-        penalty_array[pos-1] = Infinity;
+      if(spans.is_operand_start(pos-1)
+      && dynamic_cast<GridBox*>(boxes[*box])){
+        if(pos > 0 && spans.is_operand_start(pos-1)){
+          if(buf[pos-1] == PMATH_CHAR_PIECEWISE){
+            penalty_array[pos-1] = Infinity;
+            return pos+1;
+          }
+          
+          pmath_token_t tok = pmath_token_analyse(buf + pos - 1, 1, NULL);
+          
+          if(tok == PMATH_TOK_LEFT
+          || tok == PMATH_TOK_LEFTCALL)
+            penalty_array[pos-1] = Infinity;
+        }
+        
+        if(pos+1 < glyphs.length()){
+          pmath_token_t tok = pmath_token_analyse(buf + pos + 1, 1, NULL);
+          
+          if(tok == PMATH_TOK_RIGHT)
+            penalty_array[pos] = Infinity;
+          return pos+1;
+        }
+      }
     }
     
     if(!spans.is_operand_start(pos))
@@ -3463,7 +3460,8 @@ int MathSequence::fill_penalty_array(
   if(pmath_char_is_left(buf[pos])){
     penalty_array[pos]+= WordPenalty + DepthPenalty;
   }
-    
+  
+  int func_depth = depth - 1;
   float inc_penalty = 0.0;
   float dec_penalty = 0.0;
   while(next <= span.end()){
@@ -3494,7 +3492,7 @@ int MathSequence::fill_penalty_array(
       default: 
         if(pmath_char_is_left(buf[next])){
           penalty_array[next]+= WordPenalty;
-          --depth;
+          depth = func_depth;
         }
         else if(pmath_char_is_right(buf[next])){
           penalty_array[next - 1]+= WordPenalty;
@@ -3540,13 +3538,14 @@ int MathSequence::fill_indention_array(
   int next = fill_indention_array(span.next(), depth + 1, pos);
   
   indention_array[pos] = depth;
-  if(in_string)
-    depth+= 1;
+//  if(in_string)
+//    depth+= 1;
   
   bool depth_dec = false;
   while(next <= span.end()){
     if(in_string && next > 0 && buf[next-1] == '\n'){
-      next = fill_indention_array(spans[next], depth - 1, next);
+      indention_array[next] = depth; // 0
+      ++next;
     }
     else{
       if((buf[next] == ';' || buf[next] == ',') && !depth_dec && !in_string){
@@ -3880,9 +3879,9 @@ static void make_box(int pos, pmath_t obj, void *data){
     }
   }
   
-  if(expr[0] == PMATH_SYMBOL_INPUTBOX
+  if(expr[0] == PMATH_SYMBOL_INPUTFIELDBOX
   && expr.expr_length() == 1){
-    InputBox *box = new InputBox(new MathSequence);
+    InputFieldBox *box = new InputFieldBox(new MathSequence);
     box->content()->load_from_object(expr[1], info->options);
     info->boxes->add(box);
     return;

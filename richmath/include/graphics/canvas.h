@@ -73,7 +73,6 @@ namespace richmath{
       void set_font_face(FontFace font);
       void set_font_size(float size);
       float get_font_size(){ return _font_size; }
-      void reset_font_cache(){ _font = 0; }
       
       void move_to(    float x, float y);
       void rel_move_to(float x, float y);
@@ -139,7 +138,6 @@ namespace richmath{
       
     private:
       cairo_t           *_cr;
-      cairo_font_face_t *_font;
       float              _font_size;
       int                _color;
   };

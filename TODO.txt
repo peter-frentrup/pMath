@@ -4,19 +4,9 @@ Row({Button("Math in Text",DocumentApply(SelectedDocument(),"\({\"\"}\)")),
 	Button("italic",DocumentApply(SelectedDocument(),StyleBox("",FontSlant->Italic))),
 	Button("Arg Style",DocumentApply(SelectedDocument(),StyleBox("","Arg")))})
 
-- BUG: 
-		OptionValue(char({"a"}),{BaseLine->1},BaseLine)
-			1
-
-		ClearAll@@Names("TTYBoxes`Private`*")
-		<<"D:\\Peter\\Programmieren\\pmath\\trunk\\library\\scripts\\junk\\ttyboxes.pmath"
-			Options::"fnsym":"The first argument in ￹{"Options", "(", {"Symbol", "(", "\"char\"", ")"}, ")"}￻ is neither a symbol nor a string naming a symbol."
-			AssignDelayed::"wrsym":"The symbol ￹"Symbol"￻ is Protected."
-			AssignDelayed::"wrsym":"The symbol ￹"Symbol"￻ is Protected."
-			AssignDelayed::"wrsym":"The symbol ￹"Symbol"￻ is Protected."
-			General::"stop":"Further output of ￹{"AssignDelayed", "::", "\"wrsym\""}￻ will be suppressed during this calculation."
-	
 ? pmath: implement Transpose in C code (see transpose.pmath)
+
+- implement StringCount
 
 - pmath: use "fat values": a pmath_t will be an 8-byte struct, that contains small ints and doubles directly, (maybe also small strings). tag bits specify the type 
 	advantage: 

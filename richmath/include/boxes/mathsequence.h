@@ -30,7 +30,7 @@ namespace richmath{
       MathSequence();
       virtual ~MathSequence();
       
-      virtual Box *item(int i){ return boxes[i]; }
+      virtual Box *item(int i);
       virtual int count(){      return boxes.length(); }
       virtual int length(){     return str.length(); }
       

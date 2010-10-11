@@ -1,12 +1,12 @@
-#ifndef __BOXES__INPUTBOX_H__
-#define __BOXES__INPUTBOX_H__
+#ifndef __BOXES__INPUTFIELDBOX_H__
+#define __BOXES__INPUTFIELDBOX_H__
 
 #include <boxes/containerwidgetbox.h>
 
 namespace richmath{
-  class InputBox: public ContainerWidgetBox {
+  class InputFieldBox: public ContainerWidgetBox {
     public:
-      InputBox(MathSequence *content = 0);
+      InputFieldBox(MathSequence *content = 0);
       
       virtual ControlState calc_state(Context *context);
       
@@ -47,4 +47,4 @@ namespace richmath{
   };
 }
 
-#endif // __BOXES__INPUTBOX_H__
+#endif // __BOXES__INPUTFIELDBOX_H__

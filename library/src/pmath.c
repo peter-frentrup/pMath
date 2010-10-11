@@ -663,7 +663,6 @@ PMATH_API pmath_bool_t pmath_init(void){
       "BaseStyle->None,"
       "ButtonFrame->Automatic,"
       "ButtonFunction->(/\\/ &),"
-      "ContentType->BoxData,"
       "Editable->True,"
       "Evaluatable->False,"
       "FontColor->GrayLevel(0),"

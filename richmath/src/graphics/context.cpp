@@ -430,10 +430,6 @@ void ContextState::begin(SharedPtr<Style> style){
     else
       ctx->text_shaper = ctx->text_shaper->set_style(fs);
     
-    if(old_text_shaper != ctx->text_shaper)
-      ctx->canvas->reset_font_cache();
-    
-    
     if(ctx->stylesheet->get(style, ScriptSizeMultipliers, &expr)){
       old_script_size_multis.swap(ctx->script_size_multis);
       ctx->set_script_size_multis(expr);

@@ -6,7 +6,6 @@
 #include <boxes/buttonbox.h>
 #include <boxes/fractionbox.h>
 #include <boxes/gridbox.h>
-#include <boxes/inputbox.h>
 #include <boxes/radicalbox.h>
 #include <boxes/section.h>
 #include <boxes/mathsequence.h>
@@ -895,6 +894,7 @@ void Document::on_key_down(SpecialKeyEvent &event){
       Box *selbox = context.selection.get();
       if(context.selection.start == 0
       && selbox
+      && selbox->get_style(Editable)
       && selbox->parent()
       && selbox->parent()->exitable()){
         int index = selbox->index();

@@ -635,7 +635,6 @@ void SectionList::paint_section(Context *context, int i, float scrollx){
   context->canvas->restore();
   paint_section_brackets(context, i, x + _scrollx + _window_width, y);
   
-  context->canvas->reset_font_cache();
   context->canvas->move_to(x, y + _sections[i]->extents().height());
 }
 

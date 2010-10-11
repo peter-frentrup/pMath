@@ -33,16 +33,11 @@ namespace richmath{
     ShowSectionBracket,
     ShowStringCharacters,
     
-    ButtonFrame, // -1 = Automatic,  other: ContainerType value
-    
-    ContentType
+    ButtonFrame // -1 = Automatic,  other: ContainerType value
   };
   
   static const int FontWeightPlain = 0;
   static const int FontWeightBold  = 100;
-  
-  static const int ContentTypeBoxData = 0;
-  static const int ContentTypeString  = 1;
   
   enum FloatStyleOptionName{
     FontSize = 10000, // greather than any IntStyleOptionName value

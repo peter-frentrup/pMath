@@ -2978,7 +2978,7 @@
 	<util/hashtable.h>
 	<util/sharedptr.h>
 
-1283624667 d:\peter\programmieren\pmath\trunk\richmath\include\graphics\canvas.h
+1286647194 d:\peter\programmieren\pmath\trunk\richmath\include\graphics\canvas.h
 	<graphics/fonts.h>
 
 1280688861 d:\peter\programmieren\pmath\trunk\richmath\include\graphics\fonts.h
@@ -3075,7 +3075,7 @@
 1286384467 d:\peter\programmieren\pmath\trunk\library\include\pmath-core\symbols.h
 	<pmath-core/strings.h>
 
-1286215088 d:\peter\programmieren\pmath\trunk\library\include\pmath-builtins\all-symbols.h
+1286728547 d:\peter\programmieren\pmath\trunk\library\include\pmath-builtins\all-symbols.h
 	<pmath-core/expressions.h>
 	<pmath-core/symbols.h>
 
@@ -3083,7 +3083,7 @@
 	<pmath-config.h>
 	<pmath-types.h>
 
-1284805259 d:\peter\programmieren\pmath\trunk\library\include\pmath-language\scanner.h
+1286732503 d:\peter\programmieren\pmath\trunk\library\include\pmath-language\scanner.h
 	<pmath-core/strings.h>
 
 1285094420 d:\peter\programmieren\pmath\trunk\library\include\pmath-language\tokens.h
@@ -3158,7 +3158,7 @@
 
 1280054986 d:\peter\programmieren\pmath\trunk\richmath\include\util\sharedptr.h
 
-1286214793 d:\peter\programmieren\pmath\trunk\richmath\include\util\style.h
+1286715611 d:\peter\programmieren\pmath\trunk\richmath\include\util\style.h
 	<util/hashtable.h>
 	<util/pmath-extra.h>
 	<util/sharedptr.h>
@@ -3208,7 +3208,7 @@
 1286108876 d:\peter\programmieren\pmath\trunk\richmath\include\boxes\ownerbox.h
 	<boxes/box.h>
 
-1286143437 d:\peter\programmieren\pmath\trunk\richmath\include\boxes\mathsequence.h
+1286645176 d:\peter\programmieren\pmath\trunk\richmath\include\boxes\mathsequence.h
 	<boxes/box.h>
 	<util/array.h>
 	<util/syntax-state.h>
@@ -3317,7 +3317,7 @@
 1286108330 d:\peter\programmieren\pmath\trunk\richmath\include\boxes\interpretationbox.h
 	<boxes/ownerbox.h>
 
-1286476422 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\mathsequence.cpp
+1286728667 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\mathsequence.cpp
 	<boxes/mathsequence.h>
 	<climits>
 	<cmath>
@@ -3328,7 +3328,7 @@
 	<boxes/fractionbox.h>
 	<boxes/framebox.h>
 	<boxes/gridbox.h>
-	<boxes/inputbox.h>
+	<boxes/inputfieldbox.h>
 	<boxes/interpretationbox.h>
 	<boxes/numberbox.h>
 	<boxes/ownerbox.h>
@@ -3400,7 +3400,7 @@
 	<eval/client.h>
 	<graphics/context.h>
 
-1286143752 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\sectionlist.cpp
+1286647218 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\sectionlist.cpp
 	<boxes/sectionlist.h>
 	<cmath>
 	<boxes/section.h>
@@ -3418,7 +3418,7 @@
 	<boxes/mathsequence.h>
 	<graphics/context.h>
 
-1286143696 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\textsequence.cpp
+1286647245 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\textsequence.cpp
 	<boxes/textsequence.h>
 	<cstdlib>
 	<boxes/mathsequence.h>
@@ -3428,7 +3428,7 @@
 	<pango/pangocairo.h>
 	<boxes/box.h>
 
-1286110030 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\transformationbox.cpp
+1286723503 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\transformationbox.cpp
 	<boxes/transformationbox.h>
 	<cmath>
 	<boxes/mathsequence.h>
@@ -3516,7 +3516,7 @@
 	<cairo-win32.h>
 	<graphics/shapers.h>
 
-1283638340 source:d:\peter\programmieren\pmath\trunk\richmath\src\graphics\canvas.cpp
+1286647321 source:d:\peter\programmieren\pmath\trunk\richmath\src\graphics\canvas.cpp
 	<graphics/canvas.h>
 	<cmath>
 	<cairo-win32.h>
@@ -3537,7 +3537,7 @@
 	<util/array.h>
 	<util/pmath-extra.h>
 
-1283626404 source:d:\peter\programmieren\pmath\trunk\richmath\src\graphics\context.cpp
+1286647329 source:d:\peter\programmieren\pmath\trunk\richmath\src\graphics\context.cpp
 	<graphics/context.h>
 	<cmath>
 	<cairo-win32.h>
@@ -3596,14 +3596,13 @@
 	<gui/native-widget.h>
 	<graphics/context.h>
 
-1286390489 source:d:\peter\programmieren\pmath\trunk\richmath\src\gui\document.cpp
+1286731712 source:d:\peter\programmieren\pmath\trunk\richmath\src\gui\document.cpp
 	<gui/document.h>
 	<cmath>
 	<cstdio>
 	<boxes/buttonbox.h>
 	<boxes/fractionbox.h>
 	<boxes/gridbox.h>
-	<boxes/inputbox.h>
 	<boxes/radicalbox.h>
 	<boxes/section.h>
 	<boxes/mathsequence.h>
@@ -3740,7 +3739,7 @@
 	<gui/control-painter.h>
 	<resources.h>
 
-1286215050 source:d:\peter\programmieren\pmath\trunk\richmath\src\main.cpp
+1286715736 source:d:\peter\programmieren\pmath\trunk\richmath\src\main.cpp
 	<cmath>
 	<cstdio>
 	<ctime>
@@ -3782,7 +3781,7 @@
 	<boxes/subsuperscriptbox.h>
 	<boxes/underoverscriptbox.h>
 
-1286214829 source:d:\peter\programmieren\pmath\trunk\richmath\src\util\style.cpp
+1286715849 source:d:\peter\programmieren\pmath\trunk\richmath\src\util\style.cpp
 	<util/style.h>
 	<climits>
 	<cmath>
@@ -3836,4 +3835,14 @@
 
 1285690893 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\emit-and-gather.h
 	<pmath-core/expressions.h>
+
+1286728665 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\inputfieldbox.cpp
+	<boxes/inputfieldbox.h>
+	<cmath>
+	<boxes/mathsequence.h>
+	<gui/document.h>
+	<gui/native-widget.h>
+
+1286728595 d:\peter\programmieren\pmath\trunk\richmath\include\boxes\inputfieldbox.h
+	<boxes/containerwidgetbox.h>
 

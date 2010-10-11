@@ -144,17 +144,13 @@
 		<Unit filename="include\boxes\box.h" />
 		<Unit filename="include\boxes\buttonbox.h" />
 		<Unit filename="include\boxes\containerwidgetbox.h" />
-		<Unit filename="include\boxes\dynamicbox.h">
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
+		<Unit filename="include\boxes\dynamicbox.h" />
 		<Unit filename="include\boxes\errorbox.h" />
 		<Unit filename="include\boxes\fillbox.h" />
 		<Unit filename="include\boxes\fractionbox.h" />
 		<Unit filename="include\boxes\framebox.h" />
-		<Unit filename="include\boxes\gridbox.h">
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
-		<Unit filename="include\boxes\inputbox.h" />
+		<Unit filename="include\boxes\gridbox.h" />
+		<Unit filename="include\boxes\inputfieldbox.h" />
 		<Unit filename="include\boxes\interpretationbox.h" />
 		<Unit filename="include\boxes\mathsequence.h" />
 		<Unit filename="include\boxes\numberbox.h" />
@@ -175,9 +171,7 @@
 		<Unit filename="include\eval\job.h" />
 		<Unit filename="include\eval\server.h" />
 		<Unit filename="include\graphics\animation.h" />
-		<Unit filename="include\graphics\buffer.h">
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
+		<Unit filename="include\graphics\buffer.h" />
 		<Unit filename="include\graphics\canvas.h" />
 		<Unit filename="include\graphics\config-shaper.h" />
 		<Unit filename="include\graphics\context.h" />
@@ -223,7 +217,7 @@
 		<Unit filename="src\boxes\fractionbox.cpp" />
 		<Unit filename="src\boxes\framebox.cpp" />
 		<Unit filename="src\boxes\gridbox.cpp" />
-		<Unit filename="src\boxes\inputbox.cpp" />
+		<Unit filename="src\boxes\inputfieldbox.cpp" />
 		<Unit filename="src\boxes\interpretationbox.cpp" />
 		<Unit filename="src\boxes\mathsequence.cpp" />
 		<Unit filename="src\boxes\numberbox.cpp" />

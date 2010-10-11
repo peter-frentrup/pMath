@@ -294,7 +294,6 @@ int main(){
     Stylesheet::Default->base->set(AutoDelete,             false);
     Stylesheet::Default->base->set(AutoNumberFormating,    true);
     Stylesheet::Default->base->set(AutoSpacing,            false);
-    Stylesheet::Default->base->set(ContentType,            ContentTypeBoxData);
     Stylesheet::Default->base->set(Editable,               true);
     Stylesheet::Default->base->set(Evaluatable,            false);
     Stylesheet::Default->base->set(LineBreakWithin,        true);
@@ -437,7 +436,6 @@ int main(){
     #define TEXT_FONT    "Times New Roman" //"Constantia"
     
     s = new Style;
-    s->set(ContentType, ContentTypeString);
     s->set(ShowStringCharacters, false);
     s->set(SectionMarginLeft,   50.0);
     s->set(SectionMarginTop,     7.0);

@@ -58,7 +58,7 @@ static pmath_string_t scanner_read(void *data){
     pmath_parse_string_args("Read(`1`, String)",
       "(o)", pmath_ref(info->file)));
   
-  if(pmath_equals(line, PMATH_SYMBOL_ENDOFFILE)){
+  if(!pmath_instance_of(line, PMATH_TYPE_STRING)){
     pmath_unref(line);
     return NULL;
   }

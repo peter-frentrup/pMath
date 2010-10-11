@@ -325,7 +325,7 @@ PMATH_PRIVATE pmath_t builtin_dot(pmath_expr_t expr){
 
 PMATH_PRIVATE pmath_t builtin_inner(pmath_expr_t expr){
 /* Inner(f, t1, t2, g, k) takes an m1 x m2 x ... x mr dimensional tensor t1
-   and an n1 x n2 x ... ns dimensional tensor t2 with mk = n1 and returns an
+   and an n1 x n2 x ... x ns dimensional tensor t2 with mk = n1 and returns an
    m1 x m2 x ... m(k-1) x m(k+1) x ... x mr x n2 x ... x ns dimesional tensor
  */
   struct _inner_info_t info;
@@ -347,10 +347,10 @@ PMATH_PRIVATE pmath_t builtin_inner(pmath_expr_t expr){
     info.g = pmath_ref(PMATH_SYMBOL_PLUS);
   
   if(exprlen == 5){
-    head1 = pmath_expr_get_item(expr, 5);
+    pmath_t obj = pmath_expr_get_item(expr, 5);
     
-    if(!pmath_instance_of(head1, PMATH_TYPE_INTEGER)
-    || !pmath_integer_fits_ui(head1)){
+    if(!pmath_instance_of(obj, PMATH_TYPE_INTEGER)
+    || !pmath_integer_fits_ui(obj)){
       pmath_message(NULL, "intpm", 2,
         pmath_integer_new_si(5),
         pmath_ref(expr));
@@ -359,13 +359,12 @@ PMATH_PRIVATE pmath_t builtin_inner(pmath_expr_t expr){
       pmath_unref(info.g);
       pmath_unref(t1);
       pmath_unref(t2);
-      pmath_unref(head1);
+      pmath_unref(obj);
       return expr;
     }
     
-    info.n = pmath_integer_get_ui(head1);
-    
-    pmath_unref(head1);
+    info.n = pmath_integer_get_ui(obj);
+    pmath_unref(obj);
   }
   else
     info.n = SIZE_MAX;

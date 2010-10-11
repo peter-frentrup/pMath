@@ -140,7 +140,6 @@ class GlobalPangoContext{
       assert(ctx->canvas->cairo() == cr);
       
       ctx->canvas->rel_move_to(pango_units_to_double(shape->ink_rect.x), 0);
-      ctx->canvas->reset_font_cache();
       box->paint(ctx);
     }
     
@@ -513,7 +512,7 @@ void TextSequence::ensure_boxes_valid(){
     return;
   
   int box = 0;
-  for(int i = 0;i < text.length() - Utf8BoxCharLen;++i){
+  for(int i = 0;i <= text.length() - Utf8BoxCharLen;++i){
     if(text.is_box_at(i)){
       adopt(boxes[box++], i);
       

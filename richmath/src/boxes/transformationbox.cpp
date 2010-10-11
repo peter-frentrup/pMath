@@ -21,12 +21,13 @@ AbstractTransformationBox::AbstractTransformationBox()
 void AbstractTransformationBox::resize(Context *context){
   context->canvas->save();
   context->canvas->transform(mat);
-  context->canvas->reset_font_cache();
+  float w = context->width;
+  context->width = Infinity;
   
   OwnerBox::resize(context);
   
+  context->width = w;
   context->canvas->restore();
-  context->canvas->reset_font_cache();
   
   double mx = 0;//_content->extents().width / 2;
   double my = _content->extents().ascent;//_content->extents().height() / 2;
@@ -90,14 +91,12 @@ void AbstractTransformationBox::paint(Context *context){
   
   cairo_translate(context->canvas->cairo(), x, y);
   cairo_transform(context->canvas->cairo(), &mat);
-  context->canvas->reset_font_cache();
   
   context->canvas->move_to(0, 0);
   
   _content->paint(context);
   
   context->canvas->restore();
-  context->canvas->reset_font_cache();
 }
 
 Box *AbstractTransformationBox::mouse_selection(
@@ -233,6 +232,11 @@ bool TransformationBox::matrix(Expr m){
     mat.xy = - _matrix[1][2].to_double();
     mat.yx = - _matrix[2][1].to_double();
     mat.yy =   _matrix[2][2].to_double();
+    
+    cairo_matrix_t m2;
+    memcpy(&m2, &mat, sizeof(m2));
+    if(cairo_matrix_invert(&m2) != CAIRO_STATUS_SUCCESS)
+      cairo_matrix_init_identity(&mat);
     return true;
   }
   return false;
