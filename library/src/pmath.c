@@ -359,17 +359,17 @@ PMATH_API pmath_bool_t pmath_init(void){
     _pmath_object_complex_infinity = pmath_expr_new(
       pmath_ref(PMATH_SYMBOL_DIRECTEDINFINITY), 0);
 
-    // Range(1, /\/)
+    // Range(1, Automatic)
     _pmath_object_range_from_one = pmath_expr_new_extended(
       pmath_ref(PMATH_SYMBOL_RANGE), 2,
       pmath_integer_new_si(1),
-      NULL);
+      pmath_ref(PMATH_SYMBOL_AUTOMATIC));
 
-    // Range(0, /\/)
+    // Range(0, Automatic)
     _pmath_object_range_from_zero = pmath_expr_new_extended(
       pmath_ref(PMATH_SYMBOL_RANGE), 2,
       pmath_integer_new_si(0),
-      NULL);
+      pmath_ref(PMATH_SYMBOL_AUTOMATIC));
 
     // SingleMatch()
     _pmath_object_singlematch = pmath_expr_new(
@@ -569,15 +569,14 @@ PMATH_API pmath_bool_t pmath_init(void){
     
     PMATH_RUN(
       "Options(Dynamic):="
-      "Options(DynamicBox):={SynchronousUpdating->True}");
+      "Options(DynamicBox):={"
+        "SynchronousUpdating->True,"
+        "TrackedSymbols->Automatic"
+        "}");
     
     PMATH_RUN("Options(BinaryRead):=Options(BinaryWrite):={"
       "ByteOrdering:>$ByteOrdering}");
     
-    PMATH_RUN("Options(BoxesToExpression):=Options(ToExpression):={"
-      "ParserArguments->Automatic,"
-      "ParseSymbols->Automatic}");
-      
     PMATH_RUN("Options(Button):={"
       "ButtonFrame->Automatic,"
       "Method->\"Preemptive\"}");
@@ -613,6 +612,10 @@ PMATH_API pmath_bool_t pmath_init(void){
       "Options(IsFreeOf):="
       "Options(Position):={Heads->True}");
     
+    PMATH_RUN("Options(MakeExpression):=Options(ToExpression):={"
+      "ParserArguments->Automatic,"
+      "ParseSymbols->Automatic}");
+      
     PMATH_RUN("Options(OpenRead):=Options(OpenWrite):=Options(OpenAppend):={"
       "BinaryFormat->False,"
       "CharacterEncoding->Automatic}");

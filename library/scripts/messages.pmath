@@ -113,9 +113,9 @@ Array::plen:= "`1` and `2` should have the same length."
 BinaryRead::format:= BinaryWrite::format:= "`1` is not a recognized binary format."
 BinaryWrite::nocoerce:= "`1` cannot be coerced to the specified format `2`."
 
-BoxesToExpression::base:= "Requested base `1` in `2` should be between 2 and 36."
-BoxesToExpression::digit:= "Digit at position `1` in `2` is to large to be used in base `3`."
-BoxesToExpression::inv:= "`1` is neither a string nor a valid box."
+MakeExpression::base:= "Requested base `1` in `2` should be between 2 and 36."
+MakeExpression::digit:= "Digit at position `1` in `2` is to large to be used in base `3`."
+MakeExpression::inv:= "`1` is neither a string nor a valid box."
 
 Break::nofwd:= Continue::nofwd:= "No surrounding For, While or Do found for `1`."
 

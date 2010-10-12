@@ -273,7 +273,6 @@ PMATH_PRIVATE pmath_t builtin_tofilename(                    pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_assign_namespace(    pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_assign_namespacepath(pmath_expr_t expr);
 
-PMATH_PRIVATE pmath_t builtin_boxestoexpression(pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_iseven(           pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_isexactnumber(    pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_isfloat(          pmath_expr_t expr);
@@ -287,6 +286,7 @@ PMATH_PRIVATE pmath_t builtin_isquotient(       pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_isrational(       pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_isstring(         pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_issymbol(         pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_makeexpression(   pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_names(            pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_namespace(        pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_remove(           pmath_expr_t expr);
@@ -340,6 +340,7 @@ PMATH_PRIVATE pmath_t builtin_most(           pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_operate(        pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_partition(      pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_prepend(        pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_range(          pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_regather(       pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_rest(           pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_reverse(        pmath_expr_t expr);
@@ -352,7 +353,6 @@ PMATH_PRIVATE pmath_t builtin_take(           pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_thread(         pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_through(        pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_total(          pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_transpose(      pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_union(          pmath_expr_t expr);
 //} ============================================================================
 //{ builtins from src/pmath-builtins/logic/ ...
@@ -636,7 +636,6 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   VERIFY(   PMATH_SYMBOL_BOLD                      = NEW_SYSTEM_SYMBOL("Bold"))
   VERIFY(   PMATH_SYMBOL_BOOLE                     = NEW_SYSTEM_SYMBOL("Boole"))
   VERIFY(   PMATH_SYMBOL_BOXDATA                   = NEW_SYSTEM_SYMBOL("BoxData"))
-  VERIFY(   PMATH_SYMBOL_BOXESTOEXPRESSION         = NEW_SYSTEM_SYMBOL("BoxesToExpression"))
   VERIFY(   PMATH_SYMBOL_BOXROTATION               = NEW_SYSTEM_SYMBOL("BoxRotation"))
   VERIFY(   PMATH_SYMBOL_BOXTRANSFORMATION         = NEW_SYSTEM_SYMBOL("BoxTransformation"))
   VERIFY(   PMATH_SYMBOL_BREAK                     = NEW_SYSTEM_SYMBOL("Break"))
@@ -859,6 +858,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   VERIFY(   PMATH_SYMBOL_MACHINEPRECISION          = NEW_SYSTEM_SYMBOL("MachinePrecision"))
   VERIFY(   PMATH_SYMBOL_MACHINEPRECISION_APPROX   = NEW_SYSTEM_SYMBOL("$MachinePrecision"))
   VERIFY(   PMATH_SYMBOL_MAKEBOXES                 = NEW_SYSTEM_SYMBOL("MakeBoxes"))
+  VERIFY(   PMATH_SYMBOL_MAKEEXPRESSION            = NEW_SYSTEM_SYMBOL("MakeExpression"))
   VERIFY(   PMATH_SYMBOL_MAP                       = NEW_SYSTEM_SYMBOL("Map"))
   VERIFY(   PMATH_SYMBOL_MATCH                     = NEW_SYSTEM_SYMBOL("Match"))
   VERIFY(   PMATH_SYMBOL_MATRIXFORM                = NEW_SYSTEM_SYMBOL("MatrixForm"))
@@ -1093,6 +1093,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   VERIFY(   PMATH_SYMBOL_TOFILENAME                = NEW_SYSTEM_SYMBOL("ToFileName"))
   VERIFY(   PMATH_SYMBOL_TOSTRING                  = NEW_SYSTEM_SYMBOL("ToString"))
   VERIFY(   PMATH_SYMBOL_TOTAL                     = NEW_SYSTEM_SYMBOL("Total"))
+  VERIFY(   PMATH_SYMBOL_TRACKEDSYMBOLS            = NEW_SYSTEM_SYMBOL("TrackedSymbols"))
   VERIFY(   PMATH_SYMBOL_TRANSFORMATIONBOX         = NEW_SYSTEM_SYMBOL("TransformationBox"))
   VERIFY(   PMATH_SYMBOL_TRANSPOSE                 = NEW_SYSTEM_SYMBOL("Transpose"))
   VERIFY(   PMATH_SYMBOL_TRUE                      = NEW_SYSTEM_SYMBOL("True"))
@@ -1171,13 +1172,6 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
     
     BIND_UP(     PMATH_SYMBOL_INDETERMINATE,               builtin_operate_indeterminate)
     
-//    BIND_UP(     PMATH_SYMBOL_COS,                         builtin_power_cos)
-//    BIND_UP(     PMATH_SYMBOL_COT,                         builtin_power_cot)
-//    BIND_UP(     PMATH_SYMBOL_CSC,                         builtin_power_csc)
-//    BIND_UP(     PMATH_SYMBOL_SEC,                         builtin_power_sec)
-//    BIND_UP(     PMATH_SYMBOL_SIN,                         builtin_power_sin)
-//    BIND_UP(     PMATH_SYMBOL_TAN,                         builtin_power_tan)
-    
     BIND_DOWN(   PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATE,    builtin_internal_dynamicevaluate)
     BIND_DOWN(   PMATH_SYMBOL_INTERNAL_DYNAMICREMOVE,      builtin_internal_dynamicremove)
     BIND_DOWN(   PMATH_SYMBOL_INTERNAL_GETTHREADID,        builtin_getthreadid)
@@ -1203,7 +1197,6 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
     BIND_DOWN(   PMATH_SYMBOL_BINARYWRITE,                 builtin_binarywrite)
     BIND_DOWN(   PMATH_SYMBOL_BINOMIAL,                    builtin_binomial)
     BIND_DOWN(   PMATH_SYMBOL_BOOLE,                       builtin_boole)
-    BIND_DOWN(   PMATH_SYMBOL_BOXESTOEXPRESSION,           builtin_boxestoexpression)
     BIND_DOWN(   PMATH_SYMBOL_BREAK,                       general_builtin_zeroonearg)
     BIND_DOWN(   PMATH_SYMBOL_BUTTON,                      builtin_button)
     BIND_DOWN(   PMATH_SYMBOL_BYTECOUNT,                   builtin_bytecount)
@@ -1333,6 +1326,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
     BIND_DOWN(   PMATH_SYMBOL_LUDECOMPOSITION,             builtin_ludecomposition)
     BIND_DOWN(   PMATH_SYMBOL_MAP,                         builtin_map)
     BIND_DOWN(   PMATH_SYMBOL_MAKEBOXES,                   builtin_makeboxes)
+    BIND_DOWN(   PMATH_SYMBOL_MAKEEXPRESSION,              builtin_makeexpression)
     BIND_DOWN(   PMATH_SYMBOL_MATCH,                       builtin_match)
     BIND_DOWN(   PMATH_SYMBOL_MAX,                         builtin_max)
     BIND_DOWN(   PMATH_SYMBOL_MEAN,                        builtin_mean)
@@ -1381,6 +1375,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
     BIND_DOWN(   PMATH_SYMBOL_QUOTIENT,                    builtin_quotient)
     BIND_DOWN(   PMATH_SYMBOL_RANDOMINTEGER,               builtin_randominteger)
     BIND_DOWN(   PMATH_SYMBOL_RANDOMREAL,                  builtin_randomreal)
+    BIND_DOWN(   PMATH_SYMBOL_RANGE,                       builtin_range)
     BIND_DOWN(   PMATH_SYMBOL_RE,                          builtin_re)
     BIND_DOWN(   PMATH_SYMBOL_READ,                        builtin_read)
     BIND_DOWN(   PMATH_SYMBOL_READLIST,                    builtin_readlist)
@@ -1446,7 +1441,6 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
     BIND_DOWN(   PMATH_SYMBOL_TOFILENAME,                  builtin_tofilename)
     BIND_DOWN(   PMATH_SYMBOL_TOSTRING,                    builtin_tostring)
     BIND_DOWN(   PMATH_SYMBOL_TOTAL,                       builtin_total)
-    BIND_DOWN(   PMATH_SYMBOL_TRANSPOSE,                   builtin_transpose)
     BIND_DOWN(   PMATH_SYMBOL_TRY,                         builtin_try)
     BIND_DOWN(   PMATH_SYMBOL_UNASSIGN,                    builtin_unassign)
     BIND_DOWN(   PMATH_SYMBOL_UNDERFLOW,                   general_builtin_zeroargs)
@@ -1524,7 +1518,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   SET_ATTRIB( PMATH_SYMBOL_BERNOULLIB,                    LISTABLE);
   SET_ATTRIB( PMATH_SYMBOL_BINOMIAL,                      LISTABLE | NUMERICFUNCTION);
   SET_ATTRIB( PMATH_SYMBOL_BOOLE,                         LISTABLE);
-  SET_ATTRIB( PMATH_SYMBOL_BOXESTOEXPRESSION,             READPROTECTED);
+  SET_ATTRIB( PMATH_SYMBOL_MAKEEXPRESSION,                READPROTECTED);
   SET_ATTRIB( PMATH_SYMBOL_BUTTON,                        HOLDREST);
   SET_ATTRIB( PMATH_SYMBOL_CATCH,                         HOLDFIRST);
   SET_ATTRIB( PMATH_SYMBOL_CEILING,                       LISTABLE | NUMERICFUNCTION);

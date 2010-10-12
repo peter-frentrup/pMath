@@ -31,11 +31,11 @@ $Path:= Prepend($Path, $FrontEndDirectory)
 
 SymbolInfo(~name:String)::= Try(
 	With(
-		{sym:= name.BoxesToExpression(ParseSymbols -> False)},
+		{sym:= name.MakeExpression(ParseSymbols -> False)},
 		If(sym.Match(HoldComplete(Symbol(~))),
 			False
 			,
-			If(Union($NamespacePath, {$Namespace}).Map(BoxesToExpression(# ++ name, ParseSymbols -> False)&).Cases(HoldComplete(Except(Symbol(~)))).Length() > 1,
+			If(Union($NamespacePath, {$Namespace}).Map(MakeExpression(# ++ name, ParseSymbols -> False)&).Cases(HoldComplete(Except(Symbol(~)))).Length() > 1,
 				$Failed
 				,
 				Namespace @@ sym =!= "Global`"

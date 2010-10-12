@@ -50,9 +50,9 @@ PMATH_PRIVATE int _pmath_object_in_levelspec(
 
 PMATH_PRIVATE
 pmath_bool_t _pmath_extract_levels(
-  pmath_t levelspec,
-  long *levelmin,
-  long *levelmax
+  pmath_t  levelspec,
+  long    *levelmin,
+  long    *levelmax
 ){
   if(pmath_instance_of(levelspec, PMATH_TYPE_INTEGER)
   && pmath_integer_fits_si(levelspec)){
@@ -67,7 +67,7 @@ pmath_bool_t _pmath_extract_levels(
     && pmath_integer_fits_si(obj)){
       *levelmin = pmath_integer_get_si(obj);
     }
-    else if(!obj){
+    else if(obj == PMATH_SYMBOL_AUTOMATIC){
       *levelmin = 1;
     }
     else{
@@ -82,7 +82,7 @@ pmath_bool_t _pmath_extract_levels(
     && pmath_integer_fits_si(obj)){
       *levelmax = pmath_integer_get_si(obj);
     }
-    else if(!obj || pmath_equals(obj, _pmath_object_infinity)){
+    else if(obj == PMATH_SYMBOL_AUTOMATIC || pmath_equals(obj, _pmath_object_infinity)){
       *levelmax = LONG_MAX;
     }
     else{
@@ -98,8 +98,8 @@ pmath_bool_t _pmath_extract_levels(
 }
 
 struct emit_level_info_t{
-  long            levelmin;
-  long            levelmax;
+  long         levelmin;
+  long         levelmax;
   pmath_bool_t with_heads;
 };
 

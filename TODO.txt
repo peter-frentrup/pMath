@@ -38,12 +38,6 @@ Row({Button("Math in Text",DocumentApply(SelectedDocument(),"\({\"\"}\)")),
 	So "if(x!=0){ some_x_invariant_code_that_prevents_optimizing_the_assert_away; assert(x!=0); }" can actually crash!
 	[See "The pitfalls of verifying floating-point computations", Monniaux : http://hal.archives-ouvertes.fr/docs/00/28/14/29/PDF/floating-point-article.pdf]
 
-? change Range: start..delta..end = Range(start, delta, end) or Range(start, end, delta)  instead of start..end..delta = Range(start, Range(end,delta))
-
-? implement Symbol <-> Id multimap (for Dynamic()) as two pMath functions instead of two pmath_hashtable_t
-  Internal`DynamicSymbolReferences(sym) = {ref1, ref2, ...}
-  Internal`DynamicReferenceSymbols(ref) = HoldComplete(sym1, sym2, ...)
-
 - add counter for regex cache in debug mode
 
 ? GUI: add ALT+Left/Right/Up/Down to move in the expression tree
@@ -70,8 +64,6 @@ Row({Button("Math in Text",DocumentApply(SelectedDocument(),"\({\"\"}\)")),
 	That should also abort any child threads.
 
 ?? remove Syntax f[[opt]] as a short form for OptionValue(f, opt)
-
-- add ToExpression(x) which is x.StringToBoxes.BoxesToExpression for strings x and BoxesToExpression(x) for anything else
 
 ! inspect numerical instability [introduced with EARLYCODE before pmath_expression_sort for Plus,Times]:
         Local({x:=1/Pi},Do(x:=3.5*x*(1-x),10^6);x)

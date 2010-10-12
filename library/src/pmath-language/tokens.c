@@ -381,7 +381,7 @@ PMATH_API pmath_token_t pmath_token_analyse(
     
     case '.': // ..
       *prec = PMATH_PREC_RANGE;
-      return PMATH_TOK_BINARY_LEFT_AUTOARG;
+      return PMATH_TOK_NARY_AUTOARG;
     
     case '|': // ||
       *prec = PMATH_PREC_OR;

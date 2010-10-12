@@ -121,7 +121,7 @@ static pmath_t get_file(
     if(!info.err){
       result = pmath_evaluate(
         pmath_expr_new_extended(
-          pmath_ref(PMATH_SYMBOL_BOXESTOEXPRESSION), 1,
+          pmath_ref(PMATH_SYMBOL_MAKEEXPRESSION), 1,
           pmath_boxes_from_spans(
             spans, 
             code, 

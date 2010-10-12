@@ -2133,13 +2133,28 @@ void MathSequence::scope_colorize_spanexpr(SyntaxState *state, SpanExpr *se){
     }
   }
   
-  if(se->count() >= 2 && se->count() <= 3){ // ~:t  x->y   x:=y   integrals   bigops
-    if(se->item_as_char(1) == ':'
-    && se->item_first_char(0) == '~'){
-      for(int i = se->start();i <= se->end();++i)
-        glyphs[i].style = GlyphStyleParameter;
+  if(se->count() >= 2 && se->count() <= 3){ // ~:t   x:p   x->y   x:=y   integrals   bigops
+    if(se->item_as_char(1) == ':'){
+      if(se->item_first_char(0) == '~'){
+        for(int i = se->start();i <= se->end();++i)
+          glyphs[i].style = GlyphStyleParameter;
+        
+        return;
+      }
       
-      return;
+      if(pmath_char_is_name(se->item_first_char(0))){
+        if(!state->in_pattern)
+          return;
+          
+        for(int i = 0;i < se->count();++i){
+          SpanExpr *sub = se->item(i);
+          
+          scope_colorize_spanexpr(state, sub);
+        }
+          
+        symbol_colorize(state, se->item_pos(0), Parameter);
+        return;
+      }
     }
     
     if(se->item_as_char(1) == 0x21A6){ // mapsto

@@ -93,10 +93,10 @@ namespace richmath{
       bool is_box(){ return as_char() == PMATH_CHAR_BOX; }
       
       uint16_t      item_first_char(int i);
-      uint16_t      item_as_char( int i);
-      String        item_as_text( int i);
-      Box          *item_as_box(  int i);
-      bool          item_is_box(  int i){ return item_as_char(i) == PMATH_CHAR_BOX; }
+      uint16_t      item_as_char(   int i);
+      String        item_as_text(   int i);
+      Box          *item_as_box(    int i);
+      bool          item_is_box(    int i){ return item_as_char(i) == PMATH_CHAR_BOX; }
       
     private:
       SpanExpr(SpanExpr *parent, int start, Span span, MathSequence *sequence);

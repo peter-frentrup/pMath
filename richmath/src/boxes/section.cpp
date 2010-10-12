@@ -579,7 +579,7 @@ Expr EditSection::to_pmath(bool parseable){
   Expr result = content()->to_pmath(true);
   
   result = Client::interrupt(Call(
-    Symbol(PMATH_SYMBOL_BOXESTOEXPRESSION), 
+    Symbol(PMATH_SYMBOL_MAKEEXPRESSION), 
     result));
   
   if(result.expr_length() == 1

@@ -26,12 +26,16 @@ namespace richmath{
         return _expr[0] == PMATH_SYMBOL_DYNAMIC
             && _expr.expr_length() >= 1; 
       }
-      
+    
     protected:
+      Expr build_value_call();
+    
+    private:
       Box *_owner;
       Expr _expr;
       
-      int synchronous_updating;
+      int  synchronous_updating; // 0 = False, 1 = True, 2 = Automatic
+      Expr tracked_symbols;
   };
 };
 

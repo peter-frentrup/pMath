@@ -34,7 +34,7 @@ latexToBoxes(~s)::= Local(
  *   - allow optional arguments                                                                  *
  *   - Operator precedence. "a+bc" currently gives {"a", "+", "b", " ", "c"}, but should instead *
  *     give {"a", "+", {"b", " ", "c"}}. It should later be possible to call                     *
- *     "latex-code".System`Util`latexToBoxes.BoxesToExpression                                   *
+ *     "latex-code".System`Util`latexToBoxes.ToExpression                                        *
  *   - \mathrm, ...                                                                              *
  *                                                                                               *
  * Peter Frentrup,  29. 12. 2009                                                                 *

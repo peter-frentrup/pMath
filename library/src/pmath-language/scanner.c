@@ -1555,12 +1555,11 @@ static void parse_rest(parser_t *parser, int lhs, int min_prec){
                 next_prec = PMATH_PREC_INC;
             }
             
-            if(pmath_token_maybe_first(tok)
-            /*tok == PMATH_TOK_DIGIT
-            || tok == PMATH_TOK_STRING
-            || tok == PMATH_TOK_NAME
-            || tok == PMATH_TOK_NAME2*/){
-              if(pmath_token_maybe_rest(tok)){
+            if(pmath_token_maybe_first(tok)){
+              
+              if((tok != PMATH_TOK_LEFTCALL 
+               || parser->last_space_start == parser->tokens.pos)
+              && pmath_token_maybe_rest(tok)){
                 if(next_prec > cur_prec){
                   parse_rest(parser, rhs, next_prec); // =: rhs
                   
@@ -2239,7 +2238,7 @@ PMATH_API pmath_t pmath_parse_string(
   
   result = pmath_evaluate(
     pmath_expr_new_extended(
-      pmath_ref(PMATH_SYMBOL_BOXESTOEXPRESSION), 1,
+      pmath_ref(PMATH_SYMBOL_MAKEEXPRESSION), 1,
       result));
   
   if(!pmath_is_expr_of(result, PMATH_SYMBOL_HOLDCOMPLETE))

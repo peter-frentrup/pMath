@@ -621,7 +621,7 @@ pmath_number_t pmath_float_new_str(
          Example -- Why we avoid mpfr_set_str():
          The input 34643574574574947.427457` equals the double number 
                    34643574574574948 and is printed as "3.464357457457495`*^16". 
-         When that string is given to BoxesToExpression(), this function will be 
+         When that string is given to MakeExpression(), this function will be 
          called with str = "3.464357457457495e16".
          
          mpfr_set_str() would generate the number 34643574574574952, but 

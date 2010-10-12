@@ -639,10 +639,10 @@
 		<Unit filename="src\pmath-builtins\language\begin-and-end.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\language\boxestoexpression.c">
+		<Unit filename="src\pmath-builtins\language\is-object-type.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\language\is-object-type.c">
+		<Unit filename="src\pmath-builtins\language\makeexpression.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src\pmath-builtins\language\names.c">
@@ -787,9 +787,6 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src\pmath-builtins\lists\total.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="src\pmath-builtins\lists\transpose.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src\pmath-builtins\lists\union.c">

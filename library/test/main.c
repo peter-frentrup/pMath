@@ -303,7 +303,7 @@ static pmath_t dialog(pmath_t first_eval){
       if(!err){
         pmath_t obj = pmath_evaluate(
           pmath_expr_new_extended(
-            pmath_ref(PMATH_SYMBOL_BOXESTOEXPRESSION), 1,
+            pmath_ref(PMATH_SYMBOL_MAKEEXPRESSION), 1,
             pmath_boxes_from_spans(
               spans, 
               code, 

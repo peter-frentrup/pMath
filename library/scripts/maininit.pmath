@@ -30,7 +30,7 @@ $NewMessage:= Function({symbol, tag},
 				pattern:= {"General", name} ++ "::" ++ tag ++ WordBoundary
 				);
 			matches:= FindList(ToFileName($BaseDirectory, If(tag === "usage", "usage.pmath", "messages.pmath")), pattern);
-			matches.Scan(#.StringToBoxes.BoxesToExpression.Release &)
+			matches.Scan(ToExpression)
 			)
 		),
 	HoldAll)
@@ -81,7 +81,7 @@ End()
 
 AutoLoad(Hold(ArcCos,ArcCot,ArcCsc,ArcSec,ArcSin,ArcTan, Cos,Cot,Csc,Sec,Sin,Tan, ArcCosh,ArcCoth,ArcCsch,ArcSech,ArcSinh,ArcTanh, Cosh,Coth,Csch,Sech,Sinh,Tanh), 
 	ToFileName({$BaseDirectory, "auto", "core"}, "trig.pmath"))
-AutoLoad(Hold(BernoulliB,Gamma), 
+AutoLoad(Hold(BernoulliB,Gamma,LogGamma), 
 	ToFileName({$BaseDirectory, "auto", "core"}, "gammazeta.pmath"))
 AutoLoad(Hold(Cross, Transpose), 
 	ToFileName({$BaseDirectory, "auto", "core"}, "linalg.pmath"))

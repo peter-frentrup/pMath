@@ -2333,24 +2333,32 @@ static void write_expr_ex(
   }
   else if(head == PMATH_SYMBOL_RANGE){
     pmath_t item;
-    if(exprlen != 2)
+    if(exprlen < 2 || exprlen > 3)
       goto FULLFORM;
 
     if(priority > PRIO_RANGE)
       WRITE_CSTR("(");
 
     item = pmath_expr_get_item(expr, 1);
-    if(item)
+    if(item != PMATH_SYMBOL_AUTOMATIC || exprlen > 2)
       write_ex(item, options, PRIO_RANGE+1, write, user);
     pmath_unref(item);
 
     WRITE_CSTR(" .. ");
 
     item = pmath_expr_get_item(expr, 2);
-    if(item)
+    if(item != PMATH_SYMBOL_AUTOMATIC || exprlen > 2)
       write_ex(item, options, PRIO_RANGE+1, write, user);
     pmath_unref(item);
+    
+    if(exprlen == 3){
+      WRITE_CSTR(" .. ");
 
+      item = pmath_expr_get_item(expr, 3);
+      write_ex(item, options, PRIO_RANGE+1, write, user);
+      pmath_unref(item);
+    }
+    
     if(priority > PRIO_RANGE)
       WRITE_CSTR(")");
   }

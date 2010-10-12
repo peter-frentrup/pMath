@@ -3,21 +3,21 @@
 
 Begin("System`Private`")
 
-Unprotect(BoxesToExpression)
+Unprotect(MakeExpression)
 
-BoxesToExpression({UnderoverscriptBox("\u2211", {~i, "=", ~a}, ~b), ~body})::= 
-	BoxesToExpression({"Sum", "(", {body, ",", {i, "->", {a, "..", b}}}, ")"})
+MakeExpression({UnderoverscriptBox("\[Sum]", {~i, "=", ~a}, ~b), ~body})::= 
+	MakeExpression({"Sum", "(", {body, ",", {i, "->", {a, "..", b}}}, ")"})
 
-BoxesToExpression({UnderoverscriptBox("\u220F", {~i, "=", ~a}, ~b), ~body})::= 
-	BoxesToExpression({"Product", "(", {body, ",", {i, "->", {a, "..", b}}}, ")"})
+MakeExpression({UnderoverscriptBox("\[Product]", {~i, "=", ~a}, ~b), ~body})::= 
+	MakeExpression({"Product", "(", {body, ",", {i, "->", {a, "..", b}}}, ")"})
 
-Protect(BoxesToExpression)
+Protect(MakeExpression)
 
 
 Unprotect(Sum, Product)
 
-MakeBoxes(Sum(    ~body, ~i->~a..~b))::= {UnderoverscriptBox("\u2211", MakeBoxes(i=a), MakeBoxes(b)), ParenthesizeBoxes(MakeBoxes(body), Plus, "Prefix")}
-MakeBoxes(Product(~body, ~i->~a..~b))::= {UnderoverscriptBox("\u220F", MakeBoxes(i=a), MakeBoxes(b)), ParenthesizeBoxes(MakeBoxes(body), Plus, "Prefix")}
+MakeBoxes(Sum(    ~body, ~i->~a..~b))::= {UnderoverscriptBox("\[Sum]",     MakeBoxes(i=a), MakeBoxes(b)), ParenthesizeBoxes(MakeBoxes(body), Plus, "Prefix")}
+MakeBoxes(Product(~body, ~i->~a..~b))::= {UnderoverscriptBox("\[Product]", MakeBoxes(i=a), MakeBoxes(b)), ParenthesizeBoxes(MakeBoxes(body), Plus, "Prefix")}
 
 Protect(Sum, Product)
 

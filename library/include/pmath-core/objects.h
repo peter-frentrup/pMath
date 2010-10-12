@@ -125,8 +125,8 @@ enum {
   PMATH_TYPE_EVALUATABLE             = PMATH_TYPE_NUMBER | PMATH_TYPE_STRING | PMATH_TYPE_SYMBOL | PMATH_TYPE_EXPRESSION
 };
 
-static const pmath_t PMATH_THREAD_KEY_PARSESYMBOLS     = (pmath_t)252; /* see builtin_boxestoexpression() */
-static const pmath_t PMATH_THREAD_KEY_PARSERARGUMENTS  = (pmath_t)253; /* see builtin_boxestoexpression() */
+static const pmath_t PMATH_THREAD_KEY_PARSESYMBOLS     = (pmath_t)252; /* see builtin_makeexpression() */
+static const pmath_t PMATH_THREAD_KEY_PARSERARGUMENTS  = (pmath_t)253; /* see builtin_makeexpression() */
 static const pmath_t PMATH_ABORT_EXCEPTION   = (pmath_t)254; /* see builtin_abort(), ... */
 static const pmath_t PMATH_THREAD_KEY_SORTFN = (pmath_t)254; /* see builtin_sort() */
 static const pmath_t PMATH_UNDEFINED         = (pmath_t)255;

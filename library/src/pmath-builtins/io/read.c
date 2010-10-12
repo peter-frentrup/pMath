@@ -83,7 +83,7 @@ static pmath_t read_expression(pmath_t file){
   
   result = pmath_evaluate(
     pmath_expr_new_extended(
-      pmath_ref(PMATH_SYMBOL_BOXESTOEXPRESSION), 1,
+      pmath_ref(PMATH_SYMBOL_MAKEEXPRESSION), 1,
       result));
       
   if(!pmath_is_expr_of(result, PMATH_SYMBOL_HOLDCOMPLETE))

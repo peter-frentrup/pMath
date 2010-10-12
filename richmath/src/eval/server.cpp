@@ -96,10 +96,8 @@ class LocalServer: public Server{
                 Expr result = Expr(
                   pmath_session_execute(
                     pmath_expr_new_extended(
-                      pmath_ref(PMATH_SYMBOL_RELEASE), 1,
-                      pmath_expr_new_extended(
-                        pmath_ref(PMATH_SYMBOL_BOXESTOEXPRESSION), 1,
-                        pmath_ref(object[i].get()))),
+                      pmath_ref(PMATH_SYMBOL_TOEXPRESSION), 1,
+                      pmath_ref(object[i].get())),
                     &aborted));
                 
                 if(return_from_dialog
@@ -118,10 +116,8 @@ class LocalServer: public Server{
               Expr result = Expr(
                 pmath_session_execute(
                   pmath_expr_new_extended(
-                    pmath_ref(PMATH_SYMBOL_RELEASE), 1,
-                    pmath_expr_new_extended(
-                      pmath_ref(PMATH_SYMBOL_BOXESTOEXPRESSION), 1,
-                      pmath_ref(object.get()))),
+                    pmath_ref(PMATH_SYMBOL_TOEXPRESSION), 1,
+                      pmath_ref(object.get())),
                   &aborted));
             
               if(return_from_dialog

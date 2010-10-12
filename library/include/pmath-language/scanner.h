@@ -17,7 +17,7 @@
     \n (\[Sum] is the Unicode character U+2211: "N-ARY SUMMATION").
     
     It will be translated to <tt>HoldComplete(Sum(f(i), i->1..n))</tt> by 
-    <tt>System`BoxesToExpression</tt>.
+    <tt>System`MakeExpression</tt>.
    
     Front-ends have to convert their own representation of the code to the boxed 
     form before parsing. 
@@ -148,7 +148,7 @@ PMATH_API int pmath_span_end(pmath_span_t *span);
           to the callback functions.
    \return A span-array that can be used by pmath_boxes_from_spans to convert the 
            code to boxed form, which, in turn, is used by 
-           System`BoxesToExpression(). 
+           System`MakeExpression(). 
            The span-array must be freed with pmath_span_array_free() when it is 
            no longer needed.
  */
@@ -218,7 +218,7 @@ pmath_t pmath_string_expand_boxes(pmath_string_t s);
    \param code A pMath String representing the code. It will be freed.
    \return A pMath object.
    
-   This function returns Release(BoxesToExpression(StringToBoxes("code"))), but 
+   This function returns ToExpression("code"), but 
    does not evaluate this released result.
  */
 PMATH_API 

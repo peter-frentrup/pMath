@@ -18,6 +18,7 @@ PMATH_PRIVATE pmath_bool_t extract_number(
     *num = max;
     return TRUE;
   }
+  
   if(!pmath_instance_of(number, PMATH_TYPE_INTEGER))
     return FALSE;
 
@@ -46,17 +47,18 @@ PMATH_PRIVATE pmath_bool_t extract_range(
   size_t *max,
   pmath_bool_t change_min_on_number
 ){
-  if(pmath_instance_of(range, PMATH_TYPE_EXPRESSION)
-  && pmath_is_expr_of_len(range, PMATH_SYMBOL_RANGE, 2)){
+  if(pmath_is_expr_of_len(range, PMATH_SYMBOL_RANGE, 2)){
     pmath_t obj = pmath_expr_get_item(range, 1);
-    if(obj && !extract_number(obj, *max, min)){
+    if(obj != PMATH_SYMBOL_AUTOMATIC 
+    && !extract_number(obj, *max, min)){
       pmath_unref(obj);
       return FALSE;
     }
     pmath_unref(obj);
 
     obj = pmath_expr_get_item(range, 2);
-    if(obj && !extract_number(obj, *max, max)){
+    if(obj != PMATH_SYMBOL_AUTOMATIC 
+    && !extract_number(obj, *max, max)){
       pmath_unref(obj);
       return FALSE;
     }
@@ -84,51 +86,45 @@ PMATH_PRIVATE pmath_bool_t extract_delta_range(
   pmath_t  range,
   pmath_t *start,
   pmath_t *delta,
-  size_t         *count
+  size_t  *count
 ){
-  pmath_t obj, count_obj;
+  pmath_t count_obj = NULL;
   *start = *delta = NULL;
   *count = 0;
 
   if(pmath_is_expr_of_len(range, PMATH_SYMBOL_RANGE, 2)){
-    obj = pmath_expr_get_item(range, 1);
+    *start = pmath_expr_get_item(range, 1);
+    *delta = pmath_integer_new_ui(1);
 
-    if(pmath_is_expr_of_len(obj, PMATH_SYMBOL_RANGE, 2)){
-      *start = pmath_expr_get_item(obj, 1);
-      *delta = pmath_expr_get_item(range, 2);
+    count_obj = pmath_expr_new_extended( // end + 1 - start
+      pmath_ref(PMATH_SYMBOL_PLUS), 3,
+      pmath_expr_get_item(range, 2),
+      pmath_ref(*delta),
+      pmath_expr_new_extended(
+        pmath_ref(PMATH_SYMBOL_TIMES), 2,
+        pmath_ref(PMATH_NUMBER_MINUSONE),
+        pmath_ref(*start)));
+  }
+  else if(pmath_is_expr_of_len(range, PMATH_SYMBOL_RANGE, 3)){
+    *start = pmath_expr_get_item(range, 1);
+    *delta = pmath_expr_get_item(range, 3);
 
-      count_obj = pmath_expr_new_extended( // 1 + (end - start)/delta
-        pmath_ref(PMATH_SYMBOL_PLUS), 2,
-        pmath_integer_new_ui(1),
-        pmath_expr_new_extended( 
-          pmath_ref(PMATH_SYMBOL_TIMES), 2,
-          pmath_expr_new_extended(
-            pmath_ref(PMATH_SYMBOL_PLUS), 2,
-            pmath_expr_get_item(obj, 2), // end
-            pmath_expr_new_extended(
-              pmath_ref(PMATH_SYMBOL_TIMES), 2,
-              pmath_integer_new_si(-1),
-              pmath_ref(*start))),
-          pmath_expr_new_extended(
-            pmath_ref(PMATH_SYMBOL_POWER), 2,
-            pmath_ref(*delta),
-            pmath_ref(PMATH_NUMBER_MINUSONE))));
-
-      pmath_unref(obj);
-    }
-    else{
-      *start = obj;
-      *delta = pmath_integer_new_ui(1);
-
-      count_obj = pmath_expr_new_extended( // end + 1 - start
-        pmath_ref(PMATH_SYMBOL_PLUS), 3,
-        pmath_expr_get_item(range, 2),
-        pmath_ref(*delta),
+    count_obj = pmath_expr_new_extended( // 1 + (end - start)/delta
+      pmath_ref(PMATH_SYMBOL_PLUS), 2,
+      pmath_integer_new_ui(1),
+      pmath_expr_new_extended( 
+        pmath_ref(PMATH_SYMBOL_TIMES), 2,
         pmath_expr_new_extended(
-          pmath_ref(PMATH_SYMBOL_TIMES), 2,
-          pmath_ref(PMATH_NUMBER_MINUSONE),
-          pmath_ref(*start)));
-    }
+          pmath_ref(PMATH_SYMBOL_PLUS), 2,
+          pmath_expr_get_item(range, 2), // end
+          pmath_expr_new_extended(
+            pmath_ref(PMATH_SYMBOL_TIMES), 2,
+            pmath_integer_new_si(-1),
+            pmath_ref(*start))),
+        pmath_expr_new_extended(
+          pmath_ref(PMATH_SYMBOL_POWER), 2,
+          pmath_ref(*delta),
+          pmath_ref(PMATH_NUMBER_MINUSONE))));
   }
   else{
     *start = pmath_integer_new_ui(1);
@@ -141,12 +137,12 @@ PMATH_PRIVATE pmath_bool_t extract_delta_range(
     pmath_ref(PMATH_SYMBOL_FLOOR), 1, count_obj));
 
   if(!pmath_instance_of(count_obj, PMATH_TYPE_INTEGER)
-  || !pmath_integer_fits_ui((pmath_integer_t)count_obj)){
+  || !pmath_integer_fits_ui(count_obj)){
     pmath_unref(count_obj);
     return FALSE;
   }
 
-  *count = pmath_integer_get_ui((pmath_integer_t)count_obj);
+  *count = pmath_integer_get_ui(count_obj);
   pmath_unref(count_obj);
   return TRUE;
 }
@@ -154,9 +150,9 @@ PMATH_PRIVATE pmath_bool_t extract_delta_range(
 PMATH_PRIVATE
 pmath_bool_t _pmath_extract_longrange(
   pmath_t  range,
-  long           *start,
-  long           *end,
-  long           *step
+  long    *start,
+  long    *end,
+  long    *step
 ){
   if(range == PMATH_SYMBOL_ALL){
     *start = 1;
@@ -183,34 +179,13 @@ pmath_bool_t _pmath_extract_longrange(
   if(pmath_is_expr_of_len(range, PMATH_SYMBOL_RANGE, 2)){
     pmath_t a = pmath_expr_get_item(range, 1);
     pmath_t b = pmath_expr_get_item(range, 2);
-    
-    if(pmath_is_expr_of_len(a, PMATH_SYMBOL_RANGE, 2)){
-      pmath_t c;
-      
-      if(pmath_instance_of(b, PMATH_TYPE_INTEGER)
-      && pmath_integer_fits_si(b)){
-        *step = pmath_integer_get_si(b);
-      }
-      else{
-        pmath_unref(a);
-        pmath_unref(b);
-        return FALSE;
-      }
-      
-      pmath_unref(b);
-      c = a;
-      a = pmath_expr_get_item(c, 1);
-      b = pmath_expr_get_item(c, 2);
-      pmath_unref(c);
-    }
-    else
-      *step = 1;
+    *step = 1;
     
     if(pmath_instance_of(a, PMATH_TYPE_INTEGER)
     && pmath_integer_fits_si(a)){
       *start = pmath_integer_get_si(a);
     }
-    else if(!a){
+    else if(a == PMATH_SYMBOL_AUTOMATIC){
       *start = 1;
     }
     else{
@@ -223,7 +198,7 @@ pmath_bool_t _pmath_extract_longrange(
     && pmath_integer_fits_si(b)){
       *end = pmath_integer_get_si(b);
     }
-    else if(!b){
+    else if(b == PMATH_SYMBOL_AUTOMATIC){
       *end = -1;
     }
     else{
@@ -237,12 +212,63 @@ pmath_bool_t _pmath_extract_longrange(
     return TRUE;
   }
   
+  if(pmath_is_expr_of_len(range, PMATH_SYMBOL_RANGE, 3)){
+    pmath_t a = pmath_expr_get_item(range, 1);
+    pmath_t b = pmath_expr_get_item(range, 2);
+    pmath_t c = pmath_expr_get_item(range, 3);
+    
+    if(pmath_instance_of(c, PMATH_TYPE_INTEGER)
+    && pmath_integer_fits_si(c)){
+      *step = pmath_integer_get_si(c);
+    }
+    else{
+      pmath_unref(a);
+      pmath_unref(b);
+      pmath_unref(c);
+      return FALSE;
+    }
+    
+    if(pmath_instance_of(a, PMATH_TYPE_INTEGER)
+    && pmath_integer_fits_si(a)){
+      *start = pmath_integer_get_si(a);
+    }
+    else if(a == PMATH_SYMBOL_AUTOMATIC){
+      *start = 1;
+    }
+    else{
+      pmath_unref(a);
+      pmath_unref(b);
+      pmath_unref(c);
+      return FALSE;
+    }
+    
+    if(pmath_instance_of(b, PMATH_TYPE_INTEGER)
+    && pmath_integer_fits_si(b)){
+      *end = pmath_integer_get_si(b);
+    }
+    else if(b == PMATH_SYMBOL_AUTOMATIC){
+      *end = -1;
+    }
+    else{
+      pmath_unref(a);
+      pmath_unref(b);
+      pmath_unref(c);
+      return FALSE;
+    }
+    
+    pmath_unref(a);
+    pmath_unref(b);
+    pmath_unref(c);
+    return TRUE;
+  }
+  
   return FALSE;
 }
   
 PMATH_PRIVATE pmath_t builtin_range(pmath_expr_t expr){
-  if(pmath_expr_length(expr) != 2)
-    pmath_message_argxxx(pmath_expr_length(expr), 2, 2);
+  size_t exprlen = pmath_expr_length(expr);
+  if(exprlen < 2 || exprlen > 3)
+    pmath_message_argxxx(exprlen, 2, 3);
 
   return expr;
 }

@@ -10,14 +10,16 @@ using namespace richmath;
 Dynamic::Dynamic()
 : Base(),
   _owner(0),
-  synchronous_updating(0)
+  synchronous_updating(0),
+  tracked_symbols(Symbol(PMATH_SYMBOL_AUTOMATIC))
 {
 }
 
 Dynamic::Dynamic(Box *owner, Expr expr)
 : Base(),
   _owner(0),
-  synchronous_updating(0)
+  synchronous_updating(0),
+  tracked_symbols(Symbol(PMATH_SYMBOL_AUTOMATIC))
 {
   init(owner, expr);
 }
@@ -54,6 +56,13 @@ Expr Dynamic::operator=(Expr expr){
         synchronous_updating = 1;
       else if(su == PMATH_SYMBOL_AUTOMATIC)
         synchronous_updating = 2;
+      else
+        synchronous_updating = 0;
+      
+      tracked_symbols = Expr(pmath_option_value(
+        PMATH_SYMBOL_DYNAMIC, 
+        PMATH_SYMBOL_TRACKEDSYMBOLS,
+        options.get()));
     }
   }
   
@@ -82,16 +91,11 @@ Expr Dynamic::get_value_now(){
     return _expr;
   }
   
-  Expr run = Call(
-    Symbol(PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATE),
-    _expr[1],
-    _owner->id());
-  
-  run = Client::interrupt(run, Client::dynamic_timeout);
-  if(run == PMATH_UNDEFINED)
+  Expr value = Client::interrupt(build_value_call(), Client::dynamic_timeout);
+  if(value == PMATH_UNDEFINED)
     return Symbol(PMATH_SYMBOL_ABORTED);
   
-  return run;
+  return value;
 }
 
 void Dynamic::get_value_later(){
@@ -99,12 +103,7 @@ void Dynamic::get_value_later(){
     return;
   }
   
-  Expr run = Call(
-    Symbol(PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATE),
-    _expr[1],
-    _owner->id());
-  
-  Client::add_job(new DynamicEvaluationJob(Expr(), run, _owner));
+  Client::add_job(new DynamicEvaluationJob(Expr(), build_value_call(), _owner));
 }
 
 bool Dynamic::get_value(Expr *result){
@@ -125,5 +124,21 @@ bool Dynamic::get_value(Expr *result){
   return false;
 }
 
+Expr Dynamic::build_value_call(){
+  if(tracked_symbols == PMATH_SYMBOL_AUTOMATIC){
+    return Call(
+      Symbol(PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATE),
+      _expr[1],
+      _owner->id());
+  }
+  
+  return Call(
+    Symbol(PMATH_SYMBOL_EVALUATIONSEQUENCE),
+    Call(
+      Symbol(PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATE),
+      tracked_symbols,
+      _owner->id()),
+    _expr[1]);
+}
 
 //} ... class Dynamic

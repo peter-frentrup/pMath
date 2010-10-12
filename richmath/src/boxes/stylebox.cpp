@@ -84,6 +84,7 @@ void AbstractStyleBox::colorize_scope(SyntaxState *state){
       if(i + 1 >= _content->length())
         return;
     }
+    
     OwnerBox::colorize_scope(state);
   }
 }
