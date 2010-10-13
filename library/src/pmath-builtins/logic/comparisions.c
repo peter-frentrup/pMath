@@ -179,7 +179,7 @@ static pmath_t ordered(
         
         if(pmath_instance_of(next, PMATH_TYPE_MACHINE_FLOAT)
         && _pmath_is_numeric(prev)){
-          pmath_t p = pmath_approximate(pmath_ref(next), -HUGE_VAL, -HUGE_VAL);
+          pmath_t p = pmath_approximate(pmath_ref(prev), -HUGE_VAL, -HUGE_VAL);
           int c;
           
           if(!pmath_instance_of(p, PMATH_TYPE_NUMBER)){

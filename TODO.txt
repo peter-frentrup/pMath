@@ -1,10 +1,11 @@
-﻿LIBRARY
-
-Row({Button("Math in Text",DocumentApply(SelectedDocument(),"\({\"\"}\)")),
+﻿Row({Button("Math in Text",DocumentApply(SelectedDocument(),"\({\"\"}\)")),
 	Button("italic",DocumentApply(SelectedDocument(),StyleBox("",FontSlant->Italic))),
 	Button("Arg Style",DocumentApply(SelectedDocument(),StyleBox("","Arg")))})
 
 ? pmath: implement Transpose in C code (see transpose.pmath)
+
+- SetOptions(f(a->1), a->2)  ==>  f(a->2)
+- implement PureArgument(n..)
 
 - implement StringCount
 

@@ -42,7 +42,6 @@ PMATH_PRIVATE pmath_t builtin_namespace(pmath_expr_t expr){
     return PMATH_C_STRING("");
   }
   
-  pmath_unref(sym);
-  pmath_message(NULL, "sym", 2, pmath_integer_new_si(1), pmath_ref(expr));
+  pmath_message(NULL, "sym", 2, sym, pmath_integer_new_si(1));
   return expr;
 }

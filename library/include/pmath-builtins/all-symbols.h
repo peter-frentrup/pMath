@@ -274,7 +274,7 @@ pmath_bool_t pmath_register_approx_code(
 #define PMATH_SYMBOL_SQRTBOX                                PMATH_SYMBOL_BUILTIN(182)
 #define PMATH_SYMBOL_RADICALBOX                             PMATH_SYMBOL_BUILTIN(183)
 #define PMATH_SYMBOL_MAKEEXPRESSION                         PMATH_SYMBOL_BUILTIN(184)
-#define PMATH_SYMBOL_RELEASE                                PMATH_SYMBOL_BUILTIN(185)
+#define PMATH_SYMBOL_RELEASEHOLD                            PMATH_SYMBOL_BUILTIN(185)
 #define PMATH_SYMBOL_STRINGTOBOXES                          PMATH_SYMBOL_BUILTIN(186)
 #define PMATH_SYMBOL_THROW                                  PMATH_SYMBOL_BUILTIN(187)
 #define PMATH_SYMBOL_CATCH                                  PMATH_SYMBOL_BUILTIN(188)
@@ -629,5 +629,8 @@ pmath_bool_t pmath_register_approx_code(
 #define PMATH_SYMBOL_TOEXPRESSION                           PMATH_SYMBOL_BUILTIN(537)
 #define PMATH_SYMBOL_STRIPONINPUT                           PMATH_SYMBOL_BUILTIN(538)
 #define PMATH_SYMBOL_TRACKEDSYMBOLS                         PMATH_SYMBOL_BUILTIN(539)
+#define PMATH_SYMBOL_COLUMNSPACING                          PMATH_SYMBOL_BUILTIN(540)
+#define PMATH_SYMBOL_ROWSPACING                             PMATH_SYMBOL_BUILTIN(541)
+#define PMATH_SYMBOL_DEGREE                                 PMATH_SYMBOL_BUILTIN(542)
 
 #endif /* __PMATH_BUILTINS__SYMBOLS_H__ */

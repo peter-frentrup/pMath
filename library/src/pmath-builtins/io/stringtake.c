@@ -72,7 +72,7 @@ static pmath_t stringtake(
       pmath_t item = pmath_expr_get_item(str, i);
       str = pmath_expr_set_item(str, i, NULL);
       
-      item = stringtake(str, expr, start, end, step);
+      item = stringtake(item, expr, start, end, step);
       
       if(item == PMATH_UNDEFINED){
         pmath_unref(str);
@@ -81,6 +81,8 @@ static pmath_t stringtake(
       
       str = pmath_expr_set_item(str, i, item);
     }
+    
+    return str;
   }
   
   pmath_message(NULL, "strse", 2,

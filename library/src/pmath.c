@@ -543,13 +543,21 @@ PMATH_API pmath_bool_t pmath_init(void){
     
     PMATH_RUN("$DialogLevel:=0");
     
-    PMATH_RUN("IsNumeric(Pi):=True");
     PMATH_RUN("IsNumeric(E):=True");
+    PMATH_RUN("IsNumeric(EulerGamma):=True");
+    PMATH_RUN("IsNumeric(Degree):=True");
     PMATH_RUN("IsNumeric(MachinePrecision):=True");
+    PMATH_RUN("IsNumeric(Pi):=True");
     
-    PMATH_RUN("Default(Piecewise, 2):=0");
+    PMATH_RUN("N(Degree,~x)::=N(Pi/180, x)");
+    PMATH_RUN("MakeBoxes(Degree)::=\"\\[Degree]\"");
+    
+    PMATH_RUN("Default(Ceiling,2):=1");
+    PMATH_RUN("Default(Floor,2):=1");
+    PMATH_RUN("Default(Piecewise,2):=0");
     PMATH_RUN("Default(Plus):=0");
-    PMATH_RUN("Default(Power, 2):= 1");
+    PMATH_RUN("Default(Power,2):=1");
+    PMATH_RUN("Default(Round,2):=1");
     PMATH_RUN("Default(Times):=1");
     
     PMATH_RUN(
@@ -599,7 +607,11 @@ PMATH_API pmath_bool_t pmath_init(void){
     
     PMATH_RUN("Options(Get):={Path:>$Path}");
     
-    PMATH_RUN("Options(GridBox):=Options(Grid):={"
+    PMATH_RUN("Options(Grid):={"
+      "ColumnSpacing->Inherited,"
+      "RowSpacing->Inherited}");
+    
+    PMATH_RUN("Options(GridBox):={"
       "GridBoxColumnSpacing->Inherited,"
       "GridBoxRowSpacing->Inherited}");
     

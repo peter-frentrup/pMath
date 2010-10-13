@@ -207,6 +207,10 @@ PMATH_API pmath_symbol_t pmath_symbol_get(
     uint16_t ch = *pmath_string_buffer(name);
     
     switch(ch){
+      case 0x00B0: 
+        pmath_unref(name);
+        return pmath_ref(PMATH_SYMBOL_DEGREE);
+      
       case 0x03C0: 
         pmath_unref(name);
         return pmath_ref(PMATH_SYMBOL_PI);

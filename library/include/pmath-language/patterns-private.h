@@ -55,11 +55,9 @@ pmath_bool_t _pmath_pattern_match(
   pmath_t  pattern,  // will be freed
   pmath_t *rhs);     // in/out (right hand side of assign, Rule, ...)
 
-#ifdef __PMATH_UTIL__NEW_HASHTABLES_PRIVATE_H__
-  PMATH_PRIVATE pmath_bool_t _pmath_contains_any(
-    pmath_t    object,         // wont be freed
-    pmath_hashtable_t replacements);  // entries are pmath_ht_obj_[int_]entry_t*
-#endif
+PMATH_PRIVATE pmath_bool_t _pmath_contains_any(
+  pmath_t           object,         // wont be freed
+  pmath_hashtable_t replacements);  // entries are pmath_ht_obj_[int_]entry_t*
 
 PMATH_PRIVATE pmath_expr_t _pmath_preprocess_local(
   pmath_expr_t local_expr); // will be freed.

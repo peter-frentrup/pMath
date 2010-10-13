@@ -1038,6 +1038,7 @@ void Document::on_key_press(uint32_t unichar){
     uint16_t ch = (uint16_t)unichar;
     String selstr;
     
+    bool can_surround = true;
     if(TextSequence *seq = dynamic_cast<TextSequence*>(context.selection.get())){
       selstr = String::FromUtf8(
         seq->text_buffer().buffer() + context.selection.start, 
@@ -1047,10 +1048,11 @@ void Document::on_key_press(uint32_t unichar){
       selstr = seq->text().part(
         context.selection.start,
         context.selection.end - context.selection.start);
+      
+      can_surround = !seq->is_placeholder(context.selection.start);
     }
     
-    bool can_surround = true;
-    if(selstr.length() == 1){
+    if(can_surround && selstr.length() == 1){
       can_surround = !pmath_char_is_left( *selstr.buffer())
                   && !pmath_char_is_right(*selstr.buffer());
     }

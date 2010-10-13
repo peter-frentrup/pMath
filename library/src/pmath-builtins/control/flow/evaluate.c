@@ -93,8 +93,62 @@ PMATH_PRIVATE pmath_t builtin_evaluatedelayed(pmath_expr_t expr){
   return NULL;
 }
 
-PMATH_PRIVATE pmath_t builtin_release(pmath_expr_t expr){
-/* Release(expr)
+  static pmath_t release_hold(pmath_t expr){
+    if(pmath_instance_of(expr, PMATH_TYPE_EXPRESSION)){
+      size_t i;
+      pmath_bool_t must_flatten;
+      pmath_t head = pmath_expr_get_item(expr, 0);
+      
+      if(head == PMATH_SYMBOL_HOLD
+      || head == PMATH_SYMBOL_HOLDCOMPLETE
+      || head == PMATH_SYMBOL_HOLDFORM
+      || head == PMATH_SYMBOL_HOLDPATTERN){
+        pmath_unref(head);
+        return pmath_expr_set_item(expr, 0, PMATH_UNDEFINED);
+      }
+      
+      head = release_hold(head);
+      if(pmath_is_expr_of(head, PMATH_UNDEFINED)){
+        if(pmath_expr_length(head) == 1){
+          pmath_t arg = pmath_expr_get_item(head, 1);
+          pmath_unref(head);
+          head = arg;
+        }
+        else
+          head = pmath_expr_set_item(head, 0, pmath_ref(PMATH_SYMBOL_SEQUENCE));
+      }
+      
+      must_flatten = FALSE;
+      for(i = pmath_expr_length(expr);i > 0;--i){
+        pmath_t item = pmath_expr_get_item(expr, i);
+        
+        item = release_hold(item);
+        if(pmath_is_expr_of(item, PMATH_UNDEFINED)){
+          if(pmath_expr_length(item) == 1){
+            pmath_t arg = pmath_expr_get_item(item, 1);
+            pmath_unref(item);
+            item = arg;
+          }
+          else
+            must_flatten = TRUE;
+        }
+        
+        expr = pmath_expr_set_item(expr, i, item);
+      }
+      
+      if(must_flatten){
+        expr = pmath_expr_set_item(expr, 0, PMATH_UNDEFINED);
+        expr = pmath_expr_flatten(expr, PMATH_UNDEFINED, 1);
+      }
+      
+      expr = pmath_expr_set_item(expr, 0, head);
+    }
+    
+    return expr;
+  }
+
+PMATH_PRIVATE pmath_t builtin_releasehold(pmath_expr_t expr){
+/* ReleaseHold(expr)
  */
   pmath_expr_t result;
 
@@ -105,23 +159,18 @@ PMATH_PRIVATE pmath_t builtin_release(pmath_expr_t expr){
 
   result = pmath_expr_get_item(expr, 1);
   pmath_unref(expr);
-  if(pmath_instance_of(result, PMATH_TYPE_EXPRESSION)){
-    pmath_t obj = pmath_expr_get_item(result, 0);
-    pmath_unref(obj);
-    
-    if(obj == PMATH_SYMBOL_HOLD
-    || obj == PMATH_SYMBOL_HOLDCOMPLETE){
-      if(pmath_expr_length(result) == 1){
-        obj = pmath_expr_get_item(result, 1);
-        pmath_unref(result);
-        return obj;
-      }
-      
-      return pmath_expr_set_item(
-        result, 0, 
-        pmath_ref(PMATH_SYMBOL_SEQUENCE));
+  
+  result = release_hold(result);
+  if(pmath_is_expr_of(result, PMATH_UNDEFINED)){
+    if(pmath_expr_length(result) == 1){
+      pmath_t arg = pmath_expr_get_item(result, 1);
+      pmath_unref(result);
+      return arg;
     }
+    
+    return pmath_expr_set_item(result, 0, pmath_ref(PMATH_SYMBOL_SEQUENCE));
   }
+  
   return result;
 }
 

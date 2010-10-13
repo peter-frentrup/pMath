@@ -1,5 +1,6 @@
 #include <pmath-core/numbers.h>
 
+#include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
 
 #include <pmath-builtins/all-symbols-private.h>
@@ -13,7 +14,7 @@ struct reverse_info_t{
 
 static pmath_t reverse(
   struct reverse_info_t *info, 
-  pmath_t         obj,  // will be freed
+  pmath_t                obj,  // will be freed
   long                   level
 ){
   int reldepth = _pmath_object_in_levelspec(
@@ -52,8 +53,9 @@ static pmath_t reverse(
 }
 
 PMATH_PRIVATE pmath_t builtin_reverse(pmath_expr_t expr){
-/* Reverse(expr, levelspec)
-   Reverse(expr)             = Reverse(expr, 1)
+/* Reverse(expr, levelspeclist)
+   Reverse(expr, levelspec)  = Reverse(expr, {levelspec})
+   Reverse(expr)             = Reverse(expr, {1})
    
    messages:
      General::level
@@ -81,6 +83,29 @@ PMATH_PRIVATE pmath_t builtin_reverse(pmath_expr_t expr){
   info.levelmax = 1;
   if(exprlen == 2){
     pmath_t levels = pmath_expr_get_item(expr, 2);
+    
+    if(pmath_is_expr_of(levels, PMATH_SYMBOL_LIST)){
+      size_t i;
+      
+      for(i = 1;i <= pmath_expr_length(levels);++i){
+        pmath_t leveli = pmath_expr_get_item(levels, i);
+        info.levelmin = 1;
+        info.levelmax = 1;
+        if(!_pmath_extract_levels(leveli, &info.levelmin, &info.levelmax)){
+          pmath_unref(leveli);
+          pmath_unref(obj);
+          pmath_message(NULL, "level", 1, levels);
+          return expr;
+        }
+        
+        pmath_unref(leveli);
+        obj = reverse(&info, obj, 1);
+      }
+      
+      pmath_unref(levels);
+      pmath_unref(expr);
+      return obj;
+    }
     
     if(!_pmath_extract_levels(levels, &info.levelmin, &info.levelmax)){
       pmath_unref(obj);

@@ -49,7 +49,9 @@ namespace richmath{
     protected:
       double min;
       double max;
+      double step;
       double value;
+      Expr range;
       Dynamic dynamic;
       
       SharedPtr<BoxAnimation> animation;
@@ -60,6 +62,7 @@ namespace richmath{
       bool must_update;
       bool have_drawn;
       bool mouse_down;
+      bool use_double_values;
   };
 }
 

@@ -122,32 +122,6 @@ PMATH_PRIVATE pmath_t builtin_cosh(pmath_expr_t expr){
       
       pmath_unref(fst);
     }
-//    else if(head == PMATH_SYMBOL_PLUS){
-//      pmath_t sum1 = pmath_expr_get_item(x, 1);
-//      
-//      if(pmath_is_expr_of_len(sum1, PMATH_SYMBOL_COMPLEX, 2)){
-//        pmath_t tmp = pmath_expr_get_item(sum1, 1);
-//        
-//        if(pmath_equals(tmp, PMATH_NUMBER_ZERO)){
-//          size_t i;
-//          // Cosh(I x + y) = Cos(x + I y)
-//          pmath_unref(tmp);
-//          
-//          expr = pmath_expr_set_item(expr, 0, pmath_ref(PMATH_SYMBOL_COS));
-//          tmp = pmath_expr_get_item(sum1, 2);
-//          pmath_unref(sum1);
-//          expr = pmath_expr_set_item(expr, 1, tmp);
-//          
-//          for(i = 2;i <= len;++i){
-//            ....
-//          }
-//        }
-//        
-//        pmath_unref(tmp);
-//      }
-//      
-//      pmath_unref(sum1);
-//    }
     else if(len == 2 && head == PMATH_SYMBOL_COMPLEX){
       pmath_t re = pmath_expr_get_item(x, 1);
       pmath_t im = pmath_expr_get_item(x, 2);

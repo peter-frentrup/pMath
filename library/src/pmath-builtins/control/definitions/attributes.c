@@ -1,3 +1,5 @@
+#include <pmath-core/numbers.h>
+
 #include <pmath-util/emit-and-gather.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
@@ -138,7 +140,7 @@ PMATH_PRIVATE pmath_t builtin_attributes(pmath_expr_t expr){
     sym = pmath_symbol_find(sym, FALSE);
     
   if(!pmath_instance_of(sym, PMATH_TYPE_SYMBOL)){
-    pmath_message(NULL, "nosym", 1, sym);
+    pmath_message(NULL, "sym", 2, sym, pmath_integer_new_si(1));
     return expr;
   }
 

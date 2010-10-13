@@ -39,6 +39,7 @@ SliderBox::SliderBox()
 : Box(),
   min(0.0),
   max(1.0),
+  step(0.0),
   value(0.5),
   old_thumb_state(Normal),
   new_thumb_state(Normal),
@@ -46,7 +47,8 @@ SliderBox::SliderBox()
   channel_width(1),
   must_update(true),
   have_drawn(false),
-  mouse_down(false)
+  mouse_down(false),
+  use_double_values(true)
 {
   dynamic.init(this, Expr());
 }
@@ -68,16 +70,39 @@ SliderBox *SliderBox::create(Expr expr){
   
   sb->style = new Style(options);
   
-  Expr range = expr[2];
-  if(range.expr_length() == 2
-  && range[0] == PMATH_SYMBOL_RANGE){
-    sb->min = range[1].to_double(NAN);
-    sb->max = range[2].to_double(NAN);
+  sb->range = expr[2];
+  if(sb->range.expr_length() == 2
+  && sb->range[0] == PMATH_SYMBOL_RANGE){
+    sb->min = sb->range[1].to_double(NAN);
+    sb->max = sb->range[2].to_double(NAN);
     
     if(isnan(sb->min) || isnan(sb->max)){
       delete sb;
       return 0;
     }
+  }
+  else if(sb->range.expr_length() == 3
+  &&      sb->range[0] == PMATH_SYMBOL_RANGE){
+    sb->min  = sb->range[1].to_double(NAN);
+    sb->max  = sb->range[2].to_double(NAN);
+    sb->step = sb->range[3].to_double(0);
+    
+    if(isnan(sb->min) || isnan(sb->max) || sb->step == 0){
+      delete sb;
+      return 0;
+    }
+    
+    sb->use_double_values = !Evaluate(
+      Divide(
+        Minus(sb->range[2], sb->range[1]), 
+        sb->range[3])
+      ).instance_of(PMATH_TYPE_RATIONAL);
+  }
+  else if(sb->range.expr_length() > 0
+  &&      sb->range[0] == PMATH_SYMBOL_LIST){
+    sb->min = 1;
+    sb->max = sb->range.expr_length();
+    sb->step = 1;
   }
   else{
     delete sb;
@@ -116,7 +141,19 @@ void SliderBox::paint(Context *context){
     
     Expr val;
     if(dynamic.get_value(&val)){
-      value = val.to_double(NAN);
+      if(range[0] == PMATH_SYMBOL_LIST){
+        value = min;
+        
+        size_t i;
+        for(i = 1;i <= range.expr_length();++i)
+          if(range[i] == val){
+            value = i;
+            break;
+          }
+      }
+      else{
+        value = val.to_double(NAN);
+      }
     }
   }
   
@@ -243,27 +280,33 @@ float SliderBox::calc_thumb_pos(double val){
 
 double SliderBox::mouse_to_val(double mouse_x){
   mouse_x-= thumb_width / 2;
+  if(mouse_x < 0)
+     mouse_x = 0;
+  if(mouse_x > _extents.width - thumb_width)
+     mouse_x = _extents.width - thumb_width;
   
   double val;
-  if(min != max)
-    val = min + (mouse_x / (_extents.width - thumb_width)) * (max - min);
+  
+  if(min != max){
+    val = (mouse_x / (_extents.width - thumb_width)) * (max - min);
+    
+    if(step != 0){
+      val = min + floor(val / step + 0.5) * step;
+      
+      if(min < max){
+        if(val > max)
+          val-= step;
+      }
+      else{
+        if(val < max)
+          val+= step;
+      }
+    }
+    else
+      val+= min;
+  }
   else
     val = min;
-  
-  if(min < max){
-    if(val < min)
-      return min;
-    
-    if(val > max)
-      return max;
-  }
-  else{
-    if(val < max)
-      return max;
-    
-    if(val > min)
-      return min;
-  }
   
   return val;
 }
@@ -272,10 +315,7 @@ Expr SliderBox::to_pmath(bool parseable){
   return Call(
     Symbol(PMATH_SYMBOL_SLIDERBOX),
     dynamic.expr(),
-    Call(
-      Symbol(PMATH_SYMBOL_RANGE),
-      Expr(min),
-      Expr(max)));
+    range);
 }
 
 Box *SliderBox::mouse_selection(
@@ -310,7 +350,15 @@ void SliderBox::assign_dynamic_value(double d){
     return;
   
   have_drawn = false;
-  dynamic.assign(Expr(d));
+  if(range[0] == PMATH_SYMBOL_LIST){
+    dynamic.assign(range[(size_t)d]);
+  }
+  else if(use_double_values){
+    dynamic.assign(d);
+  }
+  else{
+    dynamic.assign(Plus(range[1], Round(Minus(d, range[1]), range[3])));
+  }
 }
 
 void SliderBox::on_mouse_enter(){

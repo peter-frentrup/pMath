@@ -26,14 +26,11 @@ WithDiff/: Csc(WithDiff(~x, ~dx))::= With({y:= Csc(x)}, WithDiff(y, -dx y Cot(x)
 WithDiff/: Sec(WithDiff(~x, ~dx))::= With({y:= Sec(x)}, WithDiff(y, dx y Tan(x)))
 
 WithDiff/: Abs(WithDiff(~x, ~dx))::= WithDiff(Abs(x), Sign(x) dx)
-WithDiff/: Sign(WithDiff(~x, ~))::= WithDiff(Sign(x), 0)
+WithDiff/: Sign(WithDiff(~x, ~))::= Sign(x)
 WithDiff/: Re(WithDiff(~x, ~dx))::= WithDiff(Re(x), Re(dx))
 WithDiff/: Im(WithDiff(~x, ~dx))::= WithDiff(Im(x), Im(dx))
 
-WithDiff/: (cmp: Less|LessEqual|Greater|GreaterEqual)(WithDiff(~x, ~), ~y) ::= cmp(x, y)
-WithDiff/: (cmp: Less|LessEqual|Greater|GreaterEqual)(~x, WithDiff(~y, ~)) ::= cmp(x, y)
-
-WithDiff/: (test: IsNegetive|IsPositive|IsNonNegative|IsNonPositive|IsExactNumber|IsInexactNumber)(WithDiff(~x, ~))::= test(x)
+WithDiff/: (f: Ceiling|Floor|Round | Less|LessEqual|Greater|GreaterEqual | IsNegetive|IsPositive|IsNonNegative|IsNonPositive|IsExactNumber|IsInexactNumber)(~~~a, WithDiff(~x, ~), ~~~b)::= f(a, x, b)
 
 End()
 

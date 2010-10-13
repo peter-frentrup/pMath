@@ -1,4 +1,5 @@
 #include <pmath-core/symbols-private.h>
+#include <pmath-core/numbers-private.h>
 
 #include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
@@ -360,7 +361,7 @@ PMATH_PRIVATE pmath_t builtin_tagassign(pmath_expr_t expr){
   tag = pmath_expr_get_item(expr, 1);
   
   if(!pmath_instance_of(tag, PMATH_TYPE_SYMBOL)){
-    pmath_message(NULL, "nosym", 1, tag);
+    pmath_message(NULL, "sym", 2, tag, pmath_integer_new_si(1));
     return expr;
   }
   
@@ -398,7 +399,7 @@ PMATH_PRIVATE pmath_t builtin_tagunassign(pmath_expr_t expr){
   tag = pmath_expr_get_item(expr, 1);
   
   if(!pmath_instance_of(tag, PMATH_TYPE_SYMBOL)){
-    pmath_message(NULL, "nosym", 1, tag);
+    pmath_message(NULL, "sym", 2, tag, pmath_integer_new_si(1));
     return expr;
   }
   

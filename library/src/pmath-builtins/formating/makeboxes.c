@@ -1762,6 +1762,45 @@ static pmath_t column_to_boxes(
 
   return call_to_boxes(thread, expr);
 }
+  
+  static void emit_gridbox_options(
+    pmath_expr_t expr, // wont be freed
+    size_t       start
+  ){
+    size_t i;
+    
+    for(i = start;i <= pmath_expr_length(expr);++i){
+      pmath_t item = pmath_expr_get_item(expr, i);
+      
+      if(_pmath_is_rule(item)){
+        pmath_t lhs = pmath_expr_get_item(item, 1);
+        pmath_unref(lhs);
+        
+        if(lhs == PMATH_SYMBOL_COLUMNSPACING){
+          item = pmath_expr_set_item(item, 1, pmath_ref(PMATH_SYMBOL_GRIDBOXCOLUMNSPACING));
+          pmath_emit(item, NULL);
+          continue;
+        }
+        
+        if(lhs == PMATH_SYMBOL_ROWSPACING){
+          item = pmath_expr_set_item(item, 1, pmath_ref(PMATH_SYMBOL_GRIDBOXROWSPACING));
+          pmath_emit(item, NULL);
+          continue;
+        }
+        
+        pmath_emit(item, NULL);
+        continue;
+      }
+      
+      if(pmath_is_expr_of(item, PMATH_SYMBOL_LIST)){
+        emit_gridbox_options(item, 1);
+        pmath_unref(item);
+        continue;
+      }
+      
+      pmath_unref(item);
+    }
+  }
 
 static pmath_t grid_to_boxes(
   pmath_thread_t thread,
@@ -1796,8 +1835,13 @@ static pmath_t grid_to_boxes(
           obj = pmath_expr_set_item(obj, i, row);
         }
         
-        expr = pmath_expr_set_item(expr, 1, obj);
+        pmath_gather_begin(NULL);
         
+        pmath_emit(obj, NULL);
+        emit_gridbox_options(expr, 2);
+        
+        pmath_unref(expr);
+        expr = pmath_gather_end();
         expr = pmath_expr_set_item(expr, 0, pmath_ref(PMATH_SYMBOL_GRIDBOX));
         
         return pmath_expr_new_extended(
@@ -2296,10 +2340,10 @@ static pmath_t skeleton_to_boxes(
   };
   
   static void emit_stylebox_options(
-    pmath_expr_t                         expr, 
+    pmath_expr_t                         expr,  // wont be freed
     size_t                               start, 
     struct emit_stylebox_options_info_t *info
-  ){ // expr wont be freed
+  ){
     size_t i;
     
     for(i = start;i <= pmath_expr_length(expr);++i){

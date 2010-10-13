@@ -62,7 +62,7 @@ Gamma(~z ? IsInexactNumber)::=
 			, 
 				Pi/(y Gamma(1-z)))))
 
-LogGamma(~z ? IsInexactNumber)::= Log(Gamma(z))
+LogGamma(~z)::= With({y:= Log(Gamma(z))}, y /? HoldComplete(y) =!= HoldComplete(Log(Gamma(z))))
 
 End()
 

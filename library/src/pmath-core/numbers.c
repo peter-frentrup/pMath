@@ -1301,11 +1301,21 @@ static void write_machine_float(
     
     s[i] = '\0';
     write_cstr(s, write, user);
-    write_cstr(".0`*^", write, user);
     
-    snprintf(s, sizeof(s), "%d", exp);
-    write_cstr(s, write, user);
-    return;
+    if(exp > 0 && exp < 6){
+      char zeros[] = "000000";
+      zeros[exp] = '\0';
+      write_cstr(zeros, write, user);
+      write_cstr(".0`", write, user);
+      return;
+    }
+    else{
+      write_cstr(".0`*^", write, user);
+      
+      snprintf(s, sizeof(s), "%d", exp);
+      write_cstr(s, write, user);
+      return;
+    }
   }
   
   while(i < len && s[i] != 'e')

@@ -482,8 +482,10 @@ void CharBoxTextShaper::vertical_glyph_size(
 ){
   float em = context->canvas->get_font_size();
   
-  *ascent  = 0.75 * em;
-  *descent = 0.25 * em;
+  if(*ascent < 0.75 * em)
+     *ascent = 0.75 * em;
+  if(*descent < 0.25 * em)
+     *descent = 0.25 * em;
 }
 
 void CharBoxTextShaper::show_glyph(

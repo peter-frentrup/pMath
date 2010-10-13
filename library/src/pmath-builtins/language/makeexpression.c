@@ -14,6 +14,7 @@
 #include <pmath-util/messages.h>
 
 #include <pmath-builtins/all-symbols-private.h>
+#include <pmath-builtins/control-private.h>
 #include <pmath-builtins/lists-private.h>
 
 #include <string.h>
@@ -202,6 +203,44 @@ static pmath_symbol_t relation_at(pmath_expr_t expr, size_t i){ // do not free r
   return NULL;
 }
 
+  static void emit_grid_options(
+    pmath_expr_t options // wont be freed
+  ){
+    size_t i;
+    
+    for(i = 1;i <= pmath_expr_length(options);++i){
+      pmath_t item = pmath_expr_get_item(options, i);
+      
+      if(_pmath_is_rule(item)){
+        pmath_t lhs = pmath_expr_get_item(item, 1);
+        pmath_unref(lhs);
+        
+        if(lhs == PMATH_SYMBOL_GRIDBOXCOLUMNSPACING){
+          item = pmath_expr_set_item(item, 1, pmath_ref(PMATH_SYMBOL_COLUMNSPACING));
+          pmath_emit(item, NULL);
+          continue;
+        }
+        
+        if(lhs == PMATH_SYMBOL_GRIDBOXROWSPACING){
+          item = pmath_expr_set_item(item, 1, pmath_ref(PMATH_SYMBOL_ROWSPACING));
+          pmath_emit(item, NULL);
+          continue;
+        }
+        
+        pmath_emit(item, NULL);
+        continue;
+      }
+      
+      if(pmath_is_expr_of(item, PMATH_SYMBOL_LIST)){
+        emit_grid_options(item);
+        pmath_unref(item);
+        continue;
+      }
+      
+      pmath_unref(item);
+    }
+  }
+
 static pmath_t parse_gridbox( // NULL on error
   pmath_expr_t expr,           // wont be freed
   pmath_bool_t remove_styling
@@ -248,23 +287,32 @@ static pmath_t parse_gridbox( // NULL on error
     return HOLDCOMPLETE(matrix);
   }
   
-  i = pmath_expr_length(options);
-  
-  row = pmath_expr_new(
-    pmath_ref(PMATH_SYMBOL_GRID), 
-    1 + i);
-  
-  row = pmath_expr_set_item(row, 1, matrix);
-  
-  for(;i > 0;--i){
-    row = pmath_expr_set_item(
-      row, i + 1, 
-      pmath_expr_get_item(
-        options, i));
-  }
-  
+  pmath_gather_begin(NULL);
+  pmath_emit(matrix, NULL);
+  emit_grid_options(options);
   pmath_unref(options);
+  
+  row = pmath_gather_end();
+  row = pmath_expr_set_item(row, 0, pmath_ref(PMATH_SYMBOL_GRID));
   return HOLDCOMPLETE(row);
+  
+//  i = pmath_expr_length(options);
+//  
+//  row = pmath_expr_new(
+//    pmath_ref(PMATH_SYMBOL_GRID), 
+//    1 + i);
+//  
+//  row = pmath_expr_set_item(row, 1, matrix);
+//  
+//  for(;i > 0;--i){
+//    row = pmath_expr_set_item(
+//      row, i + 1, 
+//      pmath_expr_get_item(
+//        options, i));
+//  }
+//  
+//  pmath_unref(options);
+//  return HOLDCOMPLETE(row);
 }
 
 PMATH_PRIVATE pmath_t _pmath_parse_number(
@@ -420,18 +468,22 @@ PMATH_PRIVATE pmath_t _pmath_parse_number(
   if((i + 2 < len && str[i] == '*' && str[i+1] == '^')
   || (alternative && i + 1 < len && (str[i] == 'e' || str[i] == 'E'))){
     int exp;
-    int delta = end - start - i - 1;
+    int delta = end - start - i;
       
     if(str[i] == '*'){
       exp = i+= 2;
-      
+      delta-= 1;
       if(is_mp_float){
         cstr[i + delta - 1] = base <= 10 ? 'e' : '@';
       }
     }
-    else
+    else{
       exp = i+= 1;
       
+      is_mp_float = TRUE;
+      cstr[i + delta - 1] = base <= 10 ? 'e' : '@';
+    }
+    
     if(i + 1 < len && (str[i] == '+' || str[i] == '-'))
       ++i;
       
@@ -579,7 +631,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
     
     tok = pmath_token_analyse(str, 1, NULL);
     if(tok == PMATH_TOK_DIGIT){
-      pmath_number_t result = _pmath_parse_number(box, FALSE);
+      pmath_number_t result = _pmath_parse_number(box, TRUE);
       
       if(!result)
         return pmath_ref(PMATH_SYMBOL_FAILED);
@@ -619,7 +671,24 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
       expr = pmath_thread_local_load(PMATH_THREAD_KEY_PARSESYMBOLS);
       pmath_unref(expr);
       
-      expr = pmath_symbol_find((pmath_string_t)pmath_ref(box), 
+      expr = pmath_symbol_find(pmath_ref(box), 
+        expr == PMATH_SYMBOL_TRUE || expr == PMATH_UNDEFINED);
+      
+      if(expr){
+        pmath_unref(box);
+        return HOLDCOMPLETE(expr);
+      }
+      
+      return HOLDCOMPLETE(pmath_expr_new_extended(
+        pmath_ref(PMATH_SYMBOL_SYMBOL), 1,
+        box));
+    }
+    
+    if(tok == PMATH_TOK_NAME2){
+      expr = pmath_thread_local_load(PMATH_THREAD_KEY_PARSESYMBOLS);
+      pmath_unref(expr);
+      
+      expr = pmath_symbol_find(pmath_ref(box), 
         expr == PMATH_SYMBOL_TRUE || expr == PMATH_UNDEFINED);
       
       if(expr){

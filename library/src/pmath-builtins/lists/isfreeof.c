@@ -62,7 +62,7 @@ static pmath_bool_t contains( // return = search more?
 
 PMATH_PRIVATE pmath_t builtin_isfreeof(pmath_expr_t expr){
   /* IsFreeOf(obj, pattern, levelspec)
-     IsFreeOf(obj, pattern)             = Position(obj, pattern, {0, Infinity}) 
+     IsFreeOf(obj, pattern)             = IsFreeOf(obj, pattern, {0, Infinity}) 
      
      options:
        Heads->True

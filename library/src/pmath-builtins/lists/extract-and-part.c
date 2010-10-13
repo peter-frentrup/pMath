@@ -1,4 +1,5 @@
 #include <pmath-core/expressions-private.h>
+#include <pmath-core/numbers.h>
 
 #include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
@@ -474,7 +475,11 @@ PMATH_PRIVATE pmath_t builtin_assign_part(pmath_expr_t expr){
   
   sym = pmath_expr_get_item(lhs, 1);
   if(!pmath_instance_of(sym, PMATH_TYPE_SYMBOL)){
-    pmath_message(NULL, "nosym", 1, sym);
+    pmath_message(NULL, "sym", 1, sym,
+      pmath_expr_new_extended(
+        pmath_ref(PMATH_SYMBOL_LIST), 2,
+        pmath_integer_new_si(tag == PMATH_UNDEFINED ? 1 : 2),
+        pmath_integer_new_si(1)));
     pmath_unref(tag);
     pmath_unref(lhs);
     

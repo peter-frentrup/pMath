@@ -129,7 +129,7 @@ PMATH_PRIVATE pmath_t builtin_match(           pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_memoryusage(     pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_pause(           pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_position(        pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_release(         pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_releasehold(     pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_replace(         pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_replacelist(     pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_timeconstrained( pmath_expr_t expr);
@@ -661,6 +661,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   VERIFY(   PMATH_SYMBOL_CLOSE                     = NEW_SYSTEM_SYMBOL("Close"))
   VERIFY(   PMATH_SYMBOL_COLON                     = NEW_SYSTEM_SYMBOL("Colon"))
   VERIFY(   PMATH_SYMBOL_COLUMN                    = NEW_SYSTEM_SYMBOL("Column"))
+  VERIFY(   PMATH_SYMBOL_COLUMNSPACING             = NEW_SYSTEM_SYMBOL("ColumnSpacing"))
   VERIFY(   PMATH_SYMBOL_COMMANDLINE               = NEW_SYSTEM_SYMBOL("$CommandLine"))
   VERIFY(   PMATH_SYMBOL_COMPLEMENT                = NEW_SYSTEM_SYMBOL("Complement"))
   VERIFY(   PMATH_SYMBOL_COMPLEX                   = NEW_SYSTEM_SYMBOL("Complex"))
@@ -683,6 +684,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   VERIFY(   PMATH_SYMBOL_DEEPHOLDALL               = NEW_SYSTEM_SYMBOL("DeepHoldAll"))
   VERIFY(   PMATH_SYMBOL_DEFAULT                   = NEW_SYSTEM_SYMBOL("Default"))
   VERIFY(   PMATH_SYMBOL_DEFAULTRULES              = NEW_SYSTEM_SYMBOL("DefaultRules"))
+  VERIFY(   PMATH_SYMBOL_DEGREE                    = NEW_SYSTEM_SYMBOL("Degree"))
   VERIFY(   PMATH_SYMBOL_DELETECONTENTS            = NEW_SYSTEM_SYMBOL("DeleteContents"))
   VERIFY(   PMATH_SYMBOL_DELETEDIRECTORY           = NEW_SYSTEM_SYMBOL("DeleteDirectory"))
   VERIFY(   PMATH_SYMBOL_DELETEFILE                = NEW_SYSTEM_SYMBOL("DeleteFile"))
@@ -966,7 +968,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   VERIFY(   PMATH_SYMBOL_RECORDLISTS               = NEW_SYSTEM_SYMBOL("RecordLists"))
   VERIFY(   PMATH_SYMBOL_REGATHER                  = NEW_SYSTEM_SYMBOL("ReGather"))
   VERIFY(   PMATH_SYMBOL_REGULAREXPRESSION         = NEW_SYSTEM_SYMBOL("RegularExpression"))
-  VERIFY(   PMATH_SYMBOL_RELEASE                   = NEW_SYSTEM_SYMBOL("Release"))
+  VERIFY(   PMATH_SYMBOL_RELEASEHOLD               = NEW_SYSTEM_SYMBOL("ReleaseHold"))
   VERIFY(   PMATH_SYMBOL_REMOVE                    = NEW_SYSTEM_SYMBOL("Remove"))
   VERIFY(   PMATH_SYMBOL_RENAMEDIRECTORY           = NEW_SYSTEM_SYMBOL("RenameDirectory"))
   VERIFY(   PMATH_SYMBOL_RENAMEFILE                = NEW_SYSTEM_SYMBOL("RenameFile"))
@@ -984,6 +986,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   VERIFY(   PMATH_SYMBOL_ROTATIONBOX               = NEW_SYSTEM_SYMBOL("RotationBox"))
   VERIFY(   PMATH_SYMBOL_ROUND                     = NEW_SYSTEM_SYMBOL("Round"))
   VERIFY(   PMATH_SYMBOL_ROW                       = NEW_SYSTEM_SYMBOL("Row"))
+  VERIFY(   PMATH_SYMBOL_ROWSPACING                = NEW_SYSTEM_SYMBOL("RowSpacing"))
   VERIFY(   PMATH_SYMBOL_RULE                      = NEW_SYSTEM_SYMBOL("Rule"))
   VERIFY(   PMATH_SYMBOL_RULEDELAYED               = NEW_SYSTEM_SYMBOL("RuleDelayed"))
   VERIFY(   PMATH_SYMBOL_SAMETEST                  = NEW_SYSTEM_SYMBOL("SameTest"))
@@ -1380,7 +1383,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
     BIND_DOWN(   PMATH_SYMBOL_READ,                        builtin_read)
     BIND_DOWN(   PMATH_SYMBOL_READLIST,                    builtin_readlist)
     BIND_DOWN(   PMATH_SYMBOL_REGATHER,                    builtin_regather)
-    BIND_DOWN(   PMATH_SYMBOL_RELEASE,                     builtin_release)
+    BIND_DOWN(   PMATH_SYMBOL_RELEASEHOLD,                 builtin_releasehold)
     BIND_DOWN(   PMATH_SYMBOL_REMOVE,                      builtin_remove)
     BIND_DOWN(   PMATH_SYMBOL_RENAMEDIRECTORY,             builtin_renamedirectory_and_renamefile)
     BIND_DOWN(   PMATH_SYMBOL_RENAMEFILE,                  builtin_renamedirectory_and_renamefile)
@@ -1537,6 +1540,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   SET_ATTRIB( PMATH_SYMBOL_CURRENTNAMESPACE,              THREADLOCAL);
   SET_ATTRIB( PMATH_SYMBOL_DECREMENT,                     HOLDFIRST);
   SET_ATTRIB( PMATH_SYMBOL_DEFAULTRULES,                  HOLDALL);
+  SET_ATTRIB( PMATH_SYMBOL_DEGREE,                        READPROTECTED);
   SET_ATTRIB( PMATH_SYMBOL_DIALOG,                        HOLDALL);
   SET_ATTRIB( PMATH_SYMBOL_DIRECTORYSTACK,                THREADLOCAL);
   SET_ATTRIB( PMATH_SYMBOL_DIVIDEBY,                      HOLDFIRST);

@@ -31,7 +31,10 @@ PMATH_PRIVATE pmath_t builtin_protect_or_unprotect(pmath_expr_t expr){
     
     if(pmath_instance_of(sym, PMATH_TYPE_STRING)){
       sym = pmath_symbol_get(sym, FALSE);
-      expr = pmath_expr_set_item(expr, i, pmath_ref(sym));
+      if(sym)
+        expr = pmath_expr_set_item(expr, i, pmath_ref(sym));
+      else
+        sym = pmath_expr_get_item(expr, i);
     }
     
     if(!pmath_instance_of(sym, PMATH_TYPE_SYMBOL)){

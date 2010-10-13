@@ -2990,7 +2990,7 @@
 	<pmath-cpp.h>
 	<util/base.h>
 
-1286111201 d:\peter\programmieren\pmath\trunk\library\include\pmath-cpp.h
+1287007855 d:\peter\programmieren\pmath\trunk\library\include\pmath-cpp.h
 	<cstdlib>
 	<limits>
 	<stdint.h>
@@ -3075,7 +3075,7 @@
 1286384467 d:\peter\programmieren\pmath\trunk\library\include\pmath-core\symbols.h
 	<pmath-core/strings.h>
 
-1286896704 d:\peter\programmieren\pmath\trunk\library\include\pmath-builtins\all-symbols.h
+1286984182 d:\peter\programmieren\pmath\trunk\library\include\pmath-builtins\all-symbols.h
 	<pmath-core/expressions.h>
 	<pmath-core/symbols.h>
 
@@ -3400,7 +3400,7 @@
 	<eval/client.h>
 	<graphics/context.h>
 
-1286647218 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\sectionlist.cpp
+1286979696 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\sectionlist.cpp
 	<boxes/sectionlist.h>
 	<cmath>
 	<boxes/section.h>
@@ -3563,7 +3563,7 @@
 	<util/style.h>
 	<util/syntax-state.h>
 
-1284748641 source:d:\peter\programmieren\pmath\trunk\richmath\src\graphics\shapers.cpp
+1286976741 source:d:\peter\programmieren\pmath\trunk\richmath\src\graphics\shapers.cpp
 	<graphics/shapers.h>
 	<cmath>
 	<boxes/mathsequence.h>
@@ -3596,7 +3596,7 @@
 	<gui/native-widget.h>
 	<graphics/context.h>
 
-1286731712 source:d:\peter\programmieren\pmath\trunk\richmath\src\gui\document.cpp
+1286975567 source:d:\peter\programmieren\pmath\trunk\richmath\src\gui\document.cpp
 	<gui/document.h>
 	<cmath>
 	<cstdio>
@@ -3805,14 +3805,14 @@
 	<pango/pango-layout.h>
 	<windows.h>
 
-1286111384 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\sliderbox.cpp
+1287008461 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\sliderbox.cpp
 	<boxes/sliderbox.h>
 	<eval/client.h>
 	<gui/document.h>
 	<gui/native-widget.h>
 	<cmath>
 
-1286109553 d:\peter\programmieren\pmath\trunk\richmath\include\boxes\sliderbox.h
+1287007861 d:\peter\programmieren\pmath\trunk\richmath\include\boxes\sliderbox.h
 	<boxes/box.h>
 	<eval/dynamic.h>
 	<gui/control-painter.h>

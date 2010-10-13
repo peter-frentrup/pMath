@@ -76,7 +76,7 @@ General::range:= "Range `1` does not have valid bounds."
 General::sing:= "Matrix `1` is singular."
 General::str:= "String expected at position `1` in `2`."
 General::strse:= "String or list of strings expected at position `1` in `2`."
-General::sym:= "Argument `1` in `2` is expected to be a symbol."
+General::sym:= "Argument `1` at position `2` is expected to be a symbol."
 
 /* level and part specification errors */
 General::level:= "`1` is no valid level specification."

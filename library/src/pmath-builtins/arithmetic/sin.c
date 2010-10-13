@@ -1,6 +1,7 @@
 #include <pmath-core/numbers-private.h>
 
 #include <pmath-util/evaluation.h>
+#include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
 
 #include <pmath-builtins/all-symbols-private.h>
@@ -96,6 +97,27 @@ PMATH_PRIVATE pmath_t builtin_sin(pmath_expr_t expr){
     pmath_unref(expr);
     pmath_unref(x);
     return INT(0);
+  }
+  
+  if(_pmath_contains_symbol(x, PMATH_SYMBOL_DEGREE)){
+    pmath_t y = pmath_expr_new_extended(
+      pmath_ref(PMATH_SYMBOL_WITH), 2,
+      pmath_expr_new_extended(
+        pmath_ref(PMATH_SYMBOL_LIST), 1,
+        pmath_expr_new_extended(
+          pmath_ref(PMATH_SYMBOL_ASSIGN), 2,
+          pmath_ref(PMATH_SYMBOL_DEGREE),
+          TIMES(pmath_ref(PMATH_SYMBOL_PI), QUOT(1, 180)))),
+        pmath_ref(expr));
+    
+    y = pmath_evaluate(y);
+    if(!pmath_is_expr_of(y, PMATH_SYMBOL_SIN)){
+      pmath_unref(x);
+      pmath_unref(expr);
+      return y;
+    }
+    
+    pmath_unref(y);
   }
   
   if(pmath_instance_of(x, PMATH_TYPE_EXPRESSION)){

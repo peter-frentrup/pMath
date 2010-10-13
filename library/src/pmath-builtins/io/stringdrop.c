@@ -12,9 +12,9 @@
 static pmath_t stringdrop(
   pmath_t str,   // will be freed
   pmath_t expr,  // wont be freed
-  long           start, 
-  long           end, 
-  long           step
+  long    start, 
+  long    end, 
+  long    step
 ){
   if(pmath_instance_of(str, PMATH_TYPE_STRING)){
     long len = pmath_string_length(str);
@@ -34,10 +34,10 @@ static pmath_t stringdrop(
     
     if(start > 0 && end > 0 && step > 0 && start <= end && end <= len){
       if(end == len && step == 1){
-        return pmath_string_part(str, start-1, -1);
+        return pmath_string_part(str, 0, start - 1);
       }
       else if(start == 1 && step == 1){
-        return pmath_string_part(str, 0, end);
+        return pmath_string_part(str, end, -1);
       }
       else{
         const uint16_t *buf = pmath_string_buffer(str);
@@ -88,7 +88,7 @@ static pmath_t stringdrop(
       pmath_t item = pmath_expr_get_item(str, i);
       str = pmath_expr_set_item(str, i, NULL);
       
-      item = stringdrop(str, expr, start, end, step);
+      item = stringdrop(item, expr, start, end, step);
       
       if(item == PMATH_UNDEFINED){
         pmath_unref(str);
@@ -97,6 +97,8 @@ static pmath_t stringdrop(
       
       str = pmath_expr_set_item(str, i, item);
     }
+    
+    return str;
   }
   
   pmath_message(NULL, "strse", 2,

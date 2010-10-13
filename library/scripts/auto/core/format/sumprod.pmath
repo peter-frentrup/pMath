@@ -19,6 +19,6 @@ Unprotect(Sum, Product)
 MakeBoxes(Sum(    ~body, ~i->~a..~b))::= {UnderoverscriptBox("\[Sum]",     MakeBoxes(i=a), MakeBoxes(b)), ParenthesizeBoxes(MakeBoxes(body), Plus, "Prefix")}
 MakeBoxes(Product(~body, ~i->~a..~b))::= {UnderoverscriptBox("\[Product]", MakeBoxes(i=a), MakeBoxes(b)), ParenthesizeBoxes(MakeBoxes(body), Plus, "Prefix")}
 
-Protect(Sum, Product)
+Attributes(Sum):= Attributes(Product):= {Protected, ReadProtected};
 
 End()

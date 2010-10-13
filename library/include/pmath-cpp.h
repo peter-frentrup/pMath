@@ -658,13 +658,17 @@ namespace pmath{
   inline Expr Re(  Expr x){ return Call(Symbol(PMATH_SYMBOL_RE),   x); }
   inline Expr Im(  Expr x){ return Call(Symbol(PMATH_SYMBOL_IM),   x); }
   
-  inline Expr Ceiling(Expr x){ return Call(Symbol(PMATH_SYMBOL_CEILING), x); }
-  inline Expr Floor(  Expr x){ return Call(Symbol(PMATH_SYMBOL_FLOOR),   x); }
-  inline Expr Round(  Expr x){ return Call(Symbol(PMATH_SYMBOL_ROUND),   x); }
+  inline Expr Ceiling(Expr x){         return Call(Symbol(PMATH_SYMBOL_CEILING), x); }
+  inline Expr Ceiling(Expr x, Expr a){ return Call(Symbol(PMATH_SYMBOL_CEILING), x, a); }
+  inline Expr Floor(  Expr x){         return Call(Symbol(PMATH_SYMBOL_FLOOR),   x); }
+  inline Expr Floor(  Expr x, Expr a){ return Call(Symbol(PMATH_SYMBOL_FLOOR),   x, a); }
+  inline Expr Round(  Expr x){         return Call(Symbol(PMATH_SYMBOL_ROUND),   x); }
+  inline Expr Round(  Expr x, Expr a){ return Call(Symbol(PMATH_SYMBOL_ROUND),   x, a); }
   
-  inline Expr Quotient(Expr x, Expr y){ return Call(Symbol(PMATH_SYMBOL_QUOTIENT), x, y); }
-  inline Expr Mod(     Expr x, Expr y){ return Call(Symbol(PMATH_SYMBOL_MOD),      x, y); }
-  
+  inline Expr Quotient(Expr m, Expr n){         return Call(Symbol(PMATH_SYMBOL_QUOTIENT), m, n); }
+  inline Expr Quotient(Expr m, Expr n, Expr d){ return Call(Symbol(PMATH_SYMBOL_QUOTIENT), m, n, d); }
+  inline Expr Mod(     Expr m, Expr n){         return Call(Symbol(PMATH_SYMBOL_MOD),      m, n); }
+  inline Expr Mod(     Expr m, Expr n, Expr d){ return Call(Symbol(PMATH_SYMBOL_MOD),      m, n, d); }
   
   
   inline Expr Evaluate(Expr x){ return Expr(pmath_evaluate(x.release())); }

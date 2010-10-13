@@ -272,9 +272,10 @@ Box *SectionList::mouse_selection(
   int border_level = -1;
   
   if(border_visible
-  && x <= right 
   && section_bracket_width > 0){
     border_level = (int)ceil((right - x)/section_bracket_width + 0.2);
+    if(border_level < 0)
+       border_level = 0;
   } 
   
   *start = 0;

@@ -95,7 +95,11 @@ PMATH_PRIVATE pmath_t builtin_synchronize(pmath_expr_t expr){
         (pmath_expr_t)sync, i);
       
       if(!pmath_instance_of(synci, PMATH_TYPE_SYMBOL)){
-        pmath_message(NULL, "nosym", 1, synci);
+        pmath_message(NULL, "sym", 2, synci, 
+          pmath_expr_new_extended(
+            pmath_ref(PMATH_SYMBOL_LIST), 2,
+            pmath_integer_new_si(1),
+            pmath_integer_new_size(i)));
         pmath_unref(sync);
         pmath_unref(block);
         return expr;
@@ -123,7 +127,7 @@ PMATH_PRIVATE pmath_t builtin_synchronize(pmath_expr_t expr){
   }
   
   if(!pmath_instance_of(sync, PMATH_TYPE_SYMBOL)){
-    pmath_message(NULL, "nosym", 1, sync);
+    pmath_message(NULL, "sym", 1, sync, pmath_integer_new_si(1));
     pmath_unref(block);
     return expr;
   }

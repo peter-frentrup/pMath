@@ -1,4 +1,5 @@
 #include <pmath-core/expressions-private.h>
+#include <pmath-core/numbers.h>
 #include <pmath-core/symbols-private.h>
 
 #include <pmath-util/evaluation.h>
@@ -304,24 +305,6 @@ PMATH_PRIVATE pmath_t builtin_options(pmath_expr_t expr){
   if(!options)
     return pmath_ref(_pmath_object_emptylist);
   return options;
-  
-//  if(!pmath_instance_of(sym, PMATH_TYPE_SYMBOL)){
-//    pmath_unref(expr);
-//    return pmath_ref(_pmath_object_emptylist);
-////    pmath_message(NULL, "nosym", 1, sym);
-////    return expr;
-//  }
-//  
-//  rules = _pmath_symbol_get_rules(sym, RULES_READ);
-//  pmath_unref(sym);
-//  
-//  if(rules
-//  && _pmath_rulecache_find(&rules->default_rules, &expr)){
-//    return expr;
-//  }
-//  
-//  pmath_unref(expr);
-//  return pmath_ref(_pmath_object_emptylist);
 }
 
 static pmath_expr_t set_option(
@@ -380,7 +363,7 @@ PMATH_PRIVATE pmath_t builtin_setoptions(pmath_expr_t expr){
   
   sym = pmath_expr_get_item(expr, 1);
   if(!pmath_instance_of(sym, PMATH_TYPE_SYMBOL)){
-    pmath_message(NULL, "nosym", 1, sym);
+    pmath_message(NULL, "sym", 2, sym, pmath_integer_new_si(1));
     return expr;
   }
   
