@@ -41,7 +41,7 @@ namespace richmath{
   static const int FontWeightBold  = 100;
   
   enum FloatStyleOptionName{
-    FontSize = 10000, // greather than any IntStyleOptionName value
+    FontSize = 10000, // greater than any IntStyleOptionName value
     
     GridBoxColumnSpacing,
     GridBoxRowSpacing,
@@ -65,14 +65,14 @@ namespace richmath{
   };
   
   enum StringStyleOptionName{
-    BaseStyleName = 20000, // greather than any FloatStyleOptionName value
+    BaseStyleName = 20000, // greater than any FloatStyleOptionName value
     FontFamily,
     SectionLabel,
     Method
   };
   
   enum ObjectStyleOptionName{
-    ButtonFunction = 30000 ,// greather than any StringStyleOptionName value
+    ButtonFunction = 30000, // greater than any StringStyleOptionName value
     ScriptSizeMultipliers,
     TextShadow
   };
@@ -96,14 +96,10 @@ namespace richmath{
       bool get(StringStyleOptionName n, String *value);
       bool get(ObjectStyleOptionName n, Expr   *value);
       
-      bool get_dynamic(int n, Expr *value);
-      
       void set(IntStyleOptionName    n, int    value);
       void set(FloatStyleOptionName  n, float  value);
       void set(StringStyleOptionName n, String value);
       void set(ObjectStyleOptionName n, Expr   value);
-      
-      void set_dynamic(int n, Expr value);
       
       void remove(IntStyleOptionName    n);
       void remove(FloatStyleOptionName  n);

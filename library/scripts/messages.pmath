@@ -65,6 +65,7 @@ General::invprec:= "Requested precision `1` is no machine-size real number in th
 General::iter:= "`1` does not have the form of an iterator."
 General::iterb:= "The iterator `1` does not have valid bounds."
 General::matsq:= "Argument `1` at position `2` is not a nonempty square matrix."
+General::ncompl:= "Symbolic or noncomplex numerical arguments are expected."
 General::nexprat:= "Nonatomic expression exprected at position `1` in `2`."
 General::noexpr:= "`1` is not an expression."
 General::nostream:= "`1` is not an open stream."

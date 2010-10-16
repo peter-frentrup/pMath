@@ -423,6 +423,7 @@ Document::Document()
   prev_sel_line(-1),
   prev_sel_box_id(0),
   must_resize_min(0),
+  auto_scroll(false),
   _native(NativeWidget::dummy),
   mouse_down_counter(0),
   mouse_down_time(0),
@@ -470,37 +471,41 @@ void Document::invalidate_all(){
     section(i)->invalidate();
 }
 
-void Document::scroll_to(float x1, float y1, float x2, float y2){
+void Document::scroll_to(float x, float y, float w, float h){
   if(!native()->is_scrollable())
     return;
   
-  float w, h, x, y;
-  native()->window_size(&w, &h);
-  native()->scroll_pos(&x, &y);
+  float _w, _h, _x, _y;
+  native()->window_size(&_w, &_h);
+  native()->scroll_pos( &_x, &_y);
   
-  if(y1 < y){
+  if(y < _y){
     if(context.selection.get() == this)
-      y = y1;
+      _y = y;
     else
-      y = y1 - h/6.f;
+      _y = y - _h/6.f;
   }
-  else if(y2 > y + h){
+  else if(y + h > _y + _h){
     if(context.selection.get() == this)
-      y = y2 - h;
+      _y = y + h - _h;
     else
-      y = y2 - h * 5/6.f;
+      _y = y + h - _h * 5/6.f;
   }
   
-  if(x1 < x){
-    x = x1 - w/6.f;
+  if(x < _x){
+    _x = x - _w/6.f;
   }
-  else if(x2 > x + w){
-    x = x2 - w * 5/6.f;
-    if(x1 < x)
-      x = x1;
+  else if(x + w > _x + _w){
+    _x = x + w - _w * 5/6.f;
+    if(x < _x)
+      _x = x;
   }
   
-  native()->scroll_to(x, y);
+  native()->scroll_to(_x, _y);
+}
+
+void Document::scroll_to(Canvas *canvas, Box *child, int start, int end){
+  default_scroll_to(canvas, this, child, start, end);
 }
 
 //{ event invokers ...
@@ -1229,6 +1234,7 @@ void Document::select(Box *box, int start, int end){
   
   sel_last.set(box, start, end);
   sel_first = sel_last;
+  auto_scroll = (mouse_down_counter == 0);
   
   raw_select(box, start, end);
 }
@@ -1262,6 +1268,7 @@ void Document::select_range(
   
   sel_first.set(box1, start1, end1);
   sel_last.set( box2, start2, end2);
+  auto_scroll = (mouse_down_counter == 0);
   
   if(end1 < start1){
     int i = start1;
@@ -2908,9 +2915,20 @@ void Document::paint_resize(Canvas *canvas, bool resize_only){
   int last_visible_section = i - 1;
   
   while(i < length()){
-    if(section(i)->must_resize && (i == sel_sect || i < must_resize_min)){
-      resize_section(&context, i);
-      section(i)->y_offset = _extents.descent;
+    if(section(i)->must_resize){
+      bool resi = (i == sel_sect || i < must_resize_min);
+      
+      if(!resi && auto_scroll){
+        resi = (i <= sel_sect);
+        
+        if(!resi && context.selection.id == this->id())
+          resi = (i < context.selection.end);
+      }
+      
+      if(resi){
+        resize_section(&context, i);
+        section(i)->y_offset = _extents.descent;
+      }
     }
     
     if(section(i)->visible)
@@ -3075,6 +3093,31 @@ void Document::paint_resize(Canvas *canvas, bool resize_only){
           canvas->set_color(0xff0000);
         canvas->hair_stroke();
       }
+    }
+    
+    if(auto_scroll && native()->is_scrollable()){
+      auto_scroll = false;
+      
+      Box *box = sel_last.get();
+      if(box)
+        box->scroll_to(canvas, box, sel_last.start, sel_last.end);
+        
+//      Box *box = sel_last.get();
+//      ....
+//      Array<Point> pts(0);
+//      selection_outline(box, sel_last.start, sel_last.end, pts);
+//      
+//      float x,y,w,h;
+//      bounding_rect(pts, &x, &y, &w, &h);
+//      
+//      if(box){
+//        cairo_matrix_t mat;
+//        cairo_matrix_init_identity(&mat);
+//        box->transformation(0, &mat);
+//        
+//        Canvas::transform_rect(mat, &x, &y, &w, &h);
+//        scroll_to(x, y, w, h);
+//      }
     }
     
     if(prev_sel_line >= 0){

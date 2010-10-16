@@ -3218,7 +3218,7 @@ static Array<double> penalty_array(0);
 
 static const double DepthPenalty = 1.0;
 static const double WordPenalty = 100.0;//2.0;
-static const double BestLineWidth = 0.9;
+static const double BestLineWidth = 0.95;
 static const double LineWidthFactor = 2.0;
 
 class BreakPositionWithPenalty{
@@ -3406,7 +3406,7 @@ int MathSequence::fill_penalty_array(
       || buf[pos] == PMATH_CHAR_ASSIGN
       || buf[pos] == PMATH_CHAR_ASSIGNDELAYED){
         penalty_array[pos-1]+= DepthPenalty;
-        --depth;
+        //--depth;
       }
     }
     
@@ -3474,6 +3474,42 @@ int MathSequence::fill_penalty_array(
   
   if(pmath_char_is_left(buf[pos])){
     penalty_array[pos]+= WordPenalty + DepthPenalty;
+  }
+  
+  if(buf[pos] == '"' && !span.next()){
+    ++depth;
+    
+    bool last_was_special = false;
+    while(next < span.end()){
+      pmath_token_t tok = pmath_token_analyse(buf + next, 1, NULL);
+      penalty_array[next]+= depth * DepthPenalty + WordPenalty;
+      
+      switch(tok){
+        case PMATH_TOK_SPACE: 
+          penalty_array[next]-= WordPenalty; 
+          last_was_special = false;
+          break;
+        
+        case PMATH_TOK_STRING:
+          last_was_special = false;
+          break;
+        
+        case PMATH_TOK_NAME:
+        case PMATH_TOK_NAME2:
+        case PMATH_TOK_DIGIT:
+          if(last_was_special)
+            penalty_array[next-1]-= WordPenalty; 
+          last_was_special = false;
+          break;
+        
+        default: 
+          last_was_special = true;
+          break;
+      }
+      
+      ++next;
+    }
+    return next;
   }
   
   int func_depth = depth - 1;
@@ -3921,10 +3957,11 @@ static void make_box(int pos, pmath_t obj, void *data){
   
   if(expr[0] == PMATH_SYMBOL_FRAMEBOX
   && expr.expr_length() == 1){
-    FrameBox *box = new FrameBox(new MathSequence);
-    box->content()->load_from_object(expr[1], info->options);
-    info->boxes->add(box);
-    return;
+    FrameBox *box = FrameBox::create(expr, info->options);
+    if(box){
+      info->boxes->add(box);
+      return;
+    }
   }
   
   if(expr[0] == PMATH_SYMBOL_GRIDBOX){
@@ -4031,40 +4068,15 @@ static void make_box(int pos, pmath_t obj, void *data){
     }
   }
   
-  if(expr[0] == PMATH_SYMBOL_TAGBOX
-  && expr.expr_length() >= 2){
-    Expr options(pmath_options_extract(expr.get(), 2));
-    
-    if(options.is_valid()){
-      int opts = info->options;
-      
-      TagBox *box = new TagBox;
-      box->tag = expr[2];
-      
-      if(options != PMATH_UNDEFINED){
-        if(box->style)
-          box->style->add_pmath(options);
-        else
-          box->style = new Style(options);
-          
-        int i;
-        if(box->style->get(AutoNumberFormating, &i)){
-          if(i)
-            opts|= BoxOptionFormatNumbers;
-          else
-            opts&= ~BoxOptionFormatNumbers;
-        }
-      }
-      
-      box->content()->load_from_object(expr[1], opts);
-      
+  if(expr[0] == PMATH_SYMBOL_TAGBOX){
+    TagBox *box = TagBox::create(expr, info->options);
+    if(box){
       info->boxes->add(box);
       return;
     }
   }
   
-  if(expr[0] == PMATH_SYMBOL_TRANSFORMATIONBOX
-  && expr.expr_length() == 2){
+  if(expr[0] == PMATH_SYMBOL_TRANSFORMATIONBOX){
     TransformationBox *box = TransformationBox::create(expr, info->options);
     if(box){
       info->boxes->add(box);

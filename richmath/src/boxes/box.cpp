@@ -161,6 +161,47 @@ void Box::selection_path(Canvas *canvas, int start, int end){
   }
 }
 
+void Box::scroll_to(float x, float y, float w, float h){
+}
+
+void Box::scroll_to(Canvas *canvas, Box *child, int start, int end){
+  if(_parent)
+    _parent->scroll_to(canvas, child, start, end);
+}
+
+void Box::default_scroll_to(Canvas *canvas, Box *parent, Box *child, int start, int end){
+  double x1, y1, x2, y2;
+  cairo_matrix_t mat;
+  cairo_matrix_init_identity(&mat);
+  child->transformation(parent, &mat);
+  
+  canvas->save();
+  {
+    canvas->transform(mat);
+    canvas->move_to(0, 0);
+    
+    child->selection_path(
+      canvas, 
+      start, 
+      end);
+    
+    cairo_path_extents(canvas->cairo(), &x1, &y1, &x2, &y2);
+    
+    canvas->new_path();
+  }
+  canvas->restore();
+  
+  float x = x1;
+  float y = y1;
+  float w = x2 - x1;
+  float h = y2 - y1;
+  Canvas::transform_rect(mat, &x, &y, &w, &h);
+  scroll_to(x, y, w, h);
+  
+  if(_parent)
+    _parent->scroll_to(canvas, child, start, end);
+}
+
 Box *Box::move_logical(
   LogicalDirection  direction, 
   bool              jumping, 

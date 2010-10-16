@@ -267,6 +267,35 @@ TagBox::TagBox(MathSequence *content, Expr _tag)
   style = new Style();
 }
 
+TagBox *TagBox::create(Expr expr, int options){
+  Expr options_expr(pmath_options_extract(expr.get(), 2));
+    
+  if(!options_expr.is_valid())
+    return 0;
+  
+  TagBox *box = new TagBox;
+  box->tag = expr[2];
+  
+  if(options_expr != PMATH_UNDEFINED){
+    if(box->style)
+      box->style->add_pmath(options_expr);
+    else
+      box->style = new Style(options_expr);
+      
+    int i;
+    if(box->style->get(AutoNumberFormating, &i)){
+      if(i)
+        options|= BoxOptionFormatNumbers;
+      else
+        options&= ~BoxOptionFormatNumbers;
+    }
+  }
+  
+  box->content()->load_from_object(expr[1], options);
+  
+  return box;
+}
+
 bool TagBox::expand(const BoxSize &size){
   BoxSize size2 = size;
   float r = _extents.width - _content->extents().width - cx;

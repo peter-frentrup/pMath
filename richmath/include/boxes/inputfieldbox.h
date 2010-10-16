@@ -15,6 +15,7 @@ namespace richmath{
       virtual void paint_content(Context *context);
       
       virtual void scroll_to(float x, float y, float w, float h);
+      virtual void scroll_to(Canvas *canvas, Box *child, int start, int end);
       
       virtual Box *remove(int *index);
       
@@ -38,7 +39,7 @@ namespace richmath{
       
     protected:
       bool transparent;
-      bool autoscroll;
+//      bool autoscroll;
       long last_click_time;
       float last_click_global_x;
       float last_click_global_y;

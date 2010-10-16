@@ -452,8 +452,8 @@ Expr Client::interrupt(Expr expr){
 }
 
 void Client::execute_for(Expr expr, Box *box, double seconds){
-  if(box)
-    print_pos = EvaluationPosition(box);
+//  if(box)
+//    print_pos = EvaluationPosition(box);
   
   Server::local_server->interrupt(expr, seconds);
 }

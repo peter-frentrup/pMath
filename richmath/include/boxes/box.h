@@ -111,6 +111,9 @@ namespace richmath{
       virtual void clear_coloring();
       virtual void paint(Context *context) = 0;
       virtual void selection_path(Canvas *canvas, int start, int end);
+      virtual void scroll_to(float x, float y, float w, float h);
+      virtual void scroll_to(Canvas *canvas, Box *child, int start, int end);
+      void default_scroll_to(Canvas *canvas, Box *parent, Box *child, int start, int end);
       
       virtual Box *remove(int *index) = 0;
       

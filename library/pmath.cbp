@@ -369,6 +369,9 @@
 		<Unit filename="src\pmath-builtins\arithmetic\chop.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="src\pmath-builtins\arithmetic\clip.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="src\pmath-builtins\arithmetic\complex-re-im.c">
 			<Option compilerVar="CC" />
 		</Unit>

@@ -49,10 +49,10 @@ static int utf8_to_utf16_offset(
 }
 
 static pmath_t stringposition(
-  pmath_t     obj,      // will be freed
+  pmath_t            obj,      // will be freed
   struct _regex_t   *regex,
   struct _capture_t *capture,
-  pmath_bool_t    overlaps,
+  pmath_bool_t       overlaps,
   size_t             max_matches
 ){
   if(pmath_instance_of(obj, PMATH_TYPE_STRING)){

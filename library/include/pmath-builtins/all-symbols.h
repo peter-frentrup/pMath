@@ -632,5 +632,7 @@ pmath_bool_t pmath_register_approx_code(
 #define PMATH_SYMBOL_COLUMNSPACING                          PMATH_SYMBOL_BUILTIN(540)
 #define PMATH_SYMBOL_ROWSPACING                             PMATH_SYMBOL_BUILTIN(541)
 #define PMATH_SYMBOL_DEGREE                                 PMATH_SYMBOL_BUILTIN(542)
+#define PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATEMULTIPLE       PMATH_SYMBOL_BUILTIN(543)
+#define PMATH_SYMBOL_CLIP                                   PMATH_SYMBOL_BUILTIN(544)
 
 #endif /* __PMATH_BUILTINS__SYMBOLS_H__ */

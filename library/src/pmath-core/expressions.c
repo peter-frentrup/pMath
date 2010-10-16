@@ -2711,18 +2711,52 @@ static void write_expr_ex(
     
     if(exprlen != 1)
       goto FULLFORM;
-
-    if(priority > PRIO_CALL)
-      WRITE_CSTR("(#");
-    else
-      WRITE_CSTR("#");
-
+    
     item = pmath_expr_get_item(expr, 1);
-    write_ex(item, options, PRIO_CALL + 1, write, user);
+    
+    if(pmath_instance_of(item, PMATH_TYPE_INTEGER)
+    && pmath_number_sign(item) > 0){
+      if(priority > PRIO_CALL)
+        WRITE_CSTR("(#");
+      else
+        WRITE_CSTR("#");
+      
+      write_ex(item, options, PRIO_CALL + 1, write, user);
+      
+      if(priority > PRIO_CALL)
+        WRITE_CSTR(")");
+    }
+    else if(pmath_is_expr_of_len(item, PMATH_SYMBOL_RANGE, 2)){
+      pmath_t a = pmath_expr_get_item(item, 1);
+      pmath_t b = pmath_expr_get_item(item, 2);
+      pmath_unref(b);
+      
+      if(b == PMATH_SYMBOL_AUTOMATIC
+      && pmath_instance_of(a, PMATH_TYPE_INTEGER)
+      && pmath_number_sign(a) > 0){
+        if(priority > PRIO_CALL)
+          WRITE_CSTR("(##");
+        else
+          WRITE_CSTR("##");
+        
+        write_ex(a, options, PRIO_CALL + 1, write, user);
+        pmath_unref(a);
+        
+        if(priority > PRIO_CALL)
+          WRITE_CSTR(")");
+      }
+      else{
+        pmath_unref(a);
+        pmath_unref(item);
+        goto FULLFORM;
+      }
+    }
+    else{
+      pmath_unref(item);
+      goto FULLFORM;
+    }
+    
     pmath_unref(item);
-
-    if(priority > PRIO_CALL)
-      WRITE_CSTR(")");
   }
   else if(head == PMATH_SYMBOL_OPTIONAL){
     pmath_t item;

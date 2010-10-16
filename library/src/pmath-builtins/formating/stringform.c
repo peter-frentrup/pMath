@@ -183,13 +183,15 @@ static pmath_t string_form(
             
             if(buf[k] == '`' && i + 1 < k && k <= i + NUMLEN + 1){
               char num[NUMLEN];
+              int end = i;
+              size_t param;
               
               if(start < i){
                 pmath_emit(
                   pmath_string_part(
                     pmath_ref(format),
                     start,
-                    i - start),
+                    end - start),
                   NULL);
               }
               
@@ -199,15 +201,23 @@ static pmath_t string_form(
               }while(i < k - 1);
               num[start] = '\0';
               
-              data->current_param = (size_t)atoi(num);
+              param = (size_t)atoi(num);
               
-              pmath_emit(
-                pmath_expr_get_item(
-                  data->formated_params, 
-                  data->current_param++),
-                NULL);
-              
-              start = i = k + 1;
+              if(param > 0 && param <= pmath_expr_length(data->formated_params)){
+                data->current_param = param;
+                
+                pmath_emit(
+                  pmath_expr_get_item(
+                    data->formated_params, 
+                    data->current_param++),
+                  NULL);
+                
+                start = i = k + 1;
+              }
+              else{
+                start = end;
+                i = k+1;
+              }
             }
             else
               ++i;

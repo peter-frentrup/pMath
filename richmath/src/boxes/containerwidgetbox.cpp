@@ -20,6 +20,10 @@ ContainerWidgetBox::ContainerWidgetBox(ContainerType _type, MathSequence *conten
   mouse_right_down(false),
   selection_inside(false)
 {
+  if(!style)
+    style = new Style();
+  
+  style->set(BaseStyleName, "ControlStyle");
 }
 
 ControlState ContainerWidgetBox::calc_state(Context *context){

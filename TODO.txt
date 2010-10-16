@@ -4,10 +4,13 @@
 
 ? pmath: implement Transpose in C code (see transpose.pmath)
 
+- StyleBox: support FontSize values Smaller, Larger, Tiny, Small, Normal, Large, Huge
+
 - SetOptions(f(a->1), a->2)  ==>  f(a->2)
-- implement PureArgument(n..)
 
 - implement StringCount
+
+- Table: allow Table(i+j, i->1..5, j->1..i) 
 
 - pmath: use "fat values": a pmath_t will be an 8-byte struct, that contains small ints and doubles directly, (maybe also small strings). tag bits specify the type 
 	advantage: 

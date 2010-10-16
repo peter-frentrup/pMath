@@ -899,6 +899,14 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
       return HOLDCOMPLETE(pmath_ref(_pmath_object_singlematch));
     }
     
+    if(len == 2 && str[0] == '#' && str[1] == '#'){
+      pmath_unref(box);
+      return HOLDCOMPLETE(
+        pmath_expr_new_extended(
+          pmath_ref(PMATH_SYMBOL_PUREARGUMENT), 1,
+          pmath_ref(_pmath_object_range_from_one)));
+    }
+    
     if(len == 2 && str[0] == '~' && str[1] == '~'){
       pmath_unref(box);
       return HOLDCOMPLETE(pmath_ref(_pmath_object_multimatch));
@@ -1628,14 +1636,44 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
       // #x
       if(firstchar == '#'){
         box = pmath_expr_get_item(expr, 2);
-        pmath_unref(expr);
-        if(parse(&box)){
+        
+        if(!parse(&box)){
+          pmath_unref(expr);
+          return pmath_ref(PMATH_SYMBOL_FAILED);
+        }
+        
+        if(pmath_instance_of(box, PMATH_TYPE_INTEGER)){
+          pmath_unref(expr);
           return HOLDCOMPLETE(
             pmath_expr_new_extended(
               pmath_ref(PMATH_SYMBOL_PUREARGUMENT), 1,
               box));
         }
-        return pmath_ref(PMATH_SYMBOL_FAILED);
+        
+        pmath_unref(box); box = NULL;
+      }
+      
+      // ##x
+      if(is_string_at(expr, 1, "##")){
+        box = pmath_expr_get_item(expr, 2);
+        
+        if(!parse(&box)){
+          pmath_unref(expr);
+          return pmath_ref(PMATH_SYMBOL_FAILED);
+        }
+        
+        if(pmath_instance_of(box, PMATH_TYPE_INTEGER)){
+          pmath_unref(expr);
+          return HOLDCOMPLETE(
+            pmath_expr_new_extended(
+              pmath_ref(PMATH_SYMBOL_PUREARGUMENT), 1,
+              pmath_expr_new_extended(
+                pmath_ref(PMATH_SYMBOL_RANGE), 2,
+                box,
+                pmath_ref(PMATH_SYMBOL_AUTOMATIC))));
+        }
+        
+        pmath_unref(box); box = NULL;
       }
       
       // ++x

@@ -6,12 +6,15 @@
 namespace richmath{
   class FrameBox: public OwnerBox{
     public:
-      FrameBox(MathSequence *content = 0);
+      static FrameBox *create(Expr expr, int options);
       
       virtual void resize(Context *context);
       virtual void paint(Context *context);
       
       virtual Expr to_pmath(bool parseable);
+    
+    protected:
+      explicit FrameBox(MathSequence *content = 0);
       
     protected:
       float em;

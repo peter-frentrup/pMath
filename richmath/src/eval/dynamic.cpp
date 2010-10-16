@@ -10,16 +10,14 @@ using namespace richmath;
 Dynamic::Dynamic()
 : Base(),
   _owner(0),
-  synchronous_updating(0),
-  tracked_symbols(Symbol(PMATH_SYMBOL_AUTOMATIC))
+  synchronous_updating(0)
 {
 }
 
 Dynamic::Dynamic(Box *owner, Expr expr)
 : Base(),
   _owner(0),
-  synchronous_updating(0),
-  tracked_symbols(Symbol(PMATH_SYMBOL_AUTOMATIC))
+  synchronous_updating(0)
 {
   init(owner, expr);
 }
@@ -58,11 +56,6 @@ Expr Dynamic::operator=(Expr expr){
         synchronous_updating = 2;
       else
         synchronous_updating = 0;
-      
-      tracked_symbols = Expr(pmath_option_value(
-        PMATH_SYMBOL_DYNAMIC, 
-        PMATH_SYMBOL_TRACKEDSYMBOLS,
-        options.get()));
     }
   }
   
@@ -91,7 +84,12 @@ Expr Dynamic::get_value_now(){
     return _expr;
   }
   
-  Expr value = Client::interrupt(build_value_call(), Client::dynamic_timeout);
+  Expr value = Client::interrupt(
+    Call(
+      Symbol(PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATEMULTIPLE),
+      _expr,
+      _owner->id()), 
+    Client::dynamic_timeout);
   if(value == PMATH_UNDEFINED)
     return Symbol(PMATH_SYMBOL_ABORTED);
   
@@ -103,7 +101,13 @@ void Dynamic::get_value_later(){
     return;
   }
   
-  Client::add_job(new DynamicEvaluationJob(Expr(), build_value_call(), _owner));
+  Client::add_job(new DynamicEvaluationJob(
+    Expr(), 
+    Call(
+      Symbol(PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATEMULTIPLE),
+      _expr,
+      _owner->id()), 
+    _owner));
 }
 
 bool Dynamic::get_value(Expr *result){
@@ -122,23 +126,6 @@ bool Dynamic::get_value(Expr *result){
   
   get_value_later();
   return false;
-}
-
-Expr Dynamic::build_value_call(){
-  if(tracked_symbols == PMATH_SYMBOL_AUTOMATIC){
-    return Call(
-      Symbol(PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATE),
-      _expr[1],
-      _owner->id());
-  }
-  
-  return Call(
-    Symbol(PMATH_SYMBOL_EVALUATIONSEQUENCE),
-    Call(
-      Symbol(PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATE),
-      tracked_symbols,
-      _owner->id()),
-    _expr[1]);
 }
 
 //} ... class Dynamic

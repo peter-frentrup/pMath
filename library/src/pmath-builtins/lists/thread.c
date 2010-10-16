@@ -33,7 +33,12 @@ PMATH_PRIVATE pmath_t builtin_thread(pmath_expr_t expr){
   end = pmath_expr_length(fst);
   if(exprlen == 3){
     pmath_t part = pmath_expr_get_item(expr, 3);
-    if(!extract_range(part, &start, &end, TRUE)){
+    if(part == PMATH_SYMBOL_ALL){
+    }
+    else if(part == PMATH_SYMBOL_NONE){
+      start = end = end + 1;
+    }
+    else if(!extract_range(part, &start, &end, TRUE)){
       pmath_message(NULL, "pspec", 1, part);
       pmath_unref(fst);
       return expr;

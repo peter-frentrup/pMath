@@ -170,7 +170,7 @@ pmath_t builtin_toexpression(pmath_expr_t expr){
   size_t exprlen = pmath_expr_length(expr);
   
   if(exprlen < 1){
-    pmath_message_argxxx(exprlen, 1, 1);
+    pmath_message_argxxx(exprlen, 1, 2);
     return expr;
   }
   

@@ -532,7 +532,7 @@ void Win32DocumentWindow::after_construction(){
   on_theme_changed();
   SetFocus(_working_area->hwnd());
   
-  title("Untitled");
+  title("untitled");
 }
 
 Win32DocumentWindow::~Win32DocumentWindow(){

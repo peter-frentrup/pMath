@@ -64,8 +64,6 @@ namespace richmath{
       bool scrolling;
       bool already_scrolled;
       MouseEvent mouse_down_event; // coordinates in pixels, relative to widget top/left (no scrolling)
-//      float scroll_start_x;
-//      float scroll_start_y;
       
       int _width;
       int _height;

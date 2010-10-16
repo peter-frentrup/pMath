@@ -13,7 +13,7 @@ using namespace richmath;
 InputFieldBox::InputFieldBox(MathSequence *content)
 : ContainerWidgetBox(InputField, content),
   transparent(false),
-  autoscroll(false),
+//  autoscroll(false),
   last_click_time(0),
   last_click_global_x(0.0),
   last_click_global_y(0.0),
@@ -73,46 +73,46 @@ void InputFieldBox::paint_content(Context *context){
   float x, y;
   context->canvas->current_pos(&x, &y);
   
-  if(autoscroll){
-    autoscroll = false;
-    
-    Box *box = context->selection.get();
-    while(box && box != this)
-      box = box->parent();
-    
-    if(box == this){
-      double x1, y1, x2, y2;
-      Box *sel = context->selection.get();
-      
-      cairo_matrix_t mat;
-      cairo_matrix_init_identity(&mat);
-      sel->transformation(_content, &mat);
-      
-      context->canvas->save();
-      {
-        context->canvas->transform(mat);
-        context->canvas->move_to(0, 0);
-        
-        sel->selection_path(
-          context->canvas, 
-          context->selection.start, 
-          context->selection.end);
-        
-        cairo_path_extents(context->canvas->cairo(), &x1, &y1, &x2, &y2);
-        
-        context->canvas->new_path();
-      }
-      context->canvas->restore();
-      
-      float x = x1;
-      float y = y1;
-      float w = x2 - x1;
-      float h = y2 - y1;
-      cairo_matrix_invert(&mat);
-      Canvas::transform_rect(mat, &x, &y, &w, &h);
-      scroll_to(x, y, w, h);
-    }
-  }
+//  if(autoscroll){
+//    autoscroll = false;
+//    
+//    Box *box = context->selection.get();
+//    while(box && box != this)
+//      box = box->parent();
+//    
+//    if(box == this){
+//      double x1, y1, x2, y2;
+//      Box *sel = context->selection.get();
+//      
+//      cairo_matrix_t mat;
+//      cairo_matrix_init_identity(&mat);
+//      sel->transformation(_content, &mat);
+//      
+//      context->canvas->save();
+//      {
+//        context->canvas->transform(mat);
+//        context->canvas->move_to(0, 0);
+//        
+//        sel->selection_path(
+//          context->canvas, 
+//          context->selection.start, 
+//          context->selection.end);
+//        
+//        cairo_path_extents(context->canvas->cairo(), &x1, &y1, &x2, &y2);
+//        
+//        context->canvas->new_path();
+//      }
+//      context->canvas->restore();
+//      
+//      float x = x1;
+//      float y = y1;
+//      float w = x2 - x1;
+//      float h = y2 - y1;
+//      cairo_matrix_invert(&mat);
+//      Canvas::transform_rect(mat, &x, &y, &w, &h);
+//      scroll_to(x, y, w, h);
+//    }
+//  }
   
   float dx = frame_x - 0.75f;
   float dy = frame_x;
@@ -155,6 +155,10 @@ void InputFieldBox::scroll_to(float x, float y, float w, float h){
   }
   else if(x + w < _extents.width - 2 * frame_x)
     cx = frame_x;
+}
+
+void InputFieldBox::scroll_to(Canvas *canvas, Box *child, int start, int end){
+  default_scroll_to(canvas, _content, child, start, end);
 }
 
 Box *InputFieldBox::remove(int *index){
@@ -272,13 +276,13 @@ void InputFieldBox::on_key_down(SpecialKeyEvent &event){
       break;
   }
   
-  autoscroll = true;
+//  autoscroll = true;
   ContainerWidgetBox::on_key_down(event);
 }
 
 void InputFieldBox::on_key_press(uint32_t unichar){
   if(unichar != '\n' || unichar != '\t'){
-    autoscroll = true;
+//    autoscroll = true;
     ContainerWidgetBox::on_key_press(unichar);
   }
 }

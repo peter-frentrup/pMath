@@ -300,8 +300,9 @@ PMATH_PRIVATE pmath_t builtin_stringsplit(pmath_expr_t expr){
     obj = pmath_expr_get_item(expr, 3);
     
     if(pmath_instance_of(obj, PMATH_TYPE_INTEGER)
+    && pmath_number_sign(obj) > 0
     && pmath_integer_fits_ui(obj)){
-      max_matches = pmath_integer_get_ui(obj);
+      max_matches = pmath_integer_get_ui(obj) - 1;
       pmath_unref(obj);
       last_nonoption = 3;
     }
@@ -312,7 +313,7 @@ PMATH_PRIVATE pmath_t builtin_stringsplit(pmath_expr_t expr){
     }
     else if(!_pmath_is_rule(obj) && !_pmath_is_list_of_rules(obj)){
       pmath_unref(obj);
-      pmath_message(NULL, "intnm", 2, pmath_integer_new_si(3), pmath_ref(expr));
+      pmath_message(NULL, "intpm", 2, pmath_integer_new_si(3), pmath_ref(expr));
       return expr;
     }
   }

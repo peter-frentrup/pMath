@@ -54,7 +54,7 @@ namespace richmath{
       void draw_with_text_shadows(Box *box, Expr shadows);
       
     public:
-      Canvas *canvas;          // not owned
+      Canvas *canvas; // not owned
       
       float width;
       float section_content_window_width;
@@ -90,7 +90,6 @@ namespace richmath{
       
       int mouseover_box_id;
       int clicked_box_id;
-//      int focused_widget_id;
       
       bool active;
   };

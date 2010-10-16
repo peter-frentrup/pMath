@@ -24,7 +24,8 @@ namespace richmath{
       
       NativeWidget *native(){ return _native; } // never NULL
       
-      void scroll_to(float x1, float y1, float x2, float y2);
+      virtual void scroll_to(float x, float y, float w, float h);
+      virtual void scroll_to(Canvas *canvas, Box *child, int start, int end);
       
       void mouse_exit();
       void mouse_down(MouseEvent &event);
@@ -104,7 +105,6 @@ namespace richmath{
       
       int clicked_box_id(){   return context.clicked_box_id; }
       int mouseover_box_id(){ return context.mouseover_box_id; }
-//      int focused_widget_id(){   return context.focused_widget_id; }
       
       SharedPtr<Stylesheet> stylesheet(){ return context.stylesheet; }
       
@@ -133,6 +133,7 @@ namespace richmath{
       int     prev_sel_line;
       int     prev_sel_box_id;
       int     must_resize_min;
+      bool    auto_scroll;
       
       SharedPtr<BoxRepaintEvent> flashing_cursor;
     

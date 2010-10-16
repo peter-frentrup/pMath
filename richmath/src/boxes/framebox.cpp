@@ -12,6 +12,14 @@ FrameBox::FrameBox(MathSequence *content)
 {
 }
 
+FrameBox *FrameBox::create(Expr expr, int options){
+  FrameBox *box = new FrameBox(new MathSequence);
+  
+  box->content()->load_from_object(expr[1], options);
+  
+  return box;
+}
+
 void FrameBox::resize(Context *context){
   em = context->canvas->get_font_size();
   

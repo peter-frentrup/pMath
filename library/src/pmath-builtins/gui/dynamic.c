@@ -7,9 +7,13 @@
 #include <pmath-util/messages.h>
 
 #include <pmath-builtins/all-symbols-private.h>
+#include <pmath-builtins/control-private.h>
+
 
 PMATH_PRIVATE pmath_t builtin_internal_dynamicevaluate(pmath_expr_t expr){
-  pmath_t id_obj;
+/* Internal`DynamicEvaluate(expr, id)
+ */
+  pmath_t id_obj, dyn_expr;
   pmath_thread_t thread = pmath_thread_get_current();
   
   if(!thread){
@@ -29,7 +33,7 @@ PMATH_PRIVATE pmath_t builtin_internal_dynamicevaluate(pmath_expr_t expr){
     long id = pmath_integer_get_si(id_obj);
     pmath_unref(id_obj);
     
-    id_obj = pmath_expr_get_item(expr, 1);
+    dyn_expr = pmath_expr_get_item(expr, 1);
     
     pmath_unref(expr);
     
@@ -37,12 +41,131 @@ PMATH_PRIVATE pmath_t builtin_internal_dynamicevaluate(pmath_expr_t expr){
     old_id = thread->current_dynamic_id;
     thread->current_dynamic_id = id;
     
-    id_obj = pmath_evaluate(id_obj);
+    dyn_expr = pmath_evaluate(dyn_expr);
     
     thread->current_dynamic_id = old_id;
     pmath_atomic_fetch_add(&_pmath_dynamic_trackers, -1);
     
-    return id_obj;
+    return dyn_expr;
+  }
+  
+  pmath_unref(id_obj);
+  pmath_message(NULL, "intm", 2, pmath_ref(expr), pmath_integer_new_si(2));
+  return expr;
+}
+  
+  static pmath_t find_tracked_symbols(pmath_t dynamic, size_t start){
+    size_t i;
+    
+    assert(start > 0);
+    
+    for(i = pmath_expr_length(dynamic);i >= start;--i){
+      pmath_t item = pmath_expr_get_item(dynamic, i);
+      
+      if(_pmath_is_rule(item)){
+        pmath_t lhs = pmath_expr_get_item(item, 1);
+        pmath_unref(lhs);
+        
+        if(lhs == PMATH_SYMBOL_TRACKEDSYMBOLS){
+          pmath_t ts = pmath_expr_get_item(item, 2);
+          
+          pmath_unref(item);
+          
+          if(ts == PMATH_SYMBOL_AUTOMATIC){
+            pmath_unref(ts);
+            return PMATH_UNDEFINED;
+          }
+          
+          return ts;
+        }
+      }
+      else if(pmath_is_expr_of(item, PMATH_SYMBOL_LIST)){
+        pmath_t ts = find_tracked_symbols(item, 1);
+        
+        if(ts != PMATH_UNDEFINED){
+          pmath_unref(item);
+          return ts;
+        }
+      }
+      
+      pmath_unref(item);
+    }
+    
+    return PMATH_UNDEFINED;
+  }
+  
+  static pmath_t replace_dynamic(
+    pmath_t expr,   // will be freed
+    pmath_t id_obj  // wont be freed
+  ){
+    if(pmath_instance_of(expr, PMATH_TYPE_EXPRESSION)){
+      pmath_t head = pmath_expr_get_item(expr, 0);
+      size_t len = pmath_expr_length(expr);
+      size_t i;
+      
+      if(head == PMATH_SYMBOL_DYNAMIC && len >= 1){
+        pmath_t dyn_expr = pmath_expr_get_item(expr, 1);
+        pmath_t ts       = find_tracked_symbols(expr, 2);
+        pmath_unref(head);
+        pmath_unref(expr);
+        
+        if(ts != PMATH_UNDEFINED){
+          return pmath_expr_new_extended(
+            pmath_ref(PMATH_SYMBOL_EVALUATIONSEQUENCE), 2,
+            pmath_expr_new_extended(
+              pmath_ref(PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATE), 2,
+              ts,
+              pmath_ref(id_obj)),
+            dyn_expr);
+        }
+        
+        return pmath_expr_new_extended(
+          pmath_ref(PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATE), 2,
+          dyn_expr,
+          pmath_ref(id_obj));
+      }
+      
+      expr = pmath_expr_set_item(expr, 0, NULL);
+      head = replace_dynamic(head, id_obj);
+      expr = pmath_expr_set_item(expr, 0, head);
+      for(i = len;i > 0;--i){
+        pmath_t item = pmath_expr_get_item(expr, i);
+        expr = pmath_expr_set_item(expr, i, NULL);
+        
+        item = replace_dynamic(item, id_obj);
+        
+        expr = pmath_expr_set_item(expr, i, item);
+      }
+    }
+    
+    return expr;
+  }
+
+PMATH_PRIVATE pmath_t builtin_internal_dynamicevaluatemultiple(pmath_expr_t expr){
+/* Internal`DynamicEvaluateMultiple(expr, id)
+ */
+  pmath_t id_obj, dyn_expr;
+  pmath_thread_t thread = pmath_thread_get_current();
+  
+  if(!thread){
+    return expr;
+  }
+  
+  if(pmath_expr_length(expr) != 2){
+    pmath_message_argxxx(pmath_expr_length(expr), 2, 2);
+    return expr;
+  }
+  
+  id_obj = pmath_evaluate(pmath_expr_get_item(expr, 2));
+  if(pmath_instance_of(id_obj, PMATH_TYPE_INTEGER)
+  && pmath_integer_fits_si(id_obj)){
+    dyn_expr = pmath_expr_get_item(expr, 1);
+    pmath_unref(expr);
+    
+    dyn_expr = replace_dynamic(dyn_expr, id_obj);
+    pmath_unref(id_obj);
+    
+    return dyn_expr;
   }
   
   pmath_unref(id_obj);
@@ -51,6 +174,8 @@ PMATH_PRIVATE pmath_t builtin_internal_dynamicevaluate(pmath_expr_t expr){
 }
 
 PMATH_PRIVATE pmath_t builtin_internal_dynamicremove(pmath_expr_t expr){
+/* Internal`DynamicRemove(id1, id2, ...)
+ */
   size_t len = pmath_expr_length(expr);
   size_t i;
   

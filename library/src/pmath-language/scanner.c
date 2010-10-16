@@ -433,6 +433,18 @@ static void scan_next(scanner_t *tokens, parser_t *parser){
     return;
     
   switch(tokens->str[tokens->pos]){
+    case '#': {
+      ++tokens->pos;
+      
+      if(tokens->pos == tokens->len)
+        break;
+      
+      if(tokens->str[tokens->pos] == '#'){ // ##
+        ++tokens->pos;
+        break;
+      }
+    } break;
+    
     case '+': { // ++ += 
       ++tokens->pos;
       
