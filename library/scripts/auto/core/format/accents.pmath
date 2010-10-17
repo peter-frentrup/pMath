@@ -1,0 +1,20 @@
+/* Parsing Transpose/... in traditional form
+ */
+
+Begin("System`Private`")
+
+Unprotect(MakeExpression)
+
+MakeExpression({~x, SuperscriptBox("\[DownTee]")})::= MakeExpression({"Transpose", "(", x, ")"})
+
+Protect(MakeExpression)
+
+
+Unprotect(Transpose)
+
+/* this is also defined/redefined in linalg.pmath */
+MakeBoxes(Transpose(~x))::= {ParenthesizeBoxes(MakeBoxes(x), Power, "Postfix"), SuperscriptBox("\[DownTee]")}
+
+Attributes(Transpose):= {Protected, ReadProtected};
+
+End()

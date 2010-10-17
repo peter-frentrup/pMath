@@ -44,9 +44,7 @@ void SubsuperscriptBox::resize(Context *context){
   context->script_indent++;
   
   context->width = HUGE_VAL;
-//  em = context->script_size_multiplier * old_fs;
-//  if(em < context->script_size_min)
-//    em = context->script_size_min;
+  
   em = context->get_script_size(old_fs);
   context->canvas->set_font_size(em);
   

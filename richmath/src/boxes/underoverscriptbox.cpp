@@ -110,8 +110,8 @@ void UnderoverscriptBox::resize(Context *context){
     _base->stretch_horizontal(context, w + 0.6f * em);
   }
   
-  after_items_resize(context);
   context->script_indent = old_script_indent;
+  after_items_resize(context);
 }
 
 void UnderoverscriptBox::after_items_resize(Context *context){
@@ -138,23 +138,6 @@ void UnderoverscriptBox::after_items_resize(Context *context){
     if(_extents.width < over_x + _overscript->extents().width)
        _extents.width = over_x + _overscript->extents().width;
   }
-//  float super = 0, sub = 0;
-////  _base->script_indent(context, &super, &center, &sub);
-//  ou_displacement = em * (super - sub);
-//  
-//  _extents = _base->extents();
-//    
-//  if(_underscript){
-//    _extents.descent+= 0.2 * em + _underscript->extents().height();
-//    if(_extents.width < _underscript->extents().width)
-//       _extents.width = _underscript->extents().width;
-//  }
-//  
-//  if(_overscript){
-//    _extents.ascent+= 0.2 * em + _overscript->extents().height();
-//    if(_extents.width < _overscript->extents().width)
-//       _extents.width = _overscript->extents().width;
-//  }
 }
 
 void UnderoverscriptBox::colorize_scope(SyntaxState *state){

@@ -258,9 +258,9 @@ namespace richmath{
       
       virtual void accent_positions(
         Context           *context,
-        MathSequence          *base,
-        MathSequence          *under,
-        MathSequence          *over,
+        MathSequence      *base,
+        MathSequence      *under,
+        MathSequence      *over,
         float             *base_x,
         float             *under_x,
         float             *under_y,
@@ -271,8 +271,8 @@ namespace richmath{
         Context           *context,
         float              base_ascent,
         float              base_descent,
-        MathSequence          *sub,
-        MathSequence          *super,
+        MathSequence      *sub,
+        MathSequence      *super,
         float             *sub_y,
         float             *super_y) = 0;
       
@@ -280,8 +280,8 @@ namespace richmath{
         Context           *context,
         uint16_t           base_char, 
         const GlyphInfo   &base_info,
-        MathSequence          *sub,
-        MathSequence          *super,
+        MathSequence      *sub,
+        MathSequence      *super,
         float              sub_y,
         float              super_y,
         float             *sub_x,
@@ -368,9 +368,9 @@ namespace richmath{
       
       virtual void accent_positions(
         Context           *context,
-        MathSequence          *base,
-        MathSequence          *under,
-        MathSequence          *over,
+        MathSequence      *base,
+        MathSequence      *under,
+        MathSequence      *over,
         float             *base_x,
         float             *under_x,
         float             *under_y,
@@ -381,8 +381,8 @@ namespace richmath{
         Context           *context,
         float              base_ascent,
         float              base_descent,
-        MathSequence          *sub,
-        MathSequence          *super,
+        MathSequence      *sub,
+        MathSequence      *super,
         float             *sub_y,
         float             *super_y);
       
@@ -390,8 +390,8 @@ namespace richmath{
         Context           *context,
         uint16_t           base_char, 
         const GlyphInfo   &base_info,
-        MathSequence          *sub,
-        MathSequence          *super,
+        MathSequence      *sub,
+        MathSequence      *super,
         float              sub_y,
         float              super_y,
         float             *sub_x,
@@ -406,8 +406,8 @@ namespace richmath{
         float          *width);
       
       virtual void show_fraction(
-        Context        *context,
-        float           width);
+        Context  *context,
+        float     width);
       
       virtual float italic_correction(
         Context          *context,

@@ -59,7 +59,8 @@ System`Utilities`GetSystemSyntaxInformation(~symbol:Symbol)::=
 	Local(
 		{nsdata},
 		Try(
-			If(HoldComplete(SyntaxInformationData) === HoldComplete @@ {SyntaxInformationData},
+			If(HoldComplete(SyntaxInformationData) === HoldComplete @@ {SyntaxInformationData}
+			|| SyntaxInformationData === $Failed,
 				SyntaxInformationData:= Get(ToFileName($BaseDirectory, "syntaxinformation.pmath"))
 				);
 			
@@ -89,4 +90,5 @@ AutoLoad(Hold(System`Util`latexToBoxes),
 	ToFileName({$BaseDirectory, "auto", "core", "format"}, "latextoboxes.pmath"))
 
 Get(ToFileName({$BaseDirectory, "auto", "core"}, "colors.pmath"));
+Get(ToFileName({$BaseDirectory, "auto", "core", "format"}, "accents.pmath"));
 Get(ToFileName({$BaseDirectory, "auto", "core", "format"}, "sumprod.pmath"));

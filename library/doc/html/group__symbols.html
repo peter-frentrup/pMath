@@ -189,6 +189,12 @@ A pMath symbol (here called `sym`) can have one or more of the following values 
 <li>
 <code>PMATH_SYMBOL_ATTRIBUTE_READPROTECTED</code> `??sym` wont print out the value/function definitions for sym.<p>
 </li>
+<li>
+<code>PMATH_SYMBOL_ATTRIBUTE_SEQUENCEHOLD</code> Sequence(...) wont be sliced when it appears as an argument to `sym(...)`<p>
+</li>
+<li>
+<code>PMATH_SYMBOL_ATTRIBUTE_REMOVED</code> The symbol was removed, but there are pending references to it.<p>
+</li>
 </ul>
 
 </div>
@@ -751,7 +757,7 @@ You normally do not have to call this, since every change in a symbol yields an 
 </div>
 </div><p>
 </div>
-<hr size="1"><address style="text-align: right;"><small>Generated on Sat Sep 18 18:13:03 2010 for pMath by&nbsp;
+<hr size="1"><address style="text-align: right;"><small>Generated on Sun Oct 17 19:31:03 2010 for pMath by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.5.9 </small></address>
 </body>

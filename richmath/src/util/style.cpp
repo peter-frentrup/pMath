@@ -46,9 +46,9 @@ int richmath::pmath_to_color(Expr obj){
         double g = obj[2].to_double();
         double b = obj[3].to_double();
         
-        if(r < 0) r = 0; else if(r > 1) r = 1;
-        if(g < 0) g = 0; else if(g > 1) g = 1;
-        if(b < 0) b = 0; else if(b > 1) b = 1;
+        if(r < 0){ r = 0; }else if(r > 1){ r = 1; }
+        if(g < 0){ g = 0; }else if(g > 1){ g = 1; }
+        if(b < 0){ b = 0; }else if(b > 1){ b = 1; }
         
         return ((int)(r * 255) << 16) | ((int)(g * 255) << 8) | (int)(b * 255);
       }

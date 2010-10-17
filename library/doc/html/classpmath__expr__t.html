@@ -70,9 +70,6 @@ Inherits <a class="el" href="classpmath__t.html">pmath_t</a>.
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Flatten an expression.  <a href="group__expressions.html#g9162f7fe8a42627c5adf6185dba9e67d"></a><br></td></tr>
 <tr><td colspan="2"><br><h2>Related Functions</h2></td></tr>
 <tr><td colspan="2">(Note that these are not member functions.) <br><br></td></tr>
-<tr><td class="memItemLeft" nowrap align="right" valign="top">PMATH_API <a class="el" href="classpmath__t.html">pmath_t</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpmath__expr__t.html#d723e196e3d7f9078729bc0fb2fe7eed">pmath_evaluate_expression</a> (<a class="el" href="classpmath__expr__t.html">pmath_expr_t</a> expr, <a class="el" href="group__general__types.html#gc92090cb0b56345d6c379ed2341d4ef4">pmath_bool_t</a> apply_rules)</td></tr>
-
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Partly evaluate an expression.  <a href="#d723e196e3d7f9078729bc0fb2fe7eed"></a><br></td></tr>
 <tr><td class="memItemLeft" nowrap align="right" valign="top">PMATH_API void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__helpers.html#g077f3730ca4275b87d9a35bce6013e45">pmath_gather_begin</a> (<a class="el" href="classpmath__t.html">pmath_t</a> pattern)</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Start gathering emitted objects.  <a href="group__helpers.html#g077f3730ca4275b87d9a35bce6013e45"></a><br></td></tr>
@@ -82,6 +79,9 @@ Inherits <a class="el" href="classpmath__t.html">pmath_t</a>.
 <tr><td class="memItemLeft" nowrap align="right" valign="top">PMATH_API void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__helpers.html#ga06135012f4d2a0faf696c0cd1111075">pmath_emit</a> (<a class="el" href="classpmath__t.html">pmath_t</a> object, <a class="el" href="classpmath__t.html">pmath_t</a> tag)</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Emit an object to be gathered by the appropriate surounding <a class="el" href="group__helpers.html#g077f3730ca4275b87d9a35bce6013e45" title="Start gathering emitted objects.">pmath_gather_begin()</a> ... <a class="el" href="group__helpers.html#ga2f732b35703986263e3a15592b4a46e" title="Finish gathering emitted objects.">pmath_gather_end()</a> function pair.  <a href="group__helpers.html#ga06135012f4d2a0faf696c0cd1111075"></a><br></td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">PMATH_API <a class="el" href="classpmath__t.html">pmath_t</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpmath__expr__t.html#d723e196e3d7f9078729bc0fb2fe7eed">pmath_evaluate_expression</a> (<a class="el" href="classpmath__expr__t.html">pmath_expr_t</a> expr, <a class="el" href="group__general__types.html#gc92090cb0b56345d6c379ed2341d4ef4">pmath_bool_t</a> apply_rules)</td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Partly evaluate an expression.  <a href="#d723e196e3d7f9078729bc0fb2fe7eed"></a><br></td></tr>
 <tr><td class="memItemLeft" nowrap align="right" valign="top">PMATH_API <a class="el" href="classpmath__expr__t.html">pmath_expr_t</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__helpers.html#g24403dfbd825b17fc4c6da5973922184">pmath_options_extract</a> (<a class="el" href="classpmath__expr__t.html">pmath_expr_t</a> expr, size_t last_nonoption)</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Extract custom option values from an expression.  <a href="group__helpers.html#g24403dfbd825b17fc4c6da5973922184"></a><br></td></tr>
@@ -136,9 +136,9 @@ This function prepares an expression for evaluation (evaluates its items, ...). 
 </div>
 </div><p>
 <hr>The documentation for this class was generated from the following files:<ul>
-<li>pmath-core/expressions.h<li>pmath-util/evaluation.h<li>pmath-util/helpers.h</ul>
+<li>pmath-core/expressions.h<li>pmath-util/emit-and-gather.h<li>pmath-util/evaluation.h<li>pmath-util/helpers.h</ul>
 </div>
-<hr size="1"><address style="text-align: right;"><small>Generated on Sat Sep 18 18:13:04 2010 for pMath by&nbsp;
+<hr size="1"><address style="text-align: right;"><small>Generated on Sun Oct 17 19:31:04 2010 for pMath by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.5.9 </small></address>
 </body>

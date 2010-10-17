@@ -202,7 +202,7 @@ The boxed form of <img class="formulaInl" alt="$ \sum_{i=1}^n f(i) $" src="form_
  or <br>
  <code>{{"\[Sum]", SubsuperscriptBox({"i", "=", "1"}, "n")}, {"f", "(", "i", ")"}}</code> <br>
  (\[Sum] is the Unicode character U+2211: "N-ARY SUMMATION").<p>
-It will be translated to <code>HoldComplete(Sum(f(i), i-&gt;1..n))</code> by <code>System`BoxesToExpression</code>.<p>
+It will be translated to <code>HoldComplete(Sum(f(i), i-&gt;1..n))</code> by <code>System`MakeExpression</code>.<p>
 Front-ends have to convert their own representation of the code to the boxed form before parsing. <hr><h2>Define Documentation</h2>
 <a class="anchor" name="gf8ba5467c4b9e3e32ad0a8606466cb83"></a><!-- doxytag: member="scanner.h::PMATH_RUN" ref="gf8ba5467c4b9e3e32ad0a8606466cb83" args="(code)" -->
 <div class="memitem">
@@ -330,14 +330,14 @@ Parses pMath code to a span array.
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
     <tr><td valign="top"></td><td valign="top"><em>code</em>&nbsp;</td><td>A pointer to a pMath string. </td></tr>
-    <tr><td valign="top"></td><td valign="top"><em>line_reader</em>&nbsp;</td><td>A function to be called, when there is more input needed. Its result will be appended to *code. </td></tr>
-    <tr><td valign="top"></td><td valign="top"><em>subsuperscriptbox_at_index</em>&nbsp;</td><td>A function that returns TRUE iff at a given position in the code (indicated by the PMATH_CHAR_BOX character) is a SubscriptBox, SuperscriptBox or SubsuperscriptBox. </td></tr>
-    <tr><td valign="top"></td><td valign="top"><em>underoverscriptbox_at_index</em>&nbsp;</td><td>Iff there is an UnderscriptBox, OverscriptBox or UnderoverscriptBox at a given position in the code (indicated by the PMATH_CHAR_BOX character) its base (middle part of UnderoverscriptBox) should be returned by this function, otherwise NULL should be returned. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>line_reader</em>&nbsp;</td><td>An optional function to be called, when there is more input needed. Its result will be appended to *code. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>subsuperscriptbox_at_index</em>&nbsp;</td><td>An optional function that returns TRUE iff at a given position in the code (indicated by the PMATH_CHAR_BOX character) is a SubscriptBox, SuperscriptBox or SubsuperscriptBox. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>underoverscriptbox_at_index</em>&nbsp;</td><td>(optional) Iff there is an UnderscriptBox, OverscriptBox or UnderoverscriptBox at a given position in the code (indicated by the PMATH_CHAR_BOX character) its base (middle part of UnderoverscriptBox) should be returned by this function, otherwise NULL should be returned. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>error</em>&nbsp;</td><td>A function that will be called on syntax errors. The first argument is <code>*code</code>. It must not be freed. The second argument is the position in the code. The third argument is <em>data</em> The fourth argument is TRUE if the error is critical and FALSE if it is just a warning (Syntax::newl) This function is optional, if it is NULL, no messages will be generated during the scanning. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>data</em>&nbsp;</td><td>An arbitrary pointer, that will be provided as the last argument to the callback functions. </td></tr>
   </table>
 </dl>
-<dl class="return" compact><dt><b>Returns:</b></dt><dd>A span-array that can be used by pmath_boxes_from_spans to convert the code to boxed form, which, in turn, is used by System`BoxesToExpression(). The span-array must be freed with <a class="el" href="group__parser.html#gceb05ef4c39c239d68f39e3b9bde5f1e" title="Destroy a span-array and all its spans.">pmath_span_array_free()</a> when it is no longer needed. </dd></dl>
+<dl class="return" compact><dt><b>Returns:</b></dt><dd>A span-array that can be used by pmath_boxes_from_spans to convert the code to boxed form, which, in turn, is used by System`MakeExpression(). The span-array must be freed with <a class="el" href="group__parser.html#gceb05ef4c39c239d68f39e3b9bde5f1e" title="Destroy a span-array and all its spans.">pmath_span_array_free()</a> when it is no longer needed. </dd></dl>
 
 </div>
 </div><p>
@@ -392,7 +392,7 @@ Convert a span-array with the according code to boxed form.
     <tr><td valign="top"></td><td valign="top"><em>spans</em>&nbsp;</td><td>A span-array. It can be obtained by <a class="el" href="group__parser.html#g877ac507e27c8791a265105f796f3cef" title="Parses pMath code to a span array.">pmath_spans_from_string()</a> or <a class="el" href="group__parser.html#g9914e557782a4c7ff312b2b474fcf045" title="Convert boxed form back to span-array and code.">pmath_spans_from_boxes()</a>. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>string</em>&nbsp;</td><td>The corresponding code to <em>span</em>. It wont be freed. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>parseable</em>&nbsp;</td><td>Whether whitespace and comments should be skipped or not. </td></tr>
-    <tr><td valign="top"></td><td valign="top"><em>box_at_index</em>&nbsp;</td><td>A function that returns the box at a given position (indicated by the PMATH_CHAR_BOX character). This function will be called (at most) one time for every box and in their order of apperance. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>box_at_index</em>&nbsp;</td><td>An optional function that returns the box at a given position (indicated by the PMATH_CHAR_BOX character). This function will be called (at most) one time for every box and in their order of apperance. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>data</em>&nbsp;</td><td>A pointer that will be provided as the last argument to <em>box_at_index</em>. </td></tr>
   </table>
 </dl>
@@ -876,7 +876,7 @@ Parse a string to an expression.
   </table>
 </dl>
 <dl class="return" compact><dt><b>Returns:</b></dt><dd>A pMath object.</dd></dl>
-This function returns Release(BoxesToExpression(StringToBoxes("code"))), but does not evaluate this released result. 
+This function returns ToExpression("code"), but does not evaluate this released result. 
 </div>
 </div><p>
 <a class="anchor" name="gac02e250fcd91e4fc03f0f7e8a6dd571"></a><!-- doxytag: member="pmath_string_t::pmath_parse_string_args" ref="gac02e250fcd91e4fc03f0f7e8a6dd571" args="(const char *code, const char *format,...)" -->
@@ -930,7 +930,7 @@ This function is a short hand for<ol type=1>
 </div>
 </div><p>
 </div>
-<hr size="1"><address style="text-align: right;"><small>Generated on Sat Sep 18 18:13:03 2010 for pMath by&nbsp;
+<hr size="1"><address style="text-align: right;"><small>Generated on Sun Oct 17 19:31:03 2010 for pMath by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.5.9 </small></address>
 </body>

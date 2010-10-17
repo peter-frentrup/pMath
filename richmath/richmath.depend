@@ -2972,7 +2972,7 @@
 	<util/sharedptr.h>
 	<util/style.h>
 
-1283708090 d:\peter\programmieren\pmath\trunk\richmath\include\graphics\shapers.h
+1287320617 d:\peter\programmieren\pmath\trunk\richmath\include\graphics\shapers.h
 	<graphics/canvas.h>
 	<util/array.h>
 	<util/hashtable.h>
@@ -3075,7 +3075,7 @@
 1286384467 d:\peter\programmieren\pmath\trunk\library\include\pmath-core\symbols.h
 	<pmath-core/strings.h>
 
-1287226935 d:\peter\programmieren\pmath\trunk\library\include\pmath-builtins\all-symbols.h
+1287327939 d:\peter\programmieren\pmath\trunk\library\include\pmath-builtins\all-symbols.h
 	<pmath-core/expressions.h>
 	<pmath-core/symbols.h>
 
@@ -3270,7 +3270,7 @@
 1286107943 d:\peter\programmieren\pmath\trunk\richmath\include\boxes\fillbox.h
 	<boxes/ownerbox.h>
 
-1286107991 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\fractionbox.cpp
+1287320420 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\fractionbox.cpp
 	<boxes/fractionbox.h>
 	<cmath>
 	<boxes/mathsequence.h>
@@ -3317,7 +3317,7 @@
 1286108330 d:\peter\programmieren\pmath\trunk\richmath\include\boxes\interpretationbox.h
 	<boxes/ownerbox.h>
 
-1287161731 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\mathsequence.cpp
+1287326606 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\mathsequence.cpp
 	<boxes/mathsequence.h>
 	<climits>
 	<cmath>
@@ -3385,7 +3385,7 @@
 	<boxes/mathsequence.h>
 	<graphics/context.h>
 
-1286109004 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\radicalbox.cpp
+1287320432 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\radicalbox.cpp
 	<boxes/radicalbox.h>
 	<boxes/mathsequence.h>
 	<graphics/buffer.h>
@@ -3412,7 +3412,7 @@
 	<boxes/mathsequence.h>
 	<graphics/context.h>
 
-1286109043 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\subsuperscriptbox.cpp
+1287320452 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\subsuperscriptbox.cpp
 	<boxes/subsuperscriptbox.h>
 	<cmath>
 	<boxes/mathsequence.h>
@@ -3434,7 +3434,7 @@
 	<boxes/mathsequence.h>
 	<graphics/context.h>
 
-1286110068 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\underoverscriptbox.cpp
+1287320477 source:d:\peter\programmieren\pmath\trunk\richmath\src\boxes\underoverscriptbox.cpp
 	<boxes/underoverscriptbox.h>
 	<cmath>
 	<boxes/mathsequence.h>
@@ -3532,7 +3532,7 @@
 	<util/style.h>
 	<util/syntax-state.h>
 
-1286030748 d:\peter\programmieren\pmath\trunk\richmath\include\graphics\ot-math-shaper.h
+1287320014 d:\peter\programmieren\pmath\trunk\richmath\include\graphics\ot-math-shaper.h
 	<graphics/shapers.h>
 	<util/array.h>
 	<util/pmath-extra.h>
@@ -3555,7 +3555,7 @@
 	<graphics/canvas.h>
 	<util/array.h>
 
-1286037167 source:d:\peter\programmieren\pmath\trunk\richmath\src\graphics\ot-math-shaper.cpp
+1287320547 source:d:\peter\programmieren\pmath\trunk\richmath\src\graphics\ot-math-shaper.cpp
 	<graphics/ot-math-shaper.h>
 	<cmath>
 	<boxes/mathsequence.h>
@@ -3563,7 +3563,7 @@
 	<util/style.h>
 	<util/syntax-state.h>
 
-1286976741 source:d:\peter\programmieren\pmath\trunk\richmath\src\graphics\shapers.cpp
+1287320721 source:d:\peter\programmieren\pmath\trunk\richmath\src\graphics\shapers.cpp
 	<graphics/shapers.h>
 	<cmath>
 	<boxes/mathsequence.h>
@@ -3781,7 +3781,7 @@
 	<boxes/subsuperscriptbox.h>
 	<boxes/underoverscriptbox.h>
 
-1287074685 source:d:\peter\programmieren\pmath\trunk\richmath\src\util\style.cpp
+1287314788 source:d:\peter\programmieren\pmath\trunk\richmath\src\util\style.cpp
 	<util/style.h>
 	<climits>
 	<cmath>

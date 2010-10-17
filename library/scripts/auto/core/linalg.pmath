@@ -7,7 +7,8 @@ Cross(~~vectors)::= With({dim:= Dimensions({vectors})},
 	/? dim.Length === 2 && dim[1] + 1 === dim[2])
 
 
-Transpose(~tensor, ?perm:{2,1})::= With({result:= Catch(transposeHelper(tensor, perm), $Failed)}, result /? result =!= $Failed)
+MakeBoxes(Transpose(~x))::= {ParenthesizeBoxes(MakeBoxes(x), Power, "Postfix"), SuperscriptBox("\[DownTee]")}
+Transpose(~tensor:List, ?perm:{2,1})::= With({result:= Catch(transposeHelper(tensor, perm), $Failed)}, result /? result =!= $Failed)
 
 transposeHelper(~tensor, ~perm:List)::= Local({tdim, rdim, invperm, indices, result, is, tis, i},
 	Do(

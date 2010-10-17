@@ -1189,15 +1189,38 @@ void SimpleMathShaper::vertical_stretch_char(
 
 void SimpleMathShaper::accent_positions(
   Context           *context,
-  MathSequence          *base,
-  MathSequence          *under,
-  MathSequence          *over,
+  MathSequence      *base,
+  MathSequence      *under,
+  MathSequence      *over,
   float             *base_x,
   float             *under_x,
   float             *under_y,
   float             *over_x,
   float             *over_y
 ){
+  uint16_t base_char = 0;
+  if(base->length() == 1)
+    base_char = base->text()[0];
+  
+  if(context->script_indent > 0
+  && (pmath_char_is_integral(base_char)
+   /*|| pmath_char_maybe_bigop(base_char)*/)){
+    script_positions(
+      context, base->extents().ascent, base->extents().descent,
+      under, over, 
+      under_y, over_y);
+    
+    script_corrections(
+      context, base_char, base->glyph_array()[0], 
+      under, over, *under_y, *over_y,
+      under_x, over_x);
+    
+    *base_x = 0;
+    *under_x+= base->extents().width;
+    *over_x += base->extents().width;
+    return;
+  }
+  
   float em = context->canvas->get_font_size();
   float w = base->extents().width;
   

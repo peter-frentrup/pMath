@@ -86,7 +86,7 @@ PMATH_PRIVATE pmath_t builtin_wait(pmath_expr_t expr){
 /* Wait(task)
    
    messages:
-     General::notask
+     General::nothread
  */
   pmath_symbol_t  sym;
   pmath_custom_t  custom_task;

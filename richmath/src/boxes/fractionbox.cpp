@@ -49,11 +49,6 @@ void FractionBox::resize(Context *context){
   
   if(context->smaller_fraction_parts){
     context->script_indent++;
-    
-//    float fs = context->script_size_multiplier * old_fs;
-//    if(fs < context->script_size_min)
-//      fs = context->script_size_min;
-//    context->canvas->set_font_size(fs);
   }
   
   context->canvas->set_font_size(context->get_script_size(old_fs));
@@ -87,18 +82,6 @@ void FractionBox::paint(Context *context){
   
   context->math_shaper->show_fraction(context, _extents.width);
   
-//  context->math_shaper->show_glyph(
-//    context, x, y, 0x23AF, fraction_glyph);
-  
-//  if(context->smaller_fraction_parts){
-//    context->script_indent++;
-//    
-//    float fs = context->script_size_multiplier * old_fs;
-//    if(fs < context->script_size_min)
-//      fs = context->script_size_min;
-//    context->canvas->set_font_size(fs);
-//  }
-  
   context->canvas->move_to(
     x + (_extents.width - _numerator->extents().width) / 2, 
     y + num_y);
@@ -113,7 +96,6 @@ void FractionBox::paint(Context *context){
   context->canvas->set_font_size(_denominator->get_em());
   _denominator->paint(context);
   
-//  if(context->smaller_fraction_parts)
   context->canvas->set_font_size(old_fs);
 }
 

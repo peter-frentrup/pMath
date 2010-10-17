@@ -487,7 +487,7 @@ struct compile_regex_info_t{
   
   static void put_charclass_item(
     struct compile_regex_info_t  *info, 
-    pmath_t                obj   // will be freed
+    pmath_t                       obj   // will be freed
   ){
     pmath_cstr_writer_info_t u8info;
     
@@ -880,9 +880,21 @@ static pmath_bool_t compile_regex_part(
       return TRUE;
     }
     
-    if(part == PMATH_SYMBOL_ENDOFSTRING){
+    if(part == PMATH_SYMBOL_ENDOFLINE){
       pmath_unref(part);
       concat_utf8(&(info->pattern), "$");
+      return TRUE;
+    }
+    
+    if(part == PMATH_SYMBOL_NUMBERSTRING){
+      pmath_unref(part);
+      concat_utf8(&(info->pattern), "\\d+\\.\\d");
+      return TRUE;
+    }
+    
+    if(part == PMATH_SYMBOL_WHITESPACE){
+      pmath_unref(part);
+      concat_utf8(&(info->pattern), "\\s+");
       return TRUE;
     }
     

@@ -288,9 +288,9 @@ namespace richmath{
       
       virtual void accent_positions(
         Context           *context,
-        MathSequence          *base,
-        MathSequence          *under,
-        MathSequence          *over,
+        MathSequence      *base,
+        MathSequence      *under,
+        MathSequence      *over,
         float             *base_x,
         float             *under_x,
         float             *under_y,

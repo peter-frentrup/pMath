@@ -1358,9 +1358,9 @@ void OTMathShaper::vertical_stretch_char(
 
 void OTMathShaper::accent_positions(
   Context           *context,
-  MathSequence          *base,
-  MathSequence          *under,
-  MathSequence          *over,
+  MathSequence      *base,
+  MathSequence      *under,
+  MathSequence      *over,
   float             *base_x,
   float             *under_x,
   float             *under_y,
@@ -1374,7 +1374,7 @@ void OTMathShaper::accent_positions(
   
   if(context->script_indent > 0
   && (pmath_char_is_integral(base_char)
-   || pmath_char_maybe_bigop(base_char))){
+   /*|| pmath_char_maybe_bigop(base_char)*/)){
     script_positions(
       context, base->extents().ascent, base->extents().descent,
       under, over, 

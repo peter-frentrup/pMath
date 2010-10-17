@@ -49,10 +49,7 @@ void RadicalBox::resize(Context *context){
   
   if(_exponent){
     float old_fs = context->canvas->get_font_size();
-//    small_em = context->script_size_multiplier * old_fs;
-//    if(small_em < context->script_size_min)
-//      small_em = context->script_size_min;
-//    context->canvas->set_font_size(small_em);
+    
     context->script_indent++;
     small_em = context->get_script_size(old_fs);
     context->script_indent--;

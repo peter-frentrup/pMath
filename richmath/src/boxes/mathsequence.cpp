@@ -527,7 +527,7 @@ void MathSequence::selection_path(Context *opt_context, Canvas *canvas, int star
   
   
   if(endline == startline){
-    float a = 0;
+    float a = 0.5 * em;
     float d = 0;
     
     if(opt_context){
@@ -1189,6 +1189,7 @@ void MathSequence::syntax_error(pmath_string_t code, int pos, void *_data, pmath
   
   if(err){
     if(pos < data->sequence->glyphs.length()
+    && data->sequence->glyphs.length() > 1
     && data->sequence->get_style(ShowAutoStyles)){
       data->sequence->glyphs[pos].style = GlyphStyleSyntaxError;
     }
@@ -2090,7 +2091,7 @@ void MathSequence::scope_colorize_spanexpr(SyntaxState *state, SpanExpr *se){
   
   if(se->count() == 2){ // #x   ~x   ?x   x&   <<x
     if(se->item_first_char(0) == '#'
-    && se->item_first_char(1) != '&'){
+    && pmath_char_is_digit(se->item_first_char(1))){
       uint8_t style;
       if(state->in_function)
         style = GlyphStyleParameter;
@@ -2887,7 +2888,7 @@ void MathSequence::enlarge_space(Context *context){
   int i;
   bool last_was_factor = false;
   bool last_was_number = false;
-  bool last_was_space = false;
+  bool last_was_space  = false;
   
   int e = -1;
   while(true){
@@ -2996,7 +2997,7 @@ void MathSequence::enlarge_space(Context *context){
     float space_left  = 0.0;
     float space_right = 0.0;
     
-    bool lwf = FALSE;
+    bool lwf = false;
     switch(tok){
       case PMATH_TOK_PLUSPLUS: {
         if(spans.is_operand_start(i)){
@@ -3153,8 +3154,9 @@ void MathSequence::enlarge_space(Context *context){
       case PMATH_TOK_STRING:
       case PMATH_TOK_NAME:
       case PMATH_TOK_NAME2:
-        lwf = TRUE;
+        lwf = true;
         /* no break */
+      case PMATH_TOK_SLOT:
       case PMATH_TOK_LEFT:
         if(last_was_factor){
           space_left = em * 3/18;
@@ -3162,7 +3164,7 @@ void MathSequence::enlarge_space(Context *context){
         break;
         
       case PMATH_TOK_RIGHT:
-        lwf = TRUE;
+        lwf = true;
         break;
         
       case PMATH_TOK_PRETEXT:
@@ -3177,7 +3179,6 @@ void MathSequence::enlarge_space(Context *context){
       case PMATH_TOK_LEFTCALL:
       case PMATH_TOK_ASSIGNTAG:
       case PMATH_TOK_TILDES:
-      case PMATH_TOK_SLOT:
       case PMATH_TOK_INTEGRAL:
       case PMATH_TOK_COMMENTEND:
         break;
@@ -3188,7 +3189,7 @@ void MathSequence::enlarge_space(Context *context){
     
     if(last_was_space){
       last_was_space = false;
-      continue;
+      space_left     = 0;
     }
     
     if(i > 0 || e+1 < glyphs.length()){
@@ -3478,6 +3479,8 @@ int MathSequence::fill_penalty_array(
   
   if(buf[pos] == '"' && !span.next()){
     ++depth;
+    
+    penalty_array[pos] = Infinity;
     
     bool last_was_special = false;
     while(next < span.end()){
