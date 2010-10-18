@@ -933,6 +933,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   VERIFY(   PMATH_SYMBOL_PARTITION                 = NEW_SYSTEM_SYMBOL("Partition"))
   VERIFY(   PMATH_SYMBOL_PATH                      = NEW_SYSTEM_SYMBOL("Path"))
   VERIFY(   PMATH_SYMBOL_PATHDEFAULT               = NEW_SYSTEM_SYMBOL("$Path"))
+  VERIFY(   PMATH_SYMBOL_PATHLISTSEPARATOR         = NEW_SYSTEM_SYMBOL("$PathListSeparator"))
   VERIFY(   PMATH_SYMBOL_PATHNAMESEPARATOR         = NEW_SYSTEM_SYMBOL("$PathnameSeparator"))
   VERIFY(   PMATH_SYMBOL_PATTERN                   = NEW_SYSTEM_SYMBOL("Pattern"))
   VERIFY(   PMATH_SYMBOL_PATTERNSEQUENCE           = NEW_SYSTEM_SYMBOL("PatternSequence"))

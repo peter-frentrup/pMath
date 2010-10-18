@@ -144,7 +144,7 @@ PMATH_API
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_symbol_t pmath_symbol_get(
   pmath_string_t  name,
-  pmath_bool_t create);
+  pmath_bool_t    create);
 
 /**\brief Create a new temporary symbol.
    \memberof pmath_symbol_t
@@ -166,7 +166,7 @@ PMATH_API
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_symbol_t pmath_symbol_create_temporary(
   pmath_string_t  name,
-  pmath_bool_t unique);
+  pmath_bool_t    unique);
 
 /**\brief Find a symbol in the current namespace search path.
    \memberof pmath_symbol_t

@@ -40,10 +40,10 @@ Create a new deamon thread.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em callback}]The thread function. \item[{\em kill}]An optional function to inform the thread that it will be killed. \item[{\em data}]A pointer to be passed to callback() and kill() \end{description}
+\item[{\em callback}]The thread function. \item[{\em kill}]An optional function to inform the thread that it will be killed. \item[{\em data}]\hyperlink{class_a}{A} pointer to be passed to callback() and kill() \end{description}
 \end{Desc}
 \begin{Desc}
-\item[Returns:]A reference to the new thread's message queue or NULL on error. You have to destroy the result.\end{Desc}
+\item[Returns:]\hyperlink{class_a}{A} reference to the new thread's message queue or NULL on error. You have to destroy the result.\end{Desc}
 pMath will automatically kill any daemon thread when there are no other threads remaining (normaly, when \hyperlink{group__frontend_g012705e1fd248a7cebf738bae6375dd9}{pmath\_\-done()} is called from main()). Killing deamons works as follows:
 
 

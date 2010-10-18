@@ -313,7 +313,7 @@ PMATH_PRIVATE pmath_t builtin_stringsplit(pmath_expr_t expr){
     }
     else if(!_pmath_is_rule(obj) && !_pmath_is_list_of_rules(obj)){
       pmath_unref(obj);
-      pmath_message(NULL, "intpm", 2, pmath_integer_new_si(3), pmath_ref(expr));
+      pmath_message(NULL, "intpm", 2, pmath_ref(expr), pmath_integer_new_si(3));
       return expr;
     }
   }

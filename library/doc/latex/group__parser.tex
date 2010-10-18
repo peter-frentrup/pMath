@@ -68,7 +68,7 @@ class \hyperlink{classpmath__span__t}{pmath\_\-span\_\-t}
 \#define \hyperlink{group__parser_ga9a5a4bbece31aec4a25b94617ffd2e4}{PMATH\_\-CHAR\_\-ALIASINDICATOR}~0xF768}
 \label{group__parser_ga9a5a4bbece31aec4a25b94617ffd2e4}
 
-\begin{CompactList}\small\item\em A character that looks like PMATH\_\-CHAR\_\-ALIASDELIMITER but has no effect. \item\end{CompactList}\item 
+\begin{CompactList}\small\item\em \hyperlink{class_a}{A} character that looks like PMATH\_\-CHAR\_\-ALIASDELIMITER but has no effect. \item\end{CompactList}\item 
 \hypertarget{group__parser_g50754cd7c2add678bdf9c38fbf718876}{
 \#define \hyperlink{group__parser_g50754cd7c2add678bdf9c38fbf718876}{PMATH\_\-CHAR\_\-LEFT\_\-BOX}~0xFFF9}
 \label{group__parser_g50754cd7c2add678bdf9c38fbf718876}
@@ -198,7 +198,7 @@ The boxed form of $ \sum_{i=1}^n f(i) $ is \par
  {\tt \{\{\char`\"{}$\backslash$\mbox{[}Sum\mbox{]}\char`\"{}, SubsuperscriptBox(\{\char`\"{}i\char`\"{}, \char`\"{}=\char`\"{}, \char`\"{}1\char`\"{}\}, \char`\"{}n\char`\"{})\}, \{\char`\"{}f\char`\"{}, \char`\"{}(\char`\"{}, \char`\"{}i\char`\"{}, \char`\"{})\char`\"{}\}\}} \par
  ($\backslash$\mbox{[}Sum\mbox{]} is the Unicode character U+2211: \char`\"{}N-ARY SUMMATION\char`\"{}).
 
-It will be translated to {\tt HoldComplete(Sum(f(i), i-$>$1..n))} by {\tt System`BoxesToExpression}.
+It will be translated to {\tt HoldComplete(Sum(f(i), i-$>$1..n))} by {\tt System`MakeExpression}.
 
 Front-ends have to convert their own representation of the code to the boxed form before parsing. 
 
@@ -262,10 +262,10 @@ Parses pMath code to a span array.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em code}]A pointer to a pMath string. \item[{\em line\_\-reader}]A function to be called, when there is more input needed. Its result will be appended to $\ast$code. \item[{\em subsuperscriptbox\_\-at\_\-index}]A function that returns TRUE iff at a given position in the code (indicated by the PMATH\_\-CHAR\_\-BOX character) is a SubscriptBox, SuperscriptBox or SubsuperscriptBox. \item[{\em underoverscriptbox\_\-at\_\-index}]Iff there is an UnderscriptBox, OverscriptBox or UnderoverscriptBox at a given position in the code (indicated by the PMATH\_\-CHAR\_\-BOX character) its base (middle part of UnderoverscriptBox) should be returned by this function, otherwise NULL should be returned. \item[{\em error}]A function that will be called on syntax errors. The first argument is {\tt $\ast$code}. It must not be freed. The second argument is the position in the code. The third argument is {\em data\/} The fourth argument is TRUE if the error is critical and FALSE if it is just a warning (Syntax::newl) This function is optional, if it is NULL, no messages will be generated during the scanning. \item[{\em data}]An arbitrary pointer, that will be provided as the last argument to the callback functions. \end{description}
+\item[{\em code}]\hyperlink{class_a}{A} pointer to a pMath string. \item[{\em line\_\-reader}]An optional function to be called, when there is more input needed. Its result will be appended to $\ast$code. \item[{\em subsuperscriptbox\_\-at\_\-index}]An optional function that returns TRUE iff at a given position in the code (indicated by the PMATH\_\-CHAR\_\-BOX character) is a SubscriptBox, SuperscriptBox or SubsuperscriptBox. \item[{\em underoverscriptbox\_\-at\_\-index}](optional) Iff there is an UnderscriptBox, OverscriptBox or UnderoverscriptBox at a given position in the code (indicated by the PMATH\_\-CHAR\_\-BOX character) its base (middle part of UnderoverscriptBox) should be returned by this function, otherwise NULL should be returned. \item[{\em error}]\hyperlink{class_a}{A} function that will be called on syntax errors. The first argument is {\tt $\ast$code}. It must not be freed. The second argument is the position in the code. The third argument is {\em data\/} The fourth argument is TRUE if the error is critical and FALSE if it is just a warning (Syntax::newl) This function is optional, if it is NULL, no messages will be generated during the scanning. \item[{\em data}]An arbitrary pointer, that will be provided as the last argument to the callback functions. \end{description}
 \end{Desc}
 \begin{Desc}
-\item[Returns:]A span-array that can be used by pmath\_\-boxes\_\-from\_\-spans to convert the code to boxed form, which, in turn, is used by System`BoxesToExpression(). The span-array must be freed with \hyperlink{group__parser_gceb05ef4c39c239d68f39e3b9bde5f1e}{pmath\_\-span\_\-array\_\-free()} when it is no longer needed. \end{Desc}
+\item[Returns:]\hyperlink{class_a}{A} span-array that can be used by pmath\_\-boxes\_\-from\_\-spans to convert the code to boxed form, which, in turn, is used by System`MakeExpression(). The span-array must be freed with \hyperlink{group__parser_gceb05ef4c39c239d68f39e3b9bde5f1e}{pmath\_\-span\_\-array\_\-free()} when it is no longer needed. \end{Desc}
 \hypertarget{group__parser_g2c9c96d98401746a9f19d7dc52255e0f}{
 \index{parser@{parser}!pmath\_\-boxes\_\-from\_\-spans@{pmath\_\-boxes\_\-from\_\-spans}}
 \index{pmath\_\-boxes\_\-from\_\-spans@{pmath\_\-boxes\_\-from\_\-spans}!parser@{parser}}
@@ -278,10 +278,10 @@ Convert a span-array with the according code to boxed form.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em spans}]A span-array. It can be obtained by \hyperlink{group__parser_g877ac507e27c8791a265105f796f3cef}{pmath\_\-spans\_\-from\_\-string()} or \hyperlink{group__parser_g9914e557782a4c7ff312b2b474fcf045}{pmath\_\-spans\_\-from\_\-boxes()}. \item[{\em string}]The corresponding code to {\em span\/}. It wont be freed. \item[{\em parseable}]Whether whitespace and comments should be skipped or not. \item[{\em box\_\-at\_\-index}]A function that returns the box at a given position (indicated by the PMATH\_\-CHAR\_\-BOX character). This function will be called (at most) one time for every box and in their order of apperance. \item[{\em data}]A pointer that will be provided as the last argument to {\em box\_\-at\_\-index\/}. \end{description}
+\item[{\em spans}]\hyperlink{class_a}{A} span-array. It can be obtained by \hyperlink{group__parser_g877ac507e27c8791a265105f796f3cef}{pmath\_\-spans\_\-from\_\-string()} or \hyperlink{group__parser_g9914e557782a4c7ff312b2b474fcf045}{pmath\_\-spans\_\-from\_\-boxes()}. \item[{\em string}]The corresponding code to {\em span\/}. It wont be freed. \item[{\em parseable}]Whether whitespace and comments should be skipped or not. \item[{\em box\_\-at\_\-index}]An optional function that returns the box at a given position (indicated by the PMATH\_\-CHAR\_\-BOX character). This function will be called (at most) one time for every box and in their order of apperance. \item[{\em data}]\hyperlink{class_a}{A} pointer that will be provided as the last argument to {\em box\_\-at\_\-index\/}. \end{description}
 \end{Desc}
 \begin{Desc}
-\item[Returns:]A pMath object representing the boxed form. It must be freed. \end{Desc}
+\item[Returns:]\hyperlink{class_a}{A} pMath object representing the boxed form. It must be freed. \end{Desc}
 \hypertarget{group__parser_g9914e557782a4c7ff312b2b474fcf045}{
 \index{parser@{parser}!pmath\_\-spans\_\-from\_\-boxes@{pmath\_\-spans\_\-from\_\-boxes}}
 \index{pmath\_\-spans\_\-from\_\-boxes@{pmath\_\-spans\_\-from\_\-boxes}!parser@{parser}}
@@ -294,10 +294,10 @@ Convert boxed form back to span-array and code.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em boxes}]A pMath object representing the boxed form. \item[{\em result\_\-string}]A pointer where the resulting code will go to. Its previous value is ignored. \item[{\em make\_\-box}]A function that converts a boxed form (pMath object) to an actual box. It must free this object (the second argument). \item[{\em data}]A pointer that will be provided to make\_\-box as the last argument. \end{description}
+\item[{\em boxes}]\hyperlink{class_a}{A} pMath object representing the boxed form. \item[{\em result\_\-string}]\hyperlink{class_a}{A} pointer where the resulting code will go to. Its previous value is ignored. \item[{\em make\_\-box}]\hyperlink{class_a}{A} function that converts a boxed form (pMath object) to an actual box. It must free this object (the second argument). \item[{\em data}]\hyperlink{class_a}{A} pointer that will be provided to make\_\-box as the last argument. \end{description}
 \end{Desc}
 \begin{Desc}
-\item[Returns:]A span-array. It must be freed with \hyperlink{group__parser_gceb05ef4c39c239d68f39e3b9bde5f1e}{pmath\_\-span\_\-array\_\-free()} when it is no longer needed. \end{Desc}
+\item[Returns:]\hyperlink{class_a}{A} span-array. It must be freed with \hyperlink{group__parser_gceb05ef4c39c239d68f39e3b9bde5f1e}{pmath\_\-span\_\-array\_\-free()} when it is no longer needed. \end{Desc}
 \hypertarget{group__parser_g0cfde53ccdddc80d034dc5ee1ea54508}{
 \index{parser@{parser}!pmath\_\-token\_\-analyse@{pmath\_\-token\_\-analyse}}
 \index{pmath\_\-token\_\-analyse@{pmath\_\-token\_\-analyse}!parser@{parser}}
@@ -310,7 +310,7 @@ Analyse a token.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em str}]A UTF16-string. \item[{\em len}]The length (in uint16\_\-t-s) of the token {\em str\/}. \item[{\em prec}]Optional address, where to store the default operator precedence for the token. \end{description}
+\item[{\em str}]\hyperlink{class_a}{A} UTF16-string. \item[{\em len}]The length (in uint16\_\-t-s) of the token {\em str\/}. \item[{\em prec}]Optional address, where to store the default operator precedence for the token. \end{description}
 \end{Desc}
 \begin{Desc}
 \item[Returns:]The associated token class. \end{Desc}
@@ -326,7 +326,7 @@ Give the prefix oprator precedence for a token.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em str}]A UTF16-string. \item[{\em len}]The length (in uint16\_\-t-s) of the token {\em str\/}. \item[{\em defprec}]The default operator precedence as given by \hyperlink{group__parser_g0cfde53ccdddc80d034dc5ee1ea54508}{pmath\_\-token\_\-analyse()} \end{description}
+\item[{\em str}]\hyperlink{class_a}{A} UTF16-string. \item[{\em len}]The length (in uint16\_\-t-s) of the token {\em str\/}. \item[{\em defprec}]The default operator precedence as given by \hyperlink{group__parser_g0cfde53ccdddc80d034dc5ee1ea54508}{pmath\_\-token\_\-analyse()} \end{description}
 \end{Desc}
 \begin{Desc}
 \item[Returns:]The prefix operator precedence. \end{Desc}
@@ -342,7 +342,7 @@ Test whether a token may be the first token in a subexpression.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em tok}]A token class. \end{description}
+\item[{\em tok}]\hyperlink{class_a}{A} token class. \end{description}
 \end{Desc}
 \begin{Desc}
 \item[Returns:]Whether tok may start a new subexpression \end{Desc}
@@ -358,7 +358,7 @@ Test whether a token need not be the first token in a subexpression.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em tok}]A token class. \end{description}
+\item[{\em tok}]\hyperlink{class_a}{A} token class. \end{description}
 \end{Desc}
 \begin{Desc}
 \item[Returns:]Whether tok may reside inside a subexpression. \end{Desc}
@@ -452,7 +452,7 @@ Get the next-shorter span starting at the same position.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em span}]A span. \end{description}
+\item[{\em span}]\hyperlink{class_a}{A} span. \end{description}
 \end{Desc}
 \begin{Desc}
 \item[Returns:]The next-shorter span stating at {\em pos\/} or NULL if there is no span. \end{Desc}
@@ -468,7 +468,7 @@ Get end of a span.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em span}]A span. \end{description}
+\item[{\em span}]\hyperlink{class_a}{A} span. \end{description}
 \end{Desc}
 \begin{Desc}
 \item[Returns:]The last index which is covered by the span. \end{Desc}
@@ -487,7 +487,7 @@ Expand a string that contains boxes to a list of Strings and Boxes.
 \item[{\em s}]The string to be expanded. It will be freed. \end{description}
 \end{Desc}
 \begin{Desc}
-\item[Returns:]A string if there is nothing to expand or an expression representing s as boxes. \end{Desc}
+\item[Returns:]\hyperlink{class_a}{A} string if there is nothing to expand or an expression representing s as boxes. \end{Desc}
 \hypertarget{group__parser_g30c73f2fbcd116125cb5befd26b35ec4}{
 \index{parser@{parser}!pmath\_\-parse\_\-string@{pmath\_\-parse\_\-string}}
 \index{pmath\_\-parse\_\-string@{pmath\_\-parse\_\-string}!parser@{parser}}
@@ -500,11 +500,11 @@ Parse a string to an expression.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em code}]A pMath String representing the code. It will be freed. \end{description}
+\item[{\em code}]\hyperlink{class_a}{A} pMath String representing the code. It will be freed. \end{description}
 \end{Desc}
 \begin{Desc}
-\item[Returns:]A pMath object.\end{Desc}
-This function returns Release(BoxesToExpression(StringToBoxes(\char`\"{}code\char`\"{}))), but does not evaluate this released result. \hypertarget{group__parser_gac02e250fcd91e4fc03f0f7e8a6dd571}{
+\item[Returns:]\hyperlink{class_a}{A} pMath object.\end{Desc}
+This function returns ToExpression(\char`\"{}code\char`\"{}), but does not evaluate this released result. \hypertarget{group__parser_gac02e250fcd91e4fc03f0f7e8a6dd571}{
 \index{parser@{parser}!pmath\_\-parse\_\-string\_\-args@{pmath\_\-parse\_\-string\_\-args}}
 \index{pmath\_\-parse\_\-string\_\-args@{pmath\_\-parse\_\-string\_\-args}!parser@{parser}}
 \paragraph[{pmath\_\-parse\_\-string\_\-args}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API {\bf pmath\_\-t} pmath\_\-parse\_\-string\_\-args (const char $\ast$ {\em code}, \/  const char $\ast$ {\em format}, \/   {\em ...})\hspace{0.3cm}{\tt  \mbox{[}related, inherited\mbox{]}}}\hfill}
@@ -516,10 +516,10 @@ Parse a string with additional arguments to an expression.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em code}]A pMath String representing the code. It will be freed. \item[{\em format}]A format string for the arguments. \item[{\em ...}]The additional arguments. \end{description}
+\item[{\em code}]\hyperlink{class_a}{A} pMath String representing the code. It will be freed. \item[{\em format}]\hyperlink{class_a}{A} format string for the arguments. \item[{\em ...}]The additional arguments. \end{description}
 \end{Desc}
 \begin{Desc}
-\item[Returns:]A pMath object.\end{Desc}
+\item[Returns:]\hyperlink{class_a}{A} pMath object.\end{Desc}
 This function is a short hand for\begin{enumerate}
 \item assigning pmath\_\-build\_\-value(format, ...) to the symbol \$ParserArguments\item then calling pmath\_\-parse\_\-string(\hyperlink{group__strings_g0b6ecb1bc5d8aeccbbfaeb72055c7ffc}{PMATH\_\-C\_\-STRING(code)}) and\item restoring the old value of \$ParserArguments before\item returning the result of the pmath\_\-parse\_\-string-call.\end{enumerate}
 

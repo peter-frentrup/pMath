@@ -35,14 +35,14 @@ PMATH\_\-API \hyperlink{classpmath__expr__t}{pmath\_\-expr\_\-t} \hyperlink{grou
 \subsubsection*{Related Functions}
 (Note that these are not member functions.) \begin{CompactItemize}
 \item 
-PMATH\_\-API \hyperlink{classpmath__t}{pmath\_\-t} \hyperlink{classpmath__expr__t_d723e196e3d7f9078729bc0fb2fe7eed}{pmath\_\-evaluate\_\-expression} (\hyperlink{classpmath__expr__t}{pmath\_\-expr\_\-t} expr, \hyperlink{group__general__types_gc92090cb0b56345d6c379ed2341d4ef4}{pmath\_\-bool\_\-t} apply\_\-rules)
-\begin{CompactList}\small\item\em Partly evaluate an expression. \item\end{CompactList}\item 
 PMATH\_\-API void \hyperlink{group__helpers_g077f3730ca4275b87d9a35bce6013e45}{pmath\_\-gather\_\-begin} (\hyperlink{classpmath__t}{pmath\_\-t} pattern)
 \begin{CompactList}\small\item\em Start gathering emitted objects. \item\end{CompactList}\item 
 PMATH\_\-API \hyperlink{classpmath__expr__t}{pmath\_\-expr\_\-t} \hyperlink{group__helpers_ga2f732b35703986263e3a15592b4a46e}{pmath\_\-gather\_\-end} (void)
 \begin{CompactList}\small\item\em Finish gathering emitted objects. \item\end{CompactList}\item 
 PMATH\_\-API void \hyperlink{group__helpers_ga06135012f4d2a0faf696c0cd1111075}{pmath\_\-emit} (\hyperlink{classpmath__t}{pmath\_\-t} object, \hyperlink{classpmath__t}{pmath\_\-t} tag)
 \begin{CompactList}\small\item\em Emit an object to be gathered by the appropriate surounding \hyperlink{group__helpers_g077f3730ca4275b87d9a35bce6013e45}{pmath\_\-gather\_\-begin()} ... \hyperlink{group__helpers_ga2f732b35703986263e3a15592b4a46e}{pmath\_\-gather\_\-end()} function pair. \item\end{CompactList}\item 
+PMATH\_\-API \hyperlink{classpmath__t}{pmath\_\-t} \hyperlink{classpmath__expr__t_d723e196e3d7f9078729bc0fb2fe7eed}{pmath\_\-evaluate\_\-expression} (\hyperlink{classpmath__expr__t}{pmath\_\-expr\_\-t} expr, \hyperlink{group__general__types_gc92090cb0b56345d6c379ed2341d4ef4}{pmath\_\-bool\_\-t} apply\_\-rules)
+\begin{CompactList}\small\item\em Partly evaluate an expression. \item\end{CompactList}\item 
 PMATH\_\-API \hyperlink{classpmath__expr__t}{pmath\_\-expr\_\-t} \hyperlink{group__helpers_g24403dfbd825b17fc4c6da5973922184}{pmath\_\-options\_\-extract} (\hyperlink{classpmath__expr__t}{pmath\_\-expr\_\-t} expr, size\_\-t last\_\-nonoption)
 \begin{CompactList}\small\item\em Extract custom option values from an expression. \item\end{CompactList}\item 
 PMATH\_\-API \hyperlink{classpmath__t}{pmath\_\-t} \hyperlink{group__helpers_gc244ab0720278b396976728a39f8bde6}{pmath\_\-option\_\-value} (\hyperlink{classpmath__t}{pmath\_\-t} fn, \hyperlink{classpmath__t}{pmath\_\-t} name, \hyperlink{classpmath__t}{pmath\_\-t} extra)
@@ -73,15 +73,16 @@ Partly evaluate an expression.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em expr}]A pMath expression. It will be freed. Do not use it afterwards. \item[{\em apply\_\-rules}]Whether to apply custom rules the the whole expression or not. \end{description}
+\item[{\em expr}]\hyperlink{class_a}{A} pMath expression. It will be freed. Do not use it afterwards. \item[{\em apply\_\-rules}]Whether to apply custom rules the the whole expression or not. \end{description}
 \end{Desc}
 \begin{Desc}
-\item[Returns:]A new object produced by pMath's and user defined evaluation rules.\end{Desc}
+\item[Returns:]\hyperlink{class_a}{A} new object produced by pMath's and user defined evaluation rules.\end{Desc}
 This function prepares an expression for evaluation (evaluates its items, ...). \par
  Unlike \hyperlink{classpmath__t_d95c86ef0de178de4d3560518c8a8157}{pmath\_\-evaluate()}, it does not evaluate its result. In fact, \hyperlink{classpmath__t_d95c86ef0de178de4d3560518c8a8157}{pmath\_\-evaluate()} is basically a loop that calls \hyperlink{classpmath__expr__t_d723e196e3d7f9078729bc0fb2fe7eed}{pmath\_\-evaluate\_\-expression()} until the result does not change any more. 
 
 The documentation for this class was generated from the following files:\begin{CompactItemize}
 \item 
 pmath-core/expressions.h\item 
+pmath-util/emit-and-gather.h\item 
 pmath-util/evaluation.h\item 
 pmath-util/helpers.h\end{CompactItemize}

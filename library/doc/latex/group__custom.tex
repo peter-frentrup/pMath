@@ -28,7 +28,7 @@ Custom Objects consist of a pointer and a destructor. The destructor is called (
 
 Custom Objects are not evaluateable. This means evaluation of such an object returns NULL. But you can store custom objects in symbols (directly with \hyperlink{group__symbols_g8344005c16b86be82d2efdedb0795a0c}{pmath\_\-symbol\_\-set\_\-value()}).
 
-A symbol that holds a custom object remains unevaluated. It can also contain function definitions. But those must be set {\em after\/} setting the value with pmath\_\-symbol\_\-set\_\-value(my\_\-symbol, my\_\-custom\_\-object):
+\hyperlink{class_a}{A} symbol that holds a custom object remains unevaluated. It can also contain function definitions. But those must be set {\em after\/} setting the value with pmath\_\-symbol\_\-set\_\-value(my\_\-symbol, my\_\-custom\_\-object):
 
 Example: You want to store a custom object and a function definition in a symbol (my\_\-symbol/: answer(my\_\-symbol):= 42). 
 
@@ -55,10 +55,10 @@ Create a custom object.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em data}]An arbitrary pointer. \item[{\em destructor}]A function that will be called on object destruction to enable freeing of {\em data\/}. \end{description}
+\item[{\em data}]An arbitrary pointer. \item[{\em destructor}]\hyperlink{class_a}{A} function that will be called on object destruction to enable freeing of {\em data\/}. \end{description}
 \end{Desc}
 \begin{Desc}
-\item[Returns:]A custom object or NULL on failure (in that case, {\em destructor(data)\/} is called immediately). \end{Desc}
+\item[Returns:]\hyperlink{class_a}{A} custom object or NULL on failure (in that case, {\em destructor(data)\/} is called immediately). \end{Desc}
 \hypertarget{group__custom_ge7902883fc5e8f88b60410950564fdcd}{
 \index{custom@{custom}!pmath\_\-custom\_\-get\_\-data@{pmath\_\-custom\_\-get\_\-data}}
 \index{pmath\_\-custom\_\-get\_\-data@{pmath\_\-custom\_\-get\_\-data}!custom@{custom}}
@@ -71,7 +71,7 @@ Get a custom object's data member.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em custom}]A custom object. \end{description}
+\item[{\em custom}]\hyperlink{class_a}{A} custom object. \end{description}
 \end{Desc}
 \begin{Desc}
 \item[Returns:]The objects data member or NULL if {\em custom\/} is NULL.\end{Desc}
@@ -89,7 +89,7 @@ Get a custom object's data destructor.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em custom}]A custom object. \item[{\em dtor}]A callback function. \end{description}
+\item[{\em custom}]\hyperlink{class_a}{A} custom object. \item[{\em dtor}]\hyperlink{class_a}{A} callback function. \end{description}
 \end{Desc}
 \begin{Desc}
 \item[Returns:]TRUE if the object's destructor is {\em dtor\/}. \end{Desc}

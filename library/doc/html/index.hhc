@@ -341,6 +341,36 @@
       <LI><OBJECT type="text/sitemap"><param name="Name" value="pmath_text_file_api_t"><param name="Local" value="structpmath__text__file__api__t.html"><param name="ImageNumber" value="11"></OBJECT>
       </UL>
     </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Name" value="Hashtables"><param name="Local" value="group__hashtables.html"><param name="ImageNumber" value="1"></OBJECT>
+    <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Name" value="Typedefs"><param name="Local" value="group__hashtables.html"><param name="ImageNumber" value="1"></OBJECT>
+      <UL>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="pmath_ht_entry_callback_t"><param name="Local" value="group__hashtables.html#g49afb121d94e186dd0c129a7ac98af88"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="pmath_ht_entry_copy_t"><param name="Local" value="group__hashtables.html#g7afcd0897350cdf6ea146196421d70f1"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="pmath_ht_entry_hash_func_t"><param name="Local" value="group__hashtables.html#gb427419addea52e7f405dd9cbc6b98b5"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="pmath_ht_key_hash_func_t"><param name="Local" value="group__hashtables.html#g9285a6676b14812f6b4856493617b3fb"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="pmath_ht_entry_equal_func_t"><param name="Local" value="group__hashtables.html#g9eeec544dd1335e2b50bf9fedb5e154b"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="pmath_ht_entry_equals_key_func_t"><param name="Local" value="group__hashtables.html#gb4bf3ce0ea6f0d5b646cd6bc839bed4f"><param name="ImageNumber" value="11"></OBJECT>
+      </UL>
+    <LI><OBJECT type="text/sitemap"><param name="Name" value="Functions"><param name="Local" value="group__hashtables.html"><param name="ImageNumber" value="1"></OBJECT>
+      <UL>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="pmath_ht_create"><param name="Local" value="group__hashtables.html#g6835e6b0d0b308ef15f4f885298078f5"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="pmath_ht_copy"><param name="Local" value="group__hashtables.html#gf82265c2aff9bb75eb7beb057a812aa3"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="pmath_ht_destroy"><param name="Local" value="group__hashtables.html#g48cbf069ed0fa62b2e95ec196aceff16"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="pmath_ht_clear"><param name="Local" value="group__hashtables.html#gba9a2535237d8482482a338bafa2d5f1"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="pmath_ht_capacity"><param name="Local" value="group__hashtables.html#gc3bb123d747694b6144b8561efb15feb"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="pmath_ht_count"><param name="Local" value="group__hashtables.html#gf42cb622735f861185f056de654d3632"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="pmath_ht_entry"><param name="Local" value="group__hashtables.html#gd3f57058604e14d27b61a0282c02be87"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="pmath_ht_search"><param name="Local" value="group__hashtables.html#g94ad66bd7413d8237fa3f58ef8e944a1"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="pmath_ht_insert"><param name="Local" value="group__hashtables.html#ged2c72c01c0c883154d77ddb6f42dd05"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="pmath_ht_remove"><param name="Local" value="group__hashtables.html#gc0825f215931052b62d62abd574e0047"><param name="ImageNumber" value="11"></OBJECT>
+      </UL>
+    <LI><OBJECT type="text/sitemap"><param name="Name" value="Data Structures"><param name="Local" value="group__hashtables.html"><param name="ImageNumber" value="1"></OBJECT>
+      <UL>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="pmath_hashtable_t"><param name="Local" value="classpmath__hashtable__t.html"><param name="ImageNumber" value="11"></OBJECT>
+      <LI><OBJECT type="text/sitemap"><param name="Name" value="A"><param name="Local" value="class_a.html"><param name="ImageNumber" value="11"></OBJECT>
+      </UL>
+    </UL>
   <LI><OBJECT type="text/sitemap"><param name="Name" value="Object Utility Functions"><param name="Local" value="group__helpers.html"><param name="ImageNumber" value="1"></OBJECT>
     <UL>
     <LI><OBJECT type="text/sitemap"><param name="Name" value="Typedefs"><param name="Local" value="group__helpers.html"><param name="ImageNumber" value="1"></OBJECT>
@@ -412,6 +442,7 @@
   </UL>
 <LI><OBJECT type="text/sitemap"><param name="Name" value="Data Structures"><param name="Local" value="annotated.html"><param name="ImageNumber" value="1"></OBJECT>
   <UL>
+  <LI><OBJECT type="text/sitemap"><param name="Name" value="A"><param name="Local" value="class_a.html"><param name="ImageNumber" value="11"></OBJECT>
   <LI><OBJECT type="text/sitemap"><param name="Name" value="pmath::Expr"><param name="Local" value="classpmath_1_1_expr.html"><param name="ImageNumber" value="11"></OBJECT>
   <LI><OBJECT type="text/sitemap"><param name="Name" value="pmath::Gather"><param name="Local" value="classpmath_1_1_gather.html"><param name="ImageNumber" value="11"></OBJECT>
   <LI><OBJECT type="text/sitemap"><param name="Name" value="pmath_binary_file_api_t"><param name="Local" value="structpmath__binary__file__api__t.html"><param name="ImageNumber" value="11"></OBJECT>
@@ -419,6 +450,7 @@
   <LI><OBJECT type="text/sitemap"><param name="Name" value="pmath_custom_t"><param name="Local" value="classpmath__custom__t.html"><param name="ImageNumber" value="11"></OBJECT>
   <LI><OBJECT type="text/sitemap"><param name="Name" value="pmath_expr_t"><param name="Local" value="classpmath__expr__t.html"><param name="ImageNumber" value="11"></OBJECT>
   <LI><OBJECT type="text/sitemap"><param name="Name" value="pmath_float_t"><param name="Local" value="classpmath__float__t.html"><param name="ImageNumber" value="11"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Name" value="pmath_hashtable_t"><param name="Local" value="classpmath__hashtable__t.html"><param name="ImageNumber" value="11"></OBJECT>
   <LI><OBJECT type="text/sitemap"><param name="Name" value="pmath_integer_t"><param name="Local" value="classpmath__integer__t.html"><param name="ImageNumber" value="11"></OBJECT>
   <LI><OBJECT type="text/sitemap"><param name="Name" value="pmath_messages_t"><param name="Local" value="classpmath__messages__t.html"><param name="ImageNumber" value="11"></OBJECT>
   <LI><OBJECT type="text/sitemap"><param name="Name" value="pmath_number_t"><param name="Local" value="classpmath__number__t.html"><param name="ImageNumber" value="11"></OBJECT>
@@ -437,6 +469,7 @@
   </UL>
 <LI><OBJECT type="text/sitemap"><param name="Name" value="Class Hierarchy"><param name="Local" value="hierarchy.html"><param name="ImageNumber" value="1"></OBJECT>
   <UL>
+  <LI><OBJECT type="text/sitemap"><param name="Name" value="A"><param name="Local" value="class_a.html"><param name="ImageNumber" value="11"></OBJECT>
   <LI><OBJECT type="text/sitemap"><param name="Name" value="pmath::Expr"><param name="Local" value="classpmath_1_1_expr.html"><param name="ImageNumber" value="1"></OBJECT>
     <UL>
     <LI><OBJECT type="text/sitemap"><param name="Name" value="pmath::String"><param name="Local" value="classpmath_1_1_string.html"><param name="ImageNumber" value="11"></OBJECT>
@@ -444,6 +477,7 @@
   <LI><OBJECT type="text/sitemap"><param name="Name" value="pmath::Gather"><param name="Local" value="classpmath_1_1_gather.html"><param name="ImageNumber" value="11"></OBJECT>
   <LI><OBJECT type="text/sitemap"><param name="Name" value="pmath_binary_file_api_t"><param name="Local" value="structpmath__binary__file__api__t.html"><param name="ImageNumber" value="11"></OBJECT>
   <LI><OBJECT type="text/sitemap"><param name="Name" value="pmath_cstr_writer_info_t"><param name="Local" value="structpmath__cstr__writer__info__t.html"><param name="ImageNumber" value="11"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Name" value="pmath_hashtable_t"><param name="Local" value="classpmath__hashtable__t.html"><param name="ImageNumber" value="11"></OBJECT>
   <LI><OBJECT type="text/sitemap"><param name="Name" value="pmath_span_array_t"><param name="Local" value="classpmath__span__array__t.html"><param name="ImageNumber" value="11"></OBJECT>
   <LI><OBJECT type="text/sitemap"><param name="Name" value="pmath_span_t"><param name="Local" value="classpmath__span__t.html"><param name="ImageNumber" value="11"></OBJECT>
   <LI><OBJECT type="text/sitemap"><param name="Name" value="pmath_stack_t"><param name="Local" value="classpmath__stack__t.html"><param name="ImageNumber" value="11"></OBJECT>

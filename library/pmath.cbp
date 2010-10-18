@@ -328,6 +328,7 @@
 		<Unit filename="include\pmath-util\evaluation.h" />
 		<Unit filename="include\pmath-util\files.h" />
 		<Unit filename="include\pmath-util\hashtables-private.h" />
+		<Unit filename="include\pmath-util\hashtables.h" />
 		<Unit filename="include\pmath-util\helpers.h" />
 		<Unit filename="include\pmath-util\incremental-hash-private.h" />
 		<Unit filename="include\pmath-util\memory.h" />

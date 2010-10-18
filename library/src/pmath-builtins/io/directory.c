@@ -324,7 +324,7 @@ PMATH_PRIVATE pmath_t builtin_directoryname(pmath_expr_t expr){
     || !pmath_integer_fits_ui(obj)
     || pmath_number_sign(obj) <= 0){
       pmath_unref(obj);
-      pmath_message(NULL, "intpm", 2, pmath_integer_new_si(2), pmath_ref(expr));
+      pmath_message(NULL, "intpm", 2, pmath_ref(expr), pmath_integer_new_si(2));
       return expr;
     }
     

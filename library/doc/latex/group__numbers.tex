@@ -177,10 +177,10 @@ Create an integer object from a signed long.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em si}]A signed long int. \end{description}
+\item[{\em si}]\hyperlink{class_a}{A} signed long int. \end{description}
 \end{Desc}
 \begin{Desc}
-\item[Returns:]A pMath integer with the specified value or NULL. \end{Desc}
+\item[Returns:]\hyperlink{class_a}{A} pMath integer with the specified value or NULL. \end{Desc}
 \hypertarget{group__numbers_ga7704c11e6f72b8403db246f6862d4c6}{
 \index{numbers@{numbers}!pmath\_\-integer\_\-new\_\-ui@{pmath\_\-integer\_\-new\_\-ui}}
 \index{pmath\_\-integer\_\-new\_\-ui@{pmath\_\-integer\_\-new\_\-ui}!numbers@{numbers}}
@@ -196,7 +196,7 @@ Create an integer object from an unsigned long.
 \item[{\em ui}]An unsigned long int. \end{description}
 \end{Desc}
 \begin{Desc}
-\item[Returns:]A pMath integer with the specified value or NULL. \end{Desc}
+\item[Returns:]\hyperlink{class_a}{A} pMath integer with the specified value or NULL. \end{Desc}
 \hypertarget{group__numbers_g5fecb78f68ce62c05b1970cf1cf17dc6}{
 \index{numbers@{numbers}!pmath\_\-integer\_\-new\_\-size@{pmath\_\-integer\_\-new\_\-size}}
 \index{pmath\_\-integer\_\-new\_\-size@{pmath\_\-integer\_\-new\_\-size}!numbers@{numbers}}
@@ -209,10 +209,10 @@ Create an integer object from an size\_\-t.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em size}]A size\_\-t value. \end{description}
+\item[{\em size}]\hyperlink{class_a}{A} size\_\-t value. \end{description}
 \end{Desc}
 \begin{Desc}
-\item[Returns:]A pMath integer with the specified value or NULL.\end{Desc}
+\item[Returns:]\hyperlink{class_a}{A} pMath integer with the specified value or NULL.\end{Desc}
 Note that on Win64, sizeof(long) == 4, but sizeof(size\_\-t) == 8. \hypertarget{group__numbers_g7ffd98a7d3634c79d261b67f76b1d011}{
 \index{numbers@{numbers}!pmath\_\-integer\_\-new\_\-data@{pmath\_\-integer\_\-new\_\-data}}
 \index{pmath\_\-integer\_\-new\_\-data@{pmath\_\-integer\_\-new\_\-data}!numbers@{numbers}}
@@ -228,7 +228,7 @@ Create an integer object from a data buffer.
 \item[{\em count}]The number of words to be read. \item[{\em order}]The order of the words: 1 for most significant word first or -1 for least significant first. \item[{\em size}]The size (in bytes) of a word. \item[{\em endian}]The byte order within each word: 1 for most significant byte first, -1 for least significant first, or 0 for the native endianness of the CPU. \item[{\em nails}]The most significant {\em nails\/} bits of each word are skipped. This can be 0 to use the full words. \item[{\em data}]The buffer to read from. \end{description}
 \end{Desc}
 \begin{Desc}
-\item[Returns:]A non-negative integer.\end{Desc}
+\item[Returns:]\hyperlink{class_a}{A} non-negative integer.\end{Desc}
 \begin{Desc}
 \item[See also:]GMP's mpz\_\-import() \end{Desc}
 \hypertarget{group__numbers_gaca3cb69b051e8f361784f2dc3836fcf}{
@@ -243,10 +243,10 @@ Create an integer object from a C String.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em str}]A string representing the value in base {\em base\/}. \item[{\em base}]The base. \end{description}
+\item[{\em str}]\hyperlink{class_a}{A} string representing the value in base {\em base\/}. \item[{\em base}]The base. \end{description}
 \end{Desc}
 \begin{Desc}
-\item[Returns:]A pMath integer with the specified value or NULL.\end{Desc}
+\item[Returns:]\hyperlink{class_a}{A} pMath integer with the specified value or NULL.\end{Desc}
 See GMP's mpz\_\-set\_\-str for mor information about the parameters. \hypertarget{group__numbers_g142d493a889a7d94bafe79025b61d220}{
 \index{numbers@{numbers}!pmath\_\-rational\_\-new@{pmath\_\-rational\_\-new}}
 \index{pmath\_\-rational\_\-new@{pmath\_\-rational\_\-new}!numbers@{numbers}}
@@ -275,10 +275,10 @@ Get the numerator of a rational number.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em rational}]A rational number (integer or quotient). It wont be freed. \end{description}
+\item[{\em rational}]\hyperlink{class_a}{A} rational number (integer or quotient). It wont be freed. \end{description}
 \end{Desc}
 \begin{Desc}
-\item[Returns:]A reference to the numerator of {\em rational\/} if it is a quotient or {\em rational\/} itself if it is an integer. You have to destroy the result e.g. with \hyperlink{classpmath__t_54e905402c38940687033b87eb8c6c9f}{pmath\_\-unref()}. \end{Desc}
+\item[Returns:]\hyperlink{class_a}{A} reference to the numerator of {\em rational\/} if it is a quotient or {\em rational\/} itself if it is an integer. You have to destroy the result e.g. with \hyperlink{classpmath__t_54e905402c38940687033b87eb8c6c9f}{pmath\_\-unref()}. \end{Desc}
 \hypertarget{group__numbers_ga3f1718d2252ebce77bed83df7223f4c}{
 \index{numbers@{numbers}!pmath\_\-rational\_\-denominator@{pmath\_\-rational\_\-denominator}}
 \index{pmath\_\-rational\_\-denominator@{pmath\_\-rational\_\-denominator}!numbers@{numbers}}
@@ -291,10 +291,10 @@ Get the denominator of a rational number.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em rational}]A rational number (integer or quotient). It wont be freed. \end{description}
+\item[{\em rational}]\hyperlink{class_a}{A} rational number (integer or quotient). It wont be freed. \end{description}
 \end{Desc}
 \begin{Desc}
-\item[Returns:]A reference to the denominator of {\em rational\/} if it is a quotient or 1 if it is an integer. You have to destroy the result e.g. with \hyperlink{classpmath__t_54e905402c38940687033b87eb8c6c9f}{pmath\_\-unref()}. \end{Desc}
+\item[Returns:]\hyperlink{class_a}{A} reference to the denominator of {\em rational\/} if it is a quotient or 1 if it is an integer. You have to destroy the result e.g. with \hyperlink{classpmath__t_54e905402c38940687033b87eb8c6c9f}{pmath\_\-unref()}. \end{Desc}
 \hypertarget{group__numbers_g6c67d61f1a57084cc46e858a307ec461}{
 \index{numbers@{numbers}!pmath\_\-float\_\-new\_\-str@{pmath\_\-float\_\-new\_\-str}}
 \index{pmath\_\-float\_\-new\_\-str@{pmath\_\-float\_\-new\_\-str}!numbers@{numbers}}
@@ -307,7 +307,7 @@ Create a floating point number from a string.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em str}]A C-string representing the value in a given {\em base\/}. It should have the form \char`\"{}ddd.ddd\char`\"{} or simply \char`\"{}ddd\char`\"{}. An exponent can be appended with \char`\"{}ennn\char`\"{} or if {\em base\/} != 10 \char`\"{}@nnn\char`\"{}. \item[{\em base}]The base between 2 and 36. \item[{\em precision\_\-control}]flag for controling the precision. \item[{\em base\_\-precision\_\-accuracy}]given precinion or accuracy. depending on the value of the above flag. \end{description}
+\item[{\em str}]\hyperlink{class_a}{A} C-string representing the value in a given {\em base\/}. It should have the form \char`\"{}ddd.ddd\char`\"{} or simply \char`\"{}ddd\char`\"{}. An exponent can be appended with \char`\"{}ennn\char`\"{} or if {\em base\/} != 10 \char`\"{}@nnn\char`\"{}. \item[{\em base}]The base between 2 and 36. \item[{\em precision\_\-control}]flag for controling the precision. \item[{\em base\_\-precision\_\-accuracy}]given precinion or accuracy. depending on the value of the above flag. \end{description}
 \end{Desc}
 \begin{Desc}
 \item[Returns:]a new pMath floating point number or NULL on error or the integer 0 (see below when this happens).\end{Desc}
@@ -351,10 +351,10 @@ Create a machine-precision floating point number from a double.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em dbl}]A double value. \end{description}
+\item[{\em dbl}]\hyperlink{class_a}{A} double value. \end{description}
 \end{Desc}
 \begin{Desc}
-\item[Returns:]A pMath floating point number with the specified value or NULL. \end{Desc}
+\item[Returns:]\hyperlink{class_a}{A} pMath floating point number with the specified value or NULL. \end{Desc}
 \hypertarget{group__numbers_gc220e06754067b9ba4a7c823017ad32e}{
 \index{numbers@{numbers}!pmath\_\-integer\_\-fits\_\-si@{pmath\_\-integer\_\-fits\_\-si}}
 \index{pmath\_\-integer\_\-fits\_\-si@{pmath\_\-integer\_\-fits\_\-si}!numbers@{numbers}}
@@ -367,7 +367,7 @@ Find out whether a pMath integer fits into a signed long int.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em integer}]A pMath integer. It wont be freed. \end{description}
+\item[{\em integer}]\hyperlink{class_a}{A} pMath integer. It wont be freed. \end{description}
 \end{Desc}
 \begin{Desc}
 \item[Returns:]TRUE iff the value is small enough for a signed long int. \end{Desc}
@@ -383,7 +383,7 @@ Find out whether a pMath integer fits into a unsigned long int.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em integer}]A pMath integer. It wont be freed. \end{description}
+\item[{\em integer}]\hyperlink{class_a}{A} pMath integer. It wont be freed. \end{description}
 \end{Desc}
 \begin{Desc}
 \item[Returns:]TRUE iff the value is small enough for a unsigned long int. \end{Desc}
@@ -399,7 +399,7 @@ Convert a pMath integer to a signed long int.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em integer}]A pMath integer. It wont be freed. \end{description}
+\item[{\em integer}]\hyperlink{class_a}{A} pMath integer. It wont be freed. \end{description}
 \end{Desc}
 \begin{Desc}
 \item[Returns:]The integer's value if it fits.\end{Desc}
@@ -417,7 +417,7 @@ Convert a pMath integer to a unsigned long int.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em integer}]A pMath integer. It wont be freed. \end{description}
+\item[{\em integer}]\hyperlink{class_a}{A} pMath integer. It wont be freed. \end{description}
 \end{Desc}
 \begin{Desc}
 \item[Returns:]The integer's value if it fits.\end{Desc}
@@ -435,7 +435,7 @@ Convert a pMath number to a double.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em number}]A pMath number. It wont be freed. \end{description}
+\item[{\em number}]\hyperlink{class_a}{A} pMath number. It wont be freed. \end{description}
 \end{Desc}
 \begin{Desc}
 \item[Returns:]The number's value if it fits. \end{Desc}
@@ -451,7 +451,7 @@ Get a number's sign.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em num}]A pMath number. It wont be freed. \end{description}
+\item[{\em num}]\hyperlink{class_a}{A} pMath number. It wont be freed. \end{description}
 \end{Desc}
 \begin{Desc}
 \item[Returns:]The number's sign (-1, 0 or 1) \end{Desc}
@@ -467,7 +467,7 @@ Get a number's negative.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em num}]A pMath number. It will be freed, do not use it afterwards. \end{description}
+\item[{\em num}]\hyperlink{class_a}{A} pMath number. It will be freed, do not use it afterwards. \end{description}
 \end{Desc}
 \begin{Desc}
 \item[Returns:]-num \end{Desc}

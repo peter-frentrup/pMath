@@ -1,35 +1,25 @@
-#include "main.h"
+#include "pjvm.h"
+#include "pj-symbols.h"
+
+
+pmath_symbol_t _pjmv_symbols[1];
 
 
 PMATH_MODULE
 pmath_bool_t pmath_module_init(void){
-#define VERIFY(x)             do{ if(0 == (x)) goto FAIL; }while(0)
-#define NEW_SYMBOL(name)      pmath_symbol_get(PMATH_C_STRING((name)), TRUE)
-
-#define BIND(sym, func, use)  do{ if(!pmath_register_code((sym), (func), (use))) goto FAIL; }while(0)
-#define BIND_DOWN(sym, func)  BIND((sym), (func), PMATH_CODE_USAGE_DOWNCALL)
-
-#define PROTECT(sym) pmath_symbol_set_attributes((sym), pmath_symbol_get_attributes((sym)) | PMATH_SYMBOL_ATTRIBUTE_PROTECTED)
-
-//  VERIFY(HELLO_SYMBOL_GREET = NEW_SYMBOL("Hello`Greet"));
-//  
-//  BIND_DOWN(HELLO_SYMBOL_GREET, hello_func_greet);
-//  
-//  PROTECT(HELLO_SYMBOL_GREET);
+  
+  if(!pjvm_init())        goto FAIL_PJVM;
+  if(!pj_symbols_init())  goto FAIL_PJ_SYMBOLS;
   
   return TRUE;
-  
- FAIL:
+                      pj_symbols_done();
+ FAIL_PJ_SYMBOLS:     pjvm_done();
+ FAIL_PJVM:
   return FALSE;
-
-#undef VERIFY
-#undef NEW_SYMBOL
-#undef BIND
-#undef BIND_DOWN
-#undef PROTECT
 }
 
 PMATH_MODULE
 void pmath_module_done(void){
-//  pmath_unref(HELLO_SYMBOL_GREET);   HELLO_SYMBOL_GREET = 0;
+  pj_symbols_done();
+  pjvm_done();
 }

@@ -6,7 +6,7 @@
 #endif
 
 #include <pmath-core/expressions.h>
-#include <pmath-util/hashtables-private.h>
+#include <pmath-util/hashtables.h>
 #include <stdlib.h>
 
 // initialized in pmath_init():

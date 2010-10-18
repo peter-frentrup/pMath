@@ -25,17 +25,17 @@ typedef int \hyperlink{group__objects_ge2646df76dcb0113715322b13a1f36f0}{pmath\_
 typedef int \hyperlink{group__objects_gd83ea6a616c49cbe35b5d3dafb877f7e}{pmath\_\-write\_\-options\_\-t}
 \begin{CompactList}\small\item\em Options for \hyperlink{group__objects_g9f909b9eb04317260ee8630d10e5a7c6}{pmath\_\-write()}. \item\end{CompactList}\item 
 typedef void($\ast$ \hyperlink{group__objects_g6c56c2d026f4cc8603a217291a8a35fb}{pmath\_\-proc\_\-t} )(\hyperlink{classpmath__t}{pmath\_\-t})
-\begin{CompactList}\small\item\em A simple procedure operating on an object. \item\end{CompactList}\item 
+\begin{CompactList}\small\item\em \hyperlink{class_a}{A} simple procedure operating on an object. \item\end{CompactList}\item 
 typedef void($\ast$ \hyperlink{group__objects_g3ae604b25e05979c1e7ff48524636b3e}{pmath\_\-param\_\-proc\_\-t} )(void $\ast$, \hyperlink{classpmath__t}{pmath\_\-t})
-\begin{CompactList}\small\item\em A parameterized procedure operating on an object. \item\end{CompactList}\item 
+\begin{CompactList}\small\item\em \hyperlink{class_a}{A} parameterized procedure operating on an object. \item\end{CompactList}\item 
 typedef \hyperlink{classpmath__t}{pmath\_\-t}($\ast$ \hyperlink{group__objects_g9dd57b578f42f0556a7d1c1709f97847}{pmath\_\-func\_\-t} )(\hyperlink{classpmath__t}{pmath\_\-t})
-\begin{CompactList}\small\item\em A simple function operating on an object and returning one. \item\end{CompactList}\item 
+\begin{CompactList}\small\item\em \hyperlink{class_a}{A} simple function operating on an object and returning one. \item\end{CompactList}\item 
 typedef unsigned int($\ast$ \hyperlink{group__objects_gf7afa773c11a686f6abd7586e0a6a33d}{pmath\_\-hash\_\-func\_\-t} )(\hyperlink{classpmath__t}{pmath\_\-t})
-\begin{CompactList}\small\item\em A hash function for an object. \item\end{CompactList}\item 
+\begin{CompactList}\small\item\em \hyperlink{class_a}{A} hash function for an object. \item\end{CompactList}\item 
 typedef \hyperlink{group__general__types_gc92090cb0b56345d6c379ed2341d4ef4}{pmath\_\-bool\_\-t}($\ast$ \hyperlink{group__objects_g3596be6b7da718f547985fdde3d8edd1}{pmath\_\-equal\_\-func\_\-t} )(\hyperlink{classpmath__t}{pmath\_\-t}, \hyperlink{classpmath__t}{pmath\_\-t})
-\begin{CompactList}\small\item\em A comparision function for two objects. \item\end{CompactList}\item 
+\begin{CompactList}\small\item\em \hyperlink{class_a}{A} comparision function for two objects. \item\end{CompactList}\item 
 typedef int($\ast$ \hyperlink{group__objects_g9180e6d1f4ba84b77ea71414ce57677f}{pmath\_\-compare\_\-func\_\-t} )(\hyperlink{classpmath__t}{pmath\_\-t}, \hyperlink{classpmath__t}{pmath\_\-t})
-\begin{CompactList}\small\item\em A comparision function to determine the order of two objects. \item\end{CompactList}\end{CompactItemize}
+\begin{CompactList}\small\item\em \hyperlink{class_a}{A} comparision function to determine the order of two objects. \item\end{CompactList}\end{CompactItemize}
 \subsubsection*{Functions}
 \begin{CompactItemize}
 \item 
@@ -73,10 +73,10 @@ Fast test, whether an object is a `magic value`.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em obj}]A pMath object \end{description}
+\item[{\em obj}]\hyperlink{class_a}{A} pMath object \end{description}
 \end{Desc}
 \begin{Desc}
-\item[Returns:]A boolean value.\end{Desc}
+\item[Returns:]\hyperlink{class_a}{A} boolean value.\end{Desc}
 This is the faster equivalent to pmath\_\-instance\_\-of(obj, PMATH\_\-TYPE\_\-MAGIC).
 
 \begin{Desc}
@@ -93,10 +93,10 @@ Fast test, whether an object is a `magic value`.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em obj}]A pMath object \end{description}
+\item[{\em obj}]\hyperlink{class_a}{A} pMath object \end{description}
 \end{Desc}
 \begin{Desc}
-\item[Returns:]A boolean value.\end{Desc}
+\item[Returns:]\hyperlink{class_a}{A} boolean value.\end{Desc}
 This is the faster equivalent to pmath\_\-instance\_\-of(obj, PMATH\_\-TYPE\_\-MAGIC).
 
 \begin{Desc}
@@ -205,7 +205,7 @@ Note that this does not automatically imply PMATH\_\-WRITE\_\-OPTIONS\_\-FULLSTR
 \label{group__objects_g6c56c2d026f4cc8603a217291a8a35fb}
 
 
-A simple procedure operating on an object. 
+\hyperlink{class_a}{A} simple procedure operating on an object. 
 
 It depends on the context whether the argument is destroyed by the procedure or not. \hypertarget{group__objects_g3ae604b25e05979c1e7ff48524636b3e}{
 \index{objects@{objects}!pmath\_\-param\_\-proc\_\-t@{pmath\_\-param\_\-proc\_\-t}}
@@ -214,7 +214,7 @@ It depends on the context whether the argument is destroyed by the procedure or 
 \label{group__objects_g3ae604b25e05979c1e7ff48524636b3e}
 
 
-A parameterized procedure operating on an object. 
+\hyperlink{class_a}{A} parameterized procedure operating on an object. 
 
 It depends on the context whether the (second) argument is destroyed by the procedure or not. \hypertarget{group__objects_g9dd57b578f42f0556a7d1c1709f97847}{
 \index{objects@{objects}!pmath\_\-func\_\-t@{pmath\_\-func\_\-t}}
@@ -223,7 +223,7 @@ It depends on the context whether the (second) argument is destroyed by the proc
 \label{group__objects_g9dd57b578f42f0556a7d1c1709f97847}
 
 
-A simple function operating on an object and returning one. 
+\hyperlink{class_a}{A} simple function operating on an object and returning one. 
 
 It depends on the context whether the argument is destroyed by the function or not. \hypertarget{group__objects_gf7afa773c11a686f6abd7586e0a6a33d}{
 \index{objects@{objects}!pmath\_\-hash\_\-func\_\-t@{pmath\_\-hash\_\-func\_\-t}}
@@ -232,7 +232,7 @@ It depends on the context whether the argument is destroyed by the function or n
 \label{group__objects_gf7afa773c11a686f6abd7586e0a6a33d}
 
 
-A hash function for an object. 
+\hyperlink{class_a}{A} hash function for an object. 
 
 If two objects equal, their hash values equal. \hypertarget{group__objects_g3596be6b7da718f547985fdde3d8edd1}{
 \index{objects@{objects}!pmath\_\-equal\_\-func\_\-t@{pmath\_\-equal\_\-func\_\-t}}
@@ -241,7 +241,7 @@ If two objects equal, their hash values equal. \hypertarget{group__objects_g3596
 \label{group__objects_g3596be6b7da718f547985fdde3d8edd1}
 
 
-A comparision function for two objects. 
+\hyperlink{class_a}{A} comparision function for two objects. 
 
 The return value is nonzero, if both objects equal and zero otherwise. Note that a pmath\_\-compare\_\-func\_\-t cannot be cast to pmath\_\-equal\_\-func\_\-t, because their return values have opposite meanings. \hypertarget{group__objects_g9180e6d1f4ba84b77ea71414ce57677f}{
 \index{objects@{objects}!pmath\_\-compare\_\-func\_\-t@{pmath\_\-compare\_\-func\_\-t}}
@@ -250,7 +250,7 @@ The return value is nonzero, if both objects equal and zero otherwise. Note that
 \label{group__objects_g9180e6d1f4ba84b77ea71414ce57677f}
 
 
-A comparision function to determine the order of two objects. 
+\hyperlink{class_a}{A} comparision function to determine the order of two objects. 
 
 The return value is $<$0, =0 or $>$0, if the first argument is less, equal to or greater than the second respectively. Both arguments won't be destroyed by the function. 
 
@@ -270,7 +270,7 @@ Calculates an object's hash value.
 \item[{\em obj}]The object. \end{description}
 \end{Desc}
 \begin{Desc}
-\item[Returns:]A hash value.\end{Desc}
+\item[Returns:]\hyperlink{class_a}{A} hash value.\end{Desc}
 pmath\_\-equals(A, B) implies pmath\_\-hash(A) == pmath\_\-hash(B). \hypertarget{group__objects_g6475af7f7c85777392e38c570ac07892}{
 \index{objects@{objects}!pmath\_\-equals@{pmath\_\-equals}}
 \index{pmath\_\-equals@{pmath\_\-equals}!objects@{objects}}
@@ -292,7 +292,7 @@ Compares two objects for identity.
 If objA and objB are symbols, the result is identical to testing objA == objB.
 
 \begin{Desc}
-\item[Note:]pmath\_\-equals(A, B) might return FALSE although pmath\_\-compare(A, B) == 0 e.g. for an integer A and q floating point value B. \end{Desc}
+\item[Note:]pmath\_\-equals(A, B) might return FALSE although pmath\_\-compare(A, B) == 0 e.g. for an integer \hyperlink{class_a}{A} and q floating point value B. \end{Desc}
 \hypertarget{group__objects_gc57589e08f5b3eed28e724c646503735}{
 \index{objects@{objects}!pmath\_\-compare@{pmath\_\-compare}}
 \index{pmath\_\-compare@{pmath\_\-compare}!objects@{objects}}
@@ -312,7 +312,7 @@ Compares two objects syntactically.
 `syntactically` means that for two symbols X and Y, pmath\_\-compare(X, Y) $<$ 0 even if X:=2 and Y:=1, because X appears before Y in the alphabet.
 
 \begin{Desc}
-\item[Note:]pmath\_\-equals(A, B) might return FALSE although pmath\_\-compare(A, B) == 0 e.g. for an integer A and q floating point value B. \end{Desc}
+\item[Note:]pmath\_\-equals(A, B) might return FALSE although pmath\_\-compare(A, B) == 0 e.g. for an integer \hyperlink{class_a}{A} and q floating point value B. \end{Desc}
 \hypertarget{group__objects_g9f909b9eb04317260ee8630d10e5a7c6}{
 \index{objects@{objects}!pmath\_\-write@{pmath\_\-write}}
 \index{pmath\_\-write@{pmath\_\-write}!objects@{objects}}

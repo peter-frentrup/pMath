@@ -25,18 +25,13 @@
    
  */
 
+#include <pmath-core/custom.h>
 #include <pmath-core/expressions.h>
 #include <pmath-core/numbers.h>
 #include <pmath-core/symbols.h>
-#include <pmath-language/tokens.h>
-#include <pmath-util/memory.h>
-
-
-#include <pmath-core/custom.h>
-
-#include <pmath-builtins/all-symbols.h>
 
 #include <pmath-language/charnames.h>
+#include <pmath-language/tokens.h>
 #include <pmath-language/scanner.h>
 
 #include <pmath-util/approximate.h>
@@ -48,10 +43,15 @@
 #include <pmath-util/emit-and-gather.h>
 #include <pmath-util/evaluation.h>
 #include <pmath-util/files.h>
+#include <pmath-util/hashtables.h>
 #include <pmath-util/helpers.h>
+#include <pmath-util/memory.h>
 #include <pmath-util/messages.h>
 #include <pmath-util/serialize.h>
 #include <pmath-util/stacks.h>
+
+#include <pmath-builtins/all-symbols.h>
+
 
 /**\defgroup frontend Front-ends
    \brief Functions for use front-ends.

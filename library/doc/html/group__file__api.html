@@ -100,7 +100,7 @@
 <hr><a name="_details"></a><h2>Detailed Description</h2>
 Unified API to access file or other memory content. 
 <p>
-A file is a <a class="el" href="group__symbols.html">Symbol</a> (normally with attribute <a class="el" href="group__symbols.html#g5d508ec0d32d617b6c642de54907ee17">PMATH_SYMBOL_ATTRIBUTE_TEMPORARY</a>) whose value is a special <a class="el" href="group__custom.html">Custom Object</a>.<p>
+<a class="el" href="class_a.html">A</a> file is a <a class="el" href="group__symbols.html">Symbol</a> (normally with attribute <a class="el" href="group__symbols.html#g5d508ec0d32d617b6c642de54907ee17">PMATH_SYMBOL_ATTRIBUTE_TEMPORARY</a>) whose value is a special <a class="el" href="group__custom.html">Custom Object</a>.<p>
 The output functions can operate on lists of files. <hr><h2>Enumeration Type Documentation</h2>
 <a class="anchor" name="g1fa07caf59a04495b7c74be6aff3a3d9"></a><!-- doxytag: member="files.h::pmath_files_status_t" ref="g1fa07caf59a04495b7c74be6aff3a3d9" args="" -->
 <div class="memitem">
@@ -165,7 +165,7 @@ Check whether a file supports a set of properties.
 <p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>file</em>&nbsp;</td><td>A file object. It wont be freed. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>file</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> file object. It wont be freed. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>properties</em>&nbsp;</td><td>File properties. See remarks section. </td></tr>
   </table>
 </dl>
@@ -208,7 +208,7 @@ Get the current status of a readable file.
 <p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>file</em>&nbsp;</td><td>A readable file object. It wont be freed. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>file</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> readable file object. It wont be freed. </td></tr>
   </table>
 </dl>
 <dl class="return" compact><dt><b>Returns:</b></dt><dd>pmath_files_status_t The current file status. </dd></dl>
@@ -257,7 +257,7 @@ Read some bytes from a binary file.
 <p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>file</em>&nbsp;</td><td>A readable binary file object. It wont be freed. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>file</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> readable binary file object. It wont be freed. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>buffer</em>&nbsp;</td><td>The read bytes will go here. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>buffer_size</em>&nbsp;</td><td>The number of bytes you would like to read/size of <em>buffer</em>. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>preserve_internal_buffer</em>&nbsp;</td><td>If TRUE, a subsequent call will get the same buffer content. If FALSE, the file pointer will be moved. </td></tr>
@@ -288,7 +288,7 @@ Read one line from a text file.
 <p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>file</em>&nbsp;</td><td>A readable text file object. It wont be freed. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>file</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> readable text file object. It wont be freed. </td></tr>
   </table>
 </dl>
 <dl class="return" compact><dt><b>Returns:</b></dt><dd>The next line in the file. </dd></dl>
@@ -325,8 +325,8 @@ Set a file's text buffer.
 <p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>file</em>&nbsp;</td><td>A readable text file. It wont be freed. </td></tr>
-    <tr><td valign="top"></td><td valign="top"><em>buffer</em>&nbsp;</td><td>A string. It should not contain any new line characters. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>file</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> readable text file. It wont be freed. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>buffer</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> string. It should not contain any new line characters. </td></tr>
   </table>
 </dl>
 
@@ -368,7 +368,7 @@ Write some bytes to a binary file.
 <p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>file</em>&nbsp;</td><td>A writeable binary file object. It wont be freed. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>file</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> writeable binary file object. It wont be freed. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>buffer</em>&nbsp;</td><td>The data to be written. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>buffer_size</em>&nbsp;</td><td>The number of bytes to write/size of <em>buffer</em>. </td></tr>
   </table>
@@ -413,8 +413,8 @@ Write to a text file.
 <p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>file</em>&nbsp;</td><td>A writeable text file object. It wont be freed. </td></tr>
-    <tr><td valign="top"></td><td valign="top"><em>str</em>&nbsp;</td><td>A UTF-16 string buffer. e.g. pmath_string_buffer(some_text) </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>file</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> writeable text file object. It wont be freed. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>str</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> UTF-16 string buffer. e.g. pmath_string_buffer(some_text) </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>len</em>&nbsp;</td><td>The number of uint16_t in the buffer. e.g. pmath_string_length(some_text). This can be -1 if <em>str</em> is zero terminated. </td></tr>
   </table>
 </dl>
@@ -443,7 +443,7 @@ Flush the output buffer of a writeable file.
 <p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>file</em>&nbsp;</td><td>A writeable binary file object. It wont be freed. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>file</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> writeable binary file object. It wont be freed. </td></tr>
   </table>
 </dl>
 
@@ -485,7 +485,7 @@ Write an object to a text file.
 <p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>file</em>&nbsp;</td><td>A writeable text file object. It wont be freed. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>file</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> writeable text file object. It wont be freed. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>obj</em>&nbsp;</td><td>An object. It wont be freed. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>options</em>&nbsp;</td><td>Some options defining the format. </td></tr>
   </table>
@@ -524,7 +524,7 @@ Set a binary file's buffer size.
 <p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>file</em>&nbsp;</td><td>A binary file. It wont be freed. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>file</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> binary file. It wont be freed. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>size</em>&nbsp;</td><td>The new size of the buffer in bytes. </td></tr>
   </table>
 </dl>
@@ -574,9 +574,9 @@ Manipulate a file's internal representation.
 <p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>file</em>&nbsp;</td><td>A file object. It wont be freed. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>file</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> file object. It wont be freed. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>type</em>&nbsp;</td><td>The <em>extra_destructor</em> that was provided to <a class="el" href="group__file__api.html#g121e1c31d32fa30b60c8bb4d0808f4eb" title="Create a binary file object.">pmath_file_create_binary()</a> or <a class="el" href="group__file__api.html#gb8a4394b083543a3e572862d567b4b63" title="Create a text file object.">pmath_file_create_text()</a>. </td></tr>
-    <tr><td valign="top"></td><td valign="top"><em>callback</em>&nbsp;</td><td>A callback function. The first argument will be the <em>extra</em> parameter that was provided to <a class="el" href="group__file__api.html#g121e1c31d32fa30b60c8bb4d0808f4eb" title="Create a binary file object.">pmath_file_create_binary()</a> or <a class="el" href="group__file__api.html#gb8a4394b083543a3e572862d567b4b63" title="Create a text file object.">pmath_file_create_text()</a>. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>callback</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> callback function. The first argument will be the <em>extra</em> parameter that was provided to <a class="el" href="group__file__api.html#g121e1c31d32fa30b60c8bb4d0808f4eb" title="Create a binary file object.">pmath_file_create_binary()</a> or <a class="el" href="group__file__api.html#gb8a4394b083543a3e572862d567b4b63" title="Create a text file object.">pmath_file_create_text()</a>. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>data</em>&nbsp;</td><td>The second parameter for <em>callback</em>.</td></tr>
   </table>
 </dl>
@@ -605,7 +605,7 @@ Closes a file.
 <p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>file</em>&nbsp;</td><td>A file object. It will be freed. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>file</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> file object. It will be freed. </td></tr>
   </table>
 </dl>
 <dl class="return" compact><dt><b>Returns:</b></dt><dd>Whether file was a valid file object. </dd></dl>
@@ -649,11 +649,11 @@ Create a binary file object.
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
     <tr><td valign="top"></td><td valign="top"><em>extra</em>&nbsp;</td><td>Arbitrary extra data. </td></tr>
-    <tr><td valign="top"></td><td valign="top"><em>extra_destructor</em>&nbsp;</td><td>A function to destroy the extra data. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>extra_destructor</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> function to destroy the extra data. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>api</em>&nbsp;</td><td>The file access functions. </td></tr>
   </table>
 </dl>
-<dl class="return" compact><dt><b>Returns:</b></dt><dd>A newly created binary file object. You can destroy and close it with <a class="el" href="group__file__api.html#g61142920bd7a8f066af908092c84d8e4" title="Closes a file.">pmath_file_close()</a> or <a class="el" href="classpmath__t.html#54e905402c38940687033b87eb8c6c9f" title="Decrements the reference counter of an object and frees its memory if the reference...">pmath_unref()</a>.</dd></dl>
+<dl class="return" compact><dt><b>Returns:</b></dt><dd><a class="el" href="class_a.html">A</a> newly created binary file object. You can destroy and close it with <a class="el" href="group__file__api.html#g61142920bd7a8f066af908092c84d8e4" title="Closes a file.">pmath_file_close()</a> or <a class="el" href="classpmath__t.html#54e905402c38940687033b87eb8c6c9f" title="Decrements the reference counter of an object and frees its memory if the reference...">pmath_unref()</a>.</dd></dl>
 The <em>api</em> functions are never called by more than one thread at once. This is assured with a non-reentrant spinlock.<p>
 <dl class="see" compact><dt><b>See also:</b></dt><dd><a class="el" href="structpmath__binary__file__api__t.html" title="Access functions for binary files.">pmath_binary_file_api_t</a> </dd></dl>
 
@@ -696,11 +696,11 @@ Create a text file object.
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
     <tr><td valign="top"></td><td valign="top"><em>extra</em>&nbsp;</td><td>Arbitrary extra data. </td></tr>
-    <tr><td valign="top"></td><td valign="top"><em>extra_destructor</em>&nbsp;</td><td>A function to destroy the extra data. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>extra_destructor</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> function to destroy the extra data. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>api</em>&nbsp;</td><td>The file access functions. </td></tr>
   </table>
 </dl>
-<dl class="return" compact><dt><b>Returns:</b></dt><dd>A newly created text file object. You can destroy and close it with <a class="el" href="group__file__api.html#g61142920bd7a8f066af908092c84d8e4" title="Closes a file.">pmath_file_close()</a> or <a class="el" href="classpmath__t.html#54e905402c38940687033b87eb8c6c9f" title="Decrements the reference counter of an object and frees its memory if the reference...">pmath_unref()</a>.</dd></dl>
+<dl class="return" compact><dt><b>Returns:</b></dt><dd><a class="el" href="class_a.html">A</a> newly created text file object. You can destroy and close it with <a class="el" href="group__file__api.html#g61142920bd7a8f066af908092c84d8e4" title="Closes a file.">pmath_file_close()</a> or <a class="el" href="classpmath__t.html#54e905402c38940687033b87eb8c6c9f" title="Decrements the reference counter of an object and frees its memory if the reference...">pmath_unref()</a>.</dd></dl>
 The <em>api</em> functions are never called by more than one thread at once. This is assured with a non-reentrant spinlock.<p>
 <dl class="see" compact><dt><b>See also:</b></dt><dd><a class="el" href="structpmath__text__file__api__t.html" title="Access functions for text files.">pmath_text_file_api_t</a> </dd></dl>
 
@@ -736,11 +736,11 @@ Create a text file object operating on a binary file.
 <p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>binfile</em>&nbsp;</td><td>A binary file. It will be freed. </td></tr>
-    <tr><td valign="top"></td><td valign="top"><em>encoding</em>&nbsp;</td><td>A text encoding that the iconv library knows. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>binfile</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> binary file. It will be freed. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>encoding</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> text encoding that the iconv library knows. </td></tr>
   </table>
 </dl>
-<dl class="return" compact><dt><b>Returns:</b></dt><dd>A newly created text file object. You can destroy and close it with <a class="el" href="group__file__api.html#g61142920bd7a8f066af908092c84d8e4" title="Closes a file.">pmath_file_close()</a> or <a class="el" href="classpmath__t.html#54e905402c38940687033b87eb8c6c9f" title="Decrements the reference counter of an object and frees its memory if the reference...">pmath_unref()</a>. </dd></dl>
+<dl class="return" compact><dt><b>Returns:</b></dt><dd><a class="el" href="class_a.html">A</a> newly created text file object. You can destroy and close it with <a class="el" href="group__file__api.html#g61142920bd7a8f066af908092c84d8e4" title="Closes a file.">pmath_file_close()</a> or <a class="el" href="classpmath__t.html#54e905402c38940687033b87eb8c6c9f" title="Decrements the reference counter of an object and frees its memory if the reference...">pmath_unref()</a>. </dd></dl>
 
 </div>
 </div><p>
@@ -768,7 +768,7 @@ Create a byte-stream file object.
     <tr><td valign="top"></td><td valign="top"><em>mincapacity</em>&nbsp;</td><td>The initial size of the buffer. </td></tr>
   </table>
 </dl>
-<dl class="return" compact><dt><b>Returns:</b></dt><dd>A newly created binary file object. You can destroy and close it with <a class="el" href="group__file__api.html#g61142920bd7a8f066af908092c84d8e4" title="Closes a file.">pmath_file_close()</a> or <a class="el" href="classpmath__t.html#54e905402c38940687033b87eb8c6c9f" title="Decrements the reference counter of an object and frees its memory if the reference...">pmath_unref()</a>.</dd></dl>
+<dl class="return" compact><dt><b>Returns:</b></dt><dd><a class="el" href="class_a.html">A</a> newly created binary file object. You can destroy and close it with <a class="el" href="group__file__api.html#g61142920bd7a8f066af908092c84d8e4" title="Closes a file.">pmath_file_close()</a> or <a class="el" href="classpmath__t.html#54e905402c38940687033b87eb8c6c9f" title="Decrements the reference counter of an object and frees its memory if the reference...">pmath_unref()</a>.</dd></dl>
 You can write to a byte-buffer and read previously written data from it. Note that this does not support random access to the data. 
 </div>
 </div><p>
@@ -793,7 +793,7 @@ Get The number of readable bytes in a binary buffer.
 <p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>binfile</em>&nbsp;</td><td>A binary file created with <a class="el" href="group__file__api.html#g811d829fe964ebbe554c645a0f0f519d" title="Create a byte-stream file object.">pmath_file_create_binary_buffer()</a>. It wont be freed. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>binfile</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> binary file created with <a class="el" href="group__file__api.html#g811d829fe964ebbe554c645a0f0f519d" title="Create a byte-stream file object.">pmath_file_create_binary_buffer()</a>. It wont be freed. </td></tr>
   </table>
 </dl>
 <dl class="return" compact><dt><b>Returns:</b></dt><dd>The number of readable bytes in the binary buffer or 0 on error. </dd></dl>
@@ -836,7 +836,7 @@ Manipulate the content of a binary buffer.
 <p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>binfile</em>&nbsp;</td><td>A binary file created with <a class="el" href="group__file__api.html#g811d829fe964ebbe554c645a0f0f519d" title="Create a byte-stream file object.">pmath_file_create_binary_buffer()</a>. It wont be freed. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>binfile</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> binary file created with <a class="el" href="group__file__api.html#g811d829fe964ebbe554c645a0f0f519d" title="Create a byte-stream file object.">pmath_file_create_binary_buffer()</a>. It wont be freed. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>callback</em>&nbsp;</td><td>The callback function that does the manipulation. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>closure</em>&nbsp;</td><td>The fourth parameter for <em>callback</em>.</td></tr>
   </table>
@@ -845,7 +845,7 @@ The <em>callback</em> function must not write before <em>readable</em> or after 
 </div>
 </div><p>
 </div>
-<hr size="1"><address style="text-align: right;"><small>Generated on Sun Oct 17 19:31:03 2010 for pMath by&nbsp;
+<hr size="1"><address style="text-align: right;"><small>Generated on Sun Oct 17 23:45:08 2010 for pMath by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.5.9 </small></address>
 </body>

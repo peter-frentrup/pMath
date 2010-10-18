@@ -7,7 +7,7 @@
 
 #include <pmath-util/concurrency/threadlocks.h>
 #include <pmath-util/concurrency/threads.h>
-#include <pmath-util/hashtables-private.h>
+#include <pmath-util/hashtables.h>
 
 struct _pmath_stack_info_t{
   struct _pmath_stack_info_t  *next;

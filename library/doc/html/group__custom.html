@@ -41,7 +41,7 @@ Encapsulate arbitrary data in pMath objects.
 <p>
 Custom Objects consist of a pointer and a destructor. The destructor is called (with the pointer as its argument) when the custom object's reference pointer yields zero.<p>
 Custom Objects are not evaluateable. This means evaluation of such an object returns NULL. But you can store custom objects in symbols (directly with <a class="el" href="group__symbols.html#g8344005c16b86be82d2efdedb0795a0c" title="Set a symbol&#39;s value.">pmath_symbol_set_value()</a>).<p>
-A symbol that holds a custom object remains unevaluated. It can also contain function definitions. But those must be set <em>after</em> setting the value with pmath_symbol_set_value(my_symbol, my_custom_object):<p>
+<a class="el" href="class_a.html">A</a> symbol that holds a custom object remains unevaluated. It can also contain function definitions. But those must be set <em>after</em> setting the value with pmath_symbol_set_value(my_symbol, my_custom_object):<p>
 Example: You want to store a custom object and a function definition in a symbol (my_symbol/: answer(my_symbol):= 42). <div class="fragment"><pre class="fragment"><a class="code" href="classpmath__custom__t.html" title="The Custom Object class.">pmath_custom_t</a> my_custom_object = <a class="code" href="group__custom.html#g2ffdd4054c43b543bed1e5238ab7342c" title="Create a custom object.">pmath_custom_new</a>(my_data, my_destructor);
 <a class="code" href="group__symbols.html#g8344005c16b86be82d2efdedb0795a0c" title="Set a symbol&amp;#39;s value.">pmath_symbol_set_value</a>(my_symbol, my_custom_object);
 
@@ -79,10 +79,10 @@ Create a custom object.
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
     <tr><td valign="top"></td><td valign="top"><em>data</em>&nbsp;</td><td>An arbitrary pointer. </td></tr>
-    <tr><td valign="top"></td><td valign="top"><em>destructor</em>&nbsp;</td><td>A function that will be called on object destruction to enable freeing of <em>data</em>. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>destructor</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> function that will be called on object destruction to enable freeing of <em>data</em>. </td></tr>
   </table>
 </dl>
-<dl class="return" compact><dt><b>Returns:</b></dt><dd>A custom object or NULL on failure (in that case, <em>destructor(data)</em> is called immediately). </dd></dl>
+<dl class="return" compact><dt><b>Returns:</b></dt><dd><a class="el" href="class_a.html">A</a> custom object or NULL on failure (in that case, <em>destructor(data)</em> is called immediately). </dd></dl>
 
 </div>
 </div><p>
@@ -107,7 +107,7 @@ Get a custom object's data member.
 <p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>custom</em>&nbsp;</td><td>A custom object. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>custom</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> custom object. </td></tr>
   </table>
 </dl>
 <dl class="return" compact><dt><b>Returns:</b></dt><dd>The objects data member or NULL if <em>custom</em> is NULL.</dd></dl>
@@ -145,8 +145,8 @@ Get a custom object's data destructor.
 <p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>custom</em>&nbsp;</td><td>A custom object. </td></tr>
-    <tr><td valign="top"></td><td valign="top"><em>dtor</em>&nbsp;</td><td>A callback function. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>custom</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> custom object. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>dtor</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> callback function. </td></tr>
   </table>
 </dl>
 <dl class="return" compact><dt><b>Returns:</b></dt><dd>TRUE if the object's destructor is <em>dtor</em>. </dd></dl>
@@ -154,7 +154,7 @@ Get a custom object's data destructor.
 </div>
 </div><p>
 </div>
-<hr size="1"><address style="text-align: right;"><small>Generated on Sun Oct 17 19:31:02 2010 for pMath by&nbsp;
+<hr size="1"><address style="text-align: right;"><small>Generated on Sun Oct 17 23:45:06 2010 for pMath by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.5.9 </small></address>
 </body>

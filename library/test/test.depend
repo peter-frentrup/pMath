@@ -4342,15 +4342,13 @@
 	<unistd.h>
 	<semaphore.h>
 
-1285690669 d:\peter\programmieren\pmath\trunk\library\include\pmath.h
+1287348461 d:\peter\programmieren\pmath\trunk\library\include\pmath.h
+	<pmath-core/custom.h>
 	<pmath-core/expressions.h>
 	<pmath-core/numbers.h>
 	<pmath-core/symbols.h>
-	<pmath-language/tokens.h>
-	<pmath-util/memory.h>
-	<pmath-core/custom.h>
-	<pmath-builtins/all-symbols.h>
 	<pmath-language/charnames.h>
+	<pmath-language/tokens.h>
 	<pmath-language/scanner.h>
 	<pmath-util/approximate.h>
 	<pmath-util/concurrency/threadlocks.h>
@@ -4361,10 +4359,13 @@
 	<pmath-util/emit-and-gather.h>
 	<pmath-util/evaluation.h>
 	<pmath-util/files.h>
+	<pmath-util/hashtables.h>
 	<pmath-util/helpers.h>
+	<pmath-util/memory.h>
 	<pmath-util/messages.h>
 	<pmath-util/serialize.h>
 	<pmath-util/stacks.h>
+	<pmath-builtins/all-symbols.h>
 
 1282592161 l/stacks.h>
 
@@ -4408,7 +4409,7 @@
 
 1282936513 es.h>
 
-1284805259 d:\peter\programmieren\pmath\trunk\library\include\pmath-core\custom.h
+1287401014 d:\peter\programmieren\pmath\trunk\library\include\pmath-core\custom.h
 	<pmath-core/objects-inline.h>
 
 1284805259 d:\peter\programmieren\pmath\trunk\library\include\pmath-core\expressions.h
@@ -4422,12 +4423,12 @@
 1284805259 d:\peter\programmieren\pmath\trunk\library\include\pmath-core\strings.h
 	<pmath-core/objects-inline.h>
 
-1286384467 d:\peter\programmieren\pmath\trunk\library\include\pmath-core\symbols.h
+1287347487 d:\peter\programmieren\pmath\trunk\library\include\pmath-core\symbols.h
 	<pmath-core/strings.h>
 
 1282938491 e/strings.h>
 
-1287226935 d:\peter\programmieren\pmath\trunk\library\include\pmath-builtins\all-symbols.h
+1287409098 d:\peter\programmieren\pmath\trunk\library\include\pmath-builtins\all-symbols.h
 	<pmath-core/expressions.h>
 	<pmath-core/symbols.h>
 
@@ -4762,4 +4763,7 @@
 
 1285690893 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\emit-and-gather.h
 	<pmath-core/expressions.h>
+
+1287350999 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\hashtables.h
+	<pmath-core/objects-inline.h>
 

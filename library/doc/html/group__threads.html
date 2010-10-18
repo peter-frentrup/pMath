@@ -24,7 +24,7 @@
 <tr><td colspan="2"><br><h2>Data Structures</h2></td></tr>
 <tr><td class="memItemLeft" nowrap align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpmath__threadlock__t.html">pmath_threadlock_t</a></td></tr>
 
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">A reentrant lock for threads.  <a href="classpmath__threadlock__t.html#_details">More...</a><br></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><a class="el" href="class_a.html">A</a> reentrant lock for threads.  <a href="classpmath__threadlock__t.html#_details">More...</a><br></td></tr>
 <tr><td class="memItemLeft" nowrap align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpmath__thread__t.html">pmath_thread_t</a></td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The Representation of a thread.  <a href="classpmath__thread__t.html#_details">More...</a><br></td></tr>
@@ -143,7 +143,7 @@ Load a thread/thread-local value.
 <p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>key</em>&nbsp;</td><td>A key that was used to save the value with _pmath_thread_local_save() before. It wont be freed. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>key</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> key that was used to save the value with _pmath_thread_local_save() before. It wont be freed. </td></tr>
   </table>
 </dl>
 <dl class="return" compact><dt><b>Returns:</b></dt><dd>PMATH_UNDEFINED or the stored value. You must destroy the it.</dd></dl>
@@ -306,9 +306,9 @@ Execute a function synchronized with a threadlock.
 <p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>threadlock_ptr</em>&nbsp;</td><td>A pointer to the threadlock. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>threadlock_ptr</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> pointer to the threadlock. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>callback</em>&nbsp;</td><td>The function to be executed when the symbol is locked. </td></tr>
-    <tr><td valign="top"></td><td valign="top"><em>data</em>&nbsp;</td><td>A pointer that will be passed to callback.</td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>data</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> pointer that will be passed to callback.</td></tr>
   </table>
 </dl>
 All you have to do is initialize the threadlock <code>threadlock_ptr</code> points to with NULL before you call this function for the first time: <div class="fragment"><pre class="fragment"><span class="keyword">static</span> <a class="code" href="classpmath__threadlock__t.html" title="A reentrant lock for threads.">pmath_threadlock_t</a> lock = NULL;
@@ -337,7 +337,7 @@ To synchronize with a symbol, use <a class="el" href="group__symbols.html#g95b14
 <p>
 Get the current pMath thread. 
 <p>
-<dl class="return" compact><dt><b>Returns:</b></dt><dd>A <a class="el" href="classpmath__thread__t.html">pmath_thread_t</a>. This is NULL, if you did not register the current thread to pMath via <a class="el" href="group__frontend.html#gfb9f2c789bee5295c6794d16c0164943" title="Initialize the pMath CAS library.">pmath_init()</a>. </dd></dl>
+<dl class="return" compact><dt><b>Returns:</b></dt><dd><a class="el" href="class_a.html">A</a> <a class="el" href="classpmath__thread__t.html">pmath_thread_t</a>. This is NULL, if you did not register the current thread to pMath via <a class="el" href="group__frontend.html#gfb9f2c789bee5295c6794d16c0164943" title="Initialize the pMath CAS library.">pmath_init()</a>. </dd></dl>
 
 </div>
 </div><p>
@@ -362,7 +362,7 @@ Get a thread's direct parent.
 <p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>thread</em>&nbsp;</td><td>A thread. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>thread</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> thread. </td></tr>
   </table>
 </dl>
 <dl class="return" compact><dt><b>Returns:</b></dt><dd>The direct parent of thread. Usualy NULL. </dd></dl>
@@ -399,8 +399,8 @@ Queries whether a thread is one of the parents of another.
 <p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>parent</em>&nbsp;</td><td>A thread. </td></tr>
-    <tr><td valign="top"></td><td valign="top"><em>child</em>&nbsp;</td><td>A thread. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>parent</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> thread. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>child</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> thread. </td></tr>
   </table>
 </dl>
 <dl class="return" compact><dt><b>Returns:</b></dt><dd>TRUE, if parent is a parent thread of child or if parent == child. FALSE otherwise.</dd></dl>
@@ -428,7 +428,7 @@ Queries whether pMath was requested to abort the evaluation of a specific thread
 <p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>thread</em>&nbsp;</td><td>A thread that should be tested. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>thread</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> thread that should be tested. </td></tr>
   </table>
 </dl>
 <dl class="return" compact><dt><b>Returns:</b></dt><dd>Whether the given thread should abort evaluation.</dd></dl>
@@ -437,7 +437,7 @@ Queries whether pMath was requested to abort the evaluation of a specific thread
 </div>
 </div><p>
 </div>
-<hr size="1"><address style="text-align: right;"><small>Generated on Sun Oct 17 19:31:03 2010 for pMath by&nbsp;
+<hr size="1"><address style="text-align: right;"><small>Generated on Sun Oct 17 23:45:07 2010 for pMath by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.5.9 </small></address>
 </body>

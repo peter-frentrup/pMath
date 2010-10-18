@@ -112,6 +112,25 @@
   <LI><OBJECT type="text/sitemap"><param name="Local" value="classpmath_1_1_expr.html#85d5a834d389ae9a20d8a29d9512ef5b"><param name="Name" value="get"></OBJECT>
   <LI><OBJECT type="text/sitemap"><param name="Local" value="classpmath_1_1_string.html#95a5455be878180bc10d2f69b0ea8552"><param name="Name" value="get_as_string"></OBJECT>
   <LI><OBJECT type="text/sitemap"><param name="Local" value="classpmath_1_1_expr.html#c9d1c162d3fb9070d2613e8778a7a77b"><param name="Name" value="hash"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="group__hashtables.html"><param name="Name" value="hashtables"></OBJECT>
+  <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="group__hashtables.html#gc3bb123d747694b6144b8561efb15feb"><param name="Name" value="pmath_ht_capacity"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="group__hashtables.html#gba9a2535237d8482482a338bafa2d5f1"><param name="Name" value="pmath_ht_clear"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="group__hashtables.html#gf82265c2aff9bb75eb7beb057a812aa3"><param name="Name" value="pmath_ht_copy"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="group__hashtables.html#gf42cb622735f861185f056de654d3632"><param name="Name" value="pmath_ht_count"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="group__hashtables.html#g6835e6b0d0b308ef15f4f885298078f5"><param name="Name" value="pmath_ht_create"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="group__hashtables.html#g48cbf069ed0fa62b2e95ec196aceff16"><param name="Name" value="pmath_ht_destroy"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="group__hashtables.html#gd3f57058604e14d27b61a0282c02be87"><param name="Name" value="pmath_ht_entry"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="group__hashtables.html#g49afb121d94e186dd0c129a7ac98af88"><param name="Name" value="pmath_ht_entry_callback_t"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="group__hashtables.html#g7afcd0897350cdf6ea146196421d70f1"><param name="Name" value="pmath_ht_entry_copy_t"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="group__hashtables.html#g9eeec544dd1335e2b50bf9fedb5e154b"><param name="Name" value="pmath_ht_entry_equal_func_t"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="group__hashtables.html#gb4bf3ce0ea6f0d5b646cd6bc839bed4f"><param name="Name" value="pmath_ht_entry_equals_key_func_t"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="group__hashtables.html#gb427419addea52e7f405dd9cbc6b98b5"><param name="Name" value="pmath_ht_entry_hash_func_t"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="group__hashtables.html#ged2c72c01c0c883154d77ddb6f42dd05"><param name="Name" value="pmath_ht_insert"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="group__hashtables.html#g9285a6676b14812f6b4856493617b3fb"><param name="Name" value="pmath_ht_key_hash_func_t"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="group__hashtables.html#gc0825f215931052b62d62abd574e0047"><param name="Name" value="pmath_ht_remove"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="group__hashtables.html#g94ad66bd7413d8237fa3f58ef8e944a1"><param name="Name" value="pmath_ht_search"></OBJECT>
+  </UL>
   <LI><OBJECT type="text/sitemap"><param name="Local" value="group__helpers.html"><param name="Name" value="helpers"></OBJECT>
   <UL>
     <LI><OBJECT type="text/sitemap"><param name="Local" value="group__helpers.html#g13a748aa283c5f5408cce037d3ad224d"><param name="Name" value="pmath_build_value"></OBJECT>
@@ -540,6 +559,75 @@
     <LI><OBJECT type="text/sitemap"><param name="Local" value="group__objects.html#g9413cfb0b3fd00d361046189853a11d8"><param name="Name" value="pmath_t"></OBJECT>
   </UL>
   <LI><OBJECT type="text/sitemap"><param name="Local" value="group__objects.html#gf7afa773c11a686f6abd7586e0a6a33d"><param name="Name" value="pmath_hash_func_t"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="classpmath__hashtable__t.html"><param name="Name" value="pmath_hashtable_t"></OBJECT>
+  <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="classpmath__hashtable__t.html#gc3bb123d747694b6144b8561efb15feb"><param name="Name" value="pmath_ht_capacity"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="classpmath__hashtable__t.html#gba9a2535237d8482482a338bafa2d5f1"><param name="Name" value="pmath_ht_clear"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="classpmath__hashtable__t.html#gf82265c2aff9bb75eb7beb057a812aa3"><param name="Name" value="pmath_ht_copy"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="classpmath__hashtable__t.html#gf42cb622735f861185f056de654d3632"><param name="Name" value="pmath_ht_count"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="classpmath__hashtable__t.html#g6835e6b0d0b308ef15f4f885298078f5"><param name="Name" value="pmath_ht_create"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="classpmath__hashtable__t.html#g48cbf069ed0fa62b2e95ec196aceff16"><param name="Name" value="pmath_ht_destroy"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="classpmath__hashtable__t.html#gd3f57058604e14d27b61a0282c02be87"><param name="Name" value="pmath_ht_entry"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="classpmath__hashtable__t.html#ged2c72c01c0c883154d77ddb6f42dd05"><param name="Name" value="pmath_ht_insert"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="classpmath__hashtable__t.html#gc0825f215931052b62d62abd574e0047"><param name="Name" value="pmath_ht_remove"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="classpmath__hashtable__t.html#g94ad66bd7413d8237fa3f58ef8e944a1"><param name="Name" value="pmath_ht_search"></OBJECT>
+  </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="group__hashtables.html#gc3bb123d747694b6144b8561efb15feb"><param name="Name" value="pmath_ht_capacity"></OBJECT>
+  <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="group__hashtables.html#gc3bb123d747694b6144b8561efb15feb"><param name="Name" value="hashtables"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="group__hashtables.html#gc3bb123d747694b6144b8561efb15feb"><param name="Name" value="pmath_hashtable_t"></OBJECT>
+  </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="group__hashtables.html#gba9a2535237d8482482a338bafa2d5f1"><param name="Name" value="pmath_ht_clear"></OBJECT>
+  <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="group__hashtables.html#gba9a2535237d8482482a338bafa2d5f1"><param name="Name" value="hashtables"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="group__hashtables.html#gba9a2535237d8482482a338bafa2d5f1"><param name="Name" value="pmath_hashtable_t"></OBJECT>
+  </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="group__hashtables.html#gf82265c2aff9bb75eb7beb057a812aa3"><param name="Name" value="pmath_ht_copy"></OBJECT>
+  <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="group__hashtables.html#gf82265c2aff9bb75eb7beb057a812aa3"><param name="Name" value="hashtables"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="group__hashtables.html#gf82265c2aff9bb75eb7beb057a812aa3"><param name="Name" value="pmath_hashtable_t"></OBJECT>
+  </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="group__hashtables.html#gf42cb622735f861185f056de654d3632"><param name="Name" value="pmath_ht_count"></OBJECT>
+  <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="group__hashtables.html#gf42cb622735f861185f056de654d3632"><param name="Name" value="hashtables"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="group__hashtables.html#gf42cb622735f861185f056de654d3632"><param name="Name" value="pmath_hashtable_t"></OBJECT>
+  </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="group__hashtables.html#g6835e6b0d0b308ef15f4f885298078f5"><param name="Name" value="pmath_ht_create"></OBJECT>
+  <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="group__hashtables.html#g6835e6b0d0b308ef15f4f885298078f5"><param name="Name" value="hashtables"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="group__hashtables.html#g6835e6b0d0b308ef15f4f885298078f5"><param name="Name" value="pmath_hashtable_t"></OBJECT>
+  </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="group__hashtables.html#g48cbf069ed0fa62b2e95ec196aceff16"><param name="Name" value="pmath_ht_destroy"></OBJECT>
+  <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="group__hashtables.html#g48cbf069ed0fa62b2e95ec196aceff16"><param name="Name" value="hashtables"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="group__hashtables.html#g48cbf069ed0fa62b2e95ec196aceff16"><param name="Name" value="pmath_hashtable_t"></OBJECT>
+  </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="group__hashtables.html#gd3f57058604e14d27b61a0282c02be87"><param name="Name" value="pmath_ht_entry"></OBJECT>
+  <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="group__hashtables.html#gd3f57058604e14d27b61a0282c02be87"><param name="Name" value="hashtables"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="group__hashtables.html#gd3f57058604e14d27b61a0282c02be87"><param name="Name" value="pmath_hashtable_t"></OBJECT>
+  </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="group__hashtables.html#g49afb121d94e186dd0c129a7ac98af88"><param name="Name" value="pmath_ht_entry_callback_t"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="group__hashtables.html#g7afcd0897350cdf6ea146196421d70f1"><param name="Name" value="pmath_ht_entry_copy_t"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="group__hashtables.html#g9eeec544dd1335e2b50bf9fedb5e154b"><param name="Name" value="pmath_ht_entry_equal_func_t"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="group__hashtables.html#gb4bf3ce0ea6f0d5b646cd6bc839bed4f"><param name="Name" value="pmath_ht_entry_equals_key_func_t"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="group__hashtables.html#gb427419addea52e7f405dd9cbc6b98b5"><param name="Name" value="pmath_ht_entry_hash_func_t"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="group__hashtables.html#ged2c72c01c0c883154d77ddb6f42dd05"><param name="Name" value="pmath_ht_insert"></OBJECT>
+  <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="group__hashtables.html#ged2c72c01c0c883154d77ddb6f42dd05"><param name="Name" value="hashtables"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="group__hashtables.html#ged2c72c01c0c883154d77ddb6f42dd05"><param name="Name" value="pmath_hashtable_t"></OBJECT>
+  </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="group__hashtables.html#g9285a6676b14812f6b4856493617b3fb"><param name="Name" value="pmath_ht_key_hash_func_t"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="group__hashtables.html#gc0825f215931052b62d62abd574e0047"><param name="Name" value="pmath_ht_remove"></OBJECT>
+  <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="group__hashtables.html#gc0825f215931052b62d62abd574e0047"><param name="Name" value="hashtables"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="group__hashtables.html#gc0825f215931052b62d62abd574e0047"><param name="Name" value="pmath_hashtable_t"></OBJECT>
+  </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="group__hashtables.html#g94ad66bd7413d8237fa3f58ef8e944a1"><param name="Name" value="pmath_ht_search"></OBJECT>
+  <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="group__hashtables.html#g94ad66bd7413d8237fa3f58ef8e944a1"><param name="Name" value="hashtables"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="group__hashtables.html#g94ad66bd7413d8237fa3f58ef8e944a1"><param name="Name" value="pmath_hashtable_t"></OBJECT>
+  </UL>
   <LI><OBJECT type="text/sitemap"><param name="Local" value="group__frontend.html#gfb9f2c789bee5295c6794d16c0164943"><param name="Name" value="pmath_init"></OBJECT>
   <LI><OBJECT type="text/sitemap"><param name="Local" value="classpmath__t.html#0bd527f1ec2db8f1eba58e1fd84babbc"><param name="Name" value="pmath_instance_of"></OBJECT>
   <LI><OBJECT type="text/sitemap"><param name="Local" value="group__numbers.html#gc220e06754067b9ba4a7c823017ad32e"><param name="Name" value="pmath_integer_fits_si"></OBJECT>

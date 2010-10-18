@@ -93,10 +93,10 @@ Create a new deamon thread.
   <table border="0" cellspacing="2" cellpadding="0">
     <tr><td valign="top"></td><td valign="top"><em>callback</em>&nbsp;</td><td>The thread function. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>kill</em>&nbsp;</td><td>An optional function to inform the thread that it will be killed. </td></tr>
-    <tr><td valign="top"></td><td valign="top"><em>data</em>&nbsp;</td><td>A pointer to be passed to callback() and kill() </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>data</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> pointer to be passed to callback() and kill() </td></tr>
   </table>
 </dl>
-<dl class="return" compact><dt><b>Returns:</b></dt><dd>A reference to the new thread's message queue or NULL on error. You have to destroy the result.</dd></dl>
+<dl class="return" compact><dt><b>Returns:</b></dt><dd><a class="el" href="class_a.html">A</a> reference to the new thread's message queue or NULL on error. You have to destroy the result.</dd></dl>
 pMath will automatically kill any daemon thread when there are no other threads remaining (normaly, when <a class="el" href="group__frontend.html#g012705e1fd248a7cebf738bae6375dd9" title="Free all resources used by the pMath CAS library and unload all modules.">pmath_done()</a> is called from main()). Killing deamons works as follows:<p>
 <div class="fragment"><pre class="fragment"><span class="keywordflow">for each</span> deamon thread t:
     call t-&gt;kill() <span class="keywordflow">if</span> the method exists
@@ -112,7 +112,7 @@ You can use the <em>kill</em> function to set your own abort-please-flags if nes
 <hr>The documentation for this class was generated from the following files:<ul>
 <li>pmath-util/concurrency/threads.h<li>pmath-util/concurrency/threadpool.h</ul>
 </div>
-<hr size="1"><address style="text-align: right;"><small>Generated on Sun Oct 17 19:31:04 2010 for pMath by&nbsp;
+<hr size="1"><address style="text-align: right;"><small>Generated on Sun Oct 17 23:45:09 2010 for pMath by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.5.9 </small></address>
 </body>

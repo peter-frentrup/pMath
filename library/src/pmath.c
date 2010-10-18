@@ -478,8 +478,10 @@ PMATH_API pmath_bool_t pmath_init(void){
     PMATH_RUN("Infinity:=DirectedInfinity(1)");
     PMATH_RUN("I:=Complex(0,1)");
     #ifdef PMATH_OS_WIN32
+      PMATH_RUN("$PathListSeparator:=\";\"");
       PMATH_RUN("$PathnameSeparator:=\"\\\\\"");
     #else
+      PMATH_RUN("$PathListSeparator:=\":\"");
       PMATH_RUN("$PathnameSeparator:=\"/\"");
     #endif
     

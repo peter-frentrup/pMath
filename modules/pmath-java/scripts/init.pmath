@@ -1,0 +1,39 @@
+
+BeginPackage("Java`")
+
+$JavaPath
+
+Begin("Java`Private`")
+
+If(HoldComplete($JavaPath) === HoldComplete @@ {$JavaPath},
+	$JavaPath:= {})
+
+If(!IsString(Java`Private`$DLLDirectory), 
+	Java`Private`$DLLDirectory:= DirectoryName($Input))
+	
+
+path:= $JavaPath
+If(System`$SystemId === "Windows",
+	path:= Join(Environment("PATH").StringSplit($PathListSeparator),
+	            Environment("ProgramFiles").StringSplit($PathListSeparator));
+	
+	path:= FileNames("Java", path).Reverse;
+	path:= Join(FileNames("jre*", path), FileNames("jre", FileNames("jdk*", path)));
+	path:= FileNames("bin", path);
+	path:= FileNames({"server","client"}, path);
+	path:= FileNames("jvm.dll", path);
+	
+	path:= Join(path, path.Map(DirectoryName));
+	)
+
+path:= Join($JavaPath, path, {Java`Private`$DLLDirectory});
+oldPath:= Environment("PATH")
+Environment("PATH"):= Environment("PATH") ++ StringExpression @@ path.Map(($PathListSeparator ++ #) &)
+
+LoadLibrary(ToFileName(Java`Private`$DLLDirectory, "pmath-java.dll"))
+
+Environment("PATH"):= oldPath
+
+End()
+
+EndPackage()

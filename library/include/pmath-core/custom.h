@@ -82,7 +82,7 @@ void *pmath_custom_get_data(pmath_custom_t custom);
  */
 PMATH_API 
 pmath_bool_t pmath_custom_has_destructor(
-  pmath_custom_t         custom, 
+  pmath_custom_t    custom, 
   pmath_callback_t  dtor);
 
 /** @} */

@@ -352,8 +352,8 @@ PMATH_PRIVATE pmath_t builtin_inner(pmath_expr_t expr){
     if(!pmath_instance_of(obj, PMATH_TYPE_INTEGER)
     || !pmath_integer_fits_ui(obj)){
       pmath_message(NULL, "intpm", 2,
-        pmath_integer_new_si(5),
-        pmath_ref(expr));
+        pmath_ref(expr),
+        pmath_integer_new_si(5));
       
       pmath_unref(info.f);
       pmath_unref(info.g);

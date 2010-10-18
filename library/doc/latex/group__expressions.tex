@@ -123,7 +123,7 @@ Get an expression's length.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em expr}]A pMath expression. \end{description}
+\item[{\em expr}]\hyperlink{class_a}{A} pMath expression. \end{description}
 \end{Desc}
 \begin{Desc}
 \item[Returns:]The number of items in expr (not counting the head). \end{Desc}
@@ -139,10 +139,10 @@ Get an item from an expression.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em expr}]A pMath expression. \item[{\em index}]The index of the item. \end{description}
+\item[{\em expr}]\hyperlink{class_a}{A} pMath expression. \item[{\em index}]The index of the item. \end{description}
 \end{Desc}
 \begin{Desc}
-\item[Returns:]A copy of the requested item, if index is not greater than the length of expr and NULL otherwise. You must destroy it with \hyperlink{classpmath__t_54e905402c38940687033b87eb8c6c9f}{pmath\_\-unref()}. \end{Desc}
+\item[Returns:]\hyperlink{class_a}{A} copy of the requested item, if index is not greater than the length of expr and NULL otherwise. You must destroy it with \hyperlink{classpmath__t_54e905402c38940687033b87eb8c6c9f}{pmath\_\-unref()}. \end{Desc}
 \hypertarget{group__expressions_ga3ba4e55b5e454f569c7e131653d5b14}{
 \index{expressions@{expressions}!pmath\_\-expr\_\-get\_\-item\_\-range@{pmath\_\-expr\_\-get\_\-item\_\-range}}
 \index{pmath\_\-expr\_\-get\_\-item\_\-range@{pmath\_\-expr\_\-get\_\-item\_\-range}!expressions@{expressions}}
@@ -155,10 +155,10 @@ Get multiple items from an expression.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em expr}]A pMath expression. It will $\ast$not$\ast$ be destroyed. \item[{\em start}]The start index of the items. \item[{\em length}]The number of the items. \end{description}
+\item[{\em expr}]\hyperlink{class_a}{A} pMath expression. It will $\ast$not$\ast$ be destroyed. \item[{\em start}]The start index of the items. \item[{\em length}]The number of the items. \end{description}
 \end{Desc}
 \begin{Desc}
-\item[Returns:]A new expression with the same head as {\em expr\/}. Its length is max(0, min(start + length, 1 + pmath\_\-expr\_\-length(expr)) - start) and it contains the items from expr beginning at index {\em start\/}. \end{Desc}
+\item[Returns:]\hyperlink{class_a}{A} new expression with the same head as {\em expr\/}. Its length is max(0, min(start + length, 1 + pmath\_\-expr\_\-length(expr)) - start) and it contains the items from expr beginning at index {\em start\/}. \end{Desc}
 \hypertarget{group__expressions_g2771a8ad79e108e60df5dbe3ea9c7bf8}{
 \index{expressions@{expressions}!pmath\_\-expr\_\-set\_\-item@{pmath\_\-expr\_\-set\_\-item}}
 \index{pmath\_\-expr\_\-set\_\-item@{pmath\_\-expr\_\-set\_\-item}!expressions@{expressions}}
@@ -171,7 +171,7 @@ Set an item in an expression.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em expr}]A pMath expression. It will be destroyed, do not use it after the call. \item[{\em index}]The index of the to-be-changed item. \item[{\em item}]The new value of the item. It will be destroyed, do not use it after the call. \end{description}
+\item[{\em expr}]\hyperlink{class_a}{A} pMath expression. It will be destroyed, do not use it after the call. \item[{\em index}]The index of the to-be-changed item. \item[{\em item}]The new value of the item. It will be destroyed, do not use it after the call. \end{description}
 \end{Desc}
 \begin{Desc}
 \item[Returns:]NULL or a new expression with item at index. You must destroy it with \hyperlink{classpmath__t_54e905402c38940687033b87eb8c6c9f}{pmath\_\-unref()}.\end{Desc}
@@ -187,7 +187,7 @@ Remove all occurencies of an object from an expression.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em expr}]A pMath expression. It will be destroyed, do not use it after the call. \item[{\em rem}]The object to be removed. It will $\ast$not$\ast$ be destroyed. \end{description}
+\item[{\em expr}]\hyperlink{class_a}{A} pMath expression. It will be destroyed, do not use it after the call. \item[{\em rem}]The object to be removed. It will $\ast$not$\ast$ be destroyed. \end{description}
 \end{Desc}
 \begin{Desc}
 \item[Returns:]NULL or a new expression that contains no occurencies of {\em rem\/} (except maybe the head). It is a shrinked version of {\em expr\/}. \end{Desc}
@@ -203,10 +203,10 @@ Sort an expression.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em expr}]A pMath expression. It will be destroyed, do not use it after the call. \end{description}
+\item[{\em expr}]\hyperlink{class_a}{A} pMath expression. It will be destroyed, do not use it after the call. \end{description}
 \end{Desc}
 \begin{Desc}
-\item[Returns:]A new expression where all items from expr are sorted (except the head, which remains unchanged). \end{Desc}
+\item[Returns:]\hyperlink{class_a}{A} new expression where all items from expr are sorted (except the head, which remains unchanged). \end{Desc}
 \hypertarget{group__expressions_g9162f7fe8a42627c5adf6185dba9e67d}{
 \index{expressions@{expressions}!pmath\_\-expr\_\-flatten@{pmath\_\-expr\_\-flatten}}
 \index{pmath\_\-expr\_\-flatten@{pmath\_\-expr\_\-flatten}!expressions@{expressions}}
@@ -219,7 +219,7 @@ Flatten an expression.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em expr}]A pMath expression. It will be destroyed, do not use it after the call. \item[{\em head}]The head of items, that should be flattened out. It will be destroyed, so you can use `pmath\_\-expr\_\-get\_\-item(expr)` directly to use expr's head. \item[{\em depth}]The depth to which level flattening should be done. A value of 0 means `no flattening`. \end{description}
+\item[{\em expr}]\hyperlink{class_a}{A} pMath expression. It will be destroyed, do not use it after the call. \item[{\em head}]The head of items, that should be flattened out. It will be destroyed, so you can use `pmath\_\-expr\_\-get\_\-item(expr)` directly to use expr's head. \item[{\em depth}]The depth to which level flattening should be done. \hyperlink{class_a}{A} value of 0 means `no flattening`. \end{description}
 \end{Desc}
 \begin{Desc}
-\item[Returns:]A new expression where all items, that have the same head as expr, will be flattened. \end{Desc}
+\item[Returns:]\hyperlink{class_a}{A} new expression where all items, that have the same head as expr, will be flattened. \end{Desc}

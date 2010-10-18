@@ -215,7 +215,7 @@ Add a value to another.
 <p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>atom</em>&nbsp;</td><td>A sizeof(void*) aligned pointer. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>atom</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> sizeof(void*) aligned pointer. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>delta</em>&nbsp;</td><td>The difference between the new and the old value. </td></tr>
   </table>
 </dl>
@@ -253,7 +253,7 @@ Exchange a value.
 <p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>atom</em>&nbsp;</td><td>A sizeof(void*) aligned pointer. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>atom</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> sizeof(void*) aligned pointer. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>new_value</em>&nbsp;</td><td>The new value of <code>*atom</code>. </td></tr>
   </table>
 </dl>
@@ -297,7 +297,7 @@ Exchange a value if it equals another value.
 <p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>atom</em>&nbsp;</td><td>A sizeof(void*) aligned pointer. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>atom</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> sizeof(void*) aligned pointer. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>old_value</em>&nbsp;</td><td>The comparisor. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>new_value</em>&nbsp;</td><td>The possible new value of <code>*atom</code>. </td></tr>
   </table>
@@ -342,7 +342,7 @@ Exchange a value if it equals another value.
 <p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>atom</em>&nbsp;</td><td>A sizeof(void*) aligned pointer. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>atom</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> sizeof(void*) aligned pointer. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>old_value</em>&nbsp;</td><td>The comparisor. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>new_value</em>&nbsp;</td><td>The possible new value of <code>*atom</code>. </td></tr>
   </table>
@@ -399,7 +399,7 @@ Exchange two values value if they equal another two values.
 <p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>*atom</em>&nbsp;</td><td>A 2*sizeof(void*) aligned pointer to two values. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>*atom</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> 2*sizeof(void*) aligned pointer to two values. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>old_value_fst</em>&nbsp;</td><td>The first old value. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>old_value_snd</em>&nbsp;</td><td>The second old value. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>new_value_fst</em>&nbsp;</td><td>The possible new value of <code>atom</code>[0]. </td></tr>
@@ -457,7 +457,7 @@ Try to aquire a lock.
 <p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>atom</em>&nbsp;</td><td>The lock. A sizeof(void*) aligned pointer.</td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>atom</em>&nbsp;</td><td>The lock. <a class="el" href="class_a.html">A</a> sizeof(void*) aligned pointer.</td></tr>
   </table>
 </dl>
 This function implements a spin lock. It has aquire barrier semantics. Use it with <a class="el" href="group__atomic__ops.html#ga61bbbab4adc550cc66d1d5f9cf22afd" title="Release a previously aquired lock.">pmath_atomic_unlock()</a>: <div class="fragment"><pre class="fragment"><a class="code" href="group__atomic__ops.html#gea9d23f3c2f74768863e67ff2a8d17df" title="Declares a volatile machine size integer with proper alignment.">PMATH_DECLARE_ATOMIC</a>(spin);
@@ -489,7 +489,7 @@ Release a previously aquired lock.
 <p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>atom</em>&nbsp;</td><td>The lock. A sizeof(void*) aligned pointer.</td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>atom</em>&nbsp;</td><td>The lock. <a class="el" href="class_a.html">A</a> sizeof(void*) aligned pointer.</td></tr>
   </table>
 </dl>
 <dl class="see" compact><dt><b>See also:</b></dt><dd><a class="el" href="group__atomic__ops.html#gf143a22332da6a2065bac14069ecbf7f" title="Try to aquire a lock.">pmath_atomic_lock</a> </dd></dl>
@@ -513,11 +513,11 @@ Release a previously aquired lock.
 <div class="memdoc">
 
 <p>
-A no-operation for use in spin locks. 
+<a class="el" href="class_a.html">A</a> no-operation for use in spin locks. 
 </div>
 </div><p>
 </div>
-<hr size="1"><address style="text-align: right;"><small>Generated on Sun Oct 17 19:31:03 2010 for pMath by&nbsp;
+<hr size="1"><address style="text-align: right;"><small>Generated on Sun Oct 17 23:45:07 2010 for pMath by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.5.9 </small></address>
 </body>

@@ -86,7 +86,7 @@ Prototype of a built-in function.
 
 The (bitset) type of symbol attributes. 
 
-A pMath symbol (here called `sym`) can have one or more of the following values (concatenated with \char`\"{}$|$\char`\"{}): \begin{itemize}
+\hyperlink{class_a}{A} pMath symbol (here called `sym`) can have one or more of the following values (concatenated with \char`\"{}$|$\char`\"{}): \begin{itemize}
 \item {\tt PMATH\_\-SYMBOL\_\-ATTRIBUTE\_\-PROTECTED} \par
  Any assignment to sym will fail.
 
@@ -135,6 +135,10 @@ A pMath symbol (here called `sym`) can have one or more of the following values 
  `sym(x,...)` is numeric if all the arguments are numeric.
 
 \item {\tt PMATH\_\-SYMBOL\_\-ATTRIBUTE\_\-READPROTECTED} `??sym` wont print out the value/function definitions for sym.
+
+\item {\tt PMATH\_\-SYMBOL\_\-ATTRIBUTE\_\-SEQUENCEHOLD} Sequence(...) wont be sliced when it appears as an argument to `sym(...)`
+
+\item {\tt PMATH\_\-SYMBOL\_\-ATTRIBUTE\_\-REMOVED} The symbol was removed, but there are pending references to it.
 
 \end{itemize}
 
@@ -196,7 +200,7 @@ Bind a pMath symbol to some native code.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em symbol}]The symbol. It wont be freed. \item[{\em func}]A native function. \item[{\em usage}]When to call the native function. \end{description}
+\item[{\em symbol}]The symbol. It wont be freed. \item[{\em func}]\hyperlink{class_a}{A} native function. \item[{\em usage}]When to call the native function. \end{description}
 \end{Desc}
 \begin{Desc}
 \item[Returns:]Whether the binding succeded.\end{Desc}
@@ -212,7 +216,7 @@ Bind a pMath symbol to some native code for approximation.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em symbol}]The symbol. It wont be freed. \item[{\em func}]A native function that frees/takes ownership of its first argument. \end{description}
+\item[{\em symbol}]The symbol. It wont be freed. \item[{\em func}]\hyperlink{class_a}{A} native function that frees/takes ownership of its first argument. \end{description}
 \end{Desc}
 \begin{Desc}
 \item[Returns:]Whether the binding succeded.\end{Desc}
@@ -298,7 +302,7 @@ Create a new temporary symbol.
 \item[{\em name}]The base name of the temporary symbol. It will be freed. \item[{\em unique}]Whether to add a unique number to the symbol name. \end{description}
 \end{Desc}
 \begin{Desc}
-\item[Returns:]A new pMath Symbol. You must destroy it with \hyperlink{classpmath__t_54e905402c38940687033b87eb8c6c9f}{pmath\_\-unref()}. It has the Temporary attribute.\end{Desc}
+\item[Returns:]\hyperlink{class_a}{A} new pMath Symbol. You must destroy it with \hyperlink{classpmath__t_54e905402c38940687033b87eb8c6c9f}{pmath\_\-unref()}. It has the Temporary attribute.\end{Desc}
 the name of the returned symbol is of the form name\$nnn (or name\$ if unique is false)
 
 If name already has the form \char`\"{}sym\$nnn\char`\"{} or \char`\"{}sym\$\char`\"{}, the function acts as if name would be simply \char`\"{}sym\char`\"{}.
@@ -331,7 +335,7 @@ Get a symbol's name.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em symbol}]A pMath symbol. \end{description}
+\item[{\em symbol}]\hyperlink{class_a}{A} pMath symbol. \end{description}
 \end{Desc}
 \begin{Desc}
 \item[Returns:]The name of the symbol. You must destroy it with \hyperlink{classpmath__t_54e905402c38940687033b87eb8c6c9f}{pmath\_\-unref()}. \end{Desc}
@@ -347,7 +351,7 @@ Get a symbol's attributes.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em symbol}]A pMath symbol. It wont be freed. \end{description}
+\item[{\em symbol}]\hyperlink{class_a}{A} pMath symbol. It wont be freed. \end{description}
 \end{Desc}
 \begin{Desc}
 \item[Returns:]The symbol's attributes. \end{Desc}
@@ -363,7 +367,7 @@ Set a symbol's attributes.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em symbol}]A pMath symbol. It wont be freed. \item[{\em attr}]The new attributes. \end{description}
+\item[{\em symbol}]\hyperlink{class_a}{A} pMath symbol. It wont be freed. \item[{\em attr}]The new attributes. \end{description}
 \end{Desc}
 \hypertarget{group__symbols_gbf330376870422d219ae9f0557e515c2}{
 \index{symbols@{symbols}!pmath\_\-symbol\_\-get\_\-value@{pmath\_\-symbol\_\-get\_\-value}}
@@ -379,7 +383,7 @@ Get a symbol's value.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em symbol}]A pMath symbol. \end{description}
+\item[{\em symbol}]\hyperlink{class_a}{A} pMath symbol. \end{description}
 \end{Desc}
 \begin{Desc}
 \item[Returns:]The symbol's value. You must free it with \hyperlink{classpmath__t_54e905402c38940687033b87eb8c6c9f}{pmath\_\-unref()}. Note that not every object is evaluatable (e.g. \hyperlink{group__custom}{Custom Objects} ). \end{Desc}
@@ -397,7 +401,7 @@ Set a symbol's value.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em symbol}]A pMath symbol. It wont be freed \item[{\em value}]The new value. It will be freed.\end{description}
+\item[{\em symbol}]\hyperlink{class_a}{A} pMath symbol. It wont be freed \item[{\em value}]The new value. It will be freed.\end{description}
 \end{Desc}
 This function ignores the Protected-attribute. You should only use it during symbol initialization and/or when you want to store non-evaluatable values in a symbol. In all other cases, evaluate an expression with the head PMATH\_\-SYMBOL\_\-ASSIGN or PMATH\_\-SYMBOL\_\-ASSIGNDELAYED. \hypertarget{group__symbols_g95b141d9cb33fba80d6a807f304ee3b7}{
 \index{symbols@{symbols}!pmath\_\-symbol\_\-synchronized@{pmath\_\-symbol\_\-synchronized}}
@@ -413,7 +417,7 @@ Execute a function synchronized to a symbol.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em symbol}]The symbol to lock. It wont be freed. \item[{\em callback}]The function to be executed when the symbol is locked. \item[{\em data}]A pointer that will be passed to callback.\end{description}
+\item[{\em symbol}]The symbol to lock. It wont be freed. \item[{\em callback}]The function to be executed when the symbol is locked. \item[{\em data}]\hyperlink{class_a}{A} pointer that will be passed to callback.\end{description}
 \end{Desc}
 \begin{Desc}
 \item[See also:]\hyperlink{group__threads}{Multithreading with pMath} \end{Desc}
@@ -429,6 +433,6 @@ Update a symbol manually.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em symbol}]A pMath symbol. It wont be freed.\end{description}
+\item[{\em symbol}]\hyperlink{class_a}{A} pMath symbol. It wont be freed.\end{description}
 \end{Desc}
 You normally do not have to call this, since every change in a symbol yields an update. But there are some situations where you might to update it manually. The update mechanism is an optimization. Any expresseion or symbol, that is up to date while evaluation, wont be evaluated again. After an evaluation, expressions are updated automatically. 

@@ -4,6 +4,7 @@
 
 #include <pmath-util/concurrency/threadmsg-private.h>
 #include <pmath-util/debug.h>
+#include <pmath-util/hashtables-private.h>
 #include <pmath-util/memory.h>
 #include <pmath-util/messages.h>
 

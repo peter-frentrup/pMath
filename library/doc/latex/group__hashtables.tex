@@ -1,0 +1,313 @@
+\hypertarget{group__hashtables}{
+\subsection{Hashtables}
+\label{group__hashtables}\index{Hashtables@{Hashtables}}
+}
+\hyperlink{class_a}{A} general hashtable implementation.  
+
+
+\subsubsection*{Data Structures}
+\begin{CompactItemize}
+\item 
+class \hyperlink{classpmath__hashtable__t}{pmath\_\-hashtable\_\-t}
+\begin{CompactList}\small\item\em The Hashtable class. \item\end{CompactList}\item 
+class \hyperlink{class_a}{A}
+\end{CompactItemize}
+\subsubsection*{Typedefs}
+\begin{CompactItemize}
+\item 
+typedef void($\ast$ \hyperlink{group__hashtables_g49afb121d94e186dd0c129a7ac98af88}{pmath\_\-ht\_\-entry\_\-callback\_\-t} )(void $\ast$entry, void $\ast$data)
+\begin{CompactList}\small\item\em \hyperlink{class_a}{A} callback function for hashtable entries. \item\end{CompactList}\item 
+typedef void $\ast$($\ast$ \hyperlink{group__hashtables_g7afcd0897350cdf6ea146196421d70f1}{pmath\_\-ht\_\-entry\_\-copy\_\-t} )(void $\ast$entry)
+\begin{CompactList}\small\item\em An entry copy function. \item\end{CompactList}\item 
+typedef unsigned int($\ast$ \hyperlink{group__hashtables_gb427419addea52e7f405dd9cbc6b98b5}{pmath\_\-ht\_\-entry\_\-hash\_\-func\_\-t} )(void $\ast$entry)
+\begin{CompactList}\small\item\em An entry hash function. \item\end{CompactList}\item 
+typedef unsigned int($\ast$ \hyperlink{group__hashtables_g9285a6676b14812f6b4856493617b3fb}{pmath\_\-ht\_\-key\_\-hash\_\-func\_\-t} )(void $\ast$key)
+\begin{CompactList}\small\item\em \hyperlink{class_a}{A} key hash function. \item\end{CompactList}\item 
+typedef \hyperlink{group__general__types_gc92090cb0b56345d6c379ed2341d4ef4}{pmath\_\-bool\_\-t}($\ast$ \hyperlink{group__hashtables_g9eeec544dd1335e2b50bf9fedb5e154b}{pmath\_\-ht\_\-entry\_\-equal\_\-func\_\-t} )(void $\ast$entry1, void $\ast$entry2)
+\begin{CompactList}\small\item\em An entry comparision function. \item\end{CompactList}\item 
+typedef \hyperlink{group__general__types_gc92090cb0b56345d6c379ed2341d4ef4}{pmath\_\-bool\_\-t}($\ast$ \hyperlink{group__hashtables_gb4bf3ce0ea6f0d5b646cd6bc839bed4f}{pmath\_\-ht\_\-entry\_\-equals\_\-key\_\-func\_\-t} )(void $\ast$entry, void $\ast$key)
+\begin{CompactList}\small\item\em An entry to key comparision function. \item\end{CompactList}\end{CompactItemize}
+\subsubsection*{Functions}
+\begin{CompactItemize}
+\item 
+PMATH\_\-API \hyperlink{classpmath__hashtable__t}{pmath\_\-hashtable\_\-t} \hyperlink{group__hashtables_g6835e6b0d0b308ef15f4f885298078f5}{pmath\_\-hashtable\_\-t::pmath\_\-ht\_\-create} (const pmath\_\-ht\_\-class\_\-t $\ast$klass, unsigned int minsize)
+\begin{CompactList}\small\item\em Create a new hashtable. \item\end{CompactList}\item 
+PMATH\_\-API \hyperlink{classpmath__hashtable__t}{pmath\_\-hashtable\_\-t} \hyperlink{group__hashtables_gf82265c2aff9bb75eb7beb057a812aa3}{pmath\_\-hashtable\_\-t::pmath\_\-ht\_\-copy} (\hyperlink{classpmath__hashtable__t}{pmath\_\-hashtable\_\-t} ht, \hyperlink{group__hashtables_g7afcd0897350cdf6ea146196421d70f1}{pmath\_\-ht\_\-entry\_\-copy\_\-t} entry\_\-copy)
+\begin{CompactList}\small\item\em Copy a given hashtable. \item\end{CompactList}\item 
+PMATH\_\-API void \hyperlink{group__hashtables_g48cbf069ed0fa62b2e95ec196aceff16}{pmath\_\-hashtable\_\-t::pmath\_\-ht\_\-destroy} (\hyperlink{classpmath__hashtable__t}{pmath\_\-hashtable\_\-t} ht)
+\begin{CompactList}\small\item\em Destroy a given hashtable. \item\end{CompactList}\item 
+PMATH\_\-API void \hyperlink{group__hashtables_gba9a2535237d8482482a338bafa2d5f1}{pmath\_\-hashtable\_\-t::pmath\_\-ht\_\-clear} (\hyperlink{classpmath__hashtable__t}{pmath\_\-hashtable\_\-t} ht)
+\begin{CompactList}\small\item\em Clear a given hashtable. \item\end{CompactList}\item 
+PMATH\_\-API unsigned int \hyperlink{group__hashtables_gc3bb123d747694b6144b8561efb15feb}{pmath\_\-hashtable\_\-t::pmath\_\-ht\_\-capacity} (\hyperlink{classpmath__hashtable__t}{pmath\_\-hashtable\_\-t} ht)
+\begin{CompactList}\small\item\em Get the capacity of a given hashtable. \item\end{CompactList}\item 
+PMATH\_\-API unsigned int \hyperlink{group__hashtables_gf42cb622735f861185f056de654d3632}{pmath\_\-hashtable\_\-t::pmath\_\-ht\_\-count} (\hyperlink{classpmath__hashtable__t}{pmath\_\-hashtable\_\-t} ht)
+\begin{CompactList}\small\item\em Get the number of valid entries in a given hashtable. \item\end{CompactList}\item 
+PMATH\_\-API void $\ast$ \hyperlink{group__hashtables_gd3f57058604e14d27b61a0282c02be87}{pmath\_\-hashtable\_\-t::pmath\_\-ht\_\-entry} (\hyperlink{classpmath__hashtable__t}{pmath\_\-hashtable\_\-t} ht, unsigned int i)
+\begin{CompactList}\small\item\em Get any entry of a given hashtable. \item\end{CompactList}\item 
+PMATH\_\-API void $\ast$ \hyperlink{group__hashtables_g94ad66bd7413d8237fa3f58ef8e944a1}{pmath\_\-hashtable\_\-t::pmath\_\-ht\_\-search} (\hyperlink{classpmath__hashtable__t}{pmath\_\-hashtable\_\-t} ht, void $\ast$key)
+\begin{CompactList}\small\item\em Search for an entry in a given hashtable. \item\end{CompactList}\item 
+PMATH\_\-API void $\ast$ \hyperlink{group__hashtables_ged2c72c01c0c883154d77ddb6f42dd05}{pmath\_\-hashtable\_\-t::pmath\_\-ht\_\-insert} (\hyperlink{classpmath__hashtable__t}{pmath\_\-hashtable\_\-t} ht, void $\ast$entry)
+\begin{CompactList}\small\item\em Insert an entry into a given hashtable. \item\end{CompactList}\item 
+PMATH\_\-API void $\ast$ \hyperlink{group__hashtables_gc0825f215931052b62d62abd574e0047}{pmath\_\-hashtable\_\-t::pmath\_\-ht\_\-remove} (\hyperlink{classpmath__hashtable__t}{pmath\_\-hashtable\_\-t} ht, void $\ast$key)
+\begin{CompactList}\small\item\em Remove an entry from a given hashtable. \item\end{CompactList}\end{CompactItemize}
+
+
+\subsubsection{Detailed Description}
+\hyperlink{class_a}{A} general hashtable implementation. 
+
+The user of this API is responsible for the memory layout of the entries. 
+
+\subsubsection{Typedef Documentation}
+\hypertarget{group__hashtables_g49afb121d94e186dd0c129a7ac98af88}{
+\index{hashtables@{hashtables}!pmath\_\-ht\_\-entry\_\-callback\_\-t@{pmath\_\-ht\_\-entry\_\-callback\_\-t}}
+\index{pmath\_\-ht\_\-entry\_\-callback\_\-t@{pmath\_\-ht\_\-entry\_\-callback\_\-t}!hashtables@{hashtables}}
+\paragraph[{pmath\_\-ht\_\-entry\_\-callback\_\-t}]{\setlength{\rightskip}{0pt plus 5cm}typedef void($\ast$ {\bf pmath\_\-ht\_\-entry\_\-callback\_\-t})(void $\ast$entry, void $\ast$data)}\hfill}
+\label{group__hashtables_g49afb121d94e186dd0c129a7ac98af88}
+
+
+\hyperlink{class_a}{A} callback function for hashtable entries. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em entry}]An entry. Never NULL. \item[{\em data}]Additional data for the callback. \end{description}
+\end{Desc}
+\hypertarget{group__hashtables_g7afcd0897350cdf6ea146196421d70f1}{
+\index{hashtables@{hashtables}!pmath\_\-ht\_\-entry\_\-copy\_\-t@{pmath\_\-ht\_\-entry\_\-copy\_\-t}}
+\index{pmath\_\-ht\_\-entry\_\-copy\_\-t@{pmath\_\-ht\_\-entry\_\-copy\_\-t}!hashtables@{hashtables}}
+\paragraph[{pmath\_\-ht\_\-entry\_\-copy\_\-t}]{\setlength{\rightskip}{0pt plus 5cm}typedef void$\ast$($\ast$ {\bf pmath\_\-ht\_\-entry\_\-copy\_\-t})(void $\ast$entry)}\hfill}
+\label{group__hashtables_g7afcd0897350cdf6ea146196421d70f1}
+
+
+An entry copy function. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em entry}]An entry. Never NULL. \end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]\hyperlink{class_a}{A} new entry that is a copy. \end{Desc}
+\hypertarget{group__hashtables_gb427419addea52e7f405dd9cbc6b98b5}{
+\index{hashtables@{hashtables}!pmath\_\-ht\_\-entry\_\-hash\_\-func\_\-t@{pmath\_\-ht\_\-entry\_\-hash\_\-func\_\-t}}
+\index{pmath\_\-ht\_\-entry\_\-hash\_\-func\_\-t@{pmath\_\-ht\_\-entry\_\-hash\_\-func\_\-t}!hashtables@{hashtables}}
+\paragraph[{pmath\_\-ht\_\-entry\_\-hash\_\-func\_\-t}]{\setlength{\rightskip}{0pt plus 5cm}typedef unsigned int($\ast$ {\bf pmath\_\-ht\_\-entry\_\-hash\_\-func\_\-t})(void $\ast$entry)}\hfill}
+\label{group__hashtables_gb427419addea52e7f405dd9cbc6b98b5}
+
+
+An entry hash function. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em entry}]An entry. Never NULL. \end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]\hyperlink{class_a}{A} hash value for the entry's key. \end{Desc}
+\hypertarget{group__hashtables_g9285a6676b14812f6b4856493617b3fb}{
+\index{hashtables@{hashtables}!pmath\_\-ht\_\-key\_\-hash\_\-func\_\-t@{pmath\_\-ht\_\-key\_\-hash\_\-func\_\-t}}
+\index{pmath\_\-ht\_\-key\_\-hash\_\-func\_\-t@{pmath\_\-ht\_\-key\_\-hash\_\-func\_\-t}!hashtables@{hashtables}}
+\paragraph[{pmath\_\-ht\_\-key\_\-hash\_\-func\_\-t}]{\setlength{\rightskip}{0pt plus 5cm}typedef unsigned int($\ast$ {\bf pmath\_\-ht\_\-key\_\-hash\_\-func\_\-t})(void $\ast$key)}\hfill}
+\label{group__hashtables_g9285a6676b14812f6b4856493617b3fb}
+
+
+\hyperlink{class_a}{A} key hash function. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em key}]\hyperlink{class_a}{A} key. \end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]\hyperlink{class_a}{A} hash value for the key. \end{Desc}
+\hypertarget{group__hashtables_g9eeec544dd1335e2b50bf9fedb5e154b}{
+\index{hashtables@{hashtables}!pmath\_\-ht\_\-entry\_\-equal\_\-func\_\-t@{pmath\_\-ht\_\-entry\_\-equal\_\-func\_\-t}}
+\index{pmath\_\-ht\_\-entry\_\-equal\_\-func\_\-t@{pmath\_\-ht\_\-entry\_\-equal\_\-func\_\-t}!hashtables@{hashtables}}
+\paragraph[{pmath\_\-ht\_\-entry\_\-equal\_\-func\_\-t}]{\setlength{\rightskip}{0pt plus 5cm}typedef {\bf pmath\_\-bool\_\-t}($\ast$ {\bf pmath\_\-ht\_\-entry\_\-equal\_\-func\_\-t})(void $\ast$entry1, void $\ast$entry2)}\hfill}
+\label{group__hashtables_g9eeec544dd1335e2b50bf9fedb5e154b}
+
+
+An entry comparision function. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em entry1}]The first entry. \item[{\em entry2}]The second entry. \end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]TRUE if both enties' keys are equal, FALSE otherwise. \end{Desc}
+\hypertarget{group__hashtables_gb4bf3ce0ea6f0d5b646cd6bc839bed4f}{
+\index{hashtables@{hashtables}!pmath\_\-ht\_\-entry\_\-equals\_\-key\_\-func\_\-t@{pmath\_\-ht\_\-entry\_\-equals\_\-key\_\-func\_\-t}}
+\index{pmath\_\-ht\_\-entry\_\-equals\_\-key\_\-func\_\-t@{pmath\_\-ht\_\-entry\_\-equals\_\-key\_\-func\_\-t}!hashtables@{hashtables}}
+\paragraph[{pmath\_\-ht\_\-entry\_\-equals\_\-key\_\-func\_\-t}]{\setlength{\rightskip}{0pt plus 5cm}typedef {\bf pmath\_\-bool\_\-t}($\ast$ {\bf pmath\_\-ht\_\-entry\_\-equals\_\-key\_\-func\_\-t})(void $\ast$entry, void $\ast$key)}\hfill}
+\label{group__hashtables_gb4bf3ce0ea6f0d5b646cd6bc839bed4f}
+
+
+An entry to key comparision function. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em entry}]An entry. \item[{\em key}]The key of another entry. \end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]TRUE if both entry's key equals the given key, FALSE otherwise. \end{Desc}
+
+
+\subsubsection{Function Documentation}
+\hypertarget{group__hashtables_g6835e6b0d0b308ef15f4f885298078f5}{
+\index{hashtables@{hashtables}!pmath\_\-ht\_\-create@{pmath\_\-ht\_\-create}}
+\index{pmath\_\-ht\_\-create@{pmath\_\-ht\_\-create}!hashtables@{hashtables}}
+\paragraph[{pmath\_\-ht\_\-create}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API {\bf pmath\_\-hashtable\_\-t} pmath\_\-ht\_\-create (const pmath\_\-ht\_\-class\_\-t $\ast$ {\em klass}, \/  unsigned int {\em minsize})\hspace{0.3cm}{\tt  \mbox{[}inherited\mbox{]}}}\hfill}
+\label{group__hashtables_g6835e6b0d0b308ef15f4f885298078f5}
+
+
+Create a new hashtable. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em klass}]An interface pointer. \item[{\em minsize}]Initiol minimal size. \end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]The new hashtable or NULL on error. \end{Desc}
+\hypertarget{group__hashtables_gf82265c2aff9bb75eb7beb057a812aa3}{
+\index{hashtables@{hashtables}!pmath\_\-ht\_\-copy@{pmath\_\-ht\_\-copy}}
+\index{pmath\_\-ht\_\-copy@{pmath\_\-ht\_\-copy}!hashtables@{hashtables}}
+\paragraph[{pmath\_\-ht\_\-copy}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API {\bf pmath\_\-hashtable\_\-t} pmath\_\-ht\_\-copy ({\bf pmath\_\-hashtable\_\-t} {\em ht}, \/  {\bf pmath\_\-ht\_\-entry\_\-copy\_\-t} {\em entry\_\-copy})\hspace{0.3cm}{\tt  \mbox{[}inherited\mbox{]}}}\hfill}
+\label{group__hashtables_gf82265c2aff9bb75eb7beb057a812aa3}
+
+
+Copy a given hashtable. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em ht}]The old hashtable \item[{\em entry\_\-copy}]\hyperlink{class_a}{A} function for copying entires. \end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]The new hashtable or NULL on error. \end{Desc}
+\hypertarget{group__hashtables_g48cbf069ed0fa62b2e95ec196aceff16}{
+\index{hashtables@{hashtables}!pmath\_\-ht\_\-destroy@{pmath\_\-ht\_\-destroy}}
+\index{pmath\_\-ht\_\-destroy@{pmath\_\-ht\_\-destroy}!hashtables@{hashtables}}
+\paragraph[{pmath\_\-ht\_\-destroy}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API void pmath\_\-ht\_\-destroy ({\bf pmath\_\-hashtable\_\-t} {\em ht})\hspace{0.3cm}{\tt  \mbox{[}inherited\mbox{]}}}\hfill}
+\label{group__hashtables_g48cbf069ed0fa62b2e95ec196aceff16}
+
+
+Destroy a given hashtable. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em ht}]The hashtable. \end{description}
+\end{Desc}
+\hypertarget{group__hashtables_gba9a2535237d8482482a338bafa2d5f1}{
+\index{hashtables@{hashtables}!pmath\_\-ht\_\-clear@{pmath\_\-ht\_\-clear}}
+\index{pmath\_\-ht\_\-clear@{pmath\_\-ht\_\-clear}!hashtables@{hashtables}}
+\paragraph[{pmath\_\-ht\_\-clear}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API void pmath\_\-ht\_\-clear ({\bf pmath\_\-hashtable\_\-t} {\em ht})\hspace{0.3cm}{\tt  \mbox{[}inherited\mbox{]}}}\hfill}
+\label{group__hashtables_gba9a2535237d8482482a338bafa2d5f1}
+
+
+Clear a given hashtable. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em ht}]The hashtable. \end{description}
+\end{Desc}
+\hypertarget{group__hashtables_gc3bb123d747694b6144b8561efb15feb}{
+\index{hashtables@{hashtables}!pmath\_\-ht\_\-capacity@{pmath\_\-ht\_\-capacity}}
+\index{pmath\_\-ht\_\-capacity@{pmath\_\-ht\_\-capacity}!hashtables@{hashtables}}
+\paragraph[{pmath\_\-ht\_\-capacity}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API unsigned int pmath\_\-ht\_\-capacity ({\bf pmath\_\-hashtable\_\-t} {\em ht})\hspace{0.3cm}{\tt  \mbox{[}inherited\mbox{]}}}\hfill}
+\label{group__hashtables_gc3bb123d747694b6144b8561efb15feb}
+
+
+Get the capacity of a given hashtable. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em ht}]The hashtable. \end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]The current maximum possible index of an entry in the table. \end{Desc}
+\hypertarget{group__hashtables_gf42cb622735f861185f056de654d3632}{
+\index{hashtables@{hashtables}!pmath\_\-ht\_\-count@{pmath\_\-ht\_\-count}}
+\index{pmath\_\-ht\_\-count@{pmath\_\-ht\_\-count}!hashtables@{hashtables}}
+\paragraph[{pmath\_\-ht\_\-count}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API unsigned int pmath\_\-ht\_\-count ({\bf pmath\_\-hashtable\_\-t} {\em ht})\hspace{0.3cm}{\tt  \mbox{[}inherited\mbox{]}}}\hfill}
+\label{group__hashtables_gf42cb622735f861185f056de654d3632}
+
+
+Get the number of valid entries in a given hashtable. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em ht}]The hashtable. \end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]The number of non-NULL entires. \end{Desc}
+\hypertarget{group__hashtables_gd3f57058604e14d27b61a0282c02be87}{
+\index{hashtables@{hashtables}!pmath\_\-ht\_\-entry@{pmath\_\-ht\_\-entry}}
+\index{pmath\_\-ht\_\-entry@{pmath\_\-ht\_\-entry}!hashtables@{hashtables}}
+\paragraph[{pmath\_\-ht\_\-entry}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API void $\ast$ pmath\_\-ht\_\-entry ({\bf pmath\_\-hashtable\_\-t} {\em ht}, \/  unsigned int {\em i})\hspace{0.3cm}{\tt  \mbox{[}inherited\mbox{]}}}\hfill}
+\label{group__hashtables_gd3f57058604e14d27b61a0282c02be87}
+
+
+Get any entry of a given hashtable. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em ht}]The hashtable. \item[{\em i}]The index. from range 0..pmath\_\-ht\_\-capacity(ht) - 1 \end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]The entry or NULL. It is owned by the table. \end{Desc}
+\hypertarget{group__hashtables_g94ad66bd7413d8237fa3f58ef8e944a1}{
+\index{hashtables@{hashtables}!pmath\_\-ht\_\-search@{pmath\_\-ht\_\-search}}
+\index{pmath\_\-ht\_\-search@{pmath\_\-ht\_\-search}!hashtables@{hashtables}}
+\paragraph[{pmath\_\-ht\_\-search}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API void $\ast$ pmath\_\-ht\_\-search ({\bf pmath\_\-hashtable\_\-t} {\em ht}, \/  void $\ast$ {\em key})\hspace{0.3cm}{\tt  \mbox{[}inherited\mbox{]}}}\hfill}
+\label{group__hashtables_g94ad66bd7413d8237fa3f58ef8e944a1}
+
+
+Search for an entry in a given hashtable. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em ht}]The hashtable. \item[{\em key}]The key. It will be send to the kes\_\-hash and entry\_\-keys\_\-equal functions of the table's interface pointer. \end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]The entry or NULL. It is owned by the table. \end{Desc}
+\hypertarget{group__hashtables_ged2c72c01c0c883154d77ddb6f42dd05}{
+\index{hashtables@{hashtables}!pmath\_\-ht\_\-insert@{pmath\_\-ht\_\-insert}}
+\index{pmath\_\-ht\_\-insert@{pmath\_\-ht\_\-insert}!hashtables@{hashtables}}
+\paragraph[{pmath\_\-ht\_\-insert}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API void $\ast$ pmath\_\-ht\_\-insert ({\bf pmath\_\-hashtable\_\-t} {\em ht}, \/  void $\ast$ {\em entry})\hspace{0.3cm}{\tt  \mbox{[}inherited\mbox{]}}}\hfill}
+\label{group__hashtables_ged2c72c01c0c883154d77ddb6f42dd05}
+
+
+Insert an entry into a given hashtable. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em ht}]The hashtable. \item[{\em entry}]The entry. It must be compatible with all functions of the table's interface. \end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]NULL or a possible old entry or the entry itself in case of an error. You must destroy it. \end{Desc}
+\hypertarget{group__hashtables_gc0825f215931052b62d62abd574e0047}{
+\index{hashtables@{hashtables}!pmath\_\-ht\_\-remove@{pmath\_\-ht\_\-remove}}
+\index{pmath\_\-ht\_\-remove@{pmath\_\-ht\_\-remove}!hashtables@{hashtables}}
+\paragraph[{pmath\_\-ht\_\-remove}]{\setlength{\rightskip}{0pt plus 5cm}PMATH\_\-API void $\ast$ pmath\_\-ht\_\-remove ({\bf pmath\_\-hashtable\_\-t} {\em ht}, \/  void $\ast$ {\em key})\hspace{0.3cm}{\tt  \mbox{[}inherited\mbox{]}}}\hfill}
+\label{group__hashtables_gc0825f215931052b62d62abd574e0047}
+
+
+Remove an entry from a given hashtable. 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em ht}]The hashtable. \item[{\em key}]The entry's key. It will be send to the kes\_\-hash and entry\_\-keys\_\-equal functions of the table's interface pointer. \end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]NULL or the old entry. You must destroy it. \end{Desc}

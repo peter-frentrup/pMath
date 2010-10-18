@@ -124,7 +124,7 @@ static pmath_bool_t resize(pmath_hashtable_t ht, unsigned int minused){
 
 /*============================================================================*/
 
-PMATH_PRIVATE pmath_hashtable_t pmath_ht_create(
+PMATH_API pmath_hashtable_t pmath_ht_create(
   const pmath_ht_class_t  *klass,
   unsigned int             minsize
 ){
@@ -156,7 +156,7 @@ PMATH_PRIVATE pmath_hashtable_t pmath_ht_create(
 
 /*============================================================================*/
 
-PMATH_PRIVATE 
+PMATH_API 
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_hashtable_t pmath_ht_copy(
   pmath_hashtable_t             ht,
@@ -192,7 +192,7 @@ pmath_hashtable_t pmath_ht_copy(
 
 /*============================================================================*/
 
-PMATH_PRIVATE void pmath_ht_destroy(pmath_hashtable_t ht){
+PMATH_API void pmath_ht_destroy(pmath_hashtable_t ht){
   unsigned int i;
   
   if(!ht)
@@ -212,7 +212,7 @@ PMATH_PRIVATE void pmath_ht_destroy(pmath_hashtable_t ht){
 
 /*============================================================================*/
 
-PMATH_PRIVATE void pmath_ht_clear(pmath_hashtable_t ht){
+PMATH_API void pmath_ht_clear(pmath_hashtable_t ht){
   unsigned int i;
   
   if(!ht)
@@ -236,21 +236,21 @@ PMATH_PRIVATE void pmath_ht_clear(pmath_hashtable_t ht){
   
 /*============================================================================*/
 
-PMATH_PRIVATE unsigned int pmath_ht_capacity(pmath_hashtable_t ht){
+PMATH_API unsigned int pmath_ht_capacity(pmath_hashtable_t ht){
   if(ht)
     return ht->capacity;
   
   return 0;
 }
 
-PMATH_PRIVATE unsigned int pmath_ht_count(pmath_hashtable_t ht){
+PMATH_API unsigned int pmath_ht_count(pmath_hashtable_t ht){
   if(ht)
     return ht->used_count;
   
   return 0;
 }
   
-PMATH_PRIVATE void *pmath_ht_entry(pmath_hashtable_t ht, unsigned int i){
+PMATH_API void *pmath_ht_entry(pmath_hashtable_t ht, unsigned int i){
   if(!ht || i >= ht->capacity || !IS_USED_ENTRY(ht->table[i]))
     return NULL;
   
@@ -259,7 +259,7 @@ PMATH_PRIVATE void *pmath_ht_entry(pmath_hashtable_t ht, unsigned int i){
 
 /*============================================================================*/
 
-PMATH_PRIVATE 
+PMATH_API 
 void *pmath_ht_search(pmath_hashtable_t ht, void *key){
   void *e;
   
@@ -279,7 +279,7 @@ void *pmath_ht_search(pmath_hashtable_t ht, void *key){
 
 /*============================================================================*/
 
-PMATH_PRIVATE 
+PMATH_API 
 void *pmath_ht_remove(pmath_hashtable_t ht, void *key){
   unsigned int index;
   
@@ -305,7 +305,7 @@ void *pmath_ht_remove(pmath_hashtable_t ht, void *key){
 /*============================================================================*/
 
 // You must free the result
-PMATH_PRIVATE void *pmath_ht_insert(pmath_hashtable_t ht, void *entry){
+PMATH_API void *pmath_ht_insert(pmath_hashtable_t ht, void *entry){
   unsigned int i;
   
   if(!ht || !entry)

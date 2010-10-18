@@ -74,13 +74,17 @@ PMATH_PRIVATE pmath_t builtin_tofilename(pmath_expr_t expr){
     return expr;
   }
   
-  name = pmath_expr_get_item(expr, 2);
-  if(!pmath_instance_of(name, PMATH_TYPE_STRING)){
-    pmath_unref(dir);
-    pmath_unref(name);
-    pmath_message(NULL, "str", 2, pmath_integer_new_si(2), pmath_ref(expr));
-    return expr;
+  if(exprlen == 2){
+    name = pmath_expr_get_item(expr, 2);
+    if(!pmath_instance_of(name, PMATH_TYPE_STRING)){
+      pmath_unref(dir);
+      pmath_unref(name);
+      pmath_message(NULL, "str", 2, pmath_integer_new_si(2), pmath_ref(expr));
+      return expr;
+    }
   }
+  else
+    name = PMATH_C_STRING("");
   pmath_unref(expr);
   
   sublen = pmath_string_length(name);

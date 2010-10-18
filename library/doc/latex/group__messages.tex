@@ -92,6 +92,6 @@ Print a syntax warning or error message.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em code}]The code. A pMath string. It wont be freed. \item[{\em position}]The position of the syntax error in the code. \item[{\em filename}]The file from where the input came or NULL to omit it. It will be freed. \item[{\em lines\_\-before\_\-code}]The number of lines in the input file before {\em code\/} was read. This is ignored if {\em filename\/} is NULL.\end{description}
+\item[{\em code}]The code. \hyperlink{class_a}{A} pMath string. It wont be freed. \item[{\em position}]The position of the syntax error in the code. \item[{\em filename}]The file from where the input came or NULL to omit it. It will be freed. \item[{\em lines\_\-before\_\-code}]The number of lines in the input file before {\em code\/} was read. This is ignored if {\em filename\/} is NULL.\end{description}
 \end{Desc}
 This function poduces a Syntax::bgn, Syntax::bgnf, Syntax::nxt, Syntax::nxtf, Syntax::more, Syntax::moref, Syntax::newl or Syntax::newlf message, depending on where the syntax error is in the {\em code\/} and whether {\em filename\/} is not NULL. It can be used to report errors/warnings from \hyperlink{group__parser_g877ac507e27c8791a265105f796f3cef}{pmath\_\-spans\_\-from\_\-string()}. 

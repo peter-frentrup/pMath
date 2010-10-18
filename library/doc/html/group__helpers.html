@@ -24,7 +24,7 @@
 <tr><td colspan="2"><br><h2>Typedefs</h2></td></tr>
 <tr><td class="memItemLeft" nowrap align="right" valign="top">typedef <a class="el" href="group__general__types.html#gc92090cb0b56345d6c379ed2341d4ef4">pmath_bool_t</a>(*&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__helpers.html#g11afc6451921f3169224096723483c64">pmath_stack_walker_t</a> )(<a class="el" href="classpmath__t.html">pmath_t</a> head, void *closure)</td></tr>
 
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">A stack walker function.  <a href="#g11afc6451921f3169224096723483c64"></a><br></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><a class="el" href="class_a.html">A</a> stack walker function.  <a href="#g11afc6451921f3169224096723483c64"></a><br></td></tr>
 <tr><td colspan="2"><br><h2>Functions</h2></td></tr>
 <tr><td class="memItemLeft" nowrap align="right" valign="top">PMATH_API <a class="el" href="group__general__types.html#gc92090cb0b56345d6c379ed2341d4ef4">pmath_bool_t</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__helpers.html#g66eb580a000ee1d778b43dec124f170d">pmath_is_expr_of</a> (<a class="el" href="classpmath__t.html">pmath_t</a> obj, <a class="el" href="classpmath__symbol__t.html">pmath_symbol_t</a> head)</td></tr>
 
@@ -76,7 +76,7 @@ Here are some utility functions that simplify access to Expressions (or pMath Ob
 <div class="memdoc">
 
 <p>
-A stack walker function. 
+<a class="el" href="class_a.html">A</a> stack walker function. 
 <p>
 The return value specifies, whether the walk on the stack go on. 
 </div>
@@ -112,8 +112,8 @@ Check if an object is an expression with a specified head.
 <p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>obj</em>&nbsp;</td><td>A pMath object. It wont be freed. </td></tr>
-    <tr><td valign="top"></td><td valign="top"><em>head</em>&nbsp;</td><td>A pMath symbol. It wont be freed. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>obj</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> pMath object. It wont be freed. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>head</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> pMath symbol. It wont be freed. </td></tr>
   </table>
 </dl>
 <dl class="return" compact><dt><b>Returns:</b></dt><dd>TRUE iff obj is an expression with the given <em>head</em> which must be a symbol. </dd></dl>
@@ -156,8 +156,8 @@ Check if an object is an expression with a specified head and length.
 <p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>obj</em>&nbsp;</td><td>A pMath object. It wont be freed. </td></tr>
-    <tr><td valign="top"></td><td valign="top"><em>head</em>&nbsp;</td><td>A pMath symbol. It wont be freed. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>obj</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> pMath object. It wont be freed. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>head</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> pMath symbol. It wont be freed. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>length</em>&nbsp;</td><td>The requested expression length. </td></tr>
   </table>
 </dl>
@@ -218,8 +218,8 @@ Walk up the current thread's and its parents' stack.
 <p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>walker</em>&nbsp;</td><td>A callback function. </td></tr>
-    <tr><td valign="top"></td><td valign="top"><em>closure</em>&nbsp;</td><td>A pointer that will be provided to walker as the second argument. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>walker</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> callback function. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>closure</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> pointer that will be provided to walker as the second argument. </td></tr>
   </table>
 </dl>
 
@@ -246,7 +246,7 @@ Start gathering emitted objects.
 <p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>pattern</em>&nbsp;</td><td>A pattern that is used to determine which emitted objects should be gathered (testing the emit-tag, not the object itself). It will be freed.</td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>pattern</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> pattern that is used to determine which emitted objects should be gathered (testing the emit-tag, not the object itself). It will be freed.</td></tr>
   </table>
 </dl>
 Use <a class="el" href="group__helpers.html#ga2f732b35703986263e3a15592b4a46e" title="Finish gathering emitted objects.">pmath_gather_end()</a> to finish gathering. Calls to <a class="el" href="group__helpers.html#g077f3730ca4275b87d9a35bce6013e45" title="Start gathering emitted objects.">pmath_gather_begin()</a> ... <a class="el" href="group__helpers.html#ga2f732b35703986263e3a15592b4a46e" title="Finish gathering emitted objects.">pmath_gather_end()</a> can be nested.<p>
@@ -274,7 +274,7 @@ The emit-and-gather mechanism is useful when you want to create a list but do no
 <p>
 Finish gathering emitted objects. 
 <p>
-<dl class="return" compact><dt><b>Returns:</b></dt><dd>A list of all emitted objects since the last <a class="el" href="group__helpers.html#g077f3730ca4275b87d9a35bce6013e45" title="Start gathering emitted objects.">pmath_gather_begin()</a> whose emit-tag matched the <code>pattern</code> parameter given to that <a class="el" href="group__helpers.html#g077f3730ca4275b87d9a35bce6013e45" title="Start gathering emitted objects.">pmath_gather_begin()</a>. You must free it.</dd></dl>
+<dl class="return" compact><dt><b>Returns:</b></dt><dd><a class="el" href="class_a.html">A</a> list of all emitted objects since the last <a class="el" href="group__helpers.html#g077f3730ca4275b87d9a35bce6013e45" title="Start gathering emitted objects.">pmath_gather_begin()</a> whose emit-tag matched the <code>pattern</code> parameter given to that <a class="el" href="group__helpers.html#g077f3730ca4275b87d9a35bce6013e45" title="Start gathering emitted objects.">pmath_gather_begin()</a>. You must free it.</dd></dl>
 <dl class="see" compact><dt><b>See also:</b></dt><dd><a class="el" href="group__helpers.html#ga06135012f4d2a0faf696c0cd1111075" title="Emit an object to be gathered by the appropriate surounding pmath_gather_begin()...">pmath_emit</a> </dd></dl>
 
 </div>
@@ -310,7 +310,7 @@ Emit an object to be gathered by the appropriate surounding <a class="el" href="
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
     <tr><td valign="top"></td><td valign="top"><em>object</em>&nbsp;</td><td>The objcet to be emitted, it will be freed. </td></tr>
-    <tr><td valign="top"></td><td valign="top"><em>tag</em>&nbsp;</td><td>A tag object. The sourounding Gather() with a pattern, that matches <code>tag</code> will collect the <code>object</code>. <code>tag</code> will be freed.</td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>tag</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> tag object. The sourounding Gather() with a pattern, that matches <code>tag</code> will collect the <code>object</code>. <code>tag</code> will be freed.</td></tr>
   </table>
 </dl>
 <dl class="see" compact><dt><b>See also:</b></dt><dd><a class="el" href="group__helpers.html#g077f3730ca4275b87d9a35bce6013e45" title="Start gathering emitted objects.">pmath_gather_begin</a> <p>
@@ -348,8 +348,8 @@ Generate a List of objects with a format string.
 <p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>format</em>&nbsp;</td><td>A string that specifies the tuple's item's type. </td></tr>
-    <tr><td valign="top"></td><td valign="top"><em>args</em>&nbsp;</td><td>A va_list - variable argument list.</td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>format</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> string that specifies the tuple's item's type. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>args</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> va_list - variable argument list.</td></tr>
   </table>
 </dl>
 <dl class="see" compact><dt><b>See also:</b></dt><dd><a class="el" href="group__helpers.html#g13a748aa283c5f5408cce037d3ad224d" title="Generate a List of objects with a format string.">pmath_build_value</a> </dd></dl>
@@ -386,7 +386,7 @@ Generate a List of objects with a format string.
 <p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>format</em>&nbsp;</td><td>A string that specifies the tuple's item's type. See below. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>format</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> string that specifies the tuple's item's type. See below. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>...</em>&nbsp;</td><td>The tuple/list items</td></tr>
   </table>
 </dl>
@@ -403,7 +403,7 @@ The format string characters specify the item's type:<ul>
 <li><code>f</code> [double] NaN's and Ininity are converted to Indeterminate and +/-Infinity</li></ul>
 <p>
 <ul>
-<li><code>o</code> [<a class="el" href="classpmath__t.html" title="The basic type of all pMath objects.">pmath_t</a>] A pMath Object, the reference is stolen</li></ul>
+<li><code>o</code> [<a class="el" href="classpmath__t.html" title="The basic type of all pMath objects.">pmath_t</a>] <a class="el" href="class_a.html">A</a> pMath Object, the reference is stolen</li></ul>
 <p>
 <ul>
 <li><code>c</code> [int] convert a C int representing a (unicode) character to a string of length 1.</li></ul>
@@ -474,7 +474,7 @@ Extract custom option values from an expression.
     <tr><td valign="top"></td><td valign="top"><em>last_nonoption</em>&nbsp;</td><td>The index of the last argument that is not an option rule. </td></tr>
   </table>
 </dl>
-<dl class="return" compact><dt><b>Returns:</b></dt><dd>A list of all given option values or NULL on error. You must destroy it.</dd></dl>
+<dl class="return" compact><dt><b>Returns:</b></dt><dd><a class="el" href="class_a.html">A</a> list of all given option values or NULL on error. You must destroy it.</dd></dl>
 Imagine, <code>expr</code> = `f(a,b,A-&gt;1,B-&gt;2)` and <code>last_nonoption</code> is 2, then the result value is a list `{A-&gt;1, B-&gt;2}`. You can use this return value as the <code>extra</code> parameter in <a class="el" href="group__helpers.html#gc244ab0720278b396976728a39f8bde6" title="Retrieve a option value of a given function.">pmath_option_value()</a>.<p>
 When <code>last_nonoption</code> was 1, a message would be generated (b is no rule ...) and the return value is NULL. In that case, the calling function should have no further effects and return. 
 </div>
@@ -517,7 +517,7 @@ Retrieve a option value of a given function.
   <table border="0" cellspacing="2" cellpadding="0">
     <tr><td valign="top"></td><td valign="top"><em>fn</em>&nbsp;</td><td>The function for which the requested option value is defined. It wont be freed. If it is NULL, the current head (see <a class="el" href="group__helpers.html#g70aa270956b6c8f8eb43431f9775ae88">pmath_current_head</a> ) will be used. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>name</em>&nbsp;</td><td>The name of the option value (in general, a symbol). It wont be freed. </td></tr>
-    <tr><td valign="top"></td><td valign="top"><em>extra</em>&nbsp;</td><td>A list of extra option rules or PMATH_UNDEFINED. It wont be freed. If it is not PMATH_UNDEFINED, it must be a rule (`a-&gt;b`, `a:&gt;b`) or a list of rules. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>extra</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> list of extra option rules or PMATH_UNDEFINED. It wont be freed. If it is not PMATH_UNDEFINED, it must be a rule (`a-&gt;b`, `a:&gt;b`) or a list of rules. </td></tr>
   </table>
 </dl>
 <dl class="return" compact><dt><b>Returns:</b></dt><dd>The requested option value. </dd></dl>
@@ -525,7 +525,7 @@ Retrieve a option value of a given function.
 </div>
 </div><p>
 </div>
-<hr size="1"><address style="text-align: right;"><small>Generated on Sun Oct 17 19:31:04 2010 for pMath by&nbsp;
+<hr size="1"><address style="text-align: right;"><small>Generated on Sun Oct 17 23:45:08 2010 for pMath by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.5.9 </small></address>
 </body>

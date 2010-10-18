@@ -7,7 +7,9 @@
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="Windows-Debug">
+				<Option platforms="Windows;" />
 				<Option output="bin\Windows\Debug\pmath-java" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="bin\Windows\Debug" />
 				<Option object_output="obj\Windows\Debug\" />
 				<Option type="3" />
 				<Option compiler="gcc" />
@@ -15,31 +17,44 @@
 				<Option createDefFile="1" />
 				<Option createStaticLib="1" />
 				<Compiler>
+					<Add option="-march=i686" />
+					<Add option="-Wundef" />
 					<Add option="-Wall" />
 					<Add option="-g" />
+					<Add option="-fno-exceptions" />
 					<Add option="-DBUILD_DLL" />
+					<Add option="-DPMATH_DEBUG_LOG" />
+					<Add option="-DPMATH_DEBUG_NO_FASTREF" />
 					<Add directory="$(#jdk.include)\win32" />
 				</Compiler>
 				<Linker>
+					<Add option="-static-libgcc" />
 					<Add library="user32" />
 					<Add directory="..\..\library\bin\windows\debug" />
 				</Linker>
 			</Target>
 			<Target title="Windows-Release">
+				<Option platforms="Windows;" />
 				<Option output="bin\Windows\Release\pmath-java" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="bin\Windows\Release" />
 				<Option object_output="obj\Windows\Release\" />
 				<Option type="3" />
 				<Option compiler="gcc" />
 				<Option createDefFile="1" />
 				<Option createStaticLib="1" />
 				<Compiler>
+					<Add option="-march=i686" />
 					<Add option="-O2" />
+					<Add option="-Wundef" />
 					<Add option="-Wall" />
+					<Add option="-fno-exceptions" />
 					<Add option="-DBUILD_DLL" />
+					<Add option="-DNDEBUG" />
 					<Add directory="$(#jdk.include)\win32" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
+					<Add option="-static-libgcc" />
 					<Add library="user32" />
 					<Add directory="..\..\library\bin\windows\release" />
 				</Linker>
@@ -57,9 +72,26 @@
 		<Unit filename="src\main.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\main.h" />
+		<Unit filename="src\pj-class.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\pj-class.h" />
+		<Unit filename="src\pj-symbols.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\pj-symbols.h" />
+		<Unit filename="src\pj-value.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\pj-value.h" />
+		<Unit filename="src\pjvm.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\pjvm.h" />
 		<Extensions>
-			<code_completion />
+			<code_completion>
+				<search_path add="..\..\library\include" />
+			</code_completion>
 			<envvars />
 			<debugger />
 			<lib_finder disable_auto="1" />

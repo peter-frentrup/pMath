@@ -122,7 +122,7 @@ Prototype of a built-in function.
 <p>
 The (bitset) type of symbol attributes. 
 <p>
-A pMath symbol (here called `sym`) can have one or more of the following values (concatenated with "|"): <ul>
+<a class="el" href="class_a.html">A</a> pMath symbol (here called `sym`) can have one or more of the following values (concatenated with "|"): <ul>
 <li>
 <code>PMATH_SYMBOL_ATTRIBUTE_PROTECTED</code> <br>
  Any assignment to sym will fail.<p>
@@ -294,7 +294,7 @@ Bind a pMath symbol to some native code.
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
     <tr><td valign="top"></td><td valign="top"><em>symbol</em>&nbsp;</td><td>The symbol. It wont be freed. </td></tr>
-    <tr><td valign="top"></td><td valign="top"><em>func</em>&nbsp;</td><td>A native function. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>func</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> native function. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>usage</em>&nbsp;</td><td>When to call the native function. </td></tr>
   </table>
 </dl>
@@ -333,7 +333,7 @@ Bind a pMath symbol to some native code for approximation.
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
     <tr><td valign="top"></td><td valign="top"><em>symbol</em>&nbsp;</td><td>The symbol. It wont be freed. </td></tr>
-    <tr><td valign="top"></td><td valign="top"><em>func</em>&nbsp;</td><td>A native function that frees/takes ownership of its first argument. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>func</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> native function that frees/takes ownership of its first argument. </td></tr>
   </table>
 </dl>
 <dl class="return" compact><dt><b>Returns:</b></dt><dd>Whether the binding succeded.</dd></dl>
@@ -479,7 +479,7 @@ Create a new temporary symbol.
     <tr><td valign="top"></td><td valign="top"><em>unique</em>&nbsp;</td><td>Whether to add a unique number to the symbol name. </td></tr>
   </table>
 </dl>
-<dl class="return" compact><dt><b>Returns:</b></dt><dd>A new pMath Symbol. You must destroy it with <a class="el" href="classpmath__t.html#54e905402c38940687033b87eb8c6c9f" title="Decrements the reference counter of an object and frees its memory if the reference...">pmath_unref()</a>. It has the Temporary attribute.</dd></dl>
+<dl class="return" compact><dt><b>Returns:</b></dt><dd><a class="el" href="class_a.html">A</a> new pMath Symbol. You must destroy it with <a class="el" href="classpmath__t.html#54e905402c38940687033b87eb8c6c9f" title="Decrements the reference counter of an object and frees its memory if the reference...">pmath_unref()</a>. It has the Temporary attribute.</dd></dl>
 the name of the returned symbol is of the form name$nnn (or name$ if unique is false)<p>
 If name already has the form "sym$nnn" or "sym$", the function acts as if name would be simply "sym".<p>
 If there already exists a symbol with the generated name, that symbol will be returned and its attributes will be set to Temporary before. 
@@ -544,7 +544,7 @@ Get a symbol's name.
 <p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>symbol</em>&nbsp;</td><td>A pMath symbol. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>symbol</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> pMath symbol. </td></tr>
   </table>
 </dl>
 <dl class="return" compact><dt><b>Returns:</b></dt><dd>The name of the symbol. You must destroy it with <a class="el" href="classpmath__t.html#54e905402c38940687033b87eb8c6c9f" title="Decrements the reference counter of an object and frees its memory if the reference...">pmath_unref()</a>. </dd></dl>
@@ -572,7 +572,7 @@ Get a symbol's attributes.
 <p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>symbol</em>&nbsp;</td><td>A pMath symbol. It wont be freed. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>symbol</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> pMath symbol. It wont be freed. </td></tr>
   </table>
 </dl>
 <dl class="return" compact><dt><b>Returns:</b></dt><dd>The symbol's attributes. </dd></dl>
@@ -609,7 +609,7 @@ Set a symbol's attributes.
 <p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>symbol</em>&nbsp;</td><td>A pMath symbol. It wont be freed. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>symbol</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> pMath symbol. It wont be freed. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>attr</em>&nbsp;</td><td>The new attributes. </td></tr>
   </table>
 </dl>
@@ -638,7 +638,7 @@ Get a symbol's value.
 <dl class="deprecated" compact><dt><b><a class="el" href="deprecated.html#_deprecated000001">Deprecated:</a></b></dt><dd></dd></dl>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>symbol</em>&nbsp;</td><td>A pMath symbol. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>symbol</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> pMath symbol. </td></tr>
   </table>
 </dl>
 <dl class="return" compact><dt><b>Returns:</b></dt><dd>The symbol's value. You must free it with <a class="el" href="classpmath__t.html#54e905402c38940687033b87eb8c6c9f" title="Decrements the reference counter of an object and frees its memory if the reference...">pmath_unref()</a>. Note that not every object is evaluatable (e.g. <a class="el" href="group__custom.html">Custom Objects</a> ). </dd></dl>
@@ -676,7 +676,7 @@ Set a symbol's value.
 <dl class="deprecated" compact><dt><b><a class="el" href="deprecated.html#_deprecated000002">Deprecated:</a></b></dt><dd></dd></dl>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>symbol</em>&nbsp;</td><td>A pMath symbol. It wont be freed </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>symbol</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> pMath symbol. It wont be freed </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>value</em>&nbsp;</td><td>The new value. It will be freed.</td></tr>
   </table>
 </dl>
@@ -722,7 +722,7 @@ Execute a function synchronized to a symbol.
   <table border="0" cellspacing="2" cellpadding="0">
     <tr><td valign="top"></td><td valign="top"><em>symbol</em>&nbsp;</td><td>The symbol to lock. It wont be freed. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>callback</em>&nbsp;</td><td>The function to be executed when the symbol is locked. </td></tr>
-    <tr><td valign="top"></td><td valign="top"><em>data</em>&nbsp;</td><td>A pointer that will be passed to callback.</td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>data</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> pointer that will be passed to callback.</td></tr>
   </table>
 </dl>
 <dl class="see" compact><dt><b>See also:</b></dt><dd><a class="el" href="group__threads.html" title="The Thread abstraction in pMath.">Multithreading with pMath</a> </dd></dl>
@@ -750,14 +750,14 @@ Update a symbol manually.
 <p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>symbol</em>&nbsp;</td><td>A pMath symbol. It wont be freed.</td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>symbol</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> pMath symbol. It wont be freed.</td></tr>
   </table>
 </dl>
 You normally do not have to call this, since every change in a symbol yields an update. But there are some situations where you might to update it manually. The update mechanism is an optimization. Any expresseion or symbol, that is up to date while evaluation, wont be evaluated again. After an evaluation, expressions are updated automatically. 
 </div>
 </div><p>
 </div>
-<hr size="1"><address style="text-align: right;"><small>Generated on Sun Oct 17 19:31:03 2010 for pMath by&nbsp;
+<hr size="1"><address style="text-align: right;"><small>Generated on Sun Oct 17 23:45:07 2010 for pMath by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.5.9 </small></address>
 </body>

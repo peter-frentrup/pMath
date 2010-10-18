@@ -9,7 +9,7 @@ Utility functuions for pMath Objects and Expressions.
 \begin{CompactItemize}
 \item 
 typedef \hyperlink{group__general__types_gc92090cb0b56345d6c379ed2341d4ef4}{pmath\_\-bool\_\-t}($\ast$ \hyperlink{group__helpers_g11afc6451921f3169224096723483c64}{pmath\_\-stack\_\-walker\_\-t} )(\hyperlink{classpmath__t}{pmath\_\-t} head, void $\ast$closure)
-\begin{CompactList}\small\item\em A stack walker function. \item\end{CompactList}\end{CompactItemize}
+\begin{CompactList}\small\item\em \hyperlink{class_a}{A} stack walker function. \item\end{CompactList}\end{CompactItemize}
 \subsubsection*{Functions}
 \begin{CompactItemize}
 \item 
@@ -50,7 +50,7 @@ Here are some utility functions that simplify access to Expressions (or pMath Ob
 \label{group__helpers_g11afc6451921f3169224096723483c64}
 
 
-A stack walker function. 
+\hyperlink{class_a}{A} stack walker function. 
 
 The return value specifies, whether the walk on the stack go on. 
 
@@ -67,7 +67,7 @@ Check if an object is an expression with a specified head.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em obj}]A pMath object. It wont be freed. \item[{\em head}]A pMath symbol. It wont be freed. \end{description}
+\item[{\em obj}]\hyperlink{class_a}{A} pMath object. It wont be freed. \item[{\em head}]\hyperlink{class_a}{A} pMath symbol. It wont be freed. \end{description}
 \end{Desc}
 \begin{Desc}
 \item[Returns:]TRUE iff obj is an expression with the given {\em head\/} which must be a symbol. \end{Desc}
@@ -83,7 +83,7 @@ Check if an object is an expression with a specified head and length.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em obj}]A pMath object. It wont be freed. \item[{\em head}]A pMath symbol. It wont be freed. \item[{\em length}]The requested expression length. \end{description}
+\item[{\em obj}]\hyperlink{class_a}{A} pMath object. It wont be freed. \item[{\em head}]\hyperlink{class_a}{A} pMath symbol. It wont be freed. \item[{\em length}]The requested expression length. \end{description}
 \end{Desc}
 \begin{Desc}
 \item[Returns:]TRUE iff obj is an expression with the given {\em length\/} and {\em head\/} which must be a symbol. \end{Desc}
@@ -110,7 +110,7 @@ Walk up the current thread's and its parents' stack.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em walker}]A callback function. \item[{\em closure}]A pointer that will be provided to walker as the second argument. \end{description}
+\item[{\em walker}]\hyperlink{class_a}{A} callback function. \item[{\em closure}]\hyperlink{class_a}{A} pointer that will be provided to walker as the second argument. \end{description}
 \end{Desc}
 \hypertarget{group__helpers_g077f3730ca4275b87d9a35bce6013e45}{
 \index{helpers@{helpers}!pmath\_\-gather\_\-begin@{pmath\_\-gather\_\-begin}}
@@ -124,7 +124,7 @@ Start gathering emitted objects.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em pattern}]A pattern that is used to determine which emitted objects should be gathered (testing the emit-tag, not the object itself). It will be freed.\end{description}
+\item[{\em pattern}]\hyperlink{class_a}{A} pattern that is used to determine which emitted objects should be gathered (testing the emit-tag, not the object itself). It will be freed.\end{description}
 \end{Desc}
 Use \hyperlink{group__helpers_ga2f732b35703986263e3a15592b4a46e}{pmath\_\-gather\_\-end()} to finish gathering. Calls to \hyperlink{group__helpers_g077f3730ca4275b87d9a35bce6013e45}{pmath\_\-gather\_\-begin()} ... \hyperlink{group__helpers_ga2f732b35703986263e3a15592b4a46e}{pmath\_\-gather\_\-end()} can be nested.
 
@@ -142,7 +142,7 @@ The emit-and-gather mechanism is useful when you want to create a list but do no
 Finish gathering emitted objects. 
 
 \begin{Desc}
-\item[Returns:]A list of all emitted objects since the last \hyperlink{group__helpers_g077f3730ca4275b87d9a35bce6013e45}{pmath\_\-gather\_\-begin()} whose emit-tag matched the {\tt pattern} parameter given to that \hyperlink{group__helpers_g077f3730ca4275b87d9a35bce6013e45}{pmath\_\-gather\_\-begin()}. You must free it.\end{Desc}
+\item[Returns:]\hyperlink{class_a}{A} list of all emitted objects since the last \hyperlink{group__helpers_g077f3730ca4275b87d9a35bce6013e45}{pmath\_\-gather\_\-begin()} whose emit-tag matched the {\tt pattern} parameter given to that \hyperlink{group__helpers_g077f3730ca4275b87d9a35bce6013e45}{pmath\_\-gather\_\-begin()}. You must free it.\end{Desc}
 \begin{Desc}
 \item[See also:]\hyperlink{group__helpers_ga06135012f4d2a0faf696c0cd1111075}{pmath\_\-emit} \end{Desc}
 \hypertarget{group__helpers_ga06135012f4d2a0faf696c0cd1111075}{
@@ -157,7 +157,7 @@ Emit an object to be gathered by the appropriate surounding \hyperlink{group__he
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em object}]The objcet to be emitted, it will be freed. \item[{\em tag}]A tag object. The sourounding Gather() with a pattern, that matches {\tt tag} will collect the {\tt object}. {\tt tag} will be freed.\end{description}
+\item[{\em object}]The objcet to be emitted, it will be freed. \item[{\em tag}]\hyperlink{class_a}{A} tag object. The sourounding Gather() with a pattern, that matches {\tt tag} will collect the {\tt object}. {\tt tag} will be freed.\end{description}
 \end{Desc}
 \begin{Desc}
 \item[See also:]\hyperlink{group__helpers_g077f3730ca4275b87d9a35bce6013e45}{pmath\_\-gather\_\-begin} 
@@ -175,7 +175,7 @@ Generate a List of objects with a format string.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em format}]A string that specifies the tuple's item's type. \item[{\em args}]A va\_\-list - variable argument list.\end{description}
+\item[{\em format}]\hyperlink{class_a}{A} string that specifies the tuple's item's type. \item[{\em args}]\hyperlink{class_a}{A} va\_\-list - variable argument list.\end{description}
 \end{Desc}
 \begin{Desc}
 \item[See also:]\hyperlink{group__helpers_g13a748aa283c5f5408cce037d3ad224d}{pmath\_\-build\_\-value} \end{Desc}
@@ -191,7 +191,7 @@ Generate a List of objects with a format string.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em format}]A string that specifies the tuple's item's type. See below. \item[{\em ...}]The tuple/list items\end{description}
+\item[{\em format}]\hyperlink{class_a}{A} string that specifies the tuple's item's type. See below. \item[{\em ...}]The tuple/list items\end{description}
 \end{Desc}
 The format string characters specify the item's type:\begin{itemize}
 \item {\tt b} \mbox{[}int\mbox{]} converts a C int to True or False\end{itemize}
@@ -210,7 +210,7 @@ The format string characters specify the item's type:\begin{itemize}
 
 
 \begin{itemize}
-\item {\tt o} \mbox{[}\hyperlink{classpmath__t}{pmath\_\-t}\mbox{]} A pMath Object, the reference is stolen\end{itemize}
+\item {\tt o} \mbox{[}\hyperlink{classpmath__t}{pmath\_\-t}\mbox{]} \hyperlink{class_a}{A} pMath Object, the reference is stolen\end{itemize}
 
 
 \begin{itemize}
@@ -271,7 +271,7 @@ Extract custom option values from an expression.
 \item[{\em expr}]The expression that may custom option values. It wont be freed. \item[{\em last\_\-nonoption}]The index of the last argument that is not an option rule. \end{description}
 \end{Desc}
 \begin{Desc}
-\item[Returns:]A list of all given option values or NULL on error. You must destroy it.\end{Desc}
+\item[Returns:]\hyperlink{class_a}{A} list of all given option values or NULL on error. You must destroy it.\end{Desc}
 Imagine, {\tt expr} = `f(a,b,A-$>$1,B-$>$2)` and {\tt last\_\-nonoption} is 2, then the result value is a list `\{A-$>$1, B-$>$2\}`. You can use this return value as the {\tt extra} parameter in \hyperlink{group__helpers_gc244ab0720278b396976728a39f8bde6}{pmath\_\-option\_\-value()}.
 
 When {\tt last\_\-nonoption} was 1, a message would be generated (b is no rule ...) and the return value is NULL. In that case, the calling function should have no further effects and return. \hypertarget{group__helpers_gc244ab0720278b396976728a39f8bde6}{
@@ -286,7 +286,7 @@ Retrieve a option value of a given function.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em fn}]The function for which the requested option value is defined. It wont be freed. If it is NULL, the current head (see \hyperlink{group__helpers_g70aa270956b6c8f8eb43431f9775ae88}{pmath\_\-current\_\-head} ) will be used. \item[{\em name}]The name of the option value (in general, a symbol). It wont be freed. \item[{\em extra}]A list of extra option rules or PMATH\_\-UNDEFINED. It wont be freed. If it is not PMATH\_\-UNDEFINED, it must be a rule (`a-$>$b`, `a:$>$b`) or a list of rules. \end{description}
+\item[{\em fn}]The function for which the requested option value is defined. It wont be freed. If it is NULL, the current head (see \hyperlink{group__helpers_g70aa270956b6c8f8eb43431f9775ae88}{pmath\_\-current\_\-head} ) will be used. \item[{\em name}]The name of the option value (in general, a symbol). It wont be freed. \item[{\em extra}]\hyperlink{class_a}{A} list of extra option rules or PMATH\_\-UNDEFINED. It wont be freed. If it is not PMATH\_\-UNDEFINED, it must be a rule (`a-$>$b`, `a:$>$b`) or a list of rules. \end{description}
 \end{Desc}
 \begin{Desc}
 \item[Returns:]The requested option value. \end{Desc}

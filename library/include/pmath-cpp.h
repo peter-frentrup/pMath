@@ -1,4 +1,5 @@
 #ifndef __PMATH_CPP_H__
+#define __PMATH_CPP_H__
 
 #include <cstdlib>
 #include <limits>

@@ -9,7 +9,7 @@ The Thread abstraction in pMath.
 \begin{CompactItemize}
 \item 
 class \hyperlink{classpmath__threadlock__t}{pmath\_\-threadlock\_\-t}
-\begin{CompactList}\small\item\em A reentrant lock for threads. \item\end{CompactList}\item 
+\begin{CompactList}\small\item\em \hyperlink{class_a}{A} reentrant lock for threads. \item\end{CompactList}\item 
 class \hyperlink{classpmath__thread__t}{pmath\_\-thread\_\-t}
 \begin{CompactList}\small\item\em The Representation of a thread. \item\end{CompactList}\end{CompactItemize}
 \subsubsection*{Functions}
@@ -97,7 +97,7 @@ Load a thread/thread-local value.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em key}]A key that was used to save the value with \_\-pmath\_\-thread\_\-local\_\-save() before. It wont be freed. \end{description}
+\item[{\em key}]\hyperlink{class_a}{A} key that was used to save the value with \_\-pmath\_\-thread\_\-local\_\-save() before. It wont be freed. \end{description}
 \end{Desc}
 \begin{Desc}
 \item[Returns:]PMATH\_\-UNDEFINED or the stored value. You must destroy the it.\end{Desc}
@@ -173,7 +173,7 @@ Execute a function synchronized with a threadlock.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em threadlock\_\-ptr}]A pointer to the threadlock. \item[{\em callback}]The function to be executed when the symbol is locked. \item[{\em data}]A pointer that will be passed to callback.\end{description}
+\item[{\em threadlock\_\-ptr}]\hyperlink{class_a}{A} pointer to the threadlock. \item[{\em callback}]The function to be executed when the symbol is locked. \item[{\em data}]\hyperlink{class_a}{A} pointer that will be passed to callback.\end{description}
 \end{Desc}
 All you have to do is initialize the threadlock {\tt threadlock\_\-ptr} points to with NULL before you call this function for the first time: 
 
@@ -195,7 +195,7 @@ To synchronize with a symbol, use \hyperlink{group__symbols_g95b141d9cb33fba80d6
 Get the current pMath thread. 
 
 \begin{Desc}
-\item[Returns:]A \hyperlink{classpmath__thread__t}{pmath\_\-thread\_\-t}. This is NULL, if you did not register the current thread to pMath via \hyperlink{group__frontend_gfb9f2c789bee5295c6794d16c0164943}{pmath\_\-init()}. \end{Desc}
+\item[Returns:]\hyperlink{class_a}{A} \hyperlink{classpmath__thread__t}{pmath\_\-thread\_\-t}. This is NULL, if you did not register the current thread to pMath via \hyperlink{group__frontend_gfb9f2c789bee5295c6794d16c0164943}{pmath\_\-init()}. \end{Desc}
 \hypertarget{group__threads_gb0e137fb921f9b329a8a9e7c4efa3b3d}{
 \index{threads@{threads}!pmath\_\-thread\_\-get\_\-parent@{pmath\_\-thread\_\-get\_\-parent}}
 \index{pmath\_\-thread\_\-get\_\-parent@{pmath\_\-thread\_\-get\_\-parent}!threads@{threads}}
@@ -208,7 +208,7 @@ Get a thread's direct parent.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em thread}]A thread. \end{description}
+\item[{\em thread}]\hyperlink{class_a}{A} thread. \end{description}
 \end{Desc}
 \begin{Desc}
 \item[Returns:]The direct parent of thread. Usualy NULL. \end{Desc}
@@ -224,7 +224,7 @@ Queries whether a thread is one of the parents of another.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em parent}]A thread. \item[{\em child}]A thread. \end{description}
+\item[{\em parent}]\hyperlink{class_a}{A} thread. \item[{\em child}]\hyperlink{class_a}{A} thread. \end{description}
 \end{Desc}
 \begin{Desc}
 \item[Returns:]TRUE, if parent is a parent thread of child or if parent == child. FALSE otherwise.\end{Desc}
@@ -240,7 +240,7 @@ Queries whether pMath was requested to abort the evaluation of a specific thread
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em thread}]A thread that should be tested. \end{description}
+\item[{\em thread}]\hyperlink{class_a}{A} thread that should be tested. \end{description}
 \end{Desc}
 \begin{Desc}
 \item[Returns:]Whether the given thread should abort evaluation.\end{Desc}

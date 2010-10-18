@@ -69,7 +69,7 @@ PMATH\_\-API void \hyperlink{group__file__api_g9c684b801f150b0485c850cf3649cb16}
 \subsubsection{Detailed Description}
 Unified API to access file or other memory content. 
 
-A file is a \hyperlink{group__symbols}{Symbol} (normally with attribute \hyperlink{group__symbols_g5d508ec0d32d617b6c642de54907ee17}{PMATH\_\-SYMBOL\_\-ATTRIBUTE\_\-TEMPORARY}) whose value is a special \hyperlink{group__custom}{Custom Object}.
+\hyperlink{class_a}{A} file is a \hyperlink{group__symbols}{Symbol} (normally with attribute \hyperlink{group__symbols_g5d508ec0d32d617b6c642de54907ee17}{PMATH\_\-SYMBOL\_\-ATTRIBUTE\_\-TEMPORARY}) whose value is a special \hyperlink{group__custom}{Custom Object}.
 
 The output functions can operate on lists of files. 
 
@@ -126,7 +126,7 @@ Check whether a file supports a set of properties.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em file}]A file object. It wont be freed. \item[{\em properties}]File properties. See remarks section. \end{description}
+\item[{\em file}]\hyperlink{class_a}{A} file object. It wont be freed. \item[{\em properties}]File properties. See remarks section. \end{description}
 \end{Desc}
 \begin{Desc}
 \item[Returns:]TRUE iff the file supports all of the requested properties.\end{Desc}
@@ -152,7 +152,7 @@ Get the current status of a readable file.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em file}]A readable file object. It wont be freed. \end{description}
+\item[{\em file}]\hyperlink{class_a}{A} readable file object. It wont be freed. \end{description}
 \end{Desc}
 \begin{Desc}
 \item[Returns:]pmath\_\-files\_\-status\_\-t The current file status. \end{Desc}
@@ -168,7 +168,7 @@ Read some bytes from a binary file.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em file}]A readable binary file object. It wont be freed. \item[{\em buffer}]The read bytes will go here. \item[{\em buffer\_\-size}]The number of bytes you would like to read/size of {\em buffer\/}. \item[{\em preserve\_\-internal\_\-buffer}]If TRUE, a subsequent call will get the same buffer content. If FALSE, the file pointer will be moved. \end{description}
+\item[{\em file}]\hyperlink{class_a}{A} readable binary file object. It wont be freed. \item[{\em buffer}]The read bytes will go here. \item[{\em buffer\_\-size}]The number of bytes you would like to read/size of {\em buffer\/}. \item[{\em preserve\_\-internal\_\-buffer}]If TRUE, a subsequent call will get the same buffer content. If FALSE, the file pointer will be moved. \end{description}
 \end{Desc}
 \begin{Desc}
 \item[Returns:]Number of read bytes. This is never more than {\em buffer\_\-size\/}. If {\em preserve\_\-internal\_\-buffer\/} is TRUE or in case of an error, this can be less than {\em buffer\_\-size\/}. \end{Desc}
@@ -184,7 +184,7 @@ Read one line from a text file.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em file}]A readable text file object. It wont be freed. \end{description}
+\item[{\em file}]\hyperlink{class_a}{A} readable text file object. It wont be freed. \end{description}
 \end{Desc}
 \begin{Desc}
 \item[Returns:]The next line in the file. \end{Desc}
@@ -200,7 +200,7 @@ Set a file's text buffer.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em file}]A readable text file. It wont be freed. \item[{\em buffer}]A string. It should not contain any new line characters. \end{description}
+\item[{\em file}]\hyperlink{class_a}{A} readable text file. It wont be freed. \item[{\em buffer}]\hyperlink{class_a}{A} string. It should not contain any new line characters. \end{description}
 \end{Desc}
 \hypertarget{group__file__api_g085f074227d8d7ed82c0fba82fa43109}{
 \index{file\_\-api@{file\_\-api}!pmath\_\-file\_\-write@{pmath\_\-file\_\-write}}
@@ -214,7 +214,7 @@ Write some bytes to a binary file.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em file}]A writeable binary file object. It wont be freed. \item[{\em buffer}]The data to be written. \item[{\em buffer\_\-size}]The number of bytes to write/size of {\em buffer\/}. \end{description}
+\item[{\em file}]\hyperlink{class_a}{A} writeable binary file object. It wont be freed. \item[{\em buffer}]The data to be written. \item[{\em buffer\_\-size}]The number of bytes to write/size of {\em buffer\/}. \end{description}
 \end{Desc}
 \begin{Desc}
 \item[Returns:]The number of written bytes. This is less than buffer\_\-size in case of an error. If file is a list of files this is the smallest number of written bytes to the single files. \end{Desc}
@@ -230,7 +230,7 @@ Write to a text file.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em file}]A writeable text file object. It wont be freed. \item[{\em str}]A UTF-16 string buffer. e.g. pmath\_\-string\_\-buffer(some\_\-text) \item[{\em len}]The number of uint16\_\-t in the buffer. e.g. pmath\_\-string\_\-length(some\_\-text). This can be -1 if {\em str\/} is zero terminated. \end{description}
+\item[{\em file}]\hyperlink{class_a}{A} writeable text file object. It wont be freed. \item[{\em str}]\hyperlink{class_a}{A} UTF-16 string buffer. e.g. pmath\_\-string\_\-buffer(some\_\-text) \item[{\em len}]The number of uint16\_\-t in the buffer. e.g. pmath\_\-string\_\-length(some\_\-text). This can be -1 if {\em str\/} is zero terminated. \end{description}
 \end{Desc}
 \begin{Desc}
 \item[Returns:]Whether the operation succeeded. \end{Desc}
@@ -246,7 +246,7 @@ Flush the output buffer of a writeable file.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em file}]A writeable binary file object. It wont be freed. \end{description}
+\item[{\em file}]\hyperlink{class_a}{A} writeable binary file object. It wont be freed. \end{description}
 \end{Desc}
 \hypertarget{group__file__api_gf6b8233107d3fb27e9fdabfacc8595d1}{
 \index{file\_\-api@{file\_\-api}!pmath\_\-file\_\-write\_\-object@{pmath\_\-file\_\-write\_\-object}}
@@ -260,7 +260,7 @@ Write an object to a text file.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em file}]A writeable text file object. It wont be freed. \item[{\em obj}]An object. It wont be freed. \item[{\em options}]Some options defining the format. \end{description}
+\item[{\em file}]\hyperlink{class_a}{A} writeable text file object. It wont be freed. \item[{\em obj}]An object. It wont be freed. \item[{\em options}]Some options defining the format. \end{description}
 \end{Desc}
 \begin{Desc}
 \item[Returns:]Whether the operation succeeded. \end{Desc}
@@ -276,7 +276,7 @@ Set a binary file's buffer size.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em file}]A binary file. It wont be freed. \item[{\em size}]The new size of the buffer in bytes. \end{description}
+\item[{\em file}]\hyperlink{class_a}{A} binary file. It wont be freed. \item[{\em size}]The new size of the buffer in bytes. \end{description}
 \end{Desc}
 \begin{Desc}
 \item[Returns:]TRUE if the operation succeded.\end{Desc}
@@ -292,7 +292,7 @@ Manipulate a file's internal representation.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em file}]A file object. It wont be freed. \item[{\em type}]The {\em extra\_\-destructor\/} that was provided to \hyperlink{group__file__api_g121e1c31d32fa30b60c8bb4d0808f4eb}{pmath\_\-file\_\-create\_\-binary()} or \hyperlink{group__file__api_gb8a4394b083543a3e572862d567b4b63}{pmath\_\-file\_\-create\_\-text()}. \item[{\em callback}]A callback function. The first argument will be the {\em extra\/} parameter that was provided to \hyperlink{group__file__api_g121e1c31d32fa30b60c8bb4d0808f4eb}{pmath\_\-file\_\-create\_\-binary()} or \hyperlink{group__file__api_gb8a4394b083543a3e572862d567b4b63}{pmath\_\-file\_\-create\_\-text()}. \item[{\em data}]The second parameter for {\em callback\/}.\end{description}
+\item[{\em file}]\hyperlink{class_a}{A} file object. It wont be freed. \item[{\em type}]The {\em extra\_\-destructor\/} that was provided to \hyperlink{group__file__api_g121e1c31d32fa30b60c8bb4d0808f4eb}{pmath\_\-file\_\-create\_\-binary()} or \hyperlink{group__file__api_gb8a4394b083543a3e572862d567b4b63}{pmath\_\-file\_\-create\_\-text()}. \item[{\em callback}]\hyperlink{class_a}{A} callback function. The first argument will be the {\em extra\/} parameter that was provided to \hyperlink{group__file__api_g121e1c31d32fa30b60c8bb4d0808f4eb}{pmath\_\-file\_\-create\_\-binary()} or \hyperlink{group__file__api_gb8a4394b083543a3e572862d567b4b63}{pmath\_\-file\_\-create\_\-text()}. \item[{\em data}]The second parameter for {\em callback\/}.\end{description}
 \end{Desc}
 If {\em file\/} is a valid file object and if {\em type\/} is the {\em extra\_\-destructor\/} which {\em file\/} was created with, then and only then {\em callback\/} will be called.
 
@@ -308,7 +308,7 @@ Closes a file.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em file}]A file object. It will be freed. \end{description}
+\item[{\em file}]\hyperlink{class_a}{A} file object. It will be freed. \end{description}
 \end{Desc}
 \begin{Desc}
 \item[Returns:]Whether file was a valid file object. \end{Desc}
@@ -324,10 +324,10 @@ Create a binary file object.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em extra}]Arbitrary extra data. \item[{\em extra\_\-destructor}]A function to destroy the extra data. \item[{\em api}]The file access functions. \end{description}
+\item[{\em extra}]Arbitrary extra data. \item[{\em extra\_\-destructor}]\hyperlink{class_a}{A} function to destroy the extra data. \item[{\em api}]The file access functions. \end{description}
 \end{Desc}
 \begin{Desc}
-\item[Returns:]A newly created binary file object. You can destroy and close it with \hyperlink{group__file__api_g61142920bd7a8f066af908092c84d8e4}{pmath\_\-file\_\-close()} or \hyperlink{classpmath__t_54e905402c38940687033b87eb8c6c9f}{pmath\_\-unref()}.\end{Desc}
+\item[Returns:]\hyperlink{class_a}{A} newly created binary file object. You can destroy and close it with \hyperlink{group__file__api_g61142920bd7a8f066af908092c84d8e4}{pmath\_\-file\_\-close()} or \hyperlink{classpmath__t_54e905402c38940687033b87eb8c6c9f}{pmath\_\-unref()}.\end{Desc}
 The {\em api\/} functions are never called by more than one thread at once. This is assured with a non-reentrant spinlock.
 
 \begin{Desc}
@@ -344,10 +344,10 @@ Create a text file object.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em extra}]Arbitrary extra data. \item[{\em extra\_\-destructor}]A function to destroy the extra data. \item[{\em api}]The file access functions. \end{description}
+\item[{\em extra}]Arbitrary extra data. \item[{\em extra\_\-destructor}]\hyperlink{class_a}{A} function to destroy the extra data. \item[{\em api}]The file access functions. \end{description}
 \end{Desc}
 \begin{Desc}
-\item[Returns:]A newly created text file object. You can destroy and close it with \hyperlink{group__file__api_g61142920bd7a8f066af908092c84d8e4}{pmath\_\-file\_\-close()} or \hyperlink{classpmath__t_54e905402c38940687033b87eb8c6c9f}{pmath\_\-unref()}.\end{Desc}
+\item[Returns:]\hyperlink{class_a}{A} newly created text file object. You can destroy and close it with \hyperlink{group__file__api_g61142920bd7a8f066af908092c84d8e4}{pmath\_\-file\_\-close()} or \hyperlink{classpmath__t_54e905402c38940687033b87eb8c6c9f}{pmath\_\-unref()}.\end{Desc}
 The {\em api\/} functions are never called by more than one thread at once. This is assured with a non-reentrant spinlock.
 
 \begin{Desc}
@@ -364,10 +364,10 @@ Create a text file object operating on a binary file.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em binfile}]A binary file. It will be freed. \item[{\em encoding}]A text encoding that the iconv library knows. \end{description}
+\item[{\em binfile}]\hyperlink{class_a}{A} binary file. It will be freed. \item[{\em encoding}]\hyperlink{class_a}{A} text encoding that the iconv library knows. \end{description}
 \end{Desc}
 \begin{Desc}
-\item[Returns:]A newly created text file object. You can destroy and close it with \hyperlink{group__file__api_g61142920bd7a8f066af908092c84d8e4}{pmath\_\-file\_\-close()} or \hyperlink{classpmath__t_54e905402c38940687033b87eb8c6c9f}{pmath\_\-unref()}. \end{Desc}
+\item[Returns:]\hyperlink{class_a}{A} newly created text file object. You can destroy and close it with \hyperlink{group__file__api_g61142920bd7a8f066af908092c84d8e4}{pmath\_\-file\_\-close()} or \hyperlink{classpmath__t_54e905402c38940687033b87eb8c6c9f}{pmath\_\-unref()}. \end{Desc}
 \hypertarget{group__file__api_g811d829fe964ebbe554c645a0f0f519d}{
 \index{file\_\-api@{file\_\-api}!pmath\_\-file\_\-create\_\-binary\_\-buffer@{pmath\_\-file\_\-create\_\-binary\_\-buffer}}
 \index{pmath\_\-file\_\-create\_\-binary\_\-buffer@{pmath\_\-file\_\-create\_\-binary\_\-buffer}!file_api@{file\_\-api}}
@@ -383,7 +383,7 @@ Create a byte-stream file object.
 \item[{\em mincapacity}]The initial size of the buffer. \end{description}
 \end{Desc}
 \begin{Desc}
-\item[Returns:]A newly created binary file object. You can destroy and close it with \hyperlink{group__file__api_g61142920bd7a8f066af908092c84d8e4}{pmath\_\-file\_\-close()} or \hyperlink{classpmath__t_54e905402c38940687033b87eb8c6c9f}{pmath\_\-unref()}.\end{Desc}
+\item[Returns:]\hyperlink{class_a}{A} newly created binary file object. You can destroy and close it with \hyperlink{group__file__api_g61142920bd7a8f066af908092c84d8e4}{pmath\_\-file\_\-close()} or \hyperlink{classpmath__t_54e905402c38940687033b87eb8c6c9f}{pmath\_\-unref()}.\end{Desc}
 You can write to a byte-buffer and read previously written data from it. Note that this does not support random access to the data. \hypertarget{group__file__api_gaa064ada946d36bf41ed9908d8176360}{
 \index{file\_\-api@{file\_\-api}!pmath\_\-file\_\-binary\_\-buffer\_\-size@{pmath\_\-file\_\-binary\_\-buffer\_\-size}}
 \index{pmath\_\-file\_\-binary\_\-buffer\_\-size@{pmath\_\-file\_\-binary\_\-buffer\_\-size}!file_api@{file\_\-api}}
@@ -396,7 +396,7 @@ Get The number of readable bytes in a binary buffer.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em binfile}]A binary file created with \hyperlink{group__file__api_g811d829fe964ebbe554c645a0f0f519d}{pmath\_\-file\_\-create\_\-binary\_\-buffer()}. It wont be freed. \end{description}
+\item[{\em binfile}]\hyperlink{class_a}{A} binary file created with \hyperlink{group__file__api_g811d829fe964ebbe554c645a0f0f519d}{pmath\_\-file\_\-create\_\-binary\_\-buffer()}. It wont be freed. \end{description}
 \end{Desc}
 \begin{Desc}
 \item[Returns:]The number of readable bytes in the binary buffer or 0 on error. \end{Desc}
@@ -412,6 +412,6 @@ Manipulate the content of a binary buffer.
 \begin{Desc}
 \item[Parameters:]
 \begin{description}
-\item[{\em binfile}]A binary file created with \hyperlink{group__file__api_g811d829fe964ebbe554c645a0f0f519d}{pmath\_\-file\_\-create\_\-binary\_\-buffer()}. It wont be freed. \item[{\em callback}]The callback function that does the manipulation. \item[{\em closure}]The fourth parameter for {\em callback\/}.\end{description}
+\item[{\em binfile}]\hyperlink{class_a}{A} binary file created with \hyperlink{group__file__api_g811d829fe964ebbe554c645a0f0f519d}{pmath\_\-file\_\-create\_\-binary\_\-buffer()}. It wont be freed. \item[{\em callback}]The callback function that does the manipulation. \item[{\em closure}]The fourth parameter for {\em callback\/}.\end{description}
 \end{Desc}
 The {\em callback\/} function must not write before {\em readable\/} or after {\em end\/}. {\em writable\/} gives the current write-position, which is always between {\em readable\/} and {\em end\/}. 

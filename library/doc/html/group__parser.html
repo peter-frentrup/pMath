@@ -74,7 +74,7 @@
 <tr><td class="memItemLeft" nowrap align="right" valign="top"><a class="anchor" name="ga9a5a4bbece31aec4a25b94617ffd2e4"></a><!-- doxytag: member="parser::PMATH_CHAR_ALIASINDICATOR" ref="ga9a5a4bbece31aec4a25b94617ffd2e4" args="" -->
 #define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__parser.html#ga9a5a4bbece31aec4a25b94617ffd2e4">PMATH_CHAR_ALIASINDICATOR</a>&nbsp;&nbsp;&nbsp;0xF768</td></tr>
 
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">A character that looks like PMATH_CHAR_ALIASDELIMITER but has no effect. <br></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><a class="el" href="class_a.html">A</a> character that looks like PMATH_CHAR_ALIASDELIMITER but has no effect. <br></td></tr>
 <tr><td class="memItemLeft" nowrap align="right" valign="top"><a class="anchor" name="g50754cd7c2add678bdf9c38fbf718876"></a><!-- doxytag: member="parser::PMATH_CHAR_LEFT_BOX" ref="g50754cd7c2add678bdf9c38fbf718876" args="" -->
 #define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__parser.html#g50754cd7c2add678bdf9c38fbf718876">PMATH_CHAR_LEFT_BOX</a>&nbsp;&nbsp;&nbsp;0xFFF9</td></tr>
 
@@ -329,15 +329,15 @@ Parses pMath code to a span array.
 <p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>code</em>&nbsp;</td><td>A pointer to a pMath string. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>code</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> pointer to a pMath string. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>line_reader</em>&nbsp;</td><td>An optional function to be called, when there is more input needed. Its result will be appended to *code. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>subsuperscriptbox_at_index</em>&nbsp;</td><td>An optional function that returns TRUE iff at a given position in the code (indicated by the PMATH_CHAR_BOX character) is a SubscriptBox, SuperscriptBox or SubsuperscriptBox. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>underoverscriptbox_at_index</em>&nbsp;</td><td>(optional) Iff there is an UnderscriptBox, OverscriptBox or UnderoverscriptBox at a given position in the code (indicated by the PMATH_CHAR_BOX character) its base (middle part of UnderoverscriptBox) should be returned by this function, otherwise NULL should be returned. </td></tr>
-    <tr><td valign="top"></td><td valign="top"><em>error</em>&nbsp;</td><td>A function that will be called on syntax errors. The first argument is <code>*code</code>. It must not be freed. The second argument is the position in the code. The third argument is <em>data</em> The fourth argument is TRUE if the error is critical and FALSE if it is just a warning (Syntax::newl) This function is optional, if it is NULL, no messages will be generated during the scanning. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>error</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> function that will be called on syntax errors. The first argument is <code>*code</code>. It must not be freed. The second argument is the position in the code. The third argument is <em>data</em> The fourth argument is TRUE if the error is critical and FALSE if it is just a warning (Syntax::newl) This function is optional, if it is NULL, no messages will be generated during the scanning. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>data</em>&nbsp;</td><td>An arbitrary pointer, that will be provided as the last argument to the callback functions. </td></tr>
   </table>
 </dl>
-<dl class="return" compact><dt><b>Returns:</b></dt><dd>A span-array that can be used by pmath_boxes_from_spans to convert the code to boxed form, which, in turn, is used by System`MakeExpression(). The span-array must be freed with <a class="el" href="group__parser.html#gceb05ef4c39c239d68f39e3b9bde5f1e" title="Destroy a span-array and all its spans.">pmath_span_array_free()</a> when it is no longer needed. </dd></dl>
+<dl class="return" compact><dt><b>Returns:</b></dt><dd><a class="el" href="class_a.html">A</a> span-array that can be used by pmath_boxes_from_spans to convert the code to boxed form, which, in turn, is used by System`MakeExpression(). The span-array must be freed with <a class="el" href="group__parser.html#gceb05ef4c39c239d68f39e3b9bde5f1e" title="Destroy a span-array and all its spans.">pmath_span_array_free()</a> when it is no longer needed. </dd></dl>
 
 </div>
 </div><p>
@@ -389,14 +389,14 @@ Convert a span-array with the according code to boxed form.
 <p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>spans</em>&nbsp;</td><td>A span-array. It can be obtained by <a class="el" href="group__parser.html#g877ac507e27c8791a265105f796f3cef" title="Parses pMath code to a span array.">pmath_spans_from_string()</a> or <a class="el" href="group__parser.html#g9914e557782a4c7ff312b2b474fcf045" title="Convert boxed form back to span-array and code.">pmath_spans_from_boxes()</a>. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>spans</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> span-array. It can be obtained by <a class="el" href="group__parser.html#g877ac507e27c8791a265105f796f3cef" title="Parses pMath code to a span array.">pmath_spans_from_string()</a> or <a class="el" href="group__parser.html#g9914e557782a4c7ff312b2b474fcf045" title="Convert boxed form back to span-array and code.">pmath_spans_from_boxes()</a>. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>string</em>&nbsp;</td><td>The corresponding code to <em>span</em>. It wont be freed. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>parseable</em>&nbsp;</td><td>Whether whitespace and comments should be skipped or not. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>box_at_index</em>&nbsp;</td><td>An optional function that returns the box at a given position (indicated by the PMATH_CHAR_BOX character). This function will be called (at most) one time for every box and in their order of apperance. </td></tr>
-    <tr><td valign="top"></td><td valign="top"><em>data</em>&nbsp;</td><td>A pointer that will be provided as the last argument to <em>box_at_index</em>. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>data</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> pointer that will be provided as the last argument to <em>box_at_index</em>. </td></tr>
   </table>
 </dl>
-<dl class="return" compact><dt><b>Returns:</b></dt><dd>A pMath object representing the boxed form. It must be freed. </dd></dl>
+<dl class="return" compact><dt><b>Returns:</b></dt><dd><a class="el" href="class_a.html">A</a> pMath object representing the boxed form. It must be freed. </dd></dl>
 
 </div>
 </div><p>
@@ -442,13 +442,13 @@ Convert boxed form back to span-array and code.
 <p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>boxes</em>&nbsp;</td><td>A pMath object representing the boxed form. </td></tr>
-    <tr><td valign="top"></td><td valign="top"><em>result_string</em>&nbsp;</td><td>A pointer where the resulting code will go to. Its previous value is ignored. </td></tr>
-    <tr><td valign="top"></td><td valign="top"><em>make_box</em>&nbsp;</td><td>A function that converts a boxed form (pMath object) to an actual box. It must free this object (the second argument). </td></tr>
-    <tr><td valign="top"></td><td valign="top"><em>data</em>&nbsp;</td><td>A pointer that will be provided to make_box as the last argument. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>boxes</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> pMath object representing the boxed form. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>result_string</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> pointer where the resulting code will go to. Its previous value is ignored. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>make_box</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> function that converts a boxed form (pMath object) to an actual box. It must free this object (the second argument). </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>data</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> pointer that will be provided to make_box as the last argument. </td></tr>
   </table>
 </dl>
-<dl class="return" compact><dt><b>Returns:</b></dt><dd>A span-array. It must be freed with <a class="el" href="group__parser.html#gceb05ef4c39c239d68f39e3b9bde5f1e" title="Destroy a span-array and all its spans.">pmath_span_array_free()</a> when it is no longer needed. </dd></dl>
+<dl class="return" compact><dt><b>Returns:</b></dt><dd><a class="el" href="class_a.html">A</a> span-array. It must be freed with <a class="el" href="group__parser.html#gceb05ef4c39c239d68f39e3b9bde5f1e" title="Destroy a span-array and all its spans.">pmath_span_array_free()</a> when it is no longer needed. </dd></dl>
 
 </div>
 </div><p>
@@ -488,7 +488,7 @@ Analyse a token.
 <p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>str</em>&nbsp;</td><td>A UTF16-string. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>str</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> UTF16-string. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>len</em>&nbsp;</td><td>The length (in uint16_t-s) of the token <em>str</em>. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>prec</em>&nbsp;</td><td>Optional address, where to store the default operator precedence for the token. </td></tr>
   </table>
@@ -533,7 +533,7 @@ Give the prefix oprator precedence for a token.
 <p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>str</em>&nbsp;</td><td>A UTF16-string. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>str</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> UTF16-string. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>len</em>&nbsp;</td><td>The length (in uint16_t-s) of the token <em>str</em>. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>defprec</em>&nbsp;</td><td>The default operator precedence as given by <a class="el" href="group__parser.html#g0cfde53ccdddc80d034dc5ee1ea54508" title="Analyse a token.">pmath_token_analyse()</a> </td></tr>
   </table>
@@ -563,7 +563,7 @@ Test whether a token may be the first token in a subexpression.
 <p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>tok</em>&nbsp;</td><td>A token class. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>tok</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> token class. </td></tr>
   </table>
 </dl>
 <dl class="return" compact><dt><b>Returns:</b></dt><dd>Whether tok may start a new subexpression </dd></dl>
@@ -591,7 +591,7 @@ Test whether a token need not be the first token in a subexpression.
 <p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>tok</em>&nbsp;</td><td>A token class. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>tok</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> token class. </td></tr>
   </table>
 </dl>
 <dl class="return" compact><dt><b>Returns:</b></dt><dd>Whether tok may reside inside a subexpression. </dd></dl>
@@ -788,7 +788,7 @@ Get the next-shorter span starting at the same position.
 <p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>span</em>&nbsp;</td><td>A span. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>span</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> span. </td></tr>
   </table>
 </dl>
 <dl class="return" compact><dt><b>Returns:</b></dt><dd>The next-shorter span stating at <em>pos</em> or NULL if there is no span. </dd></dl>
@@ -816,7 +816,7 @@ Get end of a span.
 <p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>span</em>&nbsp;</td><td>A span. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>span</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> span. </td></tr>
   </table>
 </dl>
 <dl class="return" compact><dt><b>Returns:</b></dt><dd>The last index which is covered by the span. </dd></dl>
@@ -847,7 +847,7 @@ Expand a string that contains boxes to a list of Strings and Boxes.
     <tr><td valign="top"></td><td valign="top"><em>s</em>&nbsp;</td><td>The string to be expanded. It will be freed. </td></tr>
   </table>
 </dl>
-<dl class="return" compact><dt><b>Returns:</b></dt><dd>A string if there is nothing to expand or an expression representing s as boxes. </dd></dl>
+<dl class="return" compact><dt><b>Returns:</b></dt><dd><a class="el" href="class_a.html">A</a> string if there is nothing to expand or an expression representing s as boxes. </dd></dl>
 
 </div>
 </div><p>
@@ -872,10 +872,10 @@ Parse a string to an expression.
 <p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>code</em>&nbsp;</td><td>A pMath String representing the code. It will be freed. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>code</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> pMath String representing the code. It will be freed. </td></tr>
   </table>
 </dl>
-<dl class="return" compact><dt><b>Returns:</b></dt><dd>A pMath object.</dd></dl>
+<dl class="return" compact><dt><b>Returns:</b></dt><dd><a class="el" href="class_a.html">A</a> pMath object.</dd></dl>
 This function returns ToExpression("code"), but does not evaluate this released result. 
 </div>
 </div><p>
@@ -915,12 +915,12 @@ Parse a string with additional arguments to an expression.
 <p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>code</em>&nbsp;</td><td>A pMath String representing the code. It will be freed. </td></tr>
-    <tr><td valign="top"></td><td valign="top"><em>format</em>&nbsp;</td><td>A format string for the arguments. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>code</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> pMath String representing the code. It will be freed. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>format</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> format string for the arguments. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>...</em>&nbsp;</td><td>The additional arguments. </td></tr>
   </table>
 </dl>
-<dl class="return" compact><dt><b>Returns:</b></dt><dd>A pMath object.</dd></dl>
+<dl class="return" compact><dt><b>Returns:</b></dt><dd><a class="el" href="class_a.html">A</a> pMath object.</dd></dl>
 This function is a short hand for<ol type=1>
 <li>assigning pmath_build_value(format, ...) to the symbol $ParserArguments</li><li>then calling pmath_parse_string(<a class="el" href="group__strings.html#g0b6ecb1bc5d8aeccbbfaeb72055c7ffc" title="Short form to convert a C String to a pMath String.">PMATH_C_STRING(code)</a>) and</li><li>restoring the old value of $ParserArguments before</li><li>returning the result of the pmath_parse_string-call.</li></ol>
 <p>
@@ -930,7 +930,7 @@ This function is a short hand for<ol type=1>
 </div>
 </div><p>
 </div>
-<hr size="1"><address style="text-align: right;"><small>Generated on Sun Oct 17 19:31:03 2010 for pMath by&nbsp;
+<hr size="1"><address style="text-align: right;"><small>Generated on Sun Oct 17 23:45:07 2010 for pMath by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.5.9 </small></address>
 </body>
