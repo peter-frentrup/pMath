@@ -149,8 +149,8 @@ First::first:= "`1` has a length of zero and no first element."
 Function::par:= "Function parameter specification `1` in `2` is neither a symbol nor a list of symbols."
 Function::cnt:= "Too many parameters in `1` to be filled from `2`."
 
-Get::path:= "`1` in Path is not a string."
 Get::load:= LoadLibrary::load:= "loading `1` ..."
+Get::path:= "`1` in Path is not a string."
 
 Inner::shape:= "Length `1` of dimension `2` in `3` is does not fit to length `4` of dimension 1 in `5`."
 Inner::nolev:= "Level `1` is not available in `2` (only `3` dimensions)."

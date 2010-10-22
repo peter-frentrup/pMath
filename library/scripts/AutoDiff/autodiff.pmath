@@ -1,0 +1,58 @@
+/* Todo: Does not yet realy work with higher order derivatives, e.g. Gamma(WithDiff(2.5,1,1))
+*/
+
+
+BeginPackage("AutoDiff`")
+
+AutoDiff`WithDiff
+
+WithDiff::usage:= "WithDiff(x,dx) represents a dual number, carrying value and first derivate. It can be used with numeric functions for automatic differentiation. E.g. Sin(WithDiff(x,1)) gives WithDiff(Sin(x), Cos(x))."
+
+Begin("AutoDiff`Private`")
+
+Attributes(WithDiff):= {NumericFunction}
+
+WithDiff(~~~x, WithDiff(~~~y))::= WithDiff(x,y)
+WithDiff(~~~x, 0)::= WithDiff(x)
+WithDiff(~x)::= x
+
+valOnly(WithDiff())::= 0
+valOnly(~x:WithDiff)::= First(x)
+valOnly(~x)::= x
+
+val(WithDiff())::= 0
+val(~x:WithDiff)::= Most(x)
+val(~x)::= x
+
+diff(WithDiff())::= 0
+diff(~x:WithDiff)::= Rest(x)
+diff(~)::= 0
+
+WithDiff/: ~x:WithDiff + ~y:WithDiff::= WithDiff(valOnly(x) + valOnly(y), diff(x) + diff(y))
+WithDiff/: ~x + ~y:WithDiff::= WithDiff(x + valOnly(y), diff(y))
+
+WithDiff/: ~x:WithDiff * ~y:WithDiff::= WithDiff(valOnly(x) valOnly(y), val(x) diff(y) + val(y) diff(x))
+WithDiff/: ~x * ~y:WithDiff::= WithDiff(x valOnly(y), val(x) diff(y))
+
+WithDiff/: ~x:WithDiff ^ ~y:WithDiff::= With({zz:= val(x)^val(y)}, WithDiff(valOnly(zz), zz (val(y) diff(x) / val(x) + If(diff(y) =!= 0, diff(y) Log(val(x)), 0, 0))))
+WithDiff/: ~x:WithDiff ^ ~y::= With({zz:= val(x)^y}, WithDiff(valOnly(zz), zz (y diff(x) / val(x))))
+WithDiff/: ~x ^ ~y:WithDiff::= With({zz:= x^val(y)}, WithDiff(valOnly(zz), zz diff(y) Log(x)))
+
+WithDiff/: Log(~x:WithDiff)::= WithDiff(Log(valOnly(x)), diff(x)/val(x))
+WithDiff/: Sin(~x:WithDiff)::= WithDiff(Sin(valOnly(x)),  diff(x) Cos(val(x)))
+WithDiff/: Cos(~x:WithDiff)::= WithDiff(Cos(valOnly(x)), -diff(x) Sin(val(x)))
+WithDiff/: Tan(~x:WithDiff)::= WithDiff(Tan(valOnly(x)),  diff(x) Sec(val(x))^2)
+WithDiff/: Cot(~x:WithDiff)::= WithDiff(Cot(valOnly(x)), -diff(x) Csc(val(x))^2)
+WithDiff/: Csc(~x:WithDiff)::= With({yy:= Csc(val(x))}, WithDiff(valOnly(yy), -diff(x) yy Cot(val(x))))
+WithDiff/: Sec(~x:WithDiff)::= With({yy:= Sec(val(x))}, WithDiff(valOnly(yy),  diff(x) yy Tan(val(x))))
+
+WithDiff/: Abs(~x:WithDiff)::= WithDiff(Abs(valOnly(x)), Sign(val(x)) diff(x))
+WithDiff/: Sign(~x:WithDiff)::= Sign(valOnly(x))
+WithDiff/: Re(~x:WithDiff)::= WithDiff(Re(valOnly(x)), Re(diff(x)))
+WithDiff/: Im(~x:WithDiff)::= WithDiff(Im(valOnly(x)), Im(diff(x)))
+
+WithDiff/: (f: Ceiling|Floor|Round | Less|LessEqual|Greater|GreaterEqual | IsNegetive|IsPositive|IsNonNegative|IsNonPositive|IsExactNumber|IsInexactNumber)(~~~a, ~x:WithDiff, ~~~b)::= f(a, valOnly(x), b)
+
+End()
+
+EndPackage()

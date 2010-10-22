@@ -285,7 +285,7 @@ static int pattern_compare(
         return len2 == 0 ? 0 : 1;
         
       if(len2 == 0)
-        return len1 == 0 ? 0 : 1;
+        return len1 == 0 ? 0 : -1;
       
       if(len1 == 1 && len2 == 1){
         pmath_t t1 = pmath_expr_get_item(pat1, 1);
@@ -837,28 +837,25 @@ PMATH_PRIVATE pmath_bool_t _pmath_pattern_match(
   
   funclen = 1;
   
-  if(pmath_instance_of(info.func, PMATH_TYPE_EXPRESSION))
-    funclen = pmath_expr_length((pmath_expr_t)info.func);
-
-  if(pmath_instance_of(info.pattern, PMATH_TYPE_EXPRESSION)){
-    pmath_t head = pmath_expr_get_item(
-      (pmath_expr_t)info.pattern, 0);
-
+  if(pmath_instance_of(info.func, PMATH_TYPE_EXPRESSION)){
+    pmath_t head = pmath_expr_get_item(info.func, 0);
+    funclen = pmath_expr_length(info.func);
+    
     if(pmath_instance_of(head, PMATH_TYPE_SYMBOL)){
-      pmath_symbol_attributes_t attrib = pmath_symbol_get_attributes(
-        (pmath_symbol_t)head);
+      pmath_symbol_attributes_t attrib = pmath_symbol_get_attributes(head);
 
       info.associative = (attrib & PMATH_SYMBOL_ATTRIBUTE_ASSOCIATIVE) != 0;
       if((attrib & PMATH_SYMBOL_ATTRIBUTE_SYMMETRIC) != 0){
         info.symmetric = TRUE;
         info.arg_usage = (char*)pmath_mem_alloc(funclen);
         if(!info.arg_usage){
+          pmath_unref(head);
           pmath_unref(pattern);
           return FALSE;
         }
       }
     }
-
+    
     pmath_unref(head);
   }
 

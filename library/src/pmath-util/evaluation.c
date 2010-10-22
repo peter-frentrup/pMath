@@ -183,9 +183,20 @@ static pmath_t evaluate_expression(
       (*thread_ptr)->evaldepth = 0;
       (*thread_ptr)->critical_messages = TRUE;
   
-      pmath_debug_print("reclim with expr=%p", (void*)expr);
-      pmath_debug_print_object("= ", expr, "\n");
-
+      pmath_debug_print("reclim with expr = %p ", (void*)expr);
+      pmath_debug_print_object(" = ", expr, "\n");
+      
+//      #ifdef PMATH_DEBUG_LOG
+//      {
+//        pmath_t stack = pmath_expr_new(pmath_ref(PMATH_SYMBOL_STACK), 0);
+//        stack = pmath_evaluate(stack);
+//        
+//        pmath_debug_print_object("stack = ", stack, "\n");
+//        
+//        pmath_unref(stack);
+//      }
+//      #endif
+      
       pmath_message(
         PMATH_SYMBOL_GENERAL, "reclim", 1,
         pmath_integer_new_si(pmath_maxrecursion));

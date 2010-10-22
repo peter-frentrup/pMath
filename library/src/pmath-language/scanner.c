@@ -1652,6 +1652,8 @@ static void parse_textline(parser_t *parser){
       case '?':
       case '!':
       case ':':
+      case '-':
+      case '+':
         ++parser->tokens.pos;
         continue;
     }

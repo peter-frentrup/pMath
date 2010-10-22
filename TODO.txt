@@ -2,6 +2,9 @@
 	Button("italic",DocumentApply(SelectedDocument(),StyleBox("",FontSlant->Italic))),
 	Button("Arg Style",DocumentApply(SelectedDocument(),StyleBox("","Arg")))})
 
+? implement Stack(pattern)   
+	this requires us to sava a copy of the expression before pattern matching!
+	
 ? pmath: implement Transpose in C code (see transpose.pmath)
 
 - StyleBox: support FontSize values Smaller, Larger, Tiny, Small, Normal, Large, Huge

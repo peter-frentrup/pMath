@@ -496,11 +496,15 @@ PMATH_PRIVATE void _pmath_threadpool_kill_daemons(void){
   while(all){
     daemon = all;
     do{
+      // TODO: is this safe???
+      //       maybe we should send an Abort() command?
+      //       maybe it is not neccessary, because pmath_aborting() might check
+      //       for pmath_done() calls (i don't remember^^)
+      //_pmath_thread_throw(daemon->thread, PMATH_ABORT_EXCEPTION);
+      
       if(daemon->kill)
         daemon->kill(daemon->cb_data);
         
-      _pmath_thread_throw(daemon->thread, PMATH_ABORT_EXCEPTION);
-      
       daemon = daemon->next;
     }while(daemon != all);
     

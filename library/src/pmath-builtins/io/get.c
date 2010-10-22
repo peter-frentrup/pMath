@@ -80,8 +80,8 @@ static void scanner_error(
 }
 
 static pmath_t get_file(
-  pmath_t        file, // will be freed and closed
-  pmath_string_t name  // will be freed
+  pmath_t        file,          // will be freed and closed
+  pmath_string_t name           // will be freed
 ){
   struct _get_file_info  info;
   
@@ -163,6 +163,22 @@ static pmath_t get_file(
   pmath_unref(pmath_thread_local_save(PMATH_SYMBOL_INPUT, old_input));
   pmath_file_close(file);
   pmath_unref(name);
+  
+//  if(package_check){
+//    name = pmath_evaluate(
+//      pmath_parse_string_args(
+//          "IsFreeOf($Packages, `1`)", 
+//        "(o)", 
+//        pmath_ref(package_check))); 
+//    pmath_unref(name);
+//    
+//    if(name == PMATH_SYMBOL_TRUE){
+//      pmath_message(NULL, "nons", 1, pmath_ref(package_check));
+//    }
+//    
+//    pmath_unref(package_check);
+//  }
+  
   return result;
 }
 
@@ -190,9 +206,12 @@ PMATH_PRIVATE pmath_t builtin_get(pmath_expr_t expr){
   if(pmath_instance_of(path, PMATH_TYPE_STRING))
     path = pmath_build_value("(o)", path);
   
-  if(!check_path(path))
+  if(!check_path(path)){
+    pmath_unref(path);
     return expr;
-  pmath_unref(expr);
+  }
+  
+  pmath_unref(expr); expr = NULL;
   
   
   if(_pmath_is_namespace(name)){
@@ -200,6 +219,18 @@ PMATH_PRIVATE pmath_t builtin_get(pmath_expr_t expr){
     uint16_t *buf;
     size_t i;
     int j, len;
+    
+    expr = pmath_evaluate(
+      pmath_parse_string_args(
+          "IsFreeOf($Packages, `1`)", 
+        "(o)", 
+        pmath_ref(name)));
+    pmath_unref(expr);
+    if(expr != PMATH_SYMBOL_TRUE){
+      pmath_unref(name);
+      pmath_unref(path);
+      return NULL;
+    }
     
     len = pmath_string_length(name) - 1;
     fname = _pmath_new_string_buffer(len);
@@ -239,7 +270,7 @@ PMATH_PRIVATE pmath_t builtin_get(pmath_expr_t expr){
       if(test == PMATH_SYMBOL_DIRECTORY){
         testname = pmath_evaluate(
           pmath_parse_string_args(
-              "ToFileName(testname, \"init.pmath\")", 
+              "ToFileName(`1`, \"init.pmath\")", 
             "(o)", 
             testname));
         
@@ -251,8 +282,8 @@ PMATH_PRIVATE pmath_t builtin_get(pmath_expr_t expr){
         
         if(test == PMATH_SYMBOL_FILE){
           pmath_unref((pmath_string_t)fname);
-          pmath_unref(name);
           pmath_unref(path);
+          pmath_unref(name);
           
           file = pmath_evaluate(
             pmath_expr_new_extended(
@@ -283,8 +314,8 @@ PMATH_PRIVATE pmath_t builtin_get(pmath_expr_t expr){
       pmath_unref(test);
       if(test == PMATH_SYMBOL_FILE){
         pmath_unref((pmath_string_t)fname);
-        pmath_unref(name);
         pmath_unref(path);
+        pmath_unref(name);
         
         file = pmath_evaluate(
           pmath_expr_new_extended(
@@ -315,7 +346,7 @@ PMATH_PRIVATE pmath_t builtin_get(pmath_expr_t expr){
   pmath_unref(file);
   if(file != PMATH_SYMBOL_FILE){
     pmath_message(NULL, "noopen", 1, name);
-    return pmath_ref(PMATH_SYMBOL_FAILED);;
+    return pmath_ref(PMATH_SYMBOL_FAILED);
   }
   
   file = pmath_evaluate(
