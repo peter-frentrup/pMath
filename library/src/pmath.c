@@ -770,6 +770,7 @@ PMATH_API pmath_bool_t pmath_init(void){
     pmath_unref(_pmath_object_get_load_message);         _pmath_object_get_load_message =         NULL;
     
     _pmath_thread_clean(TRUE);
+    _pmath_symbols_almost_done();
     
                            _pmath_dynamic_done();
    FAIL_DYNAMIC:           _pmath_modules_done();
@@ -853,6 +854,7 @@ PMATH_API void pmath_done(void){
     pmath_unref(_pmath_object_get_load_message);         _pmath_object_get_load_message =         NULL;
     
     _pmath_thread_clean(TRUE);
+    _pmath_symbols_almost_done();
     
     _pmath_dynamic_done();
     _pmath_modules_done();

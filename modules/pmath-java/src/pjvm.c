@@ -1,10 +1,19 @@
 #include "pjvm.h"
-#include "pj-class.h"
+#include "pj-classes.h"
+#include "pj-objects.h"
 #include "pj-symbols.h"
 
-#include <string.h>
-#include <stdio.h>
+#include <limits.h>
 #include <math.h>
+#include <stdio.h>
+#include <string.h>
+
+
+#ifdef PMATH_OS_WIN32
+  #include <windows.h>
+#else
+  #include <dlfcn.h>
+#endif
 
 
 static pmath_messages_t jvm_main_mq = NULL;
@@ -13,6 +22,111 @@ static PMATH_DECLARE_ATOMIC(vm_lock) = 0;
 static pmath_t vm = NULL;
 
 static PMATH_DECLARE_ATOMIC(vm_quit) = 0;
+
+#ifdef PMATH_OS_WIN32
+  static HINSTANCE vm_library = NULL;
+#else
+  static void     *vm_library = NULL;
+#endif
+static int vm_library_counter = 0;
+static pmath_threadlock_t vm_library_lock = NULL;
+
+static jint (JNICALL *_JNI_GetDefaultJavaVMInitArgs)(void *args) = NULL;
+static jint (JNICALL *_JNI_CreateJavaVM)(JavaVM **pvm, void **penv, void *args) = NULL;
+static jint (JNICALL *_JNI_GetCreatedJavaVMs)(JavaVM **, jsize, jsize *) = NULL;
+  
+  static void unload_jvm_callback(void *dummy){
+    if(--vm_library_counter == 0){
+      _JNI_GetDefaultJavaVMInitArgs = NULL;
+      _JNI_CreateJavaVM             = NULL;
+      _JNI_GetCreatedJavaVMs        = NULL;
+      
+      #ifdef PMATH_OS_WIN32
+        FreeLibrary(vm_library);
+      #else
+        dlclose(vm_library);
+      #endif
+      
+      vm_library = NULL;
+    }
+  }
+  
+  struct load_jvm_callback_info_t{
+    pmath_bool_t success;
+  };
+  
+  static void load_jvm_callback(void *p){
+    pmath_string_t vmlibfile;
+    struct load_jvm_callback_info_t *info = (struct load_jvm_callback_info_t*)p;
+    
+    if(vm_library){
+      ++vm_library_counter;
+      info->success = TRUE;
+      return;
+    }
+    info->success = FALSE;
+    
+    vmlibfile = pmath_evaluate(pmath_ref(PJ_SYMBOL_JAVAVMLIBRARYNAME));
+    if(!pmath_instance_of(vmlibfile, PMATH_TYPE_STRING)){
+      pmath_unref(vmlibfile);
+      return;
+    }
+    
+    #ifdef PMATH_OS_WIN32
+    {
+      #define CHECK_LOAD_FUNC(var, type, name) \
+        if(!(var = (type)GetProcAddress(vm_library, name))) goto FAIL
+      
+      const uint16_t *buffer;
+      
+      vmlibfile = pmath_string_insert_latin1(vmlibfile, INT_MAX, "", 1);
+      buffer = pmath_string_buffer(vmlibfile);
+      
+      if(buffer)
+        vm_library = LoadLibraryW((const wchar_t*)buffer);
+    }
+    #else
+    {
+      #define CHECK_LOAD_FUNC(var, type, name) \
+        if(!(var = (type)dlsym(vm_library, name))) goto FAIL
+      
+      char *str = pmath_string_to_native(vmlibfile, NULL);
+      
+      if(str){
+        vm_library = dlopen(str, RTLD_LAZY);
+        pmath_mem_free(str);
+      }
+    }
+    #endif
+    pmath_unref(vmlibfile);
+    
+    if(vm_library){
+      ++vm_library_counter;
+      
+      CHECK_LOAD_FUNC(_JNI_GetDefaultJavaVMInitArgs, jint(JNICALL*)(void*),                 "JNI_GetDefaultJavaVMInitArgs");
+      CHECK_LOAD_FUNC(_JNI_CreateJavaVM,             jint(JNICALL*)(JavaVM**,void**,void*), "JNI_CreateJavaVM");
+      CHECK_LOAD_FUNC(_JNI_GetCreatedJavaVMs,        jint(JNICALL*)(JavaVM**,jsize,jsize*), "JNI_GetCreatedJavaVMs");
+      
+      info->success = TRUE;
+      return;
+     FAIL:
+      unload_jvm_callback(NULL);
+    }
+  }
+  
+  static pmath_bool_t load_jvm_library(void){
+    struct load_jvm_callback_info_t info;
+    
+    info.success = FALSE;
+    
+    pmath_thread_call_locked(&vm_library_lock, load_jvm_callback, &info);
+    
+    return info.success;
+  }
+  
+//  static void unload_jvm_library(void){
+//    pmath_thread_call_locked(&vm_library_lock, unload_jvm_callback, NULL);
+//  }
   
   static void dummy_jvm_proc(void *p){
     #ifdef PMATH_DEBUG_LOG
@@ -38,6 +152,12 @@ static PMATH_DECLARE_ATOMIC(vm_quit) = 0;
       JavaVM *jvm = pjvm_get_java(pjvm);
       
       if(jvm){
+        JNIEnv *env = NULL;
+        
+        (*jvm)->GetEnv(jvm, (void**)&env, JNI_VERSION_1_4);
+        if(env)
+          (*env)->ExceptionClear(env);
+        
         (*jvm)->DetachCurrentThread(jvm);
       }
       
@@ -91,36 +211,68 @@ JavaVM *pjvm_get_java(pmath_t pjvm){
   return NULL;
 }
 
-JNIEnv *pjvm_get_env(void){
-  pmath_t pjvm = pjvm_try_get();
-  JavaVM *jvm = NULL;
-  
-  if(pjvm){
-    jvm = pjvm_get_java(pjvm);
-    pmath_unref(pjvm);
-  }
-  
-  if(jvm){
-    JNIEnv *env = NULL;
+  static JNIEnv *get_env(pmath_bool_t may_fail){
+    pmath_t pjvm = pjvm_try_get();
+    JavaVM *jvm = NULL;
     
-    (*jvm)->GetEnv(jvm, (void**)&env, JNI_VERSION_1_4);
-    if(!env){
-      (*jvm)->AttachCurrentThreadAsDaemon(jvm, (void**)&env, NULL);
-      
-      if(env){
-        pmath_t auto_detach = pmath_custom_new(NULL, auto_detach_proc);
-        
-        if(auto_detach)
-          pmath_unref(pmath_thread_local_save(auto_detach, auto_detach));
-      }
+    if(pjvm){
+      jvm = pjvm_get_java(pjvm);
+      pmath_unref(pjvm);
     }
     
-    (*jvm)->GetEnv(jvm, (void**)&env, JNI_VERSION_1_4);
+    if(jvm){
+      JNIEnv *env = NULL;
+      
+      (*jvm)->GetEnv(jvm, (void**)&env, JNI_VERSION_1_4);
+      if(!env && !may_fail){
+        (*jvm)->AttachCurrentThreadAsDaemon(jvm, (void**)&env, NULL);
+        
+        if(env){
+          pmath_t auto_detach = pmath_custom_new(NULL, auto_detach_proc);
+          
+          if(auto_detach)
+            pmath_unref(pmath_thread_local_save(auto_detach, auto_detach));
+          
+          // auto_detach will be freed in the context of this thread when it 
+          // terminates.
+        }
+      
+        (*jvm)->GetEnv(jvm, (void**)&env, JNI_VERSION_1_4);
+      }
+      
+      return env;  
+    }
     
-    return env;  
+    return NULL;
+  }
+
+JNIEnv *pjvm_try_get_env(void){
+  return get_env(TRUE);
+}
+
+JNIEnv *pjvm_get_env(void){
+  return get_env(FALSE);
+}
+
+
+pmath_bool_t pj_exception_to_pmath(JNIEnv *env){
+  if(!env)
+    return FALSE;
+  
+  if((*env)->ExceptionCheck(env)){
+    jthrowable ex = (*env)->ExceptionOccurred(env);
+    (*env)->ExceptionClear(env);
+    
+    pmath_throw(
+      pmath_expr_new_extended(
+        pmath_ref(PJ_SYMBOL_JAVAEXCEPTION), 1, 
+        pj_object_from_java(env, ex)));
+    
+    (*env)->DeleteLocalRef(env, ex);
+    return TRUE;
   }
   
-  return NULL;
+  return FALSE;
 }
 
 
@@ -148,16 +300,30 @@ pmath_t pj_builtin_startvm(pmath_expr_t expr){
     pmath_atomic_lock(&vm_lock);
     {
       if(!vm){
-        JavaVMInitArgs vm_args;
-        JavaVM *jvm = NULL;
-        JNIEnv *env = NULL;
-        
-        memset(&vm_args, 0, sizeof(vm_args));
-        vm_args.version = JNI_VERSION_1_2;
-        JNI_GetDefaultJavaVMInitArgs(&vm_args);
-        
-        JNI_CreateJavaVM(&jvm, (void**)&env, &vm_args); 
-        vm = create_pjvm(jvm);
+        if(load_jvm_library()){
+          JavaVMInitArgs vm_args;
+          JavaVM *jvm = NULL;
+          JNIEnv *env = NULL;
+          JavaVMOption opt[1];
+          jint nOptions = 0;
+          
+          memset(&vm_args, 0, sizeof(vm_args));
+          memset(opt, 0, sizeof(opt));
+          #ifdef PMATH_DEBUG_LOG
+          {
+            opt[0].optionString = "-verbose:jni";
+            nOptions = 1;
+          }
+          #endif
+          
+          vm_args.version = JNI_VERSION_1_2;
+          vm_args.nOptions = nOptions;
+          vm_args.options = opt;
+          _JNI_GetDefaultJavaVMInitArgs(&vm_args);
+          
+          _JNI_CreateJavaVM(&jvm, (void**)&env, &vm_args); 
+          vm = create_pjvm(jvm);
+        }
       }
     }
     pmath_atomic_unlock(&vm_lock);
@@ -166,17 +332,22 @@ pmath_t pj_builtin_startvm(pmath_expr_t expr){
   else{
     pmath_unref(pmath_thread_send_wait(jvm_main_mq, expr, HUGE_VAL, NULL, NULL));
     
+    #ifdef PMATH_DEBUG_LOG
     {
       JNIEnv *env = pjvm_get_env();
       if(env){
-        jclass clazz = (*env)->FindClass(env, "Ljava/lang/String;");
+        jclass clazz = (*env)->FindClass(env, "Ljava/lang/String;;");
         pmath_t name = pj_class_get_name(env, clazz);
+        
+        PMATH_RUN_ARGS("Print(`1`)", "(o)", name);
+        
+        pj_cache_members(env, clazz);
         (*env)->DeleteLocalRef(env, clazz);
         
-        PMATH_RUN_ARGS("Print(`1`)", "o", name);
+        pj_exception_to_pmath(env);
       }
     }
-  
+    #endif
   }
   
   pjvm = pjvm_try_get();
@@ -206,4 +377,9 @@ pmath_bool_t pjvm_init(void){
 void pjvm_done(void){
   pjvm_register_external(NULL);
   pmath_unref(jvm_main_mq); jvm_main_mq = NULL;
+  
+  if(vm_library_counter > 0){
+    vm_library_counter = 1;
+    unload_jvm_callback(NULL);
+  }
 }

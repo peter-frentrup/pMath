@@ -89,12 +89,24 @@
 <tr><td class="memItemLeft" nowrap align="right" valign="top">PMATH_API <a class="el" href="group__general__types.html#gc92090cb0b56345d6c379ed2341d4ef4">pmath_bool_t</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__numbers.html#gb12e5e34b7918cb6beee23c57cdd0d36">pmath_integer_t::pmath_integer_fits_ui</a> (<a class="el" href="classpmath__integer__t.html">pmath_integer_t</a> integer)</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Find out whether a pMath integer fits into a unsigned long int.  <a href="#gb12e5e34b7918cb6beee23c57cdd0d36"></a><br></td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">PMATH_API <a class="el" href="group__general__types.html#gc92090cb0b56345d6c379ed2341d4ef4">pmath_bool_t</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__numbers.html#g3533b0ffc74d5cc7a0b618c5127ab5de">pmath_integer_t::pmath_integer_fits_si64</a> (<a class="el" href="classpmath__integer__t.html">pmath_integer_t</a> integer)</td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Find out whether a pMath integer fits into an int64_t.  <a href="#g3533b0ffc74d5cc7a0b618c5127ab5de"></a><br></td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">PMATH_API <a class="el" href="group__general__types.html#gc92090cb0b56345d6c379ed2341d4ef4">pmath_bool_t</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__numbers.html#gc783aa678e68ed2f877ccdb0ea8cca7d">pmath_integer_t::pmath_integer_fits_ui64</a> (<a class="el" href="classpmath__integer__t.html">pmath_integer_t</a> integer)</td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Find out whether a pMath integer fits into an uint64_t.  <a href="#gc783aa678e68ed2f877ccdb0ea8cca7d"></a><br></td></tr>
 <tr><td class="memItemLeft" nowrap align="right" valign="top">PMATH_API signed long int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__numbers.html#g12219f6f678ed0ddff66d352e0dabbd1">pmath_integer_t::pmath_integer_get_si</a> (<a class="el" href="classpmath__integer__t.html">pmath_integer_t</a> integer)</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Convert a pMath integer to a signed long int.  <a href="#g12219f6f678ed0ddff66d352e0dabbd1"></a><br></td></tr>
 <tr><td class="memItemLeft" nowrap align="right" valign="top">PMATH_API unsigned long int&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__numbers.html#g0aed3b6f38410b7e42ffa52be73c6ea6">pmath_integer_t::pmath_integer_get_ui</a> (<a class="el" href="classpmath__integer__t.html">pmath_integer_t</a> integer)</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Convert a pMath integer to a unsigned long int.  <a href="#g0aed3b6f38410b7e42ffa52be73c6ea6"></a><br></td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">PMATH_API int64_t&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__numbers.html#g95e554207096c722e5be03f538ff7eae">pmath_integer_t::pmath_integer_get_si64</a> (<a class="el" href="classpmath__integer__t.html">pmath_integer_t</a> integer)</td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Convert a pMath integer to an int64_t.  <a href="#g95e554207096c722e5be03f538ff7eae"></a><br></td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">PMATH_API uint64_t&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__numbers.html#ged9add974a0fd79a3ecfb91e51280e96">pmath_integer_t::pmath_integer_get_ui64</a> (<a class="el" href="classpmath__integer__t.html">pmath_integer_t</a> integer)</td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Convert a pMath integer to a uint64_t.  <a href="#ged9add974a0fd79a3ecfb91e51280e96"></a><br></td></tr>
 <tr><td class="memItemLeft" nowrap align="right" valign="top">PMATH_API double&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__numbers.html#g62617cbeeedaff88caaafec1dc84f329">pmath_number_t::pmath_number_get_d</a> (<a class="el" href="classpmath__number__t.html">pmath_number_t</a> number)</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Convert a pMath number to a double.  <a href="#g62617cbeeedaff88caaafec1dc84f329"></a><br></td></tr>
@@ -736,6 +748,62 @@ Find out whether a pMath integer fits into a unsigned long int.
 
 </div>
 </div><p>
+<a class="anchor" name="g3533b0ffc74d5cc7a0b618c5127ab5de"></a><!-- doxytag: member="pmath_integer_t::pmath_integer_fits_si64" ref="g3533b0ffc74d5cc7a0b618c5127ab5de" args="(pmath_integer_t integer)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">PMATH_API <a class="el" href="group__general__types.html#gc92090cb0b56345d6c379ed2341d4ef4">pmath_bool_t</a> pmath_integer_fits_si64           </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classpmath__integer__t.html">pmath_integer_t</a>&nbsp;</td>
+          <td class="paramname"> <em>integer</em>          </td>
+          <td>&nbsp;)&nbsp;</td>
+          <td><code> [inherited]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>
+Find out whether a pMath integer fits into an int64_t. 
+<p>
+<dl compact><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"></td><td valign="top"><em>integer</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> pMath integer. It wont be freed. </td></tr>
+  </table>
+</dl>
+<dl class="return" compact><dt><b>Returns:</b></dt><dd>TRUE iff the value is small enough for an int64_t. </dd></dl>
+
+</div>
+</div><p>
+<a class="anchor" name="gc783aa678e68ed2f877ccdb0ea8cca7d"></a><!-- doxytag: member="pmath_integer_t::pmath_integer_fits_ui64" ref="gc783aa678e68ed2f877ccdb0ea8cca7d" args="(pmath_integer_t integer)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">PMATH_API <a class="el" href="group__general__types.html#gc92090cb0b56345d6c379ed2341d4ef4">pmath_bool_t</a> pmath_integer_fits_ui64           </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classpmath__integer__t.html">pmath_integer_t</a>&nbsp;</td>
+          <td class="paramname"> <em>integer</em>          </td>
+          <td>&nbsp;)&nbsp;</td>
+          <td><code> [inherited]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>
+Find out whether a pMath integer fits into an uint64_t. 
+<p>
+<dl compact><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"></td><td valign="top"><em>integer</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> pMath integer. It wont be freed. </td></tr>
+  </table>
+</dl>
+<dl class="return" compact><dt><b>Returns:</b></dt><dd>TRUE iff the value is small enough for an uint64_t. </dd></dl>
+
+</div>
+</div><p>
 <a class="anchor" name="g12219f6f678ed0ddff66d352e0dabbd1"></a><!-- doxytag: member="pmath_integer_t::pmath_integer_get_si" ref="g12219f6f678ed0ddff66d352e0dabbd1" args="(pmath_integer_t integer)" -->
 <div class="memitem">
 <div class="memproto">
@@ -783,6 +851,64 @@ Convert a pMath integer to a signed long int.
 
 <p>
 Convert a pMath integer to a unsigned long int. 
+<p>
+<dl compact><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"></td><td valign="top"><em>integer</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> pMath integer. It wont be freed. </td></tr>
+  </table>
+</dl>
+<dl class="return" compact><dt><b>Returns:</b></dt><dd>The integer's value if it fits.</dd></dl>
+<dl class="see" compact><dt><b>See also:</b></dt><dd><a class="el" href="group__numbers.html#gb12e5e34b7918cb6beee23c57cdd0d36" title="Find out whether a pMath integer fits into a unsigned long int.">pmath_integer_fits_ui</a> </dd></dl>
+
+</div>
+</div><p>
+<a class="anchor" name="g95e554207096c722e5be03f538ff7eae"></a><!-- doxytag: member="pmath_integer_t::pmath_integer_get_si64" ref="g95e554207096c722e5be03f538ff7eae" args="(pmath_integer_t integer)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">PMATH_API int64_t pmath_integer_get_si64           </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classpmath__integer__t.html">pmath_integer_t</a>&nbsp;</td>
+          <td class="paramname"> <em>integer</em>          </td>
+          <td>&nbsp;)&nbsp;</td>
+          <td><code> [inherited]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>
+Convert a pMath integer to an int64_t. 
+<p>
+<dl compact><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"></td><td valign="top"><em>integer</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> pMath integer. It wont be freed. </td></tr>
+  </table>
+</dl>
+<dl class="return" compact><dt><b>Returns:</b></dt><dd>The integer's value if it fits.</dd></dl>
+<dl class="see" compact><dt><b>See also:</b></dt><dd><a class="el" href="group__numbers.html#gc220e06754067b9ba4a7c823017ad32e" title="Find out whether a pMath integer fits into a signed long int.">pmath_integer_fits_si</a> </dd></dl>
+
+</div>
+</div><p>
+<a class="anchor" name="ged9add974a0fd79a3ecfb91e51280e96"></a><!-- doxytag: member="pmath_integer_t::pmath_integer_get_ui64" ref="ged9add974a0fd79a3ecfb91e51280e96" args="(pmath_integer_t integer)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">PMATH_API uint64_t pmath_integer_get_ui64           </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classpmath__integer__t.html">pmath_integer_t</a>&nbsp;</td>
+          <td class="paramname"> <em>integer</em>          </td>
+          <td>&nbsp;)&nbsp;</td>
+          <td><code> [inherited]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>
+Convert a pMath integer to a uint64_t. 
 <p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
@@ -879,7 +1005,7 @@ Get a number's negative.
 </div>
 </div><p>
 </div>
-<hr size="1"><address style="text-align: right;"><small>Generated on Sun Oct 17 23:45:06 2010 for pMath by&nbsp;
+<hr size="1"><address style="text-align: right;"><small>Generated on Sat Oct 23 21:43:07 2010 for pMath by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.5.9 </small></address>
 </body>

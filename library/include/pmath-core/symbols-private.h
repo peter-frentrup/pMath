@@ -44,6 +44,7 @@ void _pmath_symbol_track_dynamic(
 
 PMATH_PRIVATE void         _pmath_symbols_memory_panic(void);
 PMATH_PRIVATE pmath_bool_t _pmath_symbols_init(void);
+PMATH_PRIVATE void         _pmath_symbols_almost_done(void);
 PMATH_PRIVATE void         _pmath_symbols_done(void);
 
 #endif /* __PMATH_CORE__SYMBOLS_PRIVATE_H__ */

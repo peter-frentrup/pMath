@@ -389,12 +389,12 @@ void pmath_task_abort(pmath_task_t task){
 struct daemon_t{
   thread_handle_t             handle;
   pmath_thread_t              thread;
-  pmath_callback_t       callback;
-  pmath_callback_t       kill;
+  pmath_callback_t            callback;
+  pmath_callback_t            kill;
   void                       *cb_data;
   
   pmath_messages_t          *message_queue_ptr;
-  volatile pmath_bool_t  *init_ok;
+  volatile pmath_bool_t     *init_ok;
   sem_t                     *init_sem;
   
   struct daemon_t * volatile  prev;
@@ -496,6 +496,8 @@ PMATH_PRIVATE void _pmath_threadpool_kill_daemons(void){
   while(all){
     daemon = all;
     do{
+      struct daemon_t *next = daemon->next;
+      
       // TODO: is this safe???
       //       maybe we should send an Abort() command?
       //       maybe it is not neccessary, because pmath_aborting() might check
@@ -505,7 +507,7 @@ PMATH_PRIVATE void _pmath_threadpool_kill_daemons(void){
       if(daemon->kill)
         daemon->kill(daemon->cb_data);
         
-      daemon = daemon->next;
+      daemon = next;
     }while(daemon != all);
     
     while(all){
@@ -538,7 +540,7 @@ PMATH_PRIVATE void _pmath_threadpool_kill_daemons(void){
           pthread_detach(daemon->handle);
         #endif
         
-        pmath_mem_free(daemon);
+        //pmath_mem_free(daemon);
       }
     }
     

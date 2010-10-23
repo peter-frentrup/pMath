@@ -66,24 +66,28 @@
 		</Compiler>
 		<Linker>
 			<Add library="pmath" />
-			<Add library="jvm" />
 			<Add directory="$(#jdk.lib)" />
 		</Linker>
+		<Unit filename="scripts\init.pmath" />
 		<Unit filename="src\main.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pj-class.c">
+		<Unit filename="src\pj-classes.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pj-class.h" />
+		<Unit filename="src\pj-classes.h" />
+		<Unit filename="src\pj-objects.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\pj-objects.h" />
 		<Unit filename="src\pj-symbols.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src\pj-symbols.h" />
-		<Unit filename="src\pj-value.c">
+		<Unit filename="src\pj-values.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pj-value.h" />
+		<Unit filename="src\pj-values.h" />
 		<Unit filename="src\pjvm.c">
 			<Option compilerVar="CC" />
 		</Unit>

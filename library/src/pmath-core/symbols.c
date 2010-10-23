@@ -1095,6 +1095,10 @@ static void write_symbol(
 
 //}
 
+PMATH_PRIVATE void _pmath_symbols_memory_panic(void){
+  destroy_all_unused_symbols();
+}
+
 PMATH_PRIVATE pmath_bool_t _pmath_symbols_init(void){
   assert(global_symbol_table_lock == 0);
   
@@ -1119,7 +1123,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbols_init(void){
   return FALSE;
 }
 
-PMATH_PRIVATE void _pmath_symbols_done(void){
+PMATH_PRIVATE void _pmath_symbols_almost_done(void){
   unsigned int i, cap;
   
   cap = pmath_ht_capacity(global_symbol_table);
@@ -1139,6 +1143,14 @@ PMATH_PRIVATE void _pmath_symbols_done(void){
       }
     }
   }
+}
+
+PMATH_PRIVATE void _pmath_symbols_done(void){
+  unsigned int i, cap;
+  
+  cap = pmath_ht_capacity(global_symbol_table);
+  
+  _pmath_symbols_almost_done();
   
   #ifdef PMATH_DEBUG_LOG
   for(i = 0;i < cap;++i){
@@ -1162,11 +1174,5 @@ PMATH_PRIVATE void _pmath_symbols_done(void){
   #endif
   
   pmath_ht_destroy(global_symbol_table);
-  destroy_all_unused_symbols();
-}
-
-/*----------------------------------------------------------------------------*/
-
-PMATH_PRIVATE void _pmath_symbols_memory_panic(void){
   destroy_all_unused_symbols();
 }

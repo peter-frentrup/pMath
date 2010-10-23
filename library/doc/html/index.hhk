@@ -172,9 +172,13 @@
     <LI><OBJECT type="text/sitemap"><param name="Local" value="group__numbers.html#g5c3beb5316feb510ee46f72f11b49117"><param name="Name" value="pmath_float_new_d"></OBJECT>
     <LI><OBJECT type="text/sitemap"><param name="Local" value="group__numbers.html#g6c67d61f1a57084cc46e858a307ec461"><param name="Name" value="pmath_float_new_str"></OBJECT>
     <LI><OBJECT type="text/sitemap"><param name="Local" value="group__numbers.html#gc220e06754067b9ba4a7c823017ad32e"><param name="Name" value="pmath_integer_fits_si"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="group__numbers.html#g3533b0ffc74d5cc7a0b618c5127ab5de"><param name="Name" value="pmath_integer_fits_si64"></OBJECT>
     <LI><OBJECT type="text/sitemap"><param name="Local" value="group__numbers.html#gb12e5e34b7918cb6beee23c57cdd0d36"><param name="Name" value="pmath_integer_fits_ui"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="group__numbers.html#gc783aa678e68ed2f877ccdb0ea8cca7d"><param name="Name" value="pmath_integer_fits_ui64"></OBJECT>
     <LI><OBJECT type="text/sitemap"><param name="Local" value="group__numbers.html#g12219f6f678ed0ddff66d352e0dabbd1"><param name="Name" value="pmath_integer_get_si"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="group__numbers.html#g95e554207096c722e5be03f538ff7eae"><param name="Name" value="pmath_integer_get_si64"></OBJECT>
     <LI><OBJECT type="text/sitemap"><param name="Local" value="group__numbers.html#g0aed3b6f38410b7e42ffa52be73c6ea6"><param name="Name" value="pmath_integer_get_ui"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="group__numbers.html#ged9add974a0fd79a3ecfb91e51280e96"><param name="Name" value="pmath_integer_get_ui64"></OBJECT>
     <LI><OBJECT type="text/sitemap"><param name="Local" value="group__numbers.html#g7ffd98a7d3634c79d261b67f76b1d011"><param name="Name" value="pmath_integer_new_data"></OBJECT>
     <LI><OBJECT type="text/sitemap"><param name="Local" value="group__numbers.html#g34c4815ce444a7dd88a19335098c8c5b"><param name="Name" value="pmath_integer_new_si"></OBJECT>
     <LI><OBJECT type="text/sitemap"><param name="Local" value="group__numbers.html#g5fecb78f68ce62c05b1970cf1cf17dc6"><param name="Name" value="pmath_integer_new_size"></OBJECT>
@@ -630,20 +634,40 @@
   </UL>
   <LI><OBJECT type="text/sitemap"><param name="Local" value="group__frontend.html#gfb9f2c789bee5295c6794d16c0164943"><param name="Name" value="pmath_init"></OBJECT>
   <LI><OBJECT type="text/sitemap"><param name="Local" value="classpmath__t.html#0bd527f1ec2db8f1eba58e1fd84babbc"><param name="Name" value="pmath_instance_of"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="group__numbers.html#g3533b0ffc74d5cc7a0b618c5127ab5de"><param name="Name" value="pmath_integer_fits_si64"></OBJECT>
+  <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="group__numbers.html#g3533b0ffc74d5cc7a0b618c5127ab5de"><param name="Name" value="numbers"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="group__numbers.html#g3533b0ffc74d5cc7a0b618c5127ab5de"><param name="Name" value="pmath_integer_t"></OBJECT>
+  </UL>
   <LI><OBJECT type="text/sitemap"><param name="Local" value="group__numbers.html#gc220e06754067b9ba4a7c823017ad32e"><param name="Name" value="pmath_integer_fits_si"></OBJECT>
   <UL>
     <LI><OBJECT type="text/sitemap"><param name="Local" value="group__numbers.html#gc220e06754067b9ba4a7c823017ad32e"><param name="Name" value="numbers"></OBJECT>
     <LI><OBJECT type="text/sitemap"><param name="Local" value="group__numbers.html#gc220e06754067b9ba4a7c823017ad32e"><param name="Name" value="pmath_integer_t"></OBJECT>
+  </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="group__numbers.html#gc783aa678e68ed2f877ccdb0ea8cca7d"><param name="Name" value="pmath_integer_fits_ui64"></OBJECT>
+  <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="group__numbers.html#gc783aa678e68ed2f877ccdb0ea8cca7d"><param name="Name" value="numbers"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="group__numbers.html#gc783aa678e68ed2f877ccdb0ea8cca7d"><param name="Name" value="pmath_integer_t"></OBJECT>
   </UL>
   <LI><OBJECT type="text/sitemap"><param name="Local" value="group__numbers.html#gb12e5e34b7918cb6beee23c57cdd0d36"><param name="Name" value="pmath_integer_fits_ui"></OBJECT>
   <UL>
     <LI><OBJECT type="text/sitemap"><param name="Local" value="group__numbers.html#gb12e5e34b7918cb6beee23c57cdd0d36"><param name="Name" value="numbers"></OBJECT>
     <LI><OBJECT type="text/sitemap"><param name="Local" value="group__numbers.html#gb12e5e34b7918cb6beee23c57cdd0d36"><param name="Name" value="pmath_integer_t"></OBJECT>
   </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="group__numbers.html#g95e554207096c722e5be03f538ff7eae"><param name="Name" value="pmath_integer_get_si64"></OBJECT>
+  <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="group__numbers.html#g95e554207096c722e5be03f538ff7eae"><param name="Name" value="numbers"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="group__numbers.html#g95e554207096c722e5be03f538ff7eae"><param name="Name" value="pmath_integer_t"></OBJECT>
+  </UL>
   <LI><OBJECT type="text/sitemap"><param name="Local" value="group__numbers.html#g12219f6f678ed0ddff66d352e0dabbd1"><param name="Name" value="pmath_integer_get_si"></OBJECT>
   <UL>
     <LI><OBJECT type="text/sitemap"><param name="Local" value="group__numbers.html#g12219f6f678ed0ddff66d352e0dabbd1"><param name="Name" value="numbers"></OBJECT>
     <LI><OBJECT type="text/sitemap"><param name="Local" value="group__numbers.html#g12219f6f678ed0ddff66d352e0dabbd1"><param name="Name" value="pmath_integer_t"></OBJECT>
+  </UL>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="group__numbers.html#ged9add974a0fd79a3ecfb91e51280e96"><param name="Name" value="pmath_integer_get_ui64"></OBJECT>
+  <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="group__numbers.html#ged9add974a0fd79a3ecfb91e51280e96"><param name="Name" value="numbers"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="group__numbers.html#ged9add974a0fd79a3ecfb91e51280e96"><param name="Name" value="pmath_integer_t"></OBJECT>
   </UL>
   <LI><OBJECT type="text/sitemap"><param name="Local" value="group__numbers.html#g0aed3b6f38410b7e42ffa52be73c6ea6"><param name="Name" value="pmath_integer_get_ui"></OBJECT>
   <UL>
@@ -678,9 +702,13 @@
   <LI><OBJECT type="text/sitemap"><param name="Local" value="classpmath__integer__t.html"><param name="Name" value="pmath_integer_t"></OBJECT>
   <UL>
     <LI><OBJECT type="text/sitemap"><param name="Local" value="classpmath__integer__t.html#gc220e06754067b9ba4a7c823017ad32e"><param name="Name" value="pmath_integer_fits_si"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="classpmath__integer__t.html#g3533b0ffc74d5cc7a0b618c5127ab5de"><param name="Name" value="pmath_integer_fits_si64"></OBJECT>
     <LI><OBJECT type="text/sitemap"><param name="Local" value="classpmath__integer__t.html#gb12e5e34b7918cb6beee23c57cdd0d36"><param name="Name" value="pmath_integer_fits_ui"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="classpmath__integer__t.html#gc783aa678e68ed2f877ccdb0ea8cca7d"><param name="Name" value="pmath_integer_fits_ui64"></OBJECT>
     <LI><OBJECT type="text/sitemap"><param name="Local" value="classpmath__integer__t.html#g12219f6f678ed0ddff66d352e0dabbd1"><param name="Name" value="pmath_integer_get_si"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="classpmath__integer__t.html#g95e554207096c722e5be03f538ff7eae"><param name="Name" value="pmath_integer_get_si64"></OBJECT>
     <LI><OBJECT type="text/sitemap"><param name="Local" value="classpmath__integer__t.html#g0aed3b6f38410b7e42ffa52be73c6ea6"><param name="Name" value="pmath_integer_get_ui"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="classpmath__integer__t.html#ged9add974a0fd79a3ecfb91e51280e96"><param name="Name" value="pmath_integer_get_ui64"></OBJECT>
     <LI><OBJECT type="text/sitemap"><param name="Local" value="classpmath__integer__t.html#g7ffd98a7d3634c79d261b67f76b1d011"><param name="Name" value="pmath_integer_new_data"></OBJECT>
     <LI><OBJECT type="text/sitemap"><param name="Local" value="classpmath__integer__t.html#g34c4815ce444a7dd88a19335098c8c5b"><param name="Name" value="pmath_integer_new_si"></OBJECT>
     <LI><OBJECT type="text/sitemap"><param name="Local" value="classpmath__integer__t.html#g5fecb78f68ce62c05b1970cf1cf17dc6"><param name="Name" value="pmath_integer_new_size"></OBJECT>

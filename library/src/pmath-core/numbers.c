@@ -822,6 +822,34 @@ PMATH_API pmath_bool_t pmath_integer_fits_ui(pmath_integer_t integer){
   return mpz_fits_ulong_p(((struct _pmath_integer_t*)integer)->value);
 }
 
+PMATH_API pmath_bool_t pmath_integer_fits_si64(pmath_integer_t integer){
+  struct _pmath_integer_t *_int = (struct _pmath_integer_t*)integer;
+  size_t size;
+  
+  if(!integer)
+    return FALSE;
+  
+  size = mpz_sizeinbase(_int->value, 2);
+  if(size < 63)
+    return TRUE;
+  
+  if(size == 63)
+    return mpz_sgn(_int->value) < 0;
+  
+  return FALSE;
+}
+
+PMATH_API pmath_bool_t pmath_integer_fits_ui64(pmath_integer_t integer){
+  struct _pmath_integer_t *_int = (struct _pmath_integer_t*)integer;
+  size_t size;
+  
+  if(!integer)
+    return FALSE;
+  
+  size = mpz_sizeinbase(_int->value, 2);
+  return (size <= 64 && mpz_sgn(_int->value) >= 0);
+}
+
 PMATH_API signed long int pmath_integer_get_si(pmath_integer_t integer){
   if(!integer)
     return 0;
@@ -832,6 +860,46 @@ PMATH_API unsigned long int pmath_integer_get_ui(pmath_integer_t integer){
   if(!integer)
     return 0;
   return mpz_get_ui(((struct _pmath_integer_t*)integer)->value);
+}
+
+PMATH_API
+PMATH_ATTRIBUTE_PURE
+int64_t pmath_integer_get_si64(pmath_integer_t integer){
+  struct _pmath_integer_t *_int = (struct _pmath_integer_t*)integer;
+  size_t size;
+  
+  if(!integer)
+    return 0;
+  
+  size = mpz_sizeinbase(_int->value, 8);
+  if(size <= sizeof(uint64_t)){
+    uint64_t val = 0;
+    mpz_export(&val, NULL, 1, sizeof(uint64_t), 0, 0, _int->value);
+    
+    if(mpz_sgn(_int->value) < 0)
+      return (int64_t)(-val);
+    return (int64_t)val;
+  }
+  return 0;
+}
+
+PMATH_API
+PMATH_ATTRIBUTE_PURE
+uint64_t pmath_integer_get_ui64(pmath_integer_t integer){
+  struct _pmath_integer_t *_int = (struct _pmath_integer_t*)integer;
+  size_t size;
+  
+  if(!integer)
+    return 0;
+  
+  size = mpz_sizeinbase(_int->value, 8);
+  if(size <= sizeof(uint64_t)){
+    uint64_t val = 0;
+    mpz_export(&val, NULL, 1, sizeof(uint64_t), 0, 0, _int->value);
+    
+    return val;
+  }
+  return 0;
 }
 
 PMATH_API double pmath_number_get_d(pmath_number_t number){

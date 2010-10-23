@@ -85,7 +85,7 @@
 1280054993 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\concurrency\atomic\msvc\intrinsic_functions.h
 	<intrin.h>
 
-1284805259 d:\peter\programmieren\pmath\trunk\library\include\pmath-core\numbers.h
+1287862757 d:\peter\programmieren\pmath\trunk\library\include\pmath-core\numbers.h
 	<pmath-core/objects-inline.h>
 	<stdlib.h>
 
@@ -184,42 +184,49 @@
 	"pj-class.h"
 	"pj-hashtables.h"
 
-1287433985 d:\peter\programmieren\pmath\trunk\modules\pmath-java\src\pj-class.h
+1287845345 d:\peter\programmieren\pmath\trunk\modules\pmath-java\src\pj-class.h
 	<jni.h>
 	<pmath.h>
 
 1287356010 d:\peter\programmieren\pmath\trunk\modules\pmath-java\src\pj-hashtables.h
 	<pmath-cpp.h>
 
-1287433154 source:d:\peter\programmieren\pmath\trunk\modules\pmath-java\src\pj-class.c
+1287853476 source:d:\peter\programmieren\pmath\trunk\modules\pmath-java\src\pj-class.c
 	"pj-class.h"
 	"pj-symbols.h"
 	"pj-value.h"
+	"pjvm.h"
 	<limits.h>
 
-1287433614 source:d:\peter\programmieren\pmath\trunk\modules\pmath-java\src\pj-symbols.c
+1287849430 source:d:\peter\programmieren\pmath\trunk\modules\pmath-java\src\pj-symbols.c
 	"pj-symbols.h"
 	"pjvm.h"
 	<string.h>
 
-1287433602 d:\peter\programmieren\pmath\trunk\modules\pmath-java\src\pj-symbols.h
+1287849446 d:\peter\programmieren\pmath\trunk\modules\pmath-java\src\pj-symbols.h
 	<pmath.h>
 
-1287423719 d:\peter\programmieren\pmath\trunk\modules\pmath-java\src\pjvm.h
+1287877079 d:\peter\programmieren\pmath\trunk\modules\pmath-java\src\pjvm.h
 	<pmath.h>
 	<jni.h>
 
-1287411321 source:d:\peter\programmieren\pmath\trunk\modules\pmath-java\src\main.c
+1287860125 source:d:\peter\programmieren\pmath\trunk\modules\pmath-java\src\main.c
 	"pjvm.h"
+	"pj-classes.h"
+	"pj-objects.h"
 	"pj-symbols.h"
 
-1287433741 source:d:\peter\programmieren\pmath\trunk\modules\pmath-java\src\pjvm.c
+1287877169 source:d:\peter\programmieren\pmath\trunk\modules\pmath-java\src\pjvm.c
 	"pjvm.h"
-	"pj-class.h"
+	"pj-classes.h"
+	"pj-objects.h"
 	"pj-symbols.h"
-	<string.h>
-	<stdio.h>
+	<limits.h>
 	<math.h>
+	<stdio.h>
+	<string.h>
+	<windows.h>
+	<dlfcn.h>
 
 1287411745 source:d:\peter\programmieren\pmath\trunk\modules\pmath-java\src\pj-string.c
 	"pj-string.h"
@@ -228,10 +235,44 @@
 	<jni.h>
 	<pmath.h>
 
-1287429688 source:d:\peter\programmieren\pmath\trunk\modules\pmath-java\src\pj-value.c
+1287854124 source:d:\peter\programmieren\pmath\trunk\modules\pmath-java\src\pj-value.c
 	"pj-value.h"
 
-1287433300 d:\peter\programmieren\pmath\trunk\modules\pmath-java\src\pj-value.h
+1287854120 d:\peter\programmieren\pmath\trunk\modules\pmath-java\src\pj-value.h
 	<jni.h>
 	<pmath.h>
+
+1287871845 source:d:\peter\programmieren\pmath\trunk\modules\pmath-java\src\pj-classes.c
+	"pj-classes.h"
+	"pj-symbols.h"
+	"pj-values.h"
+	"pjvm.h"
+	<limits.h>
+	<string.h>
+
+1287871868 d:\peter\programmieren\pmath\trunk\modules\pmath-java\src\pj-classes.h
+	<jni.h>
+	<pmath.h>
+
+1287877203 source:d:\peter\programmieren\pmath\trunk\modules\pmath-java\src\pj-objects.c
+	"pj-objects.h"
+	"pj-classes.h"
+	"pjvm.h"
+	<limits.h>
+
+1287865896 d:\peter\programmieren\pmath\trunk\modules\pmath-java\src\pj-objects.h
+	<pmath.h>
+	<jni.h>
+
+1287860517 d:\peter\programmieren\pmath\trunk\modules\pmath-java\src\pj-values.h
+	<jni.h>
+	<pmath.h>
+
+1287868505 source:d:\peter\programmieren\pmath\trunk\modules\pmath-java\src\pj-values.c
+	"pj-values.h"
+	"pj-classes.h"
+	"pj-objects.h"
+	"pj-symbols.h"
+	<math.h>
+	<string.h>
 

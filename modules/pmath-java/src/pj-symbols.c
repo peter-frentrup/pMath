@@ -16,13 +16,24 @@ pmath_bool_t pj_symbols_init(void){
   #define BIND(sym, func, use)  do{ if(!pmath_register_code((sym), (func), (use))) goto FAIL; }while(0)
   #define BIND_DOWN(sym, func)  BIND((sym), (func), PMATH_CODE_USAGE_DOWNCALL)
 
-  #define PROTECT(sym) pmath_symbol_set_attributes((sym), pmath_symbol_get_attributes((sym)) | PMATH_SYMBOL_ATTRIBUTE_PROTECTED)
+  #define PROTECT(sym)   pmath_symbol_set_attributes((sym), pmath_symbol_get_attributes((sym)) | PMATH_SYMBOL_ATTRIBUTE_PROTECTED)
 
-  VERIFY(PJ_SYMBOL_JAVA         = NEW_SYMBOL("Java`Java"));
-  VERIFY(PJ_SYMBOL_JAVACLASS    = NEW_SYMBOL("Java`JavaClass"));
-  VERIFY(PJ_SYMBOL_JAVAKILLVM   = NEW_SYMBOL("Java`JavaKillVM"));
-  VERIFY(PJ_SYMBOL_JAVAOBJECT   = NEW_SYMBOL("Java`JavaObject"));
-  VERIFY(PJ_SYMBOL_JAVASTARTVM  = NEW_SYMBOL("Java`JavaStartVM"));
+  VERIFY(PJ_SYMBOL_JAVA              = NEW_SYMBOL("Java`Java"));
+  VERIFY(PJ_SYMBOL_JAVACLASS         = NEW_SYMBOL("Java`JavaClass"));
+  VERIFY(PJ_SYMBOL_JAVAEXCEPTION     = NEW_SYMBOL("Java`JavaException"));
+  VERIFY(PJ_SYMBOL_JAVAKILLVM        = NEW_SYMBOL("Java`JavaKillVM"));
+  VERIFY(PJ_SYMBOL_JAVASTARTVM       = NEW_SYMBOL("Java`JavaStartVM"));
+  VERIFY(PJ_SYMBOL_JAVAVMLIBRARYNAME = NEW_SYMBOL("Java`$JavaVMLibraryName"));
+  
+  VERIFY(PJ_SYMBOL_TYPE_ARRAY        = NEW_SYMBOL("Java`Type`Array"));
+  VERIFY(PJ_SYMBOL_TYPE_BOOLEAN      = NEW_SYMBOL("Java`Type`Boolean"));
+  VERIFY(PJ_SYMBOL_TYPE_BYTE         = NEW_SYMBOL("Java`Type`Byte"));
+  VERIFY(PJ_SYMBOL_TYPE_CHAR         = NEW_SYMBOL("Java`Type`Char"));
+  VERIFY(PJ_SYMBOL_TYPE_DOUBLE       = NEW_SYMBOL("Java`Type`Double"));
+  VERIFY(PJ_SYMBOL_TYPE_FLOAT        = NEW_SYMBOL("Java`Type`Float"));
+  VERIFY(PJ_SYMBOL_TYPE_INT          = NEW_SYMBOL("Java`Type`Int"));
+  VERIFY(PJ_SYMBOL_TYPE_LONG         = NEW_SYMBOL("Java`Type`Long"));
+  VERIFY(PJ_SYMBOL_TYPE_SHORT        = NEW_SYMBOL("Java`Type`Short"));
   
   BIND_DOWN(PJ_SYMBOL_JAVASTARTVM, pj_builtin_startvm);
   BIND_DOWN(PJ_SYMBOL_JAVAKILLVM,  pj_builtin_killvm);
@@ -30,6 +41,9 @@ pmath_bool_t pj_symbols_init(void){
   {
     size_t i;
     for(i = 0;i < PJ_SYMBOLS_COUNT;++i){
+      if(!_pj_symbols[i])
+        pmath_debug_print("Symbol %d not defined.\n", (int)i);
+        
       PROTECT(_pj_symbols[i]);
     }
   }

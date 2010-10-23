@@ -294,6 +294,24 @@ PMATH_API
 PMATH_ATTRIBUTE_PURE
 pmath_bool_t pmath_integer_fits_ui(pmath_integer_t integer);
 
+/**\brief Find out whether a pMath integer fits into an int64_t.
+   \memberof pmath_integer_t
+   \param integer A pMath integer. It wont be freed.
+   \return TRUE iff the value is small enough for an int64_t.
+ */
+PMATH_API 
+PMATH_ATTRIBUTE_PURE
+pmath_bool_t pmath_integer_fits_si64(pmath_integer_t integer);
+
+/**\brief Find out whether a pMath integer fits into an uint64_t.
+   \memberof pmath_integer_t
+   \param integer A pMath integer. It wont be freed.
+   \return TRUE iff the value is small enough for an uint64_t.
+ */
+PMATH_API 
+PMATH_ATTRIBUTE_PURE
+pmath_bool_t pmath_integer_fits_ui64(pmath_integer_t integer);
+
 /**\brief Convert a pMath integer to a signed long int.
    \memberof pmath_integer_t
    \param integer A pMath integer. It wont be freed.
@@ -315,6 +333,28 @@ signed long int pmath_integer_get_si(pmath_integer_t integer);
 PMATH_API 
 PMATH_ATTRIBUTE_PURE
 unsigned long int pmath_integer_get_ui(pmath_integer_t integer);
+
+/**\brief Convert a pMath integer to an int64_t.
+   \memberof pmath_integer_t
+   \param integer A pMath integer. It wont be freed.
+   \return The integer's value if it fits.
+   
+   \see pmath_integer_fits_si
+ */
+PMATH_API
+PMATH_ATTRIBUTE_PURE
+int64_t pmath_integer_get_si64(pmath_integer_t integer);
+
+/**\brief Convert a pMath integer to a uint64_t.
+   \memberof pmath_integer_t
+   \param integer A pMath integer. It wont be freed.
+   \return The integer's value if it fits.
+   
+   \see pmath_integer_fits_ui
+ */
+PMATH_API 
+PMATH_ATTRIBUTE_PURE
+uint64_t pmath_integer_get_ui64(pmath_integer_t integer);
 
 /**\brief Convert a pMath number to a double.
    \memberof pmath_number_t
