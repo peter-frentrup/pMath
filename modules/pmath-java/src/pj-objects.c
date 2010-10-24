@@ -50,6 +50,7 @@ struct obj_entry_t{
       pmath_t sym = pmath_symbol_get(e->owner_name, FALSE);
       if(sym){
         pmath_symbol_set_value(sym, NULL);
+        pmath_unref(sym);
       }
       
       if(env){
