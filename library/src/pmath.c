@@ -545,6 +545,14 @@ PMATH_API pmath_bool_t pmath_init(void){
     
     PMATH_RUN("$DialogLevel:=0");
     
+    {
+      int year, month, day, hour, minute, second;
+      pmath_version_get_datetime(&year, &month, &day, &hour, &minute, &second);
+      
+      PMATH_RUN_ARGS("$Version:= `1`", "((iiiiii))", 
+        year, month, day, hour, minute, second);
+    }
+    
     PMATH_RUN("IsNumeric(E):=True");
     PMATH_RUN("IsNumeric(EulerGamma):=True");
     PMATH_RUN("IsNumeric(Degree):=True");

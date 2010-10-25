@@ -2994,7 +2994,7 @@
 	<limits>
 	<pmath.h>
 
-1287348461 d:\peter\programmieren\pmath\trunk\library\include\pmath.h
+1288014861 d:\peter\programmieren\pmath\trunk\library\include\pmath.h
 	<pmath-core/custom.h>
 	<pmath-core/expressions.h>
 	<pmath-core/numbers.h>
@@ -3017,6 +3017,7 @@
 	<pmath-util/messages.h>
 	<pmath-util/serialize.h>
 	<pmath-util/stacks.h>
+	<pmath-util/version.h>
 	<pmath-builtins/all-symbols.h>
 
 1286376835 d:\peter\programmieren\pmath\trunk\library\include\pmath-config.h
@@ -3074,7 +3075,7 @@
 1287347487 d:\peter\programmieren\pmath\trunk\library\include\pmath-core\symbols.h
 	<pmath-core/strings.h>
 
-1287409098 d:\peter\programmieren\pmath\trunk\library\include\pmath-builtins\all-symbols.h
+1288014962 d:\peter\programmieren\pmath\trunk\library\include\pmath-builtins\all-symbols.h
 	<pmath-core/expressions.h>
 	<pmath-core/symbols.h>
 
@@ -3847,4 +3848,7 @@
 
 1287350999 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\hashtables.h
 	<pmath-core/objects-inline.h>
+
+1288014836 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\version.h
+	<pmath-config.h>
 

@@ -1121,6 +1121,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   VERIFY(   PMATH_SYMBOL_UNPROTECT                 = NEW_SYSTEM_SYMBOL("Unprotect"))
   VERIFY(   PMATH_SYMBOL_UPDATE                    = NEW_SYSTEM_SYMBOL("Update"))
   VERIFY(   PMATH_SYMBOL_UPRULES                   = NEW_SYSTEM_SYMBOL("UpRules"))
+  VERIFY(   PMATH_SYMBOL_VERSION                   = NEW_SYSTEM_SYMBOL("$Version"))
   VERIFY(   PMATH_SYMBOL_WAIT                      = NEW_SYSTEM_SYMBOL("Wait"))
   VERIFY(   PMATH_SYMBOL_WHILE                     = NEW_SYSTEM_SYMBOL("While"))
   VERIFY(   PMATH_SYMBOL_WHITESPACE                = NEW_SYSTEM_SYMBOL("Whitespace"))

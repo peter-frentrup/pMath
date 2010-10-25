@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1287409115 source:d:\peter\programmieren\pmath\trunk\library\src\pmath-builtins\all-symbols.c
+1288014973 source:d:\peter\programmieren\pmath\trunk\library\src\pmath-builtins\all-symbols.c
 	<pmath-builtins/all-symbols-private.h>
 	<pmath-util/concurrency/atomic-private.h>
 	<pmath-util/debug.h>
@@ -8,10 +8,10 @@
 	<pmath-util/messages.h>
 	<string.h>
 
-1287409102 d:\peter\programmieren\pmath\trunk\library\include\pmath-builtins\all-symbols-private.h
+1288014967 d:\peter\programmieren\pmath\trunk\library\include\pmath-builtins\all-symbols-private.h
 	<pmath-builtins/all-symbols.h>
 
-1287409098 d:\peter\programmieren\pmath\trunk\library\include\pmath-builtins\all-symbols.h
+1288014962 d:\peter\programmieren\pmath\trunk\library\include\pmath-builtins\all-symbols.h
 	<pmath-core/expressions.h>
 	<pmath-core/symbols.h>
 
@@ -1847,7 +1847,7 @@
 	<string.h>
 	<sys/time.h>
 
-1287951038 source:d:\peter\programmieren\pmath\trunk\library\src\pmath-util\concurrency\threadpool.c
+1287951311 source:d:\peter\programmieren\pmath\trunk\library\src\pmath-util\concurrency\threadpool.c
 	<pmath-util/concurrency/threadpool-private.h>
 	<pmath-core/objects-private.h>
 	<pmath-core/symbols-private.h>
@@ -2087,7 +2087,7 @@
 	<stdio.h>
 	<string.h>
 
-1287874828 source:d:\peter\programmieren\pmath\trunk\library\src\pmath.c
+1288014991 source:d:\peter\programmieren\pmath\trunk\library\src\pmath.c
 	<pmath-builtins/io-private.h>
 	<pmath-util/stacks-private.h>
 	<assert.h>
@@ -2123,7 +2123,7 @@
 	<unistd.h>
 	<pthread.h>
 
-1287348461 d:\peter\programmieren\pmath\trunk\library\include\pmath.h
+1288014861 d:\peter\programmieren\pmath\trunk\library\include\pmath.h
 	<pmath-core/custom.h>
 	<pmath-core/expressions.h>
 	<pmath-core/numbers.h>
@@ -2146,5 +2146,19 @@
 	<pmath-util/messages.h>
 	<pmath-util/serialize.h>
 	<pmath-util/stacks.h>
+	<pmath-util/version.h>
 	<pmath-builtins/all-symbols.h>
+
+1288014568 d:\peter\programmieren\pmath\trunk\library\src\compile-datetime.inc
+
+1288014836 d:\peter\programmieren\pmath\trunk\library\include\pmath-util\version.h
+	<pmath-config.h>
+
+1288015260 source:d:\peter\programmieren\pmath\trunk\library\src\pmath-util\version.c
+	<pmath-util/version.h>
+	<stdlib.h>
+	<string.h>
+	"version-datetime.inc"
+
+1288015265 d:\peter\programmieren\pmath\trunk\library\src\pmath-util\version-datetime.inc
 

@@ -49,6 +49,7 @@
 #include <pmath-util/messages.h>
 #include <pmath-util/serialize.h>
 #include <pmath-util/stacks.h>
+#include <pmath-util/version.h>
 
 #include <pmath-builtins/all-symbols.h>
 

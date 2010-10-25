@@ -46,6 +46,7 @@
 					<Add library="shell32" />
 				</Linker>
 				<ExtraCommands>
+					<Add before="pre-build-windows.bat" />
 					<Add after="post-build-windows.bat debug" />
 					<Mode after="always" />
 				</ExtraCommands>
@@ -63,14 +64,14 @@
 					<Add option="-march=pentium4" />
 					<Add option="-march=i686" />
 					<Add option="-O3" />
+					<Add option="-Wundef" />
+					<Add option="-Winline" />
+					<Add option="-Wextra" />
 					<Add option="-Wall" />
 					<Add option="-mthreads" />
 					<Add option="-mms-bitfields" />
-					<Add option="-Wextra" />
 					<Add option="-Wno-unused-parameter" />
 					<Add option="-Wdeclaration-after-statement" />
-					<Add option="-Wundef" />
-					<Add option="-Winline" />
 					<Add option="-Wpointer-arith" />
 					<Add option="-DNDEBUG" />
 					<Add option="-DPMATH_USE_WINDOWS_THREADS=1" />
@@ -85,6 +86,7 @@
 					<Add library="shell32" />
 				</Linker>
 				<ExtraCommands>
+					<Add before="pre-build-windows.bat" />
 					<Add after="post-build-windows.bat release" />
 					<Mode after="always" />
 				</ExtraCommands>
@@ -119,6 +121,7 @@
 					<Add library="shell32.lib" />
 				</Linker>
 				<ExtraCommands>
+					<Add before="pre-build-windows.bat" />
 					<Add after="post-build-windows.bat msvc" />
 					<Mode after="always" />
 				</ExtraCommands>
@@ -176,40 +179,41 @@
 				<Compiler>
 					<Add option="-march=pentium4" />
 					<Add option="-march=i686" />
+					<Add option="-O3" />
 					<Add option="-Wundef" />
 					<Add option="-Winline" />
 					<Add option="-Wextra" />
 					<Add option="-Wall" />
-					<Add option="-g" />
-					<Add option="-fPIC" />
-					<Add option="-fno-stack-protector" />
+					<Add option="-fnested-functions" />
+					<Add option="-fno-leading-underscore" />
+					<Add option="-mthreads" />
+					<Add option="-mms-bitfields" />
 					<Add option="-Wno-unused-parameter" />
 					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
-					<Add option="-DPMATH_DEBUG_LOG" />
-					<Add option="-DPMATH_DEBUG_MEMORY" />
-					<Add option="-DPMATH_DEBUG_TESTS" />
-					<Add option="-DPMATH_DEBUG_NO_FASTREF" />
-					<Add option="-DPMATH_USE_DLMALLOC" />
-					<Add option="-DPMATH_USE_PTHREAD=1" />
-					<Add option="-D_POSIX_C_SOURCE=200112" />
-					<Add option="-D_ISOC99_SOURCE" />
-					<Add option="-D_XOPEN_SOURCE" />
-					<Add option="-D_BSD_SOURCE" />
-					<Add option="-D_GNU_SOURCE" />
+					<Add option="-DNDEBUG" />
+					<Add option="-DPMATH_USE_WINDOWS_THREADS=1" />
+					<Add option="-DMPFR_WANT_DECIMAL_FLOATS=0" />
 				</Compiler>
 				<Linker>
-					<Add option="-Wl,-soname,libpmath.so.0" />
-					<Add library="m" />
-					<Add library="pthread" />
-					<Add library="gmp" />
+					<Add option="-s" />
+					<Add option="-static-libgcc" />
+					<Add option="--enable-stdcall-fixup" />
+					<Add option="-fno-leading-underscore" />
 					<Add library="mpfr" />
+					<Add library="gmp" />
 					<Add library="iconv" />
 					<Add library="pcre" />
-					<Add library="dl" />
+					<Add library="shell32" />
+					<Add library="mpfr" />
+					<Add library="gmp" />
+					<Add library="iconv" />
+					<Add library="pcre" />
+					<Add library="shell32" />
 				</Linker>
 				<ExtraCommands>
-					<Add after="./post-build-linux.sh debug" />
+					<Add before="pre-build-windows.bat" />
+					<Add after="post-build-windows.bat llvm-release" />
 					<Mode after="always" />
 				</ExtraCommands>
 			</Target>
@@ -226,16 +230,16 @@
 					<Add option="-march=pentium4" />
 					<Add option="-march=i686" />
 					<Add option="-O3" />
+					<Add option="-Wundef" />
+					<Add option="-Winline" />
+					<Add option="-Wextra" />
 					<Add option="-Wall" />
 					<Add option="-fnested-functions" />
 					<Add option="-fno-leading-underscore" />
 					<Add option="-mthreads" />
 					<Add option="-mms-bitfields" />
-					<Add option="-Wextra" />
 					<Add option="-Wno-unused-parameter" />
 					<Add option="-Wdeclaration-after-statement" />
-					<Add option="-Wundef" />
-					<Add option="-Winline" />
 					<Add option="-Wpointer-arith" />
 					<Add option="-DNDEBUG" />
 					<Add option="-DPMATH_USE_WINDOWS_THREADS=1" />
@@ -253,6 +257,7 @@
 					<Add library="shell32" />
 				</Linker>
 				<ExtraCommands>
+					<Add before="pre-build-windows.bat" />
 					<Add after="post-build-windows.bat llvm-release" />
 					<Mode after="always" />
 				</ExtraCommands>
@@ -338,6 +343,7 @@
 		<Unit filename="include\pmath-util\stacks-private.h" />
 		<Unit filename="include\pmath-util\stacks.h" />
 		<Unit filename="include\pmath-util\symbol-values-private.h" />
+		<Unit filename="include\pmath-util\version.h" />
 		<Unit filename="include\pmath.h" />
 		<Unit filename="scripts\maininit.pmath" />
 		<Unit filename="scripts\messages.pmath" />
@@ -950,6 +956,10 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src\pmath-util\symbol-values-private.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\pmath-util\version-datetime.inc" />
+		<Unit filename="src\pmath-util\version.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src\pmath.c">

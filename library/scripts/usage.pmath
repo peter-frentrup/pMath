@@ -32,6 +32,7 @@ $ProcessorType::usage:= "$ProcessorType gives a string that specifies your CPU t
 $SystemCharacterEncoding::usage:= "$SystemCharacterEncoding is the default character encoding on your system."
 $SystemId::usage:= "$SystemId gives a string that specifies your operating system."
 $ThreadId::usage:= "$ThreadId gives the ID assigned to the current thread by the operating system/threading library."
+$Version::usage:= "$Version is a list of the form {\(StyleBox(\"year\", BaseStyle -> \"Arg\")\), \(StyleBox(\"month\", BaseStyle -> \"Arg\")\), \(StyleBox(\"day\", BaseStyle -> \"Arg\")\), \(StyleBox(\"hour\", BaseStyle -> \"Arg\")\), \(StyleBox(\"minute\", BaseStyle -> \"Arg\")\), \(StyleBox(\"second\", BaseStyle -> \"Arg\")\)} which gives the compilation date and time of the \(StyleBox(\"pMath\", FontSlant -> Italic)\) library."
 Abort::usage:= "Abort() aborts the current evaluation.\nAbort(\(\"task\".StyleBox(\"Arg\")\)) aborts another task."
 Abs::usage:= "Abs(\(\"z\".StyleBox(\"Arg\")\)) gives the absolute value of the real or complex number \(\"z\".StyleBox(\"Arg\")\)."
 Accuracy::usage:= "Accuracy(\(\"x\".StyleBox(\"Arg\")\)) gives the effective number of digits to the right of the decimal point in number \(\"x\".StyleBox(\"Arg\")\)."
