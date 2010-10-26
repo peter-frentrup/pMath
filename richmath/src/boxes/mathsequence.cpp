@@ -840,13 +840,13 @@ Box *MathSequence::move_vertical(
 }
 
 Box *MathSequence::mouse_selection(
-  float x,
-  float y,
+  float  x,
+  float  y,
   int   *start,
   int   *end,
-  bool  *eol
+  bool  *was_inside_start
 ){
-  *eol = false;
+  *was_inside_start = true;
   int line = 0;
   while(line < lines.length() - 1
   && y > lines[line].descent + 0.1 * em){
@@ -866,6 +866,7 @@ Box *MathSequence::mouse_selection(
     x+= glyphs[lines[line - 1].end].x_offset;
   
   if(x < 0){
+    *was_inside_start = false;
     *end = *start;
     if(is_placeholder(*start))
       ++*end;
@@ -883,6 +884,7 @@ Box *MathSequence::mouse_selection(
         prev = glyphs[*start - 1].right;
         
       if(is_placeholder(*start)){
+        *was_inside_start = false;
         *end = *start + 1;
         return this;
       }
@@ -894,15 +896,15 @@ Box *MathSequence::mouse_selection(
           ++b;
         
         if(x > prev - line_start + boxes[b]->extents().width){
+          *was_inside_start = false;
           ++*start;
           *end = *start;
-          *eol = false;
           return this;
         }
         
         if(x < prev - line_start + glyphs[*start].x_offset){
+          *was_inside_start = false;
           *end = *start;
-          *eol = false;
           return this;
         }
         
@@ -911,18 +913,17 @@ Box *MathSequence::mouse_selection(
           y, 
           start,
           end,
-          eol);
+          was_inside_start);
       }
       
       if(line_start + x > (prev + glyphs[*start].right) / 2){
+        *was_inside_start = false;
         ++*start;
         *end = *start;
-        *eol = *start + 1 >= lines[line].end;
         return this;
       }
       
       *end = *start;
-      *eol = false;
       return this;
     }
     
@@ -941,7 +942,7 @@ Box *MathSequence::mouse_selection(
   *end = *start;
   if(is_placeholder(*start - 1))
     --*start;
-  *eol = true;
+  *was_inside_start = false;
   return this;
 }
 

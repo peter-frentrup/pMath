@@ -167,11 +167,11 @@ Box *FractionBox::move_vertical(
 }
 
 Box *FractionBox::mouse_selection(
-  float x,
-  float y,
+  float  x,
+  float  y,
   int   *start,
   int   *end,
-  bool  *eol
+  bool  *was_inside_start
 ){
   if(_parent){
     float cw = _numerator->extents().width;
@@ -180,13 +180,13 @@ Box *FractionBox::mouse_selection(
        
     if(x < (_extents.width - cw) / 4){
       *start = *end = _index;
-      *eol = false;
+      *was_inside_start = false;
       return _parent;
     }
     
     if(x > (3 * _extents.width + cw) / 4){
       *start = *end = _index + 1;
-      *eol = true;
+      *was_inside_start = false;
       return _parent;
     }
   }
@@ -194,12 +194,12 @@ Box *FractionBox::mouse_selection(
   if(y < num_y + _numerator->extents().descent + den_y - _denominator->extents().ascent){
     x-= (_extents.width - _numerator->extents().width) / 2;
     y-= num_y;
-    return _numerator->mouse_selection(x, y, start, end, eol);
+    return _numerator->mouse_selection(x, y, start, end, was_inside_start);
   }
   
   x-= (_extents.width - _denominator->extents().width) / 2;
   y-= den_y;
-  return _denominator->mouse_selection(x, y, start, end, eol);
+  return _denominator->mouse_selection(x, y, start, end, was_inside_start);
 }
 
 void FractionBox::child_transformation(

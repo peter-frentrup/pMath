@@ -43,11 +43,11 @@ Box *Menu::move_vertical(
 }
   
 Box *Menu::mouse_selection(
-  float x,
-  float y,
+  float  x,
+  float  y,
   int   *start,
   int   *end,
-  bool  *eol
+  bool  *was_inside_start
 ){
   *start = 0;
   while(*start < length()){
@@ -57,9 +57,9 @@ Box *Menu::mouse_selection(
     ++*start;
   }
   
-  if(length() == 0){
+  *was_inside_start = true;
+  if(length() == 0)
     *end = *start;
-  }
   else
     *end = *start + 1;
   

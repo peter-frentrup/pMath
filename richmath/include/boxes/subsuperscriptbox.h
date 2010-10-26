@@ -41,7 +41,7 @@ namespace richmath{
         float y,
         int   *start,
         int   *end,
-        bool  *eol);
+        bool  *was_inside_start);
         
       virtual void child_transformation(
         int             index,

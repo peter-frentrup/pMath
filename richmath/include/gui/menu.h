@@ -20,11 +20,11 @@ namespace richmath{
         int              *index);
         
       virtual Box *mouse_selection(
-        float x,
-        float y,
+        float  x,
+        float  y,
         int   *start,
         int   *end,
-        bool  *eol);
+        bool  *was_inside_start);
       
       virtual Box *normalize_selection(int *start, int *end);
   };

@@ -532,12 +532,12 @@ void Document::mouse_down(MouseEvent &event){
   if(++mouse_down_counter == 1){
     event.set_source(this);
     
-    bool eol;
+    bool was_inside_start;
     int start, end;
     receiver = mouse_selection(
       event.x, event.y, 
       &start, &end,
-      &eol);
+      &was_inside_start);
     
     receiver = receiver ? receiver->mouse_sensitive() : this;
     assert(receiver != 0);
@@ -579,8 +579,8 @@ void Document::mouse_move(MouseEvent &event){
     event.set_source(this);
     
     int start, end;
-    bool eol;
-    Box *receiver = mouse_selection(event.x, event.y, &start, &end, &eol);
+    bool was_inside_start;
+    Box *receiver = mouse_selection(event.x, event.y, &start, &end, &was_inside_start);
     
     if(DebugFollowMouse && !mouse_move_sel.equals(receiver, start, end)){
       mouse_move_sel.set(receiver, start, end);
@@ -694,12 +694,12 @@ void Document::on_mouse_down(MouseEvent &event){
       
     mouse_down_time = native()->message_time();
     
-    bool eol;
+    bool was_inside_start;
     int start, end;
     Box *box = mouse_selection(
       event.x, event.y, 
       &start, &end,
-      &eol);
+      &was_inside_start);
     
     if(double_click){
       Box *selbox = context.selection.get();
@@ -718,7 +718,23 @@ void Document::on_mouse_down(MouseEvent &event){
         int start = context.selection.start;
         int end   = context.selection.end;
         
-        selbox = expand_selection(selbox, &start, &end);
+        bool should_expand = true;
+        
+        if(start == end){
+          if(was_inside_start){
+            if(end + 1 <= selbox->length()){
+              ++end;
+              should_expand = false;
+            }
+          }
+          else if(start > 0){
+            --start;
+            should_expand = false;
+          } 
+        }
+        
+        if(should_expand)
+          selbox = expand_selection(selbox, &start, &end);
         
         select(selbox, start, end);
       }
@@ -736,8 +752,8 @@ void Document::on_mouse_move(MouseEvent &event){
   event.set_source(this);
   
   int start, end;
-  bool eol;
-  Box *box = mouse_selection(event.x, event.y, &start, &end, &eol);
+  bool was_inside_start;
+  Box *box = mouse_selection(event.x, event.y, &start, &end, &was_inside_start);
   
   if(box->selectable()){
     if(box == this){
@@ -766,7 +782,7 @@ void Document::on_mouse_move(MouseEvent &event){
       
       if(sec1 && sec1 != sec2){
         event.set_source(sec1);
-        box = sec1->mouse_selection(event.x, event.y, &start, &end, &eol);
+        box = sec1->mouse_selection(event.x, event.y, &start, &end, &was_inside_start);
       }
       
       select_range(
@@ -3012,11 +3028,13 @@ void Document::paint_resize(Canvas *canvas, bool resize_only){
             while(0 != (find = search_string(
                 find, &index, this, last_visible_section+1, s, true))
             ){
-              ::selection_path(
-                context.canvas, 
-                find, 
-                index - len, 
-                index);
+              int s = index - len;
+              int e = index;
+              Box *b = find->get_highlight_child(find, &s, &e);
+              
+              if(b == find){
+                ::selection_path(context.canvas, b, s, e);
+              }
               ++count_occurences;
             }
             

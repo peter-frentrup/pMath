@@ -12,11 +12,11 @@ namespace richmath{
       virtual void paint(Context *context);
       
       virtual Box *mouse_selection(
-        float x,
-        float y,
+        float  x,
+        float  y,
         int   *start,
         int   *end,
-        bool  *eol);
+        bool  *was_inside_start);
       
       virtual void child_transformation(
         int             index,

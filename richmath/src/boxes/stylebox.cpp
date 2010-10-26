@@ -128,30 +128,35 @@ Box *AbstractStyleBox::move_vertical(
 }
 
 Box *AbstractStyleBox::mouse_selection(
-  float x,
-  float y,
+  float  x,
+  float  y,
   int   *start,
   int   *end,
-  bool  *eol
+  bool  *was_inside_start
 ){
   if(style && _parent){
     if(get_own_style(Placeholder)){
       *start = _index;
       *end = _index + 1;
+      *was_inside_start = x >= 0 && x <= _extents.width;
       return _parent;
     }
     
     if(!get_own_style(Selectable, true)){
-      if(x <= _extents.width / 2)
+      if(x <= _extents.width / 2){
         *start = *end = _index;
-      else
+        *was_inside_start = true;
+      }
+      else{
         *start = *end = _index + 1;
-        
+        *was_inside_start = false;
+      }
+      
       return _parent;
     }
   }
   
-  return OwnerBox::mouse_selection(x, y, start, end, eol);
+  return OwnerBox::mouse_selection(x, y, start, end, was_inside_start);
 }
 
 //} ... class AbstractStyleBox

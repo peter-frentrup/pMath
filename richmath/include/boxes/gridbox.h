@@ -21,11 +21,11 @@ namespace richmath{
       virtual Expr to_pmath(bool parseable);
       
       virtual Box *mouse_selection(
-        float x,
-        float y,
+        float  x,
+        float  y,
         int   *start,
         int   *end,
-        bool  *eol);
+        bool  *was_inside_start);
       
       virtual void child_transformation(
         int             index,
@@ -95,7 +95,7 @@ namespace richmath{
         float  y,
         int   *start,
         int   *end,
-        bool  *eol);
+        bool  *was_inside_start);
         
       virtual void child_transformation(
         int             index,

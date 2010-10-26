@@ -100,11 +100,11 @@ void AbstractTransformationBox::paint(Context *context){
 }
 
 Box *AbstractTransformationBox::mouse_selection(
-  float x,
-  float y,
+  float  x,
+  float  y,
   int   *start,
   int   *end,
-  bool  *eol
+  bool  *was_inside_start
 ){
   double mx = 0;//_content->extents().width / 2;
   double my = _content->extents().ascent;//_content->extents().height() / 2;
@@ -122,7 +122,7 @@ Box *AbstractTransformationBox::mouse_selection(
     y,
     start,
     end,
-    eol);
+    was_inside_start);
 }
 
 void AbstractTransformationBox::child_transformation(

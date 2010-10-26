@@ -179,6 +179,16 @@ bool Section::selectable(int i){
   return Box::selectable(i);
 }
 
+Box *Section::get_highlight_child(Box *src, int *start, int *end){
+  if(src == this)
+    return this;
+  
+  if(!visible)
+    return 0;
+  
+  return Box::get_highlight_child(src, start, end);
+}
+
 bool Section::request_repaint(float x, float y, float w, float h){
   if(visible)
     return Box::request_repaint(x,y,w,h);
@@ -288,12 +298,13 @@ void ErrorSection::paint(Context *context){
 }
 
 Box *ErrorSection::mouse_selection(
-  float x,
-  float y,
+  float  x,
+  float  y,
   int   *start,
   int   *end,
-  bool  *eol
+  bool  *was_inside_start
 ){
+  *was_inside_start = true;
   *start = *end = 0;
   return this;
 }
@@ -527,13 +538,13 @@ Box *AbstractSequenceSection::move_vertical(
 }
   
 Box *AbstractSequenceSection::mouse_selection(
-  float x,
-  float y,
+  float  x,
+  float  y,
   int   *start,
   int   *end,
-  bool  *eol
+  bool  *was_inside_start
 ){
-  return _content->mouse_selection(x - cx, y - cy, start, end, eol);
+  return _content->mouse_selection(x - cx, y - cy, start, end, was_inside_start);
 }
 
 void AbstractSequenceSection::child_transformation(

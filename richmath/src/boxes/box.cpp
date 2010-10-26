@@ -129,6 +129,13 @@ void Box::clear_coloring(){
     item(i)->clear_coloring();
 }
 
+Box *Box::get_highlight_child(Box *src, int *start, int *end){
+  if(_parent)
+    return _parent->get_highlight_child(src, start, end);
+  
+  return src;
+}
+
 void Box::selection_path(Canvas *canvas, int start, int end){
   if(end > count())
     end = count();
@@ -256,13 +263,13 @@ Box *Box::move_vertical(
 }
 
 Box *Box::mouse_selection(
-  float x,
-  float y,
+  float  x,
+  float  y,
   int   *start,
   int   *end,
-  bool  *eol
+  bool  *was_inside_start
 ){
-  *eol = false;
+  *was_inside_start = true;
   if(_parent){
     *start = _index;
     *end = *start + 1;

@@ -212,8 +212,8 @@ void InputFieldBox::on_mouse_down(MouseEvent &event){
       else{
         event.set_source(this);
         int start, end; 
-        bool eol;
-        Box *box = mouse_selection(event.x, event.y, &start, &end, &eol);
+        bool was_inside_start;
+        Box *box = mouse_selection(event.x, event.y, &start, &end, &was_inside_start);
         doc->select(box, start, end);
       }
       
@@ -233,8 +233,8 @@ void InputFieldBox::on_mouse_move(MouseEvent &event){
     event.set_source(this);
     
     int start, end; 
-    bool eol;
-    Box *box = mouse_selection(event.x, event.y, &start, &end, &eol);
+    bool was_inside_start;
+    Box *box = mouse_selection(event.x, event.y, &start, &end, &was_inside_start);
     
     doc->native()->set_cursor(NativeWidget::text_cursor(box, start));
     

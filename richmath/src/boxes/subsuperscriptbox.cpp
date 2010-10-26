@@ -245,11 +245,11 @@ Box *SubsuperscriptBox::move_vertical(
 }
 
 Box *SubsuperscriptBox::mouse_selection(
-  float x,
-  float y,
+  float  x,
+  float  y,
   int   *start,
   int   *end,
-  bool  *eol
+  bool  *was_inside_start
 ){
   if(_subscript 
   && (!_superscript 
@@ -257,15 +257,16 @@ Box *SubsuperscriptBox::mouse_selection(
     return _subscript->mouse_selection(
       x - sub_x, // x - _base.width,
       y - sub_y,
-      start, end, eol);
+      start, end, was_inside_start);
   
   
   if(_superscript)
     return _superscript->mouse_selection(
       x - super_x,
       y - super_y,
-      start, end, eol);
+      start, end, was_inside_start);
   
+  *was_inside_start = true;
   *start = _index;
   *end = _index + 1;
   return _parent;

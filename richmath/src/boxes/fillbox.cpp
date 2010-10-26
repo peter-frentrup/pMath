@@ -89,11 +89,11 @@ Box *FillBox::move_vertical(
 }
 
 Box *FillBox::mouse_selection(
-  float x,
-  float y,
+  float  x,
+  float  y,
   int   *start,
   int   *end,
-  bool  *eol
+  bool  *was_inside_start
 ){
   x-= cx;
   y-= cy;
@@ -101,7 +101,7 @@ Box *FillBox::mouse_selection(
   if(_content->extents().width > 0){
     x = fmodf(x, _content->extents().width);
   }
-  return _content->mouse_selection(x, y, start, end, eol);
+  return _content->mouse_selection(x, y, start, end, was_inside_start);
 }
 
 //} ... class FillBox

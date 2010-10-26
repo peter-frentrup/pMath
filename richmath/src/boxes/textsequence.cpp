@@ -861,11 +861,11 @@ Box *TextSequence::move_vertical(
 }
 
 Box *TextSequence::mouse_selection(
-  float x,
-  float y,
+  float  x,
+  float  y,
   int   *start,
   int   *end,
-  bool  *eol
+  bool  *was_inside_start
 ){
   BoxSize line_size;
   float line_x, line_y;
@@ -885,7 +885,7 @@ Box *TextSequence::mouse_selection(
   pango_layout_iter_free(iter);
   
   int i, tr;
-  *eol = !pango_layout_line_x_to_index(
+  *was_inside_start = pango_layout_line_x_to_index(
     line, 
     pango_units_from_double(x - line_x),
     &i, &tr);
@@ -903,18 +903,13 @@ Box *TextSequence::mouse_selection(
     y-= line_y;
     x-= line_x + pango_units_to_double(pango_x);
     
-    return boxes[b]->mouse_selection(x, y, start, end, eol);
+    return boxes[b]->mouse_selection(x, y, start, end, was_inside_start);
   }
   
-  // TODO: When we have RTL text, the meaning of tr is actually different.
-  //       It is even more problematic at LTR/RTL boundaries.
-  //       Maybe the definition of an index i should not be "before char i" but
-  //       instead "at the side s of char i" with an additional argument 
-  //       s = (tr == 0) ? left : right.
-  //       That would be a rather big change all over the library, but we could 
-  //       get rid of the eol parameter, which isn't really used anywhere now.
   char *s     = text.buffer() + i;
   char *s_end = text.buffer() + text.length();
+  *was_inside_start = (tr == 0);
+  
   while(tr-- > 0)
     s = g_utf8_find_next_char(s, s_end);
   

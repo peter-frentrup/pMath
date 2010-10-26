@@ -110,6 +110,7 @@ namespace richmath{
       virtual void colorize_scope(SyntaxState *state);
       virtual void clear_coloring();
       virtual void paint(Context *context) = 0;
+      virtual Box *get_highlight_child(Box *src, int *start, int *end);
       virtual void selection_path(Canvas *canvas, int start, int end);
       virtual void scroll_to(float x, float y, float w, float h);
       virtual void scroll_to(Canvas *canvas, Box *child, int start, int end);
@@ -133,11 +134,11 @@ namespace richmath{
         int              *index);
       
       virtual Box *mouse_selection(
-        float x,
-        float y,
+        float  x,
+        float  y,
         int   *start,
         int   *end,
-        bool  *eol);
+        bool  *was_inside_start);
       
       // ?todo: rename to transform_from_child()
       virtual void child_transformation(
@@ -158,7 +159,7 @@ namespace richmath{
       
       virtual void dynamic_updated(){}
       virtual void dynamic_finished(Expr info, Expr result){}
-      bool request_repaint_all();
+      bool         request_repaint_all();
       virtual bool request_repaint(float x, float y, float w, float h);
       virtual void invalidate();
       virtual bool edit_selection(Context *context); // *not* automatically called

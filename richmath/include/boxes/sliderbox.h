@@ -26,11 +26,11 @@ namespace richmath{
       virtual void dynamic_finished(Expr info, Expr result);
       
       virtual Box *mouse_selection(
-        float x,
-        float y,
+        float  x,
+        float  y,
         int   *start,
         int   *end,
-        bool  *eol);
+        bool  *was_inside_start);
 
       virtual Box *mouse_sensitive(){ return this; }
       virtual void on_mouse_enter();

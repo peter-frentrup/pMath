@@ -166,8 +166,8 @@ void SectionList::emit_pmath(bool parseable, int start, int end){
     }
     else{
       int e = _group_info[start].end+1;
-      if(e > end+1)
-         e = end+1;
+      if(e > end)
+         e = end;
       
       Gather g;
       
@@ -262,12 +262,14 @@ Box *SectionList::move_vertical(
 }
   
 Box *SectionList::mouse_selection(
-  float x,
-  float y,
+  float  x,
+  float  y,
   int   *start,
   int   *end,
-  bool  *eol
+  bool  *was_inside_start
 ){
+  *was_inside_start = true;
+  
   float right = _scrollx + _window_width - section_bracket_right_margin;
   int border_level = -1;
   
@@ -336,7 +338,7 @@ Box *SectionList::mouse_selection(
         }
         
         y-= _sections[*start]->y_offset;
-        return _sections[*start]->mouse_selection(x, y, start, end, eol);
+        return _sections[*start]->mouse_selection(x, y, start, end, was_inside_start);
       }
     }
     

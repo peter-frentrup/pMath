@@ -319,13 +319,13 @@ Expr SliderBox::to_pmath(bool parseable){
 }
 
 Box *SliderBox::mouse_selection(
-  float x,
-  float y,
+  float  x,
+  float  y,
   int   *start,
   int   *end,
-  bool  *eol
+  bool  *was_inside_start
 ){
-  *eol = false;
+  *was_inside_start = true;
   *start = *end = 0;
   return this;
 }

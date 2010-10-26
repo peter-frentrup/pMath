@@ -52,11 +52,11 @@ Box *GridItem::mouse_selection(
   float y,
   int   *start,
   int   *end,
-  bool  *eol
+  bool  *was_inside_start
 ){
 //  x-= (_extents.width - _content->extents().width) / 2;
 //  y+= _extents.ascent;
-  return _content->mouse_selection(x, y, start, end, eol);
+  return _content->mouse_selection(x, y, start, end, was_inside_start);
 }
 
 void GridItem::child_transformation(
@@ -958,11 +958,11 @@ Box *GridBox::move_vertical(
 }
 
 Box *GridBox::mouse_selection(
-  float x,
-  float y,
+  float  x,
+  float  y,
   int   *start,
   int   *end,
-  bool  *eol
+  bool  *was_inside_start
 ){
   need_pos_vectors();
   
@@ -987,7 +987,7 @@ Box *GridBox::mouse_selection(
     y - ypos[row] - item(row, col)->extents().ascent, 
     start, 
     end, 
-    eol);
+    was_inside_start);
 }
 
 void GridBox::child_transformation(

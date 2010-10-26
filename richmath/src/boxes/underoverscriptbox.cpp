@@ -338,11 +338,11 @@ Box *UnderoverscriptBox::move_vertical(
 }
 
 Box *UnderoverscriptBox::mouse_selection(
-  float x,
-  float y,
+  float  x,
+  float  y,
   int   *start,
   int   *end,
-  bool  *eol
+  bool  *was_inside_start
 ){
   if(_underscript){
     if(under_y - _underscript->extents().ascent > _base->extents().descent){
@@ -352,7 +352,7 @@ Box *UnderoverscriptBox::mouse_selection(
           y - under_y,
           start,
           end,
-          eol);
+          was_inside_start);
       }
     }
     else if(x >= under_x){
@@ -363,7 +363,7 @@ Box *UnderoverscriptBox::mouse_selection(
           y - under_y,
           start,
           end,
-          eol);
+          was_inside_start);
       }
     }
   }
@@ -376,7 +376,7 @@ Box *UnderoverscriptBox::mouse_selection(
           y - over_y,
           start,
           end,
-          eol);
+          was_inside_start);
       }
     }
     else if(x >= over_x){
@@ -385,7 +385,7 @@ Box *UnderoverscriptBox::mouse_selection(
         y - over_y,
         start,
         end,
-        eol);
+        was_inside_start);
     }
   }
   
@@ -394,7 +394,7 @@ Box *UnderoverscriptBox::mouse_selection(
     y,
     start,
     end,
-    eol);
+    was_inside_start);
 }
 
 void UnderoverscriptBox::child_transformation(

@@ -32,6 +32,7 @@ namespace richmath{
       
       virtual bool selectable(int i = -1);
       
+      virtual Box *get_highlight_child(Box *src, int *start, int *end);
       virtual bool request_repaint(float x, float y, float w, float h);
       virtual void invalidate();
       virtual bool edit_selection(Context *context);
@@ -68,11 +69,11 @@ namespace richmath{
       virtual Expr to_pmath(bool parseable){ return _object; }
       
       virtual Box *mouse_selection(
-        float x,
-        float y,
+        float  x,
+        float  y,
         int   *start,
         int   *end,
-        bool  *eol);
+        bool  *was_inside_start);
         
     private:
       Expr _object;
@@ -99,11 +100,11 @@ namespace richmath{
         int              *index);
         
       virtual Box *mouse_selection(
-        float x,
-        float y,
+        float  x,
+        float  y,
         int   *start,
         int   *end,
-        bool  *eol);
+        bool  *was_inside_start);
         
       virtual void child_transformation(
         int             index,
