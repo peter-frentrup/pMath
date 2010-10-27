@@ -53,7 +53,7 @@ static pmath_bool_t part(
       pmath_unref(tmp);
     }
     
-    // end recursion: return part(list, position, position_start + 1);
+    // end-recursion: return part(list, position, position_start + 1);
     ++position_start;
   }
   

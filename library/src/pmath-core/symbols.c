@@ -1146,28 +1146,30 @@ PMATH_PRIVATE void _pmath_symbols_almost_done(void){
 }
 
 PMATH_PRIVATE void _pmath_symbols_done(void){
-  unsigned int i, cap;
-  
-  cap = pmath_ht_capacity(global_symbol_table);
   
   _pmath_symbols_almost_done();
   
   #ifdef PMATH_DEBUG_LOG
-  for(i = 0;i < cap;++i){
-    struct _pmath_symbol_t *symbol = pmath_ht_entry(global_symbol_table, i);
+  {
+    unsigned int i, cap;
     
-    if(symbol && symbol->inherited.inherited.inherited.refcount != 0){
-      if(pmath_ht_search(global_symbol_table, symbol->name) != NULL){
-        pmath_debug_print_object("\aSymbol '", (pmath_symbol_t)symbol, "'");
-        pmath_debug_print(" (%p) still has %"PRIuPTR" reference(s)\n",
-          symbol,
-          symbol->inherited.inherited.inherited.refcount);
-      }
-      else{
-        pmath_debug_print_object("\a\aHashtable corrupted: lost symbol '", (pmath_symbol_t)symbol, "'");
-        pmath_debug_print(" (%p) still has %"PRIuPTR" reference(s)\n",
-          symbol,
-          symbol->inherited.inherited.inherited.refcount);
+    cap = pmath_ht_capacity(global_symbol_table);
+    for(i = 0;i < cap;++i){
+      struct _pmath_symbol_t *symbol = pmath_ht_entry(global_symbol_table, i);
+      
+      if(symbol && symbol->inherited.inherited.inherited.refcount != 0){
+        if(pmath_ht_search(global_symbol_table, symbol->name) != NULL){
+          pmath_debug_print_object("\aSymbol '", (pmath_symbol_t)symbol, "'");
+          pmath_debug_print(" (%p) still has %"PRIuPTR" reference(s)\n",
+            symbol,
+            symbol->inherited.inherited.inherited.refcount);
+        }
+        else{
+          pmath_debug_print_object("\a\aHashtable corrupted: lost symbol '", (pmath_symbol_t)symbol, "'");
+          pmath_debug_print(" (%p) still has %"PRIuPTR" reference(s)\n",
+            symbol,
+            symbol->inherited.inherited.inherited.refcount);
+        }
       }
     }
   }

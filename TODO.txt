@@ -2,6 +2,8 @@
 	Button("italic",DocumentApply(SelectedDocument(),StyleBox("",FontSlant->Italic))),
 	Button("Arg Style",DocumentApply(SelectedDocument(),StyleBox("","Arg")))})
 
+!? make <<context` parse as Needs("context`") and do not provide special syntax for Get()	
+	
 ? implement Stack(pattern)   
 	this requires us to sava a copy of the expression before pattern matching!
 	

@@ -39,7 +39,7 @@ PMATH_PRIVATE unsigned int _pmath_hash_pointer(void *ptr);
 #ifdef PMATH_DEBUG_TESTS
   PMATH_PRIVATE void PMATH_TEST_NEW_HASHTABLES(void);
 #else
-  #define PMATH_TEST_HASHTABLES() ((void)0)
+  #define PMATH_TEST_NEW_HASHTABLES() ((void)0)
 #endif
 
 #endif /* __PMATH_UTIL__HASHTABLES_PRIVATE_H__ */
