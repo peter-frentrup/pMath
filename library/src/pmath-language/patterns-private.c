@@ -2053,7 +2053,11 @@ static match_kind_t match_func_left( // for non-symmetric functions
     }
     
     if(data->info->func == data->func){
-      assert(data->info->symmetric);
+      if(!data->info->symmetric){
+        pmath_debug_print(
+          "[%s, %d] data->info->symmetric is expected to be TRUE. "
+          "Maybe another thread changed the Symmetric attribute of the function?", __FILE__, __LINE__);
+      }
       memcpy(data->info->arg_usage, args_in_use, flen);
     }
     else{

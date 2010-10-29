@@ -733,6 +733,19 @@ void Document::on_mouse_down(MouseEvent &event){
           } 
         }
         
+        if(!should_expand){
+          should_expand = true;
+          
+          if(MathSequence *seq = dynamic_cast<MathSequence*>(selbox)){
+            should_expand = false;
+            while(start > 0 && !seq->span_array().is_token_end(start-1))
+              --start;
+            
+            while(end < seq->length() && !seq->span_array().is_token_end(end-1))
+              ++end;
+          }
+        }
+        
         if(should_expand)
           selbox = expand_selection(selbox, &start, &end);
         
