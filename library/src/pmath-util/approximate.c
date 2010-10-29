@@ -94,7 +94,7 @@ double pmath_precision(pmath_t obj){ // will be freed
 
 PMATH_API 
 pmath_t pmath_set_accuracy(pmath_t obj, double acc){ // obj will be freed
-  if(acc == -HUGE_VAL)
+  if(acc == -HUGE_VAL || acc == HUGE_VAL)
     return pmath_set_precision(obj, acc);
     
   if(pmath_instance_of(obj, PMATH_TYPE_EXPRESSION)){
@@ -234,6 +234,76 @@ pmath_t pmath_set_precision(pmath_t obj, double prec){
     
     if(!isfinite(prec)){
       double d;
+      
+      if(prec > 0){
+        if(obj->type_shift == PMATH_TYPE_SHIFT_MACHINE_FLOAT){
+          struct _pmath_integer_t *num;
+          struct _pmath_machine_float_t *mf = (struct _pmath_machine_float_t*)obj;
+          struct _pmath_mp_float_t
+          int exp;
+          
+          d = frexp(mf->value, &exp);
+          num = _pmath_create_integer();
+          if(num){
+            mpz_set_d(num->value, d);
+            
+            if(exp < 0 && mpz_sgn(num->value) != 0){
+              struct _pmath_integer_t *den = _pmath_create_integer();
+              
+              if(den){
+                mpz_set_ui(den->value, 1);
+                mpz_mul_2exp(den->value, den->value, (unsigned long int)-exp);
+                
+                pmath_unref(obj);
+                return pmath_rational_new((pmath_integer_t)num, (pmath_integer_t)den);
+              }
+            }
+            else{
+              mpz_mul_2exp(num->value, num->value, (unsigned long int)exp);
+              pmath_unref(obj);
+              return (pmath_integer_t)num;
+            }
+            
+            pmath_unref((pmath_integer_t)num);
+          }
+          
+          return obj;
+        }
+        
+        if(obj->type_shift == PMATH_TYPE_SHIFT_MP_FLOAT){
+          struct _pmath_integer_t *num;
+          struct _pmath_mp_float_t *mf = (struct _pmath_mp_float_t*)obj;
+          mpfr_exp_t exp;
+          
+          num = _pmath_create_integer();
+          if(num){
+            exp = mpfr_get_z_2exp(num->value, mf->value);
+            
+            if(exp < 0 && mpz_sgn(num->value) != 0){
+              struct _pmath_integer_t *den = _pmath_create_integer();
+              
+              if(den){
+                mpz_set_ui(den->value, 1);
+                mpz_mul_2exp(den->value, den->value, (unsigned long int)-exp);
+                
+                pmath_unref(obj);
+                return pmath_rational_new((pmath_integer_t)num, (pmath_integer_t)den);
+              }
+            }
+            else{
+              mpz_mul_2exp(num->value, num->value, (unsigned long int)exp);
+              pmath_unref(obj);
+              return (pmath_integer_t)num;
+            }
+
+            pmath_unref((pmath_integer_t)num);
+          }
+          
+          return obj;
+        }
+        
+        return obj;
+      }
       
       if(obj->type_shift == PMATH_TYPE_SHIFT_MACHINE_FLOAT)
         return obj;

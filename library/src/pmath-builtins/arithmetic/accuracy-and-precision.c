@@ -6,6 +6,7 @@
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/arithmetic-private.h>
 #include <pmath-builtins/control/definitions-private.h>
+#include <pmath-builtins/number-theory-private.h>
 
 PMATH_PRIVATE
 pmath_t builtin_accuracy(pmath_expr_t expr){
@@ -42,23 +43,6 @@ pmath_t builtin_precision(pmath_expr_t expr){
     return pmath_ref(PMATH_SYMBOL_MACHINEPRECISION);
     
   return pmath_ref(_pmath_object_infinity);
-  
-//  mp_prec_t prec;
-//
-//  if(pmath_expr_length(expr) != 1){
-//    pmath_message_argxxx(pmath_expr_length(expr), 1, 1);
-//    return expr;
-//  }
-//  
-//  prec = precision(expr);
-//  
-//  if(prec == 0)
-//    return pmath_ref(PMATH_SYMBOL_MACHINEPRECISION);
-//  
-//  if(prec > MPFR_PREC_MAX)
-//    return pmath_ref(_pmath_object_infinity);
-//  
-//  return pmath_float_new_d(prec * LOG10_2);
 }
 
 
@@ -73,12 +57,17 @@ pmath_t builtin_setaccuracy(pmath_expr_t expr){
   }
   
   acc_obj = pmath_expr_get_item(expr, 2);
-  if(!pmath_instance_of(acc_obj, PMATH_TYPE_NUMBER)){
-    pmath_message(NULL, "invacc", 1, acc_obj);
-    return expr;
+  if(_pmath_number_class(acc_obj) & PMATH_CLASS_POSINF){
+    acc = HUGE_VAL;
   }
-  
-  acc = LOG2_10 * pmath_number_get_d(acc_obj);
+  else{
+    if(!pmath_instance_of(acc_obj, PMATH_TYPE_NUMBER)){
+      pmath_message(NULL, "invacc", 1, acc_obj);
+      return expr;
+    }
+    
+    acc = LOG2_10 * pmath_number_get_d(acc_obj);
+  }
   pmath_unref(acc_obj);
   
   if(fabs(acc) > PMATH_MP_PREC_MAX){
@@ -107,6 +96,9 @@ pmath_t builtin_setprecision(pmath_expr_t expr){
   
   if(prec_obj == PMATH_SYMBOL_MACHINEPRECISION){
     prec = -HUGE_VAL;
+  }
+  else if(_pmath_number_class(prec_obj) & PMATH_CLASS_POSINF){
+    prec = HUGE_VAL;
   }
   else{
     if(!pmath_instance_of(prec_obj, PMATH_TYPE_NUMBER)){
@@ -149,7 +141,7 @@ pmath_t builtin_assign_maxextraprecision(pmath_expr_t expr){
     return expr;
   }
   
-  if(rhs == PMATH_UNDEFINED){ // Unassign({...})
+  if(rhs == PMATH_UNDEFINED){ // $MaxExtraPrecision:= .
     pmath_max_extra_precision = 50 * LOG2_10;
     
     pmath_unref(tag);

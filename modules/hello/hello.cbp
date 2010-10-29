@@ -12,7 +12,7 @@
 				<Option object_output="obj\windows\" />
 				<Option type="3" />
 				<Option compiler="gcc" />
-				<Option host_application="D:\Peter\Programmieren\pmath\trunk\library\test\bin\windows\debug\test.exe" />
+				<Option host_application="..\..\library\test\bin\windows\debug\test.exe" />
 				<Option createDefFile="1" />
 				<Option createStaticLib="1" />
 				<Compiler>

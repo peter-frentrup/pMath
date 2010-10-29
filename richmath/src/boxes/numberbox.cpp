@@ -193,8 +193,7 @@ void NumberBox::set_number(String n){
   _expstart = _numend;
   _content->remove(0, _content->length());
   
-  if(_numend + 1 == len
-  || (_numend + 1 < len && buf[_numend + 1] != '`')){
+  if(_numend + 1 == len){
     // machine number: do not show all digits
     _content->insert(0, round_digits(_number.part(0, _numend), 6));
   }
