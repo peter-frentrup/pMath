@@ -237,37 +237,15 @@ pmath_t pmath_set_precision(pmath_t obj, double prec){
       
       if(prec > 0){
         if(obj->type_shift == PMATH_TYPE_SHIFT_MACHINE_FLOAT){
-          struct _pmath_integer_t *num;
           struct _pmath_machine_float_t *mf = (struct _pmath_machine_float_t*)obj;
-          struct _pmath_mp_float_t
-          int exp;
+          struct _pmath_mp_float_t *mp = _pmath_create_mp_float_from_d(mf->value);
           
-          d = frexp(mf->value, &exp);
-          num = _pmath_create_integer();
-          if(num){
-            mpz_set_d(num->value, d);
-            
-            if(exp < 0 && mpz_sgn(num->value) != 0){
-              struct _pmath_integer_t *den = _pmath_create_integer();
-              
-              if(den){
-                mpz_set_ui(den->value, 1);
-                mpz_mul_2exp(den->value, den->value, (unsigned long int)-exp);
-                
-                pmath_unref(obj);
-                return pmath_rational_new((pmath_integer_t)num, (pmath_integer_t)den);
-              }
-            }
-            else{
-              mpz_mul_2exp(num->value, num->value, (unsigned long int)exp);
-              pmath_unref(obj);
-              return (pmath_integer_t)num;
-            }
-            
-            pmath_unref((pmath_integer_t)num);
+          if(mp){
+            pmath_unref(obj);
+            obj = (pmath_t)mp;
           }
-          
-          return obj;
+          else
+            return obj;
         }
         
         if(obj->type_shift == PMATH_TYPE_SHIFT_MP_FLOAT){
