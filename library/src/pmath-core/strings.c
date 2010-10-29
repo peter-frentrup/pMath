@@ -10,6 +10,7 @@
 
 #include <pmath-builtins/io-private.h>
 
+#include <errno.h>
 #include <iconv.h>
 #include <string.h>
 

@@ -23,9 +23,9 @@
 					<Add directory="resources" />
 					<Add directory="..\library\include" />
 					<Add directory="$(#cairo.include)" />
-					<Add directory="$(#gtk.lib)\glib-2.0\include" />
-					<Add directory="$(#gtk.include)\glib-2.0" />
-					<Add directory="$(#gtk.include)\pango-1.0" />
+					<Add directory="$(#glib.include)" />
+					<Add directory="$(#glib.lib)\glib-2.0\include" />
+					<Add directory="$(#pango.include)" />
 				</Compiler>
 				<Linker>
 					<Add option="-static-libgcc" />
@@ -42,7 +42,8 @@
 					<Add library="user32" />
 					<Add directory="..\library\bin\windows\debug" />
 					<Add directory="$(#cairo.lib)" />
-					<Add directory="$(#gtk.lib)" />
+					<Add directory="$(#pango.lib)" />
+					<Add directory="$(#glib.lib)" />
 				</Linker>
 				<ExtraCommands>
 					<Add after="post-build-windows.bat debug" />
@@ -66,9 +67,9 @@
 					<Add directory="resources" />
 					<Add directory="..\library\include" />
 					<Add directory="$(#cairo.include)" />
-					<Add directory="$(#gtk.lib)\glib-2.0\include" />
-					<Add directory="$(#gtk.include)\glib-2.0" />
-					<Add directory="$(#gtk.include)\pango-1.0" />
+					<Add directory="$(#glib.include)" />
+					<Add directory="$(#glib.lib)\glib-2.0\include" />
+					<Add directory="$(#pango.include)" />
 				</Compiler>
 				<Linker>
 					<Add option="-static-libgcc" />
@@ -85,7 +86,8 @@
 					<Add library="user32" />
 					<Add directory="..\library\bin\windows\release" />
 					<Add directory="$(#cairo.lib)" />
-					<Add directory="$(#gtk.lib)" />
+					<Add directory="$(#pango.lib)" />
+					<Add directory="$(#glib.lib)" />
 				</Linker>
 				<ExtraCommands>
 					<Add after="post-build-windows.bat release" />
@@ -113,9 +115,9 @@
 					<Add directory="resources" />
 					<Add directory="..\library\include" />
 					<Add directory="$(#cairo.include)" />
-					<Add directory="$(#gtk.lib)\glib-2.0\include" />
-					<Add directory="$(#gtk.include)\glib-2.0" />
-					<Add directory="$(#gtk.include)\pango-1.0" />
+					<Add directory="$(#glib.include)" />
+					<Add directory="$(#glib.lib)\glib-2.0\include" />
+					<Add directory="$(#pango.include)" />
 					<Add directory="..\msvc-c99" />
 				</Compiler>
 				<Linker>
@@ -133,7 +135,8 @@
 					<Add library="user32" />
 					<Add directory="..\library\bin\windows\msvc" />
 					<Add directory="$(#cairo.lib)" />
-					<Add directory="$(#gtk.lib)" />
+					<Add directory="$(#pango.lib)" />
+					<Add directory="$(#glib.lib)" />
 				</Linker>
 				<ExtraCommands>
 					<Add after="post-build-windows.bat msvc" />

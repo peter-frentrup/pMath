@@ -14,6 +14,7 @@
 #include <pmath-builtins/control-private.h>
 #include <pmath-builtins/control/definitions-private.h>
 
+#include <errno.h>
 #include <iconv.h>
 #include <limits.h>
 #include <string.h>
