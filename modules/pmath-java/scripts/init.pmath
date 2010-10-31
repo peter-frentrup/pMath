@@ -1,9 +1,27 @@
 
 BeginPackage("Java`")
 
+Java`Java
+Java`JavaClass
+Java`JavaCall
+Java`JavaException
+Java`JavaKillVM
+Java`JavaNew
+Java`JavaStartVM
 Java`$JavaVMLibraryName
 
 Begin("Java`Private`")
+
+Java::argx:= "Method named `1` defined in class `2` was called with an incorrect number or type of arguments. The arguments, shown here in a list, were `3`."
+Java::argx0:= "Method named `1` defined in class `2` does not take zero arguments."
+Java::nofld:= "No field `1` defined in class `2`."
+Java::nometh:= "No method `1` defined in class `2`."
+Java::nobcl:= "`1` is neither a Java object nor a Java class."
+
+JavaNew::argx:= "Incorrect number or type of arguments to constructor for class `1`. The arguments, shown here in a list, were `2`."
+JavaNew::argx0:= "There is no constructor for class `1` that takes zero arguments."
+JavaNew::fail:= "Error calling constructor for class `1`."
+JavaNew::nocls:= "Class named `1` not found."
 
 If(!IsString(Java`Private`$DLLDirectory), 
 	Java`Private`$DLLDirectory:= DirectoryName($Input))

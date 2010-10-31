@@ -41,6 +41,7 @@ jstring pj_string_to_java(JNIEnv *env, pmath_string_t str){
 }
 
 
+// obj will be freed; type wont be freed
 pmath_bool_t pj_value_to_java(JNIEnv *env, pmath_t obj, pmath_t type, jvalue *value){
   if(!env || !value){
     pmath_unref(obj);
@@ -250,8 +251,8 @@ pmath_bool_t pj_value_to_java(JNIEnv *env, pmath_t obj, pmath_t type, jvalue *va
         item_size = sizeof(jdouble);
         arr = (*env)->NewDoubleArray(env, len);
       }
-      else if((*env)->EnsureLocalCapacity(env, 2)){
-        jclass item_class = pj_class_get_java(env, pmath_ref(elem_type));
+      else if((*env)->EnsureLocalCapacity(env, 2) == 0){
+        jclass item_class = pj_class_to_java(env, pmath_ref(elem_type));
         
         if(item_class){
           arr = (*env)->NewObjectArray(env, len, item_class, NULL);
@@ -312,9 +313,9 @@ pmath_bool_t pj_value_to_java(JNIEnv *env, pmath_t obj, pmath_t type, jvalue *va
   }
   
   if(pj_object_is_java(env, obj)
-  && (*env)->EnsureLocalCapacity(env, 3)){
+  && (*env)->EnsureLocalCapacity(env, 3) == 0){
     pmath_bool_t success = FALSE;
-    jclass dst_class = pj_class_get_java(env, pmath_ref(type));
+    jclass dst_class = pj_class_to_java(env, pmath_ref(type));
     
     if(dst_class){
       jobject val = pj_object_to_java(env, obj); obj = NULL;
@@ -344,4 +345,149 @@ pmath_bool_t pj_value_to_java(JNIEnv *env, pmath_t obj, pmath_t type, jvalue *va
   
   pmath_unref(obj);
   return FALSE;
+}
+
+
+// type wont be freed
+pmath_t pj_value_from_java(JNIEnv *env, char type, const jvalue *value){
+  switch(type){
+    case 'Z':  return pmath_build_value("b", (int)value->z);
+    case 'B':  return pmath_build_value("i", (int)value->b);
+    case 'C':  return pmath_build_value("c", (uint16_t)value->c);
+    case 'S':  return pmath_build_value("i", (int)value->s);
+    case 'I':  return pmath_build_value("i", (int)value->i);
+    case 'J':  return pmath_build_value("k", value->j);
+    case 'F':  return pmath_build_value("f", (double)value->f);
+    case 'D':  return pmath_build_value("f", value->d);
+    
+    case 'L':
+    case '[': break;
+    
+    default:
+      return NULL;
+  }
+  
+  if((*env)->EnsureLocalCapacity(env, 2) == 0){
+    jclass  clazz = (*env)->GetObjectClass(env, value->l);
+    pmath_t class_name = pj_class_get_nice_name(env, clazz);
+    int slen            = pmath_string_length(class_name);
+    const uint16_t *buf = pmath_string_buffer(class_name);
+    (*env)->DeleteLocalRef(env, clazz);
+    
+    if(pmath_string_equals_latin1(class_name, "java.lang.String")){
+      pmath_unref(class_name);
+      return pj_string_from_java(env, value->l);
+    }
+    
+    if(slen > 0 && buf[0] == '['){
+      pmath_bool_t is_simple_array = FALSE;
+      
+      int i = 1;
+      while(i < slen && buf[i] == '[')
+        ++i;
+      
+      if(i < slen && buf[i] != 'L'){
+        is_simple_array = TRUE;
+      }
+      else if(i + 18 == slen 
+      && buf[i + 11] == 'S'
+      && buf[i + 12] == 't'
+      && buf[i + 13] == 'r'
+      && buf[i + 14] == 'i'
+      && buf[i + 15] == 'n'
+      && buf[i + 16] == 'g'
+      && buf[i +  5] == '/'
+      && buf[i +  6] == 'l'
+      && buf[i +  7] == 'a'
+      && buf[i +  8] == 'n'
+      && buf[i +  9] == 'g'
+      && buf[i + 10] == '/'
+      && buf[i +  1] == 'j'
+      && buf[i +  2] == 'a'
+      && buf[i +  3] == 'v'
+      && buf[i +  4] == 'a'
+      && buf[i]      == 'L'
+      && buf[i + 17] == ';'){
+        is_simple_array = TRUE;
+      }
+      
+      if(is_simple_array){
+        jsize len = (*env)->GetArrayLength(env, value->l);
+        pmath_t arr = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), (size_t)len);
+        size_t item_size = 0;
+        
+        switch(buf[1]){
+          case 'Z': item_size = sizeof(value->z); break;
+          case 'B': item_size = sizeof(value->b); break;
+          case 'S': item_size = sizeof(value->s); break;
+          case 'C': item_size = sizeof(value->c); break;
+          case 'I': item_size = sizeof(value->i); break;
+          case 'J': item_size = sizeof(value->j); break;
+          case 'F': item_size = sizeof(value->f); break;
+          case 'D': item_size = sizeof(value->d); break;
+        }
+        
+        if(item_size == 0){
+          jsize i;
+          jvalue v;
+          
+          for(i = len;i > 0;--i){
+            v.l = (*env)->GetObjectArrayElement(env, value->l, i-1);
+            
+            arr = pmath_expr_set_item(arr, (size_t)i, 
+              pj_value_from_java(env, (char)buf[1], &v));
+            
+            (*env)->DeleteLocalRef(env, v.l);
+          }
+        }
+        else{
+          void *data = (*env)->GetPrimitiveArrayCritical(env, value->l, NULL);
+          
+          if(data){
+            size_t i;
+            
+            for(i = 0;i < (size_t)len;++i){
+              pmath_t item = pj_value_from_java(env, (char)buf[1], (const jvalue*)(data + i * item_size));
+              
+              arr = pmath_expr_set_item(arr, i + 1, item);
+            }
+            
+            (*env)->ReleasePrimitiveArrayCritical(env, value->l, data, 0);
+          }
+        }
+        
+        pmath_unref(class_name);
+        return arr;
+      }
+    }
+    
+    pmath_unref(class_name);
+    return pj_object_from_java(env, value->l);
+  }
+  
+  return NULL;
+}
+
+
+// args and types wont be freed
+pmath_bool_t pj_value_fill_args(JNIEnv *env, pmath_expr_t types, pmath_expr_t args, jvalue *jargs){
+  size_t i;
+  size_t len = pmath_expr_length(args);
+  
+  if(len != pmath_expr_length(types))
+    return FALSE;
+  
+  for(i = 1;i <= len;++i){
+    pmath_t arg  = pmath_expr_get_item(args, i);
+    pmath_t type = pmath_expr_get_item(types, i);
+    
+    if(!pj_value_to_java(env, arg, type, &jargs[i-1])){
+      pmath_unref(type);
+      return FALSE;
+    }
+    
+    pmath_unref(type);
+  }
+  
+  return TRUE;
 }

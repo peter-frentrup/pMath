@@ -2,10 +2,12 @@
 	Button("italic",DocumentApply(SelectedDocument(),StyleBox("",FontSlant->Italic))),
 	Button("Arg Style",DocumentApply(SelectedDocument(),StyleBox("","Arg")))})
 
+- (BUG): FullForm(symbol).ToBoxes should not read any MakeBoxes-user-definitions
+	
 !? make <<context` parse as Needs("context`") and do not provide special syntax for Get()	
 	
 ? implement Stack(pattern)   
-	this requires us to sava a copy of the expression before pattern matching!
+	this requires us to save a copy of the expression before pattern matching!
 	
 ? pmath: implement Transpose in C code (see transpose.pmath)
 

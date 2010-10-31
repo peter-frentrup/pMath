@@ -10,7 +10,11 @@ extern jstring        pj_string_to_java(  JNIEnv *env, pmath_string_t str); // s
 
 
 // obj will be freed; type wont be freed
-extern pmath_bool_t pj_value_to_java(JNIEnv *env, pmath_t obj, pmath_t type, jvalue *value);
+extern pmath_bool_t pj_value_to_java(  JNIEnv *env, pmath_t obj, pmath_t type, jvalue *value);
+extern pmath_t      pj_value_from_java(JNIEnv *env, char type, const jvalue *value);
+
+// args and types wont be freed
+extern pmath_bool_t pj_value_fill_args(JNIEnv *env, pmath_expr_t types, pmath_expr_t args, jvalue *jargs);
 
 
 #endif // __PJ_VALUES_H__

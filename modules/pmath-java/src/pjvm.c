@@ -266,8 +266,9 @@ pmath_bool_t pj_exception_to_pmath(JNIEnv *env){
     
     pmath_throw(
       pmath_expr_new_extended(
-        pmath_ref(PJ_SYMBOL_JAVAEXCEPTION), 1, 
-        pj_object_from_java(env, ex)));
+        pmath_ref(PJ_SYMBOL_JAVAEXCEPTION), 2, 
+        pj_object_from_java(env, ex),
+        NULL));
     
     (*env)->DeleteLocalRef(env, ex);
     return TRUE;
@@ -276,6 +277,18 @@ pmath_bool_t pj_exception_to_pmath(JNIEnv *env){
   return FALSE;
 }
 
+
+void pjvm_ensure_started(void){
+  pmath_t pjvm = pjvm_try_get();
+  
+  if(pjvm){
+    pmath_unref(pjvm);
+    return;
+  }
+  
+  pmath_unref(pmath_evaluate(pmath_expr_new(
+    pmath_ref(PJ_SYMBOL_JAVASTARTVM), 0)));
+}
 
 pmath_t pj_builtin_startvm(pmath_expr_t expr){
   pmath_messages_t msg;
@@ -333,22 +346,22 @@ pmath_t pj_builtin_startvm(pmath_expr_t expr){
   else{
     pmath_unref(pmath_thread_send_wait(jvm_main_mq, expr, HUGE_VAL, NULL, NULL));
     
-    #ifdef PMATH_DEBUG_LOG
-    {
-      JNIEnv *env = pjvm_get_env();
-      if(env){
-        jclass clazz = (*env)->FindClass(env, "Ljava/lang/String;;");
-        pmath_t name = pj_class_get_name(env, clazz);
-        
-        PMATH_RUN_ARGS("Print(`1`)", "(o)", name);
-        
-        pj_cache_members(env, clazz);
-        (*env)->DeleteLocalRef(env, clazz);
-        
-        pj_exception_to_pmath(env);
-      }
-    }
-    #endif
+//    #ifdef PMATH_DEBUG_LOG
+//    {
+//      JNIEnv *env = pjvm_get_env();
+//      if(env){
+//        jclass clazz = (*env)->FindClass(env, "Ljava/lang/String;");
+//        pmath_t name = pj_class_get_name(env, clazz);
+//        
+//        PMATH_RUN_ARGS("Print(`1`)", "(o)", name);
+//        
+//        pj_class_cache_members(env, clazz);
+//        (*env)->DeleteLocalRef(env, clazz);
+//        
+//        pj_exception_to_pmath(env);
+//      }
+//    }
+//    #endif
   }
   
   pjvm = pjvm_try_get();

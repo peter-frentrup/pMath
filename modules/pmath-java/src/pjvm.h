@@ -17,6 +17,7 @@ extern JNIEnv *pjvm_get_env(void);
 extern pmath_bool_t pj_exception_to_pmath(JNIEnv *env);
 
 
+extern void pjvm_ensure_started(void);
 extern pmath_t pj_builtin_startvm(pmath_expr_t expr);
 extern pmath_t pj_builtin_killvm(pmath_expr_t expr);
 

@@ -1,4 +1,5 @@
 #include "pj-symbols.h"
+#include "pj-objects.h"
 #include "pjvm.h"
 
 #include <string.h>
@@ -19,9 +20,11 @@ pmath_bool_t pj_symbols_init(void){
   #define PROTECT(sym)   pmath_symbol_set_attributes((sym), pmath_symbol_get_attributes((sym)) | PMATH_SYMBOL_ATTRIBUTE_PROTECTED)
 
   VERIFY(PJ_SYMBOL_JAVA              = NEW_SYMBOL("Java`Java"));
+  VERIFY(PJ_SYMBOL_JAVACALL          = NEW_SYMBOL("Java`JavaCall"));
   VERIFY(PJ_SYMBOL_JAVACLASS         = NEW_SYMBOL("Java`JavaClass"));
   VERIFY(PJ_SYMBOL_JAVAEXCEPTION     = NEW_SYMBOL("Java`JavaException"));
   VERIFY(PJ_SYMBOL_JAVAKILLVM        = NEW_SYMBOL("Java`JavaKillVM"));
+  VERIFY(PJ_SYMBOL_JAVANEW           = NEW_SYMBOL("Java`JavaNew"));
   VERIFY(PJ_SYMBOL_JAVASTARTVM       = NEW_SYMBOL("Java`JavaStartVM"));
   VERIFY(PJ_SYMBOL_JAVAVMLIBRARYNAME = NEW_SYMBOL("Java`$JavaVMLibraryName"));
   
@@ -35,8 +38,10 @@ pmath_bool_t pj_symbols_init(void){
   VERIFY(PJ_SYMBOL_TYPE_LONG         = NEW_SYMBOL("Java`Type`Long"));
   VERIFY(PJ_SYMBOL_TYPE_SHORT        = NEW_SYMBOL("Java`Type`Short"));
   
-  BIND_DOWN(PJ_SYMBOL_JAVASTARTVM, pj_builtin_startvm);
+  BIND_DOWN(PJ_SYMBOL_JAVACALL,    pj_builtin_javacall);
+  BIND_DOWN(PJ_SYMBOL_JAVANEW,     pj_builtin_javanew);
   BIND_DOWN(PJ_SYMBOL_JAVAKILLVM,  pj_builtin_killvm);
+  BIND_DOWN(PJ_SYMBOL_JAVASTARTVM, pj_builtin_startvm);
   
   {
     size_t i;

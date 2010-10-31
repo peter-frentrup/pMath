@@ -26,10 +26,31 @@ enum{
 struct pmath2id_t{
   pmath_string_t class_method_signature;
   pmath_t        info;
-  jmethodID      id;
+  jmethodID      mid;
+  jfieldID       fid;
   int            modifiers;
-  char           type; // Z,B,C,S,I,J,F,D or sth else for an object
+  char           return_type; // Z,B,C,S,I,J,F,D or sth else for an object
 };
+
+/* "class"  ==>  info = {"method_or_field_1", "method_or_field_2", ...,}
+   
+   {"class", "method_or_constructor"}  ==>  info = {{argtype11, argtype12, ...}, {argtype21, argtype22, ...}, ...}
+   
+   {"class", "method_or_constructor", {argtype1, argtyp2, ...}}  ==> 
+      mid         = jni method id
+      fid         = 0
+      modifiers   = PJ_MODIFIER_XXX set
+      return_type = first char of method return type signature
+   
+   {"class", "field"}  ==> 
+      info       = field type
+      mid        = 0
+      fid        = jni field id
+      modifiers   = PJ_MODIFIER_XXX set
+      return_type = first char of field type
+   
+   "<init>" is the name of the constructor. It is never a method.
+ */
 
   static void cms2id_entry_destructor(void *p){
     struct pmath2id_t *e = (struct pmath2id_t*)p;
@@ -212,7 +233,7 @@ pmath_string_t pj_class_get_name(JNIEnv *env, jclass clazz){
     return NULL;
   }
 
-jclass pj_class_get_java(JNIEnv *env, pmath_t obj){
+jclass pj_class_to_java(JNIEnv *env, pmath_t obj){
   jclass result = NULL;
   
   if(env){
@@ -348,21 +369,31 @@ static pmath_t type2pmath(pmath_string_t name, int start){ // name will be freed
   struct cache_info_t{
     pmath_string_t  class_name;
     jclass          jcClass;
+    jclass          jcConstructor;
     jclass          jcMethod;
+    jclass          jcField;
+    jmethodID       midGetConstructors;
+    jmethodID       midGetMethods;
     jmethodID       midGetFields;
-    jmethodID       midGetName;
-    jmethodID       midGetModifiers;
-    jmethodID       midGetParameterTypes;
-    jmethodID       midGetReturnType;
+    jmethodID       midConstructorGetModifiers;
+    jmethodID       midConstructorGetParameterTypes;
+    jmethodID       midMethodGetName;
+    jmethodID       midMethodGetModifiers;
+    jmethodID       midMethodGetParameterTypes;
+    jmethodID       midMethodGetReturnType;
+    jmethodID       midFieldGetName;
+    jmethodID       midFieldGetModifiers;
+    jmethodID       midFieldGetType;
   };
   
   static pmath_bool_t init_cache_info(JNIEnv *env, jclass clazz, struct cache_info_t *info){
+    pmath_t class_name = info->class_name;
     memset(info, 0, sizeof(struct cache_info_t));
+    info->class_name = class_name;
     
     if(!env || !clazz)
       return FALSE;
     
-    info->class_name = pj_class_get_name(env, clazz);
     if(!info->class_name)
       return FALSE;
     
@@ -370,35 +401,73 @@ static pmath_t type2pmath(pmath_string_t name, int start){ // name will be freed
     if(!info->jcClass) 
       goto FAIL_CLASS;
     
+    info->jcConstructor = (*env)->FindClass(env, "Ljava/lang/reflect/Constructor;");
+    if(!info->jcConstructor) 
+      goto FAIL_CONSTRUCTOR_CLASS;
+    
     info->jcMethod = (*env)->FindClass(env, "Ljava/lang/reflect/Method;");
     if(!info->jcMethod) 
       goto FAIL_METHOD_CLASS;
     
-    info->midGetFields = (*env)->GetMethodID(env, info->jcClass, "getMethods", "()[Ljava/lang/reflect/Method;");
+    info->jcField = (*env)->FindClass(env, "Ljava/lang/reflect/Field;");
+    if(!info->jcField) 
+      goto FAIL_FIELD_CLASS;
+    
+    info->midGetConstructors = (*env)->GetMethodID(env, info->jcClass, "getConstructors", "()[Ljava/lang/reflect/Constructor;");
+    if(!info->midGetConstructors)
+      goto FAIL_MID;
+    
+    info->midGetMethods = (*env)->GetMethodID(env, info->jcClass, "getMethods", "()[Ljava/lang/reflect/Method;");
+    if(!info->midGetMethods)
+      goto FAIL_MID;
+    
+    info->midGetFields = (*env)->GetMethodID(env, info->jcClass, "getFields", "()[Ljava/lang/reflect/Field;");
     if(!info->midGetFields)
       goto FAIL_MID;
     
-    info->midGetName = (*env)->GetMethodID(env, info->jcMethod, "getName", "()Ljava/lang/String;");
-    if(!info->midGetName)
+    info->midConstructorGetModifiers = (*env)->GetMethodID(env, info->jcConstructor, "getModifiers", "()I");
+    if(!info->midConstructorGetModifiers)
       goto FAIL_MID;
     
-    info->midGetModifiers = (*env)->GetMethodID(env, info->jcMethod, "getModifiers", "()I");
-    if(!info->midGetModifiers)
+    info->midConstructorGetParameterTypes = (*env)->GetMethodID(env, info->jcConstructor, "getParameterTypes", "()[Ljava/lang/Class;");
+    if(!info->midConstructorGetParameterTypes)
       goto FAIL_MID;
     
-    info->midGetParameterTypes = (*env)->GetMethodID(env, info->jcMethod, "getParameterTypes", "()[Ljava/lang/Class;");
-    if(!info->midGetParameterTypes)
+    info->midMethodGetName = (*env)->GetMethodID(env, info->jcMethod, "getName", "()Ljava/lang/String;");
+    if(!info->midMethodGetName)
       goto FAIL_MID;
     
-    info->midGetReturnType = (*env)->GetMethodID(env, info->jcMethod, "getReturnType", "()Ljava/lang/Class;");
-    if(!info->midGetReturnType)
+    info->midMethodGetModifiers = (*env)->GetMethodID(env, info->jcMethod, "getModifiers", "()I");
+    if(!info->midMethodGetModifiers)
+      goto FAIL_MID;
+    
+    info->midMethodGetParameterTypes = (*env)->GetMethodID(env, info->jcMethod, "getParameterTypes", "()[Ljava/lang/Class;");
+    if(!info->midMethodGetParameterTypes)
+      goto FAIL_MID;
+    
+    info->midMethodGetReturnType = (*env)->GetMethodID(env, info->jcMethod, "getReturnType", "()Ljava/lang/Class;");
+    if(!info->midMethodGetReturnType)
+      goto FAIL_MID;
+    
+    info->midFieldGetName = (*env)->GetMethodID(env, info->jcField, "getName", "()Ljava/lang/String;");
+    if(!info->midFieldGetName)
+      goto FAIL_MID;
+    
+    info->midFieldGetModifiers = (*env)->GetMethodID(env, info->jcField, "getModifiers", "()I");
+    if(!info->midFieldGetModifiers)
+      goto FAIL_MID;
+    
+    info->midFieldGetType = (*env)->GetMethodID(env, info->jcField, "getType", "()Ljava/lang/Class;");
+    if(!info->midFieldGetType)
       goto FAIL_MID;
     
     return TRUE;
     
-    FAIL_MID:             (*env)->DeleteLocalRef(env, info->jcMethod);
-    FAIL_METHOD_CLASS:    (*env)->DeleteLocalRef(env, info->jcClass);
-    FAIL_CLASS:           pmath_unref(info->class_name);
+    FAIL_MID:                 (*env)->DeleteLocalRef(env, info->jcField);
+    FAIL_FIELD_CLASS:         (*env)->DeleteLocalRef(env, info->jcMethod);
+    FAIL_METHOD_CLASS:        (*env)->DeleteLocalRef(env, info->jcConstructor);
+    FAIL_CONSTRUCTOR_CLASS:   (*env)->DeleteLocalRef(env, info->jcClass);
+    FAIL_CLASS:               pmath_unref(info->class_name);
     
     memset(info, 0, sizeof(struct cache_info_t));
     return FALSE;
@@ -408,7 +477,13 @@ static pmath_t type2pmath(pmath_string_t name, int start){ // name will be freed
     if(info->jcClass)
       (*env)->DeleteLocalRef(env, info->jcClass);
       
+    if(info->jcConstructor)
+      (*env)->DeleteLocalRef(env, info->jcConstructor);
+    
     if(info->jcMethod)
+      (*env)->DeleteLocalRef(env, info->jcMethod);
+    
+    if(info->jcField)
       (*env)->DeleteLocalRef(env, info->jcMethod);
     
     pmath_unref(info->class_name);
@@ -416,22 +491,25 @@ static pmath_t type2pmath(pmath_string_t name, int start){ // name will be freed
     memset(info, 0, sizeof(struct cache_info_t));
   }
   
+  // NULL is returned for constructors
   static pmath_expr_t cache_methods(
-    JNIEnv *env, 
+    JNIEnv              *env, 
     struct cache_info_t *info,
-    jobjectArray method_array
+    jobjectArray         method_array,
+    pmath_bool_t         constructors // whether method_array is [Ljava/lang/reflect/Constructor;
   ){
     jsize jlen, ji;
     
-    pmath_gather_begin(NULL);
+    if(!constructors)
+      pmath_gather_begin(NULL);
     
     jlen = (*env)->GetArrayLength(env, method_array);
     for(ji = 0;ji < jlen;++ji){
       pmath_string_t      name;
       pmath_t             params;
       int                 modifiers;
-      char                type;
-      jmethodID           id;
+      char                return_type;
+      jmethodID           mid;
       jsize               jlen2, ji2;
       struct pmath2id_t  *cache_entry;
       jobject             method;
@@ -443,42 +521,55 @@ static pmath_t type2pmath(pmath_string_t name, int start){ // name will be freed
         goto FAIL_METHOD;
       
       
-      modifiers = (*env)->CallIntMethod(env, method, info->midGetModifiers);
+      modifiers = (*env)->CallIntMethod(
+        env, method, 
+        constructors ? info->midConstructorGetModifiers : info->midMethodGetModifiers);
       if(!(modifiers & PJ_MODIFIER_PUBLIC)
       ||  (modifiers & PJ_MODIFIER_PRIVATE)
       ||  (modifiers & PJ_MODIFIER_PROTECTED))
         goto FAIL_PUBLIC;
       
       
-      id = (*env)->FromReflectedMethod(env, method);
-      if(!id)
-        goto FAIL_ID;
+      mid = (*env)->FromReflectedMethod(env, method);
+      if(!mid)
+        goto FAIL_MID;
       
       
-      jobj = (*env)->CallObjectMethod(env, method, info->midGetReturnType);
-      if(!jobj)
-        goto FAIL_JRETURN;
+      if(constructors){
+        return_type = 'V';
         
-      name = pj_class_get_name(env, (jstring)jobj);
-      (*env)->DeleteLocalRef(env, jobj);
-      if(pmath_string_length(name) == 0)
-        goto FAIL_RETURN;
+        name = PMATH_C_STRING("<init>");
+      }
+      else{
+        jobj = (*env)->CallObjectMethod(env, method, info->midMethodGetReturnType);
+        if(!jobj)
+          goto FAIL_JRETURN;
+          
+        name = pj_class_get_name(env, (jclass)jobj);
+        (*env)->DeleteLocalRef(env, jobj);
+        if(pmath_string_length(name) == 0){
+          pmath_unref(name);
+          goto FAIL_RETURN;
+        }
+        
+        return_type = (char)pmath_string_buffer(name)[0];
+        pmath_unref(name);
+        
+        jobj = (*env)->CallObjectMethod(env, method, info->midMethodGetName);
+        if(!jobj)
+          goto FAIL_JNAME;
+        
+        name = pj_string_from_java(env, (jstring)jobj);
+        (*env)->DeleteLocalRef(env, jobj);
+        if(!name)
+          goto FAIL_NAME;
+      }
       
-      type = (char)pmath_string_buffer(name)[0];
-      pmath_unref(name);
       
-      
-      jobj = (*env)->CallObjectMethod(env, method, info->midGetName);
-      if(!jobj)
-        goto FAIL_JNAME;
-      
-      name = pj_string_from_java(env, (jstring)jobj);
-      (*env)->DeleteLocalRef(env, jobj);
-      if(!name)
-        goto FAIL_NAME;
-      
-      
-      jtypes = (jobjectArray)(*env)->CallObjectMethod(env, method, info->midGetParameterTypes);
+      jtypes = (jobjectArray)(*env)->CallObjectMethod(
+        env, 
+        method, 
+        constructors ? info->midConstructorGetParameterTypes : info->midMethodGetParameterTypes);
       if(!jtypes)
         goto FAIL_JTYPES;
       
@@ -500,7 +591,7 @@ static pmath_t type2pmath(pmath_string_t name, int start){ // name will be freed
       
       pj_exception_to_pmath(env);
       
-      cache_entry = (struct pmath2id_t*)pmath_mem_alloc(sizeof(struct pmath2id_t));
+      cache_entry = pmath_mem_alloc(sizeof(struct pmath2id_t));
       if(cache_entry){
         cache_entry->class_method_signature = pmath_expr_new_extended(
           pmath_ref(PMATH_SYMBOL_LIST), 3,
@@ -508,9 +599,10 @@ static pmath_t type2pmath(pmath_string_t name, int start){ // name will be freed
           pmath_ref(name),
           pmath_ref(params));
         cache_entry->info                   = NULL;
-        cache_entry->id                     = id;
+        cache_entry->mid                    = mid;
+        cache_entry->fid                    = 0;
         cache_entry->modifiers              = modifiers;
-        cache_entry->type                   = type;
+        cache_entry->return_type            = return_type;
         
         if(!pmath_aborting()){
           pmath_atomic_lock(&cms2id_lock);
@@ -540,15 +632,16 @@ static pmath_t type2pmath(pmath_string_t name, int start){ // name will be freed
         pmath_atomic_unlock(&cms2id_lock);
         
         if(!cache_entry){
-          cache_entry = (struct pmath2id_t*)pmath_mem_alloc(sizeof(struct pmath2id_t));
+          cache_entry = pmath_mem_alloc(sizeof(struct pmath2id_t));
           if(cache_entry){
             cache_entry->class_method_signature = pmath_ref(key);
             cache_entry->info                   = pmath_expr_new_extended(
               pmath_ref(PMATH_SYMBOL_LIST), 1,
               pmath_ref(params));
-            cache_entry->id                     = 0;
+            cache_entry->mid                    = 0;
+            cache_entry->fid                    = 0;
             cache_entry->modifiers              = 0;
-            cache_entry->type                   = '?';
+            cache_entry->return_type            = '?';
             
             pmath_atomic_lock(&cms2id_lock);
             {
@@ -563,7 +656,8 @@ static pmath_t type2pmath(pmath_string_t name, int start){ // name will be freed
         pmath_unref(key);
       }
       
-      pmath_emit(pmath_ref(name), NULL);
+      if(!constructors)
+        pmath_emit(pmath_ref(name), NULL);
       
                         pmath_unref(params);
       FAIL_JTYPES:      pmath_unref(name);
@@ -571,56 +665,193 @@ static pmath_t type2pmath(pmath_string_t name, int start){ // name will be freed
       FAIL_JNAME:
       FAIL_RETURN:
       FAIL_JRETURN:
-      FAIL_ID:
+      FAIL_MID:
       FAIL_PUBLIC:      (*env)->DeleteLocalRef(env, method);
       FAIL_METHOD:
       ;
     }
     
+    if(constructors)
+      return NULL;
+    
     return pmath_gather_end();
   }
   
-void pj_cache_members(JNIEnv *env, jclass clazz){
-  struct cache_info_t info;
-  pmath_t             methods;
-  jobjectArray        method_array;
+  static pmath_expr_t cache_fields(
+    JNIEnv              *env, 
+    struct cache_info_t *info,
+    jobjectArray         field_array
+  ){
+    jsize jlen, ji;
+    
+    pmath_gather_begin(NULL);
+    
+    jlen = (*env)->GetArrayLength(env, field_array);
+    for(ji = 0;ji < jlen;++ji){
+      struct pmath2id_t  *cache_entry;
+      jfieldID            fid;
+      jobject             field;
+      jobject             jobj;
+      int                 modifiers;
+      pmath_string_t      name;
+      pmath_string_t      type;
+      
+      field = (*env)->GetObjectArrayElement(env, field_array, ji);
+      if(!field)
+        goto FAIL_FIELD;
+      
+      
+      modifiers = (*env)->CallIntMethod(env, field, info->midFieldGetModifiers);
+      if(!(modifiers & PJ_MODIFIER_PUBLIC)
+      ||  (modifiers & PJ_MODIFIER_PRIVATE)
+      ||  (modifiers & PJ_MODIFIER_PROTECTED))
+        goto FAIL_PUBLIC;
+      
+      
+      fid = (*env)->FromReflectedField(env, field);
+      if(!fid)
+        goto FAIL_FID;
+      
+      
+      { // field type
+        jobj = (*env)->CallObjectMethod(env, field, info->midFieldGetType);
+        if(!jobj)
+          goto FAIL_JTYPE;
+          
+        type = pj_class_get_name(env, (jclass)jobj);
+        (*env)->DeleteLocalRef(env, jobj);
+        if(pmath_string_length(type) == 0){
+          pmath_unref(type);
+          goto FAIL_TYPE;
+        }
+      }
+      
+      { // field name
+        jobj = (*env)->CallObjectMethod(env, field, info->midFieldGetName);
+        if(!jobj)
+          goto FAIL_JNAME;
+        
+        name = pj_string_from_java(env, (jstring)jobj);
+        (*env)->DeleteLocalRef(env, jobj);
+        if(!name)
+          goto FAIL_NAME;
+      }
+      
+      pj_exception_to_pmath(env);
+      
+      cache_entry = pmath_mem_alloc(sizeof(struct pmath2id_t));
+      if(cache_entry){
+        cache_entry->class_method_signature = pmath_expr_new_extended(
+          pmath_ref(PMATH_SYMBOL_LIST), 2,
+          pmath_ref(info->class_name),
+          pmath_ref(name));
+        cache_entry->info                   = pmath_ref(type);
+        cache_entry->mid                    = 0;
+        cache_entry->fid                    = fid;
+        cache_entry->modifiers              = modifiers;
+        cache_entry->return_type            = (char)pmath_string_buffer(type)[0];
+        
+        if(!pmath_aborting()){
+          pmath_atomic_lock(&cms2id_lock);
+          {
+            cache_entry = pmath_ht_insert(cms2id, cache_entry);
+          }
+          pmath_atomic_unlock(&cms2id_lock);
+        }
+        
+        cms2id_entry_destructor(cache_entry);
+      }
+      
+      pmath_emit(name, NULL);
+      
+      FAIL_NAME:
+      FAIL_JNAME:     pmath_unref(type);
+      FAIL_TYPE:
+      FAIL_JTYPE:
+      FAIL_FID:
+      FAIL_PUBLIC:    (*env)->DeleteLocalRef(env, field);
+      FAIL_FIELD:     ;
+    }
+    
+    return pmath_gather_end();
+  }
+  
+void pj_class_cache_members(JNIEnv *env, jclass clazz){
+  struct pmath2id_t    *cache_entry;
+  struct cache_info_t   info;
+  pmath_expr_t          methods;
+  pmath_expr_t          fields;
+  pmath_t               members;
+  jobjectArray          array;
   
   if(!env || !clazz)
     return;
   
-  if((*env)->EnsureLocalCapacity(env, 6))
+  info.class_name = pj_class_get_name(env, clazz);
+  pmath_atomic_lock(&cms2id_lock);
+  {
+    cache_entry = pmath_ht_search(cms2id, info.class_name);
+  }
+  pmath_atomic_unlock(&cms2id_lock);
+  
+  if(cache_entry){
+    pmath_unref(info.class_name);
+    return;
+  }
+  
+  if((*env)->EnsureLocalCapacity(env, 8) != 0)
     return;
   
   if(!init_cache_info(env, clazz, &info))
     return;
   
-  method_array = (jobjectArray)(*env)->CallObjectMethod(env, clazz, info.midGetFields);
-  if(method_array){
-    methods = cache_methods(env, &info, method_array);
+  array = (jobjectArray)(*env)->CallObjectMethod(env, clazz, info.midGetConstructors);
+  if(array){
+    methods = cache_methods(env, &info, array, TRUE);
     
-    (*env)->DeleteLocalRef(env, method_array);
+    assert(methods == NULL);
+    
+    (*env)->DeleteLocalRef(env, array);
+  }
+  
+  array = (jobjectArray)(*env)->CallObjectMethod(env, clazz, info.midGetMethods);
+  if(array){
+    methods = cache_methods(env, &info, array, FALSE);
+    
+    (*env)->DeleteLocalRef(env, array);
   }
   else
     methods = NULL;
   
-  methods = pmath_evaluate(
+  array = (jobjectArray)(*env)->CallObjectMethod(env, clazz, info.midGetFields);
+  if(array){
+    fields = cache_fields(env, &info, array);
+    
+    (*env)->DeleteLocalRef(env, array);
+  }
+  else
+    fields = NULL;
+  
+  members = pmath_evaluate(
     pmath_expr_new_extended(
-      pmath_ref(PMATH_SYMBOL_UNION), 1,
-      methods));
+      pmath_ref(PMATH_SYMBOL_JOIN), 2,
+      pmath_expr_new_extended(
+        pmath_ref(PMATH_SYMBOL_UNION), 1,
+        pmath_ref(methods)),
+      pmath_ref(fields)));
   
   if(!pmath_aborting() 
   && !(*env)->ExceptionCheck(env) 
-  && pmath_is_expr_of(methods, PMATH_SYMBOL_LIST)){
-    struct pmath2id_t *cache_entry;
-    
-    cache_entry = (struct pmath2id_t*)pmath_mem_alloc(sizeof(struct pmath2id_t));
+  && pmath_is_expr_of(members, PMATH_SYMBOL_LIST)){
+    cache_entry = pmath_mem_alloc(sizeof(struct pmath2id_t));
     
     if(cache_entry){
       cache_entry->class_method_signature = pmath_ref(info.class_name);
-      cache_entry->info                   = pmath_ref(methods);
-      cache_entry->id                     = 0;
+      cache_entry->info                   = pmath_ref(members);
+      cache_entry->mid                    = 0;
+      cache_entry->fid                    = 0;
       cache_entry->modifiers              = 0;
-      cache_entry->type                   = '?';
+      cache_entry->return_type            = '?';
   
       pmath_atomic_lock(&cms2id_lock);
       {
@@ -633,13 +864,369 @@ void pj_cache_members(JNIEnv *env, jclass clazz){
   }
   
   PMATH_RUN_ARGS("Print(`1`, \": \", `2`)", 
-    "(oo)", 
+    "(o(oo))", 
     pmath_ref(info.class_name), 
-    pmath_ref(methods));
+    pmath_ref(methods), 
+    pmath_ref(fields));
   
+  pmath_unref(fields);
   pmath_unref(methods);
+  pmath_unref(members);
   
   free_cache_info(env, &info);
+}
+
+
+pmath_t pj_class_call_method(
+  JNIEnv         *env, 
+  jobject         obj, 
+  pmath_bool_t    is_static, 
+  pmath_string_t  name,  // will be freed
+  pmath_expr_t    args
+){
+  pmath_t               result;
+  jclass                clazz;
+  jvalue               *jargs;
+  pmath_string_t        class_name;
+  pmath_t               key;
+  pmath_expr_t          signatures;
+  jint                  num_args;
+  
+  if(!env 
+  || !obj
+  || (*env)->EnsureLocalCapacity(env, 1) != 0){
+    pj_exception_to_pmath(env);
+    pmath_unref(name);
+    pmath_unref(args);
+    return pmath_ref(PMATH_SYMBOL_FAILED);
+  }
+  
+  if(is_static)
+    clazz = obj;
+  else
+    clazz = (*env)->GetObjectClass(env, obj);
+  
+  pj_class_cache_members(env, clazz);
+  class_name = pj_class_get_name(env, clazz);
+  num_args = (jint)pmath_expr_length(args);
+  
+  key = pmath_expr_new_extended(
+    pmath_ref(PMATH_SYMBOL_LIST), 2,
+    pmath_ref(class_name),
+    pmath_ref(name));
+  
+  signatures = NULL;
+  pmath_atomic_lock(&cms2id_lock);
+  {
+    struct pmath2id_t *cache_entry = pmath_ht_search(cms2id, key);
+    if(cache_entry && cache_entry->fid == 0){
+      signatures = pmath_ref(cache_entry->info);
+    }
+  }
+  pmath_atomic_unlock(&cms2id_lock);
+  
+  if(!pmath_is_expr_of(signatures, PMATH_SYMBOL_LIST)
+  || !pmath_instance_of(name, PMATH_TYPE_STRING)
+  || pmath_string_equals_latin1(name, "<init>")){
+    pmath_message(PJ_SYMBOL_JAVA, "nometh", 2,
+      name,
+      class_name);
+    pmath_unref(args);
+    pmath_unref(key);
+    if(!is_static)
+      (*env)->DeleteLocalRef(env, clazz);
+    return pmath_ref(PMATH_SYMBOL_FAILED);
+  }
+  
+  key = pmath_expr_append(key, 1, NULL);
+  result = PMATH_UNDEFINED;
+  jargs = pmath_mem_alloc(num_args * sizeof(jvalue));
+  if(jargs){
+    size_t i;
+    
+    for(i = 1;i <= pmath_expr_length(signatures) && result == PMATH_UNDEFINED;++i){
+      pmath_t types = pmath_expr_get_item(signatures, i);
+      
+      if((*env)->PushLocalFrame(env, num_args) == 0){
+        if(pj_value_fill_args(env, types, args, jargs)){
+          jmethodID mid         = 0;
+          int       modifiers   = 0;
+          char      return_type = '?';
+          
+          key = pmath_expr_set_item(key, 3, pmath_ref(types));
+          
+          pmath_atomic_lock(&cms2id_lock);
+          {
+            struct pmath2id_t *cache_entry = pmath_ht_search(cms2id, key);
+            if(cache_entry && cache_entry->mid != 0){
+              mid         = cache_entry->mid;
+              modifiers   = cache_entry->modifiers;
+              return_type = cache_entry->return_type;
+            }
+          }
+          pmath_atomic_unlock(&cms2id_lock);
+          
+          if(mid && !pmath_aborting()){
+            jvalue val;
+            
+            if(modifiers & PJ_MODIFIER_STATIC){
+              switch(return_type){
+                case 'Z':
+                  val.z = (*env)->CallStaticBooleanMethodA(env, clazz, mid, jargs);
+                  break;
+                  
+                case 'B':
+                  val.b = (*env)->CallStaticByteMethodA(env, clazz, mid, jargs);
+                  break;
+                  
+                case 'C':
+                  val.b = (*env)->CallStaticCharMethodA(env, clazz, mid, jargs);
+                  break;
+                  
+                case 'S':
+                  val.s = (*env)->CallStaticShortMethodA(env, clazz, mid, jargs);
+                  break;
+                  
+                case 'I':
+                  val.i = (*env)->CallStaticIntMethodA(env, clazz, mid, jargs);
+                  break;
+                  
+                case 'J':
+                  val.j = (*env)->CallStaticLongMethodA(env, clazz, mid, jargs);
+                  break;
+                  
+                case 'F':
+                  val.f = (*env)->CallStaticFloatMethodA(env, clazz, mid, jargs);
+                  break;
+                  
+                case 'D':
+                  val.d = (*env)->CallStaticDoubleMethodA(env, clazz, mid, jargs);
+                  break;
+                  
+                case 'L':
+                case '[':
+                  val.l = (*env)->CallStaticObjectMethodA(env, clazz, mid, jargs);
+                  break;
+                
+                case 'V':
+                  (*env)->CallStaticVoidMethodA(env, clazz, mid, jargs);
+                  break;
+                  
+                default:
+                  pmath_debug_print("\ainvalid java type `%c`\n", return_type);
+                  assert("invalid java type" && 0);
+              }
+            
+              result = pj_value_from_java(env, return_type, &val);
+            }
+            else if(is_static){
+              /* error: trying to call non-static method without an object */
+            }
+            else{
+              switch(return_type){
+                case 'Z':
+                  val.z = (*env)->CallBooleanMethodA(env, obj, mid, jargs);
+                  break;
+                  
+                case 'B':
+                  val.b = (*env)->CallByteMethodA(env, obj, mid, jargs);
+                  break;
+                  
+                case 'C':
+                  val.b = (*env)->CallCharMethodA(env, obj, mid, jargs);
+                  break;
+                  
+                case 'S':
+                  val.s = (*env)->CallShortMethodA(env, obj, mid, jargs);
+                  break;
+                  
+                case 'I':
+                  val.i = (*env)->CallIntMethodA(env, obj, mid, jargs);
+                  break;
+                  
+                case 'J':
+                  val.j = (*env)->CallLongMethodA(env, obj, mid, jargs);
+                  break;
+                  
+                case 'F':
+                  val.f = (*env)->CallFloatMethodA(env, obj, mid, jargs);
+                  break;
+                  
+                case 'D':
+                  val.d = (*env)->CallDoubleMethodA(env, obj, mid, jargs);
+                  break;
+                  
+                case 'L':
+                case '[':
+                  val.l = (*env)->CallObjectMethodA(env, obj, mid, jargs);
+                  break;
+                
+                case 'V':
+                  (*env)->CallVoidMethodA(env, clazz, mid, jargs);
+                  break;
+                  
+                default:
+                  pmath_debug_print("\ainvalid java type `%c`\n", return_type);
+                  assert("invalid java type" && 0);
+              }
+            
+              result = pj_value_from_java(env, return_type, &val);
+            }
+          }
+        }
+        
+        (*env)->PopLocalFrame(env, NULL);
+      }
+      
+      pj_exception_to_pmath(env);
+      pmath_unref(types);
+    }
+    
+    pmath_mem_free(jargs);
+  }
+  
+  pmath_unref(key);
+  pmath_unref(signatures);
+  if(!is_static)
+    (*env)->DeleteLocalRef(env, clazz);
+    
+  if(result == PMATH_UNDEFINED){
+    if(num_args == 0){
+      pmath_unref(args);
+      pmath_message(PJ_SYMBOL_JAVA, "argx0", 2,
+        name,
+        class_name);
+    }
+    else{
+      args = pmath_expr_set_item(args, 0, pmath_ref(PMATH_SYMBOL_LIST));
+      pmath_message(PJ_SYMBOL_JAVA, "argx", 3,
+        name,
+        class_name,
+        args);
+    }
+    
+    return pmath_ref(PMATH_SYMBOL_FAILED);
+  }
+  
+  pmath_unref(class_name);
+  pmath_unref(name);
+  pmath_unref(args);
+  
+  return result;
+}
+
+
+jobject pj_class_new_object(
+  JNIEnv       *env,
+  jclass        clazz,
+  pmath_expr_t  args
+){
+  jobject               result;
+  jvalue               *jargs;
+  pmath_string_t        class_name;
+  pmath_t               key;
+  pmath_expr_t          signatures;
+  jint                  num_args;
+  
+  if(!env 
+  || !clazz
+  || (*env)->EnsureLocalCapacity(env, 1) != 0){
+    pj_exception_to_pmath(env);
+    pmath_unref(args);
+    return NULL;
+  }
+  
+  pj_class_cache_members(env, clazz);
+  class_name = pj_class_get_name(env, clazz);
+  num_args = (jint)pmath_expr_length(args);
+  
+  key = pmath_expr_new_extended(
+    pmath_ref(PMATH_SYMBOL_LIST), 2,
+    pmath_ref(class_name),
+    PMATH_C_STRING("<init>"));
+  
+  signatures = NULL;
+  pmath_atomic_lock(&cms2id_lock);
+  {
+    struct pmath2id_t *cache_entry = pmath_ht_search(cms2id, key);
+    if(cache_entry && cache_entry->fid == 0){
+      signatures = pmath_ref(cache_entry->info);
+    }
+  }
+  pmath_atomic_unlock(&cms2id_lock);
+  
+  if(!pmath_is_expr_of(signatures, PMATH_SYMBOL_LIST)){
+    // should not happen: every Java Class has a constructor <init>
+    pmath_message(PJ_SYMBOL_JAVANEW, "fail", 1,
+      class_name);
+    pmath_unref(args);
+    pmath_unref(key);
+    return NULL;
+  }
+  
+  result = NULL;
+  key = pmath_expr_append(key, 1, NULL);
+  jargs = pmath_mem_alloc(num_args * sizeof(jvalue));
+  if(jargs){
+    size_t i;
+    
+    for(i = 1;i <= pmath_expr_length(signatures) && !result;++i){
+      pmath_t types = pmath_expr_get_item(signatures, i);
+      
+      if((*env)->PushLocalFrame(env, num_args) == 0){
+        if(pj_value_fill_args(env, types, args, jargs)){
+          jmethodID mid         = 0;
+          int       modifiers   = 0;
+          
+          key = pmath_expr_set_item(key, 3, pmath_ref(types));
+          
+          pmath_atomic_lock(&cms2id_lock);
+          {
+            struct pmath2id_t *cache_entry = pmath_ht_search(cms2id, key);
+            if(cache_entry && cache_entry->mid != 0){
+              mid         = cache_entry->mid;
+              modifiers   = cache_entry->modifiers;
+            }
+          }
+          pmath_atomic_unlock(&cms2id_lock);
+          
+          if(mid && !pmath_aborting()){
+            result = (*env)->NewObjectA(env, clazz, mid, jargs);
+          }
+        }
+        
+        result = (*env)->PopLocalFrame(env, result);
+      }
+      
+      pj_exception_to_pmath(env);
+      pmath_unref(types);
+    }
+    
+    pmath_mem_free(jargs);
+  }
+  
+  pmath_unref(key);
+  pmath_unref(signatures);
+    
+  if(!result){
+    if(num_args == 0){
+      pmath_unref(args);
+      pmath_message(PJ_SYMBOL_JAVANEW, "argx0", 1, class_name);
+    }
+    else{
+      args = pmath_expr_set_item(args, 0, pmath_ref(PMATH_SYMBOL_LIST));
+      pmath_message(PJ_SYMBOL_JAVANEW, "argx", 2,
+        class_name,
+        args);
+    }
+    
+    return NULL;
+  }
+  
+  pmath_unref(class_name);
+  pmath_unref(args);
+  
+  return result;
 }
 
 

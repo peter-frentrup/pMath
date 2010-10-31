@@ -6,7 +6,7 @@ If(HoldComplete($BaseDirectory) === HoldComplete @@ {$BaseDirectory},
 	$BaseDirectory:= DirectoryName($Input)
 	)
 
-$Path:= {$BaseDirectory, "."}
+$Path:= {$BaseDirectory , ToFileName({DirectoryName($BaseDirectory, 3)}, "modules"), "."}
 
 AutoLoad;
 
