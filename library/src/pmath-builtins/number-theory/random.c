@@ -189,7 +189,7 @@ PMATH_PRIVATE pmath_t builtin_randominteger(pmath_expr_t expr){
           if(!pmath_instance_of(len, PMATH_TYPE_INTEGER)
           || !pmath_integer_fits_ui(len)){
             pmath_unref(len);
-            goto ERROR;
+            goto ERROR_COND;
           }
           
           data.lengths[data.dim] = pmath_integer_get_ui(len);
@@ -197,9 +197,9 @@ PMATH_PRIVATE pmath_t builtin_randominteger(pmath_expr_t expr){
         }
       }
       else
-        goto ERROR;
+        goto ERROR_COND;
     }
-    else{ ERROR:
+    else{ ERROR_COND:
       pmath_unref(dims);
       
       pmath_message(
@@ -347,7 +347,7 @@ PMATH_PRIVATE pmath_t builtin_randomreal(pmath_expr_t expr){
                 if(!pmath_instance_of(len, PMATH_TYPE_INTEGER)
                 || !pmath_integer_fits_ui(len)){
                   pmath_unref(len);
-                  goto ERROR;
+                  goto ERROR_COND;
                 }
                 
                 data.lengths[data.dim] = pmath_integer_get_ui(len);
@@ -357,9 +357,9 @@ PMATH_PRIVATE pmath_t builtin_randomreal(pmath_expr_t expr){
               last_nonoption = 2;
             }
             else
-              goto ERROR;
+              goto ERROR_COND;
           }
-          else{ ERROR:
+          else{ ERROR_COND:
             pmath_unref(tmp);
             
             pmath_message(

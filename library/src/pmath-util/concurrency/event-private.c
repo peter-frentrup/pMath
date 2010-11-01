@@ -78,7 +78,11 @@
   
   PMATH_PRIVATE
   void _pmath_event_signal(pmath_event_t *event){
+    pthread_mutex_lock(&event->mutex);
+    
     pthread_cond_signal(&event->cond);
+    
+    pthread_mutex_unlock(&event->mutex);
   }
   
 #endif

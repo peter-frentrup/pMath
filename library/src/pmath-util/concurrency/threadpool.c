@@ -746,8 +746,15 @@ PMATH_API void pmath_collect_temporary_symbols(void){
 
 static void run_gc(void){
   pmath_symbol_t sym;
+  #ifdef PMATH_DEBUG_LOG
+    double mark_start, clear_start, end;
+  #endif
   
   gc_pass = (gc_pass + 1) & GC_PASS_MASK;
+  
+  #ifdef PMATH_DEBUG_LOG
+    mark_start = pmath_tickcount();
+  #endif
   
   // mark/reference all temp. symbol values
   sym = pmath_ref(PMATH_SYMBOL_LIST);
@@ -769,6 +776,10 @@ static void run_gc(void){
     sym = pmath_symbol_iter_next(sym);
   }while(sym && sym != PMATH_SYMBOL_LIST);
   pmath_unref(sym);
+  
+  #ifdef PMATH_DEBUG_LOG
+    clear_start = pmath_tickcount();
+  #endif
   
   // clear all temp. symbols that are only referenced by temp. symbols.
   sym = pmath_ref(PMATH_SYMBOL_LIST);
@@ -829,6 +840,18 @@ static void run_gc(void){
     sym = pmath_symbol_iter_next(sym);
   }while(sym && sym != PMATH_SYMBOL_LIST);
   pmath_unref(sym);
+  
+  #ifdef PMATH_DEBUG_LOG
+    end = pmath_tickcount();
+    
+    if(end - mark_start > 1.0){
+      pmath_debug_print("[gc %f + %f = %f secs]", 
+        clear_start - mark_start,
+        end - clear_start,
+        end - mark_start);
+    }
+  #endif
+  
 }
 
 PMATH_PRIVATE void _pmath_register_timed_msg(struct _pmath_timed_message_t *msg){

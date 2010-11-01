@@ -31,9 +31,13 @@
 
 #define pmath_atomic_barrier()  do{membar_producer();membar_consumer();}while(0)
 
-#define pmath_atomic_lock(ptr)  \
+#define pmath_atomic_lock(atom_ptr)  \
   do{ \
-    while(NULL != atomic_swap_ptr((ptr), (void*)1)){ \
+    volatile void *_pmath_atomic_lock__ptr = (volatile void *)(atom_ptr); \
+    if(*_pmath_atomic_lock__ptr != (void*)0){ \
+      pmath_atomic_loop_yield(); \
+    } \
+    while(NULL != atomic_swap_ptr(_pmath_atomic_lock__ptr, (void*)1)){ \
       membar_enter(); \
     } \
     membar_enter(); \

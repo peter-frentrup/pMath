@@ -179,6 +179,23 @@ void pmath_thread_send_delayed(
   pmath_t          msg,
   double           seconds);
 
+/**\brief Queries whether a thread is blocked by another thread.
+   \ingroup threads
+   \relates pmath_thread_t
+   \param waiter_mq A message queue. It will be freed
+   \param waitee_mq A message queue. It will be freed.
+   \return TRUE, if thread which owns waiter_mq is a blocked by the thread which
+           owns waitee_mq or if waiter_mq == waitee_mq. FALSE otherwise.
+   
+   A use-case for this function is a function that wants to be evaluated on a 
+   specific thread A or any thread that A waits on. See builtin_interrupt() in
+   the reference front-end implementation test.exe
+ */
+PMATH_API 
+pmath_bool_t pmath_thread_queue_is_blocked_by(
+  pmath_messages_t waiter_mq,
+  pmath_messages_t waitee_mq);
+  
 /** @} */
 
 #endif /* __PMATH_UTIL__CONCURRENCY__THREADMSG_H__ */

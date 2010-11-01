@@ -2,6 +2,16 @@
 	Button("italic",DocumentApply(SelectedDocument(),StyleBox("",FontSlant->Italic))),
 	Button("Arg Style",DocumentApply(SelectedDocument(),StyleBox("","Arg")))})
 
+- (REGRESSION):
+	pmath> t:= NewTask(Print(1); While(True,).Finally(Print(2)));
+	1
+
+	pmath> t
+		   D:\Peter\Programmieren\pmath\trunk\library\src\pmath-core\symbols.c line 195: LONG WAIT (5.844000 sec from 1288645677.896174 to 1288645683.740174)
+	[gc 5.862000 + 0.001000 = 5.863000 secs]D:\Peter\Programmieren\pmath\trunk\library\src\pmath-core\symbols.c line 244: LONG WAIT (5.863000 sec from 1288645677.896174 to 1288645683.759174)
+	System`Tasks`task$19
+
+	
 - (BUG): FullForm(symbol).ToBoxes should not read any MakeBoxes-user-definitions
 	
 !? make <<context` parse as Needs("context`") and do not provide special syntax for Get()	

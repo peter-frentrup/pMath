@@ -151,6 +151,7 @@ PMATH_FORCE_INLINE pmath_bool_t pmath_atomic_have_cas2(void){
 PMATH_FORCE_INLINE void pmath_atomic_barrier(void){
 }
 
+
 /**\brief Try to aquire a lock.
    \param atom The lock. A sizeof(void*) aligned pointer.
    
@@ -181,9 +182,7 @@ PMATH_FORCE_INLINE void pmath_atomic_unlock(
   *atom = 0;
 }
 
-#ifdef pmath_atomic_loop_nop
-  #undef pmath_atomic_loop_nop
-#endif
+#undef pmath_atomic_loop_nop
 /**A no-operation for use in spin locks.
  */
 PMATH_FORCE_INLINE void pmath_atomic_loop_nop(void){

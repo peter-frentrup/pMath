@@ -2,6 +2,7 @@
 #define __PMATH_UTIL__CONCURRENCY__ATOMIC__MSVC__INTRINSIC_FUNCTIONS_H__
 
 #include <intrin.h>
+#include <windows.h>
 
 #if PMATH_BITSIZE == 64
   
@@ -28,8 +29,8 @@
 
 #elif PMATH_BITSIZE == 32
   
-  #undef pmath_atomic_loop_nop
-  #define pmath_atomic_loop_nop() __asm{ rep nop }
+  //#undef pmath_atomic_loop_nop
+  //#define pmath_atomic_loop_nop() __asm{ rep nop }
 
   #define pmath_atomic_fetch_add(atom_ptr, delta) \
     ((intptr_t)_InterlockedExchangeAdd(\
@@ -103,9 +104,15 @@ PMATH_FORCE_INLINE pmath_bool_t pmath_atomic_have_cas2(void){
 #define pmath_atomic_barrier()  _ReadWriteBarrier()
 
 #define pmath_atomic_lock(atom_ptr) \
-  while(0 != pmath_atomic_fetch_set(atom_ptr, 1)){ \
-    pmath_atomic_loop_nop(); \
-  }
+  do{ \
+    intptr_t volatile *_pmath_atomic_lock__ptr = (intptr_t volatile *)(atom_ptr); \
+    if(*_pmath_atomic_lock__ptr != 0){ \
+      pmath_atomic_loop_yield(); \
+    } \
+    while(0 != pmath_atomic_fetch_set(atom_ptr, 1)){ \
+      pmath_atomic_loop_nop(); \
+    } \
+  }while(0)
 
 #define pmath_atomic_unlock(atom_ptr) \
   ((void)pmath_atomic_fetch_set(atom_ptr, 0))

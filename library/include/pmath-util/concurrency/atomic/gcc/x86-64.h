@@ -163,12 +163,16 @@ PMATH_FORCE_INLINE void pmath_atomic_barrier(void){
   __asm __volatile("":::"memory");
 }
 
-#undef pmath_atomic_loop_nop
-#define pmath_atomic_loop_nop()  __asm __volatile("rep; nop"::)
+//#undef pmath_atomic_loop_nop
+//#define pmath_atomic_loop_nop()  __asm __volatile("rep; nop"::)
 
 PMATH_FORCE_INLINE void pmath_atomic_lock(
   intptr_t volatile *atom
 ){
+  if(*atom != 0){
+    pmath_atomic_loop_yield();
+  }
+  
   while(0 != pmath_atomic_fetch_set(atom, 1)){
     pmath_atomic_loop_nop();
   }

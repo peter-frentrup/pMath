@@ -1,3 +1,8 @@
+#ifndef _WIN32_WINNT
+  #define _WIN32_WINNT 0x0501 /* Windows XP for HEAP_INFORMATION_CLASS */
+  // <pmath-util/concurrency/atomic.h> includes <windows.h>
+#endif
+
 #include <pmath-util/memory.h>
 
 #include <pmath-core/numbers-private.h>
@@ -31,9 +36,6 @@
 
 #ifdef PMATH_OS_WIN32
 
-  #ifndef _WIN32_WINNT
-    #define _WIN32_WINNT 0x0501 /* Windows XP for HEAP_INFORMATION_CLASS */
-  #endif
   #define NOGDI
   #define WIN32_LEAN_AND_MEAN
   #include <windows.h>

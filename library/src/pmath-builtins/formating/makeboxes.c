@@ -2497,15 +2497,15 @@ static pmath_t underscript_or_overscript_to_boxes(
   pmath_expr_t   expr    // will be freed
 ){
   if(pmath_expr_length(expr) == 2){
-    pmath_t head  = pmath_expr_get_item(expr, 0);
-    pmath_t base  = pmath_expr_get_item(expr, 1);
-    pmath_t small = pmath_expr_get_item(expr, 2);
+    pmath_t head = pmath_expr_get_item(expr, 0);
+    pmath_t base = pmath_expr_get_item(expr, 1);
+    pmath_t uo   = pmath_expr_get_item(expr, 2);
 
     pmath_unref(head);
     pmath_unref(expr);
 
-    base  = object_to_boxes(thread, base);
-    small = object_to_boxes(thread, small);
+    base = object_to_boxes(thread, base);
+    uo   = object_to_boxes(thread, uo);
 
     if(head == PMATH_SYMBOL_UNDERSCRIPT)
       head = pmath_ref(PMATH_SYMBOL_UNDERSCRIPTBOX);
@@ -2515,7 +2515,7 @@ static pmath_t underscript_or_overscript_to_boxes(
     return pmath_expr_new_extended(
       head, 2,
       base,
-      small);
+      uo);
   }
 
   return call_to_boxes(thread, expr);

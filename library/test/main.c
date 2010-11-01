@@ -51,7 +51,6 @@ static volatile pmath_bool_t quitting = FALSE;
 static volatile pmath_bool_t show_mem_stats = TRUE;
 
 static sem_t interrupt_semaphore;
-static pmath_thread_t            main_thread  = 0;
 static volatile pmath_messages_t main_mq       = 0;
 static PMATH_DECLARE_ATOMIC(     main_mq_lock) = 0;
 
@@ -491,8 +490,9 @@ static pmath_t builtin_interrupt(pmath_expr_t expr){
     return expr;
   }
   
-  if(pmath_thread_is_parent(main_thread, pmath_thread_get_current())){
-    // already in main thread
+  if(pmath_thread_queue_is_blocked_by(pmath_ref(main_mq), pmath_thread_get_queue())){
+    /* Already in main thread or the main thread is waiting on the current 
+       thread (e.g. through pmath_task_wait()) */
     
     pmath_unref(expr);
     
@@ -558,7 +558,6 @@ int main(int argc, const char **argv){
       kill_interrupt_daemon, 
       NULL));
   
-  main_thread = pmath_thread_get_current();
   main_mq = pmath_thread_get_queue();
   
   handle_options(argc, argv);

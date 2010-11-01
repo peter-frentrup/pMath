@@ -18,7 +18,7 @@ void *pmath_task_get_data(pmath_task_t task);
 
 PMATH_API
 pmath_bool_t pmath_task_has_destructor(
-  pmath_task_t           task,
+  pmath_task_t      task,
   pmath_callback_t  dtor);
 
 PMATH_API 

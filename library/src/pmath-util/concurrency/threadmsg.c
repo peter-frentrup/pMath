@@ -238,6 +238,7 @@ static void push_msg(
   struct message_t    *msg       // will be freed
 ){
   struct message_t  *tail;
+  pmath_messages_t child_mq;
   
   if(!msg)
     return;
@@ -245,6 +246,15 @@ static void push_msg(
   msg->next = NULL;
   
   assert(mq_data != NULL);
+  
+  child_mq = _pmath_object_atomic_read(&mq_data->_child_messages);
+  if(child_mq){
+    struct msg_queue_t *mq_child_data = pmath_custom_get_data(child_mq);
+    assert(mq_child_data != NULL);
+    push_msg(mq_child_data, msg);
+    pmath_unref(child_mq);
+    return;
+  }
   
   pmath_atomic_lock(&mq_data->tail_spin);
   
@@ -634,6 +644,36 @@ void pmath_thread_send_delayed(
   
   _pmath_register_timed_msg(timed_msg);
 }
+
+PMATH_API 
+pmath_bool_t pmath_thread_queue_is_blocked_by(
+  pmath_messages_t waiter_mq, // will be freed
+  pmath_messages_t waitee_mq  // will be freed
+){
+  pmath_t child_mq;
+  struct msg_queue_t *waiter_mq_data;
+  
+  while(waiter_mq && waiter_mq != waitee_mq){
+    waiter_mq_data = pmath_custom_get_data(waiter_mq);
+    assert(waiter_mq_data != NULL);
+    
+    child_mq = _pmath_object_atomic_read(&waiter_mq_data->_child_messages);
+    pmath_unref(waiter_mq);
+    
+    if(!child_mq){
+      pmath_unref(waitee_mq);
+      return FALSE;
+    }
+    
+    waiter_mq = child_mq;
+  }
+  
+  pmath_unref(waiter_mq);
+  pmath_unref(waitee_mq);
+  return TRUE;
+}
+  
+/*============================================================================*/
 
 PMATH_PRIVATE pmath_bool_t _pmath_threadmsg_init(void){
   #ifdef PMATH_OS_WIN32

@@ -244,8 +244,6 @@ class LocalServer: public Server{
     static PMATH_DECLARE_ATOMIC(data_spin);
     Expr message_queue;
     
-    static pmath_thread_t main_thread;
-    
     class Data {
       public:
         Data(LocalServer *ls)
@@ -292,7 +290,7 @@ class LocalServer: public Server{
       if(!ls || !ls->is_accessable())
         return expr;
       
-      if(pmath_thread_is_parent(main_thread, pmath_thread_get_current())){
+      if(pmath_thread_queue_is_blocked_by(pmath_ref(ls->message_queue.get()), pmath_thread_get_queue())){
         // already in main thread
         
         Expr firsteval;
@@ -358,7 +356,6 @@ class LocalServer: public Server{
     static void thread_proc(void *arg)
     {
       Data *me = (Data*)arg;
-      main_thread = pmath_thread_get_current();
       
       pmath_register_code(PMATH_SYMBOL_DIALOG, builtin_dialog, PMATH_CODE_USAGE_DOWNCALL);
       
@@ -384,7 +381,6 @@ class LocalServer: public Server{
     }
 };
 
-pmath_thread_t LocalServer::main_thread = 0;
 PMATH_DECLARE_ATOMIC(LocalServer::data_spin) = 0;
 
 bool Server::init_local_server(){

@@ -35,9 +35,13 @@
       double PMATH_DEBUG_TIMING_START = pmath_tickcount(); \
       CODE \
       if(pmath_tickcount() - PMATH_DEBUG_TIMING_START > 1.0){ \
-        pmath_debug_print("%s line %d: LONG WAIT (%f sec)\n", __FILE__, __LINE__, pmath_tickcount() - PMATH_DEBUG_TIMING_START); \
+        _on_long_wait(__LINE__, PMATH_DEBUG_TIMING_START, pmath_tickcount()); \
       } \
     }while(0)
+  
+  static void _on_long_wait(int line, double start, double end){
+    pmath_debug_print("%s line %d: LONG WAIT (%f sec from %f to %f)\n", __FILE__, line, end - start, start, end); 
+  }
   
 #else
   

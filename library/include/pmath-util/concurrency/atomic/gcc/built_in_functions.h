@@ -3,10 +3,10 @@
 
 /*#include <cpuid.h>*/
 
-#if defined(PMATH_X86) || defined(PMATH_AMD64) 
-  #undef pmath_atomic_loop_nop
-  #define pmath_atomic_loop_nop()  __asm __volatile("rep; nop"::)
-#endif
+//#if defined(PMATH_X86) || defined(PMATH_AMD64) 
+//  #undef pmath_atomic_loop_nop
+//  #define pmath_atomic_loop_nop()  __asm __volatile("rep; nop"::)
+//#endif
 
 #define pmath_atomic_fetch_add(atom_ptr, delta) \
   ((intptr_t)__sync_fetch_and_add( \
@@ -113,12 +113,15 @@ PMATH_FORCE_INLINE pmath_bool_t pmath_atomic_have_cas2(void){
 #define pmath_atomic_barrier()  __sync_synchronize()
 
 #define pmath_atomic_lock(atom_ptr) \
-  while(0 != __sync_lock_test_and_set( \
-              (intptr_t volatile *)(atom_ptr), \
-              (intptr_t)            1) \
-  ){ \
-    pmath_atomic_loop_nop(); \
-  }
+  do{ \
+    intptr_t volatile *_pmath_atomic_lock__ptr = (intptr_t volatile *)(atom_ptr); \
+    if(*_pmath_atomic_lock__ptr != 0){ \
+      pmath_atomic_loop_yield(); \
+    } \
+    while(0 != __sync_lock_test_and_set(_pmath_atomic_lock__ptr, (intptr_t)1)){ \
+      pmath_atomic_loop_nop(); \
+    } \
+  }while(0)
 
 #define pmath_atomic_unlock(atom_ptr) \
   __sync_lock_release( \

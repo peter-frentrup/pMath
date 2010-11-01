@@ -76,7 +76,9 @@ pmath_thread_t pmath_thread_get_parent(pmath_thread_t thread);
            FALSE otherwise.
 
    It is important to know that a parent thread is never executed in parallel 
-   with its children.
+   with its children. However, to check for threads that depend on \a child
+   (e.q. to evaluate a funciton on a specific thread or any thread that it waits
+   on), use pmath_thread_queue_is_blocked_by().
  */
 PMATH_API 
 pmath_bool_t pmath_thread_is_parent(

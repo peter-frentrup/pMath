@@ -174,13 +174,12 @@ PMATH_API void pmath_thread_call_locked(
     ){
       /* Detecting Possible Deadlocks
 
-         Every thread knows, which threadlock he is waiting for and every threadlock
-         knows by which thread it is hold. A cycle in this linked chain equals
-         a deadlock.
-         An example would be two theads that execute lock(A, lock(B, ...))
-         and lock(B, lock(A, ...)) in parallel.
-
-         THIS ALGORITHM HAS NOT BEEN TESTED (enough).
+         Every thread knows, which threadlock it is waiting for and every 
+         threadlock knows by which thread it is held. A cycle in this linked 
+         chain equals a deadlock.
+         An example would be two theads that execute 
+         Synchronize(A, Synchronize(B, ...)) and 
+         Synchronize(B, Synchronize(A, ...)) in parallel.
        */
       pmath_threadlock_t waiting_lock, next;
       waiting_lock = threadlock;

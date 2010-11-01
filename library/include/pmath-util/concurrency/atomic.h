@@ -38,6 +38,8 @@
      uvsr_renderer/needed_externals/threadlib/src/fifo.c
 
    \li qprof -> atomic_ops library
+   
+   \li http://code.google.com/p/google-perftools/
  */
 
 /*
@@ -48,7 +50,25 @@
      PMATH_DECLARE_ATOMIC_2(name)
  */
 
-#define pmath_atomic_loop_nop()  ((void)0)
+#ifdef PMATH_OS_WIN32
+  #include <windows.h>
+  
+  #define pmath_atomic_loop_yield()  (Sleep(0))
+  #define pmath_atomic_loop_nop()    (Sleep(1))
+#else
+  #include <sched.h> 
+  #include <time.h> 
+  
+  #define pmath_atomic_loop_yield()  (sched_yield())
+  #define pmath_atomic_loop_nop() \
+    do{ \
+      struct timespec tm; \
+      tm.tv_sec = 0; \
+      tm.tv_nsec = 2000001; \
+      nanosleep(&tm, NULL); \
+    }while(0)
+#endif
+
 
 #if PMATH_BITSIZE == 64
   #define PMATH_DECLARE_ATOMIC(name)   PMATH_DECLARE_ALIGNED(volatile intptr_t, name,    8)

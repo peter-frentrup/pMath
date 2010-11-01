@@ -58,6 +58,8 @@ static pmath_bool_t lock_file(struct _file_t *f){
   if(f->_lock == me)
     return FALSE;
   
+  pmath_atomic_loop_yield();
+  
   while(!pmath_atomic_compare_and_set(&f->_lock, 0, me)){
     pmath_atomic_loop_nop();
   }
