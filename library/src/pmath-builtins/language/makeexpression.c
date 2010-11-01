@@ -684,6 +684,21 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
         box));
     }
     
+    if(str[0] == '%'){
+      int i;
+      for(i = 1;i < len;++i)
+        if(str[i] != '%'){
+          pmath_unref(box);
+          return pmath_ref(PMATH_SYMBOL_FAILED);
+        }
+      
+      pmath_unref(box);
+      return HOLDCOMPLETE(
+        pmath_expr_new_extended(
+          pmath_ref(PMATH_SYMBOL_HISTORY), 1,
+          pmath_integer_new_si(-(long)len)));
+    }
+    
     if(tok == PMATH_TOK_NAME2){
       expr = pmath_thread_local_load(PMATH_THREAD_KEY_PARSESYMBOLS);
       pmath_unref(expr);
@@ -863,21 +878,6 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
         result->length = j;
         return HOLDCOMPLETE((pmath_string_t)result);
       }
-    }
-    
-    if(str[0] == '%'){
-      int i;
-      for(i = 1;i < len;++i)
-        if(str[i] != '%'){
-          pmath_unref(box);
-          return pmath_ref(PMATH_SYMBOL_FAILED);
-        }
-      
-      pmath_unref(box);
-      return HOLDCOMPLETE(
-        pmath_expr_new_extended(
-          pmath_ref(PMATH_SYMBOL_HISTORY), 1,
-          pmath_integer_new_si(-(long)len)));
     }
     
     if(len == 1 && str[0] == '#'){

@@ -2422,7 +2422,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_contains_any(
 
 static void preprocess_local_one(
   pmath_expr_t *local_expr,
-  pmath_t     *def
+  pmath_t      *def
 ){
   if(pmath_instance_of(*def, PMATH_TYPE_SYMBOL)){
     pmath_symbol_t newsym = pmath_symbol_create_temporary(
@@ -2510,7 +2510,6 @@ PMATH_PRIVATE pmath_t _pmath_replace_local(
   && pmath_expr_length(object) > 1
   && contains(object, name)){
     pmath_unref(item);
-    
     object = _pmath_preprocess_local(object);
   }
   else{
@@ -2532,26 +2531,22 @@ PMATH_PRIVATE pmath_t _pmath_replace_local(
     item = _pmath_replace_local(item, name, value);
       
     if(i != 0 && !do_flatten && pmath_instance_of(item, PMATH_TYPE_EXPRESSION)){
-      pmath_t head = pmath_expr_get_item((pmath_expr_t)item, 0);
+      pmath_t head = pmath_expr_get_item(item, 0);
       pmath_unref(head);
       do_flatten = head == MAGIC_PATTERN_SEQUENCE;
     }
     
-    object = pmath_expr_set_item(
-      (pmath_expr_t)object, i, item);
+    object = pmath_expr_set_item(object, i, item);
   }
   
   if(do_flatten)
-    return pmath_expr_flatten(
-      (pmath_expr_t)object,
-      MAGIC_PATTERN_SEQUENCE,
-      1);
+    return pmath_expr_flatten(object, MAGIC_PATTERN_SEQUENCE, 1);
       
   return object;
 }
 
 static pmath_t replace_multiple(
-  pmath_t    object,        // will be freed
+  pmath_t           object,        // will be freed
   pmath_hashtable_t replacements   // entries are pmath_ht_obj_entry_t*
 ){
   struct _pmath_object_entry_t *entry = pmath_ht_search(replacements, object);
