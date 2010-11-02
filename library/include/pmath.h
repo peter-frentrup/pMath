@@ -7,10 +7,12 @@
 
    \par Introduction
    pMath is a free CAS for Windows and Unix like systems. The whole CAS consists
-   of two independant projects:
+   of three projects:
     - The pMath library documented here, which implements the parser,
       interpreter, mathematical functionality and OS binding.
-    - The Richmath library for a graphical front-end.
+    - The RichMath graphical front-end.
+    - Addon libraries/modules for the pMath library and Language (e.g. a Java 
+      binding).
 
    You as a user (front-end or module programmer) of the pMath library just have 
    to \#include <pmath.h> and link with the appropriate library file.

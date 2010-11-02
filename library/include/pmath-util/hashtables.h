@@ -66,7 +66,8 @@ typedef pmath_bool_t (*pmath_ht_entry_equals_key_func_t)(
   void *key);
 
 
-/**\class A hashtable interface.
+/**\class pmath_ht_class_t
+   \brief A hashtable interface.
  */
 typedef struct{
   pmath_callback_t                  entry_destructor;

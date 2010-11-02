@@ -253,7 +253,7 @@ Get an expression's length.
 <p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>expr</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> pMath expression. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>expr</em>&nbsp;</td><td>A pMath expression. </td></tr>
   </table>
 </dl>
 <dl class="return" compact><dt><b>Returns:</b></dt><dd>The number of items in expr (not counting the head). </dd></dl>
@@ -290,11 +290,11 @@ Get an item from an expression.
 <p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>expr</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> pMath expression. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>expr</em>&nbsp;</td><td>A pMath expression. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>index</em>&nbsp;</td><td>The index of the item. </td></tr>
   </table>
 </dl>
-<dl class="return" compact><dt><b>Returns:</b></dt><dd><a class="el" href="class_a.html">A</a> copy of the requested item, if index is not greater than the length of expr and NULL otherwise. You must destroy it with <a class="el" href="classpmath__t.html#54e905402c38940687033b87eb8c6c9f" title="Decrements the reference counter of an object and frees its memory if the reference...">pmath_unref()</a>. </dd></dl>
+<dl class="return" compact><dt><b>Returns:</b></dt><dd>A copy of the requested item, if index is not greater than the length of expr and NULL otherwise. You must destroy it with <a class="el" href="classpmath__t.html#54e905402c38940687033b87eb8c6c9f" title="Decrements the reference counter of an object and frees its memory if the reference...">pmath_unref()</a>. </dd></dl>
 
 </div>
 </div><p>
@@ -334,12 +334,12 @@ Get multiple items from an expression.
 <p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>expr</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> pMath expression. It will *not* be destroyed. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>expr</em>&nbsp;</td><td>A pMath expression. It will *not* be destroyed. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>start</em>&nbsp;</td><td>The start index of the items. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>length</em>&nbsp;</td><td>The number of the items. </td></tr>
   </table>
 </dl>
-<dl class="return" compact><dt><b>Returns:</b></dt><dd><a class="el" href="class_a.html">A</a> new expression with the same head as <em>expr</em>. Its length is max(0, min(start + length, 1 + pmath_expr_length(expr)) - start) and it contains the items from expr beginning at index <em>start</em>. </dd></dl>
+<dl class="return" compact><dt><b>Returns:</b></dt><dd>A new expression with the same head as <em>expr</em>. Its length is max(0, min(start + length, 1 + pmath_expr_length(expr)) - start) and it contains the items from expr beginning at index <em>start</em>. </dd></dl>
 
 </div>
 </div><p>
@@ -379,7 +379,7 @@ Set an item in an expression.
 <p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>expr</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> pMath expression. It will be destroyed, do not use it after the call. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>expr</em>&nbsp;</td><td>A pMath expression. It will be destroyed, do not use it after the call. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>index</em>&nbsp;</td><td>The index of the to-be-changed item. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>item</em>&nbsp;</td><td>The new value of the item. It will be destroyed, do not use it after the call. </td></tr>
   </table>
@@ -418,7 +418,7 @@ Remove all occurencies of an object from an expression.
 <p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>expr</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> pMath expression. It will be destroyed, do not use it after the call. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>expr</em>&nbsp;</td><td>A pMath expression. It will be destroyed, do not use it after the call. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>rem</em>&nbsp;</td><td>The object to be removed. It will *not* be destroyed. </td></tr>
   </table>
 </dl>
@@ -447,10 +447,10 @@ Sort an expression.
 <p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>expr</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> pMath expression. It will be destroyed, do not use it after the call. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>expr</em>&nbsp;</td><td>A pMath expression. It will be destroyed, do not use it after the call. </td></tr>
   </table>
 </dl>
-<dl class="return" compact><dt><b>Returns:</b></dt><dd><a class="el" href="class_a.html">A</a> new expression where all items from expr are sorted (except the head, which remains unchanged). </dd></dl>
+<dl class="return" compact><dt><b>Returns:</b></dt><dd>A new expression where all items from expr are sorted (except the head, which remains unchanged). </dd></dl>
 
 </div>
 </div><p>
@@ -490,17 +490,17 @@ Flatten an expression.
 <p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>expr</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> pMath expression. It will be destroyed, do not use it after the call. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>expr</em>&nbsp;</td><td>A pMath expression. It will be destroyed, do not use it after the call. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>head</em>&nbsp;</td><td>The head of items, that should be flattened out. It will be destroyed, so you can use `pmath_expr_get_item(expr)` directly to use expr's head. </td></tr>
-    <tr><td valign="top"></td><td valign="top"><em>depth</em>&nbsp;</td><td>The depth to which level flattening should be done. <a class="el" href="class_a.html">A</a> value of 0 means `no flattening`. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>depth</em>&nbsp;</td><td>The depth to which level flattening should be done. A value of 0 means `no flattening`. </td></tr>
   </table>
 </dl>
-<dl class="return" compact><dt><b>Returns:</b></dt><dd><a class="el" href="class_a.html">A</a> new expression where all items, that have the same head as expr, will be flattened. </dd></dl>
+<dl class="return" compact><dt><b>Returns:</b></dt><dd>A new expression where all items, that have the same head as expr, will be flattened. </dd></dl>
 
 </div>
 </div><p>
 </div>
-<hr size="1"><address style="text-align: right;"><small>Generated on Sat Oct 23 21:43:07 2010 for pMath by&nbsp;
+<hr size="1"><address style="text-align: right;"><small>Generated on Tue Nov 2 18:16:22 2010 for pMath by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.5.9 </small></address>
 </body>

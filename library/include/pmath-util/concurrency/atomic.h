@@ -50,6 +50,8 @@
      PMATH_DECLARE_ATOMIC_2(name)
  */
 
+#define PMATH_ATOMIC_FASTLOOP_COUNT  (1000)
+
 #ifdef PMATH_OS_WIN32
   #include <windows.h>
   

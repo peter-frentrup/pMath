@@ -205,11 +205,6 @@
 					<Add library="iconv" />
 					<Add library="pcre" />
 					<Add library="shell32" />
-					<Add library="mpfr" />
-					<Add library="gmp" />
-					<Add library="iconv" />
-					<Add library="pcre" />
-					<Add library="shell32" />
 				</Linker>
 				<ExtraCommands>
 					<Add before="pre-build-windows.bat" />
@@ -269,7 +264,6 @@
 		</Compiler>
 		<Unit filename="doc\html\index.chm" />
 		<Unit filename="doc\html\index.html" />
-		<Unit filename="doc\latex\refman.pdf" />
 		<Unit filename="include\pmath-builtins\all-symbols-private.h" />
 		<Unit filename="include\pmath-builtins\all-symbols.h" />
 		<Unit filename="include\pmath-builtins\arithmetic-private.h" />

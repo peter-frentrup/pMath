@@ -44,13 +44,13 @@ functions.html
 functions_func.html
 functions_vars.html
 functions_rela.html
-class_a.html
 structpmath__binary__file__api__t.html
 structpmath__cstr__writer__info__t.html
 classpmath__custom__t.html
 classpmath__expr__t.html
 classpmath__float__t.html
 classpmath__hashtable__t.html
+structpmath__ht__class__t.html
 classpmath__integer__t.html
 classpmath__messages__t.html
 classpmath__number__t.html

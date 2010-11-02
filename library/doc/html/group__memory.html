@@ -66,7 +66,7 @@ Allocate some amount of memory.
     <tr><td valign="top"></td><td valign="top"><em>size</em>&nbsp;</td><td>The number of bytes to be allocated. </td></tr>
   </table>
 </dl>
-<dl class="return" compact><dt><b>Returns:</b></dt><dd><a class="el" href="class_a.html">A</a> pointer to a block of mamory of at least size bytes or NULL.</dd></dl>
+<dl class="return" compact><dt><b>Returns:</b></dt><dd>A pointer to a block of mamory of at least size bytes or NULL.</dd></dl>
 You must free the result with <a class="el" href="group__memory.html#g936d3001151c35052812e597eb7dce4f" title="Free a memory-chunk.">pmath_mem_free()</a> or indirectly via <a class="el" href="group__memory.html#g59dc67a7de0dc3111dfb0424df8d8244" title="Change the size of a memory-chunk.">pmath_mem_realloc()</a>. 
 </div>
 </div><p>
@@ -104,7 +104,7 @@ Change the size of a memory-chunk.
     <tr><td valign="top"></td><td valign="top"><em>new_size</em>&nbsp;</td><td>The requested new size. </td></tr>
   </table>
 </dl>
-<dl class="return" compact><dt><b>Returns:</b></dt><dd><a class="el" href="class_a.html">A</a> pointer to a block of at least new_size bytes or NULL.</dd></dl>
+<dl class="return" compact><dt><b>Returns:</b></dt><dd>A pointer to a block of at least new_size bytes or NULL.</dd></dl>
 If there is not enough memory available or if new_size == 0, NULL is returned. Otherwise, the result points to a block of new_size bytes, whose first min(old_size,new_size) bytes are copied from the old p. The rest is initialized with 0.<p>
 The old pointer p will _allways_be freed. even, if the result is NULL because there is not enough memory.<p>
 You must free the result with <a class="el" href="group__memory.html#g936d3001151c35052812e597eb7dce4f" title="Free a memory-chunk.">pmath_mem_free()</a> or indirectly via <a class="el" href="group__memory.html#g59dc67a7de0dc3111dfb0424df8d8244" title="Change the size of a memory-chunk.">pmath_mem_realloc()</a>. 
@@ -144,7 +144,7 @@ Change the size of a memory-chunk.
     <tr><td valign="top"></td><td valign="top"><em>new_size</em>&nbsp;</td><td>The requested new size. </td></tr>
   </table>
 </dl>
-<dl class="return" compact><dt><b>Returns:</b></dt><dd><a class="el" href="class_a.html">A</a> pointer to a block of at least new_size bytes or NULL.</dd></dl>
+<dl class="return" compact><dt><b>Returns:</b></dt><dd>A pointer to a block of at least new_size bytes or NULL.</dd></dl>
 If there is enough memory, this acts like <a class="el" href="group__memory.html#g59dc67a7de0dc3111dfb0424df8d8244" title="Change the size of a memory-chunk.">pmath_mem_realloc()</a>. Otherwise, p is <em>not</em> freed and NULL is returned. 
 </div>
 </div><p>
@@ -213,7 +213,7 @@ Get memory usage information.
 </div>
 </div><p>
 </div>
-<hr size="1"><address style="text-align: right;"><small>Generated on Sat Oct 23 21:43:08 2010 for pMath by&nbsp;
+<hr size="1"><address style="text-align: right;"><small>Generated on Tue Nov 2 18:16:23 2010 for pMath by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.5.9 </small></address>
 </body>

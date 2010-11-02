@@ -114,7 +114,13 @@ PMATH_FORCE_INLINE pmath_bool_t pmath_atomic_have_cas2(void){
 
 #define pmath_atomic_lock(atom_ptr) \
   do{ \
-    intptr_t volatile *_pmath_atomic_lock__ptr = (intptr_t volatile *)(atom_ptr); \
+    intptr_t volatile *_pmath_atomic_lock__ptr = (intptr_t volatile*)(atom_ptr); \
+     \
+    int _pmath_atomic_lock__cnt = PMATH_ATOMIC_FASTLOOP_COUNT; \
+    while(_pmath_atomic_lock__cnt > 0 && *_pmath_atomic_lock__ptr != 0){ \
+      --_pmath_atomic_lock__cnt; \
+    } \
+     \
     if(*_pmath_atomic_lock__ptr != 0){ \
       pmath_atomic_loop_yield(); \
     } \

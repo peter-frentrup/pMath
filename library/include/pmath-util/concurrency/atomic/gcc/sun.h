@@ -34,6 +34,12 @@
 #define pmath_atomic_lock(atom_ptr)  \
   do{ \
     volatile void *_pmath_atomic_lock__ptr = (volatile void *)(atom_ptr); \
+     \
+    int _pmath_atomic_lock__cnt = PMATH_ATOMIC_FASTLOOP_COUNT; \
+    while(_pmath_atomic_lock__cnt > 0 && *_pmath_atomic_lock__ptr != 0){ \
+      --_pmath_atomic_lock__cnt; \
+    } \
+     \
     if(*_pmath_atomic_lock__ptr != (void*)0){ \
       pmath_atomic_loop_yield(); \
     } \

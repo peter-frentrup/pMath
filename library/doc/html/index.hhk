@@ -9,12 +9,14 @@
     <LI><OBJECT type="text/sitemap"><param name="Local" value="group__atomic__ops.html#g7f23c95c69503003e2bda2ab6dc0aae4"><param name="Name" value="pmath_atomic_barrier"></OBJECT>
     <LI><OBJECT type="text/sitemap"><param name="Local" value="group__atomic__ops.html#g8e2ec6134e5f1161aed5c890abb2e53b"><param name="Name" value="pmath_atomic_compare_and_set"></OBJECT>
     <LI><OBJECT type="text/sitemap"><param name="Local" value="group__atomic__ops.html#g868adc2a74d7aafbb0670922f61a21cc"><param name="Name" value="pmath_atomic_compare_and_set_2"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="group__atomic__ops.html#g371abf145e52b1b1d4cdbfc7fe56d010"><param name="Name" value="PMATH_ATOMIC_FASTLOOP_COUNT"></OBJECT>
     <LI><OBJECT type="text/sitemap"><param name="Local" value="group__atomic__ops.html#ge84bfddad2c018c6273b43164e6064ab"><param name="Name" value="pmath_atomic_fetch_add"></OBJECT>
     <LI><OBJECT type="text/sitemap"><param name="Local" value="group__atomic__ops.html#g0eb65b0a5caacf019bf1c97616f69603"><param name="Name" value="pmath_atomic_fetch_compare_and_set"></OBJECT>
     <LI><OBJECT type="text/sitemap"><param name="Local" value="group__atomic__ops.html#gc39a86500a2344c9c7f7f42d2d069334"><param name="Name" value="pmath_atomic_fetch_set"></OBJECT>
     <LI><OBJECT type="text/sitemap"><param name="Local" value="group__atomic__ops.html#g9bc606e66ad7965f09dc9200f0b21bcc"><param name="Name" value="pmath_atomic_have_cas2"></OBJECT>
     <LI><OBJECT type="text/sitemap"><param name="Local" value="group__atomic__ops.html#gf143a22332da6a2065bac14069ecbf7f"><param name="Name" value="pmath_atomic_lock"></OBJECT>
     <LI><OBJECT type="text/sitemap"><param name="Local" value="group__atomic__ops.html#gf92920164c2e99abfbbe092dfc5dae86"><param name="Name" value="pmath_atomic_loop_nop"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="group__atomic__ops.html#g409a7d5952a24ac28ff0ec871ee9ab86"><param name="Name" value="pmath_atomic_loop_yield"></OBJECT>
     <LI><OBJECT type="text/sitemap"><param name="Local" value="group__atomic__ops.html#ga61bbbab4adc550cc66d1d5f9cf22afd"><param name="Name" value="pmath_atomic_unlock"></OBJECT>
     <LI><OBJECT type="text/sitemap"><param name="Local" value="group__atomic__ops.html#g7c8d6965c55b4461f4c93dbcd0e54e44"><param name="Name" value="PMATH_DECLARE_ALIGNED"></OBJECT>
     <LI><OBJECT type="text/sitemap"><param name="Local" value="group__atomic__ops.html#gea9d23f3c2f74768863e67ff2a8d17df"><param name="Name" value="PMATH_DECLARE_ATOMIC"></OBJECT>
@@ -144,6 +146,7 @@
     <LI><OBJECT type="text/sitemap"><param name="Local" value="group__helpers.html#gc244ab0720278b396976728a39f8bde6"><param name="Name" value="pmath_option_value"></OBJECT>
     <LI><OBJECT type="text/sitemap"><param name="Local" value="group__helpers.html#g24403dfbd825b17fc4c6da5973922184"><param name="Name" value="pmath_options_extract"></OBJECT>
     <LI><OBJECT type="text/sitemap"><param name="Local" value="group__helpers.html#g11afc6451921f3169224096723483c64"><param name="Name" value="pmath_stack_walker_t"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="group__helpers.html#g5605c2496ca44ae5ae2a43b9093fb009"><param name="Name" value="pmath_version_get_datetime"></OBJECT>
     <LI><OBJECT type="text/sitemap"><param name="Local" value="group__helpers.html#g55213cb0c89952b6aacf90f36ad4047b"><param name="Name" value="pmath_walk_stack"></OBJECT>
   </UL>
   <LI><OBJECT type="text/sitemap"><param name="Local" value="classpmath_1_1_string.html#c831d1cb38364db06f862554fd8ab937"><param name="Name" value="insert"></OBJECT>
@@ -324,12 +327,14 @@
   <LI><OBJECT type="text/sitemap"><param name="Local" value="group__atomic__ops.html#g7f23c95c69503003e2bda2ab6dc0aae4"><param name="Name" value="pmath_atomic_barrier"></OBJECT>
   <LI><OBJECT type="text/sitemap"><param name="Local" value="group__atomic__ops.html#g8e2ec6134e5f1161aed5c890abb2e53b"><param name="Name" value="pmath_atomic_compare_and_set"></OBJECT>
   <LI><OBJECT type="text/sitemap"><param name="Local" value="group__atomic__ops.html#g868adc2a74d7aafbb0670922f61a21cc"><param name="Name" value="pmath_atomic_compare_and_set_2"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="group__atomic__ops.html#g371abf145e52b1b1d4cdbfc7fe56d010"><param name="Name" value="PMATH_ATOMIC_FASTLOOP_COUNT"></OBJECT>
   <LI><OBJECT type="text/sitemap"><param name="Local" value="group__atomic__ops.html#ge84bfddad2c018c6273b43164e6064ab"><param name="Name" value="pmath_atomic_fetch_add"></OBJECT>
   <LI><OBJECT type="text/sitemap"><param name="Local" value="group__atomic__ops.html#g0eb65b0a5caacf019bf1c97616f69603"><param name="Name" value="pmath_atomic_fetch_compare_and_set"></OBJECT>
   <LI><OBJECT type="text/sitemap"><param name="Local" value="group__atomic__ops.html#gc39a86500a2344c9c7f7f42d2d069334"><param name="Name" value="pmath_atomic_fetch_set"></OBJECT>
   <LI><OBJECT type="text/sitemap"><param name="Local" value="group__atomic__ops.html#g9bc606e66ad7965f09dc9200f0b21bcc"><param name="Name" value="pmath_atomic_have_cas2"></OBJECT>
   <LI><OBJECT type="text/sitemap"><param name="Local" value="group__atomic__ops.html#gf143a22332da6a2065bac14069ecbf7f"><param name="Name" value="pmath_atomic_lock"></OBJECT>
   <LI><OBJECT type="text/sitemap"><param name="Local" value="group__atomic__ops.html#gf92920164c2e99abfbbe092dfc5dae86"><param name="Name" value="pmath_atomic_loop_nop"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="group__atomic__ops.html#g409a7d5952a24ac28ff0ec871ee9ab86"><param name="Name" value="pmath_atomic_loop_yield"></OBJECT>
   <LI><OBJECT type="text/sitemap"><param name="Local" value="group__atomic__ops.html#ga61bbbab4adc550cc66d1d5f9cf22afd"><param name="Name" value="pmath_atomic_unlock"></OBJECT>
   <LI><OBJECT type="text/sitemap"><param name="Local" value="structpmath__binary__file__api__t.html"><param name="Name" value="pmath_binary_file_api_t"></OBJECT>
   <UL>
@@ -1106,6 +1111,11 @@
   </UL>
   <LI><OBJECT type="text/sitemap"><param name="Local" value="group__threads.html#g64fe008ee1e3a4841eb98ca13e212537"><param name="Name" value="pmath_thread_local_load"></OBJECT>
   <LI><OBJECT type="text/sitemap"><param name="Local" value="group__threads.html#ga545e19cccf64ee4848a5506fa20cf21"><param name="Name" value="pmath_thread_local_save"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="group__threads.html#ge0190128b370d77ae129f2781448846a"><param name="Name" value="pmath_thread_queue_is_blocked_by"></OBJECT>
+  <UL>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="group__threads.html#ge0190128b370d77ae129f2781448846a"><param name="Name" value="pmath_thread_t"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="group__threads.html#ge0190128b370d77ae129f2781448846a"><param name="Name" value="threads"></OBJECT>
+  </UL>
   <LI><OBJECT type="text/sitemap"><param name="Local" value="group__threadmsg.html#ga3867a708fb07b86e017e8f201ef7edd"><param name="Name" value="pmath_thread_send"></OBJECT>
   <UL>
     <LI><OBJECT type="text/sitemap"><param name="Local" value="group__threadmsg.html#ga3867a708fb07b86e017e8f201ef7edd"><param name="Name" value="pmath_messages_t"></OBJECT>
@@ -1138,6 +1148,7 @@
     <LI><OBJECT type="text/sitemap"><param name="Local" value="classpmath__thread__t.html#g908b6ee94115539a20530cfb051dc52c"><param name="Name" value="pmath_thread_get_current"></OBJECT>
     <LI><OBJECT type="text/sitemap"><param name="Local" value="classpmath__thread__t.html#gb0e137fb921f9b329a8a9e7c4efa3b3d"><param name="Name" value="pmath_thread_get_parent"></OBJECT>
     <LI><OBJECT type="text/sitemap"><param name="Local" value="classpmath__thread__t.html#g4409c7f042a1809eee72329002635fb9"><param name="Name" value="pmath_thread_is_parent"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="classpmath__thread__t.html#ge0190128b370d77ae129f2781448846a"><param name="Name" value="pmath_thread_queue_is_blocked_by"></OBJECT>
   </UL>
   <LI><OBJECT type="text/sitemap"><param name="Local" value="group__threadmsg.html#gbf90d49f5c42ccaa736ae5e56af6a4a6"><param name="Name" value="pmath_thread_wakeup"></OBJECT>
   <UL>
@@ -1155,6 +1166,7 @@
   <LI><OBJECT type="text/sitemap"><param name="Local" value="group__objects.html#ge2646df76dcb0113715322b13a1f36f0"><param name="Name" value="pmath_type_t"></OBJECT>
   <LI><OBJECT type="text/sitemap"><param name="Local" value="classpmath__t.html#54e905402c38940687033b87eb8c6c9f"><param name="Name" value="pmath_unref"></OBJECT>
   <LI><OBJECT type="text/sitemap"><param name="Local" value="group__strings.html#g5e7a9b1a5eb8861e94dc1bea92c77424"><param name="Name" value="pmath_utf8_writer"></OBJECT>
+  <LI><OBJECT type="text/sitemap"><param name="Local" value="group__helpers.html#g5605c2496ca44ae5ae2a43b9093fb009"><param name="Name" value="pmath_version_get_datetime"></OBJECT>
   <LI><OBJECT type="text/sitemap"><param name="Local" value="group__helpers.html#g55213cb0c89952b6aacf90f36ad4047b"><param name="Name" value="pmath_walk_stack"></OBJECT>
   <LI><OBJECT type="text/sitemap"><param name="Local" value="group__objects.html#g9f909b9eb04317260ee8630d10e5a7c6"><param name="Name" value="pmath_write"></OBJECT>
   <UL>
@@ -1256,6 +1268,7 @@
     <LI><OBJECT type="text/sitemap"><param name="Local" value="group__threads.html#g4409c7f042a1809eee72329002635fb9"><param name="Name" value="pmath_thread_is_parent"></OBJECT>
     <LI><OBJECT type="text/sitemap"><param name="Local" value="group__threads.html#g64fe008ee1e3a4841eb98ca13e212537"><param name="Name" value="pmath_thread_local_load"></OBJECT>
     <LI><OBJECT type="text/sitemap"><param name="Local" value="group__threads.html#ga545e19cccf64ee4848a5506fa20cf21"><param name="Name" value="pmath_thread_local_save"></OBJECT>
+    <LI><OBJECT type="text/sitemap"><param name="Local" value="group__threads.html#ge0190128b370d77ae129f2781448846a"><param name="Name" value="pmath_thread_queue_is_blocked_by"></OBJECT>
     <LI><OBJECT type="text/sitemap"><param name="Local" value="group__threads.html#gf1aa6d6603faaa4120207be6108e356c"><param name="Name" value="pmath_throw"></OBJECT>
   </UL>
   <LI><OBJECT type="text/sitemap"><param name="Local" value="classpmath_1_1_expr.html#69a3a8aea77a499ec61f13616c92db86"><param name="Name" value="to_double"></OBJECT>

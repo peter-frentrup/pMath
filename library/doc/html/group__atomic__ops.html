@@ -22,6 +22,9 @@
 <table border="0" cellpadding="0" cellspacing="0">
 <tr><td></td></tr>
 <tr><td colspan="2"><br><h2>Defines</h2></td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__atomic__ops.html#g371abf145e52b1b1d4cdbfc7fe56d010">PMATH_ATOMIC_FASTLOOP_COUNT</a>&nbsp;&nbsp;&nbsp;(0)</td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Loop iterations in spinlocks before yielding control.  <a href="#g371abf145e52b1b1d4cdbfc7fe56d010"></a><br></td></tr>
 <tr><td class="memItemLeft" nowrap align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__atomic__ops.html#g7c8d6965c55b4461f4c93dbcd0e54e44">PMATH_DECLARE_ALIGNED</a>(TYPE, NAME, ALIGNMENT)</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Declares a variable with specified alignment.  <a href="#g7c8d6965c55b4461f4c93dbcd0e54e44"></a><br></td></tr>
@@ -60,8 +63,14 @@ void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="grou
 <tr><td class="memItemLeft" nowrap align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__atomic__ops.html#ga61bbbab4adc550cc66d1d5f9cf22afd">pmath_atomic_unlock</a> (intptr_t volatile *atom)</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Release a previously aquired lock.  <a href="#ga61bbbab4adc550cc66d1d5f9cf22afd"></a><br></td></tr>
-<tr><td class="memItemLeft" nowrap align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__atomic__ops.html#gf92920164c2e99abfbbe092dfc5dae86">pmath_atomic_loop_nop</a> (void)</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top"><a class="anchor" name="g409a7d5952a24ac28ff0ec871ee9ab86"></a><!-- doxytag: member="atomic_ops::pmath_atomic_loop_yield" ref="g409a7d5952a24ac28ff0ec871ee9ab86" args="(void)" -->
+void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__atomic__ops.html#g409a7d5952a24ac28ff0ec871ee9ab86">pmath_atomic_loop_yield</a> (void)</td></tr>
 
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Yield control to another thread (used in spinlocks). <br></td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top"><a class="anchor" name="gf92920164c2e99abfbbe092dfc5dae86"></a><!-- doxytag: member="atomic_ops::pmath_atomic_loop_nop" ref="gf92920164c2e99abfbbe092dfc5dae86" args="(void)" -->
+void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__atomic__ops.html#gf92920164c2e99abfbbe092dfc5dae86">pmath_atomic_loop_nop</a> (void)</td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">A no-operation or short wait for use in spin locks. <br></td></tr>
 </table>
 <hr><a name="_details"></a><h2>Detailed Description</h2>
 Using atomic operations (independent of the rest of the library). 
@@ -92,9 +101,30 @@ Nice to read:</a></h2>
  uvsr_renderer/needed_externals/threadlib/src/fifo.c</li>
 </ul>
 <ul>
-<li>qprof -&gt; atomic_ops library </li>
+<li>qprof -&gt; atomic_ops library</li>
+</ul>
+<ul>
+<li><a href="http://code.google.com/p/google-perftools/">http://code.google.com/p/google-perftools/</a> </li>
 </ul>
 <hr><h2>Define Documentation</h2>
+<a class="anchor" name="g371abf145e52b1b1d4cdbfc7fe56d010"></a><!-- doxytag: member="non&#45;atomic.h::PMATH_ATOMIC_FASTLOOP_COUNT" ref="g371abf145e52b1b1d4cdbfc7fe56d010" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define PMATH_ATOMIC_FASTLOOP_COUNT&nbsp;&nbsp;&nbsp;(0)          </td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>
+Loop iterations in spinlocks before yielding control. 
+<p>
+If the thread holding the lock sits on another CPU, spinning around a bit before <a class="el" href="group__atomic__ops.html#g409a7d5952a24ac28ff0ec871ee9ab86" title="Yield control to another thread (used in spinlocks).">pmath_atomic_loop_yield()</a> reduces idle time. But if the thread holding the lock lives on the same CPU as the current thread (and thus is interrupted by the current thread), spinning elongates the wait time.<p>
+In summary, this should not be a compile time constant as it is now! 
+</div>
+</div><p>
 <a class="anchor" name="g7c8d6965c55b4461f4c93dbcd0e54e44"></a><!-- doxytag: member="non&#45;atomic.h::PMATH_DECLARE_ALIGNED" ref="g7c8d6965c55b4461f4c93dbcd0e54e44" args="(TYPE, NAME, ALIGNMENT)" -->
 <div class="memitem">
 <div class="memproto">
@@ -215,7 +245,7 @@ Add a value to another.
 <p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>atom</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> sizeof(void*) aligned pointer. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>atom</em>&nbsp;</td><td>A sizeof(void*) aligned pointer. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>delta</em>&nbsp;</td><td>The difference between the new and the old value. </td></tr>
   </table>
 </dl>
@@ -253,7 +283,7 @@ Exchange a value.
 <p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>atom</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> sizeof(void*) aligned pointer. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>atom</em>&nbsp;</td><td>A sizeof(void*) aligned pointer. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>new_value</em>&nbsp;</td><td>The new value of <code>*atom</code>. </td></tr>
   </table>
 </dl>
@@ -297,7 +327,7 @@ Exchange a value if it equals another value.
 <p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>atom</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> sizeof(void*) aligned pointer. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>atom</em>&nbsp;</td><td>A sizeof(void*) aligned pointer. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>old_value</em>&nbsp;</td><td>The comparisor. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>new_value</em>&nbsp;</td><td>The possible new value of <code>*atom</code>. </td></tr>
   </table>
@@ -342,7 +372,7 @@ Exchange a value if it equals another value.
 <p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>atom</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> sizeof(void*) aligned pointer. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>atom</em>&nbsp;</td><td>A sizeof(void*) aligned pointer. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>old_value</em>&nbsp;</td><td>The comparisor. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>new_value</em>&nbsp;</td><td>The possible new value of <code>*atom</code>. </td></tr>
   </table>
@@ -399,7 +429,7 @@ Exchange two values value if they equal another two values.
 <p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>*atom</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> 2*sizeof(void*) aligned pointer to two values. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>*atom</em>&nbsp;</td><td>A 2*sizeof(void*) aligned pointer to two values. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>old_value_fst</em>&nbsp;</td><td>The first old value. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>old_value_snd</em>&nbsp;</td><td>The second old value. </td></tr>
     <tr><td valign="top"></td><td valign="top"><em>new_value_fst</em>&nbsp;</td><td>The possible new value of <code>atom</code>[0]. </td></tr>
@@ -457,7 +487,7 @@ Try to aquire a lock.
 <p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>atom</em>&nbsp;</td><td>The lock. <a class="el" href="class_a.html">A</a> sizeof(void*) aligned pointer.</td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>atom</em>&nbsp;</td><td>The lock. A sizeof(void*) aligned pointer.</td></tr>
   </table>
 </dl>
 This function implements a spin lock. It has aquire barrier semantics. Use it with <a class="el" href="group__atomic__ops.html#ga61bbbab4adc550cc66d1d5f9cf22afd" title="Release a previously aquired lock.">pmath_atomic_unlock()</a>: <div class="fragment"><pre class="fragment"><a class="code" href="group__atomic__ops.html#gea9d23f3c2f74768863e67ff2a8d17df" title="Declares a volatile machine size integer with proper alignment.">PMATH_DECLARE_ATOMIC</a>(spin);
@@ -489,35 +519,15 @@ Release a previously aquired lock.
 <p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>atom</em>&nbsp;</td><td>The lock. <a class="el" href="class_a.html">A</a> sizeof(void*) aligned pointer.</td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>atom</em>&nbsp;</td><td>The lock. A sizeof(void*) aligned pointer.</td></tr>
   </table>
 </dl>
 <dl class="see" compact><dt><b>See also:</b></dt><dd><a class="el" href="group__atomic__ops.html#gf143a22332da6a2065bac14069ecbf7f" title="Try to aquire a lock.">pmath_atomic_lock</a> </dd></dl>
 
 </div>
 </div><p>
-<a class="anchor" name="gf92920164c2e99abfbbe092dfc5dae86"></a><!-- doxytag: member="non&#45;atomic.h::pmath_atomic_loop_nop" ref="gf92920164c2e99abfbbe092dfc5dae86" args="(void)" -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void pmath_atomic_loop_nop           </td>
-          <td>(</td>
-          <td class="paramtype">void&nbsp;</td>
-          <td class="paramname">          </td>
-          <td>&nbsp;)&nbsp;</td>
-          <td></td>
-        </tr>
-      </table>
 </div>
-<div class="memdoc">
-
-<p>
-<a class="el" href="class_a.html">A</a> no-operation for use in spin locks. 
-</div>
-</div><p>
-</div>
-<hr size="1"><address style="text-align: right;"><small>Generated on Sat Oct 23 21:43:08 2010 for pMath by&nbsp;
+<hr size="1"><address style="text-align: right;"><small>Generated on Tue Nov 2 18:16:23 2010 for pMath by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.5.9 </small></address>
 </body>

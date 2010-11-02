@@ -169,6 +169,11 @@ PMATH_FORCE_INLINE void pmath_atomic_barrier(void){
 PMATH_FORCE_INLINE void pmath_atomic_lock(
   intptr_t volatile *atom
 ){
+  int cnt = PMATH_ATOMIC_FASTLOOP_COUNT;
+  while(cnt > 0 && *atom != 0){
+    --cnt;
+  }
+  
   if(*atom != 0){
     pmath_atomic_loop_yield();
   }

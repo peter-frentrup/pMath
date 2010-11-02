@@ -412,7 +412,7 @@ PMATH_API pmath_symbol_t pmath_symbol_create_temporary(
   static pmath_symbol_t find_symbol_in_namespace(
     pmath_string_t  ns,      // will be freed
     pmath_string_t  name,    // wont be freed; does not contain "`"
-    pmath_bool_t create
+    pmath_bool_t    create
   ){
     int ns_len;
     
@@ -433,7 +433,7 @@ PMATH_API pmath_symbol_t pmath_symbol_create_temporary(
 
   static pmath_symbol_t find_short_symbol(
     pmath_string_t  name,  // will be freed; does not contain `'`
-    pmath_bool_t create
+    pmath_bool_t    create
   ){
     pmath_expr_t namespaces;
     
@@ -1073,24 +1073,21 @@ static void write_symbol(
   }
 
   if((options & PMATH_WRITE_OPTIONS_FULLNAME) == 0){
-    int i = len + 1;
-    do{
+    int i = len;
+    while(i > 0 && str[i-1] != '`')
       --i;
-      while(i > 0 && str[i-1] != '`')
-        --i;
 
-      if(i > 0){
-        pmath_symbol_t found = pmath_symbol_find(
-          pmath_string_part(pmath_ref(name), i, -1),
-          FALSE);
-        pmath_unref(found);
-        if(found == symbol){
-          write(user, str + i, len - i);
-          pmath_unref(name);
-          return;
-        }
+    if(i > 0){
+      pmath_symbol_t found = pmath_symbol_find(
+        pmath_string_part(pmath_ref(name), i, -1),
+        FALSE);
+      pmath_unref(found);
+      if(found == symbol){
+        write(user, str + i, len - i);
+        pmath_unref(name);
+        return;
       }
-    }while(i > 0);
+    }
   }
 
   write(user, str, len);

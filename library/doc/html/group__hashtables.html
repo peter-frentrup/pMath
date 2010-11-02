@@ -16,21 +16,22 @@
   </div>
 </div>
 <div class="contents">
-<h1>Hashtables</h1><a class="el" href="class_a.html">A</a> general hashtable implementation.  
+<h1>Hashtables</h1>A general hashtable implementation.  
 <a href="#_details">More...</a>
 <p>
 <table border="0" cellpadding="0" cellspacing="0">
 <tr><td></td></tr>
 <tr><td colspan="2"><br><h2>Data Structures</h2></td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structpmath__ht__class__t.html">pmath_ht_class_t</a></td></tr>
+
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">A hashtable interface.  <a href="structpmath__ht__class__t.html#_details">More...</a><br></td></tr>
 <tr><td class="memItemLeft" nowrap align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpmath__hashtable__t.html">pmath_hashtable_t</a></td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">The Hashtable class.  <a href="classpmath__hashtable__t.html#_details">More...</a><br></td></tr>
-<tr><td class="memItemLeft" nowrap align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_a.html">A</a></td></tr>
-
 <tr><td colspan="2"><br><h2>Typedefs</h2></td></tr>
 <tr><td class="memItemLeft" nowrap align="right" valign="top">typedef void(*&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__hashtables.html#g49afb121d94e186dd0c129a7ac98af88">pmath_ht_entry_callback_t</a> )(void *entry, void *data)</td></tr>
 
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><a class="el" href="class_a.html">A</a> callback function for hashtable entries.  <a href="#g49afb121d94e186dd0c129a7ac98af88"></a><br></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">A callback function for hashtable entries.  <a href="#g49afb121d94e186dd0c129a7ac98af88"></a><br></td></tr>
 <tr><td class="memItemLeft" nowrap align="right" valign="top">typedef void *(*&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__hashtables.html#g7afcd0897350cdf6ea146196421d70f1">pmath_ht_entry_copy_t</a> )(void *entry)</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">An entry copy function.  <a href="#g7afcd0897350cdf6ea146196421d70f1"></a><br></td></tr>
@@ -39,7 +40,7 @@
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">An entry hash function.  <a href="#gb427419addea52e7f405dd9cbc6b98b5"></a><br></td></tr>
 <tr><td class="memItemLeft" nowrap align="right" valign="top">typedef unsigned int(*&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__hashtables.html#g9285a6676b14812f6b4856493617b3fb">pmath_ht_key_hash_func_t</a> )(void *key)</td></tr>
 
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight"><a class="el" href="class_a.html">A</a> key hash function.  <a href="#g9285a6676b14812f6b4856493617b3fb"></a><br></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">A key hash function.  <a href="#g9285a6676b14812f6b4856493617b3fb"></a><br></td></tr>
 <tr><td class="memItemLeft" nowrap align="right" valign="top">typedef <a class="el" href="group__general__types.html#gc92090cb0b56345d6c379ed2341d4ef4">pmath_bool_t</a>(*&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__hashtables.html#g9eeec544dd1335e2b50bf9fedb5e154b">pmath_ht_entry_equal_func_t</a> )(void *entry1, void *entry2)</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">An entry comparision function.  <a href="#g9eeec544dd1335e2b50bf9fedb5e154b"></a><br></td></tr>
@@ -47,7 +48,7 @@
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">An entry to key comparision function.  <a href="#gb4bf3ce0ea6f0d5b646cd6bc839bed4f"></a><br></td></tr>
 <tr><td colspan="2"><br><h2>Functions</h2></td></tr>
-<tr><td class="memItemLeft" nowrap align="right" valign="top">PMATH_API <a class="el" href="classpmath__hashtable__t.html">pmath_hashtable_t</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__hashtables.html#g6835e6b0d0b308ef15f4f885298078f5">pmath_hashtable_t::pmath_ht_create</a> (const pmath_ht_class_t *klass, unsigned int minsize)</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">PMATH_API <a class="el" href="classpmath__hashtable__t.html">pmath_hashtable_t</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__hashtables.html#g6835e6b0d0b308ef15f4f885298078f5">pmath_hashtable_t::pmath_ht_create</a> (const <a class="el" href="structpmath__ht__class__t.html">pmath_ht_class_t</a> *klass, unsigned int minsize)</td></tr>
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Create a new hashtable.  <a href="#g6835e6b0d0b308ef15f4f885298078f5"></a><br></td></tr>
 <tr><td class="memItemLeft" nowrap align="right" valign="top">PMATH_API <a class="el" href="classpmath__hashtable__t.html">pmath_hashtable_t</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__hashtables.html#gf82265c2aff9bb75eb7beb057a812aa3">pmath_hashtable_t::pmath_ht_copy</a> (<a class="el" href="classpmath__hashtable__t.html">pmath_hashtable_t</a> ht, <a class="el" href="group__hashtables.html#g7afcd0897350cdf6ea146196421d70f1">pmath_ht_entry_copy_t</a> entry_copy)</td></tr>
@@ -79,7 +80,7 @@
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Remove an entry from a given hashtable.  <a href="#gc0825f215931052b62d62abd574e0047"></a><br></td></tr>
 </table>
 <hr><a name="_details"></a><h2>Detailed Description</h2>
-<a class="el" href="class_a.html">A</a> general hashtable implementation. 
+A general hashtable implementation. 
 <p>
 The user of this API is responsible for the memory layout of the entries. <hr><h2>Typedef Documentation</h2>
 <a class="anchor" name="g49afb121d94e186dd0c129a7ac98af88"></a><!-- doxytag: member="hashtables.h::pmath_ht_entry_callback_t" ref="g49afb121d94e186dd0c129a7ac98af88" args=")(void *entry, void *data)" -->
@@ -94,7 +95,7 @@ The user of this API is responsible for the memory layout of the entries. <hr><h
 <div class="memdoc">
 
 <p>
-<a class="el" href="class_a.html">A</a> callback function for hashtable entries. 
+A callback function for hashtable entries. 
 <p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
@@ -124,7 +125,7 @@ An entry copy function.
     <tr><td valign="top"></td><td valign="top"><em>entry</em>&nbsp;</td><td>An entry. Never NULL. </td></tr>
   </table>
 </dl>
-<dl class="return" compact><dt><b>Returns:</b></dt><dd><a class="el" href="class_a.html">A</a> new entry that is a copy. </dd></dl>
+<dl class="return" compact><dt><b>Returns:</b></dt><dd>A new entry that is a copy. </dd></dl>
 
 </div>
 </div><p>
@@ -147,7 +148,7 @@ An entry hash function.
     <tr><td valign="top"></td><td valign="top"><em>entry</em>&nbsp;</td><td>An entry. Never NULL. </td></tr>
   </table>
 </dl>
-<dl class="return" compact><dt><b>Returns:</b></dt><dd><a class="el" href="class_a.html">A</a> hash value for the entry's key. </dd></dl>
+<dl class="return" compact><dt><b>Returns:</b></dt><dd>A hash value for the entry's key. </dd></dl>
 
 </div>
 </div><p>
@@ -163,14 +164,14 @@ An entry hash function.
 <div class="memdoc">
 
 <p>
-<a class="el" href="class_a.html">A</a> key hash function. 
+A key hash function. 
 <p>
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>key</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> key. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>key</em>&nbsp;</td><td>A key. </td></tr>
   </table>
 </dl>
-<dl class="return" compact><dt><b>Returns:</b></dt><dd><a class="el" href="class_a.html">A</a> hash value for the key. </dd></dl>
+<dl class="return" compact><dt><b>Returns:</b></dt><dd>A hash value for the key. </dd></dl>
 
 </div>
 </div><p>
@@ -230,7 +231,7 @@ An entry to key comparision function.
         <tr>
           <td class="memname">PMATH_API <a class="el" href="classpmath__hashtable__t.html">pmath_hashtable_t</a> pmath_ht_create           </td>
           <td>(</td>
-          <td class="paramtype">const pmath_ht_class_t *&nbsp;</td>
+          <td class="paramtype">const <a class="el" href="structpmath__ht__class__t.html">pmath_ht_class_t</a> *&nbsp;</td>
           <td class="paramname"> <em>klass</em>, </td>
         </tr>
         <tr>
@@ -292,7 +293,7 @@ Copy a given hashtable.
 <dl compact><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
     <tr><td valign="top"></td><td valign="top"><em>ht</em>&nbsp;</td><td>The old hashtable </td></tr>
-    <tr><td valign="top"></td><td valign="top"><em>entry_copy</em>&nbsp;</td><td><a class="el" href="class_a.html">A</a> function for copying entires. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>entry_copy</em>&nbsp;</td><td>A function for copying entires. </td></tr>
   </table>
 </dl>
 <dl class="return" compact><dt><b>Returns:</b></dt><dd>The new hashtable or NULL on error. </dd></dl>
@@ -562,7 +563,7 @@ Remove an entry from a given hashtable.
 </div>
 </div><p>
 </div>
-<hr size="1"><address style="text-align: right;"><small>Generated on Sat Oct 23 21:43:08 2010 for pMath by&nbsp;
+<hr size="1"><address style="text-align: right;"><small>Generated on Tue Nov 2 18:16:23 2010 for pMath by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.5.9 </small></address>
 </body>

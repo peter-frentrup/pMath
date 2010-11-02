@@ -7,6 +7,20 @@
    @{
  */
 
+#undef PMATH_ATOMIC_FASTLOOP_COUNT
+/**\def PMATH_ATOMIC_FASTLOOP_COUNT
+   \brief Loop iterations in spinlocks before yielding control.
+   
+   If the thread holding the lock sits on another CPU, spinning around a bit
+   before pmath_atomic_loop_yield() reduces idle time. But if the thread holding
+   the lock lives on the same CPU as the current thread (and thus is interrupted 
+   by the current thread), spinning elongates the wait time.
+   
+  In summary, this should not be a compile time constant as it is now!
+ */
+#define PMATH_ATOMIC_FASTLOOP_COUNT  (0)
+
+
 /**\brief Declares a variable with specified alignment.
    \param TYPE The variable type, possibly including the \c volatile modifier.
    \param NAME The variable name.
@@ -182,8 +196,14 @@ PMATH_FORCE_INLINE void pmath_atomic_unlock(
   *atom = 0;
 }
 
+#undef pmath_atomic_loop_yield
+/**\brief Yield control to another thread (used in spinlocks).
+ */
+PMATH_FORCE_INLINE void pmath_atomic_loop_yield(void){
+}
+
 #undef pmath_atomic_loop_nop
-/**A no-operation for use in spin locks.
+/**\brief A no-operation or short wait for use in spin locks.
  */
 PMATH_FORCE_INLINE void pmath_atomic_loop_nop(void){
 }
