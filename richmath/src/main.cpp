@@ -522,7 +522,7 @@ int main(){
 //      Section::create_from_object(Evaluate(Parse(
 //        "Section(BoxData("
 //          "{\"\\\" Help Topic:  \\\"\","
-//            "FillBox(InputBox(\"not yet implemented\")),"
+//            "FillBox(InputFieldBox(\"not yet implemented\")),"
 //            "ButtonBox("
 //              "\"\\\" Go \\\"\","
 //              "ButtonFrame->\"Palette\")}),"

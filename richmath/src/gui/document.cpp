@@ -1092,7 +1092,17 @@ void Document::on_key_press(uint32_t unichar){
     }
     
     if(can_surround){
-      if(pmath_char_is_left(unichar)){
+      if(unichar == '/' && !selstr.starts_with("/*")){
+        AbstractSequence *seq = dynamic_cast<AbstractSequence*>(context.selection.get());
+        if(seq){
+          seq->insert(context.selection.end,   "*/");
+          seq->insert(context.selection.start, "/*");
+          select(seq, context.selection.start, context.selection.end + 4);
+          
+          return;
+        }
+      }
+      else if(pmath_char_is_left(unichar)){
         uint32_t right = pmath_right_fence(unichar);
         AbstractSequence *seq = dynamic_cast<AbstractSequence*>(context.selection.get());
         

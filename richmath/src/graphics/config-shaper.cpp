@@ -161,7 +161,7 @@ Hashtable<String, SharedPtr<ConfigShaperDB> > ConfigShaperDB::registered;
 
 ConfigShaperDB::ConfigShaperDB(): Shareable(){
   script_size_multipliers.length(1, 0.71f);
-  radical.small.length(1, SmallRadicalGlyph(0, 0, 0, 0, 0));
+  radical.small_glyphs.length(1, SmallRadicalGlyph(0, 0, 0, 0, 0));
 }
 
 ConfigShaperDB::~ConfigShaperDB(){
@@ -213,8 +213,8 @@ bool ConfigShaperDB::verify(){
     return false;
   }
   
-  if(radical.small.length() >= 1){
-    SmallRadicalGlyph &last = radical.small[radical.small.length()-1];
+  if(radical.small_glyphs.length() >= 1){
+    SmallRadicalGlyph &last = radical.small_glyphs[radical.small_glyphs.length()-1];
     
     if(last.index != 0){
       printf("[%s, %d]", FUNC_NAME, __LINE__);
@@ -466,24 +466,24 @@ SharedPtr<ConfigShaperDB> ConfigShaperDB::load_from_object(const Expr expr){
       
       if(lhs.equals("SmallRadical")){
         if(rhs[0] == PMATH_SYMBOL_LIST){
-          db->radical.small.length(rhs.expr_length() + 1);
+          db->radical.small_glyphs.length(rhs.expr_length() + 1);
           
-          for(int j = 0;j < db->radical.small.length()-1;++j){
+          for(int j = 0;j < db->radical.small_glyphs.length()-1;++j){
             Expr g = rhs[j+1];
             
             if(g[0] == PMATH_SYMBOL_LIST
             && g.expr_length() == 5){
-              db->radical.small[j].index      = GG.expr_to_glyph(g[1], db->radical.font);
-              db->radical.small[j].hbar_index = GG.expr_to_glyph(g[2], db->radical.font);
-              db->radical.small[j].rel_ascent = g[3].to_double();
-              db->radical.small[j].rel_exp_x  = g[4].to_double();
-              db->radical.small[j].rel_exp_y  = g[5].to_double();
+              db->radical.small_glyphs[j].index      = GG.expr_to_glyph(g[1], db->radical.font);
+              db->radical.small_glyphs[j].hbar_index = GG.expr_to_glyph(g[2], db->radical.font);
+              db->radical.small_glyphs[j].rel_ascent = g[3].to_double();
+              db->radical.small_glyphs[j].rel_exp_x  = g[4].to_double();
+              db->radical.small_glyphs[j].rel_exp_y  = g[5].to_double();
             }
             else
               break;
           }
           
-          db->radical.small[db->radical.small.length()-1] = 
+          db->radical.small_glyphs[db->radical.small_glyphs.length()-1] = 
             SmallRadicalGlyph(0, 0, 0, 0, 0);
         }
         
@@ -493,12 +493,12 @@ SharedPtr<ConfigShaperDB> ConfigShaperDB::load_from_object(const Expr expr){
       if(lhs.equals("BigRadical")){
         if(rhs[0] == PMATH_SYMBOL_LIST
         && rhs.expr_length() == 6){
-          db->radical.big.bottom     = GG.expr_to_glyph(rhs[1], db->radical.font);
-          db->radical.big.vertical   = GG.expr_to_glyph(rhs[2], db->radical.font);
-          db->radical.big.edge       = GG.expr_to_glyph(rhs[3], db->radical.font);
-          db->radical.big.horizontal = GG.expr_to_glyph(rhs[4], db->radical.font);
-          db->radical.big.rel_exp_x  = rhs[5].to_double();
-          db->radical.big.rel_exp_y  = rhs[6].to_double();
+          db->radical.big_glyph.bottom     = GG.expr_to_glyph(rhs[1], db->radical.font);
+          db->radical.big_glyph.vertical   = GG.expr_to_glyph(rhs[2], db->radical.font);
+          db->radical.big_glyph.edge       = GG.expr_to_glyph(rhs[3], db->radical.font);
+          db->radical.big_glyph.horizontal = GG.expr_to_glyph(rhs[4], db->radical.font);
+          db->radical.big_glyph.rel_exp_x  = rhs[5].to_double();
+          db->radical.big_glyph.rel_exp_y  = rhs[6].to_double();
         }
         
         continue;
@@ -1388,7 +1388,7 @@ int ConfigShaper::v_stretch_big_glyphs(
 }
 
 const SmallRadicalGlyph *ConfigShaper::small_radical_glyphs(){ // zero terminated
-  return db->radical.small.items();
+  return db->radical.small_glyphs.items();
 }
 
 void ConfigShaper::big_radical_glyphs(
@@ -1399,12 +1399,12 @@ void ConfigShaper::big_radical_glyphs(
   float        *_rel_exp_x,
   float        *_rel_exp_y
 ){
-  *bottom     = db->radical.big.bottom;
-  *vertical   = db->radical.big.vertical;
-  *edge       = db->radical.big.edge;
-  *horizontal = db->radical.big.horizontal;
-  *_rel_exp_x = db->radical.big.rel_exp_x;
-  *_rel_exp_y = db->radical.big.rel_exp_y;
+  *bottom     = db->radical.big_glyph.bottom;
+  *vertical   = db->radical.big_glyph.vertical;
+  *edge       = db->radical.big_glyph.edge;
+  *horizontal = db->radical.big_glyph.horizontal;
+  *_rel_exp_x = db->radical.big_glyph.rel_exp_x;
+  *_rel_exp_y = db->radical.big_glyph.rel_exp_y;
 }
   
 //} ... class ConfigShaper

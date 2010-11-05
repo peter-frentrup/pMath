@@ -916,6 +916,12 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam){
         document()->key_press(wParam);
       } return 0;
       
+      case WM_ACTIVATE: {
+        if(LOWORD(wParam) == WA_INACTIVE){
+          document()->reset_mouse();
+        }
+      } break;
+      
       case WM_SETFOCUS: {
 //        document()->focus_set();
         

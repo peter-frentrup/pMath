@@ -105,6 +105,7 @@ namespace richmath{
       
       int clicked_box_id(){   return context.clicked_box_id; }
       int mouseover_box_id(){ return context.mouseover_box_id; }
+      void reset_mouse(){ mouse_down_counter = 0; }
       
       SharedPtr<Stylesheet> stylesheet(){ return context.stylesheet; }
       

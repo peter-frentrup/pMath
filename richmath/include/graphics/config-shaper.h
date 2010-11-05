@@ -89,8 +89,8 @@ namespace richmath{
   
   class RadicalGlyphs{
     public:
-      Array<SmallRadicalGlyph>  small;
-      BigRadicalGlyph           big;
+      Array<SmallRadicalGlyph>  small_glyphs;
+      BigRadicalGlyph           big_glyph;
       uint8_t                   font;
   };
   

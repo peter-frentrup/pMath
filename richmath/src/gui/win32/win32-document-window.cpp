@@ -460,7 +460,7 @@ Win32DocumentWindow::Win32DocumentWindow(
   int height)
 : BasicWin32Window(
     style_ex, 
-    style, 
+    style | WS_CLIPCHILDREN, 
     x, 
     y, 
     width, 
