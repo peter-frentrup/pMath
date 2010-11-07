@@ -3,6 +3,8 @@
 	Button("Arg Style",DocumentApply(SelectedDocument(),StyleBox("","Arg")))})
 
 - BUG StringReplace("abac", {"a" -> "1", "c" -> "3", "b" -> "2"}) gives "1ba3" but should give "1213"
+
+- BUG StringReplace("abac", {"a" -> "1", "c" -> "3", "b" -> "2"}) gives "1ba3" but should give "1213"
 	
 !? make <<context` parse as Needs("context`") and do not provide special syntax for Get()	
 	
