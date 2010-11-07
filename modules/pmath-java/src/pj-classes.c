@@ -1,4 +1,5 @@
 #include "pj-classes.h"
+#include "pj-objects.h"
 #include "pj-symbols.h"
 #include "pj-values.h"
 #include "pjvm.h"
@@ -22,6 +23,7 @@ enum{
   PJ_MODIFIER_STRICT        = 2048
 };
 
+
 //{ cms2id Hashtable implementation ...
 struct pmath2id_t{
   pmath_string_t class_method_signature;
@@ -32,11 +34,12 @@ struct pmath2id_t{
   char           return_type; // Z,B,C,S,I,J,F,D or sth else for an object
 };
 
-/* "class"  ==>  info = {"method_or_field_1", "method_or_field_2", ...,}
+/* "class"  ==>  info = {"method_or_field_1", "method_or_field_2", ...}
    
    {"class", "method_or_constructor"}  ==>  info = {{argtype11, argtype12, ...}, {argtype21, argtype22, ...}, ...}
    
    {"class", "method_or_constructor", {argtype1, argtyp2, ...}}  ==> 
+      info        = return type (or NULL for constructors)
       mid         = jni method id
       fid         = 0
       modifiers   = PJ_MODIFIER_XXX set
@@ -236,7 +239,7 @@ pmath_string_t pj_class_get_name(JNIEnv *env, jclass clazz){
 jclass pj_class_to_java(JNIEnv *env, pmath_t obj){
   jclass result = NULL;
   
-  if(env){
+  if(env && (*env)->EnsureLocalCapacity(env, 1) == 0){
     char *str;
     
     if(pmath_instance_of(obj, PMATH_TYPE_SYMBOL)){
@@ -297,7 +300,7 @@ jclass pj_class_to_java(JNIEnv *env, pmath_t obj){
         return NULL;
       }
       
-      str = java_class_name(obj);
+      str = java_class_name(obj); obj = NULL;
       if(str){
         int len = 0;
         
@@ -315,7 +318,22 @@ jclass pj_class_to_java(JNIEnv *env, pmath_t obj){
       return NULL;
     }
     
-    str = java_class_name(obj);
+    if(pj_object_is_java(env, obj)
+    && (*env)->EnsureLocalCapacity(env, 2) == 0){
+      jclass cc = (*env)->FindClass(env, "java.lang.Class");
+      result = (jclass)pj_object_to_java(env, obj);
+      
+      if((*env)->IsInstanceOf(env, result, cc)){
+        (*env)->DeleteLocalRef(env, cc);
+        return result;
+      }
+      
+      (*env)->DeleteLocalRef(env, cc);
+      (*env)->DeleteLocalRef(env, result);
+      return NULL;
+    }
+    
+    str = java_class_name(obj); obj = NULL;
     if(str){
       result = (*env)->FindClass(env, str);
       pmath_mem_free(str);
@@ -359,9 +377,9 @@ static pmath_t type2pmath(pmath_string_t name, int start){ // name will be freed
       sub);
   }
   
-  if(buf[start] == 'L' && buf[len-1] == ';'){
-    return pmath_string_part(name, start + 1, len - start - 2);
-  }
+//  if(buf[start] == 'L' && buf[len-1] == ';'){
+//    return pmath_string_part(name, start + 1, len - start - 2);
+//  }
   
   return name;
 }
@@ -506,9 +524,10 @@ static pmath_t type2pmath(pmath_string_t name, int start){ // name will be freed
     jlen = (*env)->GetArrayLength(env, method_array);
     for(ji = 0;ji < jlen;++ji){
       pmath_string_t      name;
+      pmath_t             return_type;
       pmath_t             params;
       int                 modifiers;
-      char                return_type;
+      char                return_type_char;
       jmethodID           mid;
       jsize               jlen2, ji2;
       struct pmath2id_t  *cache_entry;
@@ -536,7 +555,8 @@ static pmath_t type2pmath(pmath_string_t name, int start){ // name will be freed
       
       
       if(constructors){
-        return_type = 'V';
+        return_type = NULL;
+        return_type_char = 'V';
         
         name = PMATH_C_STRING("<init>");
       }
@@ -552,8 +572,9 @@ static pmath_t type2pmath(pmath_string_t name, int start){ // name will be freed
           goto FAIL_RETURN;
         }
         
-        return_type = (char)pmath_string_buffer(name)[0];
-        pmath_unref(name);
+        return_type_char = (char)pmath_string_buffer(name)[0];
+        return_type = type2pmath(name, 0); 
+        name = NULL;
         
         jobj = (*env)->CallObjectMethod(env, method, info->midMethodGetName);
         if(!jobj)
@@ -598,11 +619,11 @@ static pmath_t type2pmath(pmath_string_t name, int start){ // name will be freed
           pmath_ref(info->class_name),
           pmath_ref(name),
           pmath_ref(params));
-        cache_entry->info                   = NULL;
+        cache_entry->info                   = return_type; return_type = NULL;
         cache_entry->mid                    = mid;
         cache_entry->fid                    = 0;
         cache_entry->modifiers              = modifiers;
-        cache_entry->return_type            = return_type;
+        cache_entry->return_type            = return_type_char;
         
         if(!pmath_aborting()){
           pmath_atomic_lock(&cms2id_lock);
@@ -662,7 +683,7 @@ static pmath_t type2pmath(pmath_string_t name, int start){ // name will be freed
                         pmath_unref(params);
       FAIL_JTYPES:      pmath_unref(name);
       FAIL_NAME:     
-      FAIL_JNAME:
+      FAIL_JNAME:       pmath_unref(return_type);
       FAIL_RETURN:
       FAIL_JRETURN:
       FAIL_MID:
@@ -863,11 +884,11 @@ void pj_class_cache_members(JNIEnv *env, jclass clazz){
     }
   }
   
-  PMATH_RUN_ARGS("Print(`1`, \": \", `2`)", 
-    "(o(oo))", 
-    pmath_ref(info.class_name), 
-    pmath_ref(methods), 
-    pmath_ref(fields));
+//  PMATH_RUN_ARGS("Print(`1`, \": \", `2`)", 
+//    "(o(oo))", 
+//    pmath_ref(info.class_name), 
+//    pmath_ref(methods), 
+//    pmath_ref(fields));
   
   pmath_unref(fields);
   pmath_unref(methods);
@@ -881,8 +902,8 @@ pmath_t pj_class_call_method(
   JNIEnv         *env, 
   jobject         obj, 
   pmath_bool_t    is_static, 
-  pmath_string_t  name,  // will be freed
-  pmath_expr_t    args
+  pmath_string_t  name,        // will be freed
+  pmath_expr_t    args         // will be freed
 ){
   pmath_t               result;
   jclass                clazz;
@@ -1005,7 +1026,12 @@ pmath_t pj_class_call_method(
                   
                 case 'L':
                 case '[':
-                  val.l = (*env)->CallStaticObjectMethodA(env, clazz, mid, jargs);
+                  if((*env)->EnsureLocalCapacity(env, 1) != 0){
+                    pj_exception_to_pmath(env);
+                    val.l = NULL;
+                  }
+                  else
+                    val.l = (*env)->CallStaticObjectMethodA(env, clazz, mid, jargs);
                   break;
                 
                 case 'V':
@@ -1058,7 +1084,12 @@ pmath_t pj_class_call_method(
                   
                 case 'L':
                 case '[':
-                  val.l = (*env)->CallObjectMethodA(env, obj, mid, jargs);
+                  if((*env)->EnsureLocalCapacity(env, 1) != 0){
+                    pj_exception_to_pmath(env);
+                    val.l = NULL;
+                  }
+                  else
+                    val.l = (*env)->CallObjectMethodA(env, obj, mid, jargs);
                   break;
                 
                 case 'V':
@@ -1119,7 +1150,7 @@ pmath_t pj_class_call_method(
 jobject pj_class_new_object(
   JNIEnv       *env,
   jclass        clazz,
-  pmath_expr_t  args
+  pmath_expr_t  args     // will be freed
 ){
   jobject               result;
   jvalue               *jargs;
@@ -1226,6 +1257,369 @@ jobject pj_class_new_object(
   pmath_unref(class_name);
   pmath_unref(args);
   
+  return result;
+}
+
+
+pmath_t pj_class_get_field(
+  JNIEnv         *env,
+  jobject         obj,
+  pmath_bool_t    is_static,
+  pmath_string_t  name        // will be freed
+){
+  jclass          clazz;
+  pmath_string_t  class_name;
+  pmath_t         key;
+  jfieldID        fid;
+  char            return_type;
+  int             modifiers;
+  jvalue          val;
+  pmath_t         result;
+  
+  if(!env 
+  || !obj
+  || (*env)->EnsureLocalCapacity(env, 1) != 0){
+    pj_exception_to_pmath(env);
+    pmath_unref(name);
+    return pmath_ref(PMATH_SYMBOL_FAILED);
+  }
+  
+  if(is_static)
+    clazz = obj;
+  else
+    clazz = (*env)->GetObjectClass(env, obj);
+  
+  pj_class_cache_members(env, clazz);
+  class_name = pj_class_get_name(env, clazz);
+  
+  key = pmath_expr_new_extended(
+    pmath_ref(PMATH_SYMBOL_LIST), 2,
+    pmath_ref(class_name),
+    pmath_ref(name));
+  
+  fid = 0;
+  return_type = '?';
+  pmath_atomic_lock(&cms2id_lock);
+  {
+    struct pmath2id_t *cache_entry = pmath_ht_search(cms2id, key);
+    if(cache_entry && cache_entry->mid == 0){
+      fid         = cache_entry->fid;
+      return_type = cache_entry->return_type;
+      modifiers   = cache_entry->modifiers;
+    }
+  }
+  pmath_atomic_unlock(&cms2id_lock);
+  pmath_unref(key); key = NULL;
+  
+  if(!fid){
+    pmath_message(PJ_SYMBOL_JAVA, "nofld", 2,
+      name,
+      class_name);
+    if(!is_static)
+      (*env)->DeleteLocalRef(env, clazz);
+    return pmath_ref(PMATH_SYMBOL_FAILED);
+  }
+  
+  result = NULL;
+  if(modifiers & PJ_MODIFIER_STATIC){
+    switch(return_type){
+      case 'Z':
+        val.z = (*env)->GetStaticBooleanField(env, clazz, fid);
+        break;
+        
+      case 'B':
+        val.b = (*env)->GetStaticByteField(env, clazz, fid);
+        break;
+        
+      case 'C':
+        val.b = (*env)->GetStaticCharField(env, clazz, fid);
+        break;
+        
+      case 'S':
+        val.s = (*env)->GetStaticShortField(env, clazz, fid);
+        break;
+        
+      case 'I':
+        val.i = (*env)->GetStaticIntField(env, clazz, fid);
+        break;
+        
+      case 'J':
+        val.j = (*env)->GetStaticLongField(env, clazz, fid);
+        break;
+        
+      case 'F':
+        val.f = (*env)->GetStaticFloatField(env, clazz, fid);
+        break;
+        
+      case 'D':
+        val.d = (*env)->GetStaticDoubleField(env, clazz, fid);
+        break;
+        
+      case 'L':
+      case '[':
+        if((*env)->EnsureLocalCapacity(env, 1) != 0){
+          pj_exception_to_pmath(env);
+          val.l = NULL;
+        }
+        else
+          val.l = (*env)->GetStaticObjectField(env, clazz, fid);
+        break;
+      
+      default:
+        pmath_debug_print("\ainvalid java type `%c`\n", return_type);
+        assert("invalid java type" && 0);
+    }
+  
+    result = pj_value_from_java(env, return_type, &val);
+    if(return_type == 'L' || return_type == '[')
+      (*env)->DeleteLocalRef(env, val.l);
+  }
+  else if(is_static){
+    /* error: trying to get non-static field without an object */
+    result = pmath_ref(PMATH_SYMBOL_FAILED);
+  }
+  else{
+    switch(return_type){
+      case 'Z':
+        val.z = (*env)->GetBooleanField(env, obj, fid);
+        break;
+        
+      case 'B':
+        val.b = (*env)->GetByteField(env, obj, fid);
+        break;
+        
+      case 'C':
+        val.b = (*env)->GetCharField(env, obj, fid);
+        break;
+        
+      case 'S':
+        val.s = (*env)->GetShortField(env, obj, fid);
+        break;
+        
+      case 'I':
+        val.i = (*env)->GetIntField(env, obj, fid);
+        break;
+        
+      case 'J':
+        val.j = (*env)->GetLongField(env, obj, fid);
+        break;
+        
+      case 'F':
+        val.f = (*env)->GetFloatField(env, obj, fid);
+        break;
+        
+      case 'D':
+        val.d = (*env)->GetDoubleField(env, obj, fid);
+        break;
+        
+      case 'L':
+      case '[':
+        if((*env)->EnsureLocalCapacity(env, 1) != 0){
+          pj_exception_to_pmath(env);
+          val.l = NULL;
+        }
+        else
+          val.l = (*env)->GetObjectField(env, obj, fid);
+        break;
+        
+      default:
+        pmath_debug_print("\ainvalid java type `%c`\n", return_type);
+        assert("invalid java type" && 0);
+    }
+  
+    result = pj_value_from_java(env, return_type, &val);
+    if(return_type == 'L' || return_type == '[')
+      (*env)->DeleteLocalRef(env, val.l);
+  }
+  
+  pmath_unref(name);
+  pmath_unref(class_name);
+  if(!is_static)
+    (*env)->DeleteLocalRef(env, clazz);
+  return result;
+}
+
+extern pmath_bool_t pj_class_set_field(
+  JNIEnv         *env,
+  jobject         obj,
+  pmath_bool_t    is_static,
+  pmath_string_t  name,       // will be freed
+  pmath_t         value
+){
+  jclass          clazz;
+  pmath_string_t  class_name;
+  pmath_t         key;
+  jfieldID        fid;
+  pmath_t         field_type;
+  char            field_type_char;
+  int             modifiers;
+  jvalue          val;
+  pmath_bool_t    result;
+  
+  if(!env 
+  || !obj
+  || (*env)->EnsureLocalCapacity(env, 1) != 0){
+    pj_exception_to_pmath(env);
+    pmath_unref(name);
+    pmath_unref(value);
+    return FALSE;
+  }
+  
+  if(is_static)
+    clazz = obj;
+  else
+    clazz = (*env)->GetObjectClass(env, obj);
+  
+  pj_class_cache_members(env, clazz);
+  class_name = pj_class_get_name(env, clazz);
+  
+  key = pmath_expr_new_extended(
+    pmath_ref(PMATH_SYMBOL_LIST), 2,
+    pmath_ref(class_name),
+    pmath_ref(name));
+  
+  fid = 0;
+  field_type = NULL;
+  field_type_char = '?';
+  pmath_atomic_lock(&cms2id_lock);
+  {
+    struct pmath2id_t *cache_entry = pmath_ht_search(cms2id, key);
+    if(cache_entry && cache_entry->mid == 0){
+      fid             = cache_entry->fid;
+      field_type      = cache_entry->info;
+      field_type_char = cache_entry->return_type;
+      modifiers       = cache_entry->modifiers;
+    }
+  }
+  pmath_atomic_unlock(&cms2id_lock);
+  pmath_unref(key); key = NULL;
+  
+  if(!fid){
+    pmath_message(PJ_SYMBOL_JAVA, "nofld", 2,
+      name,
+      class_name);
+    pmath_unref(field_type);
+    pmath_unref(value);
+    if(!is_static)
+      (*env)->DeleteLocalRef(env, clazz);
+    return FALSE;
+  }
+  
+  if(!pj_value_to_java(env, pmath_ref(value), field_type, &val)){
+    pmath_message(PJ_SYMBOL_JAVA, "fldx", 3, 
+      name,
+      class_name,
+      value);
+    pmath_unref(field_type);
+    if(!is_static)
+      (*env)->DeleteLocalRef(env, clazz);
+    return FALSE;
+  }
+  pmath_unref(value);      value      = NULL;
+  pmath_unref(field_type); field_type = NULL;
+  
+  result = TRUE;
+  if(modifiers & PJ_MODIFIER_STATIC){
+    switch(field_type_char){
+      case 'Z':
+        (*env)->SetStaticBooleanField(env, clazz, fid, val.z);
+        break;
+        
+      case 'B':
+        (*env)->SetStaticByteField(env, clazz, fid, val.b);
+        break;
+        
+      case 'C':
+        (*env)->SetStaticCharField(env, clazz, fid, val.c);
+        break;
+        
+      case 'S':
+        (*env)->SetStaticShortField(env, clazz, fid, val.s);
+        break;
+        
+      case 'I':
+        (*env)->SetStaticIntField(env, clazz, fid, val.i);
+        break;
+        
+      case 'J':
+        (*env)->SetStaticLongField(env, clazz, fid, val.j);
+        break;
+        
+      case 'F':
+        (*env)->SetStaticFloatField(env, clazz, fid, val.f);
+        break;
+        
+      case 'D':
+        (*env)->SetStaticDoubleField(env, clazz, fid, val.d);
+        break;
+        
+      case 'L':
+      case '[':
+        (*env)->SetStaticObjectField(env, clazz, fid, val.l);
+        (*env)->DeleteLocalRef(env, val.l);
+        break;
+      
+      default:
+        pmath_debug_print("\ainvalid java type `%c`\n", field_type_char);
+        assert("invalid java type" && 0);
+        result = FALSE;
+    }
+  }
+  else if(is_static){
+    /* error: trying to set non-static field without an object */
+    result = FALSE;
+  }
+  else{
+    switch(field_type_char){
+      case 'Z':
+        (*env)->SetBooleanField(env, obj, fid, val.z);
+        break;
+        
+      case 'B':
+        (*env)->SetByteField(env, obj, fid, val.b);
+        break;
+        
+      case 'C':
+        (*env)->SetCharField(env, obj, fid, val.c);
+        break;
+        
+      case 'S':
+        (*env)->SetShortField(env, obj, fid, val.s);
+        break;
+        
+      case 'I':
+        (*env)->SetIntField(env, obj, fid, val.i);
+        break;
+        
+      case 'J':
+        (*env)->SetLongField(env, obj, fid, val.j);
+        break;
+        
+      case 'F':
+        (*env)->SetFloatField(env, obj, fid, val.f);
+        break;
+        
+      case 'D':
+        (*env)->SetDoubleField(env, obj, fid, val.d);
+        break;
+        
+      case 'L':
+      case '[':
+        (*env)->SetObjectField(env, obj, fid, val.l);
+        (*env)->DeleteLocalRef(env, val.l);
+        break;
+        
+      default:
+        pmath_debug_print("\ainvalid java type `%c`\n", field_type_char);
+        assert("invalid java type" && 0);
+        result = FALSE;
+    }
+  }
+  
+  pmath_unref(name);
+  pmath_unref(class_name);
+  if(!is_static)
+    (*env)->DeleteLocalRef(env, clazz);
   return result;
 }
 

@@ -963,7 +963,10 @@ static THREAD_PROC(timer_thread_proc, dummy){
     }
     
     if(last_gc_time + GC_WAIT_SEC <= now){
+      assert(pmath_thread_get_current() == NULL);
+      pmath_init();
       run_gc();
+      pmath_done();
       last_gc_time = now;
       
       noop = FALSE;

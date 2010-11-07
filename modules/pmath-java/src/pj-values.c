@@ -196,7 +196,7 @@ pmath_bool_t pj_value_to_java(JNIEnv *env, pmath_t obj, pmath_t type, jvalue *va
   }
   
   if(pmath_instance_of(obj, PMATH_TYPE_STRING)){
-    if(pmath_is_expr_of(type, PMATH_SYMBOL_STRING)
+    if(pmath_instance_of(type, PMATH_TYPE_STRING)
     && pmath_string_equals_latin1(type, "Ljava/lang/String;")){
       value->l = (*env)->NewString(env, pmath_string_buffer(obj), pmath_string_length(obj));
       pmath_unref(obj);
@@ -386,30 +386,31 @@ pmath_t pj_value_from_java(JNIEnv *env, char type, const jvalue *value){
       while(i < slen && buf[i] == '[')
         ++i;
       
-      if(i < slen && buf[i] != 'L'){
-        is_simple_array = TRUE;
-      }
-      else if(i + 18 == slen 
-      && buf[i + 11] == 'S'
-      && buf[i + 12] == 't'
-      && buf[i + 13] == 'r'
-      && buf[i + 14] == 'i'
-      && buf[i + 15] == 'n'
-      && buf[i + 16] == 'g'
-      && buf[i +  5] == '/'
-      && buf[i +  6] == 'l'
-      && buf[i +  7] == 'a'
-      && buf[i +  8] == 'n'
-      && buf[i +  9] == 'g'
-      && buf[i + 10] == '/'
-      && buf[i +  1] == 'j'
-      && buf[i +  2] == 'a'
-      && buf[i +  3] == 'v'
-      && buf[i +  4] == 'a'
-      && buf[i]      == 'L'
-      && buf[i + 17] == ';'){
-        is_simple_array = TRUE;
-      }
+      is_simple_array = TRUE;
+//      if(i < slen && buf[i] != 'L'){
+//        is_simple_array = TRUE;
+//      }
+//      else if(i + 18 == slen 
+//      && buf[i + 11] == 'S'
+//      && buf[i + 12] == 't'
+//      && buf[i + 13] == 'r'
+//      && buf[i + 14] == 'i'
+//      && buf[i + 15] == 'n'
+//      && buf[i + 16] == 'g'
+//      && buf[i +  5] == '/'
+//      && buf[i +  6] == 'l'
+//      && buf[i +  7] == 'a'
+//      && buf[i +  8] == 'n'
+//      && buf[i +  9] == 'g'
+//      && buf[i + 10] == '/'
+//      && buf[i +  1] == 'j'
+//      && buf[i +  2] == 'a'
+//      && buf[i +  3] == 'v'
+//      && buf[i +  4] == 'a'
+//      && buf[i]      == 'L'
+//      && buf[i + 17] == ';'){
+//        is_simple_array = TRUE;
+//      }
       
       if(is_simple_array){
         jsize len = (*env)->GetArrayLength(env, value->l);

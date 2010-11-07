@@ -15,7 +15,7 @@ struct obj_entry_t{
 };
   
   static unsigned int java_hash(jobject jobj){
-    JNIEnv *env = pjvm_try_get_env();
+    JNIEnv *env = pjvm_get_env();
     
     if(env){
       if(!midHashCode && (*env)->EnsureLocalCapacity(env, 1) == 0){
@@ -38,7 +38,7 @@ struct obj_entry_t{
       }
     }
     
-    pmath_debug_print("java_hash: pjvm_try_get_env() failed\n");
+    pmath_debug_print("java_hash: pjvm_get_env() failed\n");
     return 0;
   }
   
@@ -46,7 +46,7 @@ struct obj_entry_t{
     struct obj_entry_t *e = (struct obj_entry_t*)p;
     
     if(e){
-      JNIEnv *env = pjvm_try_get_env();
+      JNIEnv *env = pjvm_get_env();
       
       pmath_t sym = pmath_symbol_get(e->owner_name, FALSE);
       if(sym){
@@ -58,7 +58,7 @@ struct obj_entry_t{
         (*env)->DeleteGlobalRef(env, e->jglobal);
       }
       else{
-        pmath_debug_print("p2j_entry_destructor: pjvm_try_get_env() failed\n");
+        pmath_debug_print("p2j_entry_destructor: pjvm_get_env() failed\n");
       }
       
       pmath_mem_free(e);
@@ -89,11 +89,11 @@ struct obj_entry_t{
     struct obj_entry_t *e1 = (struct obj_entry_t*)p1;
     struct obj_entry_t *e2 = (struct obj_entry_t*)p2;
     
-    JNIEnv *env = pjvm_try_get_env();
+    JNIEnv *env = pjvm_get_env();
     if(env)
       return (*env)->IsSameObject(env, e1->jglobal, e2->jglobal);
     
-    pmath_debug_print("j2p_entry_keys_equal: pjvm_try_get_env() failed\n");
+    pmath_debug_print("j2p_entry_keys_equal: pjvm_get_env() failed\n");
     return e1->jglobal == e2->jglobal;
   }
   
@@ -120,11 +120,11 @@ struct obj_entry_t{
     struct obj_entry_t *e = (struct obj_entry_t*)pe;
     jobject k = (jobject)pk;
     
-    JNIEnv *env = pjvm_try_get_env();
+    JNIEnv *env = pjvm_get_env();
     if(env)
       return (*env)->IsSameObject(env, e->jglobal, k);
     
-    pmath_debug_print("j2p_entry_equals_key: pjvm_try_get_env() failed\n");
+    pmath_debug_print("j2p_entry_equals_key: pjvm_get_env() failed\n");
     return e->jglobal == k;
   }
   
@@ -182,6 +182,10 @@ pmath_t pj_object_from_java(JNIEnv *env, jobject jobj){
   if(symbol)
     return symbol;
   
+  if(!env || (*env)->EnsureLocalCapacity(env, 1) != 0){
+    return NULL;
+  }
+  
   symbol = pmath_symbol_create_temporary(PMATH_C_STRING("Java`Objects`javaObject"), TRUE);
   if(symbol){
     struct obj_entry_t *entry;
@@ -237,17 +241,30 @@ pmath_t pj_object_from_java(JNIEnv *env, jobject jobj){
           
           clazz = (*env)->GetObjectClass(env, jobj);
           if(clazz){
-            pmath_t str = pj_class_get_nice_name(env, clazz);
+            pmath_string_t class_name  = pj_class_get_nice_name(env, clazz);
+            pmath_t str = pmath_ref(class_name);
             (*env)->DeleteLocalRef(env, clazz);
             
-            str = pmath_string_insert_latin1(str, INT_MAX, " \xBB", 2);
-            str = pmath_string_insert_latin1(str, 0,       "\xAB ", 2);
+            str = pmath_string_insert_latin1(str, INT_MAX, "\xA0\xBB", 2);
+            str = pmath_string_insert_latin1(str, 0,       "\xAB\xA0", 2);
             
             PMATH_RUN_ARGS(
                 "MakeBoxes(`1`)::= InterpretationBox(`2`, `1`)", 
               "(oo)", 
               pmath_ref(symbol),
               str);
+            
+            PMATH_RUN_ARGS(
+                "`1`/: ClassName(`1`)::= `2`", 
+              "(oo)", 
+              pmath_ref(symbol),
+              pmath_ref(class_name));
+            
+            PMATH_RUN_ARGS(
+                "`1`/: GetClass(`1`)::= JavaClass(`2`)", 
+              "(oo)", 
+              pmath_ref(symbol),
+              class_name);
           }
         }
       }
@@ -319,6 +336,122 @@ pmath_bool_t pj_object_is_java(JNIEnv *env, pmath_t obj){
 }
 
 
+pmath_t pj_builtin_isjavaobject(pmath_expr_t expr){
+  JNIEnv *env;
+  pmath_t obj;
+  
+  if(pmath_expr_length(expr) != 1){
+    pmath_message_argxxx(0, 1, 1);
+    return expr;
+  }
+  
+  pjvm_ensure_started();
+  env = pjvm_get_env();
+  if(!env){
+    pj_exception_to_pmath(env);
+    
+    return expr;
+  }
+  
+  obj = pmath_expr_get_item(expr, 1);
+  pmath_unref(expr);
+  
+  if(pj_object_is_java(env, obj)){
+    pmath_unref(obj);
+    return pmath_ref(PMATH_SYMBOL_TRUE);
+  }
+  
+  pmath_unref(obj);
+  return pmath_ref(PMATH_SYMBOL_FALSE);
+}
+
+
+pmath_t pj_builtin_instanceof(pmath_expr_t expr){
+  JNIEnv *env;
+  pmath_t result;
+  
+  if(pmath_expr_length(expr) != 2){
+    pmath_message_argxxx(0, 2, 2);
+    return expr;
+  }
+  
+  result = pmath_ref(PMATH_SYMBOL_FAILED);
+  pjvm_ensure_started();
+  env = pjvm_get_env();
+  if(env && (*env)->EnsureLocalCapacity(env, 2) == 0){
+    jobject obj = pj_object_to_java(env, pmath_expr_get_item(expr, 1));
+    
+    if(obj){
+      jclass clazz = pj_class_to_java(env, pmath_expr_get_item(expr, 2));
+      
+      if(clazz){
+        pmath_unref(result);
+        if((*env)->IsInstanceOf(env, obj, clazz))
+          result = pmath_ref(PMATH_SYMBOL_TRUE);
+        else
+          result = pmath_ref(PMATH_SYMBOL_FALSE);
+        
+        (*env)->DeleteLocalRef(env, clazz);
+      }
+      else{
+        pmath_message(PJ_SYMBOL_JAVA, "nocls", 1, pmath_expr_get_item(expr, 2));
+      }
+        
+      (*env)->DeleteLocalRef(env, obj);
+    }
+    else{
+      pmath_message(PJ_SYMBOL_JAVA, "noobj", 1, pmath_expr_get_item(expr, 1));
+    }
+  }
+  
+  pj_exception_to_pmath(env);
+  
+  pmath_unref(expr);
+  return result;
+}
+
+
+pmath_t pj_builtin_parentclass(pmath_expr_t expr){
+  JNIEnv *env;
+  pmath_t result;
+  
+  if(pmath_expr_length(expr) != 1){
+    pmath_message_argxxx(0, 1, 1);
+    return expr;
+  }
+  
+  result = pmath_ref(PMATH_SYMBOL_FAILED);
+  pjvm_ensure_started();
+  env = pjvm_get_env();
+  if(env && (*env)->EnsureLocalCapacity(env, 2) == 0){
+    jobject clazz = pj_class_to_java(env, pmath_expr_get_item(expr, 1));
+    
+    if(clazz){
+      jclass super = (*env)->GetSuperclass(env, clazz);
+      
+      if(super){
+        pmath_unref(result);
+        result = pmath_expr_new_extended(
+          pmath_ref(PJ_SYMBOL_JAVACLASS), 1,
+          pj_class_get_nice_name(env, super));
+        
+        (*env)->DeleteLocalRef(env, super);
+      }
+      
+      (*env)->DeleteLocalRef(env, clazz);
+    }
+    else{
+      pmath_message(PJ_SYMBOL_JAVA, "nocls", 1, pmath_expr_get_item(expr, 1));
+    }
+  }
+  
+  pj_exception_to_pmath(env);
+  
+  pmath_unref(expr);
+  return result;
+}
+
+
 pmath_t pj_builtin_javacall(pmath_expr_t expr){
   JNIEnv *env;
   pmath_t result;
@@ -346,7 +479,7 @@ pmath_t pj_builtin_javacall(pmath_expr_t expr){
       is_static = TRUE;
       
       if(!jobj)
-        pmath_message(PJ_SYMBOL_JAVA, "nobcl", 1, obj);
+        pmath_message(PJ_SYMBOL_JAVA, "nobcl", 1, pmath_expr_get_item(expr, 1));
     }
     
     if(jobj){
@@ -412,6 +545,116 @@ pmath_t pj_builtin_javanew(pmath_expr_t expr){
   return result;
 }
 
+
+pmath_t pj_builtin_javafield(pmath_expr_t expr){
+  JNIEnv *env;
+  pmath_t result;
+
+  if(pmath_expr_length(expr) != 2){
+    pmath_message_argxxx(0, 2, 2);
+    return expr;
+  }
+  
+  result = pmath_ref(PMATH_SYMBOL_FAILED);
+  pjvm_ensure_started();
+  env = pjvm_get_env();
+  if(env && (*env)->EnsureLocalCapacity(env, 2) == 0){
+    pmath_t obj;
+    jobject jobj = NULL;
+    pmath_bool_t is_static;
+    
+    obj = pmath_expr_get_item(expr, 1);
+    if(pj_object_is_java(env, obj)){
+      jobj = pj_object_to_java(env, obj);
+      is_static = FALSE;
+    }
+    else{
+      jobj = pj_class_to_java(env, obj);
+      is_static = TRUE;
+      
+      if(!jobj)
+        pmath_message(PJ_SYMBOL_JAVA, "nobcl", 1, pmath_expr_get_item(expr, 1));
+    }
+    
+    if(jobj){
+      pmath_unref(result);
+      result = pj_class_get_field(
+        env, 
+        jobj, 
+        is_static,
+        pmath_expr_get_item(expr, 2));
+      
+      (*env)->DeleteLocalRef(env, jobj);
+    }
+  }
+  
+  pj_exception_to_pmath(env);
+  
+  pmath_unref(expr);
+  return result;
+}
+
+pmath_t pj_builtin_assign_javafield(pmath_expr_t expr){
+  JNIEnv *env;
+  pmath_t lhs;
+  pmath_bool_t success;
+  
+  if(!pmath_is_expr_of_len(expr, PMATH_SYMBOL_ASSIGN, 2))
+    return expr;
+  
+  lhs = pmath_expr_get_item(expr, 1);
+  if(!pmath_is_expr_of_len(lhs, PJ_SYMBOL_JAVAFIELD, 2)){
+    pmath_unref(lhs);
+    return expr;
+  }
+  
+  success = FALSE;
+  pjvm_ensure_started();
+  env = pjvm_get_env();
+  if(env && (*env)->EnsureLocalCapacity(env, 2) == 0){
+    pmath_t obj;
+    jobject jobj = NULL;
+    pmath_bool_t is_static;
+    
+    obj = pmath_evaluate(pmath_expr_get_item(lhs, 1));
+    if(pj_object_is_java(env, obj)){
+      jobj = pj_object_to_java(env, obj);
+      is_static = FALSE;
+    }
+    else{
+      jobj = pj_class_to_java(env, obj);
+      is_static = TRUE;
+      
+      if(!jobj)
+        pmath_message(PJ_SYMBOL_JAVA, "nobcl", 1, pmath_expr_get_item(lhs, 1));
+    }
+    
+    if(jobj){
+      success = pj_class_set_field(
+        env, 
+        jobj, 
+        is_static,
+        pmath_expr_get_item(lhs, 2),
+        pmath_expr_get_item(expr, 2));
+      
+      (*env)->DeleteLocalRef(env, jobj);
+    }
+  }
+  
+  pj_exception_to_pmath(env);
+  
+  pmath_unref(lhs);
+  if(success){
+    pmath_t result = pmath_expr_get_item(expr, 2);
+    pmath_unref(expr);
+    return result;
+  }
+  
+  pmath_unref(expr);
+  return pmath_ref(PMATH_SYMBOL_FAILED);
+}
+
+
 void pj_objects_clear_cache(void){
   pmath_hashtable_t new_p2j = pmath_ht_create(&p2j_class, 0);
   pmath_hashtable_t new_j2p = pmath_ht_create(&j2p_class, 0);
@@ -420,7 +663,7 @@ void pj_objects_clear_cache(void){
     pmath_hashtable_t old_p2j;
     pmath_hashtable_t old_j2p;
     
-    pmath_atomic_lock(&p2j_lock)
+    pmath_atomic_lock(&p2j_lock);
     {
       old_p2j = p2j_objects;
       old_j2p = j2p_objects;

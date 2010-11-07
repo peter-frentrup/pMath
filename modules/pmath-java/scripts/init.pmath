@@ -10,18 +10,30 @@ Java`JavaNew
 Java`JavaStartVM
 Java`$JavaVMLibraryName
 
+Java`ClassName
+Java`GetClass
+Java`InstanceOf
+Java`ParentClass
+
+Java`Constructors
+Java`Methods
+Java`Fields
+
 Begin("Java`Private`")
 
 Java::argx:= "Method named `1` defined in class `2` was called with an incorrect number or type of arguments. The arguments, shown here in a list, were `3`."
 Java::argx0:= "Method named `1` defined in class `2` does not take zero arguments."
+Java::fldx:= "Attempting to set field named `1` defined in class `2` to an incorrect type of value: `3`."
 Java::nofld:= "No field `1` defined in class `2`."
 Java::nometh:= "No method `1` defined in class `2`."
+Java::noobj:= "`1` is not a Java object."
 Java::nobcl:= "`1` is neither a Java object nor a Java class."
 
 JavaNew::argx:= "Incorrect number or type of arguments to constructor for class `1`. The arguments, shown here in a list, were `2`."
 JavaNew::argx0:= "There is no constructor for class `1` that takes zero arguments."
 JavaNew::fail:= "Error calling constructor for class `1`."
 JavaNew::nocls:= "Class named `1` not found."
+
 
 If(!IsString(Java`Private`$DLLDirectory), 
 	Java`Private`$DLLDirectory:= DirectoryName($Input))
@@ -43,6 +55,28 @@ If(System`$SystemId === "Windows",
 	)
 
 LoadLibrary(ToFileName(Java`Private`$DLLDirectory, "pmath-java.dll"))
+
+stringStyle(~s, ~~~styles)::= "\(" ++ Style(s, styles).ToBoxes.ToString ++ "\)"
+
+syntaxHighlight(~lines)::= lines.StringReplace(
+		{"final " | "public " | "native " -> ""}
+	).StringReplace(
+		"," -> ", "
+	).StringReplace(
+		"java.lang." ++ (name: WordCharacter**) ++ (c: " " | "[" | "," | "(" | ")" | EndOfString) :> name ++ c
+	).StringReplace(
+		" " ++ Shortest((WordCharacter|".")**) ++ "." ++ (name:WordCharacter**) ++ "(" :> " " ++ stringStyle(name, Blue, Italic) ++ "("
+	).StringReplace(
+		(s: WordBoundary ++ ("Object" | "String") ++ WordBoundary) :> stringStyle(s, Bold)
+	).StringReplace(
+		WordBoundary ++ (s: "void" | "byte" | "char" | "boolean" | "short" | "int" | "long" | "throws" | "double" | "float" | "static") ++ WordBoundary :> stringStyle(s, Brown, Bold)
+	)
+
+Constructors(JavaClass(~name:String) | ~name:String)::= Column(JavaClass("java.lang.Class").JavaCall("forName", name).JavaCall("getConstructors").Map(#.JavaCall("toString")&).syntaxHighlight)
+Methods(JavaClass(~name:String) | ~name:String)::=      Column(JavaClass("java.lang.Class").JavaCall("forName", name).JavaCall("getMethods").Map(     #.JavaCall("toString")&).syntaxHighlight)
+Fields(JavaClass(~name:String) | ~name:String)::=       Column(JavaClass("java.lang.Class").JavaCall("forName", name).JavaCall("getFields").Map(      #.JavaCall("toString")&).syntaxHighlight)
+
+Attributes(Constructors):= Attributes(Methods):= Attributes(Fields):= {Protected, ReadProtected}
 
 End()
 

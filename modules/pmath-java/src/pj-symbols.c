@@ -16,13 +16,21 @@ pmath_bool_t pj_symbols_init(void){
 
   #define BIND(sym, func, use)  do{ if(!pmath_register_code((sym), (func), (use))) goto FAIL; }while(0)
   #define BIND_DOWN(sym, func)  BIND((sym), (func), PMATH_CODE_USAGE_DOWNCALL)
+  #define BIND_UP(sym, func)  BIND((sym), (func), PMATH_CODE_USAGE_UPCALL)
 
   #define PROTECT(sym)   pmath_symbol_set_attributes((sym), pmath_symbol_get_attributes((sym)) | PMATH_SYMBOL_ATTRIBUTE_PROTECTED)
 
+  VERIFY(PJ_SYMBOL_ISJAVAOBJECT      = NEW_SYMBOL("Java`IsJavaObject"));
+  VERIFY(PJ_SYMBOL_CLASSNAME         = NEW_SYMBOL("Java`ClassName"));
+  VERIFY(PJ_SYMBOL_GETCLASS          = NEW_SYMBOL("Java`GetClass"));
+  VERIFY(PJ_SYMBOL_INSTANCEOF        = NEW_SYMBOL("Java`InstanceOf"));
+  VERIFY(PJ_SYMBOL_PARENTCLASS       = NEW_SYMBOL("Java`ParentClass"));
+  
   VERIFY(PJ_SYMBOL_JAVA              = NEW_SYMBOL("Java`Java"));
   VERIFY(PJ_SYMBOL_JAVACALL          = NEW_SYMBOL("Java`JavaCall"));
   VERIFY(PJ_SYMBOL_JAVACLASS         = NEW_SYMBOL("Java`JavaClass"));
   VERIFY(PJ_SYMBOL_JAVAEXCEPTION     = NEW_SYMBOL("Java`JavaException"));
+  VERIFY(PJ_SYMBOL_JAVAFIELD         = NEW_SYMBOL("Java`JavaField"));
   VERIFY(PJ_SYMBOL_JAVAKILLVM        = NEW_SYMBOL("Java`JavaKillVM"));
   VERIFY(PJ_SYMBOL_JAVANEW           = NEW_SYMBOL("Java`JavaNew"));
   VERIFY(PJ_SYMBOL_JAVASTARTVM       = NEW_SYMBOL("Java`JavaStartVM"));
@@ -38,10 +46,17 @@ pmath_bool_t pj_symbols_init(void){
   VERIFY(PJ_SYMBOL_TYPE_LONG         = NEW_SYMBOL("Java`Type`Long"));
   VERIFY(PJ_SYMBOL_TYPE_SHORT        = NEW_SYMBOL("Java`Type`Short"));
   
-  BIND_DOWN(PJ_SYMBOL_JAVACALL,    pj_builtin_javacall);
-  BIND_DOWN(PJ_SYMBOL_JAVANEW,     pj_builtin_javanew);
-  BIND_DOWN(PJ_SYMBOL_JAVAKILLVM,  pj_builtin_killvm);
-  BIND_DOWN(PJ_SYMBOL_JAVASTARTVM, pj_builtin_startvm);
+  BIND_UP(PJ_SYMBOL_JAVAFIELD, pj_builtin_assign_javafield);
+  
+  BIND_DOWN(PJ_SYMBOL_ISJAVAOBJECT,   pj_builtin_isjavaobject);
+  BIND_DOWN(PJ_SYMBOL_PARENTCLASS,    pj_builtin_parentclass);
+  
+  BIND_DOWN(PJ_SYMBOL_JAVACALL,       pj_builtin_javacall);
+  BIND_DOWN(PJ_SYMBOL_JAVAFIELD,      pj_builtin_javafield);
+  BIND_DOWN(PJ_SYMBOL_INSTANCEOF,     pj_builtin_instanceof);
+  BIND_DOWN(PJ_SYMBOL_JAVANEW,        pj_builtin_javanew);
+  BIND_DOWN(PJ_SYMBOL_JAVAKILLVM,     pj_builtin_killvm);
+  BIND_DOWN(PJ_SYMBOL_JAVASTARTVM,    pj_builtin_startvm);
   
   {
     size_t i;

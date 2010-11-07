@@ -481,7 +481,7 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj);
     pmath_gather_begin(NULL);
     
     item = pmath_expr_get_item(expr, 1);
-    if(item || !skip_null){
+    if(item || !skip_null || len == 1){
       pmath_emit(
         ensure_min_precedence(
           object_to_boxes(thread, item), 
@@ -1958,10 +1958,16 @@ static pmath_t fullform_to_boxes(
   pmath_expr_t   expr    // will be freed
 ){
   if(pmath_expr_length(expr) == 1){
-    pmath_t result = fullform(
+    pmath_t result;
+    uint8_t old_boxform = thread->boxform;
+    thread->boxform = BOXFORM_INPUT;
+    
+    result = fullform(
       thread,
       pmath_expr_get_item(expr, 1));
-
+    
+    thread->boxform = old_boxform;
+    
     pmath_unref(expr);
     return pmath_expr_new_extended(
       pmath_ref(PMATH_SYMBOL_STYLEBOX), 3,
