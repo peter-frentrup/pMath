@@ -348,7 +348,6 @@ pmath_bool_t pj_value_to_java(JNIEnv *env, pmath_t obj, pmath_t type, jvalue *va
 }
 
 
-// type wont be freed
 pmath_t pj_value_from_java(JNIEnv *env, char type, const jvalue *value){
   switch(type){
     case 'Z':  return pmath_build_value("b", (int)value->z);
@@ -366,6 +365,9 @@ pmath_t pj_value_from_java(JNIEnv *env, char type, const jvalue *value){
     default:
       return NULL;
   }
+  
+  if(!value->l)
+    return NULL;
   
   if((*env)->EnsureLocalCapacity(env, 2) == 0){
     jclass  clazz = (*env)->GetObjectClass(env, value->l);

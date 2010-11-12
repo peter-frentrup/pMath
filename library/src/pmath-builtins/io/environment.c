@@ -141,7 +141,7 @@ PMATH_PRIVATE pmath_t builtin_environment(pmath_expr_t expr){
   }
   #endif
   
-  return pmath_ref(PMATH_SYMBOL_FAILED);
+  return PMATH_C_STRING("");
 }
 
 PMATH_PRIVATE pmath_t builtin_assign_environment(pmath_expr_t expr){

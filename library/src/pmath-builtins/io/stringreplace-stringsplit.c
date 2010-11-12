@@ -41,47 +41,65 @@ static pmath_t stringreplace(
     
     more = TRUE;
     count = pmath_expr_length(rhs_list);
-    while(more){
+    while(more && max_matches > 0){
+      pmath_expr_t first_rhs = PMATH_UNDEFINED;
+      int next_match_pos = -1;
+      size_t next_match_rule = 0;
+      
       more = FALSE;
-      for(i = 0;i < count && max_matches > 0;++i){
-        pmath_t rhs = pmath_expr_get_item(rhs_list, i + 1);
+      for(i = count;i > 0;--i){
+        pmath_t rhs = pmath_expr_get_item(rhs_list, i);
         
         if(_pmath_regex_match(
-            regex_list[i], 
+            regex_list[i-1], 
             subject, 
             length, 
             offset, 
             PCRE_NO_UTF8_CHECK, 
-            &capture_list[i], 
+            &capture_list[i-1], 
             &rhs)
         ){
-          more = TRUE;
-          
-          if(capture_list[i].ovector[0] > last
-          || (options & SR_EMIT_EMPTY_BOUNDS)
-          || (last > 0 && (options & SR_EMIT_EMPTY))){
-            pmath_emit(
-              pmath_string_from_utf8(
-                subject + last,
-                capture_list[i].ovector[0] - last),
-              NULL);
+          if(next_match_rule == 0 
+          || capture_list[i-1].ovector[0] <= next_match_pos){
+            next_match_rule = i-1;
+            next_match_pos = capture_list[i-1].ovector[0];
+            pmath_unref(first_rhs);
+            first_rhs = rhs;
+            continue;
           }
-          
-          if(rhs != PMATH_UNDEFINED)
-            pmath_emit(rhs, NULL);
-          rhs = pmath_expr_get_item(rhs_list, i + 1);
-          
-          --max_matches;
-          
-          last = capture_list[i].ovector[1];
-          if(i == count - 1 && capture_list[i].ovector[0] == last)
-            offset = last + 1;
-          else
-            offset = last;
         }
       
         pmath_unref(rhs);
       }
+       
+      if(next_match_pos >= 0){
+        more = TRUE;
+        
+        if(capture_list[next_match_rule].ovector[0] > last
+        || (options & SR_EMIT_EMPTY_BOUNDS)
+        || (last > 0 && (options & SR_EMIT_EMPTY))){
+          pmath_emit(
+            pmath_string_from_utf8(
+              subject + last,
+              capture_list[next_match_rule].ovector[0] - last),
+            NULL);
+        }
+        
+        if(first_rhs != PMATH_UNDEFINED)
+          pmath_emit(first_rhs, NULL);
+        
+        first_rhs = NULL;
+        --max_matches;
+        
+        last = capture_list[next_match_rule].ovector[1];
+        if(next_match_rule == count - 1 
+        && capture_list[next_match_rule].ovector[0] == last)
+          offset = last + 1;
+        else
+          offset = last;
+      }
+      
+      pmath_unref(first_rhs);
     }
     
     if(last < length || (options & SR_EMIT_EMPTY_BOUNDS)){
