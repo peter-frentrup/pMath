@@ -128,12 +128,13 @@ static int pmath_fuzzy_compare(pmath_t a, pmath_t b){
 
 static pmath_t ordered(
   pmath_expr_t expr,      // will be freed
-  int                directions // DIRECTION_XXX bitset
+  int          directions // DIRECTION_XXX bitset
 ){
   size_t len = pmath_expr_length(expr);
   
   if(len > 1){
     pmath_t prev;
+    pmath_bool_t prev_was_true = TRUE;
     pmath_bool_t have_marker_after_start = FALSE;
     size_t start, i;
     
@@ -142,7 +143,10 @@ static pmath_t ordered(
     for(i = 2;i <= len;i++){
       pmath_t next = pmath_expr_get_item(expr, i);
       
-      do{
+      do{ /* ... while(0) */
+        pmath_bool_t old_prev_was_true = prev_was_true;
+        prev_was_true = TRUE;
+        
         if(pmath_instance_of(prev, PMATH_TYPE_MACHINE_FLOAT)
         && _pmath_is_numeric(next)){
           pmath_t n = pmath_approximate(pmath_ref(next), -HUGE_VAL, -HUGE_VAL);
@@ -168,7 +172,7 @@ static pmath_t ordered(
           if(start == i-1){
             start++;
           }
-          else{
+          else if(old_prev_was_true){
             have_marker_after_start = TRUE;
             expr = pmath_expr_set_item(expr, i-1, PMATH_UNDEFINED);
           }
@@ -202,7 +206,7 @@ static pmath_t ordered(
           if(start == i-1){
             start++;
           }
-          else{
+          else if(old_prev_was_true){
             have_marker_after_start = TRUE;
             expr = pmath_expr_set_item(expr, i-1, PMATH_UNDEFINED);
           }
@@ -227,7 +231,7 @@ static pmath_t ordered(
           if(start == i-1){
             start++;
           }
-          else{
+          else if(old_prev_was_true){
             have_marker_after_start = TRUE;
             expr = pmath_expr_set_item(expr, i-1, PMATH_UNDEFINED);
           }
@@ -263,7 +267,7 @@ static pmath_t ordered(
 
           if(start == i-1)
             start++;
-          else{
+          else if(old_prev_was_true){
             have_marker_after_start = TRUE;
             expr = pmath_expr_set_item(expr, i-1, PMATH_UNDEFINED);
           }
@@ -294,7 +298,7 @@ static pmath_t ordered(
               }
               else if(start == i-1)
                 start++;
-              else{
+              else if(old_prev_was_true){
                 have_marker_after_start = TRUE;
                 expr = pmath_expr_set_item(expr, i-1, PMATH_UNDEFINED);
               }
@@ -320,7 +324,7 @@ static pmath_t ordered(
               }
               else if(start == i-1)
                 start++;
-              else{
+              else if(old_prev_was_true){
                 have_marker_after_start = TRUE;
                 expr = pmath_expr_set_item(expr, i-1, PMATH_UNDEFINED);
               }
@@ -346,7 +350,7 @@ static pmath_t ordered(
               }
               else if(start == i-1)
                 start++;
-              else{
+              else if(old_prev_was_true){
                 have_marker_after_start = TRUE;
                 expr = pmath_expr_set_item(expr, i-1, PMATH_UNDEFINED);
               }
@@ -372,7 +376,7 @@ static pmath_t ordered(
               }
               else if(start == i-1)
                 start++;
-              else{
+              else if(old_prev_was_true){
                 have_marker_after_start = TRUE;
                 expr = pmath_expr_set_item(expr, i-1, PMATH_UNDEFINED);
               }
@@ -516,13 +520,15 @@ static pmath_t ordered(
           if(start == i-1){
             start++;
           }
-          else{
+          else if(old_prev_was_true){
             have_marker_after_start = TRUE;
             expr = pmath_expr_set_item(expr, i-1, PMATH_UNDEFINED);
           }
           
           continue;
         }
+          
+        prev_was_true = FALSE;
         
       }while(0);
       
@@ -534,6 +540,11 @@ static pmath_t ordered(
     if(start >= len){
       pmath_unref(expr);
       return pmath_ref(PMATH_SYMBOL_TRUE);
+    }
+    
+    if(prev_was_true){
+      have_marker_after_start = TRUE;
+      expr = pmath_expr_set_item(expr, len, PMATH_UNDEFINED);
     }
     
     {
@@ -626,9 +637,44 @@ static int relation_direction(pmath_t rel){
   return 0;
 }
 
+static pmath_t combine_relations(pmath_t rel1, pmath_t rel2){
+  if(rel1 == PMATH_SYMBOL_EQUAL)
+    return rel2;
+  
+  if(rel2 == PMATH_SYMBOL_EQUAL)
+    return rel1;
+  
+  if(rel1 == PMATH_SYMBOL_UNEQUAL || rel2 == PMATH_SYMBOL_UNEQUAL)
+    return NULL;
+  
+  if(rel1 == PMATH_SYMBOL_LESS){
+    if(rel2 == PMATH_SYMBOL_LESS || rel2 == PMATH_SYMBOL_LESSEQUAL)
+      return rel1;
+  }
+  
+  if(rel1 == PMATH_SYMBOL_LESSEQUAL){
+    if(rel2 == PMATH_SYMBOL_LESS || rel2 == PMATH_SYMBOL_LESSEQUAL)
+      return rel2;
+  }
+  
+  if(rel1 == PMATH_SYMBOL_GREATER){
+    if(rel2 == PMATH_SYMBOL_GREATER || rel2 == PMATH_SYMBOL_GREATEREQUAL)
+      return rel1;
+  }
+  
+  if(rel1 == PMATH_SYMBOL_GREATEREQUAL){
+    if(rel2 == PMATH_SYMBOL_GREATER || rel2 == PMATH_SYMBOL_GREATEREQUAL)
+      return rel2;
+  }
+  
+  return NULL;
+}
+
 PMATH_PRIVATE pmath_t builtin_inequation(pmath_expr_t expr){
+  pmath_bool_t prev_was_true = TRUE;
   pmath_bool_t have_marker = FALSE;
   pmath_t prev;
+  pmath_t prev_relation = pmath_ref(PMATH_SYMBOL_EQUAL);
   int direction;
   size_t i, len;
   
@@ -670,15 +716,31 @@ PMATH_PRIVATE pmath_t builtin_inequation(pmath_expr_t expr){
       pmath_unref(expr);
       return pmath_ref(PMATH_SYMBOL_FALSE);
     }
+    
     if(test == PMATH_SYMBOL_TRUE){
-      have_marker = TRUE;
-      expr = pmath_expr_set_item(expr, i-1, PMATH_UNDEFINED); // prev
-      expr = pmath_expr_set_item(expr, i,   PMATH_UNDEFINED); // relation
+      if(prev_was_true){
+        pmath_t new_relation = combine_relations(prev_relation, relation);
+        
+        if(new_relation){
+          have_marker = TRUE;
+          expr = pmath_expr_set_item(expr, i-2, PMATH_UNDEFINED);
+          expr = pmath_expr_set_item(expr, i-1, PMATH_UNDEFINED);
+          expr = pmath_expr_set_item(expr, i,   pmath_ref(new_relation));
+        }
+      }
+      
+      if(i+1 == len){
+        have_marker = TRUE;
+        expr = pmath_expr_set_item(expr, i,   PMATH_UNDEFINED); // relation
+        expr = pmath_expr_set_item(expr, i+1, PMATH_UNDEFINED); // next
+      }
     }
     else{
       int new_direction = relation_direction(relation);
-      if(i == 2)
+      
+      if(i == 2){
         direction = new_direction;
+      }
       else if(direction == 0 || new_direction == 0
       || ((new_direction & DIRECTION_LESS) != 0
            && (direction & DIRECTION_GREATER) != 0)
@@ -707,8 +769,10 @@ PMATH_PRIVATE pmath_t builtin_inequation(pmath_expr_t expr){
       }
     }
     
+    prev_was_true = (test == PMATH_SYMBOL_TRUE);
     pmath_unref(test);
-    pmath_unref(relation);
+    pmath_unref(prev_relation);
+    prev_relation = relation;
     pmath_unref(prev);
     prev = next;
   }
