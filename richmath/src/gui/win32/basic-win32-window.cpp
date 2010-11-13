@@ -925,7 +925,8 @@ void BasicWin32Window::paint_themed_caption(HDC hdc_bitmap){
       
       GetClassInfoExW(GetModuleHandle(0), str, &wndcl);
       HICON icon = wndcl.hIconSm;
-      if(!icon) icon = wndcl.hIcon;
+      if(!icon) 
+        icon = wndcl.hIcon;
       if(icon){
         DrawIconEx(hdc_bitmap, frame_x, frame_y, icon,
           GetSystemMetrics(SM_CXSMICON),

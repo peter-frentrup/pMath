@@ -129,7 +129,11 @@ void BasicWin32Widget::init_window_class(){
   wincl.cbSize = sizeof(wincl);
   wincl.hInstance = GetModuleHandle(0);
   wincl.hIcon     = LoadIcon(NULL, IDI_APPLICATION);
-  wincl.hIconSm   = LoadIcon(NULL, IDI_APPLICATION);
+  wincl.hIconSm   = (HICON)LoadImage(NULL, IDI_APPLICATION, 
+                      IMAGE_ICON, 
+                      GetSystemMetrics(SM_CXSMICON), 
+                      GetSystemMetrics(SM_CYSMICON),
+                      LR_DEFAULTCOLOR);
   wincl.lpszClassName = win32_widget_class_name;
   wincl.lpfnWndProc = window_proc;
   wincl.style = 0;

@@ -885,7 +885,7 @@ Box *TextSequence::mouse_selection(
   pango_layout_iter_free(iter);
   
   int i, tr;
-  *was_inside_start = pango_layout_line_x_to_index(
+  pango_layout_line_x_to_index(
     line, 
     pango_units_from_double(x - line_x),
     &i, &tr);
@@ -906,9 +906,11 @@ Box *TextSequence::mouse_selection(
     return boxes[b]->mouse_selection(x, y, start, end, was_inside_start);
   }
   
+  int x_pos;
+  pango_layout_line_index_to_x(line, i, tr > 0, &x_pos);
+  *was_inside_start = (x >= 0 && (tr == 0 || pango_units_to_double(x_pos) < x));
   char *s     = text.buffer() + i;
   char *s_end = text.buffer() + text.length();
-  *was_inside_start = (tr == 0);
   
   while(tr-- > 0)
     s = g_utf8_find_next_char(s, s_end);

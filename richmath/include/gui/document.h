@@ -48,7 +48,8 @@ namespace richmath{
       virtual void on_key_down(SpecialKeyEvent &event);
       virtual void on_key_up(SpecialKeyEvent &event);
       virtual void on_key_press(uint32_t unichar);
-       
+      
+      bool is_inside_selection(Box *subbox, int subindex, bool cursor_after_sub);
       void select(Box *box, int start, int end);
       void select_to(Box *box, int start, int end);
       void select_range(

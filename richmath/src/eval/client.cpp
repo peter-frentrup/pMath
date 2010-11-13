@@ -95,7 +95,10 @@ class ClientInfoWindow: public BasicWin32Widget{
     ClientInfoWindow()
     : BasicWin32Widget(0, 0, 0, 0, 0, 0, &hwnd_message)
     {
-      init(); // total exception!!! normally nor callable in constructor
+      // total exception!!! normally not callable in constructor, but we do not
+      // subclass this class, so this will still happen after the object is 
+      // fully initialized
+      init(); 
     }
     
   protected:

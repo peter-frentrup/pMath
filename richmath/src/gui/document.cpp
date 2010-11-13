@@ -587,23 +587,31 @@ void Document::mouse_move(MouseEvent &event){
       invalidate();
     }
     
-    Box *new_over = receiver ? receiver->mouse_sensitive() : 0;
-    Box *old_over = Box::find(context.mouseover_box_id);
-    if(new_over != old_over){
-      if(old_over)
-        old_over->on_mouse_exit();
-      
-      if(new_over)
-        new_over->on_mouse_enter();
+    if(!event.left
+    && selection_box()
+    && selection_box()->get_style(Editable)
+    && is_inside_selection(receiver, start, was_inside_start)){
+      native()->set_cursor(DefaultCursor);
     }
-    
-    if(new_over){
-      context.mouseover_box_id = new_over->id();
+    else{
+      Box *new_over = receiver ? receiver->mouse_sensitive() : 0;
+      Box *old_over = Box::find(context.mouseover_box_id);
+      if(new_over != old_over){
+        if(old_over)
+          old_over->on_mouse_exit();
+        
+        if(new_over)
+          new_over->on_mouse_enter();
+      }
       
-      new_over->on_mouse_move(event);
+      if(new_over){
+        context.mouseover_box_id = new_over->id();
+        
+        new_over->on_mouse_move(event);
+      }
+      else
+        context.mouseover_box_id = 0;
     }
-    else
-      context.mouseover_box_id = 0;
   }
 }
 
@@ -777,7 +785,7 @@ void Document::on_mouse_move(MouseEvent &event){
       else
         native()->set_cursor(SectionCursor);
     }
-    else 
+    else
       native()->set_cursor(NativeWidget::text_cursor(box, start));
   }
   else if(dynamic_cast<Section*>(box) && selectable()){
@@ -1230,6 +1238,27 @@ void Document::on_key_press(uint32_t unichar){
 }
 
 //} ... event handlers
+
+bool Document::is_inside_selection(Box *subbox, int subindex, bool cursor_after_sub){
+  if(selection_box()
+  && selection_length() > 0){
+    bool in_start = cursor_after_sub;
+    int i = subindex;
+    Box *b = subbox;
+    while(b && b != selection_box()){
+      in_start = true;
+      i = b->index();
+      b = b->parent();
+    }
+    
+    if(b == selection_box() 
+    && (selection_start() < i || (in_start  && selection_start() == i))
+    && (i < selection_end()   || (!in_start && selection_end()   == i)))
+      return true;
+  }
+  
+  return false;
+}
 
 void Document::raw_select(Box *box, int start, int end){
   if(end < start){

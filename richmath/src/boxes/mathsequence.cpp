@@ -884,7 +884,7 @@ Box *MathSequence::mouse_selection(
         prev = glyphs[*start - 1].right;
         
       if(is_placeholder(*start)){
-        *was_inside_start = false;
+        *was_inside_start = true;
         *end = *start + 1;
         return this;
       }
@@ -940,9 +940,10 @@ Box *MathSequence::mouse_selection(
   }
   
   *end = *start;
-  if(is_placeholder(*start - 1))
+  if(is_placeholder(*start - 1)){
     --*start;
-  *was_inside_start = false;
+    *was_inside_start = false;
+  }
   return this;
 }
 
