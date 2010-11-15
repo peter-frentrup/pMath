@@ -18,6 +18,7 @@
 
 
 static pmath_messages_t jvm_main_mq = NULL;
+pmath_t pjvm_auto_detach_key; // initialized/freed in main.c
 
 static PMATH_DECLARE_ATOMIC(vm_lock) = 0;
 static pmath_t vm = NULL;
@@ -231,8 +232,11 @@ JavaVM *pjvm_get_java(pmath_t pjvm){
         if(env){
           pmath_t auto_detach = pmath_custom_new(NULL, auto_detach_proc);
           
-          if(auto_detach)
-            pmath_unref(pmath_thread_local_save(auto_detach, auto_detach));
+          pmath_debug_print("[pmath-java: need new env]");
+          
+          if(auto_detach){
+            pmath_unref(pmath_thread_local_save(pjvm_auto_detach_key, auto_detach));
+          }
           
           // auto_detach will be freed in the context of this thread when it 
           // terminates.
@@ -389,6 +393,8 @@ pmath_bool_t pjvm_init(void){
 }
 
 void pjvm_done(void){
+  pmath_unref(pmath_thread_local_save(pjvm_auto_detach_key, PMATH_UNDEFINED));
+  
   pjvm_register_external(NULL);
   pmath_unref(jvm_main_mq); jvm_main_mq = NULL;
   

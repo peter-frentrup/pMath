@@ -499,7 +499,7 @@ static THREAD_PROC(daemon_proc, arg){
 }
 
 PMATH_PRIVATE void _pmath_threadpool_kill_daemons(void){
-  while(all_daemons){
+  while(_pmath_threadpool_deamon_count > 0){
     _pmath_msq_queue_awake_all();
     pmath_atomic_lock(&daemon_spin);
     {
@@ -523,6 +523,8 @@ PMATH_PRIVATE void _pmath_threadpool_kill_daemons(void){
     }
     pmath_atomic_unlock(&daemon_spin);
   }
+  
+  pmath_debug_print("[all deamons dead]");
   
 
 

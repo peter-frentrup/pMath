@@ -715,7 +715,8 @@ static pmath_t type2pmath(pmath_string_t name, int start){ // name will be freed
       jobject             jobj;
       int                 modifiers;
       pmath_string_t      name;
-      pmath_string_t      type;
+      pmath_string_t      type_name;
+      pmath_t             type;
       
       field = (*env)->GetObjectArrayElement(env, field_array, ji);
       if(!field)
@@ -739,12 +740,14 @@ static pmath_t type2pmath(pmath_string_t name, int start){ // name will be freed
         if(!jobj)
           goto FAIL_JTYPE;
           
-        type = pj_class_get_name(env, (jclass)jobj);
+        type_name = pj_class_get_name(env, (jclass)jobj);
         (*env)->DeleteLocalRef(env, jobj);
-        if(pmath_string_length(type) == 0){
-          pmath_unref(type);
+        if(pmath_string_length(type_name) == 0){
+          pmath_unref(type_name);
           goto FAIL_TYPE;
         }
+        
+        type = type2pmath(pmath_ref(type_name), 0);
       }
       
       { // field name
@@ -770,7 +773,7 @@ static pmath_t type2pmath(pmath_string_t name, int start){ // name will be freed
         cache_entry->mid                    = 0;
         cache_entry->fid                    = fid;
         cache_entry->modifiers              = modifiers;
-        cache_entry->return_type            = (char)pmath_string_buffer(type)[0];
+        cache_entry->return_type            = (char)pmath_string_buffer(type_name)[0];
         
         if(!pmath_aborting()){
           pmath_atomic_lock(&cms2id_lock);
@@ -786,7 +789,7 @@ static pmath_t type2pmath(pmath_string_t name, int start){ // name will be freed
       pmath_emit(name, NULL);
       
       FAIL_NAME:
-      FAIL_JNAME:     pmath_unref(type);
+      FAIL_JNAME:     pmath_unref(type); pmath_unref(type_name);
       FAIL_TYPE:
       FAIL_JTYPE:
       FAIL_FID:

@@ -312,8 +312,18 @@ PMATH_PRIVATE pmath_t builtin_assign(pmath_expr_t expr){
   }
   
   lhs = pmath_expr_get_item(expr, 1);
-  rhs = pmath_expr_get_item(expr, 2);
+  if(pmath_instance_of(lhs, PMATH_TYPE_EXPRESSION)){
+    pmath_t lhs2 = pmath_evaluate_expression(pmath_ref(lhs), FALSE);
+    
+    if(!pmath_equals(lhs2, lhs)){
+      pmath_unref(lhs);
+      return pmath_expr_set_item(expr, 1, lhs2);
+    }
+    
+    pmath_unref(lhs2);
+  }
   
+  rhs = pmath_expr_get_item(expr, 2);
   head = pmath_expr_get_item(expr, 0);
   pmath_unref(head);
   pmath_unref(expr);
@@ -338,6 +348,16 @@ PMATH_PRIVATE pmath_t builtin_unassign(pmath_expr_t expr){
   }
 
   lhs = pmath_expr_get_item(expr, 1);
+  if(pmath_instance_of(lhs, PMATH_TYPE_EXPRESSION)){
+    pmath_t lhs2 = pmath_evaluate_expression(pmath_ref(lhs), FALSE);
+    
+    if(!pmath_equals(lhs2, lhs)){
+      pmath_unref(lhs);
+      return pmath_expr_set_item(expr, 1, lhs2);
+    }
+    
+    pmath_unref(lhs2);
+  }
   
   head = pmath_expr_get_item(expr, 0);
   pmath_unref(head);
@@ -366,6 +386,18 @@ PMATH_PRIVATE pmath_t builtin_tagassign(pmath_expr_t expr){
   }
   
   lhs = pmath_expr_get_item(expr, 2);
+  if(pmath_instance_of(lhs, PMATH_TYPE_EXPRESSION)){
+    pmath_t lhs2 = pmath_evaluate_expression(pmath_ref(lhs), FALSE);
+    
+    if(!pmath_equals(lhs2, lhs)){
+      pmath_unref(tag);
+      pmath_unref(lhs);
+      return pmath_expr_set_item(expr, 2, lhs2);
+    }
+    
+    pmath_unref(lhs2);
+  }
+  
   rhs = pmath_expr_get_item(expr, 3);
   
   head = pmath_expr_get_item(expr, 0);
@@ -404,6 +436,17 @@ PMATH_PRIVATE pmath_t builtin_tagunassign(pmath_expr_t expr){
   }
   
   lhs = pmath_expr_get_item(expr, 2);
+  if(pmath_instance_of(lhs, PMATH_TYPE_EXPRESSION)){
+    pmath_t lhs2 = pmath_evaluate_expression(pmath_ref(lhs), FALSE);
+    
+    if(!pmath_equals(lhs2, lhs)){
+      pmath_unref(tag);
+      pmath_unref(lhs);
+      return pmath_expr_set_item(expr, 2, lhs2);
+    }
+    
+    pmath_unref(lhs2);
+  }
   
   head = pmath_expr_get_item(expr, 0);
   pmath_unref(head);

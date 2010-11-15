@@ -342,8 +342,8 @@ PMATH_API void *pmath_ht_insert(pmath_hashtable_t ht, void *entry){
   static void object_entry_destructor(
     struct _pmath_object_entry_t *entry
   ){
-    pmath_unref(entry->key);
     pmath_unref(entry->value);
+    pmath_unref(entry->key);
     pmath_mem_free(entry);
   }
 

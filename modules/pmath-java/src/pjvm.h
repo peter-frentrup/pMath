@@ -22,6 +22,8 @@ extern pmath_t pj_builtin_startvm(pmath_expr_t expr);
 extern pmath_t pj_builtin_killvm(pmath_expr_t expr);
 
 
+extern pmath_t pjvm_auto_detach_key;
+
 extern pmath_bool_t pjvm_init(void);
 extern void         pjvm_done(void);
 
