@@ -265,6 +265,26 @@ pmath_t pj_object_from_java(JNIEnv *env, jobject jobj){
               "(oo)", 
               pmath_ref(symbol),
               class_name);
+              
+            PMATH_RUN_ARGS(
+                "`1` @ (~f:String)::= JavaField(`1`, f);"
+                "`1` @ (~f:Symbol)::= JavaField(`1`, SymbolName(f));"
+                
+                "`1` /: (`1` @ (~f:String):= ~rhs)::= JavaField(`1`, f):= rhs;"
+                "`1` /: (`1` @ (~f:Symbol):= ~rhs)::= With({s:= SymbolName(f)}, JavaField(`1`, s):= rhs);"
+                
+                "`1` @ (~m:String)(~~~args)::= JavaCall(`1`, m, args);"
+                "`1` @ (~m:Symbol)(~~~args)::= JavaCall(`1`, SymbolName(m), args);"
+                "`1` @ (e: ~(~~~)) @ (~m:String)(~~~args)::= JavaCall(`1` @ e, m, args);"
+                "`1` @ (e: ~(~~~)) @ (~m:Symbol)(~~~args)::= JavaCall(`1` @ e, SymbolName(m), args);", 
+              "(o)", 
+              pmath_ref(symbol));
+            
+            pmath_symbol_set_attributes(symbol, 
+              pmath_symbol_get_attributes(symbol) 
+              | PMATH_SYMBOL_ATTRIBUTE_HOLDALL
+              | PMATH_SYMBOL_ATTRIBUTE_PROTECTED);
+            
           }
         }
       }

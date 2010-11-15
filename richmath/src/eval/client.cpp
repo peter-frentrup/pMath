@@ -328,6 +328,10 @@ void Client::doevents(){
   state = Running;
   
   while(PeekMessageW(&msg, NULL, 0, 0, PM_REMOVE)){
+    if(msg.message == WM_QUIT){
+      PostQuitMessage(0);
+      break;
+    }
     if(!TranslateAcceleratorW(GetFocus(), keyboard_accelerators, &msg)){
       TranslateMessage(&msg); 
       DispatchMessageW(&msg); 

@@ -396,6 +396,7 @@ struct daemon_t{
   pmath_messages_t          *message_queue_ptr;
   volatile pmath_bool_t     *init_ok;
   sem_t                     *init_sem;
+  pmath_bool_t               alive;
   
   struct daemon_t * volatile  prev;
   struct daemon_t * volatile  next;
@@ -412,6 +413,8 @@ static THREAD_PROC(daemon_proc, arg){
   struct daemon_t *me = (struct daemon_t*)arg;
   thread_handle_t handle = 0;
   
+  pmath_debug_print("[new deamon %p]", me);
+  
   *me->init_ok = FALSE;
   
   if(!pmath_init()){
@@ -421,13 +424,6 @@ static THREAD_PROC(daemon_proc, arg){
   
   me->thread = pmath_thread_get_current();
   me->thread->is_daemon = TRUE;
-  *me->message_queue_ptr = pmath_ref(me->thread->message_queue);
-  me->message_queue_ptr = NULL;
-  *me->init_ok = TRUE;
-  pmath_atomic_barrier();
-  sem_post(me->init_sem);
-  
-  me->init_sem = NULL;
   
   (void)pmath_atomic_fetch_add(&_pmath_threadpool_deamon_count, 1);
   
@@ -447,6 +443,13 @@ static THREAD_PROC(daemon_proc, arg){
   }
   pmath_atomic_unlock(&daemon_spin);
   
+  *me->message_queue_ptr = pmath_ref(me->thread->message_queue);
+  me->message_queue_ptr = NULL;
+  *me->init_ok = TRUE;
+  pmath_atomic_barrier();
+  sem_post(me->init_sem);
+  me->init_sem = NULL;
+  
   me->callback(me->cb_data);
   
   pmath_atomic_lock(&daemon_spin);
@@ -456,22 +459,23 @@ static THREAD_PROC(daemon_proc, arg){
     handle = me->handle;
     me->handle = 0;
     
-    if(me->next != me || (me != all_daemons && all_daemons != NULL)){
+    pmath_debug_print("[almost free deamon %p, next = %p, prev = %p, all_daemons = %p]", me, me->next, me->prev, all_daemons);
+    
+    if(me->next != me){
       me->next->prev = me->prev;
       me->prev->next = me->next;
-      if(me == all_daemons){
-        if(me->next == me)
-          all_daemons = NULL;
-        else
-          all_daemons = me->next;
-      }
-      me->prev = me;
-      me->next = me;
-      
-      me->thread = NULL;
     }
-//    else
-//      me = NULL;
+    
+    if(me == all_daemons){
+      if(me->next == me)
+        all_daemons = NULL;
+      else
+        all_daemons = me->next;
+    }
+    me->prev = me;
+    me->next = me;
+    
+    me->thread = NULL;
   }
   pmath_atomic_unlock(&daemon_spin);
   
@@ -485,7 +489,7 @@ static THREAD_PROC(daemon_proc, arg){
   else
     pmath_debug_print("[no deamon handle for %p]", me);
   
-  pmath_debug_print("[free deamon %p]", me);
+  pmath_debug_print("[free deamon %p, all_daemons = %p]", me, all_daemons);
   pmath_mem_free(me);
   
   (void)pmath_atomic_fetch_add(&_pmath_threadpool_deamon_count, -1);
@@ -495,82 +499,109 @@ static THREAD_PROC(daemon_proc, arg){
 }
 
 PMATH_PRIVATE void _pmath_threadpool_kill_daemons(void){
-  struct daemon_t *all;
-  struct daemon_t *daemon;
-  
-  pmath_atomic_lock(&daemon_spin);
-  {
-    all = all_daemons;
-    all_daemons = NULL;
-  }
-  pmath_atomic_unlock(&daemon_spin);
-  
-  while(all){
-    daemon = all;
-    do{
-      struct daemon_t *next;
-      
-      pmath_atomic_lock(&daemon_spin);
-      {
-        next = daemon->next;
-        
-        // TODO: is this safe???
-        //       maybe we should send an Abort() command?
-        //       maybe it is not neccessary, because pmath_aborting() might check
-        //       for pmath_done() calls (i don't remember^^)
-        //_pmath_thread_throw(daemon->thread, PMATH_ABORT_EXCEPTION);
-        
-        if(daemon->kill)
-          daemon->kill(daemon->cb_data);
-      }
-      pmath_atomic_unlock(&daemon_spin);
-      
-      daemon = next;
-    }while(daemon != all);
-    
-    while(all){
-      thread_handle_t daemon_handle = 0;
-      daemon = NULL;
-      
-      pmath_atomic_lock(&daemon_spin);
-      {
-        daemon = all;
-        if(daemon){
-          if(daemon->next == daemon)
-            all = NULL;
-          else
-            all = daemon->next;
-          
-          daemon_handle = daemon->handle;
-          daemon->handle = 0;
-        }
-      }
-      pmath_atomic_unlock(&daemon_spin);
-      
-      if(daemon){
-        pmath_debug_print("[kill deamon %p]", daemon);
-        
-        if(daemon_handle){
-          #ifdef PMATH_OS_WIN32
-            WaitForSingleObject((HANDLE)daemon_handle, INFINITE);
-            CloseHandle((HANDLE)daemon_handle);
-          #else
-            pthread_join(daemon_handle, 0);
-            pthread_detach(daemon_handle);
-          #endif
-        }
-        else
-          pmath_debug_print("[no deamon handle]");
-      }
-    }
-    
+  while(all_daemons){
+    _pmath_msq_queue_awake_all();
     pmath_atomic_lock(&daemon_spin);
     {
+      struct daemon_t *all;
+      struct daemon_t *daemon;
+      
       all = all_daemons;
-      all_daemons = NULL;
+      
+      if(all){
+        daemon = all;
+        do{
+          if(daemon->alive && daemon->kill){
+            daemon->alive = FALSE;
+            pmath_debug_print("[killing deamon %p]", daemon);
+            daemon->kill(daemon->cb_data);
+          }
+          
+          daemon = daemon->next;
+        }while(daemon != all);
+      }
     }
     pmath_atomic_unlock(&daemon_spin);
   }
+  
+
+
+//  struct daemon_t *all;
+//  struct daemon_t *daemon;
+//  
+//  pmath_atomic_lock(&daemon_spin);
+//  {
+//    all = all_daemons;
+//    all_daemons = NULL;
+//  }
+//  pmath_atomic_unlock(&daemon_spin);
+//  
+//  while(all){
+//    daemon = all;
+//    do{
+//      struct daemon_t *next;
+//      
+//      pmath_atomic_lock(&daemon_spin);
+//      {
+//        next = daemon->next;
+//        
+//        // TODO: is this safe???
+//        //       maybe we should send an Abort() command?
+//        //       maybe it is not neccessary, because pmath_aborting() might check
+//        //       for pmath_done() calls (i don't remember^^)
+//        //_pmath_thread_throw(daemon->thread, PMATH_ABORT_EXCEPTION);
+//        
+//        if(daemon->kill)
+//          daemon->kill(daemon->cb_data);
+//      }
+//      pmath_atomic_unlock(&daemon_spin);
+//      
+//      daemon = next;
+//    }while(daemon != all);
+//    
+//    while(all){
+//      thread_handle_t daemon_handle = 0;
+//      daemon = NULL;
+//      
+//      pmath_atomic_lock(&daemon_spin);
+//      {
+//        daemon = all;
+//        if(daemon){
+//          if(daemon->next == daemon)
+//            all = NULL;
+//          else
+//            all = daemon->next;
+//          
+//          daemon_handle = daemon->handle;
+//          daemon->handle = 0;
+//        }
+//      }
+//      pmath_atomic_unlock(&daemon_spin);
+//      
+//      if(daemon){
+//        pmath_debug_print("[kill deamon %p]", daemon);
+//        
+//        if(daemon_handle){
+//          #ifdef PMATH_OS_WIN32
+//            WaitForSingleObject((HANDLE)daemon_handle, INFINITE);
+//            CloseHandle((HANDLE)daemon_handle);
+//          #else
+//            pthread_join(daemon_handle, 0);
+//            pthread_detach(daemon_handle);
+//          #endif
+//        }
+//        else
+//          pmath_debug_print("[no deamon handle]");
+//      }
+//    }
+//    
+//    pmath_atomic_lock(&daemon_spin);
+//    {
+//      all = all_daemons;
+//      all_daemons = NULL;
+//    }
+//    pmath_atomic_unlock(&daemon_spin);
+//  }
 }
 
 // CAUTION: kill(data) will be called during daemon_spin is held
@@ -600,6 +631,7 @@ pmath_messages_t pmath_thread_fork_daemon(
   daemon->message_queue_ptr = &message_queue;
   daemon->init_ok           = &init_ok;
   daemon->init_sem          = &sem;
+  daemon->alive             = TRUE;
   daemon->prev              = daemon;
   daemon->next              = daemon;
   

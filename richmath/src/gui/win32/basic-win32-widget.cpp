@@ -11,12 +11,12 @@ using namespace richmath;
 static ATOM win32_widget_class = 0;
 static const WCHAR win32_widget_class_name[] = L"RichmathWin32";
 
+static int global_window_count = 0;
+
 static void add_remove_window(int count){
-  static int window_count = 0;
+  global_window_count+= count;
   
-  window_count+= count;
-  
-//  if(window_count <= 0)
+//  if(global_window_count <= 0)
 //    PostQuitMessage(0);
 }
 
@@ -86,6 +86,13 @@ BasicWin32Widget *BasicWin32Widget::parent(){
 }
 
 BasicWin32Widget *BasicWin32Widget::from_hwnd(HWND hwnd){
+  DWORD pid = 0;
+  
+  if(!hwnd
+  || GetCurrentThreadId()  != GetWindowThreadProcessId(hwnd, &pid)
+  || GetCurrentProcessId() != pid)
+    return 0;
+  
   WINDOWINFO info;
   memset(&info, 0, sizeof(info));
   info.cbSize = sizeof(info);
