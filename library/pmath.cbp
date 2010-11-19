@@ -119,6 +119,7 @@
 					<Add library="iconv.lib" />
 					<Add library="pcre.lib" />
 					<Add library="shell32.lib" />
+					<Add library="D:\Programme\CodeBlocks\MinGW\lib\gcc\mingw32\4.4.1\libgcc.a" />
 				</Linker>
 				<ExtraCommands>
 					<Add before="pre-build-windows.bat" />

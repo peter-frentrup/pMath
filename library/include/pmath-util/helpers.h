@@ -78,8 +78,8 @@ pmath_t pmath_build_value_v(const char *format, va_list args);
    - <tt>K</tt> [unsigned long long int]
    - <tt>N</tt> [size_t]
    
-   - <tt>f</tt> [double] NaN's and Ininity are converted to Indeterminate
-                         and +/-Infinity
+   - <tt>f</tt> [double] NaN's and Ininity are converted to Undefined and 
+                         +/-Infinity
    
    - <tt>o</tt> [pmath_t] A pMath Object, the reference is stolen
    

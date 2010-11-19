@@ -3085,7 +3085,12 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj){
   }
   
   pmath_unref(obj);
-  return PMATH_C_STRING("<<\? unprintable \?>>");
+  if(thread->boxform < BOXFORM_OUTPUT){
+    return PMATH_C_STRING("\"<<\? unprintable \?>>\"");
+  }
+  else{
+    return PMATH_C_STRING("\"\xAB\? unprintable \?\xBB\"");
+  }
 }
 
 //} ... boxforms for more complex functions

@@ -774,7 +774,7 @@ pmath_t _pmath_float_exceptions(
     result = pmath_ref(_pmath_object_overflow);
   }
   else if(mpfr_nan_p(((struct _pmath_mp_float_t*)x)->value)){
-    result = pmath_ref(PMATH_SYMBOL_INDETERMINATE);
+    result = pmath_ref(PMATH_SYMBOL_UNDEFINED);
     pmath_message(NULL, "indet", 1, pmath_ref(result));
   }
   else if(mpfr_inf_p(((struct _pmath_mp_float_t*)x)->value)){

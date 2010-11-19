@@ -484,7 +484,7 @@ static pmath_bool_t binary_write(
                   im_dir = 1;
               }
             }
-            else if(value == PMATH_SYMBOL_INDETERMINATE)
+            else if(value == PMATH_SYMBOL_UNDEFINED)
               re_dir = im_dir = 0;
             
             pmath_unref(re);
@@ -550,8 +550,7 @@ static pmath_bool_t binary_write(
                 }
               }
               
-              if(re_dir == 0){ // Indeterminate = nan => mantissa != 0
-//                data[size-1] = 1;
+              if(re_dir == 0){ // Undefined = nan => mantissa != 0, lets put PMATH there :)
                 switch(size){
                   case 2: {
                     data[1] = 'P';

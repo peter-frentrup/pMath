@@ -576,7 +576,7 @@ static void plus_2_arg(pmath_t *a, pmath_t *b){
             pmath_ref(PMATH_SYMBOL_PLUS), 2,
             *a,
             *b));
-        *a = pmath_ref(PMATH_SYMBOL_INDETERMINATE);
+        *a = pmath_ref(PMATH_SYMBOL_UNDEFINED);
         *b = PMATH_UNDEFINED;
       }
       return;

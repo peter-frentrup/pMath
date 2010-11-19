@@ -156,7 +156,7 @@ PMATH_PRIVATE pmath_t builtin_arctan(pmath_expr_t expr){
       
       if(pmath_equals(infdir, PMATH_NUMBER_ZERO)){
         pmath_unref(infdir);
-        return pmath_ref(PMATH_SYMBOL_INDETERMINATE);
+        return pmath_ref(PMATH_SYMBOL_UNDEFINED);
       }
       
       return TIMES3(ONE_HALF, pmath_ref(PMATH_SYMBOL_PI), INV(infdir));

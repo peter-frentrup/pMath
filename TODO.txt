@@ -2,6 +2,8 @@
 	Button("italic",DocumentApply(SelectedDocument(),StyleBox("",FontSlant->Italic))),
 	Button("Arg Style",DocumentApply(SelectedDocument(),StyleBox("","Arg")))})
 
+- add ConditionalExpression(expr, cond) which returns Undefined if cond is False and expr if it is True.
+	
 !? make <<context` parse as Needs("context`") and do not provide special syntax for Get()	
 	
 ? implement Stack(pattern)   

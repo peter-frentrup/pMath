@@ -120,7 +120,7 @@ static pmath_t next_value(const char **format, va_list *args){
           pmath_ref(PMATH_SYMBOL_DIRECTEDINFINITY), 1,
           pmath_integer_new_si(-1));
       
-    } return pmath_ref(PMATH_SYMBOL_INDETERMINATE);
+    } return pmath_ref(PMATH_SYMBOL_UNDEFINED);
     
     case 'o': return (pmath_t)va_arg(*args, void*);
     

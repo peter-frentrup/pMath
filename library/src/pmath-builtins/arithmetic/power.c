@@ -1348,7 +1348,7 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr){
     pmath_unref(base);
     pmath_unref(exponent);
     pmath_message(NULL, "indet", 1, expr);
-    return pmath_ref(PMATH_SYMBOL_INDETERMINATE);
+    return pmath_ref(PMATH_SYMBOL_UNDEFINED);
   }
   
   if(exp_class & PMATH_CLASS_POSINF){
@@ -1375,7 +1375,7 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr){
     pmath_unref(base);
     pmath_unref(exponent);
     pmath_message(NULL, "indet", 1, expr);
-    return pmath_ref(PMATH_SYMBOL_INDETERMINATE);
+    return pmath_ref(PMATH_SYMBOL_UNDEFINED);
   }
   
   if(exp_class & PMATH_CLASS_ZERO){
@@ -1383,7 +1383,7 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr){
       pmath_unref(base);
       pmath_unref(exponent);
       pmath_message(NULL, "indet", 1, expr);
-      return pmath_ref(PMATH_SYMBOL_INDETERMINATE);
+      return pmath_ref(PMATH_SYMBOL_UNDEFINED);
     }
     
     pmath_unref(base);
@@ -1415,7 +1415,7 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr){
     pmath_unref(base);
     pmath_unref(exponent);
     pmath_message(NULL, "indet", 1, expr);
-    return pmath_ref(PMATH_SYMBOL_INDETERMINATE);
+    return pmath_ref(PMATH_SYMBOL_UNDEFINED);
   }
   
   if(base_class & (PMATH_CLASS_NEGINF | PMATH_CLASS_CINF)){
@@ -1446,7 +1446,7 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr){
     pmath_unref(base);
     pmath_unref(exponent);
     pmath_message(NULL, "indet", 1, expr);
-    return pmath_ref(PMATH_SYMBOL_INDETERMINATE);
+    return pmath_ref(PMATH_SYMBOL_UNDEFINED);
   }
   
   if(base_class & PMATH_CLASS_POSINF){
@@ -1466,7 +1466,7 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr){
     pmath_unref(base);
     pmath_unref(exponent);
     pmath_message(NULL, "indet", 1, expr);
-    return pmath_ref(PMATH_SYMBOL_INDETERMINATE);
+    return pmath_ref(PMATH_SYMBOL_UNDEFINED);
   }
   
   if(exp_class & PMATH_CLASS_NEGINF){
@@ -1494,7 +1494,7 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr){
     pmath_unref(base);
     pmath_unref(exponent);
     pmath_message(NULL, "indet", 1, expr);
-    return pmath_ref(PMATH_SYMBOL_INDETERMINATE);
+    return pmath_ref(PMATH_SYMBOL_UNDEFINED);
   }
   
   if(base_class & PMATH_CLASS_POSONE){
@@ -1520,7 +1520,7 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr){
     pmath_unref(base);
     pmath_unref(exponent);
     pmath_message(NULL, "indet", 1, expr);
-    return pmath_ref(PMATH_SYMBOL_INDETERMINATE);
+    return pmath_ref(PMATH_SYMBOL_UNDEFINED);
   }
   
   if(exp_class & PMATH_CLASS_POSONE){
@@ -1552,7 +1552,7 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr){
     
     pmath_unref(base); 
     pmath_unref(exponent); 
-    return pmath_ref(PMATH_SYMBOL_INDETERMINATE); 
+    return pmath_ref(PMATH_SYMBOL_UNDEFINED); 
   }
   
   pmath_unref(base);

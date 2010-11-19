@@ -128,7 +128,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_re_im(
   if(re) *re = NULL;
   if(im) *im = NULL;
   
-  if(z == PMATH_SYMBOL_INDETERMINATE
+  if(z == PMATH_SYMBOL_UNDEFINED
   || pmath_equals(z, _pmath_object_overflow)
   || pmath_equals(z, _pmath_object_underflow)
   || pmath_instance_of(z, PMATH_TYPE_NUMBER)){

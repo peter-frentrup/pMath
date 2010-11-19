@@ -115,7 +115,7 @@ PMATH_PRIVATE pmath_t builtin_approximate_power(           pmath_t obj, double p
 PMATH_PRIVATE pmath_t builtin_assign_approximate(      pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_assign_maxextraprecision(pmath_expr_t expr);
 
-PMATH_PRIVATE pmath_t builtin_operate_indeterminate(pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_operate_undefined(pmath_expr_t expr);
 //} ============================================================================
 //{ builtins from src/pmath-builtins/control/ ...
 PMATH_PRIVATE pmath_t builtin_isheld(          pmath_expr_t expr);
@@ -799,7 +799,6 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   VERIFY(   PMATH_SYMBOL_IGNORECASE                = NEW_SYSTEM_SYMBOL("IgnoreCase"))
   VERIFY(   PMATH_SYMBOL_IM                        = NEW_SYSTEM_SYMBOL("Im"))
   VERIFY(   PMATH_SYMBOL_INCREMENT                 = NEW_SYSTEM_SYMBOL("Increment"))
-  VERIFY(   PMATH_SYMBOL_INDETERMINATE             = NEW_SYSTEM_SYMBOL("Indeterminate"))
   VERIFY(   PMATH_SYMBOL_INEQUATION                = NEW_SYSTEM_SYMBOL("Inequation"))
   VERIFY(   PMATH_SYMBOL_INFINITY                  = NEW_SYSTEM_SYMBOL("Infinity"))
   VERIFY(   PMATH_SYMBOL_INHERITED                 = NEW_SYSTEM_SYMBOL("Inherited"))
@@ -1109,6 +1108,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   VERIFY(   PMATH_SYMBOL_TRUE                      = NEW_SYSTEM_SYMBOL("True"))
   VERIFY(   PMATH_SYMBOL_TRY                       = NEW_SYSTEM_SYMBOL("Try"))
   VERIFY(   PMATH_SYMBOL_UNASSIGN                  = NEW_SYSTEM_SYMBOL("Unassign"))
+  VERIFY(   PMATH_SYMBOL_UNDEFINED                 = NEW_SYSTEM_SYMBOL("Undefined"))
   VERIFY(   PMATH_SYMBOL_UNDERFLOW                 = NEW_SYSTEM_SYMBOL("Underflow"))
   VERIFY(   PMATH_SYMBOL_UNDERSCRIPT               = NEW_SYSTEM_SYMBOL("Underscript"))
   VERIFY(   PMATH_SYMBOL_UNDERSCRIPTBOX            = NEW_SYSTEM_SYMBOL("UnderscriptBox"))
@@ -1182,7 +1182,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
     BIND_UP(     PMATH_SYMBOL_SYNTAXINFORMATION,           builtin_assign_syntaxinformation)
     BIND_UP(     PMATH_SYMBOL_UPRULES,                     builtin_assign_symbol_rules)
     
-    BIND_UP(     PMATH_SYMBOL_INDETERMINATE,               builtin_operate_indeterminate)
+    BIND_UP(     PMATH_SYMBOL_UNDEFINED,                   builtin_operate_undefined)
     
     BIND_DOWN(   PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATE,         builtin_internal_dynamicevaluate)
     BIND_DOWN(   PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATEMULTIPLE, builtin_internal_dynamicevaluatemultiple)
@@ -1510,6 +1510,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   SET_ATTRIB( PMATH_SYMBOL_UTILITIES_GETSYSTEMSYNTAXINFORMATION,  HOLDALL);
 
   SET_ATTRIB( PMATH_SYMBOL_ABORT,                            LISTABLE);
+  SET_ATTRIB( PMATH_SYMBOL_ABS,                              LISTABLE | NUMERICFUNCTION);
   SET_ATTRIB( PMATH_SYMBOL_AND,                              ASSOCIATIVE | HOLDALL | ONEIDENTITY);
   SET_ATTRIB( PMATH_SYMBOL_NRULES,                           HOLDALL);
   SET_ATTRIB( PMATH_SYMBOL_ARCCOS,                           LISTABLE | NUMERICFUNCTION);

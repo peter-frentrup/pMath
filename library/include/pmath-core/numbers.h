@@ -14,7 +14,7 @@
    
    Note that in might be more convinient to use pmath_build_value() than the
    specialized constructors represented here, because the former supports 
-   Infinity and Indeterminate values for C <tt>double</tt>s.
+   Infinity and Undefined (NaN) values for C <tt>double</tt>s.
    
    The GNU Multiple Precision Library (http://gmplib.org/) is used for 
    integer and rational arithmetic and the MPFR library (http://www.mpfr.org/) 

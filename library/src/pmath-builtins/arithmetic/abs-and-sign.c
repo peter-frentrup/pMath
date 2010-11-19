@@ -164,8 +164,7 @@ PMATH_PRIVATE pmath_t builtin_abs(pmath_expr_t expr){
     return SQRT(PLUS(POW(re, INT(2)), POW(im, INT(2))));
   }
 
-  if(x == PMATH_SYMBOL_INDETERMINATE
-  || pmath_equals(x, _pmath_object_overflow)
+  if(pmath_equals(x, _pmath_object_overflow)
   || pmath_equals(x, _pmath_object_underflow)){
     pmath_unref(expr);
     return x;
@@ -193,8 +192,7 @@ PMATH_PRIVATE pmath_t builtin_sign(pmath_expr_t expr){
     return pmath_integer_new_si(sign);
   }
   
-  if(x == PMATH_SYMBOL_INDETERMINATE
-  || pmath_equals(x, _pmath_object_overflow)
+  if(pmath_equals(x, _pmath_object_overflow)
   || pmath_equals(x, _pmath_object_underflow)){
     pmath_unref(expr);
     return x;
@@ -208,7 +206,7 @@ PMATH_PRIVATE pmath_t builtin_sign(pmath_expr_t expr){
       if(pmath_instance_of(xinfdir, PMATH_TYPE_NUMBER)
       && pmath_number_sign(xinfdir) == 0){
         pmath_unref(xinfdir);
-        return pmath_ref(PMATH_SYMBOL_INDETERMINATE);
+        return pmath_ref(PMATH_SYMBOL_UNDEFINED);
       }
       return pmath_expr_new_extended(
         pmath_ref(PMATH_SYMBOL_SIGN), 1,

@@ -35,12 +35,12 @@ static pmath_t make_complex(pmath_t re, pmath_t im){
   pmath_t re_inf;
   pmath_t im_inf;
   
-  if(re == PMATH_SYMBOL_INDETERMINATE){
+  if(re == PMATH_SYMBOL_UNDEFINED){
     pmath_unref(im);
     return re;
   }
   
-  if(im == PMATH_SYMBOL_INDETERMINATE){
+  if(im == PMATH_SYMBOL_UNDEFINED){
     pmath_unref(re);
     return im;
   }
@@ -400,7 +400,7 @@ static pmath_bool_t binary_read(
                   pmath_unref((pmath_float_t)f);
                   pmath_unref((pmath_integer_t)mant);
                   
-                  *type_value = pmath_ref(PMATH_SYMBOL_INDETERMINATE);
+                  *type_value = pmath_ref(PMATH_SYMBOL_UNDEFINED);
                 }
               }
               else{
@@ -463,7 +463,7 @@ static pmath_bool_t binary_read(
                   *type_value = pmath_ref(_pmath_object_infinity);
               }
               else{
-                *type_value = pmath_ref(PMATH_SYMBOL_INDETERMINATE);
+                *type_value = pmath_ref(PMATH_SYMBOL_UNDEFINED);
               }
             }
             else{
@@ -494,7 +494,7 @@ static pmath_bool_t binary_read(
                 pmath_integer_new_si(-1));
             }
             else if(isnan(d)){
-              *type_value = pmath_ref(PMATH_SYMBOL_INDETERMINATE);
+              *type_value = pmath_ref(PMATH_SYMBOL_UNDEFINED);
             }
             else{
               if(d == 0) // signed 0?

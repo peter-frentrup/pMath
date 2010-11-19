@@ -460,7 +460,7 @@ static void times_2_arg(pmath_t *a, pmath_t *b){
             pmath_ref(PMATH_SYMBOL_TIMES), 2,
             *a,
             *b));
-        *a = pmath_ref(PMATH_SYMBOL_INDETERMINATE);
+        *a = pmath_ref(PMATH_SYMBOL_UNDEFINED);
         *b = PMATH_UNDEFINED;
         pmath_unref(binfdir);
         return;
@@ -626,7 +626,7 @@ static void times_2_arg(pmath_t *a, pmath_t *b){
     && pmath_equals(*b, _pmath_object_overflow))){
     pmath_unref(*a);
     pmath_unref(*b);
-    *a = pmath_ref(PMATH_SYMBOL_INDETERMINATE);
+    *a = pmath_ref(PMATH_SYMBOL_UNDEFINED);
     *b = PMATH_UNDEFINED;
     return;
   }

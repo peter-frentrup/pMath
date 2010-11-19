@@ -49,7 +49,7 @@ namespace pmath{
       {
       }
       
-      /**\brief Construct from a double. May yield Infinity or Indeterminate values */
+      /**\brief Construct from a double. May yield Infinity or Undefined (NaN) values */
       Expr(double f) throw()
       : _obj(pmath_build_value("f", f))
       {

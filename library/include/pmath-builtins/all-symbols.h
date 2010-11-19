@@ -132,7 +132,7 @@ pmath_bool_t pmath_register_approx_code(
 #define PMATH_SYMBOL_HOLDFORM                               PMATH_SYMBOL_BUILTIN(40)
 #define PMATH_SYMBOL_OVERFLOW                               PMATH_SYMBOL_BUILTIN(41)
 #define PMATH_SYMBOL_DIRECTEDINFINITY                       PMATH_SYMBOL_BUILTIN(42)
-#define PMATH_SYMBOL_INDETERMINATE                          PMATH_SYMBOL_BUILTIN(43)
+#define PMATH_SYMBOL_UNDEFINED                              PMATH_SYMBOL_BUILTIN(43)
 #define PMATH_SYMBOL_INFINITY                               PMATH_SYMBOL_BUILTIN(44)
 #define PMATH_SYMBOL_RE                                     PMATH_SYMBOL_BUILTIN(45)
 #define PMATH_SYMBOL_IM                                     PMATH_SYMBOL_BUILTIN(46)
