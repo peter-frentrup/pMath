@@ -1489,7 +1489,7 @@ extern pmath_bool_t pj_class_set_field(
     struct pmath2id_t *cache_entry = pmath_ht_search(cms2id, key);
     if(cache_entry && cache_entry->mid == 0){
       fid             = cache_entry->fid;
-      field_type      = cache_entry->info;
+      field_type      = pmath_ref(cache_entry->info);
       field_type_char = cache_entry->return_type;
       modifiers       = cache_entry->modifiers;
     }
