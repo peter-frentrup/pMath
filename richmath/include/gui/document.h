@@ -49,7 +49,8 @@ namespace richmath{
       virtual void on_key_up(SpecialKeyEvent &event);
       virtual void on_key_press(uint32_t unichar);
       
-      bool is_inside_selection(Box *subbox, int subindex, bool cursor_after_sub);
+      // substart and subend may lie outside 0..subbox->length()
+      bool is_inside_selection(Box *subbox, int substart, int subend);
       void select(Box *box, int start, int end);
       void select_to(Box *box, int start, int end);
       void select_range(

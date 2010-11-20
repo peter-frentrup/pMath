@@ -219,6 +219,8 @@ PMATH_API pmath_bool_t pmath_init(void){
     
     #ifdef PMATH_OS_WIN32
     assert(sizeof(wchar_t) == sizeof(uint16_t));
+    
+    //SetErrorMode(SEM_NOOPENFILEERRORBOX);
     #endif
     
     assert(sizeof(intptr_t) == sizeof(void*));

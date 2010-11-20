@@ -587,10 +587,17 @@ void Document::mouse_move(MouseEvent &event){
       invalidate();
     }
     
+    if(receiver && start == end){
+      if(was_inside_start)
+        end = start+1;
+      else
+        --start;
+    }
+    
     if(!event.left
     && selection_box()
     && selection_box()->get_style(Editable)
-    && is_inside_selection(receiver, start, was_inside_start)){
+    && is_inside_selection(receiver, start, end)){
       native()->set_cursor(DefaultCursor);
     }
     else{
@@ -1239,21 +1246,25 @@ void Document::on_key_press(uint32_t unichar){
 
 //} ... event handlers
 
-bool Document::is_inside_selection(Box *subbox, int subindex, bool cursor_after_sub){
+// substart and subend may lie outside 0..subbox->length()
+bool Document::is_inside_selection(Box *subbox, int substart, int subend){
   if(selection_box()
   && selection_length() > 0){
-    bool in_start = cursor_after_sub;
-    int i = subindex;
+    // section selections are only at the right margin, the section content is
+    // not inside the selection-frame
+    if(selection_box() == this && subbox != this)
+      return false;
+    
     Box *b = subbox;
     while(b && b != selection_box()){
-      in_start = true;
-      i = b->index();
+      substart = b->index();
+      subend   = substart + 1;
       b = b->parent();
     }
     
     if(b == selection_box() 
-    && (selection_start() < i || (in_start  && selection_start() == i))
-    && (i < selection_end()   || (!in_start && selection_end()   == i)))
+    && selection_start() <= substart
+    && subend <= selection_end())
       return true;
   }
   

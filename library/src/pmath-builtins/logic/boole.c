@@ -25,5 +25,10 @@ PMATH_PRIVATE pmath_t builtin_boole(pmath_expr_t expr){
     return pmath_integer_new_si(0);
   }
   
+  if(obj == PMATH_SYMBOL_UNDEFINED){
+    pmath_unref(expr);
+    return pmath_ref(PMATH_SYMBOL_UNDEFINED);
+  }
+  
   return expr;
 }

@@ -148,9 +148,14 @@ static void load_aliases(
   printf("Loaded aliases in %f seconds.\n", (clock() - start) / (double)CLOCKS_PER_SEC);
 }
 
-void remove_current_directory_from_dll_search_path(){
-  HMODULE kernel32 = GetModuleHandleW(L"Kernel32");
+static void os_init(){
+  HMODULE kernel32;
   
+  // do not show message boxes on LoadLibrary errors:
+  SetErrorMode(SEM_NOOPENFILEERRORBOX);
+  
+  // remove current directory from dll search path:
+  kernel32 = GetModuleHandleW(L"Kernel32");
   if(kernel32){
     BOOL (WINAPI *SetDllDirectoryW_ptr)(const WCHAR*);
     SetDllDirectoryW_ptr = (BOOL (WINAPI*)(const WCHAR*))
@@ -162,7 +167,7 @@ void remove_current_directory_from_dll_search_path(){
 }
 
 int main(){
-  remove_current_directory_from_dll_search_path();
+  os_init();
   
   printf("cairo version: %s\n", cairo_version_string());
   printf("pango version: %s\n", pango_version_string());

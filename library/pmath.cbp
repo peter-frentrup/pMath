@@ -806,6 +806,9 @@
 		<Unit filename="src\pmath-builtins\logic\comparisions.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="src\pmath-builtins\logic\conditionalexpression.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="src\pmath-builtins\logic\identical.c">
 			<Option compilerVar="CC" />
 		</Unit>

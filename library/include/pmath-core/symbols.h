@@ -93,8 +93,8 @@ typedef pmath_t pmath_symbol_t;
        to x.
        
      <li> \c PMATH_SYMBOL_ATTRIBUTE_THREADLOCAL \n
-       The symbol's value is local to the current thread. That means, an assignment to sym in one thread wont affect
-       it in another thread.
+       The symbol's value is local to the current thread. That means, an 
+       assignment to sym in one thread wont affect it in another thread.
      
      <li> \c PMATH_SYMBOL_ATTRIBUTE_NUMERICFUNCTION \n
        `sym(x,...)` is numeric if all the arguments are numeric.
@@ -107,6 +107,10 @@ typedef pmath_t pmath_symbol_t;
      
      <li> \c PMATH_SYMBOL_ATTRIBUTE_REMOVED
        The symbol was removed, but there are pending references to it.
+     
+     <li> \c PMATH_SYMBOL_ATTRIBUTE_DEFINITEFUNCTION
+       `sym(ConditionalExpression(arg, cond))` becomes 
+       `ConditionalExpression(sym(arg), cond)`
      
    </ul>
  */
@@ -130,7 +134,8 @@ enum{
   PMATH_SYMBOL_ATTRIBUTE_NUMERICFUNCTION       = 1 << 13,
   PMATH_SYMBOL_ATTRIBUTE_READPROTECTED         = 1 << 14,
   PMATH_SYMBOL_ATTRIBUTE_SEQUENCEHOLD          = 1 << 15,
-  PMATH_SYMBOL_ATTRIBUTE_REMOVED               = 1 << 16
+  PMATH_SYMBOL_ATTRIBUTE_REMOVED               = 1 << 16,
+  PMATH_SYMBOL_ATTRIBUTE_DEFINITEFUNCTION      = 1 << 17
 };
 
 /**\brief Get a symbol by its fully qualified name.

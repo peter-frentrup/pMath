@@ -17,11 +17,18 @@ PMATH_PRIVATE pmath_t builtin_not(pmath_expr_t expr){
     pmath_unref(expr);
     return pmath_ref(PMATH_SYMBOL_FALSE);
   }
+  
   if(item == PMATH_SYMBOL_FALSE){
     pmath_unref(item);
     pmath_unref(expr);
     return pmath_ref(PMATH_SYMBOL_TRUE);
   }
+  
+  if(item == PMATH_SYMBOL_UNDEFINED){
+    pmath_unref(expr);
+    return item;
+  }
+  
   if(pmath_instance_of(item, PMATH_TYPE_EXPRESSION)){
     pmath_t head = pmath_expr_get_item((pmath_expr_t)item, 0);
     if(head == PMATH_SYMBOL_NOT 

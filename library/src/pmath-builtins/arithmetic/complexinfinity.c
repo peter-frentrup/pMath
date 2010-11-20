@@ -52,20 +52,6 @@ PMATH_PRIVATE pmath_t _pmath_directed_infinity_direction(
   return pmath_expr_get_item((pmath_expr_t)obj, 1);
 }
 
-PMATH_PRIVATE pmath_t builtin_operate_undefined(pmath_expr_t expr){
-  pmath_t head = pmath_expr_get_item(expr, 0);
-  
-  if(pmath_instance_of(head, PMATH_TYPE_SYMBOL)
-  && pmath_symbol_get_attributes(head) & PMATH_SYMBOL_ATTRIBUTE_NUMERICFUNCTION){
-    pmath_unref(head);
-    pmath_unref(expr);
-    return pmath_ref(PMATH_SYMBOL_UNDEFINED);
-  }
-  
-  pmath_unref(head);
-  return expr;
-}
-
 PMATH_PRIVATE pmath_t builtin_directedinfinity(pmath_expr_t expr){
   pmath_t item, sign;
   size_t len = pmath_expr_length(expr);

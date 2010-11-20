@@ -8,6 +8,8 @@
 
 #include <pmath.h>
 
+static void os_init(void);
+
 #ifdef PMATH_OS_WIN32
   #include <io.h>
   #define dup    _dup
@@ -40,9 +42,31 @@
   static int sem_post(sem_t *sem){
     return ReleaseSemaphore(*sem, 1, 0) ? 0 : -1;
   }
+  
+  static void os_init(void){
+    HMODULE kernel32;
+    
+    // do not show message boxes on LoadLibrary errors:
+    SetErrorMode(SEM_NOOPENFILEERRORBOX);
+    
+    // remove current directory from dll search path:
+    kernel32 = GetModuleHandleW(L"Kernel32");
+    if(kernel32){
+      BOOL (WINAPI *SetDllDirectoryW_ptr)(const WCHAR*);
+      SetDllDirectoryW_ptr = (BOOL (WINAPI*)(const WCHAR*))
+        GetProcAddress(kernel32, "SetDllDirectoryW");
+      
+      if(SetDllDirectoryW_ptr)
+        SetDllDirectoryW_ptr(L"");
+    }
+  }
 #elif defined(PMATH_OS_UNIX)
   #include <unistd.h>
   #include <semaphore.h>
+  
+  static void os_init(void){
+  
+  }
 #endif
 
 static volatile int dialog_depth = 0;
@@ -175,6 +199,9 @@ static void interrupt_daemon(void *dummy){
   while(!quitting){
     sem_wait(&interrupt_semaphore);
     
+    if(quitting)
+      break;
+      
     mq = get_main_mq();
     pmath_thread_send(
       mq, 
@@ -539,11 +566,16 @@ static pmath_t builtin_quit(pmath_expr_t expr){
 }
 
 int main(int argc, const char **argv){
-  sem_init(&interrupt_semaphore, 0, 0);
+  os_init();
+  
+  if(sem_init(&interrupt_semaphore, 0, 0) < 0){
+    fprintf(stderr, "Out of System resoures (sem_init failed).\n");
+    return 1;
+  }
   
   signal(SIGINT, signal_handler);
   signal(SIGTERM, signal_term);
-
+  
   if(!pmath_init()
   || !pmath_register_code(PMATH_SYMBOL_DIALOG,    builtin_dialog, 0)
   || !pmath_register_code(PMATH_SYMBOL_INTERRUPT, builtin_interrupt, 0)

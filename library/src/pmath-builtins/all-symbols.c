@@ -114,8 +114,6 @@ PMATH_PRIVATE pmath_t builtin_approximate_power(           pmath_t obj, double p
 
 PMATH_PRIVATE pmath_t builtin_assign_approximate(      pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_assign_maxextraprecision(pmath_expr_t expr);
-
-PMATH_PRIVATE pmath_t builtin_operate_undefined(pmath_expr_t expr);
 //} ============================================================================
 //{ builtins from src/pmath-builtins/control/ ...
 PMATH_PRIVATE pmath_t builtin_isheld(          pmath_expr_t expr);
@@ -359,19 +357,23 @@ PMATH_PRIVATE pmath_t builtin_total(          pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_union(          pmath_expr_t expr);
 //} ============================================================================
 //{ builtins from src/pmath-builtins/logic/ ...
-PMATH_PRIVATE pmath_t builtin_and(          pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_boole(        pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_equal(        pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_greater(      pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_greaterequal( pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_identical(    pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_inequation(   pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_less(         pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_lessequal(    pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_not(          pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_or(           pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_unequal(      pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_unidentical(  pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_and(                  pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_boole(                pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_conditionalexpression(pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_equal(                pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_greater(              pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_greaterequal(         pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_identical(            pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_inequation(           pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_less(                 pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_lessequal(            pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_not(                  pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_or(                   pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_unequal(              pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_unidentical(          pmath_expr_t expr);
+
+PMATH_PRIVATE pmath_t builtin_operate_conditionalexpression(pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_operate_undefined(pmath_expr_t expr);
 //} ============================================================================
 //{ builtins from src/pmath-builtins/manipulate/ ...
 PMATH_PRIVATE pmath_t builtin_expand(   pmath_expr_t expr);
@@ -672,6 +674,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   VERIFY(   PMATH_SYMBOL_COMPLEX                   = NEW_SYSTEM_SYMBOL("Complex"))
   VERIFY(   PMATH_SYMBOL_COMPLEXINFINITY           = NEW_SYSTEM_SYMBOL("ComplexInfinity"))
   VERIFY(   PMATH_SYMBOL_CONDITION                 = NEW_SYSTEM_SYMBOL("Condition"))
+  VERIFY(   PMATH_SYMBOL_CONDITIONALEXPRESSION     = NEW_SYSTEM_SYMBOL("ConditionalExpression"))
   VERIFY(   PMATH_SYMBOL_CONSTANTARRAY             = NEW_SYSTEM_SYMBOL("ConstantArray"))
   VERIFY(   PMATH_SYMBOL_CONTINUE                  = NEW_SYSTEM_SYMBOL("Continue"))
   VERIFY(   PMATH_SYMBOL_COPYDIRECTORY             = NEW_SYSTEM_SYMBOL("CopyDirectory"))
@@ -689,6 +692,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   VERIFY(   PMATH_SYMBOL_DEEPHOLDALL               = NEW_SYSTEM_SYMBOL("DeepHoldAll"))
   VERIFY(   PMATH_SYMBOL_DEFAULT                   = NEW_SYSTEM_SYMBOL("Default"))
   VERIFY(   PMATH_SYMBOL_DEFAULTRULES              = NEW_SYSTEM_SYMBOL("DefaultRules"))
+  VERIFY(   PMATH_SYMBOL_DEFINITEFUNCTION          = NEW_SYSTEM_SYMBOL("DefiniteFunction"))
   VERIFY(   PMATH_SYMBOL_DEGREE                    = NEW_SYSTEM_SYMBOL("Degree"))
   VERIFY(   PMATH_SYMBOL_DELETECONTENTS            = NEW_SYSTEM_SYMBOL("DeleteContents"))
   VERIFY(   PMATH_SYMBOL_DELETEDIRECTORY           = NEW_SYSTEM_SYMBOL("DeleteDirectory"))
@@ -1182,6 +1186,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
     BIND_UP(     PMATH_SYMBOL_SYNTAXINFORMATION,           builtin_assign_syntaxinformation)
     BIND_UP(     PMATH_SYMBOL_UPRULES,                     builtin_assign_symbol_rules)
     
+    BIND_UP(     PMATH_SYMBOL_CONDITIONALEXPRESSION,       builtin_operate_conditionalexpression)
     BIND_UP(     PMATH_SYMBOL_UNDEFINED,                   builtin_operate_undefined)
     
     BIND_DOWN(   PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATE,         builtin_internal_dynamicevaluate)
@@ -1492,6 +1497,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   #define NHOLDREST             PMATH_SYMBOL_ATTRIBUTE_NHOLDREST
   #define ASSOCIATIVE           PMATH_SYMBOL_ATTRIBUTE_ASSOCIATIVE
   #define DEEPHOLDALL           PMATH_SYMBOL_ATTRIBUTE_DEEPHOLDALL
+  #define DEFINITEFUNCTION      PMATH_SYMBOL_ATTRIBUTE_DEFINITEFUNCTION
   #define HOLDALL               PMATH_SYMBOL_ATTRIBUTE_HOLDALL
   #define HOLDALLCOMPLETE       PMATH_SYMBOL_ATTRIBUTE_HOLDALLCOMPLETE
   #define HOLDFIRST             PMATH_SYMBOL_ATTRIBUTE_HOLDFIRST
@@ -1510,45 +1516,45 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   SET_ATTRIB( PMATH_SYMBOL_UTILITIES_GETSYSTEMSYNTAXINFORMATION,  HOLDALL);
 
   SET_ATTRIB( PMATH_SYMBOL_ABORT,                            LISTABLE);
-  SET_ATTRIB( PMATH_SYMBOL_ABS,                              LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_AND,                              ASSOCIATIVE | HOLDALL | ONEIDENTITY);
+  SET_ATTRIB( PMATH_SYMBOL_ABS,                              DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
+  SET_ATTRIB( PMATH_SYMBOL_AND,                              ASSOCIATIVE | DEFINITEFUNCTION | HOLDALL | ONEIDENTITY);
   SET_ATTRIB( PMATH_SYMBOL_NRULES,                           HOLDALL);
-  SET_ATTRIB( PMATH_SYMBOL_ARCCOS,                           LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_ARCCOSH,                          LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_ARCCOT,                           LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_ARCCOTH,                          LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_ARCCSC,                           LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_ARCCSCH,                          LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_ARCSEC,                           LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_ARCSECH,                          LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_ARCSIN,                           LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_ARCSINH,                          LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_ARCTAN,                           LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_ARCTANH,                          LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_ARG,                              LISTABLE | NUMERICFUNCTION);
+  SET_ATTRIB( PMATH_SYMBOL_ARCCOS,                           DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
+  SET_ATTRIB( PMATH_SYMBOL_ARCCOSH,                          DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
+  SET_ATTRIB( PMATH_SYMBOL_ARCCOT,                           DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
+  SET_ATTRIB( PMATH_SYMBOL_ARCCOTH,                          DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
+  SET_ATTRIB( PMATH_SYMBOL_ARCCSC,                           DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
+  SET_ATTRIB( PMATH_SYMBOL_ARCCSCH,                          DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
+  SET_ATTRIB( PMATH_SYMBOL_ARCSEC,                           DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
+  SET_ATTRIB( PMATH_SYMBOL_ARCSECH,                          DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
+  SET_ATTRIB( PMATH_SYMBOL_ARCSIN,                           DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
+  SET_ATTRIB( PMATH_SYMBOL_ARCSINH,                          DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
+  SET_ATTRIB( PMATH_SYMBOL_ARCTAN,                           DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
+  SET_ATTRIB( PMATH_SYMBOL_ARG,                              DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
+  SET_ATTRIB( PMATH_SYMBOL_ARCTANH,                          DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
   SET_ATTRIB( PMATH_SYMBOL_ARRAY,                            HOLDFIRST);
   SET_ATTRIB( PMATH_SYMBOL_ASSIGN,                           HOLDFIRST | SEQUENCEHOLD);
   SET_ATTRIB( PMATH_SYMBOL_ASSIGNDELAYED,                    HOLDALL | SEQUENCEHOLD);
   SET_ATTRIB( PMATH_SYMBOL_ATTRIBUTES,                       HOLDFIRST | LISTABLE);
-  SET_ATTRIB( PMATH_SYMBOL_BERNOULLIB,                       LISTABLE);
-  SET_ATTRIB( PMATH_SYMBOL_BINOMIAL,                         LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_BOOLE,                            LISTABLE);
+  SET_ATTRIB( PMATH_SYMBOL_BERNOULLIB,                       DEFINITEFUNCTION | LISTABLE);
+  SET_ATTRIB( PMATH_SYMBOL_BINOMIAL,                         DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
+  SET_ATTRIB( PMATH_SYMBOL_BOOLE,                            DEFINITEFUNCTION | LISTABLE);
   SET_ATTRIB( PMATH_SYMBOL_MAKEEXPRESSION,                   READPROTECTED);
   SET_ATTRIB( PMATH_SYMBOL_BUTTON,                           HOLDREST);
   SET_ATTRIB( PMATH_SYMBOL_CATCH,                            HOLDFIRST);
-  SET_ATTRIB( PMATH_SYMBOL_CEILING,                          LISTABLE | NUMERICFUNCTION);
+  SET_ATTRIB( PMATH_SYMBOL_CEILING,                          DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
   SET_ATTRIB( PMATH_SYMBOL_CHARACTERS,                       LISTABLE);
   SET_ATTRIB( PMATH_SYMBOL_CLEAR,                            HOLDALL);
   SET_ATTRIB( PMATH_SYMBOL_CLEARALL,                         HOLDALL);
   SET_ATTRIB( PMATH_SYMBOL_CLOSE,                            LISTABLE);
-  SET_ATTRIB( PMATH_SYMBOL_COMPLEX,                          NUMERICFUNCTION);
+  SET_ATTRIB( PMATH_SYMBOL_COMPLEX,                          DEFINITEFUNCTION | NUMERICFUNCTION);
   SET_ATTRIB( PMATH_SYMBOL_CONDITION,                        HOLDALL);
-  SET_ATTRIB( PMATH_SYMBOL_COS,                              LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_COSH,                             LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_COT,                              LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_COTH,                             LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_CSC,                              LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_CSCH,                             LISTABLE | NUMERICFUNCTION);
+  SET_ATTRIB( PMATH_SYMBOL_COS,                              DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
+  SET_ATTRIB( PMATH_SYMBOL_COSH,                             DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
+  SET_ATTRIB( PMATH_SYMBOL_COT,                              DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
+  SET_ATTRIB( PMATH_SYMBOL_COTH,                             DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
+  SET_ATTRIB( PMATH_SYMBOL_CSC,                              DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
+  SET_ATTRIB( PMATH_SYMBOL_CSCH,                             DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
   SET_ATTRIB( PMATH_SYMBOL_CURRENTNAMESPACE,                 THREADLOCAL);
   SET_ATTRIB( PMATH_SYMBOL_DECREMENT,                        HOLDFIRST);
   SET_ATTRIB( PMATH_SYMBOL_DEFAULTRULES,                     HOLDALL);
@@ -1563,24 +1569,24 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   SET_ATTRIB( PMATH_SYMBOL_DYNAMICBOX,                       HOLDFIRST);
   SET_ATTRIB( PMATH_SYMBOL_EVALUATEDELAYED,                  HOLDFIRST);
   SET_ATTRIB( PMATH_SYMBOL_EVALUATIONSEQUENCE,               HOLDALL);
-  SET_ATTRIB( PMATH_SYMBOL_EXP,                              LISTABLE | NUMERICFUNCTION);
+  SET_ATTRIB( PMATH_SYMBOL_EXP,                              DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
   SET_ATTRIB( PMATH_SYMBOL_EXTRACT,                          NHOLDREST);
   SET_ATTRIB( PMATH_SYMBOL_FINALLY,                          HOLDALL);
-  SET_ATTRIB( PMATH_SYMBOL_FACTORIAL,                        LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_FACTORIAL2,                       LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_FLOOR,                            LISTABLE | NUMERICFUNCTION);
+  SET_ATTRIB( PMATH_SYMBOL_FACTORIAL,                        DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
+  SET_ATTRIB( PMATH_SYMBOL_FACTORIAL2,                       DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
+  SET_ATTRIB( PMATH_SYMBOL_FLOOR,                            DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
   SET_ATTRIB( PMATH_SYMBOL_FOR,                              HOLDALL);
   SET_ATTRIB( PMATH_SYMBOL_FORMATRULES,                      HOLDALL);
   SET_ATTRIB( PMATH_SYMBOL_FUNCTION,                         DEEPHOLDALL | HOLDALL);
-  SET_ATTRIB( PMATH_SYMBOL_GAMMA,                            LISTABLE | NUMERICFUNCTION);
+  SET_ATTRIB( PMATH_SYMBOL_GAMMA,                            DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
   SET_ATTRIB( PMATH_SYMBOL_GATHER,                           HOLDFIRST);
-  SET_ATTRIB( PMATH_SYMBOL_GCD,                              ASSOCIATIVE | LISTABLE | SYMMETRIC);
+  SET_ATTRIB( PMATH_SYMBOL_GCD,                              ASSOCIATIVE | DEFINITEFUNCTION | LISTABLE | SYMMETRIC);
   SET_ATTRIB( PMATH_SYMBOL_HOLD,                             HOLDALL);
   SET_ATTRIB( PMATH_SYMBOL_HOLDCOMPLETE,                     HOLDALLCOMPLETE);
   SET_ATTRIB( PMATH_SYMBOL_HOLDFORM,                         HOLDALL);
   SET_ATTRIB( PMATH_SYMBOL_HOLDPATTERN,                      HOLDALL);
   SET_ATTRIB( PMATH_SYMBOL_IF,                               HOLDALL);
-  SET_ATTRIB( PMATH_SYMBOL_IM,                               LISTABLE | NUMERICFUNCTION);
+  SET_ATTRIB( PMATH_SYMBOL_IM,                               DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
   SET_ATTRIB( PMATH_SYMBOL_INCREMENT,                        HOLDFIRST);
   SET_ATTRIB( PMATH_SYMBOL_INPUT,                            THREADLOCAL);
   SET_ATTRIB( PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATE,         HOLDALLCOMPLETE);
@@ -1592,53 +1598,53 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   SET_ATTRIB( PMATH_SYMBOL_ISEVEN,                           LISTABLE);
   SET_ATTRIB( PMATH_SYMBOL_ISODD,                            LISTABLE);
   SET_ATTRIB( PMATH_SYMBOL_ISPRIME,                          LISTABLE);
-  SET_ATTRIB( PMATH_SYMBOL_LCM,                              ASSOCIATIVE | LISTABLE | SYMMETRIC);
+  SET_ATTRIB( PMATH_SYMBOL_LCM,                              ASSOCIATIVE | DEFINITEFUNCTION | LISTABLE | SYMMETRIC);
   SET_ATTRIB( PMATH_SYMBOL_LOCAL,                            HOLDALL);
-  SET_ATTRIB( PMATH_SYMBOL_LOG,                              LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_LOGGAMMA,                         LISTABLE | NUMERICFUNCTION);
+  SET_ATTRIB( PMATH_SYMBOL_LOG,                              DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
+  SET_ATTRIB( PMATH_SYMBOL_LOGGAMMA,                         DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
   SET_ATTRIB( PMATH_SYMBOL_MAKEBOXES,                        HOLDALLCOMPLETE);
-  SET_ATTRIB( PMATH_SYMBOL_MAX,                              ASSOCIATIVE | NUMERICFUNCTION | ONEIDENTITY | SYMMETRIC);
+  SET_ATTRIB( PMATH_SYMBOL_MAX,                              ASSOCIATIVE | DEFINITEFUNCTION | NUMERICFUNCTION | ONEIDENTITY | SYMMETRIC);
   SET_ATTRIB( PMATH_SYMBOL_MESSAGE,                          HOLDFIRST);
   SET_ATTRIB( PMATH_SYMBOL_MESSAGECOUNT,                     HOLDFIRST);
   SET_ATTRIB( PMATH_SYMBOL_MESSAGES,                         HOLDFIRST);
-  SET_ATTRIB( PMATH_SYMBOL_MIN,                              ASSOCIATIVE | NUMERICFUNCTION | ONEIDENTITY | SYMMETRIC);
-  SET_ATTRIB( PMATH_SYMBOL_MOD,                              LISTABLE | NUMERICFUNCTION);
+  SET_ATTRIB( PMATH_SYMBOL_MIN,                              ASSOCIATIVE | DEFINITEFUNCTION | NUMERICFUNCTION | ONEIDENTITY | SYMMETRIC);
+  SET_ATTRIB( PMATH_SYMBOL_MOD,                              DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
   SET_ATTRIB( PMATH_SYMBOL_NAMESPACE,                        HOLDFIRST);
   SET_ATTRIB( PMATH_SYMBOL_NAMESPACEPATH,                    THREADLOCAL);
   SET_ATTRIB( PMATH_SYMBOL_NEWTASK,                          HOLDALL);
   SET_ATTRIB( PMATH_SYMBOL_NEXTPRIME,                        LISTABLE);
   SET_ATTRIB( PMATH_SYMBOL_OFF,                              HOLDALL);
   SET_ATTRIB( PMATH_SYMBOL_ON,                               HOLDALL);
-  SET_ATTRIB( PMATH_SYMBOL_OR,                               ASSOCIATIVE | HOLDALL | ONEIDENTITY);
+  SET_ATTRIB( PMATH_SYMBOL_OR,                               ASSOCIATIVE | DEFINITEFUNCTION | HOLDALL | ONEIDENTITY);
   SET_ATTRIB( PMATH_SYMBOL_OVERFLOW,                         NUMERICFUNCTION);
   SET_ATTRIB( PMATH_SYMBOL_OWNRULES,                         HOLDALL);
   SET_ATTRIB( PMATH_SYMBOL_PART,                             NHOLDREST);
   SET_ATTRIB( PMATH_SYMBOL_PATTERN,                          HOLDFIRST);
   SET_ATTRIB( PMATH_SYMBOL_PATTERNSEQUENCE,                  ASSOCIATIVE | ONEIDENTITY);
   SET_ATTRIB( PMATH_SYMBOL_PIECEWISE,                        HOLDALL);
-  SET_ATTRIB( PMATH_SYMBOL_PLUS,                             ASSOCIATIVE | LISTABLE | NUMERICFUNCTION | ONEIDENTITY | SYMMETRIC);
-  SET_ATTRIB( PMATH_SYMBOL_POLYGAMMA,                        LISTABLE | NUMERICFUNCTION);
+  SET_ATTRIB( PMATH_SYMBOL_PLUS,                             ASSOCIATIVE | DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION | ONEIDENTITY | SYMMETRIC);
+  SET_ATTRIB( PMATH_SYMBOL_POLYGAMMA,                        DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
   SET_ATTRIB( PMATH_SYMBOL_POSTDECREMENT,                    HOLDFIRST);
   SET_ATTRIB( PMATH_SYMBOL_POSTINCREMENT,                    HOLDFIRST);
-  SET_ATTRIB( PMATH_SYMBOL_POWER,                            LISTABLE | NUMERICFUNCTION);
+  SET_ATTRIB( PMATH_SYMBOL_POWER,                            DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
   SET_ATTRIB( PMATH_SYMBOL_PRODUCT,                          HOLDALL);
   SET_ATTRIB( PMATH_SYMBOL_PROTECT,                          HOLDALL);
   SET_ATTRIB( PMATH_SYMBOL_PUREARGUMENT,                     NHOLDFIRST);
-  SET_ATTRIB( PMATH_SYMBOL_QUOTIENT,                         LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_RE,                               LISTABLE | NUMERICFUNCTION);
+  SET_ATTRIB( PMATH_SYMBOL_QUOTIENT,                         DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
+  SET_ATTRIB( PMATH_SYMBOL_RE,                               DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
   SET_ATTRIB( PMATH_SYMBOL_REMOVE,                           HOLDALL);
   SET_ATTRIB( PMATH_SYMBOL_RETURN,                           HOLDFIRST);
-  SET_ATTRIB( PMATH_SYMBOL_ROUND,                            LISTABLE | NUMERICFUNCTION);
+  SET_ATTRIB( PMATH_SYMBOL_ROUND,                            DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
   SET_ATTRIB( PMATH_SYMBOL_RULE,                             SEQUENCEHOLD);
   SET_ATTRIB( PMATH_SYMBOL_RULEDELAYED,                      HOLDREST | SEQUENCEHOLD);
-  SET_ATTRIB( PMATH_SYMBOL_SEC,                              LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_SECH,                             LISTABLE | NUMERICFUNCTION);
+  SET_ATTRIB( PMATH_SYMBOL_SEC,                              DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
+  SET_ATTRIB( PMATH_SYMBOL_SECH,                             DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
   SET_ATTRIB( PMATH_SYMBOL_SEQUENCE,                         ASSOCIATIVE | ONEIDENTITY);
   SET_ATTRIB( PMATH_SYMBOL_SHOWDEFINITION,                   HOLDFIRST);
-  SET_ATTRIB( PMATH_SYMBOL_SIGN,                             LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_SIN,                              LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_SINH,                             LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_SQRT,                             LISTABLE | NUMERICFUNCTION);
+  SET_ATTRIB( PMATH_SYMBOL_SIGN,                             DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
+  SET_ATTRIB( PMATH_SYMBOL_SIN,                              DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
+  SET_ATTRIB( PMATH_SYMBOL_SINH,                             DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
+  SET_ATTRIB( PMATH_SYMBOL_SQRT,                             DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
   SET_ATTRIB( PMATH_SYMBOL_SUBRULES,                         HOLDALL);
   SET_ATTRIB( PMATH_SYMBOL_SUM,                              HOLDALL);
   SET_ATTRIB( PMATH_SYMBOL_SYMBOLNAME,                       HOLDFIRST);
@@ -1648,11 +1654,11 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   SET_ATTRIB( PMATH_SYMBOL_TAGASSIGN,                        HOLDALL | SEQUENCEHOLD);
   SET_ATTRIB( PMATH_SYMBOL_TAGASSIGNDELAYED,                 HOLDALL | SEQUENCEHOLD);
   SET_ATTRIB( PMATH_SYMBOL_TAGUNASSIGN,                      HOLDFIRST | SEQUENCEHOLD);
-  SET_ATTRIB( PMATH_SYMBOL_TAN,                              LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_TANH,                             LISTABLE | NUMERICFUNCTION);
+  SET_ATTRIB( PMATH_SYMBOL_TAN,                              DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
+  SET_ATTRIB( PMATH_SYMBOL_TANH,                             DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
   SET_ATTRIB( PMATH_SYMBOL_TESTPATTERN,                      HOLDFIRST);
   SET_ATTRIB( PMATH_SYMBOL_TIMECONSTRAINED,                  HOLDALL);
-  SET_ATTRIB( PMATH_SYMBOL_TIMES,                            ASSOCIATIVE | LISTABLE | NUMERICFUNCTION | ONEIDENTITY | SYMMETRIC);
+  SET_ATTRIB( PMATH_SYMBOL_TIMES,                            ASSOCIATIVE | DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION | ONEIDENTITY | SYMMETRIC);
   SET_ATTRIB( PMATH_SYMBOL_TIMESBY,                          HOLDFIRST);
   SET_ATTRIB( PMATH_SYMBOL_TIMING,                           HOLDALL);
   SET_ATTRIB( PMATH_SYMBOL_TRY,                              HOLDALL);
@@ -1664,19 +1670,20 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   SET_ATTRIB( PMATH_SYMBOL_WAIT,                             LISTABLE);
   SET_ATTRIB( PMATH_SYMBOL_WHILE,                            HOLDALL);
   SET_ATTRIB( PMATH_SYMBOL_WITH,                             HOLDALL);
-  SET_ATTRIB( PMATH_SYMBOL_ZETA,                             LISTABLE | NUMERICFUNCTION);
+  SET_ATTRIB( PMATH_SYMBOL_ZETA,                             DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
 
   #undef SET_ATTRIB
-  #undef NHOLDALL
-  #undef NHOLDFIRST
-  #undef NHOLDREST
   #undef ASSOCIATIVE
   #undef DEEPHOLDALL
+  #undef DEFINITEFUNCTION
   #undef HOLDALL
   #undef HOLDALLCOMPLETE
   #undef HOLDFIRST
   #undef HOLDREST
   #undef LISTABLE
+  #undef NHOLDALL
+  #undef NHOLDFIRST
+  #undef NHOLDREST
   #undef NUMERICFUNCTION
   #undef ONEIDENTITY
   #undef SYMMETRIC

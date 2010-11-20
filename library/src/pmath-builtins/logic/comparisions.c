@@ -140,6 +140,11 @@ static pmath_t ordered(
     
     start = 1;
     prev = pmath_expr_get_item(expr, 1);
+    if(prev == PMATH_SYMBOL_UNDEFINED){
+      pmath_unref(expr);
+      return prev;
+    }
+    
     for(i = 2;i <= len;i++){
       pmath_t next = pmath_expr_get_item(expr, i);
       
@@ -534,6 +539,10 @@ static pmath_t ordered(
       
       pmath_unref(prev);
       prev = next;
+      if(prev == PMATH_SYMBOL_UNDEFINED){
+        pmath_unref(expr);
+        return prev;
+      }
     }
     
     pmath_unref(prev);
@@ -590,6 +599,7 @@ PMATH_PRIVATE pmath_t builtin_equal(pmath_expr_t expr){
 PMATH_PRIVATE pmath_t builtin_unequal(pmath_expr_t expr){
   pmath_bool_t have_marker = FALSE;
   size_t i, len;
+  pmath_t a;
   
   len = pmath_expr_length(expr);
   if(len <= 1){
@@ -598,8 +608,14 @@ PMATH_PRIVATE pmath_t builtin_unequal(pmath_expr_t expr){
   }
 
   for(i = 1;i < len;i++){
-    pmath_t a = pmath_expr_get_item(expr, i);
     size_t j;
+    
+    a = pmath_expr_get_item(expr, i);
+    if(a == PMATH_SYMBOL_UNDEFINED){
+      pmath_unref(expr);
+      return a;
+    }
+    
     for(j = i+1;j <= len;j++){
       pmath_t b = pmath_expr_get_item(expr, j);
       if(pmath_equals(a, b)){
@@ -616,6 +632,13 @@ PMATH_PRIVATE pmath_t builtin_unequal(pmath_expr_t expr){
     }
     pmath_unref(a);
   }
+  
+  a = pmath_expr_get_item(expr, len);
+  if(a == PMATH_SYMBOL_UNDEFINED){
+    pmath_unref(expr);
+    return a;
+  }
+  pmath_unref(a);
   
   if(have_marker)
     return pmath_expr_remove_all(expr, PMATH_UNDEFINED);
@@ -708,13 +731,12 @@ PMATH_PRIVATE pmath_t builtin_inequation(pmath_expr_t expr){
         pmath_ref(prev),
         pmath_ref(next)));
 
-    if(test == PMATH_SYMBOL_FALSE){
-      pmath_unref(test);
+    if(test == PMATH_SYMBOL_FALSE || test == PMATH_SYMBOL_UNDEFINED){
       pmath_unref(relation);
       pmath_unref(prev);
       pmath_unref(next);
       pmath_unref(expr);
-      return pmath_ref(PMATH_SYMBOL_FALSE);
+      return test;
     }
     
     if(test == PMATH_SYMBOL_TRUE){
