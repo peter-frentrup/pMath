@@ -3049,6 +3049,25 @@ void Document::paint_resize(Canvas *canvas, bool resize_only){
         context.canvas->align_point(&x2, &y2, true);
         context.canvas->move_to(x1, y1);
         context.canvas->line_to(x2, y2);
+        
+        context.canvas->set_color(0xC0C0C0);
+        context.canvas->hair_stroke();
+        
+        if(context.selection.start < count()){
+          x1 = section(context.selection.start)->get_style(SectionMarginLeft);
+        }
+        else if(count() > 0){
+          x1 = section(context.selection.start-1)->get_style(SectionMarginLeft);
+        }
+        else
+          x1 = 20 * 0.75;
+        x2 = x1 + 40 * 0.75;
+
+        context.canvas->align_point(&x1, &y1, true);
+        context.canvas->align_point(&x2, &y2, true);
+        context.canvas->move_to(x1, y1);
+        context.canvas->line_to(x2, y2);
+        
         context.draw_selection_path();
       }
       else{

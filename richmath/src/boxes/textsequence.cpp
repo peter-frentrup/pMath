@@ -834,14 +834,14 @@ Box *TextSequence::move_vertical(
       return boxes[b]->move_vertical(direction, index_rel_x, index);
     }
     
+    int px;
+    pango_layout_line_index_to_x(pll, i, tr > 0, &px);
+    *index_rel_x = x - pango_units_to_double(px);
+    
     char *s     = text.buffer() + i;
     char *s_end = text.buffer() + text.length();
     while(tr-- > 0)
       s = g_utf8_find_next_char(s, s_end);
-    
-    int px;
-    pango_layout_line_index_to_x(pll, i, 0, &px);
-    *index_rel_x = pango_units_to_double(px) - x;
     
     if(s)
       *index = (int)((size_t)s - (size_t)text.buffer());

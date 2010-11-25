@@ -85,6 +85,7 @@ void SectionList::paint(Context *context){
     context->canvas->align_point(&x2, &y2, true);
     context->canvas->move_to(x1, y1);
     context->canvas->line_to(x2, y2);
+    
     context->draw_selection_path();
   }
 
