@@ -80,20 +80,14 @@ Context::Context()
   boxchar_fallback_enabled(true),
   script_indent(0),
   script_size_min(5),
-//  caret(&Caret::dummy),
   mouseover_box_id(0),
   clicked_box_id(0),
-//  focused_widget_id(0),
   active(true)
 {
   script_size_multis.length(1, 0.71f);
 }
 
 void Context::draw_selection_path(){
-////  canvas->bitop_fill(BitOpPDno, ControlPainter::std->selection_color());
-//  canvas->bitop_fill(BitOpDn, 0);
-//  return;
-  
   cairo_path_t *path = cairo_copy_path(canvas->cairo());
   int num_points = 0;
   int end = 0;
@@ -137,9 +131,12 @@ void Context::draw_selection_path(){
   cairo_path_destroy(path);
   
   if(num_points <= 2){
-    canvas->set_color(0x000000);
-    canvas->hair_stroke();
-//    canvas->bitop_fill(BitOpDn, 0);
+    if(old_selection != selection){
+      canvas->set_color(0x000000);
+      canvas->hair_stroke();
+    }
+    else
+      canvas->new_path();
   }
   else{
     if(active){
@@ -209,13 +206,6 @@ void Context::draw_selection_path(){
         canvas->restore();
       }
       cairo_path_destroy(path);
-
-//      canvas->set_color(
-//        0.7,
-//        SelectionAlpha);
-//      canvas->fill();
-
-//      canvas->bitop_fill(BitOpPDno, 0x808080);
     }
   }
 }

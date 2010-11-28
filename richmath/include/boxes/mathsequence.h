@@ -189,7 +189,7 @@ namespace richmath{
       
       bool stretch_horizontal(Context *context, float width);
       
-      int get_line(int index, int guide = 0); // 0, 1, ...
+      virtual int get_line(int index, int guide = 0); // 0, 1, ...
       int get_box(int index, int guide = 0);
       float indention_width(int i);
       float font_size(){ return em; }

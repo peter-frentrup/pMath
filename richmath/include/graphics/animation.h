@@ -30,6 +30,7 @@ namespace richmath{
     public:
       BoxRepaintEvent(int _box_id, double _min_wait_seconds);
       
+      bool register_event(){ return register_for(box_id); }
       virtual void execute_event();
       
     public:

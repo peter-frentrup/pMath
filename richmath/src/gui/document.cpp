@@ -424,17 +424,16 @@ Document::Document()
   prev_sel_box_id(0),
   must_resize_min(0),
   auto_scroll(false),
+  dragging(false),
   _native(NativeWidget::dummy),
   mouse_down_counter(0),
   mouse_down_time(0),
   mouse_down_x(0),
   mouse_down_y(0)
-//  _mouse_grabber_id(0)
 {
   context.selection.set(this, 0, 0);
   context.math_shaper = MathShaper::available_shapers.default_value;
   context.text_shaper = context.math_shaper;
-  //context.text_shaper = TextShaper::find("Arial", NoStyle);
   context.stylesheet = Stylesheet::Default;
   
   context.set_script_size_multis(Expr());
@@ -587,38 +586,23 @@ void Document::mouse_move(MouseEvent &event){
       invalidate();
     }
     
-    if(receiver && start == end){
-      if(was_inside_start)
-        end = start+1;
-      else
-        --start;
+    Box *new_over = receiver ? receiver->mouse_sensitive() : 0;
+    Box *old_over = Box::find(context.mouseover_box_id);
+    if(new_over != old_over){
+      if(old_over)
+        old_over->on_mouse_exit();
+      
+      if(new_over)
+        new_over->on_mouse_enter();
     }
     
-    if(!event.left
-    && selection_box()
-    && selection_box()->get_style(Editable)
-    && is_inside_selection(receiver, start, end)){
-      native()->set_cursor(DefaultCursor);
-    }
-    else{
-      Box *new_over = receiver ? receiver->mouse_sensitive() : 0;
-      Box *old_over = Box::find(context.mouseover_box_id);
-      if(new_over != old_over){
-        if(old_over)
-          old_over->on_mouse_exit();
-        
-        if(new_over)
-          new_over->on_mouse_enter();
-      }
+    if(new_over){
+      context.mouseover_box_id = new_over->id();
       
-      if(new_over){
-        context.mouseover_box_id = new_over->id();
-        
-        new_over->on_mouse_move(event);
-      }
-      else
-        context.mouseover_box_id = 0;
+      new_over->on_mouse_move(event);
     }
+    else
+      context.mouseover_box_id = 0;
   }
 }
 
@@ -697,6 +681,7 @@ void Document::key_press(uint16_t unicode){
 void Document::on_mouse_down(MouseEvent &event){
   event.set_source(this);
   
+  dragging = false;
   if(event.left){
     float ddx, ddy;
     native()->double_click_dist(&ddx, &ddy);
@@ -767,6 +752,10 @@ void Document::on_mouse_down(MouseEvent &event){
         select(selbox, start, end);
       }
     }
+    else if(is_inside_selection(box, start, end, was_inside_start)){
+      // maybe drag & drop
+      dragging = true;
+    }
     else if(box && box->selectable())
       select(box, start, end);
     
@@ -783,7 +772,23 @@ void Document::on_mouse_move(MouseEvent &event){
   bool was_inside_start;
   Box *box = mouse_selection(event.x, event.y, &start, &end, &was_inside_start);
   
-  if(box->selectable()){
+  if(event.left && dragging){
+    float ddx, ddy;
+    native()->double_click_dist(&ddx, &ddy);
+    
+    if(fabs(event.x - mouse_down_x) > ddx
+    || fabs(event.y - mouse_down_y) > ddy){
+      mouse_down_x = mouse_down_y = Infinity;
+      printf("[drag]");
+    }
+    
+    return;
+  }
+  
+  if(is_inside_selection(box, start, end, was_inside_start)){
+    native()->set_cursor(DefaultCursor);
+  }
+  else if(box->selectable()){
     if(box == this){
       if(length() == 0)
         native()->set_cursor(TextNCursor);
@@ -822,6 +827,21 @@ void Document::on_mouse_move(MouseEvent &event){
 
 void Document::on_mouse_up(MouseEvent &event){
   event.set_source(this);
+  
+  if(event.left && dragging){
+    bool was_inside_start;
+    int start, end;
+    Box *box = mouse_selection(
+      event.x, event.y, 
+      &start, &end,
+      &was_inside_start);
+    
+    if(is_inside_selection(box, start, end, was_inside_start)
+    && box && box->selectable())
+      select(box, start, end);
+  }
+  
+  dragging = false;
 }
 
 void Document::on_mouse_cancel(){
@@ -1255,6 +1275,9 @@ bool Document::is_inside_selection(Box *subbox, int substart, int subend){
     if(selection_box() == this && subbox != this)
       return false;
     
+    if(substart == subend)
+      return false;
+    
     Box *b = subbox;
     while(b && b != selection_box()){
       substart = b->index();
@@ -1270,6 +1293,18 @@ bool Document::is_inside_selection(Box *subbox, int substart, int subend){
   
   return false;
 }
+
+bool Document::is_inside_selection(Box *subbox, int substart, int subend, bool was_inside_start){
+  if(subbox && subbox != this && substart == subend){
+    if(was_inside_start)
+      subend = substart+1;
+    else
+      --substart;
+  }
+  
+  return selection_box() && is_inside_selection(subbox, substart, subend);
+}
+
 
 void Document::raw_select(Box *box, int start, int end){
   if(end < start){
@@ -1372,8 +1407,8 @@ void Document::select_range(
   
   while(d1 > d2){
     if(b1->parent() && !b1->parent()->exitable()){
-      int o1 = box_order(b1, s1, b2, e2);//box_order(b1, s1, b2, s2);
-      int o2 = box_order(b1, e1, b2, s2);//box_order(b1, e1, b2, e2);
+      int o1 = box_order(b1, s1, b2, e2);
+      int o2 = box_order(b1, e1, b2, s2);
       
       if(o1 > 0)
         raw_select(b1, 0, e1);
@@ -1781,7 +1816,6 @@ void Document::insert(int pos, Section *section){
 }
 
 Section *Document::swap(int pos, Section *section){
-//  must_resize_min = pos;
   invalidate();
   return SectionList::swap(pos, section);
 }
@@ -1856,7 +1890,7 @@ void Document::copy_to_clipboard(){
   
   Expr text = Client::interrupt(Expr(
     pmath_parse_string_args(
-          "FE`BoxesToText(`1`)",//"Try(FE`BoxesToText(`1`),$Failed)",
+          "FE`BoxesToText(`1`)",
         "(o)",
         pmath_ref(boxes.get()))),
     Client::edit_interrupt_timeout);
@@ -3201,33 +3235,16 @@ void Document::paint_resize(Canvas *canvas, bool resize_only){
       Box *box = sel_last.get();
       if(box)
         box->scroll_to(canvas, box, sel_last.start, sel_last.end);
-        
-//      Box *box = sel_last.get();
-//      ....
-//      Array<Point> pts(0);
-//      selection_outline(box, sel_last.start, sel_last.end, pts);
-//      
-//      float x,y,w,h;
-//      bounding_rect(pts, &x, &y, &w, &h);
-//      
-//      if(box){
-//        cairo_matrix_t mat;
-//        cairo_matrix_init_identity(&mat);
-//        box->transformation(0, &mat);
-//        
-//        Canvas::transform_rect(mat, &x, &y, &w, &h);
-//        scroll_to(x, y, w, h);
-//      }
     }
     
     if(prev_sel_line >= 0){
-      MathSequence *seq = dynamic_cast<MathSequence*>(selection_box());
+      AbstractSequence *seq = dynamic_cast<AbstractSequence*>(selection_box());
       
       if(seq && seq->id() == prev_sel_box_id){
         int line = seq->get_line(selection_end(), prev_sel_line);
         
         if(line != prev_sel_line){
-          flashing_cursor = new BoxRepaintEvent(id(), 0);
+          flashing_cursor_circle = new BoxRepaintEvent(prev_sel_box_id, 0);
         }
       }
       
@@ -3235,20 +3252,20 @@ void Document::paint_resize(Canvas *canvas, bool resize_only){
       prev_sel_box_id = 0;
     }
     
-    if(flashing_cursor){
-      double t = flashing_cursor->timer();
+    if(flashing_cursor_circle){
+      double t = flashing_cursor_circle->timer();
       Box *box = selection_box();
       
       static double MaxFlashingCursorRadius = 9;  /* pixels */
       static double MaxFlashingCursorTime = 0.15; /* seconds */
       if(!box
       || t >= MaxFlashingCursorTime
-      || !flashing_cursor->register_for(id()))
-        flashing_cursor = 0;
+      || !flashing_cursor_circle->register_event())
+        flashing_cursor_circle = 0;
       
       t = t / MaxFlashingCursorTime;
       
-      if(flashing_cursor){
+      if(flashing_cursor_circle){
         double r = MaxFlashingCursorRadius * (1 - t);
         float x1 = context.last_cursor_x[0];
         float y1 = context.last_cursor_y[0];
@@ -3285,7 +3302,9 @@ void Document::paint_resize(Canvas *canvas, bool resize_only){
           
           context.canvas->arc(0, 0, 1, 0, 2 * M_PI, false);
           
-          context.canvas->bitop_fill(BitOpDn, 0);
+          cairo_set_operator(context.canvas->cairo(), CAIRO_OPERATOR_DIFFERENCE);
+          context.canvas->set_color(0xffffff);
+          context.canvas->fill();
         }
         context.canvas->restore();
       }
@@ -3311,7 +3330,7 @@ void Document::paint_resize(Canvas *canvas, bool resize_only){
 }
 
 void Document::set_prev_sel_line(){
-  MathSequence *seq = dynamic_cast<MathSequence*>(selection_box());
+  AbstractSequence *seq = dynamic_cast<AbstractSequence*>(selection_box());
   if(seq){
     prev_sel_line = seq->get_line(selection_end(), prev_sel_line);
     prev_sel_box_id = seq->id();

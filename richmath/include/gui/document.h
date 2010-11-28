@@ -51,6 +51,8 @@ namespace richmath{
       
       // substart and subend may lie outside 0..subbox->length()
       bool is_inside_selection(Box *subbox, int substart, int subend);
+      bool is_inside_selection(Box *subbox, int substart, int subend, bool was_inside_start);
+      
       void select(Box *box, int start, int end);
       void select_to(Box *box, int start, int end);
       void select_range(
@@ -137,8 +139,9 @@ namespace richmath{
       int     prev_sel_box_id;
       int     must_resize_min;
       bool    auto_scroll;
+      bool    dragging;
       
-      SharedPtr<BoxRepaintEvent> flashing_cursor;
+      SharedPtr<BoxRepaintEvent> flashing_cursor_circle;
     
       SelectionReference sel_first;
       SelectionReference sel_last;

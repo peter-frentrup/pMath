@@ -959,6 +959,12 @@ PangoLayoutIter *TextSequence::get_iter(){
   return pango_layout_get_iter(_layout);
 }
 
+int TextSequence::get_line(int index, int guide){
+  int line = guide, x;
+  pango_layout_index_to_line_x(_layout, index, 0, &line, &x);
+  return line;
+}
+
 void TextSequence::line_extents(PangoLayoutIter *iter, int line, float *x, float *y, BoxSize *size){
   PangoRectangle ink, logic;
   pango_layout_iter_get_line_extents(iter, &ink, &logic);

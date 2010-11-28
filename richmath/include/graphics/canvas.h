@@ -120,8 +120,6 @@ namespace richmath{
       void clip_preserve();
       void fill();
       void fill_preserve();
-      void bitop_fill(BitOperations op, int pen_color);
-      void bitop_fill_preserve(BitOperations op, int pen_color);
       void hair_stroke();
       void stroke();
       void stroke_preserve();

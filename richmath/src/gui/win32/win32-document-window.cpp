@@ -530,7 +530,6 @@ void Win32DocumentWindow::after_construction(){
   creation = false;
   
   on_theme_changed();
-  SetFocus(_working_area->hwnd());
   
   title("untitled");
 }
@@ -871,6 +870,7 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
       } break;
       
       case WM_SETFOCUS: {
+        SetFocus(_working_area->hwnd());
         if(_working_area->document()->selectable()){
           set_current_document(document());
         }

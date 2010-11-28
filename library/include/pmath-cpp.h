@@ -17,8 +17,6 @@
    This namespace also containts numerous helper functions to easily construct
    expression trees.
    
-   \todo Document the Expr helper functions.
-   
    @{
  */
 

@@ -333,10 +333,10 @@ bool Box::request_repaint_all(){
 }
 
 bool Box::request_repaint(float x, float y, float w, float h){
-  if(x >= _extents.width 
-  || x + w <= 0 
-  || y >= _extents.descent 
-  || y + h <= -_extents.ascent)
+  if(x > _extents.width 
+  || x + w < 0 
+  || y > _extents.descent 
+  || y + h < -_extents.ascent)
     return false;
   
   if(_parent){

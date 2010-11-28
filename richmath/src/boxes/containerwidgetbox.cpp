@@ -126,14 +126,20 @@ void ContainerWidgetBox::paint(Context *context){
   context->canvas->set_color(old_color);
   
   if(type == FramelessButton && state == Pressed){
-    context->canvas->pixrect(
-      x,
-      y - _extents.ascent, 
-      x + _extents.width,
-      y + _extents.descent,
-      false);
-    
-    context->canvas->bitop_fill(BitOpDn, 0);
+    context->canvas->save();
+    {
+      context->canvas->pixrect(
+        x,
+        y - _extents.ascent, 
+        x + _extents.width,
+        y + _extents.descent,
+        false);
+      
+      cairo_set_operator(context->canvas->cairo(), CAIRO_OPERATOR_DIFFERENCE);
+      context->canvas->set_color(0xffffff);
+      context->canvas->fill();
+    }
+    context->canvas->restore();
   }
 }
 

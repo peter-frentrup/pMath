@@ -89,8 +89,9 @@ namespace richmath{
       
       virtual Box *normalize_selection(int *start, int *end);
       
-      PangoLayout     *get_layout(){ return _layout; }
       PangoLayoutIter *get_iter();
+      PangoLayout     *get_layout(){ return _layout; }
+      virtual int get_line(int index, int guide = 0); // 0, 1, 2, ...
       
       void line_extents(PangoLayoutIter *iter, int line, float *x, float *y, BoxSize *size);
       void line_extents(int line, float *x, float *y, BoxSize *size);

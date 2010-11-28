@@ -28,6 +28,14 @@ namespace richmath{
       bool equals(Box *box, int _start, int _end) const;
       bool equals(const SelectionReference &other) const;
       
+      bool operator==(const SelectionReference &other) const {
+        return other.id == id && other.start == start && other.end == end;
+      }
+      
+      bool operator!=(const SelectionReference &other) const {
+        return !(*this == other);
+      }
+      
     public: 
       int id;
       int start;
@@ -70,6 +78,7 @@ namespace richmath{
       SharedPtr<MathShaper> math_shaper;
       
       SelectionReference  selection;
+      SelectionReference  old_selection; // cursor is not drawn, if selection == old_selection
       
       SharedPtr<GeneralSyntaxInfo> syntax;
       

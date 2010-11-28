@@ -247,6 +247,7 @@ namespace richmath{
       BoxSize &var_extents(){ return _extents; }
       
       float get_em(){ return em; }
+      virtual int get_line(int index, int guide = 0) = 0; // 0, 1, ...
       
     protected:
       float em;

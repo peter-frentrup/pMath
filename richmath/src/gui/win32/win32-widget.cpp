@@ -27,8 +27,9 @@
   #define SPI_GETWHEELSCROLLCHARS   0x006C
 #endif
 
-#define TID_SCROLL   1
-#define TID_ANIMATE  2
+#define TID_SCROLL         1
+#define TID_ANIMATE        2
+#define TID_BLINKCURSOR    3
 
 #define ANIMATION_DELAY  (50)
 
@@ -279,6 +280,13 @@ void Win32Widget::paint_canvas(Canvas *canvas, bool resize_only){
   canvas->set_color(document()->get_style(FontColor, 0));
   
   document()->paint_resize(canvas, resize_only);
+  if(_hwnd 
+  && _hwnd == GetFocus()
+  && document()->selection_box()
+  && document()->selection_length() == 0
+  && GetCaretBlinkTime() != INFINITE){
+    SetTimer(_hwnd, TID_BLINKCURSOR, GetCaretBlinkTime(), NULL);
+  }
   
   canvas->scale(1/scale_factor(), 1/scale_factor());
   
@@ -826,21 +834,23 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam){
                   rely = (mouse.y - rect.bottom) / 4;
               }
               
-              scroll_by(relx, rely);
-              
-              MouseEvent event;
-        
-              event.left   = (GetKeyState(VK_LBUTTON) & ~1);
-              event.middle = (GetKeyState(VK_MBUTTON) & ~1);
-              event.right  = (GetKeyState(VK_RBUTTON) & ~1);
-              
-              event.x = mouse.x + GetScrollPos(_hwnd, SB_HORZ);
-              event.y = mouse.y + GetScrollPos(_hwnd, SB_VERT);
-              
-              event.x/= scale_factor();
-              event.y/= scale_factor();
-              
-              on_mousemove(event);
+              if(relx != 0 || rely != 0){
+                scroll_by(relx, rely);
+                
+                MouseEvent event;
+          
+                event.left   = (GetKeyState(VK_LBUTTON) & ~1);
+                event.middle = (GetKeyState(VK_MBUTTON) & ~1);
+                event.right  = (GetKeyState(VK_RBUTTON) & ~1);
+                
+                event.x = mouse.x + GetScrollPos(_hwnd, SB_HORZ);
+                event.y = mouse.y + GetScrollPos(_hwnd, SB_VERT);
+                
+                event.x/= scale_factor();
+                event.y/= scale_factor();
+                
+                on_mousemove(event);
+              }
             }
             else
               KillTimer(_hwnd, TID_SCROLL);
@@ -875,6 +885,21 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam){
                 }
               }
             }
+          } break;
+        
+          case TID_BLINKCURSOR: {
+            printf("B");
+            KillTimer(_hwnd, TID_BLINKCURSOR);
+            
+            Context *ctx = document_context();
+            if(ctx->old_selection == ctx->selection || _hwnd != GetFocus())
+              ctx->old_selection.id = 0;
+            else
+              ctx->old_selection = ctx->selection;
+            
+            Box *box = ctx->selection.get();
+            if(box)
+              box->request_repaint_all();
           } break;
         }
       } return 0;
@@ -923,8 +948,6 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam){
       } break;
       
       case WM_SETFOCUS: {
-//        document()->focus_set();
-        
         Box *box = document()->selection_box();
         if(!box)
           box = document();
@@ -932,11 +955,13 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam){
         if(box->selectable()){
           set_current_document(document());
         }
+        
+        if(document()->selection_box()
+        && document()->selection_length() == 0
+        && GetCaretBlinkTime() != INFINITE){
+          SetTimer(_hwnd, TID_BLINKCURSOR, GetCaretBlinkTime(), NULL);
+        }
       } return 0;
-      
-//      case WM_KILLFOCUS: {
-//        document()->focus_killed();
-//      } return 0;
       
       case WM_SYSKEYDOWN:
       case WM_SYSKEYUP: {
