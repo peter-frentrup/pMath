@@ -336,9 +336,8 @@ PMATH_API pmath_bool_t pmath_thread_aborting(pmath_thread_t thread){
 PMATH_API void pmath_abort_please(void){
   if(!pmath_atomic_fetch_set(&aborting, 1)){
     (void)pmath_atomic_fetch_add(&_pmath_abort_reasons, 1);
-    
-    _pmath_msq_queue_awake_all();
   }
+  _pmath_msq_queue_awake_all();
 }
 
 PMATH_API pmath_bool_t pmath_continue_after_abort(void){

@@ -8,12 +8,12 @@
 		<Build>
 			<Target title="Windows-Debug">
 				<Option platforms="Windows;" />
-				<Option output="bin\Windows\Debug\pmath-java" prefix_auto="1" extension_auto="1" />
-				<Option working_dir="bin\Windows\Debug" />
-				<Option object_output="obj\Windows\Debug\" />
+				<Option output="bin\Windows\pmath-java" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="bin\Windows\" />
+				<Option object_output="obj\Windows\" />
 				<Option type="3" />
 				<Option compiler="gcc" />
-				<Option host_application="..\..\..\..\..\richmath\bin\windows\debug\richmath.exe" />
+				<Option host_application="..\..\..\..\richmath\bin\windows\debug\richmath.exe" />
 				<Option createDefFile="1" />
 				<Option createStaticLib="1" />
 				<Compiler>
@@ -35,9 +35,9 @@
 			</Target>
 			<Target title="Windows-Release">
 				<Option platforms="Windows;" />
-				<Option output="bin\Windows\Release\pmath-java" prefix_auto="1" extension_auto="1" />
-				<Option working_dir="bin\Windows\Release" />
-				<Option object_output="obj\Windows\Release\" />
+				<Option output="bin\Windows\pmath-java" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="bin\Windows\" />
+				<Option object_output="obj\Windows\" />
 				<Option type="3" />
 				<Option compiler="gcc" />
 				<Option createDefFile="1" />

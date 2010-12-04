@@ -279,9 +279,9 @@ void Client::gui_print_section(Expr expr){
       
       print_pos = EvaluationPosition(sect);
     
-      if(doc->selection_box() == doc
-      && doc->selection_start() >= index
-      && doc->selection_end() >= index)
+      if(doc->selection_length() == 0
+      && doc->selection_box() == doc
+      && doc->selection_start() == index)
         doc->move_to(doc, index + 1);
     }
   }
@@ -407,7 +407,8 @@ void Client::add_job(SharedPtr<Job> job){
 }
 
 void Client::abort_all_jobs(){
-  Server::local_server->interrupt(Call(Symbol(PMATH_SYMBOL_ABORT)));
+  //Server::local_server->interrupt(Call(Symbol(PMATH_SYMBOL_ABORT)));
+  Server::local_server->abort_all();
   
   if(session){
     SharedPtr<Job> job = session->current_job;
@@ -554,6 +555,12 @@ static void execute(ClientNotification &cn){
                   break;
                 
                 doc->remove(index, index + 1);
+                if(doc->selection_box() == doc 
+                && doc->selection_start() > index){
+                  doc->select(doc, 
+                    doc->selection_start()-1, 
+                    doc->selection_end()  -1);
+                }
               }
             }
           }

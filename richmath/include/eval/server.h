@@ -17,6 +17,8 @@ namespace richmath{
       virtual Expr interrupt_wait(Expr expr, double timeout_seconds, void (*idle_function)(void*), void *idle_data) = 0;
       virtual void interrupt(Expr expr, double timeout_seconds = Infinity) = 0;
       
+      virtual void abort_all() = 0;
+      
       virtual bool is_accessable() = 0;
       
       static bool init_local_server();

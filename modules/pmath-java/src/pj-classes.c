@@ -176,6 +176,11 @@ pmath_string_t pj_class_get_name(JNIEnv *env, jclass clazz){
       return PMATH_C_STRING("D");
     }
     
+    if(pmath_string_equals_latin1(result, "void")){
+      pmath_unref(result);
+      return PMATH_C_STRING("V");
+    }
+    
     {
       int len = pmath_string_length(result);
       char *s = pmath_mem_alloc(len + 2);
@@ -973,9 +978,9 @@ pmath_t pj_class_call_method(
       
       if((*env)->PushLocalFrame(env, num_args) == 0){
         if(pj_value_fill_args(env, types, args, jargs)){
-          jmethodID mid         = 0;
-          int       modifiers   = 0;
-          char      return_type = '?';
+          jmethodID  mid         = 0;
+          int        modifiers   = 0;
+          char       return_type = '?';
           
           key = pmath_expr_set_item(key, 3, pmath_ref(types));
           
@@ -991,120 +996,126 @@ pmath_t pj_class_call_method(
           pmath_atomic_unlock(&cms2id_lock);
           
           if(mid && !pmath_aborting()){
-            jvalue val;
+            void *handle = pjvm_enter_call(env);
             
-            if(modifiers & PJ_MODIFIER_STATIC){
-              switch(return_type){
-                case 'Z':
-                  val.z = (*env)->CallStaticBooleanMethodA(env, clazz, mid, jargs);
-                  break;
+            if(handle){
+              jvalue val;
+              
+              if(modifiers & PJ_MODIFIER_STATIC){
+                switch(return_type){
+                  case 'Z':
+                    val.z = (*env)->CallStaticBooleanMethodA(env, clazz, mid, jargs);
+                    break;
+                    
+                  case 'B':
+                    val.b = (*env)->CallStaticByteMethodA(env, clazz, mid, jargs);
+                    break;
+                    
+                  case 'C':
+                    val.b = (*env)->CallStaticCharMethodA(env, clazz, mid, jargs);
+                    break;
+                    
+                  case 'S':
+                    val.s = (*env)->CallStaticShortMethodA(env, clazz, mid, jargs);
+                    break;
+                    
+                  case 'I':
+                    val.i = (*env)->CallStaticIntMethodA(env, clazz, mid, jargs);
+                    break;
+                    
+                  case 'J':
+                    val.j = (*env)->CallStaticLongMethodA(env, clazz, mid, jargs);
+                    break;
+                    
+                  case 'F':
+                    val.f = (*env)->CallStaticFloatMethodA(env, clazz, mid, jargs);
+                    break;
+                    
+                  case 'D':
+                    val.d = (*env)->CallStaticDoubleMethodA(env, clazz, mid, jargs);
+                    break;
+                    
+                  case 'L':
+                  case '[':
+                    if((*env)->EnsureLocalCapacity(env, 1) != 0){
+                      pj_exception_to_pmath(env);
+                      val.l = NULL;
+                    }
+                    else
+                      val.l = (*env)->CallStaticObjectMethodA(env, clazz, mid, jargs);
+                    break;
                   
-                case 'B':
-                  val.b = (*env)->CallStaticByteMethodA(env, clazz, mid, jargs);
-                  break;
+                  case 'V':
+                    (*env)->CallStaticVoidMethodA(env, clazz, mid, jargs);
+                    break;
+                    
+                  default:
+                    pmath_debug_print("\ainvalid java type `%c`\n", return_type);
+                    assert("invalid java type" && 0);
+                }
+              
+                result = pj_value_from_java(env, return_type, &val);
+              }
+              else if(is_static){
+                /* error: trying to call non-static method without an object */
+              }
+              else{
+                switch(return_type){
+                  case 'Z':
+                    val.z = (*env)->CallBooleanMethodA(env, obj, mid, jargs);
+                    break;
+                    
+                  case 'B':
+                    val.b = (*env)->CallByteMethodA(env, obj, mid, jargs);
+                    break;
+                    
+                  case 'C':
+                    val.b = (*env)->CallCharMethodA(env, obj, mid, jargs);
+                    break;
+                    
+                  case 'S':
+                    val.s = (*env)->CallShortMethodA(env, obj, mid, jargs);
+                    break;
+                    
+                  case 'I':
+                    val.i = (*env)->CallIntMethodA(env, obj, mid, jargs);
+                    break;
+                    
+                  case 'J':
+                    val.j = (*env)->CallLongMethodA(env, obj, mid, jargs);
+                    break;
+                    
+                  case 'F':
+                    val.f = (*env)->CallFloatMethodA(env, obj, mid, jargs);
+                    break;
+                    
+                  case 'D':
+                    val.d = (*env)->CallDoubleMethodA(env, obj, mid, jargs);
+                    break;
+                    
+                  case 'L':
+                  case '[':
+                    if((*env)->EnsureLocalCapacity(env, 1) != 0){
+                      pj_exception_to_pmath(env);
+                      val.l = NULL;
+                    }
+                    else
+                      val.l = (*env)->CallObjectMethodA(env, obj, mid, jargs);
+                    break;
                   
-                case 'C':
-                  val.b = (*env)->CallStaticCharMethodA(env, clazz, mid, jargs);
-                  break;
-                  
-                case 'S':
-                  val.s = (*env)->CallStaticShortMethodA(env, clazz, mid, jargs);
-                  break;
-                  
-                case 'I':
-                  val.i = (*env)->CallStaticIntMethodA(env, clazz, mid, jargs);
-                  break;
-                  
-                case 'J':
-                  val.j = (*env)->CallStaticLongMethodA(env, clazz, mid, jargs);
-                  break;
-                  
-                case 'F':
-                  val.f = (*env)->CallStaticFloatMethodA(env, clazz, mid, jargs);
-                  break;
-                  
-                case 'D':
-                  val.d = (*env)->CallStaticDoubleMethodA(env, clazz, mid, jargs);
-                  break;
-                  
-                case 'L':
-                case '[':
-                  if((*env)->EnsureLocalCapacity(env, 1) != 0){
-                    pj_exception_to_pmath(env);
-                    val.l = NULL;
-                  }
-                  else
-                    val.l = (*env)->CallStaticObjectMethodA(env, clazz, mid, jargs);
-                  break;
-                
-                case 'V':
-                  (*env)->CallStaticVoidMethodA(env, clazz, mid, jargs);
-                  break;
-                  
-                default:
-                  pmath_debug_print("\ainvalid java type `%c`\n", return_type);
-                  assert("invalid java type" && 0);
+                  case 'V':
+                    (*env)->CallVoidMethodA(env, obj, mid, jargs);
+                    break;
+                    
+                  default:
+                    pmath_debug_print("\ainvalid java type `%c`\n", return_type);
+                    assert("invalid java type" && 0);
+                }
+              
+                result = pj_value_from_java(env, return_type, &val);
               }
             
-              result = pj_value_from_java(env, return_type, &val);
-            }
-            else if(is_static){
-              /* error: trying to call non-static method without an object */
-            }
-            else{
-              switch(return_type){
-                case 'Z':
-                  val.z = (*env)->CallBooleanMethodA(env, obj, mid, jargs);
-                  break;
-                  
-                case 'B':
-                  val.b = (*env)->CallByteMethodA(env, obj, mid, jargs);
-                  break;
-                  
-                case 'C':
-                  val.b = (*env)->CallCharMethodA(env, obj, mid, jargs);
-                  break;
-                  
-                case 'S':
-                  val.s = (*env)->CallShortMethodA(env, obj, mid, jargs);
-                  break;
-                  
-                case 'I':
-                  val.i = (*env)->CallIntMethodA(env, obj, mid, jargs);
-                  break;
-                  
-                case 'J':
-                  val.j = (*env)->CallLongMethodA(env, obj, mid, jargs);
-                  break;
-                  
-                case 'F':
-                  val.f = (*env)->CallFloatMethodA(env, obj, mid, jargs);
-                  break;
-                  
-                case 'D':
-                  val.d = (*env)->CallDoubleMethodA(env, obj, mid, jargs);
-                  break;
-                  
-                case 'L':
-                case '[':
-                  if((*env)->EnsureLocalCapacity(env, 1) != 0){
-                    pj_exception_to_pmath(env);
-                    val.l = NULL;
-                  }
-                  else
-                    val.l = (*env)->CallObjectMethodA(env, obj, mid, jargs);
-                  break;
-                
-                case 'V':
-                  (*env)->CallVoidMethodA(env, clazz, mid, jargs);
-                  break;
-                  
-                default:
-                  pmath_debug_print("\ainvalid java type `%c`\n", return_type);
-                  assert("invalid java type" && 0);
-              }
-            
-              result = pj_value_from_java(env, return_type, &val);
+              pjvm_exit_call(env, handle);
             }
           }
         }
@@ -1225,7 +1236,13 @@ jobject pj_class_new_object(
           pmath_atomic_unlock(&cms2id_lock);
           
           if(mid && !pmath_aborting()){
-            result = (*env)->NewObjectA(env, clazz, mid, jargs);
+            void *handle = pjvm_enter_call(env);
+            
+            if(handle){
+              result = (*env)->NewObjectA(env, clazz, mid, jargs);
+              
+              pjvm_exit_call(env, handle);
+            }
           }
         }
         

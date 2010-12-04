@@ -33,10 +33,20 @@ static PMATH_DECLARE_ATOMIC(vm_quit) = 0;
 static int vm_library_counter = 0;
 static pmath_threadlock_t vm_library_lock = NULL;
 
+struct pj_thread_list_t{
+  jobject                  thread; // a global reference
+  jmethodID                interrupted_method; // should be a global static?
+
+  struct pj_thread_list_t *prev;
+  struct pj_thread_list_t *next;
+};
+
+struct pj_thread_list_t * volatile all_running_threads = NULL;
+
 static jint (JNICALL *_JNI_GetDefaultJavaVMInitArgs)(void *args) = NULL;
 static jint (JNICALL *_JNI_CreateJavaVM)(JavaVM **pvm, void **penv, void *args) = NULL;
 static jint (JNICALL *_JNI_GetCreatedJavaVMs)(JavaVM **, jsize, jsize *) = NULL;
-  
+
   static void unload_jvm_callback(void *dummy){
     if(--vm_library_counter == 0){
       _JNI_GetDefaultJavaVMInitArgs = NULL;
@@ -175,8 +185,203 @@ static jint (JNICALL *_JNI_GetCreatedJavaVMs)(JavaVM **, jsize, jsize *) = NULL;
   static void jvm_main(void *arg){
     while(!vm_quit){
       pmath_thread_sleep();
+      
+      // Maybe we should marshall java calls to different threads, so that the 
+      // callers can still be interrupted by pmath and can stop the java thread
+      // on their own?
+      if(pmath_aborting()){
+        JNIEnv *env = pjvm_try_get_env();
+        
+        if(env && 0 == (*env)->EnsureLocalCapacity(env, 1)){
+          jclass thread_class = (*env)->FindClass(env, "Ljava/lang/Thread;");
+          
+          if(thread_class){
+            jmethodID mid_interrupt = (*env)->GetMethodID(env, thread_class, "interrupt", "()V");
+            
+            if(mid_interrupt){
+              pmath_atomic_lock(&vm_lock);
+              {
+                struct pj_thread_list_t *tl;
+                
+                tl = all_running_threads;
+                if(tl){
+                  pmath_debug_print("[interrupt java thread %p]\n", tl->thread);
+                  (*env)->CallVoidMethod(env, tl->thread, mid_interrupt);
+                  
+                  tl = tl->next;
+                  while(tl != all_running_threads){
+                    pmath_debug_print("[interrupt java thread %p]\n", tl->thread);
+                    (*env)->CallVoidMethod(env, tl->thread, mid_interrupt);
+                    
+                    tl = tl->next;
+                  }
+                }
+              }
+              pmath_atomic_unlock(&vm_lock);
+            }
+            
+            (*env)->DeleteLocalRef(env, thread_class);
+          }
+        }
+        else if(env)
+          (*env)->ExceptionDescribe(env);
+        
+        // give the threads 3 seconds time to react to the interrupt...
+        if(!vm_quit){
+          double t1 = pmath_tickcount();
+          do{
+            pmath_thread_sleep_timeout(500);
+          }while(!vm_quit && all_running_threads != 0 && pmath_tickcount() - t1 < 3.0);
+        }
+        // there could happen anything during pmath_thread_sleep_timeout()
+        
+        // Thread.stop() is deprecated bla bla bla
+        env = pjvm_try_get_env();
+        if(env && 0 == (*env)->EnsureLocalCapacity(env, 1)){
+          jclass thread_class = (*env)->FindClass(env, "Ljava/lang/Thread;");
+          if(thread_class){
+            jmethodID mid_stop = (*env)->GetMethodID(env, thread_class, "stop", "()V");
+            
+            if(mid_stop){
+              pmath_atomic_lock(&vm_lock);
+              {
+                struct pj_thread_list_t *tl;
+                
+                tl = all_running_threads;
+                if(tl){
+                  pmath_debug_print("[stop java thread %p]\n", tl->thread);
+                  (*env)->CallVoidMethod(env, tl->thread, mid_stop);
+                  
+                  tl = tl->next;
+                  while(tl != all_running_threads){
+                    pmath_debug_print("[stop java thread %p]\n", tl->thread);
+                    (*env)->CallVoidMethod(env, tl->thread, mid_stop);
+                    
+                    tl = tl->next;
+                  }
+                }
+              }
+              pmath_atomic_unlock(&vm_lock);
+            }
+            
+            (*env)->DeleteLocalRef(env, thread_class);
+          }
+        }
+        else if(env)
+          (*env)->ExceptionDescribe(env);
+      }
     }
   }
+
+void *pjvm_enter_call(JNIEnv *env){
+  struct pj_thread_list_t *tl = NULL;
+  jclass    thread_class;
+  jmethodID mid_currentThread;
+  jmethodID mid_isInterrupted;
+  jobject   current_thread_local;
+  jobject   current_thread_global;
+  
+  if(!env || 0 != (*env)->EnsureLocalCapacity(env, 2))
+    goto FAIL_ENV;
+  
+  thread_class = (*env)->FindClass(env, "Ljava/lang/Thread;");
+  if(!thread_class)
+    goto FAIL_CLASS;
+  
+  mid_currentThread = (*env)->GetStaticMethodID(env, thread_class, "currentThread", "()Ljava/lang/Thread;");
+  mid_isInterrupted = (*env)->GetMethodID(      env, thread_class, "isInterrupted", "()Z");
+  if(!mid_currentThread
+  || !mid_isInterrupted)
+    goto FAIL_MID;
+  
+  current_thread_local = (*env)->CallStaticObjectMethod(env, thread_class, mid_currentThread);
+  if(!current_thread_local)
+    goto FAIL_THREAD_LOCAL;
+  
+  if((*env)->CallBooleanMethod(env, current_thread_local, mid_isInterrupted)){
+    jclass exception_class = (*env)->FindClass(env, "Ljava/lang/InterruptedException;");
+    
+    if(exception_class){
+      (*env)->ThrowNew(env, exception_class, "Interrupt prevents pMath -> Java call.");
+      (*env)->DeleteLocalRef(env, exception_class);
+    }
+    
+    goto FAIL_INTERRUPT;
+  }
+  
+  current_thread_global = (*env)->NewGlobalRef(env, current_thread_local);
+  if(!current_thread_global)
+    goto FAIL_THREAD_GLOBAL;
+  
+  tl = pmath_mem_alloc(sizeof(struct pj_thread_list_t));
+  if(!tl)
+    goto FAIL_MALLOC;
+  
+  tl->thread = current_thread_global; current_thread_global = NULL;
+  tl->interrupted_method = (*env)->GetStaticMethodID(env, thread_class, "interrupted", "()Z");
+  
+  pmath_atomic_lock(&vm_lock);
+  {
+    if(all_running_threads){
+      tl->next = all_running_threads;
+      tl->prev = all_running_threads->prev;
+      tl->next->prev = tl;
+      tl->prev->next = tl;
+    }
+    else{
+      all_running_threads = tl;
+      tl->next = tl->prev = tl;
+    }
+  }
+  pmath_atomic_unlock(&vm_lock);
+  
+ FAIL_MALLOC:          if(current_thread_global)
+                         (*env)->DeleteGlobalRef(env, current_thread_global);
+ FAIL_THREAD_GLOBAL:
+ FAIL_INTERRUPT:       (*env)->DeleteLocalRef(env, current_thread_local);
+ FAIL_THREAD_LOCAL:
+ FAIL_MID:             (*env)->DeleteLocalRef(env, thread_class);
+ FAIL_CLASS:
+ FAIL_ENV:
+  if(!tl){
+    pmath_debug_print("pjvm_enter_call() failed\n");
+  }
+  return tl;
+}
+
+void pjvm_exit_call(JNIEnv *env, void *enter_handle){
+  if(env && enter_handle && JNI_OK == (*env)->EnsureLocalCapacity(env, 1)){
+    struct pj_thread_list_t *tl = (struct pj_thread_list_t*)enter_handle;
+    
+    pmath_atomic_lock(&vm_lock);
+    {
+      tl->next->prev = tl->prev;
+      tl->prev->next = tl->next;
+      
+      if(all_running_threads == tl){
+        if(tl == tl->next)
+          all_running_threads = NULL;
+        else
+          all_running_threads = tl->next;
+      }
+    }
+    pmath_atomic_unlock(&vm_lock);
+    
+    // clear the interrupted flag
+    if(tl->interrupted_method){
+      jclass thread_class = (*env)->GetObjectClass(env, tl->thread);
+      
+      if(thread_class){
+        (*env)->CallStaticBooleanMethod(env, thread_class, tl->interrupted_method);
+        
+        (*env)->DeleteLocalRef(env, thread_class);
+      }
+    }
+    
+    (*env)->DeleteGlobalRef(env, tl->thread);
+    pmath_mem_free(tl);
+  }
+}
 
 pmath_bool_t pjvm_register_external(JavaVM *jvm){
   pmath_t pjvm = create_pjvm(jvm);
@@ -265,16 +470,20 @@ pmath_bool_t pj_exception_to_pmath(JNIEnv *env){
     return FALSE;
   
   if((*env)->ExceptionCheck(env)){
-    jthrowable ex = (*env)->ExceptionOccurred(env);
+    pmath_t    pex;
+    jthrowable jex = (*env)->ExceptionOccurred(env);
     (*env)->ExceptionClear(env);
     
-    pmath_throw(
-      pmath_expr_new_extended(
-        pmath_ref(PJ_SYMBOL_JAVAEXCEPTION), 2, 
-        pj_object_from_java(env, ex),
-        NULL));
+    pex = pmath_expr_new_extended(
+      pmath_ref(PJ_SYMBOL_JAVAEXCEPTION), 2, 
+      pj_object_from_java(env, jex),
+      NULL);
     
-    (*env)->DeleteLocalRef(env, ex);
+    pmath_debug_print_object("[java exception: ", pex, "]\n");
+    
+    pmath_throw(pex);
+    
+    (*env)->DeleteLocalRef(env, jex);
     return TRUE;
   }
   
@@ -322,8 +531,9 @@ pmath_t pj_builtin_startvm(pmath_expr_t expr){
           JavaVMInitArgs vm_args;
           JavaVM *jvm = NULL;
           JNIEnv *env = NULL;
-          JavaVMOption opt[1];
+          JavaVMOption opt[2];
           jint nOptions = 0;
+          char *classpath = NULL;
           
           memset(&vm_args, 0, sizeof(vm_args));
           memset(opt, 0, sizeof(opt));
@@ -334,13 +544,64 @@ pmath_t pj_builtin_startvm(pmath_expr_t expr){
           }
           #endif
           
-          vm_args.version = JNI_VERSION_1_2;
+          {
+            pmath_t cp = pmath_evaluate(pmath_ref(PJ_SYMBOL_DEFAULTCLASSPATH));
+            
+            if(pmath_instance_of(cp, PMATH_TYPE_STRING))
+              cp = pmath_build_value("(o)", cp);
+            
+            if(pmath_is_expr_of(cp, PMATH_SYMBOL_LIST)
+            && pmath_expr_length(cp) > 0){
+              pmath_string_t s = PMATH_C_STRING("-Djava.class.path=");
+              size_t i;
+              
+              for(i = 1;i <= pmath_expr_length(cp);++i){
+                pmath_t item = pmath_expr_get_item(cp, i);
+                
+                if(!pmath_instance_of(item, PMATH_TYPE_STRING)){
+                  pmath_unref(item);
+                  pmath_unref(s);
+                  s = NULL;
+                  break;
+                }
+                
+                if(i > 1){
+                  s = pmath_string_insert_latin1(s, INT_MAX, 
+                    #ifdef PMATH_OS_WIN32
+                      ";", 1
+                    #else
+                      ":", 1
+                    #endif
+                    );
+                }
+                
+                s = pmath_string_concat(s, item);
+              }
+              
+              if(s)
+                classpath = pmath_string_to_utf8(s, NULL);
+              
+              pmath_unref(s);
+            }
+            
+            pmath_unref(cp);
+          }
+          
+          if(classpath){
+            opt[nOptions].optionString = classpath;
+            ++nOptions;
+          }
+          
+          vm_args.version = JNI_VERSION_1_4;
           vm_args.nOptions = nOptions;
           vm_args.options = opt;
-          _JNI_GetDefaultJavaVMInitArgs(&vm_args);
           
           _JNI_CreateJavaVM(&jvm, (void**)&env, &vm_args); 
           vm = create_pjvm(jvm);
+          
+          pmath_mem_free(classpath);
+          
+          // todo: install custom security manager that disallows exit(), halt()
         }
       }
     }
@@ -354,7 +615,7 @@ pmath_t pj_builtin_startvm(pmath_expr_t expr){
 //    {
 //      JNIEnv *env = pjvm_get_env();
 //      if(env){
-//        jclass clazz = (*env)->FindClass(env, "Ljava/lang/String;");
+//        jclass clazz = (*env)->FindClass(env, "Ljava/io/PrintStream;");
 //        pmath_t name = pj_class_get_name(env, clazz);
 //        
 //        PMATH_RUN_ARGS("Print(`1`)", "(o)", name);

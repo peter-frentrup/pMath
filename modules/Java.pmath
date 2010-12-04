@@ -1,1 +1,1 @@
-Get(ToFileName({DirectoryName($Input), "pmath-java", "bin", "windows", "debug"}, "Java.pmath"))
+Get(ToFileName({DirectoryName($Input), "pmath-java", "bin", $SystemId}, "Java.pmath"))

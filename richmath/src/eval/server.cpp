@@ -236,6 +236,10 @@ class LocalServer: public Server{
       }
     }
     
+    virtual void abort_all(){
+      pmath_abort_please();
+    }
+    
     virtual bool is_accessable(){
       return data && !data->do_quit;
     }

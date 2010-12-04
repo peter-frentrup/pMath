@@ -5,6 +5,10 @@
 #include <jni.h>
 
 
+extern void *pjvm_enter_call(JNIEnv *env);
+extern void pjvm_exit_call(JNIEnv *env, void *enter_handle);
+
+
 extern pmath_bool_t pjvm_register_external(JavaVM *jvm);
 
 

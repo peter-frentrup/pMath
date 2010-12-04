@@ -9,6 +9,7 @@ Java`JavaKillVM
 Java`JavaNew
 Java`JavaStartVM
 Java`$JavaVMLibraryName
+Java`$DefaultClassPath
 
 Java`ClassName
 Java`GetClass
@@ -53,6 +54,8 @@ If(System`$SystemId === "Windows",
 	$JavaVMLibraryName:= First(path);
 	Unprotect($JavaVMLibraryName);
 	)
+
+Java`$DefaultClassPath:= {ToFileName(DirectoryName($Input, 2), "classpath")}
 
 LoadLibrary(ToFileName(Java`Private`$DLLDirectory, "pmath-java.dll"))
 

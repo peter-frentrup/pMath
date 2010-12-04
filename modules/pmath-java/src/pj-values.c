@@ -157,7 +157,7 @@ pmath_bool_t pj_value_to_java(JNIEnv *env, pmath_t obj, pmath_t type, jvalue *va
     if(pmath_instance_of(obj, PMATH_TYPE_NUMBER)){
       d = pmath_number_get_d(obj);
     }
-    else if(obj == PMATH_SYMBOL_INDETERMINATE
+    else if(obj == PMATH_SYMBOL_UNDEFINED
     || pmath_is_expr_of_len(obj, PMATH_SYMBOL_DIRECTEDINFINITY, 0)){
       d = NAN;
     }

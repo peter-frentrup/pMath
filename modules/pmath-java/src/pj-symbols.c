@@ -22,6 +22,7 @@ pmath_bool_t pj_symbols_init(void){
 
   VERIFY(PJ_SYMBOL_ISJAVAOBJECT      = NEW_SYMBOL("Java`IsJavaObject"));
   VERIFY(PJ_SYMBOL_CLASSNAME         = NEW_SYMBOL("Java`ClassName"));
+  VERIFY(PJ_SYMBOL_DEFAULTCLASSPATH  = NEW_SYMBOL("Java`$DefaultClassPath"));
   VERIFY(PJ_SYMBOL_GETCLASS          = NEW_SYMBOL("Java`GetClass"));
   VERIFY(PJ_SYMBOL_INSTANCEOF        = NEW_SYMBOL("Java`InstanceOf"));
   VERIFY(PJ_SYMBOL_PARENTCLASS       = NEW_SYMBOL("Java`ParentClass"));
