@@ -29,6 +29,7 @@
 				</Compiler>
 				<Linker>
 					<Add option="-static-libgcc" />
+					<Add option="-Wl,-kill-at" />
 					<Add library="user32" />
 					<Add directory="..\..\library\bin\windows\debug" />
 				</Linker>
@@ -55,6 +56,7 @@
 				<Linker>
 					<Add option="-s" />
 					<Add option="-static-libgcc" />
+					<Add option="-Wl,-kill-at" />
 					<Add library="user32" />
 					<Add directory="..\..\library\bin\windows\release" />
 				</Linker>
@@ -84,6 +86,10 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src\pj-symbols.h" />
+		<Unit filename="src\pj-threads.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\pj-threads.h" />
 		<Unit filename="src\pj-values.c">
 			<Option compilerVar="CC" />
 		</Unit>

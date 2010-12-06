@@ -888,7 +888,6 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam){
           } break;
         
           case TID_BLINKCURSOR: {
-            printf("B");
             KillTimer(_hwnd, TID_BLINKCURSOR);
             
             Context *ctx = document_context();

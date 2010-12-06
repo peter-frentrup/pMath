@@ -3,17 +3,17 @@
 
 #include <pmath.h>
 #include <jni.h>
+#include <jvmti.h>
 
 
-extern void *pjvm_enter_call(JNIEnv *env);
-extern void pjvm_exit_call(JNIEnv *env, void *enter_handle);
-
+extern jthrowable pjvm_internal_exception;
 
 extern pmath_bool_t pjvm_register_external(JavaVM *jvm);
 
 
 extern pmath_t pjvm_try_get(void); // must be freed
-extern JavaVM *pjvm_get_java(pmath_t pjvm);
+extern JavaVM   *pjvm_get_java(pmath_t pjvm);
+extern jvmtiEnv *pjvm_get_jvmti(pmath_t pjvm);
 
 extern JNIEnv *pjvm_try_get_env(void);
 extern JNIEnv *pjvm_get_env(void);

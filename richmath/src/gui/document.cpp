@@ -2927,11 +2927,6 @@ void Document::complete_box(){
 }
 
 void Document::paint_resize(Canvas *canvas, bool resize_only){
-  if(resize_only)
-    printf("r");
-  else
-    printf("p");
-    
   context.canvas = canvas;
   
   float sx, sy, h;

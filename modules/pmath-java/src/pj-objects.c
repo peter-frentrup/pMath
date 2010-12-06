@@ -1,6 +1,7 @@
 #include "pj-objects.h"
 #include "pj-classes.h"
 #include "pj-symbols.h"
+#include "pj-threads.h"
 #include "pjvm.h"
 
 #include <limits.h>
@@ -453,7 +454,7 @@ pmath_t pj_builtin_parentclass(pmath_expr_t expr){
         pmath_unref(result);
         result = pmath_expr_new_extended(
           pmath_ref(PJ_SYMBOL_JAVACLASS), 1,
-          pj_class_get_nice_name(env, super));
+          pj_class_get_name(env, super));
         
         (*env)->DeleteLocalRef(env, super);
       }
@@ -472,14 +473,13 @@ pmath_t pj_builtin_parentclass(pmath_expr_t expr){
 }
 
 
-pmath_t pj_builtin_javacall(pmath_expr_t expr){
+pmath_t pj_builtin_internal_javacall(pmath_expr_t expr){
   JNIEnv *env;
   pmath_t result;
-
-  if(pmath_expr_length(expr) < 2){
-    pmath_message_argxxx(0, 2, SIZE_MAX);
-    return expr;
-  }
+  pmath_t exception;
+  pmath_t companion = pj_thread_get_companion(NULL);
+  
+  pmath_debug_print("[companion refcount = %d]\n", (int)companion->refcount);
   
   result = pmath_ref(PMATH_SYMBOL_FAILED);
   pjvm_ensure_started();
@@ -499,7 +499,8 @@ pmath_t pj_builtin_javacall(pmath_expr_t expr){
       is_static = TRUE;
       
       if(!jobj)
-        pmath_message(PJ_SYMBOL_JAVA, "nobcl", 1, pmath_expr_get_item(expr, 1));
+        pj_thread_message(companion, 
+          PJ_SYMBOL_JAVA, "nobcl", 1, pmath_expr_get_item(expr, 1));
     }
     
     if(jobj){
@@ -509,7 +510,8 @@ pmath_t pj_builtin_javacall(pmath_expr_t expr){
         jobj, 
         is_static,
         pmath_expr_get_item(expr, 2),
-        pmath_expr_get_item_range(expr, 3, SIZE_MAX));
+        pmath_expr_get_item_range(expr, 3, SIZE_MAX),
+        companion);
       
       (*env)->DeleteLocalRef(env, jobj);
     }
@@ -517,9 +519,116 @@ pmath_t pj_builtin_javacall(pmath_expr_t expr){
   
   pj_exception_to_pmath(env);
   
+  exception = pmath_catch();
+  if(exception != PMATH_UNDEFINED){
+    pmath_unref(result);
+    
+    if(exception == PMATH_ABORT_EXCEPTION){
+      result = pmath_expr_new(
+        pmath_ref(PMATH_SYMBOL_ABORT), 0);
+    }
+    else{
+      result = pmath_expr_new_extended(
+        pmath_ref(PMATH_SYMBOL_THROW), 1,
+        exception);
+    }
+  }
+  
   pmath_unref(expr);
+  expr = pmath_expr_new_extended(
+    pmath_ref(PJ_SYMBOL_INTERNAL_RETURN), 1,
+    result);
+  
+  pmath_thread_send(companion, expr);
+  pmath_unref(companion);
+  return NULL;
+}
+
+pmath_t pj_builtin_internal_return(pmath_expr_t expr){
+  pmath_t result = pmath_expr_get_item(expr, 1);
+  pmath_unref(expr);
+  
+  expr = pmath_expr_new(pmath_ref(PJ_SYMBOL_INTERNAL_RETURN), 0);
+  
+  pmath_unref(pmath_thread_local_save(
+    expr,
+    result));
+  
+  pmath_unref(expr);
+  return NULL;
+}
+
+pmath_t pj_builtin_javacall(pmath_expr_t expr){
+  pmath_t pjvm;
+  pmath_messages_t companion;
+  pmath_t result;
+  pmath_t result_key;
+  JNIEnv *env;
+  jvmtiEnv *jvmti;
+  jthread jthread_obj;
+  
+  if(pmath_expr_length(expr) < 2){
+    pmath_message_argxxx(pmath_expr_length(expr), 2, SIZE_MAX);
+    return expr;
+  }
+  
+  pjvm_ensure_started();
+  pjvm = pjvm_try_get();
+  jvmti = pjvm_get_jvmti(pjvm);
+  env = pjvm_get_env();
+  if(!jvmti || !env){
+    pmath_unref(pjvm);
+    pmath_unref(expr);
+    return pmath_ref(PMATH_SYMBOL_FAILED);
+  }
+  
+  companion = pj_thread_get_companion(&jthread_obj);
+  if(!companion || !jthread_obj){
+    pmath_unref(companion);
+    
+    if(jthread_obj)
+      (*env)->DeleteLocalRef(env, jthread_obj);
+    
+    pmath_unref(expr);
+    pmath_unref(pjvm);
+    return pmath_ref(PMATH_SYMBOL_FAILED);
+  }
+  
+  result_key = pmath_expr_new(pmath_ref(PJ_SYMBOL_INTERNAL_RETURN), 0);
+  pmath_unref(pmath_thread_local_save(result_key, PMATH_UNDEFINED));
+  
+  result = PMATH_UNDEFINED;
+  if(!pmath_aborting()){
+    expr = pmath_expr_set_item(expr, 0, 
+      pmath_ref(PJ_SYMBOL_INTERNAL_JAVACALL));
+    pmath_thread_send(companion, expr); 
+    expr = NULL;
+    
+    while(result == PMATH_UNDEFINED){
+      pmath_thread_sleep();
+      
+      result = pmath_thread_local_load(result_key);
+      
+      if(pmath_aborting()){
+        if(pjvm_internal_exception)
+          (*jvmti)->StopThread(jvmti, jthread_obj, pjvm_internal_exception);
+        
+        break;
+      }
+    }
+  }
+  
+  (*env)->DeleteLocalRef(env, jthread_obj);
+  
+  pmath_unref(pmath_thread_local_save(result_key, PMATH_UNDEFINED));
+  
+  pmath_unref(expr);
+  pmath_unref(companion);
+  pmath_unref(result_key);
+  pmath_unref(pjvm);
   return result;
 }
+
 
 pmath_t pj_builtin_javanew(pmath_expr_t expr){
   JNIEnv *env;
@@ -543,7 +652,7 @@ pmath_t pj_builtin_javanew(pmath_expr_t expr){
       
       args = pmath_expr_get_item_range(expr, 2, SIZE_MAX);
       
-      jresult = pj_class_new_object(env, clazz, args);
+      jresult = pj_class_new_object(env, clazz, args, NULL);
       if(jresult){
         (*env)->DeleteLocalRef(env, clazz);
         
@@ -694,6 +803,7 @@ void pj_objects_clear_cache(void){
     
     pmath_ht_destroy(old_j2p);
     pmath_ht_destroy(old_p2j);
+    return;
   }
   
   pmath_debug_print("pj_objects_clear_cache() failed\n");

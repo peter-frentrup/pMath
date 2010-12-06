@@ -371,12 +371,12 @@ pmath_t pj_value_from_java(JNIEnv *env, char type, const jvalue *value){
   
   if((*env)->EnsureLocalCapacity(env, 2) == 0){
     jclass  clazz = (*env)->GetObjectClass(env, value->l);
-    pmath_t class_name = pj_class_get_nice_name(env, clazz);
+    pmath_t class_name  = pj_class_get_name(env, clazz);
     int slen            = pmath_string_length(class_name);
     const uint16_t *buf = pmath_string_buffer(class_name);
     (*env)->DeleteLocalRef(env, clazz);
     
-    if(pmath_string_equals_latin1(class_name, "java.lang.String")){
+    if(pmath_string_equals_latin1(class_name, "Ljava/lang/String;")){
       pmath_unref(class_name);
       return pj_string_from_java(env, value->l);
     }

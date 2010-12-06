@@ -66,7 +66,7 @@ static void destroy_module(void *ptr){
     struct _pmath_object_entry_t *entry;
     pmath_custom_t                mod_obj;
     
-    pmath_bool_t (*init_func)(void);
+    pmath_bool_t (*init_func)(pmath_string_t);
     void         (*done_func)(void);
     
     mod = pmath_mem_alloc(sizeof(struct _module_t));
@@ -119,11 +119,11 @@ static void destroy_module(void *ptr){
       if(zero_filename){
         mod->handle = LoadLibraryW((WCHAR*)pmath_string_buffer(zero_filename));
         if(mod->handle){
-          init_func = (pmath_bool_t(*)(void))GetProcAddress(mod->handle, "pmath_module_init");
-          done_func = (void        (*)(void))GetProcAddress(mod->handle, "pmath_module_done");
+          init_func = (pmath_bool_t(*)(pmath_string_t))GetProcAddress(mod->handle, "pmath_module_init");
+          done_func = (void        (*)(void))          GetProcAddress(mod->handle, "pmath_module_done");
           
           if(init_func && done_func){
-            info->success = init_func();
+            info->success = init_func(info->filename);
               
             if(info->success)
               mod->done = done_func;
@@ -149,13 +149,13 @@ static void destroy_module(void *ptr){
         dlerror(); /* Clear any existing error */
         
         if(mod->handle){
-          init_func = (pmath_bool_t(*)(void))dlsym(mod->handle, "pmath_module_init");
-          done_func = (void        (*)(void))dlsym(mod->handle, "pmath_module_done");
+          init_func = (pmath_bool_t(*)(pmath_string_t))dlsym(mod->handle, "pmath_module_init");
+          done_func = (void        (*)(void))          dlsym(mod->handle, "pmath_module_done");
           
           dlerror(); /* Clear any existing error */
           
           if(init_func && done_func){
-            info->success = init_func();
+            info->success = init_func(info->filename);
               
             if(info->success)
               mod->done = done_func;

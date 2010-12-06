@@ -1,10 +1,12 @@
 #include "pj-classes.h"
 #include "pj-objects.h"
 #include "pj-symbols.h"
+#include "pj-threads.h"
 #include "pj-values.h"
 #include "pjvm.h"
 
 #include <limits.h>
+#include <stdarg.h>
 #include <string.h>
 
 
@@ -103,108 +105,74 @@ static pmath_hashtable_t cms2id;
 
 
 pmath_string_t pj_class_get_nice_name(JNIEnv *env, jclass clazz){
-  static jmethodID id = NULL;
-  jclass cc;
-  jstring jstr;
   pmath_string_t result = NULL;
+  pmath_t pjvm    = pjvm_try_get();
+  jvmtiEnv *jvmti = pjvm_get_jvmti(pjvm);
   
-  if(!env || !clazz || (*env)->EnsureLocalCapacity(env, 2) != 0)
-    return NULL;
-  
-  if(!id){
-    cc = (*env)->GetObjectClass(env, clazz);
-    if(!cc)
-      return NULL;
+  if(jvmti){
+    char *sig = NULL;
+    (*jvmti)->GetClassSignature(jvmti, clazz, &sig, NULL);
     
-    id = (*env)->GetMethodID(env, cc, "getName", "()Ljava/lang/String;");
-    (*env)->DeleteLocalRef(env, cc);
+    if(sig){
+      switch(*sig){
+        case 'Z': result = PMATH_C_STRING("boolean"); break;
+        case 'B': result = PMATH_C_STRING("byte");    break;
+        case 'C': result = PMATH_C_STRING("char");    break;
+        case 'S': result = PMATH_C_STRING("short");   break;
+        case 'I': result = PMATH_C_STRING("int");     break;
+        case 'J': result = PMATH_C_STRING("long");    break;
+        case 'F': result = PMATH_C_STRING("float");   break;
+        case 'D': result = PMATH_C_STRING("double");  break;
+        
+        case 'L': {
+          char *s = sig + 1;
+          for(;;){
+            if(*s == '/'){
+              *s = '.';
+            }
+            else if(*s == ';'){
+              *s = '\0';
+              break;
+            }
+            else if(*s == '\0')
+              break;
+            
+            ++s;
+          }
+          
+          result = pmath_string_from_utf8(sig + 1, -1);
+        } break;
+        
+        default:
+          result = pmath_string_from_utf8(sig, -1);
+      }
+    }
+    
+    if(sig)
+      (*jvmti)->Deallocate(jvmti, (unsigned char*)sig);
   }
   
-  if(id){
-    jstr = (*env)->CallObjectMethod(env, clazz, id);
-    result = pj_string_from_java(env, jstr);
-    (*env)->DeleteLocalRef(env, jstr);
-  }
-  
+  pmath_unref(pjvm);
   return result;
 }
 
 pmath_string_t pj_class_get_name(JNIEnv *env, jclass clazz){
-  pmath_string_t result = pj_class_get_nice_name(env, clazz);
+  pmath_string_t result = NULL;
+  pmath_t pjvm    = pjvm_try_get();
+  jvmtiEnv *jvmti = pjvm_get_jvmti(pjvm);
   
-  if(pmath_string_length(result) > 0){
-    if(pmath_string_buffer(result)[0] == '[')
-      return result;
+  if(jvmti){
+    char *sig = NULL;
+    (*jvmti)->GetClassSignature(jvmti, clazz, &sig, NULL);
     
-    if(pmath_string_equals_latin1(result, "boolean")){
-      pmath_unref(result);
-      return PMATH_C_STRING("Z");
-    }
-    
-    if(pmath_string_equals_latin1(result, "byte")){
-      pmath_unref(result);
-      return PMATH_C_STRING("B");
-    }
-    
-    if(pmath_string_equals_latin1(result, "char")){
-      pmath_unref(result);
-      return PMATH_C_STRING("C");
-    }
-    
-    if(pmath_string_equals_latin1(result, "short")){
-      pmath_unref(result);
-      return PMATH_C_STRING("S");
-    }
-    
-    if(pmath_string_equals_latin1(result, "int")){
-      pmath_unref(result);
-      return PMATH_C_STRING("I");
-    }
-    
-    if(pmath_string_equals_latin1(result, "long")){
-      pmath_unref(result);
-      return PMATH_C_STRING("J");
-    }
-    
-    if(pmath_string_equals_latin1(result, "float")){
-      pmath_unref(result);
-      return PMATH_C_STRING("F");
-    }
-    
-    if(pmath_string_equals_latin1(result, "double")){
-      pmath_unref(result);
-      return PMATH_C_STRING("D");
-    }
-    
-    if(pmath_string_equals_latin1(result, "void")){
-      pmath_unref(result);
-      return PMATH_C_STRING("V");
-    }
-    
-    {
-      int len = pmath_string_length(result);
-      char *s = pmath_mem_alloc(len + 2);
-      const uint16_t *buf = pmath_string_buffer(result);
+    if(sig)
+      result = pmath_string_from_utf8(sig, -1);
       
-      if(s && buf){
-        int i;
-        
-        s[0] = 'L';
-        for(i = 0;i < len;++i){
-          if(buf[i] == '.')
-            s[i+1] = '/';
-          else
-            s[i+1] = (char)buf[i];
-        }
-        s[len+1] = ';';
-        
-        pmath_unref(result);
-        result = pmath_string_insert_latin1(NULL, 0, s, len+2);
-        pmath_mem_free(s);
-      }
-    }
+    if(sig)
+      (*jvmti)->Deallocate(jvmti, (unsigned char*)sig);
   }
   
+  pmath_unref(pjvm);
   return result;
 }
   
@@ -325,7 +293,7 @@ jclass pj_class_to_java(JNIEnv *env, pmath_t obj){
     
     if(pj_object_is_java(env, obj)
     && (*env)->EnsureLocalCapacity(env, 2) == 0){
-      jclass cc = (*env)->FindClass(env, "java.lang.Class");
+      jclass cc = (*env)->FindClass(env, "java/lang/Class");
       result = (jclass)pj_object_to_java(env, obj);
       
       if((*env)->IsInstanceOf(env, result, cc)){
@@ -340,7 +308,12 @@ jclass pj_class_to_java(JNIEnv *env, pmath_t obj){
     
     str = java_class_name(obj); obj = NULL;
     if(str){
-      result = (*env)->FindClass(env, str);
+      char *s = str;
+      if(*s == 'L'){
+        ++s;
+        s[strlen(s)-1] = '\0';
+      }
+      result = (*env)->FindClass(env, s);
       pmath_mem_free(str);
     }
   }
@@ -420,19 +393,19 @@ static pmath_t type2pmath(pmath_string_t name, int start){ // name will be freed
     if(!info->class_name)
       return FALSE;
     
-    info->jcClass = (*env)->FindClass(env, "Ljava/lang/Class;");
+    info->jcClass = (*env)->FindClass(env, "java/lang/Class");
     if(!info->jcClass) 
       goto FAIL_CLASS;
     
-    info->jcConstructor = (*env)->FindClass(env, "Ljava/lang/reflect/Constructor;");
+    info->jcConstructor = (*env)->FindClass(env, "java/lang/reflect/Constructor");
     if(!info->jcConstructor) 
       goto FAIL_CONSTRUCTOR_CLASS;
     
-    info->jcMethod = (*env)->FindClass(env, "Ljava/lang/reflect/Method;");
+    info->jcMethod = (*env)->FindClass(env, "java/lang/reflect/Method");
     if(!info->jcMethod) 
       goto FAIL_METHOD_CLASS;
     
-    info->jcField = (*env)->FindClass(env, "Ljava/lang/reflect/Field;");
+    info->jcField = (*env)->FindClass(env, "java/lang/reflect/Field");
     if(!info->jcField) 
       goto FAIL_FIELD_CLASS;
     
@@ -905,13 +878,13 @@ void pj_class_cache_members(JNIEnv *env, jclass clazz){
   free_cache_info(env, &info);
 }
 
-
 pmath_t pj_class_call_method(
-  JNIEnv         *env, 
-  jobject         obj, 
-  pmath_bool_t    is_static, 
-  pmath_string_t  name,        // will be freed
-  pmath_expr_t    args         // will be freed
+  JNIEnv           *env, 
+  jobject           obj, 
+  pmath_bool_t      is_static, 
+  pmath_string_t    name,        // will be freed
+  pmath_expr_t      args,        // will be freed
+  pmath_messages_t  msg_thread   // wont be freed
 ){
   pmath_t               result;
   jclass                clazz;
@@ -941,8 +914,10 @@ pmath_t pj_class_call_method(
   
   key = pmath_expr_new_extended(
     pmath_ref(PMATH_SYMBOL_LIST), 2,
-    pmath_ref(class_name),
+    class_name,
     pmath_ref(name));
+  
+  class_name = NULL;
   
   signatures = NULL;
   pmath_atomic_lock(&cms2id_lock);
@@ -957,13 +932,15 @@ pmath_t pj_class_call_method(
   if(!pmath_is_expr_of(signatures, PMATH_SYMBOL_LIST)
   || !pmath_instance_of(name, PMATH_TYPE_STRING)
   || pmath_string_equals_latin1(name, "<init>")){
-    pmath_message(PJ_SYMBOL_JAVA, "nometh", 2,
+    pj_thread_message(msg_thread,
+      PJ_SYMBOL_JAVA, "nometh", 2,
       name,
-      class_name);
+      pj_class_get_nice_name(env, clazz));
     pmath_unref(args);
     pmath_unref(key);
     if(!is_static)
       (*env)->DeleteLocalRef(env, clazz);
+    
     return pmath_ref(PMATH_SYMBOL_FAILED);
   }
   
@@ -996,126 +973,120 @@ pmath_t pj_class_call_method(
           pmath_atomic_unlock(&cms2id_lock);
           
           if(mid && !pmath_aborting()){
-            void *handle = pjvm_enter_call(env);
+            jvalue val;
             
-            if(handle){
-              jvalue val;
-              
-              if(modifiers & PJ_MODIFIER_STATIC){
-                switch(return_type){
-                  case 'Z':
-                    val.z = (*env)->CallStaticBooleanMethodA(env, clazz, mid, jargs);
-                    break;
-                    
-                  case 'B':
-                    val.b = (*env)->CallStaticByteMethodA(env, clazz, mid, jargs);
-                    break;
-                    
-                  case 'C':
-                    val.b = (*env)->CallStaticCharMethodA(env, clazz, mid, jargs);
-                    break;
-                    
-                  case 'S':
-                    val.s = (*env)->CallStaticShortMethodA(env, clazz, mid, jargs);
-                    break;
-                    
-                  case 'I':
-                    val.i = (*env)->CallStaticIntMethodA(env, clazz, mid, jargs);
-                    break;
-                    
-                  case 'J':
-                    val.j = (*env)->CallStaticLongMethodA(env, clazz, mid, jargs);
-                    break;
-                    
-                  case 'F':
-                    val.f = (*env)->CallStaticFloatMethodA(env, clazz, mid, jargs);
-                    break;
-                    
-                  case 'D':
-                    val.d = (*env)->CallStaticDoubleMethodA(env, clazz, mid, jargs);
-                    break;
-                    
-                  case 'L':
-                  case '[':
-                    if((*env)->EnsureLocalCapacity(env, 1) != 0){
-                      pj_exception_to_pmath(env);
-                      val.l = NULL;
-                    }
-                    else
-                      val.l = (*env)->CallStaticObjectMethodA(env, clazz, mid, jargs);
-                    break;
+            if(modifiers & PJ_MODIFIER_STATIC){
+              switch(return_type){
+                case 'Z':
+                  val.z = (*env)->CallStaticBooleanMethodA(env, clazz, mid, jargs);
+                  break;
                   
-                  case 'V':
-                    (*env)->CallStaticVoidMethodA(env, clazz, mid, jargs);
-                    break;
-                    
-                  default:
-                    pmath_debug_print("\ainvalid java type `%c`\n", return_type);
-                    assert("invalid java type" && 0);
-                }
-              
-                result = pj_value_from_java(env, return_type, &val);
-              }
-              else if(is_static){
-                /* error: trying to call non-static method without an object */
-              }
-              else{
-                switch(return_type){
-                  case 'Z':
-                    val.z = (*env)->CallBooleanMethodA(env, obj, mid, jargs);
-                    break;
-                    
-                  case 'B':
-                    val.b = (*env)->CallByteMethodA(env, obj, mid, jargs);
-                    break;
-                    
-                  case 'C':
-                    val.b = (*env)->CallCharMethodA(env, obj, mid, jargs);
-                    break;
-                    
-                  case 'S':
-                    val.s = (*env)->CallShortMethodA(env, obj, mid, jargs);
-                    break;
-                    
-                  case 'I':
-                    val.i = (*env)->CallIntMethodA(env, obj, mid, jargs);
-                    break;
-                    
-                  case 'J':
-                    val.j = (*env)->CallLongMethodA(env, obj, mid, jargs);
-                    break;
-                    
-                  case 'F':
-                    val.f = (*env)->CallFloatMethodA(env, obj, mid, jargs);
-                    break;
-                    
-                  case 'D':
-                    val.d = (*env)->CallDoubleMethodA(env, obj, mid, jargs);
-                    break;
-                    
-                  case 'L':
-                  case '[':
-                    if((*env)->EnsureLocalCapacity(env, 1) != 0){
-                      pj_exception_to_pmath(env);
-                      val.l = NULL;
-                    }
-                    else
-                      val.l = (*env)->CallObjectMethodA(env, obj, mid, jargs);
-                    break;
+                case 'B':
+                  val.b = (*env)->CallStaticByteMethodA(env, clazz, mid, jargs);
+                  break;
                   
-                  case 'V':
-                    (*env)->CallVoidMethodA(env, obj, mid, jargs);
-                    break;
-                    
-                  default:
-                    pmath_debug_print("\ainvalid java type `%c`\n", return_type);
-                    assert("invalid java type" && 0);
-                }
-              
-                result = pj_value_from_java(env, return_type, &val);
+                case 'C':
+                  val.b = (*env)->CallStaticCharMethodA(env, clazz, mid, jargs);
+                  break;
+                  
+                case 'S':
+                  val.s = (*env)->CallStaticShortMethodA(env, clazz, mid, jargs);
+                  break;
+                  
+                case 'I':
+                  val.i = (*env)->CallStaticIntMethodA(env, clazz, mid, jargs);
+                  break;
+                  
+                case 'J':
+                  val.j = (*env)->CallStaticLongMethodA(env, clazz, mid, jargs);
+                  break;
+                  
+                case 'F':
+                  val.f = (*env)->CallStaticFloatMethodA(env, clazz, mid, jargs);
+                  break;
+                  
+                case 'D':
+                  val.d = (*env)->CallStaticDoubleMethodA(env, clazz, mid, jargs);
+                  break;
+                  
+                case 'L':
+                case '[':
+                  if((*env)->EnsureLocalCapacity(env, 1) != 0){
+                    pj_exception_to_pmath(env);
+                    val.l = NULL;
+                  }
+                  else
+                    val.l = (*env)->CallStaticObjectMethodA(env, clazz, mid, jargs);
+                  break;
+                
+                case 'V':
+                  (*env)->CallStaticVoidMethodA(env, clazz, mid, jargs);
+                  break;
+                  
+                default:
+                  pmath_debug_print("\ainvalid java type `%c`\n", return_type);
+                  assert("invalid java type" && 0);
               }
             
-              pjvm_exit_call(env, handle);
+              result = pj_value_from_java(env, return_type, &val);
+            }
+            else if(is_static){
+              /* error: trying to call non-static method without an object */
+            }
+            else{
+              switch(return_type){
+                case 'Z':
+                  val.z = (*env)->CallBooleanMethodA(env, obj, mid, jargs);
+                  break;
+                  
+                case 'B':
+                  val.b = (*env)->CallByteMethodA(env, obj, mid, jargs);
+                  break;
+                  
+                case 'C':
+                  val.b = (*env)->CallCharMethodA(env, obj, mid, jargs);
+                  break;
+                  
+                case 'S':
+                  val.s = (*env)->CallShortMethodA(env, obj, mid, jargs);
+                  break;
+                  
+                case 'I':
+                  val.i = (*env)->CallIntMethodA(env, obj, mid, jargs);
+                  break;
+                  
+                case 'J':
+                  val.j = (*env)->CallLongMethodA(env, obj, mid, jargs);
+                  break;
+                  
+                case 'F':
+                  val.f = (*env)->CallFloatMethodA(env, obj, mid, jargs);
+                  break;
+                  
+                case 'D':
+                  val.d = (*env)->CallDoubleMethodA(env, obj, mid, jargs);
+                  break;
+                  
+                case 'L':
+                case '[':
+                  if((*env)->EnsureLocalCapacity(env, 1) != 0){
+                    pj_exception_to_pmath(env);
+                    val.l = NULL;
+                  }
+                  else
+                    val.l = (*env)->CallObjectMethodA(env, obj, mid, jargs);
+                  break;
+                
+                case 'V':
+                  (*env)->CallVoidMethodA(env, obj, mid, jargs);
+                  break;
+                  
+                default:
+                  pmath_debug_print("\ainvalid java type `%c`\n", return_type);
+                  assert("invalid java type" && 0);
+              }
+            
+              result = pj_value_from_java(env, return_type, &val);
             }
           }
         }
@@ -1138,40 +1109,44 @@ pmath_t pj_class_call_method(
   if(result == PMATH_UNDEFINED){
     if(num_args == 0){
       pmath_unref(args);
-      pmath_message(PJ_SYMBOL_JAVA, "argx0", 2,
+      pj_thread_message(msg_thread,
+        PJ_SYMBOL_JAVA, "argx0", 2,
         name,
-        class_name);
+        pj_class_get_nice_name(env, clazz));
     }
     else{
       args = pmath_expr_set_item(args, 0, pmath_ref(PMATH_SYMBOL_LIST));
-      pmath_message(PJ_SYMBOL_JAVA, "argx", 3,
+      
+      pj_thread_message(msg_thread,
+        PJ_SYMBOL_JAVA, "argx", 3,
         name,
-        class_name,
+        pj_class_get_nice_name(env, clazz),
         args);
     }
     
     return pmath_ref(PMATH_SYMBOL_FAILED);
   }
   
-  pmath_unref(class_name);
   pmath_unref(name);
   pmath_unref(args);
   
   return result;
 }
 
-
 jobject pj_class_new_object(
-  JNIEnv       *env,
-  jclass        clazz,
-  pmath_expr_t  args     // will be freed
+  JNIEnv           *env,
+  jclass            clazz,
+  pmath_expr_t      args,        // will be freed
+  pmath_messages_t  msg_thread   // wont be freed
 ){
-  jobject               result;
-  jvalue               *jargs;
-  pmath_string_t        class_name;
-  pmath_t               key;
-  pmath_expr_t          signatures;
-  jint                  num_args;
+  jvalue         *jargs;
+  pmath_string_t  class_name;
+  pmath_t         key;
+  pmath_expr_t    signatures;
+  jint            num_args;
+  jobject         result;
+  
+  pmath_unref(pj_thread_get_companion(NULL));
   
   if(!env 
   || !clazz
@@ -1187,9 +1162,10 @@ jobject pj_class_new_object(
   
   key = pmath_expr_new_extended(
     pmath_ref(PMATH_SYMBOL_LIST), 2,
-    pmath_ref(class_name),
+    class_name,
     PMATH_C_STRING("<init>"));
   
+  class_name = NULL;
   signatures = NULL;
   pmath_atomic_lock(&cms2id_lock);
   {
@@ -1202,10 +1178,12 @@ jobject pj_class_new_object(
   
   if(!pmath_is_expr_of(signatures, PMATH_SYMBOL_LIST)){
     // should not happen: every Java Class has a constructor <init>
-    pmath_message(PJ_SYMBOL_JAVANEW, "fail", 1,
+    pj_thread_message(msg_thread,
+      PJ_SYMBOL_JAVANEW, "fail", 1,
       class_name);
     pmath_unref(args);
     pmath_unref(key);
+    
     return NULL;
   }
   
@@ -1236,13 +1214,7 @@ jobject pj_class_new_object(
           pmath_atomic_unlock(&cms2id_lock);
           
           if(mid && !pmath_aborting()){
-            void *handle = pjvm_enter_call(env);
-            
-            if(handle){
-              result = (*env)->NewObjectA(env, clazz, mid, jargs);
-              
-              pjvm_exit_call(env, handle);
-            }
+            result = (*env)->NewObjectA(env, clazz, mid, jargs);
           }
         }
         
@@ -1262,21 +1234,22 @@ jobject pj_class_new_object(
   if(!result){
     if(num_args == 0){
       pmath_unref(args);
-      pmath_message(PJ_SYMBOL_JAVANEW, "argx0", 1, class_name);
+      pj_thread_message(msg_thread,
+        PJ_SYMBOL_JAVANEW, "argx0", 1, 
+        pj_class_get_nice_name(env, clazz));
     }
     else{
       args = pmath_expr_set_item(args, 0, pmath_ref(PMATH_SYMBOL_LIST));
-      pmath_message(PJ_SYMBOL_JAVANEW, "argx", 2,
-        class_name,
+      pj_thread_message(msg_thread,
+        PJ_SYMBOL_JAVANEW, "argx", 2,
+        pj_class_get_nice_name(env, clazz),
         args);
     }
     
     return NULL;
   }
   
-  pmath_unref(class_name);
   pmath_unref(args);
-  
   return result;
 }
 

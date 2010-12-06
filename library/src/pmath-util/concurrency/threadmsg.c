@@ -2,6 +2,7 @@
 #include <pmath-util/concurrency/event-private.h>
 #include <pmath-util/concurrency/threadpool-private.h>
 #include <pmath-util/concurrency/threads-private.h>
+#include <pmath-util/debug.h>
 #include <pmath-util/evaluation.h>
 #include <pmath-util/memory.h>
 
@@ -16,6 +17,12 @@
   #include <sys/time.h>
   
 #endif
+
+struct notifier_t{
+  pmath_callback_t   func;
+  void              *data;
+  struct notifier_t *next;
+};
 
 struct message_t{
   struct message_t *next;
@@ -34,6 +41,9 @@ struct msg_queue_t{
   
   PMATH_DECLARE_ATOMIC(head_spin);
   PMATH_DECLARE_ATOMIC(tail_spin);
+  PMATH_DECLARE_ATOMIC(notifier_spin);
+  
+  struct notifier_t *notifiers;
   
   pmath_event_t sleep_event;
   pmath_t _sleep_result; // access with _pmath_object_atomic_[read|write]
@@ -58,22 +68,33 @@ static void wakeup_msg_queue(struct msg_queue_t *mq_data){
   struct msg_queue_t *next;
   
   for(;;){
-    pmath_atomic_lock(&sleeplist_spin);
-    
-    prev = mq_data->prev;
-    next = mq_data->next;
-    prev->next = next;
-    next->prev = prev;
-    if(mq_data == sleeplist){
-      if(mq_data->next == mq_data)
-        sleeplist = NULL;
-      else
-        sleeplist = mq_data->next;
+    pmath_atomic_lock(&mq_data->notifier_spin);
+    {
+      struct notifier_t *notify = mq_data->notifiers;
+      
+      while(notify){
+        notify->func(notify->data);
+        notify = notify->next;
+      }
     }
+    pmath_atomic_unlock(&mq_data->notifier_spin);
     
-    mq_data->prev = mq_data;
-    mq_data->next = mq_data;
-    
+    pmath_atomic_lock(&sleeplist_spin);
+    {
+      prev = mq_data->prev;
+      next = mq_data->next;
+      prev->next = next;
+      next->prev = prev;
+      if(mq_data == sleeplist){
+        if(mq_data->next == mq_data)
+          sleeplist = NULL;
+        else
+          sleeplist = mq_data->next;
+      }
+      
+      mq_data->prev = mq_data;
+      mq_data->next = mq_data;
+    }
     pmath_atomic_unlock(&sleeplist_spin);
     
     pmath_atomic_barrier();
@@ -161,25 +182,36 @@ void _pmath_msq_queue_awake_all(void){
   
   for(;;){
     pmath_atomic_lock(&sleeplist_spin);
-    
-    sl = sleeplist;
-    if(sl){
-      prev = sl->prev;
-      next = sl->next;
-      prev->next = next;
-      next->prev = prev;
-      if(sl->next == sl)
-        sleeplist = NULL;
-      else
-        sleeplist = sl->next;
-      
-      sl->prev = sl;
-      sl->next = sl;
+    {
+      sl = sleeplist;
+      if(sl){
+        prev = sl->prev;
+        next = sl->next;
+        prev->next = next;
+        next->prev = prev;
+        if(sl->next == sl)
+          sleeplist = NULL;
+        else
+          sleeplist = sl->next;
+        
+        sl->prev = sl;
+        sl->next = sl;
+      }
     }
-    
     pmath_atomic_unlock(&sleeplist_spin);
     
     if(sl){
+      pmath_atomic_lock(&sl->notifier_spin);
+      {
+        struct notifier_t *notify = sl->notifiers;
+        
+        while(notify){
+          notify->func(notify->data);
+          notify = notify->next;
+        }
+      }
+      pmath_atomic_unlock(&sl->notifier_spin);
+    
       _pmath_event_signal(&sl->sleep_event);
     }
     else break;
@@ -213,12 +245,15 @@ static void destroy_msg_queue(void *mq_data){
   mq = (struct msg_queue_t*)mq_data;
   
   assert(mq != NULL);
+  assert(mq->notifiers == NULL);
   
   wakeup_msg_queue(mq);
   
   msg = mq->head;
   while(msg != mq->tail){
     next = msg->next;
+    
+    pmath_debug_print_object("unhandled messaged ", msg->subject, "\n");
     
     (void)pmath_atomic_fetch_add(&_pmath_abort_reasons, -1);
     destroy_msg(msg);
@@ -671,6 +706,52 @@ pmath_bool_t pmath_thread_queue_is_blocked_by(
   pmath_unref(waiter_mq);
   pmath_unref(waitee_mq);
   return TRUE;
+}
+
+/*============================================================================*/
+
+PMATH_API
+void pmath_thread_run_with_interrupt_notifier(
+  pmath_callback_t   callback,
+  pmath_callback_t   notify,
+  void              *callback_closure,
+  void              *notify_closure
+){
+  pmath_messages_t mq = pmath_thread_get_queue();
+  
+  assert(callback != NULL);
+  assert(notify != NULL);
+  
+  if(mq){
+    struct notifier_t notifier;
+    struct msg_queue_t *mq_data;
+    
+    mq_data = pmath_custom_get_data(mq);
+    assert(mq_data != NULL);
+    
+    notifier.func = notify;
+    notifier.data = notify_closure;
+    
+    pmath_atomic_lock(&mq_data->notifier_spin);
+    {
+      notifier.next = mq_data->notifiers;
+      mq_data->notifiers = &notifier;
+    }
+    pmath_atomic_unlock(&mq_data->notifier_spin);
+    
+    callback(callback_closure);
+    
+    pmath_atomic_lock(&mq_data->notifier_spin);
+    {
+      assert(mq_data->notifiers == &notifier);
+      mq_data->notifiers = notifier.next;
+    }
+    pmath_atomic_unlock(&mq_data->notifier_spin);
+    
+    pmath_unref(mq);
+  }
+  else
+    callback(callback_closure);
 }
   
 /*============================================================================*/

@@ -13,17 +13,18 @@ extern void pj_class_cache_members(JNIEnv *env, jclass clazz);
 
 
 extern pmath_t pj_class_call_method(
-  JNIEnv         *env, 
-  jobject         obj, 
-  pmath_bool_t    is_static, 
-  pmath_string_t  name,  // will be freed; gives error message if no string 
-  pmath_expr_t    args); // will be freed
+  JNIEnv           *env, 
+  jobject           obj, 
+  pmath_bool_t      is_static, 
+  pmath_string_t    name,         // will be freed; gives error message if no string 
+  pmath_expr_t      args,         // will be freed
+  pmath_messages_t  msg_thread);  // wont be freed
 
 extern jobject pj_class_new_object(
-  JNIEnv       *env,
-  jclass        clazz,
-  pmath_expr_t  args); // will be freed
-
+  JNIEnv           *env,
+  jclass            clazz,
+  pmath_expr_t      args,         // will be freed
+  pmath_messages_t  msg_thread);  // wont be freed
 
 extern pmath_t pj_class_get_field(
   JNIEnv         *env,

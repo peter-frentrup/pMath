@@ -195,6 +195,26 @@ PMATH_API
 pmath_bool_t pmath_thread_queue_is_blocked_by(
   pmath_messages_t waiter_mq,
   pmath_messages_t waitee_mq);
+
+/**\brief Execute a function with an interrupt notifier installed.
+   \ingroup threads
+   \relates pmath_thread_t
+   \param callback The function to be called.
+   \param notify Is called when a message is delivered to the current thread. 
+          This function is called by the thread that sends the message, but
+          concurrent sending threads wait on each other when calling the 
+          function. \a notify must not call any function that could send 
+          messages, because that would lead to a deadlock.
+   \param callback_closure The argument for \a callback.
+   \param notify_closure The argument for \a notify.
+ */
+PMATH_API
+void pmath_thread_run_with_interrupt_notifier(
+  pmath_callback_t   callback,
+  pmath_callback_t   notify,
+  void              *callback_closure,
+  void              *notify_closure
+  );
   
 /** @} */
 
