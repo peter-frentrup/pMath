@@ -23,6 +23,7 @@ pmath_bool_t pj_symbols_init(void){
 
   VERIFY(PJ_SYMBOL_INTERNAL_STOPPEDCOTHREAD = NEW_SYMBOL("Java`Internal`StoppedCothread"));
   VERIFY(PJ_SYMBOL_INTERNAL_JAVACALL        = NEW_SYMBOL("Java`Internal`JavaCall"));
+  VERIFY(PJ_SYMBOL_INTERNAL_JAVANEW         = NEW_SYMBOL("Java`Internal`JavaNew"));
   VERIFY(PJ_SYMBOL_INTERNAL_RETURN          = NEW_SYMBOL("Java`Internal`Return"));
   
   VERIFY(PJ_SYMBOL_ISJAVAOBJECT        = NEW_SYMBOL("Java`IsJavaObject"));
@@ -65,6 +66,7 @@ pmath_bool_t pj_symbols_init(void){
   BIND_DOWN(PJ_SYMBOL_JAVASTARTVM,    pj_builtin_startvm);
   
   BIND_DOWN(PJ_SYMBOL_INTERNAL_JAVACALL,        pj_builtin_internal_javacall);
+  BIND_DOWN(PJ_SYMBOL_INTERNAL_JAVANEW,         pj_builtin_internal_javanew);
   BIND_DOWN(PJ_SYMBOL_INTERNAL_RETURN,          pj_builtin_internal_return);
   BIND_DOWN(PJ_SYMBOL_INTERNAL_STOPPEDCOTHREAD, pj_builtin_internal_stoppedcothread);
   

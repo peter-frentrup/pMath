@@ -318,22 +318,27 @@ JNIEnv *pjvm_get_env(void){
 
 
 pmath_bool_t pj_exception_to_pmath(JNIEnv *env){
+  jthrowable jex;
   if(!env)
     return FALSE;
   
-  if((*env)->ExceptionCheck(env)){
-    pmath_t    pex;
-    jthrowable jex = (*env)->ExceptionOccurred(env);
+  jex = (*env)->ExceptionOccurred(env);
+  if(jex){
+    #ifdef PMATH_DEBUG_LOG
+      (*env)->ExceptionDescribe(env);
+    #endif
     (*env)->ExceptionClear(env);
     
-    pex = pmath_expr_new_extended(
-      pmath_ref(PJ_SYMBOL_JAVAEXCEPTION), 2, 
-      pj_object_from_java(env, jex),
-      NULL);
-    
-    pmath_debug_print_object("[java exception: ", pex, "]\n");
-    
-    pmath_throw(pex);
+    if(!(*env)->IsSameObject(env, jex, pjvm_internal_exception)){
+      pmath_t pex = pmath_expr_new_extended(
+        pmath_ref(PJ_SYMBOL_JAVAEXCEPTION), 2, 
+        pj_object_from_java(env, jex),
+        NULL);
+      
+      pmath_debug_print_object("[java exception: ", pex, "]\n");
+      
+      pmath_throw(pex);
+    }
     
     (*env)->DeleteLocalRef(env, jex);
     return TRUE;
