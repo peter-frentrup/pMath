@@ -5,6 +5,7 @@ Java`Java
 Java`JavaClass
 Java`JavaCall
 Java`JavaException
+Java`JavaField
 Java`JavaKillVM
 Java`JavaNew
 Java`JavaStartVM
@@ -57,7 +58,23 @@ If(System`$SystemId === "Windows",
 
 Java`$DefaultClassPath:= {ToFileName(DirectoryName($Input, 2), "classpath")}
 
+
+Java`JavaClass(~cls:String) @ (~f:String)::= Java`JavaField(cls, f)
+Java`JavaClass(~cls:String) @ (~f:Symbol)::= Java`JavaField(cls, SymbolName(f))
+
+Java`JavaClass /: (Java`JavaClass(~cls:String) @ (~f:String):= ~rhs)::= Java`JavaField(cls, f):= rhs
+Java`JavaClass /: (Java`JavaClass(~cls:String) @ (~f:Symbol):= ~rhs)::= With({fs:= SymbolName(f)}, Java`JavaField(cls, fs):= rhs)
+
+Java`JavaClass(~cls:String) @ (~m:String)(~~~args)              ::= Java`JavaCall(cls,     m,             args)
+Java`JavaClass(~cls:String) @ (~m:Symbol)(~~~args)              ::= Java`JavaCall(cls,     SymbolName(m), args)
+Java`JavaClass(~cls:String) @ (e: ~(~~~)) @ (~m:String)(~~~args)::= Java`JavaCall(cls @ e, m,             args)
+Java`JavaClass(~cls:String) @ (e: ~(~~~)) @ (~m:Symbol)(~~~args)::= Java`JavaCall(cls @ e, SymbolName(m), args)
+
+
 LoadLibrary(ToFileName(Java`Private`$DLLDirectory, "pmath-java.dll"))
+
+
+
 
 
 
@@ -83,7 +100,7 @@ Fields(JavaClass(~name:String) | ~name:String)::=       Column(JavaClass("java.l
 
 
 
-Attributes(Constructors):= Attributes(Methods):= Attributes(Fields):= {Protected, ReadProtected}
+Attributes(Constructors):= Attributes(Methods):= Attributes(Fields):= Attributes(JavaClass):= {Protected, ReadProtected}
 
 End()
 

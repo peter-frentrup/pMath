@@ -1290,8 +1290,9 @@ pmath_t pj_class_get_field(
     pmath_ref(class_name),
     pmath_ref(name));
   
-  fid = 0;
+  fid         = 0;
   return_type = '?';
+  modifiers   = 0;
   pmath_atomic_lock(&cms2id_lock);
   {
     struct pmath2id_t *cache_entry = pmath_ht_search(cms2id, key);
@@ -1471,9 +1472,10 @@ extern pmath_bool_t pj_class_set_field(
     pmath_ref(class_name),
     pmath_ref(name));
   
-  fid = 0;
-  field_type = NULL;
+  fid             = 0;
+  field_type      = NULL;
   field_type_char = '?';
+  modifiers       = 0;
   pmath_atomic_lock(&cms2id_lock);
   {
     struct pmath2id_t *cache_entry = pmath_ht_search(cms2id, key);

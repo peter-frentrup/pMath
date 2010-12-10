@@ -330,7 +330,9 @@ pmath_bool_t pj_exception_to_pmath(JNIEnv *env){
     (*env)->ExceptionClear(env);
     
     if(!(*env)->IsSameObject(env, jex, pjvm_internal_exception)){
-      pmath_t pex = pmath_expr_new_extended(
+      pmath_t pex;
+      
+      pex = pmath_expr_new_extended(
         pmath_ref(PJ_SYMBOL_JAVAEXCEPTION), 2, 
         pj_object_from_java(env, jex),
         NULL);

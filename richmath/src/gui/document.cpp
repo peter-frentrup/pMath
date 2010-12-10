@@ -785,7 +785,7 @@ void Document::on_mouse_move(MouseEvent &event){
     return;
   }
   
-  if(is_inside_selection(box, start, end, was_inside_start)){
+  if(!event.left && is_inside_selection(box, start, end, was_inside_start)){
     native()->set_cursor(DefaultCursor);
   }
   else if(box->selectable()){

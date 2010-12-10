@@ -256,13 +256,13 @@ pmath_t pj_object_from_java(JNIEnv *env, jobject jobj){
               str);
             
             PMATH_RUN_ARGS(
-                "`1`/: ClassName(`1`)::= `2`", 
+                "`1`/: Java`ClassName(`1`)::= `2`", 
               "(oo)", 
               pmath_ref(symbol),
               pmath_ref(class_name));
             
             PMATH_RUN_ARGS(
-                "`1`/: GetClass(`1`)::= JavaClass(`2`)", 
+                "`1`/: Java`GetClass(`1`)::= Java`JavaClass(`2`)", 
               "(oo)", 
               pmath_ref(symbol),
               class_name);
@@ -609,15 +609,15 @@ pmath_t pj_builtin_javacall(pmath_expr_t expr){
         double start_time = pmath_tickcount();
         
         pmath_debug_print("[aborting javacall...]\n");
-        // give the thread a 3 second chance to react for the interrupt
+        // give the thread a 2 second chance to react for the interrupt
         (*jvmti)->InterruptThread(jvmti, jthread_obj);
         
         do{
-          pmath_thread_sleep_timeout(1.0);
+          pmath_thread_sleep_timeout(0.5);
               
           result = pmath_thread_local_load(result_key);
           
-        }while(pmath_tickcount() - start_time < 3.0 
+        }while(pmath_tickcount() - start_time < 2.0 
         && result == PMATH_UNDEFINED);
         
         if(result != PMATH_UNDEFINED)
@@ -758,14 +758,31 @@ pmath_t pj_builtin_javanew(pmath_expr_t expr){
     while(result == PMATH_UNDEFINED){
       pmath_thread_sleep();
       
-      result = pmath_thread_local_load(result_key);
-      
       if(pmath_aborting()){
+        double start_time = pmath_tickcount();
+        
+        pmath_debug_print("[aborting javanew...]\n");
+        // give the thread a 2 second chance to react for the interrupt
+        (*jvmti)->InterruptThread(jvmti, jthread_obj);
+        
+        do{
+          pmath_thread_sleep_timeout(0.5);
+              
+          result = pmath_thread_local_load(result_key);
+          
+        }while(pmath_tickcount() - start_time < 2.0 
+        && result == PMATH_UNDEFINED);
+        
+        if(result != PMATH_UNDEFINED)
+          break;
+          
         if(pjvm_internal_exception)
           (*jvmti)->StopThread(jvmti, jthread_obj, pjvm_internal_exception);
         
         break;
       }
+      
+      result = pmath_thread_local_load(result_key);
     }
   }
   

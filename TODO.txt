@@ -1,7 +1,19 @@
 ﻿Row({Button("Math in Text",DocumentApply(SelectedDocument(),"\({\"\"}\)")),
 	Button("italic",DocumentApply(SelectedDocument(),StyleBox("",FontSlant->Italic))),
 	Button("Arg Style",DocumentApply(SelectedDocument(),StyleBox("","Arg")))})
+   
+- richmath: Assertion failed: NOT_REACHED, file cairo-misc.c, line 380
+    when some overlong text is inserted
 
+- pmath: crash with recursive String patterns
+
+- richmath: allow altering MakeExpression with symbols...
+    MakeExpression(~s /? StringMatch(s, StartOfString ++ "java`" ++ ~~ ++ EndOfString))::= With({cls:= s.StringDrop(5).StringReplace("`" -> ".")}, HoldComplete(JavaClass(cls)))
+   
+- pmath-java: prevent Java side from calling System.exit() or halt...
+   
+- richmath: better spacing for /: operator
+   
 !? make <<context` parse as Needs("context`") and do not provide special syntax for Get()	
 	
 ? implement Stack(pattern)   

@@ -3,9 +3,15 @@ public class Test1{
 		return a + b;
 	}
 	
-	public static double div(double a, double b){
+	public static int div(int a, int b){
 		return a / b;
 	}
+    
+    public static int recursiveCall(int depth){
+        if(depth > 0)
+            return 1 + recursiveCall(depth - 1);
+        return 0;
+    }
 	
 	public static void endlessLoop(){
 		while(true){
