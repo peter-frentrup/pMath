@@ -169,12 +169,26 @@ static void os_init(){
 int main(){
   os_init();
   
+  if(cairo_version() < CAIRO_VERSION_ENCODE(1,10,0)){
+    fprintf(stderr, 
+      "Cairo Version 1.10.0 or newer needed, but only %s found.\n",
+      cairo_version_string());
+    return 1;
+  }
+  
+  if(pango_version() < PANGO_VERSION_ENCODE(1,28,0)){
+    fprintf(stderr, 
+      "Pango Version 1.28.0 or newer needed, but only %s found.\n",
+      pango_version_string());
+    return 1;
+  }
+  
   printf("cairo version: %s\n", cairo_version_string());
   printf("pango version: %s\n", pango_version_string());
   
   if(!pmath_init()
   || !init_bindings()){
-    printf("cannot initialize pmath\n");
+    fprintf(stderr, "cannot initialize pmath\n");
     return 1;
   }
   

@@ -1,1 +1,1 @@
-COPY /Y scripts\Java.pmath.bin  bin\Windows\Java.pmath
+COPY /Y scripts\bin-Java.pmath  bin\Windows\Java.pmath

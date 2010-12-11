@@ -14,6 +14,7 @@
   #include <windows.h>
 #else
   #include <dlfcn.h>
+  #include <errno.h>
 #endif
 
 
@@ -86,6 +87,7 @@ static jint (JNICALL *_JNI_GetCreatedJavaVMs)(JavaVM **, jsize, jsize *) = NULL;
     info->success = FALSE;
     
     vmlibfile = pmath_evaluate(pmath_ref(PJ_SYMBOL_JAVAVMLIBRARYNAME));
+    
     if(!pmath_instance_of(vmlibfile, PMATH_TYPE_STRING)){
       pmath_unref(vmlibfile);
       return;

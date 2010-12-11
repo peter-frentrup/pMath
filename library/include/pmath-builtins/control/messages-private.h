@@ -12,4 +12,6 @@
 PMATH_PRIVATE pmath_bool_t _pmath_is_valid_messagename(pmath_t msg);
 PMATH_PRIVATE pmath_bool_t _pmath_message_is_default_off(pmath_t msg);
 
+PMATH_PRIVATE pmath_bool_t _pmath_message_is_on(pmath_t msg);
+
 #endif // __PMATH_BUILTINS__CONTROL__MESSAGES_PRIVATE_H__

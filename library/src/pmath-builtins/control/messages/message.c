@@ -18,10 +18,39 @@ PMATH_PRIVATE pmath_bool_t _pmath_message_is_default_off(pmath_t msg){
       || pmath_equals(msg, _pmath_object_get_load_message);
 }
 
+PMATH_PRIVATE pmath_bool_t _pmath_message_is_on(pmath_t msg){
+  pmath_thread_t thread;
+  pmath_t is_off;
+  
+  thread = pmath_thread_get_current();
+  is_off = _pmath_thread_local_load_with(msg, thread);
+  pmath_unref(is_off);
+  
+  if(is_off == PMATH_SYMBOL_ON)
+    return TRUE;
+  
+  if(is_off == PMATH_SYMBOL_OFF || _pmath_message_is_default_off(msg))
+    return FALSE;
+  
+  is_off = PMATH_UNDEFINED;
+  if(pmath_is_expr_of_len(msg, PMATH_SYMBOL_MESSAGENAME, 2)){
+    pmath_t varname = pmath_expr_set_item(pmath_ref(msg), 2, NULL);
+    
+    is_off = _pmath_thread_local_load_with(varname, thread);
+    pmath_unref(is_off);
+    pmath_unref(varname);
+  }
+  
+  if(is_off == PMATH_SYMBOL_OFF)
+    return FALSE;
+  
+  return TRUE;
+}
+
 PMATH_PRIVATE pmath_t builtin_message(pmath_expr_t expr){
  /* Message(symbol::tag, arg1, arg2, ...)
   */
-  pmath_t name, alloff, off;
+  pmath_t name;
   pmath_string_t text;
   pmath_bool_t stop_msg = FALSE;
   pmath_thread_t thread;
@@ -33,58 +62,38 @@ PMATH_PRIVATE pmath_t builtin_message(pmath_expr_t expr){
 
   name = pmath_expr_get_item(expr, 1);
   
-  thread = pmath_thread_get_current();
-  off = _pmath_thread_local_load_with(name, thread);
-  pmath_unref(off);
-    
-  if(off == PMATH_SYMBOL_OFF){
+  if(_pmath_message_is_on(name)){
     pmath_unref(name);
     pmath_unref(expr);
     return NULL;
   }
-  
-  alloff = PMATH_UNDEFINED;
-  if(pmath_is_expr_of_len(name, PMATH_SYMBOL_MESSAGENAME, 2)){
-    pmath_t varname = pmath_expr_set_item(pmath_ref(name), 2, NULL);
-    
-    alloff = _pmath_thread_local_load_with(varname, thread);
-    pmath_unref(alloff);
-    pmath_unref(varname);
-  }
-  
-  if(off != PMATH_SYMBOL_ON 
-  && (alloff == PMATH_SYMBOL_OFF || _pmath_message_is_default_off(name))){
-    pmath_unref(name);
-    pmath_unref(expr);
-    return NULL;
-  }
-  
   
   if(!pmath_equals(_pmath_object_stop_message, name)){
-    off = pmath_evaluate(
+    pmath_t count = pmath_evaluate(
       pmath_expr_new_extended(
         pmath_ref(PMATH_SYMBOL_INCREMENT), 1,
         pmath_expr_new_extended(
           pmath_ref(PMATH_SYMBOL_MESSAGECOUNT), 1,
           pmath_ref(name))));
     
-    if(pmath_instance_of(off, PMATH_TYPE_INTEGER)
-    && pmath_integer_fits_si((pmath_integer_t)off)){
-      long cnt = pmath_integer_get_si((pmath_integer_t)off);
+    if(pmath_instance_of(count, PMATH_TYPE_INTEGER)
+    && pmath_integer_fits_si((pmath_integer_t)count)){
+      long cnt = pmath_integer_get_si((pmath_integer_t)count);
       
       stop_msg = cnt == max_message_count;
       
       if(cnt > max_message_count){
-        pmath_unref(off);
+        pmath_unref(count);
         pmath_unref(expr);
         pmath_unref(name);
         return NULL;
       }
     }
     
-    pmath_unref(off);
+    pmath_unref(count);
   }
 
+  thread = pmath_thread_get_current();
   if(thread && thread->critical_messages){
     pmath_t dothrow = pmath_evaluate(
       pmath_expr_new_extended(

@@ -177,7 +177,8 @@
 				<Option object_output="obj/linux/debug" />
 				<Option type="3" />
 				<Option compiler="gcc" />
-				<Option host_application="test/bin/linux/debug/test" />
+				<Option parameters="test/bin/linux/debug/test" />
+				<Option host_application="./run.sh" />
 				<Compiler>
 					<Add option="-march=pentium4" />
 					<Add option="-march=i686" />

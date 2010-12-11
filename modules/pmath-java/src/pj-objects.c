@@ -479,6 +479,8 @@ pmath_t pj_builtin_internal_return(pmath_expr_t expr){
   
   expr = pmath_expr_new(pmath_ref(PJ_SYMBOL_INTERNAL_RETURN), 0);
   
+  pmath_debug_print("[Java`Internal`Return ...]\n");
+  
   pmath_unref(pmath_thread_local_save(
     expr,
     result));
@@ -492,6 +494,8 @@ pmath_t pj_builtin_internal_javacall(pmath_expr_t expr){
   pmath_t result;
   pmath_t exception;
   pmath_t companion = pj_thread_get_companion(NULL);
+  
+  pmath_debug_print("[Java`Internal`JavaCall ...]\n");
   
   result = pmath_ref(PMATH_SYMBOL_FAILED);
   pjvm_ensure_started();

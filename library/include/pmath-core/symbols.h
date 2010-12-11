@@ -184,7 +184,7 @@ PMATH_API
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_symbol_t pmath_symbol_find(
   pmath_string_t  name,
-  pmath_bool_t create);
+  pmath_bool_t    create);
 
 /**\brief Get a symbol's name.
    \memberof pmath_symbol_t

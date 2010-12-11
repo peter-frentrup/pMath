@@ -3,7 +3,7 @@
 	Button("Arg Style",DocumentApply(SelectedDocument(),StyleBox("","Arg")))})
    
 - richmath: Assertion failed: NOT_REACHED, file cairo-misc.c, line 380
-    when some overlong text is inserted
+    when some overlong text is inserted (maybe it used an older cairo version, 1.8.8 instead of >= 1.10.0)
 
 - pmath: crash with recursive String patterns
 
@@ -11,6 +11,7 @@
     MakeExpression(~s /? StringMatch(s, StartOfString ++ "java`" ++ ~~ ++ EndOfString))::= With({cls:= s.StringDrop(5).StringReplace("`" -> ".")}, HoldComplete(JavaClass(cls)))
    
 - pmath-java: prevent Java side from calling System.exit() or halt...
+- pmath-java: reset signal handlers after initialization of the jvm
    
 - richmath: better spacing for /: operator
    

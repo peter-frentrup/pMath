@@ -55,6 +55,26 @@ If(System`$SystemId === "Windows",
 	$JavaVMLibraryName:= First(path);
 	Unprotect($JavaVMLibraryName);
 	)
+Is(System`$SystemId === "Linux",
+	If($ProcessorType === "x64", 
+		arch:= "amd64";
+		path:= {"/usr/lib64", "/usr/local/lib64"};
+	,
+		arch:= "i386";
+		path:= {"/usr/lib", "/usr/local/lib"});
+	
+	path:= FileNames("jvm", path);
+	path:= FileNames("*", path);
+	path:= FileNames("jre", path);
+	path:= FileNames("lib", path);
+	path:= FileNames(arch, path);
+	path:= FileNames({"server","client"}, path);
+	path:= FileNames("libjvm.so", path);
+	
+	Unprotect($JavaVMLibraryName);
+	$JavaVMLibraryName:= First(path);
+	Unprotect($JavaVMLibraryName);
+	)
 
 Java`$DefaultClassPath:= {ToFileName(DirectoryName($Input, 2), "classpath")}
 
@@ -71,10 +91,12 @@ Java`JavaClass(~cls:String) @ (e: ~(~~~)) @ (~m:String)(~~~args)::= Java`JavaCal
 Java`JavaClass(~cls:String) @ (e: ~(~~~)) @ (~m:Symbol)(~~~args)::= Java`JavaCall(cls @ e, SymbolName(m), args)
 
 
-LoadLibrary(ToFileName(Java`Private`$DLLDirectory, "pmath-java.dll"))
 
-
-
+LoadLibrary(ToFileName(
+	Java`Private`$DLLDirectory, 
+	If($SystemId === "Windows",
+		"pmath-java.dll",
+		"pmath-java.so")))
 
 
 

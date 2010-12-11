@@ -3,6 +3,7 @@
 #include "pjvm.h"
 
 #include <math.h>
+#include <string.h>
 
 #ifdef PMATH_OS_WIN32
   #define NOGDI

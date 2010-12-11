@@ -11,6 +11,9 @@
 
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/control/definitions-private.h>
+#include <pmath-builtins/control/messages-private.h>
+
+#include <limits.h>
 
 
 PMATH_PRIVATE pmath_bool_t _pmath_is_namespace(pmath_t name){
@@ -312,15 +315,85 @@ PMATH_PRIVATE pmath_t builtin_beginpackage(pmath_expr_t expr){
       "$Namespace:= `1`;"
       "$NamespacePath:= Join({`1`}, `2`, {\"System`\"});"
       "Synchronize($Packages,"
-        "Unprotect($Packages);"
-        "$Packages:= Append($Packages, `1`);"
-        "Protect($Packages));"
+        "If(Length(Position($Packages, `1`)) === 0,"
+          "Unprotect($Packages);"
+          "$Packages:= Append($Packages, `1`);"
+          "Protect($Packages)));"
       "Scan(`2`, Get)",
     "(oo)", package, nspath);
   
   pmath_unref(expr);
   return NULL;
 }
+  
+  static pmath_bool_t starts_with(pmath_string_t s, pmath_string_t sub){
+    const uint16_t *sbuf   = pmath_string_buffer(s);
+    const uint16_t *subbuf = pmath_string_buffer(sub);
+    int slen   = pmath_string_length(s);
+    int sublen = pmath_string_length(sub);
+    
+    if(slen < sublen)
+      return FALSE;
+    
+    while(sublen-- > 0){
+      if(*sbuf++ != *subbuf++)
+        return FALSE;
+    }
+    
+    return TRUE;
+  }
+  
+  static void check_name_clashes(pmath_string_t new_namespace){
+    pmath_t msg;
+    pmath_symbol_t current;
+    
+    msg = pmath_expr_new_extended(
+      pmath_ref(PMATH_SYMBOL_MESSAGENAME), 2,
+      pmath_ref(PMATH_SYMBOL_GENERAL),
+      PMATH_C_STRING("shdw"));
+    
+    if(!_pmath_message_is_on(msg)){
+      pmath_unref(msg);
+      return;
+    }
+    
+    pmath_unref(msg);
+    current = pmath_ref(PMATH_SYMBOL_LIST);
+    do{
+      pmath_string_t name = pmath_symbol_name(current);
+      
+      if(starts_with(name, new_namespace)){
+        pmath_symbol_t other;
+        
+        name = pmath_string_part(name, pmath_string_length(new_namespace), INT_MAX);
+        
+        other = pmath_symbol_find(name, FALSE);
+        if(other && other != current){
+          const uint16_t *buf = pmath_string_buffer(name);
+          int             len = pmath_string_length(name);
+          
+          --len;
+          while(len > 0 && buf[len] != '`')
+            --len;
+          
+          pmath_message(PMATH_SYMBOL_GENERAL, "shdw", 3,
+            pmath_ref(name),
+            pmath_build_value("(oo)", 
+              pmath_string_part(name, 0, len+1), 
+              pmath_ref(new_namespace)),
+            pmath_ref(new_namespace));
+        }
+        
+        pmath_unref(other);
+      }
+      
+      pmath_unref(name);
+      
+      current = pmath_symbol_iter_next(current);
+    }while(current && current != PMATH_SYMBOL_LIST);
+    
+    pmath_unref(current);
+  }
 
 PMATH_PRIVATE pmath_t builtin_endpackage(pmath_expr_t expr){
   pmath_t oldns, ns, nspath, nspathstack, nsstack;
@@ -371,6 +444,8 @@ PMATH_PRIVATE pmath_t builtin_endpackage(pmath_expr_t expr){
     return NULL;
   }
   
+  check_name_clashes(oldns);
+  
   pmath_unref(
     pmath_thread_local_save(
       PMATH_SYMBOL_CURRENTNAMESPACE, 
@@ -387,7 +462,7 @@ PMATH_PRIVATE pmath_t builtin_endpackage(pmath_expr_t expr){
       nsstack));
   
   PMATH_RUN_ARGS(
-      "$NamespacePath:= Prepend(`1`, `2`)",
+      "$NamespacePath:= Prepend(Select(`1`, # =!= `2` &), `2`)",
     "(oo)", nspath, oldns);
   
   return NULL;
