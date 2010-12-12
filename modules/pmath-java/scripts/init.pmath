@@ -55,7 +55,7 @@ If(System`$SystemId === "Windows",
 	$JavaVMLibraryName:= First(path);
 	Unprotect($JavaVMLibraryName);
 	)
-Is(System`$SystemId === "Linux",
+If(System`$SystemId === "Linux",
 	If($ProcessorType === "x64", 
 		arch:= "amd64";
 		path:= {"/usr/lib64", "/usr/local/lib64"};

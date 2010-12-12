@@ -2223,7 +2223,7 @@ static void write_expr_ex(
       write_ex(
         item,
         options,
-        PRIO_FACTOR,
+        PRIO_TIMES,
         (pmath_write_func_t)product_writer,
         &product_writer_data);
       product_writer_data.prefix_status = 0;

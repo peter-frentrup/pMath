@@ -2,8 +2,6 @@
 	Button("italic",DocumentApply(SelectedDocument(),StyleBox("",FontSlant->Italic))),
 	Button("Arg Style",DocumentApply(SelectedDocument(),StyleBox("","Arg")))})
 
-- pmath	ToString(-2x) gives "(-2) x" instead of "-2 x"
-	
 - richmath: Assertion failed: NOT_REACHED, file cairo-misc.c, line 380
     when some overlong text is inserted (maybe it used an older cairo version, 1.8.8 instead of >= 1.10.0)
 
@@ -13,10 +11,7 @@
     MakeExpression(~s /? StringMatch(s, StartOfString ++ "java`" ++ ~~ ++ EndOfString))::= With({cls:= s.StringDrop(5).StringReplace("`" -> ".")}, HoldComplete(JavaClass(cls)))
    
 - pmath-java: prevent Java side from calling System.exit() or halt...
-- pmath-java: reset signal handlers after initialization of the jvm
-   
-- richmath: better spacing for /: operator
-   
+
 !? make <<context` parse as Needs("context`") and do not provide special syntax for Get()	
 	
 ? implement Stack(pattern)   

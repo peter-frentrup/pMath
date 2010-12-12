@@ -226,6 +226,8 @@ static jint (JNICALL *_JNI_GetCreatedJavaVMs)(JavaVM **, jsize, jsize *) = NULL;
     while(!vm_quit){
       pmath_thread_sleep();
     }
+    
+    pmath_debug_print("[bye jvm_main]\n");
   }
   
 pmath_bool_t pjvm_register_external(JavaVM *jvm){
@@ -393,7 +395,7 @@ pmath_t pj_builtin_startvm(pmath_expr_t expr){
           JavaVM *jvm = NULL;
           jvmtiEnv *jvmti = NULL;
           JNIEnv *env = NULL;
-          JavaVMOption opt[4];
+          JavaVMOption opt[6];
           jint nOptions = 0;
           char *classpath = NULL;
           jint err;
@@ -407,6 +409,8 @@ pmath_t pj_builtin_startvm(pmath_expr_t expr){
             opt[nOptions++].optionString = "-Xcheck:jni";
           }
           #endif
+          
+          opt[nOptions++].optionString = "-Xrs";
           
           
           { // setting up classpath
