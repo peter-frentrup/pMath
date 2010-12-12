@@ -20,12 +20,12 @@ PMATH_PRIVATE void _pmath_iterate(
   size_t count;
 
   if(_pmath_is_rule(iter)){
-    pmath_t            start = NULL;
-    pmath_t            delta = NULL;
+    pmath_t                   start = NULL;
+    pmath_t                   delta = NULL;
     pmath_symbol_t            sym;
-    pmath_expr_t        range;
+    pmath_expr_t              range;
     pmath_symbol_attributes_t old_attr;
-    pmath_t            old_value;
+    pmath_t                   old_value;
 
     sym = pmath_expr_get_item(iter, 1);
 

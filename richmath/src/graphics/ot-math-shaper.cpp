@@ -1244,6 +1244,11 @@ void OTMathShaper::vertical_stretch_char(
   float em = context->canvas->get_font_size();
   float axis = (em * db->consts.axis_height.value) / db->units_per_em;
   
+  if(pmath_char_maybe_bigop(ch)){
+    ascent-=  0.1 * em;
+    descent-= 0.1 * em;
+  }
+  
   float half = ascent - axis;
   if(half < descent + axis)
      half = descent + axis;

@@ -224,10 +224,10 @@ PMATH_PRIVATE pmath_t builtin_array(pmath_expr_t expr){
 #define MAX_DIM 10
 
 typedef struct{
-  size_t          lengths[MAX_DIM];
+  size_t   lengths[MAX_DIM];
   pmath_t  c;
-  size_t          dim;
-  size_t          dims;
+  size_t   dim;
+  size_t   dims;
 }special_array_data_t;
 
 static pmath_t special_array(special_array_data_t *data){
@@ -243,7 +243,7 @@ static pmath_t special_array(special_array_data_t *data){
     pmath_ref(PMATH_SYMBOL_LIST),
     data->lengths[data->dim-1]);
 
-  for(i = 1;i <= data->lengths[data->dim-1];++i){
+  for(i = 1;i <= data->lengths[data->dim-1] && !pmath_aborting();++i){
     list = pmath_expr_set_item(list, i, special_array(data));
   }
 

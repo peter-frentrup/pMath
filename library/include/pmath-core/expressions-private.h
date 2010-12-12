@@ -59,8 +59,9 @@ pmath_bool_t _pmath_expr_eval_items(
 PMATH_PRIVATE
 int _pmath_compare_exprsym(pmath_t a, pmath_t b);
 
-extern PMATH_PRIVATE pmath_expr_t _pmath_object_emptylist; // read-only
-extern PMATH_PRIVATE pmath_expr_t _pmath_object_stop_message; // read-only
+extern PMATH_PRIVATE pmath_expr_t _pmath_object_memory_exception; // read-only
+extern PMATH_PRIVATE pmath_expr_t _pmath_object_emptylist;        // read-only
+extern PMATH_PRIVATE pmath_expr_t _pmath_object_stop_message;     // read-only
 //extern PMATH_PRIVATE pmath_expr_t _pmath_object_newsym_message; // read-only
 
 PMATH_PRIVATE pmath_bool_t _pmath_expressions_init(void);

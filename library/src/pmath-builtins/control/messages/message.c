@@ -62,7 +62,7 @@ PMATH_PRIVATE pmath_t builtin_message(pmath_expr_t expr){
 
   name = pmath_expr_get_item(expr, 1);
   
-  if(_pmath_message_is_on(name)){
+  if(!_pmath_message_is_on(name)){
     pmath_unref(name);
     pmath_unref(expr);
     return NULL;

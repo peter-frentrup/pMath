@@ -3121,6 +3121,7 @@ void MathSequence::enlarge_space(Context *context){
       } break;
       
       case PMATH_TOK_COLON:
+      case PMATH_TOK_ASSIGNTAG:
         space_left = space_right = em * 4/18;
         break;
       
@@ -3179,7 +3180,6 @@ void MathSequence::enlarge_space(Context *context){
       case PMATH_TOK_NONE:
       case PMATH_TOK_CALL:
       case PMATH_TOK_LEFTCALL:
-      case PMATH_TOK_ASSIGNTAG:
       case PMATH_TOK_TILDES:
       case PMATH_TOK_INTEGRAL:
       case PMATH_TOK_COMMENTEND:

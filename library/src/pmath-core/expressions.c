@@ -26,8 +26,9 @@ struct _pmath_unpacked_expr_part_t{
 };
 
 // initialization in pmath_init():
-PMATH_PRIVATE pmath_expr_t _pmath_object_emptylist; // read-only
-PMATH_PRIVATE pmath_expr_t _pmath_object_stop_message; // read-only
+PMATH_PRIVATE pmath_expr_t _pmath_object_memory_exception; // read-only
+PMATH_PRIVATE pmath_expr_t _pmath_object_emptylist;        // read-only
+PMATH_PRIVATE pmath_expr_t _pmath_object_stop_message;     // read-only
 //PMATH_PRIVATE pmath_expr_t _pmath_object_newsym_message; // read-only
 
 #define CACHES_MAX  8

@@ -5,6 +5,7 @@
 
 #include <pmath-util/memory.h>
 
+#include <pmath-core/expressions-private.h>
 #include <pmath-core/numbers-private.h>
 #include <pmath-core/symbols-private.h>
 
@@ -506,7 +507,7 @@ PMATH_API void *pmath_mem_alloc(size_t size){
     memory_panic();
     p = memory_allocate(size);
     if(!p){
-      pmath_abort_please();
+      pmath_throw(pmath_ref(_pmath_object_memory_exception));
       return NULL;
     }
   }
@@ -551,7 +552,7 @@ PMATH_API void *pmath_mem_realloc_no_failfree(void *p, size_t new_size){
     memory_panic();
     new_p = memory_reallocate(p, new_size);
     if(!new_p){
-      pmath_abort_please();
+      pmath_throw(pmath_ref(_pmath_object_memory_exception));
       return NULL;
     }
   }

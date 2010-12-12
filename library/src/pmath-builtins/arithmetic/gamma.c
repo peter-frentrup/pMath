@@ -6,6 +6,7 @@
 #include <pmath-util/messages.h>
 
 #include <pmath-builtins/all-symbols-private.h>
+#include <pmath-builtins/arithmetic-private.h>
 #include <pmath-builtins/build-expr-private.h>
 #include <pmath-builtins/number-theory-private.h>
 
@@ -177,14 +178,33 @@ PMATH_PRIVATE pmath_t builtin_gamma(pmath_expr_t expr){
 //
 //  }
 
-
-
-
-//  if(_pmath_is_infinite(z)){
-//    pmath_t dir = _pmath_directed_infinity_direction(z);
-//
-//
-//  }
+  { // infinite values
+    int num_class = _pmath_number_class(z);
+    
+    if(num_class & PMATH_CLASS_POSINF){
+      pmath_unref(expr);
+      return z;
+    }
+    
+    if(num_class & PMATH_CLASS_NEGINF){
+      pmath_unref(z);
+      pmath_unref(expr);
+      return pmath_ref(PMATH_SYMBOL_UNDEFINED);
+    }
+    
+    if(num_class & PMATH_CLASS_UINF){
+      pmath_unref(z);
+      pmath_unref(expr);
+      return pmath_ref(_pmath_object_complex_infinity);
+    }
+    
+    if((num_class & PMATH_CLASS_CINF) 
+    && (num_class & PMATH_CLASS_IMAGINARY)){
+      pmath_unref(z);
+      pmath_unref(expr);
+      return pmath_integer_new_si(0);
+    }
+  }
 
   pmath_unref(z);
   return expr;
@@ -199,7 +219,168 @@ PMATH_PRIVATE pmath_t builtin_loggamma(pmath_expr_t expr){
   }
 
   z = pmath_expr_get_item(expr, 1);
-  // ...
+  if(pmath_instance_of(z, PMATH_TYPE_INTEGER)){
+    pmath_unref(expr);
+    
+    return LOG(GAMMA(z));
+  }
+  
+  if(pmath_instance_of(z, PMATH_TYPE_QUOTIENT)){
+    pmath_integer_t den = pmath_rational_denominator(z);
+    
+    if(pmath_integer_fits_ui(den)
+    && pmath_integer_get_ui(den) == 2){
+      pmath_unref(den);
+      pmath_unref(expr);
+      
+      return LOG(GAMMA(z));
+    }
+    
+    pmath_unref(den);
+    pmath_unref(z);
+    return expr;
+  }
+
+  { // infinite values
+    int num_class = _pmath_number_class(z);
+    
+    if(num_class & PMATH_CLASS_POSINF){
+      pmath_unref(expr);
+      return z;
+    }
+    
+    if(num_class & PMATH_CLASS_NEGINF){
+      pmath_unref(z);
+      pmath_unref(expr);
+      return pmath_ref(PMATH_SYMBOL_UNDEFINED);
+    }
+    
+    if(num_class & PMATH_CLASS_UINF){
+      pmath_unref(z);
+      pmath_unref(expr);
+      return pmath_ref(_pmath_object_complex_infinity);
+    }
+    
+    if((num_class & PMATH_CLASS_CINF) 
+    && (num_class & PMATH_CLASS_IMAGINARY)){
+      pmath_unref(z);
+      pmath_unref(expr);
+      return pmath_integer_new_si(0);
+    }
+  }
+
+  pmath_unref(z);
+  return expr;
+}
+
+PMATH_PRIVATE pmath_t builtin_polygamma(pmath_expr_t expr){
+// PolyGamma(n, z)
+// PolyGamma(z)     = PolyGamma(0, z)
+  size_t exprlen;
+  unsigned long n;
+  pmath_t z;
+  
+  exprlen = pmath_expr_length(expr);
+
+  if(exprlen < 1 || exprlen > 2){
+    pmath_message_argxxx(exprlen, 1, 2);
+    return expr;
+  }
+  
+  n = 0;
+  if(exprlen == 2){
+    pmath_t n_obj = pmath_expr_get_item(expr, 1);
+    
+    if(!pmath_instance_of(n_obj, PMATH_TYPE_INTEGER)
+    || !pmath_integer_fits_ui(n_obj)){
+      pmath_unref(n_obj);
+      return expr;
+    }
+    
+    n = pmath_integer_get_ui(n_obj);
+    pmath_unref(n_obj);
+  }
+  
+  z = pmath_expr_get_item(expr, exprlen);
+  if(n == 0){
+    if(pmath_instance_of(z, PMATH_TYPE_INTEGER)){
+      if(pmath_number_sign(z) <= 0){
+        pmath_unref(z);
+        pmath_unref(expr);
+        
+        return CINFTY;
+      }
+      
+      if(pmath_integer_fits_ui(z)){
+        unsigned long ui_z = pmath_integer_get_ui(z);
+        unsigned long k;
+        pmath_unref(expr);
+        pmath_unref(z);
+        
+        z = pmath_integer_new_ui(0);
+        for(k = 1;k < ui_z && !pmath_aborting();++k){
+          z = _add_nn(z, QUOT(1, k));
+        }
+        
+        return MINUS(z, pmath_ref(PMATH_SYMBOL_EULERGAMMA));
+      }
+      
+      pmath_unref(z);
+      return expr;
+    }
+    
+    if(pmath_instance_of(z, PMATH_TYPE_QUOTIENT)){
+      pmath_t nn;
+      
+      if(pmath_number_sign(z) < 0){
+        pmath_unref(z);
+        return expr;
+      }
+      
+      nn = pmath_rational_denominator(z);
+      if(pmath_equals(nn, PMATH_NUMBER_TWO)){
+        pmath_unref(nn);
+        
+        nn = pmath_rational_numerator(z);
+        if(pmath_integer_fits_ui(nn)){
+          unsigned long ui_num = pmath_integer_get_ui(nn);
+          unsigned long k;
+          
+          pmath_unref(expr);
+          pmath_unref(z);
+          pmath_unref(nn);
+          
+          // PolyGamma(n+1/2) = -EulerGamma - 2Log(2) + (2 + 2/3 + 2/5 + ... + 2/(2n-1))
+          
+          z = pmath_integer_new_si(0);
+          for(k = 1;k < ui_num && !pmath_aborting();k+= 2){
+            z = _add_nn(z, QUOT(2, k));
+          }
+          
+          return PLUS3(z, NEG(pmath_ref(PMATH_SYMBOL_EULERGAMMA)), TIMES(INT(-2), LOG(INT(2))));
+        }
+      }
+      
+      pmath_unref(nn);
+      pmath_unref(z);
+      return expr;
+    }
+  }
+  
+  { // infinite values
+    int num_class = _pmath_number_class(z);
+    
+    if(num_class & PMATH_CLASS_POSINF){
+      pmath_unref(expr);
+      return z;
+    }
+    
+    if(num_class & PMATH_CLASS_UINF){
+      pmath_unref(expr);
+      pmath_unref(z);
+      return pmath_ref(PMATH_SYMBOL_UNDEFINED);
+    }
+  }
 
   pmath_unref(z);
   return expr;
@@ -261,6 +442,34 @@ PMATH_PRIVATE pmath_t builtin_factorial(pmath_expr_t expr){
     return expr;
   }
 
+  { // infinite values
+    int num_class = _pmath_number_class(n);
+    
+    if(num_class & PMATH_CLASS_POSINF){
+      pmath_unref(expr);
+      return n;
+    }
+    
+    if(num_class & PMATH_CLASS_NEGINF){
+      pmath_unref(n);
+      pmath_unref(expr);
+      return pmath_ref(PMATH_SYMBOL_UNDEFINED);
+    }
+    
+    if(num_class & PMATH_CLASS_UINF){
+      pmath_unref(n);
+      pmath_unref(expr);
+      return pmath_ref(_pmath_object_complex_infinity);
+    }
+    
+    if((num_class & PMATH_CLASS_CINF) 
+    && (num_class & PMATH_CLASS_IMAGINARY)){
+      pmath_unref(n);
+      pmath_unref(expr);
+      return pmath_integer_new_si(0);
+    }
+  }
+
   pmath_unref(n);
   return expr;
 }
@@ -295,6 +504,7 @@ PMATH_PRIVATE pmath_t builtin_factorial2(pmath_expr_t expr){
     pmath_unref(n);
     return expr;
   }
+  
   if(pmath_instance_of(n, PMATH_TYPE_QUOTIENT)){
     pmath_integer_t den = pmath_rational_denominator(n);
 
@@ -333,6 +543,34 @@ PMATH_PRIVATE pmath_t builtin_factorial2(pmath_expr_t expr){
 
     pmath_unref(res);
     return expr;
+  }
+
+  { // infinite values
+    int num_class = _pmath_number_class(n);
+    
+    if(num_class & PMATH_CLASS_POSINF){
+      pmath_unref(expr);
+      return n;
+    }
+    
+    if(num_class & PMATH_CLASS_NEGINF){
+      pmath_unref(n);
+      pmath_unref(expr);
+      return pmath_ref(PMATH_SYMBOL_UNDEFINED);
+    }
+    
+    if(num_class & PMATH_CLASS_UINF){
+      pmath_unref(n);
+      pmath_unref(expr);
+      return pmath_ref(_pmath_object_complex_infinity);
+    }
+    
+    if((num_class & PMATH_CLASS_CINF) 
+    && (num_class & PMATH_CLASS_IMAGINARY)){
+      pmath_unref(n);
+      pmath_unref(expr);
+      return pmath_integer_new_si(0);
+    }
   }
 
   pmath_unref(n);

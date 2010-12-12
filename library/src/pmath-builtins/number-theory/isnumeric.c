@@ -149,22 +149,22 @@ PMATH_PRIVATE pmath_bool_t _pmath_is_inexact(pmath_t obj){
     
     if(_pmath_is_infinite(obj)){
       pmath_t dir = pmath_expr_get_item(obj, 1);
-      if(pmath_equals(dir, PMATH_NUMBER_ONE)){
-        pmath_unref(dir);
-        return PMATH_CLASS_POSINF;
-      }
       
-      if(pmath_equals(dir, PMATH_NUMBER_MINUSONE)){
-        pmath_unref(dir);
-        return PMATH_CLASS_NEGINF;
-      }
-      
-      if(!dir || pmath_equals(dir, PMATH_NUMBER_ZERO)){
-        pmath_unref(dir);
-        return PMATH_CLASS_UINF;
-      }
-      
+      int dir_class = _simple_real_class(dir);
       pmath_unref(dir);
+      
+      if(dir_class & PMATH_CLASS_ZERO)
+        return PMATH_CLASS_UINF;
+      
+      if(dir_class & PMATH_CLASS_POS)
+        return PMATH_CLASS_POSINF;
+      
+      if(dir_class & PMATH_CLASS_NEG)
+        return PMATH_CLASS_NEGINF;
+      
+      if(dir_class & PMATH_CLASS_IMAGINARY)
+        return PMATH_CLASS_CINF | PMATH_CLASS_IMAGINARY;
+      
       return PMATH_CLASS_CINF;
     }
     

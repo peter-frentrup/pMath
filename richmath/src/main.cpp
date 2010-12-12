@@ -873,8 +873,10 @@ int main(){
   printf("memory: %"PRIuPTR" (should be 0)\n", current);
   printf("max. used: %"PRIuPTR"\n", max);
   
-  if(current != 0)
+  if(current != 0){
     printf("\a");
+    system("pause");
+  }
   
   return result;
 }

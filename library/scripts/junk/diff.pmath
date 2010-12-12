@@ -1,0 +1,46 @@
+
+
+BeginPackage("System`")
+
+System`D
+System`Derivative
+
+Begin("D`Private`")
+
+Unprotect(MakeExpression)
+MakeExpression({"\[PartialD]", SubscriptBox(~~x), ~~f})::= MakeExpression({"System`D", "(", {{f}, ",", x}, ")"})
+
+MakeExpression({~boxes, "'"})::= makeDerivative(boxes, 1)
+MakeExpression({~boxes, SuperscriptBox(TagBox(~nboxes, Derivative))})::= 
+	{MakeExpression(boxes), MakeExpression(nboxes)}.Replace({
+		{HoldComplete(~f), HoldComplete(~~n)} :> HoldComplete(Derivative(n)(f)), 
+		~ -> $Failed})
+Protect(MakeExpression)
+
+makeDerivative({~boxes,"'"}, ~n)::= makeDerivative(boxes, n+1)
+makeDerivative(~boxes, ~n)::= MakeExpression(boxes).Replace(HoldComplete(~f) :> HoldComplete(Derivative(n)(f)))
+
+
+Derivative/: MakeBoxes(Derivative(1)(~f))::= {MakeBoxes(f), "'"}
+Derivative/: MakeBoxes(Derivative(2)(~f))::= {{MakeBoxes(f), "'"}, "'"}
+Derivative/: MakeBoxes(Derivative(~n)(~f))::= {MakeBoxes(f), SuperscriptBox(TagBox({"(", MakeBoxes(n), ")"}, Derivative))}
+Attributes(Derivative):= {NHoldAll, ReadProtected}
+
+Derivative(0**)(~f)::= f
+Derivative(~~n1)(Derivative(~~n2)(~f)) /? Length({n1}) = Length({n2}) ::= (Derivative @@ ({n1} + {n2}))(f)
+
+D(~f, ~x) /? f.IsFreeOf(x):= 0
+D(~x, ~x):= 1
+D(~f, ~x, ~~y)::= D(D(f, x), y)
+D(~f, {~x, 0})::= f
+D(~f, {~x, ~n?IsInteger?IsPositive})::= D(D(f, x), {x, n-1})
+
+D(~f + ~g, ~x)::= D(f,x) + D(g,x)
+D(~f ~g, ~x)::= D(f,x) g + f D(g,x)
+D(~f ^ ~g)::= f^g (g D(f,x) / f + Log(f) D(g,x))
+
+D(~f(~~a),~x)::= Sum((Derivative @@ Array(Boole(# = i)&, Length({a})))(f)(a) With({g:= {a}[i]}, D(g,x)), i->Length({a}))
+
+End()
+
+EndPackage()

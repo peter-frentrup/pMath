@@ -92,8 +92,10 @@ PMATH_PRIVATE pmath_t builtin_log(                      pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_loggamma(                 pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_mod(                      pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_plus(                     pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_polygamma(                pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_power(                    pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_precision(                pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_product(                  pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_quotient(                 pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_re(                       pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_setaccuracy(              pmath_expr_t expr);
@@ -102,6 +104,7 @@ PMATH_PRIVATE pmath_t builtin_sign(                     pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_sin(                      pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_sinh(                     pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_sqrt(                     pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_sum(                      pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_tan(                      pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_tanh(                     pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_times(                    pmath_expr_t expr);
@@ -1080,6 +1083,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   VERIFY(   PMATH_SYMBOL_SYNTAX                    = NEW_SYSTEM_SYMBOL("Syntax"))
   VERIFY(   PMATH_SYMBOL_SYNTAXINFORMATION         = NEW_SYSTEM_SYMBOL("SyntaxInformation"))
   VERIFY(   PMATH_SYMBOL_SYSTEMCHARACTERENCODING   = NEW_SYSTEM_SYMBOL("$SystemCharacterEncoding"))
+  VERIFY(   PMATH_SYMBOL_SYSTEMEXCEPTION           = NEW_SYSTEM_SYMBOL("SystemException"))
   VERIFY(   PMATH_SYMBOL_SYSTEMID                  = NEW_SYSTEM_SYMBOL("$SystemId"))
   VERIFY(   PMATH_SYMBOL_TABLE                     = NEW_SYSTEM_SYMBOL("Table"))
   VERIFY(   PMATH_SYMBOL_TAGASSIGN                 = NEW_SYSTEM_SYMBOL("TagAssign"))
@@ -1384,12 +1388,14 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
     BIND_DOWN(   PMATH_SYMBOL_PARTITION,                   builtin_partition)
     BIND_DOWN(   PMATH_SYMBOL_PAUSE,                       builtin_pause)
     BIND_DOWN(   PMATH_SYMBOL_PIECEWISE,                   builtin_piecewise)
+    BIND_DOWN(   PMATH_SYMBOL_POLYGAMMA,                   builtin_polygamma)
     BIND_DOWN(   PMATH_SYMBOL_POSITION,                    builtin_position)
     BIND_DOWN(   PMATH_SYMBOL_POSTDECREMENT,               builtin_dec_or_inc_or_postdec_or_postinc)
     BIND_DOWN(   PMATH_SYMBOL_POSTINCREMENT,               builtin_dec_or_inc_or_postdec_or_postinc)
     BIND_DOWN(   PMATH_SYMBOL_PRECISION,                   builtin_precision)
     BIND_DOWN(   PMATH_SYMBOL_PREPEND,                     builtin_prepend)
     BIND_DOWN(   PMATH_SYMBOL_PRINT,                       builtin_print)
+    BIND_DOWN(   PMATH_SYMBOL_PRODUCT,                     builtin_product)
     BIND_DOWN(   PMATH_SYMBOL_PROTECT,                     builtin_protect_or_unprotect)
     BIND_DOWN(   PMATH_SYMBOL_QUOTIENT,                    builtin_quotient)
     BIND_DOWN(   PMATH_SYMBOL_RANDOMINTEGER,               builtin_randominteger)
@@ -1439,6 +1445,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
     BIND_DOWN(   PMATH_SYMBOL_STRINGTAKE,                  builtin_stringtake)
     BIND_DOWN(   PMATH_SYMBOL_STRINGTOBOXES,               builtin_stringtoboxes)
     BIND_DOWN(   PMATH_SYMBOL_SUBRULES,                    builtin_symbol_rules)
+    BIND_DOWN(   PMATH_SYMBOL_SUM,                         builtin_sum)
     BIND_DOWN(   PMATH_SYMBOL_SYMBOLNAME,                  builtin_symbolname)
     BIND_DOWN(   PMATH_SYMBOL_SYNCHRONIZE,                 builtin_synchronize)
     BIND_DOWN(   PMATH_SYMBOL_SYNTAXINFORMATION,           builtin_syntaxinformation)
@@ -1650,6 +1657,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   SET_ATTRIB( PMATH_SYMBOL_SYMBOLNAME,                       HOLDFIRST);
   SET_ATTRIB( PMATH_SYMBOL_SYNCHRONIZE,                      HOLDALL);
   SET_ATTRIB( PMATH_SYMBOL_SYNTAXINFORMATION,                HOLDALL);
+  SET_ATTRIB( PMATH_SYMBOL_SYSTEMEXCEPTION,                  HOLDALLCOMPLETE);
   SET_ATTRIB( PMATH_SYMBOL_TABLE,                            HOLDALL);
   SET_ATTRIB( PMATH_SYMBOL_TAGASSIGN,                        HOLDALL | SEQUENCEHOLD);
   SET_ATTRIB( PMATH_SYMBOL_TAGASSIGNDELAYED,                 HOLDALL | SEQUENCEHOLD);
@@ -1661,6 +1669,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   SET_ATTRIB( PMATH_SYMBOL_TIMES,                            ASSOCIATIVE | DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION | ONEIDENTITY | SYMMETRIC);
   SET_ATTRIB( PMATH_SYMBOL_TIMESBY,                          HOLDFIRST);
   SET_ATTRIB( PMATH_SYMBOL_TIMING,                           HOLDALL);
+  SET_ATTRIB( PMATH_SYMBOL_TOBOXES,                          SEQUENCEHOLD);
   SET_ATTRIB( PMATH_SYMBOL_TRY,                              HOLDALL);
   SET_ATTRIB( PMATH_SYMBOL_UNASSIGN,                         HOLDFIRST | SEQUENCEHOLD);
   SET_ATTRIB( PMATH_SYMBOL_UNDERFLOW,                        NUMERICFUNCTION);

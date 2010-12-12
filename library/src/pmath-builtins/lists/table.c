@@ -7,9 +7,9 @@
 
 typedef struct{
   pmath_t      body;
-  pmath_bool_t     started;
-  pmath_expr_t  result;
-  size_t              i;
+  pmath_bool_t started;
+  pmath_expr_t result;
+  size_t       i;
 }iterate_table_data_t;
 
 static void init_table(size_t count, pmath_symbol_t sym, iterate_table_data_t *data){
@@ -36,7 +36,7 @@ PMATH_PRIVATE pmath_t builtin_table(pmath_expr_t expr){
      General::iterb
  */
   iterate_table_data_t  data;
-  pmath_t        iter;
+  pmath_t               iter;
 
   if(pmath_expr_length(expr) != 2){
     pmath_message_argxxx(pmath_expr_length(expr), 2, 2);

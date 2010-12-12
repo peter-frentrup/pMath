@@ -367,7 +367,7 @@ PMATH_PRIVATE pmath_t builtin_beginpackage(pmath_expr_t expr){
         
         name = pmath_string_part(name, pmath_string_length(new_namespace), INT_MAX);
         
-        other = pmath_symbol_find(name, FALSE);
+        other = pmath_symbol_find(pmath_ref(name), FALSE);
         if(other && other != current){
           const uint16_t *buf = pmath_string_buffer(name);
           int             len = pmath_string_length(name);

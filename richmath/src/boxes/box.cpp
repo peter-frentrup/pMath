@@ -192,7 +192,9 @@ void Box::default_scroll_to(Canvas *canvas, Box *parent, Box *child, int start, 
       start, 
       end);
     
-    cairo_path_extents(canvas->cairo(), &x1, &y1, &x2, &y2);
+    // cairo 1.10.0 bug:
+    // cairo_path_extents gives (0,0,0,0) for pixel aligned lines
+    cairo_stroke_extents(canvas->cairo(), &x1, &y1, &x2, &y2);
     
     canvas->new_path();
   }

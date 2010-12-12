@@ -19,7 +19,7 @@
 
 using namespace richmath;
 
-bool richmath::DebugFollowMouse = false;
+bool richmath::DebugFollowMouse = true;
 
 Hashtable<String, Expr, object_hash> richmath::global_immediate_macros;
 Hashtable<String, Expr, object_hash> richmath::global_macros;
@@ -3035,12 +3035,13 @@ void Document::paint_resize(Canvas *canvas, bool resize_only){
       
       if(resi){
         resize_section(&context, i);
-        section(i)->y_offset = _extents.descent;
       }
     }
     
-    if(section(i)->visible)
+    section(i)->y_offset = _extents.descent;
+    if(section(i)->visible){
       _extents.descent+= section(i)->extents().descent;
+    }
     
     float w  = section(i)->extents().width;
     float uw = section(i)->unfilled_width;

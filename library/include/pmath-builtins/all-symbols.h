@@ -640,5 +640,6 @@ pmath_bool_t pmath_register_approx_code(
 #define PMATH_SYMBOL_VERSION                                PMATH_SYMBOL_BUILTIN(548)
 #define PMATH_SYMBOL_CONDITIONALEXPRESSION                  PMATH_SYMBOL_BUILTIN(549)
 #define PMATH_SYMBOL_DEFINITEFUNCTION                       PMATH_SYMBOL_BUILTIN(550)
+#define PMATH_SYMBOL_SYSTEMEXCEPTION                        PMATH_SYMBOL_BUILTIN(551)
 
 #endif /* __PMATH_BUILTINS__SYMBOLS_H__ */

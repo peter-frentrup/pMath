@@ -378,4 +378,12 @@
 }},
 {"System`Util`",{
 {"latexToBoxes", {"ArgumentCount" -> 1}}
+}},
+{"Java`",{
+{"Constructors", {"ArgumentCount" -> 1}},
+{"JavaCall", {"ArgumentCount" -> 2..}},
+{"JavaClass", {"ArgumentCount" -> 1}},
+{"JavaField", {"ArgumentCount" -> 2}},
+{"Fields", {"ArgumentCount" -> 1}},
+{"Methods", {"ArgumentCount" -> 1}}
 }}}
