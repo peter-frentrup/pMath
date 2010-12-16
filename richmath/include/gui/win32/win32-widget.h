@@ -41,6 +41,8 @@ namespace richmath{
       
       virtual void close(){}
       virtual void invalidate();
+      virtual void force_redraw();
+      
       virtual void set_cursor(CursorType type);
       
       virtual void running_state_changed();
@@ -48,8 +50,6 @@ namespace richmath{
       virtual void beep();
     
       virtual bool register_timed_event(SharedPtr<TimedEvent> event);
-      
-      virtual void force_redraw();
       
     public:
       bool _autohide_vertical_scrollbar;

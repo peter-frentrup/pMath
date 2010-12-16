@@ -76,6 +76,11 @@ PMATH_PRIVATE pmath_t builtin_internal_dynamicevaluate(pmath_expr_t expr){
             return PMATH_UNDEFINED;
           }
           
+          if(ts == PMATH_SYMBOL_NONE){
+            pmath_unref(ts);
+            return NULL;
+          }
+          
           return ts;
         }
       }

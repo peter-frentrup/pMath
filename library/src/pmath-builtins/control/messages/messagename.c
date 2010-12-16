@@ -94,9 +94,8 @@ PMATH_PRIVATE pmath_t builtin_assign_messagename(pmath_expr_t expr){
   assert(pmath_instance_of(sym, PMATH_TYPE_SYMBOL));
   
   if(tag != PMATH_UNDEFINED && tag != sym){
-    pmath_message(PMATH_SYMBOL_MESSAGE, "tag", 2, tag, lhs);
+    pmath_message(PMATH_SYMBOL_MESSAGE, "tag", 3, tag, lhs, sym);
     
-    pmath_unref(sym);
     pmath_unref(expr);
     if(rhs == PMATH_UNDEFINED)
       return pmath_ref(PMATH_SYMBOL_FAILED);

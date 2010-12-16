@@ -19,7 +19,7 @@
 
 using namespace richmath;
 
-bool richmath::DebugFollowMouse = true;
+bool richmath::DebugFollowMouse = false;
 
 Hashtable<String, Expr, object_hash> richmath::global_immediate_macros;
 Hashtable<String, Expr, object_hash> richmath::global_macros;
@@ -479,22 +479,16 @@ void Document::scroll_to(float x, float y, float w, float h){
   native()->scroll_pos( &_x, &_y);
   
   if(y < _y){
-    if(context.selection.get() == this)
-      _y = y;
-    else
-      _y = y - _h/6.f;
+    _y = y - _h/6.f;
   }
-  else if(y + h > _y + _h){
-    if(context.selection.get() == this)
-      _y = y + h - _h;
-    else
-      _y = y + h - _h * 5/6.f;
+  else if(y + h >= _y + _h){
+    _y = y + h - _h * 5/6.f;
   }
   
   if(x < _x){
     _x = x - _w/6.f;
   }
-  else if(x + w > _x + _w){
+  else if(x + w >= _x + _w){
     _x = x + w - _w * 5/6.f;
     if(x < _x)
       _x = x;

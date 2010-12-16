@@ -36,9 +36,8 @@ PMATH_PRIVATE pmath_t builtin_assign_messages(pmath_expr_t expr){
   sym = pmath_expr_get_item(lhs, 1);
   
   if(tag != PMATH_UNDEFINED && tag != sym){
-    pmath_message(NULL, "tag", 2, tag, lhs);
+    pmath_message(NULL, "tag", 3, tag, lhs, sym);
     
-    pmath_unref(sym);
     pmath_unref(expr);
     pmath_unref(rhs);
     return pmath_ref(PMATH_SYMBOL_FAILED);
@@ -117,16 +116,15 @@ PMATH_PRIVATE pmath_t builtin_assign_messages(pmath_expr_t expr){
       }
       
       tag = pmath_expr_get_item(lhs, 1);
-      pmath_unref(tag);
-      
       if(tag != sym){
-        pmath_message(NULL, "tag", 2, lhs, sym);
+        pmath_message(NULL, "tag", 3, tag, lhs, sym);
         
         pmath_ht_destroy(messages);
         pmath_unref(rule_rhs);
         pmath_unref(rhs);
         return pmath_ref(PMATH_SYMBOL_FAILED);
       }
+      pmath_unref(tag);
       
       if(!pmath_instance_of(rule_rhs, PMATH_TYPE_STRING)){
         pmath_message(NULL, "str", 2, lhs, rule_rhs);

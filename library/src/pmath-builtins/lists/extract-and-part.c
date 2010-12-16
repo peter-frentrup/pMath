@@ -492,8 +492,7 @@ PMATH_PRIVATE pmath_t builtin_assign_part(pmath_expr_t expr){
   }
   
   if(tag != PMATH_UNDEFINED && tag != sym){
-    pmath_message(NULL, "tag", 1, lhs, sym);
-    pmath_unref(tag);
+    pmath_message(NULL, "tag", 3, tag, lhs, sym);
     
     if(assignment < 0){
       pmath_unref(rhs);

@@ -106,7 +106,7 @@ PMATH_PRIVATE pmath_t builtin_assign_namespace(pmath_expr_t expr){
   }
   
   if(tag != PMATH_UNDEFINED && tag != lhs){
-    pmath_message(NULL, "tag", 2, tag, lhs);
+    pmath_message(NULL, "tag", 3, tag, pmath_ref(lhs), lhs);
     
     pmath_unref(expr);
     pmath_unref(rhs);
@@ -159,7 +159,7 @@ PMATH_PRIVATE pmath_t builtin_assign_namespacepath(pmath_expr_t expr){
   }
   
   if(tag != PMATH_UNDEFINED && tag != lhs){
-    pmath_message(NULL, "tag", 2, tag, lhs);
+    pmath_message(NULL, "tag", 3, tag, pmath_ref(lhs), lhs);
     
     pmath_unref(expr);
     pmath_unref(rhs);

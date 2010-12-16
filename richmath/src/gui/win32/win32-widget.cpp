@@ -209,6 +209,25 @@ void Win32Widget::invalidate(){
   InvalidateRect(_hwnd, 0, FALSE);
 }
 
+void Win32Widget::force_redraw(){
+  RECT rect;
+  GetClientRect(_hwnd, &rect);
+  if(_width != rect.right || _height != rect.bottom) // called before WM_SIZE
+    return;
+  
+  is_painting = true;
+  {
+    HDC dc = GetDC(_hwnd);
+    on_paint(dc, true);
+    ReleaseDC(_hwnd, dc);
+  }
+  
+  if(!is_painting){
+    invalidate();
+  }
+  is_painting = false;
+}
+
 void Win32Widget::set_cursor(CursorType type){
   if(mouse_moving){
     cursor = type;
@@ -352,25 +371,6 @@ void Win32Widget::paint_canvas(Canvas *canvas, bool resize_only){
     SetScrollInfo(_hwnd, SB_HORZ, &si, TRUE);
     ShowScrollBar(_hwnd, SB_HORZ, (int)si.nPage < si.nMax);
   }
-}
-
-void Win32Widget::force_redraw(){
-  RECT rect;
-  GetClientRect(_hwnd, &rect);
-  if(_width != rect.right || _height != rect.bottom) // called before WM_SIZE
-    return;
-  
-  is_painting = true;
-  {
-    HDC dc = GetDC(_hwnd);
-    on_paint(dc, true);
-    ReleaseDC(_hwnd, dc);
-  }
-  
-  if(!is_painting){
-    invalidate();
-  }
-  is_painting = false;
 }
 
 void Win32Widget::on_paint(HDC dc, bool from_wmpaint){

@@ -39,9 +39,8 @@ PMATH_PRIVATE pmath_t builtin_assign_ownrules(pmath_expr_t expr){
   sym = pmath_expr_get_item(lhs, 1);
   
   if(tag != PMATH_UNDEFINED && tag != sym){
-    pmath_message(NULL, "tag", 2, tag, lhs);
+    pmath_message(NULL, "tag", 3, tag, lhs, sym);
     
-    pmath_unref(sym);
     pmath_unref(expr);
     if(rhs == PMATH_UNDEFINED)
       return pmath_ref(PMATH_SYMBOL_FAILED);
@@ -171,9 +170,8 @@ PMATH_PRIVATE pmath_t builtin_assign_symbol_rules(pmath_expr_t expr){
     sym = pmath_expr_get_item(lhs, 1);
     
     if(tag != PMATH_UNDEFINED && tag != sym){
-      pmath_message(NULL, "tag", 2, tag, lhs);
+      pmath_message(NULL, "tag", 3, tag, lhs, sym);
       
-      pmath_unref(sym);
       pmath_unref(expr);
       if(rhs == PMATH_UNDEFINED)
         return pmath_ref(PMATH_SYMBOL_FAILED);
