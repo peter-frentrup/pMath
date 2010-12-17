@@ -3219,11 +3219,9 @@ void Document::paint_resize(Canvas *canvas, bool resize_only){
       }
     }
     
-    if(auto_scroll && native()->is_scrollable()){
+    if(auto_scroll){
       auto_scroll = false;
-      
-      Box *box = sel_last.get();
-      if(box)
+      if(Box *box = sel_last.get())
         box->scroll_to(canvas, box, sel_last.start, sel_last.end);
     }
     

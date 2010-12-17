@@ -472,10 +472,10 @@ pmath_t pj_builtin_startvm(pmath_expr_t expr){
           }
           
           if(env){
-            jclass exclass = (*env)->FindClass(env, "org/pmath/InternalPMathException");
+            jclass exclass = (*env)->FindClass(env, "pmath/InternalException");
             
             if(!exclass){
-              pmath_debug_print("[cannot find org.pmath.InternalPMathException class]\n");
+              pmath_debug_print("[cannot find pmath.InternalException class]\n");
               
               exclass = (*env)->FindClass(env, "java/lang/ThreadDeath");
             }
