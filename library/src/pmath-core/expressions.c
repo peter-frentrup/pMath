@@ -19,6 +19,7 @@
 
 #include <string.h>
 
+
 struct _pmath_unpacked_expr_part_t{
   struct _pmath_unpacked_expr_t   inherited; // item: length = 1
   size_t                          start;
@@ -663,7 +664,7 @@ size_t _pmath_expr_find_sorted(
   return 0;
 }
 
-  static int stable_sort_cmp_objs(const void *a, const void *b){
+  static int stable_sort_cmp_objs(void *dummy, const void *a, const void *b){
     int cmp = pmath_compare(*(pmath_t*)a, *(pmath_t*)b);
     if(cmp != 0)
       return cmp;
@@ -675,7 +676,8 @@ size_t _pmath_expr_find_sorted(
 
 PMATH_PRIVATE pmath_expr_t _pmath_expr_sort_ex(
   pmath_expr_t expr, // will be freed
-  int(*cmp)(const void*, const void*)
+  int(*cmp)(void*, const void*, const void*),
+  void *context
 ){
   size_t i, length;
   
@@ -720,20 +722,52 @@ PMATH_PRIVATE pmath_expr_t _pmath_expr_sort_ex(
     pmath_unref(expr);
     expr = (pmath_expr_t)new_expr;
   }
+  
+  #ifdef PMATH_OS_WIN32
+    #ifdef __GNUC__
+    
+      // mingw does not know Microsoft's qsort_s even though it is in msvcrt.dll
+      // but gcc knows inner functions :)
+      {
+        int cmp2(const void *a, const void *b){
+          return cmp(context, a, b);
+        };
+        
+        qsort(
+          ((struct _pmath_unpacked_expr_t*)expr)->items + 1,
+          length,
+          sizeof(pmath_t),
+          cmp2);
+      }
+      
+    #else
+    
+      qsort_s(
+        ((struct _pmath_unpacked_expr_t*)expr)->items + 1,
+        length,
+        sizeof(pmath_t),
+        cmp,
+        context);
+        
+    #endif
+  #else
+  
+    qsort_r(
+      ((struct _pmath_unpacked_expr_t*)expr)->items + 1,
+      length,
+      sizeof(pmath_t),
+      context,
+      cmp);
 
-  qsort(
-    ((struct _pmath_unpacked_expr_t*)expr)->items + 1,
-    length,
-    sizeof(pmath_t),
-    cmp);
-
+  #endif
+  
   return expr;
 }
 
 PMATH_API pmath_expr_t pmath_expr_sort(
   pmath_expr_t expr
 ){
-  return _pmath_expr_sort_ex(expr, stable_sort_cmp_objs);
+  return _pmath_expr_sort_ex(expr, stable_sort_cmp_objs, NULL);
 }
 
 /*----------------------------------------------------------------------------*/

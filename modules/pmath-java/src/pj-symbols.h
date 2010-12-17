@@ -9,8 +9,8 @@ extern pmath_symbol_t _pj_symbols[PJ_SYMBOLS_COUNT];
 
 #define PJ_SYMBOL_JAVA                        (_pj_symbols[0])
 #define PJ_SYMBOL_JAVASTARTVM                 (_pj_symbols[1])
-#define PJ_SYMBOL_JAVAKILLVM                  (_pj_symbols[2])
-#define PJ_SYMBOL_JAVACLASS                   (_pj_symbols[3])
+#define PJ_SYMBOL_JAVACLASS                   (_pj_symbols[2])
+#define PJ_SYMBOL_JAVACLASSASOBJECT           (_pj_symbols[3])
 #define PJ_SYMBOL_JAVAVMLIBRARYNAME           (_pj_symbols[4])
 #define PJ_SYMBOL_TYPE_BOOLEAN                (_pj_symbols[5])
 #define PJ_SYMBOL_TYPE_BYTE                   (_pj_symbols[6])

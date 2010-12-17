@@ -929,6 +929,8 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
           case IDM_MATHEMATICASHAPER:     ms = MathShaper::available_shapers["Mathematica Serif"];     break;
           case IDM_MATHEMATICAMONOSHAPER: ms = MathShaper::available_shapers["Mathematica Mono"]; break;
           case IDM_ASANAMATHSHAPER:       ms = MathShaper::available_shapers["Asana Math"];      break;
+          case IDM_NEOEULERSHAPER:        ms = MathShaper::available_shapers["Neo Euler"];      break;
+          case IDM_XITSMATHSHAPER:        ms = MathShaper::available_shapers["XITS Math"];      break;
           default:
             Client::run_menucommand(win32_command_id_to_command_string(LOWORD(wParam)));
             return 0;

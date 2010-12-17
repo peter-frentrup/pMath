@@ -515,7 +515,35 @@ pmath_t pj_builtin_startvm(pmath_expr_t expr){
             }
           }
           
-          // todo: install custom security manager that disallows exit(), halt()
+          if(env && JNI_OK == (*env)->EnsureLocalCapacity(env, 4)){
+            jclass system = (*env)->FindClass(env, "java/lang/System");
+            
+            if(system){
+              jmethodID mid = (*env)->GetStaticMethodID(env, system, "setSecurityManager","(Ljava/lang/SecurityManager;)V");
+              
+              if(mid){
+                jobject sm_class = (*env)->FindClass(env, "pmath/NoExitSecurityManager");
+                
+                if(sm_class){
+                  jmethodID ctor = (*env)->GetMethodID(env, sm_class, "<init>","()V");
+                  
+                  if(ctor){
+                    jobject sm = (*env)->NewObject(env, sm_class, ctor);
+                    
+                    if(sm){
+                      (*env)->CallStaticVoidMethod(env, system, mid, sm);
+                      
+                      (*env)->DeleteLocalRef(env, sm);
+                    }
+                  }
+                  
+                  (*env)->DeleteLocalRef(env, sm_class);
+                }
+              }
+              
+              (*env)->DeleteLocalRef(env, system);
+            }
+          }
         }
       }
     }
@@ -529,55 +557,6 @@ pmath_t pj_builtin_startvm(pmath_expr_t expr){
   pjvm = pjvm_try_get();
   pmath_unref(pjvm);
   return pjvm ? NULL : pmath_ref(PMATH_SYMBOL_FAILED);
-}
-
-pmath_t pj_builtin_killvm(pmath_expr_t expr){
-  // Oracle's/Sun's JVM does not support recreation, so we don't support it either
-  pmath_unref(expr);
-  return pmath_ref(PMATH_SYMBOL_FAILED);
-//  pmath_messages_t msg;
-//  pmath_t pjvm;
-//  
-//  if(pmath_expr_length(expr) > 0){
-//    pmath_message_argxxx(pmath_expr_length(expr), 0, 0);
-//    return expr;
-//  }
-//  
-//  pjvm = pjvm_try_get();
-//  if(!pjvm){
-//    pmath_unref(expr);
-//    return NULL;
-//  }
-//  
-//  msg = pmath_thread_get_queue();
-//  pmath_unref(msg);
-//  if(msg == jvm_main_mq){
-//    JavaVM *jvm = pjvm_get_java(pjvm);
-//    jint err;
-//    
-//    pmath_debug_print("[pjvm references: %d]\n", (int)pjvm->refcount);
-//    assert(jvm != NULL);
-//    
-//    pj_objects_clear_cache();
-//    
-//    err = (*jvm)->DestroyJavaVM(jvm);
-//    if(err == JNI_OK){
-//      unload_jvm_library();
-//      pjvm_register_external(NULL);
-//    }
-//    else{
-//      pmath_debug_print("[DestroyJavaVM failed with %d]\n", (int)err);
-//    }
-//    
-//    pmath_unref(expr);
-//    pmath_unref(pjvm);
-//  }
-//  else{
-//    pmath_unref(pjvm);
-//    pmath_unref(pmath_thread_send_wait(jvm_main_mq, expr, HUGE_VAL, NULL, NULL));
-//  }
-//  
-//  return NULL;
 }
 
 

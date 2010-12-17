@@ -25,7 +25,8 @@ PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_expr_t _pmath_expr_sort_ex(
   pmath_expr_t expr, // will be freed
-  int(*cmp)(const void*, const void*));
+  int(*cmp)(void*, const void*, const void*),
+  void *context);
 
 // expr=f(args): thread f over any expression with head h in the first coun args.
 PMATH_PRIVATE 

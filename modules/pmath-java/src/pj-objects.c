@@ -276,8 +276,7 @@ pmath_t pj_object_from_java(JNIEnv *env, jobject jobj){
                 
                 "`1` @ (~m:String)(~~~args)::= Java`JavaCall(`1`, m, args);"
                 "`1` @ (~m:Symbol)(~~~args)::= Java`JavaCall(`1`, SymbolName(m), args);"
-                "`1` @ (e: ~(~~~)) @ (~m:String)(~~~args)::= Java`JavaCall(`1` @ e, m, args);"
-                "`1` @ (e: ~(~~~)) @ (~m:Symbol)(~~~args)::= Java`JavaCall(`1` @ e, SymbolName(m), args);", 
+                "`1` @ (e1: ~(~~~))(~e2)::= (`1` @ e1) @ e2;",
               "(o)", 
               pmath_ref(symbol));
             
@@ -454,10 +453,44 @@ pmath_t pj_builtin_parentclass(pmath_expr_t expr){
         pmath_unref(result);
         result = pmath_expr_new_extended(
           pmath_ref(PJ_SYMBOL_JAVACLASS), 1,
-          pj_class_get_name(env, super));
+          pj_class_get_nice_name(env, super));
         
         (*env)->DeleteLocalRef(env, super);
       }
+      
+      (*env)->DeleteLocalRef(env, clazz);
+    }
+    else{
+      pmath_message(PJ_SYMBOL_JAVA, "nocls", 1, pmath_expr_get_item(expr, 1));
+    }
+  }
+  
+  pj_exception_to_pmath(env);
+  
+  pmath_unref(expr);
+  return result;
+}
+
+
+pmath_t pj_builtin_javaclassasobject(pmath_expr_t expr){
+  JNIEnv *env;
+  pmath_t result;
+  
+  if(pmath_expr_length(expr) != 1){
+    pmath_message_argxxx(0, 1, 1);
+    return expr;
+  }
+  
+  result = pmath_ref(PMATH_SYMBOL_FAILED);
+  pjvm_ensure_started();
+  env = pjvm_get_env();
+  if(env && (*env)->EnsureLocalCapacity(env, 2) == 0){
+    jobject clazz = pj_class_to_java(env, pmath_expr_get_item(expr, 1));
+    
+    if(clazz){
+      pmath_unref(result);
+      
+      result = pj_object_from_java(env, clazz);
       
       (*env)->DeleteLocalRef(env, clazz);
     }

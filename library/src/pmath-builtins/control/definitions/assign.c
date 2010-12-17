@@ -138,7 +138,7 @@ static int find_tag( // SYM_SEARCH_XXX
         
         item = pmath_expr_get_item(lhs, 1);
         
-        if(item == in_tag){
+        if(item == in_tag || (item && in_tag == PMATH_UNDEFINED)){
           pmath_unref(*out_tag);
           *out_tag = item;
           *kind_of_lhs = DOWN_RULES;

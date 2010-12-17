@@ -13,7 +13,7 @@
 #include <pmath-builtins/all-symbols-private.h>
 
 
-PMATH_FORCE_INLINE void insertion_sort(
+/*PMATH_FORCE_INLINE void insertion_sort(
   pmath_t *list, 
   size_t n,
   pmath_bool_t (*lessfn)(pmath_t,pmath_t,void*), // lesseqfn ?
@@ -99,7 +99,7 @@ PMATH_FORCE_INLINE size_t partition(
 
 #define INSERTION_SORT_MAX  16
 
-/*static void quicksort(
+static void quicksort(
   pmath_t *list, 
   size_t a, 
   size_t b,
@@ -124,9 +124,6 @@ PMATH_FORCE_INLINE size_t partition(
 
 
 
-
-
-
 // using nested functions where available (gcc)
 
 /* profile results (vista, pentium dual core):
@@ -141,39 +138,37 @@ PMATH_FORCE_INLINE size_t partition(
   
   Mircosoft seams to be better at optimizing than gcc and I.
  */
- 
-#ifndef __GNUC__
-/* fallback: use thread local storage (slow) and a global function.
-   
-   Another solution to avoid thread local storage would be to reimplement
-   qsort with an additional parameter. But I guess the standard qsort was
-   optimized heavily.
- */
-  static int user_cmp_objs(const void *a, const void *b){
-    if(!pmath_equals(*(pmath_t*)a, *(pmath_t*)b)){
-      int cmp;
-      pmath_t less = pmath_evaluate(
-        pmath_expr_new_extended(
-          pmath_thread_local_load(PMATH_THREAD_KEY_SORTFN), 2,
-          pmath_ref(*(pmath_t*)a),
-          pmath_ref(*(pmath_t*)b)));
 
-      pmath_unref(less);
-      if(less == PMATH_SYMBOL_TRUE)
-        return -1;
-      if(less == PMATH_SYMBOL_FALSE)
-        return 1;
-      
-      cmp = pmath_compare(*(pmath_t*)a, *(pmath_t*)b);
-      if(cmp != 0)
-        return cmp;
-    }
+struct sort_context_t{
+  pmath_t cmp;
+};
+
+static int user_cmp_objs(void *p, const void *a, const void *b){
+  struct sort_context_t *context = (struct sort_context_t*)p;
+  
+  if(!pmath_equals(*(pmath_t*)a, *(pmath_t*)b)){
+    int cmp;
+    pmath_t less = pmath_evaluate(
+      pmath_expr_new_extended(
+        pmath_ref(context->cmp), 2,
+        pmath_ref(*(pmath_t*)a),
+        pmath_ref(*(pmath_t*)b)));
+
+    pmath_unref(less);
+    if(less == PMATH_SYMBOL_TRUE)
+      return -1;
+    if(less == PMATH_SYMBOL_FALSE)
+      return 1;
     
-    if((uintptr_t)a < (uintptr_t)b) return -1;
-    if((uintptr_t)a > (uintptr_t)b) return +1;
-    return 0;
+    cmp = pmath_compare(*(pmath_t*)a, *(pmath_t*)b);
+    if(cmp != 0)
+      return cmp;
   }
-#endif
+  
+  if((uintptr_t)a < (uintptr_t)b) return -1;
+  if((uintptr_t)a > (uintptr_t)b) return +1;
+  return 0;
+}
 
 PMATH_PRIVATE pmath_t builtin_sort(pmath_expr_t expr){
 /* Sort(expr)
@@ -193,59 +188,21 @@ PMATH_PRIVATE pmath_t builtin_sort(pmath_expr_t expr){
   }
 
   if(exprlen == 2){
-    #ifdef __GNUC__
-      pmath_t fn = pmath_expr_get_item(expr, 2);
-      
-      int user_cmp_objs(const void *a, const void *b){ // gcc extension: inner function
-        if(!pmath_equals(*(pmath_t*)a, *(pmath_t*)b)){
-          int cmp;
-          pmath_t less = pmath_evaluate(
-            pmath_expr_new_extended(
-              pmath_ref(fn), 2,
-              pmath_ref(*(pmath_t*)a),
-              pmath_ref(*(pmath_t*)b)));
+    struct sort_context_t context;
+    context.cmp = pmath_expr_get_item(expr, 2);
+    
+    pmath_unref(expr);
+    expr = _pmath_expr_sort_ex(list, user_cmp_objs, &context);
 
-          pmath_unref(less);
-          if(less == PMATH_SYMBOL_TRUE)
-            return -1;
-          if(less == PMATH_SYMBOL_FALSE)
-            return 1;
-          
-          cmp = pmath_compare(*(pmath_t*)a, *(pmath_t*)b);
-          if(cmp != 0)
-            return cmp;
-        }
-        
-        if((uintptr_t)a < (uintptr_t)b) return -1;
-        if((uintptr_t)a > (uintptr_t)b) return +1;
-        return 0;
-      }
-      
-      pmath_t result = _pmath_expr_sort_ex(list, user_cmp_objs);
-
-      pmath_unref(expr);
-      pmath_unref(fn);
-      return result;
-    #else
-      pmath_t old_sortfn = pmath_thread_local_save(
-        PMATH_THREAD_KEY_SORTFN,
-        pmath_expr_get_item(expr, 2));
-
-      pmath_t result = _pmath_expr_sort_ex(list, user_cmp_objs);
-
-      pmath_unref(expr);
-      pmath_unref(pmath_thread_local_save(
-        PMATH_THREAD_KEY_SORTFN,
-        old_sortfn));
-      return result;
-    #endif
+    pmath_unref(context.cmp);
+    return expr;
   }
 
   pmath_unref(expr);
   return pmath_expr_sort(list);
 }
 
-static int sortby_cmp(const void *a, const void *b){
+static int sortby_cmp(void *dummy, const void *a, const void *b){
 /* (*a) and (*b) are expressions of the form fn(x)(x) with evaluated fn(x)
    compare fn(x)... first, if it equals, compare x
  */
@@ -311,7 +268,7 @@ PMATH_PRIVATE pmath_t builtin_sortby(pmath_expr_t expr){
   }
 
   pmath_unref(fn);
-  list = _pmath_expr_sort_ex(list, sortby_cmp);
+  list = _pmath_expr_sort_ex(list, sortby_cmp, NULL);
 
   for(i = 1;i <= len;++i){
     pmath_expr_t item = (pmath_expr_t)pmath_expr_get_item(list, i);

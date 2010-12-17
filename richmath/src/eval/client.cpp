@@ -267,6 +267,16 @@ void Client::gui_print_section(Expr expr){
         if(!s || !s->get_style(SectionGenerated))
           break;
         
+        if(doc->selection_box() == doc){
+          int s = doc->selection_start();
+          int e = doc->selection_end();
+          
+          if(s > index) --s;
+          if(e > index) --e;
+          
+          doc->select(doc, s, e);
+        }
+        
         doc->remove(index, index + 1);
       }
     }
@@ -275,14 +285,20 @@ void Client::gui_print_section(Expr expr){
     
     sect = Section::create_from_object(expr);
     if(sect){
+      
       doc->insert(index, sect);
       
       print_pos = EvaluationPosition(sect);
     
-      if(doc->selection_length() == 0
-      && doc->selection_box() == doc
-      && doc->selection_start() == index)
-        doc->move_to(doc, index + 1);
+      if(doc->selection_box() == doc){
+        int s = doc->selection_start();
+        int e = doc->selection_end();
+        
+        if(s >= index) ++s;
+        if(e >= index) ++e;
+        
+        doc->select(doc, s, e);
+      }
     }
   }
   else{

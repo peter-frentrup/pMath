@@ -139,7 +139,7 @@ PMATH_PRIVATE pmath_t builtin_showdefinition(pmath_expr_t expr){
   }
   
   
-  obj = EVAL_CODE_ARGS("Unevaluated(`1`)::usage", "(o)", pmath_ref(sym));
+  obj = EVAL_CODE_ARGS("`1`::usage", "(o)", pmath_ref(sym));
   if(pmath_instance_of(obj, PMATH_TYPE_STRING)){
     PMATH_RUN_ARGS(
         "SectionPrint(\"PrintUsage\", HoldForm(LongForm(`1`)))", 

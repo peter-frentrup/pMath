@@ -49,6 +49,8 @@
 #define IDM_MATHEMATICASHAPER        5002
 #define IDM_MATHEMATICAMONOSHAPER    5003
 #define IDM_ASANAMATHSHAPER          5004
+#define IDM_NEOEULERSHAPER           5005
+#define IDM_XITSMATHSHAPER           5006
 
 
 #endif // __RESOURCES_H__

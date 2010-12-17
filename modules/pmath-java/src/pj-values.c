@@ -324,24 +324,32 @@ pmath_bool_t pj_value_to_java(JNIEnv *env, pmath_t obj, pmath_t type, jvalue *va
         jclass src_class = (*env)->GetObjectClass(env, val);
         
         if(src_class){
-          if((*env)->IsAssignableFrom(env, dst_class, src_class)){
+          if((*env)->IsAssignableFrom(env, src_class, dst_class)){
             value->l = val;
             val = NULL;
+            success = TRUE;
           }
           
           (*env)->DeleteLocalRef(env, src_class);
         }
+        
+        if(val)
+          (*env)->DeleteLocalRef(env, val);
+      }
+      else{
+        value->l = NULL;
+        success = TRUE;
       }
       
-      if(val)
-        (*env)->DeleteLocalRef(env, val);
-        
       (*env)->DeleteLocalRef(env, dst_class);
     }
     
     pmath_unref(obj);
     return success;
   }
+  
+  if(!obj)
+    return TRUE;
   
   pmath_unref(obj);
   return FALSE;

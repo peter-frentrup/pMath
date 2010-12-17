@@ -85,10 +85,9 @@ Java`JavaClass(~cls:String) @ (~f:Symbol)::= Java`JavaField(cls, SymbolName(f))
 Java`JavaClass /: (Java`JavaClass(~cls:String) @ (~f:String):= ~rhs)::= Java`JavaField(cls, f):= rhs
 Java`JavaClass /: (Java`JavaClass(~cls:String) @ (~f:Symbol):= ~rhs)::= With({fs:= SymbolName(f)}, Java`JavaField(cls, fs):= rhs)
 
-Java`JavaClass(~cls:String) @ (~m:String)(~~~args)              ::= Java`JavaCall(cls,     m,             args)
-Java`JavaClass(~cls:String) @ (~m:Symbol)(~~~args)              ::= Java`JavaCall(cls,     SymbolName(m), args)
-Java`JavaClass(~cls:String) @ (e: ~(~~~)) @ (~m:String)(~~~args)::= Java`JavaCall(cls @ e, m,             args)
-Java`JavaClass(~cls:String) @ (e: ~(~~~)) @ (~m:Symbol)(~~~args)::= Java`JavaCall(cls @ e, SymbolName(m), args)
+Java`JavaClass(~cls:String) @ (~m:String)(~~~args) ::= Java`JavaCall(cls,     m,             args)
+Java`JavaClass(~cls:String) @ (~m:Symbol)(~~~args) ::= Java`JavaCall(cls,     SymbolName(m), args)
+~c:Java`JavaClass @ (e1: ~(~~~))(~e2)              ::= (c @ e1) @ e2
 
 
 
@@ -116,9 +115,9 @@ syntaxHighlight(~lines)::= lines.StringReplace(
 		WordBoundary ++ (s: "void" | "byte" | "char" | "boolean" | "short" | "int" | "long" | "throws" | "double" | "float" | "static") ++ WordBoundary :> stringStyle(s, Brown, Bold)
 	)
 
-Constructors(JavaClass(~name:String) | ~name:String)::= Column(JavaClass("java.lang.Class").JavaCall("forName", name).JavaCall("getConstructors").Map(#.JavaCall("toString")&).syntaxHighlight)
-Methods(JavaClass(~name:String) | ~name:String)::=      Column(JavaClass("java.lang.Class").JavaCall("forName", name).JavaCall("getMethods").Map(     #.JavaCall("toString")&).syntaxHighlight)
-Fields(JavaClass(~name:String) | ~name:String)::=       Column(JavaClass("java.lang.Class").JavaCall("forName", name).JavaCall("getFields").Map(      #.JavaCall("toString")&).syntaxHighlight)
+Constructors(cls: (~:JavaClass | ~:String))::= Column(JavaClassAsObject(cls).JavaCall("getConstructors").Map(#.JavaCall("toString")&).syntaxHighlight)
+Methods(     cls: (~:JavaClass | ~:String))::= Column(JavaClassAsObject(cls).JavaCall("getMethods").Map(     #.JavaCall("toString")&).syntaxHighlight)
+Fields(      cls: (~:JavaClass | ~:String))::= Column(JavaClassAsObject(cls).JavaCall("getFields").Map(      #.JavaCall("toString")&).syntaxHighlight)
 
 
 
