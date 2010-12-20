@@ -129,13 +129,10 @@ PMATH_PRIVATE pmath_t builtin_history(         pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_loadlibrary(     pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_match(           pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_memoryusage(     pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_pause(           pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_position(        pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_releasehold(     pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_replace(         pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_replacelist(     pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_timeconstrained( pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_timing(          pmath_expr_t expr);
 //} ============================================================================
 //{ builtins from src/pmath-builtins/control/definitions/ ...
 PMATH_PRIVATE pmath_t builtin_assign(   pmath_expr_t expr);
@@ -216,6 +213,12 @@ PMATH_PRIVATE pmath_t builtin_messagecount(        pmath_expr_t expr); // in mes
 PMATH_PRIVATE pmath_t builtin_on_or_off(           pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_try(                 pmath_expr_t expr);
 //} ============================================================================
+//{ builtins from src/pmath-builtins/datetime/ ...
+PMATH_PRIVATE pmath_t builtin_datelist(        pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_pause(           pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_timeconstrained( pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_timing(          pmath_expr_t expr);
+//} ============================================================================
 //{ builtins from src/pmath-builtins/formating/ ...
 PMATH_PRIVATE pmath_t builtin_makeboxes(        pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_parenthesizeboxes(pmath_expr_t expr);
@@ -228,6 +231,7 @@ PMATH_PRIVATE pmath_t builtin_syntaxinformation(       pmath_expr_t expr);
 //} ============================================================================
 //{ builtins from src/pmath-builtins/gui/ ...
 PMATH_PRIVATE pmath_t builtin_button(pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_clock(pmath_expr_t expr);
 
 PMATH_PRIVATE pmath_t builtin_internal_dynamicevaluate(        pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_internal_dynamicevaluatemultiple(pmath_expr_t expr);
@@ -668,6 +672,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   VERIFY(   PMATH_SYMBOL_CLEAR                     = NEW_SYSTEM_SYMBOL("Clear"))
   VERIFY(   PMATH_SYMBOL_CLEARALL                  = NEW_SYSTEM_SYMBOL("ClearAll"))
   VERIFY(   PMATH_SYMBOL_CLIP                      = NEW_SYSTEM_SYMBOL("Clip"))
+  VERIFY(   PMATH_SYMBOL_CLOCK                     = NEW_SYSTEM_SYMBOL("Clock"))
   VERIFY(   PMATH_SYMBOL_CLOSE                     = NEW_SYSTEM_SYMBOL("Close"))
   VERIFY(   PMATH_SYMBOL_COLON                     = NEW_SYSTEM_SYMBOL("Colon"))
   VERIFY(   PMATH_SYMBOL_COLUMN                    = NEW_SYSTEM_SYMBOL("Column"))
@@ -691,6 +696,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   VERIFY(   PMATH_SYMBOL_CROSS                     = NEW_SYSTEM_SYMBOL("Cross"))
   VERIFY(   PMATH_SYMBOL_CSC                       = NEW_SYSTEM_SYMBOL("Csc"))
   VERIFY(   PMATH_SYMBOL_CSCH                      = NEW_SYSTEM_SYMBOL("Csch"))
+  VERIFY(   PMATH_SYMBOL_DATELIST                  = NEW_SYSTEM_SYMBOL("DateList"))
   VERIFY(   PMATH_SYMBOL_DECREMENT                 = NEW_SYSTEM_SYMBOL("Decrement"))
   VERIFY(   PMATH_SYMBOL_DEEPHOLDALL               = NEW_SYSTEM_SYMBOL("DeepHoldAll"))
   VERIFY(   PMATH_SYMBOL_DEFAULT                   = NEW_SYSTEM_SYMBOL("Default"))
@@ -1104,6 +1110,8 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   VERIFY(   PMATH_SYMBOL_TIMECONSTRAINED           = NEW_SYSTEM_SYMBOL("TimeConstrained"))
   VERIFY(   PMATH_SYMBOL_TIMES                     = NEW_SYSTEM_SYMBOL("Times"))
   VERIFY(   PMATH_SYMBOL_TIMESBY                   = NEW_SYSTEM_SYMBOL("TimesBy"))
+  VERIFY(   PMATH_SYMBOL_TIMEZONEDEFAULT           = NEW_SYSTEM_SYMBOL("$TimeZone"))
+  VERIFY(   PMATH_SYMBOL_TIMEZONE                  = NEW_SYSTEM_SYMBOL("TimeZone"))
   VERIFY(   PMATH_SYMBOL_TIMING                    = NEW_SYSTEM_SYMBOL("Timing"))
   VERIFY(   PMATH_SYMBOL_TOBOXES                   = NEW_SYSTEM_SYMBOL("ToBoxes"))
   VERIFY(   PMATH_SYMBOL_TOEXPRESSION              = NEW_SYSTEM_SYMBOL("ToExpression"))
@@ -1230,6 +1238,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
     BIND_DOWN(   PMATH_SYMBOL_CLEAR,                       builtin_clear)
     BIND_DOWN(   PMATH_SYMBOL_CLEARALL,                    builtin_clear)
     BIND_DOWN(   PMATH_SYMBOL_CLIP,                        builtin_clip)
+    BIND_DOWN(   PMATH_SYMBOL_CLOCK,                       builtin_clock)
     BIND_DOWN(   PMATH_SYMBOL_CLOSE,                       builtin_close)
     BIND_DOWN(   PMATH_SYMBOL_COMPLEMENT,                  builtin_complement)
     BIND_DOWN(   PMATH_SYMBOL_COMPLEX,                     builtin_complex)
@@ -1241,6 +1250,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
     BIND_DOWN(   PMATH_SYMBOL_COSH,                        builtin_cosh)
     BIND_DOWN(   PMATH_SYMBOL_COUNT,                       builtin_count)
     BIND_DOWN(   PMATH_SYMBOL_CREATEDIRECTORY,             builtin_createdirectory)
+    BIND_DOWN(   PMATH_SYMBOL_DATELIST,                    builtin_datelist)
     BIND_DOWN(   PMATH_SYMBOL_DECREMENT,                   builtin_dec_or_inc_or_postdec_or_postinc)
     BIND_DOWN(   PMATH_SYMBOL_DEFAULT,                     builtin_default)
     BIND_DOWN(   PMATH_SYMBOL_DEFAULTRULES,                builtin_symbol_rules)

@@ -8,8 +8,6 @@
 
 - richmath: allow altering MakeExpression with symbols...
     MakeExpression(~s /? StringMatch(s, StartOfString ++ "java`" ++ ~~ ++ EndOfString))::= With({cls:= s.StringDrop(5).StringReplace("`" -> ".")}, HoldComplete(JavaClass(cls)))
-   
-- pmath-java: include more information in an uncought exception message
 
 !? make <<context` parse as Needs("context`") and do not provide special syntax for Get()	
 	

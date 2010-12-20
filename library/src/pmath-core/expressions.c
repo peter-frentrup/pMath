@@ -673,6 +673,21 @@ size_t _pmath_expr_find_sorted(
     if((uintptr_t)a > (uintptr_t)b) return +1;
     return 0;
   }
+  
+  #ifdef __GLIBC__
+    
+  struct cmp_glibc_info_t{
+    int (*cmp)(void*, const void*, const void*);
+    void *context;
+  };
+  
+  static int cmp_glibc(const void *a, const void *b, void *c){
+    struct cmp_glibc_info_t *info = (struct cmp_glibc_info_t*)c;
+    
+    return info->cmp(info->context, a, b);
+  }
+  
+  #endif
 
 PMATH_PRIVATE pmath_expr_t _pmath_expr_sort_ex(
   pmath_expr_t expr, // will be freed
@@ -723,33 +738,48 @@ PMATH_PRIVATE pmath_expr_t _pmath_expr_sort_ex(
     expr = (pmath_expr_t)new_expr;
   }
   
-  #ifdef PMATH_OS_WIN32
-    #ifdef __GNUC__
+  #ifdef __GNUC__
     
-      // mingw does not know Microsoft's qsort_s even though it is in msvcrt.dll
-      // but gcc knows inner functions :)
-      {
-        int cmp2(const void *a, const void *b){
-          return cmp(context, a, b);
-        };
-        
-        qsort(
-          ((struct _pmath_unpacked_expr_t*)expr)->items + 1,
-          length,
-          sizeof(pmath_t),
-          cmp2);
-      }
+    // MinGW does not know Microsoft's qsort_s even though it is in msvcrt.dll
+    // And glibc uses a different parameter order for both qsort_r and its 
+    // comparision function than BSD (which implemented qsort_r first). 
+    // Sometimes, GNU sucks.
+    {
+      int cmp2(const void *a, const void *b){
+        return cmp(context, a, b);
+      };
       
-    #else
-    
-      qsort_s(
+      qsort(
         ((struct _pmath_unpacked_expr_t*)expr)->items + 1,
         length,
         sizeof(pmath_t),
-        cmp,
-        context);
-        
-    #endif
+        cmp2);
+    }
+    
+  #elif defined(PMATH_OS_WIN32)
+
+    qsort_s(
+      ((struct _pmath_unpacked_expr_t*)expr)->items + 1,
+      length,
+      sizeof(pmath_t),
+      cmp,
+      context);
+    
+  #elif defined(__GLIBC__)
+    // using non-gcc compiler with glibc (e.g. clang)
+    {
+      struct cmp_glibc_info_t info;
+      info.cmp     = cmp;
+      info.context = context;
+      
+      qsort_r(
+        ((struct _pmath_unpacked_expr_t*)expr)->items + 1,
+        length,
+        sizeof(pmath_t),
+        cmp_glibc,
+        &info);
+    }
+    
   #else
   
     qsort_r(

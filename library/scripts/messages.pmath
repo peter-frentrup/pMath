@@ -115,17 +115,17 @@ Array::plen:= "`1` and `2` should have the same length."
 BinaryRead::format:= BinaryWrite::format:= "`1` is not a recognized binary format."
 BinaryWrite::nocoerce:= "`1` cannot be coerced to the specified format `2`."
 
-MakeExpression::base:= "Requested base `1` in `2` should be between 2 and 36."
-MakeExpression::digit:= "Digit at position `1` in `2` is to large to be used in base `3`."
-MakeExpression::inv:= "`1` is neither a string nor a valid box."
-
 Break::nofwd:= Continue::nofwd:= "No surrounding For, While or Do found for `1`."
 
-Unevaluated($CurrentNamespace::nsset):= "Cannot set $CurrentNamespace to `1`; value is not a parsable context name ending in `"
-
-Unevaluated($NamespacePath::nslist):= "Cannot set $NamespacePath to `1`; value must be a list of strings ending in `"
+$CurrentNamespace::nsset:= "Cannot set $CurrentNamespace to `1`; value is not a parsable context name ending in `"
+$NamespacePath::nslist:= "Cannot set $NamespacePath to `1`; value must be a list of strings ending in `"
 
 Clear::ssym:= Update::ssym:= "`1` is neither a symbol nor a string."
+
+Clock::inf:= "It is not allowed to specify the period or count with an infinite clock."
+Clock::length:= "The length of the Clock, `1`, cannot be computed."
+Clock::period:= "Clock period `1` is not a finite positive number."
+Clock::vals:= "Clock called with illegal iterator values, `1`."
 
 CopyDirectory::dirne:= DeleteDirectory::dirne:= RenameDirectory::dirne:= "Directory `1` not empty."
 CopyDirectory::filex:= CopyFile::filex:= RenameDirectory::filex:= RenameFile::filex:= "Cannot overwrite existing file `1`."
@@ -167,6 +167,10 @@ LoadLibrary::fail:= "Failed to load external library `1`."
 Local::lvlist:= With::lvlist:= "Local variable definition `1` is not a list."
 Local::nodef:= "Local variable definition `1` contains `2`, which is neither a symbol nor an assignment to a symbol."
 With::nodef:= "Local variable definition `1` contains `2`, which is not an assignment to a symbol."
+
+MakeExpression::base:= "Requested base `1` in `2` should be between 2 and 36."
+MakeExpression::digit:= "Digit at position `1` in `2` is to large to be used in base `3`."
+MakeExpression::inv:= "`1` is neither a string nor a valid box."
 
 $MaxExtraPrecision::meprecset:= "Cannot set $MaxExtraPrecision to `1`; value must be a positive number or Infinity."
 

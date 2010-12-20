@@ -641,5 +641,9 @@ pmath_bool_t pmath_register_approx_code(
 #define PMATH_SYMBOL_CONDITIONALEXPRESSION                  PMATH_SYMBOL_BUILTIN(549)
 #define PMATH_SYMBOL_DEFINITEFUNCTION                       PMATH_SYMBOL_BUILTIN(550)
 #define PMATH_SYMBOL_SYSTEMEXCEPTION                        PMATH_SYMBOL_BUILTIN(551)
+#define PMATH_SYMBOL_DATELIST                               PMATH_SYMBOL_BUILTIN(552)
+#define PMATH_SYMBOL_TIMEZONEDEFAULT                        PMATH_SYMBOL_BUILTIN(553)
+#define PMATH_SYMBOL_TIMEZONE                               PMATH_SYMBOL_BUILTIN(554)
+#define PMATH_SYMBOL_CLOCK                                  PMATH_SYMBOL_BUILTIN(555)
 
 #endif /* __PMATH_BUILTINS__SYMBOLS_H__ */

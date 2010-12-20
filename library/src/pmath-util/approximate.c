@@ -1,4 +1,5 @@
 #include <pmath-util/approximate.h>
+#include <pmath-util/concurrency/threads.h>
 
 #include <pmath-builtins/arithmetic-private.h>
 
@@ -383,7 +384,7 @@ PMATH_API pmath_t pmath_approximate(
   prec = precision_goal;
   acc  = accuracy_goal;
   
-  do{
+  while(!pmath_aborting()){
     pmath_t res = _pmath_approximate_step(
       pmath_ref(obj), prec, acc);
       
@@ -408,5 +409,7 @@ PMATH_API pmath_t pmath_approximate(
     }
     
     pmath_unref(res);
-  }while(1);
+  }
+  
+  return NULL;
 }

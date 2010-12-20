@@ -2,6 +2,7 @@
 #include "pj-classes.h"
 #include "pj-objects.h"
 #include "pj-symbols.h"
+#include "pj-values.h"
 
 #include <limits.h>
 #include <math.h>
@@ -337,10 +338,68 @@ pmath_bool_t pj_exception_to_pmath(JNIEnv *env){
       pmath_t pex;
       
       pex = pmath_expr_new_extended(
-        pmath_ref(PJ_SYMBOL_JAVAEXCEPTION), 2, 
+        pmath_ref(PJ_SYMBOL_JAVAEXCEPTION), 3, 
         pj_object_from_java(env, jex),
-        NULL);
+        PMATH_C_STRING(""),
+        pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), 0));
       
+      if(JNI_OK == (*env)->EnsureLocalCapacity(env, 5)){
+        jclass ex_class = (*env)->GetObjectClass(env, jex);
+        
+        if(ex_class){
+          jclass object_class = (*env)->FindClass(env, "java/lang/Object");
+          
+          if(object_class){
+            jmethodID mid_tostring      = (*env)->GetMethodID(env, object_class, "toString", "()Ljava/lang/String;");
+            jmethodID mig_getstacktrace = (*env)->GetMethodID(env, ex_class, "getStackTrace", "()[Ljava/lang/StackTraceElement;");
+
+            if(mid_tostring && mig_getstacktrace){
+              jobjectArray jarr;
+              jobject jstr = (*env)->CallObjectMethod(env, jex, mid_tostring);
+              
+              if(jstr){
+                pex = pmath_expr_set_item(pex, 2, pj_string_from_java(env, jstr));
+                
+                (*env)->DeleteLocalRef(env, jstr);
+                
+                jarr = (*env)->CallObjectMethod(env, jex, mig_getstacktrace);
+                if(jarr){
+                  jsize len = (*env)->GetArrayLength(env, jarr);
+                  jsize i;
+                  pmath_t stack = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), (size_t)len);
+                  
+                  for(i = 0;i < len;++i){
+                    jobject jobj = (*env)->GetObjectArrayElement(env, jarr, i);
+                    if(!jobj)
+                      break;
+                    
+                    jstr = (*env)->CallObjectMethod(env, jobj, mid_tostring);
+                    (*env)->DeleteLocalRef(env, jobj);
+                    
+                    if(!jstr)
+                      break;
+                    
+                    stack = pmath_expr_set_item(stack, (size_t)i+1, pj_string_from_java(env, jstr));
+                    (*env)->DeleteLocalRef(env, jstr);
+                  }
+                  
+                  pex = pmath_expr_set_item(pex, 3, stack);
+                  
+                  (*env)->DeleteLocalRef(env, jarr);
+                }
+              }
+            }
+            
+            (*env)->DeleteLocalRef(env, object_class);
+          }
+          (*env)->DeleteLocalRef(env, ex_class);
+        }
+      }
+      
+      #ifdef PMATH_DEBUG_LOG
+        (*env)->ExceptionDescribe(env);
+      #endif
+      (*env)->ExceptionClear(env);
       pmath_debug_print_object("[java exception: ", pex, "]\n");
       
       pmath_throw(pex);
@@ -515,6 +574,8 @@ pmath_t pj_builtin_startvm(pmath_expr_t expr){
             }
           }
           
+          
+          // setting the security manager
           if(env && JNI_OK == (*env)->EnsureLocalCapacity(env, 4)){
             jclass system = (*env)->FindClass(env, "java/lang/System");
             

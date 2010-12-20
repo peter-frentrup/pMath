@@ -97,7 +97,17 @@ static void wakeup_msg_queue(struct msg_queue_t *mq_data){
     }
     pmath_atomic_unlock(&sleeplist_spin);
     
-    pmath_atomic_barrier();
+    pmath_atomic_lock(&mq_data->notifier_spin);
+    {
+      struct notifier_t *notify = mq_data->notifiers;
+      
+      while(notify){
+        notify->func(notify->data);
+        notify = notify->next;
+      }
+    }
+    pmath_atomic_unlock(&mq_data->notifier_spin);
+    
     _pmath_event_signal(&mq_data->sleep_event);
     
     child_mq = _pmath_object_atomic_read(&mq_data->_child_messages);
@@ -145,33 +155,53 @@ static void msg_queue_sleep(struct msg_queue_t *mq_data){
 // may only be called from the current thread / not reentrant
 static void msg_queue_sleep_timeout(struct msg_queue_t *mq_data, double abs_timeout){
   struct msg_queue_t *sl;
-  struct msg_queue_t *sl_next;
-  struct msg_queue_t *mq_prev;
+  struct msg_queue_t *next;
+  struct msg_queue_t *prev;
   
   assert(mq_data != NULL);
   assert(!mq_data->is_dead);
   assert(pmath_custom_get_data(pmath_thread_get_current()->message_queue) == mq_data);
   
   pmath_atomic_lock(&sleeplist_spin);
-  
-  sl = sleeplist;
-  if(sl){
-    sl_next = sl->next;
-    mq_prev = mq_data->prev;
-    
-    sl_next->prev = mq_prev;
-    mq_prev->next = sl_next;
-    
-    sl->next = mq_data;
-    mq_data->prev = sl;
+  {
+    sl = sleeplist;
+    if(sl){
+      next = sl->next;
+      prev = mq_data->prev;
+      
+      next->prev = prev;
+      prev->next = next;
+      
+      sl->next = mq_data;
+      mq_data->prev = sl;
+    }
+    else{
+      sleeplist = mq_data;
+    }
   }
-  else{
-    sleeplist = mq_data;
-  }
-  
   pmath_atomic_unlock(&sleeplist_spin);
   
   _pmath_event_timedwait(&mq_data->sleep_event, abs_timeout);
+  
+  pmath_atomic_lock(&sleeplist_spin);
+  {
+    prev = mq_data->prev;
+    next = mq_data->next;
+    prev->next = next;
+    next->prev = prev;
+    
+    if(mq_data == sleeplist){
+      if(mq_data->next == mq_data)
+        sleeplist = NULL;
+      else
+        sleeplist = mq_data->next;
+    }
+    
+    mq_data->prev = mq_data;
+    mq_data->next = mq_data;
+  }
+  pmath_atomic_unlock(&sleeplist_spin);
+  
 }
 
 PMATH_PRIVATE

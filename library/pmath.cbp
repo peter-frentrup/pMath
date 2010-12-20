@@ -192,7 +192,10 @@
 					<Add option="-Wno-unused-parameter" />
 					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
-					<Add option="-DNDEBUG" />
+					<Add option="-DPMATH_DEBUG_LOG" />
+					<Add option="-DPMATH_DEBUG_MEMORY" />
+					<Add option="-DPMATH_DEBUG_TESTS" />
+					<Add option="-DPMATH_DEBUG_NO_FASTREF" />
 					<Add option="-DPMATH_USE_DLMALLOC" />
 					<Add option="-DPMATH_USE_PTHREAD=1" />
 					<Add option="-D_POSIX_C_SOURCE=200112" />
@@ -278,6 +281,7 @@
 		<Unit filename="include\pmath-builtins\control\definitions-private.h" />
 		<Unit filename="include\pmath-builtins\control\flow-private.h" />
 		<Unit filename="include\pmath-builtins\control\messages-private.h" />
+		<Unit filename="include\pmath-builtins\datetime-private.h" />
 		<Unit filename="include\pmath-builtins\formating-private.h" />
 		<Unit filename="include\pmath-builtins\io-private.h" />
 		<Unit filename="include\pmath-builtins\language-private.h" />
@@ -538,16 +542,22 @@
 		<Unit filename="src\pmath-builtins\control\messages\try.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\control\pause.c">
-			<Option compilerVar="CC" />
-		</Unit>
 		<Unit filename="src\pmath-builtins\control\position.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src\pmath-builtins\control\replace.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\control\time-related.c">
+		<Unit filename="src\pmath-builtins\datetime\datelist.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\pmath-builtins\datetime\pause.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\pmath-builtins\datetime\timecontrained.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\pmath-builtins\datetime\timing.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src\pmath-builtins\formating\makeboxes.c">
@@ -566,6 +576,9 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src\pmath-builtins\gui\button.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\pmath-builtins\gui\clock.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src\pmath-builtins\gui\dynamic.c">

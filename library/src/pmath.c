@@ -49,6 +49,8 @@
   #include <pthread.h>
 #endif
 
+#include <time.h>
+
 
 static volatile enum{
   PMATH_STATUS_NONE,
@@ -562,6 +564,20 @@ PMATH_API pmath_bool_t pmath_init(void){
         year, month, day, hour, minute, second);
     }
     
+    {
+      struct tm epoch;
+      time_t t;
+      
+      memset(&epoch, 0, sizeof(epoch));
+      epoch.tm_year = 70;
+      epoch.tm_mon  = 0;
+      epoch.tm_mday = 2;
+      
+      t = mktime(&epoch); // 2 Jan 1970 (the day before would give underflow in -xxxx timezones).
+      
+      PMATH_RUN_ARGS("$TimeZone:=`1`", "(f)", t / (60 * 60.0) - 24.0);
+    }
+    
     PMATH_RUN("IsNumeric(E):=True");
     PMATH_RUN("IsNumeric(EulerGamma):=True");
     PMATH_RUN("IsNumeric(Degree):=True");
@@ -594,6 +610,8 @@ PMATH_API pmath_bool_t pmath_init(void){
       "Options(Scan):={Heads->False}");
     
     PMATH_RUN("Options(Complement):={SameTest->Automatic}");
+    
+    PMATH_RUN("Options(DateList):={TimeZone:>$TimeZone}");
     
     PMATH_RUN(
       "Options(Dynamic):="
@@ -819,7 +837,8 @@ PMATH_API pmath_bool_t pmath_init(void){
     return FALSE;
   }
   else{
-    while(_pmath_status != PMATH_STATUS_RUNNING){
+    while(_pmath_status != PMATH_STATUS_RUNNING
+    &&    _pmath_status != PMATH_STATUS_INITIALIZING){
     }
     
     thread = _pmath_thread_new(NULL);
@@ -850,8 +869,9 @@ PMATH_API void pmath_done(void){
   
   thread_count = pmath_atomic_fetch_add(&pmath_count, 0);
   if(!thread->is_daemon 
-  && thread_count == _pmath_threadpool_deamon_count + 1)
+  && thread_count == _pmath_threadpool_deamon_count + 1){
     _pmath_threadpool_kill_daemons();
+  }
   
   thread_count = pmath_atomic_fetch_add(&pmath_count, -1) - 1;
   if(thread_count == 0){

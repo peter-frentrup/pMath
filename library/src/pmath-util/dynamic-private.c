@@ -4,6 +4,7 @@
 #include <pmath-core/symbols-private.h>
 
 #include <pmath-util/concurrency/atomic-private.h>
+#include <pmath-util/concurrency/threadmsg.h>
 #include <pmath-util/emit-and-gather.h>
 #include <pmath-util/evaluation.h>
 #include <pmath-util/hashtables-private.h>
@@ -32,6 +33,7 @@ struct id2symbols_t{
   intptr_t              id;
   
   struct symbol_list_t *symbols;
+  double                first_eval_time;
 };
 
 static void id2symbols_destructor(void *p){
@@ -187,8 +189,9 @@ PMATH_PRIVATE void _pmath_dynamic_bind(pmath_symbol_t symbol, intptr_t id){
         symlist->symbol = pmath_ref(symbol);
         symlist->next   = NULL;
         
-        i2s_entry->id      = id;
-        i2s_entry->symbols = symlist;
+        i2s_entry->id              = id;
+        i2s_entry->symbols         = symlist;
+        i2s_entry->first_eval_time = pmath_tickcount();
         
         symlist = NULL;
         
@@ -285,6 +288,38 @@ PMATH_PRIVATE void _pmath_dynamic_update(pmath_symbol_t symbol){
           pmath_gather_end(), 
           0, pmath_ref(PMATH_SYMBOL_INTERNAL_DYNAMICUPDATED))));
   }
+}
+
+PMATH_PRIVATE double _pmath_dynamic_first_eval(intptr_t id){
+  pmath_hashtable_t i2s_table;
+  pmath_hashtable_t s2i_table;
+  double t = 0;
+  
+  lock_tables(&i2s_table, &s2i_table);
+  {
+    struct id2symbols_t *i2s_entry;
+    
+    i2s_entry = pmath_ht_search(i2s_table, (void*)id);
+    
+    if(i2s_entry){
+      t = i2s_entry->first_eval_time;
+    }
+    else{
+      i2s_entry = pmath_mem_alloc(sizeof(struct id2symbols_t));
+      
+      if(i2s_entry){
+        i2s_entry->id              = id;
+        i2s_entry->symbols         = NULL;
+        i2s_entry->first_eval_time = t = pmath_tickcount();
+        
+        i2s_entry = pmath_ht_insert(i2s_table, i2s_entry);
+        symbol2ids_destructor(i2s_entry);
+      }
+    }
+  }
+  unlock_tables(i2s_table, s2i_table);
+  
+  return t;
 }
 
 /*============================================================================*/

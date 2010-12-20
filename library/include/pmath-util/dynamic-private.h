@@ -13,6 +13,8 @@ PMATH_PRIVATE void         _pmath_dynamic_bind(pmath_symbol_t symbol, intptr_t i
 PMATH_PRIVATE pmath_bool_t _pmath_dynamic_remove(intptr_t id);
 PMATH_PRIVATE void         _pmath_dynamic_update(pmath_symbol_t symbol); // symbol wont be freed
 
+PMATH_PRIVATE double _pmath_dynamic_first_eval(intptr_t id);
+
 PMATH_PRIVATE pmath_bool_t _pmath_dynamic_init(void);
 PMATH_PRIVATE void         _pmath_dynamic_done(void);
 
