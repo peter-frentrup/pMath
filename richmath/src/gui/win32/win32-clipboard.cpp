@@ -12,20 +12,8 @@ class Win32ClipboardInfo: public BasicWin32Widget{
     Win32ClipboardInfo()
     : BasicWin32Widget(0, 0, 0, 0, 0, 0, &hwnd_message)
     {
-      init(); // total exception!!! normally nor callable in constructor
+      init(); // total exception!!! normally not callable in constructor
     }
-  
-  protected:
-//    virtual LRESULT callback(UINT message, WPARAM wParam, LPARAM lParam){
-//      if(!initializing()){
-//        switch(message){
-//          
-//          default: break;
-//        }
-//      }
-//      
-//      return BasicWin32Widget::callback(message, wParam, lParam);
-//    }
 };
 
 static Win32ClipboardInfo w32cbinfo;

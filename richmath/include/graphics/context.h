@@ -5,16 +5,14 @@
 #include <util/pmath-extra.h>
 #include <util/sharedptr.h>
 
-#include <graphics/canvas.h>
+#include <graphics/shapers.h>
 
 namespace richmath{
   class Box;
   class GeneralSyntaxInfo;
-  class MathShaper;
   class Style;
   class Stylesheet;
   class SyntaxState;
-  class TextShaper;
   class WidgetBox;
   
   class SelectionReference{

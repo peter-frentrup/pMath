@@ -121,22 +121,22 @@ namespace richmath{
   } MathGlyphAssembly;
 
   typedef struct {
-    uint16_t	italics_correction_info_offset;
-    uint16_t	top_accent_attachment_offset;
-    uint16_t	extended_shape_coverage_offset;
-    uint16_t	kern_info_offset;
+    uint16_t  italics_correction_info_offset;
+    uint16_t  top_accent_attachment_offset;
+    uint16_t  extended_shape_coverage_offset;
+    uint16_t  kern_info_offset;
   } MathGlyphInfo;
 
   typedef struct {
     uint16_t        coverage_offset;
     uint16_t        count;
-    MathValueRecord	italics_corrections[1]; // count
+    MathValueRecord  italics_corrections[1]; // count
   } MathItalicsCorrectionInfo;
 
   typedef struct {
     uint16_t        coverage_offset;
     uint16_t        count;
-    MathValueRecord	top_accent_attachment[1]; // count
+    MathValueRecord  top_accent_attachment[1]; // count
   } MathTopAccentAttachment;
   
   typedef struct {

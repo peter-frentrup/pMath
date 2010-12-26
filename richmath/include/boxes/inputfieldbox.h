@@ -40,7 +40,7 @@ namespace richmath{
     protected:
       bool transparent;
 //      bool autoscroll;
-      long last_click_time;
+      double last_click_time;
       float last_click_global_x;
       float last_click_global_y;
       

@@ -18,6 +18,7 @@ namespace richmath{
       static Clipboard *dummy;
       static Clipboard *std;
       
+      // mimetypes:
       static const char * const PlainText;
       static const char * const BoxesText;
       static const char * const BoxesBinary;

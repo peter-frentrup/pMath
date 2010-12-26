@@ -30,11 +30,12 @@ class DummyNativeWidget: public NativeWidget{
     
     virtual bool is_scaleable(){ return false; }
     
-    virtual long double_click_time(){ return 1; }
-    virtual long message_time(){ return 0; }
-    
+    virtual double double_click_time(){ return 0; }
+    virtual double message_time(){ return 0; }
     virtual void double_click_dist(float *dx, float *dy){
       *dx = *dy = 0;
+    }
+    virtual void do_drag_drop(Box *src, int start, int end){
     }
     
     virtual void close(){}
@@ -96,13 +97,6 @@ void NativeWidget::set_scale(float s){
   
   if(_document)
     _document->invalidate_all();
-}
-
-long NativeWidget::time_diff(long first, long second){
-  if(first <= second)
-    return second - first;
-  
-  return second + (LONG_MAX - first);
 }
 
 CursorType NativeWidget::text_cursor(float dx, float dy){

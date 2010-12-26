@@ -1,10 +1,8 @@
 #include <gui/win32/basic-win32-widget.h>
+#include <gui/win32/win32-themes.h>
+#include <resources.h>
 
 #include <cstdio>
-
-#include <gui/win32/win32-themes.h>
-
-#include <resources.h>
 
 using namespace richmath;
 

@@ -35,9 +35,10 @@ namespace richmath{
       
       virtual bool is_scaleable(){ return true; }
       
-      virtual long message_time();
-      virtual long double_click_time();
+      virtual double message_time();
+      virtual double double_click_time();
       virtual void double_click_dist(float *dx, float *dy);
+      virtual void do_drag_drop(Box *src, int start, int end);
       
       virtual void close(){}
       virtual void invalidate();
@@ -63,7 +64,7 @@ namespace richmath{
       
       bool scrolling;
       bool already_scrolled;
-      MouseEvent mouse_down_event; // coordinates in pixels, relative to widget top/left (no scrolling)
+      MouseEvent mouse_down_event; // coordinates in pixels, relative to widget top/left (no scrolling adjustment)
       
       int _width;
       int _height;

@@ -423,8 +423,8 @@ Document::Document()
   prev_sel_line(-1),
   prev_sel_box_id(0),
   must_resize_min(0),
+  drag_status(DragStatusIdle),
   auto_scroll(false),
-  dragging(false),
   _native(NativeWidget::dummy),
   mouse_down_counter(0),
   mouse_down_time(0),
@@ -675,14 +675,12 @@ void Document::key_press(uint16_t unicode){
 void Document::on_mouse_down(MouseEvent &event){
   event.set_source(this);
   
-  dragging = false;
+  drag_status = DragStatusIdle;
   if(event.left){
     float ddx, ddy;
     native()->double_click_dist(&ddx, &ddy);
     
-    bool double_click = NativeWidget::time_diff(
-        mouse_down_time, 
-        native()->message_time()) <= native()->double_click_time()
+    bool double_click = abs(mouse_down_time - native()->message_time()) <= native()->double_click_time()
       && fabs(event.x - mouse_down_x) <= ddx
       && fabs(event.y - mouse_down_y) <= ddy;
       
@@ -748,7 +746,7 @@ void Document::on_mouse_down(MouseEvent &event){
     }
     else if(is_inside_selection(box, start, end, was_inside_start)){
       // maybe drag & drop
-      dragging = true;
+      drag_status = DragStatusMayDrag;
     }
     else if(box && box->selectable())
       select(box, start, end);
@@ -766,16 +764,22 @@ void Document::on_mouse_move(MouseEvent &event){
   bool was_inside_start;
   Box *box = mouse_selection(event.x, event.y, &start, &end, &was_inside_start);
   
-  if(event.left && dragging){
+  if(event.left && drag_status == DragStatusMayDrag){
     float ddx, ddy;
     native()->double_click_dist(&ddx, &ddy);
     
     if(fabs(event.x - mouse_down_x) > ddx
     || fabs(event.y - mouse_down_y) > ddy){
+      drag_status = DragStatusCurrentlyDragging;
       mouse_down_x = mouse_down_y = Infinity;
-      printf("[drag]");
+      native()->do_drag_drop(selection_box(), selection_start(), selection_end());
     }
     
+    return;
+  }
+  
+  if(drag_status == DragStatusCurrentlyDragging){
+    native()->set_cursor(CurrentCursor);
     return;
   }
   
@@ -822,7 +826,7 @@ void Document::on_mouse_move(MouseEvent &event){
 void Document::on_mouse_up(MouseEvent &event){
   event.set_source(this);
   
-  if(event.left && dragging){
+  if(event.left && drag_status != DragStatusIdle){
     bool was_inside_start;
     int start, end;
     Box *box = mouse_selection(
@@ -835,7 +839,7 @@ void Document::on_mouse_up(MouseEvent &event){
       select(box, start, end);
   }
   
-  dragging = false;
+  drag_status = DragStatusIdle;
 }
 
 void Document::on_mouse_cancel(){
@@ -1868,28 +1872,46 @@ void Document::select_prev(bool operands_only){
   }
 }
 
+String Document::copy_to_text(String mimetype){
+  Box *selbox = context.selection.get();
+  if(!selbox){
+    native()->beep();
+    return String();
+  }
+  
+  Expr boxes = Expr(selbox->to_pmath(false, context.selection.start, context.selection.end));
+  if(mimetype == String(Clipboard::BoxesText))
+    return boxes.to_string(PMATH_WRITE_OPTIONS_INPUTEXPR | PMATH_WRITE_OPTIONS_FULLSTR);
+  
+  if(mimetype == String(Clipboard::PlainText)){
+    Expr text = Client::interrupt(Expr(
+      pmath_parse_string_args(
+            "FE`BoxesToText(`1`)",
+          "(o)",
+          pmath_ref(boxes.get()))),
+      Client::edit_interrupt_timeout);
+    
+    return text.to_string();
+  }
+  
+  native()->beep();
+  return String();
+}
+
+void Document::copy_to_binary(String mimetype, Expr file){
+  String text = copy_to_text(mimetype);
+  pmath_file_writetext(file.get(), text.buffer(), text.length());
+}
+
 void Document::copy_to_clipboard(){
   SharedPtr<OpenedClipboard> cb = Clipboard::std->open_write();
-  
-  Box *selbox = context.selection.get();
-  if(!cb || !selbox){
+  if(!cb){
     native()->beep();
     return;
   }
   
-  Expr boxes = Expr(selbox->to_pmath(false, context.selection.start, context.selection.end));
-  
-  cb->add_text(Clipboard::BoxesText, boxes.to_string(
-    PMATH_WRITE_OPTIONS_INPUTEXPR | PMATH_WRITE_OPTIONS_FULLSTR));
-  
-  Expr text = Client::interrupt(Expr(
-    pmath_parse_string_args(
-          "FE`BoxesToText(`1`)",
-        "(o)",
-        pmath_ref(boxes.get()))),
-    Client::edit_interrupt_timeout);
-  
-  cb->add_text(Clipboard::PlainText, text.to_string());
+  cb->add_text(Clipboard::BoxesText, copy_to_text(Clipboard::BoxesText));
+  cb->add_text(Clipboard::PlainText, copy_to_text(Clipboard::PlainText));
 }
 
 void Document::cut_to_clipboard(){

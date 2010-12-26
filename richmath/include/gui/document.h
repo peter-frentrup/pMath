@@ -12,6 +12,12 @@ namespace richmath{
   
   extern bool DebugFollowMouse;
   
+  typedef enum {
+    DragStatusIdle,
+    DragStatusMayDrag,
+    DragStatusCurrentlyDragging
+  } DragStatus;
+  
   class Document: public SectionList{
     friend class NativeWidget;
     public:
@@ -86,9 +92,13 @@ namespace richmath{
       virtual void insert(int pos, Section *section);
       virtual Section *swap(int pos, Section *section);
       
+      String copy_to_text(String mimetype);
+      void copy_to_binary(String mimetype, Expr file);
+      
       void copy_to_clipboard();
       void cut_to_clipboard();
       void paste_from_clipboard();
+      
       void insert_string(String text);
       void insert_box(Box *box, bool handle_placeholder = false); // deletes the box
       void insert_fraction();
@@ -133,13 +143,13 @@ namespace richmath{
       bool handle_macros();
     
     protected:
-      Context context;
-      float   best_index_rel_x;
-      int     prev_sel_line;
-      int     prev_sel_box_id;
-      int     must_resize_min;
-      bool    auto_scroll;
-      bool    dragging;
+      Context     context;
+      float       best_index_rel_x;
+      int         prev_sel_line;
+      int         prev_sel_box_id;
+      int         must_resize_min;
+      DragStatus  drag_status;
+      bool        auto_scroll;
       
       SharedPtr<BoxRepaintEvent> flashing_cursor_circle;
     

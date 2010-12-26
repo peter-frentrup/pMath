@@ -46,11 +46,10 @@ namespace richmath{
       void scale_by(float ds);
       void set_scale(float s);
       
-      virtual long message_time() = 0;
-      virtual long double_click_time() = 0;
-      static long time_diff(long first, long second);
-      
+      virtual double message_time() = 0;
+      virtual double double_click_time() = 0;
       virtual void double_click_dist(float *dx, float *dy) = 0;
+      virtual void do_drag_drop(Box *src, int start, int end) = 0;
       
       virtual void close() = 0;
       virtual void invalidate() = 0;

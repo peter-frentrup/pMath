@@ -137,7 +137,7 @@ int Win32ControlPainter::control_font_color(ContainerType type, ControlState sta
     COLORREF col = 0;
     
     // TMT_TEXTCOLOR  = 3803
-    // TMT_WINDOWTEXT	= 1609
+    // TMT_WINDOWTEXT  = 1609
     // TMT_BTNTEXT    = 1619
     if(SUCCEEDED(Win32Themes::GetThemeColor(
         theme, theme_part, theme_state, 3803, &col))
@@ -666,7 +666,7 @@ void Win32ControlPainter::container_content_move(
 //    HANDLE theme = get_control_theme(type, state, &theme_part, &theme_state);
 //    
 //    POINT off;
-//    // TMT_OFFSET	= 3401
+//    // TMT_OFFSET  = 3401
 //    if(theme
 //    && SUCCEEDED(Win32Themes::GetThemePosition(
 //        theme, theme_part, theme_state, 3401, &off))

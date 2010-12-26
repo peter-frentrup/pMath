@@ -5,7 +5,6 @@
 
 #include <boxes/box.h>
 #include <graphics/buffer.h>
-#include <graphics/shapers.h>
 #include <gui/control-painter.h>
 #include <util/syntax-state.h>
 

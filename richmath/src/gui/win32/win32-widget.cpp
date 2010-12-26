@@ -17,6 +17,9 @@
 #include <eval/client.h>
 #include <eval/job.h>
 #include <gui/control-painter.h>
+#include <gui/win32/ole/dataobject.h>
+#include <gui/win32/ole/dropsource.h>
+#include <gui/win32/win32-clipboard.h>
 
 #include <resources.h>
 
@@ -41,6 +44,12 @@ static void add_remove_window(int count){
   static int window_count = 0;
   
   if(window_count == 0){
+    HRESULT ole_status = OleInitialize(NULL);
+    
+    if(ole_status != S_OK && ole_status != S_FALSE){
+      pmath_debug_print("OleInitialize failed.\n");
+    }
+    
     menucommands.set( SC_CLOSE                    , "Close");
     
     menucommands.set( IDM_EDITBOXES               , "EditBoxes");
@@ -75,6 +84,7 @@ static void add_remove_window(int count){
   
   if(window_count <= 0){
     menucommands.clear();
+    OleUninitialize();
 //    PostQuitMessage(0);
   }
 }
@@ -191,17 +201,68 @@ void Win32Widget::scroll_to(float x, float y){
   }
 }
 
-long Win32Widget::message_time(){
-  return GetMessageTime();
+double Win32Widget::message_time(){
+  return GetMessageTime() / 1000.0;
 }
 
-long Win32Widget::double_click_time(){
-  return (long)GetDoubleClickTime();
+double Win32Widget::double_click_time(){
+  return GetDoubleClickTime() / 1000.0;
 }
 
 void Win32Widget::double_click_dist(float *dx, float *dy){
   *dx = GetSystemMetrics(SM_CXDOUBLECLK) / scale_factor();
   *dy = GetSystemMetrics(SM_CYDOUBLECLK) / scale_factor();
+}
+
+void Win32Widget::do_drag_drop(Box *src, int start, int end){
+  if(!src || start >= end)
+    return;
+  
+  scrolling = false;
+  
+  DataObject *data_object = new DataObject;
+  
+  FORMATETC fmt;
+  memset(&fmt, 0, sizeof(fmt));
+  fmt.dwAspect = DVASPECT_CONTENT;
+  fmt.lindex   = -1;
+  fmt.tymed    = TYMED_HGLOBAL;
+  
+  data_object->source = SelectionReference(src->id(), start, end);
+  
+  data_object->mimetypes.add(                          Clipboard::PlainText);
+  fmt.cfFormat = Win32Clipboard::mime_to_win32cbformat[Clipboard::PlainText];
+  data_object->formats.add(fmt);
+  
+  data_object->mimetypes.add(                          Clipboard::BoxesText);
+  fmt.cfFormat = Win32Clipboard::mime_to_win32cbformat[Clipboard::BoxesText];
+  data_object->formats.add(fmt);
+  
+  DropSource *drop_source = new DropSource;
+  
+  DWORD effect;
+  HRESULT res = DoDragDrop(data_object, drop_source, DROPEFFECT_COPY | DROPEFFECT_MOVE, &effect);
+  
+  printf("[DoDragDrop -> %x]", (int)res);
+  
+  if(res == DRAGDROP_S_DROP){
+    if(effect & DROPEFFECT_MOVE){
+      src = data_object->source.get();
+      
+      if(src && end <= src->length()){
+        Document *doc = src->find_parent<Document>(true);
+        
+        if(doc){
+          doc->select(src, start, end);
+          if(!doc->remove_selection(false))
+            beep();
+        }
+      }
+    }
+  }
+  
+  data_object->Release();
+  drop_source->Release();
 }
 
 void Win32Widget::invalidate(){
