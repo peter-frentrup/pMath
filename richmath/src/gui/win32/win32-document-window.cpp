@@ -876,6 +876,11 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
         }
       } break;
       
+      case WM_MOUSEACTIVATE: {
+        if(LOWORD(lParam) == HTCLIENT)
+          return MA_NOACTIVATE;
+      } break;
+      
       case WM_ACTIVATE: {
         if(HIWORD(wParam)){ // minimizing
           bool have_only_palettes = true;
@@ -897,9 +902,6 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
               }
             );
           }
-        }
-        else if(LOWORD(wParam) != WA_INACTIVE){ // restore & activate
-          SetFocus(_hwnd);
         }
       } break;
       

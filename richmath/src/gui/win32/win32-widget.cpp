@@ -44,12 +44,6 @@ static void add_remove_window(int count){
   static int window_count = 0;
   
   if(window_count == 0){
-    HRESULT ole_status = OleInitialize(NULL);
-    
-    if(ole_status != S_OK && ole_status != S_FALSE){
-      pmath_debug_print("OleInitialize failed.\n");
-    }
-    
     menucommands.set( SC_CLOSE                    , "Close");
     
     menucommands.set( IDM_EDITBOXES               , "EditBoxes");
@@ -84,7 +78,6 @@ static void add_remove_window(int count){
   
   if(window_count <= 0){
     menucommands.clear();
-    OleUninitialize();
 //    PostQuitMessage(0);
   }
 }
@@ -144,7 +137,8 @@ Win32Widget::Win32Widget(
   scrolling(false),
   _width(0),
   _height(0),
-  animation_running(false)
+  animation_running(false),
+  is_dragging(false)
 {
   add_remove_window(1);
 }
@@ -215,8 +209,11 @@ void Win32Widget::double_click_dist(float *dx, float *dy){
 }
 
 void Win32Widget::do_drag_drop(Box *src, int start, int end){
-  if(!src || start >= end)
+  if(is_dragging || !src || start >= end)
     return;
+  
+  is_dragging = true;
+  drag_source_reference().set(src, start, end);
   
   scrolling = false;
   
@@ -228,7 +225,7 @@ void Win32Widget::do_drag_drop(Box *src, int start, int end){
   fmt.lindex   = -1;
   fmt.tymed    = TYMED_HGLOBAL;
   
-  data_object->source = SelectionReference(src->id(), start, end);
+  data_object->source = drag_source_reference();
   
   data_object->mimetypes.add(                          Clipboard::PlainText);
   fmt.cfFormat = Win32Clipboard::mime_to_win32cbformat[Clipboard::PlainText];
@@ -243,11 +240,11 @@ void Win32Widget::do_drag_drop(Box *src, int start, int end){
   DWORD effect;
   HRESULT res = DoDragDrop(data_object, drop_source, DROPEFFECT_COPY | DROPEFFECT_MOVE, &effect);
   
-  printf("[DoDragDrop -> %x]", (int)res);
-  
   if(res == DRAGDROP_S_DROP){
     if(effect & DROPEFFECT_MOVE){
-      src = data_object->source.get();
+      src   = drag_source_reference().get();
+      start = drag_source_reference().start;
+      end   = drag_source_reference().end;
       
       if(src && end <= src->length()){
         Document *doc = src->find_parent<Document>(true);
@@ -263,6 +260,9 @@ void Win32Widget::do_drag_drop(Box *src, int start, int end){
   
   data_object->Release();
   drop_source->Release();
+  
+  drag_source_reference().reset();
+  is_dragging = false;
 }
 
 void Win32Widget::invalidate(){
@@ -315,6 +315,14 @@ void Win32Widget::set_cursor(CursorType type){
 void Win32Widget::running_state_changed(){
 }
 
+bool Win32Widget::is_mouse_down(){
+  return GetKeyState(VK_LBUTTON) < 0
+      || GetKeyState(VK_RBUTTON) < 0
+      || GetKeyState(VK_MBUTTON) < 0
+      || GetKeyState(VK_XBUTTON1) < 0
+      || GetKeyState(VK_XBUTTON2) < 0;
+}
+
 void Win32Widget::beep(){
   MessageBeep(0);
 }
@@ -336,6 +344,34 @@ bool Win32Widget::register_timed_event(SharedPtr<TimedEvent> event){
   return true;
 }
 
+STDMETHODIMP Win32Widget::DragEnter(IDataObject *data_object, DWORD key_state, POINTL pt, DWORD *effect){
+  if(!is_dragging){
+    drag_source_reference().set(
+      document()->selection_box(), 
+      document()->selection_start(), 
+      document()->selection_end());
+  }
+  
+  is_drop_over = true;
+  
+  return BasicWin32Widget::DragEnter(data_object, key_state, pt, effect);
+}
+
+STDMETHODIMP Win32Widget::DragLeave(void){
+  if(drag_source_reference().get()){
+    document()->select(
+      drag_source_reference().get(), 
+      drag_source_reference().start, 
+      drag_source_reference().end);
+  }
+  
+  if(!is_dragging)
+    drag_source_reference().reset();
+  
+  is_drop_over = false;
+  return BasicWin32Widget::DragLeave();
+}
+      
 void Win32Widget::paint_background(Canvas *canvas){
   canvas->set_color(0xffffff);
   canvas->paint();
@@ -627,7 +663,7 @@ void Win32Widget::on_mousedown(MouseEvent &event){
     if(cur && cur != document()){
       Win32Widget *wig = dynamic_cast<Win32Widget*>(cur->native());
       
-      if(wig){
+      if(wig && wig->hwnd() != GetFocus()){
         SetFocus(wig->hwnd());
       }
     }
@@ -952,7 +988,9 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam){
             KillTimer(_hwnd, TID_BLINKCURSOR);
             
             Context *ctx = document_context();
-            if(ctx->old_selection == ctx->selection || _hwnd != GetFocus())
+            if(ctx->old_selection == ctx->selection 
+            || _hwnd != GetFocus()
+            || is_mouse_down())
               ctx->old_selection.id = 0;
             else
               ctx->old_selection = ctx->selection;
@@ -964,7 +1002,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam){
         }
       } return 0;
       
-      case WM_KEYDOWN: {
+      case WM_KEYDOWN: if(!is_drop_over){
         on_keydown(
           wParam, 
           GetKeyState(VK_CONTROL) & ~1,
@@ -972,7 +1010,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam){
           GetKeyState(VK_SHIFT)   & ~1);
       } return 0;
       
-      case WM_KEYUP: {
+      case WM_KEYUP: if(!is_drop_over){
         SpecialKeyEvent event;
         event.key = win32_virtual_to_special_key(wParam);
         if(event.key){
@@ -983,7 +1021,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam){
         }
       } return 0;
       
-      case WM_CHAR: {
+      case WM_CHAR: if(!is_drop_over){
         if(wParam == 0xFFFF)
           return 1;
         
@@ -1043,6 +1081,203 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam){
   }
   
   return BasicWin32Widget::callback(message, wParam, lParam);
+}
+
+bool Win32Widget::is_data_droppable(IDataObject *data_object){
+  FORMATETC fmt;
+  memset(&fmt, 0, sizeof(fmt));
+  
+  fmt.dwAspect = DVASPECT_CONTENT;
+  fmt.lindex   = -1;
+  fmt.ptd      = NULL;
+  fmt.tymed    = TYMED_HGLOBAL;
+  
+  fmt.cfFormat = Win32Clipboard::mime_to_win32cbformat[Clipboard::BoxesText];
+  if(data_object->QueryGetData(&fmt) == S_OK)
+    return true;
+  
+  fmt.cfFormat = Win32Clipboard::mime_to_win32cbformat[Clipboard::PlainText];
+  if(data_object->QueryGetData(&fmt) == S_OK)
+    return true;
+  
+  fmt.cfFormat = CF_TEXT;
+  if(data_object->QueryGetData(&fmt) == S_OK)
+    return true;
+  
+  return false;
+}
+
+DWORD Win32Widget::drop_effect(DWORD key_state, POINTL ptl, DWORD allowed_effects){
+  POINT pt = {(int) ptl.x, (int)ptl.y };
+  ScreenToClient(_hwnd, &pt);
+  
+  float x = (pt.x + GetScrollPos(_hwnd, SB_HORZ)) / scale_factor();
+  float y = (pt.y + GetScrollPos(_hwnd, SB_VERT)) / scale_factor();
+  
+  int start, end;
+  bool was_inside_start;
+  Box *dst = document()->mouse_selection(x, y, &start, &end, &was_inside_start);
+  
+  if(!dst || !dst->get_style(Editable) || !dst->selectable(start))
+    return DROPEFFECT_NONE;
+  
+  if(is_dragging){
+    Box *src = drag_source_reference().get();
+    
+    if(src){
+      Box *box = Box::common_parent(src, dst);
+      
+      if(box == src){
+        int s = start;
+        int e = end;
+        box = dst;
+        
+        while(box != src){
+          s = box->index();
+          e = s + 1;
+          box = box->parent();
+        }
+        
+        if(s <= drag_source_reference().end && e >= drag_source_reference().start)
+          return DROPEFFECT_NONE;
+      }
+      else if(box == dst){
+        int s = drag_source_reference().start;
+        int e = drag_source_reference().end;
+        box = src;
+        
+        while(box != dst){
+          s = box->index();
+          e = s + 1;
+          box = box->parent();
+        }
+        
+        if(s < end && e > start)
+          return DROPEFFECT_NONE;
+      }
+    }
+  }
+  
+  return BasicWin32Widget::drop_effect(key_state, ptl, allowed_effects);
+}
+
+void Win32Widget::do_drop_data(IDataObject *data_object, DWORD effect){
+  String mimetype;
+  String text_data;
+  
+	STGMEDIUM stgmed;
+	memset(&stgmed, 0, sizeof(stgmed));
+	
+	FORMATETC fmt;
+  memset(&fmt, 0, sizeof(fmt));
+  
+  fmt.dwAspect = DVASPECT_CONTENT;
+  fmt.lindex   = -1;
+  fmt.ptd      = NULL;
+  fmt.tymed    = TYMED_HGLOBAL;
+  
+  do{
+    mimetype = Clipboard::BoxesText;
+    fmt.cfFormat = Win32Clipboard::mime_to_win32cbformat[mimetype];
+    if(data_object->QueryGetData(&fmt) == S_OK
+    && data_object->GetData(&fmt, &stgmed) == S_OK){
+      const uint16_t *data = (const uint16_t*)GlobalLock(stgmed.hGlobal);
+      
+      text_data = String::FromUcs2(data, -1);
+      
+      GlobalUnlock(stgmed.hGlobal);
+      ReleaseStgMedium(&stgmed);
+      break;
+    }
+    
+    
+    mimetype = Clipboard::PlainText;
+    fmt.cfFormat = Win32Clipboard::mime_to_win32cbformat[Clipboard::PlainText];
+    if(data_object->QueryGetData(&fmt) == S_OK
+    && data_object->GetData(&fmt, &stgmed) == S_OK){
+      const uint16_t *data = (const uint16_t*)GlobalLock(stgmed.hGlobal);
+      
+      text_data = String::FromUcs2(data, -1);
+      
+      GlobalUnlock(stgmed.hGlobal);
+      ReleaseStgMedium(&stgmed);
+      break;
+    }
+    
+    fmt.cfFormat = CF_TEXT;
+    if(data_object->QueryGetData(&fmt) == S_OK
+    && data_object->GetData(&fmt, &stgmed) == S_OK){
+      const char *data = (const char*)GlobalLock(stgmed.hGlobal);
+      
+      text_data = String(pmath_string_from_native(data, -1));
+      
+      GlobalUnlock(stgmed.hGlobal);
+      ReleaseStgMedium(&stgmed);
+      break;
+    }
+  }while(false);
+  
+  if(text_data.is_valid()){
+    Box *oldbox  = document()->selection_box();
+    int oldstart = document()->selection_start();
+    int oldend   = document()->selection_start();
+    
+    if(effect & DROPEFFECT_MOVE && is_dragging){
+      
+      Box *src = drag_source_reference().get();
+      if(src){
+        int s = drag_source_reference().start;
+        int e = drag_source_reference().end;
+        
+        drag_source_reference().reset();
+        
+        document()->select(src, s, e);
+        document()->remove_selection(false);
+        
+        if(src == oldbox){
+          if(oldstart >= e)
+            oldstart-= e-s;
+          if(oldend >= e)
+            oldend-= e-s;
+        }
+        
+        document()->select(oldbox, oldstart, oldend);
+      }
+    }
+    
+    document()->paste_from_text(mimetype, text_data);
+    
+    Box *newbox  = document()->selection_box();
+    int newend   = document()->selection_start();
+    
+    if(oldbox == newbox){
+//      int inslen = newend - oldstart;
+//      
+//      if(is_dragging 
+//      && drag_source_reference().get() == oldbox
+//      && drag_source_reference().start >= oldend){
+//        drag_source_reference().start+= inslen;
+//        drag_source_reference().end  += inslen;
+//      }
+      
+      document()->select(newbox, oldstart, newend);
+    }
+  }
+  
+  DragLeave();
+}
+
+void Win32Widget::position_drop_cursor(POINTL ptl){
+  POINT pt = {(int) ptl.x, (int)ptl.y };
+  ScreenToClient(_hwnd, &pt);
+  float x = (pt.x + GetScrollPos(_hwnd, SB_HORZ)) / scale_factor();
+  float y = (pt.y + GetScrollPos(_hwnd, SB_VERT)) / scale_factor();
+  
+  int start, end;
+  bool was_inside_start;
+  Box *box = document()->mouse_selection(x, y, &start, &end, &was_inside_start);
+  
+  document()->select(box, start, end);
 }
 
 //} ... class Win32Widget

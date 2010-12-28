@@ -48,6 +48,8 @@ class DummyNativeWidget: public NativeWidget{
     
     virtual void running_state_changed(){}
     
+    virtual bool is_mouse_down(){ return false; }
+    
     virtual void beep(){};
     
     virtual bool register_timed_event(SharedPtr<TimedEvent> event){
@@ -131,4 +133,8 @@ Context *NativeWidget::document_context(){
     return &_document->context;
   
   return 0;
+}
+
+SelectionReference &NativeWidget::drag_source_reference(){
+  return _document->drag_source;
 }

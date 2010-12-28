@@ -9,13 +9,23 @@ using namespace richmath;
 static ATOM win32_widget_class = 0;
 static const WCHAR win32_widget_class_name[] = L"RichmathWin32";
 
-static int global_window_count = 0;
 
 static void add_remove_window(int count){
+  static int global_window_count = 0;
+
+  if(global_window_count == 0){
+    HRESULT ole_status = OleInitialize(NULL);
+    
+    if(ole_status != S_OK && ole_status != S_FALSE){
+      fprintf(stderr, "OleInitialize failed.\n");
+    }
+  }
+  
   global_window_count+= count;
   
-//  if(global_window_count <= 0)
-//    PostQuitMessage(0);
+  if(global_window_count <= 0){
+    OleUninitialize();
+  }
 }
 
 //{ class BasicWin32Widget ...
@@ -30,8 +40,10 @@ BasicWin32Widget::BasicWin32Widget(
   HWND *parent)
 : Base(),
   _hwnd(0),
-  _initializing(true),
-  init_data(new InitData)
+  _allow_drop(true),
+  _is_dragging_over(false),
+  init_data(new InitData),
+  _initializing(true)
 {
   init_window_class();
   add_remove_window(+1);
@@ -74,6 +86,95 @@ BasicWin32Widget::~BasicWin32Widget(){
   add_remove_window(-1);
 }
 
+//
+// IUnknown::AddRef
+//
+STDMETHODIMP_(ULONG) BasicWin32Widget::AddRef(void){
+  return 1;
+}
+
+//
+// IUnknown::Release
+//
+STDMETHODIMP_(ULONG) BasicWin32Widget::Release(void){
+  return 1;
+}
+
+//
+// IUnknown::QueryInterface
+//
+STDMETHODIMP BasicWin32Widget::QueryInterface(REFIID iid, void **ppvObject){
+  if(iid == IID_IDropTarget || iid == IID_IUnknown){
+    AddRef();
+    *ppvObject = static_cast<IDropTarget*>(this);
+    return S_OK;
+  }
+  
+  *ppvObject = 0;
+  return E_NOINTERFACE;
+}
+
+//
+// IDropTarget::DragEnter
+//
+STDMETHODIMP BasicWin32Widget::DragEnter(IDataObject *data_object, DWORD key_state, POINTL pt, DWORD *effect){
+  _is_dragging_over = true;
+  _allow_drop = is_data_droppable(data_object);
+  
+  if(_allow_drop){
+    *effect = drop_effect(key_state, pt, *effect);
+    SetFocus(_hwnd);
+    position_drop_cursor(pt);
+  }
+  else{
+    *effect = DROPEFFECT_NONE;
+  }
+
+  return S_OK;
+}
+
+//
+// IDropTarget::DragOver
+//
+STDMETHODIMP BasicWin32Widget::DragOver(DWORD key_state, POINTL pt, DWORD *effect){
+  if(_allow_drop){
+    *effect = drop_effect(key_state, pt, *effect);
+    position_drop_cursor(pt);
+  }
+  else{
+    *effect = DROPEFFECT_NONE;
+  }
+
+  return S_OK;
+}
+
+//
+// IDropTarget::DragLeave
+//
+STDMETHODIMP BasicWin32Widget::DragLeave(){
+  _is_dragging_over = false;
+  return S_OK;
+}
+
+//
+// IDropTarget::Drop
+//
+STDMETHODIMP BasicWin32Widget::Drop(IDataObject *data_object, DWORD key_state, POINTL pt, DWORD *effect){
+  position_drop_cursor(pt);
+  
+  if(_allow_drop){
+    SetFocus(_hwnd);
+    *effect = drop_effect(key_state, pt, *effect);
+    
+    do_drop_data(data_object, *effect);
+  }
+  else{
+    *effect = DROPEFFECT_NONE;
+  }
+
+  return S_OK;
+}
+      
 BasicWin32Widget *BasicWin32Widget::parent(){
   HWND p = GetParent(_hwnd);
   
@@ -107,6 +208,7 @@ LRESULT BasicWin32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam){
   switch(message){
     case WM_CREATE: {
       SetMenu(_hwnd, 0);
+      RegisterDragDrop(_hwnd, static_cast<IDropTarget*>(this));
     } break;
     
     case WM_CLOSE: {
@@ -114,12 +216,41 @@ LRESULT BasicWin32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam){
     } return 0;
     
     case WM_DESTROY: {
+      RevokeDragDrop(_hwnd);
       SetWindowLongPtr(_hwnd, GWLP_USERDATA, 0);
       _hwnd = 0;
     } return 0;
   }
   
   return DefWindowProcW(_hwnd, message, wParam, lParam);
+}
+
+bool BasicWin32Widget::is_data_droppable(IDataObject *data_object){
+  return false;
+}
+
+DWORD BasicWin32Widget::drop_effect(DWORD key_state, POINTL pt, DWORD allowed_effects){
+  DWORD effect = 0;
+  
+  if(key_state & MK_CONTROL){
+    effect = allowed_effects & DROPEFFECT_COPY;
+  }
+  else if(key_state & MK_SHIFT){
+    effect = allowed_effects & DROPEFFECT_MOVE;
+  }
+
+  if(effect == 0){
+    if(allowed_effects & DROPEFFECT_COPY) effect = DROPEFFECT_COPY;
+    if(allowed_effects & DROPEFFECT_MOVE) effect = DROPEFFECT_MOVE;
+  }
+
+  return effect;
+}
+
+void BasicWin32Widget::do_drop_data(IDataObject *data_object, DWORD effect){
+}
+
+void BasicWin32Widget::position_drop_cursor(POINTL pt){
 }
 
 void BasicWin32Widget::init_window_class(){

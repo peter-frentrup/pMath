@@ -82,7 +82,6 @@ STDMETHODIMP DataObject::GetData(FORMATETC *pFormatEtc, STGMEDIUM *pMedium){
   
   int i = lookup_format_etc(pFormatEtc);
   if(i < 0){
-    pmath_debug_print("[get inv fmt %d]", pFormatEtc->cfFormat);
     return DV_E_FORMATETC;
   }
   
@@ -139,7 +138,6 @@ STDMETHODIMP DataObject::GetDataHere(FORMATETC *pFormatEtc, STGMEDIUM *pMedium){
 //  IDataObject::QueryGetData
 //
 STDMETHODIMP DataObject::QueryGetData(FORMATETC *pFormatEtc){
-  pmath_debug_print("[q fmt %d]", pFormatEtc->cfFormat);
   if(lookup_format_etc(pFormatEtc) == -1)
     return DV_E_FORMATETC;
   

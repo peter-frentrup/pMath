@@ -867,7 +867,12 @@ Box *GridBox::remove_range(int *start, int end){
 }
 
 Box *GridBox::remove(int *index){
-  return remove_range(index, *index + 1);
+  if(items[*index]->content()->length() == 0
+  || items[*index]->content()->is_placeholder()){
+    return remove_range(index, *index + 1);
+  }
+  
+  return move_logical(Backward, false, index);
 }
 
 Expr GridBox::to_pmath(bool parseable){

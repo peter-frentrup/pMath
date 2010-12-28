@@ -37,10 +37,10 @@ using namespace std;
 
 SliderBox::SliderBox()
 : Box(),
-  min(0.0),
-  max(1.0),
-  step(0.0),
-  value(0.5),
+  range_min(0.0),
+  range_max(1.0),
+  range_step(0.0),
+  range_value(0.5),
   old_thumb_state(Normal),
   new_thumb_state(Normal),
   thumb_width(1),
@@ -73,21 +73,21 @@ SliderBox *SliderBox::create(Expr expr){
   sb->range = expr[2];
   if(sb->range.expr_length() == 2
   && sb->range[0] == PMATH_SYMBOL_RANGE){
-    sb->min = sb->range[1].to_double(NAN);
-    sb->max = sb->range[2].to_double(NAN);
+    sb->range_min = sb->range[1].to_double(NAN);
+    sb->range_max = sb->range[2].to_double(NAN);
     
-    if(isnan(sb->min) || isnan(sb->max)){
+    if(isnan(sb->range_min) || isnan(sb->range_max)){
       delete sb;
       return 0;
     }
   }
   else if(sb->range.expr_length() == 3
   &&      sb->range[0] == PMATH_SYMBOL_RANGE){
-    sb->min  = sb->range[1].to_double(NAN);
-    sb->max  = sb->range[2].to_double(NAN);
-    sb->step = sb->range[3].to_double(0);
+    sb->range_min  = sb->range[1].to_double(NAN);
+    sb->range_max  = sb->range[2].to_double(NAN);
+    sb->range_step = sb->range[3].to_double(0);
     
-    if(isnan(sb->min) || isnan(sb->max) || sb->step == 0){
+    if(isnan(sb->range_min) || isnan(sb->range_max) || sb->range_step == 0){
       delete sb;
       return 0;
     }
@@ -100,9 +100,9 @@ SliderBox *SliderBox::create(Expr expr){
   }
   else if(sb->range.expr_length() > 0
   &&      sb->range[0] == PMATH_SYMBOL_LIST){
-    sb->min = 1;
-    sb->max = sb->range.expr_length();
-    sb->step = 1;
+    sb->range_min = 1;
+    sb->range_max = sb->range.expr_length();
+    sb->range_step = 1;
   }
   else{
     delete sb;
@@ -134,7 +134,7 @@ void SliderBox::paint(Context *context){
   
   have_drawn = true;
   
-  double old_value = value;
+  double old_value = range_value;
   
   if(must_update){
     must_update = false;
@@ -142,17 +142,17 @@ void SliderBox::paint(Context *context){
     Expr val;
     if(dynamic.get_value(&val)){
       if(range[0] == PMATH_SYMBOL_LIST){
-        value = min;
+        range_value = range_min;
         
         size_t i;
         for(i = 1;i <= range.expr_length();++i)
           if(range[i] == val){
-            value = i;
+            range_value = i;
             break;
           }
       }
       else{
-        value = val.to_double(NAN);
+        range_value = val.to_double(NAN);
       }
     }
   }
@@ -163,9 +163,9 @@ void SliderBox::paint(Context *context){
   y-= _extents.ascent;
   float h = _extents.height();
   
-  float thumb_x = x + calc_thumb_pos(value);
+  float thumb_x = x + calc_thumb_pos(range_value);
   
-  if(isnan(value)){
+  if(isnan(range_value)){
     float rx = x + _extents.width/2;
     
     context->canvas->save();
@@ -176,7 +176,7 @@ void SliderBox::paint(Context *context){
     }
     context->canvas->restore();
   }
-  if(value < min && value < max){
+  if(range_value < range_min && range_value < range_max){
     float rx = x + h/2;
     
     context->canvas->save();
@@ -187,7 +187,7 @@ void SliderBox::paint(Context *context){
     }
     context->canvas->restore();
   }
-  else if(value > max && value > min){
+  else if(range_value > range_max && range_value > range_min){
     float rx = x + _extents.width - h/2;
     
     context->canvas->save();
@@ -208,7 +208,7 @@ void SliderBox::paint(Context *context){
     _extents.width, 
     channel_width);
   
-  if(old_value == value){
+  if(old_value == range_value){
     if(new_thumb_state != old_thumb_state || !animation){
       animation = ControlPainter::std->control_transition(
         id(),
@@ -255,24 +255,24 @@ float SliderBox::calc_thumb_pos(double val){
   if(isnan(val))
     return _extents.width/2 - thumb_width/2;
   
-  if(min < max){
-    if(val < min)
+  if(range_min < range_max){
+    if(val < range_min)
       return 0;
       
-    if(val > max)
+    if(val > range_max)
       return _extents.width - thumb_width;
       
-    return (val - min) / (max - min) * (_extents.width - thumb_width);
+    return (val - range_min) / (range_max - range_min) * (_extents.width - thumb_width);
   }
   
-  if(min > max){
-    if(val < max)
+  if(range_min > range_max){
+    if(val < range_max)
       return 0;
       
-    if(val > min)
+    if(val > range_min)
       return _extents.width - thumb_width;
       
-    return (val - min) / (max - min) * (_extents.width - thumb_width);
+    return (val - range_min) / (range_max - range_min) * (_extents.width - thumb_width);
   }
   
   return _extents.width/2 - thumb_width/2;
@@ -287,26 +287,26 @@ double SliderBox::mouse_to_val(double mouse_x){
   
   double val;
   
-  if(min != max){
-    val = (mouse_x / (_extents.width - thumb_width)) * (max - min);
+  if(range_min != range_max){
+    val = (mouse_x / (_extents.width - thumb_width)) * (range_max - range_min);
     
-    if(step != 0){
-      val = min + floor(val / step + 0.5) * step;
+    if(range_step != 0){
+      val = range_min + floor(val / range_step + 0.5) * range_step;
       
-      if(min < max){
-        if(val > max)
-          val-= step;
+      if(range_min < range_max){
+        if(val > range_max)
+          val-= range_step;
       }
       else{
-        if(val < max)
-          val+= step;
+        if(val < range_max)
+          val+= range_step;
       }
     }
     else
-      val+= min;
+      val+= range_min;
   }
   else
-    val = min;
+    val = range_min;
   
   return val;
 }
@@ -341,7 +341,7 @@ void SliderBox::dynamic_updated(){
 void SliderBox::dynamic_finished(Expr info, Expr result){
   double new_value = result.to_double(NAN);
   
-  if(value != new_value)
+  if(range_value != new_value)
     request_repaint_all();
 }
 
@@ -394,7 +394,7 @@ void SliderBox::on_mouse_move(MouseEvent &event){
   if(event.left){
     event.set_source(this);
     double val = mouse_to_val(event.x);
-    if(val != value){
+    if(val != range_value){
       assign_dynamic_value(val);
       request_repaint_all();
     }
@@ -402,7 +402,7 @@ void SliderBox::on_mouse_move(MouseEvent &event){
   
   if(!mouse_down){
     event.set_source(this);
-    float tx = calc_thumb_pos(value);
+    float tx = calc_thumb_pos(range_value);
     
     ControlState old_state = new_thumb_state;
     if(tx <= event.x && event.x <= tx + thumb_width)
@@ -422,7 +422,7 @@ void SliderBox::on_mouse_up(MouseEvent &event){
     
     event.set_source(this);
     double val = mouse_to_val(event.x);
-    if(val != value)
+    if(val != range_value)
       assign_dynamic_value(val);
     
     request_repaint_all();

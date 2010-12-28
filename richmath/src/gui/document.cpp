@@ -683,7 +683,7 @@ void Document::on_mouse_down(MouseEvent &event){
     bool double_click = abs(mouse_down_time - native()->message_time()) <= native()->double_click_time()
       && fabs(event.x - mouse_down_x) <= ddx
       && fabs(event.y - mouse_down_y) <= ddy;
-      
+    
     mouse_down_time = native()->message_time();
     
     bool was_inside_start;
@@ -1346,7 +1346,7 @@ void Document::select(Box *box, int start, int end){
   
   sel_last.set(box, start, end);
   sel_first = sel_last;
-  auto_scroll = (mouse_down_counter == 0);
+  auto_scroll = !native()->is_mouse_down();//(mouse_down_counter == 0);
   
   raw_select(box, start, end);
 }
@@ -1880,10 +1880,10 @@ String Document::copy_to_text(String mimetype){
   }
   
   Expr boxes = Expr(selbox->to_pmath(false, context.selection.start, context.selection.end));
-  if(mimetype == String(Clipboard::BoxesText))
+  if(mimetype.equals(Clipboard::BoxesText))
     return boxes.to_string(PMATH_WRITE_OPTIONS_INPUTEXPR | PMATH_WRITE_OPTIONS_FULLSTR);
   
-  if(mimetype == String(Clipboard::PlainText)){
+  if(mimetype.equals(Clipboard::PlainText)){
     Expr text = Client::interrupt(Expr(
       pmath_parse_string_args(
             "FE`BoxesToText(`1`)",
@@ -1919,12 +1919,10 @@ void Document::cut_to_clipboard(){
   remove_selection(false);
 }
 
-void Document::paste_from_clipboard(){
-  if(Clipboard::std->has_format(Clipboard::BoxesText)){
-    String s = Clipboard::std->read_as_text(Clipboard::BoxesText);
-    
+void Document::paste_from_text(String mimetype, String data){
+  if(mimetype.equals(Clipboard::BoxesText)){
     Expr parsed = Client::interrupt(Expr(
-      pmath_parse_string(s.release())),
+      pmath_parse_string(data.release())),
       Client::edit_interrupt_timeout);
     
     if(context.selection.get() == this && get_style(Editable, true)
@@ -2055,15 +2053,47 @@ void Document::paste_from_clipboard(){
     native()->beep();
     return;
   }
-  
-  if(Clipboard::std->has_format(Clipboard::PlainText)){
-    String s = Clipboard::std->read_as_text(Clipboard::PlainText);
-    
+
+  if(mimetype.equals(Clipboard::PlainText)){
     if(prepare_insert()){
-      insert_string(s);
+      insert_string(data);
       
       return;
     }
+  }
+  
+  native()->beep();
+}
+
+void Document::paste_from_binary(String mimetype, Expr file){
+  String line;
+  
+  if(!pmath_file_test(file.get(), PMATH_FILE_PROP_READ | PMATH_FILE_PROP_TEXT)){
+    native()->beep();
+    return;
+  }
+  
+  while(pmath_file_status(file.get()) == PMATH_FILE_OK){
+    line+= String(pmath_file_readline(file.get()));
+    line+= "\n";
+  }
+  
+  paste_from_text(mimetype, line);
+}
+
+void Document::paste_from_clipboard(){
+  if(Clipboard::std->has_format(Clipboard::BoxesText)){
+    paste_from_text(
+      Clipboard::BoxesText, 
+      Clipboard::std->read_as_text(Clipboard::BoxesText));
+    return;
+  }
+  
+  if(Clipboard::std->has_format(Clipboard::PlainText)){
+    paste_from_text(
+      Clipboard::PlainText, 
+      Clipboard::std->read_as_text(Clipboard::PlainText));
+    return;
   }
   
   native()->beep();
@@ -2073,6 +2103,11 @@ void Document::insert_string(String text){
   const uint16_t *buf = text.buffer();
   int             len = text.length();
   
+  if(!prepare_insert()){
+    native()->beep();
+    return;
+  }
+  
   // remove (dangerous) PMATH_CHAR_BOX from text:
   for(int i = 0;i < len;++i){
     if(buf[i] == PMATH_CHAR_BOX){
@@ -2081,6 +2116,12 @@ void Document::insert_string(String text){
       len = text.length();
       --i;
     }
+  }
+  
+  if(TextSequence *seq = dynamic_cast<TextSequence*>(selection_box())){
+    int i = seq->insert(selection_start(), text);
+    move_to(seq, i);
+    return;
   }
   
   if(is_inside_string()){
@@ -2844,6 +2885,9 @@ bool Document::remove_selection(bool insert_default){
           mseq->insert(0, PMATH_CHAR_PLACEHOLDER);
           select(mseq, 0, 1);
         }
+        else if(mseq && mseq->is_placeholder(index)){
+          select(mseq, index, index + 1);
+        }
         else
           move_to(box, index);
         
@@ -3226,6 +3270,13 @@ void Document::paint_resize(Canvas *canvas, bool resize_only){
               context.canvas->new_path();
           }
         }
+      }
+    }
+    
+    if(drag_source != context.selection && drag_status == DragStatusCurrentlyDragging){
+      if(Box *drag_src = drag_source.get()){
+        ::selection_path(canvas, drag_src, drag_source.start, drag_source.end);
+        context.draw_selection_path();
       }
     }
     

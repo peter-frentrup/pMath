@@ -48,9 +48,15 @@ namespace richmath{
       
       virtual void running_state_changed();
       
+      virtual bool is_mouse_down();
+      
       virtual void beep();
     
       virtual bool register_timed_event(SharedPtr<TimedEvent> event);
+      
+    public:
+      STDMETHODIMP DragEnter(IDataObject *data_object, DWORD key_state, POINTL pt, DWORD *effect);
+      STDMETHODIMP DragLeave(void);
       
     public:
       bool _autohide_vertical_scrollbar;
@@ -71,6 +77,8 @@ namespace richmath{
       
       Hashtable<SharedPtr<TimedEvent>,Void> animations;
       bool animation_running;
+      bool is_dragging;
+      bool is_drop_over;
       
     protected:
       virtual void paint_background(Canvas *canvas);
@@ -85,6 +93,11 @@ namespace richmath{
       virtual void on_keydown(DWORD virtkey, bool ctrl, bool alt, bool shift);
       
       virtual LRESULT callback(UINT message, WPARAM wParam, LPARAM lParam);
+      
+      virtual bool is_data_droppable(IDataObject *data_object);
+      virtual DWORD drop_effect(DWORD key_state, POINTL ptl, DWORD allowed_effects);
+      virtual void do_drop_data(IDataObject *data_object, DWORD effect);
+      virtual void position_drop_cursor(POINTL ptl);
   };
   
   SpecialKey win32_virtual_to_special_key(DWORD vkey);

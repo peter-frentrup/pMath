@@ -9,6 +9,7 @@ namespace richmath{
   class Box;
   class Context;
   class Document;
+  class SelectionReference;
   class TimedEvent;
   
   typedef enum{
@@ -61,6 +62,7 @@ namespace richmath{
       
       virtual void running_state_changed() = 0;
       
+      virtual bool is_mouse_down() = 0;
       virtual void beep() = 0;
       
       virtual bool register_timed_event(SharedPtr<TimedEvent> event) = 0;
@@ -75,6 +77,8 @@ namespace richmath{
       void adopt(Document *doc);
       
       Context *document_context();
+      
+      SelectionReference &drag_source_reference();
     
     protected:
       float _scale_factor;

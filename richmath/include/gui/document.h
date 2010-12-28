@@ -94,9 +94,11 @@ namespace richmath{
       
       String copy_to_text(String mimetype);
       void copy_to_binary(String mimetype, Expr file);
-      
       void copy_to_clipboard();
       void cut_to_clipboard();
+      
+      void paste_from_text(String mimetype, String data);
+      void paste_from_binary(String mimetype, Expr file);
       void paste_from_clipboard();
       
       void insert_string(String text);
@@ -156,11 +158,13 @@ namespace richmath{
       SelectionReference sel_first;
       SelectionReference sel_last;
       
+      SelectionReference drag_source;
+      
     private:
       NativeWidget *_native;
       
       int mouse_down_counter;
-      long mouse_down_time;
+      double mouse_down_time;
       float mouse_down_x;
       float mouse_down_y;
       SelectionReference mouse_down_sel;

@@ -195,7 +195,7 @@ void InputFieldBox::on_mouse_down(MouseEvent &event){
       float ddx, ddy;
       doc->native()->double_click_dist(&ddx, &ddy);
       
-      if(last_click_time - doc->native()->message_time() <= doc->native()->double_click_time()
+      if(abs(doc->native()->message_time() - last_click_time) <= doc->native()->double_click_time()
       && fabs(gx - last_click_global_x) <= ddx
       && fabs(gy - last_click_global_y) <= ddy)
       {

@@ -47,10 +47,10 @@ namespace richmath{
       void assign_dynamic_value(double d);
     
     protected:
-      double min;
-      double max;
-      double step;
-      double value;
+      double range_min;
+      double range_max;
+      double range_step;
+      double range_value;
       Expr range;
       Dynamic dynamic;
       
