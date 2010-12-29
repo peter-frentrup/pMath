@@ -436,7 +436,7 @@ SharedPtr<OTMathShaper> OTMathShaperDB::find(String name, FontStyle style){
             const uint16_t *glyphs = (const uint16_t*)
               (((const char*)coverage) + 4); // skip format, count
             
-            for(uint16_t i = 0;i < ital_corr_info->count;++i){
+            for(uint16_t i = 0;i < big_endian(ital_corr_info->count);++i){
               db->italics_correction.set(
                 big_endian(glyphs[i]),
                 big_endian(ital_corr_info->italics_corrections[i].value));
@@ -475,7 +475,7 @@ SharedPtr<OTMathShaper> OTMathShaperDB::find(String name, FontStyle style){
             const uint16_t *glyphs = (const uint16_t*)
               (((const char*)coverage) + 4); // skip format, count
             
-            for(uint16_t i = 0;i < top_acc->count;++i){
+            for(uint16_t i = 0;i < big_endian(top_acc->count);++i){
               db->top_accents.set(
                 big_endian(glyphs[i]),
                 big_endian(top_acc->top_accent_attachment[i].value));
@@ -1273,10 +1273,11 @@ void OTMathShaper::vertical_stretch_char(
     context->canvas->set_font_face(font(0));
     cg.x = 0;
     cg.y = 0;
-    result->fontinfo       = 0;
-    result->x_offset       = 0;
-    result->composed       = 0;
-    result->is_normal_text = 0;
+    result->fontinfo          = 0;
+    result->x_offset          = 0;
+    result->composed          = 0;
+    result->is_normal_text    = 0;
+    result->vertical_centered = 0;
     
     int i = 0;
     if(context->script_indent == 0
@@ -1293,8 +1294,10 @@ void OTMathShaper::vertical_stretch_char(
       
       if(2 * half <= cte.height * 1.1
       || max < cte.height
-      /*&& min <= cte.height*/)
+      /*&& min <= cte.height*/){
+        result->vertical_centered = 1;
         return;
+      }
     }
   }
   
@@ -1314,6 +1317,7 @@ void OTMathShaper::vertical_stretch_char(
     result->composed           = 1;
     result->horizontal_stretch = 0;
     result->is_normal_text     = 0;
+    result->vertical_centered  = 0;
     
     for(int i = 0;i < ass->length();++i){
       if(ass->get(i).flags & MGPRF_Extender){
@@ -1865,6 +1869,14 @@ void OTMathShaper::get_script_size_multis(Array<float> *arr){
 
 SharedPtr<TextShaper> OTMathShaper::set_style(FontStyle _style){
   return db->find(_style);
+}
+
+float OTMathShaper::get_center_height(Context *context, uint8_t fontinfo){
+  if(fontinfo > 0)
+    return text_shaper->get_center_height(context, fontinfo - 1);
+  
+  float em = context->canvas->get_font_size();
+  return db->consts.axis_height.value * em / db->units_per_em;
 }
 
 //} ... class OTMathShaper

@@ -115,16 +115,16 @@ void WindowsFontShaper::decode_token(
           result[i].right = 0.0;
         }
         
-        result[i].fontinfo           = 0;
-        result[i].composed           = 0;
-        result[i].x_offset           = 0.0;
+        result[i].fontinfo = 0;
+        result[i].composed = 0;
+        result[i].x_offset = 0.0;
         
         ++i;
         
-        result[i].fontinfo       = 0;
-        result[i].composed       = 0;
-        result[i].right          = 0.0;
-        result[i].x_offset       = 0.0;
+        result[i].fontinfo = 0;
+        result[i].composed = 0;
+        result[i].right    = 0.0;
+        result[i].x_offset = 0.0;
         
         continue;
       }

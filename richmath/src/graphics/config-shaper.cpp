@@ -960,7 +960,7 @@ void ConfigShaper::decode_token(
       cairo_text_extents_t cte;
       cairo_glyph_t        cg;
       
-      result->composed = true;
+      result->composed = 1;
       result->index    = arr->get(0).glyph;
       result->fontinfo = arr->get(0).font;
       result->right    = 0;

@@ -71,6 +71,17 @@ void TextShaper::vertical_glyph_size(
   cg.index = info.index;
   cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
   
+  if(info.vertical_centered){
+    float a = cte.height / 2 + get_center_height(context, info.fontinfo);
+    float d = cte.height - a;
+    
+    if(*ascent < a)
+       *ascent = a;
+    if(*descent < d)
+       *descent = d;
+    return;
+  }
+  
   if(*ascent < -cte.y_bearing)
      *ascent = -cte.y_bearing;
   if(*descent < cte.height + cte.y_bearing)
@@ -124,6 +135,22 @@ void TextShaper::show_glyph(
     workaround = space_glyph.fontinfo == info.fontinfo && space_glyph.index != 0xFFFF;
   }  
   
+  context->canvas->set_font_face(ff);
+  
+  if(info.vertical_centered){
+    cairo_text_extents_t cte;
+    cairo_glyph_t cg;
+    cg.index = info.index;
+    cg.x = 0;
+    cg.y = 0;
+    
+    cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
+    
+    y-= get_center_height(context, info.fontinfo);
+    y-= cte.height/2;
+    y-= cte.y_bearing;
+  }
+  
   if(workaround){
     cairo_glyph_t cg[3];
     cg[0].index = space_glyph.index;
@@ -136,7 +163,6 @@ void TextShaper::show_glyph(
     cg[2].x = x + info.right + 3.0;
     cg[2].y = y;
     
-    context->canvas->set_font_face(ff);
     context->canvas->show_glyphs(cg, 3);
   }
   else{
@@ -145,9 +171,12 @@ void TextShaper::show_glyph(
     cg.x = x + info.x_offset;
     cg.y = y;
     
-    context->canvas->set_font_face(ff);
     context->canvas->show_glyphs(&cg, 1);
   }
+}
+
+float TextShaper::get_center_height(Context *context, uint8_t fontinfo){ 
+  return context->canvas->get_font_size() * 0.25; 
 }
 
 SharedPtr<TextShaper> TextShaper::find(
@@ -411,7 +440,13 @@ SharedPtr<TextShaper> FallbackTextShaper::set_style(FontStyle style){
 FontStyle FallbackTextShaper::get_style(){
   return _shapers[0]->get_style();
 }
-      
+
+float FallbackTextShaper::get_center_height(Context *context, uint8_t fontinfo){
+  int i = fallback_index(&fontinfo);
+  
+  return _shapers[i]->get_center_height(context, fontinfo);
+}
+
 //} ... class FallbackTextShaper
 
 //{ class CharBoxTextShaper ...

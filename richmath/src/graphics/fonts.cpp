@@ -227,8 +227,10 @@ uint16_t FontInfo::char_to_glyph(uint32_t ch){
           &wc, 
           1, 
           &index,
-          0/*GGI_MARK_NONEXISTING_GLYPHS*/);
+          GGI_MARK_NONEXISTING_GLYPHS);
         
+        if(index == 0xFFFF)
+          index = 0;
       }
       else{
         WCHAR str[2];

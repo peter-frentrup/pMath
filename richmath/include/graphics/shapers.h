@@ -25,7 +25,9 @@ namespace richmath{
     GlyphStyleSpecialUse,
     GlyphStyleExcessArg,
     GlyphStyleMissingArg,
-    GlyphStyleInvalidOption
+    GlyphStyleInvalidOption,
+    GlyphStyleUnused1,
+    GlyphStyleUnused2
   };
   
   enum{
@@ -41,7 +43,7 @@ namespace richmath{
     float right;
     float x_offset;
     uint16_t index;
-    unsigned style:              5; // GlyphStyleXXX
+    unsigned style:              4; // GlyphStyleXXX
     
     unsigned fontinfo:           5;
     
@@ -51,6 +53,7 @@ namespace richmath{
     unsigned horizontal_stretch: 1;
     unsigned is_normal_text:     1;
     unsigned missing_after:      1;
+    unsigned vertical_centered:  1; // glyph ink center = math_axis above baseline; does not work when composed=1
   }GlyphInfo;
   
   const uint16_t IgnoreGlyph = 0x0000;
@@ -121,6 +124,8 @@ namespace richmath{
       
       virtual FontStyle get_style() = 0;
       
+      virtual float get_center_height(Context *context, uint8_t fontinfo);
+      
     public:
       static SharedPtr<TextShaper> find(const String &name, FontStyle style);
       
@@ -164,6 +169,8 @@ namespace richmath{
       virtual SharedPtr<TextShaper> set_style(FontStyle style);
       
       virtual FontStyle get_style();
+      
+      virtual float get_center_height(Context *context, uint8_t fontinfo);
     
     protected:
       int fallback_index(uint8_t *fontinfo);

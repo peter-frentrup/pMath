@@ -868,8 +868,8 @@ Box *MathSequence::mouse_selection(
   if(x < 0){
     *was_inside_start = false;
     *end = *start;
-    if(is_placeholder(*start))
-      ++*end;
+//    if(is_placeholder(*start))
+//      ++*end;
     return this;
   }
   
@@ -940,10 +940,10 @@ Box *MathSequence::mouse_selection(
   }
   
   *end = *start;
-  if(is_placeholder(*start - 1)){
-    --*start;
-    *was_inside_start = false;
-  }
+//  if(is_placeholder(*start - 1)){
+//    --*start;
+//    *was_inside_start = false;
+//  }
   return this;
 }
 
@@ -3103,6 +3103,12 @@ void MathSequence::enlarge_space(Context *context){
              
           case PMATH_PREC_ADD:
             space_right = em * 1/18;
+            break;
+             
+          case PMATH_PREC_DIV:
+            if(op[ii] == PMATH_CHAR_INTEGRAL_D){
+              space_left = em * 3/18;
+            }
             break;
           
           default: break;

@@ -352,6 +352,8 @@ namespace richmath{
       
       virtual FontStyle get_style(){ return style; }
       
+      virtual float get_center_height(Context *context, uint8_t fontinfo);
+
     protected:
       void stretch_glyph_assembly(
         Context                    *context,
