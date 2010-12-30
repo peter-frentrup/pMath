@@ -506,7 +506,7 @@ PMATH_API pmath_bool_t pmath_init(void){
     PMATH_RUN("$HistoryLength:=10");
     PMATH_RUN("$Line:=0");
     
-    PMATH_RUN_ARGS("$MachineEpsilon:=`1`", "(f)", (double)DBL_EPSILON);
+    PMATH_RUN_ARGS("$MachineEpsilon:=`1`",   "(f)", (double)DBL_EPSILON);
     PMATH_RUN_ARGS("$MachinePrecision:=`1`", "(f)", (double)LOG10_2 * DBL_MANT_DIG);
     PMATH_RUN_ARGS("$MaxMachineNumber:=`1`", "(f)", (double)DBL_MAX);
     PMATH_RUN_ARGS("$MinMachineNumber:=`1`", "(f)", (double)DBL_MIN);
@@ -558,10 +558,17 @@ PMATH_API pmath_bool_t pmath_init(void){
     
     {
       int year, month, day, hour, minute, second;
-      pmath_version_get_datetime(&year, &month, &day, &hour, &minute, &second);
+      pmath_version_datetime(&year, &month, &day, &hour, &minute, &second);
       
-      PMATH_RUN_ARGS("$Version:= `1`", "((iiiiii))", 
+      PMATH_RUN_ARGS("$CreationDate:= `1`", "((iiiiii))", 
         year, month, day, hour, minute, second);
+        
+      PMATH_RUN_ARGS("$VersionList:= `1`", "((iiii))", 
+        pmath_version_number_part(1), 
+        pmath_version_number_part(2), 
+        pmath_version_number_part(3), 
+        pmath_version_number_part(4));
+      PMATH_RUN_ARGS("$VersionNumber:= `1`", "(f)", pmath_version_number());
     }
     
     {

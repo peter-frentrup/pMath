@@ -237,8 +237,11 @@ void Win32Widget::do_drag_drop(Box *src, int start, int end){
   
   DropSource *drop_source = new DropSource;
   
-  DWORD effect;
-  HRESULT res = DoDragDrop(data_object, drop_source, DROPEFFECT_COPY | DROPEFFECT_MOVE, &effect);
+  DWORD effect = DROPEFFECT_COPY;
+  if(src->get_style(Editable))
+    effect|= DROPEFFECT_MOVE;
+  
+  HRESULT res = DoDragDrop(data_object, drop_source, effect, &effect);
   
   if(res == DRAGDROP_S_DROP){
     if(effect & DROPEFFECT_MOVE){
@@ -1132,13 +1135,17 @@ DWORD Win32Widget::drop_effect(DWORD key_state, POINTL ptl, DWORD allowed_effect
         int e = end;
         box = dst;
         
+        if(box == src
+        && s <= drag_source_reference().end && e >= drag_source_reference().start)
+          return DROPEFFECT_NONE;
+        
         while(box != src){
           s = box->index();
           e = s + 1;
           box = box->parent();
         }
         
-        if(s <= drag_source_reference().end && e >= drag_source_reference().start)
+        if(s < drag_source_reference().end && e > drag_source_reference().start)
           return DROPEFFECT_NONE;
       }
       else if(box == dst){

@@ -1884,11 +1884,8 @@ String Document::copy_to_text(String mimetype){
     return boxes.to_string(PMATH_WRITE_OPTIONS_INPUTEXPR | PMATH_WRITE_OPTIONS_FULLSTR);
   
   if(mimetype.equals(Clipboard::PlainText)){
-    Expr text = Client::interrupt(Expr(
-      pmath_parse_string_args(
-            "FE`BoxesToText(`1`)",
-          "(o)",
-          pmath_ref(boxes.get()))),
+    Expr text = Client::interrupt(
+      Parse("FE`BoxesToText(`1`)", boxes),
       Client::edit_interrupt_timeout);
     
     return text.to_string();
@@ -1938,10 +1935,8 @@ void Document::paste_from_text(String mimetype, String data){
       return;
     }
     
-    parsed = Client::interrupt(Expr(pmath_parse_string_args(
-        "FE`SectionsToBoxes(`1`)",
-      "(o)",
-      parsed.release())),
+    parsed = Client::interrupt(
+      Parse("FE`SectionsToBoxes(`1`)", parsed),
       Client::edit_interrupt_timeout);
     
     GridBox *grid = dynamic_cast<GridBox*>(context.selection.get());

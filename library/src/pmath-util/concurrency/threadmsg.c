@@ -432,16 +432,24 @@ void _pmath_msq_queue_handle_next(pmath_thread_t me){
       
       if(msg->result_symbol){
         pmath_t ex;
+        pmath_t val = pmath_evaluate(msg->subject);
         
-        pmath_symbol_set_value(msg->result_symbol, pmath_evaluate(msg->subject));
+        pmath_symbol_set_value(msg->result_symbol, pmath_ref(val));
         
         ex = pmath_catch();
         if(ex == msg->result_symbol){
+          pmath_debug_print_object("[received result_symbol ", ex, ", ");
+          pmath_debug_print_object("val=", val, "]\n");
           pmath_unref(ex);
         }
-        else if(ex != PMATH_UNDEFINED)
+        else if(ex != PMATH_UNDEFINED){
+          pmath_debug_print_object("[received exception ", ex, ", ");
+          pmath_debug_print_object("result_symbol = ", msg->result_symbol, ", ");
+          pmath_debug_print_object("val=", val, "]\n");
           pmath_throw(ex);
+        }
         
+        pmath_unref(val);
         pmath_unref(msg->result_symbol);
       }
       else{
@@ -624,6 +632,9 @@ pmath_t pmath_thread_send_wait(
       pmath_ref(PMATH_SYMBOL_CATCH), 1,
       msg);
     
+//    pmath_debug_print_object("[res=", result_symbol, ", ");
+//    pmath_debug_print_object("msg=", msg, "]\n");
+    
     interrupt = pmath_expr_new_extended(
       pmath_ref(PMATH_SYMBOL_THROW), 1,
       pmath_expr_new_extended(
@@ -650,29 +661,26 @@ pmath_t pmath_thread_send_wait(
       answer = pmath_symbol_get_value(result_symbol);
       
       if(!pmath_equals(answer, interrupt))
-        break;
+        goto SUCCESS;
       
       if(idle_function)
         idle_function(idle_data);
     }
     
-    if(pmath_thread_aborting(me) || pmath_tickcount() >= end_time){
-      /* If the evaluation did not already end, result_symbol still holds 
-         `interrupt` which is Throw(...). Sending result_symbol then causes the
-         evalutation to stop.
-         
-         If the evaluation already finished when this `result_symbol` message
-         is handled, result_symbol will containt the evaluations result and thus 
-         will cause no harm.
-       */
-      pmath_thread_send(mq, pmath_ref(result_symbol));
-    }
+    /* If the evaluation did not already end, result_symbol still holds 
+       `interrupt` which is Throw(...). Sending result_symbol then causes the
+       evalutation to stop.
+       
+       If the evaluation already finished when this `result_symbol` message
+       is handled, result_symbol will containt the evaluations result and thus 
+       will cause no harm.
+     */
+    pmath_thread_send(mq, pmath_ref(result_symbol));
+  
+    pmath_unref(answer);
+    answer = PMATH_UNDEFINED;
     
-    if(pmath_equals(answer, interrupt)){
-      pmath_unref(answer);
-      answer = PMATH_UNDEFINED;
-    }
-    
+   SUCCESS:
     pmath_unref(interrupt);
     pmath_unref(result_symbol);
   }

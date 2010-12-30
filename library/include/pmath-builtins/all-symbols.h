@@ -637,7 +637,7 @@ pmath_bool_t pmath_register_approx_code(
 #define PMATH_SYMBOL_WHITESPACE                             PMATH_SYMBOL_BUILTIN(545)
 #define PMATH_SYMBOL_NUMBERSTRING                           PMATH_SYMBOL_BUILTIN(546)
 #define PMATH_SYMBOL_PATHLISTSEPARATOR                      PMATH_SYMBOL_BUILTIN(547)
-#define PMATH_SYMBOL_VERSION                                PMATH_SYMBOL_BUILTIN(548)
+#define PMATH_SYMBOL_VERSIONNUMBER                          PMATH_SYMBOL_BUILTIN(548)
 #define PMATH_SYMBOL_CONDITIONALEXPRESSION                  PMATH_SYMBOL_BUILTIN(549)
 #define PMATH_SYMBOL_DEFINITEFUNCTION                       PMATH_SYMBOL_BUILTIN(550)
 #define PMATH_SYMBOL_SYSTEMEXCEPTION                        PMATH_SYMBOL_BUILTIN(551)
@@ -645,5 +645,7 @@ pmath_bool_t pmath_register_approx_code(
 #define PMATH_SYMBOL_TIMEZONEDEFAULT                        PMATH_SYMBOL_BUILTIN(553)
 #define PMATH_SYMBOL_TIMEZONE                               PMATH_SYMBOL_BUILTIN(554)
 #define PMATH_SYMBOL_CLOCK                                  PMATH_SYMBOL_BUILTIN(555)
+#define PMATH_SYMBOL_CREATIONDATE                           PMATH_SYMBOL_BUILTIN(556)
+#define PMATH_SYMBOL_VERSIONLIST                            PMATH_SYMBOL_BUILTIN(557)
 
 #endif /* __PMATH_BUILTINS__SYMBOLS_H__ */

@@ -1,19 +1,12 @@
 #include <pmath-util/version.h>
+#include <pmath-util/version-private.h>
 
 #include <stdlib.h>
 #include <string.h>
 
 
-static const char *compile_datetime[] = {
-  // compile-datetime.inc always contains  __DATE__,__TIME__
-  // but its timestamp is updated before every build via 
-  // pre-build-[windows.bat|linux.sh], so this file will also recompile every 
-  // time.
-  #include "version-datetime.inc"
-};
-
 PMATH_API
-void pmath_version_get_datetime(
+void pmath_version_datetime(
   int *year,
   int *month,
   int *day,
@@ -29,8 +22,8 @@ void pmath_version_get_datetime(
   char time[9];
   int i;
   
-  memcpy(date, compile_datetime[0], sizeof(date));
-  memcpy(time, compile_datetime[1], sizeof(time));
+  memcpy(date, __DATE__, sizeof(date));
+  memcpy(time, __TIME__, sizeof(time));
   
   *year = atoi(date + 7);
   *(date + 6) = 0;
@@ -48,4 +41,28 @@ void pmath_version_get_datetime(
   *minute = atoi(time + 3);
   *(time + 2) = 0;
   *hour = atoi(time);
+}
+
+PMATH_API
+double pmath_version_number(void){
+  return _PMATH_VERSION_MAJOR + 0.01 * _PMATH_VERSION_MINOR;
+}
+
+PMATH_API
+long pmath_version_number_part(int index){
+  switch(index){
+    case 1:
+      return _PMATH_VERSION_MAJOR;
+      
+    case 2:
+      return _PMATH_VERSION_MINOR;
+    
+    case 3:
+      return _PMATH_VERSION_BUILD;
+    
+    case 4:
+      return strtol(_PMATH_VERSION_SVN_REVISION, NULL, 10);
+  }
+  
+  return 0;
 }

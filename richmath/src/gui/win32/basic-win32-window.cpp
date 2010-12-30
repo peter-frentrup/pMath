@@ -25,14 +25,12 @@ static HANDLE composition_window_theme = 0;
 
 static void init_basic_window_data(){
   if(!background_image){
-    Expr e = Expr(pmath_evaluate(
-      pmath_parse_string(
-        PMATH_C_STRING(
-          "FE`$WindowFrameImage"))));
+    Expr e = Evaluate(Parse("FE`$WindowFrameImage"));
       
     String s(e);
     if(!s.is_valid())
       s = Client::application_directory + "\\frame.png";
+    
     int len;
     char *imgname = pmath_string_to_utf8(s.get(), &len);
     

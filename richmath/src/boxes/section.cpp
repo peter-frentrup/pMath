@@ -109,6 +109,7 @@ void Section::resize_label(Context *context){
   context->canvas->set_font_size(8/* * 4/3. */);
   
   label_glyphs.length(lbl.length());
+  label_glyphs.zeromem();
   shaper->decode_token(
     context,
     label_glyphs.length(),

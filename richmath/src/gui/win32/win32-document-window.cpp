@@ -345,13 +345,12 @@ class richmath::GlassDock: public richmath::Dock {
       
       document()->style->set(Background, -1);
       
-      shadows = Expr(pmath_evaluate(pmath_parse_string_args(
+      shadows = Evaluate(Parse(
           "{{-`1`,-`2`, GrayLevel(1), `3`},"
            "{ `1`,-`2`, GrayLevel(1), `3`},"
            "{-`1`, `2`, GrayLevel(1), `3`},"
            "{ `1`, `2`, GrayLevel(1), `3`}}",
-        "(fff)",
-        0.75, 0.75, 4.0)));
+        0.75, 0.75, 4.0));
       
       set_textshadows();
     }

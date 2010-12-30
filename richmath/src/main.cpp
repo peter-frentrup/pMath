@@ -183,8 +183,10 @@ int main(){
     return 1;
   }
   
-  printf("cairo version: %s\n", cairo_version_string());
-  printf("pango version: %s\n", pango_version_string());
+  #ifdef PMATH_DEBUG_LOG
+    printf("cairo version: %s\n", cairo_version_string());
+    printf("pango version: %s\n", pango_version_string());
+  #endif
   
   if(!pmath_init()
   || !init_bindings()){
@@ -226,9 +228,7 @@ int main(){
   }
   
   {
-    Expr prefered_fonts = Expr(pmath_evaluate(
-      pmath_parse_string(
-        PMATH_C_STRING("FE`$MathShapers"))));
+    Expr prefered_fonts = Evaluate(Parse("FE`$MathShapers"));
     
     SharedPtr<MathShaper> shaper;
     SharedPtr<MathShaper> def;
@@ -247,7 +247,7 @@ int main(){
             MathShaper::available_shapers.set(s, shaper);
             
             pmath_debug_print_object("loaded ", s.get(), "");
-            printf(" in %f seconds\n", (clock() - start_font) / (float)CLOCKS_PER_SEC);
+            pmath_debug_print(" in %f seconds\n", (clock() - start_font) / (float)CLOCKS_PER_SEC);
           }
         }
         
@@ -281,11 +281,8 @@ int main(){
   }
   
   load_aliases(
-    Expr(
-      pmath_evaluate(
-        pmath_parse_string(
-          PMATH_C_STRING(
-            "Get(ToFileName({FE`$FrontEndDirectory,\"resources\"},\"aliases.pmath\"))")))),
+    Evaluate(Parse(
+      "Get(ToFileName({FE`$FrontEndDirectory,\"resources\"},\"aliases.pmath\"))")),
     &global_immediate_macros,
     &global_macros);
   
@@ -609,19 +606,19 @@ int main(){
 //      "FE`$StatusSlider:= 0.5;"
       "FE`$StatusText:=\"Press ALT to show the menu.\"");
     
-    wndMain->bottom_glass()->insert(0,
-    Section::create_from_object(Evaluate(Parse(
-      "Section(BoxData({"
-          "DynamicBox(ToBoxes(FE`$StatusText)),"
-          "FillBox(\"\")"
-//          ",\"\\[CircleMinus]\","
-//          "SliderBox(Dynamic(FE`$StatusSlider, "
-//            "With({val:= If(Abs(# - 0.5) < 0.05, 0.5, #)}, If(val != FE`$StatusSlider, FE`$StatusSlider:= val))&),0..1),"
-//          "\"\\[CirclePlus]\""
-        "}),\"Docked\","
-        "LineBreakWithin->False,"
-        "SectionMargins->{0, 12, 1.5, 0},"
-        "SectionFrameMargins->0)"))));
+//    wndMain->bottom_glass()->insert(0,
+//    Section::create_from_object(Evaluate(Parse(
+//      "Section(BoxData({"
+//          "DynamicBox(ToBoxes(FE`$StatusText)),"
+//          "FillBox(\"\")"
+////          ",\"\\[CircleMinus]\","
+////          "SliderBox(Dynamic(FE`$StatusSlider, "
+////            "With({val:= If(Abs(# - 0.5) < 0.05, 0.5, #)}, If(val != FE`$StatusSlider, FE`$StatusSlider:= val))&),0..1),"
+////          "\"\\[CirclePlus]\""
+//        "}),\"Docked\","
+//        "LineBreakWithin->False,"
+//        "SectionMargins->{0, 12, 1.5, 0},"
+//        "SectionFrameMargins->0)"))));
         
     doc = wndMain->document();
     
@@ -634,9 +631,7 @@ int main(){
     todo(doc, "Navigation: ALT-left/right: previous/next span/sentence.");
     todo(doc, "Resize every section, not only the visible ones.");
     todo(doc, "Add option to allways show menu bar.");
-    todo(doc, "Add ConfigShaper scripts for STIX fonts.");
     todo(doc, "Build menu and keybord accelerators at runtime from a script.");
-    todo(doc, "Improve support for more OpenType MATH Table values (esp. device tables).");
     todo(doc, "CTRL-R to refactor local variable names.");
     todo(doc, "Add CounterBox, CounterAssignments, CounterIncrements.");
     todo(doc, "Implement Options(FrontEndObject(id), option).");

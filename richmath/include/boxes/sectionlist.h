@@ -11,10 +11,10 @@ namespace richmath{
      it will be nested in the section groups. When a section X is followed by a
      section Y, three possible situations arise:
      
-     [
+     [ notation:
        First(X) = SectionGroupInfo.first for section X
-       LFirst   = previous group start (index of the first section in the current 
-                  group).
+       LFirst   = previous group start (index of the first section in the 
+                  current group).
      ]
      
      SGP(X) < SGP(Y): A new group starts with X. First(Y) = X, First(X) = LFirst
@@ -134,13 +134,17 @@ namespace richmath{
       Array<SectionGroupInfo>  _group_info;
   };
   
-  const int BorderDefault     =  0;
-  const int BorderNoTop       =  1;
-  const int BorderNoBottom    =  2;
-  const int BorderTopArrow    =  4;
-  const int BorderBottomArrow =  8;
-  const int BorderEval        = 16;
-  const int BorderSession     = 32;
+  const int BorderDefault     =   0;
+  const int BorderNoTop       =   1;
+  const int BorderNoBottom    =   2;
+  const int BorderTopArrow    =   4;
+  const int BorderBottomArrow =   8;
+  const int BorderEval        =  16;
+  const int BorderSession     =  32;
+  const int BorderNoEditable  =  64;
+  const int BorderText        = 128;
+  const int BorderInput       = 256;
+  const int BorderOutput      = 512;
 }
 
 #endif // __BOXES__SECTIONLIST_H__

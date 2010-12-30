@@ -652,6 +652,18 @@ void SectionList::paint_section_brackets(Context *context, int i, float right, f
     if(_sections[i]->dialog_start)
       style = style + BorderSession;
     
+    if(!_sections[i]->get_style(Editable))
+      style = style + BorderNoEditable;
+    
+    if(dynamic_cast<TextSection*>(_sections[i]))
+      style = style + BorderText;
+    
+    if(_sections[i]->get_style(SectionGenerated))
+      style = style + BorderOutput;
+      
+    if(_sections[i]->get_style(BaseStyleName).equals("Input"))
+      style = style + BorderInput;
+    
     float x1 = right
       - section_bracket_right_margin 
       - section_bracket_width * _group_info[i].nesting;
@@ -762,7 +774,7 @@ void SectionList::paint_single_section_bracket(
   float    y2,
   int      style  // int BorderXXX constants
 ){
-  float px1 = x1 + 0.3 * (x2-x1);
+  float px1 = x1 + 0.2 * (x2-x1);
   float py1 = y1;
   float px2 = x1 + 0.8 * (x2-x1);
   float py2 = y1;
@@ -770,6 +782,11 @@ void SectionList::paint_single_section_bracket(
   float py3 = y2 - 0.75;
   float px4 = px1;
   float py4 = py3;
+  
+  float pdxx = 1;
+  float pdxy = 0;
+  float pdyx = 0;
+  float pdyy = 1;
   
   context->canvas->save();
   int c = context->canvas->get_color();
@@ -782,6 +799,19 @@ void SectionList::paint_single_section_bracket(
     context->canvas->user_to_device(&px2, &py2);
     context->canvas->user_to_device(&px3, &py3);
     context->canvas->user_to_device(&px4, &py4);
+    
+    context->canvas->user_to_device_dist(&pdxx, &pdxy);
+    context->canvas->user_to_device_dist(&pdyx, &pdyy);
+    
+    float picy = 1;
+    
+    float hyp = sqrt(pdxx * pdxx + pdxy * pdxy);
+    pdxx/= hyp;
+    pdxy/= hyp;
+    
+    hyp = sqrt(pdyx * pdyx + pdyy * pdyy);
+    pdyx/= hyp;
+    pdyy/= hyp;
     
     px1 = ceilf(px1) - 0.5f;   py1 = ceilf(py1) - 0.5f;
     px2 = ceilf(px2) - 0.5f;   py2 = ceilf(py2) - 0.5f;
@@ -822,6 +852,13 @@ void SectionList::paint_single_section_bracket(
       context->canvas->move_to(px2, py2);
     }
     else{
+      if(style & BorderNoEditable){
+        context->canvas->move_to(px1 + pdyx, py1 + pdyy);
+        context->canvas->line_to(px2 + pdyx, py2 + pdyy);
+        
+        picy+= 1;
+      }
+      
       context->canvas->move_to(px1, py1);
       context->canvas->line_to(px2, py2);
     }
@@ -859,6 +896,41 @@ void SectionList::paint_single_section_bracket(
     cairo_set_line_width(context->canvas->cairo(), 1.0);
     context->canvas->set_color(col);
     context->canvas->stroke();
+    
+    if(style & BorderInput){
+      float cx = px2 + (picy+1) * pdyx - 3 * pdxx;
+      float cy = py2 + (picy+1) * pdyy - 3 * pdxy;
+      
+      context->canvas->move_to(cx, cy);
+      context->canvas->line_to(cx + 3 * pdyx, cy + 3 * pdyy);
+      context->canvas->stroke();
+      
+      picy+= 5;
+    }
+    
+    if(style & BorderText){
+      float cx = px2 + (picy+1) * pdyx - 3 * pdxx;
+      float cy = py2 + (picy+1) * pdyy - 3 * pdxy;
+      
+      context->canvas->move_to(cx, cy);
+      context->canvas->line_to(cx + 3 * pdyx, cy + 3 * pdyy);
+      context->canvas->move_to(cx - pdxx, cy - pdxy);
+      context->canvas->line_to(cx + pdxx, cy + pdxy);
+      
+      context->canvas->stroke();
+      
+      picy+= 5;
+    }
+    
+    if(style & BorderOutput){
+      float cx = px2 + (picy+2) * pdyx - 3 * pdxx;
+      float cy = py2 + (picy+2) * pdyy - 3 * pdxy;
+      
+      context->canvas->arc(cx, cy, 1, 0, 2 * M_PI, false);
+      context->canvas->stroke();
+      
+      picy+= 4;
+    }
   }
   context->canvas->set_color(c);
   context->canvas->restore();

@@ -234,9 +234,7 @@ FallbackTextShaper::FallbackTextShaper(SharedPtr<TextShaper> default_shaper)
   _shapers.add(default_shaper);
   
   if(++fallback_shaper_count == 1){
-    default_fallback_fontlist = Expr(pmath_evaluate(
-      pmath_parse_string(
-        PMATH_C_STRING("FE`$FallbackFonts"))));
+    default_fallback_fontlist = Evaluate(Parse("FE`$FallbackFonts"));
     
     if(default_fallback_fontlist[0] != PMATH_SYMBOL_LIST)
       default_fallback_fontlist = Expr();
