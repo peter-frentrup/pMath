@@ -3118,57 +3118,41 @@ void Document::paint_resize(Canvas *canvas, bool resize_only){
     // paint cursor (as a horizontal line) at end of document:
     if(context.selection.id == this->id()
     && context.selection.start == context.selection.end){
-      if(length() > 0){
-        float y;
-        if(context.selection.start < length())
-          y = section(context.selection.start)->y_offset;
-        else
-          y = _extents.descent;
-          
-        float x1 = sx;
-        float y1 = y + 0.5;
-        float x2 = sx + _extents.width;
-        float y2 = y + 0.5;
+      float y;
+      if(context.selection.start < length())
+        y = section(context.selection.start)->y_offset;
+      else
+        y = _extents.descent;
         
-        context.canvas->align_point(&x1, &y1, true);
-        context.canvas->align_point(&x2, &y2, true);
-        context.canvas->move_to(x1, y1);
-        context.canvas->line_to(x2, y2);
-        
-        context.canvas->set_color(0xC0C0C0);
-        context.canvas->hair_stroke();
-        
-        if(context.selection.start < count()){
-          x1 = section(context.selection.start)->get_style(SectionMarginLeft);
-        }
-        else if(count() > 0){
-          x1 = section(context.selection.start-1)->get_style(SectionMarginLeft);
-        }
-        else
-          x1 = 20 * 0.75;
-        x2 = x1 + 40 * 0.75;
+      float x1 = sx;
+      float y1 = y + 0.5;
+      float x2 = sx + _extents.width;
+      float y2 = y + 0.5;
+      
+      context.canvas->align_point(&x1, &y1, true);
+      context.canvas->align_point(&x2, &y2, true);
+      context.canvas->move_to(x1, y1);
+      context.canvas->line_to(x2, y2);
+      
+      context.canvas->set_color(0xC0C0C0);
+      context.canvas->hair_stroke();
+      
+      if(context.selection.start < count()){
+        x1 = section(context.selection.start)->get_style(SectionMarginLeft);
+      }
+      else if(count() > 0){
+        x1 = section(context.selection.start-1)->get_style(SectionMarginLeft);
+      }
+      else
+        x1 = 20 * 0.75;
+      x2 = x1 + 40 * 0.75;
 
-        context.canvas->align_point(&x1, &y1, true);
-        context.canvas->align_point(&x2, &y2, true);
-        context.canvas->move_to(x1, y1);
-        context.canvas->line_to(x2, y2);
-        
-        context.draw_selection_path();
-      }
-      else{
-        float y = _extents.descent;
-        
-        float x1 = sx + get_style(SectionMarginLeft);
-        float y1 = y  + get_style(SectionMarginTop);
-        float x2 = sx + x1;
-        float y2 = y  + get_style(FontSize) * 1.3;
-        
-        context.canvas->align_point(&x1, &y1, true);
-        context.canvas->align_point(&x2, &y2, true);
-        context.canvas->move_to(x1, y1);
-        context.canvas->line_to(x2, y2);
-        context.draw_selection_path();
-      }
+      context.canvas->align_point(&x1, &y1, true);
+      context.canvas->align_point(&x2, &y2, true);
+      context.canvas->move_to(x1, y1);
+      context.canvas->line_to(x2, y2);
+      
+      context.draw_selection_path();
     }
     
     // highlight the current selected word in the whole document:

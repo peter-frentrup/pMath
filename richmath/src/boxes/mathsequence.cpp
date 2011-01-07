@@ -2719,7 +2719,23 @@ void MathSequence::stretch_span(
         stretch_span(context, spans[*pos], pos, box, core_ascent, core_descent, ascent, descent);
       
       context->math_shaper->vertical_stretch_char(
-        context, *core_ascent, *core_descent, true, buf[start], &glyphs[start]);
+        context, 
+        *core_ascent  - 0.1 * em, 
+        *core_descent - 0.1 * em, 
+        true, 
+        buf[start], 
+        &glyphs[start]);
+      
+      BoxSize size;
+      context->math_shaper->vertical_glyph_size(
+        context, 
+        buf[start], 
+        glyphs[start], 
+        &size.ascent, 
+        &size.descent);
+      
+      size.bigger_y(core_ascent, core_descent);
+      size.bigger_y(     ascent,      descent);
     }
     
     while(*pos <= span.end()

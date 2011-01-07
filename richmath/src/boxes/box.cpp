@@ -331,7 +331,7 @@ Box *Box::normalize_selection(int *start, int *end){
 }
 
 bool Box::request_repaint_all(){
-  return request_repaint(0, -_extents.ascent, _extents.width, _extents.height());
+  return request_repaint(0, -_extents.ascent, _extents.width + 0.1, _extents.height() + 0.1);
 }
 
 bool Box::request_repaint(float x, float y, float w, float h){

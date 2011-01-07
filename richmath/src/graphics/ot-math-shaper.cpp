@@ -1003,8 +1003,10 @@ void OTMathShaper::vertical_glyph_size(
         }
         
         height+= overlap;
-        *ascent  = height/2 + axis;
-        *descent = height/2 - axis;
+        if(*ascent < height/2 + axis)
+           *ascent = height/2 + axis;
+        if(*descent < height/2 - axis)
+           *descent = height/2 - axis;
         
         return;
       }
@@ -1277,7 +1279,7 @@ void OTMathShaper::vertical_stretch_char(
     result->x_offset          = 0;
     result->composed          = 0;
     result->is_normal_text    = 0;
-    result->vertical_centered = 0;
+    result->vertical_centered = 1;
     
     int i = 0;
     if(context->script_indent == 0
@@ -1295,7 +1297,6 @@ void OTMathShaper::vertical_stretch_char(
       if(2 * half <= cte.height * 1.1
       || max < cte.height
       /*&& min <= cte.height*/){
-        result->vertical_centered = 1;
         return;
       }
     }
@@ -1358,11 +1359,7 @@ void OTMathShaper::vertical_stretch_char(
       if(result->right < cte.x_advance)
          result->right = cte.x_advance;
     }
-    
-    return;
   }
-  
-  return;
 }
 
 void OTMathShaper::accent_positions(

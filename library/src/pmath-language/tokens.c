@@ -83,7 +83,7 @@ static const struct char_info_t u2000_u206f[112] = {
 /* 205 */ ID,  APL, MUL, SEQ, ADD, ERR, ERR, ERR, ERR, ERR, ID,  ID,  ID,  ID,  ID,  ID
 };
 
-static const struct char_info_t u2100_u22ff[512] = {
+static const struct char_info_t u2100_u230f[528] = {
 /*         0    1    2    3    4    5    6    7    8    9    A    B    C    D    E    F  */
 /* 210 */ ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID, 
 /* 211 */ ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID, 
@@ -116,7 +116,8 @@ static const struct char_info_t u2100_u22ff[512] = {
 /* 22C */ AND, OR,  ISC, UNI, MU2, MU2, MU2, MU2, REL, REL, REL, REL, REL, REL, OR,  AND,
 /* 22D */ REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, 
 /* 22E */ REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, 
-/* 22F */ REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL 
+/* 22F */ REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL,
+/* 230 */ ID,  REL, ID,  REL, REL, REL, REL, REL, LEF, RI1, LEF, RI1, ID,  ID,  ID,  ID
 };
 
 static const struct char_info_t u27c0_u27ff[64] = {
@@ -173,8 +174,8 @@ static const struct char_info_t *find_char_info(uint16_t ch){
   if(ch >= 0x2000 && ch <= 0x206F)
     return &u2000_u206f[ch - 0x2000];
   
-  if(ch >= 0x2100 && ch <= 0x22FF)
-    return &u2100_u22ff[ch - 0x2100];
+  if(ch >= 0x2100 && ch <= 0x230F)
+    return &u2100_u230f[ch - 0x2100];
   
   if(ch >= 0x27C0 && ch <= 0x27FF)
     return &u27c0_u27ff[ch - 0x27C0];
