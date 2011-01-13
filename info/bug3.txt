@@ -1,0 +1,2083 @@
+[+ process]
+cairo version: 1.10.0
+pango version: 1.28.0
+[+ thread]
+[+ thread]
+[new deamon 002BE488][+ thread]
+[new deamon 002EDBB8]loaded "Cambria Math" in 0.038000 seconds
+loaded "Asana Math" in 0.006000 seconds
+loaded "Neo Euler" in 0.012000 seconds
+loaded "XITS Math" in 0.008000 seconds
+Loaded aliases in 0.002000 seconds.
+loaded "Mathematica Serif"
+loaded "Mathematica Mono"
+TTTTTTCS[received result_symbol Internal`sendWait$36, val=/\/]
+SSSSSSSSSSSSSSSSSSSSSS[received result_symbol Internal`sendWait$62, val=/\/]
+SSCSCTTCSCCSCCSCCSSSSSS[received result_symbol Internal`sendWait$76, val=/\/]
+[received result_symbol Internal`sendWait$73, val=/\/]
+SSSSSSSS[received exception Internal`sendWait$87, result_symbol = Internal`sendWait$89, val=System`C
+atch(FE`SymbolInfo("Round"))]
+[received result_symbol Internal`sendWait$87, val=/\/]
+SSCSSSSSS[received result_symbol Internal`sendWait$98, val=/\/]
+[received result_symbol Internal`sendWait$95, val=/\/]
+SS[received exception Internal`sendWait$104, result_symbol = Internal`sendWait$106, val=System`Catch
+(FE`SymbolInfo("Round"))]
+[received result_symbol Internal`sendWait$104, val=/\/]
+SSCSSSSSSHashtable corrupted?: Internal`sendWait$111 [hash= 2946752]
+removed: Internal`sendWait$111 [hash= 2946752]
+>-------------------------------
+        count=626,cap=2048
+        0:      NULL
+        1:      NULL
+        2:      NULL
+        3:      [hash= 2745576] Internal`DynamicEvaluateMultiple
+        4:      NULL
+        5:      NULL
+        6:      NULL
+        7:      NULL
+        8:      NULL
+        9:      NULL
+        10:     [hash= 2804712] System`Message
+        11:     [hash= 2773608] System`Expression
+        12:     NULL
+        13:     NULL
+        14:     NULL
+        15:     [hash= 2830952] System`SectionGroupPrecedence
+        16:     NULL
+        17:     NULL
+        18:     NULL
+        19:     [hash= 2820576] System`PostIncrement
+        20:     NULL
+        21:     [hash= 2857488] System`WordBoundary
+        22:     NULL
+        23:     NULL
+        24:     [hash= 2831264] System`SectionLabelAutoDelete
+        25:     NULL
+        26:     [hash= 2737072] Internal`Condition
+        27:     NULL
+        28:     NULL
+        29:     NULL
+        30:     NULL
+        31:     [hash= 2746640] System`Abs
+        32:     [hash= 2983832] FE`Private`y
+        33:     [hash= 2806688] System`NHoldAll
+        34:     [hash= 2790824] System`IsInteger
+        35:     [hash= 2857176] System`WhitespaceCharacter
+        36:     NULL
+        37:     NULL
+        38:     NULL
+        39:     NULL
+        40:     NULL
+        41:     NULL
+        42:     NULL
+        43:     NULL
+        44:     NULL
+        45:     NULL
+        46:     NULL
+        47:     NULL
+        48:     [hash= 2837672] System`SetterBar
+        49:     NULL
+        50:     [hash= 2814880] System`$Path
+        51:     NULL
+        52:     NULL
+        53:     [hash= 2840272] System`String
+        54:     [hash= 2805960] System`$Namespace
+        55:     NULL
+        56:     NULL
+        57:     NULL
+        58:     NULL
+        59:     NULL
+        60:     NULL
+        61:     NULL
+        62:     NULL
+        63:     [hash= 3035200] System`LightPink
+        64:     [hash= 2803984] System`Match
+        65:     NULL
+        66:     NULL
+        67:     NULL
+        68:     NULL
+        69:     NULL
+        70:     [hash= 2796208] System`IsQuotient
+        71:     NULL
+        72:     NULL
+        73:     [hash= 2984040] FE`Private`z
+        74:     NULL
+        75:     NULL
+        76:     NULL
+        77:     NULL
+        78:     NULL
+        79:     NULL
+        80:     [hash= 2787808] System`HoldRest
+        81:     NULL
+        82:     NULL
+        83:     NULL
+        84:     [hash= 2828768] System`Return
+        85:     [hash= 2766248] System`DirectoryName
+        86:     NULL
+        87:     [hash= 2774544] System`FileType
+        88:     NULL
+        89:     [hash= 3039048] FE`Private`name
+        90:     [hash= 2812592] System`Options
+        91:     NULL
+        92:     [hash= 2822448] System`Rational
+        93:     [hash= 2747264] System`Append
+        94:     [hash= 2846384] System`Sum
+        95:     NULL
+        96:     NULL
+        97:     [hash= 2982168] FE`Private`x
+        98:     [hash= 3033952] System`Orange
+        99:     NULL
+        100:    NULL
+        101:    NULL
+        102:    NULL
+        103:    NULL
+        104:    NULL
+        105:    NULL
+        106:    NULL
+        107:    NULL
+        108:    NULL
+        109:    [hash= 2812280] System`OpenWrite
+        110:    NULL
+        111:    NULL
+        112:    NULL
+        113:    NULL
+        114:    NULL
+        115:    [hash= 3038528] FE`$MathShapers
+        116:    [hash= 2804608] System`MemoryUsage
+        117:    NULL
+        118:    [hash= 2771736] System`Editable
+        119:    NULL
+        120:    [hash= 2840168] System`StartOfString
+        121:    NULL
+        122:    NULL
+        123:    NULL
+        124:    NULL
+        125:    [hash= 2856344] System`Unprotect
+        126:    NULL
+        127:    [hash= 2838192] System`ShowAutoStyles
+        128:    NULL
+        129:    NULL
+        130:    [hash= 2847736] System`Table
+        131:    NULL
+        132:    NULL
+        133:    [hash= 2840376] System`StringCases
+        134:    [hash= 2919728] System`$BaseDirectory
+        135:    NULL
+        136:    NULL
+        137:    NULL
+        138:    [hash= 2797768] System`LetterCharacter
+        139:    [hash= 2779720] System`FontColor
+        140:    NULL
+        141:    NULL
+        142:    NULL
+        143:    NULL
+        144:    NULL
+        145:    NULL
+        146:    NULL
+        147:    NULL
+        148:    NULL
+        149:    NULL
+        150:    [hash= 2788952] System`Inherited
+        151:    [hash= 2837984] System`Short
+        152:    NULL
+        153:    NULL
+        154:    NULL
+        155:    NULL
+        156:    NULL
+        157:    [hash= 2798288] System`Listable
+        158:    NULL
+        159:    NULL
+        160:    NULL
+        161:    [hash= 2748824] System`Array
+        162:    [hash= 2831160] System`SectionLabel
+        163:    NULL
+        164:    NULL
+        165:    NULL
+        166:    NULL
+        167:    [hash= 3038424] FE`$FallbackFonts
+        168:    NULL
+        169:    [hash= 2807208] System`NRules
+        170:    [hash= 2812800] System`OptionValue
+        171:    [hash= 2799120] System`LUDecomposition
+        172:    [hash= 2856968] System`While
+        173:    NULL
+        174:    [hash= 2774128] System`False
+        175:    NULL
+        176:    NULL
+        177:    NULL
+        178:    NULL
+        179:    NULL
+        180:    NULL
+        181:    NULL
+        182:    NULL
+        183:    NULL
+        184:    [hash= 2771008] System`Documents
+        185:    [hash= 3038736] FE`SectionsToBoxes
+        186:    [hash= 2797456] System`Length
+        187:    NULL
+        188:    [hash= 2854992] System`True
+        189:    NULL
+        190:    [hash= 2839336] System`Sort
+        191:    NULL
+        192:    [hash= 2845656] System`Style
+        193:    [hash= 2813736] System`$PageWidth
+        194:    NULL
+        195:    NULL
+        196:    NULL
+        197:    [hash= 2820472] System`PostDecrement
+        198:    NULL
+        199:    NULL
+        200:    NULL
+        201:    NULL
+        202:    [hash= 2840688] System`StringForm
+        203:    [hash= 2780760] System`FrontEndObject
+        204:    NULL
+        205:    [hash= 2841208] System`StringTake
+        206:    [hash= 2749344] System`AutoDelete
+        207:    NULL
+        208:    NULL
+        209:    NULL
+        210:    NULL
+        211:    NULL
+        212:    NULL
+        213:    NULL
+        214:    NULL
+        215:    NULL
+        216:    NULL
+        217:    NULL
+        218:    NULL
+        219:    NULL
+        220:    NULL
+        221:    NULL
+        222:    [hash= 2765312] System`Depth
+        223:    [hash= 2830640] System`SectionFrameMargins
+        224:    NULL
+        225:    NULL
+        226:    NULL
+        227:    NULL
+        228:    NULL
+        229:    NULL
+        230:    NULL
+        231:    NULL
+        232:    NULL
+        233:    [hash= 2755456] System`Button
+        234:    [hash= 2757952] System`ColumnSpacing
+        235:    NULL
+        236:    NULL
+        237:    NULL
+        238:    NULL
+        239:    [hash= 2806168] System`$NamespacePath
+        240:    [hash= 2771112] System`Dot
+        241:    NULL
+        242:    [hash= 2787704] System`HoldPattern
+        243:    NULL
+        244:    NULL
+        245:    NULL
+        246:    NULL
+        247:    [hash= 2828560] System`ResetDirectory
+        248:    [hash= 2749240] System`Attributes
+        249:    NULL
+        250:    NULL
+        251:    NULL
+        252:    NULL
+        253:    NULL
+        254:    NULL
+        255:    [hash= 2747576] System`ArcCosh
+        256:    NULL
+        257:    NULL
+        258:    [hash= 2821096] System`$ProcessId
+        259:    NULL
+        260:    NULL
+        261:    [hash= 2758368] System`ComplexInfinity
+        262:    NULL
+        263:    NULL
+        264:    NULL
+        265:    NULL
+        266:    NULL
+        267:    [hash= 2737176] Internal`GetThreadId
+        268:    NULL
+        269:    NULL
+        270:    NULL
+        271:    NULL
+        272:    NULL
+        273:    NULL
+        274:    NULL
+        275:    NULL
+        276:    [hash= 2848880] System`TestPattern
+        277:    NULL
+        278:    [hash= 2774648] System`FillBox
+        279:    NULL
+        280:    NULL
+        281:    [hash= 2854368] System`ToFileName
+        282:    NULL
+        283:    NULL
+        284:    NULL
+        285:    [hash= 2828352] System`ReplacePart
+        286:    NULL
+        287:    NULL
+        288:    [hash= 2756184] System`Cases
+        289:    NULL
+        290:    NULL
+        291:    NULL
+        292:    NULL
+        293:    NULL
+        294:    NULL
+        295:    [hash= 2796624] System`IsValidArgumentCount
+        296:    NULL
+        297:    NULL
+        298:    NULL
+        299:    NULL
+        300:    NULL
+        301:    [hash= 2749968] System`Begin
+        302:    NULL
+        303:    [hash= 2830536] System`SectionFrameColor
+        304:    NULL
+        305:    [hash= 2822656] System`Re
+        306:    NULL
+        307:    NULL
+        308:    [hash= 2813424] System`OverscriptBox
+        309:    [hash= 2855928] System`Unequal
+        310:    NULL
+        311:    NULL
+        312:    [hash= 2797248] System`LCM
+        313:    NULL
+        314:    [hash= 2821928] System`Quotient
+        315:    NULL
+        316:    NULL
+        317:    NULL
+        318:    NULL
+        319:    NULL
+        320:    NULL
+        321:    NULL
+        322:    NULL
+        323:    NULL
+        324:    NULL
+        325:    [hash= 2829080] System`Rotate
+        326:    NULL
+        327:    [hash= 2920872] System`Private`s
+        328:    NULL
+        329:    [hash= 2830848] System`SectionGroup
+        330:    NULL
+        331:    [hash= 2762712] System`ConditionalExpression
+        332:    [hash= 2766560] System`Do
+        333:    NULL
+        334:    [hash= 2757848] System`Column
+        335:    NULL
+        336:    NULL
+        337:    [hash= 2749552] System`AutoNumberFormating
+        338:    NULL
+        339:    NULL
+        340:    [hash= 2778992] System`Find
+        341:    NULL
+        342:    [hash= 2756080] System`$ByteOrdering
+        343:    NULL
+        344:    NULL
+        345:    NULL
+        346:    NULL
+        347:    [hash= 2823696] System`RenameDirectory
+        348:    [hash= 2807104] System`Not
+        349:    NULL
+        350:    [hash= 2854784] System`TransformationBox
+        351:    NULL
+        352:    NULL
+        353:    [hash= 2798080] System`LineBreakWithin
+        354:    NULL
+        355:    [hash= 2779824] System`FontFamily
+        356:    NULL
+        357:    [hash= 2766456] System`DivideBy
+        358:    NULL
+        359:    [hash= 2814464] System`ParseSymbols
+        360:    NULL
+        361:    NULL
+        362:    NULL
+        363:    NULL
+        364:    NULL
+        365:    [hash= 2849192] System`Through
+        366:    NULL
+        367:    NULL
+        368:    NULL
+        369:    [hash= 2849504] System`Times
+        370:    NULL
+        371:    NULL
+        372:    NULL
+        373:    NULL
+        374:    [hash= 2813112] System`Overflow
+        375:    [hash= 2812176] System`OpenRead
+        376:    NULL
+        377:    NULL
+        378:    NULL
+        379:    NULL
+        380:    NULL
+        381:    NULL
+        382:    NULL
+        383:    NULL
+        384:    NULL
+        385:    NULL
+        386:    [hash= 2804088] System`MatrixForm
+        387:    NULL
+        388:    NULL
+        389:    [hash= 2814568] System`Part
+        390:    [hash= 2803880] System`Map
+        391:    NULL
+        392:    NULL
+        393:    [hash= 2755144] System`BoxRotation
+        394:    NULL
+        395:    NULL
+        396:    NULL
+        397:    NULL
+        398:    NULL
+        399:    NULL
+        400:    NULL
+        401:    NULL
+        402:    NULL
+        403:    NULL
+        404:    NULL
+        405:    NULL
+        406:    [hash= 2920248] System`Private`tag
+        407:    [hash= 2821616] System`Protected
+        408:    NULL
+        409:    NULL
+        410:    NULL
+        411:    NULL
+        412:    NULL
+        413:    [hash= 2855200] System`Unassign
+        414:    NULL
+        415:    [hash= 2780864] System`FrontEndTokenExecute
+        416:    NULL
+        417:    NULL
+        418:    [hash= 2797144] System`Last
+        419:    NULL
+        420:    NULL
+        421:    NULL
+        422:    NULL
+        423:    NULL
+        424:    [hash= 2772360] System`EndPackage
+        425:    NULL
+        426:    NULL
+        427:    NULL
+        428:    NULL
+        429:    [hash= 2838296] System`ShowDefinition
+        430:    NULL
+        431:    NULL
+        432:    NULL
+        433:    NULL
+        434:    NULL
+        435:    [hash= 2766040] System`DirectedInfinity
+        436:    NULL
+        437:    NULL
+        438:    NULL
+        439:    NULL
+        440:    [hash= 2831992] System`SetAccuracy
+        441:    [hash= 3036136] System`Private`x
+        442:    NULL
+        443:    NULL
+        444:    NULL
+        445:    [hash= 2757016] System`CirclePlus
+        446:    NULL
+        447:    [hash= 2839232] System`SliderBox
+        448:    NULL
+        449:    NULL
+        450:    NULL
+        451:    NULL
+        452:    [hash= 2757536] System`Clock
+        453:    [hash= 2758264] System`Complex
+        454:    NULL
+        455:    NULL
+        456:    [hash= 2788120] System`Identity
+        457:    NULL
+        458:    [hash= 2847216] System`Syntax
+        459:    [hash= 2746744] System`Accuracy
+        460:    NULL
+        461:    NULL
+        462:    [hash= 2823904] System`Repeated
+        463:    NULL
+        464:    NULL
+        465:    NULL
+        466:    [hash= 2765624] System`Dialog
+        467:    NULL
+        468:    [hash= 2812696] System`OptionsPattern
+        469:    NULL
+        470:    NULL
+        471:    [hash= 2870128] System`Write
+        472:    NULL
+        473:    [hash= 2747160] System`Antialiasing
+        474:    NULL
+        475:    [hash= 2749448] System`Automatic
+        476:    NULL
+        477:    NULL
+        478:    NULL
+        479:    [hash= 2813528] System`OwnRules
+        480:    NULL
+        481:    [hash= 2790616] System`IsHeld
+        482:    NULL
+        483:    [hash= 2871168] Global`x
+        484:    NULL
+        485:    NULL
+        486:    NULL
+        487:    NULL
+        488:    NULL
+        489:    [hash= 2772880] System`Evaluate
+        490:    [hash= 2782528] System`Hash
+        491:    NULL
+        492:    NULL
+        493:    NULL
+        494:    NULL
+        495:    NULL
+        496:    NULL
+        497:    [hash= 2838920] System`SingleMatch
+        498:    NULL
+        499:    [hash= 2805232] System`Min
+        500:    NULL
+        501:    [hash= 2749032] System`AssignDelayed
+        502:    NULL
+        503:    [hash= 2815712] System`Placeholder
+        504:    [hash= 2796416] System`IsString
+        505:    NULL
+        506:    [hash= 2757224] System`Clear
+        507:    NULL
+        508:    [hash= 2856656] System`$VersionList
+        509:    [hash= 2779096] System`FindList
+        510:    [hash= 2790200] System`IsEven
+        511:    NULL
+        512:    [hash= 2764688] System`DefaultRules
+        513:    NULL
+        514:    NULL
+        515:    NULL
+        516:    NULL
+        517:    NULL
+        518:    [hash= 2796000] System`IsPositive
+        519:    NULL
+        520:    NULL
+        521:    NULL
+        522:    [hash= 2857280] System`With
+        523:    [hash= 3033432] System`Blue
+        524:    [hash= 2811968] System`OneIdentity
+        525:    NULL
+        526:    NULL
+        527:    [hash= 2795376] System`IsNonNegative
+        528:    [hash= 2765416] System`Det
+        529:    [hash= 2787912] System`I
+        530:    NULL
+        531:    NULL
+        532:    NULL
+        533:    [hash= 2831368] System`SectionPrint
+        534:    NULL
+        535:    NULL
+        536:    NULL
+        537:    NULL
+        538:    [hash= 3034888] System`LightYellow
+        539:    NULL
+        540:    [hash= 2848464] System`Tanh
+        541:    [hash= 2831472] System`Select
+        542:    NULL
+        543:    NULL
+        544:    [hash= 2814672] System`Partition
+        545:    NULL
+        546:    [hash= 2856240] System`Union
+        547:    NULL
+        548:    NULL
+        549:    [hash= 2828144] System`Replace
+        550:    NULL
+        551:    NULL
+        552:    NULL
+        553:    [hash= 2839856] System`Stack
+        554:    [hash= 2806480] System`NewTask
+        555:    NULL
+        556:    NULL
+        557:    NULL
+        558:    NULL
+        559:    [hash= 2798912] System`Longest
+        560:    NULL
+        561:    [hash= 2755352] System`Break
+        562:    NULL
+        563:    NULL
+        564:    NULL
+        565:    NULL
+        566:    [hash= 2847528] System`SystemException
+        567:    [hash= 2815504] System`Pi
+        568:    NULL
+        569:    NULL
+        570:    NULL
+        571:    NULL
+        572:    NULL
+        573:    NULL
+        574:    NULL
+        575:    NULL
+        576:    NULL
+        577:    [hash= 2839024] System`Skeleton
+        578:    [hash= 2766144] System`Directory
+        579:    NULL
+        580:    [hash= 2823800] System`RenameFile
+        581:    [hash= 2815400] System`Pause
+        582:    NULL
+        583:    [hash= 2853848] System`$TimeZone
+        584:    NULL
+        585:    NULL
+        586:    NULL
+        587:    NULL
+        588:    NULL
+        589:    [hash= 2746952] System`Alternatives
+        590:    [hash= 2771216] System`DownRules
+        591:    NULL
+        592:    NULL
+        593:    NULL
+        594:    [hash= 2762920] System`Continue
+        595:    NULL
+        596:    [hash= 2754416] System`BinaryFormat
+        597:    [hash= 2765936] System`Dimensions
+        598:    NULL
+        599:    NULL
+        600:    [hash= 2797664] System`LessEqual
+        601:    NULL
+        602:    NULL
+        603:    [hash= 2820680] System`Power
+        604:    [hash= 2747368] System`Apply
+        605:    [hash= 2782424] System`GridBoxRowSpacing
+        606:    NULL
+        607:    NULL
+        608:    NULL
+        609:    NULL
+        610:    NULL
+        611:    NULL
+        612:    [hash= 2779616] System`FoldList
+        613:    [hash= 2757640] System`Close
+        614:    NULL
+        615:    [hash= 2845760] System`StyleBox
+        616:    NULL
+        617:    NULL
+        618:    [hash= 3037176] System`Private`a
+        619:    NULL
+        620:    NULL
+        621:    NULL
+        622:    [hash= 2788016] System`Identical
+        623:    NULL
+        624:    NULL
+        625:    [hash= 3034680] System`LightCyan
+        626:    NULL
+        627:    NULL
+        628:    [hash= 2840792] System`StringMatch
+        629:    [hash= 2846800] System`SymbolName
+        630:    NULL
+        631:    [hash= 3035096] System`LightOrange
+        632:    [hash= 2838712] System`Sin
+        633:    NULL
+        634:    NULL
+        635:    NULL
+        636:    NULL
+        637:    NULL
+        638:    NULL
+        639:    [hash= 2849296] System`Throw
+        640:    NULL
+        641:    NULL
+        642:    NULL
+        643:    NULL
+        644:    NULL
+        645:    [hash= 2846592] System`SuperscriptBox
+        646:    NULL
+        647:    NULL
+        648:    [hash= 2831576] System`Selectable
+        649:    NULL
+        650:    NULL
+        651:    [hash= 2839544] System`Special
+        652:    NULL
+        653:    NULL
+        654:    NULL
+        655:    [hash= 2831784] System`Sequence
+        656:    [hash= 2814256] System`ParenthesizeBoxes
+        657:    [hash= 2791032] System`IsMatrix
+        658:    NULL
+        659:    NULL
+        660:    NULL
+        661:    NULL
+        662:    NULL
+        663:    NULL
+        664:    [hash= 2853744] System`TimesBy
+        665:    NULL
+        666:    [hash= 2838400] System`ShowSectionBracket
+        667:    [hash= 2811864] System`On
+        668:    NULL
+        669:    NULL
+        670:    [hash= 2857072] System`Whitespace
+        671:    NULL
+        672:    [hash= 2841312] System`StringToBoxes
+        673:    [hash= 2813216] System`Overlaps
+        674:    [hash= 2920144] System`Private`symbol
+        675:    NULL
+        676:    NULL
+        677:    [hash= 2839752] System`SqrtBox
+        678:    NULL
+        679:    NULL
+        680:    NULL
+        681:    [hash= 2755040] System`BoxData
+        682:    NULL
+        683:    NULL
+        684:    [hash= 2837880] System`Shallow
+        685:    [hash= 2799224] System`$MachineEpsilon
+        686:    NULL
+        687:    [hash= 2981752] FE`Private`sym
+        688:    [hash= 2787392] System`HoldComplete
+        689:    NULL
+        690:    NULL
+        691:    NULL
+        692:    NULL
+        693:    NULL
+        694:    NULL
+        695:    NULL
+        696:    NULL
+        697:    [hash= 2921704] System`Private`Autoload
+        698:    NULL
+        699:    NULL
+        700:    NULL
+        701:    [hash= 2745472] Internal`DynamicEvaluate
+        702:    NULL
+        703:    NULL
+        704:    [hash= 2780136] System`FontWeight
+        705:    NULL
+        706:    NULL
+        707:    [hash= 2838088] System`Shortest
+        708:    NULL
+        709:    NULL
+        710:    NULL
+        711:    [hash= 2756704] System`$CharacterEncoding
+        712:    NULL
+        713:    NULL
+        714:    NULL
+        715:    NULL
+        716:    [hash= 3034056] System`Pink
+        717:    NULL
+        718:    [hash= 2983208] FE`AddConfigShaper
+        719:    [hash= 2789576] System`Integer
+        720:    NULL
+        721:    NULL
+        722:    NULL
+        723:    NULL
+        724:    NULL
+        725:    [hash= 2789784] System`InterpretationBox
+        726:    NULL
+        727:    NULL
+        728:    NULL
+        729:    [hash= 2782632] System`Heads
+        730:    NULL
+        731:    [hash= 2803672] System`MakeBoxes
+        732:    NULL
+        733:    NULL
+        734:    NULL
+        735:    NULL
+        736:    [hash= 2782736] System`$History
+        737:    NULL
+        738:    NULL
+        739:    NULL
+        740:    [hash= 2813008] System`OutputForm
+        741:    NULL
+        742:    NULL
+        743:    NULL
+        744:    NULL
+        745:    [hash= 2820784] System`Precision
+        746:    NULL
+        747:    NULL
+        748:    NULL
+        749:    NULL
+        750:    NULL
+        751:    NULL
+        752:    NULL
+        753:    [hash= 2746224] Internal`ThreadIdle
+        754:    NULL
+        755:    [hash= 2803568] System`$MachinePrecision
+        756:    NULL
+        757:    NULL
+        758:    NULL
+        759:    NULL
+        760:    NULL
+        761:    NULL
+        762:    [hash= 2763648] System`Count
+        763:    NULL
+        764:    NULL
+        765:    NULL
+        766:    NULL
+        767:    NULL
+        768:    NULL
+        769:    NULL
+        770:    [hash= 2857384] System`Word
+        771:    [hash= 2788744] System`Inequation
+        772:    NULL
+        773:    [hash= 2822864] System`ReadList
+        774:    NULL
+        775:    NULL
+        776:    NULL
+        777:    [hash= 2830328] System`Section
+        778:    NULL
+        779:    NULL
+        780:    NULL
+        781:    NULL
+        782:    NULL
+        783:    NULL
+        784:    [hash= 2856552] System`UpRules
+        785:    NULL
+        786:    NULL
+        787:    NULL
+        788:    NULL
+        789:    NULL
+        790:    [hash= 3034264] System`LightGray
+        791:    NULL
+        792:    NULL
+        793:    NULL
+        794:    [hash= 2982064] FE`Private`b
+        795:    NULL
+        796:    NULL
+        797:    [hash= 2845864] System`SubRules
+        798:    NULL
+        799:    NULL
+        800:    NULL
+        801:    NULL
+        802:    NULL
+        803:    NULL
+        804:    [hash= 2820264] System`PolyGamma
+        805:    NULL
+        806:    [hash= 2747888] System`ArcCsc
+        807:    NULL
+        808:    NULL
+        809:    NULL
+        810:    [hash= 3033848] System`Brown
+        811:    NULL
+        812:    NULL
+        813:    NULL
+        814:    NULL
+        815:    NULL
+        816:    NULL
+        817:    NULL
+        818:    NULL
+        819:    NULL
+        820:    NULL
+        821:    NULL
+        822:    [hash= 2750176] System`BernoulliB
+        823:    [hash= 2846904] System`Symmetric
+        824:    [hash= 2811760] System`Off
+        825:    [hash= 2745784] Internal`DynamicUpdated
+        826:    [hash= 2771424] System`Dynamic
+        827:    NULL
+        828:    [hash= 2921080] System`Private`f
+        829:    [hash= 2837360] System`SetOptions
+        830:    NULL
+        831:    NULL
+        832:    NULL
+        833:    [hash= 2798392] System`Literal
+        834:    [hash= 2745680] Internal`DynamicRemove
+        835:    [hash= 2790512] System`IsFreeOf
+        836:    [hash= 2765000] System`DeleteContents
+        837:    [hash= 2758160] System`Complement
+        838:    NULL
+        839:    [hash= 2790720] System`IsInexactNumber
+        840:    [hash= 3033536] System`Cyan
+        841:    NULL
+        842:    NULL
+        843:    NULL
+        844:    NULL
+        845:    [hash= 2814048] System`ParallelScan
+        846:    [hash= 2837568] System`Setter
+        847:    NULL
+        848:    NULL
+        849:    [hash= 2795584] System`IsNumber
+        850:    [hash= 2749864] System`BaseStyle
+        851:    [hash= 2820888] System`Prepend
+        852:    NULL
+        853:    NULL
+        854:    NULL
+        855:    NULL
+        856:    [hash= 2781488] System`General
+        857:    [hash= 2773192] System`Except
+        858:    NULL
+        859:    [hash= 3032808] System`Private`allColors
+        860:    NULL
+        861:    [hash= 2857696] System`WorkingPrecision
+        862:    NULL
+        863:    [hash= 2781384] System`GCD
+        864:    [hash= 2763440] System`Cot
+        865:    NULL
+        866:    NULL
+        867:    [hash= 2847632] System`$SystemId
+        868:    NULL
+        869:    NULL
+        870:    NULL
+        871:    NULL
+        872:    [hash= 2806272] System`$NewMessage
+        873:    [hash= 2819952] System`Plain
+        874:    NULL
+        875:    NULL
+        876:    NULL
+        877:    NULL
+        878:    NULL
+        879:    NULL
+        880:    NULL
+        881:    NULL
+        882:    NULL
+        883:    [hash= 2820992] System`Print
+        884:    [hash= 2822760] System`Read
+        885:    NULL
+        886:    NULL
+        887:    NULL
+        888:    [hash= 2763336] System`Cosh
+        889:    NULL
+        890:    NULL
+        891:    [hash= 2763024] System`CopyDirectory
+        892:    NULL
+        893:    [hash= 2763960] System`Cross
+        894:    NULL
+        895:    NULL
+        896:    NULL
+        897:    [hash= 2757432] System`Clip
+        898:    [hash= 2838608] System`Sign
+        899:    [hash= 2797872] System`Level
+        900:    NULL
+        901:    NULL
+        902:    NULL
+        903:    NULL
+        904:    NULL
+        905:    NULL
+        906:    NULL
+        907:    NULL
+        908:    NULL
+        909:    NULL
+        910:    [hash= 2780968] System`FullForm
+        911:    NULL
+        912:    NULL
+        913:    NULL
+        914:    NULL
+        915:    NULL
+        916:    NULL
+        917:    [hash= 2854576] System`Total
+        918:    NULL
+        919:    NULL
+        920:    NULL
+        921:    NULL
+        922:    [hash= 2763752] System`CreateDirectory
+        923:    NULL
+        924:    NULL
+        925:    NULL
+        926:    [hash= 2772672] System`EulerGamma
+        927:    [hash= 2807416] System`NumberString
+        928:    NULL
+        929:    [hash= 2823488] System`ReleaseHold
+        930:    NULL
+        931:    NULL
+        932:    NULL
+        933:    NULL
+        934:    NULL
+        935:    [hash= 2984248] FE`Private`row
+        936:    NULL
+        937:    NULL
+        938:    NULL
+        939:    NULL
+        940:    [hash= 2746536] System`Abort
+        941:    [hash= 3034472] System`LightGreen
+        942:    [hash= 2763544] System`Coth
+        943:    NULL
+        944:    NULL
+        945:    NULL
+        946:    [hash= 2772152] System`EndOfLine
+        947:    NULL
+        948:    NULL
+        949:    NULL
+        950:    NULL
+        951:    NULL
+        952:    NULL
+        953:    NULL
+        954:    NULL
+        955:    NULL
+        956:    NULL
+        957:    NULL
+        958:    [hash= 2854888] System`Transpose
+        959:    NULL
+        960:    NULL
+        961:    NULL
+        962:    NULL
+        963:    [hash= 2821720] System`PureArgument
+        964:    NULL
+        965:    NULL
+        966:    [hash= 2830744] System`SectionGenerated
+        967:    NULL
+        968:    NULL
+        969:    NULL
+        970:    NULL
+        971:    NULL
+        972:    NULL
+        973:    NULL
+        974:    NULL
+        975:    [hash= 2749760] System`Background
+        976:    [hash= 2790096] System`IsArray
+        977:    NULL
+        978:    NULL
+        979:    [hash= 2821408] System`Product
+        980:    NULL
+        981:    NULL
+        982:    [hash= 2782944] System`Hold
+        983:    NULL
+        984:    [hash= 2828872] System`Reverse
+        985:    NULL
+        986:    NULL
+        987:    NULL
+        988:    NULL
+        989:    [hash= 2748720] System`Arg
+        990:    [hash= 2814152] System`ParallelTry
+        991:    NULL
+        992:    NULL
+        993:    [hash= 2840584] System`StringExpression
+        994:    NULL
+        995:    NULL
+        996:    NULL
+        997:    NULL
+        998:    NULL
+        999:    NULL
+        1000:   NULL
+        1001:   NULL
+        1002:   NULL
+        1003:   [hash= 2984144] FE`Private`m
+        1004:   NULL
+        1005:   [hash= 2782008] System`GreaterEqual
+        1006:   [hash= 2749136] System`Associative
+        1007:   NULL
+        1008:   NULL
+        1009:   NULL
+        1010:   NULL
+        1011:   NULL
+        1012:   [hash= 2764584] System`Default
+        1013:   NULL
+        1014:   [hash= 2789680] System`Interpretation
+        1015:   NULL
+        1016:   NULL
+        1017:   [hash= 2812904] System`Or
+        1018:   NULL
+        1019:   NULL
+        1020:   NULL
+        1021:   [hash= 2821304] System`$ProcessorType
+        1022:   NULL
+        1023:   NULL
+        1024:   NULL
+        1025:   NULL
+        1026:   NULL
+        1027:   [hash= 2788224] System`IdentityMatrix
+        1028:   [hash= 2829808] System`SameTest
+        1029:   NULL
+        1030:   NULL
+        1031:   NULL
+        1032:   NULL
+        1033:   NULL
+        1034:   NULL
+        1035:   NULL
+        1036:   NULL
+        1037:   [hash= 2771944] System`End
+        1038:   NULL
+        1039:   NULL
+        1040:   NULL
+        1041:   NULL
+        1042:   NULL
+        1043:   NULL
+        1044:   NULL
+        1045:   NULL
+        1046:   [hash= 3038840] FE`BoxesToText
+        1047:   NULL
+        1048:   NULL
+        1049:   NULL
+        1050:   NULL
+        1051:   NULL
+        1052:   NULL
+        1053:   [hash= 2799016] System`LongForm
+        1054:   NULL
+        1055:   NULL
+        1056:   NULL
+        1057:   NULL
+        1058:   NULL
+        1059:   NULL
+        1060:   NULL
+        1061:   [hash= 2983312] FE`Private`parenthesize
+        1062:   NULL
+        1063:   NULL
+        1064:   NULL
+        1065:   NULL
+        1066:   NULL
+        1067:   [hash= 2857592] System`WordCharacter
+        1068:   [hash= 2841000] System`StringReplace
+        1069:   NULL
+        1070:   NULL
+        1071:   NULL
+        1072:   NULL
+        1073:   NULL
+        1074:   [hash= 2782216] System`GridBox
+        1075:   NULL
+        1076:   NULL
+        1077:   [hash= 3037072] System`Private`i
+        1078:   NULL
+        1079:   NULL
+        1080:   NULL
+        1081:   NULL
+        1082:   NULL
+        1083:   NULL
+        1084:   NULL
+        1085:   NULL
+        1086:   [hash= 2780552] System`FrameBox
+        1087:   [hash= 2774336] System`FileByteCount
+        1088:   NULL
+        1089:   NULL
+        1090:   NULL
+        1091:   [hash= 2847944] System`TagAssignDelayed
+        1092:   [hash= 2796832] System`Italic
+        1093:   NULL
+        1094:   [hash= 2765208] System`DeleteFile
+        1095:   NULL
+        1096:   NULL
+        1097:   [hash= 2846488] System`Superscript
+        1098:   [hash= 2813320] System`Overscript
+        1099:   NULL
+        1100:   NULL
+        1101:   [hash= 2796936] System`Join
+        1102:   NULL
+        1103:   NULL
+        1104:   NULL
+        1105:   NULL
+        1106:   NULL
+        1107:   [hash= 2823176] System`RecordLists
+        1108:   NULL
+        1109:   NULL
+        1110:   NULL
+        1111:   NULL
+        1112:   NULL
+        1113:   [hash= 2983624] FE`Private`s
+        1114:   [hash= 2756600] System`CharacterEncoding
+        1115:   [hash= 2795480] System`IsNonPositive
+        1116:   NULL
+        1117:   [hash= 2805128] System`Method
+        1118:   NULL
+        1119:   NULL
+        1120:   [hash= 2815296] System`PatternSequence
+        1121:   [hash= 2803776] System`MakeExpression
+        1122:   [hash= 2747472] System`ArcCos
+        1123:   NULL
+        1124:   NULL
+        1125:   NULL
+        1126:   NULL
+        1127:   [hash= 2771840] System`Emit
+        1128:   [hash= 2755248] System`BoxTransformation
+        1129:   [hash= 2796520] System`IsSymbol
+        1130:   NULL
+        1131:   NULL
+        1132:   NULL
+        1133:   NULL
+        1134:   NULL
+        1135:   [hash= 2821200] System`$ProcessorCount
+        1136:   NULL
+        1137:   [hash= 2855512] System`Underscript
+        1138:   NULL
+        1139:   NULL
+        1140:   NULL
+        1141:   [hash= 2795688] System`IsNumeric
+        1142:   [hash= 2747056] System`And
+        1143:   [hash= 2746432] System`$Aborted
+        1144:   NULL
+        1145:   NULL
+        1146:   NULL
+        1147:   NULL
+        1148:   NULL
+        1149:   [hash= 2762816] System`ConstantArray
+        1150:   NULL
+        1151:   NULL
+        1152:   NULL
+        1153:   [hash= 2789368] System`InputFieldBox
+        1154:   [hash= 2855720] System`Underoverscript
+        1155:   NULL
+        1156:   NULL
+        1157:   NULL
+        1158:   NULL
+        1159:   [hash= 2807520] System`NumericFunction
+        1160:   [hash= 2772568] System`Equal
+        1161:   [hash= 2837464] System`SetPrecision
+        1162:   NULL
+        1163:   NULL
+        1164:   NULL
+        1165:   NULL
+        1166:   [hash= 2845968] System`Subscript
+        1167:   [hash= 3038944] FE`Private`oldNamespacePath
+        1168:   NULL
+        1169:   NULL
+        1170:   NULL
+        1171:   NULL
+        1172:   NULL
+        1173:   NULL
+        1174:   NULL
+        1175:   NULL
+        1176:   NULL
+        1177:   [hash= 2823072] System`Real
+        1178:   [hash= 2849400] System`TimeConstrained
+        1179:   NULL
+        1180:   [hash= 2756288] System`Catch
+        1181:   NULL
+        1182:   NULL
+        1183:   NULL
+        1184:   NULL
+        1185:   [hash= 2763128] System`CopyFile
+        1186:   [hash= 2847840] System`TagAssign
+        1187:   [hash= 2831680] System`SelectedDocument
+        1188:   [hash= 2756912] System`Chop
+        1189:   NULL
+        1190:   NULL
+        1191:   NULL
+        1192:   [hash= 2840064] System`StartOfLine
+        1193:   NULL
+        1194:   [hash= 2806584] System`NextPrime
+        1195:   NULL
+        1196:   NULL
+        1197:   [hash= 2781072] System`Function
+        1198:   NULL
+        1199:   NULL
+        1200:   NULL
+        1201:   [hash= 2773504] System`ExpandAll
+        1202:   [hash= 2796312] System`IsRational
+        1203:   NULL
+        1204:   NULL
+        1205:   NULL
+        1206:   NULL
+        1207:   NULL
+        1208:   [hash= 2855616] System`UnderscriptBox
+        1209:   NULL
+        1210:   [hash= 2771528] System`DynamicBox
+        1211:   [hash= 2747992] System`ArcCsch
+        1212:   NULL
+        1213:   NULL
+        1214:   NULL
+        1215:   NULL
+        1216:   NULL
+        1217:   NULL
+        1218:   NULL
+        1219:   NULL
+        1220:   [hash= 2848048] System`TagBox
+        1221:   [hash= 2748096] System`ArcSec
+        1222:   [hash= 2758056] System`$CommandLine
+        1223:   [hash= 2804816] System`$MessageCount
+        1224:   [hash= 2829704] System`RuleDelayed
+        1225:   NULL
+        1226:   [hash= 3038632] FE`SymbolInfo
+        1227:   [hash= 2856760] System`$VersionNumber
+        1228:   [hash= 2781280] System`Gather
+        1229:   [hash= 2805752] System`N
+        1230:   NULL
+        1231:   [hash= 2820368] System`Position
+        1232:   NULL
+        1233:   NULL
+        1234:   [hash= 2823384] System`RegularExpression
+        1235:   NULL
+        1236:   [hash= 2920352] System`Private`namespace
+        1237:   [hash= 2797040] System`Label
+        1238:   NULL
+        1239:   NULL
+        1240:   NULL
+        1241:   NULL
+        1242:   NULL
+        1243:   NULL
+        1244:   NULL
+        1245:   [hash= 2849088] System`Thread
+        1246:   NULL
+        1247:   NULL
+        1248:   [hash= 2754936] System`Boole
+        1249:   [hash= 2920664] System`Private`matches
+        1250:   NULL
+        1251:   [hash= 2780240] System`For
+        1252:   NULL
+        1253:   NULL
+        1254:   NULL
+        1255:   NULL
+        1256:   [hash= 2805856] System`Names
+        1257:   NULL
+        1258:   NULL
+        1259:   NULL
+        1260:   NULL
+        1261:   NULL
+        1262:   NULL
+        1263:   NULL
+        1264:   NULL
+        1265:   NULL
+        1266:   [hash= 3033224] System`Red
+        1267:   NULL
+        1268:   [hash= 2782112] System`Grid
+        1269:   [hash= 2823280] System`ReGather
+        1270:   NULL
+        1271:   NULL
+        1272:   NULL
+        1273:   NULL
+        1274:   NULL
+        1275:   NULL
+        1276:   [hash= 2764792] System`DefiniteFunction
+        1277:   [hash= 2770800] System`Document
+        1278:   NULL
+        1279:   [hash= 2920976] System`Private`o
+        1280:   NULL
+        1281:   NULL
+        1282:   NULL
+        1283:   NULL
+        1284:   NULL
+        1285:   NULL
+        1286:   NULL
+        1287:   NULL
+        1288:   NULL
+        1289:   [hash= 2837776] System`SetterBox
+        1290:   NULL
+        1291:   [hash= 2774232] System`File
+        1292:   [hash= 2764480] System`DeepHoldAll
+        1293:   NULL
+        1294:   NULL
+        1295:   NULL
+        1296:   NULL
+        1297:   [hash= 2821512] System`Protect
+        1298:   [hash= 2806376] System`$NewSymbol
+        1299:   [hash= 2757120] System`CircleTimes
+        1300:   NULL
+        1301:   NULL
+        1302:   NULL
+        1303:   [hash= 2807000] System`None
+        1304:   NULL
+        1305:   NULL
+        1306:   NULL
+        1307:   [hash= 2829912] System`Scan
+        1308:   NULL
+        1309:   NULL
+        1310:   NULL
+        1311:   NULL
+        1312:   NULL
+        1313:   NULL
+        1314:   NULL
+        1315:   [hash= 2773712] System`Extract
+        1316:   NULL
+        1317:   NULL
+        1318:   NULL
+        1319:   NULL
+        1320:   NULL
+        1321:   NULL
+        1322:   NULL
+        1323:   NULL
+        1324:   NULL
+        1325:   NULL
+        1326:   NULL
+        1327:   NULL
+        1328:   [hash= 2804920] System`MessageName
+        1329:   [hash= 2828456] System`ReplaceRepeated
+        1330:   NULL
+        1331:   NULL
+        1332:   NULL
+        1333:   [hash= 2773920] System`Factorial2
+        1334:   [hash= 2747680] System`ArcCot
+        1335:   NULL
+        1336:   NULL
+        1337:   NULL
+        1338:   NULL
+        1339:   [hash= 2780032] System`FontSlant
+        1340:   NULL
+        1341:   NULL
+        1342:   NULL
+        1343:   NULL
+        1344:   NULL
+        1345:   NULL
+        1346:   NULL
+        1347:   [hash= 2757744] System`Colon
+        1348:   NULL
+        1349:   NULL
+        1350:   NULL
+        1351:   NULL
+        1352:   NULL
+        1353:   NULL
+        1354:   NULL
+        1355:   NULL
+        1356:   [hash= 2789992] System`Intersection
+        1357:   NULL
+        1358:   [hash= 2832096] System`SetDirectory
+        1359:   NULL
+        1360:   [hash= 2788848] System`Infinity
+        1361:   NULL
+        1362:   NULL
+        1363:   NULL
+        1364:   NULL
+        1365:   [hash= 2854056] System`Timing
+        1366:   [hash= 2806064] System`Namespace
+        1367:   NULL
+        1368:   NULL
+        1369:   NULL
+        1370:   NULL
+        1371:   NULL
+        1372:   [hash= 2764168] System`Csch
+        1373:   NULL
+        1374:   [hash= 3033328] System`Green
+        1375:   NULL
+        1376:   NULL
+        1377:   NULL
+        1378:   NULL
+        1379:   [hash= 2748408] System`ArcSinh
+        1380:   [hash= 2788640] System`Increment
+        1381:   NULL
+        1382:   [hash= 2821824] System`Quit
+        1383:   NULL
+        1384:   NULL
+        1385:   [hash= 2772464] System`Environment
+        1386:   NULL
+        1387:   NULL
+        1388:   NULL
+        1389:   [hash= 2795896] System`IsOrdered
+        1390:   NULL
+        1391:   NULL
+        1392:   NULL
+        1393:   NULL
+        1394:   NULL
+        1395:   [hash= 2765104] System`DeleteDirectory
+        1396:   NULL
+        1397:   NULL
+        1398:   [hash= 2919936] System`Util`latexToBoxes
+        1399:   NULL
+        1400:   NULL
+        1401:   NULL
+        1402:   NULL
+        1403:   NULL
+        1404:   NULL
+        1405:   [hash= 2831056] System`SectionMargins
+        1406:   NULL
+        1407:   NULL
+        1408:   NULL
+        1409:   NULL
+        1410:   NULL
+        1411:   NULL
+        1412:   NULL
+        1413:   NULL
+        1414:   NULL
+        1415:   NULL
+        1416:   NULL
+        1417:   [hash= 2848568] System`$ThreadId
+        1418:   NULL
+        1419:   NULL
+        1420:   NULL
+        1421:   NULL
+        1422:   NULL
+        1423:   NULL
+        1424:   NULL
+        1425:   NULL
+        1426:   [hash= 2798600] System`Local
+        1427:   NULL
+        1428:   NULL
+        1429:   NULL
+        1430:   NULL
+        1431:   NULL
+        1432:   [hash= 2921184] System`Private`p
+        1433:   [hash= 2791136] System`IsNegative
+        1434:   NULL
+        1435:   [hash= 3034368] System`LightRed
+        1436:   NULL
+        1437:   NULL
+        1438:   [hash= 2764896] System`Degree
+        1439:   NULL
+        1440:   NULL
+        1441:   [hash= 2787496] System`HoldFirst
+        1442:   [hash= 2820056] System`Plus
+        1443:   NULL
+        1444:   NULL
+        1445:   NULL
+        1446:   NULL
+        1447:   NULL
+        1448:   [hash= 2839648] System`Sqrt
+        1449:   NULL
+        1450:   [hash= 2855408] System`Underflow
+        1451:   [hash= 3034576] System`LightBlue
+        1452:   NULL
+        1453:   NULL
+        1454:   [hash= 2754624] System`BinaryWrite
+        1455:   [hash= 2856032] System`Unevaluated
+        1456:   [hash= 2839440] System`SortBy
+        1457:   [hash= 2746848] System`All
+        1458:   NULL
+        1459:   NULL
+        1460:   NULL
+        1461:   NULL
+        1462:   NULL
+        1463:   NULL
+        1464:   NULL
+        1465:   NULL
+        1466:   NULL
+        1467:   [hash= 2765832] System`DigitCharacter
+        1468:   NULL
+        1469:   NULL
+        1470:   [hash= 2854472] System`ToString
+        1471:   [hash= 2779408] System`Floor
+        1472:   [hash= 2841104] System`StringSplit
+        1473:   NULL
+        1474:   NULL
+        1475:   NULL
+        1476:   NULL
+        1477:   NULL
+        1478:   [hash= 2805440] System`MinusPlus
+        1479:   NULL
+        1480:   NULL
+        1481:   [hash= 2748304] System`ArcSin
+        1482:   NULL
+        1483:   [hash= 2763856] System`$CreationDate
+        1484:   NULL
+        1485:   [hash= 2762608] System`Condition
+        1486:   NULL
+        1487:   [hash= 2804192] System`Max
+        1488:   [hash= 2766352] System`$DirectoryStack
+        1489:   [hash= 2747784] System`ArcCoth
+        1490:   NULL
+        1491:   NULL
+        1492:   NULL
+        1493:   [hash= 2813840] System`Parallel`Return
+        1494:   [hash= 2822968] System`ReadProtected
+        1495:   [hash= 2788536] System`Im
+        1496:   NULL
+        1497:   NULL
+        1498:   [hash= 3034160] System`Purple
+        1499:   NULL
+        1500:   NULL
+        1501:   NULL
+        1502:   [hash= 2787600] System`HoldForm
+        1503:   NULL
+        1504:   NULL
+        1505:   NULL
+        1506:   NULL
+        1507:   NULL
+        1508:   NULL
+        1509:   NULL
+        1510:   NULL
+        1511:   NULL
+        1512:   NULL
+        1513:   NULL
+        1514:   [hash= 2812384] System`Operate
+        1515:   NULL
+        1516:   [hash= 2822344] System`Range
+        1517:   NULL
+        1518:   NULL
+        1519:   NULL
+        1520:   [hash= 2828248] System`ReplaceList
+        1521:   NULL
+        1522:   [hash= 2749656] System`AutoSpacing
+        1523:   NULL
+        1524:   NULL
+        1525:   NULL
+        1526:   NULL
+        1527:   [hash= 2796104] System`IsPrime
+        1528:   NULL
+        1529:   NULL
+        1530:   [hash= 2764064] System`Csc
+        1531:   [hash= 2828976] System`RGBColor
+        1532:   NULL
+        1533:   [hash= 2918792] FE`NumberBox
+        1534:   NULL
+        1535:   [hash= 2828664] System`Rest
+        1536:   NULL
+        1537:   NULL
+        1538:   NULL
+        1539:   NULL
+        1540:   NULL
+        1541:   [hash= 2754520] System`BinaryRead
+        1542:   [hash= 2745888] Internal`IsCriticalMessage
+        1543:   NULL
+        1544:   [hash= 2847112] System`SynchronousUpdating
+        1545:   NULL
+        1546:   NULL
+        1547:   [hash= 2748928] System`Assign
+        1548:   NULL
+        1549:   NULL
+        1550:   NULL
+        1551:   NULL
+        1552:   [hash= 2822136] System`RandomInteger
+        1553:   NULL
+        1554:   NULL
+        1555:   [hash= 2765728] System`$DialogLevel
+        1556:   NULL
+        1557:   NULL
+        1558:   NULL
+        1559:   NULL
+        1560:   NULL
+        1561:   [hash= 2779304] System`Flatten
+        1562:   [hash= 2748512] System`ArcTan
+        1563:   NULL
+        1564:   NULL
+        1565:   NULL
+        1566:   [hash= 2805544] System`Mod
+        1567:   [hash= 2781592] System`Get
+        1568:   NULL
+        1569:   NULL
+        1570:   NULL
+        1571:   NULL
+        1572:   [hash= 2780448] System`FractionBox
+        1573:   NULL
+        1574:   [hash= 2789888] System`Interrupt
+        1575:   NULL
+        1576:   NULL
+        1577:   NULL
+        1578:   [hash= 2870336] System`Zeta
+        1579:   [hash= 2919832] System`AutoLoad
+        1580:   NULL
+        1581:   NULL
+        1582:   NULL
+        1583:   NULL
+        1584:   NULL
+        1585:   NULL
+        1586:   NULL
+        1587:   NULL
+        1588:   [hash= 2771632] System`E
+        1589:   NULL
+        1590:   [hash= 2856864] System`Wait
+        1591:   NULL
+        1592:   [hash= 2746328] System`Utilities`GetSystemSyntaxInformation
+        1593:   [hash= 2774752] System`Finally
+        1594:   NULL
+        1595:   NULL
+        1596:   NULL
+        1597:   NULL
+        1598:   NULL
+        1599:   NULL
+        1600:   NULL
+        1601:   NULL
+        1602:   NULL
+        1603:   NULL
+        1604:   [hash= 3081136] FE`$StatusText
+        1605:   NULL
+        1606:   NULL
+        1607:   [hash= 2822032] System`RadicalBox
+        1608:   NULL
+        1609:   [hash= 2779200] System`First
+        1610:   [hash= 2797560] System`Less
+        1611:   [hash= 2813944] System`ParallelMap
+        1612:   NULL
+        1613:   NULL
+        1614:   [hash= 2789160] System`Inner
+        1615:   NULL
+        1616:   NULL
+        1617:   [hash= 2773296] System`Exp
+        1618:   NULL
+        1619:   [hash= 2814984] System`$PathListSeparator
+        1620:   NULL
+        1621:   [hash= 2845552] System`StripOnInput
+        1622:   [hash= 2797976] System`$Line
+        1623:   NULL
+        1624:   [hash= 2748616] System`ArcTanh
+        1625:   NULL
+        1626:   NULL
+        1627:   NULL
+        1628:   NULL
+        1629:   NULL
+        1630:   NULL
+        1631:   NULL
+        1632:   [hash= 2830016] System`ScriptSizeMultipliers
+        1633:   NULL
+        1634:   [hash= 2870232] System`WriteString
+        1635:   NULL
+        1636:   NULL
+        1637:   NULL
+        1638:   [hash= 2756392] System`Ceiling
+        1639:   NULL
+        1640:   [hash= 2798704] System`Log
+        1641:   NULL
+        1642:   NULL
+        1643:   NULL
+        1644:   NULL
+        1645:   [hash= 2764376] System`Decrement
+        1646:   NULL
+        1647:   [hash= 2755872] System`ByteCount
+        1648:   [hash= 2846696] System`Symbol
+        1649:   NULL
+        1650:   [hash= 2982376] FE`$WindowFrameImage
+        1651:   [hash= 2848152] System`TagUnassign
+        1652:   NULL
+        1653:   [hash= 2854264] System`ToExpression
+        1654:   NULL
+        1655:   NULL
+        1656:   NULL
+        1657:   [hash= 2813632] System`$Packages
+        1658:   NULL
+        1659:   NULL
+        1660:   [hash= 2745992] Internal`$NamespacePathStack
+        1661:   [hash= 2815608] System`Piecewise
+        1662:   [hash= 2805648] System`Most
+        1663:   [hash= 2765520] System`DiagonalMatrix
+        1664:   NULL
+        1665:   NULL
+        1666:   [hash= 2754728] System`Binomial
+        1667:   NULL
+        1668:   [hash= 2772984] System`EvaluateDelayed
+        1669:   NULL
+        1670:   NULL
+        1671:   [hash= 2921912] System`Private`SyntaxInformationData
+        1672:   NULL
+        1673:   NULL
+        1674:   NULL
+        1675:   NULL
+        1676:   NULL
+        1677:   NULL
+        1678:   [hash= 2856136] System`Unidentical
+        1679:   [hash= 2772776] System`Evaluatable
+        1680:   NULL
+        1681:   NULL
+        1682:   NULL
+        1683:   NULL
+        1684:   NULL
+        1685:   NULL
+        1686:   [hash= 2790928] System`IsMachineNumber
+        1687:   NULL
+        1688:   NULL
+        1689:   NULL
+        1690:   NULL
+        1691:   NULL
+        1692:   NULL
+        1693:   NULL
+        1694:   NULL
+        1695:   NULL
+        1696:   NULL
+        1697:   [hash= 2830432] System`SectionFrame
+        1698:   NULL
+        1699:   NULL
+        1700:   NULL
+        1701:   NULL
+        1702:   NULL
+        1703:   NULL
+        1704:   [hash= 2790408] System`IsFloat
+        1705:   [hash= 2829392] System`Row
+        1706:   [hash= 2848672] System`ThreadLocal
+        1707:   [hash= 3034784] System`LightMagenta
+        1708:   NULL
+        1709:   [hash= 2795792] System`IsOdd
+        1710:   NULL
+        1711:   NULL
+        1712:   NULL
+        1713:   NULL
+        1714:   [hash= 2848776] System`Temporary
+        1715:   NULL
+        1716:   [hash= 2788328] System`If
+        1717:   [hash= 2829184] System`RotationBox
+        1718:   [hash= 2847424] System`$SystemCharacterEncoding
+        1719:   [hash= 2781176] System`Gamma
+        1720:   [hash= 2921808] System`Private`nsdata
+        1721:   NULL
+        1722:   NULL
+        1723:   NULL
+        1724:   NULL
+        1725:   NULL
+        1726:   [hash= 2812072] System`OpenAppend
+        1727:   [hash= 2847320] System`SyntaxInformation
+        1728:   NULL
+        1729:   NULL
+        1730:   NULL
+        1731:   NULL
+        1732:   NULL
+        1733:   NULL
+        1734:   NULL
+        1735:   NULL
+        1736:   NULL
+        1737:   NULL
+        1738:   [hash= 2756808] System`Characters
+        1739:   [hash= 2764272] System`DateList
+        1740:   NULL
+        1741:   NULL
+        1742:   NULL
+        1743:   NULL
+        1744:   NULL
+        1745:   [hash= 2780656] System`Framed
+        1746:   NULL
+        1747:   NULL
+        1748:   NULL
+        1749:   [hash= 2814776] System`Path
+        1750:   NULL
+        1751:   [hash= 2848360] System`Tan
+        1752:   [hash= 2780344] System`FormatRules
+        1753:   NULL
+        1754:   [hash= 2839128] System`Slider
+        1755:   NULL
+        1756:   NULL
+        1757:   [hash= 2829288] System`Round
+        1758:   NULL
+        1759:   NULL
+        1760:   NULL
+        1761:   NULL
+        1762:   NULL
+        1763:   NULL
+        1764:   NULL
+        1765:   NULL
+        1766:   [hash= 2840896] System`StringPosition
+        1767:   [hash= 2754832] System`Bold
+        1768:   NULL
+        1769:   [hash= 2782840] System`$HistoryLength
+        1770:   NULL
+        1771:   NULL
+        1772:   [hash= 2799328] System`MachinePrecision
+        1773:   NULL
+        1774:   [hash= 2774024] System`$Failed
+        1775:   NULL
+        1776:   NULL
+        1777:   NULL
+        1778:   [hash= 2846176] System`Subsuperscript
+        1779:   [hash= 2788432] System`IgnoreCase
+        1780:   NULL
+        1781:   [hash= 3033120] System`White
+        1782:   [hash= 2773088] System`EvaluationSequence
+        1783:   [hash= 2790304] System`IsExactNumber
+        1784:   NULL
+        1785:   NULL
+        1786:   NULL
+        1787:   [hash= 2770904] System`DocumentApply
+        1788:   NULL
+        1789:   NULL
+        1790:   [hash= 2782320] System`GridBoxColumnSpacing
+        1791:   [hash= 2781904] System`Greater
+        1792:   NULL
+        1793:   [hash= 2823592] System`Remove
+        1794:   NULL
+        1795:   NULL
+        1796:   [hash= 2807312] System`Number
+        1797:   NULL
+        1798:   NULL
+        1799:   NULL
+        1800:   [hash= 2815192] System`Pattern
+        1801:   NULL
+        1802:   NULL
+        1803:   [hash= 2804400] System`$MaxMachineNumber
+        1804:   NULL
+        1805:   [hash= 2773816] System`Factorial
+        1806:   NULL
+        1807:   [hash= 2831888] System`SequenceHold
+        1808:   [hash= 3034992] System`LightBrown
+        1809:   [hash= 2840480] System`StringDrop
+        1810:   NULL
+        1811:   NULL
+        1812:   NULL
+        1813:   [hash= 2855824] System`UnderoverscriptBox
+        1814:   NULL
+        1815:   NULL
+        1816:   [hash= 2854160] System`ToBoxes
+        1817:   [hash= 2848256] System`Take
+        1818:   NULL
+        1819:   NULL
+        1820:   [hash= 2920560] System`Private`pattern
+        1821:   [hash= 2779512] System`Fold
+        1822:   NULL
+        1823:   NULL
+        1824:   NULL
+        1825:   NULL
+        1826:   NULL
+        1827:   NULL
+        1828:   [hash= 2812488] System`Optional
+        1829:   NULL
+        1830:   NULL
+        1831:   NULL
+        1832:   NULL
+        1833:   [hash= 2846280] System`SubsuperscriptBox
+        1834:   NULL
+        1835:   NULL
+        1836:   NULL
+        1837:   NULL
+        1838:   NULL
+        1839:   NULL
+        1840:   NULL
+        1841:   NULL
+        1842:   NULL
+        1843:   [hash= 2822552] System`RawBoxes
+        1844:   [hash= 2789056] System`$InitialDirectory
+        1845:   NULL
+        1846:   NULL
+        1847:   NULL
+        1848:   [hash= 3033016] System`Gray
+        1849:   NULL
+        1850:   NULL
+        1851:   NULL
+        1852:   NULL
+        1853:   [hash= 2806896] System`NHoldRest
+        1854:   NULL
+        1855:   NULL
+        1856:   NULL
+        1857:   NULL
+        1858:   NULL
+        1859:   NULL
+        1860:   NULL
+        1861:   [hash= 2773400] System`Expand
+        1862:   NULL
+        1863:   [hash= 2855304] System`Undefined
+        1864:   NULL
+        1865:   NULL
+        1866:   NULL
+        1867:   NULL
+        1868:   NULL
+        1869:   [hash= 2763232] System`Cos
+        1870:   NULL
+        1871:   [hash= 3038320] FE`$FrontEndDirectory
+        1872:   [hash= 2830224] System`Sech
+        1873:   [hash= 2755664] System`ButtonFrame
+        1874:   NULL
+        1875:   [hash= 2748200] System`ArcSech
+        1876:   [hash= 2772256] System`EndOfString
+        1877:   NULL
+        1878:   NULL
+        1879:   NULL
+        1880:   NULL
+        1881:   NULL
+        1882:   NULL
+        1883:   NULL
+        1884:   NULL
+        1885:   [hash= 2771320] System`Drop
+        1886:   [hash= 2779928] System`FontSize
+        1887:   NULL
+        1888:   [hash= 2804296] System`$MaxExtraPrecision
+        1889:   NULL
+        1890:   NULL
+        1891:   [hash= 2787184] System`HoldAll
+        1892:   [hash= 3033744] System`Yellow
+        1893:   NULL
+        1894:   NULL
+        1895:   [hash= 3037384] System`Private`body
+        1896:   NULL
+        1897:   NULL
+        1898:   [hash= 2774440] System`FileNames
+        1899:   NULL
+        1900:   [hash= 2829600] System`Rule
+        1901:   NULL
+        1902:   NULL
+        1903:   NULL
+        1904:   [hash= 2746096] Internal`$NamespaceStack
+        1905:   NULL
+        1906:   [hash= 2855096] System`Try
+        1907:   [hash= 2750072] System`BeginPackage
+        1908:   NULL
+        1909:   NULL
+        1910:   NULL
+        1911:   NULL
+        1912:   NULL
+        1913:   NULL
+        1914:   NULL
+        1915:   [hash= 2798184] System`List
+        1916:   NULL
+        1917:   [hash= 2757328] System`ClearAll
+        1918:   NULL
+        1919:   NULL
+        1920:   NULL
+        1921:   NULL
+        1922:   NULL
+        1923:   NULL
+        1924:   NULL
+        1925:   NULL
+        1926:   [hash= 2805336] System`$MinMachineNumber
+        1927:   NULL
+        1928:   NULL
+        1929:   [hash= 2847008] System`Synchronize
+        1930:   NULL
+        1931:   NULL
+        1932:   NULL
+        1933:   NULL
+        1934:   NULL
+        1935:   NULL
+        1936:   NULL
+        1937:   [hash= 2804504] System`Mean
+        1938:   NULL
+        1939:   NULL
+        1940:   NULL
+        1941:   NULL
+        1942:   NULL
+        1943:   NULL
+        1944:   NULL
+        1945:   NULL
+        1946:   NULL
+        1947:   NULL
+        1948:   NULL
+        1949:   NULL
+        1950:   NULL
+        1951:   [hash= 3037280] System`Private`b
+        1952:   NULL
+        1953:   [hash= 2838504] System`ShowStringCharacters
+        1954:   NULL
+        1955:   NULL
+        1956:   NULL
+        1957:   [hash= 2781696] System`Goto
+        1958:   NULL
+        1959:   NULL
+        1960:   NULL
+        1961:   NULL
+        1962:   [hash= 2830120] System`Sec
+        1963:   NULL
+        1964:   NULL
+        1965:   NULL
+        1966:   NULL
+        1967:   NULL
+        1968:   NULL
+        1969:   [hash= 2838816] System`Sinh
+        1970:   [hash= 2756496] System`Character
+        1971:   [hash= 2755976] System`ByteOrdering
+        1972:   NULL
+        1973:   NULL
+        1974:   NULL
+        1975:   NULL
+        1976:   NULL
+        1977:   NULL
+        1978:   [hash= 2797352] System`LeafCount
+        1979:   [hash= 2806792] System`NHoldFirst
+        1980:   [hash= 2829496] System`RowSpacing
+        1981:   NULL
+        1982:   NULL
+        1983:   NULL
+        1984:   NULL
+        1985:   NULL
+        1986:   [hash= 2755560] System`ButtonBox
+        1987:   [hash= 2787288] System`HoldAllComplete
+        1988:   NULL
+        1989:   NULL
+        1990:   NULL
+        1991:   [hash= 3033640] System`Magenta
+        1992:   [hash= 3035304] System`LightPurple
+        1993:   [hash= 2815088] System`$PathnameSeparator
+        1994:   NULL
+        1995:   NULL
+        1996:   NULL
+        1997:   NULL
+        1998:   NULL
+        1999:   [hash= 2848984] System`TextShadow
+        2000:   [hash= 2822240] System`RandomReal
+        2001:   [hash= 2820160] System`PlusMinus
+        2002:   NULL
+        2003:   NULL
+        2004:   NULL
+        2005:   NULL
+        2006:   NULL
+        2007:   [hash= 2755768] System`ButtonFunction
+        2008:   NULL
+        2009:   NULL
+        2010:   [hash= 2854680] System`TrackedSymbols
+        2011:   [hash= 2853952] System`TimeZone
+        2012:   [hash= 2920456] System`Private`name
+        2013:   [hash= 2798496] System`LoadLibrary
+        2014:   NULL
+        2015:   NULL
+        2016:   [hash= 2772048] System`EndOfFile
+        2017:   NULL
+        2018:   [hash= 2846072] System`SubscriptBox
+        2019:   [hash= 2856448] System`Update
+        2020:   [hash= 2814360] System`ParserArguments
+        2021:   NULL
+        2022:   NULL
+        2023:   NULL
+        2024:   NULL
+        2025:   NULL
+        2026:   [hash= 2789264] System`$Input
+        2027:   NULL
+        2028:   NULL
+        2029:   NULL
+        2030:   [hash= 2781800] System`GrayLevel
+        2031:   [hash= 2796728] System`IsVector
+        2032:   NULL
+        2033:   [hash= 2805024] System`Messages
+        2034:   NULL
+        2035:   NULL
+        2036:   [hash= 2798808] System`LogGamma
+        2037:   NULL
+        2038:   NULL
+        2039:   NULL
+        2040:   NULL
+        2041:   [hash= 3032912] System`Black
+        2042:   NULL
+        2043:   NULL
+        2044:   NULL
+        2045:   [hash= 2789472] System`InputForm
+        2046:   [hash= 2839960] System`StandardForm
+        2047:   NULL
+<-------------------------------
+[received exception Internal`sendWait$112, result_symbol = Internal`sendWait$115, val=System`Catch(S
+ystem`SyntaxInformation("RGBColor"))]
+[received result_symbol Internal`sendWait$112, val=/\/]
+SSSSS[received result_symbol Internal`sendWait$120, val=/\/]
+SSTTTTT

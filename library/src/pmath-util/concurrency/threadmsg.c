@@ -436,6 +436,42 @@ void _pmath_msq_queue_handle_next(pmath_thread_t me){
         
         pmath_symbol_set_value(msg->result_symbol, pmath_ref(val));
         
+        // TODO: changed pmath_catch() to call pmath_aborting(). does it work 
+        // now?
+        //
+        // ANOTHER PROBLEM: 
+        //  Other Thread                   This Thread
+        //  |                              |
+        //  v                              |
+        //  pmath_send_wait(A) ---..__     v
+        //      |                     ''--->eval(A)
+        //      v                              |     
+        //  .---timeout ---.._                 |        
+        //  v                 '-._             v        
+        //  pmath_send_wait(B) ---\----------->eval(B)                         
+        //                         '-._           v
+        //                             '--------->Throw(A)
+        //
+        // Here, B is aborted although its timeout is not yet reached. We should
+        // 1) either not send Throw(), but some Internal`AbortInterrupt(A) which
+        //    checks for stack-top-most message beeing handled and only Throw()s
+        //    if that is A itself. Otherwise it only sets a flag in the top-most
+        //    message which is checked after that message has finished (if set,
+        //    Internal`AbortInterrupt will effectively be called again)
+        // 2) or we wait for _pmath_msq_queue_handle_next() to finish, that is
+        //    until the exception is caught by it. BEWARE inner Catch() clauses!
+        
+        // If we uncomment this, Throw() will somehow synchronize and no 
+        // sendWait$xxx exception is leaked... pmath_atomic_barrier() does not
+        // help :(
+        
+//        pmath_aborting();
+        
+//        printf(".");
+
+//          pmath_debug_print_object("[done result_symbol = ", msg->result_symbol, ", ");
+//          pmath_debug_print_object("val=", val, "]\n");
+
         ex = pmath_catch();
         if(ex == msg->result_symbol){
           pmath_debug_print_object("[received result_symbol ", ex, ", ");

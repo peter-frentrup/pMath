@@ -2,6 +2,10 @@
 	Button("italic",DocumentApply(SelectedDocument(),StyleBox("",FontSlant->Italic))),
 	Button("Arg Style",DocumentApply(SelectedDocument(),StyleBox("","Arg")))})
 
+? pmath: use timsort instead of platforms qsort: http://bugs.python.org/file4451/timsort.txt	
+	
+- pmath: $CreationDate does not yet work (not updated properly)
+	
 - pmath:
 	race condition in pmath_thread_send_wait(): the aborting result_symbol (=== Throw(Unevaluated(result_symbol))) 
 	could be sent to the evaluating thread while it finishs. So this exception is not catched and disturbs later evaluations
@@ -11,7 +15,6 @@
 		- add a function Internal`AbortMessage(result_symbol) which is sent to the processing thread instead of Throw(Unevaluated(result_symbol))
 		  This function checks whether the message associated with result_symbol is currently processed (whithin the thread or its parents)
 		  and if so, it throws Unevaluated(result_symbol) as usual. This way, such an abort-request will never leak an uncaught exception.
-
 
 - richmath/pmath:
 	x:=11;
@@ -25,7 +28,7 @@
 - pmath: 0``-1 * 0``-1
 	Timing(Local({x:=1/Pi},Do(x:=3.5`20*x*(1-x),100);x))
 
-- richmath: FractionBox: change distande between fraction rule an numerator (too big)
+- richmath: FractionBox: change distance between fraction rule an numerator (too big)
 
 - pmath: crash with recursive String patterns
 

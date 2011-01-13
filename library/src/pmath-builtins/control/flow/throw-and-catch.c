@@ -1,6 +1,7 @@
 #include <pmath-language/patterns-private.h>
 
 #include <pmath-util/concurrency/threads.h>
+#include <pmath-util/debug.h>
 #include <pmath-util/evaluation.h>
 #include <pmath-util/messages.h>
 
@@ -13,7 +14,18 @@ PMATH_PRIVATE pmath_t builtin_throw(pmath_expr_t expr){
     pmath_message_argxxx(pmath_expr_length(expr), 1, 1);
     return expr;
   }
-
+  
+//  #ifdef PMATH_DEBUG_LOG
+//  {
+//    pmath_t stack = pmath_evaluate(pmath_expr_new(pmath_ref(PMATH_SYMBOL_STACK), 0));
+//    
+//    pmath_debug_print_object("[", expr, "");
+//    pmath_debug_print_object(" during ", stack, "]\n");
+//    
+//    pmath_unref(stack);
+//  }
+//  #endif
+  
   pmath_throw(pmath_expr_get_item(expr, 1));
   pmath_unref(expr);
   return NULL;
@@ -47,7 +59,9 @@ PMATH_PRIVATE pmath_t builtin_catch(pmath_expr_t expr){
     pattern = pmath_expr_get_item(expr, 2);
     if(_pmath_pattern_match(exception, pattern, &rhs)){
       pmath_unref(result);
-
+      
+      pmath_debug_print_object("[caught ", exception, "]\n");
+      
       pmath_unref(expr);
       return exception;
     }

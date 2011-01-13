@@ -758,14 +758,6 @@ pmath_bool_t _pmath_symbol_assign_value(
 }
 
 PMATH_PRIVATE
-PMATH_ATTRIBUTE_NONNULL(1)
-pmath_t *_pmath_symbol_get_value_pos(
-  pmath_symbol_t  symbol
-){
-  return &((struct _pmath_symbol_t*)symbol)->value;
-}
-
-PMATH_PRIVATE
 pmath_t _pmath_symbol_get_global_value(pmath_symbol_t symbol){
   assert(pmath_instance_of(symbol, PMATH_TYPE_SYMBOL));
   
