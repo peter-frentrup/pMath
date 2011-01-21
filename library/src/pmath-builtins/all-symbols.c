@@ -1,6 +1,7 @@
 #include <pmath-builtins/all-symbols-private.h>
 
 #include <pmath-util/concurrency/atomic-private.h>
+#include <pmath-util/concurrency/threads.h>
 #include <pmath-util/debug.h>
 #include <pmath-util/hashtables-private.h>
 #include <pmath-util/memory.h>
@@ -482,7 +483,7 @@ pmath_bool_t _pmath_run_code(
   
   UNLOCK_CODE_TABLE(usage, table);
   
-  if(result){
+  if(result && !pmath_aborting()){
     *in_out = result(*in_out);
     
     return TRUE;
