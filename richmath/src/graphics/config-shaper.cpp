@@ -898,7 +898,7 @@ void ConfigShaper::decode_token(
         cg.x = 0;
         cg.y = 0;
         cg.index = result->index;
-        cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
+        context->canvas->glyph_extents(&cg, 1, &cte);
         
         result->x_offset = 0;
         result->right = cte.x_advance;
@@ -971,7 +971,7 @@ void ConfigShaper::decode_token(
         cg.x = 0;
         cg.y = 0;
         cg.index = arr->get(i).glyph;
-        cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
+        context->canvas->glyph_extents(&cg, 1, &cte);
         
         result->right+= cte.x_advance;
         
@@ -1001,7 +1001,7 @@ void ConfigShaper::decode_token(
         cg.x = 0;
         cg.y = 0;
         cg.index = result[i].index;
-        cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
+        context->canvas->glyph_extents(&cg, 1, &cte);
         
         result[i].x_offset = 0;
         result[i].right = cte.x_advance;
@@ -1079,7 +1079,7 @@ void ConfigShaper::decode_token(
       cg.x = 0;
       cg.y = 0;
       cg.index = result->index;
-      cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
+      context->canvas->glyph_extents(&cg, 1, &cte);
       
       result->x_offset = 0;
       result->right = cte.x_advance;
@@ -1129,7 +1129,7 @@ void ConfigShaper::vertical_glyph_size(
         cg.x = 0;
         cg.y = 0;
         cg.index = arr->get(i).glyph;
-        cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
+        context->canvas->glyph_extents(&cg, 1, &cte);
         if(*ascent < -cte.y_bearing)
            *ascent = -cte.y_bearing;
         if(*descent < cte.height + cte.y_bearing)
@@ -1175,7 +1175,7 @@ void ConfigShaper::show_glyph(
         cg.index = arr->get(i).glyph;
         context->canvas->show_glyphs(&cg, 1);
         
-        cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
+        context->canvas->glyph_extents(&cg, 1, &cte);
         cg.x+= cte.x_advance;
         
         if(arr->get(i).offset){

@@ -6,6 +6,14 @@ public class Test1{
 	public static int div(int a, int b){
 		return a / b;
 	}
+	
+	public static Object identity(Object src){
+		return src;
+	}
+	
+	public Object self(){
+		return this;
+	}
     
     public static int recursiveCall(int depth){
         if(depth > 0)

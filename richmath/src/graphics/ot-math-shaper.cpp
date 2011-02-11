@@ -611,12 +611,12 @@ SharedPtr<OTMathShaper> OTMathShaperDB::find(String name, FontStyle style){
       cg.x = 0;
       cg.y = 0;
       cg.index = lig[0].glyph;
-      cairo_glyph_extents(static_canvas.canvas->cairo(), &cg, 1, &cte);
+      static_canvas.canvas->glyph_extents(&cg, 1, &cte);
       lig[0].full_advance = lig[1].full_advance = 
         (uint16_t)cte.x_advance + db->min_connector_overlap;
         
       cg.index = lig[lig.length()-1].glyph;
-      cairo_glyph_extents(static_canvas.canvas->cairo(), &cg, 1, &cte);
+      static_canvas.canvas->glyph_extents(&cg, 1, &cte);
       lig[lig.length()-1].full_advance = (uint16_t)cte.x_advance;
       
       db->private_ligatures.set(PMATH_CHAR_ASSIGNDELAYED, lig);
@@ -638,12 +638,12 @@ SharedPtr<OTMathShaper> OTMathShaperDB::find(String name, FontStyle style){
       cg.y = 0;
       
       cg.index = lig[0].glyph;
-      cairo_glyph_extents(static_canvas.canvas->cairo(), &cg, 1, &cte);
+      static_canvas.canvas->glyph_extents(&cg, 1, &cte);
       lig[0].full_advance = //lig[1].full_advance = 
         (uint16_t)cte.x_advance + db->min_connector_overlap;
         
       cg.index = lig[1].glyph;
-      cairo_glyph_extents(static_canvas.canvas->cairo(), &cg, 1, &cte);
+      static_canvas.canvas->glyph_extents(&cg, 1, &cte);
       lig[1].full_advance = (uint16_t)cte.x_advance;
       
       db->private_ligatures.set(PMATH_CHAR_RULEDELAYED, lig);
@@ -787,7 +787,7 @@ void OTMathShaper::decode_token(
         cg.x = 0;
         cg.y = 0;
         cg.index = result->index;
-        cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
+        context->canvas->glyph_extents(&cg, 1, &cte);
         
         result->x_offset = 0;
         result->right = cte.x_advance;
@@ -901,7 +901,7 @@ void OTMathShaper::decode_token(
         cg.x = 0;
         cg.y = 0;
         cg.index = result->index;
-        cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
+        context->canvas->glyph_extents(&cg, 1, &cte);
         
         result->x_offset = 0;
         result->right = cte.x_advance;
@@ -972,7 +972,7 @@ void OTMathShaper::vertical_glyph_size(
       if(ass){
         for(int i = 0;i < ass->length();++i){
           cg.index = ass->get(i).glyph;
-          cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
+          context->canvas->glyph_extents(&cg, 1, &cte);
           
           if(*ascent < -cte.y_bearing)
              *ascent = -cte.y_bearing;
@@ -1135,7 +1135,7 @@ bool OTMathShaper::horizontal_stretch_char(
     result->is_normal_text = 0;
     for(int i = 0;i < var->length();++i){
       cg.index = var->get(i).glyph;
-      cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
+      context->canvas->glyph_extents(&cg, 1, &cte);
       
       result->index = cg.index;
       result->right = cte.x_advance;//var->get(i).advance * em / db->units_per_em;
@@ -1289,7 +1289,7 @@ void OTMathShaper::vertical_stretch_char(
      
     for(;i < var->length();++i){
       cg.index = var->get(i).glyph;
-      cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
+      context->canvas->glyph_extents(&cg, 1, &cte);
       
       result->index = cg.index;
       result->right = cte.x_advance;
@@ -1354,7 +1354,7 @@ void OTMathShaper::vertical_stretch_char(
     cg.y = 0;
     for(int i = 0;i < ass->length();++i){
       cg.index = ass->get(i).glyph;
-      cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
+      context->canvas->glyph_extents(&cg, 1, &cte);
       
       if(result->right < cte.x_advance)
          result->right = cte.x_advance;
@@ -1698,7 +1698,7 @@ void OTMathShaper::shape_radical(
   if(var){
     for(int i = 0;i < var->length();++i){
       cg.index = var->get(i).glyph;
-      cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
+      context->canvas->glyph_extents(&cg, 1, &cte);
       
       if(height + gap_and_rule <= cte.height){
         info->y_offset = 0;
@@ -1752,7 +1752,7 @@ void OTMathShaper::shape_radical(
     *radicand_x = 0;
     for(int i = 0;i < ass->length();++i){
       cg.index = ass->get(i).glyph;
-      cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
+      context->canvas->glyph_extents(&cg, 1, &cte);
       
       if(i == 0)
         *exponent_y = -/*-*exponent_y * */cte.height;
@@ -1823,7 +1823,7 @@ void OTMathShaper::show_radical(
     if(ass){
       for(int i = 0;i < ass->length();++i){
         cg.index = ass->get(i).glyph;
-        cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
+        context->canvas->glyph_extents(&cg, 1, &cte);
         
         if(x1 < cte.x_advance)
            x1 = cte.x_advance;
@@ -1834,7 +1834,7 @@ void OTMathShaper::show_radical(
   }
   else{
     cg.index = gi.index;
-    cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
+    context->canvas->glyph_extents(&cg, 1, &cte);
       
     x1 = x + cte.x_advance;
   }

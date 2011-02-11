@@ -233,7 +233,7 @@ pmath_t _pmath_thread_catch(
 ){
   struct _change_exception_data_t data;
   data.thread = thread;
-  if(!pmath_thread_aborting(thread))
+  if(!thread)
     return PMATH_UNDEFINED;
 
   data.exception = PMATH_UNDEFINED;

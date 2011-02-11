@@ -481,7 +481,7 @@ void Win32Widget::on_paint(HDC dc, bool from_wmpaint){
     _image_format,
     rect.right,
     rect.bottom);
-  
+   
   cairo_t *cr = cairo_create(target);
   {
     Canvas canvas(cr);
@@ -493,6 +493,14 @@ void Win32Widget::on_paint(HDC dc, bool from_wmpaint){
 //      cairo_font_options_destroy(opts);
 //    }
     
+//  {
+//    cairo_font_options_t *opts = cairo_font_options_create();
+//    cairo_font_options_set_hint_metrics(opts, CAIRO_HINT_METRICS_OFF);
+//    cairo_set_font_options(cr, opts);
+//    cairo_surface_get_font_options(target, opts);
+//    cairo_font_options_destroy(opts);
+//  }
+   
     if(!from_wmpaint){
       canvas.clip();
     }

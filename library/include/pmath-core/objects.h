@@ -83,10 +83,10 @@ typedef struct _pmath_t *pmath_t;
    - \c PMATH_TYPE_CUSTOM: The object is a custom object. You can cast it to
      \ref pmath_custom_t.
 
-   - \c PMATH_TYPE_EVALUATABLE: The object is evaluatable. That means, if a
-     symbol has this object as its value, the object will be returned.
-     Function definition rules and custom objects are an example of
-     non-evalutable objects.
+   - \c PMATH_TYPE_EVALUATABLE: The object is evaluatable and not NULL. That 
+     means, if a symbol has this object as its value, the object will be 
+     returned. Function definition rules and custom objects are an example of
+     non-evalutable objects. 
  */
 typedef int pmath_type_t;
 

@@ -69,7 +69,7 @@ void TextShaper::vertical_glyph_size(
   
   context->canvas->set_font_face(font(info.fontinfo));
   cg.index = info.index;
-  cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
+  context->canvas->glyph_extents(&cg, 1, &cte);
   
   if(info.vertical_centered){
     float a = cte.height / 2 + get_center_height(context, info.fontinfo);
@@ -144,7 +144,7 @@ void TextShaper::show_glyph(
     cg.x = 0;
     cg.y = 0;
     
-    cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
+    context->canvas->glyph_extents(&cg, 1, &cte);
     
     y-= get_center_height(context, info.fontinfo);
     y-= cte.height/2;
@@ -657,7 +657,7 @@ void SimpleMathShaper::vertical_glyph_size(
         
         if(left){
           cg.index = left;
-          cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
+          context->canvas->glyph_extents(&cg, 1, &cte);
           if(*ascent < -cte.y_bearing)
              *ascent = -cte.y_bearing;
           if(*descent < cte.height + cte.y_bearing)
@@ -666,7 +666,7 @@ void SimpleMathShaper::vertical_glyph_size(
         
         if(middle){
           cg.index = middle;
-          cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
+          context->canvas->glyph_extents(&cg, 1, &cte);
           if(*ascent < -cte.y_bearing)
              *ascent = -cte.y_bearing;
           if(*descent < cte.height + cte.y_bearing)
@@ -675,7 +675,7 @@ void SimpleMathShaper::vertical_glyph_size(
         
         if(right){
           cg.index = right;
-          cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
+          context->canvas->glyph_extents(&cg, 1, &cte);
           if(*ascent < -cte.y_bearing)
              *ascent = -cte.y_bearing;
           if(*descent < cte.height + cte.y_bearing)
@@ -684,7 +684,7 @@ void SimpleMathShaper::vertical_glyph_size(
         
         if(special_center){
           cg.index = special_center;
-          cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
+          context->canvas->glyph_extents(&cg, 1, &cte);
           if(*ascent < -cte.y_bearing)
              *ascent = -cte.y_bearing;
           if(*descent < cte.height + cte.y_bearing)
@@ -711,11 +711,11 @@ void SimpleMathShaper::vertical_glyph_size(
         context->canvas->set_font_face(font(info.fontinfo));
         
         cg.index = upper;
-        cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
+        context->canvas->glyph_extents(&cg, 1, &cte);
         h+= cte.height;
         
         cg.index = lower;
-        cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
+        context->canvas->glyph_extents(&cg, 1, &cte);
         h+= cte.height;
         
         h/= 2;
@@ -746,23 +746,23 @@ void SimpleMathShaper::vertical_glyph_size(
         context->canvas->set_font_face(font(info.fontinfo));
         
         cg.index = top;
-        cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
+        context->canvas->glyph_extents(&cg, 1, &cte);
         h+= cte.height;
         
         cg.index = bottom;
-        cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
+        context->canvas->glyph_extents(&cg, 1, &cte);
         h+= cte.height;
         
         if(special_center){
           cg.index = special_center;
-          cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
+          context->canvas->glyph_extents(&cg, 1, &cte);
           
           h+= cte.height;
         }
         
         if(middle){
           cg.index = middle;
-          cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
+          context->canvas->glyph_extents(&cg, 1, &cte);
           
           if(special_center){
             h+= info.index * cte.height * 2;
@@ -817,14 +817,14 @@ void SimpleMathShaper::show_glyph(
         
         if(left){
           cg.index = left;
-          cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
+          context->canvas->glyph_extents(&cg, 1, &cte);
           context->canvas->show_glyphs(&cg, 1);
           cg.x+= cte.x_advance;
         }
         
         if(middle && info.index > 0){
           cg.index = middle;
-          cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
+          context->canvas->glyph_extents(&cg, 1, &cte);
           for(int i = 0;i < info.index;++i){
             context->canvas->show_glyphs(&cg, 1);
             cg.x+= cte.x_advance;
@@ -833,13 +833,13 @@ void SimpleMathShaper::show_glyph(
         
         if(special_center){
           cg.index = special_center;
-          cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
+          context->canvas->glyph_extents(&cg, 1, &cte);
           context->canvas->show_glyphs(&cg, 1);
           cg.x+= cte.x_advance;
           
           if(middle && info.index > 0){
             cg.index = middle;
-            cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
+            context->canvas->glyph_extents(&cg, 1, &cte);
             for(int i = 0;i < info.index;++i){
               context->canvas->show_glyphs(&cg, 1);
               cg.x+= cte.x_advance;
@@ -869,7 +869,7 @@ void SimpleMathShaper::show_glyph(
         context->canvas->set_font_face(font(info.fontinfo));
         
         cg.index = upper;
-        cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
+        context->canvas->glyph_extents(&cg, 1, &cte);
         float th = cte.height;
         float ta = -cte.y_bearing;
         cg.y-= th - ta;
@@ -879,7 +879,7 @@ void SimpleMathShaper::show_glyph(
         cg.y+= th - ta;
         
         cg.index = lower;
-        cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
+        context->canvas->glyph_extents(&cg, 1, &cte);
         
         cg.y+= -cte.y_bearing;
         context->canvas->show_glyphs(&cg, 1);
@@ -903,7 +903,7 @@ void SimpleMathShaper::show_glyph(
         context->canvas->set_font_face(font(info.fontinfo));
         
         cg.index = top;
-        cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
+        context->canvas->glyph_extents(&cg, 1, &cte);
         float th = cte.height;
         float ta = -cte.y_bearing;
         
@@ -911,7 +911,7 @@ void SimpleMathShaper::show_glyph(
         float ma = 0;
         if(middle && info.index > 0){
           cg.index = middle;
-          cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
+          context->canvas->glyph_extents(&cg, 1, &cte);
           mh = cte.height;
           ma = -cte.y_bearing;
         }
@@ -920,7 +920,7 @@ void SimpleMathShaper::show_glyph(
         float sa = 0;
         if(special_center){
           cg.index = special_center;
-          cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
+          context->canvas->glyph_extents(&cg, 1, &cte);
           sh = cte.height;
           sa = -cte.y_bearing;
           
@@ -955,7 +955,7 @@ void SimpleMathShaper::show_glyph(
         cg.y-= ma;
         
         cg.index = bottom;
-        cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
+        context->canvas->glyph_extents(&cg, 1, &cte);
         
         cg.y+= -cte.y_bearing;
         context->canvas->show_glyphs(&cg, 1);
@@ -1000,7 +1000,7 @@ bool SimpleMathShaper::horizontal_stretch_char(
     context->canvas->set_font_face(font(fonts[i]));
     
     cg.index = glyphs[i];
-    cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
+    context->canvas->glyph_extents(&cg, 1, &cte);
     
     if(width <= cte.x_advance || (i == count - 1 && (!left || !right))){
       result->fontinfo = fonts[i];
@@ -1029,14 +1029,14 @@ bool SimpleMathShaper::horizontal_stretch_char(
     
     if(left){
       cg.index = left;
-      cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
+      context->canvas->glyph_extents(&cg, 1, &cte);
       result->right+= cte.x_advance;
       w-= cte.x_advance;
     }
     
     if(right){
       cg.index = right;
-      cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
+      context->canvas->glyph_extents(&cg, 1, &cte);
       result->right+= cte.x_advance;
       w-= cte.x_advance;
     }
@@ -1044,7 +1044,7 @@ bool SimpleMathShaper::horizontal_stretch_char(
     
     if(special_center){
       cg.index = special_center;
-      cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
+      context->canvas->glyph_extents(&cg, 1, &cte);
       result->right+= cte.x_advance;
       
       w-= cte.x_advance;
@@ -1053,7 +1053,7 @@ bool SimpleMathShaper::horizontal_stretch_char(
     }
     
     cg.index = middle;
-    cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
+    context->canvas->glyph_extents(&cg, 1, &cte);
     
     if(w < 0) w = 0;
     result->index = (uint16_t)floor(divide(w, cte.x_advance));
@@ -1065,19 +1065,19 @@ bool SimpleMathShaper::horizontal_stretch_char(
     result->right = 0;
     if(left){
       cg.index = left;
-      cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
+      context->canvas->glyph_extents(&cg, 1, &cte);
       result->right+= cte.x_advance;
     }
     
     if(special_center){
       cg.index = special_center;
-      cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
+      context->canvas->glyph_extents(&cg, 1, &cte);
       result->right+= cte.x_advance;
     }
     
     if(right){
       cg.index = right;
-      cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
+      context->canvas->glyph_extents(&cg, 1, &cte);
       result->right+= cte.x_advance;
     }
     
@@ -1131,7 +1131,7 @@ void SimpleMathShaper::vertical_stretch_char(
     context->canvas->set_font_face(font(fonts[i]));
     
     cg.index = glyphs[i];
-    cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
+    context->canvas->glyph_extents(&cg, 1, &cte);
     
     if((ascent - em * 0.2 <= -cte.y_bearing && descent - em * 0.2 <= cte.height + cte.y_bearing)
     || (i == count - 1 
@@ -1167,26 +1167,26 @@ void SimpleMathShaper::vertical_stretch_char(
     result->x_offset = 0;
     
     cg.index = top;
-    cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
+    context->canvas->glyph_extents(&cg, 1, &cte);
     result->right = cte.x_advance;
     
     h-= cte.height;
     
     cg.index = bottom;
-    cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
+    context->canvas->glyph_extents(&cg, 1, &cte);
     
     h-= cte.height;
     
     if(special_center){
       cg.index = special_center;
-      cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
+      context->canvas->glyph_extents(&cg, 1, &cte);
       
       
       if(h - cte.height / 2 < 0 && upper && lower){
         context->canvas->set_font_face(font(ulfontindex));
         
         cg.index = upper;
-        cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
+        context->canvas->glyph_extents(&cg, 1, &cte);
         
         result->index = UnknownGlyph;
         result->composed = 1;
@@ -1202,14 +1202,14 @@ void SimpleMathShaper::vertical_stretch_char(
     }
     
     cg.index = middle;
-    cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
+    context->canvas->glyph_extents(&cg, 1, &cte);
     
     if(h < 0) h = 0;
     result->index = (uint16_t)floor(divide(h, cte.height) + 0.5);
   }
   else{
     cg.index = top;
-    cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
+    context->canvas->glyph_extents(&cg, 1, &cte);
     
     result->index = 0;
     result->composed = 1;
@@ -1423,7 +1423,7 @@ void SimpleMathShaper::shape_radical(
   int i;
   for(i = 0;srg[i].index;++i){
     cg.index = srg[i].index;
-    cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
+    context->canvas->glyph_extents(&cg, 1, &cte);
     *radicand_x = cte.x_advance;
     *exponent_x = srg[i].rel_exp_x * cte.width;
     *exponent_y = srg[i].rel_exp_y * cte.height
@@ -1445,12 +1445,12 @@ void SimpleMathShaper::shape_radical(
     info->size = -1 - i;
     
     cg.index = srg[i].hbar_index;
-    cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
+    context->canvas->glyph_extents(&cg, 1, &cte);
     info->hbar = (int)ceil(divide(cte.x_advance/2 + box->width, cte.x_advance));
     box->width = *radicand_x + (info->hbar) * cte.x_advance;
     
     cg.index = srg[i].index;
-    cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
+    context->canvas->glyph_extents(&cg, 1, &cte);
     box->ascent = -cte.y_bearing - info->y_offset;
     if(box->descent < cte.height - box->ascent)
        box->descent = cte.height - box->ascent;
@@ -1473,7 +1473,7 @@ void SimpleMathShaper::shape_radical(
   
   float h = box->height();
   cg.index = bottom;
-  cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
+  context->canvas->glyph_extents(&cg, 1, &cte);
   info->y_offset = box->descent - cte.height;
   *radicand_x = cte.x_advance;
   *exponent_x*= cte.x_advance;
@@ -1481,18 +1481,18 @@ void SimpleMathShaper::shape_radical(
   h-= cte.height;
   
   cg.index = edge;
-  cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
+  context->canvas->glyph_extents(&cg, 1, &cte);
   box->ascent+= cte.height;
   h+= cte.height;
   
   cg.index = vertical;
-  cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
+  context->canvas->glyph_extents(&cg, 1, &cte);
   info->size = (int)divide(h, cte.height);
   box->ascent-= h;
   box->ascent+= (1 + info->size) * cte.height;
   
   cg.index = horizontal;
-  cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
+  context->canvas->glyph_extents(&cg, 1, &cte);
   info->hbar = (int)ceil(divide(box->width, cte.x_advance));
   
   box->width = *radicand_x + (0.5 + info->hbar) * cte.x_advance;
@@ -1522,12 +1522,12 @@ void SimpleMathShaper::show_radical(
     const SmallRadicalGlyph &g = small_radical_glyphs()[-1 - info.size];
     cg.index = g.index;
     context->canvas->show_glyphs(&cg, 1);
-    cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
+    context->canvas->glyph_extents(&cg, 1, &cte);
     
     cg.y+= cte.y_bearing;
     cg.x+= cte.x_advance;
     cg.index = g.hbar_index;
-    cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
+    context->canvas->glyph_extents(&cg, 1, &cte);
     cg.y-= cte.y_bearing;
     for(int i = 0;i < info.hbar;++i){
       context->canvas->show_glyphs(&cg, 1);
@@ -1550,13 +1550,13 @@ void SimpleMathShaper::show_radical(
     &dummyy);
   
   cg.index = bottom;
-  cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
+  context->canvas->glyph_extents(&cg, 1, &cte);
   cg.y-= cte.y_bearing;
   context->canvas->show_glyphs(&cg, 1);
   
   cg.y+= cte.y_bearing;
   cg.index = vertical;
-  cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
+  context->canvas->glyph_extents(&cg, 1, &cte);
   cg.y-= cte.y_bearing;
   for(int i = 0;i < info.size;++i){
     cg.y-= cte.height;
@@ -1565,14 +1565,14 @@ void SimpleMathShaper::show_radical(
   
   cg.y+= cte.y_bearing;
   cg.index = edge;
-  cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
+  context->canvas->glyph_extents(&cg, 1, &cte);
   cg.y-= cte.height + cte.y_bearing;
   context->canvas->show_glyphs(&cg, 1);
   
   cg.y+= cte.y_bearing;
   cg.x+= cte.x_advance;
   cg.index = horizontal;
-  cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
+  context->canvas->glyph_extents(&cg, 1, &cte);
   cg.y-= cte.y_bearing;
   for(int i = 0;i < info.hbar;++i){
     context->canvas->show_glyphs(&cg, 1);

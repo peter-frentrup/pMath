@@ -113,6 +113,7 @@ namespace richmath{
       
       void show_blur_stroke(float radius, bool preserve);
       
+      void glyph_extents(const cairo_glyph_t *glyphs, int num_glyphs, cairo_text_extents_t *extents);
       void show_glyphs(const cairo_glyph_t *glyphs, int num_glyphs);
       
       void new_path();

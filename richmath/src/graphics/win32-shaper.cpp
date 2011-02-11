@@ -105,7 +105,7 @@ void WindowsFontShaper::decode_token(
         {
           result[i].index = cg.index = out_glyphs[0];
           
-          cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
+          context->canvas->glyph_extents(&cg, 1, &cte);
           result[i].right = cte.x_advance;
           
           result[i + 1].index = 0;
@@ -140,7 +140,7 @@ void WindowsFontShaper::decode_token(
       result[i].right = 0;
     }
     else{
-      cairo_glyph_extents(context->canvas->cairo(), &cg, 1, &cte);
+      context->canvas->glyph_extents(&cg, 1, &cte);
       result[i].right = cte.x_advance;
     }
   }

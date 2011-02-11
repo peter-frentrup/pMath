@@ -617,6 +617,27 @@ void Canvas::show_blur_stroke(float radius, bool preserve){
   cairo_path_destroy(path);
 }
 
+void Canvas::glyph_extents(const cairo_glyph_t *glyphs, int num_glyphs, cairo_text_extents_t *extents){
+  cairo_glyph_extents(_cr, glyphs, num_glyphs, extents);
+  
+//  save();
+//  cairo_font_face_t *font_face = cairo_get_font_face(_cr);
+//  scale(1/1024.0, 1/1024.0);
+//  cairo_set_font_face(_cr, cairo_font_face_reference(font_face));
+//  
+//  cairo_glyph_extents(_cr, glyphs, num_glyphs, extents);
+//  
+//  restore();
+//  cairo_set_font_face(_cr, font_face);
+//  
+//  extents->x_bearing /= 1024;
+//  extents->y_bearing /= 1024;
+//  extents->width     /= 1024;
+//  extents->height    /= 1024;
+//  extents->x_advance /= 1024;
+//  extents->y_advance /= 1024;
+}
+
 void Canvas::show_glyphs(const cairo_glyph_t *glyphs, int num_glyphs){
   bool sot = show_only_text; 
   show_only_text = false;
