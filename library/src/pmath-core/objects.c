@@ -173,13 +173,13 @@ PMATH_API void pmath_write(
   assert(write != NULL);
 
   if(PMATH_IS_MAGIC(obj)){
-    char s[20];
-    if(!obj){
-      write_cstr("/\\/", write, user);
-      return;
+    char s[30];
+    write_cstr("/\\/", write, user);
+    
+    if(obj){
+      snprintf(s, sizeof(s), " /* 0x%"PRIxPTR" */", (uintptr_t)obj);
+      write_cstr(s, write, user);
     }
-    snprintf(s, sizeof(s), "<<\? 0x%"PRIxPTR" \?>>", (uintptr_t)obj);
-    write_cstr(s, write, user);
     return;
   }
   

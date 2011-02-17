@@ -131,10 +131,10 @@ PMATH_API int pmath_span_end(pmath_span_t *span);
    \param subsuperscriptbox_at_index An optional function that returns TRUE iff 
           at a given position in the code (indicated by the PMATH_CHAR_BOX 
           character) is a SubscriptBox, SuperscriptBox or SubsuperscriptBox.
-   \param underoverscriptbox_at_index (optional) Iff there is an UnderscriptBox, 
+   \param underoverscriptbox_at_index (optional) If there is an UnderscriptBox,
           OverscriptBox or UnderoverscriptBox at a given position in the code 
-          (indicated by the PMATH_CHAR_BOX character) its base (middle part of
-          UnderoverscriptBox) should be returned by this function, otherwise 
+          (indicated by the PMATH_CHAR_BOX character) its base (e.g. middle part 
+          of UnderoverscriptBox) should be returned by this function, otherwise 
           NULL should be returned.
    \param error A function that will be called on syntax errors. 
           The first argument is \c *code. It must not be freed. 

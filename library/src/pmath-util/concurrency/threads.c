@@ -287,8 +287,8 @@ static void do_suspend(void){
     {
       pmath_atomic_unlock(&suspending_spin);
       
-      // bad: busy waiting
       while(suspending){ 
+        pmath_atomic_loop_yield();
       }
       
       return;

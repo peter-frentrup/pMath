@@ -2964,9 +2964,16 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj){
     return PMATH_C_STRING("/\\/");
 
   if(PMATH_IS_MAGIC(obj)){
-    char s[20];
-    snprintf(s, sizeof(s), "<<\? 0x%"PRIxPTR" \?>>", (uintptr_t)obj);
-    return PMATH_C_STRING(s);
+    char s[40];
+    
+    if(thread->boxform <= BOXFORM_OUTPUTEXPONENT){
+      snprintf(s, sizeof(s), "<<\? 0x%"PRIxPTR" \?>>", (uintptr_t)obj);
+      return PMATH_C_STRING(s);
+    }
+    else{
+      snprintf(s, sizeof(s), "/* 0x%"PRIxPTR" */", (uintptr_t)obj);
+      return pmath_build_value("sss", "/\\/", " ", s);
+    }
   }
   
   if(thread->boxform < BOXFORM_OUTPUT
