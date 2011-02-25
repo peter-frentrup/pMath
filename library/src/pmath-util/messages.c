@@ -169,7 +169,7 @@ PMATH_API pmath_string_t pmath_message_find_text(pmath_t name){
   }
   
   sym = pmath_expr_get_item(name, 1);
-  assert(pmath_instance_of(sym, PMATH_TYPE_SYMBOL));
+  assert(pmath_is_symbol(sym));
   
   for(loop = 0;loop < 2;++loop){
     rules = _pmath_symbol_get_rules(sym, RULES_READ);

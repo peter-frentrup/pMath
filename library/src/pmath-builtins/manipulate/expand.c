@@ -75,7 +75,7 @@ static pmath_t expand_ui_power(pmath_t sum, unsigned long n){
 }
 
 static pmath_t expand_product(pmath_t expr, pmath_bool_t *changed){
-  if(pmath_instance_of(expr, PMATH_TYPE_EXPRESSION)){
+  if(pmath_is_expr(expr)){
     pmath_t item = pmath_expr_get_item(expr, 0);
     pmath_unref(item);
     
@@ -109,7 +109,7 @@ static pmath_t expand_product(pmath_t expr, pmath_bool_t *changed){
     if(item == PMATH_SYMBOL_POWER && pmath_expr_length(expr) == 2){
       pmath_t exp = pmath_expr_get_item(expr, 2);
       
-      if(pmath_instance_of(exp, PMATH_TYPE_INTEGER)){
+      if(pmath_is_integer(exp)){
         if(pmath_integer_fits_ui(exp)){
           unsigned long uexp = pmath_integer_get_ui(exp);
           
@@ -181,7 +181,7 @@ PMATH_PRIVATE pmath_t builtin_expand(pmath_expr_t expr){
   }
   
   obj = pmath_expr_get_item(expr, 1);
-  if(pmath_instance_of(obj, PMATH_TYPE_EXPRESSION)){
+  if(pmath_is_expr(obj)){
     pmath_t head = pmath_expr_get_item(obj, 0);
     pmath_unref(head);
     
@@ -238,7 +238,7 @@ PMATH_PRIVATE pmath_t builtin_expand(pmath_expr_t expr){
       expr = obj;
       obj = pmath_expr_get_item(expr, 2);
       
-      if(pmath_instance_of(obj, PMATH_TYPE_INTEGER)
+      if(pmath_is_integer(obj)
       && pmath_integer_fits_ui(obj)){
         pmath_unref(obj);
         obj = pmath_expr_get_item(expr, 1);
@@ -269,7 +269,7 @@ PMATH_PRIVATE pmath_t builtin_expand(pmath_expr_t expr){
 }
 
 static pmath_t make_expandall(pmath_t obj){
-  if(pmath_instance_of(obj, PMATH_TYPE_EXPRESSION)){
+  if(pmath_is_expr(obj)){
     return pmath_expr_new_extended(
       pmath_ref(PMATH_SYMBOL_EXPANDALL), 1,
       obj);
@@ -279,7 +279,7 @@ static pmath_t make_expandall(pmath_t obj){
 }
 
 static pmath_t eval_expandall(pmath_t obj){
-  if(pmath_instance_of(obj, PMATH_TYPE_EXPRESSION)){
+  if(pmath_is_expr(obj)){
     return pmath_evaluate(
       pmath_expr_new_extended(
         pmath_ref(PMATH_SYMBOL_EXPANDALL), 1,
@@ -298,7 +298,7 @@ PMATH_PRIVATE pmath_t builtin_expandall(pmath_expr_t expr){
   }
   
   obj = pmath_expr_get_item(expr, 1);
-  if(pmath_instance_of(obj, PMATH_TYPE_EXPRESSION)){
+  if(pmath_is_expr(obj)){
     pmath_t head;
     pmath_bool_t expand_first = TRUE;
     pmath_bool_t expand_rest = TRUE;
@@ -309,7 +309,7 @@ PMATH_PRIVATE pmath_t builtin_expandall(pmath_expr_t expr){
     head = eval_expandall(pmath_expr_get_item(expr, 0));
     expr = pmath_expr_set_item(expr, 0, pmath_ref(head));
     
-    if(pmath_instance_of(head, PMATH_TYPE_SYMBOL)){
+    if(pmath_is_symbol(head)){
       pmath_symbol_attributes_t attr = pmath_symbol_get_attributes(head);
       
       expand_first = !(attr & PMATH_SYMBOL_ATTRIBUTE_HOLDFIRST);

@@ -95,8 +95,7 @@ PMATH_PRIVATE pmath_t builtin_paralleltry(pmath_expr_t expr){
   if(exprlen == 3){
     pmath_t count = pmath_expr_get_item(expr, 3);
     
-    if(!pmath_instance_of(count, PMATH_TYPE_INTEGER)
-    || !pmath_integer_fits_ui(count)){
+    if(!pmath_is_integer(count) || !pmath_integer_fits_ui(count)){
       pmath_unref(count);
       pmath_message(NULL, "intnm", 2, 
         pmath_integer_new_si(3), 
@@ -123,7 +122,7 @@ PMATH_PRIVATE pmath_t builtin_paralleltry(pmath_expr_t expr){
   
   info.index = 1;
   info.items = pmath_expr_get_item(expr, 1);
-  if(!pmath_instance_of(info.items, PMATH_TYPE_EXPRESSION)){
+  if(!pmath_is_expr(info.items)){
     pmath_unref(info.items);
     pmath_unref(result);
     pmath_message(NULL, "nexprat", 2,

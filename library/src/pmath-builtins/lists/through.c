@@ -21,14 +21,14 @@ PMATH_PRIVATE pmath_t builtin_through(pmath_expr_t expr){
   obj = pmath_expr_get_item(expr, 1);
   pmath_unref(expr);
   
-  if(!pmath_instance_of(obj, PMATH_TYPE_EXPRESSION)){
+  if(!pmath_is_expr(obj)){
     pmath_unref(head);
     return obj;
   }
   
   expr = pmath_expr_get_item(obj, 0);
   
-  if(!pmath_instance_of(expr, PMATH_TYPE_EXPRESSION)){
+  if(!pmath_is_expr(expr)){
     pmath_unref(head);
     pmath_unref(expr);
     return obj;

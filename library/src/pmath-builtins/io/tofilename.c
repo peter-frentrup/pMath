@@ -33,7 +33,7 @@ PMATH_PRIVATE pmath_t builtin_tofilename(pmath_expr_t expr){
   dir  = pmath_expr_get_item(expr, 1);
   
   len = 0;
-  if(pmath_instance_of(dir, PMATH_TYPE_STRING)){
+  if(pmath_is_string(dir)){
     if(pmath_string_length(dir) > 0){
       sublen = pmath_string_length(dir);
       subbuf = pmath_string_buffer(dir);
@@ -48,7 +48,7 @@ PMATH_PRIVATE pmath_t builtin_tofilename(pmath_expr_t expr){
     for(i = pmath_expr_length(dir);i > 0;--i){
       sub = pmath_expr_get_item(dir, i);
       
-      if(!pmath_instance_of(sub, PMATH_TYPE_STRING)){
+      if(!pmath_is_string(sub)){
         pmath_unref(dir);
         pmath_unref(sub);
         pmath_message(NULL, "strse", 2, pmath_integer_new_si(1), pmath_ref(expr));
@@ -76,7 +76,7 @@ PMATH_PRIVATE pmath_t builtin_tofilename(pmath_expr_t expr){
   
   if(exprlen == 2){
     name = pmath_expr_get_item(expr, 2);
-    if(!pmath_instance_of(name, PMATH_TYPE_STRING)){
+    if(!pmath_is_string(name)){
       pmath_unref(dir);
       pmath_unref(name);
       pmath_message(NULL, "str", 2, pmath_integer_new_si(2), pmath_ref(expr));
@@ -101,7 +101,7 @@ PMATH_PRIVATE pmath_t builtin_tofilename(pmath_expr_t expr){
   }
   
   buf = AFTER_STRING(result);
-  if(pmath_instance_of(dir, PMATH_TYPE_STRING)){
+  if(pmath_is_string(dir)){
     sublen = pmath_string_length(dir);
     subbuf = pmath_string_buffer(dir);
     

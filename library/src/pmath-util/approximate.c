@@ -32,7 +32,7 @@ double pmath_accuracy(pmath_t obj){ // will be freed
   
   acc = HUGE_VAL;
   
-  if(pmath_instance_of(obj, PMATH_TYPE_EXPRESSION)){
+  if(pmath_is_expr(obj)){
     size_t i;
     
     for(i = 0;i <= pmath_expr_length(obj);++i){
@@ -76,7 +76,7 @@ double pmath_precision(pmath_t obj){ // will be freed
   
   prec = HUGE_VAL;
   
-  if(pmath_instance_of(obj, PMATH_TYPE_EXPRESSION)){
+  if(pmath_is_expr(obj)){
     size_t i;
     
     for(i = 0;i <= pmath_expr_length(obj);++i){
@@ -98,7 +98,7 @@ pmath_t pmath_set_accuracy(pmath_t obj, double acc){ // obj will be freed
   if(acc == -HUGE_VAL || acc == HUGE_VAL)
     return pmath_set_precision(obj, acc);
     
-  if(pmath_instance_of(obj, PMATH_TYPE_EXPRESSION)){
+  if(pmath_is_expr(obj)){
     size_t i;
     for(i = 0;i < pmath_expr_length(obj);++i){
       obj = pmath_expr_set_item(
@@ -111,7 +111,7 @@ pmath_t pmath_set_accuracy(pmath_t obj, double acc){ // obj will be freed
     return obj;
   }
   
-  if(pmath_instance_of(obj, PMATH_TYPE_NUMBER)){
+  if(pmath_is_number(obj)){
     struct _pmath_mp_float_t *result;
     
     double prec = 0.0;
@@ -217,7 +217,7 @@ pmath_t pmath_set_accuracy(pmath_t obj, double acc){ // obj will be freed
 
 PMATH_API 
 pmath_t pmath_set_precision(pmath_t obj, double prec){
-  if(pmath_instance_of(obj, PMATH_TYPE_EXPRESSION)){
+  if(pmath_is_expr(obj)){
     size_t i;
     for(i = 0;i < pmath_expr_length(obj);++i){
       obj = pmath_expr_set_item(
@@ -230,7 +230,7 @@ pmath_t pmath_set_precision(pmath_t obj, double prec){
     return obj;
   }
   
-  if(pmath_instance_of(obj, PMATH_TYPE_NUMBER)){
+  if(pmath_is_number(obj)){
     struct _pmath_mp_float_t *result;
     
     if(!isfinite(prec)){

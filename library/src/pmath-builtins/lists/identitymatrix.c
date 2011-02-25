@@ -17,7 +17,7 @@ PMATH_PRIVATE pmath_t builtin_identitymatrix(pmath_expr_t expr){
   }
   
   n_obj = pmath_expr_get_item(expr, 1);
-  if(!pmath_instance_of(n_obj, PMATH_TYPE_INTEGER)
+  if(!pmath_is_integer(n_obj)
   || !pmath_integer_fits_ui(n_obj)
   || pmath_number_sign(n_obj) <= 0){
     pmath_message(NULL, "intpm", 2, pmath_ref(expr), pmath_integer_new_si(1));

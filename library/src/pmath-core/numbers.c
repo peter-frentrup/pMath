@@ -957,7 +957,7 @@ PMATH_API int pmath_number_sign(pmath_number_t num){
   ){
     struct _pmath_integer_t *result;
 
-    assert(pmath_instance_of(integer, PMATH_TYPE_INTEGER));
+    assert(pmath_is_integer(integer));
 
     if(integer->refcount == 1)
       result = (struct _pmath_integer_t*)pmath_ref(integer);
@@ -1039,8 +1039,8 @@ PMATH_PRIVATE pmath_integer_t _mul_ii(
 ){
   struct _pmath_integer_t *result = _pmath_create_integer();
 
-  assert(pmath_instance_of(intA, PMATH_TYPE_INTEGER));
-  assert(pmath_instance_of(intB, PMATH_TYPE_INTEGER));
+  assert(pmath_is_integer(intA));
+  assert(pmath_is_integer(intB));
 
   if(result)
     mpz_mul(((struct _pmath_integer_t*)result)->value,

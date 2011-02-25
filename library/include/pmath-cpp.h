@@ -154,7 +154,7 @@ namespace pmath{
       void set(size_t i, size_t j, Expr e) throw() {
         if(instance_of(PMATH_TYPE_EXPRESSION)){
           pmath_t item = pmath_expr_get_item(_obj, i);
-          if(pmath_instance_of(item, PMATH_TYPE_EXPRESSION)){
+          if(pmath_is_expr(item)){
             if(_obj->refcount == 1
             && instance_of(PMATH_TYPE_EXPRESSION_GENERAL))
               _obj = pmath_expr_set_item(_obj, i, NULL);
@@ -181,7 +181,7 @@ namespace pmath{
           -::std::numeric_limits<double>::infinity(), 
           -::std::numeric_limits<double>::infinity());
         
-        if(pmath_instance_of(approx, PMATH_TYPE_NUMBER))
+        if(pmath_is_number(approx))
           def = pmath_number_get_d(approx);
         
         pmath_unref(approx);
@@ -244,7 +244,7 @@ namespace pmath{
     public:
       /**\brief Construct form a pmath_string_t, stealing the reference. */
       explicit String(pmath_string_t _str = 0) throw()
-      : Expr(pmath_instance_of(_str, PMATH_TYPE_STRING) ? pmath_ref(_str) : 0)
+      : Expr(pmath_is_string(_str) ? pmath_ref(_str) : 0)
       {
         pmath_unref(_str);
       }

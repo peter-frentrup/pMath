@@ -143,15 +143,14 @@ PMATH_PRIVATE pmath_t builtin_copydirectory_and_copyfile(pmath_expr_t expr){
   }
   
   name1 = pmath_expr_get_item(expr, 1);
-  if(!pmath_instance_of(name1, PMATH_TYPE_STRING)
+  if(!pmath_is_string(name1)
   || pmath_string_length(name1) == 0){
     pmath_message(NULL, "fstr", 1, name1);
     return expr;
   }
   
   name2 = pmath_expr_get_item(expr, 2);
-  if(!pmath_instance_of(name2, PMATH_TYPE_STRING)
-  || pmath_string_length(name2) == 0){
+  if(!pmath_is_string(name2) || pmath_string_length(name2) == 0){
     pmath_message(NULL, "fstr", 1, name2);
     pmath_unref(name1);
     return expr;

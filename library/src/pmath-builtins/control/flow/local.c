@@ -34,7 +34,7 @@ PMATH_PRIVATE pmath_t builtin_local(pmath_expr_t expr){
     pmath_t defi = pmath_expr_get_item(symbols, i);
     pmath_symbol_t sym, localsym;
     
-    if(pmath_instance_of(defi, PMATH_TYPE_EXPRESSION)){
+    if(pmath_is_expr(defi)){
       sym = pmath_expr_get_item(defi, 0);
       pmath_unref(sym);
       
@@ -46,14 +46,14 @@ PMATH_PRIVATE pmath_t builtin_local(pmath_expr_t expr){
       }
       
       sym = pmath_expr_get_item(defi, 1);
-      if(!pmath_instance_of(sym, PMATH_TYPE_SYMBOL)){
+      if(!pmath_is_symbol(sym)){
         pmath_unref(body);
         pmath_unref(sym);
         pmath_message(NULL, "nodef", 2, symbols, defi);
         return expr;
       }
     }
-    else if(pmath_instance_of(defi, PMATH_TYPE_SYMBOL)){
+    else if(pmath_is_symbol(defi)){
       sym = pmath_ref(defi);
     }
     else{
@@ -68,7 +68,7 @@ PMATH_PRIVATE pmath_t builtin_local(pmath_expr_t expr){
     
     pmath_unref(sym);
     
-    if(pmath_instance_of(defi, PMATH_TYPE_EXPRESSION)){
+    if(pmath_is_expr(defi)){
       defi = pmath_expr_set_item(defi, 1, localsym);
     }
     else{

@@ -131,7 +131,7 @@ PMATH_PRIVATE pmath_t builtin_arcsin(pmath_expr_t expr){
   if(pmath_is_expr_of(x, PMATH_SYMBOL_TIMES)){
     pmath_t fst = pmath_expr_get_item(x, 1);
     
-    if(pmath_instance_of(fst, PMATH_TYPE_NUMBER)){
+    if(pmath_is_number(fst)){
       if(pmath_number_sign(fst) < 0){
         x = pmath_expr_set_item(x, 1, pmath_number_neg(fst));
         expr = pmath_expr_set_item(expr, 1, x);
@@ -165,8 +165,8 @@ PMATH_PRIVATE pmath_t builtin_arcsin(pmath_expr_t expr){
     pmath_t infdir = _pmath_directed_infinity_direction(x);
     pmath_t re, im;
     if(_pmath_re_im(infdir, &re, &im)
-    && pmath_instance_of(re, PMATH_TYPE_NUMBER)
-    && pmath_instance_of(im, PMATH_TYPE_NUMBER)){
+    && pmath_is_number(re)
+    && pmath_is_number(im)){
       int isgn = pmath_number_sign(im);
       int rsgn = pmath_number_sign(re);
       

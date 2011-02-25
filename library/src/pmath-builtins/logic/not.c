@@ -29,7 +29,7 @@ PMATH_PRIVATE pmath_t builtin_not(pmath_expr_t expr){
     return item;
   }
   
-  if(pmath_instance_of(item, PMATH_TYPE_EXPRESSION)){
+  if(pmath_is_expr(item)){
     pmath_t head = pmath_expr_get_item((pmath_expr_t)item, 0);
     if(head == PMATH_SYMBOL_NOT 
     && pmath_expr_length((pmath_expr_t)item) == 1){

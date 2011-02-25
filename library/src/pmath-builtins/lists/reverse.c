@@ -20,7 +20,7 @@ static pmath_t reverse(
   int reldepth = _pmath_object_in_levelspec(
     obj, info->levelmin, info->levelmax, level);
   
-  if(reldepth <= 0 && pmath_instance_of(obj, PMATH_TYPE_EXPRESSION)){
+  if(reldepth <= 0 && pmath_is_expr(obj)){
     size_t len = pmath_expr_length(obj);
     size_t i;
     
@@ -33,8 +33,7 @@ static pmath_t reverse(
     }
   }
   
-  if(reldepth == 0
-  && pmath_instance_of(obj, PMATH_TYPE_EXPRESSION)){
+  if(reldepth == 0 && pmath_is_expr(obj)){
     size_t i, len;
     
     len = pmath_expr_length(obj);
@@ -73,7 +72,7 @@ PMATH_PRIVATE pmath_t builtin_reverse(pmath_expr_t expr){
   }
   
   obj = pmath_expr_get_item(expr, 1);
-  if(!pmath_instance_of(obj, PMATH_TYPE_EXPRESSION)){
+  if(!pmath_is_expr(obj)){
     pmath_unref(obj);
     pmath_message(NULL, "nexprat", 1, pmath_integer_new_si(1), pmath_ref(expr));
     return expr;

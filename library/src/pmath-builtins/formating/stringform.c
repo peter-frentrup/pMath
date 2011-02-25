@@ -100,7 +100,7 @@ pmath_t _pmath_expand_string( // result is string or expression
 static pmath_bool_t has_param_placeholders(
   pmath_t box // wont be freed
 ){
-  if(pmath_instance_of(box, PMATH_TYPE_EXPRESSION)){
+  if(pmath_is_expr(box)){
     size_t i = pmath_expr_length(box);
     for(;i > 0;--i){
       pmath_t item = pmath_expr_get_item(box, i);
@@ -111,7 +111,7 @@ static pmath_bool_t has_param_placeholders(
         return result;
     }
   }
-  else if(pmath_instance_of(box, PMATH_TYPE_STRING)){
+  else if(pmath_is_string(box)){
     const uint16_t *buf = pmath_string_buffer(box);
     int len = pmath_string_length(box);
     int i;
@@ -142,10 +142,10 @@ static pmath_t string_form(
   if(!has_param_placeholders(format))
     return format;
   
-  if(pmath_instance_of(format, PMATH_TYPE_STRING)){
+  if(pmath_is_string(format)){
     format = pmath_string_expand_boxes(format);
     
-    if(pmath_instance_of(format, PMATH_TYPE_STRING)){
+    if(pmath_is_string(format)){
       const uint16_t *buf = pmath_string_buffer(format);
       int len = pmath_string_length(format);
       int start = 0;
@@ -249,7 +249,7 @@ static pmath_t string_form(
     }
   }
     
-  if(pmath_instance_of(format, PMATH_TYPE_EXPRESSION)){
+  if(pmath_is_expr(format)){
     size_t i;
     for(i = 1;i < pmath_expr_length(format);++i)
       format = pmath_expr_set_item(
@@ -280,10 +280,10 @@ pmath_bool_t _pmath_stringform_write(
   if(!stringform)
     return FALSE;
   
-  assert(pmath_instance_of(stringform, PMATH_TYPE_EXPRESSION));
+  assert(pmath_is_expr(stringform));
   
   format = (pmath_string_t)pmath_expr_get_item(stringform, 1);
-  if(!pmath_instance_of(format, PMATH_TYPE_STRING)){
+  if(!pmath_is_string(format)){
     pmath_unref(format);
     return FALSE;
   }
@@ -316,14 +316,14 @@ pmath_bool_t _pmath_stringform_write(
   
   pmath_unref(data.formated_params);
   
-  if(pmath_instance_of(result, PMATH_TYPE_STRING)){
+  if(pmath_is_string(result)){
     pmath_write(
       result,
       options,
       write,
       user);
   }
-  else if(pmath_instance_of(result, PMATH_TYPE_EXPRESSION)){
+  else if(pmath_is_expr(result)){
     size_t i;
     
     for(i = 1;i <= pmath_expr_length(result);++i){
@@ -355,10 +355,10 @@ pmath_t _pmath_stringform_to_boxes(
   if(!stringform)
     return NULL;
   
-  assert(pmath_instance_of(stringform, PMATH_TYPE_EXPRESSION));
+  assert(pmath_is_expr(stringform));
   
   format = (pmath_string_t)pmath_expr_get_item(stringform, 1);
-  if(!pmath_instance_of(format, PMATH_TYPE_STRING)){
+  if(!pmath_is_string(format)){
     pmath_unref(format);
     return NULL;
   }
@@ -387,7 +387,7 @@ pmath_t _pmath_stringform_to_boxes(
   
   pmath_unref(data.formated_params);
   
-  if(pmath_instance_of(result, PMATH_TYPE_EXPRESSION)){
+  if(pmath_is_expr(result)){
     struct _pmath_string_t *all;
     uint16_t *buf;
     int rlen = 2;
@@ -396,7 +396,7 @@ pmath_t _pmath_stringform_to_boxes(
       pmath_t item = pmath_expr_get_item(result, i);
       pmath_string_t nitem = NULL;
       
-      if(pmath_instance_of(item, PMATH_TYPE_STRING)){
+      if(pmath_is_string(item)){
         nitem = _pmath_string_escape(NULL, item, NULL, FALSE);
       }
       else{
@@ -456,7 +456,7 @@ pmath_t _pmath_stringform_to_boxes(
       result = (pmath_string_t)all;
     }
   }
-  else if(pmath_instance_of(result, PMATH_TYPE_STRING)){
+  else if(pmath_is_string(result)){
     pmath_string_t quote = PMATH_C_STRING("\"");
     
     result = _pmath_string_escape(

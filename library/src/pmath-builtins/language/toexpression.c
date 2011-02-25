@@ -13,7 +13,7 @@ static pmath_t remove_whitespace_from_boxes(pmath_t boxes){
   pmath_t head;
   size_t max_boxes;
   
-  if(pmath_instance_of(boxes, PMATH_TYPE_STRING)){
+  if(pmath_is_string(boxes)){
     pmath_span_array_t *spans;
     pmath_string_t code = boxes;
     
@@ -26,7 +26,7 @@ static pmath_t remove_whitespace_from_boxes(pmath_t boxes){
     return boxes;
   }
   
-  if(!pmath_instance_of(boxes, PMATH_TYPE_EXPRESSION))
+  if(!pmath_is_expr(boxes))
     return boxes;
   
   head = pmath_expr_get_item(boxes, 0);
@@ -39,7 +39,7 @@ static pmath_t remove_whitespace_from_boxes(pmath_t boxes){
     pmath_bool_t remove_empty = FALSE;
     
     item = pmath_expr_get_item(boxes, 1);
-    if(pmath_instance_of(item, PMATH_TYPE_STRING)){
+    if(pmath_is_string(item)){
       if(pmath_string_equals_latin1(item, "/*")){
         pmath_unref(item);
         pmath_unref(boxes);
@@ -193,7 +193,7 @@ pmath_t builtin_toexpression(pmath_expr_t expr){
   }
   
   code = pmath_expr_get_item(expr, 1);
-  if(pmath_instance_of(code, PMATH_TYPE_STRING)){
+  if(pmath_is_string(code)){
     code = pmath_expr_new_extended(
       pmath_ref(PMATH_SYMBOL_STRINGTOBOXES), 1,
       code);

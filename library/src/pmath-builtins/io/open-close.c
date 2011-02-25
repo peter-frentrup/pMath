@@ -200,7 +200,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_open_tmp(
     return result;
   }
   
-  if(pmath_instance_of(*streams, PMATH_TYPE_STRING)){
+  if(pmath_is_string(*streams)){
     pmath_t head;
     pmath_t expr;
     
@@ -375,8 +375,7 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr){
   }
   
   file = pmath_expr_get_item(expr, 1);
-  if(!pmath_instance_of(file, PMATH_TYPE_STRING)
-  || pmath_string_length(file) < 1){
+  if(!pmath_is_string(file) || pmath_string_length(file) < 1){
     pmath_message(NULL, "fstr", 1, file);
     return expr;
   }
@@ -414,7 +413,7 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr){
       pmath_option_value(NULL, PMATH_SYMBOL_CHARACTERENCODING, options));
     
     if(encoding != PMATH_SYMBOL_AUTOMATIC
-    && !pmath_instance_of(encoding, PMATH_TYPE_STRING)){
+    && !pmath_is_string(encoding)){
       pmath_message(NULL, "charcode", 1, encoding);
       pmath_unref(file);
       pmath_unref(options);
@@ -467,11 +466,11 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr){
     }
   }
   
-  if(!pmath_instance_of(encoding, PMATH_TYPE_STRING)){
+  if(!pmath_is_string(encoding)){
     pmath_unref(encoding);
     encoding = pmath_evaluate(pmath_ref(PMATH_SYMBOL_CHARACTERENCODINGDEFAULT));
     
-    if(!pmath_instance_of(encoding, PMATH_TYPE_STRING)){
+    if(!pmath_is_string(encoding)){
       pmath_unref(encoding);
       encoding = PMATH_C_STRING("ASCII");
     }

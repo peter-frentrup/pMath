@@ -11,10 +11,10 @@
 
 PMATH_PRIVATE 
 pmath_symbol_t _pmath_topmost_symbol(pmath_t obj){ // obj wont be freed
-  if(pmath_instance_of(obj, PMATH_TYPE_SYMBOL))
+  if(pmath_is_symbol(obj))
     return pmath_ref(obj);
   
-  if(pmath_instance_of(obj, PMATH_TYPE_EXPRESSION)){
+  if(pmath_is_expr(obj)){
     pmath_t head = pmath_expr_get_item(obj, 0);
     pmath_t result = _pmath_topmost_symbol(head);
     pmath_unref(head);
@@ -176,8 +176,7 @@ PMATH_PRIVATE pmath_t builtin_array(pmath_expr_t expr){
   for(data.dim = data.depth;data.dim > 0;data.dim--){
     pmath_t d = pmath_expr_get_item(data.dims, data.dim);
     
-    if(!pmath_instance_of(d, PMATH_TYPE_INTEGER)
-    || !pmath_integer_fits_ui(d)){
+    if(!pmath_is_integer(d) || !pmath_integer_fits_ui(d)){
       pmath_unref(d);
       pmath_unref(data.dims);
       pmath_message(NULL, "intnm", 2, pmath_integer_new_si(2), pmath_ref(expr));
@@ -268,7 +267,7 @@ PMATH_PRIVATE pmath_t builtin_constantarray(pmath_expr_t expr){
 
   n = pmath_expr_get_item(expr, 2);
 
-  if(pmath_instance_of(n, PMATH_TYPE_EXPRESSION)){
+  if(pmath_is_expr(n)){
     pmath_t h = pmath_expr_get_item((pmath_expr_t)n, 0);
     pmath_unref(h);
 
@@ -283,8 +282,7 @@ PMATH_PRIVATE pmath_t builtin_constantarray(pmath_expr_t expr){
       for(data.dim = data.dims;data.dim > 0;data.dim--){
         pmath_t l = pmath_expr_get_item((pmath_expr_t)n, data.dim);
 
-        if(!pmath_instance_of(l, PMATH_TYPE_INTEGER)
-        || !pmath_integer_fits_ui((pmath_integer_t)l)){
+        if(!pmath_is_integer(l) || !pmath_integer_fits_ui(l)){
           pmath_unref(l);
           pmath_unref(n);
           pmath_message(
@@ -294,7 +292,7 @@ PMATH_PRIVATE pmath_t builtin_constantarray(pmath_expr_t expr){
           return expr;
         }
 
-        data.lengths[data.dim-1] = pmath_integer_get_ui((pmath_integer_t)l);
+        data.lengths[data.dim-1] = pmath_integer_get_ui(l);
 
         pmath_unref(l);
       }
@@ -312,8 +310,7 @@ PMATH_PRIVATE pmath_t builtin_constantarray(pmath_expr_t expr){
     }
   }
 
-  if(!pmath_instance_of(n, PMATH_TYPE_INTEGER)
-  || !pmath_integer_fits_ui((pmath_integer_t)n)){
+  if(!pmath_is_integer(n) || !pmath_integer_fits_ui(n)){
     pmath_unref(n);
     pmath_message(
       NULL, "ilsmn", 2,
@@ -322,7 +319,7 @@ PMATH_PRIVATE pmath_t builtin_constantarray(pmath_expr_t expr){
     return expr;
   }
 
-  data.lengths[0] = pmath_integer_get_ui((pmath_integer_t)n);
+  data.lengths[0] = pmath_integer_get_ui(n);
   data.c = pmath_expr_get_item(expr, 1);
   data.dim = 0;
   data.dims = 1;

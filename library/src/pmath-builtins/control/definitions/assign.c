@@ -67,7 +67,7 @@ static int find_tag( // SYM_SEARCH_XXX
 ){
   *kind_of_lhs = OWN_RULES;
   
-  if(pmath_instance_of(lhs, PMATH_TYPE_SYMBOL)){
+  if(pmath_is_symbol(lhs)){
     if(lhs == in_tag || in_tag == PMATH_UNDEFINED){
       pmath_unref(*out_tag);
       *out_tag = pmath_ref(lhs);
@@ -77,7 +77,7 @@ static int find_tag( // SYM_SEARCH_XXX
     return SYM_SEARCH_NOTFOUND;
   }
   
-  if(pmath_instance_of(lhs, PMATH_TYPE_EXPRESSION)){
+  if(pmath_is_expr(lhs)){
     pmath_t item;
     size_t i;
     int error;
@@ -198,7 +198,7 @@ pmath_bool_t _pmath_assign(
   int             error;
   int             kind_of_lhs;
   
-  if(pmath_instance_of(lhs, PMATH_TYPE_EXPRESSION))
+  if(pmath_is_expr(lhs))
     lhs = pmath_evaluate_expression(lhs, FALSE);
   
   out_tag = NULL;
@@ -312,7 +312,7 @@ PMATH_PRIVATE pmath_t builtin_assign(pmath_expr_t expr){
   }
   
   lhs = pmath_expr_get_item(expr, 1);
-  if(pmath_instance_of(lhs, PMATH_TYPE_EXPRESSION)){
+  if(pmath_is_expr(lhs)){
     pmath_t lhs2 = pmath_evaluate_expression(pmath_ref(lhs), FALSE);
     
     if(!pmath_equals(lhs2, lhs)){
@@ -348,7 +348,7 @@ PMATH_PRIVATE pmath_t builtin_unassign(pmath_expr_t expr){
   }
 
   lhs = pmath_expr_get_item(expr, 1);
-  if(pmath_instance_of(lhs, PMATH_TYPE_EXPRESSION)){
+  if(pmath_is_expr(lhs)){
     pmath_t lhs2 = pmath_evaluate_expression(pmath_ref(lhs), FALSE);
     
     if(!pmath_equals(lhs2, lhs)){
@@ -380,13 +380,13 @@ PMATH_PRIVATE pmath_t builtin_tagassign(pmath_expr_t expr){
 
   tag = pmath_expr_get_item(expr, 1);
   
-  if(!pmath_instance_of(tag, PMATH_TYPE_SYMBOL)){
+  if(!pmath_is_symbol(tag)){
     pmath_message(NULL, "sym", 2, tag, pmath_integer_new_si(1));
     return expr;
   }
   
   lhs = pmath_expr_get_item(expr, 2);
-  if(pmath_instance_of(lhs, PMATH_TYPE_EXPRESSION)){
+  if(pmath_is_expr(lhs)){
     pmath_t lhs2 = pmath_evaluate_expression(pmath_ref(lhs), FALSE);
     
     if(!pmath_equals(lhs2, lhs)){
@@ -430,13 +430,13 @@ PMATH_PRIVATE pmath_t builtin_tagunassign(pmath_expr_t expr){
 
   tag = pmath_expr_get_item(expr, 1);
   
-  if(!pmath_instance_of(tag, PMATH_TYPE_SYMBOL)){
+  if(!pmath_is_symbol(tag)){
     pmath_message(NULL, "sym", 2, tag, pmath_integer_new_si(1));
     return expr;
   }
   
   lhs = pmath_expr_get_item(expr, 2);
-  if(pmath_instance_of(lhs, PMATH_TYPE_EXPRESSION)){
+  if(pmath_is_expr(lhs)){
     pmath_t lhs2 = pmath_evaluate_expression(pmath_ref(lhs), FALSE);
     
     if(!pmath_equals(lhs2, lhs)){
@@ -472,7 +472,7 @@ PMATH_PRIVATE pmath_t builtin_assign_list(pmath_expr_t expr){
     return expr;
   
   if(tag != PMATH_UNDEFINED
-  || !pmath_instance_of(lhs, PMATH_TYPE_EXPRESSION)){
+  || !pmath_is_expr(lhs)){
     pmath_unref(tag);
     pmath_unref(lhs);
     pmath_unref(rhs);

@@ -103,7 +103,7 @@ static pmath_bool_t drop(
   if(depth == 0)
     return TRUE;
   
-  if(pmath_instance_of(*obj, PMATH_TYPE_EXPRESSION)
+  if(pmath_is_expr(*obj)
   && convert_start_end_step(*obj, pos, &start, &end, &step)){
     size_t i;
     
@@ -150,7 +150,7 @@ static pmath_bool_t take(
   if(depth == 0)
     return TRUE;
   
-  if(pmath_instance_of(*obj, PMATH_TYPE_EXPRESSION)
+  if(pmath_is_expr(*obj)
   && convert_start_end_step(*obj, pos, &start, &end, &step)){
     pmath_expr_t result;
     size_t len = (end - start + step) / step;

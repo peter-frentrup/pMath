@@ -72,7 +72,7 @@ PMATH_PRIVATE pmath_t builtin_cosh(pmath_expr_t expr){
     }
   }
   
-  if(pmath_instance_of(x, PMATH_TYPE_NUMBER)){
+  if(pmath_is_number(x)){
     int sign = pmath_number_sign(x);
     
     if(sign < 0){
@@ -93,7 +93,7 @@ PMATH_PRIVATE pmath_t builtin_cosh(pmath_expr_t expr){
     return expr;
   }
   
-  if(pmath_instance_of(x, PMATH_TYPE_EXPRESSION)){
+  if(pmath_is_expr(x)){
     size_t len = pmath_expr_length(x);
     pmath_t head = pmath_expr_get_item(x, 0);
     pmath_unref(head);
@@ -101,7 +101,7 @@ PMATH_PRIVATE pmath_t builtin_cosh(pmath_expr_t expr){
     if(head == PMATH_SYMBOL_TIMES){
       pmath_t fst = pmath_expr_get_item(x, 1);
       
-      if(pmath_instance_of(fst, PMATH_TYPE_NUMBER)){
+      if(pmath_is_number(fst)){
         if(pmath_number_sign(fst) < 0){
           expr = pmath_expr_set_item(expr, 1, NULL);
           

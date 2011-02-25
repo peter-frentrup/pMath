@@ -29,7 +29,7 @@ PMATH_PRIVATE void _pmath_iterate(
 
     sym = pmath_expr_get_item(iter, 1);
 
-    if(!pmath_instance_of(sym, PMATH_TYPE_SYMBOL)){
+    if(!pmath_is_symbol(sym)){
       pmath_unref(sym);
       pmath_message(NULL, "iter", 1, iter);
       return;
@@ -37,7 +37,7 @@ PMATH_PRIVATE void _pmath_iterate(
 
     range = pmath_evaluate(pmath_expr_get_item(iter, 2));
 
-    if(pmath_instance_of(range, PMATH_TYPE_EXPRESSION)){
+    if(pmath_is_expr(range)){
       pmath_t head = pmath_expr_get_item(range, 0);
       pmath_unref(head);
       
@@ -124,7 +124,7 @@ PMATH_PRIVATE void _pmath_iterate(
       pmath_ref(PMATH_SYMBOL_FLOOR), 1,
       iter));
 
-  if(!pmath_instance_of(iter, PMATH_TYPE_INTEGER)
+  if(!pmath_is_integer(iter)
   || !pmath_integer_fits_ui((pmath_integer_t)iter)){
     pmath_message(NULL, "iterb", 1, iter);
     return;

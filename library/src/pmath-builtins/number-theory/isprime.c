@@ -110,7 +110,7 @@ PMATH_PRIVATE pmath_t builtin_isprime(pmath_expr_t expr){
 
   n = pmath_expr_get_item(expr, 1);
 
-  if(pmath_instance_of(n, PMATH_TYPE_INTEGER)){
+  if(pmath_is_integer(n)){
     pmath_bool_t result = _pmath_integer_is_prime((pmath_integer_t)n);
     pmath_unref(expr);
     pmath_unref(n);

@@ -29,7 +29,7 @@ static pmath_t simplify_abs_sign(pmath_expr_t expr){
   }
 
   x = pmath_expr_get_item(expr, 1);
-  if(!pmath_instance_of(x, PMATH_TYPE_EXPRESSION)){
+  if(!pmath_is_expr(x)){
     pmath_unref(x);
     return expr;
   }
@@ -54,7 +54,7 @@ static pmath_t simplify_abs_sign(pmath_expr_t expr){
       pmath_expr_t xi = pmath_expr_get_item(x, i);
       pmath_bool_t do_extract;
 
-      if(pmath_instance_of(xi, PMATH_TYPE_EXPRESSION)
+      if(pmath_is_expr(xi)
       && pmath_expr_length(xi) == 1){
         pmath_t xi_head = pmath_expr_get_item(xi, 0);
         
@@ -72,8 +72,7 @@ static pmath_t simplify_abs_sign(pmath_expr_t expr){
 
       xi = pmath_evaluate(FUNC(pmath_ref(head), xi));
 
-      do_extract = !pmath_instance_of(xi, PMATH_TYPE_EXPRESSION) ||
-        pmath_expr_length(xi) != 1;
+      do_extract = !pmath_is_expr(xi) || pmath_expr_length(xi) != 1;
 
       if(!do_extract){
         pmath_t xi_head = pmath_expr_get_item(xi, 0);
@@ -183,7 +182,7 @@ PMATH_PRIVATE pmath_t builtin_sign(pmath_expr_t expr){
 
   x = pmath_expr_get_item(expr, 1);
   
-  if(pmath_instance_of(x, PMATH_TYPE_NUMBER)){
+  if(pmath_is_number(x)){
     int sign;
     
     pmath_unref(expr);
@@ -203,7 +202,7 @@ PMATH_PRIVATE pmath_t builtin_sign(pmath_expr_t expr){
     if(xinfdir){
       pmath_unref(x);
       pmath_unref(expr);
-      if(pmath_instance_of(xinfdir, PMATH_TYPE_NUMBER)
+      if(pmath_is_number(xinfdir)
       && pmath_number_sign(xinfdir) == 0){
         pmath_unref(xinfdir);
         return pmath_ref(PMATH_SYMBOL_UNDEFINED);

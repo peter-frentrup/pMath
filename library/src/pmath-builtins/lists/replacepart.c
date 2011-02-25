@@ -31,7 +31,7 @@ static pmath_t replace_const_part(
     return pmath_ref(newpart);
   }
 
-  if(!pmath_instance_of(list, PMATH_TYPE_EXPRESSION)){
+  if(!pmath_is_expr(list)){
     if(error){
       if(!*error){
         pmath_message(NULL, "partd", 1, pmath_ref(position));
@@ -42,7 +42,7 @@ static pmath_t replace_const_part(
   }
 
   pos = pmath_expr_get_item(position, position_start);
-  if(!pmath_instance_of(pos, PMATH_TYPE_INTEGER)){
+  if(!pmath_is_integer(pos)){
     if(error){
       if(!*error){
         pmath_message(NULL, "pspec", 1, pmath_ref(pos));
@@ -104,8 +104,7 @@ static pmath_bool_t replace_all_const_parts( // return = are there other rules?
   for(i = 1;i <= pmath_expr_length(*rules);++i){
     pmath_expr_t rule = pmath_expr_get_item(*rules, i);
     pmath_t pattern = pmath_expr_get_item(rule, 1);
-    if(pmath_instance_of(pattern, PMATH_TYPE_EXPRESSION)
-    && _pmath_pattern_is_const(pattern)){
+    if(pmath_is_expr(pattern) && _pmath_pattern_is_const(pattern)){
       pmath_t rhs = pmath_expr_get_item(rule, 2);
 
       *rules = pmath_expr_set_item(*rules, i, NULL);
@@ -126,7 +125,7 @@ static pmath_bool_t prepare_pattern_len_index( // stop?
   pmath_t *pos,
   size_t   len
 ){
-  if(pmath_instance_of(*pos, PMATH_TYPE_INTEGER)
+  if(pmath_is_integer(*pos)
   && mpz_sgn(((struct _pmath_integer_t*)*pos)->value) < 0){
     struct _pmath_integer_t *newpos = _pmath_create_integer();
     if(newpos){
@@ -158,7 +157,7 @@ static void prepare_pattern_len(
 ){
   size_t start, end, len;
 
-  assert(!*pattern || pmath_instance_of(*pattern, PMATH_TYPE_EXPRESSION));
+  assert(!*pattern || pmath_is_expr(*pattern));
   assert(depth >= 1);
 
   end = len = pmath_expr_length(*pattern);
@@ -200,7 +199,7 @@ static pmath_t replace_rule_part(
   size_t i, listlen;
 
   assert(level >= 1);
-  if(!pmath_instance_of(list, PMATH_TYPE_EXPRESSION))
+  if(!pmath_is_expr(list))
     return list;
 
   listlen = pmath_expr_length(list);
@@ -213,7 +212,7 @@ static pmath_t replace_rule_part(
     
     if(rule){
       pmath_t pattern = pmath_expr_get_item(rule, 1);
-      if(pmath_instance_of(pattern, PMATH_TYPE_EXPRESSION))
+      if(pmath_is_expr(pattern))
         prepare_pattern_len(&pattern, lengths, level);
 
       rule = pmath_expr_set_item(rule, 1, pattern);
@@ -267,7 +266,7 @@ static pmath_t replace_rule_part(
 static size_t calc_depth(pmath_t obj){ // without heads
   size_t i, len, result;
 
-  if(!pmath_instance_of(obj, PMATH_TYPE_EXPRESSION))
+  if(!pmath_is_expr(obj))
     return 0;
 
   result = 0;
@@ -288,15 +287,16 @@ static size_t calc_depth(pmath_t obj){ // without heads
 static pmath_expr_t prepare_rule(pmath_expr_t rule){
   pmath_t fst, fst_head;
 
-  assert(!rule || pmath_instance_of(rule, PMATH_TYPE_EXPRESSION));
+  assert(!rule || pmath_is_expr(rule));
 
   fst = pmath_expr_get_item(rule, 1);
-  if(!pmath_instance_of(fst, PMATH_TYPE_EXPRESSION))
+  if(!pmath_is_expr(fst)){
     return pmath_expr_set_item(rule, 1,
       pmath_expr_new_extended(
         pmath_ref(PMATH_SYMBOL_LIST), 1,
         fst));
-
+  }
+  
   fst_head = pmath_expr_get_item(fst, 0);
   pmath_unref(fst_head);
   if(fst_head != PMATH_SYMBOL_LIST)
@@ -312,7 +312,7 @@ static pmath_expr_t prepare_rule(pmath_expr_t rule){
 static pmath_expr_t prepare_rule_list(pmath_expr_t rules){
   size_t i;
 
-  assert(!rules || pmath_instance_of(rules, PMATH_TYPE_EXPRESSION));
+  assert(!rules || pmath_is_expr(rules));
 
   for(i = 1;i <= pmath_expr_length(rules);++i)
     rules = pmath_expr_set_item(

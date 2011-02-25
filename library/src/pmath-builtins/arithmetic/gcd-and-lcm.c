@@ -16,7 +16,7 @@ static pmath_t nest_integer(
 
   for(i = 1;i <= len;i++){
     pmath_t item = pmath_expr_get_item(expr, i);
-    if(!pmath_instance_of(item, PMATH_TYPE_INTEGER)){
+    if(!pmath_is_integer(item)){
       if(pmath_equals(item, _pmath_object_overflow)
       || pmath_equals(item, _pmath_object_underflow)){
         pmath_unref(expr);

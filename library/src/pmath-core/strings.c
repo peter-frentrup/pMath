@@ -738,7 +738,7 @@ pmath_string_t pmath_string_part(
     _str = (struct _pmath_string_t*)string;
     pmath_unref(tmp);
     
-    assert(pmath_instance_of(string, PMATH_TYPE_STRING));
+    assert(pmath_is_string(string));
 
     if(start == 0 && string->refcount == 1){
       _str->length = length;
@@ -769,7 +769,7 @@ const uint16_t *pmath_string_buffer(pmath_string_t string){
   if(!string)
     return NULL;
   
-  assert(pmath_instance_of(string, PMATH_TYPE_STRING));
+  assert(pmath_is_string(string));
   _str = (struct _pmath_string_t*)string;
 
   if(_str->buffer == NULL)
@@ -785,7 +785,7 @@ int pmath_string_length(pmath_string_t string){
   if(!string)
     return 0;
   
-  assert(pmath_instance_of(string, PMATH_TYPE_STRING));
+  assert(pmath_is_string(string));
   
   _str = (struct _pmath_string_t*)string;
   

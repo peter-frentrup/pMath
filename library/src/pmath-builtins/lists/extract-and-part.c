@@ -25,7 +25,7 @@ static pmath_bool_t part(
     if(position_start > max_position_start)
       return TRUE;
     
-    if(!pmath_instance_of(*list, PMATH_TYPE_EXPRESSION)){
+    if(!pmath_is_expr(*list)){
       pmath_message(NULL, "partd", 1, pmath_ref(position));
       return FALSE;
     }
@@ -33,7 +33,7 @@ static pmath_bool_t part(
     listlen = pmath_expr_length(*list);
     
     pos = pmath_expr_get_item(position, position_start);
-    if(!pmath_instance_of(pos, PMATH_TYPE_INTEGER))
+    if(!pmath_is_integer(pos))
       break;
     
     i = SIZE_MAX;
@@ -223,7 +223,7 @@ static pmath_t assign_part(
     return pmath_ref(new_value);
   }
   
-  if(!pmath_instance_of(list, PMATH_TYPE_EXPRESSION)){
+  if(!pmath_is_expr(list)){
     if(!*error)
       pmath_message(NULL, "partd", 1, pmath_ref(position));
     *error = TRUE;
@@ -233,7 +233,7 @@ static pmath_t assign_part(
   listlen = pmath_expr_length(list);
   index = pmath_expr_get_item(position, position_start);
   
-  if(pmath_instance_of(index, PMATH_TYPE_INTEGER)){
+  if(pmath_is_integer(index)){
     size_t i = SIZE_MAX;
     
     if(!extract_number(index, listlen, &i)){
@@ -444,7 +444,7 @@ PMATH_PRIVATE pmath_t builtin_assign_part(pmath_expr_t expr){
   if(!assignment)
     return expr;
   
-  if(!pmath_instance_of(lhs, PMATH_TYPE_EXPRESSION)
+  if(!pmath_is_expr(lhs)
   || pmath_expr_length(lhs) <= 1
   || rhs == PMATH_UNDEFINED){
     pmath_unref(tag);
@@ -474,7 +474,7 @@ PMATH_PRIVATE pmath_t builtin_assign_part(pmath_expr_t expr){
   }
   
   sym = pmath_expr_get_item(lhs, 1);
-  if(!pmath_instance_of(sym, PMATH_TYPE_SYMBOL)){
+  if(!pmath_is_symbol(sym)){
     pmath_message(NULL, "sym", 1, sym,
       pmath_expr_new_extended(
         pmath_ref(PMATH_SYMBOL_LIST), 2,

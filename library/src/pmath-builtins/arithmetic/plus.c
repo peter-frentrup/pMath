@@ -406,7 +406,7 @@ PMATH_PRIVATE void split_summand(
   pmath_t *out_num_factor,
   pmath_t *out_rest
 ){
-  if(pmath_instance_of(summand, PMATH_TYPE_EXPRESSION)){
+  if(pmath_is_expr(summand)){
     pmath_t head = pmath_expr_get_item(summand, 0);
     pmath_unref(head);
     
@@ -415,7 +415,7 @@ PMATH_PRIVATE void split_summand(
       
       if(len > 1){
         pmath_t first = pmath_expr_get_item(summand, 1);
-        if(pmath_instance_of(first, PMATH_TYPE_NUMBER)
+        if(pmath_is_number(first)
         || _pmath_is_nonreal_complex(first)){
           *out_num_factor = first;
           
@@ -442,7 +442,7 @@ PMATH_PRIVATE void split_summand(
     }
   }
   
-  if(pmath_instance_of(summand, PMATH_TYPE_NUMBER)){
+  if(pmath_is_number(summand)){
     *out_num_factor = pmath_ref(summand);
     *out_rest = PMATH_UNDEFINED;
     return;
@@ -453,8 +453,8 @@ PMATH_PRIVATE void split_summand(
 }
 
 static void plus_2_arg(pmath_t *a, pmath_t *b){
-  if(pmath_instance_of(*a, PMATH_TYPE_NUMBER)){
-    if(pmath_instance_of(*b, PMATH_TYPE_NUMBER)){
+  if(pmath_is_number(*a)){
+    if(pmath_is_number(*b)){
       *a = _add_nn(*a, *b);
       *b = PMATH_UNDEFINED;
       return;
@@ -494,7 +494,7 @@ static void plus_2_arg(pmath_t *a, pmath_t *b){
     }
   }
   else if(_pmath_is_nonreal_complex(*a)){
-    if(pmath_instance_of(*b, PMATH_TYPE_NUMBER)){
+    if(pmath_is_number(*b)){
       *a = pmath_expr_set_item(*a, 1,
         _add_nn(
           *b,

@@ -213,10 +213,10 @@ PMATH_PRIVATE int pmath_maxrecursion = 256;
 
 PMATH_API
 pmath_bool_t pmath_is_evaluated(pmath_t obj){
-  if(pmath_instance_of(obj, PMATH_TYPE_EXPRESSION))
+  if(pmath_is_expr(obj))
     return _pmath_expr_is_updated(obj);
   
-  if(pmath_instance_of(obj, PMATH_TYPE_SYMBOL)){
+  if(pmath_is_symbol(obj)){
     pmath_t value = pmath_symbol_get_value(obj);
     pmath_bool_t result = value && !pmath_instance_of(value, PMATH_TYPE_EVALUATABLE);
     pmath_unref(value);

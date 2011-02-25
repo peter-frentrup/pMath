@@ -21,7 +21,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_is_namespace(pmath_t name){
   int len, i;
   pmath_token_t tok;
   
-  if(!pmath_instance_of(name, PMATH_TYPE_STRING))
+  if(!pmath_is_string(name))
     return FALSE;
   
   len = pmath_string_length(name);

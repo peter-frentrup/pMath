@@ -20,7 +20,7 @@ PMATH_PRIVATE pmath_t builtin_flatten(pmath_expr_t expr){
   }
   
   list = pmath_expr_get_item(expr, 1);
-  if(!pmath_instance_of(list, PMATH_TYPE_EXPRESSION)){
+  if(!pmath_is_expr(list)){
     pmath_unref(list);
     return expr;
   }

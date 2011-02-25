@@ -101,7 +101,7 @@ PMATH_PRIVATE pmath_t builtin_environment(pmath_expr_t expr){
   }
   
   name = pmath_expr_get_item(expr, 1);
-  if(!pmath_instance_of(name, PMATH_TYPE_STRING)){
+  if(!pmath_is_string(name)){
     pmath_unref(name);
     pmath_message(NULL, "str", 2, pmath_integer_new_si(1), pmath_ref(expr));
     return expr;
@@ -161,7 +161,7 @@ PMATH_PRIVATE pmath_t builtin_assign_environment(pmath_expr_t expr){
   }
   
   tag = pmath_expr_get_item(lhs, 1);
-  if(!pmath_instance_of(tag, PMATH_TYPE_STRING)){
+  if(!pmath_is_string(tag)){
     pmath_unref(tag);
     pmath_unref(lhs);
     pmath_unref(rhs);
@@ -190,7 +190,7 @@ PMATH_PRIVATE pmath_t builtin_assign_environment(pmath_expr_t expr){
     }
     #endif
   }
-  else if(pmath_instance_of(rhs, PMATH_TYPE_STRING)){
+  else if(pmath_is_string(rhs)){
     #ifdef PMATH_OS_WIN32
     {
       // zero-teminate:

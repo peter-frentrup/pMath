@@ -30,7 +30,7 @@ PMATH_PRIVATE pmath_t builtin_assign_syntaxinformation(pmath_expr_t expr){
   
   sym = pmath_expr_get_item(lhs, 1);
   
-  if(!pmath_instance_of(sym, PMATH_TYPE_SYMBOL)){
+  if(!pmath_is_symbol(sym)){
     pmath_unref(tag);
     pmath_unref(lhs);
     pmath_unref(rhs);
@@ -67,7 +67,7 @@ PMATH_PRIVATE pmath_t builtin_syntaxinformation(pmath_expr_t expr){
   }
   
   sym = pmath_expr_get_item(expr, 1);
-  if(pmath_instance_of(sym, PMATH_TYPE_STRING)){
+  if(pmath_is_string(sym)){
     sym = pmath_symbol_find(sym, FALSE);
     
     if(!sym){

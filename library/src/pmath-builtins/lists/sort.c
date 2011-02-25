@@ -1,10 +1,12 @@
+#include <pmath-core/numbers.h>
 #include <pmath-core/symbols.h>
-#include <pmath-util/evaluation.h>
 
 #include <assert.h>
 #include <string.h>
 
 #include <pmath-util/concurrency/threads.h>
+#include <pmath-util/evaluation.h>
+#include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
 
 #include <pmath-core/objects-private.h>
@@ -139,6 +141,130 @@ static void quicksort(
   Mircosoft seams to be better at optimizing than gcc and I.
  */
 
+static int ordering_default_cmp(pmath_t ctx, pmath_t a, pmath_t b){
+  return pmath_compare(a, b);
+}
+
+static int ordering_user_cmp(pmath_t ctx, pmath_t a, pmath_t b){
+  if(!pmath_equals(a, b)){
+    pmath_t less = pmath_evaluate(
+      pmath_expr_new_extended(
+        pmath_ref(ctx), 2,
+        pmath_ref(a),
+        pmath_ref(b)));
+
+    pmath_unref(less);
+    if(less == PMATH_SYMBOL_TRUE)
+      return -1;
+    if(less == PMATH_SYMBOL_FALSE)
+      return 1;
+    
+    return pmath_compare(a, b);
+  }
+  
+  return 0;
+}
+
+struct ordering_context_t{
+  pmath_expr_t list;
+  int (*cmp)(pmath_t ctx, pmath_t a, pmath_t b);
+  pmath_t cmp_ctx;
+};
+
+static int ordering_cmp(void *p, const void *a, const void *b){
+  struct ordering_context_t *context = (struct ordering_context_t*)p;
+  size_t ia, ib;
+  int result;
+  pmath_t a_item, b_item;
+  
+  #if PMATH_BITSIZE == 64
+    ia = pmath_integer_get_ui64(*(pmath_integer_t*)a);
+    ib = pmath_integer_get_ui64(*(pmath_integer_t*)b);
+  #elif PMATH_BITSIZE == 32
+    ia = pmath_integer_get_ui(*(pmath_integer_t*)a);
+    ib = pmath_integer_get_ui(*(pmath_integer_t*)b);
+  #else
+    #error unsupported bitsize
+  #endif
+  
+  a_item = pmath_expr_get_item(context->list, ia);
+  b_item = pmath_expr_get_item(context->list, ib);
+  
+  result = context->cmp(context->cmp_ctx, a_item, b_item);
+  
+  pmath_unref(a_item);
+  pmath_unref(b_item);
+  if(result != 0)
+    return result;
+  
+  if((uintptr_t)a < (uintptr_t)b) return -1;
+  if((uintptr_t)a > (uintptr_t)b) return +1;
+  return 0;
+}
+
+PMATH_PRIVATE pmath_t builtin_ordering(pmath_expr_t expr){
+/* Ordering(expr)
+   Ordering(expr, n)
+   Ordering(expr, n, lessfn)
+ */
+  
+  pmath_expr_t indices;
+  size_t i, len;
+  struct ordering_context_t context;
+  
+  size_t exprlen = pmath_expr_length(expr);
+  if(exprlen < 1 || exprlen > 3){
+    pmath_message_argxxx(exprlen, 1, 3);
+    return expr;
+  }
+  
+  context.list = (pmath_expr_t)pmath_expr_get_item(expr, 1);
+  if(!pmath_is_expr(context.list)){
+    pmath_message(NULL, "noexpr", 1, context.list);
+    return expr;
+  }
+  
+  len = pmath_expr_length(context.list);
+  
+  indices = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), len);
+  for(i = len;i > 0;--i){
+    indices = pmath_expr_set_item(indices, i, pmath_integer_new_size(i));
+  }
+  
+  if(exprlen == 3){
+    context.cmp_ctx = pmath_expr_get_item(expr, 3);
+    context.cmp     = ordering_user_cmp;
+  }
+  else{
+    context.cmp_ctx = NULL;
+    context.cmp     = ordering_default_cmp;
+  }
+  
+  indices = _pmath_expr_sort_ex(indices, ordering_cmp, &context);
+  
+  pmath_unref(context.cmp_ctx);
+  pmath_unref(context.list);
+  
+  if(exprlen >= 2){
+    pmath_t take = pmath_expr_new_extended(
+      pmath_ref(PMATH_SYMBOL_TAKE), 2,
+      indices, 
+      pmath_expr_get_item(expr, 2));
+    
+    take = pmath_evaluate(take);
+    if(!pmath_is_expr_of(take, PMATH_SYMBOL_LIST)){
+      pmath_unref(take);
+      return expr;
+    }
+    
+    pmath_unref(expr);
+    return take;
+  }
+  
+  pmath_unref(expr);
+  return indices;
+}
+
 struct sort_context_t{
   pmath_t cmp;
 };
@@ -182,7 +308,7 @@ PMATH_PRIVATE pmath_t builtin_sort(pmath_expr_t expr){
   }
 
   list = (pmath_expr_t)pmath_expr_get_item(expr, 1);
-  if(!pmath_instance_of(list, PMATH_TYPE_EXPRESSION)){
+  if(!pmath_is_expr(list)){
     pmath_message(NULL, "noexpr", 1, list);
     return expr;
   }
@@ -209,8 +335,8 @@ static int sortby_cmp(void *dummy, const void *a, const void *b){
   pmath_t objA, objB;
   int cmp;
   
-  assert(*(pmath_t*)a == NULL || pmath_instance_of(*(pmath_t*)a, PMATH_TYPE_EXPRESSION));
-  assert(*(pmath_t*)b == NULL || pmath_instance_of(*(pmath_t*)b, PMATH_TYPE_EXPRESSION));
+  assert(*(pmath_t*)a == NULL || pmath_is_expr(*(pmath_t*)a));
+  assert(*(pmath_t*)b == NULL || pmath_is_expr(*(pmath_t*)b));
 
   objA = pmath_expr_get_item(*(pmath_expr_t*)a, 0);
   objB = pmath_expr_get_item(*(pmath_expr_t*)b, 0);
@@ -243,7 +369,7 @@ PMATH_PRIVATE pmath_t builtin_sortby(pmath_expr_t expr){
   }
 
   list = (pmath_expr_t)pmath_expr_get_item(expr, 1);
-  if(!pmath_instance_of(list, PMATH_TYPE_EXPRESSION)){
+  if(!pmath_is_expr(list)){
     pmath_message(NULL, "noexpr", 1, list);
     return expr;
   }
@@ -272,7 +398,7 @@ PMATH_PRIVATE pmath_t builtin_sortby(pmath_expr_t expr){
 
   for(i = 1;i <= len;++i){
     pmath_expr_t item = (pmath_expr_t)pmath_expr_get_item(list, i);
-    assert(!item || pmath_instance_of(item, PMATH_TYPE_EXPRESSION));
+    assert(!item || pmath_is_expr(item));
 
     list = pmath_expr_set_item(list, i, pmath_expr_get_item(item, 1));
     pmath_unref(item);

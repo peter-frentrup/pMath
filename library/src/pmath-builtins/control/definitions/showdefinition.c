@@ -90,7 +90,7 @@ PMATH_PRIVATE pmath_t builtin_showdefinition(pmath_expr_t expr){
   sym = pmath_expr_get_item(expr, 1);
   pmath_unref(expr);
   
-  if(pmath_instance_of(sym, PMATH_TYPE_STRING)){
+  if(pmath_is_string(sym)){
     obj = sym;
     
     expr = pmath_evaluate(
@@ -133,14 +133,14 @@ PMATH_PRIVATE pmath_t builtin_showdefinition(pmath_expr_t expr){
 //    
 //    pmath_unref(obj);
   }
-  else if(!pmath_instance_of(sym, PMATH_TYPE_SYMBOL)){
+  else if(!pmath_is_symbol(sym)){
     pmath_message(NULL, "ssym", 1, sym);
     return NULL;
   }
   
   
   obj = EVAL_CODE_ARGS("`1`::usage", "(o)", pmath_ref(sym));
-  if(pmath_instance_of(obj, PMATH_TYPE_STRING)){
+  if(pmath_is_string(obj)){
     PMATH_RUN_ARGS(
         "SectionPrint(\"PrintUsage\", HoldForm(LongForm(`1`)))", 
       "(o)", 

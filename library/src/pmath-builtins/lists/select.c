@@ -26,7 +26,7 @@ PMATH_PRIVATE pmath_t builtin_select(pmath_expr_t expr){
   }
   
   list = pmath_expr_get_item(expr, 1);
-  if(!pmath_instance_of(list, PMATH_TYPE_EXPRESSION)){
+  if(!pmath_is_expr(list)){
     pmath_message(NULL, "nexprat", 2, pmath_integer_new_si(1), pmath_ref(expr));
     return expr;
   }
@@ -35,7 +35,7 @@ PMATH_PRIVATE pmath_t builtin_select(pmath_expr_t expr){
   if(exprlen == 3){
     pmath_t n = pmath_expr_get_item(expr, 3);
 
-    if(pmath_instance_of(n, PMATH_TYPE_INTEGER)
+    if(pmath_is_integer(n)
     && pmath_number_sign(n) >= 0){
       if(pmath_integer_fits_ui(n))
         count = pmath_integer_get_ui(n);

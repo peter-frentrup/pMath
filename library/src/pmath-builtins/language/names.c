@@ -14,7 +14,7 @@ PMATH_PRIVATE pmath_t builtin_names(pmath_expr_t expr){
   if(pmath_expr_length(expr) == 1){
     pmath_string_t pattern = pmath_expr_get_item(expr, 1);
     
-    if(pmath_instance_of(pattern, PMATH_TYPE_STRING)){
+    if(pmath_is_string(pattern)){
       pmath_unref(expr);
       expr = pmath_parse_string_args(
           "Local("

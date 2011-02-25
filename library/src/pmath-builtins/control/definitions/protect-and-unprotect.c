@@ -29,7 +29,7 @@ PMATH_PRIVATE pmath_t builtin_protect_or_unprotect(pmath_expr_t expr){
   for(i = 1;i <= pmath_expr_length(expr);++i){
     pmath_symbol_t sym = pmath_expr_get_item(expr, i);
     
-    if(pmath_instance_of(sym, PMATH_TYPE_STRING)){
+    if(pmath_is_string(sym)){
       sym = pmath_symbol_get(sym, FALSE);
       if(sym)
         expr = pmath_expr_set_item(expr, i, pmath_ref(sym));
@@ -37,7 +37,7 @@ PMATH_PRIVATE pmath_t builtin_protect_or_unprotect(pmath_expr_t expr){
         sym = pmath_expr_get_item(expr, i);
     }
     
-    if(!pmath_instance_of(sym, PMATH_TYPE_SYMBOL)){
+    if(!pmath_is_symbol(sym)){
       pmath_message(NULL, "fnsym", 1, sym);
       return expr;
     }

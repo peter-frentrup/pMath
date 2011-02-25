@@ -10,7 +10,7 @@
 #include <pmath-builtins/control/messages-private.h>
 
 static void make_critical_message(pmath_t msg){ // msg will be freed
-  if(pmath_instance_of(msg, PMATH_TYPE_SYMBOL)){
+  if(pmath_is_symbol(msg)){
     PMATH_RUN_ARGS("Internal`IsCriticalMessage(HoldPattern(MessageName(`1`, ~))):= True", "(o)", msg);
   }
   else{
@@ -54,11 +54,11 @@ PMATH_PRIVATE pmath_t builtin_try(pmath_expr_t expr){
   if(exprlen == 3){
     messages = pmath_expr_get_item(expr, 3);
     
-    if(pmath_instance_of(messages, PMATH_TYPE_SYMBOL)){
+    if(pmath_is_symbol(messages)){
       messages = pmath_build_value("(o)", messages);
     }
     
-    if(!pmath_instance_of(messages, PMATH_TYPE_EXPRESSION)){
+    if(!pmath_is_expr(messages)){
       pmath_message(NULL, "nomsgs", 1, messages);
       return expr;
     }
@@ -75,7 +75,7 @@ PMATH_PRIVATE pmath_t builtin_try(pmath_expr_t expr){
       for(i = pmath_expr_length(messages);i > 0;--i){
         item = pmath_expr_get_item(messages, i);
         
-        if(!pmath_instance_of(item, PMATH_TYPE_SYMBOL)
+        if(!pmath_is_symbol(item)
         && !_pmath_is_valid_messagename(item)){
           pmath_unref(item);
           pmath_message(NULL, "nomsgs", 1, messages);

@@ -13,7 +13,7 @@ static pmath_t operate(
   if(level == 0)
     return pmath_expr_new_extended(p, 1, expr);
   
-  if(!pmath_instance_of(expr, PMATH_TYPE_EXPRESSION)){
+  if(!pmath_is_expr(expr)){
     pmath_unref(p);
     return expr;
   }
@@ -39,8 +39,7 @@ PMATH_PRIVATE pmath_t builtin_operate(pmath_expr_t expr){
   
   if(exprlen == 3){
     pmath_t obj = pmath_expr_get_item(expr, 3);
-    if(!pmath_instance_of(obj, PMATH_TYPE_INTEGER)
-    || !pmath_integer_fits_ui(obj)){
+    if(!pmath_is_integer(obj) || !pmath_integer_fits_ui(obj)){
       pmath_unref(obj);
       pmath_message(
         NULL, "numn", 2,

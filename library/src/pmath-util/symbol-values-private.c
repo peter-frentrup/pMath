@@ -187,7 +187,7 @@ pmath_bool_t _pmath_symbol_value_visit(
     return FALSE;
   }
   
-  if(pmath_instance_of(value, PMATH_TYPE_EXPRESSION)){
+  if(pmath_is_expr(value)){
     size_t i;
     
     for(i = 0;i <= pmath_expr_length(value);++i){
@@ -324,7 +324,7 @@ pmath_t _pmath_symbol_value_remove_all(
     return pmath_ref(replacement);
   }
   
-  if(pmath_instance_of(value, PMATH_TYPE_EXPRESSION)){
+  if(pmath_is_expr(value)){
     size_t i;
     
     for(i = 0;i <= pmath_expr_length(value);++i){

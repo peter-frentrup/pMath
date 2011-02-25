@@ -19,7 +19,7 @@ PMATH_PRIVATE pmath_bool_t extract_number(
     return TRUE;
   }
   
-  if(!pmath_instance_of(number, PMATH_TYPE_INTEGER))
+  if(!pmath_is_integer(number))
     return FALSE;
 
   if(mpz_cmpabs_ui(((struct _pmath_integer_t*)number)->value, ULONG_MAX) > 0){
@@ -136,8 +136,7 @@ PMATH_PRIVATE pmath_bool_t extract_delta_range(
   count_obj = pmath_evaluate(pmath_expr_new_extended(
     pmath_ref(PMATH_SYMBOL_FLOOR), 1, count_obj));
 
-  if(!pmath_instance_of(count_obj, PMATH_TYPE_INTEGER)
-  || !pmath_integer_fits_ui(count_obj)){
+  if(!pmath_is_integer(count_obj) || !pmath_integer_fits_ui(count_obj)){
     pmath_unref(count_obj);
     return FALSE;
   }
@@ -161,8 +160,7 @@ pmath_bool_t _pmath_extract_longrange(
     return TRUE;
   }
   
-  if(pmath_instance_of(range, PMATH_TYPE_INTEGER)
-  && pmath_integer_fits_si(range)){
+  if(pmath_is_integer(range) && pmath_integer_fits_si(range)){
     *end  = pmath_integer_get_si(range);
     *step = 1;
     
@@ -181,8 +179,7 @@ pmath_bool_t _pmath_extract_longrange(
     pmath_t b = pmath_expr_get_item(range, 2);
     *step = 1;
     
-    if(pmath_instance_of(a, PMATH_TYPE_INTEGER)
-    && pmath_integer_fits_si(a)){
+    if(pmath_is_integer(a) && pmath_integer_fits_si(a)){
       *start = pmath_integer_get_si(a);
     }
     else if(a == PMATH_SYMBOL_AUTOMATIC){
@@ -194,8 +191,7 @@ pmath_bool_t _pmath_extract_longrange(
       return FALSE;
     }
     
-    if(pmath_instance_of(b, PMATH_TYPE_INTEGER)
-    && pmath_integer_fits_si(b)){
+    if(pmath_is_integer(b) && pmath_integer_fits_si(b)){
       *end = pmath_integer_get_si(b);
     }
     else if(b == PMATH_SYMBOL_AUTOMATIC){
@@ -217,8 +213,7 @@ pmath_bool_t _pmath_extract_longrange(
     pmath_t b = pmath_expr_get_item(range, 2);
     pmath_t c = pmath_expr_get_item(range, 3);
     
-    if(pmath_instance_of(c, PMATH_TYPE_INTEGER)
-    && pmath_integer_fits_si(c)){
+    if(pmath_is_integer(c) && pmath_integer_fits_si(c)){
       *step = pmath_integer_get_si(c);
     }
     else{
@@ -228,8 +223,7 @@ pmath_bool_t _pmath_extract_longrange(
       return FALSE;
     }
     
-    if(pmath_instance_of(a, PMATH_TYPE_INTEGER)
-    && pmath_integer_fits_si(a)){
+    if(pmath_is_integer(a) && pmath_integer_fits_si(a)){
       *start = pmath_integer_get_si(a);
     }
     else if(a == PMATH_SYMBOL_AUTOMATIC){
@@ -242,8 +236,7 @@ pmath_bool_t _pmath_extract_longrange(
       return FALSE;
     }
     
-    if(pmath_instance_of(b, PMATH_TYPE_INTEGER)
-    && pmath_integer_fits_si(b)){
+    if(pmath_is_integer(b) && pmath_integer_fits_si(b)){
       *end = pmath_integer_get_si(b);
     }
     else if(b == PMATH_SYMBOL_AUTOMATIC){

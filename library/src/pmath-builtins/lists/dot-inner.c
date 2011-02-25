@@ -144,7 +144,7 @@ static pmath_bool_t init(struct _inner_info_t *info, pmath_t t1, pmath_t t2){
     return FALSE;
   }
   
-  if(!pmath_instance_of(obj1, PMATH_TYPE_INTEGER)){
+  if(!pmath_is_integer(obj1)){
     pmath_unref(d1);
     pmath_unref(d2);
     pmath_unref(obj1);
@@ -167,8 +167,7 @@ static pmath_bool_t init(struct _inner_info_t *info, pmath_t t1, pmath_t t2){
   
   for(i = 1;i < info->n;++i){
     obj1 = pmath_expr_get_item(d1, i);
-    if(!pmath_instance_of(obj1, PMATH_TYPE_INTEGER)
-    || !pmath_integer_fits_ui(obj1)){
+    if(!pmath_is_integer(obj1) || !pmath_integer_fits_ui(obj1)){
       pmath_unref(obj1);
       pmath_unref(d1);
       pmath_unref(d2);
@@ -183,8 +182,7 @@ static pmath_bool_t init(struct _inner_info_t *info, pmath_t t1, pmath_t t2){
   
   for(i = info->n + 1;i <= info->dim1;++i){
     obj1 = pmath_expr_get_item(d1, i);
-    if(!pmath_instance_of(obj1, PMATH_TYPE_INTEGER)
-    || !pmath_integer_fits_ui(obj1)){
+    if(!pmath_is_integer(obj1) || !pmath_integer_fits_ui(obj1)){
       pmath_unref(obj1);
       pmath_unref(d1);
       pmath_unref(d2);
@@ -199,8 +197,7 @@ static pmath_bool_t init(struct _inner_info_t *info, pmath_t t1, pmath_t t2){
   
   for(i = 2;i <= info->dim2;++i){
     obj2 = pmath_expr_get_item(d2, i);
-    if(!pmath_instance_of(obj2, PMATH_TYPE_INTEGER)
-    || !pmath_integer_fits_ui(obj2)){
+    if(!pmath_is_integer(obj2) || !pmath_integer_fits_ui(obj2)){
       pmath_unref(obj2);
       pmath_unref(d1);
       pmath_unref(d2);
@@ -349,8 +346,7 @@ PMATH_PRIVATE pmath_t builtin_inner(pmath_expr_t expr){
   if(exprlen == 5){
     pmath_t obj = pmath_expr_get_item(expr, 5);
     
-    if(!pmath_instance_of(obj, PMATH_TYPE_INTEGER)
-    || !pmath_integer_fits_ui(obj)){
+    if(!pmath_is_integer(obj) || !pmath_integer_fits_ui(obj)){
       pmath_message(NULL, "intpm", 2,
         pmath_ref(expr),
         pmath_integer_new_si(5));
@@ -369,7 +365,7 @@ PMATH_PRIVATE pmath_t builtin_inner(pmath_expr_t expr){
   else
     info.n = SIZE_MAX;
   
-  if(!pmath_instance_of(t1, PMATH_TYPE_EXPRESSION)){
+  if(!pmath_is_expr(t1)){
     pmath_message(NULL, "nexprat", 2, pmath_integer_new_si(2), pmath_ref(expr));
     pmath_unref(info.f);
     pmath_unref(info.g);
@@ -378,7 +374,7 @@ PMATH_PRIVATE pmath_t builtin_inner(pmath_expr_t expr){
     return expr;
   }
   
-  if(!pmath_instance_of(t2, PMATH_TYPE_EXPRESSION)){
+  if(!pmath_is_expr(t2)){
     pmath_message(NULL, "nexprat", 2, pmath_integer_new_si(3), pmath_ref(expr));
     pmath_unref(info.f);
     pmath_unref(info.g);

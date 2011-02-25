@@ -61,7 +61,7 @@ pmath_t builtin_setaccuracy(pmath_expr_t expr){
     acc = HUGE_VAL;
   }
   else{
-    if(!pmath_instance_of(acc_obj, PMATH_TYPE_NUMBER)){
+    if(!pmath_is_number(acc_obj)){
       pmath_message(NULL, "invacc", 1, acc_obj);
       return expr;
     }
@@ -101,7 +101,7 @@ pmath_t builtin_setprecision(pmath_expr_t expr){
     prec = HUGE_VAL;
   }
   else{
-    if(!pmath_instance_of(prec_obj, PMATH_TYPE_NUMBER)){
+    if(!pmath_is_number(prec_obj)){
       pmath_message(NULL, "invprec", 1, prec_obj);
       return expr;
     }
@@ -163,7 +163,7 @@ pmath_t builtin_assign_maxextraprecision(pmath_expr_t expr){
     return expr;
   }
   
-  if(pmath_instance_of(rhs, PMATH_TYPE_NUMBER)){
+  if(pmath_is_number(rhs)){
     double d = pmath_number_get_d(rhs);
     
     if(d > 0){

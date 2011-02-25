@@ -1895,7 +1895,7 @@ typedef struct{
 }_pmath_ungroup_t;
 
 static int ungrouped_string_length(pmath_t box){ // box wont be freed
-  if(pmath_instance_of(box, PMATH_TYPE_STRING)){
+  if(pmath_is_string(box)){
     const uint16_t *str = pmath_string_buffer((pmath_string_t)box);
     int i, k, len, result;
     
@@ -1929,7 +1929,7 @@ static int ungrouped_string_length(pmath_t box){ // box wont be freed
     return result;
   }
   
-  if(pmath_instance_of(box, PMATH_TYPE_EXPRESSION)){
+  if(pmath_is_expr(box)){
     int result = 0;
     size_t i;
     pmath_t head = pmath_expr_get_item((pmath_expr_t)box, 0);
@@ -1953,7 +1953,7 @@ static void ungroup(
   _pmath_ungroup_t *g,
   pmath_t           box // will be freed
 ){
-  if(pmath_instance_of(box, PMATH_TYPE_STRING)){
+  if(pmath_is_string(box)){
     const uint16_t *str;
     int len, i, j, start;
     scanner_t tokens;
@@ -2028,7 +2028,7 @@ static void ungroup(
     return;
   }
   
-  if(pmath_instance_of(box, PMATH_TYPE_EXPRESSION)){
+  if(pmath_is_expr(box)){
     pmath_t head = pmath_expr_get_item(box, 0);
     pmath_unref(head);
     if(head == PMATH_SYMBOL_LIST || head == NULL){
@@ -2046,7 +2046,7 @@ static void ungroup(
         
         pmath_span_t *old = SPAN_PTR(g->spans->items[start]);
         
-        if(pmath_instance_of(first, PMATH_TYPE_STRING)){
+        if(pmath_is_string(first)){
           const uint16_t *fbuf = pmath_string_buffer(first);
           int flen = pmath_string_length(first);
           

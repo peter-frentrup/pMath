@@ -12,8 +12,7 @@
 PMATH_PRIVATE pmath_bool_t _pmath_is_valid_messagename(pmath_t msg){
   pmath_t obj;
   
-  if(!pmath_instance_of(msg, PMATH_TYPE_EXPRESSION)
-  || pmath_expr_length(msg) != 2)
+  if(!pmath_is_expr(msg) || pmath_expr_length(msg) != 2)
     return FALSE;
   
   obj = pmath_expr_get_item(msg, 0);
@@ -22,14 +21,14 @@ PMATH_PRIVATE pmath_bool_t _pmath_is_valid_messagename(pmath_t msg){
     return FALSE;
   
   obj = pmath_expr_get_item(msg, 1);
-  if(!pmath_instance_of(obj, PMATH_TYPE_SYMBOL)){
+  if(!pmath_is_symbol(obj)){
     pmath_unref(obj);
     return FALSE;
   }
   pmath_unref(obj);
   
   obj = pmath_expr_get_item(msg, 2);
-  if(!pmath_instance_of(obj, PMATH_TYPE_STRING)){
+  if(!pmath_is_string(obj)){
     pmath_unref(obj);
     return FALSE;
   }
@@ -91,7 +90,7 @@ PMATH_PRIVATE pmath_t builtin_assign_messagename(pmath_expr_t expr){
   }
   
   sym = pmath_expr_get_item(lhs, 1);
-  assert(pmath_instance_of(sym, PMATH_TYPE_SYMBOL));
+  assert(pmath_is_symbol(sym));
   
   if(tag != PMATH_UNDEFINED && tag != sym){
     pmath_message(PMATH_SYMBOL_MESSAGE, "tag", 3, tag, lhs, sym);
@@ -117,7 +116,7 @@ PMATH_PRIVATE pmath_t builtin_assign_messagename(pmath_expr_t expr){
   }
   
   if(rhs != PMATH_UNDEFINED
-  && !pmath_instance_of(rhs, PMATH_TYPE_STRING)){
+  && !pmath_is_string(rhs)){
     pmath_message(PMATH_SYMBOL_MESSAGE, "str", 1, pmath_ref(rhs));
     
     pmath_unref(lhs);
@@ -176,7 +175,7 @@ PMATH_PRIVATE pmath_t builtin_messagename(pmath_expr_t expr){
   }
   
   sym = pmath_expr_get_item(expr, 1);
-  if(!pmath_instance_of(sym, PMATH_TYPE_SYMBOL)){
+  if(!pmath_is_symbol(sym)){
     pmath_unref(sym);
     return expr;
   }

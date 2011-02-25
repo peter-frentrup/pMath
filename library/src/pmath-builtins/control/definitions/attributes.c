@@ -12,7 +12,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_get_attributes(
   pmath_t obj // wont be freed
 ){
   *attr = 0;
-  if(pmath_instance_of(obj, PMATH_TYPE_EXPRESSION)){
+  if(pmath_is_expr(obj)){
     size_t i;
     pmath_t item = pmath_expr_get_item((pmath_expr_t)obj, 0);
     pmath_unref(item);
@@ -95,10 +95,10 @@ PMATH_PRIVATE pmath_t builtin_assign_attributes(pmath_expr_t expr){
   pmath_unref(tag);
   pmath_unref(expr);
   
-  if(pmath_instance_of(sym, PMATH_TYPE_STRING))
+  if(pmath_is_string(sym))
     sym = pmath_symbol_find(sym, FALSE);
   
-  if(!pmath_instance_of(sym, PMATH_TYPE_SYMBOL)){
+  if(!pmath_is_symbol(sym)){
     pmath_message(NULL, "fnsym", 1, lhs);
     
     pmath_unref(sym);
@@ -136,10 +136,10 @@ PMATH_PRIVATE pmath_t builtin_attributes(pmath_expr_t expr){
 
   sym = (pmath_symbol_t)pmath_expr_get_item(expr, 1);
   
-  if(pmath_instance_of(sym, PMATH_TYPE_STRING))
+  if(pmath_is_string(sym))
     sym = pmath_symbol_find(sym, FALSE);
     
-  if(!pmath_instance_of(sym, PMATH_TYPE_SYMBOL)){
+  if(!pmath_is_symbol(sym)){
     pmath_message(NULL, "sym", 2, sym, pmath_integer_new_si(1));
     return expr;
   }

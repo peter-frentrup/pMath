@@ -30,7 +30,7 @@ static pmath_bool_t cases(
   int reldepth = _pmath_object_in_levelspec(
     obj, info->levelmin, info->levelmax, level);
   
-  if(reldepth <= 0 && pmath_instance_of(obj, PMATH_TYPE_EXPRESSION)){
+  if(reldepth <= 0 && pmath_is_expr(obj)){
     size_t len = pmath_expr_length(obj);
     size_t i;
     
@@ -110,8 +110,7 @@ PMATH_PRIVATE pmath_t builtin_cases(pmath_expr_t expr){
       if(exprlen >= 4){
         pmath_t n = pmath_expr_get_item(expr, 4);
         
-        if(pmath_instance_of(n, PMATH_TYPE_INTEGER)
-        && pmath_number_sign(n) >= 0){
+        if(pmath_is_integer(n) && pmath_number_sign(n) >= 0){
           last_nonoption = 4;
           if(pmath_integer_fits_ui(n))
             info.count = pmath_integer_get_ui(n);

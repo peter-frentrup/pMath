@@ -348,6 +348,7 @@ PMATH_PRIVATE pmath_t builtin_mean(           pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_min(            pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_most(           pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_operate(        pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_ordering(       pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_partition(      pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_prepend(        pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_range(          pmath_expr_t expr);
@@ -930,6 +931,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   VERIFY(   PMATH_SYMBOL_OPTIONSPATTERN            = NEW_SYSTEM_SYMBOL("OptionsPattern"))
   VERIFY(   PMATH_SYMBOL_OPTIONVALUE               = NEW_SYSTEM_SYMBOL("OptionValue"))
   VERIFY(   PMATH_SYMBOL_OR                        = NEW_SYSTEM_SYMBOL("Or"))
+  VERIFY(   PMATH_SYMBOL_ORDERING                  = NEW_SYSTEM_SYMBOL("Ordering"))
   VERIFY(   PMATH_SYMBOL_OUTPUTFORM                = NEW_SYSTEM_SYMBOL("OutputForm"))
   VERIFY(   PMATH_SYMBOL_OVERFLOW                  = NEW_SYSTEM_SYMBOL("Overflow"))
   VERIFY(   PMATH_SYMBOL_OVERLAPS                  = NEW_SYSTEM_SYMBOL("Overlaps"))
@@ -1387,6 +1389,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
     BIND_DOWN(   PMATH_SYMBOL_OFF,                         builtin_on_or_off)
     BIND_DOWN(   PMATH_SYMBOL_ON,                          builtin_on_or_off)
     BIND_DOWN(   PMATH_SYMBOL_OR,                          builtin_or)
+    BIND_DOWN(   PMATH_SYMBOL_ORDERING,                    builtin_ordering)
     BIND_DOWN(   PMATH_SYMBOL_OPENAPPEND,                  builtin_open)
     BIND_DOWN(   PMATH_SYMBOL_OPENREAD,                    builtin_open)
     BIND_DOWN(   PMATH_SYMBOL_OPENWRITE,                   builtin_open)

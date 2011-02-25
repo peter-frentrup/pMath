@@ -131,8 +131,7 @@ PMATH_PRIVATE pmath_t builtin_deletedirectory_and_deletefile(pmath_expr_t expr){
   }
   
   name = pmath_expr_get_item(expr, 1);
-  if(!pmath_instance_of(name, PMATH_TYPE_STRING)
-  || pmath_string_length(name) == 0){
+  if(!pmath_is_string(name) || pmath_string_length(name) == 0){
     pmath_message(NULL, "fstr", 1, name);
     return expr;
   }

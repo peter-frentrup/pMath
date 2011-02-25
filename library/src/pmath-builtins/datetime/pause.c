@@ -16,8 +16,7 @@ PMATH_PRIVATE pmath_t builtin_pause(pmath_expr_t expr){
 
   arg = pmath_expr_get_item(expr, 1);
   
-  if(!pmath_instance_of(arg, PMATH_TYPE_NUMBER)
-  || pmath_number_sign((pmath_number_t)arg) < 0){
+  if(!pmath_is_number(arg) || pmath_number_sign(arg) < 0){
     pmath_message(
       NULL, "numn", 2,
       pmath_integer_new_ui(1),

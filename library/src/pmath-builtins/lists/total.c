@@ -18,7 +18,7 @@ pmath_t builtin_total(pmath_expr_t expr){
   }
   
   item = pmath_expr_get_item(expr, 1);
-  if(!pmath_instance_of(item, PMATH_TYPE_EXPRESSION)){
+  if(!pmath_is_expr(item)){
     pmath_unref(item);
     pmath_message(NULL, "nexprat", 2, pmath_integer_new_si(1), pmath_ref(expr));
     return expr;

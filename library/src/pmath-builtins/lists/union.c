@@ -24,7 +24,7 @@ PMATH_PRIVATE pmath_t builtin_union(pmath_expr_t expr){
   // check arguments (expressions with same head) ...
   // item := expr[1][0]
   list = pmath_expr_get_item(expr, 1);
-  if(!pmath_instance_of(list, PMATH_TYPE_EXPRESSION)){
+  if(!pmath_is_expr(list)){
     pmath_unref(list);
     
     pmath_message(NULL, "nexprat", 2,
@@ -39,7 +39,7 @@ PMATH_PRIVATE pmath_t builtin_union(pmath_expr_t expr){
   for(i = 1;i <= exprlen;++i){
     list = pmath_expr_get_item(expr, i);
     
-    if(!pmath_instance_of(list, PMATH_TYPE_EXPRESSION)){
+    if(!pmath_is_expr(list)){
       pmath_unref(list);
       
       pmath_message(NULL, "nexprat", 2,

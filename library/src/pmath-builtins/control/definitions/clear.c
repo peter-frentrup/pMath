@@ -53,11 +53,11 @@ PMATH_PRIVATE pmath_t builtin_clear(pmath_expr_t expr){
   for(i = 1;i <= pmath_expr_length(expr);++i){
     pmath_t item = pmath_expr_get_item(expr, i);
     
-    if(pmath_instance_of(item, PMATH_TYPE_SYMBOL)){
+    if(pmath_is_symbol(item)){
       _pmath_clear(item, all);
       pmath_unref(item);
     }
-    else if(pmath_instance_of(item, PMATH_TYPE_STRING)){
+    else if(pmath_is_string(item)){
       pmath_t known = pmath_evaluate(
         pmath_expr_new_extended(
           pmath_ref(PMATH_SYMBOL_NAMES), 1, 

@@ -107,7 +107,7 @@ PMATH_PRIVATE pmath_t builtin_parallelscan(pmath_expr_t expr){
   
   reldepth = _pmath_object_in_levelspec(obj, info.levelmin, info.levelmax, 0);
   
-  if(reldepth <= 0 && pmath_instance_of(obj, PMATH_TYPE_EXPRESSION)){
+  if(reldepth <= 0 && pmath_is_expr(obj)){
     pmath_t exception;
     pmath_task_t *tasks;
     int task_count = _pmath_processor_count();

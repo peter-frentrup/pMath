@@ -36,7 +36,7 @@ PMATH_PRIVATE pmath_t builtin_with(pmath_expr_t expr){
     
     if(pmath_is_expr_of_len(defi, PMATH_SYMBOL_ASSIGN, 2)){
       pmath_t sym = pmath_expr_get_item(defi, 1);
-      if(pmath_instance_of(sym, PMATH_TYPE_SYMBOL)){
+      if(pmath_is_symbol(sym)){
         pmath_t value = pmath_evaluate(pmath_expr_get_item(defi, 2));
         
         pmath_unref(defi);
@@ -51,7 +51,7 @@ PMATH_PRIVATE pmath_t builtin_with(pmath_expr_t expr){
     
     if(pmath_is_expr_of_len(defi, PMATH_SYMBOL_ASSIGNDELAYED, 2)){
       pmath_t sym = pmath_expr_get_item(defi, 1);
-      if(pmath_instance_of(sym, PMATH_TYPE_SYMBOL)){
+      if(pmath_is_symbol(sym)){
         pmath_t value = pmath_expr_get_item(defi, 2);
         
         pmath_unref(defi);

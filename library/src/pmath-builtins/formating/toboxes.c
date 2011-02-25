@@ -17,7 +17,7 @@ pmath_t _pmath_prepare_shallow(
   size_t         maxdepth,
   size_t         maxlength
 ){
-  if(pmath_instance_of(obj, PMATH_TYPE_EXPRESSION)){
+  if(pmath_is_expr(obj)){
     size_t i, len = pmath_expr_length(obj);
     
     if(maxdepth <= 2){
@@ -68,7 +68,7 @@ pmath_t _pmath_prepare_shallow(
 
 PMATH_PRIVATE
 long _pmath_boxes_length(pmath_t boxes){  // boxes wont be freed
-  if(pmath_instance_of(boxes, PMATH_TYPE_STRING)){
+  if(pmath_is_string(boxes)){
     const uint16_t *buf = pmath_string_buffer(boxes);
     int len             = pmath_string_length(boxes);
     
@@ -93,7 +93,7 @@ long _pmath_boxes_length(pmath_t boxes){  // boxes wont be freed
     return len + 1;
   }
   
-  if(pmath_instance_of(boxes, PMATH_TYPE_EXPRESSION)){
+  if(pmath_is_expr(boxes)){
     long result = 0;
     size_t i, len = pmath_expr_length(boxes);
     pmath_t item = pmath_expr_get_item(boxes, 0);
@@ -172,7 +172,7 @@ long _pmath_boxes_length(pmath_t boxes){  // boxes wont be freed
 }
 
   static pmath_bool_t is_operand(pmath_t box){
-    if(pmath_instance_of(box, PMATH_TYPE_STRING)){
+    if(pmath_is_string(box)){
       const uint16_t *buf = pmath_string_buffer(box);
       pmath_token_t tok;
       
@@ -208,7 +208,7 @@ long _pmath_boxes_length(pmath_t boxes){  // boxes wont be freed
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_t _pmath_shorten_boxes(pmath_t boxes, long length){
-  if(pmath_instance_of(boxes, PMATH_TYPE_STRING)){
+  if(pmath_is_string(boxes)){
     const uint16_t *buf = pmath_string_buffer(boxes);
     int len             = pmath_string_length(boxes);
     
@@ -269,7 +269,7 @@ pmath_t _pmath_shorten_boxes(pmath_t boxes, long length){
     return boxes;
   }
   
-  if(pmath_instance_of(boxes, PMATH_TYPE_EXPRESSION)){
+  if(pmath_is_expr(boxes)){
     size_t len = pmath_expr_length(boxes);
     pmath_t item = pmath_expr_get_item(boxes, 0);
     pmath_unref(item);

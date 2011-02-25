@@ -14,7 +14,7 @@ PMATH_PRIVATE pmath_t builtin_characters(pmath_expr_t expr){
   
   string = pmath_expr_get_item(expr, 1);
   
-  if(pmath_instance_of(string, PMATH_TYPE_STRING)){
+  if(pmath_is_string(string)){
     size_t i;
     
     pmath_unref(expr);

@@ -18,7 +18,7 @@ static pmath_t apply(
   pmath_t              list, // will be freed
   long                 level
 ){
-  if(pmath_instance_of(list, PMATH_TYPE_EXPRESSION)){
+  if(pmath_is_expr(list)){
     int reldepth = _pmath_object_in_levelspec(
       list, info->levelmin, info->levelmax, level);
       

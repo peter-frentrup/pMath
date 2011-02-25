@@ -60,7 +60,7 @@ static void multi_synchronize_callback(multi_syncronize_data_t *data){
   
   data->sync_index--;
   
-  assert(!sync || pmath_instance_of(sync, PMATH_TYPE_SYMBOL));
+  assert(!sync || pmath_is_symbol(sync));
   
   pmath_symbol_synchronized((pmath_symbol_t)sync, 
     (pmath_callback_t) multi_synchronize_callback,
@@ -86,7 +86,7 @@ PMATH_PRIVATE pmath_t builtin_synchronize(pmath_expr_t expr){
   sync = pmath_expr_get_item(expr, 1);
   block = pmath_expr_get_item(expr, 2);
   
-  if(pmath_instance_of(sync, PMATH_TYPE_EXPRESSION)){
+  if(pmath_is_expr(sync)){
     multi_syncronize_data_t data;
     size_t i;
     
@@ -94,7 +94,7 @@ PMATH_PRIVATE pmath_t builtin_synchronize(pmath_expr_t expr){
       pmath_t synci = pmath_expr_get_item(
         (pmath_expr_t)sync, i);
       
-      if(!pmath_instance_of(synci, PMATH_TYPE_SYMBOL)){
+      if(!pmath_is_symbol(synci)){
         pmath_message(NULL, "sym", 2, synci, 
           pmath_expr_new_extended(
             pmath_ref(PMATH_SYMBOL_LIST), 2,
@@ -126,7 +126,7 @@ PMATH_PRIVATE pmath_t builtin_synchronize(pmath_expr_t expr){
     return data.block;
   }
   
-  if(!pmath_instance_of(sync, PMATH_TYPE_SYMBOL)){
+  if(!pmath_is_symbol(sync)){
     pmath_message(NULL, "sym", 1, sync, pmath_integer_new_si(1));
     pmath_unref(block);
     return expr;

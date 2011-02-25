@@ -25,8 +25,7 @@ PMATH_PRIVATE pmath_t builtin_filetype(pmath_expr_t expr){
   }
   
   file = pmath_expr_get_item(expr, 1);
-  if(!pmath_instance_of(file, PMATH_TYPE_STRING)
-  || pmath_string_length(file) == 0){
+  if(!pmath_is_string(file) || pmath_string_length(file) == 0){
     pmath_message(NULL, "fstr", 1, file);
     return expr;
   }

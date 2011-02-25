@@ -232,7 +232,7 @@ pmath_expr_t pmath_expr_resize(
   if(PMATH_UNLIKELY(!expr))
     return pmath_expr_new(NULL, new_length);
     
-  assert(pmath_instance_of(expr, PMATH_TYPE_EXPRESSION));
+  assert(pmath_is_expr(expr));
 
   if(new_length == ((struct _pmath_unpacked_expr_t*)expr)->length)
     return expr;
@@ -359,7 +359,7 @@ PMATH_API size_t pmath_expr_length(
   if(!expr)
     return 0;
     
-  assert(pmath_instance_of(expr, PMATH_TYPE_EXPRESSION));
+  assert(pmath_is_expr(expr));
 
   return ((struct _pmath_unpacked_expr_t*)expr)->length;
 }
@@ -371,7 +371,7 @@ PMATH_API pmath_t pmath_expr_get_item(
   if(!expr)
     return NULL;
     
-  assert(pmath_instance_of(expr, PMATH_TYPE_EXPRESSION));
+  assert(pmath_is_expr(expr));
 
   if(index > ((struct _pmath_unpacked_expr_t*)expr)->length)
     return NULL;
@@ -475,7 +475,7 @@ PMATH_API pmath_expr_t pmath_expr_set_item(
     return NULL;
   }
   
-  assert(pmath_instance_of(expr, PMATH_TYPE_EXPRESSION));
+  assert(pmath_is_expr(expr));
 
   if(index > ((struct _pmath_unpacked_expr_t*)expr)->length
   || ((index == 0 || expr->type_shift == PMATH_TYPE_SHIFT_EXPRESSION_GENERAL)
@@ -842,8 +842,7 @@ PMATH_API pmath_expr_t pmath_expr_sort(
       for(;srci <= exprlen;srci++){
         pmath_t item = pmath_expr_get_item(expr, srci);
         
-        if(pmath_instance_of(item, PMATH_TYPE_EXPRESSION)
-        && stack_pos < depth){
+        if(pmath_is_expr(item) && stack_pos < depth){
           pmath_t this_head = pmath_expr_get_item(
             (pmath_expr_t)item, 0);
             
@@ -916,7 +915,7 @@ PMATH_API pmath_expr_t pmath_expr_sort(
       for(;srci <= exprlen;srci++){
         pmath_t item = pmath_expr_get_item(expr, srci);
         
-        if(pmath_instance_of(item, PMATH_TYPE_EXPRESSION)
+        if(pmath_is_expr(item)
         && stack_pos < depth){
           pmath_t this_head = pmath_expr_get_item(
             (pmath_expr_t)item, 0);
@@ -1020,7 +1019,7 @@ PMATH_PRIVATE pmath_expr_t _pmath_expr_thread(
   
   for(i = start;i <= end;++i){
     pmath_t arg = pmath_expr_get_item(expr, i);
-    if(pmath_instance_of(arg, PMATH_TYPE_EXPRESSION)){
+    if(pmath_is_expr(arg)){
       pmath_t arg_head = pmath_expr_get_item((pmath_expr_t)arg, 0);
       
       if(pmath_equals(head, arg_head)){
@@ -1056,7 +1055,7 @@ PMATH_PRIVATE pmath_expr_t _pmath_expr_thread(
     size_t j;
     for(j = start;j <= end;++j){
       pmath_t arg = pmath_expr_get_item(expr, j);
-      if(pmath_instance_of(arg, PMATH_TYPE_EXPRESSION)){
+      if(pmath_is_expr(arg)){
         pmath_t arg_head = pmath_expr_get_item((pmath_expr_t)arg, 0);
         if(pmath_equals(head, arg_head)){
           f = pmath_expr_set_item(
@@ -1089,7 +1088,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_expr_is_updated(
   if(PMATH_UNLIKELY(!expr))
     return TRUE;
     
-  assert(pmath_instance_of(expr, PMATH_TYPE_EXPRESSION));
+  assert(pmath_is_expr(expr));
   
   if(((struct _pmath_timed_t*)expr)->last_change < 0)
     return FALSE;
@@ -1104,8 +1103,8 @@ PMATH_PRIVATE pmath_bool_t _pmath_expr_is_updated(
   
   for(i = 0;i <= len;i++){
     pmath_t item = pmath_expr_get_item(expr, i);
-    if((pmath_instance_of(item, PMATH_TYPE_SYMBOL | PMATH_TYPE_EXPRESSION)
-    && ((struct _pmath_timed_t*)item)->last_change > ((struct _pmath_timed_t*)expr)->last_change)){
+    if((pmath_is_symbol(item) || pmath_is_expr(item))
+    && ((struct _pmath_timed_t*)item)->last_change > ((struct _pmath_timed_t*)expr)->last_change){
       pmath_unref(item);
       return FALSE;
     }
@@ -1146,9 +1145,8 @@ PMATH_PRIVATE pmath_bool_t _pmath_expr_eval_items(
   
   size_t len;
   
-  if(pmath_instance_of(head, PMATH_TYPE_SYMBOL)){
-    pmath_symbol_attributes_t attrib = pmath_symbol_get_attributes(
-      (pmath_symbol_t)head);
+  if(pmath_is_symbol(head)){
+    pmath_symbol_attributes_t attrib = pmath_symbol_get_attributes(head);
 
     if((attrib & PMATH_SYMBOL_ATTRIBUTE_HOLDALLCOMPLETE) != 0){
       pmath_unref(head);
@@ -1186,16 +1184,15 @@ PMATH_PRIVATE pmath_bool_t _pmath_expr_eval_items(
       item = pmath_evaluate(item);
       
       if(pmath_is_expr_of_len(item, PMATH_SYMBOL_UNEVALUATED, 1)){
-        pmath_expr_t item_expr = (pmath_expr_t)item;
+        pmath_expr_t item_expr = item;
         item = pmath_expr_get_item(item_expr, 1);
         pmath_unref(item_expr);
       }
       
       *expr = pmath_expr_set_item(*expr, 1, item);
     }
-    else if(pmath_instance_of(item, PMATH_TYPE_EXPRESSION)
-    && pmath_expr_length((pmath_expr_t)item) == 1){
-      pmath_t item_head = pmath_expr_get_item((pmath_expr_t)item, 0);
+    else if(pmath_is_expr(item) && pmath_expr_length(item) == 1){
+      pmath_t item_head = pmath_expr_get_item(item, 0);
       pmath_unref(item_head);
       if(item_head == PMATH_SYMBOL_EVALUATE)
         *expr = pmath_expr_set_item(*expr, 1, pmath_evaluate(item));
@@ -1225,9 +1222,8 @@ PMATH_PRIVATE pmath_bool_t _pmath_expr_eval_items(
     size_t i;
     for(i = 2;i <= len;i++){
       pmath_t item = pmath_expr_get_item(*expr, i);
-      if(pmath_instance_of(item, PMATH_TYPE_EXPRESSION)
-      && pmath_expr_length((pmath_expr_t)item) == 1){
-        pmath_t item_head = pmath_expr_get_item((pmath_expr_t)item, 0);
+      if(pmath_is_expr(item) && pmath_expr_length(item) == 1){
+        pmath_t item_head = pmath_expr_get_item(item, 0);
         pmath_unref(item_head);
         if(item_head == PMATH_SYMBOL_EVALUATE)
           *expr = pmath_expr_set_item(*expr, i, pmath_evaluate(item));
@@ -1433,10 +1429,10 @@ static void write_ex(
   pmath_write_func_t      write,
   void                   *user
 ){
-  if(pmath_instance_of(obj, PMATH_TYPE_EXPRESSION)){
+  if(pmath_is_expr(obj)){
     write_expr_ex((pmath_expr_t)obj, options, priority, write, user);
   }
-  else if(pmath_instance_of(obj, PMATH_TYPE_NUMBER)
+  else if(pmath_is_number(obj)
   && ((priority > PRIO_TIMES && pmath_number_sign(obj) < 0)
    || (priority > PRIO_FACTOR && pmath_instance_of(obj, PMATH_TYPE_QUOTIENT)))){
     WRITE_CSTR("(");
@@ -1696,7 +1692,7 @@ static void write_expr_ex(
       goto FULLFORM;
 
     list = (pmath_expr_t)pmath_expr_get_item(expr, 1);
-    if(!pmath_instance_of(list, PMATH_TYPE_EXPRESSION)){
+    if(!pmath_is_expr(list)){
       pmath_unref(list);
       goto FULLFORM;
     }
@@ -1747,8 +1743,7 @@ static void write_expr_ex(
     if(exprlen == 2){
       item = pmath_expr_get_item(expr, 2);
       
-      if(pmath_instance_of(item, PMATH_TYPE_INTEGER)
-      && pmath_integer_fits_ui(item)){
+      if(pmath_is_integer(item) && pmath_integer_fits_ui(item)){
         maxdepth = pmath_integer_get_ui(item);
       }
       else if(pmath_equals(item, _pmath_object_infinity)){
@@ -1757,8 +1752,7 @@ static void write_expr_ex(
       else if(pmath_is_expr_of_len(item, PMATH_SYMBOL_LIST, 2)){
         pmath_t obj = pmath_expr_get_item(item, 1);
         
-        if(pmath_instance_of(obj, PMATH_TYPE_INTEGER)
-        && pmath_integer_fits_ui(obj)){
+        if(pmath_is_integer(obj) && pmath_integer_fits_ui(obj)){
           maxdepth = pmath_integer_get_ui(obj);
         }
         else if(pmath_equals(obj, _pmath_object_infinity)){
@@ -1773,8 +1767,7 @@ static void write_expr_ex(
         pmath_unref(obj);
         obj = pmath_expr_get_item(item, 2);
         
-        if(pmath_instance_of(obj, PMATH_TYPE_INTEGER)
-        && pmath_integer_fits_ui(obj)){
+        if(pmath_is_integer(obj) && pmath_integer_fits_ui(obj)){
           maxlength = pmath_integer_get_ui(obj);
         }
         else if(pmath_equals(obj, _pmath_object_infinity)){
@@ -1812,7 +1805,7 @@ static void write_expr_ex(
     if(exprlen == 2){
       item = pmath_expr_get_item(expr, 2);
       
-      if((!pmath_instance_of(item, PMATH_TYPE_NUMBER) 
+      if((!pmath_is_number(item) 
        || pmath_number_sign(item) < 0)
       && !pmath_equals(item, _pmath_object_infinity)){
         pmath_unref(item);
@@ -2279,10 +2272,11 @@ static void write_expr_ex(
     product_writer_data.special_end = FALSE;
 
     item = pmath_expr_get_item(expr, 1);
-    if(pmath_instance_of(item, PMATH_TYPE_INTEGER)
-    && pmath_integer_fits_si((pmath_integer_t)item)
-    && pmath_integer_get_si((pmath_integer_t)item) == -1)
+    if(pmath_is_integer(item)
+    && pmath_integer_fits_si(item)
+    && pmath_integer_get_si(item) == -1){
       WRITE_CSTR("-");
+    }
     else{
       write_ex(
         item,
@@ -2348,8 +2342,7 @@ static void write_expr_ex(
         (pmath_write_func_t)division_writer,
         &division_writer_data);
     }
-    else if(pmath_instance_of(exponent, PMATH_TYPE_INTEGER)
-    && pmath_number_sign(exponent) < 0){
+    else if(pmath_is_integer(exponent) && pmath_number_sign(exponent) < 0){
       if(write == (pmath_write_func_t)product_writer)
         WRITE_CSTR("/");
       else
@@ -2458,7 +2451,7 @@ static void write_expr_ex(
 
     tag = pmath_expr_get_item(expr, 2);
 
-    if(!pmath_instance_of(tag, PMATH_TYPE_STRING)){
+    if(!pmath_is_string(tag)){
       pmath_unref(tag);
       goto FULLFORM;
     }
@@ -2532,7 +2525,7 @@ static void write_expr_ex(
       goto FULLFORM;
 
     sym = pmath_expr_get_item(expr, 1);
-    if(!pmath_instance_of(sym, PMATH_TYPE_SYMBOL)){
+    if(!pmath_is_symbol(sym)){
       pmath_unref(sym);
       goto FULLFORM;
     }
@@ -2779,8 +2772,7 @@ static void write_expr_ex(
     
     item = pmath_expr_get_item(expr, 1);
     
-    if(pmath_instance_of(item, PMATH_TYPE_INTEGER)
-    && pmath_number_sign(item) > 0){
+    if(pmath_is_integer(item) && pmath_number_sign(item) > 0){
       if(priority > PRIO_CALL)
         WRITE_CSTR("(#");
       else
@@ -2797,7 +2789,7 @@ static void write_expr_ex(
       pmath_unref(b);
       
       if(b == PMATH_SYMBOL_AUTOMATIC
-      && pmath_instance_of(a, PMATH_TYPE_INTEGER)
+      && pmath_is_integer(a)
       && pmath_number_sign(a) > 0){
         if(priority > PRIO_CALL)
           WRITE_CSTR("(##");
@@ -2830,7 +2822,7 @@ static void write_expr_ex(
       goto FULLFORM;
 
     item = pmath_expr_get_item(expr, 1);
-    if(!pmath_instance_of(item, PMATH_TYPE_SYMBOL)){
+    if(!pmath_is_symbol(item)){
       pmath_unref(item);
       goto FULLFORM;
     }

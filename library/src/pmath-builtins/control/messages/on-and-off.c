@@ -22,7 +22,7 @@ PMATH_PRIVATE pmath_t builtin_on_or_off(pmath_expr_t expr){
   for(i = 1;i <= len;++i){
     pmath_t message = pmath_expr_get_item(expr, i);
     
-    if(pmath_instance_of(message, PMATH_TYPE_SYMBOL)){
+    if(pmath_is_symbol(message)){
       message = pmath_expr_new_extended(
         pmath_ref(PMATH_SYMBOL_MESSAGENAME), 2, 
         message,

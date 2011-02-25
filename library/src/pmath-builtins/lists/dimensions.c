@@ -16,7 +16,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_is_matrix(
   size_t i;
   
   *cols = *rows = 0;
-  if(!pmath_instance_of(m, PMATH_TYPE_EXPRESSION))
+  if(!pmath_is_expr(m))
     return FALSE;
   
   head = pmath_expr_get_item(m, 0);
@@ -30,7 +30,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_is_matrix(
     return TRUE;
   
   row = pmath_expr_get_item(m, 1);
-  if(!pmath_instance_of(row, PMATH_TYPE_EXPRESSION)){
+  if(!pmath_is_expr(row)){
     pmath_unref(row);
     return FALSE;
   }
@@ -45,8 +45,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_is_matrix(
   
   for(i = *rows;i > 1;--i){
     row = pmath_expr_get_item(m, 1);
-    if(!pmath_instance_of(row, PMATH_TYPE_EXPRESSION)
-    || pmath_expr_length(row) != *cols){
+    if(!pmath_is_expr(row) || pmath_expr_length(row) != *cols){
       pmath_unref(row);
       return FALSE;
     }
@@ -76,8 +75,7 @@ static void check_rest_dims(
   if(level >= data->maxdim)
     return;
     
-  if(!pmath_instance_of(obj, PMATH_TYPE_EXPRESSION)
-  || pmath_expr_length(obj) != data->dim_arr[level]){
+  if(!pmath_is_expr(obj) || pmath_expr_length(obj) != data->dim_arr[level]){
     data->maxdim = level;
     return;
   }
@@ -107,15 +105,14 @@ PMATH_PRIVATE pmath_expr_t _pmath_dimensions(
   size_t dims, i;
   pmath_t tmp, item;
   
-  if(!pmath_instance_of(obj, PMATH_TYPE_EXPRESSION) || maxdepth == 0)
+  if(!pmath_is_expr(obj) || maxdepth == 0)
     return pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), 0);
   
   data.head = pmath_expr_get_item(obj, 0);
   
   dims = 1;
   tmp = pmath_expr_get_item(obj, 1);
-  while(dims < maxdepth
-  && pmath_instance_of(tmp, PMATH_TYPE_EXPRESSION)){
+  while(dims < maxdepth && pmath_is_expr(tmp)){
     item = pmath_expr_get_item(tmp, 0);
     
     if(!pmath_equals(item, data.head)){
@@ -185,8 +182,7 @@ PMATH_PRIVATE pmath_t builtin_dimensions(pmath_expr_t expr){
   if(exprlen == 2){
     obj = pmath_expr_get_item(expr, 2);
     
-    if(pmath_instance_of(obj, PMATH_TYPE_INTEGER)
-    && pmath_number_sign(obj) >= 0){
+    if(pmath_is_integer(obj) && pmath_number_sign(obj) >= 0){
       if(pmath_integer_fits_ui(obj))
         maxdepth = (size_t)pmath_integer_get_ui(obj);
     }

@@ -23,8 +23,7 @@ PMATH_PRIVATE pmath_t builtin_quotient(pmath_expr_t expr){
   m = pmath_expr_get_item(expr, 1);
   n = pmath_expr_get_item(expr, 2);
   
-  if(pmath_instance_of(n, PMATH_TYPE_NUMBER)
-  && pmath_number_sign(n) == 0){
+  if(pmath_is_number(n) && pmath_number_sign(n) == 0){
     pmath_message(NULL, "divz", 2, n, pmath_ref(expr));
     pmath_unref(m);
     return expr;
@@ -88,8 +87,7 @@ PMATH_PRIVATE pmath_t builtin_mod(pmath_expr_t expr){
   m = pmath_expr_get_item(expr, 1);
   n = pmath_expr_get_item(expr, 2);
   
-  if(pmath_instance_of(n, PMATH_TYPE_NUMBER)
-  && pmath_number_sign(n) == 0){
+  if(pmath_is_number(n) && pmath_number_sign(n) == 0){
     pmath_message(NULL, "divz", 2, n, pmath_ref(expr));
     pmath_unref(m);
     return expr;

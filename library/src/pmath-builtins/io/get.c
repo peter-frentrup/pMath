@@ -26,7 +26,7 @@ static pmath_bool_t check_path(pmath_t path){
   for(i = 1;i <= pmath_expr_length(path);++i){
     pmath_t item = pmath_expr_get_item(path, i);
     
-    if(!pmath_instance_of(item, PMATH_TYPE_STRING)){
+    if(!pmath_is_string(item)){
       pmath_message(NULL, "path", 1, item);
       return FALSE;
     }
@@ -58,7 +58,7 @@ static pmath_string_t scanner_read(void *data){
     pmath_parse_string_args("Read(`1`, String)",
       "(o)", pmath_ref(info->file)));
   
-  if(!pmath_instance_of(line, PMATH_TYPE_STRING)){
+  if(!pmath_is_string(line)){
     pmath_unref(line);
     return NULL;
   }
@@ -191,7 +191,7 @@ PMATH_PRIVATE pmath_t builtin_get(pmath_expr_t expr){
   }
   
   name = pmath_expr_get_item(expr, 1);
-  if(!pmath_instance_of(name, PMATH_TYPE_STRING)){
+  if(!pmath_is_string(name)){
     pmath_unref(name);
     pmath_message(NULL, "str", 2, pmath_integer_new_si(1), pmath_ref(expr));
     return expr;
@@ -203,7 +203,7 @@ PMATH_PRIVATE pmath_t builtin_get(pmath_expr_t expr){
   
   path = pmath_evaluate(pmath_option_value(NULL, PMATH_SYMBOL_PATH, options));
   pmath_unref(options); 
-  if(pmath_instance_of(path, PMATH_TYPE_STRING))
+  if(pmath_is_string(path))
     path = pmath_build_value("(o)", path);
   
   if(!check_path(path)){

@@ -76,7 +76,7 @@ PMATH_PRIVATE pmath_t builtin_message(pmath_expr_t expr){
           pmath_ref(PMATH_SYMBOL_MESSAGECOUNT), 1,
           pmath_ref(name))));
     
-    if(pmath_instance_of(count, PMATH_TYPE_INTEGER)
+    if(pmath_is_integer(count)
     && pmath_integer_fits_si((pmath_integer_t)count)){
       long cnt = pmath_integer_get_si((pmath_integer_t)count);
       

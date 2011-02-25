@@ -452,7 +452,7 @@ static pmath_t deserialize(struct deserializer_t *info){
     case 5: {
       pmath_string_t name = deserialize(info);
       
-      if(pmath_instance_of(name, PMATH_TYPE_STRING))
+      if(pmath_is_string(name))
         return pmath_symbol_find(name, TRUE);
       
       if(!info->error)
@@ -523,8 +523,8 @@ static pmath_t deserialize(struct deserializer_t *info){
       pmath_integer_t num = deserialize(info);
       pmath_integer_t den = deserialize(info);
       
-      if(pmath_instance_of(num, PMATH_TYPE_INTEGER)
-      && pmath_instance_of(den, PMATH_TYPE_INTEGER)
+      if(pmath_is_integer(num)
+      && pmath_is_integer(den)
       && pmath_number_sign(den) > 0){
         return pmath_rational_new(num, den);
       }
@@ -552,7 +552,7 @@ static pmath_t deserialize(struct deserializer_t *info){
       exp = (mp_exp_t)read_si32(info);
       mant = deserialize(info);
       
-      if(!pmath_instance_of(mant, PMATH_TYPE_INTEGER)){
+      if(!pmath_is_integer(mant)){
         pmath_unref(mant);
         
         if(!info->error)
@@ -576,7 +576,7 @@ static pmath_t deserialize(struct deserializer_t *info){
       exp = (mp_exp_t)read_si32(info);
       mant = deserialize(info);
       
-      if(!pmath_instance_of(mant, PMATH_TYPE_INTEGER)){
+      if(!pmath_is_integer(mant)){
         pmath_unref(mant);
         pmath_unref((pmath_float_t)result);
         
@@ -599,7 +599,7 @@ static pmath_t deserialize(struct deserializer_t *info){
       exp = (mp_exp_t)read_si32(info);
       mant = deserialize(info);
       
-      if(!pmath_instance_of(mant, PMATH_TYPE_INTEGER)){
+      if(!pmath_is_integer(mant)){
         pmath_unref(mant);
         
         if(!info->error)

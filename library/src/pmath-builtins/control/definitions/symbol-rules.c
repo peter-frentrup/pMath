@@ -50,10 +50,10 @@ PMATH_PRIVATE pmath_t builtin_assign_ownrules(pmath_expr_t expr){
   pmath_unref(tag);
   pmath_unref(expr);
   
-  if(pmath_instance_of(sym, PMATH_TYPE_STRING))
+  if(pmath_is_string(sym))
     sym = pmath_symbol_find(sym, FALSE);
   
-  if(!pmath_instance_of(sym, PMATH_TYPE_SYMBOL)){
+  if(!pmath_is_symbol(sym)){
     pmath_message(NULL, "fnsym", 1, lhs);
     
     pmath_unref(sym);
@@ -147,7 +147,7 @@ PMATH_PRIVATE pmath_t builtin_assign_symbol_rules(pmath_expr_t expr){
   if(!_pmath_is_assignment(expr, &tag, &lhs, &rhs))
     return expr;
   
-  if(pmath_instance_of(lhs, PMATH_TYPE_EXPRESSION)){
+  if(pmath_is_expr(lhs)){
     kind = pmath_expr_get_item(lhs, 0);
     pmath_unref(kind);
   }
@@ -189,10 +189,10 @@ PMATH_PRIVATE pmath_t builtin_assign_symbol_rules(pmath_expr_t expr){
   
   pmath_unref(expr);
   
-  if(pmath_instance_of(sym, PMATH_TYPE_STRING))
+  if(pmath_is_string(sym))
     sym = pmath_symbol_find(sym, FALSE);
   
-  if(!pmath_instance_of(sym, PMATH_TYPE_SYMBOL)){
+  if(!pmath_is_symbol(sym)){
     pmath_message(NULL, "fnsym", 1, lhs);
     
     pmath_unref(sym);
@@ -288,10 +288,10 @@ PMATH_PRIVATE pmath_t builtin_ownrules(pmath_expr_t expr){
   
   sym = pmath_expr_get_item(expr, 1);
   
-  if(pmath_instance_of(sym, PMATH_TYPE_STRING))
+  if(pmath_is_string(sym))
     sym = pmath_symbol_find(sym, FALSE);
   
-  if(!pmath_instance_of(sym, PMATH_TYPE_SYMBOL)){
+  if(!pmath_is_symbol(sym)){
     pmath_unref(sym);
     pmath_message(NULL, "fnsym", 1, pmath_ref(expr));
     return expr;
@@ -321,10 +321,10 @@ PMATH_PRIVATE pmath_t builtin_symbol_rules(pmath_expr_t expr){
   
   sym = pmath_expr_get_item(expr, 1);
   
-  if(pmath_instance_of(sym, PMATH_TYPE_STRING))
+  if(pmath_is_string(sym))
     sym = pmath_symbol_find(sym, FALSE);
   
-  if(!pmath_instance_of(sym, PMATH_TYPE_SYMBOL)){
+  if(!pmath_is_symbol(sym)){
     pmath_unref(sym);
     pmath_message(NULL, "fnsym", 1, pmath_ref(expr));
     return expr;

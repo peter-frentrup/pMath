@@ -51,7 +51,7 @@ static pmath_bool_t emit_pattern_position( // return = search more?
   
   index.prev = prev;
   
-  if(pmath_instance_of(obj, PMATH_TYPE_EXPRESSION)){
+  if(pmath_is_expr(obj)){
     size_t len = pmath_expr_length(obj);
     
     for(index.i = info->with_heads ? 0 : 1;index.i <= len && more;index.i++){
@@ -134,7 +134,7 @@ PMATH_PRIVATE pmath_t builtin_position(pmath_expr_t expr){
       if(len > 3){
         obj = pmath_expr_get_item(expr, 4);
         
-        if(pmath_instance_of(obj, PMATH_TYPE_INTEGER)
+        if(pmath_is_integer(obj)
         && pmath_number_sign(obj) >= 0){
           last_nonoption = 4;
           if(pmath_integer_fits_ui(obj))

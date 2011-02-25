@@ -21,7 +21,7 @@ PMATH_PRIVATE pmath_t builtin_nextprime(pmath_expr_t expr){
 
   n = pmath_expr_get_item(expr, 1);
 
-  if(!pmath_instance_of(n, PMATH_TYPE_INTEGER)){
+  if(!pmath_is_integer(n)){
     n = pmath_evaluate(
       pmath_expr_new_extended(
         pmath_ref(PMATH_SYMBOL_PLUS), 2,
@@ -30,7 +30,7 @@ PMATH_PRIVATE pmath_t builtin_nextprime(pmath_expr_t expr){
         pmath_integer_new_si(-1)));
   }
 
-  if(pmath_instance_of(n, PMATH_TYPE_INTEGER)){
+  if(pmath_is_integer(n)){
     struct _pmath_integer_t *result;
     size_t i;
 

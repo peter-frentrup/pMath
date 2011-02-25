@@ -16,7 +16,7 @@ static pmath_t stringmatch(
   pmath_t          obj,      // will be freed
   struct _regex_t *regex
 ){
-  if(pmath_instance_of(obj, PMATH_TYPE_STRING)){
+  if(pmath_is_string(obj)){
     pmath_bool_t result = FALSE;
     struct _capture_t capture;
     int length;

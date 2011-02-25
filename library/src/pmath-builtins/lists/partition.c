@@ -150,7 +150,7 @@ static pmath_expr_t make_deep_array(
 static pmath_expr_t trim_undef(pmath_expr_t list, int depth){
   size_t a, b;
   
-  if(depth <= 0 || !pmath_instance_of(list, PMATH_TYPE_EXPRESSION))
+  if(depth <= 0 || !pmath_is_expr(list))
     return list;
   
   b = pmath_expr_length(list);
@@ -280,8 +280,7 @@ static long *get_n( // free it with pmath_mem_free(n, depth * sizeof(long))
 ){
   long *n;
   
-  if(pmath_instance_of(n_obj, PMATH_TYPE_INTEGER)
-  && pmath_integer_fits_si(n_obj)){
+  if(pmath_is_integer(n_obj) && pmath_integer_fits_si(n_obj)){
     *depth = 1;
     n = (long*)pmath_mem_alloc(sizeof(long));
     
@@ -301,8 +300,7 @@ static long *get_n( // free it with pmath_mem_free(n, depth * sizeof(long))
         for(i = 0;i < *depth;++i){
           pmath_t item = pmath_expr_get_item(n_obj, 1 + (size_t)i);
           
-          if(pmath_instance_of(item, PMATH_TYPE_INTEGER)
-          && pmath_integer_fits_si(item)){
+          if(pmath_is_integer(item) && pmath_integer_fits_si(item)){
             n[i] = pmath_integer_get_si(item);
           }
           else{
@@ -333,9 +331,7 @@ static pmath_bool_t get_d(
   long *d,
   long depth
 ){
-  if(pmath_instance_of(d_obj, PMATH_TYPE_INTEGER)
-  && pmath_integer_fits_si(d_obj)
-  && depth == 1){
+  if(pmath_is_integer(d_obj) && pmath_integer_fits_si(d_obj) && depth == 1){
     d[0] = pmath_integer_get_si(d_obj);
     return TRUE;
   }
@@ -346,8 +342,7 @@ static pmath_bool_t get_d(
     for(i = 0;i < depth;++i){
       pmath_t item = pmath_expr_get_item(d_obj, 1 + (size_t)i);
       
-      if(pmath_instance_of(item, PMATH_TYPE_INTEGER)
-      && pmath_integer_fits_si(item)){
+      if(pmath_is_integer(item) && pmath_integer_fits_si(item)){
         d[i] = pmath_integer_get_si(item);
       }
       else{
@@ -373,8 +368,7 @@ static pmath_bool_t set_overhang(
 ){
   long i;
   
-  if(pmath_instance_of(overhang, PMATH_TYPE_INTEGER)
-  && pmath_integer_fits_si(overhang)){
+  if(pmath_is_integer(overhang) && pmath_integer_fits_si(overhang)){
     long val = pmath_integer_get_si(overhang);
     
     if(val == 0){
@@ -413,8 +407,7 @@ static pmath_bool_t set_overhang(
       pmath_t item = pmath_expr_get_item(overhang, 1 + (size_t)i);
       long val = 0;
       
-      if(pmath_instance_of(item, PMATH_TYPE_INTEGER)
-      && pmath_integer_fits_si(item))
+      if(pmath_is_integer(item) && pmath_integer_fits_si(item))
         val = pmath_integer_get_si(item);
       
       pmath_unref(item);
@@ -552,8 +545,7 @@ static int get_dimensions(
   for(i = 1;i <= (size_t)depth;++i){
     pmath_t len = pmath_expr_get_item(dim_obj, i);
     
-    if(pmath_instance_of(len, PMATH_TYPE_INTEGER)
-    && pmath_integer_fits_si(len)){
+    if(pmath_is_integer(len) && pmath_integer_fits_si(len)){
       dim[i - 1] = pmath_integer_get_si(len);
       
       if(dim[i - 1] == 0){

@@ -56,7 +56,7 @@ PMATH_PRIVATE pmath_t builtin_clock(pmath_expr_t expr){
   if(exprlen >= 3){
     obj = pmath_expr_get_item(expr, 3);
     
-    if(pmath_instance_of(obj, PMATH_TYPE_INTEGER)
+    if(pmath_is_integer(obj)
     && pmath_integer_fits_ui(obj)){
       max_cycles = pmath_integer_get_ui(obj);
     }
@@ -124,8 +124,7 @@ PMATH_PRIVATE pmath_t builtin_clock(pmath_expr_t expr){
   }
   
   obj = pmath_approximate(pmath_ref(delta), -HUGE_VAL, -HUGE_VAL);
-  if(!pmath_instance_of(obj, PMATH_TYPE_NUMBER)
-  || pmath_number_sign(obj) < 0){
+  if(!pmath_is_number(obj) || pmath_number_sign(obj) < 0){
     pmath_unref(min);
     pmath_unref(max);
     pmath_unref(delta);
@@ -161,7 +160,7 @@ PMATH_PRIVATE pmath_t builtin_clock(pmath_expr_t expr){
     
     obj = pmath_evaluate(obj);
     
-    if(pmath_instance_of(obj, PMATH_TYPE_INTEGER)
+    if(pmath_is_integer(obj)
     && pmath_integer_fits_ui(obj)){
       steps = pmath_integer_get_ui(obj);
       pmath_unref(obj);
@@ -202,7 +201,7 @@ PMATH_PRIVATE pmath_t builtin_clock(pmath_expr_t expr){
     }
     
     obj = pmath_approximate(pmath_ref(duration), -HUGE_VAL, -HUGE_VAL);
-    if(!pmath_instance_of(obj, PMATH_TYPE_NUMBER)){
+    if(!pmath_is_number(obj)){
       pmath_unref(obj);
       pmath_unref(min);
       pmath_unref(max);

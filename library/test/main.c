@@ -337,23 +337,18 @@ static pmath_t dialog(pmath_t first_eval){
               NULL, 
               NULL)));
         
-        if(pmath_instance_of(obj, PMATH_TYPE_EXPRESSION)){
-          pmath_t head = pmath_expr_get_item(obj, 0);
-          pmath_unref(head);
-          
-          if(head == PMATH_SYMBOL_HOLDCOMPLETE){
-            if(pmath_expr_length(obj) == 1){
-              head = obj;
-              obj = pmath_expr_get_item(head, 1);
-              pmath_unref(head);
-            }
-            else{
-              obj = pmath_expr_set_item(
-                obj, 0, pmath_ref(PMATH_SYMBOL_SEQUENCE));
-            }
-            
-            obj = pmath_session_execute(obj, NULL);
+        if(pmath_is_expr_of(obj, PMATH_SYMBOL_HOLDCOMPLETE)){
+          if(pmath_expr_length(obj) == 1){
+            pmath_t tmp = obj;
+            obj = pmath_expr_get_item(tmp, 1);
+            pmath_unref(tmp);
           }
+          else{
+            obj = pmath_expr_set_item(
+              obj, 0, pmath_ref(PMATH_SYMBOL_SEQUENCE));
+          }
+          
+          obj = pmath_session_execute(obj, NULL);
         } 
         
         if(obj && !quitting){
@@ -543,8 +538,7 @@ static pmath_t builtin_quit(pmath_expr_t expr){
   if(pmath_expr_length(expr) == 1){
     pmath_t res = pmath_expr_get_item(expr, 1);
     
-    if(!pmath_instance_of(res, PMATH_TYPE_INTEGER)
-    || !pmath_integer_fits_si(res)){
+    if(!pmath_is_integer(res) || !pmath_integer_fits_si(res)){
       pmath_unref(res);
       pmath_message(NULL, "intm", 2, pmath_integer_new_si(1), pmath_ref(expr));
       return expr;

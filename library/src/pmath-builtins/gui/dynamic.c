@@ -26,7 +26,7 @@ PMATH_PRIVATE pmath_t builtin_internal_dynamicevaluate(pmath_expr_t expr){
   }
   
   id_obj = pmath_evaluate(pmath_expr_get_item(expr, 2));
-  if(pmath_instance_of(id_obj, PMATH_TYPE_INTEGER)
+  if(pmath_is_integer(id_obj)
   && pmath_integer_fits_si(id_obj)){
     intptr_t old_id;
     
@@ -103,7 +103,7 @@ PMATH_PRIVATE pmath_t builtin_internal_dynamicevaluate(pmath_expr_t expr){
     pmath_t expr,   // will be freed
     pmath_t id_obj  // wont be freed
   ){
-    if(pmath_instance_of(expr, PMATH_TYPE_EXPRESSION)){
+    if(pmath_is_expr(expr)){
       pmath_t head = pmath_expr_get_item(expr, 0);
       size_t len = pmath_expr_length(expr);
       size_t i;
@@ -162,7 +162,7 @@ PMATH_PRIVATE pmath_t builtin_internal_dynamicevaluatemultiple(pmath_expr_t expr
   }
   
   id_obj = pmath_evaluate(pmath_expr_get_item(expr, 2));
-  if(pmath_instance_of(id_obj, PMATH_TYPE_INTEGER)
+  if(pmath_is_integer(id_obj)
   && pmath_integer_fits_si(id_obj)){
     dyn_expr = pmath_expr_get_item(expr, 1);
     pmath_unref(expr);
@@ -187,7 +187,7 @@ PMATH_PRIVATE pmath_t builtin_internal_dynamicremove(pmath_expr_t expr){
   for(i = len;i > 0;--i){
     pmath_t id_obj = pmath_evaluate(pmath_expr_get_item(expr, i));
     
-    if(pmath_instance_of(id_obj, PMATH_TYPE_INTEGER)
+    if(pmath_is_integer(id_obj)
     && pmath_integer_fits_si(id_obj)){
       long id = pmath_integer_get_si(id_obj);
       

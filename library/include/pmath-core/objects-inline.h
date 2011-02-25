@@ -109,4 +109,78 @@ pmath_bool_t pmath_fast_instance_of(
   #define pmath_instance_of  pmath_fast_instance_of
 #endif
 
+/*============================================================================*/
+
+/**\brief Determine whether an object is a custom object.
+   \memberof pmath_t
+   \relates pmath_expr_t
+   \param obj The pMath object.
+   \return TRUE iff the object is castable to pmath_custom_t.
+ */
+PMATH_FORCE_INLINE 
+PMATH_ATTRIBUTE_PURE
+pmath_bool_t pmath_is_custom(pmath_t obj){
+  return pmath_instance_of(obj, PMATH_TYPE_CUSTOM);
+}
+
+/**\brief Determine whether an object is an expression.
+   \memberof pmath_t
+   \relates pmath_expr_t
+   \param obj The pMath object.
+   \return TRUE iff the object is castable to pmath_expr_t.
+ */
+PMATH_FORCE_INLINE 
+PMATH_ATTRIBUTE_PURE
+pmath_bool_t pmath_is_expr(pmath_t obj){
+  return pmath_instance_of(obj, PMATH_TYPE_EXPRESSION);
+}
+
+/**\brief Determine whether an object is an integer.
+   \memberof pmath_t
+   \relates pmath_expr_t
+   \param obj The pMath object.
+   \return TRUE iff the object is castable to pmath_integer_t.
+ */
+PMATH_FORCE_INLINE 
+PMATH_ATTRIBUTE_PURE
+pmath_bool_t pmath_is_integer(pmath_t obj){
+  return pmath_instance_of(obj, PMATH_TYPE_INTEGER);
+}
+
+/**\brief Determine whether an object is a number.
+   \memberof pmath_t
+   \relates pmath_expr_t
+   \param obj The pMath object.
+   \return TRUE iff the object is castable to pmath_number_t.
+ */
+PMATH_FORCE_INLINE 
+PMATH_ATTRIBUTE_PURE
+pmath_bool_t pmath_is_number(pmath_t obj){
+  return pmath_instance_of(obj, PMATH_TYPE_NUMBER);
+}
+
+/**\brief Determine whether an object is a string.
+   \memberof pmath_t
+   \relates pmath_expr_t
+   \param obj The pMath object.
+   \return TRUE iff the object is castable to pmath_string_t.
+ */
+PMATH_FORCE_INLINE 
+PMATH_ATTRIBUTE_PURE
+pmath_bool_t pmath_is_string(pmath_t obj){
+  return pmath_instance_of(obj, PMATH_TYPE_STRING);
+}
+
+/**\brief Determine whether an object is a symbol.
+   \memberof pmath_t
+   \relates pmath_expr_t
+   \param obj The pMath object.
+   \return TRUE iff the object is castable to pmath_symbol_t.
+ */
+PMATH_FORCE_INLINE 
+PMATH_ATTRIBUTE_PURE
+pmath_bool_t pmath_is_symbol(pmath_t obj){
+  return pmath_instance_of(obj, PMATH_TYPE_SYMBOL);
+}
+
 #endif /* __PMATH_CORE__OBJECTS_INLINE_H__ */

@@ -17,7 +17,7 @@ pmath_bool_t _pmath_contains_symbol(
   if(obj == sub)
     return TRUE;
   
-  if(!pmath_instance_of(obj, PMATH_TYPE_EXPRESSION))
+  if(!pmath_is_expr(obj))
     return FALSE;
   
   i = pmath_expr_length(obj);
@@ -47,15 +47,15 @@ PMATH_PRIVATE pmath_t builtin_length(pmath_expr_t expr){
   
   obj = pmath_expr_get_item(expr, 1);
   
-  if(pmath_instance_of(obj, PMATH_TYPE_EXPRESSION)){
+  if(pmath_is_expr(obj)){
     size_t len = pmath_expr_length((pmath_expr_t)obj);
     pmath_unref(expr);
     pmath_unref(obj);
     return pmath_integer_new_size(len);
   }
   
-  if(pmath_instance_of(obj, PMATH_TYPE_STRING)){
-    size_t len = pmath_string_length((pmath_string_t)obj);
+  if(pmath_is_string(obj)){
+    size_t len = pmath_string_length(obj);
     pmath_unref(expr);
     pmath_unref(obj);
     return pmath_integer_new_size(len);

@@ -416,7 +416,7 @@ PMATH_API pmath_symbol_t pmath_symbol_create_temporary(
   ){
     int ns_len;
     
-    if(!pmath_instance_of(ns, PMATH_TYPE_STRING)){
+    if(!pmath_is_string(ns)){
       pmath_unref(ns);
       return NULL;
     }
@@ -455,7 +455,7 @@ PMATH_API pmath_symbol_t pmath_symbol_create_temporary(
     }
       
     namespaces = pmath_evaluate(pmath_ref(PMATH_SYMBOL_NAMESPACEPATH));
-    if(pmath_instance_of(namespaces, PMATH_TYPE_EXPRESSION)){
+    if(pmath_is_expr(namespaces)){
       size_t len = pmath_expr_length(namespaces);
       size_t i;
       
@@ -568,7 +568,7 @@ struct _pmath_symbol_rules_t *_pmath_symbol_get_rules(
   rule_access_t   access
 ){
   struct _pmath_symbol_rules_t *rules;
-  assert(pmath_instance_of(symbol, PMATH_TYPE_SYMBOL));
+  assert(pmath_is_symbol(symbol));
   
   if(access == RULES_WRITE
   && ((struct _pmath_symbol_t*)symbol)->attributes & PMATH_SYMBOL_ATTRIBUTE_PROTECTED){
@@ -759,7 +759,7 @@ pmath_bool_t _pmath_symbol_assign_value(
 
 PMATH_PRIVATE
 pmath_t _pmath_symbol_get_global_value(pmath_symbol_t symbol){
-  assert(pmath_instance_of(symbol, PMATH_TYPE_SYMBOL));
+  assert(pmath_is_symbol(symbol));
   
   return _pmath_object_atomic_read(&(((struct _pmath_symbol_t*)symbol)->value));
 }
@@ -780,7 +780,7 @@ void _pmath_symbol_set_global_value(
   pmath_symbol_t symbol,
   pmath_t value
 ){
-  assert(pmath_instance_of(symbol, PMATH_TYPE_SYMBOL));
+  assert(pmath_is_symbol(symbol));
   
   ((struct _pmath_timed_t*)symbol)->last_change = _pmath_timer_get_next();
   if(pmath_atomic_fetch_set(&((struct _pmath_symbol_t*)symbol)->current_dynamic_id, 0) != 0)
@@ -840,7 +840,7 @@ PMATH_API void pmath_symbol_update(pmath_symbol_t symbol){
   if(PMATH_UNLIKELY(!_sym))
     return;
 
-  assert(pmath_instance_of(symbol, PMATH_TYPE_SYMBOL));
+  assert(pmath_is_symbol(symbol));
   
   _sym->inherited.inherited.last_change = _pmath_timer_get_next();
   
@@ -858,7 +858,7 @@ void _pmath_symbol_track_dynamic(
   if(PMATH_UNLIKELY(!_sym))
     return;
 
-  assert(pmath_instance_of(symbol, PMATH_TYPE_SYMBOL));
+  assert(pmath_is_symbol(symbol));
   
   if(_sym->current_dynamic_id != id){
     _sym->current_dynamic_id = id;
@@ -874,7 +874,7 @@ void pmath_symbol_remove(pmath_symbol_t symbol){
   if(symbol){
     pmath_symbol_attributes_t attr;
     
-    assert(pmath_instance_of(symbol, PMATH_TYPE_SYMBOL));
+    assert(pmath_is_symbol(symbol));
     
     attr = pmath_symbol_get_attributes(symbol);
     if(attr & PMATH_SYMBOL_ATTRIBUTE_PROTECTED){

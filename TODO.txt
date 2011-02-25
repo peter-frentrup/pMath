@@ -5,7 +5,7 @@
 - pmath: change pmath_tickcount to use GetTickCount()/clock_gettime() because the current mechanism is not suitable for time measurements.
          add pmath_datetime() to get the old behaviour
 
-- pmath: implement MapThread, MapAt, Ordering, Split, HasValue/IsValue
+- pmath: implement MapThread, MapAt, Split, HasValue/IsValue
 
 - pmath: implement Function(/\/, ...something with #1/..., attrs), esp. Function(,func(##1),attrs) to override attributes of a function
 

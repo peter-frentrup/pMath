@@ -31,7 +31,7 @@ static pmath_t apply_rule_list(
   if(reldepth > 0)
     return obj;
   
-  if(pmath_instance_of(obj, PMATH_TYPE_EXPRESSION)){
+  if(pmath_is_expr(obj)){
     size_t len = pmath_expr_length(obj);
     size_t i;
     
@@ -67,7 +67,7 @@ static pmath_t apply_rule_list(
 }
 
 PMATH_PRIVATE pmath_bool_t _pmath_is_rule(pmath_t rule){
-  if(!pmath_instance_of(rule, PMATH_TYPE_EXPRESSION))
+  if(!pmath_is_expr(rule))
     return FALSE;
   else if(pmath_expr_length(rule) != 2)
     return FALSE;
@@ -79,7 +79,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_is_rule(pmath_t rule){
 }
 
 PMATH_PRIVATE pmath_bool_t _pmath_is_list_of_rules(pmath_t rules){
-  if(pmath_instance_of(rules, PMATH_TYPE_EXPRESSION)){
+  if(pmath_is_expr(rules)){
     size_t i;
     pmath_t head = pmath_expr_get_item(rules, 0);
     pmath_unref(head);
@@ -89,8 +89,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_is_list_of_rules(pmath_t rules){
       
     for(i = pmath_expr_length(rules);i >= 1;--i){
       pmath_t rule = pmath_expr_get_item(rules, i);
-      if(!pmath_instance_of(rule, PMATH_TYPE_EXPRESSION)
-      || !_pmath_is_rule(rule)){
+      if(!_pmath_is_rule(rule)){
         pmath_unref(rule);
         return FALSE;
       }
@@ -281,8 +280,7 @@ PMATH_PRIVATE pmath_t builtin_replacelist(pmath_expr_t expr){
     if(!_pmath_is_rule(n) && !_pmath_is_list_of_rules(n)){
       last_nonoption = 3;
     }
-    else if((!pmath_instance_of(n, PMATH_TYPE_INTEGER)
-     || pmath_number_sign(n) < 0)
+    else if((!pmath_is_integer(n) || pmath_number_sign(n) < 0)
     && !pmath_equals(n, _pmath_object_infinity)){
       pmath_message(NULL, "innf", 2, pmath_integer_new_si(3), pmath_ref(expr));
       pmath_unref(n);

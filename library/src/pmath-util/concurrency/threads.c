@@ -147,7 +147,7 @@ pmath_t _pmath_thread_local_load_with(
     thread = pmath_thread_get_parent(thread);
   }
 
-  if(pmath_instance_of(key, PMATH_TYPE_SYMBOL))
+  if(pmath_is_symbol(key))
     return _pmath_symbol_get_global_value(key);
 
   return PMATH_UNDEFINED;
@@ -185,7 +185,7 @@ PMATH_PRIVATE void _pmath_abort_message(pmath_t abortable){
   struct _pmath_abortable_message_t *current_data, *pending_data;
   
   if(!thread
-  || !pmath_instance_of(abortable, PMATH_TYPE_CUSTOM)
+  || !pmath_is_custom(abortable)
   || !pmath_custom_has_destructor(abortable, _pmath_destroy_abortable_message)){
     pmath_unref(abortable);
     return;

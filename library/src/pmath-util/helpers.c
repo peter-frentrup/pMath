@@ -25,7 +25,7 @@ PMATH_API pmath_bool_t pmath_is_expr_of(
   pmath_t obj,
   pmath_symbol_t head
 ){
-  if(pmath_instance_of(obj, PMATH_TYPE_EXPRESSION)){
+  if(pmath_is_expr(obj)){
     pmath_t h = pmath_expr_get_item(obj, 0);
     pmath_unref(h);
 
@@ -40,7 +40,7 @@ PMATH_API pmath_bool_t pmath_is_expr_of_len(
   pmath_symbol_t head,
   size_t         length
 ){
-  if(pmath_instance_of(obj, PMATH_TYPE_EXPRESSION)
+  if(pmath_is_expr(obj)
   && pmath_expr_length(obj) == length){
     pmath_t h = pmath_expr_get_item(obj, 0);
     pmath_unref(h);
@@ -210,8 +210,7 @@ static pmath_t next_value(const char **format, va_list *args){
         assert(0 && "unclosed complex");
       }
       
-      if(pmath_instance_of(num, PMATH_TYPE_INTEGER)
-      && pmath_instance_of(den, PMATH_TYPE_INTEGER)){
+      if(pmath_is_integer(num) && pmath_is_integer(den)){
         return pmath_rational_new(num, den);
       }
       
@@ -233,7 +232,7 @@ static pmath_t next_value(const char **format, va_list *args){
 //        assert(0 && "unfinished functionx");
 //      }
 //      
-//      if(!pmath_instance_of(expr, PMATH_TYPE_EXPRESSION))
+//      if(!pmath_is_expr(expr))
 //        return pmath_expr_new_extended(head, 1, expr);
 //      
 //      return pmath_expr_set_item(expr, 0, head);
@@ -438,12 +437,12 @@ PMATH_API pmath_t pmath_option_value(
     fn = pmath_current_head();
   
   head = NULL;
-  if(pmath_instance_of(fn, PMATH_TYPE_SYMBOL)){
+  if(pmath_is_symbol(fn)){
     head = pmath_ref(fn);
   }
-  else if(pmath_instance_of(fn, PMATH_TYPE_EXPRESSION)){
+  else if(pmath_is_expr(fn)){
     head = pmath_expr_get_item(fn, 0);
-    if(!pmath_instance_of(fn, PMATH_TYPE_SYMBOL)){
+    if(!pmath_is_symbol(fn)){
       pmath_unref(head);
       head = NULL;
     }
@@ -486,7 +485,7 @@ PMATH_API pmath_t pmath_option_value(
     if(_pmath_is_list_of_rules(extra)){
       pmath_t result;
       
-      if(pmath_instance_of(fn, PMATH_TYPE_SYMBOL))
+      if(pmath_is_symbol(fn))
         verify_subset_is_options_subset(fn, fnoptions, extra);
       
       result = pmath_ref(name);

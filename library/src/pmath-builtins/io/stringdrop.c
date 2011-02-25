@@ -16,7 +16,7 @@ static pmath_t stringdrop(
   long    end, 
   long    step
 ){
-  if(pmath_instance_of(str, PMATH_TYPE_STRING)){
+  if(pmath_is_string(str)){
     long len = pmath_string_length(str);
     
     if(start < 0)

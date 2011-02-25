@@ -256,7 +256,7 @@ static pmath_bool_t use_symbolic_det(pmath_expr_t matrix){ // wont be freed
       if(pmath_instance_of(obj, PMATH_TYPE_FLOAT)){
         inexact = TRUE;
       }
-      else if(!pmath_instance_of(obj, PMATH_TYPE_NUMBER)){
+      else if(!pmath_is_number(obj)){
         if(!_pmath_is_nonreal_complex(obj)){
           if(!_pmath_is_numeric(obj)){ // non-numeric entity found
             pmath_unref(obj);

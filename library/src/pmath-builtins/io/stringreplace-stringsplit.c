@@ -25,7 +25,7 @@ static pmath_t stringreplace(
   size_t               max_matches,
   int                  options        // SR_XXX
 ){
-  if(pmath_instance_of(obj, PMATH_TYPE_STRING)){
+  if(pmath_is_string(obj)){
     pmath_bool_t more;
     size_t i, count;
     int length, offset, last;
@@ -252,7 +252,7 @@ PMATH_PRIVATE pmath_t builtin_stringreplace(pmath_expr_t expr){
   if(pmath_expr_length(expr) >= 3){
     obj = pmath_expr_get_item(expr, 3);
     
-    if(pmath_instance_of(obj, PMATH_TYPE_INTEGER)
+    if(pmath_is_integer(obj)
     && pmath_integer_fits_ui(obj)){
       max_matches = pmath_integer_get_ui(obj);
       pmath_unref(obj);
@@ -317,7 +317,7 @@ PMATH_PRIVATE pmath_t builtin_stringsplit(pmath_expr_t expr){
   if(pmath_expr_length(expr) >= 3){
     obj = pmath_expr_get_item(expr, 3);
     
-    if(pmath_instance_of(obj, PMATH_TYPE_INTEGER)
+    if(pmath_is_integer(obj)
     && pmath_number_sign(obj) > 0
     && pmath_integer_fits_ui(obj)){
       max_matches = pmath_integer_get_ui(obj) - 1;

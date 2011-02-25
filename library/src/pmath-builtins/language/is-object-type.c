@@ -30,7 +30,7 @@ PMATH_PRIVATE pmath_t builtin_call_isheld(pmath_expr_t expr){
     obj = pmath_expr_get_item(expr, 1);
     pmath_unref(expr);
     
-    if(pmath_instance_of(fn, PMATH_TYPE_SYMBOL)){
+    if(pmath_is_symbol(fn)){
       pmath_symbol_attributes_t attr = pmath_symbol_get_attributes(fn);
       
       if((attr & PMATH_SYMBOL_ATTRIBUTE_HOLDFIRST)
@@ -62,7 +62,7 @@ PMATH_PRIVATE pmath_t builtin_iseven(pmath_expr_t expr){
   obj = pmath_expr_get_item(expr, 1);
   pmath_unref(expr);
 
-  if(pmath_instance_of(obj, PMATH_TYPE_INTEGER)
+  if(pmath_is_integer(obj)
   && mpz_even_p(((struct _pmath_integer_t*)obj)->value)){
     pmath_unref(obj);
     return pmath_ref(PMATH_SYMBOL_TRUE);
@@ -154,7 +154,7 @@ PMATH_PRIVATE pmath_t builtin_isinteger(pmath_expr_t expr){
   obj = pmath_expr_get_item(expr, 1);
   pmath_unref(expr);
 
-  if(pmath_instance_of(obj, PMATH_TYPE_INTEGER)){
+  if(pmath_is_integer(obj)){
     pmath_unref(obj);
     return pmath_ref(PMATH_SYMBOL_TRUE);
   }
@@ -207,8 +207,7 @@ PMATH_PRIVATE pmath_t builtin_isnumber(pmath_expr_t expr){
   obj = pmath_expr_get_item(expr, 1);
   pmath_unref(expr);
 
-  if(pmath_instance_of(obj, PMATH_TYPE_NUMBER)
-  || _pmath_is_nonreal_complex(obj)){
+  if(pmath_is_number(obj) || _pmath_is_nonreal_complex(obj)){
     pmath_unref(obj);
     return pmath_ref(PMATH_SYMBOL_TRUE);
   }
@@ -228,7 +227,7 @@ PMATH_PRIVATE pmath_t builtin_isodd(pmath_expr_t expr){
   obj = pmath_expr_get_item(expr, 1);
   pmath_unref(expr);
 
-  if(pmath_instance_of(obj, PMATH_TYPE_INTEGER)
+  if(pmath_is_integer(obj)
   && mpz_odd_p(((struct _pmath_integer_t*)obj)->value)){
     pmath_unref(obj);
     return pmath_ref(PMATH_SYMBOL_TRUE);
@@ -317,7 +316,7 @@ PMATH_PRIVATE pmath_t builtin_isstring(pmath_expr_t expr){
   obj = pmath_expr_get_item(expr, 1);
   pmath_unref(expr);
 
-  if(pmath_instance_of(obj, PMATH_TYPE_STRING)){
+  if(pmath_is_string(obj)){
     pmath_unref(obj);
     return pmath_ref(PMATH_SYMBOL_TRUE);
   }
@@ -336,7 +335,7 @@ PMATH_PRIVATE pmath_t builtin_issymbol(pmath_expr_t expr){
   obj = pmath_expr_get_item(expr, 1);
   pmath_unref(expr);
 
-  if(pmath_instance_of(obj, PMATH_TYPE_SYMBOL)){
+  if(pmath_is_symbol(obj)){
     pmath_unref(obj);
     return pmath_ref(PMATH_SYMBOL_TRUE);
   }

@@ -311,7 +311,7 @@ PMATH_PRIVATE pmath_t builtin_directoryname(pmath_expr_t expr){
   }
   
   name = pmath_expr_get_item(expr, 1);
-  if(!pmath_instance_of(name, PMATH_TYPE_STRING)){
+  if(!pmath_is_string(name)){
     pmath_unref(name);
     pmath_message(NULL, "str", 2, pmath_integer_new_si(1), pmath_ref(expr));
     return expr;
@@ -320,7 +320,7 @@ PMATH_PRIVATE pmath_t builtin_directoryname(pmath_expr_t expr){
   count = 1;
   if(exprlen == 2){
     obj = pmath_expr_get_item(expr, 2);
-    if(!pmath_instance_of(obj, PMATH_TYPE_INTEGER)
+    if(!pmath_is_integer(obj)
     || !pmath_integer_fits_ui(obj)
     || pmath_number_sign(obj) <= 0){
       pmath_unref(obj);
@@ -364,8 +364,7 @@ PMATH_PRIVATE pmath_t builtin_setdirectory(pmath_expr_t expr){
   }
   
   name = pmath_expr_get_item(expr, 1);
-  if(!pmath_instance_of(name, PMATH_TYPE_STRING)
-  || pmath_string_length(name) == 0){
+  if(!pmath_is_string(name) || pmath_string_length(name) == 0){
     pmath_message(NULL, "fstr", 1, name);
     return expr;
   }

@@ -7,7 +7,7 @@
 
 // ignores head of expressions
 PMATH_PRIVATE long _pmath_object_depth(pmath_t obj){
-  if(pmath_instance_of(obj, PMATH_TYPE_EXPRESSION)){
+  if(pmath_is_expr(obj)){
     long result = 1;
     size_t i;
     

@@ -37,7 +37,7 @@ PMATH_API void *pmath_custom_get_data(pmath_custom_t custom){
   if(PMATH_UNLIKELY(!custom))
     return NULL;
   
-  assert(pmath_instance_of(custom, PMATH_TYPE_CUSTOM));
+  assert(pmath_is_custom(custom));
   
   return ((struct custom_t*)custom)->data;
 }
@@ -49,7 +49,7 @@ PMATH_API pmath_bool_t pmath_custom_has_destructor(
   if(PMATH_UNLIKELY(!custom))
     return FALSE;
   
-  assert(pmath_instance_of(custom, PMATH_TYPE_CUSTOM));
+  assert(pmath_is_custom(custom));
   
   return ((struct custom_t*)custom)->destructor == dtor;
 }

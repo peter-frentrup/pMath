@@ -48,7 +48,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_is_inexact(pmath_t obj){
 }
 
   static int _simple_real_class(pmath_t obj){
-    if(pmath_instance_of(obj, PMATH_TYPE_INTEGER)){
+    if(pmath_is_integer(obj)){
       int sign = mpz_sgn(((struct _pmath_integer_t*)obj)->value);
       
       if(sign == 0)
@@ -128,8 +128,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_is_inexact(pmath_t obj){
       pmath_t re = pmath_expr_get_item(obj, 1);
       pmath_t im = pmath_expr_get_item(obj, 2);
       
-      if(pmath_instance_of(re, PMATH_TYPE_NUMBER) 
-      && pmath_instance_of(re, PMATH_TYPE_NUMBER)){
+      if(pmath_is_number(re) && pmath_is_number(re)){
         if(pmath_number_sign(re) == 0){
           pmath_unref(re);
           pmath_unref(im);
@@ -184,12 +183,12 @@ PMATH_PRIVATE int _pmath_number_class(pmath_t obj){
 }
 
 PMATH_PRIVATE pmath_bool_t _pmath_is_numeric(pmath_t obj){
-  if(pmath_instance_of(obj, PMATH_TYPE_NUMBER))
+  if(pmath_is_number(obj))
     return TRUE;
   
-  if(pmath_instance_of(obj, PMATH_TYPE_EXPRESSION)){
+  if(pmath_is_expr(obj)){
     pmath_t h = pmath_expr_get_item(obj, 0);
-    if(pmath_instance_of(h, PMATH_TYPE_SYMBOL)
+    if(pmath_is_symbol(h)
     && (pmath_symbol_get_attributes(h) & PMATH_SYMBOL_ATTRIBUTE_NUMERICFUNCTION) != 0){
       pmath_bool_t result;
       size_t i;
@@ -211,7 +210,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_is_numeric(pmath_t obj){
     return FALSE;
   }
   
-  if(pmath_instance_of(obj, PMATH_TYPE_SYMBOL)){
+  if(pmath_is_symbol(obj)){
     pmath_bool_t   result;
     pmath_hashtable_t table;
     
@@ -261,7 +260,7 @@ PMATH_PRIVATE pmath_t builtin_assign_isnumeric(pmath_expr_t expr){
   pmath_unref(tag);
   pmath_unref(expr);
   
-  if(!pmath_instance_of(sym, PMATH_TYPE_SYMBOL)){
+  if(!pmath_is_symbol(sym)){
     pmath_message(NULL, "fnsym", 1, lhs);
     
     pmath_unref(sym);

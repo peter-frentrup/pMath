@@ -51,7 +51,7 @@ PMATH_PRIVATE pmath_t builtin_assign_options(pmath_expr_t expr){
   pmath_unref(tag);
   pmath_unref(expr);
   
-  if(!pmath_instance_of(sym, PMATH_TYPE_SYMBOL)){
+  if(!pmath_is_symbol(sym)){
     pmath_message(NULL, "fnsym", 1, lhs);
     
     pmath_unref(sym);
@@ -104,7 +104,7 @@ PMATH_PRIVATE pmath_t builtin_optionvalue(pmath_expr_t expr){
   }
   pmath_unref(expr);
   
-  if(pmath_instance_of(fn, PMATH_TYPE_EXPRESSION)){
+  if(pmath_is_expr(fn)){
     size_t start, end;
     
     end = pmath_expr_length(fn);
@@ -184,7 +184,7 @@ PMATH_PRIVATE pmath_t builtin_options(pmath_expr_t expr){
   sym = pmath_expr_get_item(expr, 1);
   
   options = NULL;
-  if(pmath_instance_of(sym, PMATH_TYPE_EXPRESSION)){
+  if(pmath_is_expr(sym)){
     size_t start, end;
     pmath_bool_t have_rule_list = FALSE;
     
@@ -217,11 +217,11 @@ PMATH_PRIVATE pmath_t builtin_options(pmath_expr_t expr){
     }
   }
   else{
-    if(pmath_instance_of(sym, PMATH_TYPE_STRING)){
+    if(pmath_is_string(sym)){
       sym = pmath_symbol_find(sym, FALSE);
     }
     
-    if(pmath_instance_of(sym, PMATH_TYPE_SYMBOL)){
+    if(pmath_is_symbol(sym)){
       struct _pmath_symbol_rules_t *rules;
       
       rules = _pmath_symbol_get_rules(sym, RULES_READ);
@@ -361,7 +361,7 @@ PMATH_PRIVATE pmath_t builtin_setoptions(pmath_expr_t expr){
   }
   
   sym = pmath_expr_get_item(expr, 1);
-  if(!pmath_instance_of(sym, PMATH_TYPE_SYMBOL)){
+  if(!pmath_is_symbol(sym)){
     pmath_message(NULL, "sym", 2, sym, pmath_integer_new_si(1));
     return expr;
   }

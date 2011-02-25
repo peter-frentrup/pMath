@@ -98,13 +98,13 @@ PMATH_PRIVATE pmath_t builtin_wait(pmath_expr_t expr){
   }
 
   sym = (pmath_symbol_t)pmath_expr_get_item(expr, 1);
-  if(!pmath_instance_of(sym, PMATH_TYPE_SYMBOL)){
+  if(!pmath_is_symbol(sym)){
     pmath_message(NULL, "nothread", 1, sym);
     return expr;
   }
   
   custom_task = (pmath_custom_t)pmath_symbol_get_value(sym);
-  if(!pmath_instance_of(custom_task, PMATH_TYPE_CUSTOM)
+  if(!pmath_is_custom(custom_task)
   || !pmath_custom_has_destructor(custom_task, _pmath_custom_task_destroy)){
     pmath_unref(custom_task);
     pmath_message(NULL, "nothread", 1, sym);

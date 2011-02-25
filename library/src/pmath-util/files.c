@@ -137,10 +137,10 @@ PMATH_API pmath_bool_t pmath_file_test(
   pmath_t file,
   int     properties
 ){
-  if(pmath_instance_of(file, PMATH_TYPE_SYMBOL)){
+  if(pmath_is_symbol(file)){
     pmath_custom_t custom = (pmath_custom_t)pmath_symbol_get_value(file);
     
-    if(pmath_instance_of(custom, PMATH_TYPE_CUSTOM)){
+    if(pmath_is_custom(custom)){
       if(pmath_custom_has_destructor(custom, destroy_binary_file)){
         if((properties & PMATH_FILE_PROP_TEXT) == 0){
           pmath_bool_t result = TRUE;
@@ -444,10 +444,10 @@ PMATH_API size_t pmath_file_write(
   const void      *buffer,
   size_t           buffer_size
 ){
-  if(pmath_instance_of(file, PMATH_TYPE_SYMBOL)){
+  if(pmath_is_symbol(file)){
     pmath_custom_t custom = (pmath_custom_t)pmath_symbol_get_value(file);
     
-    if(pmath_instance_of(custom, PMATH_TYPE_CUSTOM)
+    if(pmath_is_custom(custom)
     && pmath_custom_has_destructor(custom, destroy_binary_file)){
       struct _pmath_binary_file_t *data = (struct _pmath_binary_file_t*)
         pmath_custom_get_data(custom);
@@ -498,10 +498,10 @@ PMATH_API pmath_bool_t pmath_file_writetext(
   const uint16_t  *str,
   int              len
 ){
-  if(pmath_instance_of(file, PMATH_TYPE_SYMBOL)){
+  if(pmath_is_symbol(file)){
     pmath_custom_t custom = (pmath_custom_t)pmath_symbol_get_value(file);
     
-    if(pmath_instance_of(custom, PMATH_TYPE_CUSTOM)
+    if(pmath_is_custom(custom)
     && pmath_custom_has_destructor(custom, destroy_text_file)){
       struct _pmath_text_file_t *data = (struct _pmath_text_file_t*)
         pmath_custom_get_data(custom);
@@ -541,10 +541,10 @@ PMATH_API pmath_bool_t pmath_file_writetext(
 }
 
 PMATH_API void pmath_file_flush(pmath_t file){
-  if(pmath_instance_of(file, PMATH_TYPE_SYMBOL)){
+  if(pmath_is_symbol(file)){
     pmath_custom_t custom = (pmath_custom_t)pmath_symbol_get_value(file);
     
-    if(pmath_instance_of(custom, PMATH_TYPE_CUSTOM)
+    if(pmath_is_custom(custom)
     && (pmath_custom_has_destructor(custom, destroy_binary_file)
      || pmath_custom_has_destructor(custom, destroy_text_file))){
       struct _file_t *f = (struct _file_t*)pmath_custom_get_data(custom);
@@ -593,10 +593,10 @@ void pmath_file_manipulate(
   void    (*callback)(void*, void*),
   void     *data
 ){
-  if(pmath_instance_of(file, PMATH_TYPE_SYMBOL)){
+  if(pmath_is_symbol(file)){
     pmath_custom_t custom = (pmath_custom_t)pmath_symbol_get_value(file);
     
-    if(pmath_instance_of(custom, PMATH_TYPE_CUSTOM)
+    if(pmath_is_custom(custom)
     && (pmath_custom_has_destructor(custom, destroy_binary_file)
      || pmath_custom_has_destructor(custom, destroy_text_file))){
       struct _file_t *f = (struct _file_t*)pmath_custom_get_data(custom);
@@ -616,10 +616,10 @@ void pmath_file_manipulate(
 
 PMATH_API
 pmath_bool_t pmath_file_close(pmath_t file){
-  if(pmath_instance_of(file, PMATH_TYPE_SYMBOL)){
+  if(pmath_is_symbol(file)){
     pmath_custom_t custom = (pmath_custom_t)pmath_symbol_get_value(file);
     
-    if(pmath_instance_of(custom, PMATH_TYPE_CUSTOM)
+    if(pmath_is_custom(custom)
     && (pmath_custom_has_destructor(custom, destroy_binary_file)
      || pmath_custom_has_destructor(custom, destroy_text_file))){
       pmath_bool_t result;

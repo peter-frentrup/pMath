@@ -19,10 +19,10 @@ PMATH_PRIVATE pmath_t builtin_remove(pmath_expr_t expr){
     pmath_t item = pmath_expr_get_item(expr, i);
     expr = pmath_expr_set_item(expr, i, NULL);
     
-    if(pmath_instance_of(item, PMATH_TYPE_SYMBOL)){
+    if(pmath_is_symbol(item)){
       pmath_symbol_remove(item);
     }
-    else if(pmath_instance_of(item, PMATH_TYPE_STRING)){
+    else if(pmath_is_string(item)){
       item = pmath_evaluate(
         pmath_expr_new_extended(
           pmath_ref(PMATH_SYMBOL_NAMES), 1,
@@ -33,7 +33,7 @@ PMATH_PRIVATE pmath_t builtin_remove(pmath_expr_t expr){
         for(j = pmath_expr_length(item);j > 0;--j){
           pmath_t name = pmath_expr_get_item(item, j);
           
-          if(pmath_instance_of(name, PMATH_TYPE_STRING)){
+          if(pmath_is_string(name)){
             name = pmath_symbol_get(name, FALSE);
             if(name)
               pmath_symbol_remove(name);
@@ -54,10 +54,10 @@ PMATH_PRIVATE pmath_t builtin_remove(pmath_expr_t expr){
 //    item = pmath_expr_get_item(expr, i);
 //    expr = pmath_expr_set_item(expr, i, NULL);
 //    
-//    if(pmath_instance_of(item, PMATH_TYPE_SYMBOL)){
+//    if(pmath_is_symbol(item)){
 //      sym = item;
 //    }
-//    else if(pmath_instance_of(item, PMATH_TYPE_STRING)){
+//    else if(pmath_is_string(item)){
 //      sym = pmath_symbol_find(pmath_ref(item), FALSE);
 //      
 //      if(!sym){

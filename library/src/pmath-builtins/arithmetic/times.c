@@ -388,8 +388,7 @@ static void split_factor(
   pmath_t *out_num_power,
   pmath_t *out_rest_power
 ){
-  if(pmath_instance_of(factor, PMATH_TYPE_EXPRESSION)
-  && pmath_expr_length(factor) == 2){
+  if(pmath_is_expr(factor) && pmath_expr_length(factor) == 2){
     pmath_t head = pmath_expr_get_item(factor, 0);
     pmath_unref(head);
     
@@ -407,8 +406,8 @@ static void split_factor(
 }
 
 static void times_2_arg(pmath_t *a, pmath_t *b){
-  if(pmath_instance_of(*a, PMATH_TYPE_NUMBER)){
-    if(pmath_instance_of(*b, PMATH_TYPE_NUMBER)){
+  if(pmath_is_number(*a)){
+    if(pmath_is_number(*b)){
       *a = _mul_nn(*a, *b);
       *a = _pmath_float_exceptions(*a);
       *b = PMATH_UNDEFINED;
@@ -488,7 +487,7 @@ static void times_2_arg(pmath_t *a, pmath_t *b){
     }
   }
   else if(_pmath_is_nonreal_complex(*a)){
-    if(pmath_instance_of(*b, PMATH_TYPE_NUMBER)){ // (x + yi) * b = bx + byi
+    if(pmath_is_number(*b)){ // (x + yi) * b = bx + byi
       pmath_number_t re = _mul_nn(
         (pmath_number_t)pmath_ref(*b),
         (pmath_number_t)pmath_expr_get_item((pmath_expr_t)*a, 1));
@@ -580,7 +579,7 @@ static void times_2_arg(pmath_t *a, pmath_t *b){
 
     if(pmath_equals(baseA, baseB) 
     && pmath_equals(restPowerA, restPowerB)
-    && (restPowerA != PMATH_UNDEFINED || !pmath_instance_of(baseA, PMATH_TYPE_NUMBER))){
+    && (restPowerA != PMATH_UNDEFINED || !pmath_is_number(baseA))){
       pmath_unref(*a);
       pmath_unref(baseB);
       pmath_unref(restPowerB);

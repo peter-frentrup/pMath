@@ -668,7 +668,7 @@ PMATH_API void pmath_collect_temporary_symbols(void){
 }
 
   static pmath_bool_t gc_visit_ref(pmath_t obj, void *dummy){
-    if(pmath_instance_of(obj, PMATH_TYPE_EXPRESSION | PMATH_TYPE_SYMBOL)){
+    if(pmath_is_symbol(obj) || pmath_is_expr(obj)){
       if((((struct _pmath_gc_t*)obj)->gc_refcount & GC_PASS_MASK) == gc_pass){
         ((struct _pmath_gc_t*)obj)->gc_refcount+= GC_PASS_COUNT;
       }
@@ -687,7 +687,7 @@ PMATH_API void pmath_collect_temporary_symbols(void){
   }
 
   static pmath_bool_t gc_all_expr_visited(pmath_t obj, void *dummy){
-    if(pmath_instance_of(obj, PMATH_TYPE_EXPRESSION)){
+    if(pmath_is_expr(obj)){
       uintptr_t gc_refs = get_gc_refs(obj);
       
       // one reference is held by caller

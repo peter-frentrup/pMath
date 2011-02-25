@@ -27,7 +27,7 @@
 //{ operator precedence of boxes ...
 
 static pmath_token_t box_token_analyse(pmath_t box, int *prec){ // box will be freed
-  if(pmath_instance_of(box, PMATH_TYPE_STRING)){
+  if(pmath_is_string(box)){
     pmath_token_t tok = pmath_token_analyse(
       pmath_string_buffer(box),
       pmath_string_length(box),
@@ -63,7 +63,7 @@ static pmath_token_t box_token_analyse(pmath_t box, int *prec){ // box will be f
 }
 
 static int box_token_prefix_prec(pmath_t box, int defprec){ // box will be freed
-  if(pmath_instance_of(box, PMATH_TYPE_STRING)){
+  if(pmath_is_string(box)){
     int prec = pmath_token_prefix_precedence(
       pmath_string_buffer(box),
       pmath_string_length(box),
@@ -529,7 +529,7 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj);
     if(pmath_is_expr_of_len(*box, PMATH_SYMBOL_LIST, 2)){
       pmath_t minus = pmath_expr_get_item(*box, 1);
       
-      if(pmath_instance_of(minus, PMATH_TYPE_STRING)
+      if(pmath_is_string(minus)
       && pmath_string_equals_latin1(minus, "-")){
         pmath_t x = pmath_expr_get_item(*box, 2);
         pmath_unref(*box);
@@ -556,8 +556,7 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj);
         return TRUE;
       }
 
-      if(pmath_instance_of(exp, PMATH_TYPE_NUMBER)
-      && pmath_number_sign(exp) < 0){
+      if(pmath_is_number(exp) && pmath_number_sign(exp) < 0){
         exp = pmath_number_neg(exp);
         *obj = pmath_expr_set_item(*obj, 2, exp);
         return TRUE;
@@ -569,7 +568,7 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj);
   }
   
   static pmath_bool_t is_char(pmath_t obj, uint16_t ch){
-    return pmath_instance_of(obj, PMATH_TYPE_STRING)
+    return pmath_is_string(obj)
         && pmath_string_length(obj) == 1
         && pmath_string_buffer(obj)[0] == ch;
   }
@@ -609,15 +608,14 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj);
   }
   
   static uint16_t first_char(pmath_t box){
-    if(pmath_instance_of(box, PMATH_TYPE_STRING)){
+    if(pmath_is_string(box)){
       if(pmath_string_length(box) > 0)
         return *pmath_string_buffer(box);
 
       return 0;
     }
 
-    if(pmath_instance_of(box, PMATH_TYPE_EXPRESSION)
-    && pmath_expr_length(box) > 0){
+    if(pmath_is_expr(box) && pmath_expr_length(box) > 0){
       pmath_t item = pmath_expr_get_item(box, 0);
       pmath_unref(item);
 
@@ -636,7 +634,7 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj);
   }
 
   static uint16_t last_char(pmath_t box){
-    if(pmath_instance_of(box, PMATH_TYPE_STRING)){
+    if(pmath_is_string(box)){
       int len = pmath_string_length(box);
       if(len > 0)
         return pmath_string_buffer(box)[len - 1];
@@ -644,8 +642,7 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj);
       return 0;
     }
 
-    if(pmath_instance_of(box, PMATH_TYPE_EXPRESSION)
-    && pmath_expr_length(box) > 0){
+    if(pmath_is_expr(box) && pmath_expr_length(box) > 0){
       pmath_t item = pmath_expr_get_item(box, 0);
       pmath_unref(item);
 
@@ -770,7 +767,7 @@ static pmath_t complex_to_boxes(
         return PMATH_C_STRING("I");
       }
       
-      if(pmath_instance_of(im, PMATH_TYPE_NUMBER)){
+      if(pmath_is_number(im)){
         pmath_unref(re);
         expr = pmath_expr_set_item(expr, 2, pmath_integer_new_si(1));
         
@@ -781,8 +778,7 @@ static pmath_t complex_to_boxes(
             expr));
       }
     }
-    else if(pmath_instance_of(re, PMATH_TYPE_NUMBER)
-    && pmath_instance_of(im, PMATH_TYPE_NUMBER)){
+    else if(pmath_is_number(re) && pmath_is_number(im)){
       pmath_unref(im);
       expr = pmath_expr_set_item(expr, 1, pmath_integer_new_si(0));
       
@@ -968,7 +964,7 @@ static pmath_t optional_to_boxes(
   if(pmath_expr_length(expr) == 1){
     pmath_t name = pmath_expr_get_item(expr, 1);
     
-    if(pmath_instance_of(name, PMATH_TYPE_SYMBOL)){
+    if(pmath_is_symbol(name)){
       pmath_unref(expr);
       
       name = object_to_boxes(thread, name);
@@ -981,7 +977,7 @@ static pmath_t optional_to_boxes(
     pmath_t name = pmath_expr_get_item(expr, 1);
     pmath_t value =  pmath_expr_get_item(expr, 2);
 
-    if(pmath_instance_of(name, PMATH_TYPE_SYMBOL)){
+    if(pmath_is_symbol(name)){
       pmath_unref(expr);
 
       name = object_to_boxes(thread, name);
@@ -1007,7 +1003,7 @@ static pmath_t pattern_to_boxes(
   if(pmath_expr_length(expr) == 2){
     pmath_t name = pmath_expr_get_item(expr, 1);
 
-    if(pmath_instance_of(name, PMATH_TYPE_SYMBOL)){
+    if(pmath_is_symbol(name)){
       pmath_t pat =  pmath_expr_get_item(expr, 2);
 
       name = object_to_boxes(thread, name);
@@ -1156,8 +1152,7 @@ static pmath_t power_to_boxes(
 
     pmath_unref(expr);
     
-    if(pmath_instance_of(exp, PMATH_TYPE_NUMBER)
-    && pmath_number_sign(exp) < 0){
+    if(pmath_is_number(exp) && pmath_number_sign(exp) < 0){
       exp = pmath_number_neg(exp);
       fraction = TRUE;
     }
@@ -1284,8 +1279,7 @@ static pmath_t pureargument_to_boxes(
   if(pmath_expr_length(expr) == 1){
     pmath_t item = pmath_expr_get_item(expr, 1);
     
-    if(pmath_instance_of(item, PMATH_TYPE_INTEGER)
-    && pmath_number_sign(item) > 0){
+    if(pmath_is_integer(item) && pmath_number_sign(item) > 0){
       pmath_unref(expr);
       return pmath_build_value("(so)", "#", object_to_boxes(thread, item));
     }
@@ -1296,7 +1290,7 @@ static pmath_t pureargument_to_boxes(
       pmath_unref(b);
       
       if(b == PMATH_SYMBOL_AUTOMATIC
-      && pmath_instance_of(a, PMATH_TYPE_INTEGER)
+      && pmath_is_integer(a)
       && pmath_number_sign(a) > 0){
         pmath_unref(item);
         pmath_unref(expr);
@@ -1896,7 +1890,7 @@ static pmath_t grid_to_boxes(
     pmath_thread_t thread,
     pmath_t        obj     // will be freed
   ){
-    if(pmath_instance_of(obj, PMATH_TYPE_EXPRESSION)){
+    if(pmath_is_expr(obj)){
       pmath_expr_t result;
       size_t len;
       len = pmath_expr_length(obj);
@@ -2207,7 +2201,7 @@ static pmath_t row_to_boxes(
     if(pmath_is_expr_of(list, PMATH_SYMBOL_LIST)){
       pmath_t delim = pmath_expr_get_item(expr, 2);
       
-      if(!pmath_instance_of(delim, PMATH_TYPE_STRING))
+      if(!pmath_is_string(delim))
         delim = object_to_boxes(thread, delim);
       
       pmath_unref(expr);
@@ -2237,7 +2231,7 @@ static pmath_t shallow_to_boxes(
   if(pmath_expr_length(expr) == 2){
     item = pmath_expr_get_item(expr, 2);
     
-    if(pmath_instance_of(item, PMATH_TYPE_INTEGER)
+    if(pmath_is_integer(item)
     && pmath_integer_fits_ui(item)){
       maxdepth = pmath_integer_get_ui(item);
     }
@@ -2248,7 +2242,7 @@ static pmath_t shallow_to_boxes(
     // {maxdepth, maxlength}
       pmath_t obj = pmath_expr_get_item(item, 1);
       
-      if(pmath_instance_of(obj, PMATH_TYPE_INTEGER)
+      if(pmath_is_integer(obj)
       && pmath_integer_fits_ui(obj)){
         maxdepth = pmath_integer_get_ui(obj);
       }
@@ -2264,7 +2258,7 @@ static pmath_t shallow_to_boxes(
       pmath_unref(obj);
       obj = pmath_expr_get_item(item, 2);
       
-      if(pmath_instance_of(obj, PMATH_TYPE_INTEGER)
+      if(pmath_is_integer(obj)
       && pmath_integer_fits_ui(obj)){
         maxlength = pmath_integer_get_ui(obj);
       }
@@ -2315,7 +2309,7 @@ static pmath_t short_to_boxes(
       return object_to_boxes(thread, item);
     }
     
-    if(pmath_instance_of(item, PMATH_TYPE_NUMBER)){
+    if(pmath_is_number(item)){
       lines = pmath_number_get_d(item);
       
       if(lines < 0){
@@ -2341,7 +2335,7 @@ static pmath_t short_to_boxes(
     return object_to_boxes(thread, item);
   }
   
-  if(pmath_instance_of(item, PMATH_TYPE_NUMBER)){
+  if(pmath_is_number(item)){
     pagewidth = pmath_number_get_d(item);
   }
   
@@ -2426,7 +2420,7 @@ static pmath_t skeleton_to_boxes(
         continue;
       }
       
-      if(pmath_instance_of(item, PMATH_TYPE_NUMBER)){
+      if(pmath_is_number(item)){
         pmath_emit(
           pmath_expr_new_extended(
             pmath_ref(PMATH_SYMBOL_RULE), 2, 
@@ -2726,7 +2720,7 @@ static pmath_t expr_to_boxes(pmath_thread_t thread, pmath_expr_t expr){
   pmath_t head = pmath_expr_get_item(expr, 0);
   size_t  len  = pmath_expr_length(expr);
   
-  if(pmath_instance_of(head, PMATH_TYPE_SYMBOL)){
+  if(pmath_is_symbol(head)){
     if(len == 1){
       pmath_t op;
       int prec;
@@ -2929,7 +2923,7 @@ static pmath_t expr_to_boxes(pmath_thread_t thread, pmath_expr_t expr){
 }
 
   static pmath_bool_t user_make_boxes(pmath_t *obj){
-    if(pmath_instance_of(*obj, PMATH_TYPE_EXPRESSION | PMATH_TYPE_SYMBOL)){
+    if(pmath_is_symbol(*obj) || pmath_is_expr(*obj)){
       pmath_symbol_t head = _pmath_topmost_symbol(*obj);
       
       if(head){
@@ -3190,7 +3184,7 @@ PMATH_PRIVATE pmath_t builtin_parenthesizeboxes(pmath_expr_t expr){
   precobj = pmath_expr_get_item(expr, 2);
   posobj  = pmath_expr_get_item(expr, 3);
   
-  if(pmath_instance_of(posobj, PMATH_TYPE_STRING)){
+  if(pmath_is_string(posobj)){
     if(     pmath_string_equals_latin1(posobj, "Prefix"))  pos = +1;
     else if(pmath_string_equals_latin1(posobj, "Postfix")) pos = -1;
     else if(pmath_string_equals_latin1(posobj, "Infix"))   pos = 0;

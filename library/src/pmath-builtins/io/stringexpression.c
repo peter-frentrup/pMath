@@ -16,7 +16,7 @@ PMATH_PRIVATE pmath_t builtin_stringexpression(pmath_expr_t expr){
       
       j = i;
       slen = 0;
-      while(j <= len && pmath_instance_of(item, PMATH_TYPE_STRING)){
+      while(j <= len && pmath_is_string(item)){
         slen+= pmath_string_length(item);
         pmath_unref(item);
         item = pmath_expr_get_item(expr, ++j);

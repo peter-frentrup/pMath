@@ -6,7 +6,7 @@
 
 
 static size_t leafcount(pmath_t obj){ // obj will be freed
-  if(pmath_instance_of(obj, PMATH_TYPE_EXPRESSION)){
+  if(pmath_is_expr(obj)){
     size_t result = 0;
     size_t i;
     

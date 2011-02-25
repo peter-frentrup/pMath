@@ -13,7 +13,7 @@ PMATH_PRIVATE
 pmath_bool_t _pmath_is_imaginary(
   pmath_t *z
 ){
-  if(pmath_instance_of(*z, PMATH_TYPE_EXPRESSION)){
+  if(pmath_is_expr(*z)){
     size_t len = pmath_expr_length(*z);
     pmath_t head = pmath_expr_get_item(*z, 0);
     pmath_unref(head);
@@ -22,14 +22,14 @@ pmath_bool_t _pmath_is_imaginary(
       size_t i;
       pmath_t x = pmath_expr_get_item(*z, 1);
       
-      if(pmath_instance_of(x, PMATH_TYPE_NUMBER)){
+      if(pmath_is_number(x)){
         pmath_unref(x);
         return FALSE;
       }
       
       i = 1;
       while(i <= len){
-        if(pmath_instance_of(x, PMATH_TYPE_EXPRESSION)){
+        if(pmath_is_expr(x)){
           if(pmath_expr_length(x) > 2){
             pmath_unref(x);
             return FALSE;
@@ -131,13 +131,13 @@ PMATH_PRIVATE pmath_bool_t _pmath_re_im(
   if(z == PMATH_SYMBOL_UNDEFINED
   || pmath_equals(z, _pmath_object_overflow)
   || pmath_equals(z, _pmath_object_underflow)
-  || pmath_instance_of(z, PMATH_TYPE_NUMBER)){
+  || pmath_is_number(z)){
     if(re) *re = z;
     if(im) *im = pmath_integer_new_si(0);
     return TRUE;
   }
   
-  if(pmath_instance_of(z, PMATH_TYPE_EXPRESSION)){
+  if(pmath_is_expr(z)){
     pmath_t zhead = pmath_expr_get_item(z, 0);
     pmath_unref(zhead);
 
@@ -238,7 +238,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_re_im(
         return _pmath_re_im(z2, re, im);
       }
         
-      if(pmath_instance_of(z2, PMATH_TYPE_NUMBER)){
+      if(pmath_is_number(z2)){
         pmath_t tmp = pmath_expr_get_item_range(z, 2, SIZE_MAX);
           
         pmath_unref(z);
@@ -386,7 +386,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_re_im(
   
   z2 = pmath_approximate(pmath_ref(z), -HUGE_VAL, -HUGE_VAL);
   
-  if(pmath_instance_of(z2, PMATH_TYPE_NUMBER)){
+  if(pmath_is_number(z2)){
     pmath_unref(z2);
     
     if(re) *re = pmath_ref(z);
@@ -413,8 +413,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_is_nonreal_complex(
   re = pmath_expr_get_item(z, 1);
   im = pmath_expr_get_item(z, 2);
 
-  both_numbers = pmath_instance_of(re, PMATH_TYPE_NUMBER)
-              && pmath_instance_of(im, PMATH_TYPE_NUMBER);
+  both_numbers = pmath_is_number(re) && pmath_is_number(im);
 
   pmath_unref(re);
   pmath_unref(im);

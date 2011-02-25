@@ -11,11 +11,11 @@
 static pmath_t stringtake(
   pmath_t str,   // will be freed
   pmath_t expr,  // wont be freed
-  long           start, 
-  long           end, 
-  long           step
+  long    start, 
+  long    end, 
+  long    step
 ){
-  if(pmath_instance_of(str, PMATH_TYPE_STRING)){
+  if(pmath_is_string(str)){
     long len = pmath_string_length(str);
     
     if(start < 0)

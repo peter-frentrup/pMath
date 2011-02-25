@@ -38,7 +38,7 @@ PMATH_PRIVATE pmath_t _pmath_approximate_step(
 ){
   pmath_symbol_t sym;
   
-  if(pmath_instance_of(obj, PMATH_TYPE_NUMBER)){
+  if(pmath_is_number(obj)){
     double oldacc  = pmath_accuracy( pmath_ref(obj));
     double oldprec = pmath_precision(pmath_ref(obj));
     
@@ -90,12 +90,12 @@ PMATH_PRIVATE pmath_t _pmath_approximate_step(
     pmath_unref(result);
   }
   
-  if(pmath_instance_of(obj, PMATH_TYPE_EXPRESSION)){
+  if(pmath_is_expr(obj)){
     size_t len = pmath_expr_length(obj);
     pmath_symbol_attributes_t attr = 0;
     
     sym = pmath_expr_get_item(obj, 0);
-    if(pmath_instance_of(sym, PMATH_TYPE_SYMBOL)){
+    if(pmath_is_symbol(sym)){
       attr = pmath_symbol_get_attributes(sym);
       pmath_unref(sym);
     }
@@ -140,7 +140,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_to_precision(
     return TRUE;
   }
   
-  if(pmath_instance_of(obj, PMATH_TYPE_NUMBER)){
+  if(pmath_is_number(obj)){
     *result = LOG2_10 * pmath_number_get_d(obj);
     return isfinite(*result);
   }

@@ -19,7 +19,7 @@ PMATH_PRIVATE pmath_t builtin_isordered(pmath_expr_t expr){
   }
 
   list = (pmath_expr_t)pmath_expr_get_item(expr, 1);
-  if(!pmath_instance_of(list, PMATH_TYPE_EXPRESSION)){
+  if(!pmath_is_expr(list)){
     pmath_message(NULL, "noexpr", 1, list);
     return expr;
   }

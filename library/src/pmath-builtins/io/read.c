@@ -264,7 +264,7 @@ static pmath_bool_t _read(
     return TRUE;
   }
     
-  if(pmath_instance_of(*type_value, PMATH_TYPE_EXPRESSION)){
+  if(pmath_is_expr(*type_value)){
     size_t i;
     
     if(pmath_file_status(file) == PMATH_FILE_ENDOFFILE){
@@ -377,7 +377,7 @@ PMATH_PRIVATE pmath_t builtin_readlist(pmath_expr_t expr){
     else{
       last_nonoption = 3;
       
-      if(pmath_instance_of(n, PMATH_TYPE_INTEGER)
+      if(pmath_is_integer(n)
       && pmath_integer_fits_ui(n)){
         count = pmath_integer_get_ui(n);
       }
@@ -412,7 +412,7 @@ PMATH_PRIVATE pmath_t builtin_readlist(pmath_expr_t expr){
   pmath_unref(item);
   
   file = pmath_expr_get_item(expr, 1);
-  if(pmath_instance_of(file, PMATH_TYPE_STRING)){
+  if(pmath_is_string(file)){
     file = pmath_evaluate(pmath_parse_string_args(
       "Try(OpenRead(`1`))", "(o)", file));
   }

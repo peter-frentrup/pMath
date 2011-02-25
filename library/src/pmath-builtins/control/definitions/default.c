@@ -42,10 +42,10 @@ PMATH_PRIVATE pmath_t builtin_assign_default(pmath_expr_t expr){
   pmath_unref(tag);
   pmath_unref(expr);
   
-  if(pmath_instance_of(sym, PMATH_TYPE_STRING))
+  if(pmath_is_string(sym))
     sym = pmath_symbol_find(sym, FALSE);
   
-  if(!pmath_instance_of(sym, PMATH_TYPE_SYMBOL)){
+  if(!pmath_is_symbol(sym)){
     pmath_message(NULL, "fnsym", 1, lhs);
     
     pmath_unref(sym);
@@ -84,10 +84,10 @@ PMATH_PRIVATE pmath_t builtin_default(pmath_expr_t expr){
   
   sym = pmath_expr_get_item(expr, 1);
   
-  if(pmath_instance_of(sym, PMATH_TYPE_STRING))
+  if(pmath_is_string(sym))
     sym = pmath_symbol_find(sym, FALSE);
   
-  if(!pmath_instance_of(sym, PMATH_TYPE_SYMBOL)){
+  if(!pmath_is_symbol(sym)){
     pmath_unref(sym);
     pmath_message(NULL, "fnsym", 1, pmath_ref(expr));
     return expr;

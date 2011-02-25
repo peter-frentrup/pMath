@@ -19,7 +19,7 @@ static pmath_bool_t binary_write(
   int      byte_ordering
 ){
   if(type == PMATH_SYMBOL_EXPRESSION
-  || (pmath_instance_of(type, PMATH_TYPE_STRING)
+  || (pmath_is_string(type)
    && pmath_string_equals_latin1(type, "Expression"))){
     pmath_unref(type);
     pmath_serialize(file, value);
@@ -27,8 +27,8 @@ static pmath_bool_t binary_write(
     return TRUE;
   }
   
-  if(!type || pmath_instance_of(type, PMATH_TYPE_STRING)){
-    if(pmath_instance_of(value, PMATH_TYPE_STRING)){
+  if(!type || pmath_is_string(type)){
+    if(pmath_is_string(value)){
       const uint16_t *buf = pmath_string_buffer(value);
       const int len = pmath_string_length(value);
       
@@ -464,8 +464,7 @@ static pmath_bool_t binary_write(
               int re_dir = 2;
               int im_dir = 2;
               
-              if(!pmath_instance_of(re, PMATH_TYPE_NUMBER)
-              || !pmath_instance_of(im, PMATH_TYPE_NUMBER)){
+              if(!pmath_is_number(re) || !pmath_is_number(im)){
                 re_dir = im_dir = 0;
               }
               else{
@@ -589,7 +588,7 @@ static pmath_bool_t binary_write(
           }
         }
       
-        if(pmath_instance_of(value, PMATH_TYPE_INTEGER)){
+        if(pmath_is_integer(value)){
           size_t count;
           struct _pmath_integer_t *pos = NULL;
           

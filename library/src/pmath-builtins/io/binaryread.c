@@ -17,7 +17,7 @@
 PMATH_PRIVATE int _pmath_get_byte_ordering(pmath_t head, pmath_expr_t options){
   pmath_t value = pmath_evaluate(pmath_option_value(head, PMATH_SYMBOL_BYTEORDERING, options));
   
-  if(pmath_instance_of(value, PMATH_TYPE_INTEGER)
+  if(pmath_is_integer(value)
   && pmath_integer_fits_si(value)){
     long i = pmath_integer_get_si(value);
     
@@ -45,13 +45,13 @@ static pmath_t make_complex(pmath_t re, pmath_t im){
     return im;
   }
   
-  if(pmath_instance_of(im, PMATH_TYPE_NUMBER)){
+  if(pmath_is_number(im)){
     if(pmath_number_sign(im) == 0){
       pmath_unref(im);
       return re;
     }
     
-    if(pmath_instance_of(re, PMATH_TYPE_NUMBER)){
+    if(pmath_is_number(re)){
       return pmath_expr_new_extended(
         pmath_ref(PMATH_SYMBOL_COMPLEX), 2, re, im);
     }
@@ -83,7 +83,7 @@ static pmath_bool_t binary_read(
   int             byte_ordering
 ){
   if(*type_value == PMATH_SYMBOL_EXPRESSION
-  || (pmath_instance_of(*type_value, PMATH_TYPE_STRING)
+  || (pmath_is_string(*type_value)
    && pmath_string_equals_latin1(*type_value, "Expression"))){
     pmath_serialize_error_t error;
     
@@ -99,7 +99,7 @@ static pmath_bool_t binary_read(
     return TRUE;
   }
   
-  if(!*type_value || pmath_instance_of(*type_value, PMATH_TYPE_STRING)){
+  if(!*type_value || pmath_is_string(*type_value)){
     if(pmath_string_equals_latin1(*type_value, "TerminatedString")){
       char buf[256];
       size_t size;

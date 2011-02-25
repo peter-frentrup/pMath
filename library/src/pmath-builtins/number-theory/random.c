@@ -63,7 +63,7 @@ static pmath_expr_t random_array(
     if(data->random_integer){
       struct _pmath_integer_t *result = _pmath_create_integer();
       
-      assert(pmath_instance_of(data->max, PMATH_TYPE_INTEGER));
+      assert(pmath_is_integer(data->max));
       
       if(result){
         pmath_atomic_lock(&_pmath_rand_spinlock);
@@ -167,12 +167,11 @@ PMATH_PRIVATE pmath_t builtin_randominteger(pmath_expr_t expr){
   if(exprlen > 1){
     pmath_t dims = pmath_expr_get_item(expr, 2);
     
-    if(pmath_instance_of(dims, PMATH_TYPE_INTEGER)
-    && pmath_integer_fits_ui(dims)){
+    if(pmath_is_integer(dims) && pmath_integer_fits_ui(dims)){
       data.dims = 1;
       data.lengths[0] = pmath_integer_get_ui(dims);
     }
-    else if(pmath_instance_of(dims, PMATH_TYPE_EXPRESSION)){
+    else if(pmath_is_expr(dims)){
       pmath_t h = pmath_expr_get_item(dims, 0);
       pmath_unref(h);
       
@@ -186,8 +185,7 @@ PMATH_PRIVATE pmath_t builtin_randominteger(pmath_expr_t expr){
         
         for(data.dim = 0;data.dim < data.dims;++data.dim){
           pmath_t len = pmath_expr_get_item(dims, data.dim + 1);
-          if(!pmath_instance_of(len, PMATH_TYPE_INTEGER)
-          || !pmath_integer_fits_ui(len)){
+          if(!pmath_is_integer(len) || !pmath_integer_fits_ui(len)){
             pmath_unref(len);
             goto ERROR_COND;
           }
@@ -215,7 +213,7 @@ PMATH_PRIVATE pmath_t builtin_randominteger(pmath_expr_t expr){
   
   if(exprlen > 0){
     pmath_t range = pmath_expr_get_item(expr, 1);
-    if(pmath_instance_of(range, PMATH_TYPE_INTEGER)){
+    if(pmath_is_integer(range)){
       data.max = _add_nn(range, pmath_integer_new_si(1));
       if(!data.max){
         pmath_unref(expr);
@@ -229,13 +227,13 @@ PMATH_PRIVATE pmath_t builtin_randominteger(pmath_expr_t expr){
     }
     else if(pmath_is_expr_of_len(range, PMATH_SYMBOL_RANGE, 2)){
       data.min = pmath_expr_get_item(range, 1);
-      if(!pmath_instance_of(data.min, PMATH_TYPE_INTEGER)){
+      if(!pmath_is_integer(data.min)){
         pmath_unref(data.min);
         goto RANGE_ERROR;
       }
         
       data.max = pmath_expr_get_item(range, 2);
-      if(!pmath_instance_of(data.max, PMATH_TYPE_INTEGER)){
+      if(!pmath_is_integer(data.max)){
         pmath_unref(data.min);
         pmath_unref(data.max);
         goto RANGE_ERROR;
@@ -322,15 +320,14 @@ PMATH_PRIVATE pmath_t builtin_randomreal(pmath_expr_t expr){
       if(exprlen > 1){
         tmp = pmath_expr_get_item(expr, 2);
         
-        if(pmath_instance_of(tmp, PMATH_TYPE_INTEGER)
-        && pmath_integer_fits_ui(tmp)){
+        if(pmath_is_integer(tmp) && pmath_integer_fits_ui(tmp)){
           data.dims = 1;
           data.lengths[0] = pmath_integer_get_ui(tmp);
           last_nonoption = 2;
         }
         else if(!_pmath_is_rule(tmp) 
         && !_pmath_is_list_of_rules(tmp)){
-          if(pmath_instance_of(tmp, PMATH_TYPE_EXPRESSION)){
+          if(pmath_is_expr(tmp)){
             pmath_t h = pmath_expr_get_item(tmp, 0);
             pmath_unref(h);
             
@@ -344,8 +341,7 @@ PMATH_PRIVATE pmath_t builtin_randomreal(pmath_expr_t expr){
               
               for(data.dim = 0;data.dim < data.dims;++data.dim){
                 pmath_t len = pmath_expr_get_item(tmp, data.dim + 1);
-                if(!pmath_instance_of(len, PMATH_TYPE_INTEGER)
-                || !pmath_integer_fits_ui(len)){
+                if(!pmath_is_integer(len) || !pmath_integer_fits_ui(len)){
                   pmath_unref(len);
                   goto ERROR_COND;
                 }

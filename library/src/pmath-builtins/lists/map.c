@@ -16,7 +16,7 @@ pmath_t _pmath_map(
   int reldepth = _pmath_object_in_levelspec(
     obj, info->levelmin, info->levelmax, level);
   
-  if(reldepth <= 0 && pmath_instance_of(obj, PMATH_TYPE_EXPRESSION)){
+  if(reldepth <= 0 && pmath_is_expr(obj)){
     size_t len = pmath_expr_length(obj);
     size_t i;
     

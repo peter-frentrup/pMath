@@ -72,7 +72,7 @@ PMATH_PRIVATE pmath_t builtin_complement(pmath_expr_t expr){
   sametest = extract_sametest_option(expr, &exprlen);
   
   all = pmath_expr_get_item(expr, 1);
-  if(!pmath_instance_of(all, PMATH_TYPE_EXPRESSION)){
+  if(!pmath_is_expr(all)){
     pmath_unref(sametest);
     pmath_unref(all);
     pmath_message(NULL, "nexprat", 2, pmath_integer_new_si(1), pmath_ref(expr));
@@ -84,7 +84,7 @@ PMATH_PRIVATE pmath_t builtin_complement(pmath_expr_t expr){
     pmath_t item = pmath_expr_get_item(expr, i);
     pmath_t head;
     
-    if(!pmath_instance_of(item, PMATH_TYPE_EXPRESSION)){
+    if(!pmath_is_expr(item)){
       pmath_unref(sametest);
       pmath_unref(all);
       pmath_unref(obj);

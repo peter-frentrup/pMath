@@ -92,7 +92,7 @@ PMATH_PRIVATE pmath_t builtin_datelist(pmath_expr_t expr){
     else{
       options = pmath_options_extract(expr, 1);
       
-      if(!pmath_instance_of(item, PMATH_TYPE_NUMBER)){
+      if(!pmath_is_number(item)){
         pmath_unref(item);
         pmath_unref(options);
         return expr;
@@ -107,7 +107,7 @@ PMATH_PRIVATE pmath_t builtin_datelist(pmath_expr_t expr){
   if(options){
     pmath_t tz = pmath_evaluate(pmath_option_value(NULL, PMATH_SYMBOL_TIMEZONE, options));
     
-    if(!pmath_instance_of(tz, PMATH_TYPE_NUMBER)){
+    if(!pmath_is_number(tz)){
       pmath_unref(tz);
       return expr;
     }

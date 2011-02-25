@@ -69,16 +69,16 @@ static pmath_t evaluate(
       goto FINISH;
     }
     
-    if(pmath_instance_of(obj, PMATH_TYPE_NUMBER | PMATH_TYPE_STRING))
+    if(pmath_is_string(obj) || pmath_is_number(obj))
       goto FINISH;
       
-    if(pmath_instance_of(obj, PMATH_TYPE_EXPRESSION)){
+    if(pmath_is_expr(obj)){
       if(_pmath_expr_is_updated(obj))
         goto FINISH;
       
       obj = evaluate_expression(obj, thread_ptr, TRUE);
     }
-    else if(pmath_instance_of(obj, PMATH_TYPE_SYMBOL)){
+    else if(pmath_is_symbol(obj)){
       pmath_t result = evaluate_symbol(obj, thread_ptr);
       
       if(result == PMATH_UNDEFINED)
@@ -119,7 +119,7 @@ static pmath_t handle_explicit_return(pmath_t expr){
       
       case 2: 
         obj = pmath_expr_get_item(expr, 2);
-        if(pmath_instance_of(obj, PMATH_TYPE_INTEGER)){
+        if(pmath_is_integer(obj)){
           if(pmath_compare(obj, PMATH_NUMBER_ONE) <= 0){
             pmath_unref(obj);
             obj = pmath_expr_get_item(expr, 1);
@@ -167,7 +167,7 @@ static pmath_t evaluate_expression(
 //  pmath_builtin_func_t           builtin;
   
   assert(thread_ptr != NULL);
-  assert(pmath_instance_of(expr, PMATH_TYPE_EXPRESSION));
+  assert(pmath_is_expr(expr));
     
   if(!*thread_ptr){
     *thread_ptr = pmath_thread_get_current();
@@ -310,7 +310,7 @@ static pmath_t evaluate_expression(
         expr_changes = _pmath_expr_last_change(expr);
         
         if(_pmath_run_code(head, PMATH_CODE_USAGE_EARLYCALL, &expr)){
-          if(!pmath_instance_of(expr, PMATH_TYPE_EXPRESSION)
+          if(!pmath_is_expr(expr)
           || expr_changes != _pmath_expr_last_change(expr)){
             goto FINISH;
           }
@@ -480,7 +480,7 @@ static pmath_t evaluate_expression(
           stack_frame.value = pmath_ref(sym);
           
           if(_pmath_run_code(sym, PMATH_CODE_USAGE_UPCALL, &expr)){
-            if(!pmath_instance_of(expr, PMATH_TYPE_EXPRESSION)
+            if(!pmath_is_expr(expr)
             || expr_changes != _pmath_expr_last_change(expr)){
               pmath_unref(sym);
               goto FINISH;
@@ -497,7 +497,7 @@ static pmath_t evaluate_expression(
       stack_frame.value = pmath_ref(head_sym);
       
       if(_pmath_run_code(head_sym, PMATH_CODE_USAGE_DOWNCALL, &expr)){
-        if(!pmath_instance_of(expr, PMATH_TYPE_EXPRESSION)
+        if(!pmath_is_expr(expr)
         || expr_changes != _pmath_expr_last_change(expr)){
           goto FINISH;
         }
@@ -508,7 +508,7 @@ static pmath_t evaluate_expression(
       stack_frame.value = pmath_ref(head_sym);
       
       if(_pmath_run_code(head_sym, PMATH_CODE_USAGE_SUBCALL, &expr)){
-        if(!pmath_instance_of(expr, PMATH_TYPE_EXPRESSION)
+        if(!pmath_is_expr(expr)
         || expr_changes != _pmath_expr_last_change(expr)){
           goto FINISH;
         }
@@ -516,7 +516,7 @@ static pmath_t evaluate_expression(
     }
 
     
-    assert(pmath_instance_of(expr, PMATH_TYPE_EXPRESSION));
+    assert(pmath_is_expr(expr));
     assert(expr_changes == _pmath_expr_last_change(expr));
     
     _pmath_expr_update(expr);
@@ -552,7 +552,7 @@ static pmath_t evaluate_symbol(
   pmath_t                     value;
   
   assert(thread_ptr != NULL);
-  assert(pmath_instance_of(sym, PMATH_TYPE_SYMBOL));
+  assert(pmath_is_symbol(sym));
   
   attr = pmath_symbol_get_attributes(sym);
   

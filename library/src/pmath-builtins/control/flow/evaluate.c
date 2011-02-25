@@ -11,7 +11,7 @@
 
 PMATH_PRIVATE pmath_bool_t _pmath_run(pmath_t *in_out){
   *in_out = pmath_evaluate(*in_out);
-  if(pmath_instance_of(*in_out, PMATH_TYPE_EXPRESSION)){
+  if(pmath_is_expr(*in_out)){
     pmath_t head = pmath_expr_get_item((pmath_expr_t)*in_out, 0);
     pmath_unref(head);
     
@@ -20,7 +20,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_run(pmath_t *in_out){
       pmath_bool_t do_break = head == PMATH_SYMBOL_BREAK;
       
       pmath_t counter = pmath_expr_get_item((pmath_expr_t)*in_out, 1);
-      if(pmath_instance_of(counter, PMATH_TYPE_INTEGER)
+      if(pmath_is_integer(counter)
       && pmath_compare(counter, PMATH_NUMBER_ONE) > 0){
         do_break = TRUE;
         counter = pmath_expr_new_extended(
@@ -77,7 +77,7 @@ PMATH_PRIVATE pmath_t builtin_evaluatedelayed(pmath_expr_t expr){
   reltime_obj = pmath_expr_get_item(expr, 2);
   reltime_obj = pmath_approximate(reltime_obj, -HUGE_VAL, -HUGE_VAL);
   
-  if(pmath_instance_of(reltime_obj, PMATH_TYPE_NUMBER))
+  if(pmath_is_number(reltime_obj))
     seconds = pmath_number_get_d(reltime_obj);
   
   pmath_unref(reltime_obj);
@@ -94,7 +94,7 @@ PMATH_PRIVATE pmath_t builtin_evaluatedelayed(pmath_expr_t expr){
 }
 
   static pmath_t release_hold(pmath_t expr){
-    if(pmath_instance_of(expr, PMATH_TYPE_EXPRESSION)){
+    if(pmath_is_expr(expr)){
       size_t i;
       pmath_bool_t must_flatten;
       pmath_t head = pmath_expr_get_item(expr, 0);
@@ -195,7 +195,7 @@ PMATH_PRIVATE pmath_t builtin_evaluationsequence(pmath_expr_t expr){
     pmath_unref(result);
     result = pmath_evaluate(pmath_expr_get_item(expr, i));
     
-    if(pmath_instance_of(result, PMATH_TYPE_EXPRESSION)){
+    if(pmath_is_expr(result)){
       pmath_t head = pmath_expr_get_item(result, 0);
       pmath_unref(head);
       

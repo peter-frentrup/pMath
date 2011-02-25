@@ -13,15 +13,15 @@ PMATH_PRIVATE pmath_t builtin_isvalidargumentcount(pmath_expr_t expr){
   pmath_t min  = pmath_expr_get_item(expr, 3);
   pmath_t max  = pmath_expr_get_item(expr, 4);
   
-  if(pmath_instance_of(head, PMATH_TYPE_SYMBOL)
-  && pmath_instance_of(len, PMATH_TYPE_INTEGER)
-  && pmath_instance_of(min, PMATH_TYPE_INTEGER)
+  if(pmath_is_symbol(head)
+  && pmath_is_integer(len)
+  && pmath_is_integer(min)
   && pmath_integer_fits_ui(len)
   && pmath_integer_fits_ui(min)){
     size_t z_len = pmath_integer_get_ui(len);
     size_t z_min = pmath_integer_get_ui(min);
     
-    if(pmath_instance_of(max, PMATH_TYPE_INTEGER)
+    if(pmath_is_integer(max)
     && pmath_integer_fits_ui(max)
     && pmath_compare(min, max) <= 0){
       size_t z_max = pmath_integer_get_ui(max);

@@ -458,7 +458,7 @@ struct compile_regex_info_t{
   }
   
   static pmath_bool_t is_charclass_item(pmath_t obj){
-    if(pmath_instance_of(obj, PMATH_TYPE_STRING)){
+    if(pmath_is_string(obj)){
       return pmath_string_length(obj) == 1;
     }
     
@@ -466,8 +466,8 @@ struct compile_regex_info_t{
       pmath_t start = pmath_expr_get_item(obj, 1);
       pmath_t end   = pmath_expr_get_item(obj, 2);
       
-      if(pmath_instance_of(start, PMATH_TYPE_STRING)
-      && pmath_instance_of(end,   PMATH_TYPE_STRING)
+      if(pmath_is_string(start)
+      && pmath_is_string(end)
       && pmath_string_length(start) == 1
       && pmath_string_length(end)   == 1){
         pmath_unref(start);
@@ -495,8 +495,7 @@ struct compile_regex_info_t{
     u8info.write_cstr = (void(*)(void*,const char*))concat_utf8;
     u8info.user = &(info->pattern);
     
-    if(pmath_instance_of(obj, PMATH_TYPE_STRING)
-    && pmath_string_length(obj) == 1){
+    if(pmath_is_string(obj) && pmath_string_length(obj) == 1){
       const uint16_t *buf = pmath_string_buffer(obj);
       
       if(is_pcre_class_metachar(*buf))
@@ -508,8 +507,8 @@ struct compile_regex_info_t{
       pmath_t start = pmath_expr_get_item(obj, 1);
       pmath_t end   = pmath_expr_get_item(obj, 2);
       
-      if(pmath_instance_of(start, PMATH_TYPE_STRING)
-      && pmath_instance_of(end,   PMATH_TYPE_STRING)
+      if(pmath_is_string(start)
+      && pmath_is_string(end)
       && pmath_string_length(start) == 1
       && pmath_string_length(end)   == 1){
         const uint16_t *s = pmath_string_buffer(start);
@@ -544,7 +543,7 @@ static pmath_bool_t compile_regex_part(
   struct compile_regex_info_t *info,
   pmath_t part
 ){
-  if(pmath_instance_of(part, PMATH_TYPE_STRING)){
+  if(pmath_is_string(part)){
     const uint16_t *buf;
     int i, j, len;
     
@@ -581,7 +580,7 @@ static pmath_bool_t compile_regex_part(
     return TRUE;
   }
   
-  if(pmath_instance_of(part, PMATH_TYPE_EXPRESSION)){
+  if(pmath_is_expr(part)){
     size_t len;
     pmath_t head;
     
@@ -829,7 +828,7 @@ static pmath_bool_t compile_regex_part(
     if(head == PMATH_SYMBOL_REGULAREXPRESSION && len == 1){
       pmath_t str = pmath_expr_get_item(part, 1);
       
-      if(pmath_instance_of(str, PMATH_TYPE_STRING)){
+      if(pmath_is_string(str)){
         pmath_cstr_writer_info_t u8info;
         
         u8info.write_cstr = (void(*)(void*,const char*))concat_utf8;
@@ -862,7 +861,7 @@ static pmath_bool_t compile_regex_part(
     return TRUE;
   }
   
-  if(pmath_instance_of(part, PMATH_TYPE_SYMBOL)){
+  if(pmath_is_symbol(part)){
     if(part == PMATH_SYMBOL_STARTOFSTRING){
       pmath_unref(part);
       concat_utf8(&(info->pattern), "\\A");
@@ -1021,7 +1020,7 @@ PMATH_PRIVATE struct _regex_t *_pmath_regex_compile(
       return get_capture_by_name_id(re, c, subject, entry->value);
     }
     
-    if(pmath_instance_of(obj, PMATH_TYPE_EXPRESSION)){
+    if(pmath_is_expr(obj)){
       pmath_t item;
       size_t i, len;
       
@@ -1064,7 +1063,7 @@ PMATH_PRIVATE struct _regex_t *_pmath_regex_compile(
     const char         *subject,
     pmath_t      obj         // will be freed
   ){
-    if(pmath_instance_of(obj, PMATH_TYPE_STRING)){
+    if(pmath_is_string(obj)){
       pmath_t res = get_capture_by_rhs(re, c, subject, obj);
       
       if(res){
@@ -1072,7 +1071,7 @@ PMATH_PRIVATE struct _regex_t *_pmath_regex_compile(
         return res;
       }
     }
-    else if(pmath_instance_of(obj, PMATH_TYPE_EXPRESSION)){
+    else if(pmath_is_expr(obj)){
       size_t i;
       
       for(i = pmath_expr_length(obj);i > 0;--i){

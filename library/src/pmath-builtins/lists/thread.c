@@ -24,7 +24,7 @@ PMATH_PRIVATE pmath_t builtin_thread(pmath_expr_t expr){
   }
   
   fst = (pmath_expr_t)pmath_expr_get_item(expr, 1);
-  if(!pmath_instance_of(fst, PMATH_TYPE_EXPRESSION)){
+  if(!pmath_is_expr(fst)){
     pmath_unref(fst);
     return expr;
   }

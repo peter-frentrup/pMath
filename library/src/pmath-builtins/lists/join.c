@@ -20,13 +20,13 @@ static pmath_t concat_expressions(pmath_expr_t expr){
     pmath_t fst, fst_head;
     
     fst = pmath_expr_get_item(expr, 1);
-    if(pmath_instance_of(fst, PMATH_TYPE_STRING)){
+    if(pmath_is_string(fst)){
       pmath_unref(fst);
       pmath_message(NULL, "strexp", 0);
       return expr;
     }
     
-    if(!pmath_instance_of(fst, PMATH_TYPE_EXPRESSION)){
+    if(!pmath_is_expr(fst)){
       pmath_message(NULL, "atom", 1, fst);
       return expr;
     }
@@ -37,7 +37,7 @@ static pmath_t concat_expressions(pmath_expr_t expr){
       pmath_t obj, obj_head;
       
       obj = pmath_expr_get_item(expr, i);
-      if(pmath_instance_of(obj, PMATH_TYPE_STRING)){
+      if(pmath_is_string(obj)){
         pmath_unref(fst);
         pmath_unref(fst_head);
         pmath_unref(obj);
@@ -45,7 +45,7 @@ static pmath_t concat_expressions(pmath_expr_t expr){
         return expr;
       }
       
-      if(!pmath_instance_of(obj, PMATH_TYPE_EXPRESSION)){
+      if(!pmath_is_expr(obj)){
         pmath_unref(fst);
         pmath_unref(fst_head);
         pmath_message(NULL, "atom", 1, obj);
@@ -105,13 +105,13 @@ static pmath_t concat_strings(pmath_expr_t expr){
   { // check arguments (all are strings) ...
     pmath_t fst = pmath_expr_get_item(expr, 1);
     
-    if(pmath_instance_of(fst, PMATH_TYPE_EXPRESSION)){
+    if(pmath_is_expr(fst)){
       pmath_unref(fst);
       pmath_message(NULL, "strexp", 0);
       return expr;
     }
     
-    if(!pmath_instance_of(fst, PMATH_TYPE_STRING)){
+    if(!pmath_is_string(fst)){
       pmath_message(NULL, "atom", 1, fst);
       return expr;
     }
@@ -122,14 +122,14 @@ static pmath_t concat_strings(pmath_expr_t expr){
       size_t objlen;
       pmath_t obj = pmath_expr_get_item(expr, i);
       
-      if(pmath_instance_of(obj, PMATH_TYPE_EXPRESSION)){
+      if(pmath_is_expr(obj)){
         pmath_unref(fst);
         pmath_unref(obj);
         pmath_message(NULL, "strexp", 0);
         return expr;
       }
       
-      if(!pmath_instance_of(obj, PMATH_TYPE_STRING)){
+      if(!pmath_is_string(obj)){
         pmath_unref(fst);
         pmath_message(NULL, "atom", 1, obj);
         return expr;
@@ -175,12 +175,12 @@ PMATH_PRIVATE pmath_t builtin_join(pmath_expr_t expr){
   
   if(len > 0){
     pmath_t fst = pmath_expr_get_item(expr, 1);
-    if(pmath_instance_of(fst, PMATH_TYPE_EXPRESSION)){
+    if(pmath_is_expr(fst)){
       pmath_unref(fst);
       return concat_expressions(expr);
     }
     
-    if(pmath_instance_of(fst, PMATH_TYPE_STRING)){
+    if(pmath_is_string(fst)){
       pmath_unref(fst);
       return concat_strings(expr);
     }

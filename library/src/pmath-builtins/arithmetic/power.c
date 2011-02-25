@@ -20,7 +20,7 @@ pmath_bool_t _pmath_equals_rational(pmath_t obj, int n, int d){
     return FALSE;
   
   part = pmath_rational_numerator(obj);
-  if(!pmath_instance_of(part, PMATH_TYPE_INTEGER) 
+  if(!pmath_is_integer(part) 
   || !pmath_integer_fits_si(part)
   || n != pmath_integer_get_si(part)){
     pmath_unref(part);
@@ -29,7 +29,7 @@ pmath_bool_t _pmath_equals_rational(pmath_t obj, int n, int d){
   
   pmath_unref(part);
   part = pmath_rational_denominator(obj);
-  if(!pmath_instance_of(part, PMATH_TYPE_INTEGER) 
+  if(!pmath_is_integer(part) 
   || !pmath_integer_fits_si(part)
   || d != pmath_integer_get_si(part)){
     pmath_unref(part);
@@ -486,8 +486,8 @@ static void _pow_ci_abs(
   pmath_number_t dst[4];
   
   if(exponent == 1
-  || !pmath_instance_of(*re_ptr, PMATH_TYPE_NUMBER)
-  || !pmath_instance_of(*im_ptr, PMATH_TYPE_NUMBER)){
+  || !pmath_is_number(*re_ptr)
+  || !pmath_is_number(*im_ptr)){
     return;
   }
   
@@ -547,12 +547,12 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr){
   base =     pmath_expr_get_item(expr, 1);
   exponent = pmath_expr_get_item(expr, 2);
   
-  if(pmath_instance_of(exponent, PMATH_TYPE_INTEGER)){
+  if(pmath_is_integer(exponent)){
     if(!pmath_integer_fits_si(exponent)){
-      if(pmath_instance_of(base, PMATH_TYPE_NUMBER)){
+      if(pmath_is_number(base)){
         pmath_unref(expr);
         
-        if(pmath_instance_of(base, PMATH_TYPE_INTEGER)){
+        if(pmath_is_integer(base)){
           if(pmath_integer_fits_si(base)){
             long si = pmath_integer_get_si(base);
             
@@ -614,12 +614,11 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr){
         pmath_unref(expr);
         
         expr = pmath_expr_get_item(base, 1);
-        if(pmath_instance_of(expr, PMATH_TYPE_NUMBER)
-        && pmath_number_sign(expr) == 0){
+        if(pmath_is_number(expr) && pmath_number_sign(expr) == 0){
           pmath_unref(expr);
           
           expr = pmath_expr_get_item(base, 2);
-          if(pmath_instance_of(expr, PMATH_TYPE_INTEGER)){
+          if(pmath_is_integer(expr)){
             if(pmath_integer_fits_si(expr)){
               long si = pmath_integer_get_si(expr);
               
@@ -682,8 +681,7 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr){
         pmath_unref(expr);
         expr = pmath_evaluate(FUNC(pmath_ref(PMATH_SYMBOL_ABS), base));
         
-        if(pmath_instance_of(expr, PMATH_TYPE_NUMBER)
-        && pmath_number_sign(expr) < 0){
+        if(pmath_is_number(expr) && pmath_number_sign(expr) < 0){
           pmath_unref(expr);
           
           if(pmath_number_sign(exponent) < 0){
@@ -758,8 +756,7 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr){
       pmath_t im = pmath_expr_get_item(base, 2);
       long lexp = pmath_integer_get_si(exponent);
       
-      if(pmath_instance_of(re, PMATH_TYPE_NUMBER)
-      && pmath_instance_of(im, PMATH_TYPE_NUMBER)){
+      if(pmath_is_number(re) && pmath_is_number(im)){
         if(pmath_equals(re, PMATH_NUMBER_ZERO)){
           // (I im)^n = I^n im^n
           int lexp4 = lexp % 4;
@@ -838,7 +835,7 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr){
     pmath_integer_t exp_den;
     
     if(pmath_number_sign(exponent) < 0){
-      if(pmath_instance_of(base, PMATH_TYPE_INTEGER)){
+      if(pmath_is_integer(base)){
         pmath_unref(base);
         pmath_unref(exponent);
         return expr;
@@ -1077,10 +1074,10 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr){
       }
     }
     
-    if((pmath_instance_of(base,     PMATH_TYPE_NUMBER)
+    if((pmath_is_number(base)
      && pmath_instance_of(exponent, PMATH_TYPE_MACHINE_FLOAT))
     || (pmath_instance_of(base,     PMATH_TYPE_MACHINE_FLOAT)
-     && pmath_instance_of(exponent, PMATH_TYPE_NUMBER))){
+     && pmath_is_number(exponent))){
       double b = pmath_number_get_d(base);
       double e = pmath_number_get_d(exponent);
       
@@ -1317,7 +1314,7 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr){
   if(pmath_is_expr_of_len(base, PMATH_SYMBOL_POWER, 2)){ // (x^y)^exponent
     pmath_t inner_exp = pmath_expr_get_item(base, 2);
     
-    if(pmath_instance_of(exponent, PMATH_TYPE_INTEGER)){
+    if(pmath_is_integer(exponent)){
       pmath_unref(expr);
       return pmath_expr_set_item(base, 2, TIMES(exponent, inner_exp));
     }
@@ -1605,7 +1602,7 @@ PMATH_PRIVATE pmath_t builtin_approximate_power(
   base = pmath_expr_get_item(obj, 1);
   exp  = pmath_expr_get_item(obj, 2);
   
-  if(pmath_instance_of(exp, PMATH_TYPE_INTEGER)){
+  if(pmath_is_integer(exp)){
     pmath_unref(exp);
     base = _pmath_approximate_step(base, prec, acc);
     return pmath_expr_set_item(obj, 1, base);

@@ -34,7 +34,7 @@ static pmath_bool_t contains( // return = search more?
     return TRUE;
   }
   
-  if(pmath_instance_of(obj, PMATH_TYPE_EXPRESSION)){
+  if(pmath_is_expr(obj)){
     size_t len = pmath_expr_length(obj);
     
     for(i = info->with_heads ? 0 : 1;i <= len;i++){

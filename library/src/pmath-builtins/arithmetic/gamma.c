@@ -64,7 +64,7 @@ PMATH_PRIVATE pmath_t builtin_gamma(pmath_expr_t expr){
   }
 
   z = pmath_expr_get_item(expr, 1);
-  if(pmath_instance_of(z, PMATH_TYPE_INTEGER)){
+  if(pmath_is_integer(z)){
     if(pmath_number_sign(z) <= 0){
       pmath_unref(expr);
       pmath_unref(z);
@@ -219,7 +219,7 @@ PMATH_PRIVATE pmath_t builtin_loggamma(pmath_expr_t expr){
   }
 
   z = pmath_expr_get_item(expr, 1);
-  if(pmath_instance_of(z, PMATH_TYPE_INTEGER)){
+  if(pmath_is_integer(z)){
     pmath_unref(expr);
     
     return LOG(GAMMA(z));
@@ -291,7 +291,7 @@ PMATH_PRIVATE pmath_t builtin_polygamma(pmath_expr_t expr){
   if(exprlen == 2){
     pmath_t n_obj = pmath_expr_get_item(expr, 1);
     
-    if(!pmath_instance_of(n_obj, PMATH_TYPE_INTEGER)
+    if(!pmath_is_integer(n_obj)
     || !pmath_integer_fits_ui(n_obj)){
       pmath_unref(n_obj);
       return expr;
@@ -303,7 +303,7 @@ PMATH_PRIVATE pmath_t builtin_polygamma(pmath_expr_t expr){
   
   z = pmath_expr_get_item(expr, exprlen);
   if(n == 0){
-    if(pmath_instance_of(z, PMATH_TYPE_INTEGER)){
+    if(pmath_is_integer(z)){
       if(pmath_number_sign(z) <= 0){
         pmath_unref(z);
         pmath_unref(expr);
@@ -395,7 +395,7 @@ PMATH_PRIVATE pmath_t builtin_factorial(pmath_expr_t expr){
   }
 
   n = pmath_expr_get_item(expr, 1);
-  if(pmath_instance_of(n, PMATH_TYPE_INTEGER)){
+  if(pmath_is_integer(n)){
     if(pmath_number_sign(n) < 0){
       pmath_unref(n);
       pmath_unref(expr);
@@ -483,7 +483,7 @@ PMATH_PRIVATE pmath_t builtin_factorial2(pmath_expr_t expr){
   }
 
   n = pmath_expr_get_item(expr, 1);
-  if(pmath_instance_of(n, PMATH_TYPE_INTEGER)){
+  if(pmath_is_integer(n)){
     if(pmath_number_sign(n) < 0){
       pmath_unref(n);
       pmath_unref(expr);
@@ -608,7 +608,7 @@ PMATH_PRIVATE pmath_t builtin_binomial(pmath_expr_t expr){
     return expr;
   }
 
-  if(pmath_instance_of(k, PMATH_TYPE_INTEGER)){
+  if(pmath_is_integer(k)){
     if(pmath_number_sign(k) < 0){ // Binomial(z, -k) = 0, if k is integer
       pmath_unref(z);
       pmath_unref(k);
@@ -639,7 +639,7 @@ PMATH_PRIVATE pmath_t builtin_binomial(pmath_expr_t expr){
           return expr;
       }
 
-      if(pmath_instance_of(z, PMATH_TYPE_INTEGER)){
+      if(pmath_is_integer(z)){
         struct _pmath_integer_t *result = _pmath_create_integer();
 
         if(result){

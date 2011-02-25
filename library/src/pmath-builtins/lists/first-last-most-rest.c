@@ -15,7 +15,7 @@ PMATH_PRIVATE pmath_t builtin_first(pmath_expr_t expr){
   
   obj = pmath_expr_get_item(expr, 1);
   
-  if(pmath_instance_of(obj, PMATH_TYPE_EXPRESSION)){
+  if(pmath_is_expr(obj)){
     if(pmath_expr_length(obj) > 0){
       pmath_unref(expr);
       expr = pmath_expr_get_item(obj, 1);
@@ -43,7 +43,7 @@ PMATH_PRIVATE pmath_t builtin_last(pmath_expr_t expr){
   
   obj = pmath_expr_get_item(expr, 1);
   
-  if(pmath_instance_of(obj, PMATH_TYPE_EXPRESSION)){
+  if(pmath_is_expr(obj)){
     if(pmath_expr_length(obj) > 0){
       pmath_unref(expr);
       expr = pmath_expr_get_item(obj, pmath_expr_length(obj));
@@ -71,7 +71,7 @@ PMATH_PRIVATE pmath_t builtin_most(pmath_expr_t expr){
   
   obj = pmath_expr_get_item(expr, 1);
   
-  if(pmath_instance_of(obj, PMATH_TYPE_EXPRESSION)){
+  if(pmath_is_expr(obj)){
     if(pmath_expr_length(obj) > 0){
       pmath_unref(expr);
       expr = pmath_expr_get_item_range(
@@ -100,7 +100,7 @@ PMATH_PRIVATE pmath_t builtin_rest(pmath_expr_t expr){
   
   obj = pmath_expr_get_item(expr, 1);
   
-  if(pmath_instance_of(obj, PMATH_TYPE_EXPRESSION)){
+  if(pmath_is_expr(obj)){
     if(pmath_expr_length(obj) > 0){
       pmath_unref(expr);
       expr = pmath_expr_get_item_range(

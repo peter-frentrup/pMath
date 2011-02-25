@@ -21,7 +21,7 @@ static pmath_t stringcases(
   pmath_bool_t       overlaps,
   size_t             max_matches
 ){
-  if(pmath_instance_of(obj, PMATH_TYPE_STRING)){
+  if(pmath_is_string(obj)){
     int length, offset;
     char *subject = pmath_string_to_utf8(obj, &length);
     pmath_t tmprhs;
@@ -113,7 +113,7 @@ PMATH_PRIVATE pmath_t builtin_stringcases(pmath_expr_t expr){
   if(pmath_expr_length(expr) >= 3){
     obj = pmath_expr_get_item(expr, 3);
     
-    if(pmath_instance_of(obj, PMATH_TYPE_INTEGER)
+    if(pmath_is_integer(obj)
     && pmath_integer_fits_ui(obj)){
       max_matches = pmath_integer_get_ui(obj);
       pmath_unref(obj);

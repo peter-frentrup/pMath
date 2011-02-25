@@ -26,7 +26,7 @@ PMATH_PRIVATE pmath_t builtin_stringtoboxes(pmath_expr_t expr){
   }
 
   code = pmath_expr_get_item(expr, 1);
-  if(!pmath_instance_of(code, PMATH_TYPE_STRING)){
+  if(!pmath_is_string(code)){
     pmath_unref(code);
     return expr;
   }

@@ -15,7 +15,7 @@ PMATH_PRIVATE pmath_t builtin_loadlibrary(pmath_expr_t expr){
   filename = pmath_expr_get_item(expr, 1);
   pmath_unref(expr);
   
-  if(!pmath_instance_of(filename, PMATH_TYPE_STRING)
+  if(!pmath_is_string(filename)
   || pmath_string_length(filename) == 0){
     pmath_message(NULL, "fstr", 1, filename);
     return pmath_ref(PMATH_SYMBOL_FAILED);

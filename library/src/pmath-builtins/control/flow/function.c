@@ -18,7 +18,7 @@ static pmath_t replace_purearg(
   pmath_t head;
   size_t i, len;
   
-  if(!pmath_instance_of(function, PMATH_TYPE_EXPRESSION))
+  if(!pmath_is_expr(function))
     return function;
 
   len = pmath_expr_length(function);
@@ -96,13 +96,13 @@ PMATH_PRIVATE pmath_t builtin_call_function(pmath_expr_t expr){
    Function({xs}, body, attrib)(args)
  */
   pmath_expr_t head;
-  pmath_t     head_head;
-  size_t             exprlen;
-  size_t             headlen;
+  pmath_t      head_head;
+  size_t       exprlen;
+  size_t       headlen;
   
   head = (pmath_expr_t)pmath_expr_get_item(expr, 0);
   
-  assert(pmath_instance_of(head, PMATH_TYPE_EXPRESSION));
+  assert(pmath_is_expr(head));
   
   head_head = pmath_expr_get_item(head, 0);
   pmath_unref(head_head);
@@ -233,7 +233,7 @@ PMATH_PRIVATE pmath_t builtin_call_function(pmath_expr_t expr){
       }
     }
     
-    if(pmath_instance_of(params, PMATH_TYPE_SYMBOL)){
+    if(pmath_is_symbol(params)){
       pmath_unref(head);
       
       if(exprlen == 0){
@@ -267,7 +267,7 @@ PMATH_PRIVATE pmath_t builtin_call_function(pmath_expr_t expr){
         pmath_t value = pmath_expr_get_item(expr, i);
         pmath_t p     = pmath_expr_get_item(params, i);
         
-        if(!pmath_instance_of(p, PMATH_TYPE_SYMBOL)){
+        if(!pmath_is_symbol(p)){
           pmath_unref(p);
           pmath_unref(value);
           pmath_unref(body);
@@ -317,8 +317,8 @@ PMATH_PRIVATE pmath_t builtin_function(pmath_expr_t expr){
   if(exprlen > 1){
     pmath_t params = pmath_expr_get_item(expr, 1);
     
-    if(pmath_instance_of(params, PMATH_TYPE_EXPRESSION)){
-      size_t         i;
+    if(pmath_is_expr(params)){
+      size_t  i;
       pmath_t p;
       
       p = pmath_expr_get_item(params, 0);
@@ -333,7 +333,7 @@ PMATH_PRIVATE pmath_t builtin_function(pmath_expr_t expr){
       for(i = 1;i <= pmath_expr_length(params);++i){
         p = pmath_expr_get_item(params, i);
         
-        if(!pmath_instance_of(p, PMATH_TYPE_SYMBOL)){
+        if(!pmath_is_symbol(p)){
           pmath_unref(p);
           
           pmath_message(NULL, "par", 2, params, pmath_ref(expr));
@@ -348,7 +348,7 @@ PMATH_PRIVATE pmath_t builtin_function(pmath_expr_t expr){
       return expr;
     }
     
-    if(!pmath_instance_of(params, PMATH_TYPE_SYMBOL)){
+    if(!pmath_is_symbol(params)){
       pmath_message(NULL, "par", 2, params, pmath_ref(expr));
         
       return expr;

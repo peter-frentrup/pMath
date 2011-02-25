@@ -14,14 +14,14 @@
 	//Standard Version Type
 	static const long _PMATH_VERSION_MAJOR = 0;
 	static const long _PMATH_VERSION_MINOR = 1;
-	static const long _PMATH_VERSION_BUILD = 40;
-	static const long _PMATH_VERSION_REVISION = 40;
+	static const long _PMATH_VERSION_BUILD = 47;
+	static const long _PMATH_VERSION_REVISION = 47;
 	
 	//Miscellaneous Version Types
-	static const long _PMATH_VERSION_BUILDS_COUNT = 45;
-	#define _PMATH_VERSION_RC_FILEVERSION 0,1,40,40
-	#define _PMATH_VERSION_RC_FILEVERSION_STRING "0, 1, 40, 40\0"
-	static const char _PMATH_VERSION_FULLVERSION_STRING[] = "0.1.40.40";
+	static const long _PMATH_VERSION_BUILDS_COUNT = 55;
+	#define _PMATH_VERSION_RC_FILEVERSION 0,1,47,47
+	#define _PMATH_VERSION_RC_FILEVERSION_STRING "0, 1, 47, 47\0"
+	static const char _PMATH_VERSION_FULLVERSION_STRING[] = "0.1.47.47";
 	
 	//SVN Version
 	static const char _PMATH_VERSION_SVN_REVISION[] = "126";

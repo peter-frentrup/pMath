@@ -14,8 +14,7 @@
 static pmath_bool_t greater(pmath_t a, pmath_t b){
   pmath_t tmp;
   
-  if(pmath_instance_of(a, PMATH_TYPE_NUMBER)
-  && pmath_instance_of(b, PMATH_TYPE_NUMBER)){
+  if(pmath_is_number(a) && pmath_is_number(b)){
     return pmath_compare(a, b) > 0;
   }
   
@@ -25,12 +24,11 @@ static pmath_bool_t greater(pmath_t a, pmath_t b){
 }
 
 static pmath_bool_t is_zero(pmath_t x){
-  return pmath_instance_of(x, PMATH_TYPE_NUMBER)
-      && pmath_number_sign(x) == 0;
+  return pmath_is_number(x) && pmath_number_sign(x) == 0;
 }
 
 static pmath_t calc_abs(pmath_t x){ // will be freed
-  if(pmath_instance_of(x, PMATH_TYPE_NUMBER)){
+  if(pmath_is_number(x)){
     if(pmath_number_sign(x) < 0)
       return pmath_number_neg(x);
     return x;

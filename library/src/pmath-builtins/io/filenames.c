@@ -34,8 +34,7 @@ static void emit_directory_entries(
   struct _capture_t  *capture,
   pmath_t             directory // will be freed
 ){
-  if(directory == PMATH_UNDEFINED
-  || pmath_instance_of(directory, PMATH_TYPE_STRING)){
+  if(directory == PMATH_UNDEFINED || pmath_is_string(directory)){
     #ifdef PMATH_OS_WIN32
     {
       static const uint16_t rest[4] = {'.', '\\', '*', '\0'};
@@ -252,18 +251,17 @@ static void emit_directory_entries(
 }
 
 static pmath_t prepare_filename_form(pmath_t obj){
-  if(pmath_instance_of(obj, PMATH_TYPE_STRING)){
+  if(pmath_is_string(obj)){
     return pmath_evaluate(
       pmath_parse_string_args(
           "StartOfString ++ StringReplace(`1`, \"*\"->~~~) ++ EndOfString",
         "(o)", obj));
-    
   }
   
   if(pmath_is_expr_of_len(obj, PMATH_SYMBOL_LITERAL, 1)){
     pmath_t s = pmath_expr_get_item(obj, 1);
     
-    if(pmath_instance_of(s, PMATH_TYPE_STRING)){
+    if(pmath_is_string(s)){
       pmath_unref(obj);
       return pmath_parse_string_args(
           "StartOfString ++ `1` ++ EndOfString",
