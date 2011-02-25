@@ -33,13 +33,15 @@ HRESULT (WINAPI *Win32Themes::GetThemeTransitionDuration)(HANDLE,int,int,int,int
 HRESULT (WINAPI *Win32Themes::GetCurrentThemeName)(LPWSTR,int,LPWSTR,int,LPWSTR,int) = 0;
 BOOL (WINAPI *Win32Themes::IsThemePartDefined)(HANDLE,int,int) = 0;
 int (WINAPI *Win32Themes::GetThemeSysSize)(HANDLE,int) = 0;
+HRESULT (WINAPI *Win32Themes::SetWindowTheme)(HWND,LPCWSTR,LPCWSTR) = 0;
 
-HRESULT (WINAPI *Win32Themes::BufferedPaintInit)() = 0;
-HRESULT (WINAPI *Win32Themes::BufferedPaintUnInit)() = 0;
+HRESULT (WINAPI *Win32Themes::BufferedPaintInit)(void) = 0;
+HRESULT (WINAPI *Win32Themes::BufferedPaintUnInit)(void) = 0;
+HRESULT (WINAPI *Win32Themes::BufferedPaintStopAllAnimations)(HWND) = 0;
 HANDLE (WINAPI *Win32Themes::BeginBufferedPaint)(HDC,const RECT*,BP_BUFFERFORMAT,BP_PAINTPARAMS*,HDC*) = 0;
 HANDLE (WINAPI *Win32Themes::EndBufferedPaint)(HANDLE,BOOL) = 0;
-BOOL (WINAPI *Win32Themes::IsCompositionActive)() = 0;
-BOOL (WINAPI *Win32Themes::IsThemeActive)() = 0;
+BOOL (WINAPI *Win32Themes::IsCompositionActive)(void) = 0;
+BOOL (WINAPI *Win32Themes::IsThemeActive)(void) = 0;
 
 HMODULE Win32Themes::dwmapi = 0;
 HMODULE Win32Themes::uxtheme = 0;
@@ -133,13 +135,19 @@ Win32Themes::Win32Themes(): Base(){
     GetThemeSysSize = (int (WINAPI *)(HANDLE,int))
       GetProcAddress(uxtheme, "GetThemeSysSize");
     
+    SetWindowTheme = (HRESULT (WINAPI *)(HWND,LPCWSTR,LPCWSTR))
+      GetProcAddress(uxtheme, "SetWindowTheme");
     
     
-    BufferedPaintInit = (HRESULT (WINAPI *)())
+    
+    BufferedPaintInit = (HRESULT (WINAPI *)(void))
       GetProcAddress(uxtheme, "BufferedPaintInit");
     
-    BufferedPaintUnInit = (HRESULT (WINAPI *)())
+    BufferedPaintUnInit = (HRESULT (WINAPI *)(void))
       GetProcAddress(uxtheme, "BufferedPaintUnInit");
+    
+    BufferedPaintStopAllAnimations = (HRESULT (WINAPI *)(HWND))
+      GetProcAddress(uxtheme, "BufferedPaintStopAllAnimations");
     
     BeginBufferedPaint = (HANDLE (WINAPI *)(HDC,const RECT*,BP_BUFFERFORMAT,BP_PAINTPARAMS*,HDC*))
       GetProcAddress(uxtheme, "BeginBufferedPaint");
@@ -147,10 +155,10 @@ Win32Themes::Win32Themes(): Base(){
     EndBufferedPaint = (HANDLE (WINAPI *)(HANDLE,BOOL))
       GetProcAddress(uxtheme, "EndBufferedPaint");
     
-    IsCompositionActive = (BOOL (WINAPI *)())
+    IsCompositionActive = (BOOL (WINAPI *)(void))
       GetProcAddress(uxtheme, "IsCompositionActive");
     
-    IsThemeActive = (BOOL (WINAPI *)())
+    IsThemeActive = (BOOL (WINAPI *)(void))
       GetProcAddress(uxtheme, "IsThemeActive");
     
     if(BufferedPaintInit)
@@ -192,9 +200,11 @@ Win32Themes::~Win32Themes(){
   GetCurrentThemeName = 0;
   IsThemePartDefined = 0;
   GetThemeSysSize = 0;
+  SetWindowTheme = 0;
 
   BufferedPaintInit = 0;
   BufferedPaintUnInit = 0;
+  BufferedPaintStopAllAnimations = 0;
   BeginBufferedPaint = 0;
   EndBufferedPaint = 0;
   IsCompositionActive = 0;

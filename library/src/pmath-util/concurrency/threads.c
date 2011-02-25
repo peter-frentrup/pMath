@@ -2,6 +2,7 @@
 
 #include <pmath-core/symbols-private.h>
 
+#include <pmath-util/concurrency/atomic-private.h>
 #include <pmath-util/concurrency/threadmsg-private.h>
 #include <pmath-util/debug.h>
 #include <pmath-util/hashtables-private.h>
@@ -163,6 +164,95 @@ PMATH_API pmath_t pmath_thread_local_load(
   pmath_t key
 ){
   return _pmath_thread_local_load_with(key, pmath_thread_get_current());
+}
+
+/*----------------------------------------------------------------------------*/
+
+PMATH_PRIVATE void _pmath_destroy_abortable_message(void *p){
+  struct _pmath_abortable_message_t *data = (struct _pmath_abortable_message_t*)p;
+  
+  if(data){
+    _pmath_object_atomic_write(&data->_value, PMATH_ABORT_EXCEPTION);
+    pmath_unref(data->next);
+    _pmath_object_atomic_write(&data->_pending_abort_request, NULL);
+    pmath_mem_free(data);
+  }
+}
+
+PMATH_PRIVATE void _pmath_abort_message(pmath_t abortable){
+  pmath_thread_t thread = pmath_thread_get_current();
+  pmath_t current, pending;
+  struct _pmath_abortable_message_t *current_data, *pending_data;
+  
+  if(!thread
+  || !pmath_instance_of(abortable, PMATH_TYPE_CUSTOM)
+  || !pmath_custom_has_destructor(abortable, _pmath_destroy_abortable_message)){
+    pmath_unref(abortable);
+    return;
+  }
+  
+  current = thread->abortable_messages;
+  if(current == abortable){
+    pmath_debug_print("[aborting %p]\n", abortable);
+    _pmath_thread_throw(thread, abortable);
+    return;
+  }
+  
+  while(current){
+    current_data = pmath_custom_get_data(current);
+    
+    pending = _pmath_object_atomic_read(&current_data->_pending_abort_request);
+    pmath_unref(pending);
+    if(pending == abortable){
+      pmath_debug_print("[multible aborts %p]\n", abortable);
+      break;
+    }
+    
+    current = current_data->next;
+    
+    if(current == abortable){
+      pmath_t next;
+      pmath_t end = current;
+      int end_depth = current_data->depth;
+      
+      current = thread->abortable_messages;
+      while(current && current != end){
+        current_data = pmath_custom_get_data(current);
+        next = current_data->next;
+        
+        pending = _pmath_object_atomic_read(&current_data->_pending_abort_request);
+        if(pending){
+          if(pending == abortable){
+            pmath_debug_print("[multible upper aborts %p]\n", abortable);
+            pmath_unref(abortable);
+            pmath_unref(pending);
+            return;
+          }
+          
+          pending_data = pmath_custom_get_data(pending);
+          if(pending_data->depth < end_depth){
+            pmath_debug_print("[switch abort requests %p <-> %p]\n", pending, abortable);
+            _pmath_object_atomic_write(&current_data->_pending_abort_request, abortable);
+            abortable = pending;
+            end       = pending;
+            end_depth = pending_data->depth;
+          }
+          else
+            pmath_unref(pending);
+        }
+        else{
+          pmath_debug_print("[request abort %p]\n", abortable);
+          _pmath_object_atomic_write(&current_data->_pending_abort_request, abortable);
+          return;
+        }
+        
+        current = next;
+      }
+    }
+  }
+  
+  pmath_debug_print("[abrotable not found %p]\n", abortable);
+  pmath_unref(abortable);
 }
 
 /*----------------------------------------------------------------------------*/
@@ -416,10 +506,11 @@ PMATH_PRIVATE pmath_thread_t _pmath_thread_new(pmath_thread_t parent){
   thread->evaldepth             = 0;
   thread->exception             = PMATH_UNDEFINED;
   thread->message_queue         = _pmath_msg_queue_create();
-  thread->current_dynamic_id    = parent ? parent->current_dynamic_id : 0;
-  thread->boxform               = parent ? parent->boxform : BOXFORM_STANDARD;
-  thread->critical_messages     = parent ? parent->critical_messages : FALSE;
-  thread->longform              = parent ? parent->longform : FALSE;
+  thread->abortable_messages    = parent ? pmath_ref(parent->abortable_messages) : NULL;
+  thread->current_dynamic_id    = parent ? parent->current_dynamic_id            : 0;
+  thread->boxform               = parent ? parent->boxform                       : BOXFORM_STANDARD;
+  thread->critical_messages     = parent ? parent->critical_messages             : FALSE;
+  thread->longform              = parent ? parent->longform                      : FALSE;
   thread->is_daemon             = FALSE;
   
   if(!thread->message_queue){
@@ -478,8 +569,11 @@ PMATH_PRIVATE void _pmath_thread_clean(pmath_bool_t final){
     thread->local_values = NULL;
     thread->local_rules  = NULL;
     
+    pmath_unref(thread->abortable_messages);
+    thread->abortable_messages = NULL;
+    
     if(final){
-        _pmath_msg_queue_inform_death(thread->message_queue);
+      _pmath_msg_queue_inform_death(thread->message_queue);
       pmath_unref(thread->message_queue);
       thread->message_queue = NULL;
     }
@@ -492,6 +586,9 @@ PMATH_PRIVATE void _pmath_thread_free(pmath_thread_t thread){
   
   pmath_ht_destroy(thread->local_values);
   pmath_ht_destroy(thread->local_rules);
+    
+  pmath_unref(thread->abortable_messages);
+  thread->abortable_messages = NULL;
   
   _pmath_msg_queue_inform_death(thread->message_queue);
   pmath_unref(thread->message_queue);

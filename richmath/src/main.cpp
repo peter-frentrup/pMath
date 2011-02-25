@@ -201,6 +201,9 @@ int main(){
   GeneralSyntaxInfo::std = new GeneralSyntaxInfo;
   Win32Clipboard::init();
   
+  // load the syntax information table in parallel
+  PMATH_RUN("NewTask(SyntaxInformation(Sin))");
+      
   PMATH_RUN("BeginPackage(\"FE`\")");
   {
     Expr fontlist = FontInfo::all_fonts();

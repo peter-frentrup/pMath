@@ -185,13 +185,15 @@ namespace richmath{
       static HRESULT (WINAPI *GetCurrentThemeName)(LPWSTR,int,LPWSTR,int,LPWSTR,int);
       static BOOL (WINAPI *IsThemePartDefined)(HANDLE,int,int);
       static int (WINAPI *GetThemeSysSize)(HANDLE,int);
+      static HRESULT (WINAPI *SetWindowTheme)(HWND,LPCWSTR,LPCWSTR);
       
-      static HRESULT (WINAPI *BufferedPaintInit)();
-      static HRESULT (WINAPI *BufferedPaintUnInit)();
+      static HRESULT (WINAPI *BufferedPaintInit)(void);
+      static HRESULT (WINAPI *BufferedPaintUnInit)(void);
+      static HRESULT (WINAPI *BufferedPaintStopAllAnimations)(HWND);
       static HANDLE (WINAPI *BeginBufferedPaint)(HDC,const RECT*,BP_BUFFERFORMAT,BP_PAINTPARAMS*,HDC*);
       static HANDLE (WINAPI *EndBufferedPaint)(HANDLE,BOOL);
-      static BOOL (WINAPI *IsCompositionActive)();
-      static BOOL (WINAPI *IsThemeActive)();
+      static BOOL (WINAPI *IsCompositionActive)(void);
+      static BOOL (WINAPI *IsThemeActive)(void);
       
       static void init();
       static bool current_theme_is_aero();

@@ -485,6 +485,9 @@
 		<Unit filename="src\pmath-builtins\control\flow\if.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="src\pmath-builtins\control\flow\internal-abortmessage.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="src\pmath-builtins\control\flow\local.c">
 			<Option compilerVar="CC" />
 		</Unit>

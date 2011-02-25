@@ -647,5 +647,6 @@ pmath_bool_t pmath_register_approx_code(
 #define PMATH_SYMBOL_CLOCK                                  PMATH_SYMBOL_BUILTIN(555)
 #define PMATH_SYMBOL_CREATIONDATE                           PMATH_SYMBOL_BUILTIN(556)
 #define PMATH_SYMBOL_VERSIONLIST                            PMATH_SYMBOL_BUILTIN(557)
+#define PMATH_SYMBOL_INTERNAL_ABORTMESSAGE                  PMATH_SYMBOL_BUILTIN(558)
 
 #endif /* __PMATH_BUILTINS__SYMBOLS_H__ */

@@ -172,9 +172,10 @@ PMATH_PRIVATE pmath_t builtin_setoptions(    pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_showdefinition(pmath_expr_t expr);
 //} ============================================================================
 //{ builtins from src/pmath-builtins/control/flow/ ...
-PMATH_PRIVATE pmath_t builtin_throw(  pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_catch(  pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_finally(pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_internal_abortmessage(pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_throw(                pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_catch(                pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_finally(              pmath_expr_t expr);
 
 PMATH_PRIVATE pmath_t builtin_evaluate(          pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_evaluatedelayed(   pmath_expr_t expr);
@@ -592,7 +593,8 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   #define NEW_SYMBOL(name)        pmath_symbol_get(PMATH_C_STRING(name), TRUE)
   #define NEW_SYSTEM_SYMBOL(name) NEW_SYMBOL("System`" name)
   
-  //{ setting symbol names ...
+  //{ setting symbol names ...  
+  VERIFY(   PMATH_SYMBOL_INTERNAL_ABORTMESSAGE            = NEW_SYMBOL("Internal`AbortMessage"))
   VERIFY(   PMATH_SYMBOL_INTERNAL_CONDITION               = NEW_SYMBOL("Internal`Condition"))
   VERIFY(   PMATH_SYMBOL_INTERNAL_GETTHREADID             = NEW_SYMBOL("Internal`GetThreadId"))
   VERIFY(   PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATE         = NEW_SYMBOL("Internal`DynamicEvaluate"))
@@ -1204,6 +1206,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
     BIND_UP(     PMATH_SYMBOL_CONDITIONALEXPRESSION,       builtin_operate_conditionalexpression)
     BIND_UP(     PMATH_SYMBOL_UNDEFINED,                   builtin_operate_undefined)
     
+    BIND_DOWN(   PMATH_SYMBOL_INTERNAL_ABORTMESSAGE,            builtin_internal_abortmessage)
     BIND_DOWN(   PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATE,         builtin_internal_dynamicevaluate)
     BIND_DOWN(   PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATEMULTIPLE, builtin_internal_dynamicevaluatemultiple)
     BIND_DOWN(   PMATH_SYMBOL_INTERNAL_DYNAMICREMOVE,           builtin_internal_dynamicremove)
@@ -1530,6 +1533,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   #define SYMMETRIC             PMATH_SYMBOL_ATTRIBUTE_SYMMETRIC
   #define THREADLOCAL           PMATH_SYMBOL_ATTRIBUTE_THREADLOCAL
   
+  SET_ATTRIB( PMATH_SYMBOL_INTERNAL_ABORTMESSAGE,       HOLDALLCOMPLETE);
   SET_ATTRIB( PMATH_SYMBOL_INTERNAL_CONDITION,          HOLDFIRST);
   SET_ATTRIB( PMATH_SYMBOL_INTERNAL_ISCRITICALMESSAGE,  HOLDALL | THREADLOCAL);
   

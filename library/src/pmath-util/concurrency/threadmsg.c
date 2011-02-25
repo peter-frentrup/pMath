@@ -28,7 +28,7 @@ struct message_t{
   struct message_t *next;
   
   pmath_t          subject;
-  pmath_symbol_t   result_symbol;
+  pmath_custom_t   result; // -> _pmath_abortable_message_t
   pmath_messages_t sender;
 };
 
@@ -252,9 +252,13 @@ void _pmath_msq_queue_awake_all(void){
 
 static void destroy_msg(struct message_t *msg){
   if(msg){
-    if(msg->result_symbol){
-      pmath_symbol_set_value(msg->result_symbol, PMATH_UNDEFINED);
-      pmath_unref(msg->result_symbol);
+    if(msg->result){
+      struct _pmath_abortable_message_t *data;
+      
+      data = pmath_custom_get_data(msg->result);
+      _pmath_object_atomic_write(&data->_value, PMATH_ABORT_EXCEPTION);
+      
+      pmath_unref(msg->result);
     }
     
     if(msg->sender){
@@ -325,12 +329,12 @@ static void push_msg(
   
   if(!mq_data->is_dead){
     tail = mq_data->tail;
-    tail->subject       = msg->subject;
-    tail->result_symbol = msg->result_symbol;
-    tail->sender        = msg->sender;
-    msg->subject       = NULL;
-    msg->result_symbol = NULL;
-    msg->sender        = NULL;
+    tail->subject = msg->subject;
+    tail->result  = msg->result;
+    tail->sender  = msg->sender;
+    msg->subject  = NULL;
+    msg->result   = NULL;
+    msg->sender   = NULL;
     mq_data->tail = tail->next = msg;
     msg = NULL;
     
@@ -430,18 +434,17 @@ void _pmath_msq_queue_handle_next(pmath_thread_t me){
     msg = pop_msg(pmath_custom_get_data(me->message_queue));
     if(msg){
       
-      if(msg->result_symbol){
+      if(msg->result){
         pmath_t ex;
-        pmath_t val = pmath_evaluate(msg->subject);
+        pmath_t val;
         
-        if(pmath_aborting()){
-          pmath_unref(val);
-          val = pmath_ref(PMATH_SYMBOL_ABORTED);
-        }
+        struct _pmath_abortable_message_t *result_data;
+        result_data = pmath_custom_get_data(msg->result);
         
-        pmath_symbol_set_value(msg->result_symbol, pmath_ref(val));
-        
-        // PROBLEM: 
+        // Why we use a stack of _pmath_abortable_message_t:
+        // (In this diagram, A and B stand for both, the messages being sent and
+        //  the according _pmath_abortable_message_t's)
+        //
         //  Other Thread                   This Thread
         //  |                              |
         //  v                              |
@@ -452,44 +455,65 @@ void _pmath_msq_queue_handle_next(pmath_thread_t me){
         //  v                 '-._             v        
         //  pmath_send_wait(B) ---\----------->eval(B)                         
         //                         '-._           v
-        //                             '--------->Throw(A)
+        //                             '--------->Internal`AbortMessage(A)
         //
-        // Here, B is aborted although its timeout is not yet reached. We should
-        // 1) either not send Throw(), but some Internal`AbortInterrupt(A) which
-        //    checks for innermost message being handled and only Throw()s if 
-        //    that is A itself. Otherwise it just sets a flag in the innermost
-        //    message which is checked after that message has finished (if set,
-        //    Internal`AbortInterrupt will effectively be called again)
-        // 2) or we wait for _pmath_msq_queue_handle_next() to finish, that is
-        //    until the exception is caught by it. BEWARE inner Catch() clauses!
+        // Internal`AbortMessage(A) sees that B is the current message and not 
+        // A. So it sets B's pending_abort_request to "A". When B finishs, it 
+        // effectively calls Internal`AbortMessage(B.pending_abort_request)
+        // which now sees that A is the current message again and so it throws
+        // "A" to abort it.
+        
+        pmath_debug_print("[start abortable %p", msg->result);
+        pmath_debug_print_object(", subject = ", msg->subject, "]\n");
+        
+        assert(result_data->next == NULL);
+        result_data->next = pmath_ref(me->abortable_messages);
+        me->abortable_messages = msg->result;
+        
+        if(result_data->next){
+          struct _pmath_abortable_message_t *next_data;
+          next_data = pmath_custom_get_data(result_data->next);
+          
+          result_data->depth = next_data->depth + 1;
+        }
+        else
+          result_data->depth = 0;
+        
+        val = pmath_evaluate(msg->subject);
+        
+        if(pmath_aborting()){
+          pmath_unref(val);
+          val = pmath_ref(PMATH_SYMBOL_ABORTED);
+        }
+        else if(val == PMATH_UNDEFINED)
+          val = pmath_ref(PMATH_SYMBOL_ABORTED);
         
         
-        // If we uncomment this, Throw() will somehow synchronize and no 
-        // sendWait$xxx exception is leaked... pmath_atomic_barrier() does not
-        // help :(
+        pmath_debug_print("[ending abortable %p", msg->result);
+        pmath_debug_print_object(", value = ", val, "]\n");
         
-//        pmath_aborting();
         
-//        printf(".");
-
-//          pmath_debug_print_object("[done result_symbol = ", msg->result_symbol, ", ");
-//          pmath_debug_print_object("val=", val, "]\n");
-
+        me->abortable_messages = result_data->next;
+        pmath_atomic_barrier();
+        _pmath_object_atomic_write(&result_data->_value, val);
+        
         ex = pmath_catch();
-        if(ex == msg->result_symbol){
-          pmath_debug_print_object("[received result_symbol ", ex, ", ");
-          pmath_debug_print_object("val=", val, "]\n");
+        if(ex == msg->result){
           pmath_unref(ex);
         }
         else if(ex != PMATH_UNDEFINED){
-          pmath_debug_print_object("[received exception ", ex, ", ");
-          pmath_debug_print_object("result_symbol = ", msg->result_symbol, ", ");
-          pmath_debug_print_object("val=", val, "]\n");
           pmath_throw(ex);
         }
         
-        pmath_unref(val);
-        pmath_unref(msg->result_symbol);
+        ex = _pmath_object_atomic_read(&result_data->_pending_abort_request);
+        if(ex){
+          _pmath_abort_message(ex);
+        }
+        
+        pmath_debug_print("[ended abortable %p]\n", msg->result);
+        
+        pmath_unref(msg->result);
+        msg->result = NULL;
       }
       else{
         pmath_unref(pmath_evaluate(msg->subject));
@@ -638,14 +662,15 @@ pmath_t pmath_thread_send_wait(
   void           (*idle_function)(void*),
   void            *idle_data
 ){
-  struct msg_queue_t  *my_mq_data;
-  struct msg_queue_t  *mq_data;
-  struct message_t    *msg_struct;
-  pmath_thread_t       me;
-  pmath_t              answer;
-  pmath_t              interrupt;
-  pmath_symbol_t       result_symbol;
-  double               end_time;
+  struct msg_queue_t                *my_mq_data;
+  struct msg_queue_t                *mq_data;
+  struct message_t                  *msg_struct;
+  pmath_thread_t                     me;
+  pmath_t                            answer;
+  pmath_t                            interrupt;
+  pmath_custom_t                     result;
+  struct _pmath_abortable_message_t *result_data;
+  double                             end_time;
   
   answer = PMATH_UNDEFINED;
   me = pmath_thread_get_current();
@@ -665,28 +690,51 @@ pmath_t pmath_thread_send_wait(
       return answer;
     }
     
-    result_symbol = pmath_symbol_create_temporary(PMATH_C_STRING("Internal`sendWait"), TRUE);
+    result_data = pmath_mem_alloc(sizeof(struct _pmath_abortable_message_t));
+    if(!result_data){
+      pmath_mem_free(msg_struct);
+      pmath_unref(msg);
+      return answer;
+    }
     
-    msg = pmath_expr_new_extended(
-      pmath_ref(PMATH_SYMBOL_CATCH), 1,
-      msg);
+    memset(result_data, 0, sizeof(struct _pmath_abortable_message_t));
+    
+    result = pmath_custom_new(result_data, _pmath_destroy_abortable_message);
+    interrupt = pmath_expr_new_extended(
+      pmath_ref(PMATH_SYMBOL_INTERNAL_ABORTMESSAGE), 1,
+      pmath_ref(result));
+    if(!result || !interrupt){
+      pmath_mem_free(msg_struct);
+      pmath_unref(msg);
+      pmath_unref(result);
+      pmath_unref(interrupt);
+      return answer;
+    }
+    
+    _pmath_object_atomic_write(&result_data->_value, PMATH_UNDEFINED);
+    
+//    result_symbol = pmath_symbol_create_temporary(PMATH_C_STRING("Internal`sendWait"), TRUE);
+//    
+//    msg = pmath_expr_new_extended(
+//      pmath_ref(PMATH_SYMBOL_CATCH), 1,
+//      msg);
     
 //    pmath_debug_print_object("[res=", result_symbol, ", ");
 //    pmath_debug_print_object("msg=", msg, "]\n");
     
-    interrupt = pmath_expr_new_extended(
-      pmath_ref(PMATH_SYMBOL_THROW), 1,
-      pmath_expr_new_extended(
-        pmath_ref(PMATH_SYMBOL_UNEVALUATED), 1,
-        pmath_ref(result_symbol)));
-        
-    pmath_symbol_set_value(result_symbol, pmath_ref(interrupt));
+//    interrupt = pmath_expr_new_extended(
+//      pmath_ref(PMATH_SYMBOL_THROW), 1,
+//      pmath_expr_new_extended(
+//        pmath_ref(PMATH_SYMBOL_UNEVALUATED), 1,
+//        pmath_ref(result_symbol)));
+//        
+//    pmath_symbol_set_value(result_symbol, pmath_ref(interrupt));
     
     end_time = pmath_tickcount() + timeout_seconds;
     
     memset(msg_struct, 0, sizeof(struct message_t));
     msg_struct->subject = msg;
-    msg_struct->result_symbol = pmath_ref(result_symbol);
+    msg_struct->result = pmath_ref(result);
     msg_struct->sender = pmath_ref(me->message_queue);
     push_msg(mq_data, msg_struct);
     
@@ -697,31 +745,36 @@ pmath_t pmath_thread_send_wait(
       msg_queue_sleep_timeout(my_mq_data, end_time);
       
       pmath_unref(answer);
-      answer = pmath_symbol_get_value(result_symbol);
+      answer = _pmath_object_atomic_read(&result_data->_value);
       
-      if(!pmath_equals(answer, interrupt))
+      if(answer != PMATH_UNDEFINED)
         goto SUCCESS;
       
       if(idle_function)
         idle_function(idle_data);
     }
     
-    /* If the evaluation did not already end, result_symbol still holds 
-       `interrupt` which is Throw(...). Sending result_symbol then causes the
-       evalutation to stop.
-       
-       If the evaluation already finished when this `result_symbol` message
-       is handled, result_symbol will containt the evaluations result and thus 
-       will cause no harm.
-     */
-    pmath_thread_send(mq, pmath_ref(result_symbol));
+    if(pmath_tickcount() >= end_time)
+      pmath_debug_print("[timeout %f %p]\n", timeout_seconds, result);
+    
+    pmath_thread_send(mq, pmath_ref(interrupt));
+    
+//    /* If the evaluation did not already end, result_symbol still holds 
+//       `interrupt` which is Throw(...). Sending result_symbol then causes the
+//       evalutation to stop.
+//       
+//       If the evaluation already finished when this `result_symbol` message
+//       is handled, result_symbol will containt the evaluations result and thus 
+//       will cause no harm.
+//     */
+//    pmath_thread_send(mq, pmath_ref(result_symbol));
   
     pmath_unref(answer);
     answer = PMATH_UNDEFINED;
     
    SUCCESS:
     pmath_unref(interrupt);
-    pmath_unref(result_symbol);
+    pmath_unref(result);
   }
   else
     pmath_unref(msg);

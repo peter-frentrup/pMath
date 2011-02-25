@@ -25,6 +25,18 @@ struct _pmath_gather_info_t{
   } emitted_values;
 };
 
+struct _pmath_abortable_message_t{
+  pmath_t volatile _value; // _pmath_object_atomic_[read|write]
+  
+  
+  // thread-local write, thread-child-local read
+  pmath_t          next; // pmath_custom_t -> _pmath_abortable_message_t
+  int              depth; // = next -> depth + 1
+  
+  // thread-child-local read/write with _pmath_object_atomic_[read|write]
+  pmath_t volatile _pending_abort_request; // dito
+};
+
 PMATH_PRIVATE extern PMATH_DECLARE_ATOMIC(_pmath_abort_timer);
 PMATH_PRIVATE extern PMATH_DECLARE_ATOMIC(_pmath_abort_reasons);
 
@@ -56,7 +68,8 @@ struct _pmath_thread_t{
   // do not access from outside _pmath_thread_[throw|catch]():
   pmath_t exception; 
   
-  pmath_t message_queue; // the pmath_messages_t (message queue)
+  pmath_t message_queue;      // the pmath_messages_t (message queue)
+  pmath_t abortable_messages; // pmath_custom_t -> _pmath_abortable_message_t
   
   intptr_t current_dynamic_id;
   
@@ -66,10 +79,13 @@ struct _pmath_thread_t{
   uint8_t is_daemon;
 };
 
+PMATH_PRIVATE void _pmath_destroy_abortable_message(void *p);
+PMATH_PRIVATE void _pmath_abort_message(pmath_t abortable); // abortable will be freed
+
 PMATH_PRIVATE 
 void _pmath_thread_throw(
-  pmath_thread_t thread,     // not NULL
-  pmath_t exception); // exception will be freed
+  pmath_thread_t thread, // not NULL
+  pmath_t exception);    // exception will be freed
 
 PMATH_PRIVATE 
 PMATH_ATTRIBUTE_USE_RESULT

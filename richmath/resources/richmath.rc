@@ -89,6 +89,16 @@ MENU_MAIN MENU
     MENUITEM "Table &Row\tCtrl+Enter",              IDM_INSERTROW
   }
   
+  POPUP "Fo&rmat"
+  {
+    MENUITEM "Cambria Math Shaper", IDM_CAMBRIAMATHSHAPER
+    MENUITEM "Mathematica Mono Shaper", IDM_MATHEMATICAMONOSHAPER
+    MENUITEM "Mathematica Serif Shaper", IDM_MATHEMATICASHAPER
+    MENUITEM "Asana Math Shaper", IDM_ASANAMATHSHAPER
+    MENUITEM "Neo Euler Shaper", IDM_NEOEULERSHAPER
+    MENUITEM "XITS Math Shaper", IDM_XITSMATHSHAPER
+  }
+  
   POPUP "E&valuation"
   {
     MENUITEM "&Evaluate Sections\tShift+Enter",      IDM_EVALUATESECTIONS
@@ -97,15 +107,5 @@ MENU_MAIN MENU
     MENUITEM SEPARATOR
     MENUITEM "Enter &Subsession",                    IDM_EVALUATORSUBSESSION
     MENUITEM "&Abort\tShift+Esc",                    IDM_EVALUATORABORT
-  }
-  
-  POPUP "&Test"
-  {
-    MENUITEM "Cambria Math Shaper", IDM_CAMBRIAMATHSHAPER
-    MENUITEM "Mathematica Mono Shaper", IDM_MATHEMATICAMONOSHAPER
-    MENUITEM "Mathematica Serif Shaper", IDM_MATHEMATICASHAPER
-    MENUITEM "Asana Math Shaper", IDM_ASANAMATHSHAPER
-    MENUITEM "Neo Euler Shaper", IDM_NEOEULERSHAPER
-    MENUITEM "XITS Math Shaper", IDM_XITSMATHSHAPER
   }
 } 

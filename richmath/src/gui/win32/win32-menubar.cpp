@@ -68,6 +68,9 @@ Win32Menubar::Win32Menubar(Win32DocumentWindow *window, HWND parent, HMENU menu)
   icex.dwICC  = 0;//ICC_BAR_CLASSES;
   InitCommonControlsEx(&icex);
   
+  if(Win32Themes::BufferedPaintInit)
+     Win32Themes::BufferedPaintInit();
+  
   _hwnd = CreateWindowExW(
     0, 
     TOOLBARCLASSNAMEW, 
@@ -120,6 +123,9 @@ Win32Menubar::~Win32Menubar(){
     
   DestroyWindow(_hwnd);
   DestroyMenu(_menu);
+  
+  if(Win32Themes::BufferedPaintUnInit)
+     Win32Themes::BufferedPaintUnInit();
 }
 
 bool Win32Menubar::visible(){
@@ -382,7 +388,7 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
           case TBN_HOTITEMCHANGE: {
             NMTBHOTITEM *hi = (NMTBHOTITEM*)lParam;
             
-            if((hi->dwFlags & HICF_MOUSE)
+            if((hi->dwFlags & (HICF_MOUSE | ~HICF_LEAVING))
             && current_menubar == this 
             && current_item != hi->idNew
             && hi->idNew){
@@ -426,6 +432,12 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
           
           case NM_CUSTOMDRAW: {
             NMTBCUSTOMDRAW *draw = (NMTBCUSTOMDRAW*)lParam;
+            
+            // The normal menu (Vista) also has no animation, but a toolbar has.
+            // TODO: This has no effect before the first menu popped up
+            //       (Press ALT,LEFT,RIGHT,DOWN,LEFT,RIGHT)
+            if(Win32Themes::BufferedPaintStopAllAnimations)
+               Win32Themes::BufferedPaintStopAllAnimations(_hwnd);
             
             switch(draw->nmcd.dwDrawStage){
               case CDDS_PREPAINT: {
@@ -476,7 +488,7 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
                 }
                 else if(current_item == 0 && next_item == 0
                 && draw->nmcd.uItemState & CDIS_HOT)
-                  state = Hot;
+                  state = Pressed;//Hot;
                 
                 if(!Win32ControlPainter::win32_painter.draw_menubar_itembg(
                     draw->nmcd.hdc, 
