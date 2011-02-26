@@ -124,6 +124,23 @@ pmath_t pmath_expr_get_item(
   pmath_expr_t expr,
   size_t       index);
 
+/**\brief Extract an item from an expression.
+   \memberof pmath_expr_t
+   \param expr A pMath expression.
+   \param index The index of the item.
+   \return Same as pmath_expr_get_item() but if expr has refcount==1, the item 
+           might be removed from expr to ensure that the item's refcount is 1.
+   
+   Normaly, you should use pmath_expr_get_item(). This function if for use in 
+   loops which modify items of an expression.
+ */
+PMATH_API 
+PMATH_ATTRIBUTE_PURE 
+PMATH_ATTRIBUTE_USE_RESULT
+pmath_t pmath_expr_extract_item(
+  pmath_expr_t expr,
+  size_t       index);
+
 /**\brief Get multiple items from an expression.
    \memberof pmath_expr_t
    \param expr A pMath expression. It will *not* be destroyed.

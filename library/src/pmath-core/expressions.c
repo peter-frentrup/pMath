@@ -385,6 +385,35 @@ PMATH_API pmath_t pmath_expr_get_item(
       ((struct _pmath_unpacked_expr_part_t*)expr)->start + index - 1]);
 }
 
+PMATH_API pmath_t pmath_expr_extract_item(
+  pmath_expr_t expr,
+  size_t       index
+){
+  if(!expr)
+    return NULL;
+    
+  assert(pmath_is_expr(expr));
+
+  if(index > ((struct _pmath_unpacked_expr_t*)expr)->length)
+    return NULL;
+
+  if(expr->type_shift == PMATH_TYPE_SHIFT_EXPRESSION_GENERAL || index == 0){
+    pmath_t item = ((struct _pmath_unpacked_expr_t*)expr)->items[index];
+    
+    if(expr->refcount == 1){
+      ((struct _pmath_unpacked_expr_t*)expr)->items[index] = PMATH_UNDEFINED;
+      return item;
+    }
+    
+    return pmath_ref(item);
+  }
+  
+  assert(expr->type_shift == PMATH_TYPE_SHIFT_EXPRESSION_GENERAL_PART);
+  return pmath_ref(
+    ((struct _pmath_unpacked_expr_part_t*)expr)->buffer->items[
+      ((struct _pmath_unpacked_expr_part_t*)expr)->start + index - 1]);
+}
+
 PMATH_API pmath_expr_t pmath_expr_get_item_range(
   pmath_expr_t expr,
   size_t       start,

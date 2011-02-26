@@ -413,7 +413,7 @@ static THREAD_PROC(daemon_proc, arg){
   struct daemon_t *me = (struct daemon_t*)arg;
   thread_handle_t handle = 0;
   
-  pmath_debug_print("[new deamon %p]", me);
+  pmath_debug_print("[new deamon %p]\n", me);
   
   *me->init_ok = FALSE;
   
@@ -459,7 +459,7 @@ static THREAD_PROC(daemon_proc, arg){
     handle = me->handle;
     me->handle = 0;
     
-    pmath_debug_print("[almost free deamon %p, next = %p, prev = %p, all_daemons = %p]", me, me->next, me->prev, all_daemons);
+    pmath_debug_print("[almost free deamon %p, next = %p, prev = %p, all_daemons = %p]\n", me, me->next, me->prev, all_daemons);
     
     if(me->next != me){
       me->next->prev = me->prev;
@@ -487,9 +487,9 @@ static THREAD_PROC(daemon_proc, arg){
     #endif
   }
   else
-    pmath_debug_print("[no deamon handle for %p]", me);
+    pmath_debug_print("[no deamon handle for %p]\n", me);
   
-  pmath_debug_print("[free deamon %p, all_daemons = %p]", me, all_daemons);
+  pmath_debug_print("[free deamon %p, all_daemons = %p]\n", me, all_daemons);
   pmath_mem_free(me);
   
   pmath_done();
@@ -499,9 +499,11 @@ static THREAD_PROC(daemon_proc, arg){
 }
 
 PMATH_PRIVATE void _pmath_threadpool_kill_daemons(void){
+  #ifdef PMATH_DEBUG_LOG
+  int loop_count = 0;
+  #endif
+  
   while(_pmath_threadpool_deamon_count > 0){
-    _pmath_msq_queue_awake_all();
-    pmath_atomic_loop_yield();
     pmath_atomic_lock(&daemon_spin);
     {
       struct daemon_t *all;
@@ -514,7 +516,7 @@ PMATH_PRIVATE void _pmath_threadpool_kill_daemons(void){
         do{
           if(daemon->alive && daemon->kill){
             daemon->alive = FALSE;
-            pmath_debug_print("[killing deamon %p]", daemon);
+            pmath_debug_print("[killing deamon %p]\n", daemon);
             daemon->kill(daemon->cb_data);
           }
           
@@ -523,9 +525,20 @@ PMATH_PRIVATE void _pmath_threadpool_kill_daemons(void){
       }
     }
     pmath_atomic_unlock(&daemon_spin);
+    
+    _pmath_msq_queue_awake_all();
+    
+    // Sleep 1 ms to give other thread chance to notice that they should stop.
+    pmath_atomic_loop_nop();
+    
+    #ifdef PMATH_DEBUG_LOG
+    ++loop_count;
+    #endif
   }
   
-  pmath_debug_print("[all deamons dead]");
+  #ifdef PMATH_DEBUG_LOG
+  pmath_debug_print("[all deamons dead, %d iterations]\n", loop_count);
+  #endif
 }
 
 // CAUTION: kill(data) will be called while daemon_spin is held
@@ -800,7 +813,7 @@ static void run_gc(void){
     end = pmath_tickcount();
     
     if(end - mark_start > 1.0){
-      pmath_debug_print("[gc %f + %f = %f secs]", 
+      pmath_debug_print("[gc %f + %f = %f secs]\n", 
         clear_start - mark_start,
         end - clear_start,
         end - mark_start);

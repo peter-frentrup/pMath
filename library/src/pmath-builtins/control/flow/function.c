@@ -90,6 +90,8 @@ static pmath_t replace_purearg(
 
 PMATH_PRIVATE pmath_t builtin_call_function(pmath_expr_t expr){
 /* Function(body)(args)
+   Function(/\/, body)(args)
+   Function(/\/, body, attrib)(args)
    Function(x, body)(args)
    Function(x, body, attrib)(args)
    Function({xs}, body)(args)
@@ -116,7 +118,7 @@ PMATH_PRIVATE pmath_t builtin_call_function(pmath_expr_t expr){
 
   if(headlen == 1){
     pmath_t body;
-    size_t         i;
+    size_t  i;
     
     body = pmath_expr_get_item(head, 1);
     pmath_unref(head);
@@ -180,7 +182,7 @@ PMATH_PRIVATE pmath_t builtin_call_function(pmath_expr_t expr){
         
       if(eval_first){
         pmath_t item = pmath_evaluate(
-          pmath_expr_get_item(expr, 1));
+          pmath_expr_extract_item(expr, 1));
           
         if(pmath_is_expr_of_len(item, PMATH_SYMBOL_UNEVALUATED, 1)){
           pmath_expr_t item_expr = (pmath_expr_t)item;
@@ -196,7 +198,7 @@ PMATH_PRIVATE pmath_t builtin_call_function(pmath_expr_t expr){
         
         for(i = 2;i <= exprlen;++i){
           pmath_t item = pmath_evaluate(
-            pmath_expr_get_item(expr, i));
+            pmath_expr_extract_item(expr, i));
             
           if(pmath_is_expr_of_len(item, PMATH_SYMBOL_UNEVALUATED, 1)){
             pmath_expr_t item_expr = (pmath_expr_t)item;
@@ -231,6 +233,15 @@ PMATH_PRIVATE pmath_t builtin_call_function(pmath_expr_t expr){
           pmath_unref(arg);
         }
       }
+    }
+    
+    if(!params){
+      pmath_unref(head);
+      
+      body = replace_purearg(body, expr);
+      
+      pmath_unref(expr);
+      return body;
     }
     
     if(pmath_is_symbol(params)){
@@ -302,6 +313,8 @@ PMATH_PRIVATE pmath_t builtin_call_function(pmath_expr_t expr){
 
 PMATH_PRIVATE pmath_t builtin_function(pmath_expr_t expr){
 /** Function(body)
+    Function(/\/, body)
+    Function(/\/, body, attrib)
     Function(x, body)
     Function(x, body, attrib)
     Function({xs}, body)
@@ -348,7 +361,7 @@ PMATH_PRIVATE pmath_t builtin_function(pmath_expr_t expr){
       return expr;
     }
     
-    if(!pmath_is_symbol(params)){
+    if(params && !pmath_is_symbol(params)){
       pmath_message(NULL, "par", 2, params, pmath_ref(expr));
         
       return expr;

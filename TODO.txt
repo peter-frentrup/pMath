@@ -7,8 +7,6 @@
 
 - pmath: implement MapThread, MapAt, Split, HasValue/IsValue
 
-- pmath: implement Function(/\/, ...something with #1/..., attrs), esp. Function(,func(##1),attrs) to override attributes of a function
-
 ? pmath: use timsort instead of platforms qsort: http://bugs.python.org/file4451/timsort.txt	
 	
 - pmath: $CreationDate does not yet work (not updated properly)
