@@ -30,7 +30,9 @@
     (intptr_t)           (old_value), \
     (intptr_t)           (new_value)))
 
-PMATH_FORCE_INLINE pmath_bool_t pmath_atomic_compare_and_set_2(
+PMATH_FORCE_INLINE
+PMATH_INLINE_NODEBUG
+pmath_bool_t pmath_atomic_compare_and_set_2(
   intptr_t volatile *atom,
   intptr_t old_value_fst,
   intptr_t old_value_snd,
@@ -67,8 +69,10 @@ PMATH_FORCE_INLINE pmath_bool_t pmath_atomic_compare_and_set_2(
       (intptr2_t volatile *)(atom_ptr2), \
       PMATH_MAKE_INTPTR_2(old_value_fst, old_value_snd), \
       PMATH_MAKE_INTPTR_2(new_value_fst, new_value_snd)))*/
-      
-PMATH_FORCE_INLINE pmath_bool_t pmath_atomic_have_cas2(void){
+
+PMATH_FORCE_INLINE
+PMATH_INLINE_NODEBUG
+pmath_bool_t pmath_atomic_have_cas2(void){
 #if 0
   int a,b,c,d;
   __cpuid(1, a, b, c, d);

@@ -68,6 +68,17 @@
   #define PMATH_FORCE_INLINE  static __inline
 #endif
 
+/* PMATH_INLINE_NODEBUG
+   
+   The specified function should be handled as a macro for debugging (never jump 
+   into the function) 
+ */
+#ifdef __GNUC__
+  #define PMATH_INLINE_NODEBUG  __attribute__((artificial))
+#else
+  #define PMATH_INLINE_NODEBUG  
+#endif
+
 /* PMATH_INLINE  (__inline)
  */
 #define PMATH_INLINE __inline

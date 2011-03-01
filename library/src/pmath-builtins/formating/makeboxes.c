@@ -2374,7 +2374,7 @@ static pmath_t skeleton_to_boxes(
     pmath_bool_t have_explicit_strip_on_input;
   };
   
-  static void emit_stylebox_options(
+  static pmath_bool_t emit_stylebox_options(
     pmath_expr_t                         expr,  // wont be freed
     size_t                               start, 
     struct emit_stylebox_options_info_t *info
@@ -2431,7 +2431,11 @@ static pmath_t skeleton_to_boxes(
       }
       
       if(pmath_is_expr_of(item, PMATH_SYMBOL_LIST)){
-        emit_stylebox_options(expr, 1, info);
+        if(!emit_stylebox_options(expr, 1, info)){
+          pmath_unref(item);
+          return FALSE;
+        }
+        
         pmath_unref(item);
         continue;
       }
@@ -2454,10 +2458,21 @@ static pmath_t skeleton_to_boxes(
         if(!info->have_explicit_strip_on_input){
           info->have_explicit_strip_on_input = (lhs == PMATH_SYMBOL_STRIPONINPUT);
         }
+      
+        pmath_emit(item, NULL);
+        continue;
       }
       
-      pmath_emit(item, NULL);
+      if(pmath_is_string(item) && i == start && i > 1){
+        pmath_emit(item, NULL);
+        continue;
+      }
+      
+      pmath_unref(item);
+      return FALSE;
     }
+    
+    return TRUE;
   }
 
 static pmath_t style_to_boxes(
@@ -2473,7 +2488,12 @@ static pmath_t style_to_boxes(
     pmath_gather_begin(NULL);
     pmath_emit(object_to_boxes(thread, pmath_expr_get_item(expr, 1)), NULL);
     
-    emit_stylebox_options(expr, 2, &info);
+    if(!emit_stylebox_options(expr, 2, &info)){
+      pmath_unref(pmath_gather_end());
+      
+      return call_to_boxes(thread, expr);
+    }
+    
     pmath_unref(expr);
     
     if(!info.have_explicit_strip_on_input){

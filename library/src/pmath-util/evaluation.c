@@ -289,24 +289,6 @@ static pmath_t evaluate_expression(
 
     if(apply_rules){
       if(_pmath_have_code(head, PMATH_CODE_USAGE_EARLYCALL)){
-        /* Execute "early code" (20% speedups for Plus,Times,Power)
-        
-           Because floating point numbers are not associative, sorting has an 
-           impact the result of on numeric evaluations:
-           
-           Local({x:=1/Pi},Do(x:=3.5*x*(1-x),10^6);x)
-           
-           [without the pmath_expr_sort()-call below]:
-           0.5008842103072179`
-           
-           [with the pmath_expr_sort()-call below]:
-           0.5008842103072177`
-           
-           Todo: Do we need to sort here or is consistency not that important?
-         */
-        if(symmetric)
-          expr = pmath_expr_sort(expr);
-        
         expr_changes = _pmath_expr_last_change(expr);
         
         if(_pmath_run_code(head, PMATH_CODE_USAGE_EARLYCALL, &expr)){

@@ -21,7 +21,9 @@
      _pmath_atomic_unlock_ptr(&global_value, value);
  */
  
-PMATH_FORCE_INLINE void *_pmath_atomic_lock_ptr(void * volatile *ptr){
+PMATH_FORCE_INLINE
+PMATH_INLINE_NODEBUG
+void *_pmath_atomic_lock_ptr(void * volatile *ptr){
   void *result;
   
   do{
@@ -33,7 +35,9 @@ PMATH_FORCE_INLINE void *_pmath_atomic_lock_ptr(void * volatile *ptr){
   return result;
 }
 
-PMATH_FORCE_INLINE void _pmath_atomic_unlock_ptr(void * volatile *ptr, void *value){
+PMATH_FORCE_INLINE
+PMATH_INLINE_NODEBUG
+void _pmath_atomic_unlock_ptr(void * volatile *ptr, void *value){
   assert(*ptr == PMATH_INVALID_PTR);
   assert(value != PMATH_INVALID_PTR);
   
@@ -46,7 +50,9 @@ PMATH_FORCE_INLINE void _pmath_atomic_unlock_ptr(void * volatile *ptr, void *val
 /* Access pMath objects "atomically" (using a spinlock).
  */
 
-PMATH_FORCE_INLINE void _pmath_object_atomic_write(
+PMATH_FORCE_INLINE
+PMATH_INLINE_NODEBUG
+void _pmath_object_atomic_write(
   pmath_t volatile *ptr,
   pmath_t          value
 ){
@@ -62,7 +68,9 @@ PMATH_FORCE_INLINE void _pmath_object_atomic_write(
     pmath_unref(old);
 }
 
-PMATH_FORCE_INLINE pmath_t _pmath_object_atomic_read_start(
+PMATH_FORCE_INLINE
+PMATH_INLINE_NODEBUG
+pmath_t _pmath_object_atomic_read_start(
   pmath_t volatile *ptr
 ){
   return (pmath_t)_pmath_atomic_lock_ptr((void * volatile *)ptr);
@@ -74,7 +82,9 @@ PMATH_FORCE_INLINE pmath_t _pmath_object_atomic_read_start(
    but _pmath_object_atomic_write() succeeds.
  */
  
-PMATH_FORCE_INLINE void _pmath_object_atomic_read_end(
+PMATH_FORCE_INLINE
+PMATH_INLINE_NODEBUG
+void _pmath_object_atomic_read_end(
   pmath_t volatile *ptr,
   pmath_t          value // will be freed
 ){
@@ -87,7 +97,9 @@ PMATH_FORCE_INLINE void _pmath_object_atomic_read_end(
     pmath_unref(value);
 }
 
-PMATH_FORCE_INLINE pmath_t _pmath_object_atomic_read(
+PMATH_FORCE_INLINE
+PMATH_INLINE_NODEBUG
+pmath_t _pmath_object_atomic_read(
   pmath_t volatile *ptr
 ){
   pmath_t value;
@@ -100,7 +112,9 @@ PMATH_FORCE_INLINE pmath_t _pmath_object_atomic_read(
 
 /*----------------------------------------------------------------------------*/
 
-static __inline void *_pmath_atomic_global_need(
+PMATH_FORCE_INLINE
+PMATH_INLINE_NODEBUG
+void *_pmath_atomic_global_need(
   void * volatile *ptr,
   void *(*create_default)(void),
   void (*ref)(void*)
@@ -124,7 +138,9 @@ static __inline void *_pmath_atomic_global_need(
   return result;
 }
 
-static __inline void *_pmath_atomic_global_done(
+PMATH_FORCE_INLINE
+PMATH_INLINE_NODEBUG
+void *_pmath_atomic_global_done(
   void * volatile *ptr,
   void *expected_value,
   void *(*decref)(void*)  // does not free its argument

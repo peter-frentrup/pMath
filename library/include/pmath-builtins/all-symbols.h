@@ -649,5 +649,6 @@ pmath_bool_t pmath_register_approx_code(
 #define PMATH_SYMBOL_VERSIONLIST                            PMATH_SYMBOL_BUILTIN(557)
 #define PMATH_SYMBOL_INTERNAL_ABORTMESSAGE                  PMATH_SYMBOL_BUILTIN(558)
 #define PMATH_SYMBOL_ORDERING                               PMATH_SYMBOL_BUILTIN(559)
+#define PMATH_SYMBOL_SPLIT                                  PMATH_SYMBOL_BUILTIN(560)
 
 #endif /* __PMATH_BUILTINS__SYMBOLS_H__ */

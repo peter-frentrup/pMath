@@ -5,17 +5,11 @@
 - pmath: change pmath_tickcount to use GetTickCount()/clock_gettime() because the current mechanism is not suitable for time measurements.
          add pmath_datetime() to get the old behaviour
 
-- pmath: implement MapThread, MapAt, Split, HasValue/IsValue
+- pmath: implement MapThread, MapAt, HasValue/IsValue
 
 ? pmath: use timsort instead of platforms qsort: http://bugs.python.org/file4451/timsort.txt	
 	
 - pmath: $CreationDate does not yet work (not updated properly)
-
-- richmath/pmath:
-	Style(bla, x) should not generate an ErrorBox, but the sequence "Style(bla,x)"
-	
-- pmath: 0``-1 * 0``-1
-	Timing(Local({x:=1/Pi},Do(x:=3.5`20*x*(1-x),100);x))
 
 - richmath: FractionBox: change distance between fraction rule an numerator (too big)
 
@@ -95,13 +89,6 @@
 	That should also abort any child threads.
 
 ?? remove Syntax f[[opt]] as a short form for OptionValue(f, opt)
-
-! inspect numerical instability [introduced with EARLYCODE before pmath_expression_sort for Plus,Times]:
-        Local({x:=1/Pi},Do(x:=3.5*x*(1-x),10^6);x)
-        0.5008842103072179`
-   was: 0.5008842103072177` (=same as early code after pmath_expression_sort and same as Mathematica)
-    
-	The reason is that floating point numbers are not an associative field, so sorting before calling Plus/Times is important to remain consistency, because a*b*c is calculated as (a*b)*c, so with sorting it is allways (min(a,b,c) * median(a,b,c))*max(a,b,c)
 
 ? remove IsHeld() ?
 

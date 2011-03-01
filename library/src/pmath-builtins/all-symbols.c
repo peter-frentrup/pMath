@@ -359,6 +359,7 @@ PMATH_PRIVATE pmath_t builtin_scan(           pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_select(         pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_sort(           pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_sortby(         pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_split(          pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_table(          pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_take(           pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_thread(         pmath_expr_t expr);
@@ -1059,6 +1060,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   VERIFY(   PMATH_SYMBOL_SORT                      = NEW_SYSTEM_SYMBOL("Sort"))
   VERIFY(   PMATH_SYMBOL_SORTBY                    = NEW_SYSTEM_SYMBOL("SortBy"))
   VERIFY(   PMATH_SYMBOL_SPECIAL                   = NEW_SYSTEM_SYMBOL("Special"))
+  VERIFY(   PMATH_SYMBOL_SPLIT                     = NEW_SYSTEM_SYMBOL("Split"))
   VERIFY(   PMATH_SYMBOL_SQRT                      = NEW_SYSTEM_SYMBOL("Sqrt"))
   VERIFY(   PMATH_SYMBOL_SQRTBOX                   = NEW_SYSTEM_SYMBOL("SqrtBox"))
   VERIFY(   PMATH_SYMBOL_STACK                     = NEW_SYSTEM_SYMBOL("Stack"))
@@ -1452,6 +1454,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
     BIND_DOWN(   PMATH_SYMBOL_SINGLEMATCH,                 general_builtin_zeroonearg)
     BIND_DOWN(   PMATH_SYMBOL_SORT,                        builtin_sort)
     BIND_DOWN(   PMATH_SYMBOL_SORTBY,                      builtin_sortby)
+    BIND_DOWN(   PMATH_SYMBOL_SPLIT,                       builtin_split)
     BIND_DOWN(   PMATH_SYMBOL_SQRT,                        builtin_sqrt)
     BIND_DOWN(   PMATH_SYMBOL_STACK,                       builtin_stack)
     BIND_DOWN(   PMATH_SYMBOL_STRINGCASES,                 builtin_stringcases)

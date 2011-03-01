@@ -60,7 +60,8 @@ void _pmath_destroy_object(pmath_t obj);
    Those are the default for C/C++ (#defining pmath_ref pmath_fast_ref, ...)
  */
 
-PMATH_FORCE_INLINE 
+PMATH_FORCE_INLINE
+PMATH_INLINE_NODEBUG
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_t pmath_fast_ref(pmath_t obj){
   if(PMATH_UNLIKELY(PMATH_IS_MAGIC(obj)))
@@ -79,7 +80,8 @@ pmath_t pmath_fast_ref(pmath_t obj){
   return obj;
 }
 
-PMATH_FORCE_INLINE 
+PMATH_FORCE_INLINE
+PMATH_INLINE_NODEBUG
 void pmath_fast_unref(pmath_t obj){
   if(PMATH_UNLIKELY(PMATH_IS_MAGIC(obj)))
     return;
@@ -91,7 +93,8 @@ void pmath_fast_unref(pmath_t obj){
   pmath_atomic_barrier();
 }
 
-PMATH_FORCE_INLINE 
+PMATH_FORCE_INLINE
+PMATH_INLINE_NODEBUG
 PMATH_ATTRIBUTE_PURE
 pmath_bool_t pmath_fast_instance_of(
   pmath_t obj,
@@ -117,7 +120,8 @@ pmath_bool_t pmath_fast_instance_of(
    \param obj The pMath object.
    \return TRUE iff the object is castable to pmath_custom_t.
  */
-PMATH_FORCE_INLINE 
+PMATH_FORCE_INLINE
+PMATH_INLINE_NODEBUG
 PMATH_ATTRIBUTE_PURE
 pmath_bool_t pmath_is_custom(pmath_t obj){
   return pmath_instance_of(obj, PMATH_TYPE_CUSTOM);
@@ -129,7 +133,8 @@ pmath_bool_t pmath_is_custom(pmath_t obj){
    \param obj The pMath object.
    \return TRUE iff the object is castable to pmath_expr_t.
  */
-PMATH_FORCE_INLINE 
+PMATH_FORCE_INLINE
+PMATH_INLINE_NODEBUG
 PMATH_ATTRIBUTE_PURE
 pmath_bool_t pmath_is_expr(pmath_t obj){
   return pmath_instance_of(obj, PMATH_TYPE_EXPRESSION);
@@ -141,7 +146,8 @@ pmath_bool_t pmath_is_expr(pmath_t obj){
    \param obj The pMath object.
    \return TRUE iff the object is castable to pmath_integer_t.
  */
-PMATH_FORCE_INLINE 
+PMATH_FORCE_INLINE
+PMATH_INLINE_NODEBUG
 PMATH_ATTRIBUTE_PURE
 pmath_bool_t pmath_is_integer(pmath_t obj){
   return pmath_instance_of(obj, PMATH_TYPE_INTEGER);
@@ -153,7 +159,8 @@ pmath_bool_t pmath_is_integer(pmath_t obj){
    \param obj The pMath object.
    \return TRUE iff the object is castable to pmath_number_t.
  */
-PMATH_FORCE_INLINE 
+PMATH_FORCE_INLINE
+PMATH_INLINE_NODEBUG
 PMATH_ATTRIBUTE_PURE
 pmath_bool_t pmath_is_number(pmath_t obj){
   return pmath_instance_of(obj, PMATH_TYPE_NUMBER);
@@ -165,7 +172,8 @@ pmath_bool_t pmath_is_number(pmath_t obj){
    \param obj The pMath object.
    \return TRUE iff the object is castable to pmath_string_t.
  */
-PMATH_FORCE_INLINE 
+PMATH_FORCE_INLINE
+PMATH_INLINE_NODEBUG
 PMATH_ATTRIBUTE_PURE
 pmath_bool_t pmath_is_string(pmath_t obj){
   return pmath_instance_of(obj, PMATH_TYPE_STRING);
@@ -177,7 +185,8 @@ pmath_bool_t pmath_is_string(pmath_t obj){
    \param obj The pMath object.
    \return TRUE iff the object is castable to pmath_symbol_t.
  */
-PMATH_FORCE_INLINE 
+PMATH_FORCE_INLINE
+PMATH_INLINE_NODEBUG
 PMATH_ATTRIBUTE_PURE
 pmath_bool_t pmath_is_symbol(pmath_t obj){
   return pmath_instance_of(obj, PMATH_TYPE_SYMBOL);

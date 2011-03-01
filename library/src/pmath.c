@@ -280,11 +280,11 @@ PMATH_API pmath_bool_t pmath_init(void){
     _pmath_object_stop_message             = NULL;
     _pmath_object_underflow                = NULL;
     _pmath_object_zeromultimatch           = NULL;
-    
+  
     if(!_pmath_debug_library_init())          goto FAIL_DEBUG_LIBRARY;
     if(!_pmath_stacks_init())                 goto FAIL_STACKS_LIBRARY;
     if(!_pmath_memory_manager_init())         goto FAIL_MEMORY_MANAGER;
-    
+  
     #ifdef PMATH_DEBUG_TESTS
     {
       typedef struct{
@@ -343,7 +343,7 @@ PMATH_API pmath_bool_t pmath_init(void){
     if(!_pmath_threadpool_init())             goto FAIL_THREADPOOL;
     if(!_pmath_regex_init())                  goto FAIL_REGEX;
     if(!_pmath_modules_init())                goto FAIL_MODULES;
-    
+
     if(!_pmath_dynamic_init())                goto FAIL_DYNAMIC;
     
     //{ init static objects ...

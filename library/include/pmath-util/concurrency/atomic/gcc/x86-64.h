@@ -6,8 +6,10 @@
 /* __inline asm + PIC:
   [1] http://sam.zoy.org/blog/2007-04-13-shlib-with-non-pic-code-have-__inline-assembly-and-pic-mix-well
  */
- 
-PMATH_FORCE_INLINE intptr_t pmath_atomic_fetch_add(
+
+PMATH_FORCE_INLINE
+PMATH_INLINE_NODEBUG
+intptr_t pmath_atomic_fetch_add(
   intptr_t volatile *atom,
   intptr_t delta
 ){
@@ -24,7 +26,9 @@ PMATH_FORCE_INLINE intptr_t pmath_atomic_fetch_add(
   return result;
 }
 
-PMATH_FORCE_INLINE intptr_t pmath_atomic_fetch_set(
+PMATH_FORCE_INLINE
+PMATH_INLINE_NODEBUG
+intptr_t pmath_atomic_fetch_set(
   intptr_t volatile *atom,
   intptr_t new_value
 ){
@@ -41,7 +45,9 @@ PMATH_FORCE_INLINE intptr_t pmath_atomic_fetch_set(
   return result;
 }
 
-PMATH_FORCE_INLINE intptr_t pmath_atomic_fetch_compare_and_set(
+PMATH_FORCE_INLINE
+PMATH_INLINE_NODEBUG
+intptr_t pmath_atomic_fetch_compare_and_set(
   intptr_t volatile *atom,
   intptr_t old_value,
   intptr_t new_value
@@ -58,7 +64,9 @@ PMATH_FORCE_INLINE intptr_t pmath_atomic_fetch_compare_and_set(
   return result;
 }
 
-PMATH_FORCE_INLINE pmath_bool_t pmath_atomic_compare_and_set(
+PMATH_FORCE_INLINE
+PMATH_INLINE_NODEBUG
+pmath_bool_t pmath_atomic_compare_and_set(
   intptr_t volatile *atom,
   intptr_t old_value,
   intptr_t new_value
@@ -76,7 +84,9 @@ PMATH_FORCE_INLINE pmath_bool_t pmath_atomic_compare_and_set(
   return (pmath_bool_t)result;
 }
 
-PMATH_FORCE_INLINE pmath_bool_t pmath_atomic_compare_and_set_2(
+PMATH_FORCE_INLINE
+PMATH_INLINE_NODEBUG
+pmath_bool_t pmath_atomic_compare_and_set_2(
   intptr_t volatile *atom, // aligned to 2*sizeof(void*)
   intptr_t old_value_fst,
   intptr_t old_value_snd,
@@ -144,7 +154,9 @@ PMATH_FORCE_INLINE pmath_bool_t pmath_atomic_compare_and_set_2(
   return (pmath_bool_t)result;
 }
 
-PMATH_FORCE_INLINE pmath_bool_t pmath_atomic_have_cas2(void){
+PMATH_FORCE_INLINE
+PMATH_INLINE_NODEBUG
+pmath_bool_t pmath_atomic_have_cas2(void){
   uintptr_t ecx;
   
   __asm __volatile(
@@ -159,14 +171,18 @@ PMATH_FORCE_INLINE pmath_bool_t pmath_atomic_have_cas2(void){
   return (ecx & (1 << 13)) != 0; /* CMPXCHG16B support */
 }
  
-PMATH_FORCE_INLINE void pmath_atomic_barrier(void){
+PMATH_FORCE_INLINE
+PMATH_INLINE_NODEBUG
+void pmath_atomic_barrier(void){
   __asm __volatile("":::"memory");
 }
 
 //#undef pmath_atomic_loop_nop
 //#define pmath_atomic_loop_nop()  __asm __volatile("rep; nop"::)
 
-PMATH_FORCE_INLINE void pmath_atomic_lock(
+PMATH_FORCE_INLINE
+PMATH_INLINE_NODEBUG
+void pmath_atomic_lock(
   intptr_t volatile *atom
 ){
   int cnt = PMATH_ATOMIC_FASTLOOP_COUNT;
@@ -183,7 +199,9 @@ PMATH_FORCE_INLINE void pmath_atomic_lock(
   }
 }
 
-PMATH_FORCE_INLINE void pmath_atomic_unlock(
+PMATH_FORCE_INLINE
+PMATH_INLINE_NODEBUG
+void pmath_atomic_unlock(
   intptr_t volatile *atom
 ){
   *atom = 0;

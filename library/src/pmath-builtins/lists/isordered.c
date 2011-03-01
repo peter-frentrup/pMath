@@ -1,3 +1,5 @@
+#include <pmath-core/numbers.h>
+
 #include <pmath-util/evaluation.h>
 #include <pmath-util/messages.h>
 
@@ -20,7 +22,8 @@ PMATH_PRIVATE pmath_t builtin_isordered(pmath_expr_t expr){
 
   list = (pmath_expr_t)pmath_expr_get_item(expr, 1);
   if(!pmath_is_expr(list)){
-    pmath_message(NULL, "noexpr", 1, list);
+    pmath_unref(list);
+    pmath_message(NULL, "nexprat", 2, pmath_integer_new_si(1), pmath_ref(expr));
     return expr;
   }
 

@@ -46,7 +46,9 @@
    This function increments \c *atom atomically by \c delta. It has full memory
    barrier semantics.
  */
-PMATH_FORCE_INLINE intptr_t pmath_atomic_fetch_add(
+PMATH_FORCE_INLINE
+PMATH_INLINE_NODEBUG
+intptr_t pmath_atomic_fetch_add(
   intptr_t volatile *atom, 
   intptr_t delta
 ){
@@ -63,7 +65,9 @@ PMATH_FORCE_INLINE intptr_t pmath_atomic_fetch_add(
    This function sets \c *atom to \c new_value and returns the old value
    atomically. It has full memory barrier semantics.
  */
-PMATH_FORCE_INLINE intptr_t pmath_atomic_fetch_set(
+PMATH_FORCE_INLINE
+PMATH_INLINE_NODEBUG
+intptr_t pmath_atomic_fetch_set(
   intptr_t volatile *atom, 
   intptr_t new_value
 ){
@@ -82,7 +86,9 @@ PMATH_FORCE_INLINE intptr_t pmath_atomic_fetch_set(
    value of \c *atom, because this function might be non-existent on some 
    systems. This function has aquire barrier semantics.
  */
-PMATH_FORCE_INLINE intptr_t pmath_atomic_fetch_compare_and_set(
+PMATH_FORCE_INLINE
+PMATH_INLINE_NODEBUG
+intptr_t pmath_atomic_fetch_compare_and_set(
   intptr_t volatile *atom, 
   intptr_t old_value,
   intptr_t new_value
@@ -104,7 +110,9 @@ PMATH_FORCE_INLINE intptr_t pmath_atomic_fetch_compare_and_set(
    \c *atom to \c new_value, everything atomically and with aquire barrier
    semantics.
  */
-PMATH_FORCE_INLINE pmath_bool_t pmath_atomic_compare_and_set(
+PMATH_FORCE_INLINE
+PMATH_INLINE_NODEBUG
+pmath_bool_t pmath_atomic_compare_and_set(
   intptr_t volatile *atom, 
   intptr_t old_value,
   intptr_t new_value
@@ -134,7 +142,9 @@ PMATH_FORCE_INLINE pmath_bool_t pmath_atomic_compare_and_set(
    \note This function is not available on all Platforms. You must not call it 
          if pmath_atomic_have_cas2() returns FALSE. 
  */
-PMATH_FORCE_INLINE pmath_bool_t pmath_atomic_compare_and_set_2(
+PMATH_FORCE_INLINE
+PMATH_INLINE_NODEBUG
+pmath_bool_t pmath_atomic_compare_and_set_2(
   intptr_t volatile *atom,
   intptr_t old_value_fst,
   intptr_t old_value_snd,
@@ -156,13 +166,17 @@ PMATH_FORCE_INLINE pmath_bool_t pmath_atomic_compare_and_set_2(
    application on any platform that does not support the operation (e.g. 
    pre-Pentiums, early AMD64).
  */
-PMATH_FORCE_INLINE pmath_bool_t pmath_atomic_have_cas2(void){
+PMATH_FORCE_INLINE
+PMATH_INLINE_NODEBUG
+pmath_bool_t pmath_atomic_have_cas2(void){
   return FALSE;
 }
 
 /**\brief Insert an explicit memory barrier.
  */
-PMATH_FORCE_INLINE void pmath_atomic_barrier(void){
+PMATH_FORCE_INLINE
+PMATH_INLINE_NODEBUG
+void pmath_atomic_barrier(void){
 }
 
 
@@ -179,7 +193,9 @@ pmath_atomic_lock(&spin)
 pmath_atomic_unlock(&spin);
    \endcode
  */
-PMATH_FORCE_INLINE void pmath_atomic_lock(
+PMATH_FORCE_INLINE
+PMATH_INLINE_NODEBUG
+void pmath_atomic_lock(
   intptr_t volatile *atom
 ){
   *atom = 1;
@@ -190,7 +206,9 @@ PMATH_FORCE_INLINE void pmath_atomic_lock(
    
    \see pmath_atomic_lock
  */
-PMATH_FORCE_INLINE void pmath_atomic_unlock(
+PMATH_FORCE_INLINE
+PMATH_INLINE_NODEBUG
+void pmath_atomic_unlock(
   intptr_t volatile *atom
 ){
   *atom = 0;
@@ -199,13 +217,17 @@ PMATH_FORCE_INLINE void pmath_atomic_unlock(
 #undef pmath_atomic_loop_yield
 /**\brief Yield control to another thread (used in spinlocks).
  */
-PMATH_FORCE_INLINE void pmath_atomic_loop_yield(void){
+PMATH_FORCE_INLINE
+PMATH_INLINE_NODEBUG
+void pmath_atomic_loop_yield(void){
 }
 
 #undef pmath_atomic_loop_nop
 /**\brief A no-operation or short wait for use in spin locks.
  */
-PMATH_FORCE_INLINE void pmath_atomic_loop_nop(void){
+PMATH_FORCE_INLINE
+PMATH_INLINE_NODEBUG
+void pmath_atomic_loop_nop(void){
 }
 
 /** @} */

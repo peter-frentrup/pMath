@@ -11,7 +11,9 @@
       (__int64 volatile *)(atom_ptr), \
       (__int64)(delta)))
 
-  PMATH_FORCE_INLINE pmath_bool_t pmath_atomic_compare_and_set_2(
+  PMATH_FORCE_INLINE
+  PMATH_INLINE_NODEBUG
+  pmath_bool_t pmath_atomic_compare_and_set_2(
     intptr_t volatile *atom, // array of two intptr_ts, aligned to 128 bit
     intptr_t old_value_fst,
     intptr_t old_value_snd,
@@ -37,7 +39,9 @@
       (long volatile *)(atom_ptr), \
       (long)(delta)))
   
-  PMATH_FORCE_INLINE pmath_bool_t pmath_atomic_compare_and_set_2(
+  PMATH_FORCE_INLINE
+  PMATH_INLINE_NODEBUG
+  pmath_bool_t pmath_atomic_compare_and_set_2(
     intptr_t volatile *atom, // array of two intptr_ts, aligned to 64 bit
     intptr_t old_value_fst,
     intptr_t old_value_snd,
@@ -89,7 +93,9 @@
     (new_value), \
     (old_value))))
 
-PMATH_FORCE_INLINE pmath_bool_t pmath_atomic_have_cas2(void){
+PMATH_FORCE_INLINE
+PMATH_INLINE_NODEBUG
+pmath_bool_t pmath_atomic_have_cas2(void){
   int cpuinfo[4];
   __cpuid(cpuinfo, 1);
   #if PMATH_BITSIZE == 64

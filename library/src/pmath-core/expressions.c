@@ -703,7 +703,7 @@ size_t _pmath_expr_find_sorted(
     return 0;
   }
   
-  #ifdef __GLIBC__
+  #if defined(__GLIBC__) && !defined(__GNUC__)
     
   struct cmp_glibc_info_t{
     int (*cmp)(void*, const void*, const void*);

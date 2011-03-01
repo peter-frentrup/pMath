@@ -218,6 +218,13 @@ static pmath_float_t _mul_ff(
     tmp_err->error,
     GMP_RNDU);
   
+  mpfr_fma(
+    result->error,
+    ((struct _pmath_mp_float_t*)floatA)->error,
+    ((struct _pmath_mp_float_t*)floatB)->error,
+    result->error,
+    GMP_RNDU);
+  
   mpfr_mul(
     result->value,
     ((struct _pmath_mp_float_t*)floatA)->value,
