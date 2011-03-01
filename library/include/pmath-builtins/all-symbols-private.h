@@ -9,15 +9,19 @@
 
 #define PMATH_SYMBOL_BUILTIN(index)  _pmath_builtin_symbol_array[(index)]
 
-static const pmath_code_usage_t PMATH_CODE_USAGE_APPROX = (pmath_code_usage_t)3;
-
 /* EARLYCALL is like DOWNCALL, except that the builtin code is run before any
    user-defined rule. So one cannot override the default function implementation
    e.g. with Unprotect(Plus);2+2:= 5
    But the main reason for EARLYCALL is the performance boost for Plus and Times
    with numbers (which comes at the additional cost of testing for the 
    availability of EARLYCALL code for everey other function) */
-static const pmath_code_usage_t PMATH_CODE_USAGE_EARLYCALL = (pmath_code_usage_t)4;
+static const pmath_code_usage_t PMATH_CODE_USAGE_EARLYCALL = (pmath_code_usage_t)3;
+
+
+/* PMATH_CODE_USAGE_APPROX uses a different calling convention than the other
+   PMATH_CODE_USAGE_XXX. So this cannot be used with _pmath_run_code().
+ */
+static const pmath_code_usage_t PMATH_CODE_USAGE_APPROX = (pmath_code_usage_t)4;
 
 extern PMATH_PRIVATE pmath_symbol_t _pmath_builtin_symbol_array[];
 

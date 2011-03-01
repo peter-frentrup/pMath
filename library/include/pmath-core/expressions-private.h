@@ -25,6 +25,12 @@ PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_expr_t _pmath_expr_sort_ex(
   pmath_expr_t expr, // will be freed
+  int(*cmp)(const void*, const void*));
+
+PMATH_PRIVATE 
+PMATH_ATTRIBUTE_USE_RESULT
+pmath_expr_t _pmath_expr_sort_ex_context(
+  pmath_expr_t expr, // will be freed
   int(*cmp)(void*, const void*, const void*),
   void *context);
 
@@ -52,10 +58,6 @@ _pmath_timer_t _pmath_expr_last_change(pmath_expr_t expr);
 
 PMATH_PRIVATE 
 void _pmath_expr_update(pmath_expr_t expr);
-
-PMATH_PRIVATE 
-pmath_bool_t _pmath_expr_eval_items(
-  pmath_expr_t *expr);  // will be freed; head already evaluated.
 
 PMATH_PRIVATE
 int _pmath_compare_exprsym(pmath_t a, pmath_t b);

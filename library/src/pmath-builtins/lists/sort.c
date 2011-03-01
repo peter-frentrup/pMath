@@ -241,7 +241,7 @@ PMATH_PRIVATE pmath_t builtin_ordering(pmath_expr_t expr){
     context.cmp     = ordering_default_cmp;
   }
   
-  indices = _pmath_expr_sort_ex(indices, ordering_cmp, &context);
+  indices = _pmath_expr_sort_ex_context(indices, ordering_cmp, &context);
   
   pmath_unref(context.cmp_ctx);
   pmath_unref(context.list);
@@ -320,7 +320,7 @@ PMATH_PRIVATE pmath_t builtin_sort(pmath_expr_t expr){
     context.cmp = pmath_expr_get_item(expr, 2);
     
     pmath_unref(expr);
-    expr = _pmath_expr_sort_ex(list, user_cmp_objs, &context);
+    expr = _pmath_expr_sort_ex_context(list, user_cmp_objs, &context);
 
     pmath_unref(context.cmp);
     return expr;
@@ -330,7 +330,7 @@ PMATH_PRIVATE pmath_t builtin_sort(pmath_expr_t expr){
   return pmath_expr_sort(list);
 }
 
-static int sortby_cmp(void *dummy, const void *a, const void *b){
+static int sortby_cmp(const void *a, const void *b){
 /* (*a) and (*b) are expressions of the form fn(x)(x) with evaluated fn(x)
    compare fn(x)... first, if it equals, compare x
  */
@@ -397,7 +397,7 @@ PMATH_PRIVATE pmath_t builtin_sortby(pmath_expr_t expr){
   }
 
   pmath_unref(fn);
-  list = _pmath_expr_sort_ex(list, sortby_cmp, NULL);
+  list = _pmath_expr_sort_ex(list, sortby_cmp);
 
   for(i = 1;i <= len;++i){
     pmath_expr_t item = (pmath_expr_t)pmath_expr_get_item(list, i);

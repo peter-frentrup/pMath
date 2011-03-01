@@ -164,7 +164,6 @@ static pmath_t evaluate_expression(
   size_t                         i;
   size_t                         exprlen;
   _pmath_timer_t                 expr_changes;
-//  pmath_builtin_func_t           builtin;
   
   assert(thread_ptr != NULL);
   assert(pmath_is_expr(expr));
@@ -185,17 +184,6 @@ static pmath_t evaluate_expression(
   
       pmath_debug_print("reclim with expr = %p ", (void*)expr);
       pmath_debug_print_object(" = ", expr, "\n");
-      
-//      #ifdef PMATH_DEBUG_LOG
-//      {
-//        pmath_t stack = pmath_expr_new(pmath_ref(PMATH_SYMBOL_STACK), 0);
-//        stack = pmath_evaluate(stack);
-//        
-//        pmath_debug_print_object("stack = ", stack, "\n");
-//        
-//        pmath_unref(stack);
-//      }
-//      #endif
       
       pmath_message(
         PMATH_SYMBOL_GENERAL, "reclim", 1,

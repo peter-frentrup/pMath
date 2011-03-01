@@ -475,8 +475,7 @@ pmath_bool_t _pmath_run_code(
   pmath_hashtable_t     table;
   pmath_builtin_func_t  result = NULL;
   
-  if((unsigned)usage > PMATH_CODE_USAGE_UPCALL)
-    return FALSE;
+  assert((unsigned)usage <= PMATH_CODE_USAGE_EARLYCALL);
   
   table = LOCK_CODE_TABLE(usage);
   
@@ -572,7 +571,7 @@ pmath_bool_t pmath_register_approx_code(
   return pmath_register_code(
     symbol, 
     (pmath_builtin_func_t)func, 
-    (pmath_code_usage_t)3);
+    PMATH_CODE_USAGE_APPROX);
 }
 
 /*============================================================================*/

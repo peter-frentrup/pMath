@@ -693,16 +693,6 @@ size_t _pmath_expr_find_sorted(
   return 0;
 }
 
-  static int stable_sort_cmp_objs(void *dummy, const void *a, const void *b){
-    int cmp = pmath_compare(*(pmath_t*)a, *(pmath_t*)b);
-    if(cmp != 0)
-      return cmp;
-    
-    if((uintptr_t)a < (uintptr_t)b) return -1;
-    if((uintptr_t)a > (uintptr_t)b) return +1;
-    return 0;
-  }
-  
   #if defined(__GLIBC__) && !defined(__GNUC__)
     
   struct cmp_glibc_info_t{
@@ -719,6 +709,63 @@ size_t _pmath_expr_find_sorted(
   #endif
 
 PMATH_PRIVATE pmath_expr_t _pmath_expr_sort_ex(
+  pmath_expr_t expr, // will be freed
+  int(*cmp)(const void*, const void*)
+){
+  size_t i, length;
+  
+  if(PMATH_UNLIKELY(!expr))
+    return NULL;
+
+  length = pmath_expr_length(expr);
+  if(length < 2)
+    return expr;
+
+  if(expr->refcount > 1
+  || expr->type_shift != PMATH_TYPE_SHIFT_EXPRESSION_GENERAL){
+    struct _pmath_unpacked_expr_t *new_expr =
+      (struct _pmath_unpacked_expr_t*)pmath_expr_new(
+        NULL, length);
+
+    if(!new_expr){
+      pmath_unref(expr);
+      return NULL;
+    }
+
+    switch(expr->type_shift){
+      case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL: {
+        size_t i;
+        for(i = 0;i <= length;i++)
+          new_expr->items[i] = pmath_ref(
+            ((struct _pmath_unpacked_expr_t*)expr)->items[i]);
+      } break;
+      case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL_PART: {
+        new_expr->items[0] = pmath_ref(
+          ((struct _pmath_unpacked_expr_t*)expr)->items[0]);
+        
+        for(i = 1;i <= length;i++)
+          new_expr->items[i] = pmath_ref(
+            ((struct _pmath_unpacked_expr_part_t*)expr)->buffer->items[
+              ((struct _pmath_unpacked_expr_part_t*)expr)->start + i - 1]);
+      } break;
+      default:
+        assert("invalid expression type" && 0);
+    }
+
+    pmath_unref(expr);
+    expr = (pmath_expr_t)new_expr;
+  }
+  
+  qsort(
+    ((struct _pmath_unpacked_expr_t*)expr)->items + 1,
+    length,
+    sizeof(pmath_t),
+    cmp);
+
+  return expr;
+}
+
+PMATH_PRIVATE pmath_expr_t _pmath_expr_sort_ex_context(
   pmath_expr_t expr, // will be freed
   int(*cmp)(void*, const void*, const void*),
   void *context
@@ -823,10 +870,20 @@ PMATH_PRIVATE pmath_expr_t _pmath_expr_sort_ex(
   return expr;
 }
 
+  static int stable_sort_cmp_objs(const void *a, const void *b){
+    int cmp = pmath_compare(*(pmath_t*)a, *(pmath_t*)b);
+    if(cmp != 0)
+      return cmp;
+    
+    if((uintptr_t)a < (uintptr_t)b) return -1;
+    if((uintptr_t)a > (uintptr_t)b) return +1;
+    return 0;
+  }
+  
 PMATH_API pmath_expr_t pmath_expr_sort(
   pmath_expr_t expr
 ){
-  return _pmath_expr_sort_ex(expr, stable_sort_cmp_objs, NULL);
+  return _pmath_expr_sort_ex(expr, stable_sort_cmp_objs);
 }
 
 /*----------------------------------------------------------------------------*/
@@ -1156,131 +1213,6 @@ _pmath_timer_t _pmath_expr_last_change(pmath_expr_t expr){
     return ((struct _pmath_timed_t*)expr)->last_change;
   
   return 0;
-}
-
-/*----------------------------------------------------------------------------*/
-
-// result: *expr might be a list now (Listable attribute)
-PMATH_PRIVATE pmath_bool_t _pmath_expr_eval_items(
-  pmath_expr_t *expr // will be freed; head already evaluated.
-){
-  pmath_t head = pmath_expr_get_item(*expr, 0);
-
-  pmath_bool_t eval_first   = TRUE;
-  pmath_bool_t eval_rest    = TRUE;
-  pmath_bool_t sort_args    = FALSE;
-  pmath_bool_t flatten_args = FALSE;
-  pmath_bool_t thread_args  = FALSE;
-  
-  size_t len;
-  
-  if(pmath_is_symbol(head)){
-    pmath_symbol_attributes_t attrib = pmath_symbol_get_attributes(head);
-
-    if((attrib & PMATH_SYMBOL_ATTRIBUTE_HOLDALLCOMPLETE) != 0){
-      pmath_unref(head);
-      return FALSE;
-    }
-
-    eval_first   = (attrib & PMATH_SYMBOL_ATTRIBUTE_HOLDFIRST)   == 0;
-    eval_rest    = (attrib & PMATH_SYMBOL_ATTRIBUTE_HOLDREST)    == 0;
-    sort_args    = (attrib & PMATH_SYMBOL_ATTRIBUTE_SYMMETRIC)   != 0;
-    flatten_args = (attrib & PMATH_SYMBOL_ATTRIBUTE_ASSOCIATIVE) != 0;
-    thread_args  = (attrib & PMATH_SYMBOL_ATTRIBUTE_LISTABLE)    != 0;
-  }
-  else{
-    pmath_symbol_t sym = _pmath_topmost_symbol(*expr);
-    if(sym){
-      pmath_symbol_attributes_t attrib = pmath_symbol_get_attributes(sym);
-      
-      if((attrib & PMATH_SYMBOL_ATTRIBUTE_HOLDALLCOMPLETE) != 0
-      && (attrib & PMATH_SYMBOL_ATTRIBUTE_DEEPHOLDALL) != 0){
-        pmath_unref(head);
-        pmath_unref(sym);
-        return FALSE;
-      }
-      
-      eval_first = (attrib & PMATH_SYMBOL_ATTRIBUTE_DEEPHOLDALL) == 0;
-      eval_rest = eval_first;
-      pmath_unref(sym);
-    }
-  }
-  
-  len = pmath_expr_length(*expr);
-  if(len >= 1){
-    pmath_t item = pmath_expr_get_item(*expr, 1);
-    if(eval_first){
-      item = pmath_evaluate(item);
-      
-      if(pmath_is_expr_of_len(item, PMATH_SYMBOL_UNEVALUATED, 1)){
-        pmath_expr_t item_expr = item;
-        item = pmath_expr_get_item(item_expr, 1);
-        pmath_unref(item_expr);
-      }
-      
-      *expr = pmath_expr_set_item(*expr, 1, item);
-    }
-    else if(pmath_is_expr(item) && pmath_expr_length(item) == 1){
-      pmath_t item_head = pmath_expr_get_item(item, 0);
-      pmath_unref(item_head);
-      if(item_head == PMATH_SYMBOL_EVALUATE)
-        *expr = pmath_expr_set_item(*expr, 1, pmath_evaluate(item));
-      else
-        pmath_unref(item);
-    }
-    else
-      pmath_unref(item);
-  }
-
-  if(eval_rest){
-    size_t i;
-    for(i = 2;i <= len;i++){ // *expr[i] = Evaluate(*expr[i])
-      pmath_t item = pmath_evaluate(
-        pmath_expr_get_item(*expr, i));
-      
-      if(pmath_is_expr_of_len(item, PMATH_SYMBOL_UNEVALUATED, 1)){
-        pmath_expr_t item_expr = (pmath_expr_t)item;
-        item = pmath_expr_get_item(item_expr, 1);
-        pmath_unref(item_expr);
-      }
-      
-      *expr = pmath_expr_set_item(*expr, i, item);
-    }
-  }
-  else{ // evaluate items that match Evaluate(~)
-    size_t i;
-    for(i = 2;i <= len;i++){
-      pmath_t item = pmath_expr_get_item(*expr, i);
-      if(pmath_is_expr(item) && pmath_expr_length(item) == 1){
-        pmath_t item_head = pmath_expr_get_item(item, 0);
-        pmath_unref(item_head);
-        if(item_head == PMATH_SYMBOL_EVALUATE)
-          *expr = pmath_expr_set_item(*expr, i, pmath_evaluate(item));
-        else
-          pmath_unref(item);
-      }
-      else
-        pmath_unref(item);
-    }
-  }
-
-  if(flatten_args)
-    *expr = pmath_expr_flatten(
-      *expr,
-      pmath_ref(head),
-      PMATH_EXPRESSION_FLATTEN_MAX_DEPTH);
-
-  if(sort_args)
-    *expr = pmath_expr_sort(*expr);
-
-  if(thread_args){
-    pmath_bool_t error_message = TRUE;
-    *expr = _pmath_expr_thread(
-      *expr, PMATH_SYMBOL_LIST, 1, SIZE_MAX, &error_message);
-  }
-  
-  pmath_unref(head);
-  return thread_args;
 }
 
 /*============================================================================*/
