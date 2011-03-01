@@ -226,27 +226,6 @@ PMATH_API
 PMATH_ATTRIBUTE_PURE
 unsigned int pmath_hash(pmath_t obj);
 
-/**\brief Compares two objects for identity.
-   \memberof pmath_t
-   \param objA The first object.
-   \param objB The second one.
-   \return TRUE iff both objects are identical.
-
-   `identity` means, that X != Y is possible, even if X and Y evaluate to the 
-   same value. 
-   
-   If objA and objB are symbols, the result is identical to testing
-   objA == objB. 
-   
-   \note pmath_equals(A, B) might return FALSE although pmath_compare(A, B) == 0
-   e.g. for an integer A and q floating point value B.
- */
-PMATH_API
-PMATH_ATTRIBUTE_PURE
-pmath_bool_t pmath_equals(
-  pmath_t objA,
-  pmath_t objB);
-
 /**\brief Compares two objects syntactically.
    \memberof pmath_t
    \param objA The first object.

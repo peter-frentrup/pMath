@@ -90,10 +90,10 @@ PMATH_PRIVATE pmath_t builtin_apply(pmath_expr_t expr){
   
   options = pmath_options_extract(expr, last_nonoption);
   f = pmath_evaluate(pmath_option_value(NULL, PMATH_SYMBOL_HEADS, options));
-  if(f == PMATH_SYMBOL_TRUE){
+  if(pmath_same(f, PMATH_SYMBOL_TRUE)){
     info.with_heads = TRUE;
   }
-  else if(f != PMATH_SYMBOL_FALSE){
+  else if(!pmath_same(f, PMATH_SYMBOL_FALSE)){
     pmath_unref(options);
     pmath_message(
       NULL, "opttf", 2,

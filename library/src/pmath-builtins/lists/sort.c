@@ -154,9 +154,9 @@ static int ordering_user_cmp(pmath_t ctx, pmath_t a, pmath_t b){
         pmath_ref(b)));
 
     pmath_unref(less);
-    if(less == PMATH_SYMBOL_TRUE)
+    if(pmath_same(less, PMATH_SYMBOL_TRUE))
       return -1;
-    if(less == PMATH_SYMBOL_FALSE)
+    if(pmath_same(less, PMATH_SYMBOL_FALSE))
       return 1;
     
     return pmath_compare(a, b);
@@ -282,9 +282,9 @@ static int user_cmp_objs(void *p, const void *a, const void *b){
         pmath_ref(*(pmath_t*)b)));
 
     pmath_unref(less);
-    if(less == PMATH_SYMBOL_TRUE)
+    if(pmath_same(less, PMATH_SYMBOL_TRUE))
       return -1;
-    if(less == PMATH_SYMBOL_FALSE)
+    if(pmath_same(less, PMATH_SYMBOL_FALSE))
       return 1;
     
     cmp = pmath_compare(*(pmath_t*)a, *(pmath_t*)b);

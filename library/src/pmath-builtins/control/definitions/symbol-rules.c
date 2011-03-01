@@ -38,11 +38,12 @@ PMATH_PRIVATE pmath_t builtin_assign_ownrules(pmath_expr_t expr){
   
   sym = pmath_expr_get_item(lhs, 1);
   
-  if(tag != PMATH_UNDEFINED && tag != sym){
+  if(!pmath_same(tag, PMATH_UNDEFINED)
+  && !pmath_same(tag, sym)){
     pmath_message(NULL, "tag", 3, tag, lhs, sym);
     
     pmath_unref(expr);
-    if(rhs == PMATH_UNDEFINED)
+    if(pmath_same(rhs, PMATH_UNDEFINED))
       return pmath_ref(PMATH_SYMBOL_FAILED);
     return rhs;
   }
@@ -57,7 +58,7 @@ PMATH_PRIVATE pmath_t builtin_assign_ownrules(pmath_expr_t expr){
     pmath_message(NULL, "fnsym", 1, lhs);
     
     pmath_unref(sym);
-    if(rhs == PMATH_UNDEFINED)
+    if(pmath_same(rhs, PMATH_UNDEFINED))
       return pmath_ref(PMATH_SYMBOL_FAILED);
     return rhs;
   }
@@ -69,7 +70,7 @@ PMATH_PRIVATE pmath_t builtin_assign_ownrules(pmath_expr_t expr){
     return pmath_ref(PMATH_SYMBOL_FAILED);
   }
   
-  if(rhs == PMATH_UNDEFINED){
+  if(pmath_same(rhs, PMATH_UNDEFINED)){
     pmath_symbol_set_value(sym, PMATH_UNDEFINED);
     pmath_unref(sym);
     pmath_unref(lhs);
@@ -154,12 +155,12 @@ PMATH_PRIVATE pmath_t builtin_assign_symbol_rules(pmath_expr_t expr){
   else
     kind = NULL;
   
-  if(kind != PMATH_SYMBOL_DEFAULTRULES
-  && kind != PMATH_SYMBOL_DOWNRULES
-  && kind != PMATH_SYMBOL_FORMATRULES
-  && kind != PMATH_SYMBOL_NRULES
-  && kind != PMATH_SYMBOL_SUBRULES
-  && kind != PMATH_SYMBOL_UPRULES){
+  if(!pmath_same(kind, PMATH_SYMBOL_DEFAULTRULES)
+  && !pmath_same(kind, PMATH_SYMBOL_DOWNRULES)
+  && !pmath_same(kind, PMATH_SYMBOL_FORMATRULES)
+  && !pmath_same(kind, PMATH_SYMBOL_NRULES)
+  && !pmath_same(kind, PMATH_SYMBOL_SUBRULES)
+  && !pmath_same(kind, PMATH_SYMBOL_UPRULES)){
     pmath_unref(tag);
     pmath_unref(lhs);
     pmath_unref(rhs);
@@ -169,11 +170,12 @@ PMATH_PRIVATE pmath_t builtin_assign_symbol_rules(pmath_expr_t expr){
   if(pmath_expr_length(lhs) == 1){
     sym = pmath_expr_get_item(lhs, 1);
     
-    if(tag != PMATH_UNDEFINED && tag != sym){
+    if(!pmath_same(tag, PMATH_UNDEFINED)
+    && !pmath_same(tag, sym)){
       pmath_message(NULL, "tag", 3, tag, lhs, sym);
       
       pmath_unref(expr);
-      if(rhs == PMATH_UNDEFINED)
+      if(pmath_same(rhs, PMATH_UNDEFINED))
         return pmath_ref(PMATH_SYMBOL_FAILED);
       return rhs;
     }
@@ -196,7 +198,7 @@ PMATH_PRIVATE pmath_t builtin_assign_symbol_rules(pmath_expr_t expr){
     pmath_message(NULL, "fnsym", 1, lhs);
     
     pmath_unref(sym);
-    if(rhs == PMATH_UNDEFINED)
+    if(pmath_same(rhs, PMATH_UNDEFINED))
       return pmath_ref(PMATH_SYMBOL_FAILED);
     return rhs;
   }
@@ -210,12 +212,12 @@ PMATH_PRIVATE pmath_t builtin_assign_symbol_rules(pmath_expr_t expr){
     return pmath_ref(PMATH_SYMBOL_FAILED);
   }
   
-  if(     kind == PMATH_SYMBOL_DEFAULTRULES) rc = &rules->default_rules;
-  else if(kind == PMATH_SYMBOL_DOWNRULES)    rc = &rules->down_rules;
-  else if(kind == PMATH_SYMBOL_FORMATRULES)  rc = &rules->format_rules;
-  else if(kind == PMATH_SYMBOL_NRULES)       rc = &rules->approx_rules;
-  else if(kind == PMATH_SYMBOL_SUBRULES)     rc = &rules->sub_rules;
-  else if(kind == PMATH_SYMBOL_UPRULES)      rc = &rules->up_rules;
+  if(     pmath_same(kind, PMATH_SYMBOL_DEFAULTRULES)) rc = &rules->default_rules;
+  else if(pmath_same(kind, PMATH_SYMBOL_DOWNRULES))    rc = &rules->down_rules;
+  else if(pmath_same(kind, PMATH_SYMBOL_FORMATRULES))  rc = &rules->format_rules;
+  else if(pmath_same(kind, PMATH_SYMBOL_NRULES))       rc = &rules->approx_rules;
+  else if(pmath_same(kind, PMATH_SYMBOL_SUBRULES))     rc = &rules->sub_rules;
+  else if(pmath_same(kind, PMATH_SYMBOL_UPRULES))      rc = &rules->up_rules;
   else{
     rc = NULL;
     assert(0 && "unexpected kind of rule");
@@ -223,7 +225,7 @@ PMATH_PRIVATE pmath_t builtin_assign_symbol_rules(pmath_expr_t expr){
   
   _pmath_rulecache_clear(rc);
   
-  if(rhs == PMATH_UNDEFINED){
+  if(pmath_same(rhs, PMATH_UNDEFINED)){
     pmath_unref(lhs);
     pmath_unref(sym);
     return NULL;
@@ -339,12 +341,12 @@ PMATH_PRIVATE pmath_t builtin_symbol_rules(pmath_expr_t expr){
   rules = _pmath_symbol_get_rules(sym, RULES_READ);
   
   if(rules){
-    if(     head == PMATH_SYMBOL_DEFAULTRULES) _pmath_rulecache_emit(&rules->default_rules);
-    else if(head == PMATH_SYMBOL_DOWNRULES)    _pmath_rulecache_emit(&rules->down_rules);
-    else if(head == PMATH_SYMBOL_FORMATRULES)  _pmath_rulecache_emit(&rules->format_rules);
-    else if(head == PMATH_SYMBOL_NRULES)       _pmath_rulecache_emit(&rules->approx_rules);
-    else if(head == PMATH_SYMBOL_SUBRULES)     _pmath_rulecache_emit(&rules->sub_rules);
-    else if(head == PMATH_SYMBOL_UPRULES)      _pmath_rulecache_emit(&rules->up_rules);
+    if(     pmath_same(head, PMATH_SYMBOL_DEFAULTRULES)) _pmath_rulecache_emit(&rules->default_rules);
+    else if(pmath_same(head, PMATH_SYMBOL_DOWNRULES))    _pmath_rulecache_emit(&rules->down_rules);
+    else if(pmath_same(head, PMATH_SYMBOL_FORMATRULES))  _pmath_rulecache_emit(&rules->format_rules);
+    else if(pmath_same(head, PMATH_SYMBOL_NRULES))       _pmath_rulecache_emit(&rules->approx_rules);
+    else if(pmath_same(head, PMATH_SYMBOL_SUBRULES))     _pmath_rulecache_emit(&rules->sub_rules);
+    else if(pmath_same(head, PMATH_SYMBOL_UPRULES))      _pmath_rulecache_emit(&rules->up_rules);
   }
     
   pmath_unref(sym);

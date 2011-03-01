@@ -74,7 +74,7 @@ static pmath_t stringtake(
       
       item = stringtake(item, expr, start, end, step);
       
-      if(item == PMATH_UNDEFINED){
+      if(pmath_same(item, PMATH_UNDEFINED)){
         pmath_unref(str);
         return PMATH_UNDEFINED;
       }
@@ -113,7 +113,7 @@ PMATH_PRIVATE pmath_t builtin_stringtake(pmath_expr_t expr){
   obj = pmath_expr_get_item(expr, 1);
   obj = stringtake(obj, expr, start, end, step);
   
-  if(obj == PMATH_UNDEFINED)
+  if(pmath_same(obj, PMATH_UNDEFINED))
     return expr;
   
   pmath_unref(expr);

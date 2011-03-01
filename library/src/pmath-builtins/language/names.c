@@ -53,7 +53,7 @@ PMATH_PRIVATE pmath_t builtin_names(pmath_expr_t expr){
       }
       
       sym = pmath_symbol_iter_next(sym);
-    }while(sym && sym != PMATH_SYMBOL_LIST);
+    }while(sym && !pmath_same(sym, PMATH_SYMBOL_LIST));
     pmath_unref(sym);
   }
 

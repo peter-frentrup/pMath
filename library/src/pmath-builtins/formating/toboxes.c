@@ -99,15 +99,15 @@ long _pmath_boxes_length(pmath_t boxes){  // boxes wont be freed
     pmath_t item = pmath_expr_get_item(boxes, 0);
     pmath_unref(item);
     
-    if(item == PMATH_SYMBOL_RULE
-    || item == PMATH_SYMBOL_RULEDELAYED)
+    if(pmath_same(item, PMATH_SYMBOL_RULE)
+    || pmath_same(item, PMATH_SYMBOL_RULEDELAYED))
       return 0;
     
-    if(item == PMATH_SYMBOL_FRACTIONBOX
-    || item == PMATH_SYMBOL_OVERSCRIPTBOX
-    || item == PMATH_SYMBOL_SUBSUPERSCRIPTBOX
-    || item == PMATH_SYMBOL_UNDEROVERSCRIPTBOX
-    || item == PMATH_SYMBOL_UNDERSCRIPTBOX){
+    if(pmath_same(item, PMATH_SYMBOL_FRACTIONBOX)
+    || pmath_same(item, PMATH_SYMBOL_OVERSCRIPTBOX)
+    || pmath_same(item, PMATH_SYMBOL_SUBSUPERSCRIPTBOX)
+    || pmath_same(item, PMATH_SYMBOL_UNDEROVERSCRIPTBOX)
+    || pmath_same(item, PMATH_SYMBOL_UNDERSCRIPTBOX)){
       long sub;
       
       for(i = 0;i <= len;++i){
@@ -123,7 +123,7 @@ long _pmath_boxes_length(pmath_t boxes){  // boxes wont be freed
       return result;
     }
     
-    if(item == PMATH_SYMBOL_GRIDBOX){
+    if(pmath_same(item, PMATH_SYMBOL_GRIDBOX)){
       size_t rows, cols;
       pmath_t matrix = pmath_expr_get_item(boxes, 1);
       
@@ -274,7 +274,7 @@ pmath_t _pmath_shorten_boxes(pmath_t boxes, long length){
     pmath_t item = pmath_expr_get_item(boxes, 0);
     pmath_unref(item);
     
-    if(item == PMATH_SYMBOL_LIST){
+    if(pmath_same(item, PMATH_SYMBOL_LIST)){
       size_t left  = 1;
       size_t right = len;
       size_t prevleft  = left;
@@ -384,17 +384,17 @@ pmath_t _pmath_shorten_boxes(pmath_t boxes, long length){
       }
     }
     
-    if(item == PMATH_SYMBOL_FRAMEBOX
-    || item == PMATH_SYMBOL_FRACTIONBOX
-    || item == PMATH_SYMBOL_INTERPRETATIONBOX
-    || item == PMATH_SYMBOL_OVERSCRIPTBOX
-    || item == PMATH_SYMBOL_RADICALBOX
-    || item == PMATH_SYMBOL_SQRTBOX
-    || item == PMATH_SYMBOL_STYLEBOX
-    || item == PMATH_SYMBOL_SUBSUPERSCRIPTBOX
-    || item == PMATH_SYMBOL_TAGBOX
-    || item == PMATH_SYMBOL_UNDEROVERSCRIPTBOX
-    || item == PMATH_SYMBOL_UNDERSCRIPTBOX){
+    if(pmath_same(item, PMATH_SYMBOL_FRAMEBOX)
+    || pmath_same(item, PMATH_SYMBOL_FRACTIONBOX)
+    || pmath_same(item, PMATH_SYMBOL_INTERPRETATIONBOX)
+    || pmath_same(item, PMATH_SYMBOL_OVERSCRIPTBOX)
+    || pmath_same(item, PMATH_SYMBOL_RADICALBOX)
+    || pmath_same(item, PMATH_SYMBOL_SQRTBOX)
+    || pmath_same(item, PMATH_SYMBOL_STYLEBOX)
+    || pmath_same(item, PMATH_SYMBOL_SUBSUPERSCRIPTBOX)
+    || pmath_same(item, PMATH_SYMBOL_TAGBOX)
+    || pmath_same(item, PMATH_SYMBOL_UNDEROVERSCRIPTBOX)
+    || pmath_same(item, PMATH_SYMBOL_UNDERSCRIPTBOX)){
       for(;len > 0;--len){
         boxes = pmath_expr_set_item(
           boxes, len,

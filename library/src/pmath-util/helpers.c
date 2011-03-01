@@ -190,7 +190,8 @@ static pmath_t next_value(const char **format, va_list *args){
       pmath_t real = next_value(format, args);
       pmath_t imag = next_value(format, args);
       
-      if(real == PMATH_UNDEFINED || imag == PMATH_UNDEFINED){
+      if(pmath_same(real, PMATH_UNDEFINED) 
+      || pmath_same(imag, PMATH_UNDEFINED)){
         pmath_debug_print("unclosed complex\n");
         assert(0 && "unclosed complex");
       }
@@ -205,7 +206,8 @@ static pmath_t next_value(const char **format, va_list *args){
       pmath_t num = next_value(format, args);
       pmath_t den = next_value(format, args);
       
-      if(num == PMATH_UNDEFINED || den == PMATH_UNDEFINED){
+      if(pmath_same(num, PMATH_UNDEFINED)
+      || pmath_same(den, PMATH_UNDEFINED)){
         pmath_debug_print("unclosed complex\n");
         assert(0 && "unclosed complex");
       }
@@ -227,7 +229,8 @@ static pmath_t next_value(const char **format, va_list *args){
 //      pmath_t head = next_value(format, args);
 //      pmath_t expr = next_value(format, args);
 //      
-//      if(head == PMATH_UNDEFINED || expr == PMATH_UNDEFINED){
+//      if(pmath_same(head, PMATH_UNDEFINED)
+//      || pmath_same(expr, PMATH_UNDEFINED)){
 //        pmath_debug_print("unfinished function\n");
 //        assert(0 && "unfinished functionx");
 //      }
@@ -243,7 +246,7 @@ static pmath_t next_value(const char **format, va_list *args){
       
       for(;;){
         pmath_t obj = next_value(format, args);
-        if(obj == PMATH_UNDEFINED)
+        if(pmath_same(obj, PMATH_UNDEFINED))
           break;
           
         pmath_emit(obj, NULL);
@@ -383,7 +386,7 @@ static pmath_bool_t find_option_value(
     pmath_unref(rule);
   }
 
-  if(fn != PMATH_UNDEFINED){
+  if(!pmath_same(fn, PMATH_UNDEFINED)){
     pmath_message(
       PMATH_SYMBOL_OPTIONVALUE, "optnf", 2,
       pmath_ref(*optionvalue),
@@ -476,7 +479,7 @@ PMATH_API pmath_t pmath_option_value(
     return pmath_ref(name);
   }
 
-  if(extra != PMATH_UNDEFINED){
+  if(!pmath_same(extra, PMATH_UNDEFINED)){
     extra = pmath_ref(extra); 
     if(!_pmath_is_list_of_rules(extra))
       extra = pmath_expr_new_extended(
@@ -539,8 +542,8 @@ PMATH_API void pmath_walk_stack(pmath_stack_walker_t walker, void *closure){
 
 static void warn_uncaught_exception(void){
   pmath_t exception = pmath_catch();
-  if(exception != PMATH_UNDEFINED
-  && exception != PMATH_ABORT_EXCEPTION){
+  if(!pmath_same(exception, PMATH_UNDEFINED)
+  && !pmath_same(exception, PMATH_ABORT_EXCEPTION)){
     pmath_message(PMATH_SYMBOL_THROW, "nocatch", 1, exception);
   }
 }

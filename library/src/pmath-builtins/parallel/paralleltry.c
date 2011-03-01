@@ -42,7 +42,8 @@ static void parallel_try(void *ptr){
         obj);
       obj = pmath_evaluate(obj);
       
-      if(obj != PMATH_SYMBOL_FAILED && !pmath_thread_aborting(thread)){
+      if(!pmath_same(obj, PMATH_SYMBOL_FAILED)
+      && !pmath_thread_aborting(thread)){
         size_t ri = (size_t)pmath_atomic_fetch_add(&info->result_index, +1);
         
         if(ri >= info->results_count){
@@ -162,8 +163,8 @@ PMATH_PRIVATE pmath_t builtin_paralleltry(pmath_expr_t expr){
   pmath_mem_free(tasks);
   
   exception = pmath_catch();
-  if(exception != PMATH_UNDEFINED
-  && exception != PMATH_SYMBOL_PARALLEL_RETURN){
+  if(!pmath_same(exception, PMATH_UNDEFINED)
+  && !pmath_same(exception, PMATH_SYMBOL_PARALLEL_RETURN)){
     pmath_throw(exception);
   }
   else

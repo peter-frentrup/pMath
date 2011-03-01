@@ -208,10 +208,10 @@ static void run_task(struct _pmath_task_t *task){
 
     task->run(task->data);
 
-    if(task->thread->exception != PMATH_UNDEFINED){
+    if(!pmath_same(task->thread->exception, PMATH_UNDEFINED)){
       pmath_t exception = _pmath_thread_catch(task->thread);
-      if(exception != PMATH_UNDEFINED
-      && exception != PMATH_ABORT_EXCEPTION){
+      if(!pmath_same(exception, PMATH_UNDEFINED)
+      && !pmath_same(exception, PMATH_ABORT_EXCEPTION)){
         if(task->thread->parent){
           _pmath_thread_throw(task->thread->parent, exception);
         }
@@ -742,7 +742,7 @@ static void run_gc(void){
     }
     
     sym = pmath_symbol_iter_next(sym);
-  }while(sym && sym != PMATH_SYMBOL_LIST);
+  }while(sym && !pmath_same(sym, PMATH_SYMBOL_LIST));
   pmath_unref(sym);
   
   #ifdef PMATH_DEBUG_LOG
@@ -806,7 +806,7 @@ static void run_gc(void){
     }
     
     sym = pmath_symbol_iter_next(sym);
-  }while(sym && sym != PMATH_SYMBOL_LIST);
+  }while(sym && !pmath_same(sym, PMATH_SYMBOL_LIST));
   pmath_unref(sym);
   
   #ifdef PMATH_DEBUG_LOG

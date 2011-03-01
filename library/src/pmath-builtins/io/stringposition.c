@@ -110,7 +110,7 @@ static pmath_t stringposition(
       
       item = stringposition(item, regex, capture, overlaps, max_matches);
       
-      if(item == PMATH_UNDEFINED){
+      if(pmath_same(item, PMATH_UNDEFINED)){
         pmath_unref(obj);
         return PMATH_UNDEFINED;
       }
@@ -167,10 +167,10 @@ PMATH_PRIVATE pmath_t builtin_stringposition(pmath_expr_t expr){
   
   regex_options = 0;
   obj = pmath_option_value(NULL, PMATH_SYMBOL_IGNORECASE, options);
-  if(obj == PMATH_SYMBOL_TRUE){
+  if(pmath_same(obj, PMATH_SYMBOL_TRUE)){
     regex_options|= PCRE_CASELESS;
   }
-  else if(obj != PMATH_SYMBOL_FALSE){
+  else if(!pmath_same(obj, PMATH_SYMBOL_FALSE)){
     pmath_message(
       NULL, "opttf", 2,
       pmath_ref(PMATH_SYMBOL_IGNORECASE),
@@ -182,10 +182,10 @@ PMATH_PRIVATE pmath_t builtin_stringposition(pmath_expr_t expr){
   
   overlaps = FALSE;
   obj = pmath_option_value(NULL, PMATH_SYMBOL_OVERLAPS, options);
-  if(obj == PMATH_SYMBOL_TRUE){
+  if(pmath_same(obj, PMATH_SYMBOL_TRUE)){
     overlaps = TRUE;
   }
-  else if(obj != PMATH_SYMBOL_FALSE){
+  else if(!pmath_same(obj, PMATH_SYMBOL_FALSE)){
     pmath_message(
       NULL, "opttf", 2,
       pmath_ref(PMATH_SYMBOL_IGNORECASE),
@@ -211,7 +211,7 @@ PMATH_PRIVATE pmath_t builtin_stringposition(pmath_expr_t expr){
   _pmath_regex_free_capture(&capture);
   _pmath_regex_unref(regex);
   
-  if(obj == PMATH_UNDEFINED){
+  if(pmath_same(obj, PMATH_UNDEFINED)){
     pmath_message(NULL, "strse", 2, pmath_integer_new_si(1), pmath_ref(expr));
     return expr;
   }

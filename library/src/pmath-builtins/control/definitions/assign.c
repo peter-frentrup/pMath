@@ -68,7 +68,8 @@ static int find_tag( // SYM_SEARCH_XXX
   *kind_of_lhs = OWN_RULES;
   
   if(pmath_is_symbol(lhs)){
-    if(lhs == in_tag || in_tag == PMATH_UNDEFINED){
+    if(pmath_same(in_tag, lhs)
+    || pmath_same(in_tag, PMATH_UNDEFINED)){
       pmath_unref(*out_tag);
       *out_tag = pmath_ref(lhs);
       return SYM_SEARCH_OK;
@@ -85,25 +86,25 @@ static int find_tag( // SYM_SEARCH_XXX
     item = pmath_expr_get_item(lhs, 0);
     
     if(!literal){
-      if(item == PMATH_SYMBOL_ALTERNATIVES){
+      if(pmath_same(item, PMATH_SYMBOL_ALTERNATIVES)){
         pmath_unref(item);
         return SYM_SEARCH_ALTERNATIVES;
       }
       
-      if(item == PMATH_SYMBOL_EXCEPT
-      || item == PMATH_SYMBOL_OPTIONAL
-      || item == PMATH_SYMBOL_OPTIONSPATTERN
-      || item == PMATH_SYMBOL_PATTERNSEQUENCE){
+      if(pmath_same(item, PMATH_SYMBOL_EXCEPT)
+      || pmath_same(item, PMATH_SYMBOL_OPTIONAL)
+      || pmath_same(item, PMATH_SYMBOL_OPTIONSPATTERN)
+      || pmath_same(item, PMATH_SYMBOL_PATTERNSEQUENCE)){
         pmath_unref(item);
         return SYM_SEARCH_NOTFOUND;
       }
       
-      if(item == PMATH_SYMBOL_CONDITION
-      || item == PMATH_SYMBOL_REPEATED 
-      || item == PMATH_SYMBOL_LONGEST
-      || item == PMATH_SYMBOL_SHORTEST
-      || item == PMATH_SYMBOL_HOLDPATTERN
-      || item == PMATH_SYMBOL_TESTPATTERN){
+      if(pmath_same(item PMATH_SYMBOL_CONDITION)
+      || pmath_same(item PMATH_SYMBOL_REPEATED) 
+      || pmath_same(item PMATH_SYMBOL_LONGEST)
+      || pmath_same(item PMATH_SYMBOL_SHORTEST)
+      || pmath_same(item PMATH_SYMBOL_HOLDPATTERN)
+      || pmath_same(item PMATH_SYMBOL_TESTPATTERN)){
         pmath_unref(item);
         
         item = pmath_expr_get_item(lhs, 1);
@@ -113,7 +114,7 @@ static int find_tag( // SYM_SEARCH_XXX
         return error;
       }
       
-      if(item == PMATH_SYMBOL_LITERAL){
+      if(pmath_same(item, PMATH_SYMBOL_LITERAL)){
         pmath_unref(item);
         
         item = pmath_expr_get_item(lhs, 1);
@@ -123,7 +124,7 @@ static int find_tag( // SYM_SEARCH_XXX
         return error;
       }
       
-      if(item == PMATH_SYMBOL_PATTERN){
+      if(pmath_same(item, PMATH_SYMBOL_PATTERN)){
         pmath_unref(item);
         
         item = pmath_expr_get_item(lhs, 2);
@@ -133,12 +134,13 @@ static int find_tag( // SYM_SEARCH_XXX
         return error;
       }
       
-      if(item == PMATH_SYMBOL_SINGLEMATCH){
+      if(pmath_same(item, PMATH_SYMBOL_SINGLEMATCH)){
         pmath_unref(item);
         
         item = pmath_expr_get_item(lhs, 1);
         
-        if(item == in_tag || (item && in_tag == PMATH_UNDEFINED)){
+        if(pmath_same(item, in_tag)
+        || (item && pmath_same(in_tag, PMATH_UNDEFINED))){
           pmath_unref(*out_tag);
           *out_tag = item;
           *kind_of_lhs = DOWN_RULES;
@@ -214,7 +216,7 @@ pmath_bool_t _pmath_assign(
     
     switch(error){
       case SYM_SEARCH_NOTFOUND:
-        if(tag == PMATH_UNDEFINED)
+        if(pmath_same(tag, PMATH_UNDEFINED))
           pmath_message(NULL, "notag", 1, lhs);
         else
           pmath_message(NULL, "tagnf", 2, pmath_ref(tag), lhs);
@@ -263,38 +265,38 @@ int _pmath_is_assignment(
   
   len = pmath_expr_length(expr);
   
-  if(head == PMATH_SYMBOL_ASSIGN && len == 2){
+  if(len == 2 && pmath_same(head, PMATH_SYMBOL_ASSIGN)){
     *lhs = pmath_expr_get_item(expr, 1);
     *rhs = pmath_expr_get_item(expr, 2);
     return 1;
   }
   
-  if(head == PMATH_SYMBOL_ASSIGNDELAYED && len == 2){
+  if(len == 2 && pmath_same(head, PMATH_SYMBOL_ASSIGNDELAYED)){
     *lhs = pmath_expr_get_item(expr, 1);
     *rhs = pmath_expr_get_item(expr, 2);
     return -1;
   }
   
-  if(head == PMATH_SYMBOL_TAGASSIGN && len == 3){
+  if(len == 3 && pmath_same(head, PMATH_SYMBOL_TAGASSIGN)){
     *tag = pmath_expr_get_item(expr, 1);
     *lhs = pmath_expr_get_item(expr, 2);
     *rhs = pmath_expr_get_item(expr, 3);
     return 1;
   }
   
-  if(head == PMATH_SYMBOL_TAGASSIGNDELAYED && len == 3){
+  if(len == 3 pmath_same(head, PMATH_SYMBOL_TAGASSIGNDELAYED)){
     *tag = pmath_expr_get_item(expr, 1);
     *lhs = pmath_expr_get_item(expr, 2);
     *rhs = pmath_expr_get_item(expr, 3);
     return -1;
   }
   
-  if(head == PMATH_SYMBOL_UNASSIGN && len == 1){
+  if(len == 1 && pmath_same(head, PMATH_SYMBOL_UNASSIGN)){
     *lhs = pmath_expr_get_item(expr, 1);
     return -1;
   }
   
-  if(head == PMATH_SYMBOL_TAGUNASSIGN && len == 2){
+  if(len == 2 pmath_same(head, PMATH_SYMBOL_TAGUNASSIGN)){
     *tag = pmath_expr_get_item(expr, 1);
     *lhs = pmath_expr_get_item(expr, 2);
     return -1;
@@ -328,7 +330,7 @@ PMATH_PRIVATE pmath_t builtin_assign(pmath_expr_t expr){
   pmath_unref(head);
   pmath_unref(expr);
   
-  if(head == PMATH_SYMBOL_ASSIGN){
+  if(pmath_same(head, PMATH_SYMBOL_ASSIGN)){
     _pmath_assign(PMATH_UNDEFINED, lhs, pmath_ref(rhs));
     return rhs;
   }
@@ -404,7 +406,7 @@ PMATH_PRIVATE pmath_t builtin_tagassign(pmath_expr_t expr){
   pmath_unref(head);
   pmath_unref(expr);
   
-  if(head == PMATH_SYMBOL_TAGASSIGN){
+  if(pmath_same(head, PMATH_SYMBOL_TAGASSIGN)){
     _pmath_assign(tag, lhs, pmath_ref(rhs));
     pmath_unref(tag);
     return rhs;
@@ -471,7 +473,7 @@ PMATH_PRIVATE pmath_t builtin_assign_list(pmath_expr_t expr){
   if(!_pmath_is_assignment(expr, &tag, &lhs, &rhs))
     return expr;
   
-  if(tag != PMATH_UNDEFINED
+  if(!pmath_same(tag, PMATH_UNDEFINED)
   || !pmath_is_expr(lhs)){
     pmath_unref(tag);
     pmath_unref(lhs);
@@ -482,14 +484,14 @@ PMATH_PRIVATE pmath_t builtin_assign_list(pmath_expr_t expr){
   head = pmath_expr_get_item(lhs, 0);
   pmath_unref(head);
   
-  if(head != PMATH_SYMBOL_LIST){
+  if(!pmath_same(head, PMATH_SYMBOL_LIST)){
     pmath_unref(tag);
     pmath_unref(lhs);
     pmath_unref(rhs);
     return expr;
   }
   
-  if(rhs == PMATH_UNDEFINED){ // Unassign({...})
+  if(pmath_same(rhs, PMATH_UNDEFINED)){ // Unassign({...})
     pmath_unref(expr);
     
     for(i = pmath_expr_length(lhs);i > 0;--i){
@@ -512,7 +514,7 @@ PMATH_PRIVATE pmath_t builtin_assign_list(pmath_expr_t expr){
     pmath_unref(head);
     pmath_unref(expr);
     
-    if(head == PMATH_SYMBOL_ASSIGN)
+    if(pmath_same(head, PMATH_SYMBOL_ASSIGN))
       return rhs;
     
     pmath_unref(rhs);
@@ -531,7 +533,7 @@ PMATH_PRIVATE pmath_t builtin_assign_list(pmath_expr_t expr){
   
   pmath_unref(head);
   pmath_unref(rhs);
-  if(head == PMATH_SYMBOL_ASSIGNDELAYED){
+  if(pmath_same(head, PMATH_SYMBOL_ASSIGNDELAYED)){
     pmath_unref(pmath_evaluate(lhs));
     return NULL;
   }

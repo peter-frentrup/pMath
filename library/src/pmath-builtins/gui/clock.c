@@ -114,7 +114,7 @@ PMATH_PRIVATE pmath_t builtin_clock(pmath_expr_t expr){
   backwards = FALSE;
   obj = pmath_evaluate(GREATER(pmath_ref(min), pmath_ref(max)));
   pmath_unref(obj);
-  if(obj == PMATH_SYMBOL_TRUE){
+  if(pmath_same(obj, PMATH_SYMBOL_TRUE)){
     backwards = TRUE;
     
     obj = min;
@@ -143,7 +143,7 @@ PMATH_PRIVATE pmath_t builtin_clock(pmath_expr_t expr){
       pmath_unref(delta);
       delta = pmath_integer_new_si(1);
       
-      if(duration != PMATH_UNDEFINED){
+      if(!pmath_same(duration, PMATH_UNDEFINED)){
         pmath_unref(min);
         pmath_unref(max);
         pmath_unref(delta);
@@ -169,7 +169,7 @@ PMATH_PRIVATE pmath_t builtin_clock(pmath_expr_t expr){
       steps = SIZE_MAX;
       pmath_unref(obj);
       
-      if(duration != PMATH_UNDEFINED){
+      if(!pmath_same(duration, PMATH_UNDEFINED)){
         pmath_unref(min);
         pmath_unref(max);
         pmath_unref(delta);
@@ -193,7 +193,7 @@ PMATH_PRIVATE pmath_t builtin_clock(pmath_expr_t expr){
     duration_seconds = HUGE_VAL;
   }
   else{
-    if(duration == PMATH_UNDEFINED){
+    if(pmath_same(duration, PMATH_UNDEFINED)){
       if(steps+1 > 1) // neither 0 not SIZE_MAX
         duration = TIMES(pmath_integer_new_si(steps), pmath_ref(delta));
       else

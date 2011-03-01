@@ -40,15 +40,15 @@ PMATH_PRIVATE pmath_t builtin_dec_or_inc_or_postdec_or_postinc(pmath_expr_t expr
 
   if(exprlen == 2){
     delta = pmath_expr_get_item(expr, 2);
-    if(head == PMATH_SYMBOL_DECREMENT
-    || head == PMATH_SYMBOL_POSTDECREMENT)
+    if(pmath_same(head, PMATH_SYMBOL_DECREMENT)
+    || pmath_same(head, PMATH_SYMBOL_POSTDECREMENT))
       delta = pmath_expr_new_extended(
         pmath_ref(PMATH_SYMBOL_TIMES), 2,
         pmath_integer_new_si(-1),
         delta);
   }
-  else if(head == PMATH_SYMBOL_DECREMENT
-  ||      head == PMATH_SYMBOL_POSTDECREMENT)
+  else if(pmath_same(head, PMATH_SYMBOL_DECREMENT)
+  ||      pmath_same(head, PMATH_SYMBOL_POSTDECREMENT))
     delta = pmath_integer_new_si(-1);
   else
     delta = pmath_integer_new_si(1);
@@ -62,8 +62,8 @@ PMATH_PRIVATE pmath_t builtin_dec_or_inc_or_postdec_or_postinc(pmath_expr_t expr
       pmath_ref(lhs_eval),
       delta));
 
-  if(head == PMATH_SYMBOL_DECREMENT
-  || head == PMATH_SYMBOL_INCREMENT){
+  if(pmath_same(head, PMATH_SYMBOL_DECREMENT)
+  || pmath_same(head, PMATH_SYMBOL_INCREMENT)){
     pmath_unref(lhs_eval);
     return expr;
   }

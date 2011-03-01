@@ -130,7 +130,7 @@ static pmath_bool_t part(
     *list = pos;
     pos = NULL;
   }
-  else if(pos != PMATH_SYMBOL_ALL){
+  else if(!pmath_same(pos, PMATH_SYMBOL_ALL)){
     pmath_message(NULL, "pspec", 1, pos);
     return FALSE;
   }
@@ -392,7 +392,7 @@ static pmath_t assign_part(
     return list;
   }
 
-  if(index == PMATH_SYMBOL_ALL){
+  if(pmath_same(index, PMATH_SYMBOL_ALL)){
     size_t i;
     pmath_unref(index);
     index = NULL;
@@ -446,7 +446,7 @@ PMATH_PRIVATE pmath_t builtin_assign_part(pmath_expr_t expr){
   
   if(!pmath_is_expr(lhs)
   || pmath_expr_length(lhs) <= 1
-  || rhs == PMATH_UNDEFINED){
+  || pmath_same(rhs, PMATH_UNDEFINED)){
     pmath_unref(tag);
     pmath_unref(lhs);
     pmath_unref(rhs);
@@ -456,7 +456,7 @@ PMATH_PRIVATE pmath_t builtin_assign_part(pmath_expr_t expr){
   sym = pmath_expr_get_item(lhs, 0);
   pmath_unref(sym);
   
-  if(sym == PMATH_SYMBOL_PART){
+  if(pmath_same(sym, PMATH_SYMBOL_PART)){
     size_t i;
     
     pmath_unref(expr);
@@ -478,7 +478,7 @@ PMATH_PRIVATE pmath_t builtin_assign_part(pmath_expr_t expr){
     pmath_message(NULL, "sym", 1, sym,
       pmath_expr_new_extended(
         pmath_ref(PMATH_SYMBOL_LIST), 2,
-        pmath_integer_new_si(tag == PMATH_UNDEFINED ? 1 : 2),
+        pmath_integer_new_si(pmath_same(tag, PMATH_UNDEFINED) ? 1 : 2),
         pmath_integer_new_si(1)));
     pmath_unref(tag);
     pmath_unref(lhs);
@@ -491,7 +491,8 @@ PMATH_PRIVATE pmath_t builtin_assign_part(pmath_expr_t expr){
     return rhs;
   }
   
-  if(tag != PMATH_UNDEFINED && tag != sym){
+  if(!pmath_same(tag, PMATH_UNDEFINED)
+  && !pmath_same(tag, sym)){
     pmath_message(NULL, "tag", 3, tag, lhs, sym);
     
     if(assignment < 0){

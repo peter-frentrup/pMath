@@ -93,7 +93,7 @@ PMATH_PRIVATE pmath_t builtin_cos(pmath_expr_t expr){
     return expr;
   }
   
-  if(x == PMATH_SYMBOL_PI){
+  if(pmath_same(x, PMATH_SYMBOL_PI)){
     pmath_unref(expr);
     pmath_unref(x);
     return INT(-1);
@@ -125,7 +125,7 @@ PMATH_PRIVATE pmath_t builtin_cos(pmath_expr_t expr){
     pmath_t head = pmath_expr_get_item(x, 0);
     pmath_unref(head);
     
-    if(head == PMATH_SYMBOL_TIMES){
+    if(pmath_same(head, PMATH_SYMBOL_TIMES)){
       pmath_t fst = pmath_expr_get_item(x, 1);
       
       if(pmath_is_number(fst)){
@@ -151,7 +151,7 @@ PMATH_PRIVATE pmath_t builtin_cos(pmath_expr_t expr){
         pmath_t snd = pmath_expr_get_item(x, 2);
         pmath_unref(snd);
         
-        if(snd == PMATH_SYMBOL_PI){
+        if(pmath_same(snd, PMATH_SYMBOL_PI)){
           pmath_t cmp;
           
           if(pmath_equals(fst, _pmath_one_half)){
@@ -169,7 +169,7 @@ PMATH_PRIVATE pmath_t builtin_cos(pmath_expr_t expr){
               pmath_ref(_pmath_one_half)));
           
           pmath_unref(cmp);
-          if(cmp == PMATH_SYMBOL_TRUE
+          if(pmath_same(cmp, PMATH_SYMBOL_TRUE)
           && pmath_instance_of(fst, PMATH_TYPE_QUOTIENT)
           && pmath_integer_fits_ui((pmath_integer_t)((struct _pmath_quotient_t*)fst)->numerator)
           && pmath_integer_fits_ui((pmath_integer_t)((struct _pmath_quotient_t*)fst)->denominator)
@@ -231,7 +231,7 @@ PMATH_PRIVATE pmath_t builtin_cos(pmath_expr_t expr){
                   return TIMES3(ONE_HALF, PLUS(INT(-1), SQRT(INT(3))), INVSQRT(INT(2)));
               }
           }
-          else if(cmp == PMATH_SYMBOL_FALSE){ // 1/2 Pi <= x
+          else if(pmath_same(cmp, PMATH_SYMBOL_FALSE)){ // 1/2 Pi <= x
             expr = pmath_expr_set_item(expr, 1, NULL);
             
             cmp = pmath_evaluate(
@@ -241,7 +241,7 @@ PMATH_PRIVATE pmath_t builtin_cos(pmath_expr_t expr){
                 pmath_integer_new_si(1)));
                 
             pmath_unref(cmp);
-            if(cmp == PMATH_SYMBOL_TRUE){ // 1/2 Pi <= x < Pi
+            if(pmath_same(cmp, PMATH_SYMBOL_TRUE)){ // 1/2 Pi <= x < Pi
               fst = MINUS(INT(1), fst);
               
               x = pmath_expr_set_item(x, 1, fst);
@@ -255,7 +255,7 @@ PMATH_PRIVATE pmath_t builtin_cos(pmath_expr_t expr){
                 pmath_integer_new_si(2)));
                 
             pmath_unref(cmp);
-            if(cmp == PMATH_SYMBOL_TRUE){ // Pi <= x < 2 Pi
+            if(pmath_same(cmp, PMATH_SYMBOL_TRUE)){ // Pi <= x < 2 Pi
               fst = MINUS(INT(2), fst);
               
               x = pmath_expr_set_item(x, 1, fst);
@@ -278,7 +278,8 @@ PMATH_PRIVATE pmath_t builtin_cos(pmath_expr_t expr){
       
       pmath_unref(fst);
     }
-    else if(head == PMATH_SYMBOL_PLUS && _pmath_contains_symbol(x, PMATH_SYMBOL_PI)){
+    else if(pmath_same(head, PMATH_SYMBOL_PLUS) 
+    && _pmath_contains_symbol(x, PMATH_SYMBOL_PI)){
       size_t i;
       for(i = pmath_expr_length(x);i > 0;--i){
         pmath_t tmp = pmath_expr_get_item(x, i);
@@ -299,7 +300,7 @@ PMATH_PRIVATE pmath_t builtin_cos(pmath_expr_t expr){
         pmath_unref(tmp);
       }
     }
-    else if(len == 2 && head == PMATH_SYMBOL_COMPLEX){
+    else if(len == 2 && pmath_same(head, PMATH_SYMBOL_COMPLEX)){
       pmath_t re = pmath_expr_get_item(x, 1);
       pmath_t im = pmath_expr_get_item(x, 2);
       
@@ -333,42 +334,42 @@ PMATH_PRIVATE pmath_t builtin_cos(pmath_expr_t expr){
     else if(len == 1){
       pmath_t u = pmath_expr_get_item(x, 1);
       
-      if(head == PMATH_SYMBOL_ARCCOS){
+      if(pmath_same(head, PMATH_SYMBOL_ARCCOS)){
         pmath_unref(expr);
         pmath_unref(x);
         
         return u;
       }
       
-      if(head == PMATH_SYMBOL_ARCCOT){
+      if(pmath_same(head, PMATH_SYMBOL_ARCCOT)){
         pmath_unref(expr);
         pmath_unref(x);
         
         return INVSQRT(PLUS(INT(1), POW(u, INT(-2)))); // 1/Sqrt(1 + 1/u^2)
       }
       
-      if(head == PMATH_SYMBOL_ARCCSC){
+      if(pmath_same(head, PMATH_SYMBOL_ARCCSC)){
         pmath_unref(expr);
         pmath_unref(x);
         
         return SQRT(MINUS(INT(1), POW(u, INT(-2)))); // Sqrt(1 - 1/u^2)
       }
       
-      if(head == PMATH_SYMBOL_ARCSEC){
+      if(pmath_same(head, PMATH_SYMBOL_ARCSEC)){
         pmath_unref(expr);
         pmath_unref(x);
         
         return INV(u); // 1/u
       }
       
-      if(head == PMATH_SYMBOL_ARCSIN){
+      if(pmath_same(head, PMATH_SYMBOL_ARCSIN)){
         pmath_unref(expr);
         pmath_unref(x);
         
         return SQRT(MINUS(INT(1), POW(u, INT(2)))); // Sqrt(1 - u^2)
       }
       
-      if(head == PMATH_SYMBOL_ARCTAN){
+      if(pmath_same(head, PMATH_SYMBOL_ARCTAN)){
         pmath_unref(expr);
         pmath_unref(x);
         

@@ -33,9 +33,10 @@ PMATH_PRIVATE pmath_t builtin_thread(pmath_expr_t expr){
   end = pmath_expr_length(fst);
   if(exprlen == 3){
     pmath_t part = pmath_expr_get_item(expr, 3);
-    if(part == PMATH_SYMBOL_ALL){
+    if(pmath_same(part, PMATH_SYMBOL_ALL)){
+      /* do nothing */
     }
-    else if(part == PMATH_SYMBOL_NONE){
+    else if(pmath_same(part, PMATH_SYMBOL_NONE)){
       start = end = end + 1;
     }
     else if(!extract_range(part, &start, &end, TRUE)){

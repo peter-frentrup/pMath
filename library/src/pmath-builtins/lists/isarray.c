@@ -52,7 +52,7 @@ static pmath_bool_t all(pmath_expr_t expr, size_t level, pmath_t test){
   
   test = pmath_evaluate(pmath_expr_new_extended(pmath_ref(test), 1, expr));
   pmath_unref(test);
-  return test == PMATH_SYMBOL_TRUE;
+  return pmath_same(test, PMATH_SYMBOL_TRUE);
 }
 
 PMATH_PRIVATE pmath_t builtin_isarray(pmath_expr_t expr){

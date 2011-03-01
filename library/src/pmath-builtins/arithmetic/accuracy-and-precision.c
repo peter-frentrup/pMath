@@ -94,7 +94,7 @@ pmath_t builtin_setprecision(pmath_expr_t expr){
   
   prec_obj = pmath_expr_get_item(expr, 2);
   
-  if(prec_obj == PMATH_SYMBOL_MACHINEPRECISION){
+  if(pmath_same(prec_obj, PMATH_SYMBOL_MACHINEPRECISION)){
     prec = -HUGE_VAL;
   }
   else if(_pmath_number_class(prec_obj) & PMATH_CLASS_POSINF){
@@ -134,14 +134,14 @@ pmath_t builtin_assign_maxextraprecision(pmath_expr_t expr){
   if(!_pmath_is_assignment(expr, &tag, &lhs, &rhs))
     return expr;
   
-  if(lhs != PMATH_SYMBOL_MAXEXTRAPRECISION){
+  if(!pmath_same(lhs, PMATH_SYMBOL_MAXEXTRAPRECISION)){
     pmath_unref(tag);
     pmath_unref(lhs);
     pmath_unref(rhs);
     return expr;
   }
   
-  if(rhs == PMATH_UNDEFINED){ // $MaxExtraPrecision:= .
+  if(pmath_same(rhs, PMATH_UNDEFINED)){ // $MaxExtraPrecision:= .
     pmath_max_extra_precision = 50 * LOG2_10;
     
     pmath_unref(tag);
@@ -183,8 +183,8 @@ pmath_t builtin_assign_maxextraprecision(pmath_expr_t expr){
   lhs = pmath_expr_get_item(expr, 0);
   pmath_unref(lhs);
   pmath_unref(expr);
-  if(lhs == PMATH_SYMBOL_ASSIGNDELAYED
-  || lhs == PMATH_SYMBOL_TAGASSIGNDELAYED)
+  if(pmath_same((lhs, PMATH_SYMBOL_ASSIGNDELAYED)
+  || pmath_same((lhs, PMATH_SYMBOL_TAGASSIGNDELAYED))
     return NULL;
   
   return pmath_ref(PMATH_SYMBOL_FAILED);

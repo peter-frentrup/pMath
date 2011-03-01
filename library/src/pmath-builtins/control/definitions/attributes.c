@@ -16,7 +16,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_get_attributes(
     size_t i;
     pmath_t item = pmath_expr_get_item((pmath_expr_t)obj, 0);
     pmath_unref(item);
-    if(item != PMATH_SYMBOL_LIST){
+    if(!pmath_same(item, PMATH_SYMBOL_LIST)){
       pmath_message(PMATH_SYMBOL_ATTRIBUTES, "noattr", 1, pmath_ref(obj));
       return FALSE;
     }
@@ -37,25 +37,25 @@ PMATH_PRIVATE pmath_bool_t _pmath_get_attributes(
     return TRUE;
   }
 
-       if(obj == PMATH_SYMBOL_NHOLDALL)             *attr = PMATH_SYMBOL_ATTRIBUTE_NHOLDALL;
-  else if(obj == PMATH_SYMBOL_NHOLDFIRST)           *attr = PMATH_SYMBOL_ATTRIBUTE_NHOLDFIRST;
-  else if(obj == PMATH_SYMBOL_NHOLDREST)            *attr = PMATH_SYMBOL_ATTRIBUTE_NHOLDREST;
-  else if(obj == PMATH_SYMBOL_ASSOCIATIVE)          *attr = PMATH_SYMBOL_ATTRIBUTE_ASSOCIATIVE;
-  else if(obj == PMATH_SYMBOL_DEEPHOLDALL)          *attr = PMATH_SYMBOL_ATTRIBUTE_DEEPHOLDALL;
-  else if(obj == PMATH_SYMBOL_DEFINITEFUNCTION)     *attr = PMATH_SYMBOL_ATTRIBUTE_DEFINITEFUNCTION;
-  else if(obj == PMATH_SYMBOL_HOLDALL)              *attr = PMATH_SYMBOL_ATTRIBUTE_HOLDALL;
-  else if(obj == PMATH_SYMBOL_HOLDALLCOMPLETE)      *attr = PMATH_SYMBOL_ATTRIBUTE_HOLDALLCOMPLETE;
-  else if(obj == PMATH_SYMBOL_HOLDFIRST)            *attr = PMATH_SYMBOL_ATTRIBUTE_HOLDFIRST;
-  else if(obj == PMATH_SYMBOL_HOLDREST)             *attr = PMATH_SYMBOL_ATTRIBUTE_HOLDREST;
-  else if(obj == PMATH_SYMBOL_LISTABLE)             *attr = PMATH_SYMBOL_ATTRIBUTE_LISTABLE;
-  else if(obj == PMATH_SYMBOL_NUMERICFUNCTION)      *attr = PMATH_SYMBOL_ATTRIBUTE_NUMERICFUNCTION;
-  else if(obj == PMATH_SYMBOL_ONEIDENTITY)          *attr = PMATH_SYMBOL_ATTRIBUTE_ONEIDENTITY;
-  else if(obj == PMATH_SYMBOL_PROTECTED)            *attr = PMATH_SYMBOL_ATTRIBUTE_PROTECTED;
-  else if(obj == PMATH_SYMBOL_READPROTECTED)        *attr = PMATH_SYMBOL_ATTRIBUTE_READPROTECTED;
-  else if(obj == PMATH_SYMBOL_SEQUENCEHOLD)         *attr = PMATH_SYMBOL_ATTRIBUTE_SEQUENCEHOLD;
-  else if(obj == PMATH_SYMBOL_SYMMETRIC)            *attr = PMATH_SYMBOL_ATTRIBUTE_SYMMETRIC;
-  else if(obj == PMATH_SYMBOL_TEMPORARY)            *attr = PMATH_SYMBOL_ATTRIBUTE_TEMPORARY;
-  else if(obj == PMATH_SYMBOL_THREADLOCAL)          *attr = PMATH_SYMBOL_ATTRIBUTE_THREADLOCAL;
+       if(pmath_same(obj, PMATH_SYMBOL_NHOLDALL))             *attr = PMATH_SYMBOL_ATTRIBUTE_NHOLDALL;
+  else if(pmath_same(obj, PMATH_SYMBOL_NHOLDFIRST))           *attr = PMATH_SYMBOL_ATTRIBUTE_NHOLDFIRST;
+  else if(pmath_same(obj, PMATH_SYMBOL_NHOLDREST))            *attr = PMATH_SYMBOL_ATTRIBUTE_NHOLDREST;
+  else if(pmath_same(obj, PMATH_SYMBOL_ASSOCIATIVE))          *attr = PMATH_SYMBOL_ATTRIBUTE_ASSOCIATIVE;
+  else if(pmath_same(obj, PMATH_SYMBOL_DEEPHOLDALL))          *attr = PMATH_SYMBOL_ATTRIBUTE_DEEPHOLDALL;
+  else if(pmath_same(obj, PMATH_SYMBOL_DEFINITEFUNCTION))     *attr = PMATH_SYMBOL_ATTRIBUTE_DEFINITEFUNCTION;
+  else if(pmath_same(obj, PMATH_SYMBOL_HOLDALL))              *attr = PMATH_SYMBOL_ATTRIBUTE_HOLDALL;
+  else if(pmath_same(obj, PMATH_SYMBOL_HOLDALLCOMPLETE))      *attr = PMATH_SYMBOL_ATTRIBUTE_HOLDALLCOMPLETE;
+  else if(pmath_same(obj, PMATH_SYMBOL_HOLDFIRST))            *attr = PMATH_SYMBOL_ATTRIBUTE_HOLDFIRST;
+  else if(pmath_same(obj, PMATH_SYMBOL_HOLDREST))             *attr = PMATH_SYMBOL_ATTRIBUTE_HOLDREST;
+  else if(pmath_same(obj, PMATH_SYMBOL_LISTABLE))             *attr = PMATH_SYMBOL_ATTRIBUTE_LISTABLE;
+  else if(pmath_same(obj, PMATH_SYMBOL_NUMERICFUNCTION))      *attr = PMATH_SYMBOL_ATTRIBUTE_NUMERICFUNCTION;
+  else if(pmath_same(obj, PMATH_SYMBOL_ONEIDENTITY))          *attr = PMATH_SYMBOL_ATTRIBUTE_ONEIDENTITY;
+  else if(pmath_same(obj, PMATH_SYMBOL_PROTECTED))            *attr = PMATH_SYMBOL_ATTRIBUTE_PROTECTED;
+  else if(pmath_same(obj, PMATH_SYMBOL_READPROTECTED))        *attr = PMATH_SYMBOL_ATTRIBUTE_READPROTECTED;
+  else if(pmath_same(obj, PMATH_SYMBOL_SEQUENCEHOLD))         *attr = PMATH_SYMBOL_ATTRIBUTE_SEQUENCEHOLD;
+  else if(pmath_same(obj, PMATH_SYMBOL_SYMMETRIC))            *attr = PMATH_SYMBOL_ATTRIBUTE_SYMMETRIC;
+  else if(pmath_same(obj, PMATH_SYMBOL_TEMPORARY))            *attr = PMATH_SYMBOL_ATTRIBUTE_TEMPORARY;
+  else if(pmath_same(obj, PMATH_SYMBOL_THREADLOCAL))          *attr = PMATH_SYMBOL_ATTRIBUTE_THREADLOCAL;
   else{
     pmath_message(PMATH_SYMBOL_ATTRIBUTES, "noattr", 1, pmath_ref(obj));
     return FALSE;
@@ -83,11 +83,12 @@ PMATH_PRIVATE pmath_t builtin_assign_attributes(pmath_expr_t expr){
   
   sym = pmath_expr_get_item(lhs, 1);
   
-  if(tag != PMATH_UNDEFINED && tag != sym){
+  if(!pmath_same(tag, PMATH_UNDEFINED)
+  && !pmath_same(tag, sym)){
     pmath_message(NULL, "tag", 3, tag, lhs, sym);
     
     pmath_unref(expr);
-    if(rhs == PMATH_UNDEFINED)
+    if(pmath_same(rhs, PMATH_UNDEFINED))
       return pmath_ref(PMATH_SYMBOL_FAILED);
     return rhs;
   }
@@ -102,14 +103,14 @@ PMATH_PRIVATE pmath_t builtin_assign_attributes(pmath_expr_t expr){
     pmath_message(NULL, "fnsym", 1, lhs);
     
     pmath_unref(sym);
-    if(rhs == PMATH_UNDEFINED)
+    if(pmath_same(rhs, PMATH_UNDEFINED))
       return pmath_ref(PMATH_SYMBOL_FAILED);
     return rhs;
   }
   
   pmath_unref(lhs);
   
-  if(rhs == PMATH_UNDEFINED){
+  if(pmath_same(rhs, PMATH_UNDEFINED)){
     attr = 0;
   }
   else if(!_pmath_get_attributes(&attr, rhs)){
@@ -120,7 +121,7 @@ PMATH_PRIVATE pmath_t builtin_assign_attributes(pmath_expr_t expr){
   pmath_symbol_set_attributes(sym, attr);
   
   pmath_unref(sym);
-  if(rhs == PMATH_UNDEFINED)
+  if(pmath_same(rhs, PMATH_UNDEFINED))
     return NULL;
   return rhs;
 }

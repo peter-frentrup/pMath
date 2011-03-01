@@ -17,7 +17,7 @@ pmath_bool_t _pmath_is_infinite(pmath_t obj){
   item = pmath_expr_get_item(obj, 0);
   pmath_unref(item);
   
-  if(item != PMATH_SYMBOL_DIRECTEDINFINITY)
+  if(!pmath_same(item, PMATH_SYMBOL_DIRECTEDINFINITY))
     return FALSE;
   
   if(pmath_expr_length(obj) == 0)
@@ -43,7 +43,7 @@ PMATH_PRIVATE pmath_t _pmath_directed_infinity_direction(
 
   head = pmath_expr_get_item((pmath_expr_t)obj, 0);
   pmath_unref(head);
-  if(head != PMATH_SYMBOL_DIRECTEDINFINITY)
+  if(!pmath_same(head, PMATH_SYMBOL_DIRECTEDINFINITY))
     return NULL;
 
   if(pmath_expr_length(obj) == 0)
@@ -65,7 +65,7 @@ PMATH_PRIVATE pmath_t builtin_directedinfinity(pmath_expr_t expr){
   }
 
   item = pmath_expr_get_item(expr, 1);
-  if(item == PMATH_SYMBOL_UNDEFINED
+  if(pmath_same(item, PMATH_SYMBOL_UNDEFINED)
   || (pmath_is_number(item) && pmath_number_sign(item) == 0)){
     pmath_unref(item);
     pmath_unref(expr);
@@ -88,7 +88,7 @@ PMATH_PRIVATE pmath_t builtin_directedinfinity(pmath_expr_t expr){
   if(pmath_is_expr(sign) && pmath_expr_length(sign) == 1){
     pmath_t signhead = pmath_expr_get_item((pmath_expr_t)sign, 0);
     pmath_unref(signhead);
-    if(signhead == PMATH_SYMBOL_SIGN){
+    if(pmath_same(signhead, PMATH_SYMBOL_SIGN)){
       item = pmath_expr_get_item((pmath_expr_t)sign, 1);
       pmath_unref(sign);
     }

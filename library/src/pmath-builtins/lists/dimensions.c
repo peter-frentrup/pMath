@@ -22,7 +22,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_is_matrix(
   head = pmath_expr_get_item(m, 0);
   pmath_unref(head);
   
-  if(head != PMATH_SYMBOL_LIST)
+  if(!pmath_same(head, PMATH_SYMBOL_LIST))
     return FALSE;
   
   *rows = pmath_expr_length(m);
@@ -40,7 +40,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_is_matrix(
   pmath_unref(head);
   pmath_unref(row);
   
-  if(head != PMATH_SYMBOL_LIST)
+  if(!pmath_same(head, PMATH_SYMBOL_LIST))
     return FALSE;
   
   for(i = *rows;i > 1;--i){
@@ -52,7 +52,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_is_matrix(
     head = pmath_expr_get_item(row, 0);
     pmath_unref(head);
     pmath_unref(row);
-    if(head != PMATH_SYMBOL_LIST)
+    if(!pmath_same(head, PMATH_SYMBOL_LIST))
       return FALSE;
   }
   return TRUE;

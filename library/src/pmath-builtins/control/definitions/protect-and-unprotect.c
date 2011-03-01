@@ -49,7 +49,7 @@ PMATH_PRIVATE pmath_t builtin_protect_or_unprotect(pmath_expr_t expr){
   pmath_unref(head);
 
   callback = (pmath_callback_t)protect_callback;
-  if(head == PMATH_SYMBOL_UNPROTECT)
+  if(pmath_same(head, PMATH_SYMBOL_UNPROTECT))
     callback = (pmath_callback_t)unprotect_callback;
   
   pmath_gather_begin(NULL);

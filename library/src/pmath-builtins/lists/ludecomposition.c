@@ -20,7 +20,7 @@ static pmath_bool_t greater(pmath_t a, pmath_t b){
   
   tmp = pmath_evaluate(GREATER(pmath_ref(a), pmath_ref(b)));
   pmath_unref(tmp);
-  return tmp == PMATH_SYMBOL_TRUE;
+  return pmath_same(tmp, PMATH_SYMBOL_TRUE);
 }
 
 static pmath_bool_t is_zero(pmath_t x){

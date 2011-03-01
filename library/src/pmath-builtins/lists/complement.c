@@ -111,7 +111,7 @@ PMATH_PRIVATE pmath_t builtin_complement(pmath_expr_t expr){
   expr = pmath_expr_set_item(expr, 1, NULL);
   all = pmath_expr_sort(all);
   
-  if(sametest == PMATH_SYMBOL_AUTOMATIC){
+  if(pmath_same(sametest, PMATH_SYMBOL_AUTOMATIC)){
     for(i = exprlen;i > 1;--i){
       obj = pmath_expr_get_item(expr, i);
       expr = pmath_expr_set_item(expr, i, NULL);
@@ -155,7 +155,7 @@ PMATH_PRIVATE pmath_t builtin_complement(pmath_expr_t expr){
     for(i = pmath_expr_length(all);i > 1;--i){
       obj = pmath_expr_get_item(all, i);
       
-      if(obj == PMATH_UNDEFINED)
+      if(pmath_same(obj, PMATH_UNDEFINED))
         continue;
       
       sametest = pmath_expr_set_item(sametest, 1, obj);
@@ -168,7 +168,7 @@ PMATH_PRIVATE pmath_t builtin_complement(pmath_expr_t expr){
         cmp = pmath_evaluate(pmath_ref(sametest));
         pmath_unref(cmp);
         
-        if(cmp == PMATH_SYMBOL_TRUE){
+        if(pmath_same(cmp, PMATH_SYMBOL_TRUE)){
           all = pmath_expr_set_item(all, j, PMATH_UNDEFINED);
         }
         
@@ -184,7 +184,7 @@ PMATH_PRIVATE pmath_t builtin_complement(pmath_expr_t expr){
     for(i = pmath_expr_length(all);i > 1;--i){
       obj = pmath_expr_get_item(all, i);
       
-      if(obj == PMATH_UNDEFINED)
+      if(pmath_same(obj, PMATH_UNDEFINED))
         continue;
       
       sametest = pmath_expr_set_item(sametest, 1, obj);
@@ -200,7 +200,7 @@ PMATH_PRIVATE pmath_t builtin_complement(pmath_expr_t expr){
           cmp = pmath_evaluate(pmath_ref(sametest));
           pmath_unref(cmp);
             
-          if(cmp == PMATH_SYMBOL_TRUE){
+          if(pmath_same(cmp, PMATH_SYMBOL_TRUE)){
             all = pmath_expr_set_item(all, i, PMATH_UNDEFINED);
           }
           

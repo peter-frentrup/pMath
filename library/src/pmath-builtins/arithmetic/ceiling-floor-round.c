@@ -57,12 +57,12 @@ PMATH_PRIVATE pmath_t builtin_ceiling_or_floor_or_round(
         return NULL;
       }
 
-      if(head == PMATH_SYMBOL_CEILING){
+      if(pmath_same(head, PMATH_SYMBOL_CEILING)){
         mpz_cdiv_q(result->value,
           ((struct _pmath_quotient_t*)x)->numerator->value,
           ((struct _pmath_quotient_t*)x)->denominator->value);
       }
-      else if(head == PMATH_SYMBOL_FLOOR){
+      else if(pmath_same(head, PMATH_SYMBOL_FLOOR)){
         mpz_fdiv_q(result->value,
           ((struct _pmath_quotient_t*)x)->numerator->value,
           ((struct _pmath_quotient_t*)x)->denominator->value);
@@ -112,12 +112,12 @@ PMATH_PRIVATE pmath_t builtin_ceiling_or_floor_or_round(
         return NULL;
       }
 
-      if(head == PMATH_SYMBOL_CEILING){
+      if(pmath_same(head, PMATH_SYMBOL_CEILING)){
         mpz_set_d(
           result->value,
           ceil(((struct _pmath_machine_float_t*)x)->value));
       }
-      else if(head == PMATH_SYMBOL_FLOOR){
+      else if(pmath_same(head, PMATH_SYMBOL_FLOOR)){
         mpz_set_d(
           result->value,
           ((struct _pmath_machine_float_t*)x)->value);
@@ -148,13 +148,13 @@ PMATH_PRIVATE pmath_t builtin_ceiling_or_floor_or_round(
         return NULL;
       }
 
-      if(head == PMATH_SYMBOL_CEILING){
+      if(pmath_same(head, PMATH_SYMBOL_CEILING)){
         mpfr_get_z(
           result->value,
           ((struct _pmath_mp_float_t*)x)->value,
           GMP_RNDU);
       }
-      else if(head == PMATH_SYMBOL_FLOOR){
+      else if(pmath_same(head, PMATH_SYMBOL_FLOOR)){
         mpfr_get_z(
           result->value,
           ((struct _pmath_mp_float_t*)x)->value,

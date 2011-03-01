@@ -158,7 +158,7 @@ static pmath_expr_t trim_undef(pmath_expr_t list, int depth){
     pmath_t item = pmath_expr_get_item(list, b);
     pmath_unref(item);
     
-    if(item != PMATH_UNDEFINED)
+    if(!pmath_same(item, PMATH_UNDEFINED))
       break;
     
     --b;
@@ -169,7 +169,7 @@ static pmath_expr_t trim_undef(pmath_expr_t list, int depth){
     pmath_t item = pmath_expr_get_item(list, a);
     pmath_unref(item);
     
-    if(item != PMATH_UNDEFINED)
+    if(!pmath_same(item, PMATH_UNDEFINED))
       break;
     
     ++a;
@@ -258,7 +258,7 @@ static pmath_expr_t partition(
       else
         item = part(pmath_ref(padding), in_i, depth);
       
-      have_undef = have_undef || item == PMATH_UNDEFINED;
+      have_undef = have_undef || pmath_same(item, PMATH_UNDEFINED);
       
       result = set_divmod_part(result, out_i, n, 0, depth, item);
     }while(next(in_i, out_i, left, n, d, blocks, depth));

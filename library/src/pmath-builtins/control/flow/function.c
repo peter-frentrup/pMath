@@ -29,7 +29,7 @@ static pmath_t replace_purearg(
     
   function = pmath_expr_set_item(function, 0, head);
 
-  if(head == PMATH_SYMBOL_PUREARGUMENT && len == 1){
+  if(len == 1 && pmath_same(head, PMATH_SYMBOL_PUREARGUMENT)){
     pmath_bool_t reverse;
     pmath_t pos = pmath_expr_get_item(function, 1);
     size_t min = 1;
@@ -108,7 +108,7 @@ PMATH_PRIVATE pmath_t builtin_call_function(pmath_expr_t expr){
   
   head_head = pmath_expr_get_item(head, 0);
   pmath_unref(head_head);
-  if(head_head != PMATH_SYMBOL_FUNCTION){
+  if(!pmath_same(head_head, PMATH_SYMBOL_FUNCTION)){
     pmath_unref(head);
     return expr;
   }
@@ -337,7 +337,7 @@ PMATH_PRIVATE pmath_t builtin_function(pmath_expr_t expr){
       p = pmath_expr_get_item(params, 0);
       pmath_unref(p);
       
-      if(p != PMATH_SYMBOL_LIST){
+      if(!pmath_same(p, PMATH_SYMBOL_LIST)){
         pmath_message(NULL, "par", 2, params, pmath_ref(expr));
           
         return expr;

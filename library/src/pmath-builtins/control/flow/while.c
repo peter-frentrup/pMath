@@ -19,7 +19,7 @@ PMATH_PRIVATE pmath_t builtin_while(pmath_expr_t expr){
     pmath_t condition = pmath_evaluate(pmath_expr_get_item(expr, 1));
     pmath_unref(condition);
 
-    if(condition != PMATH_SYMBOL_TRUE)
+    if(!pmath_same(condition, PMATH_SYMBOL_TRUE))
       break;
 
     body = pmath_expr_get_item(expr, 2);

@@ -98,14 +98,14 @@ PMATH_PRIVATE pmath_t builtin_assign_namespace(pmath_expr_t expr){
   if(!kind)
     return expr;
   
-  if(lhs != PMATH_SYMBOL_CURRENTNAMESPACE){
+  if(!pmath_same(lhs, PMATH_SYMBOL_CURRENTNAMESPACE)){
     pmath_unref(tag);
     pmath_unref(lhs);
     pmath_unref(rhs);
     return expr;
   }
   
-  if(tag != PMATH_UNDEFINED && tag != lhs){
+  if(!pmath_same(tag, PMATH_UNDEFINED) && !pmath_same(tag, lhs)){
     pmath_message(NULL, "tag", 3, tag, pmath_ref(lhs), lhs);
     
     pmath_unref(expr);
@@ -114,7 +114,7 @@ PMATH_PRIVATE pmath_t builtin_assign_namespace(pmath_expr_t expr){
     if(kind < 0)
       return NULL;
     
-    if(rhs == PMATH_UNDEFINED)
+    if(pmath_same(rhs, PMATH_UNDEFINED))
       return pmath_ref(PMATH_SYMBOL_FAILED);
     return rhs;
   }
@@ -122,7 +122,7 @@ PMATH_PRIVATE pmath_t builtin_assign_namespace(pmath_expr_t expr){
   pmath_unref(tag);
   pmath_unref(lhs);
   
-  if(rhs == PMATH_UNDEFINED){
+  if(pmath_same(rhs, PMATH_UNDEFINED)){
     pmath_unref(expr);
     return NULL;
   }
@@ -150,15 +150,15 @@ PMATH_PRIVATE pmath_t builtin_assign_namespacepath(pmath_expr_t expr){
   if(!kind)
     return expr;
   
-  if(lhs != PMATH_SYMBOL_NAMESPACEPATH 
-  && lhs != PMATH_SYMBOL_INTERNAL_NAMESPACESTACK){
+  if(!pmath_same(lhs, PMATH_SYMBOL_NAMESPACEPATH)
+  && !pmath_same(lhs, PMATH_SYMBOL_INTERNAL_NAMESPACESTACK)){
     pmath_unref(tag);
     pmath_unref(lhs);
     pmath_unref(rhs);
     return expr;
   }
   
-  if(tag != PMATH_UNDEFINED && tag != lhs){
+  if(!pmath_same(tag, PMATH_UNDEFINED) && !pmath_same(tag, lhs)){
     pmath_message(NULL, "tag", 3, tag, pmath_ref(lhs), lhs);
     
     pmath_unref(expr);
@@ -167,14 +167,14 @@ PMATH_PRIVATE pmath_t builtin_assign_namespacepath(pmath_expr_t expr){
     if(kind < 0)
       return NULL;
     
-    if(rhs == PMATH_UNDEFINED)
+    if(pmath_same(rhs, PMATH_UNDEFINED))
       return pmath_ref(PMATH_SYMBOL_FAILED);
     return rhs;
   }
   
   pmath_unref(tag);
   
-  if(rhs == PMATH_UNDEFINED){
+  if(pmath_same(rhs, PMATH_UNDEFINED)){
     pmath_unref(lhs);
     pmath_unref(expr);
     return NULL;
@@ -390,7 +390,7 @@ PMATH_PRIVATE pmath_t builtin_beginpackage(pmath_expr_t expr){
       pmath_unref(name);
       
       current = pmath_symbol_iter_next(current);
-    }while(current && current != PMATH_SYMBOL_LIST);
+    }while(current && !pmath_same(current, PMATH_SYMBOL_LIST));
     
     pmath_unref(current);
   }

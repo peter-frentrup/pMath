@@ -85,7 +85,7 @@ static pmath_t stringreplace(
             NULL);
         }
         
-        if(first_rhs != PMATH_UNDEFINED)
+        if(!pmath_same(first_rhs, PMATH_UNDEFINED))
           pmath_emit(first_rhs, NULL);
         
         first_rhs = NULL;
@@ -129,7 +129,7 @@ static pmath_t stringreplace(
       
       item = stringreplace(item, regex_list, capture_list, rhs_list, max_matches, options);
       
-      if(item == PMATH_UNDEFINED){
+      if(pmath_same(item, PMATH_UNDEFINED)){
         pmath_unref(obj);
         return PMATH_UNDEFINED;
       }
@@ -218,7 +218,7 @@ static pmath_t replace_all(
     
     obj = stringreplace(obj, regex_list, capture_list, rules, max_matches, sr_options);
     
-    if(obj == PMATH_UNDEFINED){
+    if(pmath_same(obj, PMATH_UNDEFINED)){
       pmath_message(NULL, "strse", 2, pmath_integer_new_si(1), pmath_ref(expr));
       obj = expr;
       expr = NULL;
@@ -276,10 +276,10 @@ PMATH_PRIVATE pmath_t builtin_stringreplace(pmath_expr_t expr){
   
   regex_options = 0;
   obj = pmath_option_value(NULL, PMATH_SYMBOL_IGNORECASE, options);
-  if(obj == PMATH_SYMBOL_TRUE){
+  if(pmath_same(obj, PMATH_SYMBOL_TRUE)){
     regex_options|= PCRE_CASELESS;
   }
-  else if(obj != PMATH_SYMBOL_FALSE){
+  else if(!pmath_same(obj, PMATH_SYMBOL_FALSE)){
     pmath_message(
       NULL, "opttf", 2,
       pmath_ref(PMATH_SYMBOL_IGNORECASE),
@@ -324,7 +324,7 @@ PMATH_PRIVATE pmath_t builtin_stringsplit(pmath_expr_t expr){
       pmath_unref(obj);
       last_nonoption = 3;
     }
-    else if(obj == PMATH_SYMBOL_ALL){
+    else if(pmath_same(obj, PMATH_SYMBOL_ALL)){
       pmath_unref(obj);
       sr_options|= SR_EMIT_EMPTY_BOUNDS;
       last_nonoption = 3;
@@ -350,10 +350,10 @@ PMATH_PRIVATE pmath_t builtin_stringsplit(pmath_expr_t expr){
   
   regex_options = 0;
   obj = pmath_option_value(NULL, PMATH_SYMBOL_IGNORECASE, options);
-  if(obj == PMATH_SYMBOL_TRUE){
+  if(pmath_same(obj, PMATH_SYMBOL_TRUE)){
     regex_options|= PCRE_CASELESS;
   }
-  else if(obj != PMATH_SYMBOL_FALSE){
+  else if(!pmath_same(obj, PMATH_SYMBOL_FALSE)){
     pmath_message(
       NULL, "opttf", 2,
       pmath_ref(PMATH_SYMBOL_IGNORECASE),

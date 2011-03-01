@@ -101,7 +101,7 @@ PMATH_PRIVATE pmath_t builtin_tanh(pmath_expr_t expr){
     pmath_t head = pmath_expr_get_item(x, 0);
     pmath_unref(head);
     
-    if(head == PMATH_SYMBOL_TIMES){
+    if(pmath_same(head, PMATH_SYMBOL_TIMES)){
       pmath_t fst = pmath_expr_get_item(x, 1);
       
       if(pmath_is_number(fst)){
@@ -126,7 +126,7 @@ PMATH_PRIVATE pmath_t builtin_tanh(pmath_expr_t expr){
       
       pmath_unref(fst);
     }
-    else if(len == 2 && head == PMATH_SYMBOL_COMPLEX){
+    else if(len == 2 && pmath_same(head, PMATH_SYMBOL_COMPLEX)){
       pmath_t re = pmath_expr_get_item(x, 1);
       pmath_t im = pmath_expr_get_item(x, 2);
       
@@ -168,7 +168,7 @@ PMATH_PRIVATE pmath_t builtin_tanh(pmath_expr_t expr){
     else if(len == 1){
       pmath_t u = pmath_expr_get_item(x, 1);
       
-      if(head == PMATH_SYMBOL_ARCCOSH){
+      if(pmath_same(head, PMATH_SYMBOL_ARCCOSH)){
         pmath_unref(expr);
         pmath_unref(x);
         
@@ -185,14 +185,14 @@ PMATH_PRIVATE pmath_t builtin_tanh(pmath_expr_t expr){
         return expr;
       }
       
-      if(head == PMATH_SYMBOL_ARCCOTH){
+      if(pmath_same(head, PMATH_SYMBOL_ARCCOTH)){
         pmath_unref(expr);
         pmath_unref(x);
         
         return INV(u); // 1/u
       }
       
-      if(head == PMATH_SYMBOL_ARCCSCH){
+      if(pmath_same(head, PMATH_SYMBOL_ARCCSCH)){
         pmath_unref(expr);
         pmath_unref(x);
         
@@ -210,7 +210,7 @@ PMATH_PRIVATE pmath_t builtin_tanh(pmath_expr_t expr){
         return expr;
       }
       
-      if(head == PMATH_SYMBOL_ARCSECH){
+      if(pmath_same(head, PMATH_SYMBOL_ARCSECH)){
         pmath_unref(expr);
         pmath_unref(x);
         
@@ -225,7 +225,7 @@ PMATH_PRIVATE pmath_t builtin_tanh(pmath_expr_t expr){
         return expr;
       }
       
-      if(head == PMATH_SYMBOL_ARCSINH){
+      if(pmath_same(head, PMATH_SYMBOL_ARCSINH)){
         pmath_unref(expr);
         pmath_unref(x);
         
@@ -235,7 +235,7 @@ PMATH_PRIVATE pmath_t builtin_tanh(pmath_expr_t expr){
         return expr;
       }
       
-      if(head == PMATH_SYMBOL_ARCTANH){
+      if(pmath_same(head PMATH_SYMBOL_ARCTANH)){
         pmath_unref(expr);
         pmath_unref(x);
         

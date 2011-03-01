@@ -135,7 +135,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_to_precision(
   pmath_t  obj, // wont be freed
   double  *result
 ){
-  if(obj == PMATH_SYMBOL_MACHINEPRECISION){
+  if(pmath_same(obj, PMATH_SYMBOL_MACHINEPRECISION)){
     *result = -HUGE_VAL;
     return TRUE;
   }
@@ -250,11 +250,12 @@ PMATH_PRIVATE pmath_t builtin_assign_approximate(pmath_expr_t expr){
   sym = _pmath_topmost_symbol(arg);
   pmath_unref(arg);
   
-  if(tag != PMATH_UNDEFINED && tag != sym){
+  if(!pmath_same(tag, PMATH_UNDEFINED) 
+  && !pmath_same(tag, sym)){
     pmath_message(NULL, "tag", 3, tag, lhs, sym);
     
     pmath_unref(expr);
-    if(rhs == PMATH_UNDEFINED)
+    if(pmath_same(rhs, PMATH_UNDEFINED))
       return pmath_ref(PMATH_SYMBOL_FAILED);
     return rhs;
   }
@@ -279,7 +280,7 @@ PMATH_PRIVATE pmath_t builtin_assign_approximate(pmath_expr_t expr){
 PMATH_PRIVATE pmath_t builtin_approximate_e(pmath_t obj, double prec, double acc){
   struct _pmath_mp_float_t *result;
   
-  if(obj != PMATH_SYMBOL_E)
+  if(!pmath_same(obj, PMATH_SYMBOL_E))
     return obj;
   
   pmath_unref(obj);
@@ -321,7 +322,7 @@ PMATH_PRIVATE pmath_t builtin_approximate_e(pmath_t obj, double prec, double acc
 PMATH_PRIVATE pmath_t builtin_approximate_eulergamma(pmath_t obj, double prec, double acc){
   struct _pmath_mp_float_t *result;
   
-  if(obj != PMATH_SYMBOL_EULERGAMMA)
+  if(!pmath_same(obj, PMATH_SYMBOL_EULERGAMMA))
     return obj;
   
   pmath_unref(obj);
@@ -362,7 +363,7 @@ PMATH_PRIVATE pmath_t builtin_approximate_eulergamma(pmath_t obj, double prec, d
 PMATH_PRIVATE pmath_t builtin_approximate_machineprecision(pmath_t obj, double prec, double acc){
   struct _pmath_mp_float_t *result;
   
-  if(obj != PMATH_SYMBOL_MACHINEPRECISION)
+  if(!pmath_same(obj, PMATH_SYMBOL_MACHINEPRECISION))
     return obj;
   
   pmath_unref(obj);
@@ -406,7 +407,7 @@ PMATH_PRIVATE pmath_t builtin_approximate_machineprecision(pmath_t obj, double p
 PMATH_PRIVATE pmath_t builtin_approximate_pi(pmath_t obj, double prec, double acc){
   struct _pmath_mp_float_t *result;
   
-  if(obj != PMATH_SYMBOL_PI)
+  if(!pmath_same(obj, PMATH_SYMBOL_PI))
     return obj;
     
   pmath_unref(obj);

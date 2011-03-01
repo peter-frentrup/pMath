@@ -89,13 +89,13 @@ pmath_t _pmath_thread_local_save_with(
   }
 
   if(!thread->local_values){
-    if(value == PMATH_UNDEFINED)
+    if(pmath_same(value, PMATH_UNDEFINED))
       return PMATH_UNDEFINED;
 
     thread->local_values = pmath_ht_create(&pmath_ht_obj_class, 1);
   }
 
-  if(value == PMATH_UNDEFINED){
+  if(pmath_same(value, PMATH_UNDEFINED)){
     struct _pmath_object_entry_t *entry;
     
     entry = pmath_ht_remove(thread->local_values, key);
@@ -270,8 +270,8 @@ struct _change_exception_data_t{
 static void change_exception(struct _change_exception_data_t *data){
   pmath_t old = data->thread->exception;
   
-  if(old == PMATH_UNDEFINED){
-    if(data->exception != PMATH_UNDEFINED){
+  if(pmath_same(old, PMATH_UNDEFINED)){
+    if(!pmath_same(data->exception, PMATH_UNDEFINED)){
       (void)pmath_atomic_fetch_add(&_pmath_abort_reasons, 1);
       
       data->thread->exception = data->exception;
@@ -281,13 +281,13 @@ static void change_exception(struct _change_exception_data_t *data){
     }
   }
   else if(data->prefer_new){
-    if(data->exception == PMATH_UNDEFINED){
+    if(pmath_same(data->exception, PMATH_UNDEFINED)){
       (void)pmath_atomic_fetch_add(&_pmath_abort_reasons, -1);
     }
     
     data->thread->exception = data->exception;
     
-    if(data->exception != PMATH_UNDEFINED)
+    if(!pmath_same(data->exception, PMATH_UNDEFINED))
       pmath_thread_wakeup(data->thread->message_queue);
       
     data->exception = old;
@@ -408,13 +408,13 @@ PMATH_API pmath_bool_t pmath_thread_aborting(pmath_thread_t thread){
     
   if(aborting 
   && (thread->ignore_older_aborts <= _pmath_abort_timer
-   || thread->exception != PMATH_UNDEFINED))
+   || !pmath_same(thread->exception, PMATH_UNDEFINED)))
   {
     return TRUE;
   }
   
   while(thread && thread->ignore_older_aborts <= _pmath_abort_timer){
-    if(/*thread->aborting || */thread->exception != PMATH_UNDEFINED)
+    if(!pmath_same(thread->exception, PMATH_UNDEFINED))
       return TRUE;
     
     thread = thread->parent;
@@ -536,11 +536,11 @@ PMATH_PRIVATE void _pmath_thread_clean(pmath_bool_t final){
   pmath_thread_t thread = pmath_thread_get_current();
   
   if(thread){
-    if(thread->exception != PMATH_UNDEFINED){
+    if(!pmath_same(thread->exception, PMATH_UNDEFINED)){
       pmath_t exception = _pmath_thread_catch(thread);
       
-      if(exception != PMATH_UNDEFINED
-      && exception != PMATH_ABORT_EXCEPTION){
+      if(!pmath_same(exception, PMATH_UNDEFINED)
+      && !pmath_same(exception, PMATH_ABORT_EXCEPTION)){
         if(thread->parent){
           _pmath_thread_throw(thread->parent, exception);
         }
@@ -605,7 +605,7 @@ PMATH_PRIVATE void _pmath_thread_free(pmath_thread_t thread){
     thread->gather_info = next_gather;
   }
   
-  if(thread->exception != PMATH_UNDEFINED){
+  if(!pmath_same(thread->exception, PMATH_UNDEFINED)){
     (void)pmath_atomic_fetch_add(&_pmath_abort_reasons, -1);
   }
   

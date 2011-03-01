@@ -35,7 +35,8 @@ PMATH_PRIVATE pmath_t builtin_assign_messages(pmath_expr_t expr){
   
   sym = pmath_expr_get_item(lhs, 1);
   
-  if(tag != PMATH_UNDEFINED && tag != sym){
+  if(!pmath_same(tag, PMATH_UNDEFINED)
+  && !pmath_same(tag, sym)){
     pmath_message(NULL, "tag", 3, tag, lhs, sym);
     
     pmath_unref(expr);
@@ -57,7 +58,7 @@ PMATH_PRIVATE pmath_t builtin_assign_messages(pmath_expr_t expr){
     return pmath_ref(PMATH_SYMBOL_FAILED);
   }
   
-  if(rhs == PMATH_UNDEFINED 
+  if(pmath_same(rhs, PMATH_UNDEFINED)
   || pmath_is_expr_of_len(rhs, PMATH_SYMBOL_LIST, 0)){
     rules = _pmath_symbol_get_rules(sym, RULES_READ);
     
@@ -75,7 +76,7 @@ PMATH_PRIVATE pmath_t builtin_assign_messages(pmath_expr_t expr){
     pmath_unref(lhs);
     pmath_unref(sym);
     
-    if(kind > 0 && rhs != PMATH_UNDEFINED)
+    if(kind > 0 && !pmath_same(rhs, PMATH_UNDEFINED))
       return rhs;
     
     pmath_unref(rhs);

@@ -1932,14 +1932,13 @@ static int ungrouped_string_length(pmath_t box){ // box wont be freed
   if(pmath_is_expr(box)){
     int result = 0;
     size_t i;
-    pmath_t head = pmath_expr_get_item((pmath_expr_t)box, 0);
+    pmath_t head = pmath_expr_get_item(box, 0);
     pmath_unref(head);
-    if(head && head != PMATH_SYMBOL_LIST)
+    if(head && !pmath_same(head, PMATH_SYMBOL_LIST))
       return 1;
     
-    for(i = pmath_expr_length((pmath_expr_t)box);i > 0;--i){
-      pmath_t boxi = pmath_expr_get_item(
-        (pmath_expr_t)box, i);
+    for(i = pmath_expr_length(box);i > 0;--i){
+      pmath_t boxi = pmath_expr_get_item(box, i);
       result+= ungrouped_string_length(boxi);
       pmath_unref(boxi);
     }
@@ -2031,7 +2030,8 @@ static void ungroup(
   if(pmath_is_expr(box)){
     pmath_t head = pmath_expr_get_item(box, 0);
     pmath_unref(head);
-    if(head == PMATH_SYMBOL_LIST || head == NULL){
+    if(pmath_same(head, PMATH_SYMBOL_LIST)
+    || !head){
       size_t i, len;
       int start = g->pos;
       
@@ -2041,7 +2041,9 @@ static void ungroup(
         
 	    g->spans->items[start]|= 2; // operand start
       
-      if(head == PMATH_SYMBOL_LIST && len >= 1 && start < g->pos){
+      if(len >= 1 
+      && start < g->pos
+      && pmath_same(head, PMATH_SYMBOL_LIST)){
         pmath_t first = pmath_expr_get_item(box, 1);
         
         pmath_span_t *old = SPAN_PTR(g->spans->items[start]);

@@ -138,7 +138,7 @@ PMATH_PRIVATE pmath_t builtin_parallelscan(pmath_expr_t expr){
       }
       
       exception = pmath_catch();
-      if(exception != PMATH_UNDEFINED){
+      if(!pmath_same(exception, PMATH_UNDEFINED)){
         pmath_unref(obj);
         obj = NULL;
         

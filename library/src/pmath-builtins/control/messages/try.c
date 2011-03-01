@@ -17,7 +17,7 @@ static void make_critical_message(pmath_t msg){ // msg will be freed
     pmath_t sym = pmath_expr_get_item(msg, 1);
     pmath_unref(sym);
     
-    if(sym == PMATH_SYMBOL_GENERAL)
+    if(pmath_same(sym, PMATH_SYMBOL_GENERAL))
       msg = pmath_expr_set_item(msg, 1, pmath_ref(_pmath_object_singlematch));
     
     PMATH_RUN_ARGS("Internal`IsCriticalMessage(HoldPattern(`1`)):= True", "(o)", msg);
@@ -67,7 +67,7 @@ PMATH_PRIVATE pmath_t builtin_try(pmath_expr_t expr){
       pmath_t item = pmath_expr_get_item(messages, 0);
       pmath_unref(item);
       
-      if(item != PMATH_SYMBOL_LIST){
+      if(!pmath_same(item, PMATH_SYMBOL_LIST)){
         pmath_message(NULL, "nomsgs", 1, messages);
         return expr;
       }
@@ -125,7 +125,7 @@ PMATH_PRIVATE pmath_t builtin_try(pmath_expr_t expr){
   body = pmath_evaluate(body);
   
   exception = _pmath_thread_catch(thread);
-  if(exception != PMATH_UNDEFINED){
+  if(!pmath_same(exception, PMATH_UNDEFINED)){
     if(_pmath_is_valid_messagename(exception)){
       if(exprlen < 3 || pmath_equals(exception, messages)){
         pmath_unref(body);
@@ -162,7 +162,7 @@ PMATH_PRIVATE pmath_t builtin_try(pmath_expr_t expr){
   
   PMATH_RUN_ARGS("DownRules(Internal`IsCriticalMessage):= `1`", "(o)", old_downrules);
   
-  if(exception != PMATH_UNDEFINED)
+  if(!pmath_same(exception, PMATH_UNDEFINED))
     _pmath_thread_throw(thread, exception);
     
   return body;

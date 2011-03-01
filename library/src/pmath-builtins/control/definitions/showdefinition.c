@@ -186,7 +186,7 @@ PMATH_PRIVATE pmath_t builtin_showdefinition(pmath_expr_t expr){
     print_rule_defs(sym, obj, FALSE);
     
     obj = pmath_symbol_get_value(sym);
-    if(obj != PMATH_UNDEFINED){
+    if(!pmath_same(obj, PMATH_UNDEFINED)){
       if(pmath_is_evaluated(obj)){
         PMATH_RUN_ARGS(
             "SectionPrint(\"Print\", HoldForm(`1`:= `2`))", 

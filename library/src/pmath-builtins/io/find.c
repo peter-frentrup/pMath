@@ -42,10 +42,10 @@ PMATH_PRIVATE pmath_t builtin_find(pmath_expr_t expr){
   pcre_options = 0;
   obj = pmath_option_value(NULL, PMATH_SYMBOL_IGNORECASE, options);
   pmath_unref(options);
-  if(obj == PMATH_SYMBOL_TRUE){
+  if(pmath_same(obj, PMATH_SYMBOL_TRUE)){
     pcre_options|= PCRE_CASELESS;
   }
-  else if(obj != PMATH_SYMBOL_FALSE){
+  else if(!pmath_same(obj, PMATH_SYMBOL_FALSE)){
     pmath_message(NULL, "opttf", 2, pmath_ref(PMATH_SYMBOL_IGNORECASE), obj);
     return expr;
   }
@@ -145,10 +145,10 @@ PMATH_PRIVATE pmath_t builtin_findlist(pmath_expr_t expr){
   pcre_options = 0;
   obj = pmath_option_value(NULL, PMATH_SYMBOL_IGNORECASE, options);
   pmath_unref(options);
-  if(obj == PMATH_SYMBOL_TRUE){
+  if(pmath_same(obj, PMATH_SYMBOL_TRUE)){
     pcre_options|= PCRE_CASELESS;
   }
-  else if(obj != PMATH_SYMBOL_FALSE){
+  else if(!pmath_same(obj, PMATH_SYMBOL_FALSE)){
     pmath_message(NULL, "opttf", 2, pmath_ref(PMATH_SYMBOL_IGNORECASE), obj);
     return expr;
   }

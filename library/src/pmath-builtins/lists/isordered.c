@@ -39,7 +39,7 @@ PMATH_PRIVATE pmath_t builtin_isordered(pmath_expr_t expr){
         pmath_ref(last),
         pmath_ref(current)));
       pmath_unref(cmp);
-      if(cmp != PMATH_SYMBOL_TRUE){
+      if(!pmath_same(cmp, PMATH_SYMBOL_TRUE)){
         pmath_unref(last);
         pmath_unref(current);
         pmath_unref(lessfn);

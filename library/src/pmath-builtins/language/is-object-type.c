@@ -248,10 +248,10 @@ PMATH_PRIVATE pmath_t builtin_ispos_or_isneg(pmath_expr_t expr){
   
   head = pmath_expr_get_item(expr, 0);
   pmath_unref(head);
-  if(     head == PMATH_SYMBOL_ISNEGATIVE)     needclazz = PMATH_CLASS_NEG;
-  else if(head == PMATH_SYMBOL_ISNONNEGATIVE)  needclazz = PMATH_CLASS_POS | PMATH_CLASS_ZERO;
-  else if(head == PMATH_SYMBOL_ISNONPOSITIVE)  needclazz = PMATH_CLASS_NEG | PMATH_CLASS_ZERO;
-  else if(head == PMATH_SYMBOL_ISPOSITIVE)     needclazz = PMATH_CLASS_POS;
+  if(     pmath_same(head, PMATH_SYMBOL_ISNEGATIVE))     needclazz = PMATH_CLASS_NEG;
+  else if(pmath_same(head, PMATH_SYMBOL_ISNONNEGATIVE))  needclazz = PMATH_CLASS_POS | PMATH_CLASS_ZERO;
+  else if(pmath_same(head, PMATH_SYMBOL_ISNONPOSITIVE))  needclazz = PMATH_CLASS_NEG | PMATH_CLASS_ZERO;
+  else if(pmath_same(head, PMATH_SYMBOL_ISPOSITIVE))     needclazz = PMATH_CLASS_POS;
   
   obj = pmath_expr_get_item(expr, 1);
   clazz = _pmath_number_class(obj);

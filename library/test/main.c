@@ -299,7 +299,7 @@ static pmath_t dialog(pmath_t first_eval){
   result = check_dialog_return(first_eval);
   pmath_unref(first_eval);
   
-  if(result == PMATH_UNDEFINED){
+  if(pmath_same(result, PMATH_UNDEFINED)){
     result = NULL;
     while(!quitting){
       pmath_string_t code;
@@ -355,7 +355,7 @@ static pmath_t dialog(pmath_t first_eval){
           if(dialog_depth > 0){
             result = check_dialog_return(obj);
             
-            if(result != PMATH_UNDEFINED){
+            if(!pmath_same(result, PMATH_UNDEFINED)){
               pmath_unref(obj);
               pmath_unref(code);
               pmath_span_array_free(spans);

@@ -77,9 +77,9 @@ PMATH_PRIVATE pmath_t builtin_renamedirectory_and_renamefile(pmath_expr_t expr){
         BY_HANDLE_FILE_INFORMATION info;
         
         if(GetFileInformationByHandle(h, &info)
-        && ((head == PMATH_SYMBOL_RENAMEDIRECTORY 
+        && ((pmath_same(head, PMATH_SYMBOL_RENAMEDIRECTORY)
           && (info.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
-         || (head == PMATH_SYMBOL_RENAMEFILE
+         || (pmath_same(head, PMATH_SYMBOL_RENAMEFILE)
           && !(info.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)))
         ){
           CloseHandle(h);
@@ -114,7 +114,7 @@ PMATH_PRIVATE pmath_t builtin_renamedirectory_and_renamefile(pmath_expr_t expr){
               
               case ERROR_FILE_NOT_FOUND: 
               case ERROR_PATH_NOT_FOUND: 
-                if(head == PMATH_SYMBOL_RENAMEDIRECTORY){
+                if(pmath_same(head, PMATH_SYMBOL_RENAMEDIRECTORY)){
                   pmath_message(NULL, "nodir", 1,
                     pmath_string_part(name1, 0, pmath_string_length(name1) - 1)); 
                   name1 = NULL;
@@ -143,7 +143,7 @@ PMATH_PRIVATE pmath_t builtin_renamedirectory_and_renamefile(pmath_expr_t expr){
               break;
             
             default:
-              if(head == PMATH_SYMBOL_RENAMEFILE){
+              if(pmath_same(head, PMATH_SYMBOL_RENAMEFILE)){
                 pmath_message(NULL, "fdir", 1, 
                   pmath_string_part(name1, 0, pmath_string_length(name1) - 1));
                 name1 = NULL;
@@ -167,7 +167,7 @@ PMATH_PRIVATE pmath_t builtin_renamedirectory_and_renamefile(pmath_expr_t expr){
             break;
           
           default:
-            if(head == PMATH_SYMBOL_RENAMEFILE){
+            if(pmath_same(head, PMATH_SYMBOL_RENAMEFILE)){
               pmath_message(NULL, "nffil", 1, expr);
               expr = NULL;
             }
@@ -197,9 +197,9 @@ PMATH_PRIVATE pmath_t builtin_renamedirectory_and_renamefile(pmath_expr_t expr){
       else{
         errno = 0;
         if(stat(str1, &buf) == 0
-        && ((head == PMATH_SYMBOL_RENAMEDIRECTORY 
+        && ((pmath_same(head, PMATH_SYMBOL_RENAMEDIRECTORY)
           && S_ISDIR(buf.st_mode))
-         || (head == PMATH_SYMBOL_RENAMEFILE 
+         || (pmath_same(head, PMATH_SYMBOL_RENAMEFILE)
           && !S_ISDIR(buf.st_mode)))
         ){
           errno = 0;
@@ -250,7 +250,7 @@ PMATH_PRIVATE pmath_t builtin_renamedirectory_and_renamefile(pmath_expr_t expr){
               break;
             
             default:
-              if(head == PMATH_SYMBOL_RENAMEDIRECTORY){
+              if(pmath_same(head, PMATH_SYMBOL_RENAMEDIRECTORY)){
                 pmath_message(NULL, "nodir", 1, name1); 
                 name1 = NULL; 
               }

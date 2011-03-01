@@ -491,7 +491,7 @@ static pmath_bool_t _pmath_multirule_find(
           cond = pmath_expr_get_item(rule_body, 2);
           pmath_unref(cond);
           
-          if(cond == PMATH_SYMBOL_TRUE){
+          if(pmath_same(cond, PMATH_SYMBOL_TRUE)){
             pmath_unref(*inout);
             *inout = pmath_expr_get_item(rule_body, 1);
             pmath_unref(rule_body);
@@ -579,7 +579,7 @@ static pmath_bool_t _pmath_multirule_change_ex(
       if(_pmath_rhs_condition(&rule_member, FALSE)){
         cmp = 1;
         
-        if(body == PMATH_UNDEFINED){ // remove this rule and go on
+        if(pmath_same(body, PMATH_UNDEFINED)){ // remove this rule and go on
           tmp = MULTIRULE_START(rule_base); // start atomic ...
           
           if(tmp != rule){ // another thread annoyed us
@@ -618,7 +618,7 @@ static pmath_bool_t _pmath_multirule_change_ex(
         return FALSE;
       }
       
-      if(body == PMATH_UNDEFINED){ // remove rule
+      if(pmath_same(body, PMATH_UNDEFINED)){ // remove rule
         UNREF_MULTIRULE(tmp);
         tmp = MULTIRULE_READ(&rule->next);
       }
@@ -634,7 +634,7 @@ static pmath_bool_t _pmath_multirule_change_ex(
     }
     
     if(cmp < 0){ // insert before curren rule
-      if(body != PMATH_UNDEFINED){
+      if(!pmath_same(body, PMATH_UNDEFINED)){
         new_rule = create_multirule();
         
         if(!new_rule){ // no memory, but repurt success so caller does not stuck in an infinite loop
@@ -678,7 +678,7 @@ static pmath_bool_t _pmath_multirule_change_ex(
     rule = MULTIRULE_READ(rule_base);
   }
   
-  if(body != PMATH_UNDEFINED){
+  if(!pmath_same(body, PMATH_UNDEFINED)){
     new_rule = create_multirule();
     
     if(new_rule){
@@ -732,7 +732,7 @@ void _pmath_rulecache_change(
   
   table = rulecache_table_lock(rc);
   
-  if(body == PMATH_UNDEFINED || body_has_condition){
+  if(body_has_condition || pmath_same(body, PMATH_UNDEFINED)){
     entry = pmath_ht_remove(table, pattern);
     
     if(entry){
@@ -975,7 +975,7 @@ void _pmath_symbol_define_value_pos(
     }
     
     pmath_unref(body);
-    if(value == PMATH_UNDEFINED)
+    if(pmath_same(value, PMATH_UNDEFINED))
       pmath_unref(pattern);
     else
       _pmath_symbol_define_value_pos(value_position, pattern, value);

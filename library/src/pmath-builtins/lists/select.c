@@ -64,7 +64,7 @@ PMATH_PRIVATE pmath_t builtin_select(pmath_expr_t expr){
     obj = pmath_evaluate(obj);
     pmath_unref(obj);
     
-    if(obj != PMATH_SYMBOL_TRUE)
+    if(!pmath_same(obj, PMATH_SYMBOL_TRUE))
       list = pmath_expr_set_item(list, i, PMATH_UNDEFINED);
     else
       --count;

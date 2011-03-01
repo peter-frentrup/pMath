@@ -34,11 +34,12 @@ static void emit_directory_entries(
   struct _capture_t  *capture,
   pmath_t             directory // will be freed
 ){
-  if(directory == PMATH_UNDEFINED || pmath_is_string(directory)){
+  if(pmath_same(directory, PMATH_UNDEFINED)
+  || pmath_is_string(directory)){
     #ifdef PMATH_OS_WIN32
     {
       static const uint16_t rest[4] = {'.', '\\', '*', '\0'};
-      pmath_bool_t is_default = directory == PMATH_UNDEFINED;
+      pmath_bool_t is_default = pmath_same(directory, PMATH_UNDEFINED);
       
       if(is_default){
         directory = pmath_string_insert_ucs2(NULL, 0, rest, 4);
@@ -176,7 +177,7 @@ static void emit_directory_entries(
       DIR *dir = NULL;
       struct dirent *entry;
       
-      if(directory == PMATH_UNDEFINED){
+      if(pmath_same(directory, PMATH_UNDEFINED)){
         dir = opendir(".");
       }
       else{
@@ -203,7 +204,7 @@ static void emit_directory_entries(
             && _pmath_regex_match(regex, utf8, len, 0, 0, capture, NULL)){
               pmath_string_t name = pmath_string_from_utf8(utf8, len);
               
-              if(directory != PMATH_UNDEFINED)
+              if(!pmath_same(directory, PMATH_UNDEFINED))
                 name = pmath_string_concat(pmath_ref(directory), name);
               
               pmath_emit(name, NULL);
@@ -220,7 +221,7 @@ static void emit_directory_entries(
               && _pmath_regex_match(regex, utf8, length, 0, 0, capture, NULL)){
                 pmath_string_t name = pmath_ref(s);//pmath_string_from_utf8(utf8, length);
                 
-                if(directory != PMATH_UNDEFINED)
+                if(!pmath_same(directory, PMATH_UNDEFINED))
                   name = pmath_string_concat(pmath_ref(directory), name);
                 
                 pmath_emit(name, NULL);
@@ -326,15 +327,15 @@ PMATH_PRIVATE pmath_t builtin_filenames(pmath_expr_t expr){
   
   obj = pmath_evaluate(pmath_option_value(NULL, PMATH_SYMBOL_IGNORECASE, options));
   pmath_unref(options);
-  if(obj == PMATH_SYMBOL_TRUE){
+  if(pmath_same(obj, PMATH_SYMBOL_TRUE)){
     pcre_options = PCRE_CASELESS;
   }
-  else if(obj == PMATH_SYMBOL_AUTOMATIC){
+  else if(pmath_same(obj, PMATH_SYMBOL_AUTOMATIC)){
     #ifdef PMATH_OS_WIN32
       pcre_options = PCRE_CASELESS;
     #endif
   }
-  else if(obj != PMATH_SYMBOL_FALSE){
+  else if(!pmath_same(obj, PMATH_SYMBOL_FALSE)){
     pmath_message(
       NULL, "opttfa", 2,
       pmath_ref(PMATH_SYMBOL_IGNORECASE),

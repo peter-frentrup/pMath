@@ -271,7 +271,7 @@ PMATH_PRIVATE pmath_t builtin_constantarray(pmath_expr_t expr){
     pmath_t h = pmath_expr_get_item((pmath_expr_t)n, 0);
     pmath_unref(h);
 
-    if(h == PMATH_SYMBOL_LIST){
+    if(pmath_same(h, PMATH_SYMBOL_LIST)){
       data.dims = pmath_expr_length((pmath_expr_t)n);
       if(data.dims > MAX_DIM){
         pmath_unref(n);

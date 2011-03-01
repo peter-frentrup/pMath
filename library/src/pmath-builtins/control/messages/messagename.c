@@ -17,7 +17,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_is_valid_messagename(pmath_t msg){
   
   obj = pmath_expr_get_item(msg, 0);
   pmath_unref(obj);
-  if(obj != PMATH_SYMBOL_MESSAGENAME)
+  if(!pmath_same(obj, PMATH_SYMBOL_MESSAGENAME))
     return FALSE;
   
   obj = pmath_expr_get_item(msg, 1);
@@ -44,30 +44,6 @@ PMATH_PRIVATE pmath_t builtin_iscriticalmessage(pmath_expr_t expr){
   
   pmath_unref(expr);
   return pmath_ref(PMATH_SYMBOL_FALSE);
-  
-//  pmath_t obj;
-//  pmath_thread_t thread;
-//  
-//  
-//  thread = pmath_thread_get_current();
-//  
-//  pmath_unref(obj);
-//  obj = _pmath_thread_local_load_with(expr, thread);
-//  pmath_unref(expr);
-//  
-//  if(obj == PMATH_SYMBOL_TRUE)
-//    return obj;
-//  
-//  pmath_unref(obj);
-//  expr = pmath_expr_new(pmath_ref(PMATH_SYMBOL_ISCRITICALMESSAGE), 0);
-//  obj = _pmath_thread_local_load_with(expr, thread);
-//  pmath_unref(expr);
-//  
-//  if(obj == PMATH_SYMBOL_TRUE)
-//    return obj;
-//  
-//  pmath_unref(obj);
-//  return pmath_ref(PMATH_SYMBOL_FALSE);
 }
 
 PMATH_PRIVATE pmath_t builtin_assign_messagename(pmath_expr_t expr){
@@ -92,11 +68,12 @@ PMATH_PRIVATE pmath_t builtin_assign_messagename(pmath_expr_t expr){
   sym = pmath_expr_get_item(lhs, 1);
   assert(pmath_is_symbol(sym));
   
-  if(tag != PMATH_UNDEFINED && tag != sym){
+  if(!pmath_same(tag, PMATH_UNDEFINED) 
+  && !pmath_same(tag, sym)){
     pmath_message(PMATH_SYMBOL_MESSAGE, "tag", 3, tag, lhs, sym);
     
     pmath_unref(expr);
-    if(rhs == PMATH_UNDEFINED)
+    if(pmath_same(rhs, PMATH_UNDEFINED))
       return pmath_ref(PMATH_SYMBOL_FAILED);
     return rhs;
   }
@@ -110,12 +87,12 @@ PMATH_PRIVATE pmath_t builtin_assign_messagename(pmath_expr_t expr){
   if(!rules){
     pmath_unref(lhs);
     
-    if(rhs == PMATH_UNDEFINED)
+    if(pmath_same(rhs, PMATH_UNDEFINED))
       return pmath_ref(PMATH_SYMBOL_FAILED);
     return rhs;
   }
   
-  if(rhs != PMATH_UNDEFINED
+  if(pmath_same(rhs, PMATH_UNDEFINED)
   && !pmath_is_string(rhs)){
     pmath_message(PMATH_SYMBOL_MESSAGE, "str", 1, pmath_ref(rhs));
     
@@ -126,11 +103,11 @@ PMATH_PRIVATE pmath_t builtin_assign_messagename(pmath_expr_t expr){
   
   messages = (pmath_hashtable_t)_pmath_atomic_lock_ptr(&rules->_messages);
   
-  if(!messages && rhs != PMATH_UNDEFINED)
+  if(!messages && pmath_same(rhs, PMATH_UNDEFINED))
     messages = pmath_ht_create(&pmath_ht_obj_class, 1);
   
   entry = NULL;
-  if(rhs == PMATH_UNDEFINED){
+  if(pmath_same(rhs, PMATH_UNDEFINED)){
     entry = pmath_ht_remove(messages, lhs);
   }
   else{
@@ -156,7 +133,7 @@ PMATH_PRIVATE pmath_t builtin_assign_messagename(pmath_expr_t expr){
     pmath_ht_obj_class.entry_destructor(entry);
     
   pmath_unref(lhs);
-  if(rhs == PMATH_UNDEFINED)
+  if(pmath_same(rhs, PMATH_UNDEFINED))
     return NULL;
   
   return rhs;
@@ -210,7 +187,7 @@ PMATH_PRIVATE pmath_t builtin_messagename(pmath_expr_t expr){
     if(loop == 0){
       pmath_t value = pmath_symbol_get_value(PMATH_SYMBOL_NEWMESSAGE);
       
-      if(value == PMATH_UNDEFINED)
+      if(pmath_same(value, PMATH_UNDEFINED))
         break;
         
       pmath_unref(pmath_evaluate(

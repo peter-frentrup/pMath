@@ -16,13 +16,14 @@ PMATH_PRIVATE pmath_t builtin_conditionalexpression(pmath_expr_t expr){
   value = pmath_expr_get_item(expr, 1);
   test  = pmath_expr_get_item(expr, 2);
   
-  if(test == PMATH_SYMBOL_TRUE){
+  if(pmath_same(test, PMATH_SYMBOL_TRUE)){
     pmath_unref(test);
     pmath_unref(expr);
     return value;
   }
   
-  if(test == PMATH_SYMBOL_FALSE || test == PMATH_SYMBOL_UNDEFINED){
+  if(pmath_same(test, PMATH_SYMBOL_FALSE)
+  || pmath_same(test, PMATH_SYMBOL_UNDEFINED)){
     pmath_unref(value);
     pmath_unref(test);
     pmath_unref(expr);

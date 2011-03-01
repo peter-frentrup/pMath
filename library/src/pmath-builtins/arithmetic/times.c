@@ -399,7 +399,7 @@ static void split_factor(
     pmath_t head = pmath_expr_get_item(factor, 0);
     pmath_unref(head);
     
-    if(head == PMATH_SYMBOL_POWER){
+    if(pmath_same(head, PMATH_SYMBOL_POWER)){
       pmath_t exponent = pmath_expr_get_item(factor, 2);
       *out_base = pmath_expr_get_item(factor, 1);
       split_summand(exponent, out_num_power, out_rest_power);
@@ -586,14 +586,14 @@ static void times_2_arg(pmath_t *a, pmath_t *b){
 
     if(pmath_equals(baseA, baseB) 
     && pmath_equals(restPowerA, restPowerB)
-    && (restPowerA != PMATH_UNDEFINED || !pmath_is_number(baseA))){
+    && (!pmath_same(restPowerA, PMATH_UNDEFINED) || !pmath_is_number(baseA))){
       pmath_unref(*a);
       pmath_unref(baseB);
       pmath_unref(restPowerB);
       pmath_unref(*b);
       *b = PMATH_UNDEFINED;
       
-      if(restPowerA == PMATH_UNDEFINED){
+      if(pmath_same(restPowerA, PMATH_UNDEFINED)){
         *a = pmath_expr_new_extended(
           pmath_ref(PMATH_SYMBOL_POWER), 2,
           baseA,
@@ -675,11 +675,11 @@ PMATH_PRIVATE pmath_t builtin_times(pmath_expr_t expr){
   ia = 1;
   while(ia < elen){
     pmath_t a = pmath_expr_get_item(expr, ia);
-    if(a != PMATH_UNDEFINED){
+    if(!pmath_same(a, PMATH_UNDEFINED)){
       ib = ia + 1;
       while(ib <= elen){
         pmath_t b = pmath_expr_get_item(expr, ib);
-        if(b != PMATH_UNDEFINED){
+        if(!pmath_same(b, PMATH_UNDEFINED)){
           times_2_arg(&a, &b);
           expr = pmath_expr_set_item(expr, ia, pmath_ref(a));
           expr = pmath_expr_set_item(expr, ib, b);

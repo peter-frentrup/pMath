@@ -39,14 +39,14 @@ pmath_t builtin_piecewise(pmath_expr_t expr){
     pmath_t pair = pmath_expr_get_item(matrix, i);
     pmath_t cond = pmath_evaluate(pmath_expr_get_item(pair, 2));
     
-    if(cond == PMATH_SYMBOL_FALSE){
+    if(pmath_same(cond, PMATH_SYMBOL_FALSE)){
       pmath_unref(cond);
       pmath_unref(pair);
       matrix = pmath_expr_set_item(matrix, i, PMATH_UNDEFINED);
       continue;
     }
     
-    if(cond == PMATH_SYMBOL_TRUE){
+    if(pmath_same(cond, PMATH_SYMBOL_TRUE)){
       pmath_unref(cond);
       pmath_unref(fallback);
       fallback = pmath_expr_get_item(pair, 1);

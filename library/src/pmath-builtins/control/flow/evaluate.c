@@ -15,9 +15,9 @@ PMATH_PRIVATE pmath_bool_t _pmath_run(pmath_t *in_out){
     pmath_t head = pmath_expr_get_item((pmath_expr_t)*in_out, 0);
     pmath_unref(head);
     
-    if(head == PMATH_SYMBOL_CONTINUE 
-    || head == PMATH_SYMBOL_BREAK){
-      pmath_bool_t do_break = head == PMATH_SYMBOL_BREAK;
+    if(pmath_same(head, PMATH_SYMBOL_CONTINUE) 
+    || pmath_same(head, PMATH_SYMBOL_BREAK)){
+      pmath_bool_t do_break = pmath_same(head, PMATH_SYMBOL_BREAK);
       
       pmath_t counter = pmath_expr_get_item((pmath_expr_t)*in_out, 1);
       if(pmath_is_integer(counter)
@@ -38,7 +38,8 @@ PMATH_PRIVATE pmath_bool_t _pmath_run(pmath_t *in_out){
       return do_break;
     }
 
-    if(head == PMATH_SYMBOL_RETURN || head == PMATH_SYMBOL_GOTO)
+    if(pmath_same(head, PMATH_SYMBOL_RETURN) 
+    || pmath_same(head, PMATH_SYMBOL_GOTO))
       return TRUE;
   }
 
@@ -99,10 +100,10 @@ PMATH_PRIVATE pmath_t builtin_evaluatedelayed(pmath_expr_t expr){
       pmath_bool_t must_flatten;
       pmath_t head = pmath_expr_get_item(expr, 0);
       
-      if(head == PMATH_SYMBOL_HOLD
-      || head == PMATH_SYMBOL_HOLDCOMPLETE
-      || head == PMATH_SYMBOL_HOLDFORM
-      || head == PMATH_SYMBOL_HOLDPATTERN){
+      if(pmath_same(head, PMATH_SYMBOL_HOLD)
+      || pmath_same(head, PMATH_SYMBOL_HOLDCOMPLETE)
+      || pmath_same(head, PMATH_SYMBOL_HOLDFORM)
+      || pmath_same(head, PMATH_SYMBOL_HOLDPATTERN)){
         pmath_unref(head);
         return pmath_expr_set_item(expr, 0, PMATH_UNDEFINED);
       }
@@ -199,17 +200,18 @@ PMATH_PRIVATE pmath_t builtin_evaluationsequence(pmath_expr_t expr){
       pmath_t head = pmath_expr_get_item(result, 0);
       pmath_unref(head);
       
-      if(head == PMATH_SYMBOL_BREAK
-      || head == PMATH_SYMBOL_CONTINUE
-      || head == PMATH_SYMBOL_RETURN){
+      if(pmath_same(head, PMATH_SYMBOL_BREAK)
+      || pmath_same(head, PMATH_SYMBOL_CONTINUE)
+      || pmath_same(head, PMATH_SYMBOL_RETURN)){
         pmath_unref(expr);
         return result;
       }
       
-      if(head == PMATH_SYMBOL_LABEL){
+      if(pmath_same(head, PMATH_SYMBOL_LABEL)){
         have_label = TRUE;
       }
-      else if(head == PMATH_SYMBOL_GOTO && pmath_expr_length(result) == 1){
+      else if(pmath_same(head, PMATH_SYMBOL_GOTO) 
+      && pmath_expr_length(result) == 1){
         pmath_t lbl = pmath_expr_get_item(result, 1);
         size_t j;
         

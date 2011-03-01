@@ -140,7 +140,7 @@ static pmath_t ordered(
     
     start = 1;
     prev = pmath_expr_get_item(expr, 1);
-    if(prev == PMATH_SYMBOL_UNDEFINED){
+    if(pmath_same(prev, PMATH_SYMBOL_UNDEFINED)){
       pmath_unref(expr);
       return prev;
     }
@@ -535,7 +535,7 @@ static pmath_t ordered(
       
       pmath_unref(prev);
       prev = next;
-      if(prev == PMATH_SYMBOL_UNDEFINED){
+      if(pmath_same(prev, PMATH_SYMBOL_UNDEFINED)){
         pmath_unref(expr);
         return prev;
       }
@@ -607,7 +607,7 @@ PMATH_PRIVATE pmath_t builtin_unequal(pmath_expr_t expr){
     size_t j;
     
     a = pmath_expr_get_item(expr, i);
-    if(a == PMATH_SYMBOL_UNDEFINED){
+    if(pmath_same(a, PMATH_SYMBOL_UNDEFINED)){
       pmath_unref(expr);
       return a;
     }
@@ -630,7 +630,7 @@ PMATH_PRIVATE pmath_t builtin_unequal(pmath_expr_t expr){
   }
   
   a = pmath_expr_get_item(expr, len);
-  if(a == PMATH_SYMBOL_UNDEFINED){
+  if(pmath_same(a, PMATH_SYMBOL_UNDEFINED)){
     pmath_unref(expr);
     return a;
   }
@@ -643,46 +643,46 @@ PMATH_PRIVATE pmath_t builtin_unequal(pmath_expr_t expr){
 }
 
 static int relation_direction(pmath_t rel){
-  if(rel == PMATH_SYMBOL_EQUAL)
-    return DIRECTION_EQUAL;
-  if(rel == PMATH_SYMBOL_LESS)
-    return DIRECTION_LESS;
-  if(rel == PMATH_SYMBOL_LESSEQUAL)
-    return DIRECTION_LESS | DIRECTION_EQUAL;
-  if(rel == PMATH_SYMBOL_GREATER)
-    return DIRECTION_GREATER;
-  if(rel == PMATH_SYMBOL_GREATEREQUAL)
-    return DIRECTION_GREATER | DIRECTION_EQUAL;
+  if(pmath_same(rel, PMATH_SYMBOL_EQUAL))        return DIRECTION_EQUAL;
+  if(pmath_same(rel, PMATH_SYMBOL_LESS))         return DIRECTION_LESS;
+  if(pmath_same(rel, PMATH_SYMBOL_LESSEQUAL))    return DIRECTION_LESS | DIRECTION_EQUAL;
+  if(pmath_same(rel, PMATH_SYMBOL_GREATER))      return DIRECTION_GREATER;
+  if(pmath_same(rel, PMATH_SYMBOL_GREATEREQUAL)) return DIRECTION_GREATER | DIRECTION_EQUAL;
   return 0;
 }
 
 static pmath_t combine_relations(pmath_t rel1, pmath_t rel2){
-  if(rel1 == PMATH_SYMBOL_EQUAL)
+  if(pmath_same(rel1, PMATH_SYMBOL_EQUAL))
     return rel2;
   
-  if(rel2 == PMATH_SYMBOL_EQUAL)
+  if(pmath_same(rel2, PMATH_SYMBOL_EQUAL))
     return rel1;
   
-  if(rel1 == PMATH_SYMBOL_UNEQUAL || rel2 == PMATH_SYMBOL_UNEQUAL)
+  if(pmath_same(rel1, PMATH_SYMBOL_UNEQUAL)
+  || pmath_same(rel2, PMATH_SYMBOL_UNEQUAL))
     return NULL;
   
-  if(rel1 == PMATH_SYMBOL_LESS){
-    if(rel2 == PMATH_SYMBOL_LESS || rel2 == PMATH_SYMBOL_LESSEQUAL)
+  if(pmath_same(rel1, PMATH_SYMBOL_LESS)){
+    if(pmath_same(rel2, PMATH_SYMBOL_LESS)
+    || pmath_same(rel2, PMATH_SYMBOL_LESSEQUAL))
       return rel1;
   }
   
-  if(rel1 == PMATH_SYMBOL_LESSEQUAL){
-    if(rel2 == PMATH_SYMBOL_LESS || rel2 == PMATH_SYMBOL_LESSEQUAL)
+  if(pmath_same(rel1, PMATH_SYMBOL_LESSEQUAL)){
+    if(pmath_same(rel2, PMATH_SYMBOL_LESS)
+    || pmath_same(rel2, PMATH_SYMBOL_LESSEQUAL))
       return rel2;
   }
   
-  if(rel1 == PMATH_SYMBOL_GREATER){
-    if(rel2 == PMATH_SYMBOL_GREATER || rel2 == PMATH_SYMBOL_GREATEREQUAL)
+  if(pmath_same(rel1, PMATH_SYMBOL_GREATER)){
+    if(pmath_same(rel2, PMATH_SYMBOL_GREATER)
+    || pmath_same(rel2, PMATH_SYMBOL_GREATEREQUAL))
       return rel1;
   }
   
-  if(rel1 == PMATH_SYMBOL_GREATEREQUAL){
-    if(rel2 == PMATH_SYMBOL_GREATER || rel2 == PMATH_SYMBOL_GREATEREQUAL)
+  if(pmath_same(rel1, PMATH_SYMBOL_GREATEREQUAL)){
+    if(pmath_same(rel2, PMATH_SYMBOL_GREATER)
+    || pmath_same(rel2, PMATH_SYMBOL_GREATEREQUAL))
       return rel2;
   }
   
@@ -727,7 +727,8 @@ PMATH_PRIVATE pmath_t builtin_inequation(pmath_expr_t expr){
         pmath_ref(prev),
         pmath_ref(next)));
 
-    if(test == PMATH_SYMBOL_FALSE || test == PMATH_SYMBOL_UNDEFINED){
+    if(pmath_same(test, PMATH_SYMBOL_FALSE)
+    || pmath_same(test, PMATH_SYMBOL_UNDEFINED)){
       pmath_unref(relation);
       pmath_unref(prev);
       pmath_unref(next);
@@ -735,7 +736,7 @@ PMATH_PRIVATE pmath_t builtin_inequation(pmath_expr_t expr){
       return test;
     }
     
-    if(test == PMATH_SYMBOL_TRUE){
+    if(pmath_same(test, PMATH_SYMBOL_TRUE)){
       if(prev_was_true){
         pmath_t new_relation = combine_relations(prev_relation, relation);
         
@@ -787,7 +788,7 @@ PMATH_PRIVATE pmath_t builtin_inequation(pmath_expr_t expr){
       }
     }
     
-    prev_was_true = (test == PMATH_SYMBOL_TRUE);
+    prev_was_true = pmath_same(test, PMATH_SYMBOL_TRUE);
     pmath_unref(test);
     pmath_unref(prev_relation);
     prev_relation = relation;

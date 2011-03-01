@@ -94,7 +94,7 @@ PMATH_PRIVATE pmath_t builtin_arctan(pmath_expr_t expr){
     pmath_t head = pmath_expr_get_item(x, 0);
     pmath_unref(head);
     
-    if(head == PMATH_SYMBOL_TIMES){
+    if(pmath_same(head, PMATH_SYMBOL_TIMES)){
       pmath_t fst = pmath_expr_get_item(x, 1);
       
       if(pmath_is_number(fst)){

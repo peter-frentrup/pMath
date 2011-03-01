@@ -74,7 +74,8 @@ PMATH_PRIVATE pmath_bool_t _pmath_is_rule(pmath_t rule){
   else{
     pmath_t head = pmath_expr_get_item(rule, 0);
     pmath_unref(head);
-    return head == PMATH_SYMBOL_RULE || head == PMATH_SYMBOL_RULEDELAYED;
+    return pmath_same(head, PMATH_SYMBOL_RULE) 
+        || pmath_same(head, PMATH_SYMBOL_RULEDELAYED);
   }
 }
 
@@ -84,7 +85,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_is_list_of_rules(pmath_t rules){
     pmath_t head = pmath_expr_get_item(rules, 0);
     pmath_unref(head);
     
-    if(head != PMATH_SYMBOL_LIST)
+    if(!pmath_same(head, PMATH_SYMBOL_LIST))
       return FALSE;
       
     for(i = pmath_expr_length(rules);i >= 1;--i){
@@ -160,10 +161,10 @@ PMATH_PRIVATE pmath_t builtin_replace(pmath_expr_t expr){
   }
   
   obj = pmath_evaluate(pmath_option_value(NULL, PMATH_SYMBOL_HEADS, options));
-  if(obj == PMATH_SYMBOL_TRUE){
+  if(pmath_same(obj, PMATH_SYMBOL_TRUE)){
     info.with_heads = TRUE;
   }
-  else if(obj != PMATH_SYMBOL_FALSE){
+  else if(!pmath_same(obj, PMATH_SYMBOL_FALSE)){
     pmath_unref(rules);
     pmath_unref(options);
     pmath_message(
@@ -177,7 +178,7 @@ PMATH_PRIVATE pmath_t builtin_replace(pmath_expr_t expr){
   
   obj = pmath_expr_get_item(expr, 0);
   pmath_unref(obj);
-  if(obj == PMATH_SYMBOL_REPLACE){
+  if(pmath_same(obj, PMATH_SYMBOL_REPLACE)){
     obj = pmath_expr_get_item(expr, 1);
     pmath_unref(expr);
     
@@ -309,10 +310,10 @@ PMATH_PRIVATE pmath_t builtin_replacelist(pmath_expr_t expr){
   }
   
   obj = pmath_evaluate(pmath_option_value(NULL, PMATH_SYMBOL_HEADS, options));
-  if(obj == PMATH_SYMBOL_TRUE){
+  if(pmath_same(obj, PMATH_SYMBOL_TRUE)){
     info.with_heads = TRUE;
   }
-  else if(obj != PMATH_SYMBOL_FALSE){
+  else if(!pmath_same(obj, PMATH_SYMBOL_FALSE)){
     pmath_unref(rules);
     pmath_unref(options);
     pmath_message(

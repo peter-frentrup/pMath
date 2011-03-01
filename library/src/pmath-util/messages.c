@@ -191,7 +191,7 @@ PMATH_API pmath_string_t pmath_message_find_text(pmath_t name){
       }
     }
     
-    if(sym != PMATH_SYMBOL_GENERAL){
+    if(!pmath_same(sym, PMATH_SYMBOL_GENERAL)){
       pmath_t obj = NULL;
       rules = _pmath_symbol_get_rules(PMATH_SYMBOL_GENERAL, RULES_READ);
       
@@ -217,7 +217,7 @@ PMATH_API pmath_string_t pmath_message_find_text(pmath_t name){
     if(loop == 0){
       pmath_t value = pmath_symbol_get_value(PMATH_SYMBOL_NEWMESSAGE);
       
-      if(value == PMATH_UNDEFINED)
+      if(pmath_same(value, PMATH_UNDEFINED))
         break;
       
       pmath_unref(pmath_evaluate(

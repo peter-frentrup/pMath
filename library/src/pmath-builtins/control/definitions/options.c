@@ -33,11 +33,12 @@ PMATH_PRIVATE pmath_t builtin_assign_options(pmath_expr_t expr){
   
   sym = pmath_expr_get_item(lhs, 1);
   
-  if(tag != PMATH_UNDEFINED && tag != sym){
+  if(!pmath_same(tag, PMATH_UNDEFINED)
+  && !pmath_same(tag, sym)){
     pmath_message(NULL, "tag", 3, tag, lhs, sym);
     
     pmath_unref(expr);
-    if(rhs == PMATH_UNDEFINED)
+    if(pmath_same(rhs, PMATH_UNDEFINED))
       return pmath_ref(PMATH_SYMBOL_FAILED);
       
     if(assignment < 0){
@@ -55,7 +56,7 @@ PMATH_PRIVATE pmath_t builtin_assign_options(pmath_expr_t expr){
     pmath_message(NULL, "fnsym", 1, lhs);
     
     pmath_unref(sym);
-    if(rhs == PMATH_UNDEFINED)
+    if(pmath_same(rhs, PMATH_UNDEFINED))
       return pmath_ref(PMATH_SYMBOL_FAILED);
     return rhs;
   }
@@ -127,7 +128,7 @@ PMATH_PRIVATE pmath_t builtin_optionvalue(pmath_expr_t expr){
       extra2 = pmath_expr_set_item(
         extra2, 0, pmath_ref(PMATH_SYMBOL_LIST));
       
-      if(extra == PMATH_UNDEFINED){
+      if(pmath_same(extra, PMATH_UNDEFINED)){
         extra = pmath_expr_flatten(extra2, pmath_ref(PMATH_SYMBOL_LIST), SIZE_MAX);
       }
       else{

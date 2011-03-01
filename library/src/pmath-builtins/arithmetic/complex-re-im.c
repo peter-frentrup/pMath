@@ -18,7 +18,7 @@ pmath_bool_t _pmath_is_imaginary(
     pmath_t head = pmath_expr_get_item(*z, 0);
     pmath_unref(head);
     
-    if(head == PMATH_SYMBOL_TIMES){
+    if(pmath_same(head, PMATH_SYMBOL_TIMES)){
       size_t i;
       pmath_t x = pmath_expr_get_item(*z, 1);
       
@@ -39,7 +39,7 @@ pmath_bool_t _pmath_is_imaginary(
             head = pmath_expr_get_item(x, 0);
             pmath_unref(head);
             
-            if(head == PMATH_SYMBOL_COMPLEX){
+            if(pmath_same(head, PMATH_SYMBOL_COMPLEX)){
               pmath_t xx = pmath_expr_get_item(x, 1);
               
               if(pmath_equals(xx, PMATH_NUMBER_ZERO)){
@@ -68,7 +68,7 @@ pmath_bool_t _pmath_is_imaginary(
       return FALSE;
     }
     
-    if(head == PMATH_SYMBOL_COMPLEX && len == 2){
+    if(pmath_same(head, PMATH_SYMBOL_COMPLEX) && len == 2){
       pmath_t x = pmath_expr_get_item(*z, 1);
       
       if(pmath_equals(x, PMATH_NUMBER_ZERO)){
@@ -128,7 +128,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_re_im(
   if(re) *re = NULL;
   if(im) *im = NULL;
   
-  if(z == PMATH_SYMBOL_UNDEFINED
+  if(pmath_same(z, PMATH_SYMBOL_UNDEFINED)
   || pmath_equals(z, _pmath_object_overflow)
   || pmath_equals(z, _pmath_object_underflow)
   || pmath_is_number(z)){
@@ -141,15 +141,15 @@ PMATH_PRIVATE pmath_bool_t _pmath_re_im(
     pmath_t zhead = pmath_expr_get_item(z, 0);
     pmath_unref(zhead);
 
-    if((zhead == PMATH_SYMBOL_RE
-    ||  zhead == PMATH_SYMBOL_IM)
+    if((pmath_same(zhead, PMATH_SYMBOL_RE)
+    ||  pmath_same(zhead, PMATH_SYMBOL_IM))
     && pmath_expr_length(z) == 1){
       if(re) *re = z;
       if(im) *im = pmath_integer_new_si(0);
       return TRUE;
     }
     
-    if(zhead == PMATH_SYMBOL_COMPLEX
+    if(pmath_same(zhead, PMATH_SYMBOL_COMPLEX)
     && pmath_expr_length(z) == 2){
       if(re) *re = pmath_expr_get_item(z, 1);
       if(im) *im = pmath_expr_get_item(z, 2);
@@ -157,7 +157,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_re_im(
       return TRUE;
     }
     
-    if(zhead == PMATH_SYMBOL_PLUS){
+    if(pmath_same(zhead, PMATH_SYMBOL_PLUS)){
       size_t i, j;
       
       for(j = 0, i = pmath_expr_length(z);i > 0;--i){
@@ -230,7 +230,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_re_im(
       return FALSE;
     }
     
-    if(zhead == PMATH_SYMBOL_TIMES){
+    if(pmath_same(zhead, PMATH_SYMBOL_TIMES)){
       z2 = pmath_expr_get_item(z, 1);
       
       if(pmath_expr_length(z) == 1){

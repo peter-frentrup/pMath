@@ -152,7 +152,7 @@ PMATH_PRIVATE pmath_t builtin_assign_environment(pmath_expr_t expr){
   if(!_pmath_is_assignment(expr, &tag, &lhs, &rhs))
     return expr;
   
-  if(tag != PMATH_UNDEFINED
+  if(!pmath_same(tag, PMATH_UNDEFINED)
   || !pmath_is_expr_of_len(lhs, PMATH_SYMBOL_ENVIRONMENT, 1)){
     pmath_unref(tag);
     pmath_unref(lhs);
@@ -170,7 +170,7 @@ PMATH_PRIVATE pmath_t builtin_assign_environment(pmath_expr_t expr){
   
   pmath_unref(lhs);
   
-  if(rhs == PMATH_UNDEFINED){
+  if(pmath_same(rhs, PMATH_UNDEFINED)){
     #ifdef PMATH_OS_WIN32
     {
       // zero-teminate:

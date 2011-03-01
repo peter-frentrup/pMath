@@ -43,7 +43,7 @@ PMATH_PRIVATE void _pmath_iterate(
       
       count = pmath_expr_length(range);
       
-      if(head == PMATH_SYMBOL_LIST){
+      if(pmath_same(head, PMATH_SYMBOL_LIST)){
         size_t i;
 
         pmath_unref(iter);

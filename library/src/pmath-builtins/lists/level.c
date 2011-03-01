@@ -65,7 +65,7 @@ pmath_bool_t _pmath_extract_levels(
     if(pmath_is_integer(obj) && pmath_integer_fits_si(obj)){
       *levelmin = pmath_integer_get_si(obj);
     }
-    else if(obj == PMATH_SYMBOL_AUTOMATIC){
+    else if(pmath_same(obj, PMATH_SYMBOL_AUTOMATIC)){
       *levelmin = 1;
     }
     else{
@@ -79,7 +79,8 @@ pmath_bool_t _pmath_extract_levels(
     if(pmath_is_integer(obj) && pmath_integer_fits_si(obj)){
       *levelmax = pmath_integer_get_si(obj);
     }
-    else if(obj == PMATH_SYMBOL_AUTOMATIC || pmath_equals(obj, _pmath_object_infinity)){
+    else if(pmath_same(obj, PMATH_SYMBOL_AUTOMATIC)
+    || pmath_equals(obj, _pmath_object_infinity)){
       *levelmax = LONG_MAX;
     }
     else{
@@ -177,10 +178,10 @@ PMATH_PRIVATE pmath_t builtin_level(pmath_expr_t expr){
   }
   
   obj = pmath_evaluate(pmath_option_value(NULL, PMATH_SYMBOL_HEADS, options));
-  if(obj == PMATH_SYMBOL_TRUE){
+  if(pmath_same(obj, PMATH_SYMBOL_TRUE)){
     info.with_heads = TRUE;
   }
-  else if(obj != PMATH_SYMBOL_FALSE){
+  else if(!pmath_same(obj, PMATH_SYMBOL_FALSE)){
     pmath_unref(options);
     pmath_unref(head);
     pmath_message(

@@ -61,12 +61,12 @@
       pmath_ref(min)));
     pmath_unref(test);
     
-    if(test == PMATH_SYMBOL_TRUE){
+    if(pmath_same(test, PMATH_SYMBOL_TRUE)){
       pmath_unref(x);
       return pmath_ref(vmin);
     }
     
-    if(test != PMATH_SYMBOL_FALSE){
+    if(!pmath_same(test, PMATH_SYMBOL_FALSE)){
       pmath_unref(x);
       return NULL;
     }
@@ -77,12 +77,12 @@
       pmath_ref(max)));
     pmath_unref(test);
     
-    if(test == PMATH_SYMBOL_TRUE){
+    if(pmath_same(test, PMATH_SYMBOL_TRUE)){
       pmath_unref(x);
       return pmath_ref(vmax);
     }
     
-    if(test != PMATH_SYMBOL_FALSE){
+    if(!pmath_same(test, PMATH_SYMBOL_FALSE)){
       pmath_unref(x);
       return NULL;
     }

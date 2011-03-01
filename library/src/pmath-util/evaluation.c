@@ -81,7 +81,7 @@ static pmath_t evaluate(
     else if(pmath_is_symbol(obj)){
       pmath_t result = evaluate_symbol(obj, thread_ptr);
       
-      if(result == PMATH_UNDEFINED)
+      if(pmath_same(result, PMATH_UNDEFINED))
         goto FINISH;
         
       pmath_unref(obj);

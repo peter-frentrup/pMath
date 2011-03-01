@@ -160,7 +160,7 @@ static pmath_bool_t _read(
   pmath_t *type_value,
   pmath_bool_t *eol
 ){
-  if(*type_value == PMATH_SYMBOL_STRING){
+  if(pmath_same(*type_value, PMATH_SYMBOL_STRING)){
     pmath_unref(*type_value);
     *type_value = pmath_file_readline(file);
     
@@ -176,7 +176,7 @@ static pmath_bool_t _read(
     return TRUE;
   }
   
-  if(*type_value == PMATH_SYMBOL_CHARACTER){
+  if(pmath_same(*type_value, PMATH_SYMBOL_CHARACTER)){
     pmath_unref(*type_value);
     *type_value = pmath_file_readline(file);
     
@@ -202,7 +202,7 @@ static pmath_bool_t _read(
     return TRUE;
   }
   
-  if(*type_value == PMATH_SYMBOL_WORD){
+  if(pmath_same(*type_value, PMATH_SYMBOL_WORD)){
     pmath_unref(*type_value);
     *type_value = read_word(file, eol);
     
@@ -217,7 +217,7 @@ static pmath_bool_t _read(
     return TRUE;
   }
   
-  if(*type_value == PMATH_SYMBOL_NUMBER){
+  if(pmath_same(*type_value, PMATH_SYMBOL_NUMBER)){
     pmath_unref(*type_value);
     *type_value = read_word(file, eol);
     
@@ -234,7 +234,7 @@ static pmath_bool_t _read(
     return TRUE;
   }
   
-  if(*type_value == PMATH_SYMBOL_REAL){
+  if(pmath_same(*type_value, PMATH_SYMBOL_REAL)){
     pmath_unref(*type_value);
     *type_value = read_word(file, eol);
     
@@ -255,7 +255,7 @@ static pmath_bool_t _read(
     return TRUE;
   }
   
-  if(*type_value == PMATH_SYMBOL_EXPRESSION){
+  if(pmath_same(*type_value, PMATH_SYMBOL_EXPRESSION)){
     pmath_unref(*type_value);
     *type_value = read_expression(file);
     
@@ -400,10 +400,10 @@ PMATH_PRIVATE pmath_t builtin_readlist(pmath_expr_t expr){
   }
   
   item = pmath_option_value(NULL, PMATH_SYMBOL_RECORDLISTS, options);
-  if(item == PMATH_SYMBOL_TRUE){
+  if(pmath_same(item, PMATH_SYMBOL_TRUE)){
     record_lists = TRUE;
   }
-  else if(item != PMATH_SYMBOL_FALSE){
+  else if(!pmath_same(item, PMATH_SYMBOL_FALSE)){
     pmath_message(NULL, "opttf", 2, pmath_ref(PMATH_SYMBOL_RECORDLISTS), item);
     pmath_unref(options);
     pmath_unref(type);

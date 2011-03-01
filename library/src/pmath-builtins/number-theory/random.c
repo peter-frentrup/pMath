@@ -12,8 +12,8 @@ static pmath_t stretch(
   pmath_t min, // will be freed, may be PMATH_UNDEFINED
   pmath_t max  // will be freed, may be PMATH_UNDEFINED iff min == PMATH_UNDEFINED
 ){ // return min + x/(max - min)
-  if(min == PMATH_UNDEFINED){
-    if(max == PMATH_UNDEFINED)
+  if(pmath_same(min, PMATH_UNDEFINED)){
+    if(pmath_same(max, PMATH_UNDEFINED))
       return x;
     
     return pmath_expr_new_extended(
@@ -75,7 +75,7 @@ static pmath_expr_t random_array(
         
         pmath_atomic_unlock(&_pmath_rand_spinlock);
         
-        if(data->min != PMATH_UNDEFINED)
+        if(!pmath_same(data->min, PMATH_UNDEFINED))
           return pmath_expr_new_extended(
             pmath_ref(PMATH_SYMBOL_PLUS), 2,
             pmath_ref(data->min),
@@ -175,7 +175,7 @@ PMATH_PRIVATE pmath_t builtin_randominteger(pmath_expr_t expr){
       pmath_t h = pmath_expr_get_item(dims, 0);
       pmath_unref(h);
       
-      if(h == PMATH_SYMBOL_LIST){
+      if(pmath_same(h, PMATH_SYMBOL_LIST)){
         data.dims = pmath_expr_length(dims);
         
         if(data.dims > MAX_DIM){
@@ -331,7 +331,7 @@ PMATH_PRIVATE pmath_t builtin_randomreal(pmath_expr_t expr){
             pmath_t h = pmath_expr_get_item(tmp, 0);
             pmath_unref(h);
             
-            if(h == PMATH_SYMBOL_LIST){
+            if(pmath_same(h, PMATH_SYMBOL_LIST)){
               data.dims = pmath_expr_length(tmp);
               
               if(data.dims > MAX_DIM){

@@ -181,9 +181,9 @@ PMATH_PRIVATE pmath_t builtin_copydirectory_and_copyfile(pmath_expr_t expr){
         BY_HANDLE_FILE_INFORMATION info;
         
         if(GetFileInformationByHandle(h, &info)
-        && ((head == PMATH_SYMBOL_COPYDIRECTORY 
+        && ((pmath_same(head, PMATH_SYMBOL_COPYDIRECTORY)
           && (info.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
-         || (head == PMATH_SYMBOL_COPYFILE
+         || (pmath_same(head, PMATH_SYMBOL_COPYFILE)
           && !(info.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)))
         ){
           HANDLE h2;
@@ -241,7 +241,7 @@ PMATH_PRIVATE pmath_t builtin_copydirectory_and_copyfile(pmath_expr_t expr){
               break;
             
             default:
-              if(head == PMATH_SYMBOL_COPYFILE){
+              if(pmath_same(head, PMATH_SYMBOL_COPYFILE)){
                 pmath_message(NULL, "fdir", 1, name1);
                 name1 = NULL;
               }
@@ -263,7 +263,7 @@ PMATH_PRIVATE pmath_t builtin_copydirectory_and_copyfile(pmath_expr_t expr){
             break;
           
           default:
-            if(head == PMATH_SYMBOL_COPYFILE){
+            if(pmath_same(head, PMATH_SYMBOL_COPYFILE)){
               pmath_message(NULL, "nffil", 1, expr);
               expr = NULL;
             }
@@ -294,9 +294,9 @@ PMATH_PRIVATE pmath_t builtin_copydirectory_and_copyfile(pmath_expr_t expr){
       }
       else{
         if(stat(str1, &buf) == 0
-        && ((head == PMATH_SYMBOL_COPYDIRECTORY 
+        && ((pmath_same(head, PMATH_SYMBOL_COPYDIRECTORY)
           && S_ISDIR(buf.st_mode))
-         || (head == PMATH_SYMBOL_COPYFILE
+         || (pmath_same(head, PMATH_SYMBOL_COPYFILE)
           && !S_ISDIR(buf.st_mode)))
         ){
           errno = 0;
@@ -328,7 +328,7 @@ PMATH_PRIVATE pmath_t builtin_copydirectory_and_copyfile(pmath_expr_t expr){
               break;
             
             default:
-              if(head == PMATH_SYMBOL_COPYDIRECTORY){
+              if(pmath_same(head, PMATH_SYMBOL_COPYDIRECTORY)){
                 pmath_message(NULL, "nodir", 1, name1); 
                 name1 = NULL; 
               }

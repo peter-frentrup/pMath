@@ -410,7 +410,7 @@ PMATH_PRIVATE void split_summand(
     pmath_t head = pmath_expr_get_item(summand, 0);
     pmath_unref(head);
     
-    if(head == PMATH_SYMBOL_TIMES){
+    if(pmath_same(head, PMATH_SYMBOL_TIMES)){
       size_t len = pmath_expr_length(summand);
       
       if(len > 1){
@@ -644,11 +644,11 @@ PMATH_PRIVATE pmath_t builtin_plus(pmath_expr_t expr){
   ia = 1;
   while(ia < elen){
     pmath_t a = pmath_expr_get_item(expr, ia);
-    if(a != PMATH_UNDEFINED){
+    if(!pmath_same(a, PMATH_UNDEFINED)){
       ib = ia + 1;
       while(ib <= elen){
         pmath_t b = pmath_expr_get_item(expr, ib);
-        if(b != PMATH_UNDEFINED){
+        if(!pmath_same(b, PMATH_UNDEFINED)){
           plus_2_arg(&a, &b);
           expr = pmath_expr_set_item(expr, ia, pmath_ref(a));
           expr = pmath_expr_set_item(expr, ib, b);

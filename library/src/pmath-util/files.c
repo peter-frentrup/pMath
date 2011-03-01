@@ -108,7 +108,7 @@ static pmath_t file_set_options(pmath_expr_t expr){
     if(_pmath_is_rule(rule)){
       pmath_t lhs = pmath_expr_get_item(rule, 1);
       
-      if(lhs == PMATH_SYMBOL_BINARYFORMAT){
+      if(pmath_same(lhs, PMATH_SYMBOL_BINARYFORMAT)){
         pmath_message(
           NULL, "changebf", 2,
           file,

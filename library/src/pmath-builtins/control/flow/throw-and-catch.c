@@ -69,7 +69,7 @@ PMATH_PRIVATE pmath_t builtin_catch(pmath_expr_t expr){
     pmath_throw(exception); 
   }
   else{
-    if(exception != PMATH_UNDEFINED)
+    if(!pmath_same(exception, PMATH_UNDEFINED))
       pmath_debug_print_object("[uncatchable ", exception, "]\n");
       
     pmath_unref(exception);

@@ -34,7 +34,7 @@ PMATH_PRIVATE pmath_t builtin_divideby_or_timesby(pmath_expr_t expr){
 
   rhs = pmath_expr_get_item(expr, 2);
   pmath_unref(expr);
-  if(head == PMATH_SYMBOL_DIVIDEBY){
+  if(pmath_same(head, PMATH_SYMBOL_DIVIDEBY)){
     rhs = pmath_expr_new_extended(
       pmath_ref(PMATH_SYMBOL_POWER), 2,
       rhs,

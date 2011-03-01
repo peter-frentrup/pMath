@@ -45,6 +45,29 @@ pmath_bool_t pmath_instance_of(
   pmath_t      obj,
   pmath_type_t type);
 
+/**\brief Compares two objects for identity.
+   \memberof pmath_t
+   \param objA The first object.
+   \param objB The second one.
+   \return TRUE iff both objects are identical.
+
+   `identity` means, that X != Y is possible, even if X and Y evaluate to the 
+   same value. 
+   
+   If objA and objB are symbols, the result is identical to testing
+   objA == objB. 
+   
+   \note pmath_equals(A, B) might return FALSE although pmath_compare(A, B) == 0
+   e.g. for an integer A and q floating point value B.
+ */
+PMATH_API
+PMATH_ATTRIBUTE_PURE
+pmath_bool_t pmath_equals(
+  pmath_t objA,
+  pmath_t objB);
+
+#define pmath_same(A, B)  ((A) == (B))
+
 /*============================================================================*/
 
 /**\brief Internal function
@@ -106,10 +129,22 @@ pmath_bool_t pmath_fast_instance_of(
   return ((1 << obj->type_shift) & type) != 0;
 }
 
+PMATH_FORCE_INLINE
+PMATH_INLINE_NODEBUG
+PMATH_ATTRIBUTE_PURE
+pmath_bool_t pmath_fast_equals(
+  pmath_t objA,
+  pmath_t objB
+){
+  if(objA == objB) return TRUE;
+  return pmath_equals(objA, objB);
+}
+
 #ifndef PMATH_DEBUG_NO_FASTREF
   #define pmath_ref          pmath_fast_ref
   #define pmath_unref        pmath_fast_unref
   #define pmath_instance_of  pmath_fast_instance_of
+  #define pmath_equals       pmath_fast_equals
 #endif
 
 /*============================================================================*/

@@ -38,7 +38,8 @@ PMATH_PRIVATE pmath_t builtin_local(pmath_expr_t expr){
       sym = pmath_expr_get_item(defi, 0);
       pmath_unref(sym);
       
-      if((sym != PMATH_SYMBOL_ASSIGN && sym != PMATH_SYMBOL_ASSIGNDELAYED)
+      if((!pmath_same(sym, PMATH_SYMBOL_ASSIGN)
+       && !pmath_same(sym, PMATH_SYMBOL_ASSIGNDELAYED))
       || pmath_expr_length(defi) != 2){
         pmath_unref(body);
         pmath_message(NULL, "nodef", 2, symbols, defi);

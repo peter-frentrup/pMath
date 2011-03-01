@@ -26,10 +26,11 @@ PMATH_PRIVATE pmath_bool_t _pmath_message_is_on(pmath_t msg){
   is_off = _pmath_thread_local_load_with(msg, thread);
   pmath_unref(is_off);
   
-  if(is_off == PMATH_SYMBOL_ON)
+  if(pmath_same(is_off, PMATH_SYMBOL_ON))
     return TRUE;
   
-  if(is_off == PMATH_SYMBOL_OFF || _pmath_message_is_default_off(msg))
+  if(pmath_same(is_off, PMATH_SYMBOL_OFF) 
+  || _pmath_message_is_default_off(msg))
     return FALSE;
   
   is_off = PMATH_UNDEFINED;
@@ -41,7 +42,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_message_is_on(pmath_t msg){
     pmath_unref(varname);
   }
   
-  if(is_off == PMATH_SYMBOL_OFF)
+  if(pmath_same(is_off, PMATH_SYMBOL_OFF))
     return FALSE;
   
   return TRUE;
@@ -101,7 +102,7 @@ PMATH_PRIVATE pmath_t builtin_message(pmath_expr_t expr){
         pmath_ref(name)));
     pmath_unref(dothrow);
     
-    if(dothrow == PMATH_SYMBOL_TRUE){
+    if(pmath_same(dothrow, PMATH_SYMBOL_TRUE)){
       pmath_unref(expr);//pmath_unref(pmath_evaluate(expr));
       pmath_throw(name);
       return NULL;
@@ -110,7 +111,7 @@ PMATH_PRIVATE pmath_t builtin_message(pmath_expr_t expr){
   
   text = pmath_message_find_text(pmath_ref(name));
 
-  if(text == PMATH_UNDEFINED){
+  if(pmath_same(text, PMATH_UNDEFINED)){
     pmath_unref(name);
     pmath_unref(expr);
     return NULL;

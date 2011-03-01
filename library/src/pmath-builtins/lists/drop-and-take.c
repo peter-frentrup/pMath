@@ -25,12 +25,12 @@ static pmath_bool_t convert_take_positions(
   for(i = exprstart;i <= exprlen;++i){
     pmath_t item = pmath_expr_get_item(expr, i);
     
-    if(item == PMATH_SYMBOL_ALL){
+    if(pmath_same(item, PMATH_SYMBOL_ALL)){
       pos[i - exprstart].start = 1;
       pos[i - exprstart].end   = -1;
       pos[i - exprstart].step  = 1;
     }
-    else if(item == PMATH_SYMBOL_NONE){
+    else if(pmath_same(item, PMATH_SYMBOL_NONE)){
       pos[i - exprstart].start = 1;
       pos[i - exprstart].end   = 0;
       pos[i - exprstart].step  = 1;

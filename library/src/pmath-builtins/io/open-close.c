@@ -219,7 +219,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_open_tmp(
     
     *streams = builtin_open(expr);
     
-    if(*streams == PMATH_SYMBOL_FAILED)
+    if(pmath_same(*streams, PMATH_SYMBOL_FAILED))
       return FALSE;
     
     return TRUE;
@@ -389,10 +389,10 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr){
   { // BinaryFormat
     pmath_t value = pmath_option_value(NULL, PMATH_SYMBOL_BINARYFORMAT, options);
     
-    if(value == PMATH_SYMBOL_TRUE){
+    if(pmath_same(value, PMATH_SYMBOL_TRUE)){
       binary_format = TRUE;
     }
-    else if(value == PMATH_SYMBOL_FALSE){
+    else if(pmath_same(value, PMATH_SYMBOL_FALSE)){
       binary_format = FALSE;
     }
     else{
@@ -412,7 +412,7 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr){
     encoding = pmath_evaluate(
       pmath_option_value(NULL, PMATH_SYMBOL_CHARACTERENCODING, options));
     
-    if(encoding != PMATH_SYMBOL_AUTOMATIC
+    if(!pmath_same(encoding, PMATH_SYMBOL_AUTOMATIC)
     && !pmath_is_string(encoding)){
       pmath_message(NULL, "charcode", 1, encoding);
       pmath_unref(file);
@@ -425,17 +425,17 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr){
     pmath_t head = pmath_expr_get_item(expr, 0);
     pmath_unref(head);
     
-    if(head == PMATH_SYMBOL_OPENAPPEND)
+    if(pmath_same(head, PMATH_SYMBOL_OPENAPPEND))
       kind = OPEN_APPEND;
-    else if(head == PMATH_SYMBOL_OPENWRITE)
+    else if(pmath_same(head, PMATH_SYMBOL_OPENWRITE))
       kind = OPEN_WRITE;
     else 
       kind = OPEN_READ;
   }
   
   if(!binary_format 
-  && encoding == PMATH_SYMBOL_AUTOMATIC
-  && kind != OPEN_WRITE){ // check for byte order mark
+  && kind != OPEN_WRITE
+  && pmath_same(encoding, PMATH_SYMBOL_AUTOMATIC)){ // check for byte order mark
     pmath_t tmpfile;
     size_t count;
     uint8_t buf[4];
@@ -483,7 +483,7 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr){
         pmath_ref(file)));
     
     pmath_unref(type);
-    if(type != PMATH_SYMBOL_FILE)
+    if(!pmath_same(type, PMATH_SYMBOL_FILE))
       unbuffered = TRUE;
   }
   

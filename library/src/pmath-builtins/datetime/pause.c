@@ -63,10 +63,10 @@ PMATH_PRIVATE pmath_t builtin_pause(pmath_expr_t expr){
     pmath_symbol_set_value(guard, PMATH_UNDEFINED);
     
     arg = _pmath_thread_catch(current_thread);
-    if(arg == guard){ // time-out
+    if(pmath_same(arg, guard)){ // time-out
       pmath_unref(arg);
     }
-    else if(arg != PMATH_UNDEFINED) // other error
+    else if(!pmath_same(arg, PMATH_UNDEFINED)) // other error
       _pmath_thread_throw(current_thread, arg);
     
     pmath_unref(guard);

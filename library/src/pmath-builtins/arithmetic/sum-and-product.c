@@ -32,7 +32,7 @@ static pmath_bool_t next(void *p){
       data->result,
       pmath_ref(data->body)));
   
-  return data->result != PMATH_SYMBOL_UNDEFINED;
+  return !pmath_same(data->result, PMATH_SYMBOL_UNDEFINED);
 }
 
 

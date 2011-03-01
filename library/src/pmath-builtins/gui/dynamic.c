@@ -66,17 +66,17 @@ PMATH_PRIVATE pmath_t builtin_internal_dynamicevaluate(pmath_expr_t expr){
         pmath_t lhs = pmath_expr_get_item(item, 1);
         pmath_unref(lhs);
         
-        if(lhs == PMATH_SYMBOL_TRACKEDSYMBOLS){
+        if(pmath_same(lhs, PMATH_SYMBOL_TRACKEDSYMBOLS)){
           pmath_t ts = pmath_expr_get_item(item, 2);
           
           pmath_unref(item);
           
-          if(ts == PMATH_SYMBOL_AUTOMATIC){
+          if(pmath_same(ts, PMATH_SYMBOL_AUTOMATIC)){
             pmath_unref(ts);
             return PMATH_UNDEFINED;
           }
           
-          if(ts == PMATH_SYMBOL_NONE){
+          if(pmath_same(ts, PMATH_SYMBOL_NONE)){
             pmath_unref(ts);
             return NULL;
           }
@@ -87,7 +87,7 @@ PMATH_PRIVATE pmath_t builtin_internal_dynamicevaluate(pmath_expr_t expr){
       else if(pmath_is_expr_of(item, PMATH_SYMBOL_LIST)){
         pmath_t ts = find_tracked_symbols(item, 1);
         
-        if(ts != PMATH_UNDEFINED){
+        if(!pmath_same(ts, PMATH_UNDEFINED)){
           pmath_unref(item);
           return ts;
         }
@@ -108,13 +108,13 @@ PMATH_PRIVATE pmath_t builtin_internal_dynamicevaluate(pmath_expr_t expr){
       size_t len = pmath_expr_length(expr);
       size_t i;
       
-      if(head == PMATH_SYMBOL_DYNAMIC && len >= 1){
+      if(len >= 1 && pmath_same(head, PMATH_SYMBOL_DYNAMIC)){
         pmath_t dyn_expr = pmath_expr_get_item(expr, 1);
         pmath_t ts       = find_tracked_symbols(expr, 2);
         pmath_unref(head);
         pmath_unref(expr);
         
-        if(ts != PMATH_UNDEFINED){
+        if(!pmath_same(ts, PMATH_UNDEFINED)){
           return pmath_expr_new_extended(
             pmath_ref(PMATH_SYMBOL_EVALUATIONSEQUENCE), 2,
             pmath_expr_new_extended(

@@ -300,7 +300,7 @@ do{
   ... loop body here ...
   
   iter = pmath_symbol_iter_next(iter);
-}while(iter && iter != PMATH_SYMBOL_LIST);
+}while(iter && !pmath_same(iter, PMATH_SYMBOL_LIST));
 pmath_unref(iter);
    \endcode
  */

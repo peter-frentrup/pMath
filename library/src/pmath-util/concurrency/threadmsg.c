@@ -485,7 +485,7 @@ void _pmath_msq_queue_handle_next(pmath_thread_t me){
           pmath_unref(val);
           val = pmath_ref(PMATH_SYMBOL_ABORTED);
         }
-        else if(val == PMATH_UNDEFINED)
+        else if(pmath_same(val, PMATH_UNDEFINED))
           val = pmath_ref(PMATH_SYMBOL_ABORTED);
         
         
@@ -501,7 +501,7 @@ void _pmath_msq_queue_handle_next(pmath_thread_t me){
         if(ex == msg->result){
           pmath_unref(ex);
         }
-        else if(ex != PMATH_UNDEFINED){
+        else if(!pmath_same(ex, PMATH_UNDEFINED)){
           pmath_throw(ex);
         }
         
@@ -747,7 +747,7 @@ pmath_t pmath_thread_send_wait(
       pmath_unref(answer);
       answer = _pmath_object_atomic_read(&result_data->_value);
       
-      if(answer != PMATH_UNDEFINED)
+      if(!pmath_same(answer, PMATH_UNDEFINED))
         goto SUCCESS;
       
       if(idle_function)

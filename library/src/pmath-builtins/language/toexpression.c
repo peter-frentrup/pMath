@@ -32,8 +32,8 @@ static pmath_t remove_whitespace_from_boxes(pmath_t boxes){
   head = pmath_expr_get_item(boxes, 0);
   pmath_unref(head);
   
-  if(head == PMATH_SYMBOL_LIST
-  || head == NULL){
+  if(pmath_same(head, PMATH_SYMBOL_LIST)
+  || !head){
     size_t i;
     pmath_t item;
     pmath_bool_t remove_empty = FALSE;
@@ -76,11 +76,11 @@ static pmath_t remove_whitespace_from_boxes(pmath_t boxes){
     return boxes;
   }
   
-  if(head == PMATH_SYMBOL_RULE
-  || head == PMATH_SYMBOL_RULEDELAYED)
+  if(pmath_same(head, PMATH_SYMBOL_RULE)
+  || pmath_same(head, PMATH_SYMBOL_RULEDELAYED))
     return boxes;
   
-  if(head == PMATH_SYMBOL_GRIDBOX){
+  if(pmath_same(head, PMATH_SYMBOL_GRIDBOX)){
     size_t rows, cols;
     pmath_t matrix = pmath_expr_get_item(boxes, 1);
     boxes = pmath_expr_set_item(boxes, 1, NULL);
@@ -109,7 +109,7 @@ static pmath_t remove_whitespace_from_boxes(pmath_t boxes){
     return boxes;
   }
   
-  if(head == PMATH_SYMBOL_STYLEBOX){
+  if(pmath_same(head, PMATH_SYMBOL_STYLEBOX)){
     pmath_expr_t options = pmath_options_extract(boxes, 1);
     
     if(options){
@@ -119,7 +119,7 @@ static pmath_t remove_whitespace_from_boxes(pmath_t boxes){
         options);
       
       pmath_unref(strip);
-      if(strip != PMATH_SYMBOL_FALSE){
+      if(!pmath_same(strip, PMATH_SYMBOL_FALSE)){
         strip = pmath_expr_get_item(boxes, 1);
         pmath_unref(options);
         pmath_unref(boxes);
@@ -132,21 +132,21 @@ static pmath_t remove_whitespace_from_boxes(pmath_t boxes){
   
   max_boxes = 0;
   
-  if(     head == PMATH_SYMBOL_FRAMEBOX)           max_boxes = 1;
-  else if(head == PMATH_SYMBOL_FRACTIONBOX)        max_boxes = 2;
-  else if(head == PMATH_SYMBOL_INTERPRETATIONBOX)  max_boxes = 1;
-  else if(head == PMATH_SYMBOL_OVERSCRIPTBOX)      max_boxes = 2;
-  else if(head == PMATH_SYMBOL_RADICALBOX)         max_boxes = 2;
-  else if(head == PMATH_SYMBOL_ROTATIONBOX)        max_boxes = 1;
-  else if(head == PMATH_SYMBOL_SQRTBOX)            max_boxes = 1;
-  else if(head == PMATH_SYMBOL_STYLEBOX)           max_boxes = 1;
-  else if(head == PMATH_SYMBOL_SUBSCRIPTBOX)       max_boxes = 1;
-  else if(head == PMATH_SYMBOL_SUBSUPERSCRIPTBOX)  max_boxes = 2;
-  else if(head == PMATH_SYMBOL_SUPERSCRIPTBOX)     max_boxes = 1;
-  else if(head == PMATH_SYMBOL_TAGBOX)             max_boxes = 1;
-  else if(head == PMATH_SYMBOL_TRANSFORMATIONBOX)  max_boxes = 1;
-  else if(head == PMATH_SYMBOL_UNDERSCRIPTBOX)     max_boxes = 2;
-  else if(head == PMATH_SYMBOL_UNDEROVERSCRIPTBOX) max_boxes = 3;
+  if(     pmath_same(head, PMATH_SYMBOL_FRAMEBOX))           max_boxes = 1;
+  else if(pmath_same(head, PMATH_SYMBOL_FRACTIONBOX))        max_boxes = 2;
+  else if(pmath_same(head, PMATH_SYMBOL_INTERPRETATIONBOX))  max_boxes = 1;
+  else if(pmath_same(head, PMATH_SYMBOL_OVERSCRIPTBOX))      max_boxes = 2;
+  else if(pmath_same(head, PMATH_SYMBOL_RADICALBOX))         max_boxes = 2;
+  else if(pmath_same(head, PMATH_SYMBOL_ROTATIONBOX))        max_boxes = 1;
+  else if(pmath_same(head, PMATH_SYMBOL_SQRTBOX))            max_boxes = 1;
+  else if(pmath_same(head, PMATH_SYMBOL_STYLEBOX))           max_boxes = 1;
+  else if(pmath_same(head, PMATH_SYMBOL_SUBSCRIPTBOX))       max_boxes = 1;
+  else if(pmath_same(head, PMATH_SYMBOL_SUBSUPERSCRIPTBOX))  max_boxes = 2;
+  else if(pmath_same(head, PMATH_SYMBOL_SUPERSCRIPTBOX))     max_boxes = 1;
+  else if(pmath_same(head, PMATH_SYMBOL_TAGBOX))             max_boxes = 1;
+  else if(pmath_same(head, PMATH_SYMBOL_TRANSFORMATIONBOX))  max_boxes = 1;
+  else if(pmath_same(head, PMATH_SYMBOL_UNDERSCRIPTBOX))     max_boxes = 2;
+  else if(pmath_same(head, PMATH_SYMBOL_UNDEROVERSCRIPTBOX)) max_boxes = 3;
   
   if(max_boxes > 0){
     size_t i;
@@ -199,7 +199,7 @@ pmath_t builtin_toexpression(pmath_expr_t expr){
       code);
     
     code = pmath_evaluate(code);
-    if(code == PMATH_SYMBOL_FAILED){
+    if(pmath_same(code, PMATH_SYMBOL_FAILED)){
       pmath_unref(expr);
       pmath_unref(head);
       return code;
@@ -221,7 +221,7 @@ pmath_t builtin_toexpression(pmath_expr_t expr){
   }
   
   if(pmath_is_expr_of(expr, PMATH_SYMBOL_HOLDCOMPLETE)){
-    if(head != PMATH_UNDEFINED)
+    if(!pmath_same(head, PMATH_UNDEFINED))
       return pmath_expr_set_item(expr, 0, head);
     
     if(pmath_expr_length(expr) == 1){

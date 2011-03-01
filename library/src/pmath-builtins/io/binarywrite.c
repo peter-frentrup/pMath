@@ -18,7 +18,7 @@ static pmath_bool_t binary_write(
   pmath_t  type,         // will be freed
   int      byte_ordering
 ){
-  if(type == PMATH_SYMBOL_EXPRESSION
+  if(pmath_same(type, PMATH_SYMBOL_EXPRESSION)
   || (pmath_is_string(type)
    && pmath_string_equals_latin1(type, "Expression"))){
     pmath_unref(type);
@@ -483,7 +483,7 @@ static pmath_bool_t binary_write(
                   im_dir = 1;
               }
             }
-            else if(value == PMATH_SYMBOL_UNDEFINED)
+            else if(pmath_same(value, PMATH_SYMBOL_UNDEFINED))
               re_dir = im_dir = 0;
             
             pmath_unref(re);

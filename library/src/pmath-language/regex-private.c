@@ -480,10 +480,10 @@ struct compile_regex_info_t{
       return FALSE;
     }
     
-    return obj == PMATH_SYMBOL_DIGITCHARACTER
-        || obj == PMATH_SYMBOL_LETTERCHARACTER
-        || obj == PMATH_SYMBOL_WHITESPACECHARACTER
-        || obj == PMATH_SYMBOL_WORDCHARACTER;
+    return pmath_same(obj, PMATH_SYMBOL_DIGITCHARACTER)
+        || pmath_same(obj, PMATH_SYMBOL_LETTERCHARACTER)
+        || pmath_same(obj, PMATH_SYMBOL_WHITESPACECHARACTER)
+        || pmath_same(obj, PMATH_SYMBOL_WORDCHARACTER);
   }
   
   static void put_charclass_item(
@@ -527,13 +527,13 @@ struct compile_regex_info_t{
       pmath_unref(start);
       pmath_unref(end);
     }
-    else if(obj == PMATH_SYMBOL_DIGITCHARACTER)
+    else if(pmath_same(obj, PMATH_SYMBOL_DIGITCHARACTER))
       concat_utf8(&(info->pattern), "\\d");
-    else if(obj == PMATH_SYMBOL_LETTERCHARACTER)
+    else if(pmath_same(obj, PMATH_SYMBOL_LETTERCHARACTER))
       concat_utf8(&(info->pattern), "a-zA-Z");
-    else if(obj == PMATH_SYMBOL_WHITESPACECHARACTER)
+    else if(pmath_same(obj, PMATH_SYMBOL_WHITESPACECHARACTER))
       concat_utf8(&(info->pattern), "\\s");
-    else if(obj == PMATH_SYMBOL_WORDCHARACTER)
+    else if(pmath_same(obj, PMATH_SYMBOL_WORDCHARACTER))
       concat_utf8(&(info->pattern), "\\w");
     
     pmath_unref(obj);
@@ -588,7 +588,7 @@ static pmath_bool_t compile_regex_part(
     head = pmath_expr_get_item(part, 0);
     pmath_unref(head);
     
-    if(head == PMATH_SYMBOL_STRINGEXPRESSION){
+    if(pmath_same(head, PMATH_SYMBOL_STRINGEXPRESSION)){
       pmath_bool_t result = TRUE;
       size_t i;
       
@@ -600,7 +600,7 @@ static pmath_bool_t compile_regex_part(
       return result;
     }
     
-    if(head == PMATH_SYMBOL_PATTERN && len == 2){
+    if(len == 2 && pmath_same(head, PMATH_SYMBOL_PATTERN)){
       char s[20];
       pmath_bool_t result = TRUE;
       
@@ -624,7 +624,9 @@ static pmath_bool_t compile_regex_part(
       return result;
     }
     
-    if((head == PMATH_SYMBOL_LIST || head == PMATH_SYMBOL_ALTERNATIVES) && len > 0){
+    if(len > 0
+    && (pmath_same(head, PMATH_SYMBOL_LIST)
+     || pmath_same(head, PMATH_SYMBOL_ALTERNATIVES))){
       pmath_bool_t result = TRUE;
       size_t i;
       
@@ -665,7 +667,7 @@ static pmath_bool_t compile_regex_part(
       return result;
     }
     
-    if(head == PMATH_SYMBOL_EXCEPT && len == 1){
+    if(len == 1 && pmath_same(head, PMATH_SYMBOL_EXCEPT)){
       pmath_t p = pmath_expr_get_item(part, 1);
       
       if(pmath_is_expr_of(p, PMATH_SYMBOL_LIST) 
@@ -709,13 +711,13 @@ static pmath_bool_t compile_regex_part(
       pmath_unref(p);
     }
     
-    if(head == PMATH_SYMBOL_SINGLEMATCH && len == 0){
+    if(len == 0 && pmath_same(head, PMATH_SYMBOL_SINGLEMATCH)){
       concat_utf8(&(info->pattern), "(?:(?s).)");
       pmath_unref(part);
       return TRUE;
     }
     
-    if(head == PMATH_SYMBOL_REPEATED && len == 2){
+    if(len == 2 && pmath_same(head, PMATH_SYMBOL_REPEATED)){
       pmath_t range = pmath_expr_get_item(part, 2);
       
       size_t min = 1;
@@ -760,7 +762,7 @@ static pmath_bool_t compile_regex_part(
       pmath_unref(range);
     }
   
-    if(head == PMATH_SYMBOL_LONGEST && len == 1){
+    if(len == 1 && pmath_same(head, PMATH_SYMBOL_LONGEST)){
       pmath_bool_t result;
       pmath_bool_t old_shortest = info->shortest;
       
@@ -773,7 +775,7 @@ static pmath_bool_t compile_regex_part(
       return result;
     }
     
-    if(head == PMATH_SYMBOL_SHORTEST && len == 1){
+    if(len == 1 && pmath_same(head, PMATH_SYMBOL_SHORTEST)){
       pmath_bool_t result;
       pmath_bool_t old_shortest = info->shortest;
       
@@ -786,7 +788,7 @@ static pmath_bool_t compile_regex_part(
       return result;
     }
     
-    if(head == PMATH_SYMBOL_TESTPATTERN && len == 2){
+    if(len == 2 && pmath_same(head, PMATH_SYMBOL_TESTPATTERN)){
       pmath_bool_t result;
       pmath_t name;
       char s[20];
@@ -814,7 +816,7 @@ static pmath_bool_t compile_regex_part(
       return result;
     }
     
-    if(head == PMATH_SYMBOL_CONDITION && len == 2){
+    if(len == 2 && pmath_same(head, PMATH_SYMBOL_CONDITION)){
       pmath_bool_t result;
       
       result = compile_regex_part(info, pmath_expr_get_item(part, 1));
@@ -825,7 +827,7 @@ static pmath_bool_t compile_regex_part(
       return result;
     }
     
-    if(head == PMATH_SYMBOL_REGULAREXPRESSION && len == 1){
+    if(len == 1 && pmath_same(head, PMATH_SYMBOL_REGULAREXPRESSION)){
       pmath_t str = pmath_expr_get_item(part, 1);
       
       if(pmath_is_string(str)){
@@ -862,49 +864,49 @@ static pmath_bool_t compile_regex_part(
   }
   
   if(pmath_is_symbol(part)){
-    if(part == PMATH_SYMBOL_STARTOFSTRING){
+    if(pmath_same(part, PMATH_SYMBOL_STARTOFSTRING)){
       pmath_unref(part);
       concat_utf8(&(info->pattern), "\\A");
       return TRUE;
     }
     
-    if(part == PMATH_SYMBOL_ENDOFSTRING){
+    if(pmath_same(part, PMATH_SYMBOL_ENDOFSTRING)){
       pmath_unref(part);
       concat_utf8(&(info->pattern), "\\z");
       return TRUE;
     }
     
-    if(part == PMATH_SYMBOL_STARTOFLINE){
+    if(pmath_same(part, PMATH_SYMBOL_STARTOFLINE)){
       pmath_unref(part);
       concat_utf8(&(info->pattern), "^");
       return TRUE;
     }
     
-    if(part == PMATH_SYMBOL_ENDOFLINE){
+    if(pmath_same(part, PMATH_SYMBOL_ENDOFLINE)){
       pmath_unref(part);
       concat_utf8(&(info->pattern), "$");
       return TRUE;
     }
     
-    if(part == PMATH_SYMBOL_NUMBERSTRING){
+    if(pmath_same(part, PMATH_SYMBOL_NUMBERSTRING)){
       pmath_unref(part);
       concat_utf8(&(info->pattern), "\\d+\\.\\d");
       return TRUE;
     }
     
-    if(part == PMATH_SYMBOL_WHITESPACE){
+    if(pmath_same(part, PMATH_SYMBOL_WHITESPACE)){
       pmath_unref(part);
       concat_utf8(&(info->pattern), "\\s+");
       return TRUE;
     }
     
-    if(part == PMATH_SYMBOL_WORDBOUNDARY){
+    if(pmath_same(part, PMATH_SYMBOL_WORDBOUNDARY)){
       pmath_unref(part);
       concat_utf8(&(info->pattern), "\\b");
       return TRUE;
     }
     
-//    if(part == PMATH_SYMBOL_LETTERCHARACTER){
+//    if(pmath_same(part, PMATH_SYMBOL_LETTERCHARACTER)){
 //      pmath_unref(part);
 //      concat_utf8(&(info->pattern), "[^\\W\\d]");
 //      return TRUE;
@@ -986,7 +988,7 @@ static struct _regex_t *compile_regex(pmath_t obj, int pcre_options){
 
 PMATH_PRIVATE struct _regex_t *_pmath_regex_compile(
   pmath_t obj, 
-  int            pcre_options
+  int     pcre_options
 ){
   struct _regex_t *re = get_regex(pmath_ref(obj), pcre_options);
   
@@ -1008,7 +1010,7 @@ PMATH_PRIVATE struct _regex_t *_pmath_regex_compile(
     const struct _regex_t  *re,
     struct _capture_t      *c,
     const char             *subject,
-    pmath_t          obj         // will be freed
+    pmath_t                 obj         // will be freed
   ){
     struct _pmath_object_int_entry_t *entry;
     
@@ -1025,9 +1027,9 @@ PMATH_PRIVATE struct _regex_t *_pmath_regex_compile(
       size_t i, len;
       
       item = pmath_expr_get_item(obj, 0);
-      if((item == PMATH_SYMBOL_FUNCTION
-       || item == PMATH_SYMBOL_LOCAL
-       || item == PMATH_SYMBOL_WITH)
+      if((pmath_same(item, PMATH_SYMBOL_FUNCTION)
+       || pmath_same(item, PMATH_SYMBOL_LOCAL)
+       || pmath_same(item, PMATH_SYMBOL_WITH))
       && pmath_expr_length(obj) > 1
       && _pmath_contains_any(obj, re->named_subpatterns)){
         pmath_unref(item);
@@ -1061,7 +1063,7 @@ PMATH_PRIVATE struct _regex_t *_pmath_regex_compile(
     struct _regex_t    *re,
     struct _capture_t  *c,
     const char         *subject,
-    pmath_t      obj         // will be freed
+    pmath_t             obj         // will be freed
   ){
     if(pmath_is_string(obj)){
       pmath_t res = get_capture_by_rhs(re, c, subject, obj);
@@ -1117,7 +1119,7 @@ static int callout(pcre_callout_block *block){
       test = pmath_evaluate(test);
       pmath_unref(test);
       
-      if(test == PMATH_SYMBOL_TRUE)
+      if(pmath_same(test, PMATH_SYMBOL_TRUE))
         return 0;
       
       return 1; // try other match

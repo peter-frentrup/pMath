@@ -35,12 +35,12 @@ static pmath_t make_complex(pmath_t re, pmath_t im){
   pmath_t re_inf;
   pmath_t im_inf;
   
-  if(re == PMATH_SYMBOL_UNDEFINED){
+  if(pmath_same(re, PMATH_SYMBOL_UNDEFINED)){
     pmath_unref(im);
     return re;
   }
   
-  if(im == PMATH_SYMBOL_UNDEFINED){
+  if(pmath_same(im, PMATH_SYMBOL_UNDEFINED)){
     pmath_unref(re);
     return im;
   }
@@ -82,7 +82,7 @@ static pmath_bool_t binary_read(
   pmath_t *type_value,
   int             byte_ordering
 ){
-  if(*type_value == PMATH_SYMBOL_EXPRESSION
+  if(pmath_same(*type_value, PMATH_SYMBOL_EXPRESSION)
   || (pmath_is_string(*type_value)
    && pmath_string_equals_latin1(*type_value, "Expression"))){
     pmath_serialize_error_t error;

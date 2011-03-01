@@ -299,12 +299,13 @@ static pmath_expr_t prepare_rule(pmath_expr_t rule){
   
   fst_head = pmath_expr_get_item(fst, 0);
   pmath_unref(fst_head);
-  if(fst_head != PMATH_SYMBOL_LIST)
+  if(!pmath_same(fst_head, PMATH_SYMBOL_LIST)){
     return pmath_expr_set_item(rule, 1,
       pmath_expr_new_extended(
         pmath_ref(PMATH_SYMBOL_LIST), 1,
         fst));
-
+  }
+  
   pmath_unref(fst);
   return rule;
 }
@@ -351,13 +352,13 @@ PMATH_PRIVATE pmath_t builtin_replacepart(pmath_expr_t expr){
     heads_value = pmath_evaluate(pmath_option_value(NULL, PMATH_SYMBOL_HEADS, options));
     pmath_unref(options);
 
-    if(heads_value == PMATH_SYMBOL_TRUE){
+    if(pmath_same(heads_value, PMATH_SYMBOL_TRUE)){
       with_heads = TRUE;
     }
-    else if(heads_value == PMATH_SYMBOL_FALSE){
+    else if(pmath_same(heads_value, PMATH_SYMBOL_FALSE)){
       const_heads = FALSE;
     }
-    else if(heads_value != PMATH_SYMBOL_AUTOMATIC){
+    else if(!pmath_same(heads_value, PMATH_SYMBOL_AUTOMATIC)){
       pmath_message(
         NULL, "opttfa", 2,
         pmath_ref(PMATH_SYMBOL_HEADS),

@@ -172,7 +172,7 @@ static pmath_t get_file(
 //        pmath_ref(package_check))); 
 //    pmath_unref(name);
 //    
-//    if(name == PMATH_SYMBOL_TRUE){
+//    if(pmath_same(name, PMATH_SYMBOL_TRUE)){
 //      pmath_message(NULL, "nons", 1, pmath_ref(package_check));
 //    }
 //    
@@ -226,7 +226,7 @@ PMATH_PRIVATE pmath_t builtin_get(pmath_expr_t expr){
         "(o)", 
         pmath_ref(name)));
     pmath_unref(expr);
-    if(expr != PMATH_SYMBOL_TRUE){
+    if(!pmath_same(expr, PMATH_SYMBOL_TRUE)){
       pmath_unref(name);
       pmath_unref(path);
       return NULL;
@@ -267,7 +267,7 @@ PMATH_PRIVATE pmath_t builtin_get(pmath_expr_t expr){
           pmath_ref(PMATH_SYMBOL_FILETYPE), 1,
           pmath_ref(testname)));
       pmath_unref(test);
-      if(test == PMATH_SYMBOL_DIRECTORY){
+      if(pmath_same(test, PMATH_SYMBOL_DIRECTORY)){
         testname = pmath_evaluate(
           pmath_parse_string_args(
               "ToFileName(`1`, \"init.pmath\")", 
@@ -280,7 +280,7 @@ PMATH_PRIVATE pmath_t builtin_get(pmath_expr_t expr){
             pmath_ref(testname)));
         pmath_unref(test);
         
-        if(test == PMATH_SYMBOL_FILE){
+        if(pmath_same(test, PMATH_SYMBOL_FILE)){
           pmath_unref((pmath_string_t)fname);
           pmath_unref(path);
           pmath_unref(name);
@@ -289,7 +289,7 @@ PMATH_PRIVATE pmath_t builtin_get(pmath_expr_t expr){
             pmath_expr_new_extended(
               pmath_ref(PMATH_SYMBOL_OPENREAD), 1,
               pmath_ref(testname)));
-          if(file != PMATH_SYMBOL_FAILED)
+          if(!pmath_same(file, PMATH_SYMBOL_FAILED))
             return get_file(file, testname);
           
           pmath_unref(testname);
@@ -312,7 +312,7 @@ PMATH_PRIVATE pmath_t builtin_get(pmath_expr_t expr){
           pmath_ref(PMATH_SYMBOL_FILETYPE), 1,
           pmath_ref(testname)));
       pmath_unref(test);
-      if(test == PMATH_SYMBOL_FILE){
+      if(pmath_same(test, PMATH_SYMBOL_FILE)){
         pmath_unref((pmath_string_t)fname);
         pmath_unref(path);
         pmath_unref(name);
@@ -321,7 +321,7 @@ PMATH_PRIVATE pmath_t builtin_get(pmath_expr_t expr){
           pmath_expr_new_extended(
             pmath_ref(PMATH_SYMBOL_OPENREAD), 1,
             pmath_ref(testname)));
-        if(file != PMATH_SYMBOL_FAILED)
+        if(!pmath_same(file, PMATH_SYMBOL_FAILED))
           return get_file(file, testname);
         
         pmath_unref(testname);
@@ -344,7 +344,7 @@ PMATH_PRIVATE pmath_t builtin_get(pmath_expr_t expr){
       pmath_ref(PMATH_SYMBOL_FILETYPE), 1,
       pmath_ref(name)));
   pmath_unref(file);
-  if(file != PMATH_SYMBOL_FILE){
+  if(!pmath_same(file, PMATH_SYMBOL_FILE)){
     pmath_message(NULL, "noopen", 1, name);
     return pmath_ref(PMATH_SYMBOL_FAILED);
   }
@@ -353,7 +353,7 @@ PMATH_PRIVATE pmath_t builtin_get(pmath_expr_t expr){
     pmath_expr_new_extended(
       pmath_ref(PMATH_SYMBOL_OPENREAD), 1,
       pmath_ref(name)));
-  if(file != PMATH_SYMBOL_FAILED)
+  if(!pmath_same(file, PMATH_SYMBOL_FAILED))
     return get_file(file, name);
   
   pmath_unref(file);

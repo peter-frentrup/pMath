@@ -35,7 +35,7 @@ PMATH_PRIVATE pmath_t builtin_on_or_off(pmath_expr_t expr){
     }
     
     if(_pmath_message_is_default_off(message)){
-      if(head == PMATH_SYMBOL_OFF){
+      if(pmath_same(head, PMATH_SYMBOL_OFF)){
         pmath_unref(
           pmath_thread_local_save(
             message,
@@ -49,7 +49,7 @@ PMATH_PRIVATE pmath_t builtin_on_or_off(pmath_expr_t expr){
       }
     }
     else{
-      if(head == PMATH_SYMBOL_ON){
+      if(pmath_same(head, PMATH_SYMBOL_ON)){
         pmath_unref(
           pmath_thread_local_save(
             message,

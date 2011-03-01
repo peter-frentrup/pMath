@@ -45,7 +45,7 @@ static pmath_t simplify_abs_sign(pmath_expr_t expr){
     return x;
   }
 
-  if(xhead == PMATH_SYMBOL_TIMES){
+  if(pmath_same(xhead, PMATH_SYMBOL_TIMES)){
     pmath_expr_t extracted = pmath_expr_new(pmath_ref(PMATH_SYMBOL_TIMES), xlen);
     size_t ei = 0;
     size_t i;

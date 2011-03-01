@@ -44,7 +44,7 @@ static pmath_expr_t find_best(
   for(i = 1;i < len;++i){
     pmath_t item = pmath_expr_get_item(list, i);
   
-    if(item == PMATH_UNDEFINED)
+    if(pmath_same(item, PMATH_UNDEFINED))
       continue;
     
     if(pmath_is_expr_of(item, head)){
@@ -56,7 +56,7 @@ static pmath_expr_t find_best(
     for(j = i+1;j <= len;++j){
       item = pmath_expr_get_item(list, j);
       
-      if(item == PMATH_UNDEFINED)
+      if(pmath_same(item, PMATH_UNDEFINED))
         continue;
       
       if(pmath_is_expr_of(item, head)){
@@ -68,12 +68,12 @@ static pmath_expr_t find_best(
       test = pmath_evaluate(pmath_ref(cmp_expr));
       pmath_unref(test);
       
-      if(test == PMATH_SYMBOL_FALSE){
+      if(pmath_same(test, PMATH_SYMBOL_FALSE)){
         list = pmath_expr_set_item(list, i, PMATH_UNDEFINED);
         break;
       }
       
-      if(test == PMATH_SYMBOL_TRUE){
+      if(pmath_same(test, PMATH_SYMBOL_TRUE)){
         list = pmath_expr_set_item(list, j, PMATH_UNDEFINED);
       }
     }

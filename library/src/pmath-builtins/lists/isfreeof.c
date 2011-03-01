@@ -108,10 +108,10 @@ PMATH_PRIVATE pmath_t builtin_isfreeof(pmath_expr_t expr){
   }
   
   obj = pmath_evaluate(pmath_option_value(NULL, PMATH_SYMBOL_HEADS, options));
-  if(obj == PMATH_SYMBOL_TRUE){
+  if(pmath_same(obj, PMATH_SYMBOL_TRUE)){
     info.with_heads = TRUE;
   }
-  else if(obj != PMATH_SYMBOL_FALSE){
+  else if(!pmath_same(obj, PMATH_SYMBOL_FALSE)){
     pmath_unref(pattern);
     pmath_unref(options);
     pmath_message(

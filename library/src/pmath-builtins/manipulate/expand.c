@@ -79,7 +79,7 @@ static pmath_t expand_product(pmath_t expr, pmath_bool_t *changed){
     pmath_t item = pmath_expr_get_item(expr, 0);
     pmath_unref(item);
     
-    if(item == PMATH_SYMBOL_TIMES){
+    if(pmath_same(item, PMATH_SYMBOL_TIMES)){
       size_t i;
       
       for(i = pmath_expr_length(expr);i > 0;--i){
@@ -106,7 +106,8 @@ static pmath_t expand_product(pmath_t expr, pmath_bool_t *changed){
       return expr;
     }
     
-    if(item == PMATH_SYMBOL_POWER && pmath_expr_length(expr) == 2){
+    if(pmath_same(item, PMATH_SYMBOL_POWER)
+    && pmath_expr_length(expr) == 2){
       pmath_t exp = pmath_expr_get_item(expr, 2);
       
       if(pmath_is_integer(exp)){
@@ -185,7 +186,8 @@ PMATH_PRIVATE pmath_t builtin_expand(pmath_expr_t expr){
     pmath_t head = pmath_expr_get_item(obj, 0);
     pmath_unref(head);
     
-    if(head == PMATH_SYMBOL_PLUS || head == PMATH_SYMBOL_LIST){
+    if(pmath_same(head, PMATH_SYMBOL_PLUS)
+    || pmath_same(head, PMATH_SYMBOL_LIST)){
       size_t i;
       pmath_unref(expr);
       expr = obj;
@@ -203,7 +205,7 @@ PMATH_PRIVATE pmath_t builtin_expand(pmath_expr_t expr){
       return expr;
     }
     
-    if(head == PMATH_SYMBOL_TIMES){
+    if(pmath_same(head, PMATH_SYMBOL_TIMES)){
       pmath_bool_t changed;
       size_t i;
       pmath_unref(expr);
@@ -232,7 +234,7 @@ PMATH_PRIVATE pmath_t builtin_expand(pmath_expr_t expr){
       return expr;
     }
     
-    if(head == PMATH_SYMBOL_POWER){
+    if(pmath_same(head, PMATH_SYMBOL_POWER)){
       pmath_bool_t changed;
       pmath_unref(expr);
       expr = obj;
@@ -331,7 +333,7 @@ PMATH_PRIVATE pmath_t builtin_expandall(pmath_expr_t expr){
       }
     }
     
-    if(head == PMATH_SYMBOL_TIMES){
+    if(pmath_same(head, PMATH_SYMBOL_TIMES)){
       pmath_bool_t changed;
       
       expr = pmath_evaluate(expr);
@@ -344,7 +346,7 @@ PMATH_PRIVATE pmath_t builtin_expandall(pmath_expr_t expr){
       return expr;
     }
     
-    if(head == PMATH_SYMBOL_POWER){
+    if(pmath_same(head, PMATH_SYMBOL_POWER)){
       pmath_bool_t changed;
       obj = pmath_expr_get_item(expr, 2);
       

@@ -76,7 +76,7 @@ PMATH_PRIVATE pmath_t builtin_timeconstrained(pmath_expr_t expr){
   pmath_symbol_set_value(guard, PMATH_UNDEFINED);
   
   ex = _pmath_thread_catch(current_thread);
-  if(ex == guard){ // time-out
+  if(pmath_same(ex, guard)){ // time-out
     pmath_unref(ex);
     pmath_unref(obj);
     if(len == 3)
@@ -84,7 +84,7 @@ PMATH_PRIVATE pmath_t builtin_timeconstrained(pmath_expr_t expr){
     else
       obj = pmath_ref(PMATH_SYMBOL_ABORTED);
   }
-  else if(ex != PMATH_UNDEFINED) // other error
+  else if(!pmath_same(ex, PMATH_UNDEFINED)) // other error
     _pmath_thread_throw(current_thread, ex);
   
   pmath_unref(guard);
