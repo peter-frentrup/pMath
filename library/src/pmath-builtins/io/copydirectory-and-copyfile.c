@@ -145,13 +145,13 @@ PMATH_PRIVATE pmath_t builtin_copydirectory_and_copyfile(pmath_expr_t expr){
   name1 = pmath_expr_get_item(expr, 1);
   if(!pmath_is_string(name1)
   || pmath_string_length(name1) == 0){
-    pmath_message(NULL, "fstr", 1, name1);
+    pmath_message(PMATH_NULL, "fstr", 1, name1);
     return expr;
   }
   
   name2 = pmath_expr_get_item(expr, 2);
   if(!pmath_is_string(name2) || pmath_string_length(name2) == 0){
-    pmath_message(NULL, "fstr", 1, name2);
+    pmath_message(PMATH_NULL, "fstr", 1, name2);
     pmath_unref(name1);
     return expr;
   }
@@ -172,10 +172,10 @@ PMATH_PRIVATE pmath_t builtin_copydirectory_and_copyfile(pmath_expr_t expr){
         (const wchar_t*)pmath_string_buffer(abs_name1),
         0,
         FILE_SHARE_READ | FILE_SHARE_WRITE,
-        NULL,
+        PMATH_NULL,
         OPEN_EXISTING,
         FILE_FLAG_BACKUP_SEMANTICS,
-        NULL);
+        PMATH_NULL);
       
       if(h != INVALID_HANDLE_VALUE){
         BY_HANDLE_FILE_INFORMATION info;
@@ -193,14 +193,14 @@ PMATH_PRIVATE pmath_t builtin_copydirectory_and_copyfile(pmath_expr_t expr){
             (const wchar_t*)pmath_string_buffer(abs_name2),
             0,
             FILE_SHARE_READ | FILE_SHARE_WRITE,
-            NULL,
+            PMATH_NULL,
             OPEN_EXISTING,
             FILE_FLAG_BACKUP_SEMANTICS,
-            NULL);
+            PMATH_NULL);
           
           if(h2 != INVALID_HANDLE_VALUE){
             CloseHandle(h2);
-            pmath_message(NULL, "filex", 1, name2); 
+            pmath_message(PMATH_NULL, "filex", 1, name2); 
             name2 = pmath_ref(PMATH_SYMBOL_FAILED);
           }
           else{
@@ -216,18 +216,18 @@ PMATH_PRIVATE pmath_t builtin_copydirectory_and_copyfile(pmath_expr_t expr){
               case 0:
                 pmath_unref(name2);
                 name2 = pmath_string_part(abs_name2, 0, pmath_string_length(abs_name2)-2);
-                abs_name2 = NULL;
+                abs_name2 = PMATH_NULL;
                 break;
               
               case ERROR_ACCESS_DENIED:
-                pmath_message(NULL, "privv", 1, expr); 
-                expr = NULL;
+                pmath_message(PMATH_NULL, "privv", 1, expr); 
+                expr = PMATH_NULL;
                 pmath_unref(name2);
                 name2 = pmath_ref(PMATH_SYMBOL_FAILED);
               
               default:
-                pmath_message(NULL, "ioarg", 1, expr); 
-                expr = NULL;
+                pmath_message(PMATH_NULL, "ioarg", 1, expr); 
+                expr = PMATH_NULL;
                 pmath_unref(name2);
                 name2 = pmath_ref(PMATH_SYMBOL_FAILED);
             }
@@ -236,18 +236,18 @@ PMATH_PRIVATE pmath_t builtin_copydirectory_and_copyfile(pmath_expr_t expr){
         else{
           switch(GetLastError()){
             case ERROR_ACCESS_DENIED:
-              pmath_message(NULL, "privv", 1, expr); 
-              expr = NULL;
+              pmath_message(PMATH_NULL, "privv", 1, expr); 
+              expr = PMATH_NULL;
               break;
             
             default:
               if(pmath_same(head, PMATH_SYMBOL_COPYFILE)){
-                pmath_message(NULL, "fdir", 1, name1);
-                name1 = NULL;
+                pmath_message(PMATH_NULL, "fdir", 1, name1);
+                name1 = PMATH_NULL;
               }
               else{
-                pmath_message(NULL, "nodir", 1, name1);
-                name1 = NULL;
+                pmath_message(PMATH_NULL, "nodir", 1, name1);
+                name1 = PMATH_NULL;
               }
           }
           pmath_unref(name2);
@@ -258,18 +258,18 @@ PMATH_PRIVATE pmath_t builtin_copydirectory_and_copyfile(pmath_expr_t expr){
       else{
         switch(GetLastError()){
           case ERROR_ACCESS_DENIED:
-            pmath_message(NULL, "privv", 1, expr); 
-            expr = NULL;
+            pmath_message(PMATH_NULL, "privv", 1, expr); 
+            expr = PMATH_NULL;
             break;
           
           default:
             if(pmath_same(head, PMATH_SYMBOL_COPYFILE)){
-              pmath_message(NULL, "nffil", 1, expr);
-              expr = NULL;
+              pmath_message(PMATH_NULL, "nffil", 1, expr);
+              expr = PMATH_NULL;
             }
             else{
-              pmath_message(NULL, "nodir", 1, name1);
-              name1 = NULL;
+              pmath_message(PMATH_NULL, "nodir", 1, name1);
+              name1 = PMATH_NULL;
             }
         }
         pmath_unref(name2);
@@ -282,14 +282,14 @@ PMATH_PRIVATE pmath_t builtin_copydirectory_and_copyfile(pmath_expr_t expr){
   }
   #else
   {
-    char   *str1 = pmath_string_to_native(name1, NULL);
-    char   *str2 = pmath_string_to_native(name2, NULL);
+    char   *str1 = pmath_string_to_native(name1, PMATH_NULL);
+    char   *str2 = pmath_string_to_native(name2, PMATH_NULL);
     
     if(str1 && str2){
       struct stat buf;
       
       if(stat(str2, &buf) == 0){
-        pmath_message(NULL, "filex", 1, name2); 
+        pmath_message(PMATH_NULL, "filex", 1, name2); 
         name2 = pmath_ref(PMATH_SYMBOL_FAILED);
       }
       else{
@@ -307,13 +307,13 @@ PMATH_PRIVATE pmath_t builtin_copydirectory_and_copyfile(pmath_expr_t expr){
             switch(errno){
               case EACCES:
               case EPERM:
-                pmath_message(NULL, "privv", 1, expr); 
-                expr = NULL;
+                pmath_message(PMATH_NULL, "privv", 1, expr); 
+                expr = PMATH_NULL;
                 break;
               
               default:
-                pmath_message(NULL, "ioarg", 1, expr); 
-                expr = NULL;
+                pmath_message(PMATH_NULL, "ioarg", 1, expr); 
+                expr = PMATH_NULL;
             }
             pmath_unref(name2);
             name2 = pmath_ref(PMATH_SYMBOL_FAILED);
@@ -323,18 +323,18 @@ PMATH_PRIVATE pmath_t builtin_copydirectory_and_copyfile(pmath_expr_t expr){
           switch(errno){
             case EACCES:
             case EPERM:
-              pmath_message(NULL, "privv", 1, expr);
-              expr = NULL;
+              pmath_message(PMATH_NULL, "privv", 1, expr);
+              expr = PMATH_NULL;
               break;
             
             default:
               if(pmath_same(head, PMATH_SYMBOL_COPYDIRECTORY)){
-                pmath_message(NULL, "nodir", 1, name1); 
-                name1 = NULL; 
+                pmath_message(PMATH_NULL, "nodir", 1, name1); 
+                name1 = PMATH_NULL; 
               }
               else{
-                pmath_message(NULL, "fdir", 1, name1); 
-                name1 = NULL; 
+                pmath_message(PMATH_NULL, "fdir", 1, name1); 
+                name1 = PMATH_NULL; 
               }
           }
           pmath_unref(name2);

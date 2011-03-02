@@ -28,14 +28,14 @@ pmath_number_t _mul_nn(
 
 PMATH_PRIVATE 
 pmath_t _pow_fi( // returns struct _pmath_mp_float_t* iff null_on_errors is TRUE
-  struct _pmath_mp_float_t *base,  // will be freed. not NULL!
+  struct _pmath_mp_float_t *base,  // will be freed. not PMATH_NULL!
   long                      exponent,
   pmath_bool_t              null_on_errors);
 
 PMATH_PRIVATE
 pmath_bool_t _pmath_is_infinite(pmath_t obj);
 
-// NULL if obj is no DirectedInfinity:
+// PMATH_NULL if obj is no DirectedInfinity:
 PMATH_PRIVATE 
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_t _pmath_directed_infinity_direction(

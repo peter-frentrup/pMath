@@ -155,8 +155,8 @@ static int pattern_compare(
      shorter that second.
    */
 
-  pmath_t head1 = NULL;
-  pmath_t head2 = NULL;
+  pmath_t head1 = PMATH_NULL;
+  pmath_t head2 = PMATH_NULL;
   size_t len1 = 0;
   size_t len2 = 0;
 
@@ -829,15 +829,15 @@ PMATH_PRIVATE pmath_bool_t _pmath_pattern_match(
   match_kind_t    kind;
   size_t funclen;
   
-  info.current_head = NULL;
+  info.current_head = PMATH_NULL;
   info.pattern      = pattern;
   info.func         = obj;
-  info.variables    = NULL;
-  info.options      = NULL;
+  info.variables    = PMATH_NULL;
+  info.options      = PMATH_NULL;
 
   info.assoc_start  = 1;
   info.assoc_end    = SIZE_MAX;
-  info.arg_usage    = NULL;
+  info.arg_usage    = PMATH_NULL;
   info.associative  = FALSE;
   info.symmetric    = FALSE;
   
@@ -873,13 +873,13 @@ PMATH_PRIVATE pmath_bool_t _pmath_pattern_match(
         pmath_hashtable_t vartable = pmath_ht_create(
           &pmath_ht_obj_class, 0);
         varlist_to_hashtable(vartable, info.variables); // frees info.variables
-        info.variables = NULL;
+        info.variables = PMATH_NULL;
 
         *rhs = replace_multiple(*rhs, vartable);
         pmath_ht_destroy(vartable);
 
         if(info.options){
-          pmath_t default_head = NULL;
+          pmath_t default_head = PMATH_NULL;
           if(pmath_is_expr(obj))
             default_head = pmath_expr_get_item(obj, 0);
 
@@ -896,7 +896,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_pattern_match(
             
             if(!pmath_same(res, PMATH_SYMBOL_TRUE)){
               pmath_unref(*rhs);
-              *rhs = NULL;
+              *rhs = PMATH_NULL;
               kind = PMATH_MATCH_KIND_NONE;
               goto NO_MATCH;
             }
@@ -1064,7 +1064,7 @@ static match_kind_t match_atom(
      || pmath_same(head, PMATH_SYMBOL_CONDITION))   // pattern /? condition
     && len == 2){
       pmath_t pattern = pmath_expr_get_item(pat, 1);
-      pmath_t test = NULL;
+      pmath_t test = PMATH_NULL;
 
       match_kind_t kind = match_atom(info, pattern, arg, index_of_arg, count_of_arg);
       pmath_unref(pattern);
@@ -1644,7 +1644,7 @@ PMATH_PRIVATE void _pmath_pattern_analyse(
         ; data->analysed.min <= n && n <= data->analysed.max
         ; data->analysed.longest ? --n : ++n
       ){
-        pmath_t arg = NULL;
+        pmath_t arg = PMATH_NULL;
         match_kind_t kind;
         
         if(n == 1)
@@ -1790,7 +1790,7 @@ static match_kind_t match_func_left( // for non-symmetric functions
       ; patarg_out.min <= n && n <= patarg_out.max
       ; patarg_out.longest ? --n : ++n
     ){
-      pmath_t arg = NULL;
+      pmath_t arg = PMATH_NULL;
       match_kind_t kind;
       
       if(patarg_out.no_sequence){
@@ -1961,7 +1961,7 @@ static match_kind_t match_func_left( // for non-symmetric functions
         ; patarg_out.longest ? --n : ++n
       ){
         if(index_start(indices, args_in_use, n, flen)) do{
-          pmath_t arg = NULL;
+          pmath_t arg = PMATH_NULL;
           match_kind_t kind;
           
           if(n == 1 && (!patarg_out.no_sequence || data->one_identity)){
@@ -2015,7 +2015,7 @@ static match_kind_t match_func_left( // for non-symmetric functions
         n = 1;
         
         if(index_start(indices, args_in_use, n, flen)) do{
-          pmath_t arg = NULL;
+          pmath_t arg = PMATH_NULL;
           match_kind_t kind;
           
           arg = pmath_expr_get_item(data->func, *indices);
@@ -2468,7 +2468,7 @@ PMATH_PRIVATE pmath_expr_t _pmath_preprocess_local(
   pmath_t def;
   size_t i;
   
-  local_expr = pmath_expr_set_item(local_expr, 1, NULL);
+  local_expr = pmath_expr_set_item(local_expr, 1, PMATH_NULL);
   
   if(!pmath_is_expr_of(defs, PMATH_SYMBOL_LIST)){
     preprocess_local_one(&local_expr, &defs);
@@ -2478,7 +2478,7 @@ PMATH_PRIVATE pmath_expr_t _pmath_preprocess_local(
   for(i = pmath_expr_length(defs);i > 0;--i){
     def = pmath_expr_get_item(defs, i);
     
-    defs = pmath_expr_set_item(defs, i, NULL);
+    defs = pmath_expr_set_item(defs, i, PMATH_NULL);
     preprocess_local_one(&local_expr, &def);
     defs = pmath_expr_set_item(defs, i, def);
   }
@@ -2527,7 +2527,7 @@ PMATH_PRIVATE pmath_t _pmath_replace_local(
     item = pmath_expr_get_item(object, i);
     
     if(object->refcount == 1)
-      object = pmath_expr_set_item(object, i, NULL);
+      object = pmath_expr_set_item(object, i, PMATH_NULL);
       
     item = _pmath_replace_local(item, name, value);
       
@@ -2587,7 +2587,7 @@ static pmath_t replace_multiple(
     item = pmath_expr_get_item(object, i);
     
     if(object->refcount == 1)
-      object = pmath_expr_set_item(object, i, NULL);
+      object = pmath_expr_set_item(object, i, PMATH_NULL);
       
     item = replace_multiple(item, replacements);
       

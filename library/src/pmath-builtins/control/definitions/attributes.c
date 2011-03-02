@@ -85,7 +85,7 @@ PMATH_PRIVATE pmath_t builtin_assign_attributes(pmath_expr_t expr){
   
   if(!pmath_same(tag, PMATH_UNDEFINED)
   && !pmath_same(tag, sym)){
-    pmath_message(NULL, "tag", 3, tag, lhs, sym);
+    pmath_message(PMATH_NULL, "tag", 3, tag, lhs, sym);
     
     pmath_unref(expr);
     if(pmath_same(rhs, PMATH_UNDEFINED))
@@ -100,7 +100,7 @@ PMATH_PRIVATE pmath_t builtin_assign_attributes(pmath_expr_t expr){
     sym = pmath_symbol_find(sym, FALSE);
   
   if(!pmath_is_symbol(sym)){
-    pmath_message(NULL, "fnsym", 1, lhs);
+    pmath_message(PMATH_NULL, "fnsym", 1, lhs);
     
     pmath_unref(sym);
     if(pmath_same(rhs, PMATH_UNDEFINED))
@@ -122,7 +122,7 @@ PMATH_PRIVATE pmath_t builtin_assign_attributes(pmath_expr_t expr){
   
   pmath_unref(sym);
   if(pmath_same(rhs, PMATH_UNDEFINED))
-    return NULL;
+    return PMATH_NULL;
   return rhs;
 }
 
@@ -141,7 +141,7 @@ PMATH_PRIVATE pmath_t builtin_attributes(pmath_expr_t expr){
     sym = pmath_symbol_find(sym, FALSE);
     
   if(!pmath_is_symbol(sym)){
-    pmath_message(NULL, "sym", 2, sym, pmath_integer_new_si(1));
+    pmath_message(PMATH_NULL, "sym", 2, sym, pmath_integer_new_si(1));
     return expr;
   }
 
@@ -149,65 +149,65 @@ PMATH_PRIVATE pmath_t builtin_attributes(pmath_expr_t expr){
   pmath_unref(expr);
   pmath_unref(sym);
 
-  pmath_gather_begin(NULL);
+  pmath_gather_begin(PMATH_NULL);
 
   //{ emit attributes ...
     if(attr & PMATH_SYMBOL_ATTRIBUTE_ASSOCIATIVE)
-      pmath_emit(pmath_ref(PMATH_SYMBOL_ASSOCIATIVE), NULL);
+      pmath_emit(pmath_ref(PMATH_SYMBOL_ASSOCIATIVE), PMATH_NULL);
 
     if(attr & PMATH_SYMBOL_ATTRIBUTE_DEEPHOLDALL)
-      pmath_emit(pmath_ref(PMATH_SYMBOL_DEEPHOLDALL), NULL);
+      pmath_emit(pmath_ref(PMATH_SYMBOL_DEEPHOLDALL), PMATH_NULL);
 
     if(attr & PMATH_SYMBOL_ATTRIBUTE_DEFINITEFUNCTION)
-      pmath_emit(pmath_ref(PMATH_SYMBOL_DEFINITEFUNCTION), NULL);
+      pmath_emit(pmath_ref(PMATH_SYMBOL_DEFINITEFUNCTION), PMATH_NULL);
 
     if(attr & PMATH_SYMBOL_ATTRIBUTE_HOLDFIRST){
       if(attr & PMATH_SYMBOL_ATTRIBUTE_HOLDREST)
-        pmath_emit(pmath_ref(PMATH_SYMBOL_HOLDALL), NULL);
+        pmath_emit(pmath_ref(PMATH_SYMBOL_HOLDALL), PMATH_NULL);
       else
-        pmath_emit(pmath_ref(PMATH_SYMBOL_HOLDFIRST), NULL);
+        pmath_emit(pmath_ref(PMATH_SYMBOL_HOLDFIRST), PMATH_NULL);
     }
     else if(attr & PMATH_SYMBOL_ATTRIBUTE_HOLDREST)
-      pmath_emit(pmath_ref(PMATH_SYMBOL_HOLDREST), NULL);
+      pmath_emit(pmath_ref(PMATH_SYMBOL_HOLDREST), PMATH_NULL);
 
     if(attr & PMATH_SYMBOL_ATTRIBUTE_HOLDALLCOMPLETE)
-      pmath_emit(pmath_ref(PMATH_SYMBOL_HOLDALLCOMPLETE), NULL);
+      pmath_emit(pmath_ref(PMATH_SYMBOL_HOLDALLCOMPLETE), PMATH_NULL);
 
     if(attr & PMATH_SYMBOL_ATTRIBUTE_LISTABLE)
-      pmath_emit(pmath_ref(PMATH_SYMBOL_LISTABLE), NULL);
+      pmath_emit(pmath_ref(PMATH_SYMBOL_LISTABLE), PMATH_NULL);
 
     if(attr & PMATH_SYMBOL_ATTRIBUTE_NHOLDFIRST){
       if(attr & PMATH_SYMBOL_ATTRIBUTE_NHOLDREST)
-        pmath_emit(pmath_ref(PMATH_SYMBOL_NHOLDALL), NULL);
+        pmath_emit(pmath_ref(PMATH_SYMBOL_NHOLDALL), PMATH_NULL);
       else
-        pmath_emit(pmath_ref(PMATH_SYMBOL_NHOLDFIRST), NULL);
+        pmath_emit(pmath_ref(PMATH_SYMBOL_NHOLDFIRST), PMATH_NULL);
     }
     else if(attr & PMATH_SYMBOL_ATTRIBUTE_NHOLDREST)
-      pmath_emit(pmath_ref(PMATH_SYMBOL_NHOLDREST), NULL);
+      pmath_emit(pmath_ref(PMATH_SYMBOL_NHOLDREST), PMATH_NULL);
 
     if(attr & PMATH_SYMBOL_ATTRIBUTE_NUMERICFUNCTION)
-      pmath_emit(pmath_ref(PMATH_SYMBOL_NUMERICFUNCTION), NULL);
+      pmath_emit(pmath_ref(PMATH_SYMBOL_NUMERICFUNCTION), PMATH_NULL);
 
     if(attr & PMATH_SYMBOL_ATTRIBUTE_ONEIDENTITY)
-      pmath_emit(pmath_ref(PMATH_SYMBOL_ONEIDENTITY), NULL);
+      pmath_emit(pmath_ref(PMATH_SYMBOL_ONEIDENTITY), PMATH_NULL);
 
     if(attr & PMATH_SYMBOL_ATTRIBUTE_PROTECTED)
-      pmath_emit(pmath_ref(PMATH_SYMBOL_PROTECTED), NULL);
+      pmath_emit(pmath_ref(PMATH_SYMBOL_PROTECTED), PMATH_NULL);
 
     if(attr & PMATH_SYMBOL_ATTRIBUTE_READPROTECTED)
-      pmath_emit(pmath_ref(PMATH_SYMBOL_READPROTECTED), NULL);
+      pmath_emit(pmath_ref(PMATH_SYMBOL_READPROTECTED), PMATH_NULL);
 
     if(attr & PMATH_SYMBOL_ATTRIBUTE_SEQUENCEHOLD)
-      pmath_emit(pmath_ref(PMATH_SYMBOL_SEQUENCEHOLD), NULL);
+      pmath_emit(pmath_ref(PMATH_SYMBOL_SEQUENCEHOLD), PMATH_NULL);
 
     if(attr & PMATH_SYMBOL_ATTRIBUTE_SYMMETRIC)
-      pmath_emit(pmath_ref(PMATH_SYMBOL_SYMMETRIC), NULL);
+      pmath_emit(pmath_ref(PMATH_SYMBOL_SYMMETRIC), PMATH_NULL);
 
     if(attr & PMATH_SYMBOL_ATTRIBUTE_TEMPORARY)
-      pmath_emit(pmath_ref(PMATH_SYMBOL_TEMPORARY), NULL);
+      pmath_emit(pmath_ref(PMATH_SYMBOL_TEMPORARY), PMATH_NULL);
 
     if(attr & PMATH_SYMBOL_ATTRIBUTE_THREADLOCAL)
-      pmath_emit(pmath_ref(PMATH_SYMBOL_THREADLOCAL), NULL);
+      pmath_emit(pmath_ref(PMATH_SYMBOL_THREADLOCAL), PMATH_NULL);
   //}
 
   return pmath_gather_end();

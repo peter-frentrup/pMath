@@ -36,7 +36,7 @@ struct _module_t{
   #endif
 };
 
-static pmath_threadlock_t all_modules_lock = NULL;
+static pmath_threadlock_t all_modules_lock = PMATH_NULL;
 static pmath_hashtable_t  all_modules;
 
 static void destroy_module(void *ptr){
@@ -102,7 +102,7 @@ static void destroy_module(void *ptr){
     entry->key   = pmath_ref(info->filename);
     entry->value = pmath_ref(mod_obj);
     entry = pmath_ht_insert(all_modules, entry);
-    if(entry != NULL){
+    if(entry != PMATH_NULL){
       pmath_ht_obj_class.entry_destructor(entry);
       pmath_unref(mod_obj);
       return;
@@ -131,7 +131,7 @@ static void destroy_module(void *ptr){
           
           if(!info->success){
             FreeLibrary(mod->handle);
-            mod->handle = NULL;
+            mod->handle = PMATH_NULL;
           }
         }
         
@@ -164,7 +164,7 @@ static void destroy_module(void *ptr){
           if(!info->success){
             dlclose(mod->handle);
             dlerror(); /* Clear any existing error */
-            mod->handle = NULL;
+            mod->handle = PMATH_NULL;
           }
         }
         
@@ -175,7 +175,7 @@ static void destroy_module(void *ptr){
     
     if(!info->success){
       entry = pmath_ht_remove(all_modules, info->filename);
-      assert(entry != NULL);
+      assert(entry != PMATH_NULL);
       pmath_ht_obj_class.entry_destructor(entry);
     }
     pmath_unref(mod_obj);
@@ -199,7 +199,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_modules_init(void){
   all_modules_lock = 0;
   all_modules = pmath_ht_create(&pmath_ht_obj_class, 0);
   
-  return all_modules != NULL;
+  return all_modules != PMATH_NULL;
 }
 
 PMATH_PRIVATE void _pmath_modules_done(void){

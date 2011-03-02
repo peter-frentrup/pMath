@@ -104,8 +104,8 @@ PMATH_PRIVATE pmath_t builtin_datelist(pmath_expr_t expr){
     pmath_unref(item);
   }
   
-  if(options){
-    pmath_t tz = pmath_evaluate(pmath_option_value(NULL, PMATH_SYMBOL_TIMEZONE, options));
+  if(!pmath_is_null(options)){
+    pmath_t tz = pmath_evaluate(pmath_option_value(PMATH_NULL, PMATH_SYMBOL_TIMEZONE, options));
     
     if(!pmath_is_number(tz)){
       pmath_unref(tz);

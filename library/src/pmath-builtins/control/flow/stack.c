@@ -39,7 +39,7 @@ PMATH_PRIVATE pmath_t builtin_stack(pmath_expr_t expr){
   pmath_unref(expr);
 
   data.current = 0;
-  data.list = NULL;
+  data.list = PMATH_NULL;
   data.first = TRUE;
   pmath_walk_stack(walk_stack_count, &data);
   

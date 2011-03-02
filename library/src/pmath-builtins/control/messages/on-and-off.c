@@ -26,7 +26,7 @@ PMATH_PRIVATE pmath_t builtin_on_or_off(pmath_expr_t expr){
       message = pmath_expr_new_extended(
         pmath_ref(PMATH_SYMBOL_MESSAGENAME), 2, 
         message,
-        NULL);
+        PMATH_NULL);
     }
     else if(!_pmath_is_valid_messagename(message)){
       pmath_message(PMATH_SYMBOL_MESSAGE, "name", 1, message);
@@ -68,5 +68,5 @@ PMATH_PRIVATE pmath_t builtin_on_or_off(pmath_expr_t expr){
 
   pmath_unref(head);
   pmath_unref(expr);
-  return NULL;
+  return PMATH_NULL;
 }

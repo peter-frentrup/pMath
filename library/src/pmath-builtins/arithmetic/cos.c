@@ -19,7 +19,7 @@ PMATH_PRIVATE pmath_t builtin_cos(pmath_expr_t expr){
   
   x = pmath_expr_get_item(expr, 1);
   if(pmath_instance_of(x, PMATH_TYPE_MACHINE_FLOAT)){
-    double d = ((struct _pmath_machine_float_t*)x)->value;
+    double d = PMATH_AS_DOUBLE(x);
     double res = cos(d);
     
     pmath_unref(x);
@@ -41,16 +41,16 @@ PMATH_PRIVATE pmath_t builtin_cos(pmath_expr_t expr){
       mpfr_sin_cos(
         tmp->value, // sin 
         tmp->error, // cos
-        ((struct _pmath_mp_float_t*)x)->value, 
+        ((struct _pmath_mp_float_t*)PMATH_AS_PTR(x))->value, 
         GMP_RNDN);
       
       cos_val = mpfr_get_d(tmp->error, GMP_RNDN);
       
       // dy = d(cos(x)) = sin(x) * dx
-      mpfr_mul(tmp->error, tmp->value, ((struct _pmath_mp_float_t*)x)->error, GMP_RNDN);
+      mpfr_mul(tmp->error, tmp->value, ((struct _pmath_mp_float_t*)PMATH_AS_PTR(x))->error, GMP_RNDN);
       
       // Precision(y) = -Log(base, y) + Accuracy(y)
-      accmant = mpfr_get_d_2exp(&accexp, ((struct _pmath_mp_float_t*)tmp)->error, GMP_RNDN);
+      accmant = mpfr_get_d_2exp(&accexp, tmp->error, GMP_RNDN);
       acc  = -log2(fabs(accmant)) - accexp;
       prec = -log2(fabs(cos_val)) + acc;
       
@@ -61,14 +61,14 @@ PMATH_PRIVATE pmath_t builtin_cos(pmath_expr_t expr){
       
       result = _pmath_create_mp_float((mp_prec_t)prec);
       if(result){
-        mpfr_cos(result->value, ((struct _pmath_mp_float_t*)x)->value, GMP_RNDN);
+        mpfr_cos(result->value, ((struct _pmath_mp_float_t*)PMATH_AS_PTR(x))->value, GMP_RNDN);
         mpfr_abs(result->error, tmp->error, GMP_RNDU);
       }
       
       pmath_unref(expr);
       pmath_unref(x);
-      pmath_unref((pmath_float_t)tmp);
-      return (pmath_float_t)result;
+      pmath_unref((pmath_float_t)PMATH_FROM_PTR(tmp));
+      return (pmath_float_t)PMATH_FROM_PTR(result);
     }
   }
   
@@ -76,7 +76,7 @@ PMATH_PRIVATE pmath_t builtin_cos(pmath_expr_t expr){
     int sign = pmath_number_sign(x);
     
     if(sign < 0){
-      expr = pmath_expr_set_item(expr, 1, NULL);
+      expr = pmath_expr_set_item(expr, 1, PMATH_NULL);
       
       return pmath_expr_set_item(
         expr, 1,
@@ -130,7 +130,7 @@ PMATH_PRIVATE pmath_t builtin_cos(pmath_expr_t expr){
       
       if(pmath_is_number(fst)){
         if(pmath_number_sign(fst) < 0){
-          expr = pmath_expr_set_item(expr, 1, NULL);
+          expr = pmath_expr_set_item(expr, 1, PMATH_NULL);
           
           return pmath_expr_set_item(
             expr, 1,
@@ -171,11 +171,11 @@ PMATH_PRIVATE pmath_t builtin_cos(pmath_expr_t expr){
           pmath_unref(cmp);
           if(pmath_same(cmp, PMATH_SYMBOL_TRUE)
           && pmath_instance_of(fst, PMATH_TYPE_QUOTIENT)
-          && pmath_integer_fits_ui((pmath_integer_t)((struct _pmath_quotient_t*)fst)->numerator)
-          && pmath_integer_fits_ui((pmath_integer_t)((struct _pmath_quotient_t*)fst)->denominator)
+          && pmath_integer_fits_ui(PMATH_QUOT_NUM(fst))
+          && pmath_integer_fits_ui(PMATH_QUOT_DEN(fst))
           ){
-            unsigned long num = pmath_integer_get_ui((pmath_integer_t)((struct _pmath_quotient_t*)fst)->numerator);
-            unsigned long den = pmath_integer_get_ui((pmath_integer_t)((struct _pmath_quotient_t*)fst)->denominator);
+            unsigned long num = pmath_integer_get_ui(PMATH_QUOT_NUM(fst));
+            unsigned long den = pmath_integer_get_ui(PMATH_QUOT_DEN(fst));
             
             if(num <= den / 2)
               switch(den){
@@ -232,7 +232,7 @@ PMATH_PRIVATE pmath_t builtin_cos(pmath_expr_t expr){
               }
           }
           else if(pmath_same(cmp, PMATH_SYMBOL_FALSE)){ // 1/2 Pi <= x
-            expr = pmath_expr_set_item(expr, 1, NULL);
+            expr = pmath_expr_set_item(expr, 1, PMATH_NULL);
             
             cmp = pmath_evaluate(
               pmath_expr_new_extended(
@@ -289,7 +289,7 @@ PMATH_PRIVATE pmath_t builtin_cos(pmath_expr_t expr){
         if(pmath_is_integer(tmp)){
           tmp = POW(INT(-1), tmp);
           
-          expr = pmath_expr_set_item(expr, 1, NULL);
+          expr = pmath_expr_set_item(expr, 1, PMATH_NULL);
           x = pmath_expr_set_item(x, i, PMATH_UNDEFINED);
           x = pmath_expr_remove_all(x, PMATH_UNDEFINED);
           expr = pmath_expr_set_item(expr, 1, x);

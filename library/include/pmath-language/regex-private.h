@@ -22,7 +22,7 @@ PMATH_PRIVATE void _pmath_regex_unref(struct _regex_t *re);
 
 /* Compile a regular expression with some options for pcre_compile2.
    
-   On failure, a message is generated and NULL will be returend.
+   On failure, a message is generated and PMATH_NULL will be returend.
    
    Free the result with _pmath_regex_unref() when it is no longer used.
  */

@@ -39,8 +39,8 @@ typedef pmath_t  pmath_expr_t;
    \memberof pmath_expr_t
    \param head The expression's head (index 0). Do not use them after the call.
    \param length The number of additional items in the expression.
-   \return NULL or a new expression with head at index 0 and all other items 
-           initialized to NULL. You must destroy it with pmath_unref().
+   \return PMATH_NULL or a new expression with head at index 0 and all other items 
+           initialized to PMATH_NULL. You must destroy it with pmath_unref().
  */
 PMATH_API 
 PMATH_ATTRIBUTE_USE_RESULT
@@ -53,7 +53,7 @@ pmath_expr_t pmath_expr_new(
    \param head The expression's head (index 0). Do not use them after the call.
    \param length The number of additional items in the expression.
    \param ... exactly length pmath_ts. Do not use them after the call.
-   \return NULL or a new expression with head at index 0 all items at index 
+   \return PMATH_NULL or a new expression with head at index 0 all items at index 
            i = 1..length initialized to the i'th argument in `...`. You must 
            destroy it with pmath_unref().
  */
@@ -68,14 +68,14 @@ pmath_expr_t pmath_expr_new_extended(
    \memberof pmath_expr_t
    \param expr The old expression. It will be freed/invalid after the call.
    \param new_length The new length of the expression.
-   \return NULL or a new expression of length new_length. You must destroy it 
+   \return PMATH_NULL or a new expression of length new_length. You must destroy it 
            with pmath_unref().
    
    If expr's length is less than or equals to new_length, all items at 
-   1..(expr's length) are be copied and the rest is initialized with NULL. 
+   1..(expr's length) are be copied and the rest is initialized with PMATH_NULL. 
    Otherwise, all items at 1..new_length are copied, those at 
    (new_length+1)..(expr's length) are be freed and the rest is initialized with
-   NULL.
+   PMATH_NULL.
  */
 PMATH_API 
 PMATH_ATTRIBUTE_USE_RESULT
@@ -88,11 +88,11 @@ pmath_expr_t pmath_expr_resize(
    \param expr The old expression. It will be freed/invalid after the call.
    \param count The number of items to append.
    \param ... exactly count pmath_ts. Do not use them after the call.
-   \return NULL or a new expression that contains all items of expr followed by
+   \return PMATH_NULL or a new expression that contains all items of expr followed by
            the items in `...`. You must destroy it with pmath_unref().
    
-   If expr == NULL, the returns value is 
-   pmath_expr_new_extended(NULL,count,...).
+   If expr == PMATH_NULL, the returns value is 
+   pmath_expr_new_extended(PMATH_NULL,count,...).
  */
 PMATH_API 
 PMATH_ATTRIBUTE_USE_RESULT
@@ -115,7 +115,7 @@ size_t pmath_expr_length(pmath_expr_t expr);
    \param expr A pMath expression.
    \param index The index of the item.
    \return A copy of the requested item, if index is not greater than the 
-   length of expr and NULL otherwise. You must destroy it with pmath_unref().
+   length of expr and PMATH_NULL otherwise. You must destroy it with pmath_unref().
  */
 PMATH_API 
 PMATH_ATTRIBUTE_PURE 
@@ -165,7 +165,7 @@ pmath_expr_t pmath_expr_get_item_range(
    \param index The index of the to-be-changed item.
    \param item The new value of the item. It will be destroyed, do not use it
           after the call.
-   \return NULL or a new expression with item at index. You must destroy it with 
+   \return PMATH_NULL or a new expression with item at index. You must destroy it with 
            pmath_unref().
    
    If index is greater than expr's length, item will be destroyed and the 
@@ -183,7 +183,7 @@ pmath_expr_t pmath_expr_set_item(
    \param expr A pMath expression. It will be destroyed, do not use it after the 
           call.
    \param rem The object to be removed. It will *not* be destroyed.
-   \return NULL or a new expression that contains no occurencies of \a rem 
+   \return PMATH_NULL or a new expression that contains no occurencies of \a rem 
            (except maybe the head). It is a shrinked version of \a expr.
  */
 PMATH_API 

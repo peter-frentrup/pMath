@@ -26,7 +26,7 @@ static pmath_bool_t part(
       return TRUE;
     
     if(!pmath_is_expr(*list)){
-      pmath_message(NULL, "partd", 1, pmath_ref(position));
+      pmath_message(PMATH_NULL, "partd", 1, pmath_ref(position));
       return FALSE;
     }
     
@@ -38,11 +38,11 @@ static pmath_bool_t part(
     
     i = SIZE_MAX;
     if(!extract_number(pos, listlen, &i)){
-      pmath_message(NULL, "pspec", 1, pos);
+      pmath_message(PMATH_NULL, "pspec", 1, pos);
       return FALSE;
     }
     if(i > listlen){
-      pmath_message(NULL, "partw", 2, pmath_ref(*list), pos);
+      pmath_message(PMATH_NULL, "partw", 2, pmath_ref(*list), pos);
       return FALSE;
     }
     
@@ -64,12 +64,12 @@ static pmath_bool_t part(
     size_t end_index = listlen;
     
     if(!extract_range(pos, &start_index, &end_index, TRUE)){
-      pmath_message(NULL, "pspec", 1, pos);
+      pmath_message(PMATH_NULL, "pspec", 1, pos);
       return FALSE;
     }
     
     if(start_index > listlen || end_index > listlen){
-      pmath_message(NULL, "partw", 2, pmath_ref(*list), pos);
+      pmath_message(PMATH_NULL, "partw", 2, pmath_ref(*list), pos);
       return FALSE;
     }
     
@@ -106,13 +106,13 @@ static pmath_bool_t part(
       size_t index = SIZE_MAX;
       
       if(!extract_number(subpos, listlen, &index)){
-        pmath_message(NULL, "pspec", 1, subpos);
+        pmath_message(PMATH_NULL, "pspec", 1, subpos);
         pmath_unref(pos);
         return FALSE;
       }
       
       if(index > listlen){
-        pmath_message(NULL, "partw", 2, 
+        pmath_message(PMATH_NULL, "partw", 2, 
           pmath_ref(*list), 
           subpos);
         pmath_unref(pos);
@@ -128,10 +128,10 @@ static pmath_bool_t part(
       pmath_expr_get_item(*list, 0));
     pmath_unref(*list);
     *list = pos;
-    pos = NULL;
+    pos = PMATH_NULL;
   }
   else if(!pmath_same(pos, PMATH_SYMBOL_ALL)){
-    pmath_message(NULL, "pspec", 1, pos);
+    pmath_message(PMATH_NULL, "pspec", 1, pos);
     return FALSE;
   }
   
@@ -225,7 +225,7 @@ static pmath_t assign_part(
   
   if(!pmath_is_expr(list)){
     if(!*error)
-      pmath_message(NULL, "partd", 1, pmath_ref(position));
+      pmath_message(PMATH_NULL, "partd", 1, pmath_ref(position));
     *error = TRUE;
     return list;
   }
@@ -240,7 +240,7 @@ static pmath_t assign_part(
       if(*error)
         pmath_unref(index);
       else
-        pmath_message(NULL, "pspec", 1, index);
+        pmath_message(PMATH_NULL, "pspec", 1, index);
       *error = TRUE;
       return list;
     }
@@ -248,14 +248,14 @@ static pmath_t assign_part(
       if(*error)
         pmath_unref(index);
       else
-        pmath_message(NULL, "partw", 2, pmath_ref(list), index);
+        pmath_message(PMATH_NULL, "partw", 2, pmath_ref(list), index);
       *error = TRUE;
       return list;
     }
     
     pmath_unref(index);
     index = pmath_expr_get_item(list, i);
-    list = pmath_expr_set_item(list, i, NULL);
+    list = pmath_expr_set_item(list, i, PMATH_NULL);
     return pmath_expr_set_item(list, i, 
       assign_part(index, position, position_start + 1, new_value, error));
   }
@@ -269,7 +269,7 @@ static pmath_t assign_part(
       if(*error)
         pmath_unref(index);
       else
-        pmath_message(NULL, "pspec", 1, index);
+        pmath_message(PMATH_NULL, "pspec", 1, index);
       *error = TRUE;
       return list;
     }
@@ -278,7 +278,7 @@ static pmath_t assign_part(
       if(*error)
         pmath_unref(index);
       else
-        pmath_message(NULL, "partw", 2, pmath_ref(list), index);
+        pmath_message(PMATH_NULL, "partw", 2, pmath_ref(list), index);
       *error = TRUE;
       return list;
     }
@@ -292,7 +292,7 @@ static pmath_t assign_part(
     }
     
     pmath_unref(index);
-    index = NULL;
+    index = PMATH_NULL;
     
     if(pmath_is_expr_of_len(new_value, PMATH_SYMBOL_LIST, end_index + 1 - start_index)){
       size_t i;
@@ -302,7 +302,7 @@ static pmath_t assign_part(
           pmath_t item     = pmath_expr_get_item(list,      i);
           pmath_t new_item = pmath_expr_get_item(new_value, end_index + 1 - i);
           
-          list = pmath_expr_set_item(list, i, NULL);
+          list = pmath_expr_set_item(list, i, PMATH_NULL);
           list = pmath_expr_set_item(list, i, 
             assign_part(item, position, position_start + 1, new_item, error));
           
@@ -314,7 +314,7 @@ static pmath_t assign_part(
           pmath_t item     = pmath_expr_get_item(list,      i);
           pmath_t new_item = pmath_expr_get_item(new_value, i - start_index + 1);
           
-          list = pmath_expr_set_item(list, i, NULL);
+          list = pmath_expr_set_item(list, i, PMATH_NULL);
           list = pmath_expr_set_item(list, i, 
             assign_part(item, position, position_start + 1, new_item, error));
           
@@ -328,7 +328,7 @@ static pmath_t assign_part(
       for(i = start_index;i <= end_index;++i){
         pmath_t item = pmath_expr_get_item(list, i);
         
-        list = pmath_expr_set_item(list, i, NULL);
+        list = pmath_expr_set_item(list, i, PMATH_NULL);
         list = pmath_expr_set_item(list, i, 
           assign_part(item, position, position_start + 1, new_value, error));
       }
@@ -349,7 +349,7 @@ static pmath_t assign_part(
         if(*error)
           pmath_unref(subindex);
         else
-          pmath_message(NULL, "pspec", 1, subindex);
+          pmath_message(PMATH_NULL, "pspec", 1, subindex);
         *error = TRUE;
         pmath_unref(index);
         return list;
@@ -359,7 +359,7 @@ static pmath_t assign_part(
         if(*error)
           pmath_unref(subindex);
         else
-          pmath_message(NULL, "partw", 2, 
+          pmath_message(PMATH_NULL, "partw", 2, 
             pmath_ref(list), 
             subindex);
         *error = TRUE;
@@ -373,7 +373,7 @@ static pmath_t assign_part(
         pmath_t item     = pmath_expr_get_item(list,      list_i);
         pmath_t new_item = pmath_expr_get_item(new_value, i);
         
-        list = pmath_expr_set_item(list, list_i, NULL);
+        list = pmath_expr_set_item(list, list_i, PMATH_NULL);
         list = pmath_expr_set_item(list, list_i, 
           assign_part(item, position, position_start + 1, new_item, error));
         
@@ -382,7 +382,7 @@ static pmath_t assign_part(
       else{
         pmath_t item = pmath_expr_get_item(list, list_i);
         
-        list = pmath_expr_set_item(list, list_i, NULL);
+        list = pmath_expr_set_item(list, list_i, PMATH_NULL);
         list = pmath_expr_set_item(list, list_i, 
           assign_part(item, position, position_start + 1, new_value, error));
       }
@@ -395,14 +395,14 @@ static pmath_t assign_part(
   if(pmath_same(index, PMATH_SYMBOL_ALL)){
     size_t i;
     pmath_unref(index);
-    index = NULL;
+    index = PMATH_NULL;
     
     if(pmath_is_expr_of_len(new_value, PMATH_SYMBOL_LIST, listlen)){
       for(i = 1;i <= listlen;++i){
         pmath_t item     = pmath_expr_get_item(list, i);
         pmath_t new_item = pmath_expr_get_item(new_value, i);
         
-        list = pmath_expr_set_item(list, i, NULL);
+        list = pmath_expr_set_item(list, i, PMATH_NULL);
         list = pmath_expr_set_item(list, i,
           assign_part(item, position, position_start + 1, new_item, error));
         
@@ -415,7 +415,7 @@ static pmath_t assign_part(
     for(i = 1;i <= listlen;++i){
       pmath_t item = pmath_expr_get_item(list, i);
       
-      list = pmath_expr_set_item(list, i, NULL);
+      list = pmath_expr_set_item(list, i, PMATH_NULL);
       list = pmath_expr_set_item(list, i,
         assign_part(item, position, position_start + 1, new_value, error));
     }
@@ -427,7 +427,7 @@ static pmath_t assign_part(
   if(*error)
     pmath_unref(index);
   else
-    pmath_message(NULL, "pspec", 1, index);
+    pmath_message(PMATH_NULL, "pspec", 1, index);
   return list;
 }
 
@@ -475,7 +475,7 @@ PMATH_PRIVATE pmath_t builtin_assign_part(pmath_expr_t expr){
   
   sym = pmath_expr_get_item(lhs, 1);
   if(!pmath_is_symbol(sym)){
-    pmath_message(NULL, "sym", 1, sym,
+    pmath_message(PMATH_NULL, "sym", 1, sym,
       pmath_expr_new_extended(
         pmath_ref(PMATH_SYMBOL_LIST), 2,
         pmath_integer_new_si(pmath_same(tag, PMATH_UNDEFINED) ? 1 : 2),
@@ -493,7 +493,7 @@ PMATH_PRIVATE pmath_t builtin_assign_part(pmath_expr_t expr){
   
   if(!pmath_same(tag, PMATH_UNDEFINED)
   && !pmath_same(tag, sym)){
-    pmath_message(NULL, "tag", 3, tag, lhs, sym);
+    pmath_message(PMATH_NULL, "tag", 3, tag, lhs, sym);
     
     if(assignment < 0){
       pmath_unref(rhs);
@@ -541,7 +541,7 @@ PMATH_PRIVATE pmath_t builtin_assign_part(pmath_expr_t expr){
   pmath_unref(sym);
   if(assignment < 0){
     pmath_unref(rhs);
-    return NULL;
+    return PMATH_NULL;
   }
   
   return rhs;

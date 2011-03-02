@@ -29,7 +29,7 @@ PMATH_PRIVATE pmath_t builtin_history(pmath_expr_t expr){
       
       pmath_unref(obj);
       pmath_unref(expr);
-      return NULL;
+      return PMATH_NULL;
     }
     
     pmath_unref(obj);
@@ -39,5 +39,5 @@ PMATH_PRIVATE pmath_t builtin_history(pmath_expr_t expr){
   pmath_unref(obj);
   pmath_unref(expr);
   
-  return NULL;
+  return PMATH_NULL;
 }

@@ -71,7 +71,7 @@ PMATH_PRIVATE pmath_t builtin_parallelmap(pmath_expr_t expr){
     pmath_t levels = pmath_expr_get_item(expr, 3);
     
     if(!_pmath_extract_levels(levels, &info.info.levelmin, &info.info.levelmax)){
-      pmath_message(NULL, "level", 1, levels);
+      pmath_message(PMATH_NULL, "level", 1, levels);
       return expr;
     }
     
@@ -99,7 +99,7 @@ PMATH_PRIVATE pmath_t builtin_parallelmap(pmath_expr_t expr){
     if(tasks){
       size_t i;
       
-      info.items = NULL;
+      info.items = PMATH_NULL;
       
       if(obj->refcount > 1 
       || obj->type_shift != PMATH_TYPE_SHIFT_EXPRESSION_GENERAL){
@@ -128,7 +128,7 @@ PMATH_PRIVATE pmath_t builtin_parallelmap(pmath_expr_t expr){
             (pmath_callback_t)parallel_map,
             dummy,
             &info,
-            NULL);
+            PMATH_NULL);
         }
         
         for(i = 0;i < (size_t)task_count;++i){
@@ -149,7 +149,7 @@ PMATH_PRIVATE pmath_t builtin_parallelmap(pmath_expr_t expr){
     }
   }
   else if(reldepth > 0){
-    pmath_message(NULL, "nopar1", 1, expr);
+    pmath_message(PMATH_NULL, "nopar1", 1, expr);
     obj = _pmath_map(&info.info, obj, 0);
   }
   else

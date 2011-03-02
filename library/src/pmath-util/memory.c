@@ -265,7 +265,7 @@
 
     p = (memory_header_t*)memory_allocate(DEBUG_HEADER_SIZE + size + DEBUG_OVERFLOW_SIZE);
     if(!p)
-      return NULL;
+      return PMATH_NULL;
 
     p->size = size;
     p->alloc_time = pmath_atomic_fetch_add(&_pmath_debug_global_time, 1);
@@ -278,7 +278,7 @@
         EnterCriticalSection(&mem_list_mutex);
       #endif
 
-      p->prev = NULL;
+      p->prev = PMATH_NULL;
       p->next = mem_list;
       if(mem_list)
         mem_list->prev = p;
@@ -347,7 +347,7 @@
           EnterCriticalSection(&mem_list_mutex);
         #endif
 
-        old_p->prev = NULL;
+        old_p->prev = PMATH_NULL;
         old_p->next = mem_list;
         if(mem_list)
           mem_list->prev = old_p;
@@ -359,7 +359,7 @@
           LeaveCriticalSection(&mem_list_mutex);
         #endif
       }
-      return NULL;
+      return PMATH_NULL;
     }
 
     if(old_size < size){
@@ -379,7 +379,7 @@
         EnterCriticalSection(&mem_list_mutex);
       #endif
 
-      new_p->prev = NULL;
+      new_p->prev = PMATH_NULL;
       new_p->next = mem_list;
       if(mem_list)
         mem_list->prev = new_p;
@@ -435,7 +435,7 @@
   static size_t debug_mem_size(void *p){
     memory_header_t *old_p;
     
-    assert(p != NULL);
+    assert(p != PMATH_NULL);
     
     old_p = DEBUG_MEM_TO_HEADER(p);
     
@@ -508,7 +508,7 @@ PMATH_API void *pmath_mem_alloc(size_t size){
     p = memory_allocate(size);
     if(!p){
       pmath_throw(pmath_ref(_pmath_object_memory_exception));
-      return NULL;
+      return PMATH_NULL;
     }
   }
   
@@ -543,7 +543,7 @@ PMATH_API void *pmath_mem_realloc_no_failfree(void *p, size_t new_size){
 
   if(new_size == 0){
     pmath_mem_free(p);
-    return NULL;
+    return PMATH_NULL;
   }
   
   old = memory_size(p);
@@ -553,7 +553,7 @@ PMATH_API void *pmath_mem_realloc_no_failfree(void *p, size_t new_size){
     new_p = memory_reallocate(p, new_size);
     if(!new_p){
       pmath_throw(pmath_ref(_pmath_object_memory_exception));
-      return NULL;
+      return PMATH_NULL;
     }
   }
   
@@ -605,11 +605,11 @@ PMATH_PRIVATE pmath_bool_t _pmath_memory_manager_init(void){
     init_platform_memory_manager();
 
     #ifdef PMATH_DEBUG_MEMORY
-      mem_list = NULL;
+      mem_list = PMATH_NULL;
 
         /* initialize mem_list_mutex ... */
       #if PMATH_USE_PTHREAD
-        if(0 != pthread_mutex_init(&mem_list_mutex, NULL))
+        if(0 != pthread_mutex_init(&mem_list_mutex, PMATH_NULL))
           goto FAIL_MEM_LIST_MUTEX;
       #elif PMATH_USE_WINDOWS_THREADS
         if(!InitializeCriticalSectionAndSpinCount(&mem_list_mutex, 4000))
@@ -621,11 +621,11 @@ PMATH_PRIVATE pmath_bool_t _pmath_memory_manager_init(void){
     #endif
   }
 
-/* GMP allocation functions must not return NULL. So we retry an allocation, if
+/* GMP allocation functions must not return PMATH_NULL. So we retry an allocation, if
    it failed, because caches are freed on memory failure, but
-   pmath_mem_[re]alloc() return NULL then, even if cache-freeing was successful
+   pmath_mem_[re]alloc() return PMATH_NULL then, even if cache-freeing was successful
    enough. Note that GMP will terminate the application, if the following
-   functions return NULL.
+   functions return PMATH_NULL.
  */
   mp_set_memory_functions(
     pmath_mem_alloc,

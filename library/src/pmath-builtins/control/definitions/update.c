@@ -16,7 +16,7 @@ PMATH_PRIVATE pmath_t builtin_update(pmath_expr_t expr){
   }
   
   if(!pmath_is_symbol(sym)){
-    pmath_message(NULL, "ssym", 1, sym);
+    pmath_message(PMATH_NULL, "ssym", 1, sym);
     return expr;
   }
   
@@ -25,5 +25,5 @@ PMATH_PRIVATE pmath_t builtin_update(pmath_expr_t expr){
   pmath_symbol_update(sym);
   pmath_unref(sym);
   pmath_unref(expr);
-  return NULL;
+  return PMATH_NULL;
 }

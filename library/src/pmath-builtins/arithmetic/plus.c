@@ -10,71 +10,69 @@
 #include <pmath-builtins/number-theory-private.h>
 
 static pmath_integer_t _addmul_iii( // intA + intB * intC
-  pmath_integer_t intA, // will be freed. not NULL!
-  pmath_integer_t intB, // will be freed. not NULL!
-  pmath_integer_t intC  // will be freed. not NULL!
+  pmath_integer_t intA, // will be freed. not PMATH_NULL!
+  pmath_integer_t intB, // will be freed. not PMATH_NULL!
+  pmath_integer_t intC  // will be freed. not PMATH_NULL!
 ){
-  struct _pmath_integer_t *result;
-  assert(intA != NULL);
-  assert(intB != NULL);
-  assert(intC != NULL);
-  if(intA->refcount == 1){
-    result = (struct _pmath_integer_t*)intA;
+  pmath_integer_t result;
+  
+  assert(pmath_is_integer(intA));
+  assert(pmath_is_integer(intB));
+  assert(pmath_is_integer(intC));
+  
+  if(PMATH_AS_PTR(intA)->refcount == 1){
+    result = intA;
   }
   else{
     result = _pmath_create_integer();
-    if(!result){
+    if(pmath_is_null(result)){
       pmath_unref(intA);
       pmath_unref(intB);
       pmath_unref(intC);
-      return NULL;
+      return PMATH_NULL;
     }
-    mpz_set(result->value, ((struct _pmath_integer_t*)intA)->value);
+    mpz_set(PMATH_AS_MPZ(result), PMATH_AS_MPZ(intA));
     pmath_unref(intA);
   }
 
   if(result)
-    mpz_addmul(((struct _pmath_integer_t*)result)->value,
-               ((struct _pmath_integer_t*)intB)->value,
-               ((struct _pmath_integer_t*)intC)->value);
+    mpz_addmul(PMATH_AS_MPZ(result), PMATH_AS_MPZ(intB), PMATH_AS_MPZ(intC));
   pmath_unref(intB);
   pmath_unref(intC);
-  return (pmath_integer_t)result;
+  return (pmath_integer_t)PMATH_FROM_PTR(result);
 }
 
 static pmath_integer_t _add_ii(
-  pmath_integer_t intA, // will be freed. not NULL!
-  pmath_integer_t intB  // will be freed. not NULL!
+  pmath_integer_t intA, // will be freed. not PMATH_NULL!
+  pmath_integer_t intB  // will be freed. not PMATH_NULL!
 ){
   struct _pmath_integer_t *result;
-  assert(intA != NULL);
-  assert(intB != NULL);
-  if(intA->refcount == 1)
-    result = (struct _pmath_integer_t*)pmath_ref(intA);
-  else if(intB->refcount == 1)
-    result = (struct _pmath_integer_t*)pmath_ref(intB);
+  assert(intA != PMATH_NULL);
+  assert(intB != PMATH_NULL);
+  if(PMATH_AS_PTR(intA)->refcount == 1)
+    result = (struct _pmath_integer_t*)PMATH_AS_PTR(pmath_ref(intA));
+  else if(PMATH_AS_PTR(intB)->refcount == 1)
+    result = (struct _pmath_integer_t*)PMATH_AS_PTR(pmath_ref(intB));
   else
     result = _pmath_create_integer();
 
   if(result)
-    mpz_add(((struct _pmath_integer_t*)result)->value,
-            ((struct _pmath_integer_t*)intA)->value,
-            ((struct _pmath_integer_t*)intB)->value);
+    mpz_add(result->value,
+            ((struct _pmath_integer_t*)PMATH_AS_PTR(intA))->value,
+            ((struct _pmath_integer_t*)PMATH_AS_PTR(intB))->value);
   pmath_unref(intA);
   pmath_unref(intB);
-  return (pmath_number_t)result;
+  return (pmath_number_t)PMATH_FROM_PTR(result);
 }
 
 static pmath_rational_t _add_qi(
-  pmath_quotient_t quotA, // will be freed. not NULL!
-  pmath_integer_t  intB   // will be freed. not NULL!
+  pmath_quotient_t quotA, // will be freed. not PMATH_NULL!
+  pmath_integer_t  intB   // will be freed. not PMATH_NULL!
 ){ // u/v + w = (u+v*w)/v
-  pmath_integer_t numerator =
-    (pmath_integer_t)pmath_ref(
-      (pmath_integer_t)((struct _pmath_quotient_t*)quotA)->numerator);
-  pmath_integer_t denominator =
-    (pmath_integer_t)pmath_ref(
-      (pmath_integer_t)((struct _pmath_quotient_t*)quotA)->denominator);
+  pmath_integer_t numerator = (pmath_integer_t)pmath_ref(
+    PMATH_FROM_PTR(((struct _pmath_quotient_t*)PMATH_AS_PTR(quotA))->numerator));
+  pmath_integer_t denominator = (pmath_integer_t)pmath_ref(
+    PMATH_FROM_PTR(((struct _pmath_quotient_t*)PMATH_AS_PTR(quotA))->denominator));
   pmath_unref(quotA);
 
   denominator = (pmath_integer_t)pmath_ref(denominator);
@@ -88,22 +86,18 @@ static pmath_rational_t _add_qi(
 }
 
 static pmath_rational_t _add_qq(
-  pmath_quotient_t quotA, // will be freed. not NULL!
-  pmath_integer_t  quotB  // will be freed. not NULL!
+  pmath_quotient_t quotA, // will be freed. not PMATH_NULL!
+  pmath_integer_t  quotB  // will be freed. not PMATH_NULL!
 ){ // u/v + w/x = (u*x+v*w)/(v*x)
-  pmath_integer_t numeratorA =
-    (pmath_integer_t)pmath_ref(
-      (pmath_integer_t)((struct _pmath_quotient_t*)quotA)->numerator);
-  pmath_integer_t denominatorA =
-    (pmath_integer_t)pmath_ref(
-      (pmath_integer_t)((struct _pmath_quotient_t*)quotA)->denominator);
+  pmath_integer_t numeratorA = (pmath_integer_t)pmath_ref(
+    PMATH_FROM_PTR(((struct _pmath_quotient_t*)PMATH_AS_PTR(quotA))->numerator));
+  pmath_integer_t denominatorA = (pmath_integer_t)pmath_ref(
+    PMATH_FROM_PTR(((struct _pmath_quotient_t*)PMATH_AS_PTR(quotA))->denominator));
 
-  pmath_integer_t numeratorB =
-    (pmath_integer_t)pmath_ref(
-      (pmath_integer_t)((struct _pmath_quotient_t*)quotB)->numerator);
-  pmath_integer_t denominatorB =
-    (pmath_integer_t)pmath_ref(
-      (pmath_integer_t)((struct _pmath_quotient_t*)quotB)->denominator);
+  pmath_integer_t numeratorB = (pmath_integer_t)pmath_ref(
+    PMATH_FROM_PTR(((struct _pmath_quotient_t*)PMATH_AS_PTR(quotB))->numerator));
+  pmath_integer_t denominatorB = (pmath_integer_t)pmath_ref(
+    PMATH_FROM_PTR(((struct _pmath_quotient_t*)PMATH_AS_PTR(quotB))->denominator));
   pmath_unref(quotA);
   pmath_unref(quotB);
 
@@ -111,11 +105,11 @@ static pmath_rational_t _add_qq(
     numeratorA,
     (pmath_integer_t)pmath_ref(denominatorB));
 
-  if(!numeratorA){
+  if(pmath_is_null(numeratorA)){
     pmath_unref(numeratorB);
     pmath_unref(denominatorB);
     pmath_unref(denominatorA);
-    return NULL;
+    return PMATH_NULL;
   }
 
   denominatorA = (pmath_integer_t)pmath_ref(denominatorA);
@@ -131,216 +125,216 @@ static pmath_rational_t _add_qq(
 }
 
 static pmath_t _add_fi(
-  pmath_float_t   floatA, // will be freed. not NULL!
-  pmath_integer_t intB    // will be freed. not NULL!
+  pmath_float_t   floatA, // will be freed. not PMATH_NULL!
+  pmath_integer_t intB    // will be freed. not PMATH_NULL!
 ){
   struct _pmath_mp_float_t *result;
   
   result = _pmath_create_mp_float(
-    mpfr_get_prec(((struct _pmath_mp_float_t*)floatA)->value));
+    mpfr_get_prec(((struct _pmath_mp_float_t*)PMATH_AS_PTR(floatA))->value));
   
   if(!result){
     pmath_unref(floatA);
     pmath_unref(intB);
-    return NULL;
+    return PMATH_NULL;
   }
   
   // error does not change
   mpfr_set(
     result->error, 
-    ((struct _pmath_mp_float_t*)floatA)->error, 
+    ((struct _pmath_mp_float_t*)PMATH_AS_PTR(floatA))->error, 
     GMP_RNDU);
     
   mpfr_add_z(
     result->value,
-    ((struct _pmath_mp_float_t*)floatA)->value,
-    ((struct _pmath_integer_t*)intB)->value,
+    ((struct _pmath_mp_float_t*)PMATH_AS_PTR(floatA))->value,
+    ((struct _pmath_integer_t*)PMATH_AS_PTR(intB))->value,
     GMP_RNDN);
   
   _pmath_mp_float_normalize(result);
   
   pmath_unref(floatA);
   pmath_unref(intB);
-  return _pmath_float_exceptions((pmath_float_t)result);
+  return _pmath_float_exceptions((pmath_float_t)PMATH_FROM_PTR(result));
 }
 
 static pmath_t _add_fq(
-  pmath_float_t    floatA, // will be freed. not NULL!
-  pmath_quotient_t quotB   // will be freed. not NULL!
+  pmath_float_t    floatA, // will be freed. not PMATH_NULL!
+  pmath_quotient_t quotB   // will be freed. not PMATH_NULL!
 ){
   struct _pmath_mp_float_t *result;
   struct _pmath_mp_float_t *tmp;
   mp_prec_t prec;
   
-  prec = mpfr_get_prec(((struct _pmath_mp_float_t*)floatA)->value);
+  prec = mpfr_get_prec(((struct _pmath_mp_float_t*)PMATH_AS_PTR(floatA))->value);
   
   result = _pmath_create_mp_float(prec);
   tmp    = _pmath_create_mp_float(prec);
   if(!result || !tmp){
-    pmath_unref((pmath_float_t)result);
-    pmath_unref((pmath_float_t)tmp);
+    pmath_unref((pmath_float_t)PMATH_FROM_PTR(result));;
+    pmath_unref((pmath_float_t)PMATH_FROM_PTR(tmp));
     pmath_unref(floatA);
     pmath_unref(quotB);
-    return NULL;
+    return PMATH_NULL;
   }
 
   // error does not change
   mpfr_set(
     result->error, 
-    ((struct _pmath_mp_float_t*)floatA)->error, 
+    ((struct _pmath_mp_float_t*)PMATH_AS_PTR(floatA))->error, 
     GMP_RNDU);
   
   mpfr_set_z(
     result->value,
-    ((struct _pmath_quotient_t*)quotB)->numerator->value,
+    ((struct _pmath_quotient_t*)PMATH_AS_PTR(quotB))->numerator->value,
     GMP_RNDN);
 
   mpfr_div_z(
     tmp->value,
     result->value,
-    ((struct _pmath_quotient_t*)quotB)->denominator->value,
+    ((struct _pmath_quotient_t*)PMATH_AS_PTR(quotB))->denominator->value,
     GMP_RNDN);
 
   mpfr_add(
     result->value,
     tmp->value,
-    ((struct _pmath_mp_float_t*)floatA)->value,
+    ((struct _pmath_mp_float_t*)PMATH_AS_PTR(floatA))->value,
     GMP_RNDN);
   
   _pmath_mp_float_normalize(result);
 
   pmath_unref(floatA);
   pmath_unref(quotB);
-  pmath_unref((pmath_t)tmp);
-  return _pmath_float_exceptions((pmath_float_t)result);
+  pmath_unref((pmath_float_t)PMATH_FROM_PTR(tmp));
+  return _pmath_float_exceptions((pmath_float_t)PMATH_FROM_PTR(result));
 }
 
 static pmath_t _add_ff(
-  pmath_float_t   floatA, // will be freed. not NULL!
-  pmath_integer_t floatB  // will be freed. not NULL!
+  pmath_float_t   floatA, // will be freed. not PMATH_NULL!
+  pmath_integer_t floatB  // will be freed. not PMATH_NULL!
 ){
   struct _pmath_mp_float_t *result;
   mp_prec_t prec;
   
-  prec =    mpfr_get_prec(((struct _pmath_mp_float_t*)floatA)->value);
-  if(prec < mpfr_get_prec(((struct _pmath_mp_float_t*)floatB)->value))
-     prec = mpfr_get_prec(((struct _pmath_mp_float_t*)floatB)->value);
+  prec =    mpfr_get_prec(((struct _pmath_mp_float_t*)PMATH_AS_PTR(floatA))->value);
+  if(prec < mpfr_get_prec(((struct _pmath_mp_float_t*)PMATH_AS_PTR(floatB))->value))
+     prec = mpfr_get_prec(((struct _pmath_mp_float_t*)PMATH_AS_PTR(floatB))->value);
   
   result = _pmath_create_mp_float(prec);
   
   if(!result){
     pmath_unref(floatA);
     pmath_unref(floatB);
-    return NULL;
+    return PMATH_NULL;
   }
   
   // d(x+y) = dx + dy
   mpfr_add(
     result->error, 
-    ((struct _pmath_mp_float_t*)floatA)->error,
-    ((struct _pmath_mp_float_t*)floatB)->error, 
+    ((struct _pmath_mp_float_t*)PMATH_AS_PTR(floatA))->error,
+    ((struct _pmath_mp_float_t*)PMATH_AS_PTR(floatB))->error, 
     GMP_RNDU);
     
   mpfr_add(
     result->value,
-    ((struct _pmath_mp_float_t*)floatA)->value,
-    ((struct _pmath_mp_float_t*)floatB)->value,
+    ((struct _pmath_mp_float_t*)PMATH_AS_PTR(floatA))->value,
+    ((struct _pmath_mp_float_t*)PMATH_AS_PTR(floatB))->value,
     GMP_RNDN);
   
   _pmath_mp_float_normalize(result);
   
   pmath_unref(floatA);
   pmath_unref(floatB);
-  return _pmath_float_exceptions((pmath_float_t)result);
+  return _pmath_float_exceptions((pmath_float_t)PMATH_FROM_PTR(result));
 }
 
 static pmath_t _add_mi(
-  pmath_float_t   floatA, // will be freed. not NULL!
-  pmath_integer_t intB    // will be freed. not NULL!
+  pmath_float_t   floatA, // will be freed. not PMATH_NULL!
+  pmath_integer_t intB    // will be freed. not PMATH_NULL!
 ){
-  double d = ((struct _pmath_machine_float_t*)floatA)->value
-    + mpz_get_d(((struct _pmath_integer_t*)intB)->value);
+  double d = PMATH_AS_DOUBLE(floatA)
+    + mpz_get_d(((struct _pmath_integer_t*)PMATH_AS_PTR(intB))->value);
   
   if(!isfinite(d))
-    return _add_nn((pmath_float_t)_pmath_convert_to_mp_float(floatA), intB);
+    return _add_nn(_pmath_convert_to_mp_float(floatA), intB);
   
   pmath_unref(intB);
   
-  if(floatA->refcount > 1){
+  if(PMATH_AS_PTR(floatA)->refcount > 1){
     pmath_unref(floatA);
     return pmath_float_new_d(d);
   }
   
-  ((struct _pmath_machine_float_t*)floatA)->value = d;
-  return (pmath_float_t)floatA;
+  ((struct _pmath_machine_float_t*)PMATH_AS_PTR(floatA))->value = d;
+  return floatA;
 }
 
 static pmath_t _add_mq(
-  pmath_float_t    floatA, // will be freed. not NULL!
-  pmath_quotient_t quotB   // will be freed. not NULL!
+  pmath_float_t    floatA, // will be freed. not PMATH_NULL!
+  pmath_quotient_t quotB   // will be freed. not PMATH_NULL!
 ){
   double d;
   
-  d = mpz_get_d(((struct _pmath_quotient_t*)quotB)->numerator->value);
-  d/= mpz_get_d(((struct _pmath_quotient_t*)quotB)->denominator->value);
+  d = mpz_get_d(((struct _pmath_quotient_t*)PMATH_AS_PTR(quotB))->numerator->value);
+  d/= mpz_get_d(((struct _pmath_quotient_t*)PMATH_AS_PTR(quotB))->denominator->value);
   
-  d+= ((struct _pmath_machine_float_t*)floatA)->value;
+  d+= PMATH_AS_DOUBLE(floatA);
   
   if(!isfinite(d))
-    return _add_nn((pmath_float_t)_pmath_convert_to_mp_float(floatA), quotB);
+    return _add_nn(_pmath_convert_to_mp_float(floatA), quotB);
   
   pmath_unref(quotB);
   
-  if(floatA->refcount > 1){
+  if(PMATH_AS_PTR(floatA)->refcount > 1){
     pmath_unref(floatA);
     return pmath_float_new_d(d);
   }
   
-  ((struct _pmath_machine_float_t*)floatA)->value = d;
+  ((struct _pmath_machine_float_t*)PMATH_AS_PTR(floatA))->value = d;
   return (pmath_float_t)floatA;
 }
 
 static pmath_t _add_mf(
-  pmath_float_t  floatA, // will be freed. not NULL!
-  pmath_float_t  floatB  // will be freed. not NULL!
+  pmath_float_t  floatA, // will be freed. not PMATH_NULL!
+  pmath_float_t  floatB  // will be freed. not PMATH_NULL!
 ){
-  double d = ((struct _pmath_machine_float_t*)floatA)->value
-    + mpfr_get_d(((struct _pmath_mp_float_t*)floatB)->value, GMP_RNDN);
+  double d = PMATH_AS_DOUBLE(floatA)
+    + mpfr_get_d(((struct _pmath_mp_float_t*)PMATH_AS_PTR(floatB))->value, GMP_RNDN);
   
   if(!isfinite(d))
-    return _add_nn((pmath_float_t)_pmath_convert_to_mp_float(floatA), floatB);
+    return _add_nn(_pmath_convert_to_mp_float(floatA), floatB);
   
   pmath_unref(floatB);
     
-  if(floatA->refcount > 1){
+  if(PMATH_AS_PTR(floatA)->refcount > 1){
     pmath_unref(floatA);
     return pmath_float_new_d(d);
   }
   
-  ((struct _pmath_machine_float_t*)floatA)->value = d;
+  ((struct _pmath_machine_float_t*)PMATH_AS_PTR(floatA))->value = d;
   return (pmath_float_t)floatA;
 }
 
 static pmath_t _add_mm(
-  pmath_float_t  floatA, // will be freed. not NULL!
-  pmath_float_t  floatB  // will be freed. not NULL!
+  pmath_float_t  floatA, // will be freed. not PMATH_NULL!
+  pmath_float_t  floatB  // will be freed. not PMATH_NULL!
 ){
-  double d = ((struct _pmath_machine_float_t*)floatA)->value
-           + ((struct _pmath_machine_float_t*)floatB)->value;
+  double d = PMATH_AS_DOUBLE(floatA) + PMATH_AS_DOUBLE(floatB);
           
-  if(!isfinite(d))
+  if(!isfinite(d)){
     return _add_nn(
-      (pmath_float_t)_pmath_convert_to_mp_float(floatA), 
-      (pmath_float_t)_pmath_convert_to_mp_float(floatB));
+      _pmath_convert_to_mp_float(floatA), 
+      _pmath_convert_to_mp_float(floatB));
+  }
   
-  if(floatA->refcount == 1){
-    ((struct _pmath_machine_float_t*)floatA)->value = d;
+  if(PMATH_AS_PTR(floatA)->refcount == 1){
+    ((struct _pmath_machine_float_t*)PMATH_AS_PTR(floatA))->value = d;
     pmath_unref(floatB);
     return (pmath_float_t)floatA;
   }
   
-  if(floatB->refcount == 1){
-    ((struct _pmath_machine_float_t*)floatB)->value = d;
+  if(PMATH_AS_PTR(floatB)->refcount == 1){
+    ((struct _pmath_machine_float_t*)PMATH_AS_PTR(floatB))->value = d;
     pmath_unref(floatA);
     return (pmath_float_t)floatB;
   }
@@ -355,14 +349,15 @@ PMATH_PRIVATE pmath_t _add_nn(
   pmath_number_t numA, // will be freed.
   pmath_number_t numB  // will be freed.
 ){
-  if(!numA || !numB){
+  if(pmath_is_null(numA) || pmath_is_null(numB)){
     pmath_unref(numA);
     pmath_unref(numB);
-    return NULL;
+    return PMATH_NULL;
   }
-  switch(numA->type_shift){
+  
+  switch(PMATH_AS_PTR(numA)->type_shift){
     case PMATH_TYPE_SHIFT_INTEGER: {
-      switch(numB->type_shift){
+      switch(PMATH_AS_PTR(numB)->type_shift){
         case PMATH_TYPE_SHIFT_INTEGER:        return _add_ii(numA, numB);
         case PMATH_TYPE_SHIFT_QUOTIENT:       return _add_qi(numB, numA);
         case PMATH_TYPE_SHIFT_MP_FLOAT:       return _add_fi(numB, numA);
@@ -371,7 +366,7 @@ PMATH_PRIVATE pmath_t _add_nn(
     } break;
     
     case PMATH_TYPE_SHIFT_QUOTIENT: {
-      switch(numB->type_shift){
+      switch(PMATH_AS_PTR(numB)->type_shift){
         case PMATH_TYPE_SHIFT_INTEGER:        return _add_qi(numA, numB);
         case PMATH_TYPE_SHIFT_QUOTIENT:       return _add_qq(numA, numB);
         case PMATH_TYPE_SHIFT_MP_FLOAT:       return _add_fq(numB, numA);
@@ -380,7 +375,7 @@ PMATH_PRIVATE pmath_t _add_nn(
     } break;
     
     case PMATH_TYPE_SHIFT_MP_FLOAT: {
-      switch(numB->type_shift){
+      switch(PMATH_AS_PTR(numB)->type_shift){
         case PMATH_TYPE_SHIFT_INTEGER:        return _add_fi(numA, numB);
         case PMATH_TYPE_SHIFT_QUOTIENT:       return _add_fq(numA, numB);
         case PMATH_TYPE_SHIFT_MP_FLOAT:       return _add_ff(numA, numB);
@@ -389,7 +384,7 @@ PMATH_PRIVATE pmath_t _add_nn(
     } break;
     
     case PMATH_TYPE_SHIFT_MACHINE_FLOAT: {
-      switch(numB->type_shift){
+      switch(PMATH_AS_PTR(numB)->type_shift){
         case PMATH_TYPE_SHIFT_INTEGER:        return _add_mi(numA, numB);
         case PMATH_TYPE_SHIFT_QUOTIENT:       return _add_mq(numA, numB);
         case PMATH_TYPE_SHIFT_MP_FLOAT:       return _add_mf(numA, numB);
@@ -398,7 +393,7 @@ PMATH_PRIVATE pmath_t _add_nn(
     } break;
   }
   assert("invalid number type" && 0);
-  return NULL;
+  return PMATH_NULL;
 }
 
 PMATH_PRIVATE void split_summand(
@@ -552,7 +547,7 @@ static void plus_2_arg(pmath_t *a, pmath_t *b){
   {
     pmath_t ainfdir = _pmath_directed_infinity_direction(*a);
     pmath_t binfdir = _pmath_directed_infinity_direction(*b);
-    if(ainfdir && binfdir){
+    if(!pmath_is_null(ainfdir) && !pmath_is_null(binfdir)){
       pmath_t sum;
 
       if(pmath_equals(ainfdir, binfdir)){
@@ -581,13 +576,15 @@ static void plus_2_arg(pmath_t *a, pmath_t *b){
       }
       return;
     }
-    if(ainfdir){
+    
+    if(!pmath_is_null(ainfdir)){
       pmath_unref(ainfdir);
       pmath_unref(*b);
       *b = PMATH_UNDEFINED;
       return;
     }
-    if(binfdir){
+    
+    if(pmath_is_null(binfdir)){
       pmath_unref(binfdir);
       pmath_unref(*a);
       *a = *b;

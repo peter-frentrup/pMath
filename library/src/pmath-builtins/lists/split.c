@@ -23,14 +23,14 @@ PMATH_PRIVATE pmath_t builtin_split(pmath_expr_t expr){
   list = pmath_expr_get_item(expr, 1);
   if(!pmath_is_expr(list)){
     pmath_unref(list);
-    pmath_message(NULL, "nexprat", 2, pmath_integer_new_si(1), pmath_ref(expr));
+    pmath_message(PMATH_NULL, "nexprat", 2, pmath_integer_new_si(1), pmath_ref(expr));
     return expr;
   }
   
   head = pmath_expr_get_item(list, 0);
   
   if(exprlen == 1){
-    pmath_gather_begin(NULL);
+    pmath_gather_begin(PMATH_NULL);
     
     pmath_unref(expr);
     i = 1;
@@ -38,8 +38,8 @@ PMATH_PRIVATE pmath_t builtin_split(pmath_expr_t expr){
       size_t j;
       pmath_t a = pmath_expr_get_item(list, i);
       
-      pmath_gather_begin(NULL);
-      pmath_emit(pmath_ref(a), NULL);
+      pmath_gather_begin(PMATH_NULL);
+      pmath_emit(pmath_ref(a), PMATH_NULL);
       
       for(j = i+1;;++j){
         pmath_t b;
@@ -47,7 +47,7 @@ PMATH_PRIVATE pmath_t builtin_split(pmath_expr_t expr){
         if(j > pmath_expr_length(list)){
           b = pmath_gather_end();
           b = pmath_expr_set_item(b, 0, pmath_ref(head));
-          pmath_emit(b, NULL);
+          pmath_emit(b, PMATH_NULL);
           break;
         }
         
@@ -58,11 +58,11 @@ PMATH_PRIVATE pmath_t builtin_split(pmath_expr_t expr){
           
           b = pmath_gather_end();
           b = pmath_expr_set_item(b, 0, pmath_ref(head));
-          pmath_emit(b, NULL);
+          pmath_emit(b, PMATH_NULL);
           break;
         }
         else
-          pmath_emit(b, NULL);
+          pmath_emit(b, PMATH_NULL);
       }
       
       pmath_unref(a);
@@ -77,15 +77,15 @@ PMATH_PRIVATE pmath_t builtin_split(pmath_expr_t expr){
   
   test = pmath_expr_get_item(expr, 2);
   pmath_unref(expr);
-  pmath_gather_begin(NULL);
+  pmath_gather_begin(PMATH_NULL);
     
   i = 1;
   while(i <= pmath_expr_length(list)){
     size_t j;
     pmath_t a = pmath_expr_get_item(list, i);
     
-    pmath_gather_begin(NULL);
-    pmath_emit(pmath_ref(a), NULL);
+    pmath_gather_begin(PMATH_NULL);
+    pmath_emit(pmath_ref(a), PMATH_NULL);
     
     for(j = i+1;;++j){
       pmath_t b;
@@ -94,7 +94,7 @@ PMATH_PRIVATE pmath_t builtin_split(pmath_expr_t expr){
       if(j > pmath_expr_length(list)){
         b = pmath_gather_end();
         b = pmath_expr_set_item(b, 0, pmath_ref(head));
-        pmath_emit(b, NULL);
+        pmath_emit(b, PMATH_NULL);
         break;
       }
       
@@ -111,11 +111,11 @@ PMATH_PRIVATE pmath_t builtin_split(pmath_expr_t expr){
         
         b = pmath_gather_end();
         b = pmath_expr_set_item(b, 0, pmath_ref(head));
-        pmath_emit(b, NULL);
+        pmath_emit(b, PMATH_NULL);
         break;
       }
       else
-        pmath_emit(b, NULL);
+        pmath_emit(b, PMATH_NULL);
     }
     
     pmath_unref(a);

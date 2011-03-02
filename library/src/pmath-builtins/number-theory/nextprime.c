@@ -46,7 +46,7 @@ PMATH_PRIVATE pmath_t builtin_nextprime(pmath_expr_t expr){
       result = _pmath_create_integer();
       if(!result){
         pmath_unref(n);
-        return NULL;
+        return PMATH_NULL;
       }
       mpz_set(result->value, ((struct _pmath_integer_t*)n)->value);
       pmath_unref(n);
@@ -63,7 +63,7 @@ PMATH_PRIVATE pmath_t builtin_nextprime(pmath_expr_t expr){
         break;
     }
 
-    return (pmath_integer_t)result;
+    return (pmath_integer_t)PMATH_FROM_PTR(result);
   }
   
   pmath_unref(n);

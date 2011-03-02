@@ -98,7 +98,7 @@ PMATH_PRIVATE pmath_t builtin_showdefinition(pmath_expr_t expr){
         pmath_ref(PMATH_SYMBOL_NAMES), 1,
         pmath_ref(obj)));
     
-    sym = NULL;
+    sym = PMATH_NULL;
     if(pmath_is_expr_of(expr, PMATH_SYMBOL_LIST)){
       switch(pmath_expr_length(expr)){
         case 0: break;
@@ -116,9 +116,9 @@ PMATH_PRIVATE pmath_t builtin_showdefinition(pmath_expr_t expr){
     }
     
     pmath_unref(expr);
-    if(!sym){
-      pmath_message(NULL, "notfound", 1, obj);
-      return NULL;
+    if(pmath_is_null(sym)){
+      pmath_message(PMATH_NULL, "notfound", 1, obj);
+      return PMATH_NULL;
     }
     
     pmath_unref(obj);
@@ -127,15 +127,15 @@ PMATH_PRIVATE pmath_t builtin_showdefinition(pmath_expr_t expr){
 //    sym = pmath_symbol_find(pmath_ref(obj), FALSE);
 //    
 //    if(!sym){
-//      pmath_message(NULL, "notfound", 1, obj);
-//      return NULL;
+//      pmath_message(PMATH_NULL, "notfound", 1, obj);
+//      return PMATH_NULL;
 //    }
 //    
 //    pmath_unref(obj);
   }
   else if(!pmath_is_symbol(sym)){
-    pmath_message(NULL, "ssym", 1, sym);
-    return NULL;
+    pmath_message(PMATH_NULL, "ssym", 1, sym);
+    return PMATH_NULL;
   }
   
   
@@ -205,5 +205,5 @@ PMATH_PRIVATE pmath_t builtin_showdefinition(pmath_expr_t expr){
   }
   
   pmath_unref(sym);
-  return NULL;
+  return PMATH_NULL;
 }

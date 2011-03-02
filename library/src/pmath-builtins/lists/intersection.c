@@ -25,7 +25,7 @@ PMATH_PRIVATE pmath_t builtin_intersection(pmath_expr_t expr){
   if(!pmath_is_expr(list)){
     pmath_unref(list);
     
-    pmath_message(NULL, "nexprat", 2,
+    pmath_message(PMATH_NULL, "nexprat", 2,
       pmath_integer_new_ui(1),
       pmath_ref(expr));
     return expr;
@@ -40,7 +40,7 @@ PMATH_PRIVATE pmath_t builtin_intersection(pmath_expr_t expr){
     if(!pmath_is_expr(list)){
       pmath_unref(list);
       
-      pmath_message(NULL, "nexprat", 2,
+      pmath_message(PMATH_NULL, "nexprat", 2,
         pmath_integer_new_ui(1),
         pmath_ref(expr));
       return expr;
@@ -50,7 +50,7 @@ PMATH_PRIVATE pmath_t builtin_intersection(pmath_expr_t expr){
     pmath_unref(list);
     
     if(!pmath_equals(current, item)){
-      pmath_message(NULL, "heads", 4,
+      pmath_message(PMATH_NULL, "heads", 4,
         item,
         current,
         pmath_integer_new_size(1),
@@ -68,7 +68,7 @@ PMATH_PRIVATE pmath_t builtin_intersection(pmath_expr_t expr){
   // expr[i] := Sort(expr[i]) ...
   for(i = 1;i <= exprlen;++i){
     list = pmath_expr_get_item(expr, i);
-    expr = pmath_expr_set_item(expr, i, NULL);
+    expr = pmath_expr_set_item(expr, i, PMATH_NULL);
     
     list = pmath_expr_sort(list);
     
@@ -78,7 +78,7 @@ PMATH_PRIVATE pmath_t builtin_intersection(pmath_expr_t expr){
   // mark all items from first list that are not in all others ...
   // list:= expr[1]
   list = pmath_expr_get_item(expr, 1);
-  expr = pmath_expr_set_item(expr, 1, NULL);
+  expr = pmath_expr_set_item(expr, 1, PMATH_NULL);
   for(i = pmath_expr_length(list);i > 0;--i){
     item = pmath_expr_get_item(list, i);
     

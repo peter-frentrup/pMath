@@ -15,20 +15,20 @@ static pmath_integer_t factorial(unsigned long n){
     return pmath_integer_new_si(1);
 
   if(n <= 86180310){ // 86180310! >= 2^31
-    struct _pmath_integer_t *result = _pmath_create_integer();
+    pmath_integer_t result = _pmath_create_integer();
 
-    if(result){
-      mpz_set_ui(result->value, n);
+    if(!pmath_is_null(result)){
+      mpz_set_ui(PMATH_AS_MPZ(result), n);
 
       while(--n > 0 && !pmath_aborting()){
-        mpz_mul_ui(result->value, result->value, n);
+        mpz_mul_ui(PMATH_AS_MPZ(result), PMATH_AS_MPZ(result), n);
       }
 
-      return (pmath_t)result;
+      return result;
     }
   }
 
-  return NULL;
+  return PMATH_NULL;
 }
 
 static pmath_integer_t double_factorial(unsigned long n){
@@ -36,21 +36,21 @@ static pmath_integer_t double_factorial(unsigned long n){
     return pmath_integer_new_si(1);
 
   if(n <= 166057019){ // 166057019!! >= 2^31
-    struct _pmath_integer_t *result = _pmath_create_integer();
+    pmath_integer_t result = _pmath_create_integer();
 
-    if(result){
-      mpz_set_ui(result->value, n);
+    if(!pmath_is_null(result)){
+      mpz_set_ui(PMATH_AS_MPZ(result), n);
 
       while(n > 2 && !pmath_aborting()){
         n-= 2;
-        mpz_mul_ui(result->value, result->value, n);
+        mpz_mul_ui(PMATH_AS_MPZ(result), PMATH_AS_MPZ(result), n);
       }
 
-      return (pmath_t)result;
+      return result;
     }
   }
 
-  return NULL;
+  return PMATH_NULL;
 }
 
 
@@ -76,7 +76,7 @@ PMATH_PRIVATE pmath_t builtin_gamma(pmath_expr_t expr){
 
       pmath_unref(z);
       z = factorial(n);
-      if(z){
+      if(!pmath_is_null(z)){
         pmath_unref(expr);
         return z;
       }
@@ -107,7 +107,7 @@ PMATH_PRIVATE pmath_t builtin_gamma(pmath_expr_t expr){
           // Gamma(n + 1/2) = (2n-1)!! / 2^n * Sqrt(Pi),   num = 2n+1
           pmath_unref(num);
           num = double_factorial(unum - 2);
-          if(num){
+          if(!pmath_is_null(num)){
             long n = (signed long) (unum-1)/2;
 
             pmath_unref(den);
@@ -120,7 +120,7 @@ PMATH_PRIVATE pmath_t builtin_gamma(pmath_expr_t expr){
           // Gamma(1/2 - n) = (-2)^n / (2n-1)!! Sqrt(Pi),  unum = -num = 2n-1
           pmath_unref(num);
           num = double_factorial(unum);
-          if(num){
+          if(!pmath_is_null(num)){
             long n = (signed long) (unum+1)/2;
 
             pmath_unref(den);
@@ -138,7 +138,7 @@ PMATH_PRIVATE pmath_t builtin_gamma(pmath_expr_t expr){
   }
 
 //  if(pmath_instance_of(z, PMATH_TYPE_MACHINE_FLOAT)){
-//    double d = ((struct _pmath_machine_float_t*)z)->value;
+//    double d = PMATH_AS_DOUBLE(z);
 //    struct _pmath_mp_float_t *result;
 //
 //    result = _pmath_create_mp_float_from_d(d);
@@ -407,7 +407,7 @@ PMATH_PRIVATE pmath_t builtin_factorial(pmath_expr_t expr){
 
       pmath_unref(n);
       n = factorial(un);
-      if(n){
+      if(!pmath_is_null(n)){
         pmath_unref(expr);
         return n;
       }
@@ -495,7 +495,7 @@ PMATH_PRIVATE pmath_t builtin_factorial2(pmath_expr_t expr){
 
       pmath_unref(n);
       n = double_factorial(un);
-      if(n){
+      if(!pmath_is_null(n)){
         pmath_unref(expr);
         return n;
       }
@@ -640,19 +640,19 @@ PMATH_PRIVATE pmath_t builtin_binomial(pmath_expr_t expr){
       }
 
       if(pmath_is_integer(z)){
-        struct _pmath_integer_t *result = _pmath_create_integer();
+        pmath_integer_t result = _pmath_create_integer();
 
         if(result){
           mpz_bin_ui(
-            result->value,
-            ((struct _pmath_integer_t*)z)->value,
+            PMATH_AS_MPZ(result),
+            PMATH_AS_MPZ(z),
             uk);
         }
 
         pmath_unref(expr);
         pmath_unref(z);
         pmath_unref(k);
-        return (pmath_t)result;
+        return (pmath_t)PMATH_FROM_PTR(result);
       }
     }
   }

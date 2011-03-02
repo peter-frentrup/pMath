@@ -50,7 +50,7 @@ PMATH_PRIVATE pmath_t builtin_regather(pmath_expr_t expr){
   result = pmath_gather_end();
   if(!result && !pmath_aborting()){
     pmath_unref(expr);
-    pmath_message(NULL, "nogather", 0);
+    pmath_message(PMATH_NULL, "nogather", 0);
     return pmath_ref(_pmath_object_emptylist);
   }
   
@@ -76,7 +76,7 @@ PMATH_PRIVATE pmath_t builtin_emit(pmath_expr_t expr){
   }
 
   obj = pmath_expr_get_item(expr, 1);
-  tag = NULL;
+  tag = PMATH_NULL;
   if(len == 2)
     tag = pmath_expr_get_item(expr, 2);
 

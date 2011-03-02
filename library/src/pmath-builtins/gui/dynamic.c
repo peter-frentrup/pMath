@@ -50,7 +50,7 @@ PMATH_PRIVATE pmath_t builtin_internal_dynamicevaluate(pmath_expr_t expr){
   }
   
   pmath_unref(id_obj);
-  pmath_message(NULL, "intm", 2, pmath_ref(expr), pmath_integer_new_si(2));
+  pmath_message(PMATH_NULL, "intm", 2, pmath_ref(expr), pmath_integer_new_si(2));
   return expr;
 }
   
@@ -78,7 +78,7 @@ PMATH_PRIVATE pmath_t builtin_internal_dynamicevaluate(pmath_expr_t expr){
           
           if(pmath_same(ts, PMATH_SYMBOL_NONE)){
             pmath_unref(ts);
-            return NULL;
+            return PMATH_NULL;
           }
           
           return ts;
@@ -130,12 +130,12 @@ PMATH_PRIVATE pmath_t builtin_internal_dynamicevaluate(pmath_expr_t expr){
           pmath_ref(id_obj));
       }
       
-      expr = pmath_expr_set_item(expr, 0, NULL);
+      expr = pmath_expr_set_item(expr, 0, PMATH_NULL);
       head = replace_dynamic(head, id_obj);
       expr = pmath_expr_set_item(expr, 0, head);
       for(i = len;i > 0;--i){
         pmath_t item = pmath_expr_get_item(expr, i);
-        expr = pmath_expr_set_item(expr, i, NULL);
+        expr = pmath_expr_set_item(expr, i, PMATH_NULL);
         
         item = replace_dynamic(item, id_obj);
         
@@ -174,7 +174,7 @@ PMATH_PRIVATE pmath_t builtin_internal_dynamicevaluatemultiple(pmath_expr_t expr
   }
   
   pmath_unref(id_obj);
-  pmath_message(NULL, "intm", 2, pmath_ref(expr), pmath_integer_new_si(2));
+  pmath_message(PMATH_NULL, "intm", 2, pmath_ref(expr), pmath_integer_new_si(2));
   return expr;
 }
 
@@ -206,5 +206,5 @@ PMATH_PRIVATE pmath_t builtin_internal_dynamicremove(pmath_expr_t expr){
   }
   
   pmath_unref(expr);
-  return NULL;
+  return PMATH_NULL;
 }

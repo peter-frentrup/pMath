@@ -20,7 +20,7 @@ static pmath_expr_t find_best(
     
     if(pmath_is_expr_of(item, PMATH_SYMBOL_LIST)
     || pmath_is_expr_of(item, head)){
-      list = pmath_expr_set_item(list, i, NULL);
+      list = pmath_expr_set_item(list, i, PMATH_NULL);
       
       item = find_best(item, cmp, head);
       
@@ -30,7 +30,7 @@ static pmath_expr_t find_best(
       else{
         item = pmath_expr_set_item(item, 0, pmath_ref(head));
         list = pmath_expr_set_item(list, i, item);
-        item = NULL;
+        item = PMATH_NULL;
       }
     }
     

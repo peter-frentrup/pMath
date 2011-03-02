@@ -67,7 +67,7 @@ pmath_bool_t _pmath_is_running(void){
 }
 
 static pmath_expr_t get_command_line(void){
-  pmath_gather_begin(NULL);
+  pmath_gather_begin(PMATH_NULL);
   #ifdef PMATH_OS_WIN32
   {
     int argc;
@@ -76,7 +76,7 @@ static pmath_expr_t get_command_line(void){
     if(argv){
       int i;
       for(i = 0;i < argc;++i)
-        pmath_emit(pmath_string_insert_ucs2(NULL, 0, argv[i], -1), NULL);
+        pmath_emit(pmath_string_insert_ucs2(PMATH_NULL, 0, argv[i], -1), PMATH_NULL);
       
       LocalFree(argv);
     }
@@ -86,14 +86,14 @@ static pmath_expr_t get_command_line(void){
     FILE *f = fopen("/proc/self/cmdline", "r");
     
     if(f){
-      pmath_string_t str = NULL;
+      pmath_string_t str = PMATH_NULL;
       char buf[2];
       
       while(fgets(buf, sizeof(buf), f)){
         if(strlen(buf) == 0){
           if(str){
-            pmath_emit(str, NULL);
-            str = NULL;
+            pmath_emit(str, PMATH_NULL);
+            str = PMATH_NULL;
           }
         }
         else
@@ -120,17 +120,17 @@ static pmath_expr_t get_exe_name(void){
     DWORD  needed;
     
     len = 128;
-    s = NULL;
+    s = PMATH_NULL;
     do{
       len*= 2;
       
       pmath_unref((pmath_string_t)s);
       s = _pmath_new_string_buffer(len);
       if(!s)
-        return NULL;
+        return PMATH_NULL;
         
       buf = AFTER_STRING(s);
-      needed = GetModuleFileNameW(NULL, buf, (DWORD)len);
+      needed = GetModuleFileNameW(PMATH_NULL, buf, (DWORD)len);
     }while(needed == (DWORD)len);
     
     s->length = (int)needed;
@@ -150,11 +150,11 @@ static pmath_expr_t get_exe_name(void){
   }
   #else
   {
-    void *exe = dlopen(NULL, RTLD_LAZY);
+    void *exe = dlopen(PMATH_NULL, RTLD_LAZY);
     
     if(exe){
       void *main_sym;
-      struct link_map *map = NULL;
+      struct link_map *map = PMATH_NULL;
       
       dlinfo(exe, RTLD_DI_LINKMAP, &map);
       if(map && map->l_name[0]){
@@ -205,7 +205,7 @@ static pmath_expr_t get_exe_name(void){
 //      }
 //    }
     
-    return NULL;
+    return PMATH_NULL;
   }
   #endif
 }
@@ -265,21 +265,21 @@ PMATH_API pmath_bool_t pmath_init(void){
     }
     #endif
 
-    _pmath_object_complex_infinity         = NULL;
-    _pmath_object_emptylist                = NULL;
-    _pmath_object_get_load_message         = NULL;
-    _pmath_object_infinity                 = NULL;
-    _pmath_object_loadlibrary_load_message = NULL;
-    _pmath_object_memory_exception         = NULL;
-    _pmath_object_multimatch               = NULL;
-//    _pmath_object_newsym_message           = NULL;
-    _pmath_object_overflow                 = NULL;
-    _pmath_object_range_from_one           = NULL;
-    _pmath_object_range_from_zero          = NULL;
-    _pmath_object_singlematch              = NULL;
-    _pmath_object_stop_message             = NULL;
-    _pmath_object_underflow                = NULL;
-    _pmath_object_zeromultimatch           = NULL;
+    _pmath_object_complex_infinity         = PMATH_NULL;
+    _pmath_object_emptylist                = PMATH_NULL;
+    _pmath_object_get_load_message         = PMATH_NULL;
+    _pmath_object_infinity                 = PMATH_NULL;
+    _pmath_object_loadlibrary_load_message = PMATH_NULL;
+    _pmath_object_memory_exception         = PMATH_NULL;
+    _pmath_object_multimatch               = PMATH_NULL;
+//    _pmath_object_newsym_message           = PMATH_NULL;
+    _pmath_object_overflow                 = PMATH_NULL;
+    _pmath_object_range_from_one           = PMATH_NULL;
+    _pmath_object_range_from_zero          = PMATH_NULL;
+    _pmath_object_singlematch              = PMATH_NULL;
+    _pmath_object_stop_message             = PMATH_NULL;
+    _pmath_object_underflow                = PMATH_NULL;
+    _pmath_object_zeromultimatch           = PMATH_NULL;
   
     if(!_pmath_debug_library_init())          goto FAIL_DEBUG_LIBRARY;
     if(!_pmath_stacks_init())                 goto FAIL_STACKS_LIBRARY;
@@ -300,7 +300,7 @@ PMATH_API pmath_bool_t pmath_init(void){
       stack = pmath_stack_new();
       if(stack){
         p = pmath_stack_pop(stack);
-        assert(p == NULL);
+        assert(p == PMATH_NULL);
         
         pmath_stack_push(stack, &a);
         pmath_stack_push(stack, &b);
@@ -315,7 +315,7 @@ PMATH_API pmath_bool_t pmath_init(void){
         assert(p && p->value == 1);
         
         p = pmath_stack_pop(stack);
-        assert(p == NULL);
+        assert(p == PMATH_NULL);
         
         pmath_stack_free(stack);
       }
@@ -325,7 +325,7 @@ PMATH_API pmath_bool_t pmath_init(void){
     PMATH_TEST_NEW_HASHTABLES();
 
     if(!_pmath_threads_init())                goto FAIL_THREADS;
-    thread = _pmath_thread_new(NULL);
+    thread = _pmath_thread_new(PMATH_NULL);
     _pmath_thread_set_current(thread);
     if(!thread)                               goto FAIL_THIS_THREAD;
     if(!_pmath_threadlocks_init())            goto FAIL_THREADLOCKS;
@@ -797,21 +797,21 @@ PMATH_API pmath_bool_t pmath_init(void){
     _pmath_status = PMATH_STATUS_DESTROYING;
     
    FAIL_STATIC_OBJECTS:
-    pmath_unref(_pmath_object_complex_infinity);         _pmath_object_complex_infinity =         NULL;
-    pmath_unref(_pmath_object_emptylist);                _pmath_object_emptylist =                NULL;
-    pmath_unref(_pmath_object_get_load_message);         _pmath_object_get_load_message =         NULL;
-    pmath_unref(_pmath_object_infinity);                 _pmath_object_infinity =                 NULL;
-    pmath_unref(_pmath_object_loadlibrary_load_message); _pmath_object_loadlibrary_load_message = NULL;
-    pmath_unref(_pmath_object_memory_exception);         _pmath_object_memory_exception =         NULL;     
-    pmath_unref(_pmath_object_multimatch);               _pmath_object_multimatch =               NULL;
-//    pmath_unref(_pmath_object_newsym_message);           _pmath_object_newsym_message =           NULL;
-    pmath_unref(_pmath_object_overflow);                 _pmath_object_overflow =                 NULL;
-    pmath_unref(_pmath_object_range_from_one);           _pmath_object_range_from_one =           NULL;
-    pmath_unref(_pmath_object_range_from_zero);          _pmath_object_range_from_zero =          NULL;
-    pmath_unref(_pmath_object_singlematch);              _pmath_object_singlematch =              NULL;
-    pmath_unref(_pmath_object_stop_message);             _pmath_object_stop_message =             NULL;
-    pmath_unref(_pmath_object_underflow);                _pmath_object_underflow =                NULL;
-    pmath_unref(_pmath_object_zeromultimatch);           _pmath_object_zeromultimatch =           NULL;
+    pmath_unref(_pmath_object_complex_infinity);         _pmath_object_complex_infinity =         PMATH_NULL;
+    pmath_unref(_pmath_object_emptylist);                _pmath_object_emptylist =                PMATH_NULL;
+    pmath_unref(_pmath_object_get_load_message);         _pmath_object_get_load_message =         PMATH_NULL;
+    pmath_unref(_pmath_object_infinity);                 _pmath_object_infinity =                 PMATH_NULL;
+    pmath_unref(_pmath_object_loadlibrary_load_message); _pmath_object_loadlibrary_load_message = PMATH_NULL;
+    pmath_unref(_pmath_object_memory_exception);         _pmath_object_memory_exception =         PMATH_NULL;     
+    pmath_unref(_pmath_object_multimatch);               _pmath_object_multimatch =               PMATH_NULL;
+//    pmath_unref(_pmath_object_newsym_message);           _pmath_object_newsym_message =           PMATH_NULL;
+    pmath_unref(_pmath_object_overflow);                 _pmath_object_overflow =                 PMATH_NULL;
+    pmath_unref(_pmath_object_range_from_one);           _pmath_object_range_from_one =           PMATH_NULL;
+    pmath_unref(_pmath_object_range_from_zero);          _pmath_object_range_from_zero =          PMATH_NULL;
+    pmath_unref(_pmath_object_singlematch);              _pmath_object_singlematch =              PMATH_NULL;
+    pmath_unref(_pmath_object_stop_message);             _pmath_object_stop_message =             PMATH_NULL;
+    pmath_unref(_pmath_object_underflow);                _pmath_object_underflow =                PMATH_NULL;
+    pmath_unref(_pmath_object_zeromultimatch);           _pmath_object_zeromultimatch =           PMATH_NULL;
     
     _pmath_thread_clean(TRUE);
     _pmath_symbols_almost_done();
@@ -832,7 +832,7 @@ PMATH_API pmath_bool_t pmath_init(void){
    FAIL_STRINGS:           _pmath_objects_done();
    FAIL_OBJECTS:           _pmath_charnames_done();
    FAIL_CHARNAMES:         _pmath_threadlocks_done();
-   FAIL_THREADLOCKS:       _pmath_thread_set_current(NULL);
+   FAIL_THREADLOCKS:       _pmath_thread_set_current(PMATH_NULL);
                            _pmath_thread_free(thread);
    FAIL_THIS_THREAD:       _pmath_threads_done();
    FAIL_THREADS:           _pmath_memory_manager_done();
@@ -848,7 +848,7 @@ PMATH_API pmath_bool_t pmath_init(void){
     &&    _pmath_status != PMATH_STATUS_INITIALIZING){
     }
     
-    thread = _pmath_thread_new(NULL);
+    thread = _pmath_thread_new(PMATH_NULL);
     
     if(!thread){
       pmath_atomic_fetch_add(&pmath_count, -1);
@@ -884,21 +884,21 @@ PMATH_API void pmath_done(void){
   if(thread_count == 0){
     _pmath_status = PMATH_STATUS_DESTROYING;
     
-    pmath_unref(_pmath_object_complex_infinity);         _pmath_object_complex_infinity =         NULL;
-    pmath_unref(_pmath_object_emptylist);                _pmath_object_emptylist =                NULL;
-    pmath_unref(_pmath_object_get_load_message);         _pmath_object_get_load_message =         NULL;
-    pmath_unref(_pmath_object_infinity);                 _pmath_object_infinity =                 NULL;
-    pmath_unref(_pmath_object_loadlibrary_load_message); _pmath_object_loadlibrary_load_message = NULL;
-    pmath_unref(_pmath_object_memory_exception);         _pmath_object_memory_exception =         NULL;     
-    pmath_unref(_pmath_object_multimatch);               _pmath_object_multimatch =               NULL;
-//    pmath_unref(_pmath_object_newsym_message);           _pmath_object_newsym_message =           NULL;
-    pmath_unref(_pmath_object_overflow);                 _pmath_object_overflow =                 NULL;
-    pmath_unref(_pmath_object_range_from_one);           _pmath_object_range_from_one =           NULL;
-    pmath_unref(_pmath_object_range_from_zero);          _pmath_object_range_from_zero =          NULL;
-    pmath_unref(_pmath_object_singlematch);              _pmath_object_singlematch =              NULL;
-    pmath_unref(_pmath_object_stop_message);             _pmath_object_stop_message =             NULL;
-    pmath_unref(_pmath_object_underflow);                _pmath_object_underflow =                NULL;
-    pmath_unref(_pmath_object_zeromultimatch);           _pmath_object_zeromultimatch =           NULL;
+    pmath_unref(_pmath_object_complex_infinity);         _pmath_object_complex_infinity =         PMATH_NULL;
+    pmath_unref(_pmath_object_emptylist);                _pmath_object_emptylist =                PMATH_NULL;
+    pmath_unref(_pmath_object_get_load_message);         _pmath_object_get_load_message =         PMATH_NULL;
+    pmath_unref(_pmath_object_infinity);                 _pmath_object_infinity =                 PMATH_NULL;
+    pmath_unref(_pmath_object_loadlibrary_load_message); _pmath_object_loadlibrary_load_message = PMATH_NULL;
+    pmath_unref(_pmath_object_memory_exception);         _pmath_object_memory_exception =         PMATH_NULL;     
+    pmath_unref(_pmath_object_multimatch);               _pmath_object_multimatch =               PMATH_NULL;
+//    pmath_unref(_pmath_object_newsym_message);           _pmath_object_newsym_message =           PMATH_NULL;
+    pmath_unref(_pmath_object_overflow);                 _pmath_object_overflow =                 PMATH_NULL;
+    pmath_unref(_pmath_object_range_from_one);           _pmath_object_range_from_one =           PMATH_NULL;
+    pmath_unref(_pmath_object_range_from_zero);          _pmath_object_range_from_zero =          PMATH_NULL;
+    pmath_unref(_pmath_object_singlematch);              _pmath_object_singlematch =              PMATH_NULL;
+    pmath_unref(_pmath_object_stop_message);             _pmath_object_stop_message =             PMATH_NULL;
+    pmath_unref(_pmath_object_underflow);                _pmath_object_underflow =                PMATH_NULL;
+    pmath_unref(_pmath_object_zeromultimatch);           _pmath_object_zeromultimatch =           PMATH_NULL;
     
     _pmath_thread_clean(TRUE);
     _pmath_symbols_almost_done();
@@ -920,7 +920,7 @@ PMATH_API void pmath_done(void){
     _pmath_charnames_done();
     _pmath_threadlocks_done();
     _pmath_thread_free(pmath_thread_get_current());
-    _pmath_thread_set_current(NULL);
+    _pmath_thread_set_current(PMATH_NULL);
     _pmath_threads_done();
     _pmath_memory_manager_done();
     _pmath_debug_library_done();
@@ -928,7 +928,7 @@ PMATH_API void pmath_done(void){
     _pmath_status = PMATH_STATUS_NONE;
   }
   else{
-    _pmath_thread_set_current(NULL);
+    _pmath_thread_set_current(PMATH_NULL);
     _pmath_thread_free(thread);
     mpfr_free_cache();
   }

@@ -61,7 +61,7 @@ PMATH_API pmath_thread_t pmath_thread_get_current(void){
 
 PMATH_API pmath_thread_t pmath_thread_get_parent(pmath_thread_t thread){
   if(!thread)
-    return NULL;
+    return PMATH_NULL;
   return thread->parent;
 }
 
@@ -127,7 +127,7 @@ pmath_t _pmath_thread_local_save_with(
 
   entry = pmath_ht_insert(thread->local_values, entry);
 
-  assert(entry == NULL);
+  assert(entry == PMATH_NULL);
 
   return PMATH_UNDEFINED;
 }
@@ -174,7 +174,7 @@ PMATH_PRIVATE void _pmath_destroy_abortable_message(void *p){
   if(data){
     _pmath_object_atomic_write(&data->_value, PMATH_ABORT_EXCEPTION);
     pmath_unref(data->next);
-    _pmath_object_atomic_write(&data->_pending_abort_request, NULL);
+    _pmath_object_atomic_write(&data->_pending_abort_request, PMATH_NULL);
     pmath_mem_free(data);
   }
 }
@@ -259,7 +259,7 @@ PMATH_PRIVATE void _pmath_abort_message(pmath_t abortable){
 
 //{ exception handling ...
 
-static pmath_threadlock_t exception_handler_lock = NULL;
+static pmath_threadlock_t exception_handler_lock = PMATH_NULL;
 
 struct _change_exception_data_t{
   pmath_thread_t thread;
@@ -493,20 +493,20 @@ PMATH_PRIVATE pmath_thread_t _pmath_thread_new(pmath_thread_t parent){
   pmath_thread_t thread = pmath_mem_alloc(sizeof(struct _pmath_thread_t));
     
   if(!thread)
-    return NULL;
+    return PMATH_NULL;
   
   thread->parent                = parent;
-  thread->waiting_lock          = NULL;
+  thread->waiting_lock          = PMATH_NULL;
   thread->ignore_older_aborts   = parent ? parent->ignore_older_aborts : 0;
   thread->gather_failed         = 0;
-  thread->gather_info           = NULL;
-  thread->local_values          = NULL;
-  thread->local_rules           = NULL;
-  thread->stack_info            = NULL;
+  thread->gather_info           = PMATH_NULL;
+  thread->local_values          = PMATH_NULL;
+  thread->local_rules           = PMATH_NULL;
+  thread->stack_info            = PMATH_NULL;
   thread->evaldepth             = 0;
   thread->exception             = PMATH_UNDEFINED;
   thread->message_queue         = _pmath_msg_queue_create();
-  thread->abortable_messages    = parent ? pmath_ref(parent->abortable_messages) : NULL;
+  thread->abortable_messages    = parent ? pmath_ref(parent->abortable_messages) : PMATH_NULL;
   thread->current_dynamic_id    = parent ? parent->current_dynamic_id            : 0;
   thread->boxform               = parent ? parent->boxform                       : BOXFORM_STANDARD;
   thread->critical_messages     = parent ? parent->critical_messages             : FALSE;
@@ -515,7 +515,7 @@ PMATH_PRIVATE pmath_thread_t _pmath_thread_new(pmath_thread_t parent){
   
   if(!thread->message_queue){
     _pmath_thread_free(thread);
-    return NULL;
+    return PMATH_NULL;
   }
   
   return thread;
@@ -561,21 +561,21 @@ PMATH_PRIVATE void _pmath_thread_clean(pmath_bool_t final){
     }
     
     free_stack(thread->stack_info);
-    thread->stack_info = NULL;
+    thread->stack_info = PMATH_NULL;
     thread->evaldepth = 0;
     
     pmath_ht_destroy(thread->local_values);
     pmath_ht_destroy(thread->local_rules);
-    thread->local_values = NULL;
-    thread->local_rules  = NULL;
+    thread->local_values = PMATH_NULL;
+    thread->local_rules  = PMATH_NULL;
     
     pmath_unref(thread->abortable_messages);
-    thread->abortable_messages = NULL;
+    thread->abortable_messages = PMATH_NULL;
     
     if(final){
       _pmath_msg_queue_inform_death(thread->message_queue);
       pmath_unref(thread->message_queue);
-      thread->message_queue = NULL;
+      thread->message_queue = PMATH_NULL;
     }
   }
 }
@@ -588,11 +588,11 @@ PMATH_PRIVATE void _pmath_thread_free(pmath_thread_t thread){
   pmath_ht_destroy(thread->local_rules);
     
   pmath_unref(thread->abortable_messages);
-  thread->abortable_messages = NULL;
+  thread->abortable_messages = PMATH_NULL;
   
   _pmath_msg_queue_inform_death(thread->message_queue);
   pmath_unref(thread->message_queue);
-  thread->message_queue = NULL;
+  thread->message_queue = PMATH_NULL;
   
   while(thread->gather_info){
     struct _pmath_gather_info_t *next_gather = thread->gather_info->next;
@@ -626,7 +626,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_threads_init(void){
       int callcount = 2;
       int err;
       do{
-        err = pthread_key_create(&threadkey, NULL/*(void(*)(void*)) destroy_threadkey_data*/);
+        err = pthread_key_create(&threadkey, PMATH_NULL/*(void(*)(void*)) destroy_threadkey_data*/);
       }while(err == EAGAIN && --callcount >= 0);
       if(err)
         goto FAIL_THREAD_KEY;

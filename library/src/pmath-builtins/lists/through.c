@@ -16,7 +16,7 @@ PMATH_PRIVATE pmath_t builtin_through(pmath_expr_t expr){
     return expr;
   }
   
-  head = l == 1 ? NULL : pmath_expr_get_item(expr, 2);
+  head = l == 1 ? PMATH_NULL : pmath_expr_get_item(expr, 2);
   
   obj = pmath_expr_get_item(expr, 1);
   pmath_unref(expr);
@@ -47,7 +47,7 @@ PMATH_PRIVATE pmath_t builtin_through(pmath_expr_t expr){
   
   pmath_unref(head);
   
-  obj = pmath_expr_set_item(obj, 0, NULL);
+  obj = pmath_expr_set_item(obj, 0, PMATH_NULL);
   for(l = pmath_expr_length(expr);l > 0;--l){
     expr = pmath_expr_set_item(
       expr, l,

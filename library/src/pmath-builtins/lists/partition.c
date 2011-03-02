@@ -113,7 +113,7 @@ static pmath_expr_t set_divmod_part(
     l = 1 + out_i[k - depth] % n[k - depth];
   
   subarray = pmath_expr_get_item(array, (size_t)l);
-  array = pmath_expr_set_item(array, (size_t)l, NULL);
+  array = pmath_expr_set_item(array, (size_t)l, PMATH_NULL);
   
   subarray = set_divmod_part(subarray, out_i, n, k + 1, depth, item);
   
@@ -131,7 +131,7 @@ static pmath_expr_t make_deep_array(
   size_t i;
   
   if(k >= 2 * depth)
-    return NULL;
+    return PMATH_NULL;
   
   if(k < depth)
     result = pmath_expr_new(pmath_ref(head), (size_t)blocks[k]);
@@ -210,7 +210,7 @@ static pmath_expr_t partition(
   const long *right,
   long depth
 ){
-  pmath_expr_t result = NULL;
+  pmath_expr_t result = PMATH_NULL;
   pmath_t item;
   long *in_i   = (long*)pmath_mem_alloc(depth * sizeof(long));
   long *out_i  = (long*)pmath_mem_alloc(depth * sizeof(long));
@@ -308,7 +308,7 @@ static long *get_n( // free it with pmath_mem_free(n, depth * sizeof(long))
             pmath_mem_free(n);
             
             *depth = -1;
-            return NULL;
+            return PMATH_NULL;
           }
           
           pmath_unref(item);
@@ -319,11 +319,11 @@ static long *get_n( // free it with pmath_mem_free(n, depth * sizeof(long))
     }
     
     if(*depth == 0)
-      return NULL;
+      return PMATH_NULL;
   }
   
   *depth = -1;
-  return NULL;
+  return PMATH_NULL;
 }
 
 static pmath_bool_t get_d(
@@ -372,13 +372,13 @@ static pmath_bool_t set_overhang(
     long val = pmath_integer_get_si(overhang);
     
     if(val == 0){
-      pmath_message(NULL, "ohp", 1, pmath_ref(all_obj));
+      pmath_message(PMATH_NULL, "ohp", 1, pmath_ref(all_obj));
       pmath_unref(overhang);
       return FALSE;
     }
     
     if(depth == 0){
-      pmath_message(NULL, "ohpdm", 2,
+      pmath_message(PMATH_NULL, "ohpdm", 2,
         pmath_integer_new_si(1),
         pmath_integer_new_si(0));
       pmath_unref(overhang);
@@ -395,7 +395,7 @@ static pmath_bool_t set_overhang(
   
   if(pmath_is_expr_of(overhang, PMATH_SYMBOL_LIST)){
     if(pmath_expr_length(overhang) != (size_t)depth){
-      pmath_message(NULL, "ohpdm", 2,
+      pmath_message(PMATH_NULL, "ohpdm", 2,
         pmath_integer_new_size(pmath_expr_length(overhang)),
         pmath_integer_new_si(depth));
       
@@ -413,7 +413,7 @@ static pmath_bool_t set_overhang(
       pmath_unref(item);
       
       if(val == 0){
-        pmath_message(NULL, "ohp", 1, pmath_ref(all_obj));
+        pmath_message(PMATH_NULL, "ohp", 1, pmath_ref(all_obj));
         pmath_unref(overhang);
         return FALSE;
       }
@@ -425,7 +425,7 @@ static pmath_bool_t set_overhang(
     return TRUE;
   }
   
-  pmath_message(NULL, "ohp", 1, pmath_ref(all_obj));
+  pmath_message(PMATH_NULL, "ohp", 1, pmath_ref(all_obj));
   pmath_unref(overhang);
   return FALSE;
 }
@@ -481,7 +481,7 @@ static pmath_expr_t embed_at(
   for(i = pmath_expr_length(item);i > 0;--i){
     pmath_t subitem = pmath_expr_get_item(item, i);
     
-    item = pmath_expr_set_item(item, i, NULL);
+    item = pmath_expr_set_item(item, i, PMATH_NULL);
     
     subitem = embed_at(head, subitem, level - 1, embed_depth);
     
@@ -536,7 +536,7 @@ static int get_dimensions(
   size_t i;
   
   if(!pmath_is_expr_of_len(dim_obj, PMATH_SYMBOL_LIST, (size_t)depth)){
-    pmath_message(NULL, "pdep", 2,
+    pmath_message(PMATH_NULL, "pdep", 2,
       pmath_integer_new_si(depth),
       dim_obj);
     return -1;
@@ -550,7 +550,7 @@ static int get_dimensions(
       
       if(dim[i - 1] == 0){
         pmath_unref(len);
-        pmath_message(NULL, "pdep", 2,
+        pmath_message(PMATH_NULL, "pdep", 2,
           pmath_integer_new_si(depth),
           dim_obj);
         return -1;
@@ -612,7 +612,7 @@ PMATH_PRIVATE pmath_t builtin_partition(pmath_expr_t expr){
   pmath_unref(obj);
   
   if(depth < 0){
-    pmath_message(NULL, "ilsmp", 2, pmath_integer_new_si(2), pmath_ref(expr));
+    pmath_message(PMATH_NULL, "ilsmp", 2, pmath_integer_new_si(2), pmath_ref(expr));
     return expr;
   }
   

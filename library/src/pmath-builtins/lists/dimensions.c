@@ -132,7 +132,7 @@ PMATH_PRIVATE pmath_expr_t _pmath_dimensions(
   
   data.dim_arr = (size_t*)pmath_mem_alloc(dims * sizeof(size_t));
   if(!data.dim_arr)
-    return NULL;
+    return PMATH_NULL;
   
   data.maxdim = dims;
   tmp = pmath_ref(obj);
@@ -189,7 +189,7 @@ PMATH_PRIVATE pmath_t builtin_dimensions(pmath_expr_t expr){
     else if(!pmath_equals(obj, _pmath_object_infinity)){
       pmath_unref(obj);
       
-      pmath_message(NULL, "innf", 2,
+      pmath_message(PMATH_NULL, "innf", 2,
         pmath_integer_new_ui(2),
         pmath_ref(expr));
       

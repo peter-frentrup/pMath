@@ -75,7 +75,7 @@ static pmath_t open_bin_file(
   pmath_string_t name, // will be freed
   enum open_kind kind
 ){
-  FILE *f = NULL;
+  FILE *f = PMATH_NULL;
   pmath_binary_file_api_t api;
   
   memset(&api, 0, sizeof(api));
@@ -115,7 +115,7 @@ static pmath_t open_bin_file(
   }
   #else
   {
-    char *fn = pmath_string_to_native(name, NULL);
+    char *fn = pmath_string_to_native(name, PMATH_NULL);
     
     if(fn){
       const char *mode = "";
@@ -135,7 +135,7 @@ static pmath_t open_bin_file(
   pmath_unref(name);
   
   if(!f)
-    return NULL;
+    return PMATH_NULL;
   
   return pmath_file_create_binary(f, (void(*)(void*))bin_file_destroy, &api);
 }
@@ -159,19 +159,19 @@ PMATH_PRIVATE pmath_bool_t _pmath_file_check(pmath_t file, int properties){
   
   if(!pmath_file_test(file, properties)){
     if(!pmath_file_test(file, 0)){
-      pmath_message(NULL, "invio", 1, pmath_ref(file));
+      pmath_message(PMATH_NULL, "invio", 1, pmath_ref(file));
     }
     else if((properties & PMATH_FILE_PROP_READ) != 0
     && !pmath_file_test(file, PMATH_FILE_PROP_READ)){
-      pmath_message(NULL, "ior", 1, pmath_ref(file));
+      pmath_message(PMATH_NULL, "ior", 1, pmath_ref(file));
     }
     else if((properties & PMATH_FILE_PROP_WRITE) != 0
     && !pmath_file_test(file, PMATH_FILE_PROP_WRITE)){
-      pmath_message(NULL, "iow", 1, pmath_ref(file));
+      pmath_message(PMATH_NULL, "iow", 1, pmath_ref(file));
     }
     else if((properties & PMATH_FILE_PROP_BINARY) != 0
     && !pmath_file_test(file, PMATH_FILE_PROP_BINARY)){
-      pmath_message(NULL, "iob", 1, pmath_ref(file));
+      pmath_message(PMATH_NULL, "iob", 1, pmath_ref(file));
     }
     
     return FALSE;
@@ -227,19 +227,19 @@ PMATH_PRIVATE pmath_bool_t _pmath_open_tmp(
   
   if(!pmath_file_test(*streams, properties)){
     if(!pmath_file_test(*streams, 0)){
-      pmath_message(NULL, "invio", 1, pmath_ref(*streams));
+      pmath_message(PMATH_NULL, "invio", 1, pmath_ref(*streams));
     }
     else if((properties & PMATH_FILE_PROP_READ) != 0
     && !pmath_file_test(*streams, PMATH_FILE_PROP_READ)){
-      pmath_message(NULL, "ior", 1, pmath_ref(*streams));
+      pmath_message(PMATH_NULL, "ior", 1, pmath_ref(*streams));
     }
     else if((properties & PMATH_FILE_PROP_WRITE) != 0
     && !pmath_file_test(*streams, PMATH_FILE_PROP_WRITE)){
-      pmath_message(NULL, "iow", 1, pmath_ref(*streams));
+      pmath_message(PMATH_NULL, "iow", 1, pmath_ref(*streams));
     }
     else if((properties & PMATH_FILE_PROP_BINARY) != 0
     && !pmath_file_test(*streams, PMATH_FILE_PROP_BINARY)){
-      pmath_message(NULL, "iob", 1, pmath_ref(*streams));
+      pmath_message(PMATH_NULL, "iob", 1, pmath_ref(*streams));
     }
     
     return FALSE;
@@ -347,13 +347,13 @@ PMATH_PRIVATE pmath_t builtin_close(pmath_expr_t expr){
   
   if(!pmath_file_close(pmath_expr_get_item(expr, 1))){
     pmath_message(
-      NULL, "invio", 1, 
+      PMATH_NULL, "invio", 1, 
       pmath_expr_get_item(expr, 1));
     return expr;
   }
   
   pmath_unref(expr);
-  return NULL;
+  return PMATH_NULL;
 }
 
 PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr){
@@ -366,7 +366,7 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr){
   
   pmath_bool_t binary_format = TRUE;
   pmath_bool_t unbuffered = FALSE;
-  pmath_string_t encoding = NULL;
+  pmath_string_t encoding = PMATH_NULL;
   enum open_kind kind;
   
   if(pmath_expr_length(expr) < 1){
@@ -376,18 +376,18 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr){
   
   file = pmath_expr_get_item(expr, 1);
   if(!pmath_is_string(file) || pmath_string_length(file) < 1){
-    pmath_message(NULL, "fstr", 1, file);
+    pmath_message(PMATH_NULL, "fstr", 1, file);
     return expr;
   }
   
   options = pmath_options_extract(expr, 1);
-  if(!options){
+  if(pmath_is_null(options)){
     pmath_unref(file);
     return expr;
   }
   
   { // BinaryFormat
-    pmath_t value = pmath_option_value(NULL, PMATH_SYMBOL_BINARYFORMAT, options);
+    pmath_t value = pmath_option_value(PMATH_NULL, PMATH_SYMBOL_BINARYFORMAT, options);
     
     if(pmath_same(value, PMATH_SYMBOL_TRUE)){
       binary_format = TRUE;
@@ -399,7 +399,7 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr){
       pmath_unref(file);
       pmath_unref(options);
       pmath_message(
-        NULL, "opttf", 2,
+        PMATH_NULL, "opttf", 2,
         pmath_ref(PMATH_SYMBOL_BINARYFORMAT),
         value);
       return expr;
@@ -410,11 +410,11 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr){
   
   { // CharacterEncoding
     encoding = pmath_evaluate(
-      pmath_option_value(NULL, PMATH_SYMBOL_CHARACTERENCODING, options));
+      pmath_option_value(PMATH_NULL, PMATH_SYMBOL_CHARACTERENCODING, options));
     
     if(!pmath_same(encoding, PMATH_SYMBOL_AUTOMATIC)
     && !pmath_is_string(encoding)){
-      pmath_message(NULL, "charcode", 1, encoding);
+      pmath_message(PMATH_NULL, "charcode", 1, encoding);
       pmath_unref(file);
       pmath_unref(options);
       return expr;
@@ -447,7 +447,7 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr){
     pmath_file_close(tmpfile);
     
     pmath_unref(encoding);
-    encoding = NULL;
+    encoding = PMATH_NULL;
     if(buf[0] == 0xEF && buf[1] == 0xBB && buf[2] == 0xBF){
       encoding = PMATH_C_STRING("UTF-8");
     }
@@ -494,7 +494,7 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr){
   
   if(!file){
     pmath_message(
-      NULL, "noopen", 1,
+      PMATH_NULL, "noopen", 1,
       pmath_expr_get_item(expr, 1));
     
     pmath_unref(encoding);
@@ -538,12 +538,12 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr){
     else{
       pmath_unref(file);
       pmath_unref(encoding);
-      return NULL;
+      return PMATH_NULL;
     }
       
     if(!file){
       pmath_message(
-        NULL, "noopen", 1,
+        PMATH_NULL, "noopen", 1,
         pmath_expr_get_item(expr, 1));
     
       pmath_unref(encoding);

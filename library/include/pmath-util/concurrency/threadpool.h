@@ -37,7 +37,7 @@ void pmath_task_wait(pmath_task_t task);
    \param callback The thread function.
    \param kill An optional function to inform the thread that it will be killed.
    \param data A pointer to be passed to callback() and kill()
-   \return A reference to the new thread's message queue or NULL on error. You
+   \return A reference to the new thread's message queue or PMATH_NULL on error. You
            have to destroy the result.
    
    pMath will automatically kill any daemon thread when there are no other

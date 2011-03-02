@@ -36,17 +36,17 @@ PMATH_PRIVATE pmath_t builtin_find(pmath_expr_t expr){
   }
   
   options = pmath_options_extract(expr, 2);
-  if(!options)
+  if(pmath_is_null(options))
     return expr;
   
   pcre_options = 0;
-  obj = pmath_option_value(NULL, PMATH_SYMBOL_IGNORECASE, options);
+  obj = pmath_option_value(PMATH_NULL, PMATH_SYMBOL_IGNORECASE, options);
   pmath_unref(options);
   if(pmath_same(obj, PMATH_SYMBOL_TRUE)){
     pcre_options|= PCRE_CASELESS;
   }
   else if(!pmath_same(obj, PMATH_SYMBOL_FALSE)){
-    pmath_message(NULL, "opttf", 2, pmath_ref(PMATH_SYMBOL_IGNORECASE), obj);
+    pmath_message(PMATH_NULL, "opttf", 2, pmath_ref(PMATH_SYMBOL_IGNORECASE), obj);
     return expr;
   }
   pmath_unref(obj);
@@ -66,7 +66,7 @@ PMATH_PRIVATE pmath_t builtin_find(pmath_expr_t expr){
   
   pmath_unref(expr);
   
-  obj = NULL;
+  obj = PMATH_NULL;
   if(_pmath_regex_init_capture(regex, &capture)){
     while(!pmath_aborting()){
       int length;
@@ -80,7 +80,7 @@ PMATH_PRIVATE pmath_t builtin_find(pmath_expr_t expr){
       obj = pmath_file_readline(file);
       utf8 = pmath_string_to_utf8(obj, &length);
       if(utf8){
-        if(_pmath_regex_match(regex, utf8, length, 0, 0, &capture, NULL)){
+        if(_pmath_regex_match(regex, utf8, length, 0, 0, &capture, PMATH_NULL)){
           pmath_mem_free(utf8);
           break;
         }
@@ -124,7 +124,7 @@ PMATH_PRIVATE pmath_t builtin_findlist(pmath_expr_t expr){
         count = pmath_integer_get_ui(n);
       }
       else if(!pmath_equals(n, _pmath_object_infinity)){
-        pmath_message(NULL, "intnm", 2, pmath_integer_new_si(3), pmath_ref(expr));
+        pmath_message(PMATH_NULL, "intnm", 2, pmath_integer_new_si(3), pmath_ref(expr));
         
         pmath_unref(n);
         return expr;
@@ -139,17 +139,17 @@ PMATH_PRIVATE pmath_t builtin_findlist(pmath_expr_t expr){
   }
   
   options = pmath_options_extract(expr, last_nonoption);
-  if(!options)
+  if(pmath_is_null(options))
     return expr;
   
   pcre_options = 0;
-  obj = pmath_option_value(NULL, PMATH_SYMBOL_IGNORECASE, options);
+  obj = pmath_option_value(PMATH_NULL, PMATH_SYMBOL_IGNORECASE, options);
   pmath_unref(options);
   if(pmath_same(obj, PMATH_SYMBOL_TRUE)){
     pcre_options|= PCRE_CASELESS;
   }
   else if(!pmath_same(obj, PMATH_SYMBOL_FALSE)){
-    pmath_message(NULL, "opttf", 2, pmath_ref(PMATH_SYMBOL_IGNORECASE), obj);
+    pmath_message(PMATH_NULL, "opttf", 2, pmath_ref(PMATH_SYMBOL_IGNORECASE), obj);
     return expr;
   }
   pmath_unref(obj);
@@ -174,7 +174,7 @@ PMATH_PRIVATE pmath_t builtin_findlist(pmath_expr_t expr){
   
   pmath_unref(expr);
   
-  pmath_gather_begin(NULL);
+  pmath_gather_begin(PMATH_NULL);
   if(_pmath_regex_init_capture(regex, &capture)){
     while(count > 0 && pmath_file_status(file) == PMATH_FILE_OK){
       int length;
@@ -183,9 +183,9 @@ PMATH_PRIVATE pmath_t builtin_findlist(pmath_expr_t expr){
       obj = pmath_file_readline(file);
       utf8 = pmath_string_to_utf8(obj, &length);
       if(utf8){
-        if(_pmath_regex_match(regex, utf8, length, 0, 0, &capture, NULL)){
-          pmath_emit(obj, NULL);
-          obj = NULL;
+        if(_pmath_regex_match(regex, utf8, length, 0, 0, &capture, PMATH_NULL)){
+          pmath_emit(obj, PMATH_NULL);
+          obj = PMATH_NULL;
           --count;
         }
         

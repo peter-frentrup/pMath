@@ -75,7 +75,7 @@ PMATH_PRIVATE pmath_t builtin_complement(pmath_expr_t expr){
   if(!pmath_is_expr(all)){
     pmath_unref(sametest);
     pmath_unref(all);
-    pmath_message(NULL, "nexprat", 2, pmath_integer_new_si(1), pmath_ref(expr));
+    pmath_message(PMATH_NULL, "nexprat", 2, pmath_integer_new_si(1), pmath_ref(expr));
     return expr;
   }
   
@@ -89,7 +89,7 @@ PMATH_PRIVATE pmath_t builtin_complement(pmath_expr_t expr){
       pmath_unref(all);
       pmath_unref(obj);
       pmath_unref(item);
-      pmath_message(NULL, "nexprat", 2, pmath_integer_new_size(i), pmath_ref(expr));
+      pmath_message(PMATH_NULL, "nexprat", 2, pmath_integer_new_size(i), pmath_ref(expr));
       return expr;
     }
     
@@ -98,7 +98,7 @@ PMATH_PRIVATE pmath_t builtin_complement(pmath_expr_t expr){
       pmath_unref(sametest);
       pmath_unref(all);
       pmath_unref(item);
-      pmath_message(NULL, "heads", 4, 
+      pmath_message(PMATH_NULL, "heads", 4, 
         obj, head, pmath_integer_new_size(1), pmath_integer_new_size(i));
       return expr;
     }
@@ -108,13 +108,13 @@ PMATH_PRIVATE pmath_t builtin_complement(pmath_expr_t expr){
   }
   
   pmath_unref(obj);
-  expr = pmath_expr_set_item(expr, 1, NULL);
+  expr = pmath_expr_set_item(expr, 1, PMATH_NULL);
   all = pmath_expr_sort(all);
   
   if(pmath_same(sametest, PMATH_SYMBOL_AUTOMATIC)){
     for(i = exprlen;i > 1;--i){
       obj = pmath_expr_get_item(expr, i);
-      expr = pmath_expr_set_item(expr, i, NULL);
+      expr = pmath_expr_set_item(expr, i, PMATH_NULL);
       
       obj = pmath_expr_sort(obj);
       expr = pmath_expr_set_item(expr, i, obj);
@@ -139,7 +139,7 @@ PMATH_PRIVATE pmath_t builtin_complement(pmath_expr_t expr){
           pmath_unref(all);
           pmath_unref(expr);
           pmath_unref(sametest);
-          return NULL;
+          return PMATH_NULL;
         }
       }
       
@@ -176,7 +176,7 @@ PMATH_PRIVATE pmath_t builtin_complement(pmath_expr_t expr){
           pmath_unref(all);
           pmath_unref(expr);
           pmath_unref(sametest);
-          return NULL;
+          return PMATH_NULL;
         }
       }
     }
@@ -209,7 +209,7 @@ PMATH_PRIVATE pmath_t builtin_complement(pmath_expr_t expr){
             pmath_unref(obj);
             pmath_unref(expr);
             pmath_unref(sametest);
-            return NULL;
+            return PMATH_NULL;
           }
         }
         

@@ -660,7 +660,7 @@ static pmath_t combine_relations(pmath_t rel1, pmath_t rel2){
   
   if(pmath_same(rel1, PMATH_SYMBOL_UNEQUAL)
   || pmath_same(rel2, PMATH_SYMBOL_UNEQUAL))
-    return NULL;
+    return PMATH_NULL;
   
   if(pmath_same(rel1, PMATH_SYMBOL_LESS)){
     if(pmath_same(rel2, PMATH_SYMBOL_LESS)
@@ -686,7 +686,7 @@ static pmath_t combine_relations(pmath_t rel1, pmath_t rel2){
       return rel2;
   }
   
-  return NULL;
+  return PMATH_NULL;
 }
 
 PMATH_PRIVATE pmath_t builtin_inequation(pmath_expr_t expr){

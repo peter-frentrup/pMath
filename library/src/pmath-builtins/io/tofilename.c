@@ -51,7 +51,7 @@ PMATH_PRIVATE pmath_t builtin_tofilename(pmath_expr_t expr){
       if(!pmath_is_string(sub)){
         pmath_unref(dir);
         pmath_unref(sub);
-        pmath_message(NULL, "strse", 2, pmath_integer_new_si(1), pmath_ref(expr));
+        pmath_message(PMATH_NULL, "strse", 2, pmath_integer_new_si(1), pmath_ref(expr));
         return expr;
       }
       
@@ -70,7 +70,7 @@ PMATH_PRIVATE pmath_t builtin_tofilename(pmath_expr_t expr){
   }
   else{
     pmath_unref(dir);
-    pmath_message(NULL, "strse", 2, pmath_integer_new_si(1), pmath_ref(expr));
+    pmath_message(PMATH_NULL, "strse", 2, pmath_integer_new_si(1), pmath_ref(expr));
     return expr;
   }
   
@@ -79,7 +79,7 @@ PMATH_PRIVATE pmath_t builtin_tofilename(pmath_expr_t expr){
     if(!pmath_is_string(name)){
       pmath_unref(dir);
       pmath_unref(name);
-      pmath_message(NULL, "str", 2, pmath_integer_new_si(2), pmath_ref(expr));
+      pmath_message(PMATH_NULL, "str", 2, pmath_integer_new_si(2), pmath_ref(expr));
       return expr;
     }
   }
@@ -97,7 +97,7 @@ PMATH_PRIVATE pmath_t builtin_tofilename(pmath_expr_t expr){
   if(!result){
     pmath_unref(dir);
     pmath_unref(name);
-    return NULL;
+    return PMATH_NULL;
   }
   
   buf = AFTER_STRING(result);

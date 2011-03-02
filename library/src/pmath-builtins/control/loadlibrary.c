@@ -17,15 +17,15 @@ PMATH_PRIVATE pmath_t builtin_loadlibrary(pmath_expr_t expr){
   
   if(!pmath_is_string(filename)
   || pmath_string_length(filename) == 0){
-    pmath_message(NULL, "fstr", 1, filename);
+    pmath_message(PMATH_NULL, "fstr", 1, filename);
     return pmath_ref(PMATH_SYMBOL_FAILED);
   }
   
   if(!_pmath_module_load(pmath_ref(filename))){
-    pmath_message(NULL, "fail", 1, filename);
+    pmath_message(PMATH_NULL, "fail", 1, filename);
     return pmath_ref(PMATH_SYMBOL_FAILED);
   }
   
   pmath_unref(filename);
-  return NULL;
+  return PMATH_NULL;
 }

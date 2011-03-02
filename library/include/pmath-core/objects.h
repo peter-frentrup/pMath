@@ -24,7 +24,19 @@
 
    You must free unused objects with pmath_unref().
  */
-typedef struct _pmath_t *pmath_t;
+typedef struct{ struct _pmath_t *_obj_ptr; } pmath_t;
+
+#define PMATH_AS_PTR(A)  ((A)._obj_ptr)
+
+PMATH_FORCE_INLINE
+PMATH_INLINE_NODEBUG
+PMATH_ATTRIBUTE_USE_RESULT
+pmath_t PMATH_FROM_PTR(void *p){
+  pmath_t r;
+  
+  r._obj_ptr = p;
+  return r;
+}
 
 /**\brief The type or class of a pMath object.
 
@@ -33,12 +45,12 @@ typedef struct _pmath_t *pmath_t;
    - \c PMATH_TYPE_MAGIC: The object is a `magic number`, which 
      is any integer value between 0 and 255 cast to ( \ref pmath_t ). 
      These values have special meanings:
-     - \c NULL This is simply `nothing`. It is often used to indicate that there 
+     - \c PMATH_NULL This is simply `nothing`. It is often used to indicate that there 
        is not enough memory.
      - \c PMATH_UNDEFINED Symbol values are initialized with PMATH_UNDEFINED. 
-       This is done to enable saving the value NULL in a symbol.
+       This is done to enable saving the value PMATH_NULL in a symbol.
        
-     Any function that returns or operates on a pmath_t may return NULL. 
+     Any function that returns or operates on a pmath_t may return PMATH_NULL. 
      Exceptions are allways explicitly stated in the documentation.
 
    - \c PMATH_TYPE_INTEGER: The object is an integer value. You can cast it 
@@ -83,7 +95,7 @@ typedef struct _pmath_t *pmath_t;
    - \c PMATH_TYPE_CUSTOM: The object is a custom object. You can cast it to
      \ref pmath_custom_t.
 
-   - \c PMATH_TYPE_EVALUATABLE: The object is evaluatable and not NULL. That 
+   - \c PMATH_TYPE_EVALUATABLE: The object is evaluatable and not PMATH_NULL. That 
      means, if a symbol has this object as its value, the object will be 
      returned. Function definition rules and custom objects are an example of
      non-evalutable objects. 
@@ -125,10 +137,11 @@ enum {
   PMATH_TYPE_EVALUATABLE             = PMATH_TYPE_NUMBER | PMATH_TYPE_STRING | PMATH_TYPE_SYMBOL | PMATH_TYPE_EXPRESSION
 };
 
-static const pmath_t PMATH_THREAD_KEY_PARSESYMBOLS     = (pmath_t)252; /* see builtin_makeexpression() */
-static const pmath_t PMATH_THREAD_KEY_PARSERARGUMENTS  = (pmath_t)253; /* see builtin_makeexpression() */
-static const pmath_t PMATH_ABORT_EXCEPTION   = (pmath_t)254; /* see builtin_abort(), ... */
-static const pmath_t PMATH_UNDEFINED         = (pmath_t)255;
+#define PMATH_THREAD_KEY_PARSESYMBOLS     PMATH_FROM_PTR((void*)252)
+#define PMATH_THREAD_KEY_PARSERARGUMENTS  PMATH_FROM_PTR((void*)253)
+#define PMATH_ABORT_EXCEPTION             PMATH_FROM_PTR((void*)254)
+#define PMATH_UNDEFINED                   PMATH_FROM_PTR((void*)255)
+#define PMATH_NULL                        PMATH_FROM_PTR((void*)0)
 
 /**\brief Options for pmath_write().
 
@@ -213,7 +226,7 @@ typedef int (*pmath_compare_func_t)(pmath_t, pmath_t);
    
    \see pmath_instance_of()
  */
-#define PMATH_IS_MAGIC(obj) (((uintptr_t)(obj)) <= 255)
+#define PMATH_IS_MAGIC(obj) (((uintptr_t)PMATH_AS_PTR(obj)) <= 255)
 
 /**\brief Calculates an object's hash value
    \memberof pmath_t

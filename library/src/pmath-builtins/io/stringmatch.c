@@ -37,7 +37,7 @@ static pmath_t stringmatch(
         0, 
         PCRE_NO_UTF8_CHECK, 
         &capture, 
-        NULL);
+        PMATH_NULL);
     }
     
     pmath_unref(obj);
@@ -50,7 +50,7 @@ static pmath_t stringmatch(
     size_t i;
     for(i = 1;i <= pmath_expr_length(obj);++i){
       pmath_t item = pmath_expr_get_item(obj, i);
-      obj = pmath_expr_set_item(obj, i, NULL);
+      obj = pmath_expr_set_item(obj, i, PMATH_NULL);
       
       item = stringmatch(item, regex);
       
@@ -84,17 +84,17 @@ PMATH_PRIVATE pmath_t builtin_stringmatch(pmath_expr_t expr){
   
   
   options = pmath_options_extract(expr, 2);
-  if(!options)
+  if(pmath_is_null(options))
     return expr;
   
   regex_options = 0;
-  obj = pmath_option_value(NULL, PMATH_SYMBOL_IGNORECASE, options);
+  obj = pmath_option_value(PMATH_NULL, PMATH_SYMBOL_IGNORECASE, options);
   if(pmath_same(obj, PMATH_SYMBOL_TRUE)){
     regex_options|= PCRE_CASELESS;
   }
   else if(!pmath_same(obj, PMATH_SYMBOL_FALSE)){
     pmath_message(
-      NULL, "opttf", 2,
+      PMATH_NULL, "opttf", 2,
       pmath_ref(PMATH_SYMBOL_IGNORECASE),
       obj);
     pmath_unref(options);
@@ -114,7 +114,7 @@ PMATH_PRIVATE pmath_t builtin_stringmatch(pmath_expr_t expr){
   _pmath_regex_unref(regex);
   
   if(pmath_same(obj, PMATH_UNDEFINED)){
-    pmath_message(NULL, "strse", 2, pmath_integer_new_si(1), pmath_ref(expr));
+    pmath_message(PMATH_NULL, "strse", 2, pmath_integer_new_si(1), pmath_ref(expr));
     return expr;
   }
   

@@ -16,7 +16,7 @@ PMATH_API pmath_custom_t pmath_custom_new(
   struct custom_t *custom;
   
   if(PMATH_UNLIKELY(!destructor))
-    return NULL;
+    return PMATH_NULL;
   
   custom = (struct custom_t*)
     _pmath_create_stub(
@@ -25,7 +25,7 @@ PMATH_API pmath_custom_t pmath_custom_new(
   
   if(PMATH_UNLIKELY(!custom)){
     destructor(data);
-    return NULL;
+    return PMATH_NULL;
   }
   
   custom->data = data;
@@ -35,7 +35,7 @@ PMATH_API pmath_custom_t pmath_custom_new(
 
 PMATH_API void *pmath_custom_get_data(pmath_custom_t custom){
   if(PMATH_UNLIKELY(!custom))
-    return NULL;
+    return PMATH_NULL;
   
   assert(pmath_is_custom(custom));
   
@@ -86,8 +86,8 @@ PMATH_PRIVATE pmath_bool_t _pmath_custom_objects_init(void){
     (pmath_compare_func_t)        compare_custom,
     (pmath_hash_func_t)           hash_custom,
     (pmath_proc_t)                destroy_custom,
-    (pmath_equal_func_t)          NULL,
-    (_pmath_object_write_func_t)  NULL);
+    (pmath_equal_func_t)          PMATH_NULL,
+    (_pmath_object_write_func_t)  PMATH_NULL);
     
   return TRUE;
 }

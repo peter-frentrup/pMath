@@ -22,12 +22,12 @@ static pmath_t concat_expressions(pmath_expr_t expr){
     fst = pmath_expr_get_item(expr, 1);
     if(pmath_is_string(fst)){
       pmath_unref(fst);
-      pmath_message(NULL, "strexp", 0);
+      pmath_message(PMATH_NULL, "strexp", 0);
       return expr;
     }
     
     if(!pmath_is_expr(fst)){
-      pmath_message(NULL, "atom", 1, fst);
+      pmath_message(PMATH_NULL, "atom", 1, fst);
       return expr;
     }
     
@@ -41,20 +41,20 @@ static pmath_t concat_expressions(pmath_expr_t expr){
         pmath_unref(fst);
         pmath_unref(fst_head);
         pmath_unref(obj);
-        pmath_message(NULL, "strexpr", 0);
+        pmath_message(PMATH_NULL, "strexpr", 0);
         return expr;
       }
       
       if(!pmath_is_expr(obj)){
         pmath_unref(fst);
         pmath_unref(fst_head);
-        pmath_message(NULL, "atom", 1, obj);
+        pmath_message(PMATH_NULL, "atom", 1, obj);
         return expr;
       }
 
       obj_head = pmath_expr_get_item((pmath_expr_t)obj, 0);
       if(!pmath_equals(fst_head, obj_head)){
-        pmath_message(NULL, "heads", 4, 
+        pmath_message(PMATH_NULL, "heads", 4, 
           fst_head, 
           obj_head,
           pmath_integer_new_size(1),
@@ -107,12 +107,12 @@ static pmath_t concat_strings(pmath_expr_t expr){
     
     if(pmath_is_expr(fst)){
       pmath_unref(fst);
-      pmath_message(NULL, "strexp", 0);
+      pmath_message(PMATH_NULL, "strexp", 0);
       return expr;
     }
     
     if(!pmath_is_string(fst)){
-      pmath_message(NULL, "atom", 1, fst);
+      pmath_message(PMATH_NULL, "atom", 1, fst);
       return expr;
     }
     
@@ -125,13 +125,13 @@ static pmath_t concat_strings(pmath_expr_t expr){
       if(pmath_is_expr(obj)){
         pmath_unref(fst);
         pmath_unref(obj);
-        pmath_message(NULL, "strexp", 0);
+        pmath_message(PMATH_NULL, "strexp", 0);
         return expr;
       }
       
       if(!pmath_is_string(obj)){
         pmath_unref(fst);
-        pmath_message(NULL, "atom", 1, obj);
+        pmath_message(PMATH_NULL, "atom", 1, obj);
         return expr;
       }
 
@@ -185,7 +185,7 @@ PMATH_PRIVATE pmath_t builtin_join(pmath_expr_t expr){
       return concat_strings(expr);
     }
 
-    pmath_message(NULL, "atom", 1, fst);
+    pmath_message(PMATH_NULL, "atom", 1, fst);
     return expr;
   }
   else if(len == 1){

@@ -135,7 +135,7 @@ pmath_t pmath_build_value(const char *format, ...);
    \param expr The expression that may custom option values. It wont be freed.
    \param last_nonoption The index of the last argument that is not an option 
           rule.
-   \return A list of all given option values or NULL on error. You must destroy
+   \return A list of all given option values or PMATH_NULL on error. You must destroy
            it.
 
    Imagine, \c expr = `f(a,b,A->1,B->2)` and \c last_nonoption is 2, then the
@@ -143,7 +143,7 @@ pmath_t pmath_build_value(const char *format, ...);
    \c extra parameter in pmath_option_value().
 
    When \c last_nonoption was 1, a message would be generated (b is no rule ...)
-   and the return value is NULL. In that case, the calling function should have
+   and the return value is PMATH_NULL. In that case, the calling function should have
    no further effects and return.
  */
 PMATH_API 
@@ -153,7 +153,7 @@ pmath_expr_t pmath_options_extract(pmath_expr_t expr, size_t last_nonoption);
 /**\brief Retrieve a option value of a given function.
    \relates pmath_expr_t
    \param fn The function for which the requested option value is defined. It
-          wont be freed. If it is NULL, the current head 
+          wont be freed. If it is PMATH_NULL, the current head 
           (see \ref pmath_current_head ) will be used.
    \param name The name of the option value (in general, a symbol). It wont be
           freed.

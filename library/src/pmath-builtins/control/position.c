@@ -87,7 +87,7 @@ static pmath_bool_t emit_pattern_position( // return = search more?
       i = i->prev;
     }
     
-    pmath_emit(pos, NULL);
+    pmath_emit(pos, PMATH_NULL);
     
     pmath_unref(obj);
     info->max--;
@@ -149,7 +149,7 @@ PMATH_PRIVATE pmath_t builtin_position(pmath_expr_t expr){
         else if(!_pmath_is_rule(obj) && !_pmath_is_list_of_rules(obj)){
           pmath_unref(obj);
           pmath_unref(levels);
-          pmath_message(NULL, "innf", 2, pmath_integer_new_si(4), pmath_ref(expr));
+          pmath_message(PMATH_NULL, "innf", 2, pmath_integer_new_si(4), pmath_ref(expr));
           return expr;
         }
         
@@ -157,7 +157,7 @@ PMATH_PRIVATE pmath_t builtin_position(pmath_expr_t expr){
       }
     }
     else if(!_pmath_is_rule(levels) && !_pmath_is_list_of_rules(levels)){
-      pmath_message(NULL, "level", 1, levels);
+      pmath_message(PMATH_NULL, "level", 1, levels);
       return expr;
     }
     
@@ -167,12 +167,12 @@ PMATH_PRIVATE pmath_t builtin_position(pmath_expr_t expr){
   pattern = pmath_expr_get_item(expr, 2);
   
   options = pmath_options_extract(expr, last_nonoption);
-  if(!options){
+  if(pmath_is_null(options)){
     pmath_unref(pattern);
     return expr;
   }
   
-  obj = pmath_evaluate(pmath_option_value(NULL, PMATH_SYMBOL_HEADS, options));
+  obj = pmath_evaluate(pmath_option_value(PMATH_NULL, PMATH_SYMBOL_HEADS, options));
   if(pmath_same(obj, PMATH_SYMBOL_TRUE)){
     info.with_heads = TRUE;
   }
@@ -180,7 +180,7 @@ PMATH_PRIVATE pmath_t builtin_position(pmath_expr_t expr){
     pmath_unref(pattern);
     pmath_unref(options);
     pmath_message(
-      NULL, "opttf", 2,
+      PMATH_NULL, "opttf", 2,
       pmath_ref(PMATH_SYMBOL_HEADS),
       obj);
     return expr;
@@ -191,7 +191,7 @@ PMATH_PRIVATE pmath_t builtin_position(pmath_expr_t expr){
   obj = pmath_expr_get_item(expr, 1);
   pmath_unref(expr);
   
-  pmath_gather_begin(NULL);
+  pmath_gather_begin(PMATH_NULL);
   emit_pattern_position(NULL, &info, obj, pattern, 0);
   pmath_unref(pattern);
   return pmath_gather_end();

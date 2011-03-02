@@ -30,7 +30,7 @@ PMATH_PRIVATE pmath_t builtin_dec_or_inc_or_postdec_or_postinc(pmath_expr_t expr
   lhs = pmath_expr_get_item(expr, 1);
   lhs_eval = pmath_evaluate(pmath_ref(lhs));
   if(pmath_equals(lhs, lhs_eval)){
-    pmath_message(NULL, "rval", 1, lhs);
+    pmath_message(PMATH_NULL, "rval", 1, lhs);
     pmath_unref(lhs_eval);
     return expr;
   }

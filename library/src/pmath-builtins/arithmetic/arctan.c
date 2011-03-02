@@ -44,8 +44,8 @@ PMATH_PRIVATE pmath_t builtin_arctan(pmath_expr_t expr){
       // dy = dx / (1+x^2)
       mpfr_mul(
         tmp->error,
-        ((struct _pmath_mp_float_t*)x)->value,
-        ((struct _pmath_mp_float_t*)x)->value,
+        ((struct _pmath_mp_float_t*)PMATH_AS_PTR(x))->value,
+        ((struct _pmath_mp_float_t*)PMATH_AS_PTR(x))->value,
         GMP_RNDD);
       
       mpfr_add_ui(
@@ -56,14 +56,14 @@ PMATH_PRIVATE pmath_t builtin_arctan(pmath_expr_t expr){
       
       mpfr_div(
         tmp->error,
-        ((struct _pmath_mp_float_t*)x)->error,
+        ((struct _pmath_mp_float_t*)PMATH_AS_PTR(x))->error,
         tmp->value,
         GMP_RNDU);
       
       // Precision(y) = -Log(base, y) + Accuracy(y)
       accmant = mpfr_get_d_2exp(&accexp, ((struct _pmath_mp_float_t*)tmp)->error, GMP_RNDN);
       acc  = -log2(fabs(accmant)) - accexp;
-      prec = mpfr_get_d(((struct _pmath_mp_float_t*)x)->value, GMP_RNDN);
+      prec = mpfr_get_d(((struct _pmath_mp_float_t*)PMATH_AS_PTR(x))->value, GMP_RNDN);
       prec = -log2(fabs(atan(prec))) + acc;
       
       if(prec > acc + pmath_max_extra_precision)
@@ -77,16 +77,16 @@ PMATH_PRIVATE pmath_t builtin_arctan(pmath_expr_t expr){
         
         mpfr_atan(
           result->value, 
-          ((struct _pmath_mp_float_t*)x)->value,
+          ((struct _pmath_mp_float_t*)PMATH_AS_PTR(x))->value,
           GMP_RNDN);
         
         pmath_unref(x);
         pmath_unref(expr);
-        pmath_unref((pmath_float_t)tmp);
-        return (pmath_float_t)result;
+        pmath_unref((pmath_float_t)PMATH_FROM_PTR(tmp));
+        return (pmath_float_t)PMATH_FROM_PTR(result);
       }
       
-      pmath_unref((pmath_float_t)tmp);
+      pmath_unref((pmath_float_t)PMATH_FROM_PTR(tmp));
     }
   }
   
@@ -150,7 +150,7 @@ PMATH_PRIVATE pmath_t builtin_arctan(pmath_expr_t expr){
   
   if(xclass & PMATH_CLASS_INF){
     pmath_t infdir = _pmath_directed_infinity_direction(x);
-    if(infdir){
+    if(!pmath_same(infdir, PMATH_NULL)){
       pmath_unref(expr);
       pmath_unref(x);
       
@@ -164,8 +164,8 @@ PMATH_PRIVATE pmath_t builtin_arctan(pmath_expr_t expr){
   }
   
   if(xclass & PMATH_CLASS_COMPLEX){
-    pmath_t re = NULL;
-    pmath_t im = NULL;
+    pmath_t re = PMATH_NULL;
+    pmath_t im = PMATH_NULL;
     if(_pmath_re_im(x, &re, &im)){
       if(pmath_equals(re, PMATH_NUMBER_ZERO)){
         pmath_unref(expr);

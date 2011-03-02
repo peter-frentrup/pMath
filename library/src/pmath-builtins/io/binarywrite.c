@@ -43,7 +43,7 @@ static pmath_bool_t binary_write(
             if(!type)
               type = PMATH_C_STRING("Character8");
             
-            pmath_message(NULL, "nocoerce", 2, value, type);
+            pmath_message(PMATH_NULL, "nocoerce", 2, value, type);
             return FALSE;
           }
         }
@@ -236,8 +236,8 @@ static pmath_bool_t binary_write(
           }
           
           if(out_type == COMPLEX){
-            pmath_t re = NULL;
-            pmath_t im = NULL;
+            pmath_t re = PMATH_NULL;
+            pmath_t im = PMATH_NULL;
             
             if(_pmath_re_im(pmath_ref(value), &re, &im)){
               pmath_unref(type);
@@ -259,12 +259,12 @@ static pmath_bool_t binary_write(
           
           if(pmath_instance_of(value, PMATH_TYPE_FLOAT)
           && out_type == REAL){
-            struct _pmath_mp_float_t *f = NULL;
+            struct _pmath_mp_float_t *f = PMATH_NULL;
             struct _pmath_integer_t *mant = _pmath_create_integer();
             long bits = 10;
             
             pmath_unref(type);
-            type = NULL;
+            type = PMATH_NULL;
             
             switch(size){
               case  2: bits =  10; break;
@@ -371,7 +371,7 @@ static pmath_bool_t binary_write(
                       goto MAKE_INFINTE;
                     
                     memset(data, 0, size);
-                    mpz_export(data, NULL, -1, 1, PMATH_BYTE_ORDER, 0, mant->value);
+                    mpz_export(data, PMATH_NULL, -1, 1, PMATH_BYTE_ORDER, 0, mant->value);
                     
                     if(data[6] & 0xF0)
                       goto MAKE_INFINTE;
@@ -411,7 +411,7 @@ static pmath_bool_t binary_write(
                       goto MAKE_INFINTE;
                     
                     memset(data, 0, size);
-                    mpz_export(data, NULL, -1, 1, PMATH_BYTE_ORDER, 0, mant->value);
+                    mpz_export(data, PMATH_NULL, -1, 1, PMATH_BYTE_ORDER, 0, mant->value);
                     
                     if(data[6] & 0xF0)
                       goto MAKE_INFINTE;
@@ -457,8 +457,8 @@ static pmath_bool_t binary_write(
           
           {
             pmath_t infdir = _pmath_directed_infinity_direction(value);
-            pmath_t re = NULL;
-            pmath_t im = NULL;
+            pmath_t re = PMATH_NULL;
+            pmath_t im = PMATH_NULL;
             
             if(_pmath_re_im(infdir, &re, &im)){
               int re_dir = 2;
@@ -590,7 +590,7 @@ static pmath_bool_t binary_write(
       
         if(pmath_is_integer(value)){
           size_t count;
-          struct _pmath_integer_t *pos = NULL;
+          struct _pmath_integer_t *pos = PMATH_NULL;
           
           if(out_type == INT 
           && mpz_sgn(((struct _pmath_integer_t*)value)->value) < 0){
@@ -613,7 +613,7 @@ static pmath_bool_t binary_write(
             if(!type)
               type = PMATH_C_STRING("Byte");
                   
-            pmath_message(NULL, "nocoerce", 2, value, type);
+            pmath_message(PMATH_NULL, "nocoerce", 2, value, type);
             return FALSE;
           }
           
@@ -624,14 +624,14 @@ static pmath_bool_t binary_write(
               type = PMATH_C_STRING("Byte");
             
             pmath_unref((pmath_integer_t)pos);
-            pmath_message(NULL, "nocoerce", 2, value, type);
+            pmath_message(PMATH_NULL, "nocoerce", 2, value, type);
             return FALSE;
           }
           
           memset(data, 0, size);
           mpz_export(
             data,
-            NULL,
+            PMATH_NULL,
             byte_ordering,
             1,
             PMATH_BYTE_ORDER,
@@ -650,7 +650,7 @@ static pmath_bool_t binary_write(
         if(!type)
           type = PMATH_C_STRING("Byte");
               
-        pmath_message(NULL, "nocoerce", 2, value, type);
+        pmath_message(PMATH_NULL, "nocoerce", 2, value, type);
         return FALSE;
       }
     }
@@ -663,7 +663,7 @@ static pmath_bool_t binary_write(
       
       if(tmax == 0){
         pmath_unref(type);
-        type = NULL;
+        type = PMATH_NULL;
       }
       else if(tmax == 1){
         pmath_t item = pmath_expr_get_item(type, 1);
@@ -715,7 +715,7 @@ static pmath_bool_t binary_write(
     return TRUE;
   }
   
-  pmath_message(NULL, "format", 1, type);
+  pmath_message(PMATH_NULL, "format", 1, type);
   pmath_unref(value);
   return FALSE;
 }
@@ -737,20 +737,20 @@ PMATH_PRIVATE pmath_t builtin_binarywrite(pmath_expr_t expr){
   type = pmath_expr_get_item(expr, 3);
   if(!type || _pmath_is_rule(type) || _pmath_is_list_of_rules(type)){
     pmath_unref(type);
-    type = NULL;
+    type = PMATH_NULL;
     last_nonoption = 2;
   }
   else
     last_nonoption = 3;
   
   options = pmath_options_extract(expr, last_nonoption);
-  if(!options){
+  if(pmath_is_null(options)){
     pmath_unref(type);
     return expr;
   }
   
   {
-    byte_ordering = _pmath_get_byte_ordering(NULL, options);
+    byte_ordering = _pmath_get_byte_ordering(PMATH_NULL, options);
     
     if(!byte_ordering){
       pmath_unref(expr);

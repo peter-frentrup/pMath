@@ -32,7 +32,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_run(pmath_t *in_out){
       else{
         pmath_unref(counter);
         pmath_unref(*in_out);
-        *in_out = NULL;
+        *in_out = PMATH_NULL;
       }
       
       return do_break;
@@ -44,7 +44,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_run(pmath_t *in_out){
   }
 
   pmath_unref(*in_out);
-  *in_out = NULL;
+  *in_out = PMATH_NULL;
   return FALSE;
 }
 
@@ -83,7 +83,7 @@ PMATH_PRIVATE pmath_t builtin_evaluatedelayed(pmath_expr_t expr){
   
   pmath_unref(reltime_obj);
   if(seconds <= 0){
-    pmath_message(NULL, "invtim", 1, pmath_expr_get_item(expr, 2));
+    pmath_message(PMATH_NULL, "invtim", 1, pmath_expr_get_item(expr, 2));
     return expr;
   }
   
@@ -91,7 +91,7 @@ PMATH_PRIVATE pmath_t builtin_evaluatedelayed(pmath_expr_t expr){
   pmath_thread_send_delayed(mq, pmath_expr_get_item(expr, 1), seconds);
   pmath_unref(mq);
   pmath_unref(expr);
-  return NULL;
+  return PMATH_NULL;
 }
 
   static pmath_t release_hold(pmath_t expr){
@@ -186,11 +186,11 @@ PMATH_PRIVATE pmath_t builtin_evaluationsequence(pmath_expr_t expr){
   if(len < 1){
     pmath_message_argxxx(len, 1, SIZE_MAX);
     pmath_unref(expr);
-    return NULL;
+    return PMATH_NULL;
   }
   
   have_label = FALSE;
-  result = NULL;
+  result = PMATH_NULL;
   
   for(i = 1;i < len || (i==len && have_label);++i){
     pmath_unref(result);
@@ -225,7 +225,7 @@ PMATH_PRIVATE pmath_t builtin_evaluationsequence(pmath_expr_t expr){
               pmath_unref(head);
               pmath_unref(item);
               pmath_unref(lbl);
-              result = NULL;
+              result = PMATH_NULL;
               i = j;
               have_label = TRUE; // ++i in outer for loop skips the Label(...)
               

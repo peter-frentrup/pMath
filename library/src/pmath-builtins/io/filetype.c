@@ -26,7 +26,7 @@ PMATH_PRIVATE pmath_t builtin_filetype(pmath_expr_t expr){
   
   file = pmath_expr_get_item(expr, 1);
   if(!pmath_is_string(file) || pmath_string_length(file) == 0){
-    pmath_message(NULL, "fstr", 1, file);
+    pmath_message(PMATH_NULL, "fstr", 1, file);
     return expr;
   }
   pmath_unref(expr);
@@ -43,10 +43,10 @@ PMATH_PRIVATE pmath_t builtin_filetype(pmath_expr_t expr){
       (const wchar_t*)pmath_string_buffer(file),
       0,
       FILE_SHARE_READ | FILE_SHARE_WRITE,
-      NULL,
+      PMATH_NULL,
       OPEN_EXISTING,
       FILE_FLAG_BACKUP_SEMANTICS,
-      NULL);
+      PMATH_NULL);
     
     if(h != INVALID_HANDLE_VALUE){
       BY_HANDLE_FILE_INFORMATION info;
@@ -69,7 +69,7 @@ PMATH_PRIVATE pmath_t builtin_filetype(pmath_expr_t expr){
   }
   #else
   {
-    char *str = pmath_string_to_native(file, NULL);
+    char *str = pmath_string_to_native(file, PMATH_NULL);
     
     if(str){
       struct stat buf;

@@ -216,7 +216,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_is_numeric(pmath_t obj){
     
     table = (pmath_hashtable_t)_pmath_atomic_lock_ptr(&numeric_symbols);
     
-    result = pmath_ht_search(table, obj) != NULL;
+    result = pmath_ht_search(table, obj) != PMATH_NULL;
     
     _pmath_atomic_unlock_ptr(&numeric_symbols, table);
     
@@ -248,9 +248,9 @@ PMATH_PRIVATE pmath_t builtin_assign_isnumeric(pmath_expr_t expr){
   
   sym = pmath_expr_get_item(lhs, 1);
   
-  if(!pmath_same(tag != PMATH_UNDEFINED)
-  && !pmath_same(tag != sym)){
-    pmath_message(NULL, "tag", 3, tag, lhs, sym);
+  if(!pmath_same(tag, PMATH_UNDEFINED)
+  && !pmath_same(tag, sym)){
+    pmath_message(PMATH_NULL, "tag", 3, tag, lhs, sym);
     
     pmath_unref(expr);
     if(pmath_same(rhs, PMATH_UNDEFINED))
@@ -262,7 +262,7 @@ PMATH_PRIVATE pmath_t builtin_assign_isnumeric(pmath_expr_t expr){
   pmath_unref(expr);
   
   if(!pmath_is_symbol(sym)){
-    pmath_message(NULL, "fnsym", 1, lhs);
+    pmath_message(PMATH_NULL, "fnsym", 1, lhs);
     
     pmath_unref(sym);
     if(pmath_same(rhs, PMATH_UNDEFINED))
@@ -293,7 +293,7 @@ PMATH_PRIVATE pmath_t builtin_assign_isnumeric(pmath_expr_t expr){
   entry = pmath_ht_search(table, sym);
   if(!entry && pmath_same(rhs, PMATH_SYMBOL_TRUE)){
     entry = pmath_ht_insert(table, sym);
-    sym = NULL;
+    sym = PMATH_NULL;
   }
   else if(entry && !pmath_same(rhs, PMATH_SYMBOL_TRUE)){
     entry = pmath_ht_remove(table, sym);
@@ -308,7 +308,7 @@ PMATH_PRIVATE pmath_t builtin_assign_isnumeric(pmath_expr_t expr){
     return rhs;
   
   pmath_unref(rhs);
-  return NULL;
+  return PMATH_NULL;
 }
 
 PMATH_PRIVATE pmath_t builtin_isnumeric(pmath_expr_t expr){

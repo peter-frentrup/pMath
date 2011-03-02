@@ -130,7 +130,7 @@ static pmath_t next_value(const char **format, va_list *args){
       if(c <= 0xffff){
         uint16_t uc = (uint16_t)c;
         
-        return pmath_string_insert_ucs2(NULL, 0, &uc, 1);
+        return pmath_string_insert_ucs2(PMATH_NULL, 0, &uc, 1);
       }
       
       if(c <= 0x10ffff){
@@ -140,7 +140,7 @@ static pmath_t next_value(const char **format, va_list *args){
         uc[0] = 0xD800 | (c >> 10);
         uc[1] = 0xDC00 | (c & 0x03FF);
         
-        return pmath_string_insert_ucs2(NULL, 0, uc, 2);
+        return pmath_string_insert_ucs2(PMATH_NULL, 0, uc, 2);
       }
       
       return PMATH_C_STRING("");
@@ -155,7 +155,7 @@ static pmath_t next_value(const char **format, va_list *args){
         len = va_arg(*args, int);
       }
       
-      return pmath_string_insert_latin1(NULL, 0, s, len);
+      return pmath_string_insert_latin1(PMATH_NULL, 0, s, len);
     }
     
     case 'z': return pmath_symbol_find(
@@ -183,7 +183,7 @@ static pmath_t next_value(const char **format, va_list *args){
         len = va_arg(*args, int);
       }
       
-      return pmath_string_insert_ucs2(NULL, 0, s, len);
+      return pmath_string_insert_ucs2(PMATH_NULL, 0, s, len);
     }
     
     case 'C': {
@@ -242,14 +242,14 @@ static pmath_t next_value(const char **format, va_list *args){
 //    }
     
     case '(': {
-      pmath_gather_begin(NULL);
+      pmath_gather_begin(PMATH_NULL);
       
       for(;;){
         pmath_t obj = next_value(format, args);
         if(pmath_same(obj, PMATH_UNDEFINED))
           break;
           
-        pmath_emit(obj, NULL);
+        pmath_emit(obj, PMATH_NULL);
       }
       
       if(*(*format)++ != ')'){
@@ -270,7 +270,7 @@ static pmath_t next_value(const char **format, va_list *args){
   pmath_debug_print("invalid format char `%c`\n", **format);
   assert(0 && "invalid format char");
   
-  return NULL;
+  return PMATH_NULL;
 }
 
 PMATH_API
@@ -287,11 +287,11 @@ pmath_t pmath_build_value_v(
   if(*format == '\0')
     return obj;
     
-  pmath_gather_begin(NULL);
+  pmath_gather_begin(PMATH_NULL);
   
-  pmath_emit(obj, NULL);
+  pmath_emit(obj, PMATH_NULL);
   while(*format)
-    pmath_emit(next_value(&format, &args), NULL);
+    pmath_emit(next_value(&format, &args), PMATH_NULL);
   
   return pmath_gather_end();
 }
@@ -325,7 +325,7 @@ PMATH_API pmath_expr_t pmath_options_extract(
   len = pmath_expr_length(expr);
   if(last_nonoption > len){
     pmath_message_argxxx(len, last_nonoption, last_nonoption);
-    return NULL;
+    return PMATH_NULL;
   }
 
   if(last_nonoption == len)
@@ -338,11 +338,11 @@ PMATH_API pmath_expr_t pmath_options_extract(
 
     pmath_unref(option);
     pmath_message(
-      NULL, "nonopt", 3,
+      PMATH_NULL, "nonopt", 3,
       pmath_expr_get_item(expr, last_nonoption + 2),
       pmath_integer_new_ui(last_nonoption),
       pmath_ref(expr));
-    return NULL;
+    return PMATH_NULL;
   }
   pmath_unref(option);
 
@@ -351,11 +351,11 @@ PMATH_API pmath_expr_t pmath_options_extract(
 
     if(!_pmath_is_rule(option)){
       pmath_message(
-        NULL, "nonopt", 3,
+        PMATH_NULL, "nonopt", 3,
         option,
         pmath_integer_new_ui(last_nonoption),
         pmath_ref(expr));
-      return NULL;
+      return PMATH_NULL;
     }
     pmath_unref(option);
   }
@@ -439,7 +439,7 @@ PMATH_API pmath_t pmath_option_value(
   else
     fn = pmath_current_head();
   
-  head = NULL;
+  head = PMATH_NULL;
   if(pmath_is_symbol(fn)){
     head = pmath_ref(fn);
   }
@@ -447,11 +447,11 @@ PMATH_API pmath_t pmath_option_value(
     head = pmath_expr_get_item(fn, 0);
     if(!pmath_is_symbol(fn)){
       pmath_unref(head);
-      head = NULL;
+      head = PMATH_NULL;
     }
   }
   
-  fnoptions = NULL;
+  fnoptions = PMATH_NULL;
   if(head){
     rules = _pmath_symbol_get_rules(head, RULES_READ);
     
@@ -461,7 +461,7 @@ PMATH_API pmath_t pmath_option_value(
       
       if(!_pmath_rulecache_find(&rules->default_rules, &fnoptions)){
         pmath_unref(fnoptions);
-        fnoptions = NULL;
+        fnoptions = PMATH_NULL;
       }
     }
     
@@ -518,7 +518,7 @@ PMATH_API pmath_t pmath_option_value(
 PMATH_API pmath_t pmath_current_head(void){
   pmath_thread_t thread = pmath_thread_get_current();
   if(!thread || !thread->stack_info)
-    return NULL;
+    return PMATH_NULL;
 
   return pmath_ref(thread->stack_info->value);
 }
@@ -626,7 +626,7 @@ pmath_t pmath_session_start(void){
     pmath_unref(old_dlvl);
     pmath_unref(old_line);
     pmath_unref(old_msgcnt);
-    return NULL;
+    return PMATH_NULL;
   }
   
   _pmath_clear(PMATH_SYMBOL_MESSAGECOUNT, FALSE);

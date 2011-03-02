@@ -17,7 +17,7 @@ PMATH_PRIVATE pmath_t builtin_remove(pmath_expr_t expr){
   
   for(i = 1;i <= exprlen;++i){
     pmath_t item = pmath_expr_get_item(expr, i);
-    expr = pmath_expr_set_item(expr, i, NULL);
+    expr = pmath_expr_set_item(expr, i, PMATH_NULL);
     
     if(pmath_is_symbol(item)){
       pmath_symbol_remove(item);
@@ -46,13 +46,13 @@ PMATH_PRIVATE pmath_t builtin_remove(pmath_expr_t expr){
       pmath_unref(item);
     }
     else{
-      pmath_message(NULL, "ssym", 1, item);
+      pmath_message(PMATH_NULL, "ssym", 1, item);
     }
   }
   
 //  for(i = pmath_expr_length(expr);i > 0;--i){
 //    item = pmath_expr_get_item(expr, i);
-//    expr = pmath_expr_set_item(expr, i, NULL);
+//    expr = pmath_expr_set_item(expr, i, PMATH_NULL);
 //    
 //    if(pmath_is_symbol(item)){
 //      sym = item;
@@ -61,15 +61,15 @@ PMATH_PRIVATE pmath_t builtin_remove(pmath_expr_t expr){
 //      sym = pmath_symbol_find(pmath_ref(item), FALSE);
 //      
 //      if(!sym){
-//        pmath_message(NULL, "notfound", 1, item);
+//        pmath_message(PMATH_NULL, "notfound", 1, item);
 //        continue;
 //      }
 //      
 //      pmath_unref(item);
 //    }
 //    else{
-//      sym = NULL;
-//      pmath_message(NULL, "ssym", 1, item);
+//      sym = PMATH_NULL;
+//      pmath_message(PMATH_NULL, "ssym", 1, item);
 //      continue;
 //    }
 //    
@@ -77,5 +77,5 @@ PMATH_PRIVATE pmath_t builtin_remove(pmath_expr_t expr){
 //  }
   
   pmath_unref(expr);
-  return NULL;
+  return PMATH_NULL;
 }

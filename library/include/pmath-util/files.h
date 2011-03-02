@@ -191,7 +191,7 @@ typedef struct{
   size_t struct_size;
   
   /**\brief A function to get the current file status
-     This can be NULL if read_function is also NULL.
+     This can be PMATH_NULL if read_function is also PMATH_NULL.
    */
   pmath_files_status_t (*status_function)(void *extra);
   
@@ -240,7 +240,7 @@ typedef struct{
   size_t struct_size;
   
   /**\brief A function to get the current file status
-     This can be NULL if read_function is also NULL.
+     This can be PMATH_NULL if read_function is also PMATH_NULL.
    */
   pmath_files_status_t (*status_function)(void *extra);
   

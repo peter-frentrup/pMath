@@ -20,16 +20,16 @@ PMATH_PRIVATE pmath_t builtin_and(pmath_expr_t expr){
       }
       
       if(pmath_same(item, PMATH_SYMBOL_TRUE)){
-        expr = pmath_expr_set_item(expr, i, NULL);
+        expr = pmath_expr_set_item(expr, i, PMATH_NULL);
         have_null = TRUE;
       }
       else
-        have_null|= item == NULL;
+        have_null|= item == PMATH_NULL;
       
       pmath_unref(item);
     }
     if(have_null)
-      return _pmath_expr_shrink_associative(expr, NULL);
+      return _pmath_expr_shrink_associative(expr, PMATH_NULL);
     return expr;
   }
 

@@ -75,7 +75,7 @@ PMATH_API void pmath_span_array_free(pmath_span_array_t *spans);
 /**\brief Get a span-array's length.
    \memberof pmath_span_array_t
    \param spans The span-array.
-   \return Its length or 0 if it's NULL.
+   \return Its length or 0 if it's PMATH_NULL.
  */
 PMATH_API int pmath_span_array_length(pmath_span_array_t *spans);
 
@@ -106,14 +106,14 @@ PMATH_API pmath_bool_t pmath_span_array_is_operator_start(
    \param spans The span-array.
    \param pos The position. Must be between <tt>0</tt> and 
           <tt>pmath_span_array_length(spans)-1</tt>.
-   \return The largest span stating at \a pos or NULL if there is no span.
+   \return The largest span stating at \a pos or PMATH_NULL if there is no span.
  */
 PMATH_API pmath_span_t *pmath_span_at(pmath_span_array_t *spans, int pos);
 
 /**\brief Get the next-shorter span starting at the same position.
    \memberof pmath_span_t
    \param span A span.
-   \return The next-shorter span stating at \a pos or NULL if there is no span.
+   \return The next-shorter span stating at \a pos or PMATH_NULL if there is no span.
  */
 PMATH_API pmath_span_t *pmath_span_next(pmath_span_t *span);
 
@@ -135,14 +135,14 @@ PMATH_API int pmath_span_end(pmath_span_t *span);
           OverscriptBox or UnderoverscriptBox at a given position in the code 
           (indicated by the PMATH_CHAR_BOX character) its base (e.g. middle part 
           of UnderoverscriptBox) should be returned by this function, otherwise 
-          NULL should be returned.
+          PMATH_NULL should be returned.
    \param error A function that will be called on syntax errors. 
           The first argument is \c *code. It must not be freed. 
           The second argument is the position in the code.
           The third argument is \a data
           The fourth argument is TRUE if the error is critical and FALSE if it
           is just a warning (Syntax::newl)
-          This function is optional, if it is NULL, no messages will be 
+          This function is optional, if it is PMATH_NULL, no messages will be 
           generated during the scanning.
    \param data An arbitrary pointer, that will be provided as the last argument
           to the callback functions.

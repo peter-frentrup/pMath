@@ -187,7 +187,7 @@ static pmath_t symbolic_det(pmath_expr_t matrix){ // matrix will be freed
   perm = pmath_mem_alloc(sizeof(size_t) * n);
   if(!perm){
     pmath_unref(matrix);
-    return NULL;
+    return PMATH_NULL;
   }
   
   for(i = 0;i < n;++i)
@@ -288,7 +288,7 @@ PMATH_PRIVATE pmath_t builtin_det(pmath_expr_t expr){
   if(!_pmath_is_matrix(matrix, &rows, &cols)
   || rows != cols
   || rows == 0){
-    pmath_message(NULL, "matsq", 2, matrix, pmath_integer_new_si(1));
+    pmath_message(PMATH_NULL, "matsq", 2, matrix, pmath_integer_new_si(1));
     return expr;
   }
   
@@ -303,7 +303,7 @@ PMATH_PRIVATE pmath_t builtin_det(pmath_expr_t expr){
     perm = pmath_mem_alloc(sizeof(size_t) * rows);
     if(!perm){
       pmath_unref(matrix);
-      return NULL;
+      return PMATH_NULL;
     }
     
     sgn = _pmath_matrix_ludecomp(&matrix, perm, TRUE);
@@ -314,12 +314,12 @@ PMATH_PRIVATE pmath_t builtin_det(pmath_expr_t expr){
     }
     
     pmath_mem_free(perm);
-    pmath_gather_begin(NULL);
+    pmath_gather_begin(PMATH_NULL);
     if(sgn < 0)
-      pmath_emit(pmath_integer_new_si(-1), NULL);
+      pmath_emit(pmath_integer_new_si(-1), PMATH_NULL);
       
     for(cols = 1;cols <= rows;++cols){
-      pmath_emit(_pmath_matrix_get(matrix, cols, cols), NULL);
+      pmath_emit(_pmath_matrix_get(matrix, cols, cols), PMATH_NULL);
     }
     
     pmath_unref(matrix);

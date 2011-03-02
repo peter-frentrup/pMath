@@ -36,7 +36,7 @@ static pmath_t stringreplace(
       return PMATH_UNDEFINED;
     }
     
-    pmath_gather_begin(NULL);
+    pmath_gather_begin(PMATH_NULL);
     offset = last = 0;
     
     more = TRUE;
@@ -82,13 +82,13 @@ static pmath_t stringreplace(
             pmath_string_from_utf8(
               subject + last,
               capture_list[next_match_rule].ovector[0] - last),
-            NULL);
+            PMATH_NULL);
         }
         
         if(!pmath_same(first_rhs, PMATH_UNDEFINED))
-          pmath_emit(first_rhs, NULL);
+          pmath_emit(first_rhs, PMATH_NULL);
         
-        first_rhs = NULL;
+        first_rhs = PMATH_NULL;
         --max_matches;
         
         last = capture_list[next_match_rule].ovector[1];
@@ -107,7 +107,7 @@ static pmath_t stringreplace(
         pmath_string_from_utf8(
           subject + last,
           length - last),
-        NULL);
+        PMATH_NULL);
     }
     
     pmath_unref(obj);
@@ -125,7 +125,7 @@ static pmath_t stringreplace(
     size_t i;
     for(i = 1;i <= pmath_expr_length(obj);++i){
       pmath_t item = pmath_expr_get_item(obj, i);
-      obj = pmath_expr_set_item(obj, i, NULL);
+      obj = pmath_expr_set_item(obj, i, PMATH_NULL);
       
       item = stringreplace(item, regex_list, capture_list, rhs_list, max_matches, options);
       
@@ -178,7 +178,7 @@ static pmath_t replace_all(
       pmath_t lhs, rhs;
       
       if(!_pmath_is_rule(rule_i)){
-        pmath_message(NULL, "srep", 1, rule_i);
+        pmath_message(PMATH_NULL, "srep", 1, rule_i);
         pmath_unref(rules);
         pmath_unref(obj);
         
@@ -219,9 +219,9 @@ static pmath_t replace_all(
     obj = stringreplace(obj, regex_list, capture_list, rules, max_matches, sr_options);
     
     if(pmath_same(obj, PMATH_UNDEFINED)){
-      pmath_message(NULL, "strse", 2, pmath_integer_new_si(1), pmath_ref(expr));
+      pmath_message(PMATH_NULL, "strse", 2, pmath_integer_new_si(1), pmath_ref(expr));
       obj = expr;
-      expr = NULL;
+      expr = PMATH_NULL;
     }
   }
   
@@ -260,7 +260,7 @@ PMATH_PRIVATE pmath_t builtin_stringreplace(pmath_expr_t expr){
     }
     else if(!_pmath_is_rule(obj) && !_pmath_is_list_of_rules(obj)){
       pmath_unref(obj);
-      pmath_message(NULL, "intnm", 2, pmath_integer_new_si(3), pmath_ref(expr));
+      pmath_message(PMATH_NULL, "intnm", 2, pmath_integer_new_si(3), pmath_ref(expr));
       return expr;
     }
   }
@@ -271,17 +271,17 @@ PMATH_PRIVATE pmath_t builtin_stringreplace(pmath_expr_t expr){
   
   
   options = pmath_options_extract(expr, last_nonoption);
-  if(!options)
+  if(pmath_is_null(options))
     return expr;
   
   regex_options = 0;
-  obj = pmath_option_value(NULL, PMATH_SYMBOL_IGNORECASE, options);
+  obj = pmath_option_value(PMATH_NULL, PMATH_SYMBOL_IGNORECASE, options);
   if(pmath_same(obj, PMATH_SYMBOL_TRUE)){
     regex_options|= PCRE_CASELESS;
   }
   else if(!pmath_same(obj, PMATH_SYMBOL_FALSE)){
     pmath_message(
-      NULL, "opttf", 2,
+      PMATH_NULL, "opttf", 2,
       pmath_ref(PMATH_SYMBOL_IGNORECASE),
       obj);
     pmath_unref(options);
@@ -331,7 +331,7 @@ PMATH_PRIVATE pmath_t builtin_stringsplit(pmath_expr_t expr){
     }
     else if(!_pmath_is_rule(obj) && !_pmath_is_list_of_rules(obj)){
       pmath_unref(obj);
-      pmath_message(NULL, "intpm", 2, pmath_ref(expr), pmath_integer_new_si(3));
+      pmath_message(PMATH_NULL, "intpm", 2, pmath_ref(expr), pmath_integer_new_si(3));
       return expr;
     }
   }
@@ -345,17 +345,17 @@ PMATH_PRIVATE pmath_t builtin_stringsplit(pmath_expr_t expr){
   
   
   options = pmath_options_extract(expr, last_nonoption);
-  if(!options)
+  if(pmath_is_null(options))
     return expr;
   
   regex_options = 0;
-  obj = pmath_option_value(NULL, PMATH_SYMBOL_IGNORECASE, options);
+  obj = pmath_option_value(PMATH_NULL, PMATH_SYMBOL_IGNORECASE, options);
   if(pmath_same(obj, PMATH_SYMBOL_TRUE)){
     regex_options|= PCRE_CASELESS;
   }
   else if(!pmath_same(obj, PMATH_SYMBOL_FALSE)){
     pmath_message(
-      NULL, "opttf", 2,
+      PMATH_NULL, "opttf", 2,
       pmath_ref(PMATH_SYMBOL_IGNORECASE),
       obj);
     pmath_unref(options);

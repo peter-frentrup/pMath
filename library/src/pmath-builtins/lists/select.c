@@ -27,7 +27,7 @@ PMATH_PRIVATE pmath_t builtin_select(pmath_expr_t expr){
   
   list = pmath_expr_get_item(expr, 1);
   if(!pmath_is_expr(list)){
-    pmath_message(NULL, "nexprat", 2, pmath_integer_new_si(1), pmath_ref(expr));
+    pmath_message(PMATH_NULL, "nexprat", 2, pmath_integer_new_si(1), pmath_ref(expr));
     return expr;
   }
   
@@ -45,7 +45,7 @@ PMATH_PRIVATE pmath_t builtin_select(pmath_expr_t expr){
     && !_pmath_is_list_of_rules(n)){
       pmath_unref(n);
       pmath_unref(list);
-      pmath_message(NULL, "innf", 2, pmath_integer_new_si(4), pmath_ref(expr));
+      pmath_message(PMATH_NULL, "innf", 2, pmath_integer_new_si(4), pmath_ref(expr));
       return expr;
     }
     

@@ -37,5 +37,5 @@ PMATH_PRIVATE pmath_t builtin_for(pmath_expr_t expr){
   }
 
   pmath_unref(expr);
-  return NULL;
+  return PMATH_NULL;
 }

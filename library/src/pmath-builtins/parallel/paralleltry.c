@@ -56,7 +56,7 @@ static void parallel_try(void *ptr){
           break;
         }
         
-        assert(info->results[ri] == NULL);
+        assert(info->results[ri] == PMATH_NULL);
         info->results[ri] = obj;
       }
       else
@@ -98,7 +98,7 @@ PMATH_PRIVATE pmath_t builtin_paralleltry(pmath_expr_t expr){
     
     if(!pmath_is_integer(count) || !pmath_integer_fits_ui(count)){
       pmath_unref(count);
-      pmath_message(NULL, "intnm", 2, 
+      pmath_message(PMATH_NULL, "intnm", 2, 
         pmath_integer_new_si(3), 
         pmath_ref(expr));
       return expr;
@@ -113,7 +113,7 @@ PMATH_PRIVATE pmath_t builtin_paralleltry(pmath_expr_t expr){
   result = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), info.results_count);
   if(!result){
     pmath_unref(expr);
-    return NULL;
+    return PMATH_NULL;
   }
   
   assert(result->refcount == 1);
@@ -126,7 +126,7 @@ PMATH_PRIVATE pmath_t builtin_paralleltry(pmath_expr_t expr){
   if(!pmath_is_expr(info.items)){
     pmath_unref(info.items);
     pmath_unref(result);
-    pmath_message(NULL, "nexprat", 2,
+    pmath_message(PMATH_NULL, "nexprat", 2,
       pmath_integer_new_si(1),
       pmath_ref(expr));
     return expr;
@@ -152,7 +152,7 @@ PMATH_PRIVATE pmath_t builtin_paralleltry(pmath_expr_t expr){
       parallel_try,
       dummy,
       &info,
-      NULL);
+      PMATH_NULL);
   }
 
   for(i = 0;i < (size_t)task_count;++i){
@@ -176,7 +176,7 @@ PMATH_PRIVATE pmath_t builtin_paralleltry(pmath_expr_t expr){
   pmath_atomic_barrier();
   
   if((size_t)info.result_index < info.results_count){
-    pmath_message(NULL, "toofew", 2, 
+    pmath_message(PMATH_NULL, "toofew", 2, 
       pmath_integer_new_si(info.result_index),
       pmath_integer_new_size(info.results_count));
     

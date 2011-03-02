@@ -33,7 +33,7 @@ typedef pmath_t pmath_string_t;
 /**\brief Create an empty pMath String.
    \memberof pmath_string_t
    \param capacity The initial capacity of the string. Must not be negative.
-   \return A new pMath String or NULL on failure. You must destroy it.
+   \return A new pMath String or PMATH_NULL on failure. You must destroy it.
  */
 PMATH_API 
 PMATH_ATTRIBUTE_USE_RESULT
@@ -41,13 +41,13 @@ pmath_string_t pmath_string_new(int capacity);
 
 /**\brief Insert an Latin-1 encoded buffer into a pMath String.
    \memberof pmath_string_t
-   \param str A pMath String or NULL. It will be freed.
+   \param str A pMath String or PMATH_NULL. It will be freed.
    \param inspos The position, at which \c ins should be inserted in \c str.
    \param ins A byte string.
    \param inslen The length of \c ins or -1 if it is zero-terminated.
-   \return NULL on failure or a pMath String. You must destroy it.
+   \return PMATH_NULL on failure or a pMath String. You must destroy it.
 
-   If \c str is NULL, it is assumed to be the empty string.
+   If \c str is PMATH_NULL, it is assumed to be the empty string.
    The result is equivalent to a call to pmath_string_insert_codepage() with a
    codepage that translates every byte \b b to \b (uint16_t)(unsigned char)b.
  */
@@ -63,7 +63,7 @@ pmath_string_t pmath_string_insert_latin1(
    \memberof pmath_string_t
    \param str A byte string. It wont be freed.
    \param len The byte-length of \c ins or -1 if it is zero-terminated.
-   \return NULL on failure or a pMath String. You must destroy it.
+   \return PMATH_NULL on failure or a pMath String. You must destroy it.
  */
 PMATH_API 
 PMATH_ATTRIBUTE_USE_RESULT
@@ -76,7 +76,7 @@ pmath_string_t pmath_string_from_utf8(
    \param str A pMath string. It wont be freed.
    \param result_len Position, where the string length of the returned buffer
           may be stored.
-   \return A zero-terminated UTF-8  string or NULL on error. You have to free
+   \return A zero-terminated UTF-8  string or PMATH_NULL on error. You have to free
            the memory with pmath_mem_free(result, *size_ptr).
    
    \note pMath strings may contain embedded '\0', but C strings may not. 
@@ -94,7 +94,7 @@ char *pmath_string_to_utf8(
    \memberof pmath_string_t
    \param str A byte string. It wont be freed.
    \param len The byte-length of \c ins or -1 if it is zero-terminated.
-   \return NULL on failure or a pMath String. You must destroy it.
+   \return PMATH_NULL on failure or a pMath String. You must destroy it.
  */
 PMATH_API 
 PMATH_ATTRIBUTE_USE_RESULT
@@ -108,7 +108,7 @@ pmath_string_t pmath_string_from_native(
    \param str A pMath string. It wont be freed.
    \param result_len Position, where the string length of the returned buffer
           may be stored.
-   \return A zero terminated string or NULL on error. You have to free the 
+   \return A zero terminated string or PMATH_NULL on error. You have to free the 
            memory with pmath_mem_free(result, *size_ptr).
    
    \note pMath strings may contain embedded '\0', but C strings may not. 
@@ -168,19 +168,19 @@ void pmath_native_writer(void *user, const uint16_t *data, int len);
    
    This is a wrapper macro around pmath_string_insert_latin1().
  */
-#define PMATH_C_STRING(cstr) pmath_string_insert_latin1(NULL, 0, (cstr), -1)
+#define PMATH_C_STRING(cstr) pmath_string_insert_latin1(PMATH_NULL, 0, (cstr), -1)
 
 /**\brief Insert a byte string into a pMath string using a translation array.
    \memberof pmath_string_t
-   \param str A pMath String or NULL. It will be freed.
+   \param str A pMath String or PMATH_NULL. It will be freed.
    \param inspos The position, at which \c ins should be inserted in \c str.
    \param ins A byte string.
    \param inslen The length of \c ins or -1 if it is zero-terminated.
    \param cp An array of 256 uint16_t values that are used to convert bytes to
           UCS-2 characters.
-   \return NULL on failure or a pMath String. You must destroy it.
+   \return PMATH_NULL on failure or a pMath String. You must destroy it.
 
-   If \c str is NULL, it is assumed to be the empty string.
+   If \c str is PMATH_NULL, it is assumed to be the empty string.
  */
 PMATH_API 
 PMATH_ATTRIBUTE_USE_RESULT
@@ -193,13 +193,13 @@ pmath_string_t pmath_string_insert_codepage(
 
 /**\brief Insert a UCS-2 buffer into a pMath String.
    \memberof pmath_string_t
-   \param str A pMath String or NULL. It will be freed.
+   \param str A pMath String or PMATH_NULL. It will be freed.
    \param inspos The position, at which \c ins should be inserted in \c str.
    \param ins A uint16_t string. This is \em not a wchar_t string.
    \param inslen The length of \c ins or -1 if it is zero-terminated.
-   \return NULL on failure or a pMath String. You must destroy it.
+   \return PMATH_NULL on failure or a pMath String. You must destroy it.
 
-   If \c str is NULL, it is assumed to be the empty string.
+   If \c str is PMATH_NULL, it is assumed to be the empty string.
  */
 PMATH_API 
 PMATH_ATTRIBUTE_USE_RESULT
@@ -211,10 +211,10 @@ pmath_string_t pmath_string_insert_ucs2(
 
 /**\brief Insert one pMath String into another pMath String.
    \memberof pmath_string_t
-   \param str A pMath String or NULL. It will be freed.
+   \param str A pMath String or PMATH_NULL. It will be freed.
    \param inspos The position, at which \c ins should be inserted in \c str.
-   \param ins A pMath String or NULL. It will be freed.
-   \return NULL on failure or a pMath String. You must destroy it.
+   \param ins A pMath String or PMATH_NULL. It will be freed.
+   \return PMATH_NULL on failure or a pMath String. You must destroy it.
  */
 PMATH_API 
 PMATH_ATTRIBUTE_USE_RESULT
@@ -227,10 +227,10 @@ pmath_string_t pmath_string_insert(
    \memberof pmath_string_t
    \param prefix A pMath String. It will be freed.
    \param postfix A pMath String. It will be freed.
-   \return NULL on failure or a pMath String that consists of \c prefix followed
+   \return PMATH_NULL on failure or a pMath String that consists of \c prefix followed
            by \c postfix. You must destroy it.
 
-   If one of the two strings is NULL, the other string will be returned.
+   If one of the two strings is PMATH_NULL, the other string will be returned.
  */
 PMATH_API 
 PMATH_ATTRIBUTE_USE_RESULT
@@ -244,7 +244,7 @@ pmath_string_t pmath_string_concat(
    \param start the substring's start index.
    \param length the substring's length or -1 for the whole substring beginng
           at start.
-   \return NULL on failure or a pMath String.
+   \return PMATH_NULL on failure or a pMath String.
 
    If start or start+length are out of bounds, thy will be truncated, the the
    resulting string's length is not neccesaryly \c length.

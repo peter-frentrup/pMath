@@ -221,7 +221,7 @@ PMATH_PRIVATE pmath_t builtin_ordering(pmath_expr_t expr){
   context.list = (pmath_expr_t)pmath_expr_get_item(expr, 1);
   if(!pmath_is_expr(context.list)){
     pmath_unref(context.list);
-    pmath_message(NULL, "nexprat", 2, pmath_integer_new_si(1), pmath_ref(expr));
+    pmath_message(PMATH_NULL, "nexprat", 2, pmath_integer_new_si(1), pmath_ref(expr));
     return expr;
   }
   
@@ -237,7 +237,7 @@ PMATH_PRIVATE pmath_t builtin_ordering(pmath_expr_t expr){
     context.cmp     = ordering_user_cmp;
   }
   else{
-    context.cmp_ctx = NULL;
+    context.cmp_ctx = PMATH_NULL;
     context.cmp     = ordering_default_cmp;
   }
   
@@ -311,7 +311,7 @@ PMATH_PRIVATE pmath_t builtin_sort(pmath_expr_t expr){
   list = (pmath_expr_t)pmath_expr_get_item(expr, 1);
   if(!pmath_is_expr(list)){
     pmath_unref(list);
-    pmath_message(NULL, "nexprat", 2, pmath_integer_new_si(1), pmath_ref(expr));
+    pmath_message(PMATH_NULL, "nexprat", 2, pmath_integer_new_si(1), pmath_ref(expr));
     return expr;
   }
 
@@ -337,8 +337,8 @@ static int sortby_cmp(const void *a, const void *b){
   pmath_t objA, objB;
   int cmp;
   
-  assert(*(pmath_t*)a == NULL || pmath_is_expr(*(pmath_t*)a));
-  assert(*(pmath_t*)b == NULL || pmath_is_expr(*(pmath_t*)b));
+  assert(*(pmath_t*)a == PMATH_NULL || pmath_is_expr(*(pmath_t*)a));
+  assert(*(pmath_t*)b == PMATH_NULL || pmath_is_expr(*(pmath_t*)b));
 
   objA = pmath_expr_get_item(*(pmath_expr_t*)a, 0);
   objB = pmath_expr_get_item(*(pmath_expr_t*)b, 0);
@@ -373,7 +373,7 @@ PMATH_PRIVATE pmath_t builtin_sortby(pmath_expr_t expr){
   list = (pmath_expr_t)pmath_expr_get_item(expr, 1);
   if(!pmath_is_expr(list)){
     pmath_unref(list);
-    pmath_message(NULL, "nexprat", 2, pmath_integer_new_si(1), pmath_ref(expr));
+    pmath_message(PMATH_NULL, "nexprat", 2, pmath_integer_new_si(1), pmath_ref(expr));
     return expr;
   }
   

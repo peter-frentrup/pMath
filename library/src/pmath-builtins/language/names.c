@@ -38,7 +38,7 @@ PMATH_PRIVATE pmath_t builtin_names(pmath_expr_t expr){
 
   pmath_unref(expr);
 
-  pmath_gather_begin(NULL);
+  pmath_gather_begin(PMATH_NULL);
 
   {
     pmath_symbol_t sym = pmath_ref(PMATH_SYMBOL_LIST);
@@ -49,7 +49,7 @@ PMATH_PRIVATE pmath_t builtin_names(pmath_expr_t expr){
         pmath_debug_print_object("removed: ", sym, "\n");
       }
       else{
-        pmath_emit(pmath_symbol_name(sym), NULL);
+        pmath_emit(pmath_symbol_name(sym), PMATH_NULL);
       }
       
       sym = pmath_symbol_iter_next(sym);

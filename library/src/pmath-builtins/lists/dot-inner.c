@@ -46,7 +46,7 @@ pmath_t _pmath_tensor_set(
   }
   
   ti = pmath_expr_get_item(tensor, idx[0]);
-  tensor = pmath_expr_set_item(tensor, idx[0], NULL);
+  tensor = pmath_expr_set_item(tensor, idx[0], PMATH_NULL);
   
   return pmath_expr_set_item(
     tensor, idx[0], 
@@ -79,7 +79,7 @@ static pmath_t make_tensor(pmath_t head, size_t dims, const size_t *lens){
   size_t i;
   
   if(dims == 0)
-    return NULL;
+    return PMATH_NULL;
   
   result = pmath_expr_new(pmath_ref(head), lens[0]);
   t = make_tensor(head, dims-1, lens+1);
@@ -116,7 +116,7 @@ static pmath_bool_t init(struct _inner_info_t *info, pmath_t t1, pmath_t t2){
     info->n = info->dim1;
   
   if(info->dim1 < info->n){
-    pmath_message(NULL, "nolev", 3,
+    pmath_message(PMATH_NULL, "nolev", 3,
       pmath_integer_new_size(info->n),
       pmath_ref(t1),
       d1);
@@ -133,7 +133,7 @@ static pmath_bool_t init(struct _inner_info_t *info, pmath_t t1, pmath_t t2){
   obj1 = pmath_expr_get_item(d1, info->n);
   obj2 = pmath_expr_get_item(d2, 1);
   if(!pmath_equals(obj1, obj2)){
-    pmath_message(NULL, "shape", 5,
+    pmath_message(PMATH_NULL, "shape", 5,
       obj1,
       pmath_integer_new_size(info->n),
       pmath_ref(t1),
@@ -347,7 +347,7 @@ PMATH_PRIVATE pmath_t builtin_inner(pmath_expr_t expr){
     pmath_t obj = pmath_expr_get_item(expr, 5);
     
     if(!pmath_is_integer(obj) || !pmath_integer_fits_ui(obj)){
-      pmath_message(NULL, "intpm", 2,
+      pmath_message(PMATH_NULL, "intpm", 2,
         pmath_ref(expr),
         pmath_integer_new_si(5));
       
@@ -366,7 +366,7 @@ PMATH_PRIVATE pmath_t builtin_inner(pmath_expr_t expr){
     info.n = SIZE_MAX;
   
   if(!pmath_is_expr(t1)){
-    pmath_message(NULL, "nexprat", 2, pmath_integer_new_si(2), pmath_ref(expr));
+    pmath_message(PMATH_NULL, "nexprat", 2, pmath_integer_new_si(2), pmath_ref(expr));
     pmath_unref(info.f);
     pmath_unref(info.g);
     pmath_unref(t1);
@@ -375,7 +375,7 @@ PMATH_PRIVATE pmath_t builtin_inner(pmath_expr_t expr){
   }
   
   if(!pmath_is_expr(t2)){
-    pmath_message(NULL, "nexprat", 2, pmath_integer_new_si(3), pmath_ref(expr));
+    pmath_message(PMATH_NULL, "nexprat", 2, pmath_integer_new_si(3), pmath_ref(expr));
     pmath_unref(info.f);
     pmath_unref(info.g);
     pmath_unref(t1);
@@ -386,7 +386,7 @@ PMATH_PRIVATE pmath_t builtin_inner(pmath_expr_t expr){
   head1 = pmath_expr_get_item(t1, 0);
   head2 = pmath_expr_get_item(t2, 0);
   if(!pmath_equals(head1, head2)){
-    pmath_message(NULL, "heads", 4,
+    pmath_message(PMATH_NULL, "heads", 4,
       head1, 
       head2,
       pmath_integer_new_si(2),

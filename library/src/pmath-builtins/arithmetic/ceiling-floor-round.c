@@ -49,131 +49,136 @@ PMATH_PRIVATE pmath_t builtin_ceiling_or_floor_or_round(
     }
     
     if(pmath_instance_of(x, PMATH_TYPE_QUOTIENT)){
-      struct _pmath_integer_t *result = _pmath_create_integer();
+      pmath_integer_t result = _pmath_create_integer();
       pmath_unref(expr);
-      if(!result){
+      if(pmath_is_null(result)){
         pmath_unref(x);
         pmath_unref(head);
-        return NULL;
+        return PMATH_NULL;
       }
 
       if(pmath_same(head, PMATH_SYMBOL_CEILING)){
-        mpz_cdiv_q(result->value,
-          ((struct _pmath_quotient_t*)x)->numerator->value,
-          ((struct _pmath_quotient_t*)x)->denominator->value);
+        mpz_cdiv_q(
+          PMATH_AS_MPZ(result),
+          PMATH_AS_MPZ(PMATH_QUOT_NUM(x)),
+          PMATH_AS_MPZ(PMATH_QUOT_DEN(x)));
       }
       else if(pmath_same(head, PMATH_SYMBOL_FLOOR)){
-        mpz_fdiv_q(result->value,
-          ((struct _pmath_quotient_t*)x)->numerator->value,
-          ((struct _pmath_quotient_t*)x)->denominator->value);
+        mpz_fdiv_q(
+          PMATH_AS_MPZ(result),
+          PMATH_AS_MPZ(PMATH_QUOT_NUM(x)),
+          PMATH_AS_MPZ(PMATH_QUOT_DEN(x)));
       }
       else{
         pmath_bool_t even;
         int cmp;
-        struct _pmath_integer_t *rem = _pmath_create_integer();
-        struct _pmath_integer_t *half = _pmath_create_integer();
+        pmath_integer_t rem = _pmath_create_integer();
+        pmath_integer_t half = _pmath_create_integer();
         
-        if(rem && half){
-          mpz_fdiv_qr(result->value, rem->value,
-            ((struct _pmath_quotient_t*)x)->numerator->value,
-            ((struct _pmath_quotient_t*)x)->denominator->value);
+        if(!pmath_is_null(rem) && !pmath_is_null(half)){
+          mpz_fdiv_qr(
+            PMATH_AS_MPZ(result),
+            PMATH_AS_MPZ(rem),
+            PMATH_AS_MPZ(PMATH_QUOT_NUM(x)),
+            PMATH_AS_MPZ(PMATH_QUOT_DEN(x)));
           
-          even = mpz_even_p(((struct _pmath_quotient_t*)x)->denominator->value);
+          even = mpz_even_p(PMATH_AS_MPZ(PMATH_QUOT_DEN(x)));
           
-          mpz_fdiv_q_2exp(half->value, 
-            ((struct _pmath_quotient_t*)x)->denominator->value,
+          mpz_fdiv_q_2exp(
+            PMATH_AS_MPZ(half), 
+            PMATH_AS_MPZ(PMATH_QUOT_DEN(x)),
             1);
           
-          cmp = mpz_cmp(rem->value, half->value);
+          cmp = mpz_cmp(PMATH_AS_MPZ(rem), PMATH_AS_MPZ(half));
           if(cmp > 0
-          || (cmp == 0 && even && mpz_odd_p(result->value))){
-            mpz_add_ui(result->value, result->value, 1);
+          || (cmp == 0 && even && mpz_odd_p(PMATH_AS_MPZ(result)))){
+            mpz_add_ui(PMATH_AS_MPZ(result), PMATH_AS_MPZ(result), 1);
           }
         }
         else{
-          pmath_unref((pmath_integer_t)result);
-          result = NULL;
+          pmath_unref(result);
+          result = PMATH_NULL;
         }
         
-        pmath_unref((pmath_integer_t)rem);
-        pmath_unref((pmath_integer_t)half);
+        pmath_unref(rem);
+        pmath_unref(half);
       }
       pmath_unref(x);
       pmath_unref(head);
-      return (pmath_integer_t)result;
+      return result;
     }
     
     if(pmath_instance_of(x, PMATH_TYPE_MACHINE_FLOAT)){
-      struct _pmath_integer_t *result = _pmath_create_integer();
+      pmath_integer_t result = _pmath_create_integer();
       pmath_unref(expr);
-      if(!result){
+      if(pmath_is_null(result)){
         pmath_unref(x);
         pmath_unref(head);
-        return NULL;
+        return PMATH_NULL;
       }
 
       if(pmath_same(head, PMATH_SYMBOL_CEILING)){
         mpz_set_d(
-          result->value,
-          ceil(((struct _pmath_machine_float_t*)x)->value));
+          PMATH_AS_MPZ(result),
+          ceil(PMATH_AS_DOUBLE(x)));
       }
       else if(pmath_same(head, PMATH_SYMBOL_FLOOR)){
         mpz_set_d(
-          result->value,
-          ((struct _pmath_machine_float_t*)x)->value);
+          PMATH_AS_MPZ(result),
+          PMATH_AS_DOUBLE(x));
       }
       else{
-        double f = floor(((struct _pmath_machine_float_t*)x)->value);
+        double f = floor(PMATH_AS_DOUBLE(x));
         
-        mpz_set_d(result->value, f);
-        f = ((struct _pmath_machine_float_t*)x)->value - f;
+        mpz_set_d(PMATH_AS_MPZ(result), f);
+        f = PMATH_AS_DOUBLE(x) - f;
         
         if(f > 0.5
-        || (f == 0.5 && mpz_odd_p(result->value))){
-          mpz_add_ui(result->value, result->value, 1);
+        || (f == 0.5 && mpz_odd_p(PMATH_AS_MPZ(result)))){
+          mpz_add_ui(PMATH_AS_MPZ(result), PMATH_AS_MPZ(result), 1);
         }
       }
       
       pmath_unref(x);
       pmath_unref(head);
-      return (pmath_t)result;
+      return result;
     }
 
     if(pmath_instance_of(x, PMATH_TYPE_MP_FLOAT)){
-      struct _pmath_integer_t *result = _pmath_create_integer();
+      pmath_integer_t result = _pmath_create_integer();
       pmath_unref(expr);
-      if(!result){
+      if(pmath_is_null(result)){
         pmath_unref(x);
         pmath_unref(head);
-        return NULL;
+        return PMATH_NULL;
       }
 
       if(pmath_same(head, PMATH_SYMBOL_CEILING)){
         mpfr_get_z(
-          result->value,
-          ((struct _pmath_mp_float_t*)x)->value,
+          PMATH_AS_MPZ(result),
+          PMATH_AS_MP_VALUE(x),
           GMP_RNDU);
       }
       else if(pmath_same(head, PMATH_SYMBOL_FLOOR)){
         mpfr_get_z(
-          result->value,
-          ((struct _pmath_mp_float_t*)x)->value,
+          PMATH_AS_MPZ(result),
+          PMATH_AS_MP_VALUE(x),
           GMP_RNDD);
       }
       else{
         mpfr_get_z(
-          result->value,
-          ((struct _pmath_mp_float_t*)x)->value,
+          PMATH_AS_MPZ(result),
+          PMATH_AS_MP_VALUE(x),
           GMP_RNDN);
       }
       
       pmath_unref(x);
       pmath_unref(head);
-      return (pmath_t)result;
+      return result;
     }
     
     {
-      expr = pmath_expr_set_item(expr, 1, NULL);
+      expr = pmath_expr_set_item(expr, 1, PMATH_NULL);
       x = pmath_approximate(x, HUGE_VAL, 2 * LOG2_10);
       
       if(pmath_instance_of(x, PMATH_TYPE_FLOAT)){

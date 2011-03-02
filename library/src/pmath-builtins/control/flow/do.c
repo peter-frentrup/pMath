@@ -20,8 +20,8 @@ PMATH_PRIVATE void _pmath_iterate(
   size_t count;
 
   if(_pmath_is_rule(iter)){
-    pmath_t                   start = NULL;
-    pmath_t                   delta = NULL;
+    pmath_t                   start = PMATH_NULL;
+    pmath_t                   delta = PMATH_NULL;
     pmath_symbol_t            sym;
     pmath_expr_t              range;
     pmath_symbol_attributes_t old_attr;
@@ -31,7 +31,7 @@ PMATH_PRIVATE void _pmath_iterate(
 
     if(!pmath_is_symbol(sym)){
       pmath_unref(sym);
-      pmath_message(NULL, "iter", 1, iter);
+      pmath_message(PMATH_NULL, "iter", 1, iter);
       return;
     }
 
@@ -78,7 +78,7 @@ PMATH_PRIVATE void _pmath_iterate(
       pmath_unref(start);
       pmath_unref(delta);
       pmath_unref(sym);
-      pmath_message(NULL, "iterb", 1, iter);
+      pmath_message(PMATH_NULL, "iterb", 1, iter);
       return;
     }
 
@@ -126,14 +126,14 @@ PMATH_PRIVATE void _pmath_iterate(
 
   if(!pmath_is_integer(iter)
   || !pmath_integer_fits_ui((pmath_integer_t)iter)){
-    pmath_message(NULL, "iterb", 1, iter);
+    pmath_message(PMATH_NULL, "iterb", 1, iter);
     return;
   }
 
   count = pmath_integer_get_ui((pmath_integer_t)iter);
 
   pmath_unref(iter);
-  init(count, NULL, data);
+  init(count, PMATH_NULL, data);
   ++count;
 
   while(--count > 0 && !pmath_thread_aborting(thread)){
@@ -182,7 +182,7 @@ PMATH_PRIVATE pmath_t builtin_do(pmath_expr_t expr){
 
   data.body = pmath_expr_get_item(expr, 1);
   data.started = FALSE;
-  data.result = NULL;
+  data.result = PMATH_NULL;
 
   _pmath_iterate(
     iter,
@@ -201,7 +201,7 @@ PMATH_PRIVATE pmath_t builtin_do(pmath_expr_t expr){
     
     if(len == 0){
       pmath_unref(data.result);
-      return NULL;
+      return PMATH_NULL;
     }
     
     if(len == 1){

@@ -12,7 +12,7 @@ static void write_to_file(FILE *file, const char *cstr){
   fwrite(cstr, 1, strlen(cstr), file);
 }
 
-static pmath_threadlock_t print_lock = NULL;
+static pmath_threadlock_t print_lock = PMATH_NULL;
   
 static void sectionprint_locked_callback(pmath_expr_t expr){
   pmath_cstr_writer_info_t info;
@@ -37,7 +37,7 @@ PMATH_PRIVATE pmath_t builtin_sectionprint(pmath_expr_t expr){
     expr);
   
   pmath_unref(expr);
-  return NULL;
+  return PMATH_NULL;
 }
 
 PMATH_PRIVATE pmath_t builtin_print(pmath_expr_t expr){

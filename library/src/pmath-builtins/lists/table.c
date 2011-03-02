@@ -47,7 +47,7 @@ PMATH_PRIVATE pmath_t builtin_table(pmath_expr_t expr){
 
   data.body = pmath_expr_get_item(expr, 1);
   data.started = FALSE;
-  data.result = NULL;
+  data.result = PMATH_NULL;
   data.i = 0;
 
   _pmath_iterate(

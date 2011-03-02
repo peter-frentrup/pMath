@@ -20,7 +20,7 @@ PMATH_PRIVATE pmath_t builtin_identitymatrix(pmath_expr_t expr){
   if(!pmath_is_integer(n_obj)
   || !pmath_integer_fits_ui(n_obj)
   || pmath_number_sign(n_obj) <= 0){
-    pmath_message(NULL, "intpm", 2, pmath_ref(expr), pmath_integer_new_si(1));
+    pmath_message(PMATH_NULL, "intpm", 2, pmath_ref(expr), pmath_integer_new_si(1));
     pmath_unref(n_obj);
     return expr;
   }

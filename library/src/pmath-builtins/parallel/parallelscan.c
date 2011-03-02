@@ -26,7 +26,7 @@ static void parallel_scan(struct parallel_scan_info_t *info){
   
   info2.with_heads = FALSE;
   info2.function = info->function;
-  info2.result = NULL;
+  info2.result = PMATH_NULL;
   info2.levelmin = info->levelmin;
   info2.levelmax = info->levelmax;
   
@@ -93,7 +93,7 @@ PMATH_PRIVATE pmath_t builtin_parallelscan(pmath_expr_t expr){
     pmath_t levels = pmath_expr_get_item(expr, 3);
     
     if(!_pmath_extract_levels(levels, &info.levelmin, &info.levelmax)){
-      pmath_message(NULL, "level", 1, levels);
+      pmath_message(PMATH_NULL, "level", 1, levels);
       return expr;
     }
     
@@ -129,7 +129,7 @@ PMATH_PRIVATE pmath_t builtin_parallelscan(pmath_expr_t expr){
           (pmath_callback_t)parallel_scan,
           dummy,
           &info,
-          NULL);
+          PMATH_NULL);
       }
       
       for(i = 0;i < (size_t)task_count;++i){
@@ -140,7 +140,7 @@ PMATH_PRIVATE pmath_t builtin_parallelscan(pmath_expr_t expr){
       exception = pmath_catch();
       if(!pmath_same(exception, PMATH_UNDEFINED)){
         pmath_unref(obj);
-        obj = NULL;
+        obj = PMATH_NULL;
         
         if(pmath_is_expr_of_len(exception, PMATH_SYMBOL_PARALLEL_RETURN, 1)){
           obj = pmath_expr_get_item(exception, 1);
@@ -163,7 +163,7 @@ PMATH_PRIVATE pmath_t builtin_parallelscan(pmath_expr_t expr){
     struct _pmath_scan_info_t info2;
     info2.with_heads = FALSE;
     info2.function = info.function;
-    info2.result = NULL;
+    info2.result = PMATH_NULL;
     info2.levelmin = info.levelmin;
     info2.levelmax = info.levelmax;
     
@@ -184,5 +184,5 @@ PMATH_PRIVATE pmath_t builtin_parallelscan(pmath_expr_t expr){
   }
   
   pmath_unref(obj);
-  return NULL;
+  return PMATH_NULL;
 }

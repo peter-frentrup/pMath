@@ -37,7 +37,7 @@ PMATH_PRIVATE pmath_t builtin_assign_messages(pmath_expr_t expr){
   
   if(!pmath_same(tag, PMATH_UNDEFINED)
   && !pmath_same(tag, sym)){
-    pmath_message(NULL, "tag", 3, tag, lhs, sym);
+    pmath_message(PMATH_NULL, "tag", 3, tag, lhs, sym);
     
     pmath_unref(expr);
     pmath_unref(rhs);
@@ -51,7 +51,7 @@ PMATH_PRIVATE pmath_t builtin_assign_messages(pmath_expr_t expr){
     sym = pmath_symbol_find(sym, FALSE);
   
   if(!pmath_is_symbol(sym)){
-    pmath_message(NULL, "fnsym", 1, lhs);
+    pmath_message(PMATH_NULL, "fnsym", 1, lhs);
     
     pmath_unref(sym);
     pmath_unref(rhs);
@@ -80,7 +80,7 @@ PMATH_PRIVATE pmath_t builtin_assign_messages(pmath_expr_t expr){
       return rhs;
     
     pmath_unref(rhs);
-    return NULL;
+    return PMATH_NULL;
   }
   
   if(_pmath_is_rule(rhs)){
@@ -107,7 +107,7 @@ PMATH_PRIVATE pmath_t builtin_assign_messages(pmath_expr_t expr){
       pmath_unref(rule);
       
       if(!_pmath_is_valid_messagename(lhs)){
-        pmath_message(NULL, "name", 1, lhs);
+        pmath_message(PMATH_NULL, "name", 1, lhs);
         
         pmath_ht_destroy(messages);
         pmath_unref(rule_rhs);
@@ -117,8 +117,8 @@ PMATH_PRIVATE pmath_t builtin_assign_messages(pmath_expr_t expr){
       }
       
       tag = pmath_expr_get_item(lhs, 1);
-      if(tag != sym){
-        pmath_message(NULL, "tag", 3, tag, lhs, sym);
+      if(!pmath_same(tag, sym)){
+        pmath_message(PMATH_NULL, "tag", 3, tag, lhs, sym);
         
         pmath_ht_destroy(messages);
         pmath_unref(rule_rhs);
@@ -128,7 +128,7 @@ PMATH_PRIVATE pmath_t builtin_assign_messages(pmath_expr_t expr){
       pmath_unref(tag);
       
       if(!pmath_is_string(rule_rhs)){
-        pmath_message(NULL, "str", 2, lhs, rule_rhs);
+        pmath_message(PMATH_NULL, "str", 2, lhs, rule_rhs);
         
         pmath_ht_destroy(messages);
         pmath_unref(rhs);
@@ -142,7 +142,7 @@ PMATH_PRIVATE pmath_t builtin_assign_messages(pmath_expr_t expr){
         pmath_unref(rule_rhs);
         pmath_unref(rhs);
         pmath_unref(sym);
-        return NULL;
+        return PMATH_NULL;
       }
       
       entry->key = lhs;
@@ -163,7 +163,7 @@ PMATH_PRIVATE pmath_t builtin_assign_messages(pmath_expr_t expr){
       if(kind > 0)
         return rhs;
       pmath_unref(rhs);
-      return NULL;
+      return PMATH_NULL;
     }
     
     pmath_unref(sym);
@@ -172,7 +172,7 @@ PMATH_PRIVATE pmath_t builtin_assign_messages(pmath_expr_t expr){
   }
   
   pmath_unref(sym);
-  pmath_message(NULL, "vlist", 2, lhs, rhs);
+  pmath_message(PMATH_NULL, "vlist", 2, lhs, rhs);
   return pmath_ref(PMATH_SYMBOL_FAILED);
 }
 
@@ -193,12 +193,12 @@ PMATH_PRIVATE pmath_t builtin_messages(pmath_expr_t expr){
   
   if(!pmath_is_symbol(sym)){
     pmath_unref(sym);
-    pmath_message(NULL, "fnsym", 1, pmath_ref(expr));
+    pmath_message(PMATH_NULL, "fnsym", 1, pmath_ref(expr));
     return expr;
   }
   
   pmath_unref(expr);
-  pmath_gather_begin(NULL);
+  pmath_gather_begin(PMATH_NULL);
   
   rules = _pmath_symbol_get_rules(sym, RULES_READ);
   pmath_unref(sym);

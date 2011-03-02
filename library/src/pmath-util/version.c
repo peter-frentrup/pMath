@@ -61,7 +61,7 @@ long pmath_version_number_part(int index){
       return _PMATH_VERSION_BUILD;
     
     case 4:
-      return strtol(_PMATH_VERSION_SVN_REVISION, NULL, 10);
+      return strtol(_PMATH_VERSION_SVN_REVISION, PMATH_NULL, 10);
   }
   
   return 0;

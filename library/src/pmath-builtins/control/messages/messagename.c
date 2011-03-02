@@ -108,10 +108,10 @@ PMATH_PRIVATE pmath_t builtin_assign_messagename(pmath_expr_t expr){
   
   entry = NULL;
   if(pmath_same(rhs, PMATH_UNDEFINED)){
-    entry = pmath_ht_remove(messages, lhs);
+    entry = pmath_ht_remove(messages, &lhs);
   }
   else{
-    entry = pmath_ht_search(messages, lhs);
+    entry = pmath_ht_search(messages, &lhs);
       
     if(!entry){
       entry = pmath_mem_alloc(sizeof(struct _pmath_object_entry_t));
@@ -134,7 +134,7 @@ PMATH_PRIVATE pmath_t builtin_assign_messagename(pmath_expr_t expr){
     
   pmath_unref(lhs);
   if(pmath_same(rhs, PMATH_UNDEFINED))
-    return NULL;
+    return PMATH_NULL;
   
   return rhs;
 }
@@ -167,17 +167,17 @@ PMATH_PRIVATE pmath_t builtin_messagename(pmath_expr_t expr){
     rules = _pmath_symbol_get_rules(sym, RULES_READ);
     
     if(rules){
-      pmath_t obj = NULL;
+      pmath_t obj = PMATH_NULL;
       
       messages = (pmath_hashtable_t)_pmath_atomic_lock_ptr(&rules->_messages);
       
-      entry = pmath_ht_search(messages, expr);
+      entry = pmath_ht_search(messages, &expr);
       if(entry)
         obj = pmath_ref(entry->value);
       
       _pmath_atomic_unlock_ptr(&rules->_messages, messages);
       
-      if(obj){
+      if(!pmath_is_null(obj)){
         pmath_unref(expr);
         pmath_unref(sym);
         return obj;

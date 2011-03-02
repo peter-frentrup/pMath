@@ -40,7 +40,7 @@ PMATH_PRIVATE pmath_t builtin_thread(pmath_expr_t expr){
       start = end = end + 1;
     }
     else if(!extract_range(part, &start, &end, TRUE)){
-      pmath_message(NULL, "pspec", 1, part);
+      pmath_message(PMATH_NULL, "pspec", 1, part);
       pmath_unref(fst);
       return expr;
     }

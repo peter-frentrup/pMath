@@ -62,7 +62,7 @@ pmath_t builtin_setaccuracy(pmath_expr_t expr){
   }
   else{
     if(!pmath_is_number(acc_obj)){
-      pmath_message(NULL, "invacc", 1, acc_obj);
+      pmath_message(PMATH_NULL, "invacc", 1, acc_obj);
       return expr;
     }
     
@@ -102,7 +102,7 @@ pmath_t builtin_setprecision(pmath_expr_t expr){
   }
   else{
     if(!pmath_is_number(prec_obj)){
-      pmath_message(NULL, "invprec", 1, prec_obj);
+      pmath_message(PMATH_NULL, "invprec", 1, prec_obj);
       return expr;
     }
     
@@ -183,9 +183,9 @@ pmath_t builtin_assign_maxextraprecision(pmath_expr_t expr){
   lhs = pmath_expr_get_item(expr, 0);
   pmath_unref(lhs);
   pmath_unref(expr);
-  if(pmath_same((lhs, PMATH_SYMBOL_ASSIGNDELAYED)
-  || pmath_same((lhs, PMATH_SYMBOL_TAGASSIGNDELAYED))
-    return NULL;
+  if(pmath_same(lhs, PMATH_SYMBOL_ASSIGNDELAYED)
+  || pmath_same(lhs, PMATH_SYMBOL_TAGASSIGNDELAYED))
+    return PMATH_NULL;
   
   return pmath_ref(PMATH_SYMBOL_FAILED);
 }

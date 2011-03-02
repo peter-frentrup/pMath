@@ -88,8 +88,8 @@ PMATH_PRIVATE pmath_bool_t extract_delta_range(
   pmath_t *delta,
   size_t  *count
 ){
-  pmath_t count_obj = NULL;
-  *start = *delta = NULL;
+  pmath_t count_obj = PMATH_NULL;
+  *start = *delta = PMATH_NULL;
   *count = 0;
 
   if(pmath_is_expr_of_len(range, PMATH_SYMBOL_RANGE, 2)){

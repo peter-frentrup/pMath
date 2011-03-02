@@ -95,7 +95,7 @@ typedef pmath_number_t pmath_float_t;
 /**\brief Create an integer object from a signed long.
    \memberof pmath_integer_t
    \param si A signed long int.
-   \return A pMath integer with the specified value or NULL.
+   \return A pMath integer with the specified value or PMATH_NULL.
  */
 PMATH_API 
 PMATH_ATTRIBUTE_USE_RESULT
@@ -104,7 +104,7 @@ pmath_integer_t pmath_integer_new_si(signed long int si);
 /**\brief Create an integer object from an unsigned long.
    \memberof pmath_integer_t
    \param ui An unsigned long int.
-   \return A pMath integer with the specified value or NULL.
+   \return A pMath integer with the specified value or PMATH_NULL.
  */
 PMATH_API 
 PMATH_ATTRIBUTE_USE_RESULT
@@ -113,7 +113,7 @@ pmath_integer_t pmath_integer_new_ui(unsigned long int ui);
 /**\brief Create an integer object from an size_t.
    \memberof pmath_integer_t
    \param size A size_t value.
-   \return A pMath integer with the specified value or NULL.
+   \return A pMath integer with the specified value or PMATH_NULL.
    
    Note that on Win64, sizeof(long) == 4, but sizeof(size_t) == 8.
  */
@@ -151,7 +151,7 @@ pmath_integer_t pmath_integer_new_data(
    \memberof pmath_integer_t
    \param str A string representing the value in base \a base.
    \param base The base. 
-   \return A pMath integer with the specified value or NULL.
+   \return A pMath integer with the specified value or PMATH_NULL.
    
    See GMP's mpz_set_str for mor information about the parameters.
  */
@@ -168,7 +168,7 @@ pmath_integer_t pmath_integer_new_str(
    \param numerator The quotient's numerator. It will be freed.
    \param denominator The quotient's denominator. It will be freed.
    \return An integer, if \a denominator divides \a numerator or a quotient
-           in canonical form otherwise. If denominator is zero, NULL will be 
+           in canonical form otherwise. If denominator is zero, PMATH_NULL will be 
            returned.
  */
 PMATH_API 
@@ -218,7 +218,7 @@ typedef enum{
    \param precision_control flag for controling the precision.
    \param base_precision_accuracy given precinion or accuracy. depending on the 
           value of the above flag.
-   \return a new pMath floating point number or NULL on error or the integer 0 
+   \return a new pMath floating point number or PMATH_NULL on error or the integer 0 
            (see below when this happens).
    
    \remarks
@@ -268,7 +268,7 @@ pmath_number_t pmath_float_new_str(
 /**\brief Create a machine-precision floating point number from a double.
    \memberof pmath_float_t
    \param dbl A double value.
-   \return A pMath floating point number with the specified value or NULL.
+   \return A pMath floating point number with the specified value or PMATH_NULL.
  */
 PMATH_API 
 PMATH_ATTRIBUTE_USE_RESULT

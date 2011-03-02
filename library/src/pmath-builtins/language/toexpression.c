@@ -17,8 +17,8 @@ static pmath_t remove_whitespace_from_boxes(pmath_t boxes){
     pmath_span_array_t *spans;
     pmath_string_t code = boxes;
     
-    spans = pmath_spans_from_string(&code, NULL, NULL, NULL, NULL, NULL);
-    boxes = pmath_boxes_from_spans(spans, code, TRUE, NULL, NULL);
+    spans = pmath_spans_from_string(&code, PMATH_NULL, PMATH_NULL, PMATH_NULL, PMATH_NULL, PMATH_NULL);
+    boxes = pmath_boxes_from_spans(spans, code, TRUE, PMATH_NULL, PMATH_NULL);
     
     pmath_unref(code);
     pmath_span_array_free(spans);
@@ -57,11 +57,11 @@ static pmath_t remove_whitespace_from_boxes(pmath_t boxes){
     pmath_unref(item);
     for(i = pmath_expr_length(boxes);i > 0;--i){
       item = pmath_expr_get_item(boxes, i);
-      boxes = pmath_expr_set_item(boxes, i, NULL);
+      boxes = pmath_expr_set_item(boxes, i, PMATH_NULL);
       
       item = remove_whitespace_from_boxes(item);
       if(pmath_is_expr_of_len(item, PMATH_SYMBOL_LIST, 0)
-      || pmath_is_expr_of_len(item, NULL, 0)){
+      || pmath_is_expr_of_len(item, PMATH_NULL, 0)){
         remove_empty = TRUE;
         pmath_unref(item);
         item = PMATH_UNDEFINED;
@@ -83,18 +83,18 @@ static pmath_t remove_whitespace_from_boxes(pmath_t boxes){
   if(pmath_same(head, PMATH_SYMBOL_GRIDBOX)){
     size_t rows, cols;
     pmath_t matrix = pmath_expr_get_item(boxes, 1);
-    boxes = pmath_expr_set_item(boxes, 1, NULL);
+    boxes = pmath_expr_set_item(boxes, 1, PMATH_NULL);
     
     if(_pmath_is_matrix(matrix, &rows, &cols)){
       size_t i, j;
       
       for(i = rows;i > 0;--i){
         pmath_t row = pmath_expr_get_item(matrix, i);
-        matrix = pmath_expr_set_item(matrix, i, NULL);
+        matrix = pmath_expr_set_item(matrix, i, PMATH_NULL);
         
         for(j = cols;j > 0;--j){
           pmath_t item = pmath_expr_get_item(row, j);
-          row = pmath_expr_set_item(row, j, NULL);
+          row = pmath_expr_set_item(row, j, PMATH_NULL);
           
           item = remove_whitespace_from_boxes(item);
           
@@ -112,7 +112,7 @@ static pmath_t remove_whitespace_from_boxes(pmath_t boxes){
   if(pmath_same(head, PMATH_SYMBOL_STYLEBOX)){
     pmath_expr_t options = pmath_options_extract(boxes, 1);
     
-    if(options){
+    if(!pmath_is_null(options)){
       pmath_t strip = pmath_option_value(
         PMATH_SYMBOL_STYLEBOX, 
         PMATH_SYMBOL_STRIPONINPUT,
@@ -153,7 +153,7 @@ static pmath_t remove_whitespace_from_boxes(pmath_t boxes){
     
     for(i = max_boxes;i > 0;--i){
       pmath_t item = pmath_expr_get_item(boxes, i);
-      boxes = pmath_expr_set_item(boxes, i, NULL);
+      boxes = pmath_expr_set_item(boxes, i, PMATH_NULL);
       
       item = remove_whitespace_from_boxes(item);
       
@@ -211,7 +211,7 @@ pmath_t builtin_toexpression(pmath_expr_t expr){
     expr = pmath_evaluate(expr);
   }
   else{
-    expr = pmath_expr_set_item(expr, 1, NULL);
+    expr = pmath_expr_set_item(expr, 1, PMATH_NULL);
     code = remove_whitespace_from_boxes(code);
     
     expr = pmath_expr_set_item(expr, 1, code);

@@ -38,7 +38,7 @@
   #endif
 #endif
 
-static FILE *debuglog = NULL;
+static FILE *debuglog = PMATH_NULL;
 
 static pmath_bool_t debugging_output = TRUE;
 
@@ -109,7 +109,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_debug_library_init(void){
   #ifdef PMATH_OS_WIN32
     #if PMATH_USE_PTHREAD
     {/* initialize debuglog_mutex ... */
-      int err = pthread_mutex_init(&debuglog_mutex, NULL);
+      int err = pthread_mutex_init(&debuglog_mutex, PMATH_NULL);
       if(err != 0)
         return FALSE;
     }
@@ -138,7 +138,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_debug_library_init(void){
 PMATH_PRIVATE void _pmath_debug_library_done(void){
   if(debuglog && debuglog != stderr && debuglog != stdout){
     fclose(debuglog);
-    debuglog = NULL;
+    debuglog = PMATH_NULL;
   }
 
   #ifdef PMATH_OS_WIN32

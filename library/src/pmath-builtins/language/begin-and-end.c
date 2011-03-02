@@ -33,12 +33,12 @@ PMATH_PRIVATE pmath_bool_t _pmath_is_namespace(pmath_t name){
   for(i = 0;i < len-1;++i){
     if(buf[i] == '`'){
       ++i;
-      tok = pmath_token_analyse(buf + i, 1, NULL);
+      tok = pmath_token_analyse(buf + i, 1, PMATH_NULL);
       if(tok != PMATH_TOK_NAME)
         return FALSE;
     }
     else{
-      tok = pmath_token_analyse(buf + i, 1, NULL);
+      tok = pmath_token_analyse(buf + i, 1, PMATH_NULL);
       if(tok != PMATH_TOK_DIGIT && tok != PMATH_TOK_NAME)
         return FALSE;
     }
@@ -106,13 +106,13 @@ PMATH_PRIVATE pmath_t builtin_assign_namespace(pmath_expr_t expr){
   }
   
   if(!pmath_same(tag, PMATH_UNDEFINED) && !pmath_same(tag, lhs)){
-    pmath_message(NULL, "tag", 3, tag, pmath_ref(lhs), lhs);
+    pmath_message(PMATH_NULL, "tag", 3, tag, pmath_ref(lhs), lhs);
     
     pmath_unref(expr);
     pmath_unref(rhs);
     
     if(kind < 0)
-      return NULL;
+      return PMATH_NULL;
     
     if(pmath_same(rhs, PMATH_UNDEFINED))
       return pmath_ref(PMATH_SYMBOL_FAILED);
@@ -124,7 +124,7 @@ PMATH_PRIVATE pmath_t builtin_assign_namespace(pmath_expr_t expr){
   
   if(pmath_same(rhs, PMATH_UNDEFINED)){
     pmath_unref(expr);
-    return NULL;
+    return PMATH_NULL;
   }
   
   if(!_pmath_is_namespace(rhs)){
@@ -132,7 +132,7 @@ PMATH_PRIVATE pmath_t builtin_assign_namespace(pmath_expr_t expr){
     pmath_unref(expr);
     
     if(kind < 0)
-      return NULL;
+      return PMATH_NULL;
     
     return rhs;
   }
@@ -159,13 +159,13 @@ PMATH_PRIVATE pmath_t builtin_assign_namespacepath(pmath_expr_t expr){
   }
   
   if(!pmath_same(tag, PMATH_UNDEFINED) && !pmath_same(tag, lhs)){
-    pmath_message(NULL, "tag", 3, tag, pmath_ref(lhs), lhs);
+    pmath_message(PMATH_NULL, "tag", 3, tag, pmath_ref(lhs), lhs);
     
     pmath_unref(expr);
     pmath_unref(rhs);
     
     if(kind < 0)
-      return NULL;
+      return PMATH_NULL;
     
     if(pmath_same(rhs, PMATH_UNDEFINED))
       return pmath_ref(PMATH_SYMBOL_FAILED);
@@ -177,7 +177,7 @@ PMATH_PRIVATE pmath_t builtin_assign_namespacepath(pmath_expr_t expr){
   if(pmath_same(rhs, PMATH_UNDEFINED)){
     pmath_unref(lhs);
     pmath_unref(expr);
-    return NULL;
+    return PMATH_NULL;
   }
   
   if(!_pmath_is_namespace_list(rhs)){
@@ -187,7 +187,7 @@ PMATH_PRIVATE pmath_t builtin_assign_namespacepath(pmath_expr_t expr){
     
     if(kind < 0){
       pmath_unref(rhs);
-      return NULL;
+      return PMATH_NULL;
     }
     
     return rhs;
@@ -211,7 +211,7 @@ PMATH_PRIVATE pmath_t builtin_begin(pmath_expr_t expr){
   ns = pmath_expr_get_item(expr, 1);
   if(!_pmath_is_namespace(ns)){
     pmath_unref(ns);
-    pmath_message(NULL, "ns", 2, pmath_integer_new_si(1), pmath_ref(expr));
+    pmath_message(PMATH_NULL, "ns", 2, pmath_integer_new_si(1), pmath_ref(expr));
     return expr;
   }
   pmath_unref(expr);
@@ -243,7 +243,7 @@ PMATH_PRIVATE pmath_t builtin_end(pmath_expr_t expr){
   || pmath_expr_length(nsstack) == 0){
     pmath_unref(oldns);
     pmath_unref(nsstack);
-    pmath_message(NULL, "nons", 0);
+    pmath_message(PMATH_NULL, "nons", 0);
     return oldns;
   }
   
@@ -287,7 +287,7 @@ PMATH_PRIVATE pmath_t builtin_beginpackage(pmath_expr_t expr){
   package = pmath_expr_get_item(expr, 1);
   if(!_pmath_is_namespace(package)){
     pmath_unref(package);
-    pmath_message(NULL, "ns", 2, pmath_integer_new_si(1), pmath_ref(expr));
+    pmath_message(PMATH_NULL, "ns", 2, pmath_integer_new_si(1), pmath_ref(expr));
     return expr;
   }
   
@@ -300,7 +300,7 @@ PMATH_PRIVATE pmath_t builtin_beginpackage(pmath_expr_t expr){
     else if(!_pmath_is_namespace_list(nspath)){
       pmath_unref(package);
       pmath_unref(nspath);
-      pmath_message(NULL, "nsls", 2, pmath_integer_new_si(2), pmath_ref(expr));
+      pmath_message(PMATH_NULL, "nsls", 2, pmath_integer_new_si(2), pmath_ref(expr));
       return expr;
     }
   }
@@ -323,7 +323,7 @@ PMATH_PRIVATE pmath_t builtin_beginpackage(pmath_expr_t expr){
     "(oo)", package, nspath);
   
   pmath_unref(expr);
-  return NULL;
+  return PMATH_NULL;
 }
   
   static pmath_bool_t starts_with(pmath_string_t s, pmath_string_t sub){
@@ -417,7 +417,7 @@ PMATH_PRIVATE pmath_t builtin_endpackage(pmath_expr_t expr){
     pmath_unref(oldns);
     pmath_unref(nsstack);
     pmath_unref(nspathstack);
-    pmath_message(NULL, "nons", 0);
+    pmath_message(PMATH_NULL, "nons", 0);
     return oldns;
   }
   
@@ -441,7 +441,7 @@ PMATH_PRIVATE pmath_t builtin_endpackage(pmath_expr_t expr){
     pmath_unref(nsstack);
     pmath_unref(nspath);
     pmath_unref(nspathstack);
-    return NULL;
+    return PMATH_NULL;
   }
   
   check_name_clashes(oldns);
@@ -465,5 +465,5 @@ PMATH_PRIVATE pmath_t builtin_endpackage(pmath_expr_t expr){
       "$NamespacePath:= Prepend(Select(`1`, # =!= `2` &), `2`)",
     "(oo)", nspath, oldns);
   
-  return NULL;
+  return PMATH_NULL;
 }

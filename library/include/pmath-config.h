@@ -24,7 +24,7 @@
 /* PMATH_ATTRIBUTE_USE_RESULT: You must use the result of a function with this 
    attribute. E.g. destroy the result.
    
-   PMATH_ATTRIBUTE_NONNULL: the i-th arguments must not be NULL 
+   PMATH_ATTRIBUTE_NONNULL: the i-th arguments must not be PMATH_NULL 
  */
 #if PMATH_NEED_GNUC(3, 4)
   #define PMATH_ATTRIBUTE_USE_RESULT   __attribute__((__warn_unused_result__))

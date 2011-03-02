@@ -14,7 +14,7 @@ PMATH_PRIVATE pmath_symbol_t _pmath_builtin_symbol_array[PMATH_BUILTIN_SYMBOL_CO
 
 PMATH_API pmath_symbol_t pmath_symbol_builtin(int index){
   if(index < 0 || (size_t)index >= PMATH_BUILTIN_SYMBOL_COUNT)
-    return NULL;
+    return PMATH_NULL;
 
   return _pmath_builtin_symbol_array[index];
 }
@@ -34,35 +34,46 @@ static pmath_hashtable_t volatile _code_tables[CODE_TABLES_COUNT]; // index: pma
 #define LOCK_CODE_TABLE(USAGE)           (pmath_hashtable_t)_pmath_atomic_lock_ptr((void*volatile*)&_code_tables[(USAGE)])
 #define UNLOCK_CODE_TABLE(USAGE, TABLE)  _pmath_atomic_unlock_ptr((void*volatile*)&_code_tables[(USAGE)], (TABLE))
 
-static void destroy_func_entry(func_entry_t *entry){
+static void destroy_func_entry(void *e){
+  func_entry_t *entry = (func_entry_t*)e;
   pmath_unref(entry->key);
   pmath_mem_free(entry);
 }
 
-static unsigned int hash_func_entry(func_entry_t *entry){
-  return _pmath_hash_pointer(entry->key);
+static unsigned int hash_func_entry(void *e){
+  func_entry_t *entry = (func_entry_t*)e;
+  return _pmath_hash_pointer(PMATH_AS_PTR(entry->key));
 }
 
 static pmath_bool_t func_entry_keys_equal(
-  func_entry_t *entry1, 
-  func_entry_t *entry2
+  void *e1,
+  void *e2
 ){
-  return entry1->key == entry2->key;
+  func_entry_t *entry1 = (func_entry_t*)e1;
+  func_entry_t *entry2 = (func_entry_t*)e2;
+  return pmath_same(entry1->key, entry2->key);
+}
+
+static unsigned int hash_func_key(void *k){
+  pmath_symbol_t key = *(pmath_t*)k;
+  return pmath_hash(key);
 }
 
 static pmath_bool_t func_entry_equals_key(
-  func_entry_t   *entry, 
-  pmath_symbol_t  key
+  void *e,
+  void *k
 ){
-  return entry->key == key;
+  func_entry_t   *entry = (func_entry_t*)e;
+  pmath_symbol_t  key   = *(pmath_t*)k;
+  return pmath_same(entry->key, key);
 }
 
 static const pmath_ht_class_t function_table_class = {
-  (pmath_callback_t)                    destroy_func_entry,
-  (pmath_ht_entry_hash_func_t)        hash_func_entry,
-  (pmath_ht_entry_equal_func_t)       func_entry_keys_equal,
-  (pmath_ht_key_hash_func_t)          _pmath_hash_pointer,
-  (pmath_ht_entry_equals_key_func_t)  func_entry_equals_key
+  destroy_func_entry,
+  hash_func_entry,
+  func_entry_keys_equal,
+  hash_func_key,
+  func_entry_equals_key
 };
 
 //} ============================================================================
@@ -438,7 +449,7 @@ static pmath_t general_builtin_zerotwoarg(pmath_expr_t expr){
 }
 
 static pmath_t general_builtin_nofront(pmath_expr_t expr){
-  pmath_message(NULL, "nofront", 0);
+  pmath_message(PMATH_NULL, "nofront", 0);
   pmath_unref(expr);
   return pmath_ref(PMATH_SYMBOL_FAILED);
 }
@@ -458,7 +469,7 @@ pmath_bool_t _pmath_have_code(
   
   table = LOCK_CODE_TABLE(usage);
   
-  entry = pmath_ht_search(table, key);
+  entry = pmath_ht_search(table, &key);
   
   UNLOCK_CODE_TABLE(usage, table);
   
@@ -479,7 +490,7 @@ pmath_bool_t _pmath_run_code(
   
   table = LOCK_CODE_TABLE(usage);
   
-  entry = pmath_ht_search(table, key);
+  entry = pmath_ht_search(table, &key);
   if(entry)
     result = (pmath_builtin_func_t)entry->function;
   
@@ -507,7 +518,7 @@ pmath_bool_t _pmath_run_approx_code(
   
   table = LOCK_CODE_TABLE(PMATH_CODE_USAGE_APPROX);
   
-  entry = pmath_ht_search(table, key);
+  entry = pmath_ht_search(table, &key);
   if(entry)
     result = (pmath_t(*)(pmath_t,double,double))entry->function;
   
@@ -552,7 +563,7 @@ pmath_bool_t pmath_register_code(
   if(entry)
     entry = pmath_ht_insert(table, entry);
   else
-    entry = pmath_ht_remove(table, symbol);
+    entry = pmath_ht_remove(table, &symbol);
     
   UNLOCK_CODE_TABLE(usage, table);
   
@@ -589,7 +600,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
       goto FAIL;
   }
   
-  #define VERIFY(x)  if(0 == (x)) goto FAIL;
+  #define VERIFY(x)  if(pmath_is_null(x)) goto FAIL;
   
   #define NEW_SYMBOL(name)        pmath_symbol_get(PMATH_C_STRING(name), TRUE)
   #define NEW_SYSTEM_SYMBOL(name) NEW_SYMBOL("System`" name)
@@ -1162,7 +1173,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
 
   #ifdef PMATH_DEBUG_LOG
     for(i = 0;i < PMATH_BUILTIN_SYMBOL_COUNT;i++){
-      if(!_pmath_builtin_symbol_array[i])
+      if(pmath_is_null(_pmath_builtin_symbol_array[i]))
         pmath_debug_print("\aBUILTIN SYMBOL #%d NOT USED\n", i);
     }
   #endif

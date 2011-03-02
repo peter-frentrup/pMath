@@ -66,8 +66,6 @@ pmath_bool_t pmath_equals(
   pmath_t objA,
   pmath_t objB);
 
-#define pmath_same(A, B)  ((A) == (B))
-
 /*============================================================================*/
 
 /**\brief Internal function
@@ -91,10 +89,10 @@ pmath_t pmath_fast_ref(pmath_t obj){
     return obj;
   
   #ifndef PMATH_DEBUG_LOG
-    (void)pmath_atomic_fetch_add(&(obj->refcount), 1);
+    (void)pmath_atomic_fetch_add(&(PMATH_AS_PTR(obj)->refcount), 1);
   #else
-    if(   pmath_atomic_fetch_add(&(obj->refcount), 1) == 0){
-      if(obj->type_shift != PMATH_TYPE_SHIFT_SYMBOL){
+    if(   pmath_atomic_fetch_add(&(PMATH_AS_PTR(obj)->refcount), 1) == 0){
+      if(PMATH_AS_PTR(obj)->type_shift != PMATH_TYPE_SHIFT_SYMBOL){
         assert("referencing deleted object" && 0);
       }
     }
@@ -110,7 +108,7 @@ void pmath_fast_unref(pmath_t obj){
     return;
 
   pmath_atomic_barrier();
-  if(1 == pmath_atomic_fetch_add(&(obj->refcount), -1)){ // was 1 -> is 0
+  if(1 == pmath_atomic_fetch_add(&(PMATH_AS_PTR(obj)->refcount), -1)){ // was 1 -> is 0
     _pmath_destroy_object(obj);
   }
   pmath_atomic_barrier();
@@ -126,7 +124,7 @@ pmath_bool_t pmath_fast_instance_of(
   if(PMATH_UNLIKELY(PMATH_IS_MAGIC(obj)))
     return (type & PMATH_TYPE_MAGIC) != 0;
 
-  return ((1 << obj->type_shift) & type) != 0;
+  return ((1 << PMATH_AS_PTR(obj)->type_shift) & type) != 0;
 }
 
 PMATH_FORCE_INLINE
@@ -136,7 +134,7 @@ pmath_bool_t pmath_fast_equals(
   pmath_t objA,
   pmath_t objB
 ){
-  if(objA == objB) return TRUE;
+  if(PMATH_AS_PTR(objA) == PMATH_AS_PTR(objB)) return TRUE;
   return pmath_equals(objA, objB);
 }
 
@@ -149,82 +147,15 @@ pmath_bool_t pmath_fast_equals(
 
 /*============================================================================*/
 
-/**\brief Determine whether an object is a custom object.
-   \memberof pmath_t
-   \relates pmath_expr_t
-   \param obj The pMath object.
-   \return TRUE iff the object is castable to pmath_custom_t.
- */
-PMATH_FORCE_INLINE
-PMATH_INLINE_NODEBUG
-PMATH_ATTRIBUTE_PURE
-pmath_bool_t pmath_is_custom(pmath_t obj){
-  return pmath_instance_of(obj, PMATH_TYPE_CUSTOM);
-}
+#define pmath_same(objA, objB)  (PMATH_AS_PTR(objA) == PMATH_AS_PTR(objB))
+#define pmath_is_null(obj)      (PMATH_AS_PTR(obj) == NULL)
 
-/**\brief Determine whether an object is an expression.
-   \memberof pmath_t
-   \relates pmath_expr_t
-   \param obj The pMath object.
-   \return TRUE iff the object is castable to pmath_expr_t.
- */
-PMATH_FORCE_INLINE
-PMATH_INLINE_NODEBUG
-PMATH_ATTRIBUTE_PURE
-pmath_bool_t pmath_is_expr(pmath_t obj){
-  return pmath_instance_of(obj, PMATH_TYPE_EXPRESSION);
-}
-
-/**\brief Determine whether an object is an integer.
-   \memberof pmath_t
-   \relates pmath_expr_t
-   \param obj The pMath object.
-   \return TRUE iff the object is castable to pmath_integer_t.
- */
-PMATH_FORCE_INLINE
-PMATH_INLINE_NODEBUG
-PMATH_ATTRIBUTE_PURE
-pmath_bool_t pmath_is_integer(pmath_t obj){
-  return pmath_instance_of(obj, PMATH_TYPE_INTEGER);
-}
-
-/**\brief Determine whether an object is a number.
-   \memberof pmath_t
-   \relates pmath_expr_t
-   \param obj The pMath object.
-   \return TRUE iff the object is castable to pmath_number_t.
- */
-PMATH_FORCE_INLINE
-PMATH_INLINE_NODEBUG
-PMATH_ATTRIBUTE_PURE
-pmath_bool_t pmath_is_number(pmath_t obj){
-  return pmath_instance_of(obj, PMATH_TYPE_NUMBER);
-}
-
-/**\brief Determine whether an object is a string.
-   \memberof pmath_t
-   \relates pmath_expr_t
-   \param obj The pMath object.
-   \return TRUE iff the object is castable to pmath_string_t.
- */
-PMATH_FORCE_INLINE
-PMATH_INLINE_NODEBUG
-PMATH_ATTRIBUTE_PURE
-pmath_bool_t pmath_is_string(pmath_t obj){
-  return pmath_instance_of(obj, PMATH_TYPE_STRING);
-}
-
-/**\brief Determine whether an object is a symbol.
-   \memberof pmath_t
-   \relates pmath_expr_t
-   \param obj The pMath object.
-   \return TRUE iff the object is castable to pmath_symbol_t.
- */
-PMATH_FORCE_INLINE
-PMATH_INLINE_NODEBUG
-PMATH_ATTRIBUTE_PURE
-pmath_bool_t pmath_is_symbol(pmath_t obj){
-  return pmath_instance_of(obj, PMATH_TYPE_SYMBOL);
-}
+#define pmath_is_custom(obj)  (pmath_instance_of(obj, PMATH_TYPE_CUSTOM))
+#define pmath_is_double(obj)  (pmath_instance_of(obj, PMATH_TYPE_MACHINE_FLOAT))
+#define pmath_is_expr(obj)    (pmath_instance_of(obj, PMATH_TYPE_EXPRESSION))
+#define pmath_is_integer(obj) (pmath_instance_of(obj, PMATH_TYPE_INTEGER))
+#define pmath_is_number(obj)  (pmath_instance_of(obj, PMATH_TYPE_NUMBER))
+#define pmath_is_string(obj)  (pmath_instance_of(obj, PMATH_TYPE_STRING))
+#define pmath_is_symbol(obj)  (pmath_instance_of(obj, PMATH_TYPE_SYMBOL))
 
 #endif /* __PMATH_CORE__OBJECTS_INLINE_H__ */

@@ -235,7 +235,7 @@ PMATH_PRIVATE pmath_t builtin_call_function(pmath_expr_t expr){
       }
     }
     
-    if(!params){
+    if(pmath_is_null(params)){
       pmath_unref(head);
       
       body = replace_purearg(body, expr);
@@ -248,7 +248,7 @@ PMATH_PRIVATE pmath_t builtin_call_function(pmath_expr_t expr){
       pmath_unref(head);
       
       if(exprlen == 0){
-        pmath_message(NULL, "cnt", 2, params, pmath_ref(expr));
+        pmath_message(PMATH_NULL, "cnt", 2, params, pmath_ref(expr));
         
         pmath_unref(body);
         pmath_unref(head);
@@ -267,7 +267,7 @@ PMATH_PRIVATE pmath_t builtin_call_function(pmath_expr_t expr){
       size_t i;
       
       if(pmath_expr_length(params) > exprlen){
-        pmath_message(NULL, "cnt", 2, params, pmath_ref(expr));
+        pmath_message(PMATH_NULL, "cnt", 2, params, pmath_ref(expr));
         
         pmath_unref(body);
         pmath_unref(head);
@@ -283,7 +283,7 @@ PMATH_PRIVATE pmath_t builtin_call_function(pmath_expr_t expr){
           pmath_unref(value);
           pmath_unref(body);
           
-          pmath_message(NULL, "par", 2, params, head);
+          pmath_message(PMATH_NULL, "par", 2, params, head);
             
           return expr;
         }
@@ -300,7 +300,7 @@ PMATH_PRIVATE pmath_t builtin_call_function(pmath_expr_t expr){
       return body;
     }
     
-    pmath_message(NULL, "par", 2, params, head);
+    pmath_message(PMATH_NULL, "par", 2, params, head);
       
     pmath_unref(body);
     return expr;
@@ -338,7 +338,7 @@ PMATH_PRIVATE pmath_t builtin_function(pmath_expr_t expr){
       pmath_unref(p);
       
       if(!pmath_same(p, PMATH_SYMBOL_LIST)){
-        pmath_message(NULL, "par", 2, params, pmath_ref(expr));
+        pmath_message(PMATH_NULL, "par", 2, params, pmath_ref(expr));
           
         return expr;
       }
@@ -349,7 +349,7 @@ PMATH_PRIVATE pmath_t builtin_function(pmath_expr_t expr){
         if(!pmath_is_symbol(p)){
           pmath_unref(p);
           
-          pmath_message(NULL, "par", 2, params, pmath_ref(expr));
+          pmath_message(PMATH_NULL, "par", 2, params, pmath_ref(expr));
             
           return expr;
         }
@@ -361,8 +361,8 @@ PMATH_PRIVATE pmath_t builtin_function(pmath_expr_t expr){
       return expr;
     }
     
-    if(params && !pmath_is_symbol(params)){
-      pmath_message(NULL, "par", 2, params, pmath_ref(expr));
+    if(!pmath_is_null(params) && !pmath_is_symbol(params)){
+      pmath_message(PMATH_NULL, "par", 2, params, pmath_ref(expr));
         
       return expr;
     }

@@ -55,11 +55,11 @@ static pmath_bool_t cases(
       }
       
       if(pmath_same(rhs, PMATH_UNDEFINED)){
-        pmath_emit(obj, NULL);
+        pmath_emit(obj, PMATH_NULL);
       }
       else{
         pmath_unref(obj);
-        pmath_emit(rhs, NULL);
+        pmath_emit(rhs, PMATH_NULL);
       }
       
       return 0 < info->count;
@@ -120,7 +120,7 @@ PMATH_PRIVATE pmath_t builtin_cases(pmath_expr_t expr){
         && !_pmath_is_list_of_rules(n)){
           pmath_unref(n);
           pmath_unref(levels);
-          pmath_message(NULL, "innf", 2, pmath_integer_new_si(4), pmath_ref(expr));
+          pmath_message(PMATH_NULL, "innf", 2, pmath_integer_new_si(4), pmath_ref(expr));
           return expr;
         }
         
@@ -128,7 +128,7 @@ PMATH_PRIVATE pmath_t builtin_cases(pmath_expr_t expr){
       }
     }
     else if(!_pmath_is_rule(levels) && !_pmath_is_list_of_rules(levels)){
-      pmath_message(NULL, "level", 1, levels);
+      pmath_message(PMATH_NULL, "level", 1, levels);
       return expr;
     }
     
@@ -137,17 +137,17 @@ PMATH_PRIVATE pmath_t builtin_cases(pmath_expr_t expr){
   
   
   options = pmath_options_extract(expr, last_nonoption);
-  if(!options)
+  if(pmath_is_null(options))
     return expr;
   
-  obj = pmath_evaluate(pmath_option_value(NULL, PMATH_SYMBOL_HEADS, options));
+  obj = pmath_evaluate(pmath_option_value(PMATH_NULL, PMATH_SYMBOL_HEADS, options));
   if(pmath_same(obj, PMATH_SYMBOL_TRUE)){
     info.with_heads = TRUE;
   }
   else if(!pmath_same(obj, PMATH_SYMBOL_FALSE)){
     pmath_unref(options);
     pmath_message(
-      NULL, "opttf", 2,
+      PMATH_NULL, "opttf", 2,
       pmath_ref(PMATH_SYMBOL_HEADS),
       obj);
     return expr;
@@ -167,7 +167,7 @@ PMATH_PRIVATE pmath_t builtin_cases(pmath_expr_t expr){
   
   obj = pmath_expr_get_item(expr, 1);
   pmath_unref(expr);
-  pmath_gather_begin(NULL);
+  pmath_gather_begin(PMATH_NULL);
   cases(&info, obj, 0);
   pmath_unref(info.lhs);
   pmath_unref(info.rhs);

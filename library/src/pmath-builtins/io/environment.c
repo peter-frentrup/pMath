@@ -33,7 +33,7 @@ PMATH_PRIVATE pmath_t builtin_environment(pmath_expr_t expr){
       WCHAR *env = GetEnvironmentStringsW();
       
       pmath_unref(expr);
-      pmath_gather_begin(NULL);
+      pmath_gather_begin(PMATH_NULL);
       {
         const WCHAR *start = env;
         while(*start){
@@ -43,12 +43,12 @@ PMATH_PRIVATE pmath_t builtin_environment(pmath_expr_t expr){
           
           if(*end == '='){
             pmath_string_t value = pmath_string_insert_ucs2(
-              NULL, 0, 
+              PMATH_NULL, 0, 
               (const uint16_t*)(end + 1), 
               -1);
               
             name = pmath_string_insert_ucs2(
-              NULL, 0, 
+              PMATH_NULL, 0, 
               (const uint16_t*)start, 
               ((size_t)end - (size_t)start)/sizeof(uint16_t));
             
@@ -57,7 +57,7 @@ PMATH_PRIVATE pmath_t builtin_environment(pmath_expr_t expr){
                 pmath_ref(PMATH_SYMBOL_RULE), 2,
                 name,
                 value),
-              NULL);
+              PMATH_NULL);
           }
           
           start = end + 1;
@@ -74,7 +74,7 @@ PMATH_PRIVATE pmath_t builtin_environment(pmath_expr_t expr){
       char **env = environ;
       
       pmath_unref(expr);
-      pmath_gather_begin(NULL);
+      pmath_gather_begin(PMATH_NULL);
       for(env = environ;*env;++env){
         const char *start = *env;
         const char *end = start;
@@ -92,7 +92,7 @@ PMATH_PRIVATE pmath_t builtin_environment(pmath_expr_t expr){
               pmath_ref(PMATH_SYMBOL_RULE), 2,
               name,
               value),
-            NULL);
+            PMATH_NULL);
         }
       }
       return pmath_gather_end();
@@ -103,7 +103,7 @@ PMATH_PRIVATE pmath_t builtin_environment(pmath_expr_t expr){
   name = pmath_expr_get_item(expr, 1);
   if(!pmath_is_string(name)){
     pmath_unref(name);
-    pmath_message(NULL, "str", 2, pmath_integer_new_si(1), pmath_ref(expr));
+    pmath_message(PMATH_NULL, "str", 2, pmath_integer_new_si(1), pmath_ref(expr));
     return expr;
   }
   pmath_unref(expr);
@@ -112,7 +112,7 @@ PMATH_PRIVATE pmath_t builtin_environment(pmath_expr_t expr){
   {
     name = pmath_string_insert_latin1(name, INT_MAX, "", 1);
     if(name){
-      int len = (int)GetEnvironmentVariableW(pmath_string_buffer(name), NULL, 0);
+      int len = (int)GetEnvironmentVariableW(pmath_string_buffer(name), PMATH_NULL, 0);
       if(len > 0){
         struct _pmath_string_t *result = _pmath_new_string_buffer(len);
         if(result){
@@ -128,7 +128,7 @@ PMATH_PRIVATE pmath_t builtin_environment(pmath_expr_t expr){
   }
   #else
   {
-    char *n = pmath_string_to_native(name, NULL);
+    char *n = pmath_string_to_native(name, PMATH_NULL);
     pmath_unref(name);
     
     if(n){
@@ -177,12 +177,12 @@ PMATH_PRIVATE pmath_t builtin_assign_environment(pmath_expr_t expr){
       tag = pmath_string_insert_latin1(tag, INT_MAX, "", 1);
       
       if(tag){
-        SetEnvironmentVariableW((const WCHAR*)pmath_string_buffer(tag), NULL);
+        SetEnvironmentVariableW((const WCHAR*)pmath_string_buffer(tag), PMATH_NULL);
       }
     }
     #else
     {
-      char *tagstr = pmath_string_to_native(tag, NULL);
+      char *tagstr = pmath_string_to_native(tag, PMATH_NULL);
       
       unsetenv(tagstr);
       
@@ -205,8 +205,8 @@ PMATH_PRIVATE pmath_t builtin_assign_environment(pmath_expr_t expr){
     }
     #else
     {
-      char *tagstr = pmath_string_to_native(tag, NULL);
-      char *rhsstr = pmath_string_to_native(tag, NULL);
+      char *tagstr = pmath_string_to_native(tag, PMATH_NULL);
+      char *rhsstr = pmath_string_to_native(tag, PMATH_NULL);
       
       setenv(tagstr, rhsstr, 1);
       

@@ -137,7 +137,7 @@ PMATH_PRIVATE pmath_t builtin_replace(pmath_expr_t expr){
       last_nonoption = 3;
     }
     else if(!_pmath_is_rule(levels) && !_pmath_is_list_of_rules(levels)){
-      pmath_message(NULL, "level", 1, levels);
+      pmath_message(PMATH_NULL, "level", 1, levels);
       return expr;
     }
     
@@ -149,18 +149,18 @@ PMATH_PRIVATE pmath_t builtin_replace(pmath_expr_t expr){
     rules = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_LIST), 1, rules);
   
     if(!_pmath_is_list_of_rules(rules)){
-      pmath_message(NULL, "reps", 1, rules);
+      pmath_message(PMATH_NULL, "reps", 1, rules);
       return expr;
     }
   }
   
   options = pmath_options_extract(expr, last_nonoption);
-  if(!options){
+  if(pmath_is_null(options)){
     pmath_unref(rules);
     return expr;
   }
   
-  obj = pmath_evaluate(pmath_option_value(NULL, PMATH_SYMBOL_HEADS, options));
+  obj = pmath_evaluate(pmath_option_value(PMATH_NULL, PMATH_SYMBOL_HEADS, options));
   if(pmath_same(obj, PMATH_SYMBOL_TRUE)){
     info.with_heads = TRUE;
   }
@@ -168,7 +168,7 @@ PMATH_PRIVATE pmath_t builtin_replace(pmath_expr_t expr){
     pmath_unref(rules);
     pmath_unref(options);
     pmath_message(
-      NULL, "opttf", 2,
+      PMATH_NULL, "opttf", 2,
       pmath_ref(PMATH_SYMBOL_HEADS),
       obj);
     return expr;
@@ -189,7 +189,7 @@ PMATH_PRIVATE pmath_t builtin_replace(pmath_expr_t expr){
   else{ // ReplaceRepeated
     obj = pmath_expr_get_item(expr, 1);
     pmath_unref(expr);
-    expr = obj; obj = NULL;
+    expr = obj; obj = PMATH_NULL;
     
     do{
       pmath_unref(obj);
@@ -283,7 +283,7 @@ PMATH_PRIVATE pmath_t builtin_replacelist(pmath_expr_t expr){
     }
     else if((!pmath_is_integer(n) || pmath_number_sign(n) < 0)
     && !pmath_equals(n, _pmath_object_infinity)){
-      pmath_message(NULL, "innf", 2, pmath_integer_new_si(3), pmath_ref(expr));
+      pmath_message(PMATH_NULL, "innf", 2, pmath_integer_new_si(3), pmath_ref(expr));
       pmath_unref(n);
       return expr;
     }
@@ -296,20 +296,20 @@ PMATH_PRIVATE pmath_t builtin_replacelist(pmath_expr_t expr){
     rules = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_LIST), 1, rules);
   
     if(!_pmath_is_list_of_rules(rules)){
-      pmath_message(NULL, "reps", 1, rules);
+      pmath_message(PMATH_NULL, "reps", 1, rules);
       pmath_unref(n);
       return expr;
     }
   }
   
   options = pmath_options_extract(expr, last_nonoption);
-  if(!options){
+  if(pmath_is_null(options)){
     pmath_unref(rules);
     pmath_unref(n);
     return expr;
   }
   
-  obj = pmath_evaluate(pmath_option_value(NULL, PMATH_SYMBOL_HEADS, options));
+  obj = pmath_evaluate(pmath_option_value(PMATH_NULL, PMATH_SYMBOL_HEADS, options));
   if(pmath_same(obj, PMATH_SYMBOL_TRUE)){
     info.with_heads = TRUE;
   }
@@ -317,7 +317,7 @@ PMATH_PRIVATE pmath_t builtin_replacelist(pmath_expr_t expr){
     pmath_unref(rules);
     pmath_unref(options);
     pmath_message(
-      NULL, "opttf", 2,
+      PMATH_NULL, "opttf", 2,
       pmath_ref(PMATH_SYMBOL_HEADS),
       obj);
     return expr;
@@ -330,7 +330,7 @@ PMATH_PRIVATE pmath_t builtin_replacelist(pmath_expr_t expr){
   
   rules = add_maxcount_condition(rules, n);
   
-  pmath_gather_begin(NULL);
+  pmath_gather_begin(PMATH_NULL);
   pmath_unref(apply_rule_list(&info, obj, rules, 0));
   pmath_unref(rules);
   return pmath_gather_end();

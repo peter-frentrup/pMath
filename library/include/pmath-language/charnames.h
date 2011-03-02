@@ -18,7 +18,7 @@ uint32_t pmath_char_from_name(const char *name);
 
 /**\brief Get a character's name
    \param unichar A unicode character
-   \return The ASCII-name or NULL if it is unnamed
+   \return The ASCII-name or PMATH_NULL if it is unnamed
  */
 PMATH_API
 const char *pmath_char_to_name(uint32_t unichar);

@@ -12,20 +12,20 @@
    Strings can be a buffer themselves or point to a buffer. This reduces memory
    usage, because when reading a part of a string into a new string, the actual
    data is not copied. Instead, the new string's buffer field is set to the
-   original string (or it's buffer if it is not NULL).
+   original string (or it's buffer if it is not PMATH_NULL).
 
    When a string with its reference counter > 1 is modified, it is
    copied first and the copy will be modified. So strings are copy-on-write as
    all pMath objects.
    
-   The data of a string s with s->buffer==NULL begins at AFTER_STRING(s)
+   The data of a string s with s->buffer==PMATH_NULL begins at AFTER_STRING(s)
  */
 
 struct _pmath_string_t{
   struct _pmath_t          inherited;
   int                      length; // >= 0 !!!
   struct _pmath_string_t  *buffer;
-  int                      capacity_or_start; // start index iff buffer != NULL
+  int                      capacity_or_start; // start index iff buffer != PMATH_NULL
 };
 
 PMATH_FORCE_INLINE size_t _pmath_next_2power_ui(size_t v){

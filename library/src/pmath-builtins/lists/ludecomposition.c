@@ -58,7 +58,7 @@ pmath_expr_t _pmath_matrix_set( // return: new matrix
   pmath_t      value   // will be freed
 ){
   pmath_t row = pmath_expr_get_item(matrix, r);
-  matrix = pmath_expr_set_item(matrix, r, NULL);
+  matrix = pmath_expr_set_item(matrix, r, PMATH_NULL);
   row = pmath_expr_set_item(row, c, value);
   return pmath_expr_set_item(matrix, r, row);
 }
@@ -78,7 +78,7 @@ static int numeric_ludecomp(
   const size_t n = pmath_expr_length(*matrix);
   size_t i,j,k,imax = 1;
   int sign = 1;
-  pmath_expr_t vv = pmath_expr_new(NULL, n);
+  pmath_expr_t vv = pmath_expr_new(PMATH_NULL, n);
   
   perm = perm-1; // perm[1] ... perm[n]
   
@@ -380,7 +380,7 @@ PMATH_PRIVATE pmath_t builtin_ludecomposition(pmath_expr_t expr){
   if(!_pmath_is_matrix(matrix, &rows, &cols)
   || rows != cols
   || rows == 0){
-    pmath_message(NULL, "matsq", 2, matrix, pmath_integer_new_si(1));
+    pmath_message(PMATH_NULL, "matsq", 2, matrix, pmath_integer_new_si(1));
     return expr;
   }
   
@@ -388,13 +388,13 @@ PMATH_PRIVATE pmath_t builtin_ludecomposition(pmath_expr_t expr){
   perm = pmath_mem_alloc(sizeof(size_t) * rows);
   if(!perm){
     pmath_unref(matrix);
-    return NULL;
+    return PMATH_NULL;
   }
   
   lu_mat = pmath_ref(matrix);
   sgn = _pmath_matrix_ludecomp(&lu_mat, perm, FALSE);
   if(sgn == 0){
-    pmath_message(NULL, "sing", 1, matrix);
+    pmath_message(PMATH_NULL, "sing", 1, matrix);
   }
   else
     pmath_unref(matrix);

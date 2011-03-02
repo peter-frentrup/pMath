@@ -77,13 +77,13 @@ PMATH_PRIVATE pmath_t builtin_clear(pmath_expr_t expr){
       }
       else{
         pmath_unref(known);
-        pmath_message(NULL, "notfound", 1, pmath_expr_get_item(expr, i));
+        pmath_message(PMATH_NULL, "notfound", 1, pmath_expr_get_item(expr, i));
       }
     }
     else
-      pmath_message(NULL, "ssym", 1, item);
+      pmath_message(PMATH_NULL, "ssym", 1, item);
   }
   
   pmath_unref(expr);
-  return NULL;
+  return PMATH_NULL;
 }

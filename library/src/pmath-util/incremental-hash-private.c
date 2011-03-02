@@ -23,7 +23,7 @@ PMATH_PRIVATE unsigned int incremental_hash(
   unsigned int tmp;
   unsigned int rem;
 
-  if(len == 0 || data == NULL)
+  if(len == 0 || data == PMATH_NULL)
     return hash;
 
   rem = len & 3;

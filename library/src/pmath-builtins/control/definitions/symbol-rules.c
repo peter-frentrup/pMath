@@ -40,7 +40,7 @@ PMATH_PRIVATE pmath_t builtin_assign_ownrules(pmath_expr_t expr){
   
   if(!pmath_same(tag, PMATH_UNDEFINED)
   && !pmath_same(tag, sym)){
-    pmath_message(NULL, "tag", 3, tag, lhs, sym);
+    pmath_message(PMATH_NULL, "tag", 3, tag, lhs, sym);
     
     pmath_unref(expr);
     if(pmath_same(rhs, PMATH_UNDEFINED))
@@ -55,7 +55,7 @@ PMATH_PRIVATE pmath_t builtin_assign_ownrules(pmath_expr_t expr){
     sym = pmath_symbol_find(sym, FALSE);
   
   if(!pmath_is_symbol(sym)){
-    pmath_message(NULL, "fnsym", 1, lhs);
+    pmath_message(PMATH_NULL, "fnsym", 1, lhs);
     
     pmath_unref(sym);
     if(pmath_same(rhs, PMATH_UNDEFINED))
@@ -64,7 +64,7 @@ PMATH_PRIVATE pmath_t builtin_assign_ownrules(pmath_expr_t expr){
   }
   
   if(pmath_symbol_get_attributes(sym) & PMATH_SYMBOL_ATTRIBUTE_PROTECTED){
-    pmath_message(NULL, "wrsym", 1, sym);
+    pmath_message(PMATH_NULL, "wrsym", 1, sym);
     pmath_unref(lhs);
     pmath_unref(rhs);
     return pmath_ref(PMATH_SYMBOL_FAILED);
@@ -74,7 +74,7 @@ PMATH_PRIVATE pmath_t builtin_assign_ownrules(pmath_expr_t expr){
     pmath_symbol_set_value(sym, PMATH_UNDEFINED);
     pmath_unref(sym);
     pmath_unref(lhs);
-    return NULL;
+    return PMATH_NULL;
   }
   
   if(_pmath_is_rule(rhs)){
@@ -92,7 +92,7 @@ PMATH_PRIVATE pmath_t builtin_assign_ownrules(pmath_expr_t expr){
     
     pmath_symbol_set_value(sym, pmath_ref(tag));
     
-    pmath_gather_begin(NULL);
+    pmath_gather_begin(PMATH_NULL);
     _pmath_symbol_value_emit(sym, tag);
     pmath_unref(sym);
     return pmath_gather_end();
@@ -120,14 +120,14 @@ PMATH_PRIVATE pmath_t builtin_assign_ownrules(pmath_expr_t expr){
     
     pmath_symbol_set_value(sym, pmath_ref(tag));
       
-    pmath_gather_begin(NULL);
+    pmath_gather_begin(PMATH_NULL);
     _pmath_symbol_value_emit(sym, tag);
     pmath_unref(sym);
     return pmath_gather_end();
   }
   
   pmath_unref(sym);
-  pmath_message(NULL, "vlist", 2, lhs, rhs);
+  pmath_message(PMATH_NULL, "vlist", 2, lhs, rhs);
     
   return pmath_ref(PMATH_SYMBOL_FAILED);
 }
@@ -153,7 +153,7 @@ PMATH_PRIVATE pmath_t builtin_assign_symbol_rules(pmath_expr_t expr){
     pmath_unref(kind);
   }
   else
-    kind = NULL;
+    kind = PMATH_NULL;
   
   if(!pmath_same(kind, PMATH_SYMBOL_DEFAULTRULES)
   && !pmath_same(kind, PMATH_SYMBOL_DOWNRULES)
@@ -172,7 +172,7 @@ PMATH_PRIVATE pmath_t builtin_assign_symbol_rules(pmath_expr_t expr){
     
     if(!pmath_same(tag, PMATH_UNDEFINED)
     && !pmath_same(tag, sym)){
-      pmath_message(NULL, "tag", 3, tag, lhs, sym);
+      pmath_message(PMATH_NULL, "tag", 3, tag, lhs, sym);
       
       pmath_unref(expr);
       if(pmath_same(rhs, PMATH_UNDEFINED))
@@ -195,7 +195,7 @@ PMATH_PRIVATE pmath_t builtin_assign_symbol_rules(pmath_expr_t expr){
     sym = pmath_symbol_find(sym, FALSE);
   
   if(!pmath_is_symbol(sym)){
-    pmath_message(NULL, "fnsym", 1, lhs);
+    pmath_message(PMATH_NULL, "fnsym", 1, lhs);
     
     pmath_unref(sym);
     if(pmath_same(rhs, PMATH_UNDEFINED))
@@ -228,7 +228,7 @@ PMATH_PRIVATE pmath_t builtin_assign_symbol_rules(pmath_expr_t expr){
   if(pmath_same(rhs, PMATH_UNDEFINED)){
     pmath_unref(lhs);
     pmath_unref(sym);
-    return NULL;
+    return PMATH_NULL;
   }
   
   if(_pmath_is_rule(rhs)){
@@ -242,7 +242,7 @@ PMATH_PRIVATE pmath_t builtin_assign_symbol_rules(pmath_expr_t expr){
     
     _pmath_rulecache_change(rc, lhs, rule_rhs);
     
-    pmath_gather_begin(NULL);
+    pmath_gather_begin(PMATH_NULL);
     _pmath_rulecache_emit(rc);
     pmath_symbol_update(sym);
     pmath_unref(sym);
@@ -268,14 +268,14 @@ PMATH_PRIVATE pmath_t builtin_assign_symbol_rules(pmath_expr_t expr){
     
     pmath_unref(rhs);
     
-    pmath_gather_begin(NULL);
+    pmath_gather_begin(PMATH_NULL);
     _pmath_rulecache_emit(rc);
     pmath_symbol_update(sym);
     pmath_unref(sym);
     return pmath_gather_end();
   }
   
-  pmath_message(NULL, "vlist", 2, lhs, rhs);
+  pmath_message(PMATH_NULL, "vlist", 2, lhs, rhs);
   pmath_unref(sym);
   return pmath_ref(PMATH_SYMBOL_FAILED);
 }
@@ -295,12 +295,12 @@ PMATH_PRIVATE pmath_t builtin_ownrules(pmath_expr_t expr){
   
   if(!pmath_is_symbol(sym)){
     pmath_unref(sym);
-    pmath_message(NULL, "fnsym", 1, pmath_ref(expr));
+    pmath_message(PMATH_NULL, "fnsym", 1, pmath_ref(expr));
     return expr;
   }
   
   pmath_unref(expr);
-  pmath_gather_begin(NULL);
+  pmath_gather_begin(PMATH_NULL);
   
   _pmath_symbol_value_emit(
     sym,
@@ -328,7 +328,7 @@ PMATH_PRIVATE pmath_t builtin_symbol_rules(pmath_expr_t expr){
   
   if(!pmath_is_symbol(sym)){
     pmath_unref(sym);
-    pmath_message(NULL, "fnsym", 1, pmath_ref(expr));
+    pmath_message(PMATH_NULL, "fnsym", 1, pmath_ref(expr));
     return expr;
   }
   
@@ -336,7 +336,7 @@ PMATH_PRIVATE pmath_t builtin_symbol_rules(pmath_expr_t expr){
   pmath_unref(head);
   
   pmath_unref(expr);
-  pmath_gather_begin(NULL);
+  pmath_gather_begin(PMATH_NULL);
   
   rules = _pmath_symbol_get_rules(sym, RULES_READ);
   

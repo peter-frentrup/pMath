@@ -16,7 +16,7 @@ PMATH_PRIVATE pmath_t builtin_cosh(pmath_expr_t expr){
   
   x = pmath_expr_get_item(expr, 1);
   if(pmath_instance_of(x, PMATH_TYPE_MACHINE_FLOAT)){
-    double d = ((struct _pmath_machine_float_t*)x)->value;
+    double d = PMATH_AS_DOUBLE(x);
     double res = cosh(d);
     
     pmath_unref(x);
@@ -25,7 +25,7 @@ PMATH_PRIVATE pmath_t builtin_cosh(pmath_expr_t expr){
       return pmath_float_new_d(res);
     }
     
-    x = (pmath_float_t)_pmath_create_mp_float_from_d(d);
+    x = (pmath_float_t)PMATH_FROM_PTR(_pmath_create_mp_float_from_d(d));
     expr = pmath_expr_set_item(expr, 1, pmath_ref(x));
   }
   
@@ -41,16 +41,16 @@ PMATH_PRIVATE pmath_t builtin_cosh(pmath_expr_t expr){
       
       mpfr_sinh(
         tmp->value,
-        ((struct _pmath_mp_float_t*)x)->value, 
+        ((struct _pmath_mp_float_t*)PMATH_AS_PTR(x))->value, 
         GMP_RNDN);
       
       // dy = d(cosh(x)) = sinh(x) * dx
-      mpfr_mul(tmp->error, tmp->value, ((struct _pmath_mp_float_t*)x)->error, GMP_RNDN);
+      mpfr_mul(tmp->error, tmp->value, ((struct _pmath_mp_float_t*)PMATH_AS_PTR(x))->error, GMP_RNDN);
       
       // Precision(y) = -Log(base, y) + Accuracy(y)
-      val = mpfr_get_d(((struct _pmath_mp_float_t*)x)->value, GMP_RNDN);
+      val = mpfr_get_d(((struct _pmath_mp_float_t*)PMATH_AS_PTR(x))->value, GMP_RNDN);
       val = cosh(val);
-      accmant = mpfr_get_d_2exp(&accexp, ((struct _pmath_mp_float_t*)tmp)->error, GMP_RNDN);
+      accmant = mpfr_get_d_2exp(&accexp, tmp->error, GMP_RNDN);
       acc  = -log2(fabs(accmant)) - accexp;
       prec = -log2(fabs(val)) + acc;
       
@@ -61,14 +61,14 @@ PMATH_PRIVATE pmath_t builtin_cosh(pmath_expr_t expr){
       
       result = _pmath_create_mp_float((mp_prec_t)prec);
       if(result){
-        mpfr_cosh(result->value, ((struct _pmath_mp_float_t*)x)->value, GMP_RNDN);
+        mpfr_cosh(result->value, ((struct _pmath_mp_float_t*)PMATH_AS_PTR(x))->value, GMP_RNDN);
         mpfr_abs( result->error, tmp->error, GMP_RNDU);
       }
       
       pmath_unref(expr);
       pmath_unref(x);
-      pmath_unref((pmath_float_t)tmp);
-      return (pmath_float_t)result;
+      pmath_unref((pmath_float_t)PMATH_FROM_PTR(tmp));
+      return (pmath_float_t)PMATH_FROM_PTR(result);
     }
   }
   
@@ -76,7 +76,7 @@ PMATH_PRIVATE pmath_t builtin_cosh(pmath_expr_t expr){
     int sign = pmath_number_sign(x);
     
     if(sign < 0){
-      expr = pmath_expr_set_item(expr, 1, NULL);
+      expr = pmath_expr_set_item(expr, 1, PMATH_NULL);
       
       return pmath_expr_set_item(
         expr, 1,
@@ -103,7 +103,7 @@ PMATH_PRIVATE pmath_t builtin_cosh(pmath_expr_t expr){
       
       if(pmath_is_number(fst)){
         if(pmath_number_sign(fst) < 0){
-          expr = pmath_expr_set_item(expr, 1, NULL);
+          expr = pmath_expr_set_item(expr, 1, PMATH_NULL);
           
           return pmath_expr_set_item(
             expr, 1,

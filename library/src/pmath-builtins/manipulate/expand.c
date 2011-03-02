@@ -30,14 +30,14 @@ static pmath_t expand_ui_power(pmath_t sum, unsigned long n){
   }
   
   pmath_unref(sum);
-  pmath_gather_begin(NULL);
+  pmath_gather_begin(PMATH_NULL);
   
   pmath_emit(
     pmath_expr_new_extended(
       pmath_ref(PMATH_SYMBOL_POWER), 2,
       pmath_ref(a),
       pmath_integer_new_ui(n)), 
-    NULL);
+    PMATH_NULL);
   
   bin = pmath_integer_new_ui(1);
   for(k = 1;k < n;++k){
@@ -58,7 +58,7 @@ static pmath_t expand_ui_power(pmath_t sum, unsigned long n){
           pmath_ref(PMATH_SYMBOL_POWER), 2,
           pmath_ref(b),
           pmath_integer_new_ui(k))), 
-      NULL);
+      PMATH_NULL);
   }
   pmath_unref(bin);
   
@@ -67,7 +67,7 @@ static pmath_t expand_ui_power(pmath_t sum, unsigned long n){
       pmath_ref(PMATH_SYMBOL_POWER), 2,
       pmath_ref(b),
       pmath_integer_new_ui(n)), 
-    NULL);
+    PMATH_NULL);
   
   pmath_unref(a);
   pmath_unref(b);
@@ -306,7 +306,7 @@ PMATH_PRIVATE pmath_t builtin_expandall(pmath_expr_t expr){
     pmath_bool_t expand_rest = TRUE;
     
     pmath_unref(expr);
-    expr = obj; obj = NULL;
+    expr = obj; obj = PMATH_NULL;
     
     head = eval_expandall(pmath_expr_get_item(expr, 0));
     expr = pmath_expr_set_item(expr, 0, pmath_ref(head));

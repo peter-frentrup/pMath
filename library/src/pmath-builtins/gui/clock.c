@@ -62,7 +62,7 @@ PMATH_PRIVATE pmath_t builtin_clock(pmath_expr_t expr){
     }
     else if(!(_pmath_number_class(obj) & PMATH_CLASS_POSINF)){
       pmath_unref(obj);
-      pmath_message(NULL, "innf", 2, INT(3), pmath_ref(expr));
+      pmath_message(PMATH_NULL, "innf", 2, INT(3), pmath_ref(expr));
       return expr;
     }
     
@@ -90,16 +90,18 @@ PMATH_PRIVATE pmath_t builtin_clock(pmath_expr_t expr){
     }
     else{
       pmath_unref(duration);
-      pmath_message(NULL, "vals", 1, obj);
+      pmath_message(PMATH_NULL, "vals", 1, obj);
       return expr;
     }
     
-    if(!min || !max || !delta){
+    if(pmath_is_null(min) 
+    || pmath_is_null(max) 
+    || pmath_is_null(delta)){
       pmath_unref(duration);
       pmath_unref(min);
       pmath_unref(max);
       pmath_unref(delta);
-      pmath_message(NULL, "vals", 1, obj);
+      pmath_message(PMATH_NULL, "vals", 1, obj);
       return expr;
     }
     
@@ -130,7 +132,7 @@ PMATH_PRIVATE pmath_t builtin_clock(pmath_expr_t expr){
     pmath_unref(delta);
     pmath_unref(obj);
     pmath_unref(duration);
-    pmath_message(NULL, "length", 1, pmath_ref(expr));
+    pmath_message(PMATH_NULL, "length", 1, pmath_ref(expr));
     return expr;
   }
   
@@ -148,7 +150,7 @@ PMATH_PRIVATE pmath_t builtin_clock(pmath_expr_t expr){
         pmath_unref(max);
         pmath_unref(delta);
         pmath_unref(duration);
-        pmath_message(NULL, "inf", 0);
+        pmath_message(PMATH_NULL, "inf", 0);
         return expr;
       }
     }
@@ -174,7 +176,7 @@ PMATH_PRIVATE pmath_t builtin_clock(pmath_expr_t expr){
         pmath_unref(max);
         pmath_unref(delta);
         pmath_unref(duration);
-        pmath_message(NULL, "inf", 0);
+        pmath_message(PMATH_NULL, "inf", 0);
         return expr;
       }
     }
@@ -184,7 +186,7 @@ PMATH_PRIVATE pmath_t builtin_clock(pmath_expr_t expr){
       pmath_unref(delta);
       pmath_unref(obj);
       pmath_unref(duration);
-      pmath_message(NULL, "length", 1, pmath_ref(expr));
+      pmath_message(PMATH_NULL, "length", 1, pmath_ref(expr));
       return expr;
     }
   }
@@ -206,7 +208,7 @@ PMATH_PRIVATE pmath_t builtin_clock(pmath_expr_t expr){
       pmath_unref(min);
       pmath_unref(max);
       pmath_unref(delta);
-      pmath_message(NULL, "period", 1, duration);
+      pmath_message(PMATH_NULL, "period", 1, duration);
       return expr;
     }
     

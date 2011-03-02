@@ -34,7 +34,7 @@ pmath_bool_t _pmath_assign(
      0 = no assignment
      1 = direct assignment (Assign, TagAssign)
    
-   if return value = 0: *lhs = NULL, *tag = *rhs = PMATH_UNDEFINED
+   if return value = 0: *lhs = PMATH_NULL, *tag = *rhs = PMATH_UNDEFINED
  */
 PMATH_PRIVATE
 int _pmath_is_assignment(

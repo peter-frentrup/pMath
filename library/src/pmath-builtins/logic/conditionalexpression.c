@@ -58,12 +58,12 @@ PMATH_PRIVATE pmath_t builtin_operate_conditionalexpression(pmath_expr_t expr){
   }
   
   pmath_unref(item);
-  pmath_gather_begin(NULL);
+  pmath_gather_begin(PMATH_NULL);
   for(i = 1;i <= pmath_expr_length(expr);++i){
     item = pmath_expr_get_item(expr, i);
     
     if(pmath_is_expr_of_len(item, PMATH_SYMBOL_CONDITIONALEXPRESSION, 2)){
-      pmath_emit(pmath_expr_get_item(item, 2), NULL);
+      pmath_emit(pmath_expr_get_item(item, 2), PMATH_NULL);
       expr = pmath_expr_set_item(expr, i, pmath_expr_get_item(item, 1));
     }
     

@@ -48,8 +48,8 @@ pmath_t builtin_sum(pmath_expr_t expr){
   iter = pmath_expr_get_item(expr, 2);
   if(_pmath_is_rule(iter)){
     pmath_t range = pmath_expr_get_item(iter, 2);
-    pmath_t start = NULL;
-    pmath_t delta = NULL;
+    pmath_t start = PMATH_NULL;
+    pmath_t delta = PMATH_NULL;
     size_t  count;
     
     if(!extract_delta_range(range, &start, &delta, &count)){
@@ -94,8 +94,8 @@ pmath_t builtin_product(pmath_expr_t expr){
   iter = pmath_expr_get_item(expr, 2);
   if(_pmath_is_rule(iter)){
     pmath_t range = pmath_expr_get_item(iter, 2);
-    pmath_t start = NULL;
-    pmath_t delta = NULL;
+    pmath_t start = PMATH_NULL;
+    pmath_t delta = PMATH_NULL;
     size_t  count;
     
     if(!extract_delta_range(range, &start, &delta, &count)){

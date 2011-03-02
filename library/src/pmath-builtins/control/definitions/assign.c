@@ -61,7 +61,7 @@ static pmath_bool_t assign_funcdef(
 static int find_tag( // SYM_SEARCH_XXX
   pmath_t          lhs,         // wont be freed
   pmath_symbol_t   in_tag,      // wont be freed; PMATH_UNDEFINED = automatic
-  pmath_symbol_t  *out_tag,     // set to NULL before call!
+  pmath_symbol_t  *out_tag,     // set to PMATH_NULL before call!
   int             *kind_of_lhs, // XXX_RULES
   pmath_bool_t     literal
 ){
@@ -99,12 +99,12 @@ static int find_tag( // SYM_SEARCH_XXX
         return SYM_SEARCH_NOTFOUND;
       }
       
-      if(pmath_same(item PMATH_SYMBOL_CONDITION)
-      || pmath_same(item PMATH_SYMBOL_REPEATED) 
-      || pmath_same(item PMATH_SYMBOL_LONGEST)
-      || pmath_same(item PMATH_SYMBOL_SHORTEST)
-      || pmath_same(item PMATH_SYMBOL_HOLDPATTERN)
-      || pmath_same(item PMATH_SYMBOL_TESTPATTERN)){
+      if(pmath_same(item, PMATH_SYMBOL_CONDITION)
+      || pmath_same(item, PMATH_SYMBOL_REPEATED) 
+      || pmath_same(item, PMATH_SYMBOL_LONGEST)
+      || pmath_same(item, PMATH_SYMBOL_SHORTEST)
+      || pmath_same(item, PMATH_SYMBOL_HOLDPATTERN)
+      || pmath_same(item, PMATH_SYMBOL_TESTPATTERN)){
         pmath_unref(item);
         
         item = pmath_expr_get_item(lhs, 1);
@@ -140,7 +140,7 @@ static int find_tag( // SYM_SEARCH_XXX
         item = pmath_expr_get_item(lhs, 1);
         
         if(pmath_same(item, in_tag)
-        || (item && pmath_same(in_tag, PMATH_UNDEFINED))){
+        || (!pmath_is_null(item) && pmath_same(in_tag, PMATH_UNDEFINED))){
           pmath_unref(*out_tag);
           *out_tag = item;
           *kind_of_lhs = DOWN_RULES;
@@ -176,7 +176,7 @@ static int find_tag( // SYM_SEARCH_XXX
       
       if(!error && *kind_of_lhs == UP_RULES){
 //        pmath_unref(*out_tag);
-//        *out_tag = NULL;
+//        *out_tag = PMATH_NULL;
         error = SYM_SEARCH_TOODEEP;
       }
     }
@@ -203,7 +203,7 @@ pmath_bool_t _pmath_assign(
   if(pmath_is_expr(lhs))
     lhs = pmath_evaluate_expression(lhs, FALSE);
   
-  out_tag = NULL;
+  out_tag = PMATH_NULL;
   error = find_tag(lhs, tag, &out_tag, &kind_of_lhs, FALSE);
   
   if(error){
@@ -217,21 +217,21 @@ pmath_bool_t _pmath_assign(
     switch(error){
       case SYM_SEARCH_NOTFOUND:
         if(pmath_same(tag, PMATH_UNDEFINED))
-          pmath_message(NULL, "notag", 1, lhs);
+          pmath_message(PMATH_NULL, "notag", 1, lhs);
         else
-          pmath_message(NULL, "tagnf", 2, pmath_ref(tag), lhs);
+          pmath_message(PMATH_NULL, "tagnf", 2, pmath_ref(tag), lhs);
         pmath_unref(rhs);
         pmath_unref(out_tag);
         return FALSE;
         
       case SYM_SEARCH_ALTERNATIVES:
-        pmath_message(NULL, "noalt", 1, lhs);
+        pmath_message(PMATH_NULL, "noalt", 1, lhs);
         pmath_unref(rhs);
         pmath_unref(out_tag);
         return FALSE;
         
       case SYM_SEARCH_TOODEEP:
-        pmath_message(NULL, "tagpos", 2, out_tag, lhs);
+        pmath_message(PMATH_NULL, "tagpos", 2, out_tag, lhs);
         pmath_unref(rhs);
         return FALSE;
     }
@@ -257,7 +257,7 @@ int _pmath_is_assignment(
   size_t  len;
   
   *tag = PMATH_UNDEFINED;
-  *lhs = NULL;
+  *lhs = PMATH_NULL;
   *rhs = PMATH_UNDEFINED;
   
   head = pmath_expr_get_item(expr, 0);
@@ -284,7 +284,7 @@ int _pmath_is_assignment(
     return 1;
   }
   
-  if(len == 3 pmath_same(head, PMATH_SYMBOL_TAGASSIGNDELAYED)){
+  if(len == 3 && pmath_same(head, PMATH_SYMBOL_TAGASSIGNDELAYED)){
     *tag = pmath_expr_get_item(expr, 1);
     *lhs = pmath_expr_get_item(expr, 2);
     *rhs = pmath_expr_get_item(expr, 3);
@@ -296,7 +296,7 @@ int _pmath_is_assignment(
     return -1;
   }
   
-  if(len == 2 pmath_same(head, PMATH_SYMBOL_TAGUNASSIGN)){
+  if(len == 2 && pmath_same(head, PMATH_SYMBOL_TAGUNASSIGN)){
     *tag = pmath_expr_get_item(expr, 1);
     *lhs = pmath_expr_get_item(expr, 2);
     return -1;
@@ -338,7 +338,7 @@ PMATH_PRIVATE pmath_t builtin_assign(pmath_expr_t expr){
   if(!_pmath_assign(PMATH_UNDEFINED, lhs, rhs))
     return pmath_ref(PMATH_SYMBOL_FAILED);
     
-  return NULL;
+  return PMATH_NULL;
 }
 
 PMATH_PRIVATE pmath_t builtin_unassign(pmath_expr_t expr){
@@ -368,7 +368,7 @@ PMATH_PRIVATE pmath_t builtin_unassign(pmath_expr_t expr){
   if(!_pmath_assign(PMATH_UNDEFINED, lhs, PMATH_UNDEFINED))
     return pmath_ref(PMATH_SYMBOL_FAILED);
     
-  return NULL;
+  return PMATH_NULL;
 }
 
 PMATH_PRIVATE pmath_t builtin_tagassign(pmath_expr_t expr){
@@ -383,7 +383,7 @@ PMATH_PRIVATE pmath_t builtin_tagassign(pmath_expr_t expr){
   tag = pmath_expr_get_item(expr, 1);
   
   if(!pmath_is_symbol(tag)){
-    pmath_message(NULL, "sym", 2, tag, pmath_integer_new_si(1));
+    pmath_message(PMATH_NULL, "sym", 2, tag, pmath_integer_new_si(1));
     return expr;
   }
   
@@ -418,7 +418,7 @@ PMATH_PRIVATE pmath_t builtin_tagassign(pmath_expr_t expr){
   }
     
   pmath_unref(tag);
-  return NULL;
+  return PMATH_NULL;
 }
 
 PMATH_PRIVATE pmath_t builtin_tagunassign(pmath_expr_t expr){
@@ -433,7 +433,7 @@ PMATH_PRIVATE pmath_t builtin_tagunassign(pmath_expr_t expr){
   tag = pmath_expr_get_item(expr, 1);
   
   if(!pmath_is_symbol(tag)){
-    pmath_message(NULL, "sym", 2, tag, pmath_integer_new_si(1));
+    pmath_message(PMATH_NULL, "sym", 2, tag, pmath_integer_new_si(1));
     return expr;
   }
   
@@ -460,7 +460,7 @@ PMATH_PRIVATE pmath_t builtin_tagunassign(pmath_expr_t expr){
   }
     
   pmath_unref(tag);
-  return NULL;
+  return PMATH_NULL;
 }
 
 PMATH_PRIVATE pmath_t builtin_assign_list(pmath_expr_t expr){
@@ -535,7 +535,7 @@ PMATH_PRIVATE pmath_t builtin_assign_list(pmath_expr_t expr){
   pmath_unref(rhs);
   if(pmath_same(head, PMATH_SYMBOL_ASSIGNDELAYED)){
     pmath_unref(pmath_evaluate(lhs));
-    return NULL;
+    return PMATH_NULL;
   }
   
   return lhs;

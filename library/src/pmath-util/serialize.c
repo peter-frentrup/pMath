@@ -12,7 +12,7 @@
 /* Data format   (LE = little endian)
 
    - Magic objects:      
-       object == NULL:   0     (1 byte)
+       object == PMATH_NULL:   0     (1 byte)
        object == b       1,b   (2 bytes)
    
    - new reference:      2,B,object  (B = 32BitLE number as new reference)
@@ -244,7 +244,7 @@ static void serialize(
         
         mpz_export(
           data,
-          NULL,
+          PMATH_NULL,
           -1,
           1,
           0,
@@ -371,7 +371,7 @@ static int32_t read_si32(struct deserializer_t *info){
 
 static pmath_t deserialize(struct deserializer_t *info){
   switch(read_ui8(info)){
-    case 0: return NULL;
+    case 0: return PMATH_NULL;
     case 1: return (pmath_t)(uintptr_t)read_ui8(info);
     
     case 2: {
@@ -516,7 +516,7 @@ static pmath_t deserialize(struct deserializer_t *info){
       if(slen < 0)
         mpz_neg(result->value, result->value);
         
-      return (pmath_integer_t)result;
+      return (pmath_integer_t)PMATH_FROM_PTR(result);
     } break;
     
     case 8: {
@@ -578,7 +578,7 @@ static pmath_t deserialize(struct deserializer_t *info){
       
       if(!pmath_is_integer(mant)){
         pmath_unref(mant);
-        pmath_unref((pmath_float_t)result);
+        pmath_unref((pmath_float_t)PMATH_FROM_PTR(result));;
         
         if(!info->error)
           info->error = PMATH_SERIALIZE_BAD_BYTE;
@@ -588,7 +588,7 @@ static pmath_t deserialize(struct deserializer_t *info){
       mpfr_set_z(result->error, ((struct _pmath_integer_t*)mant)->value, GMP_RNDN);
       mpfr_mul_2si(result->error, result->error, exp, GMP_RNDN);
       pmath_unref(mant);
-      return (pmath_float_t)result;
+      return (pmath_float_t)PMATH_FROM_PTR(result);
     } break;
     
     case 10: {
@@ -621,7 +621,7 @@ static pmath_t deserialize(struct deserializer_t *info){
       pmath_unref(mant);
       
       mant = pmath_float_new_d(mpfr_get_d(result->value, GMP_RNDN));
-      pmath_unref((pmath_float_t)result);
+      pmath_unref((pmath_float_t)PMATH_FROM_PTR(result));;
       
       return mant;
     } break;

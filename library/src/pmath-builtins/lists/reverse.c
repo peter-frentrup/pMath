@@ -26,7 +26,7 @@ static pmath_t reverse(
     
     for(i = len;i > 0;--i){
       pmath_t item = pmath_expr_get_item(obj, i);
-      obj = pmath_expr_set_item(obj, i, NULL);
+      obj = pmath_expr_set_item(obj, i, PMATH_NULL);
       
       item = reverse(info, item, level + 1);
       obj = pmath_expr_set_item(obj, i, item);
@@ -74,7 +74,7 @@ PMATH_PRIVATE pmath_t builtin_reverse(pmath_expr_t expr){
   obj = pmath_expr_get_item(expr, 1);
   if(!pmath_is_expr(obj)){
     pmath_unref(obj);
-    pmath_message(NULL, "nexprat", 1, pmath_integer_new_si(1), pmath_ref(expr));
+    pmath_message(PMATH_NULL, "nexprat", 1, pmath_integer_new_si(1), pmath_ref(expr));
     return expr;
   }
   
@@ -93,7 +93,7 @@ PMATH_PRIVATE pmath_t builtin_reverse(pmath_expr_t expr){
         if(!_pmath_extract_levels(leveli, &info.levelmin, &info.levelmax)){
           pmath_unref(leveli);
           pmath_unref(obj);
-          pmath_message(NULL, "level", 1, levels);
+          pmath_message(PMATH_NULL, "level", 1, levels);
           return expr;
         }
         
@@ -108,7 +108,7 @@ PMATH_PRIVATE pmath_t builtin_reverse(pmath_expr_t expr){
     
     if(!_pmath_extract_levels(levels, &info.levelmin, &info.levelmax)){
       pmath_unref(obj);
-      pmath_message(NULL, "level", 1, levels);
+      pmath_message(PMATH_NULL, "level", 1, levels);
       return expr;
     }
     

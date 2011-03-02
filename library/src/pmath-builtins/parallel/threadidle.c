@@ -12,5 +12,5 @@ PMATH_PRIVATE pmath_t builtin_internal_threadidle(pmath_expr_t expr){
   
   pmath_unref(expr);
   pmath_thread_sleep();
-  return NULL;
+  return PMATH_NULL;
 }

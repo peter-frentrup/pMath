@@ -28,7 +28,7 @@ PMATH_PRIVATE pmath_t builtin_throw(pmath_expr_t expr){
   
   pmath_throw(pmath_expr_get_item(expr, 1));
   pmath_unref(expr);
-  return NULL;
+  return PMATH_NULL;
 }
 
 PMATH_PRIVATE pmath_t builtin_catch(pmath_expr_t expr){
@@ -46,7 +46,8 @@ PMATH_PRIVATE pmath_t builtin_catch(pmath_expr_t expr){
   result = pmath_evaluate(pmath_expr_get_item(expr, 1));
 
   exception = pmath_catch();
-  if(!exception || pmath_instance_of(exception, PMATH_TYPE_EVALUATABLE)){
+  if(pmath_is_null(exception) 
+  || pmath_instance_of(exception, PMATH_TYPE_EVALUATABLE)){
     pmath_t rhs, pattern;
 
     if(len == 1){
@@ -55,7 +56,7 @@ PMATH_PRIVATE pmath_t builtin_catch(pmath_expr_t expr){
       return exception;
     }
 
-    rhs = NULL;
+    rhs = PMATH_NULL;
     pattern = pmath_expr_get_item(expr, 2);
     if(_pmath_pattern_match(exception, pattern, &rhs)){
       pmath_unref(result);

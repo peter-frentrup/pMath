@@ -54,17 +54,17 @@ PMATH_FORCE_INLINE
 PMATH_INLINE_NODEBUG
 void _pmath_object_atomic_write(
   pmath_t volatile *ptr,
-  pmath_t          value
+  pmath_t           value
 ){
   pmath_t old;
 
-  assert(value != PMATH_INVALID_PTR);
+  assert(PMATH_AS_PTR(value) != PMATH_INVALID_PTR);
 
-  old = (pmath_t)pmath_atomic_fetch_set(
+  old = PMATH_FROM_PTR((void*)pmath_atomic_fetch_set(
     (intptr_t*)ptr,
-    (intptr_t)value);
+    (intptr_t)PMATH_AS_PTR(value)));
 
-  if(old != PMATH_INVALID_PTR)
+  if(PMATH_AS_PTR(old) != PMATH_INVALID_PTR)
     pmath_unref(old);
 }
 
@@ -73,7 +73,7 @@ PMATH_INLINE_NODEBUG
 pmath_t _pmath_object_atomic_read_start(
   pmath_t volatile *ptr
 ){
-  return (pmath_t)_pmath_atomic_lock_ptr((void * volatile *)ptr);
+  return PMATH_FROM_PTR(_pmath_atomic_lock_ptr((void * volatile *)ptr));
 }
 
 /* All reads are blocked between 
@@ -88,12 +88,12 @@ void _pmath_object_atomic_read_end(
   pmath_t volatile *ptr,
   pmath_t          value // will be freed
 ){
-  assert(value != PMATH_INVALID_PTR);
+  assert(PMATH_AS_PTR(value) != PMATH_INVALID_PTR);
   
   if(!pmath_atomic_compare_and_set(
       (intptr_t*)ptr,
       (intptr_t)PMATH_INVALID_PTR,
-      (intptr_t)value))
+      (intptr_t)PMATH_AS_PTR(value)))
     pmath_unref(value);
 }
 

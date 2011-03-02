@@ -113,16 +113,16 @@ PMATH_PRIVATE pmath_t builtin_deletedirectory_and_deletefile(pmath_expr_t expr){
   
   if(pmath_same(head, PMATH_SYMBOL_DELETEDIRECTORY)){
     pmath_t options = pmath_options_extract(expr, 1);
-    if(!options)
+    if(pmath_is_null(options))
       return expr;
       
-    name = pmath_option_value(NULL, PMATH_SYMBOL_DELETECONTENTS, options);
+    name = pmath_option_value(PMATH_NULL, PMATH_SYMBOL_DELETECONTENTS, options);
     pmath_unref(options);
     if(pmath_same(name, PMATH_SYMBOL_TRUE)){
       delete_contents = TRUE;
     }
     else if(!pmath_same(name, PMATH_SYMBOL_FALSE)){
-      pmath_message(NULL, "opttf", 2, 
+      pmath_message(PMATH_NULL, "opttf", 2, 
         pmath_ref(PMATH_SYMBOL_DELETECONTENTS), name);
       return expr;
     }
@@ -132,7 +132,7 @@ PMATH_PRIVATE pmath_t builtin_deletedirectory_and_deletefile(pmath_expr_t expr){
   
   name = pmath_expr_get_item(expr, 1);
   if(!pmath_is_string(name) || pmath_string_length(name) == 0){
-    pmath_message(NULL, "fstr", 1, name);
+    pmath_message(PMATH_NULL, "fstr", 1, name);
     return expr;
   }
   
@@ -150,10 +150,10 @@ PMATH_PRIVATE pmath_t builtin_deletedirectory_and_deletefile(pmath_expr_t expr){
         (const wchar_t*)pmath_string_buffer(abs_name),
         0,
         FILE_SHARE_READ | FILE_SHARE_WRITE,
-        NULL,
+        PMATH_NULL,
         OPEN_EXISTING,
         FILE_FLAG_BACKUP_SEMANTICS,
-        NULL);
+        PMATH_NULL);
       
       if(h != INVALID_HANDLE_VALUE){
         BY_HANDLE_FILE_INFORMATION info;
@@ -189,23 +189,23 @@ PMATH_PRIVATE pmath_t builtin_deletedirectory_and_deletefile(pmath_expr_t expr){
           switch(err){
             case 0:
               pmath_unref(name);
-              name = NULL;
+              name = PMATH_NULL;
               break;
             
             case ERROR_ACCESS_DENIED:
-              pmath_message(NULL, "privv", 1, expr); 
-              expr = NULL;
+              pmath_message(PMATH_NULL, "privv", 1, expr); 
+              expr = PMATH_NULL;
               pmath_unref(name);
               name = pmath_ref(PMATH_SYMBOL_FAILED);
             
             case ERROR_DIR_NOT_EMPTY:
-              pmath_message(NULL, "dirne", 1, name); 
-              name = NULL; 
+              pmath_message(PMATH_NULL, "dirne", 1, name); 
+              name = PMATH_NULL; 
               break;
               
             default:
-              pmath_message(NULL, "ioarg", 1, expr); 
-              expr = NULL;
+              pmath_message(PMATH_NULL, "ioarg", 1, expr); 
+              expr = PMATH_NULL;
               pmath_unref(name);
               name = pmath_ref(PMATH_SYMBOL_FAILED);
           }
@@ -213,18 +213,18 @@ PMATH_PRIVATE pmath_t builtin_deletedirectory_and_deletefile(pmath_expr_t expr){
         else{
           switch(GetLastError()){
             case ERROR_ACCESS_DENIED:
-              pmath_message(NULL, "privv", 1, expr); 
-              expr = NULL;
+              pmath_message(PMATH_NULL, "privv", 1, expr); 
+              expr = PMATH_NULL;
               break;
             
             default:
               if(pmath_same(head, PMATH_SYMBOL_DELETEFILE)){
-                pmath_message(NULL, "fdir", 1, name);
-                name = NULL;
+                pmath_message(PMATH_NULL, "fdir", 1, name);
+                name = PMATH_NULL;
               }
               else{
-                pmath_message(NULL, "nodir", 1, name);
-                name = NULL;
+                pmath_message(PMATH_NULL, "nodir", 1, name);
+                name = PMATH_NULL;
               }
           }
           pmath_unref(name);
@@ -235,18 +235,18 @@ PMATH_PRIVATE pmath_t builtin_deletedirectory_and_deletefile(pmath_expr_t expr){
       else{
         switch(GetLastError()){
           case ERROR_ACCESS_DENIED:
-            pmath_message(NULL, "privv", 1, expr); 
-            expr = NULL;
+            pmath_message(PMATH_NULL, "privv", 1, expr); 
+            expr = PMATH_NULL;
             break;
           
           default:
             if(pmath_same(head, PMATH_SYMBOL_DELETEFILE)){
-              pmath_message(NULL, "nffil", 1, expr);
-              expr = NULL;
+              pmath_message(PMATH_NULL, "nffil", 1, expr);
+              expr = PMATH_NULL;
             }
             else{
-              pmath_message(NULL, "nodir", 1, name);
-              name = NULL;
+              pmath_message(PMATH_NULL, "nodir", 1, name);
+              name = PMATH_NULL;
             }
         }
         pmath_unref(name);
@@ -258,43 +258,43 @@ PMATH_PRIVATE pmath_t builtin_deletedirectory_and_deletefile(pmath_expr_t expr){
   }
   #else
   {
-    char *str = pmath_string_to_native(name, NULL);
+    char *str = pmath_string_to_native(name, PMATH_NULL);
     
     if(str){
       errno = 0;
       if(delete_file_or_dir(str, delete_contents)){
         pmath_unref(name);
-        name = NULL;
+        name = PMATH_NULL;
       }
       else{
         switch(errno){
           case EACCES:
           case EPERM:
-            pmath_message(NULL, "privv", 1, expr);
-            expr = NULL;
+            pmath_message(PMATH_NULL, "privv", 1, expr);
+            expr = PMATH_NULL;
             break;
             
           case ENOTEMPTY:
           case EEXIST: 
-            pmath_message(NULL, "dirne", 1, name); 
-            name = NULL; 
+            pmath_message(PMATH_NULL, "dirne", 1, name); 
+            name = PMATH_NULL; 
             break;
           
           case ENOENT: 
           case ENOTDIR: 
             if(pmath_same(head, PMATH_SYMBOL_DELETEDIRECTORY)){
-              pmath_message(NULL, "nodir", 1, name); 
-              name = NULL; 
+              pmath_message(PMATH_NULL, "nodir", 1, name); 
+              name = PMATH_NULL; 
             }
             else{
-              pmath_message(NULL, "nffil", 1, expr); 
-              expr = NULL; 
+              pmath_message(PMATH_NULL, "nffil", 1, expr); 
+              expr = PMATH_NULL; 
             }
             break;
           
           default:
-            pmath_message(NULL, "ioarg", 1, expr); 
-            expr = NULL;
+            pmath_message(PMATH_NULL, "ioarg", 1, expr); 
+            expr = PMATH_NULL;
             break;
         }
         

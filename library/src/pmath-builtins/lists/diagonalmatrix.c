@@ -34,7 +34,7 @@ PMATH_PRIVATE pmath_t builtin_diagonalmatrix(pmath_expr_t expr){
     pmath_t diag_obj = pmath_expr_get_item(expr, 2);
     
     if(!pmath_is_integer(diag_obj) || !pmath_integer_fits_si(diag_obj)){
-      pmath_message(NULL, "intm", 2, pmath_ref(expr), pmath_integer_new_si(2));
+      pmath_message(PMATH_NULL, "intm", 2, pmath_ref(expr), pmath_integer_new_si(2));
       pmath_unref(list);
       pmath_unref(diag_obj);
       return expr;

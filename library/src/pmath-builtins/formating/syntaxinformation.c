@@ -70,7 +70,7 @@ PMATH_PRIVATE pmath_t builtin_syntaxinformation(pmath_expr_t expr){
   if(pmath_is_string(sym)){
     sym = pmath_symbol_find(sym, FALSE);
     
-    if(!sym){
+    if(pmath_is_null(sym)){
       pmath_unref(expr);
       return pmath_ref(_pmath_object_emptylist);
     }

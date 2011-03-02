@@ -42,7 +42,7 @@ PMATH_PRIVATE pmath_t builtin_operate(pmath_expr_t expr){
     if(!pmath_is_integer(obj) || !pmath_integer_fits_ui(obj)){
       pmath_unref(obj);
       pmath_message(
-        NULL, "numn", 2,
+        PMATH_NULL, "numn", 2,
         pmath_integer_new_ui(3),
         pmath_ref(expr));
       return expr;

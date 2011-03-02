@@ -64,14 +64,14 @@ PMATH_PRIVATE pmath_bool_t _pmath_regex_init_capture(
   const struct _regex_t *re, 
   struct _capture_t     *c
 ){
-  assert(c != NULL);
+  assert(c != PMATH_NULL);
   
-  c->ovector = NULL;
+  c->ovector = PMATH_NULL;
   c->ovecsize = 0;
   c->capture_max = -1;
   
   if(re 
-  && !pcre_fullinfo(re->code, NULL, PCRE_INFO_CAPTURECOUNT, &(c->capture_max))){
+  && !pcre_fullinfo(re->code, PMATH_NULL, PCRE_INFO_CAPTURECOUNT, &(c->capture_max))){
     c->ovecsize = 3 * (c->capture_max + 1);
     c->ovector = pmath_mem_alloc(sizeof(int) * c->ovecsize);
     
@@ -91,7 +91,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_regex_init_capture(
 }
 
 PMATH_PRIVATE void _pmath_regex_free_capture(struct _capture_t *c){
-  assert(c != NULL);
+  assert(c != PMATH_NULL);
   
   pmath_mem_free(c->ovector);
 }
@@ -107,7 +107,7 @@ static pmath_string_t get_capture_by_name_id(
   int entrylen;
   char s[20];
     
-  assert(c != NULL);
+  assert(c != PMATH_NULL);
 
   snprintf(s, sizeof(s), SUBPATTERN_PREFIX"%d", name_id);
   
@@ -131,7 +131,7 @@ static pmath_string_t get_capture_by_name_id(
   return pmath_string_new(0);
 }
 
-static pmath_string_t get_capture_by_rhs( // NULL if no capture was found
+static pmath_string_t get_capture_by_rhs( // PMATH_NULL if no capture was found
   const struct _regex_t  *re,
   struct _capture_t      *c, 
   const char             *subject, 
@@ -142,13 +142,13 @@ static pmath_string_t get_capture_by_rhs( // NULL if no capture was found
   int i, len, namecount, nameentrysize;
   int capture_num;
   
-  assert(c != NULL);
+  assert(c != PMATH_NULL);
   
   buf = pmath_string_buffer(rhs);
   len = pmath_string_length(rhs);
   
   if(!re || len < 2 || buf[0] != '$')
-    return NULL;
+    return PMATH_NULL;
   
   capture_num = 0;
   for(i = 1;i < len;++i){
@@ -162,9 +162,9 @@ static pmath_string_t get_capture_by_rhs( // NULL if no capture was found
   }
   
   if(capture_num < 0
-  && pcre_fullinfo(re->code, NULL, PCRE_INFO_NAMECOUNT,     &namecount)
-  && pcre_fullinfo(re->code, NULL, PCRE_INFO_NAMEENTRYSIZE, &nameentrysize)
-  && pcre_fullinfo(re->code, NULL, PCRE_INFO_NAMETABLE,     &name)
+  && pcre_fullinfo(re->code, PMATH_NULL, PCRE_INFO_NAMECOUNT,     &namecount)
+  && pcre_fullinfo(re->code, PMATH_NULL, PCRE_INFO_NAMEENTRYSIZE, &nameentrysize)
+  && pcre_fullinfo(re->code, PMATH_NULL, PCRE_INFO_NAMETABLE,     &name)
   && len + 2 <= nameentrysize){
     while(namecount > 0){
       i = 0;
@@ -185,7 +185,7 @@ static pmath_string_t get_capture_by_rhs( // NULL if no capture was found
   
   if(capture_num < 0 
   || capture_num > c->capture_max)
-    return NULL;
+    return PMATH_NULL;
   
   capture_num*= 2;
   
@@ -256,7 +256,7 @@ static const pmath_ht_class_t regex_cache_ht_class = {
 };
 
 // all four locked with regex_cache_[un]lock:
-static void * volatile _global_regex_cache = NULL;
+static void * volatile _global_regex_cache = PMATH_NULL;
 #define REGEX_CACHE_ARRAY_SIZE  128
 static struct _regex_t *regex_cache_array[REGEX_CACHE_ARRAY_SIZE];
 static int regex_cache_array_next = 0;
@@ -303,7 +303,7 @@ static struct _regex_t *get_regex(pmath_t key, int pcre_options){ // key will be
 static void store_regex(struct _regex_t *re){
   pmath_hashtable_t table;
   struct _regex_t *arr_re;
-  struct _regex_t *rem_re = NULL;
+  struct _regex_t *rem_re = PMATH_NULL;
   
   table = regex_cache_lock();
   {
@@ -926,7 +926,7 @@ static struct _regex_t *compile_regex(pmath_t obj, int pcre_options){
   
   if(!regex){
     pmath_unref(obj);
-    return NULL;
+    return PMATH_NULL;
   }
   
   memset(&info, 0, sizeof(info));
@@ -936,7 +936,7 @@ static struct _regex_t *compile_regex(pmath_t obj, int pcre_options){
   info.subpatterns = pmath_ht_create(&pmath_ht_obj_int_class, 0);
   if(!info.subpatterns){
     _pmath_regex_unref(regex);
-    return NULL;
+    return PMATH_NULL;
   }
   
   concat_utf8(&(info.pattern), "");
@@ -954,7 +954,7 @@ static struct _regex_t *compile_regex(pmath_t obj, int pcre_options){
   if(!ok || !info.pattern.buf){
     _pmath_regex_unref(regex);
     pmath_mem_free(info.pattern.buf);
-    return NULL;
+    return PMATH_NULL;
   }
   
   {
@@ -967,7 +967,7 @@ static struct _regex_t *compile_regex(pmath_t obj, int pcre_options){
       &errorcode,
       &err,
       &erroffset,
-      NULL);
+      PMATH_NULL);
     
     if(!regex->code){
       char msg[10];
@@ -978,7 +978,7 @@ static struct _regex_t *compile_regex(pmath_t obj, int pcre_options){
       
       _pmath_regex_unref(regex);
       pmath_mem_free(info.pattern.buf);
-      return NULL;
+      return PMATH_NULL;
     }
   }
   
@@ -1047,7 +1047,7 @@ PMATH_PRIVATE struct _regex_t *_pmath_regex_compile(
         item = pmath_expr_get_item(obj, i);
         
         if(obj->refcount == 1)
-          obj = pmath_expr_set_item(obj, i, NULL);
+          obj = pmath_expr_set_item(obj, i, PMATH_NULL);
           
         item = replace_named_subpatterns(re, c, subject, item);
           
@@ -1080,7 +1080,7 @@ PMATH_PRIVATE struct _regex_t *_pmath_regex_compile(
         pmath_t item = pmath_expr_get_item(obj, i);
         
         if(obj->refcount == 1)
-          obj = pmath_expr_set_item(obj, i, NULL);
+          obj = pmath_expr_set_item(obj, i, PMATH_NULL);
           
         item = replace_string_subpatterns(re, c, subject, item);
           
@@ -1197,7 +1197,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_regex_init(void){
   regex_cache_array_next = 0;
   
   pcre_callout = callout;
-  return _global_regex_cache != NULL;
+  return _global_regex_cache != PMATH_NULL;
 }
 
 PMATH_PRIVATE void _pmath_regex_done(void){

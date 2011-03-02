@@ -199,7 +199,7 @@ PMATH_PRIVATE pmath_t builtin_sign(pmath_expr_t expr){
 
   {
     pmath_t xinfdir = _pmath_directed_infinity_direction(x);
-    if(xinfdir){
+    if(!pmath_same(xinfdir, PMATH_NULL)){
       pmath_unref(x);
       pmath_unref(expr);
       if(pmath_is_number(xinfdir)

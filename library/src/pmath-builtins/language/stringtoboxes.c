@@ -8,7 +8,7 @@
 static void syntax_error(pmath_string_t code, int pos, void *flag, pmath_bool_t critical){
   if(critical)
     *(pmath_bool_t*)flag = TRUE;
-  pmath_message_syntax_error(code, pos, NULL, 0);
+  pmath_message_syntax_error(code, pos, PMATH_NULL, 0);
 }
 
 PMATH_PRIVATE pmath_t builtin_stringtoboxes(pmath_expr_t expr){
@@ -35,9 +35,9 @@ PMATH_PRIVATE pmath_t builtin_stringtoboxes(pmath_expr_t expr){
   error_flag = FALSE;
   arr = pmath_spans_from_string(
     (pmath_string_t*)&code,
-    NULL,
-    NULL,
-    NULL,
+    PMATH_NULL,
+    PMATH_NULL,
+    PMATH_NULL,
     syntax_error,
     &error_flag);
 
@@ -51,8 +51,8 @@ PMATH_PRIVATE pmath_t builtin_stringtoboxes(pmath_expr_t expr){
     arr,
     (pmath_string_t)code,
     TRUE,
-    NULL,
-    NULL);
+    PMATH_NULL,
+    PMATH_NULL);
 
   pmath_span_array_free(arr);
   pmath_unref(code);

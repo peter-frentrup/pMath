@@ -17,7 +17,7 @@ PMATH_PRIVATE pmath_t builtin_finally(pmath_expr_t expr){
   current_thread = pmath_thread_get_current();
   if(!current_thread){
     pmath_unref(expr);
-    return NULL;
+    return PMATH_NULL;
   }
 
   fst = pmath_evaluate(pmath_expr_get_item(expr, 1));

@@ -66,7 +66,7 @@ static pmath_t stringposition(
       return PMATH_UNDEFINED;
     }
     
-    pmath_gather_begin(NULL);
+    pmath_gather_begin(PMATH_NULL);
     offset = 0;
     
     while(max_matches > 0
@@ -77,7 +77,7 @@ static pmath_t stringposition(
         offset, 
         PCRE_NO_UTF8_CHECK, 
         capture, 
-        NULL)
+        PMATH_NULL)
     ){
       int off1 = utf8_to_utf16_offset(subject, buf, buflen, capture->ovector[0]);
       int off2 = utf8_to_utf16_offset(subject, buf, buflen, capture->ovector[1]);
@@ -87,7 +87,7 @@ static pmath_t stringposition(
           pmath_ref(PMATH_SYMBOL_RANGE), 2, 
           pmath_integer_new_si(off1), 
           pmath_integer_new_si(off2-1)), 
-        NULL);
+        PMATH_NULL);
       
       --max_matches;
       
@@ -106,7 +106,7 @@ static pmath_t stringposition(
     size_t i;
     for(i = 1;i <= pmath_expr_length(obj);++i){
       pmath_t item = pmath_expr_get_item(obj, i);
-      obj = pmath_expr_set_item(obj, i, NULL);
+      obj = pmath_expr_set_item(obj, i, PMATH_NULL);
       
       item = stringposition(item, regex, capture, overlaps, max_matches);
       
@@ -151,7 +151,7 @@ PMATH_PRIVATE pmath_t builtin_stringposition(pmath_expr_t expr){
     }
     else if(!_pmath_is_rule(obj) && !_pmath_is_list_of_rules(obj)){
       pmath_unref(obj);
-      pmath_message(NULL, "intnm", 2, pmath_integer_new_si(3), pmath_ref(expr));
+      pmath_message(PMATH_NULL, "intnm", 2, pmath_integer_new_si(3), pmath_ref(expr));
       return expr;
     }
   }
@@ -162,17 +162,17 @@ PMATH_PRIVATE pmath_t builtin_stringposition(pmath_expr_t expr){
   
   
   options = pmath_options_extract(expr, last_nonoption);
-  if(!options)
+  if(pmath_is_null(options))
     return expr;
   
   regex_options = 0;
-  obj = pmath_option_value(NULL, PMATH_SYMBOL_IGNORECASE, options);
+  obj = pmath_option_value(PMATH_NULL, PMATH_SYMBOL_IGNORECASE, options);
   if(pmath_same(obj, PMATH_SYMBOL_TRUE)){
     regex_options|= PCRE_CASELESS;
   }
   else if(!pmath_same(obj, PMATH_SYMBOL_FALSE)){
     pmath_message(
-      NULL, "opttf", 2,
+      PMATH_NULL, "opttf", 2,
       pmath_ref(PMATH_SYMBOL_IGNORECASE),
       obj);
     pmath_unref(options);
@@ -181,13 +181,13 @@ PMATH_PRIVATE pmath_t builtin_stringposition(pmath_expr_t expr){
   pmath_unref(obj);
   
   overlaps = FALSE;
-  obj = pmath_option_value(NULL, PMATH_SYMBOL_OVERLAPS, options);
+  obj = pmath_option_value(PMATH_NULL, PMATH_SYMBOL_OVERLAPS, options);
   if(pmath_same(obj, PMATH_SYMBOL_TRUE)){
     overlaps = TRUE;
   }
   else if(!pmath_same(obj, PMATH_SYMBOL_FALSE)){
     pmath_message(
-      NULL, "opttf", 2,
+      PMATH_NULL, "opttf", 2,
       pmath_ref(PMATH_SYMBOL_IGNORECASE),
       obj);
     pmath_unref(options);
@@ -201,7 +201,7 @@ PMATH_PRIVATE pmath_t builtin_stringposition(pmath_expr_t expr){
   if(!regex)
     return expr;
   
-  obj = NULL;
+  obj = PMATH_NULL;
   _pmath_regex_init_capture(regex, &capture);
   if(capture.ovector){
     obj = pmath_expr_get_item(expr, 1);
@@ -212,7 +212,7 @@ PMATH_PRIVATE pmath_t builtin_stringposition(pmath_expr_t expr){
   _pmath_regex_unref(regex);
   
   if(pmath_same(obj, PMATH_UNDEFINED)){
-    pmath_message(NULL, "strse", 2, pmath_integer_new_si(1), pmath_ref(expr));
+    pmath_message(PMATH_NULL, "strse", 2, pmath_integer_new_si(1), pmath_ref(expr));
     return expr;
   }
   

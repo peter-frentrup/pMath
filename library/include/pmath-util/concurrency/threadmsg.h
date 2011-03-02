@@ -43,7 +43,7 @@ pmath_bool_t pmath_is_message_queue(pmath_t obj);
 /**\brief Get the current thread's message queue.
    \relates pmath_thread_t
    \relates pmath_messages_t
-   \return A refernce to the message queue or NULL on error. You must destroy it
+   \return A refernce to the message queue or PMATH_NULL on error. You must destroy it
    with pmath_unref() when its no longer needed.
  */
 PMATH_API

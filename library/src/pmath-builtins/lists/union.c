@@ -27,7 +27,7 @@ PMATH_PRIVATE pmath_t builtin_union(pmath_expr_t expr){
   if(!pmath_is_expr(list)){
     pmath_unref(list);
     
-    pmath_message(NULL, "nexprat", 2,
+    pmath_message(PMATH_NULL, "nexprat", 2,
       pmath_integer_new_ui(1),
       pmath_ref(expr));
     return expr;
@@ -42,7 +42,7 @@ PMATH_PRIVATE pmath_t builtin_union(pmath_expr_t expr){
     if(!pmath_is_expr(list)){
       pmath_unref(list);
       
-      pmath_message(NULL, "nexprat", 2,
+      pmath_message(PMATH_NULL, "nexprat", 2,
         pmath_integer_new_ui(1),
         pmath_ref(expr));
       return expr;
@@ -52,7 +52,7 @@ PMATH_PRIVATE pmath_t builtin_union(pmath_expr_t expr){
     pmath_unref(list);
     
     if(!pmath_equals(current, item)){
-      pmath_message(NULL, "heads", 4,
+      pmath_message(PMATH_NULL, "heads", 4,
         item,
         current,
         pmath_integer_new_size(1),
@@ -68,14 +68,14 @@ PMATH_PRIVATE pmath_t builtin_union(pmath_expr_t expr){
   // list := Join(expr[1], expr[2], ...)
   // frees expr, item
   if(exprlen > 1){
-    pmath_gather_begin(NULL);
+    pmath_gather_begin(PMATH_NULL);
     
     for(i = 1;i <= exprlen;++i){
       list = pmath_expr_get_item(expr, i);
       
       for(j = 1;j <= pmath_expr_length(list);++j){
         current = pmath_expr_get_item(list, j);
-        pmath_emit(current, NULL);
+        pmath_emit(current, PMATH_NULL);
       }
       
       pmath_unref(list);

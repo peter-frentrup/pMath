@@ -110,7 +110,7 @@ static pmath_t file_set_options(pmath_expr_t expr){
       
       if(pmath_same(lhs, PMATH_SYMBOL_BINARYFORMAT)){
         pmath_message(
-          NULL, "changebf", 2,
+          PMATH_NULL, "changebf", 2,
           file,
           pmath_expr_get_item(rule, 2));
         
@@ -149,10 +149,10 @@ PMATH_API pmath_bool_t pmath_file_test(
             pmath_custom_get_data(custom);
           
           if(properties & PMATH_FILE_PROP_READ)
-            result = result && data->read_function != NULL;
+            result = result && data->read_function != PMATH_NULL;
           
           if(properties & PMATH_FILE_PROP_WRITE)
-            result = result && data->write_function != NULL;
+            result = result && data->write_function != PMATH_NULL;
           
           pmath_unref(custom);
           return result;
@@ -166,10 +166,10 @@ PMATH_API pmath_bool_t pmath_file_test(
             pmath_custom_get_data(custom);
           
           if(properties & PMATH_FILE_PROP_READ)
-            result = result && data->readln_function != NULL;
+            result = result && data->readln_function != PMATH_NULL;
           
           if(properties & PMATH_FILE_PROP_WRITE)
-            result = result && data->write_function != NULL;
+            result = result && data->write_function != PMATH_NULL;
           
           pmath_unref(custom);
           return result;
@@ -358,7 +358,7 @@ PMATH_API pmath_string_t pmath_file_readline(pmath_t file){
           
           if(data->buffer){
             result = data->buffer;
-            data->buffer = NULL;
+            data->buffer = PMATH_NULL;
           }
           else
             result = data->readln_function(data->inherited.extra);
@@ -374,7 +374,7 @@ PMATH_API pmath_string_t pmath_file_readline(pmath_t file){
     pmath_unref(custom);
   }
   
-  return NULL;
+  return PMATH_NULL;
 }
 
 PMATH_API
@@ -403,7 +403,7 @@ pmath_bool_t pmath_file_set_binbuffer(
         unlock_file(&data->inherited);
         
         pmath_unref(custom);
-        return newbuf != NULL;
+        return newbuf != PMATH_NULL;
       }
     }
     
@@ -666,13 +666,13 @@ pmath_symbol_t pmath_file_create_binary(
   if(api->struct_size < sizeof(size_t) + 3 * sizeof(void*)
   || !extra_destructor 
   || (!api->status_function && api->read_function))
-    return NULL;
+    return PMATH_NULL;
   
   data = (struct _pmath_binary_file_t*)pmath_mem_alloc(sizeof(struct _pmath_binary_file_t));
   if(!data){
     extra_destructor(extra);
       
-    return NULL;
+    return PMATH_NULL;
   }
   
   memset(data, 0, sizeof(struct _pmath_binary_file_t));
@@ -692,7 +692,7 @@ pmath_symbol_t pmath_file_create_binary(
     if(!data->buffer){
       destroy_binary_file(data);
         
-      return NULL;
+      return PMATH_NULL;
     }
     
     data->current_buffer_start = data->current_buffer_end = data->buffer;
@@ -700,7 +700,7 @@ pmath_symbol_t pmath_file_create_binary(
   
   custom = pmath_custom_new(data, destroy_binary_file);
   if(!custom)
-    return NULL;
+    return PMATH_NULL;
   
   file = pmath_symbol_create_temporary(
     PMATH_C_STRING("System`Private`io`object"), 
@@ -738,13 +738,13 @@ pmath_symbol_t pmath_file_create_text(
   if(api->struct_size < sizeof(size_t) + 3 * sizeof(void*)
   || !extra_destructor 
   || (!api->status_function && api->readln_function))
-    return NULL;
+    return PMATH_NULL;
   
   data = (struct _pmath_text_file_t*)pmath_mem_alloc(sizeof(struct _pmath_text_file_t));
   if(!data){
     extra_destructor(extra);
       
-    return NULL;
+    return PMATH_NULL;
   }
   
   memset(data, 0, sizeof(struct _pmath_text_file_t));
@@ -760,7 +760,7 @@ pmath_symbol_t pmath_file_create_text(
   
   custom = pmath_custom_new(data, destroy_text_file);
   if(!custom)
-    return NULL;
+    return PMATH_NULL;
   
   file = pmath_symbol_create_temporary(
     PMATH_C_STRING("System`Private`io`object"), 
@@ -819,7 +819,7 @@ pmath_files_status_t bintext_extra_status(struct _bintext_extra_t *extra){
 }
 
 pmath_string_t bintext_extra_readln(struct _bintext_extra_t *extra){
-  pmath_string_t result = NULL;
+  pmath_string_t result = PMATH_NULL;
   
   uint16_t out[100];
   char in[100];
@@ -840,7 +840,7 @@ pmath_string_t bintext_extra_readln(struct _bintext_extra_t *extra){
         
         if(i == len - 1){
           pmath_unref(extra->rest);
-          extra->rest = NULL;
+          extra->rest = PMATH_NULL;
         }
         else
           extra->rest = pmath_string_part(extra->rest, i + 1, -1);
@@ -857,14 +857,14 @@ pmath_string_t bintext_extra_readln(struct _bintext_extra_t *extra){
             
           if(i == len - 1){
             pmath_unref(extra->rest);
-            extra->rest = NULL;
+            extra->rest = PMATH_NULL;
           }
           else
             extra->rest = pmath_string_part(extra->rest, i + 1, -1);
         }
         else{
           pmath_unref(extra->rest);
-          extra->rest = NULL;
+          extra->rest = PMATH_NULL;
           extra->skip_nl = TRUE;
         }
         
@@ -875,7 +875,7 @@ pmath_string_t bintext_extra_readln(struct _bintext_extra_t *extra){
     }
     
     result = extra->rest;
-    extra->rest = NULL;
+    extra->rest = PMATH_NULL;
   }
   
   for(;;){
@@ -1141,7 +1141,7 @@ pmath_symbol_t pmath_file_create_text_from_binary(
   
   if(!extra){
     pmath_unref(binfile);
-    return NULL;
+    return PMATH_NULL;
   }
   
   memset(extra, 0, sizeof(struct _bintext_extra_t));
@@ -1159,7 +1159,7 @@ pmath_symbol_t pmath_file_create_text_from_binary(
     if(extra->in_cd == (iconv_t)-1){
       pmath_unref(binfile);
       pmath_mem_free(extra);
-      return NULL;
+      return PMATH_NULL;
     }
     
     api.status_function = (pmath_files_status_t(*)(void*))bintext_extra_status;
@@ -1176,7 +1176,7 @@ pmath_symbol_t pmath_file_create_text_from_binary(
         iconv_close(extra->in_cd); 
       
       pmath_mem_free(extra);
-      return NULL;
+      return PMATH_NULL;
     }
     else{
     /* For some strange reason, we have to call iconv once, otherwise writing
@@ -1238,14 +1238,14 @@ static void destroy_binbuf(void *p){
 static struct binbuf_t *create_binbuf(size_t capacity){
   struct binbuf_t *bb = pmath_mem_alloc(sizeof(struct binbuf_t));
   if(!bb)
-    return NULL;
+    return PMATH_NULL;
   
   bb->error = FALSE;
   bb->capacity = capacity;
   bb->data = pmath_mem_alloc(capacity);
   if(!bb->data){
     pmath_mem_free(bb);
-    return NULL;
+    return PMATH_NULL;
   }
   
   bb->read_ptr = bb->write_ptr = bb->data;
@@ -1318,7 +1318,7 @@ static size_t binbuf_write(void *p, const void *buffer, size_t buffer_size){
       if(new_cap < bb->capacity){
         bb->error = TRUE;
         pmath_mem_free(bb->data);
-        bb->data = bb->read_ptr = bb->write_ptr = NULL;
+        bb->data = bb->read_ptr = bb->write_ptr = PMATH_NULL;
         bb->capacity = 0;
         return 0;
       }
@@ -1326,7 +1326,7 @@ static size_t binbuf_write(void *p, const void *buffer, size_t buffer_size){
       bb->data = pmath_mem_realloc(bb->data, new_cap);
       if(!bb->data){
         bb->error = TRUE;
-        bb->data = bb->read_ptr = bb->write_ptr = NULL;
+        bb->data = bb->read_ptr = bb->write_ptr = PMATH_NULL;
         bb->capacity = 0;
         return 0;
       }
@@ -1362,7 +1362,7 @@ pmath_symbol_t pmath_file_create_binary_buffer(size_t mincapacity){
   
   bb = create_binbuf(mincapacity);
   if(!bb)
-    return NULL;
+    return PMATH_NULL;
   
   memset(&api, 0, sizeof(api));
   api.struct_size = sizeof(api);

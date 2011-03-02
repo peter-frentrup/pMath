@@ -11,7 +11,7 @@
    src/pmath-builtins/language/
  */
 
-// NULL on error
+// PMATH_NULL on error
 PMATH_PRIVATE pmath_t _pmath_parse_number(
   pmath_string_t  string, // will be freed
   pmath_bool_t alternative);

@@ -122,7 +122,7 @@ static void emit_level(
   }
   
   if(reldepth == 0)
-    pmath_emit(obj, NULL);
+    pmath_emit(obj, PMATH_NULL);
   else
     pmath_unref(obj);
 }
@@ -152,7 +152,7 @@ PMATH_PRIVATE pmath_t builtin_level(pmath_expr_t expr){
   info.with_heads = FALSE;
   obj = pmath_expr_get_item(expr, 2);
   if(!_pmath_extract_levels(obj, &info.levelmin, &info.levelmax)){
-    pmath_message(NULL, "level", 1, obj);
+    pmath_message(PMATH_NULL, "level", 1, obj);
     return expr;
   }
   pmath_unref(obj);
@@ -172,12 +172,12 @@ PMATH_PRIVATE pmath_t builtin_level(pmath_expr_t expr){
     head = pmath_ref(PMATH_SYMBOL_LIST);
   
   options = pmath_options_extract(expr, last_nonoption);
-  if(!options){
+  if(pmath_is_null(options)){
     pmath_unref(head);
     return expr;
   }
   
-  obj = pmath_evaluate(pmath_option_value(NULL, PMATH_SYMBOL_HEADS, options));
+  obj = pmath_evaluate(pmath_option_value(PMATH_NULL, PMATH_SYMBOL_HEADS, options));
   if(pmath_same(obj, PMATH_SYMBOL_TRUE)){
     info.with_heads = TRUE;
   }
@@ -185,7 +185,7 @@ PMATH_PRIVATE pmath_t builtin_level(pmath_expr_t expr){
     pmath_unref(options);
     pmath_unref(head);
     pmath_message(
-      NULL, "opttf", 2,
+      PMATH_NULL, "opttf", 2,
       pmath_ref(PMATH_SYMBOL_HEADS),
       obj);
     return expr;
@@ -196,7 +196,7 @@ PMATH_PRIVATE pmath_t builtin_level(pmath_expr_t expr){
   obj = pmath_expr_get_item(expr, 1);
   pmath_unref(expr);
   
-  pmath_gather_begin(NULL);
+  pmath_gather_begin(PMATH_NULL);
   emit_level(&info, obj, 0);
   return pmath_expr_set_item(pmath_gather_end(), 0, head);
 }

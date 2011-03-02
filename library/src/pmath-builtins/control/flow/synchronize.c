@@ -26,7 +26,7 @@ static void multi_synchronize_callback(multi_syncronize_data_t *data){
     return;
   }
   
-  assert(data->me != NULL);
+  assert(data->me != PMATH_NULL);
   if(data->me->evaldepth >= pmath_maxrecursion){
     if(!data->me->critical_messages){
       int tmp = data->me->evaldepth;
@@ -95,7 +95,7 @@ PMATH_PRIVATE pmath_t builtin_synchronize(pmath_expr_t expr){
         (pmath_expr_t)sync, i);
       
       if(!pmath_is_symbol(synci)){
-        pmath_message(NULL, "sym", 2, synci, 
+        pmath_message(PMATH_NULL, "sym", 2, synci, 
           pmath_expr_new_extended(
             pmath_ref(PMATH_SYMBOL_LIST), 2,
             pmath_integer_new_si(1),
@@ -114,7 +114,7 @@ PMATH_PRIVATE pmath_t builtin_synchronize(pmath_expr_t expr){
     if(!data.me){
       pmath_unref(sync);
       pmath_unref(block);
-      return NULL;
+      return PMATH_NULL;
     }
     
     data.sync_list = pmath_expr_sort((pmath_expr_t)sync);
@@ -127,7 +127,7 @@ PMATH_PRIVATE pmath_t builtin_synchronize(pmath_expr_t expr){
   }
   
   if(!pmath_is_symbol(sync)){
-    pmath_message(NULL, "sym", 1, sync, pmath_integer_new_si(1));
+    pmath_message(PMATH_NULL, "sym", 1, sync, pmath_integer_new_si(1));
     pmath_unref(block);
     return expr;
   }

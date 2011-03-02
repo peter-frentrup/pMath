@@ -56,7 +56,7 @@ PMATH_PRIVATE pmath_t _pmath_approximate_step(
   }
   
   sym = _pmath_topmost_symbol(obj);
-  if(sym){
+  if(pmath_is_null(sym)){
     struct _pmath_symbol_rules_t  *rules;
     pmath_t result;
     
@@ -109,16 +109,14 @@ PMATH_PRIVATE pmath_t _pmath_approximate_step(
     
     if(len > 0){
       if(!(attr & PMATH_SYMBOL_ATTRIBUTE_NHOLDFIRST)){
-        pmath_t first = pmath_expr_get_item(obj, 1);
-        obj = pmath_expr_set_item(obj, 1, NULL);
+        pmath_t first = pmath_expr_extract_item(obj, 1);
         obj = pmath_expr_set_item(obj, 1, _pmath_approximate_step(first, prec, acc));
       }
       
       if(!(attr & PMATH_SYMBOL_ATTRIBUTE_NHOLDREST)){
         size_t i;
         for(i = 2;i <= len;++i){
-          pmath_t item = pmath_expr_get_item(obj, i);
-          obj = pmath_expr_set_item(obj, i, NULL);
+          pmath_t item = pmath_expr_extract_item(obj, i);
           obj = pmath_expr_set_item(obj, i, _pmath_approximate_step(item, prec, acc));
         }
       }
@@ -167,13 +165,13 @@ static pmath_bool_t obj_to_accprec(
       pmath_unref(obj);
       
       if(!_pmath_to_precision(prec_obj, prec)){
-        pmath_message(NULL, "invprec", 1, prec_obj);
+        pmath_message(PMATH_NULL, "invprec", 1, prec_obj);
         pmath_unref(acc_obj);
         return FALSE;
       }
       
       if(!_pmath_to_precision(acc_obj, acc)){
-        pmath_message(NULL, "invacc", 1, acc_obj);
+        pmath_message(PMATH_NULL, "invacc", 1, acc_obj);
         pmath_unref(prec_obj);
         return FALSE;
       }
@@ -183,7 +181,7 @@ static pmath_bool_t obj_to_accprec(
       return TRUE;
     }
     
-    pmath_message(NULL, "invprec", 1, obj);
+    pmath_message(PMATH_NULL, "invprec", 1, obj);
     return FALSE;
   }
   
@@ -252,7 +250,7 @@ PMATH_PRIVATE pmath_t builtin_assign_approximate(pmath_expr_t expr){
   
   if(!pmath_same(tag, PMATH_UNDEFINED) 
   && !pmath_same(tag, sym)){
-    pmath_message(NULL, "tag", 3, tag, lhs, sym);
+    pmath_message(PMATH_NULL, "tag", 3, tag, lhs, sym);
     
     pmath_unref(expr);
     if(pmath_same(rhs, PMATH_UNDEFINED))
@@ -274,7 +272,7 @@ PMATH_PRIVATE pmath_t builtin_assign_approximate(pmath_expr_t expr){
   
   _pmath_rulecache_change(&rules->approx_rules, lhs, rhs);
   
-  return NULL;
+  return PMATH_NULL;
 }
 
 PMATH_PRIVATE pmath_t builtin_approximate_e(pmath_t obj, double prec, double acc){
@@ -310,13 +308,13 @@ PMATH_PRIVATE pmath_t builtin_approximate_e(pmath_t obj, double prec, double acc
   
   result = _pmath_create_mp_float((mp_prec_t)prec);
   if(!result)
-    return NULL;
+    return PMATH_NULL;
   
   mpfr_set_ui(result->value, 1, GMP_RNDN);
   mpfr_exp(result->value, result->value, GMP_RNDN);
   mpfr_set_d(result->error, -acc, GMP_RNDD);
   mpfr_ui_pow(result->error, 2, result->error, GMP_RNDU);
-  return (pmath_number_t)result;
+  return (pmath_number_t)PMATH_FROM_PTR(result);
 }
 
 PMATH_PRIVATE pmath_t builtin_approximate_eulergamma(pmath_t obj, double prec, double acc){
@@ -352,12 +350,12 @@ PMATH_PRIVATE pmath_t builtin_approximate_eulergamma(pmath_t obj, double prec, d
   
   result = _pmath_create_mp_float((mp_prec_t)prec);
   if(!result)
-    return NULL;
+    return PMATH_NULL;
   
   mpfr_const_euler(result->value, GMP_RNDN);
   mpfr_set_d(result->error, -acc, GMP_RNDD);
   mpfr_ui_pow(result->error, 2, result->error, GMP_RNDU);
-  return (pmath_number_t)result;
+  return (pmath_number_t)PMATH_FROM_PTR(result);
 }
 
 PMATH_PRIVATE pmath_t builtin_approximate_machineprecision(pmath_t obj, double prec, double acc){
@@ -393,7 +391,7 @@ PMATH_PRIVATE pmath_t builtin_approximate_machineprecision(pmath_t obj, double p
   
   result = _pmath_create_mp_float((mp_prec_t)prec);
   if(!result)
-    return NULL;
+    return PMATH_NULL;
   
   mpfr_set_ui(result->value, 2, GMP_RNDN);
   mpfr_log10(result->value, result->value, GMP_RNDN);
@@ -401,7 +399,7 @@ PMATH_PRIVATE pmath_t builtin_approximate_machineprecision(pmath_t obj, double p
   
   mpfr_set_d(result->error, -acc, GMP_RNDD);
   mpfr_ui_pow(result->error, 2, result->error, GMP_RNDU);
-  return (pmath_number_t)result;
+  return (pmath_number_t)PMATH_FROM_PTR(result);
 }
 
 PMATH_PRIVATE pmath_t builtin_approximate_pi(pmath_t obj, double prec, double acc){
@@ -437,10 +435,10 @@ PMATH_PRIVATE pmath_t builtin_approximate_pi(pmath_t obj, double prec, double ac
   
   result = _pmath_create_mp_float((mp_prec_t)prec);
   if(!result)
-    return NULL;
+    return PMATH_NULL;
   
   mpfr_const_pi(result->value, GMP_RNDN);
-  mpfr_set_d(result->error, -acc, GMP_RNDD);
+  mpfr_set_d( result->error, -acc, GMP_RNDD);
   mpfr_ui_pow(result->error, 2, result->error, GMP_RNDU);
-  return (pmath_number_t)result;
+  return (pmath_number_t)PMATH_FROM_PTR(result);
 }

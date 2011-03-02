@@ -155,19 +155,19 @@ PMATH_PRIVATE void _pmath_dynamic_bind(pmath_symbol_t symbol, intptr_t id){
     
       s2i_entry->ids = idlist;
       
-      idlist = NULL;
+      idlist = PMATH_NULL;
     }
     else{
       s2i_entry = pmath_mem_alloc(sizeof(struct symbol2ids_t));
       
       if(s2i_entry){
         idlist->id   = id;
-        idlist->next = NULL;
+        idlist->next = PMATH_NULL;
         
         s2i_entry->symbol = pmath_ref(symbol);
         s2i_entry->ids    = idlist;
         
-        idlist = NULL;
+        idlist = PMATH_NULL;
         
         s2i_entry = pmath_ht_insert(s2i_table, s2i_entry);
         symbol2ids_destructor(s2i_entry);
@@ -180,20 +180,20 @@ PMATH_PRIVATE void _pmath_dynamic_bind(pmath_symbol_t symbol, intptr_t id){
       
       i2s_entry->symbols = symlist;
       
-      symlist = NULL;
+      symlist = PMATH_NULL;
     }
     else{
       i2s_entry = pmath_mem_alloc(sizeof(struct id2symbols_t));
       
       if(i2s_entry){
         symlist->symbol = pmath_ref(symbol);
-        symlist->next   = NULL;
+        symlist->next   = PMATH_NULL;
         
         i2s_entry->id              = id;
         i2s_entry->symbols         = symlist;
         i2s_entry->first_eval_time = pmath_tickcount();
         
-        symlist = NULL;
+        symlist = PMATH_NULL;
         
         i2s_entry = pmath_ht_insert(i2s_table, i2s_entry);
         symbol2ids_destructor(i2s_entry);
@@ -209,7 +209,7 @@ PMATH_PRIVATE void _pmath_dynamic_bind(pmath_symbol_t symbol, intptr_t id){
 PMATH_PRIVATE pmath_bool_t _pmath_dynamic_remove(intptr_t id){
   pmath_hashtable_t i2s_table;
   pmath_hashtable_t s2i_table;
-  struct id2symbols_t *i2s_entry = NULL;
+  struct id2symbols_t *i2s_entry = PMATH_NULL;
   
   lock_tables(&i2s_table, &s2i_table);
   {
@@ -240,7 +240,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_dynamic_remove(intptr_t id){
           }
           
           pmath_mem_free(ids);
-          if(s2i_entry->ids == NULL){
+          if(s2i_entry->ids == PMATH_NULL){
             symbol2ids_destructor(pmath_ht_remove(s2i_table, symbols->symbol));
           }
         }
@@ -253,13 +253,13 @@ PMATH_PRIVATE pmath_bool_t _pmath_dynamic_remove(intptr_t id){
   }
   unlock_tables(i2s_table, s2i_table);
   
-  return i2s_entry != NULL;
+  return i2s_entry != PMATH_NULL;
 }
 
 PMATH_PRIVATE void _pmath_dynamic_update(pmath_symbol_t symbol){
   pmath_hashtable_t i2s_table;
   pmath_hashtable_t s2i_table;
-  struct symbol2ids_t *s2i_entry = NULL;
+  struct symbol2ids_t *s2i_entry = PMATH_NULL;
   
   lock_tables(&i2s_table, &s2i_table);
   {
@@ -270,11 +270,11 @@ PMATH_PRIVATE void _pmath_dynamic_update(pmath_symbol_t symbol){
   if(s2i_entry){
     struct id_list_t *ids = s2i_entry->ids;
     
-    pmath_gather_begin(NULL);
+    pmath_gather_begin(PMATH_NULL);
     
     while(ids){
       if(_pmath_dynamic_remove(ids->id)){
-        pmath_emit(pmath_integer_new_si((long)ids->id), NULL);
+        pmath_emit(pmath_integer_new_si((long)ids->id), PMATH_NULL);
       }
       
       ids = ids->next;
@@ -309,7 +309,7 @@ PMATH_PRIVATE double _pmath_dynamic_first_eval(intptr_t id){
       
       if(i2s_entry){
         i2s_entry->id              = id;
-        i2s_entry->symbols         = NULL;
+        i2s_entry->symbols         = PMATH_NULL;
         i2s_entry->first_eval_time = t = pmath_tickcount();
         
         i2s_entry = pmath_ht_insert(i2s_table, i2s_entry);

@@ -63,7 +63,7 @@ pmath_t builtin_chop(pmath_expr_t expr){
       pmath_unref(ptol);
       
       pmath_message(
-        NULL, "numn", 2,
+        PMATH_NULL, "numn", 2,
         pmath_integer_new_si(2),
         pmath_ref(expr));
       

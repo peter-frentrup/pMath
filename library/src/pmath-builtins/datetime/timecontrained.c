@@ -43,7 +43,7 @@ PMATH_PRIVATE pmath_t builtin_timeconstrained(pmath_expr_t expr){
   }
   
   if(seconds <= 0){
-    pmath_message(NULL, "invtim", 1, obj);
+    pmath_message(PMATH_NULL, "invtim", 1, obj);
     return expr;
   }
   
@@ -52,7 +52,7 @@ PMATH_PRIVATE pmath_t builtin_timeconstrained(pmath_expr_t expr){
   current_thread = pmath_thread_get_current();
   if(!current_thread){
     pmath_unref(expr);
-    return NULL;
+    return PMATH_NULL;
   }
   
   guard = pmath_symbol_create_temporary(

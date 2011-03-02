@@ -107,9 +107,13 @@ PMATH_API unsigned int pmath_hash(pmath_t obj){
   assert(PMATH_VALID_TYPE_SHIFT(obj->type_shift));
   
   hash = pmath_type_imps[obj->type_shift].hash;
-  assert(hash != NULL);
+  assert(hash != PMATH_NULL);
   return hash(obj);
 }
+
+#ifdef pmath_equals
+  #undef pmath_equals
+#endif
 
 PMATH_API pmath_bool_t pmath_equals(
   pmath_t objA,
@@ -132,7 +136,7 @@ PMATH_API pmath_bool_t pmath_equals(
 
   cmpA = pmath_type_imps[objA->type_shift].compare;
   cmpB = pmath_type_imps[objB->type_shift].compare;
-  assert(cmpA != NULL);
+  assert(cmpA != PMATH_NULL);
   if(cmpA == cmpB)
     return 0 == cmpA(objA, objB);
 
@@ -157,7 +161,7 @@ PMATH_API int pmath_compare(pmath_t objA, pmath_t objB){
   assert(PMATH_VALID_TYPE_SHIFT(objB->type_shift));
   cmpA = pmath_type_imps[objA->type_shift].compare;
   cmpB = pmath_type_imps[objB->type_shift].compare;
-  assert(cmpA != NULL);
+  assert(cmpA != PMATH_NULL);
   if(cmpA == cmpB)
     return cmpA(objA, objB);
 
@@ -170,7 +174,7 @@ PMATH_API void pmath_write(
   pmath_write_func_t      write,
   void                   *user
 ){
-  assert(write != NULL);
+  assert(write != PMATH_NULL);
 
   if(PMATH_IS_MAGIC(obj)){
     char s[30];
@@ -258,8 +262,8 @@ PMATH_PRIVATE void _pmath_init_special_type(
   _pmath_object_write_func_t  writer
 ){
   assert(PMATH_VALID_TYPE_SHIFT(type_shift));
-  assert(comparer != NULL);
-  assert(hashfunc != NULL);
+  assert(comparer != PMATH_NULL);
+  assert(hashfunc != PMATH_NULL);
   pmath_type_imps[type_shift].destroy     = destructor;
   pmath_type_imps[type_shift].compare     = comparer;
   pmath_type_imps[type_shift].hash        = hashfunc;

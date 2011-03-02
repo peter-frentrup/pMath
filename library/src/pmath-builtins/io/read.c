@@ -16,7 +16,7 @@
 #include <pmath-builtins/language-private.h>
 
 static void syntax_error(pmath_string_t code, int pos, void *data, pmath_bool_t critical){
-  pmath_message_syntax_error(code, pos, NULL, 0);
+  pmath_message_syntax_error(code, pos, PMATH_NULL, 0);
 }
 
 static pmath_files_status_t skip_whitespace(pmath_t file, pmath_bool_t *eol){
@@ -66,8 +66,8 @@ static pmath_t read_expression(pmath_t file){
   spans = pmath_spans_from_string(
     &code,
     (pmath_string_t(*)(void*))pmath_file_readline,
-    NULL,
-    NULL,
+    PMATH_NULL,
+    PMATH_NULL,
     syntax_error,
     file);
   
@@ -75,8 +75,8 @@ static pmath_t read_expression(pmath_t file){
     spans, 
     code, 
     TRUE, 
-    NULL, 
-    NULL);
+    PMATH_NULL, 
+    PMATH_NULL);
   
   pmath_unref(code);
   pmath_span_array_free(spans);
@@ -147,7 +147,7 @@ static pmath_t word_to_number(pmath_string_t word){
   pmath_t result = _pmath_parse_number(word, TRUE);
   
   if(!result){
-    pmath_message(NULL, "readn", 0);
+    pmath_message(PMATH_NULL, "readn", 0);
     
     return pmath_ref(PMATH_SYMBOL_FAILED);
   }
@@ -289,7 +289,7 @@ static pmath_bool_t _read(
     return TRUE;
   }
   
-  pmath_message(NULL, "readf", 1, *type_value);
+  pmath_message(PMATH_NULL, "readf", 1, *type_value);
   *type_value = pmath_ref(PMATH_SYMBOL_FAILED);
   return FALSE;
 }
@@ -318,7 +318,7 @@ PMATH_PRIVATE pmath_t builtin_read(pmath_expr_t expr){
     last_nonoption = 2;
   
   options = pmath_options_extract(expr, last_nonoption);
-  if(!options){
+  if(pmath_is_null(options)){
     pmath_unref(type);
     return expr;
   }
@@ -382,7 +382,7 @@ PMATH_PRIVATE pmath_t builtin_readlist(pmath_expr_t expr){
         count = pmath_integer_get_ui(n);
       }
       else if(!pmath_equals(n, _pmath_object_infinity)){
-        pmath_message(NULL, "intnm", 2, pmath_integer_new_si(3), pmath_ref(expr));
+        pmath_message(PMATH_NULL, "intnm", 2, pmath_integer_new_si(3), pmath_ref(expr));
         
         pmath_unref(n);
         pmath_unref(type);
@@ -394,17 +394,17 @@ PMATH_PRIVATE pmath_t builtin_readlist(pmath_expr_t expr){
   }
   
   options = pmath_options_extract(expr, last_nonoption);
-  if(!options){
+  if(pmath_is_null(options)){
     pmath_unref(type);
     return expr;
   }
   
-  item = pmath_option_value(NULL, PMATH_SYMBOL_RECORDLISTS, options);
+  item = pmath_option_value(PMATH_NULL, PMATH_SYMBOL_RECORDLISTS, options);
   if(pmath_same(item, PMATH_SYMBOL_TRUE)){
     record_lists = TRUE;
   }
   else if(!pmath_same(item, PMATH_SYMBOL_FALSE)){
-    pmath_message(NULL, "opttf", 2, pmath_ref(PMATH_SYMBOL_RECORDLISTS), item);
+    pmath_message(PMATH_NULL, "opttf", 2, pmath_ref(PMATH_SYMBOL_RECORDLISTS), item);
     pmath_unref(options);
     pmath_unref(type);
     return expr;
@@ -428,7 +428,7 @@ PMATH_PRIVATE pmath_t builtin_readlist(pmath_expr_t expr){
   pmath_unref(expr);
   pmath_unref(options);
   
-  pmath_gather_begin(NULL);
+  pmath_gather_begin(PMATH_NULL);
   
   // locking?
   if(record_lists){
@@ -436,7 +436,7 @@ PMATH_PRIVATE pmath_t builtin_readlist(pmath_expr_t expr){
     
     i = 0;
     while(i < count && more){
-      pmath_gather_begin(NULL);
+      pmath_gather_begin(PMATH_NULL);
       
       eol = FALSE;
       while(i < count && more && !eol){
@@ -444,7 +444,7 @@ PMATH_PRIVATE pmath_t builtin_readlist(pmath_expr_t expr){
         
         more = _read(file, &item, &eol);
         
-        pmath_emit(item, NULL);
+        pmath_emit(item, PMATH_NULL);
         ++i;
         
         more = more && !pmath_aborting() && pmath_file_status(file) == PMATH_FILE_OK;
@@ -454,7 +454,7 @@ PMATH_PRIVATE pmath_t builtin_readlist(pmath_expr_t expr){
       if(pmath_expr_length(item) == 0)
         pmath_unref(item);
       else
-        pmath_emit(item, NULL);
+        pmath_emit(item, PMATH_NULL);
     }
   }
   else{
@@ -466,7 +466,7 @@ PMATH_PRIVATE pmath_t builtin_readlist(pmath_expr_t expr){
       
       more = _read(file, &item, &eol);
       
-      pmath_emit(item, NULL);
+      pmath_emit(item, PMATH_NULL);
       ++i;
       
       more = more && !pmath_aborting() && pmath_file_status(file) == PMATH_FILE_OK;

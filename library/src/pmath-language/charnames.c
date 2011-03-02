@@ -740,7 +740,7 @@ const char *pmath_char_to_name(uint32_t unichar){
   if(entry)
     return entry->name;
   
-  return NULL;
+  return PMATH_NULL;
 }
 
 PMATH_PRIVATE pmath_bool_t _pmath_charnames_init(void){

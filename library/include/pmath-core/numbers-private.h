@@ -53,7 +53,7 @@
 #define PMATH_MP_ERROR_PREC  DBL_MANT_DIG
 #define PMATH_MP_PREC_MAX    1000000
 
-struct _pmath_integer_t{
+struct _pmath_integer_t_{
   struct _pmath_t  inherited;
   mpz_t            value;
 };
@@ -64,10 +64,10 @@ struct _pmath_integer_t{
    When freeing a quotient, its numerator and denominator are freed seperately 
    to be stored in the integer cache.
  */
-struct _pmath_quotient_t{
-  struct _pmath_t           inherited;
-  struct _pmath_integer_t  *numerator;
-  struct _pmath_integer_t  *denominator;
+struct _pmath_quotient_t_{
+  struct _pmath_t  inherited;
+  pmath_integer_t  numerator;
+  pmath_integer_t  denominator;
 };
 
 struct _pmath_mp_float_t{
@@ -80,6 +80,15 @@ struct _pmath_machine_float_t{
   struct _pmath_t  inherited;
   double           value;
 };
+
+#define PMATH_AS_DOUBLE(objA)      (((struct _pmath_machine_float_t*)PMATH_AS_PTR(objA))->value)
+
+#define PMATH_QUOT_NUM(objA)       (((struct _pmath_quotient_t_*)    PMATH_AS_PTR(objA))->numerator)
+#define PMATH_QUOT_DEN(objA)       (((struct _pmath_quotient_t_*)    PMATH_AS_PTR(objA))->denominator)
+
+#define PMATH_AS_MPZ(objA)         (((struct _pmath_integer_t_*)     PMATH_AS_PTR(objA))->value)
+#define PMATH_AS_MP_VALUE(objA)    (((struct _pmath_mp_float_t*)     PMATH_AS_PTR(objA))->value)
+#define PMATH_AS_MP_ERROR(objA)    (((struct _pmath_mp_float_t*)     PMATH_AS_PTR(objA))->error)
 
 /*============================================================================*/
 
@@ -102,11 +111,13 @@ extern PMATH_PRIVATE PMATH_DECLARE_ATOMIC(_pmath_rand_spinlock);
 
 PMATH_PRIVATE 
 PMATH_ATTRIBUTE_USE_RESULT
-struct _pmath_integer_t *_pmath_create_integer(void);
+// struct _pmath_integer_t_ *
+pmath_integer_t _pmath_create_integer(void);
 
 PMATH_PRIVATE 
 PMATH_ATTRIBUTE_USE_RESULT
-struct _pmath_quotient_t *_pmath_create_quotient(
+// struct _pmath_quotient_t_ *
+pmath_quotient_t _pmath_create_quotient(
   pmath_integer_t numerator,    // will be freed; must not be divisible by denominator and must not be 0
   pmath_integer_t denominator); // will be freed; must be > 1
 
@@ -120,11 +131,13 @@ struct _pmath_mp_float_t *_pmath_create_mp_float_from_d(double value);
 
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT 
-struct _pmath_mp_float_t *_pmath_convert_to_mp_float(pmath_float_t n); // n will be freed
+// struct _pmath_mp_float_t*
+pmath_float_t _pmath_convert_to_mp_float(pmath_float_t n); // n will be freed
 
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT 
-struct _pmath_machine_float_t *_pmath_create_machine_float(double value);
+// struct _pmath_machine_float_t *
+pmath_float_t _pmath_create_machine_float(double value);
 
 PMATH_PRIVATE
 mp_prec_t _pmath_float_precision( // 0 = MachinePrecision
@@ -141,8 +154,8 @@ void _pmath_mp_float_normalize(struct _pmath_mp_float_t *f);
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_integer_t _mul_ii(
-  pmath_integer_t intA,  // will be freed. not NULL!
-  pmath_integer_t intB); // will be freed. not NULL!
+  pmath_integer_t intA,  // will be freed. not PMATH_NULL!
+  pmath_integer_t intB); // will be freed. not PMATH_NULL!
 
 PMATH_PRIVATE void         _pmath_numbers_memory_panic(void);
 PMATH_PRIVATE pmath_bool_t _pmath_numbers_init(void);

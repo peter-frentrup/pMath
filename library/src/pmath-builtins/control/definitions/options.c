@@ -35,7 +35,7 @@ PMATH_PRIVATE pmath_t builtin_assign_options(pmath_expr_t expr){
   
   if(!pmath_same(tag, PMATH_UNDEFINED)
   && !pmath_same(tag, sym)){
-    pmath_message(NULL, "tag", 3, tag, lhs, sym);
+    pmath_message(PMATH_NULL, "tag", 3, tag, lhs, sym);
     
     pmath_unref(expr);
     if(pmath_same(rhs, PMATH_UNDEFINED))
@@ -43,7 +43,7 @@ PMATH_PRIVATE pmath_t builtin_assign_options(pmath_expr_t expr){
       
     if(assignment < 0){
       pmath_unref(rhs);
-      return NULL;
+      return PMATH_NULL;
     }
     
     return rhs;
@@ -53,7 +53,7 @@ PMATH_PRIVATE pmath_t builtin_assign_options(pmath_expr_t expr){
   pmath_unref(expr);
   
   if(!pmath_is_symbol(sym)){
-    pmath_message(NULL, "fnsym", 1, lhs);
+    pmath_message(PMATH_NULL, "fnsym", 1, lhs);
     
     pmath_unref(sym);
     if(pmath_same(rhs, PMATH_UNDEFINED))
@@ -72,7 +72,7 @@ PMATH_PRIVATE pmath_t builtin_assign_options(pmath_expr_t expr){
 
   if(assignment < 0){
     _pmath_rulecache_change(&rules->default_rules, lhs, rhs);
-    return NULL;
+    return PMATH_NULL;
   }
   
   _pmath_rulecache_change(&rules->default_rules, lhs, pmath_ref(rhs));
@@ -184,7 +184,7 @@ PMATH_PRIVATE pmath_t builtin_options(pmath_expr_t expr){
   
   sym = pmath_expr_get_item(expr, 1);
   
-  options = NULL;
+  options = PMATH_NULL;
   if(pmath_is_expr(sym)){
     size_t start, end;
     pmath_bool_t have_rule_list = FALSE;
@@ -234,7 +234,7 @@ PMATH_PRIVATE pmath_t builtin_options(pmath_expr_t expr){
 //        options = pmath_expr_get_item_range(expr, 1, 1);
         if(!_pmath_rulecache_find(&rules->default_rules, &options)){
           pmath_unref(options);
-          options = NULL;
+          options = PMATH_NULL;
         }
       }
     }
@@ -281,7 +281,7 @@ PMATH_PRIVATE pmath_t builtin_options(pmath_expr_t expr){
       
       if(!found){
         pmath_message(
-          NULL, "optnf", 2,
+          PMATH_NULL, "optnf", 2,
           name,
           pmath_ref(sym));
         
@@ -302,8 +302,9 @@ PMATH_PRIVATE pmath_t builtin_options(pmath_expr_t expr){
   
   pmath_unref(expr);
   pmath_unref(sym);
-  if(!options)
+  if(pmath_is_null(options))
     return pmath_ref(_pmath_object_emptylist);
+    
   return options;
 }
 
@@ -316,10 +317,10 @@ static pmath_expr_t set_option(
   pmath_t lhs;
   
   if(!_pmath_is_rule(rule)){
-    pmath_message(NULL, "reps", 1, rule);
+    pmath_message(PMATH_NULL, "reps", 1, rule);
     
     pmath_unref(options);
-    return NULL;
+    return PMATH_NULL;
   }
   
   lhs = pmath_expr_get_item(rule, 1);
@@ -339,13 +340,13 @@ static pmath_expr_t set_option(
   }
   
   pmath_message(
-    NULL, "optnf", 2,
+    PMATH_NULL, "optnf", 2,
     lhs,
     pmath_ref(sym));
   
   pmath_unref(rule);
   pmath_unref(options);
-  return NULL;
+  return PMATH_NULL;
 }
 
 PMATH_PRIVATE pmath_t builtin_setoptions(pmath_expr_t expr){
@@ -363,7 +364,7 @@ PMATH_PRIVATE pmath_t builtin_setoptions(pmath_expr_t expr){
   
   sym = pmath_expr_get_item(expr, 1);
   if(!pmath_is_symbol(sym)){
-    pmath_message(NULL, "sym", 2, sym, pmath_integer_new_si(1));
+    pmath_message(PMATH_NULL, "sym", 2, sym, pmath_integer_new_si(1));
     return expr;
   }
   
@@ -387,7 +388,7 @@ PMATH_PRIVATE pmath_t builtin_setoptions(pmath_expr_t expr){
           pmath_expr_get_item(item, j),
           sym);
         
-        if(!options){
+        if(pmath_is_null(options)){
           pmath_unref(item);
           pmath_unref(sym);
           return expr;
@@ -397,7 +398,7 @@ PMATH_PRIVATE pmath_t builtin_setoptions(pmath_expr_t expr){
     else{
       options = set_option(options, item, sym);
       
-      if(!options){
+      if(pmath_is_null(options)){
         pmath_unref(sym);
         return expr;
       }

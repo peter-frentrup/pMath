@@ -11,7 +11,7 @@
    pointer yields zero.
 
    Custom Objects are not evaluateable. This means evaluation of such an object
-   returns NULL. But you can store custom objects in symbols (directly with
+   returns PMATH_NULL. But you can store custom objects in symbols (directly with
    pmath_symbol_set_value()).
 
    A symbol that holds a custom object remains unevaluated. It can also contain
@@ -45,7 +45,7 @@ typedef pmath_t pmath_custom_t;
    \param data An arbitrary pointer.
    \param destructor A function that will be called on object destruction to
           enable freeing of \a data.
-   \return A custom object or NULL on failure (in that case, \a destructor(data)
+   \return A custom object or PMATH_NULL on failure (in that case, \a destructor(data)
            is called immediately).
  */
 PMATH_API 
@@ -57,7 +57,7 @@ pmath_custom_t pmath_custom_new(
 /**\brief Get a custom object's data member.
    \memberof pmath_custom_t
    \param custom A custom object.
-   \return The objects data member or NULL if \a custom is NULL.
+   \return The objects data member or PMATH_NULL if \a custom is PMATH_NULL.
 
    Note that you cannot assume anything about the content of this pointer unless
    you know its destructor (check \ref pmath_custom_has_destructor ).

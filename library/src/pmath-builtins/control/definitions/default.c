@@ -32,7 +32,7 @@ PMATH_PRIVATE pmath_t builtin_assign_default(pmath_expr_t expr){
   
   if(!pmath_same(tag, PMATH_UNDEFINED)
   && !pmath_same(tag, sym)){
-    pmath_message(NULL, "tag", 3, tag, lhs, sym);
+    pmath_message(PMATH_NULL, "tag", 3, tag, lhs, sym);
     
     pmath_unref(expr);
     if(pmath_same(rhs, PMATH_UNDEFINED))
@@ -47,7 +47,7 @@ PMATH_PRIVATE pmath_t builtin_assign_default(pmath_expr_t expr){
     sym = pmath_symbol_find(sym, FALSE);
   
   if(!pmath_is_symbol(sym)){
-    pmath_message(NULL, "fnsym", 1, lhs);
+    pmath_message(PMATH_NULL, "fnsym", 1, lhs);
     
     pmath_unref(sym);
     if(pmath_same(rhs, PMATH_UNDEFINED))
@@ -66,7 +66,7 @@ PMATH_PRIVATE pmath_t builtin_assign_default(pmath_expr_t expr){
   
   _pmath_rulecache_change(&rules->default_rules, lhs, rhs);
   
-  return NULL;
+  return PMATH_NULL;
 }
 
 PMATH_PRIVATE pmath_t builtin_default(pmath_expr_t expr){
@@ -90,7 +90,7 @@ PMATH_PRIVATE pmath_t builtin_default(pmath_expr_t expr){
   
   if(!pmath_is_symbol(sym)){
     pmath_unref(sym);
-    pmath_message(NULL, "fnsym", 1, pmath_ref(expr));
+    pmath_message(PMATH_NULL, "fnsym", 1, pmath_ref(expr));
     return expr;
   }
   

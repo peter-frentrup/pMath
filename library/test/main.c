@@ -92,10 +92,10 @@ static pmath_messages_t get_main_mq(void){
 
 // Reads a line from file without the ending "\n".
 static pmath_string_t read_line(FILE *file){
-  pmath_string_t result = NULL;
+  pmath_string_t result = PMATH_NULL;
   char buf[512];
   
-  while(fgets(buf, sizeof(buf), file) != NULL){
+  while(fgets(buf, sizeof(buf), file) != PMATH_NULL){
     int len = strlen(buf);
     
     if(buf[len-1] == '\n'){
@@ -115,7 +115,7 @@ static void write_cstr(FILE *file, const char *cstr){
   fwrite(cstr, 1, strlen(cstr), file);
 }
 
-  static pmath_threadlock_t print_lock = NULL;
+  static pmath_threadlock_t print_lock = PMATH_NULL;
   
   static void write_output_locked_callback(void *_obj){
     pmath_cstr_writer_info_t info;
@@ -219,14 +219,14 @@ static pmath_string_t scanner_read(void *dummy){
   pmath_string_t result;
   
   if(pmath_aborting())
-    return NULL;
+    return PMATH_NULL;
   
   write_indent("     > ");
   
   result = read_line(stdin);
   if(pmath_string_length(result) == 0){
     pmath_unref(result);
-    return NULL;
+    return PMATH_NULL;
   }
   return result;
 }
@@ -234,7 +234,7 @@ static pmath_string_t scanner_read(void *dummy){
 static void scanner_error(pmath_string_t code, int pos, void *flag, pmath_bool_t critical){
   if(critical)
     *(pmath_bool_t*)flag = TRUE;
-  pmath_message_syntax_error(code, pos, NULL, 0);
+  pmath_message_syntax_error(code, pos, PMATH_NULL, 0);
 }
 
 static void handle_options(int argc, const char **argv){
@@ -292,7 +292,7 @@ static pmath_t check_dialog_return(pmath_t result){ // result wont be freed
 }
 
 static pmath_t dialog(pmath_t first_eval){
-  pmath_t result = NULL;
+  pmath_t result = PMATH_NULL;
   pmath_t old_dialog = pmath_session_start();
   
   first_eval = pmath_evaluate(first_eval);
@@ -300,7 +300,7 @@ static pmath_t dialog(pmath_t first_eval){
   pmath_unref(first_eval);
   
   if(pmath_same(result, PMATH_UNDEFINED)){
-    result = NULL;
+    result = PMATH_NULL;
     while(!quitting){
       pmath_string_t code;
       pmath_bool_t err = FALSE;
@@ -321,8 +321,8 @@ static pmath_t dialog(pmath_t first_eval){
       spans = pmath_spans_from_string(
         &code, 
         scanner_read, 
-        NULL, 
-        NULL, 
+        PMATH_NULL, 
+        PMATH_NULL, 
         scanner_error,
         &err);
       
@@ -334,8 +334,8 @@ static pmath_t dialog(pmath_t first_eval){
               spans, 
               code, 
               TRUE, 
-              NULL, 
-              NULL)));
+              PMATH_NULL, 
+              PMATH_NULL)));
         
         if(pmath_is_expr_of(obj, PMATH_SYMBOL_HOLDCOMPLETE)){
           if(pmath_expr_length(obj) == 1){
@@ -348,7 +348,7 @@ static pmath_t dialog(pmath_t first_eval){
               obj, 0, pmath_ref(PMATH_SYMBOL_SEQUENCE));
           }
           
-          obj = pmath_session_execute(obj, NULL);
+          obj = pmath_session_execute(obj, PMATH_NULL);
         } 
         
         if(obj && !quitting){
@@ -363,7 +363,7 @@ static pmath_t dialog(pmath_t first_eval){
               break;
             }
             
-            result = NULL;
+            result = PMATH_NULL;
           }
           
           write_output(obj);
@@ -381,7 +381,7 @@ static pmath_t dialog(pmath_t first_eval){
   return result;
 }
 
-  static pmath_threadlock_t dialog_lock = NULL;
+  static pmath_threadlock_t dialog_lock = PMATH_NULL;
   
   struct dialog_callback_info_t{
     pmath_t result;
@@ -394,7 +394,7 @@ static pmath_t dialog(pmath_t first_eval){
     ++dialog_depth;
   
     info->result = dialog(info->first_eval);
-    info->first_eval = NULL;
+    info->first_eval = PMATH_NULL;
     
     --dialog_depth;
   }
@@ -407,8 +407,8 @@ static pmath_t builtin_dialog(pmath_expr_t expr){
     return expr;
   }
   
-  info.result = NULL;
-  info.first_eval = NULL;
+  info.result = PMATH_NULL;
+  info.first_eval = PMATH_NULL;
   if(pmath_expr_length(expr) == 1){
     info.first_eval = pmath_expr_get_item(expr, 1);
   }
@@ -442,7 +442,7 @@ static pmath_t builtin_dialog(pmath_expr_t expr){
     return word;
   }
   
-  static pmath_threadlock_t interrupt_lock = NULL;
+  static pmath_threadlock_t interrupt_lock = PMATH_NULL;
   
   static void interrupt_callback(void *dummy){
     pmath_string_t line = 0;
@@ -521,7 +521,7 @@ static pmath_t builtin_interrupt(pmath_expr_t expr){
     pmath_thread_call_locked(
       &interrupt_lock,
       interrupt_callback,
-      NULL);
+      PMATH_NULL);
   }
   else{
     // in another thread => send to main thread
@@ -531,7 +531,7 @@ static pmath_t builtin_interrupt(pmath_expr_t expr){
     pmath_unref(mq);
   }
   
-  return NULL;
+  return PMATH_NULL;
 }
 
 static pmath_t builtin_quit(pmath_expr_t expr){
@@ -540,7 +540,7 @@ static pmath_t builtin_quit(pmath_expr_t expr){
     
     if(!pmath_is_integer(res) || !pmath_integer_fits_si(res)){
       pmath_unref(res);
-      pmath_message(NULL, "intm", 2, pmath_integer_new_si(1), pmath_ref(expr));
+      pmath_message(PMATH_NULL, "intm", 2, pmath_integer_new_si(1), pmath_ref(expr));
       return expr;
     }
     
@@ -556,7 +556,7 @@ static pmath_t builtin_quit(pmath_expr_t expr){
   pmath_abort_please();
   
   pmath_unref(expr);
-  return NULL;
+  return PMATH_NULL;
 }
 
 int main(int argc, const char **argv){
@@ -582,7 +582,7 @@ int main(int argc, const char **argv){
     pmath_thread_fork_daemon(
       interrupt_daemon, 
       kill_interrupt_daemon, 
-      NULL));
+      PMATH_NULL));
   
   main_mq = pmath_thread_get_queue();
   
@@ -593,7 +593,7 @@ int main(int argc, const char **argv){
       "Type `??symbol` to get Help about a symbol. Exit with `Quit()`.\n");
   }
   
-  pmath_unref(dialog(NULL));
+  pmath_unref(dialog(PMATH_NULL));
   pmath_continue_after_abort();
   
   { // freeing main_mq

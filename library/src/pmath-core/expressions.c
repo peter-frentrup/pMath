@@ -70,7 +70,7 @@ static PMATH_DECLARE_ATOMIC(expr_cache_misses);
     
     for(len = 0;len < CACHES_MAX;++len){
       for(i = 0;i < CACHE_SIZE;++i){
-        struct _pmath_unpacked_expr_t *expr = expr_cache_swap(len, i, NULL);
+        struct _pmath_unpacked_expr_t *expr = expr_cache_swap(len, i, PMATH_NULL);
         
         if(expr){
           assert(expr->inherited.inherited.inherited.refcount == 0);
@@ -96,13 +96,13 @@ pmath_expr_t pmath_expr_new(
     // overflow
     pmath_unref(head);
     pmath_abort_please();
-    return NULL;
+    return PMATH_NULL;
   }
   
   if(length < CACHES_MAX){
     uintptr_t i = expr_cache_inc(length, -1);
     
-    expr = expr_cache_swap(length, i-1, NULL);
+    expr = expr_cache_swap(length, i-1, PMATH_NULL);
     if(expr){
       #ifdef PMATH_DEBUG_LOG
         (void)pmath_atomic_fetch_add(&expr_cache_hits, 1);
@@ -121,7 +121,7 @@ pmath_expr_t pmath_expr_new(
     }
   }
   else
-    expr = NULL;
+    expr = PMATH_NULL;
   
   if(!expr){
     expr = (struct _pmath_unpacked_expr_t*)_pmath_create_stub(
@@ -130,7 +130,7 @@ pmath_expr_t pmath_expr_new(
   
     if(PMATH_UNLIKELY(!expr)){
       pmath_unref(head);
-      return NULL;
+      return PMATH_NULL;
     }
   }
   
@@ -166,13 +166,13 @@ pmath_expr_t pmath_expr_new_extended(
 
     va_end(items);
     pmath_abort_please();
-    return NULL;
+    return PMATH_NULL;
   }
   
   if(length < CACHES_MAX){
     uintptr_t i = expr_cache_inc(length, -1);
     
-    expr = expr_cache_swap(length, i-1, NULL);
+    expr = expr_cache_swap(length, i-1, PMATH_NULL);
     if(expr){
       #ifdef PMATH_DEBUG_LOG
         (void)pmath_atomic_fetch_add(&expr_cache_hits, 1);
@@ -191,7 +191,7 @@ pmath_expr_t pmath_expr_new_extended(
     }
   }
   else
-    expr = NULL;
+    expr = PMATH_NULL;
   
   if(!expr){
     expr = (struct _pmath_unpacked_expr_t*)_pmath_create_stub(
@@ -205,7 +205,7 @@ pmath_expr_t pmath_expr_new_extended(
         pmath_unref(va_arg(items, pmath_t));
 
       va_end(items);
-      return NULL;
+      return PMATH_NULL;
     }
   }
   
@@ -230,7 +230,7 @@ pmath_expr_t pmath_expr_resize(
   size_t old_length;
   
   if(PMATH_UNLIKELY(!expr))
-    return pmath_expr_new(NULL, new_length);
+    return pmath_expr_new(PMATH_NULL, new_length);
     
   assert(pmath_is_expr(expr));
 
@@ -286,7 +286,7 @@ pmath_expr_t pmath_expr_resize(
       sizeof(struct _pmath_unpacked_expr_t) + new_length * sizeof(pmath_t)
     );
 
-  if(new_expr == NULL){
+  if(new_expr == PMATH_NULL){
     if(new_length < old_length){
       memset(
         &(((struct _pmath_unpacked_expr_t*)expr)->items[new_length+1]),
@@ -294,7 +294,7 @@ pmath_expr_t pmath_expr_resize(
         (old_length - new_length) * sizeof(pmath_t));
     }
     pmath_unref(expr);
-    return NULL;
+    return PMATH_NULL;
   }
 
   if(new_length > old_length){
@@ -331,7 +331,7 @@ PMATH_API pmath_expr_t pmath_expr_append(
     va_end(items);
 
     pmath_abort_please();
-    return NULL;
+    return PMATH_NULL;
   }
 
   new_expr =
@@ -343,7 +343,7 @@ PMATH_API pmath_expr_t pmath_expr_append(
       pmath_unref(va_arg(items, pmath_t));
 
     va_end(items);
-    return NULL;
+    return PMATH_NULL;
   }
   
   for(i = old_length+1;i <= old_length+count;i++)
@@ -369,12 +369,12 @@ PMATH_API pmath_t pmath_expr_get_item(
   size_t       index
 ){
   if(!expr)
-    return NULL;
+    return PMATH_NULL;
     
   assert(pmath_is_expr(expr));
 
   if(index > ((struct _pmath_unpacked_expr_t*)expr)->length)
-    return NULL;
+    return PMATH_NULL;
 
   if(expr->type_shift == PMATH_TYPE_SHIFT_EXPRESSION_GENERAL || index == 0)
     return pmath_ref(((struct _pmath_unpacked_expr_t*)expr)->items[index]);
@@ -390,12 +390,12 @@ PMATH_API pmath_t pmath_expr_extract_item(
   size_t       index
 ){
   if(!expr)
-    return NULL;
+    return PMATH_NULL;
     
   assert(pmath_is_expr(expr));
 
   if(index > ((struct _pmath_unpacked_expr_t*)expr)->length)
-    return NULL;
+    return PMATH_NULL;
 
   if(expr->type_shift == PMATH_TYPE_SHIFT_EXPRESSION_GENERAL || index == 0){
     pmath_t item = ((struct _pmath_unpacked_expr_t*)expr)->items[index];
@@ -422,7 +422,7 @@ PMATH_API pmath_expr_t pmath_expr_get_item_range(
   const size_t exprlen = pmath_expr_length(expr);
   
   if(PMATH_UNLIKELY(!expr))
-    return NULL;
+    return PMATH_NULL;
   
   if(start == 1 && length >= exprlen)
     return pmath_ref(expr);
@@ -447,7 +447,7 @@ PMATH_API pmath_expr_t pmath_expr_get_item_range(
         pmath_expr_get_item(expr, 0), length);
 
     if(!new_expr)
-      return NULL;
+      return PMATH_NULL;
 
     ((struct _pmath_unpacked_expr_t*)new_expr)->items[1] =
       pmath_ref(((struct _pmath_unpacked_expr_t*)expr)->items[0]);
@@ -467,7 +467,7 @@ PMATH_API pmath_expr_t pmath_expr_get_item_range(
         sizeof(struct _pmath_unpacked_expr_part_t));
 
     if(!new_expr)
-      return NULL;
+      return PMATH_NULL;
     
     new_expr->inherited.inherited.inherited.last_change = -_pmath_timer_get_next();
     new_expr->inherited.inherited.gc_refcount = 0;
@@ -501,7 +501,7 @@ PMATH_API pmath_expr_t pmath_expr_set_item(
 ){
   if(PMATH_UNLIKELY(!expr)){
     pmath_unref(item);
-    return NULL;
+    return PMATH_NULL;
   }
   
   assert(pmath_is_expr(expr));
@@ -529,7 +529,7 @@ PMATH_API pmath_expr_t pmath_expr_set_item(
     if(!new_expr){
       pmath_unref(item);
       pmath_unref(expr);
-      return NULL;
+      return PMATH_NULL;
     }
 
     if(index == 0)
@@ -583,7 +583,7 @@ PMATH_PRIVATE pmath_t _pmath_expr_shrink_associative(
   size_t dsti = 1;
 
   while(srci <= len){
-    pmath_t item = NULL;
+    pmath_t item = PMATH_NULL;
     do{
       pmath_unref(item);
       item = pmath_expr_get_item(expr, srci++);
@@ -616,7 +616,7 @@ PMATH_API pmath_expr_t pmath_expr_remove_all(
   size_t dsti = 1;
 
   while(srci <= len){
-    pmath_t item = NULL;
+    pmath_t item = PMATH_NULL;
     do{
       pmath_unref(item);
       item = pmath_expr_get_item(expr, srci++);
@@ -715,7 +715,7 @@ PMATH_PRIVATE pmath_expr_t _pmath_expr_sort_ex(
   size_t i, length;
   
   if(PMATH_UNLIKELY(!expr))
-    return NULL;
+    return PMATH_NULL;
 
   length = pmath_expr_length(expr);
   if(length < 2)
@@ -725,11 +725,11 @@ PMATH_PRIVATE pmath_expr_t _pmath_expr_sort_ex(
   || expr->type_shift != PMATH_TYPE_SHIFT_EXPRESSION_GENERAL){
     struct _pmath_unpacked_expr_t *new_expr =
       (struct _pmath_unpacked_expr_t*)pmath_expr_new(
-        NULL, length);
+        PMATH_NULL, length);
 
     if(!new_expr){
       pmath_unref(expr);
-      return NULL;
+      return PMATH_NULL;
     }
 
     switch(expr->type_shift){
@@ -773,7 +773,7 @@ PMATH_PRIVATE pmath_expr_t _pmath_expr_sort_ex_context(
   size_t i, length;
   
   if(PMATH_UNLIKELY(!expr))
-    return NULL;
+    return PMATH_NULL;
 
   length = pmath_expr_length(expr);
   if(length < 2)
@@ -783,11 +783,11 @@ PMATH_PRIVATE pmath_expr_t _pmath_expr_sort_ex_context(
   || expr->type_shift != PMATH_TYPE_SHIFT_EXPRESSION_GENERAL){
     struct _pmath_unpacked_expr_t *new_expr =
       (struct _pmath_unpacked_expr_t*)pmath_expr_new(
-        NULL, length);
+        PMATH_NULL, length);
 
     if(!new_expr){
       pmath_unref(expr);
-      return NULL;
+      return PMATH_NULL;
     }
 
     switch(expr->type_shift){
@@ -2116,13 +2116,13 @@ static void write_expr_ex(
     if(exprlen < 2)
       goto FULLFORM;
 
-    if(     PMTH_SAME(head, PMATH_SYMBOL_LESS))          op = " < ";
-    else if(PMTH_SAME(head, PMATH_SYMBOL_LESSEQUAL))     op = " <= ";
-    else if(PMTH_SAME(head, PMATH_SYMBOL_GREATER))       op = " > ";
-    else if(PMTH_SAME(head, PMATH_SYMBOL_GREATEREQUAL))  op = " >= ";
-    else if(PMTH_SAME(head, PMATH_SYMBOL_EQUAL))         op = " = ";
-    else if(PMTH_SAME(head, PMATH_SYMBOL_UNEQUAL))       op = " != ";
-    else                                                 op = "";
+    if(     pmath_same(head, PMATH_SYMBOL_LESS))          op = " < ";
+    else if(pmath_same(head, PMATH_SYMBOL_LESSEQUAL))     op = " <= ";
+    else if(pmath_same(head, PMATH_SYMBOL_GREATER))       op = " > ";
+    else if(pmath_same(head, PMATH_SYMBOL_GREATEREQUAL))  op = " >= ";
+    else if(pmath_same(head, PMATH_SYMBOL_EQUAL))         op = " = ";
+    else if(pmath_same(head, PMATH_SYMBOL_UNEQUAL))       op = " != ";
+    else                                                  op = "";
 
     if(priority > PRIO_EQUATION)
       WRITE_CSTR("(");

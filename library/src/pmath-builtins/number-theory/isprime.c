@@ -47,7 +47,7 @@ static pmath_bool_t is_small_prime(struct _pmath_integer_t *n){
 PMATH_PRIVATE pmath_bool_t _pmath_integer_is_prime(pmath_integer_t n){
   struct _pmath_integer_t *tmp;
 
-  assert(n != NULL);
+  assert(n != PMATH_NULL);
 
   if(mpz_cmp_ui(((struct _pmath_integer_t*)n)->value, 1) <= 0)
     return FALSE;

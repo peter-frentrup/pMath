@@ -142,7 +142,7 @@ enum{
    \memberof pmath_symbol_t
    \param name The symbol's name including its namespace. It will be freed.
    \param create Whether to create a new symbol, if none was found.
-   \return NULL or a symbol called \c name that must be destroyed with
+   \return PMATH_NULL or a symbol called \c name that must be destroyed with
            pmath_unref().
  */
 PMATH_API 
@@ -177,7 +177,7 @@ pmath_symbol_t pmath_symbol_create_temporary(
    \memberof pmath_symbol_t
    \param name The symbol's name. It will be freed.
    \param create Whether to create a new symbol, if none was found.
-   \return NULL or a symbol called \c name that must be destroyed with
+   \return PMATH_NULL or a symbol called \c name that must be destroyed with
            pmath_unref().
  */
 PMATH_API 

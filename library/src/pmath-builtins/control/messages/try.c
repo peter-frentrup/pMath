@@ -59,7 +59,7 @@ PMATH_PRIVATE pmath_t builtin_try(pmath_expr_t expr){
     }
     
     if(!pmath_is_expr(messages)){
-      pmath_message(NULL, "nomsgs", 1, messages);
+      pmath_message(PMATH_NULL, "nomsgs", 1, messages);
       return expr;
     }
     
@@ -68,7 +68,7 @@ PMATH_PRIVATE pmath_t builtin_try(pmath_expr_t expr){
       pmath_unref(item);
       
       if(!pmath_same(item, PMATH_SYMBOL_LIST)){
-        pmath_message(NULL, "nomsgs", 1, messages);
+        pmath_message(PMATH_NULL, "nomsgs", 1, messages);
         return expr;
       }
       
@@ -78,7 +78,7 @@ PMATH_PRIVATE pmath_t builtin_try(pmath_expr_t expr){
         if(!pmath_is_symbol(item)
         && !_pmath_is_valid_messagename(item)){
           pmath_unref(item);
-          pmath_message(NULL, "nomsgs", 1, messages);
+          pmath_message(PMATH_NULL, "nomsgs", 1, messages);
           return expr;
         }
         
@@ -89,11 +89,11 @@ PMATH_PRIVATE pmath_t builtin_try(pmath_expr_t expr){
     failexpr = pmath_expr_get_item(expr, 2);
   }
   else if(exprlen == 2){
-    messages = NULL;
+    messages = PMATH_NULL;
     failexpr = pmath_expr_get_item(expr, 2);
   }
   else{
-    messages = NULL;
+    messages = PMATH_NULL;
     failexpr = pmath_ref(PMATH_SYMBOL_FAILED);
   }
   
@@ -131,7 +131,7 @@ PMATH_PRIVATE pmath_t builtin_try(pmath_expr_t expr){
         pmath_unref(body);
         pmath_unref(exception);
         body = failexpr;
-        failexpr = NULL;
+        failexpr = PMATH_NULL;
         exception = PMATH_UNDEFINED;
       }
       else if(!_pmath_is_valid_messagename(messages)){ // list of messages
@@ -144,7 +144,7 @@ PMATH_PRIVATE pmath_t builtin_try(pmath_expr_t expr){
             pmath_unref(body);
             pmath_unref(exception);
             body = failexpr;
-            failexpr = NULL;
+            failexpr = PMATH_NULL;
             exception = PMATH_UNDEFINED;
             break;
           }

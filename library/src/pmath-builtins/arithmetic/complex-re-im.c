@@ -89,7 +89,7 @@ pmath_bool_t _pmath_is_imaginary(
 
 static pmath_expr_t extract_complex(
   pmath_expr_t *expr
-){ // returns NULL if there is no nonreal complex
+){ // returns PMATH_NULL if there is no nonreal complex
   size_t i, len;
   
   len = pmath_expr_length(*expr);
@@ -115,7 +115,7 @@ static pmath_expr_t extract_complex(
     pmath_unref(item);
   }
   
-  return NULL;
+  return PMATH_NULL;
 }
 
 PMATH_PRIVATE pmath_bool_t _pmath_re_im(
@@ -125,8 +125,8 @@ PMATH_PRIVATE pmath_bool_t _pmath_re_im(
 ){
   pmath_t z2;
   
-  if(re) *re = NULL;
-  if(im) *im = NULL;
+  if(re) *re = PMATH_NULL;
+  if(im) *im = PMATH_NULL;
   
   if(pmath_same(z, PMATH_SYMBOL_UNDEFINED)
   || pmath_equals(z, _pmath_object_overflow)
@@ -223,8 +223,8 @@ PMATH_PRIVATE pmath_bool_t _pmath_re_im(
         return TRUE;
       }
       
-      if(re){ pmath_unref(*re); *re = NULL; }
-      if(im){ pmath_unref(*im); *im = NULL; }
+      if(re){ pmath_unref(*re); *re = PMATH_NULL; }
+      if(im){ pmath_unref(*im); *im = PMATH_NULL; }
       
       pmath_unref(z);
       return FALSE;
@@ -289,7 +289,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_re_im(
       
       z2 = extract_complex((pmath_expr_t*)&z);
       
-      if(z2){
+      if(!pmath_is_null(z2)){
         pmath_number_t re2, im2, re3, im3;
         
         re2 = (pmath_number_t)pmath_expr_get_item(z2, 1);
@@ -361,18 +361,20 @@ PMATH_PRIVATE pmath_bool_t _pmath_re_im(
     
     {
       pmath_t zinfdir = _pmath_directed_infinity_direction(z);
-      if(zinfdir){
+      if(!pmath_is_null(zinfdir)){
         pmath_unref(z);
         if(re) *re = pmath_expr_new_extended(
           pmath_ref(PMATH_SYMBOL_DIRECTEDINFINITY), 1,
           pmath_expr_new_extended(
             pmath_ref(PMATH_SYMBOL_RE), 1,
             pmath_ref(zinfdir)));
+            
         if(im) *im = pmath_expr_new_extended(
           pmath_ref(PMATH_SYMBOL_DIRECTEDINFINITY), 1,
           pmath_expr_new_extended(
             pmath_ref(PMATH_SYMBOL_IM), 1,
             pmath_ref(zinfdir)));
+            
         pmath_unref(zinfdir);
         return TRUE;
       }

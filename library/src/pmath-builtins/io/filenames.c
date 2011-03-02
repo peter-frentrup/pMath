@@ -42,7 +42,7 @@ static void emit_directory_entries(
       pmath_bool_t is_default = pmath_same(directory, PMATH_UNDEFINED);
       
       if(is_default){
-        directory = pmath_string_insert_ucs2(NULL, 0, rest, 4);
+        directory = pmath_string_insert_ucs2(PMATH_NULL, 0, rest, 4);
       }
       else{
         if(pmath_string_buffer(directory)[pmath_string_length(directory) - 1] == '\\')
@@ -73,7 +73,7 @@ static void emit_directory_entries(
             && data.cFileName[2] == '\0')
               continue;
               
-            s = pmath_string_insert_ucs2(NULL, 0, data.cFileName, -1);
+            s = pmath_string_insert_ucs2(PMATH_NULL, 0, data.cFileName, -1);
             utf8 = pmath_string_to_utf8(s, &utf8_length);
             
             if(!is_default)
@@ -94,16 +94,16 @@ static void emit_directory_entries(
                   (const wchar_t*)pmath_string_buffer(s),
                   0,
                   FILE_SHARE_DELETE | FILE_SHARE_READ | FILE_SHARE_WRITE,
-                  NULL,
+                  PMATH_NULL,
                   OPEN_EXISTING,
                   FILE_ATTRIBUTE_NORMAL,
-                  NULL);
+                  PMATH_NULL);
                   
                 if(hfile == INVALID_HANDLE_VALUE){ // normal file name does not work
                   pmath_unref(s);
                   pmath_mem_free(utf8);
                   
-                  s = pmath_string_insert_ucs2(NULL, 0, data.cAlternateFileName, -1);
+                  s = pmath_string_insert_ucs2(PMATH_NULL, 0, data.cAlternateFileName, -1);
                   utf8 = pmath_string_to_utf8(s, &utf8_length);
                   
                   if(!is_default)
@@ -116,16 +116,16 @@ static void emit_directory_entries(
                       (const wchar_t*)pmath_string_buffer(s),
                       0,
                       FILE_SHARE_DELETE | FILE_SHARE_READ | FILE_SHARE_WRITE,
-                      NULL,
+                      PMATH_NULL,
                       OPEN_EXISTING,
                       FILE_ATTRIBUTE_NORMAL,
-                      NULL);
+                      PMATH_NULL);
                     
                     if(hfile == INVALID_HANDLE_VALUE){ // alternate name does not work either
                       pmath_unref(s);
                       pmath_mem_free(utf8);
                       
-                      s = pmath_string_insert_ucs2(NULL, 0, data.cFileName, -1);
+                      s = pmath_string_insert_ucs2(PMATH_NULL, 0, data.cFileName, -1);
                       utf8 = pmath_string_to_utf8(s, &utf8_length);
                       
                       if(!is_default)
@@ -149,12 +149,12 @@ static void emit_directory_entries(
             }
             
             if(utf8){
-              if(_pmath_regex_match(regex, utf8, utf8_length, 0, 0, capture, NULL)){
+              if(_pmath_regex_match(regex, utf8, utf8_length, 0, 0, capture, PMATH_NULL)){
 //                if(!is_default)
 //                  s = pmath_string_concat(pmath_ref(directory), s);
                   
-                pmath_emit(s, NULL);
-                s = NULL;
+                pmath_emit(s, PMATH_NULL);
+                s = PMATH_NULL;
               }
               pmath_mem_free(utf8);
             }
@@ -174,7 +174,7 @@ static void emit_directory_entries(
     }
     #else
     {
-      DIR *dir = NULL;
+      DIR *dir = PMATH_NULL;
       struct dirent *entry;
       
       if(pmath_same(directory, PMATH_UNDEFINED)){
@@ -182,7 +182,7 @@ static void emit_directory_entries(
       }
       else{
         char *dir_name;
-        dir_name = pmath_string_to_native(directory, NULL);
+        dir_name = pmath_string_to_native(directory, PMATH_NULL);
         
         if(dir_name){
           int len = pmath_string_length(directory);
@@ -201,13 +201,13 @@ static void emit_directory_entries(
             int len = strlen(utf8);
             
             if(strcmp(utf8, ".") != 0 && strcmp(utf8, "..") != 0
-            && _pmath_regex_match(regex, utf8, len, 0, 0, capture, NULL)){
+            && _pmath_regex_match(regex, utf8, len, 0, 0, capture, PMATH_NULL)){
               pmath_string_t name = pmath_string_from_utf8(utf8, len);
               
               if(!pmath_same(directory, PMATH_UNDEFINED))
                 name = pmath_string_concat(pmath_ref(directory), name);
               
-              pmath_emit(name, NULL);
+              pmath_emit(name, PMATH_NULL);
             }
           }
         }
@@ -218,13 +218,13 @@ static void emit_directory_entries(
             char *utf8 = pmath_string_to_utf8(s, &length);
             if(utf8){
               if(strcmp(utf8, ".") != 0 && strcmp(utf8, "..") != 0
-              && _pmath_regex_match(regex, utf8, length, 0, 0, capture, NULL)){
+              && _pmath_regex_match(regex, utf8, length, 0, 0, capture, PMATH_NULL)){
                 pmath_string_t name = pmath_ref(s);//pmath_string_from_utf8(utf8, length);
                 
                 if(!pmath_same(directory, PMATH_UNDEFINED))
                   name = pmath_string_concat(pmath_ref(directory), name);
                 
-                pmath_emit(name, NULL);
+                pmath_emit(name, PMATH_NULL);
               }
               
               pmath_mem_free(utf8);
@@ -322,10 +322,10 @@ PMATH_PRIVATE pmath_t builtin_filenames(pmath_expr_t expr){
   }
   
   options = pmath_options_extract(expr, last_nonoption);
-  if(!options)
+  if(pmath_is_null(options))
     return expr;
   
-  obj = pmath_evaluate(pmath_option_value(NULL, PMATH_SYMBOL_IGNORECASE, options));
+  obj = pmath_evaluate(pmath_option_value(PMATH_NULL, PMATH_SYMBOL_IGNORECASE, options));
   pmath_unref(options);
   if(pmath_same(obj, PMATH_SYMBOL_TRUE)){
     pcre_options = PCRE_CASELESS;
@@ -337,7 +337,7 @@ PMATH_PRIVATE pmath_t builtin_filenames(pmath_expr_t expr){
   }
   else if(!pmath_same(obj, PMATH_SYMBOL_FALSE)){
     pmath_message(
-      NULL, "opttfa", 2,
+      PMATH_NULL, "opttfa", 2,
       pmath_ref(PMATH_SYMBOL_IGNORECASE),
       obj);
     pmath_unref(directory);
@@ -360,11 +360,11 @@ PMATH_PRIVATE pmath_t builtin_filenames(pmath_expr_t expr){
     return pmath_ref(_pmath_object_emptylist);
   }
   
-  pmath_gather_begin(NULL);
+  pmath_gather_begin(PMATH_NULL);
   _pmath_regex_init_capture(regex, &capture);
   if(capture.ovector){
     emit_directory_entries(regex, &capture, directory);
-    directory = NULL;
+    directory = PMATH_NULL;
   }
   _pmath_regex_free_capture(&capture);
   _pmath_regex_unref(regex);

@@ -31,26 +31,26 @@ static pmath_string_t get_directory(void){
     DWORD    buflen = 0;
     DWORD    reslen = 0;
     
-    buflen = GetCurrentDirectory(0, NULL);
+    buflen = GetCurrentDirectory(0, PMATH_NULL);
     if((int)buflen * sizeof(wchar_t) <= 0)
-      return NULL;
+      return PMATH_NULL;
     
     buffer = pmath_mem_alloc(sizeof(wchar_t) * buflen);
     if(!buffer)
-      return NULL;
+      return PMATH_NULL;
     
     GetCurrentDirectoryW(buflen, buffer);
     buffer[buflen-1] = L'\0';
     
-    reslen = GetFullPathNameW(buffer, 0, NULL, NULL);
+    reslen = GetFullPathNameW(buffer, 0, PMATH_NULL, PMATH_NULL);
     if((int)reslen * sizeof(uint16_t) <= 0){
       pmath_mem_free(buffer);
-      return NULL;
+      return PMATH_NULL;
     }
     
     result = _pmath_new_string_buffer(reslen);
     if(result){
-      GetFullPathNameW(buffer, reslen, (wchar_t*)AFTER_STRING(result), NULL);
+      GetFullPathNameW(buffer, reslen, (wchar_t*)AFTER_STRING(result), PMATH_NULL);
       
       result->length = reslen - 1;
     }
@@ -60,14 +60,14 @@ static pmath_string_t get_directory(void){
   }
   #else
   {
-    char   *buffer = NULL;
+    char   *buffer = PMATH_NULL;
     size_t  size = 256;
     for(;;){
       buffer = pmath_mem_realloc(buffer, 2*size);
       size*= 2;
       
       if(!buffer)
-        return NULL;
+        return PMATH_NULL;
       
       if(getcwd(buffer, size)){
         pmath_string_t result = pmath_string_from_native(buffer, -1);
@@ -77,7 +77,7 @@ static pmath_string_t get_directory(void){
       
       if(errno != ERANGE){
         pmath_mem_free(buffer);
-        return NULL;
+        return PMATH_NULL;
       }
     }
   }
@@ -117,12 +117,12 @@ pmath_t _pmath_canonical_file_name(pmath_string_t relname){
     
     relname = pmath_string_insert_latin1(relname, INT_MAX, "", 1);
     if(!relname)
-      return NULL;
+      return PMATH_NULL;
     
-    reslen = GetFullPathNameW(pmath_string_buffer(relname), 0, NULL, NULL);
+    reslen = GetFullPathNameW(pmath_string_buffer(relname), 0, PMATH_NULL, PMATH_NULL);
     if((int)reslen * sizeof(uint16_t) <= 0){
       pmath_unref(relname);
-      return NULL;
+      return PMATH_NULL;
     }
     
     result = _pmath_new_string_buffer(reslen);
@@ -131,7 +131,7 @@ pmath_t _pmath_canonical_file_name(pmath_string_t relname){
         pmath_string_buffer(relname), 
         reslen, 
         (wchar_t*)AFTER_STRING(result), 
-        NULL);
+        PMATH_NULL);
       result->length = reslen - 1;
     }
     
@@ -194,7 +194,7 @@ pmath_t _pmath_canonical_file_name(pmath_string_t relname){
   
     if(!dir){
       pmath_unref(relname);
-      return NULL;
+      return PMATH_NULL;
     }
     
     dirlen  = pmath_string_length(dir);
@@ -204,7 +204,7 @@ pmath_t _pmath_canonical_file_name(pmath_string_t relname){
     if(!result){
       pmath_unref(dir);
       pmath_unref(relname);
-      return NULL;
+      return PMATH_NULL;
     }
     
     memcpy(AFTER_STRING(result), pmath_string_buffer(dir), sizeof(uint16_t) * dirlen);
@@ -268,7 +268,7 @@ static pmath_bool_t try_change_directory(
   #else
   {
     pmath_bool_t result = FALSE;
-    char *str = pmath_string_to_native(name, NULL);
+    char *str = pmath_string_to_native(name, PMATH_NULL);
       
     if(str && !chdir(str)){
       result = TRUE;
@@ -313,7 +313,7 @@ PMATH_PRIVATE pmath_t builtin_directoryname(pmath_expr_t expr){
   name = pmath_expr_get_item(expr, 1);
   if(!pmath_is_string(name)){
     pmath_unref(name);
-    pmath_message(NULL, "str", 2, pmath_integer_new_si(1), pmath_ref(expr));
+    pmath_message(PMATH_NULL, "str", 2, pmath_integer_new_si(1), pmath_ref(expr));
     return expr;
   }
   
@@ -324,7 +324,7 @@ PMATH_PRIVATE pmath_t builtin_directoryname(pmath_expr_t expr){
     || !pmath_integer_fits_ui(obj)
     || pmath_number_sign(obj) <= 0){
       pmath_unref(obj);
-      pmath_message(NULL, "intpm", 2, pmath_ref(expr), pmath_integer_new_si(2));
+      pmath_message(PMATH_NULL, "intpm", 2, pmath_ref(expr), pmath_integer_new_si(2));
       return expr;
     }
     
@@ -365,7 +365,7 @@ PMATH_PRIVATE pmath_t builtin_setdirectory(pmath_expr_t expr){
   
   name = pmath_expr_get_item(expr, 1);
   if(!pmath_is_string(name) || pmath_string_length(name) == 0){
-    pmath_message(NULL, "fstr", 1, name);
+    pmath_message(PMATH_NULL, "fstr", 1, name);
     return expr;
   }
   
@@ -373,7 +373,7 @@ PMATH_PRIVATE pmath_t builtin_setdirectory(pmath_expr_t expr){
   expr = get_directory();
   
   if(!try_change_directory(pmath_ref(name))){
-    pmath_message(NULL, "cdir", 1, name);
+    pmath_message(PMATH_NULL, "cdir", 1, name);
     pmath_unref(expr);
     return pmath_ref(PMATH_SYMBOL_FAILED);
   }
@@ -403,7 +403,7 @@ PMATH_PRIVATE pmath_t builtin_resetdirectory(pmath_expr_t expr){
   dirstack = pmath_thread_local_load(PMATH_SYMBOL_DIRECTORYSTACK);
   if(!pmath_is_expr_of(dirstack, PMATH_SYMBOL_LIST)
   || pmath_expr_length(dirstack) == 0){
-    pmath_message(NULL, "dtop", 0);
+    pmath_message(PMATH_NULL, "dtop", 0);
     pmath_unref(dirstack);
     return get_directory();
   }
@@ -411,7 +411,7 @@ PMATH_PRIVATE pmath_t builtin_resetdirectory(pmath_expr_t expr){
   name = pmath_expr_get_item(dirstack, 1);
   
   if(!try_change_directory(pmath_ref(name))){
-    pmath_message(NULL, "cdir", 1, name);
+    pmath_message(PMATH_NULL, "cdir", 1, name);
     pmath_unref(dirstack);
     return pmath_ref(PMATH_SYMBOL_FAILED);
   }

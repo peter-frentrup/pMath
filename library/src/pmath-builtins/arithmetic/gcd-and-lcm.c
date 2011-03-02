@@ -31,24 +31,25 @@ static pmath_t nest_integer(
   result = (pmath_integer_t)pmath_expr_get_item(expr, 1);
   for(i = 2;i <= len;i++){
     pmath_integer_t item;
-    struct _pmath_integer_t *tmp = _pmath_create_integer();
-    if(!tmp){
+    pmath_integer_t tmp = _pmath_create_integer();
+    if(pmath_is_null(tmp)){
       pmath_unref(result);
       pmath_unref(expr);
-      return NULL;
+      return PMATH_NULL;
     }
 
     item = (pmath_integer_t)pmath_expr_get_item(expr, i);
 
     mpz_function(
-      tmp->value,
-      ((struct _pmath_integer_t*)result)->value,
-      ((struct _pmath_integer_t*)item)->value);
+      PMATH_AS_MPZ(tmp),
+      PMATH_AS_MPZ(result),
+      PMATH_AS_MPZ(item));
 
     pmath_unref(item);
     pmath_unref(result);
-    result = (pmath_integer_t)tmp;
+    result = tmp;
   }
+  
   pmath_unref(expr);
   return result;
 }

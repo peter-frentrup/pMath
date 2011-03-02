@@ -22,7 +22,7 @@ PMATH_PRIVATE pmath_t builtin_abort(pmath_expr_t expr){
   if(exprlen == 0){
     pmath_unref(expr);
     pmath_throw(PMATH_ABORT_EXCEPTION);
-    return NULL;
+    return PMATH_NULL;
   }
   
   if(exprlen > 1){
@@ -32,7 +32,7 @@ PMATH_PRIVATE pmath_t builtin_abort(pmath_expr_t expr){
 
   sym = pmath_expr_get_item(expr, 1);
   if(!pmath_is_symbol(sym)){
-    pmath_message(NULL, "nothread", 1, sym);
+    pmath_message(PMATH_NULL, "nothread", 1, sym);
     return expr;
   }
   
@@ -40,7 +40,7 @@ PMATH_PRIVATE pmath_t builtin_abort(pmath_expr_t expr){
   if(!pmath_is_custom(custom_task)
   || !pmath_custom_has_destructor(custom_task, _pmath_custom_task_destroy)){
     pmath_unref(custom_task);
-    pmath_message(NULL, "nothread", 1, sym);
+    pmath_message(PMATH_NULL, "nothread", 1, sym);
     return expr;
   }
   
@@ -52,5 +52,5 @@ PMATH_PRIVATE pmath_t builtin_abort(pmath_expr_t expr){
   pmath_unref(custom_task);
   pmath_unref(sym);
   pmath_unref(expr);
-  return NULL;
+  return PMATH_NULL;
 }

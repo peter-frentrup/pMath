@@ -14,7 +14,6 @@ typedef enum{
 }rule_access_t;
 
 PMATH_PRIVATE
-PMATH_ATTRIBUTE_NONNULL(1)
 struct _pmath_symbol_rules_t *_pmath_symbol_get_rules(
   pmath_symbol_t  symbol, 
   rule_access_t   access);
@@ -27,12 +26,10 @@ pmath_bool_t _pmath_symbol_assign_value(
 
 PMATH_PRIVATE 
 PMATH_ATTRIBUTE_USE_RESULT
-PMATH_ATTRIBUTE_NONNULL(1)
 pmath_t _pmath_symbol_get_global_value(
   pmath_symbol_t symbol); // wont be freed
   
-PMATH_PRIVATE 
-PMATH_ATTRIBUTE_NONNULL(1)
+PMATH_PRIVATE
 void _pmath_symbol_set_global_value( // used in init
   pmath_symbol_t symbol, // wont be freed
   pmath_t        value); // will be freed

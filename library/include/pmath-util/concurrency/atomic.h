@@ -67,7 +67,7 @@
       struct timespec tm; \
       tm.tv_sec = 0; \
       tm.tv_nsec = 2000001; \
-      nanosleep(&tm, NULL); \
+      nanosleep(&tm, PMATH_NULL); \
     }while(0)
 #endif
 

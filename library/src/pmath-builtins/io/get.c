@@ -19,7 +19,7 @@ static pmath_bool_t check_path(pmath_t path){
   size_t i;
   
   if(!pmath_is_expr_of(path, PMATH_SYMBOL_LIST)){
-    pmath_message(NULL, "path", 1, pmath_ref(path));
+    pmath_message(PMATH_NULL, "path", 1, pmath_ref(path));
     return FALSE;
   }
   
@@ -27,7 +27,7 @@ static pmath_bool_t check_path(pmath_t path){
     pmath_t item = pmath_expr_get_item(path, i);
     
     if(!pmath_is_string(item)){
-      pmath_message(NULL, "path", 1, item);
+      pmath_message(PMATH_NULL, "path", 1, item);
       return FALSE;
     }
     
@@ -52,7 +52,7 @@ static pmath_string_t scanner_read(void *data){
   pmath_string_t line;
   
   if(pmath_aborting())
-    return NULL;
+    return PMATH_NULL;
   
   line = pmath_evaluate(
     pmath_parse_string_args("Read(`1`, String)",
@@ -60,7 +60,7 @@ static pmath_string_t scanner_read(void *data){
   
   if(!pmath_is_string(line)){
     pmath_unref(line);
-    return NULL;
+    return PMATH_NULL;
   }
   
   info->codelines++;
@@ -88,7 +88,7 @@ static pmath_t get_file(
   pmath_span_array_t *spans;
   pmath_t old_input;
   pmath_string_t code;
-  pmath_t result = NULL;
+  pmath_t result = PMATH_NULL;
   
   pmath_message(PMATH_SYMBOL_GET, "load", 1, pmath_ref(name));
   
@@ -107,14 +107,14 @@ static pmath_t get_file(
   
   do{
     pmath_unref(result);
-    result = NULL;
+    result = PMATH_NULL;
     
     code = scanner_read(&info);
     spans = pmath_spans_from_string(
       &code, 
       scanner_read, 
-      NULL, 
-      NULL, 
+      PMATH_NULL, 
+      PMATH_NULL, 
       scanner_error,
       &info);
     
@@ -126,8 +126,8 @@ static pmath_t get_file(
             spans, 
             code, 
             TRUE, 
-            NULL, 
-            NULL)));
+            PMATH_NULL, 
+            PMATH_NULL)));
       
       if(pmath_is_expr_of(result, PMATH_SYMBOL_HOLDCOMPLETE)){
         if(pmath_expr_length(result) == 1){
@@ -173,7 +173,7 @@ static pmath_t get_file(
 //    pmath_unref(name);
 //    
 //    if(pmath_same(name, PMATH_SYMBOL_TRUE)){
-//      pmath_message(NULL, "nons", 1, pmath_ref(package_check));
+//      pmath_message(PMATH_NULL, "nons", 1, pmath_ref(package_check));
 //    }
 //    
 //    pmath_unref(package_check);
@@ -193,15 +193,15 @@ PMATH_PRIVATE pmath_t builtin_get(pmath_expr_t expr){
   name = pmath_expr_get_item(expr, 1);
   if(!pmath_is_string(name)){
     pmath_unref(name);
-    pmath_message(NULL, "str", 2, pmath_integer_new_si(1), pmath_ref(expr));
+    pmath_message(PMATH_NULL, "str", 2, pmath_integer_new_si(1), pmath_ref(expr));
     return expr;
   }
   
   options = pmath_options_extract(expr, 1);
-  if(!options)
+  if(pmath_is_null(options))
     return expr;
   
-  path = pmath_evaluate(pmath_option_value(NULL, PMATH_SYMBOL_PATH, options));
+  path = pmath_evaluate(pmath_option_value(PMATH_NULL, PMATH_SYMBOL_PATH, options));
   pmath_unref(options); 
   if(pmath_is_string(path))
     path = pmath_build_value("(o)", path);
@@ -211,7 +211,7 @@ PMATH_PRIVATE pmath_t builtin_get(pmath_expr_t expr){
     return expr;
   }
   
-  pmath_unref(expr); expr = NULL;
+  pmath_unref(expr); expr = PMATH_NULL;
   
   
   if(_pmath_is_namespace(name)){
@@ -229,7 +229,7 @@ PMATH_PRIVATE pmath_t builtin_get(pmath_expr_t expr){
     if(!pmath_same(expr, PMATH_SYMBOL_TRUE)){
       pmath_unref(name);
       pmath_unref(path);
-      return NULL;
+      return PMATH_NULL;
     }
     
     len = pmath_string_length(name) - 1;
@@ -237,7 +237,7 @@ PMATH_PRIVATE pmath_t builtin_get(pmath_expr_t expr){
     if(!fname){
       pmath_unref(name);
       pmath_unref(path);
-      return NULL;
+      return PMATH_NULL;
     }
     buf = AFTER_STRING(fname);
     memcpy(buf, pmath_string_buffer(name), len * sizeof(uint16_t));
@@ -332,7 +332,7 @@ PMATH_PRIVATE pmath_t builtin_get(pmath_expr_t expr){
     }
     
     pmath_unref((pmath_string_t)fname);
-    pmath_message(NULL, "noopen", 1, name);
+    pmath_message(PMATH_NULL, "noopen", 1, name);
     pmath_unref(path);
     return pmath_ref(PMATH_SYMBOL_FAILED);
   }
@@ -345,7 +345,7 @@ PMATH_PRIVATE pmath_t builtin_get(pmath_expr_t expr){
       pmath_ref(name)));
   pmath_unref(file);
   if(!pmath_same(file, PMATH_SYMBOL_FILE)){
-    pmath_message(NULL, "noopen", 1, name);
+    pmath_message(PMATH_NULL, "noopen", 1, name);
     return pmath_ref(PMATH_SYMBOL_FAILED);
   }
   

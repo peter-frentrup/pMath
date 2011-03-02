@@ -35,7 +35,7 @@ PMATH_PRIVATE pmath_t builtin_prepend(pmath_expr_t expr){
   list = pmath_expr_get_item(expr, 1);
   if(!pmath_is_expr(list)){
     pmath_unref(list);
-    pmath_message(NULL, "nexprat", 2, pmath_integer_new_si(1), pmath_ref(expr));
+    pmath_message(PMATH_NULL, "nexprat", 2, pmath_integer_new_si(1), pmath_ref(expr));
     return expr;
   }
   

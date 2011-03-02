@@ -19,7 +19,7 @@ PMATH_PRIVATE pmath_t builtin_with(pmath_expr_t expr){
 
   symbols = pmath_expr_get_item(expr, 1);
   if(!pmath_is_expr_of(symbols, PMATH_SYMBOL_LIST)){
-    pmath_message(NULL, "nolist", 1, symbols);
+    pmath_message(PMATH_NULL, "nolist", 1, symbols);
     return expr;
   }
   
@@ -65,7 +65,7 @@ PMATH_PRIVATE pmath_t builtin_with(pmath_expr_t expr){
     }
     
     pmath_unref(body);
-    pmath_message(NULL, "nodef", 2, symbols, defi);
+    pmath_message(PMATH_NULL, "nodef", 2, symbols, defi);
     return expr;
   }
   

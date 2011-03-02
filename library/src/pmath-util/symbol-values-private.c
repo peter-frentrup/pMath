@@ -55,9 +55,9 @@ static struct _pmath_multirule_t *create_multirule(void){
     PMATH_TYPE_SHIFT_MULTIRULE, 
     sizeof(struct _pmath_multirule_t));
   
-  result->pattern  = NULL;
-  result->body     = NULL;
-  result->next     = NULL;
+  result->pattern  = PMATH_NULL;
+  result->body     = PMATH_NULL;
+  result->next     = PMATH_NULL;
   return result;
 }
 
@@ -69,13 +69,13 @@ static struct _pmath_multirule_t *move_multirule(
   struct _pmath_multirule_t *src_next;
   
   if(!src)
-    return NULL;
+    return PMATH_NULL;
   
   result = current = create_multirule();
   while(current && src){
     current->pattern  = _pmath_object_atomic_read(&src->pattern);
     current->body     = _pmath_object_atomic_read(&src->body);
-    current->next     = NULL;
+    current->next     = PMATH_NULL;
     
     src_next = MULTIRULE_READ(&src->next);
     UNREF_MULTIRULE(src);
@@ -94,7 +94,7 @@ void _pmath_rulecache_copy(
   struct _pmath_rulecache_t *dst,
   struct _pmath_rulecache_t *src
 ){
-  assert(dst != NULL);
+  assert(dst != PMATH_NULL);
   
   if(!src){
     memset(dst, 0, sizeof(struct _pmath_rulecache_t));
@@ -111,7 +111,7 @@ void _pmath_rulecache_copy(
     rulecache_table_unlock(src, table);
   }
   else
-    dst->_table = NULL;
+    dst->_table = PMATH_NULL;
 }
 
 PMATH_PRIVATE
@@ -120,7 +120,7 @@ void _pmath_symbol_rules_copy(
   struct _pmath_symbol_rules_t *src
 ){
   pmath_hashtable_t src_messages;
-  assert(dst != NULL);
+  assert(dst != PMATH_NULL);
   
   if(!src){
     memset(dst, 0, sizeof(struct _pmath_symbol_rules_t));
@@ -152,7 +152,7 @@ static void destroy_multirule(struct _pmath_multirule_t *s){
 
 PMATH_PRIVATE
 void _pmath_rulecache_done(struct _pmath_rulecache_t *rc){
-  assert(rc != NULL);
+  assert(rc != PMATH_NULL);
   assert(rc->_table != PMATH_INVALID_PTR);
   
   pmath_ht_destroy((pmath_hashtable_t)rc->_table);
@@ -161,7 +161,7 @@ void _pmath_rulecache_done(struct _pmath_rulecache_t *rc){
 
 PMATH_PRIVATE
 void _pmath_symbol_rules_done(struct _pmath_symbol_rules_t *rules){
-  assert(rules != NULL);
+  assert(rules != PMATH_NULL);
   
   _pmath_rulecache_done(&rules->up_rules);
   _pmath_rulecache_done(&rules->down_rules);
@@ -474,7 +474,7 @@ static pmath_bool_t _pmath_multirule_find(
   pmath_t cond;
   pmath_t rule_body;
   
-  assert(inout != NULL);
+  assert(inout != PMATH_NULL);
   
   while(rule){
     rule_body = _pmath_object_atomic_read(&rule->body);
@@ -526,8 +526,8 @@ pmath_bool_t _pmath_rulecache_find(
   struct _pmath_object_entry_t *entry;
   pmath_hashtable_t table;
   
-  assert(rc != NULL);
-  assert(inout != NULL);
+  assert(rc != PMATH_NULL);
+  assert(inout != PMATH_NULL);
   
   table = rulecache_table_lock(rc);
   
@@ -565,9 +565,9 @@ static pmath_bool_t _pmath_multirule_change_ex(
   pmath_t rule_member;
   int cmp;
   
-  assert(rule_base != NULL);
+  assert(rule_base != PMATH_NULL);
   
-  prev = NULL;
+  prev = PMATH_NULL;
   while(rule){
     rule_member = _pmath_object_atomic_read(&rule->pattern);
     cmp = _pmath_pattern_compare(pattern, rule_member);
@@ -707,7 +707,7 @@ static pmath_bool_t _pmath_multirule_change(
   pmath_t pattern,                                 // wont be freed
   pmath_t body                                     // wont be freed, PMATH_UNDEFINED => remove rules
 ){
-  assert(rule_base != NULL);
+  assert(rule_base != PMATH_NULL);
   
   return _pmath_multirule_change_ex(
     rule_base,
@@ -726,7 +726,7 @@ void _pmath_rulecache_change(
   struct _pmath_object_entry_t *entry;
   pmath_hashtable_t table;
   
-  assert(rc != NULL);
+  assert(rc != PMATH_NULL);
   
   body_has_condition = _pmath_rhs_condition(&body, FALSE);
   
@@ -776,7 +776,7 @@ void _pmath_rulecache_change(
         entry->value = body;
         
         entry = pmath_ht_insert(table, entry);
-        assert(entry == NULL);
+        assert(entry == PMATH_NULL);
         
         rulecache_table_unlock(rc, table);
         return;
@@ -798,13 +798,13 @@ void _pmath_rulecache_clear(struct _pmath_rulecache_t *rc){
   pmath_hashtable_t          table;
   struct _pmath_multirule_t *more;
   
-  assert(rc != NULL);
+  assert(rc != PMATH_NULL);
   
   more = MULTIRULE_START(&rc->_more);
-  MULTIRULE_END(&rc->_more, NULL);
+  MULTIRULE_END(&rc->_more, PMATH_NULL);
   
   table = rulecache_table_lock(rc);
-  rulecache_table_unlock(rc, NULL);
+  rulecache_table_unlock(rc, PMATH_NULL);
   
   UNREF_MULTIRULE(more);
   pmath_ht_destroy(table);
@@ -814,7 +814,7 @@ PMATH_PRIVATE
 void _pmath_symbol_rules_clear(struct _pmath_symbol_rules_t *rules){
   pmath_hashtable_t  messages;
   
-  assert(rules != NULL);
+  assert(rules != PMATH_NULL);
   
   _pmath_rulecache_clear(&rules->up_rules);
   _pmath_rulecache_clear(&rules->down_rules);
@@ -824,7 +824,7 @@ void _pmath_symbol_rules_clear(struct _pmath_symbol_rules_t *rules){
   _pmath_rulecache_clear(&rules->format_rules);
   
   messages = (pmath_hashtable_t)_pmath_atomic_lock_ptr(&rules->_messages);
-  _pmath_atomic_unlock_ptr(&rules->_messages, NULL);
+  _pmath_atomic_unlock_ptr(&rules->_messages, PMATH_NULL);
   
   pmath_ht_destroy(messages);
 }
@@ -843,7 +843,7 @@ static void _pmath_multirules_emit(struct _pmath_multirule_t *rule){ // will be 
           pmath_ref(PMATH_SYMBOL_HOLDPATTERN), 1,
           _pmath_object_atomic_read(&rule->pattern)),
         _pmath_object_atomic_read(&rule->body)),
-      NULL);
+      PMATH_NULL);
     
     next = MULTIRULE_READ(&rule->next);
     UNREF_MULTIRULE(rule);
@@ -867,7 +867,7 @@ void _pmath_symbol_value_emit(
           pmath_ref(PMATH_SYMBOL_HOLDPATTERN), 1,
             pmath_ref(sym)),
         value),
-      NULL);
+      PMATH_NULL);
   }
   else
     pmath_unref(value);
@@ -893,7 +893,7 @@ void _pmath_rule_table_emit(
             pmath_ref(PMATH_SYMBOL_HOLDPATTERN), 1,
             pmath_ref(entry->key)),
           pmath_ref(entry->value)),
-        NULL);
+        PMATH_NULL);
     }
   }
 }
@@ -904,7 +904,7 @@ void _pmath_rulecache_emit(
 ){
   pmath_hashtable_t  table;
   
-  assert(rc != NULL);
+  assert(rc != PMATH_NULL);
   
   table = rulecache_table_lock(rc);
   
@@ -964,11 +964,11 @@ void _pmath_symbol_define_value_pos(
   }
   
   if(_pmath_rhs_condition(&body, FALSE)){
-    _pmath_object_atomic_write(value_position, NULL);
+    _pmath_object_atomic_write(value_position, PMATH_NULL);
     
     while(!_pmath_multirule_change_ex(
         (struct _pmath_multirule_t*volatile*)value_position, 
-        (struct _pmath_multirule_t*)NULL,
+        (struct _pmath_multirule_t*)PMATH_NULL,
         pattern, 
         body))
     {
@@ -1006,8 +1006,8 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_values_init(void){
     (pmath_compare_func_t)        dummy_cmp,
     (pmath_hash_func_t)           dummy_hash,
     (pmath_proc_t)                destroy_multirule,
-    (pmath_equal_func_t)          NULL,
-    (_pmath_object_write_func_t)  NULL);
+    (pmath_equal_func_t)          PMATH_NULL,
+    (_pmath_object_write_func_t)  PMATH_NULL);
   
   return TRUE;
 }

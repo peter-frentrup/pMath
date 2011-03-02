@@ -35,7 +35,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_message_is_on(pmath_t msg){
   
   is_off = PMATH_UNDEFINED;
   if(pmath_is_expr_of_len(msg, PMATH_SYMBOL_MESSAGENAME, 2)){
-    pmath_t varname = pmath_expr_set_item(pmath_ref(msg), 2, NULL);
+    pmath_t varname = pmath_expr_set_item(pmath_ref(msg), 2, PMATH_NULL);
     
     is_off = _pmath_thread_local_load_with(varname, thread);
     pmath_unref(is_off);
@@ -66,7 +66,7 @@ PMATH_PRIVATE pmath_t builtin_message(pmath_expr_t expr){
   if(!_pmath_message_is_on(name)){
     pmath_unref(name);
     pmath_unref(expr);
-    return NULL;
+    return PMATH_NULL;
   }
   
   if(!pmath_equals(_pmath_object_stop_message, name)){
@@ -87,7 +87,7 @@ PMATH_PRIVATE pmath_t builtin_message(pmath_expr_t expr){
         pmath_unref(count);
         pmath_unref(expr);
         pmath_unref(name);
-        return NULL;
+        return PMATH_NULL;
       }
     }
     
@@ -105,7 +105,7 @@ PMATH_PRIVATE pmath_t builtin_message(pmath_expr_t expr){
     if(pmath_same(dothrow, PMATH_SYMBOL_TRUE)){
       pmath_unref(expr);//pmath_unref(pmath_evaluate(expr));
       pmath_throw(name);
-      return NULL;
+      return PMATH_NULL;
     }
   }
   
@@ -114,41 +114,41 @@ PMATH_PRIVATE pmath_t builtin_message(pmath_expr_t expr){
   if(pmath_same(text, PMATH_UNDEFINED)){
     pmath_unref(name);
     pmath_unref(expr);
-    return NULL;
+    return PMATH_NULL;
   }
   
-  pmath_gather_begin(NULL);
+  pmath_gather_begin(PMATH_NULL);
 
 //  pmath_emit(
 //    pmath_expr_new_extended(
 //      pmath_ref(PMATH_SYMBOL_HOLDFORM), 1,
 //      pmath_ref(name)),
-//    NULL);
+//    PMATH_NULL);
 //
-//  pmath_emit(PMATH_C_STRING(": "), NULL);
+//  pmath_emit(PMATH_C_STRING(": "), PMATH_NULL);
   
-  if(text){
+  if(!pmath_is_null(text)){
     expr = pmath_expr_set_item(
       expr, 0, 
       pmath_ref(PMATH_SYMBOL_STRINGFORM));
     
     expr = pmath_expr_set_item(expr, 1, text);
     
-    pmath_emit(expr, NULL);
+    pmath_emit(expr, PMATH_NULL);
   }
   else{
-    pmath_emit(PMATH_C_STRING("-- Message text not found --"), NULL);
+    pmath_emit(PMATH_C_STRING("-- Message text not found --"), PMATH_NULL);
     
     if(pmath_expr_length(expr) > 1){
       size_t i;
       
-      pmath_emit(PMATH_C_STRING(" ("), NULL);
-      pmath_emit(pmath_expr_get_item(expr, 2), NULL);
+      pmath_emit(PMATH_C_STRING(" ("), PMATH_NULL);
+      pmath_emit(pmath_expr_get_item(expr, 2), PMATH_NULL);
       for(i = 3;i <= pmath_expr_length(expr);++i){
-        pmath_emit(PMATH_C_STRING(","), NULL);
-        pmath_emit(pmath_expr_get_item(expr, i), NULL);
+        pmath_emit(PMATH_C_STRING(","), PMATH_NULL);
+        pmath_emit(pmath_expr_get_item(expr, i), PMATH_NULL);
       }
-      pmath_emit(PMATH_C_STRING(")"), NULL);
+      pmath_emit(PMATH_C_STRING(")"), PMATH_NULL);
     }
     
     pmath_unref(expr);
@@ -180,7 +180,7 @@ PMATH_PRIVATE pmath_t builtin_message(pmath_expr_t expr){
         pmath_ref(PMATH_SYMBOL_HOLDFORM), 1,
         name));
       
-    name = NULL;
+    name = PMATH_NULL;
   }
   
   pmath_unref(name);

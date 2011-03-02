@@ -45,13 +45,13 @@ PMATH_PRIVATE pmath_t builtin_renamedirectory_and_renamefile(pmath_expr_t expr){
   
   name1 = pmath_expr_get_item(expr, 1);
   if(!pmath_is_string(name1) || pmath_string_length(name1) == 0){
-    pmath_message(NULL, "fstr", 1, name1);
+    pmath_message(PMATH_NULL, "fstr", 1, name1);
     return expr;
   }
   
   name2 = pmath_expr_get_item(expr, 2);
   if(!pmath_is_string(name2) || pmath_string_length(name2) == 0){
-    pmath_message(NULL, "fstr", 1, name2);
+    pmath_message(PMATH_NULL, "fstr", 1, name2);
     pmath_unref(name1);
     return expr;
   }
@@ -68,10 +68,10 @@ PMATH_PRIVATE pmath_t builtin_renamedirectory_and_renamefile(pmath_expr_t expr){
         (const wchar_t*)pmath_string_buffer(name1),
         0,
         FILE_SHARE_READ | FILE_SHARE_WRITE,
-        NULL,
+        PMATH_NULL,
         OPEN_EXISTING,
         FILE_FLAG_BACKUP_SEMANTICS,
-        NULL);
+        PMATH_NULL);
       
       if(h != INVALID_HANDLE_VALUE){
         BY_HANDLE_FILE_INFORMATION info;
@@ -95,39 +95,39 @@ PMATH_PRIVATE pmath_t builtin_renamedirectory_and_renamefile(pmath_expr_t expr){
           else{
             switch(GetLastError()){
               case ERROR_ACCESS_DENIED:
-                pmath_message(NULL, "privv", 1, expr); 
-                expr = NULL;
+                pmath_message(PMATH_NULL, "privv", 1, expr); 
+                expr = PMATH_NULL;
                 break;
                 
               case ERROR_FILE_EXISTS:
               case ERROR_ALREADY_EXISTS:
-                pmath_message(NULL, "filex", 1, 
+                pmath_message(PMATH_NULL, "filex", 1, 
                   pmath_string_part(name2, 0, pmath_string_length(name2) - 1)); 
-                name2 = NULL; 
+                name2 = PMATH_NULL; 
                 break;
               
               case ERROR_DIR_NOT_EMPTY:
-                pmath_message(NULL, "dirne", 1, 
+                pmath_message(PMATH_NULL, "dirne", 1, 
                   pmath_string_part(name1, 0, pmath_string_length(name1) - 1)); 
-                name1 = NULL; 
+                name1 = PMATH_NULL; 
                 break;
               
               case ERROR_FILE_NOT_FOUND: 
               case ERROR_PATH_NOT_FOUND: 
                 if(pmath_same(head, PMATH_SYMBOL_RENAMEDIRECTORY)){
-                  pmath_message(NULL, "nodir", 1,
+                  pmath_message(PMATH_NULL, "nodir", 1,
                     pmath_string_part(name1, 0, pmath_string_length(name1) - 1)); 
-                  name1 = NULL;
+                  name1 = PMATH_NULL;
                 }
                 else{
-                  pmath_message(NULL, "nffil", 1, expr);
-                  expr = NULL;
+                  pmath_message(PMATH_NULL, "nffil", 1, expr);
+                  expr = PMATH_NULL;
                 }
                 break;
               
               default:
-                pmath_message(NULL, "ioarg", 1, expr); 
-                expr = NULL;
+                pmath_message(PMATH_NULL, "ioarg", 1, expr); 
+                expr = PMATH_NULL;
                 break;
             }
             
@@ -138,20 +138,20 @@ PMATH_PRIVATE pmath_t builtin_renamedirectory_and_renamefile(pmath_expr_t expr){
         else{
           switch(GetLastError()){
             case ERROR_ACCESS_DENIED:
-              pmath_message(NULL, "privv", 1, expr); 
-              expr = NULL;
+              pmath_message(PMATH_NULL, "privv", 1, expr); 
+              expr = PMATH_NULL;
               break;
             
             default:
               if(pmath_same(head, PMATH_SYMBOL_RENAMEFILE)){
-                pmath_message(NULL, "fdir", 1, 
+                pmath_message(PMATH_NULL, "fdir", 1, 
                   pmath_string_part(name1, 0, pmath_string_length(name1) - 1));
-                name1 = NULL;
+                name1 = PMATH_NULL;
               }
               else{
-                pmath_message(NULL, "nodir", 1, 
+                pmath_message(PMATH_NULL, "nodir", 1, 
                   pmath_string_part(name1, 0, pmath_string_length(name1) - 1));
-                name1 = NULL;
+                name1 = PMATH_NULL;
               }
           }
           pmath_unref(name2);
@@ -162,19 +162,19 @@ PMATH_PRIVATE pmath_t builtin_renamedirectory_and_renamefile(pmath_expr_t expr){
       else{
         switch(GetLastError()){
           case ERROR_ACCESS_DENIED:
-            pmath_message(NULL, "privv", 1, expr); 
-            expr = NULL;
+            pmath_message(PMATH_NULL, "privv", 1, expr); 
+            expr = PMATH_NULL;
             break;
           
           default:
             if(pmath_same(head, PMATH_SYMBOL_RENAMEFILE)){
-              pmath_message(NULL, "nffil", 1, expr);
-              expr = NULL;
+              pmath_message(PMATH_NULL, "nffil", 1, expr);
+              expr = PMATH_NULL;
             }
             else{
-              pmath_message(NULL, "nodir", 1, 
+              pmath_message(PMATH_NULL, "nodir", 1, 
                 pmath_string_part(name1, 0, pmath_string_length(name1) - 1));
-              name1 = NULL;
+              name1 = PMATH_NULL;
             }
         }
         pmath_unref(name2);
@@ -184,14 +184,14 @@ PMATH_PRIVATE pmath_t builtin_renamedirectory_and_renamefile(pmath_expr_t expr){
   }
   #else
   {
-    char   *str1 = pmath_string_to_native(name1, NULL);
-    char   *str2 = pmath_string_to_native(name2, NULL);
+    char   *str1 = pmath_string_to_native(name1, PMATH_NULL);
+    char   *str2 = pmath_string_to_native(name2, PMATH_NULL);
     
     if(str1 && str2){
       struct stat buf;
       
       if(stat(str2, &buf) == 0){
-        pmath_message(NULL, "filex", 1, name2); 
+        pmath_message(PMATH_NULL, "filex", 1, name2); 
         name2 = pmath_ref(PMATH_SYMBOL_FAILED);
       }
       else{
@@ -210,30 +210,30 @@ PMATH_PRIVATE pmath_t builtin_renamedirectory_and_renamefile(pmath_expr_t expr){
             switch(errno){
               case EACCES:
               case EPERM:
-                pmath_message(NULL, "privv", 1, expr);
-                expr = NULL;
+                pmath_message(PMATH_NULL, "privv", 1, expr);
+                expr = PMATH_NULL;
                 break;
                 
               case ENOTEMPTY:
               case EEXIST:
-                pmath_message(NULL, "dirne", 1, name2); 
-                name2 = NULL; 
+                pmath_message(PMATH_NULL, "dirne", 1, name2); 
+                name2 = PMATH_NULL; 
                 break;
               
               case ENOENT:
-                pmath_message(NULL, "nodir", 1, name1); 
-                name1 = NULL; 
+                pmath_message(PMATH_NULL, "nodir", 1, name1); 
+                name1 = PMATH_NULL; 
                 break;
                 
               case EISDIR:
               case ENOTDIR:
-                pmath_message(NULL, "nodir", 1, name2); 
-                name2 = NULL; 
+                pmath_message(PMATH_NULL, "nodir", 1, name2); 
+                name2 = PMATH_NULL; 
                 break;
               
               default:
-                pmath_message(NULL, "ioarg", 1, expr);
-                expr = NULL;
+                pmath_message(PMATH_NULL, "ioarg", 1, expr);
+                expr = PMATH_NULL;
                 break;
             }
             
@@ -245,18 +245,18 @@ PMATH_PRIVATE pmath_t builtin_renamedirectory_and_renamefile(pmath_expr_t expr){
           switch(errno){
             case EACCES:
             case EPERM:
-              pmath_message(NULL, "privv", 1, expr);
-              expr = NULL;
+              pmath_message(PMATH_NULL, "privv", 1, expr);
+              expr = PMATH_NULL;
               break;
             
             default:
               if(pmath_same(head, PMATH_SYMBOL_RENAMEDIRECTORY)){
-                pmath_message(NULL, "nodir", 1, name1); 
-                name1 = NULL; 
+                pmath_message(PMATH_NULL, "nodir", 1, name1); 
+                name1 = PMATH_NULL; 
               }
               else{
-                pmath_message(NULL, "fdir", 1, name1); 
-                name1 = NULL; 
+                pmath_message(PMATH_NULL, "fdir", 1, name1); 
+                name1 = PMATH_NULL; 
               }
           }
           pmath_unref(name2);

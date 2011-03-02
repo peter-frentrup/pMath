@@ -31,7 +31,7 @@ PMATH_PRIVATE pmath_t builtin_createdirectory(pmath_expr_t expr){
   
   name = pmath_expr_get_item(expr, 1);
   if(!pmath_is_string(name) || pmath_string_length(name) == 0){
-    pmath_message(NULL, "fstr", 1, name);
+    pmath_message(PMATH_NULL, "fstr", 1, name);
     return expr;
   }
   
@@ -41,7 +41,7 @@ PMATH_PRIVATE pmath_t builtin_createdirectory(pmath_expr_t expr){
     name = pmath_string_insert_ucs2(name, INT_MAX, &zero, 1);
     
     if(name){
-      if(!CreateDirectoryW((const wchar_t*)pmath_string_buffer(name), NULL)){
+      if(!CreateDirectoryW((const wchar_t*)pmath_string_buffer(name), PMATH_NULL)){
         switch(GetLastError()){
           case ERROR_ALREADY_EXISTS:
             name = pmath_string_part(name, 0, pmath_string_length(name) - 1);
@@ -49,15 +49,15 @@ PMATH_PRIVATE pmath_t builtin_createdirectory(pmath_expr_t expr){
             break;
             
           case ERROR_ACCESS_DENIED:
-            pmath_message(NULL, "privv", 1, expr); 
-            expr = NULL;
+            pmath_message(PMATH_NULL, "privv", 1, expr); 
+            expr = PMATH_NULL;
             pmath_unref(name);
             name = pmath_ref(PMATH_SYMBOL_FAILED);
             break;
           
           default:
-            pmath_message(NULL, "ioarg", 1, expr);
-            expr = NULL;
+            pmath_message(PMATH_NULL, "ioarg", 1, expr);
+            expr = PMATH_NULL;
             pmath_unref(name);
             name = pmath_ref(PMATH_SYMBOL_FAILED);
         }
@@ -70,7 +70,7 @@ PMATH_PRIVATE pmath_t builtin_createdirectory(pmath_expr_t expr){
   }
   #else
   {
-    char *str = pmath_string_to_native(name, NULL);
+    char *str = pmath_string_to_native(name, PMATH_NULL);
     
     if(str){
       errno = 0;
@@ -79,13 +79,13 @@ PMATH_PRIVATE pmath_t builtin_createdirectory(pmath_expr_t expr){
         switch(errno){
           case EACCES:
           case EPERM:
-            pmath_message(NULL, "privv", 1, expr); 
-            expr = NULL;
+            pmath_message(PMATH_NULL, "privv", 1, expr); 
+            expr = PMATH_NULL;
             break;
           
           default:
-            pmath_message(NULL, "ioarg", 1, expr);
-            expr = NULL;
+            pmath_message(PMATH_NULL, "ioarg", 1, expr);
+            expr = PMATH_NULL;
         }
         
         pmath_unref(name);

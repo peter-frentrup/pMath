@@ -53,7 +53,7 @@ typedef struct _pmath_thread_t *pmath_thread_t;
 
 /**\brief Get the current pMath thread.
    \relates pmath_thread_t
-   \return A \ref pmath_thread_t. This is NULL, if you did not register the 
+   \return A \ref pmath_thread_t. This is PMATH_NULL, if you did not register the 
            current thread to pMath via pmath_init().
  */
 PMATH_API 
@@ -63,7 +63,7 @@ pmath_thread_t pmath_thread_get_current(void);
 /**\brief Get a thread's direct parent.
    \relates pmath_thread_t
    \param thread A thread.
-   \return The direct parent of thread. Usualy NULL.
+   \return The direct parent of thread. Usualy PMATH_NULL.
  */
 PMATH_API 
 pmath_thread_t pmath_thread_get_parent(pmath_thread_t thread);
@@ -93,7 +93,7 @@ pmath_bool_t pmath_thread_is_parent(
            stored with the same key. You must destroy it.
 
    Note that keys of the form `symbol::tag` are used to store whether a message
-   should be suppressed (value PMATH_SYMBOL_OFF) or not (value NULL).
+   should be suppressed (value PMATH_SYMBOL_OFF) or not (value PMATH_NULL).
 
    All keys that are \ref pmath_type_t "magic numbers", have special meanings 
    for pmath_thread_local_save(). You should not use them as the a key.

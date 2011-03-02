@@ -40,7 +40,7 @@ PMATH_PRIVATE pmath_t builtin_write(pmath_expr_t expr){
   
   pmath_unref(expr);
   pmath_unref(file);
-  return NULL;
+  return PMATH_NULL;
 }
 
 PMATH_PRIVATE pmath_t builtin_writestring(pmath_expr_t expr){
@@ -75,5 +75,5 @@ PMATH_PRIVATE pmath_t builtin_writestring(pmath_expr_t expr){
   pmath_file_flush(file);
   pmath_unref(expr);
   pmath_unref(file);
-  return NULL;
+  return PMATH_NULL;
 }

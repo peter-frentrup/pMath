@@ -65,7 +65,7 @@ static pmath_t evaluate(
     #endif
 
     if(PMATH_IS_MAGIC(obj)){
-      obj = NULL;
+      obj = PMATH_NULL;
       goto FINISH;
     }
     
@@ -110,7 +110,7 @@ static pmath_t handle_explicit_return(pmath_t expr){
     switch(pmath_expr_length(expr)){
       case 0: 
         pmath_unref(expr); 
-        return NULL; 
+        return PMATH_NULL; 
       
       case 1:
         obj = pmath_expr_get_item(expr, 1);
@@ -165,14 +165,14 @@ static pmath_t evaluate_expression(
   size_t                         exprlen;
   _pmath_timer_t                 expr_changes;
   
-  assert(thread_ptr != NULL);
+  assert(thread_ptr != PMATH_NULL);
   assert(pmath_is_expr(expr));
     
   if(!*thread_ptr){
     *thread_ptr = pmath_thread_get_current();
     if(!*thread_ptr){
       pmath_unref(expr);
-      return NULL;
+      return PMATH_NULL;
     }
   }
   
@@ -208,7 +208,7 @@ static pmath_t evaluate_expression(
   }
   
   (*thread_ptr)->evaldepth++;
-  stack_frame.value = NULL;
+  stack_frame.value = PMATH_NULL;
   stack_frame.next = (*thread_ptr)->stack_info;
   (*thread_ptr)->stack_info = &stack_frame;
   
@@ -219,8 +219,8 @@ static pmath_t evaluate_expression(
   attr = pmath_symbol_get_attributes(head_sym);
   
   exprlen = pmath_expr_length(expr);
-  expr_with_unevaluated = NULL;
-  expr_without_unevaluated = NULL;
+  expr_with_unevaluated = PMATH_NULL;
+  expr_without_unevaluated = PMATH_NULL;
   
   hold_first    = FALSE;
   hold_rest     = FALSE;
@@ -521,7 +521,7 @@ static pmath_t evaluate_symbol(
   pmath_symbol_attributes_t   attr;
   pmath_t                     value;
   
-  assert(thread_ptr != NULL);
+  assert(thread_ptr != PMATH_NULL);
   assert(pmath_is_symbol(sym));
   
   attr = pmath_symbol_get_attributes(sym);
@@ -531,7 +531,7 @@ static pmath_t evaluate_symbol(
       *thread_ptr = pmath_thread_get_current();
       
       if(!*thread_ptr)
-        return NULL;
+        return PMATH_NULL;
     }
     
     value = _pmath_thread_local_load_with(sym, *thread_ptr);
@@ -546,7 +546,7 @@ static pmath_t evaluate_symbol(
       
       if(!*thread_ptr){
         pmath_unref(value);
-        return NULL;
+        return PMATH_NULL;
       }
     }
     
@@ -567,7 +567,7 @@ static pmath_t evaluate_symbol(
   
 PMATH_API
 pmath_t pmath_evaluate(pmath_t obj){
-  pmath_thread_t current_thread = NULL;
+  pmath_thread_t current_thread = PMATH_NULL;
   
   return evaluate(obj, &current_thread);
 }
@@ -577,7 +577,7 @@ pmath_t pmath_evaluate_expression(
   pmath_expr_t  expr,    // will be freed
   pmath_bool_t     apply_rules
 ){
-  pmath_thread_t current_thread = NULL;
+  pmath_thread_t current_thread = PMATH_NULL;
   
   return evaluate_expression(expr, &current_thread, apply_rules);
 }

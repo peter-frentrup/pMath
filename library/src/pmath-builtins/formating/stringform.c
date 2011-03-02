@@ -33,7 +33,7 @@ pmath_t _pmath_expand_string( // result is string or expression
     
     start = i = 0;
     
-    pmath_gather_begin(NULL);
+    pmath_gather_begin(PMATH_NULL);
     
     while(i < len){
       if(buf[i] == PMATH_CHAR_LEFT_BOX){
@@ -42,7 +42,7 @@ pmath_t _pmath_expand_string( // result is string or expression
         if(i > start){
           pmath_emit(
             pmath_string_part(pmath_ref(string), start, i - start),
-            NULL);
+            PMATH_NULL);
         }
         
         start = ++i;
@@ -64,7 +64,7 @@ pmath_t _pmath_expand_string( // result is string or expression
               pmath_ref(string), 
               start, 
               i - start)),
-          NULL);
+          PMATH_NULL);
         
         if(i < len)
           ++i;
@@ -78,7 +78,7 @@ pmath_t _pmath_expand_string( // result is string or expression
     if(start < len){
       pmath_emit(
         pmath_string_part(pmath_ref(string), start, len - start),
-        NULL);
+        PMATH_NULL);
     }
     
     pmath_unref(string);
@@ -151,7 +151,7 @@ static pmath_t string_form(
       int start = 0;
       int i = 0;
       
-      pmath_gather_begin(NULL);
+      pmath_gather_begin(PMATH_NULL);
       
       while(i < len - 1){
         if(buf[i] == '`'){
@@ -162,14 +162,14 @@ static pmath_t string_form(
                   pmath_ref(format),
                   start,
                   i - start),
-                NULL);
+                PMATH_NULL);
             }
             
             pmath_emit(
               pmath_expr_get_item(
                 data->formated_params, 
                 data->current_param++),
-              NULL);
+              PMATH_NULL);
             
             start = i+= 2;
           }
@@ -192,7 +192,7 @@ static pmath_t string_form(
                     pmath_ref(format),
                     start,
                     end - start),
-                  NULL);
+                  PMATH_NULL);
               }
               
               start = 0;
@@ -210,7 +210,7 @@ static pmath_t string_form(
                   pmath_expr_get_item(
                     data->formated_params, 
                     data->current_param++),
-                  NULL);
+                  PMATH_NULL);
                 
                 start = i = k + 1;
               }
@@ -233,7 +233,7 @@ static pmath_t string_form(
             pmath_ref(format),
             start,
             len - start),
-          NULL);
+          PMATH_NULL);
       }
       
       pmath_unref(format);
@@ -277,7 +277,7 @@ pmath_bool_t _pmath_stringform_write(
   pmath_string_t  format;
   size_t i;
   
-  if(!stringform)
+  if(pmath_is_null(stringform))
     return FALSE;
   
   assert(pmath_is_expr(stringform));
@@ -292,7 +292,7 @@ pmath_bool_t _pmath_stringform_write(
   
   for(i = 1;i <= pmath_expr_length(data.formated_params);++i){
     pmath_t item = pmath_expr_get_item(data.formated_params, i);
-    pmath_string_t str = NULL;
+    pmath_string_t str = PMATH_NULL;
     
     pmath_write(
       item,
@@ -302,7 +302,7 @@ pmath_bool_t _pmath_stringform_write(
     
     pmath_unref(item);
     
-    if(!str)
+    if(pmath_is_null(str))
       str = pmath_string_new(0);
     
     data.formated_params = pmath_expr_set_item(
@@ -352,15 +352,15 @@ pmath_t _pmath_stringform_to_boxes(
   pmath_string_t  format;
   size_t i;
 
-  if(!stringform)
-    return NULL;
+  if(pmath_is_null(stringform))
+    return PMATH_NULL;
   
   assert(pmath_is_expr(stringform));
   
   format = (pmath_string_t)pmath_expr_get_item(stringform, 1);
   if(!pmath_is_string(format)){
     pmath_unref(format);
-    return NULL;
+    return PMATH_NULL;
   }
   
   data.formated_params = pmath_expr_get_item_range(stringform, 2, SIZE_MAX);
@@ -368,7 +368,7 @@ pmath_t _pmath_stringform_to_boxes(
   for(i = 1;i <= pmath_expr_length(data.formated_params);++i){
     pmath_t item = pmath_expr_get_item(data.formated_params, i);
     data.formated_params = pmath_expr_set_item(
-      data.formated_params, i, NULL);
+      data.formated_params, i, PMATH_NULL);
     
     item = pmath_expr_new_extended(
       pmath_ref(PMATH_SYMBOL_LIST), 1,
@@ -394,15 +394,15 @@ pmath_t _pmath_stringform_to_boxes(
     
     for(i = 1;i <= pmath_expr_length(result);++i){
       pmath_t item = pmath_expr_get_item(result, i);
-      pmath_string_t nitem = NULL;
+      pmath_string_t nitem = PMATH_NULL;
       
       if(pmath_is_string(item)){
-        nitem = _pmath_string_escape(NULL, item, NULL, FALSE);
+        nitem = _pmath_string_escape(PMATH_NULL, item, PMATH_NULL, FALSE);
       }
       else{
         static const uint16_t left  = PMATH_CHAR_LEFT_BOX;
         static const uint16_t right = PMATH_CHAR_RIGHT_BOX;
-        nitem = pmath_string_insert_ucs2(NULL, 0, &left, 1);
+        nitem = pmath_string_insert_ucs2(PMATH_NULL, 0, &left, 1);
         
         if(pmath_is_expr_of_len(item, PMATH_SYMBOL_LIST, 1)){
           pmath_expr_t tmp = (pmath_expr_t)item;
@@ -453,7 +453,7 @@ pmath_t _pmath_stringform_to_boxes(
       
       buf[rlen] = '"';
       pmath_unref(result);
-      result = (pmath_string_t)all;
+      result = (pmath_string_t)PMATH_FROM_PTR(all);
     }
   }
   else if(pmath_is_string(result)){
@@ -517,7 +517,7 @@ pmath_string_t _pmath_string_escape(
     pmath_unref(string);
     pmath_unref(prefix);
     pmath_unref(postfix);
-    return NULL;
+    return PMATH_NULL;
   }
   
   rlen = pmath_string_length(prefix);
@@ -557,5 +557,5 @@ pmath_string_t _pmath_string_escape(
     sizeof(uint16_t) * pmath_string_length(postfix));
   pmath_unref(postfix);
   
-  return (pmath_string_t)result;
+  return (pmath_string_t)PMATH_FROM_PTR(result);
 }

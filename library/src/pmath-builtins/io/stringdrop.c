@@ -73,7 +73,7 @@ static pmath_t stringdrop(
       }
     }
     
-    pmath_message(NULL, "drop", 3,
+    pmath_message(PMATH_NULL, "drop", 3,
       pmath_integer_new_si(start),
       pmath_integer_new_si(end),
       pmath_ref(str));
@@ -86,7 +86,7 @@ static pmath_t stringdrop(
     
     for(i = 1;i <= pmath_expr_length(str);++i){
       pmath_t item = pmath_expr_get_item(str, i);
-      str = pmath_expr_set_item(str, i, NULL);
+      str = pmath_expr_set_item(str, i, PMATH_NULL);
       
       item = stringdrop(item, expr, start, end, step);
       
@@ -101,7 +101,7 @@ static pmath_t stringdrop(
     return str;
   }
   
-  pmath_message(NULL, "strse", 2,
+  pmath_message(PMATH_NULL, "strse", 2,
     pmath_integer_new_si(1),
     pmath_ref(expr));
   
@@ -121,7 +121,7 @@ PMATH_PRIVATE pmath_t builtin_stringdrop(pmath_expr_t expr){
   obj = pmath_expr_get_item(expr, 2);
   if(!_pmath_extract_longrange(obj, &start, &end, &step)){
     pmath_unref(obj);
-    pmath_message(NULL, "seqs", 2, pmath_integer_new_si(2), pmath_ref(expr));
+    pmath_message(PMATH_NULL, "seqs", 2, pmath_integer_new_si(2), pmath_ref(expr));
     return expr;
   }
   

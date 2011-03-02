@@ -23,7 +23,7 @@ PMATH_PRIVATE pmath_t builtin_tostring(pmath_expr_t expr){
     return pmath_string_new(0);
   }
   
-  result = NULL;
+  result = PMATH_NULL;
   
   for(i = 1;i <= len;++i){
     pmath_t obj = pmath_expr_get_item(expr, i);

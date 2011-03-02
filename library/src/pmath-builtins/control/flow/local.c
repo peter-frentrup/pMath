@@ -18,7 +18,7 @@ PMATH_PRIVATE pmath_t builtin_local(pmath_expr_t expr){
 
   symbols = pmath_expr_get_item(expr, 1);
   if(!pmath_is_expr_of(symbols, PMATH_SYMBOL_LIST)){
-    pmath_message(NULL, "lvlist", 1, symbols);
+    pmath_message(PMATH_NULL, "lvlist", 1, symbols);
     return expr;
   }
 
@@ -42,7 +42,7 @@ PMATH_PRIVATE pmath_t builtin_local(pmath_expr_t expr){
        && !pmath_same(sym, PMATH_SYMBOL_ASSIGNDELAYED))
       || pmath_expr_length(defi) != 2){
         pmath_unref(body);
-        pmath_message(NULL, "nodef", 2, symbols, defi);
+        pmath_message(PMATH_NULL, "nodef", 2, symbols, defi);
         return expr;
       }
       
@@ -50,7 +50,7 @@ PMATH_PRIVATE pmath_t builtin_local(pmath_expr_t expr){
       if(!pmath_is_symbol(sym)){
         pmath_unref(body);
         pmath_unref(sym);
-        pmath_message(NULL, "nodef", 2, symbols, defi);
+        pmath_message(PMATH_NULL, "nodef", 2, symbols, defi);
         return expr;
       }
     }
@@ -59,7 +59,7 @@ PMATH_PRIVATE pmath_t builtin_local(pmath_expr_t expr){
     }
     else{
       pmath_unref(body);
-      pmath_message(NULL, "nodef", 2, symbols, defi);
+      pmath_message(PMATH_NULL, "nodef", 2, symbols, defi);
       return expr;
     }
     

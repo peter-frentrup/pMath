@@ -81,9 +81,9 @@ static pmath_expr_t random_array(
             pmath_ref(data->min),
             (pmath_integer_t)result);
         
-        return (pmath_integer_t)result;
+        return (pmath_integer_t)PMATH_FROM_PTR(result);
       }
-      return NULL;
+      return PMATH_NULL;
     }
     else{
 //      mp_prec_t prec = data->working_precision;
@@ -102,7 +102,7 @@ static pmath_expr_t random_array(
           double res = mpfr_get_d(result->value, GMP_RNDN);
           
           if(isfinite(res)){
-            pmath_unref((pmath_float_t)result);
+            pmath_unref((pmath_float_t)PMATH_FROM_PTR(result));;
             
             return stretch(
               pmath_float_new_d(res), 
@@ -120,7 +120,7 @@ static pmath_expr_t random_array(
           pmath_ref(data->min), 
           pmath_ref(data->max));
       }
-      return NULL;
+      return PMATH_NULL;
     }
   }
   
@@ -153,7 +153,7 @@ PMATH_PRIVATE pmath_t builtin_randominteger(pmath_expr_t expr){
   data.dim = 0;
   data.dims = 0;
   data.min = PMATH_UNDEFINED;
-  data.max = NULL;
+  data.max = PMATH_NULL;
   data.working_precision = -HUGE_VAL;//PMATH_MACHINE_PRECISION;
   data.prec = DBL_MANT_DIG;
   data.random_integer = TRUE;
@@ -201,7 +201,7 @@ PMATH_PRIVATE pmath_t builtin_randominteger(pmath_expr_t expr){
       pmath_unref(dims);
       
       pmath_message(
-        NULL, "ilsmn", 2,
+        PMATH_NULL, "ilsmn", 2,
         pmath_integer_new_ui(2),
         pmath_ref(expr));
       
@@ -217,7 +217,7 @@ PMATH_PRIVATE pmath_t builtin_randominteger(pmath_expr_t expr){
       data.max = _add_nn(range, pmath_integer_new_si(1));
       if(!data.max){
         pmath_unref(expr);
-        return NULL;
+        return PMATH_NULL;
       }
       
       if(pmath_compare(data.max, PMATH_NUMBER_ONE) < 0){
@@ -251,7 +251,7 @@ PMATH_PRIVATE pmath_t builtin_randominteger(pmath_expr_t expr){
         pmath_unref(data.min);
         pmath_unref(range);
         pmath_unref(expr);
-        return NULL;
+        return PMATH_NULL;
       }
       
       if(pmath_compare(data.max, PMATH_NUMBER_ONE) < 0){
@@ -263,7 +263,7 @@ PMATH_PRIVATE pmath_t builtin_randominteger(pmath_expr_t expr){
       pmath_unref(range);
     }
     else{ RANGE_ERROR:
-      pmath_message(NULL, "range", 1, range);
+      pmath_message(PMATH_NULL, "range", 1, range);
       return expr;
     }
   }
@@ -359,7 +359,7 @@ PMATH_PRIVATE pmath_t builtin_randomreal(pmath_expr_t expr){
             pmath_unref(tmp);
             
             pmath_message(
-              NULL, "ilsmn", 2,
+              PMATH_NULL, "ilsmn", 2,
               pmath_integer_new_ui(2),
               pmath_ref(expr));
             
@@ -384,7 +384,7 @@ PMATH_PRIVATE pmath_t builtin_randomreal(pmath_expr_t expr){
   
   if(!_pmath_to_precision(prec_obj, &data.working_precision)
   || data.working_precision > PMATH_MP_PREC_MAX){
-    pmath_message(NULL, "invprec", 1, prec_obj);
+    pmath_message(PMATH_NULL, "invprec", 1, prec_obj);
     return expr;
   }
   

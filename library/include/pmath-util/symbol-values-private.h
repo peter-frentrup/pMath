@@ -8,12 +8,12 @@
 #include <pmath-core/symbols.h>
 #include <pmath-util/hashtables-private.h>
 
-struct _pmath_rulecache_t{ // do not access members directly, init all with NULL
+struct _pmath_rulecache_t{ // do not access members directly, init all with PMATH_NULL
   void                      * volatile _table; // const patterns, no condition in rhs
   struct _pmath_multirule_t * volatile _more;
 };
 
-struct _pmath_symbol_rules_t{ // init all with NULL
+struct _pmath_symbol_rules_t{ // init all with PMATH_NULL
   struct _pmath_rulecache_t  up_rules;      // ~(~~~,f,~~~), ~(~~~,f(~~~),~~~)
   struct _pmath_rulecache_t  down_rules;    // f(~~~)
   struct _pmath_rulecache_t  sub_rules;     // f(~~~)(~~~)...

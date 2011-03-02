@@ -27,7 +27,7 @@
     return TRUE;
   }
   
-  static pmath_t clip_all( // NULL on error
+  static pmath_t clip_all( // PMATH_NULL on error
     pmath_t x,    // will be freed
     pmath_t min,  // wont be freed
     pmath_t max,  // wont be freed
@@ -42,11 +42,11 @@
       for(i = pmath_expr_length(x);i > 0;--i){
         pmath_t item = pmath_expr_get_item(x, i);
         
-        x = pmath_expr_set_item(x, i, NULL);
+        x = pmath_expr_set_item(x, i, PMATH_NULL);
         item = clip_all(item, min, max, vmin, vmax);
-        if(!item){
+        if(pmath_is_null(item)){
           pmath_unref(x);
-          return NULL;
+          return PMATH_NULL;
         }
         
         x = pmath_expr_set_item(x, i, item);
@@ -68,7 +68,7 @@
     
     if(!pmath_same(test, PMATH_SYMBOL_FALSE)){
       pmath_unref(x);
-      return NULL;
+      return PMATH_NULL;
     }
     
     test = pmath_evaluate(pmath_expr_new_extended(
@@ -84,7 +84,7 @@
     
     if(!pmath_same(test, PMATH_SYMBOL_FALSE)){
       pmath_unref(x);
-      return NULL;
+      return PMATH_NULL;
     }
     
     return x;
@@ -113,7 +113,7 @@ PMATH_PRIVATE pmath_t builtin_clip(pmath_t expr){
     else{
       pmath_unref(minmax);
       if(!all_non_complex(x)){
-        pmath_message(NULL, "ncompl", 0);
+        pmath_message(PMATH_NULL, "ncompl", 0);
       }
       pmath_unref(x);
       return expr;
@@ -136,7 +136,7 @@ PMATH_PRIVATE pmath_t builtin_clip(pmath_t expr){
       if(!all_non_complex(x)
       || !all_non_complex(min)
       || !all_non_complex(max)){
-        pmath_message(NULL, "ncompl", 0);
+        pmath_message(PMATH_NULL, "ncompl", 0);
       }
       pmath_unref(x);
       pmath_unref(min);
@@ -152,7 +152,7 @@ PMATH_PRIVATE pmath_t builtin_clip(pmath_t expr){
   if(!all_non_complex(x)
   || !all_non_complex(min)
   || !all_non_complex(max)){
-    pmath_message(NULL, "ncompl", 0);
+    pmath_message(PMATH_NULL, "ncompl", 0);
     pmath_unref(x);
     pmath_unref(min);
     pmath_unref(max);
@@ -164,7 +164,7 @@ PMATH_PRIVATE pmath_t builtin_clip(pmath_t expr){
   pmath_unref(max);
   pmath_unref(vmin);
   pmath_unref(vmax);
-  if(x){
+  if(pmath_is_null(x)){
     pmath_unref(expr);
     return x;
   }

@@ -42,7 +42,7 @@ static pmath_bool_t convert_take_positions(
         &pos[i - exprstart].step)
     ){
       pmath_unref(item);
-      pmath_message(NULL, "seqs", 2, pmath_integer_new_size(i), pmath_ref(expr));
+      pmath_message(PMATH_NULL, "seqs", 2, pmath_integer_new_size(i), pmath_ref(expr));
       return FALSE;
     }
     
@@ -118,7 +118,7 @@ static pmath_bool_t drop(
       
       for(i = 1;i <= len;++i){
         pmath_t item = pmath_expr_get_item(*obj, i);
-        *obj = pmath_expr_set_item(*obj, i, NULL);
+        *obj = pmath_expr_set_item(*obj, i, PMATH_NULL);
         
         if(!drop(&item, depth - 1, pos + 1)){
           pmath_unref(item);
@@ -169,7 +169,7 @@ static pmath_bool_t take(
     if(depth > 1){
       for(i = 1;i <= len;++i){
         pmath_t item = pmath_expr_get_item(result, i);
-        result = pmath_expr_set_item(result, i, NULL);
+        result = pmath_expr_set_item(result, i, PMATH_NULL);
         
         if(!take(&item, depth - 1, pos + 1)){
           pmath_unref(item);

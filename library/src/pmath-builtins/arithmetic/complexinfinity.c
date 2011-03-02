@@ -39,17 +39,17 @@ PMATH_PRIVATE pmath_t _pmath_directed_infinity_direction(
   pmath_t head;
   if(!pmath_is_expr(obj)
   || pmath_expr_length(obj) > 1)
-    return NULL;
+    return PMATH_NULL;
 
-  head = pmath_expr_get_item((pmath_expr_t)obj, 0);
+  head = pmath_expr_get_item(obj, 0);
   pmath_unref(head);
   if(!pmath_same(head, PMATH_SYMBOL_DIRECTEDINFINITY))
-    return NULL;
+    return PMATH_NULL;
 
   if(pmath_expr_length(obj) == 0)
     return pmath_integer_new_si(0);
 
-  return pmath_expr_get_item((pmath_expr_t)obj, 1);
+  return pmath_expr_get_item(obj, 1);
 }
 
 PMATH_PRIVATE pmath_t builtin_directedinfinity(pmath_expr_t expr){

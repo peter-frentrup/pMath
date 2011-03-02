@@ -27,7 +27,7 @@ PMATH_PRIVATE int _pmath_get_byte_ordering(pmath_t head, pmath_expr_t options){
     }
   }
   
-  pmath_message(NULL, "byteord", 1, value);
+  pmath_message(PMATH_NULL, "byteord", 1, value);
   return 0;
 }
 
@@ -63,10 +63,10 @@ static pmath_t make_complex(pmath_t re, pmath_t im){
   pmath_unref(re);
   pmath_unref(im);
   
-  if(!re_inf)
+  if(pmath_is_null(re_inf))
     re_inf = pmath_integer_new_si(0);
     
-  if(!im_inf)
+  if(pmath_is_null(im_inf))
     im_inf = pmath_integer_new_si(0);
   
   return pmath_expr_new_extended(
@@ -99,13 +99,13 @@ static pmath_bool_t binary_read(
     return TRUE;
   }
   
-  if(!*type_value || pmath_is_string(*type_value)){
+  if(pmath_is_null(*type_value) || pmath_is_string(*type_value)){
     if(pmath_string_equals_latin1(*type_value, "TerminatedString")){
       char buf[256];
       size_t size;
       
       pmath_unref(*type_value);
-      *type_value = NULL;
+      *type_value = PMATH_NULL;
       
       for(;;){
         size_t i;
@@ -157,7 +157,7 @@ static pmath_bool_t binary_read(
         COMPLEX
       }type = NONE;
       
-      if(!*type_value
+      if(pmath_is_null(*type_value)
       || pmath_string_equals_latin1(*type_value, "Byte")
       || pmath_string_equals_latin1(*type_value, "UnsignedInteger8")){
         size = 1;
@@ -266,7 +266,7 @@ static pmath_bool_t binary_read(
         im = pmath_ref(re);
         
         pmath_unref(*type_value);
-        *type_value = NULL;
+        *type_value = PMATH_NULL;
         
         if(binary_read(file, &re, byte_ordering)
         && binary_read(file, &im, byte_ordering)){
@@ -281,7 +281,7 @@ static pmath_bool_t binary_read(
       
       if(size){
         pmath_unref(*type_value);
-        *type_value = NULL;
+        *type_value = PMATH_NULL;
         
         if(pmath_file_read(file, &data, size, FALSE) < size){
           *type_value = pmath_ref(PMATH_SYMBOL_ENDOFFILE);
@@ -323,10 +323,10 @@ static pmath_bool_t binary_read(
             else
               chr = (uint16_t)data.buf[1] | ((uint16_t)data.buf[0] << 8);
             
-            *type_value = pmath_string_insert_ucs2(NULL, 0, &chr, 2);
+            *type_value = pmath_string_insert_ucs2(PMATH_NULL, 0, &chr, 2);
           }
           else
-            *type_value = pmath_string_insert_latin1(NULL, 0, (const char*)&data, 1);
+            *type_value = pmath_string_insert_latin1(PMATH_NULL, 0, (const char*)&data, 1);
             
           return TRUE;
         }
@@ -335,13 +335,13 @@ static pmath_bool_t binary_read(
           if(size == 16){
             struct _pmath_mp_float_t *f = _pmath_create_mp_float(113);
             struct _pmath_integer_t *mant = (struct _pmath_integer_t*)
-              pmath_integer_new_data(
+              PMATH_AS_PTR(pmath_integer_new_data(
                 14, // 112 / 8
                 byte_ordering,
                 1,
                 PMATH_BYTE_ORDER,
                 0,
-                byte_ordering < 0 ? &data.buf[0] : &data.buf[2]);
+                byte_ordering < 0 ? &data.buf[0] : &data.buf[2]));
             
             if(f && mant){
               uint16_t uexp;
@@ -367,8 +367,8 @@ static pmath_bool_t binary_read(
                   
                   mpfr_set_ui_2exp(f->error, 1, -16382 - 112, GMP_RNDU);
                   
-                  *type_value = (pmath_float_t)f;
-                  pmath_unref((pmath_integer_t)mant);
+                  *type_value = (pmath_float_t)PMATH_FROM_PTR(f);
+                  pmath_unref(PMATH_FROM_PTR(mant));
                 }
                 else{
                   mpfr_set_ui_2exp(f->value, 1, -112, GMP_RNDU);
@@ -527,7 +527,7 @@ static pmath_bool_t binary_read(
     return TRUE;
   }
   
-  pmath_message(NULL, "format", 1, *type_value);
+  pmath_message(PMATH_NULL, "format", 1, *type_value);
   *type_value = pmath_ref(PMATH_SYMBOL_FAILED);
   return FALSE;
 }
@@ -549,20 +549,20 @@ PMATH_PRIVATE pmath_t builtin_binaryread(pmath_expr_t expr){
   type = pmath_expr_get_item(expr, 2);
   if(!type || _pmath_is_rule(type) || _pmath_is_list_of_rules(type)){
     pmath_unref(type);
-    type = NULL;
+    type = PMATH_NULL;
     last_nonoption = 1;
   }
   else
     last_nonoption = 2;
   
   options = pmath_options_extract(expr, last_nonoption);
-  if(!options){
+  if(pmath_is_null(options)){
     pmath_unref(type);
     return expr;
   }
   
   {
-    byte_ordering = _pmath_get_byte_ordering(NULL, options);
+    byte_ordering = _pmath_get_byte_ordering(PMATH_NULL, options);
     
     if(!byte_ordering){
       pmath_unref(expr);

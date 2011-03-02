@@ -60,7 +60,7 @@ PMATH_PRIVATE pmath_t builtin_scan(pmath_expr_t expr){
   }
   
   info.with_heads = FALSE;
-  info.result = NULL;
+  info.result = PMATH_NULL;
   info.levelmin = 1;
   info.levelmax = 1;
   last_nonoption = 2;
@@ -71,7 +71,7 @@ PMATH_PRIVATE pmath_t builtin_scan(pmath_expr_t expr){
       last_nonoption = 3;
     }
     else if(!_pmath_is_rule(levels) && !_pmath_is_list_of_rules(levels)){
-      pmath_message(NULL, "level", 1, levels);
+      pmath_message(PMATH_NULL, "level", 1, levels);
       return expr;
     }
     
@@ -79,17 +79,17 @@ PMATH_PRIVATE pmath_t builtin_scan(pmath_expr_t expr){
   }
   
   options = pmath_options_extract(expr, last_nonoption);
-  if(!options)
+  if(pmath_is_null(options))
     return expr;
   
-  obj = pmath_evaluate(pmath_option_value(NULL, PMATH_SYMBOL_HEADS, options));
+  obj = pmath_evaluate(pmath_option_value(PMATH_NULL, PMATH_SYMBOL_HEADS, options));
   if(pmath_same(obj, PMATH_SYMBOL_TRUE)){
     info.with_heads = TRUE;
   }
   else if(!pmath_same(obj, PMATH_SYMBOL_FALSE)){
     pmath_unref(options);
     pmath_message(
-      NULL, "opttf", 2,
+      PMATH_NULL, "opttf", 2,
       pmath_ref(PMATH_SYMBOL_HEADS),
       obj);
     return expr;
@@ -114,5 +114,5 @@ PMATH_PRIVATE pmath_t builtin_scan(pmath_expr_t expr){
   }
   
   pmath_unref(info.function);
-  return NULL;
+  return PMATH_NULL;
 }

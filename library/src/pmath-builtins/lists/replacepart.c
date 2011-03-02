@@ -34,7 +34,7 @@ static pmath_t replace_const_part(
   if(!pmath_is_expr(list)){
     if(error){
       if(!*error){
-        pmath_message(NULL, "partd", 1, pmath_ref(position));
+        pmath_message(PMATH_NULL, "partd", 1, pmath_ref(position));
       }
       *error = TRUE;
     }
@@ -45,7 +45,7 @@ static pmath_t replace_const_part(
   if(!pmath_is_integer(pos)){
     if(error){
       if(!*error){
-        pmath_message(NULL, "pspec", 1, pmath_ref(pos));
+        pmath_message(PMATH_NULL, "pspec", 1, pmath_ref(pos));
       }
       *error = TRUE;
     }
@@ -59,7 +59,7 @@ static pmath_t replace_const_part(
   if(!extract_number(pos, listlen, &index)){
     if(error){
       if(!*error){
-        pmath_message(NULL, "partw", 2, pmath_ref(list), pmath_ref(pos));
+        pmath_message(PMATH_NULL, "partw", 2, pmath_ref(list), pmath_ref(pos));
       }
       *error = TRUE;
     }
@@ -70,7 +70,7 @@ static pmath_t replace_const_part(
   if(index > listlen){
     if(error){
       if(!*error){
-        pmath_message(NULL, "partw", 2, pmath_ref(list), pmath_ref(pos));
+        pmath_message(PMATH_NULL, "partw", 2, pmath_ref(list), pmath_ref(pos));
       }
       *error = TRUE;
     }
@@ -107,8 +107,8 @@ static pmath_bool_t replace_all_const_parts( // return = are there other rules?
     if(pmath_is_expr(pattern) && _pmath_pattern_is_const(pattern)){
       pmath_t rhs = pmath_expr_get_item(rule, 2);
 
-      *rules = pmath_expr_set_item(*rules, i, NULL);
-      *list = replace_const_part(*list, pattern, 1, allow_head, rhs, NULL);
+      *rules = pmath_expr_set_item(*rules, i, PMATH_NULL);
+      *list = replace_const_part(*list, pattern, 1, allow_head, rhs, PMATH_NULL);
 
       pmath_unref(rhs);
     }
@@ -142,7 +142,7 @@ static pmath_bool_t prepare_pattern_len_index( // stop?
   else{
     _pmath_pattern_analyse_input_t  input;
     _pmath_pattern_analyse_output_t output;
-    input.parent_pat_head = NULL;
+    input.parent_pat_head = PMATH_NULL;
     input.pat = *pos;
     input.associative = 0;
     _pmath_pattern_analyse(&input, &output);
@@ -244,7 +244,7 @@ static pmath_t replace_rule_part(
       }
     }
     pmath_unref(current_pos);
-    current_pos = NULL;
+    current_pos = PMATH_NULL;
     list = pmath_expr_set_item(list, i,
       replace_rule_part(
         pmath_expr_get_item(list, i),
@@ -346,10 +346,10 @@ PMATH_PRIVATE pmath_t builtin_replacepart(pmath_expr_t expr){
     pmath_t heads_value;
     pmath_expr_t options = pmath_options_extract(expr, 2);
 
-    if(!options)
+    if(pmath_is_null(options))
       return expr;
 
-    heads_value = pmath_evaluate(pmath_option_value(NULL, PMATH_SYMBOL_HEADS, options));
+    heads_value = pmath_evaluate(pmath_option_value(PMATH_NULL, PMATH_SYMBOL_HEADS, options));
     pmath_unref(options);
 
     if(pmath_same(heads_value, PMATH_SYMBOL_TRUE)){
@@ -360,7 +360,7 @@ PMATH_PRIVATE pmath_t builtin_replacepart(pmath_expr_t expr){
     }
     else if(!pmath_same(heads_value, PMATH_SYMBOL_AUTOMATIC)){
       pmath_message(
-        NULL, "opttfa", 2,
+        PMATH_NULL, "opttfa", 2,
         pmath_ref(PMATH_SYMBOL_HEADS),
         heads_value);
       return expr;
@@ -374,7 +374,7 @@ PMATH_PRIVATE pmath_t builtin_replacepart(pmath_expr_t expr){
     rules = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_LIST), 1, rules);
 
     if(!_pmath_is_list_of_rules(rules)){
-      pmath_message(NULL, "reps", 1, rules);
+      pmath_message(PMATH_NULL, "reps", 1, rules);
       return expr;
     }
   }

@@ -81,14 +81,14 @@ PMATH_API void pmath_message_argxxx(size_t given, size_t min, size_t max){
     if(min == max){
       head = pmath_current_head();
       pmath_message(
-        NULL, "argxu", 2, 
+        PMATH_NULL, "argxu", 2, 
         head,
         pmath_integer_new_size(min));
     }
     else if(min + 1 == max){
       head = pmath_current_head();
       pmath_message(
-        NULL, "argtu", 3,
+        PMATH_NULL, "argtu", 3,
         head,
         pmath_integer_new_size(min),
         pmath_integer_new_size(max));
@@ -96,14 +96,14 @@ PMATH_API void pmath_message_argxxx(size_t given, size_t min, size_t max){
     else if(max == SIZE_MAX){
       head = pmath_current_head();
       pmath_message(
-        NULL, "argmu", 2,
+        PMATH_NULL, "argmu", 2,
         head,
         pmath_integer_new_size(min));
     }
     else{
       head = pmath_current_head();
       pmath_message(
-        NULL, "argru", 3,
+        PMATH_NULL, "argru", 3,
         head,
         pmath_integer_new_size(min),
         pmath_integer_new_size(max));
@@ -114,14 +114,14 @@ PMATH_API void pmath_message_argxxx(size_t given, size_t min, size_t max){
       if(min == 1){
         head = pmath_current_head();
         pmath_message(
-          NULL, "arg1", 2,
+          PMATH_NULL, "arg1", 2,
           head,
           pmath_integer_new_size(given));
       }
       else{
         head = pmath_current_head();
         pmath_message(
-          NULL, "argx", 3,
+          PMATH_NULL, "argx", 3,
           head,
           pmath_integer_new_size(given),
           pmath_integer_new_size(min));
@@ -130,7 +130,7 @@ PMATH_API void pmath_message_argxxx(size_t given, size_t min, size_t max){
     else if(min + 1 == max){
       head = pmath_current_head();
       pmath_message(
-        NULL, "argt", 4,
+        PMATH_NULL, "argt", 4,
         head,
         pmath_integer_new_size(given),
         pmath_integer_new_size(min),
@@ -139,7 +139,7 @@ PMATH_API void pmath_message_argxxx(size_t given, size_t min, size_t max){
     else if(max == SIZE_MAX){
       head = pmath_current_head();
       pmath_message(
-        NULL, "argm", 3,
+        PMATH_NULL, "argm", 3,
         head,
         pmath_integer_new_size(given),
         pmath_integer_new_size(min));
@@ -147,7 +147,7 @@ PMATH_API void pmath_message_argxxx(size_t given, size_t min, size_t max){
     else{
       head = pmath_current_head();
       pmath_message(
-        NULL, "argr", 4,
+        PMATH_NULL, "argr", 4,
         head,
         pmath_integer_new_size(given),
         pmath_integer_new_size(min),
@@ -175,7 +175,7 @@ PMATH_API pmath_string_t pmath_message_find_text(pmath_t name){
     rules = _pmath_symbol_get_rules(sym, RULES_READ);
     
     if(rules){
-      pmath_t obj = NULL;
+      pmath_t obj = PMATH_NULL;
       messages = (pmath_hashtable_t)_pmath_atomic_lock_ptr(&rules->_messages);
       
       entry = pmath_ht_search(messages, name);
@@ -192,7 +192,7 @@ PMATH_API pmath_string_t pmath_message_find_text(pmath_t name){
     }
     
     if(!pmath_same(sym, PMATH_SYMBOL_GENERAL)){
-      pmath_t obj = NULL;
+      pmath_t obj = PMATH_NULL;
       rules = _pmath_symbol_get_rules(PMATH_SYMBOL_GENERAL, RULES_READ);
       
       if(rules){
@@ -230,7 +230,7 @@ PMATH_API pmath_string_t pmath_message_find_text(pmath_t name){
   
   pmath_unref(name);
   pmath_unref(sym);
-  return NULL;
+  return PMATH_NULL;
 }
 
 PMATH_API void pmath_message_syntax_error(

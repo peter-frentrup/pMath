@@ -24,7 +24,7 @@ pmath_t builtin_piecewise(pmath_expr_t expr){
   matrix = pmath_expr_get_item(expr, 1);
   if(!_pmath_is_matrix(matrix, &rows, &cols)
   || (cols != 2 && rows != 0)){
-    pmath_message(NULL, "pairs", 1, matrix);
+    pmath_message(PMATH_NULL, "pairs", 1, matrix);
     return expr;
   }
   

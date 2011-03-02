@@ -58,9 +58,9 @@ static struct _pmath_stack_t  unused_threadlocks;
 
   static __inline void destroy_all_unused_threadlocks(void){
     pmath_threadlock_t threadlock;
-    while((threadlock = pmath_stack_pop(&unused_threadlocks)) != NULL){
+    while((threadlock = pmath_stack_pop(&unused_threadlocks)) != PMATH_NULL){
       assert(threadlock->refcount == 0);
-      assert(threadlock->owners == NULL);
+      assert(threadlock->owners == PMATH_NULL);
       #if PMATH_USE_PTHREAD
         pthread_mutex_destroy(&threadlock->fallback_wait_mutex);
       #elif PMATH_USE_WINDOWS_THREADS
@@ -82,13 +82,13 @@ static struct _pmath_stack_t  unused_threadlocks;
     if(!threadlock)
       return threadlock;
 
-    threadlock->owners = NULL;
+    threadlock->owners = PMATH_NULL;
     threadlock->refcount = 1;
 
     threadlock->spin_lock = 0;
     #if PMATH_USE_PTHREAD
-//      pthread_mutex_init(&threadlock->tmp_mutex, NULL);
-      pthread_mutex_init(&threadlock->fallback_wait_mutex, NULL);
+//      pthread_mutex_init(&threadlock->tmp_mutex, PMATH_NULL);
+      pthread_mutex_init(&threadlock->fallback_wait_mutex, PMATH_NULL);
     #elif PMATH_USE_WINDOWS_THREADS
 //      InitializeCriticalSectionAndSpinCount(&threadlock->tmp_mutex, 4000);
       InitializeCriticalSectionAndSpinCount(&threadlock->fallback_wait_mutex, 4000);
@@ -105,9 +105,9 @@ static struct _pmath_stack_t  unused_threadlocks;
     if(threadlock){
       if(1 == pmath_atomic_fetch_add(&(threadlock->refcount), -1)){
         assert(threadlock->spin_lock == 0);
-        assert(threadlock->owners == NULL);
+        assert(threadlock->owners == PMATH_NULL);
         pmath_stack_push(&unused_threadlocks, threadlock);
-        return NULL;
+        return PMATH_NULL;
       }
     }
     return threadlock;
@@ -122,12 +122,12 @@ PMATH_API void pmath_thread_call_locked(
   pmath_threadlock_t threadlock;
 
   #if PMATH_USE_PTHREAD
-    pthread_mutex_t   *long_waiting_mutex = NULL;
+    pthread_mutex_t   *long_waiting_mutex = PMATH_NULL;
   #elif PMATH_USE_WINDOWS_THREADS
-    CRITICAL_SECTION  *long_waiting_mutex = NULL;
+    CRITICAL_SECTION  *long_waiting_mutex = PMATH_NULL;
   #endif
 
-  assert(threadlock_ptr != NULL);
+  assert(threadlock_ptr != PMATH_NULL);
 
   me = pmath_thread_get_current();
   if(!me)
@@ -186,7 +186,7 @@ PMATH_API void pmath_thread_call_locked(
       while(waiting_lock){
         pmath_atomic_lock(&waiting_lock->spin_lock);
         
-        if(waiting_lock->owners == NULL){
+        if(waiting_lock->owners == PMATH_NULL){
           assert(waiting_lock->spin_lock == 1);
           
           pmath_atomic_unlock(&waiting_lock->spin_lock);
@@ -202,7 +202,7 @@ PMATH_API void pmath_thread_call_locked(
            * for a lock that `me` blocks directly or indirectly.
            */
           //pmath_abort_please(me);
-          me->waiting_lock = NULL;
+          me->waiting_lock = PMATH_NULL;
           
           pmath_message(
             PMATH_SYMBOL_GENERAL, "deadlock", 2,
@@ -217,7 +217,7 @@ PMATH_API void pmath_thread_call_locked(
           goto CLEANUP;
         }
         
-        if(waiting_lock->owners->owner == NULL){
+        if(waiting_lock->owners->owner == PMATH_NULL){
           assert(waiting_lock->spin_lock == 1);
           
           pmath_atomic_unlock(&waiting_lock->spin_lock);
@@ -239,7 +239,7 @@ PMATH_API void pmath_thread_call_locked(
         EnterCriticalSection(long_waiting_mutex);
       #endif
     }
-    me->waiting_lock = NULL;
+    me->waiting_lock = PMATH_NULL;
     
     pmath_atomic_barrier();
     
@@ -274,7 +274,7 @@ PMATH_API void pmath_thread_call_locked(
       new_owner->next = threadlock->owners;
       new_owner->owner = me;
       #if PMATH_USE_PTHREAD
-        pthread_mutex_init(&new_owner->mutex, NULL);
+        pthread_mutex_init(&new_owner->mutex, PMATH_NULL);
       #elif PMATH_USE_WINDOWS_THREADS
         InitializeCriticalSectionAndSpinCount(&new_owner->mutex, 4000);
       #endif
@@ -296,7 +296,7 @@ PMATH_API void pmath_thread_call_locked(
       pmath_atomic_lock(&threadlock->spin_lock);
 
       old_owner = threadlock->owners;
-      assert(old_owner != NULL);
+      assert(old_owner != PMATH_NULL);
       assert(old_owner->owner == me);
       threadlock->owners = old_owner->next;
       

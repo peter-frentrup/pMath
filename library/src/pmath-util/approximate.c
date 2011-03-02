@@ -160,13 +160,13 @@ pmath_t pmath_set_accuracy(pmath_t obj, double acc){ // obj will be freed
   
     if(prec >= PMATH_MP_PREC_MAX){
       pmath_unref(obj);
-      return NULL; // overflow message?
+      return PMATH_NULL; // overflow message?
     }
     
     result = _pmath_create_mp_float(prec >= MPFR_PREC_MIN ? (mp_prec_t)ceil(prec) : MPFR_PREC_MIN);
     if(!result){
       pmath_unref(obj);
-      return NULL;
+      return PMATH_NULL;
     }
     
     switch(obj->type_shift){
@@ -209,7 +209,7 @@ pmath_t pmath_set_accuracy(pmath_t obj, double acc){ // obj will be freed
     mpfr_ui_pow(result->error, 2, result->error, GMP_RNDN);
     
     pmath_unref(obj);
-    return (pmath_float_t)result;
+    return (pmath_float_t)PMATH_FROM_PTR(result);
   }
   
   return obj;
@@ -304,13 +304,13 @@ pmath_t pmath_set_precision(pmath_t obj, double prec){
     
     if(prec >= PMATH_MP_PREC_MAX){
       pmath_unref(obj);
-      return NULL; // overflow message?
+      return PMATH_NULL; // overflow message?
     }
     
     result = _pmath_create_mp_float(prec >= MPFR_PREC_MIN ? (mp_prec_t)ceil(prec) : MPFR_PREC_MIN);
     if(!result){
       pmath_unref(obj);
-      return NULL;
+      return PMATH_NULL;
     }
     
     switch(obj->type_shift){
@@ -367,7 +367,7 @@ pmath_t pmath_set_precision(pmath_t obj, double prec){
     mpfr_abs(result->error, result->error, GMP_RNDU);
     
     pmath_unref(obj);
-    return (pmath_float_t)result;
+    return (pmath_float_t)PMATH_FROM_PTR(result);
   }
   
   return obj;
@@ -411,5 +411,5 @@ PMATH_API pmath_t pmath_approximate(
     pmath_unref(res);
   }
   
-  return NULL;
+  return PMATH_NULL;
 }

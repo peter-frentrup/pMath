@@ -43,7 +43,7 @@
     if(*_pmath_atomic_lock__ptr != (void*)0){ \
       pmath_atomic_loop_yield(); \
     } \
-    while(NULL != atomic_swap_ptr(_pmath_atomic_lock__ptr, (void*)1)){ \
+    while(PMATH_NULL != atomic_swap_ptr(_pmath_atomic_lock__ptr, (void*)1)){ \
       membar_enter(); \
     } \
     membar_enter(); \

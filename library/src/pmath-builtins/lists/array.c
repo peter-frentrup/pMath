@@ -21,7 +21,7 @@ pmath_symbol_t _pmath_topmost_symbol(pmath_t obj){ // obj wont be freed
     return result;
   }
   
-  return NULL;
+  return PMATH_NULL;
 }
 
 struct _array_data_t{
@@ -135,7 +135,7 @@ PMATH_PRIVATE pmath_t builtin_array(pmath_expr_t expr){
     if(!extract_delta_range(range, &data.start, &delta, &data.depth)){
       pmath_unref(data.start);
       pmath_unref(delta);
-      pmath_message(NULL, "range", 1, range);
+      pmath_message(PMATH_NULL, "range", 1, range);
       return expr;
     }
     
@@ -179,7 +179,7 @@ PMATH_PRIVATE pmath_t builtin_array(pmath_expr_t expr){
     if(!pmath_is_integer(d) || !pmath_integer_fits_ui(d)){
       pmath_unref(d);
       pmath_unref(data.dims);
-      pmath_message(NULL, "intnm", 2, pmath_integer_new_si(2), pmath_ref(expr));
+      pmath_message(PMATH_NULL, "intnm", 2, pmath_integer_new_si(2), pmath_ref(expr));
       return expr;
     }
     
@@ -191,7 +191,7 @@ PMATH_PRIVATE pmath_t builtin_array(pmath_expr_t expr){
     data.start = pmath_expr_get_item(expr, 3);
     if(pmath_is_expr_of(data.start, PMATH_SYMBOL_LIST)){
       if(pmath_expr_length(data.start) != data.depth){
-        pmath_message(NULL, "plen", 2, data.dims, data.start);
+        pmath_message(PMATH_NULL, "plen", 2, data.dims, data.start);
         return expr;
       }
       
@@ -208,7 +208,7 @@ PMATH_PRIVATE pmath_t builtin_array(pmath_expr_t expr){
     data.head = pmath_ref(PMATH_SYMBOL_LIST);
   
   data.dim = 1;
-  data.index = pmath_expr_new(NULL, data.depth);
+  data.index = pmath_expr_new(PMATH_NULL, data.depth);
   pmath_unref(expr);
   expr = array(&data);
   
@@ -286,7 +286,7 @@ PMATH_PRIVATE pmath_t builtin_constantarray(pmath_expr_t expr){
           pmath_unref(l);
           pmath_unref(n);
           pmath_message(
-            NULL, "ilsmn", 2,
+            PMATH_NULL, "ilsmn", 2,
             pmath_integer_new_ui(2),
             pmath_ref(expr));
           return expr;
@@ -313,7 +313,7 @@ PMATH_PRIVATE pmath_t builtin_constantarray(pmath_expr_t expr){
   if(!pmath_is_integer(n) || !pmath_integer_fits_ui(n)){
     pmath_unref(n);
     pmath_message(
-      NULL, "ilsmn", 2,
+      PMATH_NULL, "ilsmn", 2,
       pmath_integer_new_ui(2),
       pmath_ref(expr));
     return expr;
@@ -355,7 +355,7 @@ PMATH_PRIVATE pmath_t builtin_constantarray(pmath_expr_t expr){
   if(!extract_delta_range(range, &start, &delta, &count)){
     pmath_unref(start);
     pmath_unref(delta);
-    pmath_message(NULL, "range", 1, range);
+    pmath_message(PMATH_NULL, "range", 1, range);
     return expr;
   }
 

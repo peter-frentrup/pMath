@@ -157,7 +157,7 @@ namespace pmath{
           if(pmath_is_expr(item)){
             if(_obj->refcount == 1
             && instance_of(PMATH_TYPE_EXPRESSION_GENERAL))
-              _obj = pmath_expr_set_item(_obj, i, NULL);
+              _obj = pmath_expr_set_item(_obj, i, PMATH_NULL);
             
             item = pmath_expr_set_item(item, j, e.release());
             _obj = pmath_expr_set_item(_obj, i, item);

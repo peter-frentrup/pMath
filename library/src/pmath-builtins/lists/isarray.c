@@ -89,7 +89,7 @@ PMATH_PRIVATE pmath_t builtin_isarray(pmath_expr_t expr){
     pmath_t levels_obj = pmath_integer_new_size(levels);
     pmath_t pat        = pmath_expr_get_item(expr, 2);
     
-    if(!_pmath_pattern_match(levels_obj, pat, NULL)){
+    if(!_pmath_pattern_match(levels_obj, pat, PMATH_NULL)){
       pmath_unref(obj);
       pmath_unref(levels_obj);
       pmath_unref(expr);
@@ -107,7 +107,7 @@ PMATH_PRIVATE pmath_t builtin_isarray(pmath_expr_t expr){
         return pmath_ref(PMATH_SYMBOL_FALSE);
       }
       
-      obj = NULL;
+      obj = PMATH_NULL;
       pmath_unref(pat);
     }
   }
@@ -155,7 +155,7 @@ PMATH_PRIVATE pmath_t builtin_ismatrix(pmath_expr_t expr){
       return pmath_ref(PMATH_SYMBOL_FALSE);
     }
     
-    obj = NULL;
+    obj = PMATH_NULL;
     pmath_unref(test);
   }
   
@@ -202,7 +202,7 @@ PMATH_PRIVATE pmath_t builtin_isvector(pmath_expr_t expr){
       return pmath_ref(PMATH_SYMBOL_FALSE);
     }
     
-    obj = NULL;
+    obj = PMATH_NULL;
     pmath_unref(test);
   }
   

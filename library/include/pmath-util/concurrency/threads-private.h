@@ -84,7 +84,7 @@ PMATH_PRIVATE void _pmath_abort_message(pmath_t abortable); // abortable will be
 
 PMATH_PRIVATE 
 void _pmath_thread_throw(
-  pmath_thread_t thread, // not NULL
+  pmath_thread_t thread, // not PMATH_NULL
   pmath_t exception);    // exception will be freed
 
 PMATH_PRIVATE 

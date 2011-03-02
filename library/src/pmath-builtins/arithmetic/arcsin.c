@@ -57,8 +57,8 @@ PMATH_PRIVATE pmath_t builtin_arcsin(pmath_expr_t expr){
   if(pmath_instance_of(x, PMATH_TYPE_MP_FLOAT)){ 
     pmath_unref(expr);
     
-    if(mpfr_cmp_si(((struct _pmath_mp_float_t*)x)->value, -1) > 0
-    && mpfr_cmp_si(((struct _pmath_mp_float_t*)x)->value,  1) < 0){
+    if(mpfr_cmp_si(((struct _pmath_mp_float_t*)PMATH_AS_PTR(x))->value, -1) > 0
+    && mpfr_cmp_si(((struct _pmath_mp_float_t*)PMATH_AS_PTR(x))->value,  1) < 0){
       struct _pmath_mp_float_t *result;
       struct _pmath_mp_float_t *tmp;
       double dprec;
@@ -69,8 +69,8 @@ PMATH_PRIVATE pmath_t builtin_arcsin(pmath_expr_t expr){
         // dy = dx / Sqrt(1 - x^2)
         mpfr_mul(
           tmp->value,
-          ((struct _pmath_mp_float_t*)x)->value,
-          ((struct _pmath_mp_float_t*)x)->value,
+          ((struct _pmath_mp_float_t*)PMATH_AS_PTR(x))->value,
+          ((struct _pmath_mp_float_t*)PMATH_AS_PTR(x))->value,
           GMP_RNDU);
           
         mpfr_ui_sub(
@@ -87,7 +87,7 @@ PMATH_PRIVATE pmath_t builtin_arcsin(pmath_expr_t expr){
             
           mpfr_div(
             tmp->error,
-            ((struct _pmath_mp_float_t*)x)->error,
+            ((struct _pmath_mp_float_t*)PMATH_AS_PTR(x))->error,
             tmp->value,
             GMP_RNDU);
           
@@ -95,7 +95,7 @@ PMATH_PRIVATE pmath_t builtin_arcsin(pmath_expr_t expr){
           mpfr_div(
             tmp->value,
             tmp->error,
-            ((struct _pmath_mp_float_t*)x)->value,
+            ((struct _pmath_mp_float_t*)PMATH_AS_PTR(x))->value,
             GMP_RNDU);
             
           dprec = mpfr_get_d_2exp(&exp, tmp->value, GMP_RNDN);
@@ -112,16 +112,16 @@ PMATH_PRIVATE pmath_t builtin_arcsin(pmath_expr_t expr){
         
             mpfr_asin(
               result->value, 
-              ((struct _pmath_mp_float_t*)x)->value,
+              ((struct _pmath_mp_float_t*)PMATH_AS_PTR(x))->value,
               GMP_RNDN);
             
             pmath_unref(x);
-            pmath_unref((pmath_float_t)tmp);
-            return (pmath_float_t)result;
+            pmath_unref((pmath_float_t)PMATH_FROM_PTR(tmp));
+            return (pmath_float_t)PMATH_FROM_PTR(result);
           }
         }
         
-        pmath_unref((pmath_t)tmp);
+        pmath_unref((pmath_t)PMATH_FROM_PTR(tmp));
       }
     }
     

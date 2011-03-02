@@ -18,7 +18,7 @@ PMATH_PRIVATE pmath_t builtin_pause(pmath_expr_t expr){
   
   if(!pmath_is_number(arg) || pmath_number_sign(arg) < 0){
     pmath_message(
-      NULL, "numn", 2,
+      PMATH_NULL, "numn", 2,
       pmath_integer_new_ui(1),
       pmath_ref(expr));
     
@@ -36,7 +36,7 @@ PMATH_PRIVATE pmath_t builtin_pause(pmath_expr_t expr){
     pmath_unref(arg);
     
     if(!current_thread || time < 0.001)
-      return NULL;
+      return PMATH_NULL;
       
     guard = pmath_symbol_create_temporary(
       PMATH_C_STRING("System`Pause`stop"), TRUE);
@@ -72,5 +72,5 @@ PMATH_PRIVATE pmath_t builtin_pause(pmath_expr_t expr){
     pmath_unref(guard);
   }
   
-  return NULL;
+  return PMATH_NULL;
 }
