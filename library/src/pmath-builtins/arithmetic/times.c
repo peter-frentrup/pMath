@@ -86,15 +86,15 @@ static pmath_float_t _mul_fi(
     result->error, 
     ((struct _pmath_mp_float_t*)PMATH_AS_PTR(floatA))->error,
     ((struct _pmath_integer_t*)PMATH_AS_PTR(intB))->value,
-    signB > 0 ? GMP_RNDU : GMP_RNDD);
+    signB > 0 ? MPFR_RNDU : GMP_RNDD);
   
-  mpfr_abs(result->error, result->error, GMP_RNDN);
+  mpfr_abs(result->error, result->error, MPFR_RNDN);
   
   mpfr_mul_z(
     result->value,
     ((struct _pmath_mp_float_t*)PMATH_AS_PTR(floatA))->value,
     ((struct _pmath_integer_t*)PMATH_AS_PTR(intB))->value,
-    GMP_RNDN);
+    MPFR_RNDN);
   
   //_pmath_mp_float_normalize(result);
 
@@ -126,15 +126,15 @@ static pmath_float_t _mul_fi(
       result->error, 
       ((struct _pmath_mp_float_t*)PMATH_AS_PTR(floatA))->error,
       intB->value,
-      signB > 0 ? GMP_RNDU : GMP_RNDD);
+      signB > 0 ? MPFR_RNDU : GMP_RNDD);
     
-    mpfr_abs(result->error, result->error, GMP_RNDN);
+    mpfr_abs(result->error, result->error, MPFR_RNDN);
     
     mpfr_div_z(
       result->value,
       ((struct _pmath_mp_float_t*)PMATH_AS_PTR(floatA))->value,
       intB->value,
-      GMP_RNDN);
+      MPFR_RNDN);
     
     _pmath_mp_float_normalize(result);
 
@@ -194,36 +194,36 @@ static pmath_float_t _mul_ff(
     tmp_err->value,
     ((struct _pmath_mp_float_t*)PMATH_AS_PTR(floatB))->value,
     ((struct _pmath_mp_float_t*)PMATH_AS_PTR(floatA))->error,
-    mpfr_sgn(((struct _pmath_mp_float_t*)PMATH_AS_PTR(floatB))->value) > 0 ? GMP_RNDU : GMP_RNDD);
+    mpfr_sgn(((struct _pmath_mp_float_t*)PMATH_AS_PTR(floatB))->value) > 0 ? MPFR_RNDU : GMP_RNDD);
   
-  mpfr_abs(tmp_err->value, tmp_err->value, GMP_RNDN);
+  mpfr_abs(tmp_err->value, tmp_err->value, MPFR_RNDN);
   
   mpfr_mul(
     tmp_err->error,
     ((struct _pmath_mp_float_t*)PMATH_AS_PTR(floatA))->value,
     ((struct _pmath_mp_float_t*)PMATH_AS_PTR(floatB))->error,
-    mpfr_sgn(((struct _pmath_mp_float_t*)PMATH_AS_PTR(floatA))->value) > 0 ? GMP_RNDU : GMP_RNDD);
+    mpfr_sgn(((struct _pmath_mp_float_t*)PMATH_AS_PTR(floatA))->value) > 0 ? MPFR_RNDU : GMP_RNDD);
   
-  mpfr_abs(tmp_err->error, tmp_err->error, GMP_RNDN);
+  mpfr_abs(tmp_err->error, tmp_err->error, MPFR_RNDN);
   
   mpfr_add(
     result->error,
     tmp_err->value,
     tmp_err->error,
-    GMP_RNDU);
+    MPFR_RNDU);
   
   mpfr_fma(
     result->error,
     ((struct _pmath_mp_float_t*)PMATH_AS_PTR(floatA))->error,
     ((struct _pmath_mp_float_t*)PMATH_AS_PTR(floatB))->error,
     result->error,
-    GMP_RNDU);
+    MPFR_RNDU);
   
   mpfr_mul(
     result->value,
     ((struct _pmath_mp_float_t*)PMATH_AS_PTR(floatA))->value,
     ((struct _pmath_mp_float_t*)PMATH_AS_PTR(floatB))->value,
-    GMP_RNDN);
+    MPFR_RNDN);
   
   _pmath_mp_float_normalize(result);
   
@@ -284,7 +284,7 @@ static pmath_t _mul_mf(
   pmath_float_t  floatB  // will be freed. not PMATH_NULL!
 ){
   double d = ((struct _pmath_machine_float_t*)floatA)->value
-    * mpfr_get_d(((struct _pmath_mp_float_t*)PMATH_AS_PTR(floatB))->value, GMP_RNDN);
+    * mpfr_get_d(((struct _pmath_mp_float_t*)PMATH_AS_PTR(floatB))->value, MPFR_RNDN);
   
   if(!isfinite(d))
     return _mul_nn(_pmath_convert_to_mp_float(floatA), floatB);

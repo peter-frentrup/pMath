@@ -143,7 +143,7 @@ PMATH_PRIVATE pmath_t builtin_gamma(pmath_expr_t expr){
 //
 //    result = _pmath_create_mp_float_from_d(d);
 //    if(result){
-//      mpfr_gamma(result->value, result->value, GMP_RNDN);
+//      mpfr_gamma(result->value, result->value, MPFR_RNDN);
 //
 //      if(mpfr_nan_p(result->value)){
 //        pmath_unref((pmath_t)result);
@@ -160,7 +160,7 @@ PMATH_PRIVATE pmath_t builtin_gamma(pmath_expr_t expr){
 //        return pmath_ref(_pmath_object_overflow);
 //      }
 //
-//      d = mpfr_get_d(result->value, GMP_RNDN);
+//      d = mpfr_get_d(result->value, MPFR_RNDN);
 //      if(isfinite(d)){
 //        pmath_unref((pmath_t)result);
 //        pmath_unref(z);
@@ -642,7 +642,7 @@ PMATH_PRIVATE pmath_t builtin_binomial(pmath_expr_t expr){
       if(pmath_is_integer(z)){
         pmath_integer_t result = _pmath_create_integer();
 
-        if(result){
+        if(!pmath_is_null(result)){
           mpz_bin_ui(
             PMATH_AS_MPZ(result),
             PMATH_AS_MPZ(z),
@@ -652,7 +652,7 @@ PMATH_PRIVATE pmath_t builtin_binomial(pmath_expr_t expr){
         pmath_unref(expr);
         pmath_unref(z);
         pmath_unref(k);
-        return (pmath_t)PMATH_FROM_PTR(result);
+        return result;
       }
     }
   }

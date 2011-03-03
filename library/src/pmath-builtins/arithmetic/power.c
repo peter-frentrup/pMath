@@ -58,22 +58,22 @@ pmath_bool_t _pmath_equals_rational_at(
 }
 
 static pmath_integer_t _pow_i_abs(
-  struct _pmath_integer_t  *base,    // wont be freed
-  unsigned long             exponent
+  pmath_integer_t base,    // wont be freed
+  unsigned long   exponent
 ){ // TODO: prevent overflow / gmp-out-of-memory
-  struct _pmath_integer_t *result;
-  if(exponent == 1 || base == NULL)
-    return (pmath_integer_t)pmath_ref((pmath_integer_t)PMATH_FROM_PTR(base));
+  pmath_integer_t result;
+  if(exponent == 1 || !pmath_is_null(base))
+    return pmath_ref(base);
 
   result = _pmath_create_integer();
-  if(!result)
+  if(pmath_is_null(result))
     return PMATH_NULL;
 
   mpz_pow_ui(
-    result->value,
-    base->value,
+    PMATH_AS_MPZ(result),
+    PMATH_AS_MPZ(base),
     exponent);
-  return (pmath_integer_t)PMATH_FROM_PTR(result);
+  return result;
 }
 
 /* a = int_root(&new_b, old_b, c)
@@ -84,63 +84,59 @@ static pmath_integer_t _pow_i_abs(
    On Out-Of-Memory, both a and new_b may become PMATH_NULL
  */
 static pmath_integer_t int_root(
-  pmath_integer_t           *new_base, 
-  struct _pmath_integer_t   *old_base, // will be freed
-  unsigned long              root_exp
+  pmath_integer_t  *new_base, 
+  pmath_integer_t   old_base, // will be freed
+  unsigned long     root_exp
 ){
-  pmath_bool_t            neg;
-  struct _pmath_integer_t   *iroot;
-  struct _pmath_integer_t   *prime_power;
-  unsigned int               i;
+  pmath_bool_t    neg;
+  pmath_integer_t iroot;
+  pmath_integer_t prime_power;
+  unsigned int    i;
   
-  assert(old_base != PMATH_NULL);
-  assert(new_base != PMATH_NULL);
+  assert(pmath_is_integer(old_base));
+  assert(new_base != NULL);
   
-  if(mpz_cmpabs_ui(old_base->value, 1) == 0){
-    if(mpz_sgn(old_base->value) > 0){
-      pmath_unref((pmath_integer_t)PMATH_FROM_PTR(old_base));
+  if(mpz_cmpabs_ui(PMATH_AS_MPZ(old_base), 1) == 0){
+    if(mpz_sgn(PMATH_AS_MPZ(old_base)) > 0){
+      pmath_unref(old_base);
       *new_base = PMATH_NULL;
       return PMATH_NULL;
     }
       
-    *new_base = (pmath_integer_t)PMATH_FROM_PTR(old_base);
+    *new_base = old_base;
     return PMATH_NULL;
   }
   
-  neg = mpz_sgn(old_base->value) < 0;
+  neg = mpz_sgn(PMATH_AS_MPZ(old_base)) < 0;
   if(neg){
-    old_base = (struct _pmath_integer_t*)PMATH_AS_PTR(pmath_number_neg(PMATH_FROM_PTR(old_base)));
+    old_base = pmath_number_neg(old_base);
     
-    if(!old_base){
+    if(pmath_is_null(old_base)){
       *new_base = PMATH_NULL;
       return PMATH_NULL;
     }
   }
   
   iroot = _pmath_create_integer();
-  if(!iroot){
-    pmath_unref((pmath_integer_t)PMATH_FROM_PTR(old_base));
+  if(pmath_is_null(iroot)){
+    pmath_unref(old_base);
     *new_base = PMATH_NULL;
     return PMATH_NULL;
   }
   
-  if(mpz_root(
-      iroot->value,
-      old_base->value,
-      root_exp))
-  {
-    pmath_unref((pmath_integer_t)PMATH_FROM_PTR(old_base));
+  if(mpz_root(PMATH_AS_MPZ(iroot), PMATH_AS_MPZ(old_base), root_exp)){
+    pmath_unref(old_base);
     if(neg)
       *new_base = pmath_integer_new_si(-1);
     else
       *new_base = PMATH_NULL;
-    return (pmath_integer_t)PMATH_FROM_PTR(iroot);
+    return iroot;
   }
   
   prime_power = _pmath_create_integer();
   if(!prime_power){
-    pmath_unref((pmath_integer_t)PMATH_FROM_PTR(iroot));
-    pmath_unref((pmath_integer_t)PMATH_FROM_PTR(old_base));
+    pmath_unref(iroot);
+    pmath_unref(old_base);
     *new_base = PMATH_NULL;
     return PMATH_NULL;
   }
@@ -149,25 +145,26 @@ static pmath_integer_t int_root(
     if(mpz_cmp_ui(iroot->value, i) < 0)
       break;
     
-    if(mpz_divisible_ui_p(old_base->value, _pmath_primes16bit[i])){
+    if(mpz_divisible_ui_p(PMATH_AS_MPZ(old_base), _pmath_primes16bit[i])){
       mpz_ui_pow_ui(
-        prime_power->value,
+        PMATH_AS_MPZ(prime_power),
         _pmath_primes16bit[i],
         root_exp);
       
-      if(mpz_divisible_p(old_base->value, prime_power->value)){
-        *new_base = (pmath_integer_t)PMATH_FROM_PTR(_pmath_create_integer());
+      if(mpz_divisible_p(PMATH_AS_MPZ(old_base), PMATH_AS_MPZ(prime_power))){
+        *new_base = _pmath_create_integer();
+        
         if(pmath_is_null(*new_base))
           break;
         
         mpz_divexact(
-          ((struct _pmath_integer_t*)PMATH_AS_PTR(*new_base))->value,
-          old_base->value,
-          prime_power->value);
+          PMATH_AS_MPZ(*new_base),
+          PMATH_AS_MPZ(old_base),
+          PMATH_AS_MPZ(prime_power));
         
-        pmath_unref((pmath_integer_t)PMATH_FROM_PTR(iroot));
-        pmath_unref((pmath_integer_t)PMATH_FROM_PTR(prime_power));
-        pmath_unref((pmath_integer_t)PMATH_FROM_PTR(old_base));
+        pmath_unref(iroot);
+        pmath_unref(prime_power);
+        pmath_unref(old_base);
         
         if(neg)
           *new_base = pmath_number_neg(*new_base);
@@ -177,13 +174,13 @@ static pmath_integer_t int_root(
     }
   }
   
-  pmath_unref((pmath_integer_t)PMATH_FROM_PTR(iroot));
-  pmath_unref((pmath_integer_t)PMATH_FROM_PTR(prime_power));
+  pmath_unref(iroot);
+  pmath_unref(prime_power);
   
   if(neg)
-    *new_base = pmath_number_neg((pmath_integer_t)PMATH_FROM_PTR(old_base));
+    *new_base = pmath_number_neg(old_base);
   else
-    *new_base = (pmath_integer_t)PMATH_FROM_PTR(old_base);
+    *new_base = old_base;
   
   return PMATH_NULL;
 }
@@ -229,19 +226,21 @@ static pmath_t _pow_ri(
 
 PMATH_PRIVATE 
 pmath_t _pow_fi( // returns struct _pmath_mp_float_t* iff null_on_errors is TRUE
-  struct _pmath_mp_float_t *base,  // will be freed. not PMATH_NULL!
-  long                      exponent,
-  pmath_bool_t              null_on_errors
+  pmath_float_t base,  // will be freed. not PMATH_NULL!
+  long          exponent,
+  pmath_bool_t  null_on_errors
 ){
   long lbaseexp;
   
-  if(exponent <= 0 && mpfr_zero_p(base->value))    
-    return PMATH_FROM_PTR(base);
+  assert(pmath_instance_of(base, PMATH_TYPE_MP_FLOAT));
+  
+  if(exponent <= 0 && mpfr_zero_p(PMATH_AS_MP_VALUE(base)))    
+    return base;
     
-  mpfr_get_d_2exp(&lbaseexp, base->value, GMP_RNDN);
+  mpfr_get_d_2exp(&lbaseexp, PMATH_AS_MP_VALUE(base), MPFR_RNDN);
   
   if(exponent * lbaseexp < MPFR_EMIN_DEFAULT){
-    pmath_unref(PMATH_FROM_PTR(base));
+    pmath_unref(base);
     if(null_on_errors)
       return PMATH_NULL;
       
@@ -250,7 +249,7 @@ pmath_t _pow_fi( // returns struct _pmath_mp_float_t* iff null_on_errors is TRUE
   }
   
   if(exponent * lbaseexp > MPFR_EMAX_DEFAULT){
-    pmath_unref(PMATH_FROM_PTR(base));
+    pmath_unref(base);
     if(null_on_errors)
       return PMATH_NULL;
     
@@ -259,15 +258,15 @@ pmath_t _pow_fi( // returns struct _pmath_mp_float_t* iff null_on_errors is TRUE
   }
   
   if(exponent < -1 || exponent > 1){
-    struct _pmath_mp_float_t *err;
-    struct _pmath_mp_float_t *result;
+    pmath_float_t err;
+    pmath_float_t result;
     
     // z = x^y,    dy = 0, x > 0, y > 1
     // error    = dz = x^(y-1) * y * dx       (dy = 0)
     // bits(z)  = -log(2, dz / z) = -log(2, y * dx / x) 
     //          = -log(2, y) - log(2, dx/x) = bits(x) - log(2, y)
     
-    double dprec = ceil(pmath_precision(pmath_ref(PMATH_FROM_PTR(base))) - log2(fabs(exponent)));
+    double dprec = ceil(pmath_precision(pmath_ref(base)) - log2(fabs(exponent)));
     
     if(dprec < 1)
       dprec = 1;
@@ -276,42 +275,42 @@ pmath_t _pow_fi( // returns struct _pmath_mp_float_t* iff null_on_errors is TRUE
     
     result = _pmath_create_mp_float((mp_prec_t)ceil(dprec));
     err    = _pmath_create_mp_float(PMATH_MP_ERROR_PREC);
-    if(!result || !err){
-      pmath_unref(PMATH_FROM_PTR(result));
-      pmath_unref(PMATH_FROM_PTR(err));
-      pmath_unref(PMATH_FROM_PTR(base));
+    if(pmath_is_null(result) || pmath_is_null(err)){
+      pmath_unref(result);
+      pmath_unref(err);
+      pmath_unref(base);
       return PMATH_NULL;
     }
     
     mpfr_abs(
-      err->value, // x
-      base->value,
-      GMP_RNDU);
+      PMATH_AS_MP_VALUE(err), // x
+      PMATH_AS_MP_VALUE(base),
+      MPFR_RNDU);
     
     mpfr_pow_si(
-      err->error, // x^(y-1)
+      PMATH_AS_MP_ERROR(err), // x^(y-1)
       err->value,
       exponent - 1,
-      GMP_RNDU);
+      MPFR_RNDU);
     
     mpfr_mul_ui(
       err->value, // x^(y-1) * y
       err->error,
       labs(exponent),
-      GMP_RNDU);
+      MPFR_RNDU);
     
     mpfr_mul(
       result->error, // x^(y-1) * y * dx = dz
       err->value,
       base->error,
-      GMP_RNDU);
+      MPFR_RNDU);
     
     
     mpfr_pow_si(
       result->value,
       base->value,
       exponent,
-      GMP_RNDN);
+      MPFR_RNDN);
     
     pmath_unref(PMATH_FROM_PTR(err));
     pmath_unref(PMATH_FROM_PTR(base));
@@ -338,24 +337,24 @@ pmath_t _pow_fi( // returns struct _pmath_mp_float_t* iff null_on_errors is TRUE
         err->error, // 1/x^2
         base->value,
         -2,
-        GMP_RNDN);
+        MPFR_RNDN);
       
       mpfr_abs(
         err->error,
         err->error,
-        GMP_RNDN);
+        MPFR_RNDN);
         
       mpfr_mul(
         result->error, // dx/x^2 = dz
         base->error,
         err->error,
-        GMP_RNDU);
+        MPFR_RNDU);
       
       mpfr_ui_div(
         result->value,
         1,
         base->value,
-        GMP_RNDN);
+        MPFR_RNDN);
     }
     
     pmath_unref(PMATH_FROM_PTR(base));
@@ -1031,7 +1030,7 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr){
         long exp;
         
         // Precision(y) = -Log(base, dy/y) = -Log(base, dx)
-        mpfr_get_d_2exp(&exp, ((struct _pmath_mp_float_t*)exponent)->error, GMP_RNDU);
+        mpfr_get_d_2exp(&exp, ((struct _pmath_mp_float_t*)exponent)->error, MPFR_RNDU);
         prec = -exp;
         
         if(prec < MPFR_PREC_MIN)
@@ -1044,13 +1043,13 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr){
           mpfr_exp(
             result->value,
             ((struct _pmath_mp_float_t*)exponent)->value,
-            GMP_RNDN);
+            MPFR_RNDN);
           
           mpfr_mul(
             result->error,
             result->value,
             ((struct _pmath_mp_float_t*)exponent)->error,
-            GMP_RNDU);
+            MPFR_RNDU);
           
           pmath_unref(exponent);
           pmath_unref(base);
@@ -1162,69 +1161,69 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr){
           mpfr_abs(
             a->error,
             ((struct _pmath_mp_float_t*)PMATH_AS_PTR(base))->value,
-            GMP_RNDU);
+            MPFR_RNDU);
           
           // b->error = log(abs(x))
           mpfr_log(
             b->error,
             a->error,
-            GMP_RNDN);
+            MPFR_RNDN);
           
           // a->error = log(abs(x)) * dy
           mpfr_mul(
             a->error,
             b->error,
             ((struct _pmath_mp_float_t*)exponent)->error,
-            GMP_RNDU);
+            MPFR_RNDU);
           
           // a->error = abs(log(abs(x)) * dy)
           mpfr_abs(
             a->error,
             a->error,
-            GMP_RNDU);
+            MPFR_RNDU);
           
           // b->value = y/x
           mpfr_div(
             b->value,
             ((struct _pmath_mp_float_t*)exponent)->value,
             ((struct _pmath_mp_float_t*)PMATH_AS_PTR(base))->value,
-            GMP_RNDN);
+            MPFR_RNDN);
           
           // b->error = y/x * dx
           mpfr_mul(
             b->error,
             b->value,
             ((struct _pmath_mp_float_t*)PMATH_AS_PTR(base))->error,
-            GMP_RNDN);
+            MPFR_RNDN);
           
           // b->error = abs(y/x * dx)
           mpfr_abs(
             b->error,
             b->error,
-            GMP_RNDU);
+            MPFR_RNDU);
           
           // b->value = abs(y/x * dx) + abs(log(abs(x)) * dy)
           mpfr_add(
             b->value,
             b->error,
             a->error,
-            GMP_RNDU);
+            MPFR_RNDU);
           
           // a->value = x^y
           mpfr_pow(
             a->value, 
             ((struct _pmath_mp_float_t*)PMATH_AS_PTR(base))->value,
             ((struct _pmath_mp_float_t*)exponent)->value,
-            GMP_RNDN);
+            MPFR_RNDN);
           
           // a->value = abs(x^y)
           mpfr_abs(
             a->value,
             a->value,
-            GMP_RNDU);
+            MPFR_RNDU);
           
           // precision: -log(2, dz/z)
-          dprec = mpfr_get_d_2exp(&exp, b->value, GMP_RNDU);
+          dprec = mpfr_get_d_2exp(&exp, b->value, MPFR_RNDU);
           dprec = -dprec - exp;
           
           if(dprec < MPFR_PREC_MIN)
@@ -1238,7 +1237,7 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr){
               result->error,
               a->value,
               b->value,
-              GMP_RNDU);
+              MPFR_RNDU);
             
             if(mpfr_zero_p(result->error)){
               pmath_unref((pmath_float_t)PMATH_FROM_PTR(result));;
@@ -1266,7 +1265,7 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr){
               result->value, 
               ((struct _pmath_mp_float_t*)PMATH_AS_PTR(base))->value,
               ((struct _pmath_mp_float_t*)exponent)->value,
-              GMP_RNDN);
+              MPFR_RNDN);
             
             pmath_unref((pmath_float_t)a);
             pmath_unref((pmath_float_t)b);

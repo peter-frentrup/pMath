@@ -59,46 +59,45 @@ PMATH_PRIVATE pmath_t builtin_arcsin(pmath_expr_t expr){
     
     if(mpfr_cmp_si(((struct _pmath_mp_float_t*)PMATH_AS_PTR(x))->value, -1) > 0
     && mpfr_cmp_si(((struct _pmath_mp_float_t*)PMATH_AS_PTR(x))->value,  1) < 0){
-      struct _pmath_mp_float_t *result;
-      struct _pmath_mp_float_t *tmp;
+      pmath_float_t result;
+      pmath_float_t tmp;
       double dprec;
       long exp;
       
       tmp = _pmath_create_mp_float(PMATH_MP_ERROR_PREC);
-      if(tmp){
+      if(!pmath_is_null(tmp)){
         // dy = dx / Sqrt(1 - x^2)
-        mpfr_mul(
-          tmp->value,
-          ((struct _pmath_mp_float_t*)PMATH_AS_PTR(x))->value,
-          ((struct _pmath_mp_float_t*)PMATH_AS_PTR(x))->value,
-          GMP_RNDU);
+        mpfr_sqr(
+          PMATH_AS_MP_VALUE(tmp),
+          PMATH_AS_MP_VALUE(x),
+          MPFR_RNDU);
           
         mpfr_ui_sub(
-          tmp->error,
+          PMATH_AS_MP_ERROR(tmp),
           1,
-          tmp->value,
-          GMP_RNDU);
+          PMATH_AS_MP_VALUE(tmp),
+          MPFR_RNDU);
         
-        if(mpfr_sgn(tmp->error) > 0){
+        if(mpfr_sgn(PMATH_AS_MP_ERROR(tmp)) > 0){
           mpfr_sqrt(
-            tmp->value,
-            tmp->error,
-            GMP_RNDU);
+            PMATH_AS_MP_VALUE(tmp),
+            PMATH_AS_MP_ERROR(tmp),
+            MPFR_RNDU);
             
           mpfr_div(
-            tmp->error,
-            ((struct _pmath_mp_float_t*)PMATH_AS_PTR(x))->error,
-            tmp->value,
-            GMP_RNDU);
+            PMATH_AS_MP_ERROR(tmp),
+            PMATH_AS_MP_ERROR(x),
+            PMATH_AS_MP_VALUE(tmp),
+            MPFR_RNDU);
           
           // precision = -Log(2, dy/Abs(y))
           mpfr_div(
-            tmp->value,
-            tmp->error,
-            ((struct _pmath_mp_float_t*)PMATH_AS_PTR(x))->value,
-            GMP_RNDU);
+            PMATH_AS_MP_VALUE(tmp),
+            PMATH_AS_MP_ERROR(tmp),
+            PMATH_AS_MP_VALUE(x),
+            MPFR_RNDU);
             
-          dprec = mpfr_get_d_2exp(&exp, tmp->value, GMP_RNDN);
+          dprec = mpfr_get_d_2exp(&exp, PMATH_AS_MP_VALUE(tmp), MPFR_RNDN);
           dprec = -log(fabs(dprec)) - exp;
           
           if(dprec < 1)
@@ -107,21 +106,21 @@ PMATH_PRIVATE pmath_t builtin_arcsin(pmath_expr_t expr){
             dprec = PMATH_MP_PREC_MAX;
           
           result = _pmath_create_mp_float((mp_prec_t)ceil(dprec));
-          if(result){
-            mpfr_swap(result->error, tmp->error);
+          if(!pmath_is_null(result)){
+            mpfr_swap(PMATH_AS_MP_ERROR(result), PMATH_AS_MP_ERROR(tmp));
         
             mpfr_asin(
-              result->value, 
-              ((struct _pmath_mp_float_t*)PMATH_AS_PTR(x))->value,
-              GMP_RNDN);
+              PMATH_AS_MP_VALUE(result), 
+              PMATH_AS_MP_VALUE(x),
+              MPFR_RNDN);
             
             pmath_unref(x);
-            pmath_unref((pmath_float_t)PMATH_FROM_PTR(tmp));
-            return (pmath_float_t)PMATH_FROM_PTR(result);
+            pmath_unref(tmp);
+            return result;
           }
         }
         
-        pmath_unref((pmath_t)PMATH_FROM_PTR(tmp));
+        pmath_unref(tmp);
       }
     }
     

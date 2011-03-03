@@ -308,7 +308,7 @@ static void serialize(
           break;
         }
         
-        mpfr_set_d(f->value, ((struct _pmath_machine_float_t*)object)->value, GMP_RNDN);
+        mpfr_set_d(f->value, ((struct _pmath_machine_float_t*)object)->value, MPFR_RNDN);
         exp = mpfr_get_z_exp(
           mantissa->value,
           f->value);
@@ -569,8 +569,8 @@ static pmath_t deserialize(struct deserializer_t *info){
         break;
       }
       
-      mpfr_set_z(result->value, ((struct _pmath_integer_t*)mant)->value, GMP_RNDN);
-      mpfr_mul_2si(result->value, result->value, exp, GMP_RNDN);
+      mpfr_set_z(result->value, ((struct _pmath_integer_t*)mant)->value, MPFR_RNDN);
+      mpfr_mul_2si(result->value, result->value, exp, MPFR_RNDN);
       pmath_unref(mant);
       
       exp = (mp_exp_t)read_si32(info);
@@ -585,14 +585,14 @@ static pmath_t deserialize(struct deserializer_t *info){
         break;
       }
       
-      mpfr_set_z(result->error, ((struct _pmath_integer_t*)mant)->value, GMP_RNDN);
-      mpfr_mul_2si(result->error, result->error, exp, GMP_RNDN);
+      mpfr_set_z(result->error, ((struct _pmath_integer_t*)mant)->value, MPFR_RNDN);
+      mpfr_mul_2si(result->error, result->error, exp, MPFR_RNDN);
       pmath_unref(mant);
       return (pmath_float_t)PMATH_FROM_PTR(result);
     } break;
     
     case 10: {
-      struct _pmath_mp_float_t *result;
+      pmath_float_t result;
       pmath_integer_t mant;
       mp_exp_t exp;
       
@@ -608,7 +608,7 @@ static pmath_t deserialize(struct deserializer_t *info){
       }
     
       result = _pmath_create_mp_float(DBL_MANT_DIG);
-      if(!result){
+      if(pmath_is_null(result)){
         if(!info->error)
           info->error = PMATH_SERIALIZE_NO_MEMORY;
         
@@ -616,12 +616,12 @@ static pmath_t deserialize(struct deserializer_t *info){
         break;
       }
       
-      mpfr_set_z(result->value, ((struct _pmath_integer_t*)mant)->value, GMP_RNDN);
-      mpfr_mul_2si(result->value, result->value, exp, GMP_RNDN);
+      mpfr_set_z(  PMATH_AS_MP_VALUE(result), PMATH_AS_MPZ(mant), MPFR_RNDN);
+      mpfr_mul_2si(PMATH_AS_MP_VALUE(result), PMATH_AS_MP_VALUE(result), exp, MPFR_RNDN);
       pmath_unref(mant);
       
-      mant = pmath_float_new_d(mpfr_get_d(result->value, GMP_RNDN));
-      pmath_unref((pmath_float_t)PMATH_FROM_PTR(result));;
+      mant = pmath_float_new_d(mpfr_get_d(PMATH_AS_MP_VALUE(result), MPFR_RNDN));
+      pmath_unref(result);
       
       return mant;
     } break;

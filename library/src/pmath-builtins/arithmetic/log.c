@@ -226,19 +226,18 @@ PMATH_PRIVATE pmath_t builtin_log(pmath_expr_t expr){
                 = -Log(2, dx/x) + Log(2, Log(x))
                 = bits(x) + Log(2, Log(x))
      */
-    struct _pmath_mp_float_t *result;
-    double dprec;
-    
-    result = _pmath_create_mp_float(PMATH_MP_ERROR_PREC);
-    if(result){
+     
+    pmath_float_t result = _pmath_create_mp_float(PMATH_MP_ERROR_PREC);
+    if(!pmath_is_null(result)){
       long exp;
+      double dprec;
       
       mpfr_log(
-        result->value,
-        ((struct _pmath_mp_float_t*)PMATH_AS_PTR(x))->value,
-        GMP_RNDN);
+        PMATH_AS_MP_VALUE(result),
+        PMATH_AS_MP_VALUE(x),
+        MPFR_RNDN);
       
-      dprec = mpfr_get_d_2exp(&exp, result->value, GMP_RNDN);
+      dprec = mpfr_get_d_2exp(&exp, PMATH_AS_MP_VALUE(result), MPFR_RNDN);
       dprec = dprec + exp + pmath_precision(pmath_ref(x));
       
       if(dprec < 1)
@@ -246,23 +245,23 @@ PMATH_PRIVATE pmath_t builtin_log(pmath_expr_t expr){
       else if(dprec > PMATH_MP_PREC_MAX)
         dprec = PMATH_MP_PREC_MAX;
         
-      pmath_unref((pmath_float_t)PMATH_FROM_PTR(result));
+      pmath_unref(result);
       result = _pmath_create_mp_float((mp_prec_t)ceil(dprec));
-      if(result){
+      if(!pmath_is_null(result)){
         mpfr_div(
-          result->error, 
-          ((struct _pmath_mp_float_t*)PMATH_AS_PTR(x))->error,
-          ((struct _pmath_mp_float_t*)PMATH_AS_PTR(x))->value,
-          GMP_RNDU);
+          PMATH_AS_MP_ERROR(result), 
+          PMATH_AS_MP_ERROR(x),
+          PMATH_AS_MP_VALUE(x),
+          MPFR_RNDU);
         
         mpfr_log(
-          result->value,
-          ((struct _pmath_mp_float_t*)PMATH_AS_PTR(x))->value,
-          GMP_RNDN);
+          PMATH_AS_MP_VALUE(result),
+          PMATH_AS_MP_VALUE(x),
+          MPFR_RNDN);
         
         pmath_unref(expr);
         pmath_unref(x);
-        return (pmath_float_t)PMATH_FROM_PTR(result);
+        return result;
       }
     }
   }

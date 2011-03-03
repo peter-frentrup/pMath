@@ -225,7 +225,7 @@ static PMATH_DECLARE_ATOMIC(mp_cache_misses);
     }
   }
 
-  PMATH_PRIVATE struct _pmath_mp_float_t *_pmath_create_mp_float(mp_prec_t precision){
+  PMATH_PRIVATE pmath_float_t _pmath_create_mp_float(mp_prec_t precision){
     struct _pmath_mp_float_t *f;
     uintptr_t i;
 
@@ -247,8 +247,8 @@ static PMATH_DECLARE_ATOMIC(mp_cache_misses);
       f->inherited.refcount = 1;
       
       mpfr_set_prec(f->value, precision);
-      mpfr_set_ui_2exp(f->error, 1, -(mp_exp_t)precision-1, GMP_RNDU);
-      return f;
+      mpfr_set_ui_2exp(f->error, 1, -(mp_exp_t)precision-1, MPFR_RNDU);
+      return PMATH_FROM_PTR(f);
     }
     else{
       #ifdef PMATH_DEBUG_LOG
@@ -265,9 +265,9 @@ static PMATH_DECLARE_ATOMIC(mp_cache_misses);
 
     mpfr_init2(f->value, precision);
     mpfr_init2(f->error, PMATH_MP_ERROR_PREC);
-    mpfr_set_ui_2exp(f->error, 1, -(mp_exp_t)precision-1, GMP_RNDU);
+    mpfr_set_ui_2exp(f->error, 1, -(mp_exp_t)precision-1, MPFR_RNDU);
 
-    return f;
+    return PMATH_FROM_PTR(f);
   }
 
   PMATH_PRIVATE
@@ -275,10 +275,10 @@ static PMATH_DECLARE_ATOMIC(mp_cache_misses);
     struct _pmath_mp_float_t *result = _pmath_create_mp_float(0);
 
     if(result){
-      mpfr_set_d(result->value, value, GMP_RNDN);
-      mpfr_set_d(result->error, value, GMP_RNDN);
-      mpfr_abs(result->error, result->error, GMP_RNDU);
-      mpfr_div_2si(result->error, result->error, mpfr_get_prec(result->value), GMP_RNDU);
+      mpfr_set_d(result->value, value, MPFR_RNDN);
+      mpfr_set_d(result->error, value, MPFR_RNDN);
+      mpfr_abs(result->error, result->error, MPFR_RNDU);
+      mpfr_div_2si(result->error, result->error, mpfr_get_prec(result->value), MPFR_RNDU);
     }
     
     return result;
@@ -294,7 +294,7 @@ static PMATH_DECLARE_ATOMIC(mp_cache_misses);
     result = _pmath_create_mp_float(0);
 
     if(result)
-      mpfr_set_d(result->value, pmath_number_get_d(n), GMP_RNDN);
+      mpfr_set_d(result->value, pmath_number_get_d(n), MPFR_RNDN);
 
     pmath_unref(n);
 
@@ -637,9 +637,9 @@ pmath_number_t pmath_float_new_str(
       if(!f)
         return PMATH_NULL;
 
-      mpfr_set_str(f->value, str, base, GMP_RNDN);
+      mpfr_set_str(f->value, str, base, MPFR_RNDN);
 
-      x = mpfr_get_d(f->value, GMP_RNDN);
+      x = mpfr_get_d(f->value, MPFR_RNDN);
       pmath_unref((pmath_float_t)f);
       return pmath_float_new_d(x);
     };
@@ -667,7 +667,7 @@ pmath_number_t pmath_float_new_str(
         return PMATH_NULL;
       }
       
-      mpfr_set_str(f->value, str, base, GMP_RNDN);
+      mpfr_set_str(f->value, str, base, MPFR_RNDN);
       
       if(mpfr_zero_p(f->value)){
         pmath_unref((pmath_float_t)f);
@@ -677,10 +677,10 @@ pmath_number_t pmath_float_new_str(
       }
       
       // error = |value| * 2 ^ -bits
-      mpfr_abs(f->error, f->value, GMP_RNDU);
-      mpfr_set_d(tmp_err->value, -bits, GMP_RNDN);
-      mpfr_ui_pow(tmp_err->error, 2, tmp_err->value, GMP_RNDN);
-      mpfr_mul(f->error, f->error, tmp_err->error, GMP_RNDU);
+      mpfr_abs(f->error, f->value, MPFR_RNDU);
+      mpfr_set_d(tmp_err->value, -bits, MPFR_RNDN);
+      mpfr_ui_pow(tmp_err->error, 2, tmp_err->value, MPFR_RNDN);
+      mpfr_mul(f->error, f->error, tmp_err->error, MPFR_RNDU);
       
       pmath_unref((pmath_float_t)tmp_err);
       _pmath_mp_float_normalize(f);
@@ -703,11 +703,11 @@ pmath_number_t pmath_float_new_str(
       if(!f)
         return PMATH_NULL;
       
-      mpfr_set_str(f->value, str, base, GMP_RNDN);
+      mpfr_set_str(f->value, str, base, MPFR_RNDN);
       
       // error = base ^ -accuracy
       mpfr_set_d(f->error, -base_precision_accuracy, GMP_RNDD);
-      mpfr_ui_pow(f->error, base, f->error, GMP_RNDU);
+      mpfr_ui_pow(f->error, base, f->error, MPFR_RNDU);
 
       _pmath_mp_float_normalize(f);
       return (pmath_float_t)f;
@@ -728,7 +728,7 @@ PMATH_API pmath_float_t pmath_float_new_d(double dbl){
 //  if(!f)
 //    return PMATH_NULL;
 //
-//  mpfr_set_d(f->value, dbl, GMP_RNDN);
+//  mpfr_set_d(f->value, dbl, MPFR_RNDN);
 //  return (pmath_float_t)f;
 }
 
@@ -794,16 +794,17 @@ pmath_t _pmath_float_exceptions(
 }
 
 PMATH_PRIVATE
-void _pmath_mp_float_normalize(struct _pmath_mp_float_t *f){
-  assert(f->inherited.refcount == 1);
+void _pmath_mp_float_normalize(pmath_float_t f){
+  assert(pmath_instance_of(f, PMATH_TYPE_MP_FLOAT));
+  assert(PMATH_AS_PTR(f)->refcount == 1);
   
-  if(mpfr_zero_p(f->error) || mpfr_zero_p(f->value))
+  if(mpfr_zero_p(PMATH_AS_MP_ERROR(f)) || mpfr_zero_p(PMATH_AS_MP_VALUE(f)))
     return;
   
-  if(mpfr_get_exp(f->error) > mpfr_get_exp(f->value)){
-    mpfr_sign_t sign = f->value->_mpfr_sign;
-    mpfr_set_ui(f->value, 0, GMP_RNDN);
-    f->value->_mpfr_sign = sign;
+  if(mpfr_get_exp(PMATH_AS_MP_ERROR(f)) > mpfr_get_exp(PMATH_AS_MP_VALUE(f))){
+    mpfr_sign_t sign = PMATH_AS_MP_VALUE(f)->_mpfr_sign;
+    mpfr_set_ui(PMATH_AS_MP_VALUE(f), 0, MPFR_RNDN);
+    PMATH_AS_MP_VALUE(f)->_mpfr_sign = sign;
   }
 }
 
@@ -915,7 +916,7 @@ PMATH_API double pmath_number_get_d(pmath_number_t number){
            / mpz_get_d(((struct _pmath_quotient_t*)number)->denominator->value);
 
     case PMATH_TYPE_SHIFT_MP_FLOAT:
-      return mpfr_get_d(((struct _pmath_mp_float_t*)number)->value, GMP_RNDN);
+      return mpfr_get_d(((struct _pmath_mp_float_t*)number)->value, MPFR_RNDN);
 
     case PMATH_TYPE_SHIFT_MACHINE_FLOAT:
       return ((struct _pmath_machine_float_t*)number)->value;
@@ -1005,12 +1006,12 @@ PMATH_API pmath_number_t pmath_number_neg(pmath_number_t num){
         mpfr_neg(
           ((struct _pmath_mp_float_t*)result)->value,
           ((struct _pmath_mp_float_t*)num)->value,
-          GMP_RNDN);
+          MPFR_RNDN);
         
         mpfr_set(
           ((struct _pmath_mp_float_t*)result)->error,
           ((struct _pmath_mp_float_t*)num)->error,
-          GMP_RNDN);
+          MPFR_RNDN);
       }
       
       pmath_unref(num);
@@ -1191,7 +1192,7 @@ static void write_mp_float(
   if(mpfr_zero_p(f->value) || prec10 == 0){
     char s[30];
     long exp;
-    double d = mpfr_get_d_2exp(&exp, f->error, GMP_RNDN);
+    double d = mpfr_get_d_2exp(&exp, f->error, MPFR_RNDN);
     d = exp * LOG10_2 + log10(d);
     snprintf(s, sizeof(s), "0``%f", - d);
     write_cstr(s, write, user);
@@ -1212,7 +1213,7 @@ static void write_mp_float(
     return;
   }
 
-  mpfr_get_str(str, &exp, 10, digits, f->value, GMP_RNDN);
+  mpfr_get_str(str, &exp, 10, digits, f->value, MPFR_RNDN);
 
   if(exp == 0){
     if(*str == '-'){
@@ -1583,13 +1584,13 @@ static int compare_numbers(
       mpfr_set_z(
         tmp->value,
         ((struct _pmath_quotient_t*)numA)->numerator->value,
-        GMP_RNDN);
+        MPFR_RNDN);
 
       mpfr_div_z(
         tmp2->value,
         tmp->value,
         ((struct _pmath_quotient_t*)numA)->denominator->value,
-        GMP_RNDN);
+        MPFR_RNDN);
 
       result = mpfr_cmp(tmp2->value, ((struct _pmath_mp_float_t*)numB)->value);
 
@@ -1625,7 +1626,7 @@ static int compare_numbers(
         int result;
         
         if(tmp){
-          mpfr_set(tmp->value, ((struct _pmath_mp_float_t*)numB)->value, GMP_RNDN);
+          mpfr_set(tmp->value, ((struct _pmath_mp_float_t*)numB)->value, MPFR_RNDN);
           
           result = mpfr_cmp(((struct _pmath_mp_float_t*)numA)->value, tmp->value);
           
@@ -1638,7 +1639,7 @@ static int compare_numbers(
         int result;
         
         if(tmp){
-          mpfr_set(tmp->value, ((struct _pmath_mp_float_t*)numA)->value, GMP_RNDN);
+          mpfr_set(tmp->value, ((struct _pmath_mp_float_t*)numA)->value, MPFR_RNDN);
           
           result = mpfr_cmp(((struct _pmath_mp_float_t*)numA)->value, tmp->value);
           
@@ -1653,7 +1654,7 @@ static int compare_numbers(
     }
 
     if(numB->type_shift == PMATH_TYPE_SHIFT_MACHINE_FLOAT){
-      double d = mpfr_get_d(((struct _pmath_mp_float_t*)numA)->value, GMP_RNDN);
+      double d = mpfr_get_d(((struct _pmath_mp_float_t*)numA)->value, MPFR_RNDN);
       
       if(d < ((struct _pmath_machine_float_t*)numB)->value)
         return -1;
@@ -1723,7 +1724,7 @@ static pmath_bool_t equal_numbers(
       pmath_bool_t result;
       
       if(tmp){
-        mpfr_set(tmp->value, ((struct _pmath_mp_float_t*)numB)->value, GMP_RNDN);
+        mpfr_set(tmp->value, ((struct _pmath_mp_float_t*)numB)->value, MPFR_RNDN);
         
         result = mpfr_equal_p(((struct _pmath_mp_float_t*)numA)->value, tmp->value);
         
@@ -1736,7 +1737,7 @@ static pmath_bool_t equal_numbers(
       pmath_bool_t result;
       
       if(tmp){
-        mpfr_set(tmp->value, ((struct _pmath_mp_float_t*)numA)->value, GMP_RNDN);
+        mpfr_set(tmp->value, ((struct _pmath_mp_float_t*)numA)->value, MPFR_RNDN);
         
         result = mpfr_equal_p(tmp->value, ((struct _pmath_mp_float_t*)numA)->value);
         

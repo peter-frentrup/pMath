@@ -279,9 +279,9 @@ static pmath_bool_t binary_write(
               mp_exp_t exp;
               
               if(pmath_instance_of(value, PMATH_TYPE_MP_FLOAT))
-                mpfr_set(f->value, ((struct _pmath_mp_float_t*)value)->value, GMP_RNDN);
+                mpfr_set(f->value, ((struct _pmath_mp_float_t*)value)->value, MPFR_RNDN);
               else
-                mpfr_set_d(f->value, pmath_number_get_d(value), GMP_RNDN);
+                mpfr_set_d(f->value, pmath_number_get_d(value), MPFR_RNDN);
 
               exp = bits + mpfr_get_z_exp(mant->value, f->value);
               

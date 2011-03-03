@@ -123,7 +123,8 @@ pmath_quotient_t _pmath_create_quotient(
 
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT 
-struct _pmath_mp_float_t *_pmath_create_mp_float(mp_prec_t precision);
+//struct _pmath_mp_float_t *
+pmath_float_t _pmath_create_mp_float(mp_prec_t precision);
 
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT 
@@ -149,7 +150,7 @@ pmath_t _pmath_float_exceptions(
   pmath_number_t x);  // will be freed.
 
 PMATH_PRIVATE
-void _pmath_mp_float_normalize(struct _pmath_mp_float_t *f);
+void _pmath_mp_float_normalize(pmath_float_t f);
 
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT

@@ -23,7 +23,7 @@ double pmath_accuracy(pmath_t obj){ // will be freed
   
   if(pmath_instance_of(obj, PMATH_TYPE_MP_FLOAT)){
     long exp;
-    double d = mpfr_get_d_2exp(&exp, ((struct _pmath_mp_float_t*)obj)->error, GMP_RNDN);
+    double d = mpfr_get_d_2exp(&exp, ((struct _pmath_mp_float_t*)obj)->error, MPFR_RNDN);
     //acc = dex_get_d_log2(((struct _pmath_mp_float_t*)obj)->error);
     pmath_unref(obj);
     //return - acc;
@@ -67,8 +67,8 @@ double pmath_precision(pmath_t obj){ // will be freed
       return 0.0;
     }
     
-    val_d = mpfr_get_d_2exp(&val_exp, ((struct _pmath_mp_float_t*)obj)->value, GMP_RNDN);
-    err_d = mpfr_get_d_2exp(&err_exp, ((struct _pmath_mp_float_t*)obj)->error, GMP_RNDN);
+    val_d = mpfr_get_d_2exp(&val_exp, ((struct _pmath_mp_float_t*)obj)->value, MPFR_RNDN);
+    err_d = mpfr_get_d_2exp(&err_exp, ((struct _pmath_mp_float_t*)obj)->error, MPFR_RNDN);
     
     pmath_unref(obj);
     return log2(fabs(val_d)) - log2(err_d) + val_exp - err_exp;
@@ -152,7 +152,7 @@ pmath_t pmath_set_accuracy(pmath_t obj, double acc){ // obj will be freed
       
       case PMATH_TYPE_SHIFT_MP_FLOAT: {
         long exp;
-        double d = mpfr_get_d_2exp(&exp, ((struct _pmath_mp_float_t*)obj)->value, GMP_RNDN);
+        double d = mpfr_get_d_2exp(&exp, ((struct _pmath_mp_float_t*)obj)->value, MPFR_RNDN);
         
         prec = log2(fabs(d)) + exp + acc;
       } break;
@@ -174,39 +174,39 @@ pmath_t pmath_set_accuracy(pmath_t obj, double acc){ // obj will be freed
         mpfr_set_z(
           result->value, 
           ((struct _pmath_integer_t*)obj)->value,
-          GMP_RNDN);
+          MPFR_RNDN);
       } break;
       
       case PMATH_TYPE_SHIFT_QUOTIENT: {
         mpfr_set_z(
           result->value, 
           ((struct _pmath_quotient_t*)obj)->numerator->value,
-          GMP_RNDN);
+          MPFR_RNDN);
           
         mpfr_div_z(
           result->value, 
           result->value,
           ((struct _pmath_quotient_t*)obj)->denominator->value,
-          GMP_RNDN);
+          MPFR_RNDN);
       } break;
       
       case PMATH_TYPE_SHIFT_MACHINE_FLOAT: {
         mpfr_set_d(
           result->value,
           ((struct _pmath_machine_float_t*)obj)->value,
-          GMP_RNDN);
+          MPFR_RNDN);
       } break;
       
       case PMATH_TYPE_SHIFT_MP_FLOAT: {
         mpfr_set(
           result->value,
           ((struct _pmath_mp_float_t*)obj)->value,
-          GMP_RNDN);
+          MPFR_RNDN);
       } break;
     }
     
-    mpfr_set_d(result->error, -acc, GMP_RNDN);
-    mpfr_ui_pow(result->error, 2, result->error, GMP_RNDN);
+    mpfr_set_d(result->error, -acc, MPFR_RNDN);
+    mpfr_ui_pow(result->error, 2, result->error, MPFR_RNDN);
     
     pmath_unref(obj);
     return (pmath_float_t)PMATH_FROM_PTR(result);
@@ -318,53 +318,53 @@ pmath_t pmath_set_precision(pmath_t obj, double prec){
         mpfr_set_z(
           result->value, 
           ((struct _pmath_integer_t*)obj)->value,
-          GMP_RNDN);
+          MPFR_RNDN);
       } break;
       
       case PMATH_TYPE_SHIFT_QUOTIENT: {
         mpfr_set_z(
           result->value, 
           ((struct _pmath_quotient_t*)obj)->numerator->value,
-          GMP_RNDN);
+          MPFR_RNDN);
           
         mpfr_div_z(
           result->value, 
           result->value,
           ((struct _pmath_quotient_t*)obj)->denominator->value,
-          GMP_RNDN);
+          MPFR_RNDN);
       } break;
       
       case PMATH_TYPE_SHIFT_MACHINE_FLOAT: {
         mpfr_set_d(
           result->value,
           ((struct _pmath_machine_float_t*)obj)->value,
-          GMP_RNDN);
+          MPFR_RNDN);
       } break;
       
       case PMATH_TYPE_SHIFT_MP_FLOAT: {
         mpfr_set(
           result->value,
           ((struct _pmath_mp_float_t*)obj)->value,
-          GMP_RNDN);
+          MPFR_RNDN);
       } break;
     }
   
     // error = |value| * 2 ^ -bits
-    mpfr_set_d(result->error, -prec, GMP_RNDU);
+    mpfr_set_d(result->error, -prec, MPFR_RNDU);
     
     mpfr_ui_pow(
       result->error,
       2,
       result->error,
-      GMP_RNDU);
+      MPFR_RNDU);
     
     mpfr_mul(
       result->error,
       result->error,
       result->value,
-      mpfr_sgn(result->value) < 0 ? GMP_RNDD : GMP_RNDU);
+      mpfr_sgn(result->value) < 0 ? GMP_RNDD : MPFR_RNDU);
     
-    mpfr_abs(result->error, result->error, GMP_RNDU);
+    mpfr_abs(result->error, result->error, MPFR_RNDU);
     
     pmath_unref(obj);
     return (pmath_float_t)PMATH_FROM_PTR(result);

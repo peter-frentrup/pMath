@@ -99,7 +99,7 @@ static pmath_expr_t random_array(
         pmath_atomic_unlock(&_pmath_rand_spinlock);
         
         if(data->working_precision == -HUGE_VAL){
-          double res = mpfr_get_d(result->value, GMP_RNDN);
+          double res = mpfr_get_d(result->value, MPFR_RNDN);
           
           if(isfinite(res)){
             pmath_unref((pmath_float_t)PMATH_FROM_PTR(result));;
@@ -111,9 +111,9 @@ static pmath_expr_t random_array(
           }
         }
         
-        mpfr_set_d(result->error, -data->working_precision, GMP_RNDN);
-        mpfr_ui_pow(result->error, 2, result->error, GMP_RNDU);
-        mpfr_mul(result->error, result->error, result->value, GMP_RNDU);
+        mpfr_set_d(result->error, -data->working_precision, MPFR_RNDN);
+        mpfr_ui_pow(result->error, 2, result->error, MPFR_RNDU);
+        mpfr_mul(result->error, result->error, result->value, MPFR_RNDU);
         
         return stretch(
           (pmath_float_t)result, 

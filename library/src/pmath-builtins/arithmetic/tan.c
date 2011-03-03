@@ -31,31 +31,37 @@ PMATH_PRIVATE pmath_t builtin_tan(pmath_expr_t expr){
   }
   
   if(pmath_instance_of(x, PMATH_TYPE_MP_FLOAT)){
-    struct _pmath_mp_float_t *tmp;
+    pmath_float_t tmp = _pmath_create_mp_float(PMATH_MP_ERROR_PREC);
     
-    tmp = _pmath_create_mp_float(PMATH_MP_ERROR_PREC);
-    
-    if(tmp){
-      struct _pmath_mp_float_t *result;
+    if(!pmath_is_null(tmp)){
+      pmath_float_t result;
       double sin_val, cos_val;
       double accmant, acc, prec;
       long accexp;
       
       mpfr_sin_cos(
-        tmp->value, // sin 
-        tmp->error, // cos
-        ((struct _pmath_mp_float_t*)PMATH_AS_PTR(x))->value, 
-        GMP_RNDN);
+        PMATH_AS_MP_VALUE(tmp), // sin 
+        PMATH_AS_MP_ERROR(tmp), // cos
+        PMATH_AS_MP_VALUE(x), 
+        MPFR_RNDN);
       
-      sin_val = mpfr_get_d(tmp->value, GMP_RNDN);
-      cos_val = mpfr_get_d(tmp->error, GMP_RNDN);
+      sin_val = mpfr_get_d(PMATH_AS_MP_VALUE(tmp), MPFR_RNDA);
+      cos_val = mpfr_get_d(PMATH_AS_MP_ERROR(tmp), MPFR_RNDA);
       
       // dy = d(tan(x)) = sec(x)^2 * dx = 1/cos(x)^2 * dx
-      mpfr_pow_si(tmp->value, tmp->error, -2, GMP_RNDN);
-      mpfr_mul(tmp->error, tmp->value, ((struct _pmath_mp_float_t*)PMATH_AS_PTR(x))->error, GMP_RNDN);
+      mpfr_pow_si(
+        PMATH_AS_MP_VALUE(tmp), 
+        PMATH_AS_MP_ERROR(tmp), 
+        -2, 
+        MPFR_RNDA);
+      mpfr_mul(
+        PMATH_AS_MP_ERROR(tmp), 
+        PMATH_AS_MP_VALUE(tmp), 
+        PMATH_AS_MP_ERROR(x), 
+        MPFR_RNDA);
       
       // Precision(y) = -Log(base, y) + Accuracy(y)
-      accmant = mpfr_get_d_2exp(&accexp, ((struct _pmath_mp_float_t*)tmp)->error, GMP_RNDN);
+      accmant = mpfr_get_d_2exp(&accexp, PMATH_AS_MP_ERROR(tmp), MPFR_RNDN);
       acc  = -log2(fabs(accmant)) - accexp;
       prec = -log2(fabs(sin_val/cos_val)) + acc;
       
@@ -65,18 +71,18 @@ PMATH_PRIVATE pmath_t builtin_tan(pmath_expr_t expr){
         prec = 0;
       
       result = _pmath_create_mp_float((mp_prec_t)prec);
-      if(result){
-        mpfr_tan(result->value, ((struct _pmath_mp_float_t*)PMATH_AS_PTR(x))->value, GMP_RNDN);
+      if(!pmath_is_null(result)){
+        mpfr_tan(PMATH_AS_MP_VALUE(result), PMATH_AS_MP_VALUE(x), MPFR_RNDN);
         
-        if(!mpfr_number_p(result->value)){
-          pmath_unref((pmath_float_t)PMATH_FROM_PTR(result));;
-          pmath_unref((pmath_float_t)PMATH_FROM_PTR(tmp));
+        if(!mpfr_number_p(PMATH_AS_MP_VALUE(result))){
+          pmath_unref(result);
+          pmath_unref(tmp);
           pmath_unref(x);
           pmath_unref(expr);
           return CINFTY;
         }
         
-        mpfr_abs(result->error, tmp->error, GMP_RNDU);
+        mpfr_abs(PMATH_AS_MP_ERROR(result), PMATH_AS_MP_ERROR(tmp), MPFR_RNDU);
       }
       
       pmath_unref(expr);
@@ -186,11 +192,11 @@ PMATH_PRIVATE pmath_t builtin_tan(pmath_expr_t expr){
           pmath_unref(cmp);
           if(pmath_same(cmp, PMATH_SYMBOL_TRUE)
           && pmath_instance_of(fst, PMATH_TYPE_QUOTIENT)
-          && pmath_integer_fits_ui((pmath_integer_t)PMATH_FROM_PTR(((struct _pmath_quotient_t*)PMATH_AS_PTR(fst))->numerator))
-          && pmath_integer_fits_ui((pmath_integer_t)PMATH_FROM_PTR(((struct _pmath_quotient_t*)PMATH_AS_PTR(fst))->denominator))
+          && pmath_integer_fits_ui(PMATH_QUOT_NUM(fst))
+          && pmath_integer_fits_ui(PMATH_QUOT_DEN(fst))
           ){
-            unsigned long num = pmath_integer_get_ui((pmath_integer_t)PMATH_FROM_PTR(((struct _pmath_quotient_t*)PMATH_AS_PTR(fst))->numerator));
-            unsigned long den = pmath_integer_get_ui((pmath_integer_t)PMATH_FROM_PTR(((struct _pmath_quotient_t*)PMATH_AS_PTR(fst))->denominator));
+            unsigned long num = pmath_integer_get_ui(PMATH_QUOT_NUM(fst));
+            unsigned long den = pmath_integer_get_ui(PMATH_QUOT_DEN(fst));
             
             if(num <= den / 2)
               switch(den){

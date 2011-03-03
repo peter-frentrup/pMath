@@ -363,22 +363,22 @@ static pmath_bool_t binary_read(
               
               if(uexp == 0){
                 if(mpz_sgn(mant->value) == 0){
-                  mpfr_set_ui(f->value, 0, GMP_RNDN);
+                  mpfr_set_ui(f->value, 0, MPFR_RNDN);
                   
-                  mpfr_set_ui_2exp(f->error, 1, -16382 - 112, GMP_RNDU);
+                  mpfr_set_ui_2exp(f->error, 1, -16382 - 112, MPFR_RNDU);
                   
                   *type_value = (pmath_float_t)PMATH_FROM_PTR(f);
                   pmath_unref(PMATH_FROM_PTR(mant));
                 }
                 else{
-                  mpfr_set_ui_2exp(f->value, 1, -112, GMP_RNDU);
-                  mpfr_mul_z(f->value, f->value, mant->value, GMP_RNDN);
+                  mpfr_set_ui_2exp(f->value, 1, -112, MPFR_RNDU);
+                  mpfr_mul_z(f->value, f->value, mant->value, MPFR_RNDN);
                   
-                  mpfr_set_ui_2exp(f->error, 1, -16382 - 112, GMP_RNDU);
-                  mpfr_mul(f->error, f->error, f->value, GMP_RNDU);
+                  mpfr_set_ui_2exp(f->error, 1, -16382 - 112, MPFR_RNDU);
+                  mpfr_mul(f->error, f->error, f->value, MPFR_RNDU);
                   
                   if(neg)
-                    mpfr_neg(f->value, f->value, GMP_RNDN);
+                    mpfr_neg(f->value, f->value, MPFR_RNDN);
                   *type_value = (pmath_float_t)f;
                   pmath_unref((pmath_integer_t)mant);
                 }
@@ -406,14 +406,14 @@ static pmath_bool_t binary_read(
               else{
                 mpz_setbit(mant->value, 112);
                 
-                mpfr_set_ui_2exp(f->value, 1, ((int)uexp) - 16383 - 112, GMP_RNDU);
-                mpfr_mul_z(f->value, f->value, mant->value, GMP_RNDN);
+                mpfr_set_ui_2exp(f->value, 1, ((int)uexp) - 16383 - 112, MPFR_RNDU);
+                mpfr_mul_z(f->value, f->value, mant->value, MPFR_RNDN);
               
-                mpfr_set_ui_2exp(f->error, 1, -112, GMP_RNDU);
-                mpfr_mul(f->error, f->error, f->value, GMP_RNDU);
+                mpfr_set_ui_2exp(f->error, 1, -112, MPFR_RNDU);
+                mpfr_mul(f->error, f->error, f->value, MPFR_RNDU);
               
                 if(neg)
-                  mpfr_neg(f->value, f->value, GMP_RNDN);
+                  mpfr_neg(f->value, f->value, MPFR_RNDN);
                 *type_value = (pmath_float_t)f;
                 pmath_unref((pmath_integer_t)mant);
               }

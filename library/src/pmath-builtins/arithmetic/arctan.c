@@ -33,37 +33,34 @@ PMATH_PRIVATE pmath_t builtin_arctan(pmath_expr_t expr){
   }
   
   if(pmath_instance_of(x, PMATH_TYPE_MP_FLOAT)){
-    struct _pmath_mp_float_t *tmp;
-    
-    tmp = _pmath_create_mp_float(PMATH_MP_ERROR_PREC);
-    if(tmp){
-      struct _pmath_mp_float_t *result;
+    pmath_float_t tmp = _pmath_create_mp_float(PMATH_MP_ERROR_PREC);
+    if(!pmath_is_null(tmp)){
+      pmath_float_t result;
       double accmant, acc, prec;
       long accexp;
       
       // dy = dx / (1+x^2)
-      mpfr_mul(
-        tmp->error,
-        ((struct _pmath_mp_float_t*)PMATH_AS_PTR(x))->value,
-        ((struct _pmath_mp_float_t*)PMATH_AS_PTR(x))->value,
+      mpfr_sqr(
+        PMATH_AS_MP_ERROR(tmp),
+        PMATH_AS_MP_VALUE(x),
         GMP_RNDD);
       
       mpfr_add_ui(
-        tmp->value,
-        tmp->error,
+        PMATH_AS_MP_VALUE(tmp),
+        PMATH_AS_MP_ERROR(tmp),
         1,
         GMP_RNDD);
       
       mpfr_div(
-        tmp->error,
-        ((struct _pmath_mp_float_t*)PMATH_AS_PTR(x))->error,
-        tmp->value,
-        GMP_RNDU);
+        PMATH_AS_MP_ERROR(tmp),
+        PMATH_AS_MP_ERROR(x),
+        PMATH_AS_MP_VALUE(tmp),
+        MPFR_RNDU);
       
       // Precision(y) = -Log(base, y) + Accuracy(y)
-      accmant = mpfr_get_d_2exp(&accexp, ((struct _pmath_mp_float_t*)tmp)->error, GMP_RNDN);
+      accmant = mpfr_get_d_2exp(&accexp, PMATH_AS_MP_ERROR(tmp), MPFR_RNDN);
       acc  = -log2(fabs(accmant)) - accexp;
-      prec = mpfr_get_d(((struct _pmath_mp_float_t*)PMATH_AS_PTR(x))->value, GMP_RNDN);
+      prec = mpfr_get_d(PMATH_AS_MP_VALUE(x), MPFR_RNDN);
       prec = -log2(fabs(atan(prec))) + acc;
       
       if(prec > acc + pmath_max_extra_precision)
@@ -72,21 +69,21 @@ PMATH_PRIVATE pmath_t builtin_arctan(pmath_expr_t expr){
         prec = 0;
       
       result = _pmath_create_mp_float((mp_prec_t)prec);
-      if(result){
-        mpfr_swap(result->error, tmp->error);
+      if(!pmath_is_null(result)){
+        mpfr_swap(PMATH_AS_MP_ERROR(result), PMATH_AS_MP_ERROR(tmp));
         
         mpfr_atan(
-          result->value, 
-          ((struct _pmath_mp_float_t*)PMATH_AS_PTR(x))->value,
-          GMP_RNDN);
+          PMATH_AS_MP_VALUE(result), 
+          PMATH_AS_MP_VALUE(x),
+          MPFR_RNDN);
         
         pmath_unref(x);
         pmath_unref(expr);
-        pmath_unref((pmath_float_t)PMATH_FROM_PTR(tmp));
-        return (pmath_float_t)PMATH_FROM_PTR(result);
+        pmath_unref(tmp);
+        return result;
       }
       
-      pmath_unref((pmath_float_t)PMATH_FROM_PTR(tmp));
+      pmath_unref(tmp);
     }
   }
   

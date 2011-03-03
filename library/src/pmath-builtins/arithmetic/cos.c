@@ -28,29 +28,31 @@ PMATH_PRIVATE pmath_t builtin_cos(pmath_expr_t expr){
   }
   
   if(pmath_instance_of(x, PMATH_TYPE_MP_FLOAT)){
-    struct _pmath_mp_float_t *tmp;
+    pmath_float_t tmp = _pmath_create_mp_float(PMATH_MP_ERROR_PREC);
     
-    tmp = _pmath_create_mp_float(PMATH_MP_ERROR_PREC);
-    
-    if(tmp){
-      struct _pmath_mp_float_t *result;
+    if(!pmath_is_null(tmp)){
+      pmath_float_t result;
       double cos_val;
       double accmant, acc, prec;
       long accexp;
       
       mpfr_sin_cos(
-        tmp->value, // sin 
-        tmp->error, // cos
-        ((struct _pmath_mp_float_t*)PMATH_AS_PTR(x))->value, 
-        GMP_RNDN);
+        PMATH_AS_MP_VALUE(tmp), // sin 
+        PMATH_AS_MP_ERROR(tmp), // cos
+        PMATH_AS_MP_VALUE(x),
+        MPFR_RNDN);
       
-      cos_val = mpfr_get_d(tmp->error, GMP_RNDN);
+      cos_val = mpfr_get_d(PMATH_AS_MP_ERROR(tmp), MPFR_RNDN);
       
       // dy = d(cos(x)) = sin(x) * dx
-      mpfr_mul(tmp->error, tmp->value, ((struct _pmath_mp_float_t*)PMATH_AS_PTR(x))->error, GMP_RNDN);
+      mpfr_mul(
+        PMATH_AS_MP_ERROR(tmp), 
+        PMATH_AS_MP_VALUE(tmp), 
+        PMATH_AS_MP_ERROR(x), 
+        MPFR_RNDN);
       
       // Precision(y) = -Log(base, y) + Accuracy(y)
-      accmant = mpfr_get_d_2exp(&accexp, tmp->error, GMP_RNDN);
+      accmant = mpfr_get_d_2exp(&accexp, PMATH_AS_MP_ERROR(tmp), MPFR_RNDN);
       acc  = -log2(fabs(accmant)) - accexp;
       prec = -log2(fabs(cos_val)) + acc;
       
@@ -60,15 +62,15 @@ PMATH_PRIVATE pmath_t builtin_cos(pmath_expr_t expr){
         prec = 0;
       
       result = _pmath_create_mp_float((mp_prec_t)prec);
-      if(result){
-        mpfr_cos(result->value, ((struct _pmath_mp_float_t*)PMATH_AS_PTR(x))->value, GMP_RNDN);
-        mpfr_abs(result->error, tmp->error, GMP_RNDU);
+      if(!pmath_is_null(result)){
+        mpfr_cos(PMATH_AS_MP_VALUE(result), PMATH_AS_MP_VALUE(x),   MPFR_RNDN);
+        mpfr_abs(PMATH_AS_MP_ERROR(result), PMATH_AS_MP_ERROR(tmp), MPFR_RNDU);
       }
       
       pmath_unref(expr);
       pmath_unref(x);
-      pmath_unref((pmath_float_t)PMATH_FROM_PTR(tmp));
-      return (pmath_float_t)PMATH_FROM_PTR(result);
+      pmath_unref(tmp);
+      return result;
     }
   }
   

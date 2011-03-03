@@ -276,7 +276,7 @@ PMATH_PRIVATE pmath_t builtin_assign_approximate(pmath_expr_t expr){
 }
 
 PMATH_PRIVATE pmath_t builtin_approximate_e(pmath_t obj, double prec, double acc){
-  struct _pmath_mp_float_t *result;
+  pmath_float_t result;
   
   if(!pmath_same(obj, PMATH_SYMBOL_E))
     return obj;
@@ -307,18 +307,18 @@ PMATH_PRIVATE pmath_t builtin_approximate_e(pmath_t obj, double prec, double acc
     prec = MPFR_PREC_MIN;
   
   result = _pmath_create_mp_float((mp_prec_t)prec);
-  if(!result)
+  if(pmath_is_null(result))
     return PMATH_NULL;
   
-  mpfr_set_ui(result->value, 1, GMP_RNDN);
-  mpfr_exp(result->value, result->value, GMP_RNDN);
-  mpfr_set_d(result->error, -acc, GMP_RNDD);
-  mpfr_ui_pow(result->error, 2, result->error, GMP_RNDU);
-  return (pmath_number_t)PMATH_FROM_PTR(result);
+  mpfr_set_ui(PMATH_AS_MP_VALUE(result), 1, MPFR_RNDN);
+  mpfr_exp(   PMATH_AS_MP_VALUE(result), PMATH_AS_MP_VALUE(result), MPFR_RNDN);
+  mpfr_set_d( PMATH_AS_MP_ERROR(result), -acc, GMP_RNDD);
+  mpfr_ui_pow(PMATH_AS_MP_ERROR(result), 2, PMATH_AS_MP_ERROR(result), MPFR_RNDU);
+  return result;
 }
 
 PMATH_PRIVATE pmath_t builtin_approximate_eulergamma(pmath_t obj, double prec, double acc){
-  struct _pmath_mp_float_t *result;
+  pmath_float_t result;
   
   if(!pmath_same(obj, PMATH_SYMBOL_EULERGAMMA))
     return obj;
@@ -349,17 +349,17 @@ PMATH_PRIVATE pmath_t builtin_approximate_eulergamma(pmath_t obj, double prec, d
     prec = MPFR_PREC_MIN;
   
   result = _pmath_create_mp_float((mp_prec_t)prec);
-  if(!result)
+  if(pmath_is_null(result))
     return PMATH_NULL;
   
-  mpfr_const_euler(result->value, GMP_RNDN);
-  mpfr_set_d(result->error, -acc, GMP_RNDD);
-  mpfr_ui_pow(result->error, 2, result->error, GMP_RNDU);
-  return (pmath_number_t)PMATH_FROM_PTR(result);
+  mpfr_const_euler(PMATH_AS_MP_VALUE(result), MPFR_RNDN);
+  mpfr_set_d(      PMATH_AS_MP_ERROR(result), -acc, GMP_RNDD);
+  mpfr_ui_pow(     PMATH_AS_MP_ERROR(result), 2, PMATH_AS_MP_ERROR(result), MPFR_RNDU);
+  return result;
 }
 
 PMATH_PRIVATE pmath_t builtin_approximate_machineprecision(pmath_t obj, double prec, double acc){
-  struct _pmath_mp_float_t *result;
+  pmath_float_t result;
   
   if(!pmath_same(obj, PMATH_SYMBOL_MACHINEPRECISION))
     return obj;
@@ -390,20 +390,20 @@ PMATH_PRIVATE pmath_t builtin_approximate_machineprecision(pmath_t obj, double p
     prec = MPFR_PREC_MIN;
   
   result = _pmath_create_mp_float((mp_prec_t)prec);
-  if(!result)
+  if(pmath_is_null(result))
     return PMATH_NULL;
   
-  mpfr_set_ui(result->value, 2, GMP_RNDN);
-  mpfr_log10(result->value, result->value, GMP_RNDN);
-  mpfr_mul_ui(result->value, result->value, DBL_MANT_DIG, GMP_RNDN);
+  mpfr_set_ui(PMATH_AS_MP_VALUE(result), 2, MPFR_RNDN);
+  mpfr_log10( PMATH_AS_MP_VALUE(result), PMATH_AS_MP_VALUE(result), MPFR_RNDN);
+  mpfr_mul_ui(PMATH_AS_MP_VALUE(result), PMATH_AS_MP_VALUE(result), DBL_MANT_DIG, MPFR_RNDN);
   
-  mpfr_set_d(result->error, -acc, GMP_RNDD);
-  mpfr_ui_pow(result->error, 2, result->error, GMP_RNDU);
-  return (pmath_number_t)PMATH_FROM_PTR(result);
+  mpfr_set_d( PMATH_AS_MP_ERROR(result), -acc, GMP_RNDD);
+  mpfr_ui_pow(PMATH_AS_MP_ERROR(result), 2, PMATH_AS_MP_ERROR(result), MPFR_RNDU);
+  return result;
 }
 
 PMATH_PRIVATE pmath_t builtin_approximate_pi(pmath_t obj, double prec, double acc){
-  struct _pmath_mp_float_t *result;
+  pmath_float_t result;
   
   if(!pmath_same(obj, PMATH_SYMBOL_PI))
     return obj;
@@ -434,11 +434,11 @@ PMATH_PRIVATE pmath_t builtin_approximate_pi(pmath_t obj, double prec, double ac
     prec = MPFR_PREC_MIN;
   
   result = _pmath_create_mp_float((mp_prec_t)prec);
-  if(!result)
+  if(pmath_is_null(result))
     return PMATH_NULL;
   
-  mpfr_const_pi(result->value, GMP_RNDN);
-  mpfr_set_d( result->error, -acc, GMP_RNDD);
-  mpfr_ui_pow(result->error, 2, result->error, GMP_RNDU);
-  return (pmath_number_t)PMATH_FROM_PTR(result);
+  mpfr_const_pi(PMATH_AS_MP_VALUE(result), MPFR_RNDN);
+  mpfr_set_d(   PMATH_AS_MP_ERROR(result), -acc, GMP_RNDD);
+  mpfr_ui_pow(  PMATH_AS_MP_ERROR(result), 2, PMATH_AS_MP_ERROR(result), MPFR_RNDU);
+  return result;
 }
