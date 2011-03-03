@@ -12,13 +12,14 @@ static void synchronize_callback(pmath_t *block){
 }
 
 typedef struct{
-  pmath_thread_t       me;
-  pmath_expr_t sync_list;
-  size_t             sync_index; // running backwards
-  pmath_t     block;
+  pmath_thread_t  me;
+  pmath_expr_t    sync_list;
+  size_t          sync_index; // running backwards
+  pmath_t         block;
 }multi_syncronize_data_t;
 
-static void multi_synchronize_callback(multi_syncronize_data_t *data){
+static void multi_synchronize_callback(void *p){
+  multi_syncronize_data_t *data = (multi_syncronize_data_t*)p;
   pmath_symbol_t sync;
   
   if(data->sync_index == 0){
@@ -26,7 +27,7 @@ static void multi_synchronize_callback(multi_syncronize_data_t *data){
     return;
   }
   
-  assert(data->me != PMATH_NULL);
+  assert(data->me != NULL);
   if(data->me->evaldepth >= pmath_maxrecursion){
     if(!data->me->critical_messages){
       int tmp = data->me->evaldepth;
@@ -60,11 +61,9 @@ static void multi_synchronize_callback(multi_syncronize_data_t *data){
   
   data->sync_index--;
   
-  assert(!sync || pmath_is_symbol(sync));
+  assert(pmath_is_null(sync) || pmath_is_symbol(sync));
   
-  pmath_symbol_synchronized((pmath_symbol_t)sync, 
-    (pmath_callback_t) multi_synchronize_callback,
-                            data);
+  pmath_symbol_synchronized((pmath_symbol_t)sync, multi_synchronize_callback, data);
   
   pmath_unref(sync);
 }

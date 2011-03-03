@@ -706,7 +706,7 @@ pmath_number_t pmath_float_new_str(
       mpfr_set_str(f->value, str, base, MPFR_RNDN);
       
       // error = base ^ -accuracy
-      mpfr_set_d(f->error, -base_precision_accuracy, GMP_RNDD);
+      mpfr_set_d(f->error, -base_precision_accuracy, MPFR_RNDD);
       mpfr_ui_pow(f->error, base, f->error, MPFR_RNDU);
 
       _pmath_mp_float_normalize(f);

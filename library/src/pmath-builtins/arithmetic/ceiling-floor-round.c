@@ -163,7 +163,7 @@ PMATH_PRIVATE pmath_t builtin_ceiling_or_floor_or_round(
         mpfr_get_z(
           PMATH_AS_MPZ(result),
           PMATH_AS_MP_VALUE(x),
-          GMP_RNDD);
+          MPFR_RNDD);
       }
       else{
         mpfr_get_z(

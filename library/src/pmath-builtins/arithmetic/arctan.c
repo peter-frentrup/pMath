@@ -43,13 +43,13 @@ PMATH_PRIVATE pmath_t builtin_arctan(pmath_expr_t expr){
       mpfr_sqr(
         PMATH_AS_MP_ERROR(tmp),
         PMATH_AS_MP_VALUE(x),
-        GMP_RNDD);
+        MPFR_RNDD);
       
       mpfr_add_ui(
         PMATH_AS_MP_VALUE(tmp),
         PMATH_AS_MP_ERROR(tmp),
         1,
-        GMP_RNDD);
+        MPFR_RNDD);
       
       mpfr_div(
         PMATH_AS_MP_ERROR(tmp),

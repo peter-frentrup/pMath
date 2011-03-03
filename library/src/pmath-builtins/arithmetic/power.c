@@ -134,7 +134,7 @@ static pmath_integer_t int_root(
   }
   
   prime_power = _pmath_create_integer();
-  if(!prime_power){
+  if(pmath_is_null(prime_power)){
     pmath_unref(iroot);
     pmath_unref(old_base);
     *new_base = PMATH_NULL;
@@ -142,7 +142,7 @@ static pmath_integer_t int_root(
   }
   
   for(i = 0;i < (unsigned int)_pmath_primes16bit_count;++i){
-    if(mpz_cmp_ui(iroot->value, i) < 0)
+    if(mpz_cmp_ui(PMATH_AS_MPZ(iroot), i) < 0)
       break;
     
     if(mpz_divisible_ui_p(PMATH_AS_MPZ(old_base), _pmath_primes16bit[i])){
@@ -203,15 +203,11 @@ static pmath_t _pow_ri(
   }
   
   base = num;
-  num = _pow_i_abs(
-    (struct _pmath_integer_t*)PMATH_AS_PTR(base), 
-    (unsigned long)exponent);
+  num = _pow_i_abs(base, (unsigned long)exponent);
   pmath_unref(base);
   
   base = den;
-  den = _pow_i_abs(
-    (struct _pmath_integer_t*)PMATH_AS_PTR(base),
-    (unsigned long)exponent);
+  den = _pow_i_abs(base, (unsigned long)exponent);
   pmath_unref(base);
   
   if(pmath_equals(den, PMATH_NUMBER_ONE)){
@@ -289,34 +285,33 @@ pmath_t _pow_fi( // returns struct _pmath_mp_float_t* iff null_on_errors is TRUE
     
     mpfr_pow_si(
       PMATH_AS_MP_ERROR(err), // x^(y-1)
-      err->value,
+      PMATH_AS_MP_VALUE(err),
       exponent - 1,
       MPFR_RNDU);
     
     mpfr_mul_ui(
-      err->value, // x^(y-1) * y
-      err->error,
+      PMATH_AS_MP_VALUE(err), // x^(y-1) * y
+      PMATH_AS_MP_ERROR(err),
       labs(exponent),
       MPFR_RNDU);
     
     mpfr_mul(
-      result->error, // x^(y-1) * y * dx = dz
-      err->value,
-      base->error,
+      PMATH_AS_MP_ERROR(result), // x^(y-1) * y * dx = dz
+      PMATH_AS_MP_VALUE(err),
+      PMATH_AS_MP_ERROR(base),
       MPFR_RNDU);
     
-    
     mpfr_pow_si(
-      result->value,
-      base->value,
+      PMATH_AS_MP_VALUE(result),
+      PMATH_AS_MP_VALUE(base),
       exponent,
       MPFR_RNDN);
     
-    pmath_unref(PMATH_FROM_PTR(err));
-    pmath_unref(PMATH_FROM_PTR(base));
+    pmath_unref(err);
+    pmath_unref(base);
     
     _pmath_mp_float_normalize(result);
-    return (pmath_float_t)PMATH_FROM_PTR(result);
+    return result;
   }
 
   if(exponent == -1){
@@ -325,44 +320,44 @@ pmath_t _pow_fi( // returns struct _pmath_mp_float_t* iff null_on_errors is TRUE
     // prec(z) = -log(2, dz/z) = -log(2, dx / x^2 / (1/x))
     //         = -log(2, dx/x) = prec(x)
     
-    struct _pmath_mp_float_t *result;
-    struct _pmath_mp_float_t *err;
-    mp_prec_t prec = mpfr_get_prec(base->value);
+    pmath_float_t result;
+    pmath_float_t rr;
+    mp_prec_t prec = mpfr_get_prec(PMATH_AS_MP_VALUE(base));
     
     result = _pmath_create_mp_float(prec);
     err    = _pmath_create_mp_float(PMATH_MP_ERROR_PREC);
     
     if(result && err){
       mpfr_pow_si(
-        err->error, // 1/x^2
-        base->value,
+        PMATH_AS_MP_ERROR(err), // 1/x^2
+        PMATH_AS_MP_VALUE(base),
         -2,
         MPFR_RNDN);
       
       mpfr_abs(
-        err->error,
-        err->error,
+        PMATH_AS_MP_ERROR(err),
+        PMATH_AS_MP_ERROR(err),
         MPFR_RNDN);
         
       mpfr_mul(
-        result->error, // dx/x^2 = dz
-        base->error,
-        err->error,
+        PMATH_AS_MP_ERROR(result), // dx/x^2 = dz
+        PMATH_AS_MP_ERROR(base),
+        PMATH_AS_MP_ERROR(err),
         MPFR_RNDU);
       
       mpfr_ui_div(
-        result->value,
+        PMATH_AS_MP_VALUE(result),
         1,
-        base->value,
+        PMATH_AS_MP_VALUE(base),
         MPFR_RNDN);
     }
     
-    pmath_unref(PMATH_FROM_PTR(base));
-    pmath_unref(PMATH_FROM_PTR(err));
-    return PMATH_FROM_PTR(result);
+    pmath_unref(base);
+    pmath_unref(err);
+    return result;
   }
 
-  return PMATH_FROM_PTR(base);
+  return base;
 }
 
 static pmath_number_t _pow_ni_abs(

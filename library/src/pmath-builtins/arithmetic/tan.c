@@ -87,8 +87,8 @@ PMATH_PRIVATE pmath_t builtin_tan(pmath_expr_t expr){
       
       pmath_unref(expr);
       pmath_unref(x);
-      pmath_unref((pmath_float_t)PMATH_FROM_PTR(tmp));
-      return (pmath_float_t)PMATH_FROM_PTR(result);
+      pmath_unref(tmp);
+      return result;
     }
   }
   

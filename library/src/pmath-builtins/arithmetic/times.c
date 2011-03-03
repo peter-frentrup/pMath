@@ -13,10 +13,8 @@ static pmath_rational_t _mul_qi(
   pmath_quotient_t quotA, // will be freed. not PMATH_NULL!
   pmath_integer_t  intB   // will be freed. not PMATH_NULL!
 ){ // u/v * w = (u*w)/v
-  pmath_integer_t numerator = (pmath_integer_t)pmath_ref(
-    PMATH_FROM_PTR(((struct _pmath_quotient_t*)PMATH_AS_PTR(quotA))->numerator));
-  pmath_integer_t denominator = (pmath_integer_t)pmath_ref(
-    PMATH_FROM_PTR(((struct _pmath_quotient_t*)PMATH_AS_PTR(quotA))->denominator));
+  pmath_integer_t numerator   = pmath_ref(PMATH_QUOT_NUM(quotA));
+  pmath_integer_t denominator = pmath_ref(PMATH_QUOT_DEN(quotA));
   pmath_unref(quotA);
 
   return pmath_rational_new(
@@ -28,21 +26,17 @@ static pmath_rational_t _mul_qq(
   pmath_quotient_t quotA, // will be freed. not PMATH_NULL!
   pmath_quotient_t quotB  // will be freed. not PMATH_NULL!
 ){ // u/v * w/x = (u*w)/(v*x)
-  pmath_integer_t numeratorA = (pmath_integer_t)pmath_ref(
-    PMATH_FROM_PTR(((struct _pmath_quotient_t*)PMATH_AS_PTR(quotA))->numerator));
-  pmath_integer_t denominatorA = (pmath_integer_t)pmath_ref(
-    PMATH_FROM_PTR(((struct _pmath_quotient_t*)PMATH_AS_PTR(quotA))->denominator));
+  pmath_integer_t numeratorA   = pmath_ref(PMATH_QUOT_NUM(quotA));
+  pmath_integer_t denominatorA = pmath_ref(PMATH_QUOT_DEN(quotA));
 
-  pmath_integer_t numeratorB = (pmath_integer_t)pmath_ref(
-      PMATH_FROM_PTR(((struct _pmath_quotient_t*)PMATH_AS_PTR(quotB))->numerator));
-  pmath_integer_t denominatorB = (pmath_integer_t)pmath_ref(
-      PMATH_FROM_PTR(((struct _pmath_quotient_t*)PMATH_AS_PTR(quotB))->denominator));
+  pmath_integer_t numeratorB   = pmath_ref(PMATH_QUOT_NUM(quotB));
+  pmath_integer_t denominatorB = pmath_ref(PMATH_QUOT_DEN(quotB));
 
   pmath_unref(quotA);
   pmath_unref(quotB);
 
   return pmath_rational_new(
-    _mul_ii(numeratorA, numeratorB),
+    _mul_ii(numeratorA,   numeratorB),
     _mul_ii(denominatorA, denominatorB));
 }
 
@@ -50,20 +44,20 @@ static pmath_float_t _mul_fi(
   pmath_float_t   floatA, // will be freed. not PMATH_NULL!
   pmath_integer_t intB   // will be freed. not PMATH_NULL!
 ){
-  struct _pmath_mp_float_t *result;
+  pmath_float_t result;
   double fprec;
   long   expB;
   mp_prec_t prec;
   int signB;
   
-  signB = mpz_sgn(((struct _pmath_integer_t*)PMATH_AS_PTR(intB))->value);
+  signB = mpz_sgn(PMATH_AS_MPZ(intB);
   if(signB == 0){
     pmath_unref(floatA);
     return intB;
   }
   
   fprec = pmath_precision(pmath_ref(floatA));
-  fprec+= log2(fabs(mpz_get_d_2exp(&expB, ((struct _pmath_integer_t*)PMATH_AS_PTR(intB))->value)));
+  fprec+= log2(fabs(mpz_get_d_2exp(&expB, PMATH_AS_MPZ(intB))));
   fprec+= expB;
   
   if(fprec < MPFR_PREC_MIN)
@@ -75,7 +69,7 @@ static pmath_float_t _mul_fi(
   
   result = _pmath_create_mp_float(prec);
   
-  if(!result){
+  if(pmath_is_null(result)){
     pmath_unref(floatA);
     pmath_unref(intB);
     return PMATH_NULL;
@@ -83,10 +77,10 @@ static pmath_float_t _mul_fi(
   
   // dxy = y dx + x dy = y dx   (dy = 0)
   mpfr_mul_z(
-    result->error, 
-    ((struct _pmath_mp_float_t*)PMATH_AS_PTR(floatA))->error,
-    ((struct _pmath_integer_t*)PMATH_AS_PTR(intB))->value,
-    signB > 0 ? MPFR_RNDU : GMP_RNDD);
+    PMATH_AS_MP_ERROR(result), 
+    PMATH_AS_MP_ERROR(floatA),
+    PMATH_AS_MPZ(intB),
+    signB > 0 ? MPFR_RNDU : MPFR_RNDD);
   
   mpfr_abs(result->error, result->error, MPFR_RNDN);
   
@@ -126,7 +120,7 @@ static pmath_float_t _mul_fi(
       result->error, 
       ((struct _pmath_mp_float_t*)PMATH_AS_PTR(floatA))->error,
       intB->value,
-      signB > 0 ? MPFR_RNDU : GMP_RNDD);
+      signB > 0 ? MPFR_RNDU : MPFR_RNDD);
     
     mpfr_abs(result->error, result->error, MPFR_RNDN);
     
@@ -194,7 +188,7 @@ static pmath_float_t _mul_ff(
     tmp_err->value,
     ((struct _pmath_mp_float_t*)PMATH_AS_PTR(floatB))->value,
     ((struct _pmath_mp_float_t*)PMATH_AS_PTR(floatA))->error,
-    mpfr_sgn(((struct _pmath_mp_float_t*)PMATH_AS_PTR(floatB))->value) > 0 ? MPFR_RNDU : GMP_RNDD);
+    mpfr_sgn(((struct _pmath_mp_float_t*)PMATH_AS_PTR(floatB))->value) > 0 ? MPFR_RNDU : MPFR_RNDD);
   
   mpfr_abs(tmp_err->value, tmp_err->value, MPFR_RNDN);
   
@@ -202,7 +196,7 @@ static pmath_float_t _mul_ff(
     tmp_err->error,
     ((struct _pmath_mp_float_t*)PMATH_AS_PTR(floatA))->value,
     ((struct _pmath_mp_float_t*)PMATH_AS_PTR(floatB))->error,
-    mpfr_sgn(((struct _pmath_mp_float_t*)PMATH_AS_PTR(floatA))->value) > 0 ? MPFR_RNDU : GMP_RNDD);
+    mpfr_sgn(((struct _pmath_mp_float_t*)PMATH_AS_PTR(floatA))->value) > 0 ? MPFR_RNDU : MPFR_RNDD);
   
   mpfr_abs(tmp_err->error, tmp_err->error, MPFR_RNDN);
   

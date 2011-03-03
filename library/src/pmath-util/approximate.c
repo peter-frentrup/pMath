@@ -231,51 +231,48 @@ pmath_t pmath_set_precision(pmath_t obj, double prec){
   }
   
   if(pmath_is_number(obj)){
-    struct _pmath_mp_float_t *result;
+    pmath_float_t result;
     
     if(!isfinite(prec)){
       double d;
       
       if(prec > 0){
-        if(obj->type_shift == PMATH_TYPE_SHIFT_MACHINE_FLOAT){
-          struct _pmath_machine_float_t *mf = (struct _pmath_machine_float_t*)obj;
-          struct _pmath_mp_float_t *mp = _pmath_create_mp_float_from_d(mf->value);
+        if(pmath_is_double(obj)){
+          pmath_float_t mp = _pmath_create_mp_float_from_d(PMATH_AS_DOUBLE(obj));
           
-          if(mp){
-            pmath_unref(obj);
-            obj = (pmath_t)mp;
-          }
-          else
+          if(pmath_is_null(mp))
             return obj;
+          
+          pmath_unref(obj);
+          obj = mp;
         }
         
-        if(obj->type_shift == PMATH_TYPE_SHIFT_MP_FLOAT){
-          struct _pmath_integer_t *num;
-          struct _pmath_mp_float_t *mf = (struct _pmath_mp_float_t*)obj;
+        if(pmath_instance_of(obj, PMATH_TYPE_MP_FLOAT)){
+          pmath_integer_t num;
           mpfr_exp_t exp;
           
           num = _pmath_create_integer();
-          if(num){
-            exp = mpfr_get_z_2exp(num->value, mf->value);
+          if(!pmath_is_null(num)){
+            exp = mpfr_get_z_2exp(PMATH_AS_MPZ(num), PMATH_AS_MP_VALUE(obj));
             
-            if(exp < 0 && mpz_sgn(num->value) != 0){
-              struct _pmath_integer_t *den = _pmath_create_integer();
+            if(exp < 0 && mpz_sgn(PMATH_AS_MPZ(num)) != 0){
+              pmath_integer_t den = _pmath_create_integer();
               
-              if(den){
-                mpz_set_ui(den->value, 1);
-                mpz_mul_2exp(den->value, den->value, (unsigned long int)-exp);
+              if(!pmath_is_null(den)){
+                mpz_set_ui(PMATH_AS_MPZ(den), 1);
+                mpz_mul_2exp(PMATH_AS_MPZ(den), PMATH_AS_MPZ(den), (unsigned long int)-exp);
                 
                 pmath_unref(obj);
-                return pmath_rational_new((pmath_integer_t)num, (pmath_integer_t)den);
+                return pmath_rational_new(num, den);
               }
             }
             else{
-              mpz_mul_2exp(num->value, num->value, (unsigned long int)exp);
+              mpz_mul_2exp(PMATH_AS_MPZ(num), PMATH_AS_MPZ(num), (unsigned long int)exp);
               pmath_unref(obj);
-              return (pmath_integer_t)num;
+              return num;
             }
 
-            pmath_unref((pmath_integer_t)num);
+            pmath_unref(num);
           }
           
           return obj;
@@ -284,7 +281,7 @@ pmath_t pmath_set_precision(pmath_t obj, double prec){
         return obj;
       }
       
-      if(obj->type_shift == PMATH_TYPE_SHIFT_MACHINE_FLOAT)
+      if(pmath_is_double(obj))
         return obj;
         
       d = pmath_number_get_d(obj);
@@ -308,66 +305,66 @@ pmath_t pmath_set_precision(pmath_t obj, double prec){
     }
     
     result = _pmath_create_mp_float(prec >= MPFR_PREC_MIN ? (mp_prec_t)ceil(prec) : MPFR_PREC_MIN);
-    if(!result){
+    if(pmath_is_null(result)){
       pmath_unref(obj);
       return PMATH_NULL;
     }
     
-    switch(obj->type_shift){
+    switch(PMATH_AS_PTR(obj)->type_shift){
       case PMATH_TYPE_SHIFT_INTEGER: {
         mpfr_set_z(
-          result->value, 
-          ((struct _pmath_integer_t*)obj)->value,
+          PMATH_AS_MP_VALUE(result), 
+          PMATH_AS_MPZ(obj),
           MPFR_RNDN);
       } break;
       
       case PMATH_TYPE_SHIFT_QUOTIENT: {
         mpfr_set_z(
-          result->value, 
-          ((struct _pmath_quotient_t*)obj)->numerator->value,
+          PMATH_AS_MP_VALUE(result), 
+          PMATH_AS_MPZ(PMATH_QUOT_NUM(obj)),
           MPFR_RNDN);
           
         mpfr_div_z(
-          result->value, 
-          result->value,
-          ((struct _pmath_quotient_t*)obj)->denominator->value,
+          PMATH_AS_MP_VALUE(result), 
+          PMATH_AS_MP_VALUE(result), 
+          PMATH_AS_MPZ(PMATH_QUOT_DEN(obj)),
           MPFR_RNDN);
       } break;
       
       case PMATH_TYPE_SHIFT_MACHINE_FLOAT: {
         mpfr_set_d(
-          result->value,
-          ((struct _pmath_machine_float_t*)obj)->value,
+          PMATH_AS_MP_VALUE(result), 
+          PMATH_AS_DOUBLE(obj),
           MPFR_RNDN);
       } break;
       
       case PMATH_TYPE_SHIFT_MP_FLOAT: {
         mpfr_set(
-          result->value,
-          ((struct _pmath_mp_float_t*)obj)->value,
+          PMATH_AS_MP_VALUE(result), 
+          PMATH_AS_MP_VALUE(obj), 
           MPFR_RNDN);
       } break;
     }
   
     // error = |value| * 2 ^ -bits
-    mpfr_set_d(result->error, -prec, MPFR_RNDU);
+    mpfr_set_d(PMATH_AS_MP_ERROR(result), -prec, MPFR_RNDU);
     
     mpfr_ui_pow(
-      result->error,
+      PMATH_AS_MP_ERROR(result),
       2,
-      result->error,
+      PMATH_AS_MP_ERROR(result),
       MPFR_RNDU);
     
     mpfr_mul(
-      result->error,
-      result->error,
-      result->value,
-      mpfr_sgn(result->value) < 0 ? GMP_RNDD : MPFR_RNDU);
+      PMATH_AS_MP_ERROR(result),
+      PMATH_AS_MP_ERROR(result),
+      PMATH_AS_MP_VALUE(result),
+      MPFR_RNDA);
     
-    mpfr_abs(result->error, result->error, MPFR_RNDU);
+    mpfr_abs(PMATH_AS_MP_ERROR(result), PMATH_AS_MP_ERROR(result), MPFR_RNDU);
     
     pmath_unref(obj);
-    return (pmath_float_t)PMATH_FROM_PTR(result);
+    return result;
   }
   
   return obj;
