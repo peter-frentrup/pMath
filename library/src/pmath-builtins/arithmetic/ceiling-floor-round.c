@@ -108,7 +108,7 @@ PMATH_PRIVATE pmath_t builtin_ceiling_or_floor_or_round(
       return result;
     }
     
-    if(pmath_instance_of(x, PMATH_TYPE_MACHINE_FLOAT)){
+    if(pmath_is_double(x)){
       pmath_integer_t result = _pmath_create_integer();
       pmath_unref(expr);
       if(pmath_is_null(result)){

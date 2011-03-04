@@ -35,7 +35,7 @@ PMATH_PRIVATE pmath_t builtin_remove(pmath_expr_t expr){
           
           if(pmath_is_string(name)){
             name = pmath_symbol_get(name, FALSE);
-            if(name)
+            if(!pmath_is_null(name))
               pmath_symbol_remove(name);
           }
           else

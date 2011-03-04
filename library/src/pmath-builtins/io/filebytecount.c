@@ -44,10 +44,10 @@ PMATH_PRIVATE pmath_t builtin_filebytecount(pmath_expr_t expr){
       (const wchar_t*)pmath_string_buffer(file),
       0,
       FILE_SHARE_READ | FILE_SHARE_WRITE,
-      PMATH_NULL,
+      NULL,
       OPEN_EXISTING,
       0,
-      PMATH_NULL);
+      NULL);
     
     if(h != INVALID_HANDLE_VALUE){
       BY_HANDLE_FILE_INFORMATION info;
@@ -68,7 +68,7 @@ PMATH_PRIVATE pmath_t builtin_filebytecount(pmath_expr_t expr){
   }
   #else
   {
-    char *str = pmath_string_to_native(file, PMATH_NULL);
+    char *str = pmath_string_to_native(file, NULL);
     
     if(str){
       struct stat buf;

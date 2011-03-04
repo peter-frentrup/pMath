@@ -51,7 +51,7 @@ static void emit_directory_entries(
           directory = pmath_string_insert_ucs2(directory, INT_MAX, rest + 1, 3);
       }
       
-      if(directory){
+      if(!pmath_is_null(directory)){
         WIN32_FIND_DATAW data;
         HANDLE h = FindFirstFileW(pmath_string_buffer(directory), &data);
         
@@ -89,15 +89,15 @@ static void emit_directory_entries(
             if(data.cAlternateFileName[0] != '\0'){
               s = pmath_string_insert_latin1(s, INT_MAX, "", 1); // zero terminate
               
-              if(s){
+              if(!pmath_is_null(s)){
                 HANDLE hfile = CreateFileW(
                   (const wchar_t*)pmath_string_buffer(s),
                   0,
                   FILE_SHARE_DELETE | FILE_SHARE_READ | FILE_SHARE_WRITE,
-                  PMATH_NULL,
+                  NULL,
                   OPEN_EXISTING,
                   FILE_ATTRIBUTE_NORMAL,
-                  PMATH_NULL);
+                  NULL);
                   
                 if(hfile == INVALID_HANDLE_VALUE){ // normal file name does not work
                   pmath_unref(s);
@@ -111,15 +111,15 @@ static void emit_directory_entries(
                   
                   s = pmath_string_insert_latin1(s, INT_MAX, "", 1); // zero terminate
                   
-                  if(s){
+                  if(!pmath_is_null(s)){
                     hfile = CreateFileW(
                       (const wchar_t*)pmath_string_buffer(s),
                       0,
                       FILE_SHARE_DELETE | FILE_SHARE_READ | FILE_SHARE_WRITE,
-                      PMATH_NULL,
+                      NULL,
                       OPEN_EXISTING,
                       FILE_ATTRIBUTE_NORMAL,
-                      PMATH_NULL);
+                      NULL);
                     
                     if(hfile == INVALID_HANDLE_VALUE){ // alternate name does not work either
                       pmath_unref(s);
@@ -149,7 +149,7 @@ static void emit_directory_entries(
             }
             
             if(utf8){
-              if(_pmath_regex_match(regex, utf8, utf8_length, 0, 0, capture, PMATH_NULL)){
+              if(_pmath_regex_match(regex, utf8, utf8_length, 0, 0, capture, NULL)){
 //                if(!is_default)
 //                  s = pmath_string_concat(pmath_ref(directory), s);
                   

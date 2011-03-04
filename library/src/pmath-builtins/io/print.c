@@ -12,9 +12,10 @@ static void write_to_file(FILE *file, const char *cstr){
   fwrite(cstr, 1, strlen(cstr), file);
 }
 
-static pmath_threadlock_t print_lock = PMATH_NULL;
+static pmath_threadlock_t print_lock = NULL;
   
-static void sectionprint_locked_callback(pmath_expr_t expr){
+static void sectionprint_locked_callback(void *p){
+  pmath_expr_t expr = *(pmath_expr_t*)p;
   pmath_cstr_writer_info_t info;
   size_t i;
   
@@ -33,8 +34,8 @@ static void sectionprint_locked_callback(pmath_expr_t expr){
 PMATH_PRIVATE pmath_t builtin_sectionprint(pmath_expr_t expr){
   pmath_thread_call_locked(
     &print_lock,
-    (void(*)(void*))sectionprint_locked_callback,
-    expr);
+    sectionprint_locked_callback,
+    &expr);
   
   pmath_unref(expr);
   return PMATH_NULL;

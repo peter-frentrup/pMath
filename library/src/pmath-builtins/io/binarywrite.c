@@ -27,12 +27,13 @@ static pmath_bool_t binary_write(
     return TRUE;
   }
   
-  if(!type || pmath_is_string(type)){
+  if(pmath_is_null(type) || pmath_is_string(type)){
     if(pmath_is_string(value)){
       const uint16_t *buf = pmath_string_buffer(value);
       const int len = pmath_string_length(value);
       
-      if(!type || pmath_string_equals_latin1(type, "Character8")
+      if(pmath_is_null(type)
+      || pmath_string_equals_latin1(type, "Character8")
       || pmath_string_equals_latin1(type, "TerminatedString")){
         uint8_t data[256];
         int datalen = sizeof(data);
@@ -40,7 +41,7 @@ static pmath_bool_t binary_write(
         
         for(i = 0;i < len;++i){
           if(buf[i] > 0xFF){
-            if(!type)
+            if(pmath_is_null(type))
               type = PMATH_C_STRING("Character8");
             
             pmath_message(PMATH_NULL, "nocoerce", 2, value, type);
@@ -118,7 +119,7 @@ static pmath_bool_t binary_write(
         COMPLEX
       }out_type = NONE;
       
-      if(!type
+      if(pmath_is_null(type)
       || pmath_string_equals_latin1(type, "Byte")
       || pmath_string_equals_latin1(type, "UnsignedInteger8")){
         size = 1;
@@ -259,8 +260,8 @@ static pmath_bool_t binary_write(
           
           if(pmath_instance_of(value, PMATH_TYPE_FLOAT)
           && out_type == REAL){
-            struct _pmath_mp_float_t *f = PMATH_NULL;
-            struct _pmath_integer_t *mant = _pmath_create_integer();
+            pmath_float_t f = PMATH_NULL;
+            pmath_integer_t mant = _pmath_create_integer();
             long bits = 10;
             
             pmath_unref(type);
@@ -275,28 +276,28 @@ static pmath_bool_t binary_write(
             
             f = _pmath_create_mp_float(bits + 1);
             
-            if(f && mant){
+            if(!pmath_is_null(f) && !pmath_is_null(mant)){
               mp_exp_t exp;
               
               if(pmath_instance_of(value, PMATH_TYPE_MP_FLOAT))
-                mpfr_set(f->value, ((struct _pmath_mp_float_t*)value)->value, MPFR_RNDN);
+                mpfr_set(PMATH_AS_MP_VALUE(f), PMATH_AS_MP_VALUE(value), MPFR_RNDN);
               else
-                mpfr_set_d(f->value, pmath_number_get_d(value), MPFR_RNDN);
+                mpfr_set_d(PMATH_AS_MP_VALUE(f), pmath_number_get_d(value), MPFR_RNDN);
 
-              exp = bits + mpfr_get_z_exp(mant->value, f->value);
+              exp = bits + mpfr_get_z_exp(PMATH_AS_MPZ(mant), PMATH_AS_MP_VALUE(f));
               
               switch(size){
                 case 2: {
                   if(exp < -14){
-                    mpz_fdiv_q_2exp(mant->value, mant->value, - exp - 14);
+                    mpz_fdiv_q_2exp(PMATH_AS_MPZ(mant), PMATH_AS_MPZ(mant), - exp - 14);
                     exp = -15;
                   }
                   else
-                   mpz_clrbit(mant->value, bits);
+                   mpz_clrbit(PMATH_AS_MPZ(mant), bits);
                   
                   if(exp <= 15
-                  && mpz_cmpabs_ui(mant->value, 0x400) <= 0){
-                    unsigned long umant = mpz_get_ui(mant->value);
+                  && mpz_cmpabs_ui(PMATH_AS_MPZ(mant), 0x400) <= 0){
+                    unsigned long umant = mpz_get_ui(PMATH_AS_MPZ(mant));
                     unsigned long uexp = (unsigned long)(exp + 15);
                     
                     data[0] = (umant >> 8) & 0x03;

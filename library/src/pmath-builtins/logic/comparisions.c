@@ -152,8 +152,7 @@ static pmath_t ordered(
         pmath_bool_t old_prev_was_true = prev_was_true;
         prev_was_true = TRUE;
         
-        if(pmath_instance_of(prev, PMATH_TYPE_MACHINE_FLOAT)
-        && _pmath_is_numeric(next)){
+        if(pmath_is_double(prev) && _pmath_is_numeric(next)){
           pmath_t n = pmath_approximate(pmath_ref(next), -HUGE_VAL, -HUGE_VAL);
           int c;
           
@@ -186,8 +185,7 @@ static pmath_t ordered(
           continue;
         }
         
-        if(pmath_instance_of(next, PMATH_TYPE_MACHINE_FLOAT)
-        && _pmath_is_numeric(prev)){
+        if(pmath_is_double(next) && _pmath_is_numeric(prev)){
           pmath_t p = pmath_approximate(pmath_ref(prev), -HUGE_VAL, -HUGE_VAL);
           int c;
           

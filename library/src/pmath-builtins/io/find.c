@@ -80,7 +80,7 @@ PMATH_PRIVATE pmath_t builtin_find(pmath_expr_t expr){
       obj = pmath_file_readline(file);
       utf8 = pmath_string_to_utf8(obj, &length);
       if(utf8){
-        if(_pmath_regex_match(regex, utf8, length, 0, 0, &capture, PMATH_NULL)){
+        if(_pmath_regex_match(regex, utf8, length, 0, 0, &capture, NULL)){
           pmath_mem_free(utf8);
           break;
         }
@@ -183,7 +183,7 @@ PMATH_PRIVATE pmath_t builtin_findlist(pmath_expr_t expr){
       obj = pmath_file_readline(file);
       utf8 = pmath_string_to_utf8(obj, &length);
       if(utf8){
-        if(_pmath_regex_match(regex, utf8, length, 0, 0, &capture, PMATH_NULL)){
+        if(_pmath_regex_match(regex, utf8, length, 0, 0, &capture, NULL)){
           pmath_emit(obj, PMATH_NULL);
           obj = PMATH_NULL;
           --count;

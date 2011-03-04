@@ -51,7 +51,7 @@ static pmath_t stringtake(
         }
         
         pmath_unref(str);
-        return (pmath_string_t)s;
+        return PMATH_FROM_PTR(s);
       }
       else
         return pmath_string_part(str, start - 1, end - start + 1);

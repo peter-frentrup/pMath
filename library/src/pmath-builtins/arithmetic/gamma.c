@@ -137,7 +137,7 @@ PMATH_PRIVATE pmath_t builtin_gamma(pmath_expr_t expr){
     pmath_unref(den);
   }
 
-//  if(pmath_instance_of(z, PMATH_TYPE_MACHINE_FLOAT)){
+//  if(pmath_is_double(z)){
 //    double d = PMATH_AS_DOUBLE(z);
 //    struct _pmath_mp_float_t *result;
 //

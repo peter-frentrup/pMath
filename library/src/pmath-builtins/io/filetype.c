@@ -43,10 +43,10 @@ PMATH_PRIVATE pmath_t builtin_filetype(pmath_expr_t expr){
       (const wchar_t*)pmath_string_buffer(file),
       0,
       FILE_SHARE_READ | FILE_SHARE_WRITE,
-      PMATH_NULL,
+      NULL,
       OPEN_EXISTING,
       FILE_FLAG_BACKUP_SEMANTICS,
-      PMATH_NULL);
+      NULL);
     
     if(h != INVALID_HANDLE_VALUE){
       BY_HANDLE_FILE_INFORMATION info;

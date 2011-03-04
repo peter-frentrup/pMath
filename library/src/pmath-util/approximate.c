@@ -8,13 +8,13 @@ PMATH_API
 double pmath_accuracy(pmath_t obj){ // will be freed
   double acc;
   
-  if(pmath_instance_of(obj, PMATH_TYPE_MACHINE_FLOAT)){
-    if(((struct _pmath_machine_float_t*)obj)->value == 0){
+  if(pmath_is_double(obj)){
+    if(PMATH_AS_DOUBLE(obj) == 0){
       pmath_unref(obj);
       return 1 - DBL_MIN_EXP;
     }
     
-    acc = ((struct _pmath_machine_float_t*)obj)->value;
+    acc = PMATH_AS_DOUBLE(obj);
     
     acc = DBL_MANT_DIG - log2(fabs(acc));
     pmath_unref(obj);
@@ -23,8 +23,8 @@ double pmath_accuracy(pmath_t obj){ // will be freed
   
   if(pmath_instance_of(obj, PMATH_TYPE_MP_FLOAT)){
     long exp;
-    double d = mpfr_get_d_2exp(&exp, ((struct _pmath_mp_float_t*)obj)->error, MPFR_RNDN);
-    //acc = dex_get_d_log2(((struct _pmath_mp_float_t*)obj)->error);
+    double d = mpfr_get_d_2exp(&exp, PMATH_AS_MP_ERROR(obj), MPFR_RNDN);
+    //acc = dex_get_d_log2(PMATH_AS_MP_ERROR(obj));
     pmath_unref(obj);
     //return - acc;
     return - exp - log2(fabs(d));
@@ -53,7 +53,7 @@ double pmath_precision(pmath_t obj){ // will be freed
 // -HUGE_VAL = machine precision
   double prec;
   
-  if(pmath_instance_of(obj, PMATH_TYPE_MACHINE_FLOAT)){
+  if(pmath_is_double(obj)){
     pmath_unref(obj);
     return -HUGE_VAL;
   }
@@ -62,13 +62,13 @@ double pmath_precision(pmath_t obj){ // will be freed
     long val_exp, err_exp;
     double val_d, err_d;
     
-    if(mpfr_zero_p(((struct _pmath_mp_float_t*)obj)->value)){
+    if(mpfr_zero_p(PMATH_AS_MP_VALUE(obj))){
       pmath_unref(obj);
       return 0.0;
     }
     
-    val_d = mpfr_get_d_2exp(&val_exp, ((struct _pmath_mp_float_t*)obj)->value, MPFR_RNDN);
-    err_d = mpfr_get_d_2exp(&err_exp, ((struct _pmath_mp_float_t*)obj)->error, MPFR_RNDN);
+    val_d = mpfr_get_d_2exp(&val_exp, PMATH_AS_MP_VALUE(obj), MPFR_RNDN);
+    err_d = mpfr_get_d_2exp(&err_exp, PMATH_AS_MP_ERROR(obj), MPFR_RNDN);
     
     pmath_unref(obj);
     return log2(fabs(val_d)) - log2(err_d) + val_exp - err_exp;
@@ -112,20 +112,20 @@ pmath_t pmath_set_accuracy(pmath_t obj, double acc){ // obj will be freed
   }
   
   if(pmath_is_number(obj)){
-    struct _pmath_mp_float_t *result;
+    pmath_float_t result;
     
     double prec = 0.0;
     
     switch(obj->type_shift){
       case PMATH_TYPE_SHIFT_INTEGER: { 
-        if(mpz_sgn(((struct _pmath_integer_t*)obj)->value) == 0){
+        if(mpz_sgn(PMATH_AS_MPZ(obj)) == 0){
           prec = 0;
         }
         else{
           long exp;
           double d;
           
-          d = mpz_get_d_2exp(&exp, ((struct _pmath_integer_t*)obj)->value);
+          d = mpz_get_d_2exp(&exp, PMATH_AS_MPZ(obj));
           
           prec = log2(fabs(d)) + exp + acc;
         }
@@ -142,17 +142,17 @@ pmath_t pmath_set_accuracy(pmath_t obj, double acc){ // obj will be freed
       } break;
       
       case PMATH_TYPE_SHIFT_MACHINE_FLOAT: {
-        if(((struct _pmath_machine_float_t*)obj)->value == 0){
+        if(PMATH_AS_DOUBLE(obj) == 0){
           pmath_unref(obj);
           return pmath_integer_new_si(0);
         }
           
-        prec = log2(fabs(((struct _pmath_machine_float_t*)obj)->value)) + acc;
+        prec = log2(fabs(PMATH_AS_DOUBLE(obj))) + acc;
       } break;
       
       case PMATH_TYPE_SHIFT_MP_FLOAT: {
         long exp;
-        double d = mpfr_get_d_2exp(&exp, ((struct _pmath_mp_float_t*)obj)->value, MPFR_RNDN);
+        double d = mpfr_get_d_2exp(&exp, PMATH_AS_MP_VALUE(obj), MPFR_RNDN);
         
         prec = log2(fabs(d)) + exp + acc;
       } break;
@@ -173,7 +173,7 @@ pmath_t pmath_set_accuracy(pmath_t obj, double acc){ // obj will be freed
       case PMATH_TYPE_SHIFT_INTEGER: {
         mpfr_set_z(
           result->value, 
-          ((struct _pmath_integer_t*)obj)->value,
+          PMATH_AS_MPZ(obj),
           MPFR_RNDN);
       } break;
       
@@ -193,14 +193,14 @@ pmath_t pmath_set_accuracy(pmath_t obj, double acc){ // obj will be freed
       case PMATH_TYPE_SHIFT_MACHINE_FLOAT: {
         mpfr_set_d(
           result->value,
-          ((struct _pmath_machine_float_t*)obj)->value,
+          PMATH_AS_DOUBLE(obj),
           MPFR_RNDN);
       } break;
       
       case PMATH_TYPE_SHIFT_MP_FLOAT: {
         mpfr_set(
           result->value,
-          ((struct _pmath_mp_float_t*)obj)->value,
+          PMATH_AS_MP_VALUE(obj),
           MPFR_RNDN);
       } break;
     }

@@ -69,7 +69,7 @@ static pmath_t stringdrop(
         }
         
         pmath_unref(str);
-        return (pmath_string_t)s;
+        return PMATH_FROM_PTR(s);
       }
     }
     

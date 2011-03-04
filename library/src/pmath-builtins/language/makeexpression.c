@@ -126,9 +126,9 @@ static pmath_bool_t parse(pmath_t *box){
 }
 
 static pmath_string_t box_as_string(pmath_t box){
-  while(box){
+  while(!pmath_is_null(box)){
     if(pmath_is_string(box))
-      return (pmath_string_t)box;
+      return box;
     
     if(pmath_is_expr(box)
     && pmath_expr_length(box) == 1){

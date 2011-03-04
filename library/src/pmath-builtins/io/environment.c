@@ -111,15 +111,16 @@ PMATH_PRIVATE pmath_t builtin_environment(pmath_expr_t expr){
   #ifdef PMATH_OS_WIN32
   {
     name = pmath_string_insert_latin1(name, INT_MAX, "", 1);
-    if(name){
-      int len = (int)GetEnvironmentVariableW(pmath_string_buffer(name), PMATH_NULL, 0);
+    if(!pmath_is_null(name)){
+      int len = (int)GetEnvironmentVariableW(pmath_string_buffer(name), NULL, 0);
       if(len > 0){
         struct _pmath_string_t *result = _pmath_new_string_buffer(len);
+        
         if(result){
           GetEnvironmentVariableW(pmath_string_buffer(name), AFTER_STRING(result), len);
           pmath_unref(name);
           result->length = len-1;
-          return (pmath_string_t)result;
+          return PMATH_FROM_PTR(result);
         }
       }
     }
@@ -176,15 +177,16 @@ PMATH_PRIVATE pmath_t builtin_assign_environment(pmath_expr_t expr){
       // zero-teminate:
       tag = pmath_string_insert_latin1(tag, INT_MAX, "", 1);
       
-      if(tag){
-        SetEnvironmentVariableW((const WCHAR*)pmath_string_buffer(tag), PMATH_NULL);
+      if(!pmath_is_null(tag)){
+        SetEnvironmentVariableW((const WCHAR*)pmath_string_buffer(tag), NULL);
       }
     }
     #else
     {
       char *tagstr = pmath_string_to_native(tag, PMATH_NULL);
       
-      unsetenv(tagstr);
+      if(tagstr)
+        unsetenv(tagstr);
       
       pmath_mem_free(tagstr);
     }
@@ -197,7 +199,7 @@ PMATH_PRIVATE pmath_t builtin_assign_environment(pmath_expr_t expr){
       tag = pmath_string_insert_latin1(tag, INT_MAX, "", 1);
       rhs = pmath_string_insert_latin1(rhs, INT_MAX, "", 1);
       
-      if(tag && rhs){
+      if(!pmath_is_null(tag) && !pmath_is_null(rhs)){
         SetEnvironmentVariableW(
           (const WCHAR*)pmath_string_buffer(tag), 
           (const WCHAR*)pmath_string_buffer(rhs));
@@ -205,10 +207,11 @@ PMATH_PRIVATE pmath_t builtin_assign_environment(pmath_expr_t expr){
     }
     #else
     {
-      char *tagstr = pmath_string_to_native(tag, PMATH_NULL);
-      char *rhsstr = pmath_string_to_native(tag, PMATH_NULL);
+      char *tagstr = pmath_string_to_native(tag, NULL);
+      char *rhsstr = pmath_string_to_native(tag, NULL);
       
-      setenv(tagstr, rhsstr, 1);
+      if(tagstr && rhsstr)
+        setenv(tagstr, rhsstr, 1);
       
       pmath_mem_free(tagstr);
       pmath_mem_free(rhsstr);

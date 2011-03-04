@@ -43,8 +43,8 @@ PMATH_PRIVATE pmath_t builtin_arcsin(pmath_expr_t expr){
     return x;
   }
   
-  if(pmath_instance_of(x, PMATH_TYPE_MACHINE_FLOAT)){
-    double d = pmath_number_get_d(x);
+  if(pmath_is_double(x)){
+    double d = PMATH_AS_DOUBLE(x);
     
     pmath_unref(expr);
     if(d < -1.0 || d > 1.0)

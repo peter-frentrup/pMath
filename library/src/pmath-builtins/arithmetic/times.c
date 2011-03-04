@@ -50,7 +50,7 @@ static pmath_float_t _mul_fi(
   mp_prec_t prec;
   int signB;
   
-  signB = mpz_sgn(PMATH_AS_MPZ(intB);
+  signB = mpz_sgn(PMATH_AS_MPZ(intB));
   if(signB == 0){
     pmath_unref(floatA);
     return intB;
@@ -82,70 +82,63 @@ static pmath_float_t _mul_fi(
     PMATH_AS_MPZ(intB),
     signB > 0 ? MPFR_RNDU : MPFR_RNDD);
   
-  mpfr_abs(result->error, result->error, MPFR_RNDN);
+  mpfr_abs(PMATH_AS_MP_ERROR(result), PMATH_AS_MP_ERROR(result), MPFR_RNDN);
   
   mpfr_mul_z(
-    result->value,
-    ((struct _pmath_mp_float_t*)PMATH_AS_PTR(floatA))->value,
-    ((struct _pmath_integer_t*)PMATH_AS_PTR(intB))->value,
+    PMATH_AS_MP_VALUE(result),
+    PMATH_AS_MP_VALUE(floatA),
+    PMATH_AS_MPZ(intB),
     MPFR_RNDN);
   
   //_pmath_mp_float_normalize(result);
 
   pmath_unref(floatA);
   pmath_unref(intB);
-  return (pmath_float_t)PMATH_FROM_PTR(result);
+  return result;
 }
 
   static pmath_float_t _div_fi(
-    pmath_float_t            floatA, // will be freed. not PMATH_NULL!
-    struct _pmath_integer_t *intB    // wont be freed. not PMATH_NULL! not zero!
+    pmath_float_t   floatA, // will be freed. not PMATH_NULL!
+    pmath_integer_t intB    // wont be freed. not PMATH_NULL! not zero!
   ){
-    struct _pmath_mp_float_t *result;
-    int signB;
+    pmath_float_t result;
     
-    signB = mpz_sgn(intB->value);
-    assert(signB != 0);
+    result = _pmath_create_mp_float(mpfr_get_prec(PMATH_AS_MP_VALUE(floatA)));
     
-    result = _pmath_create_mp_float(
-      mpfr_get_prec(((struct _pmath_mp_float_t*)PMATH_AS_PTR(floatA))->value));
-    
-    if(!result){
+    if(pmath_is_null(result)){
       pmath_unref(floatA);
       return PMATH_NULL;
     }
     
     // d(x/y) = 1/y dx + x d(1/y) = 1/y dx   (d(1/y) = 0)
     mpfr_div_z(
-      result->error, 
-      ((struct _pmath_mp_float_t*)PMATH_AS_PTR(floatA))->error,
-      intB->value,
-      signB > 0 ? MPFR_RNDU : MPFR_RNDD);
+      PMATH_AS_MP_ERROR(result), 
+      PMATH_AS_MP_ERROR(floatA),
+      PMATH_AS_MPZ(intB),
+      MPFR_RNDA);
     
-    mpfr_abs(result->error, result->error, MPFR_RNDN);
+    mpfr_abs(PMATH_AS_MP_ERROR(result), PMATH_AS_MP_ERROR(result), MPFR_RNDU);
     
     mpfr_div_z(
-      result->value,
-      ((struct _pmath_mp_float_t*)PMATH_AS_PTR(floatA))->value,
-      intB->value,
+      PMATH_AS_MP_VALUE(result),
+      PMATH_AS_MP_VALUE(floatA),
+      PMATH_AS_MPZ(intB),
       MPFR_RNDN);
     
     _pmath_mp_float_normalize(result);
 
     pmath_unref(floatA);
-    return (pmath_float_t)PMATH_FROM_PTR(result);
+    return result;
   }
 
 static pmath_float_t _mul_fq(
   pmath_float_t    floatA, // will be freed. not PMATH_NULL!
   pmath_quotient_t quotB   // will be freed. not PMATH_NULL!
 ){
-  floatA = _mul_fi(
-    floatA, 
-    pmath_ref(PMATH_FROM_PTR(((struct _pmath_quotient_t*)PMATH_AS_PTR(quotB))->numerator)));
+  floatA = _mul_fi(floatA, pmath_ref(PMATH_QUOT_NUM(quotB)));
   
   if(pmath_instance_of(floatA, PMATH_TYPE_MP_FLOAT)){
-    floatA = _div_fi(floatA, ((struct _pmath_quotient_t*)PMATH_AS_PTR(quotB))->denominator);
+    floatA = _div_fi(floatA, PMATH_QUOT_DEN(quotB));
     pmath_unref(quotB);
   }
   
@@ -156,8 +149,8 @@ static pmath_float_t _mul_ff(
   pmath_float_t   floatA, // will be freed. not PMATH_NULL!
   pmath_integer_t floatB  // will be freed. not PMATH_NULL!
 ){
-  struct _pmath_mp_float_t *result;
-  struct _pmath_mp_float_t *tmp_err;
+  pmath_float_t result;
+  pmath_float_t tmp_err;
   double fprec;
   mp_prec_t prec;
   
@@ -174,9 +167,9 @@ static pmath_float_t _mul_ff(
   result = _pmath_create_mp_float(prec);
   tmp_err = _pmath_create_mp_float(PMATH_MP_ERROR_PREC);
   
-  if(!result || !tmp_err){
-    pmath_unref((pmath_t)PMATH_FROM_PTR(result));
-    pmath_unref((pmath_t)PMATH_FROM_PTR(tmp_err));
+  if(pmath_is_null(result) || pmath_is_null(tmp_err)){
+    pmath_unref(result);
+    pmath_unref(tmp_err);
     pmath_unref(floatA);
     pmath_unref(floatB);
     return PMATH_NULL;
@@ -185,67 +178,60 @@ static pmath_float_t _mul_ff(
   // dxy = y dx + x dy
   
   mpfr_mul(
-    tmp_err->value,
-    ((struct _pmath_mp_float_t*)PMATH_AS_PTR(floatB))->value,
-    ((struct _pmath_mp_float_t*)PMATH_AS_PTR(floatA))->error,
-    mpfr_sgn(((struct _pmath_mp_float_t*)PMATH_AS_PTR(floatB))->value) > 0 ? MPFR_RNDU : MPFR_RNDD);
+    PMATH_AS_MP_VALUE(tmp_err),
+    PMATH_AS_MP_VALUE(floatB),
+    PMATH_AS_MP_ERROR(floatA),
+    MPFR_RNDA);
   
-  mpfr_abs(tmp_err->value, tmp_err->value, MPFR_RNDN);
+  mpfr_abs(PMATH_AS_MP_VALUE(tmp_err), PMATH_AS_MP_VALUE(tmp_err), MPFR_RNDU);
   
   mpfr_mul(
-    tmp_err->error,
-    ((struct _pmath_mp_float_t*)PMATH_AS_PTR(floatA))->value,
-    ((struct _pmath_mp_float_t*)PMATH_AS_PTR(floatB))->error,
-    mpfr_sgn(((struct _pmath_mp_float_t*)PMATH_AS_PTR(floatA))->value) > 0 ? MPFR_RNDU : MPFR_RNDD);
+    PMATH_AS_MP_ERROR(tmp_err),
+    PMATH_AS_MP_VALUE(floatA),
+    PMATH_AS_MP_ERROR(floatB),
+    MPFR_RNDA);
   
-  mpfr_abs(tmp_err->error, tmp_err->error, MPFR_RNDN);
+  mpfr_abs(PMATH_AS_MP_ERROR(tmp_err), PMATH_AS_MP_ERROR(tmp_err), MPFR_RNDU);
   
   mpfr_add(
-    result->error,
-    tmp_err->value,
-    tmp_err->error,
+    PMATH_AS_MP_ERROR(result),
+    PMATH_AS_MP_VALUE(tmp_err),
+    PMATH_AS_MP_ERROR(tmp_err),
     MPFR_RNDU);
   
   mpfr_fma(
-    result->error,
-    ((struct _pmath_mp_float_t*)PMATH_AS_PTR(floatA))->error,
-    ((struct _pmath_mp_float_t*)PMATH_AS_PTR(floatB))->error,
-    result->error,
+    PMATH_AS_MP_ERROR(result),
+    PMATH_AS_MP_ERROR(floatA),
+    PMATH_AS_MP_ERROR(floatB),
+    PMATH_AS_MP_ERROR(result),
     MPFR_RNDU);
   
   mpfr_mul(
-    result->value,
-    ((struct _pmath_mp_float_t*)PMATH_AS_PTR(floatA))->value,
-    ((struct _pmath_mp_float_t*)PMATH_AS_PTR(floatB))->value,
+    PMATH_AS_MP_VALUE(result),
+    PMATH_AS_MP_VALUE(floatA),
+    PMATH_AS_MP_VALUE(floatB),
     MPFR_RNDN);
   
   _pmath_mp_float_normalize(result);
   
   pmath_unref(floatA);
   pmath_unref(floatB);
-  pmath_unref((pmath_t)PMATH_FROM_PTR(tmp_err));
-  return (pmath_float_t)PMATH_FROM_PTR(result);
+  pmath_unref(tmp_err);
+  return result;
 }
 
 static pmath_t _mul_mi(
   pmath_float_t   floatA, // will be freed. not PMATH_NULL!
   pmath_integer_t intB    // will be freed. not PMATH_NULL!
 ){
-  double d = PMATH_AS_DOUBLE(floatA)
-    * mpz_get_d(((struct _pmath_integer_t*)PMATH_AS_PTR(intB))->value);
+  double d = PMATH_AS_DOUBLE(floatA) * mpz_get_d(PMATH_AS_MPZ(intB));
   
   if(!isfinite(d))
     return _mul_nn(_pmath_convert_to_mp_float(floatA), intB);
   
   pmath_unref(intB);
-  
-  if(PMATH_AS_PTR(floatA)->refcount > 1){
-    pmath_unref(floatA);
-    return pmath_float_new_d(d);
-  }
-  
-  ((struct _pmath_machine_float_t*)PMATH_AS_PTR(floatA))->value = d;
-  return (pmath_float_t)floatA;
+  pmath_unref(floatA);
+  return pmath_float_new_d(d);
 }
 
 static pmath_t _mul_mq(
@@ -254,69 +240,43 @@ static pmath_t _mul_mq(
 ){
   double d;
   
-  d = mpz_get_d(((struct _pmath_quotient_t*)PMATH_AS_PTR(quotB))->numerator->value);
-  d/= mpz_get_d(((struct _pmath_quotient_t*)PMATH_AS_PTR(quotB))->denominator->value);
+  d = mpz_get_d(PMATH_AS_MPZ(PMATH_QUOT_NUM(quotB)));
+  d/= mpz_get_d(PMATH_AS_MPZ(PMATH_QUOT_DEN(quotB)));
   
-  d*= ((struct _pmath_machine_float_t*)floatA)->value;
+  d*= PMATH_AS_DOUBLE(floatA);
   
   if(!isfinite(d))
     return _mul_nn(_pmath_convert_to_mp_float(floatA), quotB);
   
   pmath_unref(quotB);
-  
-  if(floatA->refcount > 1){
-    pmath_unref(floatA);
-    return pmath_float_new_d(d);
-  }
-  
-  ((struct _pmath_machine_float_t*)floatA)->value = d;
-  return (pmath_float_t)floatA;
+  pmath_unref(floatA);
+  return pmath_float_new_d(d);
 }
 
 static pmath_t _mul_mf(
   pmath_float_t  floatA, // will be freed. not PMATH_NULL!
   pmath_float_t  floatB  // will be freed. not PMATH_NULL!
 ){
-  double d = ((struct _pmath_machine_float_t*)floatA)->value
-    * mpfr_get_d(((struct _pmath_mp_float_t*)PMATH_AS_PTR(floatB))->value, MPFR_RNDN);
+  double d = PMATH_AS_DOUBLE(floatA) * mpfr_get_d(PMATH_AS_MP_VALUE(floatB), MPFR_RNDN);
   
   if(!isfinite(d))
     return _mul_nn(_pmath_convert_to_mp_float(floatA), floatB);
   
   pmath_unref(floatB);
-  
-  if(floatA->refcount > 1){
-    pmath_unref(floatA);
-    return pmath_float_new_d(d);
-  }
-  
-  ((struct _pmath_machine_float_t*)floatA)->value = d;
-  return (pmath_float_t)floatA;
+  pmath_unref(floatA);
+  return pmath_float_new_d(d);
 }
 
 static pmath_t _mul_mm(
   pmath_float_t  floatA, // will be freed. not PMATH_NULL!
   pmath_float_t  floatB  // will be freed. not PMATH_NULL!
 ){
-  double d = ((struct _pmath_machine_float_t*)floatA)->value
-           * ((struct _pmath_machine_float_t*)floatB)->value;
+  double d = PMATH_AS_DOUBLE(floatA) * PMATH_AS_DOUBLE(floatB);
           
   if(!isfinite(d))
     return _mul_nn(
       _pmath_convert_to_mp_float(floatA), 
       _pmath_convert_to_mp_float(floatB));
-  
-  if(floatA->refcount == 1){
-    ((struct _pmath_machine_float_t*)floatA)->value = d;
-    pmath_unref(floatB);
-    return (pmath_float_t)floatA;
-  }
-  
-  if(floatB->refcount == 1){
-    ((struct _pmath_machine_float_t*)floatB)->value = d;
-    pmath_unref(floatA);
-    return (pmath_float_t)floatB;
-  }
   
   pmath_unref(floatA);
   pmath_unref(floatB);
@@ -328,15 +288,15 @@ PMATH_PRIVATE pmath_number_t _mul_nn(
   pmath_number_t numA, // will be freed.
   pmath_number_t numB  // will be freed.
 ){
-  if(!numA || !numB){
+  if(pmath_is_null(numA) || pmath_is_null(numB)){
     pmath_unref(numA);
     pmath_unref(numB);
     return PMATH_NULL;
   }
   
-  switch(numA->type_shift){
+  switch(PMATH_AS_PTR(numA)->type_shift){
     case PMATH_TYPE_SHIFT_INTEGER: {
-      switch(numB->type_shift){
+      switch(PMATH_AS_PTR(numB)->type_shift){
         case PMATH_TYPE_SHIFT_INTEGER:        return _mul_ii(numA, numB);
         case PMATH_TYPE_SHIFT_QUOTIENT:       return _mul_qi(numB, numA);
         case PMATH_TYPE_SHIFT_MP_FLOAT:       return _mul_fi(numB, numA);
@@ -345,7 +305,7 @@ PMATH_PRIVATE pmath_number_t _mul_nn(
     } break;
     
     case PMATH_TYPE_SHIFT_QUOTIENT: {
-      switch(numB->type_shift){
+      switch(PMATH_AS_PTR(numB)->type_shift){
         case PMATH_TYPE_SHIFT_INTEGER:        return _mul_qi(numA, numB);
         case PMATH_TYPE_SHIFT_QUOTIENT:       return _mul_qq(numA, numB);
         case PMATH_TYPE_SHIFT_MP_FLOAT:       return _mul_fq(numB, numA);
@@ -354,7 +314,7 @@ PMATH_PRIVATE pmath_number_t _mul_nn(
     } break;
     
     case PMATH_TYPE_SHIFT_MP_FLOAT: {
-      switch(numB->type_shift){
+      switch(PMATH_AS_PTR(numB)->type_shift){
         case PMATH_TYPE_SHIFT_INTEGER:        return _mul_fi(numA, numB);
         case PMATH_TYPE_SHIFT_QUOTIENT:       return _mul_fq(numA, numB);
         case PMATH_TYPE_SHIFT_MP_FLOAT:       return _mul_ff(numA, numB);
@@ -363,7 +323,7 @@ PMATH_PRIVATE pmath_number_t _mul_nn(
     } break;
     
     case PMATH_TYPE_SHIFT_MACHINE_FLOAT: {
-      switch(numB->type_shift){
+      switch(PMATH_AS_PTR(numB)->type_shift){
         case PMATH_TYPE_SHIFT_INTEGER:        return _mul_mi(numA, numB);
         case PMATH_TYPE_SHIFT_QUOTIENT:       return _mul_mq(numA, numB);
         case PMATH_TYPE_SHIFT_MP_FLOAT:       return _mul_mf(numA, numB);
@@ -448,7 +408,8 @@ static void times_2_arg(pmath_t *a, pmath_t *b){
 
     if(pmath_number_sign(*a) == 0){
       pmath_t binfdir = _pmath_directed_infinity_direction(*b);
-      if(binfdir){
+      
+      if(!pmath_is_null(binfdir)){
         pmath_message(PMATH_SYMBOL_INFINITY, "indet", 1,
           pmath_expr_new_extended(
             pmath_ref(PMATH_SYMBOL_TIMES), 2,
@@ -459,6 +420,7 @@ static void times_2_arg(pmath_t *a, pmath_t *b){
         pmath_unref(binfdir);
         return;
       }
+      
       pmath_unref(*b);
       *b = PMATH_UNDEFINED;
       return;
@@ -469,12 +431,13 @@ static void times_2_arg(pmath_t *a, pmath_t *b){
       size_t i;
 
       pmath_unref(*a);
-      for(i = 1;i <= pmath_expr_length((pmath_expr_t)*b);i++)
-        *b = pmath_expr_set_item((pmath_expr_t)*b, i,
+      for(i = 1;i <= pmath_expr_length(*b);i++)
+        *b = pmath_expr_set_item(
+          *b, i,
           pmath_expr_new_extended(
             pmath_ref(PMATH_SYMBOL_TIMES), 2,
             pmath_integer_new_si(-1),
-            pmath_expr_get_item((pmath_expr_t)*b, i)));
+            pmath_expr_get_item(*b, i)));
 
       *a = *b;
       *b = PMATH_UNDEFINED;
@@ -483,12 +446,8 @@ static void times_2_arg(pmath_t *a, pmath_t *b){
   }
   else if(_pmath_is_nonreal_complex(*a)){
     if(pmath_is_number(*b)){ // (x + yi) * b = bx + byi
-      pmath_number_t re = _mul_nn(
-        (pmath_number_t)pmath_ref(*b),
-        (pmath_number_t)pmath_expr_get_item((pmath_expr_t)*a, 1));
-      pmath_number_t im = _mul_nn(
-        (pmath_number_t)pmath_ref(*b),
-        (pmath_number_t)pmath_expr_get_item((pmath_expr_t)*a, 2));
+      pmath_number_t re = _mul_nn(pmath_ref(*b), pmath_expr_get_item(*a, 1));
+      pmath_number_t im = _mul_nn(pmath_ref(*b), pmath_expr_get_item(*a, 2));
       pmath_unref(*b);
       re = _pmath_float_exceptions(re);
       im = _pmath_float_exceptions(im);
@@ -500,10 +459,10 @@ static void times_2_arg(pmath_t *a, pmath_t *b){
     
     if(_pmath_is_nonreal_complex(*b)){
       // (u + vi)*(x + yi) = (ux - vy) + (uy + vx)i
-      pmath_number_t u = (pmath_number_t)pmath_expr_get_item(*a, 1);
-      pmath_number_t v = (pmath_number_t)pmath_expr_get_item(*a, 2);
-      pmath_number_t x = (pmath_number_t)pmath_expr_get_item(*b, 1);
-      pmath_number_t y = (pmath_number_t)pmath_expr_get_item(*b, 2);
+      pmath_number_t u = pmath_expr_get_item(*a, 1);
+      pmath_number_t v = pmath_expr_get_item(*a, 2);
+      pmath_number_t x = pmath_expr_get_item(*b, 1);
+      pmath_number_t y = pmath_expr_get_item(*b, 2);
 
       pmath_unref(*b);
       *a = pmath_expr_set_item(
@@ -535,7 +494,7 @@ static void times_2_arg(pmath_t *a, pmath_t *b){
   {
     pmath_t infdir = _pmath_directed_infinity_direction(*a);
 
-    if(infdir){
+    if(!pmath_is_null(infdir)){
       pmath_unref(*a);
       *a = pmath_expr_new_extended(
         pmath_ref(PMATH_SYMBOL_DIRECTEDINFINITY), 1,
@@ -548,7 +507,7 @@ static void times_2_arg(pmath_t *a, pmath_t *b){
     }
 
     infdir = _pmath_directed_infinity_direction(*b);
-    if(infdir){
+    if(!pmath_is_null(infdir)){
       pmath_unref(*b);
       *a = pmath_expr_new_extended(
         pmath_ref(PMATH_SYMBOL_DIRECTEDINFINITY), 1,

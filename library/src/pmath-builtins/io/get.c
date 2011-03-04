@@ -113,8 +113,8 @@ static pmath_t get_file(
     spans = pmath_spans_from_string(
       &code, 
       scanner_read, 
-      PMATH_NULL, 
-      PMATH_NULL, 
+      NULL, 
+      NULL, 
       scanner_error,
       &info);
     
@@ -126,8 +126,8 @@ static pmath_t get_file(
             spans, 
             code, 
             TRUE, 
-            PMATH_NULL, 
-            PMATH_NULL)));
+            NULL, 
+            NULL)));
       
       if(pmath_is_expr_of(result, PMATH_SYMBOL_HOLDCOMPLETE)){
         if(pmath_expr_length(result) == 1){
@@ -260,7 +260,7 @@ PMATH_PRIVATE pmath_t builtin_get(pmath_expr_t expr){
             "ToFileName(`1`, `2`)", 
           "(oo)", 
           pmath_expr_get_item(path, i),
-          pmath_ref((pmath_string_t)fname)));
+          pmath_ref(PMATH_FROM_PTR(fname))));
       
       test = pmath_evaluate(
         pmath_expr_new_extended(
@@ -281,7 +281,7 @@ PMATH_PRIVATE pmath_t builtin_get(pmath_expr_t expr){
         pmath_unref(test);
         
         if(pmath_same(test, PMATH_SYMBOL_FILE)){
-          pmath_unref((pmath_string_t)fname);
+          pmath_unref(PMATH_FROM_PTR(fname));
           pmath_unref(path);
           pmath_unref(name);
           
@@ -305,7 +305,7 @@ PMATH_PRIVATE pmath_t builtin_get(pmath_expr_t expr){
             "ToFileName(`1`, `2` ++ \".pmath\")", 
           "(oo)", 
           pmath_expr_get_item(path, i),
-          pmath_ref((pmath_string_t)fname)));
+          pmath_ref(PMATH_FROM_PTR(fname))));
         
       test = pmath_evaluate(
         pmath_expr_new_extended(
@@ -313,7 +313,7 @@ PMATH_PRIVATE pmath_t builtin_get(pmath_expr_t expr){
           pmath_ref(testname)));
       pmath_unref(test);
       if(pmath_same(test, PMATH_SYMBOL_FILE)){
-        pmath_unref((pmath_string_t)fname);
+        pmath_unref(PMATH_FROM_PTR(fname));
         pmath_unref(path);
         pmath_unref(name);
         
@@ -331,7 +331,7 @@ PMATH_PRIVATE pmath_t builtin_get(pmath_expr_t expr){
       pmath_unref(testname);
     }
     
-    pmath_unref((pmath_string_t)fname);
+    pmath_unref(PMATH_FROM_PTR(fname));
     pmath_message(PMATH_NULL, "noopen", 1, name);
     pmath_unref(path);
     return pmath_ref(PMATH_SYMBOL_FAILED);

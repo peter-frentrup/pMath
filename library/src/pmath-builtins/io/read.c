@@ -51,6 +51,12 @@ static pmath_files_status_t skip_whitespace(pmath_t file, pmath_bool_t *eol){
   return status;
 }
 
+pmath_string_t readline(void *p){
+  pmath_t file = *(pmath_t*)p;
+  
+  return pmath_file_readline(file); 
+}
+
 static pmath_t read_expression(pmath_t file){
   pmath_span_array_t *spans;
   pmath_string_t code;
@@ -65,18 +71,18 @@ static pmath_t read_expression(pmath_t file){
   
   spans = pmath_spans_from_string(
     &code,
-    (pmath_string_t(*)(void*))pmath_file_readline,
-    PMATH_NULL,
-    PMATH_NULL,
+    readline,
+    NULL,
+    NULL,
     syntax_error,
-    file);
+    &file);
   
   result = pmath_boxes_from_spans(
     spans, 
     code, 
     TRUE, 
-    PMATH_NULL, 
-    PMATH_NULL);
+    NULL, 
+    NULL);
   
   pmath_unref(code);
   pmath_span_array_free(spans);
@@ -146,7 +152,7 @@ static pmath_string_t read_word(pmath_t file, pmath_bool_t *eol){
 static pmath_t word_to_number(pmath_string_t word){
   pmath_t result = _pmath_parse_number(word, TRUE);
   
-  if(!result){
+  if(pmath_is_null(result)){
     pmath_message(PMATH_NULL, "readn", 0);
     
     return pmath_ref(PMATH_SYMBOL_FAILED);
@@ -156,15 +162,15 @@ static pmath_t word_to_number(pmath_string_t word){
 }
 
 static pmath_bool_t _read(
-  pmath_t file, 
-  pmath_t *type_value,
+  pmath_t       file, 
+  pmath_t      *type_value,
   pmath_bool_t *eol
 ){
   if(pmath_same(*type_value, PMATH_SYMBOL_STRING)){
     pmath_unref(*type_value);
     *type_value = pmath_file_readline(file);
     
-    if(!*type_value){
+    if(pmath_is_null(*type_value)){
       if(pmath_file_status(file) == PMATH_FILE_ENDOFFILE)
         *type_value = pmath_ref(PMATH_SYMBOL_ENDOFFILE);
       else
@@ -309,7 +315,7 @@ PMATH_PRIVATE pmath_t builtin_read(pmath_expr_t expr){
   }
   
   type = pmath_expr_get_item(expr, 2);
-  if(!type || _pmath_is_rule(type) || _pmath_is_list_of_rules(type)){
+  if(pmath_is_null(type) || _pmath_is_rule(type) || _pmath_is_list_of_rules(type)){
     pmath_unref(type);
     type = pmath_ref(PMATH_SYMBOL_EXPRESSION);
     last_nonoption = 1;
@@ -363,7 +369,7 @@ PMATH_PRIVATE pmath_t builtin_readlist(pmath_expr_t expr){
   }
   
   type = pmath_expr_get_item(expr, 2);
-  if(!type || _pmath_is_rule(type) || _pmath_is_list_of_rules(type)){
+  if(pmath_is_null(type) || _pmath_is_rule(type) || _pmath_is_list_of_rules(type)){
     pmath_unref(type);
     type = pmath_ref(PMATH_SYMBOL_EXPRESSION);
     last_nonoption = 1;
@@ -371,7 +377,7 @@ PMATH_PRIVATE pmath_t builtin_readlist(pmath_expr_t expr){
   else{
     pmath_t n = pmath_expr_get_item(expr, 3);
     
-    if(!n || _pmath_is_rule(n) || _pmath_is_list_of_rules(n)){
+    if(pmath_is_null(n) || _pmath_is_rule(n) || _pmath_is_list_of_rules(n)){
       last_nonoption = 2;
     }
     else{

@@ -148,5 +148,5 @@ PMATH_PRIVATE pmath_t builtin_tofilename(pmath_expr_t expr){
   }
   memcpy(buf, subbuf, sizeof(uint16_t) * sublen);
   pmath_unref(name);
-  return (pmath_string_t)result;
+  return PMATH_FROM_PTR(result);
 }

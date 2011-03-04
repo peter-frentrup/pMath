@@ -75,7 +75,7 @@ static pmath_t open_bin_file(
   pmath_string_t name, // will be freed
   enum open_kind kind
 ){
-  FILE *f = PMATH_NULL;
+  FILE *f = NULL;
   pmath_binary_file_api_t api;
   
   memset(&api, 0, sizeof(api));
@@ -492,7 +492,7 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr){
   pmath_unref(options);
   pmath_unref(expr);
   
-  if(!file){
+  if(pmath_is_null(file)){
     pmath_message(
       PMATH_NULL, "noopen", 1,
       pmath_expr_get_item(expr, 1));
@@ -541,7 +541,7 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr){
       return PMATH_NULL;
     }
       
-    if(!file){
+    if(pmath_is_null(file)){
       pmath_message(
         PMATH_NULL, "noopen", 1,
         pmath_expr_get_item(expr, 1));

@@ -748,7 +748,7 @@ pmath_t _pmath_float_exceptions(
 ){
   pmath_t result = PMATH_NULL;
 
-  if(pmath_instance_of(x, PMATH_TYPE_MACHINE_FLOAT)){
+  if(pmath_is_double(x)){
     if(!isfinite(PMATH_AS_DOUBLE(x))){
       pmath_message(PMATH_NULL, "ovfl", 0);
       pmath_unref(x);

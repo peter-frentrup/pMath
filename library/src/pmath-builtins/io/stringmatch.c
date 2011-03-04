@@ -37,7 +37,7 @@ static pmath_t stringmatch(
         0, 
         PCRE_NO_UTF8_CHECK, 
         &capture, 
-        PMATH_NULL);
+        NULL);
     }
     
     pmath_unref(obj);

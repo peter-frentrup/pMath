@@ -33,12 +33,12 @@ PMATH_PRIVATE pmath_bool_t _pmath_is_namespace(pmath_t name){
   for(i = 0;i < len-1;++i){
     if(buf[i] == '`'){
       ++i;
-      tok = pmath_token_analyse(buf + i, 1, PMATH_NULL);
+      tok = pmath_token_analyse(buf + i, 1, NULL);
       if(tok != PMATH_TOK_NAME)
         return FALSE;
     }
     else{
-      tok = pmath_token_analyse(buf + i, 1, PMATH_NULL);
+      tok = pmath_token_analyse(buf + i, 1, NULL);
       if(tok != PMATH_TOK_DIGIT && tok != PMATH_TOK_NAME)
         return FALSE;
     }
@@ -254,7 +254,7 @@ PMATH_PRIVATE pmath_t builtin_end(pmath_expr_t expr){
   nsstack = pmath_expr_get_item_range(expr, 1, len-1);
   pmath_unref(expr);
   
-  if(!ns || !nsstack){
+  if(pmath_is_null(ns) || pmath_is_null(nsstack)){
     pmath_unref(ns);
     pmath_unref(nsstack);
     return oldns;
@@ -368,7 +368,7 @@ PMATH_PRIVATE pmath_t builtin_beginpackage(pmath_expr_t expr){
         name = pmath_string_part(name, pmath_string_length(new_namespace), INT_MAX);
         
         other = pmath_symbol_find(pmath_ref(name), FALSE);
-        if(other && other != current){
+        if(!pmath_is_null(other) && !pmath_same(other, current)){
           const uint16_t *buf = pmath_string_buffer(name);
           int             len = pmath_string_length(name);
           
@@ -390,7 +390,7 @@ PMATH_PRIVATE pmath_t builtin_beginpackage(pmath_expr_t expr){
       pmath_unref(name);
       
       current = pmath_symbol_iter_next(current);
-    }while(current && !pmath_same(current, PMATH_SYMBOL_LIST));
+    }while(!pmath_is_null(current) && !pmath_same(current, PMATH_SYMBOL_LIST));
     
     pmath_unref(current);
   }
@@ -435,7 +435,10 @@ PMATH_PRIVATE pmath_t builtin_endpackage(pmath_expr_t expr){
   nspathstack = pmath_expr_get_item_range(expr, 1, nspathlen - 1);
   pmath_unref(expr);
   
-  if(!ns || !nspath || !nsstack || !nspathstack){
+  if(pmath_is_null(ns) 
+  || pmath_is_null(nspath)
+  || pmath_is_null(nsstack)
+  || pmath_is_null(nspathstack)){
     pmath_unref(oldns);
     pmath_unref(ns);
     pmath_unref(nsstack);

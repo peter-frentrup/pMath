@@ -63,7 +63,7 @@ PMATH_PRIVATE pmath_t builtin_iseven(pmath_expr_t expr){
   pmath_unref(expr);
 
   if(pmath_is_integer(obj)
-  && mpz_even_p(((struct _pmath_integer_t*)obj)->value)){
+  && mpz_even_p(PMATH_AS_MPZ(obj))){
     pmath_unref(obj);
     return pmath_ref(PMATH_SYMBOL_TRUE);
   }
@@ -173,17 +173,17 @@ PMATH_PRIVATE pmath_t builtin_ismachinenumber(pmath_expr_t expr){
   obj = pmath_expr_get_item(expr, 1);
   pmath_unref(expr);
 
-  if(pmath_instance_of(obj, PMATH_TYPE_MACHINE_FLOAT)){
+  if(pmath_is_double(obj)){
     pmath_unref(obj);
     return pmath_ref(PMATH_SYMBOL_TRUE);
   }
   
   if(_pmath_is_nonreal_complex(obj)){
     pmath_t part = pmath_expr_get_item(obj, 1);
-    if(pmath_instance_of(obj, PMATH_TYPE_MACHINE_FLOAT)){
+    if(pmath_is_double(part)){
       pmath_unref(part);
       part = pmath_expr_get_item(obj, 2);
-      if(pmath_instance_of(obj, PMATH_TYPE_MACHINE_FLOAT)){
+      if(pmath_is_double(part)){
         pmath_unref(part);
         pmath_unref(obj);
         return pmath_ref(PMATH_SYMBOL_TRUE);
@@ -228,7 +228,7 @@ PMATH_PRIVATE pmath_t builtin_isodd(pmath_expr_t expr){
   pmath_unref(expr);
 
   if(pmath_is_integer(obj)
-  && mpz_odd_p(((struct _pmath_integer_t*)obj)->value)){
+  && mpz_odd_p(PMATH_AS_MPZ(obj))){
     pmath_unref(obj);
     return pmath_ref(PMATH_SYMBOL_TRUE);
   }

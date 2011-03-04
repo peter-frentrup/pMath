@@ -63,15 +63,16 @@ PMATH_PRIVATE pmath_t builtin_renamedirectory_and_renamefile(pmath_expr_t expr){
     name1 = pmath_string_insert_ucs2(name1, INT_MAX, &zero, 1);
     name2 = pmath_string_insert_ucs2(name2, INT_MAX, &zero, 1);
     
-    if(name1 && name2){
+    if(!pmath_is_null(name1) 
+    && !pmath_is_null(name2)){
       HANDLE h = CreateFileW(
         (const wchar_t*)pmath_string_buffer(name1),
         0,
         FILE_SHARE_READ | FILE_SHARE_WRITE,
-        PMATH_NULL,
+        NULL,
         OPEN_EXISTING,
         FILE_FLAG_BACKUP_SEMANTICS,
-        PMATH_NULL);
+        NULL);
       
       if(h != INVALID_HANDLE_VALUE){
         BY_HANDLE_FILE_INFORMATION info;

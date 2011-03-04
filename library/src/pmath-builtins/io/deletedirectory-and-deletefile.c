@@ -141,19 +141,19 @@ PMATH_PRIVATE pmath_t builtin_deletedirectory_and_deletefile(pmath_expr_t expr){
     static const uint16_t zerozero[2] = {0, 0};
     pmath_string_t abs_name = _pmath_canonical_file_name(pmath_ref(name));
     
-    if(abs_name){
+    if(!pmath_is_null(abs_name)){
       abs_name = pmath_string_insert_ucs2(abs_name, INT_MAX, zerozero, 2);
     }
     
-    if(abs_name){
+    if(!pmath_is_null(abs_name)){
       HANDLE h = CreateFileW(
         (const wchar_t*)pmath_string_buffer(abs_name),
         0,
         FILE_SHARE_READ | FILE_SHARE_WRITE,
-        PMATH_NULL,
+        NULL,
         OPEN_EXISTING,
         FILE_FLAG_BACKUP_SEMANTICS,
-        PMATH_NULL);
+        NULL);
       
       if(h != INVALID_HANDLE_VALUE){
         BY_HANDLE_FILE_INFORMATION info;

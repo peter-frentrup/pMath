@@ -18,7 +18,7 @@ PMATH_PRIVATE pmath_t builtin_sin(pmath_expr_t expr){
   }
   
   x = pmath_expr_get_item(expr, 1);
-  if(pmath_instance_of(x, PMATH_TYPE_MACHINE_FLOAT)){
+  if(pmath_is_double(x)){
     double d = PMATH_AS_DOUBLE(x);
     double res = sin(d);
     

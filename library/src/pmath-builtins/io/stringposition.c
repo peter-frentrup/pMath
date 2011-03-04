@@ -77,7 +77,7 @@ static pmath_t stringposition(
         offset, 
         PCRE_NO_UTF8_CHECK, 
         capture, 
-        PMATH_NULL)
+        NULL)
     ){
       int off1 = utf8_to_utf16_offset(subject, buf, buflen, capture->ovector[0]);
       int off2 = utf8_to_utf16_offset(subject, buf, buflen, capture->ovector[1]);

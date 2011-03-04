@@ -162,20 +162,22 @@ PMATH_PRIVATE pmath_t builtin_copydirectory_and_copyfile(pmath_expr_t expr){
     pmath_string_t abs_name1 = _pmath_canonical_file_name(pmath_ref(name1));
     pmath_string_t abs_name2 = _pmath_canonical_file_name(pmath_ref(name2));
     
-    if(abs_name1 && abs_name2){
+    if(!pmath_is_null(abs_name1) 
+    && !pmath_is_null(abs_name2)){
       abs_name1 = pmath_string_insert_ucs2(abs_name1, INT_MAX, zerozero, 2);
       abs_name2 = pmath_string_insert_ucs2(abs_name2, INT_MAX, zerozero, 2);
     }
     
-    if(abs_name1 && abs_name2){
+    if(!pmath_is_null(abs_name1) 
+    && !pmath_is_null(abs_name2)){
       HANDLE h = CreateFileW(
         (const wchar_t*)pmath_string_buffer(abs_name1),
         0,
         FILE_SHARE_READ | FILE_SHARE_WRITE,
-        PMATH_NULL,
+        NULL,
         OPEN_EXISTING,
         FILE_FLAG_BACKUP_SEMANTICS,
-        PMATH_NULL);
+        NULL);
       
       if(h != INVALID_HANDLE_VALUE){
         BY_HANDLE_FILE_INFORMATION info;
@@ -193,10 +195,10 @@ PMATH_PRIVATE pmath_t builtin_copydirectory_and_copyfile(pmath_expr_t expr){
             (const wchar_t*)pmath_string_buffer(abs_name2),
             0,
             FILE_SHARE_READ | FILE_SHARE_WRITE,
-            PMATH_NULL,
+            NULL,
             OPEN_EXISTING,
             FILE_FLAG_BACKUP_SEMANTICS,
-            PMATH_NULL);
+            NULL);
           
           if(h2 != INVALID_HANDLE_VALUE){
             CloseHandle(h2);

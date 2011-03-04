@@ -49,12 +49,12 @@ PMATH_PRIVATE pmath_bool_t _pmath_is_inexact(pmath_t obj){
 
   static int _simple_real_class(pmath_t obj){
     if(pmath_is_integer(obj)){
-      int sign = mpz_sgn(((struct _pmath_integer_t*)obj)->value);
+      int sign = mpz_sgn(PMATH_AS_MPZ(obj));
       
       if(sign == 0)
         return PMATH_CLASS_ZERO;
       
-      if(mpz_cmpabs_ui(((struct _pmath_integer_t*)obj)->value, 1) > 0)
+      if(mpz_cmpabs_ui(PMATH_AS_MPZ(obj), 1) > 0)
         return sign * PMATH_CLASS_POSBIG;
       
       return sign * PMATH_CLASS_POSONE;
@@ -72,33 +72,33 @@ PMATH_PRIVATE pmath_bool_t _pmath_is_inexact(pmath_t obj){
       return sign * PMATH_CLASS_POSBIG;
     }
     
-    if(pmath_instance_of(obj, PMATH_TYPE_MACHINE_FLOAT)){
-      if(((struct _pmath_machine_float_t*)obj)->value < -1)
+    if(pmath_is_double(obj)){
+      if(PMATH_AS_DOUBLE(obj) < -1)
         return PMATH_CLASS_NEGBIG;
         
-      if(((struct _pmath_machine_float_t*)obj)->value == -1)
+      if(PMATH_AS_DOUBLE(obj) == -1)
         return PMATH_CLASS_NEGONE;
         
-      if(((struct _pmath_machine_float_t*)obj)->value < 0)
+      if(PMATH_AS_DOUBLE(obj) < 0)
         return PMATH_CLASS_NEGSMALL;
         
-      if(((struct _pmath_machine_float_t*)obj)->value == 0)
+      if(PMATH_AS_DOUBLE(obj) == 0)
         return PMATH_CLASS_ZERO;
         
-      if(((struct _pmath_machine_float_t*)obj)->value < 1)
+      if(PMATH_AS_DOUBLE(obj) < 1)
         return PMATH_CLASS_POSSMALL;
         
-      if(((struct _pmath_machine_float_t*)obj)->value == 1)
+      if(PMATH_AS_DOUBLE(obj) == 1)
         return PMATH_CLASS_POSONE;
       
       return PMATH_CLASS_POSBIG;
     }
     
     if(pmath_instance_of(obj, PMATH_TYPE_MP_FLOAT)){
-      int sign = mpfr_sgn(((struct _pmath_mp_float_t*)obj)->value);
+      int sign = mpfr_sgn(PMATH_AS_MP_VALUE(obj));
       
       if(sign < 0){
-        int one = mpfr_cmp_si(((struct _pmath_mp_float_t*)obj)->value, -1);
+        int one = mpfr_cmp_si(PMATH_AS_MP_VALUE(obj), -1);
         
         if(one < 0)
           return PMATH_CLASS_NEGBIG;
@@ -110,7 +110,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_is_inexact(pmath_t obj){
       }
       
       if(sign > 0){
-        int one = mpfr_cmp_si(((struct _pmath_mp_float_t*)obj)->value, 1);
+        int one = mpfr_cmp_si(PMATH_AS_MP_VALUE(obj), 1);
         
         if(one > 0)
           return PMATH_CLASS_POSBIG;

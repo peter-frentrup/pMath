@@ -481,7 +481,7 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj);
     pmath_gather_begin(PMATH_NULL);
     
     item = pmath_expr_get_item(expr, 1);
-    if(item || !skip_null || len == 1){
+    if(!pmath_is_null(item) || !skip_null || len == 1){
       pmath_emit(
         ensure_min_precedence(
           object_to_boxes(thread, item), 
@@ -495,7 +495,7 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj);
         pmath_emit(pmath_ref(op_box), PMATH_NULL);
         
         item = pmath_expr_get_item(expr, i);
-        if(item || !skip_null){
+        if(!pmath_is_null(item) || !skip_null){
           pmath_emit(
             ensure_min_precedence(
               object_to_boxes(thread, item), 
@@ -508,7 +508,7 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj);
       pmath_emit(pmath_ref(op_box), PMATH_NULL);
       
       item = pmath_expr_get_item(expr, len);
-      if(item || !skip_null){
+      if(!pmath_is_null(item) || !skip_null){
         pmath_emit(
           ensure_min_precedence(
             object_to_boxes(thread, item), 
@@ -913,7 +913,7 @@ static pmath_t inequation_to_boxes(
       op = relation(item, thread->boxform);
       pmath_unref(item);
       
-      if(!op){
+      if(pmath_is_null(op)){
         pmath_unref(pmath_gather_end());
         return call_to_boxes(thread, expr);
       }
@@ -1112,10 +1112,10 @@ static pmath_t plus_to_boxes(
       item = object_to_boxes(thread, item);
       
       minus = extract_minus(&item);
-      if(minus)
-        pmath_emit(minus, PMATH_NULL);
-      else
+      if(pmath_is_null(minus))
         pmath_emit(PMATH_C_STRING("+"), PMATH_NULL);
+      else
+        pmath_emit(minus, PMATH_NULL);
       
       pmath_emit(
         ensure_min_precedence(
@@ -1241,7 +1241,7 @@ static pmath_t power_to_boxes(
     base = object_to_boxes(thread, base);
     base = enclose_subsuper_base(base);
 
-    if(exp){
+    if(!pmath_is_null(exp)){
       if(thread->boxform <= BOXFORM_OUTPUT)
         expr = pmath_build_value("(oo)", base, exp);
       else
@@ -1328,7 +1328,7 @@ static pmath_t repeated_to_boxes(
   pmath_thread_t thread,
   pmath_expr_t   expr    // will be freed
 ){
-  assert(thread != PMATH_NULL);
+  assert(thread != NULL);
 
   if(pmath_expr_length(expr) == 2){
     pmath_t item = pmath_expr_get_item(expr, 2);
