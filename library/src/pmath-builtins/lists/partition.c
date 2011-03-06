@@ -308,7 +308,7 @@ static long *get_n( // free it with pmath_mem_free(n, depth * sizeof(long))
             pmath_mem_free(n);
             
             *depth = -1;
-            return PMATH_NULL;
+            return NULL;
           }
           
           pmath_unref(item);
@@ -319,17 +319,17 @@ static long *get_n( // free it with pmath_mem_free(n, depth * sizeof(long))
     }
     
     if(*depth == 0)
-      return PMATH_NULL;
+      return NULL;
   }
   
   *depth = -1;
-  return PMATH_NULL;
+  return NULL;
 }
 
 static pmath_bool_t get_d(
-  pmath_t d_obj, // wont be freed
-  long *d,
-  long depth
+  pmath_t  d_obj, // wont be freed
+  long    *d,
+  long     depth
 ){
   if(pmath_is_integer(d_obj) && pmath_integer_fits_si(d_obj) && depth == 1){
     d[0] = pmath_integer_get_si(d_obj);

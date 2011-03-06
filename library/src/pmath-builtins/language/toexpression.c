@@ -17,8 +17,8 @@ static pmath_t remove_whitespace_from_boxes(pmath_t boxes){
     pmath_span_array_t *spans;
     pmath_string_t code = boxes;
     
-    spans = pmath_spans_from_string(&code, PMATH_NULL, PMATH_NULL, PMATH_NULL, PMATH_NULL, PMATH_NULL);
-    boxes = pmath_boxes_from_spans(spans, code, TRUE, PMATH_NULL, PMATH_NULL);
+    spans = pmath_spans_from_string(&code, NULL, NULL, NULL, NULL, NULL);
+    boxes = pmath_boxes_from_spans(spans, code, TRUE, NULL, NULL);
     
     pmath_unref(code);
     pmath_span_array_free(spans);
@@ -33,7 +33,7 @@ static pmath_t remove_whitespace_from_boxes(pmath_t boxes){
   pmath_unref(head);
   
   if(pmath_same(head, PMATH_SYMBOL_LIST)
-  || !head){
+  || pmath_is_null(head)){
     size_t i;
     pmath_t item;
     pmath_bool_t remove_empty = FALSE;

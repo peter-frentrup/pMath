@@ -48,7 +48,7 @@ PMATH_PRIVATE pmath_t builtin_regather(pmath_expr_t expr){
   }
   
   result = pmath_gather_end();
-  if(!result && !pmath_aborting()){
+  if(pmath_is_null(result) && !pmath_aborting()){
     pmath_unref(expr);
     pmath_message(PMATH_NULL, "nogather", 0);
     return pmath_ref(_pmath_object_emptylist);

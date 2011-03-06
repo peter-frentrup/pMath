@@ -337,8 +337,8 @@ static int sortby_cmp(const void *a, const void *b){
   pmath_t objA, objB;
   int cmp;
   
-  assert(*(pmath_t*)a == PMATH_NULL || pmath_is_expr(*(pmath_t*)a));
-  assert(*(pmath_t*)b == PMATH_NULL || pmath_is_expr(*(pmath_t*)b));
+  assert(pmath_is_null(*(pmath_t*)a) || pmath_is_expr(*(pmath_t*)a));
+  assert(pmath_is_null(*(pmath_t*)b) || pmath_is_expr(*(pmath_t*)b));
 
   objA = pmath_expr_get_item(*(pmath_expr_t*)a, 0);
   objB = pmath_expr_get_item(*(pmath_expr_t*)b, 0);
@@ -401,7 +401,7 @@ PMATH_PRIVATE pmath_t builtin_sortby(pmath_expr_t expr){
 
   for(i = 1;i <= len;++i){
     pmath_expr_t item = (pmath_expr_t)pmath_expr_get_item(list, i);
-    assert(!item || pmath_is_expr(item));
+    assert(pmath_is_null(item) || pmath_is_expr(item));
 
     list = pmath_expr_set_item(list, i, pmath_expr_get_item(item, 1));
     pmath_unref(item);

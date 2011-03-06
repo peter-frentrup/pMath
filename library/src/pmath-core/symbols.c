@@ -92,7 +92,7 @@ static void pre_insert(struct _pmath_symbol_t *symbol){
 static void post_remove(struct _pmath_symbol_t *symbol){
   if(global_first == symbol){
     if(symbol->next == symbol)
-      global_first = PMATH_NULL;
+      global_first = NULL;
     else
       global_first = symbol->next;
   }
@@ -107,7 +107,7 @@ static struct _pmath_stack_t  unused_symbols;
 
 static void destroy_all_unused_symbols(void){
   void *item;
-  while((item = pmath_stack_pop(&unused_symbols)) != PMATH_NULL){
+  while((item = pmath_stack_pop(&unused_symbols)) != NULL){
     pmath_mem_free(item);
   }
 }
@@ -120,17 +120,17 @@ static struct _pmath_symbol_t *create_symbol(void){
     symbol->inherited.inherited.inherited.refcount   = 1;
   }
   else{
-    symbol = (struct _pmath_symbol_t*)_pmath_create_stub(
+    symbol = (void*)PMATH_AS_PTR(_pmath_create_stub(
       PMATH_TYPE_SHIFT_SYMBOL,
-      sizeof(struct _pmath_symbol_t));
+      sizeof(struct _pmath_symbol_t)));
   }
   
   if(symbol){
     symbol->inherited.inherited.last_change = _pmath_timer_get_next();
-    symbol->inherited.gc_refcount = 0;
-    symbol->prev = PMATH_NULL;
-    symbol->next = PMATH_NULL;
-    symbol->current_dynamic_id = 0;
+    symbol->inherited.gc_refcount           = 0;
+    symbol->prev                            = NULL;
+    symbol->next                            = NULL;
+    symbol->current_dynamic_id              = 0;
   }
   
   return symbol;
@@ -139,7 +139,9 @@ static struct _pmath_symbol_t *create_symbol(void){
 //}
 //{ hash table functions ...
 
-static void symbol_entry_destructor(struct _pmath_symbol_t *symbol){
+static void symbol_entry_destructor(void *p){
+  struct _pmath_symbol_t *symbol = p;
+  
   pmath_unref(symbol->name);
   pmath_unref(symbol->value);
   
@@ -152,44 +154,48 @@ static void symbol_entry_destructor(struct _pmath_symbol_t *symbol){
   pmath_stack_push(&unused_symbols, symbol);
 }
 
-static unsigned int symbol_entry_hash(struct _pmath_symbol_t *symbol){
+static unsigned int symbol_entry_hash(void *p){
+  struct _pmath_symbol_t *symbol = p;
   return pmath_hash(symbol->name);
 }
 
-static pmath_bool_t symbol_entry_keys_equal(
-  struct _pmath_symbol_t *symbol1, 
-  struct _pmath_symbol_t *symbol2
-){
+static pmath_bool_t symbol_entry_keys_equal(void *e1, void *e2){
+  struct _pmath_symbol_t *symbol1 = e1; 
+  struct _pmath_symbol_t *symbol2 = e2;
+  
   return pmath_equals(symbol1->name, symbol2->name);
 }
 
-static pmath_bool_t symbol_entry_equals_key(
-  struct _pmath_symbol_t *symbol, 
-  pmath_string_t          key
-){
-  return pmath_equals(symbol->name, key);
+static unsigned int symbol_entry_key_hash(void *key){
+  return pmath_hash(*(pmath_t*)key);
+}
+
+static pmath_bool_t symbol_entry_equals_key(void *e, void *key){
+  struct _pmath_symbol_t *symbol = e;
+  return pmath_equals(symbol->name, *(pmath_t*)key);
 }
 
 //}
 
 static const pmath_ht_class_t symbol_table_class = {
-  (pmath_callback_t)                  symbol_entry_destructor,
-  (pmath_ht_entry_hash_func_t)        symbol_entry_hash,
-  (pmath_ht_entry_equal_func_t)       symbol_entry_keys_equal,
-  (pmath_ht_key_hash_func_t)          pmath_hash,
-  (pmath_ht_entry_equals_key_func_t)  symbol_entry_equals_key
+  symbol_entry_destructor,
+  symbol_entry_hash,
+  symbol_entry_keys_equal,
+  symbol_entry_key_hash,
+  symbol_entry_equals_key
 };
 
 PMATH_API pmath_symbol_t pmath_symbol_iter_next(pmath_symbol_t old){
   pmath_symbol_t result;
   
-  if(!old)
+  if(pmath_is_null(old))
     return PMATH_NULL;
   
   PMATH_DEBUG_TIMING(
     pmath_atomic_lock(&global_symbol_table_lock);
     {
-      result = pmath_ref((pmath_symbol_t)((struct _pmath_symbol_t*)old)->next);
+      result = pmath_ref(PMATH_FROM_PTR(
+        ((struct _pmath_symbol_t*)PMATH_AS_PTR(old))->next));
     }
     pmath_atomic_unlock(&global_symbol_table_lock);
   );
@@ -238,12 +244,13 @@ PMATH_API pmath_symbol_t pmath_symbol_get(
   PMATH_DEBUG_TIMING(
     pmath_atomic_lock(&global_symbol_table_lock);
     {
-      result = pmath_ref(pmath_ht_search(global_symbol_table, name));
+      result = pmath_ref(PMATH_FROM_PTR(
+        pmath_ht_search(global_symbol_table, &name)));
     }
     pmath_atomic_unlock(&global_symbol_table_lock);
   );
   
-  if(result){
+  if(!pmath_is_null(result)){
     attr = pmath_symbol_get_attributes(result);
     if(attr & PMATH_SYMBOL_ATTRIBUTE_REMOVED){
       if(create){
@@ -263,19 +270,19 @@ PMATH_API pmath_symbol_t pmath_symbol_get(
   }
   
   if(create){
-    void *entry;
+    struct _pmath_symbol_t *entry;
     struct _pmath_symbol_t *new_symbol = create_symbol();
-    result = (pmath_symbol_t)new_symbol;
+    result = PMATH_FROM_PTR(new_symbol);
     if(!new_symbol){
       pmath_unref(name);
       return PMATH_NULL;
     }
     
     new_symbol->name        = pmath_ref(name);
-    new_symbol->lock        = PMATH_NULL;
+    new_symbol->lock        = NULL;
     new_symbol->attributes  = 0;
     new_symbol->value       = PMATH_UNDEFINED;
-    new_symbol->u.rules     = PMATH_NULL;
+    new_symbol->u.rules     = NULL;
     
     PMATH_DEBUG_TIMING(
       pmath_atomic_lock(&global_symbol_table_lock);
@@ -299,7 +306,7 @@ PMATH_API pmath_symbol_t pmath_symbol_get(
     if(_pmath_is_running()){
       pmath_t newsym = pmath_symbol_get_value(PMATH_SYMBOL_NEWSYMBOL);
       
-      if(newsym){
+      if(!pmath_is_null(newsym)){
         const uint16_t *buf = pmath_string_buffer(name);
         int             len = pmath_string_length(name);
         
@@ -320,7 +327,6 @@ PMATH_API pmath_symbol_t pmath_symbol_get(
   }
   
   pmath_unref(name);
-//  pmath_unref(data.name);
 
   return result;
 }
@@ -361,26 +367,27 @@ PMATH_API pmath_symbol_t pmath_symbol_create_temporary(
   PMATH_DEBUG_TIMING(
     pmath_atomic_lock(&global_symbol_table_lock);
     {
-      result = pmath_ref(pmath_ht_search(global_symbol_table, name));
+      result = pmath_ref(PMATH_FROM_PTR(
+        pmath_ht_search(global_symbol_table, &name)));
     }
     pmath_atomic_unlock(&global_symbol_table_lock);
   );
   
-  if(!result){
-    void *entry;
+  if(pmath_is_null(result)){
+    struct _pmath_symbol_t *entry;
     struct _pmath_symbol_t *new_symbol = create_symbol();
-    result = (pmath_symbol_t)new_symbol;
+    result = PMATH_FROM_PTR(new_symbol);
     if(!new_symbol){
       pmath_unref(name);
       return PMATH_NULL;
     }
     
     //new_symbol->last_update = (uintptr_t)global_update_counter;
-    new_symbol->lock        = PMATH_NULL;
+    new_symbol->lock        = NULL;
     new_symbol->name        = name;
     new_symbol->attributes  = PMATH_SYMBOL_ATTRIBUTE_TEMPORARY;
     new_symbol->value       = PMATH_UNDEFINED;
-    new_symbol->u.rules     = PMATH_NULL;
+    new_symbol->u.rules     = NULL;
     
     PMATH_DEBUG_TIMING(
       pmath_atomic_lock(&global_symbol_table_lock);
@@ -439,7 +446,7 @@ PMATH_API pmath_symbol_t pmath_symbol_create_temporary(
     
     pmath_symbol_t symbol = pmath_symbol_get(pmath_ref(name), FALSE);
 
-    if(symbol){
+    if(!pmath_is_null(symbol)){
       pmath_unref(name);
       return symbol;
     }
@@ -449,7 +456,7 @@ PMATH_API pmath_symbol_t pmath_symbol_create_temporary(
       name,
       FALSE);
       
-    if(symbol){
+    if(!pmath_is_null(symbol)){
       pmath_unref(name);
       return symbol;
     }
@@ -465,7 +472,7 @@ PMATH_API pmath_symbol_t pmath_symbol_create_temporary(
           name,
           FALSE);
 
-        if(symbol){
+        if(!pmath_is_null(symbol)){
           pmath_unref(namespaces);
           pmath_unref(name);
           return symbol;
@@ -494,7 +501,7 @@ PMATH_API pmath_symbol_t pmath_symbol_find(
   const uint16_t *str;
   int i, len;
   
-  if(symbol){
+  if(!pmath_is_null(symbol)){
     pmath_unref(name);
     return symbol;
   }
@@ -525,16 +532,16 @@ PMATH_API pmath_symbol_t pmath_symbol_find(
 /*----------------------------------------------------------------------------*/
 
 PMATH_API pmath_string_t pmath_symbol_name(pmath_symbol_t symbol){
-  struct _pmath_symbol_t *_symbol = (struct _pmath_symbol_t*)symbol;
+  struct _pmath_symbol_t *_symbol = (struct _pmath_symbol_t*)PMATH_AS_PTR(symbol);
   
-  if(!symbol)
+  if(pmath_is_null(symbol))
     return PMATH_NULL;
   
 //  if(_symbol->attributes & PMATH_SYMBOL_ATTRIBUTE_REMOVED){
 //    return pmath_string_concat(pmath_ref(_symbol->name), PMATH_C_STRING("/*REMOVED*/"));
 //  }
   
-  return (pmath_string_t)pmath_ref(_symbol->name);
+  return pmath_ref(_symbol->name);
 }
 
 /*----------------------------------------------------------------------------*/
@@ -542,22 +549,22 @@ PMATH_API pmath_string_t pmath_symbol_name(pmath_symbol_t symbol){
 PMATH_API pmath_symbol_attributes_t pmath_symbol_get_attributes(
   pmath_symbol_t  symbol
 ){
-  if(!symbol)
+  if(pmath_is_null(symbol))
     return 0;
 
-  return ((struct _pmath_symbol_t*)symbol)->attributes;
+  return ((struct _pmath_symbol_t*)PMATH_AS_PTR(symbol))->attributes;
 }
 
 PMATH_API void pmath_symbol_set_attributes(
   pmath_symbol_t             symbol,
   pmath_symbol_attributes_t  attr
 ){
-  if(!symbol)
+  if(pmath_is_null(symbol))
     return;
   
-  ((struct _pmath_timed_t*)symbol)->last_change = _pmath_timer_get_next();
+  ((struct _pmath_timed_t*)PMATH_AS_PTR(symbol))->last_change = _pmath_timer_get_next();
   
-  ((struct _pmath_symbol_t*)symbol)->attributes = attr;
+  ((struct _pmath_symbol_t*)PMATH_AS_PTR(symbol))->attributes = attr;
 }
 
 /*----------------------------------------------------------------------------*/
@@ -568,16 +575,17 @@ struct _pmath_symbol_rules_t *_pmath_symbol_get_rules(
   rule_access_t   access
 ){
   struct _pmath_symbol_rules_t *rules;
+  
   assert(pmath_is_symbol(symbol));
   
   if(access == RULES_WRITE
-  && ((struct _pmath_symbol_t*)symbol)->attributes & PMATH_SYMBOL_ATTRIBUTE_PROTECTED){
+  && ((struct _pmath_symbol_t*)PMATH_AS_PTR(symbol))->attributes & PMATH_SYMBOL_ATTRIBUTE_PROTECTED){
     if(_pmath_is_running())
       pmath_message(PMATH_NULL, "wrsym", 1, pmath_ref(symbol));
-    return PMATH_NULL;
+    return NULL;
   }
   
-  if(((struct _pmath_symbol_t*)symbol)->attributes & PMATH_SYMBOL_ATTRIBUTE_THREADLOCAL){
+  if(((struct _pmath_symbol_t*)PMATH_AS_PTR(symbol))->attributes & PMATH_SYMBOL_ATTRIBUTE_THREADLOCAL){
     struct _pmath_symbol_rules_entry_t *entry;
     pmath_thread_t                      parent;
     pmath_thread_t                      me;
@@ -585,12 +593,11 @@ struct _pmath_symbol_rules_t *_pmath_symbol_get_rules(
     me = pmath_thread_get_current();
     
     if(!me)
-      return PMATH_NULL;
+      return NULL;
     
-    rules = PMATH_NULL;
+    rules = NULL;
     for(parent = me;parent;parent = parent->parent){
-      entry = (struct _pmath_symbol_rules_entry_t*)
-        pmath_ht_search(parent->local_rules, symbol);
+      entry = pmath_ht_search(parent->local_rules, &symbol);
       
       if(entry){
         if(parent == me || access == RULES_READ)
@@ -602,7 +609,7 @@ struct _pmath_symbol_rules_t *_pmath_symbol_get_rules(
     }
     
     if(!rules){
-      rules = ((struct _pmath_symbol_t*)symbol)->u.rules;
+      rules = ((struct _pmath_symbol_t*)PMATH_AS_PTR(symbol))->u.rules;
       
       pmath_atomic_barrier();
       
@@ -615,14 +622,14 @@ struct _pmath_symbol_rules_t *_pmath_symbol_get_rules(
         &_pmath_symbol_rules_ht_class, 1);
       
       if(!me->local_rules)
-        return PMATH_NULL;
+        return NULL;
     }
     
     entry = (struct _pmath_symbol_rules_entry_t*)pmath_mem_alloc(
       sizeof(struct _pmath_symbol_rules_entry_t));
     
     if(!entry)
-      return PMATH_NULL;
+      return NULL;
     
     entry->key = pmath_ref(symbol);
     
@@ -631,15 +638,16 @@ struct _pmath_symbol_rules_t *_pmath_symbol_get_rules(
     rules = &entry->rules;
     
     entry = pmath_ht_insert(me->local_rules, entry);
-      
-    assert(entry == PMATH_NULL);
+    if(entry){ // Out Of Memory
+      _pmath_symbol_rules_ht_class.entry_destructor(entry);
+    }
     
     return rules;
   }
   else{
     struct _pmath_symbol_rules_t *new_rules;
     
-    rules = ((struct _pmath_symbol_t*)symbol)->u.rules;
+    rules = ((struct _pmath_symbol_t*)PMATH_AS_PTR(symbol))->u.rules;
     
     pmath_atomic_barrier();
     
@@ -650,12 +658,12 @@ struct _pmath_symbol_rules_t *_pmath_symbol_get_rules(
     if(new_rules){
       memset(new_rules, 0, sizeof(struct _pmath_symbol_rules_t));
       
-      rules = (struct _pmath_symbol_rules_t*)pmath_atomic_fetch_compare_and_set(
-        &((struct _pmath_symbol_t*)symbol)->u.rules_intptr, 
+      rules = (void*)pmath_atomic_fetch_compare_and_set(
+        &((struct _pmath_symbol_t*)PMATH_AS_PTR(symbol))->u.rules_intptr, 
         0, 
         (intptr_t)new_rules);
       
-      if(rules == PMATH_NULL)
+      if(rules == NULL)
         return new_rules;
       
       pmath_mem_free(new_rules);
@@ -671,13 +679,15 @@ pmath_bool_t _pmath_symbol_assign_value(
   pmath_t  lhs,    // will be freed. typically pmath_ref(symbol)
   pmath_t  rhs     // will be freed
 ){
-  if(PMATH_UNLIKELY( !symbol )){
+  struct _pmath_symbol_t *sym_ptr = (void*)PMATH_AS_PTR(symbol);
+  
+  if(PMATH_UNLIKELY(!sym_ptr)){
     pmath_unref(lhs);
     pmath_unref(rhs);
     return TRUE;
   }
   
-  if(((struct _pmath_symbol_t*)symbol)->attributes & PMATH_SYMBOL_ATTRIBUTE_PROTECTED){
+  if(sym_ptr->attributes & PMATH_SYMBOL_ATTRIBUTE_PROTECTED){
     if(_pmath_is_running())
       pmath_message(PMATH_NULL, "wrsym", 1, pmath_ref(symbol));
     pmath_unref(lhs);
@@ -685,7 +695,7 @@ pmath_bool_t _pmath_symbol_assign_value(
     return FALSE;
   }
   
-  if(((struct _pmath_symbol_t*)symbol)->attributes & PMATH_SYMBOL_ATTRIBUTE_THREADLOCAL){
+  if(sym_ptr->attributes & PMATH_SYMBOL_ATTRIBUTE_THREADLOCAL){
     struct _pmath_object_entry_t *entry;
     struct _pmath_object_entry_t *parent_entry;
     pmath_thread_t                me;
@@ -708,10 +718,10 @@ pmath_bool_t _pmath_symbol_assign_value(
         return FALSE;
       }
       
-      entry = PMATH_NULL;
+      entry = NULL;
     }
     else
-      entry = pmath_ht_search(me->local_values, symbol);
+      entry = pmath_ht_search(me->local_values, &symbol);
     
     if(!entry){
       entry = pmath_mem_alloc(sizeof(struct _pmath_object_entry_t));
@@ -726,7 +736,7 @@ pmath_bool_t _pmath_symbol_assign_value(
       entry->value = PMATH_NULL;
       
       for(parent = me->parent;parent;parent = parent->parent){
-        parent_entry = pmath_ht_search(parent->local_values, symbol);
+        parent_entry = pmath_ht_search(parent->local_values, &symbol);
         
         if(parent_entry){
           entry->value = pmath_ref(parent_entry->value);
@@ -735,7 +745,8 @@ pmath_bool_t _pmath_symbol_assign_value(
       }
       
       parent_entry = pmath_ht_insert(me->local_values, entry);
-      assert(parent_entry == PMATH_NULL);
+      if(parent_entry)
+        pmath_ht_obj_class.entry_destructor(parent_entry);
     }
   
     _pmath_symbol_define_value_pos(
@@ -745,13 +756,13 @@ pmath_bool_t _pmath_symbol_assign_value(
   }
   else{
     _pmath_symbol_define_value_pos(
-      &((struct _pmath_symbol_t*)symbol)->value,
+      &sym_ptr->value,
       lhs,
       rhs);
   }
   
-  ((struct _pmath_timed_t*)symbol)->last_change = _pmath_timer_get_next();
-  if(pmath_atomic_fetch_set(&((struct _pmath_symbol_t*)symbol)->current_dynamic_id, 0) != 0)
+  sym_ptr->inherited.inherited.last_change = _pmath_timer_get_next();
+  if(pmath_atomic_fetch_set(&sym_ptr->current_dynamic_id, 0) != 0)
     _pmath_dynamic_update(symbol);
     
   return TRUE;
@@ -761,71 +772,78 @@ PMATH_PRIVATE
 pmath_t _pmath_symbol_get_global_value(pmath_symbol_t symbol){
   assert(pmath_is_symbol(symbol));
   
-  return _pmath_object_atomic_read(&(((struct _pmath_symbol_t*)symbol)->value));
+  return _pmath_object_atomic_read(
+    &(((struct _pmath_symbol_t*)PMATH_AS_PTR(symbol))->value));
 }
 
 PMATH_API pmath_t pmath_symbol_get_value(pmath_symbol_t symbol){
-  if(!symbol)
+  struct _pmath_symbol_t *sym_ptr = (void*)PMATH_AS_PTR(symbol);
+  
+  if(!sym_ptr)
     return PMATH_NULL;
 
-  if(((struct _pmath_symbol_t*)symbol)->attributes & PMATH_SYMBOL_ATTRIBUTE_THREADLOCAL){
+  if(sym_ptr->attributes & PMATH_SYMBOL_ATTRIBUTE_THREADLOCAL){
     return pmath_thread_local_load(symbol);
   }
 
-  return _pmath_object_atomic_read(&(((struct _pmath_symbol_t*)symbol)->value));
+  return _pmath_object_atomic_read(&sym_ptr->value);
 }
 
 PMATH_PRIVATE
 void _pmath_symbol_set_global_value(
   pmath_symbol_t symbol,
-  pmath_t value
+  pmath_t        value
 ){
+  struct _pmath_symbol_t *sym_ptr;
+  
   assert(pmath_is_symbol(symbol));
   
-  ((struct _pmath_timed_t*)symbol)->last_change = _pmath_timer_get_next();
-  if(pmath_atomic_fetch_set(&((struct _pmath_symbol_t*)symbol)->current_dynamic_id, 0) != 0)
+  sym_ptr = (void*)PMATH_AS_PTR(symbol);
+  
+  sym_ptr->inherited.inherited.last_change = _pmath_timer_get_next();
+  if(pmath_atomic_fetch_set(&sym_ptr->current_dynamic_id, 0) != 0)
     _pmath_dynamic_update(symbol);
 
   _pmath_object_atomic_write(
-    &(((struct _pmath_symbol_t*)symbol)->value),
+    &sym_ptr->value,
     value);
 }
 
 PMATH_API void pmath_symbol_set_value(
   pmath_symbol_t symbol,
-  pmath_t value
+  pmath_t        value
 ){
-  if(!symbol){
+  struct _pmath_symbol_t *sym_ptr = (void*)PMATH_AS_PTR(symbol);
+  
+  if(!sym_ptr){
     pmath_unref(value);
     return;
   }
   
-  ((struct _pmath_timed_t*)symbol)->last_change = _pmath_timer_get_next();
-  if(pmath_atomic_fetch_set(&((struct _pmath_symbol_t*)symbol)->current_dynamic_id, 0) != 0)
+  sym_ptr->inherited.inherited.last_change = _pmath_timer_get_next();
+  if(pmath_atomic_fetch_set(&sym_ptr->current_dynamic_id, 0) != 0)
     _pmath_dynamic_update(symbol);
 
-  if(((struct _pmath_symbol_t*)symbol)->attributes & PMATH_SYMBOL_ATTRIBUTE_THREADLOCAL){
+  if(sym_ptr->attributes & PMATH_SYMBOL_ATTRIBUTE_THREADLOCAL){
     pmath_unref(pmath_thread_local_save(symbol, value));
     return;
   }
 
-  _pmath_object_atomic_write(
-    &(((struct _pmath_symbol_t*)symbol)->value),
-    value);
+  _pmath_object_atomic_write(&sym_ptr->value, value);
 }
 
 /*----------------------------------------------------------------------------*/
 
 PMATH_API void pmath_symbol_synchronized(
-  pmath_symbol_t          symbol,
+  pmath_symbol_t     symbol,
   pmath_callback_t   callback,
-  void                   *data
+  void              *data
 ){
-  if(symbol){
+  if(!pmath_is_null(symbol)){
     // ensure that the symbol wont be freed during synchronization:
     symbol = pmath_ref(symbol);
     pmath_thread_call_locked(
-      &((struct _pmath_symbol_t*)symbol)->lock,
+      &((struct _pmath_symbol_t*)PMATH_AS_PTR(symbol))->lock,
       callback,
       data);
     pmath_unref(symbol);
@@ -835,16 +853,16 @@ PMATH_API void pmath_symbol_synchronized(
 /*----------------------------------------------------------------------------*/
 
 PMATH_API void pmath_symbol_update(pmath_symbol_t symbol){
-  struct _pmath_symbol_t *_sym = (struct _pmath_symbol_t*)symbol;
+  struct _pmath_symbol_t *sym_ptr = (struct _pmath_symbol_t*)PMATH_AS_PTR(symbol);
   
-  if(PMATH_UNLIKELY(!_sym))
+  if(PMATH_UNLIKELY(!sym_ptr))
     return;
 
   assert(pmath_is_symbol(symbol));
   
-  _sym->inherited.inherited.last_change = _pmath_timer_get_next();
+  sym_ptr->inherited.inherited.last_change = _pmath_timer_get_next();
   
-  if(pmath_atomic_fetch_set(&_sym->current_dynamic_id, 0) != 0)
+  if(pmath_atomic_fetch_set(&sym_ptr->current_dynamic_id, 0) != 0)
     _pmath_dynamic_update(symbol);
 }
 
@@ -853,15 +871,15 @@ void _pmath_symbol_track_dynamic(
   pmath_symbol_t symbol, // wont be freed
   intptr_t       id
 ){
-  struct _pmath_symbol_t *_sym = (struct _pmath_symbol_t*)symbol;
+  struct _pmath_symbol_t *sym_ptr = (struct _pmath_symbol_t*)PMATH_AS_PTR(symbol);
   
-  if(PMATH_UNLIKELY(!_sym))
+  if(PMATH_UNLIKELY(!sym_ptr))
     return;
 
   assert(pmath_is_symbol(symbol));
   
-  if(_sym->current_dynamic_id != id){
-    _sym->current_dynamic_id = id;
+  if(sym_ptr->current_dynamic_id != id){
+    sym_ptr->current_dynamic_id = id;
     
     _pmath_dynamic_bind(symbol, id);
   }
@@ -871,7 +889,7 @@ void _pmath_symbol_track_dynamic(
 
 PMATH_API
 void pmath_symbol_remove(pmath_symbol_t symbol){
-  if(symbol){
+  if(!pmath_is_null(symbol)){
     pmath_symbol_attributes_t attr;
     
     assert(pmath_is_symbol(symbol));
@@ -882,7 +900,9 @@ void pmath_symbol_remove(pmath_symbol_t symbol){
       return;
     }
     
-    pmath_symbol_set_attributes(symbol, attr | PMATH_SYMBOL_ATTRIBUTE_TEMPORARY | PMATH_SYMBOL_ATTRIBUTE_REMOVED);
+    pmath_symbol_set_attributes(
+      symbol, 
+      attr | PMATH_SYMBOL_ATTRIBUTE_TEMPORARY | PMATH_SYMBOL_ATTRIBUTE_REMOVED);
     _pmath_clear(symbol, TRUE);
     
     {
@@ -903,18 +923,18 @@ void pmath_symbol_remove(pmath_symbol_t symbol){
         pmath_ref(PMATH_SYMBOL_SYMBOL), 1,
         pmath_symbol_name(symbol));
       
-      for(i = 0;i < cap && symbol->refcount > 1;++i){
+      for(i = 0;i < cap && PMATH_AS_PTR(symbol)->refcount > 1;++i){
         pmath_symbol_t entry;
         
         PMATH_DEBUG_TIMING(
           pmath_atomic_lock(&global_symbol_table_lock);
           {
-            entry = pmath_ref(pmath_ht_entry(global_symbol_table, i));
+            entry = pmath_ref(PMATH_FROM_PTR(pmath_ht_entry(global_symbol_table, i)));
           }
           pmath_atomic_unlock(&global_symbol_table_lock);
         );
         
-        if(entry){
+        if(!pmath_is_null(entry)){
           pmath_t value;
           struct _pmath_symbol_rules_t *rules;
           
@@ -946,15 +966,21 @@ void pmath_symbol_remove(pmath_symbol_t symbol){
 
 //{ pMath object functions ...
 
-static void destroy_symbol(struct _pmath_symbol_t *symbol){
+static unsigned hash_symbol(pmath_t symbol){
+  return _pmath_hash_pointer(PMATH_AS_PTR(symbol));
+}
+
+static void destroy_symbol(pmath_t s){
+  struct _pmath_symbol_t *symbol = (void*)PMATH_AS_PTR(s);
+  
   if((symbol->attributes & PMATH_SYMBOL_ATTRIBUTE_TEMPORARY) 
   && _pmath_is_running()){
     
     if(pmath_atomic_compare_and_set(&symbol->inherited.inherited.inherited.refcount, 0, 1)){
       void *removed_entry;
       
-      assert(symbol->name->refcount >= 1);
-      assert(symbol->name->type_shift == PMATH_TYPE_SHIFT_STRING);
+      assert(pmath_is_string(symbol->name));
+      assert(PMATH_AS_PTR(symbol->name)->refcount >= 1);
       
       {
         PMATH_DEBUG_TIMING(
@@ -962,7 +988,7 @@ static void destroy_symbol(struct _pmath_symbol_t *symbol){
           {
             removed_entry = pmath_ht_remove(
               global_symbol_table, 
-              symbol->name);
+              (void*)&symbol->name);
             if(removed_entry)
               post_remove(removed_entry);
           }
@@ -984,11 +1010,11 @@ static void destroy_symbol(struct _pmath_symbol_t *symbol){
             pmath_atomic_unlock(&global_symbol_table_lock);
           );
           
-          pmath_debug_print_object("\aHashtable corrupted?: ",(pmath_symbol_t)symbol,"");
-          pmath_debug_print(" [hash= %u]\n", pmath_hash((pmath_symbol_t)symbol));
+          pmath_debug_print_object("\aHashtable corrupted?: ", PMATH_FROM_PTR(symbol), "");
+          pmath_debug_print(" [hash= %u]\n", pmath_hash(PMATH_FROM_PTR(symbol)));
           
-          pmath_debug_print_object("\aremoved: ",(pmath_t)removed_entry,"");
-          pmath_debug_print(" [hash= %u]\n", pmath_hash((pmath_symbol_t)removed_entry));
+          pmath_debug_print_object("\aremoved: ", PMATH_FROM_PTR(removed_entry), "");
+          pmath_debug_print(" [hash= %u]\n", pmath_hash(PMATH_FROM_PTR(removed_entry)));
           
           pmath_debug_print(">-------------------------------\n");
           pmath_debug_print("\tcount=%u,cap=%u\n", count, cap);
@@ -998,13 +1024,13 @@ static void destroy_symbol(struct _pmath_symbol_t *symbol){
             PMATH_DEBUG_TIMING(
               pmath_atomic_lock(&global_symbol_table_lock);
               {
-                entry = pmath_ref(pmath_ht_entry(global_symbol_table, i));
+                entry = pmath_ref(PMATH_FROM_PTR(pmath_ht_entry(global_symbol_table, i)));
               }
               pmath_atomic_unlock(&global_symbol_table_lock);
             );
             
-            if(!entry){
-              pmath_debug_print("PMATH_NULL\n");
+            if(pmath_is_null(entry)){
+              pmath_debug_print("NULL\n");
             }
             else{
               pmath_debug_print("[hash= %u]\t", pmath_hash(entry));
@@ -1035,15 +1061,8 @@ static void destroy_symbol(struct _pmath_symbol_t *symbol){
   }
 }
 
-static pmath_bool_t equal_symbols(
-  struct _pmath_symbol_t  *symA,
-  struct _pmath_symbol_t  *symB
-){
-  return symA == symB;
-}
-
 static void write_symbol(
-  pmath_symbol_t          symbol,
+  pmath_t                 symbol,
   pmath_write_options_t   options,
   pmath_write_func_t      write,
   void                   *user
@@ -1074,7 +1093,7 @@ static void write_symbol(
         pmath_string_part(pmath_ref(name), i, -1),
         FALSE);
       pmath_unref(found);
-      if(found == symbol){
+      if(pmath_same(found, symbol)){
         write(user, str + i, len - i);
         pmath_unref(name);
         return;
@@ -1097,18 +1116,19 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbols_init(void){
   
   memset(&unused_symbols, 0, sizeof(unused_symbols));
   
-  global_symbol_table = pmath_ht_create(&symbol_table_class,
+  global_symbol_table = pmath_ht_create(
+    &symbol_table_class,
     PMATH_BUILTIN_SYMBOL_COUNT);
   if(!global_symbol_table)
     goto FAIL_GLOBAL_SYMBOL_TABLE;
 
   _pmath_init_special_type(
     PMATH_TYPE_SHIFT_SYMBOL,
-    (pmath_compare_func_t)        _pmath_compare_exprsym,
-    (pmath_hash_func_t)           _pmath_hash_pointer,
-    (pmath_proc_t)                destroy_symbol,
-    (pmath_equal_func_t)          equal_symbols,
-    (_pmath_object_write_func_t)  write_symbol);
+    _pmath_compare_exprsym,
+    hash_symbol,
+    destroy_symbol,
+    NULL,
+    write_symbol);
 
   return TRUE;
 
@@ -1132,7 +1152,7 @@ PMATH_PRIVATE void _pmath_symbols_almost_done(void){
       
         pmath_mem_free(symbol->u.rules);
         
-        symbol->u.rules = PMATH_NULL;
+        symbol->u.rules = NULL;
       }
     }
   }
@@ -1151,14 +1171,14 @@ PMATH_PRIVATE void _pmath_symbols_done(void){
       struct _pmath_symbol_t *symbol = pmath_ht_entry(global_symbol_table, i);
       
       if(symbol && symbol->inherited.inherited.inherited.refcount != 0){
-        if(pmath_ht_search(global_symbol_table, symbol->name) != PMATH_NULL){
-          pmath_debug_print_object("\aSymbol '", (pmath_symbol_t)symbol, "'");
+        if(pmath_ht_search(global_symbol_table, (void*)&symbol->name) != NULL){
+          pmath_debug_print_object("\aSymbol '", PMATH_FROM_PTR(symbol), "'");
           pmath_debug_print(" (%p) still has %"PRIuPTR" reference(s)\n",
             symbol,
             symbol->inherited.inherited.inherited.refcount);
         }
         else{
-          pmath_debug_print_object("\a\aHashtable corrupted: lost symbol '", (pmath_symbol_t)symbol, "'");
+          pmath_debug_print_object("\a\aHashtable corrupted: lost symbol '", PMATH_FROM_PTR(symbol), "'");
           pmath_debug_print(" (%p) still has %"PRIuPTR" reference(s)\n",
             symbol,
             symbol->inherited.inherited.inherited.refcount);

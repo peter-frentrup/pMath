@@ -34,7 +34,7 @@ PMATH_API void pmath_gather_begin(pmath_t pattern){
   info->next               = thread->gather_info;
   info->pattern            = pattern;
   info->value_count        = 0;
-  info->emitted_values.ptr = PMATH_NULL;
+  info->emitted_values.ptr = NULL;
   thread->gather_info      = info;
 }
 
@@ -93,8 +93,8 @@ PMATH_API void pmath_emit(pmath_t object, pmath_t tag){
   item->value = object;
   while(thread){
     info = thread->gather_info;
-    at_least_one_gather = at_least_one_gather || info != PMATH_NULL;
-    while(info && !_pmath_pattern_match(tag, pmath_ref(info->pattern), PMATH_NULL))
+    at_least_one_gather = at_least_one_gather || info != NULL;
+    while(info && !_pmath_pattern_match(tag, pmath_ref(info->pattern), NULL))
       info = info->next;
 
     if(info){

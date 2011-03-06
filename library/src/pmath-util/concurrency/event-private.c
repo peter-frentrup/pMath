@@ -5,8 +5,8 @@
 
   PMATH_PRIVATE
   pmath_bool_t _pmath_event_init(pmath_event_t *event){
-    *event = CreateEvent(PMATH_NULL, FALSE, FALSE, PMATH_NULL);
-    return *event != PMATH_NULL;
+    *event = CreateEvent(NULL, FALSE, FALSE, NULL);
+    return *event != NULL;
   }
   
   PMATH_PRIVATE
@@ -37,10 +37,10 @@
 
   PMATH_PRIVATE
   pmath_bool_t _pmath_event_init(pmath_event_t *event){
-    if(0 != pthread_cond_init(&event->cond, PMATH_NULL))
+    if(0 != pthread_cond_init(&event->cond, NULL))
       return FALSE;
     
-    if(0 != pthread_mutex_init(&event->mutex, PMATH_NULL)){
+    if(0 != pthread_mutex_init(&event->mutex, NULL)){
       pthread_cond_destroy(&event->cond);
       return FALSE;
     }

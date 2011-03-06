@@ -88,26 +88,28 @@ _pmath_timer_t _pmath_timer_get_next(void){
 
 PMATH_API void _pmath_destroy_object(pmath_t obj){
   assert(!PMATH_IS_MAGIC(obj));
-  if(!PMATH_VALID_TYPE_SHIFT(obj->type_shift)){
-    fprintf(stderr, "invalid type shift: %p, %d\n", obj, obj->type_shift);
-  }
-  assert(PMATH_VALID_TYPE_SHIFT(obj->type_shift));
-  assert(obj->refcount == 0 || obj->type_shift == PMATH_TYPE_SHIFT_SYMBOL);
   
-  if(pmath_type_imps[obj->type_shift].destroy)
-    pmath_type_imps[obj->type_shift].destroy(obj);
+  if(!PMATH_VALID_TYPE_SHIFT(PMATH_AS_PTR(obj)->type_shift)){
+    fprintf(stderr, "invalid type shift: %p, %d\n", 
+      PMATH_AS_PTR(obj), PMATH_AS_PTR(obj)->type_shift);
+  }
+  assert(PMATH_VALID_TYPE_SHIFT(PMATH_AS_PTR(obj)->type_shift));
+  assert(PMATH_AS_PTR(obj)->refcount == 0 || PMATH_AS_PTR(obj)->type_shift == PMATH_TYPE_SHIFT_SYMBOL);
+  
+  if(pmath_type_imps[PMATH_AS_PTR(obj)->type_shift].destroy)
+     pmath_type_imps[PMATH_AS_PTR(obj)->type_shift].destroy(obj);
 }
 
 PMATH_API unsigned int pmath_hash(pmath_t obj){
   pmath_hash_func_t hash;
   
   if(PMATH_IS_MAGIC(obj))
-    return (unsigned int)((uintptr_t)obj); // this is very poor!
+    return (unsigned int)((uintptr_t)PMATH_AS_PTR(obj)); // this is very poor!
 
-  assert(PMATH_VALID_TYPE_SHIFT(obj->type_shift));
+  assert(PMATH_VALID_TYPE_SHIFT(PMATH_AS_PTR(obj)->type_shift));
   
-  hash = pmath_type_imps[obj->type_shift].hash;
-  assert(hash != PMATH_NULL);
+  hash = pmath_type_imps[PMATH_AS_PTR(obj)->type_shift].hash;
+  assert(hash != NULL);
   return hash(obj);
 }
 
@@ -122,21 +124,22 @@ PMATH_API pmath_bool_t pmath_equals(
   pmath_equal_func_t eqA, eqB;
   pmath_compare_func_t cmpA, cmpB;
   
-  if(objA == objB)
+  if(pmath_same(objA, objB))
     return TRUE;
+    
   if(PMATH_IS_MAGIC(objA) || PMATH_IS_MAGIC(objB))
     return FALSE;
 
-  assert(PMATH_VALID_TYPE_SHIFT(objA->type_shift));
-  assert(PMATH_VALID_TYPE_SHIFT(objB->type_shift));
-  eqA = pmath_type_imps[objA->type_shift].equals;
-  eqB = pmath_type_imps[objB->type_shift].equals;
+  assert(PMATH_VALID_TYPE_SHIFT(PMATH_AS_PTR(objA)->type_shift));
+  assert(PMATH_VALID_TYPE_SHIFT(PMATH_AS_PTR(objB)->type_shift));
+  eqA = pmath_type_imps[PMATH_AS_PTR(objA)->type_shift].equals;
+  eqB = pmath_type_imps[PMATH_AS_PTR(objB)->type_shift].equals;
   if(eqA && eqA == eqB)
     return eqA(objA, objB);
 
-  cmpA = pmath_type_imps[objA->type_shift].compare;
-  cmpB = pmath_type_imps[objB->type_shift].compare;
-  assert(cmpA != PMATH_NULL);
+  cmpA = pmath_type_imps[PMATH_AS_PTR(objA)->type_shift].compare;
+  cmpB = pmath_type_imps[PMATH_AS_PTR(objB)->type_shift].compare;
+  assert(cmpA != NULL);
   if(cmpA == cmpB)
     return 0 == cmpA(objA, objB);
 
@@ -146,26 +149,28 @@ PMATH_API pmath_bool_t pmath_equals(
 PMATH_API int pmath_compare(pmath_t objA, pmath_t objB){
   pmath_compare_func_t cmpA, cmpB;
   
-  if(objA == objB)
+  if(pmath_same(objA, objB))
     return 0;
+    
   if(PMATH_IS_MAGIC(objA)){
     if(PMATH_IS_MAGIC(objB))
-      return (uintptr_t)objA > (uintptr_t)objB ? -1 : 1;
+      return (uintptr_t)PMATH_AS_PTR(objA) > (uintptr_t)PMATH_AS_PTR(objB) ? -1 : 1;
     return 1;
   }
+  
   if(PMATH_IS_MAGIC(objB)){
     return -1;
   }
 
-  assert(PMATH_VALID_TYPE_SHIFT(objA->type_shift));
-  assert(PMATH_VALID_TYPE_SHIFT(objB->type_shift));
-  cmpA = pmath_type_imps[objA->type_shift].compare;
-  cmpB = pmath_type_imps[objB->type_shift].compare;
-  assert(cmpA != PMATH_NULL);
+  assert(PMATH_VALID_TYPE_SHIFT(PMATH_AS_PTR(objA)->type_shift));
+  assert(PMATH_VALID_TYPE_SHIFT(PMATH_AS_PTR(objB)->type_shift));
+  cmpA = pmath_type_imps[PMATH_AS_PTR(objA)->type_shift].compare;
+  cmpB = pmath_type_imps[PMATH_AS_PTR(objB)->type_shift].compare;
+  assert(cmpA != NULL);
   if(cmpA == cmpB)
     return cmpA(objA, objB);
 
-  return objA->type_shift - objB->type_shift;
+  return PMATH_AS_PTR(objA)->type_shift - PMATH_AS_PTR(objB)->type_shift;
 }
 
 PMATH_API void pmath_write(
@@ -174,37 +179,37 @@ PMATH_API void pmath_write(
   pmath_write_func_t      write,
   void                   *user
 ){
-  assert(write != PMATH_NULL);
+  assert(write != NULL);
 
   if(PMATH_IS_MAGIC(obj)){
     char s[30];
     write_cstr("/\\/", write, user);
     
-    if(obj){
-      snprintf(s, sizeof(s), " /* 0x%"PRIxPTR" */", (uintptr_t)obj);
+    if(!pmath_is_null(obj)){
+      snprintf(s, sizeof(s), " /* 0x%"PRIxPTR" */", (uintptr_t)PMATH_AS_PTR(obj));
       write_cstr(s, write, user);
     }
     return;
   }
   
   #ifdef PMATH_DEBUG_MEMORY
-  if(obj->refcount <= 0){
+  if(PMATH_AS_PTR(obj)->refcount <= 0){
     write_cstr("[NOREF: ", write, user);
   }
   #endif
 
-  assert(PMATH_VALID_TYPE_SHIFT(obj->type_shift));
-  if(!pmath_type_imps[obj->type_shift].write){
+  assert(PMATH_VALID_TYPE_SHIFT(PMATH_AS_PTR(obj)->type_shift));
+  if(!pmath_type_imps[PMATH_AS_PTR(obj)->type_shift].write){
     char s[100];
-    snprintf(s, sizeof(s), "<<\? 0x%"PRIxPTR" \?>>", (uintptr_t)obj);
+    snprintf(s, sizeof(s), "<<\? 0x%"PRIxPTR" \?>>", (uintptr_t)PMATH_AS_PTR(obj));
     write_cstr(s, write, user);
     return;
   }
   else
-    pmath_type_imps[obj->type_shift].write(obj, options, write, user);
+    pmath_type_imps[PMATH_AS_PTR(obj)->type_shift].write(obj, options, write, user);
   
   #ifdef PMATH_DEBUG_MEMORY
-  if(obj->refcount <= 0){
+  if(PMATH_AS_PTR(obj)->refcount <= 0){
     write_cstr("]", write, user);
   }
   #endif
@@ -222,7 +227,7 @@ pmath_bool_t pmath_is_evaluated(pmath_t obj){
   
   if(pmath_is_symbol(obj)){
     pmath_t value = pmath_symbol_get_value(obj);
-    pmath_bool_t result = value && !pmath_instance_of(value, PMATH_TYPE_EVALUATABLE);
+    pmath_bool_t result = !pmath_is_null(value) && !pmath_instance_of(value, PMATH_TYPE_EVALUATABLE);
     pmath_unref(value);
     return result;
   }
@@ -233,7 +238,7 @@ pmath_bool_t pmath_is_evaluated(pmath_t obj){
 /*============================================================================*/
 
 PMATH_PRIVATE pmath_t _pmath_create_stub(unsigned int type_shift, size_t size){
-  pmath_t obj;
+  struct _pmath_t *obj;
   
   assert(size >= sizeof(struct _pmath_t));
   assert(PMATH_VALID_TYPE_SHIFT(type_shift));
@@ -243,13 +248,13 @@ PMATH_PRIVATE pmath_t _pmath_create_stub(unsigned int type_shift, size_t size){
       1);
   #endif
   
-  obj = (pmath_t)pmath_mem_alloc(size);
+  obj = pmath_mem_alloc(size);
   if(!obj)
-    return obj;
+    return PMATH_NULL;
 
   obj->type_shift = type_shift;
   obj->refcount   = 1;
-  return obj;
+  return PMATH_FROM_PTR(obj);
 }
 
 PMATH_PRIVATE void _pmath_init_special_type(
@@ -262,8 +267,8 @@ PMATH_PRIVATE void _pmath_init_special_type(
   _pmath_object_write_func_t  writer
 ){
   assert(PMATH_VALID_TYPE_SHIFT(type_shift));
-  assert(comparer != PMATH_NULL);
-  assert(hashfunc != PMATH_NULL);
+  assert(comparer != NULL);
+  assert(hashfunc != NULL);
   pmath_type_imps[type_shift].destroy     = destructor;
   pmath_type_imps[type_shift].compare     = comparer;
   pmath_type_imps[type_shift].hash        = hashfunc;

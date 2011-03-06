@@ -13,13 +13,13 @@
 
 struct parallel_try_info_t{
   pmath_thread_t parent;
-  pmath_t function;
-  pmath_expr_t items;
-  pmath_t *results;
+  pmath_t        function;
+  pmath_expr_t   items;
+  pmath_t       *results;
   
-  size_t results_count;
-  intptr_t index; // 1, ..., Length(items)
-  intptr_t result_index; // 0, ..., results_count-1
+  size_t   results_count;
+  intptr_t index;         // 1, ..., Length(items)
+  intptr_t result_index;  // 0, ..., results_count-1
 };
 
 static void parallel_try(void *ptr){
@@ -56,7 +56,7 @@ static void parallel_try(void *ptr){
           break;
         }
         
-        assert(info->results[ri] == PMATH_NULL);
+        assert(pmath_is_null(info->results[ri]));
         info->results[ri] = obj;
       }
       else
@@ -111,14 +111,14 @@ PMATH_PRIVATE pmath_t builtin_paralleltry(pmath_expr_t expr){
     info.results_count = 1;
   
   result = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), info.results_count);
-  if(!result){
+  if(pmath_is_null(result)){
     pmath_unref(expr);
     return PMATH_NULL;
   }
   
-  assert(result->refcount == 1);
-  assert(result->type_shift == PMATH_TYPE_SHIFT_EXPRESSION_GENERAL);
-  info.results = &((struct _pmath_unpacked_expr_t*)result)->items[1];
+  assert(PMATH_AS_PTR(result)->refcount == 1);
+  assert(PMATH_AS_PTR(result)->type_shift == PMATH_TYPE_SHIFT_EXPRESSION_GENERAL);
+  info.results = &((struct _pmath_unpacked_expr_t*)PMATH_AS_PTR(result))->items[1];
   info.result_index = 0;
   
   info.index = 1;
@@ -152,7 +152,7 @@ PMATH_PRIVATE pmath_t builtin_paralleltry(pmath_expr_t expr){
       parallel_try,
       dummy,
       &info,
-      PMATH_NULL);
+      NULL);
   }
 
   for(i = 0;i < (size_t)task_count;++i){

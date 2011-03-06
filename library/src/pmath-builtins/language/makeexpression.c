@@ -366,7 +366,7 @@ PMATH_PRIVATE pmath_t _pmath_parse_number(
     for(j = 0;j < i;++j)
       cstr[j] = (char)str[j];
     cstr[i] = '\0';
-    base = (int)strtol(cstr, PMATH_NULL, 10);
+    base = (int)strtol(cstr, NULL, 10);
     pmath_mem_free(cstr);
     
     if(base < 2 || base > 36){
@@ -451,7 +451,7 @@ PMATH_PRIVATE pmath_t _pmath_parse_number(
       }
       cstr[i - j] = '\0';
       
-      prec_acc = strtod(cstr, PMATH_NULL);
+      prec_acc = strtod(cstr, NULL);
     }
     
     if(prec_control == PMATH_PREC_CTRL_GIVEN_PREC
@@ -502,7 +502,7 @@ PMATH_PRIVATE pmath_t _pmath_parse_number(
   else
     result = pmath_integer_new_str(cstr, base);
   
-  if(exponent){
+  if(!pmath_is_null(exponent)){
     result = pmath_evaluate(
       pmath_expr_new_extended(
         pmath_ref(PMATH_SYMBOL_TIMES), 2,
@@ -628,11 +628,11 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
       return HOLDCOMPLETE(result);
     }
     
-    tok = pmath_token_analyse(str, 1, PMATH_NULL);
+    tok = pmath_token_analyse(str, 1, NULL);
     if(tok == PMATH_TOK_DIGIT){
       pmath_number_t result = _pmath_parse_number(box, TRUE);
       
-      if(!result)
+      if(pmath_is_null(result))
         return pmath_ref(PMATH_SYMBOL_FAILED);
       
       return HOLDCOMPLETE(result);
@@ -646,7 +646,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
             break;
             
           ++i;
-          tok = pmath_token_analyse(str + i, 1, PMATH_NULL);
+          tok = pmath_token_analyse(str + i, 1, NULL);
           if(tok != PMATH_TOK_NAME)
             break;
           
@@ -654,7 +654,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
           continue;
         }
         
-        tok = pmath_token_analyse(str + i, 1, PMATH_NULL);
+        tok = pmath_token_analyse(str + i, 1, NULL);
         if(tok != PMATH_TOK_NAME 
         && tok != PMATH_TOK_DIGIT)
           break;
@@ -674,7 +674,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
         pmath_ref(box), 
         pmath_same(expr, PMATH_SYMBOL_TRUE) || pmath_same(expr, PMATH_UNDEFINED));
       
-      if(expr){
+      if(!pmath_is_null(expr)){
         pmath_unref(box);
         return HOLDCOMPLETE(expr);
       }
@@ -707,7 +707,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
         pmath_ref(box), 
         pmath_same(expr, PMATH_SYMBOL_TRUE) || pmath_same(expr, PMATH_UNDEFINED));
       
-      if(expr){
+      if(!pmath_is_null(expr)){
         pmath_unref(box);
         return HOLDCOMPLETE(expr);
       }
@@ -877,7 +877,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
       if(i + 1 == len && str[i] == '"'){
         pmath_unref(box);
         result->length = j;
-        return HOLDCOMPLETE((pmath_string_t)result);
+        return HOLDCOMPLETE((pmath_string_t)PMATH_FROM_PTR(result));
       }
     }
     
@@ -945,7 +945,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
     box = pmath_expr_get_item(expr, 0);
     pmath_unref(box);
     
-    if(box && !pmath_same(box, PMATH_SYMBOL_LIST)){
+    if(!pmath_is_null(box) && !pmath_same(box, PMATH_SYMBOL_LIST)){
       if(exprlen == 2 && pmath_same(box, PMATH_SYMBOL_FRACTIONBOX)){
         pmath_t num = pmath_expr_get_item(expr, 1);
         box = pmath_expr_get_item(expr, 2);
@@ -997,7 +997,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
       if(exprlen >= 1 && pmath_same(box, PMATH_SYMBOL_GRIDBOX)){
         box = parse_gridbox(expr, TRUE);
         
-        if(box){
+        if(!pmath_is_null(box)){
           pmath_unref(expr);
           return box;
         }
@@ -1161,7 +1161,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
             pmath_unref(matrix);
             pmath_unref(row);
             
-            if(held){
+            if(!pmath_is_null(held)){
               pmath_unref(expr);
               return held;
             }
@@ -1197,7 +1197,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
             pmath_unref(view);
             pmath_unref(tag);
             
-            if(box){
+            if(!pmath_is_null(box)){
               pmath_unref(expr);
               return box;
             }
@@ -1246,7 +1246,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
           pmath_unref(view);
           pmath_unref(tag);
           
-          if(held){
+          if(!pmath_is_null(held)){
             pmath_unref(expr);
             return held;
           }
@@ -2027,7 +2027,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
       // s::tag
       if(is_string_at(expr, 2, "::")){
         pmath_string_t tag = box_as_string(pmath_expr_get_item(expr, 3));
-        if(!tag)
+        if(pmath_is_null(tag))
           goto FAILED;
         
         box = pmath_expr_get_item(expr, 1);
@@ -2079,7 +2079,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
       else if(is_string_at(expr, 2, "/?"))  box = PMATH_SYMBOL_CONDITION;
     
       // lhs->rhs  lhs:>rhs  lhs:=rhs  lhs::=rhs  lhs+=rhs  lhs-=lhs  lhs//rhs  lhs..rhs
-      if(box){
+      if(!pmath_is_null(box)){
         pmath_string_t lhs = pmath_expr_get_item(expr, 1);
         pmath_string_t rhs = pmath_expr_get_item(expr, 3);
         pmath_unref(expr);
@@ -2177,7 +2177,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
         else if(is_string_at(expr, 4, ":="))                     box = PMATH_SYMBOL_TAGASSIGN;
         else if(is_string_at(expr, 4, "::="))                    box = PMATH_SYMBOL_TAGASSIGNDELAYED;
         
-        if(!box)
+        if(pmath_is_null(box))
           goto FAILED;
         
         tag = pmath_expr_get_item(expr, 1);
@@ -2274,11 +2274,11 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
       
       // single character infix operators (except + - * / && || and relations) ...
       box = inset_operator(secondchar);
-      if(box){
+      if(!pmath_is_null(box)){
         pmath_expr_t result;
         
         for(i = 4;i < exprlen;i+= 2){
-          if(inset_operator(unichar_at(expr, i)) != box)
+          if(!pmath_same(inset_operator(unichar_at(expr, i)), box))
             goto FAILED;
         }
         
@@ -2372,7 +2372,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
         }
       }
       
-      if(box){
+      if(!pmath_is_null(box)){
         pmath_expr_t result = pmath_expr_new(pmath_ref(box), (1 + exprlen) / 2);
         for(i = 0;i <= exprlen / 2;++i){
           pmath_t arg = pmath_expr_get_item(expr, 2 * i + 1);
@@ -2391,11 +2391,11 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
       
       // relations ...
       box = relation_at(expr, 2);
-      if(box){
+      if(!pmath_is_null(box)){
         pmath_expr_t result;
         
         for(i = 4;i < exprlen;++i){
-          if(box != relation_at(expr, i)){
+          if(!pmath_same(box, relation_at(expr, i))){
             box = pmath_expr_get_item(expr, 1);
             if(!parse(&box)){
               pmath_unref(box);
@@ -2406,7 +2406,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
             expr = pmath_expr_set_item(expr, 1, box);
             for(i = 3;i <= exprlen;i+= 2){
               box = relation_at(expr, i - 1);
-              if(!box){
+              if(pmath_is_null(box)){
                 box = expr;
                 expr = pmath_expr_get_item_range(box, i, exprlen);
                 pmath_unref(box);
@@ -2672,7 +2672,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
     box = pmath_expr_get_item(expr, 0);
     pmath_unref(box);
     
-    if(box == PMATH_NULL){
+    if(pmath_is_null(box)){
       for(i = 1;i <= exprlen;++i){
         box = pmath_expr_get_item(expr, i);
         expr = pmath_expr_set_item(expr, i, PMATH_NULL);

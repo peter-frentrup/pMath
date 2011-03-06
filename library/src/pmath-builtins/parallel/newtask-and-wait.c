@@ -18,7 +18,7 @@ static void task_destroy(struct custom_task_data *data){
 
 static void task_run(struct custom_task_data *data){
   pmath_t value = data->value;
-  data->value = 0;
+  data->value = PMATH_NULL;
   
   value = pmath_evaluate(value);
   
@@ -57,8 +57,8 @@ static pmath_custom_t create_custom_task(pmath_t body){
 PMATH_PRIVATE pmath_t builtin_newtask(pmath_expr_t expr){
 /* NewTask(body)
  */
-  pmath_t  body;
-  pmath_custom_t  custom_task;
+  pmath_t        body;
+  pmath_custom_t custom_task;
 
   if(pmath_expr_length(expr) != 1){
     pmath_message_argxxx(pmath_expr_length(expr), 1, 1);
@@ -70,7 +70,7 @@ PMATH_PRIVATE pmath_t builtin_newtask(pmath_expr_t expr){
 
   custom_task = create_custom_task(body);
   
-  if(custom_task){
+  if(!pmath_is_null(custom_task)){
     pmath_symbol_t sym = pmath_symbol_create_temporary(
       PMATH_C_STRING("System`Tasks`task"), TRUE);
     
@@ -119,7 +119,7 @@ PMATH_PRIVATE pmath_t builtin_wait(pmath_expr_t expr){
     pmath_task_wait(task);
     
     data = pmath_task_get_data(task);
-    assert(data != PMATH_NULL);
+    assert(data != NULL);
     assert(pmath_task_has_destructor(task, (pmath_callback_t)task_destroy));
     
     value = pmath_ref(data->value);

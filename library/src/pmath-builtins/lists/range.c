@@ -22,15 +22,15 @@ PMATH_PRIVATE pmath_bool_t extract_number(
   if(!pmath_is_integer(number))
     return FALSE;
 
-  if(mpz_cmpabs_ui(((struct _pmath_integer_t*)number)->value, ULONG_MAX) > 0){
-    if(mpz_sgn(((struct _pmath_integer_t*)number)->value) < 0)
+  if(mpz_cmpabs_ui(PMATH_AS_MPZ(number), ULONG_MAX) > 0){
+    if(mpz_sgn(PMATH_AS_MPZ(number)) < 0)
       *num = SIZE_MAX;
     else
       *num = max;
   }
   else{
-    *num = mpz_get_ui(((struct _pmath_integer_t*)number)->value);
-    if(mpz_sgn(((struct _pmath_integer_t*)number)->value) < 0){
+    *num = mpz_get_ui(PMATH_AS_MPZ(number));
+    if(mpz_sgn(PMATH_AS_MPZ(number)) < 0){
       if(max == SIZE_MAX || max < *num - 1)
         *num = SIZE_MAX;
       else
@@ -42,13 +42,14 @@ PMATH_PRIVATE pmath_bool_t extract_number(
 }
 
 PMATH_PRIVATE pmath_bool_t extract_range(
-  pmath_t range,
-  size_t *min,
-  size_t *max,
-  pmath_bool_t change_min_on_number
+  pmath_t       range,
+  size_t       *min,
+  size_t       *max,
+  pmath_bool_t  change_min_on_number
 ){
   if(pmath_is_expr_of_len(range, PMATH_SYMBOL_RANGE, 2)){
     pmath_t obj = pmath_expr_get_item(range, 1);
+    
     if(!pmath_same(obj, PMATH_SYMBOL_AUTOMATIC)
     && !extract_number(obj, *max, min)){
       pmath_unref(obj);

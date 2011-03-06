@@ -51,7 +51,7 @@ static pmath_bool_t contains( // return = search more?
   }
   
   if(reldepth == 0
-  && _pmath_pattern_match(obj, pmath_ref(pattern), PMATH_NULL)){
+  && _pmath_pattern_match(obj, pmath_ref(pattern), NULL)){
     pmath_unref(obj);
     return TRUE;
   }

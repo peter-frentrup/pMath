@@ -61,7 +61,7 @@ PMATH_API pmath_thread_t pmath_thread_get_current(void){
 
 PMATH_API pmath_thread_t pmath_thread_get_parent(pmath_thread_t thread){
   if(!thread)
-    return PMATH_NULL;
+    return NULL;
   return thread->parent;
 }
 
@@ -77,8 +77,8 @@ PMATH_API pmath_bool_t pmath_thread_is_parent(pmath_thread_t parent, pmath_threa
 
 PMATH_PRIVATE 
 pmath_t _pmath_thread_local_save_with(
-  pmath_t key,
-  pmath_t value,
+  pmath_t        key,
+  pmath_t        value,
   pmath_thread_t thread
 ){
   struct _pmath_object_entry_t *entry;
@@ -96,9 +96,7 @@ pmath_t _pmath_thread_local_save_with(
   }
 
   if(pmath_same(value, PMATH_UNDEFINED)){
-    struct _pmath_object_entry_t *entry;
-    
-    entry = pmath_ht_remove(thread->local_values, key);
+    entry = pmath_ht_remove(thread->local_values, &key);
     if(entry){
       pmath_t result = pmath_ref(entry->value);
       pmath_ht_obj_class.entry_destructor(entry);
@@ -107,7 +105,7 @@ pmath_t _pmath_thread_local_save_with(
     return PMATH_UNDEFINED;
   }
 
-  entry = pmath_ht_search(thread->local_values, key);
+  entry = pmath_ht_search(thread->local_values, &key);
 
   if(entry){
     pmath_t result = entry->value;
@@ -122,25 +120,27 @@ pmath_t _pmath_thread_local_save_with(
     return PMATH_UNDEFINED;
   }
 
-  entry->key = pmath_ref(key);
+  entry->key   = pmath_ref(key);
   entry->value = value;
 
   entry = pmath_ht_insert(thread->local_values, entry);
-
-  assert(entry == PMATH_NULL);
+  
+  if(entry){ // Out Of Memory
+    pmath_ht_obj_class.entry_destructor(entry);
+  }
 
   return PMATH_UNDEFINED;
 }
 
 PMATH_PRIVATE 
 pmath_t _pmath_thread_local_load_with(
-  pmath_t key, 
+  pmath_t        key, 
   pmath_thread_t thread
 ){
   while(thread){
     struct _pmath_object_entry_t *entry;
     
-    entry = pmath_ht_search(thread->local_values, key);
+    entry = pmath_ht_search(thread->local_values, &key);
     if(entry)
       return pmath_ref(entry->value);
 
@@ -192,38 +192,38 @@ PMATH_PRIVATE void _pmath_abort_message(pmath_t abortable){
   }
   
   current = thread->abortable_messages;
-  if(current == abortable){
-    pmath_debug_print("[aborting %p]\n", abortable);
+  if(pmath_same(current, abortable)){
+    pmath_debug_print("[aborting %p]\n", PMATH_AS_PTR(abortable));
     _pmath_thread_throw(thread, abortable);
     return;
   }
   
-  while(current){
+  while(!pmath_is_null(current)){
     current_data = pmath_custom_get_data(current);
     
     pending = _pmath_object_atomic_read(&current_data->_pending_abort_request);
     pmath_unref(pending);
-    if(pending == abortable){
-      pmath_debug_print("[multible aborts %p]\n", abortable);
+    if(pmath_same(pending, abortable)){
+      pmath_debug_print("[multible aborts %p]\n", PMATH_AS_PTR(abortable));
       break;
     }
     
     current = current_data->next;
     
-    if(current == abortable){
+    if(pmath_same(current, abortable)){
       pmath_t next;
       pmath_t end = current;
       int end_depth = current_data->depth;
       
       current = thread->abortable_messages;
-      while(current && current != end){
+      while(!pmath_is_null(current) && !pmath_same(current, end)){
         current_data = pmath_custom_get_data(current);
         next = current_data->next;
         
         pending = _pmath_object_atomic_read(&current_data->_pending_abort_request);
-        if(pending){
-          if(pending == abortable){
-            pmath_debug_print("[multible upper aborts %p]\n", abortable);
+        if(!pmath_is_null(pending)){
+          if(pmath_same(pending, abortable)){
+            pmath_debug_print("[multible upper aborts %p]\n", PMATH_AS_PTR(abortable));
             pmath_unref(abortable);
             pmath_unref(pending);
             return;
@@ -231,8 +231,12 @@ PMATH_PRIVATE void _pmath_abort_message(pmath_t abortable){
           
           pending_data = pmath_custom_get_data(pending);
           if(pending_data->depth < end_depth){
-            pmath_debug_print("[switch abort requests %p <-> %p]\n", pending, abortable);
+            pmath_debug_print("[switch abort requests %p <-> %p]\n", 
+              PMATH_AS_PTR(pending), 
+              PMATH_AS_PTR(abortable));
+              
             _pmath_object_atomic_write(&current_data->_pending_abort_request, abortable);
+            
             abortable = pending;
             end       = pending;
             end_depth = pending_data->depth;
@@ -241,7 +245,7 @@ PMATH_PRIVATE void _pmath_abort_message(pmath_t abortable){
             pmath_unref(pending);
         }
         else{
-          pmath_debug_print("[request abort %p]\n", abortable);
+          pmath_debug_print("[request abort %p]\n", PMATH_AS_PTR(abortable));
           _pmath_object_atomic_write(&current_data->_pending_abort_request, abortable);
           return;
         }
@@ -251,7 +255,7 @@ PMATH_PRIVATE void _pmath_abort_message(pmath_t abortable){
     }
   }
   
-  pmath_debug_print("[abrotable not found %p]\n", abortable);
+  pmath_debug_print("[abrotable not found %p]\n", PMATH_AS_PTR(abortable));
   pmath_unref(abortable);
 }
 
@@ -259,11 +263,11 @@ PMATH_PRIVATE void _pmath_abort_message(pmath_t abortable){
 
 //{ exception handling ...
 
-static pmath_threadlock_t exception_handler_lock = PMATH_NULL;
+static pmath_threadlock_t exception_handler_lock = NULL;
 
 struct _change_exception_data_t{
   pmath_thread_t thread;
-  pmath_t exception;
+  pmath_t        exception;
   unsigned       prefer_new: 1;
 };
 
@@ -296,7 +300,7 @@ static void change_exception(struct _change_exception_data_t *data){
 
 PMATH_PRIVATE void _pmath_thread_throw(
   pmath_thread_t   thread,
-  pmath_t exception
+  pmath_t          exception
 ){
   struct _change_exception_data_t data;
 
@@ -493,16 +497,16 @@ PMATH_PRIVATE pmath_thread_t _pmath_thread_new(pmath_thread_t parent){
   pmath_thread_t thread = pmath_mem_alloc(sizeof(struct _pmath_thread_t));
     
   if(!thread)
-    return PMATH_NULL;
+    return NULL;
   
   thread->parent                = parent;
-  thread->waiting_lock          = PMATH_NULL;
+  thread->waiting_lock          = NULL;
   thread->ignore_older_aborts   = parent ? parent->ignore_older_aborts : 0;
   thread->gather_failed         = 0;
-  thread->gather_info           = PMATH_NULL;
-  thread->local_values          = PMATH_NULL;
-  thread->local_rules           = PMATH_NULL;
-  thread->stack_info            = PMATH_NULL;
+  thread->gather_info           = NULL;
+  thread->local_values          = NULL;
+  thread->local_rules           = NULL;
+  thread->stack_info            = NULL;
   thread->evaldepth             = 0;
   thread->exception             = PMATH_UNDEFINED;
   thread->message_queue         = _pmath_msg_queue_create();
@@ -513,9 +517,9 @@ PMATH_PRIVATE pmath_thread_t _pmath_thread_new(pmath_thread_t parent){
   thread->longform              = parent ? parent->longform                      : FALSE;
   thread->is_daemon             = FALSE;
   
-  if(!thread->message_queue){
+  if(pmath_is_null(thread->message_queue)){
     _pmath_thread_free(thread);
-    return PMATH_NULL;
+    return NULL;
   }
   
   return thread;
@@ -561,13 +565,13 @@ PMATH_PRIVATE void _pmath_thread_clean(pmath_bool_t final){
     }
     
     free_stack(thread->stack_info);
-    thread->stack_info = PMATH_NULL;
+    thread->stack_info = NULL;
     thread->evaldepth = 0;
     
     pmath_ht_destroy(thread->local_values);
     pmath_ht_destroy(thread->local_rules);
-    thread->local_values = PMATH_NULL;
-    thread->local_rules  = PMATH_NULL;
+    thread->local_values = NULL;
+    thread->local_rules  = NULL;
     
     pmath_unref(thread->abortable_messages);
     thread->abortable_messages = PMATH_NULL;

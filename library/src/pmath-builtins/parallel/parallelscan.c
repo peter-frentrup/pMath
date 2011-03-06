@@ -129,7 +129,7 @@ PMATH_PRIVATE pmath_t builtin_parallelscan(pmath_expr_t expr){
           (pmath_callback_t)parallel_scan,
           dummy,
           &info,
-          PMATH_NULL);
+          NULL);
       }
       
       for(i = 0;i < (size_t)task_count;++i){

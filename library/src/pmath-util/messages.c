@@ -43,7 +43,7 @@ PMATH_API void pmath_message(
 
   symbol = pmath_ref(symbol);
 
-  if(!symbol){
+  if(pmath_is_null(symbol)){
     pmath_t head = pmath_current_head();
     symbol = _pmath_topmost_symbol(head);
     pmath_unref(head);
@@ -178,13 +178,13 @@ PMATH_API pmath_string_t pmath_message_find_text(pmath_t name){
       pmath_t obj = PMATH_NULL;
       messages = (pmath_hashtable_t)_pmath_atomic_lock_ptr(&rules->_messages);
       
-      entry = pmath_ht_search(messages, name);
+      entry = pmath_ht_search(messages, &name);
       if(entry)
         obj = pmath_ref(entry->value);
       
       _pmath_atomic_unlock_ptr(&rules->_messages, messages);
       
-      if(obj){
+      if(!pmath_is_null(obj)){
         pmath_unref(name);
         pmath_unref(sym);
         return obj;
@@ -200,13 +200,13 @@ PMATH_API pmath_string_t pmath_message_find_text(pmath_t name){
         
         messages = (pmath_hashtable_t)_pmath_atomic_lock_ptr(&rules->_messages);
         
-        entry = pmath_ht_search(messages, name);
+        entry = pmath_ht_search(messages, &name);
         if(entry)
           obj = pmath_ref(entry->value);
         
         _pmath_atomic_unlock_ptr(&rules->_messages, messages);
         
-        if(obj){
+        if(pmath_is_null(obj)){
           pmath_unref(name);
           pmath_unref(sym);
           return obj;
@@ -250,21 +250,21 @@ PMATH_API void pmath_message_syntax_error(
       ++eol;
     
     start = pmath_string_part(pmath_ref(code), position, eol - position);
-    if(filename){
+    if(pmath_is_null(filename)){
+      pmath_message(
+        PMATH_SYMBOL_SYNTAX, "bgn", 1,
+        start);
+    }
+    else{
       pmath_message(
         PMATH_SYMBOL_SYNTAX, "bgnf", 3,
         start,
         pmath_integer_new_si(lines_before_code),
         filename);
     }
-    else{
-      pmath_message(
-        PMATH_SYMBOL_SYNTAX, "bgn", 1,
-        start);
-    }
   }
   else{
-    if(filename){
+    if(!pmath_is_null(filename)){
       int i;
       for(i = 0;i < position;++i)
         if(str[i] == '\n')
@@ -272,13 +272,13 @@ PMATH_API void pmath_message_syntax_error(
     }
     
     if(position == len){
-      if(filename){
+      if(pmath_is_null(filename)){
+        pmath_message(PMATH_SYMBOL_SYNTAX, "more", 0);
+      }
+      else{
         pmath_message(PMATH_SYMBOL_SYNTAX, "moref", 2, 
           pmath_integer_new_si(lines_before_code),
           filename);
-      }
-      else{
-        pmath_message(PMATH_SYMBOL_SYNTAX, "more", 0);
       }
     }
     else{
@@ -301,17 +301,17 @@ PMATH_API void pmath_message_syntax_error(
       
       before = pmath_string_part(pmath_ref(code), bol, eol1 - bol); // eol1-bol+1
       if(str[position] == '\n'){
-        if(filename){
+        if(pmath_is_null(filename)){
+          pmath_message(
+            PMATH_SYMBOL_SYNTAX, "newl", 1,
+            before);
+        }
+        else{
           pmath_message(
             PMATH_SYMBOL_SYNTAX, "newlf", 3,
             before,
             pmath_integer_new_si(lines_before_code),
             filename);
-        }
-        else{
-          pmath_message(
-            PMATH_SYMBOL_SYNTAX, "newl", 1,
-            before);
         }
       }
       else{

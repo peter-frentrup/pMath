@@ -152,7 +152,7 @@ struct _pmath_task_t{
     #define TASK_RUNNING   1
     #define TASK_DONE      2
 
-  sem_t                 done;
+  sem_t            done;
   pmath_callback_t run;
   pmath_callback_t destroy;
   void *data;
@@ -176,14 +176,14 @@ struct _pmath_task_t *create_idle_task(
   if(!task){
     destroy(data);
     _pmath_thread_free(thread);
-    return PMATH_NULL;
+    return NULL;
   }
 
   if(sem_init(&task->done, 0, 0) != 0){
     destroy(data);
     _pmath_thread_free(thread);
     pmath_mem_free(task);
-    return PMATH_NULL;
+    return NULL;
   }
 
   task->refcount = 1;
@@ -210,6 +210,7 @@ static void run_task(struct _pmath_task_t *task){
 
     if(!pmath_same(task->thread->exception, PMATH_UNDEFINED)){
       pmath_t exception = _pmath_thread_catch(task->thread);
+      
       if(!pmath_same(exception, PMATH_UNDEFINED)
       && !pmath_same(exception, PMATH_ABORT_EXCEPTION)){
         if(task->thread->parent){
@@ -253,7 +254,7 @@ void pmath_task_unref(pmath_task_t task){
 PMATH_API
 void *pmath_task_get_data(pmath_task_t task){
   if(!task)
-    return PMATH_NULL;
+    return NULL;
 
   return task->data;
 }
@@ -272,7 +273,7 @@ pmath_bool_t pmath_task_has_destructor(
 PMATH_PRIVATE
 pmath_thread_t _pmath_task_get_thread(pmath_task_t task){
   if(!task)
-    return PMATH_NULL;
+    return NULL;
 
   return task->thread;
 }
@@ -308,7 +309,7 @@ pmath_task_t pmath_task_new(
     run,
     destroy,
     data,
-    _pmath_thread_new(PMATH_NULL));
+    _pmath_thread_new(NULL));
 }
 
 void pmath_task_wait(pmath_task_t task){
@@ -316,7 +317,7 @@ void pmath_task_wait(pmath_task_t task){
     intptr_t status = pmath_atomic_fetch_set(&task->status, TASK_RUNNING);
 
     if(status == TASK_RUNNING){ // allready running
-      pmath_thread_t me = PMATH_NULL;
+      pmath_thread_t me = NULL;
       
       // ...._pmath_msq_queue_set_child();
       if(task->thread){
@@ -327,7 +328,7 @@ void pmath_task_wait(pmath_task_t task){
       while(sem_wait(&task->done) == -1 && errno == EINTR)
         continue;
       
-      _pmath_msq_queue_set_child(me, PMATH_NULL);
+      _pmath_msq_queue_set_child(me, NULL);
       
       return;
     }
@@ -347,7 +348,7 @@ void pmath_task_abort(pmath_task_t task){
     intptr_t status = pmath_atomic_fetch_set(&task->status, TASK_RUNNING);
     
     if(status == TASK_RUNNING){ // allready running
-      pmath_thread_t me = PMATH_NULL;
+      pmath_thread_t me = NULL;
       pmath_thread_t child = _pmath_task_get_thread(task);
       
       _pmath_thread_throw(
@@ -362,7 +363,7 @@ void pmath_task_abort(pmath_task_t task){
       while(sem_wait(&task->done) == -1 && errno == EINTR)
         continue;
       
-      _pmath_msq_queue_set_child(me, PMATH_NULL);
+      _pmath_msq_queue_set_child(me, NULL);
       
       return;
     }
@@ -402,7 +403,7 @@ struct daemon_t{
   struct daemon_t * volatile  next;
 };
 
-static struct daemon_t * volatile all_daemons = PMATH_NULL; // ring buffer
+static struct daemon_t * volatile all_daemons = NULL; // ring buffer
 static PMATH_DECLARE_ATOMIC(daemon_spin) = 0;
 PMATH_PRIVATE PMATH_DECLARE_ATOMIC(_pmath_threadpool_deamon_count) = 0;
 
@@ -444,17 +445,17 @@ static THREAD_PROC(daemon_proc, arg){
   pmath_atomic_unlock(&daemon_spin);
   
   *me->message_queue_ptr = pmath_ref(me->thread->message_queue);
-  me->message_queue_ptr = PMATH_NULL;
+  me->message_queue_ptr = NULL;
   *me->init_ok = TRUE;
   pmath_atomic_barrier();
   sem_post(me->init_sem);
-  me->init_sem = PMATH_NULL;
+  me->init_sem = NULL;
   
   me->callback(me->cb_data);
   
   pmath_atomic_lock(&daemon_spin);
   {
-    me->kill = PMATH_NULL;
+    me->kill = NULL;
     
     handle = me->handle;
     me->handle = 0;
@@ -468,14 +469,14 @@ static THREAD_PROC(daemon_proc, arg){
     
     if(me == all_daemons){
       if(me->next == me)
-        all_daemons = PMATH_NULL;
+        all_daemons = NULL;
       else
         all_daemons = me->next;
     }
     me->prev = me;
     me->next = me;
     
-    me->thread = PMATH_NULL;
+    me->thread = NULL;
   }
   pmath_atomic_unlock(&daemon_spin);
   
@@ -561,7 +562,7 @@ pmath_messages_t pmath_thread_fork_daemon(
   if(!daemon)
     return PMATH_NULL;
   
-  daemon->thread            = PMATH_NULL;
+  daemon->thread            = NULL;
   daemon->callback          = callback;
   daemon->kill              = kill;
   daemon->cb_data           = data;
@@ -577,12 +578,12 @@ pmath_messages_t pmath_thread_fork_daemon(
   #ifdef PMATH_OS_WIN32
   {
     daemon->handle = _beginthreadex(
-      PMATH_NULL,     // default security
+      NULL,     // default security
       0,        // default stack size
       daemon_proc,
       daemon,   // argument
       0,        // running
-      PMATH_NULL);    // do not need thread id
+      NULL);    // do not need thread id
     
     error = daemon->handle == 0;
   }
@@ -590,7 +591,7 @@ pmath_messages_t pmath_thread_fork_daemon(
   {
     error = pthread_create(
       &daemon->handle,
-      PMATH_NULL,
+      NULL,
       daemon_proc,
       daemon);      // argument
   }
@@ -608,7 +609,7 @@ pmath_messages_t pmath_thread_fork_daemon(
   sem_destroy(&sem);
   pmath_atomic_barrier();
   if(!init_ok){
-    assert(message_queue == PMATH_NULL);
+    assert(pmath_is_null(message_queue));
     
     #ifdef PMATH_OS_WIN32
       WaitForSingleObject((HANDLE)daemon->handle, INFINITE);
@@ -682,18 +683,26 @@ PMATH_API void pmath_collect_temporary_symbols(void){
 
   static pmath_bool_t gc_visit_ref(pmath_t obj, void *dummy){
     if(pmath_is_symbol(obj) || pmath_is_expr(obj)){
-      if((((struct _pmath_gc_t*)obj)->gc_refcount & GC_PASS_MASK) == gc_pass){
-        ((struct _pmath_gc_t*)obj)->gc_refcount+= GC_PASS_COUNT;
+      struct _pmath_gc_t *gc_obj = (void*)PMATH_AS_PTR(obj);
+      
+      if((gc_obj->gc_refcount & GC_PASS_MASK) == gc_pass){
+          gc_obj->gc_refcount+= GC_PASS_COUNT;
       }
       else
-        ((struct _pmath_gc_t*)obj)->gc_refcount = gc_pass | GC_PASS_COUNT;
+        gc_obj->gc_refcount = gc_pass | GC_PASS_COUNT;
     }
     return TRUE;
   }
   
   static uintptr_t get_gc_refs(pmath_t obj){
-    if((((struct _pmath_gc_t*)obj)->gc_refcount & GC_PASS_MASK) == gc_pass){
-      return ((struct _pmath_gc_t*)obj)->gc_refcount >> GC_PASS_BITS;
+    struct _pmath_gc_t *gc_obj;
+    
+    assert(pmath_is_expr(obj) || pmath_is_symbol(obj));
+    
+    gc_obj = (void*)PMATH_AS_PTR(obj);
+    
+    if((gc_obj->gc_refcount & GC_PASS_MASK) == gc_pass){
+      return gc_obj->gc_refcount >> GC_PASS_BITS;
     }
     
     return 0;
@@ -706,7 +715,7 @@ PMATH_API void pmath_collect_temporary_symbols(void){
       // one reference is held by caller
       ++gc_refs;
       
-      return gc_refs == (uintptr_t)obj->refcount;
+      return gc_refs == (uintptr_t)PMATH_AS_PTR(obj)->refcount;
     }
     
     return TRUE;
@@ -733,16 +742,16 @@ static void run_gc(void){
       _pmath_symbol_value_visit(
         _pmath_symbol_get_global_value(sym), 
         gc_visit_ref, 
-        PMATH_NULL);
+        NULL);
       
       rules = _pmath_symbol_get_rules(sym, RULES_READ);
       
       if(rules)
-        _pmath_symbol_rules_visit(rules, gc_visit_ref, PMATH_NULL);
+        _pmath_symbol_rules_visit(rules, gc_visit_ref, NULL);
     }
     
     sym = pmath_symbol_iter_next(sym);
-  }while(sym && !pmath_same(sym, PMATH_SYMBOL_LIST));
+  }while(!pmath_is_null(sym) && !pmath_same(sym, PMATH_SYMBOL_LIST));
   pmath_unref(sym);
   
   #ifdef PMATH_DEBUG_LOG
@@ -758,8 +767,8 @@ static void run_gc(void){
       // one reference is hold by sym
       ++gc_refs;
       
-      if(gc_refs     <  (uintptr_t)sym->refcount
-      && gc_refs + 3 >= (uintptr_t)sym->refcount){
+      if(gc_refs     <  (uintptr_t)PMATH_AS_PTR(sym)->refcount
+      && gc_refs + 3 >= (uintptr_t)PMATH_AS_PTR(sym)->refcount){
         if(_pmath_have_code(sym, PMATH_CODE_USAGE_DOWNCALL))
           ++gc_refs;
           
@@ -770,19 +779,19 @@ static void run_gc(void){
           ++gc_refs;
       }
       
-      if(gc_refs == (uintptr_t)sym->refcount){
+      if(gc_refs == (uintptr_t)PMATH_AS_PTR(sym)->refcount){
         pmath_bool_t all_visited;
         
         all_visited = _pmath_symbol_value_visit(
           _pmath_symbol_get_global_value(sym), 
           gc_all_expr_visited, 
-          PMATH_NULL);
+          NULL);
         
         if(all_visited){
           struct _pmath_symbol_rules_t *rules;
           rules = _pmath_symbol_get_rules(sym, RULES_READ);
           
-          all_visited = _pmath_symbol_rules_visit(rules, gc_all_expr_visited, PMATH_NULL);
+          all_visited = _pmath_symbol_rules_visit(rules, gc_all_expr_visited, NULL);
           
           /* all_visited: the whole symbol value (expr tree) is only referenced 
              by temp. symbols and so was visited by the gc in the previous loop.
@@ -797,16 +806,16 @@ static void run_gc(void){
                 _pmath_symbol_rules_clear(rules);
             }
             
-            pmath_register_code(sym, PMATH_NULL, PMATH_CODE_USAGE_DOWNCALL);
-            pmath_register_code(sym, PMATH_NULL, PMATH_CODE_USAGE_UPCALL);
-            pmath_register_code(sym, PMATH_NULL, PMATH_CODE_USAGE_SUBCALL);
+            pmath_register_code(sym, NULL, PMATH_CODE_USAGE_DOWNCALL);
+            pmath_register_code(sym, NULL, PMATH_CODE_USAGE_UPCALL);
+            pmath_register_code(sym, NULL, PMATH_CODE_USAGE_SUBCALL);
           }
         }
       }
     }
     
     sym = pmath_symbol_iter_next(sym);
-  }while(sym && !pmath_same(sym, PMATH_SYMBOL_LIST));
+  }while(!pmath_is_null(sym) && !pmath_same(sym, PMATH_SYMBOL_LIST));
   pmath_unref(sym);
   
   #ifdef PMATH_DEBUG_LOG
@@ -857,7 +866,7 @@ static void kill_timer_thread(void *dummy){
 static void timer_thread_proc(void *dummy){
   struct _pmath_timed_message_t *msg;
   struct _pmath_timed_message_t *umsg;
-  struct _pmath_timed_message_t *sorted_msgs = PMATH_NULL;
+  struct _pmath_timed_message_t *sorted_msgs = NULL;
   double now;
   double next_event;
   
@@ -948,7 +957,7 @@ PMATH_PRIVATE int _pmath_processor_count(void){
 PMATH_PRIVATE pmath_bool_t _pmath_threadpool_init(void){
   int i;
   
-  all_daemons = PMATH_NULL;
+  all_daemons = NULL;
   daemon_spin = 0;
   _pmath_threadpool_deamon_count = 0;
   
@@ -1013,12 +1022,12 @@ PMATH_PRIVATE pmath_bool_t _pmath_threadpool_init(void){
   for(i = 0;i < worker_count;++i){
     #ifdef PMATH_OS_WIN32
       workers[i].thread = _beginthreadex(
-        PMATH_NULL,     // default security
+        NULL,     // default security
         0,        // default stack size
         worker_thread_proc,
         (void*)i, // argument
         0,        // running
-        PMATH_NULL);    // do not need thread id
+        NULL);    // do not need thread id
       if(workers[i].thread == 0){
         int j;
 
@@ -1036,7 +1045,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_threadpool_init(void){
     #else
       int err = pthread_create(
         &workers[i].thread,
-        PMATH_NULL,       // default attributes
+        NULL,                  // default attributes
         worker_thread_proc,
         (void*)(uintptr_t)i);  // argument
 
@@ -1061,9 +1070,9 @@ PMATH_PRIVATE pmath_bool_t _pmath_threadpool_init(void){
   }
 
   timer_thread_mq = pmath_thread_fork_daemon(
-    timer_thread_proc, kill_timer_thread, PMATH_NULL);
+    timer_thread_proc, kill_timer_thread, NULL);
   
-  if(!timer_thread_mq)
+  if(pmath_is_null(timer_thread_mq))
     goto TIMER_FAIL;
   
   return TRUE;

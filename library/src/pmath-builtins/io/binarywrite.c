@@ -303,7 +303,7 @@ static pmath_bool_t binary_write(
                     data[0] = (umant >> 8) & 0x03;
                     data[1] = umant & 0xFF;
                     
-                    if(mpz_sgn(mant->value) < 0)
+                    if(mpz_sgn(PMATH_AS_MPZ(mant)) < 0)
                       data[0] |= 0x80;
                       
                     data[0]|= uexp << 2;
@@ -320,15 +320,15 @@ static pmath_bool_t binary_write(
                 
                 case 4: {
                   if(exp < -126){
-                    mpz_fdiv_q_2exp(mant->value, mant->value, - exp - 126);
+                    mpz_fdiv_q_2exp(PMATH_AS_MPZ(mant), PMATH_AS_MPZ(mant), - exp - 126);
                     exp = -127;
                   }
                   else
-                   mpz_clrbit(mant->value, bits);
+                   mpz_clrbit(PMATH_AS_MPZ(mant), bits);
                   
                   if(exp <= 127
-                  && mpz_cmpabs_ui(mant->value, 0x800000) <= 0){
-                    unsigned long umant = mpz_get_ui(mant->value);
+                  && mpz_cmpabs_ui(PMATH_AS_MPZ(mant), 0x800000) <= 0){
+                    unsigned long umant = mpz_get_ui(PMATH_AS_MPZ(mant));
                     unsigned long uexp = (unsigned long)(exp + 127);
                     
                     data[0] = 0;
@@ -336,7 +336,7 @@ static pmath_bool_t binary_write(
                     data[2] = (umant >> 8) & 0xFF;
                     data[3] = umant & 0xFF;
                     
-                    if(mpz_sgn(mant->value) < 0)
+                    if(mpz_sgn(PMATH_AS_MPZ(mant)) < 0)
                       data[0] |= 0x80;
                       
                     data[0]|= uexp >> 1;
@@ -358,21 +358,21 @@ static pmath_bool_t binary_write(
                 
                 case 8: {
                   if(exp < -1022){
-                    mpz_fdiv_q_2exp(mant->value, mant->value, - exp - 1022);
+                    mpz_fdiv_q_2exp(PMATH_AS_MPZ(mant), PMATH_AS_MPZ(mant), - exp - 1022);
                     exp = -1023;
                   }
                   else
-                   mpz_clrbit(mant->value, bits);
+                   mpz_clrbit(PMATH_AS_MPZ(mant), bits);
                   
                   if(exp <= 1023){
-                    size_t count = (mpz_sizeinbase(mant->value, 2) + 7) / 8;
+                    size_t count = (mpz_sizeinbase(PMATH_AS_MPZ(mant), 2) + 7) / 8;
                     unsigned long uexp = (unsigned long)(exp + 1023);
                     
                     if(count > 7)
                       goto MAKE_INFINTE;
                     
                     memset(data, 0, size);
-                    mpz_export(data, PMATH_NULL, -1, 1, PMATH_BYTE_ORDER, 0, mant->value);
+                    mpz_export(data, NULL, -1, 1, PMATH_BYTE_ORDER, 0, PMATH_AS_MPZ(mant));
                     
                     if(data[6] & 0xF0)
                       goto MAKE_INFINTE;
@@ -380,7 +380,7 @@ static pmath_bool_t binary_write(
                     data[6] |= uexp << 4;
                     data[7] = (uexp >> 4) & 0x7F;
                     
-                    if(mpz_sgn(mant->value) < 0)
+                    if(mpz_sgn(PMATH_AS_MPZ(mant)) < 0)
                       data[7] |= 0x80;
                     
                     if(byte_ordering > 0){
@@ -398,21 +398,21 @@ static pmath_bool_t binary_write(
                 
                 case 16: {
                   if(exp < -16382){
-                    mpz_fdiv_q_2exp(mant->value, mant->value, - exp - 16382);
+                    mpz_fdiv_q_2exp(PMATH_AS_MPZ(mant), PMATH_AS_MPZ(mant), - exp - 16382);
                     exp = -16383;
                   }
                   else
-                   mpz_clrbit(mant->value, bits);
+                   mpz_clrbit(PMATH_AS_MPZ(mant), bits);
                   
                   if(exp <= 16383){
-                    size_t count = (mpz_sizeinbase(mant->value, 2) + 7) / 8;
+                    size_t count = (mpz_sizeinbase(PMATH_AS_MPZ(mant), 2) + 7) / 8;
                     unsigned long uexp = (unsigned long)(exp + 16383);
                     
                     if(count > 14)
                       goto MAKE_INFINTE;
                     
                     memset(data, 0, size);
-                    mpz_export(data, PMATH_NULL, -1, 1, PMATH_BYTE_ORDER, 0, mant->value);
+                    mpz_export(data, NULL, -1, 1, PMATH_BYTE_ORDER, 0, PMATH_AS_MPZ(mant));
                     
                     if(data[6] & 0xF0)
                       goto MAKE_INFINTE;
@@ -420,7 +420,7 @@ static pmath_bool_t binary_write(
                     data[14] |= uexp;
                     data[15] = (uexp >> 8) & 0x7F;
                     
-                    if(mpz_sgn(mant->value) < 0)
+                    if(mpz_sgn(PMATH_AS_MPZ(mant)) < 0)
                       data[15] |= 0x80;
                     
                     if(byte_ordering > 0){
@@ -438,12 +438,12 @@ static pmath_bool_t binary_write(
                 
                 default: MAKE_INFINTE: {
                   im_dir = 0;
-                  re_dir = mpz_sgn(mant->value);
+                  re_dir = mpz_sgn(PMATH_AS_MPZ(mant));
                   if(re_dir == 0)
                     re_dir = 1;
                   
-                  pmath_unref((pmath_float_t)f);
-                  pmath_unref((pmath_integer_t)mant);
+                  pmath_unref(f);
+                  pmath_unref(mant);
                 } goto INFINITE_IM_RE;
               }
               
@@ -451,8 +451,8 @@ static pmath_bool_t binary_write(
             }
             
             pmath_unref(value);
-            pmath_unref((pmath_float_t)f);
-            pmath_unref((pmath_integer_t)mant);
+            pmath_unref(f);
+            pmath_unref(mant);
             return TRUE;
           }
           
@@ -591,40 +591,43 @@ static pmath_bool_t binary_write(
       
         if(pmath_is_integer(value)){
           size_t count;
-          struct _pmath_integer_t *pos = PMATH_NULL;
+          pmath_integer_t pos = PMATH_NULL;
           
           if(out_type == INT 
-          && mpz_sgn(((struct _pmath_integer_t*)value)->value) < 0){
+          && mpz_sgn(PMATH_AS_MPZ(value)) < 0){
             pos = _pmath_create_integer();
             
-            if(!pos){
+            if(pmath_is_null(pos)){
               pmath_unref(value);
               pmath_unref(type);
               return FALSE;
             }
             
-            mpz_set_ui(pos->value, 1);
-            mpz_mul_2exp(pos->value, pos->value, size * 8);
-            mpz_add(pos->value, pos->value, ((struct _pmath_integer_t*)value)->value);
+            mpz_set_ui(PMATH_AS_MPZ(pos), 1);
+            mpz_mul_2exp(PMATH_AS_MPZ(pos), PMATH_AS_MPZ(pos), size * 8);
+            mpz_add(
+              PMATH_AS_MPZ(pos), 
+              PMATH_AS_MPZ(pos), 
+              PMATH_AS_MPZ(value));
           }
           else if(out_type == INT){
-            pos = (struct _pmath_integer_t*)pmath_ref(value);
+            pos = pmath_ref(value);
           }
           else{
-            if(!type)
+            if(pmath_is_null(type))
               type = PMATH_C_STRING("Byte");
                   
             pmath_message(PMATH_NULL, "nocoerce", 2, value, type);
             return FALSE;
           }
           
-          count = (mpz_sizeinbase(pos->value, 2) + 7) / 8;
+          count = (mpz_sizeinbase(PMATH_AS_MPZ(pos), 2) + 7) / 8;
           
           if(count > size){
-            if(!type)
+            if(pmath_is_null(type))
               type = PMATH_C_STRING("Byte");
             
-            pmath_unref((pmath_integer_t)pos);
+            pmath_unref(pos);
             pmath_message(PMATH_NULL, "nocoerce", 2, value, type);
             return FALSE;
           }
@@ -632,14 +635,14 @@ static pmath_bool_t binary_write(
           memset(data, 0, size);
           mpz_export(
             data,
-            PMATH_NULL,
+            NULL,
             byte_ordering,
             1,
             PMATH_BYTE_ORDER,
             0,
-            pos->value);
+            PMATH_AS_MPZ(pos));
           
-          pmath_unref((pmath_integer_t)pos);
+          pmath_unref(pos);
           pmath_unref(value);
           pmath_unref(type);
           
@@ -648,7 +651,7 @@ static pmath_bool_t binary_write(
       }
       
       if(out_type != NONE){
-        if(!type)
+        if(pmath_is_null(type))
           type = PMATH_C_STRING("Byte");
               
         pmath_message(PMATH_NULL, "nocoerce", 2, value, type);
@@ -736,7 +739,7 @@ PMATH_PRIVATE pmath_t builtin_binarywrite(pmath_expr_t expr){
   }
   
   type = pmath_expr_get_item(expr, 3);
-  if(!type || _pmath_is_rule(type) || _pmath_is_list_of_rules(type)){
+  if(pmath_is_null(type) || _pmath_is_rule(type) || _pmath_is_list_of_rules(type)){
     pmath_unref(type);
     type = PMATH_NULL;
     last_nonoption = 2;

@@ -34,34 +34,34 @@ static pmath_bool_t almost_equal_machine(double a, double b){
 }
 
 static pmath_bool_t almost_equal_mp(
-  struct _pmath_mp_float_t *a, 
-  struct _pmath_mp_float_t *b
+  pmath_float_t a, 
+  pmath_float_t b
 ){ 
   pmath_number_t test;
   pmath_number_t err;
   
-  assert(pmath_instance_of((pmath_t)a, PMATH_TYPE_MP_FLOAT));
-  assert(pmath_instance_of((pmath_t)b, PMATH_TYPE_MP_FLOAT));
+  assert(pmath_instance_of(a, PMATH_TYPE_MP_FLOAT));
+  assert(pmath_instance_of(b, PMATH_TYPE_MP_FLOAT));
   
-  if(mpfr_equal_p(a->value, b->value))
+  if(mpfr_equal_p(PMATH_AS_MP_VALUE(a), PMATH_AS_MP_VALUE(b)))
     return TRUE;
   
-  if(mpfr_zero_p(a->value) || mpfr_zero_p(b->value))
+  if(mpfr_zero_p(PMATH_AS_MP_VALUE(a)) || mpfr_zero_p(PMATH_AS_MP_VALUE(b)))
     return FALSE;
   
-  if(mpfr_cmpabs(a->value, b->value) < 0){
+  if(mpfr_cmpabs(PMATH_AS_MP_VALUE(a), PMATH_AS_MP_VALUE(b)) < 0){
     test = _mul_nn(
-      pmath_ref((pmath_t)b), 
+      pmath_ref(b), 
       _pow_fi(
-        (struct _pmath_mp_float_t*)pmath_ref((pmath_t)a), 
+        pmath_ref(a), 
         -1, 
         TRUE));
   }
   else{
     test = _mul_nn(
-      pmath_ref((pmath_t)a), 
+      pmath_ref(a), 
       _pow_fi(
-        (struct _pmath_mp_float_t*)pmath_ref((pmath_t)b), 
+        pmath_ref(b), 
         -1, 
         TRUE));
   }
@@ -81,11 +81,8 @@ static pmath_bool_t almost_equal_mp(
   
   if(pmath_instance_of(err,  PMATH_TYPE_MP_FLOAT)
   && pmath_instance_of(test, PMATH_TYPE_MP_FLOAT)){
-    struct _pmath_mp_float_t *_err  = (struct _pmath_mp_float_t*)err;
-    struct _pmath_mp_float_t *_test = (struct _pmath_mp_float_t*)test;
-    
     // Max(a,b)/Min(a,b) <= 1 + TOLERANCE_FACTOR * epsilon
-    if(mpfr_lessequal_p(_test->value, _err->error)){
+    if(mpfr_lessequal_p(PMATH_AS_MP_VALUE(test), PMATH_AS_MP_ERROR(err))){
       pmath_unref(err);
       pmath_unref(test);
       return TRUE;
@@ -99,21 +96,18 @@ static pmath_bool_t almost_equal_mp(
 
 static pmath_bool_t almost_equal(pmath_t a, pmath_t b){
   if(PMATH_IS_MAGIC(a) || PMATH_IS_MAGIC(b)){
-    return a == b;
+    return pmath_same(a, b);
   }
   
-  if(a->type_shift == b->type_shift){
-    if(a->type_shift == PMATH_TYPE_SHIFT_MACHINE_FLOAT){
+  if(pmath_is_double(a)){
+    if(pmath_is_double(b))
       return almost_equal_machine(
-        ((struct _pmath_machine_float_t*)a)->value,
-        ((struct _pmath_machine_float_t*)b)->value);
-    }
-    
-    if(a->type_shift == PMATH_TYPE_SHIFT_MP_FLOAT){
-      return almost_equal_mp(
-        (struct _pmath_mp_float_t*)a,
-        (struct _pmath_mp_float_t*)b);
-    }
+        PMATH_AS_DOUBLE(a),
+        PMATH_AS_DOUBLE(b));
+  }
+  else if(pmath_instance_of(a, PMATH_TYPE_MP_FLOAT)
+  &&      pmath_instance_of(b, PMATH_TYPE_MP_FLOAT)){
+    return almost_equal_mp(a, b);
   }
   
   return pmath_equals(a, b);
@@ -283,7 +277,7 @@ static pmath_t ordered(
 
           if(pmath_equals(prev_infdir, PMATH_NUMBER_MINUSONE)){
             n = pmath_ref(next);
-            if(!next_infdir && _pmath_is_numeric(n))
+            if(pmath_is_null(next_infdir) && _pmath_is_numeric(n))
               n = pmath_approximate(n, -HUGE_VAL, -HUGE_VAL);
             
             if(pmath_is_number(n)
@@ -309,7 +303,7 @@ static pmath_t ordered(
           }
           else if(pmath_equals(prev_infdir, PMATH_NUMBER_ONE)){
             n = pmath_ref(next);
-            if(!next_infdir && _pmath_is_numeric(n))
+            if(pmath_is_null(next_infdir) && _pmath_is_numeric(n))
               n = pmath_approximate(n, -HUGE_VAL, -HUGE_VAL);
               
             if(pmath_is_number(n)
@@ -335,7 +329,7 @@ static pmath_t ordered(
           }
           else if(pmath_equals(next_infdir, PMATH_NUMBER_MINUSONE)){
             p = pmath_ref(prev);
-            if(!prev_infdir && _pmath_is_numeric(p))
+            if(pmath_is_null(prev_infdir) && _pmath_is_numeric(p))
               p = pmath_approximate(p, -HUGE_VAL, -HUGE_VAL);
               
             if(pmath_is_number(p)
@@ -361,7 +355,7 @@ static pmath_t ordered(
           }
           else if(pmath_equals(next_infdir, PMATH_NUMBER_ONE)){
             p = pmath_ref(prev);
-            if(!prev_infdir && _pmath_is_numeric(p))
+            if(pmath_is_null(prev_infdir) && _pmath_is_numeric(p))
               p = pmath_approximate(p, -HUGE_VAL, -HUGE_VAL);
               
             if(pmath_is_number(prev)
@@ -738,7 +732,7 @@ PMATH_PRIVATE pmath_t builtin_inequation(pmath_expr_t expr){
       if(prev_was_true){
         pmath_t new_relation = combine_relations(prev_relation, relation);
         
-        if(new_relation){
+        if(!pmath_is_null(new_relation)){
           have_marker = TRUE;
           expr = pmath_expr_set_item(expr, i-2, PMATH_UNDEFINED);
           expr = pmath_expr_set_item(expr, i-1, PMATH_UNDEFINED);

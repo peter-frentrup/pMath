@@ -61,17 +61,17 @@ static pmath_expr_t random_array(
   
   if(data->dim == data->dims){
     if(data->random_integer){
-      struct _pmath_integer_t *result = _pmath_create_integer();
+      pmath_integer_t result = _pmath_create_integer();
       
       assert(pmath_is_integer(data->max));
       
-      if(result){
+      if(!pmath_is_null(result)){
         pmath_atomic_lock(&_pmath_rand_spinlock);
         
         mpz_urandomm(
-          result->value, 
+          PMATH_AS_MPZ(result), 
           _pmath_randstate,
-          ((struct _pmath_integer_t*)data->max)->value);
+          PMATH_AS_MPZ(data->max));
         
         pmath_atomic_unlock(&_pmath_rand_spinlock);
         
@@ -79,30 +79,31 @@ static pmath_expr_t random_array(
           return pmath_expr_new_extended(
             pmath_ref(PMATH_SYMBOL_PLUS), 2,
             pmath_ref(data->min),
-            (pmath_integer_t)result);
+            result);
         
-        return (pmath_integer_t)PMATH_FROM_PTR(result);
+        return result;
       }
+      
       return PMATH_NULL;
     }
     else{
 //      mp_prec_t prec = data->working_precision;
 //        
 //      struct _pmath_mp_float_t *result = _pmath_create_mp_float(prec ? prec : DBL_MANT_DIG);
-      struct _pmath_mp_float_t *result = _pmath_create_mp_float(data->prec);
+      pmath_float_t result = _pmath_create_mp_float(data->prec);
       
-      if(result){
+      if(!pmath_is_null(result)){
         pmath_atomic_lock(&_pmath_rand_spinlock);
         
-        mpfr_urandomb(result->value, _pmath_randstate);
+        mpfr_urandomb(PMATH_AS_MP_VALUE(result), _pmath_randstate);
         
         pmath_atomic_unlock(&_pmath_rand_spinlock);
         
         if(data->working_precision == -HUGE_VAL){
-          double res = mpfr_get_d(result->value, MPFR_RNDN);
+          double res = mpfr_get_d(PMATH_AS_MP_VALUE(result), MPFR_RNDN);
           
           if(isfinite(res)){
-            pmath_unref((pmath_float_t)PMATH_FROM_PTR(result));;
+            pmath_unref(result);
             
             return stretch(
               pmath_float_new_d(res), 
@@ -111,12 +112,12 @@ static pmath_expr_t random_array(
           }
         }
         
-        mpfr_set_d(result->error, -data->working_precision, MPFR_RNDN);
-        mpfr_ui_pow(result->error, 2, result->error, MPFR_RNDU);
-        mpfr_mul(result->error, result->error, result->value, MPFR_RNDU);
+        mpfr_set_d( PMATH_AS_MP_ERROR(result), -data->working_precision, MPFR_RNDN);
+        mpfr_ui_pow(PMATH_AS_MP_ERROR(result), 2, PMATH_AS_MP_ERROR(result), MPFR_RNDU);
+        mpfr_mul(   PMATH_AS_MP_ERROR(result), PMATH_AS_MP_ERROR(result), PMATH_AS_MP_VALUE(result), MPFR_RNDU);
         
         return stretch(
-          (pmath_float_t)result, 
+          result, 
           pmath_ref(data->min), 
           pmath_ref(data->max));
       }
@@ -215,7 +216,7 @@ PMATH_PRIVATE pmath_t builtin_randominteger(pmath_expr_t expr){
     pmath_t range = pmath_expr_get_item(expr, 1);
     if(pmath_is_integer(range)){
       data.max = _add_nn(range, pmath_integer_new_si(1));
-      if(!data.max){
+      if(pmath_is_null(data.max)){
         pmath_unref(expr);
         return PMATH_NULL;
       }
@@ -247,7 +248,7 @@ PMATH_PRIVATE pmath_t builtin_randominteger(pmath_expr_t expr){
         data.max,
         pmath_number_neg(pmath_ref(data.min)));
       
-      if(!data.max){
+      if(pmath_is_null(data.max)){
         pmath_unref(data.min);
         pmath_unref(range);
         pmath_unref(expr);

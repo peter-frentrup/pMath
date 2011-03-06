@@ -265,7 +265,7 @@
 
     p = (memory_header_t*)memory_allocate(DEBUG_HEADER_SIZE + size + DEBUG_OVERFLOW_SIZE);
     if(!p)
-      return PMATH_NULL;
+      return NULL;
 
     p->size = size;
     p->alloc_time = pmath_atomic_fetch_add(&_pmath_debug_global_time, 1);
@@ -278,7 +278,7 @@
         EnterCriticalSection(&mem_list_mutex);
       #endif
 
-      p->prev = PMATH_NULL;
+      p->prev = NULL;
       p->next = mem_list;
       if(mem_list)
         mem_list->prev = p;
@@ -347,7 +347,7 @@
           EnterCriticalSection(&mem_list_mutex);
         #endif
 
-        old_p->prev = PMATH_NULL;
+        old_p->prev = NULL;
         old_p->next = mem_list;
         if(mem_list)
           mem_list->prev = old_p;
@@ -359,7 +359,7 @@
           LeaveCriticalSection(&mem_list_mutex);
         #endif
       }
-      return PMATH_NULL;
+      return NULL;
     }
 
     if(old_size < size){
@@ -379,7 +379,7 @@
         EnterCriticalSection(&mem_list_mutex);
       #endif
 
-      new_p->prev = PMATH_NULL;
+      new_p->prev = NULL;
       new_p->next = mem_list;
       if(mem_list)
         mem_list->prev = new_p;
@@ -435,7 +435,7 @@
   static size_t debug_mem_size(void *p){
     memory_header_t *old_p;
     
-    assert(p != PMATH_NULL);
+    assert(p != NULL);
     
     old_p = DEBUG_MEM_TO_HEADER(p);
     
@@ -508,7 +508,7 @@ PMATH_API void *pmath_mem_alloc(size_t size){
     p = memory_allocate(size);
     if(!p){
       pmath_throw(pmath_ref(_pmath_object_memory_exception));
-      return PMATH_NULL;
+      return NULL;
     }
   }
   
@@ -543,7 +543,7 @@ PMATH_API void *pmath_mem_realloc_no_failfree(void *p, size_t new_size){
 
   if(new_size == 0){
     pmath_mem_free(p);
-    return PMATH_NULL;
+    return NULL;
   }
   
   old = memory_size(p);
@@ -553,7 +553,7 @@ PMATH_API void *pmath_mem_realloc_no_failfree(void *p, size_t new_size){
     new_p = memory_reallocate(p, new_size);
     if(!new_p){
       pmath_throw(pmath_ref(_pmath_object_memory_exception));
-      return PMATH_NULL;
+      return NULL;
     }
   }
   
@@ -605,7 +605,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_memory_manager_init(void){
     init_platform_memory_manager();
 
     #ifdef PMATH_DEBUG_MEMORY
-      mem_list = PMATH_NULL;
+      mem_list = NULL;
 
         /* initialize mem_list_mutex ... */
       #if PMATH_USE_PTHREAD

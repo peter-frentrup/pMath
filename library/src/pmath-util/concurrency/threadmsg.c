@@ -54,7 +54,7 @@ struct msg_queue_t{
 };
 
 static PMATH_DECLARE_ATOMIC(sleeplist_spin);
-static struct msg_queue_t * volatile sleeplist = PMATH_NULL;
+static struct msg_queue_t * volatile sleeplist = NULL;
 
 #ifdef PMATH_OS_WIN32
   static uint64_t win2unix_epoch;
@@ -87,7 +87,7 @@ static void wakeup_msg_queue(struct msg_queue_t *mq_data){
       next->prev = prev;
       if(mq_data == sleeplist){
         if(mq_data->next == mq_data)
-          sleeplist = PMATH_NULL;
+          sleeplist = NULL;
         else
           sleeplist = mq_data->next;
       }
@@ -111,7 +111,7 @@ static void wakeup_msg_queue(struct msg_queue_t *mq_data){
     _pmath_event_signal(&mq_data->sleep_event);
     
     child_mq = _pmath_object_atomic_read(&mq_data->_child_messages);
-    if(child_mq){
+    if(!pmath_is_null(child_mq)){
       mq_data = pmath_custom_get_data(child_mq);
       pmath_unref(child_mq);
     }
@@ -126,7 +126,7 @@ static void msg_queue_sleep(struct msg_queue_t *mq_data){
   struct msg_queue_t *sl_next;
   struct msg_queue_t *mq_prev;
   
-  assert(mq_data != PMATH_NULL);
+  assert(mq_data != NULL);
   assert(!mq_data->is_dead);
   assert(pmath_custom_get_data(pmath_thread_get_current()->message_queue) == mq_data);
   
@@ -158,7 +158,7 @@ static void msg_queue_sleep_timeout(struct msg_queue_t *mq_data, double abs_time
   struct msg_queue_t *next;
   struct msg_queue_t *prev;
   
-  assert(mq_data != PMATH_NULL);
+  assert(mq_data != NULL);
   assert(!mq_data->is_dead);
   assert(pmath_custom_get_data(pmath_thread_get_current()->message_queue) == mq_data);
   
@@ -192,7 +192,7 @@ static void msg_queue_sleep_timeout(struct msg_queue_t *mq_data, double abs_time
     
     if(mq_data == sleeplist){
       if(mq_data->next == mq_data)
-        sleeplist = PMATH_NULL;
+        sleeplist = NULL;
       else
         sleeplist = mq_data->next;
     }
@@ -220,7 +220,7 @@ void _pmath_msq_queue_awake_all(void){
         prev->next = next;
         next->prev = prev;
         if(sl->next == sl)
-          sleeplist = PMATH_NULL;
+          sleeplist = NULL;
         else
           sleeplist = sl->next;
         
@@ -252,7 +252,7 @@ void _pmath_msq_queue_awake_all(void){
 
 static void destroy_msg(struct message_t *msg){
   if(msg){
-    if(msg->result){
+    if(!pmath_is_null(msg->result)){
       struct _pmath_abortable_message_t *data;
       
       data = pmath_custom_get_data(msg->result);
@@ -261,7 +261,7 @@ static void destroy_msg(struct message_t *msg){
       pmath_unref(msg->result);
     }
     
-    if(msg->sender){
+    if(!pmath_is_null(msg->sender)){
       wakeup_msg_queue(pmath_custom_get_data(msg->sender));
       pmath_unref(msg->sender);
     }
@@ -278,8 +278,8 @@ static void destroy_msg_queue(void *mq_data){
   
   mq = (struct msg_queue_t*)mq_data;
   
-  assert(mq != PMATH_NULL);
-  assert(mq->notifiers == PMATH_NULL);
+  assert(mq != NULL);
+  assert(mq->notifiers == NULL);
   
   wakeup_msg_queue(mq);
   
@@ -312,14 +312,15 @@ static void push_msg(
   if(!msg)
     return;
   
-  msg->next = PMATH_NULL;
+  msg->next = NULL;
   
-  assert(mq_data != PMATH_NULL);
+  assert(mq_data != NULL);
   
   child_mq = _pmath_object_atomic_read(&mq_data->_child_messages);
-  if(child_mq){
+  if(!pmath_is_null(child_mq)){
     struct msg_queue_t *mq_child_data = pmath_custom_get_data(child_mq);
-    assert(mq_child_data != PMATH_NULL);
+    assert(mq_child_data != NULL);
+    
     push_msg(mq_child_data, msg);
     pmath_unref(child_mq);
     return;
@@ -336,7 +337,7 @@ static void push_msg(
     msg->result   = PMATH_NULL;
     msg->sender   = PMATH_NULL;
     mq_data->tail = tail->next = msg;
-    msg = PMATH_NULL;
+    msg           = NULL;
     
     (void)pmath_atomic_fetch_add(&_pmath_abort_reasons, +1);
   }
@@ -354,9 +355,9 @@ static struct message_t *pop_msg(struct msg_queue_t *mq_data){
   struct message_t *msg;
   
   if(!mq_data)
-    return PMATH_NULL;
+    return NULL;
     
-  msg = PMATH_NULL;
+  msg = NULL;
   
   pmath_atomic_lock(&mq_data->head_spin);
   
@@ -364,7 +365,7 @@ static struct message_t *pop_msg(struct msg_queue_t *mq_data){
   if(msg != mq_data->tail)
     mq_data->head = msg->next;
   else
-    msg = PMATH_NULL;
+    msg = NULL;
   
   pmath_atomic_unlock(&mq_data->head_spin);
   
@@ -416,7 +417,7 @@ void _pmath_msg_queue_inform_death(pmath_messages_t mq){
     return;
   
   mq_data = pmath_custom_get_data(mq);
-  assert(mq_data != PMATH_NULL);
+  assert(mq_data != NULL);
   
   pmath_atomic_lock(&mq_data->tail_spin);
   mq_data->is_dead = TRUE;
@@ -434,7 +435,7 @@ void _pmath_msq_queue_handle_next(pmath_thread_t me){
     msg = pop_msg(pmath_custom_get_data(me->message_queue));
     if(msg){
       
-      if(msg->result){
+      if(!pmath_is_null(msg->result)){
         pmath_t ex;
         pmath_t val;
         
@@ -463,14 +464,14 @@ void _pmath_msq_queue_handle_next(pmath_thread_t me){
         // which now sees that A is the current message again and so it throws
         // "A" to abort it.
         
-        pmath_debug_print("[start abortable %p", msg->result);
+        pmath_debug_print("[start abortable %p", PMATH_AS_PTR(msg->result));
         pmath_debug_print_object(", subject = ", msg->subject, "]\n");
         
-        assert(result_data->next == PMATH_NULL);
+        assert(pmath_is_null(result_data->next));
         result_data->next = pmath_ref(me->abortable_messages);
         me->abortable_messages = msg->result;
         
-        if(result_data->next){
+        if(!pmath_is_null(result_data->next)){
           struct _pmath_abortable_message_t *next_data;
           next_data = pmath_custom_get_data(result_data->next);
           
@@ -489,7 +490,7 @@ void _pmath_msq_queue_handle_next(pmath_thread_t me){
           val = pmath_ref(PMATH_SYMBOL_ABORTED);
         
         
-        pmath_debug_print("[ending abortable %p", msg->result);
+        pmath_debug_print("[ending abortable %p", PMATH_AS_PTR(msg->result));
         pmath_debug_print_object(", value = ", val, "]\n");
         
         
@@ -498,7 +499,7 @@ void _pmath_msq_queue_handle_next(pmath_thread_t me){
         _pmath_object_atomic_write(&result_data->_value, val);
         
         ex = pmath_catch();
-        if(ex == msg->result){
+        if(pmath_same(ex, msg->result)){
           pmath_unref(ex);
         }
         else if(!pmath_same(ex, PMATH_UNDEFINED)){
@@ -506,11 +507,11 @@ void _pmath_msq_queue_handle_next(pmath_thread_t me){
         }
         
         ex = _pmath_object_atomic_read(&result_data->_pending_abort_request);
-        if(ex){
+        if(!pmath_is_null(ex)){
           _pmath_abort_message(ex);
         }
         
-        pmath_debug_print("[ended abortable %p]\n", msg->result);
+        pmath_debug_print("[ended abortable %p]\n", PMATH_AS_PTR(msg->result));
         
         pmath_unref(msg->result);
         msg->result = PMATH_NULL;
@@ -521,7 +522,7 @@ void _pmath_msq_queue_handle_next(pmath_thread_t me){
       
       msg->subject = PMATH_NULL;
       
-      if(msg->sender){
+      if(!pmath_is_null(msg->sender)){
         wakeup_msg_queue(pmath_custom_get_data(msg->sender));
         pmath_unref(msg->sender);
       }
@@ -546,7 +547,7 @@ void _pmath_msq_queue_set_child(
   
   mq_data = pmath_custom_get_data(me->message_queue);
   
-  assert(mq_data != PMATH_NULL);
+  assert(mq_data != NULL);
   
   if(child)
     _pmath_object_atomic_write(&mq_data->_child_messages, pmath_ref(child->message_queue));
@@ -580,11 +581,11 @@ void pmath_thread_sleep(void){
   struct msg_queue_t *mq_data;
   pmath_thread_t me = pmath_thread_get_current();
   
-  if(!me || !me->message_queue)
+  if(!me || pmath_is_null(me->message_queue))
     return;
   
   mq_data = pmath_custom_get_data(me->message_queue);
-  assert(mq_data != PMATH_NULL);
+  assert(mq_data != NULL);
   msg_queue_sleep(mq_data);
   
   _pmath_msq_queue_handle_next(me);
@@ -595,11 +596,11 @@ void pmath_thread_sleep_timeout(double abs_timeout){
   struct msg_queue_t *mq_data;
   pmath_thread_t me = pmath_thread_get_current();
   
-  if(!me || !me->message_queue)
+  if(!me || pmath_is_null(me->message_queue))
     return;
   
   mq_data = pmath_custom_get_data(me->message_queue);
-  assert(mq_data != PMATH_NULL);
+  assert(mq_data != NULL);
   msg_queue_sleep_timeout(mq_data, abs_timeout);
   
   _pmath_msq_queue_handle_next(me);
@@ -616,7 +617,7 @@ double pmath_tickcount(void){
   #else
   {
     struct timeval tv;
-    gettimeofday(&tv, PMATH_NULL); // too slow?
+    gettimeofday(&tv, NULL); // too slow?
     return (double)tv.tv_sec + tv.tv_usec * 1e-6;
   }
   #endif
@@ -638,7 +639,7 @@ void pmath_thread_send(pmath_messages_t mq, pmath_t msg){
   if(pmath_is_custom(mq)
   && pmath_custom_has_destructor(mq, destroy_msg_queue)){
     mq_data = pmath_custom_get_data(mq);
-    assert(mq_data != PMATH_NULL);
+    assert(mq_data != NULL);
     
     msg_struct = pmath_mem_alloc(sizeof(struct message_t));
     if(!msg_struct){
@@ -682,7 +683,7 @@ pmath_t pmath_thread_send_wait(
   if(pmath_is_custom(mq)
   && pmath_custom_has_destructor(mq, destroy_msg_queue)){
     mq_data = pmath_custom_get_data(mq);
-    assert(mq_data != PMATH_NULL);
+    assert(mq_data != NULL);
     
     msg_struct = pmath_mem_alloc(sizeof(struct message_t));
     if(!msg_struct){
@@ -703,7 +704,7 @@ pmath_t pmath_thread_send_wait(
     interrupt = pmath_expr_new_extended(
       pmath_ref(PMATH_SYMBOL_INTERNAL_ABORTMESSAGE), 1,
       pmath_ref(result));
-    if(!result || !interrupt){
+    if(pmath_is_null(result) || pmath_is_null(interrupt)){
       pmath_mem_free(msg_struct);
       pmath_unref(msg);
       pmath_unref(result);
@@ -712,23 +713,6 @@ pmath_t pmath_thread_send_wait(
     }
     
     _pmath_object_atomic_write(&result_data->_value, PMATH_UNDEFINED);
-    
-//    result_symbol = pmath_symbol_create_temporary(PMATH_C_STRING("Internal`sendWait"), TRUE);
-//    
-//    msg = pmath_expr_new_extended(
-//      pmath_ref(PMATH_SYMBOL_CATCH), 1,
-//      msg);
-    
-//    pmath_debug_print_object("[res=", result_symbol, ", ");
-//    pmath_debug_print_object("msg=", msg, "]\n");
-    
-//    interrupt = pmath_expr_new_extended(
-//      pmath_ref(PMATH_SYMBOL_THROW), 1,
-//      pmath_expr_new_extended(
-//        pmath_ref(PMATH_SYMBOL_UNEVALUATED), 1,
-//        pmath_ref(result_symbol)));
-//        
-//    pmath_symbol_set_value(result_symbol, pmath_ref(interrupt));
     
     end_time = pmath_tickcount() + timeout_seconds;
     
@@ -739,7 +723,7 @@ pmath_t pmath_thread_send_wait(
     push_msg(mq_data, msg_struct);
     
     my_mq_data = pmath_custom_get_data(me->message_queue);
-    assert(my_mq_data != PMATH_NULL);
+    assert(my_mq_data != NULL);
     
     while(!pmath_thread_aborting(me) && pmath_tickcount() < end_time){
       msg_queue_sleep_timeout(my_mq_data, end_time);
@@ -755,20 +739,10 @@ pmath_t pmath_thread_send_wait(
     }
     
     if(pmath_tickcount() >= end_time)
-      pmath_debug_print("[timeout %f %p]\n", timeout_seconds, result);
+      pmath_debug_print("[timeout %f %p]\n", timeout_seconds, PMATH_AS_PTR(result));
     
     pmath_thread_send(mq, pmath_ref(interrupt));
     
-//    /* If the evaluation did not already end, result_symbol still holds 
-//       `interrupt` which is Throw(...). Sending result_symbol then causes the
-//       evalutation to stop.
-//       
-//       If the evaluation already finished when this `result_symbol` message
-//       is handled, result_symbol will containt the evaluations result and thus 
-//       will cause no harm.
-//     */
-//    pmath_thread_send(mq, pmath_ref(result_symbol));
-  
     pmath_unref(answer);
     answer = PMATH_UNDEFINED;
     
@@ -818,14 +792,14 @@ pmath_bool_t pmath_thread_queue_is_blocked_by(
   pmath_t child_mq;
   struct msg_queue_t *waiter_mq_data;
   
-  while(waiter_mq && waiter_mq != waitee_mq){
+  while(!pmath_is_null(waiter_mq) && !pmath_same(waiter_mq, waitee_mq)){
     waiter_mq_data = pmath_custom_get_data(waiter_mq);
-    assert(waiter_mq_data != PMATH_NULL);
+    assert(waiter_mq_data != NULL);
     
     child_mq = _pmath_object_atomic_read(&waiter_mq_data->_child_messages);
     pmath_unref(waiter_mq);
     
-    if(!child_mq){
+    if(pmath_is_null(child_mq)){
       pmath_unref(waitee_mq);
       return FALSE;
     }
@@ -849,15 +823,15 @@ void pmath_thread_run_with_interrupt_notifier(
 ){
   pmath_messages_t mq = pmath_thread_get_queue();
   
-  assert(callback != PMATH_NULL);
-  assert(notify != PMATH_NULL);
+  assert(callback != NULL);
+  assert(notify   != NULL);
   
-  if(mq){
+  if(!pmath_is_null(mq)){
     struct notifier_t notifier;
     struct msg_queue_t *mq_data;
     
     mq_data = pmath_custom_get_data(mq);
-    assert(mq_data != PMATH_NULL);
+    assert(mq_data != NULL);
     
     notifier.func = notify;
     notifier.data = notify_closure;

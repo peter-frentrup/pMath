@@ -32,10 +32,10 @@
 static pmath_integer_t product_of_small_primes;
 static pmath_integer_t product_of_medium_primes;
 
-static pmath_bool_t is_small_prime(struct _pmath_integer_t *n){
+static pmath_bool_t is_small_prime(pmath_integer_t n){
   size_t i;
   for(i = 0;i < FIRST_MEDIUM_PRIME_POS; ++i){
-    int cmp = mpz_cmp_ui(n->value, _pmath_primes16bit[i]);
+    int cmp = mpz_cmp_ui(PMATH_AS_MPZ(n), _pmath_primes16bit[i]);
     if(cmp == 0)
       return TRUE;
     if(cmp < 0)
@@ -45,59 +45,53 @@ static pmath_bool_t is_small_prime(struct _pmath_integer_t *n){
 }
 
 PMATH_PRIVATE pmath_bool_t _pmath_integer_is_prime(pmath_integer_t n){
-  struct _pmath_integer_t *tmp;
+  pmath_integer_t tmp;
 
-  assert(n != PMATH_NULL);
+  assert(pmath_is_integer(n));
 
-  if(mpz_cmp_ui(((struct _pmath_integer_t*)n)->value, 1) <= 0)
+  if(mpz_cmp_ui(PMATH_AS_MPZ(n), 1) <= 0)
     return FALSE;
 
-  if(mpz_cmp_ui(((struct _pmath_integer_t*)n)->value, GREATEST_SMALL_PRIME) <= 0)
-    return is_small_prime((struct _pmath_integer_t*)n);
+  if(mpz_cmp_ui(PMATH_AS_MPZ(n), GREATEST_SMALL_PRIME) <= 0)
+    return is_small_prime(n);
 
   tmp = _pmath_create_integer();
-  if(!tmp)
+  if(pmath_is_null(tmp))
     return TRUE; /* Not realy prime, but pmath_aborting() is TRUE, so we can
                     return whatever we want. */
 
   mpz_gcd(
-    tmp->value,
-    ((struct _pmath_integer_t*)n)->value,
-    ((struct _pmath_integer_t*)product_of_small_primes)->value);
+    PMATH_AS_MPZ(tmp),
+    PMATH_AS_MPZ(n),
+    PMATH_AS_MPZ(product_of_small_primes));
 
-  if(mpz_cmp_ui(tmp->value, 1) != 0){
-    pmath_unref((pmath_integer_t)tmp);
+  if(mpz_cmp_ui(PMATH_AS_MPZ(tmp), 1) != 0){
+    pmath_unref(tmp);
     return FALSE;
   }
 
-  if(mpz_cmp_ui(
-      ((struct _pmath_integer_t*)n)->value, 
-      SQUARE_OF_FIRST_MEDIUM_PRIME) < 0)
-  {
+  if(mpz_cmp_ui(PMATH_AS_MPZ(n), SQUARE_OF_FIRST_MEDIUM_PRIME) < 0){
     pmath_unref((pmath_integer_t)tmp);
     return TRUE;
   }
 
   mpz_gcd(
-    tmp->value,
-    ((struct _pmath_integer_t*)n)->value,
-    ((struct _pmath_integer_t*)product_of_medium_primes)->value);
+    PMATH_AS_MPZ(tmp),
+    PMATH_AS_MPZ(n),
+    PMATH_AS_MPZ(product_of_medium_primes));
 
-  if(mpz_cmp_ui(tmp->value, 1) != 0){
-    pmath_unref((pmath_integer_t)tmp);
+  if(mpz_cmp_ui(PMATH_AS_MPZ(tmp), 1) != 0){
+    pmath_unref(tmp);
     return FALSE;
   }
 
-  if(mpz_cmp_ui(
-      ((struct _pmath_integer_t*)n)->value, 
-      SQUARE_OF_FIRST_BIG_PRIME) < 0)
-  {
+  if(mpz_cmp_ui(PMATH_AS_MPZ(n), SQUARE_OF_FIRST_BIG_PRIME) < 0){
     pmath_unref((pmath_integer_t)tmp);
     return TRUE;
   }
 
-  pmath_unref((pmath_integer_t)tmp);
-  return mpz_probab_prime_p(((struct _pmath_integer_t*)n)->value, 5);
+  pmath_unref(tmp);
+  return mpz_probab_prime_p(PMATH_AS_MPZ(n), 5);
 }
 
 PMATH_PRIVATE pmath_t builtin_isprime(pmath_expr_t expr){
@@ -188,26 +182,26 @@ PMATH_PRIVATE pmath_t builtin_isprime(pmath_expr_t expr){
    */
   pmath_bool_t VERIFY_SMALL_PRIMES(void){
     int i;
-    struct _pmath_integer_t *tmp = _pmath_create_integer();
+    pmath_integer_t tmp = _pmath_create_integer();
     
-    if(!tmp)
+    if(pmath_is_null(tmp))
       return FALSE;
     
     assert(_pmath_primes16bit[FIRST_MEDIUM_PRIME_POS - 1] == GREATEST_SMALL_PRIME);
     
-    mpz_set_ui(tmp->value, 1);
+    mpz_set_ui(PMATH_AS_MPZ(tmp), 1);
     for(i = 0;i < FIRST_MEDIUM_PRIME_POS;++i){
-      mpz_mul_ui(tmp->value, tmp->value, _pmath_primes16bit[i]);
+      mpz_mul_ui(PMATH_AS_MPZ(tmp), PMATH_AS_MPZ(tmp), _pmath_primes16bit[i]);
     }
     
-    if(!pmath_equals((pmath_integer_t)tmp, product_of_small_primes)){
+    if(!pmath_equals(tmp, product_of_small_primes)){
       pmath_debug_print(
         "product_of_small_primes is not the product of all primes up to %d\n", 
         GREATEST_SMALL_PRIME);
       abort();
     }
     
-    pmath_unref((pmath_integer_t)tmp);
+    pmath_unref(tmp);
     return TRUE;
   }
   
@@ -220,19 +214,19 @@ PMATH_PRIVATE pmath_t builtin_isprime(pmath_expr_t expr){
    */
   pmath_bool_t VERIFY_MEDIUM_PRIMES(void){
     int i;
-    struct _pmath_integer_t *tmp = _pmath_create_integer();
+    pmath_integer_t tmp = _pmath_create_integer();
     
-    if(!tmp)
+    if(pmath_is_null(tmp))
       return FALSE;
     
     assert(SQUARE_OF_FIRST_BIG_PRIME == _pmath_primes16bit[FIRST_BIG_PRIME_POS] * _pmath_primes16bit[FIRST_BIG_PRIME_POS]);
     
-    mpz_set_ui(tmp->value, 1);
+    mpz_set_ui(PMATH_AS_MPZ(tmp), 1);
     for(i = FIRST_MEDIUM_PRIME_POS;i < FIRST_BIG_PRIME_POS;++i){
-      mpz_mul_ui(tmp->value, tmp->value, _pmath_primes16bit[i]);
+      mpz_mul_ui(PMATH_AS_MPZ(tmp), PMATH_AS_MPZ(tmp), _pmath_primes16bit[i]);
     }
     
-    if(!pmath_equals((pmath_integer_t)tmp, product_of_medium_primes)){
+    if(!pmath_equals(tmp, product_of_medium_primes)){
       pmath_debug_print(
         "product_of_medium_primes is not the product of all primes from %d to %d\n", 
         _pmath_primes16bit[FIRST_MEDIUM_PRIME_POS],
@@ -240,7 +234,7 @@ PMATH_PRIVATE pmath_t builtin_isprime(pmath_expr_t expr){
       abort();
     }
     
-    pmath_unref((pmath_integer_t)tmp);
+    pmath_unref(tmp);
     return TRUE;
   }
 #else
@@ -253,7 +247,8 @@ PMATH_PRIVATE pmath_bool_t _pmath_primetest_init(void){
   product_of_small_primes  = pmath_integer_new_str(PRODUCT_OF_SMALL_PRIMES_HEX,  16);
   product_of_medium_primes = pmath_integer_new_str(PRODUCT_OF_MEDIUM_PRIMES_HEX, 16);
   
-  if(!product_of_small_primes || !product_of_medium_primes){
+  if(pmath_is_null(product_of_small_primes) 
+  || pmath_is_null(product_of_medium_primes)){
     pmath_unref(product_of_small_primes);
     pmath_unref(product_of_medium_primes);
     return FALSE;

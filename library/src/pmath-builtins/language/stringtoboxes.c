@@ -35,9 +35,9 @@ PMATH_PRIVATE pmath_t builtin_stringtoboxes(pmath_expr_t expr){
   error_flag = FALSE;
   arr = pmath_spans_from_string(
     (pmath_string_t*)&code,
-    PMATH_NULL,
-    PMATH_NULL,
-    PMATH_NULL,
+    NULL,
+    NULL,
+    NULL,
     syntax_error,
     &error_flag);
 
@@ -51,8 +51,8 @@ PMATH_PRIVATE pmath_t builtin_stringtoboxes(pmath_expr_t expr){
     arr,
     (pmath_string_t)code,
     TRUE,
-    PMATH_NULL,
-    PMATH_NULL);
+    NULL,
+    NULL);
 
   pmath_span_array_free(arr);
   pmath_unref(code);

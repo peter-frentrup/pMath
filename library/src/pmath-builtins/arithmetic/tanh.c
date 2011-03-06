@@ -27,7 +27,7 @@ PMATH_PRIVATE pmath_t builtin_tanh(pmath_expr_t expr){
       return pmath_float_new_d(res);
     }
     
-    x = (pmath_float_t)PMATH_FROM_PTR(_pmath_create_mp_float_from_d(d));
+    x = _pmath_create_mp_float_from_d(d);
     expr = pmath_expr_set_item(expr, 1, pmath_ref(x));
   }
   

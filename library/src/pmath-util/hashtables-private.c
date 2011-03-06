@@ -33,7 +33,7 @@ static unsigned int lookup(
   unsigned int freeslot = -(unsigned int)1;
   unsigned int h, index;
   
-  assert(ht != PMATH_NULL);
+  assert(ht != NULL);
   
   h = hash(key_or_entry);
   index = h & (ht->capacity - 1);
@@ -65,7 +65,7 @@ static pmath_bool_t resize(pmath_hashtable_t ht, unsigned int minused){
   if(!ht)
     return FALSE;
   
-  assert(ht->klass != PMATH_NULL);
+  assert(ht->klass != NULL);
   
   for(newsize = HT_MINSIZE;newsize <= minused && 0 < (int)newsize;newsize <<= 1){
   }
@@ -108,7 +108,7 @@ static pmath_bool_t resize(pmath_hashtable_t ht, unsigned int minused){
         ht->klass->entry_keys_equal);
       
       --i;
-      assert(ht->table[i2] == PMATH_NULL);
+      assert(ht->table[i2] == NULL);
       
       ht->table[i2] = *entry_ptr;
     }
@@ -130,14 +130,14 @@ PMATH_API pmath_hashtable_t pmath_ht_create(
 ){
   pmath_hashtable_t ht;
 
-  assert(klass != PMATH_NULL);
+  assert(klass != NULL);
   
   if(minsize > (1 << 30))
-    return PMATH_NULL;
+    return NULL;
 
   ht = pmath_mem_alloc(sizeof(struct _pmath_hashtable_t));
   if(!ht)
-    return PMATH_NULL;
+    return NULL;
 
   ht->klass         = klass;
   ht->nonnull_count = 0;
@@ -148,7 +148,7 @@ PMATH_API pmath_hashtable_t pmath_ht_create(
   
   if(!resize(ht, minsize)){
     pmath_ht_destroy(ht);
-    return PMATH_NULL;
+    return NULL;
   }
   
   return ht;
@@ -159,22 +159,22 @@ PMATH_API pmath_hashtable_t pmath_ht_create(
 PMATH_API 
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_hashtable_t pmath_ht_copy(
-  pmath_hashtable_t             ht,
+  pmath_hashtable_t      ht,
   pmath_ht_entry_copy_t  entry_copy
 ){
   pmath_hashtable_t result;
   unsigned int i;
   
   if(!ht)
-    return PMATH_NULL;
+    return NULL;
   
-  assert(ht->klass != PMATH_NULL);
-  assert(entry_copy != PMATH_NULL);
+  assert(ht->klass  != NULL);
+  assert(entry_copy != NULL);
   
   result = pmath_ht_create(ht->klass, 0);
   if(!resize(result, ht->capacity)){
     pmath_ht_destroy(result);
-    return PMATH_NULL;
+    return NULL;
   }
   
   assert(ht->capacity == result->capacity);
@@ -198,7 +198,7 @@ PMATH_API void pmath_ht_destroy(pmath_hashtable_t ht){
   if(!ht)
     return;
   
-  assert(ht->klass != PMATH_NULL);
+  assert(ht->klass != NULL);
   
   for(i = 0;i < ht->capacity;++i)
     if(IS_USED_ENTRY(ht->table[i]))
@@ -218,7 +218,7 @@ PMATH_API void pmath_ht_clear(pmath_hashtable_t ht){
   if(!ht)
     return;
   
-  assert(ht->klass != PMATH_NULL);
+  assert(ht->klass != NULL);
   
   for(i = 0;i < ht->capacity;++i)
     if(IS_USED_ENTRY(ht->table[i]))
@@ -252,7 +252,7 @@ PMATH_API unsigned int pmath_ht_count(pmath_hashtable_t ht){
   
 PMATH_API void *pmath_ht_entry(pmath_hashtable_t ht, unsigned int i){
   if(!ht || i >= ht->capacity || !IS_USED_ENTRY(ht->table[i]))
-    return PMATH_NULL;
+    return NULL;
   
   return ht->table[i];
 }
@@ -264,9 +264,9 @@ void *pmath_ht_search(pmath_hashtable_t ht, void *key){
   void *e;
   
   if(!ht)
-    return PMATH_NULL;
+    return NULL;
   
-  assert(ht->klass != PMATH_NULL);
+  assert(ht->klass != NULL);
   
   e = ht->table[lookup(
     ht, 
@@ -274,7 +274,7 @@ void *pmath_ht_search(pmath_hashtable_t ht, void *key){
     ht->klass->key_hash, 
     ht->klass->entry_equals_key)];
   
-  return IS_USED_ENTRY(e) ? e : PMATH_NULL;
+  return IS_USED_ENTRY(e) ? e : NULL;
 }
 
 /*============================================================================*/
@@ -284,9 +284,9 @@ void *pmath_ht_remove(pmath_hashtable_t ht, void *key){
   unsigned int index;
   
   if(!ht)
-    return PMATH_NULL;
+    return NULL;
   
-  assert(ht->klass != PMATH_NULL);
+  assert(ht->klass != NULL);
   
   index = lookup(ht, key, ht->klass->key_hash, ht->klass->entry_equals_key);
   
@@ -299,7 +299,7 @@ void *pmath_ht_remove(pmath_hashtable_t ht, void *key){
     return old;
   }
   
-  return PMATH_NULL;
+  return NULL;
 }
 
 /*============================================================================*/
@@ -311,7 +311,7 @@ PMATH_API void *pmath_ht_insert(pmath_hashtable_t ht, void *entry){
   if(!ht || !entry)
     return entry;
   
-  assert(ht->klass != PMATH_NULL);
+  assert(ht->klass != NULL);
   
   for(;;){
     i = lookup(ht, entry, ht->klass->entry_hash, ht->klass->entry_keys_equal);
@@ -329,7 +329,7 @@ PMATH_API void *pmath_ht_insert(pmath_hashtable_t ht, void *entry){
       ht->used_count++;
       ht->table[i] = entry;
       
-      return PMATH_NULL;
+      return NULL;
     }
   
     if(!resize(ht, 2 * ht->nonnull_count)) /* 2*used_count enough? */
@@ -394,20 +394,19 @@ void *_pmath_object_entry_copy_func(void *entry){
 
 /*============================================================================*/
 
-  static void object_int_entry_destructor(
-    struct _pmath_object_int_entry_t *entry
-  ){
+  static void object_int_entry_destructor(void *e){
+    struct _pmath_object_int_entry_t *entry = e;
     pmath_unref(entry->key);
     pmath_mem_free(entry);
   }
 
 PMATH_PRIVATE 
 const pmath_ht_class_t pmath_ht_obj_int_class = {
-  (pmath_callback_t)                  object_int_entry_destructor,
-  (pmath_ht_entry_hash_func_t)        object_entry_hash,
-  (pmath_ht_entry_equal_func_t)       object_entries_equal,
-  (pmath_ht_key_hash_func_t)          pmath_hash,
-  (pmath_ht_entry_equals_key_func_t)  object_entry_equals_key
+  object_int_entry_destructor,
+  object_entry_hash,
+  object_entries_equal,
+  object_key_hash,
+  object_entry_equals_key
 };
 
 PMATH_PRIVATE 
@@ -511,34 +510,34 @@ PMATH_PRIVATE unsigned int _pmath_hash_pointer(void *ptr){
       a.key = 1;
       a.value = 11;
       p = pmath_ht_insert(hashtable, &a);
-      assert(p == PMATH_NULL);
+      assert(p == NULL);
 
       b.key = 2;
       b.value = 22;
       p = pmath_ht_insert(hashtable, &b);
-      assert(p == PMATH_NULL);
+      assert(p == NULL);
 
       c.key = 3;
       c.value = 33;
       p = pmath_ht_insert(hashtable, &c);
-      assert(p == PMATH_NULL);
+      assert(p == NULL);
 
       d.key = 2;
       d.value = 2222;
       p = pmath_ht_insert(hashtable, &d);
-      assert(p != PMATH_NULL && p->value == 22);
+      assert(p != NULL && p->value == 22);
 
       p = pmath_ht_search(hashtable, (void*)3);
-      assert(p != PMATH_NULL && p->value == 33);
+      assert(p != NULL && p->value == 33);
 
       p = pmath_ht_remove(hashtable, (void*)7);
-      assert(p == PMATH_NULL);
+      assert(p == NULL);
 
       p = pmath_ht_remove(hashtable, (void*)1);
-      assert(p != PMATH_NULL && p->value == 11);
+      assert(p != NULL && p->value == 11);
 
       p = pmath_ht_insert(hashtable, &a);
-      assert(p == PMATH_NULL);
+      assert(p == NULL);
 
       pmath_ht_destroy(hashtable);
     }

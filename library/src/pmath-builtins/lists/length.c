@@ -14,7 +14,7 @@ pmath_bool_t _pmath_contains_symbol(
   pmath_t item;
   pmath_bool_t test;
   
-  if(obj == sub)
+  if(pmath_same(obj, sub))
     return TRUE;
   
   if(!pmath_is_expr(obj))

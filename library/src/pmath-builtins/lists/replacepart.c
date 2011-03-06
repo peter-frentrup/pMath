@@ -108,7 +108,7 @@ static pmath_bool_t replace_all_const_parts( // return = are there other rules?
       pmath_t rhs = pmath_expr_get_item(rule, 2);
 
       *rules = pmath_expr_set_item(*rules, i, PMATH_NULL);
-      *list = replace_const_part(*list, pattern, 1, allow_head, rhs, PMATH_NULL);
+      *list = replace_const_part(*list, pattern, 1, allow_head, rhs, NULL);
 
       pmath_unref(rhs);
     }
@@ -125,18 +125,20 @@ static pmath_bool_t prepare_pattern_len_index( // stop?
   pmath_t *pos,
   size_t   len
 ){
-  if(pmath_is_integer(*pos)
-  && mpz_sgn(((struct _pmath_integer_t*)*pos)->value) < 0){
-    struct _pmath_integer_t *newpos = _pmath_create_integer();
-    if(newpos){
-      mpz_add_ui(newpos->value,
-        ((struct _pmath_integer_t*)*pos)->value,
+  if(pmath_is_integer(*pos) && mpz_sgn(PMATH_AS_MPZ(*pos)) < 0){
+    pmath_integer_t newpos = _pmath_create_integer();
+    
+    if(!pmath_is_null(newpos)){
+      mpz_add_ui(
+        PMATH_AS_MPZ(newpos),
+        PMATH_AS_MPZ(*pos),
         (unsigned long)len + 1);
 
       pmath_unref(*pos);
-      *pos = (pmath_t)newpos;
+      *pos = newpos;
       return FALSE;
     }
+    
     return TRUE;
   }
   else{
@@ -157,7 +159,7 @@ static void prepare_pattern_len(
 ){
   size_t start, end, len;
 
-  assert(!*pattern || pmath_is_expr(*pattern));
+  assert(pmath_is_null(*pattern) || pmath_is_expr(*pattern));
   assert(depth >= 1);
 
   end = len = pmath_expr_length(*pattern);
@@ -210,7 +212,7 @@ static pmath_t replace_rule_part(
   for(i = 1;i <= pmath_expr_length(local_rules);++i){
     pmath_expr_t rule = pmath_expr_get_item(local_rules, i);
     
-    if(rule){
+    if(!pmath_is_null(rule)){
       pmath_t pattern = pmath_expr_get_item(rule, 1);
       if(pmath_is_expr(pattern))
         prepare_pattern_len(&pattern, lengths, level);
@@ -231,7 +233,8 @@ static pmath_t replace_rule_part(
 
     for(j = 1;j <= pmath_expr_length(local_rules);++j){
       pmath_expr_t rule = pmath_expr_get_item(local_rules, j);
-      if(rule){
+      
+      if(!pmath_is_null(rule)){
         pmath_t pattern = pmath_expr_get_item(rule, 1);
         pmath_t rhs     = pmath_expr_get_item(rule, 2);
         pmath_unref(rule);
@@ -287,7 +290,7 @@ static size_t calc_depth(pmath_t obj){ // without heads
 static pmath_expr_t prepare_rule(pmath_expr_t rule){
   pmath_t fst, fst_head;
 
-  assert(!rule || pmath_is_expr(rule));
+  assert(pmath_is_null(rule) || pmath_is_expr(rule));
 
   fst = pmath_expr_get_item(rule, 1);
   if(!pmath_is_expr(fst)){
@@ -313,7 +316,7 @@ static pmath_expr_t prepare_rule(pmath_expr_t rule){
 static pmath_expr_t prepare_rule_list(pmath_expr_t rules){
   size_t i;
 
-  assert(!rules || pmath_is_expr(rules));
+  assert(pmath_is_null(rules) || pmath_is_expr(rules));
 
   for(i = 1;i <= pmath_expr_length(rules);++i)
     rules = pmath_expr_set_item(
@@ -392,7 +395,7 @@ PMATH_PRIVATE pmath_t builtin_replacepart(pmath_expr_t expr){
     position = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), depth);
     lengths = pmath_mem_alloc(sizeof(size_t) * depth);
 
-    if(lengths && position)
+    if(lengths && !pmath_is_null(position))
       list = replace_rule_part(list, &position, lengths, 1, with_heads, rules);
 
     pmath_mem_free(lengths);

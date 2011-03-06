@@ -165,7 +165,7 @@ static pmath_t evaluate_expression(
   size_t                         exprlen;
   _pmath_timer_t                 expr_changes;
   
-  assert(thread_ptr != PMATH_NULL);
+  assert(thread_ptr != NULL);
   assert(pmath_is_expr(expr));
     
   if(!*thread_ptr){
@@ -182,8 +182,8 @@ static pmath_t evaluate_expression(
       (*thread_ptr)->evaldepth = 0;
       (*thread_ptr)->critical_messages = TRUE;
   
-      pmath_debug_print("reclim with expr = %p ", (void*)expr);
-      pmath_debug_print_object(" = ", expr, "\n");
+      pmath_debug_print("reclim with expr = ");
+      pmath_debug_print_object("", expr, "\n");
       
       pmath_message(
         PMATH_SYMBOL_GENERAL, "reclim", 1,
@@ -193,8 +193,8 @@ static pmath_t evaluate_expression(
       (*thread_ptr)->evaldepth = tmp;
     }
     else{
-      pmath_debug_print("[abort] reclim with expr=%p", (void*)expr);
-      pmath_debug_print_object("= ", expr, "\n");
+      pmath_debug_print("[abort] reclim with expr = ");
+      pmath_debug_print_object("", expr, "\n");
       pmath_throw(
         pmath_expr_new_extended(
           pmath_ref(PMATH_SYMBOL_MESSAGENAME), 2,
@@ -229,7 +229,7 @@ static pmath_t evaluate_expression(
   associative   = FALSE;
   sequence_hold = FALSE;
   symmetric     = FALSE;
-  if(head_sym == head){
+  if(pmath_same(head_sym, head)){
     hold_complete = (attr & PMATH_SYMBOL_ATTRIBUTE_HOLDALLCOMPLETE) != 0;
     if(!hold_complete){
       hold_first    = (attr & PMATH_SYMBOL_ATTRIBUTE_HOLDFIRST) != 0;
@@ -387,7 +387,7 @@ static pmath_t evaluate_expression(
     if(symmetric)
       expr = pmath_expr_sort(expr);
     
-    if(expr_with_unevaluated) // expr contained Unevaluated(...) items
+    if(!pmath_is_null(expr_with_unevaluated)) // expr contained Unevaluated(...) items
       expr_without_unevaluated = pmath_ref(expr);
     
     if(apply_rules){
@@ -398,8 +398,9 @@ static pmath_t evaluate_expression(
         sym = _pmath_topmost_symbol(item);
         pmath_unref(item);
         
-        if(sym){
+        if(!pmath_is_null(sym)){
           rules = _pmath_symbol_get_rules(sym, RULES_READ);
+          
           if(rules){
             pmath_unref(stack_frame.value);
             stack_frame.value = pmath_ref(sym);
@@ -417,12 +418,12 @@ static pmath_t evaluate_expression(
   }
   
   if(apply_rules){
-    if(head_sym){ // down/sub rules ...
+    if(!pmath_is_null(head_sym)){ // down/sub rules ...
       rules = _pmath_symbol_get_rules(head_sym, RULES_READ);
       if(rules){
         pmath_unref(stack_frame.value);
         stack_frame.value = pmath_ref(head_sym);
-        if(head_sym == head){
+        if(pmath_same(head_sym, head)){
           if(_pmath_rulecache_find(&rules->down_rules, &expr)){
             expr = handle_explicit_return(expr);
             goto FINISH;
@@ -445,7 +446,7 @@ static pmath_t evaluate_expression(
         sym = _pmath_topmost_symbol(item);
         pmath_unref(item);
         
-        if(sym){
+        if(!pmath_is_null(sym)){
           pmath_unref(stack_frame.value);
           stack_frame.value = pmath_ref(sym);
           
@@ -462,7 +463,7 @@ static pmath_t evaluate_expression(
       }
     }
     
-    if(head_sym == head){ // down code
+    if(pmath_same(head_sym, head)){ // down code
       pmath_unref(stack_frame.value);
       stack_frame.value = pmath_ref(head_sym);
       
@@ -493,7 +494,7 @@ static pmath_t evaluate_expression(
   }
   
  FINISH:
-  if(expr_with_unevaluated || expr_without_unevaluated){
+  if(!pmath_is_null(expr_with_unevaluated) || !pmath_is_null(expr_without_unevaluated)){
     if(apply_rules && pmath_equals(expr, expr_without_unevaluated)){
       pmath_unref(expr);
       expr = expr_with_unevaluated;
@@ -521,7 +522,7 @@ static pmath_t evaluate_symbol(
   pmath_symbol_attributes_t   attr;
   pmath_t                     value;
   
-  assert(thread_ptr != PMATH_NULL);
+  assert(thread_ptr != NULL);
   assert(pmath_is_symbol(sym));
   
   attr = pmath_symbol_get_attributes(sym);
@@ -557,8 +558,8 @@ static pmath_t evaluate_symbol(
   
   value = _pmath_symbol_value_prepare(sym, value);
   
-  if(pmath_instance_of(value, PMATH_TYPE_EVALUATABLE)
-  || !value)
+  if(pmath_instance_of(value, PMATH_TYPE_EVALUATABLE) 
+  || pmath_is_null(value))
     return value;
   
   pmath_unref(value);
@@ -567,7 +568,7 @@ static pmath_t evaluate_symbol(
   
 PMATH_API
 pmath_t pmath_evaluate(pmath_t obj){
-  pmath_thread_t current_thread = PMATH_NULL;
+  pmath_thread_t current_thread = NULL;
   
   return evaluate(obj, &current_thread);
 }
@@ -575,9 +576,9 @@ pmath_t pmath_evaluate(pmath_t obj){
 PMATH_API
 pmath_t pmath_evaluate_expression(
   pmath_expr_t  expr,    // will be freed
-  pmath_bool_t     apply_rules
+  pmath_bool_t  apply_rules
 ){
-  pmath_thread_t current_thread = PMATH_NULL;
+  pmath_thread_t current_thread = NULL;
   
   return evaluate_expression(expr, &current_thread, apply_rules);
 }

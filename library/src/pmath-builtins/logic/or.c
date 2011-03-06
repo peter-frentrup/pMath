@@ -25,7 +25,7 @@ PMATH_PRIVATE pmath_t builtin_or(pmath_expr_t expr){
         have_null = TRUE;
       }
       else
-        have_null|= item == PMATH_NULL;
+        have_null|= pmath_is_null(item);
       pmath_unref(item);
     }
 

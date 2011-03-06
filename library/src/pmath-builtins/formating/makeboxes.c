@@ -1509,7 +1509,7 @@ static pmath_t tagassign_to_boxes(
   pmath_t head, op;
   size_t len;
 
-  assert(thread != PMATH_NULL);
+  assert(thread != NULL);
 
   len = pmath_expr_length(expr);
   head = pmath_expr_get_item(expr, 0);
@@ -1530,7 +1530,7 @@ static pmath_t tagassign_to_boxes(
         op = PMATH_C_STRING("::=");
     }
     
-    if(op){
+    if(!pmath_is_null(op)){
       pmath_t item;
       
       pmath_gather_begin(PMATH_NULL);
@@ -1621,12 +1621,12 @@ static pmath_t times_to_boxes(
         
         prevfactor = ensure_min_precedence(prevfactor, PMATH_PREC_MUL+1, -1);
         ch = last_char(prevfactor);
-        last_tok = pmath_token_analyse(&ch, 1, PMATH_NULL);
+        last_tok = pmath_token_analyse(&ch, 1, NULL);
       }
       else{
         prevfactor = ensure_min_precedence(prevfactor, PMATH_PREC_MUL+1, -1);
         ch = last_char(prevfactor);
-        last_tok = pmath_token_analyse(&ch, 1, PMATH_NULL);
+        last_tok = pmath_token_analyse(&ch, 1, NULL);
       }
       
       for(i = 2;i <= numlen;++i){
@@ -1664,7 +1664,7 @@ static pmath_t times_to_boxes(
           }
           else{
             ch = first_char(factor);
-            last_tok = pmath_token_analyse(&ch, 1, PMATH_NULL);
+            last_tok = pmath_token_analyse(&ch, 1, NULL);
             
             if(last_tok == PMATH_TOK_LEFTCALL)
               pmath_emit(PMATH_C_STRING(" "), PMATH_NULL);
@@ -1672,7 +1672,7 @@ static pmath_t times_to_boxes(
         }
 
         ch = last_char(factor);
-        last_tok = pmath_token_analyse(&ch, 1, PMATH_NULL);
+        last_tok = pmath_token_analyse(&ch, 1, NULL);
         
         prevfactor = factor;
       }
@@ -1744,7 +1744,7 @@ static pmath_t times_to_boxes(
       }
     }
     
-    if(minus)
+    if(!pmath_is_null(minus))
       return pmath_build_value("(oo)", minus, expr);
     
     return expr;
@@ -1838,7 +1838,7 @@ static pmath_t grid_to_boxes(
   if(pmath_expr_length(expr) >= 1){
     pmath_expr_t obj = pmath_options_extract(expr, 1);
     
-    if(obj){
+    if(!pmath_is_null(obj)){
       size_t rows, cols;
       
       pmath_unref(obj);
@@ -2172,7 +2172,7 @@ static pmath_t row_to_boxes(
 ){
   size_t len = pmath_expr_length(expr);
 
-  assert(thread != PMATH_NULL);
+  assert(thread != NULL);
   
   if(len == 1){
     pmath_t list = pmath_expr_get_item(expr, 1);
@@ -2746,7 +2746,7 @@ static pmath_t expr_to_boxes(pmath_thread_t thread, pmath_expr_t expr){
       int prec;
       
       op = simple_prefix(head, &prec, thread->boxform);
-      if(op){
+      if(!pmath_is_null(op)){
         pmath_unref(head);
         head = pmath_expr_get_item(expr, 1);
         pmath_unref(expr);
@@ -2755,7 +2755,7 @@ static pmath_t expr_to_boxes(pmath_thread_t thread, pmath_expr_t expr){
       }
       
       op = simple_postfix(head, &prec, thread->boxform);
-      if(op){
+      if(!pmath_is_null(op)){
         pmath_unref(head);
         head = pmath_expr_get_item(expr, 1);
         pmath_unref(expr);
@@ -2768,7 +2768,7 @@ static pmath_t expr_to_boxes(pmath_thread_t thread, pmath_expr_t expr){
       int prec1, prec2;
       
       op = simple_binary(head, &prec1, &prec2, thread->boxform);
-      if(op){
+      if(!pmath_is_null(op)){
         pmath_unref(head);
         return nary_to_boxes(
           thread,
@@ -2784,7 +2784,7 @@ static pmath_t expr_to_boxes(pmath_thread_t thread, pmath_expr_t expr){
       int prec;
       
       op = simple_nary(head, &prec, thread->boxform);
-      if(op){
+      if(!pmath_is_null(op)){
         pmath_unref(head);
         return nary_to_boxes(
           thread,
@@ -2887,7 +2887,8 @@ static pmath_t expr_to_boxes(pmath_thread_t thread, pmath_expr_t expr){
       
       if(pmath_same(head, PMATH_SYMBOL_STRINGFORM)){
         pmath_t res = _pmath_stringform_to_boxes(expr);
-        if(res){
+        
+        if(!pmath_is_null(res)){
           pmath_unref(expr);
           return res;
         }
@@ -2946,7 +2947,7 @@ static pmath_t expr_to_boxes(pmath_thread_t thread, pmath_expr_t expr){
     if(pmath_is_symbol(*obj) || pmath_is_expr(*obj)){
       pmath_symbol_t head = _pmath_topmost_symbol(*obj);
       
-      if(head){
+      if(!pmath_is_null(head)){
         struct _pmath_symbol_rules_t *rules;
         
         rules = _pmath_symbol_get_rules(head, RULES_READ);
@@ -2974,18 +2975,18 @@ static pmath_t expr_to_boxes(pmath_thread_t thread, pmath_expr_t expr){
   }
 
 static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj){
-  if(!obj)
+  if(pmath_is_null(obj))
     return PMATH_C_STRING("/\\/");
 
   if(PMATH_IS_MAGIC(obj)){
     char s[40];
     
     if(thread->boxform <= BOXFORM_OUTPUTEXPONENT){
-      snprintf(s, sizeof(s), "<<\? 0x%"PRIxPTR" \?>>", (uintptr_t)obj);
+      snprintf(s, sizeof(s), "<<\? 0x%"PRIxPTR" \?>>", (uintptr_t)PMATH_AS_PTR(obj));
       return PMATH_C_STRING(s);
     }
     else{
-      snprintf(s, sizeof(s), "/* 0x%"PRIxPTR" */", (uintptr_t)obj);
+      snprintf(s, sizeof(s), "/* 0x%"PRIxPTR" */", (uintptr_t)PMATH_AS_PTR(obj));
       return pmath_build_value("sss", "/\\/", " ", s);
     }
   }
@@ -2994,7 +2995,7 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj){
   && user_make_boxes(&obj))
     return obj;
 
-  switch(obj->type_shift){
+  switch(PMATH_AS_PTR(obj)->type_shift){
     case PMATH_TYPE_SHIFT_SYMBOL: {
       pmath_string_t s = PMATH_NULL;
       
@@ -3051,13 +3052,13 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj){
       s = n = d = PMATH_NULL;
 
       pmath_write(
-        (pmath_t)((struct _pmath_quotient_t*)obj)->numerator,
+        PMATH_QUOT_NUM(obj),
         0,
         (pmath_write_func_t)_pmath_write_to_string,
         &n);
 
       pmath_write(
-        (pmath_t)((struct _pmath_quotient_t*)obj)->denominator,
+        PMATH_QUOT_DEN(obj),
         0,
         (pmath_write_func_t)_pmath_write_to_string,
         &d);
@@ -3085,7 +3086,7 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj){
           d);
       }
       
-      if(s)
+      if(!pmath_is_null(s))
         return pmath_build_value("(oo)", s, result);
       
       return result;

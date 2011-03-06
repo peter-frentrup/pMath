@@ -25,30 +25,30 @@ PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_expr_t _pmath_expr_sort_ex(
   pmath_expr_t expr, // will be freed
-  int(*cmp)(const void*, const void*));
+  int(*cmp)(pmath_t*, pmath_t*));
 
 PMATH_PRIVATE 
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_expr_t _pmath_expr_sort_ex_context(
   pmath_expr_t expr, // will be freed
-  int(*cmp)(void*, const void*, const void*),
+  int(*cmp)(void*, pmath_t*, pmath_t*),
   void *context);
 
 // expr=f(args): thread f over any expression with head h in the first coun args.
 PMATH_PRIVATE 
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_expr_t _pmath_expr_thread(
-  pmath_expr_t expr, // will be freed
-  pmath_t     head, // wont be freed
-  size_t             start,
-  size_t             end,
-  pmath_bool_t   *error_message);
+  pmath_expr_t  expr, // will be freed
+  pmath_t       head, // wont be freed
+  size_t        start,
+  size_t        end,
+  pmath_bool_t *error_message);
 
 PMATH_PRIVATE 
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_t _pmath_expr_shrink_associative(
   pmath_expr_t  expr,
-  pmath_t      magic_rem);
+  pmath_t       magic_rem);
 
 PMATH_PRIVATE 
 pmath_bool_t _pmath_expr_is_updated(pmath_expr_t expr);

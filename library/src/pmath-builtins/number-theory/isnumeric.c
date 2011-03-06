@@ -9,17 +9,24 @@
 #include <pmath-builtins/control/definitions-private.h>
 #include <pmath-builtins/number-theory-private.h>
 
+static void destroy_symset_entry(void *p){
+  pmath_t entry = PMATH_FROM_PTR(p);
+  
+  assert(!p || pmath_is_symbol(entry));
+  
+  pmath_unref(entry);
+}
 
 static pmath_bool_t ptr_equal(void *a, void *b){
   return a == b;
 }
 
 static const pmath_ht_class_t symbol_set_class = {
-  (pmath_callback_t)                    pmath_unref,
-  (pmath_ht_entry_hash_func_t)        _pmath_hash_pointer,
-  (pmath_ht_entry_equal_func_t)       ptr_equal,
-  (pmath_ht_key_hash_func_t)          _pmath_hash_pointer,
-  (pmath_ht_entry_equals_key_func_t)  ptr_equal
+  destroy_symset_entry,
+  _pmath_hash_pointer,
+  ptr_equal,
+  _pmath_hash_pointer,
+  ptr_equal
 };
 
 static void * volatile numeric_symbols;
@@ -61,10 +68,10 @@ PMATH_PRIVATE pmath_bool_t _pmath_is_inexact(pmath_t obj){
     }
     
     if(pmath_instance_of(obj, PMATH_TYPE_QUOTIENT)){
-      int sign = mpz_sgn(((struct _pmath_quotient_t*)obj)->numerator->value);
+      int sign = mpz_sgn(PMATH_AS_MPZ(PMATH_QUOT_NUM(obj)));
       int smallbig = mpz_cmpabs(
-        ((struct _pmath_quotient_t*)obj)->numerator->value,
-        ((struct _pmath_quotient_t*)obj)->denominator->value);
+        PMATH_AS_MPZ(PMATH_QUOT_NUM(obj)),
+        PMATH_AS_MPZ(PMATH_QUOT_DEN(obj)));
       
       if(smallbig < 0)
         return sign * PMATH_CLASS_POSSMALL;
@@ -211,12 +218,12 @@ PMATH_PRIVATE pmath_bool_t _pmath_is_numeric(pmath_t obj){
   }
   
   if(pmath_is_symbol(obj)){
-    pmath_bool_t   result;
+    pmath_bool_t      result;
     pmath_hashtable_t table;
     
     table = (pmath_hashtable_t)_pmath_atomic_lock_ptr(&numeric_symbols);
     
-    result = pmath_ht_search(table, obj) != PMATH_NULL;
+    result = pmath_ht_search(table, PMATH_AS_PTR(obj)) != NULL;
     
     _pmath_atomic_unlock_ptr(&numeric_symbols, table);
     
@@ -233,7 +240,7 @@ PMATH_PRIVATE pmath_t builtin_assign_isnumeric(pmath_expr_t expr){
   pmath_t         sym;
   int                    assignment;
   pmath_hashtable_t      table;
-  pmath_symbol_t         entry;
+  void                  *entry;
   
   assignment = _pmath_is_assignment(expr, &tag, &lhs, &rhs);
   if(!assignment)
@@ -290,19 +297,19 @@ PMATH_PRIVATE pmath_t builtin_assign_isnumeric(pmath_expr_t expr){
   
   table = (pmath_hashtable_t)_pmath_atomic_lock_ptr(&numeric_symbols);
   
-  entry = pmath_ht_search(table, sym);
+  entry = pmath_ht_search(table, PMATH_AS_PTR(sym));
   if(!entry && pmath_same(rhs, PMATH_SYMBOL_TRUE)){
-    entry = pmath_ht_insert(table, sym);
+    entry = pmath_ht_insert(table, PMATH_AS_PTR(sym));
     sym = PMATH_NULL;
   }
   else if(entry && !pmath_same(rhs, PMATH_SYMBOL_TRUE)){
-    entry = pmath_ht_remove(table, sym);
+    entry = pmath_ht_remove(table, PMATH_AS_PTR(sym));
   }
   
   _pmath_atomic_unlock_ptr(&numeric_symbols, table);
   
   pmath_unref(sym);
-  pmath_unref(entry);
+  pmath_unref(PMATH_FROM_PTR(entry));
   
   if(assignment > 0)
     return rhs;

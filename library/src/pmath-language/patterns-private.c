@@ -17,8 +17,8 @@
 #include <string.h>
 
 
-#define MAGIC_PATTERN_FOUND     ((void*)1)
-#define MAGIC_PATTERN_SEQUENCE  ((void*)2)
+#define MAGIC_PATTERN_FOUND     PMATH_FROM_PTR((void*)1)
+#define MAGIC_PATTERN_SEQUENCE  PMATH_FROM_PTR((void*)2)
 
 // initialization in pmath_init():
 PMATH_PRIVATE pmath_t _pmath_object_range_from_one; /* readonly */
@@ -109,7 +109,7 @@ pmath_bool_t _pmath_rhs_condition(
   
 static size_t inc_object_count(pmath_hashtable_t table, pmath_t key){
 // returns old object count
-  struct _pmath_object_int_entry_t *entry = pmath_ht_search(table, key);
+  struct _pmath_object_int_entry_t *entry = pmath_ht_search(table, &key);
   
   if(!entry){
     entry = pmath_mem_alloc(sizeof(struct _pmath_object_int_entry_t));
@@ -327,7 +327,7 @@ static int pattern_compare(
       if(cmp != 0)
         return cmp;
 
-      if(head1 == head2){
+      if(pmath_same(head1, head2)){
         p1 = pmath_expr_get_item(pat1, 2);
         p2 = pmath_expr_get_item(pat2, 2);
         cmp = pmath_compare(p1, p2);
@@ -837,7 +837,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_pattern_match(
 
   info.assoc_start  = 1;
   info.assoc_end    = SIZE_MAX;
-  info.arg_usage    = PMATH_NULL;
+  info.arg_usage    = NULL;
   info.associative  = FALSE;
   info.symmetric    = FALSE;
   
@@ -869,16 +869,15 @@ PMATH_PRIVATE pmath_bool_t _pmath_pattern_match(
 
   if(kind != PMATH_MATCH_KIND_NONE && !pmath_aborting()){
     if(rhs){
-      if(*rhs){
-        pmath_hashtable_t vartable = pmath_ht_create(
-          &pmath_ht_obj_class, 0);
+      if(!pmath_is_null(*rhs)){
+        pmath_hashtable_t vartable = pmath_ht_create(&pmath_ht_obj_class, 0);
         varlist_to_hashtable(vartable, info.variables); // frees info.variables
         info.variables = PMATH_NULL;
 
         *rhs = replace_multiple(*rhs, vartable);
         pmath_ht_destroy(vartable);
 
-        if(info.options){
+        if(!pmath_is_null(info.options)){
           pmath_t default_head = PMATH_NULL;
           if(pmath_is_expr(obj))
             default_head = pmath_expr_get_item(obj, 0);
@@ -926,19 +925,16 @@ PMATH_PRIVATE pmath_bool_t _pmath_pattern_match(
         if(have_unused_args){
           obj = *rhs;
           *rhs = pmath_ref(info.func); // old obj == info.func
-          assert(!*rhs || pmath_is_expr(*rhs));
+          assert(pmath_is_null(*rhs) || pmath_is_expr(*rhs));
 
           for(i = 0;i < funclen;++i){
             if(info.arg_usage[i]){
-              *rhs = pmath_expr_set_item(
-                (pmath_expr_t)*rhs, i+1, obj);
+              *rhs = pmath_expr_set_item(*rhs, i+1, obj);
               obj = PMATH_UNDEFINED;
             }
           }
 
-          *rhs = pmath_expr_remove_all(
-            (pmath_expr_t)*rhs,
-            PMATH_UNDEFINED);
+          *rhs = pmath_expr_remove_all(*rhs, PMATH_UNDEFINED);
         }
       }
       else if(info.associative && info.assoc_start <= info.assoc_end){
@@ -993,7 +989,7 @@ static match_kind_t match_atom(
       attr = pmath_symbol_get_attributes(head);
     pmath_unref(head);
 
-    if(head == MAGIC_PATTERN_FOUND && len == 1){ // FOUND(val)
+    if(len == 1 && pmath_same(head, MAGIC_PATTERN_FOUND)){ // FOUND(val)
       pmath_t val = pmath_expr_get_item(pat, 1);
       
       if(pmath_equals(val, arg)){
@@ -1029,15 +1025,21 @@ static match_kind_t match_atom(
       if(PMATH_IS_MAGIC(arg))
         return PMATH_MATCH_KIND_NONE;
       
-      switch(arg->type_shift){
-        case PMATH_TYPE_SHIFT_MACHINE_FLOAT:
+      if(pmath_is_double(arg)){
+        if(pmath_same(type, PMATH_SYMBOL_REAL))
+          return PMATH_MATCH_KIND_LOCAL;
+        return PMATH_MATCH_KIND_NONE;
+      }
+      
+      if(pmath_is_integer(arg)){
+        if(pmath_same(type, PMATH_SYMBOL_INTEGER))
+          return PMATH_MATCH_KIND_LOCAL;
+        return PMATH_MATCH_KIND_NONE;
+      }
+      
+      switch(PMATH_AS_PTR(arg)->type_shift){
         case PMATH_TYPE_SHIFT_MP_FLOAT:
           if(pmath_same(type, PMATH_SYMBOL_REAL))
-            return PMATH_MATCH_KIND_LOCAL;
-          break;
-        
-        case PMATH_TYPE_SHIFT_INTEGER:
-          if(pmath_same(type, PMATH_SYMBOL_INTEGER))
             return PMATH_MATCH_KIND_LOCAL;
           break;
         
@@ -1060,9 +1062,9 @@ static match_kind_t match_atom(
       return PMATH_MATCH_KIND_NONE;
     }
 
-    if((pmath_same(head, PMATH_SYMBOL_TESTPATTERN)  // pattern ? testfunc
-     || pmath_same(head, PMATH_SYMBOL_CONDITION))   // pattern /? condition
-    && len == 2){
+    if(len == 2
+    && (pmath_same(head, PMATH_SYMBOL_TESTPATTERN)  // pattern ? testfunc
+     || pmath_same(head, PMATH_SYMBOL_CONDITION))){ // pattern /? condition
       pmath_t pattern = pmath_expr_get_item(pat, 1);
       pmath_t test = PMATH_NULL;
 
@@ -1529,7 +1531,7 @@ PMATH_PRIVATE void _pmath_pattern_analyse(
         head = pmath_expr_get_item(value, 0);
         pmath_unref(head);
 
-        if(input->associative && head == input->parent_pat_head){
+        if(input->associative && pmath_same(head, input->parent_pat_head)){
           output->no_sequence = TRUE;
           output->min = output->max = pmath_expr_length(value);
         }
@@ -1751,7 +1753,7 @@ static match_kind_t match_func_left( // for non-symmetric functions
   #endif
 
   if(pat_start > plen){
-    if(data->info->associative && data->func == data->info->func){
+    if(data->info->associative && pmath_same(data->func, data->info->func)){
       data->info->assoc_end = func_start - 1;
       #ifdef DEBUG_LOG_MATCH
         debug_indent(); pmath_debug_print("assoc [%"PRIuPTR" .. %"PRIuPTR"]\n",
@@ -1833,7 +1835,8 @@ static match_kind_t match_func_left( // for non-symmetric functions
       }
     }
 
-    if(data->info->associative && data->func == data->info->func
+    if(data->info->associative 
+    && pmath_same(data->func, data->info->func)
     && func_start + patarg_out.min - 1 <= flen){
       if(pat_start == 1){
         data->info->assoc_start = first_pat_func_start = ++func_start;
@@ -2055,7 +2058,7 @@ static match_kind_t match_func_left( // for non-symmetric functions
       pmath_unref(patarg.pat);
     }
     
-    if(data->info->func == data->func){
+    if(pmath_same(data->info->func, data->func)){
       if(!data->info->symmetric){
         pmath_debug_print(
           "[%s, %d] data->info->symmetric is expected to be TRUE. "
@@ -2113,7 +2116,7 @@ static match_kind_t match_func(
       data.symmetric    = (attrib & PMATH_SYMBOL_ATTRIBUTE_SYMMETRIC)   != 0;
     }
 
-    if(!info->symmetric && info->associative && func == info->func)
+    if(!info->symmetric && info->associative && pmath_same(func, info->func))
       info->assoc_start = 1;
 
     if(data.symmetric)
@@ -2135,11 +2138,11 @@ static match_kind_t match_func(
 
 static pmath_bool_t varlist_to_hashtable(
   pmath_hashtable_t hashtable, // entries are pmath_ht_obj_entry_t*
-  pmath_expr_t varlist   // will be freed; form: <T> = <VariableName>(<Value>,<T>)
+  pmath_expr_t      varlist    // will be freed; form: <T> = <VariableName>(<Value>,<T>)
 ){
   pmath_expr_t next;
   
-  while(varlist){
+  while(!pmath_is_null(varlist)){
     struct _pmath_object_entry_t *entry = 
       pmath_mem_alloc(sizeof(struct _pmath_object_entry_t));
     
@@ -2174,7 +2177,7 @@ static pmath_t replace_pattern_var(
   pmath_t head;
   size_t i, len;
   
-  if(invoking_pattern == pattern){
+  if(pmath_same(invoking_pattern, pattern)){
     pmath_unref(pattern);
     return pmath_expr_new_extended(
       MAGIC_PATTERN_FOUND, 1, pmath_ref(value));
@@ -2212,7 +2215,7 @@ static pmath_t replace_pattern_var(
     return pmath_expr_set_item(pattern, 2, new_pat);
   }
 
-  if(len == 2 && head == MAGIC_PATTERN_FOUND){ // FOUND(v, p)
+  if(len == 2 && pmath_same(head, MAGIC_PATTERN_FOUND)){ // FOUND(v, p)
     pmath_t pat_val = pmath_expr_get_item(pattern, 1);
     pmath_t new_pat = replace_pattern_var(
       pmath_expr_get_item(pattern, 2),
@@ -2231,7 +2234,7 @@ static pmath_t replace_pattern_var(
     return pmath_expr_set_item(pattern, 2, new_pat);
   }
 
-  if(len == 1 && head == MAGIC_PATTERN_FOUND)
+  if(len == 1 && pmath_same(head, MAGIC_PATTERN_FOUND))
     return pattern;
 
   if(len == 2 && pmath_same(head, PMATH_SYMBOL_CONDITION)){ //  pat // cond
@@ -2272,7 +2275,7 @@ static pmath_bool_t replace_exact_once(
 ){
   size_t i, len;
   
-  if(*pattern == _old){
+  if(pmath_same(*pattern, _old)){
     pmath_unref(*pattern);
     *pattern = pmath_expr_new_extended(
       MAGIC_PATTERN_FOUND, 1, pmath_ref(_new));
@@ -2283,9 +2286,9 @@ static pmath_bool_t replace_exact_once(
 
   len = pmath_expr_length(*pattern);
   for(i = len+1;i > 0;--i){
-    pmath_t pat = pmath_expr_get_item((pmath_expr_t)*pattern, i-1);
+    pmath_t pat = pmath_expr_get_item(*pattern, i-1);
     if(replace_exact_once(&pat, _old, _new)){
-      *pattern = pmath_expr_set_item((pmath_expr_t)*pattern, i-1, pat);
+      *pattern = pmath_expr_set_item(*pattern, i-1, pat);
       return TRUE;
     }
     pmath_unref(pat);
@@ -2294,14 +2297,14 @@ static pmath_bool_t replace_exact_once(
 }
 
 static pmath_t replace_option_value(
-  pmath_t body,              // will be freed
-  pmath_t default_head,
+  pmath_t      body,            // will be freed
+  pmath_t      default_head,
   pmath_expr_t optionvaluerules // form: <T> = <Function>(<OptionValueRules>,<T>)
 ){
   pmath_t head;
   size_t i, len;
   
-  if(!pmath_is_expr(body) || !optionvaluerules)
+  if(!pmath_is_expr(body) || pmath_is_null(optionvaluerules))
     return body;
 
   len  = pmath_expr_length(body);
@@ -2327,7 +2330,7 @@ static pmath_t replace_option_value(
         if(pmath_is_expr(arg)){
           pmath_t arghead = pmath_expr_get_item(arg, 0);
           pmath_unref(arghead);
-          if(arghead == MAGIC_PATTERN_SEQUENCE)
+          if(pmath_same(arghead, MAGIC_PATTERN_SEQUENCE))
             arg = pmath_expr_set_item(
               arg, 0, 
               pmath_ref(PMATH_SYMBOL_LIST));
@@ -2351,7 +2354,7 @@ static pmath_t replace_option_value(
       tmp = iter_optionvaluerules;
       iter_optionvaluerules = pmath_expr_get_item(tmp, 2);
       pmath_unref(tmp);
-    }while(iter_optionvaluerules);
+    }while(!pmath_is_null(iter_optionvaluerules));
     pmath_unref(current_fn);
   }
 
@@ -2396,10 +2399,10 @@ static pmath_bool_t contains(
 }
 
 PMATH_PRIVATE pmath_bool_t _pmath_contains_any(
-  pmath_t    object,       // wont be freed
+  pmath_t           object,       // wont be freed
   pmath_hashtable_t replacements  // entries are pmath_ht_obj_entry_t*
 ){
-  struct _pmath_object_entry_t *entry = pmath_ht_search(replacements, object);
+  struct _pmath_object_entry_t *entry = pmath_ht_search(replacements, &object);
   size_t i, len;
   
   if(entry)
@@ -2524,17 +2527,14 @@ PMATH_PRIVATE pmath_t _pmath_replace_local(
   
   len = pmath_expr_length(object);
   for(i = 1;i <= len;++i){
-    item = pmath_expr_get_item(object, i);
+    item = pmath_expr_extract_item(object, i);
     
-    if(object->refcount == 1)
-      object = pmath_expr_set_item(object, i, PMATH_NULL);
-      
     item = _pmath_replace_local(item, name, value);
       
     if(i != 0 && !do_flatten && pmath_is_expr(item)){
       pmath_t head = pmath_expr_get_item(item, 0);
       pmath_unref(head);
-      do_flatten = head == MAGIC_PATTERN_SEQUENCE;
+      do_flatten = pmath_same(head, MAGIC_PATTERN_SEQUENCE);
     }
     
     object = pmath_expr_set_item(object, i, item);
@@ -2550,7 +2550,7 @@ static pmath_t replace_multiple(
   pmath_t           object,        // will be freed
   pmath_hashtable_t replacements   // entries are pmath_ht_obj_entry_t*
 ){
-  struct _pmath_object_entry_t *entry = pmath_ht_search(replacements, object);
+  struct _pmath_object_entry_t *entry = pmath_ht_search(replacements, &object);
   pmath_bool_t do_flatten;
   pmath_t item;
   size_t i, len;
@@ -2584,18 +2584,15 @@ static pmath_t replace_multiple(
   
   len = pmath_expr_length(object);
   for(i = 1;i <= len;++i){
-    item = pmath_expr_get_item(object, i);
+    item = pmath_expr_extract_item(object, i);
     
-    if(object->refcount == 1)
-      object = pmath_expr_set_item(object, i, PMATH_NULL);
-      
     item = replace_multiple(item, replacements);
       
     if(/*i != 0 && */!do_flatten 
     && pmath_is_expr(item)){
       pmath_t head = pmath_expr_get_item(item, 0);
       pmath_unref(head);
-      do_flatten = head == MAGIC_PATTERN_SEQUENCE;
+      do_flatten = pmath_same(head, MAGIC_PATTERN_SEQUENCE);
     }
     
     object = pmath_expr_set_item(object, i, item);

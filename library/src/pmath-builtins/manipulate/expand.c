@@ -114,7 +114,7 @@ static pmath_t expand_product(pmath_t expr, pmath_bool_t *changed){
         if(pmath_integer_fits_ui(exp)){
           unsigned long uexp = pmath_integer_get_ui(exp);
           
-          if(exp+1 != 0){
+          if(uexp+1 != 0){
             pmath_t base = pmath_expr_get_item(expr, 1);
             
             if(pmath_is_expr_of(base, PMATH_SYMBOL_PLUS)){
@@ -134,21 +134,21 @@ static pmath_t expand_product(pmath_t expr, pmath_bool_t *changed){
         pmath_integer_t den = pmath_rational_denominator(exp);
         
         if(pmath_compare(num, den) > 0){
-          struct _pmath_integer_t *q = _pmath_create_integer();
-          struct _pmath_integer_t *r = _pmath_create_integer();
+          pmath_integer_t q = _pmath_create_integer();
+          pmath_integer_t r = _pmath_create_integer();
           
-          if(q && r){
+          if(!pmath_is_null(q) && !pmath_is_null(r)){
             mpz_fdiv_qr(
-              q->value,
-              r->value,
-              ((struct _pmath_integer_t*)num)->value,
-              ((struct _pmath_integer_t*)den)->value);
+              PMATH_AS_MPZ(q),
+              PMATH_AS_MPZ(r),
+              PMATH_AS_MPZ(num),
+              PMATH_AS_MPZ(den));
             
             pmath_unref(num);
             pmath_unref(exp);
-            exp = pmath_rational_new((pmath_integer_t)r, den);
+            exp = pmath_rational_new(r, den);
             
-            num  = pmath_expr_set_item(pmath_ref(expr), 2, (pmath_t)q);
+            num  = pmath_expr_set_item(pmath_ref(expr), 2, q);
             expr = pmath_expr_set_item(expr, 2, exp);
             *changed = TRUE;
             return pmath_expr_new_extended(
@@ -157,8 +157,8 @@ static pmath_t expand_product(pmath_t expr, pmath_bool_t *changed){
               expr);
           }
           
-          pmath_unref((pmath_t)q);
-          pmath_unref((pmath_t)r);
+          pmath_unref(q);
+          pmath_unref(r);
         }
         
         pmath_unref(num);

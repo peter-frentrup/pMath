@@ -21,22 +21,19 @@
 #include <pmath-builtins/control/definitions-private.h>
 
 
-PMATH_API pmath_bool_t pmath_is_expr_of(
-  pmath_t obj,
-  pmath_symbol_t head
-){
+PMATH_API pmath_bool_t pmath_is_expr_of(pmath_t obj, pmath_symbol_t head){
   if(pmath_is_expr(obj)){
     pmath_t h = pmath_expr_get_item(obj, 0);
     pmath_unref(h);
 
-    return h == head;
+    return pmath_same(h, head);
   }
 
   return FALSE;
 }
 
 PMATH_API pmath_bool_t pmath_is_expr_of_len(
-  pmath_t obj,
+  pmath_t        obj,
   pmath_symbol_t head,
   size_t         length
 ){
@@ -45,7 +42,7 @@ PMATH_API pmath_bool_t pmath_is_expr_of_len(
     pmath_t h = pmath_expr_get_item(obj, 0);
     pmath_unref(h);
 
-    return h == head;
+    return pmath_same(h, head);
   }
 
   return FALSE;
@@ -122,7 +119,7 @@ static pmath_t next_value(const char **format, va_list *args){
       
     } return pmath_ref(PMATH_SYMBOL_UNDEFINED);
     
-    case 'o': return (pmath_t)va_arg(*args, void*);
+    case 'o': return va_arg(*args, pmath_t);
     
     case 'c': {
       int c = va_arg(*args, int);
@@ -434,10 +431,10 @@ PMATH_API pmath_t pmath_option_value(
   pmath_t result;
   pmath_symbol_t head;
   
-  if(fn)
-    fn = pmath_ref(fn);
-  else
+  if(pmath_is_null(fn))
     fn = pmath_current_head();
+  else
+    fn = pmath_ref(fn);
   
   head = PMATH_NULL;
   if(pmath_is_symbol(fn)){
@@ -452,7 +449,7 @@ PMATH_API pmath_t pmath_option_value(
   }
   
   fnoptions = PMATH_NULL;
-  if(head){
+  if(!pmath_is_null(head)){
     rules = _pmath_symbol_get_rules(head, RULES_READ);
     
     if(rules){
@@ -468,7 +465,7 @@ PMATH_API pmath_t pmath_option_value(
     pmath_unref(head);
   }
   
-  if(!fnoptions){
+  if(pmath_is_null(fnoptions)){
     fnoptions = pmath_ref(_pmath_object_emptylist);
   }
   

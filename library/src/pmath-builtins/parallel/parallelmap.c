@@ -13,9 +13,9 @@
 
 struct parallel_map_info_t{
   struct _pmath_map_info_t info;
-  pmath_thread_t parent;
-  pmath_t *items;
-  volatile intptr_t index; // > 0 ...
+  pmath_thread_t     parent;
+  pmath_t           *items;
+  volatile intptr_t  index; // > 0 ...
 };
 
 static void parallel_map(struct parallel_map_info_t *info){
@@ -99,16 +99,16 @@ PMATH_PRIVATE pmath_t builtin_parallelmap(pmath_expr_t expr){
     if(tasks){
       size_t i;
       
-      info.items = PMATH_NULL;
+      info.items = NULL;
       
-      if(obj->refcount > 1 
-      || obj->type_shift != PMATH_TYPE_SHIFT_EXPRESSION_GENERAL){
+      if(PMATH_AS_PTR(obj)->refcount > 1 
+      || PMATH_AS_PTR(obj)->type_shift != PMATH_TYPE_SHIFT_EXPRESSION_GENERAL){
         pmath_expr_t obj2 = pmath_expr_new(
           pmath_expr_get_item(obj, 0),
           info.index);
         
-        if(obj2){
-          info.items = ((struct _pmath_unpacked_expr_t*)obj2)->items;
+        if(!pmath_is_null(obj2)){
+          info.items = ((struct _pmath_unpacked_expr_t*)PMATH_AS_PTR(obj2))->items;
           
           for(i = (size_t)info.index;i > 0;--i)
             info.items[i] = pmath_expr_get_item(obj, i);
@@ -118,7 +118,7 @@ PMATH_PRIVATE pmath_t builtin_parallelmap(pmath_expr_t expr){
         }
       }
       else
-        info.items = ((struct _pmath_unpacked_expr_t*)obj)->items;
+        info.items = ((struct _pmath_unpacked_expr_t*)PMATH_AS_PTR(obj))->items;
       
       info.parent = pmath_thread_get_current();
       
@@ -128,7 +128,7 @@ PMATH_PRIVATE pmath_t builtin_parallelmap(pmath_expr_t expr){
             (pmath_callback_t)parallel_map,
             dummy,
             &info,
-            PMATH_NULL);
+            NULL);
         }
         
         for(i = 0;i < (size_t)task_count;++i){

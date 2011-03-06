@@ -2,6 +2,8 @@
 	Button("italic",DocumentApply(SelectedDocument(),StyleBox("",FontSlant->Italic))),
 	Button("Arg Style",DocumentApply(SelectedDocument(),StyleBox("","Arg")))})
 
+- pmath: define special struct type for _pmath_object_atomic_read/write
+
 - pmath: change pmath_tickcount to use GetTickCount()/clock_gettime() because the current mechanism is not suitable for time measurements.
          add pmath_datetime() to get the old behaviour
 

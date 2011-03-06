@@ -142,7 +142,7 @@ PMATH_PRIVATE pmath_t builtin_array(pmath_expr_t expr){
     pmath_unref(range);
     pmath_unref(expr);
     expr = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), data.depth);
-    if(expr && data.depth > 0){
+    if(!pmath_is_null(expr) && data.depth > 0){
       expr = pmath_expr_set_item(expr, 1, pmath_ref(data.start));
       
       for(data.dim = 2;data.dim <= data.depth && !pmath_aborting();data.dim++){
