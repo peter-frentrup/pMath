@@ -25,7 +25,7 @@ static pmath_t builtin_addconfigshaper(pmath_expr_t expr){
   pmath_unref(expr);
   
   Client::notify(CNT_ADDCONFIGSHAPER, data);
-  return NULL;
+  return PMATH_NULL;
 }
 
 static pmath_t builtin_documentapply(pmath_expr_t _expr){
@@ -38,7 +38,7 @@ static pmath_t builtin_documentapply(pmath_expr_t _expr){
   
   Client::notify_wait(CNT_MENUCOMMAND, expr);
   
-  return NULL;
+  return PMATH_NULL;
 }
 
 static pmath_t builtin_documents(pmath_expr_t expr){
@@ -54,7 +54,7 @@ static pmath_t builtin_documents(pmath_expr_t expr){
 
 static pmath_t builtin_internal_dynamicupdated(pmath_expr_t expr){
   Client::notify(CNT_DYNAMICUPDATE, Expr(expr));
-  return NULL;
+  return PMATH_NULL;
 }
 
 static pmath_t builtin_feo_options(pmath_expr_t _expr){
@@ -81,7 +81,7 @@ static pmath_t builtin_frontendtokenexecute(pmath_expr_t expr){
   
   Client::run_menucommand(cmd);
   
-  return NULL;
+  return PMATH_NULL;
 }
 
 static pmath_t builtin_sectionprint(pmath_expr_t expr){
@@ -109,7 +109,7 @@ static pmath_t builtin_sectionprint(pmath_expr_t expr){
     
     Client::notify_wait(CNT_PRINTSECTION, Expr(expr));
     
-    return NULL;
+    return PMATH_NULL;
   }
   
   return expr;

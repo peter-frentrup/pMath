@@ -438,10 +438,10 @@ void TextSequence::load_from_object(Expr object, int options){ // BoxOptionXXX
   boxes_invalid = true;
   text_invalid = true;
   
-  if(object.instance_of(PMATH_TYPE_STRING))
+  if(object.is_string())
     object = expand_string_boxes(String(object));
   
-  if(object.instance_of(PMATH_TYPE_STRING)){
+  if(object.is_string()){
     String s(object.release());
     
     // skip BoxChar ...
@@ -466,7 +466,7 @@ void TextSequence::load_from_object(Expr object, int options){ // BoxOptionXXX
     for(size_t i = 1;i <= object.expr_length();++i){
       Expr item = object[i];
       
-      if(item.instance_of(PMATH_TYPE_STRING)){
+      if(item.is_string()){
         String s(item.release());
         
         // skip BoxChar ...

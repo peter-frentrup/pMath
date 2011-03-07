@@ -94,7 +94,7 @@ bool NumberBox::edit_selection(Context *context){
 }
 
 Expr NumberBox::prepare_boxes(Expr boxes){
-  if(boxes.instance_of(PMATH_TYPE_STRING)){
+  if(boxes.is_string()){
     String s = String(boxes);
     
     const uint16_t *buf = s.buffer();

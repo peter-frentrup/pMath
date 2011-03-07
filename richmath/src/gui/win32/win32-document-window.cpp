@@ -953,10 +953,10 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
       case WM_SYSCOMMAND: {
         if(wParam < 0xF000){
           String cmd = win32_command_id_to_command_string(LOWORD(wParam));
-          if(cmd.is_valid())
-            Client::run_menucommand(cmd);
-          else
+          if(cmd.is_null())
             SendMessageW(_hwnd, WM_COMMAND, wParam, lParam);
+          else
+            Client::run_menucommand(cmd);
         }
       } break;
       

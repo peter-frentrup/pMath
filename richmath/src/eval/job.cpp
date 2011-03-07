@@ -250,7 +250,7 @@ bool ReplacementJob::start(){
 }
 
 void ReplacementJob::returned_boxes(Expr expr){
-  if(expr.is_valid()){
+  if(!expr.is_null()){
     have_result = true;
     result = expr;
   }

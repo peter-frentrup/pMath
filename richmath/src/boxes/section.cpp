@@ -30,16 +30,16 @@ Section::~Section(){
 }
 
 Section *Section::create_from_object(const Expr object){
-  if(object.instance_of(PMATH_TYPE_EXPRESSION)){
+  if(object.is_expr()){
     if(object[0] == PMATH_SYMBOL_SECTION){
       Expr options(pmath_options_extract(object.get(), 2));
         
-      if(options.get()){
+      if(!options.is_null()){
         int opts = BoxOptionDefault;
         
         Expr content = object[1];
         Expr stylename = object[2];
-        if(!stylename.instance_of(PMATH_TYPE_STRING))
+        if(!stylename.is_string())
           stylename = String("Input");
         
         SharedPtr<Style> style = new Style(options);
@@ -52,7 +52,7 @@ Section *Section::create_from_object(const Expr object){
           
           result = new MathSection(style);
         }
-        else if(content.instance_of(PMATH_TYPE_STRING) || content[0] == PMATH_SYMBOL_LIST){
+        else if(content.is_string() || content[0] == PMATH_SYMBOL_LIST){
           result = new TextSection(style);
         }
         
@@ -62,7 +62,7 @@ Section *Section::create_from_object(const Expr object){
             PMATH_SYMBOL_SECTIONLABEL,
             options.get()));
           
-          if(label.instance_of(PMATH_TYPE_STRING))
+          if(label.is_string())
             result->label(label);
           
           if(result->get_own_style(AutoNumberFormating))
@@ -80,7 +80,7 @@ Section *Section::create_from_object(const Expr object){
 }
 
 void Section::label(const String str){
-  if(str.is_valid()){
+  if(!str.is_null()){
     if(!style)
       style = new Style;
     
@@ -100,7 +100,7 @@ float Section::label_width(){
 
 void Section::resize_label(Context *context){
   String lbl = get_style(SectionLabel);
-  if(!lbl.is_valid() || label_glyphs.length() == lbl.length())
+  if(lbl.is_null() || label_glyphs.length() == lbl.length())
     return;
   
   SharedPtr<TextShaper> shaper = TextShaper::find("Arial", NoStyle);

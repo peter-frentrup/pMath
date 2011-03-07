@@ -56,7 +56,7 @@ PMATH_PRIVATE pmath_t _pmath_approximate_step(
   }
   
   sym = _pmath_topmost_symbol(obj);
-  if(pmath_is_null(sym)){
+  if(!pmath_is_null(sym)){
     struct _pmath_symbol_rules_t  *rules;
     pmath_t result;
     

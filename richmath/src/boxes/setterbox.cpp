@@ -20,7 +20,7 @@ SetterBox *SetterBox::create(Expr expr, int opts){
   
   Expr options(pmath_options_extract(expr.get(), 3));
   
-  if(!options.is_valid())
+  if(options.is_null())
     return 0;
     
   SetterBox *box = new SetterBox(new MathSequence);

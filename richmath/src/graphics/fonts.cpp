@@ -182,13 +182,7 @@ FontInfo &FontInfo::operator=(FontInfo &src){
     DWORD FontType,
     LPARAM lParam
   ){
-    pmath_emit(
-      pmath_string_insert_ucs2(
-        NULL, 
-        0, 
-        (uint16_t*)lpelfe->elfLogFont.lfFaceName, 
-        -1),
-      NULL);
+    Gather::emit(String::FromUcs2((uint16_t*)lpelfe->elfLogFont.lfFaceName));
     return 1;
   }
 
@@ -198,7 +192,7 @@ Expr FontInfo::all_fonts(){
   logfont.lfCharSet = DEFAULT_CHARSET;
   logfont.lfFaceName[0] = '\0';
   
-  pmath_gather_begin(NULL);
+  Gather gather;
   
   EnumFontFamiliesExW(
     dc.handle, 
@@ -207,7 +201,7 @@ Expr FontInfo::all_fonts(){
     0, 
     0);
     
-  return Expr(pmath_gather_end());
+  return gather.end();
 }
 
 uint16_t FontInfo::char_to_glyph(uint32_t ch){

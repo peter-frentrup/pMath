@@ -31,7 +31,12 @@ namespace pmath{
   class Expr{
     public:
       /**\brief Construct form a pmath_t, stealing the reference. */
-      explicit Expr(pmath_t obj = 0) throw()
+      Expr() throw()
+      : _obj(PMATH_NULL)
+      {
+      }
+      
+      explicit Expr(pmath_t obj) throw()
       : _obj(obj)
       {
       }
@@ -68,6 +73,13 @@ namespace pmath{
       bool instance_of(pmath_type_t type) const throw() {
         return pmath_instance_of(_obj, type);
       }
+      
+      bool is_expr()    const throw() { return pmath_is_expr(   _obj); }
+      bool is_integer() const throw() { return pmath_is_integer(_obj); }
+      bool is_null()    const throw() { return pmath_is_null(   _obj); }
+      bool is_number()  const throw() { return pmath_is_number( _obj); }
+      bool is_string()  const throw() { return pmath_is_string( _obj); }
+      bool is_symbol()  const throw() { return pmath_is_symbol( _obj); }
       
       /**\brief Get a hash value. */
       unsigned int hash() const throw() {
@@ -110,13 +122,13 @@ namespace pmath{
       }
       
       /**\brief Return the pmath_t and discard it. Caller must pmath_unref() it. */
-      pmath_t release() throw() { pmath_t o = _obj; _obj = 0; return o; }
+      pmath_t release() throw() { pmath_t o = _obj; _obj = PMATH_NULL; return o; }
       
       /**\brief Get the pmath_t. Reference is held by the Expr object. */
       const pmath_t get() const throw() { return _obj; }
       
       /**\brief Check for null pointer. */
-      bool is_valid() const throw() { return _obj != 0; }
+      bool is_valid() const throw() { return !is_null(); }
       
       /**\brief Length of the expression or 0 on error. */
       size_t expr_length() const throw() {
@@ -153,17 +165,14 @@ namespace pmath{
        */
       void set(size_t i, size_t j, Expr e) throw() {
         if(instance_of(PMATH_TYPE_EXPRESSION)){
-          pmath_t item = pmath_expr_get_item(_obj, i);
+          pmath_t item = pmath_expr_extract_item(_obj, i);
           if(pmath_is_expr(item)){
-            if(_obj->refcount == 1
-            && instance_of(PMATH_TYPE_EXPRESSION_GENERAL))
-              _obj = pmath_expr_set_item(_obj, i, PMATH_NULL);
-            
             item = pmath_expr_set_item(item, j, e.release());
             _obj = pmath_expr_set_item(_obj, i, item);
           }
-          else
-            pmath_unref(item);
+          else{
+            _obj = pmath_expr_set_item(_obj, i, item);
+          }
         }
       }
       
@@ -199,11 +208,15 @@ namespace pmath{
      
     protected:
       static void write_to_string(
-        pmath_string_t *result, 
+        void           *user, 
         const uint16_t *data, 
         int             len
       ) throw() {
-        *result = pmath_string_insert_ucs2(*result, pmath_string_length(*result), data, len);
+        *(pmath_string_t*)user = pmath_string_insert_ucs2(
+          *(pmath_string_t*)user, 
+          pmath_string_length(*(pmath_string_t*)user), 
+          data, 
+          len);
       }
   };
   
@@ -243,14 +256,19 @@ namespace pmath{
   class String: public Expr{
     public:
       /**\brief Construct form a pmath_string_t, stealing the reference. */
-      explicit String(pmath_string_t _str = 0) throw()
-      : Expr(pmath_is_string(_str) ? pmath_ref(_str) : 0)
+      String() throw()
+      : Expr()
+      {
+      }
+      
+      explicit String(pmath_string_t _str) throw()
+      : Expr(pmath_is_string(_str) ? pmath_ref(_str) : PMATH_NULL)
       {
         pmath_unref(_str);
       }
       
       String(const Expr &src) throw()
-      : Expr(src.instance_of(PMATH_TYPE_STRING) ? pmath_ref(src.get()) : 0)
+      : Expr(src.instance_of(PMATH_TYPE_STRING) ? pmath_ref(src.get()) : PMATH_NULL)
       {
       }
       
@@ -261,13 +279,13 @@ namespace pmath{
       
       /**\brief Construct from Latin-1 encoded C string. */
       String(const char *latin1, int len = -1) throw()
-      : Expr(latin1 ? pmath_string_insert_latin1(0, 0, latin1, len) : 0)
+      : Expr(latin1 ? pmath_string_insert_latin1(PMATH_NULL, 0, latin1, len) : PMATH_NULL)
       {
       }
       
       /**\brief Construct from UCS-2/UTF-16 encoded string. */
       static String FromUcs2(const uint16_t *ucs2, int len = -1) throw() {
-        return String(pmath_string_insert_ucs2(0, 0, ucs2, len));
+        return String(pmath_string_insert_ucs2(PMATH_NULL, 0, ucs2, len));
       }
       
       /**\brief Construct from a single unicode character. */
@@ -275,7 +293,7 @@ namespace pmath{
         uint16_t u16[2];
         if(unicode <= 0xFFFF){
           u16[0] = (uint16_t)unicode;
-          return String(pmath_string_insert_ucs2(0, 0, u16, 1));
+          return String(pmath_string_insert_ucs2(PMATH_NULL, 0, u16, 1));
         }
         
         if(unicode > 0x10FFFF
@@ -287,7 +305,7 @@ namespace pmath{
         u16[0] = 0xD800 | (unicode >> 10);
         u16[1] = 0xDC00 | (unicode & 0x3FF);
         
-        return String(pmath_string_insert_ucs2(0, 0, u16, 2));
+        return String(pmath_string_insert_ucs2(PMATH_NULL, 0, u16, 2));
       }
       
       /**\brief Construct from UTF-8 encoded C string. */
@@ -483,9 +501,9 @@ namespace pmath{
   };
   
   inline String Expr::to_string(pmath_write_options_t options) const throw() {
-    pmath_string_t result = 0;
+    pmath_string_t result = PMATH_NULL;
     
-    pmath_write(_obj, options, (pmath_write_func_t)write_to_string, &result);
+    pmath_write(_obj, options, write_to_string, &result);
     
     return String(result);
   }
@@ -504,7 +522,13 @@ namespace pmath{
       Gather()
       : ended(false)
       {
-        pmath_gather_begin(0);
+        pmath_gather_begin(PMATH_NULL);
+      }
+      
+      explicit Gather(Expr pattern)
+      : ended(false)
+      {
+        pmath_gather_begin(pattern.release());
       }
       
       ~Gather(){
@@ -521,7 +545,12 @@ namespace pmath{
       
       /**\brief emit a value to be gathered. */
       static void emit(Expr e){
-        pmath_emit(e.release(), 0);
+        pmath_emit(e.release(), PMATH_NULL);
+      }
+    
+      /**\brief emit a value to be gathered. */
+      static void emit(Expr e, Expr tag){
+        pmath_emit(e.release(), tag.release());
       }
     
     protected:

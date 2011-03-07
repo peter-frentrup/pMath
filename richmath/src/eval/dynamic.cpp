@@ -44,7 +44,7 @@ Expr Dynamic::operator=(Expr expr){
         options = Expr(pmath_options_extract(_expr.get(), 2));
     }
     
-    if(options.is_valid()){
+    if(!options.is_null()){
       Expr su(pmath_option_value(
         PMATH_SYMBOL_DYNAMIC, 
         PMATH_SYMBOL_SYNCHRONOUSUPDATING,

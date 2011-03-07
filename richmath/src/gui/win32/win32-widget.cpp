@@ -1083,10 +1083,10 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam){
       case WM_COMMAND: {
         printf("C");
         String cmd = win32_command_id_to_command_string(LOWORD(wParam));
-        if(cmd.is_valid())
-          Client::run_menucommand(cmd);
-        else
+        if(cmd.is_null())
           break;
+          
+        Client::run_menucommand(cmd);
       } return 0;
     }
   }
@@ -1232,7 +1232,7 @@ void Win32Widget::do_drop_data(IDataObject *data_object, DWORD effect){
     }
   }while(false);
   
-  if(text_data.is_valid()){
+  if(!text_data.is_null()){
     Box *oldbox  = document()->selection_box();
     int oldstart = document()->selection_start();
     int oldend   = document()->selection_start();

@@ -19,7 +19,7 @@ FillBox::~FillBox(){
 }
 
 FillBox *FillBox::create(Expr expr, int opts){
-  if(!expr.instance_of(PMATH_TYPE_EXPRESSION))
+  if(!expr.is_expr())
     return 0;
   
   if(expr.expr_length() < 1 || expr.expr_length() > 2)

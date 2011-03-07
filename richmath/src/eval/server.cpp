@@ -23,20 +23,13 @@ Expr richmath::to_boxes(Expr obj){
 }
 
 Expr richmath::generate_section(String style, Expr boxes){
-  pmath_gather_begin(0);
+  Gather gather;
   
-  pmath_emit(
-    pmath_expr_new_extended(
-      pmath_ref(PMATH_SYMBOL_BOXDATA), 1, 
-      boxes.release()), 0);
-  pmath_emit(pmath_ref(style.get()), 0);
+  Gather::emit(Call(Symbol(PMATH_SYMBOL_BOXDATA), boxes));
+  Gather::emit(style);
   
-  pmath_emit(
-    pmath_expr_new_extended(
-      pmath_ref(PMATH_SYMBOL_RULE), 2,
-      pmath_ref(PMATH_SYMBOL_SECTIONGENERATED),
-      pmath_ref(PMATH_SYMBOL_TRUE)),
-    0);
+  Gather::emit(
+    Rule(Symbol(PMATH_SYMBOL_SECTIONGENERATED), Symbol(PMATH_SYMBOL_TRUE)));
   
   if(style.equals("Output")){
     Expr line = Client::interrupt(Symbol(PMATH_SYMBOL_LINE));
@@ -61,19 +54,12 @@ Expr richmath::generate_section(String style, Expr boxes){
     
     label = label + line.to_string() + "]:";
     
-    pmath_emit(
-      pmath_expr_new_extended(
-        pmath_ref(PMATH_SYMBOL_RULE), 2,
-        pmath_ref(PMATH_SYMBOL_SECTIONLABEL),
-        pmath_ref(label.get())),
-      0);
+    Gather::emit(Rule(Symbol(PMATH_SYMBOL_SECTIONLABEL), label));
   }
   
-  return Expr(
-    pmath_expr_set_item(
-      pmath_gather_end(), 
-      0, 
-      pmath_ref(PMATH_SYMBOL_SECTION)));
+  Expr result = gather.end();
+  result.set(0, Symbol(PMATH_SYMBOL_SECTION));
+  return result;
 }
 
 class LocalServer: public Server{
@@ -90,8 +76,7 @@ class LocalServer: public Server{
           ResultKind rkind = Normal;
           
           if(boxes){
-            if(object.instance_of(PMATH_TYPE_EXPRESSION)
-            && object[0] == (pmath_t)0){
+            if(object.is_expr() && object[0].is_null()){
               for(size_t i = 1;i <= object.expr_length();++i){
                 Expr result = Expr(
                   pmath_session_execute(
@@ -169,7 +154,7 @@ class LocalServer: public Server{
         LocalServer::kill, 
         data));
       
-      if(!message_queue.is_valid()){
+      if(message_queue.is_null()){
         printf("Cannot start server\n");
         delete data;
         data = 0;

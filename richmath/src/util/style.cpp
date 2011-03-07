@@ -31,7 +31,7 @@ int richmath::pmath_to_color(Expr obj){
   if(obj == PMATH_SYMBOL_NONE)
     return -1;
     
-  if(obj.instance_of(PMATH_TYPE_EXPRESSION)){
+  if(obj.is_expr()){
     if(obj[0] == PMATH_SYMBOL_RGBCOLOR){
       if(obj.expr_length() == 1
       && obj[1][0] == PMATH_SYMBOL_LIST){
@@ -69,7 +69,7 @@ int richmath::pmath_to_color(Expr obj){
 }
 
 static int rhs_to_buttonframe(Expr rhs){
-  if(rhs.instance_of(PMATH_TYPE_STRING)){
+  if(rhs.is_string()){
     String str(rhs);
     
     if(str.equals("Generic"))
@@ -123,14 +123,14 @@ Style::Style(Expr options): Shareable(){
 }
 
 void Style::add_pmath(Expr options){
-  if(options.instance_of(PMATH_TYPE_STRING)){
+  if(options.is_string()){
     set(BaseStyleName, String(options));
   }
-  else if(options.instance_of(PMATH_TYPE_EXPRESSION)){
+  else if(options.is_expr()){
     for(size_t i = 1;i <= options.expr_length();++i){
       Expr rule = options[i];
       
-      if(rule.instance_of(PMATH_TYPE_EXPRESSION)
+      if(rule.is_expr()
       && rule.expr_length() == 2
       && (rule[0] == PMATH_SYMBOL_RULE || rule[0] == PMATH_SYMBOL_RULEDELAYED)){
         Expr lhs = rule[1];
@@ -398,7 +398,7 @@ void Style::set_pmath_margin(FloatStyleOptionName n, Expr obj){
     return;
   }
   
-  if(obj.instance_of(PMATH_TYPE_EXPRESSION)
+  if(obj.is_expr()
   && obj[0] == PMATH_SYMBOL_LIST){
     if(obj.expr_length() == 4){
       set_pmath_float(Left,   obj[1]);
@@ -414,7 +414,7 @@ void Style::set_pmath_margin(FloatStyleOptionName n, Expr obj){
         set(Left,  f);
         set(Right, f);
       }
-      else if(obj[1].instance_of(PMATH_TYPE_EXPRESSION)
+      else if(obj[1].is_expr()
       && obj[1][0] == PMATH_SYMBOL_LIST
       && obj[1].expr_length() == 2){
         set_pmath_float(Left,  obj[1][1]);
@@ -426,7 +426,7 @@ void Style::set_pmath_margin(FloatStyleOptionName n, Expr obj){
         set(Top,    f);
         set(Bottom, f);
       }
-      else if(obj[2].instance_of(PMATH_TYPE_EXPRESSION)
+      else if(obj[2].is_expr()
       && obj[2][0] == PMATH_SYMBOL_LIST
       && obj[2].expr_length() == 2){
         set_pmath_float(Top,    obj[2][1]);
@@ -439,7 +439,7 @@ void Style::set_pmath_margin(FloatStyleOptionName n, Expr obj){
 }
 
 void Style::set_pmath_string(StringStyleOptionName n, Expr obj){
-  if(obj.instance_of(PMATH_TYPE_STRING))
+  if(obj.is_string())
     set(n, String(obj));
 }
 

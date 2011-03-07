@@ -1180,15 +1180,15 @@ void Document::on_key_press(uint32_t unichar){
         String alias = mseq->text().part(i + 1, context.selection.start - i - 1);
         Expr repl = String::FromChar(unicode_to_utf32(alias));
         
-        if(!repl.is_valid())
+        if(repl.is_null())
           repl = global_immediate_macros[alias];
-        if(!repl.is_valid())
+        if(repl.is_null())
           repl = global_macros[alias];
           
-        if(repl.is_valid()){
+        if(!repl.is_null()){
           String s(repl);
           
-          if(s.is_valid()){
+          if(!s.is_null()){
             mseq->remove(i, context.selection.start);
             mseq->insert(i, s);
             
@@ -3434,22 +3434,22 @@ bool Document::handle_immediate_macros(
     
     Expr repl = table[seq->text().part(i, e - i + 1)];
     
-    if(repl.is_valid()){
+    if(!repl.is_null()){
       String s(repl);
       
-      if(s.is_valid()){
-        seq->insert(e + 1, s);
-        seq->remove(i, e + 1);
-        move_to(selection_box(), i + s.length());
-        return true;
-      }
-      else{
+      if(s.is_null()){
         MathSequence *repl_seq = new MathSequence();
         repl_seq->load_from_object(repl, BoxOptionDefault);
         
         seq->remove(i, e + 1);
         move_to(selection_box(), i);
         insert_box(repl_seq, true);
+        return true;
+      }
+      else{
+        seq->insert(e + 1, s);
+        seq->remove(i, e + 1);
+        move_to(selection_box(), i + s.length());
         return true;
       }
     }
@@ -3514,13 +3514,13 @@ bool Document::handle_macros(
       
       Expr repl = String::FromChar(unicode_to_utf32(s));
       
-      if(!repl.is_valid())
+      if(repl.is_null())
         repl = table[s];
         
-      if(repl.is_valid()){
+      if(!repl.is_null()){
         String s(repl);
         
-        if(s.is_valid()){
+        if(!s.is_null()){
           seq->insert(e, s);
           seq->remove(i, e);
           move_to(selection_box(), i + s.length());

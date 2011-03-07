@@ -15,7 +15,7 @@ typedef enum{
 
 PMATH_PRIVATE
 struct _pmath_symbol_rules_t *_pmath_symbol_get_rules(
-  pmath_symbol_t  symbol, 
+  pmath_symbol_t  symbol, // NOT NULL!  wont be freed
   rule_access_t   access);
 
 PMATH_PRIVATE

@@ -1183,7 +1183,7 @@ pmath_string_t MathSequence::underoverscriptbox_at_index(int i, void *_data){
     ++data->current_box;
   }
   
-  return NULL;
+  return PMATH_NULL;
 }
 
 void MathSequence::syntax_error(pmath_string_t code, int pos, void *_data, pmath_bool_t err){
@@ -1220,7 +1220,7 @@ pmath_t MathSequence::box_at_index(int i, void *_data){
     ++data->current_box;
   }
   
-  return NULL;
+  return PMATH_NULL;
 }
 
 void MathSequence::boxes_size(
@@ -1442,7 +1442,7 @@ void MathSequence::check_options(
   int          pos,
   int          end
 ){
-  if(!options.instance_of(PMATH_TYPE_EXPRESSION)
+  if(!options.is_expr()
   || options.expr_length() == 0
   || options[0] != PMATH_SYMBOL_LIST){
     for(;pos <= end;++pos)
@@ -1491,9 +1491,9 @@ void MathSequence::check_options(
           
           String name = str.part(first, e - first + 1);
           Expr sym(pmath_symbol_find(pmath_ref(name.get()), FALSE));
-          if(sym.get()){
+          if(!sym.is_null()){
             for(size_t i = options.expr_length();i > 0;--i){
-              if(options[i].instance_of(PMATH_TYPE_EXPRESSION)
+              if(options[i].is_expr()
               && options[i][1] == sym
               && options[i].expr_length() == 2
               && (options[i][0] == PMATH_SYMBOL_RULE
@@ -3924,7 +3924,7 @@ static void make_box(int pos, pmath_t obj, void *data){
     return;
   }
   
-  if(!expr.instance_of(PMATH_TYPE_EXPRESSION)){
+  if(!expr.is_expr()){
     info->boxes->add(new ErrorBox(expr));
     return;
   }
@@ -4003,7 +4003,7 @@ static void make_box(int pos, pmath_t obj, void *data){
   && expr.expr_length() >= 2){
     Expr options(pmath_options_extract(expr.get(), 2));
     
-    if(options.is_valid()){
+    if(!options.is_null()){
       InterpretationBox *box = new InterpretationBox;
       box->content()->load_from_object(expr[1], info->options);
       box->interpretation = expr[2];
@@ -4143,7 +4143,7 @@ static void make_box(int pos, pmath_t obj, void *data){
   && expr.expr_length() == 1){
     String s(expr[1]);
     
-    if(s.is_valid()){
+    if(!s.is_null()){
       info->boxes->add(new NumberBox(s));
       return;
     }

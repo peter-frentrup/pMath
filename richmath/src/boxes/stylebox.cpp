@@ -172,15 +172,15 @@ StyleBox::StyleBox(MathSequence *content)
 StyleBox *StyleBox::create(Expr expr, int opts){
   Expr options;
   
-  if(expr[2].instance_of(PMATH_TYPE_STRING))
+  if(expr[2].is_string())
     options = Expr(pmath_options_extract(expr.get(), 2));
   else
     options = Expr(pmath_options_extract(expr.get(), 1));
     
-  if(options.is_valid()){
+  if(!options.is_null()){
     StyleBox *box = new StyleBox;
     
-    if(expr[2].instance_of(PMATH_TYPE_STRING)){
+    if(expr[2].is_string()){
       if(!box->style)
         box->style = new Style();
       box->style->set_pmath_string(BaseStyleName, expr[2]);
@@ -275,7 +275,7 @@ TagBox::TagBox(MathSequence *content, Expr _tag)
 TagBox *TagBox::create(Expr expr, int options){
   Expr options_expr(pmath_options_extract(expr.get(), 2));
     
-  if(!options_expr.is_valid())
+  if(options_expr.is_null())
     return 0;
   
   TagBox *box = new TagBox;

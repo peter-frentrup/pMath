@@ -128,14 +128,14 @@ GridBox *GridBox::create(Expr expr, int opts){
   && expr.expr_length() >= 1){
     Expr options(pmath_options_extract(expr.get(), 1));
     
-    if(!options.is_valid())
+    if(options.is_null())
       return 0;
     
     Expr matrix = expr[1];
-    if(matrix.instance_of(PMATH_TYPE_EXPRESSION)
+    if(matrix.is_expr()
     && matrix[0] == PMATH_SYMBOL_LIST
     && matrix.expr_length() >= 1
-    && matrix[1].instance_of(PMATH_TYPE_EXPRESSION)
+    && matrix[1].is_expr()
     && matrix[1][0] == PMATH_SYMBOL_LIST){
       int cols = (int)matrix[1].expr_length();
       
@@ -146,7 +146,7 @@ GridBox *GridBox::create(Expr expr, int opts){
           // compile with gcc -O1 ..., the app crashes, because matrix[row]._obj
           // is freed 1 time too often.
           
-          if(!r.instance_of(PMATH_TYPE_EXPRESSION)
+          if(!r.is_expr()
           ||  r[0] != PMATH_SYMBOL_LIST
           ||  r.expr_length() != (size_t)cols){
             cols = 0;

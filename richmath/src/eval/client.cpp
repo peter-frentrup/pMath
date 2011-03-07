@@ -210,7 +210,7 @@ void Client::register_menucommand(
   bool (*func)(Expr cmd), 
   bool (*test)(Expr cmd)
 ){
-  if(!cmd.is_valid()){
+  if(cmd.is_null()){
     menu_commands.default_value       = func;
     menu_command_testers.default_value = test;
     return;
@@ -442,7 +442,7 @@ void Client::abort_all_jobs(){
 }
 
 bool Client::is_idle(){
-  return !session->current_job.is_valid();
+  return session->current_job.is_valid();
 }
 
 bool Client::is_idle(int document_id){
@@ -651,20 +651,17 @@ static void execute(ClientNotification &cn){
   
     case CNT_GETDOCUMENTS: {
       if(cn.result_ptr){
-        pmath_gather_begin(NULL);
+        Gather gather;
         
         for(unsigned int count = 0, i = 0;count < all_document_ids.size();++i)
           if(all_document_ids.entry(i)){
             ++count;
-            pmath_emit(
-              pmath_expr_new_extended(
-                pmath_ref(PMATH_SYMBOL_FRONTENDOBJECT), 1,
-                pmath_integer_new_si(
-                  all_document_ids.entry(i)->key)),
-              NULL);
+            Gather::emit(
+              Call(Symbol(PMATH_SYMBOL_FRONTENDOBJECT), 
+                all_document_ids.entry(i)->key));
           }
         
-        *cn.result_ptr = pmath_gather_end();
+        *cn.result_ptr = gather.end().release();
       }
     } break;
   
@@ -707,12 +704,12 @@ static void execute(ClientNotification &cn){
         Box *obj = Box::find(cn.data);
         
         if(obj){
-          pmath_gather_begin(NULL);
+          Gather gather;
           
           if(obj->style)
             obj->style->emit_to_pmath(0 != dynamic_cast<Section*>(obj), true);
           
-          *cn.result_ptr = pmath_gather_end();
+          *cn.result_ptr = gather.end().release();
         }
         else
           *cn.result_ptr = pmath_ref(PMATH_SYMBOL_FAILED);

@@ -28,7 +28,7 @@ static void init_basic_window_data(){
     Expr e = Evaluate(Parse("FE`$WindowFrameImage"));
       
     String s(e);
-    if(!s.is_valid())
+    if(s.is_null())
       s = Client::application_directory + "\\frame.png";
     
     int len;

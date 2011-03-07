@@ -34,7 +34,7 @@ PMATH_ATTRIBUTE_USE_RESULT
 pmath_t PMATH_FROM_PTR(void *p){
   pmath_t r;
   
-  r._obj_ptr = p;
+  r._obj_ptr = (struct _pmath_t*)p;
   return r;
 }
 

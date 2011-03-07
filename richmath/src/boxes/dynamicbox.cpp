@@ -28,7 +28,7 @@ DynamicBox *DynamicBox::create(Expr expr, int opts){
   && expr.expr_length() >= 1){
     Expr options = Expr(pmath_options_extract(expr.get(), 1));
     
-    if(options.is_valid()){
+    if(!options.is_null()){
       DynamicBox *box = new DynamicBox();
       
       expr.set(0, Symbol(PMATH_SYMBOL_DYNAMIC));

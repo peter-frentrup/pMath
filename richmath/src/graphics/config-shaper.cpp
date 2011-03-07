@@ -37,7 +37,7 @@ static uint16_t expr_to_ui16(const Expr expr, uint16_t def = 0){
 }
 
 static uint32_t expr_to_char(const Expr expr){
-  if(expr.instance_of(PMATH_TYPE_STRING)){
+  if(expr.is_string()){
     String s(expr);
     
     if(s.length() == 1)
@@ -73,7 +73,7 @@ class GlyphGetter: public Base{
     }
     
     uint16_t expr_to_glyph(const Expr expr, uint8_t font){
-      if(expr.instance_of(PMATH_TYPE_STRING)){
+      if(expr.is_string()){
         uint16_t res = ps2g[font & (FontsPerGlyphCount-1)][String(expr)];
         
         if(!res){
@@ -411,7 +411,7 @@ SharedPtr<ConfigShaperDB> ConfigShaperDB::load_from_object(const Expr expr){
       Expr   rhs = expr[i][2];
       
       if(lhs.equals("MathFonts")){
-        if(rhs.instance_of(PMATH_TYPE_STRING)){
+        if(rhs.is_string()){
           db->math_fontnames.length(1);
           db->math_fontnames[0] = String(rhs);
         }
@@ -428,7 +428,7 @@ SharedPtr<ConfigShaperDB> ConfigShaperDB::load_from_object(const Expr expr){
       }
       
       if(lhs.equals("TextFonts")){
-        if(rhs.instance_of(PMATH_TYPE_STRING)){
+        if(rhs.is_string()){
           db->text_fontnames.length(1);
           db->text_fontnames[0] = String(rhs);
         }
@@ -694,7 +694,7 @@ SharedPtr<ConfigShaperDB> ConfigShaperDB::load_from_object(const Expr expr){
               uint32_t key = 0;
               Expr lhs = rule[1];
               
-              if(lhs.instance_of(PMATH_TYPE_STRING)){
+              if(lhs.is_string()){
                 if(String(lhs).equals("Italic")){
                   db->italic_script_indent = ScriptIndent(rule[2]);
                   continue;
@@ -703,7 +703,7 @@ SharedPtr<ConfigShaperDB> ConfigShaperDB::load_from_object(const Expr expr){
                 key = expr_to_char(lhs) | (1 << 31);
               }
               else if(lhs[0] == PMATH_SYMBOL_LIST){
-                if(lhs.expr_length() == 1 || lhs[2].instance_of(PMATH_TYPE_STRING)){
+                if(lhs.expr_length() == 1 || lhs[2].is_string()){
                   key = expr_to_char(lhs[1]) | (1 << 31);
                   
                   if(String(lhs[2]).equals("Composed"))

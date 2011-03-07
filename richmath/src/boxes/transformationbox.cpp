@@ -143,12 +143,12 @@ RotationBox::RotationBox()
 }
 
 RotationBox *RotationBox::create(Expr expr, int opts){
-  if(!expr.instance_of(PMATH_TYPE_EXPRESSION)
+  if(!expr.is_expr()
   || expr.expr_length() < 1)
     return 0;
   
   pmath_t options = pmath_options_extract(expr.get(), 1);
-  if(!options)
+  if(pmath_is_null(options))
     return 0;
   
   RotationBox *result = new RotationBox();
@@ -195,12 +195,12 @@ TransformationBox::TransformationBox()
 }
 
 TransformationBox *TransformationBox::create(Expr expr, int opts){
-  if(!expr.instance_of(PMATH_TYPE_EXPRESSION)
+  if(!expr.is_expr()
   || expr.expr_length() < 1)
     return 0;
   
   pmath_t options = pmath_options_extract(expr.get(), 1);
-  if(!options)
+  if(pmath_is_null(options))
     return 0;
   
   TransformationBox *result = new TransformationBox();

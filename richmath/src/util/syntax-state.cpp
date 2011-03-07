@@ -110,12 +110,12 @@ SyntaxInformation::SyntaxInformation(Expr name)
       pmath_ref(PMATH_SYMBOL_SYNTAXINFORMATION), 1,
       pmath_ref(name.get()))));
   
-  if(expr.instance_of(PMATH_TYPE_EXPRESSION)
+  if(expr.is_expr()
   && expr[0] == PMATH_SYMBOL_LIST){
     for(size_t i = 1;i <= expr.expr_length();++i){
       Expr opt = expr[i];
       
-      if(opt.instance_of(PMATH_TYPE_EXPRESSION)
+      if(opt.is_expr()
       && opt[0] == PMATH_SYMBOL_RULE
       && opt.expr_length() == 2){
         String key(opt[1]);
@@ -129,7 +129,7 @@ SyntaxInformation::SyntaxInformation(Expr name)
             if(n <= INT_MAX)
               minargs = maxargs = (int)n;
           }
-          else if(value.instance_of(PMATH_TYPE_EXPRESSION)
+          else if(value.is_expr()
           && value[0] == PMATH_SYMBOL_RANGE
           && value.expr_length() == 2){
             if(value[1].instance_of(PMATH_TYPE_INTEGER)
@@ -150,7 +150,7 @@ SyntaxInformation::SyntaxInformation(Expr name)
         else if(key.equals("LocalVariables")){
           Expr value = opt[2];
           
-          if(value.instance_of(PMATH_TYPE_EXPRESSION)
+          if(value.is_expr()
           && value.expr_length() == 2
           && value[0] == PMATH_SYMBOL_LIST){
             String form(value[1]);
@@ -171,7 +171,7 @@ SyntaxInformation::SyntaxInformation(Expr name)
                 if(n <= INT_MAX)
                   locals_min = locals_max = (int)n;
               }
-              else if(value.instance_of(PMATH_TYPE_EXPRESSION)
+              else if(value.is_expr()
               && value[0] == PMATH_SYMBOL_RANGE
               && value.expr_length() == 2){
                 if(value[1].instance_of(PMATH_TYPE_INTEGER)

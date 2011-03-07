@@ -23,7 +23,7 @@ ButtonBox *ButtonBox::create(Expr expr, int opts){
   
   Expr options(pmath_options_extract(expr.get(), 1));
   
-  if(!options.is_valid())
+  if(options.is_null())
     return 0;
     
   ButtonBox *box = new ButtonBox(new MathSequence);
@@ -60,7 +60,7 @@ void ButtonBox::resize(Context *context){
 
 Expr ButtonBox::to_pmath(bool parseable){
   Gather g;
-  pmath_gather_begin(NULL);
+  pmath_gather_begin(PMATH_NULL);
   
   g.emit(_content->to_pmath(parseable));
   
@@ -105,7 +105,7 @@ void ButtonBox::on_mouse_up(MouseEvent &event){
 void ButtonBox::click(){
   Expr fn = get_style(ButtonFunction);
   
-  if(fn.is_valid()){
+  if(!fn.is_null()){
     String method = get_style(Method);
     
     fn = Call(
