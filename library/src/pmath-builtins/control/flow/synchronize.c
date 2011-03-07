@@ -7,8 +7,8 @@
 
 #include <pmath-builtins/all-symbols-private.h>
 
-static void synchronize_callback(pmath_t *block){
-  *block = pmath_evaluate(*block);
+static void synchronize_callback(void *block){
+  *(pmath_t*)block = pmath_evaluate(*(pmath_t*)block);
 }
 
 typedef struct{
@@ -52,10 +52,10 @@ static void multi_synchronize_callback(void *p){
     data->block = pmath_expr_new_extended(
       pmath_ref(PMATH_SYMBOL_HOLD), 1, 
       data->block);
-    _pmath_expr_update((pmath_expr_t)data->block);
+    _pmath_expr_update(data->block);
   }
   
-  sync = (pmath_symbol_t)pmath_expr_get_item(
+  sync = pmath_expr_get_item(
     data->sync_list, 
     data->sync_index);
   
@@ -63,7 +63,7 @@ static void multi_synchronize_callback(void *p){
   
   assert(pmath_is_null(sync) || pmath_is_symbol(sync));
   
-  pmath_symbol_synchronized((pmath_symbol_t)sync, multi_synchronize_callback, data);
+  pmath_symbol_synchronized(sync, multi_synchronize_callback, data);
   
   pmath_unref(sync);
 }
@@ -89,9 +89,8 @@ PMATH_PRIVATE pmath_t builtin_synchronize(pmath_expr_t expr){
     multi_syncronize_data_t data;
     size_t i;
     
-    for(i = pmath_expr_length((pmath_expr_t)sync);i >= 1;--i){
-      pmath_t synci = pmath_expr_get_item(
-        (pmath_expr_t)sync, i);
+    for(i = pmath_expr_length(sync);i >= 1;--i){
+      pmath_t synci = pmath_expr_get_item(sync, i);
       
       if(!pmath_is_symbol(synci)){
         pmath_message(PMATH_NULL, "sym", 2, synci, 
@@ -116,7 +115,7 @@ PMATH_PRIVATE pmath_t builtin_synchronize(pmath_expr_t expr){
       return PMATH_NULL;
     }
     
-    data.sync_list = pmath_expr_sort((pmath_expr_t)sync);
+    data.sync_list = pmath_expr_sort(sync);
     data.sync_index = pmath_expr_length(data.sync_list);
     data.block = block;
     
@@ -133,9 +132,7 @@ PMATH_PRIVATE pmath_t builtin_synchronize(pmath_expr_t expr){
   
   pmath_unref(expr);
   
-  pmath_symbol_synchronized((pmath_symbol_t)sync, 
-      (pmath_callback_t) synchronize_callback,
-                              &block);
+  pmath_symbol_synchronized(sync, synchronize_callback, &block);
   
   pmath_unref(sync);
   return block;

@@ -70,7 +70,7 @@ PMATH_PRIVATE pmath_t builtin_createdirectory(pmath_expr_t expr){
   }
   #else
   {
-    char *str = pmath_string_to_native(name, PMATH_NULL);
+    char *str = pmath_string_to_native(name, NULL);
     
     if(str){
       errno = 0;

@@ -81,7 +81,7 @@ PMATH_PRIVATE pmath_t builtin_parallelmap(pmath_expr_t expr){
   obj                = pmath_expr_get_item(expr, 1);
   info.info.function = pmath_expr_get_item(expr, 2);
   
-  info.index = (intptr_t)pmath_expr_length((pmath_expr_t)obj);
+  info.index = (intptr_t)pmath_expr_length(obj);
   
   reldepth = _pmath_object_in_levelspec(
     obj, info.info.levelmin, info.info.levelmax, 0);

@@ -49,7 +49,7 @@ static pmath_bool_t part(
     pmath_unref(pos);
     {
       pmath_expr_t tmp = *list;
-      *list = (pmath_expr_t)pmath_expr_get_item(tmp, i);
+      *list = pmath_expr_get_item(tmp, i);
       pmath_unref(tmp);
     }
     
@@ -99,10 +99,10 @@ static pmath_bool_t part(
     }
   }
   else if(pmath_is_expr_of(pos, PMATH_SYMBOL_LIST)){
-    size_t poslen = pmath_expr_length((pmath_expr_t)pos);
+    size_t poslen = pmath_expr_length(pos);
     
     for(i = 1;i <= poslen;++i){
-      pmath_t subpos = pmath_expr_get_item((pmath_expr_t)pos, i);
+      pmath_t subpos = pmath_expr_get_item(pos, i);
       size_t index = SIZE_MAX;
       
       if(!extract_number(subpos, listlen, &index)){
@@ -121,11 +121,10 @@ static pmath_bool_t part(
       
       pmath_unref(subpos);
       
-      pos = pmath_expr_set_item((pmath_expr_t)pos, i, 
+      pos = pmath_expr_set_item(pos, i, 
         pmath_expr_get_item(*list, index));
     }
-    pos = pmath_expr_set_item((pmath_expr_t)pos, 0, 
-      pmath_expr_get_item(*list, 0));
+    pos = pmath_expr_set_item(pos, 0, pmath_expr_get_item(*list, 0));
     pmath_unref(*list);
     *list = pos;
     pos = PMATH_NULL;
@@ -142,8 +141,7 @@ static pmath_bool_t part(
     ++position_start;
     
     for(i = 1;i <= listlen;++i){
-      pmath_expr_t item = 
-        (pmath_expr_t)pmath_expr_get_item(*list, i);
+      pmath_expr_t item = pmath_expr_get_item(*list, i);
       
       if(!part(&item, position, position_start)){
         pmath_unref(item);
@@ -461,7 +459,7 @@ PMATH_PRIVATE pmath_t builtin_assign_part(pmath_expr_t expr){
     
     pmath_unref(expr);
     for(i = pmath_expr_length(lhs);i > 1;--i){
-      pmath_t item = pmath_expr_get_item(lhs, i);
+      pmath_t item = pmath_expr_extract_item(lhs, i);
       item = pmath_evaluate(item);
       lhs = pmath_expr_set_item(lhs, i, item);
     }

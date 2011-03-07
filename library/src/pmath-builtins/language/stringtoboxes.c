@@ -47,12 +47,7 @@ PMATH_PRIVATE pmath_t builtin_stringtoboxes(pmath_expr_t expr){
     return pmath_ref(PMATH_SYMBOL_FAILED);
   }
 
-  result = pmath_boxes_from_spans(
-    arr,
-    (pmath_string_t)code,
-    TRUE,
-    NULL,
-    NULL);
+  result = pmath_boxes_from_spans(arr, code, TRUE, NULL, NULL);
 
   pmath_span_array_free(arr);
   pmath_unref(code);

@@ -125,12 +125,12 @@ PMATH_PRIVATE void _pmath_iterate(
       iter));
 
   if(!pmath_is_integer(iter)
-  || !pmath_integer_fits_ui((pmath_integer_t)iter)){
+  || !pmath_integer_fits_ui(iter)){
     pmath_message(PMATH_NULL, "iterb", 1, iter);
     return;
   }
 
-  count = pmath_integer_get_ui((pmath_integer_t)iter);
+  count = pmath_integer_get_ui(iter);
 
   pmath_unref(iter);
   init(count, PMATH_NULL, data);

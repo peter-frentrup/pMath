@@ -71,7 +71,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_integer_is_prime(pmath_integer_t n){
   }
 
   if(mpz_cmp_ui(PMATH_AS_MPZ(n), SQUARE_OF_FIRST_MEDIUM_PRIME) < 0){
-    pmath_unref((pmath_integer_t)tmp);
+    pmath_unref(tmp);
     return TRUE;
   }
 
@@ -86,7 +86,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_integer_is_prime(pmath_integer_t n){
   }
 
   if(mpz_cmp_ui(PMATH_AS_MPZ(n), SQUARE_OF_FIRST_BIG_PRIME) < 0){
-    pmath_unref((pmath_integer_t)tmp);
+    pmath_unref(tmp);
     return TRUE;
   }
 
@@ -105,7 +105,7 @@ PMATH_PRIVATE pmath_t builtin_isprime(pmath_expr_t expr){
   n = pmath_expr_get_item(expr, 1);
 
   if(pmath_is_integer(n)){
-    pmath_bool_t result = _pmath_integer_is_prime((pmath_integer_t)n);
+    pmath_bool_t result = _pmath_integer_is_prime(n);
     pmath_unref(expr);
     pmath_unref(n);
     return pmath_ref(result ? PMATH_SYMBOL_TRUE : PMATH_SYMBOL_FALSE);

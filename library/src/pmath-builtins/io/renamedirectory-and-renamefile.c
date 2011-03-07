@@ -185,8 +185,8 @@ PMATH_PRIVATE pmath_t builtin_renamedirectory_and_renamefile(pmath_expr_t expr){
   }
   #else
   {
-    char   *str1 = pmath_string_to_native(name1, PMATH_NULL);
-    char   *str2 = pmath_string_to_native(name2, PMATH_NULL);
+    char   *str1 = pmath_string_to_native(name1, NULL);
+    char   *str2 = pmath_string_to_native(name2, NULL);
     
     if(str1 && str2){
       struct stat buf;

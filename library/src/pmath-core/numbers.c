@@ -695,7 +695,7 @@ PMATH_API pmath_float_t pmath_float_new_d(double dbl){
 //  if(!isfinite(dbl))
 //    return PMATH_NULL;
 //
-  return (pmath_float_t)_pmath_create_machine_float(dbl);
+  return _pmath_create_machine_float(dbl);
 //  struct _pmath_mp_float_t *f = _pmath_create_mp_float(PMATH_MACHINE_PRECISION);
 //  if(!f)
 //    return PMATH_NULL;

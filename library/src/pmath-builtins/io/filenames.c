@@ -174,7 +174,7 @@ static void emit_directory_entries(
     }
     #else
     {
-      DIR *dir = PMATH_NULL;
+      DIR *dir = NULL;
       struct dirent *entry;
       
       if(pmath_same(directory, PMATH_UNDEFINED)){
@@ -182,7 +182,7 @@ static void emit_directory_entries(
       }
       else{
         char *dir_name;
-        dir_name = pmath_string_to_native(directory, PMATH_NULL);
+        dir_name = pmath_string_to_native(directory, NULL);
         
         if(dir_name){
           int len = pmath_string_length(directory);
@@ -201,7 +201,7 @@ static void emit_directory_entries(
             int len = strlen(utf8);
             
             if(strcmp(utf8, ".") != 0 && strcmp(utf8, "..") != 0
-            && _pmath_regex_match(regex, utf8, len, 0, 0, capture, PMATH_NULL)){
+            && _pmath_regex_match(regex, utf8, len, 0, 0, capture, NULL)){
               pmath_string_t name = pmath_string_from_utf8(utf8, len);
               
               if(!pmath_same(directory, PMATH_UNDEFINED))
@@ -218,7 +218,7 @@ static void emit_directory_entries(
             char *utf8 = pmath_string_to_utf8(s, &length);
             if(utf8){
               if(strcmp(utf8, ".") != 0 && strcmp(utf8, "..") != 0
-              && _pmath_regex_match(regex, utf8, length, 0, 0, capture, PMATH_NULL)){
+              && _pmath_regex_match(regex, utf8, length, 0, 0, capture, NULL)){
                 pmath_string_t name = pmath_ref(s);//pmath_string_from_utf8(utf8, length);
                 
                 if(!pmath_same(directory, PMATH_UNDEFINED))

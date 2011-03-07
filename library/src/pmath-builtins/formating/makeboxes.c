@@ -1935,7 +1935,7 @@ static pmath_t grid_to_boxes(
         result = pmath_build_value("oss",
           fullform(
             thread,
-            pmath_expr_get_item((pmath_expr_t)obj, 0)),
+            pmath_expr_get_item(obj, 0)),
           "(",
           ")");
       }

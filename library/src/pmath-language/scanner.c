@@ -1898,10 +1898,10 @@ typedef struct{
 
 static int ungrouped_string_length(pmath_t box){ // box wont be freed
   if(pmath_is_string(box)){
-    const uint16_t *str = pmath_string_buffer((pmath_string_t)box);
+    const uint16_t *str = pmath_string_buffer(box);
     int i, k, len, result;
     
-    len = pmath_string_length((pmath_string_t)box);
+    len = pmath_string_length(box);
     result = 0;
     i = 0;
     while(i < len){
@@ -1990,9 +1990,7 @@ static void ungroup(
         
         l = j - i;
         
-        box_in_str = pmath_string_part(
-          (pmath_string_t)pmath_ref(box),
-          i, l);
+        box_in_str = pmath_string_part(pmath_ref(box), i, l);
         
         sub = pmath_string_buffer(box_in_str);
         

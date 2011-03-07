@@ -630,7 +630,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_threads_init(void){
       int callcount = 2;
       int err;
       do{
-        err = pthread_key_create(&threadkey, PMATH_NULL/*(void(*)(void*)) destroy_threadkey_data*/);
+        err = pthread_key_create(&threadkey, NULL/*(void(*)(void*)) destroy_threadkey_data*/);
       }while(err == EAGAIN && --callcount >= 0);
       if(err)
         goto FAIL_THREAD_KEY;

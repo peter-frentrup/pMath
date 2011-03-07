@@ -12,14 +12,14 @@
 PMATH_PRIVATE pmath_bool_t _pmath_run(pmath_t *in_out){
   *in_out = pmath_evaluate(*in_out);
   if(pmath_is_expr(*in_out)){
-    pmath_t head = pmath_expr_get_item((pmath_expr_t)*in_out, 0);
+    pmath_t head = pmath_expr_get_item(*in_out, 0);
     pmath_unref(head);
     
     if(pmath_same(head, PMATH_SYMBOL_CONTINUE) 
     || pmath_same(head, PMATH_SYMBOL_BREAK)){
       pmath_bool_t do_break = pmath_same(head, PMATH_SYMBOL_BREAK);
       
-      pmath_t counter = pmath_expr_get_item((pmath_expr_t)*in_out, 1);
+      pmath_t counter = pmath_expr_get_item(*in_out, 1);
       if(pmath_is_integer(counter)
       && pmath_compare(counter, PMATH_NUMBER_ONE) > 0){
         do_break = TRUE;
@@ -27,7 +27,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_run(pmath_t *in_out){
           pmath_ref(PMATH_SYMBOL_PLUS), 2,
           counter,
           pmath_ref(PMATH_NUMBER_MINUSONE));
-        *in_out = pmath_expr_set_item((pmath_expr_t)*in_out, 1, counter);
+        *in_out = pmath_expr_set_item(*in_out, 1, counter);
       }
       else{
         pmath_unref(counter);

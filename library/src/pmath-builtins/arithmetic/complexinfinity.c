@@ -86,10 +86,10 @@ PMATH_PRIVATE pmath_t builtin_directedinfinity(pmath_expr_t expr){
   item = sign;
 
   if(pmath_is_expr(sign) && pmath_expr_length(sign) == 1){
-    pmath_t signhead = pmath_expr_get_item((pmath_expr_t)sign, 0);
+    pmath_t signhead = pmath_expr_get_item(sign, 0);
     pmath_unref(signhead);
     if(pmath_same(signhead, PMATH_SYMBOL_SIGN)){
-      item = pmath_expr_get_item((pmath_expr_t)sign, 1);
+      item = pmath_expr_get_item(sign, 1);
       pmath_unref(sign);
     }
   }

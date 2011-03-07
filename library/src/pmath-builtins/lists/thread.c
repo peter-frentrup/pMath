@@ -23,7 +23,7 @@ PMATH_PRIVATE pmath_t builtin_thread(pmath_expr_t expr){
     return expr;
   }
   
-  fst = (pmath_expr_t)pmath_expr_get_item(expr, 1);
+  fst = pmath_expr_get_item(expr, 1);
   if(!pmath_is_expr(fst)){
     pmath_unref(fst);
     return expr;

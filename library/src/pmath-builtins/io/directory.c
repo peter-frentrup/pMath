@@ -60,7 +60,7 @@ static pmath_string_t get_directory(void){
   }
   #else
   {
-    char   *buffer = PMATH_NULL;
+    char   *buffer = NULL;
     size_t  size = 256;
     for(;;){
       buffer = pmath_mem_realloc(buffer, 2*size);
@@ -201,7 +201,7 @@ pmath_t _pmath_canonical_file_name(pmath_string_t relname){
     namelen = pmath_string_length(relname);
     
     result = _pmath_new_string_buffer(dirlen + namelen + 1);
-    if(pmath_is_null(result)){
+    if(!result){
       pmath_unref(dir);
       pmath_unref(relname);
       return PMATH_NULL;
@@ -241,7 +241,7 @@ pmath_t _pmath_canonical_file_name(pmath_string_t relname){
       --enddir;
     
     result->length = enddir;
-    return (pmath_string_t)result;
+    return PMATH_FROM_PTR(result);
   }
   #endif
 }
@@ -268,7 +268,7 @@ static pmath_bool_t try_change_directory(
   #else
   {
     pmath_bool_t result = FALSE;
-    char *str = pmath_string_to_native(name, PMATH_NULL);
+    char *str = pmath_string_to_native(name, NULL);
       
     if(str && !chdir(str)){
       result = TRUE;

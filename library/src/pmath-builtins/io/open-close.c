@@ -115,7 +115,7 @@ static pmath_t open_bin_file(
   }
   #else
   {
-    char *fn = pmath_string_to_native(name, PMATH_NULL);
+    char *fn = pmath_string_to_native(name, NULL);
     
     if(fn){
       const char *mode = "";

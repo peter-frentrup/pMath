@@ -102,7 +102,7 @@ PMATH_PRIVATE pmath_t builtin_call_function(pmath_expr_t expr){
   size_t       exprlen;
   size_t       headlen;
   
-  head = (pmath_expr_t)pmath_expr_get_item(expr, 0);
+  head = pmath_expr_get_item(expr, 0);
   
   assert(pmath_is_expr(head));
   
@@ -128,7 +128,7 @@ PMATH_PRIVATE pmath_t builtin_call_function(pmath_expr_t expr){
         pmath_expr_get_item(expr, i));
         
       if(pmath_is_expr_of_len(item, PMATH_SYMBOL_UNEVALUATED, 1)){
-        pmath_expr_t item_expr = (pmath_expr_t)item;
+        pmath_expr_t item_expr = item;
         item = pmath_expr_get_item(item_expr, 1);
         pmath_unref(item_expr);
       }
@@ -185,7 +185,7 @@ PMATH_PRIVATE pmath_t builtin_call_function(pmath_expr_t expr){
           pmath_expr_extract_item(expr, 1));
           
         if(pmath_is_expr_of_len(item, PMATH_SYMBOL_UNEVALUATED, 1)){
-          pmath_expr_t item_expr = (pmath_expr_t)item;
+          pmath_expr_t item_expr = item;
           item = pmath_expr_get_item(item_expr, 1);
           pmath_unref(item_expr);
         }
@@ -201,7 +201,7 @@ PMATH_PRIVATE pmath_t builtin_call_function(pmath_expr_t expr){
             pmath_expr_extract_item(expr, i));
             
           if(pmath_is_expr_of_len(item, PMATH_SYMBOL_UNEVALUATED, 1)){
-            pmath_expr_t item_expr = (pmath_expr_t)item;
+            pmath_expr_t item_expr = item;
             item = pmath_expr_get_item(item_expr, 1);
             pmath_unref(item_expr);
           }

@@ -218,7 +218,7 @@ PMATH_PRIVATE pmath_t builtin_ordering(pmath_expr_t expr){
     return expr;
   }
   
-  context.list = (pmath_expr_t)pmath_expr_get_item(expr, 1);
+  context.list = pmath_expr_get_item(expr, 1);
   if(!pmath_is_expr(context.list)){
     pmath_unref(context.list);
     pmath_message(PMATH_NULL, "nexprat", 2, pmath_integer_new_si(1), pmath_ref(expr));
@@ -308,7 +308,7 @@ PMATH_PRIVATE pmath_t builtin_sort(pmath_expr_t expr){
     return expr;
   }
 
-  list = (pmath_expr_t)pmath_expr_get_item(expr, 1);
+  list = pmath_expr_get_item(expr, 1);
   if(!pmath_is_expr(list)){
     pmath_unref(list);
     pmath_message(PMATH_NULL, "nexprat", 2, pmath_integer_new_si(1), pmath_ref(expr));
@@ -370,14 +370,14 @@ PMATH_PRIVATE pmath_t builtin_sortby(pmath_expr_t expr){
     return expr;
   }
 
-  list = (pmath_expr_t)pmath_expr_get_item(expr, 1);
+  list = pmath_expr_get_item(expr, 1);
   if(!pmath_is_expr(list)){
     pmath_unref(list);
     pmath_message(PMATH_NULL, "nexprat", 2, pmath_integer_new_si(1), pmath_ref(expr));
     return expr;
   }
   
-  len = pmath_expr_length((pmath_expr_t)list);
+  len = pmath_expr_length(list);
 
   fn = pmath_expr_get_item(expr, 2);
   pmath_unref(expr);
@@ -400,7 +400,7 @@ PMATH_PRIVATE pmath_t builtin_sortby(pmath_expr_t expr){
   list = _pmath_expr_sort_ex(list, sortby_cmp);
 
   for(i = 1;i <= len;++i){
-    pmath_expr_t item = (pmath_expr_t)pmath_expr_get_item(list, i);
+    pmath_expr_t item = pmath_expr_get_item(list, i);
     assert(pmath_is_null(item) || pmath_is_expr(item));
 
     list = pmath_expr_set_item(list, i, pmath_expr_get_item(item, 1));

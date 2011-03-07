@@ -117,7 +117,7 @@ static pmath_rational_t _add_qq(
     return PMATH_NULL;
   }
 
-  denominatorA = (pmath_integer_t)pmath_ref(denominatorA);
+  denominatorA = pmath_ref(denominatorA);
   // ... because next frees denominatorA twice
   return pmath_rational_new(
     _addmul_iii(

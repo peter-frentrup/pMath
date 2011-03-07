@@ -16,12 +16,12 @@ PMATH_PRIVATE pmath_t builtin_getthreadid(pmath_expr_t expr){
   
   #if PMATH_USE_PTHREAD
     {
-      struct _pmath_integer_t *result = _pmath_create_integer();
+      pmath_integer_t result = _pmath_create_integer();
       pthread_t thread = pthread_self(); 
       
-      if(result){
+      if(!pmath_is_null(result)){
         mpz_import(
-          result->value,
+          PMATH_AS_MPZ(result),
           sizeof(pthread_t),
           1,
           1,
@@ -30,7 +30,7 @@ PMATH_PRIVATE pmath_t builtin_getthreadid(pmath_expr_t expr){
           &thread);
       }
       
-      return (pmath_integer_t)PMATH_FROM_PTR(result);
+      return result;
       //return pmath_integer_new_ui((unsigned long)pthread_self());
     }
   #elif PMATH_USE_WINDOWS_THREADS

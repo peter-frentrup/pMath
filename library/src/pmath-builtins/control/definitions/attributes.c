@@ -14,17 +14,17 @@ PMATH_PRIVATE pmath_bool_t _pmath_get_attributes(
   *attr = 0;
   if(pmath_is_expr(obj)){
     size_t i;
-    pmath_t item = pmath_expr_get_item((pmath_expr_t)obj, 0);
+    pmath_t item = pmath_expr_get_item(obj, 0);
     pmath_unref(item);
     if(!pmath_same(item, PMATH_SYMBOL_LIST)){
       pmath_message(PMATH_SYMBOL_ATTRIBUTES, "noattr", 1, pmath_ref(obj));
       return FALSE;
     }
 
-    for(i = 1;i <= pmath_expr_length((pmath_expr_t)obj);++i){
+    for(i = 1;i <= pmath_expr_length(obj);++i){
       pmath_symbol_attributes_t a;
       
-      item = pmath_expr_get_item((pmath_expr_t)obj, i);
+      item = pmath_expr_get_item(obj, i);
       if(!_pmath_get_attributes(&a, item)){
         pmath_unref(item);
         return FALSE;
@@ -135,7 +135,7 @@ PMATH_PRIVATE pmath_t builtin_attributes(pmath_expr_t expr){
     return expr;
   }
 
-  sym = (pmath_symbol_t)pmath_expr_get_item(expr, 1);
+  sym = pmath_expr_get_item(expr, 1);
   
   if(pmath_is_string(sym))
     sym = pmath_symbol_find(sym, FALSE);

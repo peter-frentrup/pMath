@@ -609,7 +609,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_memory_manager_init(void){
 
         /* initialize mem_list_mutex ... */
       #if PMATH_USE_PTHREAD
-        if(0 != pthread_mutex_init(&mem_list_mutex, PMATH_NULL))
+        if(0 != pthread_mutex_init(&mem_list_mutex, NULL))
           goto FAIL_MEM_LIST_MUTEX;
       #elif PMATH_USE_WINDOWS_THREADS
         if(!InitializeCriticalSectionAndSpinCount(&mem_list_mutex, 4000))
@@ -621,11 +621,11 @@ PMATH_PRIVATE pmath_bool_t _pmath_memory_manager_init(void){
     #endif
   }
 
-/* GMP allocation functions must not return PMATH_NULL. So we retry an allocation, if
+/* GMP allocation functions must not return NULL. So we retry an allocation, if
    it failed, because caches are freed on memory failure, but
-   pmath_mem_[re]alloc() return PMATH_NULL then, even if cache-freeing was successful
+   pmath_mem_[re]alloc() returns NULL then, even if cache-freeing was successful
    enough. Note that GMP will terminate the application, if the following
-   functions return PMATH_NULL.
+   functions return NULL.
  */
   mp_set_memory_functions(
     pmath_mem_alloc,

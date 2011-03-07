@@ -52,7 +52,7 @@ static pmath_t concat_expressions(pmath_expr_t expr){
         return expr;
       }
 
-      obj_head = pmath_expr_get_item((pmath_expr_t)obj, 0);
+      obj_head = pmath_expr_get_item(obj, 0);
       if(!pmath_equals(fst_head, obj_head)){
         pmath_message(PMATH_NULL, "heads", 4, 
           fst_head, 
@@ -64,7 +64,7 @@ static pmath_t concat_expressions(pmath_expr_t expr){
         return expr;
       }
       
-      length+= pmath_expr_length((pmath_expr_t)obj);
+      length+= pmath_expr_length(obj);
       pmath_unref(obj);
       pmath_unref(obj_head);
     }
@@ -73,11 +73,11 @@ static pmath_t concat_expressions(pmath_expr_t expr){
     pmath_unref(fst_head);
   }
 
-  result = (pmath_expr_t)pmath_expr_get_item(expr, 1);
+  result = pmath_expr_get_item(expr, 1);
   resi = pmath_expr_length(result);
   result = pmath_expr_resize(result, length);
   for(i = 2;i <= len;++i){
-    pmath_expr_t arg = (pmath_expr_t)pmath_expr_get_item(expr, i);
+    pmath_expr_t arg = pmath_expr_get_item(expr, i);
     
     size_t arglen = pmath_expr_length(arg);
     size_t j;
@@ -116,7 +116,7 @@ static pmath_t concat_strings(pmath_expr_t expr){
       return expr;
     }
     
-    length = pmath_string_length((pmath_string_t)fst);
+    length = pmath_string_length(fst);
     
     for(i = 2;i <= len;++i){
       size_t objlen;
@@ -135,7 +135,7 @@ static pmath_t concat_strings(pmath_expr_t expr){
         return expr;
       }
 
-      objlen = pmath_string_length((pmath_string_t)obj);
+      objlen = pmath_string_length(obj);
       if(length + objlen < length){ // overflow
         pmath_abort_please();
         pmath_unref(fst);
@@ -156,7 +156,7 @@ static pmath_t concat_strings(pmath_expr_t expr){
 
   str = AFTER_STRING(result);
   for(i = 1;i <= len;++i){
-    pmath_string_t stri = (pmath_string_t)pmath_expr_get_item(expr, i);
+    pmath_string_t stri = pmath_expr_get_item(expr, i);
     int stri_len = pmath_string_length(stri);
     
     memcpy(str, pmath_string_buffer(stri), stri_len * sizeof(uint16_t));
@@ -165,7 +165,7 @@ static pmath_t concat_strings(pmath_expr_t expr){
   }
 
   pmath_unref(expr);
-  return (pmath_string_t)PMATH_FROM_PTR(result);
+  return PMATH_FROM_PTR(result);
 }
 
 PMATH_PRIVATE pmath_t builtin_join(pmath_expr_t expr){

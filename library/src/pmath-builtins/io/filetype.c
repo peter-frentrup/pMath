@@ -69,7 +69,7 @@ PMATH_PRIVATE pmath_t builtin_filetype(pmath_expr_t expr){
   }
   #else
   {
-    char *str = pmath_string_to_native(file, PMATH_NULL);
+    char *str = pmath_string_to_native(file, NULL);
     
     if(str){
       struct stat buf;

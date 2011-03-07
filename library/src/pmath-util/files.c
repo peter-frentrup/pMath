@@ -138,7 +138,7 @@ PMATH_API pmath_bool_t pmath_file_test(
   int     properties
 ){
   if(pmath_is_symbol(file)){
-    pmath_custom_t custom = (pmath_custom_t)pmath_symbol_get_value(file);
+    pmath_custom_t custom = pmath_symbol_get_value(file);
     
     if(pmath_is_custom(custom)){
       if(pmath_custom_has_destructor(custom, destroy_binary_file)){
@@ -586,7 +586,7 @@ void pmath_file_manipulate(
   void     *data
 ){
   if(pmath_is_symbol(file)){
-    pmath_custom_t custom = (pmath_custom_t)pmath_symbol_get_value(file);
+    pmath_custom_t custom = pmath_symbol_get_value(file);
     
     if(pmath_is_custom(custom)
     && (pmath_custom_has_destructor(custom, destroy_binary_file)
@@ -609,7 +609,7 @@ void pmath_file_manipulate(
 PMATH_API
 pmath_bool_t pmath_file_close(pmath_t file){
   if(pmath_is_symbol(file)){
-    pmath_custom_t custom = (pmath_custom_t)pmath_symbol_get_value(file);
+    pmath_custom_t custom = pmath_symbol_get_value(file);
     
     if(pmath_is_custom(custom)
     && (pmath_custom_has_destructor(custom, destroy_binary_file)

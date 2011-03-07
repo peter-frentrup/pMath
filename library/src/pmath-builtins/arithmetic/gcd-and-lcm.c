@@ -28,7 +28,7 @@ static pmath_t nest_integer(
     pmath_unref(item);
   }
 
-  result = (pmath_integer_t)pmath_expr_get_item(expr, 1);
+  result = pmath_expr_get_item(expr, 1);
   for(i = 2;i <= len;i++){
     pmath_integer_t item;
     pmath_integer_t tmp = _pmath_create_integer();
@@ -38,7 +38,7 @@ static pmath_t nest_integer(
       return PMATH_NULL;
     }
 
-    item = (pmath_integer_t)pmath_expr_get_item(expr, i);
+    item = pmath_expr_get_item(expr, i);
 
     mpz_function(
       PMATH_AS_MPZ(tmp),

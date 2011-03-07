@@ -85,7 +85,7 @@ static pmath_t replace_const_part(
 
   return pmath_expr_set_item(list, index,
     replace_const_part(
-      (pmath_expr_t)pmath_expr_get_item(list, index),
+      pmath_expr_extract_item(list, index),
       position,
       position_start + 1,
       allow_head,

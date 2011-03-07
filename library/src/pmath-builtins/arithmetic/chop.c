@@ -57,7 +57,7 @@ pmath_t builtin_chop(pmath_expr_t expr){
   }
   
   if(exprlen == 2){
-    ptol = (pmath_number_t)pmath_expr_get_item(expr, 2);
+    ptol = pmath_expr_get_item(expr, 2);
     
     if(!pmath_is_number(ptol) || pmath_number_sign(ptol) < 0){
       pmath_unref(ptol);

@@ -268,11 +268,11 @@ PMATH_PRIVATE pmath_t builtin_constantarray(pmath_expr_t expr){
   n = pmath_expr_get_item(expr, 2);
 
   if(pmath_is_expr(n)){
-    pmath_t h = pmath_expr_get_item((pmath_expr_t)n, 0);
+    pmath_t h = pmath_expr_get_item(n, 0);
     pmath_unref(h);
 
     if(pmath_same(h, PMATH_SYMBOL_LIST)){
-      data.dims = pmath_expr_length((pmath_expr_t)n);
+      data.dims = pmath_expr_length(n);
       if(data.dims > MAX_DIM){
         pmath_unref(n);
 
@@ -280,7 +280,7 @@ PMATH_PRIVATE pmath_t builtin_constantarray(pmath_expr_t expr){
       }
 
       for(data.dim = data.dims;data.dim > 0;data.dim--){
-        pmath_t l = pmath_expr_get_item((pmath_expr_t)n, data.dim);
+        pmath_t l = pmath_expr_get_item(n, data.dim);
 
         if(!pmath_is_integer(l) || !pmath_integer_fits_ui(l)){
           pmath_unref(l);
@@ -332,64 +332,3 @@ PMATH_PRIVATE pmath_t builtin_constantarray(pmath_expr_t expr){
   pmath_unref(data.c);
   return n;
 }
-
-/*PMATH_PRIVATE pmath_t builtin_rangearray(pmath_expr_t expr){
-/ * RangeArray(n)
-   RangeArray(a..b)
-   RangeArray(a..b..d)
-
-   messages:
-     General::range
- * /
-  pmath_t range, start, delta;
-  pmath_thread_t thread = pmath_thread_get_current();
-  size_t i, count;
-
-  if(pmath_expr_length(expr) != 1){
-    pmath_message_argxxx(pmath_expr_length(expr), 1, 1);
-    return expr;
-  }
-
-  range = pmath_expr_get_item(expr, 1);
-
-  if(!extract_delta_range(range, &start, &delta, &count)){
-    pmath_unref(start);
-    pmath_unref(delta);
-    pmath_message(PMATH_NULL, "range", 1, range);
-    return expr;
-  }
-
-  pmath_unref(range);
-  pmath_unref(expr);
-
-  expr = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), count);
-
-  if(pmath_equals(start, PMATH_NUMBER_ONE)
-  && pmath_equals(delta, PMATH_NUMBER_ONE)){
-    pmath_unref(start);
-    pmath_unref(delta);
-
-    for(i = 1;i <= count && !pmath_thread_aborting(thread);++i){
-      expr = pmath_expr_set_item(
-        expr, i,
-        pmath_integer_new_size(i));
-    }
-
-    return expr;
-  }
-
-  for(i = 1;i <= count && !pmath_thread_aborting(thread);++i){
-    expr = pmath_expr_set_item(expr, i, pmath_ref(start));
-    
-    start = pmath_evaluate(
-      pmath_expr_new_extended(
-        pmath_ref(PMATH_SYMBOL_PLUS), 2,
-        start,
-        pmath_ref(delta)));
-  }
-
-  pmath_unref(start);
-  pmath_unref(delta);
-
-  return expr;
-}*/

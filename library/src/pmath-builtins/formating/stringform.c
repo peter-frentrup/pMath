@@ -282,7 +282,7 @@ pmath_bool_t _pmath_stringform_write(
   
   assert(pmath_is_expr(stringform));
   
-  format = (pmath_string_t)pmath_expr_get_item(stringform, 1);
+  format = pmath_expr_get_item(stringform, 1);
   if(!pmath_is_string(format)){
     pmath_unref(format);
     return FALSE;
@@ -357,7 +357,7 @@ pmath_t _pmath_stringform_to_boxes(
   
   assert(pmath_is_expr(stringform));
   
-  format = (pmath_string_t)pmath_expr_get_item(stringform, 1);
+  format = pmath_expr_get_item(stringform, 1);
   if(!pmath_is_string(format)){
     pmath_unref(format);
     return PMATH_NULL;
@@ -405,7 +405,7 @@ pmath_t _pmath_stringform_to_boxes(
         nitem = pmath_string_insert_ucs2(PMATH_NULL, 0, &left, 1);
         
         if(pmath_is_expr_of_len(item, PMATH_SYMBOL_LIST, 1)){
-          pmath_expr_t tmp = (pmath_expr_t)item;
+          pmath_expr_t tmp = item;
           item = pmath_expr_get_item(tmp, 1);
           pmath_unref(tmp);
         }
@@ -437,7 +437,7 @@ pmath_t _pmath_stringform_to_boxes(
       
       rlen = 1;
       for(i = 1;i <= pmath_expr_length(result);++i){
-        pmath_string_t si = (pmath_string_t)pmath_expr_get_item(result, i);
+        pmath_string_t si = pmath_expr_get_item(result, i);
         
         memcpy(
           buf + rlen,
@@ -453,7 +453,7 @@ pmath_t _pmath_stringform_to_boxes(
       
       buf[rlen] = '"';
       pmath_unref(result);
-      result = (pmath_string_t)PMATH_FROM_PTR(all);
+      result = PMATH_FROM_PTR(all);
     }
   }
   else if(pmath_is_string(result)){
@@ -479,7 +479,7 @@ pmath_string_t _pmath_string_escape(
   pmath_string_t  prefix,   // will be freed
   pmath_string_t  string,   // will be freed
   pmath_string_t  postfix,  // will be freed
-  pmath_bool_t two_times
+  pmath_bool_t    two_times
 ){
   struct _pmath_string_t *result;
   const uint16_t *buf;
@@ -557,5 +557,5 @@ pmath_string_t _pmath_string_escape(
     sizeof(uint16_t) * pmath_string_length(postfix));
   pmath_unref(postfix);
   
-  return (pmath_string_t)PMATH_FROM_PTR(result);
+  return PMATH_FROM_PTR(result);
 }

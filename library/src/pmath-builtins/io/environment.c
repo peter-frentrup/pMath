@@ -129,7 +129,7 @@ PMATH_PRIVATE pmath_t builtin_environment(pmath_expr_t expr){
   }
   #else
   {
-    char *n = pmath_string_to_native(name, PMATH_NULL);
+    char *n = pmath_string_to_native(name, NULL);
     pmath_unref(name);
     
     if(n){
@@ -183,7 +183,7 @@ PMATH_PRIVATE pmath_t builtin_assign_environment(pmath_expr_t expr){
     }
     #else
     {
-      char *tagstr = pmath_string_to_native(tag, PMATH_NULL);
+      char *tagstr = pmath_string_to_native(tag, NULL);
       
       if(tagstr)
         unsetenv(tagstr);

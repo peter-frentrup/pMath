@@ -78,8 +78,8 @@ PMATH_PRIVATE pmath_t builtin_message(pmath_expr_t expr){
           pmath_ref(name))));
     
     if(pmath_is_integer(count)
-    && pmath_integer_fits_si((pmath_integer_t)count)){
-      long cnt = pmath_integer_get_si((pmath_integer_t)count);
+    && pmath_integer_fits_si(count)){
+      long cnt = pmath_integer_get_si(count);
       
       stop_msg = cnt == max_message_count;
       

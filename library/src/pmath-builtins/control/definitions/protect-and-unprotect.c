@@ -55,7 +55,7 @@ PMATH_PRIVATE pmath_t builtin_protect_or_unprotect(pmath_expr_t expr){
   pmath_gather_begin(PMATH_NULL);
   
   for(i = 1;i <= pmath_expr_length(expr);++i){
-    pmath_symbol_t symbol = (pmath_symbol_t)pmath_expr_get_item(expr, i);
+    pmath_symbol_t symbol = pmath_expr_get_item(expr, i);
 
     pmath_symbol_synchronized(symbol, callback, &symbol);
     pmath_unref(symbol);

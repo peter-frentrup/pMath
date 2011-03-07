@@ -140,7 +140,7 @@ pmath_expr_t pmath_expr_new(
   expr->items[0] = head;
   memset(&(expr->items[1]), 0, length * sizeof(pmath_t));
 
-  return (pmath_expr_t)PMATH_FROM_PTR(expr);
+  return PMATH_FROM_PTR(expr);
 }
 
 PMATH_API 
@@ -218,7 +218,7 @@ pmath_expr_t pmath_expr_new_extended(
     expr->items[i] = va_arg(items, pmath_t);
 
   va_end(items);
-  return (pmath_expr_t)PMATH_FROM_PTR(expr);
+  return PMATH_FROM_PTR(expr);
 }
 
 PMATH_API 
@@ -270,7 +270,7 @@ pmath_expr_t pmath_expr_resize(
     }
 
     pmath_unref(expr);
-    return (pmath_expr_t)PMATH_FROM_PTR(new_expr);
+    return PMATH_FROM_PTR(new_expr);
   }
 
   if(new_length < old_expr->length){
@@ -307,7 +307,7 @@ pmath_expr_t pmath_expr_resize(
   new_expr->length = new_length;
   new_expr->inherited.inherited.last_change = -_pmath_timer_get_next();
 
-  return (pmath_expr_t)PMATH_FROM_PTR(new_expr);
+  return PMATH_FROM_PTR(new_expr);
 }
 
 PMATH_API pmath_expr_t pmath_expr_append(
@@ -348,12 +348,10 @@ PMATH_API pmath_expr_t pmath_expr_append(
     new_expr->items[i] = va_arg(items, pmath_t);
 
   va_end(items);
-  return (pmath_expr_t)PMATH_FROM_PTR(new_expr);
+  return PMATH_FROM_PTR(new_expr);
 }
 
-PMATH_API size_t pmath_expr_length(
-  pmath_expr_t expr
-){
+PMATH_API size_t pmath_expr_length(pmath_expr_t expr){
   if(pmath_is_null(expr))
     return 0;
     
@@ -459,7 +457,7 @@ PMATH_API pmath_expr_t pmath_expr_get_item_range(
         expr_part_ptr->buffer->items[expr_part_ptr->start + i - 2]);
     }
 
-    return (pmath_expr_t)PMATH_FROM_PTR(new_expr);
+    return PMATH_FROM_PTR(new_expr);
   }
   else{
     struct _pmath_unpacked_expr_part_t *new_expr =
@@ -484,14 +482,14 @@ PMATH_API pmath_expr_t pmath_expr_get_item_range(
       case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL_PART: {
         new_expr->start  = start + expr_part_ptr->start - 1;
         new_expr->buffer = (struct _pmath_unpacked_expr_t*)PMATH_AS_PTR(pmath_ref(
-          (pmath_expr_t)PMATH_FROM_PTR(expr_part_ptr->buffer)));
+          PMATH_FROM_PTR(expr_part_ptr->buffer)));
       } break;
       
       default:
         assert("invalid expression type" && 0);
     }
 
-    return (pmath_expr_t)PMATH_FROM_PTR(new_expr);
+    return PMATH_FROM_PTR(new_expr);
   }
 }
 
@@ -568,7 +566,7 @@ PMATH_API pmath_expr_t pmath_expr_set_item(
     }
 
     pmath_unref(expr);
-    return (pmath_expr_t)PMATH_FROM_PTR(new_expr);
+    return PMATH_FROM_PTR(new_expr);
   }
   
   expr_part_ptr->inherited.inherited.inherited.last_change = -_pmath_timer_get_next();
@@ -758,7 +756,7 @@ PMATH_PRIVATE pmath_expr_t _pmath_expr_sort_ex(
     }
 
     pmath_unref(expr);
-    expr = (pmath_expr_t)PMATH_FROM_PTR(new_expr);
+    expr = PMATH_FROM_PTR(new_expr);
     expr_part_ptr = (void*)new_expr;
   }
   
@@ -819,7 +817,7 @@ PMATH_PRIVATE pmath_expr_t _pmath_expr_sort_ex_context(
     }
 
     pmath_unref(expr);
-    expr = (pmath_expr_t)PMATH_FROM_PTR(new_expr);
+    expr = PMATH_FROM_PTR(new_expr);
     expr_part_ptr = (void*)new_expr;
   }
   
@@ -938,8 +936,7 @@ PMATH_API pmath_expr_t pmath_expr_sort(
         pmath_t item = pmath_expr_get_item(expr, srci);
         
         if(pmath_is_expr(item) && stack_pos < depth){
-          pmath_t this_head = pmath_expr_get_item(
-            (pmath_expr_t)item, 0);
+          pmath_t this_head = pmath_expr_get_item(item, 0);
             
           if(pmath_equals(head, this_head)){
             pmath_unref(this_head);
@@ -947,7 +944,7 @@ PMATH_API pmath_expr_t pmath_expr_sort(
             if(stack_pos < PMATH_EXPRESSION_FLATTEN_MAX_DEPTH){
               PUSH(expr, srci+1);
               srci = 1;
-              expr = (pmath_expr_t)item;
+              expr = item;
               any_change = TRUE;
               goto COUNT_NEXT_EXPR;
             }
@@ -955,7 +952,7 @@ PMATH_API pmath_expr_t pmath_expr_sort(
             if(depth > PMATH_EXPRESSION_FLATTEN_MAX_DEPTH){
               any_change|= flatten_calc_newlen(
                 newlen,
-                (pmath_expr_t)item,
+                item,
                 head,
                 depth - 1 - PMATH_EXPRESSION_FLATTEN_MAX_DEPTH);
               pmath_unref(item);
@@ -1012,8 +1009,7 @@ PMATH_API pmath_expr_t pmath_expr_sort(
         
         if(pmath_is_expr(item)
         && stack_pos < depth){
-          pmath_t this_head = pmath_expr_get_item(
-            (pmath_expr_t)item, 0);
+          pmath_t this_head = pmath_expr_get_item(item, 0);
             
           if(pmath_equals(head, this_head)){
             pmath_unref(this_head);
@@ -1021,14 +1017,14 @@ PMATH_API pmath_expr_t pmath_expr_sort(
             if(stack_pos < PMATH_EXPRESSION_FLATTEN_MAX_DEPTH){
               PUSH(expr, srci+1);
               srci = 1;
-              expr = (pmath_expr_t)item;
+              expr = item;
               goto FLATTEN_NEXT_EXPR;
             }
             
             if(depth > PMATH_EXPRESSION_FLATTEN_MAX_DEPTH){
               flatten_rearrange(
                 result,
-                (pmath_expr_t)item,
+                item,
                 head,
                 depth - 1 - PMATH_EXPRESSION_FLATTEN_MAX_DEPTH);
               pmath_unref(item);
@@ -1086,17 +1082,17 @@ PMATH_API pmath_expr_t pmath_expr_flatten(
   
   pmath_unref(head);
   pmath_unref(expr);
-  return (pmath_expr_t)PMATH_FROM_PTR(new_expr);
+  return PMATH_FROM_PTR(new_expr);
 }
 
 /*----------------------------------------------------------------------------*/
 
 PMATH_PRIVATE pmath_expr_t _pmath_expr_thread(
-  pmath_expr_t expr, // will be freed
-  pmath_t     head, // wont be freed
-  size_t             start,
-  size_t             end,
-  pmath_bool_t   *error_message
+  pmath_expr_t  expr, // will be freed
+  pmath_t       head, // wont be freed
+  size_t        start,
+  size_t        end,
+  pmath_bool_t *error_message
 ){
   pmath_bool_t have_sth_to_thread = FALSE;
   pmath_bool_t show_message = error_message && *error_message;
@@ -1116,11 +1112,11 @@ PMATH_PRIVATE pmath_expr_t _pmath_expr_thread(
   for(i = start;i <= end;++i){
     pmath_t arg = pmath_expr_get_item(expr, i);
     if(pmath_is_expr(arg)){
-      pmath_t arg_head = pmath_expr_get_item((pmath_expr_t)arg, 0);
+      pmath_t arg_head = pmath_expr_get_item(arg, 0);
       
       if(pmath_equals(head, arg_head)){
         if(have_sth_to_thread){
-          if(len != pmath_expr_length((pmath_expr_t)arg)){
+          if(len != pmath_expr_length(arg)){
             pmath_unref(arg_head);
             pmath_unref(arg);
             if(show_message){
@@ -1131,7 +1127,7 @@ PMATH_PRIVATE pmath_expr_t _pmath_expr_thread(
           }
         }
         else{
-          len = pmath_expr_length((pmath_expr_t)arg);
+          len = pmath_expr_length(arg);
           have_sth_to_thread = TRUE;
         }
       }
@@ -1152,11 +1148,11 @@ PMATH_PRIVATE pmath_expr_t _pmath_expr_thread(
     for(j = start;j <= end;++j){
       pmath_t arg = pmath_expr_get_item(expr, j);
       if(pmath_is_expr(arg)){
-        pmath_t arg_head = pmath_expr_get_item((pmath_expr_t)arg, 0);
+        pmath_t arg_head = pmath_expr_get_item(arg, 0);
         if(pmath_equals(head, arg_head)){
           f = pmath_expr_set_item(
             f, j,
-            pmath_expr_get_item((pmath_expr_t)arg, i));
+            pmath_expr_get_item(arg, i));
           pmath_unref(arg);
         }
         else
@@ -1403,7 +1399,7 @@ static void write_ex(
   void                   *user
 ){
   if(pmath_is_expr(obj)){
-    write_expr_ex((pmath_expr_t)obj, options, priority, write, user);
+    write_expr_ex(obj, options, priority, write, user);
   }
   else if(pmath_is_number(obj)
   && ((priority > PRIO_TIMES && pmath_number_sign(obj) < 0)
@@ -1422,7 +1418,7 @@ typedef struct{
   void               *next_user;
   pmath_write_func_t  next;
   int                 prefix_status;
-  pmath_bool_t     special_end; // for product_writer
+  pmath_bool_t        special_end; // for product_writer
 }_writer_hook_data_t;
 
 /* Hook in the given writer function and insert a space before the first 
@@ -1664,7 +1660,7 @@ static void write_expr_ex(
     if(exprlen < 1 || exprlen > 2)
       goto FULLFORM;
 
-    list = (pmath_expr_t)pmath_expr_get_item(expr, 1);
+    list = pmath_expr_get_item(expr, 1);
     if(!pmath_is_expr(list)){
       pmath_unref(list);
       goto FULLFORM;
@@ -2436,8 +2432,8 @@ static void write_expr_ex(
     if(!_pmath_is_nonreal_complex(expr))
       goto FULLFORM;
 
-    re = (pmath_number_t)pmath_expr_get_item(expr, 1);
-    im = (pmath_number_t)pmath_expr_get_item(expr, 2);
+    re = pmath_expr_get_item(expr, 1);
+    im = pmath_expr_get_item(expr, 2);
 
     if(!pmath_equals(re, PMATH_NUMBER_ZERO)){
       if(priority > PRIO_TIMES){

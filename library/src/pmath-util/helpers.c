@@ -331,7 +331,7 @@ PMATH_API pmath_expr_t pmath_options_extract(
   option = pmath_expr_get_item(expr, last_nonoption + 1);
   if(_pmath_is_list_of_rules(option)){
     if(last_nonoption + 1 == len)
-      return (pmath_expr_t)option;
+      return option;
 
     pmath_unref(option);
     pmath_message(
@@ -363,15 +363,15 @@ PMATH_API pmath_expr_t pmath_options_extract(
 }
 
 static pmath_bool_t find_option_value(
-  pmath_t      fn,       // wont be freed; if PMATH_UNDEFINED, no message is printed on error
+  pmath_t       fn,         // wont be freed; if PMATH_UNDEFINED, no message is printed on error
   pmath_expr_t  fnoptions,  // wont be freed; must have form {a->b, c->d, ...});
-  pmath_t     *optionvalue // input & output
+  pmath_t      *optionvalue // input & output
 ){
   size_t i;
   for(i = 1;i <= pmath_expr_length(fnoptions);++i){
-    pmath_expr_t rule = (pmath_expr_t)
-      pmath_expr_get_item(fnoptions, i);
-    pmath_t rulelhs = pmath_expr_get_item(rule, 1);
+    pmath_expr_t rule = pmath_expr_get_item(fnoptions, i);
+    pmath_t rulelhs   = pmath_expr_get_item(rule, 1);
+    
     if(pmath_equals(rulelhs, *optionvalue)){
       pmath_unref(rulelhs);
       pmath_unref(*optionvalue);
@@ -379,6 +379,7 @@ static pmath_bool_t find_option_value(
       pmath_unref(rule);
       return TRUE;
     }
+    
     pmath_unref(rulelhs);
     pmath_unref(rule);
   }
@@ -404,7 +405,7 @@ static pmath_bool_t verify_subset_is_options_subset(
     return TRUE;
     
   for(i = 1;i <= pmath_expr_length(subset);++i){
-    pmath_expr_t rule = (pmath_expr_t)pmath_expr_get_item(subset, i);
+    pmath_expr_t rule = pmath_expr_get_item(subset, i);
     pmath_t rulelhs = pmath_expr_get_item(rule, 1);
     pmath_unref(rule);
     if(!find_option_value(PMATH_UNDEFINED, fnoptions, &rulelhs)){

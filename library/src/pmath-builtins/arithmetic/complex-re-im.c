@@ -292,8 +292,8 @@ PMATH_PRIVATE pmath_bool_t _pmath_re_im(
       if(!pmath_is_null(z2)){
         pmath_number_t re2, im2, re3, im3;
         
-        re2 = (pmath_number_t)pmath_expr_get_item(z2, 1);
-        im2 = (pmath_number_t)pmath_expr_get_item(z2, 2);
+        re2 = pmath_expr_get_item(z2, 1);
+        im2 = pmath_expr_get_item(z2, 2);
         
         pmath_unref(z2);
         

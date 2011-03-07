@@ -272,7 +272,7 @@ PMATH_API void pmath_thread_call_locked(
       new_owner->next = threadlock->owners;
       new_owner->owner = me;
       #if PMATH_USE_PTHREAD
-        pthread_mutex_init(&new_owner->mutex, PMATH_NULL);
+        pthread_mutex_init(&new_owner->mutex, NULL);
       #elif PMATH_USE_WINDOWS_THREADS
         InitializeCriticalSectionAndSpinCount(&new_owner->mutex, 4000);
       #endif

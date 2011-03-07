@@ -91,7 +91,7 @@ static pmath_expr_t get_command_line(void){
       
       while(fgets(buf, sizeof(buf), f)){
         if(strlen(buf) == 0){
-          if(str){
+          if(!pmath_is_null(str)){
             pmath_emit(str, PMATH_NULL);
             str = PMATH_NULL;
           }

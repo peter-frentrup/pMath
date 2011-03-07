@@ -448,7 +448,7 @@ static pmath_number_t divide(
       y = 1/y;
       if(isfinite(y) && y != 0){
         pmath_unref(b);
-        return _mul_nn(a, (pmath_float_t)_pmath_create_machine_float(y));
+        return _mul_nn(a, _pmath_create_machine_float(y));
       }
       
       b = _pmath_convert_to_mp_float(b);
