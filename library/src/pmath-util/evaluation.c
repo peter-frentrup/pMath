@@ -64,7 +64,7 @@ static pmath_t evaluate(
       }
     #endif
 
-    if(PMATH_IS_MAGIC(obj)){
+    if(pmath_is_magic(obj)){
       obj = PMATH_NULL;
       goto FINISH;
     }
@@ -558,8 +558,7 @@ static pmath_t evaluate_symbol(
   
   value = _pmath_symbol_value_prepare(sym, value);
   
-  if(pmath_instance_of(value, PMATH_TYPE_EVALUATABLE) 
-  || pmath_is_null(value))
+  if(pmath_is_evaluatable(value))
     return value;
   
   pmath_unref(value);

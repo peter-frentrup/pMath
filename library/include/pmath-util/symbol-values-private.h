@@ -6,11 +6,13 @@
 #endif
 
 #include <pmath-core/symbols.h>
+
+#include <pmath-util/concurrency/atomic-private.h>
 #include <pmath-util/hashtables-private.h>
 
 struct _pmath_rulecache_t{ // do not access members directly, init all with PMATH_NULL
-  void                      * volatile _table; // const patterns, no condition in rhs
-  struct _pmath_multirule_t * volatile _more;
+  void * volatile _table; // const patterns, no condition in rhs
+  pmath_locked_t  _more;  // _pmath_multirule_t
 };
 
 struct _pmath_symbol_rules_t{ // init all with PMATH_NULL
@@ -64,9 +66,9 @@ void _pmath_symbol_rules_done(struct _pmath_symbol_rules_t *rules);
 
 PMATH_PRIVATE
 pmath_bool_t _pmath_symbol_value_visit(
-  pmath_t value, // will be freed
+  pmath_t        value, // will be freed
   pmath_bool_t (*callback)(pmath_t,void*),
-  void *closure);
+  void          *closure);
 
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_NONNULL(1)
@@ -135,7 +137,7 @@ void _pmath_symbol_rules_clear(struct _pmath_symbol_rules_t *rules);
 PMATH_PRIVATE
 void _pmath_symbol_value_emit(
   pmath_symbol_t sym,    // wont be freed
-  pmath_t value); // will be freed
+  pmath_t        value); // will be freed
 
 PMATH_PRIVATE
 void _pmath_rule_table_emit(
@@ -152,7 +154,7 @@ PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_t _pmath_symbol_value_prepare(
   pmath_symbol_t sym,    // wont be freed
-  pmath_t value); // will be freed
+  pmath_t        value); // will be freed
   
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
@@ -161,13 +163,13 @@ pmath_t _pmath_symbol_find_value(pmath_symbol_t sym); // sym wont be freed
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_NONNULL(1)
 void _pmath_symbol_define_value_pos(
-  pmath_t *value_position,  //accessed via _pmath_object_atomic_[read|write]()
-  pmath_t  pattern,         // will be freed; PMATH_UNDEFINED: ignore old value
-  pmath_t  body);           // will be freed; PMATH_UNDEFINED: remove patterns
+  pmath_locked_t *value_position,  //accessed via _pmath_object_atomic_[read|write]()
+  pmath_t         pattern,         // will be freed; PMATH_UNDEFINED: ignore old value
+  pmath_t         body);           // will be freed; PMATH_UNDEFINED: remove patterns
  
 /*============================================================================*/
 
 PMATH_PRIVATE pmath_bool_t _pmath_symbol_values_init(void);
-PMATH_PRIVATE void _pmath_symbol_values_done(void);
+PMATH_PRIVATE void         _pmath_symbol_values_done(void);
 
 #endif // __PMATH_UTIL__SYMBOL_VALUES_PRIVATE_H__

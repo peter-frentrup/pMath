@@ -66,11 +66,11 @@
     static int sem_init(sem_t *sem, int pshared, unsigned int value){
       int err;
       
-      err = pthread_mutex_init(&sem->mutex, PMATH_NULL);
+      err = pthread_mutex_init(&sem->mutex, NULL);
       if(err)
         return -1;
       
-      err = pthread_cond_init(&sem->cond, PMATH_NULL);
+      err = pthread_cond_init(&sem->cond, NULL);
       return err ? -1 : 0;
     }
 

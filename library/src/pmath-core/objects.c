@@ -87,7 +87,7 @@ _pmath_timer_t _pmath_timer_get_next(void){
 /*============================================================================*/
 
 PMATH_API void _pmath_destroy_object(pmath_t obj){
-  assert(!PMATH_IS_MAGIC(obj));
+  assert(!pmath_is_magic(obj));
   
   if(!PMATH_VALID_TYPE_SHIFT(PMATH_AS_PTR(obj)->type_shift)){
     fprintf(stderr, "invalid type shift: %p, %d\n", 
@@ -103,7 +103,7 @@ PMATH_API void _pmath_destroy_object(pmath_t obj){
 PMATH_API unsigned int pmath_hash(pmath_t obj){
   pmath_hash_func_t hash;
   
-  if(PMATH_IS_MAGIC(obj))
+  if(pmath_is_magic(obj))
     return (unsigned int)((uintptr_t)PMATH_AS_PTR(obj)); // this is very poor!
 
   assert(PMATH_VALID_TYPE_SHIFT(PMATH_AS_PTR(obj)->type_shift));
@@ -127,7 +127,7 @@ PMATH_API pmath_bool_t pmath_equals(
   if(pmath_same(objA, objB))
     return TRUE;
     
-  if(PMATH_IS_MAGIC(objA) || PMATH_IS_MAGIC(objB))
+  if(pmath_is_magic(objA) || pmath_is_magic(objB))
     return FALSE;
 
   assert(PMATH_VALID_TYPE_SHIFT(PMATH_AS_PTR(objA)->type_shift));
@@ -152,13 +152,13 @@ PMATH_API int pmath_compare(pmath_t objA, pmath_t objB){
   if(pmath_same(objA, objB))
     return 0;
     
-  if(PMATH_IS_MAGIC(objA)){
-    if(PMATH_IS_MAGIC(objB))
+  if(pmath_is_magic(objA)){
+    if(pmath_is_magic(objB))
       return (uintptr_t)PMATH_AS_PTR(objA) > (uintptr_t)PMATH_AS_PTR(objB) ? -1 : 1;
     return 1;
   }
   
-  if(PMATH_IS_MAGIC(objB)){
+  if(pmath_is_magic(objB)){
     return -1;
   }
 
@@ -181,7 +181,7 @@ PMATH_API void pmath_write(
 ){
   assert(write != NULL);
 
-  if(PMATH_IS_MAGIC(obj)){
+  if(pmath_is_magic(obj)){
     char s[30];
     write_cstr("/\\/", write, user);
     
@@ -227,7 +227,7 @@ pmath_bool_t pmath_is_evaluated(pmath_t obj){
   
   if(pmath_is_symbol(obj)){
     pmath_t value = pmath_symbol_get_value(obj);
-    pmath_bool_t result = !pmath_is_null(value) && !pmath_instance_of(value, PMATH_TYPE_EVALUATABLE);
+    pmath_bool_t result = !pmath_is_evaluatable(value);
     pmath_unref(value);
     return result;
   }

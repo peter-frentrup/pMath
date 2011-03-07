@@ -1022,7 +1022,7 @@ static match_kind_t match_atom(
       }
       
       pmath_unref(type);
-      if(PMATH_IS_MAGIC(arg))
+      if(pmath_is_magic(arg))
         return PMATH_MATCH_KIND_NONE;
       
       if(pmath_is_double(arg)){

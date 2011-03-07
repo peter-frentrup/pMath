@@ -79,30 +79,32 @@ PMATH_PRIVATE pmath_t builtin_assign_ownrules(pmath_expr_t expr){
   
   if(_pmath_is_rule(rhs)){
     pmath_t rule_rhs;
+    pmath_locked_t value;
       
     pmath_unref(lhs);
-    tag = PMATH_UNDEFINED;
+    value._data = PMATH_UNDEFINED;
     
     lhs = _pmath_extract_holdpattern(pmath_expr_get_item(rhs, 1));
     rule_rhs = pmath_expr_get_item(rhs, 2);
     
-    _pmath_symbol_define_value_pos(&tag, lhs, rule_rhs);
+    _pmath_symbol_define_value_pos(&value, lhs, rule_rhs);
     
     pmath_unref(rhs);
     
-    pmath_symbol_set_value(sym, pmath_ref(tag));
+    pmath_symbol_set_value(sym, pmath_ref(value._data));
     
     pmath_gather_begin(PMATH_NULL);
-    _pmath_symbol_value_emit(sym, tag);
+    _pmath_symbol_value_emit(sym, value._data);
     pmath_unref(sym);
     return pmath_gather_end();
   }
   
   if(_pmath_is_list_of_rules(rhs)){
+    pmath_locked_t value;
     size_t i;
     
     pmath_unref(lhs);
-    tag = PMATH_UNDEFINED;
+    value._data = PMATH_UNDEFINED;
     for(i = 1;i <= pmath_expr_length(rhs);++i){
       pmath_t rule;
       pmath_t rule_rhs;
@@ -111,17 +113,17 @@ PMATH_PRIVATE pmath_t builtin_assign_ownrules(pmath_expr_t expr){
       lhs = _pmath_extract_holdpattern(pmath_expr_get_item(rule, 1));
       rule_rhs = pmath_expr_get_item(rule, 2);
       
-      _pmath_symbol_define_value_pos(&tag, lhs, rule_rhs);
+      _pmath_symbol_define_value_pos(&value, lhs, rule_rhs);
       
       pmath_unref(rule);
     }
     
     pmath_unref(rhs);
     
-    pmath_symbol_set_value(sym, pmath_ref(tag));
+    pmath_symbol_set_value(sym, pmath_ref(value._data));
       
     pmath_gather_begin(PMATH_NULL);
-    _pmath_symbol_value_emit(sym, tag);
+    _pmath_symbol_value_emit(sym, value._data);
     pmath_unref(sym);
     return pmath_gather_end();
   }

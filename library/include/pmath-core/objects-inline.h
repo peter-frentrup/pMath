@@ -12,6 +12,24 @@ struct _pmath_t{ // do not access members
 
 /*============================================================================*/
 
+#define pmath_same(objA, objB)  (PMATH_AS_PTR(objA) == PMATH_AS_PTR(objB))
+#define pmath_is_null(obj)      (PMATH_AS_PTR(obj) == NULL)
+
+#define pmath_is_custom(obj)  (pmath_instance_of(obj, PMATH_TYPE_CUSTOM))
+#define pmath_is_double(obj)  (pmath_instance_of(obj, PMATH_TYPE_MACHINE_FLOAT))
+#define pmath_is_expr(obj)    (pmath_instance_of(obj, PMATH_TYPE_EXPRESSION))
+#define pmath_is_integer(obj) (pmath_instance_of(obj, PMATH_TYPE_INTEGER))
+#define pmath_is_number(obj)  (pmath_instance_of(obj, PMATH_TYPE_NUMBER))
+#define pmath_is_string(obj)  (pmath_instance_of(obj, PMATH_TYPE_STRING))
+#define pmath_is_symbol(obj)  (pmath_instance_of(obj, PMATH_TYPE_SYMBOL))
+#define pmath_is_magic(obj)   (((uintptr_t)PMATH_AS_PTR(obj)) <= 255)
+#define pmath_is_pointer(obj) (!pmath_is_magic(obj))
+
+#define pmath_is_evaluatable(obj)  (pmath_is_null(obj) || pmath_is_number(obj) || pmath_is_string(obj) || pmath_is_symbol(obj) || pmath_is_expr(obj))
+
+
+/*============================================================================*/
+
 /**\brief Increments the reference counter of an object and returns it.
    \memberof pmath_t
    \param obj The object to be referenced.
@@ -85,7 +103,7 @@ PMATH_FORCE_INLINE
 PMATH_INLINE_NODEBUG
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_t pmath_fast_ref(pmath_t obj){
-  if(PMATH_UNLIKELY(PMATH_IS_MAGIC(obj)))
+  if(PMATH_UNLIKELY(pmath_is_magic(obj)))
     return obj;
   
   #ifndef PMATH_DEBUG_LOG
@@ -104,7 +122,7 @@ pmath_t pmath_fast_ref(pmath_t obj){
 PMATH_FORCE_INLINE
 PMATH_INLINE_NODEBUG
 void pmath_fast_unref(pmath_t obj){
-  if(PMATH_UNLIKELY(PMATH_IS_MAGIC(obj)))
+  if(PMATH_UNLIKELY(pmath_is_magic(obj)))
     return;
 
   pmath_atomic_barrier();
@@ -121,7 +139,7 @@ pmath_bool_t pmath_fast_instance_of(
   pmath_t obj,
   pmath_type_t type
 ){
-  if(PMATH_UNLIKELY(PMATH_IS_MAGIC(obj)))
+  if(PMATH_UNLIKELY(pmath_is_magic(obj)))
     return (type & PMATH_TYPE_MAGIC) != 0;
 
   return ((1 << PMATH_AS_PTR(obj)->type_shift) & type) != 0;
@@ -144,18 +162,5 @@ pmath_bool_t pmath_fast_equals(
   #define pmath_instance_of  pmath_fast_instance_of
   #define pmath_equals       pmath_fast_equals
 #endif
-
-/*============================================================================*/
-
-#define pmath_same(objA, objB)  (PMATH_AS_PTR(objA) == PMATH_AS_PTR(objB))
-#define pmath_is_null(obj)      (PMATH_AS_PTR(obj) == NULL)
-
-#define pmath_is_custom(obj)  (pmath_instance_of(obj, PMATH_TYPE_CUSTOM))
-#define pmath_is_double(obj)  (pmath_instance_of(obj, PMATH_TYPE_MACHINE_FLOAT))
-#define pmath_is_expr(obj)    (pmath_instance_of(obj, PMATH_TYPE_EXPRESSION))
-#define pmath_is_integer(obj) (pmath_instance_of(obj, PMATH_TYPE_INTEGER))
-#define pmath_is_number(obj)  (pmath_instance_of(obj, PMATH_TYPE_NUMBER))
-#define pmath_is_string(obj)  (pmath_instance_of(obj, PMATH_TYPE_STRING))
-#define pmath_is_symbol(obj)  (pmath_instance_of(obj, PMATH_TYPE_SYMBOL))
 
 #endif /* __PMATH_CORE__OBJECTS_INLINE_H__ */

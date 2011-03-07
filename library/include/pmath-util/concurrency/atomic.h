@@ -58,10 +58,18 @@
   #define pmath_atomic_loop_yield()  (Sleep(0))
   #define pmath_atomic_loop_nop()    (Sleep(1))
 #else
-  #include <sched.h> 
+  #if defined (__SVR4) && defined (__sun)
+    #include <thread.h>
+
+    #define pmath_atomic_loop_yield()  (thr_yield())
+  #else
+    #include <sched.h> 
+    
+    #define pmath_atomic_loop_yield()  (sched_yield())
+  #endif
+  
   #include <time.h> 
   
-  #define pmath_atomic_loop_yield()  (sched_yield())
   #define pmath_atomic_loop_nop() \
     do{ \
       struct timespec tm; \

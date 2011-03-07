@@ -47,14 +47,18 @@ void _pmath_atomic_unlock_ptr(void * volatile *ptr, void *value){
 
 /*----------------------------------------------------------------------------*/
 
+typedef struct{
+  pmath_t _data;
+} volatile pmath_locked_t;
+
 /* Access pMath objects "atomically" (using a spinlock).
  */
 
 PMATH_FORCE_INLINE
 PMATH_INLINE_NODEBUG
 void _pmath_object_atomic_write(
-  pmath_t volatile *ptr,
-  pmath_t           value
+  pmath_locked_t *ptr,
+  pmath_t         value
 ){
   pmath_t old;
 
@@ -71,7 +75,7 @@ void _pmath_object_atomic_write(
 PMATH_FORCE_INLINE
 PMATH_INLINE_NODEBUG
 pmath_t _pmath_object_atomic_read_start(
-  pmath_t volatile *ptr
+  pmath_locked_t *ptr
 ){
   return PMATH_FROM_PTR(_pmath_atomic_lock_ptr((void * volatile *)ptr));
 }
@@ -85,8 +89,8 @@ pmath_t _pmath_object_atomic_read_start(
 PMATH_FORCE_INLINE
 PMATH_INLINE_NODEBUG
 void _pmath_object_atomic_read_end(
-  pmath_t volatile *ptr,
-  pmath_t          value // will be freed
+  pmath_locked_t *ptr,
+  pmath_t         value // will be freed
 ){
   assert(PMATH_AS_PTR(value) != PMATH_INVALID_PTR);
   
@@ -100,7 +104,7 @@ void _pmath_object_atomic_read_end(
 PMATH_FORCE_INLINE
 PMATH_INLINE_NODEBUG
 pmath_t _pmath_object_atomic_read(
-  pmath_t volatile *ptr
+  pmath_locked_t *ptr
 ){
   pmath_t value;
   

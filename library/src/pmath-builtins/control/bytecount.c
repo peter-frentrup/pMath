@@ -9,7 +9,7 @@
 static size_t bytecount(
   pmath_t obj // wont be freed
 ){
-  if(PMATH_UNLIKELY(PMATH_IS_MAGIC(obj)))
+  if(PMATH_UNLIKELY(pmath_is_magic(obj)))
     return 0;
   
   switch(PMATH_AS_PTR(obj)->type_shift){

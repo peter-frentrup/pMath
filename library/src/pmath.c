@@ -120,21 +120,21 @@ static pmath_expr_t get_exe_name(void){
     DWORD  needed;
     
     len = 128;
-    s = PMATH_NULL;
+    s = NULL;
     do{
       len*= 2;
       
-      pmath_unref((pmath_string_t)s);
+      pmath_unref(PMATH_FROM_PTR(s));
       s = _pmath_new_string_buffer(len);
       if(!s)
         return PMATH_NULL;
         
       buf = AFTER_STRING(s);
-      needed = GetModuleFileNameW(PMATH_NULL, buf, (DWORD)len);
+      needed = GetModuleFileNameW(NULL, buf, (DWORD)len);
     }while(needed == (DWORD)len);
     
     s->length = (int)needed;
-    return (pmath_string_t)s;
+    return PMATH_FROM_PTR(s);
   }
   #elif defined(__APPLE__)
   {
@@ -150,11 +150,11 @@ static pmath_expr_t get_exe_name(void){
   }
   #else
   {
-    void *exe = dlopen(PMATH_NULL, RTLD_LAZY);
+    void *exe = dlopen(NULL, RTLD_LAZY);
     
     if(exe){
       void *main_sym;
-      struct link_map *map = PMATH_NULL;
+      struct link_map *map = NULL;
       
       dlinfo(exe, RTLD_DI_LINKMAP, &map);
       if(map && map->l_name[0]){
@@ -300,7 +300,7 @@ PMATH_API pmath_bool_t pmath_init(void){
       stack = pmath_stack_new();
       if(stack){
         p = pmath_stack_pop(stack);
-        assert(p == PMATH_NULL);
+        assert(p == NULL);
         
         pmath_stack_push(stack, &a);
         pmath_stack_push(stack, &b);
@@ -315,7 +315,7 @@ PMATH_API pmath_bool_t pmath_init(void){
         assert(p && p->value == 1);
         
         p = pmath_stack_pop(stack);
-        assert(p == PMATH_NULL);
+        assert(p == NULL);
         
         pmath_stack_free(stack);
       }
@@ -325,7 +325,7 @@ PMATH_API pmath_bool_t pmath_init(void){
     PMATH_TEST_NEW_HASHTABLES();
 
     if(!_pmath_threads_init())                goto FAIL_THREADS;
-    thread = _pmath_thread_new(PMATH_NULL);
+    thread = _pmath_thread_new(NULL);
     _pmath_thread_set_current(thread);
     if(!thread)                               goto FAIL_THIS_THREAD;
     if(!_pmath_threadlocks_init())            goto FAIL_THREADLOCKS;
@@ -425,21 +425,21 @@ PMATH_API pmath_bool_t pmath_init(void){
       pmath_ref(PMATH_SYMBOL_GET),
       PMATH_C_STRING("load"));
       
-    if(!_pmath_object_complex_infinity
-    || !_pmath_object_emptylist
-    || !_pmath_object_get_load_message
-    || !_pmath_object_infinity
-    || !_pmath_object_loadlibrary_load_message
-    || !_pmath_object_memory_exception
-    || !_pmath_object_multimatch
-//    || !_pmath_object_newsym_message
-    || !_pmath_object_overflow
-    || !_pmath_object_range_from_one
-    || !_pmath_object_range_from_zero
-    || !_pmath_object_singlematch
-    || !_pmath_object_stop_message
-    || !_pmath_object_underflow
-    || !_pmath_object_zeromultimatch)
+    if(pmath_is_null(_pmath_object_complex_infinity)
+    || pmath_is_null(_pmath_object_emptylist)
+    || pmath_is_null(_pmath_object_get_load_message)
+    || pmath_is_null(_pmath_object_infinity)
+    || pmath_is_null(_pmath_object_loadlibrary_load_message)
+    || pmath_is_null(_pmath_object_memory_exception)
+    || pmath_is_null(_pmath_object_multimatch)
+//    || pmath_is_null(_pmath_object_newsym_message)
+    || pmath_is_null(_pmath_object_overflow)
+    || pmath_is_null(_pmath_object_range_from_one)
+    || pmath_is_null(_pmath_object_range_from_zero)
+    || pmath_is_null(_pmath_object_singlematch)
+    || pmath_is_null(_pmath_object_stop_message)
+    || pmath_is_null(_pmath_object_underflow)
+    || pmath_is_null(_pmath_object_zeromultimatch))
       goto FAIL_STATIC_OBJECTS;
     //}
     
@@ -771,15 +771,16 @@ PMATH_API pmath_bool_t pmath_init(void){
         #define OS_SPECIFIC_PATH ""
       #endif
       
-      if(exe){
+      if(pmath_is_null(exe)){
+        exe = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), 0);
+      }
+      else{
         exe = pmath_expr_new_extended(
           pmath_ref(PMATH_SYMBOL_LIST), 1,
           pmath_expr_new_extended(
             pmath_ref(PMATH_SYMBOL_DIRECTORYNAME), 1,
             exe));
       }
-      else
-        exe = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), 0);
       
       PMATH_RUN_ARGS("Get(\"maininit`\","
           "Path->Join("
@@ -832,7 +833,7 @@ PMATH_API pmath_bool_t pmath_init(void){
    FAIL_STRINGS:           _pmath_objects_done();
    FAIL_OBJECTS:           _pmath_charnames_done();
    FAIL_CHARNAMES:         _pmath_threadlocks_done();
-   FAIL_THREADLOCKS:       _pmath_thread_set_current(PMATH_NULL);
+   FAIL_THREADLOCKS:       _pmath_thread_set_current(NULL);
                            _pmath_thread_free(thread);
    FAIL_THIS_THREAD:       _pmath_threads_done();
    FAIL_THREADS:           _pmath_memory_manager_done();
@@ -848,7 +849,7 @@ PMATH_API pmath_bool_t pmath_init(void){
     &&    _pmath_status != PMATH_STATUS_INITIALIZING){
     }
     
-    thread = _pmath_thread_new(PMATH_NULL);
+    thread = _pmath_thread_new(NULL);
     
     if(!thread){
       pmath_atomic_fetch_add(&pmath_count, -1);
@@ -920,7 +921,7 @@ PMATH_API void pmath_done(void){
     _pmath_charnames_done();
     _pmath_threadlocks_done();
     _pmath_thread_free(pmath_thread_get_current());
-    _pmath_thread_set_current(PMATH_NULL);
+    _pmath_thread_set_current(NULL);
     _pmath_threads_done();
     _pmath_memory_manager_done();
     _pmath_debug_library_done();
@@ -928,7 +929,7 @@ PMATH_API void pmath_done(void){
     _pmath_status = PMATH_STATUS_NONE;
   }
   else{
-    _pmath_thread_set_current(PMATH_NULL);
+    _pmath_thread_set_current(NULL);
     _pmath_thread_free(thread);
     mpfr_free_cache();
   }

@@ -16,27 +16,20 @@
 
 
 struct _pmath_multirule_t{
-  struct _pmath_t   inherited;
+  struct _pmath_t inherited;
   
-  pmath_t pattern; // access via _pmath_object_atomic_[read|write]()
-  pmath_t body;    // access via _pmath_object_atomic_[read|write]()
+  pmath_locked_t pattern;
+  pmath_locked_t body;
   
-  struct _pmath_multirule_t * volatile next;
+  pmath_locked_t next; // _pmath_multirule_t
 };
 
 /* struct _pmath_multirule_t * is also used as a spinlock, so it may only be
-   accessed through _pmath_object_atomic_read*() [using with MULTIRULE_[READ|START|END]()],
+   accessed through _pmath_object_atomic_read*() [using with multirule_[read|start|end]()],
    
    but NOT directly or with _pmath_object_atomic_write(), because
    _pmath_object_atomic_write() does not lock.
  */
-
-#define REF_MULTIRULE(rule)     ((struct _pmath_multirule_t*)pmath_ref((pmath_t)rule))
-#define UNREF_MULTIRULE(rule)   pmath_unref((pmath_t)rule)
-
-#define MULTIRULE_READ(ptr)        ((struct _pmath_multirule_t*)_pmath_object_atomic_read((pmath_t*)ptr))
-#define MULTIRULE_START(ptr)       ((struct _pmath_multirule_t*)_pmath_object_atomic_read_start((pmath_t*)ptr))
-#define MULTIRULE_END(ptr, value)  _pmath_object_atomic_read_end((pmath_t*)ptr, (pmath_t)value)
 
 /* In struct _pmath_rulecache_t, the table-member is its own lock:
    while using the hashtable, it is set to PMATH_INVALID_PTR.
@@ -48,42 +41,47 @@ struct _pmath_multirule_t{
 
 //{ constructors / destructors...
 
-static struct _pmath_multirule_t *create_multirule(void){
+static pmath_t create_multirule(void){
   struct _pmath_multirule_t *result;
   
-  result = (struct _pmath_multirule_t*)_pmath_create_stub(
+  result = (void*)PMATH_AS_PTR(_pmath_create_stub(
     PMATH_TYPE_SHIFT_MULTIRULE, 
-    sizeof(struct _pmath_multirule_t));
+    sizeof(struct _pmath_multirule_t)));
   
-  result->pattern  = PMATH_NULL;
-  result->body     = PMATH_NULL;
-  result->next     = PMATH_NULL;
-  return result;
+  result->pattern._data = PMATH_NULL;
+  result->body._data    = PMATH_NULL;
+  result->next._data    = PMATH_NULL;
+  return PMATH_FROM_PTR(result);
 }
 
-static struct _pmath_multirule_t *move_multirule(
-  struct _pmath_multirule_t *src // will be freed
+static pmath_t move_multirule(
+  pmath_t src // will be freed
 ){
-  struct _pmath_multirule_t *result;
-  struct _pmath_multirule_t *current;
-  struct _pmath_multirule_t *src_next;
+  pmath_t result;
+  pmath_t current;
+  pmath_t src_next;
+  struct _pmath_multirule_t *_src = (void*)PMATH_AS_PTR(src);
   
-  if(!src)
+  if(!_src)
     return PMATH_NULL;
   
   result = current = create_multirule();
-  while(current && src){
-    current->pattern  = _pmath_object_atomic_read(&src->pattern);
-    current->body     = _pmath_object_atomic_read(&src->body);
-    current->next     = PMATH_NULL;
+  
+  while(!pmath_is_null(current) && _src){
+    struct _pmath_multirule_t *_dst = (void*)PMATH_AS_PTR(current);
     
-    src_next = MULTIRULE_READ(&src->next);
-    UNREF_MULTIRULE(src);
-    if(!src_next)
+    _dst->pattern._data = _pmath_object_atomic_read(&_src->pattern);
+    _dst->body._data    = _pmath_object_atomic_read(&_src->body);
+    _dst->next._data    = PMATH_NULL;
+    
+    src_next = _pmath_object_atomic_read(&_src->next);
+    pmath_unref(src);
+    src = src_next;
+    _src = (void*)PMATH_AS_PTR(src);
+    if(!_src)
       break;
       
-    current = current->next = create_multirule();
-    src = src_next;
+    current = _dst->next._data = create_multirule();
   }
   
   return result;
@@ -94,14 +92,14 @@ void _pmath_rulecache_copy(
   struct _pmath_rulecache_t *dst,
   struct _pmath_rulecache_t *src
 ){
-  assert(dst != PMATH_NULL);
+  assert(dst != NULL);
   
   if(!src){
     memset(dst, 0, sizeof(struct _pmath_rulecache_t));
     return;
   }
   
-  dst->_more = move_multirule(MULTIRULE_READ(&src->_more));
+  dst->_more._data = move_multirule(_pmath_object_atomic_read(&src->_more));
   
   if(src->_table){
     pmath_hashtable_t table = rulecache_table_lock(src);
@@ -111,7 +109,7 @@ void _pmath_rulecache_copy(
     rulecache_table_unlock(src, table);
   }
   else
-    dst->_table = PMATH_NULL;
+    dst->_table = NULL;
 }
 
 PMATH_PRIVATE
@@ -120,7 +118,7 @@ void _pmath_symbol_rules_copy(
   struct _pmath_symbol_rules_t *src
 ){
   pmath_hashtable_t src_messages;
-  assert(dst != PMATH_NULL);
+  assert(dst != NULL);
   
   if(!src){
     memset(dst, 0, sizeof(struct _pmath_symbol_rules_t));
@@ -143,25 +141,27 @@ void _pmath_symbol_rules_copy(
   _pmath_atomic_unlock_ptr(&src->_messages, src_messages);
 }
   
-static void destroy_multirule(struct _pmath_multirule_t *s){
-  pmath_unref(s->pattern);
-  pmath_unref(s->body);
-  UNREF_MULTIRULE(s->next);
-  pmath_mem_free(s);
+static void destroy_multirule(pmath_t p){
+  struct _pmath_multirule_t *mr = (void*)PMATH_AS_PTR(p);
+  
+  pmath_unref(mr->pattern._data);
+  pmath_unref(mr->body._data);
+  pmath_unref(mr->next._data);
+  pmath_mem_free(mr);
 }
 
 PMATH_PRIVATE
 void _pmath_rulecache_done(struct _pmath_rulecache_t *rc){
-  assert(rc != PMATH_NULL);
+  assert(rc != NULL);
   assert(rc->_table != PMATH_INVALID_PTR);
   
   pmath_ht_destroy((pmath_hashtable_t)rc->_table);
-  UNREF_MULTIRULE(rc->_more);
+  pmath_unref(rc->_more._data);
 }
 
 PMATH_PRIVATE
 void _pmath_symbol_rules_done(struct _pmath_symbol_rules_t *rules){
-  assert(rules != PMATH_NULL);
+  assert(rules != NULL);
   
   _pmath_rulecache_done(&rules->up_rules);
   _pmath_rulecache_done(&rules->down_rules);
@@ -201,32 +201,32 @@ pmath_bool_t _pmath_symbol_value_visit(
       }
     }
   }
-  else if(pmath_instance_of(value, PMATH_TYPE_MULTIRULE)){
+  else if(pmath_is_multirule(value)){
     pmath_bool_t result = TRUE;
-    struct _pmath_multirule_t *next;
-    struct _pmath_multirule_t *rule;
+    pmath_t next;
+    pmath_t rule = value;
+    struct _pmath_multirule_t *_rule = (void*)PMATH_AS_PTR(rule);
     
-    rule = (struct _pmath_multirule_t*)value;
-    
-    while(rule && result){
+    while(_rule && result){
       result = _pmath_symbol_value_visit(
-        _pmath_object_atomic_read(&rule->pattern),
+        _pmath_object_atomic_read(&_rule->pattern),
         callback,
         closure);
       
       if(result){
         result = _pmath_symbol_value_visit(
-          _pmath_object_atomic_read(&rule->body),
+          _pmath_object_atomic_read(&_rule->body),
           callback,
           closure);
       }
       
-      next = MULTIRULE_READ(&rule->next);
-      UNREF_MULTIRULE(rule);
+      next = _pmath_object_atomic_read(&_rule->next);
+      pmath_unref(rule);
       rule = next;
+      _rule = (void*)PMATH_AS_PTR(rule);
     }
     
-    UNREF_MULTIRULE(rule);
+    pmath_unref(rule);
     
     return result;
   }
@@ -259,9 +259,9 @@ pmath_bool_t _pmath_symbol_value_visit(
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_NONNULL(1)
 pmath_bool_t _pmath_rulecache_visit(
-  struct _pmath_rulecache_t *rc, 
-  pmath_bool_t (*callback)(pmath_t,void*),
-  void *closure
+  struct _pmath_rulecache_t  *rc, 
+  pmath_bool_t              (*callback)(pmath_t,void*),
+  void                       *closure
 ){
   pmath_hashtable_t table;
   pmath_bool_t result;
@@ -275,7 +275,7 @@ pmath_bool_t _pmath_rulecache_visit(
   
   if(result){
     return _pmath_symbol_value_visit(
-      (pmath_t)MULTIRULE_READ(&rc->_more),
+      _pmath_object_atomic_read(&rc->_more),
       callback,
       closure);
   }
@@ -286,9 +286,9 @@ pmath_bool_t _pmath_rulecache_visit(
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_NONNULL(1)
 pmath_bool_t _pmath_symbol_rules_visit(
-  struct _pmath_symbol_rules_t *rules, 
-  pmath_bool_t (*callback)(pmath_t,void*),
-  void *closure
+  struct _pmath_symbol_rules_t  *rules, 
+  pmath_bool_t                 (*callback)(pmath_t,void*),
+  void                          *closure
 ){
   pmath_hashtable_t table;
   pmath_bool_t result;
@@ -319,7 +319,7 @@ pmath_t _pmath_symbol_value_remove_all(
   pmath_t  to_be_removed,   // wont be freed
   pmath_t  replacement      // wont be freed
 ){
-  if(value == to_be_removed){
+  if(pmath_same(value, to_be_removed)){
     pmath_unref(value);
     return pmath_ref(replacement);
   }
@@ -339,25 +339,25 @@ pmath_t _pmath_symbol_value_remove_all(
     return value;
   }
   
-  if(pmath_instance_of(value, PMATH_TYPE_MULTIRULE)){
-    struct _pmath_multirule_t *next;
-    struct _pmath_multirule_t *rule;
+  if(pmath_is_multirule(value)){
     pmath_t obj;
+    pmath_t next;
+    pmath_t rule = pmath_ref(value);
+    struct _pmath_multirule_t *_rule = (void*)PMATH_AS_PTR(rule);
     
-    rule = (struct _pmath_multirule_t*)pmath_ref(value);
-    
-    while(rule){
-      obj = _pmath_object_atomic_read(&rule->pattern);
+    while(_rule){
+      obj = _pmath_object_atomic_read(&_rule->pattern);
       obj = _pmath_symbol_value_remove_all(obj, to_be_removed, replacement);
-      _pmath_object_atomic_write(&rule->pattern, obj);
+      _pmath_object_atomic_write(&_rule->pattern, obj);
       
-      obj = _pmath_object_atomic_read(&rule->body);
+      obj = _pmath_object_atomic_read(&_rule->body);
       obj = _pmath_symbol_value_remove_all(obj, to_be_removed, replacement);
-      _pmath_object_atomic_write(&rule->body, obj);
+      _pmath_object_atomic_write(&_rule->body, obj);
       
-      next = MULTIRULE_READ(&rule->next);
-      UNREF_MULTIRULE(rule);
+      next = _pmath_object_atomic_read(&_rule->next);
+      pmath_unref(rule);
       rule = next;
+      _rule = (void*)PMATH_AS_PTR(rule);
     }
   }
   
@@ -396,9 +396,9 @@ void _pmath_rulecache_remove_all(
   object_table_remove_all(table, to_be_removed, replacement);
   rulecache_table_unlock(rc, table);
   
-  obj = (pmath_t)MULTIRULE_START(&rc->_more);
+  obj = _pmath_object_atomic_read_start(&rc->_more);
   obj = _pmath_symbol_value_remove_all(obj, to_be_removed, replacement);
-  MULTIRULE_END(&rc->_more, obj);
+  _pmath_object_atomic_read_end(&rc->_more, obj);
 }
 
 PMATH_PRIVATE
@@ -424,64 +424,68 @@ void _pmath_symbol_rules_remove_all(
 //} ============================================================================
 //{ _pmath_symbol_rules_ht_class
 
-static void destroy_symbol_rules_entry(
-  struct _pmath_symbol_rules_entry_t *entry
-){
-  pmath_unref(entry->key);
+static void symbol_rules_entry_destroy(void *e){
+  struct _pmath_symbol_rules_entry_t *entry = e;
   
+  pmath_unref(entry->key);
   _pmath_symbol_rules_done(&entry->rules);
   
   pmath_mem_free(entry);
 }
 
-static unsigned int hash_symbol_rules_entry(
-  struct _pmath_symbol_rules_entry_t *entry
-){
-  return _pmath_hash_pointer(entry->key);
+static unsigned int symbol_rules_entry_hash(void *e){
+  struct _pmath_symbol_rules_entry_t *entry = e;
+  
+  return _pmath_hash_pointer(PMATH_AS_PTR(entry->key));
 }
 
-static pmath_bool_t symbol_rules_entries_equal(
-  struct _pmath_symbol_rules_entry_t *entry1,
-  struct _pmath_symbol_rules_entry_t *entry2
-){
-  return entry1->key == entry2->key;
+static pmath_bool_t symbol_rules_entries_equal(void *e1, void *e2){
+  struct _pmath_symbol_rules_entry_t *entry1 = e1;
+  struct _pmath_symbol_rules_entry_t *entry2 = e2;
+  
+  return pmath_same(entry1->key, entry2->key);
 }
 
-static pmath_bool_t symbol_rules_entry_equals_key(
-  struct _pmath_symbol_rules_entry_t *entry,
-  pmath_symbol_t                      key
-){
-  return entry->key == key;
+static unsigned int symbol_rules_key_hash(void *k){
+  return _pmath_hash_pointer(PMATH_AS_PTR(*(pmath_t*)k));
+}
+
+static pmath_bool_t symbol_rules_entry_equals_key(void *e, void *k){
+  struct _pmath_symbol_rules_entry_t *entry = e;
+  
+  return pmath_same(entry->key, *(pmath_t*)k);
 }
 
 PMATH_PRIVATE
 const pmath_ht_class_t  _pmath_symbol_rules_ht_class = {
-  (pmath_callback_t)                  destroy_symbol_rules_entry,
-  (pmath_ht_entry_hash_func_t)        hash_symbol_rules_entry,
-  (pmath_ht_entry_equal_func_t)       symbol_rules_entries_equal,
-  (pmath_ht_key_hash_func_t)          _pmath_hash_pointer,
-  (pmath_ht_entry_equals_key_func_t)  symbol_rules_entry_equals_key
+  symbol_rules_entry_destroy,
+  symbol_rules_entry_hash,
+  symbol_rules_entries_equal,
+  symbol_rules_key_hash,
+  symbol_rules_entry_equals_key
 };
 
 //}
 //{ pattern matching ...
 
 static pmath_bool_t _pmath_multirule_find(
-  struct _pmath_multirule_t *rule,   // will be freed
-  pmath_t                   *inout
+  pmath_t  rule,   // will be freed
+  pmath_t *inout
 ){
-  struct _pmath_multirule_t *next;
+  struct _pmath_multirule_t *_rule;
+  pmath_t next;
   pmath_t cond;
   pmath_t rule_body;
   
-  assert(inout != PMATH_NULL);
+  assert(inout != NULL);
   
-  while(rule){
-    rule_body = _pmath_object_atomic_read(&rule->body);
+  _rule = (void*)PMATH_AS_PTR(rule);
+  while(_rule){
+    rule_body = _pmath_object_atomic_read(&_rule->body);
     
     if(_pmath_pattern_match(
         *inout, 
-        _pmath_object_atomic_read(&rule->pattern), 
+        _pmath_object_atomic_read(&_rule->pattern), 
         &rule_body))
     {
       if(_pmath_rhs_condition(&rule_body, TRUE)){
@@ -495,7 +499,7 @@ static pmath_bool_t _pmath_multirule_find(
             pmath_unref(*inout);
             *inout = pmath_expr_get_item(rule_body, 1);
             pmath_unref(rule_body);
-            UNREF_MULTIRULE(rule);
+            pmath_unref(rule);
             return TRUE;
           }
         }
@@ -503,16 +507,17 @@ static pmath_bool_t _pmath_multirule_find(
       else{
         pmath_unref(*inout);
         *inout = rule_body;
-        UNREF_MULTIRULE(rule);
+        pmath_unref(rule);
         return TRUE;
       }
     }
     
     pmath_unref(rule_body);
     
-    next = MULTIRULE_READ(&rule->next);
-    UNREF_MULTIRULE(rule);
+    next = _pmath_object_atomic_read(&_rule->next);
+    pmath_unref(rule);
     rule = next;
+    _rule = (void*)PMATH_AS_PTR(rule);
   }
   
   return FALSE;
@@ -526,12 +531,12 @@ pmath_bool_t _pmath_rulecache_find(
   struct _pmath_object_entry_t *entry;
   pmath_hashtable_t table;
   
-  assert(rc != PMATH_NULL);
-  assert(inout != PMATH_NULL);
+  assert(rc    != NULL);
+  assert(inout != NULL);
   
   table = rulecache_table_lock(rc);
   
-  entry = pmath_ht_search(table, *inout);
+  entry = pmath_ht_search(table, inout);
   
   if(entry){
     pmath_unref(*inout);
@@ -543,7 +548,7 @@ pmath_bool_t _pmath_rulecache_find(
   if(entry)
     return TRUE;
   
-  return _pmath_multirule_find(MULTIRULE_READ(&rc->_more), inout);
+  return _pmath_multirule_find(_pmath_object_atomic_read(&rc->_more), inout);
 }
 
 //} ============================================================================
@@ -553,50 +558,54 @@ pmath_bool_t _pmath_rulecache_find(
            (otherwise caller must call the function again)
  */
 static pmath_bool_t _pmath_multirule_change_ex(
-  struct _pmath_multirule_t * volatile *rule_base, // accessed through _pmath_object_atomic_[read|write]
-  struct _pmath_multirule_t            *rule,      // will be freed
+  pmath_locked_t *rule_base,
+  pmath_t         rule,
+//  struct _pmath_multirule_t * volatile *rule_base, // accessed through _pmath_object_atomic_[read|write]
+//  struct _pmath_multirule_t            *rule,      // will be freed
   pmath_t pattern,                                 // wont be freed
   pmath_t body                                     // wont be freed, PMATH_UNDEFINED => remove rules
 ){
-  //struct _pmath_multirule_t *rule;
-  struct _pmath_multirule_t *prev;
-  struct _pmath_multirule_t *tmp;
-  struct _pmath_multirule_t *new_rule;
+  struct _pmath_multirule_t *_rule = (void*)PMATH_AS_PTR(rule);
+  struct _pmath_multirule_t *_prev;
   pmath_t rule_member;
   int cmp;
   
-  assert(rule_base != PMATH_NULL);
+  assert(rule_base != NULL);
   
-  prev = PMATH_NULL;
-  while(rule){
-    rule_member = _pmath_object_atomic_read(&rule->pattern);
+  _prev = NULL;
+  while(_rule){
+    assert(pmath_is_multirule(rule));
+    
+    rule_member = _pmath_object_atomic_read(&_rule->pattern);
     cmp = _pmath_pattern_compare(pattern, rule_member);
     pmath_unref(rule_member);
     
     if(cmp == 0){ // rhs coditions? (pattern :> value//condition)
-      rule_member = _pmath_object_atomic_read(&rule->body);
+      rule_member = _pmath_object_atomic_read(&_rule->body);
       
       if(_pmath_rhs_condition(&rule_member, FALSE)){
         cmp = 1;
         
         if(pmath_same(body, PMATH_UNDEFINED)){ // remove this rule and go on
-          tmp = MULTIRULE_START(rule_base); // start atomic ...
+          pmath_t tmp = _pmath_object_atomic_read_start(rule_base); // start atomic ...
           
-          if(tmp != rule){ // another thread annoyed us
-            MULTIRULE_END(rule_base, tmp);
-            UNREF_MULTIRULE(prev);
-            UNREF_MULTIRULE(rule);
+          if(!pmath_same(tmp, rule)){ // another thread annoyed us
+            _pmath_object_atomic_read_end(rule_base, tmp);
+            pmath_unref(PMATH_FROM_PTR(_prev));
+            pmath_unref(rule);
             pmath_unref(rule_member);
             return FALSE;
           }
           
-          UNREF_MULTIRULE(tmp);
-          tmp = MULTIRULE_READ(&rule->next);
-          pmath_atomic_barrier();
-          UNREF_MULTIRULE(rule); 
-          rule = REF_MULTIRULE(tmp);
+          pmath_unref(tmp);
+          tmp = _pmath_object_atomic_read(&_rule->next);
+          assert(pmath_is_multirule(tmp));
           
-          MULTIRULE_END(rule_base, tmp); // end atomic
+          pmath_unref(rule);
+          rule = pmath_ref(tmp);
+          _rule = (void*)PMATH_AS_PTR(rule);
+          
+          _pmath_object_atomic_read_end(rule_base, tmp); // end atomic
           
           pmath_unref(rule_member);
           continue;
@@ -609,109 +618,114 @@ static pmath_bool_t _pmath_multirule_change_ex(
     }
     
     if(cmp == 0){ // replace current rule
-      tmp = MULTIRULE_START(rule_base); // start atomic ...
+      pmath_t tmp = _pmath_object_atomic_read_start(rule_base); // start atomic ...
       
-      if(tmp != rule){ // another thread annoyed us
-        MULTIRULE_END(rule_base, tmp);
-        UNREF_MULTIRULE(prev);
-        UNREF_MULTIRULE(rule);
+      if(!pmath_same(tmp, rule)){ // another thread annoyed us
+        _pmath_object_atomic_read_end(rule_base, tmp);
+        pmath_unref(PMATH_FROM_PTR(_prev));
+        pmath_unref(rule);
         return FALSE;
       }
       
       if(pmath_same(body, PMATH_UNDEFINED)){ // remove rule
-        UNREF_MULTIRULE(tmp);
-        tmp = MULTIRULE_READ(&rule->next);
+        pmath_unref(tmp);
+        tmp = _pmath_object_atomic_read(&_rule->next);
       }
       else{ // change rule in place
-        _pmath_object_atomic_write(&rule->pattern, pmath_ref(pattern));
-        _pmath_object_atomic_write(&rule->body,    pmath_ref(body));
+        _pmath_object_atomic_write(&_rule->pattern, pmath_ref(pattern));
+        _pmath_object_atomic_write(&_rule->body,    pmath_ref(body));
       }
       
-      MULTIRULE_END(rule_base, tmp); // end atomic
-      UNREF_MULTIRULE(prev);
-      UNREF_MULTIRULE(rule);
+      _pmath_object_atomic_read_end(rule_base, tmp); // end atomic
+      pmath_unref(PMATH_FROM_PTR(_prev));
+      pmath_unref(rule);
       return TRUE;
     }
     
     if(cmp < 0){ // insert before curren rule
       if(!pmath_same(body, PMATH_UNDEFINED)){
-        new_rule = create_multirule();
+        struct _pmath_multirule_t *_new_rule = (void*)PMATH_AS_PTR(create_multirule());
+        pmath_t tmp;
         
-        if(!new_rule){ // no memory, but repurt success so caller does not stuck in an infinite loop
-          UNREF_MULTIRULE(prev);
-          UNREF_MULTIRULE(rule);
+        if(!_new_rule){ 
+        // no memory, but repurt success so caller does not stuck in an infinite loop
+          pmath_unref(PMATH_FROM_PTR(_prev));
+          pmath_unref(rule);
           return TRUE;
         }
         
-        new_rule->pattern = pmath_ref(pattern);
-        new_rule->body    = pmath_ref(body);
+        _new_rule->pattern._data = pmath_ref(pattern);
+        _new_rule->body._data    = pmath_ref(body);
         
-        tmp = MULTIRULE_START(rule_base); // start atomic ...
+        tmp = _pmath_object_atomic_read_start(rule_base); // start atomic ...
         
-        if(tmp != rule){ // another thread annoyed us
-          MULTIRULE_END(rule_base, tmp);
-          UNREF_MULTIRULE(prev);
-          UNREF_MULTIRULE(rule);
-          UNREF_MULTIRULE(new_rule);
+        if(!pmath_same(tmp, rule)){ // another thread annoyed us
+          _pmath_object_atomic_read_end(rule_base, tmp);
+          pmath_unref(rule);
+          pmath_unref(PMATH_FROM_PTR(_prev));
+          pmath_unref(PMATH_FROM_PTR(_new_rule));
           return FALSE;
         }
         
         pmath_atomic_barrier();
         
-        UNREF_MULTIRULE(tmp);
-        tmp = new_rule;
-        new_rule->next = rule;
+        pmath_unref(tmp);
+        tmp = PMATH_FROM_PTR(_new_rule);
+        _pmath_object_atomic_write(&_new_rule->next, rule);
         
-        MULTIRULE_END(rule_base, tmp); // end atomic
-        UNREF_MULTIRULE(prev);
+        _pmath_object_atomic_read_end(rule_base, tmp); // end atomic
+        pmath_unref(PMATH_FROM_PTR(_prev));
         return TRUE;
       }
       
-      UNREF_MULTIRULE(prev);
-      UNREF_MULTIRULE(rule);
+      pmath_unref(PMATH_FROM_PTR(_prev));
+      pmath_unref(rule);
       return TRUE;
     }
     
-    UNREF_MULTIRULE(prev);
-    prev = rule;
-    rule_base = &prev->next;
-    rule = MULTIRULE_READ(rule_base);
+    pmath_unref(PMATH_FROM_PTR(_prev));
+    _prev = _rule;
+    rule_base = &_prev->next;
+    rule = _pmath_object_atomic_read(rule_base);
+    _rule = (void*)PMATH_AS_PTR(rule);
   }
   
   if(!pmath_same(body, PMATH_UNDEFINED)){
-    new_rule = create_multirule();
+    struct _pmath_multirule_t *_new_rule = (void*)PMATH_AS_PTR(create_multirule());
     
-    if(new_rule){
-      new_rule->pattern = pmath_ref(pattern);
-      new_rule->body    = pmath_ref(body);
+    if(_new_rule){
+      pmath_t tmp;
       
-      tmp = MULTIRULE_START(rule_base); // start atomic ...
+      _new_rule->pattern._data = pmath_ref(pattern);
+      _new_rule->body._data    = pmath_ref(body);
       
-      if(tmp){ // tmp != rule, another thread annoyed us
-        MULTIRULE_END(rule_base, tmp);
-        UNREF_MULTIRULE(prev);
-        UNREF_MULTIRULE(new_rule);
+      tmp = _pmath_object_atomic_read_start(rule_base); // start atomic ...
+      
+      if(!pmath_is_null(tmp)){ // tmp != rule, another thread annoyed us
+        _pmath_object_atomic_read_end(rule_base, tmp);
+        pmath_unref(PMATH_FROM_PTR(_prev));
+        pmath_unref(PMATH_FROM_PTR(_new_rule));
         return FALSE;
       }
       
-      MULTIRULE_END(rule_base, new_rule); // end atomic
+      _pmath_object_atomic_read_end(rule_base, PMATH_FROM_PTR(_new_rule)); // end atomic
     }
   }
   
-  UNREF_MULTIRULE(prev);
+  pmath_unref(PMATH_FROM_PTR(_prev));
   return TRUE;
 }
 
 static pmath_bool_t _pmath_multirule_change(
-  struct _pmath_multirule_t * volatile *rule_base, // accessed through _pmath_object_atomic_[read|write]
-  pmath_t pattern,                                 // wont be freed
-  pmath_t body                                     // wont be freed, PMATH_UNDEFINED => remove rules
+  pmath_locked_t *rule_base, // accessed through _pmath_object_atomic_[read|write]
+  pmath_t         pattern,   // wont be freed
+  pmath_t         body       // wont be freed, PMATH_UNDEFINED => remove rules
 ){
-  assert(rule_base != PMATH_NULL);
+  assert(rule_base != NULL);
   
   return _pmath_multirule_change_ex(
     rule_base,
-    MULTIRULE_READ(rule_base),
+    _pmath_object_atomic_read(rule_base),
     pattern,
     body);
 }
@@ -726,14 +740,14 @@ void _pmath_rulecache_change(
   struct _pmath_object_entry_t *entry;
   pmath_hashtable_t table;
   
-  assert(rc != PMATH_NULL);
+  assert(rc != NULL);
   
   body_has_condition = _pmath_rhs_condition(&body, FALSE);
   
   table = rulecache_table_lock(rc);
   
   if(body_has_condition || pmath_same(body, PMATH_UNDEFINED)){
-    entry = pmath_ht_remove(table, pattern);
+    entry = pmath_ht_remove(table, &pattern);
     
     if(entry){
       if(body_has_condition){
@@ -753,7 +767,7 @@ void _pmath_rulecache_change(
     }
   }
   else{
-    entry = pmath_ht_search(table, pattern);
+    entry = pmath_ht_search(table, &pattern);
     
     if(entry){
       pmath_unref(entry->key);
@@ -776,7 +790,7 @@ void _pmath_rulecache_change(
         entry->value = body;
         
         entry = pmath_ht_insert(table, entry);
-        assert(entry == PMATH_NULL);
+        assert(entry == NULL);
         
         rulecache_table_unlock(rc, table);
         return;
@@ -795,18 +809,18 @@ void _pmath_rulecache_change(
 
 PMATH_PRIVATE
 void _pmath_rulecache_clear(struct _pmath_rulecache_t *rc){
-  pmath_hashtable_t          table;
-  struct _pmath_multirule_t *more;
+  pmath_hashtable_t table;
+  pmath_t           more;
   
-  assert(rc != PMATH_NULL);
+  assert(rc != NULL);
   
-  more = MULTIRULE_START(&rc->_more);
-  MULTIRULE_END(&rc->_more, PMATH_NULL);
+  more = _pmath_object_atomic_read_start(&rc->_more);
+  _pmath_object_atomic_read_end(&rc->_more, PMATH_NULL);
   
   table = rulecache_table_lock(rc);
-  rulecache_table_unlock(rc, PMATH_NULL);
+  rulecache_table_unlock(rc, NULL);
   
-  UNREF_MULTIRULE(more);
+  pmath_unref(more);
   pmath_ht_destroy(table);
 }
 
@@ -814,7 +828,7 @@ PMATH_PRIVATE
 void _pmath_symbol_rules_clear(struct _pmath_symbol_rules_t *rules){
   pmath_hashtable_t  messages;
   
-  assert(rules != PMATH_NULL);
+  assert(rules != NULL);
   
   _pmath_rulecache_clear(&rules->up_rules);
   _pmath_rulecache_clear(&rules->down_rules);
@@ -824,7 +838,7 @@ void _pmath_symbol_rules_clear(struct _pmath_symbol_rules_t *rules){
   _pmath_rulecache_clear(&rules->format_rules);
   
   messages = (pmath_hashtable_t)_pmath_atomic_lock_ptr(&rules->_messages);
-  _pmath_atomic_unlock_ptr(&rules->_messages, PMATH_NULL);
+  _pmath_atomic_unlock_ptr(&rules->_messages, NULL);
   
   pmath_ht_destroy(messages);
 }
@@ -832,22 +846,27 @@ void _pmath_symbol_rules_clear(struct _pmath_symbol_rules_t *rules){
 //} ============================================================================
 //{ symbol values ...
 
-static void _pmath_multirules_emit(struct _pmath_multirule_t *rule){ // will be freed
-  struct _pmath_multirule_t *next;
+static void _pmath_multirules_emit(pmath_t rule){ // will be freed
+  struct _pmath_multirule_t *_rule;
+  pmath_t next;
   
-  while(rule){
+  _rule = (void*)PMATH_AS_PTR(rule);
+  while(_rule){
+    assert(pmath_is_multirule(rule));
+    
     pmath_emit(
       pmath_expr_new_extended(
         pmath_ref(PMATH_SYMBOL_RULEDELAYED), 2,
         pmath_expr_new_extended(
           pmath_ref(PMATH_SYMBOL_HOLDPATTERN), 1,
-          _pmath_object_atomic_read(&rule->pattern)),
-        _pmath_object_atomic_read(&rule->body)),
+          _pmath_object_atomic_read(&_rule->pattern)),
+        _pmath_object_atomic_read(&_rule->body)),
       PMATH_NULL);
     
-    next = MULTIRULE_READ(&rule->next);
-    UNREF_MULTIRULE(rule);
-    rule = next;  
+    next = _pmath_object_atomic_read(&_rule->next);
+    pmath_unref(rule);
+    rule = next;
+    _rule = (void*)PMATH_AS_PTR(rule);
   }
 }
 
@@ -856,10 +875,10 @@ void _pmath_symbol_value_emit(
   pmath_symbol_t sym,    // wont be freed
   pmath_t        value   // will be freed
 ){
-  if(pmath_instance_of(value, PMATH_TYPE_MULTIRULE)){
-    _pmath_multirules_emit((struct _pmath_multirule_t*)value);
+  if(pmath_is_multirule(value)){
+    _pmath_multirules_emit(value);
   }
-  else if(!value || pmath_instance_of(value, PMATH_TYPE_EVALUATABLE)){
+  else if(pmath_is_evaluatable(value)){
     pmath_emit(
       pmath_expr_new_extended(
         pmath_ref(PMATH_SYMBOL_RULEDELAYED), 2,
@@ -904,7 +923,7 @@ void _pmath_rulecache_emit(
 ){
   pmath_hashtable_t  table;
   
-  assert(rc != PMATH_NULL);
+  assert(rc != NULL);
   
   table = rulecache_table_lock(rc);
   
@@ -912,7 +931,7 @@ void _pmath_rulecache_emit(
   
   rulecache_table_unlock(rc, table);
   
-  _pmath_multirules_emit(MULTIRULE_READ(&rc->_more));
+  _pmath_multirules_emit(_pmath_object_atomic_read(&rc->_more));
 }
 
 PMATH_PRIVATE
@@ -920,8 +939,8 @@ pmath_t _pmath_symbol_value_prepare(
   pmath_symbol_t sym,    // wont be freed
   pmath_t        value   // will be freed
 ){
-  if(pmath_instance_of(value, PMATH_TYPE_MULTIRULE)){
-    struct _pmath_multirule_t *rule = (struct _pmath_multirule_t*)value;
+  if(pmath_is_multirule(value)){
+    pmath_t rule = value;
     value = pmath_ref(sym);
     
     if(!_pmath_multirule_find(rule, &value)){
@@ -940,24 +959,21 @@ pmath_t _pmath_symbol_find_value(pmath_symbol_t sym){
 
 PMATH_PRIVATE
 void _pmath_symbol_define_value_pos(
-  pmath_t *value_position,
-  pmath_t  pattern,
-  pmath_t  body
+  pmath_locked_t *value_position,
+  pmath_t         pattern,
+  pmath_t         body
 ){
   pmath_t value = _pmath_object_atomic_read(value_position);
   
-  if(pmath_instance_of(value, PMATH_TYPE_MULTIRULE)){
-    while(!_pmath_multirule_change_ex(
-        (struct _pmath_multirule_t*volatile*)value_position, 
-        (struct _pmath_multirule_t*)value,
-        pattern, 
-        body))
-    {
+  if(pmath_is_multirule(value)){
+    while(!_pmath_multirule_change_ex(value_position, value, pattern, body)){
     }
     
-    if(!*value_position)
+    value = _pmath_object_atomic_read(value_position);
+    if(pmath_is_null(value))
       _pmath_object_atomic_write(value_position, PMATH_UNDEFINED);
     
+    pmath_unref(value);
     pmath_unref(pattern);
     pmath_unref(body);
     return;
@@ -966,12 +982,7 @@ void _pmath_symbol_define_value_pos(
   if(_pmath_rhs_condition(&body, FALSE)){
     _pmath_object_atomic_write(value_position, PMATH_NULL);
     
-    while(!_pmath_multirule_change_ex(
-        (struct _pmath_multirule_t*volatile*)value_position, 
-        (struct _pmath_multirule_t*)PMATH_NULL,
-        pattern, 
-        body))
-    {
+    while(!_pmath_multirule_change_ex(value_position, PMATH_NULL, pattern, body)){
     }
     
     pmath_unref(body);
@@ -992,22 +1003,22 @@ void _pmath_symbol_define_value_pos(
 //} ============================================================================
 //{ module init/done ...
 
-  static int dummy_cmp(void *a, void *b){
+  static int dummy_cmp(pmath_t a, pmath_t b){
     return 0;
   }
 
-  static unsigned int dummy_hash(void *a){
+  static unsigned int dummy_hash(pmath_t a){
     return 0;
   }
 
 PMATH_PRIVATE pmath_bool_t _pmath_symbol_values_init(void){
   _pmath_init_special_type(
     PMATH_TYPE_SHIFT_MULTIRULE,
-    (pmath_compare_func_t)        dummy_cmp,
-    (pmath_hash_func_t)           dummy_hash,
-    (pmath_proc_t)                destroy_multirule,
-    (pmath_equal_func_t)          PMATH_NULL,
-    (_pmath_object_write_func_t)  PMATH_NULL);
+    dummy_cmp,
+    dummy_hash,
+    destroy_multirule,
+    NULL,
+    NULL);
   
   return TRUE;
 }

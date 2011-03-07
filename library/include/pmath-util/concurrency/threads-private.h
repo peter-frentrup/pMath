@@ -5,6 +5,7 @@
   #error This header file is not part of the public pMath API
 #endif
 
+#include <pmath-util/concurrency/atomic-private.h>
 #include <pmath-util/concurrency/threadlocks.h>
 #include <pmath-util/concurrency/threads.h>
 #include <pmath-util/hashtables.h>
@@ -26,15 +27,14 @@ struct _pmath_gather_info_t{
 };
 
 struct _pmath_abortable_message_t{
-  pmath_t volatile _value; // _pmath_object_atomic_[read|write]
-  
+  pmath_locked_t _value; // _pmath_object_atomic_[read|write]
   
   // thread-local write, thread-child-local read
-  pmath_t          next; // pmath_custom_t -> _pmath_abortable_message_t
-  int              depth; // = next -> depth + 1
+  pmath_t        next; // pmath_custom_t -> _pmath_abortable_message_t
+  int            depth; // = next -> depth + 1
   
   // thread-child-local read/write with _pmath_object_atomic_[read|write]
-  pmath_t volatile _pending_abort_request; // dito
+  pmath_locked_t _pending_abort_request; // dito
 };
 
 PMATH_PRIVATE extern PMATH_DECLARE_ATOMIC(_pmath_abort_timer);

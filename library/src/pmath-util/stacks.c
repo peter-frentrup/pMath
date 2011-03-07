@@ -11,9 +11,9 @@ pmath_stack_t pmath_stack_new(void){
     pmath_mem_alloc(sizeof(struct _pmath_stack_t));
   
   if(!stack)
-    return PMATH_NULL;
+    return NULL;
   
-  stack->top = PMATH_NULL;
+  stack->top = NULL;
   stack->operation_counter_or_spinlock = 0;
   
   return stack;
@@ -49,7 +49,7 @@ static void *lockfree_pop(pmath_stack_t stack){
     head = stack->top;
     oc   = stack->operation_counter_or_spinlock;
     if(!head)
-      return PMATH_NULL;
+      return NULL;
     next = head->next; // What is if we already freed head?
   }while(!pmath_atomic_compare_and_set_2(
     (intptr_t*)stack,
@@ -86,15 +86,15 @@ static void *locking_pop(pmath_stack_t stack){
 PMATH_API 
 PMATH_ATTRIBUTE_NONNULL(1,2)
 void pmath_stack_push(pmath_stack_t stack, void *item){
-  assert(stack != PMATH_NULL);
-  assert(item != PMATH_NULL);
+  assert(stack != NULL);
+  assert(item != NULL);
   
   stack_push(stack, item);
 }
 
 PMATH_API 
 void *pmath_stack_pop(pmath_stack_t stack){
-  assert(stack != PMATH_NULL);
+  assert(stack != NULL);
   
   return stack_pop(stack);
 }

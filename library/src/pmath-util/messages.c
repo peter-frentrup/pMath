@@ -317,19 +317,19 @@ PMATH_API void pmath_message_syntax_error(
       else{
         pmath_string_t after  = pmath_string_part(pmath_ref(code), position, eol - position); // pos+1, eol-pos-1
         
-        if(filename){
+        if(pmath_is_null(filename)){
+          pmath_message(
+            PMATH_SYMBOL_SYNTAX, "nxt", 2,
+            before,
+            after);
+        }
+        else{
           pmath_message(
             PMATH_SYMBOL_SYNTAX, "nxtf", 4,
             before,
             after,
             pmath_integer_new_si(lines_before_code),
             filename);
-        }
-        else{
-          pmath_message(
-            PMATH_SYMBOL_SYNTAX, "nxt", 2,
-            before,
-            after);
         }
       }
     }

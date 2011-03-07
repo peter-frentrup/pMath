@@ -46,8 +46,7 @@ PMATH_PRIVATE pmath_t builtin_catch(pmath_expr_t expr){
   result = pmath_evaluate(pmath_expr_get_item(expr, 1));
 
   exception = pmath_catch();
-  if(pmath_is_null(exception) 
-  || pmath_instance_of(exception, PMATH_TYPE_EVALUATABLE)){
+  if(pmath_is_evaluatable(exception)){
     pmath_t rhs, pattern;
 
     if(len == 1){

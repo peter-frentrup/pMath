@@ -95,7 +95,7 @@ static pmath_bool_t almost_equal_mp(
 }
 
 static pmath_bool_t almost_equal(pmath_t a, pmath_t b){
-  if(PMATH_IS_MAGIC(a) || PMATH_IS_MAGIC(b)){
+  if(pmath_is_magic(a) || pmath_is_magic(b)){
     return pmath_same(a, b);
   }
   

@@ -46,9 +46,9 @@ struct msg_queue_t{
   struct notifier_t *notifiers;
   
   pmath_event_t sleep_event;
-  pmath_t _sleep_result; // access with _pmath_object_atomic_[read|write]
+  pmath_locked_t _sleep_result; // access with _pmath_object_atomic_[read|write]
   
-  pmath_messages_t _child_messages; // access with _pmath_object_atomic_[read|write]
+  pmath_locked_t _child_messages; // access with _pmath_object_atomic_[read|write]
   
   volatile pmath_bool_t is_dead; // TRUE when thread is dead, but message queue not
 };

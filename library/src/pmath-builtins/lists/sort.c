@@ -171,18 +171,18 @@ struct ordering_context_t{
   pmath_t cmp_ctx;
 };
 
-static int ordering_cmp(void *p, const void *a, const void *b){
+static int ordering_cmp(void *p, pmath_t *a, pmath_t *b){
   struct ordering_context_t *context = (struct ordering_context_t*)p;
   size_t ia, ib;
   int result;
   pmath_t a_item, b_item;
   
   #if PMATH_BITSIZE == 64
-    ia = pmath_integer_get_ui64(*(pmath_integer_t*)a);
-    ib = pmath_integer_get_ui64(*(pmath_integer_t*)b);
+    ia = pmath_integer_get_ui64(*a);
+    ib = pmath_integer_get_ui64(*b);
   #elif PMATH_BITSIZE == 32
-    ia = pmath_integer_get_ui(*(pmath_integer_t*)a);
-    ib = pmath_integer_get_ui(*(pmath_integer_t*)b);
+    ia = pmath_integer_get_ui(*a);
+    ib = pmath_integer_get_ui(*b);
   #else
     #error unsupported bitsize
   #endif
@@ -270,16 +270,16 @@ struct sort_context_t{
   pmath_t cmp;
 };
 
-static int user_cmp_objs(void *p, const void *a, const void *b){
+static int user_cmp_objs(void *p, pmath_t *a, pmath_t *b){
   struct sort_context_t *context = (struct sort_context_t*)p;
   
-  if(!pmath_equals(*(pmath_t*)a, *(pmath_t*)b)){
+  if(!pmath_equals(*a, *b)){
     int cmp;
     pmath_t less = pmath_evaluate(
       pmath_expr_new_extended(
         pmath_ref(context->cmp), 2,
-        pmath_ref(*(pmath_t*)a),
-        pmath_ref(*(pmath_t*)b)));
+        pmath_ref(*a),
+        pmath_ref(*b)));
 
     pmath_unref(less);
     if(pmath_same(less, PMATH_SYMBOL_TRUE))
@@ -287,7 +287,7 @@ static int user_cmp_objs(void *p, const void *a, const void *b){
     if(pmath_same(less, PMATH_SYMBOL_FALSE))
       return 1;
     
-    cmp = pmath_compare(*(pmath_t*)a, *(pmath_t*)b);
+    cmp = pmath_compare(*a, *b);
     if(cmp != 0)
       return cmp;
   }
@@ -330,18 +330,18 @@ PMATH_PRIVATE pmath_t builtin_sort(pmath_expr_t expr){
   return pmath_expr_sort(list);
 }
 
-static int sortby_cmp(const void *a, const void *b){
+static int sortby_cmp(pmath_t*a, pmath_t *b){
 /* (*a) and (*b) are expressions of the form fn(x)(x) with evaluated fn(x)
    compare fn(x)... first, if it equals, compare x
  */
   pmath_t objA, objB;
   int cmp;
   
-  assert(pmath_is_null(*(pmath_t*)a) || pmath_is_expr(*(pmath_t*)a));
-  assert(pmath_is_null(*(pmath_t*)b) || pmath_is_expr(*(pmath_t*)b));
+  assert(pmath_is_null(*a) || pmath_is_expr(*a));
+  assert(pmath_is_null(*b) || pmath_is_expr(*b));
 
-  objA = pmath_expr_get_item(*(pmath_expr_t*)a, 0);
-  objB = pmath_expr_get_item(*(pmath_expr_t*)b, 0);
+  objA = pmath_expr_get_item(*a, 0);
+  objB = pmath_expr_get_item(*b, 0);
   cmp = pmath_compare(objA, objB);
   pmath_unref(objA);
   pmath_unref(objB);
@@ -349,8 +349,8 @@ static int sortby_cmp(const void *a, const void *b){
   if(cmp != 0)
     return cmp;
 
-  objA = pmath_expr_get_item(*(pmath_expr_t*)a, 1);
-  objB = pmath_expr_get_item(*(pmath_expr_t*)b, 1);
+  objA = pmath_expr_get_item(*a, 1);
+  objB = pmath_expr_get_item(*b, 1);
   cmp = pmath_compare(objA, objB);
   pmath_unref(objA);
   pmath_unref(objB);

@@ -14,6 +14,8 @@ enum{ // private pmath_type_t ...
   PMATH_TYPE_MULTIRULE        = 1 << PMATH_TYPE_SHIFT_MULTIRULE
 };
 
+#define pmath_is_multirule(obj)  (pmath_instance_of(obj, PMATH_TYPE_MULTIRULE))
+
 extern PMATH_PRIVATE int pmath_maxrecursion;
 
 #if PMATH_BITSIZE < 64

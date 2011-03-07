@@ -216,18 +216,6 @@ typedef int (*pmath_compare_func_t)(pmath_t, pmath_t);
 
 /*============================================================================*/
 
-/**\brief Fast test, whether an object is a `magic value`
-   \hideinitializer
-   \memberof pmath_t
-   \param obj A pMath object
-   \return A boolean value.
-
-   This is the faster equivalent to pmath_instance_of(obj, PMATH_TYPE_MAGIC).
-   
-   \see pmath_instance_of()
- */
-#define PMATH_IS_MAGIC(obj) (((uintptr_t)PMATH_AS_PTR(obj)) <= 255)
-
 /**\brief Calculates an object's hash value
    \memberof pmath_t
    \param obj The object.

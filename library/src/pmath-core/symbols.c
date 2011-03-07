@@ -58,7 +58,7 @@ struct _pmath_symbol_t{
   volatile pmath_string_t    name;
   pmath_threadlock_t         lock;
   pmath_symbol_attributes_t  attributes;
-  pmath_t                    value;
+  pmath_locked_t             value;
   
   union{
     struct _pmath_symbol_rules_t  *rules;
@@ -143,7 +143,7 @@ static void symbol_entry_destructor(void *p){
   struct _pmath_symbol_t *symbol = p;
   
   pmath_unref(symbol->name);
-  pmath_unref(symbol->value);
+  pmath_unref(symbol->value._data);
   
   if(symbol->u.rules){
     _pmath_symbol_rules_done(symbol->u.rules);
@@ -281,7 +281,7 @@ PMATH_API pmath_symbol_t pmath_symbol_get(
     new_symbol->name        = pmath_ref(name);
     new_symbol->lock        = NULL;
     new_symbol->attributes  = 0;
-    new_symbol->value       = PMATH_UNDEFINED;
+    new_symbol->value._data = PMATH_UNDEFINED;
     new_symbol->u.rules     = NULL;
     
     PMATH_DEBUG_TIMING(
@@ -386,7 +386,7 @@ PMATH_API pmath_symbol_t pmath_symbol_create_temporary(
     new_symbol->lock        = NULL;
     new_symbol->name        = name;
     new_symbol->attributes  = PMATH_SYMBOL_ATTRIBUTE_TEMPORARY;
-    new_symbol->value       = PMATH_UNDEFINED;
+    new_symbol->value._data = PMATH_UNDEFINED;
     new_symbol->u.rules     = NULL;
     
     PMATH_DEBUG_TIMING(
@@ -750,7 +750,7 @@ pmath_bool_t _pmath_symbol_assign_value(
     }
   
     _pmath_symbol_define_value_pos(
-      &entry->value,
+      (pmath_locked_t*)&entry->value,
       lhs,
       rhs);
   }
@@ -1144,8 +1144,7 @@ PMATH_PRIVATE void _pmath_symbols_almost_done(void){
     struct _pmath_symbol_t *symbol = pmath_ht_entry(global_symbol_table, i);
     
     if(symbol){
-      pmath_unref(symbol->value);
-      symbol->value = PMATH_UNDEFINED;
+      _pmath_object_atomic_write(&symbol->value, PMATH_UNDEFINED);
       
       if(symbol->u.rules){
         _pmath_symbol_rules_done(symbol->u.rules);

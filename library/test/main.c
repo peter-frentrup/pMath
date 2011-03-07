@@ -75,7 +75,7 @@ static volatile pmath_bool_t quitting = FALSE;
 static volatile pmath_bool_t show_mem_stats = TRUE;
 
 static sem_t interrupt_semaphore;
-static volatile pmath_messages_t main_mq       = 0;
+static volatile pmath_messages_t main_mq;
 static PMATH_DECLARE_ATOMIC(     main_mq_lock) = 0;
 
 static pmath_messages_t get_main_mq(void){
@@ -95,7 +95,7 @@ static pmath_string_t read_line(FILE *file){
   pmath_string_t result = PMATH_NULL;
   char buf[512];
   
-  while(fgets(buf, sizeof(buf), file) != PMATH_NULL){
+  while(fgets(buf, sizeof(buf), file) != NULL){
     int len = strlen(buf);
     
     if(buf[len-1] == '\n'){
@@ -115,11 +115,11 @@ static void write_cstr(FILE *file, const char *cstr){
   fwrite(cstr, 1, strlen(cstr), file);
 }
 
-  static pmath_threadlock_t print_lock = PMATH_NULL;
+  static pmath_threadlock_t print_lock = NULL;
   
   static void write_output_locked_callback(void *_obj){
     pmath_cstr_writer_info_t info;
-    pmath_t obj = (pmath_t)_obj;
+    pmath_t obj = *(pmath_t*)_obj;
     int i;
     
     info.user = stdout;
@@ -152,7 +152,7 @@ static void write_output(pmath_t obj){
   pmath_thread_call_locked(
     &print_lock,
     write_output_locked_callback,
-    obj);
+    &obj);
 }
 
 static void write_line(const char *s){
@@ -321,8 +321,8 @@ static pmath_t dialog(pmath_t first_eval){
       spans = pmath_spans_from_string(
         &code, 
         scanner_read, 
-        PMATH_NULL, 
-        PMATH_NULL, 
+        NULL, 
+        NULL, 
         scanner_error,
         &err);
       
@@ -334,8 +334,8 @@ static pmath_t dialog(pmath_t first_eval){
               spans, 
               code, 
               TRUE, 
-              PMATH_NULL, 
-              PMATH_NULL)));
+              NULL, 
+              NULL)));
         
         if(pmath_is_expr_of(obj, PMATH_SYMBOL_HOLDCOMPLETE)){
           if(pmath_expr_length(obj) == 1){
@@ -348,10 +348,10 @@ static pmath_t dialog(pmath_t first_eval){
               obj, 0, pmath_ref(PMATH_SYMBOL_SEQUENCE));
           }
           
-          obj = pmath_session_execute(obj, PMATH_NULL);
+          obj = pmath_session_execute(obj, NULL);
         } 
         
-        if(obj && !quitting){
+        if(!quitting && !pmath_is_null(obj)){
           if(dialog_depth > 0){
             result = check_dialog_return(obj);
             
@@ -381,7 +381,7 @@ static pmath_t dialog(pmath_t first_eval){
   return result;
 }
 
-  static pmath_threadlock_t dialog_lock = PMATH_NULL;
+  static pmath_threadlock_t dialog_lock = NULL;
   
   struct dialog_callback_info_t{
     pmath_t result;
@@ -442,11 +442,11 @@ static pmath_t builtin_dialog(pmath_expr_t expr){
     return word;
   }
   
-  static pmath_threadlock_t interrupt_lock = PMATH_NULL;
+  static pmath_threadlock_t interrupt_lock = NULL;
   
   static void interrupt_callback(void *dummy){
-    pmath_string_t line = 0;
-    pmath_string_t word = 0;
+    pmath_string_t line = PMATH_NULL;
+    pmath_string_t word = PMATH_NULL;
     
     pmath_suspend_all_please();
     
@@ -521,7 +521,7 @@ static pmath_t builtin_interrupt(pmath_expr_t expr){
     pmath_thread_call_locked(
       &interrupt_lock,
       interrupt_callback,
-      PMATH_NULL);
+      NULL);
   }
   else{
     // in another thread => send to main thread
@@ -560,6 +560,8 @@ static pmath_t builtin_quit(pmath_expr_t expr){
 }
 
 int main(int argc, const char **argv){
+  main_mq = PMATH_NULL;
+  
   os_init();
   
   if(sem_init(&interrupt_semaphore, 0, 0) < 0){
@@ -582,7 +584,7 @@ int main(int argc, const char **argv){
     pmath_thread_fork_daemon(
       interrupt_daemon, 
       kill_interrupt_daemon, 
-      PMATH_NULL));
+      NULL));
   
   main_mq = pmath_thread_get_queue();
   
@@ -602,7 +604,7 @@ int main(int argc, const char **argv){
     pmath_atomic_lock(&main_mq_lock);
     {
       mq = main_mq;
-      main_mq = 0;
+      main_mq = PMATH_NULL;
     }
     pmath_atomic_unlock(&main_mq_lock);
     

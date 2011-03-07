@@ -400,7 +400,7 @@ static pmath_bool_t verify_subset_is_options_subset(
 ){
   size_t i;
   
-  if(PMATH_IS_MAGIC(fn))
+  if(pmath_is_magic(fn))
     return TRUE;
     
   for(i = 1;i <= pmath_expr_length(subset);++i){

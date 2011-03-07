@@ -2978,7 +2978,7 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj){
   if(pmath_is_null(obj))
     return PMATH_C_STRING("/\\/");
 
-  if(PMATH_IS_MAGIC(obj)){
+  if(pmath_is_magic(obj)){
     char s[40];
     
     if(thread->boxform <= BOXFORM_OUTPUTEXPONENT){

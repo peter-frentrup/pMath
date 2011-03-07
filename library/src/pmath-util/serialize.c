@@ -126,28 +126,28 @@ static void write_si32(pmath_t file, int32_t i){
 }
 
 struct serializer_t{
-  pmath_hashtable_t            object_to_int; // entries = struct _pmath_object_int_entry_t
-  pmath_t               file;
+  pmath_hashtable_t        object_to_int; // entries = struct _pmath_object_int_entry_t
+  pmath_t                  file;
   pmath_serialize_error_t  error;
-  intptr_t                     next_id;
+  intptr_t                 next_id;
 };
 
 static void serialize(
   struct serializer_t *info,
-  pmath_t       object // will be freed
+  pmath_t              object // will be freed
 ){
-  if(PMATH_IS_MAGIC(object)){
-    if(!object){
+  if(pmath_is_magic(object)){
+    if(pmath_is_null(object)){
       write_ui8(info->file, 0);
     }
     else{
       write_ui8(info->file, 1);
-      write_ui8(info->file, (uint8_t)(uintptr_t)object);
+      write_ui8(info->file, (uint8_t)(uintptr_t)PMATH_AS_PTR(object));
     }
   }
   else{
     struct _pmath_object_int_entry_t *entry;
-    entry = pmath_ht_search(info->object_to_int, object);
+    entry = pmath_ht_search(info->object_to_int, &object);
     
     if(entry){
       write_ui8( info->file, 3);
@@ -172,7 +172,7 @@ static void serialize(
     
     entry = pmath_ht_insert(info->object_to_int, entry);
     
-    switch(object->type_shift){
+    switch(PMATH_AS_PTR(object)->type_shift){
       case PMATH_TYPE_SHIFT_STRING: {
         const uint16_t *buf =    pmath_string_buffer(object);
         uint32_t len = (uint32_t)pmath_string_length(object);
@@ -221,7 +221,7 @@ static void serialize(
       } break;
       
       case PMATH_TYPE_SHIFT_INTEGER: {
-        size_t count = (mpz_sizeinbase(((struct _pmath_integer_t*)object)->value, 2) + 7) / 8;
+        size_t count = (mpz_sizeinbase(PMATH_AS_MPZ(object), 2) + 7) / 8;
         void *data;
         
         if(count > 0x7FFFFFFFU)
@@ -237,19 +237,19 @@ static void serialize(
         
         write_ui8(info->file, 7);
         
-        if(mpz_sgn(((struct _pmath_integer_t*)object)->value) < 0)
+        if(mpz_sgn(PMATH_AS_MPZ(object)) < 0)
           write_si32(info->file, -(int32_t)count);
         else
           write_si32(info->file, +(int32_t)count);
         
         mpz_export(
           data,
-          PMATH_NULL,
+          NULL,
           -1,
           1,
           0,
           0,
-          ((struct _pmath_integer_t*)object)->value);
+          PMATH_AS_MPZ(object));
         
         pmath_file_write(info->file, data, count);
           
@@ -263,44 +263,44 @@ static void serialize(
       } break;
       
       case PMATH_TYPE_SHIFT_MP_FLOAT: {
-        struct _pmath_integer_t *mantissa = _pmath_create_integer();
+        pmath_integer_t mantissa = _pmath_create_integer();
         mp_prec_t prec;
         mp_exp_t exp;
         
-        if(!mantissa){
+        if(pmath_is_null(mantissa)){
           if(!info->error)
             info->error = PMATH_SERIALIZE_NO_MEMORY;
           serialize(info, PMATH_UNDEFINED);
           break;
         }
         
-        prec = mpfr_get_prec(((struct _pmath_mp_float_t*)object)->value);
+        prec = mpfr_get_prec(PMATH_AS_MP_VALUE(object));
         
         exp = mpfr_get_z_exp(
-          mantissa->value,
-          ((struct _pmath_mp_float_t*)object)->value);
+          PMATH_AS_MPZ(mantissa),
+          PMATH_AS_MP_VALUE(object));
         
-        write_ui8(info->file, 9);
+        write_ui8( info->file, 9);
         write_ui32(info->file, (uint32_t)prec);
         write_si32(info->file, (int32_t)exp);
-        serialize(info, pmath_ref((pmath_integer_t)mantissa));
+        serialize(info, pmath_ref(mantissa));
         
         exp = mpfr_get_z_exp(
-          mantissa->value,
-          ((struct _pmath_mp_float_t*)object)->error);
+          PMATH_AS_MPZ(mantissa),
+          PMATH_AS_MP_ERROR(object));
         
         write_si32(info->file, (int32_t)exp);
-        serialize(info, (pmath_integer_t)mantissa);
+        serialize(info, mantissa);
       } break;
       
       case PMATH_TYPE_SHIFT_MACHINE_FLOAT: {
-        struct _pmath_mp_float_t *f = _pmath_create_mp_float(DBL_MANT_DIG);
-        struct _pmath_integer_t *mantissa = _pmath_create_integer();
+        pmath_float_t   f        = _pmath_create_mp_float(DBL_MANT_DIG);
+        pmath_integer_t mantissa = _pmath_create_integer();
         mp_exp_t exp;
         
-        if(!mantissa || !f){
-          pmath_unref((pmath_integer_t)mantissa);
-          pmath_unref((pmath_float_t)f);
+        if(pmath_is_null(mantissa) || pmath_is_null(f)){
+          pmath_unref(mantissa);
+          pmath_unref(f);
           
           if(!info->error)
             info->error = PMATH_SERIALIZE_NO_MEMORY;
@@ -308,15 +308,13 @@ static void serialize(
           break;
         }
         
-        mpfr_set_d(f->value, ((struct _pmath_machine_float_t*)object)->value, MPFR_RNDN);
-        exp = mpfr_get_z_exp(
-          mantissa->value,
-          f->value);
+        mpfr_set_d(PMATH_AS_MP_VALUE(f), PMATH_AS_DOUBLE(object), MPFR_RNDN);
+        exp = mpfr_get_z_exp(PMATH_AS_MPZ(mantissa), PMATH_AS_MP_VALUE(f));
         
         write_ui8(info->file, 10);
         write_si32(info->file, (int32_t)exp);
-        serialize(info, (pmath_integer_t)mantissa);
-        pmath_unref((pmath_float_t)f);
+        serialize(info, mantissa);
+        pmath_unref(f);
       } break;
       
       default: DEFAULT:
@@ -334,8 +332,8 @@ static void serialize(
 /*============================================================================*/
 
 struct deserializer_t{
-  pmath_hashtable_t            int_to_object; // entries = struct int_object_entry_t
-  pmath_t               file;
+  pmath_hashtable_t        int_to_object; // entries = struct int_object_entry_t
+  pmath_t                  file;
   pmath_serialize_error_t  error;
 };
 
@@ -372,7 +370,7 @@ static int32_t read_si32(struct deserializer_t *info){
 static pmath_t deserialize(struct deserializer_t *info){
   switch(read_ui8(info)){
     case 0: return PMATH_NULL;
-    case 1: return (pmath_t)(uintptr_t)read_ui8(info);
+    case 1: return PMATH_FROM_PTR((void*)(uintptr_t)read_ui8(info));
     
     case 2: {
       struct int_object_entry_t *entry;
@@ -433,7 +431,7 @@ static pmath_t deserialize(struct deserializer_t *info){
         if(!info->error)
           info->error = PMATH_SERIALIZE_EOF;  
         
-        pmath_unref((pmath_string_t)result);
+        pmath_unref(PMATH_FROM_PTR(result));
         break;
       }
       
@@ -446,7 +444,7 @@ static pmath_t deserialize(struct deserializer_t *info){
       }
       #endif
       
-      return (pmath_string_t)result;
+      return PMATH_FROM_PTR(result);
     } break;
     
     case 5: {
@@ -474,7 +472,7 @@ static pmath_t deserialize(struct deserializer_t *info){
     } break;
     
     case 7: {
-      struct _pmath_integer_t *result;
+      pmath_integer_t result;
       int32_t slen = read_si32(info);
       uint32_t ulen = abs(slen);
       uint8_t *data;
@@ -495,7 +493,7 @@ static pmath_t deserialize(struct deserializer_t *info){
       }
       
       result = _pmath_create_integer();
-      if(!result){
+      if(pmath_is_null(result)){
         if(!info->error)
           info->error = PMATH_SERIALIZE_EOF;  
         
@@ -504,7 +502,7 @@ static pmath_t deserialize(struct deserializer_t *info){
       }
       
       mpz_import(
-        result->value,
+        PMATH_AS_MPZ(result),
         ulen,
         -1,
         1,
@@ -514,9 +512,9 @@ static pmath_t deserialize(struct deserializer_t *info){
       
       pmath_mem_free(data);
       if(slen < 0)
-        mpz_neg(result->value, result->value);
+        mpz_neg(PMATH_AS_MPZ(result), PMATH_AS_MPZ(result));
         
-      return (pmath_integer_t)PMATH_FROM_PTR(result);
+      return result;
     } break;
     
     case 8: {
@@ -537,7 +535,7 @@ static pmath_t deserialize(struct deserializer_t *info){
     } break;
     
     case 9: {
-      struct _pmath_mp_float_t *result;
+      pmath_float_t result;
       pmath_integer_t mant;
       mp_prec_t prec;
       mp_exp_t exp;
@@ -561,7 +559,7 @@ static pmath_t deserialize(struct deserializer_t *info){
       }
     
       result = _pmath_create_mp_float(prec);
-      if(!result){
+      if(pmath_is_null(result)){
         if(!info->error)
           info->error = PMATH_SERIALIZE_NO_MEMORY;
         
@@ -569,8 +567,8 @@ static pmath_t deserialize(struct deserializer_t *info){
         break;
       }
       
-      mpfr_set_z(result->value, ((struct _pmath_integer_t*)mant)->value, MPFR_RNDN);
-      mpfr_mul_2si(result->value, result->value, exp, MPFR_RNDN);
+      mpfr_set_z(  PMATH_AS_MP_VALUE(result), PMATH_AS_MPZ(mant), MPFR_RNDN);
+      mpfr_mul_2si(PMATH_AS_MP_VALUE(result), PMATH_AS_MP_VALUE(result), exp, MPFR_RNDN);
       pmath_unref(mant);
       
       exp = (mp_exp_t)read_si32(info);
@@ -578,17 +576,17 @@ static pmath_t deserialize(struct deserializer_t *info){
       
       if(!pmath_is_integer(mant)){
         pmath_unref(mant);
-        pmath_unref((pmath_float_t)PMATH_FROM_PTR(result));;
+        pmath_unref(result);
         
         if(!info->error)
           info->error = PMATH_SERIALIZE_BAD_BYTE;
         break;
       }
       
-      mpfr_set_z(result->error, ((struct _pmath_integer_t*)mant)->value, MPFR_RNDN);
-      mpfr_mul_2si(result->error, result->error, exp, MPFR_RNDN);
+      mpfr_set_z(  PMATH_AS_MP_ERROR(result), PMATH_AS_MPZ(mant), MPFR_RNDN);
+      mpfr_mul_2si(PMATH_AS_MP_ERROR(result), PMATH_AS_MP_ERROR(result), exp, MPFR_RNDN);
       pmath_unref(mant);
-      return (pmath_float_t)PMATH_FROM_PTR(result);
+      return result;
     } break;
     
     case 10: {
@@ -647,7 +645,7 @@ static pmath_t deserialize(struct deserializer_t *info){
         if(!info->error)
           info->error = PMATH_SERIALIZE_EOF;  
         
-        pmath_unref((pmath_string_t)result);
+        pmath_unref(PMATH_FROM_PTR(result));
         break;
       }
       
@@ -660,7 +658,7 @@ static pmath_t deserialize(struct deserializer_t *info){
           buf[len] = data[len];
       }
       
-      return (pmath_string_t)result;
+      return PMATH_FROM_PTR(result);
     } break;
 
     default: 
