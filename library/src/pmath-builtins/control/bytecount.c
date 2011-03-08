@@ -9,12 +9,6 @@
 static size_t bytecount(
   pmath_t obj // wont be freed
 ){
-  if(PMATH_UNLIKELY(pmath_is_magic(obj)))
-    return 0;
-  
-  if(pmath_is_double(obj))
-    return sizeof(struct _pmath_machine_float_t_);
-  
   if(!pmath_is_pointer(obj))
     return 0;
   

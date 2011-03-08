@@ -2993,15 +2993,19 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj){
     return s;
   }
   
-  if(pmath_is_magic(obj)){
-    char s[40];
+  if(!pmath_is_pointer(obj)){
+    char s[80];
     
     if(thread->boxform <= BOXFORM_OUTPUTEXPONENT){
-      snprintf(s, sizeof(s), "<<\? 0x%"PRIxPTR" \?>>", (uintptr_t)PMATH_AS_PTR(obj));
+      snprintf(s, sizeof(s), "<<\? %d,%x \?>>", 
+        (int)PMATH_AS_TAG(obj), 
+        (int)PMATH_AS_INT32(obj));
       return PMATH_C_STRING(s);
     }
     else{
-      snprintf(s, sizeof(s), "/* 0x%"PRIxPTR" */", (uintptr_t)PMATH_AS_PTR(obj));
+      snprintf(s, sizeof(s), "/* %d,%x */", 
+        (int)PMATH_AS_TAG(obj), 
+        (int)PMATH_AS_INT32(obj));
       return pmath_build_value("sss", "/\\/", " ", s);
     }
   }

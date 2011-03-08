@@ -12,12 +12,22 @@ struct _pmath_t{ // do not access members
 
 /*============================================================================*/
 
-#define pmath_same(objA, objB)  (PMATH_AS_PTR(objA) == PMATH_AS_PTR(objB))
-#define pmath_is_null(obj)      (PMATH_AS_PTR(obj) == NULL)
+#if PMATH_BITSIZE == 64
+  #define PMATH_AS_PTR(obj)  (assert(pmath_is_pointer(obj)), ((struct _pmath_t*)(((obj).as_bits << PMATH_TAGMASK_BITCOUNT) >> PMATH_TAGMASK_BITCOUNT)))
+#elif PMATH_BITSIZE == 32
+  #define PMATH_AS_PTR(obj)  (assert(pmath_is_pointer(obj)), ((obj).s.u.as_pointer_32))
+#endif
 
-#define pmath_is_double(obj)  (pmath_instance_of(obj, _DEPRECATED_PMATH_TYPE_MACHINE_FLOAT))
-#define pmath_is_pointer(obj) (!pmath_is_magic(obj))
-#define pmath_is_magic(obj)   (((uintptr_t)PMATH_AS_PTR(obj)) <= 255)
+#define PMATH_AS_TAG(obj)    ((obj).s.tag)
+#define PMATH_AS_INT32(obj)  ((obj).s.u.as_int32)
+
+#define pmath_same(objA, objB)  ((objA).as_bits == (objB).as_bits)
+
+#define pmath_is_double(obj)  (((obj).s.tag & PMATH_TAGMASK_NONDOUBLE) != PMATH_TAGMASK_NONDOUBLE)
+#define pmath_is_pointer(obj) (((obj).s.tag & PMATH_TAGMASK_OBJECT)    == PMATH_TAGMASK_POINTER)
+
+#define pmath_is_null(obj)    (pmath_is_pointer(obj) && PMATH_AS_PTR(obj) == NULL)
+#define pmath_is_magic(obj)   ((obj).s.tag == PMATH_TAG_MAGIC)
 
 #define pmath_is_pointer_of(obj, type)  (pmath_is_pointer(obj) && ((1 << (PMATH_AS_PTR(obj)->type_shift)) & (type)) != 0)
 
@@ -38,39 +48,21 @@ struct _pmath_t{ // do not access members
 
 /*============================================================================*/
 
-/**\brief Increments the reference counter of an object and returns it.
+/**\def pmath_ref
+   \brief Increments the reference counter of an object and returns it.
    \memberof pmath_t
    \param obj The object to be referenced.
    \return The referenced object.
    You must free the result with pmath_unref().
  */
-PMATH_API 
-PMATH_ATTRIBUTE_USE_RESULT
-pmath_t pmath_ref(pmath_t obj);
 
-/**\brief Decrements the reference counter of an object and frees its memory
+/**\def pmath_unref
+   \brief Decrements the reference counter of an object and frees its memory
           if the reference counter becomes 0.
    \memberof pmath_t
    \param obj The object to be destroyed.
  */
-PMATH_API 
-void pmath_unref(pmath_t obj);
-
-/**\brief Determine whether an object has a specific type.
-   \memberof pmath_t
-   \param obj The pMath object.
-   \param type A type or a set of types.
-   \return TRUE when the object is of the specified type.
-
-   To test, whether an object is a `magic value`, the PMATH_OBJECT_IS_MAGIC()
-   macro is prefered.
- */
-PMATH_API 
-PMATH_ATTRIBUTE_PURE
-pmath_bool_t pmath_instance_of(
-  pmath_t      obj,
-  pmath_type_t type);
-
+ 
 /**\brief Compares two objects for identity.
    \memberof pmath_t
    \param objA The first object.
@@ -110,8 +102,8 @@ void _pmath_destroy_object(pmath_t obj);
 PMATH_FORCE_INLINE
 PMATH_INLINE_NODEBUG
 PMATH_ATTRIBUTE_USE_RESULT
-pmath_t pmath_fast_ref(pmath_t obj){
-  if(PMATH_UNLIKELY(pmath_is_magic(obj)))
+pmath_t pmath_ref(pmath_t obj){
+  if(PMATH_UNLIKELY(!pmath_is_pointer(obj)))
     return obj;
   
   #ifndef PMATH_DEBUG_LOG
@@ -129,8 +121,8 @@ pmath_t pmath_fast_ref(pmath_t obj){
 
 PMATH_FORCE_INLINE
 PMATH_INLINE_NODEBUG
-void pmath_fast_unref(pmath_t obj){
-  if(PMATH_UNLIKELY(pmath_is_magic(obj)))
+void pmath_unref(pmath_t obj){
+  if(PMATH_UNLIKELY(!pmath_is_pointer(obj)))
     return;
 
   pmath_atomic_barrier();
@@ -140,34 +132,7 @@ void pmath_fast_unref(pmath_t obj){
   pmath_atomic_barrier();
 }
 
-PMATH_FORCE_INLINE
-PMATH_INLINE_NODEBUG
-PMATH_ATTRIBUTE_PURE
-pmath_bool_t pmath_fast_instance_of(
-  pmath_t obj,
-  pmath_type_t type
-){
-  if(PMATH_UNLIKELY(pmath_is_magic(obj)))
-    return (type & PMATH_TYPE_MAGIC) != 0;
-
-  return ((1 << PMATH_AS_PTR(obj)->type_shift) & type) != 0;
-}
-
-PMATH_FORCE_INLINE
-PMATH_INLINE_NODEBUG
-PMATH_ATTRIBUTE_PURE
-pmath_bool_t pmath_fast_equals(
-  pmath_t objA,
-  pmath_t objB
-){
-  if(PMATH_AS_PTR(objA) == PMATH_AS_PTR(objB)) return TRUE;
-  return pmath_equals(objA, objB);
-}
-
 #ifndef PMATH_DEBUG_NO_FASTREF
-  #define pmath_ref          pmath_fast_ref
-  #define pmath_unref        pmath_fast_unref
-  #define pmath_instance_of  pmath_fast_instance_of
   #define pmath_equals       pmath_fast_equals
 #endif
 

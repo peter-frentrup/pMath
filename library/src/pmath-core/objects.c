@@ -87,7 +87,7 @@ _pmath_timer_t _pmath_timer_get_next(void){
 /*============================================================================*/
 
 PMATH_API void _pmath_destroy_object(pmath_t obj){
-  assert(!pmath_is_magic(obj));
+  assert(pmath_is_pointer(obj));
   
   if(!PMATH_VALID_TYPE_SHIFT(PMATH_AS_PTR(obj)->type_shift)){
     fprintf(stderr, "invalid type shift: %p, %d\n", 
