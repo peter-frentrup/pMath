@@ -32,7 +32,7 @@ PMATH_PRIVATE pmath_t builtin_arctan(pmath_expr_t expr){
     return pmath_float_new_d(atan(d));
   }
   
-  if(pmath_instance_of(x, PMATH_TYPE_MP_FLOAT)){
+  if(pmath_is_mpfloat(x)){
     pmath_float_t tmp = _pmath_create_mp_float(PMATH_MP_ERROR_PREC);
     if(!pmath_is_null(tmp)){
       pmath_float_t result;
@@ -172,8 +172,7 @@ PMATH_PRIVATE pmath_t builtin_arctan(pmath_expr_t expr){
         return TIMES(COMPLEX(INT(0), INT(1)), FUNC(pmath_ref(PMATH_SYMBOL_ARCTANH), im));
       }
       
-      if(pmath_instance_of(re, PMATH_TYPE_FLOAT)
-      || pmath_instance_of(im, PMATH_TYPE_FLOAT)){
+      if(pmath_is_mpfloat(re) || pmath_is_mpfloat(im)){
         pmath_unref(re);
         pmath_unref(im);
         pmath_unref(expr);

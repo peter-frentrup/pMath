@@ -499,14 +499,14 @@ Expr AbstractSequenceSection::to_pmath(bool parseable){
   if(dynamic_cast<MathSequence*>(_content))
     cont = Call(Symbol(PMATH_SYMBOL_BOXDATA), cont);
   
-  g.emit(cont);
+  Gather::emit(cont);
   
   String s;
   
   if(style && style->get(BaseStyleName, &s))
-    g.emit(s);
+    Gather::emit(s);
   else
-    g.emit(String(""));
+    Gather::emit(String(""));
   
   if(style)
     style->emit_to_pmath();

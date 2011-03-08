@@ -4,6 +4,7 @@
 #include <pmath-core/numbers-private.h>
 #include <pmath-core/strings-private.h>
 
+#include <pmath-util/debug.h>
 #include <pmath-util/files.h>
 #include <pmath-util/hashtables-private.h>
 #include <pmath-util/memory.h>
@@ -172,7 +173,37 @@ static void serialize(
     
     entry = pmath_ht_insert(info->object_to_int, entry);
     
-    switch(PMATH_AS_PTR(object)->type_shift){
+    if(pmath_is_double(object)){
+      pmath_float_t   f        = _pmath_create_mp_float(DBL_MANT_DIG);
+      pmath_integer_t mantissa = _pmath_create_integer();
+      mp_exp_t exp;
+      
+      if(pmath_is_null(mantissa) || pmath_is_null(f)){
+        pmath_unref(mantissa);
+        pmath_unref(f);
+        
+        if(!info->error)
+          info->error = PMATH_SERIALIZE_NO_MEMORY;
+        serialize(info, PMATH_UNDEFINED);
+      }
+      else{
+        mpfr_set_d(PMATH_AS_MP_VALUE(f), PMATH_AS_DOUBLE(object), MPFR_RNDN);
+        exp = mpfr_get_z_exp(PMATH_AS_MPZ(mantissa), PMATH_AS_MP_VALUE(f));
+        
+        write_ui8(info->file, 10);
+        write_si32(info->file, (int32_t)exp);
+        serialize(info, mantissa);
+        pmath_unref(f);
+      }
+    }
+    else if(!pmath_is_pointer(object)){
+      pmath_debug_print("serialize: unexpected\n");
+      if(!info->error)
+        info->error = PMATH_SERIALIZE_BAD_OBJECT;
+      
+      serialize(info, PMATH_UNDEFINED);
+    }
+    else switch(PMATH_AS_PTR(object)->type_shift){
       case PMATH_TYPE_SHIFT_STRING: {
         const uint16_t *buf =    pmath_string_buffer(object);
         uint32_t len = (uint32_t)pmath_string_length(object);
@@ -291,30 +322,6 @@ static void serialize(
         
         write_si32(info->file, (int32_t)exp);
         serialize(info, mantissa);
-      } break;
-      
-      case PMATH_TYPE_SHIFT_MACHINE_FLOAT: {
-        pmath_float_t   f        = _pmath_create_mp_float(DBL_MANT_DIG);
-        pmath_integer_t mantissa = _pmath_create_integer();
-        mp_exp_t exp;
-        
-        if(pmath_is_null(mantissa) || pmath_is_null(f)){
-          pmath_unref(mantissa);
-          pmath_unref(f);
-          
-          if(!info->error)
-            info->error = PMATH_SERIALIZE_NO_MEMORY;
-          serialize(info, PMATH_UNDEFINED);
-          break;
-        }
-        
-        mpfr_set_d(PMATH_AS_MP_VALUE(f), PMATH_AS_DOUBLE(object), MPFR_RNDN);
-        exp = mpfr_get_z_exp(PMATH_AS_MPZ(mantissa), PMATH_AS_MP_VALUE(f));
-        
-        write_ui8(info->file, 10);
-        write_si32(info->file, (int32_t)exp);
-        serialize(info, mantissa);
-        pmath_unref(f);
       } break;
       
       default: DEFAULT:

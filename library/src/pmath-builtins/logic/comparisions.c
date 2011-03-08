@@ -40,8 +40,8 @@ static pmath_bool_t almost_equal_mp(
   pmath_number_t test;
   pmath_number_t err;
   
-  assert(pmath_instance_of(a, PMATH_TYPE_MP_FLOAT));
-  assert(pmath_instance_of(b, PMATH_TYPE_MP_FLOAT));
+  assert(pmath_is_mpfloat(a));
+  assert(pmath_is_mpfloat(b));
   
   if(mpfr_equal_p(PMATH_AS_MP_VALUE(a), PMATH_AS_MP_VALUE(b)))
     return TRUE;
@@ -66,8 +66,7 @@ static pmath_bool_t almost_equal_mp(
         TRUE));
   }
   
-  if(pmath_instance_of(test, PMATH_TYPE_MP_FLOAT)
-  && pmath_number_sign(test) < 0){
+  if(pmath_is_mpfloat(test) && pmath_number_sign(test) < 0){
     pmath_unref(test);
     return FALSE;
   }
@@ -79,8 +78,7 @@ static pmath_bool_t almost_equal_mp(
       pmath_integer_new_si(TOLERANCE_FACTOR)),
     _add_nn(test, pmath_integer_new_si(-1)));
   
-  if(pmath_instance_of(err,  PMATH_TYPE_MP_FLOAT)
-  && pmath_instance_of(test, PMATH_TYPE_MP_FLOAT)){
+  if(pmath_is_mpfloat(err) && pmath_is_mpfloat(test)){
     // Max(a,b)/Min(a,b) <= 1 + TOLERANCE_FACTOR * epsilon
     if(mpfr_lessequal_p(PMATH_AS_MP_VALUE(test), PMATH_AS_MP_ERROR(err))){
       pmath_unref(err);
@@ -105,8 +103,7 @@ static pmath_bool_t almost_equal(pmath_t a, pmath_t b){
         PMATH_AS_DOUBLE(a),
         PMATH_AS_DOUBLE(b));
   }
-  else if(pmath_instance_of(a, PMATH_TYPE_MP_FLOAT)
-  &&      pmath_instance_of(b, PMATH_TYPE_MP_FLOAT)){
+  else if(pmath_is_mpfloat(a) && pmath_is_mpfloat(b)){
     return almost_equal_mp(a, b);
   }
   
@@ -387,7 +384,7 @@ static pmath_t ordered(
         if(_pmath_is_numeric(prev) && _pmath_is_numeric(next)){
           int c = 0;
           
-          if(pmath_instance_of(prev, PMATH_TYPE_MP_FLOAT)){
+          if(pmath_is_mpfloat(prev)){
             double precacc = DBL_MANT_DIG + LOG10_2;
             pmath_t n;
             
@@ -413,7 +410,7 @@ static pmath_t ordered(
             
             pmath_unref(n);
           }
-          else if(pmath_instance_of(next, PMATH_TYPE_MP_FLOAT)){
+          else if(pmath_is_mpfloat(next)){
             double precacc = DBL_MANT_DIG + LOG10_2;
             pmath_t p;
             

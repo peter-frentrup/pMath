@@ -29,7 +29,7 @@ PMATH_PRIVATE pmath_t builtin_cosh(pmath_expr_t expr){
     expr = pmath_expr_set_item(expr, 1, pmath_ref(x));
   }
   
-  if(pmath_instance_of(x, PMATH_TYPE_MP_FLOAT)){
+  if(pmath_is_mpfloat(x)){
     pmath_float_t tmp = _pmath_create_mp_float(PMATH_MP_ERROR_PREC);
     
     if(!pmath_is_null(tmp)){
@@ -136,8 +136,7 @@ PMATH_PRIVATE pmath_t builtin_cosh(pmath_expr_t expr){
         return FUNC(pmath_ref(PMATH_SYMBOL_COS), im);
       }
       
-      if(pmath_instance_of(re, PMATH_TYPE_FLOAT)
-      || pmath_instance_of(im, PMATH_TYPE_FLOAT)){
+      if(pmath_is_real(re) || pmath_is_real(im)){
         pmath_unref(expr);
         pmath_unref(re);
         pmath_unref(im);

@@ -27,7 +27,7 @@ PMATH_PRIVATE pmath_t builtin_cos(pmath_expr_t expr){
     return pmath_float_new_d(res);
   }
   
-  if(pmath_instance_of(x, PMATH_TYPE_MP_FLOAT)){
+  if(pmath_is_real(x)){
     pmath_float_t tmp = _pmath_create_mp_float(PMATH_MP_ERROR_PREC);
     
     if(!pmath_is_null(tmp)){
@@ -172,7 +172,7 @@ PMATH_PRIVATE pmath_t builtin_cos(pmath_expr_t expr){
           
           pmath_unref(cmp);
           if(pmath_same(cmp, PMATH_SYMBOL_TRUE)
-          && pmath_instance_of(fst, PMATH_TYPE_QUOTIENT)
+          && pmath_is_quotient(fst)
           && pmath_integer_fits_ui(PMATH_QUOT_NUM(fst))
           && pmath_integer_fits_ui(PMATH_QUOT_DEN(fst))
           ){
@@ -314,8 +314,7 @@ PMATH_PRIVATE pmath_t builtin_cos(pmath_expr_t expr){
         return FUNC(pmath_ref(PMATH_SYMBOL_COSH), im);
       }
       
-      if(pmath_instance_of(re, PMATH_TYPE_FLOAT)
-      || pmath_instance_of(im, PMATH_TYPE_FLOAT)){
+      if(pmath_is_real(re) || pmath_is_real(im)){
         pmath_unref(expr);
         pmath_unref(x);
         

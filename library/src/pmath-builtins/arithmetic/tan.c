@@ -30,7 +30,7 @@ PMATH_PRIVATE pmath_t builtin_tan(pmath_expr_t expr){
     return CINFTY;
   }
   
-  if(pmath_instance_of(x, PMATH_TYPE_MP_FLOAT)){
+  if(pmath_is_mpfloat(x)){
     pmath_float_t tmp = _pmath_create_mp_float(PMATH_MP_ERROR_PREC);
     
     if(!pmath_is_null(tmp)){
@@ -191,7 +191,7 @@ PMATH_PRIVATE pmath_t builtin_tan(pmath_expr_t expr){
           
           pmath_unref(cmp);
           if(pmath_same(cmp, PMATH_SYMBOL_TRUE)
-          && pmath_instance_of(fst, PMATH_TYPE_QUOTIENT)
+          && pmath_is_quotient(fst)
           && pmath_integer_fits_ui(PMATH_QUOT_NUM(fst))
           && pmath_integer_fits_ui(PMATH_QUOT_DEN(fst))
           ){
@@ -318,7 +318,7 @@ PMATH_PRIVATE pmath_t builtin_tan(pmath_expr_t expr){
           return expr;
         }
         
-        if(pmath_instance_of(tmp, PMATH_TYPE_QUOTIENT)){
+        if(pmath_is_quotient(tmp)){
           pmath_t den = pmath_rational_denominator(tmp);
           
           if(pmath_equals(den, PMATH_NUMBER_TWO)){
@@ -352,8 +352,7 @@ PMATH_PRIVATE pmath_t builtin_tan(pmath_expr_t expr){
           FUNC(pmath_ref(PMATH_SYMBOL_TANH), im));
       }
       
-      if(pmath_instance_of(re, PMATH_TYPE_FLOAT)
-      || pmath_instance_of(im, PMATH_TYPE_FLOAT)){
+      if(pmath_is_real(re) || pmath_is_real(im)){
         pmath_unref(expr);
         x = pmath_expr_set_item(x, 1, NEG(im));
         x = pmath_expr_set_item(x, 2, re);

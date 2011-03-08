@@ -225,7 +225,7 @@ static pmath_bool_t binary_write(
             return TRUE;
           }
           
-          if(pmath_instance_of(value, PMATH_TYPE_RATIONAL)){
+          if(pmath_is_rational(value)){
             switch(size){
               case 2:  value = pmath_approximate(value,  11, HUGE_VAL);
               case 4:  value = pmath_approximate(value,  24, HUGE_VAL);
@@ -258,7 +258,7 @@ static pmath_bool_t binary_write(
             }
           }
           
-          if(pmath_instance_of(value, PMATH_TYPE_FLOAT)
+          if(pmath_is_real(value)
           && out_type == REAL){
             pmath_float_t f = PMATH_NULL;
             pmath_integer_t mant = _pmath_create_integer();
@@ -279,7 +279,7 @@ static pmath_bool_t binary_write(
             if(!pmath_is_null(f) && !pmath_is_null(mant)){
               mp_exp_t exp;
               
-              if(pmath_instance_of(value, PMATH_TYPE_MP_FLOAT))
+              if(pmath_is_mpfloat(value))
                 mpfr_set(PMATH_AS_MP_VALUE(f), PMATH_AS_MP_VALUE(value), MPFR_RNDN);
               else
                 mpfr_set_d(PMATH_AS_MP_VALUE(f), pmath_number_get_d(value), MPFR_RNDN);

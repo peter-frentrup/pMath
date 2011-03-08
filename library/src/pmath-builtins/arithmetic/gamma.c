@@ -86,7 +86,7 @@ PMATH_PRIVATE pmath_t builtin_gamma(pmath_expr_t expr){
     return expr;
   }
 
-  if(pmath_instance_of(z, PMATH_TYPE_QUOTIENT)){
+  if(pmath_is_quotient(z)){
     pmath_integer_t den = pmath_rational_denominator(z);
 
     if(pmath_equals(den, PMATH_NUMBER_TWO)){
@@ -174,7 +174,7 @@ PMATH_PRIVATE pmath_t builtin_gamma(pmath_expr_t expr){
 //    }
 //  }
 //
-//  if(pmath_instance_of(z, PMATH_TYPE_MP_FLOAT)){
+//  if(pmath_is_real(z)){
 //
 //  }
 
@@ -225,7 +225,7 @@ PMATH_PRIVATE pmath_t builtin_loggamma(pmath_expr_t expr){
     return LOG(GAMMA(z));
   }
   
-  if(pmath_instance_of(z, PMATH_TYPE_QUOTIENT)){
+  if(pmath_is_quotient(z)){
     pmath_integer_t den = pmath_rational_denominator(z);
     
     if(pmath_integer_fits_ui(den)
@@ -329,7 +329,7 @@ PMATH_PRIVATE pmath_t builtin_polygamma(pmath_expr_t expr){
       return expr;
     }
     
-    if(pmath_instance_of(z, PMATH_TYPE_QUOTIENT)){
+    if(pmath_is_quotient(z)){
       pmath_t nn;
       
       if(pmath_number_sign(z) < 0){
@@ -417,7 +417,7 @@ PMATH_PRIVATE pmath_t builtin_factorial(pmath_expr_t expr){
     return expr;
   }
 
-  if(pmath_instance_of(n, PMATH_TYPE_QUOTIENT)){
+  if(pmath_is_quotient(n)){
     pmath_integer_t den = pmath_rational_denominator(n);
 
     if(pmath_equals(den, PMATH_NUMBER_TWO)){
@@ -505,7 +505,7 @@ PMATH_PRIVATE pmath_t builtin_factorial2(pmath_expr_t expr){
     return expr;
   }
   
-  if(pmath_instance_of(n, PMATH_TYPE_QUOTIENT)){
+  if(pmath_is_quotient(n)){
     pmath_integer_t den = pmath_rational_denominator(n);
 
     if(pmath_equals(den, PMATH_NUMBER_TWO)){

@@ -135,7 +135,7 @@ static pmath_t _add_fi(
 ){
   pmath_float_t result;
   
-  assert(pmath_instance_of(floatA, PMATH_TYPE_MP_FLOAT));
+  assert(pmath_is_mpfloat(floatA));
   assert(pmath_is_integer(intB));
   
   result = _pmath_create_mp_float(mpfr_get_prec(PMATH_AS_MP_VALUE(floatA)));
@@ -173,8 +173,8 @@ static pmath_t _add_fq(
   pmath_float_t tmp;
   mp_prec_t prec;
   
-  assert(pmath_instance_of(floatA, PMATH_TYPE_MP_FLOAT));
-  assert(pmath_instance_of(quotB,  PMATH_TYPE_QUOTIENT));
+  assert(pmath_is_mpfloat(floatA));
+  assert(pmath_is_quotient(quotB));
   
   prec = mpfr_get_prec(PMATH_AS_MP_VALUE(floatA));
   
@@ -226,8 +226,8 @@ static pmath_t _add_ff(
   pmath_float_t result;
   mp_prec_t prec;
   
-  assert(pmath_instance_of(floatA, PMATH_TYPE_MP_FLOAT));
-  assert(pmath_instance_of(floatB, PMATH_TYPE_MP_FLOAT));
+  assert(pmath_is_mpfloat(floatA));
+  assert(pmath_is_mpfloat(floatB));
   
   prec =    mpfr_get_prec(PMATH_AS_MP_VALUE(floatA));
   if(prec < mpfr_get_prec(PMATH_AS_MP_VALUE(floatB)))
@@ -284,7 +284,7 @@ static pmath_t _add_mq(
   double d;
   
   assert(pmath_is_double(floatA));
-  assert(pmath_instance_of(quotB, PMATH_TYPE_QUOTIENT));
+  assert(pmath_is_quotient(quotB));
   
   d = mpz_get_d(PMATH_AS_MPZ(PMATH_QUOT_NUM(quotB)));
   d/= mpz_get_d(PMATH_AS_MPZ(PMATH_QUOT_DEN(quotB)));
@@ -306,7 +306,7 @@ static pmath_t _add_mf(
   double d;
   
   assert(pmath_is_double(floatA));
-  assert(pmath_instance_of(floatB, PMATH_TYPE_MP_FLOAT));
+  assert(pmath_is_mpfloat(floatB));
   
   d = PMATH_AS_DOUBLE(floatA) + mpfr_get_d(PMATH_AS_MP_VALUE(floatB), MPFR_RNDN);
   
@@ -350,13 +350,33 @@ PMATH_PRIVATE pmath_t _add_nn(
     return PMATH_NULL;
   }
   
+  if(pmath_is_double(numA)){
+    if(pmath_is_double(numB))
+      return _add_mm(numA, numB);
+    
+    assert(pmath_is_pointer(numB));
+    
+    switch(PMATH_AS_PTR(numB)->type_shift){
+      case PMATH_TYPE_SHIFT_INTEGER:        return _add_mi(numA, numB);
+      case PMATH_TYPE_SHIFT_QUOTIENT:       return _add_mq(numA, numB);
+      case PMATH_TYPE_SHIFT_MP_FLOAT:       return _add_mf(numA, numB);
+    }
+    
+    assert("invalid number type" && 0);
+    return PMATH_NULL;
+  }
+  
+  if(pmath_is_double(numB))
+    return _add_nn(numB, numA);
+  
+  assert(pmath_is_pointer(numA));
+  
   switch(PMATH_AS_PTR(numA)->type_shift){
     case PMATH_TYPE_SHIFT_INTEGER: {
       switch(PMATH_AS_PTR(numB)->type_shift){
         case PMATH_TYPE_SHIFT_INTEGER:        return _add_ii(numA, numB);
         case PMATH_TYPE_SHIFT_QUOTIENT:       return _add_qi(numB, numA);
         case PMATH_TYPE_SHIFT_MP_FLOAT:       return _add_fi(numB, numA);
-        case PMATH_TYPE_SHIFT_MACHINE_FLOAT:  return _add_mi(numB, numA);
       }
     } break;
     
@@ -365,7 +385,6 @@ PMATH_PRIVATE pmath_t _add_nn(
         case PMATH_TYPE_SHIFT_INTEGER:        return _add_qi(numA, numB);
         case PMATH_TYPE_SHIFT_QUOTIENT:       return _add_qq(numA, numB);
         case PMATH_TYPE_SHIFT_MP_FLOAT:       return _add_fq(numB, numA);
-        case PMATH_TYPE_SHIFT_MACHINE_FLOAT:  return _add_mq(numB, numA);
       }
     } break;
     
@@ -374,20 +393,12 @@ PMATH_PRIVATE pmath_t _add_nn(
         case PMATH_TYPE_SHIFT_INTEGER:        return _add_fi(numA, numB);
         case PMATH_TYPE_SHIFT_QUOTIENT:       return _add_fq(numA, numB);
         case PMATH_TYPE_SHIFT_MP_FLOAT:       return _add_ff(numA, numB);
-        case PMATH_TYPE_SHIFT_MACHINE_FLOAT:  return _add_mf(numB, numA);
-      }
-    } break;
-    
-    case PMATH_TYPE_SHIFT_MACHINE_FLOAT: {
-      switch(PMATH_AS_PTR(numB)->type_shift){
-        case PMATH_TYPE_SHIFT_INTEGER:        return _add_mi(numA, numB);
-        case PMATH_TYPE_SHIFT_QUOTIENT:       return _add_mq(numA, numB);
-        case PMATH_TYPE_SHIFT_MP_FLOAT:       return _add_mf(numA, numB);
-        case PMATH_TYPE_SHIFT_MACHINE_FLOAT:  return _add_mm(numA, numB);
       }
     } break;
   }
+  
   assert("invalid number type" && 0);
+  
   return PMATH_NULL;
 }
 
@@ -474,8 +485,7 @@ static void plus_2_arg(pmath_t *a, pmath_t *b){
       return;
     }
     
-    if(pmath_instance_of(*a, PMATH_TYPE_FLOAT)
-    && _pmath_is_numeric(*b)){
+    if(pmath_is_real(*a) && _pmath_is_numeric(*b)){
       if(pmath_compare(*a, PMATH_NUMBER_ZERO) == 0)
         *b = pmath_approximate(*b, HUGE_VAL, pmath_accuracy(pmath_ref(*a)));
       else

@@ -9,7 +9,7 @@ static pmath_t chop(
   pmath_number_t ntol,  // wont be freed
   pmath_number_t ptol   // wont be freed
 ){
-  if(pmath_instance_of(obj, PMATH_TYPE_FLOAT)){
+  if(pmath_is_real(obj)){
     if(pmath_number_sign(obj) == 0){
       pmath_unref(obj);
       return pmath_integer_new_si(0);

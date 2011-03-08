@@ -32,19 +32,19 @@ static const pmath_ht_class_t symbol_set_class = {
 static void * volatile numeric_symbols;
 
 PMATH_PRIVATE pmath_bool_t _pmath_is_inexact(pmath_t obj){
-  if(pmath_instance_of(obj, PMATH_TYPE_FLOAT))
+  if(pmath_is_real(obj))
     return TRUE;
   
   if(_pmath_is_nonreal_complex(obj)){
     pmath_t part = pmath_expr_get_item(obj, 1);
-    if(pmath_instance_of(part, PMATH_TYPE_FLOAT)){
+    if(pmath_is_real(part)){
       pmath_unref(part);
       return TRUE;
     }
     pmath_unref(part);
     
     part = pmath_expr_get_item(obj, 2);
-    if(pmath_instance_of(part, PMATH_TYPE_FLOAT)){
+    if(pmath_is_real(part)){
       pmath_unref(part);
       return TRUE;
     }
@@ -67,7 +67,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_is_inexact(pmath_t obj){
       return sign * PMATH_CLASS_POSONE;
     }
     
-    if(pmath_instance_of(obj, PMATH_TYPE_QUOTIENT)){
+    if(pmath_is_quotient(obj)){
       int sign = mpz_sgn(PMATH_AS_MPZ(PMATH_QUOT_NUM(obj)));
       int smallbig = mpz_cmpabs(
         PMATH_AS_MPZ(PMATH_QUOT_NUM(obj)),
@@ -101,7 +101,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_is_inexact(pmath_t obj){
       return PMATH_CLASS_POSBIG;
     }
     
-    if(pmath_instance_of(obj, PMATH_TYPE_MP_FLOAT)){
+    if(pmath_is_mpfloat(obj)){
       int sign = mpfr_sgn(PMATH_AS_MP_VALUE(obj));
       
       if(sign < 0){

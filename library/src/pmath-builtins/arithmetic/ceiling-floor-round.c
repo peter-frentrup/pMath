@@ -48,7 +48,7 @@ PMATH_PRIVATE pmath_t builtin_ceiling_or_floor_or_round(
       return x;
     }
     
-    if(pmath_instance_of(x, PMATH_TYPE_QUOTIENT)){
+    if(pmath_is_quotient(x)){
       pmath_integer_t result = _pmath_create_integer();
       pmath_unref(expr);
       if(pmath_is_null(result)){
@@ -144,7 +144,7 @@ PMATH_PRIVATE pmath_t builtin_ceiling_or_floor_or_round(
       return result;
     }
 
-    if(pmath_instance_of(x, PMATH_TYPE_MP_FLOAT)){
+    if(pmath_is_mpfloat(x)){
       pmath_integer_t result = _pmath_create_integer();
       pmath_unref(expr);
       if(pmath_is_null(result)){
@@ -181,7 +181,7 @@ PMATH_PRIVATE pmath_t builtin_ceiling_or_floor_or_round(
       expr = pmath_expr_set_item(expr, 1, PMATH_NULL);
       x = pmath_approximate(x, HUGE_VAL, 2 * LOG2_10);
       
-      if(pmath_instance_of(x, PMATH_TYPE_FLOAT)){
+      if(pmath_is_real(x)){
         pmath_unref(head);
         expr = pmath_expr_set_item(expr, 1, x);
         

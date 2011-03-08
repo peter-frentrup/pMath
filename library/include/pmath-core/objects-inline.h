@@ -15,15 +15,23 @@ struct _pmath_t{ // do not access members
 #define pmath_same(objA, objB)  (PMATH_AS_PTR(objA) == PMATH_AS_PTR(objB))
 #define pmath_is_null(obj)      (PMATH_AS_PTR(obj) == NULL)
 
-#define pmath_is_custom(obj)  (pmath_instance_of(obj, PMATH_TYPE_CUSTOM))
-#define pmath_is_double(obj)  (pmath_instance_of(obj, PMATH_TYPE_MACHINE_FLOAT))
-#define pmath_is_expr(obj)    (pmath_instance_of(obj, PMATH_TYPE_EXPRESSION))
-#define pmath_is_integer(obj) (pmath_instance_of(obj, PMATH_TYPE_INTEGER))
-#define pmath_is_number(obj)  (pmath_instance_of(obj, PMATH_TYPE_NUMBER))
-#define pmath_is_string(obj)  (pmath_instance_of(obj, PMATH_TYPE_STRING))
-#define pmath_is_symbol(obj)  (pmath_instance_of(obj, PMATH_TYPE_SYMBOL))
-#define pmath_is_magic(obj)   (((uintptr_t)PMATH_AS_PTR(obj)) <= 255)
+#define pmath_is_double(obj)  (pmath_instance_of(obj, _DEPRECATED_PMATH_TYPE_MACHINE_FLOAT))
 #define pmath_is_pointer(obj) (!pmath_is_magic(obj))
+#define pmath_is_magic(obj)   (((uintptr_t)PMATH_AS_PTR(obj)) <= 255)
+
+#define pmath_is_pointer_of(obj, type)  (pmath_is_pointer(obj) && ((1 << (PMATH_AS_PTR(obj)->type_shift)) & (type)) != 0)
+
+#define pmath_is_integer(obj) (pmath_is_pointer_of(obj, PMATH_TYPE_INTEGER))
+#define pmath_is_mpfloat(obj) (pmath_is_pointer_of(obj, PMATH_TYPE_MP_FLOAT))
+
+#define pmath_is_custom(obj)   (pmath_is_pointer_of(obj, PMATH_TYPE_CUSTOM))
+#define pmath_is_expr(obj)     (pmath_is_pointer_of(obj, PMATH_TYPE_EXPRESSION))
+#define pmath_is_real(obj)     (pmath_is_double(obj) || pmath_is_mpfloat(obj))
+#define pmath_is_number(obj)   (pmath_is_real(obj) || pmath_is_rational(obj))
+#define pmath_is_quotient(obj) (pmath_is_pointer_of(obj, PMATH_TYPE_QUOTIENT))
+#define pmath_is_rational(obj) (pmath_is_integer(obj) || pmath_is_quotient(obj))
+#define pmath_is_string(obj)   (pmath_is_pointer_of(obj, PMATH_TYPE_STRING))
+#define pmath_is_symbol(obj)   (pmath_is_pointer_of(obj, PMATH_TYPE_SYMBOL))
 
 #define pmath_is_evaluatable(obj)  (pmath_is_null(obj) || pmath_is_number(obj) || pmath_is_string(obj) || pmath_is_symbol(obj) || pmath_is_expr(obj))
 

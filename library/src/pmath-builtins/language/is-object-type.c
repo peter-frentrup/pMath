@@ -83,17 +83,17 @@ PMATH_PRIVATE pmath_t builtin_isexactnumber(pmath_expr_t expr){
   obj = pmath_expr_get_item(expr, 1);
   pmath_unref(expr);
 
-  if(pmath_instance_of(obj, PMATH_TYPE_RATIONAL)){
+  if(pmath_is_rational(obj)){
     pmath_unref(obj);
     return pmath_ref(PMATH_SYMBOL_TRUE);
   }
   
   if(_pmath_is_nonreal_complex(obj)){
     pmath_t part = pmath_expr_get_item(obj, 1);
-    if(pmath_instance_of(obj, PMATH_TYPE_RATIONAL)){
+    if(pmath_is_rational(obj)){
       pmath_unref(part);
       part = pmath_expr_get_item(obj, 2);
-      if(pmath_instance_of(obj, PMATH_TYPE_RATIONAL)){
+      if(pmath_is_rational(obj)){
         pmath_unref(part);
         pmath_unref(obj);
         return pmath_ref(PMATH_SYMBOL_TRUE);
@@ -117,7 +117,7 @@ PMATH_PRIVATE pmath_t builtin_isfloat(pmath_expr_t expr){
   obj = pmath_expr_get_item(expr, 1);
   pmath_unref(expr);
 
-  if(pmath_instance_of(obj, PMATH_TYPE_FLOAT)){
+  if(pmath_is_real(obj)){
     pmath_unref(obj);
     return pmath_ref(PMATH_SYMBOL_TRUE);
   }
@@ -278,7 +278,7 @@ PMATH_PRIVATE pmath_t builtin_isquotient(pmath_expr_t expr){
   obj = pmath_expr_get_item(expr, 1);
   pmath_unref(expr);
 
-  if(pmath_instance_of(obj, PMATH_TYPE_QUOTIENT)){
+  if(pmath_is_quotient(obj)){
     pmath_unref(obj);
     return pmath_ref(PMATH_SYMBOL_TRUE);
   }
@@ -297,7 +297,7 @@ PMATH_PRIVATE pmath_t builtin_isrational(pmath_expr_t expr){
   obj = pmath_expr_get_item(expr, 1);
   pmath_unref(expr);
 
-  if(pmath_instance_of(obj, PMATH_TYPE_RATIONAL)){
+  if(pmath_is_rational(obj)){
     pmath_unref(obj);
     return pmath_ref(PMATH_SYMBOL_TRUE);
   }

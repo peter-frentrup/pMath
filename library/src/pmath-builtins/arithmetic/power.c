@@ -16,7 +16,7 @@ PMATH_PRIVATE
 pmath_bool_t _pmath_equals_rational(pmath_t obj, int n, int d){
   pmath_t part;
   
-  if(!pmath_instance_of(obj, PMATH_TYPE_RATIONAL))
+  if(!pmath_is_rational(obj))
     return FALSE;
   
   part = pmath_rational_numerator(obj);
@@ -228,7 +228,7 @@ pmath_t _pow_fi( // returns struct _pmath_mp_float_t* iff null_on_errors is TRUE
 ){
   long lbaseexp;
   
-  assert(pmath_instance_of(base, PMATH_TYPE_MP_FLOAT));
+  assert(pmath_is_mpfloat(base));
   
   if(exponent <= 0 && mpfr_zero_p(PMATH_AS_MP_VALUE(base)))    
     return base;
@@ -364,6 +364,22 @@ static pmath_number_t _pow_ni_abs(
   pmath_number_t base, // will be freed
   unsigned long  exponent
 ){
+  if(pmath_is_double(base)){
+    double d = pow(PMATH_AS_DOUBLE(base), exponent);
+    
+    if(isfinite(d) 
+    && ((d == 0) == (PMATH_AS_DOUBLE(base) == 0))){
+      pmath_unref(base);
+      return pmath_float_new_d(d);
+    }
+    
+    base = _pmath_convert_to_mp_float(base);
+    if(pmath_is_null(base))
+      return base;
+    
+    return _pow_fi(base, (long)exponent, TRUE);
+  }
+  
   if(pmath_is_null(base))
     return PMATH_NULL;
   
@@ -384,20 +400,6 @@ static pmath_number_t _pow_ni_abs(
       return _pmath_create_quotient(num, den);
     }
     
-    case PMATH_TYPE_SHIFT_MACHINE_FLOAT: {
-      double d = pow(((struct _pmath_machine_float_t*)PMATH_AS_PTR(base))->value, exponent);
-      
-      if(isfinite(d) 
-      && ((d == 0) == (((struct _pmath_machine_float_t*)PMATH_AS_PTR(base))->value == 0))){
-        pmath_unref(base);
-        return pmath_float_new_d(d);
-      }
-      
-      base = _pmath_convert_to_mp_float(base);
-      if(pmath_is_null(base))
-        return PMATH_NULL;
-    }
-    /* fall through */
     case PMATH_TYPE_SHIFT_MP_FLOAT: {
       return _pow_fi(base, (long)exponent, TRUE);
     }
@@ -418,6 +420,30 @@ static pmath_number_t divide(
     return PMATH_NULL;
   }
   
+  if(pmath_is_double(b)){
+    double y = PMATH_AS_DOUBLE(b);
+    
+    if(y == 0){
+      pmath_unref(b);
+      return a;
+    }
+    
+    y = 1/y;
+    if(isfinite(y) && y != 0){
+      pmath_unref(b);
+      return _mul_nn(a, _pmath_create_machine_float(y));
+    }
+    
+    b = _pmath_convert_to_mp_float(b);
+    if(pmath_is_null(b))
+      return a;
+    
+    b = _pow_fi(b, -1, TRUE);
+    return _mul_nn(a, b);
+  }
+  
+  assert(pmath_is_pointer(b));
+  
   switch(PMATH_AS_PTR(b)->type_shift){
     case PMATH_TYPE_SHIFT_INTEGER: {
       if(mpz_cmp_ui(PMATH_AS_MPZ(b), 0) == 0){
@@ -437,25 +463,6 @@ static pmath_number_t divide(
       return _mul_nn(a, _pmath_create_quotient(den, num));
     } break;
     
-    case PMATH_TYPE_SHIFT_MACHINE_FLOAT: {
-      double y = PMATH_AS_DOUBLE(b);
-      
-      if(y == 0){
-        pmath_unref(b);
-        return a;
-      }
-      
-      y = 1/y;
-      if(isfinite(y) && y != 0){
-        pmath_unref(b);
-        return _mul_nn(a, _pmath_create_machine_float(y));
-      }
-      
-      b = _pmath_convert_to_mp_float(b);
-      if(pmath_is_null(b))
-        return a;
-    }
-    /* fall through */
     case PMATH_TYPE_SHIFT_MP_FLOAT: {
       b = _pow_fi(b, -1, TRUE);
       return _mul_nn(a, b);
@@ -723,7 +730,7 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr){
       base = _pmath_convert_to_mp_float(base);
     }
     
-    if(pmath_instance_of(base, PMATH_TYPE_MP_FLOAT)){
+    if(pmath_is_mpfloat(base)){
       long lexp = pmath_integer_get_si(exponent);
       if(lexp > 0 || !mpfr_zero_p(PMATH_AS_MP_VALUE(base))){
         pmath_unref(exponent);
@@ -732,7 +739,7 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr){
       }
     }
     
-    if(pmath_instance_of(base, PMATH_TYPE_RATIONAL)
+    if(pmath_is_rational(base)
     && !pmath_equals(base, PMATH_NUMBER_ZERO)){
       long lexp = pmath_integer_get_si(exponent);
       pmath_unref(exponent);
@@ -817,8 +824,8 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr){
     }
   }
   
-  if(pmath_instance_of(exponent, PMATH_TYPE_QUOTIENT)
-  && pmath_instance_of(base, PMATH_TYPE_RATIONAL)
+  if(pmath_is_quotient(exponent)
+  && pmath_is_rational(base)
   && !pmath_equals(base, PMATH_NUMBER_ZERO)){ // (a/b)^(c/d) 
     pmath_integer_t exp_num;
     pmath_integer_t exp_den;
@@ -999,7 +1006,7 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr){
     pmath_unref(exp_den);
   }
   
-  if(pmath_instance_of(base, PMATH_TYPE_QUOTIENT)){
+  if(pmath_is_quotient(base)){
     pmath_integer_t num = pmath_rational_numerator(base);
     
     if(pmath_equals(num, PMATH_NUMBER_ONE)){
@@ -1015,7 +1022,7 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr){
   
   if(_pmath_is_inexact(exponent)){
     if(pmath_equals(base, PMATH_SYMBOL_E)){
-      if(pmath_instance_of(exponent, PMATH_TYPE_MP_FLOAT)){
+      if(pmath_is_mpfloat(exponent)){
         // dy = d(e^x) = e^x dx
         pmath_float_t result;
         long prec;
@@ -1111,8 +1118,8 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr){
       return expr;
     }
     
-    if(pmath_instance_of(base,     PMATH_TYPE_MP_FLOAT)
-    && pmath_instance_of(exponent, PMATH_TYPE_MP_FLOAT)){
+    if(pmath_is_mpfloat(base)
+    && pmath_is_mpfloat(exponent)){
       int basesign = mpfr_sgn(PMATH_AS_MP_VALUE(base));
       
       if(basesign < 0 && !mpfr_integer_p(PMATH_AS_MP_VALUE(exponent))){
@@ -1307,8 +1314,8 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr){
       return pmath_expr_set_item(base, 2, TIMES(exponent, inner_exp));
     }
     
-    if(pmath_instance_of(exponent,  PMATH_TYPE_RATIONAL)
-    && pmath_instance_of(inner_exp, PMATH_TYPE_RATIONAL)){
+    if(pmath_is_rational(exponent)
+    && pmath_is_rational(inner_exp)){
       if(pmath_number_sign(inner_exp) > 0){
         if(pmath_compare(inner_exp, PMATH_NUMBER_ONE) < 0){
           pmath_unref(expr);
@@ -1520,7 +1527,7 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr){
   || pmath_equals(base, _pmath_object_underflow)){
     pmath_unref(expr);
     
-    if(pmath_instance_of(exponent, PMATH_TYPE_RATIONAL)){
+    if(pmath_is_rational(exponent)){
       if(pmath_number_sign(exponent) < 0){
         pmath_unref(exponent);
         if(pmath_equals(base, _pmath_object_overflow)){

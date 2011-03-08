@@ -129,7 +129,7 @@ static pmath_t expand_product(pmath_t expr, pmath_bool_t *changed){
           }
         }
       }
-      else if(pmath_instance_of(exp, PMATH_TYPE_RATIONAL)){
+      else if(pmath_is_rational(exp)){
         pmath_integer_t num = pmath_rational_numerator(exp);
         pmath_integer_t den = pmath_rational_denominator(exp);
         
@@ -350,7 +350,7 @@ PMATH_PRIVATE pmath_t builtin_expandall(pmath_expr_t expr){
       pmath_bool_t changed;
       obj = pmath_expr_get_item(expr, 2);
       
-      if(pmath_instance_of(obj, PMATH_TYPE_RATIONAL)){
+      if(pmath_is_rational(obj)){
         if(pmath_number_sign(obj) < 0){
           expr = pmath_expr_set_item(expr, 2, pmath_number_neg(obj));
           expr = pmath_evaluate(expr);

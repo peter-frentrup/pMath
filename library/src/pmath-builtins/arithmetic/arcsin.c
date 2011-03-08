@@ -54,11 +54,11 @@ PMATH_PRIVATE pmath_t builtin_arcsin(pmath_expr_t expr){
     return pmath_float_new_d(asin(d));
   }
   
-  if(pmath_instance_of(x, PMATH_TYPE_MP_FLOAT)){ 
+  if(pmath_is_mpfloat(x)){ 
     pmath_unref(expr);
     
-    if(mpfr_cmp_si(((struct _pmath_mp_float_t*)PMATH_AS_PTR(x))->value, -1) > 0
-    && mpfr_cmp_si(((struct _pmath_mp_float_t*)PMATH_AS_PTR(x))->value,  1) < 0){
+    if(mpfr_cmp_si(PMATH_AS_MP_VALUE(x), -1) > 0
+    && mpfr_cmp_si(PMATH_AS_MP_VALUE(x),  1) < 0){
       pmath_float_t result;
       pmath_float_t tmp;
       double dprec;

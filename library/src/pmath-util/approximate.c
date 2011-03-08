@@ -21,7 +21,7 @@ double pmath_accuracy(pmath_t obj){ // will be freed
     return acc;
   }
   
-  if(pmath_instance_of(obj, PMATH_TYPE_MP_FLOAT)){
+  if(pmath_is_mpfloat(obj)){
     long exp;
     double d = mpfr_get_d_2exp(&exp, PMATH_AS_MP_ERROR(obj), MPFR_RNDN);
     //acc = dex_get_d_log2(PMATH_AS_MP_ERROR(obj));
@@ -58,7 +58,7 @@ double pmath_precision(pmath_t obj){ // will be freed
     return -HUGE_VAL;
   }
   
-  if(pmath_instance_of(obj, PMATH_TYPE_MP_FLOAT)){
+  if(pmath_is_mpfloat(obj)){
     long val_exp, err_exp;
     double val_d, err_d;
     
@@ -111,13 +111,47 @@ pmath_t pmath_set_accuracy(pmath_t obj, double acc){ // obj will be freed
     return obj;
   }
   
-  if(pmath_is_number(obj)){
+  if(pmath_is_double(obj)){
     pmath_float_t result;
-    
     double prec = 0.0;
     
+    if(PMATH_AS_DOUBLE(obj) == 0){
+      pmath_unref(obj);
+      return pmath_integer_new_si(0);
+    }
+      
+    prec = log2(fabs(PMATH_AS_DOUBLE(obj))) + acc;
+    if(prec >= PMATH_MP_PREC_MAX){
+      pmath_unref(obj);
+      return PMATH_NULL; // overflow message?
+    }
+    
+    result = _pmath_create_mp_float(prec >= MPFR_PREC_MIN ? (mp_prec_t)ceil(prec) : MPFR_PREC_MIN);
+    if(pmath_is_null(result)){
+      pmath_unref(obj);
+      return PMATH_NULL;
+    }
+    
+    mpfr_set_d(
+      PMATH_AS_MP_VALUE(result),
+      PMATH_AS_DOUBLE(obj),
+      MPFR_RNDN);
+      
+    mpfr_set_d( PMATH_AS_MP_ERROR(result), -acc, MPFR_RNDN);
+    mpfr_ui_pow(PMATH_AS_MP_ERROR(result), 2, PMATH_AS_MP_ERROR(result), MPFR_RNDN);
+    
+    pmath_unref(obj);
+    return result;
+  }
+  
+  if(pmath_is_number(obj)){
+    pmath_float_t result;
+    double prec = 0.0;
+    
+    assert(pmath_is_pointer(obj));
+    
     switch(PMATH_AS_PTR(obj)->type_shift){
-      case PMATH_TYPE_SHIFT_INTEGER: { 
+      case PMATH_TYPE_SHIFT_INTEGER: {
         if(mpz_sgn(PMATH_AS_MPZ(obj)) == 0){
           prec = 0;
         }
@@ -139,15 +173,6 @@ pmath_t pmath_set_accuracy(pmath_t obj, double acc){ // obj will be freed
         dend = mpz_get_d_2exp(&denexp, PMATH_AS_MPZ(PMATH_QUOT_DEN(obj)));
         
         prec = log2(fabs(numd)) - log2(fabs(dend)) + numexp - denexp + acc;
-      } break;
-      
-      case PMATH_TYPE_SHIFT_MACHINE_FLOAT: {
-        if(PMATH_AS_DOUBLE(obj) == 0){
-          pmath_unref(obj);
-          return pmath_integer_new_si(0);
-        }
-          
-        prec = log2(fabs(PMATH_AS_DOUBLE(obj))) + acc;
       } break;
       
       case PMATH_TYPE_SHIFT_MP_FLOAT: {
@@ -187,13 +212,6 @@ pmath_t pmath_set_accuracy(pmath_t obj, double acc){ // obj will be freed
           PMATH_AS_MP_VALUE(result), 
           PMATH_AS_MP_VALUE(result),
           PMATH_AS_MPZ(PMATH_QUOT_DEN(obj)),
-          MPFR_RNDN);
-      } break;
-      
-      case PMATH_TYPE_SHIFT_MACHINE_FLOAT: {
-        mpfr_set_d(
-          PMATH_AS_MP_VALUE(result),
-          PMATH_AS_DOUBLE(obj),
           MPFR_RNDN);
       } break;
       
@@ -247,7 +265,7 @@ pmath_t pmath_set_precision(pmath_t obj, double prec){
           obj = mp;
         }
         
-        if(pmath_instance_of(obj, PMATH_TYPE_MP_FLOAT)){
+        if(pmath_is_mpfloat(obj)){
           pmath_integer_t num;
           mpfr_exp_t exp;
           
@@ -310,7 +328,13 @@ pmath_t pmath_set_precision(pmath_t obj, double prec){
       return PMATH_NULL;
     }
     
-    switch(PMATH_AS_PTR(obj)->type_shift){
+    if(pmath_is_double(obj)){
+      mpfr_set_d(
+        PMATH_AS_MP_VALUE(result), 
+        PMATH_AS_DOUBLE(obj),
+        MPFR_RNDN);
+    }
+    else switch(PMATH_AS_PTR(obj)->type_shift){
       case PMATH_TYPE_SHIFT_INTEGER: {
         mpfr_set_z(
           PMATH_AS_MP_VALUE(result), 
@@ -328,13 +352,6 @@ pmath_t pmath_set_precision(pmath_t obj, double prec){
           PMATH_AS_MP_VALUE(result), 
           PMATH_AS_MP_VALUE(result), 
           PMATH_AS_MPZ(PMATH_QUOT_DEN(obj)),
-          MPFR_RNDN);
-      } break;
-      
-      case PMATH_TYPE_SHIFT_MACHINE_FLOAT: {
-        mpfr_set_d(
-          PMATH_AS_MP_VALUE(result), 
-          PMATH_AS_DOUBLE(obj),
           MPFR_RNDN);
       } break;
       

@@ -137,7 +137,7 @@ static pmath_float_t _mul_fq(
 ){
   floatA = _mul_fi(floatA, pmath_ref(PMATH_QUOT_NUM(quotB)));
   
-  if(pmath_instance_of(floatA, PMATH_TYPE_MP_FLOAT)){
+  if(pmath_is_mpfloat(floatA)){
     floatA = _div_fi(floatA, PMATH_QUOT_DEN(quotB));
     pmath_unref(quotB);
   }
@@ -294,13 +294,33 @@ PMATH_PRIVATE pmath_number_t _mul_nn(
     return PMATH_NULL;
   }
   
+  if(pmath_is_double(numA)){
+    if(pmath_is_double(numB))
+      return _mul_mm(numA, numB);
+    
+    assert(pmath_is_pointer(numB));
+    
+    switch(PMATH_AS_PTR(numB)->type_shift){
+      case PMATH_TYPE_SHIFT_INTEGER:        return _mul_mi(numA, numB);
+      case PMATH_TYPE_SHIFT_QUOTIENT:       return _mul_mq(numA, numB);
+      case PMATH_TYPE_SHIFT_MP_FLOAT:       return _mul_mf(numA, numB);
+    }
+    
+    assert("invalid number type" && 0);
+    return PMATH_NULL;
+  }
+  
+  if(pmath_is_double(numB))
+    return _mul_nn(numB, numA);
+  
+  assert(pmath_is_pointer(numA));
+  
   switch(PMATH_AS_PTR(numA)->type_shift){
     case PMATH_TYPE_SHIFT_INTEGER: {
       switch(PMATH_AS_PTR(numB)->type_shift){
         case PMATH_TYPE_SHIFT_INTEGER:        return _mul_ii(numA, numB);
         case PMATH_TYPE_SHIFT_QUOTIENT:       return _mul_qi(numB, numA);
         case PMATH_TYPE_SHIFT_MP_FLOAT:       return _mul_fi(numB, numA);
-        case PMATH_TYPE_SHIFT_MACHINE_FLOAT:  return _mul_mi(numB, numA);
       }
     } break;
     
@@ -309,7 +329,6 @@ PMATH_PRIVATE pmath_number_t _mul_nn(
         case PMATH_TYPE_SHIFT_INTEGER:        return _mul_qi(numA, numB);
         case PMATH_TYPE_SHIFT_QUOTIENT:       return _mul_qq(numA, numB);
         case PMATH_TYPE_SHIFT_MP_FLOAT:       return _mul_fq(numB, numA);
-        case PMATH_TYPE_SHIFT_MACHINE_FLOAT:  return _mul_mq(numB, numA);
       }
     } break;
     
@@ -318,16 +337,6 @@ PMATH_PRIVATE pmath_number_t _mul_nn(
         case PMATH_TYPE_SHIFT_INTEGER:        return _mul_fi(numA, numB);
         case PMATH_TYPE_SHIFT_QUOTIENT:       return _mul_fq(numA, numB);
         case PMATH_TYPE_SHIFT_MP_FLOAT:       return _mul_ff(numA, numB);
-        case PMATH_TYPE_SHIFT_MACHINE_FLOAT:  return _mul_mf(numB, numA);
-      }
-    } break;
-    
-    case PMATH_TYPE_SHIFT_MACHINE_FLOAT: {
-      switch(PMATH_AS_PTR(numB)->type_shift){
-        case PMATH_TYPE_SHIFT_INTEGER:        return _mul_mi(numA, numB);
-        case PMATH_TYPE_SHIFT_QUOTIENT:       return _mul_mq(numA, numB);
-        case PMATH_TYPE_SHIFT_MP_FLOAT:       return _mul_mf(numA, numB);
-        case PMATH_TYPE_SHIFT_MACHINE_FLOAT:  return _mul_mm(numA, numB);
       }
     } break;
   }
@@ -393,8 +402,7 @@ static void times_2_arg(pmath_t *a, pmath_t *b){
       return;
     }
     
-    if(pmath_instance_of(*a, PMATH_TYPE_FLOAT)
-    && _pmath_is_numeric(*b)){
+    if(pmath_is_real(*a) && _pmath_is_numeric(*b)){
       *b = pmath_approximate(*b, pmath_precision(pmath_ref(*a)), HUGE_VAL);
       return;
     }

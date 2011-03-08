@@ -70,25 +70,25 @@ struct _pmath_quotient_t_{
   pmath_integer_t  denominator;
 };
 
-struct _pmath_mp_float_t{
+struct _pmath_mp_float_t_{
   struct _pmath_t  inherited;
   mpfr_t           value;
   mpfr_t           error;
 };
 
-struct _pmath_machine_float_t{
+struct _pmath_machine_float_t_{
   struct _pmath_t  inherited;
   double           value;
 };
 
-#define PMATH_AS_DOUBLE(objA)      (((struct _pmath_machine_float_t*)PMATH_AS_PTR(objA))->value)
+#define PMATH_AS_DOUBLE(objA)      (((struct _pmath_machine_float_t_*)PMATH_AS_PTR(objA))->value)
 
-#define PMATH_QUOT_NUM(objA)       (((struct _pmath_quotient_t_*)    PMATH_AS_PTR(objA))->numerator)
-#define PMATH_QUOT_DEN(objA)       (((struct _pmath_quotient_t_*)    PMATH_AS_PTR(objA))->denominator)
+#define PMATH_QUOT_NUM(objA)       (((struct _pmath_quotient_t_*)     PMATH_AS_PTR(objA))->numerator)
+#define PMATH_QUOT_DEN(objA)       (((struct _pmath_quotient_t_*)     PMATH_AS_PTR(objA))->denominator)
 
-#define PMATH_AS_MPZ(objA)         (((struct _pmath_integer_t_*)     PMATH_AS_PTR(objA))->value)
-#define PMATH_AS_MP_VALUE(objA)    (((struct _pmath_mp_float_t*)     PMATH_AS_PTR(objA))->value)
-#define PMATH_AS_MP_ERROR(objA)    (((struct _pmath_mp_float_t*)     PMATH_AS_PTR(objA))->error)
+#define PMATH_AS_MPZ(objA)         (((struct _pmath_integer_t_*)      PMATH_AS_PTR(objA))->value)
+#define PMATH_AS_MP_VALUE(objA)    (((struct _pmath_mp_float_t_*)     PMATH_AS_PTR(objA))->value)
+#define PMATH_AS_MP_ERROR(objA)    (((struct _pmath_mp_float_t_*)     PMATH_AS_PTR(objA))->error)
 
 /*============================================================================*/
 

@@ -13,20 +13,68 @@
    \see helpers
   @{
  */
+ 
+/* (big endian notation)
+   
+	seeeeeee_eeeemmmm_mmmmmmmm_mmmmmmmm__mmmmmmmm_mmmmmmmm_mmmmmmmm_mmmmmmmm = ieee double
+	
+	x1111111_1111xxxx_xxxxxxxx_xxxxxxxx__xxxxxxxx_xxxxxxxx_xxxxxxxx_xxxxxxxx = ieee NaN/Inf
+	
+	I assume same endianness for double and integer.
+ */
+
+#define PMATH_TAGMASK_BITCOUNT   12          /* |||||||| |||| */
+#define PMATH_TAGMASK_NONDOUBLE  0x7FF00000U /* 01111111_11110000_00000000_00000000 0...0 : ieee double NaN or Inf */
+#define PMATH_TAGMASK_POINTER    0xFFF00000U /* 11111111_11110000_00000000_00000000 0...0 */
+#define PMATH_TAG_INT32          (PMATH_TAGMASK_NONDOUBLE | 0x20000)
 
 /**\class pmath_t
    \brief The basic type of all pMath objects.
 
    Note that this is not neccessaryly a pointer to some accessible piece of
    memory.
-   Use pmath_instance_of() to determine whether an object is of a specific type
-   or set of types.
+   Use pmath_is_XXX() to determine whether an object is of a specific type.
 
    You must free unused objects with pmath_unref().
  */
-typedef struct{ struct _pmath_t *_obj_ptr; } pmath_t;
+typedef union{
+  struct _pmath_t *_obj_ptr;
+  
+//  uint64_t as_bits;
+//  double   as_double;
+//  
+//	#if PMATH_BITSIZE == 64
+//	struct _pmath_t *as_pointer_64;
+//	#endif
+//	
+//  struct{
+//    #if PMATH_BYTE_ORDER < 0 // little endian 
+//			union{
+//				int32_t  as_int32;
+//				#if PMATH_BITSIZE == 32
+//					struct _pmath_t *as_pointer_32;
+//				#endif
+//			} u;
+//			uint32_t  tag;
+//		#else
+//			uint32_t  tag;
+//			union{
+//				int32_t   as_int32;
+//				#if PMATH_BITSIZE == 32
+//					struct _pmath_t *as_pointer_32;
+//				#endif
+//			} u;
+//		#endif
+//  }s;
+} pmath_t;
 
-#define PMATH_AS_PTR(A)  ((A)._obj_ptr)
+#define PMATH_AS_PTR(OBJ) ((OBJ)._obj_ptr)
+
+//#if PMATH_BITSIZE == 64
+//  #define PMATH_AS_PTR(OBJ)  ((struct _pmath_t*)(((OBJ).as_bits << PMATH_TAGMASK_BITCOUNT) >> PMATH_TAGMASK_BITCOUNT))
+//#elif PMATH_BITSIZE == 32
+//  #define PMATH_AS_PTR(OBJ)  ((OBJ).s.u.as_pointer_32)
+//#endif
 
 PMATH_FORCE_INLINE
 PMATH_INLINE_NODEBUG
@@ -35,6 +83,13 @@ pmath_t PMATH_FROM_PTR(void *p){
   pmath_t r;
   
   r._obj_ptr = (struct _pmath_t*)p;
+//#if PMATH_BITSIZE == 64
+//  r.as_pointer_64 = (struct _pmath_t*)p;
+//  r.s.tag |= PMATH_TAGMASK_POINTER;
+//#elif PMATH_BITSIZE == 32
+//  r.s.tag = PMATH_TAGMASK_POINTER;
+//  r.s.u.as_pointer_32 = (struct _pmath_t*)p;
+//#endif
   return r;
 }
 
@@ -103,7 +158,7 @@ pmath_t PMATH_FROM_PTR(void *p){
 typedef int pmath_type_t;
 
 enum { 
-  PMATH_TYPE_SHIFT_MACHINE_FLOAT = 0,
+  _DEPRECATED_PMATH_TYPE_SHIFT_MACHINE_FLOAT = 0,
   PMATH_TYPE_SHIFT_MP_FLOAT,
   PMATH_TYPE_SHIFT_INTEGER,
   PMATH_TYPE_SHIFT_QUOTIENT,
@@ -125,8 +180,8 @@ enum {
   PMATH_TYPE_QUOTIENT                = 1 << PMATH_TYPE_SHIFT_QUOTIENT,
   PMATH_TYPE_RATIONAL                = PMATH_TYPE_INTEGER | PMATH_TYPE_QUOTIENT,
   PMATH_TYPE_MP_FLOAT                = 1 << PMATH_TYPE_SHIFT_MP_FLOAT,
-  PMATH_TYPE_MACHINE_FLOAT           = 1 << PMATH_TYPE_SHIFT_MACHINE_FLOAT,
-  PMATH_TYPE_FLOAT                   = PMATH_TYPE_MP_FLOAT | PMATH_TYPE_MACHINE_FLOAT,
+  _DEPRECATED_PMATH_TYPE_MACHINE_FLOAT           = 1 << _DEPRECATED_PMATH_TYPE_SHIFT_MACHINE_FLOAT,
+  PMATH_TYPE_FLOAT                   = PMATH_TYPE_MP_FLOAT | _DEPRECATED_PMATH_TYPE_MACHINE_FLOAT,
   PMATH_TYPE_NUMBER                  = PMATH_TYPE_FLOAT | PMATH_TYPE_RATIONAL,
   PMATH_TYPE_STRING                  = 1 << PMATH_TYPE_SHIFT_STRING,
   PMATH_TYPE_SYMBOL                  = 1 << PMATH_TYPE_SHIFT_SYMBOL,

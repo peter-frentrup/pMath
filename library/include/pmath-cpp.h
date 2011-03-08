@@ -69,17 +69,23 @@ namespace pmath{
         return *this;
       }
       
-      /**\brief Check for underlying pMath C API type. */
-      bool instance_of(pmath_type_t type) const throw() {
-        return pmath_instance_of(_obj, type);
-      }
+//      /**\brief Check for underlying pMath C API type. */
+//      bool instance_of(pmath_type_t type) const throw() {
+//        return pmath_instance_of(_obj, type);
+//      }
       
-      bool is_expr()    const throw() { return pmath_is_expr(   _obj); }
-      bool is_integer() const throw() { return pmath_is_integer(_obj); }
-      bool is_null()    const throw() { return pmath_is_null(   _obj); }
-      bool is_number()  const throw() { return pmath_is_number( _obj); }
-      bool is_string()  const throw() { return pmath_is_string( _obj); }
-      bool is_symbol()  const throw() { return pmath_is_symbol( _obj); }
+      bool is_custom()   const throw() { return pmath_is_custom(  _obj); }
+      bool is_double()   const throw() { return pmath_is_double(  _obj); }
+      bool is_expr()     const throw() { return pmath_is_expr(    _obj); }
+      bool is_integer()  const throw() { return pmath_is_integer( _obj); }
+      bool is_mpfloat()  const throw() { return pmath_is_mpfloat( _obj); }
+      bool is_null()     const throw() { return pmath_is_null(    _obj); }
+      bool is_number()   const throw() { return pmath_is_number(  _obj); }
+      bool is_quotient() const throw() { return pmath_is_quotient(_obj); }
+      bool is_rational() const throw() { return pmath_is_rational(_obj); }
+      bool is_real()     const throw() { return pmath_is_real(    _obj); }
+      bool is_string()   const throw() { return pmath_is_string(  _obj); }
+      bool is_symbol()   const throw() { return pmath_is_symbol(  _obj); }
       
       /**\brief Get a hash value. */
       unsigned int hash() const throw() {

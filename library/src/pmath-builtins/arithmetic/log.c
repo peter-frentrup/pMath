@@ -164,8 +164,8 @@ PMATH_PRIVATE pmath_t builtin_log(pmath_expr_t expr){
     return expr;
   }
   
-  if(pmath_instance_of(base, PMATH_TYPE_RATIONAL) 
-  && pmath_instance_of(x,    PMATH_TYPE_RATIONAL) 
+  if(pmath_is_rational(base) 
+  && pmath_is_rational(x) 
   && pmath_number_sign(base) > 0
   && pmath_number_sign(x)    > 0){
     pmath_t result = logrr(base, x);
@@ -217,8 +217,7 @@ PMATH_PRIVATE pmath_t builtin_log(pmath_expr_t expr){
     return expr;
   }
   
-  if(pmath_instance_of(x, PMATH_TYPE_MP_FLOAT)
-  && pmath_number_sign(x) > 0){
+  if(pmath_is_mpfloat(x) && pmath_number_sign(x) > 0){
     /* z = Log(x)
        error = dz = dx/x
        bits(z)  = -Log(2, dz/z) = -Log(2, dx/x/Log(x)) 

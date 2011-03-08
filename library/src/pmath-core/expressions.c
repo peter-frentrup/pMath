@@ -1402,8 +1402,8 @@ static void write_ex(
     write_expr_ex(obj, options, priority, write, user);
   }
   else if(pmath_is_number(obj)
-  && ((priority > PRIO_TIMES && pmath_number_sign(obj) < 0)
-   || (priority > PRIO_FACTOR && pmath_instance_of(obj, PMATH_TYPE_QUOTIENT)))){
+  && ((priority > PRIO_TIMES  && pmath_number_sign(obj) < 0)
+   || (priority > PRIO_FACTOR && pmath_is_quotient(obj)))){
     WRITE_CSTR("(");
 
     pmath_write(obj, options, write, user);

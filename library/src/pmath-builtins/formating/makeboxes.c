@@ -5,6 +5,7 @@
 #include <pmath-language/tokens.h>
 
 #include <pmath-util/concurrency/threads-private.h>
+#include <pmath-util/debug.h>
 #include <pmath-util/emit-and-gather.h>
 #include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
@@ -689,7 +690,7 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj);
         continue;
       }
       
-      if(pmath_instance_of(factor, PMATH_TYPE_QUOTIENT)){
+      if(pmath_is_quotient(factor)){
         pmath_t num = pmath_rational_numerator(factor);
         pmath_t den = pmath_rational_denominator(factor);
         
@@ -2977,7 +2978,21 @@ static pmath_t expr_to_boxes(pmath_thread_t thread, pmath_expr_t expr){
 static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj){
   if(pmath_is_null(obj))
     return PMATH_C_STRING("/\\/");
+  
+  if(pmath_is_double(obj)){
+    pmath_string_t s = PMATH_NULL;
+    pmath_write(obj, 0, (pmath_write_func_t)_pmath_write_to_string, &s);
+    pmath_unref(obj);
 
+    if(pmath_string_length(s) > 0
+    && *pmath_string_buffer(s) == '-'){
+      pmath_string_t minus = pmath_string_part(pmath_ref(s), 0, 1);
+      return pmath_build_value("(oo)", minus, pmath_string_part(s, 1, -1));
+    }
+
+    return s;
+  }
+  
   if(pmath_is_magic(obj)){
     char s[40];
     
@@ -2994,7 +3009,12 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj){
   if(thread->boxform < BOXFORM_OUTPUT
   && user_make_boxes(&obj))
     return obj;
-
+  
+  if(!pmath_is_pointer(obj)){
+    pmath_debug_print("makeboxes: unexpected\n");
+    return PMATH_C_STRING("/\\/");
+  }
+  
   switch(PMATH_AS_PTR(obj)->type_shift){
     case PMATH_TYPE_SHIFT_SYMBOL: {
       pmath_string_t s = PMATH_NULL;
@@ -3030,7 +3050,6 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj){
       return expr_to_boxes(thread, obj);
     }
     
-    case PMATH_TYPE_SHIFT_MACHINE_FLOAT:
     case PMATH_TYPE_SHIFT_MP_FLOAT:
     case PMATH_TYPE_SHIFT_INTEGER: {
       pmath_string_t s = PMATH_NULL;

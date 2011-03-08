@@ -60,7 +60,6 @@ void ButtonBox::resize(Context *context){
 
 Expr ButtonBox::to_pmath(bool parseable){
   Gather g;
-  pmath_gather_begin(PMATH_NULL);
   
   g.emit(_content->to_pmath(parseable));
   

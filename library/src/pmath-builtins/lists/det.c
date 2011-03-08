@@ -253,7 +253,7 @@ static pmath_bool_t use_symbolic_det(pmath_expr_t matrix){ // wont be freed
     for(j = pmath_expr_length(row);j > 0;--j){
       pmath_t obj = pmath_expr_get_item(row, j);
       
-      if(pmath_instance_of(obj, PMATH_TYPE_FLOAT)){
+      if(pmath_is_real(obj)){
         inexact = TRUE;
       }
       else if(!pmath_is_number(obj)){
