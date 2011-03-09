@@ -625,7 +625,7 @@ static pmath_t deserialize(struct deserializer_t *info){
       mpfr_mul_2si(PMATH_AS_MP_VALUE(result), PMATH_AS_MP_VALUE(result), exp, MPFR_RNDN);
       pmath_unref(mant);
       
-      mant = pmath_float_new_d(mpfr_get_d(PMATH_AS_MP_VALUE(result), MPFR_RNDN));
+      mant = PMATH_FROM_DOUBLE(mpfr_get_d(PMATH_AS_MP_VALUE(result), MPFR_RNDN));
       pmath_unref(result);
       
       return mant;

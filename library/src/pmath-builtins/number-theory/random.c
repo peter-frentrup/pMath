@@ -106,7 +106,7 @@ static pmath_expr_t random_array(
             pmath_unref(result);
             
             return stretch(
-              pmath_float_new_d(res), 
+              PMATH_FROM_DOUBLE(res), 
               pmath_ref(data->min), 
               pmath_ref(data->max));
           }

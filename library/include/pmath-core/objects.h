@@ -3,6 +3,7 @@
 
 #include <pmath-config.h>
 #include <pmath-types.h>
+#include <assert.h>
 
 /**\defgroup objects Objects - the Base of pMath
    \brief The basic class for all pMath objects.
@@ -26,8 +27,9 @@
 #define PMATH_TAGMASK_BITCOUNT   12          /* |||||||| |||| */
 #define PMATH_TAGMASK_NONDOUBLE  0x7FF00000U /* 01111111_11110000_00000000_00000000 0...0 : ieee double NaN or Inf */
 #define PMATH_TAGMASK_POINTER    0xFFF00000U /* 11111111_11110000_00000000_00000000 0...0 */
-#define PMATH_TAG_MAGIC          (PMATH_TAGMASK_NONDOUBLE | 0x20000)
-//#define PMATH_TAG_INT32          (PMATH_TAGMASK_NONDOUBLE | 0x10000)
+#define PMATH_TAG_INVALID        (PMATH_TAGMASK_NONDOUBLE | 0xFFFFF)
+#define PMATH_TAG_MAGIC          (PMATH_TAGMASK_NONDOUBLE | 0x10000)
+//#define PMATH_TAG_INT32          (PMATH_TAGMASK_NONDOUBLE | 0x20000)
 
 /**\class pmath_t
    \brief The basic type of all pMath objects.
@@ -74,6 +76,7 @@ pmath_t PMATH_FROM_TAG(uint32_t tag, uint32_t value){
   pmath_t r;
   
   assert((tag & PMATH_TAGMASK_POINTER) == PMATH_TAGMASK_NONDOUBLE);
+  assert(tag != PMATH_TAG_INVALID);
   
   r.s.tag = tag;
   r.s.u.as_int32 = value;
@@ -98,6 +101,13 @@ pmath_t PMATH_FROM_PTR(void *p){
   return r;
 }
 
+#define PMATH_THREAD_KEY_PARSESYMBOLS     PMATH_FROM_TAG(PMATH_TAG_MAGIC, 252)
+#define PMATH_THREAD_KEY_PARSERARGUMENTS  PMATH_FROM_TAG(PMATH_TAG_MAGIC, 253)
+#define PMATH_ABORT_EXCEPTION             PMATH_FROM_TAG(PMATH_TAG_MAGIC, 254)
+#define PMATH_UNDEFINED                   PMATH_FROM_TAG(PMATH_TAG_MAGIC, 255)
+#define PMATH_NULL                        PMATH_FROM_PTR(NULL)
+
+
 /**\brief The type or class of a pMath object.
 
    This is a bitset of the \c PMATH_TYPE_XXX constants:
@@ -117,13 +127,8 @@ pmath_t PMATH_FROM_PTR(void *p){
      to \ref pmath_integer_t, \ref pmath_rational_t and \ref pmath_number_t.
 
    - \c PMATH_TYPE_QUOTIENT: The object is a reduced quotient of two 
-     integer values, where the denominator is never 0 or 1. Because of this, you 
-     almost never test for this type, but for PMATH_TYPE_RATIONAL, since the 
-     result of an operation on two quotients may be an integer. You can cast 
+     integer values, where the denominator is never 0 or 1. You can cast 
      quotient objects to pmath_rational_t and thus to pmath_number_t too.
-
-   - \c PMATH_TYPE_RATIONAL: The object is either an integer or a quotient. 
-     You can cast it to pmath_rational_t and thus to pmath_number_t too.
 
    - \c PMATH_TYPE_MP_FLOAT: The object is a floating point number with 
      arbitrary precision. You can cast it to \ref pmath_float_t and 
@@ -133,38 +138,19 @@ pmath_t PMATH_FROM_PTR(void *p){
      with machine precision. You can cast it to pmath_float_t and 
      pmath_number_t.
 
-   - \c PMATH_TYPE_FLOAT: The object is either PMATH_TYPE_MP_FLOAT or 
-     PMATH_TYPE_MACHINE_FLOAT.
-
-   - \c PMATH_TYPE_NUMBER: The object is a numerical value (integer, 
-     quotient, floating point number). You can cast it to pmath_number_t.
-
-     Note that complex numbers are stored as expressions and thus are not
-     numbers in this sense. Additionally, algebraic and special constants as 
-     Sqrt(2) or Pi are not numbers, but symbols or expressiones (e.g. Sqrt(2)).
-
    - \c PMATH_TYPE_STRING: The object is a string. You can cast it to
      \ref pmath_string_t.
 
    - \c PMATH_TYPE_SYMBOL: The object is a symbol. You can cast it to
      \ref pmath_symbol_t.
 
-   - \c PMATH_TYPE_EXPRESSION: The object is an expression. You can cast it to
-     \ref pmath_expr_t.
-
    - \c PMATH_TYPE_CUSTOM: The object is a custom object. You can cast it to
      \ref pmath_custom_t.
-
-   - \c PMATH_TYPE_EVALUATABLE: The object is evaluatable and not PMATH_NULL. That 
-     means, if a symbol has this object as its value, the object will be 
-     returned. Function definition rules and custom objects are an example of
-     non-evalutable objects. 
  */
 typedef int pmath_type_t;
 
 enum { 
-  _DEPRECATED_PMATH_TYPE_SHIFT_MACHINE_FLOAT = 0,
-  PMATH_TYPE_SHIFT_MP_FLOAT,
+  PMATH_TYPE_SHIFT_MP_FLOAT = 0,
   PMATH_TYPE_SHIFT_INTEGER,
   PMATH_TYPE_SHIFT_QUOTIENT,
   PMATH_TYPE_SHIFT_STRING,
@@ -182,24 +168,15 @@ enum {
 enum { 
   PMATH_TYPE_INTEGER                 = 1 << PMATH_TYPE_SHIFT_INTEGER,
   PMATH_TYPE_QUOTIENT                = 1 << PMATH_TYPE_SHIFT_QUOTIENT,
-  PMATH_TYPE_RATIONAL                = PMATH_TYPE_INTEGER | PMATH_TYPE_QUOTIENT,
   PMATH_TYPE_MP_FLOAT                = 1 << PMATH_TYPE_SHIFT_MP_FLOAT,
-  PMATH_TYPE_FLOAT                   = PMATH_TYPE_MP_FLOAT | _DEPRECATED_PMATH_TYPE_MACHINE_FLOAT,
-  PMATH_TYPE_NUMBER                  = PMATH_TYPE_FLOAT | PMATH_TYPE_RATIONAL,
   PMATH_TYPE_STRING                  = 1 << PMATH_TYPE_SHIFT_STRING,
   PMATH_TYPE_SYMBOL                  = 1 << PMATH_TYPE_SHIFT_SYMBOL,
   PMATH_TYPE_EXPRESSION_GENERAL      = 1 << PMATH_TYPE_SHIFT_EXPRESSION_GENERAL,
   PMATH_TYPE_EXPRESSION_GENERAL_PART = 1 << PMATH_TYPE_SHIFT_EXPRESSION_GENERAL_PART,
   PMATH_TYPE_EXPRESSION              = PMATH_TYPE_EXPRESSION_GENERAL | PMATH_TYPE_EXPRESSION_GENERAL_PART,
   PMATH_TYPE_CUSTOM                  = 1 << PMATH_TYPE_SHIFT_CUSTOM,
-  PMATH_TYPE_EVALUATABLE             = PMATH_TYPE_NUMBER | PMATH_TYPE_STRING | PMATH_TYPE_SYMBOL | PMATH_TYPE_EXPRESSION
 };
 
-#define PMATH_THREAD_KEY_PARSESYMBOLS     PMATH_FROM_TAG(PMATH_TAG_MAGIC, 252)
-#define PMATH_THREAD_KEY_PARSERARGUMENTS  PMATH_FROM_TAG(PMATH_TAG_MAGIC, 253)
-#define PMATH_ABORT_EXCEPTION             PMATH_FROM_TAG(PMATH_TAG_MAGIC, 254)
-#define PMATH_UNDEFINED                   PMATH_FROM_TAG(PMATH_TAG_MAGIC, 255)
-#define PMATH_NULL                        PMATH_FROM_PTR(NULL)
 
 /**\brief Options for pmath_write().
 

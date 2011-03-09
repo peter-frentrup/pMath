@@ -306,7 +306,7 @@ pmath_t pmath_set_precision(pmath_t obj, double prec){
       
       if(isfinite(d)){
         pmath_unref(obj);
-        return pmath_float_new_d(d);
+        return PMATH_FROM_DOUBLE(d);
       }
       
       prec = DBL_MANT_DIG;  

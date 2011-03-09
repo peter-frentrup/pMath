@@ -24,14 +24,12 @@ typedef struct{
   pmath_equal_func_t           equals;
   pmath_compare_func_t         compare;
   _pmath_object_write_func_t   write;
-  //pmath_proc_t                 write_boxes;
 } _pmath_type_imp_t;
 
 PMATH_PRIVATE _pmath_type_imp_t pmath_type_imps[PMATH_TYPE_SHIFT_COUNT];
 #ifdef PMATH_DEBUG_MEMORY
   static size_t object_alloc_stats[PMATH_TYPE_SHIFT_COUNT];
   static char *type_names[PMATH_TYPE_SHIFT_COUNT] = {
-    "float (machine prec)",
     "float (multi prec)",
     "integer",
     "quotient",
@@ -101,16 +99,17 @@ PMATH_API void _pmath_destroy_object(pmath_t obj){
 }
 
 PMATH_API unsigned int pmath_hash(pmath_t obj){
-  pmath_hash_func_t hash;
+  if(pmath_is_pointer(obj)){
+    pmath_hash_func_t hash;
+    
+    assert(PMATH_VALID_TYPE_SHIFT(PMATH_AS_PTR(obj)->type_shift));
+    
+    hash = pmath_type_imps[PMATH_AS_PTR(obj)->type_shift].hash;
+    assert(hash != NULL);
+    return hash(obj);
+  }
   
-  if(pmath_is_magic(obj))
-    return (unsigned int)((uintptr_t)PMATH_AS_PTR(obj)); // this is very poor!
-
-  assert(PMATH_VALID_TYPE_SHIFT(PMATH_AS_PTR(obj)->type_shift));
-  
-  hash = pmath_type_imps[PMATH_AS_PTR(obj)->type_shift].hash;
-  assert(hash != NULL);
-  return hash(obj);
+  incremental_hash(&obj, sizeof(obj.pmath_t), 0);
 }
 
 #ifdef pmath_equals
@@ -121,25 +120,40 @@ PMATH_API pmath_bool_t pmath_equals(
   pmath_t objA,
   pmath_t objB
 ){
-  pmath_equal_func_t eqA, eqB;
+  pmath_equal_func_t   eqA,  eqB;
   pmath_compare_func_t cmpA, cmpB;
   
   if(pmath_same(objA, objB))
     return TRUE;
-    
-  if(pmath_is_magic(objA) || pmath_is_magic(objB))
+  
+  if(pmath_is_pointer(objA)){
+    eqA  = pmath_type_imps[PMATH_AS_PTR(objA)->type_shift].equals;
+    cmpA = pmath_type_imps[PMATH_AS_PTR(objA)->type_shift].compare;
+  }
+  else if(pmath_is_double(objA)){
+    eqA  = _pmath_equal_numbers;
+    cmpA = _pmath_compare_numbers;
+  }
+  else
     return FALSE;
-
-  assert(PMATH_VALID_TYPE_SHIFT(PMATH_AS_PTR(objA)->type_shift));
-  assert(PMATH_VALID_TYPE_SHIFT(PMATH_AS_PTR(objB)->type_shift));
-  eqA = pmath_type_imps[PMATH_AS_PTR(objA)->type_shift].equals;
-  eqB = pmath_type_imps[PMATH_AS_PTR(objB)->type_shift].equals;
+  
+  if(pmath_is_pointer(objB)){
+    eqB  = pmath_type_imps[PMATH_AS_PTR(objB)->type_shift].equals;
+    cmpB = pmath_type_imps[PMATH_AS_PTR(objB)->type_shift].compare;
+  }
+  else if(pmath_is_double(objB)){
+    eqB  = _pmath_equal_numbers;
+    cmpB = _pmath_compare_numbers;
+  }
+  else
+    return FALSE;
+  
   if(eqA && eqA == eqB)
     return eqA(objA, objB);
 
-  cmpA = pmath_type_imps[PMATH_AS_PTR(objA)->type_shift].compare;
-  cmpB = pmath_type_imps[PMATH_AS_PTR(objB)->type_shift].compare;
   assert(cmpA != NULL);
+  assert(cmpB != NULL);
+
   if(cmpA == cmpB)
     return 0 == cmpA(objA, objB);
 
@@ -147,30 +161,60 @@ PMATH_API pmath_bool_t pmath_equals(
 }
 
 PMATH_API int pmath_compare(pmath_t objA, pmath_t objB){
-  pmath_compare_func_t cmpA, cmpB;
+  pmath_compare_func_t cmpA = NULL;
+  pmath_compare_func_t cmpB = NULL;
   
   if(pmath_same(objA, objB))
     return 0;
     
-  if(pmath_is_magic(objA)){
-    if(pmath_is_magic(objB))
-      return (uintptr_t)PMATH_AS_PTR(objA) > (uintptr_t)PMATH_AS_PTR(objB) ? -1 : 1;
+  if(pmath_is_pointer(objA)){
+    cmpA = pmath_type_imps[PMATH_AS_PTR(objA)->type_shift].compare;
+  }
+  else if(pmath_is_double(objA)){
+    cmpA = _pmath_compare_numbers;
+  }
+  
+  if(pmath_is_pointer(objB)){
+    cmpB = pmath_type_imps[PMATH_AS_PTR(objB)->type_shift].compare;
+  }
+  else if(pmath_is_double(objB)){
+    cmpB = _pmath_compare_numbers;
+  }
+  
+  if(cmpA && cmpA == cmpB){
+    return cmpA(objA, objB);
+  }
+  
+  if(pmath_is_double(objA))
+    return -1;
+  
+  if(pmath_is_double(objB))
+    return 1;
+  
+  if(pmath_is_pointer(objA)){
+    if(pmath_is_pointer(objB)){
+      return PMATH_AS_PTR(objA)->type_shift - PMATH_AS_PTR(objB)->type_shift;
+    }
+    
     return 1;
   }
   
-  if(pmath_is_magic(objB)){
+  if(pmath_is_pointer(objB))
+    return -1
+  
+  if(PMATH_AS_TAG(objA) < PMATH_AS_TAG(objB))
     return -1;
-  }
-
-  assert(PMATH_VALID_TYPE_SHIFT(PMATH_AS_PTR(objA)->type_shift));
-  assert(PMATH_VALID_TYPE_SHIFT(PMATH_AS_PTR(objB)->type_shift));
-  cmpA = pmath_type_imps[PMATH_AS_PTR(objA)->type_shift].compare;
-  cmpB = pmath_type_imps[PMATH_AS_PTR(objB)->type_shift].compare;
-  assert(cmpA != NULL);
-  if(cmpA == cmpB)
-    return cmpA(objA, objB);
-
-  return PMATH_AS_PTR(objA)->type_shift - PMATH_AS_PTR(objB)->type_shift;
+  
+  if(PMATH_AS_TAG(objA) > PMATH_AS_TAG(objB))
+    return 1;
+  
+  if(PMATH_AS_INT32(objA) < PMATH_AS_INT32(objB))
+    return -1;
+  
+  if(PMATH_AS_INT32(objA) > PMATH_AS_INT32(objB))
+    return 1;
+  
+  return 0;
 }
 
 PMATH_API void pmath_write(
@@ -180,39 +224,53 @@ PMATH_API void pmath_write(
   void                   *user
 ){
   assert(write != NULL);
-
-  if(pmath_is_magic(obj)){
-    char s[30];
-    write_cstr("/\\/", write, user);
-    
-    if(!pmath_is_null(obj)){
-      snprintf(s, sizeof(s), " /* 0x%"PRIxPTR" */", (uintptr_t)PMATH_AS_PTR(obj));
-      write_cstr(s, write, user);
+  
+  if(pmath_is_pointer(obj)){
+    if(pmath_is_null(obj)){
+      write_cstr("/\\/", write, user);
+      return;
     }
+    
+    #ifdef PMATH_DEBUG_MEMORY
+    if(PMATH_AS_PTR(obj)->refcount <= 0){
+      write_cstr("[NOREF: ", write, user);
+    }
+    #endif
+    
+    assert(PMATH_VALID_TYPE_SHIFT(PMATH_AS_PTR(obj)->type_shift));
+    
+    if(!pmath_type_imps[PMATH_AS_PTR(obj)->type_shift].write){
+      char s[100];
+      snprintf(s, sizeof(s), "<<\? 0x%"PRIxPTR" \?>>", (uintptr_t)PMATH_AS_PTR(obj));
+      write_cstr(s, write, user);
+      return;
+    }
+    else
+      pmath_type_imps[PMATH_AS_PTR(obj)->type_shift].write(obj, options, write, user);
+  
+    #ifdef PMATH_DEBUG_MEMORY
+    if(PMATH_AS_PTR(obj)->refcount <= 0){
+      write_cstr("]", write, user);
+    }
+    #endif
+    
     return;
   }
   
-  #ifdef PMATH_DEBUG_MEMORY
-  if(PMATH_AS_PTR(obj)->refcount <= 0){
-    write_cstr("[NOREF: ", write, user);
+  if(pmath_is_double(obj)){
+    _pmath_write_machine_float(obj, options, write, user);
+    return;
   }
-  #endif
-
-  assert(PMATH_VALID_TYPE_SHIFT(PMATH_AS_PTR(obj)->type_shift));
-  if(!pmath_type_imps[PMATH_AS_PTR(obj)->type_shift].write){
-    char s[100];
-    snprintf(s, sizeof(s), "<<\? 0x%"PRIxPTR" \?>>", (uintptr_t)PMATH_AS_PTR(obj));
+  
+  {
+    char s[40];
+    
+    snprintf(s, sizeof(s), "/\\/ /* %d, 0x%x */", 
+      (int)PMATH_AS_TAG(obj),
+      (int)PMATH_AS_INT32(obj));
+    
     write_cstr(s, write, user);
-    return;
   }
-  else
-    pmath_type_imps[PMATH_AS_PTR(obj)->type_shift].write(obj, options, write, user);
-  
-  #ifdef PMATH_DEBUG_MEMORY
-  if(PMATH_AS_PTR(obj)->refcount <= 0){
-    write_cstr("]", write, user);
-  }
-  #endif
 }
 
 /*----------------------------------------------------------------------------*/

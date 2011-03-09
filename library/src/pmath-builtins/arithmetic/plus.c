@@ -274,7 +274,7 @@ static pmath_t _add_mi(
   
   pmath_unref(intB);
   pmath_unref(floatA);
-  return pmath_float_new_d(d);
+  return PMATH_FROM_DOUBLE(d);
 }
 
 static pmath_t _add_mq(
@@ -296,7 +296,7 @@ static pmath_t _add_mq(
   
   pmath_unref(quotB);
   pmath_unref(floatA);
-  return pmath_float_new_d(d);
+  return PMATH_FROM_DOUBLE(d);
 }
 
 static pmath_t _add_mf(
@@ -315,7 +315,7 @@ static pmath_t _add_mf(
   
   pmath_unref(floatB);
   pmath_unref(floatA);
-  return pmath_float_new_d(d);
+  return PMATH_FROM_DOUBLE(d);
 }
 
 static pmath_t _add_mm(
@@ -337,7 +337,7 @@ static pmath_t _add_mm(
   
   pmath_unref(floatA);
   pmath_unref(floatB);
-  return pmath_float_new_d(d);
+  return PMATH_FROM_DOUBLE(d);
 }
 
 PMATH_PRIVATE pmath_t _add_nn(

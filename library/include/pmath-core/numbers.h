@@ -33,8 +33,6 @@
    Because pmath_integer_t is derived from pmath_number_t, you can use pMath
    integers wherever a pmath_number_t is accepted.
    
-   The \ref pmath_type_t of numbers is \c PMATH_TYPE_NUMBER.
-   
    \see objects
  */
 typedef pmath_t pmath_number_t;
@@ -45,8 +43,6 @@ typedef pmath_t pmath_number_t;
    
    Because pmath_rational_t is derived from pmath_number_t, you can use pMath
    integers wherever a pmath_number_t is accepted.
-   
-   The \ref pmath_type_t of rational numbers is \c PMATH_TYPE_RATIONAL.
  */
 typedef pmath_number_t pmath_rational_t;
 
@@ -68,10 +64,7 @@ typedef pmath_rational_t pmath_integer_t;
    Because pmath_quotient_t is derived from pmath_rational_t, you can use pMath
    integers wherever a pmath_rational_t is accepted.
    
-   The \ref pmath_type_t of quotients is \c PMATH_TYPE_QUOTIENT. However, you 
-   rarely test on this but on \c PMATH_TYPE_RATIONAL, because quotients whose 
-   denominator divides the numerator without a remainder, are converted to 
-   \ref pmath_integer_t automatically.
+   The \ref pmath_type_t of quotients is \c PMATH_TYPE_QUOTIENT.
  */
 typedef pmath_rational_t pmath_quotient_t;
 
@@ -265,15 +258,6 @@ pmath_number_t pmath_float_new_str(
   pmath_precision_control_t precision_control,
   double                    base_precision_accuracy);
   
-/**\brief Create a machine-precision floating point number from a double.
-   \memberof pmath_float_t
-   \param dbl A double value.
-   \return A pMath floating point number with the specified value or PMATH_NULL.
- */
-PMATH_API 
-PMATH_ATTRIBUTE_USE_RESULT
-pmath_float_t pmath_float_new_d(double dbl);
-
 /*============================================================================*/
 
 /**\brief Find out whether a pMath integer fits into a signed long int.

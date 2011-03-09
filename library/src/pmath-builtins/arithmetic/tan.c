@@ -25,7 +25,7 @@ PMATH_PRIVATE pmath_t builtin_tan(pmath_expr_t expr){
     pmath_unref(x);
     pmath_unref(expr);
     if(isfinite(res))
-      return pmath_float_new_d(res);
+      return PMATH_FROM_DOUBLE(res);
     
     return CINFTY;
   }

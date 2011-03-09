@@ -24,6 +24,6 @@ PMATH_PRIVATE pmath_t builtin_timing(pmath_expr_t expr){
   
   return pmath_expr_new_extended(
     pmath_ref(PMATH_SYMBOL_LIST), 2,
-    pmath_float_new_d(end - start),
+    PMATH_FROM_DOUBLE(end - start),
     obj);
 }

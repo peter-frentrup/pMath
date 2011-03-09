@@ -344,7 +344,7 @@ int _pmath_matrix_ludecomp(
   
   if(isfinite(prec)){
     pmath_t tiny = pmath_evaluate(
-      POW(INT(2), pmath_set_precision(pmath_float_new_d(-prec), prec)));
+      POW(INT(2), pmath_set_precision(PMATH_FROM_DOUBLE(-prec), prec)));
     
     int sgn = numeric_ludecomp(matrix, perm, sing_fast_exit, tiny);
     
@@ -353,7 +353,7 @@ int _pmath_matrix_ludecomp(
   }
   
   if(prec < 0){
-    pmath_t tiny = pmath_float_new_d(DBL_EPSILON);
+    pmath_t tiny = PMATH_FROM_DOUBLE(DBL_EPSILON);
     
     int sgn = numeric_ludecomp(matrix, perm, sing_fast_exit, tiny);
     

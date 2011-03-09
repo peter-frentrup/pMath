@@ -44,7 +44,7 @@ PMATH_PRIVATE pmath_t builtin_clock(pmath_expr_t expr){
       pmath_integer_new_si((long)thread->current_dynamic_id));
     pmath_unref(pmath_evaluate(obj));
   
-    return pmath_float_new_d(now - floor(now));
+    return PMATH_FROM_DOUBLE(now - floor(now));
   }
   
   if(exprlen > 3){
@@ -257,5 +257,5 @@ PMATH_PRIVATE pmath_t builtin_clock(pmath_expr_t expr){
     pmath_unref(max);
   }
   
-  return PLUS(min, TIMES(pmath_float_new_d(now), delta));
+  return PLUS(min, TIMES(PMATH_FROM_DOUBLE(now), delta));
 }

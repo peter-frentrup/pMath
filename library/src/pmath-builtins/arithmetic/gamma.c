@@ -165,7 +165,7 @@ PMATH_PRIVATE pmath_t builtin_gamma(pmath_expr_t expr){
 //        pmath_unref((pmath_t)result);
 //        pmath_unref(z);
 //        pmath_unref(expr);
-//        return pmath_float_new_d(d);
+//        return PMATH_FROM_DOUBLE(d);
 //      }
 //
 //      pmath_unref(z);

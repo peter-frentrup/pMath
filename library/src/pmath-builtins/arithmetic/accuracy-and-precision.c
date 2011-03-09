@@ -20,7 +20,7 @@ pmath_t builtin_accuracy(pmath_expr_t expr){
   acc = pmath_accuracy(expr);
   
   if(isfinite(acc))
-    return pmath_float_new_d(acc * LOG10_2);
+    return PMATH_FROM_DOUBLE(acc * LOG10_2);
   
   return pmath_ref(_pmath_object_infinity);
 }
@@ -37,7 +37,7 @@ pmath_t builtin_precision(pmath_expr_t expr){
   prec = pmath_precision(expr);
   
   if(isfinite(prec))
-    return pmath_float_new_d(prec * LOG10_2);
+    return PMATH_FROM_DOUBLE(prec * LOG10_2);
   
   if(prec < 0)
     return pmath_ref(PMATH_SYMBOL_MACHINEPRECISION);

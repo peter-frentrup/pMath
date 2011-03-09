@@ -76,13 +76,6 @@ struct _pmath_mp_float_t_{
   mpfr_t           error;
 };
 
-struct _pmath_machine_float_t_{
-  struct _pmath_t  inherited;
-  double           value;
-};
-
-#define PMATH_AS_DOUBLE(objA)      (((struct _pmath_machine_float_t_*)PMATH_AS_PTR(objA))->value)
-
 #define PMATH_QUOT_NUM(objA)       (((struct _pmath_quotient_t_*)     PMATH_AS_PTR(objA))->numerator)
 #define PMATH_QUOT_DEN(objA)       (((struct _pmath_quotient_t_*)     PMATH_AS_PTR(objA))->denominator)
 
@@ -136,10 +129,22 @@ PMATH_ATTRIBUTE_USE_RESULT
 // struct _pmath_mp_float_t*
 pmath_float_t _pmath_convert_to_mp_float(pmath_float_t n); // n will be freed
 
+PMATH_PRIVATE 
+void _pmath_write_machine_float(
+  pmath_t                f,
+  pmath_write_options_t  options,
+  pmath_write_func_t     write,
+  void                  *user);
+  
 PMATH_PRIVATE
-PMATH_ATTRIBUTE_USE_RESULT 
-// struct _pmath_machine_float_t *
-pmath_float_t _pmath_create_machine_float(double value);
+int _pmath_compare_numbers(
+  pmath_number_t numA,
+  pmath_number_t numB);
+  
+PMATH_PRIVATE
+pmath_bool_t _pmath_equal_numbers(
+  pmath_number_t numA,
+  pmath_number_t numB);
 
 PMATH_PRIVATE
 mp_prec_t _pmath_float_precision( // 0 = MachinePrecision

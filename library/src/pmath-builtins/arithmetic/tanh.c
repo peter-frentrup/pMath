@@ -24,7 +24,7 @@ PMATH_PRIVATE pmath_t builtin_tanh(pmath_expr_t expr){
     pmath_unref(x);
     if(isfinite(res)){
       pmath_unref(expr);
-      return pmath_float_new_d(res);
+      return PMATH_FROM_DOUBLE(res);
     }
     
     x = _pmath_create_mp_float_from_d(d);

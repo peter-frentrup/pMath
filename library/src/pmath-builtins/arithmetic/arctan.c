@@ -29,7 +29,7 @@ PMATH_PRIVATE pmath_t builtin_arctan(pmath_expr_t expr){
     pmath_unref(expr);
     pmath_unref(x);
     
-    return pmath_float_new_d(atan(d));
+    return PMATH_FROM_DOUBLE(atan(d));
   }
   
   if(pmath_is_mpfloat(x)){

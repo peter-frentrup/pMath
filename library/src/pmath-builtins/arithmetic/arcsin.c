@@ -51,7 +51,7 @@ PMATH_PRIVATE pmath_t builtin_arcsin(pmath_expr_t expr){
       return arcsin_as_log(x);
     
     pmath_unref(x);
-    return pmath_float_new_d(asin(d));
+    return PMATH_FROM_DOUBLE(asin(d));
   }
   
   if(pmath_is_mpfloat(x)){ 

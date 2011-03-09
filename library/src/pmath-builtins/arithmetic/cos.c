@@ -24,7 +24,7 @@ PMATH_PRIVATE pmath_t builtin_cos(pmath_expr_t expr){
     
     pmath_unref(x);
     pmath_unref(expr);
-    return pmath_float_new_d(res);
+    return PMATH_FROM_DOUBLE(res);
   }
   
   if(pmath_is_real(x)){

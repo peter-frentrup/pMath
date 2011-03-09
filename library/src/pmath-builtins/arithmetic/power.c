@@ -370,7 +370,7 @@ static pmath_number_t _pow_ni_abs(
     if(isfinite(d) 
     && ((d == 0) == (PMATH_AS_DOUBLE(base) == 0))){
       pmath_unref(base);
-      return pmath_float_new_d(d);
+      return PMATH_FROM_DOUBLE(d);
     }
     
     base = _pmath_convert_to_mp_float(base);
@@ -431,7 +431,7 @@ static pmath_number_t divide(
     y = 1/y;
     if(isfinite(y) && y != 0){
       pmath_unref(b);
-      return _mul_nn(a, _pmath_create_machine_float(y));
+      return _mul_nn(a, PMATH_FROM_DOUBLE(y));
     }
     
     b = _pmath_convert_to_mp_float(b);
@@ -594,7 +594,7 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr){
             
             pmath_unref(exponent);
             pmath_unref(base);
-            return pmath_float_new_d(1.0);
+            return PMATH_FROM_DOUBLE(1.0);
           }
           
           if(d == 0 || d == 1){
@@ -671,10 +671,10 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr){
               pmath_unref(base);
               pmath_unref(exponent);
               switch(ue){
-                case 0: return pmath_float_new_d(1.0);
-                case 1: return COMPLEX(INT(0), pmath_float_new_d(d));
-                case 2: return pmath_float_new_d(-1.0);
-                case 3: return COMPLEX(INT(0), pmath_float_new_d(-d));
+                case 0: return PMATH_FROM_DOUBLE(1.0);
+                case 1: return COMPLEX(INT(0), PMATH_FROM_DOUBLE(d));
+                case 2: return PMATH_FROM_DOUBLE(-1.0);
+                case 3: return COMPLEX(INT(0), PMATH_FROM_DOUBLE(-d));
               }
               
               assert("unreachable code reached" && 0);
@@ -724,7 +724,7 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr){
         pmath_unref(expr);
         pmath_unref(exponent);
         pmath_unref(base);
-        return pmath_float_new_d(result);
+        return PMATH_FROM_DOUBLE(result);
       }
       
       base = _pmath_convert_to_mp_float(base);
@@ -1090,8 +1090,8 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr){
           pmath_unref(exponent);
           return pmath_expr_new_extended(
             pmath_ref(PMATH_SYMBOL_COMPLEX), 2, 
-            pmath_float_new_d(re), 
-            pmath_float_new_d(im));
+            PMATH_FROM_DOUBLE(re), 
+            PMATH_FROM_DOUBLE(im));
         }
       }
       else{
@@ -1101,7 +1101,7 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr){
           pmath_unref(expr);
           pmath_unref(base);
           pmath_unref(exponent);
-          return pmath_float_new_d(result);
+          return PMATH_FROM_DOUBLE(result);
         }
       }
       

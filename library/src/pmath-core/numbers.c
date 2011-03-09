@@ -262,72 +262,6 @@ static PMATH_DECLARE_ATOMIC(mp_cache_misses);
   }
   
 //} ============================================================================
-//{ creating machine floats ...
-
-static intptr_t maf_cache[CACHE_SIZE];
-static PMATH_DECLARE_ATOMIC(maf_cache_pos);
-
-#ifdef PMATH_DEBUG_LOG
-static PMATH_DECLARE_ATOMIC(maf_cache_hits);
-static PMATH_DECLARE_ATOMIC(maf_cache_misses);
-#endif
-
-  static uintptr_t maf_cache_inc(intptr_t delta){
-    return (uintptr_t)pmath_atomic_fetch_add(&maf_cache_pos, delta);
-  }
-
-  static struct _pmath_machine_float_t_ *maf_cache_swap(
-    uintptr_t                       i, 
-    struct _pmath_machine_float_t_ *f
-  ){
-    i = i & CACHE_MASK;
-    
-    return (void*)pmath_atomic_fetch_set(&maf_cache[i], (intptr_t)f);
-  }
-
-  static void maf_cache_clear(void){
-    uintptr_t i;
-    
-    for(i = 0;i < CACHE_SIZE;++i){
-      pmath_mem_free(maf_cache_swap(i, NULL));
-    }
-  }
-
-  PMATH_PRIVATE
-  pmath_float_t _pmath_create_machine_float(double value){
-    struct _pmath_machine_float_t_ *f;
-    
-    uintptr_t i = maf_cache_inc(-1);
-    f = maf_cache_swap(i-1, NULL);
-    if(f){
-      #ifdef PMATH_DEBUG_LOG
-        (void)pmath_atomic_fetch_add(&maf_cache_hits, 1);
-      #endif
-  
-      assert(f->inherited.refcount == 0);
-      f->inherited.refcount = 1;
-      
-      f->value = value;
-      
-      return PMATH_FROM_PTR(f);
-    }
-    else{
-      #ifdef PMATH_DEBUG_LOG
-        (void)pmath_atomic_fetch_add(&maf_cache_misses, 1);
-      #endif
-    }
-    
-    f = (void*)PMATH_AS_PTR(_pmath_create_stub(
-      _DEPRECATED_PMATH_TYPE_SHIFT_MACHINE_FLOAT,
-      sizeof(struct _pmath_machine_float_t_)));
-    
-    if(f)
-      f->value = value;
-
-    return PMATH_FROM_PTR(f);
-  }
-
-//} ============================================================================
 //{ integer constructors ...
 
 #define SPECIAL_MIN (-1)
@@ -597,7 +531,7 @@ pmath_number_t pmath_float_new_str(
        */
         x = strtod(str, NULL);
         if(isfinite(x))
-          return _pmath_create_machine_float(x);
+          return PMATH_FROM_DOUBLE(x);
       }
       
       f = _pmath_create_mp_float(DBL_MANT_DIG);
@@ -608,7 +542,7 @@ pmath_number_t pmath_float_new_str(
 
       x = mpfr_get_d(PMATH_AS_MP_VALUE(f), MPFR_RNDN);
       pmath_unref(f);
-      return pmath_float_new_d(x);
+      return PMATH_FROM_DOUBLE(x);
     };
     
     case PMATH_PREC_CTRL_GIVEN_PREC: {
@@ -639,7 +573,7 @@ pmath_number_t pmath_float_new_str(
       if(mpfr_zero_p(PMATH_AS_MP_VALUE(f))){
         pmath_unref(f);
         if(automatic)
-          return pmath_float_new_d(0.0);
+          return PMATH_FROM_DOUBLE(0.0);
         return pmath_integer_new_si(0);
       }
       
@@ -688,19 +622,6 @@ pmath_number_t pmath_float_new_str(
   }
   
   return PMATH_NULL;
-}
-  
-PMATH_API pmath_float_t pmath_float_new_d(double dbl){
-//  if(!isfinite(dbl))
-//    return PMATH_NULL;
-//
-  return _pmath_create_machine_float(dbl);
-//  struct _pmath_mp_float_t *f = _pmath_create_mp_float(PMATH_MACHINE_PRECISION);
-//  if(!f)
-//    return PMATH_NULL;
-//
-//  mpfr_set_d(f->value, dbl, MPFR_RNDN);
-//  return (pmath_float_t)f;
 }
 
 PMATH_PRIVATE 
@@ -950,13 +871,13 @@ PMATH_API int pmath_number_sign(pmath_number_t num){
 
 PMATH_API pmath_number_t pmath_number_neg(pmath_number_t num){
   if(pmath_is_double(num)){
-    pmath_float_t result = _pmath_create_machine_float(-PMATH_AS_DOUBLE(num));
-
-    pmath_unref(num);
-    return result;
+    num.as_double = -num.as_double;
+    
+    return num;
   }
   
   assert(pmath_is_pointer(num));
+  
   if(pmath_is_null(num))
     return num;
 
@@ -1299,25 +1220,8 @@ static void write_mp_float(
 //} ============================================================================
 //{ pMath object functions for machine floats ...
 
-static void destroy_machine_float(pmath_t f){
-  uintptr_t i = maf_cache_inc(+1);
-  struct _pmath_machine_float_t_ *f_ptr;
-  
-  assert(PMATH_AS_PTR(f)->refcount == 0);
-  
-  f_ptr = (void*)PMATH_AS_PTR(f);
-  f_ptr = maf_cache_swap(i, f_ptr);
-  if(f_ptr){
-    assert(f_ptr->inherited.refcount == 0);
-    pmath_mem_free(f_ptr);
-  }
-}
-
-static unsigned int hash_machine_float(pmath_t f){
-  return incremental_hash(&PMATH_AS_DOUBLE(f), sizeof(double), 0);
-}
-
-static void write_machine_float(
+PMATH_PRIVATE
+void _pmath_write_machine_float(
   pmath_t                f,
   pmath_write_options_t  options,
   pmath_write_func_t     write,
@@ -1398,7 +1302,8 @@ static void write_machine_float(
     return mpz_cmp(PMATH_AS_MPZ(intA), PMATH_AS_MPZ(intB));
   }
 
-static int compare_numbers(
+PMATH_PRIVATE
+int _pmath_compare_numbers(
   pmath_number_t numA,
   pmath_number_t numB
 ){
@@ -1558,7 +1463,8 @@ static int compare_numbers(
   return -compare_numbers(numB, numA);
 }
 
-static pmath_bool_t equal_numbers(
+PMATH_PRIVATE
+pmath_bool_t _pmath_equal_numbers(
   pmath_number_t numA,
   pmath_number_t numB
 ){
@@ -1632,7 +1538,6 @@ PMATH_PRIVATE void _pmath_numbers_memory_panic(void){
 //  destroy_all_unused_quotients();
   int_cache_clear();
   mp_cache_clear();
-  maf_cache_clear();
   mpfr_free_cache();
 }
 
@@ -1643,14 +1548,11 @@ PMATH_PRIVATE pmath_bool_t _pmath_numbers_init(void){
 
   memset(int_cache, 0, sizeof(int_cache));
   memset(mp_cache,  0, sizeof(mp_cache));
-  memset(maf_cache, 0, sizeof(maf_cache));
   int_cache_pos = 0;
   mp_cache_pos  = 0;
-  maf_cache_pos = 0;
   
   #ifdef PMATH_DEBUG_LOG
     int_cache_hits = int_cache_misses = 0;
-    maf_cache_hits = maf_cache_misses = 0;
     mp_cache_hits  = mp_cache_misses  = 0;
   #endif
   
@@ -1662,35 +1564,27 @@ PMATH_PRIVATE pmath_bool_t _pmath_numbers_init(void){
   
   _pmath_init_special_type(
     PMATH_TYPE_SHIFT_INTEGER,
-    compare_numbers,
+    _pmath_compare_numbers,
     hash_integer,
     destroy_integer,
-    equal_numbers,
+    _pmath_equal_numbers,
     write_integer);
 
   _pmath_init_special_type(
     PMATH_TYPE_SHIFT_QUOTIENT,
-    compare_numbers,
+    _pmath_compare_numbers,
     hash_quotient,
     destroy_quotient,
-    equal_numbers,
+    _pmath_equal_numbers,
     write_quotient);
 
   _pmath_init_special_type(
     PMATH_TYPE_SHIFT_MP_FLOAT,
-    compare_numbers,
+    _pmath_compare_numbers,
     hash_mp_float,
     destroy_mp_float,
-    equal_numbers,
+    _pmath_equal_numbers,
     write_mp_float);
-
-  _pmath_init_special_type(
-    _DEPRECATED_PMATH_TYPE_SHIFT_MACHINE_FLOAT,
-    compare_numbers,
-    hash_machine_float,
-    destroy_machine_float,
-    equal_numbers,
-    write_machine_float);
 
   for(i = SPECIAL_MIN;i <= SPECIAL_MAX;i++){
     special_values[i] = _pmath_create_integer();
@@ -1740,7 +1634,6 @@ PMATH_PRIVATE void _pmath_numbers_done(void){
   }
 
   int_cache_clear();
-  maf_cache_clear();
   mp_cache_clear();
   mpfr_free_cache();
   gmp_randclear(_pmath_randstate);
@@ -1751,10 +1644,6 @@ PMATH_PRIVATE void _pmath_numbers_done(void){
       (double)int_cache_hits / (double)(int_cache_hits + int_cache_misses),
       (int) int_cache_hits,
       (int)(int_cache_hits + int_cache_misses));
-    pmath_debug_print("machine float cache hit rate:    %f (%d of %d)\n", 
-      (double)maf_cache_hits / (double)(maf_cache_hits + maf_cache_misses),
-      (int) maf_cache_hits,
-      (int)(maf_cache_hits + maf_cache_misses));
     pmath_debug_print("multi prec float cache hit rate: %f (%d of %d)\n", 
       (double)mp_cache_hits  / (double)(mp_cache_hits  + mp_cache_misses),
       (int) mp_cache_hits,

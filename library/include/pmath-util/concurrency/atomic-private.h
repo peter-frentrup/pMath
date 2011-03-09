@@ -56,35 +56,43 @@ typedef struct{
 
 PMATH_FORCE_INLINE
 PMATH_INLINE_NODEBUG
-void _pmath_object_atomic_write(
-  pmath_locked_t *ptr,
-  pmath_t         value
-){
-  pmath_t old;
-
-  assert(PMATH_AS_PTR(value) != PMATH_INVALID_PTR);
-
-  old = PMATH_FROM_PTR((void*)pmath_atomic_fetch_set(
-    (intptr_t*)ptr,
-    (intptr_t)PMATH_AS_PTR(value)));
-
-  if(PMATH_AS_PTR(old) != PMATH_INVALID_PTR)
-    pmath_unref(old);
-}
-
-PMATH_FORCE_INLINE
-PMATH_INLINE_NODEBUG
 pmath_t _pmath_object_atomic_read_start(
   pmath_locked_t *ptr
 ){
-  return PMATH_FROM_PTR(_pmath_atomic_lock_ptr((void * volatile *)ptr));
+  pmath_t value;
+  
+  #if PMATH_BITSIZE == 64
+  {
+    pmath_t invalid;
+    invalid.s.tag        = PMATH_TAG_INVALID;
+    invalid.s.u.as_int32 = 0;
+    
+    value.as_bits = pmath_atomic_fetch_set(&ptr->_data.as_bits, invalid.as_bits);
+    
+    while(PMATH_AS_TAG(value) == PMATH_TAG_INVALID){
+      pmath_atomic_loop_nop();
+      
+      value.as_bits = pmath_atomic_fetch_set(&ptr->_data.as_bits, invalid.as_bits);
+    }
+    
+  }
+  #else
+  {
+    value.s.tag = pmath_atomic_fetch_set(&ptr->_data.s.tag, PMATH_TAG_INVALID);
+    
+    while(PMATH_AS_TAG(value) == PMATH_TAG_INVALID){
+      pmath_atomic_loop_nop();
+      
+      value.s.tag = pmath_atomic_fetch_set(&ptr->_data.s.tag, PMATH_TAG_INVALID);
+    }
+    
+    value.s.u.as_int32 = pmath_atomic_fetch_set(&ptr->_data.s.u.as_int32, 0);
+    
+  }
+  #endif
+  
+  return value;
 }
-
-/* All reads are blocked between 
-     _pmath_object_atomic_read_start() and _pmath_object_atomic_read_end(),
-     
-   but _pmath_object_atomic_write() succeeds.
- */
  
 PMATH_FORCE_INLINE
 PMATH_INLINE_NODEBUG
@@ -92,13 +100,26 @@ void _pmath_object_atomic_read_end(
   pmath_locked_t *ptr,
   pmath_t         value // will be freed
 ){
-  assert(PMATH_AS_PTR(value) != PMATH_INVALID_PTR);
+  assert(PMATH_AS_TAG(value) != PMATH_TAG_INVALID);
   
-  if(!pmath_atomic_compare_and_set(
-      (intptr_t*)ptr,
-      (intptr_t)PMATH_INVALID_PTR,
-      (intptr_t)PMATH_AS_PTR(value)))
-    pmath_unref(value);
+  #if PMATH_BITSIZE == 64
+  {
+    pmath_t invalid;
+    invalid.s.tag        = PMATH_TAG_INVALID;
+    invalid.s.u.as_int32 = 0;
+    
+    if(!pmath_atomic_compare_and_set(&ptr->_data.as_bits, invalid.as_bits, value.as_bits))
+      pmath_unref(value);
+  }
+  #else
+  {
+    assert(PMATH_AS_TAG(ptr->_data) == PMATH_TAG_INVALID);
+    
+    (void)pmath_atomic_fetch_set(&ptr->_data.s.u.as_int32, value.s.u.as_int32);
+    (void)pmath_atomic_fetch_set(&ptr->_data.s.tag,        value.s.tag);
+    
+  }
+  #endif
 }
 
 PMATH_FORCE_INLINE
@@ -112,6 +133,39 @@ pmath_t _pmath_object_atomic_read(
   _pmath_object_atomic_read_end(ptr, pmath_ref(value));
   
   return value;
+}
+
+PMATH_FORCE_INLINE
+PMATH_INLINE_NODEBUG
+void _pmath_object_atomic_write(
+  pmath_locked_t *ptr,
+  pmath_t         value
+){
+  pmath_t old;
+  
+  assert(PMATH_AS_TAG(value) != PMATH_TAG_INVALID);
+  
+  #if PMATH_BITSIZE == 64
+  {
+    pmath_t invalid;
+    
+    invalid.s.tag = PMATH_TAG_INVALID;
+    invalid.s.u.as_int32 = 0;
+    
+    old.as_bits = pmath_atomic_fetch_set(
+      &ptr->_data.as_bits,
+      invalid.as_bits);
+    
+    if(PMATH_AS_TAG(old) != PMATH_TAG_INVALID)
+      pmath_unref(old);
+  }
+  #else
+  {
+    old = _pmath_object_atomic_read_start(ptr);
+    _pmath_object_atomic_read_end(ptr, value);
+    pmath_unref(old);
+  }
+  #endif
 }
 
 /*----------------------------------------------------------------------------*/

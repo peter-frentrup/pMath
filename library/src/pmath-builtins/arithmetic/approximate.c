@@ -21,7 +21,7 @@ static pmath_t prec_to_obj(double binprec){
   if(binprec == HUGE_VAL)
     return pmath_ref(_pmath_object_infinity);
   
-  return pmath_float_new_d(LOG10_2 * binprec);
+  return PMATH_FROM_DOUBLE(LOG10_2 * binprec);
 }
 
 static pmath_t precacc_to_obj(double binprec, double binacc){
@@ -284,7 +284,7 @@ PMATH_PRIVATE pmath_t builtin_approximate_e(pmath_t obj, double prec, double acc
   pmath_unref(obj);
   
   if(acc == -HUGE_VAL || prec == -HUGE_VAL)
-    return pmath_float_new_d(M_E);
+    return PMATH_FROM_DOUBLE(M_E);
   
   if(acc < -PMATH_MP_PREC_MAX){
     pmath_message(PMATH_SYMBOL_GENERAL, "unfl", 0);
@@ -326,7 +326,7 @@ PMATH_PRIVATE pmath_t builtin_approximate_eulergamma(pmath_t obj, double prec, d
   pmath_unref(obj);
   
   if(acc == -HUGE_VAL || prec == -HUGE_VAL)
-    return pmath_float_new_d(0.57721566490153286061);
+    return PMATH_FROM_DOUBLE(0.57721566490153286061);
   
   if(acc < -PMATH_MP_PREC_MAX){
     pmath_message(PMATH_SYMBOL_GENERAL, "unfl", 0);
@@ -367,7 +367,7 @@ PMATH_PRIVATE pmath_t builtin_approximate_machineprecision(pmath_t obj, double p
   pmath_unref(obj);
   
   if(acc == -HUGE_VAL || prec == -HUGE_VAL)
-    return pmath_float_new_d((double)LOG10_2 * DBL_MANT_DIG);
+    return PMATH_FROM_DOUBLE((double)LOG10_2 * DBL_MANT_DIG);
   
   if(acc < -PMATH_MP_PREC_MAX){
     pmath_message(PMATH_SYMBOL_GENERAL, "unfl", 0);
@@ -411,7 +411,7 @@ PMATH_PRIVATE pmath_t builtin_approximate_pi(pmath_t obj, double prec, double ac
   pmath_unref(obj);
   
   if(acc == -HUGE_VAL || prec == -HUGE_VAL)
-    return pmath_float_new_d(M_PI);
+    return PMATH_FROM_DOUBLE(M_PI);
   
   if(acc < -PMATH_MP_PREC_MAX){
     pmath_message(PMATH_SYMBOL_GENERAL, "unfl", 0);

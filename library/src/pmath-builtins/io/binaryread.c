@@ -457,7 +457,7 @@ static pmath_bool_t binary_read(
             
             if(uexp == 0){
               if(mant == 0){
-                *type_value = pmath_float_new_d(/*neg ? -0.0 : */0.0);
+                *type_value = PMATH_FROM_DOUBLE(/*neg ? -0.0 : */0.0);
               }
               else{
                 double val = mant * 2e-24;
@@ -465,7 +465,7 @@ static pmath_bool_t binary_read(
                 if(neg)
                   val = -val;
                 
-                *type_value = pmath_float_new_d(val);
+                *type_value = PMATH_FROM_DOUBLE(val);
               }
             }
             else if(uexp == 0x1F){
@@ -491,7 +491,7 @@ static pmath_bool_t binary_read(
               if(neg)
                 val = -val;
               
-              *type_value = pmath_float_new_d(val);
+              *type_value = PMATH_FROM_DOUBLE(val);
             }
           }
           else{ // works only if float and double are ieee
@@ -515,7 +515,7 @@ static pmath_bool_t binary_read(
             else{
               if(d == 0) // signed 0?
                 d = 0;
-              *type_value = pmath_float_new_d(d);
+              *type_value = PMATH_FROM_DOUBLE(d);
             }
           }
           

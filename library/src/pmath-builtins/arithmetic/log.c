@@ -212,7 +212,7 @@ PMATH_PRIVATE pmath_t builtin_log(pmath_expr_t expr){
   
   if(pmath_is_double(x) && PMATH_AS_DOUBLE(x) > 0){
     pmath_unref(expr);
-    expr = pmath_float_new_d(log(PMATH_AS_DOUBLE(x)));
+    expr = PMATH_FROM_DOUBLE(log(PMATH_AS_DOUBLE(x)));
     pmath_unref(x);
     return expr;
   }

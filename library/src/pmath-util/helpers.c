@@ -107,7 +107,7 @@ static pmath_t next_value(const char **format, va_list *args){
       double d = va_arg(*args, double);
       
       if(isfinite(d))
-        return pmath_float_new_d(d == 0 ? +0.0 : d); // convert -0.0 to +0.0
+        return PMATH_FROM_DOUBLE(d == 0 ? +0.0 : d); // convert -0.0 to +0.0
       
       if(d > 0)
         return pmath_ref(_pmath_object_infinity);

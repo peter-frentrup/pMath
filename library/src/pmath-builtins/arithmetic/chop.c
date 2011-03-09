@@ -71,7 +71,7 @@ pmath_t builtin_chop(pmath_expr_t expr){
     }
   }
   else
-    ptol = pmath_float_new_d(1e-10);
+    ptol = PMATH_FROM_DOUBLE(1e-10);
   
   ntol = pmath_number_neg(pmath_ref(ptol));
   

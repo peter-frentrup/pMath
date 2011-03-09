@@ -134,7 +134,7 @@ namespace pmath{
       
       /**\brief Length of the expression or 0 on error. */
       size_t expr_length() const throw() {
-        if(instance_of(PMATH_TYPE_EXPRESSION))
+        if(is_expr())
           return pmath_expr_length(_obj);
         return 0;
       }
@@ -146,7 +146,7 @@ namespace pmath{
          last argument.
        */
       Expr operator[](size_t i) const throw() {
-        if(instance_of(PMATH_TYPE_EXPRESSION))
+        if(is_expr())
           return Expr(pmath_expr_get_item(_obj, i));
         return Expr();
       }
@@ -156,7 +156,7 @@ namespace pmath{
          \param e The new element.
        */
       void set(size_t i, Expr e) throw() {
-        if(instance_of(PMATH_TYPE_EXPRESSION))
+        if(is_expr())
           _obj = pmath_expr_set_item(_obj, i, e.release());
       }
       
@@ -166,7 +166,7 @@ namespace pmath{
          \param e The new element.
        */
       void set(size_t i, size_t j, Expr e) throw() {
-        if(instance_of(PMATH_TYPE_EXPRESSION)){
+        if(is_expr()){
           pmath_t item = pmath_expr_extract_item(_obj, i);
           if(pmath_is_expr(item)){
             item = pmath_expr_set_item(item, j, e.release());
@@ -184,7 +184,7 @@ namespace pmath{
                  otherwise.
        */
       double to_double(double def = 0.0) const throw() {
-        if(instance_of(PMATH_TYPE_NUMBER))
+        if(is_expr())
           return pmath_number_get_d(_obj);
         
         pmath_t approx = pmath_approximate(
@@ -270,7 +270,7 @@ namespace pmath{
       }
       
       String(const Expr &src) throw()
-      : Expr(src.instance_of(PMATH_TYPE_STRING) ? pmath_ref(src.get()) : PMATH_NULL)
+      : Expr(src.is_string() ? pmath_ref(src.get()) : PMATH_NULL)
       {
       }
       
