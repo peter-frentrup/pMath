@@ -9,7 +9,7 @@
 #include <stdlib.h>
 
 enum{ // private pmath_type_t ...
-  PMATH_TYPE_SHIFT_MULTIRULE  = 8,
+  PMATH_TYPE_SHIFT_MULTIRULE  = 7,
   
   PMATH_TYPE_MULTIRULE        = 1 << PMATH_TYPE_SHIFT_MULTIRULE
 };

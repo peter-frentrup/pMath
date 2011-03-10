@@ -590,8 +590,10 @@ pmath_bool_t pmath_register_approx_code(
 PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   int i;
   
-  memset(_pmath_builtin_symbol_array, 0, PMATH_BUILTIN_SYMBOL_COUNT * sizeof(pmath_symbol_t));
-  memset((void*)_code_tables,         0,          CODE_TABLES_COUNT * sizeof(pmath_hashtable_t));
+  for(i = 0;i < PMATH_BUILTIN_SYMBOL_COUNT;++i)
+    _pmath_builtin_symbol_array[i] = PMATH_NULL;
+  
+  memset((void*)_code_tables, 0, CODE_TABLES_COUNT * sizeof(pmath_hashtable_t));
   
   for(i = 0;i < CODE_TABLES_COUNT;++i){
     _code_tables[i] = pmath_ht_create(&function_table_class, 0);

@@ -31,7 +31,7 @@ struct _pmath_t{ // do not access members
 #define pmath_is_null(obj)    (pmath_is_pointer(obj) && PMATH_AS_PTR(obj) == NULL)
 #define pmath_is_magic(obj)   ((obj).s.tag == PMATH_TAG_MAGIC)
 
-#define pmath_is_pointer_of(obj, type)  (pmath_is_pointer(obj) && ((1 << (PMATH_AS_PTR(obj)->type_shift)) & (type)) != 0)
+#define pmath_is_pointer_of(obj, type)  (pmath_is_pointer(obj) && (PMATH_AS_PTR(obj) != NULL) && ((1 << (PMATH_AS_PTR(obj)->type_shift)) & (type)) != 0)
 
 #define pmath_is_integer(obj) (pmath_is_pointer_of(obj, PMATH_TYPE_INTEGER))
 #define pmath_is_mpfloat(obj) (pmath_is_pointer_of(obj, PMATH_TYPE_MP_FLOAT))
@@ -120,6 +120,9 @@ pmath_t pmath_ref(pmath_t obj){
   if(PMATH_UNLIKELY(!pmath_is_pointer(obj)))
     return obj;
   
+  if(PMATH_UNLIKELY(PMATH_AS_PTR(obj) == NULL))
+    return obj;
+  
   #ifndef PMATH_DEBUG_LOG
     (void)pmath_atomic_fetch_add(&(PMATH_AS_PTR(obj)->refcount), 1);
   #else
@@ -139,6 +142,9 @@ void pmath_unref(pmath_t obj){
   if(PMATH_UNLIKELY(!pmath_is_pointer(obj)))
     return;
 
+  if(PMATH_UNLIKELY(PMATH_AS_PTR(obj) == NULL))
+    return;
+  
   pmath_atomic_barrier();
   if(1 == pmath_atomic_fetch_add(&(PMATH_AS_PTR(obj)->refcount), -1)){ // was 1 -> is 0
     _pmath_destroy_object(obj);

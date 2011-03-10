@@ -392,9 +392,15 @@ pmath_messages_t _pmath_msg_queue_create(void){
     return PMATH_NULL;
   }
   
-  memset(dummy_msg, 0, sizeof(struct message_t));
+  dummy_msg->next    = NULL;
+  dummy_msg->subject = PMATH_NULL;
+  dummy_msg->result  = PMATH_NULL;
+  dummy_msg->sender = PMATH_NULL;
   
   memset(mq, 0, sizeof(struct msg_queue_t));
+  mq->_sleep_result._data   = PMATH_NULL;
+  mq->_child_messages._data = PMATH_NULL;
+  
   if(!_pmath_event_init(&mq->sleep_event)){
     pmath_mem_free(mq);
     pmath_mem_free(dummy_msg);
@@ -647,8 +653,10 @@ void pmath_thread_send(pmath_messages_t mq, pmath_t msg){
       return;
     }
     
-    memset(msg_struct, 0, sizeof(struct message_t));
+    msg_struct->next    = NULL;
     msg_struct->subject = msg;
+    msg_struct->result  = PMATH_NULL;
+    msg_struct->sender  = PMATH_NULL;
     push_msg(mq_data, msg_struct);
   }
   else
@@ -698,7 +706,10 @@ pmath_t pmath_thread_send_wait(
       return answer;
     }
     
-    memset(result_data, 0, sizeof(struct _pmath_abortable_message_t));
+    result_data->_value._data                 = PMATH_NULL;
+    result_data->next                         = PMATH_NULL;
+    result_data->depth                        = 0;
+    result_data->_pending_abort_request._data = PMATH_NULL;
     
     result = pmath_custom_new(result_data, _pmath_destroy_abortable_message);
     interrupt = pmath_expr_new_extended(
@@ -716,10 +727,10 @@ pmath_t pmath_thread_send_wait(
     
     end_time = pmath_tickcount() + timeout_seconds;
     
-    memset(msg_struct, 0, sizeof(struct message_t));
+    msg_struct->next    = NULL;
     msg_struct->subject = msg;
-    msg_struct->result = pmath_ref(result);
-    msg_struct->sender = pmath_ref(me->message_queue);
+    msg_struct->result  = pmath_ref(result);
+    msg_struct->sender  = pmath_ref(me->message_queue);
     push_msg(mq_data, msg_struct);
     
     my_mq_data = pmath_custom_get_data(me->message_queue);
@@ -776,10 +787,10 @@ void pmath_thread_send_delayed(
     return;
   }
   
-  memset(timed_msg, 0, sizeof(struct _pmath_timed_message_t));
-  timed_msg->message_queue = pmath_ref(mq);
-  timed_msg->subject = msg;
-  timed_msg->absolute_time = pmath_tickcount() + seconds;
+  timed_msg->_reserved_next = NULL;
+  timed_msg->message_queue  = pmath_ref(mq);
+  timed_msg->subject        = msg;
+  timed_msg->absolute_time  = pmath_tickcount() + seconds;
   
   _pmath_register_timed_msg(timed_msg);
 }

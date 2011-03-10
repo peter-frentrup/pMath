@@ -138,6 +138,8 @@ pmath_expr_t pmath_expr_new(
   expr->inherited.gc_refcount = 0;
   expr->length   = length;
   expr->items[0] = head;
+  
+  // setting all elements to double 0.0:
   memset(&(expr->items[1]), 0, length * sizeof(pmath_t));
 
   return PMATH_FROM_PTR(expr);
@@ -288,6 +290,7 @@ pmath_expr_t pmath_expr_resize(
 
   if(new_expr == NULL){
     if(new_length < old_length){
+      // setting moved elements to double 0.0:
       memset(
         &(old_expr->items[new_length+1]),
         0,
@@ -298,6 +301,7 @@ pmath_expr_t pmath_expr_resize(
   }
 
   if(new_length > old_length){
+    // setting new elements to double 0.0:
     memset(
       &(new_expr->items[old_length+1]),
       0,

@@ -1303,7 +1303,7 @@ void _pmath_write_machine_float(
   }
 
 PMATH_PRIVATE
-int _pmath_compare_numbers(
+int _pmath_numbers_compare(
   pmath_number_t numA,
   pmath_number_t numB
 ){
@@ -1395,7 +1395,7 @@ int _pmath_compare_numbers(
       return result;
     }
 
-    return -compare_numbers(numB, numA);
+    return -_pmath_numbers_compare(numB, numA);
   }
 
   if(pmath_is_mpfloat(numA)){
@@ -1445,7 +1445,7 @@ int _pmath_compare_numbers(
       return 0;
     }
 
-    return -compare_numbers(numB, numA);
+    return -_pmath_numbers_compare(numB, numA);
   }
 
   assert(pmath_is_double(numA));
@@ -1460,11 +1460,11 @@ int _pmath_compare_numbers(
     return 0;
   }
 
-  return -compare_numbers(numB, numA);
+  return -_pmath_numbers_compare(numB, numA);
 }
 
 PMATH_PRIVATE
-pmath_bool_t _pmath_equal_numbers(
+pmath_bool_t _pmath_numbers_equal(
   pmath_number_t numA,
   pmath_number_t numB
 ){
@@ -1476,7 +1476,7 @@ pmath_bool_t _pmath_equal_numbers(
     return FALSE;
   }
   else if(pmath_is_integer(numB))
-    return equal_numbers(numB, numA);
+    return _pmath_numbers_equal(numB, numA);
 
   if(pmath_is_quotient(numA)){
     if(pmath_is_quotient(numB)){
@@ -1491,7 +1491,7 @@ pmath_bool_t _pmath_equal_numbers(
     return FALSE;
   }
   else if(pmath_is_quotient(numB))
-    return equal_numbers(numB, numA);
+    return _pmath_numbers_equal(numB, numA);
 
   if(pmath_is_mpfloat(numA)
   && pmath_is_mpfloat(numB)){
@@ -1528,7 +1528,7 @@ pmath_bool_t _pmath_equal_numbers(
     return mpfr_equal_p(PMATH_AS_MP_VALUE(numA), PMATH_AS_MP_VALUE(numB));
   }
 
-  return 0 == compare_numbers(numA, numB);
+  return 0 == _pmath_numbers_compare(numA, numB);
 }
 
 //} ============================================================================
@@ -1560,30 +1560,32 @@ PMATH_PRIVATE pmath_bool_t _pmath_numbers_init(void){
   _pmath_rand_spinlock = 0;
 
 //  memset(&unused_quotients,      0, sizeof(unused_quotients));
-  memset(&special_values_wrong_indices, 0, sizeof(special_values_wrong_indices));
-  
+  for(i = SPECIAL_MIN;i <= SPECIAL_MAX;i++){
+    special_values[i] = PMATH_NULL;
+  }
+
   _pmath_init_special_type(
     PMATH_TYPE_SHIFT_INTEGER,
-    _pmath_compare_numbers,
+    _pmath_numbers_compare,
     hash_integer,
     destroy_integer,
-    _pmath_equal_numbers,
+    _pmath_numbers_equal,
     write_integer);
 
   _pmath_init_special_type(
     PMATH_TYPE_SHIFT_QUOTIENT,
-    _pmath_compare_numbers,
+    _pmath_numbers_compare,
     hash_quotient,
     destroy_quotient,
-    _pmath_equal_numbers,
+    _pmath_numbers_equal,
     write_quotient);
 
   _pmath_init_special_type(
     PMATH_TYPE_SHIFT_MP_FLOAT,
-    _pmath_compare_numbers,
+    _pmath_numbers_compare,
     hash_mp_float,
     destroy_mp_float,
-    _pmath_equal_numbers,
+    _pmath_numbers_equal,
     write_mp_float);
 
   for(i = SPECIAL_MIN;i <= SPECIAL_MAX;i++){
@@ -1619,7 +1621,6 @@ PMATH_PRIVATE pmath_bool_t _pmath_numbers_init(void){
 //  destroy_all_unused_quotients();
   int_cache_clear();
   mp_cache_clear();
-  maf_cache_clear();
   gmp_randclear(_pmath_randstate);
   return FALSE;
 }

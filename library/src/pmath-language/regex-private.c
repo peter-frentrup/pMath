@@ -40,11 +40,11 @@ struct _regex_key_t{
 struct _regex_t{
   PMATH_DECLARE_ATOMIC(refcount);
   
-  struct _regex_key_t key;
+  struct _regex_key_t  key;
   
-  pcre                  *code;
-  struct _callout_t     *callouts;
-  pmath_hashtable_t  named_subpatterns;
+  pcre                *code;
+  struct _callout_t   *callouts;
+  pmath_hashtable_t    named_subpatterns;
 };
 
 static void free_callouts(struct _callout_t *c){
@@ -1187,7 +1187,7 @@ PMATH_PRIVATE void _pmath_regex_memory_panic(void){
 
 PMATH_PRIVATE pmath_bool_t _pmath_regex_init(void){
   _global_regex_cache = pmath_ht_create(&regex_cache_ht_class, 0);
-  memset(regex_cache_array,0,sizeof(regex_cache_array));
+  memset(regex_cache_array, 0, sizeof(regex_cache_array));
   regex_cache_array_next = 0;
   
   pcre_callout = callout;

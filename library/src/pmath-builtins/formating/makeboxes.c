@@ -2976,9 +2976,6 @@ static pmath_t expr_to_boxes(pmath_thread_t thread, pmath_expr_t expr){
   }
 
 static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj){
-  if(pmath_is_null(obj))
-    return PMATH_C_STRING("/\\/");
-  
   if(pmath_is_double(obj)){
     pmath_string_t s = PMATH_NULL;
     pmath_write(obj, 0, (pmath_write_func_t)_pmath_write_to_string, &s);
@@ -2996,6 +2993,9 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj){
   if(!pmath_is_pointer(obj)){
     char s[80];
     
+    if(PMATH_AS_PTR(obj) == NULL)
+      return PMATH_C_STRING("/\\/");
+  
     if(thread->boxform <= BOXFORM_OUTPUTEXPONENT){
       snprintf(s, sizeof(s), "<<\? %d,%x \?>>", 
         (int)PMATH_AS_TAG(obj), 
@@ -3014,7 +3014,7 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj){
   && user_make_boxes(&obj))
     return obj;
   
-  if(!pmath_is_pointer(obj)){
+  if(!pmath_is_pointer(obj) || PMATH_AS_PTR(obj) == NULL){
     pmath_debug_print("makeboxes: unexpected\n");
     return PMATH_C_STRING("/\\/");
   }

@@ -149,6 +149,7 @@ pmath_t pmath_set_accuracy(pmath_t obj, double acc){ // obj will be freed
     double prec = 0.0;
     
     assert(pmath_is_pointer(obj));
+    assert(PMATH_AS_PTR(obj) != NULL);
     
     switch(PMATH_AS_PTR(obj)->type_shift){
       case PMATH_TYPE_SHIFT_INTEGER: {

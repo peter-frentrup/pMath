@@ -740,6 +740,7 @@ pmath_symbol_t pmath_file_create_text(
   }
   
   memset(data, 0, sizeof(struct _pmath_text_file_t));
+  data->buffer = PMATH_NULL;
   
   data->inherited.extra            = extra;
   data->inherited.extra_destructor = extra_destructor;
@@ -1136,11 +1137,11 @@ pmath_symbol_t pmath_file_create_text_from_binary(
     return PMATH_NULL;
   }
   
-  memset(extra, 0, sizeof(struct _bintext_extra_t));
-  
   extra->binfile = binfile;
-  extra->in_cd = (iconv_t)-1;
-  extra->out_cd = (iconv_t)-1;
+  extra->rest    = PMATH_NULL;
+  extra->skip_nl = FALSE;
+  extra->in_cd   = (iconv_t)-1;
+  extra->out_cd  = (iconv_t)-1;
   
   memset(&api, 0, sizeof(api));
   api.struct_size = sizeof(api);
@@ -1357,7 +1358,7 @@ pmath_symbol_t pmath_file_create_binary_buffer(size_t mincapacity){
     return PMATH_NULL;
   
   memset(&api, 0, sizeof(api));
-  api.struct_size = sizeof(api);
+  api.struct_size     = sizeof(api);
   api.status_function = binbuf_status;
   api.read_function   = binbuf_read;
   api.write_function  = binbuf_write;

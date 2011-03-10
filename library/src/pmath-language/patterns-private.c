@@ -17,8 +17,8 @@
 #include <string.h>
 
 
-#define MAGIC_PATTERN_FOUND     PMATH_FROM_PTR((void*)1)
-#define MAGIC_PATTERN_SEQUENCE  PMATH_FROM_PTR((void*)2)
+#define MAGIC_PATTERN_FOUND     PMATH_FROM_TAG(PMATH_TAG_MAGIC, 1)
+#define MAGIC_PATTERN_SEQUENCE  PMATH_FROM_TAG(PMATH_TAG_MAGIC, 2)
 
 // initialization in pmath_init():
 PMATH_PRIVATE pmath_t _pmath_object_range_from_one; /* readonly */
@@ -1693,7 +1693,8 @@ static match_kind_t match_repeated(
   data.func = arg;
   
   memset(&analyse_in, 0, sizeof(_pmath_pattern_analyse_input_t));
-  analyse_in.pat = pat;
+  analyse_in.pat             = pat;
+  analyse_in.parent_pat_head = PMATH_NULL;
   
   _pmath_pattern_analyse(&analyse_in, &data.analysed);
   

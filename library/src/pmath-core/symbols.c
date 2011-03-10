@@ -656,7 +656,7 @@ struct _pmath_symbol_rules_t *_pmath_symbol_get_rules(
     
     new_rules = (struct _pmath_symbol_rules_t*)pmath_mem_alloc(sizeof(struct _pmath_symbol_rules_t));
     if(new_rules){
-      memset(new_rules, 0, sizeof(struct _pmath_symbol_rules_t));
+      _pmath_symbol_rules_copy(new_rules, NULL);
       
       rules = (void*)pmath_atomic_fetch_compare_and_set(
         &((struct _pmath_symbol_t*)PMATH_AS_PTR(symbol))->u.rules_intptr, 

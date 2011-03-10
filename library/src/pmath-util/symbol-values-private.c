@@ -95,7 +95,8 @@ void _pmath_rulecache_copy(
   assert(dst != NULL);
   
   if(!src){
-    memset(dst, 0, sizeof(struct _pmath_rulecache_t));
+    dst->_table      = NULL;
+    dst->_more._data = PMATH_NULL;
     return;
   }
   
@@ -121,7 +122,25 @@ void _pmath_symbol_rules_copy(
   assert(dst != NULL);
   
   if(!src){
-    memset(dst, 0, sizeof(struct _pmath_symbol_rules_t));
+    dst->up_rules._table      = NULL;
+    dst->up_rules._more._data = PMATH_NULL;
+    
+    dst->down_rules._table      = NULL;
+    dst->down_rules._more._data = PMATH_NULL;
+    
+    dst->sub_rules._table      = NULL;
+    dst->sub_rules._more._data = PMATH_NULL;
+    
+    dst->approx_rules._table      = NULL;
+    dst->approx_rules._more._data = PMATH_NULL;
+    
+    dst->default_rules._table      = NULL;
+    dst->default_rules._more._data = PMATH_NULL;
+    
+    dst->format_rules._table      = NULL;
+    dst->format_rules._more._data = PMATH_NULL;
+    
+    dst->_messages = NULL;
     return;
   }
   

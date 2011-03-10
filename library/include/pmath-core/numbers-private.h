@@ -137,12 +137,12 @@ void _pmath_write_machine_float(
   void                  *user);
   
 PMATH_PRIVATE
-int _pmath_compare_numbers(
+int _pmath_numbers_compare(
   pmath_number_t numA,
   pmath_number_t numB);
   
 PMATH_PRIVATE
-pmath_bool_t _pmath_equal_numbers(
+pmath_bool_t _pmath_numbers_equal(
   pmath_number_t numA,
   pmath_number_t numB);
 

@@ -270,6 +270,9 @@
     p->size = size;
     p->alloc_time = pmath_atomic_fetch_add(&_pmath_debug_global_time, 1);
     debug_mem_init_range_check(p);
+    if(p->alloc_time == 10892){
+      pmath_debug_print("[10892]");
+    }
 
     {
       #if PMATH_USE_PTHREAD
@@ -370,6 +373,9 @@
     new_p->size = size;
     new_p->alloc_time = pmath_atomic_fetch_add(&_pmath_debug_global_time, 1);
 
+    if(new_p->alloc_time == 10892){
+      pmath_debug_print("[10892]");
+    }
     debug_mem_init_range_check(new_p);
 
     {

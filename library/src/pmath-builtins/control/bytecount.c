@@ -9,7 +9,7 @@
 static size_t bytecount(
   pmath_t obj // wont be freed
 ){
-  if(!pmath_is_pointer(obj))
+  if(!pmath_is_pointer(obj) || PMATH_AS_PTR(obj) == NULL)
     return 0;
   
   switch(PMATH_AS_PTR(obj)->type_shift){

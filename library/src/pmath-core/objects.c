@@ -1,9 +1,11 @@
 #include <pmath-core/objects-private.h>
 
 #include <pmath-core/expressions-private.h>
+#include <pmath-core/numbers-private.h>
 #include <pmath-core/strings-private.h>
 
 #include <pmath-util/debug.h>
+#include <pmath-util/incremental-hash-private.h>
 #include <pmath-util/memory.h>
 
 #include <pmath-builtins/all-symbols-private.h>
@@ -86,11 +88,13 @@ _pmath_timer_t _pmath_timer_get_next(void){
 
 PMATH_API void _pmath_destroy_object(pmath_t obj){
   assert(pmath_is_pointer(obj));
+  assert(!pmath_is_null(obj));
   
   if(!PMATH_VALID_TYPE_SHIFT(PMATH_AS_PTR(obj)->type_shift)){
     fprintf(stderr, "invalid type shift: %p, %d\n", 
       PMATH_AS_PTR(obj), PMATH_AS_PTR(obj)->type_shift);
   }
+  
   assert(PMATH_VALID_TYPE_SHIFT(PMATH_AS_PTR(obj)->type_shift));
   assert(PMATH_AS_PTR(obj)->refcount == 0 || PMATH_AS_PTR(obj)->type_shift == PMATH_TYPE_SHIFT_SYMBOL);
   
@@ -99,7 +103,7 @@ PMATH_API void _pmath_destroy_object(pmath_t obj){
 }
 
 PMATH_API unsigned int pmath_hash(pmath_t obj){
-  if(pmath_is_pointer(obj)){
+  if(pmath_is_pointer(obj) && PMATH_AS_PTR(obj) != NULL){
     pmath_hash_func_t hash;
     
     assert(PMATH_VALID_TYPE_SHIFT(PMATH_AS_PTR(obj)->type_shift));
@@ -109,7 +113,7 @@ PMATH_API unsigned int pmath_hash(pmath_t obj){
     return hash(obj);
   }
   
-  incremental_hash(&obj, sizeof(obj.pmath_t), 0);
+  return incremental_hash(&obj, sizeof(pmath_t), 0);
 }
 
 #ifdef pmath_equals
@@ -126,24 +130,24 @@ PMATH_API pmath_bool_t pmath_equals(
   if(pmath_same(objA, objB))
     return TRUE;
   
-  if(pmath_is_pointer(objA)){
+  if(pmath_is_pointer(objA) && PMATH_AS_PTR(objA) != NULL){
     eqA  = pmath_type_imps[PMATH_AS_PTR(objA)->type_shift].equals;
     cmpA = pmath_type_imps[PMATH_AS_PTR(objA)->type_shift].compare;
   }
   else if(pmath_is_double(objA)){
-    eqA  = _pmath_equal_numbers;
-    cmpA = _pmath_compare_numbers;
+    eqA  = _pmath_numbers_equal;
+    cmpA = _pmath_numbers_compare;
   }
   else
     return FALSE;
   
-  if(pmath_is_pointer(objB)){
+  if(pmath_is_pointer(objB) && PMATH_AS_PTR(objB) != NULL){
     eqB  = pmath_type_imps[PMATH_AS_PTR(objB)->type_shift].equals;
     cmpB = pmath_type_imps[PMATH_AS_PTR(objB)->type_shift].compare;
   }
   else if(pmath_is_double(objB)){
-    eqB  = _pmath_equal_numbers;
-    cmpB = _pmath_compare_numbers;
+    eqB  = _pmath_numbers_equal;
+    cmpB = _pmath_numbers_compare;
   }
   else
     return FALSE;
@@ -167,18 +171,18 @@ PMATH_API int pmath_compare(pmath_t objA, pmath_t objB){
   if(pmath_same(objA, objB))
     return 0;
     
-  if(pmath_is_pointer(objA)){
+  if(pmath_is_double(objA)){
+    cmpA = _pmath_numbers_compare;
+  }
+  else if(pmath_is_pointer(objA) && PMATH_AS_PTR(objA) != NULL){
     cmpA = pmath_type_imps[PMATH_AS_PTR(objA)->type_shift].compare;
   }
-  else if(pmath_is_double(objA)){
-    cmpA = _pmath_compare_numbers;
-  }
   
-  if(pmath_is_pointer(objB)){
-    cmpB = pmath_type_imps[PMATH_AS_PTR(objB)->type_shift].compare;
+  if(pmath_is_double(objB)){
+    cmpB = _pmath_numbers_compare;
   }
-  else if(pmath_is_double(objB)){
-    cmpB = _pmath_compare_numbers;
+  else if(pmath_is_pointer(objB) && PMATH_AS_PTR(objB) != NULL){
+    cmpB = pmath_type_imps[PMATH_AS_PTR(objB)->type_shift].compare;
   }
   
   if(cmpA && cmpA == cmpB){
@@ -191,16 +195,16 @@ PMATH_API int pmath_compare(pmath_t objA, pmath_t objB){
   if(pmath_is_double(objB))
     return 1;
   
-  if(pmath_is_pointer(objA)){
-    if(pmath_is_pointer(objB)){
+  if(pmath_is_pointer(objA) && PMATH_AS_PTR(objA) != NULL){
+    if(pmath_is_pointer(objB) && PMATH_AS_PTR(objB) != NULL){
       return PMATH_AS_PTR(objA)->type_shift - PMATH_AS_PTR(objB)->type_shift;
     }
     
     return 1;
   }
   
-  if(pmath_is_pointer(objB))
-    return -1
+  if(pmath_is_pointer(objB) && PMATH_AS_PTR(objB) != NULL)
+    return -1;
   
   if(PMATH_AS_TAG(objA) < PMATH_AS_TAG(objB))
     return -1;
@@ -226,7 +230,7 @@ PMATH_API void pmath_write(
   assert(write != NULL);
   
   if(pmath_is_pointer(obj)){
-    if(pmath_is_null(obj)){
+    if(PMATH_AS_PTR(obj) == NULL){
       write_cstr("/\\/", write, user);
       return;
     }

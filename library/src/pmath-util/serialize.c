@@ -13,9 +13,10 @@
 /* Data format   (LE = little endian)
 
    - Magic objects:      
-       object == PMATH_NULL:   0     (1 byte)
        object == b       1,b   (2 bytes)
    
+       object == PMATH_NULL:   0     (1 byte)
+       
    - new reference:      2,B,object  (B = 32BitLE number as new reference)
    - back references:    3,B         (B = 32BitLE number to previous reference)
    
@@ -138,13 +139,11 @@ static void serialize(
   pmath_t              object // will be freed
 ){
   if(pmath_is_magic(object)){
-    if(pmath_is_null(object)){
-      write_ui8(info->file, 0);
-    }
-    else{
-      write_ui8(info->file, 1);
-      write_ui8(info->file, (uint8_t)(uintptr_t)PMATH_AS_PTR(object));
-    }
+    write_ui8(info->file, 1);
+    write_ui8(info->file, (uint8_t)(uintptr_t)PMATH_AS_PTR(object));
+  }
+  else if(pmath_is_null(object)){
+    write_ui8(info->file, 0);
   }
   else{
     struct _pmath_object_int_entry_t *entry;
@@ -377,7 +376,7 @@ static int32_t read_si32(struct deserializer_t *info){
 static pmath_t deserialize(struct deserializer_t *info){
   switch(read_ui8(info)){
     case 0: return PMATH_NULL;
-    case 1: return PMATH_FROM_PTR((void*)(uintptr_t)read_ui8(info));
+    case 1: return PMATH_FROM_TAG(PMATH_TAG_MAGIC, read_ui8(info));
     
     case 2: {
       struct int_object_entry_t *entry;
