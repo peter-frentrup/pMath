@@ -380,7 +380,7 @@ PMATH_API pmath_t pmath_expr_get_item(
 
   if(PMATH_AS_PTR(expr)->type_shift == PMATH_TYPE_SHIFT_EXPRESSION_GENERAL || index == 0)
     return pmath_ref(expr_part_ptr->inherited.items[index]);
-
+  
   assert(PMATH_AS_PTR(expr)->type_shift == PMATH_TYPE_SHIFT_EXPRESSION_GENERAL_PART);
   
   return pmath_ref(expr_part_ptr->buffer->items[expr_part_ptr->start + index - 1]);

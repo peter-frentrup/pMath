@@ -47,7 +47,6 @@
    barrier semantics.
  */
 PMATH_FORCE_INLINE
-PMATH_INLINE_NODEBUG
 intptr_t pmath_atomic_fetch_add(
   intptr_t volatile *atom, 
   intptr_t delta
@@ -66,7 +65,6 @@ intptr_t pmath_atomic_fetch_add(
    atomically. It has full memory barrier semantics.
  */
 PMATH_FORCE_INLINE
-PMATH_INLINE_NODEBUG
 intptr_t pmath_atomic_fetch_set(
   intptr_t volatile *atom, 
   intptr_t new_value
@@ -87,7 +85,6 @@ intptr_t pmath_atomic_fetch_set(
    systems. This function has aquire barrier semantics.
  */
 PMATH_FORCE_INLINE
-PMATH_INLINE_NODEBUG
 intptr_t pmath_atomic_fetch_compare_and_set(
   intptr_t volatile *atom, 
   intptr_t old_value,
@@ -111,7 +108,6 @@ intptr_t pmath_atomic_fetch_compare_and_set(
    semantics.
  */
 PMATH_FORCE_INLINE
-PMATH_INLINE_NODEBUG
 pmath_bool_t pmath_atomic_compare_and_set(
   intptr_t volatile *atom, 
   intptr_t old_value,
@@ -143,7 +139,6 @@ pmath_bool_t pmath_atomic_compare_and_set(
          if pmath_atomic_have_cas2() returns FALSE. 
  */
 PMATH_FORCE_INLINE
-PMATH_INLINE_NODEBUG
 pmath_bool_t pmath_atomic_compare_and_set_2(
   intptr_t volatile *atom,
   intptr_t old_value_fst,
@@ -167,7 +162,6 @@ pmath_bool_t pmath_atomic_compare_and_set_2(
    pre-Pentiums, early AMD64).
  */
 PMATH_FORCE_INLINE
-PMATH_INLINE_NODEBUG
 pmath_bool_t pmath_atomic_have_cas2(void){
   return FALSE;
 }
@@ -175,7 +169,6 @@ pmath_bool_t pmath_atomic_have_cas2(void){
 /**\brief Insert an explicit memory barrier.
  */
 PMATH_FORCE_INLINE
-PMATH_INLINE_NODEBUG
 void pmath_atomic_barrier(void){
 }
 
@@ -194,7 +187,6 @@ pmath_atomic_unlock(&spin);
    \endcode
  */
 PMATH_FORCE_INLINE
-PMATH_INLINE_NODEBUG
 void pmath_atomic_lock(
   intptr_t volatile *atom
 ){
@@ -207,7 +199,6 @@ void pmath_atomic_lock(
    \see pmath_atomic_lock
  */
 PMATH_FORCE_INLINE
-PMATH_INLINE_NODEBUG
 void pmath_atomic_unlock(
   intptr_t volatile *atom
 ){
@@ -218,7 +209,6 @@ void pmath_atomic_unlock(
 /**\brief Yield control to another thread (used in spinlocks).
  */
 PMATH_FORCE_INLINE
-PMATH_INLINE_NODEBUG
 void pmath_atomic_loop_yield(void){
 }
 
@@ -226,7 +216,6 @@ void pmath_atomic_loop_yield(void){
 /**\brief A no-operation or short wait for use in spin locks.
  */
 PMATH_FORCE_INLINE
-PMATH_INLINE_NODEBUG
 void pmath_atomic_loop_nop(void){
 }
 

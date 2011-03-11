@@ -31,7 +31,6 @@
     (intptr_t)           (new_value)))
 
 PMATH_FORCE_INLINE
-PMATH_INLINE_NODEBUG
 pmath_bool_t pmath_atomic_compare_and_set_2(
   intptr_t volatile *atom,
   intptr_t old_value_fst,
@@ -71,7 +70,6 @@ pmath_bool_t pmath_atomic_compare_and_set_2(
       PMATH_MAKE_INTPTR_2(new_value_fst, new_value_snd)))*/
 
 PMATH_FORCE_INLINE
-PMATH_INLINE_NODEBUG
 pmath_bool_t pmath_atomic_have_cas2(void){
 #if 0
   int a,b,c,d;

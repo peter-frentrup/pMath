@@ -12,7 +12,6 @@
       (__int64)(delta)))
 
   PMATH_FORCE_INLINE
-  PMATH_INLINE_NODEBUG
   pmath_bool_t pmath_atomic_compare_and_set_2(
     intptr_t volatile *atom, // array of two intptr_ts, aligned to 128 bit
     intptr_t old_value_fst,
@@ -40,7 +39,6 @@
       (long)(delta)))
   
   PMATH_FORCE_INLINE
-  PMATH_INLINE_NODEBUG
   pmath_bool_t pmath_atomic_compare_and_set_2(
     intptr_t volatile *atom, // array of two intptr_ts, aligned to 64 bit
     intptr_t old_value_fst,
@@ -94,7 +92,6 @@
     (old_value))))
 
 PMATH_FORCE_INLINE
-PMATH_INLINE_NODEBUG
 pmath_bool_t pmath_atomic_have_cas2(void){
   int cpuinfo[4];
   __cpuid(cpuinfo, 1);

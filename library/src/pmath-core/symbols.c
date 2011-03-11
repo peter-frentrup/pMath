@@ -1010,10 +1010,10 @@ static void destroy_symbol(pmath_t s){
             pmath_atomic_unlock(&global_symbol_table_lock);
           );
           
-          pmath_debug_print_object("\aHashtable corrupted?: ", PMATH_FROM_PTR(symbol), "");
+          pmath_debug_print_object("Hashtable corrupted?: ", PMATH_FROM_PTR(symbol), "");
           pmath_debug_print(" [hash= %u]\n", pmath_hash(PMATH_FROM_PTR(symbol)));
           
-          pmath_debug_print_object("\aremoved: ", PMATH_FROM_PTR(removed_entry), "");
+          pmath_debug_print_object("removed: ", PMATH_FROM_PTR(removed_entry), "");
           pmath_debug_print(" [hash= %u]\n", pmath_hash(PMATH_FROM_PTR(removed_entry)));
           
           pmath_debug_print(">-------------------------------\n");
@@ -1171,13 +1171,13 @@ PMATH_PRIVATE void _pmath_symbols_done(void){
       
       if(symbol && symbol->inherited.inherited.inherited.refcount != 0){
         if(pmath_ht_search(global_symbol_table, (void*)&symbol->name) != NULL){
-          pmath_debug_print_object("\aSymbol '", PMATH_FROM_PTR(symbol), "'");
+          pmath_debug_print_object("Symbol '", PMATH_FROM_PTR(symbol), "'");
           pmath_debug_print(" (%p) still has %"PRIuPTR" reference(s)\n",
             symbol,
             symbol->inherited.inherited.inherited.refcount);
         }
         else{
-          pmath_debug_print_object("\a\aHashtable corrupted: lost symbol '", PMATH_FROM_PTR(symbol), "'");
+          pmath_debug_print_object("Hashtable corrupted: lost symbol '", PMATH_FROM_PTR(symbol), "'");
           pmath_debug_print(" (%p) still has %"PRIuPTR" reference(s)\n",
             symbol,
             symbol->inherited.inherited.inherited.refcount);

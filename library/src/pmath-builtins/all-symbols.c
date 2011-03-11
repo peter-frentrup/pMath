@@ -602,7 +602,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
       goto FAIL;
   }
   
-  #define VERIFY(x)  if(pmath_is_null(x)) goto FAIL;
+  #define VERIFY(X)  do{ pmath_t tmp = (X); if(pmath_is_null(tmp)) goto FAIL; }while(0);
   
   #define NEW_SYMBOL(name)        pmath_symbol_get(PMATH_C_STRING(name), TRUE)
   #define NEW_SYSTEM_SYMBOL(name) NEW_SYMBOL("System`" name)
@@ -1176,7 +1176,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   #ifdef PMATH_DEBUG_LOG
     for(i = 0;i < PMATH_BUILTIN_SYMBOL_COUNT;i++){
       if(pmath_is_null(_pmath_builtin_symbol_array[i]))
-        pmath_debug_print("\aBUILTIN SYMBOL #%d NOT USED\n", i);
+        pmath_debug_print("BUILTIN SYMBOL #%d NOT USED\n", i);
     }
   #endif
   

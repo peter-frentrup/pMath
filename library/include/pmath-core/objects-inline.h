@@ -12,26 +12,52 @@ struct _pmath_t{ // do not access members
 
 /*============================================================================*/
 
-#if PMATH_BITSIZE == 64
-  #define PMATH_AS_PTR(obj)  (assert(pmath_is_pointer(obj)), ((struct _pmath_t*)(((obj).as_bits << PMATH_TAGMASK_BITCOUNT) >> PMATH_TAGMASK_BITCOUNT)))
-#elif PMATH_BITSIZE == 32
-  #define PMATH_AS_PTR(obj)  (assert(pmath_is_pointer(obj)), ((obj).s.u.as_pointer_32))
-#endif
+#define pmath_is_double(obj)  (((obj).s.tag & PMATH_TAGMASK_NONDOUBLE) != PMATH_TAGMASK_NONDOUBLE)
+#define pmath_is_pointer(obj) (((obj).s.tag & PMATH_TAGMASK_POINTER)   == PMATH_TAGMASK_POINTER)
+#define pmath_is_magic(obj)   ((obj).s.tag == PMATH_TAG_MAGIC)
 
-#define PMATH_AS_DOUBLE(obj)  (assert(pmath_is_double(obj)), (obj).as_double)
+//#if PMATH_BITSIZE == 64
+//  #define PMATH_AS_PTR(obj)  (assert(pmath_is_pointer(obj)), ((struct _pmath_t*)(((obj).as_bits << PMATH_TAGMASK_BITCOUNT) >> PMATH_TAGMASK_BITCOUNT)))
+//#elif PMATH_BITSIZE == 32
+//  #define PMATH_AS_PTR(obj)  (assert(pmath_is_pointer(obj)), ((obj).s.u.as_pointer_32))
+//#endif
+PMATH_FORCE_INLINE
+struct _pmath_t *PMATH_AS_PTR(pmath_t obj){
+  assert(pmath_is_pointer(obj));
+  
+  #if PMATH_BITSIZE == 64
+    return (struct _pmath_t*)((obj.as_bits << PMATH_TAGMASK_BITCOUNT) >> PMATH_TAGMASK_BITCOUNT);
+  #elif PMATH_BITSIZE == 32
+    return obj.s.u.as_pointer_32;
+  #endif
+}
+
+//#define PMATH_AS_DOUBLE(obj)  (assert(pmath_is_double(obj)), (obj).as_double)
+PMATH_FORCE_INLINE
+double PMATH_AS_DOUBLE(pmath_t obj){
+  assert(pmath_is_double(obj));
+  return obj.as_double;
+}
+
 #define PMATH_AS_TAG(obj)     ((obj).s.tag)
 #define PMATH_AS_INT32(obj)   ((obj).s.u.as_int32)
 
 
 #define pmath_same(objA, objB)  ((objA).as_bits == (objB).as_bits)
 
-#define pmath_is_double(obj)  (((obj).s.tag & PMATH_TAGMASK_NONDOUBLE) != PMATH_TAGMASK_NONDOUBLE)
-#define pmath_is_pointer(obj) (((obj).s.tag & PMATH_TAGMASK_POINTER)   == PMATH_TAGMASK_POINTER)
+//#define pmath_is_null(obj)    (pmath_is_pointer(obj) && PMATH_AS_PTR(obj) == NULL)
+PMATH_FORCE_INLINE
+pmath_bool_t pmath_is_null(pmath_t obj){
+  return pmath_is_pointer(obj) && PMATH_AS_PTR(obj) == NULL;
+}
 
-#define pmath_is_null(obj)    (pmath_is_pointer(obj) && PMATH_AS_PTR(obj) == NULL)
-#define pmath_is_magic(obj)   ((obj).s.tag == PMATH_TAG_MAGIC)
-
-#define pmath_is_pointer_of(obj, type)  (pmath_is_pointer(obj) && (PMATH_AS_PTR(obj) != NULL) && ((1 << (PMATH_AS_PTR(obj)->type_shift)) & (type)) != 0)
+//#define pmath_is_pointer_of(obj, type)  (pmath_is_pointer(obj) && (PMATH_AS_PTR(obj) != NULL) && ((1 << (PMATH_AS_PTR(obj)->type_shift)) & (type)) != 0)
+PMATH_FORCE_INLINE
+pmath_bool_t pmath_is_pointer_of(pmath_t obj, pmath_type_t type){
+  return pmath_is_pointer(obj) 
+    && PMATH_AS_PTR(obj) != NULL
+    && ((1 << (PMATH_AS_PTR(obj)->type_shift)) & type) != 0;
+}
 
 #define pmath_is_integer(obj) (pmath_is_pointer_of(obj, PMATH_TYPE_INTEGER))
 #define pmath_is_mpfloat(obj) (pmath_is_pointer_of(obj, PMATH_TYPE_MP_FLOAT))
@@ -45,11 +71,17 @@ struct _pmath_t{ // do not access members
 #define pmath_is_string(obj)   (pmath_is_pointer_of(obj, PMATH_TYPE_STRING))
 #define pmath_is_symbol(obj)   (pmath_is_pointer_of(obj, PMATH_TYPE_SYMBOL))
 
-#define pmath_is_evaluatable(obj)  (pmath_is_null(obj) || pmath_is_number(obj) || pmath_is_string(obj) || pmath_is_symbol(obj) || pmath_is_expr(obj))
-
+//#define pmath_is_evaluatable(obj)  (pmath_is_null(obj) || pmath_is_number(obj) || pmath_is_string(obj) || pmath_is_symbol(obj) || pmath_is_expr(obj))
+PMATH_FORCE_INLINE
+pmath_bool_t pmath_is_evaluatable(pmath_t obj){
+  return pmath_is_null(obj) 
+      || pmath_is_number(obj) 
+      || pmath_is_string(obj) 
+      || pmath_is_symbol(obj) 
+      || pmath_is_expr(obj);
+}
 
 PMATH_FORCE_INLINE
-PMATH_INLINE_NODEBUG
 pmath_t PMATH_FROM_DOUBLE(double d){
   pmath_t r;
   
@@ -114,7 +146,6 @@ void _pmath_destroy_object(pmath_t obj);
  */
 
 PMATH_FORCE_INLINE
-PMATH_INLINE_NODEBUG
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_t pmath_ref(pmath_t obj){
   if(PMATH_UNLIKELY(!pmath_is_pointer(obj)))
@@ -137,7 +168,6 @@ pmath_t pmath_ref(pmath_t obj){
 }
 
 PMATH_FORCE_INLINE
-PMATH_INLINE_NODEBUG
 void pmath_unref(pmath_t obj){
   if(PMATH_UNLIKELY(!pmath_is_pointer(obj)))
     return;
@@ -151,9 +181,5 @@ void pmath_unref(pmath_t obj){
   }
   pmath_atomic_barrier();
 }
-
-#ifndef PMATH_DEBUG_NO_FASTREF
-  #define pmath_equals       pmath_fast_equals
-#endif
 
 #endif /* __PMATH_CORE__OBJECTS_INLINE_H__ */

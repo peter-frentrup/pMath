@@ -62,7 +62,7 @@ static pmath_integer_t _pow_i_abs(
   unsigned long   exponent
 ){ // TODO: prevent overflow / gmp-out-of-memory
   pmath_integer_t result;
-  if(exponent == 1 || !pmath_is_null(base))
+  if(exponent == 1 || pmath_is_null(base))
     return pmath_ref(base);
 
   result = _pmath_create_integer();

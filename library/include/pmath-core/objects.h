@@ -9,7 +9,7 @@
    \brief The basic class for all pMath objects.
 
    pMath works on objects. They can be expressions (trees of pMath objects),
-   symbols, values, strings or `magic objects` (integer value between 0 and 255).
+   symbols, numbers, strings or `magic objects` (special integer values).
 
    \see helpers
   @{
@@ -34,11 +34,15 @@
 /**\class pmath_t
    \brief The basic type of all pMath objects.
 
-   Note that this is not neccessaryly a pointer to some accessible piece of
-   memory.
    Use pmath_is_XXX() to determine whether an object is of a specific type.
-
-   You must free unused objects with pmath_unref().
+   You must free unused objects with pmath_unref(), but if pmath_is_pointer() 
+   gives FALSE, then calling pmath_ref() and pmath_unref() is not neccessary.
+   
+   machine precision floating values (aka double) and certain special values
+   are stored directly in the pmath_t object. Strings, expressions, other values
+   are stored as a pointer. The technique to pack all this in only 8 bytes is 
+   called NaN-boxing. See 
+   http://blog.mozilla.com/rob-sayre/2010/08/02/mozillas-new-javascript-value-representation
  */
 typedef union{
   uint64_t as_bits;
@@ -70,9 +74,8 @@ typedef union{
 } pmath_t;
 
 PMATH_FORCE_INLINE
-PMATH_INLINE_NODEBUG
 PMATH_ATTRIBUTE_USE_RESULT
-pmath_t PMATH_FROM_TAG(uint32_t tag, uint32_t value){
+pmath_t PMATH_FROM_TAG(uint32_t tag, int32_t value){
   pmath_t r;
   
   assert((tag & PMATH_TAGMASK_POINTER) == PMATH_TAGMASK_NONDOUBLE);
@@ -86,7 +89,6 @@ pmath_t PMATH_FROM_TAG(uint32_t tag, uint32_t value){
 
 
 PMATH_FORCE_INLINE
-PMATH_INLINE_NODEBUG
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_t PMATH_FROM_PTR(void *p){
   pmath_t r;
@@ -104,24 +106,23 @@ pmath_t PMATH_FROM_PTR(void *p){
 #define PMATH_THREAD_KEY_PARSESYMBOLS     PMATH_FROM_TAG(PMATH_TAG_MAGIC, 252)
 #define PMATH_THREAD_KEY_PARSERARGUMENTS  PMATH_FROM_TAG(PMATH_TAG_MAGIC, 253)
 #define PMATH_ABORT_EXCEPTION             PMATH_FROM_TAG(PMATH_TAG_MAGIC, 254)
-#define PMATH_UNDEFINED                   PMATH_FROM_TAG(PMATH_TAG_MAGIC, 255)
-#define PMATH_NULL                        PMATH_FROM_PTR(NULL)
+//#define PMATH_UNDEFINED                   PMATH_FROM_TAG(PMATH_TAG_MAGIC, 255)
+//#define PMATH_NULL                        PMATH_FROM_PTR(NULL)
+
+PMATH_UNUSED
+static const pmath_t PMATH_UNDEFINED = { (((uint64_t)PMATH_TAG_MAGIC) << 32) | 255 };
+
+PMATH_UNUSED
+static const pmath_t PMATH_NULL      = { ((uint64_t)PMATH_TAGMASK_POINTER) << 32 };
 
 
 /**\brief The type or class of a pMath object.
 
    This is a bitset of the \c PMATH_TYPE_XXX constants:
 
-   - \c PMATH_TYPE_MAGIC: The object is a `magic number`, which 
-     is any integer value between 0 and 255 cast to ( \ref pmath_t ). 
-     These values have special meanings:
-     - \c PMATH_NULL This is simply `nothing`. It is often used to indicate that there 
-       is not enough memory.
-     - \c PMATH_UNDEFINED Symbol values are initialized with PMATH_UNDEFINED. 
-       This is done to enable saving the value PMATH_NULL in a symbol.
-       
-     Any function that returns or operates on a pmath_t may return PMATH_NULL. 
-     Exceptions are allways explicitly stated in the documentation.
+   - \c PMATH_TYPE_MP_FLOAT: The object is a floating point number with 
+     arbitrary precision. You can cast it to \ref pmath_float_t and 
+     pmath_number_t.
 
    - \c PMATH_TYPE_INTEGER: The object is an integer value. You can cast it 
      to \ref pmath_integer_t, \ref pmath_rational_t and \ref pmath_number_t.
@@ -129,14 +130,6 @@ pmath_t PMATH_FROM_PTR(void *p){
    - \c PMATH_TYPE_QUOTIENT: The object is a reduced quotient of two 
      integer values, where the denominator is never 0 or 1. You can cast 
      quotient objects to pmath_rational_t and thus to pmath_number_t too.
-
-   - \c PMATH_TYPE_MP_FLOAT: The object is a floating point number with 
-     arbitrary precision. You can cast it to \ref pmath_float_t and 
-     pmath_number_t.
-
-   - \c PMATH_TYPE_MACHINE_FLOAT: The object is a floating point number 
-     with machine precision. You can cast it to pmath_float_t and 
-     pmath_number_t.
 
    - \c PMATH_TYPE_STRING: The object is a string. You can cast it to
      \ref pmath_string_t.

@@ -34,7 +34,7 @@
 					<Add option="-DPMATH_DEBUG_LOG" />
 					<Add option="-DPMATH_DEBUG_MEMORY" />
 					<Add option="-DPMATH_DEBUG_TESTS" />
-					<Add option="-DPMATH_DEBUG_NO_FASTREF" />
+					<Add option="-DPMATH_DEBUG_NO_FORCEINLINE" />
 					<Add option="-DPMATH_USE_WINDOWS_THREADS=1" />
 				</Compiler>
 				<Linker>

@@ -589,7 +589,7 @@ static void plus_2_arg(pmath_t *a, pmath_t *b){
       return;
     }
     
-    if(pmath_is_null(binfdir)){
+    if(!pmath_is_null(binfdir)){
       pmath_unref(binfdir);
       pmath_unref(*a);
       *a = *b;

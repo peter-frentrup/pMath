@@ -55,28 +55,31 @@
   #define PMATH_UNLIKELY(cond)  (cond)
 #endif
 
+/* PMATH_UNUSED
+   
+   The specified variable might not be used. No warning should be emitted.
+ */
+#ifdef __GNUC__
+  #define PMATH_UNUSED  __attribute__((unused))
+#else
+  #define PMATH_UNUSED  
+#endif
+
 /* PMATH_FORCE_INLINE  (static __inline __attribute__((__always_inline__)) or 
    static __forceinline)
    
    We cannot use extern inline (gcc) because that conflicts with PMATH_API
  */
-#ifdef __GNUC__
-  #define PMATH_FORCE_INLINE  static __inline __attribute__((__always_inline__))
-#elif defined(_MSC_VER)
-  #define PMATH_FORCE_INLINE  static __forceinline
+#ifdef PMATH_DEBUG_NO_FORCEINLINE
+  #define PMATH_FORCE_INLINE  PMATH_UNUSED static
 #else
-  #define PMATH_FORCE_INLINE  static __inline
-#endif
-
-/* PMATH_INLINE_NODEBUG
-   
-   The specified function should be handled as a macro for debugging (never jump 
-   into the function) 
- */
-#ifdef __GNUC__
-  #define PMATH_INLINE_NODEBUG  __attribute__((artificial))
-#else
-  #define PMATH_INLINE_NODEBUG  
+  #ifdef __GNUC__
+    #define PMATH_FORCE_INLINE  static __inline __attribute__((__always_inline__))
+  #elif defined(_MSC_VER)
+    #define PMATH_FORCE_INLINE  static __forceinline
+  #else
+    #define PMATH_FORCE_INLINE  static __inline
+  #endif
 #endif
 
 /* PMATH_INLINE  (__inline)

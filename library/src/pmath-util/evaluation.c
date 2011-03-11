@@ -18,7 +18,7 @@
 
 // pmath_maxrecursion is in pmath-objects.h
 
-#define DEBUG_LOG_EVAL
+//#define DEBUG_LOG_EVAL
 
 #ifdef DEBUG_LOG_EVAL
   static int indented = 0;

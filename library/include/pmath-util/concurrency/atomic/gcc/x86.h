@@ -8,7 +8,6 @@
  */
 
 PMATH_FORCE_INLINE
-PMATH_INLINE_NODEBUG
 intptr_t pmath_atomic_fetch_add(
   intptr_t volatile *atom,
   intptr_t delta
@@ -27,7 +26,6 @@ intptr_t pmath_atomic_fetch_add(
 }
 
 PMATH_FORCE_INLINE
-PMATH_INLINE_NODEBUG
 intptr_t pmath_atomic_fetch_set(
   intptr_t volatile *atom,
   intptr_t new_value
@@ -46,7 +44,6 @@ intptr_t pmath_atomic_fetch_set(
 }
 
 PMATH_FORCE_INLINE
-PMATH_INLINE_NODEBUG
 intptr_t pmath_atomic_fetch_compare_and_set(
   intptr_t volatile *atom,
   intptr_t old_value,
@@ -65,7 +62,6 @@ intptr_t pmath_atomic_fetch_compare_and_set(
 }
 
 PMATH_FORCE_INLINE
-PMATH_INLINE_NODEBUG
 pmath_bool_t pmath_atomic_compare_and_set(
   intptr_t volatile *atom,
   intptr_t old_value,
@@ -85,7 +81,6 @@ pmath_bool_t pmath_atomic_compare_and_set(
 }
 
 PMATH_FORCE_INLINE
-PMATH_INLINE_NODEBUG
 pmath_bool_t pmath_atomic_compare_and_set_2(
   intptr_t volatile *atom, // aligned to 2*sizeof(void*)
   intptr_t old_value_fst,
@@ -155,7 +150,6 @@ pmath_bool_t pmath_atomic_compare_and_set_2(
 }
 
 PMATH_FORCE_INLINE
-PMATH_INLINE_NODEBUG
 pmath_bool_t pmath_atomic_have_cas2(void){
   uintptr_t edx;
   
@@ -172,7 +166,6 @@ pmath_bool_t pmath_atomic_have_cas2(void){
 }
  
 PMATH_FORCE_INLINE
-PMATH_INLINE_NODEBUG
 void pmath_atomic_barrier(void){
   __asm __volatile("":::"memory");
 }
@@ -181,7 +174,6 @@ void pmath_atomic_barrier(void){
 //#define pmath_atomic_loop_nop()  __asm __volatile("rep; nop"::)
 
 PMATH_FORCE_INLINE
-PMATH_INLINE_NODEBUG
 void pmath_atomic_lock(
   intptr_t volatile *atom
 ){
@@ -200,7 +192,6 @@ void pmath_atomic_lock(
 }
 
 PMATH_FORCE_INLINE
-PMATH_INLINE_NODEBUG
 void pmath_atomic_unlock(
   intptr_t volatile *atom
 ){

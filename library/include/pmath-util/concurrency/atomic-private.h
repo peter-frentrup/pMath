@@ -22,7 +22,6 @@
  */
  
 PMATH_FORCE_INLINE
-PMATH_INLINE_NODEBUG
 void *_pmath_atomic_lock_ptr(void * volatile *ptr){
   void *result;
   
@@ -36,7 +35,6 @@ void *_pmath_atomic_lock_ptr(void * volatile *ptr){
 }
 
 PMATH_FORCE_INLINE
-PMATH_INLINE_NODEBUG
 void _pmath_atomic_unlock_ptr(void * volatile *ptr, void *value){
   assert(*ptr == PMATH_INVALID_PTR);
   assert(value != PMATH_INVALID_PTR);
@@ -55,7 +53,6 @@ typedef struct{
  */
 
 PMATH_FORCE_INLINE
-PMATH_INLINE_NODEBUG
 pmath_t _pmath_object_atomic_read_start(
   pmath_locked_t *ptr
 ){
@@ -95,7 +92,6 @@ pmath_t _pmath_object_atomic_read_start(
 }
  
 PMATH_FORCE_INLINE
-PMATH_INLINE_NODEBUG
 void _pmath_object_atomic_read_end(
   pmath_locked_t *ptr,
   pmath_t         value // will be freed
@@ -123,7 +119,6 @@ void _pmath_object_atomic_read_end(
 }
 
 PMATH_FORCE_INLINE
-PMATH_INLINE_NODEBUG
 pmath_t _pmath_object_atomic_read(
   pmath_locked_t *ptr
 ){
@@ -136,7 +131,6 @@ pmath_t _pmath_object_atomic_read(
 }
 
 PMATH_FORCE_INLINE
-PMATH_INLINE_NODEBUG
 void _pmath_object_atomic_write(
   pmath_locked_t *ptr,
   pmath_t         value
@@ -171,7 +165,6 @@ void _pmath_object_atomic_write(
 /*----------------------------------------------------------------------------*/
 
 PMATH_FORCE_INLINE
-PMATH_INLINE_NODEBUG
 void *_pmath_atomic_global_need(
   void * volatile *ptr,
   void *(*create_default)(void),
@@ -197,7 +190,6 @@ void *_pmath_atomic_global_need(
 }
 
 PMATH_FORCE_INLINE
-PMATH_INLINE_NODEBUG
 void *_pmath_atomic_global_done(
   void * volatile *ptr,
   void *expected_value,
