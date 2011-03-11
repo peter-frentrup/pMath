@@ -7,5 +7,6 @@
 #define PRIxPTR "Ix"
 
 #define PRId64 "I64d"
+#define PRIx64 "I64x"
 
 #endif

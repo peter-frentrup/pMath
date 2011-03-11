@@ -19,6 +19,10 @@
 #include <string.h>
 
 
+#include <pmath-language/scanner.h>
+#include <pmath-util/evaluation.h>
+
+
 #ifdef PMATH_USE_DLMALLOC
 
   #include <pmath-util/dlmalloc.h>
@@ -119,8 +123,10 @@
   PMATH_PRIVATE PMATH_DECLARE_ATOMIC(_pmath_debug_global_time) = 0;
 
   #define DEBUG_UNDERFLOW       "UNDERFLOW"
+  #define DEBUG_UNDERFLOW_FREE  "FREEFREEF"
   #define DEBUG_UNDERFLOW_SIZE  9
   #define DEBUG_OVERFLOW        "OVERFLOW"
+  #define DEBUG_OVERFLOW_FREE   "FREEFREE"
   #define DEBUG_OVERFLOW_SIZE   8
   #define DEBUG_HEADER_SIZE  round_up_int(sizeof(memory_header_t) + DEBUG_UNDERFLOW_SIZE, 2*sizeof(/*(void*)*/size_t))
 
@@ -144,7 +150,7 @@
 
   static void debug_mem_show_extract(void *p){
     memory_header_t *header;
-    #define EXTRACT_BYTE_COUNT 30
+    #define EXTRACT_BYTE_COUNT 64
     char extract[1 + 3*EXTRACT_BYTE_COUNT +  2  + EXTRACT_BYTE_COUNT + 2];
     //          "["  "hh "                 "= "   "c"                 "]\0"
     char *out;
@@ -204,14 +210,14 @@
   }
 
   static void debug_mem_delete_range_check(memory_header_t *header){
-    memset(
+    memcpy(
       DEBUG_MEM_FROM_HEADER(header) - DEBUG_UNDERFLOW_SIZE,
-      '?',
+      DEBUG_UNDERFLOW_FREE,
       DEBUG_UNDERFLOW_SIZE);
 
-    memset(
+    memcpy(
       DEBUG_MEM_FROM_HEADER(header) + header->size,
-      '?',
+      DEBUG_OVERFLOW_FREE,
       DEBUG_OVERFLOW_SIZE);
   }
 
@@ -229,6 +235,21 @@
 //      pmath_debug_print("\n\a");
 //      return;
 //    }
+    if(0 == memcmp(DEBUG_MEM_FROM_HEADER(header) - DEBUG_UNDERFLOW_SIZE,
+                   DEBUG_UNDERFLOW_FREE,
+                   DEBUG_UNDERFLOW_SIZE))
+    {
+      pmath_debug_print("<%p, t=%"PRIuPTR"> DOUBLE FREE at t=%"PRIuPTR" ",
+        p, header->alloc_time, _pmath_debug_global_time);
+      debug_mem_show_extract(p);
+      pmath_debug_print("\n\n");
+      
+      // this might crash:
+      pmath_debug_print_object(" = ", PMATH_FROM_PTR(p) ,"\n\n");
+      PMATH_RUN("Print(Stack())");
+      return;
+    }
+
     if(0 != memcmp(DEBUG_MEM_FROM_HEADER(header) - DEBUG_UNDERFLOW_SIZE,
                    DEBUG_UNDERFLOW,
                    DEBUG_UNDERFLOW_SIZE))
@@ -236,7 +257,7 @@
       pmath_debug_print("<%p, t=%"PRIuPTR"> UNDERFLOW at t=%"PRIuPTR" ",
         p, header->alloc_time, _pmath_debug_global_time);
       debug_mem_show_extract(p);
-      pmath_debug_print("\n\a");
+      pmath_debug_print("\n\n");
       return;
     }
 
@@ -247,7 +268,7 @@
       pmath_debug_print("<%p, t=%"PRIuPTR"> OVERFLOW at t=%"PRIuPTR" ",
         p, header->alloc_time, _pmath_debug_global_time);
       debug_mem_show_extract(p);
-      pmath_debug_print("\n\a");
+      pmath_debug_print("\n\n");
       return;
     }
   }
@@ -270,10 +291,7 @@
     p->size = size;
     p->alloc_time = pmath_atomic_fetch_add(&_pmath_debug_global_time, 1);
     debug_mem_init_range_check(p);
-    if(p->alloc_time == 10892){
-      pmath_debug_print("[10892]");
-    }
-
+    
     {
       #if PMATH_USE_PTHREAD
         pthread_mutex_lock(&mem_list_mutex);
@@ -373,9 +391,6 @@
     new_p->size = size;
     new_p->alloc_time = pmath_atomic_fetch_add(&_pmath_debug_global_time, 1);
 
-    if(new_p->alloc_time == 10892){
-      pmath_debug_print("[10892]");
-    }
     debug_mem_init_range_check(new_p);
 
     {

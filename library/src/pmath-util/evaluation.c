@@ -8,6 +8,7 @@
 #include <pmath-util/debug.h>
 #include <pmath-util/dynamic-private.h>
 #include <pmath-util/helpers.h>
+#include <pmath-util/memory.h>
 #include <pmath-util/messages.h>
 #include <pmath-util/symbol-values-private.h>
 
@@ -16,6 +17,22 @@
 
 
 // pmath_maxrecursion is in pmath-objects.h
+
+#define DEBUG_LOG_EVAL
+
+#ifdef DEBUG_LOG_EVAL
+  static int indented = 0;
+  static void debug_indent(void){
+    int i;
+    
+    #ifdef PMATH_DEBUG_MEMORY
+      pmath_debug_print("[t=%6"PRIuPTR"]", _pmath_debug_global_time);
+    #endif
+    
+    for(i = indented % 30;i > 0;--i)
+      pmath_debug_print("  ");
+  }
+#endif
 
 static pmath_t evaluate_expression(
   pmath_expr_t    expr,    // will be freed
@@ -30,7 +47,24 @@ static pmath_t evaluate(
   pmath_t  obj,
   pmath_thread_t *thread_ptr
 ){
+  #ifdef DEBUG_LOG_EVAL
+    int iter = 0;
+    ++indented;
+    debug_indent();
+    pmath_debug_print_object("eval ", obj, "");
+    pmath_debug_print(" [%"PRIx64"] ...\n", obj.as_bits);
+  #endif
+  
   while(!pmath_aborting()){
+    #ifdef DEBUG_LOG_EVAL
+      if(iter > 0){
+        debug_indent();
+        pmath_debug_print("... [# %d]: ", iter);
+        pmath_debug_print_object("", obj, "");
+        pmath_debug_print(" [%"PRIx64"] ...\n", obj.as_bits);
+      }
+    #endif
+
     if(pmath_is_expr(obj)){
       if(_pmath_expr_is_updated(obj))
         break;
@@ -57,6 +91,13 @@ static pmath_t evaluate(
     
     break;
   }
+  
+  #ifdef DEBUG_LOG_EVAL
+    debug_indent();
+    pmath_debug_print_object("... eval ", obj, "");
+    pmath_debug_print(" [%"PRIx64"] ...\n", obj.as_bits);
+    --indented;
+  #endif
   
   return obj;
 }

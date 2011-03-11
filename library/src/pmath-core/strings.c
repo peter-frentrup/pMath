@@ -791,9 +791,6 @@ int pmath_string_length(pmath_string_t string){
   if(pmath_is_null(string))
     return 0;
   
-  if(!pmath_is_string(string)){
-    pmath_debug_print("oops");
-  }
   assert(pmath_is_string(string));
   
   _str = (void*)PMATH_AS_PTR(string);
