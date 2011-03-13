@@ -58,8 +58,8 @@ static pmath_t stringtake(
     }
     
     pmath_message(PMATH_NULL, "take", 3,
-      pmath_integer_new_si(start),
-      pmath_integer_new_si(end),
+      pmath_integer_new_slong(start),
+      pmath_integer_new_slong(end),
       pmath_ref(str));
     
     return pmath_expr_set_item(pmath_ref(expr), 1, str);
@@ -86,7 +86,7 @@ static pmath_t stringtake(
   }
   
   pmath_message(PMATH_NULL, "strse", 2,
-    pmath_integer_new_si(1),
+    PMATH_FROM_INT32(1),
     pmath_ref(expr));
   
   pmath_unref(str);
@@ -105,7 +105,7 @@ PMATH_PRIVATE pmath_t builtin_stringtake(pmath_expr_t expr){
   obj = pmath_expr_get_item(expr, 2);
   if(!_pmath_extract_longrange(obj, &start, &end, &step)){
     pmath_unref(obj);
-    pmath_message(PMATH_NULL, "seqs", 2, pmath_integer_new_si(2), pmath_ref(expr));
+    pmath_message(PMATH_NULL, "seqs", 2, PMATH_FROM_INT32(2), pmath_ref(expr));
     return expr;
   }
   

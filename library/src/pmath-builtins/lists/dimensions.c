@@ -182,15 +182,15 @@ PMATH_PRIVATE pmath_t builtin_dimensions(pmath_expr_t expr){
   if(exprlen == 2){
     obj = pmath_expr_get_item(expr, 2);
     
-    if(pmath_is_integer(obj) && pmath_number_sign(obj) >= 0){
-      if(pmath_integer_fits_ui(obj))
-        maxdepth = (size_t)pmath_integer_get_ui(obj);
+    if(_pmath_is_integer(obj) && pmath_number_sign(obj) >= 0){
+      if(pmath_is_int32(obj))
+        maxdepth = (size_t)PMATH_AS_INT32(obj);
     }
     else if(!pmath_equals(obj, _pmath_object_infinity)){
       pmath_unref(obj);
       
       pmath_message(PMATH_NULL, "innf", 2,
-        pmath_integer_new_ui(2),
+        PMATH_FROM_INT32(2),
         pmath_ref(expr));
       
       return expr;

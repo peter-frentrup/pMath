@@ -79,7 +79,7 @@ namespace pmath{
       bool is_number()   const throw() { return pmath_is_number(  _obj); }
       bool is_quotient() const throw() { return pmath_is_quotient(_obj); }
       bool is_rational() const throw() { return pmath_is_rational(_obj); }
-      bool is_real()     const throw() { return pmath_is_real(    _obj); }
+      bool is_real()     const throw() { return pmath_is_float(    _obj); }
       bool is_string()   const throw() { return pmath_is_string(  _obj); }
       bool is_symbol()   const throw() { return pmath_is_symbol(  _obj); }
       

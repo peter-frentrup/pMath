@@ -42,51 +42,65 @@ PMATH_PRIVATE pmath_t builtin_ceiling_or_floor_or_round(
       return x;
     }
 
-    if(pmath_is_integer(x)){
+    if(_pmath_is_integer(x)){
       pmath_unref(expr);
       pmath_unref(head);
       return x;
     }
     
     if(pmath_is_quotient(x)){
-      pmath_integer_t result = _pmath_create_integer();
+      pmath_mpint_t num = pmath_ref(PMATH_QUOT_NUM(x));
+      pmath_mpint_t den = pmath_ref(PMATH_QUOT_DEN(x));
+      pmath_mpint_t result = _pmath_create_mp_int(0);
       pmath_unref(expr);
-      if(pmath_is_null(result)){
+      
+      if(pmath_is_int32(num))
+        num = _pmath_create_mp_int(PMATH_AS_INT32(num));
+      
+      if(pmath_is_int32(den))
+        den = _pmath_create_mp_int(PMATH_AS_INT32(den));
+      
+      if(pmath_is_null(result) || pmath_is_null(num) || pmath_is_null(den)){
         pmath_unref(x);
+        pmath_unref(num);
+        pmath_unref(den);
         pmath_unref(head);
         return PMATH_NULL;
       }
+      
+      assert(pmath_is_mpint(num));
+      assert(pmath_is_mpint(den));
 
       if(pmath_same(head, PMATH_SYMBOL_CEILING)){
         mpz_cdiv_q(
           PMATH_AS_MPZ(result),
-          PMATH_AS_MPZ(PMATH_QUOT_NUM(x)),
-          PMATH_AS_MPZ(PMATH_QUOT_DEN(x)));
+          PMATH_AS_MPZ(num),
+          PMATH_AS_MPZ(den));
       }
       else if(pmath_same(head, PMATH_SYMBOL_FLOOR)){
         mpz_fdiv_q(
           PMATH_AS_MPZ(result),
-          PMATH_AS_MPZ(PMATH_QUOT_NUM(x)),
-          PMATH_AS_MPZ(PMATH_QUOT_DEN(x)));
+          PMATH_AS_MPZ(num),
+          PMATH_AS_MPZ(den));
       }
       else{
         pmath_bool_t even;
         int cmp;
-        pmath_integer_t rem = _pmath_create_integer();
-        pmath_integer_t half = _pmath_create_integer();
+        pmath_mpint_t rem  = _pmath_create_mp_int(0);
+        pmath_mpint_t half = _pmath_create_mp_int(0);
         
         if(!pmath_is_null(rem) && !pmath_is_null(half)){
           mpz_fdiv_qr(
             PMATH_AS_MPZ(result),
             PMATH_AS_MPZ(rem),
-            PMATH_AS_MPZ(PMATH_QUOT_NUM(x)),
-            PMATH_AS_MPZ(PMATH_QUOT_DEN(x)));
+            PMATH_AS_MPZ(num),
+            PMATH_AS_MPZ(den));
           
-          even = mpz_even_p(PMATH_AS_MPZ(PMATH_QUOT_DEN(x)));
+          even = mpz_even_p(PMATH_AS_MPZ(den));
           
           mpz_fdiv_q_2exp(
             PMATH_AS_MPZ(half), 
-            PMATH_AS_MPZ(PMATH_QUOT_DEN(x)),
+            PMATH_AS_MPZ(den),
             1);
           
           cmp = mpz_cmp(PMATH_AS_MPZ(rem), PMATH_AS_MPZ(half));
@@ -103,13 +117,16 @@ PMATH_PRIVATE pmath_t builtin_ceiling_or_floor_or_round(
         pmath_unref(rem);
         pmath_unref(half);
       }
+      
+      pmath_unref(num);
+      pmath_unref(den);
       pmath_unref(x);
       pmath_unref(head);
-      return result;
+      return _pmath_mp_int_normalize(result);
     }
     
     if(pmath_is_double(x)){
-      pmath_integer_t result = _pmath_create_integer();
+      pmath_mpint_t result = _pmath_create_mp_int(0);
       pmath_unref(expr);
       if(pmath_is_null(result)){
         pmath_unref(x);
@@ -141,11 +158,11 @@ PMATH_PRIVATE pmath_t builtin_ceiling_or_floor_or_round(
       
       pmath_unref(x);
       pmath_unref(head);
-      return result;
+      return _pmath_mp_int_normalize(result);
     }
 
     if(pmath_is_mpfloat(x)){
-      pmath_integer_t result = _pmath_create_integer();
+      pmath_mpint_t result = _pmath_create_mp_int(0);
       pmath_unref(expr);
       if(pmath_is_null(result)){
         pmath_unref(x);
@@ -174,14 +191,14 @@ PMATH_PRIVATE pmath_t builtin_ceiling_or_floor_or_round(
       
       pmath_unref(x);
       pmath_unref(head);
-      return result;
+      return _pmath_mp_int_normalize(result);
     }
     
     {
       expr = pmath_expr_set_item(expr, 1, PMATH_NULL);
       x = pmath_approximate(x, HUGE_VAL, 2 * LOG2_10);
       
-      if(pmath_is_real(x)){
+      if(pmath_is_float(x)){
         pmath_unref(head);
         expr = pmath_expr_set_item(expr, 1, x);
         
@@ -214,7 +231,7 @@ PMATH_PRIVATE pmath_t builtin_ceiling_or_floor_or_round(
         pmath_expr_new_extended(
           pmath_ref(PMATH_SYMBOL_POWER), 2,
           pmath_ref(a),
-          pmath_integer_new_si(-1))));
+          PMATH_FROM_INT32(-1))));
 
     pmath_unref(expr);
     return pmath_expr_new_extended( // Ceil(x/a)*a  or  Floor(x/a)*a

@@ -32,30 +32,48 @@
 static pmath_integer_t product_of_small_primes;
 static pmath_integer_t product_of_medium_primes;
 
-static pmath_bool_t is_small_prime(pmath_integer_t n){
+static pmath_bool_t is_small_prime(unsigned n){
   size_t i;
   for(i = 0;i < FIRST_MEDIUM_PRIME_POS; ++i){
-    int cmp = mpz_cmp_ui(PMATH_AS_MPZ(n), _pmath_primes16bit[i]);
-    if(cmp == 0)
+    if(n == _pmath_primes16bit[i])
       return TRUE;
-    if(cmp < 0)
+      
+    if(n < _pmath_primes16bit[i])
       return FALSE;
   }
+  
   return FALSE;
 }
 
 PMATH_PRIVATE pmath_bool_t _pmath_integer_is_prime(pmath_integer_t n){
-  pmath_integer_t tmp;
+  pmath_mpint_t tmp;
 
-  assert(pmath_is_integer(n));
+  if(pmath_is_int32(n)){
+    pmath_bool_t result;
+    
+    if(PMATH_AS_INT32(n) <= 1)
+      return FALSE;
+    
+    if(PMATH_AS_INT32(n) <= GREATEST_SMALL_PRIME)
+      return is_small_prime(PMATH_AS_INT32(n));
+    
+    n = _pmath_create_mp_int(PMATH_AS_INT32(n));
+    if(!pmath_is_null(n)){
+      result = _pmath_integer_is_prime(n);
+      
+      pmath_unref(n);
+      return result;
+    }
+    
+    return FALSE;
+  }
 
-  if(mpz_cmp_ui(PMATH_AS_MPZ(n), 1) <= 0)
+  assert(pmath_is_mpint(n));
+  
+  if(mpz_sgn(PMATH_AS_MPZ(n)) <= 0)
     return FALSE;
 
-  if(mpz_cmp_ui(PMATH_AS_MPZ(n), GREATEST_SMALL_PRIME) <= 0)
-    return is_small_prime(n);
-
-  tmp = _pmath_create_integer();
+  tmp = _pmath_create_mp_int(0);
   if(pmath_is_null(tmp))
     return TRUE; /* Not realy prime, but pmath_aborting() is TRUE, so we can
                     return whatever we want. */
@@ -104,7 +122,7 @@ PMATH_PRIVATE pmath_t builtin_isprime(pmath_expr_t expr){
 
   n = pmath_expr_get_item(expr, 1);
 
-  if(pmath_is_integer(n)){
+  if(_pmath_is_integer(n)){
     pmath_bool_t result = _pmath_integer_is_prime(n);
     pmath_unref(expr);
     pmath_unref(n);
@@ -182,7 +200,7 @@ PMATH_PRIVATE pmath_t builtin_isprime(pmath_expr_t expr){
    */
   pmath_bool_t VERIFY_SMALL_PRIMES(void){
     int i;
-    pmath_integer_t tmp = _pmath_create_integer();
+    pmath_mpint_t tmp = _pmath_create_mp_int(0);
     
     if(pmath_is_null(tmp))
       return FALSE;
@@ -214,7 +232,7 @@ PMATH_PRIVATE pmath_t builtin_isprime(pmath_expr_t expr){
    */
   pmath_bool_t VERIFY_MEDIUM_PRIMES(void){
     int i;
-    pmath_integer_t tmp = _pmath_create_integer();
+    pmath_mpint_t tmp = _pmath_create_mp_int(0);
     
     if(pmath_is_null(tmp))
       return FALSE;

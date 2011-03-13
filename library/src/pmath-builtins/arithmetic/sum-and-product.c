@@ -61,12 +61,12 @@ pmath_t builtin_sum(pmath_expr_t expr){
     }
     
     pmath_unref(start);
-    pmath_unref(delta);
+    pmath_unref(delta); 
     pmath_unref(range);
   }
   
   data.is_valid = FALSE;
-  data.result   = pmath_integer_new_si(0);
+  data.result   = PMATH_FROM_INT32(0);
   data.body     = pmath_expr_get_item(expr, 1);
   data.func     = PMATH_SYMBOL_PLUS;
   
@@ -112,7 +112,7 @@ pmath_t builtin_product(pmath_expr_t expr){
   }
   
   data.is_valid = FALSE;
-  data.result   = pmath_integer_new_si(1);
+  data.result   = PMATH_FROM_INT32(1);
   data.body     = pmath_expr_get_item(expr, 1);
   data.func     = PMATH_SYMBOL_TIMES;
   

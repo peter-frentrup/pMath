@@ -26,8 +26,8 @@ static pmath_t berkowitz(pmath_expr_t A){ // A wont be freed
   Vect = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), n+1);
   
   // C[1]:= Vect[1]:= -1;   Vect[2]:= A[1,1]
-  C    = pmath_expr_set_item(C,    1, pmath_integer_new_si(-1));
-  Vect = pmath_expr_set_item(Vect, 1, pmath_integer_new_si(-1));
+  C    = pmath_expr_set_item(C,    1, PMATH_FROM_INT32(-1));
+  Vect = pmath_expr_set_item(Vect, 1, PMATH_FROM_INT32(-1));
   Vect = pmath_expr_set_item(Vect, 2, _pmath_matrix_get(A, 1, 1));
   
   for(r = 2;r <= n;++r){
@@ -201,7 +201,7 @@ static pmath_t symbolic_det(pmath_expr_t matrix){ // matrix will be freed
     
     if(sign < 0){
       mul = pmath_expr_new(pmath_ref(PMATH_SYMBOL_TIMES), n+1);
-      mul = pmath_expr_set_item(mul, n+1, pmath_integer_new_si(-1));
+      mul = pmath_expr_set_item(mul, n+1, PMATH_FROM_INT32(-1));
     }
     else
       mul = pmath_expr_new(pmath_ref(PMATH_SYMBOL_TIMES), n);
@@ -253,7 +253,7 @@ static pmath_bool_t use_symbolic_det(pmath_expr_t matrix){ // wont be freed
     for(j = pmath_expr_length(row);j > 0;--j){
       pmath_t obj = pmath_expr_get_item(row, j);
       
-      if(pmath_is_real(obj)){
+      if(pmath_is_float(obj)){
         inexact = TRUE;
       }
       else if(!pmath_is_number(obj)){
@@ -288,7 +288,7 @@ PMATH_PRIVATE pmath_t builtin_det(pmath_expr_t expr){
   if(!_pmath_is_matrix(matrix, &rows, &cols)
   || rows != cols
   || rows == 0){
-    pmath_message(PMATH_NULL, "matsq", 2, matrix, pmath_integer_new_si(1));
+    pmath_message(PMATH_NULL, "matsq", 2, matrix, PMATH_FROM_INT32(1));
     return expr;
   }
   
@@ -310,13 +310,13 @@ PMATH_PRIVATE pmath_t builtin_det(pmath_expr_t expr){
     if(sgn == 0){
       pmath_unref(matrix);
       pmath_mem_free(perm);
-      return pmath_integer_new_si(0);
+      return PMATH_FROM_INT32(0);
     }
     
     pmath_mem_free(perm);
     pmath_gather_begin(PMATH_NULL);
     if(sgn < 0)
-      pmath_emit(pmath_integer_new_si(-1), PMATH_NULL);
+      pmath_emit(PMATH_FROM_INT32(-1), PMATH_NULL);
       
     for(cols = 1;cols <= rows;++cols){
       pmath_emit(_pmath_matrix_get(matrix, cols, cols), PMATH_NULL);

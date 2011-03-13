@@ -549,7 +549,7 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj);
     if(pmath_is_expr_of_len(*obj, PMATH_SYMBOL_POWER, 2)){
       pmath_t exp = pmath_expr_get_item(*obj, 2);
 
-      if(pmath_equals(exp, PMATH_NUMBER_MINUSONE)){
+      if(pmath_equals(exp, PMATH_FROM_INT32(-1))){
         pmath_unref(exp);
         exp = *obj;
         *obj = pmath_expr_get_item(exp, 1);
@@ -694,7 +694,7 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj);
         pmath_t num = pmath_rational_numerator(factor);
         pmath_t den = pmath_rational_denominator(factor);
         
-        if(pmath_equals(num, PMATH_NUMBER_ONE))
+        if(pmath_equals(num, PMATH_FROM_INT32(-1)))
           pmath_unref(num);
         else
           pmath_emit(num, NUM_TAG);
@@ -756,8 +756,8 @@ static pmath_t complex_to_boxes(
     pmath_t re = pmath_expr_get_item(expr, 1);
     pmath_t im = pmath_expr_get_item(expr, 2);
     
-    if(pmath_equals(re, PMATH_NUMBER_ZERO)){
-      if(pmath_equals(im, PMATH_NUMBER_ONE)){
+    if(pmath_equals(re, PMATH_FROM_INT32(0))){
+      if(pmath_equals(im, PMATH_FROM_INT32(1))){
         pmath_unref(expr);
         pmath_unref(re);
         pmath_unref(im);
@@ -770,7 +770,7 @@ static pmath_t complex_to_boxes(
       
       if(pmath_is_number(im)){
         pmath_unref(re);
-        expr = pmath_expr_set_item(expr, 2, pmath_integer_new_si(1));
+        expr = pmath_expr_set_item(expr, 2, PMATH_FROM_INT32(1));
         
         return object_to_boxes(thread,
           pmath_expr_new_extended(
@@ -781,7 +781,7 @@ static pmath_t complex_to_boxes(
     }
     else if(pmath_is_number(re) && pmath_is_number(im)){
       pmath_unref(im);
-      expr = pmath_expr_set_item(expr, 1, pmath_integer_new_si(0));
+      expr = pmath_expr_set_item(expr, 1, PMATH_FROM_INT32(0));
       
       return object_to_boxes(thread,
         pmath_expr_new_extended(
@@ -801,32 +801,32 @@ static pmath_t directedinfinity_to_boxes(
   if(pmath_expr_length(expr) == 1){
     pmath_t dir = pmath_expr_get_item(expr, 1);
     
-    if(pmath_equals(dir, PMATH_NUMBER_ONE)){
+    if(pmath_equals(dir, PMATH_FROM_INT32(1))){
       pmath_unref(expr);
       pmath_unref(dir);
       
       return object_to_boxes(thread, pmath_ref(PMATH_SYMBOL_INFINITY));
     }
     
-    if(pmath_equals(dir, PMATH_NUMBER_MINUSONE)){
+    if(pmath_equals(dir, PMATH_FROM_INT32(-1))){
       pmath_unref(expr);
       pmath_unref(dir);
       
       return object_to_boxes(thread, 
         pmath_expr_new_extended(
           pmath_ref(PMATH_SYMBOL_TIMES), 2,
-          pmath_integer_new_si(-1),
+          PMATH_FROM_INT32(-1),
           pmath_ref(PMATH_SYMBOL_INFINITY)));
     }
     
     if(pmath_is_expr_of_len(dir, PMATH_SYMBOL_COMPLEX, 2)){
       pmath_t x = pmath_expr_get_item(dir, 1);
       
-      if(pmath_equals(x, PMATH_NUMBER_ZERO)){
+      if(pmath_equals(x, PMATH_FROM_INT32(0))){
         pmath_unref(x);
         x = pmath_expr_get_item(dir, 2);
         
-        if(pmath_equals(x, PMATH_NUMBER_ONE)){
+        if(pmath_equals(x, PMATH_FROM_INT32(1))){
           pmath_unref(expr);
           pmath_unref(dir);
           pmath_unref(x);
@@ -836,12 +836,12 @@ static pmath_t directedinfinity_to_boxes(
               pmath_ref(PMATH_SYMBOL_TIMES), 2,
               pmath_expr_new_extended(
                 pmath_ref(PMATH_SYMBOL_COMPLEX), 2,
-                pmath_integer_new_si(0),
-                pmath_integer_new_si(1)),
+                PMATH_FROM_INT32(0),
+                PMATH_FROM_INT32(1)),
               pmath_ref(PMATH_SYMBOL_INFINITY)));
         }
         
-        if(pmath_equals(x, PMATH_NUMBER_MINUSONE)){
+        if(pmath_equals(x, PMATH_FROM_INT32(-1))){
           pmath_unref(expr);
           pmath_unref(dir);
           pmath_unref(x);
@@ -851,8 +851,8 @@ static pmath_t directedinfinity_to_boxes(
               pmath_ref(PMATH_SYMBOL_TIMES), 2,
               pmath_expr_new_extended(
                 pmath_ref(PMATH_SYMBOL_COMPLEX), 2,
-                pmath_integer_new_si(0),
-                pmath_integer_new_si(-1)),
+                PMATH_FROM_INT32(0),
+                PMATH_FROM_INT32(-1)),
               pmath_ref(PMATH_SYMBOL_INFINITY)));
         }
       }
@@ -1194,7 +1194,7 @@ static pmath_t power_to_boxes(
       return expr;
     }
 
-    if(!pmath_equals(exp, PMATH_NUMBER_ONE)){
+    if(!pmath_equals(exp, PMATH_FROM_INT32(1))){
       int old_boxform = thread->boxform;
       
       if(thread->boxform == BOXFORM_STANDARD)
@@ -1280,7 +1280,7 @@ static pmath_t pureargument_to_boxes(
   if(pmath_expr_length(expr) == 1){
     pmath_t item = pmath_expr_get_item(expr, 1);
     
-    if(pmath_is_integer(item) && pmath_number_sign(item) > 0){
+    if(_pmath_is_integer(item) && pmath_number_sign(item) > 0){
       pmath_unref(expr);
       return pmath_build_value("(so)", "#", object_to_boxes(thread, item));
     }
@@ -1291,7 +1291,7 @@ static pmath_t pureargument_to_boxes(
       pmath_unref(b);
       
       if(pmath_same(b, PMATH_SYMBOL_AUTOMATIC)
-      && pmath_is_integer(a)
+      && _pmath_is_integer(a)
       && pmath_number_sign(a) > 0){
         pmath_unref(item);
         pmath_unref(expr);
@@ -1705,7 +1705,7 @@ static pmath_t times_to_boxes(
       
       if(pmath_expr_length(num) == 0){
         pmath_unref(num);
-        num = pmath_integer_new_si(1);
+        num = PMATH_FROM_INT32(1);
       }
       else if(pmath_expr_length(num) == 1){
         pmath_t tmp = num;
@@ -2232,9 +2232,8 @@ static pmath_t shallow_to_boxes(
   if(pmath_expr_length(expr) == 2){
     item = pmath_expr_get_item(expr, 2);
     
-    if(pmath_is_integer(item)
-    && pmath_integer_fits_ui(item)){
-      maxdepth = pmath_integer_get_ui(item);
+    if(pmath_is_int32(item) && PMATH_AS_INT32(item) >= 0){
+      maxdepth = (size_t)PMATH_AS_INT32(item);
     }
     else if(pmath_equals(item, _pmath_object_infinity)){
       maxdepth = SIZE_MAX;
@@ -2243,9 +2242,8 @@ static pmath_t shallow_to_boxes(
     // {maxdepth, maxlength}
       pmath_t obj = pmath_expr_get_item(item, 1);
       
-      if(pmath_is_integer(obj)
-      && pmath_integer_fits_ui(obj)){
-        maxdepth = pmath_integer_get_ui(obj);
+      if(pmath_is_int32(obj) && PMATH_AS_INT32(obj) >= 0){
+        maxdepth = (size_t)PMATH_AS_INT32(obj);
       }
       else if(pmath_equals(obj, _pmath_object_infinity)){
         maxdepth = SIZE_MAX;
@@ -2259,9 +2257,8 @@ static pmath_t shallow_to_boxes(
       pmath_unref(obj);
       obj = pmath_expr_get_item(item, 2);
       
-      if(pmath_is_integer(obj)
-      && pmath_integer_fits_ui(obj)){
-        maxlength = pmath_integer_get_ui(obj);
+      if(pmath_is_int32(obj) && PMATH_AS_INT32(obj) >= 0){
+        maxlength = (size_t)PMATH_AS_INT32(obj);
       }
       else if(pmath_equals(obj, _pmath_object_infinity)){
         maxlength = SIZE_MAX;
@@ -2976,7 +2973,8 @@ static pmath_t expr_to_boxes(pmath_thread_t thread, pmath_expr_t expr){
   }
 
 static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj){
-  if(pmath_is_double(obj)){
+  if(pmath_is_double(obj)
+  || pmath_is_int32(obj)){
     pmath_string_t s = PMATH_NULL;
     pmath_write(obj, 0, (pmath_write_func_t)_pmath_write_to_string, &s);
     pmath_unref(obj);
@@ -2993,22 +2991,21 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj){
   if(!pmath_is_pointer(obj)){
     char s[80];
     
-    if(PMATH_AS_PTR(obj) == NULL)
-      return PMATH_C_STRING("/\\/");
-  
     if(thread->boxform <= BOXFORM_OUTPUTEXPONENT){
       snprintf(s, sizeof(s), "<<\? %d,%x \?>>", 
         (int)PMATH_AS_TAG(obj), 
         (int)PMATH_AS_INT32(obj));
       return PMATH_C_STRING(s);
     }
-    else{
-      snprintf(s, sizeof(s), "/* %d,%x */", 
-        (int)PMATH_AS_TAG(obj), 
-        (int)PMATH_AS_INT32(obj));
-      return pmath_build_value("sss", "/\\/", " ", s);
-    }
+    
+    snprintf(s, sizeof(s), "/* %d,%x */", 
+      (int)PMATH_AS_TAG(obj), 
+      (int)PMATH_AS_INT32(obj));
+    return pmath_build_value("sss", "/\\/", " ", s);
   }
+  
+  if(PMATH_AS_PTR(obj) == NULL)
+    return PMATH_C_STRING("/\\/");
   
   if(thread->boxform < BOXFORM_OUTPUT
   && user_make_boxes(&obj))
@@ -3055,7 +3052,7 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj){
     }
     
     case PMATH_TYPE_SHIFT_MP_FLOAT:
-    case PMATH_TYPE_SHIFT_INTEGER: {
+    case PMATH_TYPE_SHIFT_MP_INT: {
       pmath_string_t s = PMATH_NULL;
       pmath_write(obj, 0, (pmath_write_func_t)_pmath_write_to_string, &s);
       pmath_unref(obj);

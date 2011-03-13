@@ -20,18 +20,14 @@ pmath_bool_t _pmath_equals_rational(pmath_t obj, int n, int d){
     return FALSE;
   
   part = pmath_rational_numerator(obj);
-  if(!pmath_is_integer(part) 
-  || !pmath_integer_fits_si(part)
-  || n != pmath_integer_get_si(part)){
+  if(!pmath_is_int32(part) || n != PMATH_AS_INT32(part)){
     pmath_unref(part);
     return FALSE;
   }
   
   pmath_unref(part);
   part = pmath_rational_denominator(obj);
-  if(!pmath_is_integer(part) 
-  || !pmath_integer_fits_si(part)
-  || d != pmath_integer_get_si(part)){
+  if(!pmath_is_int32(part) || d != PMATH_AS_INT32(part)){
     pmath_unref(part);
     return FALSE;
   }
@@ -60,20 +56,45 @@ pmath_bool_t _pmath_equals_rational_at(
 static pmath_integer_t _pow_i_abs(
   pmath_integer_t base,    // wont be freed
   unsigned long   exponent
-){ // TODO: prevent overflow / gmp-out-of-memory
-  pmath_integer_t result;
+){ // TODO: try to prevent overflow / gmp-out-of-memory
+  pmath_mpint_t result;
+  
   if(exponent == 1 || pmath_is_null(base))
     return pmath_ref(base);
-
-  result = _pmath_create_integer();
+  
+  assert(_pmath_is_integer(base));
+  
+  result = _pmath_create_mp_int(0);
   if(pmath_is_null(result))
     return PMATH_NULL;
 
-  mpz_pow_ui(
-    PMATH_AS_MPZ(result),
-    PMATH_AS_MPZ(base),
-    exponent);
-  return result;
+  if(pmath_is_int32(base)){
+    if(PMATH_AS_INT32(base) < 0){
+      mpz_ui_pow_ui(
+        PMATH_AS_MPZ(result),
+        (unsigned)-PMATH_AS_INT32(base),
+        exponent);
+        
+      if(exponent & 1)
+        mpz_neg(PMATH_AS_MPZ(result), PMATH_AS_MPZ(result));
+    }
+    else{
+      mpz_ui_pow_ui(
+        PMATH_AS_MPZ(result),
+        (unsigned)PMATH_AS_INT32(base),
+        exponent);
+    }
+  }
+  else{
+    assert(pmath_is_mpint(base));
+    
+    mpz_pow_ui(
+      PMATH_AS_MPZ(result),
+      PMATH_AS_MPZ(base),
+      exponent);
+  }
+  
+  return _pmath_mp_int_normalize(result);
 }
 
 /* a = int_root(&new_b, old_b, c)
@@ -88,37 +109,45 @@ static pmath_integer_t int_root(
   pmath_integer_t   old_base, // will be freed
   unsigned long     root_exp
 ){
-  pmath_bool_t    neg;
-  pmath_integer_t iroot;
-  pmath_integer_t prime_power;
-  unsigned int    i;
+  pmath_bool_t  neg;
+  pmath_mpint_t iroot;
+  pmath_mpint_t prime_power;
+  unsigned int  i;
   
-  assert(pmath_is_integer(old_base));
+  assert(_pmath_is_integer(old_base));
   assert(new_base != NULL);
   
-  if(mpz_cmpabs_ui(PMATH_AS_MPZ(old_base), 1) == 0){
-    if(mpz_sgn(PMATH_AS_MPZ(old_base)) > 0){
+  if(pmath_is_int32(old_base)){
+    int32_t base = PMATH_AS_INT32(old_base);
+    
+    if(base == 1){
       pmath_unref(old_base);
       *new_base = PMATH_NULL;
       return PMATH_NULL;
     }
-      
-    *new_base = old_base;
-    return PMATH_NULL;
-  }
-  
-  neg = mpz_sgn(PMATH_AS_MPZ(old_base)) < 0;
-  if(neg){
-    old_base = pmath_number_neg(old_base);
     
-    if(pmath_is_null(old_base)){
-      *new_base = PMATH_NULL;
+    if(base == -1){
+      *new_base = old_base;
       return PMATH_NULL;
     }
+    
+    neg = base < 0;
+  }
+  else{
+    assert(pmath_is_mpint(old_base));
+    
+    neg = mpz_sgn(PMATH_AS_MPZ(old_base)) < 0;
   }
   
-  iroot = _pmath_create_integer();
-  if(pmath_is_null(iroot)){
+  if(neg)
+    old_base = pmath_number_neg(old_base);
+  
+  if(pmath_is_int32(old_base))
+    old_base = _pmath_create_mp_int(PMATH_AS_INT32(old_base));
+  
+  iroot = _pmath_create_mp_int(0);
+  if(pmath_is_null(iroot) || pmath_is_null(old_base)){
+    pmath_unref(iroot);
     pmath_unref(old_base);
     *new_base = PMATH_NULL;
     return PMATH_NULL;
@@ -127,13 +156,13 @@ static pmath_integer_t int_root(
   if(mpz_root(PMATH_AS_MPZ(iroot), PMATH_AS_MPZ(old_base), root_exp)){
     pmath_unref(old_base);
     if(neg)
-      *new_base = pmath_integer_new_si(-1);
+      *new_base = PMATH_FROM_INT32(-1);
     else
       *new_base = PMATH_NULL;
-    return iroot;
+    return _pmath_mp_int_normalize(iroot);
   }
   
-  prime_power = _pmath_create_integer();
+  prime_power = _pmath_create_mp_int(0);
   if(pmath_is_null(prime_power)){
     pmath_unref(iroot);
     pmath_unref(old_base);
@@ -152,7 +181,7 @@ static pmath_integer_t int_root(
         root_exp);
       
       if(mpz_divisible_p(PMATH_AS_MPZ(old_base), PMATH_AS_MPZ(prime_power))){
-        *new_base = _pmath_create_integer();
+        *new_base = _pmath_create_mp_int(0);
         
         if(pmath_is_null(*new_base))
           break;
@@ -167,9 +196,10 @@ static pmath_integer_t int_root(
         pmath_unref(old_base);
         
         if(neg)
-          *new_base = pmath_number_neg(*new_base);
+          mpz_neg(PMATH_AS_MPZ(*new_base), PMATH_AS_MPZ(*new_base));
           
-        return pmath_integer_new_ui(_pmath_primes16bit[i]);
+        *new_base = _pmath_mp_int_normalize(*new_base);
+        return PMATH_FROM_INT32(_pmath_primes16bit[i]);
       }
     }
   }
@@ -192,14 +222,21 @@ static pmath_t _pow_ri(
   pmath_integer_t num = pmath_rational_numerator(base);
   pmath_integer_t den = pmath_rational_denominator(base);
   
-  assert(!pmath_equals(base, PMATH_NUMBER_ZERO));
+  assert(pmath_number_sign(base) != 0);
   
   pmath_unref(base);
   if(exponent < 0){
-    return pmath_expr_new_extended(
-      pmath_ref(PMATH_SYMBOL_POWER), 2, 
-      pmath_rational_new(den, num),
-      pmath_integer_new_si(-exponent));
+    if(exponent == -exponent){ // overflow
+      return pmath_expr_new_extended(
+        pmath_ref(PMATH_SYMBOL_POWER), 2, 
+        pmath_rational_new(den, num),
+        pmath_number_neg(pmath_integer_new_slong(exponent)));
+    }
+    
+    exponent = -exponent;
+    base = num;
+    num = den;
+    den = base;
   }
   
   base = num;
@@ -210,7 +247,7 @@ static pmath_t _pow_ri(
   den = _pow_i_abs(base, (unsigned long)exponent);
   pmath_unref(base);
   
-  if(pmath_equals(den, PMATH_NUMBER_ONE)){
+  if(pmath_equals(den, PMATH_FROM_INT32(1))){
     pmath_unref(den);
     return num;
   }
@@ -222,9 +259,9 @@ static pmath_t _pow_ri(
 
 PMATH_PRIVATE 
 pmath_t _pow_fi( // returns struct _pmath_mp_float_t* iff null_on_errors is TRUE
-  pmath_float_t base,  // will be freed. not PMATH_NULL!
-  long          exponent,
-  pmath_bool_t  null_on_errors
+  pmath_mpfloat_t base,  // will be freed. not PMATH_NULL!
+  long            exponent,
+  pmath_bool_t    null_on_errors
 ){
   long lbaseexp;
   
@@ -235,6 +272,16 @@ pmath_t _pow_fi( // returns struct _pmath_mp_float_t* iff null_on_errors is TRUE
     
   mpfr_get_d_2exp(&lbaseexp, PMATH_AS_MP_VALUE(base), MPFR_RNDN);
   
+  if((exponent < 0 && 0 == 2 * (unsigned long)-exponent)
+  || exponent * lbaseexp > MPFR_EMAX_DEFAULT){
+    pmath_unref(base);
+    if(null_on_errors)
+      return PMATH_NULL;
+    
+    pmath_message(PMATH_SYMBOL_GENERAL, "ovfl", 0);
+    return pmath_ref(_pmath_object_overflow);
+  }
+  
   if(exponent * lbaseexp < MPFR_EMIN_DEFAULT){
     pmath_unref(base);
     if(null_on_errors)
@@ -244,18 +291,9 @@ pmath_t _pow_fi( // returns struct _pmath_mp_float_t* iff null_on_errors is TRUE
     return pmath_ref(_pmath_object_underflow);
   }
   
-  if(exponent * lbaseexp > MPFR_EMAX_DEFAULT){
-    pmath_unref(base);
-    if(null_on_errors)
-      return PMATH_NULL;
-    
-    pmath_message(PMATH_SYMBOL_GENERAL, "ovfl", 0);
-    return pmath_ref(_pmath_object_overflow);
-  }
-  
   if(exponent < -1 || exponent > 1){
-    pmath_float_t err;
-    pmath_float_t result;
+    pmath_mpfloat_t err;
+    pmath_mpfloat_t result;
     
     // z = x^y,    dy = 0, x > 0, y > 1
     // error    = dz = x^(y-1) * y * dx       (dy = 0)
@@ -269,7 +307,7 @@ pmath_t _pow_fi( // returns struct _pmath_mp_float_t* iff null_on_errors is TRUE
     else if(dprec > PMATH_MP_PREC_MAX)
       dprec = PMATH_MP_PREC_MAX; // ovfl/unfl error?
     
-    result = _pmath_create_mp_float((mp_prec_t)ceil(dprec));
+    result = _pmath_create_mp_float((mpfr_prec_t)ceil(dprec));
     err    = _pmath_create_mp_float(PMATH_MP_ERROR_PREC);
     if(pmath_is_null(result) || pmath_is_null(err)){
       pmath_unref(result);
@@ -320,9 +358,9 @@ pmath_t _pow_fi( // returns struct _pmath_mp_float_t* iff null_on_errors is TRUE
     // prec(z) = -log(2, dz/z) = -log(2, dx / x^2 / (1/x))
     //         = -log(2, dx/x) = prec(x)
     
-    pmath_float_t result;
-    pmath_float_t err;
-    mp_prec_t prec = mpfr_get_prec(PMATH_AS_MP_VALUE(base));
+    pmath_mpfloat_t result;
+    pmath_mpfloat_t err;
+    mpfr_prec_t prec = mpfr_get_prec(PMATH_AS_MP_VALUE(base));
     
     result = _pmath_create_mp_float(prec);
     err    = _pmath_create_mp_float(PMATH_MP_ERROR_PREC);
@@ -364,6 +402,8 @@ static pmath_number_t _pow_ni_abs(
   pmath_number_t base, // will be freed
   unsigned long  exponent
 ){
+  assert(exponent <= LONG_MAX);
+  
   if(pmath_is_double(base)){
     double d = pow(PMATH_AS_DOUBLE(base), exponent);
     
@@ -384,7 +424,7 @@ static pmath_number_t _pow_ni_abs(
     return PMATH_NULL;
   
   switch(PMATH_AS_PTR(base)->type_shift){
-    case PMATH_TYPE_SHIFT_INTEGER: {
+    case PMATH_TYPE_SHIFT_MP_INT: {
       pmath_integer_t result = _pow_i_abs(base, exponent);
       pmath_unref(base);
       return result;
@@ -442,16 +482,25 @@ static pmath_number_t divide(
     return _mul_nn(a, b);
   }
   
+  if(pmath_is_int32(b)){
+    if(PMATH_AS_INT32(b) == 0){
+      pmath_unref(b);
+      return a;
+    }
+    
+    return _mul_nn(a, _pmath_create_quotient(PMATH_FROM_INT32(1), b));
+  }
+  
   assert(pmath_is_pointer(b));
   
   switch(PMATH_AS_PTR(b)->type_shift){
-    case PMATH_TYPE_SHIFT_INTEGER: {
-      if(mpz_cmp_ui(PMATH_AS_MPZ(b), 0) == 0){
+    case PMATH_TYPE_SHIFT_MP_INT: {
+      if(mpz_sgn(PMATH_AS_MPZ(b)) == 0){
         pmath_unref(b);
         return a;
       }
       
-      return _mul_nn(a, _pmath_create_quotient(pmath_ref(PMATH_NUMBER_ONE), b));
+      return _mul_nn(a, _pmath_create_quotient(PMATH_FROM_INT32(1), b));
     } break;
     
     case PMATH_TYPE_SHIFT_QUOTIENT: {
@@ -481,7 +530,7 @@ static void _pow_ci_abs(
   pmath_number_t *im_ptr,
   unsigned long   exponent
 ){
-  pmath_integer_t bin;
+  pmath_mpint_t bin;
   unsigned long k;
   pmath_number_t x, y, z;
   pmath_number_t dst[4];
@@ -507,21 +556,23 @@ static void _pow_ci_abs(
   x = *re_ptr;
   y = *im_ptr;
   
-  dst[0] = pmath_integer_new_si(0);
-  dst[1] = pmath_integer_new_si(0);
-  dst[2] = pmath_integer_new_si(0);
-  dst[3] = pmath_integer_new_si(0);
+  dst[0] = PMATH_FROM_INT32(0);
+  dst[1] = PMATH_FROM_INT32(0);
+  dst[2] = PMATH_FROM_INT32(0);
+  dst[3] = PMATH_FROM_INT32(0);
   
-  z = _pow_ni_abs(pmath_ref(x), (long)exponent);
-  bin = _pmath_create_integer();
+  z = _pow_ni_abs(pmath_ref(x), exponent);
+  bin = _pmath_create_mp_int(1);
   if(pmath_is_null(bin)){
     return;
   }
   
-  mpz_set_ui(PMATH_AS_MPZ(bin), 1);
-  
   for(k = 0;k < exponent;++k){
-    dst[k & 3] = _add_nn(dst[k & 3], _mul_nn(pmath_ref(bin), pmath_ref(z)));
+    dst[k & 3] = _add_nn(
+      dst[k & 3], 
+      _mul_nn(
+        _pmath_mp_int_normalize(pmath_ref(bin)), 
+        pmath_ref(z)));
     
     mpz_mul_ui(     PMATH_AS_MPZ(bin), PMATH_AS_MPZ(bin), exponent - k);
     mpz_divexact_ui(PMATH_AS_MPZ(bin), PMATH_AS_MPZ(bin), k + 1);
@@ -552,177 +603,12 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr){
   base =     pmath_expr_get_item(expr, 1);
   exponent = pmath_expr_get_item(expr, 2);
   
-  if(pmath_is_integer(exponent)){
-    if(!pmath_integer_fits_si(exponent)){
-      if(pmath_is_number(base)){
-        pmath_unref(expr);
-        
-        if(pmath_is_integer(base)){
-          if(pmath_integer_fits_si(base)){
-            long si = pmath_integer_get_si(base);
-            
-            if(si == -1){
-              if(mpz_odd_p(PMATH_AS_MPZ(exponent))){
-                pmath_unref(exponent);
-                return base;
-              }
-              
-              pmath_unref(exponent);
-              pmath_unref(base);
-              return pmath_ref(PMATH_NUMBER_ONE);
-            }
-            
-            if(si == 0 || si == 1){
-              pmath_unref(exponent);
-              return base;
-            }
-            
-            pmath_unref(base);
-            pmath_unref(exponent);
-            pmath_message(PMATH_SYMBOL_GENERAL, "ovfl", 0);
-            return pmath_ref(_pmath_object_overflow);
-          }
-        }
-        else if(pmath_is_double(base)){
-          double d = PMATH_AS_DOUBLE(base);
-          
-          if(d == -1){
-            if(mpz_odd_p(PMATH_AS_MPZ(exponent))){
-              pmath_unref(exponent);
-              return base;
-            }
-            
-            pmath_unref(exponent);
-            pmath_unref(base);
-            return PMATH_FROM_DOUBLE(1.0);
-          }
-          
-          if(d == 0 || d == 1){
-            pmath_unref(exponent);
-            return base;
-          }
-        }
-        
-        pmath_unref(base);
-        if(pmath_number_sign(exponent) < 0){
-          pmath_unref(exponent);
-          pmath_message(PMATH_SYMBOL_GENERAL, "unfl", 0);
-          return pmath_ref(_pmath_object_underflow);
-        }
-        
-        pmath_unref(exponent);
-        pmath_message(PMATH_SYMBOL_GENERAL, "ovfl", 0);
-        return pmath_ref(_pmath_object_overflow);
-      }
-      
-      if(_pmath_is_nonreal_complex(base)){
-        pmath_unref(expr);
-        
-        expr = pmath_expr_get_item(base, 1);
-        if(pmath_is_number(expr) && pmath_number_sign(expr) == 0){
-          pmath_unref(expr);
-          
-          expr = pmath_expr_get_item(base, 2);
-          if(pmath_is_integer(expr)){
-            if(pmath_integer_fits_si(expr)){
-              long si = pmath_integer_get_si(expr);
-              
-              if(si == 1 || si == -1){
-                unsigned long ue = mpz_get_ui(PMATH_AS_MPZ(exponent));
-                
-                ue = ue & 3;
-                if(ue != 0 && mpz_sgn(PMATH_AS_MPZ(exponent)) < 0){
-                  ue = 4 - ue;
-                }
-                
-                pmath_unref(expr);
-                pmath_unref(base);
-                pmath_unref(exponent);
-                switch(ue){
-                  case 0: return INT(1);
-                  case 1: return COMPLEX(INT(0), INT(si));
-                  case 2: return INT(-1);
-                  case 3: return COMPLEX(INT(0), INT(-si));
-                }
-                
-                assert("unreachable code reached" && 0);
-                return PMATH_NULL;
-              }
-              
-              pmath_unref(expr);
-              pmath_unref(base);
-              pmath_unref(exponent);
-              pmath_message(PMATH_SYMBOL_GENERAL, "ovfl", 0);
-              return pmath_ref(_pmath_object_overflow);
-            }
-          }
-          else if(pmath_is_double(expr)){
-            double d = PMATH_AS_DOUBLE(expr);
-            
-            if(d == 1 || d == -1){
-              unsigned long ue = mpz_get_ui(PMATH_AS_MPZ(exponent));
-              
-              ue = ue & 3;
-              if(ue != 0 && mpz_sgn(PMATH_AS_MPZ(exponent)) < 0){
-                ue = 4 - ue;
-              }
-              
-              pmath_unref(expr);
-              pmath_unref(base);
-              pmath_unref(exponent);
-              switch(ue){
-                case 0: return PMATH_FROM_DOUBLE(1.0);
-                case 1: return COMPLEX(INT(0), PMATH_FROM_DOUBLE(d));
-                case 2: return PMATH_FROM_DOUBLE(-1.0);
-                case 3: return COMPLEX(INT(0), PMATH_FROM_DOUBLE(-d));
-              }
-              
-              assert("unreachable code reached" && 0);
-              return PMATH_NULL;
-            }
-          }
-        }
-        
-        pmath_unref(expr);
-        expr = pmath_evaluate(FUNC(pmath_ref(PMATH_SYMBOL_ABS), base));
-        
-        if(pmath_is_number(expr) && pmath_number_sign(expr) < 0){
-          pmath_unref(expr);
-          
-          if(pmath_number_sign(exponent) < 0){
-            pmath_unref(exponent);
-            pmath_message(PMATH_SYMBOL_GENERAL, "ovfl", 0);
-            return pmath_ref(_pmath_object_overflow);
-          }
-          
-          pmath_unref(exponent);
-          pmath_message(PMATH_SYMBOL_GENERAL, "unfl", 0);
-          return pmath_ref(_pmath_object_underflow);
-        }
-        else if(pmath_number_sign(exponent) < 0){
-          pmath_unref(expr);
-          pmath_unref(exponent);
-          pmath_message(PMATH_SYMBOL_GENERAL, "unfl", 0);
-          return pmath_ref(_pmath_object_underflow);
-        }
-        
-        pmath_unref(expr);
-        pmath_unref(exponent);
-        pmath_message(PMATH_SYMBOL_GENERAL, "ovfl", 0);
-        return pmath_ref(_pmath_object_overflow);
-      }
-      
-      pmath_unref(base);
-      pmath_unref(exponent);
-      return expr;
-    }
-    
+  if(pmath_is_int32(exponent)){
     if(pmath_is_double(base) && PMATH_AS_DOUBLE(base) != 0){
-      double result = pow(PMATH_AS_DOUBLE(base), pmath_integer_get_si(exponent));
+      double result = pow(PMATH_AS_DOUBLE(base), PMATH_AS_INT32(exponent));
       
       if(isfinite(result)){
         pmath_unref(expr);
-        pmath_unref(exponent);
         pmath_unref(base);
         return PMATH_FROM_DOUBLE(result);
       }
@@ -731,38 +617,33 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr){
     }
     
     if(pmath_is_mpfloat(base)){
-      long lexp = pmath_integer_get_si(exponent);
-      if(lexp > 0 || !mpfr_zero_p(PMATH_AS_MP_VALUE(base))){
-        pmath_unref(exponent);
+      if(PMATH_AS_INT32(exponent) > 0 
+      || !mpfr_zero_p(PMATH_AS_MP_VALUE(base))){
         pmath_unref(expr);
-        return _pow_fi(base, lexp, FALSE);
+        return _pow_fi(base, PMATH_AS_INT32(exponent), FALSE);
       }
     }
     
     if(pmath_is_rational(base)
-    && !pmath_equals(base, PMATH_NUMBER_ZERO)){
-      long lexp = pmath_integer_get_si(exponent);
-      pmath_unref(exponent);
+    && !pmath_equals(base, PMATH_FROM_INT32(0))){
       pmath_unref(expr);
-      return _pow_ri(base, lexp);
+      return _pow_ri(base, PMATH_AS_INT32(exponent));
     }
     
     if(pmath_is_expr_of_len(base, PMATH_SYMBOL_COMPLEX, 2)){
       pmath_t re = pmath_expr_get_item(base, 1);
       pmath_t im = pmath_expr_get_item(base, 2);
-      long lexp = pmath_integer_get_si(exponent);
       
       if(pmath_is_number(re) && pmath_is_number(im)){
-        if(pmath_equals(re, PMATH_NUMBER_ZERO)){
+        if(pmath_equals(re, PMATH_FROM_INT32(0))){
           // (I im)^n = I^n im^n
-          int lexp4 = lexp % 4;
+          int lexp4 = PMATH_AS_INT32(exponent) % 4;
           
           if(lexp4 < 0)
             lexp4+= 4;
           
           pmath_unref(re);
           pmath_unref(base);
-          pmath_unref(exponent);
           expr = pmath_expr_set_item(expr, 1, im);
           switch(lexp4){
             case 1: return COMPLEX(INT(0), expr);
@@ -774,22 +655,20 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr){
         }
         
         // (re + I im)^n
-        if(lexp > 0){
+        if(PMATH_AS_INT32(exponent) > 0){
           pmath_unref(expr);
-          pmath_unref(exponent);
-          _pow_ci_abs(&re, &im, (unsigned long)lexp);
+          _pow_ci_abs(&re, &im, (unsigned long)PMATH_AS_INT32(exponent));
           
           base = pmath_expr_set_item(base, 1, re);
           base = pmath_expr_set_item(base, 2, im);
           return base;
         }
         
-        if(lexp < 0){ 
+        if(PMATH_AS_INT32(exponent) < 0){ 
           pmath_unref(expr);
           pmath_unref(base);
-          pmath_unref(exponent);
           
-          _pow_ci_abs(&re, &im, (unsigned long)-lexp);
+          _pow_ci_abs(&re, &im, (unsigned long)-PMATH_AS_INT32(exponent));
           
           base = pmath_evaluate(
             PLUS(
@@ -816,31 +695,191 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr){
           pmath_expr_new_extended(
             pmath_ref(PMATH_SYMBOL_POWER), 2,
             pmath_expr_get_item(base, i),
-            pmath_ref(exponent)));
+            exponent));  // exponent is no pointer, so pmath_ref() not necessary
       }
       
-      pmath_unref(exponent);
       return base;
     }
   }
   
+  if(pmath_is_mpint(exponent)){ // not fitting to int32_t !
+    if(pmath_is_number(base)){
+      pmath_unref(expr);
+      
+      if(pmath_is_int32(base)){
+        if(PMATH_AS_INT32(base) == -1){
+          if(mpz_odd_p(PMATH_AS_MPZ(exponent))){
+            pmath_unref(exponent);
+            return base;
+          }
+          
+          pmath_unref(exponent);
+          return PMATH_FROM_INT32(1);
+        }
+        
+        if(PMATH_AS_INT32(base) == 0 || PMATH_AS_INT32(base) == 1){
+          pmath_unref(exponent);
+          return base;
+        }
+      }
+      
+      if(pmath_is_double(base)){
+        double d = PMATH_AS_DOUBLE(base);
+        
+        if(d == -1){
+          if(mpz_odd_p(PMATH_AS_MPZ(exponent))){
+            pmath_unref(exponent);
+            return base;
+          }
+          
+          pmath_unref(exponent);
+          pmath_unref(base);
+          return PMATH_FROM_DOUBLE(1.0);
+        }
+        
+        if(d == 0 || d == 1){
+          pmath_unref(exponent);
+          return base;
+        }
+      }
+      
+      pmath_unref(base);
+      if(mpz_sgn(PMATH_AS_MPZ(exponent)) < 0){
+        pmath_unref(exponent);
+        pmath_message(PMATH_SYMBOL_GENERAL, "unfl", 0);
+        return pmath_ref(_pmath_object_underflow);
+      }
+      
+      pmath_unref(exponent);
+      pmath_message(PMATH_SYMBOL_GENERAL, "ovfl", 0);
+      return pmath_ref(_pmath_object_overflow);
+    }
+    
+    if(_pmath_is_nonreal_complex(base)){
+      pmath_unref(expr);
+      
+      expr = pmath_expr_get_item(base, 1); // real part
+      if(pmath_is_number(expr) && pmath_number_sign(expr) == 0){
+        pmath_unref(expr);
+        
+        expr = pmath_expr_get_item(base, 2); // imaginary part
+        if(pmath_is_int32(expr)){
+          int32_t si = PMATH_AS_INT32(expr);
+          
+          if(si == 1 || si == -1){
+            unsigned long ue = mpz_get_ui(PMATH_AS_MPZ(exponent)); // truncateing
+            
+            ue = ue & 3;
+            if(ue != 0 && mpz_sgn(PMATH_AS_MPZ(exponent)) < 0){
+              ue = 4 - ue;
+            }
+            
+            pmath_unref(expr);
+            pmath_unref(base);
+            pmath_unref(exponent);
+            switch(ue){
+              case 0: return INT(1);
+              case 1: return COMPLEX(INT(0), INT(si));
+              case 2: return INT(-1);
+              case 3: return COMPLEX(INT(0), INT(-si));
+            }
+            
+            assert("unreachable code reached" && 0);
+            return PMATH_NULL;
+          }
+        }
+        else if(pmath_is_double(expr)){
+          double d = PMATH_AS_DOUBLE(expr);
+          
+          if(d == 1 || d == -1){
+            unsigned long ue = mpz_get_ui(PMATH_AS_MPZ(exponent));
+            
+            ue = ue & 3;
+            if(ue != 0 && mpz_sgn(PMATH_AS_MPZ(exponent)) < 0){
+              ue = 4 - ue;
+            }
+            
+            pmath_unref(expr);
+            pmath_unref(base);
+            pmath_unref(exponent);
+            switch(ue){
+              case 0: return PMATH_FROM_DOUBLE(1.0);
+              case 1: return COMPLEX(INT(0), PMATH_FROM_DOUBLE(d));
+              case 2: return PMATH_FROM_DOUBLE(-1.0);
+              case 3: return COMPLEX(INT(0), PMATH_FROM_DOUBLE(-d));
+            }
+            
+            assert("unreachable code reached" && 0);
+            return PMATH_NULL;
+          }
+        }
+      }
+      
+      pmath_unref(expr);
+      expr = pmath_evaluate(FUNC(pmath_ref(PMATH_SYMBOL_ABS), base));
+      
+      if(pmath_is_number(expr) && pmath_number_sign(expr) < 0){
+        pmath_unref(expr);
+        
+        if(mpz_sgn(PMATH_AS_MPZ(exponent)) < 0){
+          pmath_unref(exponent);
+          pmath_message(PMATH_SYMBOL_GENERAL, "ovfl", 0);
+          return pmath_ref(_pmath_object_overflow);
+        }
+        
+        pmath_unref(exponent);
+        pmath_message(PMATH_SYMBOL_GENERAL, "unfl", 0);
+        return pmath_ref(_pmath_object_underflow);
+      }
+      else if(mpz_sgn(PMATH_AS_MPZ(exponent)) < 0){
+        pmath_unref(expr);
+        pmath_unref(exponent);
+        pmath_message(PMATH_SYMBOL_GENERAL, "unfl", 0);
+        return pmath_ref(_pmath_object_underflow);
+      }
+      
+      pmath_unref(expr);
+      pmath_unref(exponent);
+      pmath_message(PMATH_SYMBOL_GENERAL, "ovfl", 0);
+      return pmath_ref(_pmath_object_overflow);
+    }
+    
+    pmath_unref(base);
+    pmath_unref(exponent);
+    return expr;
+  }
+  
   if(pmath_is_quotient(exponent)
   && pmath_is_rational(base)
-  && !pmath_equals(base, PMATH_NUMBER_ZERO)){ // (a/b)^(c/d) 
+  && !pmath_equals(base, PMATH_FROM_INT32(0))){ // (a/b)^(c/d) 
     pmath_integer_t exp_num;
     pmath_integer_t exp_den;
     
     if(pmath_number_sign(exponent) < 0){
-      if(pmath_is_integer(base)){
-        pmath_unref(base);
-        pmath_unref(exponent);
-        return expr;
+      if(_pmath_is_integer(base)){
+        pmath_t expr2 = POW(base, pmath_number_neg(exponent));
+        
+        expr2 = pmath_evaluate(expr2);
+        if(pmath_is_expr_of(expr2, PMATH_SYMBOL_POWER)){
+          pmath_unref(expr2);
+          return expr;
+        }
+        
+        pmath_unref(expr);
+        if(pmath_is_rational(expr2) && pmath_number_sign(expr2) != 0){
+          exp_num = pmath_rational_numerator(  expr2);
+          exp_den = pmath_rational_denominator(expr2);
+          
+          pmath_unref(expr2);
+          return pmath_rational_new(exp_den, exp_num);
+        }
+        
+        return INV(expr2);
       }
       
       pmath_unref(expr);
       
-      expr = pmath_expr_new_extended(
-        pmath_ref(PMATH_SYMBOL_POWER), 2, 
+      expr = POW(
         pmath_rational_new(
           pmath_rational_denominator(base), 
           pmath_rational_numerator(base)),
@@ -853,85 +892,86 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr){
     exp_num = pmath_rational_numerator(exponent);
     exp_den = pmath_rational_denominator(exponent);
     
-    assert(pmath_is_integer(exp_num));
-    assert(pmath_is_integer(exp_den));
+    assert(_pmath_is_integer(exp_num));
+    assert(_pmath_is_integer(exp_den));
     
-    if(0 < mpz_cmpabs(PMATH_AS_MPZ(exp_num), PMATH_AS_MPZ(exp_den)))
-    {
-      pmath_integer_t qexp;
-      pmath_integer_t rexp;
-      pmath_unref(exponent);
-      
-      qexp = _pmath_create_integer();
-      rexp = _pmath_create_integer();
-      if(pmath_is_null(qexp) || pmath_is_null(rexp)){
-        pmath_unref(qexp);
-        pmath_unref(rexp);
-        pmath_unref(exp_num);
-        pmath_unref(exp_den);
-        pmath_unref(base);
-        pmath_unref(expr);
-        return PMATH_NULL;
-      }
-      
-      mpz_tdiv_qr(
-        PMATH_AS_MPZ(qexp),
-        PMATH_AS_MPZ(rexp),
-        PMATH_AS_MPZ(exp_num),
-        PMATH_AS_MPZ(exp_den));
-      
-      pmath_unref(exp_num);
-      
-      expr = pmath_expr_set_item(
-        expr, 2,
-        _pmath_create_quotient(rexp, exp_den));
-      
-      return pmath_expr_new_extended(
-        pmath_ref(PMATH_SYMBOL_TIMES), 2,
-        pmath_expr_new_extended(
-          pmath_ref(PMATH_SYMBOL_POWER), 2, 
-          base,
-          qexp),
-        expr);
-    }
-    
-    if(pmath_equals(exp_den, PMATH_NUMBER_TWO)
-    && pmath_number_sign(base) < 0){
-      // so exp_num = 1 or -1
-      
-      pmath_unref(expr);
-      pmath_unref(exp_den);
-      
-      // 1/I = -I
-      expr = pmath_expr_new_extended(
-        pmath_ref(PMATH_SYMBOL_COMPLEX), 2,
-        pmath_integer_new_si(0),
-        pmath_integer_new_si(pmath_number_sign(exp_num)));
-      
-      pmath_unref(exp_num);
-      base = pmath_number_neg(base);
-      
-      return pmath_expr_new_extended(
-        pmath_ref(PMATH_SYMBOL_TIMES), 2,
-        pmath_expr_new_extended(
-          pmath_ref(PMATH_SYMBOL_POWER), 2,
-          base,
-          exponent),
-        expr);
-    }
-    
-    if(pmath_integer_fits_ui(exp_den)){
-      pmath_integer_t base_num = pmath_rational_numerator(base);
-      pmath_integer_t base_den = pmath_rational_denominator(base);
+    if(pmath_is_int32(exp_den)){
+      pmath_integer_t base_num;
+      pmath_integer_t base_den;
       pmath_integer_t base_num_root;
       pmath_integer_t base_den_root;
-      unsigned long int root_exp = pmath_integer_get_ui(exp_den);
+      pmath_bool_t outside_one;
       
-      pmath_unref(exp_den);
-      exp_den = PMATH_NULL;
+      assert(PMATH_AS_INT32(exp_den) > 0);
       
-      base_num_root = int_root(&base_num, base_num, root_exp);
-      base_den_root = int_root(&base_den, base_den, root_exp);
+      if(pmath_is_int32(exp_num)){
+        outside_one = PMATH_AS_INT32(exp_num) >  PMATH_AS_INT32(exp_den)
+                   || PMATH_AS_INT32(exp_num) < -PMATH_AS_INT32(exp_den);
+      }
+      else{
+        assert(pmath_is_mpint(exp_num));
+        
+        outside_one = 0 < mpz_cmpabs_ui(PMATH_AS_MPZ(exp_num), (unsigned long)PMATH_AS_INT32(exp_den));
+      }
+      
+      if(outside_one){
+        pmath_integer_t qexp;
+        pmath_integer_t rexp;
+        pmath_unref(exponent);
+        
+        if(pmath_is_int32(exp_num))
+          exp_num = _pmath_create_mp_int(PMATH_AS_INT32(exp_num));
+        
+        qexp = _pmath_create_mp_int(0);
+        rexp = _pmath_create_mp_int(0);
+        if(pmath_is_null(exp_num) || pmath_is_null(qexp) || pmath_is_null(rexp)){
+          pmath_unref(qexp);
+          pmath_unref(rexp);
+          pmath_unref(exp_num);
+          pmath_unref(base);
+          pmath_unref(expr);
+          return PMATH_NULL;
+        }
+        
+        mpz_tdiv_qr_ui(
+          PMATH_AS_MPZ(qexp),
+          PMATH_AS_MPZ(rexp),
+          PMATH_AS_MPZ(exp_num),
+          PMATH_AS_INT32(exp_den));
+        
+        pmath_unref(exp_num);
+        
+        qexp = _pmath_mp_int_normalize(qexp);
+        rexp = _pmath_mp_int_normalize(rexp);
+        
+        expr = pmath_expr_set_item(
+          expr, 2,
+          _pmath_create_quotient(rexp, exp_den));
+        
+        return TIMES(POW(base, qexp), expr);
+      }
+      
+      if(PMATH_AS_INT32(exp_den) == 2
+      && pmath_number_sign(base) < 0){
+        // so exp_num = 1 or -1
+      
+        pmath_unref(expr);
+        pmath_unref(exp_den);
+        
+        // 1/I = -I
+        expr = COMPLEX(INT(0), INT(pmath_number_sign(exp_num)));
+        
+        pmath_unref(exp_num);
+        base = pmath_number_neg(base);
+        
+        return TIMES(POW(base, exponent), expr);
+      }
+      
+      base_num = pmath_rational_numerator(base);
+      base_den = pmath_rational_denominator(base);
+      
+      base_num_root = int_root(&base_num, base_num, (unsigned long)PMATH_AS_INT32(exp_den));
+      base_den_root = int_root(&base_den, base_den, (unsigned long)PMATH_AS_INT32(exp_den));
       
       if(!pmath_is_null(base_num_root) || !pmath_is_null(base_den_root)){
         pmath_t result;
@@ -941,7 +981,7 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr){
         }
         else if(pmath_is_null(base_num_root)){
           result = _pmath_create_quotient(
-            pmath_integer_new_si(1),
+            PMATH_FROM_INT32(1),
             base_den_root);
         }
         else{
@@ -954,7 +994,7 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr){
         
         // base_num_root, base_den_root, expr invalid now
         
-        if(pmath_equals(exp_num, PMATH_NUMBER_ONE)){
+        if(pmath_equals(exp_num, PMATH_FROM_INT32(1))){
           pmath_unref(exp_num);
         }
         else{
@@ -981,15 +1021,9 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr){
           base = PMATH_NULL;
         
         // base_num, base_den invalid now
-        if(!pmath_is_null(base)){
-          result = pmath_expr_new_extended(
-            pmath_ref(PMATH_SYMBOL_TIMES), 2, 
-            result,
-            pmath_expr_new_extended(
-              pmath_ref(PMATH_SYMBOL_POWER), 2, 
-              base,
-              exponent));
-        }
+        
+        if(!pmath_is_null(base))
+          result = TIMES(result, POW(base, exponent));
         else
           pmath_unref(exponent);
         
@@ -1001,6 +1035,47 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr){
       pmath_unref(base_num_root);
       pmath_unref(base_den_root);
     }
+    else{
+      assert(pmath_is_mpint(exp_den));
+      
+      if(pmath_is_int32(exp_num))
+        exp_num = _pmath_create_mp_int(PMATH_AS_INT32(exp_num));
+      
+      if(!pmath_is_null(exp_num)
+      && 0 < mpz_cmpabs(PMATH_AS_MPZ(exp_num), PMATH_AS_MPZ(exp_den))){
+        pmath_integer_t qexp;
+        pmath_integer_t rexp;
+        pmath_unref(exponent);
+        
+        qexp = _pmath_create_mp_int(0);
+        rexp = _pmath_create_mp_int(0);
+        if(pmath_is_null(qexp) || pmath_is_null(rexp)){
+          pmath_unref(qexp);
+          pmath_unref(rexp);
+          pmath_unref(exp_num);
+          pmath_unref(exp_den);
+          pmath_unref(base);
+          pmath_unref(expr);
+          return PMATH_NULL;
+        }
+        
+        mpz_tdiv_qr(
+          PMATH_AS_MPZ(qexp),
+          PMATH_AS_MPZ(rexp),
+          PMATH_AS_MPZ(exp_num),
+          PMATH_AS_MPZ(exp_den));
+        
+        pmath_unref(exp_num);
+        qexp = _pmath_mp_int_normalize(qexp);
+        rexp = _pmath_mp_int_normalize(rexp);
+        
+        expr = pmath_expr_set_item(
+          expr, 2,
+          _pmath_create_quotient(rexp, exp_den));
+        
+        return TIMES(POW(base, qexp), expr);
+      }
+    }
     
     pmath_unref(exp_num);
     pmath_unref(exp_den);
@@ -1009,7 +1084,7 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr){
   if(pmath_is_quotient(base)){
     pmath_integer_t num = pmath_rational_numerator(base);
     
-    if(pmath_equals(num, PMATH_NUMBER_ONE)){
+    if(pmath_equals(num, PMATH_FROM_INT32(1))){
       pmath_unref(num);
       expr = pmath_expr_set_item(expr, 1, pmath_rational_denominator(base));
       pmath_unref(base);
@@ -1024,7 +1099,7 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr){
     if(pmath_equals(base, PMATH_SYMBOL_E)){
       if(pmath_is_mpfloat(exponent)){
         // dy = d(e^x) = e^x dx
-        pmath_float_t result;
+        pmath_mpfloat_t result;
         long prec;
         long exp;
         
@@ -1037,7 +1112,7 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr){
         else if(prec > PMATH_MP_PREC_MAX)
           prec = PMATH_MP_PREC_MAX;
         
-        result = _pmath_create_mp_float((mp_prec_t)prec);
+        result = _pmath_create_mp_float((mpfr_prec_t)prec);
         if(!pmath_is_null(result)){
           mpfr_exp(
             PMATH_AS_MP_VALUE(result),
@@ -1072,8 +1147,8 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr){
       }
     }
     
-    if((pmath_is_number(base) && pmath_is_double(exponent))
-    || (pmath_is_double(base) && pmath_is_number(exponent))){
+    if((pmath_is_double(base) && pmath_is_number(exponent))
+    || (pmath_is_number(base) && pmath_is_double(exponent))){
       double b = pmath_number_get_d(base);
       double e = pmath_number_get_d(exponent);
       
@@ -1143,9 +1218,9 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr){
       if(basesign != 0){
       /* dz = d(x^y) = x^y * (y/x dx + Log(x) dy)
        */
-        pmath_float_t result;
-        pmath_float_t a;
-        pmath_float_t b;
+        pmath_mpfloat_t result;
+        pmath_mpfloat_t a;
+        pmath_mpfloat_t b;
         double dprec;
         long exp;
         
@@ -1227,7 +1302,7 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr){
           else if(dprec > PMATH_MP_PREC_MAX)
             dprec = PMATH_MP_PREC_MAX;
             
-          result = _pmath_create_mp_float((mp_prec_t)ceil(dprec));
+          result = _pmath_create_mp_float((mpfr_prec_t)ceil(dprec));
           if(!pmath_is_null(result)){
             mpfr_mul(
               PMATH_AS_MP_ERROR(result),
@@ -1309,7 +1384,7 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr){
   if(pmath_is_expr_of_len(base, PMATH_SYMBOL_POWER, 2)){ // (x^y)^exponent
     pmath_t inner_exp = pmath_expr_get_item(base, 2);
     
-    if(pmath_is_integer(exponent)){
+    if(_pmath_is_integer(exponent)){
       pmath_unref(expr);
       return pmath_expr_set_item(base, 2, TIMES(exponent, inner_exp));
     }
@@ -1317,13 +1392,13 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr){
     if(pmath_is_rational(exponent)
     && pmath_is_rational(inner_exp)){
       if(pmath_number_sign(inner_exp) > 0){
-        if(pmath_compare(inner_exp, PMATH_NUMBER_ONE) < 0){
+        if(pmath_compare(inner_exp, PMATH_FROM_INT32(1)) < 0){
           pmath_unref(expr);
           return pmath_expr_set_item(base, 2, TIMES(exponent, inner_exp));
         }
       }
       else{
-        if(pmath_compare(inner_exp, PMATH_NUMBER_MINUSONE) > 0){
+        if(pmath_compare(inner_exp, PMATH_FROM_INT32(-1)) > 0){
           pmath_unref(expr);
           return pmath_expr_set_item(base, 2, TIMES(exponent, inner_exp));
         }
@@ -1348,7 +1423,7 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr){
       pmath_unref(base);
       pmath_unref(exponent);
       pmath_unref(expr);
-      return pmath_integer_new_si(0);
+      return INT(0);
     }
     
     if(base_class & (PMATH_CLASS_INF | PMATH_CLASS_NEGBIG)){
@@ -1381,7 +1456,7 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr){
     pmath_unref(base);
     pmath_unref(exponent);
     pmath_unref(expr);
-    return pmath_integer_new_si(1);
+    return INT(1);
   }
   
   if(base_class & PMATH_CLASS_ZERO){
@@ -1415,7 +1490,7 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr){
       pmath_unref(base);
       pmath_unref(exponent);
       pmath_unref(expr);
-      return pmath_integer_new_si(0);
+      return INT(0);
     }
     
     if(exp_class & PMATH_CLASS_POSINF){
@@ -1446,7 +1521,7 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr){
       pmath_unref(base);
       pmath_unref(exponent);
       pmath_unref(expr);
-      return pmath_integer_new_si(0);
+      return INT(0);
     }
     
     if(exp_class & PMATH_CLASS_POS){
@@ -1466,7 +1541,7 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr){
       pmath_unref(base);
       pmath_unref(exponent);
       pmath_unref(expr);
-      return pmath_integer_new_si(0);
+      return INT(0);
     }
     
     if(base_class & PMATH_CLASS_NEGSMALL){
@@ -1500,7 +1575,7 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr){
       pmath_unref(base);
       pmath_unref(exponent);
       pmath_unref(expr);
-      return pmath_integer_new_si(0);
+      return INT(0);
     }
     
     if(exp_class & PMATH_CLASS_POS){
@@ -1597,7 +1672,7 @@ PMATH_PRIVATE pmath_t builtin_approximate_power(
   base = pmath_expr_get_item(obj, 1);
   exp  = pmath_expr_get_item(obj, 2);
   
-  if(pmath_is_integer(exp)){
+  if(_pmath_is_integer(exp)){
     pmath_unref(exp);
     base = _pmath_approximate_step(base, prec, acc);
     return pmath_expr_set_item(obj, 1, base);

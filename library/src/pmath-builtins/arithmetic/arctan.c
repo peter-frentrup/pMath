@@ -19,7 +19,7 @@ PMATH_PRIVATE pmath_t builtin_arctan(pmath_expr_t expr){
   
   x = pmath_expr_get_item(expr, 1);
   
-  if(pmath_equals(x, PMATH_NUMBER_ZERO)){
+  if(pmath_equals(x, PMATH_FROM_INT32(0))){
     pmath_unref(expr);
     return x;
   }
@@ -33,9 +33,10 @@ PMATH_PRIVATE pmath_t builtin_arctan(pmath_expr_t expr){
   }
   
   if(pmath_is_mpfloat(x)){
-    pmath_float_t tmp = _pmath_create_mp_float(PMATH_MP_ERROR_PREC);
+    pmath_mpfloat_t tmp = _pmath_create_mp_float(PMATH_MP_ERROR_PREC);
+    
     if(!pmath_is_null(tmp)){
-      pmath_float_t result;
+      pmath_mpfloat_t result;
       double accmant, acc, prec;
       long accexp;
       
@@ -68,7 +69,7 @@ PMATH_PRIVATE pmath_t builtin_arctan(pmath_expr_t expr){
       else if(prec < 0)
         prec = 0;
       
-      result = _pmath_create_mp_float((mp_prec_t)prec);
+      result = _pmath_create_mp_float((mpfr_prec_t)prec);
       if(!pmath_is_null(result)){
         mpfr_swap(PMATH_AS_MP_ERROR(result), PMATH_AS_MP_ERROR(tmp));
         
@@ -151,7 +152,7 @@ PMATH_PRIVATE pmath_t builtin_arctan(pmath_expr_t expr){
       pmath_unref(expr);
       pmath_unref(x);
       
-      if(pmath_equals(infdir, PMATH_NUMBER_ZERO)){
+      if(pmath_equals(infdir, PMATH_FROM_INT32(0))){
         pmath_unref(infdir);
         return pmath_ref(PMATH_SYMBOL_UNDEFINED);
       }
@@ -164,7 +165,7 @@ PMATH_PRIVATE pmath_t builtin_arctan(pmath_expr_t expr){
     pmath_t re = PMATH_NULL;
     pmath_t im = PMATH_NULL;
     if(_pmath_re_im(x, &re, &im)){
-      if(pmath_equals(re, PMATH_NUMBER_ZERO)){
+      if(pmath_equals(re, PMATH_FROM_INT32(0))){
         pmath_unref(expr);
         pmath_unref(re);
         pmath_unref(x);

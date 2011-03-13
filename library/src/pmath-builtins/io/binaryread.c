@@ -17,9 +17,8 @@
 PMATH_PRIVATE int _pmath_get_byte_ordering(pmath_t head, pmath_expr_t options){
   pmath_t value = pmath_evaluate(pmath_option_value(head, PMATH_SYMBOL_BYTEORDERING, options));
   
-  if(pmath_is_integer(value)
-  && pmath_integer_fits_si(value)){
-    long i = pmath_integer_get_si(value);
+  if(pmath_is_int32(value)){
+    int i = PMATH_AS_INT32(value);
     
     if(i == 1 || i == -1){
       pmath_unref(value);
@@ -64,10 +63,10 @@ static pmath_t make_complex(pmath_t re, pmath_t im){
   pmath_unref(im);
   
   if(pmath_is_null(re_inf))
-    re_inf = pmath_integer_new_si(0);
+    re_inf = PMATH_FROM_INT32(0);
     
   if(pmath_is_null(im_inf))
-    im_inf = pmath_integer_new_si(0);
+    im_inf = PMATH_FROM_INT32(0);
   
   return pmath_expr_new_extended(
       pmath_ref(PMATH_SYMBOL_DIRECTEDINFINITY), 1,
@@ -80,7 +79,7 @@ static pmath_t make_complex(pmath_t re, pmath_t im){
 static pmath_bool_t binary_read(
   pmath_t  file,        // wont be freed
   pmath_t *type_value,
-  int             byte_ordering
+  int      byte_ordering
 ){
   if(pmath_same(*type_value, PMATH_SYMBOL_EXPRESSION)
   || (pmath_is_string(*type_value)
@@ -333,14 +332,17 @@ static pmath_bool_t binary_read(
         
         if(type == REAL){
           if(size == 16){
-            pmath_float_t f = _pmath_create_mp_float(113);
-            pmath_integer_t mant = pmath_integer_new_data(
+            pmath_mpfloat_t f  = _pmath_create_mp_float(113);
+            pmath_mpint_t mant = pmath_integer_new_data(
               14, // 112 / 8
               byte_ordering,
               1,
               PMATH_BYTE_ORDER,
               0,
               byte_ordering < 0 ? &data.buf[0] : &data.buf[2]);
+            
+            if(pmath_is_int32(mant))
+              mant = _pmath_create_mp_int(PMATH_AS_INT32(mant));
             
             if(!pmath_is_null(f) && !pmath_is_null(mant)){
               uint16_t uexp;
@@ -398,7 +400,7 @@ static pmath_bool_t binary_read(
                   if(neg){
                     *type_value = pmath_expr_new_extended(
                       pmath_ref(PMATH_SYMBOL_DIRECTEDINFINITY), 1,
-                      pmath_integer_new_si(-1));
+                      PMATH_FROM_INT32(-1));
                   }
                   else
                     *type_value = pmath_ref(_pmath_object_infinity);
@@ -473,7 +475,7 @@ static pmath_bool_t binary_read(
                 if(neg){
                   *type_value = pmath_expr_new_extended(
                     pmath_ref(PMATH_SYMBOL_DIRECTEDINFINITY), 1,
-                    pmath_integer_new_si(-1));
+                    PMATH_FROM_INT32(-1));
                 }
                 else
                   *type_value = pmath_ref(_pmath_object_infinity);
@@ -507,7 +509,7 @@ static pmath_bool_t binary_read(
             else if(d == -HUGE_VAL){
               *type_value = pmath_expr_new_extended(
                 pmath_ref(PMATH_SYMBOL_DIRECTEDINFINITY), 1,
-                pmath_integer_new_si(-1));
+                PMATH_FROM_INT32(-1));
             }
             else if(isnan(d)){
               *type_value = pmath_ref(PMATH_SYMBOL_UNDEFINED);

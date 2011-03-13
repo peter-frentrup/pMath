@@ -134,10 +134,10 @@ PMATH_PRIVATE pmath_t builtin_position(pmath_expr_t expr){
       if(len > 3){
         obj = pmath_expr_get_item(expr, 4);
         
-        if(pmath_is_integer(obj)
+        if(_pmath_is_integer(obj)
         && pmath_number_sign(obj) >= 0){
           last_nonoption = 4;
-          if(pmath_integer_fits_ui(obj))
+          if(pmath_integer_fits_ui32(obj))
             info.max = pmath_integer_get_ui(obj);
           else
             info.max = SIZE_MAX;
@@ -149,7 +149,7 @@ PMATH_PRIVATE pmath_t builtin_position(pmath_expr_t expr){
         else if(!_pmath_is_rule(obj) && !_pmath_is_list_of_rules(obj)){
           pmath_unref(obj);
           pmath_unref(levels);
-          pmath_message(PMATH_NULL, "innf", 2, pmath_integer_new_si(4), pmath_ref(expr));
+          pmath_message(PMATH_NULL, "innf", 2, PMATH_FROM_INT32(4), pmath_ref(expr));
           return expr;
         }
         

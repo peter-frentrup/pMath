@@ -1716,7 +1716,7 @@ static void write_expr_ex(
     if(exprlen == 2){
       item = pmath_expr_get_item(expr, 2);
       
-      if(pmath_is_integer(item) && pmath_integer_fits_ui(item)){
+      if(pmath_is_integer(item) && pmath_integer_fits_ui32(item)){
         maxdepth = pmath_integer_get_ui(item);
       }
       else if(pmath_equals(item, _pmath_object_infinity)){
@@ -1725,7 +1725,7 @@ static void write_expr_ex(
       else if(pmath_is_expr_of_len(item, PMATH_SYMBOL_LIST, 2)){
         pmath_t obj = pmath_expr_get_item(item, 1);
         
-        if(pmath_is_integer(obj) && pmath_integer_fits_ui(obj)){
+        if(pmath_is_integer(obj) && pmath_integer_fits_ui32(obj)){
           maxdepth = pmath_integer_get_ui(obj);
         }
         else if(pmath_equals(obj, _pmath_object_infinity)){
@@ -1740,7 +1740,7 @@ static void write_expr_ex(
         pmath_unref(obj);
         obj = pmath_expr_get_item(item, 2);
         
-        if(pmath_is_integer(obj) && pmath_integer_fits_ui(obj)){
+        if(pmath_is_integer(obj) && pmath_integer_fits_ui32(obj)){
           maxlength = pmath_integer_get_ui(obj);
         }
         else if(pmath_equals(obj, _pmath_object_infinity)){
@@ -2232,7 +2232,7 @@ static void write_expr_ex(
 
     item = pmath_expr_get_item(expr, 1);
     if(pmath_is_integer(item)
-    && pmath_integer_fits_si(item)
+    && pmath_integer_fits_si32(item)
     && pmath_integer_get_si(item) == -1){
       WRITE_CSTR("-");
     }
@@ -2439,7 +2439,7 @@ static void write_expr_ex(
     re = pmath_expr_get_item(expr, 1);
     im = pmath_expr_get_item(expr, 2);
 
-    if(!pmath_equals(re, PMATH_NUMBER_ZERO)){
+    if(!pmath_equals(re, PMATH_FROM_INT32(0))){
       if(priority > PRIO_TIMES){
         WRITE_CSTR("(");
         lparen = TRUE;

@@ -9,21 +9,21 @@ static pmath_t chop(
   pmath_number_t ntol,  // wont be freed
   pmath_number_t ptol   // wont be freed
 ){
-  if(pmath_is_real(obj)){
+  if(pmath_is_float(obj)){
     if(pmath_number_sign(obj) == 0){
       pmath_unref(obj);
-      return pmath_integer_new_si(0);
+      return PMATH_FROM_INT32(0);
     }
     
     if(pmath_number_sign(obj) < 0){
       if(pmath_compare(ntol, obj) < 0){
         pmath_unref(obj);
-        return pmath_integer_new_si(0);
+        return PMATH_FROM_INT32(0);
       }
     }
     else if(pmath_compare(obj, ptol) < 0){
       pmath_unref(obj);
-      return pmath_integer_new_si(0);
+      return PMATH_FROM_INT32(0);
     }
     
     return obj;
@@ -64,7 +64,7 @@ pmath_t builtin_chop(pmath_expr_t expr){
       
       pmath_message(
         PMATH_NULL, "numn", 2,
-        pmath_integer_new_si(2),
+        PMATH_FROM_INT32(2),
         pmath_ref(expr));
       
       return expr;

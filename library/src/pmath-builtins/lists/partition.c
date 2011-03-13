@@ -280,11 +280,11 @@ static long *get_n( // free it with pmath_mem_free(n, depth * sizeof(long))
 ){
   long *n;
   
-  if(pmath_is_integer(n_obj) && pmath_integer_fits_si(n_obj)){
+  if(pmath_is_int32(n_obj)){
     *depth = 1;
     n = (long*)pmath_mem_alloc(sizeof(long));
     
-    n[0] = pmath_integer_get_si(n_obj);
+    n[0] = PMATH_AS_INT32(n_obj);
     return n;
   }
   
@@ -300,8 +300,8 @@ static long *get_n( // free it with pmath_mem_free(n, depth * sizeof(long))
         for(i = 0;i < *depth;++i){
           pmath_t item = pmath_expr_get_item(n_obj, 1 + (size_t)i);
           
-          if(pmath_is_integer(item) && pmath_integer_fits_si(item)){
-            n[i] = pmath_integer_get_si(item);
+          if(pmath_is_int32(item)){
+            n[i] = PMATH_AS_INT32(item);
           }
           else{
             pmath_unref(item);
@@ -310,8 +310,6 @@ static long *get_n( // free it with pmath_mem_free(n, depth * sizeof(long))
             *depth = -1;
             return NULL;
           }
-          
-          pmath_unref(item);
         }
       }
       
@@ -331,8 +329,8 @@ static pmath_bool_t get_d(
   long    *d,
   long     depth
 ){
-  if(pmath_is_integer(d_obj) && pmath_integer_fits_si(d_obj) && depth == 1){
-    d[0] = pmath_integer_get_si(d_obj);
+  if(pmath_is_int32(d_obj) && depth == 1){
+    d[0] = PMATH_AS_INT32(d_obj);
     return TRUE;
   }
   
@@ -342,16 +340,14 @@ static pmath_bool_t get_d(
     for(i = 0;i < depth;++i){
       pmath_t item = pmath_expr_get_item(d_obj, 1 + (size_t)i);
       
-      if(pmath_is_integer(item) && pmath_integer_fits_si(item)){
-        d[i] = pmath_integer_get_si(item);
+      if(pmath_is_int32(item)){
+        d[i] = PMATH_AS_INT32(item);
       }
       else{
         pmath_unref(item);
         
         return FALSE;
       }
-      
-      pmath_unref(item);
     }
     
     return TRUE;
@@ -368,8 +364,8 @@ static pmath_bool_t set_overhang(
 ){
   long i;
   
-  if(pmath_is_integer(overhang) && pmath_integer_fits_si(overhang)){
-    long val = pmath_integer_get_si(overhang);
+  if(pmath_is_int32(overhang)){
+    long val = PMATH_AS_INT32(overhang);
     
     if(val == 0){
       pmath_message(PMATH_NULL, "ohp", 1, pmath_ref(all_obj));
@@ -379,8 +375,8 @@ static pmath_bool_t set_overhang(
     
     if(depth == 0){
       pmath_message(PMATH_NULL, "ohpdm", 2,
-        pmath_integer_new_si(1),
-        pmath_integer_new_si(0));
+        PMATH_FROM_INT32(1),
+        PMATH_FROM_INT32(0));
       pmath_unref(overhang);
       return FALSE;
     }
@@ -397,7 +393,7 @@ static pmath_bool_t set_overhang(
     if(pmath_expr_length(overhang) != (size_t)depth){
       pmath_message(PMATH_NULL, "ohpdm", 2,
         pmath_integer_new_size(pmath_expr_length(overhang)),
-        pmath_integer_new_si(depth));
+        pmath_integer_new_slong(depth));
       
       pmath_unref(overhang);
       return FALSE;
@@ -407,8 +403,8 @@ static pmath_bool_t set_overhang(
       pmath_t item = pmath_expr_get_item(overhang, 1 + (size_t)i);
       long val = 0;
       
-      if(pmath_is_integer(item) && pmath_integer_fits_si(item))
-        val = pmath_integer_get_si(item);
+      if(pmath_is_int32(item))
+        val = PMATH_AS_INT32(item);
       
       pmath_unref(item);
       
@@ -431,10 +427,10 @@ static pmath_bool_t set_overhang(
 }
 
 static pmath_bool_t set_leftright_overhang(
-  pmath_t obj, // wont be freed
-  long *left,
-  long *right,
-  long depth
+  pmath_t  obj, // wont be freed
+  long    *left,
+  long    *right,
+  long     depth
 ){
   if(pmath_is_expr_of_len(obj, PMATH_SYMBOL_LIST, 2)){
     if(!set_overhang(obj, pmath_expr_get_item(obj, 1), left, depth))
@@ -450,7 +446,7 @@ static pmath_bool_t set_leftright_overhang(
   || !set_overhang(obj, pmath_ref(obj), right, depth))
     return FALSE;
   
-  return TRUE;;
+  return TRUE;
 }
 
 static pmath_expr_t embed(
@@ -537,7 +533,7 @@ static int get_dimensions(
   
   if(!pmath_is_expr_of_len(dim_obj, PMATH_SYMBOL_LIST, (size_t)depth)){
     pmath_message(PMATH_NULL, "pdep", 2,
-      pmath_integer_new_si(depth),
+      pmath_integer_new_slong(depth),
       dim_obj);
     return -1;
   }
@@ -545,13 +541,12 @@ static int get_dimensions(
   for(i = 1;i <= (size_t)depth;++i){
     pmath_t len = pmath_expr_get_item(dim_obj, i);
     
-    if(pmath_is_integer(len) && pmath_integer_fits_si(len)){
-      dim[i - 1] = pmath_integer_get_si(len);
+    if(pmath_is_int32(len)){
+      dim[i - 1] = PMATH_AS_INT32(len);
       
       if(dim[i - 1] == 0){
-        pmath_unref(len);
         pmath_message(PMATH_NULL, "pdep", 2,
-          pmath_integer_new_si(depth),
+          pmath_integer_new_slong(depth),
           dim_obj);
         return -1;
       }
@@ -561,8 +556,6 @@ static int get_dimensions(
       pmath_unref(dim_obj);
       return 0;
     }
-    
-    pmath_unref(len);
   }
   
   pmath_unref(dim_obj);
@@ -612,7 +605,7 @@ PMATH_PRIVATE pmath_t builtin_partition(pmath_expr_t expr){
   pmath_unref(obj);
   
   if(depth < 0){
-    pmath_message(PMATH_NULL, "ilsmp", 2, pmath_integer_new_si(2), pmath_ref(expr));
+    pmath_message(PMATH_NULL, "ilsmp", 2, PMATH_FROM_INT32(2), pmath_ref(expr));
     return expr;
   }
   

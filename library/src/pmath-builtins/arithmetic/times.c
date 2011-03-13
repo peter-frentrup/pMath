@@ -40,15 +40,26 @@ static pmath_rational_t _mul_qq(
     _mul_ii(denominatorA, denominatorB));
 }
 
-static pmath_float_t _mul_fi(
-  pmath_float_t   floatA, // will be freed. not PMATH_NULL!
-  pmath_integer_t intB   // will be freed. not PMATH_NULL!
+static pmath_mpfloat_t _mul_fi(
+  pmath_mpfloat_t floatA, // will be freed. not PMATH_NULL!
+  pmath_integer_t intB    // will be freed. not PMATH_NULL!
 ){
-  pmath_float_t result;
+  pmath_mpfloat_t result;
   double fprec;
   long   expB;
-  mp_prec_t prec;
+  mpfr_prec_t prec;
   int signB;
+  
+  if(pmath_is_int32(intB)){
+    intB = _pmath_create_mp_int(PMATH_AS_INT32(intB));
+    
+    if(pmath_is_null(intB)){
+      pmath_unref(floatA);
+      return intB;
+    }
+  }
+  
+  assert(pmath_is_mpint(intB));
   
   signB = mpz_sgn(PMATH_AS_MPZ(intB));
   if(signB == 0){
@@ -65,7 +76,7 @@ static pmath_float_t _mul_fi(
   else if(fprec > PMATH_MP_PREC_MAX)
     prec = PMATH_MP_PREC_MAX;
   else
-    prec = (mp_prec_t)ceil(fprec);
+    prec = (mpfr_prec_t)ceil(fprec);
   
   result = _pmath_create_mp_float(prec);
   
@@ -97,11 +108,11 @@ static pmath_float_t _mul_fi(
   return result;
 }
 
-  static pmath_float_t _div_fi(
-    pmath_float_t   floatA, // will be freed. not PMATH_NULL!
+  static pmath_mpfloat_t _div_fi(
+    pmath_mpfloat_t floatA, // will be freed. not PMATH_NULL!
     pmath_integer_t intB    // wont be freed. not PMATH_NULL! not zero!
   ){
-    pmath_float_t result;
+    pmath_mpfloat_t result;
     
     result = _pmath_create_mp_float(mpfr_get_prec(PMATH_AS_MP_VALUE(floatA)));
     
@@ -111,19 +122,36 @@ static pmath_float_t _mul_fi(
     }
     
     // d(x/y) = 1/y dx + x d(1/y) = 1/y dx   (d(1/y) = 0)
-    mpfr_div_z(
-      PMATH_AS_MP_ERROR(result), 
-      PMATH_AS_MP_ERROR(floatA),
-      PMATH_AS_MPZ(intB),
-      MPFR_RNDA);
-    
-    mpfr_abs(PMATH_AS_MP_ERROR(result), PMATH_AS_MP_ERROR(result), MPFR_RNDU);
-    
-    mpfr_div_z(
-      PMATH_AS_MP_VALUE(result),
-      PMATH_AS_MP_VALUE(floatA),
-      PMATH_AS_MPZ(intB),
-      MPFR_RNDN);
+    if(pmath_is_int32(intB)){
+      mpfr_div_si(
+        PMATH_AS_MP_ERROR(result), 
+        PMATH_AS_MP_ERROR(floatA),
+        PMATH_AS_INT32(intB),
+        MPFR_RNDA);
+      
+      mpfr_abs(PMATH_AS_MP_ERROR(result), PMATH_AS_MP_ERROR(result), MPFR_RNDU);
+      
+      mpfr_div_si(
+        PMATH_AS_MP_VALUE(result),
+        PMATH_AS_MP_VALUE(floatA),
+        PMATH_AS_INT32(intB),
+        MPFR_RNDN);
+    }
+    else{
+      mpfr_div_z(
+        PMATH_AS_MP_ERROR(result), 
+        PMATH_AS_MP_ERROR(floatA),
+        PMATH_AS_MPZ(intB),
+        MPFR_RNDA);
+      
+      mpfr_abs(PMATH_AS_MP_ERROR(result), PMATH_AS_MP_ERROR(result), MPFR_RNDU);
+      
+      mpfr_div_z(
+        PMATH_AS_MP_VALUE(result),
+        PMATH_AS_MP_VALUE(floatA),
+        PMATH_AS_MPZ(intB),
+        MPFR_RNDN);
+    }
     
     _pmath_mp_float_normalize(result);
 
@@ -131,8 +159,8 @@ static pmath_float_t _mul_fi(
     return result;
   }
 
-static pmath_float_t _mul_fq(
-  pmath_float_t    floatA, // will be freed. not PMATH_NULL!
+static pmath_mpfloat_t _mul_fq(
+  pmath_mpfloat_t  floatA, // will be freed. not PMATH_NULL!
   pmath_quotient_t quotB   // will be freed. not PMATH_NULL!
 ){
   floatA = _mul_fi(floatA, pmath_ref(PMATH_QUOT_NUM(quotB)));
@@ -145,14 +173,14 @@ static pmath_float_t _mul_fq(
   return floatA;
 }
 
-static pmath_float_t _mul_ff(
-  pmath_float_t   floatA, // will be freed. not PMATH_NULL!
-  pmath_integer_t floatB  // will be freed. not PMATH_NULL!
+static pmath_mpfloat_t _mul_ff(
+  pmath_mpfloat_t floatA, // will be freed. not PMATH_NULL!
+  pmath_mpfloat_t floatB  // will be freed. not PMATH_NULL!
 ){
-  pmath_float_t result;
-  pmath_float_t tmp_err;
+  pmath_mpfloat_t result;
+  pmath_mpfloat_t tmp_err;
   double fprec;
-  mp_prec_t prec;
+  mpfr_prec_t prec;
   
   fprec = pmath_precision(pmath_ref(floatA)) 
         + pmath_precision(pmath_ref(floatB));
@@ -162,7 +190,7 @@ static pmath_float_t _mul_ff(
   else if(fprec > PMATH_MP_PREC_MAX)
     prec = PMATH_MP_PREC_MAX;
   else
-    prec = (mp_prec_t)ceil(fprec);
+    prec = (mpfr_prec_t)ceil(fprec);
   
   result = _pmath_create_mp_float(prec);
   tmp_err = _pmath_create_mp_float(PMATH_MP_ERROR_PREC);
@@ -224,7 +252,12 @@ static pmath_t _mul_mi(
   pmath_float_t   floatA, // will be freed. not PMATH_NULL!
   pmath_integer_t intB    // will be freed. not PMATH_NULL!
 ){
-  double d = PMATH_AS_DOUBLE(floatA) * mpz_get_d(PMATH_AS_MPZ(intB));
+  double d = PMATH_AS_DOUBLE(floatA);
+  
+  if(pmath_is_int32(intB)) 
+    d*= PMATH_AS_INT32(intB);
+  else
+    d*= mpz_get_d(PMATH_AS_MPZ(intB));
   
   if(!isfinite(d))
     return _mul_nn(_pmath_convert_to_mp_float(floatA), intB);
@@ -238,10 +271,20 @@ static pmath_t _mul_mq(
   pmath_float_t    floatA, // will be freed. not PMATH_NULL!
   pmath_quotient_t quotB   // will be freed. not PMATH_NULL!
 ){
+  pmath_integer_t numB = PMATH_QUOT_NUM(quotB);
+  pmath_integer_t denB = PMATH_QUOT_DEN(quotB);
   double d;
   
-  d = mpz_get_d(PMATH_AS_MPZ(PMATH_QUOT_NUM(quotB)));
-  d/= mpz_get_d(PMATH_AS_MPZ(PMATH_QUOT_DEN(quotB)));
+  if(pmath_is_int32(numB)){
+    d = PMATH_AS_INT32(numB);
+  }
+  else
+    d = mpz_get_d(PMATH_AS_MPZ(numB));
+    
+  if(pmath_is_int32(denB))
+    d/= PMATH_AS_INT32(denB);
+  else
+    d/= mpz_get_d(PMATH_AS_MPZ(denB));
   
   d*= PMATH_AS_DOUBLE(floatA);
   
@@ -254,8 +297,8 @@ static pmath_t _mul_mq(
 }
 
 static pmath_t _mul_mf(
-  pmath_float_t  floatA, // will be freed. not PMATH_NULL!
-  pmath_float_t  floatB  // will be freed. not PMATH_NULL!
+  pmath_float_t   floatA, // will be freed. not PMATH_NULL!
+  pmath_mpfloat_t floatB  // will be freed. not PMATH_NULL!
 ){
   double d = PMATH_AS_DOUBLE(floatA) * mpfr_get_d(PMATH_AS_MP_VALUE(floatB), MPFR_RNDN);
   
@@ -297,11 +340,14 @@ PMATH_PRIVATE pmath_number_t _mul_nn(
   if(pmath_is_double(numA)){
     if(pmath_is_double(numB))
       return _mul_mm(numA, numB);
+      
+    if(pmath_is_int32(numB))
+      return _mul_mi(numA, numB);
     
     assert(pmath_is_pointer(numB));
     
     switch(PMATH_AS_PTR(numB)->type_shift){
-      case PMATH_TYPE_SHIFT_INTEGER:        return _mul_mi(numA, numB);
+      case PMATH_TYPE_SHIFT_MP_INT:         return _mul_mi(numA, numB);
       case PMATH_TYPE_SHIFT_QUOTIENT:       return _mul_mq(numA, numB);
       case PMATH_TYPE_SHIFT_MP_FLOAT:       return _mul_mf(numA, numB);
     }
@@ -313,12 +359,31 @@ PMATH_PRIVATE pmath_number_t _mul_nn(
   if(pmath_is_double(numB))
     return _mul_nn(numB, numA);
   
+  if(pmath_is_int32(numA)){
+    if(pmath_is_int32(numB))
+      return _mul_ii(numB, numA);
+    
+    assert(pmath_is_pointer(numB));
+    
+    switch(PMATH_AS_PTR(numB)->type_shift){
+      case PMATH_TYPE_SHIFT_MP_INT:         return _mul_ii(numB, numA);
+      case PMATH_TYPE_SHIFT_QUOTIENT:       return _mul_qi(numB, numA);
+      case PMATH_TYPE_SHIFT_MP_FLOAT:       return _mul_fi(numB, numA);
+    }
+    
+    assert("invalid number type" && 0);
+    return PMATH_NULL;
+  }
+  
+  if(pmath_is_int32(numB))
+    return _mul_nn(numB, numA);
+  
   assert(pmath_is_pointer(numA));
   
   switch(PMATH_AS_PTR(numA)->type_shift){
-    case PMATH_TYPE_SHIFT_INTEGER: {
+    case PMATH_TYPE_SHIFT_MP_INT: {
       switch(PMATH_AS_PTR(numB)->type_shift){
-        case PMATH_TYPE_SHIFT_INTEGER:        return _mul_ii(numA, numB);
+        case PMATH_TYPE_SHIFT_MP_INT:         return _mul_ii(numA, numB);
         case PMATH_TYPE_SHIFT_QUOTIENT:       return _mul_qi(numB, numA);
         case PMATH_TYPE_SHIFT_MP_FLOAT:       return _mul_fi(numB, numA);
       }
@@ -326,7 +391,7 @@ PMATH_PRIVATE pmath_number_t _mul_nn(
     
     case PMATH_TYPE_SHIFT_QUOTIENT: {
       switch(PMATH_AS_PTR(numB)->type_shift){
-        case PMATH_TYPE_SHIFT_INTEGER:        return _mul_qi(numA, numB);
+        case PMATH_TYPE_SHIFT_MP_INT:         return _mul_qi(numA, numB);
         case PMATH_TYPE_SHIFT_QUOTIENT:       return _mul_qq(numA, numB);
         case PMATH_TYPE_SHIFT_MP_FLOAT:       return _mul_fq(numB, numA);
       }
@@ -334,7 +399,7 @@ PMATH_PRIVATE pmath_number_t _mul_nn(
     
     case PMATH_TYPE_SHIFT_MP_FLOAT: {
       switch(PMATH_AS_PTR(numB)->type_shift){
-        case PMATH_TYPE_SHIFT_INTEGER:        return _mul_fi(numA, numB);
+        case PMATH_TYPE_SHIFT_MP_INT:         return _mul_fi(numA, numB);
         case PMATH_TYPE_SHIFT_QUOTIENT:       return _mul_fq(numA, numB);
         case PMATH_TYPE_SHIFT_MP_FLOAT:       return _mul_ff(numA, numB);
       }
@@ -365,7 +430,7 @@ static void split_factor(
     }
   }
   *out_base = pmath_ref(factor);
-  *out_num_power = pmath_integer_new_ui(1);
+  *out_num_power  = PMATH_FROM_INT32(1);
   *out_rest_power = PMATH_UNDEFINED;
 }
 
@@ -402,12 +467,12 @@ static void times_2_arg(pmath_t *a, pmath_t *b){
       return;
     }
     
-    if(pmath_is_real(*a) && _pmath_is_numeric(*b)){
+    if(pmath_is_float(*a) && _pmath_is_numeric(*b)){
       *b = pmath_approximate(*b, pmath_precision(pmath_ref(*a)), HUGE_VAL);
       return;
     }
     
-    if(pmath_equals(*a, PMATH_NUMBER_ONE)){
+    if(pmath_equals(*a, PMATH_FROM_INT32(1))){
       pmath_unref(*a);
       *a = *b;
       *b = PMATH_UNDEFINED;
@@ -434,7 +499,7 @@ static void times_2_arg(pmath_t *a, pmath_t *b){
       return;
     }
 
-    if(pmath_equals(*a, PMATH_NUMBER_MINUSONE)
+    if(pmath_equals(*a, PMATH_FROM_INT32(-1))
     && pmath_is_expr_of(*b, PMATH_SYMBOL_PLUS)){
       size_t i;
 
@@ -444,7 +509,7 @@ static void times_2_arg(pmath_t *a, pmath_t *b){
           *b, i,
           pmath_expr_new_extended(
             pmath_ref(PMATH_SYMBOL_TIMES), 2,
-            pmath_integer_new_si(-1),
+            PMATH_FROM_INT32(-1),
             pmath_expr_get_item(*b, i)));
 
       *a = *b;
@@ -618,7 +683,7 @@ PMATH_PRIVATE pmath_t builtin_times(pmath_expr_t expr){
 
   if(elen == 0){
     pmath_unref(expr);
-    return pmath_integer_new_ui(1);
+    return PMATH_FROM_INT32(1);
   }
   
   if(elen == 1){

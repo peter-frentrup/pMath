@@ -1,7 +1,7 @@
 #ifndef __PMATH_BUILTINS__BUILD_EXPR_PRIVATE_H__
 #define __PMATH_BUILTINS__BUILD_EXPR_PRIVATE_H__
 
-#define INT(I)          pmath_integer_new_si(I)
+#define INT(I)          PMATH_FROM_INT32(I)
 #define CINFTY          pmath_ref(_pmath_object_complex_infinity)
 #define QUOT(N,D)       pmath_rational_new(INT(N), INT(D))
 #define ONE_HALF        pmath_ref(_pmath_one_half)

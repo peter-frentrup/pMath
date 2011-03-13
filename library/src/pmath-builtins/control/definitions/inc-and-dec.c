@@ -44,14 +44,14 @@ PMATH_PRIVATE pmath_t builtin_dec_or_inc_or_postdec_or_postinc(pmath_expr_t expr
     || pmath_same(head, PMATH_SYMBOL_POSTDECREMENT))
       delta = pmath_expr_new_extended(
         pmath_ref(PMATH_SYMBOL_TIMES), 2,
-        pmath_integer_new_si(-1),
+        PMATH_FROM_INT32(-1),
         delta);
   }
   else if(pmath_same(head, PMATH_SYMBOL_DECREMENT)
   ||      pmath_same(head, PMATH_SYMBOL_POSTDECREMENT))
-    delta = pmath_integer_new_si(-1);
+    delta = PMATH_FROM_INT32(-1);
   else
-    delta = pmath_integer_new_si(1);
+    delta = PMATH_FROM_INT32(1);
   pmath_unref(expr);
 
   expr = pmath_expr_new_extended(

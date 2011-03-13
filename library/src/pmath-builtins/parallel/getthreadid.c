@@ -16,7 +16,7 @@ PMATH_PRIVATE pmath_t builtin_getthreadid(pmath_expr_t expr){
   
   #if PMATH_USE_PTHREAD
     {
-      pmath_integer_t result = _pmath_create_integer();
+      pmath_integer_t result = _pmath_create_mp_int();
       pthread_t thread = pthread_self(); 
       
       if(!pmath_is_null(result)){

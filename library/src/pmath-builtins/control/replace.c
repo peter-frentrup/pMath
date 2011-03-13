@@ -215,7 +215,7 @@ PMATH_PRIVATE pmath_t builtin_replace(pmath_expr_t expr){
     counter = pmath_symbol_create_temporary(
       PMATH_C_STRING("System`Private`replacelistcounter"), 
       TRUE);
-    pmath_symbol_set_value(counter, pmath_integer_new_si(0));
+    pmath_symbol_set_value(counter, PMATH_FROM_INT32(0));
     
     counter_ok = pmath_expr_new_extended(
       pmath_ref(PMATH_SYMBOL_LESSEQUAL), 2,
@@ -281,9 +281,9 @@ PMATH_PRIVATE pmath_t builtin_replacelist(pmath_expr_t expr){
     if(!_pmath_is_rule(n) && !_pmath_is_list_of_rules(n)){
       last_nonoption = 3;
     }
-    else if((!pmath_is_integer(n) || pmath_number_sign(n) < 0)
+    else if((!_pmath_is_integer(n) || pmath_number_sign(n) < 0)
     && !pmath_equals(n, _pmath_object_infinity)){
-      pmath_message(PMATH_NULL, "innf", 2, pmath_integer_new_si(3), pmath_ref(expr));
+      pmath_message(PMATH_NULL, "innf", 2, PMATH_FROM_INT32(3), pmath_ref(expr));
       pmath_unref(n);
       return expr;
     }

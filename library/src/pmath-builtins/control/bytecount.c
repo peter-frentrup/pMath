@@ -13,18 +13,18 @@ static size_t bytecount(
     return 0;
   
   switch(PMATH_AS_PTR(obj)->type_shift){
-    case PMATH_TYPE_SHIFT_INTEGER:
+    case PMATH_TYPE_SHIFT_MP_INT:
       return abs(PMATH_AS_MPZ(obj)->_mp_size) * sizeof(mp_limb_t)
-           + sizeof(struct _pmath_integer_t_);
+           + sizeof(struct _pmath_mp_int_t);
     
     case PMATH_TYPE_SHIFT_QUOTIENT: 
       return bytecount(PMATH_QUOT_NUM(obj))
            + bytecount(PMATH_QUOT_DEN(obj))
-           + sizeof(struct _pmath_quotient_t_);
+           + sizeof(struct _pmath_quotient_t);
     
     case PMATH_TYPE_SHIFT_MP_FLOAT:
       return (PMATH_AS_MP_VALUE(obj)->_mpfr_prec + 8 * sizeof(mp_limb_t) - 1) / 8
-           + sizeof(struct _pmath_mp_float_t_);
+           + sizeof(struct _pmath_mp_float_t);
     
     case PMATH_TYPE_SHIFT_STRING:
       return LENGTH_TO_CAPACITY(pmath_string_length(obj)) * sizeof(uint16_t)

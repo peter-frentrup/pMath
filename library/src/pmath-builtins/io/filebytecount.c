@@ -86,5 +86,5 @@ PMATH_PRIVATE pmath_t builtin_filebytecount(pmath_expr_t expr){
   #endif
   
   pmath_unref(file);
-  return pmath_integer_new_si(0);
+  return PMATH_FROM_INT32(0);
 }

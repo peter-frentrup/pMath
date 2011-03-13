@@ -44,7 +44,7 @@ PMATH_PRIVATE pmath_t builtin_nextprime(pmath_expr_t expr){
       result = n;
     }
     else{
-      result = _pmath_create_integer();
+      result = _pmath_create_mp_int();
       if(pmath_is_null(result)){
         pmath_unref(n);
         return PMATH_NULL;

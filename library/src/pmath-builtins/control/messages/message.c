@@ -77,9 +77,8 @@ PMATH_PRIVATE pmath_t builtin_message(pmath_expr_t expr){
           pmath_ref(PMATH_SYMBOL_MESSAGECOUNT), 1,
           pmath_ref(name))));
     
-    if(pmath_is_integer(count)
-    && pmath_integer_fits_si(count)){
-      long cnt = pmath_integer_get_si(count);
+    if(pmath_is_int32(count)){
+      long cnt = PMATH_AS_INT32(count);
       
       stop_msg = cnt == max_message_count;
       
@@ -189,5 +188,5 @@ PMATH_PRIVATE pmath_t builtin_message(pmath_expr_t expr){
 
 PMATH_PRIVATE pmath_t builtin_messagecount(pmath_expr_t expr){
   pmath_unref(expr);
-  return pmath_integer_new_ui(0);
+  return PMATH_FROM_INT32(0);
 }

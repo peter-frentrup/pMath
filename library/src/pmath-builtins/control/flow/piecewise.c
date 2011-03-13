@@ -31,7 +31,7 @@ pmath_t builtin_piecewise(pmath_expr_t expr){
   if(exprlen == 2)
     fallback = pmath_expr_get_item(expr, 2);
   else
-    fallback = pmath_integer_new_si(0);
+    fallback = pmath_ref(PMATH_SYMBOL_UNDEFINED);
   
   pmath_unref(expr);
   all_definite = TRUE;

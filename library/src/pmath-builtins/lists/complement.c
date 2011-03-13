@@ -75,7 +75,7 @@ PMATH_PRIVATE pmath_t builtin_complement(pmath_expr_t expr){
   if(!pmath_is_expr(all)){
     pmath_unref(sametest);
     pmath_unref(all);
-    pmath_message(PMATH_NULL, "nexprat", 2, pmath_integer_new_si(1), pmath_ref(expr));
+    pmath_message(PMATH_NULL, "nexprat", 2, PMATH_FROM_INT32(1), pmath_ref(expr));
     return expr;
   }
   

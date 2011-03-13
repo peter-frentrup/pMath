@@ -538,7 +538,7 @@ static pmath_t builtin_quit(pmath_expr_t expr){
   if(pmath_expr_length(expr) == 1){
     pmath_t res = pmath_expr_get_item(expr, 1);
     
-    if(!pmath_is_integer(res) || !pmath_integer_fits_si(res)){
+    if(!pmath_is_integer(res) || !pmath_integer_fits_si32(res)){
       pmath_unref(res);
       pmath_message(PMATH_NULL, "intm", 2, pmath_integer_new_si(1), pmath_ref(expr));
       return expr;

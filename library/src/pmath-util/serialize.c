@@ -174,7 +174,7 @@ static void serialize(
     
     if(pmath_is_double(object)){
       pmath_float_t   f        = _pmath_create_mp_float(DBL_MANT_DIG);
-      pmath_integer_t mantissa = _pmath_create_integer();
+      pmath_integer_t mantissa = _pmath_create_mp_int();
       mp_exp_t exp;
       
       if(pmath_is_null(mantissa) || pmath_is_null(f)){
@@ -293,8 +293,8 @@ static void serialize(
       } break;
       
       case PMATH_TYPE_SHIFT_MP_FLOAT: {
-        pmath_integer_t mantissa = _pmath_create_integer();
-        mp_prec_t prec;
+        pmath_integer_t mantissa = _pmath_create_mp_int();
+        mpfr_prec_t prec;
         mp_exp_t exp;
         
         if(pmath_is_null(mantissa)){
@@ -498,7 +498,7 @@ static pmath_t deserialize(struct deserializer_t *info){
         break;
       }
       
-      result = _pmath_create_integer();
+      result = _pmath_create_mp_int();
       if(pmath_is_null(result)){
         if(!info->error)
           info->error = PMATH_SERIALIZE_EOF;  
@@ -543,10 +543,10 @@ static pmath_t deserialize(struct deserializer_t *info){
     case 9: {
       pmath_float_t result;
       pmath_integer_t mant;
-      mp_prec_t prec;
+      mpfr_prec_t prec;
       mp_exp_t exp;
       
-      prec = (mp_prec_t)read_ui32(info);
+      prec = (mpfr_prec_t)read_ui32(info);
       if(prec < MPFR_PREC_MIN || prec > PMATH_MP_PREC_MAX){
         if(!info->error)
           info->error = PMATH_SERIALIZE_BAD_BYTE;

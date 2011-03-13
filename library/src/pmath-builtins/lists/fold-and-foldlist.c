@@ -20,8 +20,7 @@ PMATH_PRIVATE pmath_t builtin_fold(pmath_expr_t expr){
   
   list = pmath_expr_get_item(expr, 1);
   if(!pmath_is_expr(list)){
-    pmath_message(PMATH_NULL, "nexprat", 2,
-      pmath_integer_new_si(1), pmath_ref(expr));
+    pmath_message(PMATH_NULL, "nexprat", 2, PMATH_FROM_INT32(1), pmath_ref(expr));
     
     pmath_unref(list);
     return expr;
@@ -58,8 +57,7 @@ PMATH_PRIVATE pmath_t builtin_foldlist(pmath_expr_t expr){
   
   list = pmath_expr_get_item(expr, 1);
   if(!pmath_is_expr(list)){
-    pmath_message(PMATH_NULL, "nexprat", 2,
-      pmath_integer_new_si(1), pmath_ref(expr));
+    pmath_message(PMATH_NULL, "nexprat", 2, PMATH_FROM_INT32(1), pmath_ref(expr));
     
     pmath_unref(list);
     return expr;

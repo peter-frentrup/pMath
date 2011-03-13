@@ -47,9 +47,9 @@ struct random_array_data_t{
   size_t          lengths[MAX_DIM];
   pmath_t  min;
   pmath_t  max;
-  //mp_prec_t       working_precision;
+  //mpfr_prec_t       working_precision;
   double          working_precision;
-  mp_prec_t       prec;
+  mpfr_prec_t       prec;
   pmath_bool_t random_integer; // max is INTEGER !!! and one bigger than real max!!!
 };
 
@@ -61,7 +61,7 @@ static pmath_expr_t random_array(
   
   if(data->dim == data->dims){
     if(data->random_integer){
-      pmath_integer_t result = _pmath_create_integer();
+      pmath_integer_t result = _pmath_create_mp_int();
       
       assert(pmath_is_integer(data->max));
       
@@ -87,7 +87,7 @@ static pmath_expr_t random_array(
       return PMATH_NULL;
     }
     else{
-//      mp_prec_t prec = data->working_precision;
+//      mpfr_prec_t prec = data->working_precision;
 //        
 //      struct _pmath_mp_float_t *result = _pmath_create_mp_float(prec ? prec : DBL_MANT_DIG);
       pmath_float_t result = _pmath_create_mp_float(data->prec);
@@ -168,7 +168,7 @@ PMATH_PRIVATE pmath_t builtin_randominteger(pmath_expr_t expr){
   if(exprlen > 1){
     pmath_t dims = pmath_expr_get_item(expr, 2);
     
-    if(pmath_is_integer(dims) && pmath_integer_fits_ui(dims)){
+    if(pmath_is_integer(dims) && pmath_integer_fits_ui32(dims)){
       data.dims = 1;
       data.lengths[0] = pmath_integer_get_ui(dims);
     }
@@ -186,7 +186,7 @@ PMATH_PRIVATE pmath_t builtin_randominteger(pmath_expr_t expr){
         
         for(data.dim = 0;data.dim < data.dims;++data.dim){
           pmath_t len = pmath_expr_get_item(dims, data.dim + 1);
-          if(!pmath_is_integer(len) || !pmath_integer_fits_ui(len)){
+          if(!pmath_is_integer(len) || !pmath_integer_fits_ui32(len)){
             pmath_unref(len);
             goto ERROR_COND;
           }
@@ -321,7 +321,7 @@ PMATH_PRIVATE pmath_t builtin_randomreal(pmath_expr_t expr){
       if(exprlen > 1){
         tmp = pmath_expr_get_item(expr, 2);
         
-        if(pmath_is_integer(tmp) && pmath_integer_fits_ui(tmp)){
+        if(pmath_is_integer(tmp) && pmath_integer_fits_ui32(tmp)){
           data.dims = 1;
           data.lengths[0] = pmath_integer_get_ui(tmp);
           last_nonoption = 2;
@@ -342,7 +342,7 @@ PMATH_PRIVATE pmath_t builtin_randomreal(pmath_expr_t expr){
               
               for(data.dim = 0;data.dim < data.dims;++data.dim){
                 pmath_t len = pmath_expr_get_item(tmp, data.dim + 1);
-                if(!pmath_is_integer(len) || !pmath_integer_fits_ui(len)){
+                if(!pmath_is_integer(len) || !pmath_integer_fits_ui32(len)){
                   pmath_unref(len);
                   goto ERROR_COND;
                 }
@@ -396,7 +396,7 @@ PMATH_PRIVATE pmath_t builtin_randomreal(pmath_expr_t expr){
   else if(data.working_precision < MPFR_PREC_MIN)
     data.prec = MPFR_PREC_MIN;
   else
-    data.prec = (mp_prec_t)data.working_precision;
+    data.prec = (mpfr_prec_t)data.working_precision;
   
   if(last_nonoption > 0){
     pmath_t range = pmath_approximate(

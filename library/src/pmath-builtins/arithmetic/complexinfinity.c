@@ -47,7 +47,7 @@ PMATH_PRIVATE pmath_t _pmath_directed_infinity_direction(
     return PMATH_NULL;
 
   if(pmath_expr_length(obj) == 0)
-    return pmath_integer_new_si(0);
+    return PMATH_FROM_INT32(0);
 
   return pmath_expr_get_item(obj, 1);
 }

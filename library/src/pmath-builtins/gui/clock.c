@@ -13,6 +13,7 @@
 #include <pmath-builtins/number-theory-private.h>
 
 #include <math.h>
+#include <limits.h>
 
 
 PMATH_PRIVATE pmath_t builtin_clock(pmath_expr_t expr){
@@ -22,9 +23,9 @@ PMATH_PRIVATE pmath_t builtin_clock(pmath_expr_t expr){
   pmath_t duration, min, max, delta;
   double now;
   double duration_seconds;
-  size_t steps;
+  unsigned steps;
   pmath_bool_t backwards;
-  size_t max_cycles;
+  unsigned max_cycles;
   
   if(!thread)
     return expr;
@@ -41,7 +42,7 @@ PMATH_PRIVATE pmath_t builtin_clock(pmath_expr_t expr){
     
     obj = pmath_expr_new_extended(
       pmath_ref(PMATH_SYMBOL_INTERNAL_DYNAMICUPDATED), 1,
-      pmath_integer_new_si((long)thread->current_dynamic_id));
+      pmath_integer_new_slong((long)thread->current_dynamic_id));
     pmath_unref(pmath_evaluate(obj));
   
     return PMATH_FROM_DOUBLE(now - floor(now));
@@ -52,13 +53,12 @@ PMATH_PRIVATE pmath_t builtin_clock(pmath_expr_t expr){
     return expr;
   }
   
-  max_cycles = SIZE_MAX;
+  max_cycles = UINT_MAX;
   if(exprlen >= 3){
     obj = pmath_expr_get_item(expr, 3);
     
-    if(pmath_is_integer(obj)
-    && pmath_integer_fits_ui(obj)){
-      max_cycles = pmath_integer_get_ui(obj);
+    if(pmath_is_int32(obj) && PMATH_AS_INT32(obj) >= 0){
+      max_cycles = (unsigned)PMATH_AS_INT32(obj);
     }
     else if(!(_pmath_number_class(obj) & PMATH_CLASS_POSINF)){
       pmath_unref(obj);
@@ -81,7 +81,7 @@ PMATH_PRIVATE pmath_t builtin_clock(pmath_expr_t expr){
     if(objlen == 2){
       min = pmath_expr_get_item(obj, 1);
       max = pmath_expr_get_item(obj, 2);
-      delta = pmath_integer_new_si(0);
+      delta = PMATH_FROM_INT32(0);
     }
     else if(objlen == 3){
       min   = pmath_expr_get_item(obj, 1);
@@ -110,7 +110,7 @@ PMATH_PRIVATE pmath_t builtin_clock(pmath_expr_t expr){
   else{
     min   = INT(0);
     max   = obj;
-    delta = pmath_integer_new_si(0);
+    delta = PMATH_FROM_INT32(0);
   }
   
   backwards = FALSE;
@@ -141,9 +141,9 @@ PMATH_PRIVATE pmath_t builtin_clock(pmath_expr_t expr){
     pmath_unref(obj);
     
     if(_pmath_number_class(max) & PMATH_CLASS_POSINF){
-      steps = SIZE_MAX;
+      steps = UINT_MAX;
       pmath_unref(delta);
-      delta = pmath_integer_new_si(1);
+      delta = PMATH_FROM_INT32(1);
       
       if(!pmath_same(duration, PMATH_UNDEFINED)){
         pmath_unref(min);
@@ -162,13 +162,12 @@ PMATH_PRIVATE pmath_t builtin_clock(pmath_expr_t expr){
     
     obj = pmath_evaluate(obj);
     
-    if(pmath_is_integer(obj)
-    && pmath_integer_fits_ui(obj)){
-      steps = pmath_integer_get_ui(obj);
+    if(pmath_is_int32(obj) && PMATH_AS_INT32(obj) >= 0){
+      steps = (unsigned)PMATH_AS_INT32(obj);
       pmath_unref(obj);
     }
     else if(_pmath_number_class(obj) & PMATH_CLASS_POSINF){
-      steps = SIZE_MAX;
+      steps = UINT_MAX;
       pmath_unref(obj);
       
       if(!pmath_same(duration, PMATH_UNDEFINED)){
@@ -191,13 +190,13 @@ PMATH_PRIVATE pmath_t builtin_clock(pmath_expr_t expr){
     }
   }
   
-  if(steps == SIZE_MAX){
+  if(steps == UINT_MAX){
     duration_seconds = HUGE_VAL;
   }
   else{
     if(pmath_same(duration, PMATH_UNDEFINED)){
-      if(steps+1 > 1) // neither 0 not SIZE_MAX
-        duration = TIMES(pmath_integer_new_si(steps), pmath_ref(delta));
+      if(steps + 1 > 1) // neither 0 not UINT_MAX
+        duration = TIMES(INT(steps), pmath_ref(delta));
       else
         duration = MINUS(pmath_ref(max), pmath_ref(min));
     }
@@ -227,7 +226,7 @@ PMATH_PRIVATE pmath_t builtin_clock(pmath_expr_t expr){
   if(duration_seconds < HUGE_VAL){
     now/= duration_seconds;
     
-    if(max_cycles != SIZE_MAX && now > max_cycles){
+    if(max_cycles != UINT_MAX && now > max_cycles){
       pmath_unref(min);
       pmath_unref(delta);
       return max;
@@ -238,18 +237,18 @@ PMATH_PRIVATE pmath_t builtin_clock(pmath_expr_t expr){
   
   obj = pmath_expr_new_extended(
     pmath_ref(PMATH_SYMBOL_INTERNAL_DYNAMICUPDATED), 1,
-    pmath_integer_new_si((long)thread->current_dynamic_id));
+    pmath_integer_new_slong((long)thread->current_dynamic_id));
   pmath_unref(pmath_evaluate(obj));
   
-  if(steps+1 > 1){ // neither 0 nor SIZE_MAX
-    steps = (size_t)(floor(now * steps));
+  if(steps+1 > 1){ // neither 0 nor UINT_MAX
+    steps = (unsigned)(floor(now * steps));
     
     pmath_unref(max);
     
-    return PLUS(min, TIMES(pmath_integer_new_ui(steps), delta));
+    return PLUS(min, TIMES(PMATH_FROM_INT32(steps), delta));
   }
   
-  if(steps < SIZE_MAX){
+  if(steps < UINT_MAX){
     pmath_unref(delta);
     delta = MINUS(max, pmath_ref(min));
   }

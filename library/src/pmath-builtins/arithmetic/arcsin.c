@@ -38,7 +38,7 @@ PMATH_PRIVATE pmath_t builtin_arcsin(pmath_expr_t expr){
   
   x = pmath_expr_get_item(expr, 1);
   
-  if(pmath_equals(x, PMATH_NUMBER_ZERO)){
+  if(pmath_equals(x, PMATH_FROM_INT32(0))){
     pmath_unref(expr);
     return x;
   }
@@ -59,8 +59,8 @@ PMATH_PRIVATE pmath_t builtin_arcsin(pmath_expr_t expr){
     
     if(mpfr_cmp_si(PMATH_AS_MP_VALUE(x), -1) > 0
     && mpfr_cmp_si(PMATH_AS_MP_VALUE(x),  1) < 0){
-      pmath_float_t result;
-      pmath_float_t tmp;
+      pmath_mpfloat_t result;
+      pmath_mpfloat_t tmp;
       double dprec;
       long exp;
       
@@ -105,7 +105,7 @@ PMATH_PRIVATE pmath_t builtin_arcsin(pmath_expr_t expr){
           else if(dprec > PMATH_MP_PREC_MAX)
             dprec = PMATH_MP_PREC_MAX;
           
-          result = _pmath_create_mp_float((mp_prec_t)ceil(dprec));
+          result = _pmath_create_mp_float((mpfr_prec_t)ceil(dprec));
           if(!pmath_is_null(result)){
             mpfr_swap(PMATH_AS_MP_ERROR(result), PMATH_AS_MP_ERROR(tmp));
         

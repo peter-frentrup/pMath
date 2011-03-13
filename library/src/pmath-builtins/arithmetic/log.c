@@ -10,17 +10,36 @@
 #include <pmath-builtins/number-theory-private.h>
 
 static pmath_integer_t logii(pmath_integer_t base, pmath_integer_t z){
+  if(pmath_is_int32(base)){
+    base = _pmath_create_mp_int(PMATH_AS_INT32(base));
+    
+    z = logii(base, z);
+    pmath_unref(base);
+    return z;
+  }
+  
+  if(pmath_is_int32(z)){
+    z = _pmath_create_mp_int(PMATH_AS_INT32(z));
+    
+    base = logii(base, z);
+    pmath_unref(z);
+    return base;
+  }
+  
   if(!pmath_is_null(base) 
   && !pmath_is_null(z) 
-  && mpz_cmp_ui(PMATH_AS_MPZ(base), 1) > 0){
-    pmath_integer_t tmp = _pmath_create_integer();
+  && mpz_cmp_ui(PMATH_AS_MPZ(base), 1) >= 0){
+    pmath_mpint_t tmp = _pmath_create_mp_int(0);
     
     if(!pmath_is_null(tmp)){
-      unsigned long result = mpz_remove(PMATH_AS_MPZ(tmp), PMATH_AS_MPZ(z), PMATH_AS_MPZ(base));
+      unsigned long result = mpz_remove(
+        PMATH_AS_MPZ(tmp), 
+        PMATH_AS_MPZ(z), 
+        PMATH_AS_MPZ(base));
       
       if(mpz_cmp_ui(PMATH_AS_MPZ(tmp), 1) == 0){
         pmath_unref(tmp);
-        return pmath_integer_new_ui(result);
+        return pmath_integer_new_ulong(result);
       }
       
       pmath_unref(tmp);
@@ -38,8 +57,8 @@ static pmath_integer_t logrr(pmath_rational_t base, pmath_rational_t z){
   pmath_integer_t result;
   pmath_integer_t res2;
   
-  if(pmath_equals(bn, PMATH_NUMBER_ONE)){
-    if(pmath_equals(zn, PMATH_NUMBER_ONE)){
+  if(pmath_equals(bn, PMATH_FROM_INT32(1))){
+    if(pmath_equals(zn, PMATH_FROM_INT32(1))){
       result = logii(bd, zd);
       
       if(!pmath_is_null(result)){
@@ -53,7 +72,7 @@ static pmath_integer_t logrr(pmath_rational_t base, pmath_rational_t z){
       pmath_unref(result);
     }
     
-    if(pmath_equals(zd, PMATH_NUMBER_ONE)){
+    if(pmath_equals(zd, PMATH_FROM_INT32(1))){
       result = logii(bd, zn);
       
       if(!pmath_is_null(result)){
@@ -74,8 +93,8 @@ static pmath_integer_t logrr(pmath_rational_t base, pmath_rational_t z){
     return PMATH_NULL;
   }
   
-  if(pmath_equals(bd, PMATH_NUMBER_ONE)){
-    if(pmath_equals(zn, PMATH_NUMBER_ONE)){
+  if(pmath_equals(bd, PMATH_FROM_INT32(1))){
+    if(pmath_equals(zn, PMATH_FROM_INT32(1))){
       result = logii(bn, zd);
       
       if(!pmath_is_null(result)){
@@ -89,7 +108,7 @@ static pmath_integer_t logrr(pmath_rational_t base, pmath_rational_t z){
       pmath_unref(result);
     }
     
-    if(pmath_equals(zd, PMATH_NUMBER_ONE)){
+    if(pmath_equals(zd, PMATH_FROM_INT32(1))){
       result = logii(bn, zn);
       
       if(!pmath_is_null(result)){
@@ -152,8 +171,14 @@ PMATH_PRIVATE pmath_t builtin_log(pmath_expr_t expr){
   int xclass;
   
   if(pmath_expr_length(expr) == 1){
+    x = pmath_expr_get_item(expr, 1);
+    
+    if(pmath_is_double(x) && PMATH_AS_DOUBLE(x) > 0){
+      pmath_unref(expr);
+      return PMATH_FROM_DOUBLE(log(PMATH_AS_DOUBLE(x)));
+    }
+  
     base = pmath_ref(PMATH_SYMBOL_E);
-    x    = pmath_expr_get_item(expr, 1);
   }
   else if(pmath_expr_length(expr) == 2){
     base = pmath_expr_get_item(expr, 1);
@@ -179,7 +204,7 @@ PMATH_PRIVATE pmath_t builtin_log(pmath_expr_t expr){
   }
   
   if(pmath_equals(base, x)
-  && !pmath_equals(base, PMATH_NUMBER_ONE)){
+  && !pmath_equals(base, PMATH_FROM_INT32(1))){
     pmath_unref(expr);
     pmath_unref(base);
     pmath_unref(x);
@@ -210,13 +235,6 @@ PMATH_PRIVATE pmath_t builtin_log(pmath_expr_t expr){
   }
   pmath_unref(base); base = PMATH_NULL;
   
-  if(pmath_is_double(x) && PMATH_AS_DOUBLE(x) > 0){
-    pmath_unref(expr);
-    expr = PMATH_FROM_DOUBLE(log(PMATH_AS_DOUBLE(x)));
-    pmath_unref(x);
-    return expr;
-  }
-  
   if(pmath_is_mpfloat(x) && pmath_number_sign(x) > 0){
     /* z = Log(x)
        error = dz = dx/x
@@ -225,7 +243,7 @@ PMATH_PRIVATE pmath_t builtin_log(pmath_expr_t expr){
                 = bits(x) + Log(2, Log(x))
      */
      
-    pmath_float_t result = _pmath_create_mp_float(PMATH_MP_ERROR_PREC);
+    pmath_mpfloat_t result = _pmath_create_mp_float(PMATH_MP_ERROR_PREC);
     if(!pmath_is_null(result)){
       long exp;
       double dprec;
@@ -244,7 +262,7 @@ PMATH_PRIVATE pmath_t builtin_log(pmath_expr_t expr){
         dprec = PMATH_MP_PREC_MAX;
         
       pmath_unref(result);
-      result = _pmath_create_mp_float((mp_prec_t)ceil(dprec));
+      result = _pmath_create_mp_float((mpfr_prec_t)ceil(dprec));
       if(!pmath_is_null(result)){
         mpfr_div(
           PMATH_AS_MP_ERROR(result), 
@@ -268,7 +286,7 @@ PMATH_PRIVATE pmath_t builtin_log(pmath_expr_t expr){
     pmath_t re = pmath_expr_get_item(x, 1);
     pmath_t im = pmath_expr_get_item(x, 2);
     
-    if(pmath_equals(re, PMATH_NUMBER_ZERO)){
+    if(pmath_equals(re, PMATH_FROM_INT32(0))){
       pmath_unref(x);
       pmath_unref(re);
       

@@ -114,7 +114,7 @@ PMATH_PRIVATE pmath_t builtin_stringmatch(pmath_expr_t expr){
   _pmath_regex_unref(regex);
   
   if(pmath_same(obj, PMATH_UNDEFINED)){
-    pmath_message(PMATH_NULL, "strse", 2, pmath_integer_new_si(1), pmath_ref(expr));
+    pmath_message(PMATH_NULL, "strse", 2, PMATH_FROM_INT32(1), pmath_ref(expr));
     return expr;
   }
   

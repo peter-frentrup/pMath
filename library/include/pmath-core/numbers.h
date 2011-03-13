@@ -57,6 +57,8 @@ typedef pmath_number_t pmath_rational_t;
  */
 typedef pmath_rational_t pmath_integer_t;
 
+typedef pmath_rational_t pmath_mpint_t;
+
 /**\class pmath_quotient_t
    \extends pmath_rational_t
    \brief The Quotient class.
@@ -83,6 +85,8 @@ typedef pmath_rational_t pmath_quotient_t;
  */
 typedef pmath_number_t pmath_float_t;
 
+typedef pmath_float_t pmath_mpfloat_t;
+
 /*============================================================================*/
 
 /**\brief Create an integer object from a signed long.
@@ -92,7 +96,7 @@ typedef pmath_number_t pmath_float_t;
  */
 PMATH_API 
 PMATH_ATTRIBUTE_USE_RESULT
-pmath_integer_t pmath_integer_new_si(signed long int si);
+pmath_integer_t pmath_integer_new_slong(signed long int si);
 
 /**\brief Create an integer object from an unsigned long.
    \memberof pmath_integer_t
@@ -101,7 +105,32 @@ pmath_integer_t pmath_integer_new_si(signed long int si);
  */
 PMATH_API 
 PMATH_ATTRIBUTE_USE_RESULT
-pmath_integer_t pmath_integer_new_ui(unsigned long int ui);
+pmath_integer_t pmath_integer_new_ulong(unsigned long int ui);
+
+/* *\brief Create an integer object from an int32_t
+   \memberof pmath_integer_t
+   \param si An int32_t.
+   \return A pMath integer with the specified value.
+ * /
+
+PMATH_API 
+PMATH_ATTRIBUTE_USE_RESULT
+pmath_integer_t pmath_integer_new_si32(int32_t si){
+  return PMATH_FROM_TAG(PMATH_TAG_INT32, si);
+}*/
+
+/**\brief Create an integer object from an uint32_t.
+   \memberof pmath_integer_t
+   \param si An uint32_t
+   \return A pMath integer with the specified value or PMATH_NULL.
+ */
+PMATH_API 
+PMATH_ATTRIBUTE_USE_RESULT
+pmath_integer_t pmath_integer_new_ui32(uint32_t ui){
+  if(ui >> 31)
+    return pmath_integer_new_ulong(ui);
+  return PMATH_FROM_INT32((int32_t)ui);
+}
 
 /**\brief Create an integer object from an size_t.
    \memberof pmath_integer_t
@@ -267,7 +296,7 @@ pmath_number_t pmath_float_new_str(
  */
 PMATH_API 
 PMATH_ATTRIBUTE_PURE
-pmath_bool_t pmath_integer_fits_si(pmath_integer_t integer);
+pmath_bool_t pmath_integer_fits_si32(pmath_integer_t integer);
 
 /**\brief Find out whether a pMath integer fits into a unsigned long int.
    \memberof pmath_integer_t
@@ -276,7 +305,7 @@ pmath_bool_t pmath_integer_fits_si(pmath_integer_t integer);
  */
 PMATH_API 
 PMATH_ATTRIBUTE_PURE
-pmath_bool_t pmath_integer_fits_ui(pmath_integer_t integer);
+pmath_bool_t pmath_integer_fits_ui32(pmath_integer_t integer);
 
 /**\brief Find out whether a pMath integer fits into an int64_t.
    \memberof pmath_integer_t
@@ -301,7 +330,7 @@ pmath_bool_t pmath_integer_fits_ui64(pmath_integer_t integer);
    \param integer A pMath integer. It wont be freed.
    \return The integer's value if it fits.
    
-   \see pmath_integer_fits_si
+   \see pmath_integer_fits_si32
  */
 PMATH_API 
 PMATH_ATTRIBUTE_PURE
@@ -312,7 +341,7 @@ signed long int pmath_integer_get_si(pmath_integer_t integer);
    \param integer A pMath integer. It wont be freed.
    \return The integer's value if it fits.
    
-   \see pmath_integer_fits_ui
+   \see pmath_integer_fits_ui32
  */
 PMATH_API 
 PMATH_ATTRIBUTE_PURE
@@ -323,7 +352,7 @@ unsigned long int pmath_integer_get_ui(pmath_integer_t integer);
    \param integer A pMath integer. It wont be freed.
    \return The integer's value if it fits.
    
-   \see pmath_integer_fits_si
+   \see pmath_integer_fits_si32
  */
 PMATH_API
 PMATH_ATTRIBUTE_PURE
@@ -334,7 +363,7 @@ int64_t pmath_integer_get_si64(pmath_integer_t integer);
    \param integer A pMath integer. It wont be freed.
    \return The integer's value if it fits.
    
-   \see pmath_integer_fits_ui
+   \see pmath_integer_fits_ui32
  */
 PMATH_API 
 PMATH_ATTRIBUTE_PURE

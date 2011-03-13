@@ -55,7 +55,7 @@ static pmath_t array(struct _array_data_t *data){
           pmath_expr_new_extended(
             pmath_ref(PMATH_SYMBOL_PLUS), 2,
             pmath_expr_get_item(data->start, data->dim),
-            pmath_integer_new_ui(i - 1)));
+            pmath_integer_new_size(i - 1)));
         
         list = pmath_expr_set_item(list, i, 
           pmath_expr_set_item(
@@ -70,7 +70,7 @@ static pmath_t array(struct _array_data_t *data){
           pmath_expr_new_extended(
             pmath_ref(PMATH_SYMBOL_PLUS), 2,
             pmath_ref(data->start),
-            pmath_integer_new_ui(i - 1)));
+            pmath_integer_new_size(i - 1)));
         
         list = pmath_expr_set_item(list, i, 
           pmath_expr_set_item(
@@ -90,7 +90,7 @@ static pmath_t array(struct _array_data_t *data){
         pmath_expr_new_extended(
           pmath_ref(PMATH_SYMBOL_PLUS), 2,
           pmath_expr_get_item(data->start, data->dim-1),
-          pmath_integer_new_ui(i - 1)));
+          pmath_integer_new_size(i - 1)));
           
       list = pmath_expr_set_item(list, i, array(data));
     }
@@ -102,7 +102,7 @@ static pmath_t array(struct _array_data_t *data){
         pmath_expr_new_extended(
           pmath_ref(PMATH_SYMBOL_PLUS), 2,
           pmath_ref(data->start),
-          pmath_integer_new_ui(i - 1)));
+          pmath_integer_new_size(i - 1)));
           
       list = pmath_expr_set_item(list, i, array(data));
     }
@@ -176,10 +176,10 @@ PMATH_PRIVATE pmath_t builtin_array(pmath_expr_t expr){
   for(data.dim = data.depth;data.dim > 0;data.dim--){
     pmath_t d = pmath_expr_get_item(data.dims, data.dim);
     
-    if(!pmath_is_integer(d) || !pmath_integer_fits_ui(d)){
+    if(!pmath_is_int32(d) || PMATH_AS_INT32(d) < 0){
       pmath_unref(d);
       pmath_unref(data.dims);
-      pmath_message(PMATH_NULL, "intnm", 2, pmath_integer_new_si(2), pmath_ref(expr));
+      pmath_message(PMATH_NULL, "intnm", 2, PMATH_FROM_INT32(2), pmath_ref(expr));
       return expr;
     }
     
@@ -199,7 +199,7 @@ PMATH_PRIVATE pmath_t builtin_array(pmath_expr_t expr){
     }
   }
   else
-    data.start = pmath_integer_new_si(1);
+    data.start = PMATH_FROM_INT32(1);
   
   data.function = pmath_expr_get_item(expr, 1);
   if(exprlen == 4)
@@ -282,7 +282,7 @@ PMATH_PRIVATE pmath_t builtin_constantarray(pmath_expr_t expr){
       for(data.dim = data.dims;data.dim > 0;data.dim--){
         pmath_t l = pmath_expr_get_item(n, data.dim);
 
-        if(!pmath_is_integer(l) || !pmath_integer_fits_ui(l)){
+        if(!pmath_is_int32(l) || PMATH_AS_INT32(l) < 0){
           pmath_unref(l);
           pmath_unref(n);
           pmath_message(
@@ -310,11 +310,11 @@ PMATH_PRIVATE pmath_t builtin_constantarray(pmath_expr_t expr){
     }
   }
 
-  if(!pmath_is_integer(n) || !pmath_integer_fits_ui(n)){
+  if(!pmath_is_int32(n) || PMATH_AS_INT32(n) < 0){
     pmath_unref(n);
     pmath_message(
       PMATH_NULL, "ilsmn", 2,
-      pmath_integer_new_ui(2),
+      PMATH_FROM_INT32(2),
       pmath_ref(expr));
     return expr;
   }

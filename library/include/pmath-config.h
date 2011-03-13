@@ -1,6 +1,19 @@
 #ifndef __PMATH_CONFIG_H__
 #define __PMATH_CONFIG_H__
 
+/* PMATH_STATIC_ASSERT(a)   ensures that a is TRUE at compile time
+   
+   source: http://www.pixelbeat.org/programming/gcc/static_assert.html
+   
+   Note we need the 2 concats below because arguments to ##
+   are not expanded, so we need to expand __LINE__ with one indirection
+   before doing the actual concatenation. 
+*/
+#define PMATH_ASSERT_CONCAT_(a, b) a##b
+#define PMATH_ASSERT_CONCAT(a, b) PMATH_ASSERT_CONCAT_(a, b)
+#define PMATH_STATIC_ASSERT(e) typedef char PMATH_ASSERT_CONCAT(pmath_static_assert_line_, __LINE__)[(e)?1:-1]
+
+
 #if defined(__GNUC__) && defined(__GNUC_MINOR__)
   #define PMATH_NEED_GNUC(maj, min) \
     ((__GNUC__ << 16) + __GNUC_MINOR__ >= ((maj) << 16) + (min))

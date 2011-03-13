@@ -83,11 +83,12 @@ static PMATH_DECLARE_ATOMIC(int_cache_misses);
     }
   }
 
-  PMATH_PRIVATE pmath_integer_t _pmath_create_integer(void){
+  PMATH_PRIVATE pmath_mpint_t _pmath_create_mp_int(signed long value){
     struct _pmath_integer_t_ *integer;
     
     uintptr_t i = int_cache_inc(-1);
     integer = int_cache_swap(i-1, NULL);
+    
     if(integer){
       #ifdef PMATH_DEBUG_LOG
         (void)pmath_atomic_fetch_add(&int_cache_hits, 1);
@@ -95,6 +96,8 @@ static PMATH_DECLARE_ATOMIC(int_cache_misses);
       
       assert(integer->inherited.refcount == 0);
       integer->inherited.refcount = 1;
+      
+      mpz_set_si(integer->value, value);
       
       return PMATH_FROM_PTR(integer);
     }
@@ -108,9 +111,10 @@ static PMATH_DECLARE_ATOMIC(int_cache_misses);
       PMATH_TYPE_SHIFT_INTEGER,
       sizeof(struct _pmath_integer_t_)));
 
-    if(integer)
-      mpz_init(integer->value);
-
+    if(integer){
+      mpz_init_set_si(integer->value, value);
+    }
+    
     return PMATH_FROM_PTR(integer);
   }
 
@@ -185,7 +189,7 @@ static PMATH_DECLARE_ATOMIC(mp_cache_misses);
     }
   }
 
-  PMATH_PRIVATE pmath_float_t _pmath_create_mp_float(mp_prec_t precision){
+  PMATH_PRIVATE pmath_float_t _pmath_create_mp_float(mpfr_prec_t precision){
     struct _pmath_mp_float_t_ *f;
     uintptr_t i;
 
@@ -264,18 +268,28 @@ static PMATH_DECLARE_ATOMIC(mp_cache_misses);
 //} ============================================================================
 //{ integer constructors ...
 
-#define SPECIAL_MIN (-1)
-#define SPECIAL_MAX (10)
+PMATH_PRIVATE
+pmath_integer_t _pmath_mp_int_normalize(pmath_mpint_t integer){
+  assert(pmath_is_mpint(integer));
+  
+  if(mpz_fits_sint_p(PMATH_AS_MPZ(integer))){
+    int i = (int)mpz_get_si(PMATH_AS_MPZ(integer));
+    
+    if(i == (int32_t)i){ // in case of sizeof(int) > sizeof(int32_t)
+      pmath_unref(integer);
+      return PMATH_FROM_INT32((int32_t)i);
+    }
+  }
+  
+  return integer;
+}
 
-static pmath_integer_t special_values_wrong_indices[SPECIAL_MAX - SPECIAL_MIN + 1];
-PMATH_PRIVATE pmath_integer_t *special_values = special_values_wrong_indices - SPECIAL_MIN;
+PMATH_API pmath_integer_t pmath_integer_new_slong(signed long int si){
+  pmath_mpint_t integer;
+  if(si >= INT_MIN && si <= INT_MAX)
+    return PMATH_FROM_INT32(si);
 
-PMATH_API pmath_integer_t pmath_integer_new_si(signed long int si){
-  pmath_integer_t integer;
-  if(si >= SPECIAL_MIN && si <= SPECIAL_MAX)
-    return pmath_ref(special_values[si]);
-
-  integer = _pmath_create_integer();
+  integer = _pmath_create_mp_int(0);
   if(pmath_is_null(integer))
     return PMATH_NULL;
 
@@ -283,12 +297,12 @@ PMATH_API pmath_integer_t pmath_integer_new_si(signed long int si){
   return integer;
 }
 
-PMATH_API pmath_integer_t pmath_integer_new_ui(unsigned long int ui){
-  pmath_integer_t integer;
-  if(ui <= SPECIAL_MAX)
-    return pmath_ref(special_values[ui]);
+PMATH_API pmath_integer_t pmath_integer_new_ulong(unsigned long int ui){
+  pmath_mpint_t integer;
+  if(ui <= INT_MAX)
+    return PMATH_FROM_INT32(ui);
 
-  integer = _pmath_create_integer();
+  integer = _pmath_create_mp_int(0);
   if(pmath_is_null(integer))
     return PMATH_NULL;
 
@@ -297,11 +311,11 @@ PMATH_API pmath_integer_t pmath_integer_new_ui(unsigned long int ui){
 }
 
 PMATH_API pmath_integer_t pmath_integer_new_size(size_t size){
-  pmath_integer_t integer;
-  if(size <= SPECIAL_MAX)
-    return pmath_ref(special_values[size]);
+  pmath_mpint_t integer;
+  if(size <= INT_MAX)
+    return PMATH_FROM_INT32(size);
 
-  integer = _pmath_create_integer();
+  integer = _pmath_create_mp_int(0);
   if(pmath_is_null(integer))
     return PMATH_NULL;
 
@@ -331,7 +345,7 @@ pmath_integer_t pmath_integer_new_data(
   size_t       nails,
   const void  *data
 ){
-  pmath_integer_t integer = _pmath_create_integer();
+  pmath_mpint_t integer = _pmath_create_mp_int(0);
   
   if(pmath_is_null(integer))
     return PMATH_NULL;
@@ -345,11 +359,11 @@ pmath_integer_t pmath_integer_new_data(
     nails,
     data);
     
-  return integer;
+  return _pmath_mp_int_normalize(integer);
 }
 
 PMATH_API pmath_integer_t pmath_integer_new_str(const char *str, int base){
-  pmath_integer_t integer = _pmath_create_integer();
+  pmath_mpint_t integer = _pmath_create_mp_int(0);
   
   if(pmath_is_null(integer))
     return PMATH_NULL;
@@ -359,7 +373,7 @@ PMATH_API pmath_integer_t pmath_integer_new_str(const char *str, int base){
     return PMATH_NULL;
   }
 
-  return integer;
+  return _pmath_mp_int_normalize(integer);
 }
 
 //} ============================================================================
@@ -375,6 +389,9 @@ PMATH_API pmath_rational_t pmath_rational_new(
     return PMATH_NULL;
   }
   
+  assert(_pmath_is_integer(numerator));
+  assert(_pmath_is_integer(denominator));
+  
   if(pmath_number_sign(denominator) == 0){ // pmath_number_sign(PMATH_NULL) = 0
     pmath_unref(numerator);
     pmath_unref(denominator);
@@ -382,14 +399,20 @@ PMATH_API pmath_rational_t pmath_rational_new(
   }
 
   // fast check: n/1 -> n
-  if(mpz_cmp_ui(PMATH_AS_MPZ(denominator), 1) == 0){
-    pmath_unref(denominator);
+  if(pmath_same(denominator, PMATH_FROM_INT32(1)))
     return numerator;
-  }
-
+  
   //{ canonical form ...
-  if(PMATH_AS_PTR(numerator)->refcount > 1){
-    pmath_integer_t unique_num = _pmath_create_integer();
+  if(pmath_is_int32(numerator)){
+    numerator = _pmath_create_mp_int(PMATH_AS_INT32(numerator));
+    
+    if(pmath_is_null(numerator)){
+      pmath_unref(denominator);
+      return PMATH_NULL;
+    }
+  }
+  else if(PMATH_AS_PTR(numerator)->refcount > 1){
+    pmath_integer_t unique_num = _pmath_create_mp_int(0);
     
     if(pmath_is_null(unique_num)){
       pmath_unref(numerator);
@@ -402,8 +425,16 @@ PMATH_API pmath_rational_t pmath_rational_new(
     numerator = unique_num;
   }
 
-  if(PMATH_AS_PTR(denominator)->refcount > 1){
-    pmath_integer_t unique_den = _pmath_create_integer();
+  if(pmath_is_int32(denominator)){
+    denominator = _pmath_create_mp_int(PMATH_AS_INT32(denominator));
+    
+    if(pmath_is_null(denominator)){
+      pmath_unref(numerator);
+      return PMATH_NULL;
+    }
+  }
+  else if(PMATH_AS_PTR(denominator)->refcount > 1){
+    pmath_integer_t unique_den = _pmath_create_mp_int();
     
     if(pmath_is_null(unique_den)){
       pmath_unref(numerator);
@@ -431,10 +462,12 @@ PMATH_API pmath_rational_t pmath_rational_new(
   // check again canonical form: n/1 -> n
   if(mpz_cmp_ui(PMATH_AS_MPZ(denominator), 1) == 0){
     pmath_unref(denominator);
-    return numerator;
+    return _pmath_mp_int_normalize(numerator);
   }
 
-  return _pmath_create_quotient(numerator, denominator);
+  return _pmath_create_quotient(
+    _pmath_mp_int_normalize(numerator), 
+    _pmath_mp_int_normalize(denominator));
 }
 
 PMATH_API pmath_integer_t pmath_rational_numerator(
@@ -548,7 +581,7 @@ pmath_number_t pmath_float_new_str(
     case PMATH_PREC_CTRL_GIVEN_PREC: {
       pmath_float_t tmp_err;
       double bits = base_precision_accuracy * log2_base;
-      mp_prec_t prec;
+      mpfr_prec_t prec;
       
       if(bits >= PMATH_MP_PREC_MAX)
         return PMATH_NULL;
@@ -556,7 +589,7 @@ pmath_number_t pmath_float_new_str(
       if(bits < 0)
         bits = 0;
       
-      prec = (mp_prec_t)ceil(bits);
+      prec = (mpfr_prec_t)ceil(bits);
       
       f = _pmath_create_mp_float(prec >= MPFR_PREC_MIN ? prec : MPFR_PREC_MIN);
       if(pmath_is_null(f))
@@ -594,7 +627,7 @@ pmath_number_t pmath_float_new_str(
     
     case PMATH_PREC_CTRL_GIVEN_ACC: {
       double bits = (int_digits + base_precision_accuracy) * log2_base;
-      mp_prec_t prec;
+      mpfr_prec_t prec;
       
       if(bits >= PMATH_MP_PREC_MAX)
         return PMATH_NULL;
@@ -602,7 +635,7 @@ pmath_number_t pmath_float_new_str(
       if(bits < 0)
         bits = 0;
       
-      prec = (mp_prec_t)ceil(bits);
+      prec = (mpfr_prec_t)ceil(bits);
       
       f = _pmath_create_mp_float(prec >= MPFR_PREC_MIN ? prec : MPFR_PREC_MIN);
       if(pmath_is_null(f))
@@ -625,7 +658,7 @@ pmath_number_t pmath_float_new_str(
 }
 
 PMATH_PRIVATE 
-mp_prec_t _pmath_float_precision( // 0 = MachinePrecision
+mpfr_prec_t _pmath_float_precision( // 0 = MachinePrecision
   pmath_float_t x // wont be freed
 ){
   if(pmath_is_mpfloat(x))
@@ -686,7 +719,7 @@ pmath_t _pmath_float_exceptions(
 }
 
 PMATH_PRIVATE
-void _pmath_mp_float_normalize(pmath_float_t f){
+void _pmath_mp_float_normalize(pmath_mpfloat_t f){
   assert(pmath_is_mpfloat(f));
   assert(PMATH_AS_PTR(f)->refcount == 1);
   
@@ -703,14 +736,14 @@ void _pmath_mp_float_normalize(pmath_float_t f){
 //}
 //{ number conversion functions ...
 
-PMATH_API pmath_bool_t pmath_integer_fits_si(pmath_integer_t integer){
+PMATH_API pmath_bool_t pmath_integer_fits_si32(pmath_integer_t integer){
   if(pmath_is_null(integer))
     return FALSE;
     
   return mpz_fits_slong_p(PMATH_AS_MPZ(integer));
 }
 
-PMATH_API pmath_bool_t pmath_integer_fits_ui(pmath_integer_t integer){
+PMATH_API pmath_bool_t pmath_integer_fits_ui32(pmath_integer_t integer){
   if(pmath_is_null(integer))
     return FALSE;
   
@@ -799,7 +832,11 @@ PMATH_API double pmath_number_get_d(pmath_number_t number){
   if(pmath_is_double(number))
     return PMATH_AS_DOUBLE(number);
   
+  if(pmath_is_int32(number))
+    return PMATH_AS_INT32(number);
+  
   assert(pmath_is_pointer(number));
+  
   if(pmath_is_null(number))
     return 0.0;
   
@@ -853,14 +890,29 @@ PMATH_API int pmath_number_sign(pmath_number_t num){
   static pmath_integer_t _neg_i(
     pmath_integer_t integer // will be freed. not PMATH_NULL!
   ){
-    pmath_integer_t result;
+    pmath_mpint_t result;
+    assert(pmath_is_mpint(integer));
 
-    assert(pmath_is_integer(integer));
+    if(pmath_is_int32(integer)){
+      int32_t i = PMATH_AS_INT32(num);
+      
+      num.s.u.as_int32 = -i;
+      if(num.s.u.as_int32 != i || i == 0) // i != -2^31
+        return num;
+      
+      result = _pmath_create_mp_int(i);
+      if(result)
+        mpz_neg(PMATH_AS_MPZ(result), PMATH_AS_MPZ(integer));
+      
+      // _pmath_mp_int_normalize not necessary, because value cannot fit into 
+      // int32_t.
+      return result;
+    }
 
     if(PMATH_AS_PTR(integer)->refcount == 1)
       result = pmath_ref(integer);
     else
-      result = _pmath_create_integer();
+      result = _pmath_create_mp_int(0);
 
     if(!pmath_is_null(result))
       mpz_neg(PMATH_AS_MPZ(result), PMATH_AS_MPZ(integer));
@@ -876,13 +928,16 @@ PMATH_API pmath_number_t pmath_number_neg(pmath_number_t num){
     return num;
   }
   
+  if(pmath_is_int32(num))
+    return _neg_i(num);
+  
   assert(pmath_is_pointer(num));
   
   if(pmath_is_null(num))
     return num;
 
   switch(PMATH_AS_PTR(num)->type_shift){
-    case PMATH_TYPE_SHIFT_INTEGER:
+    case PMATH_TYPE_SHIFT_MP_INT:
       return _neg_i(num);
 
     case PMATH_TYPE_SHIFT_QUOTIENT: {
@@ -931,11 +986,64 @@ PMATH_PRIVATE pmath_integer_t _mul_ii(
   pmath_integer_t intA, // will be freed. not PMATH_NULL!
   pmath_integer_t intB  // will be freed. not PMATH_NULL!
 ){
-  pmath_integer_t result = _pmath_create_integer();
+  pmath_mpint_t result;
 
-  assert(pmath_is_integer(intA));
-  assert(pmath_is_integer(intB));
-
+  assert(_pmath_is_integer(intA));
+  assert(_pmath_is_integer(intB));
+  
+  if(pmath_is_int32(intA)){
+    int a = PMATH_AS_INT32(intA);
+    
+    if(pmath_is_int32(intB)){
+      int b = PMATH_AS_INT32(intB);
+      
+      int64_t mul = (int64_t)a * b;
+      if(mul == (int32_t)mul)
+        return PMATH_FROM_INT32((int32_t)mul);
+      
+      intB = _pmath_create_mp_int(b);
+      if(pmath_is_null(intB))
+        return intB;
+    }
+    
+    assert(pmath_is_mpint(intB));
+    
+    result = _pmath_create_mp_int(0);
+    if(pmath_is_null(result)){
+      pmath_unref(intB);
+      return result;
+    }
+    
+    mpz_mul_si(
+      PMATH_AS_MPZ(result),
+      PMATH_AS_MPZ(intB),
+      a);
+    
+    pmath_unref(intB);
+    return _pmath_mp_int_normalize(result);
+  }
+  
+  assert(pmath_is_mpint(intA));
+  
+  if(pmath_is_int32(intB)){
+    int b = PMATH_AS_INT32(intB);
+    
+    result = _pmath_create_mp_int(0);
+    if(pmath_is_null(result)){
+      pmath_unref(intA);
+      return result;
+    }
+    
+    mpz_mul_si(
+      PMATH_AS_MPZ(result),
+      PMATH_AS_MPZ(intA),
+      b);
+    
+    pmath_unref(intA);
+    return _pmath_mp_int_normalize(result);
+  }
+  
+  result = _pmath_create_mp_int();
   if(!pmath_is_null(result)){
     mpz_mul(
       PMATH_AS_MPZ(result),
@@ -951,8 +1059,8 @@ PMATH_PRIVATE pmath_integer_t _mul_ii(
 //} ============================================================================
 //{ pMath object functions for integers ...
 
-static void destroy_integer(pmath_t integer){
-  struct _pmath_integer_t_ *int_ptr;
+static void destroy_mp_int(pmath_t integer){
+  struct _pmath_mp_int_t *int_ptr;
   uintptr_t i = int_cache_inc(+1);
   
   assert(PMATH_AS_PTR(integer)->refcount == 0);
@@ -969,14 +1077,26 @@ static void destroy_integer(pmath_t integer){
 
 static unsigned int hash_init;
 
-static unsigned int hash_integer(pmath_t integer){
+static unsigned int hash_mp_int(pmath_t integer){
   return incremental_hash(
     PMATH_AS_MPZ(integer)[0]._mp_d,
     sizeof(PMATH_AS_MPZ(integer)[0]._mp_d[0]) * (size_t)abs(PMATH_AS_MPZ(integer)[0]._mp_size),
     hash_init);
 }
 
-static void write_integer(
+static void _pmath_write_machine_int(
+  pmath_t                  integer,
+  pmath_write_options_t    options,
+  pmath_write_func_t       write,
+  void                    *user
+){
+  char s[12];
+  
+  snprintf(s, sizeof(s), "%d", (int)integer);
+  write_cstr(s, write, user);
+}
+
+static void write_mp_int(
   pmath_t                  integer,
   pmath_write_options_t    options,
   pmath_write_func_t       write,
@@ -1005,11 +1125,15 @@ static void write_integer(
 
   /* mpz_sizeinbase returns 2 for integer->value = 8 or 9, but 1 should be the
      result, since its one digit */
-
+  
+  write_cstr(" (", write, user);
+  
   // calculate strlen faster fo very big values.
   // write(user, str, size - 3 + strlen(str + size - 3));
   write_cstr(str, write, user);
 
+  write_cstr(") ", write, user);
+  
   pmath_mem_free(str);
 }
 
@@ -1029,9 +1153,9 @@ static unsigned int hash_quotient(pmath_t quotient){
   unsigned int next = 0;
   unsigned int h;
   
-  h = hash_integer(PMATH_QUOT_NUM(quotient));
+  h    = pmath_hash(PMATH_QUOT_NUM(quotient));
   next = incremental_hash(&h, sizeof(h), next);
-  h = hash_integer(PMATH_QUOT_DEN(quotient));
+  h    = pmath_hash(PMATH_QUOT_DEN(quotient));
   return incremental_hash(&h, sizeof(h), next);
 }
 
@@ -1041,9 +1165,9 @@ static void write_quotient(
   pmath_write_func_t        write,
   void                     *user
 ){
-  write_integer(PMATH_QUOT_NUM(quotient), options, write, user);
+  pmath_write(PMATH_QUOT_NUM(quotient), options, write, user);
   write_cstr("/", write, user);
-  write_integer(PMATH_QUOT_DEN(quotient), options, write, user);
+  pmath_write(PMATH_QUOT_DEN(quotient), options, write, user);
 }
 
 //} ============================================================================
@@ -1353,10 +1477,17 @@ int _pmath_numbers_compare(
 
     if(pmath_is_double(numB)){
       double q;
-
-      q = mpz_get_d(PMATH_AS_MPZ(PMATH_QUOT_NUM(numA)));
-      q/= mpz_get_d(PMATH_AS_MPZ(PMATH_QUOT_DEN(numA)));
-
+      
+      if(pmath_is_int32(PMATH_QUOT_NUM(numA)))
+        q = PMATH_AS_INT32(PMATH_QUOT_NUM(numA));
+      else
+        q = mpz_get_d(PMATH_AS_MPZ(PMATH_QUOT_NUM(numA)));
+      
+      if(pmath_is_int32(PMATH_QUOT_DEN(numA)))
+        q/= PMATH_AS_INT32(PMATH_QUOT_DEN(numA));
+      else
+        q/= mpz_get_d(PMATH_AS_MPZ(PMATH_QUOT_DEN(numA)));
+      
       if(q < PMATH_AS_DOUBLE(numB))
         return -1;
       if(q > PMATH_AS_DOUBLE(numB))
@@ -1365,7 +1496,7 @@ int _pmath_numbers_compare(
     }
 
     if(pmath_is_mpfloat(numB)){
-      mp_prec_t prec = mpfr_get_prec(PMATH_AS_MP_VALUE(numB));
+      mpfr_prec_t prec = mpfr_get_prec(PMATH_AS_MP_VALUE(numB));
       pmath_float_t tmp  = _pmath_create_mp_float(prec);
       pmath_float_t tmp2 = _pmath_create_mp_float(prec);
       int result;
@@ -1375,18 +1506,39 @@ int _pmath_numbers_compare(
         pmath_unref(tmp2);
         return 1;
       }
-
-      mpfr_set_z(
-        PMATH_AS_MP_VALUE(tmp),
-        PMATH_AS_MPZ(PMATH_QUOT_NUM(numA)),
-        MPFR_RNDN);
-
-      mpfr_div_z(
-        PMATH_AS_MP_VALUE(tmp2),
-        PMATH_AS_MP_VALUE(tmp),
-        PMATH_AS_MPZ(PMATH_QUOT_DEN(numA)),
-        MPFR_RNDN);
-
+      
+      if(pmath_is_int32(PMATH_QUOT_NUM(numA))){
+        mpfr_set_si(
+          PMATH_AS_MP_VALUE(tmp),
+          PMATH_AS_INT32(PMATH_QUOT_NUM(numA)),
+          MPFR_RNDN);
+      }
+      else{
+        assert(pmath_is_mpint(PMATH_QUOT_NUM(numA)))
+        
+        mpfr_set_z(
+          PMATH_AS_MP_VALUE(tmp),
+          PMATH_AS_MPZ(PMATH_QUOT_NUM(numA)),
+          MPFR_RNDN);
+      }
+      
+      if(pmath_is_int32(PMATH_QUOT_DEN(numA))){
+        mpfr_div_si(
+          PMATH_AS_MP_VALUE(tmp2),
+          PMATH_AS_MP_VALUE(tmp),
+          PMATH_AS_INT32(PMATH_QUOT_DEN(numA)),
+          MPFR_RNDN);
+      }
+      else{
+        assert(pmath_is_mpint(PMATH_QUOT_DEN(numA)))
+        
+        mpfr_div_z(
+          PMATH_AS_MP_VALUE(tmp2),
+          PMATH_AS_MP_VALUE(tmp),
+          PMATH_AS_MPZ(PMATH_QUOT_DEN(numA)),
+          MPFR_RNDN);
+      }
+      
       result = mpfr_cmp(PMATH_AS_MP_VALUE(tmp2), PMATH_AS_MP_VALUE(numB));
 
       pmath_unref(tmp);
@@ -1400,8 +1552,8 @@ int _pmath_numbers_compare(
 
   if(pmath_is_mpfloat(numA)){
     if(pmath_is_mpfloat(numB)){
-      mp_prec_t precA = mpfr_get_prec(PMATH_AS_MP_VALUE(numA));
-      mp_prec_t precB = mpfr_get_prec(PMATH_AS_MP_VALUE(numB));
+      mpfr_prec_t precA = mpfr_get_prec(PMATH_AS_MP_VALUE(numA));
+      mpfr_prec_t precB = mpfr_get_prec(PMATH_AS_MP_VALUE(numB));
       
       if(precA < precB){
         pmath_float_t tmp = _pmath_create_mp_float(precA);
@@ -1468,35 +1620,42 @@ pmath_bool_t _pmath_numbers_equal(
   pmath_number_t numA,
   pmath_number_t numB
 ){
-  if(pmath_is_integer(numA)){
-    if(pmath_is_integer(numB)){
-      return 0 == mpz_cmp(PMATH_AS_MPZ(numA), PMATH_AS_MPZ(numB));
-    }
+  if(pmath_is_int32(numA)){
+    if(pmath_is_int32(numB))
+      return PMATH_AS_INT32(numA) == PMATH_AS_INT32(numB);
     
     return FALSE;
   }
-  else if(pmath_is_integer(numB))
-    return _pmath_numbers_equal(numB, numA);
-
+  
+  if(pmath_is_int32(numB))
+    return FALSE;
+    
+  if(pmath_is_mpint(numA)){
+    if(pmath_is_mpint(numB))
+      return 0 == mpz_cmp(PMATH_AS_MPZ(numA), PMATH_AS_MPZ(numB));
+    
+    return FALSE;
+  }
+  
+  if(pmath_is_mpint(numB))
+    return FALSE;
+    
   if(pmath_is_quotient(numA)){
     if(pmath_is_quotient(numB)){
-      return 0 == mpz_cmp(
-                    PMATH_AS_MPZ(PMATH_QUOT_NUM(numA)),
-                    PMATH_AS_MPZ(PMATH_QUOT_NUM(numB)))
-          && 0 == mpz_cmp(
-                    PMATH_AS_MPZ(PMATH_QUOT_DEN(numA)),
-                    PMATH_AS_MPZ(PMATH_QUOT_DEN(numB)));
+      return _pmath_numbers_equal(PMATH_QUOT_NUM(numA), PMATH_QUOT_NUM(numB))
+          && _pmath_numbers_equal(PMATH_QUOT_DEN(numA), PMATH_QUOT_DEN(numB));
     }
     
     return FALSE;
   }
-  else if(pmath_is_quotient(numB))
+  
+  if(pmath_is_quotient(numB))
     return _pmath_numbers_equal(numB, numA);
 
   if(pmath_is_mpfloat(numA)
   && pmath_is_mpfloat(numB)){
-    mp_prec_t precA = mpfr_get_prec(PMATH_AS_MP_VALUE(numA));
-    mp_prec_t precB = mpfr_get_prec(PMATH_AS_MP_VALUE(numB));
+    mpfr_prec_t precA = mpfr_get_prec(PMATH_AS_MP_VALUE(numA));
+    mpfr_prec_t precB = mpfr_get_prec(PMATH_AS_MP_VALUE(numB));
     
     if(precA < precB){
       pmath_float_t tmp = _pmath_create_mp_float(precA);
@@ -1567,10 +1726,10 @@ PMATH_PRIVATE pmath_bool_t _pmath_numbers_init(void){
   _pmath_init_special_type(
     PMATH_TYPE_SHIFT_INTEGER,
     _pmath_numbers_compare,
-    hash_integer,
-    destroy_integer,
+    hash_mp_int,
+    destroy_mp_int,
     _pmath_numbers_equal,
-    write_integer);
+    write_mp_int);
 
   _pmath_init_special_type(
     PMATH_TYPE_SHIFT_QUOTIENT,
@@ -1589,7 +1748,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_numbers_init(void){
     write_mp_float);
 
   for(i = SPECIAL_MIN;i <= SPECIAL_MAX;i++){
-    special_values[i] = _pmath_create_integer();
+    special_values[i] = _pmath_create_mp_int();
     if(pmath_is_null(special_values[i]))
       goto FAIL;
 

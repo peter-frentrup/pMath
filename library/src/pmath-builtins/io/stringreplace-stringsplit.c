@@ -219,7 +219,7 @@ static pmath_t replace_all(
     obj = stringreplace(obj, regex_list, capture_list, rules, max_matches, sr_options);
     
     if(pmath_same(obj, PMATH_UNDEFINED)){
-      pmath_message(PMATH_NULL, "strse", 2, pmath_integer_new_si(1), pmath_ref(expr));
+      pmath_message(PMATH_NULL, "strse", 2, PMATH_FROM_INT32(1), pmath_ref(expr));
       obj = expr;
       expr = PMATH_NULL;
     }
@@ -252,15 +252,14 @@ PMATH_PRIVATE pmath_t builtin_stringreplace(pmath_expr_t expr){
   if(pmath_expr_length(expr) >= 3){
     obj = pmath_expr_get_item(expr, 3);
     
-    if(pmath_is_integer(obj)
-    && pmath_integer_fits_ui(obj)){
-      max_matches = pmath_integer_get_ui(obj);
+    if(pmath_is_int32(obj) && PMATH_AS_INT32(obj) >= 0){
+      max_matches = (size_t)PMATH_AS_INT32(obj);
       pmath_unref(obj);
       last_nonoption = 3;
     }
     else if(!_pmath_is_rule(obj) && !_pmath_is_list_of_rules(obj)){
       pmath_unref(obj);
-      pmath_message(PMATH_NULL, "intnm", 2, pmath_integer_new_si(3), pmath_ref(expr));
+      pmath_message(PMATH_NULL, "intnm", 2, PMATH_FROM_INT32(3), pmath_ref(expr));
       return expr;
     }
   }
@@ -317,10 +316,8 @@ PMATH_PRIVATE pmath_t builtin_stringsplit(pmath_expr_t expr){
   if(pmath_expr_length(expr) >= 3){
     obj = pmath_expr_get_item(expr, 3);
     
-    if(pmath_is_integer(obj)
-    && pmath_number_sign(obj) > 0
-    && pmath_integer_fits_ui(obj)){
-      max_matches = pmath_integer_get_ui(obj) - 1;
+    if(pmath_is_int32(obj) && PMATH_AS_INT32(obj) > 0){
+      max_matches = PMATH_AS_INT32(obj) - 1;
       pmath_unref(obj);
       last_nonoption = 3;
     }
@@ -331,7 +328,7 @@ PMATH_PRIVATE pmath_t builtin_stringsplit(pmath_expr_t expr){
     }
     else if(!_pmath_is_rule(obj) && !_pmath_is_list_of_rules(obj)){
       pmath_unref(obj);
-      pmath_message(PMATH_NULL, "intpm", 2, pmath_ref(expr), pmath_integer_new_si(3));
+      pmath_message(PMATH_NULL, "intpm", 2, pmath_ref(expr), PMATH_FROM_INT32(3));
       return expr;
     }
   }

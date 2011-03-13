@@ -27,11 +27,11 @@ PMATH_PRIVATE pmath_t builtin_cos(pmath_expr_t expr){
     return PMATH_FROM_DOUBLE(res);
   }
   
-  if(pmath_is_real(x)){
-    pmath_float_t tmp = _pmath_create_mp_float(PMATH_MP_ERROR_PREC);
+  if(pmath_is_float(x)){
+    pmath_mpfloat_t tmp = _pmath_create_mp_float(PMATH_MP_ERROR_PREC);
     
     if(!pmath_is_null(tmp)){
-      pmath_float_t result;
+      pmath_mpfloat_t result;
       double cos_val;
       double accmant, acc, prec;
       long accexp;
@@ -61,7 +61,7 @@ PMATH_PRIVATE pmath_t builtin_cos(pmath_expr_t expr){
       else if(prec < 0)
         prec = 0;
       
-      result = _pmath_create_mp_float((mp_prec_t)prec);
+      result = _pmath_create_mp_float((mpfr_prec_t)prec);
       if(!pmath_is_null(result)){
         mpfr_cos(PMATH_AS_MP_VALUE(result), PMATH_AS_MP_VALUE(x),   MPFR_RNDN);
         mpfr_abs(PMATH_AS_MP_ERROR(result), PMATH_AS_MP_ERROR(tmp), MPFR_RNDU);
@@ -173,8 +173,8 @@ PMATH_PRIVATE pmath_t builtin_cos(pmath_expr_t expr){
           pmath_unref(cmp);
           if(pmath_same(cmp, PMATH_SYMBOL_TRUE)
           && pmath_is_quotient(fst)
-          && pmath_integer_fits_ui(PMATH_QUOT_NUM(fst))
-          && pmath_integer_fits_ui(PMATH_QUOT_DEN(fst))
+          && pmath_integer_fits_ui32(PMATH_QUOT_NUM(fst))
+          && pmath_integer_fits_ui32(PMATH_QUOT_DEN(fst))
           ){
             unsigned long num = pmath_integer_get_ui(PMATH_QUOT_NUM(fst));
             unsigned long den = pmath_integer_get_ui(PMATH_QUOT_DEN(fst));
@@ -240,7 +240,7 @@ PMATH_PRIVATE pmath_t builtin_cos(pmath_expr_t expr){
               pmath_expr_new_extended(
                 pmath_ref(PMATH_SYMBOL_LESS), 2,
                 pmath_ref(fst),
-                pmath_integer_new_si(1)));
+                PMATH_FROM_INT32(1)));
                 
             pmath_unref(cmp);
             if(pmath_same(cmp, PMATH_SYMBOL_TRUE)){ // 1/2 Pi <= x < Pi
@@ -254,7 +254,7 @@ PMATH_PRIVATE pmath_t builtin_cos(pmath_expr_t expr){
               pmath_expr_new_extended(
                 pmath_ref(PMATH_SYMBOL_LESS), 2,
                 pmath_ref(fst),
-                pmath_integer_new_si(2)));
+                PMATH_FROM_INT32(2)));
                 
             pmath_unref(cmp);
             if(pmath_same(cmp, PMATH_SYMBOL_TRUE)){ // Pi <= x < 2 Pi
@@ -268,7 +268,7 @@ PMATH_PRIVATE pmath_t builtin_cos(pmath_expr_t expr){
               pmath_expr_new_extended(
                 pmath_ref(PMATH_SYMBOL_FLOOR), 2,
                 pmath_ref(fst),
-                pmath_integer_new_si(2)));
+                PMATH_FROM_INT32(2)));
             
             fst = PLUS(fst, TIMES(INT(-2), cmp));
             
@@ -288,7 +288,7 @@ PMATH_PRIVATE pmath_t builtin_cos(pmath_expr_t expr){
         
         tmp = pmath_evaluate(DIV(tmp, pmath_ref(PMATH_SYMBOL_PI)));
         
-        if(pmath_is_integer(tmp)){
+        if(_pmath_is_integer(tmp)){
           tmp = POW(INT(-1), tmp);
           
           expr = pmath_expr_set_item(expr, 1, PMATH_NULL);
@@ -306,7 +306,7 @@ PMATH_PRIVATE pmath_t builtin_cos(pmath_expr_t expr){
       pmath_t re = pmath_expr_get_item(x, 1);
       pmath_t im = pmath_expr_get_item(x, 2);
       
-      if(pmath_equals(re, PMATH_NUMBER_ZERO)){
+      if(pmath_equals(re, PMATH_FROM_INT32(0))){
         pmath_unref(expr);
         pmath_unref(re);
         pmath_unref(x);
@@ -314,7 +314,7 @@ PMATH_PRIVATE pmath_t builtin_cos(pmath_expr_t expr){
         return FUNC(pmath_ref(PMATH_SYMBOL_COSH), im);
       }
       
-      if(pmath_is_real(re) || pmath_is_real(im)){
+      if(pmath_is_float(re) || pmath_is_float(im)){
         pmath_unref(expr);
         pmath_unref(x);
         

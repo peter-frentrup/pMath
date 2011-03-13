@@ -53,7 +53,7 @@
 #define PMATH_MP_ERROR_PREC  DBL_MANT_DIG
 #define PMATH_MP_PREC_MAX    1000000
 
-struct _pmath_integer_t_{
+struct _pmath_mp_int_t{
   struct _pmath_t  inherited;
   mpz_t            value;
 };
@@ -64,32 +64,26 @@ struct _pmath_integer_t_{
    When freeing a quotient, its numerator and denominator are freed seperately 
    to be stored in the integer cache.
  */
-struct _pmath_quotient_t_{
+struct _pmath_quotient_t{
   struct _pmath_t  inherited;
   pmath_integer_t  numerator;
   pmath_integer_t  denominator;
 };
 
-struct _pmath_mp_float_t_{
+struct _pmath_mp_float_t{
   struct _pmath_t  inherited;
   mpfr_t           value;
   mpfr_t           error;
 };
 
-#define PMATH_QUOT_NUM(objA)       (((struct _pmath_quotient_t_*)     PMATH_AS_PTR(objA))->numerator)
-#define PMATH_QUOT_DEN(objA)       (((struct _pmath_quotient_t_*)     PMATH_AS_PTR(objA))->denominator)
+#define PMATH_QUOT_NUM(obj)       (((struct _pmath_quotient_t*)     PMATH_AS_PTR(obj))->numerator)
+#define PMATH_QUOT_DEN(obj)       (((struct _pmath_quotient_t*)     PMATH_AS_PTR(obj))->denominator)
 
-#define PMATH_AS_MPZ(objA)         (((struct _pmath_integer_t_*)      PMATH_AS_PTR(objA))->value)
-#define PMATH_AS_MP_VALUE(objA)    (((struct _pmath_mp_float_t_*)     PMATH_AS_PTR(objA))->value)
-#define PMATH_AS_MP_ERROR(objA)    (((struct _pmath_mp_float_t_*)     PMATH_AS_PTR(objA))->error)
+#define PMATH_AS_MPZ(obj)         (((struct _pmath_mp_int_t*)       PMATH_AS_PTR(obj))->value)
+#define PMATH_AS_MP_VALUE(obj)    (((struct _pmath_mp_float_t*)     PMATH_AS_PTR(obj))->value)
+#define PMATH_AS_MP_ERROR(obj)    (((struct _pmath_mp_float_t*)     PMATH_AS_PTR(obj))->error)
 
 /*============================================================================*/
-
-extern PMATH_PRIVATE pmath_integer_t *special_values; /* do not refer direcly */
-#define PMATH_NUMBER_MINUSONE  (special_values[-1])  /* readonly */
-#define PMATH_NUMBER_ZERO      (special_values[0])   /* readonly */
-#define PMATH_NUMBER_ONE       (special_values[1])   /* readonly */
-#define PMATH_NUMBER_TWO       (special_values[2])   /* readonly */
 
 extern PMATH_PRIVATE pmath_quotient_t _pmath_one_half; /* readonly */
 
@@ -105,7 +99,7 @@ extern PMATH_PRIVATE PMATH_DECLARE_ATOMIC(_pmath_rand_spinlock);
 PMATH_PRIVATE 
 PMATH_ATTRIBUTE_USE_RESULT
 // struct _pmath_integer_t_ *
-pmath_integer_t _pmath_create_integer(void);
+pmath_mpint_t _pmath_create_mp_int(signed long value);
 
 PMATH_PRIVATE 
 PMATH_ATTRIBUTE_USE_RESULT
@@ -117,20 +111,27 @@ pmath_quotient_t _pmath_create_quotient(
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT 
 //struct _pmath_mp_float_t *
-pmath_float_t _pmath_create_mp_float(mp_prec_t precision);
+pmath_mpfloat_t _pmath_create_mp_float(mpfr_prec_t precision);
 
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT 
 //struct _pmath_mp_float_t *
-pmath_float_t _pmath_create_mp_float_from_d(double value);
+pmath_mpfloat_t _pmath_create_mp_float_from_d(double value);
 
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT 
 // struct _pmath_mp_float_t*
-pmath_float_t _pmath_convert_to_mp_float(pmath_float_t n); // n will be freed
+pmath_mpfloat_t _pmath_convert_to_mp_float(pmath_float_t n); // n will be freed
 
 PMATH_PRIVATE 
 void _pmath_write_machine_float(
+  pmath_t                f,
+  pmath_write_options_t  options,
+  pmath_write_func_t     write,
+  void                  *user);
+  
+PMATH_PRIVATE 
+void _pmath_write_machine_int(
   pmath_t                f,
   pmath_write_options_t  options,
   pmath_write_func_t     write,
@@ -147,7 +148,7 @@ pmath_bool_t _pmath_numbers_equal(
   pmath_number_t numB);
 
 PMATH_PRIVATE
-mp_prec_t _pmath_float_precision( // 0 = MachinePrecision
+mpfr_prec_t _pmath_float_precision( // 0 = MachinePrecision
   pmath_float_t x); // wont be freed
 
 PMATH_PRIVATE
@@ -156,7 +157,10 @@ pmath_t _pmath_float_exceptions(
   pmath_number_t x);  // will be freed.
 
 PMATH_PRIVATE
-void _pmath_mp_float_normalize(pmath_float_t f);
+void _pmath_mp_float_normalize(pmath_mpfloat_t f);
+
+PMATH_PRIVATE
+pmath_integer_t _pmath_mp_int_normalize(pmath_mpint_t f);
 
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT

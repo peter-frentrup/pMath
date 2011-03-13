@@ -26,7 +26,7 @@ PMATH_PRIVATE pmath_t builtin_mean(pmath_expr_t expr){
   return pmath_expr_new_extended(
     pmath_ref(PMATH_SYMBOL_TIMES), 2,
     pmath_rational_new(
-      pmath_integer_new_si(1), 
+      PMATH_FROM_INT32(1), 
       pmath_integer_new_size(pmath_expr_length(item))),
     pmath_expr_set_item(item, 0, pmath_ref(PMATH_SYMBOL_PLUS)));
 }

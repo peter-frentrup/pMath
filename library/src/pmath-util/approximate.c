@@ -126,7 +126,7 @@ pmath_t pmath_set_accuracy(pmath_t obj, double acc){ // obj will be freed
       return PMATH_NULL; // overflow message?
     }
     
-    result = _pmath_create_mp_float(prec >= MPFR_PREC_MIN ? (mp_prec_t)ceil(prec) : MPFR_PREC_MIN);
+    result = _pmath_create_mp_float(prec >= MPFR_PREC_MIN ? (mpfr_prec_t)ceil(prec) : MPFR_PREC_MIN);
     if(pmath_is_null(result)){
       pmath_unref(obj);
       return PMATH_NULL;
@@ -148,54 +148,91 @@ pmath_t pmath_set_accuracy(pmath_t obj, double acc){ // obj will be freed
     pmath_float_t result;
     double prec = 0.0;
     
-    assert(pmath_is_pointer(obj));
-    assert(PMATH_AS_PTR(obj) != NULL);
-    
-    switch(PMATH_AS_PTR(obj)->type_shift){
-      case PMATH_TYPE_SHIFT_INTEGER: {
-        if(mpz_sgn(PMATH_AS_MPZ(obj)) == 0){
-          prec = 0;
-        }
-        else{
-          long exp;
-          double d;
-          
-          d = mpz_get_d_2exp(&exp, PMATH_AS_MPZ(obj));
-          
-          prec = log2(fabs(d)) + exp + acc;
-        }
-      } break;
-      
-      case PMATH_TYPE_SHIFT_QUOTIENT: {
-        long numexp, denexp;
-        double numd, dend;
+    if(pmath_is_int32(obj)){
+      if(PMATH_AS_INT32(obj) == 0){
+        prec = 0;
+      }
+      else{
+        int exp;
+        double d;
         
-        numd = mpz_get_d_2exp(&numexp, PMATH_AS_MPZ(PMATH_QUOT_NUM(obj)));
-        dend = mpz_get_d_2exp(&denexp, PMATH_AS_MPZ(PMATH_QUOT_DEN(obj)));
-        
-        prec = log2(fabs(numd)) - log2(fabs(dend)) + numexp - denexp + acc;
-      } break;
-      
-      case PMATH_TYPE_SHIFT_MP_FLOAT: {
-        long exp;
-        double d = mpfr_get_d_2exp(&exp, PMATH_AS_MP_VALUE(obj), MPFR_RNDN);
+        d = frexp((double)PMATH_AS_INT32(obj), &exp);
         
         prec = log2(fabs(d)) + exp + acc;
-      } break;
+      }
     }
-  
+    else{
+      assert(pmath_is_pointer(obj));
+      assert(PMATH_AS_PTR(obj) != NULL);
+      
+      switch(PMATH_AS_PTR(obj)->type_shift){
+        case PMATH_TYPE_SHIFT_MP_INT: {
+          if(mpz_sgn(PMATH_AS_MPZ(obj)) == 0){
+            prec = 0;
+          }
+          else{
+            long exp;
+            double d;
+            
+            d = mpz_get_d_2exp(&exp, PMATH_AS_MPZ(obj));
+            
+            prec = log2(fabs(d)) + exp + acc;
+          }
+        } break;
+        
+        case PMATH_TYPE_SHIFT_QUOTIENT: {
+          long numexp, denexp;
+          double numd, dend;
+          
+          if(pmath_is_int32(PMATH_QUOT_NUM(obj))){
+            int i;
+            numd = frexp((double)PMATH_AS_INT32(PMATH_QUOT_NUM(obj)), &i);
+            numexp = i;
+          }
+          else
+            numd = mpz_get_d_2exp(&numexp, PMATH_AS_MPZ(PMATH_QUOT_NUM(obj)));
+          
+          if(pmath_is_int32(PMATH_QUOT_DEN(obj))){
+            int i;
+            dend = frexp((double)PMATH_AS_INT32(PMATH_QUOT_DEN(obj)), &i);
+            denexp = i;
+          }
+          else
+            dend = mpz_get_d_2exp(&denexp, PMATH_AS_MPZ(PMATH_QUOT_DEN(obj)));
+          
+          prec = log2(fabs(numd)) - log2(fabs(dend)) + numexp - denexp + acc;
+        } break;
+        
+        case PMATH_TYPE_SHIFT_MP_FLOAT: {
+          long exp;
+          double d = mpfr_get_d_2exp(&exp, PMATH_AS_MP_VALUE(obj), MPFR_RNDN);
+          
+          prec = log2(fabs(d)) + exp + acc;
+        } break;
+      
+        default:
+          assert("unknown number type" && 0);
+      }
+    }
+    
     if(prec >= PMATH_MP_PREC_MAX){
       pmath_unref(obj);
       return PMATH_NULL; // overflow message?
     }
     
-    result = _pmath_create_mp_float(prec >= MPFR_PREC_MIN ? (mp_prec_t)ceil(prec) : MPFR_PREC_MIN);
+    result = _pmath_create_mp_float(prec >= MPFR_PREC_MIN ? (mpfr_prec_t)ceil(prec) : MPFR_PREC_MIN);
     if(pmath_is_null(result)){
       pmath_unref(obj);
       return PMATH_NULL;
     }
     
-    switch(PMATH_AS_PTR(obj)->type_shift){
+    if(pmath_is_int32(obj)){
+      mpfr_set_si(
+        PMATH_AS_MP_VALUE(result), 
+        PMATH_AS_INT32(obj),
+        MPFR_RNDN);
+    }
+    else switch(PMATH_AS_PTR(obj)->type_shift){
       case PMATH_TYPE_SHIFT_INTEGER: {
         mpfr_set_z(
           PMATH_AS_MP_VALUE(result), 
@@ -270,12 +307,12 @@ pmath_t pmath_set_precision(pmath_t obj, double prec){
           pmath_integer_t num;
           mpfr_exp_t exp;
           
-          num = _pmath_create_integer();
+          num = _pmath_create_mp_int();
           if(!pmath_is_null(num)){
             exp = mpfr_get_z_2exp(PMATH_AS_MPZ(num), PMATH_AS_MP_VALUE(obj));
             
             if(exp < 0 && mpz_sgn(PMATH_AS_MPZ(num)) != 0){
-              pmath_integer_t den = _pmath_create_integer();
+              pmath_integer_t den = _pmath_create_mp_int();
               
               if(!pmath_is_null(den)){
                 mpz_set_ui(PMATH_AS_MPZ(den), 1);
@@ -323,7 +360,7 @@ pmath_t pmath_set_precision(pmath_t obj, double prec){
       return PMATH_NULL; // overflow message?
     }
     
-    result = _pmath_create_mp_float(prec >= MPFR_PREC_MIN ? (mp_prec_t)ceil(prec) : MPFR_PREC_MIN);
+    result = _pmath_create_mp_float(prec >= MPFR_PREC_MIN ? (mpfr_prec_t)ceil(prec) : MPFR_PREC_MIN);
     if(pmath_is_null(result)){
       pmath_unref(obj);
       return PMATH_NULL;
@@ -335,8 +372,14 @@ pmath_t pmath_set_precision(pmath_t obj, double prec){
         PMATH_AS_DOUBLE(obj),
         MPFR_RNDN);
     }
+    else if(pmath_is_int32(obj)){
+      mpfr_set_si(
+        PMATH_AS_MP_VALUE(result), 
+        PMATH_AS_INT32(obj),
+        MPFR_RNDN);
+    }
     else switch(PMATH_AS_PTR(obj)->type_shift){
-      case PMATH_TYPE_SHIFT_INTEGER: {
+      case PMATH_TYPE_SHIFT_MP_INT: {
         mpfr_set_z(
           PMATH_AS_MP_VALUE(result), 
           PMATH_AS_MPZ(obj),
@@ -344,16 +387,37 @@ pmath_t pmath_set_precision(pmath_t obj, double prec){
       } break;
       
       case PMATH_TYPE_SHIFT_QUOTIENT: {
-        mpfr_set_z(
-          PMATH_AS_MP_VALUE(result), 
-          PMATH_AS_MPZ(PMATH_QUOT_NUM(obj)),
-          MPFR_RNDN);
+        if(pmath_is_int32(PMATH_QUOT_NUM(obj))){
+          mpfr_set_si(
+            PMATH_AS_MP_VALUE(result), 
+            PMATH_AS_INT32(PMATH_QUOT_NUM(obj)),
+            MPFR_RNDN);
+        }
+        else{
+          assert(pmath_is_mpint(PMATH_QUOT_NUM(obj)));
           
-        mpfr_div_z(
-          PMATH_AS_MP_VALUE(result), 
-          PMATH_AS_MP_VALUE(result), 
-          PMATH_AS_MPZ(PMATH_QUOT_DEN(obj)),
-          MPFR_RNDN);
+          mpfr_set_z(
+            PMATH_AS_MP_VALUE(result), 
+            PMATH_AS_MPZ(PMATH_QUOT_NUM(obj)),
+            MPFR_RNDN);
+        }
+        
+        if(pmath_is_int32(PMATH_QUOT_DEN(obj))){
+          mpfr_div_si(
+            PMATH_AS_MP_VALUE(result), 
+            PMATH_AS_MP_VALUE(result), 
+            PMATH_AS_INT32(PMATH_QUOT_DEN(obj)),
+            MPFR_RNDN);
+        }
+        else{
+          assert(pmath_is_mpint(PMATH_QUOT_DEN(obj)));
+          
+          mpfr_div_z(
+            PMATH_AS_MP_VALUE(result), 
+            PMATH_AS_MP_VALUE(result), 
+            PMATH_AS_MPZ(PMATH_QUOT_DEN(obj)),
+            MPFR_RNDN);
+        }
       } break;
       
       case PMATH_TYPE_SHIFT_MP_FLOAT: {

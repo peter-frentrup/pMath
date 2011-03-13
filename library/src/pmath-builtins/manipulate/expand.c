@@ -15,7 +15,7 @@ static pmath_t expand_ui_power(pmath_t sum, unsigned long n){
   
   if(n == 0){
     pmath_unref(sum);
-    return pmath_integer_new_si(1);
+    return PMATH_FROM_INT32(1);
   }
   
   if(n == 1)
@@ -36,15 +36,15 @@ static pmath_t expand_ui_power(pmath_t sum, unsigned long n){
     pmath_expr_new_extended(
       pmath_ref(PMATH_SYMBOL_POWER), 2,
       pmath_ref(a),
-      pmath_integer_new_ui(n)), 
+      pmath_integer_new_ulong(n)), 
     PMATH_NULL);
   
-  bin = pmath_integer_new_ui(1);
+  bin = PMATH_FROM_INT32(1);
   for(k = 1;k < n;++k){
     bin = _mul_nn(bin, 
       pmath_rational_new(
-        pmath_integer_new_ui(n-k+1),
-        pmath_integer_new_ui(k)));
+        pmath_integer_new_ulong(n-k+1),
+        pmath_integer_new_ulong(k)));
     
     pmath_emit(
       pmath_expr_new_extended(
@@ -53,11 +53,11 @@ static pmath_t expand_ui_power(pmath_t sum, unsigned long n){
         pmath_expr_new_extended(
           pmath_ref(PMATH_SYMBOL_POWER), 2,
           pmath_ref(a),
-          pmath_integer_new_ui(n-k)),
+          pmath_integer_new_ulong(n-k)),
         pmath_expr_new_extended(
           pmath_ref(PMATH_SYMBOL_POWER), 2,
           pmath_ref(b),
-          pmath_integer_new_ui(k))), 
+          pmath_integer_new_ulong(k))), 
       PMATH_NULL);
   }
   pmath_unref(bin);
@@ -66,7 +66,7 @@ static pmath_t expand_ui_power(pmath_t sum, unsigned long n){
     pmath_expr_new_extended(
       pmath_ref(PMATH_SYMBOL_POWER), 2,
       pmath_ref(b),
-      pmath_integer_new_ui(n)), 
+      pmath_integer_new_ulong(n)), 
     PMATH_NULL);
   
   pmath_unref(a);
@@ -110,34 +110,37 @@ static pmath_t expand_product(pmath_t expr, pmath_bool_t *changed){
     && pmath_expr_length(expr) == 2){
       pmath_t exp = pmath_expr_get_item(expr, 2);
       
-      if(pmath_is_integer(exp)){
-        if(pmath_integer_fits_ui(exp)){
-          unsigned long uexp = pmath_integer_get_ui(exp);
-          
-          if(uexp+1 != 0){
-            pmath_t base = pmath_expr_get_item(expr, 1);
-            
-            if(pmath_is_expr_of(base, PMATH_SYMBOL_PLUS)){
-              pmath_unref(expr);
-              pmath_unref(exp);
-              expr = expand_ui_power(base, uexp);
-              *changed = TRUE;
-              return expr;
-            }
-            
-            pmath_unref(base);
-          }
+      if(pmath_is_int32(exp) && PMATH_AS_INT32(exp) >= 0){
+        pmath_t base = pmath_expr_get_item(expr, 1);
+        
+        if(pmath_is_expr_of(base, PMATH_SYMBOL_PLUS)){
+          pmath_unref(expr);
+          pmath_unref(exp);
+          expr = expand_ui_power(base, (unsigned)PMATH_AS_INT32(exp));
+          *changed = TRUE;
+          return expr;
         }
+        
+        pmath_unref(base);
       }
       else if(pmath_is_rational(exp)){
         pmath_integer_t num = pmath_rational_numerator(exp);
         pmath_integer_t den = pmath_rational_denominator(exp);
         
         if(pmath_compare(num, den) > 0){
-          pmath_integer_t q = _pmath_create_integer();
-          pmath_integer_t r = _pmath_create_integer();
+          pmath_integer_t q = _pmath_create_mp_int(0);
+          pmath_integer_t r = _pmath_create_mp_int(0);
           
-          if(!pmath_is_null(q) && !pmath_is_null(r)){
+          if(pmath_is_int32(num))
+            num = _pmath_create_mp_int(PMATH_AS_INT32(num));
+          
+          if(pmath_is_int32(den))
+            num = _pmath_create_mp_int(PMATH_AS_INT32(den));
+          
+          if(!pmath_is_null(q) 
+          && !pmath_is_null(r)
+          && !pmath_is_null(num)
+          && !pmath_is_null(den)){
             mpz_fdiv_qr(
               PMATH_AS_MPZ(q),
               PMATH_AS_MPZ(r),
@@ -146,14 +149,16 @@ static pmath_t expand_product(pmath_t expr, pmath_bool_t *changed){
             
             pmath_unref(num);
             pmath_unref(exp);
-            exp = pmath_rational_new(r, den);
+            exp = pmath_rational_new(
+              _pmath_mp_int_normalize(r), 
+              _pmath_mp_int_normalize(den));
             
-            num  = pmath_expr_set_item(pmath_ref(expr), 2, q);
+            num  = pmath_expr_set_item(pmath_ref(expr), 2, _pmath_mp_int_normalize(q));
             expr = pmath_expr_set_item(expr, 2, exp);
             *changed = TRUE;
             return pmath_expr_new_extended(
               pmath_ref(PMATH_SYMBOL_TIMES), 2,
-              num, 
+              _pmath_mp_int_normalize(num), 
               expr);
           }
           
@@ -240,9 +245,7 @@ PMATH_PRIVATE pmath_t builtin_expand(pmath_expr_t expr){
       expr = obj;
       obj = pmath_expr_get_item(expr, 2);
       
-      if(pmath_is_integer(obj)
-      && pmath_integer_fits_ui(obj)){
-        pmath_unref(obj);
+      if(pmath_is_int32(obj) && PMATH_AS_INT32(obj) >= 0){
         obj = pmath_expr_get_item(expr, 1);
         
         obj = pmath_expr_new_extended(
@@ -360,7 +363,7 @@ PMATH_PRIVATE pmath_t builtin_expandall(pmath_expr_t expr){
           expr = pmath_expr_new_extended(
             pmath_ref(PMATH_SYMBOL_POWER), 2,
             expr,
-            pmath_integer_new_si(-1));
+            PMATH_FROM_INT32(-1));
             
           if(changed)
             return make_expandall(expr);

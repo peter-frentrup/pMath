@@ -141,7 +141,7 @@ PMATH_PRIVATE pmath_t builtin_attributes(pmath_expr_t expr){
     sym = pmath_symbol_find(sym, FALSE);
     
   if(!pmath_is_symbol(sym)){
-    pmath_message(PMATH_NULL, "sym", 2, sym, pmath_integer_new_si(1));
+    pmath_message(PMATH_NULL, "sym", 2, sym, PMATH_FROM_INT32(1));
     return expr;
   }
 

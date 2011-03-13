@@ -42,7 +42,7 @@ pmath_bool_t _pmath_is_imaginary(
             if(pmath_same(head, PMATH_SYMBOL_COMPLEX)){
               pmath_t xx = pmath_expr_get_item(x, 1);
               
-              if(pmath_equals(xx, PMATH_NUMBER_ZERO)){
+              if(pmath_equals(xx, PMATH_FROM_INT32(0))){
                 pmath_unref(xx);
                 
                 xx = pmath_expr_get_item(x, 2);
@@ -71,7 +71,7 @@ pmath_bool_t _pmath_is_imaginary(
     if(pmath_same(head, PMATH_SYMBOL_COMPLEX) && len == 2){
       pmath_t x = pmath_expr_get_item(*z, 1);
       
-      if(pmath_equals(x, PMATH_NUMBER_ZERO)){
+      if(pmath_equals(x, PMATH_FROM_INT32(0))){
         pmath_unref(x);
         x = *z;
         *z = pmath_expr_get_item(x, 2);
@@ -133,7 +133,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_re_im(
   || pmath_equals(z, _pmath_object_underflow)
   || pmath_is_number(z)){
     if(re) *re = z;
-    if(im) *im = pmath_integer_new_si(0);
+    if(im) *im = PMATH_FROM_INT32(0);
     return TRUE;
   }
   
@@ -145,7 +145,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_re_im(
     ||  pmath_same(zhead, PMATH_SYMBOL_IM))
     && pmath_expr_length(z) == 1){
       if(re) *re = z;
-      if(im) *im = pmath_integer_new_si(0);
+      if(im) *im = PMATH_FROM_INT32(0);
       return TRUE;
     }
     
@@ -317,20 +317,9 @@ PMATH_PRIVATE pmath_bool_t _pmath_re_im(
         if(re){
           *re = pmath_expr_new_extended(
             pmath_ref(PMATH_SYMBOL_TIMES), 3,
-            pmath_integer_new_si(-1),
+            PMATH_FROM_INT32(-1),
             pmath_ref(im2),
             pmath_ref(im3));
-//          *re = pmath_expr_new_extended(
-//            pmath_ref(PMATH_SYMBOL_PLUS), 2,
-//            pmath_expr_new_extended(
-//              pmath_ref(PMATH_SYMBOL_TIMES), 2,
-//              pmath_ref(re2),
-//              pmath_ref(re3)),
-//            pmath_expr_new_extended(
-//              pmath_ref(PMATH_SYMBOL_TIMES), 3,
-//              pmath_integer_new_si(-1),
-//              pmath_ref(im2),
-//              pmath_ref(im3)));
         }
         
         if(im){
@@ -338,16 +327,6 @@ PMATH_PRIVATE pmath_bool_t _pmath_re_im(
             pmath_ref(PMATH_SYMBOL_TIMES), 2,
             pmath_ref(im2),
             pmath_ref(re3));
-//          *im = pmath_expr_new_extended(
-//            pmath_ref(PMATH_SYMBOL_PLUS), 2,
-//            pmath_expr_new_extended(
-//              pmath_ref(PMATH_SYMBOL_TIMES), 2,
-//              pmath_ref(re2),
-//              pmath_ref(im3)),
-//            pmath_expr_new_extended(
-//              pmath_ref(PMATH_SYMBOL_TIMES), 2,
-//              pmath_ref(im2),
-//              pmath_ref(re3)));
         }
         
         pmath_unref(re2);
@@ -392,7 +371,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_re_im(
     pmath_unref(z2);
     
     if(re) *re = pmath_ref(z);
-    if(im) *im = pmath_integer_new_si(0);
+    if(im) *im = PMATH_FROM_INT32(0);
     
     pmath_unref(z);
     return TRUE;
@@ -430,7 +409,7 @@ PMATH_PRIVATE pmath_t builtin_complex(pmath_expr_t expr){
   }
 
   x = pmath_expr_get_item(expr, 2);
-  if(pmath_equals(x, PMATH_NUMBER_ZERO)){
+  if(pmath_equals(x, PMATH_FROM_INT32(0))){
     pmath_unref(x);
     x = pmath_expr_get_item(expr, 1);
     pmath_unref(expr);

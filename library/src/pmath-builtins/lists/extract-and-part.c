@@ -33,7 +33,7 @@ static pmath_bool_t part(
     listlen = pmath_expr_length(*list);
     
     pos = pmath_expr_get_item(position, position_start);
-    if(!pmath_is_integer(pos))
+    if(!_pmath_is_integer(pos))
       break;
     
     i = SIZE_MAX;
@@ -476,8 +476,8 @@ PMATH_PRIVATE pmath_t builtin_assign_part(pmath_expr_t expr){
     pmath_message(PMATH_NULL, "sym", 1, sym,
       pmath_expr_new_extended(
         pmath_ref(PMATH_SYMBOL_LIST), 2,
-        pmath_integer_new_si(pmath_same(tag, PMATH_UNDEFINED) ? 1 : 2),
-        pmath_integer_new_si(1)));
+        PMATH_FROM_INT32(pmath_same(tag, PMATH_UNDEFINED) ? 1 : 2),
+        PMATH_FROM_INT32(1)));
     pmath_unref(tag);
     pmath_unref(lhs);
     

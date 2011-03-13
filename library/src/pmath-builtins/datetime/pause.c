@@ -19,7 +19,7 @@ PMATH_PRIVATE pmath_t builtin_pause(pmath_expr_t expr){
   if(!pmath_is_number(arg) || pmath_number_sign(arg) < 0){
     pmath_message(
       PMATH_NULL, "numn", 2,
-      pmath_integer_new_ui(1),
+      PMATH_FROM_INT32(1),
       pmath_ref(expr));
     
     pmath_unref(arg);

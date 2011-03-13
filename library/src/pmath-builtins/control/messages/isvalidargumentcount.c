@@ -14,17 +14,17 @@ PMATH_PRIVATE pmath_t builtin_isvalidargumentcount(pmath_expr_t expr){
   pmath_t max  = pmath_expr_get_item(expr, 4);
   
   if(pmath_is_symbol(head)
-  && pmath_is_integer(len)
-  && pmath_is_integer(min)
-  && pmath_integer_fits_ui(len)
-  && pmath_integer_fits_ui(min)){
-    size_t z_len = pmath_integer_get_ui(len);
-    size_t z_min = pmath_integer_get_ui(min);
+  && pmath_is_int32(len)
+  && pmath_is_int32(min)
+  && PMATH_AS_INT32(len) >= 0
+  && PMATH_AS_INT32(min) >= 0){
+    size_t z_len = (size_t)PMATH_AS_INT32(len);
+    size_t z_min = (size_t)PMATH_AS_INT32(min);
     
-    if(pmath_is_integer(max)
-    && pmath_integer_fits_ui(max)
+    if(pmath_is_int32(max)
+    && PMATH_AS_INT32(max) >= 0
     && pmath_compare(min, max) <= 0){
-      size_t z_max = pmath_integer_get_ui(max);
+      size_t z_max = (size_t)PMATH_AS_INT32(max);
       
       if(z_min <= z_len && z_len <= z_max){
         pmath_unref(expr);
@@ -32,6 +32,7 @@ PMATH_PRIVATE pmath_t builtin_isvalidargumentcount(pmath_expr_t expr){
       }
       else{
         pmath_thread_t thread = pmath_thread_get_current();
+        
         if(thread && thread->stack_info){
           pmath_t old_head = thread->stack_info->value;
           thread->stack_info->value = head;

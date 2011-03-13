@@ -33,7 +33,7 @@ PMATH_PRIVATE _pmath_type_imp_t pmath_type_imps[PMATH_TYPE_SHIFT_COUNT];
   static size_t object_alloc_stats[PMATH_TYPE_SHIFT_COUNT];
   static char *type_names[PMATH_TYPE_SHIFT_COUNT] = {
     "float (multi prec)",
-    "integer",
+    "integer (multi prec)",
     "quotient",
     "string",
     "symbol",

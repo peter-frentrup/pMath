@@ -119,12 +119,11 @@ PMATH_PRIVATE pmath_t builtin_findlist(pmath_expr_t expr){
     
     if(!_pmath_is_rule(n) && !_pmath_is_list_of_rules(n)){
       last_nonoption = 3;
-      if(pmath_is_integer(n)
-      && pmath_integer_fits_ui(n)){
-        count = pmath_integer_get_ui(n);
+      if(pmath_is_int32(n) && PMATH_AS_INT32(n) >= 0){
+        count = (size_t)PMATH_AS_INT32(n);
       }
       else if(!pmath_equals(n, _pmath_object_infinity)){
-        pmath_message(PMATH_NULL, "intnm", 2, pmath_integer_new_si(3), pmath_ref(expr));
+        pmath_message(PMATH_NULL, "intnm", 2, PMATH_FROM_INT32(3), pmath_ref(expr));
         
         pmath_unref(n);
         return expr;

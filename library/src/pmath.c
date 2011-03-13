@@ -52,6 +52,15 @@
 #include <time.h>
 
 
+PMATH_STATIC_ASSERT(sizeof(intptr_t) == sizeof(void*));
+PMATH_STATIC_ASSERT(8*sizeof(void*) == PMATH_BITSIZE);
+PMATH_STATIC_ASSERT(sizeof(pmath_t) == 8);
+
+#ifdef PMATH_OS_WIN32
+PMATH_STATIC_ASSERT(sizeof(wchar_t) == sizeof(uint16_t));
+#endif
+    
+
 static volatile enum{
   PMATH_STATUS_NONE,
   PMATH_STATUS_INITIALIZING,
@@ -219,14 +228,10 @@ PMATH_API pmath_bool_t pmath_init(void){
     
     _pmath_status = PMATH_STATUS_INITIALIZING;
     
-    #ifdef PMATH_OS_WIN32
-    assert(sizeof(wchar_t) == sizeof(uint16_t));
-    
-    //SetErrorMode(SEM_NOOPENFILEERRORBOX);
-    #endif
-    
-    assert(sizeof(intptr_t) == sizeof(void*));
-    assert(8*sizeof(void*) == PMATH_BITSIZE);
+
+//    #ifdef PMATH_OS_WIN32
+//      SetErrorMode(SEM_NOOPENFILEERRORBOX);
+//    #endif
     
     #ifdef PMATH_DEBUG_TESTS
     {

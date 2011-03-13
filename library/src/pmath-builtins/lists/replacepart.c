@@ -42,7 +42,7 @@ static pmath_t replace_const_part(
   }
 
   pos = pmath_expr_get_item(position, position_start);
-  if(!pmath_is_integer(pos)){
+  if(!_pmath_is_integer(pos)){
     if(error){
       if(!*error){
         pmath_message(PMATH_NULL, "pspec", 1, pmath_ref(pos));
@@ -125,8 +125,13 @@ static pmath_bool_t prepare_pattern_len_index( // stop?
   pmath_t *pos,
   size_t   len
 ){
-  if(pmath_is_integer(*pos) && mpz_sgn(PMATH_AS_MPZ(*pos)) < 0){
-    pmath_integer_t newpos = _pmath_create_integer();
+  if(pmath_is_int32(*pos) && PMATH_AS_INT32(*pos) < 0){
+    *pos = PMATH_FROM_INT32(len + PMATH_AS_INT32(*pos) + 1);
+    return TRUE;
+  }
+  
+  if(pmath_is_mpint(*pos) && mpz_sgn(PMATH_AS_MPZ(*pos)) < 0){
+    pmath_mpint_t newpos = _pmath_create_mp_int(0);
     
     if(!pmath_is_null(newpos)){
       mpz_add_ui(

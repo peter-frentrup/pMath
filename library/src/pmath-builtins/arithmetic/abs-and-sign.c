@@ -139,7 +139,7 @@ PMATH_PRIVATE pmath_t builtin_abs(pmath_expr_t expr){
     pmath_unref(expr);
     return pmath_expr_new_extended(
       pmath_ref(PMATH_SYMBOL_TIMES), 2,
-      pmath_integer_new_si(-1),
+      INT(-1),
       x);
   }
   
@@ -188,7 +188,7 @@ PMATH_PRIVATE pmath_t builtin_sign(pmath_expr_t expr){
     pmath_unref(expr);
     sign = pmath_number_sign(x);
     pmath_unref(x);
-    return pmath_integer_new_si(sign);
+    return PMATH_FROM_INT32(sign);
   }
   
   if(pmath_equals(x, _pmath_object_overflow)

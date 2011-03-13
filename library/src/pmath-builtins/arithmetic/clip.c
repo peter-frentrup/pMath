@@ -120,8 +120,8 @@ PMATH_PRIVATE pmath_t builtin_clip(pmath_t expr){
     }
   }
   else{
-    min = pmath_integer_new_si(-1);
-    max = pmath_integer_new_si(1);
+    min = PMATH_FROM_INT32(-1);
+    max = PMATH_FROM_INT32(1);
   }
   
   if(exprlen == 3){

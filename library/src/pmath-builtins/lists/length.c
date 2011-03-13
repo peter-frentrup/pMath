@@ -63,5 +63,5 @@ PMATH_PRIVATE pmath_t builtin_length(pmath_expr_t expr){
   
   pmath_unref(obj);
   pmath_unref(expr);
-  return pmath_integer_new_ui(0);
+  return PMATH_FROM_INT32(0);
 }

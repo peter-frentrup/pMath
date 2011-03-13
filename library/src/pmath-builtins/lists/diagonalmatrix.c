@@ -33,14 +33,14 @@ PMATH_PRIVATE pmath_t builtin_diagonalmatrix(pmath_expr_t expr){
   if(len == 2){
     pmath_t diag_obj = pmath_expr_get_item(expr, 2);
     
-    if(!pmath_is_integer(diag_obj) || !pmath_integer_fits_si(diag_obj)){
-      pmath_message(PMATH_NULL, "intm", 2, pmath_ref(expr), pmath_integer_new_si(2));
+    if(!pmath_is_int32(diag_obj)){
+      pmath_message(PMATH_NULL, "intm", 2, pmath_ref(expr), PMATH_FROM_INT32(2));
       pmath_unref(list);
       pmath_unref(diag_obj);
       return expr;
     }
     
-    diag = pmath_integer_get_si(diag_obj);
+    diag = PMATH_AS_INT32(diag_obj);
     pmath_unref(diag_obj);
   }
   else
@@ -54,7 +54,7 @@ PMATH_PRIVATE pmath_t builtin_diagonalmatrix(pmath_expr_t expr){
   else
     len+= (size_t)diag;
   
-  zero = pmath_integer_new_si(0);
+  zero = PMATH_FROM_INT32(0);
   mat = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), len);
   for(i = len;i > 0;--i){
     pmath_t row = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), len);

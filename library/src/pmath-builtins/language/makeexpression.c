@@ -384,9 +384,9 @@ PMATH_PRIVATE pmath_t _pmath_parse_number(
       
     pmath_message(
       PMATH_NULL, "digit", 3,
-      pmath_integer_new_si(i - start + 1),
+      PMATH_FROM_INT32(i - start + 1),
       pmath_string_part(string, start, end - start),
-      pmath_integer_new_si(base));
+      PMATH_FROM_INT32(base));
       
     return PMATH_NULL;
   }
@@ -491,7 +491,7 @@ PMATH_PRIVATE pmath_t _pmath_parse_number(
         result,
         pmath_expr_new_extended(
           pmath_ref(PMATH_SYMBOL_POWER), 2,
-          pmath_integer_new_si(base),
+          PMATH_FROM_INT32(base),
           exponent)));
   }
     
@@ -678,7 +678,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
       return HOLDCOMPLETE(
         pmath_expr_new_extended(
           pmath_ref(PMATH_SYMBOL_HISTORY), 1,
-          pmath_integer_new_si(-(long)len)));
+          PMATH_FROM_INT32(-(int)len)));
     }
     
     if(tok == PMATH_TOK_NAME2){
@@ -868,7 +868,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
       return HOLDCOMPLETE(
         pmath_expr_new_extended(
           pmath_ref(PMATH_SYMBOL_PUREARGUMENT), 1,
-          pmath_integer_new_si(1)));
+          PMATH_FROM_INT32(1)));
     }
     
     if(len == 1 && str[0] == ','){
@@ -935,16 +935,16 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
         if(parse(&num) && parse(&box)){
           pmath_unref(expr);
           
-          if(pmath_is_integer(num) && pmath_is_integer(box))
+          if(_pmath_is_integer(num) && _pmath_is_integer(box))
             return HOLDCOMPLETE(pmath_rational_new(num, box));
           
-          if(pmath_equals(num, PMATH_NUMBER_ONE)){
+          if(pmath_equals(num, PMATH_FROM_INT32(1))){
             pmath_unref(num);
             
             return HOLDCOMPLETE(pmath_expr_new_extended(
               pmath_ref(PMATH_SYMBOL_POWER), 2,
               box,
-              pmath_integer_new_si(-1)));
+              PMATH_FROM_INT32(-1)));
           }
           
           return HOLDCOMPLETE(
@@ -954,7 +954,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
               pmath_expr_new_extended(
                 pmath_ref(PMATH_SYMBOL_POWER), 2,
                 box,
-                pmath_integer_new_si(-1))));
+                PMATH_FROM_INT32(-1))));
         }
         
         pmath_unref(num);
@@ -1035,7 +1035,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
               pmath_expr_new_extended(
                 pmath_ref(PMATH_SYMBOL_POWER), 2,
                 box,
-                pmath_integer_new_si(-1))));
+                PMATH_FROM_INT32(-1))));
         }
         
         pmath_unref(base);
@@ -1582,7 +1582,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
           return HOLDCOMPLETE(
             pmath_expr_new_extended(
               pmath_ref(PMATH_SYMBOL_TIMES), 2, 
-              pmath_integer_new_si(-1),
+              PMATH_FROM_INT32(-1),
               box));
         }
         return pmath_ref(PMATH_SYMBOL_FAILED);
@@ -1622,7 +1622,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
           return pmath_ref(PMATH_SYMBOL_FAILED);
         }
         
-        if(pmath_is_integer(box)){
+        if(_pmath_is_integer(box)){
           pmath_unref(expr);
           return HOLDCOMPLETE(
             pmath_expr_new_extended(
@@ -1642,7 +1642,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
           return pmath_ref(PMATH_SYMBOL_FAILED);
         }
         
-        if(pmath_is_integer(box)){
+        if(_pmath_is_integer(box)){
           pmath_unref(expr);
           return HOLDCOMPLETE(
             pmath_expr_new_extended(
@@ -2235,7 +2235,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
             else{
               arg = pmath_expr_new_extended(
                 pmath_ref(PMATH_SYMBOL_TIMES), 2,
-                pmath_integer_new_si(-1),
+                PMATH_FROM_INT32(-1),
                 arg);
             }
           }
@@ -2304,7 +2304,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
             arg = pmath_expr_new_extended(
               pmath_ref(PMATH_SYMBOL_POWER), 2,
               arg,
-              pmath_integer_new_si(-1));
+              PMATH_FROM_INT32(-1));
           }
           
           result = pmath_expr_set_item(result, i + 1, arg);

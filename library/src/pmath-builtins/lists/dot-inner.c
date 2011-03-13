@@ -144,7 +144,7 @@ static pmath_bool_t init(struct _inner_info_t *info, pmath_t t1, pmath_t t2){
     return FALSE;
   }
   
-  if(!pmath_is_integer(obj1)){
+  if(!_pmath_is_integer(obj1)){
     pmath_unref(d1);
     pmath_unref(d2);
     pmath_unref(obj1);
@@ -167,7 +167,7 @@ static pmath_bool_t init(struct _inner_info_t *info, pmath_t t1, pmath_t t2){
   
   for(i = 1;i < info->n;++i){
     obj1 = pmath_expr_get_item(d1, i);
-    if(!pmath_is_integer(obj1) || !pmath_integer_fits_ui(obj1)){
+    if(!pmath_is_int32(obj1) || PMATH_AS_INT32(obj1) < 0){
       pmath_unref(obj1);
       pmath_unref(d1);
       pmath_unref(d2);
@@ -176,13 +176,12 @@ static pmath_bool_t init(struct _inner_info_t *info, pmath_t t1, pmath_t t2){
       return FALSE;
     }
     
-    info->lens[i-1] = pmath_integer_get_ui(obj1);
-    pmath_unref(obj1);
+    info->lens[i-1] = (unsigned)PMATH_AS_INT32(obj1);
   }
   
   for(i = info->n + 1;i <= info->dim1;++i){
     obj1 = pmath_expr_get_item(d1, i);
-    if(!pmath_is_integer(obj1) || !pmath_integer_fits_ui(obj1)){
+    if(!pmath_is_int32(obj1) || PMATH_AS_INT32(obj1) < 0){
       pmath_unref(obj1);
       pmath_unref(d1);
       pmath_unref(d2);
@@ -191,13 +190,12 @@ static pmath_bool_t init(struct _inner_info_t *info, pmath_t t1, pmath_t t2){
       return FALSE;
     }
     
-    info->lens[i-2] = pmath_integer_get_ui(obj1);
-    pmath_unref(obj1);
+    info->lens[i-2] = (unsigned)PMATH_AS_INT32(obj1);
   }
   
   for(i = 2;i <= info->dim2;++i){
     obj2 = pmath_expr_get_item(d2, i);
-    if(!pmath_is_integer(obj2) || !pmath_integer_fits_ui(obj2)){
+    if(!pmath_is_int32(obj2) || PMATH_AS_INT32(obj2) < 0){
       pmath_unref(obj2);
       pmath_unref(d1);
       pmath_unref(d2);
@@ -206,8 +204,7 @@ static pmath_bool_t init(struct _inner_info_t *info, pmath_t t1, pmath_t t2){
       return FALSE;
     }
     
-    info->lens[info->dim1 + i - 3] = pmath_integer_get_ui(obj2);
-    pmath_unref(obj2);
+    info->lens[info->dim1 + i - 3] = (unsigned)PMATH_AS_INT32(obj2);
   }
 
   pmath_unref(d1);
@@ -346,10 +343,10 @@ PMATH_PRIVATE pmath_t builtin_inner(pmath_expr_t expr){
   if(exprlen == 5){
     pmath_t obj = pmath_expr_get_item(expr, 5);
     
-    if(!pmath_is_integer(obj) || !pmath_integer_fits_ui(obj)){
+    if(!pmath_is_int32(obj) || PMATH_AS_INT32(obj) < 0){
       pmath_message(PMATH_NULL, "intpm", 2,
         pmath_ref(expr),
-        pmath_integer_new_si(5));
+        PMATH_FROM_INT32(5));
       
       pmath_unref(info.f);
       pmath_unref(info.g);
@@ -359,14 +356,13 @@ PMATH_PRIVATE pmath_t builtin_inner(pmath_expr_t expr){
       return expr;
     }
     
-    info.n = pmath_integer_get_ui(obj);
-    pmath_unref(obj);
+    info.n = (unsigned)PMATH_AS_INT32(obj);
   }
   else
     info.n = SIZE_MAX;
   
   if(!pmath_is_expr(t1)){
-    pmath_message(PMATH_NULL, "nexprat", 2, pmath_integer_new_si(2), pmath_ref(expr));
+    pmath_message(PMATH_NULL, "nexprat", 2, PMATH_FROM_INT32(2), pmath_ref(expr));
     pmath_unref(info.f);
     pmath_unref(info.g);
     pmath_unref(t1);
@@ -375,7 +371,7 @@ PMATH_PRIVATE pmath_t builtin_inner(pmath_expr_t expr){
   }
   
   if(!pmath_is_expr(t2)){
-    pmath_message(PMATH_NULL, "nexprat", 2, pmath_integer_new_si(3), pmath_ref(expr));
+    pmath_message(PMATH_NULL, "nexprat", 2, PMATH_FROM_INT32(3), pmath_ref(expr));
     pmath_unref(info.f);
     pmath_unref(info.g);
     pmath_unref(t1);
@@ -389,8 +385,8 @@ PMATH_PRIVATE pmath_t builtin_inner(pmath_expr_t expr){
     pmath_message(PMATH_NULL, "heads", 4,
       head1, 
       head2,
-      pmath_integer_new_si(2),
-      pmath_integer_new_si(3));
+      PMATH_FROM_INT32(2),
+      PMATH_FROM_INT32(3));
     pmath_unref(info.f);
     pmath_unref(info.g);
     pmath_unref(t1);

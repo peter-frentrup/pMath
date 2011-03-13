@@ -26,12 +26,9 @@ PMATH_PRIVATE pmath_t builtin_internal_dynamicevaluate(pmath_expr_t expr){
   }
   
   id_obj = pmath_evaluate(pmath_expr_get_item(expr, 2));
-  if(pmath_is_integer(id_obj)
-  && pmath_integer_fits_si(id_obj)){
+  if(pmath_is_int32(id_obj)){
     intptr_t old_id;
-    
-    long id = pmath_integer_get_si(id_obj);
-    pmath_unref(id_obj);
+    long id = PMATH_AS_INT32(id_obj);
     
     dyn_expr = pmath_expr_get_item(expr, 1);
     
@@ -50,7 +47,7 @@ PMATH_PRIVATE pmath_t builtin_internal_dynamicevaluate(pmath_expr_t expr){
   }
   
   pmath_unref(id_obj);
-  pmath_message(PMATH_NULL, "intm", 2, pmath_ref(expr), pmath_integer_new_si(2));
+  pmath_message(PMATH_NULL, "intm", 2, pmath_ref(expr), PMATH_FROM_INT32(2));
   return expr;
 }
   
@@ -162,19 +159,15 @@ PMATH_PRIVATE pmath_t builtin_internal_dynamicevaluatemultiple(pmath_expr_t expr
   }
   
   id_obj = pmath_evaluate(pmath_expr_get_item(expr, 2));
-  if(pmath_is_integer(id_obj)
-  && pmath_integer_fits_si(id_obj)){
+  if(pmath_is_int32(id_obj)){
     dyn_expr = pmath_expr_get_item(expr, 1);
     pmath_unref(expr);
     
-    dyn_expr = replace_dynamic(dyn_expr, id_obj);
-    pmath_unref(id_obj);
-    
-    return dyn_expr;
+    return replace_dynamic(dyn_expr, id_obj);
   }
   
   pmath_unref(id_obj);
-  pmath_message(PMATH_NULL, "intm", 2, pmath_ref(expr), pmath_integer_new_si(2));
+  pmath_message(PMATH_NULL, "intm", 2, pmath_ref(expr), PMATH_FROM_INT32(2));
   return expr;
 }
 
@@ -187,13 +180,8 @@ PMATH_PRIVATE pmath_t builtin_internal_dynamicremove(pmath_expr_t expr){
   for(i = len;i > 0;--i){
     pmath_t id_obj = pmath_evaluate(pmath_expr_get_item(expr, i));
     
-    if(pmath_is_integer(id_obj)
-    && pmath_integer_fits_si(id_obj)){
-      long id = pmath_integer_get_si(id_obj);
-      
-      _pmath_dynamic_remove(id);
-      
-      pmath_unref(id_obj);
+    if(pmath_is_int32(id_obj)){
+      _pmath_dynamic_remove(PMATH_AS_INT32(id_obj));
       continue;
     }
     

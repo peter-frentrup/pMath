@@ -32,19 +32,19 @@ static const pmath_ht_class_t symbol_set_class = {
 static void * volatile numeric_symbols;
 
 PMATH_PRIVATE pmath_bool_t _pmath_is_inexact(pmath_t obj){
-  if(pmath_is_real(obj))
+  if(pmath_is_float(obj))
     return TRUE;
   
   if(_pmath_is_nonreal_complex(obj)){
     pmath_t part = pmath_expr_get_item(obj, 1);
-    if(pmath_is_real(part)){
+    if(pmath_is_float(part)){
       pmath_unref(part);
       return TRUE;
     }
     pmath_unref(part);
     
     part = pmath_expr_get_item(obj, 2);
-    if(pmath_is_real(part)){
+    if(pmath_is_float(part)){
       pmath_unref(part);
       return TRUE;
     }
@@ -55,28 +55,24 @@ PMATH_PRIVATE pmath_bool_t _pmath_is_inexact(pmath_t obj){
 }
 
   static int _simple_real_class(pmath_t obj){
-    if(pmath_is_integer(obj)){
-      int sign = mpz_sgn(PMATH_AS_MPZ(obj));
+    if(pmath_is_int32(obj)){
+      switch(PMATH_AS_INT32(obj)){
+        case -1: return PMATH_CLASS_NEGONE;
+        case  0: return PMATH_CLASS_ZERO;
+        case  1: return PMATH_CLASS_POSONE;
+      }
       
-      if(sign == 0)
-        return PMATH_CLASS_ZERO;
+      if(PMATH_AS_INT32(obj) < 0)
+        return PMATH_CLASS_NEGBIG;
       
-      if(mpz_cmpabs_ui(PMATH_AS_MPZ(obj), 1) > 0)
-        return sign * PMATH_CLASS_POSBIG;
-      
-      return sign * PMATH_CLASS_POSONE;
+      return PMATH_CLASS_POSBIG;
     }
     
-    if(pmath_is_quotient(obj)){
-      int sign = mpz_sgn(PMATH_AS_MPZ(PMATH_QUOT_NUM(obj)));
-      int smallbig = mpz_cmpabs(
-        PMATH_AS_MPZ(PMATH_QUOT_NUM(obj)),
-        PMATH_AS_MPZ(PMATH_QUOT_DEN(obj)));
+    if(pmath_is_mpint(obj)){
+      if(mpz_sgn(PMATH_AS_MPZ(obj)) < 0)
+        return PMATH_CLASS_NEGBIG;
       
-      if(smallbig < 0)
-        return sign * PMATH_CLASS_POSSMALL;
-        
-      return sign * PMATH_CLASS_POSBIG;
+      return PMATH_CLASS_POSBIG;
     }
     
     if(pmath_is_double(obj)){
@@ -98,6 +94,46 @@ PMATH_PRIVATE pmath_bool_t _pmath_is_inexact(pmath_t obj){
       if(PMATH_AS_DOUBLE(obj) == 1)
         return PMATH_CLASS_POSONE;
       
+      return PMATH_CLASS_POSBIG;
+    }
+    
+    if(pmath_is_quotient(obj)){
+      pmath_integer_t num = PMATH_QUOT_NUM(obj);
+      pmath_integer_t den = PMATH_QUOT_DEN(obj);
+      
+      if(pmath_is_int32(num)){
+        if(pmath_is_int32(den)){
+          if(PMATH_AS_INT32(num) <  PMATH_AS_INT32(den)
+          && PMATH_AS_INT32(num) > -PMATH_AS_INT32(den)){
+            if(PMATH_AS_INT32(num) < 0)
+              return PMATH_CLASS_NEGSMALL;
+            return PMATH_CLASS_POSSMALL;
+          }
+        }
+        
+        if(PMATH_AS_INT32(num) < 0)
+          return PMATH_CLASS_NEGBIG;
+        return PMATH_CLASS_POSBIG;
+      }
+      
+      assert(pmath_is_mpint(num));
+      
+      if(pmath_is_int32(den)){
+        if(mpz_sgn(PMATH_AS_MPZ(num)) < 0)
+          return PMATH_CLASS_NEGBIG;
+        return PMATH_CLASS_POSBIG;
+      }
+      
+      assert(pmath_is_mpint(den));
+      
+      if(0 > mpz_cmpabs(PMATH_AS_MPZ(num), PMATH_AS_MPZ(den))){
+        if(mpz_sgn(PMATH_AS_MPZ(num)) < 0)
+          return PMATH_CLASS_NEGSMALL;
+        return PMATH_CLASS_POSSMALL;
+      }
+      
+      if(mpz_sgn(PMATH_AS_MPZ(num)) < 0)
+        return PMATH_CLASS_NEGBIG;
       return PMATH_CLASS_POSBIG;
     }
     

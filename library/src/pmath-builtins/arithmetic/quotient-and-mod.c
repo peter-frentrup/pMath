@@ -4,6 +4,7 @@
 #include <pmath-util/messages.h>
 
 #include <pmath-builtins/all-symbols-private.h>
+#include <pmath-builtins/build-expr-private.h>
 #include <pmath-builtins/number-theory-private.h>
 
 PMATH_PRIVATE pmath_t builtin_quotient(pmath_expr_t expr){
@@ -46,27 +47,12 @@ PMATH_PRIVATE pmath_t builtin_quotient(pmath_expr_t expr){
       return expr;
     }
     
-    m = pmath_evaluate( // m-d
-      pmath_expr_new_extended(
-        pmath_ref(PMATH_SYMBOL_PLUS), 2,
-        m,
-        pmath_expr_new_extended(
-          pmath_ref(PMATH_SYMBOL_TIMES), 2,
-          pmath_integer_new_si(-1),
-          d)));
+    m = pmath_evaluate(MINUS(m, d));
   }
   
   pmath_unref(expr);
   
-  return pmath_expr_new_extended( // Floor(m/n)
-    pmath_ref(PMATH_SYMBOL_FLOOR), 1,
-    pmath_expr_new_extended(
-      pmath_ref(PMATH_SYMBOL_TIMES), 2,
-      m,
-      pmath_expr_new_extended(
-        pmath_ref(PMATH_SYMBOL_POWER), 2,
-        n,
-        pmath_integer_new_si(-1))));
+  return FUNC(pmath_ref(PMATH_SYMBOL_FLOOR), DIV(m, n));
 }
 
 PMATH_PRIVATE pmath_t builtin_mod(pmath_expr_t expr){
@@ -110,28 +96,12 @@ PMATH_PRIVATE pmath_t builtin_mod(pmath_expr_t expr){
       return expr;
     }
     
-    md = pmath_evaluate( // m-d
-      pmath_expr_new_extended(
-        pmath_ref(PMATH_SYMBOL_PLUS), 2,
-        pmath_ref(m),
-        pmath_expr_new_extended(
-          pmath_ref(PMATH_SYMBOL_TIMES), 2,
-          pmath_integer_new_si(-1),
-          d)));
+    md = pmath_evaluate(MINUS(m, d));
   }
   else
     md = pmath_ref(m);
   
   pmath_unref(expr);
   // Mod(m,n,d) = m - n * Quotient(m,n,d) = m - n * Floor((m-d)/n) = m - Floor(m-d, n)
-  return pmath_expr_new_extended(
-    pmath_ref(PMATH_SYMBOL_PLUS), 2,
-    m,
-    pmath_expr_new_extended(
-      pmath_ref(PMATH_SYMBOL_TIMES), 2,
-      pmath_integer_new_si(-1),
-      pmath_expr_new_extended(
-        pmath_ref(PMATH_SYMBOL_FLOOR), 2,
-        md,
-        n)));
+  return MINUS(m, FUNC2(pmath_ref(PMATH_SYMBOL_FLOOR), md, n));
 }

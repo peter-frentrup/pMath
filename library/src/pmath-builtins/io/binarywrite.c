@@ -216,7 +216,7 @@ static pmath_bool_t binary_write(
           int im_dir = 2;
           
           if(out_type == REAL
-          && pmath_equals(value, PMATH_NUMBER_ZERO)){
+          && pmath_equals(value, PMATH_FROM_INT32(0))){
             pmath_unref(value);
             pmath_unref(type);
             
@@ -258,10 +258,10 @@ static pmath_bool_t binary_write(
             }
           }
           
-          if(pmath_is_real(value)
+          if(pmath_is_float(value)
           && out_type == REAL){
-            pmath_float_t f = PMATH_NULL;
-            pmath_integer_t mant = _pmath_create_integer();
+            pmath_mpfloat_t f  = PMATH_NULL;
+            pmath_mpint_t mant = _pmath_create_mp_int(0);
             long bits = 10;
             
             pmath_unref(type);
@@ -282,7 +282,7 @@ static pmath_bool_t binary_write(
               if(pmath_is_mpfloat(value))
                 mpfr_set(PMATH_AS_MP_VALUE(f), PMATH_AS_MP_VALUE(value), MPFR_RNDN);
               else
-                mpfr_set_d(PMATH_AS_MP_VALUE(f), pmath_number_get_d(value), MPFR_RNDN);
+                mpfr_set_d(PMATH_AS_MP_VALUE(f), PMATH_AS_DOUBLE(value), MPFR_RNDN);
 
               exp = bits + mpfr_get_z_exp(PMATH_AS_MPZ(mant), PMATH_AS_MP_VALUE(f));
               
@@ -469,18 +469,18 @@ static pmath_bool_t binary_write(
                 re_dir = im_dir = 0;
               }
               else{
-                if(pmath_equals(re, PMATH_NUMBER_MINUSONE))
+                if(pmath_equals(re, PMATH_FROM_INT32(-1)))
                   re_dir = -1;
-                else if(pmath_equals(re, PMATH_NUMBER_ZERO))
+                else if(pmath_equals(re, PMATH_FROM_INT32(0)))
                   re_dir = 0;
-                else if(pmath_equals(re, PMATH_NUMBER_ONE))
+                else if(pmath_equals(re, PMATH_FROM_INT32(1)))
                   re_dir = 1;
                 
-                if(pmath_equals(im, PMATH_NUMBER_MINUSONE))
+                if(pmath_equals(im, PMATH_FROM_INT32(-1)))
                   im_dir = -1;
-                else if(pmath_equals(im, PMATH_NUMBER_ZERO))
+                else if(pmath_equals(im, PMATH_FROM_INT32(0)))
                   im_dir = 0;
-                else if(pmath_equals(im, PMATH_NUMBER_ONE))
+                else if(pmath_equals(im, PMATH_FROM_INT32(1)))
                   im_dir = 1;
               }
             }
@@ -508,7 +508,7 @@ static pmath_bool_t binary_write(
                 file,
                 pmath_expr_new_extended(
                   pmath_ref(PMATH_SYMBOL_DIRECTEDINFINITY), 1,
-                  pmath_integer_new_si(re_dir)),
+                  PMATH_FROM_INT32(re_dir)),
                 pmath_ref(type),
                 byte_ordering);
                 
@@ -516,7 +516,7 @@ static pmath_bool_t binary_write(
                 file,
                 pmath_expr_new_extended(
                   pmath_ref(PMATH_SYMBOL_DIRECTEDINFINITY), 1,
-                  pmath_integer_new_si(re_dir)),
+                  PMATH_FROM_INT32(re_dir)),
                 type,
                 byte_ordering);
           
@@ -589,13 +589,13 @@ static pmath_bool_t binary_write(
           }
         }
       
-        if(pmath_is_integer(value)){
+        if(_pmath_is_integer(value)){
           size_t count;
-          pmath_integer_t pos = PMATH_NULL;
+          pmath_mpint_t pos = PMATH_NULL;
           
           if(out_type == INT 
           && mpz_sgn(PMATH_AS_MPZ(value)) < 0){
-            pos = _pmath_create_integer();
+            pos = _pmath_create_mp_int(1);
             
             if(pmath_is_null(pos)){
               pmath_unref(value);
@@ -603,7 +603,6 @@ static pmath_bool_t binary_write(
               return FALSE;
             }
             
-            mpz_set_ui(PMATH_AS_MPZ(pos), 1);
             mpz_mul_2exp(PMATH_AS_MPZ(pos), PMATH_AS_MPZ(pos), size * 8);
             mpz_add(
               PMATH_AS_MPZ(pos), 
@@ -611,7 +610,17 @@ static pmath_bool_t binary_write(
               PMATH_AS_MPZ(value));
           }
           else if(out_type == INT){
-            pos = pmath_ref(value);
+            if(pmath_is_int32(value)){
+              pos = _pmath_create_mp_int(PMATH_AS_INT32(value));
+              
+              if(pmath_is_null(pos)){
+                pmath_unref(value);
+                pmath_unref(type);
+                return FALSE;
+              }
+            }
+            else
+              pos = pmath_ref(value);
           }
           else{
             if(pmath_is_null(type))

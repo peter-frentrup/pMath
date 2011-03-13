@@ -211,7 +211,7 @@ PMATH_PRIVATE pmath_t builtin_begin(pmath_expr_t expr){
   ns = pmath_expr_get_item(expr, 1);
   if(!_pmath_is_namespace(ns)){
     pmath_unref(ns);
-    pmath_message(PMATH_NULL, "ns", 2, pmath_integer_new_si(1), pmath_ref(expr));
+    pmath_message(PMATH_NULL, "ns", 2, PMATH_FROM_INT32(1), pmath_ref(expr));
     return expr;
   }
   pmath_unref(expr);
@@ -287,7 +287,7 @@ PMATH_PRIVATE pmath_t builtin_beginpackage(pmath_expr_t expr){
   package = pmath_expr_get_item(expr, 1);
   if(!_pmath_is_namespace(package)){
     pmath_unref(package);
-    pmath_message(PMATH_NULL, "ns", 2, pmath_integer_new_si(1), pmath_ref(expr));
+    pmath_message(PMATH_NULL, "ns", 2, PMATH_FROM_INT32(1), pmath_ref(expr));
     return expr;
   }
   
@@ -300,7 +300,7 @@ PMATH_PRIVATE pmath_t builtin_beginpackage(pmath_expr_t expr){
     else if(!_pmath_is_namespace_list(nspath)){
       pmath_unref(package);
       pmath_unref(nspath);
-      pmath_message(PMATH_NULL, "nsls", 2, pmath_integer_new_si(2), pmath_ref(expr));
+      pmath_message(PMATH_NULL, "nsls", 2, PMATH_FROM_INT32(2), pmath_ref(expr));
       return expr;
     }
   }

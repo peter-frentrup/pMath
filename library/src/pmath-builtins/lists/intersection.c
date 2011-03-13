@@ -26,7 +26,7 @@ PMATH_PRIVATE pmath_t builtin_intersection(pmath_expr_t expr){
     pmath_unref(list);
     
     pmath_message(PMATH_NULL, "nexprat", 2,
-      pmath_integer_new_ui(1),
+      PMATH_FROM_INT32(1),
       pmath_ref(expr));
     return expr;
   }
@@ -41,7 +41,7 @@ PMATH_PRIVATE pmath_t builtin_intersection(pmath_expr_t expr){
       pmath_unref(list);
       
       pmath_message(PMATH_NULL, "nexprat", 2,
-        pmath_integer_new_ui(1),
+        PMATH_FROM_INT32(1),
         pmath_ref(expr));
       return expr;
     }

@@ -38,7 +38,7 @@ PMATH_PRIVATE pmath_t builtin_divideby_or_timesby(pmath_expr_t expr){
     rhs = pmath_expr_new_extended(
       pmath_ref(PMATH_SYMBOL_POWER), 2,
       rhs,
-      pmath_integer_new_si(-1));
+      PMATH_FROM_INT32(-1));
   }
   
   expr = pmath_expr_new_extended(

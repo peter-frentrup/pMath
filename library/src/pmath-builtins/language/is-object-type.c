@@ -61,8 +61,12 @@ PMATH_PRIVATE pmath_t builtin_iseven(pmath_expr_t expr){
 
   obj = pmath_expr_get_item(expr, 1);
   pmath_unref(expr);
-
-  if(pmath_is_integer(obj)
+  
+  if(pmath_is_int32(obj)){
+    return pmath_ref((PMATH_AS_INT32(obj) & 1) ? PMATH_SYMBOL_FALSE : PMATH_SYMBOL_TRUE);
+  }
+  
+  if(pmath_is_mpint(obj)
   && mpz_even_p(PMATH_AS_MPZ(obj))){
     pmath_unref(obj);
     return pmath_ref(PMATH_SYMBOL_TRUE);
@@ -117,7 +121,7 @@ PMATH_PRIVATE pmath_t builtin_isfloat(pmath_expr_t expr){
   obj = pmath_expr_get_item(expr, 1);
   pmath_unref(expr);
 
-  if(pmath_is_real(obj)){
+  if(pmath_is_float(obj)){
     pmath_unref(obj);
     return pmath_ref(PMATH_SYMBOL_TRUE);
   }
@@ -154,7 +158,7 @@ PMATH_PRIVATE pmath_t builtin_isinteger(pmath_expr_t expr){
   obj = pmath_expr_get_item(expr, 1);
   pmath_unref(expr);
 
-  if(pmath_is_integer(obj)){
+  if(_pmath_is_integer(obj)){
     pmath_unref(obj);
     return pmath_ref(PMATH_SYMBOL_TRUE);
   }
@@ -227,7 +231,11 @@ PMATH_PRIVATE pmath_t builtin_isodd(pmath_expr_t expr){
   obj = pmath_expr_get_item(expr, 1);
   pmath_unref(expr);
 
-  if(pmath_is_integer(obj)
+  if(pmath_is_int32(obj)){
+    return pmath_ref((PMATH_AS_INT32(obj) & 1) ? PMATH_SYMBOL_TRUE : PMATH_SYMBOL_FALSE);
+  }
+  
+  if(pmath_is_mpint(obj)
   && mpz_odd_p(PMATH_AS_MPZ(obj))){
     pmath_unref(obj);
     return pmath_ref(PMATH_SYMBOL_TRUE);

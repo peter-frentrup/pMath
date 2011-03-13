@@ -124,13 +124,12 @@ PMATH_PRIVATE void _pmath_iterate(
       pmath_ref(PMATH_SYMBOL_FLOOR), 1,
       iter));
 
-  if(!pmath_is_integer(iter)
-  || !pmath_integer_fits_ui(iter)){
+  if(!pmath_is_int32(iter)){
     pmath_message(PMATH_NULL, "iterb", 1, iter);
     return;
   }
 
-  count = pmath_integer_get_ui(iter);
+  count = PMATH_AS_INT32(iter);
 
   pmath_unref(iter);
   init(count, PMATH_NULL, data);

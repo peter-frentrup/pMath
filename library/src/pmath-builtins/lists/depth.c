@@ -39,7 +39,7 @@ PMATH_PRIVATE pmath_t builtin_depth(pmath_expr_t expr){
   obj = pmath_expr_get_item(expr, 1);
   pmath_unref(expr);
   
-  expr = pmath_integer_new_si(_pmath_object_depth(obj));
+  expr = pmath_integer_new_slong(_pmath_object_depth(obj));
   
   pmath_unref(obj);
   return expr;

@@ -313,22 +313,21 @@ PMATH_PRIVATE pmath_t builtin_directoryname(pmath_expr_t expr){
   name = pmath_expr_get_item(expr, 1);
   if(!pmath_is_string(name)){
     pmath_unref(name);
-    pmath_message(PMATH_NULL, "str", 2, pmath_integer_new_si(1), pmath_ref(expr));
+    pmath_message(PMATH_NULL, "str", 2, PMATH_FROM_INT32(1), pmath_ref(expr));
     return expr;
   }
   
   count = 1;
   if(exprlen == 2){
     obj = pmath_expr_get_item(expr, 2);
-    if(!pmath_is_integer(obj)
-    || !pmath_integer_fits_ui(obj)
-    || pmath_number_sign(obj) <= 0){
+    if(!pmath_is_int32(obj)
+    || PMATH_AS_INT32(obj) < 0){
       pmath_unref(obj);
-      pmath_message(PMATH_NULL, "intpm", 2, pmath_ref(expr), pmath_integer_new_si(2));
+      pmath_message(PMATH_NULL, "intpm", 2, pmath_ref(expr), PMATH_FROM_INT32(2));
       return expr;
     }
     
-    count = pmath_integer_get_ui(obj);
+    count = PMATH_AS_INT32(obj);
     pmath_unref(obj);
   }
   

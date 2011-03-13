@@ -74,9 +74,9 @@ static pmath_bool_t almost_equal_mp(
   err = pmath_ref(test);
   test = _mul_nn(
     pmath_rational_new(
-      pmath_integer_new_si(1), 
-      pmath_integer_new_si(TOLERANCE_FACTOR)),
-    _add_nn(test, pmath_integer_new_si(-1)));
+      PMATH_FROM_INT32(1), 
+      PMATH_FROM_INT32(TOLERANCE_FACTOR)),
+    _add_nn(test, PMATH_FROM_INT32(-1)));
   
   if(pmath_is_mpfloat(err) && pmath_is_mpfloat(test)){
     // Max(a,b)/Min(a,b) <= 1 + TOLERANCE_FACTOR * epsilon
@@ -268,13 +268,13 @@ static pmath_t ordered(
           pmath_t p;
           pmath_t n;
 
-          if(pmath_equals(prev_infdir, PMATH_NUMBER_MINUSONE)){
+          if(pmath_equals(prev_infdir, PMATH_FROM_INT32(-1))){
             n = pmath_ref(next);
             if(pmath_is_null(next_infdir) && _pmath_is_numeric(n))
               n = pmath_approximate(n, -HUGE_VAL, -HUGE_VAL);
             
             if(pmath_is_number(n)
-            || pmath_equals(next_infdir, PMATH_NUMBER_ONE)){
+            || pmath_equals(next_infdir, PMATH_FROM_INT32(1))){
               if((directions & DIRECTION_LESS) == 0){
                 pmath_unref(prev_infdir);
                 pmath_unref(next_infdir);
@@ -284,8 +284,9 @@ static pmath_t ordered(
                 pmath_unref(expr);
                 return pmath_ref(PMATH_SYMBOL_FALSE);
               }
-              else if(start == i-1)
-                start++;
+              else if(start == i-1){
+                ++start;
+              }
               else if(old_prev_was_true){
                 have_marker_after_start = TRUE;
                 expr = pmath_expr_set_item(expr, i-1, PMATH_UNDEFINED);
@@ -294,13 +295,13 @@ static pmath_t ordered(
             
             pmath_unref(n);
           }
-          else if(pmath_equals(prev_infdir, PMATH_NUMBER_ONE)){
+          else if(pmath_equals(prev_infdir, PMATH_FROM_INT32(1))){
             n = pmath_ref(next);
             if(pmath_is_null(next_infdir) && _pmath_is_numeric(n))
               n = pmath_approximate(n, -HUGE_VAL, -HUGE_VAL);
               
             if(pmath_is_number(n)
-            || pmath_equals(next_infdir, PMATH_NUMBER_MINUSONE)){
+            || pmath_equals(next_infdir, PMATH_FROM_INT32(-1))){
               if((directions & DIRECTION_GREATER) == 0){
                 pmath_unref(prev_infdir);
                 pmath_unref(next_infdir);
@@ -320,13 +321,13 @@ static pmath_t ordered(
             
             pmath_unref(n);
           }
-          else if(pmath_equals(next_infdir, PMATH_NUMBER_MINUSONE)){
+          else if(pmath_equals(next_infdir, PMATH_FROM_INT32(-1))){
             p = pmath_ref(prev);
             if(pmath_is_null(prev_infdir) && _pmath_is_numeric(p))
               p = pmath_approximate(p, -HUGE_VAL, -HUGE_VAL);
               
             if(pmath_is_number(p)
-            || pmath_equals(prev_infdir, PMATH_NUMBER_ONE)){
+            || pmath_equals(prev_infdir, PMATH_FROM_INT32(1))){
               if((directions & DIRECTION_GREATER) == 0){
                 pmath_unref(prev_infdir);
                 pmath_unref(next_infdir);
@@ -346,13 +347,13 @@ static pmath_t ordered(
             
             pmath_unref(p);
           }
-          else if(pmath_equals(next_infdir, PMATH_NUMBER_ONE)){
+          else if(pmath_equals(next_infdir, PMATH_FROM_INT32(1))){
             p = pmath_ref(prev);
             if(pmath_is_null(prev_infdir) && _pmath_is_numeric(p))
               p = pmath_approximate(p, -HUGE_VAL, -HUGE_VAL);
               
             if(pmath_is_number(prev)
-            || pmath_equals(prev_infdir, PMATH_NUMBER_MINUSONE)){
+            || pmath_equals(prev_infdir, PMATH_FROM_INT32(-1))){
               if((directions & DIRECTION_LESS) == 0){
                 pmath_unref(prev_infdir);
                 pmath_unref(next_infdir);

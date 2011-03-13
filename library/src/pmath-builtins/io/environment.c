@@ -103,7 +103,7 @@ PMATH_PRIVATE pmath_t builtin_environment(pmath_expr_t expr){
   name = pmath_expr_get_item(expr, 1);
   if(!pmath_is_string(name)){
     pmath_unref(name);
-    pmath_message(PMATH_NULL, "str", 2, pmath_integer_new_si(1), pmath_ref(expr));
+    pmath_message(PMATH_NULL, "str", 2, PMATH_FROM_INT32(1), pmath_ref(expr));
     return expr;
   }
   pmath_unref(expr);

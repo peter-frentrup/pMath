@@ -39,17 +39,17 @@ PMATH_PRIVATE pmath_t builtin_operate(pmath_expr_t expr){
   
   if(exprlen == 3){
     pmath_t obj = pmath_expr_get_item(expr, 3);
-    if(!pmath_is_integer(obj) || !pmath_integer_fits_ui(obj)){
+    
+    if(!pmath_is_int32(obj) || PMATH_AS_INT32(obj) < 0){
       pmath_unref(obj);
       pmath_message(
         PMATH_NULL, "numn", 2,
-        pmath_integer_new_ui(3),
+        PMATH_FROM_INT32(3),
         pmath_ref(expr));
       return expr;
     }
     
-    level = pmath_integer_get_ui(obj);
-    pmath_unref(obj);
+    level = (unsigned)PMATH_AS_INT32(obj);
   }
   
   obj = pmath_expr_get_item(expr, 1);

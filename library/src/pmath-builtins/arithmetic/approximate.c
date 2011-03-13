@@ -276,7 +276,7 @@ PMATH_PRIVATE pmath_t builtin_assign_approximate(pmath_expr_t expr){
 }
 
 PMATH_PRIVATE pmath_t builtin_approximate_e(pmath_t obj, double prec, double acc){
-  pmath_float_t result;
+  pmath_mpfloat_t result;
   
   if(!pmath_same(obj, PMATH_SYMBOL_E))
     return obj;
@@ -306,7 +306,7 @@ PMATH_PRIVATE pmath_t builtin_approximate_e(pmath_t obj, double prec, double acc
   if(prec < MPFR_PREC_MIN)
     prec = MPFR_PREC_MIN;
   
-  result = _pmath_create_mp_float((mp_prec_t)prec);
+  result = _pmath_create_mp_float((mpfr_prec_t)prec);
   if(pmath_is_null(result))
     return PMATH_NULL;
   
@@ -318,7 +318,7 @@ PMATH_PRIVATE pmath_t builtin_approximate_e(pmath_t obj, double prec, double acc
 }
 
 PMATH_PRIVATE pmath_t builtin_approximate_eulergamma(pmath_t obj, double prec, double acc){
-  pmath_float_t result;
+  pmath_mpfloat_t result;
   
   if(!pmath_same(obj, PMATH_SYMBOL_EULERGAMMA))
     return obj;
@@ -348,7 +348,7 @@ PMATH_PRIVATE pmath_t builtin_approximate_eulergamma(pmath_t obj, double prec, d
   if(prec < MPFR_PREC_MIN)
     prec = MPFR_PREC_MIN;
   
-  result = _pmath_create_mp_float((mp_prec_t)prec);
+  result = _pmath_create_mp_float((mpfr_prec_t)prec);
   if(pmath_is_null(result))
     return PMATH_NULL;
   
@@ -359,7 +359,7 @@ PMATH_PRIVATE pmath_t builtin_approximate_eulergamma(pmath_t obj, double prec, d
 }
 
 PMATH_PRIVATE pmath_t builtin_approximate_machineprecision(pmath_t obj, double prec, double acc){
-  pmath_float_t result;
+  pmath_mpfloat_t result;
   
   if(!pmath_same(obj, PMATH_SYMBOL_MACHINEPRECISION))
     return obj;
@@ -389,7 +389,7 @@ PMATH_PRIVATE pmath_t builtin_approximate_machineprecision(pmath_t obj, double p
   if(prec < MPFR_PREC_MIN)
     prec = MPFR_PREC_MIN;
   
-  result = _pmath_create_mp_float((mp_prec_t)prec);
+  result = _pmath_create_mp_float((mpfr_prec_t)prec);
   if(pmath_is_null(result))
     return PMATH_NULL;
   
@@ -403,7 +403,7 @@ PMATH_PRIVATE pmath_t builtin_approximate_machineprecision(pmath_t obj, double p
 }
 
 PMATH_PRIVATE pmath_t builtin_approximate_pi(pmath_t obj, double prec, double acc){
-  pmath_float_t result;
+  pmath_mpfloat_t result;
   
   if(!pmath_same(obj, PMATH_SYMBOL_PI))
     return obj;
@@ -433,7 +433,7 @@ PMATH_PRIVATE pmath_t builtin_approximate_pi(pmath_t obj, double prec, double ac
   if(prec < MPFR_PREC_MIN)
     prec = MPFR_PREC_MIN;
   
-  result = _pmath_create_mp_float((mp_prec_t)prec);
+  result = _pmath_create_mp_float((mpfr_prec_t)prec);
   if(pmath_is_null(result))
     return PMATH_NULL;
   

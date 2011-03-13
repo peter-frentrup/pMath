@@ -96,7 +96,7 @@ PMATH_PRIVATE pmath_t builtin_paralleltry(pmath_expr_t expr){
   if(exprlen == 3){
     pmath_t count = pmath_expr_get_item(expr, 3);
     
-    if(!pmath_is_integer(count) || !pmath_integer_fits_ui(count)){
+    if(!pmath_is_integer(count) || !pmath_integer_fits_ui32(count)){
       pmath_unref(count);
       pmath_message(PMATH_NULL, "intnm", 2, 
         pmath_integer_new_si(3), 

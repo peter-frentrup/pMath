@@ -133,8 +133,8 @@ static pmath_bool_t drop(
   }
   
   pmath_message(PMATH_SYMBOL_DROP, "drop", 3, 
-    pmath_integer_new_si(pos->start),
-    pmath_integer_new_si(pos->end),
+    pmath_integer_new_size(pos->start),
+    pmath_integer_new_size(pos->end),
     pmath_ref(*obj));
     
   return FALSE;

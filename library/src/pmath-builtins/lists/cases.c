@@ -110,17 +110,17 @@ PMATH_PRIVATE pmath_t builtin_cases(pmath_expr_t expr){
       if(exprlen >= 4){
         pmath_t n = pmath_expr_get_item(expr, 4);
         
-        if(pmath_is_integer(n) && pmath_number_sign(n) >= 0){
+        if(_pmath_is_integer(n) && pmath_number_sign(n) >= 0){
           last_nonoption = 4;
-          if(pmath_integer_fits_ui(n))
-            info.count = pmath_integer_get_ui(n);
+          if(pmath_is_int32(n))
+            info.count = (unsigned)PMATH_AS_INT32(n);
         }
         else if(!pmath_equals(n, _pmath_object_infinity)
         && !_pmath_is_rule(n) 
         && !_pmath_is_list_of_rules(n)){
           pmath_unref(n);
           pmath_unref(levels);
-          pmath_message(PMATH_NULL, "innf", 2, pmath_integer_new_si(4), pmath_ref(expr));
+          pmath_message(PMATH_NULL, "innf", 2, PMATH_FROM_INT32(4), pmath_ref(expr));
           return expr;
         }
         

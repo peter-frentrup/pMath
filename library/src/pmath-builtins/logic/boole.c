@@ -17,12 +17,12 @@ PMATH_PRIVATE pmath_t builtin_boole(pmath_expr_t expr){
   pmath_unref(obj);
   if(pmath_same(obj, PMATH_SYMBOL_TRUE)){
     pmath_unref(expr);
-    return pmath_integer_new_si(1);
+    return PMATH_FROM_INT32(1);
   }
   
   if(pmath_same(obj, PMATH_SYMBOL_FALSE)){
     pmath_unref(expr);
-    return pmath_integer_new_si(0);
+    return PMATH_FROM_INT32(0);
   }
   
   if(pmath_same(obj, PMATH_SYMBOL_UNDEFINED)){

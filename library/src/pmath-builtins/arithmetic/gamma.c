@@ -12,10 +12,10 @@
 
 static pmath_integer_t factorial(unsigned long n){
   if(n == 0)
-    return pmath_integer_new_si(1);
+    return INT(1);
 
-  if(n <= 86180310){ // 86180310! >= 2^31
-    pmath_integer_t result = _pmath_create_integer();
+  if(n <= 86180310){ // Log(10, 86180310!) >= 2^31
+    pmath_mpint_t result = _pmath_create_mp_int(0);
 
     if(!pmath_is_null(result)){
       mpz_set_ui(PMATH_AS_MPZ(result), n);
@@ -24,7 +24,7 @@ static pmath_integer_t factorial(unsigned long n){
         mpz_mul_ui(PMATH_AS_MPZ(result), PMATH_AS_MPZ(result), n);
       }
 
-      return result;
+      return _pmath_mp_int_normalize(result);
     }
   }
 
@@ -33,10 +33,10 @@ static pmath_integer_t factorial(unsigned long n){
 
 static pmath_integer_t double_factorial(unsigned long n){
   if(n <= 1)
-    return pmath_integer_new_si(1);
+    return INT(1);
 
   if(n <= 166057019){ // 166057019!! >= 2^31
-    pmath_integer_t result = _pmath_create_integer();
+    pmath_mpint_t result = _pmath_create_mp_int(0);
 
     if(!pmath_is_null(result)){
       mpz_set_ui(PMATH_AS_MPZ(result), n);
@@ -46,7 +46,7 @@ static pmath_integer_t double_factorial(unsigned long n){
         mpz_mul_ui(PMATH_AS_MPZ(result), PMATH_AS_MPZ(result), n);
       }
 
-      return result;
+      return _pmath_mp_int_normalize(result);
     }
   }
 
@@ -64,23 +64,43 @@ PMATH_PRIVATE pmath_t builtin_gamma(pmath_expr_t expr){
   }
 
   z = pmath_expr_get_item(expr, 1);
-  if(pmath_is_integer(z)){
+  if(_pmath_is_integer(z)){
+    if(pmath_is_int32(z)){ // Gamma(z) = (z-1)!
+      unsigned long n;
+      
+      if(PMATH_AS_INT32(z) <= 0){
+        pmath_unref(expr);
+        pmath_unref(z); // not neccessary
+        return pmath_ref(_pmath_object_complex_infinity);
+      }
+      
+      n = (unsigned long)(PMATH_AS_INT32(z) - 1);
+      
+      pmath_unref(z); // not neccessary
+      z = factorial(n);
+      if(pmath_is_null(z))
+        return expr;
+        
+      pmath_unref(expr);
+      return z;
+    }
+    
     if(pmath_number_sign(z) <= 0){
       pmath_unref(expr);
       pmath_unref(z);
       return pmath_ref(_pmath_object_complex_infinity);
     }
-
-    if(pmath_integer_fits_si(z)){ // Gamma(z) = (z-1)!
-      unsigned long n = pmath_integer_get_ui(z) - 1;
-
-      pmath_unref(z);
-      z = factorial(n);
-      if(!pmath_is_null(z)){
-        pmath_unref(expr);
-        return z;
-      }
-    }
+    
+//    if(pmath_integer_fits_si32(z)){ // Gamma(z) = (z-1)!
+//      unsigned long n = pmath_integer_get_ui(z) - 1;
+//
+//      pmath_unref(z);
+//      z = factorial(n);
+//      if(!pmath_is_null(z)){
+//        pmath_unref(expr);
+//        return z;
+//      }
+//    }
 
     pmath_unref(z);
     return expr;
@@ -89,15 +109,15 @@ PMATH_PRIVATE pmath_t builtin_gamma(pmath_expr_t expr){
   if(pmath_is_quotient(z)){
     pmath_integer_t den = pmath_rational_denominator(z);
 
-    if(pmath_equals(den, PMATH_NUMBER_TWO)){
+    if(pmath_equals(den, PMATH_FROM_INT32(2))){
       pmath_integer_t num = pmath_rational_numerator(z);
 
-      if(pmath_integer_fits_si(num)){
-        unsigned long unum = pmath_integer_get_ui(num);
+      if(pmath_is_int32(num)){
+        unsigned long unum = abs(PMATH_AS_INT32(num));
 
-        if(pmath_number_sign(num) > 0){
+        if(PMATH_AS_INT32(num) > 0){
           if(unum < 3){ // unum == 1
-            pmath_unref(num);
+            pmath_unref(num); // not neccessary
             pmath_unref(den);
             pmath_unref(z);
             pmath_unref(expr);
@@ -105,7 +125,7 @@ PMATH_PRIVATE pmath_t builtin_gamma(pmath_expr_t expr){
           }
 
           // Gamma(n + 1/2) = (2n-1)!! / 2^n * Sqrt(Pi),   num = 2n+1
-          pmath_unref(num);
+          pmath_unref(num); // not neccessary
           num = double_factorial(unum - 2);
           if(!pmath_is_null(num)){
             long n = (signed long) (unum-1)/2;
@@ -118,7 +138,7 @@ PMATH_PRIVATE pmath_t builtin_gamma(pmath_expr_t expr){
         }
         else{
           // Gamma(1/2 - n) = (-2)^n / (2n-1)!! Sqrt(Pi),  unum = -num = 2n-1
-          pmath_unref(num);
+          pmath_unref(num); // not neccessary
           num = double_factorial(unum);
           if(!pmath_is_null(num)){
             long n = (signed long) (unum+1)/2;
@@ -139,7 +159,7 @@ PMATH_PRIVATE pmath_t builtin_gamma(pmath_expr_t expr){
 
 //  if(pmath_is_double(z)){
 //    double d = PMATH_AS_DOUBLE(z);
-//    struct _pmath_mp_float_t *result;
+//    pmath_mpfloat_t result;
 //
 //    result = _pmath_create_mp_float_from_d(d);
 //    if(result){
@@ -174,7 +194,7 @@ PMATH_PRIVATE pmath_t builtin_gamma(pmath_expr_t expr){
 //    }
 //  }
 //
-//  if(pmath_is_real(z)){
+//  if(pmath_is_float(z)){
 //
 //  }
 
@@ -202,7 +222,7 @@ PMATH_PRIVATE pmath_t builtin_gamma(pmath_expr_t expr){
     && (num_class & PMATH_CLASS_IMAGINARY)){
       pmath_unref(z);
       pmath_unref(expr);
-      return pmath_integer_new_si(0);
+      return INT(0);
     }
   }
 
@@ -219,7 +239,7 @@ PMATH_PRIVATE pmath_t builtin_loggamma(pmath_expr_t expr){
   }
 
   z = pmath_expr_get_item(expr, 1);
-  if(pmath_is_integer(z)){
+  if(_pmath_is_integer(z)){
     pmath_unref(expr);
     
     return LOG(GAMMA(z));
@@ -228,7 +248,7 @@ PMATH_PRIVATE pmath_t builtin_loggamma(pmath_expr_t expr){
   if(pmath_is_quotient(z)){
     pmath_integer_t den = pmath_rational_denominator(z);
     
-    if(pmath_integer_fits_ui(den)
+    if(pmath_integer_fits_ui32(den)
     && pmath_integer_get_ui(den) == 2){
       pmath_unref(den);
       pmath_unref(expr);
@@ -265,7 +285,7 @@ PMATH_PRIVATE pmath_t builtin_loggamma(pmath_expr_t expr){
     && (num_class & PMATH_CLASS_IMAGINARY)){
       pmath_unref(z);
       pmath_unref(expr);
-      return pmath_integer_new_si(0);
+      return INT(0);
     }
   }
 
@@ -291,8 +311,8 @@ PMATH_PRIVATE pmath_t builtin_polygamma(pmath_expr_t expr){
   if(exprlen == 2){
     pmath_t n_obj = pmath_expr_get_item(expr, 1);
     
-    if(!pmath_is_integer(n_obj)
-    || !pmath_integer_fits_ui(n_obj)){
+    if(!_pmath_is_integer(n_obj)
+    || !pmath_integer_fits_ui32(n_obj)){
       pmath_unref(n_obj);
       return expr;
     }
@@ -303,26 +323,32 @@ PMATH_PRIVATE pmath_t builtin_polygamma(pmath_expr_t expr){
   
   z = pmath_expr_get_item(expr, exprlen);
   if(n == 0){
-    if(pmath_is_integer(z)){
-      if(pmath_number_sign(z) <= 0){
-        pmath_unref(z);
-        pmath_unref(expr);
-        
-        return CINFTY;
-      }
-      
-      if(pmath_integer_fits_ui(z)){
-        unsigned long ui_z = pmath_integer_get_ui(z);
+    if(pmath_is_int32(z)){
+      if(PMATH_AS_INT32(z) > 0){
+        unsigned long ui_z = (unsigned long)PMATH_AS_INT32(z);
         unsigned long k;
         pmath_unref(expr);
-        pmath_unref(z);
+        pmath_unref(z); // not necessary
         
-        z = pmath_integer_new_ui(0);
+        z = INT(0);
         for(k = 1;k < ui_z && !pmath_aborting();++k){
           z = _add_nn(z, QUOT(1, k));
         }
         
         return MINUS(z, pmath_ref(PMATH_SYMBOL_EULERGAMMA));
+      }
+      pmath_unref(z); // not necessary
+      pmath_unref(expr);
+      
+      return CINFTY;
+    }
+      
+    if(_pmath_is_integer(z)){
+      if(pmath_number_sign(z) <= 0){
+        pmath_unref(z);
+        pmath_unref(expr);
+        
+        return CINFTY;
       }
       
       pmath_unref(z);
@@ -338,11 +364,11 @@ PMATH_PRIVATE pmath_t builtin_polygamma(pmath_expr_t expr){
       }
       
       nn = pmath_rational_denominator(z);
-      if(pmath_equals(nn, PMATH_NUMBER_TWO)){
+      if(pmath_equals(nn, PMATH_FROM_INT32(2))){
         pmath_unref(nn);
         
         nn = pmath_rational_numerator(z);
-        if(pmath_integer_fits_ui(nn)){
+        if(pmath_integer_fits_ui32(nn)){
           unsigned long ui_num = pmath_integer_get_ui(nn);
           unsigned long k;
           
@@ -352,7 +378,7 @@ PMATH_PRIVATE pmath_t builtin_polygamma(pmath_expr_t expr){
           
           // PolyGamma(n+1/2) = -EulerGamma - 2Log(2) + (2 + 2/3 + 2/5 + ... + 2/(2n-1))
           
-          z = pmath_integer_new_si(0);
+          z = INT(0);
           for(k = 1;k < ui_num && !pmath_aborting();k+= 2){
             z = _add_nn(z, QUOT(2, k));
           }
@@ -395,23 +421,41 @@ PMATH_PRIVATE pmath_t builtin_factorial(pmath_expr_t expr){
   }
 
   n = pmath_expr_get_item(expr, 1);
-  if(pmath_is_integer(n)){
+  if(pmath_is_int32(n)){
+    if(PMATH_AS_INT32(n) >= 0){
+      unsigned long un = (unsigned long)PMATH_AS_INT32(n);
+
+      pmath_unref(n); // not necessary
+      n = factorial(un);
+      if(pmath_is_null(n))
+        return expr;
+      
+      pmath_unref(expr);
+      return n;
+    }
+    
+    pmath_unref(n); // not necessary
+    pmath_unref(expr);
+    return pmath_ref(_pmath_object_complex_infinity);
+  }
+  
+  if(_pmath_is_integer(n)){
     if(pmath_number_sign(n) < 0){
       pmath_unref(n);
       pmath_unref(expr);
       return pmath_ref(_pmath_object_complex_infinity);
     }
 
-    if(pmath_integer_fits_si(n)){
-      unsigned long un = pmath_integer_get_ui(n);
-
-      pmath_unref(n);
-      n = factorial(un);
-      if(!pmath_is_null(n)){
-        pmath_unref(expr);
-        return n;
-      }
-    }
+//    if(pmath_integer_fits_si32(n)){
+//      unsigned long un = pmath_integer_get_ui(n);
+//
+//      pmath_unref(n);
+//      n = factorial(un);
+//      if(!pmath_is_null(n)){
+//        pmath_unref(expr);
+//        return n;
+//      }
+//    }
 
     pmath_unref(n);
     return expr;
@@ -420,7 +464,7 @@ PMATH_PRIVATE pmath_t builtin_factorial(pmath_expr_t expr){
   if(pmath_is_quotient(n)){
     pmath_integer_t den = pmath_rational_denominator(n);
 
-    if(pmath_equals(den, PMATH_NUMBER_TWO)){
+    if(pmath_equals(den, PMATH_FROM_INT32(2))){
       pmath_unref(den);
       goto AS_GAMMA;
     }
@@ -466,7 +510,7 @@ PMATH_PRIVATE pmath_t builtin_factorial(pmath_expr_t expr){
     && (num_class & PMATH_CLASS_IMAGINARY)){
       pmath_unref(n);
       pmath_unref(expr);
-      return pmath_integer_new_si(0);
+      return INT(0);
     }
   }
 
@@ -483,23 +527,41 @@ PMATH_PRIVATE pmath_t builtin_factorial2(pmath_expr_t expr){
   }
 
   n = pmath_expr_get_item(expr, 1);
-  if(pmath_is_integer(n)){
+  if(pmath_is_int32(n)){
+    if(PMATH_AS_INT32(n) >= 0){
+      unsigned long un = (unsigned long)PMATH_AS_INT32(n);
+
+      pmath_unref(n); // not necessary
+      n = double_factorial(un);
+      if(pmath_is_null(n))
+        return expr;
+        
+      pmath_unref(expr);
+      return n;
+    }
+    
+    pmath_unref(n); // not necessary
+    pmath_unref(expr);
+    return pmath_ref(_pmath_object_complex_infinity);
+  }
+  
+  if(_pmath_is_integer(n)){
     if(pmath_number_sign(n) < 0){
       pmath_unref(n);
       pmath_unref(expr);
       return pmath_ref(_pmath_object_complex_infinity);
     }
 
-    if(pmath_integer_fits_si(n)){
-      unsigned long un = pmath_integer_get_ui(n);
-
-      pmath_unref(n);
-      n = double_factorial(un);
-      if(!pmath_is_null(n)){
-        pmath_unref(expr);
-        return n;
-      }
-    }
+//    if(pmath_integer_fits_si32(n)){
+//      unsigned long un = pmath_integer_get_ui(n);
+//
+//      pmath_unref(n);
+//      n = double_factorial(un);
+//      if(!pmath_is_null(n)){
+//        pmath_unref(expr);
+//        return n;
+//      }
+//    }
 
     pmath_unref(n);
     return expr;
@@ -508,7 +570,7 @@ PMATH_PRIVATE pmath_t builtin_factorial2(pmath_expr_t expr){
   if(pmath_is_quotient(n)){
     pmath_integer_t den = pmath_rational_denominator(n);
 
-    if(pmath_equals(den, PMATH_NUMBER_TWO)){
+    if(pmath_equals(den, PMATH_FROM_INT32(2))){
       pmath_unref(den);
       goto AS_GAMMA;
     }
@@ -569,7 +631,7 @@ PMATH_PRIVATE pmath_t builtin_factorial2(pmath_expr_t expr){
     && (num_class & PMATH_CLASS_IMAGINARY)){
       pmath_unref(n);
       pmath_unref(expr);
-      return pmath_integer_new_si(0);
+      return INT(0);
     }
   }
 
@@ -607,40 +669,43 @@ PMATH_PRIVATE pmath_t builtin_binomial(pmath_expr_t expr){
     pmath_unref(k);
     return expr;
   }
-
-  if(pmath_is_integer(k)){
-    if(pmath_number_sign(k) < 0){ // Binomial(z, -k) = 0, if k is integer
-      pmath_unref(z);
-      pmath_unref(k);
-      pmath_unref(expr);
-      return INT(0);
-    }
-
-    if(pmath_integer_fits_si(k)){
-      unsigned long uk = pmath_integer_get_ui(k);
-
+  
+  if(pmath_is_int32(k)){
+    if(PMATH_AS_INT32(k) >= 0){
+      unsigned long uk = (unsigned long)PMATH_AS_INT32(k);
+      
       switch(uk){
         case 0:
           pmath_unref(expr);
           pmath_unref(z);
-          pmath_unref(k);
+          pmath_unref(k); // not necessary
           return INT(1);
 
         case 1:
           pmath_unref(expr);
-          pmath_unref(k);
+          pmath_unref(k); // not necessary
           return z;
 
         case 2:
           pmath_unref(expr);
           pmath_unref(k);
           expr = TIMES3(ONE_HALF, pmath_ref(z), PLUS(INT(-1), pmath_ref(z)));
-          pmath_unref(z);
+          pmath_unref(z); // not necessary
           return expr;
       }
 
-      if(pmath_is_integer(z)){
-        pmath_integer_t result = _pmath_create_integer();
+      if(pmath_is_int32(z)){
+        z = _pmath_create_mp_int(PMATH_AS_INT32(z));
+        
+        if(pmath_is_null(z)){
+          pmath_unref(expr);
+          pmath_unref(k); // not necessary
+          return z;
+        }
+      }
+      
+      if(pmath_is_mpint(z)){
+        pmath_integer_t result = _pmath_create_mp_int(0);
 
         if(!pmath_is_null(result)){
           mpz_bin_ui(
@@ -651,10 +716,65 @@ PMATH_PRIVATE pmath_t builtin_binomial(pmath_expr_t expr){
 
         pmath_unref(expr);
         pmath_unref(z);
-        pmath_unref(k);
-        return result;
+        pmath_unref(k); // not necessary
+        return _pmath_mp_int_normalize(result);
       }
     }
+    else{ // Binomial(z, -k) = 0, if k is integer
+      pmath_unref(z);
+      pmath_unref(k); // not necessary
+      pmath_unref(expr);
+      return INT(0);
+    }
+  }
+  
+  if(_pmath_is_integer(k)){
+    if(pmath_number_sign(k) < 0){ // Binomial(z, -k) = 0, if k is integer
+      pmath_unref(z);
+      pmath_unref(k);
+      pmath_unref(expr);
+      return INT(0);
+    }
+
+//    if(pmath_integer_fits_si32(k)){
+//      unsigned long uk = pmath_integer_get_ui(k);
+//
+//      switch(uk){
+//        case 0:
+//          pmath_unref(expr);
+//          pmath_unref(z);
+//          pmath_unref(k);
+//          return INT(1);
+//
+//        case 1:
+//          pmath_unref(expr);
+//          pmath_unref(k);
+//          return z;
+//
+//        case 2:
+//          pmath_unref(expr);
+//          pmath_unref(k);
+//          expr = TIMES3(ONE_HALF, pmath_ref(z), PLUS(INT(-1), pmath_ref(z)));
+//          pmath_unref(z);
+//          return expr;
+//      }
+//
+//      if(pmath_is_integer(z)){
+//        pmath_integer_t result = _pmath_create_mp_int();
+//
+//        if(!pmath_is_null(result)){
+//          mpz_bin_ui(
+//            PMATH_AS_MPZ(result),
+//            PMATH_AS_MPZ(z),
+//            uk);
+//        }
+//
+//        pmath_unref(expr);
+//        pmath_unref(z);
+//        pmath_unref(k);
+//        return result;
+//      }
+//    }
   }
 
   pmath_unref(z);

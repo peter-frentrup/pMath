@@ -28,7 +28,7 @@ PMATH_PRIVATE pmath_t builtin_union(pmath_expr_t expr){
     pmath_unref(list);
     
     pmath_message(PMATH_NULL, "nexprat", 2,
-      pmath_integer_new_ui(1),
+      PMATH_FROM_INT32(1),
       pmath_ref(expr));
     return expr;
   }
@@ -43,7 +43,7 @@ PMATH_PRIVATE pmath_t builtin_union(pmath_expr_t expr){
       pmath_unref(list);
       
       pmath_message(PMATH_NULL, "nexprat", 2,
-        pmath_integer_new_ui(1),
+        PMATH_FROM_INT32(1),
         pmath_ref(expr));
       return expr;
     }
@@ -55,7 +55,7 @@ PMATH_PRIVATE pmath_t builtin_union(pmath_expr_t expr){
       pmath_message(PMATH_NULL, "heads", 4,
         item,
         current,
-        pmath_integer_new_size(1),
+        PMATH_FROM_INT32(1),
         pmath_integer_new_size(i));
       
       return expr;

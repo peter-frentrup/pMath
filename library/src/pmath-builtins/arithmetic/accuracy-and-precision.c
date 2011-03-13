@@ -151,7 +151,7 @@ pmath_t builtin_assign_maxextraprecision(pmath_expr_t expr){
     return pmath_expr_new_extended(
       pmath_ref(PMATH_SYMBOL_ASSIGNDELAYED), 2,
       lhs,
-      pmath_integer_new_si(50));
+      PMATH_FROM_INT32(50));
   }
   
   if(pmath_equals(rhs, _pmath_object_infinity)){

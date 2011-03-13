@@ -36,7 +36,7 @@ static void multi_synchronize_callback(void *p){
 
       pmath_message(
         PMATH_SYMBOL_GENERAL, "reclim", 1,
-        pmath_integer_new_si(pmath_maxrecursion));
+        PMATH_FROM_INT32(pmath_maxrecursion));
 
       data->me->critical_messages = FALSE;
       data->me->evaldepth = tmp;
@@ -96,7 +96,7 @@ PMATH_PRIVATE pmath_t builtin_synchronize(pmath_expr_t expr){
         pmath_message(PMATH_NULL, "sym", 2, synci, 
           pmath_expr_new_extended(
             pmath_ref(PMATH_SYMBOL_LIST), 2,
-            pmath_integer_new_si(1),
+            PMATH_FROM_INT32(1),
             pmath_integer_new_size(i)));
         pmath_unref(sync);
         pmath_unref(block);
@@ -125,7 +125,7 @@ PMATH_PRIVATE pmath_t builtin_synchronize(pmath_expr_t expr){
   }
   
   if(!pmath_is_symbol(sync)){
-    pmath_message(PMATH_NULL, "sym", 1, sync, pmath_integer_new_si(1));
+    pmath_message(PMATH_NULL, "sym", 1, sync, PMATH_FROM_INT32(1));
     pmath_unref(block);
     return expr;
   }

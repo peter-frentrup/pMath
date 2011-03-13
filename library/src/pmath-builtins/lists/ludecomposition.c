@@ -86,7 +86,7 @@ static int numeric_ludecomp(
     perm[i] = i;
   
   for(i = 1;i <= n;++i){
-    pmath_t big = pmath_integer_new_si(0);
+    pmath_t big = PMATH_FROM_INT32(0);
     for(j = 1;j <= n;++j){
       if(is_zero(big)){
         pmath_unref(big);
@@ -134,7 +134,7 @@ static int numeric_ludecomp(
     }
     
     {
-      pmath_t big = pmath_integer_new_si(0);
+      pmath_t big = PMATH_FROM_INT32(0);
       for(i = j;i <= n;++i){
         pmath_t sum = _pmath_matrix_get(A, i,j);
         for(k = 1;k < j;++k){
@@ -232,7 +232,7 @@ static int symbolic_ludecomp(
   
   if(sing_fast_exit){
     for(i = 1;i <= n;++i){
-      pmath_t big = pmath_integer_new_si(0);
+      pmath_t big = PMATH_FROM_INT32(0);
       for(j = 1;j <= n;++j){
         if(is_zero(big)){
           pmath_unref(big);
@@ -269,7 +269,7 @@ static int symbolic_ludecomp(
     
     {
       imax = j;
-//      pmath_t big = pmath_integer_new_si(0);
+//      pmath_t big = PMATH_FROM_INT32(0);
       for(i = j;i <= n;++i){
         pmath_t sum = _pmath_matrix_get(A, i,j);
         for(k = 1;k < j;++k){
@@ -380,7 +380,7 @@ PMATH_PRIVATE pmath_t builtin_ludecomposition(pmath_expr_t expr){
   if(!_pmath_is_matrix(matrix, &rows, &cols)
   || rows != cols
   || rows == 0){
-    pmath_message(PMATH_NULL, "matsq", 2, matrix, pmath_integer_new_si(1));
+    pmath_message(PMATH_NULL, "matsq", 2, matrix, PMATH_FROM_INT32(1));
     return expr;
   }
   
