@@ -26,7 +26,7 @@ static pmath_t stretch(
       max,
       pmath_expr_new_extended(
         pmath_ref(PMATH_SYMBOL_TIMES), 2,
-        pmath_integer_new_si(-1),
+        PMATH_FROM_INT32(-1),
         pmath_ref(min)));
     
     return pmath_expr_new_extended(
@@ -61,19 +61,33 @@ static pmath_expr_t random_array(
   
   if(data->dim == data->dims){
     if(data->random_integer){
-      pmath_integer_t result = _pmath_create_mp_int();
+      pmath_mpint_t result = _pmath_create_mp_int(0);
       
-      assert(pmath_is_integer(data->max));
+      assert(_pmath_is_integer(data->max));
       
       if(!pmath_is_null(result)){
-        pmath_atomic_lock(&_pmath_rand_spinlock);
+        if(pmath_is_int32(data->max)){
+          pmath_atomic_lock(&_pmath_rand_spinlock);
+          
+          mpz_urandomb(
+            PMATH_AS_MPZ(result), 
+            _pmath_randstate,
+            (unsigned)PMATH_AS_INT32(data->max));
+          
+          pmath_atomic_unlock(&_pmath_rand_spinlock);
+        }
+        else{
+          pmath_atomic_lock(&_pmath_rand_spinlock);
+          
+          mpz_urandomm(
+            PMATH_AS_MPZ(result), 
+            _pmath_randstate,
+            PMATH_AS_MPZ(data->max));
+          
+          pmath_atomic_unlock(&_pmath_rand_spinlock);
+        }
         
-        mpz_urandomm(
-          PMATH_AS_MPZ(result), 
-          _pmath_randstate,
-          PMATH_AS_MPZ(data->max));
-        
-        pmath_atomic_unlock(&_pmath_rand_spinlock);
+        result = _pmath_mp_int_normalize(result);
         
         if(!pmath_same(data->min, PMATH_UNDEFINED))
           return pmath_expr_new_extended(
@@ -90,7 +104,7 @@ static pmath_expr_t random_array(
 //      mpfr_prec_t prec = data->working_precision;
 //        
 //      struct _pmath_mp_float_t *result = _pmath_create_mp_float(prec ? prec : DBL_MANT_DIG);
-      pmath_float_t result = _pmath_create_mp_float(data->prec);
+      pmath_mpfloat_t result = _pmath_create_mp_float(data->prec);
       
       if(!pmath_is_null(result)){
         pmath_atomic_lock(&_pmath_rand_spinlock);

@@ -119,6 +119,8 @@ pmath_integer_t pmath_integer_new_si32(int32_t si){
   return PMATH_FROM_TAG(PMATH_TAG_INT32, si);
 }*/
 
+//#define pmath_integer_new_si32(si)  PMATH_FROM_INT32((int32_t)(si))
+
 /**\brief Create an integer object from an uint32_t.
    \memberof pmath_integer_t
    \param si An uint32_t
@@ -296,7 +298,7 @@ pmath_number_t pmath_float_new_str(
  */
 PMATH_API 
 PMATH_ATTRIBUTE_PURE
-pmath_bool_t pmath_integer_fits_si32(pmath_integer_t integer);
+pmath_bool_t _pmath_integer_fits_si32(pmath_integer_t integer);
 
 /**\brief Find out whether a pMath integer fits into a unsigned long int.
    \memberof pmath_integer_t
@@ -305,7 +307,7 @@ pmath_bool_t pmath_integer_fits_si32(pmath_integer_t integer);
  */
 PMATH_API 
 PMATH_ATTRIBUTE_PURE
-pmath_bool_t pmath_integer_fits_ui32(pmath_integer_t integer);
+pmath_bool_t _pmath_integer_fits_ui32(pmath_integer_t integer);
 
 /**\brief Find out whether a pMath integer fits into an int64_t.
    \memberof pmath_integer_t
@@ -334,7 +336,7 @@ pmath_bool_t pmath_integer_fits_ui64(pmath_integer_t integer);
  */
 PMATH_API 
 PMATH_ATTRIBUTE_PURE
-signed long int pmath_integer_get_si(pmath_integer_t integer);
+signed long int pmath_integer_get_si32(pmath_integer_t integer);
 
 /**\brief Convert a pMath integer to a unsigned long int.
    \memberof pmath_integer_t
@@ -345,7 +347,7 @@ signed long int pmath_integer_get_si(pmath_integer_t integer);
  */
 PMATH_API 
 PMATH_ATTRIBUTE_PURE
-unsigned long int pmath_integer_get_ui(pmath_integer_t integer);
+unsigned long int pmath_integer_get_ui32(pmath_integer_t integer);
 
 /**\brief Convert a pMath integer to an int64_t.
    \memberof pmath_integer_t
@@ -368,6 +370,9 @@ int64_t pmath_integer_get_si64(pmath_integer_t integer);
 PMATH_API 
 PMATH_ATTRIBUTE_PURE
 uint64_t pmath_integer_get_ui64(pmath_integer_t integer);
+
+#define pmath_integer_get_siptr  pmath_integer_get_si ## PMATH_BITSIZE
+#define pmath_integer_get_uiptr  pmath_integer_get_ui ## PMATH_BITSIZE
 
 /**\brief Convert a pMath number to a double.
    \memberof pmath_number_t

@@ -138,12 +138,12 @@ PMATH_PRIVATE pmath_bool_t extract_delta_range(
   
   count_obj = pmath_evaluate(FUNC(pmath_ref(PMATH_SYMBOL_FLOOR), count_obj));
 
-  if(!pmath_is_integer(count_obj) || !pmath_integer_fits_ui32(count_obj)){
+  if(!pmath_is_int32(count_obj) || PMATH_AS_INT32(count_obj) < 0){
     pmath_unref(count_obj);
     return FALSE;
   }
 
-  *count = pmath_integer_get_ui(count_obj);
+  *count = (unsigned)PMATH_AS_INT32(count_obj);
   pmath_unref(count_obj);
   return TRUE;
 }

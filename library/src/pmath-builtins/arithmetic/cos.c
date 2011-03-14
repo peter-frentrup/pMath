@@ -176,8 +176,8 @@ PMATH_PRIVATE pmath_t builtin_cos(pmath_expr_t expr){
           && pmath_integer_fits_ui32(PMATH_QUOT_NUM(fst))
           && pmath_integer_fits_ui32(PMATH_QUOT_DEN(fst))
           ){
-            unsigned long num = pmath_integer_get_ui(PMATH_QUOT_NUM(fst));
-            unsigned long den = pmath_integer_get_ui(PMATH_QUOT_DEN(fst));
+            unsigned long num = pmath_integer_get_ui32(PMATH_QUOT_NUM(fst));
+            unsigned long den = pmath_integer_get_ui32(PMATH_QUOT_DEN(fst));
             
             if(num <= den / 2)
               switch(den){

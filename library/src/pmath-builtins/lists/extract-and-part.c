@@ -231,7 +231,7 @@ static pmath_t assign_part(
   listlen = pmath_expr_length(list);
   index = pmath_expr_get_item(position, position_start);
   
-  if(pmath_is_integer(index)){
+  if(_pmath_is_integer(index)){
     size_t i = SIZE_MAX;
     
     if(!extract_number(index, listlen, &i)){
@@ -297,10 +297,9 @@ static pmath_t assign_part(
       
       if(reverse){
         for(i = start_index;i <= end_index;++i){
-          pmath_t item     = pmath_expr_get_item(list,      i);
+          pmath_t item     = pmath_expr_extract_item(list, i);
           pmath_t new_item = pmath_expr_get_item(new_value, end_index + 1 - i);
           
-          list = pmath_expr_set_item(list, i, PMATH_NULL);
           list = pmath_expr_set_item(list, i, 
             assign_part(item, position, position_start + 1, new_item, error));
           
@@ -309,10 +308,9 @@ static pmath_t assign_part(
       }
       else{
         for(i = start_index;i <= end_index;++i){
-          pmath_t item     = pmath_expr_get_item(list,      i);
+          pmath_t item     = pmath_expr_extract_item(list,  i);
           pmath_t new_item = pmath_expr_get_item(new_value, i - start_index + 1);
           
-          list = pmath_expr_set_item(list, i, PMATH_NULL);
           list = pmath_expr_set_item(list, i, 
             assign_part(item, position, position_start + 1, new_item, error));
           
@@ -324,9 +322,8 @@ static pmath_t assign_part(
       size_t i;
       
       for(i = start_index;i <= end_index;++i){
-        pmath_t item = pmath_expr_get_item(list, i);
+        pmath_t item = pmath_expr_extract_item(list, i);
         
-        list = pmath_expr_set_item(list, i, PMATH_NULL);
         list = pmath_expr_set_item(list, i, 
           assign_part(item, position, position_start + 1, new_value, error));
       }

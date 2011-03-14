@@ -54,16 +54,16 @@ pmath_bool_t _pmath_extract_levels(
   long    *levelmin,
   long    *levelmax
 ){
-  if(pmath_is_integer(levelspec) && pmath_integer_fits_si32(levelspec)){
-    *levelmin = *levelmax = pmath_integer_get_si(levelspec);
+  if(pmath_is_int32(levelspec)){
+    *levelmin = *levelmax = PMATH_AS_INT32(levelspec);
     return TRUE;
   }
   
   if(pmath_is_expr_of_len(levelspec, PMATH_SYMBOL_RANGE, 2)){
     pmath_t obj = pmath_expr_get_item(levelspec, 1);
     
-    if(pmath_is_integer(obj) && pmath_integer_fits_si32(obj)){
-      *levelmin = pmath_integer_get_si(obj);
+    if(pmath_is_int32(obj)){
+      *levelmin = PMATH_AS_INT32(obj);
     }
     else if(pmath_same(obj, PMATH_SYMBOL_AUTOMATIC)){
       *levelmin = 1;
@@ -76,8 +76,8 @@ pmath_bool_t _pmath_extract_levels(
     pmath_unref(obj);
     obj = pmath_expr_get_item(levelspec, 2);
     
-    if(pmath_is_integer(obj) && pmath_integer_fits_si32(obj)){
-      *levelmax = pmath_integer_get_si(obj);
+    if(pmath_is_int32(obj)){
+      *levelmax = PMATH_AS_INT32(obj);
     }
     else if(pmath_same(obj, PMATH_SYMBOL_AUTOMATIC)
     || pmath_equals(obj, _pmath_object_infinity)){

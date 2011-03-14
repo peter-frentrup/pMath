@@ -31,9 +31,8 @@ PMATH_PRIVATE pmath_t builtin_getthreadid(pmath_expr_t expr){
       }
       
       return result;
-      //return pmath_integer_new_ui((unsigned long)pthread_self());
     }
   #elif PMATH_USE_WINDOWS_THREADS
-    return pmath_integer_new_ui((unsigned long)GetCurrentThreadId());
+    return pmath_integer_new_ulong((unsigned long)GetCurrentThreadId());
   #endif
 }

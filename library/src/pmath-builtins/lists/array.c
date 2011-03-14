@@ -42,7 +42,7 @@ static pmath_t array(struct _array_data_t *data){
   size_t i, len;
   
   obj = pmath_expr_get_item(data->dims, data->dim);
-  len = pmath_integer_get_ui(obj);
+  len = pmath_integer_get_uiptr(obj);
   pmath_unref(obj);
   
   list = pmath_expr_new(pmath_ref(data->head), len);
@@ -287,12 +287,12 @@ PMATH_PRIVATE pmath_t builtin_constantarray(pmath_expr_t expr){
           pmath_unref(n);
           pmath_message(
             PMATH_NULL, "ilsmn", 2,
-            pmath_integer_new_ui(2),
+            PMATH_FROM_INT32(2),
             pmath_ref(expr));
           return expr;
         }
 
-        data.lengths[data.dim-1] = pmath_integer_get_ui(l);
+        data.lengths[data.dim-1] = pmath_integer_get_uiptr(l);
 
         pmath_unref(l);
       }
@@ -319,7 +319,7 @@ PMATH_PRIVATE pmath_t builtin_constantarray(pmath_expr_t expr){
     return expr;
   }
 
-  data.lengths[0] = pmath_integer_get_ui(n);
+  data.lengths[0] = pmath_integer_get_uiptr(n);
   data.c = pmath_expr_get_item(expr, 1);
   data.dim = 0;
   data.dims = 1;

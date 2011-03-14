@@ -184,8 +184,8 @@ static pmath_bool_t take(
   }
   
   pmath_message(PMATH_SYMBOL_TAKE, "take", 3, 
-    pmath_integer_new_si(pos->start),
-    pmath_integer_new_si(pos->end),
+    pmath_integer_new_slong(pos->start),
+    pmath_integer_new_slong(pos->end),
     pmath_ref(*obj));
     
   return FALSE;
