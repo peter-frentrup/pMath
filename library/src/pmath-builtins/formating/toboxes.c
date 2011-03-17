@@ -28,7 +28,7 @@ pmath_t _pmath_prepare_shallow(
         head, 1, 
         pmath_expr_new_extended(
           pmath_ref(PMATH_SYMBOL_SKELETON), 1,
-          pmath_integer_new_size(len)));
+          pmath_integer_new_uiptr(len)));
     }
     
     if(len > maxlength){
@@ -48,7 +48,7 @@ pmath_t _pmath_prepare_shallow(
         fst, 1, 
         pmath_expr_new_extended(
           pmath_ref(PMATH_SYMBOL_SKELETON), 1,
-          pmath_integer_new_size(len - maxlength)));
+          pmath_integer_new_uiptr(len - maxlength)));
     }
     
     for(i = 1;i <= len;++i){

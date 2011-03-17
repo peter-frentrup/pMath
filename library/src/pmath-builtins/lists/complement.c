@@ -89,7 +89,7 @@ PMATH_PRIVATE pmath_t builtin_complement(pmath_expr_t expr){
       pmath_unref(all);
       pmath_unref(obj);
       pmath_unref(item);
-      pmath_message(PMATH_NULL, "nexprat", 2, pmath_integer_new_size(i), pmath_ref(expr));
+      pmath_message(PMATH_NULL, "nexprat", 2, pmath_integer_new_uiptr(i), pmath_ref(expr));
       return expr;
     }
     
@@ -99,7 +99,7 @@ PMATH_PRIVATE pmath_t builtin_complement(pmath_expr_t expr){
       pmath_unref(all);
       pmath_unref(item);
       pmath_message(PMATH_NULL, "heads", 4, 
-        obj, head, pmath_integer_new_size(1), pmath_integer_new_size(i));
+        obj, head, pmath_integer_new_uiptr(1), pmath_integer_new_uiptr(i));
       return expr;
     }
     

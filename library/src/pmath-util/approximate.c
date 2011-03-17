@@ -117,7 +117,7 @@ pmath_t pmath_set_accuracy(pmath_t obj, double acc){ // obj will be freed
     
     if(PMATH_AS_DOUBLE(obj) == 0){
       pmath_unref(obj);
-      return pmath_integer_new_si(0);
+      return PMATH_FROM_INT32(0);
     }
       
     prec = log2(fabs(PMATH_AS_DOUBLE(obj))) + acc;
@@ -233,7 +233,7 @@ pmath_t pmath_set_accuracy(pmath_t obj, double acc){ // obj will be freed
         MPFR_RNDN);
     }
     else switch(PMATH_AS_PTR(obj)->type_shift){
-      case PMATH_TYPE_SHIFT_INTEGER: {
+      case PMATH_TYPE_SHIFT_MP_INT: {
         mpfr_set_z(
           PMATH_AS_MP_VALUE(result), 
           PMATH_AS_MPZ(obj),
@@ -304,28 +304,28 @@ pmath_t pmath_set_precision(pmath_t obj, double prec){
         }
         
         if(pmath_is_mpfloat(obj)){
-          pmath_integer_t num;
+          pmath_mpint_t num;
           mpfr_exp_t exp;
           
-          num = _pmath_create_mp_int();
+          num = _pmath_create_mp_int(0);
           if(!pmath_is_null(num)){
             exp = mpfr_get_z_2exp(PMATH_AS_MPZ(num), PMATH_AS_MP_VALUE(obj));
             
             if(exp < 0 && mpz_sgn(PMATH_AS_MPZ(num)) != 0){
-              pmath_integer_t den = _pmath_create_mp_int();
+              pmath_mpint_t den = _pmath_create_mp_int(0);
               
               if(!pmath_is_null(den)){
                 mpz_set_ui(PMATH_AS_MPZ(den), 1);
                 mpz_mul_2exp(PMATH_AS_MPZ(den), PMATH_AS_MPZ(den), (unsigned long int)-exp);
                 
                 pmath_unref(obj);
-                return pmath_rational_new(num, den);
+                return pmath_rational_new(_pmath_mp_int_normalize(num), _pmath_mp_int_normalize(den));
               }
             }
             else{
               mpz_mul_2exp(PMATH_AS_MPZ(num), PMATH_AS_MPZ(num), (unsigned long int)exp);
               pmath_unref(obj);
-              return num;
+              return _pmath_mp_int_normalize(num);
             }
 
             pmath_unref(num);
@@ -352,7 +352,7 @@ pmath_t pmath_set_precision(pmath_t obj, double prec){
     
     if(pmath_number_sign(obj) == 0){
       pmath_unref(obj);
-      return pmath_integer_new_si(0);
+      return PMATH_FROM_INT32(0);
     }
     
     if(prec >= PMATH_MP_PREC_MAX){

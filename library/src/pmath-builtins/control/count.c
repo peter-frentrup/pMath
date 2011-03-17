@@ -118,5 +118,5 @@ PMATH_PRIVATE pmath_t builtin_count(pmath_expr_t expr){
   pmath_unref(expr);
   count_matches(&info, obj, 0);
   pmath_unref(info.lhs);
-  return pmath_integer_new_size(info.count);
+  return pmath_integer_new_uiptr(info.count);
 }

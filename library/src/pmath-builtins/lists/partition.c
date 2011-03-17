@@ -392,7 +392,7 @@ static pmath_bool_t set_overhang(
   if(pmath_is_expr_of(overhang, PMATH_SYMBOL_LIST)){
     if(pmath_expr_length(overhang) != (size_t)depth){
       pmath_message(PMATH_NULL, "ohpdm", 2,
-        pmath_integer_new_size(pmath_expr_length(overhang)),
+        pmath_integer_new_uiptr(pmath_expr_length(overhang)),
         pmath_integer_new_slong(depth));
       
       pmath_unref(overhang);

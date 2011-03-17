@@ -14,6 +14,9 @@ typedef unsigned __int64  uint64_t;
 
 typedef int64_t  intmax_t;
 
+#define INT32_MAX 2147483647
+#define INT32_MIN (-INT32_MAX - 1)
+
 #define UINT32_MAX 0xFFFFFFFF
 
 //typedef ptrdiff_t  intptr_t;

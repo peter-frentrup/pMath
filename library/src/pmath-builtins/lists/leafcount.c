@@ -32,5 +32,5 @@ PMATH_PRIVATE pmath_t builtin_leafcount(pmath_expr_t expr){
   obj = pmath_expr_get_item(expr, 1);
   pmath_unref(expr);
   
-  return pmath_integer_new_size(leafcount(obj));
+  return pmath_integer_new_uiptr(leafcount(obj));
 }

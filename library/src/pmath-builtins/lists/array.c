@@ -55,7 +55,7 @@ static pmath_t array(struct _array_data_t *data){
           pmath_expr_new_extended(
             pmath_ref(PMATH_SYMBOL_PLUS), 2,
             pmath_expr_get_item(data->start, data->dim),
-            pmath_integer_new_size(i - 1)));
+            pmath_integer_new_uiptr(i - 1)));
         
         list = pmath_expr_set_item(list, i, 
           pmath_expr_set_item(
@@ -70,7 +70,7 @@ static pmath_t array(struct _array_data_t *data){
           pmath_expr_new_extended(
             pmath_ref(PMATH_SYMBOL_PLUS), 2,
             pmath_ref(data->start),
-            pmath_integer_new_size(i - 1)));
+            pmath_integer_new_uiptr(i - 1)));
         
         list = pmath_expr_set_item(list, i, 
           pmath_expr_set_item(
@@ -90,7 +90,7 @@ static pmath_t array(struct _array_data_t *data){
         pmath_expr_new_extended(
           pmath_ref(PMATH_SYMBOL_PLUS), 2,
           pmath_expr_get_item(data->start, data->dim-1),
-          pmath_integer_new_size(i - 1)));
+          pmath_integer_new_uiptr(i - 1)));
           
       list = pmath_expr_set_item(list, i, array(data));
     }
@@ -102,7 +102,7 @@ static pmath_t array(struct _array_data_t *data){
         pmath_expr_new_extended(
           pmath_ref(PMATH_SYMBOL_PLUS), 2,
           pmath_ref(data->start),
-          pmath_integer_new_size(i - 1)));
+          pmath_integer_new_uiptr(i - 1)));
           
       list = pmath_expr_set_item(list, i, array(data));
     }

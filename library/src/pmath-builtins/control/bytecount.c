@@ -67,5 +67,5 @@ PMATH_PRIVATE pmath_t builtin_bytecount(pmath_expr_t expr){
   result = bytecount(obj);
   pmath_unref(obj);
 
-  return pmath_integer_new_size(result);
+  return pmath_integer_new_uiptr(result);
 }

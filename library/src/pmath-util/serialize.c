@@ -138,6 +138,15 @@ static void serialize(
   struct serializer_t *info,
   pmath_t              object // will be freed
 ){
+  if(pmath_is_int32(object)){
+    object = _pmath_create_mp_int(PMATH_AS_INT32(object));
+    if(pmath_is_null(object)){
+      if(!info->error)
+        info->error = PMATH_SERIALIZE_NO_MEMORY;
+      return;
+    }
+  }
+  
   if(pmath_is_magic(object)){
     write_ui8(info->file, 1);
     write_ui8(info->file, (uint8_t)(uintptr_t)PMATH_AS_PTR(object));
@@ -173,8 +182,8 @@ static void serialize(
     entry = pmath_ht_insert(info->object_to_int, entry);
     
     if(pmath_is_double(object)){
-      pmath_float_t   f        = _pmath_create_mp_float(DBL_MANT_DIG);
-      pmath_integer_t mantissa = _pmath_create_mp_int();
+      pmath_mpfloat_t f        = _pmath_create_mp_float(DBL_MANT_DIG);
+      pmath_mpint_t   mantissa = _pmath_create_mp_int(0);
       mp_exp_t exp;
       
       if(pmath_is_null(mantissa) || pmath_is_null(f)){
@@ -250,7 +259,7 @@ static void serialize(
           
       } break;
       
-      case PMATH_TYPE_SHIFT_INTEGER: {
+      case PMATH_TYPE_SHIFT_MP_INT: {
         size_t count = (mpz_sizeinbase(PMATH_AS_MPZ(object), 2) + 7) / 8;
         void *data;
         
@@ -293,7 +302,7 @@ static void serialize(
       } break;
       
       case PMATH_TYPE_SHIFT_MP_FLOAT: {
-        pmath_integer_t mantissa = _pmath_create_mp_int();
+        pmath_mpint_t mantissa = _pmath_create_mp_int(0);
         mpfr_prec_t prec;
         mp_exp_t exp;
         
@@ -329,7 +338,7 @@ static void serialize(
         
         serialize(info, PMATH_UNDEFINED);
     }
-    
+  
     if(entry)
       pmath_ht_obj_int_class.entry_destructor(entry);
   }
@@ -478,7 +487,7 @@ static pmath_t deserialize(struct deserializer_t *info){
     } break;
     
     case 7: {
-      pmath_integer_t result;
+      pmath_mpint_t result;
       int32_t slen = read_si32(info);
       uint32_t ulen = abs(slen);
       uint8_t *data;
@@ -498,7 +507,7 @@ static pmath_t deserialize(struct deserializer_t *info){
         break;
       }
       
-      result = _pmath_create_mp_int();
+      result = _pmath_create_mp_int(0);
       if(pmath_is_null(result)){
         if(!info->error)
           info->error = PMATH_SERIALIZE_EOF;  
@@ -520,15 +529,15 @@ static pmath_t deserialize(struct deserializer_t *info){
       if(slen < 0)
         mpz_neg(PMATH_AS_MPZ(result), PMATH_AS_MPZ(result));
         
-      return result;
+      return _pmath_mp_int_normalize(result);
     } break;
     
     case 8: {
       pmath_integer_t num = deserialize(info);
       pmath_integer_t den = deserialize(info);
       
-      if(pmath_is_integer(num)
-      && pmath_is_integer(den)
+      if(_pmath_is_integer(num)
+      && _pmath_is_integer(den)
       && pmath_number_sign(den) > 0){
         return pmath_rational_new(num, den);
       }
@@ -541,8 +550,8 @@ static pmath_t deserialize(struct deserializer_t *info){
     } break;
     
     case 9: {
-      pmath_float_t result;
-      pmath_integer_t mant;
+      pmath_mpfloat_t result;
+      pmath_mpint_t mant;
       mpfr_prec_t prec;
       mp_exp_t exp;
       
@@ -556,7 +565,10 @@ static pmath_t deserialize(struct deserializer_t *info){
       exp = (mp_exp_t)read_si32(info);
       mant = deserialize(info);
       
-      if(!pmath_is_integer(mant)){
+      if(pmath_is_int32(mant))
+        mant = _pmath_create_mp_int(PMATH_AS_INT32(mant));
+      
+      if(!pmath_is_mpint(mant)){
         pmath_unref(mant);
         
         if(!info->error)
@@ -580,7 +592,10 @@ static pmath_t deserialize(struct deserializer_t *info){
       exp = (mp_exp_t)read_si32(info);
       mant = deserialize(info);
       
-      if(!pmath_is_integer(mant)){
+      if(pmath_is_int32(mant))
+        mant = _pmath_create_mp_int(PMATH_AS_INT32(mant));
+      
+      if(!pmath_is_mpint(mant)){
         pmath_unref(mant);
         pmath_unref(result);
         
@@ -596,14 +611,17 @@ static pmath_t deserialize(struct deserializer_t *info){
     } break;
     
     case 10: {
-      pmath_float_t result;
-      pmath_integer_t mant;
+      pmath_mpfloat_t result;
+      pmath_mpint_t mant;
       mp_exp_t exp;
       
       exp = (mp_exp_t)read_si32(info);
       mant = deserialize(info);
       
-      if(!pmath_is_integer(mant)){
+      if(pmath_is_int32(mant))
+        mant = _pmath_create_mp_int(PMATH_AS_INT32(mant));
+      
+      if(!pmath_is_mpint(mant)){
         pmath_unref(mant);
         
         if(!info->error)

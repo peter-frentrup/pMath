@@ -248,8 +248,7 @@ PMATH_PRIVATE pmath_t builtin_loggamma(pmath_expr_t expr){
   if(pmath_is_quotient(z)){
     pmath_integer_t den = pmath_rational_denominator(z);
     
-    if(pmath_integer_fits_ui32(den)
-    && pmath_integer_get_ui(den) == 2){
+    if(pmath_equals(den, PMATH_FROM_INT32(2))){
       pmath_unref(den);
       pmath_unref(expr);
       
@@ -311,14 +310,12 @@ PMATH_PRIVATE pmath_t builtin_polygamma(pmath_expr_t expr){
   if(exprlen == 2){
     pmath_t n_obj = pmath_expr_get_item(expr, 1);
     
-    if(!_pmath_is_integer(n_obj)
-    || !pmath_integer_fits_ui32(n_obj)){
+    if(!pmath_is_int32(n_obj) || PMATH_AS_INT32(n_obj) < 0){
       pmath_unref(n_obj);
       return expr;
     }
     
-    n = pmath_integer_get_ui(n_obj);
-    pmath_unref(n_obj);
+    n = (unsigned)PMATH_AS_INT32(n_obj);
   }
   
   z = pmath_expr_get_item(expr, exprlen);
@@ -368,9 +365,9 @@ PMATH_PRIVATE pmath_t builtin_polygamma(pmath_expr_t expr){
         pmath_unref(nn);
         
         nn = pmath_rational_numerator(z);
-        if(pmath_integer_fits_ui32(nn)){
-          unsigned long ui_num = pmath_integer_get_ui(nn);
-          unsigned long k;
+        if(pmath_is_int32(nn) && PMATH_AS_INT32(nn) >= 0){
+          unsigned ui_num = (unsigned)PMATH_AS_INT32(nn);
+          unsigned k;
           
           pmath_unref(expr);
           pmath_unref(z);

@@ -42,7 +42,7 @@ static pmath_bool_t convert_take_positions(
         &pos[i - exprstart].step)
     ){
       pmath_unref(item);
-      pmath_message(PMATH_NULL, "seqs", 2, pmath_integer_new_size(i), pmath_ref(expr));
+      pmath_message(PMATH_NULL, "seqs", 2, pmath_integer_new_uiptr(i), pmath_ref(expr));
       return FALSE;
     }
     
@@ -133,8 +133,8 @@ static pmath_bool_t drop(
   }
   
   pmath_message(PMATH_SYMBOL_DROP, "drop", 3, 
-    pmath_integer_new_size(pos->start),
-    pmath_integer_new_size(pos->end),
+    pmath_integer_new_uiptr(pos->start),
+    pmath_integer_new_uiptr(pos->end),
     pmath_ref(*obj));
     
   return FALSE;

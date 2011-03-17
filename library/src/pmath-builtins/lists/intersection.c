@@ -53,8 +53,8 @@ PMATH_PRIVATE pmath_t builtin_intersection(pmath_expr_t expr){
       pmath_message(PMATH_NULL, "heads", 4,
         item,
         current,
-        pmath_integer_new_size(1),
-        pmath_integer_new_size(i));
+        pmath_integer_new_uiptr(1),
+        pmath_integer_new_uiptr(i));
       
       return expr;
     }

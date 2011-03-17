@@ -18,6 +18,6 @@ PMATH_PRIVATE pmath_t builtin_memoryusage(pmath_expr_t expr){
 
   return pmath_expr_new_extended(
     pmath_ref(PMATH_SYMBOL_LIST), 2,
-    pmath_integer_new_size(current),
-    pmath_integer_new_size(max));
+    pmath_integer_new_uiptr(current),
+    pmath_integer_new_uiptr(max));
 }

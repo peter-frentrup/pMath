@@ -192,11 +192,12 @@ PMATH_PRIVATE pmath_t builtin_tan(pmath_expr_t expr){
           pmath_unref(cmp);
           if(pmath_same(cmp, PMATH_SYMBOL_TRUE)
           && pmath_is_quotient(fst)
-          && pmath_integer_fits_ui32(PMATH_QUOT_NUM(fst))
-          && pmath_integer_fits_ui32(PMATH_QUOT_DEN(fst))
+          && pmath_is_int32(PMATH_QUOT_NUM(fst))
+          && pmath_is_int32(PMATH_QUOT_DEN(fst))
+          && PMATH_AS_INT32(PMATH_QUOT_NUM(fst)) >= 0
           ){
-            unsigned long num = pmath_integer_get_ui(PMATH_QUOT_NUM(fst));
-            unsigned long den = pmath_integer_get_ui(PMATH_QUOT_DEN(fst));
+            unsigned num = (unsigned)PMATH_AS_INT32(PMATH_QUOT_NUM(fst));
+            unsigned den = (unsigned)PMATH_AS_INT32(PMATH_QUOT_DEN(fst));
             
             if(num <= den / 2)
               switch(den){

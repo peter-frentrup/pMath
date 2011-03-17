@@ -96,16 +96,15 @@ PMATH_PRIVATE pmath_t builtin_paralleltry(pmath_expr_t expr){
   if(exprlen == 3){
     pmath_t count = pmath_expr_get_item(expr, 3);
     
-    if(!pmath_is_integer(count) || !pmath_integer_fits_ui32(count)){
+    if(!pmath_is_int32(count) || PMATH_AS_INT32(count) < 0){
       pmath_unref(count);
       pmath_message(PMATH_NULL, "intnm", 2, 
-        pmath_integer_new_si(3), 
+        PMATH_FROM_INT32(3), 
         pmath_ref(expr));
       return expr;
     }
     
-    info.results_count = pmath_integer_get_ui(count);
-    pmath_unref(count);
+    info.results_count = (unsigned)PMATH_AS_INT32(count);
   }
   else
     info.results_count = 1;
@@ -127,7 +126,7 @@ PMATH_PRIVATE pmath_t builtin_paralleltry(pmath_expr_t expr){
     pmath_unref(info.items);
     pmath_unref(result);
     pmath_message(PMATH_NULL, "nexprat", 2,
-      pmath_integer_new_si(1),
+      PMATH_FROM_INT32(1),
       pmath_ref(expr));
     return expr;
   }
@@ -177,8 +176,8 @@ PMATH_PRIVATE pmath_t builtin_paralleltry(pmath_expr_t expr){
   
   if((size_t)info.result_index < info.results_count){
     pmath_message(PMATH_NULL, "toofew", 2, 
-      pmath_integer_new_si(info.result_index),
-      pmath_integer_new_size(info.results_count));
+      pmath_integer_new_siptr(info.result_index),
+      pmath_integer_new_uiptr(info.results_count));
     
     if(exprlen == 3){
       pmath_t res = pmath_expr_get_item_range(

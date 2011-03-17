@@ -129,8 +129,8 @@ static pmath_t handle_explicit_return(pmath_t expr){
       
       case 2: 
         obj = pmath_expr_get_item(expr, 2);
-        if(pmath_is_integer(obj)){
-          if(pmath_compare(obj, PMATH_NUMBER_ONE) <= 0){
+        if(_pmath_is_integer(obj)){
+          if(pmath_compare(obj, PMATH_FROM_INT32(1)) <= 0){
             pmath_unref(obj);
             obj = pmath_expr_get_item(expr, 1);
             pmath_unref(expr); 
@@ -141,7 +141,7 @@ static pmath_t handle_explicit_return(pmath_t expr){
             pmath_expr_new_extended(
               pmath_ref(PMATH_SYMBOL_PLUS), 2,
               obj,
-              pmath_integer_new_si(-1)));
+              PMATH_FROM_INT32(-1)));
         }
         pmath_unref(obj);
         break;
@@ -197,7 +197,7 @@ static pmath_t evaluate_expression(
       
       pmath_message(
         PMATH_SYMBOL_GENERAL, "reclim", 1,
-        pmath_integer_new_si(pmath_maxrecursion));
+        PMATH_FROM_INT32(pmath_maxrecursion));
 
       (*thread_ptr)->critical_messages = FALSE;
       (*thread_ptr)->evaldepth = tmp;

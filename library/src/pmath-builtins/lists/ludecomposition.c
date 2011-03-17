@@ -403,7 +403,7 @@ PMATH_PRIVATE pmath_t builtin_ludecomposition(pmath_expr_t expr){
   for(cols = rows;cols > 0;--cols){
     matrix = pmath_expr_set_item(
       matrix, cols,
-      pmath_integer_new_size(
+      pmath_integer_new_uiptr(
         perm[cols-1]));
   }
   

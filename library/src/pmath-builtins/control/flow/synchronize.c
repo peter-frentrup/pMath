@@ -97,7 +97,7 @@ PMATH_PRIVATE pmath_t builtin_synchronize(pmath_expr_t expr){
           pmath_expr_new_extended(
             pmath_ref(PMATH_SYMBOL_LIST), 2,
             PMATH_FROM_INT32(1),
-            pmath_integer_new_size(i)));
+            pmath_integer_new_uiptr(i)));
         pmath_unref(sync);
         pmath_unref(block);
         return expr;

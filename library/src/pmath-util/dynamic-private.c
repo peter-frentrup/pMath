@@ -298,7 +298,7 @@ PMATH_PRIVATE void _pmath_dynamic_update(pmath_symbol_t symbol){
     
     while(ids){
       if(_pmath_dynamic_remove(ids->id)){
-        pmath_emit(pmath_integer_new_si((long)ids->id), PMATH_NULL);
+        pmath_emit(PMATH_FROM_INT32((long)ids->id), PMATH_NULL);
       }
       
       ids = ids->next;

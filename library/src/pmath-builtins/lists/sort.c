@@ -173,19 +173,11 @@ struct ordering_context_t{
 
 static int ordering_cmp(void *p, pmath_t *a, pmath_t *b){
   struct ordering_context_t *context = (struct ordering_context_t*)p;
-  size_t ia, ib;
   int result;
   pmath_t a_item, b_item;
   
-  #if PMATH_BITSIZE == 64
-    ia = pmath_integer_get_ui64(*a);
-    ib = pmath_integer_get_ui64(*b);
-  #elif PMATH_BITSIZE == 32
-    ia = pmath_integer_get_ui(*a);
-    ib = pmath_integer_get_ui(*b);
-  #else
-    #error unsupported bitsize
-  #endif
+  uintptr_t ia = pmath_integer_get_uiptr(*a);
+  uintptr_t ib = pmath_integer_get_uiptr(*b);
   
   a_item = pmath_expr_get_item(context->list, ia);
   b_item = pmath_expr_get_item(context->list, ib);
@@ -229,7 +221,7 @@ PMATH_PRIVATE pmath_t builtin_ordering(pmath_expr_t expr){
   
   indices = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), len);
   for(i = len;i > 0;--i){
-    indices = pmath_expr_set_item(indices, i, pmath_integer_new_size(i));
+    indices = pmath_expr_set_item(indices, i, pmath_integer_new_uiptr(i));
   }
   
   if(exprlen == 3){

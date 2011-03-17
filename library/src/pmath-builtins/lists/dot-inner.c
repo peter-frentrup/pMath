@@ -117,7 +117,7 @@ static pmath_bool_t init(struct _inner_info_t *info, pmath_t t1, pmath_t t2){
   
   if(info->dim1 < info->n){
     pmath_message(PMATH_NULL, "nolev", 3,
-      pmath_integer_new_size(info->n),
+      pmath_integer_new_uiptr(info->n),
       pmath_ref(t1),
       d1);
     pmath_unref(d2);
@@ -135,7 +135,7 @@ static pmath_bool_t init(struct _inner_info_t *info, pmath_t t1, pmath_t t2){
   if(!pmath_equals(obj1, obj2)){
     pmath_message(PMATH_NULL, "shape", 5,
       obj1,
-      pmath_integer_new_size(info->n),
+      pmath_integer_new_uiptr(info->n),
       pmath_ref(t1),
       obj2,
       pmath_ref(t2));

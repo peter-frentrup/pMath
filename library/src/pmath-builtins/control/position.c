@@ -81,7 +81,7 @@ static pmath_bool_t emit_pattern_position( // return = search more?
     while(i){
       pos = pmath_expr_set_item(
         pos, len,
-        pmath_integer_new_size(i->i));
+        pmath_integer_new_uiptr(i->i));
       
       --len;
       i = i->prev;
@@ -137,8 +137,8 @@ PMATH_PRIVATE pmath_t builtin_position(pmath_expr_t expr){
         if(_pmath_is_integer(obj)
         && pmath_number_sign(obj) >= 0){
           last_nonoption = 4;
-          if(pmath_integer_fits_ui32(obj))
-            info.max = pmath_integer_get_ui(obj);
+          if(pmath_is_int32(obj) && PMATH_AS_INT32(obj) >= 0)
+            info.max = PMATH_AS_INT32(obj);
           else
             info.max = SIZE_MAX;
         }

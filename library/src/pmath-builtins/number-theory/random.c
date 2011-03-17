@@ -182,9 +182,9 @@ PMATH_PRIVATE pmath_t builtin_randominteger(pmath_expr_t expr){
   if(exprlen > 1){
     pmath_t dims = pmath_expr_get_item(expr, 2);
     
-    if(pmath_is_integer(dims) && pmath_integer_fits_ui32(dims)){
+    if(pmath_is_int32(dims) && PMATH_AS_INT32(dims) >= 0){
       data.dims = 1;
-      data.lengths[0] = pmath_integer_get_ui(dims);
+      data.lengths[0] = (unsigned)PMATH_AS_INT32(dims);
     }
     else if(pmath_is_expr(dims)){
       pmath_t h = pmath_expr_get_item(dims, 0);
@@ -200,12 +200,12 @@ PMATH_PRIVATE pmath_t builtin_randominteger(pmath_expr_t expr){
         
         for(data.dim = 0;data.dim < data.dims;++data.dim){
           pmath_t len = pmath_expr_get_item(dims, data.dim + 1);
-          if(!pmath_is_integer(len) || !pmath_integer_fits_ui32(len)){
+          if(!pmath_is_int32(len) || PMATH_AS_INT32(len) < 0){
             pmath_unref(len);
             goto ERROR_COND;
           }
           
-          data.lengths[data.dim] = pmath_integer_get_ui(len);
+          data.lengths[data.dim] = (unsigned)PMATH_AS_INT32(len);
           pmath_unref(len);
         }
       }
@@ -217,7 +217,7 @@ PMATH_PRIVATE pmath_t builtin_randominteger(pmath_expr_t expr){
       
       pmath_message(
         PMATH_NULL, "ilsmn", 2,
-        pmath_integer_new_ui(2),
+        PMATH_FROM_INT32(2),
         pmath_ref(expr));
       
       return expr;
@@ -228,27 +228,27 @@ PMATH_PRIVATE pmath_t builtin_randominteger(pmath_expr_t expr){
   
   if(exprlen > 0){
     pmath_t range = pmath_expr_get_item(expr, 1);
-    if(pmath_is_integer(range)){
-      data.max = _add_nn(range, pmath_integer_new_si(1));
+    if(_pmath_is_integer(range)){
+      data.max = _add_nn(range, PMATH_FROM_INT32(1));
       if(pmath_is_null(data.max)){
         pmath_unref(expr);
         return PMATH_NULL;
       }
       
-      if(pmath_compare(data.max, PMATH_NUMBER_ONE) < 0){
+      if(pmath_compare(data.max, PMATH_FROM_INT32(1)) < 0){
         range = pmath_expr_get_item(expr, 1);
         goto RANGE_ERROR;
       }
     }
     else if(pmath_is_expr_of_len(range, PMATH_SYMBOL_RANGE, 2)){
       data.min = pmath_expr_get_item(range, 1);
-      if(!pmath_is_integer(data.min)){
+      if(!_pmath_is_integer(data.min)){
         pmath_unref(data.min);
         goto RANGE_ERROR;
       }
         
       data.max = pmath_expr_get_item(range, 2);
-      if(!pmath_is_integer(data.max)){
+      if(!_pmath_is_integer(data.max)){
         pmath_unref(data.min);
         pmath_unref(data.max);
         goto RANGE_ERROR;
@@ -256,7 +256,7 @@ PMATH_PRIVATE pmath_t builtin_randominteger(pmath_expr_t expr){
       
       data.max = _add_nn(
         data.max,
-        pmath_integer_new_si(1));
+        PMATH_FROM_INT32(1));
       
       data.max = _add_nn(
         data.max,
@@ -269,7 +269,7 @@ PMATH_PRIVATE pmath_t builtin_randominteger(pmath_expr_t expr){
         return PMATH_NULL;
       }
       
-      if(pmath_compare(data.max, PMATH_NUMBER_ONE) < 0){
+      if(pmath_compare(data.max, PMATH_FROM_INT32(1)) < 0){
         pmath_unref(data.min);
         pmath_unref(data.max);
         goto RANGE_ERROR;
@@ -283,7 +283,7 @@ PMATH_PRIVATE pmath_t builtin_randominteger(pmath_expr_t expr){
     }
   }
   else{
-    data.max = pmath_integer_new_ui(2);
+    data.max = PMATH_FROM_INT32(2);
   }
   
   data.dim = 0;
@@ -335,9 +335,9 @@ PMATH_PRIVATE pmath_t builtin_randomreal(pmath_expr_t expr){
       if(exprlen > 1){
         tmp = pmath_expr_get_item(expr, 2);
         
-        if(pmath_is_integer(tmp) && pmath_integer_fits_ui32(tmp)){
+        if(pmath_is_int32(tmp) && PMATH_AS_INT32(tmp) >= 0){
           data.dims = 1;
-          data.lengths[0] = pmath_integer_get_ui(tmp);
+          data.lengths[0] = (unsigned)PMATH_AS_INT32(tmp);
           last_nonoption = 2;
         }
         else if(!_pmath_is_rule(tmp) 
@@ -356,12 +356,12 @@ PMATH_PRIVATE pmath_t builtin_randomreal(pmath_expr_t expr){
               
               for(data.dim = 0;data.dim < data.dims;++data.dim){
                 pmath_t len = pmath_expr_get_item(tmp, data.dim + 1);
-                if(!pmath_is_integer(len) || !pmath_integer_fits_ui32(len)){
+                if(!pmath_is_int32(len) || PMATH_AS_INT32(len) < 0){
                   pmath_unref(len);
                   goto ERROR_COND;
                 }
                 
-                data.lengths[data.dim] = pmath_integer_get_ui(len);
+                data.lengths[data.dim] = (unsigned)PMATH_AS_INT32(len);
                 pmath_unref(len);
               }
               
@@ -375,7 +375,7 @@ PMATH_PRIVATE pmath_t builtin_randomreal(pmath_expr_t expr){
             
             pmath_message(
               PMATH_NULL, "ilsmn", 2,
-              pmath_integer_new_ui(2),
+              PMATH_FROM_INT32(2),
               pmath_ref(expr));
             
             return expr;

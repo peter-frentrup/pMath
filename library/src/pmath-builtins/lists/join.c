@@ -57,8 +57,8 @@ static pmath_t concat_expressions(pmath_expr_t expr){
         pmath_message(PMATH_NULL, "heads", 4, 
           fst_head, 
           obj_head,
-          pmath_integer_new_size(1),
-          pmath_integer_new_size(i));
+          pmath_integer_new_uiptr(1),
+          pmath_integer_new_uiptr(i));
         pmath_unref(fst);
         pmath_unref(obj);
         return expr;

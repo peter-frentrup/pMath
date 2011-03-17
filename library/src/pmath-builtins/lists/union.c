@@ -56,7 +56,7 @@ PMATH_PRIVATE pmath_t builtin_union(pmath_expr_t expr){
         item,
         current,
         PMATH_FROM_INT32(1),
-        pmath_integer_new_size(i));
+        pmath_integer_new_uiptr(i));
       
       return expr;
     }

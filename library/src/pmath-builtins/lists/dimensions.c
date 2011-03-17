@@ -153,7 +153,7 @@ PMATH_PRIVATE pmath_expr_t _pmath_dimensions(
   
   tmp = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), data.maxdim);
   for(i = 0;i < data.maxdim;){
-    item = pmath_integer_new_size(data.dim_arr[i++]);
+    item = pmath_integer_new_uiptr(data.dim_arr[i++]);
     tmp = pmath_expr_set_item(tmp, i, item);
   }
   

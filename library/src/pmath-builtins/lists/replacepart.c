@@ -232,7 +232,7 @@ static pmath_t replace_rule_part(
     size_t j;
 
     *position = pmath_expr_set_item(*position, level,
-      pmath_integer_new_size(i));
+      pmath_integer_new_uiptr(i));
 
     current_pos = pmath_expr_get_item_range(*position, 1, level);
 

@@ -368,7 +368,7 @@ PMATH_API pmath_bool_t pmath_init(void){
     // DirectedInfinity(1)
     _pmath_object_infinity = pmath_expr_new_extended(
       pmath_ref(PMATH_SYMBOL_DIRECTEDINFINITY), 1,
-      pmath_integer_new_si(1));
+      PMATH_FROM_INT32(1));
 
     // DirectedInfinity()
     _pmath_object_complex_infinity = pmath_expr_new(
@@ -377,13 +377,13 @@ PMATH_API pmath_bool_t pmath_init(void){
     // Range(1, Automatic)
     _pmath_object_range_from_one = pmath_expr_new_extended(
       pmath_ref(PMATH_SYMBOL_RANGE), 2,
-      pmath_integer_new_si(1),
+      PMATH_FROM_INT32(1),
       pmath_ref(PMATH_SYMBOL_AUTOMATIC));
 
     // Range(0, Automatic)
     _pmath_object_range_from_zero = pmath_expr_new_extended(
       pmath_ref(PMATH_SYMBOL_RANGE), 2,
-      pmath_integer_new_si(0),
+      PMATH_FROM_INT32(0),
       pmath_ref(PMATH_SYMBOL_AUTOMATIC));
 
     // SingleMatch()

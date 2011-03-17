@@ -1027,7 +1027,7 @@ static match_kind_t match_atom(
         return PMATH_MATCH_KIND_NONE;
       }
       
-      if(pmath_is_integer(arg)){
+      if(_pmath_is_integer(arg)){
         if(pmath_same(type, PMATH_SYMBOL_INTEGER))
           return PMATH_MATCH_KIND_LOCAL;
         return PMATH_MATCH_KIND_NONE;
@@ -1211,8 +1211,8 @@ static match_kind_t match_atom(
             pmath_expr_new_extended(
               pmath_ref(PMATH_SYMBOL_DEFAULT), 3,
               pmath_ref(info->current_head),
-              pmath_integer_new_size(index_of_arg),
-              pmath_integer_new_size(count_of_arg)));
+              pmath_integer_new_uiptr(index_of_arg),
+              pmath_integer_new_uiptr(count_of_arg)));
         }
         else
           value = pmath_expr_get_item(pat, 2);

@@ -61,11 +61,11 @@ static pmath_t next_value(const char **format, va_list *args){
       return pmath_ref(PMATH_SYMBOL_FALSE);
     }
     
-    case 'i': return pmath_integer_new_si(va_arg(*args, int));
-    case 'I': return pmath_integer_new_ui(va_arg(*args, unsigned int));
+    case 'i': return pmath_integer_new_slong(va_arg(*args, int));
+    case 'I': return pmath_integer_new_ulong(va_arg(*args, unsigned int));
     
-    case 'l': return pmath_integer_new_si(va_arg(*args, long));
-    case 'L': return pmath_integer_new_ui(va_arg(*args, unsigned long));
+    case 'l': return pmath_integer_new_slong(va_arg(*args, long));
+    case 'L': return pmath_integer_new_ulong(va_arg(*args, unsigned long));
     
     case 'k': {
       long long i = va_arg(*args, long long);
@@ -115,7 +115,7 @@ static pmath_t next_value(const char **format, va_list *args){
       if(d < 0)
         return pmath_expr_new_extended(
           pmath_ref(PMATH_SYMBOL_DIRECTEDINFINITY), 1,
-          pmath_integer_new_si(-1));
+          PMATH_FROM_INT32(-1));
       
     } return pmath_ref(PMATH_SYMBOL_UNDEFINED);
     
@@ -209,7 +209,7 @@ static pmath_t next_value(const char **format, va_list *args){
         assert(0 && "unclosed complex");
       }
       
-      if(pmath_is_integer(num) && pmath_is_integer(den)){
+      if(_pmath_is_integer(num) && _pmath_is_integer(den)){
         return pmath_rational_new(num, den);
       }
       
@@ -219,7 +219,7 @@ static pmath_t next_value(const char **format, va_list *args){
         pmath_expr_new_extended(
           pmath_ref(PMATH_SYMBOL_POWER), 2,
           den,
-          pmath_integer_new_si(-1)));
+          PMATH_FROM_INT32(-1)));
     }
     
 //    case '@': {
@@ -337,7 +337,7 @@ PMATH_API pmath_expr_t pmath_options_extract(
     pmath_message(
       PMATH_NULL, "nonopt", 3,
       pmath_expr_get_item(expr, last_nonoption + 2),
-      pmath_integer_new_ui(last_nonoption),
+      pmath_integer_new_uiptr(last_nonoption),
       pmath_ref(expr));
     return PMATH_NULL;
   }
@@ -350,7 +350,7 @@ PMATH_API pmath_expr_t pmath_options_extract(
       pmath_message(
         PMATH_NULL, "nonopt", 3,
         option,
-        pmath_integer_new_ui(last_nonoption),
+        pmath_integer_new_uiptr(last_nonoption),
         pmath_ref(expr));
       return PMATH_NULL;
     }
@@ -595,7 +595,7 @@ pmath_t pmath_session_execute(pmath_t input, pmath_bool_t *aborted){
           pmath_ref(PMATH_SYMBOL_LINE),
           pmath_expr_new_extended(
             pmath_ref(PMATH_SYMBOL_TIMES), 2,
-            pmath_integer_new_si(-1),
+            PMATH_FROM_INT32(-1),
             pmath_ref(PMATH_SYMBOL_HISTORYLENGTH)))))));
   
   pmath_collect_temporary_symbols();

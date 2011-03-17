@@ -51,14 +51,14 @@ PMATH_PRIVATE pmath_t builtin_length(pmath_expr_t expr){
     size_t len = pmath_expr_length(obj);
     pmath_unref(expr);
     pmath_unref(obj);
-    return pmath_integer_new_size(len);
+    return pmath_integer_new_uiptr(len);
   }
   
   if(pmath_is_string(obj)){
     size_t len = pmath_string_length(obj);
     pmath_unref(expr);
     pmath_unref(obj);
-    return pmath_integer_new_size(len);
+    return pmath_integer_new_uiptr(len);
   }
   
   pmath_unref(obj);

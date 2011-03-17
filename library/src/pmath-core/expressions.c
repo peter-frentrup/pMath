@@ -1548,10 +1548,10 @@ static void write_expr_ex(
       pmath_t direction;
       
       direction = pmath_expr_get_item(expr, 1);
-      if(pmath_equals(direction, PMATH_NUMBER_ONE)){
+      if(pmath_equals(direction, PMATH_FROM_INT32(1))){
         pmath_write(PMATH_SYMBOL_INFINITY, options, write, user);
       }
-      else if(pmath_equals(direction, PMATH_NUMBER_MINUSONE)){
+      else if(pmath_equals(direction, PMATH_FROM_INT32(-1))){
         if(priority > PRIO_FACTOR)
           WRITE_CSTR("(-");
         else
@@ -1716,8 +1716,8 @@ static void write_expr_ex(
     if(exprlen == 2){
       item = pmath_expr_get_item(expr, 2);
       
-      if(pmath_is_integer(item) && pmath_integer_fits_ui32(item)){
-        maxdepth = pmath_integer_get_ui(item);
+      if(pmath_is_int32(item) && PMATH_AS_INT32(item) >= 0){
+        maxdepth = (unsigned)PMATH_AS_INT32(item);
       }
       else if(pmath_equals(item, _pmath_object_infinity)){
         maxdepth = SIZE_MAX;
@@ -1725,8 +1725,8 @@ static void write_expr_ex(
       else if(pmath_is_expr_of_len(item, PMATH_SYMBOL_LIST, 2)){
         pmath_t obj = pmath_expr_get_item(item, 1);
         
-        if(pmath_is_integer(obj) && pmath_integer_fits_ui32(obj)){
-          maxdepth = pmath_integer_get_ui(obj);
+        if(pmath_is_int32(obj) && PMATH_AS_INT32(obj) >= 0){
+          maxdepth = (unsigned)PMATH_AS_INT32(obj);
         }
         else if(pmath_equals(obj, _pmath_object_infinity)){
           maxdepth = SIZE_MAX;
@@ -1740,8 +1740,8 @@ static void write_expr_ex(
         pmath_unref(obj);
         obj = pmath_expr_get_item(item, 2);
         
-        if(pmath_is_integer(obj) && pmath_integer_fits_ui32(obj)){
-          maxlength = pmath_integer_get_ui(obj);
+        if(pmath_is_int32(obj) && PMATH_AS_INT32(obj) >= 0){
+          maxlength = (unsigned)PMATH_AS_INT32(obj);
         }
         else if(pmath_equals(obj, _pmath_object_infinity)){
           maxlength = SIZE_MAX;
@@ -2231,9 +2231,7 @@ static void write_expr_ex(
     product_writer_data.special_end = FALSE;
 
     item = pmath_expr_get_item(expr, 1);
-    if(pmath_is_integer(item)
-    && pmath_integer_fits_si32(item)
-    && pmath_integer_get_si(item) == -1){
+    if(pmath_same(item, PMATH_FROM_INT32(-1))){
       WRITE_CSTR("-");
     }
     else{
@@ -2287,7 +2285,7 @@ static void write_expr_ex(
       pmath_write(base, options, write, user);
       WRITE_CSTR(")");
     }
-    else if(pmath_equals(exponent, PMATH_NUMBER_MINUSONE)){
+    else if(pmath_equals(exponent, PMATH_FROM_INT32(-1))){
       
       if(write == (pmath_write_func_t)product_writer)
         WRITE_CSTR("/");
@@ -2301,7 +2299,7 @@ static void write_expr_ex(
         (pmath_write_func_t)division_writer,
         &division_writer_data);
     }
-    else if(pmath_is_integer(exponent) && pmath_number_sign(exponent) < 0){
+    else if(_pmath_is_integer(exponent) && pmath_number_sign(exponent) < 0){
       if(write == (pmath_write_func_t)product_writer)
         WRITE_CSTR("/");
       else
@@ -2452,14 +2450,14 @@ static void write_expr_ex(
       else
         WRITE_CSTR(" ");
     }
-    if(pmath_equals(im, PMATH_NUMBER_MINUSONE)){
+    if(pmath_equals(im, PMATH_FROM_INT32(-1))){
       if(!lparen && priority > PRIO_TIMES){
         WRITE_CSTR("(");
         lparen = TRUE;
       }
       WRITE_CSTR("-I");
     }
-    else if(pmath_equals(im, PMATH_NUMBER_ONE)){
+    else if(pmath_equals(im, PMATH_FROM_INT32(1))){
       WRITE_CSTR("I");
     }
     else{
@@ -2731,7 +2729,7 @@ static void write_expr_ex(
     
     item = pmath_expr_get_item(expr, 1);
     
-    if(pmath_is_integer(item) && pmath_number_sign(item) > 0){
+    if(_pmath_is_integer(item) && pmath_number_sign(item) > 0){
       if(priority > PRIO_CALL)
         WRITE_CSTR("(#");
       else
@@ -2748,7 +2746,7 @@ static void write_expr_ex(
       pmath_unref(b);
       
       if(pmath_same(b, PMATH_SYMBOL_AUTOMATIC)
-      && pmath_is_integer(a)
+      && _pmath_is_integer(a)
       && pmath_number_sign(a) > 0){
         if(priority > PRIO_CALL)
           WRITE_CSTR("(##");

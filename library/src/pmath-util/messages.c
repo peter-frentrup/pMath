@@ -83,30 +83,30 @@ PMATH_API void pmath_message_argxxx(size_t given, size_t min, size_t max){
       pmath_message(
         PMATH_NULL, "argxu", 2, 
         head,
-        pmath_integer_new_size(min));
+        pmath_integer_new_uiptr(min));
     }
     else if(min + 1 == max){
       head = pmath_current_head();
       pmath_message(
         PMATH_NULL, "argtu", 3,
         head,
-        pmath_integer_new_size(min),
-        pmath_integer_new_size(max));
+        pmath_integer_new_uiptr(min),
+        pmath_integer_new_uiptr(max));
     }
     else if(max == SIZE_MAX){
       head = pmath_current_head();
       pmath_message(
         PMATH_NULL, "argmu", 2,
         head,
-        pmath_integer_new_size(min));
+        pmath_integer_new_uiptr(min));
     }
     else{
       head = pmath_current_head();
       pmath_message(
         PMATH_NULL, "argru", 3,
         head,
-        pmath_integer_new_size(min),
-        pmath_integer_new_size(max));
+        pmath_integer_new_uiptr(min),
+        pmath_integer_new_uiptr(max));
     }
   }
   else{
@@ -116,15 +116,15 @@ PMATH_API void pmath_message_argxxx(size_t given, size_t min, size_t max){
         pmath_message(
           PMATH_NULL, "arg1", 2,
           head,
-          pmath_integer_new_size(given));
+          pmath_integer_new_uiptr(given));
       }
       else{
         head = pmath_current_head();
         pmath_message(
           PMATH_NULL, "argx", 3,
           head,
-          pmath_integer_new_size(given),
-          pmath_integer_new_size(min));
+          pmath_integer_new_uiptr(given),
+          pmath_integer_new_uiptr(min));
       }
     }
     else if(min + 1 == max){
@@ -132,26 +132,26 @@ PMATH_API void pmath_message_argxxx(size_t given, size_t min, size_t max){
       pmath_message(
         PMATH_NULL, "argt", 4,
         head,
-        pmath_integer_new_size(given),
-        pmath_integer_new_size(min),
-        pmath_integer_new_size(max));
+        pmath_integer_new_uiptr(given),
+        pmath_integer_new_uiptr(min),
+        pmath_integer_new_uiptr(max));
     }
     else if(max == SIZE_MAX){
       head = pmath_current_head();
       pmath_message(
         PMATH_NULL, "argm", 3,
         head,
-        pmath_integer_new_size(given),
-        pmath_integer_new_size(min));
+        pmath_integer_new_uiptr(given),
+        pmath_integer_new_uiptr(min));
     }
     else{
       head = pmath_current_head();
       pmath_message(
         PMATH_NULL, "argr", 4,
         head,
-        pmath_integer_new_size(given),
-        pmath_integer_new_size(min),
-        pmath_integer_new_size(max));
+        pmath_integer_new_uiptr(given),
+        pmath_integer_new_uiptr(min),
+        pmath_integer_new_uiptr(max));
     }
   }
 }
@@ -259,7 +259,7 @@ PMATH_API void pmath_message_syntax_error(
       pmath_message(
         PMATH_SYMBOL_SYNTAX, "bgnf", 3,
         start,
-        pmath_integer_new_si(lines_before_code),
+        PMATH_FROM_INT32(lines_before_code),
         filename);
     }
   }
@@ -277,7 +277,7 @@ PMATH_API void pmath_message_syntax_error(
       }
       else{
         pmath_message(PMATH_SYMBOL_SYNTAX, "moref", 2, 
-          pmath_integer_new_si(lines_before_code),
+          PMATH_FROM_INT32(lines_before_code),
           filename);
       }
     }
@@ -310,7 +310,7 @@ PMATH_API void pmath_message_syntax_error(
           pmath_message(
             PMATH_SYMBOL_SYNTAX, "newlf", 3,
             before,
-            pmath_integer_new_si(lines_before_code),
+            PMATH_FROM_INT32(lines_before_code),
             filename);
         }
       }
@@ -328,7 +328,7 @@ PMATH_API void pmath_message_syntax_error(
             PMATH_SYMBOL_SYNTAX, "nxtf", 4,
             before,
             after,
-            pmath_integer_new_si(lines_before_code),
+            PMATH_FROM_INT32(lines_before_code),
             filename);
         }
       }

@@ -9,9 +9,9 @@
    are not expanded, so we need to expand __LINE__ with one indirection
    before doing the actual concatenation. 
 */
-#define PMATH_ASSERT_CONCAT_(a, b) a##b
-#define PMATH_ASSERT_CONCAT(a, b) PMATH_ASSERT_CONCAT_(a, b)
-#define PMATH_STATIC_ASSERT(e) typedef char PMATH_ASSERT_CONCAT(pmath_static_assert_line_, __LINE__)[(e)?1:-1]
+#define PMATH_CONCAT_(a, b) a##b
+#define PMATH_CONCAT(a, b) PMATH_CONCAT_(a, b)
+#define PMATH_STATIC_ASSERT(e) typedef char PMATH_CONCAT(pmath_static_assert_line_, __LINE__)[(e)?1:-1]
 
 
 #if defined(__GNUC__) && defined(__GNUC_MINOR__)
