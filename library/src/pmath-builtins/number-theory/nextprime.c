@@ -21,7 +21,7 @@ PMATH_PRIVATE pmath_t builtin_nextprime(pmath_expr_t expr){
 
   n = pmath_expr_get_item(expr, 1);
 
-  if(!_pmath_is_integer(n)){
+  if(!pmath_is_integer(n)){
     n = pmath_evaluate(
       pmath_expr_new_extended(
         pmath_ref(PMATH_SYMBOL_PLUS), 2,

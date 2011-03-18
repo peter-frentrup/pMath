@@ -158,7 +158,7 @@ PMATH_PRIVATE pmath_t builtin_isinteger(pmath_expr_t expr){
   obj = pmath_expr_get_item(expr, 1);
   pmath_unref(expr);
 
-  if(_pmath_is_integer(obj)){
+  if(pmath_is_integer(obj)){
     pmath_unref(obj);
     return pmath_ref(PMATH_SYMBOL_TRUE);
   }

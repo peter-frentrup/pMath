@@ -42,7 +42,7 @@ PMATH_PRIVATE pmath_t builtin_ceiling_or_floor_or_round(
       return x;
     }
 
-    if(_pmath_is_integer(x)){
+    if(pmath_is_integer(x)){
       pmath_unref(expr);
       pmath_unref(head);
       return x;

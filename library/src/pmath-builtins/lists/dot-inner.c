@@ -144,7 +144,7 @@ static pmath_bool_t init(struct _inner_info_t *info, pmath_t t1, pmath_t t2){
     return FALSE;
   }
   
-  if(!_pmath_is_integer(obj1)){
+  if(!pmath_is_integer(obj1)){
     pmath_unref(d1);
     pmath_unref(d2);
     pmath_unref(obj1);

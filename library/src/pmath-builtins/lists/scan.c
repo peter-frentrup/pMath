@@ -11,7 +11,7 @@
 PMATH_PRIVATE
 pmath_bool_t _pmath_scan(
   struct _pmath_scan_info_t *info,
-  pmath_t             obj, // will be freed
+  pmath_t                    obj, // will be freed
   long                       level
 ){
   int reldepth = _pmath_object_in_levelspec(

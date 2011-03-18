@@ -37,19 +37,9 @@ Expr richmath::generate_section(String style, Expr boxes){
     Expr dlvl = Client::interrupt(Symbol(PMATH_SYMBOL_DIALOGLEVEL));
     
     String label = String("out [");
-    if(dlvl.instance_of(PMATH_TYPE_INTEGER)){
-      if(pmath_integer_fits_ui(dlvl.get())){
-        unsigned long ui = pmath_integer_get_ui(dlvl.get());
-        
-        if(ui == 1)
-          label = String("(Dialog) ") + label;
-        else if(ui != 0)
-          label = String("(Dialog ") + dlvl.to_string() + String(") ") + label;
-      }
-      else
-        label = String("(Dialog ") + dlvl.to_string() + String(") ") + label;
-    }
-    else
+    if(dlvl == PMATH_FROM_INT32(1))
+      label = String("(Dialog) ") + label;
+    else if(dlvl != PMATH_FROM_INT32(0))
       label = String("(Dialog ") + dlvl.to_string() + String(") ") + label;
     
     label = label + line.to_string() + "]:";
@@ -211,10 +201,9 @@ class LocalServer: public Server{
     virtual void interrupt(Expr expr, double timeout_seconds){
       if(data && !data->do_quit){
         if(timeout_seconds < Infinity){
-          expr = Expr(pmath_expr_new_extended(
-            pmath_ref(PMATH_SYMBOL_TIMECONSTRAINED), 2,
-            expr.release(),
-            pmath_float_new_d(timeout_seconds)));
+          expr = Call(Symbol(PMATH_SYMBOL_TIMECONSTRAINED),
+            expr, 
+            timeout_seconds);
         }
         
         pmath_thread_send(message_queue.get(), expr.release());

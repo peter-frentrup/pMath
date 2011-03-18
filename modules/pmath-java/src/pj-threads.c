@@ -35,7 +35,7 @@
 #endif
 
 
-static pmath_t cothread_key = NULL;
+static pmath_t cothread_key = PMATH_STATIC_NULL;
 PMATH_DECLARE_ATOMIC(bye_companions) = 0;
 
   struct cothread_t{
@@ -59,7 +59,7 @@ static void cothread_destructor(void *p){
         pmath_ref(ct->pmath)));
   }
   
-  pmath_debug_print("[cothread_destructor companion refcount = %d]\n", (int)ct->pmath->refcount);
+  pmath_debug_print("[cothread_destructor companion refcount = %d]\n", (int)PMATH_AS_PTR(ct->pmath)->refcount);
   
   pmath_unref(ct->pmath);
   
@@ -99,7 +99,7 @@ static void companion_proc(void *p){
   env = pjvm_get_env();
   
   if(jvmti && env){
-    pmath_custom_t other = NULL;
+    pmath_custom_t other = PMATH_STATIC_NULL;
     struct cothread_t *ct = pmath_mem_alloc(sizeof(struct cothread_t));
     
     if(ct){
@@ -111,9 +111,9 @@ static void companion_proc(void *p){
         ct->java          = info->in_jthread; info->in_jthread = NULL;
         
         if(info->out_jthread && ct->java){
-          pmath_debug_print("[in_creator = %p]\n", info->in_creator);
+          pmath_debug_print("[in_creator = %p]\n", PMATH_AS_PTR(info->in_creator));
           ct->pmath = info->in_creator;
-          info->in_creator = NULL;
+          info->in_creator = PMATH_NULL;
           
           pmath_debug_print("[new cothread data=%p]\n", ct);
           other = pmath_custom_new(ct, cothread_destructor);
@@ -131,13 +131,13 @@ static void companion_proc(void *p){
         pmath_mem_free(ct);
     }
     
-    pmath_debug_print("[new cothread %p]\n", other);
+    pmath_debug_print("[new cothread %p]\n", PMATH_AS_PTR(other));
     
     pmath_unref(pmath_thread_local_save(
       cothread_key, 
       pmath_ref(other)));
     
-    if(!other || other->refcount == 1){
+    if(pmath_is_null(other) || PMATH_AS_PTR(other)->refcount == 1){
       if(info->out_jthread){
         (*env)->DeleteGlobalRef(env, info->out_jthread);
         info->out_jthread = NULL;
@@ -153,7 +153,7 @@ static void companion_proc(void *p){
   while(!bye_companions){
     pmath_t cc = pmath_thread_local_load(cothread_key);
     
-    if(!pmath_instance_of(cc, PMATH_TYPE_CUSTOM)
+    if(!pmath_is_custom(cc)
     || !pmath_custom_has_destructor(cc, cothread_destructor)){
       pmath_debug_print("[lost cothread]\n");
       pmath_unref(cc);
@@ -204,10 +204,10 @@ void pj_thread_message(
   
   va_end(items);
   
-  if(mq)
-    pmath_unref(pmath_thread_send_wait(mq, expr, HUGE_VAL, NULL, NULL));
-  else
+  if(pmath_is_null(mq))
     pmath_unref(pmath_evaluate(expr));
+  else
+    pmath_unref(pmath_thread_send_wait(mq, expr, HUGE_VAL, NULL, NULL));
 }
 
 pmath_messages_t pj_thread_get_companion(jthread *out_jthread){
@@ -221,7 +221,7 @@ pmath_messages_t pj_thread_get_companion(jthread *out_jthread){
   if(out_jthread)
     *out_jthread = NULL;
   
-  if(cc && pmath_instance_of(cc, PMATH_TYPE_CUSTOM)
+  if(pmath_is_custom(cc)
   && pmath_custom_has_destructor(cc, cothread_destructor)){
     struct cothread_t *data = (struct cothread_t*)pmath_custom_get_data(cc);
     companion = pmath_ref(data->pmath);
@@ -246,7 +246,7 @@ pmath_messages_t pj_thread_get_companion(jthread *out_jthread){
   env = pjvm_get_env();
   if(!jvmti || !env){
     pmath_unref(pjvm);
-    return NULL;
+    return PMATH_NULL;
   }
   
   memset(&info, 0, sizeof(info));
@@ -265,14 +265,14 @@ pmath_messages_t pj_thread_get_companion(jthread *out_jthread){
   if(!info.in_jthread){
     pmath_unref(info.in_creator);
     pmath_unref(pjvm);
-    return NULL;
+    return PMATH_NULL;
   }
   
   if(sem_init(&info.init_finished, 0, 0) < 0){
     pmath_debug_print("sem_init failed\n");
     pmath_unref(info.in_creator);
     pmath_unref(pjvm);
-    return NULL;
+    return PMATH_NULL;
   }
   
   companion = pmath_thread_fork_daemon(companion_proc, kill_companion, &info);
@@ -286,7 +286,7 @@ pmath_messages_t pj_thread_get_companion(jthread *out_jthread){
   if(!info.out_jthread){
     pmath_unref(companion);
     pmath_unref(pjvm);
-    return NULL;
+    return PMATH_NULL;
   }
   
   {
@@ -296,18 +296,20 @@ pmath_messages_t pj_thread_get_companion(jthread *out_jthread){
       pmath_unref(companion);
       (*env)->DeleteGlobalRef(env, info.out_jthread);
       pmath_unref(pjvm);
-      return NULL;
+      return PMATH_NULL;
     }
     
     data->pmath = companion;
     data->java  = info.out_jthread;
     
     cc = pmath_custom_new(data, cothread_destructor);
-    pmath_debug_print("[register cothread %p, data=%p for companion %p]\n", cc, data, companion);
+    pmath_debug_print("[register cothread %p, data=%p for companion %p]\n", 
+      PMATH_AS_PTR(cc), data, PMATH_AS_PTR(companion));
+      
     pmath_unref(pmath_thread_local_save(cothread_key, pmath_ref(cc)));
   }
   
-  if(cc && cc->refcount > 1){ // pmath_thread_local_save succeeded
+  if(!pmath_is_null(cc) && PMATH_AS_PTR(cc)->refcount > 1){ // pmath_thread_local_save succeeded
     struct cothread_t *data = (struct cothread_t*)pmath_custom_get_data(cc);
     
     companion = pmath_ref(data->pmath);
@@ -321,7 +323,7 @@ pmath_messages_t pj_thread_get_companion(jthread *out_jthread){
   
   pmath_unref(cc);
   pmath_unref(pjvm);
-  return NULL;
+  return PMATH_NULL;
 }
 
 pmath_t pj_builtin_internal_stoppedcothread(pmath_expr_t expr){
@@ -329,7 +331,7 @@ pmath_t pj_builtin_internal_stoppedcothread(pmath_expr_t expr){
   pmath_messages_t me = pmath_thread_get_queue();
   
   if(pmath_equals(me, cookie)){
-    pmath_debug_print("[%p : cothread stopping]\n", me);
+    pmath_debug_print("[%p : cothread stopping]\n", PMATH_AS_PTR(me));
     pmath_unref(pmath_thread_local_save(cothread_key, PMATH_UNDEFINED));
   }
   else{
@@ -339,7 +341,7 @@ pmath_t pj_builtin_internal_stoppedcothread(pmath_expr_t expr){
   pmath_unref(cookie);
   pmath_unref(me);
   pmath_unref(expr);
-  return NULL;
+  return PMATH_NULL;
 }
 
 
@@ -351,9 +353,9 @@ pmath_bool_t pj_threads_init(void){
   
   bye_companions = 0;
   
-  return cothread_key != NULL;
+  return !pmath_is_null(cothread_key);
 }
 
 void pj_threads_done(void){
-  pmath_unref(cothread_key); cothread_key = NULL;
+  pmath_unref(cothread_key); cothread_key = PMATH_NULL;
 }

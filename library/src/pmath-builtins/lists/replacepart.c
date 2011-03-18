@@ -42,7 +42,7 @@ static pmath_t replace_const_part(
   }
 
   pos = pmath_expr_get_item(position, position_start);
-  if(!_pmath_is_integer(pos)){
+  if(!pmath_is_integer(pos)){
     if(error){
       if(!*error){
         pmath_message(PMATH_NULL, "pspec", 1, pmath_ref(pos));

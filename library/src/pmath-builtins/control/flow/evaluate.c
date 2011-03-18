@@ -20,7 +20,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_run(pmath_t *in_out){
       pmath_bool_t do_break = pmath_same(head, PMATH_SYMBOL_BREAK);
       
       pmath_t counter = pmath_expr_get_item(*in_out, 1);
-      if(_pmath_is_integer(counter)
+      if(pmath_is_integer(counter)
       && pmath_compare(counter, PMATH_FROM_INT32(1)) > 0){
         do_break = TRUE;
         counter = pmath_expr_new_extended(

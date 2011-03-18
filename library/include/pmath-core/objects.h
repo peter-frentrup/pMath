@@ -109,11 +109,14 @@ pmath_t PMATH_FROM_PTR(void *p){
 #define PMATH_THREAD_KEY_PARSERARGUMENTS  PMATH_FROM_TAG(PMATH_TAG_MAGIC, 253)
 #define PMATH_ABORT_EXCEPTION             PMATH_FROM_TAG(PMATH_TAG_MAGIC, 254)
 
-PMATH_UNUSED
-static const pmath_t PMATH_UNDEFINED = { (((uint64_t)PMATH_TAG_MAGIC) << 32) | 255 };
+#define PMATH_STATIC_UNDEFINED            { (((uint64_t)PMATH_TAG_MAGIC) << 32) | 255 }
+#define PMATH_STATIC_NULL                 { ((uint64_t)PMATH_TAGMASK_POINTER) << 32 }
 
 PMATH_UNUSED
-static const pmath_t PMATH_NULL      = { ((uint64_t)PMATH_TAGMASK_POINTER) << 32 };
+static const pmath_t PMATH_UNDEFINED = PMATH_STATIC_UNDEFINED;
+
+PMATH_UNUSED
+static const pmath_t PMATH_NULL      = PMATH_STATIC_NULL;
 
 
 /**\brief The type or class of a pMath object.

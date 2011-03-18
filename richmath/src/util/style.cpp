@@ -39,9 +39,9 @@ int richmath::pmath_to_color(Expr obj){
       }
       
       if(obj.expr_length() == 3
-      && obj[1].instance_of(PMATH_TYPE_NUMBER)
-      && obj[2].instance_of(PMATH_TYPE_NUMBER)
-      && obj[3].instance_of(PMATH_TYPE_NUMBER)){
+      && obj[1].is_number()
+      && obj[2].is_number()
+      && obj[3].is_number()){
         double r = obj[1].to_double();
         double g = obj[2].to_double();
         double b = obj[3].to_double();
@@ -56,7 +56,7 @@ int richmath::pmath_to_color(Expr obj){
     
     if(obj[0] == PMATH_SYMBOL_GRAYLEVEL
     && obj.expr_length() == 1
-    && obj[1].instance_of(PMATH_TYPE_NUMBER)){
+    && obj[1].is_number()){
       double l = obj[1].to_double();
       
       if(l < 0) l = 0; else if(l > 1) l = 1;
@@ -286,7 +286,7 @@ bool Style::get(FloatStyleOptionName n, float *value){
 bool Style::get(StringStyleOptionName n, String *value){
   Expr *v = object_values.search(n);
   
-  if(!v || !v->instance_of(PMATH_TYPE_STRING))
+  if(!v || !v->is_string())
     return false;
   
   *value = String(*v);
@@ -363,7 +363,7 @@ void Style::set_pmath_color(IntStyleOptionName n, Expr obj){
 }
 
 void Style::set_pmath_float(FloatStyleOptionName n, Expr obj){
-  if(obj.instance_of(PMATH_TYPE_NUMBER))
+  if(obj.is_number())
     set(n, obj.to_double());
 }
 
@@ -389,7 +389,7 @@ void Style::set_pmath_margin(FloatStyleOptionName n, Expr obj){
     return;
   }
   
-  if(obj.instance_of(PMATH_TYPE_NUMBER)){
+  if(obj.is_number()){
     float f = obj.to_double();
     set(Left,   f);
     set(Right,  f);
@@ -409,7 +409,7 @@ void Style::set_pmath_margin(FloatStyleOptionName n, Expr obj){
     }
     
     if(obj.expr_length() == 2){
-      if(obj[1].instance_of(PMATH_TYPE_NUMBER)){
+      if(obj[1].is_number()){
         float f = obj[1].to_double();
         set(Left,  f);
         set(Right, f);
@@ -421,7 +421,7 @@ void Style::set_pmath_margin(FloatStyleOptionName n, Expr obj){
         set_pmath_float(Right, obj[1][2]);
       }
       
-      if(obj[2].instance_of(PMATH_TYPE_NUMBER)){
+      if(obj[2].is_number()){
         float f = obj[2].to_double();
         set(Top,    f);
         set(Bottom, f);

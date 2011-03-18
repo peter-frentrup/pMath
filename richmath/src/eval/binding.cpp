@@ -125,7 +125,7 @@ static pmath_t builtin_selecteddocument(pmath_expr_t expr){
   
   return pmath_expr_new_extended(
     pmath_ref(PMATH_SYMBOL_FRONTENDOBJECT), 1,
-    pmath_integer_new_si(current_document_id));
+    PMATH_FROM_INT32(current_document_id));
 }
 
 //} ... pmath functions

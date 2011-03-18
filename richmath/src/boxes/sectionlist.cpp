@@ -393,8 +393,8 @@ void SectionList::insert_pmath(int *pos, Expr boxes){
     int start = *pos;
     int opened = 0;
     int close_rel = -1;
-    if(open.instance_of(PMATH_TYPE_INTEGER)){
-      opened = pmath_integer_get_si(open.get());
+    if(open.is_int32()){
+      opened = PMATH_AS_INT32(open.get());
     }
     
     size_t i;

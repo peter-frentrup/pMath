@@ -62,7 +62,7 @@ static pmath_integer_t _pow_i_abs(
   if(exponent == 1 || pmath_is_null(base))
     return pmath_ref(base);
   
-  assert(_pmath_is_integer(base));
+  assert(pmath_is_integer(base));
   
   result = _pmath_create_mp_int(0);
   if(pmath_is_null(result))
@@ -114,7 +114,7 @@ static pmath_integer_t int_root(
   pmath_mpint_t prime_power;
   unsigned int  i;
   
-  assert(_pmath_is_integer(old_base));
+  assert(pmath_is_integer(old_base));
   assert(new_base != NULL);
   
   if(pmath_is_int32(old_base)){
@@ -856,7 +856,7 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr){
     pmath_integer_t exp_den;
     
     if(pmath_number_sign(exponent) < 0){
-      if(_pmath_is_integer(base)){
+      if(pmath_is_integer(base)){
         pmath_t expr2 = POW(base, pmath_number_neg(exponent));
         
         expr2 = pmath_evaluate(expr2);
@@ -892,8 +892,8 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr){
     exp_num = pmath_rational_numerator(exponent);
     exp_den = pmath_rational_denominator(exponent);
     
-    assert(_pmath_is_integer(exp_num));
-    assert(_pmath_is_integer(exp_den));
+    assert(pmath_is_integer(exp_num));
+    assert(pmath_is_integer(exp_den));
     
     if(pmath_is_int32(exp_den)){
       pmath_integer_t base_num;
@@ -1384,7 +1384,7 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr){
   if(pmath_is_expr_of_len(base, PMATH_SYMBOL_POWER, 2)){ // (x^y)^exponent
     pmath_t inner_exp = pmath_expr_get_item(base, 2);
     
-    if(_pmath_is_integer(exponent)){
+    if(pmath_is_integer(exponent)){
       pmath_unref(expr);
       return pmath_expr_set_item(base, 2, TIMES(exponent, inner_exp));
     }
@@ -1672,7 +1672,7 @@ PMATH_PRIVATE pmath_t builtin_approximate_power(
   base = pmath_expr_get_item(obj, 1);
   exp  = pmath_expr_get_item(obj, 2);
   
-  if(_pmath_is_integer(exp)){
+  if(pmath_is_integer(exp)){
     pmath_unref(exp);
     base = _pmath_approximate_step(base, prec, acc);
     return pmath_expr_set_item(obj, 1, base);

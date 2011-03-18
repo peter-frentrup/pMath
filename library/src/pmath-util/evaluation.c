@@ -129,7 +129,7 @@ static pmath_t handle_explicit_return(pmath_t expr){
       
       case 2: 
         obj = pmath_expr_get_item(expr, 2);
-        if(_pmath_is_integer(obj)){
+        if(pmath_is_integer(obj)){
           if(pmath_compare(obj, PMATH_FROM_INT32(1)) <= 0){
             pmath_unref(obj);
             obj = pmath_expr_get_item(expr, 1);

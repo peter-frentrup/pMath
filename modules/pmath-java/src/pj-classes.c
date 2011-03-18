@@ -79,14 +79,14 @@ struct pmath2id_t{
   }
   
   static unsigned int cms2id_key_hash(void *p){
-    pmath_t k = (pmath_t)p;
+    pmath_t k = *(pmath_t*)p;
     
     return pmath_hash(k);
   }
   
   static pmath_bool_t cms2id_entry_equals_key(void *pe, void *pk){
     struct pmath2id_t *e = (struct pmath2id_t*)pe;
-    pmath_t k = (pmath_t)pk;
+    pmath_t k = *(pmath_t*)pk;
     
     return pmath_equals(e->class_method_signature, k);
   }
@@ -105,7 +105,7 @@ static pmath_hashtable_t cms2id;
 
 
 pmath_string_t pj_class_get_nice_name(JNIEnv *env, jclass clazz){
-  pmath_string_t result = NULL;
+  pmath_string_t result = PMATH_NULL;
   pmath_t pjvm    = pjvm_try_get();
   jvmtiEnv *jvmti = pjvm_get_jvmti(pjvm);
   
@@ -157,7 +157,7 @@ pmath_string_t pj_class_get_nice_name(JNIEnv *env, jclass clazz){
 }
 
 pmath_string_t pj_class_get_name(JNIEnv *env, jclass clazz){
-  pmath_string_t result = NULL;
+  pmath_string_t result = PMATH_NULL;
   pmath_t pjvm    = pjvm_try_get();
   jvmtiEnv *jvmti = pjvm_get_jvmti(pjvm);
   
@@ -183,7 +183,7 @@ pmath_string_t pj_class_get_name(JNIEnv *env, jclass clazz){
       obj = name;
     }
     
-    if(pmath_instance_of(obj, PMATH_TYPE_STRING)){
+    if(pmath_is_string(obj)){
       int len;
       char *str = pmath_string_to_utf8(obj, &len);
       
@@ -215,50 +215,50 @@ jclass pj_class_to_java(JNIEnv *env, pmath_t obj){
   if(env && (*env)->EnsureLocalCapacity(env, 1) == 0){
     char *str;
     
-    if(pmath_instance_of(obj, PMATH_TYPE_SYMBOL)){
-      if(obj == PJ_SYMBOL_TYPE_BOOLEAN){
+    if(pmath_is_symbol(obj)){
+      if(pmath_same(obj, PJ_SYMBOL_TYPE_BOOLEAN)){
         pmath_unref(obj);
         return (*env)->FindClass(env, "Z");
       }
       
-      if(obj == PJ_SYMBOL_TYPE_BYTE){
+      if(pmath_same(obj, PJ_SYMBOL_TYPE_BYTE)){
         pmath_unref(obj);
         return (*env)->FindClass(env, "B");
       }
     
-      if(obj == PJ_SYMBOL_TYPE_CHAR){
+      if(pmath_same(obj, PJ_SYMBOL_TYPE_CHAR)){
         pmath_unref(obj);
         return (*env)->FindClass(env, "C");
       }
     
-      if(obj == PJ_SYMBOL_TYPE_SHORT){
+      if(pmath_same(obj, PJ_SYMBOL_TYPE_SHORT)){
         pmath_unref(obj);
         return (*env)->FindClass(env, "S");
       }
     
-      if(obj == PJ_SYMBOL_TYPE_INT){
+      if(pmath_same(obj, PJ_SYMBOL_TYPE_INT)){
         pmath_unref(obj);
         return (*env)->FindClass(env, "I");
       }
     
-      if(obj == PJ_SYMBOL_TYPE_LONG){
+      if(pmath_same(obj, PJ_SYMBOL_TYPE_LONG)){
         pmath_unref(obj);
         return (*env)->FindClass(env, "J");
       }
     
-      if(obj == PJ_SYMBOL_TYPE_FLOAT){
+      if(pmath_same(obj, PJ_SYMBOL_TYPE_FLOAT)){
         pmath_unref(obj);
         return (*env)->FindClass(env, "F");
       }
     
-      if(obj == PJ_SYMBOL_TYPE_DOUBLE){
+      if(pmath_same(obj, PJ_SYMBOL_TYPE_DOUBLE)){
         pmath_unref(obj);
         return (*env)->FindClass(env, "D");
       }
     }
     
     if(pmath_is_expr_of_len(obj, PJ_SYMBOL_TYPE_ARRAY, 1)){
-      pmath_string_t prefix = NULL;
+      pmath_string_t prefix = PMATH_NULL;
       char *str;
       
       do{
@@ -273,7 +273,7 @@ jclass pj_class_to_java(JNIEnv *env, pmath_t obj){
         return NULL;
       }
       
-      str = java_class_name(obj); obj = NULL;
+      str = java_class_name(obj); obj = PMATH_NULL;
       if(str){
         int len = 0;
         
@@ -306,7 +306,7 @@ jclass pj_class_to_java(JNIEnv *env, pmath_t obj){
       return NULL;
     }
     
-    str = java_class_name(obj); obj = NULL;
+    str = java_class_name(obj); obj = PMATH_NULL;
     if(str){
       char *s = str;
       if(*s == 'L'){
@@ -345,7 +345,7 @@ static pmath_t type2pmath(pmath_string_t name, int start){ // name will be freed
       case 'D': return pmath_ref(PJ_SYMBOL_TYPE_DOUBLE);
     }
     
-    return NULL;
+    return PMATH_NULL;
   }
   
   if(buf[start] == '['){
@@ -390,7 +390,7 @@ static pmath_t type2pmath(pmath_string_t name, int start){ // name will be freed
     if(!env || !clazz)
       return FALSE;
     
-    if(!info->class_name)
+    if(pmath_is_null(info->class_name))
       return FALSE;
     
     info->jcClass = (*env)->FindClass(env, "java/lang/Class");
@@ -497,7 +497,7 @@ static pmath_t type2pmath(pmath_string_t name, int start){ // name will be freed
     jsize jlen, ji;
     
     if(!constructors)
-      pmath_gather_begin(NULL);
+      pmath_gather_begin(PMATH_NULL);
     
     jlen = (*env)->GetArrayLength(env, method_array);
     for(ji = 0;ji < jlen;++ji){
@@ -533,7 +533,7 @@ static pmath_t type2pmath(pmath_string_t name, int start){ // name will be freed
       
       
       if(constructors){
-        return_type = NULL;
+        return_type = PMATH_NULL;
         return_type_char = 'V';
         
         name = PMATH_C_STRING("<init>");
@@ -552,7 +552,7 @@ static pmath_t type2pmath(pmath_string_t name, int start){ // name will be freed
         
         return_type_char = (char)pmath_string_buffer(name)[0];
         return_type = type2pmath(name, 0); 
-        name = NULL;
+        name = PMATH_NULL;
         
         jobj = (*env)->CallObjectMethod(env, method, info->midMethodGetName);
         if(!jobj)
@@ -560,7 +560,7 @@ static pmath_t type2pmath(pmath_string_t name, int start){ // name will be freed
         
         name = pj_string_from_java(env, (jstring)jobj);
         (*env)->DeleteLocalRef(env, jobj);
-        if(!name)
+        if(pmath_is_null(name))
           goto FAIL_NAME;
       }
       
@@ -597,7 +597,7 @@ static pmath_t type2pmath(pmath_string_t name, int start){ // name will be freed
           pmath_ref(info->class_name),
           pmath_ref(name),
           pmath_ref(params));
-        cache_entry->info                   = return_type; return_type = NULL;
+        cache_entry->info                   = return_type; return_type = PMATH_NULL;
         cache_entry->mid                    = mid;
         cache_entry->fid                    = 0;
         cache_entry->modifiers              = modifiers;
@@ -622,7 +622,7 @@ static pmath_t type2pmath(pmath_string_t name, int start){ // name will be freed
         
         pmath_atomic_lock(&cms2id_lock);
         {
-          cache_entry = pmath_ht_search(cms2id, key);
+          cache_entry = pmath_ht_search(cms2id, &key);
           
           if(cache_entry){
             cache_entry->info = pmath_expr_append(cache_entry->info, 1, pmath_ref(params));
@@ -656,7 +656,7 @@ static pmath_t type2pmath(pmath_string_t name, int start){ // name will be freed
       }
       
       if(!constructors)
-        pmath_emit(pmath_ref(name), NULL);
+        pmath_emit(pmath_ref(name), PMATH_NULL);
       
                         pmath_unref(params);
       FAIL_JTYPES:      pmath_unref(name);
@@ -671,7 +671,7 @@ static pmath_t type2pmath(pmath_string_t name, int start){ // name will be freed
     }
     
     if(constructors)
-      return NULL;
+      return PMATH_NULL;
     
     return pmath_gather_end();
   }
@@ -683,7 +683,7 @@ static pmath_t type2pmath(pmath_string_t name, int start){ // name will be freed
   ){
     jsize jlen, ji;
     
-    pmath_gather_begin(NULL);
+    pmath_gather_begin(PMATH_NULL);
     
     jlen = (*env)->GetArrayLength(env, field_array);
     for(ji = 0;ji < jlen;++ji){
@@ -735,7 +735,7 @@ static pmath_t type2pmath(pmath_string_t name, int start){ // name will be freed
         
         name = pj_string_from_java(env, (jstring)jobj);
         (*env)->DeleteLocalRef(env, jobj);
-        if(!name)
+        if(pmath_is_null(name))
           goto FAIL_NAME;
       }
       
@@ -764,7 +764,7 @@ static pmath_t type2pmath(pmath_string_t name, int start){ // name will be freed
         cms2id_entry_destructor(cache_entry);
       }
       
-      pmath_emit(name, NULL);
+      pmath_emit(name, PMATH_NULL);
       
       FAIL_NAME:
       FAIL_JNAME:     pmath_unref(type); pmath_unref(type_name);
@@ -792,7 +792,7 @@ void pj_class_cache_members(JNIEnv *env, jclass clazz){
   info.class_name = pj_class_get_name(env, clazz);
   pmath_atomic_lock(&cms2id_lock);
   {
-    cache_entry = pmath_ht_search(cms2id, info.class_name);
+    cache_entry = pmath_ht_search(cms2id, &info.class_name);
   }
   pmath_atomic_unlock(&cms2id_lock);
   
@@ -811,7 +811,7 @@ void pj_class_cache_members(JNIEnv *env, jclass clazz){
   if(array){
     methods = cache_methods(env, &info, array, TRUE);
     
-    assert(methods == NULL);
+    assert(pmath_is_null(methods));
     
     (*env)->DeleteLocalRef(env, array);
   }
@@ -823,7 +823,7 @@ void pj_class_cache_members(JNIEnv *env, jclass clazz){
     (*env)->DeleteLocalRef(env, array);
   }
   else
-    methods = NULL;
+    methods = PMATH_NULL;
   
   array = (jobjectArray)(*env)->CallObjectMethod(env, clazz, info.midGetFields);
   if(array){
@@ -832,7 +832,7 @@ void pj_class_cache_members(JNIEnv *env, jclass clazz){
     (*env)->DeleteLocalRef(env, array);
   }
   else
-    fields = NULL;
+    fields = PMATH_NULL;
   
   members = pmath_evaluate(
     pmath_expr_new_extended(
@@ -917,12 +917,12 @@ pmath_t pj_class_call_method(
     class_name,
     pmath_ref(name));
   
-  class_name = NULL;
+  class_name = PMATH_NULL;
   
-  signatures = NULL;
+  signatures = PMATH_NULL;
   pmath_atomic_lock(&cms2id_lock);
   {
-    struct pmath2id_t *cache_entry = pmath_ht_search(cms2id, key);
+    struct pmath2id_t *cache_entry = pmath_ht_search(cms2id, &key);
     if(cache_entry && cache_entry->fid == 0){
       signatures = pmath_ref(cache_entry->info);
     }
@@ -930,7 +930,7 @@ pmath_t pj_class_call_method(
   pmath_atomic_unlock(&cms2id_lock);
   
   if(!pmath_is_expr_of(signatures, PMATH_SYMBOL_LIST)
-  || !pmath_instance_of(name, PMATH_TYPE_STRING)
+  || !pmath_is_string(name)
   || pmath_string_equals_latin1(name, "<init>")){
     pj_thread_message(msg_thread,
       PJ_SYMBOL_JAVA, "nometh", 2,
@@ -950,7 +950,7 @@ pmath_t pj_class_call_method(
   if(jargs){
     size_t i;
     
-    for(i = 1;i <= pmath_expr_length(signatures) && result == PMATH_UNDEFINED;++i){
+    for(i = 1;i <= pmath_expr_length(signatures) && pmath_same(result, PMATH_UNDEFINED);++i){
       pmath_t types = pmath_expr_get_item(signatures, i);
       
       if((*env)->PushLocalFrame(env, num_args) == 0){
@@ -963,7 +963,7 @@ pmath_t pj_class_call_method(
           
           pmath_atomic_lock(&cms2id_lock);
           {
-            struct pmath2id_t *cache_entry = pmath_ht_search(cms2id, key);
+            struct pmath2id_t *cache_entry = pmath_ht_search(cms2id, &key);
             if(cache_entry && cache_entry->mid != 0){
               mid         = cache_entry->mid;
               modifiers   = cache_entry->modifiers;
@@ -1106,7 +1106,7 @@ pmath_t pj_class_call_method(
   if(!is_static)
     (*env)->DeleteLocalRef(env, clazz);
     
-  if(result == PMATH_UNDEFINED){
+  if(pmath_same(result, PMATH_UNDEFINED)){
     if(num_args == 0){
       pmath_unref(args);
       pj_thread_message(msg_thread,
@@ -1165,11 +1165,11 @@ jobject pj_class_new_object(
     class_name,
     PMATH_C_STRING("<init>"));
   
-  class_name = NULL;
-  signatures = NULL;
+  class_name = PMATH_NULL;
+  signatures = PMATH_NULL;
   pmath_atomic_lock(&cms2id_lock);
   {
-    struct pmath2id_t *cache_entry = pmath_ht_search(cms2id, key);
+    struct pmath2id_t *cache_entry = pmath_ht_search(cms2id, &key);
     if(cache_entry && cache_entry->fid == 0){
       signatures = pmath_ref(cache_entry->info);
     }
@@ -1205,7 +1205,7 @@ jobject pj_class_new_object(
           
           pmath_atomic_lock(&cms2id_lock);
           {
-            struct pmath2id_t *cache_entry = pmath_ht_search(cms2id, key);
+            struct pmath2id_t *cache_entry = pmath_ht_search(cms2id, &key);
             if(cache_entry && cache_entry->mid != 0){
               mid         = cache_entry->mid;
               modifiers   = cache_entry->modifiers;
@@ -1295,7 +1295,7 @@ pmath_t pj_class_get_field(
   modifiers   = 0;
   pmath_atomic_lock(&cms2id_lock);
   {
-    struct pmath2id_t *cache_entry = pmath_ht_search(cms2id, key);
+    struct pmath2id_t *cache_entry = pmath_ht_search(cms2id, &key);
     if(cache_entry && cache_entry->mid == 0){
       fid         = cache_entry->fid;
       return_type = cache_entry->return_type;
@@ -1303,7 +1303,7 @@ pmath_t pj_class_get_field(
     }
   }
   pmath_atomic_unlock(&cms2id_lock);
-  pmath_unref(key); key = NULL;
+  pmath_unref(key); key = PMATH_NULL;
   
   if(!fid){
     pmath_message(PJ_SYMBOL_JAVA, "nofld", 2,
@@ -1314,7 +1314,7 @@ pmath_t pj_class_get_field(
     return pmath_ref(PMATH_SYMBOL_FAILED);
   }
   
-  result = NULL;
+  result = PMATH_NULL;
   if(modifiers & PJ_MODIFIER_STATIC){
     switch(return_type){
       case 'Z':
@@ -1473,12 +1473,12 @@ extern pmath_bool_t pj_class_set_field(
     pmath_ref(name));
   
   fid             = 0;
-  field_type      = NULL;
+  field_type      = PMATH_NULL;
   field_type_char = '?';
   modifiers       = 0;
   pmath_atomic_lock(&cms2id_lock);
   {
-    struct pmath2id_t *cache_entry = pmath_ht_search(cms2id, key);
+    struct pmath2id_t *cache_entry = pmath_ht_search(cms2id, &key);
     if(cache_entry && cache_entry->mid == 0){
       fid             = cache_entry->fid;
       field_type      = pmath_ref(cache_entry->info);
@@ -1487,7 +1487,7 @@ extern pmath_bool_t pj_class_set_field(
     }
   }
   pmath_atomic_unlock(&cms2id_lock);
-  pmath_unref(key); key = NULL;
+  pmath_unref(key); key = PMATH_NULL;
   
   if(!fid){
     pmath_message(PJ_SYMBOL_JAVA, "nofld", 2,
@@ -1510,8 +1510,8 @@ extern pmath_bool_t pj_class_set_field(
       (*env)->DeleteLocalRef(env, clazz);
     return FALSE;
   }
-  pmath_unref(value);      value      = NULL;
-  pmath_unref(field_type); field_type = NULL;
+  pmath_unref(value);      value      = PMATH_NULL;
+  pmath_unref(field_type); field_type = PMATH_NULL;
   
   result = TRUE;
   if(modifiers & PJ_MODIFIER_STATIC){

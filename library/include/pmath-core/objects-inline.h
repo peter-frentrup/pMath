@@ -53,10 +53,10 @@ pmath_bool_t pmath_is_pointer_of(pmath_t obj, pmath_type_t type){
 #define pmath_is_custom(obj)   (pmath_is_pointer_of(obj, PMATH_TYPE_CUSTOM))
 #define pmath_is_expr(obj)     (pmath_is_pointer_of(obj, PMATH_TYPE_EXPRESSION))
 #define pmath_is_float(obj)    (pmath_is_double(obj) || pmath_is_mpfloat(obj))
-#define _pmath_is_integer(obj) (pmath_is_int32(obj) || pmath_is_mpint(obj))
+#define pmath_is_integer(obj)  (pmath_is_int32(obj) || pmath_is_mpint(obj))
 #define pmath_is_number(obj)   (pmath_is_float(obj) || pmath_is_rational(obj))
 #define pmath_is_quotient(obj) (pmath_is_pointer_of(obj, PMATH_TYPE_QUOTIENT))
-#define pmath_is_rational(obj) (_pmath_is_integer(obj) || pmath_is_quotient(obj))
+#define pmath_is_rational(obj) (pmath_is_integer(obj) || pmath_is_quotient(obj))
 #define pmath_is_string(obj)   (pmath_is_pointer_of(obj, PMATH_TYPE_STRING))
 #define pmath_is_symbol(obj)   (pmath_is_pointer_of(obj, PMATH_TYPE_SYMBOL))
 
@@ -82,21 +82,6 @@ pmath_t PMATH_FROM_DOUBLE(double d){
 
 /*============================================================================*/
 
-/**\def pmath_ref
-   \brief Increments the reference counter of an object and returns it.
-   \memberof pmath_t
-   \param obj The object to be referenced.
-   \return The referenced object.
-   You must free the result with pmath_unref().
- */
-
-/**\def pmath_unref
-   \brief Decrements the reference counter of an object and frees its memory
-          if the reference counter becomes 0.
-   \memberof pmath_t
-   \param obj The object to be destroyed.
- */
- 
 /**\brief Compares two objects for identity.
    \memberof pmath_t
    \param objA The first object.
@@ -129,10 +114,12 @@ pmath_bool_t pmath_equals(
 PMATH_API 
 void _pmath_destroy_object(pmath_t obj);
 
-/* inline versions. 
-   Those are the default for C/C++ (#defining pmath_ref pmath_fast_ref, ...)
+/**\brief Increments the reference counter of an object and returns it.
+   \memberof pmath_t
+   \param obj The object to be referenced.
+   \return The referenced object.
+   You must free the result with pmath_unref().
  */
-
 PMATH_FORCE_INLINE
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_t pmath_ref(pmath_t obj){
@@ -155,6 +142,11 @@ pmath_t pmath_ref(pmath_t obj){
   return obj;
 }
 
+/**\brief Decrements the reference counter of an object and frees its memory
+          if the reference counter becomes 0.
+   \memberof pmath_t
+   \param obj The object to be destroyed.
+ */
 PMATH_FORCE_INLINE
 void pmath_unref(pmath_t obj){
   if(PMATH_UNLIKELY(!pmath_is_pointer(obj)))

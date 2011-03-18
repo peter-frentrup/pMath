@@ -236,7 +236,7 @@ PMATH_PRIVATE pmath_t builtin_sin(pmath_expr_t expr){
               }
           }
           else if(pmath_same(cmp, PMATH_SYMBOL_FALSE)){ // 1/2 Pi <= x
-            if(_pmath_is_integer(fst)){
+            if(pmath_is_integer(fst)){
               pmath_unref(expr);
               pmath_unref(fst);
               pmath_unref(x);
@@ -297,7 +297,7 @@ PMATH_PRIVATE pmath_t builtin_sin(pmath_expr_t expr){
         
         tmp = pmath_evaluate(DIV(tmp, pmath_ref(PMATH_SYMBOL_PI)));
         
-        if(_pmath_is_integer(tmp)){
+        if(pmath_is_integer(tmp)){
           tmp = POW(INT(-1), tmp);
           
           expr = pmath_expr_set_item(expr, 1, PMATH_NULL);

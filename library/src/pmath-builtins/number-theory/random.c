@@ -63,7 +63,7 @@ static pmath_expr_t random_array(
     if(data->random_integer){
       pmath_mpint_t result = _pmath_create_mp_int(0);
       
-      assert(_pmath_is_integer(data->max));
+      assert(pmath_is_integer(data->max));
       
       if(!pmath_is_null(result)){
         if(pmath_is_int32(data->max)){
@@ -228,7 +228,7 @@ PMATH_PRIVATE pmath_t builtin_randominteger(pmath_expr_t expr){
   
   if(exprlen > 0){
     pmath_t range = pmath_expr_get_item(expr, 1);
-    if(_pmath_is_integer(range)){
+    if(pmath_is_integer(range)){
       data.max = _add_nn(range, PMATH_FROM_INT32(1));
       if(pmath_is_null(data.max)){
         pmath_unref(expr);
@@ -242,13 +242,13 @@ PMATH_PRIVATE pmath_t builtin_randominteger(pmath_expr_t expr){
     }
     else if(pmath_is_expr_of_len(range, PMATH_SYMBOL_RANGE, 2)){
       data.min = pmath_expr_get_item(range, 1);
-      if(!_pmath_is_integer(data.min)){
+      if(!pmath_is_integer(data.min)){
         pmath_unref(data.min);
         goto RANGE_ERROR;
       }
         
       data.max = pmath_expr_get_item(range, 2);
-      if(!_pmath_is_integer(data.max)){
+      if(!pmath_is_integer(data.max)){
         pmath_unref(data.min);
         pmath_unref(data.max);
         goto RANGE_ERROR;

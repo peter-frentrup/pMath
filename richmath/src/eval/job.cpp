@@ -99,28 +99,13 @@ bool InputJob::start(){
   
   doc->move_to(doc, i);
   
-  Expr line = Client::interrupt(Expr(
-    pmath_expr_new_extended(
-      pmath_ref(PMATH_SYMBOL_PLUS), 2,
-      pmath_ref(PMATH_SYMBOL_LINE),
-      pmath_integer_new_si(1))));
-  
+  Expr line = Client::interrupt(Plus(Symbol(PMATH_SYMBOL_LINE), 1));
   Expr dlvl = Client::interrupt(Symbol(PMATH_SYMBOL_DIALOGLEVEL));
   
   String label = String("in [");
-  if(dlvl.instance_of(PMATH_TYPE_INTEGER)){
-    if(pmath_integer_fits_ui(dlvl.get())){
-      unsigned long ui = pmath_integer_get_ui(dlvl.get());
-      
-      if(ui == 1)
-        label = String("(Dialog) ") + label;
-      else if(ui != 0)
-        label = String("(Dialog ") + dlvl.to_string() + String(") ") + label;
-    }
-    else
-      label = String("(Dialog ") + dlvl.to_string() + String(") ") + label;
-  }
-  else
+  if(dlvl == PMATH_FROM_INT32(1))
+    label = String("(Dialog) ") + label;
+  else if(dlvl != PMATH_FROM_INT32(0))
     label = String("(Dialog ") + dlvl.to_string() + String(") ") + label;
   
   section->label(label + line.to_string() + String("]:"));

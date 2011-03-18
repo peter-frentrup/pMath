@@ -536,8 +536,8 @@ static pmath_t deserialize(struct deserializer_t *info){
       pmath_integer_t num = deserialize(info);
       pmath_integer_t den = deserialize(info);
       
-      if(_pmath_is_integer(num)
-      && _pmath_is_integer(den)
+      if(pmath_is_integer(num)
+      && pmath_is_integer(den)
       && pmath_number_sign(den) > 0){
         return pmath_rational_new(num, den);
       }

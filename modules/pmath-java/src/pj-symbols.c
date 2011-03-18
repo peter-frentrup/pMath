@@ -10,9 +10,12 @@ pmath_symbol_t _pj_symbols[PJ_SYMBOLS_COUNT];
 
 
 pmath_bool_t pj_symbols_init(void){
-  memset(_pj_symbols, 0, sizeof(_pj_symbols));
-  
-  #define VERIFY(x)             do{ if(0 == (x)) goto FAIL; }while(0)
+  size_t i;
+  for(i = 0;i < PJ_SYMBOLS_COUNT;++i){
+    _pj_symbols[i] = PMATH_NULL;
+  }
+    
+  #define VERIFY(x)             do{ if(pmath_is_null(x)) goto FAIL; }while(0)
   #define NEW_SYMBOL(name)      pmath_symbol_get(PMATH_C_STRING((name)), TRUE)
 
   #define BIND(sym, func, use)  do{ if(!pmath_register_code((sym), (func), (use))) goto FAIL; }while(0)
@@ -73,15 +76,11 @@ pmath_bool_t pj_symbols_init(void){
   pmath_symbol_set_attributes(
     PJ_SYMBOL_INTERNAL_STOPPEDCOTHREAD, 
     PMATH_SYMBOL_ATTRIBUTE_HOLDALLCOMPLETE);
-  
-  {
-    size_t i;
-    for(i = 0;i < PJ_SYMBOLS_COUNT;++i){
-      if(!_pj_symbols[i])
-        pmath_debug_print("Symbol %d not defined.\n", (int)i);
-        
-      PROTECT(_pj_symbols[i]);
-    }
+  for(i = 0;i < PJ_SYMBOLS_COUNT;++i){
+    if(pmath_is_null(_pj_symbols[i]))
+      pmath_debug_print("Symbol %d not defined.\n", (int)i);
+      
+    PROTECT(_pj_symbols[i]);
   }
   
   return TRUE;
@@ -91,7 +90,7 @@ pmath_bool_t pj_symbols_init(void){
     size_t i;
     for(i = 0;i < PJ_SYMBOLS_COUNT;++i){
       pmath_unref(_pj_symbols[i]);
-      _pj_symbols[i] = NULL;
+      _pj_symbols[i] = PMATH_NULL;
     }
   }
   return FALSE;
@@ -107,6 +106,6 @@ void pj_symbols_done(void){
   size_t i;
   for(i = 0;i < PJ_SYMBOLS_COUNT;++i){
     pmath_unref(_pj_symbols[i]);
-    _pj_symbols[i] = NULL;
+    _pj_symbols[i] = PMATH_NULL;
   }
 }

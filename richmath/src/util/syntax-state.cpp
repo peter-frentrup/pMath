@@ -105,10 +105,9 @@ SyntaxInformation::SyntaxInformation(Expr name)
   locals_min(1),
   locals_max(INT_MAX)
 {
-  Expr expr = Client::interrupt_cached(Expr(
-    pmath_expr_new_extended(
-      pmath_ref(PMATH_SYMBOL_SYNTAXINFORMATION), 1,
-      pmath_ref(name.get()))));
+  Expr expr = Client::interrupt_cached(Call(
+    Symbol(PMATH_SYMBOL_SYNTAXINFORMATION),
+    name));
   
   if(expr.is_expr()
   && expr[0] == PMATH_SYMBOL_LIST){
@@ -123,27 +122,20 @@ SyntaxInformation::SyntaxInformation(Expr name)
         if(key.equals("ArgumentCount")){
           Expr value = opt[2];
           
-          if(value.instance_of(PMATH_TYPE_INTEGER)
-          && pmath_integer_fits_ui(value.get())){
-            unsigned long n = pmath_integer_get_ui(value.get());
-            if(n <= INT_MAX)
-              minargs = maxargs = (int)n;
+          if(value.is_int32() && PMATH_AS_INT32(value.get()) >= 0){
+            minargs = maxargs = PMATH_AS_INT32(value.get());
           }
           else if(value.is_expr()
           && value[0] == PMATH_SYMBOL_RANGE
           && value.expr_length() == 2){
-            if(value[1].instance_of(PMATH_TYPE_INTEGER)
-            && pmath_integer_fits_ui(value[1].get())){
-              unsigned long n = pmath_integer_get_ui(value[1].get());
-              if(n <= INT_MAX)
-                minargs = (int)n;
+            if(value[1].is_int32()
+            && PMATH_AS_INT32(value[1].get()) >= 0){
+              minargs = PMATH_AS_INT32(value[1].get());
             }
             
-            if(value[2].instance_of(PMATH_TYPE_INTEGER)
-            && pmath_integer_fits_ui(value[2].get())){
-              unsigned long n = pmath_integer_get_ui(value[2].get());
-              if(n <= INT_MAX)
-                maxargs = (int)n;
+            if(value[2].is_int32()
+            && PMATH_AS_INT32(value[2].get()) >= 0){
+              maxargs = PMATH_AS_INT32(value[2].get());
             }
           }
         }
@@ -165,27 +157,21 @@ SyntaxInformation::SyntaxInformation(Expr name)
             if(locals_form != NoSpec){
               value = value[2];
               
-              if(value.instance_of(PMATH_TYPE_INTEGER)
-              && pmath_integer_fits_ui(value.get())){
-                unsigned long n = pmath_integer_get_ui(value.get());
-                if(n <= INT_MAX)
-                  locals_min = locals_max = (int)n;
+              if(value.is_int32()
+              && PMATH_AS_INT32(value.get()) >= 0){
+                locals_min = locals_max = PMATH_AS_INT32(value.get());
               }
               else if(value.is_expr()
               && value[0] == PMATH_SYMBOL_RANGE
               && value.expr_length() == 2){
-                if(value[1].instance_of(PMATH_TYPE_INTEGER)
-                && pmath_integer_fits_ui(value[1].get())){
-                  unsigned long n = pmath_integer_get_ui(value[1].get());
-                  if(n <= INT_MAX)
-                    locals_min = (int)n;
+                if(value[1].is_int32()
+                && PMATH_AS_INT32(value[1].get()) >= 0){
+                  locals_min = PMATH_AS_INT32(value[1].get());
                 }
                 
-                if(value[2].instance_of(PMATH_TYPE_INTEGER)
-                && pmath_integer_fits_ui(value[2].get())){
-                  unsigned long n = pmath_integer_get_ui(value[2].get());
-                  if(n <= INT_MAX)
-                    locals_max = (int)n;
+                if(value[2].is_int32()
+                && PMATH_AS_INT32(value[2].get()) >= 0){
+                  locals_max = PMATH_AS_INT32(value[2].get());
                 }
               }
             }

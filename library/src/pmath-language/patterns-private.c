@@ -1027,7 +1027,7 @@ static match_kind_t match_atom(
         return PMATH_MATCH_KIND_NONE;
       }
       
-      if(_pmath_is_integer(arg)){
+      if(pmath_is_integer(arg)){
         if(pmath_same(type, PMATH_SYMBOL_INTEGER))
           return PMATH_MATCH_KIND_LOCAL;
         return PMATH_MATCH_KIND_NONE;

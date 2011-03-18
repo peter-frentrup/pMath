@@ -18,5 +18,5 @@ PMATH_PRIVATE pmath_t builtin_hash(pmath_expr_t expr){
   hash = pmath_hash(obj);
   pmath_unref(obj);
 
-  return _pmath_integer_new_ui32(hash);
+  return pmath_integer_new_ui32(hash);
 }

@@ -50,8 +50,8 @@ struct obj_entry_t{
       JNIEnv *env = pjvm_get_env();
       
       pmath_t sym = pmath_symbol_get(e->owner_name, FALSE);
-      if(sym){
-        pmath_symbol_set_value(sym, NULL);
+      if(!pmath_is_null(sym)){
+        pmath_symbol_set_value(sym, PMATH_NULL);
         pmath_unref(sym);
       }
       
@@ -99,7 +99,7 @@ struct obj_entry_t{
   }
   
   static unsigned int p2j_key_hash(void *p){
-    pmath_t k = (pmath_t)p;
+    pmath_t k = *(pmath_t*)p;
     
     return pmath_hash(k);
   }
@@ -112,7 +112,7 @@ struct obj_entry_t{
   
   static pmath_bool_t p2j_entry_equals_key(void *pe, void *pk){
     struct obj_entry_t *e = (struct obj_entry_t*)pe;
-    pmath_t k = (pmath_t)pk;
+    pmath_t k = *(pmath_t*)pk;
     
     return pmath_equals(e->owner_name, k);
   }
@@ -150,11 +150,11 @@ static pmath_hashtable_t j2p_objects; // does not own the entries.
   
   static void java_destructor(void *e){
     struct obj_entry_t *p2j_entry;
-    pmath_string_t name = (pmath_string_t)e;
+    pmath_string_t name = PMATH_FROM_PTR(e);
     
     pmath_atomic_lock(&p2j_lock);
     {
-      p2j_entry = (struct obj_entry_t*)pmath_ht_remove(p2j_objects, name);
+      p2j_entry = (struct obj_entry_t*)pmath_ht_remove(p2j_objects, &name);
       if(p2j_entry){
         struct obj_entry_t *j2p_entry;
         j2p_entry = pmath_ht_remove(j2p_objects, p2j_entry->jglobal);
@@ -168,7 +168,7 @@ static pmath_hashtable_t j2p_objects; // does not own the entries.
   }
 
 pmath_t pj_object_from_java(JNIEnv *env, jobject jobj){
-  pmath_symbol_t symbol = NULL;
+  pmath_symbol_t symbol = PMATH_NULL;
   
   pmath_atomic_lock(&p2j_lock);
   {
@@ -180,15 +180,15 @@ pmath_t pj_object_from_java(JNIEnv *env, jobject jobj){
   }
   pmath_atomic_unlock(&p2j_lock);
   
-  if(symbol)
+  if(!pmath_is_null(symbol))
     return symbol;
   
   if(!env || (*env)->EnsureLocalCapacity(env, 1) != 0){
-    return NULL;
+    return PMATH_NULL;
   }
   
   symbol = pmath_symbol_create_temporary(PMATH_C_STRING("Java`Objects`javaObject"), TRUE);
-  if(symbol){
+  if(!pmath_is_null(symbol)){
     struct obj_entry_t *entry;
     
     entry = (struct obj_entry_t*)pmath_mem_alloc(sizeof(struct obj_entry_t));
@@ -199,8 +199,8 @@ pmath_t pj_object_from_java(JNIEnv *env, jobject jobj){
       pmath_custom_t       value;
       
       name  = pmath_symbol_name(symbol);
-      value = pmath_custom_new(pmath_ref(name), java_destructor);
-      if(value){
+      value = pmath_custom_new(PMATH_AS_PTR(pmath_ref(name)), java_destructor);
+      if(!pmath_is_null(value)){
         entry->owner_name = pmath_ref(name);
         entry->jglobal    = (*env)->NewGlobalRef(env, jobj);
         
@@ -223,7 +223,7 @@ pmath_t pj_object_from_java(JNIEnv *env, jobject jobj){
               
               if(test_entry){
                 assert(entry == test_entry);
-                entry = (struct obj_entry_t*)pmath_ht_remove(p2j_objects, name);
+                entry = (struct obj_entry_t*)pmath_ht_remove(p2j_objects, &name);
               }
               else{
                 entry = NULL;
@@ -303,20 +303,20 @@ jobject pj_object_to_java(JNIEnv *env, pmath_t obj){
     return NULL;
   }
   
-  if(pmath_instance_of(obj, PMATH_TYPE_SYMBOL)){
+  if(pmath_is_symbol(obj)){
     pmath_t value = pmath_symbol_get_value(obj);
     pmath_unref(obj);
     obj = value;
   }
   
-  if(pmath_instance_of(obj, PMATH_TYPE_CUSTOM)
+  if(pmath_is_custom(obj)
   && pmath_custom_has_destructor(obj, java_destructor)){
-    pmath_string_t name = pmath_ref((pmath_string_t)pmath_custom_get_data(obj));
+    pmath_string_t name = pmath_ref(PMATH_FROM_PTR(pmath_custom_get_data(obj)));
     jobject result = NULL;
     
     pmath_atomic_lock(&p2j_lock);
     {
-      struct obj_entry_t *e = pmath_ht_search(p2j_objects, name);
+      struct obj_entry_t *e = pmath_ht_search(p2j_objects, &name);
       
       if(e)
         result = (*env)->NewLocalRef(env, e->jglobal);
@@ -339,13 +339,13 @@ pmath_bool_t pj_object_is_java(JNIEnv *env, pmath_t obj){
   if(!env)
     return FALSE;
   
-  if(pmath_instance_of(obj, PMATH_TYPE_SYMBOL)){
+  if(pmath_is_symbol(obj)){
     value = pmath_symbol_get_value(obj);
   }
   else
     value = pmath_ref(obj);
   
-  if(pmath_instance_of(value, PMATH_TYPE_CUSTOM)
+  if(pmath_is_custom(value)
   && pmath_custom_has_destructor(value, java_destructor)){
     pmath_unref(value);
     return TRUE;
@@ -519,7 +519,7 @@ pmath_t pj_builtin_internal_return(pmath_expr_t expr){
     result));
   
   pmath_unref(expr);
-  return NULL;
+  return PMATH_NULL;
 }
 
 pmath_t pj_builtin_internal_javacall(pmath_expr_t expr){
@@ -569,10 +569,10 @@ pmath_t pj_builtin_internal_javacall(pmath_expr_t expr){
   pj_exception_to_pmath(env);
   
   exception = pmath_catch();
-  if(exception != PMATH_UNDEFINED){
+  if(!pmath_same(exception, PMATH_UNDEFINED)){
     pmath_unref(result);
     
-    if(exception == PMATH_ABORT_EXCEPTION){
+    if(pmath_same(exception, PMATH_ABORT_EXCEPTION)){
       result = pmath_expr_new(
         pmath_ref(PMATH_SYMBOL_ABORT), 0);
     }
@@ -590,7 +590,7 @@ pmath_t pj_builtin_internal_javacall(pmath_expr_t expr){
   
   pmath_thread_send(companion, expr);
   pmath_unref(companion);
-  return NULL;
+  return PMATH_NULL;
 }
 
 pmath_t pj_builtin_javacall(pmath_expr_t expr){
@@ -618,7 +618,7 @@ pmath_t pj_builtin_javacall(pmath_expr_t expr){
   }
   
   companion = pj_thread_get_companion(&jthread_obj);
-  if(!companion || !jthread_obj){
+  if(pmath_is_null(companion) || !jthread_obj){
     pmath_unref(companion);
     
     if(jthread_obj)
@@ -637,9 +637,9 @@ pmath_t pj_builtin_javacall(pmath_expr_t expr){
     expr = pmath_expr_set_item(expr, 0, 
       pmath_ref(PJ_SYMBOL_INTERNAL_JAVACALL));
     pmath_thread_send(companion, expr); 
-    expr = NULL;
+    expr = PMATH_NULL;
     
-    while(result == PMATH_UNDEFINED){
+    while(pmath_same(result, PMATH_UNDEFINED)){
       pmath_thread_sleep();
       
       if(pmath_aborting()){
@@ -655,9 +655,9 @@ pmath_t pj_builtin_javacall(pmath_expr_t expr){
           result = pmath_thread_local_load(result_key);
           
         }while(pmath_tickcount() - start_time < 2.0 
-        && result == PMATH_UNDEFINED);
+        && pmath_same(result, PMATH_UNDEFINED));
         
-        if(result != PMATH_UNDEFINED)
+        if(!pmath_same(result, PMATH_UNDEFINED))
           break;
           
         if(pjvm_internal_exception)
@@ -702,7 +702,7 @@ pmath_t pj_builtin_internal_javanew(pmath_expr_t expr){
       
       args = pmath_expr_get_item_range(expr, 2, SIZE_MAX);
       
-      jresult = pj_class_new_object(env, clazz, args, NULL);
+      jresult = pj_class_new_object(env, clazz, args, PMATH_NULL);
       if(jresult){
         (*env)->DeleteLocalRef(env, clazz);
         
@@ -715,17 +715,17 @@ pmath_t pj_builtin_internal_javanew(pmath_expr_t expr){
     }
     else{
       pj_thread_message(companion, 
-        NULL, "nocls", 1, pmath_expr_get_item(expr, 1));
+        PMATH_NULL, "nocls", 1, pmath_expr_get_item(expr, 1));
     }
   }
   
   pj_exception_to_pmath(env);
   
   exception = pmath_catch();
-  if(exception != PMATH_UNDEFINED){
+  if(!pmath_same(exception, PMATH_UNDEFINED)){
     pmath_unref(result);
     
-    if(exception == PMATH_ABORT_EXCEPTION){
+    if(pmath_same(exception, PMATH_ABORT_EXCEPTION)){
       result = pmath_expr_new(
         pmath_ref(PMATH_SYMBOL_ABORT), 0);
     }
@@ -743,7 +743,7 @@ pmath_t pj_builtin_internal_javanew(pmath_expr_t expr){
   
   pmath_thread_send(companion, expr);
   pmath_unref(companion);
-  return NULL;
+  return PMATH_NULL;
 }
 
 pmath_t pj_builtin_javanew(pmath_expr_t expr){
@@ -771,7 +771,7 @@ pmath_t pj_builtin_javanew(pmath_expr_t expr){
   }
   
   companion = pj_thread_get_companion(&jthread_obj);
-  if(!companion || !jthread_obj){
+  if(pmath_is_null(companion) || !jthread_obj){
     pmath_unref(companion);
     
     if(jthread_obj)
@@ -790,9 +790,9 @@ pmath_t pj_builtin_javanew(pmath_expr_t expr){
     expr = pmath_expr_set_item(expr, 0, 
       pmath_ref(PJ_SYMBOL_INTERNAL_JAVANEW));
     pmath_thread_send(companion, expr); 
-    expr = NULL;
+    expr = PMATH_NULL;
     
-    while(result == PMATH_UNDEFINED){
+    while(pmath_same(result, PMATH_UNDEFINED)){
       pmath_thread_sleep();
       
       if(pmath_aborting()){
@@ -808,9 +808,9 @@ pmath_t pj_builtin_javanew(pmath_expr_t expr){
           result = pmath_thread_local_load(result_key);
           
         }while(pmath_tickcount() - start_time < 2.0 
-        && result == PMATH_UNDEFINED);
+        && pmath_same(result, PMATH_UNDEFINED));
         
-        if(result != PMATH_UNDEFINED)
+        if(!pmath_same(result, PMATH_UNDEFINED))
           break;
           
         if(pjvm_internal_exception)

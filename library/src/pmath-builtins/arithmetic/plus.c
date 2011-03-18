@@ -16,9 +16,9 @@ static pmath_integer_t _addmul_iii( // intA + intB * intC
 ){
   pmath_mpint_t result;
   
-  assert(_pmath_is_integer(intA));
-  assert(_pmath_is_integer(intB));
-  assert(_pmath_is_integer(intC));
+  assert(pmath_is_integer(intA));
+  assert(pmath_is_integer(intB));
+  assert(pmath_is_integer(intC));
   
   if(pmath_is_int32(intA)){
     result = _pmath_create_mp_int(PMATH_AS_INT32(intA));
@@ -104,8 +104,8 @@ static pmath_integer_t _add_ii(
 ){
   pmath_integer_t result;
   
-  assert(_pmath_is_integer(intA));
-  assert(_pmath_is_integer(intB));
+  assert(pmath_is_integer(intA));
+  assert(pmath_is_integer(intB));
   
   if(pmath_is_int32(intA)){
     int a = PMATH_AS_INT32(intA);
@@ -299,7 +299,7 @@ static pmath_t _add_fi(
   pmath_mpfloat_t result;
   
   assert(pmath_is_mpfloat(floatA));
-  assert(_pmath_is_integer(intB));
+  assert(pmath_is_integer(intB));
   
   result = _pmath_create_mp_float(mpfr_get_prec(PMATH_AS_MP_VALUE(floatA)));
   
@@ -463,7 +463,7 @@ static pmath_t _add_mi(
   double d;
   
   assert(pmath_is_double(floatA));
-  assert(_pmath_is_integer(intB));
+  assert(pmath_is_integer(intB));
   
   d = PMATH_AS_DOUBLE(floatA);
   

@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <pmath.h>
 
-static pmath_symbol_t HELLO_SYMBOL_GREET = 0;
+static pmath_symbol_t HELLO_SYMBOL_GREET = PMATH_STATIC_NULL;
 
 static pmath_t hello_func_greet(pmath_expr_t expr){
   pmath_unref(expr);
@@ -11,7 +11,7 @@ static pmath_t hello_func_greet(pmath_expr_t expr){
 
 PMATH_MODULE
 pmath_bool_t pmath_module_init(pmath_string_t filename){
-#define VERIFY(x)             do{ if(0 == (x)) goto FAIL; }while(0)
+#define VERIFY(x)             do{ if(pmath_is_null(x)) goto FAIL; }while(0)
 #define NEW_SYMBOL(name)      pmath_symbol_get(PMATH_C_STRING((name)), TRUE)
 
 #define BIND(sym, func, use)  do{ if(!pmath_register_code((sym), (func), (use))) goto FAIL; }while(0)
@@ -39,5 +39,5 @@ pmath_bool_t pmath_module_init(pmath_string_t filename){
 
 PMATH_MODULE
 void pmath_module_done(void){
-  pmath_unref(HELLO_SYMBOL_GREET);   HELLO_SYMBOL_GREET = 0;
+  pmath_unref(HELLO_SYMBOL_GREET);
 }

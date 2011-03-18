@@ -61,8 +61,8 @@ Box *Box::find(Expr frontendobject){
   && frontendobject[0] == PMATH_SYMBOL_FRONTENDOBJECT){
     Expr num = frontendobject[1];
     
-    if(num.is_integer() && pmath_integer_fits_si(num.get()))
-      return find(pmath_integer_get_si(num.get()));
+    if(num.is_int32())
+      return find(PMATH_AS_INT32(num.get()));
   }
   
   return 0;

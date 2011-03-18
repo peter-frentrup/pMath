@@ -209,7 +209,7 @@ static pmath_t next_value(const char **format, va_list *args){
         assert(0 && "unclosed complex");
       }
       
-      if(_pmath_is_integer(num) && _pmath_is_integer(den)){
+      if(pmath_is_integer(num) && pmath_is_integer(den)){
         return pmath_rational_new(num, den);
       }
       

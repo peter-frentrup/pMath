@@ -110,7 +110,7 @@ PMATH_PRIVATE pmath_t builtin_cases(pmath_expr_t expr){
       if(exprlen >= 4){
         pmath_t n = pmath_expr_get_item(expr, 4);
         
-        if(_pmath_is_integer(n) && pmath_number_sign(n) >= 0){
+        if(pmath_is_integer(n) && pmath_number_sign(n) >= 0){
           last_nonoption = 4;
           if(pmath_is_int32(n))
             info.count = (unsigned)PMATH_AS_INT32(n);

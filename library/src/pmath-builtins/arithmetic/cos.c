@@ -289,7 +289,7 @@ PMATH_PRIVATE pmath_t builtin_cos(pmath_expr_t expr){
         
         tmp = pmath_evaluate(DIV(tmp, pmath_ref(PMATH_SYMBOL_PI)));
         
-        if(_pmath_is_integer(tmp)){
+        if(pmath_is_integer(tmp)){
           tmp = POW(INT(-1), tmp);
           
           expr = pmath_expr_set_item(expr, 1, PMATH_NULL);

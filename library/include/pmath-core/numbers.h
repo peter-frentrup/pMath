@@ -113,7 +113,7 @@ pmath_integer_t pmath_integer_new_ulong(unsigned long int ui);
    \return A pMath integer with the specified value.
  */
 
-#define _pmath_integer_new_si32(si) PMATH_FROM_INT32(si)
+#define pmath_integer_new_si32(si) PMATH_FROM_INT32(si)
 
 
 //#define pmath_integer_new_si32(si)  PMATH_FROM_INT32((int32_t)(si))
@@ -125,7 +125,7 @@ pmath_integer_t pmath_integer_new_ulong(unsigned long int ui);
  */
 PMATH_FORCE_INLINE
 PMATH_ATTRIBUTE_USE_RESULT
-pmath_integer_t _pmath_integer_new_ui32(uint32_t ui){
+pmath_integer_t pmath_integer_new_ui32(uint32_t ui){
   if(ui >> 31)
     return pmath_integer_new_ulong(ui);
   return PMATH_FROM_INT32((int32_t)ui);
@@ -146,8 +146,8 @@ PMATH_API
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_integer_t pmath_integer_new_ui64(uint64_t ui);
 
-#define pmath_integer_new_siptr  PMATH_CONCAT(_pmath_integer_new_si, PMATH_BITSIZE)
-#define pmath_integer_new_uiptr  PMATH_CONCAT(_pmath_integer_new_ui, PMATH_BITSIZE)
+#define pmath_integer_new_siptr  PMATH_CONCAT(pmath_integer_new_si, PMATH_BITSIZE)
+#define pmath_integer_new_uiptr  PMATH_CONCAT(pmath_integer_new_ui, PMATH_BITSIZE)
 
 /**\brief Create an integer object from a data buffer.
    \memberof pmath_integer_t
@@ -300,7 +300,7 @@ pmath_number_t pmath_float_new_str(
    \param integer A pMath integer. It wont be freed.
    \return TRUE iff the value is small enough for a signed long int.
  */
-#define _pmath_integer_fits_si32(integer)  pmath_is_int32(integer)
+#define pmath_integer_fits_si32(integer)  pmath_is_int32(integer)
 
 /**\brief Find out whether a pMath integer fits into a unsigned long int.
    \memberof pmath_integer_t
@@ -309,7 +309,7 @@ pmath_number_t pmath_float_new_str(
  */
 PMATH_API 
 PMATH_ATTRIBUTE_PURE
-pmath_bool_t _pmath_integer_fits_ui32(pmath_integer_t integer);
+pmath_bool_t pmath_integer_fits_ui32(pmath_integer_t integer);
 
 /**\brief Find out whether a pMath integer fits into an int64_t.
    \memberof pmath_integer_t
@@ -338,7 +338,7 @@ pmath_bool_t pmath_integer_fits_ui64(pmath_integer_t integer);
  */
 PMATH_API 
 PMATH_ATTRIBUTE_PURE
-int32_t _pmath_integer_get_si32(pmath_integer_t integer);
+int32_t pmath_integer_get_si32(pmath_integer_t integer);
 
 /**\brief Convert a pMath integer to a unsigned long int.
    \memberof pmath_integer_t
@@ -349,7 +349,7 @@ int32_t _pmath_integer_get_si32(pmath_integer_t integer);
  */
 PMATH_API 
 PMATH_ATTRIBUTE_PURE
-uint32_t _pmath_integer_get_ui32(pmath_integer_t integer);
+uint32_t pmath_integer_get_ui32(pmath_integer_t integer);
 
 /**\brief Convert a pMath integer to an int64_t.
    \memberof pmath_integer_t
@@ -373,8 +373,8 @@ PMATH_API
 PMATH_ATTRIBUTE_PURE
 uint64_t pmath_integer_get_ui64(pmath_integer_t integer);
 
-#define pmath_integer_get_siptr  PMATH_CONCAT(_pmath_integer_get_si, PMATH_BITSIZE)
-#define pmath_integer_get_uiptr  PMATH_CONCAT(_pmath_integer_get_ui, PMATH_BITSIZE)
+#define pmath_integer_get_siptr  PMATH_CONCAT(pmath_integer_get_si, PMATH_BITSIZE)
+#define pmath_integer_get_uiptr  PMATH_CONCAT(pmath_integer_get_ui, PMATH_BITSIZE)
 
 /**\brief Convert a pMath number to a double.
    \memberof pmath_number_t

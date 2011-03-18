@@ -182,7 +182,7 @@ PMATH_PRIVATE pmath_t builtin_dimensions(pmath_expr_t expr){
   if(exprlen == 2){
     obj = pmath_expr_get_item(expr, 2);
     
-    if(_pmath_is_integer(obj) && pmath_number_sign(obj) >= 0){
+    if(pmath_is_integer(obj) && pmath_number_sign(obj) >= 0){
       if(pmath_is_int32(obj))
         maxdepth = (size_t)PMATH_AS_INT32(obj);
     }

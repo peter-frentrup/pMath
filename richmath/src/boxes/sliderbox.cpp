@@ -96,7 +96,7 @@ SliderBox *SliderBox::create(Expr expr){
       Divide(
         Minus(sb->range[2], sb->range[1]), 
         sb->range[3])
-      ).instance_of(PMATH_TYPE_RATIONAL);
+      ).is_rational();
   }
   else if(sb->range.expr_length() > 0
   &&      sb->range[0] == PMATH_SYMBOL_LIST){

@@ -429,8 +429,8 @@ PMATH_API pmath_rational_t pmath_rational_new(
     return PMATH_NULL;
   }
   
-  assert(_pmath_is_integer(numerator));
-  assert(_pmath_is_integer(denominator));
+  assert(pmath_is_integer(numerator));
+  assert(pmath_is_integer(denominator));
   
   if(pmath_number_sign(denominator) == 0){ // pmath_number_sign(PMATH_NULL) = 0
     pmath_unref(numerator);
@@ -516,7 +516,7 @@ PMATH_API pmath_integer_t pmath_rational_numerator(
   if(pmath_is_null(rational))
     return PMATH_NULL;
 
-  if(_pmath_is_integer(rational))
+  if(pmath_is_integer(rational))
     return pmath_ref(rational);
 
   assert(pmath_is_quotient(rational));
@@ -530,7 +530,7 @@ PMATH_API pmath_integer_t pmath_rational_denominator(
   if(pmath_is_null(rational))
     return PMATH_NULL;
 
-  if(_pmath_is_integer(rational))
+  if(pmath_is_integer(rational))
     return PMATH_FROM_INT32(1);
 
   assert(pmath_is_quotient(rational));
@@ -825,7 +825,7 @@ PMATH_API pmath_bool_t pmath_integer_fits_ui64(pmath_integer_t integer){
   return 0;
 }*/
 
-PMATH_API uint32_t _pmath_integer_get_ui32(pmath_integer_t integer){
+PMATH_API uint32_t pmath_integer_get_ui32(pmath_integer_t integer){
   if(pmath_is_int32(integer)){
     if(PMATH_AS_INT32(integer) >= 0)
       return PMATH_AS_INT32(integer);
@@ -1058,8 +1058,8 @@ PMATH_PRIVATE pmath_integer_t _mul_ii(
 ){
   pmath_mpint_t result;
 
-  assert(_pmath_is_integer(intA));
-  assert(_pmath_is_integer(intB));
+  assert(pmath_is_integer(intA));
+  assert(pmath_is_integer(intB));
   
   if(pmath_is_int32(intA)){
     int a = PMATH_AS_INT32(intA);
@@ -1194,16 +1194,15 @@ static void write_mp_int(
 //    write_cstr("16^^", write, user);
   mpz_get_str(str, base, PMATH_AS_MPZ(integer));
 
-  /* mpz_sizeinbase returns 2 for integer->value = 8 or 9, but 1 should be the
-     result, since its one digit */
+  #ifdef PMATH_DEBUG_LOG
+  write_cstr("(", write, user);
+  #endif
   
-  write_cstr(" (", write, user);
-  
-  // calculate strlen faster fo very big values.
-  // write(user, str, size - 3 + strlen(str + size - 3));
   write_cstr(str, write, user);
 
-  write_cstr(") ", write, user);
+  #ifdef PMATH_DEBUG_LOG
+  write_cstr(")", write, user);
+  #endif
   
   pmath_mem_free(str);
 }

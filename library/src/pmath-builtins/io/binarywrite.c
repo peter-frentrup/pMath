@@ -589,7 +589,7 @@ static pmath_bool_t binary_write(
           }
         }
       
-        if(_pmath_is_integer(value)){
+        if(pmath_is_integer(value)){
           size_t count;
           pmath_mpint_t pos = PMATH_NULL;
           

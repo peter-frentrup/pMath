@@ -488,7 +488,7 @@ void Client::execute_for(Expr expr, Box *box){
 }
 
 Expr Client::interrupt_cached(Expr expr, double seconds){
-  if(!expr.instance_of(PMATH_TYPE_SYMBOL | PMATH_TYPE_EXPRESSION))
+  if(!expr.is_pointer_of(PMATH_TYPE_SYMBOL | PMATH_TYPE_EXPRESSION))
     return expr;
   
   Expr *cached = eval_cache.search(expr);
@@ -720,9 +720,8 @@ static void execute(ClientNotification &cn){
       for(size_t i = cn.data.expr_length();i > 0;--i){
         Expr id_obj = cn.data[i];
         
-        if(id_obj.instance_of(PMATH_TYPE_INTEGER)
-        && pmath_integer_fits_si(id_obj.get())){
-          Box *box = Box::find(pmath_integer_get_si(id_obj.get()));
+        if(id_obj.is_int32()){
+          Box *box = Box::find(PMATH_AS_INT32(id_obj.get()));
           
           if(box)
             box->dynamic_updated();

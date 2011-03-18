@@ -15,7 +15,7 @@ PMATH_PRIVATE pmath_t builtin_history(pmath_expr_t expr){
 
   obj = pmath_expr_get_item(expr, 1);
   
-  if(_pmath_is_integer(obj)){
+  if(pmath_is_integer(obj)){
     if(pmath_number_sign(obj) <= 0){
       obj = pmath_evaluate(
         pmath_expr_new_extended(
@@ -23,7 +23,7 @@ PMATH_PRIVATE pmath_t builtin_history(pmath_expr_t expr){
           pmath_ref(PMATH_SYMBOL_LINE),
           obj));
       
-      if(_pmath_is_integer(obj)
+      if(pmath_is_integer(obj)
       && pmath_number_sign(obj) > 0)
         return pmath_expr_set_item( expr, 1, obj);
       

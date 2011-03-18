@@ -19,11 +19,11 @@
 #endif
 
 
-static pmath_messages_t jvm_main_mq = NULL;
+static pmath_messages_t jvm_main_mq = PMATH_STATIC_NULL;
 pmath_t pjvm_auto_detach_key; // initialized/freed in main.c
 
 static PMATH_DECLARE_ATOMIC(vm_lock) = 0;
-static pmath_t vm = NULL;
+static pmath_t vm = PMATH_STATIC_NULL;
 struct pjvm_data_t{
   JavaVM   *jvm;
   jvmtiEnv *jvmti;
@@ -89,7 +89,7 @@ static jint (JNICALL *_JNI_GetCreatedJavaVMs)(JavaVM **, jsize, jsize *) = NULL;
     
     vmlibfile = pmath_evaluate(pmath_ref(PJ_SYMBOL_JAVAVMLIBRARYNAME));
     
-    if(!pmath_instance_of(vmlibfile, PMATH_TYPE_STRING)){
+    if(!pmath_is_string(vmlibfile)){
       pmath_unref(vmlibfile);
       return;
     }
@@ -177,18 +177,18 @@ static jint (JNICALL *_JNI_GetCreatedJavaVMs)(JavaVM **, jsize, jsize *) = NULL;
     struct pjvm_data_t *d;
     
     if(!jvm)
-      return NULL;
+      return PMATH_NULL;
     
     d = pmath_mem_alloc(sizeof(struct pjvm_data_t));
     if(!d)
-      return NULL;
+      return PMATH_NULL;
     
     d->jvm   = jvm;
     d->jvmti = NULL;
     (*d->jvm)->GetEnv(d->jvm, (void**)&d->jvmti, JVMTI_VERSION_1_0);
     if(!d->jvmti){
       pmath_mem_free(d);
-      return NULL;
+      return PMATH_NULL;
     }
     
     return pmath_custom_new(d, pjvm_destructor);
@@ -201,7 +201,7 @@ static jint (JNICALL *_JNI_GetCreatedJavaVMs)(JavaVM **, jsize, jsize *) = NULL;
       fprintf(stderr, "[auto_detach_proc]\n");
     #endif
     
-    if(pjvm){
+    if(!pmath_is_null(pjvm)){
       JavaVM *jvm = pjvm_get_java(pjvm);
       
       if(jvm){
@@ -243,7 +243,7 @@ pmath_bool_t pjvm_register_external(JavaVM *jvm){
   pmath_atomic_unlock(&vm_lock);
   
   pmath_unref(_vm);
-  return pjvm != NULL;
+  return !pmath_is_null(pjvm);
 }
 
 pmath_t pjvm_try_get(void){
@@ -258,7 +258,7 @@ pmath_t pjvm_try_get(void){
 }
 
 JavaVM *pjvm_get_java(pmath_t pjvm){
-  if(pmath_instance_of(pjvm, PMATH_TYPE_CUSTOM)
+  if(pmath_is_custom(pjvm)
   && pmath_custom_has_destructor(pjvm, pjvm_destructor)){
     return ((struct pjvm_data_t*)pmath_custom_get_data(pjvm))->jvm;
   }
@@ -267,7 +267,7 @@ JavaVM *pjvm_get_java(pmath_t pjvm){
 }
 
 jvmtiEnv *pjvm_get_jvmti(pmath_t pjvm){
-  if(pmath_instance_of(pjvm, PMATH_TYPE_CUSTOM)
+  if(pmath_is_custom(pjvm)
   && pmath_custom_has_destructor(pjvm, pjvm_destructor)){
     return ((struct pjvm_data_t*)pmath_custom_get_data(pjvm))->jvmti;
   }
@@ -279,7 +279,7 @@ jvmtiEnv *pjvm_get_jvmti(pmath_t pjvm){
     pmath_t pjvm = pjvm_try_get();
     JavaVM *jvm = NULL;
     
-    if(pjvm){
+    if(!pmath_is_null(pjvm)){
       jvm = pjvm_get_java(pjvm);
       pmath_unref(pjvm);
     }
@@ -296,7 +296,7 @@ jvmtiEnv *pjvm_get_jvmti(pmath_t pjvm){
           
           pmath_debug_print("[pmath-java: need new env]\n");
           
-          if(auto_detach){
+          if(!pmath_is_null(auto_detach)){
             pmath_unref(pmath_thread_local_save(pjvm_auto_detach_key, auto_detach));
           }
           
@@ -416,7 +416,7 @@ pmath_bool_t pj_exception_to_pmath(JNIEnv *env){
 void pjvm_ensure_started(void){
   pmath_t pjvm = pjvm_try_get();
   
-  if(pjvm){
+  if(!pmath_is_null(pjvm)){
     pmath_unref(pjvm);
     return;
   }
@@ -435,20 +435,20 @@ pmath_t pj_builtin_startvm(pmath_expr_t expr){
   }
   
   pjvm = pjvm_try_get();
-  if(pjvm){
+  if(!pmath_is_null(pjvm)){
     pmath_unref(pjvm);
     pmath_unref(expr);
-    return NULL;
+    return PMATH_NULL;
   }
   
   msg = pmath_thread_get_queue();
   pmath_unref(msg);
-  if(msg == jvm_main_mq){
+  if(pmath_same(msg, jvm_main_mq)){
     pmath_unref(expr);
     
     pmath_atomic_lock(&vm_lock);
     {
-      if(!vm){
+      if(pmath_is_null(vm)){
         if(load_jvm_library()){
           JavaVMInitArgs vm_args;
           JavaVM *jvm = NULL;
@@ -475,7 +475,7 @@ pmath_t pj_builtin_startvm(pmath_expr_t expr){
           { // setting up classpath
             pmath_t cp = pmath_evaluate(pmath_ref(PJ_SYMBOL_DEFAULTCLASSPATH));
             
-            if(pmath_instance_of(cp, PMATH_TYPE_STRING))
+            if(pmath_is_string(cp))
               cp = pmath_build_value("(o)", cp);
             
             if(pmath_is_expr_of(cp, PMATH_SYMBOL_LIST)
@@ -486,10 +486,10 @@ pmath_t pj_builtin_startvm(pmath_expr_t expr){
               for(i = 1;i <= pmath_expr_length(cp);++i){
                 pmath_t item = pmath_expr_get_item(cp, i);
                 
-                if(!pmath_instance_of(item, PMATH_TYPE_STRING)){
+                if(!pmath_is_string(item)){
                   pmath_unref(item);
                   pmath_unref(s);
-                  s = NULL;
+                  s = PMATH_NULL;
                   break;
                 }
                 
@@ -506,7 +506,7 @@ pmath_t pj_builtin_startvm(pmath_expr_t expr){
                 s = pmath_string_concat(s, item);
               }
               
-              if(s)
+              if(!pmath_is_null(s))
                 classpath = pmath_string_to_utf8(s, NULL);
               
               pmath_unref(s);
@@ -617,21 +617,21 @@ pmath_t pj_builtin_startvm(pmath_expr_t expr){
   
   pjvm = pjvm_try_get();
   pmath_unref(pjvm);
-  return pjvm ? NULL : pmath_ref(PMATH_SYMBOL_FAILED);
+  return pmath_is_null(pjvm) ? pmath_ref(PMATH_SYMBOL_FAILED) : PMATH_NULL;
 }
 
 
 pmath_bool_t pjvm_init(void){
   vm_lock = 0;
   jvm_main_mq = pmath_thread_fork_daemon(jvm_main, jvm_main_kill, NULL);
-  return jvm_main_mq != NULL;
+  return !pmath_is_null(jvm_main_mq);
 }
 
 void pjvm_done(void){
   pmath_unref(pmath_thread_local_save(pjvm_auto_detach_key, PMATH_UNDEFINED));
   
   pjvm_register_external(NULL);
-  pmath_unref(jvm_main_mq); jvm_main_mq = NULL;
+  pmath_unref(jvm_main_mq); jvm_main_mq = PMATH_NULL;
   
   if(vm_library_counter > 0){
     vm_library_counter = 1;

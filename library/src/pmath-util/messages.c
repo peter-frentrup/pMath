@@ -206,7 +206,7 @@ PMATH_API pmath_string_t pmath_message_find_text(pmath_t name){
         
         _pmath_atomic_unlock_ptr(&rules->_messages, messages);
         
-        if(pmath_is_null(obj)){
+        if(!pmath_is_null(obj)){
           pmath_unref(name);
           pmath_unref(sym);
           return obj;

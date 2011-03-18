@@ -3917,7 +3917,7 @@ static void make_box(int pos, pmath_t obj, void *data){
   Expr expr(obj);
   
  START:
-  if(expr. instance_of(PMATH_TYPE_STRING)){
+  if(expr.is_string()){
     TmpBox *box = new TmpBox;
     box->content()->load_from_object(expr, info->options);
     info->boxes->add(box);

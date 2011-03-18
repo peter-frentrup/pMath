@@ -1280,7 +1280,7 @@ static pmath_t pureargument_to_boxes(
   if(pmath_expr_length(expr) == 1){
     pmath_t item = pmath_expr_get_item(expr, 1);
     
-    if(_pmath_is_integer(item) && pmath_number_sign(item) > 0){
+    if(pmath_is_integer(item) && pmath_number_sign(item) > 0){
       pmath_unref(expr);
       return pmath_build_value("(so)", "#", object_to_boxes(thread, item));
     }
@@ -1291,7 +1291,7 @@ static pmath_t pureargument_to_boxes(
       pmath_unref(b);
       
       if(pmath_same(b, PMATH_SYMBOL_AUTOMATIC)
-      && _pmath_is_integer(a)
+      && pmath_is_integer(a)
       && pmath_number_sign(a) > 0){
         pmath_unref(item);
         pmath_unref(expr);

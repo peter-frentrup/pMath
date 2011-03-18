@@ -134,7 +134,7 @@ PMATH_PRIVATE pmath_t builtin_position(pmath_expr_t expr){
       if(len > 3){
         obj = pmath_expr_get_item(expr, 4);
         
-        if(_pmath_is_integer(obj)
+        if(pmath_is_integer(obj)
         && pmath_number_sign(obj) >= 0){
           last_nonoption = 4;
           if(pmath_is_int32(obj) && PMATH_AS_INT32(obj) >= 0)

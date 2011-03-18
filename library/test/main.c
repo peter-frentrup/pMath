@@ -538,13 +538,13 @@ static pmath_t builtin_quit(pmath_expr_t expr){
   if(pmath_expr_length(expr) == 1){
     pmath_t res = pmath_expr_get_item(expr, 1);
     
-    if(!pmath_is_integer(res) || !pmath_integer_fits_si32(res)){
+    if(!pmath_is_int32(res)){
       pmath_unref(res);
-      pmath_message(PMATH_NULL, "intm", 2, pmath_integer_new_si(1), pmath_ref(expr));
+      pmath_message(PMATH_NULL, "intm", 2, PMATH_FROM_INT32(1), pmath_ref(expr));
       return expr;
     }
     
-    quit_result = pmath_integer_get_si(res);
+    quit_result = PMATH_AS_INT32(res);
     pmath_unref(res);
   }
   else if(pmath_expr_length(expr) != 0){

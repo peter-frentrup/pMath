@@ -13,9 +13,8 @@
 using namespace richmath;
 
 static uint8_t expr_to_ui8(const Expr expr, uint8_t def = 0){
-  if(expr.instance_of(PMATH_TYPE_INTEGER)
-  && pmath_integer_fits_ui(expr.get())){
-    unsigned long res = pmath_integer_get_ui(expr.get());
+  if(expr.is_int32() && PMATH_AS_INT32(expr.get()) >= 0){
+    unsigned res = PMATH_AS_INT32(expr.get());
     
     if((res & 0xFF) == res)
       return res;
@@ -25,9 +24,8 @@ static uint8_t expr_to_ui8(const Expr expr, uint8_t def = 0){
 }
 
 static uint16_t expr_to_ui16(const Expr expr, uint16_t def = 0){
-  if(expr.instance_of(PMATH_TYPE_INTEGER)
-  && pmath_integer_fits_ui(expr.get())){
-    unsigned long res = pmath_integer_get_ui(expr.get());
+  if(expr.is_int32() && PMATH_AS_INT32(expr.get()) >= 0){
+    unsigned res = PMATH_AS_INT32(expr.get());
     
     if((res & 0xFFFF) == res)
       return res;

@@ -935,7 +935,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
         if(parse(&num) && parse(&box)){
           pmath_unref(expr);
           
-          if(_pmath_is_integer(num) && _pmath_is_integer(box))
+          if(pmath_is_integer(num) && pmath_is_integer(box))
             return HOLDCOMPLETE(pmath_rational_new(num, box));
           
           if(pmath_equals(num, PMATH_FROM_INT32(1))){
@@ -1622,7 +1622,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
           return pmath_ref(PMATH_SYMBOL_FAILED);
         }
         
-        if(_pmath_is_integer(box)){
+        if(pmath_is_integer(box)){
           pmath_unref(expr);
           return HOLDCOMPLETE(
             pmath_expr_new_extended(
@@ -1642,7 +1642,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
           return pmath_ref(PMATH_SYMBOL_FAILED);
         }
         
-        if(_pmath_is_integer(box)){
+        if(pmath_is_integer(box)){
           pmath_unref(expr);
           return HOLDCOMPLETE(
             pmath_expr_new_extended(

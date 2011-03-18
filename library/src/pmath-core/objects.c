@@ -266,10 +266,15 @@ PMATH_API void pmath_write(
     return;
   }
   
+  if(pmath_is_int32(obj)){
+    _pmath_write_machine_int(obj, options, write, user);
+    return;
+  }
+  
   {
     char s[40];
     
-    snprintf(s, sizeof(s), "/\\/ /* %d, 0x%x */", 
+    snprintf(s, sizeof(s), "/\\/ /* 0x%x, 0x%x */", 
       (int)PMATH_AS_TAG(obj),
       (int)PMATH_AS_INT32(obj));
     

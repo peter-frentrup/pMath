@@ -64,7 +64,7 @@ PMATH_PRIVATE pmath_t builtin_gamma(pmath_expr_t expr){
   }
 
   z = pmath_expr_get_item(expr, 1);
-  if(_pmath_is_integer(z)){
+  if(pmath_is_integer(z)){
     if(pmath_is_int32(z)){ // Gamma(z) = (z-1)!
       unsigned long n;
       
@@ -239,7 +239,7 @@ PMATH_PRIVATE pmath_t builtin_loggamma(pmath_expr_t expr){
   }
 
   z = pmath_expr_get_item(expr, 1);
-  if(_pmath_is_integer(z)){
+  if(pmath_is_integer(z)){
     pmath_unref(expr);
     
     return LOG(GAMMA(z));
@@ -340,7 +340,7 @@ PMATH_PRIVATE pmath_t builtin_polygamma(pmath_expr_t expr){
       return CINFTY;
     }
       
-    if(_pmath_is_integer(z)){
+    if(pmath_is_integer(z)){
       if(pmath_number_sign(z) <= 0){
         pmath_unref(z);
         pmath_unref(expr);
@@ -436,7 +436,7 @@ PMATH_PRIVATE pmath_t builtin_factorial(pmath_expr_t expr){
     return pmath_ref(_pmath_object_complex_infinity);
   }
   
-  if(_pmath_is_integer(n)){
+  if(pmath_is_integer(n)){
     if(pmath_number_sign(n) < 0){
       pmath_unref(n);
       pmath_unref(expr);
@@ -542,7 +542,7 @@ PMATH_PRIVATE pmath_t builtin_factorial2(pmath_expr_t expr){
     return pmath_ref(_pmath_object_complex_infinity);
   }
   
-  if(_pmath_is_integer(n)){
+  if(pmath_is_integer(n)){
     if(pmath_number_sign(n) < 0){
       pmath_unref(n);
       pmath_unref(expr);
@@ -725,7 +725,7 @@ PMATH_PRIVATE pmath_t builtin_binomial(pmath_expr_t expr){
     }
   }
   
-  if(_pmath_is_integer(k)){
+  if(pmath_is_integer(k)){
     if(pmath_number_sign(k) < 0){ // Binomial(z, -k) = 0, if k is integer
       pmath_unref(z);
       pmath_unref(k);

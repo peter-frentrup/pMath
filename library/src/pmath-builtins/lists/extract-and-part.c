@@ -33,7 +33,7 @@ static pmath_bool_t part(
     listlen = pmath_expr_length(*list);
     
     pos = pmath_expr_get_item(position, position_start);
-    if(!_pmath_is_integer(pos))
+    if(!pmath_is_integer(pos))
       break;
     
     i = SIZE_MAX;
@@ -231,7 +231,7 @@ static pmath_t assign_part(
   listlen = pmath_expr_length(list);
   index = pmath_expr_get_item(position, position_start);
   
-  if(_pmath_is_integer(index)){
+  if(pmath_is_integer(index)){
     size_t i = SIZE_MAX;
     
     if(!extract_number(index, listlen, &i)){

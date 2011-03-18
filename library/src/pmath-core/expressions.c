@@ -2299,7 +2299,7 @@ static void write_expr_ex(
         (pmath_write_func_t)division_writer,
         &division_writer_data);
     }
-    else if(_pmath_is_integer(exponent) && pmath_number_sign(exponent) < 0){
+    else if(pmath_is_integer(exponent) && pmath_number_sign(exponent) < 0){
       if(write == (pmath_write_func_t)product_writer)
         WRITE_CSTR("/");
       else
@@ -2729,7 +2729,7 @@ static void write_expr_ex(
     
     item = pmath_expr_get_item(expr, 1);
     
-    if(_pmath_is_integer(item) && pmath_number_sign(item) > 0){
+    if(pmath_is_integer(item) && pmath_number_sign(item) > 0){
       if(priority > PRIO_CALL)
         WRITE_CSTR("(#");
       else
@@ -2746,7 +2746,7 @@ static void write_expr_ex(
       pmath_unref(b);
       
       if(pmath_same(b, PMATH_SYMBOL_AUTOMATIC)
-      && _pmath_is_integer(a)
+      && pmath_is_integer(a)
       && pmath_number_sign(a) > 0){
         if(priority > PRIO_CALL)
           WRITE_CSTR("(##");

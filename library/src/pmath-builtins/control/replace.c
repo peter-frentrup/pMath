@@ -281,7 +281,7 @@ PMATH_PRIVATE pmath_t builtin_replacelist(pmath_expr_t expr){
     if(!_pmath_is_rule(n) && !_pmath_is_list_of_rules(n)){
       last_nonoption = 3;
     }
-    else if((!_pmath_is_integer(n) || pmath_number_sign(n) < 0)
+    else if((!pmath_is_integer(n) || pmath_number_sign(n) < 0)
     && !pmath_equals(n, _pmath_object_infinity)){
       pmath_message(PMATH_NULL, "innf", 2, PMATH_FROM_INT32(3), pmath_ref(expr));
       pmath_unref(n);

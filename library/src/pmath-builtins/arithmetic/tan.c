@@ -302,7 +302,7 @@ PMATH_PRIVATE pmath_t builtin_tan(pmath_expr_t expr){
         
         tmp = pmath_evaluate(DIV(tmp, pmath_ref(PMATH_SYMBOL_PI)));
         
-        if(_pmath_is_integer(tmp)){
+        if(pmath_is_integer(tmp)){
           expr = pmath_expr_set_item(expr, 1, PMATH_NULL);
           x    = pmath_expr_set_item(x, i, PMATH_UNDEFINED);
           x    = pmath_expr_remove_all(x, PMATH_UNDEFINED);

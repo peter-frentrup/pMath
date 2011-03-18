@@ -8,7 +8,7 @@
 PMATH_MODULE
 pmath_bool_t pmath_module_init(pmath_string_t filename){
   
-  pjvm_auto_detach_key = NULL;
+  pjvm_auto_detach_key = PMATH_NULL;
   
   if(!pjvm_init())         goto FAIL_PJVM;
   if(!pj_classes_init())   goto FAIL_PJ_CLASSES;
@@ -20,7 +20,7 @@ pmath_bool_t pmath_module_init(pmath_string_t filename){
     pmath_ref(PJ_SYMBOL_JAVA), 1,
     pmath_ref(PMATH_SYMBOL_ENVIRONMENT));
   
-  if(pjvm_auto_detach_key)
+  if(!pmath_is_null(pjvm_auto_detach_key))
     return TRUE;
                       pj_threads_done();
  FAIL_PJ_THREADS:     pj_symbols_done();
@@ -40,7 +40,7 @@ void pmath_module_done(void){
   pjvm_done();
   
   pmath_unref(pjvm_auto_detach_key);
-  pjvm_auto_detach_key = NULL;
+  pjvm_auto_detach_key = PMATH_NULL;
   
   pmath_debug_print("[java done]\n");
 }
