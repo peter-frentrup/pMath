@@ -39,9 +39,10 @@ static pmath_bool_t next(void *p){
 pmath_t builtin_sum(pmath_expr_t expr){
   struct sum_prod_data_t data;
   pmath_t iter;
+  size_t exprlen = pmath_expr_length(expr);
   
-  if(pmath_expr_length(expr) != 2){
-    pmath_message_argxxx(pmath_expr_length(expr), 2, 2);
+  if(exprlen < 2){
+    pmath_message_argxxx(exprlen, 2, SIZE_MAX);
     return expr;
   }
   
@@ -65,9 +66,21 @@ pmath_t builtin_sum(pmath_expr_t expr){
     pmath_unref(range);
   }
   
+  if(exprlen > 2){
+    size_t i;
+    data.body = pmath_ref(expr);
+    for(i = 2;i < exprlen;++i){
+      data.body = pmath_expr_set_item(
+        data.body, i,
+        pmath_expr_get_item(data.body, i+1));
+    }
+    data.body = pmath_expr_resize(data.body, exprlen-1);
+  }
+  else
+    data.body = pmath_expr_get_item(expr, 1);
+  
   data.is_valid = FALSE;
   data.result   = PMATH_FROM_INT32(0);
-  data.body     = pmath_expr_get_item(expr, 1);
   data.func     = PMATH_SYMBOL_PLUS;
   
   _pmath_iterate(iter, init, next, &data);
@@ -85,9 +98,10 @@ pmath_t builtin_sum(pmath_expr_t expr){
 pmath_t builtin_product(pmath_expr_t expr){
   struct sum_prod_data_t data;
   pmath_t iter;
+  size_t exprlen = pmath_expr_length(expr);
   
-  if(pmath_expr_length(expr) != 2){
-    pmath_message_argxxx(pmath_expr_length(expr), 2, 2);
+  if(exprlen < 2){
+    pmath_message_argxxx(exprlen, 2, SIZE_MAX);
     return expr;
   }
   
@@ -111,9 +125,21 @@ pmath_t builtin_product(pmath_expr_t expr){
     pmath_unref(range);
   }
   
+  if(exprlen > 2){
+    size_t i;
+    data.body = pmath_ref(expr);
+    for(i = 2;i < exprlen;++i){
+      data.body = pmath_expr_set_item(
+        data.body, i,
+        pmath_expr_get_item(data.body, i+1));
+    }
+    data.body = pmath_expr_resize(data.body, exprlen-1);
+  }
+  else
+    data.body = pmath_expr_get_item(expr, 1);
+  
   data.is_valid = FALSE;
   data.result   = PMATH_FROM_INT32(1);
-  data.body     = pmath_expr_get_item(expr, 1);
   data.func     = PMATH_SYMBOL_TIMES;
   
   _pmath_iterate(iter, init, next, &data);

@@ -482,6 +482,11 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
               
               case CDDS_ITEMPREPAINT: {
                 ControlState state = Normal;
+                if(GetForegroundWindow() == _window->hwnd())
+                  draw->clrText = GetSysColor(COLOR_MENUTEXT);
+                else
+                  draw->clrText = GetSysColor(COLOR_GRAYTEXT);
+                  
                 if(current_item == (int)draw->nmcd.dwItemSpec
                 ||    next_item == (int)draw->nmcd.dwItemSpec){
                   state = Pressed;
@@ -586,6 +591,9 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
       if(wParam == WA_INACTIVE && _appearence == MaAutoShow && visible()){
         ShowWindow(_hwnd, SW_HIDE);
         _window->rearrange();
+      }
+      else{
+        InvalidateRect(_hwnd, NULL, FALSE);
       }
     } break;
   }

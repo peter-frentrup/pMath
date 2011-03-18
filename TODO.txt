@@ -2,9 +2,6 @@
 	Button("italic",DocumentApply(SelectedDocument(),StyleBox("",FontSlant->Italic))),
 	Button("Arg Style",DocumentApply(SelectedDocument(),StyleBox("","Arg")))})
 
-- pmath: pack all small integers directly into pmath_t
-         adjust/rewrite documentation for fat values.
-	
 - pmath: change pmath_tickcount to use GetTickCount()/clock_gettime() because the current mechanism is not suitable for time measurements.
          add pmath_datetime() to get the old behaviour
 
@@ -34,8 +31,6 @@
 
 - implement StringCount
 
-- Table: allow Table(i+j, i->1..5, j->1..i) 
-
 - richmath: implement bidirectional text for MathSequences.
 
 ?! change all double-comparisions a==b to almost_equal_machine(a,b)  (as in compare.c)
@@ -53,7 +48,7 @@
   FixedPoint(), FixedPointList(), TakeWhile(), LengthWhile()
 
 - add KroneckerProduct(), ArrayFlatten(),
-	Norm(), Cross(), Total(), LinearSolve(), Inverse(), PseudoInverse(), RowReduce(), MatrixRank(), Normalize(), 
+	Norm(), Cross(), LinearSolve(), Inverse(), PseudoInverse(), RowReduce(), MatrixRank(), Normalize(), 
 	Projection(), Orthogonalize(), ConjugateTranspose(),
 	IdentityMatrix(), ChracteristicPolynomial(), QRDecomposition(), Eigenvalues(), Eigenvectors()
 

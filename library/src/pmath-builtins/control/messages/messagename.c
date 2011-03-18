@@ -92,7 +92,7 @@ PMATH_PRIVATE pmath_t builtin_assign_messagename(pmath_expr_t expr){
     return rhs;
   }
   
-  if(pmath_same(rhs, PMATH_UNDEFINED)
+  if(!pmath_same(rhs, PMATH_UNDEFINED)
   && !pmath_is_string(rhs)){
     pmath_message(PMATH_SYMBOL_MESSAGE, "str", 1, pmath_ref(rhs));
     
