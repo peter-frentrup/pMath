@@ -314,7 +314,7 @@ PMATH_API pmath_integer_t pmath_integer_new_si64(int64_t si){
   pmath_mpint_t integer;
   
   if(INT32_MIN <= si && si <= INT32_MAX)
-    return PMATH_FROM_INT32(si);
+    return PMATH_FROM_INT32((int32_t)si);
 
   integer = _pmath_create_mp_int(0);
   if(pmath_is_null(integer))
@@ -357,7 +357,7 @@ PMATH_API pmath_integer_t pmath_integer_new_si64(int64_t si){
 PMATH_API pmath_integer_t pmath_integer_new_ui64(uint64_t ui){
   pmath_mpint_t integer;
   if(ui <= INT32_MAX)
-    return PMATH_FROM_INT32(ui);
+    return PMATH_FROM_INT32((int32_t)ui);
 
   integer = _pmath_create_mp_int(0);
   if(pmath_is_null(integer))
