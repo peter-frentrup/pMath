@@ -1481,6 +1481,10 @@ static void product_writer(
     {
       write_cstr("*", user->next, user->next_user);
     }
+    else if(len >= 2 && data[0] == '1' && data[1] == '/'){
+      --len;
+      ++data;
+    }
     else if(i < len && data[i] != '/')
       write_cstr(" ", user->next, user->next_user);
   }
@@ -2287,9 +2291,9 @@ static void write_expr_ex(
     }
     else if(pmath_equals(exponent, PMATH_FROM_INT32(-1))){
       
-      if(write == (pmath_write_func_t)product_writer)
-        WRITE_CSTR("/");
-      else
+//      if(write == (pmath_write_func_t)product_writer)
+//        WRITE_CSTR("/");
+//      else
         WRITE_CSTR("1/");
       
       write_ex(
@@ -2300,9 +2304,9 @@ static void write_expr_ex(
         &division_writer_data);
     }
     else if(pmath_is_integer(exponent) && pmath_number_sign(exponent) < 0){
-      if(write == (pmath_write_func_t)product_writer)
-        WRITE_CSTR("/");
-      else
+//      if(write == (pmath_write_func_t)product_writer)
+//        WRITE_CSTR("/");
+//      else
         WRITE_CSTR("1/");
       
       exponent = pmath_number_neg(exponent);
@@ -2321,9 +2325,9 @@ static void write_expr_ex(
       pmath_t minus_one_half = pmath_number_neg(pmath_ref(_pmath_one_half));
       
       if(pmath_equals(exponent, minus_one_half)){
-        if(write == (pmath_write_func_t)product_writer)
-          WRITE_CSTR("/Sqrt(");
-        else
+//        if(write == (pmath_write_func_t)product_writer)
+//          WRITE_CSTR("/Sqrt(");
+//        else
           WRITE_CSTR("1/Sqrt(");
         pmath_write(base, options, write, user);
         WRITE_CSTR(")");

@@ -281,6 +281,7 @@ PMATH_PRIVATE pmath_t builtin_resetdirectory(                pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_sectionprint(                  pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_setdirectory(                  pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_stringcases(                   pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_stringcount(                   pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_stringdrop(                    pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_stringexpression(              pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_stringmatch(                   pmath_expr_t expr);
@@ -320,65 +321,70 @@ PMATH_PRIVATE pmath_t builtin_part(         pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_assign_part(  pmath_expr_t expr); // in replacepart.c
 PMATH_PRIVATE pmath_t builtin_replacepart(  pmath_expr_t expr);
 
-PMATH_PRIVATE pmath_t builtin_apply(          pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_append(         pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_array(          pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_cases(          pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_complement(     pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_constantarray(  pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_depth(          pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_det(            pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_diagonalmatrix( pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_dimensions(     pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_dot(            pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_drop(           pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_emit(           pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_extract(        pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_first(          pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_flatten(        pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_fold(           pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_foldlist(       pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_gather(         pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_identitymatrix( pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_inner(          pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_intersection(   pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_isarray(        pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_isfreeof(       pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_isordered(      pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_ismatrix(       pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_isvector(       pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_join(           pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_last(           pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_leafcount(      pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_length(         pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_level(          pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_ludecomposition(pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_map(            pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_max(            pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_mean(           pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_min(            pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_most(           pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_operate(        pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_ordering(       pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_partition(      pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_prepend(        pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_range(          pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_regather(       pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_rest(           pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_reverse(        pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_scan(           pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_select(         pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_sort(           pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_sortby(         pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_split(          pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_table(          pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_take(           pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_thread(         pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_through(        pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_total(          pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_union(          pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_apply(                        pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_append(                       pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_array(                        pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_cases(                        pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_complement(                   pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_constantarray(                pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_depth(                        pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_det(                          pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_diagonalmatrix(               pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_dimensions(                   pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_dot(                          pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_drop(                         pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_emit(                         pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_extract(                      pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_first(                        pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_fixedpoint_and_fixedpointlist(pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_flatten(                      pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_fold(                         pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_foldlist(                     pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_gather(                       pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_identitymatrix(               pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_inner(                        pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_intersection(                 pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_isarray(                      pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_isfreeof(                     pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_isordered(                    pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_ismatrix(                     pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_isvector(                     pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_join(                         pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_last(                         pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_leafcount(                    pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_length(                       pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_level(                        pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_ludecomposition(              pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_map(                          pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_max(                          pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_mean(                         pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_min(                          pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_most(                         pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_nest(                         pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_nestlist(                     pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_nestwhile_and_nestwhilelist(  pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_operate(                      pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_ordering(                     pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_partition(                    pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_prepend(                      pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_range(                        pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_regather(                     pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_rest(                         pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_reverse(                      pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_riffle(                       pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_scan(                         pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_select(                       pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_sort(                         pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_sortby(                       pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_split(                        pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_table(                        pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_take(                         pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_thread(                       pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_through(                      pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_total(                        pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_union(                        pmath_expr_t expr);
 //} ============================================================================
-//{ builtins from src/pmath-builtins/logic/ ...
+//{ builtins from src/pmath-builtins/logic/ ...           
 PMATH_PRIVATE pmath_t builtin_and(                  pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_boole(                pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_conditionalexpression(pmath_expr_t expr);
@@ -779,6 +785,8 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   VERIFY(   PMATH_SYMBOL_FIND                      = NEW_SYSTEM_SYMBOL("Find"))
   VERIFY(   PMATH_SYMBOL_FINDLIST                  = NEW_SYSTEM_SYMBOL("FindList"))
   VERIFY(   PMATH_SYMBOL_FIRST                     = NEW_SYSTEM_SYMBOL("First"))
+  VERIFY(   PMATH_SYMBOL_FIXEDPOINT                = NEW_SYSTEM_SYMBOL("FixedPoint"))
+  VERIFY(   PMATH_SYMBOL_FIXEDPOINTLIST            = NEW_SYSTEM_SYMBOL("FixedPointList"))
   VERIFY(   PMATH_SYMBOL_FLATTEN                   = NEW_SYSTEM_SYMBOL("Flatten"))
   VERIFY(   PMATH_SYMBOL_FLOOR                     = NEW_SYSTEM_SYMBOL("Floor"))
   VERIFY(   PMATH_SYMBOL_FOLD                      = NEW_SYSTEM_SYMBOL("Fold"))
@@ -921,6 +929,10 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   VERIFY(   PMATH_SYMBOL_NAMESPACEPATH             = NEW_SYSTEM_SYMBOL("$NamespacePath"))
   VERIFY(   PMATH_SYMBOL_NEWMESSAGE                = NEW_SYSTEM_SYMBOL("$NewMessage"))
   VERIFY(   PMATH_SYMBOL_NEWSYMBOL                 = NEW_SYSTEM_SYMBOL("$NewSymbol"))
+  VERIFY(   PMATH_SYMBOL_NEST                      = NEW_SYSTEM_SYMBOL("Nest"))
+  VERIFY(   PMATH_SYMBOL_NESTLIST                  = NEW_SYSTEM_SYMBOL("NestList"))
+  VERIFY(   PMATH_SYMBOL_NESTWHILE                 = NEW_SYSTEM_SYMBOL("NestWhile"))
+  VERIFY(   PMATH_SYMBOL_NESTWHILELIST             = NEW_SYSTEM_SYMBOL("NestWhileList"))
   VERIFY(   PMATH_SYMBOL_NEWTASK                   = NEW_SYSTEM_SYMBOL("NewTask"))
   VERIFY(   PMATH_SYMBOL_NEXTPRIME                 = NEW_SYSTEM_SYMBOL("NextPrime"))
   VERIFY(   PMATH_SYMBOL_NHOLDALL                  = NEW_SYSTEM_SYMBOL("NHoldAll"))
@@ -1020,6 +1032,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   VERIFY(   PMATH_SYMBOL_RETURN                    = NEW_SYSTEM_SYMBOL("Return"))
   VERIFY(   PMATH_SYMBOL_REVERSE                   = NEW_SYSTEM_SYMBOL("Reverse"))
   VERIFY(   PMATH_SYMBOL_RGBCOLOR                  = NEW_SYSTEM_SYMBOL("RGBColor"))
+  VERIFY(   PMATH_SYMBOL_RIFFLE                    = NEW_SYSTEM_SYMBOL("Riffle"))
   VERIFY(   PMATH_SYMBOL_ROTATE                    = NEW_SYSTEM_SYMBOL("Rotate"))
   VERIFY(   PMATH_SYMBOL_ROTATIONBOX               = NEW_SYSTEM_SYMBOL("RotationBox"))
   VERIFY(   PMATH_SYMBOL_ROUND                     = NEW_SYSTEM_SYMBOL("Round"))
@@ -1081,6 +1094,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   VERIFY(   PMATH_SYMBOL_STARTOFSTRING             = NEW_SYSTEM_SYMBOL("StartOfString"))
   VERIFY(   PMATH_SYMBOL_STRING                    = NEW_SYSTEM_SYMBOL("String"))
   VERIFY(   PMATH_SYMBOL_STRINGCASES               = NEW_SYSTEM_SYMBOL("StringCases"))
+  VERIFY(   PMATH_SYMBOL_STRINGCOUNT               = NEW_SYSTEM_SYMBOL("StringCount"))
   VERIFY(   PMATH_SYMBOL_STRINGDROP                = NEW_SYSTEM_SYMBOL("StringDrop"))
   VERIFY(   PMATH_SYMBOL_STRINGEXPRESSION          = NEW_SYSTEM_SYMBOL("StringExpression"))
   VERIFY(   PMATH_SYMBOL_STRINGFORM                = NEW_SYSTEM_SYMBOL("StringForm"))
@@ -1314,6 +1328,8 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
     BIND_DOWN(   PMATH_SYMBOL_FIND,                        builtin_find)
     BIND_DOWN(   PMATH_SYMBOL_FINDLIST,                    builtin_findlist)
     BIND_DOWN(   PMATH_SYMBOL_FIRST,                       builtin_first)
+    BIND_DOWN(   PMATH_SYMBOL_FIXEDPOINT,                  builtin_fixedpoint_and_fixedpointlist)
+    BIND_DOWN(   PMATH_SYMBOL_FIXEDPOINTLIST,              builtin_fixedpoint_and_fixedpointlist)
     BIND_DOWN(   PMATH_SYMBOL_FLATTEN,                     builtin_flatten)
     BIND_DOWN(   PMATH_SYMBOL_FLOOR,                       builtin_ceiling_or_floor_or_round)
     BIND_DOWN(   PMATH_SYMBOL_FOLD,                        builtin_fold)
@@ -1396,6 +1412,10 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
     BIND_DOWN(   PMATH_SYMBOL_N,                           builtin_approximate)
     BIND_DOWN(   PMATH_SYMBOL_NAMES,                       builtin_names)
     BIND_DOWN(   PMATH_SYMBOL_NAMESPACE,                   builtin_namespace)
+    BIND_DOWN(   PMATH_SYMBOL_NEST,                        builtin_nest)
+    BIND_DOWN(   PMATH_SYMBOL_NESTLIST,                    builtin_nestlist)
+    BIND_DOWN(   PMATH_SYMBOL_NESTWHILE,                   builtin_nestwhile_and_nestwhilelist)
+    BIND_DOWN(   PMATH_SYMBOL_NESTWHILELIST,               builtin_nestwhile_and_nestwhilelist)
     BIND_DOWN(   PMATH_SYMBOL_NEWTASK,                     builtin_newtask)
     BIND_DOWN(   PMATH_SYMBOL_NEXTPRIME,                   builtin_nextprime)
     BIND_DOWN(   PMATH_SYMBOL_NOT,                         builtin_not)
@@ -1450,6 +1470,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
     BIND_DOWN(   PMATH_SYMBOL_REST,                        builtin_rest)
     BIND_DOWN(   PMATH_SYMBOL_RETURN,                      general_builtin_zerotwoarg)
     BIND_DOWN(   PMATH_SYMBOL_REVERSE,                     builtin_reverse)
+    BIND_DOWN(   PMATH_SYMBOL_RIFFLE,                      builtin_riffle)
     BIND_DOWN(   PMATH_SYMBOL_ROUND,                       builtin_ceiling_or_floor_or_round)
     BIND_DOWN(   PMATH_SYMBOL_SCAN,                        builtin_scan)
     BIND_DOWN(   PMATH_SYMBOL_SECTIONPRINT,                builtin_sectionprint)
@@ -1470,6 +1491,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
     BIND_DOWN(   PMATH_SYMBOL_SQRT,                        builtin_sqrt)
     BIND_DOWN(   PMATH_SYMBOL_STACK,                       builtin_stack)
     BIND_DOWN(   PMATH_SYMBOL_STRINGCASES,                 builtin_stringcases)
+    BIND_DOWN(   PMATH_SYMBOL_STRINGCOUNT,                 builtin_stringcount)
     BIND_DOWN(   PMATH_SYMBOL_STRINGDROP,                  builtin_stringdrop)
     BIND_DOWN(   PMATH_SYMBOL_STRINGEXPRESSION,            builtin_stringexpression)
     BIND_DOWN(   PMATH_SYMBOL_STRINGMATCH,                 builtin_stringmatch)

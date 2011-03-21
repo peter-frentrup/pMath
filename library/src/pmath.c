@@ -655,6 +655,10 @@ PMATH_API pmath_bool_t pmath_init(void){
       "Options(StringReplace):="
       "Options(StringSplit):={IgnoreCase->False}");
     
+    PMATH_RUN(
+      "Options(FixedPoint):="
+      "Options(FixedPointList):={SameTest->Identical}");
+    
     PMATH_RUN("Options(Get):={Path:>$Path}");
     
     PMATH_RUN("Options(Grid):={"
@@ -691,7 +695,7 @@ PMATH_API pmath_bool_t pmath_init(void){
     PMATH_RUN("Options(RotationBox):={BoxRotation->0}");
     PMATH_RUN("Options(TransformationBox):={BoxTransformation->{{1,0},{0,1}}}");
     
-    PMATH_RUN("Options(StringCases):={IgnoreCase->False,Overlaps->False}");
+    PMATH_RUN("Options(StringCases):=Options(StringCount):={IgnoreCase->False,Overlaps->False}");
     PMATH_RUN("Options(StringPosition):={IgnoreCase->False,Overlaps->True}");
     
     PMATH_RUN("Options(Style):=Options(StyleBox):={"

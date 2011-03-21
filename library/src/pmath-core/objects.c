@@ -171,14 +171,14 @@ PMATH_API int pmath_compare(pmath_t objA, pmath_t objB){
   if(pmath_same(objA, objB))
     return 0;
     
-  if(pmath_is_double(objA)){
+  if(pmath_is_double(objA) || pmath_is_int32(objA)){
     cmpA = _pmath_numbers_compare;
   }
   else if(pmath_is_pointer(objA) && PMATH_AS_PTR(objA) != NULL){
     cmpA = pmath_type_imps[PMATH_AS_PTR(objA)->type_shift].compare;
   }
   
-  if(pmath_is_double(objB)){
+  if(pmath_is_double(objB) || pmath_is_int32(objB)){
     cmpB = _pmath_numbers_compare;
   }
   else if(pmath_is_pointer(objB) && PMATH_AS_PTR(objB) != NULL){

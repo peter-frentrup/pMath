@@ -618,6 +618,16 @@ static bool insert_underscript_cmd(Expr cmd){
   return true;
 }
 
+static bool open_close_group_cmd(Expr cmd){
+  Document *doc = get_current_document();
+  
+  if(!doc)
+    return false;
+  
+  doc->toggle_open_close_current_group();
+  return true;
+}
+
 static bool paste_cmd(Expr cmd){
   Document *doc = get_current_document();
   
@@ -713,6 +723,7 @@ bool richmath::init_bindings(){
   
   Client::register_menucommand(String("Copy"),              copy_cmd,                 can_copy_cut);
   Client::register_menucommand(String("Cut"),               cut_cmd,                  can_copy_cut);
+  Client::register_menucommand(String("OpenCloseGroup"),    open_close_group_cmd);
   Client::register_menucommand(String("Paste"),             paste_cmd,                can_document_apply);
   Client::register_menucommand(String("EditBoxes"),         edit_boxes_cmd,           can_edit_boxes);
   Client::register_menucommand(String("ExpandSelection"),   expand_selection_cmd);

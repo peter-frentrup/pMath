@@ -48,9 +48,13 @@ static pmath_mpfloat_t _mul_fi(
   double fprec;
   long   expB;
   mpfr_prec_t prec;
-  int signB;
   
   if(pmath_is_int32(intB)){
+    if(PMATH_AS_INT32(intB) == 0){
+      pmath_unref(floatA);
+      return intB;
+    }
+    
     intB = _pmath_create_mp_int(PMATH_AS_INT32(intB));
     
     if(pmath_is_null(intB)){
@@ -60,12 +64,6 @@ static pmath_mpfloat_t _mul_fi(
   }
   
   assert(pmath_is_mpint(intB));
-  
-  signB = mpz_sgn(PMATH_AS_MPZ(intB));
-  if(signB == 0){
-    pmath_unref(floatA);
-    return intB;
-  }
   
   fprec = pmath_precision(pmath_ref(floatA));
   fprec+= log2(fabs(mpz_get_d_2exp(&expB, PMATH_AS_MPZ(intB))));
@@ -91,7 +89,7 @@ static pmath_mpfloat_t _mul_fi(
     PMATH_AS_MP_ERROR(result), 
     PMATH_AS_MP_ERROR(floatA),
     PMATH_AS_MPZ(intB),
-    signB > 0 ? MPFR_RNDU : MPFR_RNDD);
+    MPFR_RNDA);
   
   mpfr_abs(PMATH_AS_MP_ERROR(result), PMATH_AS_MP_ERROR(result), MPFR_RNDN);
   

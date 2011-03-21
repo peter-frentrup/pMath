@@ -650,5 +650,13 @@ pmath_bool_t pmath_register_approx_code(
 #define PMATH_SYMBOL_INTERNAL_ABORTMESSAGE                  PMATH_SYMBOL_BUILTIN(558)
 #define PMATH_SYMBOL_ORDERING                               PMATH_SYMBOL_BUILTIN(559)
 #define PMATH_SYMBOL_SPLIT                                  PMATH_SYMBOL_BUILTIN(560)
+#define PMATH_SYMBOL_STRINGCOUNT                            PMATH_SYMBOL_BUILTIN(561)
+#define PMATH_SYMBOL_RIFFLE                                 PMATH_SYMBOL_BUILTIN(562)
+#define PMATH_SYMBOL_NEST                                   PMATH_SYMBOL_BUILTIN(563)
+#define PMATH_SYMBOL_NESTLIST                               PMATH_SYMBOL_BUILTIN(564)
+#define PMATH_SYMBOL_NESTWHILE                              PMATH_SYMBOL_BUILTIN(565)
+#define PMATH_SYMBOL_NESTWHILELIST                          PMATH_SYMBOL_BUILTIN(566)
+#define PMATH_SYMBOL_FIXEDPOINT                             PMATH_SYMBOL_BUILTIN(567)
+#define PMATH_SYMBOL_FIXEDPOINTLIST                         PMATH_SYMBOL_BUILTIN(568)
 
 #endif /* __PMATH_BUILTINS__SYMBOLS_H__ */

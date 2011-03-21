@@ -53,6 +53,7 @@ static void add_remove_window(int count){
     menucommands.set( IDM_CUT                     , "Cut");
     menucommands.set( IDM_COPY                    , "Copy");
     menucommands.set( IDM_PASTE                   , "Paste");
+    menucommands.set( IDM_OPENCLOSEGROUP          , "OpenCloseGroup");
 
     menucommands.set( IDM_INSERTCOLUMN            , "InsertColumn");
     menucommands.set( IDM_INSERTFRACTION          , "InsertFraction");

@@ -25,6 +25,7 @@
 #define IDM_CUT                      305
 #define IDM_COPY                     306
 #define IDM_PASTE                    307
+#define IDM_OPENCLOSEGROUP           308
 
 #define IDM_INSERTCOLUMN             401
 #define IDM_INSERTFRACTION           402

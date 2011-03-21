@@ -27,6 +27,7 @@ ACC_TABLE ACCELERATORS
   "B",           IDM_FINDMATCHINGFENCE,  CONTROL, SHIFT, VIRTKEY
   VK_OEM_6,      IDM_FINDMATCHINGFENCE,  CONTROL, VIRTKEY /* as in Visual Studio: CTRL+] on US keyborads, CTRL+´ on DE keybords */
   "A",           IDM_SELECTALL,          CONTROL, VIRTKEY
+  VK_OEM_7,      IDM_OPENCLOSEGROUP,     CONTROL, VIRTKEY /* US: Ctrl+', DE: Ctrl+Ä */
   
   "L",           IDM_DUPLICATEPREVIOUSINPUT,  CONTROL, VIRTKEY
   "L",           IDM_DUPLICATEPREVIOUSOUTPUT, CONTROL, SHIFT, VIRTKEY
@@ -68,6 +69,8 @@ MENU_MAIN MENU
     MENUITEM "E&xpand Selection\tCtrl+.",            IDM_EXPANDSELECTION
     MENUITEM "Select &All\tCtrl+A",                  IDM_SELECTALL
     MENUITEM "Find &Matching Bracket\tCtrl+Shift+B", IDM_FINDMATCHINGFENCE
+    MENUITEM SEPARATOR
+    MENUITEM "&Open/Close Group\tCtrl+'",            IDM_OPENCLOSEGROUP
   }
   
   POPUP "&Insert"
@@ -91,12 +94,12 @@ MENU_MAIN MENU
   
   POPUP "Fo&rmat"
   {
-    MENUITEM "Cambria Math Shaper", IDM_CAMBRIAMATHSHAPER
-    MENUITEM "Mathematica Mono Shaper", IDM_MATHEMATICAMONOSHAPER
+    MENUITEM "Cambria Math Shaper",      IDM_CAMBRIAMATHSHAPER
+    MENUITEM "Mathematica Mono Shaper",  IDM_MATHEMATICAMONOSHAPER
     MENUITEM "Mathematica Serif Shaper", IDM_MATHEMATICASHAPER
-    MENUITEM "Asana Math Shaper", IDM_ASANAMATHSHAPER
-    MENUITEM "Neo Euler Shaper", IDM_NEOEULERSHAPER
-    MENUITEM "XITS Math Shaper", IDM_XITSMATHSHAPER
+    MENUITEM "Asana Math Shaper",        IDM_ASANAMATHSHAPER
+    MENUITEM "Neo Euler Shaper",         IDM_NEOEULERSHAPER
+    MENUITEM "XITS Math Shaper",         IDM_XITSMATHSHAPER
   }
   
   POPUP "E&valuation"

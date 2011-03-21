@@ -112,6 +112,8 @@ namespace richmath{
       
       bool remove_selection(bool insert_default = true);
       
+      void toggle_open_close_current_group();
+      
       void complete_box();
       
       Box *selection_box(){   return context.selection.get();   }

@@ -2922,6 +2922,27 @@ bool Document::remove_selection(bool insert_default){
   return false;
 }
 
+void Document::toggle_open_close_current_group(){
+  int s = selection_start();
+  int e = selection_end();
+  Box *box = selection_box();
+  
+  while(box && box != this){
+    s = box->index();
+    e = s+1;
+    box = box->parent();
+  }
+  
+  if(box && s < e){
+    for(int i = s;i < e;++i){
+      toggle_open_close_group(i);
+      i = group_info(i).end;
+    }
+  }
+  else
+    native()->beep();
+}
+
 void Document::complete_box(){
   Box *b = context.selection.get();
   while(b){

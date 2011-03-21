@@ -28,10 +28,12 @@ typedef int64_t  intmax_t;
 #ifdef _WIN64
 //  typedef int64_t  intptr_t;
 //  typedef uint64_t uintptr_t;
+  #define INTPTR_MAX   INT64_MAX
   #define UINTPTR_MAX  (0xFFFFFFFFFFFFFFFFULL)
 #else
 //  typedef int32_t  intptr_t;
 //  typedef uint32_t uintptr_t;
+  #define INTPTR_MAX   INT32_MAX
   #define UINTPTR_MAX  (0xFFFFFFFFU)
 #endif
 

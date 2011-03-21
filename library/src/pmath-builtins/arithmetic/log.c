@@ -325,38 +325,40 @@ PMATH_PRIVATE pmath_t builtin_log(pmath_expr_t expr){
     }
   }
   
-  xclass = _pmath_number_class(x);
-  if(xclass & PMATH_CLASS_INF){
-    pmath_unref(expr);
-    pmath_unref(x);
-    return pmath_ref(_pmath_object_infinity);
-  }
-  
-  if(xclass & PMATH_CLASS_ZERO){
-    pmath_unref(expr);
-    pmath_unref(x);
-    return pmath_expr_new_extended(
-      pmath_ref(PMATH_SYMBOL_DIRECTEDINFINITY), 1,
-      INT(-1));
-  }
-  
-  if(xclass & PMATH_CLASS_POSSMALL){
-    return NEG(pmath_expr_set_item(expr, 1, INV(x)));
-  }
-  
-  if(xclass & PMATH_CLASS_NEG){
-    expr = pmath_expr_set_item(expr, 1, NEG(x));
-    return PLUS(
-      expr, 
-      TIMES(
-        pmath_ref(PMATH_SYMBOL_I), 
-        pmath_ref(PMATH_SYMBOL_PI)));
-  }
-  
-  if(xclass == PMATH_CLASS_POSONE){
-    pmath_unref(expr);
-    pmath_unref(x);
-    return INT(0);
+  if(pmath_is_number(x) || -pmath_is_expr_of_len(x, PMATH_SYMBOL_COMPLEX, 2)){
+    xclass = _pmath_number_class(x);
+    if(xclass & PMATH_CLASS_INF){
+      pmath_unref(expr);
+      pmath_unref(x);
+      return pmath_ref(_pmath_object_infinity);
+    }
+    
+    if(xclass & PMATH_CLASS_ZERO){
+      pmath_unref(expr);
+      pmath_unref(x);
+      return pmath_expr_new_extended(
+        pmath_ref(PMATH_SYMBOL_DIRECTEDINFINITY), 1,
+        INT(-1));
+    }
+    
+    if(xclass & PMATH_CLASS_POSSMALL){
+      return NEG(pmath_expr_set_item(expr, 1, INV(x)));
+    }
+    
+    if(xclass & PMATH_CLASS_NEG){
+      expr = pmath_expr_set_item(expr, 1, NEG(x));
+      return PLUS(
+        expr, 
+        TIMES(
+          pmath_ref(PMATH_SYMBOL_I), 
+          pmath_ref(PMATH_SYMBOL_PI)));
+    }
+    
+    if(xclass == PMATH_CLASS_POSONE){
+      pmath_unref(expr);
+      pmath_unref(x);
+      return INT(0);
+    }
   }
   
   pmath_unref(x);

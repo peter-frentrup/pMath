@@ -2446,8 +2446,16 @@ void MathSequence::scope_colorize_spanexpr(SyntaxState *state, SpanExpr *se){
         state->new_scope();
         
         if(multiargs){
-          for(int i = locals_min_item;i <= locals_max_item;++i)
+          for(int i = locals_min_item;i <= locals_max_item;++i){
             replacement_colorize_spanexpr(state, args->item(i), Special);
+            
+            for(int j = i+1;j <= locals_max_item;++j){
+              for(int p = args->item(j)->start();p <= args->item(j)->end();++p)
+                glyphs[p].style = GlyphStyleNone;
+                
+              scope_colorize_spanexpr(state, args->item(j));
+            }
+          }
           
           for(int i = 0;i < locals_min_item;++i)
             scope_colorize_spanexpr(state, args->item(i));

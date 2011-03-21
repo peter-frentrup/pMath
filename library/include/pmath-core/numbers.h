@@ -329,6 +329,9 @@ PMATH_API
 PMATH_ATTRIBUTE_PURE
 pmath_bool_t pmath_integer_fits_ui64(pmath_integer_t integer);
 
+#define pmath_integer_fits_siptr  PMATH_CONCAT(pmath_integer_fits_si, PMATH_BITSIZE)
+#define pmath_integer_fits_uiptr  PMATH_CONCAT(pmath_integer_fits_ui, PMATH_BITSIZE)
+
 /**\brief Convert a pMath integer to a signed long int.
    \memberof pmath_integer_t
    \param integer A pMath integer. It wont be freed.

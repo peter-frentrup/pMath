@@ -818,12 +818,12 @@ PMATH_API pmath_bool_t pmath_integer_fits_ui64(pmath_integer_t integer){
   return (size <= 64 && mpz_sgn(PMATH_AS_MPZ(integer)) >= 0);
 }
 
-/*PMATH_API int32_t pmath_integer_get_si32(pmath_integer_t integer){
+PMATH_API int32_t pmath_integer_get_si32(pmath_integer_t integer){
   if(pmath_is_int32(integer))
     return PMATH_AS_INT32(integer);
     
   return 0;
-}*/
+}
 
 PMATH_API uint32_t pmath_integer_get_ui32(pmath_integer_t integer){
   if(pmath_is_int32(integer)){
