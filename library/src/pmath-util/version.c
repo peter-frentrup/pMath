@@ -3,6 +3,8 @@
 
 #include <pmath.h>
 
+#include <string.h>
+
 
 PMATH_API
 void pmath_version_datetime(
@@ -20,10 +22,10 @@ void pmath_version_datetime(
   char date[12];
   char time[9];
   int i;
-  
+
   memcpy(date, __DATE__, sizeof(date));
   memcpy(time, __TIME__, sizeof(time));
-  
+
   *year = atoi(date + 7);
   *(date + 6) = 0;
   *day = atoi(date + 4);
@@ -34,7 +36,7 @@ void pmath_version_datetime(
       break;
     }
   }
-  
+
   *second = atoi(time + 6);
   *(time + 5) = 0;
   *minute = atoi(time + 3);
@@ -52,16 +54,16 @@ long pmath_version_number_part(int index){
   switch(index){
     case 1:
       return _PMATH_VERSION_MAJOR;
-      
+
     case 2:
       return _PMATH_VERSION_MINOR;
-    
+
     case 3:
       return _PMATH_VERSION_BUILD;
-    
+
     case 4:
       return strtol(_PMATH_VERSION_SVN_REVISION, NULL, 10);
   }
-  
+
   return 0;
 }
