@@ -1,8 +1,7 @@
 #include <pmath-util/version.h>
 #include <pmath-util/version-private.h>
 
-#include <stdlib.h>
-#include <string.h>
+#include <pmath.h>
 
 
 PMATH_API

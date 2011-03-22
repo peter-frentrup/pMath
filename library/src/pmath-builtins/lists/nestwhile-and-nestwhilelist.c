@@ -246,7 +246,7 @@ PMATH_PRIVATE pmath_t builtin_nestwhile_and_nestwhilelist(pmath_expr_t expr){
     pmath_unref(obj);
     obj = pmath_gather_end();
     if(n < 0){
-      if(pmath_expr_length(obj) <= -n){
+      if(pmath_expr_length(obj) <= (size_t)-n){
         obj = pmath_expr_resize(obj, pmath_expr_length(obj) + n);
       }
       else{
@@ -325,17 +325,8 @@ PMATH_PRIVATE pmath_t builtin_fixedpoint_and_fixedpointlist(pmath_expr_t expr){
   pmath_unref(test);
   
   if(generate_list){
-    pmath_unref(obj);
-    obj = pmath_gather_end();
-    if(n < 0){
-      if(pmath_expr_length(obj) <= -n){
-        obj = pmath_expr_resize(obj, pmath_expr_length(obj) + n);
-      }
-      else{
-        pmath_unref(obj);
-        obj = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), 0);
-      }
-    }
+    pmath_unref(x);
+    return pmath_gather_end();
   }
   
   return x;
