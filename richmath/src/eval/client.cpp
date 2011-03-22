@@ -695,7 +695,7 @@ static void execute(ClientNotification &cn){
         pmath_debug_print_object("loaded ", db->shaper_name.get(), "\n");
       }
       else{
-        pmath_debug_print_object("failed with ", cn.data.get(), "\n");
+        pmath_debug_print("failed.\n");
       }
     } break;
   

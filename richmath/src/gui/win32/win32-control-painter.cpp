@@ -585,6 +585,9 @@ SharedPtr<BoxAnimation> Win32ControlPainter::control_transition(
     repeat = true;
   }
   
+  if(state1 == Normal && (state2 == Hot || state2 == Hovered))
+    return 0;
+  
   int theme_part, theme_state1, theme_state2;
   HANDLE theme = get_control_theme(type, state1, &theme_part, &theme_state1);
                  get_control_theme(type, state2, &theme_part, &theme_state2);
