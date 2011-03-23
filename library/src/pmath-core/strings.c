@@ -2,12 +2,15 @@
 #include <pmath-core/strings-private.h>
 
 #include <pmath-language/charnames.h>
+#include <pmath-language/scanner.h>
 #include <pmath-language/tokens.h>
 
 #include <pmath-util/concurrency/threads.h>
+#include <pmath-util/helpers.h>
 #include <pmath-util/incremental-hash-private.h>
 #include <pmath-util/memory.h>
 
+#include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/io-private.h>
 
 #include <errno.h>
@@ -211,6 +214,169 @@ void write_cstr(
   #undef BUFLEN
 }
 
+static pmath_bool_t is_single_token(pmath_t box){
+  if(pmath_is_string(box))
+    return TRUE;
+  
+  if(pmath_is_expr_of(box, PMATH_NULL)
+  || pmath_is_expr_of(box, PMATH_SYMBOL_LIST)){
+    pmath_t part;
+    pmath_bool_t result;
+    
+    if(pmath_expr_length(box) != 1)
+      return FALSE;
+    
+    part = pmath_expr_get_item(box, 1);
+    result = is_single_token(part);
+    pmath_unref(part);
+    return result;
+  }
+  
+  if(pmath_is_expr_of(box, PMATH_SYMBOL_STYLEBOX)
+  || pmath_is_expr_of(box, PMATH_SYMBOL_TAGBOX)
+  || pmath_is_expr_of(box, PMATH_SYMBOL_INTERPRETATIONBOX)){
+    pmath_t part;
+    pmath_bool_t result;
+    
+    part = pmath_expr_get_item(box, 1);
+    result = is_single_token(part);
+    pmath_unref(part);
+    return result;
+  }
+  
+  return FALSE;
+}
+
+static void write_boxes(
+  pmath_t                 box,
+  pmath_write_options_t   options,
+  pmath_write_func_t      write,
+  void                   *user);
+
+static void write_single_token_box(
+  pmath_t                 box,
+  pmath_write_options_t   options,
+  pmath_write_func_t      write,
+  void                   *user
+){
+  if(is_single_token(box)){
+    write_boxes(box, options, write, user);
+  }
+  else{
+    write_cstr("(", write, user);
+    write_boxes(box, options, write, user);
+    write_cstr(")", write, user);
+  }
+}
+
+static void write_boxes(
+  pmath_t                 box,
+  pmath_write_options_t   options,
+  pmath_write_func_t      write,
+  void                   *user
+){
+  if(pmath_is_string(box)){
+    write(user, pmath_string_buffer(box), pmath_string_length(box));
+  }
+  else if(pmath_is_expr_of(box, PMATH_SYMBOL_LIST)
+  ||      pmath_is_expr_of(box, PMATH_NULL)){
+    size_t i;
+    
+    for(i = 1;i <= pmath_expr_length(box);++i){
+      pmath_t part = pmath_expr_get_item(box, i);
+      write_boxes(part, options, write, user);
+      pmath_unref(part);
+    }
+  }
+  else if(pmath_is_expr_of(box, PMATH_SYMBOL_STYLEBOX)
+  ||      pmath_is_expr_of(box, PMATH_SYMBOL_TAGBOX)
+  ||      pmath_is_expr_of(box, PMATH_SYMBOL_INTERPRETATIONBOX)){
+    pmath_t part = pmath_expr_get_item(box, 1);
+    write_boxes(part, options, write, user);
+    pmath_unref(part);
+  }
+  else if(pmath_is_expr_of(box, PMATH_SYMBOL_SUBSCRIPTBOX)){
+    pmath_t part = pmath_expr_get_item(box, 1);
+    write_cstr("_", write, user);
+    write_single_token_box(part, options, write, user);
+    pmath_unref(part);
+  }
+  else if(pmath_is_expr_of(box, PMATH_SYMBOL_SUPERSCRIPTBOX)){
+    pmath_t part = pmath_expr_get_item(box, 1);
+    write_cstr("^", write, user);
+    write_single_token_box(part, options, write, user);
+    pmath_unref(part);
+  }
+  else if(pmath_is_expr_of(box, PMATH_SYMBOL_SUBSUPERSCRIPTBOX)){
+    pmath_t part = pmath_expr_get_item(box, 1);
+    write_cstr("_", write, user);
+    write_single_token_box(part, options, write, user);
+    pmath_unref(part);
+    
+    part = pmath_expr_get_item(box, 2);
+    write_cstr("^", write, user);
+    write_single_token_box(part, options, write, user);
+    pmath_unref(part);
+  }
+  else if(pmath_is_expr_of(box, PMATH_SYMBOL_UNDERSCRIPTBOX)){
+    pmath_t part = pmath_expr_get_item(box, 1);
+    write_boxes(part, options, write, user);
+    pmath_unref(part);
+    
+    part = pmath_expr_get_item(box, 2);
+    write_cstr("_", write, user);
+    write_single_token_box(part, options, write, user);
+    pmath_unref(part);
+  }
+  else if(pmath_is_expr_of(box, PMATH_SYMBOL_OVERSCRIPTBOX)){
+    pmath_t part = pmath_expr_get_item(box, 1);
+    write_boxes(part, options, write, user);
+    pmath_unref(part);
+    
+    part = pmath_expr_get_item(box, 2);
+    write_cstr("^", write, user);
+    write_single_token_box(part, options, write, user);
+    pmath_unref(part);
+  }
+  else if(pmath_is_expr_of(box, PMATH_SYMBOL_UNDEROVERSCRIPTBOX)){
+    pmath_t part = pmath_expr_get_item(box, 1);
+    write_boxes(part, options, write, user);
+    pmath_unref(part);
+    
+    part = pmath_expr_get_item(box, 2);
+    write_cstr("_", write, user);
+    write_single_token_box(part, options, write, user);
+    pmath_unref(part);
+    
+    part = pmath_expr_get_item(box, 3);
+    write_cstr("^", write, user);
+    write_single_token_box(part, options, write, user);
+    pmath_unref(part);
+  }
+  else if(pmath_is_expr(box)){
+    pmath_t part;
+    size_t i;
+    
+    part = pmath_expr_get_item(box, 0);
+    pmath_write(part, options, write, user);
+    pmath_unref(part);
+    
+    write_cstr("(", write, user);
+    for(i = 1;i <= pmath_expr_length(box);++i){
+      if(i > 1)
+        write_cstr(", ", write, user);
+      
+      part = pmath_expr_get_item(box, i);
+      write_boxes(part, options, write, user);
+      pmath_unref(part);
+      
+    }
+    write_cstr(")", write, user);
+  }
+  else
+    pmath_write(box, options, write, user);
+}
+
 static void write_string(
   pmath_t                 str,
   pmath_write_options_t   options,
@@ -316,8 +482,15 @@ static void write_string(
 
     return;
   }
-
-  write(user, pmath_string_buffer(str), pmath_string_length(str));
+  else{
+    pmath_t expanded = pmath_string_expand_boxes(pmath_ref(str));
+    
+    write_boxes(expanded, options, write, user);
+    
+    pmath_unref(expanded);
+  }
+  
+  //write(user, pmath_string_buffer(str), pmath_string_length(str));
 }
 
 /*============================================================================*/
@@ -506,6 +679,7 @@ void pmath_utf8_writer(void *user, const uint16_t *data, int len){
 
 PMATH_API 
 void pmath_native_writer(void *user, const uint16_t *data, int len){
+  pmath_cstr_writer_info_t *info = user;
   char *inbuf  = (char*)data;
   size_t inbytesleft = sizeof(uint16_t) * (size_t)len;
   char buf[100];
@@ -516,17 +690,50 @@ void pmath_native_writer(void *user, const uint16_t *data, int len){
     size_t ret = iconv(to_native, &inbuf, &inbytesleft, &outbuf, &outbytesleft);
     
     if(ret == (size_t)-1){
-      if(errno == E2BIG){ // output buffer too small
+//      if(errno == E2BIG){ // output buffer too small
         *outbuf = '\0';
         
-        ((pmath_cstr_writer_info_t*)user)->write_cstr(
-          ((pmath_cstr_writer_info_t*)user)->user,
-          buf);
+        info->write_cstr(info->user, buf);
         
         outbuf = buf;
         outbytesleft = sizeof(buf) - 1;
+//      }
+
+      if(errno == EILSEQ && ((size_t)inbuf & 1) == 0 && inbytesleft >= 2){ // 2-byte aligned
+        const char *name;
+        uint16_t *u16 = (void*)inbuf;
+        uint32_t ch;
+        
+        if((u16[0] & 0xFC00) == 0xD800 && inbytesleft >= 4
+        && (u16[1] & 0xFC00) == 0xDC00){
+          ch = 0x10000 + ((uint32_t)(u16[0] & 0x3FF) << 10) + (u16[1] & 0x3FF);
+          
+          inbuf+= 4;
+          inbytesleft-= 4;
+        }
+        else{ 
+          ch = u16[0];
+          
+          inbuf+= 2;
+          inbytesleft-= 2;
+        }
+        
+        switch(ch){
+          case PMATH_CHAR_ASSIGN:        info->write_cstr(info->user, ":="); break;
+          case PMATH_CHAR_ASSIGNDELAYED: info->write_cstr(info->user, "::="); break;
+          case PMATH_CHAR_RULE:          info->write_cstr(info->user, "->"); break;
+          case PMATH_CHAR_RULEDELAYED:   info->write_cstr(info->user, ":>"); break;
+          
+          default:
+            name = pmath_char_to_name(ch);
+            if(name){
+              info->write_cstr(info->user, "\\[");
+              info->write_cstr(info->user, name);
+              info->write_cstr(info->user, "]");
+            }
+        }
       }
-      else{ // invalid input byte  or  incomplete input
+      else if(errno != E2BIG){ // invalid input byte  or  incomplete input
         ++inbuf;
         --inbytesleft;
       }
@@ -534,11 +741,8 @@ void pmath_native_writer(void *user, const uint16_t *data, int len){
   }
   
   *outbuf = '\0';
-  if(*buf){
-    ((pmath_cstr_writer_info_t*)user)->write_cstr(
-      ((pmath_cstr_writer_info_t*)user)->user,
-      buf);
-  }
+  if(*buf)
+    info->write_cstr(info->user, buf);
 }
 
 PMATH_API 

@@ -596,7 +596,7 @@ PMATH_API pmath_bool_t pmath_init(void){
     PMATH_RUN("IsNumeric(MachinePrecision):=True");
     PMATH_RUN("IsNumeric(Pi):=True");
     
-    PMATH_RUN("N(Degree,~x)::=N(Pi/180, x)");
+    PMATH_RUN("N(Degree,~System`Private`x)::=N(Pi/180, System`Private`x)");
     PMATH_RUN("MakeBoxes(Degree)::=\"\\[Degree]\"");
     
     PMATH_RUN("Default(Ceiling,2):=1");
