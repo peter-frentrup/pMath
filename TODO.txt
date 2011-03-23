@@ -3,9 +3,7 @@
 	Button("Arg Style",DocumentApply(SelectedDocument(),StyleBox("","Arg")))})
 
 - pmath: implement Rationalize
-   
-- pmath: generate message in N(5.1, Infinity) and/or call SetPrecision(x, Infinity) instead of entering an infinite loop.
-   
+
 - pmath: change pmath_tickcount to use GetTickCount()/clock_gettime() because the current mechanism is not suitable for time measurements.
          add pmath_datetime() to get the old behaviour
 

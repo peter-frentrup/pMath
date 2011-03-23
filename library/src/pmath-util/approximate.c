@@ -470,7 +470,9 @@ PMATH_API pmath_t pmath_approximate(
     prec2 = pmath_precision(pmath_ref(res));
     acc2  = pmath_accuracy( pmath_ref(res));
     
-    if(prec2 >= precision_goal || acc2 >= accuracy_goal){
+    if(prec2 >= precision_goal 
+    || acc2 >= accuracy_goal
+    || pmath_equals(res, obj)){
       pmath_unref(obj);
       return res;
     }

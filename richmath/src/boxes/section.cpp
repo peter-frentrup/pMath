@@ -591,8 +591,9 @@ Expr EditSection::to_pmath(bool parseable){
   Expr result = content()->to_pmath(true);
   
   result = Client::interrupt(Call(
-    Symbol(PMATH_SYMBOL_MAKEEXPRESSION), 
-    result));
+      Symbol(PMATH_SYMBOL_MAKEEXPRESSION), 
+      result),
+    Client::edit_interrupt_timeout);
   
   if(result.expr_length() == 1
   && result[0] == PMATH_SYMBOL_HOLDCOMPLETE){

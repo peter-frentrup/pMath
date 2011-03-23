@@ -1194,16 +1194,8 @@ static void write_mp_int(
 //    write_cstr("16^^", write, user);
   mpz_get_str(str, base, PMATH_AS_MPZ(integer));
 
-  #ifdef PMATH_DEBUG_LOG
-  write_cstr("(", write, user);
-  #endif
-  
   write_cstr(str, write, user);
 
-  #ifdef PMATH_DEBUG_LOG
-  write_cstr(")", write, user);
-  #endif
-  
   pmath_mem_free(str);
 }
 
