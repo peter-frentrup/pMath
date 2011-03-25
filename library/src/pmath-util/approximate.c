@@ -1,6 +1,9 @@
 #include <pmath-util/approximate.h>
 #include <pmath-util/concurrency/threads.h>
+#include <pmath-util/evaluation.h>
+#include <pmath-util/messages.h>
 
+#include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/arithmetic-private.h>
 
 
@@ -241,16 +244,37 @@ pmath_t pmath_set_accuracy(pmath_t obj, double acc){ // obj will be freed
       } break;
       
       case PMATH_TYPE_SHIFT_QUOTIENT: {
-        mpfr_set_z(
-          PMATH_AS_MP_VALUE(result),
-          PMATH_AS_MPZ(PMATH_QUOT_NUM(obj)),
-          MPFR_RNDN);
+        if(pmath_is_int32(PMATH_QUOT_NUM(obj))){
+          mpfr_set_si(
+            PMATH_AS_MP_VALUE(result),
+            PMATH_AS_INT32(PMATH_QUOT_NUM(obj)),
+            MPFR_RNDN);
+        }
+        else{
+          assert(pmath_is_mpint(PMATH_QUOT_NUM(obj)));
           
-        mpfr_div_z(
-          PMATH_AS_MP_VALUE(result), 
-          PMATH_AS_MP_VALUE(result),
-          PMATH_AS_MPZ(PMATH_QUOT_DEN(obj)),
-          MPFR_RNDN);
+          mpfr_set_z(
+            PMATH_AS_MP_VALUE(result),
+            PMATH_AS_MPZ(PMATH_QUOT_NUM(obj)),
+            MPFR_RNDN);
+        }
+        
+        if(pmath_is_int32(PMATH_QUOT_DEN(obj))){
+          mpfr_div_si(
+            PMATH_AS_MP_VALUE(result), 
+            PMATH_AS_MP_VALUE(result),
+            PMATH_AS_INT32(PMATH_QUOT_DEN(obj)),
+            MPFR_RNDN);
+        }
+        else{
+          assert(pmath_is_mpint(PMATH_QUOT_DEN(obj)));
+          
+          mpfr_div_z(
+            PMATH_AS_MP_VALUE(result), 
+            PMATH_AS_MP_VALUE(result),
+            PMATH_AS_MPZ(PMATH_QUOT_DEN(obj)),
+            MPFR_RNDN);
+        }
       } break;
       
       case PMATH_TYPE_SHIFT_MP_FLOAT: {
@@ -454,18 +478,22 @@ pmath_t pmath_set_precision(pmath_t obj, double prec){
 
 
 PMATH_API pmath_t pmath_approximate(
-  pmath_t obj, // will be freed
-  double precision_goal,
-  double accuracy_goal
+  pmath_t       obj,            // will be freed
+  double        precision_goal, // -inf = MachinePrecision
+  double        accuracy_goal,  // -inf = MachinePrecision
+  pmath_bool_t *aborted
 ){
   double prec, acc, prec2, acc2;
+  
+  if(aborted)
+    *aborted = FALSE;
   
   prec = precision_goal;
   acc  = accuracy_goal;
   
   while(!pmath_aborting()){
-    pmath_t res = _pmath_approximate_step(
-      pmath_ref(obj), prec, acc);
+    pmath_t res = pmath_evaluate(_pmath_approximate_step(
+      pmath_ref(obj), prec, acc));
       
     prec2 = pmath_precision(pmath_ref(res));
     acc2  = pmath_accuracy( pmath_ref(res));
@@ -478,18 +506,28 @@ PMATH_API pmath_t pmath_approximate(
     }
     
     if(prec2 < prec)
-      prec = precision_goal + prec - prec2 + 2;
+      prec = 2 * prec - prec2 + 2;
     if(acc2 < acc)
-      acc = accuracy_goal + acc - acc2 + 2;
+      acc = 2 * acc - acc2 + 2;
     
+    pmath_unref(res);
     if(prec > precision_goal + pmath_max_extra_precision
     || acc  > accuracy_goal  + pmath_max_extra_precision){
       // max. extra precision reached
-      pmath_unref(obj);
-      return res;
+      if(aborted){
+        *aborted = TRUE;
+      }
+      else{
+        pmath_message(PMATH_SYMBOL_N, "meprec", 2,
+          pmath_evaluate(pmath_ref(PMATH_SYMBOL_MAXEXTRAPRECISION)),
+          pmath_ref(obj));      
+      }
+      
+      prec = precision_goal + pmath_max_extra_precision;
+      acc  = accuracy_goal  + pmath_max_extra_precision;
+      
+      return pmath_evaluate(_pmath_approximate_step(obj, prec, acc));
     }
-    
-    pmath_unref(res);
   }
   
   return PMATH_NULL;

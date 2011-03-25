@@ -19,8 +19,9 @@ struct _pmath_t{ // do not access members
 
 PMATH_FORCE_INLINE
 struct _pmath_t *PMATH_AS_PTR(pmath_t obj){
-  assert(pmath_is_pointer(obj));
-  
+  if(!pmath_is_pointer(obj)){
+    assert(pmath_is_pointer(obj));
+  }
   #if PMATH_BITSIZE == 64
     return (struct _pmath_t*)((obj.as_bits << PMATH_TAGMASK_BITCOUNT) >> PMATH_TAGMASK_BITCOUNT);
   #elif PMATH_BITSIZE == 32
@@ -30,7 +31,9 @@ struct _pmath_t *PMATH_AS_PTR(pmath_t obj){
 
 PMATH_FORCE_INLINE
 double PMATH_AS_DOUBLE(pmath_t obj){
-  assert(pmath_is_double(obj));
+  if(!pmath_is_double(obj)){
+    assert(pmath_is_double(obj));
+  }
   return obj.as_double;
 }
 

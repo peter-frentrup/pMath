@@ -12,6 +12,8 @@
    src/pmath-builtins/lists/
  */
 
+PMATH_PRIVATE pmath_t _pmath_object_head(pmath_t obj); // obj wont be freed
+
 /* Infinity --> num=max
    n        --> num=n
    -n       --> num = max+1-n iff max != SIZE_MAX and max+1 >= n

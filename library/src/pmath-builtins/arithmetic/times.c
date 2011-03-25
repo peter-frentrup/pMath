@@ -466,7 +466,7 @@ static void times_2_arg(pmath_t *a, pmath_t *b){
     }
     
     if(pmath_is_float(*a) && _pmath_is_numeric(*b)){
-      *b = pmath_approximate(*b, pmath_precision(pmath_ref(*a)), HUGE_VAL);
+      *b = pmath_approximate(*b, pmath_precision(pmath_ref(*a)), HUGE_VAL, NULL);
       return;
     }
     
@@ -557,7 +557,7 @@ static void times_2_arg(pmath_t *a, pmath_t *b){
     }
     
     if(_pmath_is_inexact(*a) && _pmath_is_numeric(*b)){
-      *b = pmath_approximate(*b, pmath_precision(pmath_ref(*a)), HUGE_VAL);
+      *b = pmath_approximate(*b, pmath_precision(pmath_ref(*a)), HUGE_VAL, NULL);
       return;
     }
   }

@@ -658,5 +658,8 @@ pmath_bool_t pmath_register_approx_code(
 #define PMATH_SYMBOL_NESTWHILELIST                          PMATH_SYMBOL_BUILTIN(566)
 #define PMATH_SYMBOL_FIXEDPOINT                             PMATH_SYMBOL_BUILTIN(567)
 #define PMATH_SYMBOL_FIXEDPOINTLIST                         PMATH_SYMBOL_BUILTIN(568)
+#define PMATH_SYMBOL_LENGTHWHILE                            PMATH_SYMBOL_BUILTIN(569)
+#define PMATH_SYMBOL_HEAD                                   PMATH_SYMBOL_BUILTIN(570)
+#define PMATH_SYMBOL_TAKEWHILE                              PMATH_SYMBOL_BUILTIN(571)
 
 #endif /* __PMATH_BUILTINS__SYMBOLS_H__ */

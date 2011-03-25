@@ -217,7 +217,7 @@ PMATH_PRIVATE pmath_t builtin_approximate(pmath_expr_t expr){
   obj = pmath_expr_get_item(expr, 1);
   pmath_unref(expr);
   
-  return pmath_approximate(obj, prec_goal, acc_goal);
+  return pmath_approximate(obj, prec_goal, acc_goal, NULL);
 }
 
 PMATH_PRIVATE pmath_t builtin_assign_approximate(pmath_expr_t expr){

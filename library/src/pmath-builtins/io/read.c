@@ -255,7 +255,7 @@ static pmath_bool_t _read(
       *type_value = word_to_number(*type_value);
       
       if(pmath_is_rational(*type_value))
-        *type_value = pmath_approximate(*type_value, -HUGE_VAL, -HUGE_VAL);
+        *type_value = pmath_approximate(*type_value, -HUGE_VAL, -HUGE_VAL, NULL);
     }
     
     return TRUE;

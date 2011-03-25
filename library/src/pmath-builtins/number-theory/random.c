@@ -416,7 +416,8 @@ PMATH_PRIVATE pmath_t builtin_randomreal(pmath_expr_t expr){
     pmath_t range = pmath_approximate(
       pmath_expr_get_item(expr, 1), 
       data.working_precision,
-      HUGE_VAL);
+      HUGE_VAL,
+      NULL);
       
     if(pmath_is_expr_of_len(range, PMATH_SYMBOL_RANGE, 2)){
       data.min = pmath_expr_get_item(range, 1);

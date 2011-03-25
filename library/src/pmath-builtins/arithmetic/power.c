@@ -1365,7 +1365,7 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr){
       double prec = pmath_precision(exponent);
       
       expr = pmath_expr_set_item(expr, 1, PMATH_NULL);
-      base = pmath_approximate(base, prec, HUGE_VAL);
+      base = pmath_approximate(base, prec, HUGE_VAL, NULL);
       expr = pmath_expr_set_item(expr, 1, base);
       return expr;
     }
@@ -1375,7 +1375,7 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr){
       double prec = pmath_precision(base);
       
       expr     = pmath_expr_set_item(expr, 2, PMATH_NULL);
-      exponent = pmath_approximate(exponent, prec, HUGE_VAL);
+      exponent = pmath_approximate(exponent, prec, HUGE_VAL, NULL);
       expr     = pmath_expr_set_item(expr, 2, exponent);
       return expr;
     }

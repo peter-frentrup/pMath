@@ -69,9 +69,13 @@ PMATH_ATTRIBUTE_USE_RESULT
 pmath_t pmath_set_precision(pmath_t obj, double prec);
 
 /**\brief Approximate an object.
-   \param obj An object. It will be freed.
-   \param prec The requested precision in bits.
-   \param acc The requested accurarcy in bits.
+   \param obj            An object. It will be freed.
+   \param precision_goal The requested precision in bits.
+   \param accuracy_goal  The requested accurarcy in bits.
+   \param aborted        [out] Whether the approximation was aborted and an 
+                         N::meprec should be generated.
+                         When this is NULL, N::meprec will be generated 
+                         automatically if necessary.
    \return The approximated object.
    
    Use <tt>prec == -HUGE_VAL</tt> or <tt>acc == -HUGE_VAL</tt> for machine 
@@ -81,9 +85,10 @@ pmath_t pmath_set_precision(pmath_t obj, double prec);
 PMATH_API
 PMATH_ATTRIBUTE_USE_RESULT 
 pmath_t pmath_approximate(
-  pmath_t obj,  // will be freed
-  double  prec, // -inf = MachinePrecision
-  double  acc); // -inf = MachinePrecision
+  pmath_t       obj,            // will be freed
+  double        precision_goal, // -inf = MachinePrecision
+  double        accuracy_goal,  // -inf = MachinePrecision
+  pmath_bool_t *aborted);
 
 /** @} */
 

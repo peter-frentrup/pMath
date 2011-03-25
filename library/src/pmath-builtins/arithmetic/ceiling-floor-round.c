@@ -195,8 +195,8 @@ PMATH_PRIVATE pmath_t builtin_ceiling_or_floor_or_round(
     }
     
     {
-      expr = pmath_expr_set_item(expr, 1, PMATH_NULL);
-      x = pmath_approximate(x, HUGE_VAL, 2 * LOG2_10);
+      //expr = pmath_expr_set_item(expr, 1, PMATH_NULL);
+      x = pmath_approximate(x, HUGE_VAL, 2 * LOG2_10, NULL);
       
       if(pmath_is_float(x)){
         pmath_unref(head);

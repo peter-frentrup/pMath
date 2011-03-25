@@ -217,7 +217,7 @@ PMATH_PRIVATE int _pmath_number_class(pmath_t obj){
   int result = _simple_real_class(obj);
   
   if((result & PMATH_CLASS_UNKNOWN) && _pmath_is_numeric(obj)){
-    obj = pmath_approximate(pmath_ref(obj), -HUGE_VAL, -HUGE_VAL);
+    obj = pmath_approximate(pmath_ref(obj), -HUGE_VAL, -HUGE_VAL, NULL);
     result = _simple_real_class(obj);
     pmath_unref(obj);
   }

@@ -140,7 +140,7 @@ static pmath_t ordered(
         prev_was_true = TRUE;
         
         if(pmath_is_double(prev) && _pmath_is_numeric(next)){
-          pmath_t n = pmath_approximate(pmath_ref(next), -HUGE_VAL, -HUGE_VAL);
+          pmath_t n = pmath_approximate(pmath_ref(next), -HUGE_VAL, -HUGE_VAL, NULL);
           int c;
           
           if(!pmath_is_number(n)){
@@ -173,7 +173,7 @@ static pmath_t ordered(
         }
         
         if(pmath_is_double(next) && _pmath_is_numeric(prev)){
-          pmath_t p = pmath_approximate(pmath_ref(prev), -HUGE_VAL, -HUGE_VAL);
+          pmath_t p = pmath_approximate(pmath_ref(prev), -HUGE_VAL, -HUGE_VAL, NULL);
           int c;
           
           if(!pmath_is_number(p)){
@@ -271,7 +271,7 @@ static pmath_t ordered(
           if(pmath_equals(prev_infdir, PMATH_FROM_INT32(-1))){
             n = pmath_ref(next);
             if(pmath_is_null(next_infdir) && _pmath_is_numeric(n))
-              n = pmath_approximate(n, -HUGE_VAL, -HUGE_VAL);
+              n = pmath_approximate(n, -HUGE_VAL, -HUGE_VAL, NULL);
             
             if(pmath_is_number(n)
             || pmath_equals(next_infdir, PMATH_FROM_INT32(1))){
@@ -298,7 +298,7 @@ static pmath_t ordered(
           else if(pmath_equals(prev_infdir, PMATH_FROM_INT32(1))){
             n = pmath_ref(next);
             if(pmath_is_null(next_infdir) && _pmath_is_numeric(n))
-              n = pmath_approximate(n, -HUGE_VAL, -HUGE_VAL);
+              n = pmath_approximate(n, -HUGE_VAL, -HUGE_VAL, NULL);
               
             if(pmath_is_number(n)
             || pmath_equals(next_infdir, PMATH_FROM_INT32(-1))){
@@ -324,7 +324,7 @@ static pmath_t ordered(
           else if(pmath_equals(next_infdir, PMATH_FROM_INT32(-1))){
             p = pmath_ref(prev);
             if(pmath_is_null(prev_infdir) && _pmath_is_numeric(p))
-              p = pmath_approximate(p, -HUGE_VAL, -HUGE_VAL);
+              p = pmath_approximate(p, -HUGE_VAL, -HUGE_VAL, NULL);
               
             if(pmath_is_number(p)
             || pmath_equals(prev_infdir, PMATH_FROM_INT32(1))){
@@ -350,7 +350,7 @@ static pmath_t ordered(
           else if(pmath_equals(next_infdir, PMATH_FROM_INT32(1))){
             p = pmath_ref(prev);
             if(pmath_is_null(prev_infdir) && _pmath_is_numeric(p))
-              p = pmath_approximate(p, -HUGE_VAL, -HUGE_VAL);
+              p = pmath_approximate(p, -HUGE_VAL, -HUGE_VAL, NULL);
               
             if(pmath_is_number(prev)
             || pmath_equals(prev_infdir, PMATH_FROM_INT32(-1))){
@@ -385,7 +385,7 @@ static pmath_t ordered(
             double precacc = DBL_MANT_DIG + LOG10_2;
             pmath_t n;
             
-            n = pmath_approximate(pmath_ref(next), precacc, HUGE_VAL);
+            n = pmath_approximate(pmath_ref(next), precacc, HUGE_VAL, NULL);
             
             if(!pmath_is_number(n)){
               pmath_unref(n);
@@ -395,7 +395,7 @@ static pmath_t ordered(
             c = pmath_fuzzy_compare(prev, n);
             if(c == 0){
               precacc = DBL_MANT_DIG + pmath_accuracy(n);
-              n = pmath_approximate(pmath_ref(next), HUGE_VAL, precacc);
+              n = pmath_approximate(pmath_ref(next), HUGE_VAL, precacc, NULL);
                 
               if(!pmath_is_number(n)){
                 pmath_unref(n);
@@ -411,7 +411,7 @@ static pmath_t ordered(
             double precacc = DBL_MANT_DIG + LOG10_2;
             pmath_t p;
             
-            p = pmath_approximate(pmath_ref(prev), precacc, HUGE_VAL);
+            p = pmath_approximate(pmath_ref(prev), precacc, HUGE_VAL, NULL);
             
             if(!pmath_is_number(p)){
               pmath_unref(p);
@@ -421,7 +421,7 @@ static pmath_t ordered(
             c = pmath_fuzzy_compare(p, next);
             if(c == 0){
               precacc = DBL_MANT_DIG + pmath_accuracy(p);
-              p = pmath_approximate(pmath_ref(prev), HUGE_VAL, precacc);
+              p = pmath_approximate(pmath_ref(prev), HUGE_VAL, precacc, NULL);
                 
               if(!pmath_is_number(p)){
                 pmath_unref(p);
@@ -434,14 +434,15 @@ static pmath_t ordered(
             pmath_unref(p);
           }
           else{
-            pmath_bool_t error = FALSE;
+            pmath_bool_t error1;
+            pmath_bool_t error2;
             double pprec = DBL_MANT_DIG + LOG10_2;
             double nprec = DBL_MANT_DIG + LOG10_2;
             pmath_t p;
             pmath_t n;
             
-            p = pmath_approximate(pmath_ref(prev), pprec, HUGE_VAL);
-            n = pmath_approximate(pmath_ref(next), nprec, HUGE_VAL);
+            p = pmath_approximate(pmath_ref(prev), pprec, HUGE_VAL, &error1);
+            n = pmath_approximate(pmath_ref(next), nprec, HUGE_VAL, &error2);
             
             if(!pmath_is_number(p) || !pmath_is_number(n)){
               pmath_unref(p);
@@ -452,31 +453,23 @@ static pmath_t ordered(
             c = pmath_fuzzy_compare(p, n);
             if(c == 0 && !pmath_aborting()){
               nprec+= 1;
-              while(c == 0){
-                pmath_unref(n);
-                pmath_unref(p);
+              while(c == 0 && !pmath_aborting() && !error1 && !error2){
+                error1 = (pprec >= DBL_MANT_DIG + pmath_max_extra_precision);
+                error2 = (nprec >= DBL_MANT_DIG + pmath_max_extra_precision);
                 
-                p = pmath_approximate(pmath_ref(prev), pprec, HUGE_VAL);
-                n = pmath_approximate(pmath_ref(next), nprec, HUGE_VAL);
-                    
-                if(!pmath_is_number(p) || !pmath_is_number(n)){
-                  error = TRUE;
+                if(error1 || error2)
                   break;
-                }
-                
-                c = pmath_fuzzy_compare(p, n);
-                
-                if(pprec >= DBL_MANT_DIG + pmath_max_extra_precision
-                || nprec >= DBL_MANT_DIG + pmath_max_extra_precision){
-                  if(c == 0){
-                    pmath_message(PMATH_SYMBOL_N, "meprec", 2,
-                      pmath_evaluate(pmath_ref(PMATH_SYMBOL_MAXEXTRAPRECISION)),
-                      pmath_expr_get_item_range(expr, i-1, 2));
-                    error = TRUE;
-                  }
-                  
-                  break;
-                }
+//                if(pprec >= DBL_MANT_DIG + pmath_max_extra_precision
+//                || nprec >= DBL_MANT_DIG + pmath_max_extra_precision){
+//                  if(c == 0){
+//                    pmath_message(PMATH_SYMBOL_N, "meprec", 2,
+//                      pmath_evaluate(pmath_ref(PMATH_SYMBOL_MAXEXTRAPRECISION)),
+//                      pmath_expr_get_item_range(expr, i-1, 2));
+//                    error1 = TRUE;
+//                  }
+//                  
+//                  break;
+//                }
                 
                 pprec = 2 * pprec + 33;
                 nprec = 2 * nprec + 33;
@@ -485,14 +478,45 @@ static pmath_t ordered(
                    pprec = DBL_MANT_DIG + pmath_max_extra_precision;
                 if(nprec > DBL_MANT_DIG + pmath_max_extra_precision)
                    nprec = DBL_MANT_DIG + pmath_max_extra_precision;
+                   
+                pmath_unref(n);
+                pmath_unref(p);
+                
+                p = pmath_approximate(pmath_ref(prev), pprec, HUGE_VAL, &error1);
+                n = pmath_approximate(pmath_ref(next), nprec, HUGE_VAL, &error2);
+                    
+                if(!pmath_is_number(p) || !pmath_is_number(n))
+                  break;
+                
+                c = pmath_fuzzy_compare(p, n);
               }
             }
           
             pmath_unref(n);
             pmath_unref(p);
             
-            if(error || pmath_aborting())
+            if(pmath_aborting())
               continue;
+            
+            if((directions & ~DIRECTION_EQUAL) == 0){
+              if(error1){
+                pmath_message(PMATH_SYMBOL_N, "meprec", 2,
+                  pmath_evaluate(pmath_ref(PMATH_SYMBOL_MAXEXTRAPRECISION)),
+                  pmath_expr_get_item(expr, i-1));
+                  
+                prev_was_true = FALSE;
+                continue;
+              }
+              
+              if(error2){
+                pmath_message(PMATH_SYMBOL_N, "meprec", 2,
+                  pmath_evaluate(pmath_ref(PMATH_SYMBOL_MAXEXTRAPRECISION)),
+                  pmath_expr_get_item(expr, i));
+                  
+                prev_was_true = FALSE;
+                continue;
+              }
+            }
           }
           
           if((c <  0 && (directions & DIRECTION_LESS) == 0)

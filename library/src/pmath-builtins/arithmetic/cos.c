@@ -271,7 +271,7 @@ PMATH_PRIVATE pmath_t builtin_cos(pmath_expr_t expr){
                 pmath_ref(fst),
                 PMATH_FROM_INT32(2)));
             
-            fst = PLUS(fst, TIMES(INT(-2), cmp));
+            fst = MINUS(fst, cmp);
             
             x    = pmath_expr_set_item(x,    1, fst);
             return pmath_expr_set_item(expr, 1, x); // return Cos((fst - Floor(fst, 2))*PI)

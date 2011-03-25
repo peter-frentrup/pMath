@@ -125,7 +125,7 @@ PMATH_PRIVATE pmath_t builtin_clock(pmath_expr_t expr){
     delta = NEG(delta);
   }
   
-  obj = pmath_approximate(pmath_ref(delta), -HUGE_VAL, -HUGE_VAL);
+  obj = pmath_approximate(pmath_ref(delta), -HUGE_VAL, -HUGE_VAL, NULL);
   if(!pmath_is_number(obj) || pmath_number_sign(obj) < 0){
     pmath_unref(min);
     pmath_unref(max);
@@ -201,7 +201,7 @@ PMATH_PRIVATE pmath_t builtin_clock(pmath_expr_t expr){
         duration = MINUS(pmath_ref(max), pmath_ref(min));
     }
     
-    obj = pmath_approximate(pmath_ref(duration), -HUGE_VAL, -HUGE_VAL);
+    obj = pmath_approximate(pmath_ref(duration), -HUGE_VAL, -HUGE_VAL, NULL);
     if(!pmath_is_number(obj)){
       pmath_unref(obj);
       pmath_unref(min);

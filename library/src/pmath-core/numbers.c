@@ -1514,12 +1514,12 @@ int _pmath_numbers_compare(
         return -mpfr_cmp_d(PMATH_AS_MP_VALUE(numB), PMATH_AS_DOUBLE(numA));
       
       case PMATH_TYPE_SHIFT_QUOTIENT: {
-        double b = pmath_number_get_d(PMATH_QUOT_NUM(numB)) / pmath_number_get_d(PMATH_QUOT_DEN(numA));
+        double b = pmath_number_get_d(PMATH_QUOT_NUM(numB)) / pmath_number_get_d(PMATH_QUOT_DEN(numB));
         
         if(PMATH_AS_DOUBLE(numA) < b)
           return -1;
           
-        if(PMATH_AS_DOUBLE(numB) > b)
+        if(PMATH_AS_DOUBLE(numA) > b)
           return 1;
         
       } return 0;

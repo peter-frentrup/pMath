@@ -3054,7 +3054,11 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj){
     case PMATH_TYPE_SHIFT_MP_FLOAT:
     case PMATH_TYPE_SHIFT_MP_INT: {
       pmath_string_t s = PMATH_NULL;
-      pmath_write(obj, 0, (pmath_write_func_t)_pmath_write_to_string, &s);
+      pmath_write(
+        obj, 
+        PMATH_WRITE_OPTIONS_INPUTEXPR, 
+        (pmath_write_func_t)_pmath_write_to_string, 
+        &s);
       pmath_unref(obj);
 
       if(pmath_string_length(s) > 0
@@ -3073,13 +3077,13 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj){
 
       pmath_write(
         PMATH_QUOT_NUM(obj),
-        0,
+        PMATH_WRITE_OPTIONS_INPUTEXPR,
         (pmath_write_func_t)_pmath_write_to_string,
         &n);
 
       pmath_write(
         PMATH_QUOT_DEN(obj),
-        0,
+        PMATH_WRITE_OPTIONS_INPUTEXPR,
         (pmath_write_func_t)_pmath_write_to_string,
         &d);
 

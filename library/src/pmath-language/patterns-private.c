@@ -1001,60 +1001,16 @@ static match_kind_t match_atom(
       return PMATH_MATCH_KIND_LOCAL;
 
     if(pmath_same(head, PMATH_SYMBOL_SINGLEMATCH) && len == 1){ // SingleMatch(type)
-      pmath_t type = pmath_expr_get_item(pat, 1);
+      pmath_t type    = pmath_expr_get_item(pat, 1);
+      pmath_t arghead = _pmath_object_head(arg);
       
-      if(pmath_is_expr(arg)){
-        pmath_t arghead = pmath_expr_get_item(arg, 0);
-        
-        if(pmath_equals(arghead, type)){
-          pmath_unref(type);
-          pmath_unref(arghead);
-          return PMATH_MATCH_KIND_LOCAL;
-        }
-      
+      if(pmath_equals(type, arghead)){
         pmath_unref(type);
         pmath_unref(arghead);
-        return PMATH_MATCH_KIND_NONE;
+        return PMATH_MATCH_KIND_LOCAL;
       }
-      
       pmath_unref(type);
-      if(pmath_is_magic(arg))
-        return PMATH_MATCH_KIND_NONE;
-      
-      if(pmath_is_double(arg)){
-        if(pmath_same(type, PMATH_SYMBOL_REAL))
-          return PMATH_MATCH_KIND_LOCAL;
-        return PMATH_MATCH_KIND_NONE;
-      }
-      
-      if(pmath_is_integer(arg)){
-        if(pmath_same(type, PMATH_SYMBOL_INTEGER))
-          return PMATH_MATCH_KIND_LOCAL;
-        return PMATH_MATCH_KIND_NONE;
-      }
-      
-      switch(PMATH_AS_PTR(arg)->type_shift){
-        case PMATH_TYPE_SHIFT_MP_FLOAT:
-          if(pmath_same(type, PMATH_SYMBOL_REAL))
-            return PMATH_MATCH_KIND_LOCAL;
-          break;
-        
-        case PMATH_TYPE_SHIFT_QUOTIENT:
-          if(pmath_same(type, PMATH_SYMBOL_RATIONAL))
-            return PMATH_MATCH_KIND_LOCAL;
-          break;
-        
-        case PMATH_TYPE_SHIFT_STRING:
-          if(pmath_same(type, PMATH_SYMBOL_STRING))
-            return PMATH_MATCH_KIND_LOCAL;
-          break;
-        
-        case PMATH_TYPE_SHIFT_SYMBOL:
-          if(pmath_same(type, PMATH_SYMBOL_SYMBOL))
-            return PMATH_MATCH_KIND_LOCAL;
-          break;
-      }
-      
+      pmath_unref(arghead);
       return PMATH_MATCH_KIND_NONE;
     }
 

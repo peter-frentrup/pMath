@@ -146,8 +146,8 @@ PMATH_API
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_integer_t pmath_integer_new_ui64(uint64_t ui);
 
-#define pmath_integer_new_siptr  PMATH_CONCAT(pmath_integer_new_si, PMATH_BITSIZE)
-#define pmath_integer_new_uiptr  PMATH_CONCAT(pmath_integer_new_ui, PMATH_BITSIZE)
+#define pmath_integer_new_siptr(si)  PMATH_CONCAT(pmath_integer_new_si, PMATH_BITSIZE)(si)
+#define pmath_integer_new_uiptr(ui)  PMATH_CONCAT(pmath_integer_new_ui, PMATH_BITSIZE)(ui)
 
 /**\brief Create an integer object from a data buffer.
    \memberof pmath_integer_t
@@ -329,8 +329,8 @@ PMATH_API
 PMATH_ATTRIBUTE_PURE
 pmath_bool_t pmath_integer_fits_ui64(pmath_integer_t integer);
 
-#define pmath_integer_fits_siptr  PMATH_CONCAT(pmath_integer_fits_si, PMATH_BITSIZE)
-#define pmath_integer_fits_uiptr  PMATH_CONCAT(pmath_integer_fits_ui, PMATH_BITSIZE)
+#define pmath_integer_fits_siptr(integer)  PMATH_CONCAT(pmath_integer_fits_si, PMATH_BITSIZE)(integer)
+#define pmath_integer_fits_uiptr(integer)  PMATH_CONCAT(pmath_integer_fits_ui, PMATH_BITSIZE)(integer)
 
 /**\brief Convert a pMath integer to a signed long int.
    \memberof pmath_integer_t

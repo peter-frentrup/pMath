@@ -341,6 +341,7 @@ PMATH_PRIVATE pmath_t builtin_flatten(                      pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_fold(                         pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_foldlist(                     pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_gather(                       pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_head(                         pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_identitymatrix(               pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_inner(                        pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_intersection(                 pmath_expr_t expr);
@@ -353,6 +354,7 @@ PMATH_PRIVATE pmath_t builtin_join(                         pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_last(                         pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_leafcount(                    pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_length(                       pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_lengthwhile(                  pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_level(                        pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_ludecomposition(              pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_map(                          pmath_expr_t expr);
@@ -379,6 +381,7 @@ PMATH_PRIVATE pmath_t builtin_sortby(                       pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_split(                        pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_table(                        pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_take(                         pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_takewhile(                    pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_thread(                       pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_through(                      pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_total(                        pmath_expr_t expr);
@@ -819,6 +822,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   VERIFY(   PMATH_SYMBOL_GRIDBOXCOLUMNSPACING      = NEW_SYSTEM_SYMBOL("GridBoxColumnSpacing"))
   VERIFY(   PMATH_SYMBOL_GRIDBOXROWSPACING         = NEW_SYSTEM_SYMBOL("GridBoxRowSpacing"))
   VERIFY(   PMATH_SYMBOL_HASH                      = NEW_SYSTEM_SYMBOL("Hash"))
+  VERIFY(   PMATH_SYMBOL_HEAD                      = NEW_SYSTEM_SYMBOL("Head"))
   VERIFY(   PMATH_SYMBOL_HEADS                     = NEW_SYSTEM_SYMBOL("Heads"))
   VERIFY(   PMATH_SYMBOL_HISTORY                   = NEW_SYSTEM_SYMBOL("$History"))
   VERIFY(   PMATH_SYMBOL_HISTORYLENGTH             = NEW_SYSTEM_SYMBOL("$HistoryLength"))
@@ -883,6 +887,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   VERIFY(   PMATH_SYMBOL_LCM                       = NEW_SYSTEM_SYMBOL("LCM"))
   VERIFY(   PMATH_SYMBOL_LEAFCOUNT                 = NEW_SYSTEM_SYMBOL("LeafCount"))
   VERIFY(   PMATH_SYMBOL_LENGTH                    = NEW_SYSTEM_SYMBOL("Length"))
+  VERIFY(   PMATH_SYMBOL_LENGTHWHILE               = NEW_SYSTEM_SYMBOL("LengthWhile"))
   VERIFY(   PMATH_SYMBOL_LESS                      = NEW_SYSTEM_SYMBOL("Less"))
   VERIFY(   PMATH_SYMBOL_LESSEQUAL                 = NEW_SYSTEM_SYMBOL("LessEqual"))
   VERIFY(   PMATH_SYMBOL_LETTERCHARACTER           = NEW_SYSTEM_SYMBOL("LetterCharacter"))
@@ -1131,6 +1136,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   VERIFY(   PMATH_SYMBOL_TAGBOX                    = NEW_SYSTEM_SYMBOL("TagBox"))
   VERIFY(   PMATH_SYMBOL_TAGUNASSIGN               = NEW_SYSTEM_SYMBOL("TagUnassign"))
   VERIFY(   PMATH_SYMBOL_TAKE                      = NEW_SYSTEM_SYMBOL("Take"))
+  VERIFY(   PMATH_SYMBOL_TAKEWHILE                 = NEW_SYSTEM_SYMBOL("TakeWhile"))
   VERIFY(   PMATH_SYMBOL_TAN                       = NEW_SYSTEM_SYMBOL("Tan"))
   VERIFY(   PMATH_SYMBOL_TANH                      = NEW_SYSTEM_SYMBOL("Tanh"))
   VERIFY(   PMATH_SYMBOL_THREADID                  = NEW_SYSTEM_SYMBOL("$ThreadId"))
@@ -1346,6 +1352,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
     BIND_DOWN(   PMATH_SYMBOL_GREATER,                     builtin_greater)
     BIND_DOWN(   PMATH_SYMBOL_GREATEREQUAL,                builtin_greaterequal)
     BIND_DOWN(   PMATH_SYMBOL_HASH,                        builtin_hash)
+    BIND_DOWN(   PMATH_SYMBOL_HEAD,                        builtin_head)
     BIND_DOWN(   PMATH_SYMBOL_HISTORY,                     builtin_history)
     BIND_DOWN(   PMATH_SYMBOL_IDENTICAL,                   builtin_identical)
     BIND_DOWN(   PMATH_SYMBOL_IDENTITY,                    builtin_evaluate)
@@ -1388,6 +1395,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
     BIND_DOWN(   PMATH_SYMBOL_LCM,                         builtin_lcm)
     BIND_DOWN(   PMATH_SYMBOL_LEAFCOUNT,                   builtin_leafcount)
     BIND_DOWN(   PMATH_SYMBOL_LENGTH,                      builtin_length)
+    BIND_DOWN(   PMATH_SYMBOL_LENGTHWHILE,                 builtin_lengthwhile)
     BIND_DOWN(   PMATH_SYMBOL_LESS,                        builtin_less)
     BIND_DOWN(   PMATH_SYMBOL_LESSEQUAL,                   builtin_lessequal)
     BIND_DOWN(   PMATH_SYMBOL_LEVEL,                       builtin_level)
@@ -1510,6 +1518,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
     BIND_DOWN(   PMATH_SYMBOL_TAGASSIGNDELAYED,            builtin_tagassign)
     BIND_DOWN(   PMATH_SYMBOL_TAGUNASSIGN,                 builtin_tagunassign)
     BIND_DOWN(   PMATH_SYMBOL_TAKE,                        builtin_take)
+    BIND_DOWN(   PMATH_SYMBOL_TAKEWHILE,                   builtin_takewhile)
     BIND_DOWN(   PMATH_SYMBOL_TAN,                         builtin_tan)
     BIND_DOWN(   PMATH_SYMBOL_TANH,                        builtin_tanh)
     BIND_DOWN(   PMATH_SYMBOL_THREAD,                      builtin_thread)
