@@ -2976,7 +2976,11 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj){
   if(pmath_is_double(obj)
   || pmath_is_int32(obj)){
     pmath_string_t s = PMATH_NULL;
-    pmath_write(obj, 0, (pmath_write_func_t)_pmath_write_to_string, &s);
+    pmath_write(
+      obj, 
+      PMATH_WRITE_OPTIONS_INPUTEXPR, 
+      (pmath_write_func_t)_pmath_write_to_string, 
+      &s);
     pmath_unref(obj);
 
     if(pmath_string_length(s) > 0

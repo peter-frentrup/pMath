@@ -1264,6 +1264,23 @@ static unsigned int hash_mp_float(pmath_t f){
     h);
 }
 
+  static void write_short_double(double d, pmath_write_func_t write, void *user){
+    char s[100];
+    double test;
+    int maxprec = 1 + (int)ceil(DBL_MANT_DIG * LOG10_2);
+    int len;
+    
+    for(len = 1;len <= maxprec;++len){
+      snprintf(s, sizeof(s), "%.*f", len, d);
+      
+      test = strtod(s, NULL);
+      if(test == d)
+        break;
+    }
+    
+    write_cstr(s, write, user);
+  }
+
 static void write_mp_float(
   pmath_t                f,
   pmath_write_options_t  options,
@@ -1273,17 +1290,23 @@ static void write_mp_float(
   mp_exp_t exp;
   size_t digits, size;
   char *str;
-  char s[30];
   double prec10 = LOG10_2 * pmath_precision(pmath_ref(f));
   double acc10  = LOG10_2 * pmath_accuracy( pmath_ref(f));
   
   if(mpfr_zero_p(PMATH_AS_MP_VALUE(f)) || prec10 == 0){
-    char s[30];
     long exp;
     double d = mpfr_get_d_2exp(&exp, PMATH_AS_MP_ERROR(f), MPFR_RNDN);
     d = exp * LOG10_2 + log10(d);
-    snprintf(s, sizeof(s), "0``%f", - d);
-    write_cstr(s, write, user);
+    
+    if(options & PMATH_WRITE_OPTIONS_INPUTEXPR){
+      write_cstr("0``", write, user);
+      write_short_double(-d, write, user);
+    }
+    else{
+      write_cstr("0.0*^", write, user);
+      write_short_double(d, write, user);
+    }
+    
     return;
   }
   
@@ -1320,9 +1343,11 @@ static void write_mp_float(
 
       write_cstr(str, write, user);
     }
-
-    snprintf(s, sizeof(s), "`%f", prec10);
-    write_cstr(s, write, user);
+    
+    if(options & PMATH_WRITE_OPTIONS_INPUTEXPR){
+      write_cstr("`", write, user);
+      write_short_double(prec10, write, user);
+    }
   }
   else if(exp > 0 && (size_t)exp < strlen(str)){
     char c;
@@ -1338,8 +1363,10 @@ static void write_mp_float(
 //      delete_trailing_zeros(str + exp + 1);
     write_cstr(str + exp, write, user);
 
-    snprintf(s, sizeof(s), "`%f", prec10); // prec * LOG10_2
-    write_cstr(s, write, user);
+    if(options & PMATH_WRITE_OPTIONS_INPUTEXPR){
+      write_cstr("`", write, user);
+      write_short_double(prec10, write, user);
+    }
   }
   else if(exp < 0 && exp > -5){
     static const uint16_t zero_char = '0';
@@ -1363,8 +1390,10 @@ static void write_mp_float(
 
     write_cstr(str + start, write, user);
 
-    snprintf(s, sizeof(s), "`%f", prec10);
-    write_cstr(s, write, user);
+    if(options & PMATH_WRITE_OPTIONS_INPUTEXPR){
+      write_cstr("`", write, user);
+      write_short_double(prec10, write, user);
+    }
   }
   else{
     int start;
@@ -1390,9 +1419,11 @@ static void write_mp_float(
 
     write_cstr(str + start, write, user);
 
-    snprintf(s, sizeof(s), "`%f", prec10);
-    write_cstr(s, write, user);
-
+    if(options & PMATH_WRITE_OPTIONS_INPUTEXPR){
+      write_cstr("`", write, user);
+      write_short_double(prec10, write, user);
+    }
+    
     if(exp != 0){
       char s[30];
       snprintf(s, sizeof(s), "*^%"PRIdMAX, (intmax_t)exp);
@@ -1433,7 +1464,10 @@ void _pmath_write_machine_float(
   
   if(i == len){
     write_cstr(s, write, user);
-    write_cstr(".0`", write, user);
+    if(options & PMATH_WRITE_OPTIONS_INPUTEXPR)
+      write_cstr(".0`", write, user);
+    else
+      write_cstr(".0", write, user);
     return;
   }
   
@@ -1447,11 +1481,17 @@ void _pmath_write_machine_float(
       char zeros[] = "000000";
       zeros[exp] = '\0';
       write_cstr(zeros, write, user);
-      write_cstr(".0`", write, user);
+      if(options & PMATH_WRITE_OPTIONS_INPUTEXPR)
+        write_cstr(".0`", write, user);
+      else
+        write_cstr(".0", write, user);
       return;
     }
     else{
-      write_cstr(".0`*^", write, user);
+      if(options & PMATH_WRITE_OPTIONS_INPUTEXPR)
+        write_cstr(".0`*^", write, user);
+      else
+        write_cstr(".0*^", write, user);
       
       snprintf(s, sizeof(s), "%d", exp);
       write_cstr(s, write, user);
@@ -1467,7 +1507,10 @@ void _pmath_write_machine_float(
     
     s[i] = '\0';
     write_cstr(s, write, user);
-    write_cstr("`*^", write, user);
+    if(options & PMATH_WRITE_OPTIONS_INPUTEXPR)
+      write_cstr("`*^", write, user);
+    else
+      write_cstr("*^", write, user);
     
     snprintf(s, sizeof(s), "%d", exp);
     write_cstr(s, write, user);
@@ -1475,7 +1518,8 @@ void _pmath_write_machine_float(
   }
   
   write_cstr(s, write, user);
-  write_cstr("`", write, user);
+  if(options & PMATH_WRITE_OPTIONS_INPUTEXPR)
+    write_cstr("`", write, user);
 }
 
 //} ============================================================================

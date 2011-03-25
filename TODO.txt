@@ -5,8 +5,6 @@
 
 - make $MaxExtraPrecision thread-local
 
-- nicer output of ToString for inexcact numbers
-    
 - add Developer`ClearCache() or sth like this to clear all caches
     
 - pmath: implement Rationalize

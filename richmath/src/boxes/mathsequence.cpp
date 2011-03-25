@@ -2915,6 +2915,7 @@ void MathSequence::enlarge_space(Context *context){
   bool last_was_factor = false;
   bool last_was_number = false;
   bool last_was_space  = false;
+  bool last_was_left   = false;
   
   int e = -1;
   while(true){
@@ -3023,7 +3024,8 @@ void MathSequence::enlarge_space(Context *context){
     float space_left  = 0.0;
     float space_right = 0.0;
     
-    bool lwf = false;
+    bool lwf = false; // new last_was_factor
+    bool lwl = false; // new last_was_left
     switch(tok){
       case PMATH_TOK_PLUSPLUS: {
         if(spans.is_operand_start(i)){
@@ -3190,13 +3192,22 @@ void MathSequence::enlarge_space(Context *context){
         lwf = true;
         /* no break */
       case PMATH_TOK_SLOT:
+        if(last_was_factor){
+          space_left = em * 3/18;
+        }
+        break;
+        
       case PMATH_TOK_LEFT:
+        lwl = true;
         if(last_was_factor){
           space_left = em * 3/18;
         }
         break;
         
       case PMATH_TOK_RIGHT:
+        if(last_was_left){
+          space_left = em * 3/18;
+        }
         lwf = true;
         break;
         
@@ -3206,10 +3217,13 @@ void MathSequence::enlarge_space(Context *context){
           glyphs[e].right-=    em * 2/18;
         }
         break;
+      
+      case PMATH_TOK_LEFTCALL:
+        lwl = true;
+        break;
         
       case PMATH_TOK_NONE:
       case PMATH_TOK_CALL:
-      case PMATH_TOK_LEFTCALL:
       case PMATH_TOK_TILDES:
       case PMATH_TOK_INTEGRAL:
       case PMATH_TOK_COMMENTEND:
@@ -3218,6 +3232,7 @@ void MathSequence::enlarge_space(Context *context){
     
     last_was_number = tok == PMATH_TOK_DIGIT;
     last_was_factor = lwf;
+    last_was_left   = lwl;
     
     if(last_was_space){
       last_was_space = false;

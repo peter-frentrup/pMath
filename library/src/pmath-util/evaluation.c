@@ -87,7 +87,7 @@ static pmath_t evaluate(
     #ifdef PMATH_DEBUG_LOG
     if(pmath_is_mpint(obj)){
       if(mpz_fits_sint_p(PMATH_AS_MPZ(obj))){
-        pmath_debug_print_object("\n[WARNING unnormslized mp int ", obj, "]\n");
+        pmath_debug_print_object("\n[WARNING unnormalized mp int ", obj, "]\n");
       }
     }
     #endif
