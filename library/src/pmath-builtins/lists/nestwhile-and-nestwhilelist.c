@@ -127,10 +127,11 @@ static pmath_t nestwhile(
 
 
 PMATH_PRIVATE pmath_t builtin_nestwhile_and_nestwhilelist(pmath_expr_t expr){
-/* NestWhile(f, x, test, m, max, n)
-   NextWhile(f, x, test, m, max)     = NextWhile(f, x, test, m, max,      0)
-   NextWhile(f, x, test, m)          = NextWhile(f, x, test, m, Infinity, 0)
-   NextWhile(f, x, test)             = NextWhile(f, x, test, 1, Infinity, 0)
+/* NestWhile(f, x, test, mmin..m, max, n)
+   NextWhile(f, x, test, m, max, n)  = NextWhile(f, x, test, m..m, max,      n)
+   NextWhile(f, x, test, ms, max)    = NextWhile(f, x, test, ms,   max,      0)
+   NextWhile(f, x, test, ms)         = NextWhile(f, x, test, ms,   Infinity, 0)
+   NextWhile(f, x, test)             = NextWhile(f, x, test, 1,    Infinity, 0)
    
    NestWhileList(...)
  */
@@ -168,7 +169,7 @@ PMATH_PRIVATE pmath_t builtin_nestwhile_and_nestwhilelist(pmath_expr_t expr){
         // TODO: appropriate message
         pmath_unref(tmp);
         pmath_unref(obj);
-        pmath_message(PMATH_NULL, "???", 2, PMATH_FROM_INT32(4), pmath_ref(expr));
+        pmath_message(PMATH_NULL, "nwargs", 2, PMATH_FROM_INT32(4), pmath_ref(expr));
         return expr;
       }
       
@@ -182,7 +183,7 @@ PMATH_PRIVATE pmath_t builtin_nestwhile_and_nestwhilelist(pmath_expr_t expr){
         // TODO: appropriate message
         pmath_unref(tmp);
         pmath_unref(obj);
-        pmath_message(PMATH_NULL, "???", 2, PMATH_FROM_INT32(4), pmath_ref(expr));
+        pmath_message(PMATH_NULL, "nwargs", 2, PMATH_FROM_INT32(4), pmath_ref(expr));
         return expr;
       }
       
@@ -191,7 +192,7 @@ PMATH_PRIVATE pmath_t builtin_nestwhile_and_nestwhilelist(pmath_expr_t expr){
     else{
         // TODO: appropriate message
       pmath_unref(obj);
-      pmath_message(PMATH_NULL, "???", 2, PMATH_FROM_INT32(4), pmath_ref(expr));
+      pmath_message(PMATH_NULL, "nwargs", 2, PMATH_FROM_INT32(4), pmath_ref(expr));
       return expr;
     }
     
@@ -222,7 +223,7 @@ PMATH_PRIVATE pmath_t builtin_nestwhile_and_nestwhilelist(pmath_expr_t expr){
     }
     else{
       pmath_unref(obj);
-      pmath_message(PMATH_NULL, "???", 2, PMATH_FROM_INT32(6), pmath_ref(expr));
+      pmath_message(PMATH_NULL, "intm", 2, PMATH_FROM_INT32(6), pmath_ref(expr));
       return expr;
     }
     
