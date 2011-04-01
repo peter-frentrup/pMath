@@ -1,4 +1,4 @@
-/* this file is to be placed in bin/<system>/<buildtype>/ */
+/* this file is to be placed in bin/<system>/ */
 
 Java`Private`$DLLDirectory:= DirectoryName($Input)
 Get(ToFileName({DirectoryName($Input, 3), "scripts"}, "init.pmath"))

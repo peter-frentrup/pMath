@@ -6,6 +6,7 @@
 #include <jvmti.h>
 
 
+extern pmath_t pjvm_dll_filename;
 extern jthrowable pjvm_internal_exception;
 
 extern pmath_bool_t pjvm_register_external(JavaVM *jvm);

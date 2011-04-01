@@ -20,7 +20,8 @@
 
 
 static pmath_messages_t jvm_main_mq = PMATH_STATIC_NULL;
-pmath_t pjvm_auto_detach_key; // initialized/freed in main.c
+pmath_t pjvm_auto_detach_key = PMATH_STATIC_NULL; // initialized/freed in main.c
+pmath_t pjvm_dll_filename    = PMATH_STATIC_NULL; // dito.
 
 static PMATH_DECLARE_ATOMIC(vm_lock) = 0;
 static pmath_t vm = PMATH_STATIC_NULL;
@@ -599,6 +600,53 @@ pmath_t pj_builtin_startvm(pmath_expr_t expr){
                   }
                   
                   (*env)->DeleteLocalRef(env, sm_class);
+                }
+              }
+              
+              mid = (*env)->GetStaticMethodID(env, system, "getProperty", "(Ljava/lang/String;)Ljava/lang/String;");
+              if(mid){
+                jstring name = (*env)->NewStringUTF(env, "java.library.path");
+                
+                if(name){
+                  jvalue args[2]; 
+                  args[0].l = name;
+                  jstring str = (*env)->CallStaticObjectMethodA(env, system, mid, args);
+                  
+                  if(str){
+                    pmath_string_t path = pj_string_from_java(env, str);
+                    (*env)->DeleteLocalRef(env, str); str = NULL;
+                    
+                    path = pmath_string_insert_latin1(
+                      path, 0, 
+                      #ifdef PMATH_OS_WIN32
+                        ";", 1
+                      #else
+                        ":", 1
+                      #endif
+                      );
+                    
+                    path = pmath_string_concat(pmath_ref(pjvm_dll_filename), path);
+                    
+                    mid = (*env)->GetStaticMethodID(env, system, "setProperty", "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;");
+                    if(mid){
+                      str = pj_string_to_java(env, path); path = PMATH_NULL;
+                      
+                      if(str){
+                        jstring result;
+                        args[1].l = str;
+                        
+                        result = (*env)->CallStaticObjectMethodA(env, system, mid, args);
+                        
+                        if(result)
+                          (*env)->DeleteLocalRef(env, result);
+                        (*env)->DeleteLocalRef(env, str);
+                      }
+                    }
+                    
+                    pmath_unref(path);
+                  }
+                  
+                  (*env)->DeleteLocalRef(env, name);
                 }
               }
               

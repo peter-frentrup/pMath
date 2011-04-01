@@ -3,6 +3,7 @@
 #include <pmath-core/custom.h>
 
 #include <pmath-util/concurrency/threadlocks.h>
+#include <pmath-util/concurrency/threads.h>
 #include <pmath-util/hashtables-private.h>
 #include <pmath-util/memory.h>
 #include <pmath-util/messages.h>
@@ -109,69 +110,71 @@ static void destroy_module(void *ptr){
     }
     
     pmath_message(PMATH_SYMBOL_LOADLIBRARY, "load", 1, pmath_ref(info->filename));
+    
+    if(!pmath_aborting()){
+      #ifdef PMATH_OS_WIN32
+      {
+        // zero terminate
+        pmath_string_t zero_filename = pmath_ref(info->filename);
+        zero_filename = pmath_string_insert_latin1(zero_filename, INT_MAX, "", 1);
+        
+        if(!pmath_is_null(zero_filename)){
+          mod->handle = LoadLibraryW((WCHAR*)pmath_string_buffer(zero_filename));
+          if(mod->handle){
+            init_func = (pmath_bool_t(*)(pmath_string_t))GetProcAddress(mod->handle, "pmath_module_init");
+            done_func = (void        (*)(void))          GetProcAddress(mod->handle, "pmath_module_done");
             
-    #ifdef PMATH_OS_WIN32
-    {
-      // zero terminate
-      pmath_string_t zero_filename = pmath_ref(info->filename);
-      zero_filename = pmath_string_insert_latin1(zero_filename, INT_MAX, "", 1);
-      
-      if(!pmath_is_null(zero_filename)){
-        mod->handle = LoadLibraryW((WCHAR*)pmath_string_buffer(zero_filename));
-        if(mod->handle){
-          init_func = (pmath_bool_t(*)(pmath_string_t))GetProcAddress(mod->handle, "pmath_module_init");
-          done_func = (void        (*)(void))          GetProcAddress(mod->handle, "pmath_module_done");
-          
-          if(init_func && done_func){
-            info->success = init_func(info->filename);
-              
-            if(info->success)
-              mod->done = done_func;
+            if(init_func && done_func){
+              info->success = init_func(info->filename);
+                
+              if(info->success)
+                mod->done = done_func;
+            }
+            
+            if(!info->success){
+              FreeLibrary(mod->handle);
+              mod->handle = NULL;
+            }
           }
           
-          if(!info->success){
-            FreeLibrary(mod->handle);
-            mod->handle = NULL;
-          }
+          pmath_unref(zero_filename);
         }
-        
-        pmath_unref(zero_filename);
       }
-    }
-    #elif defined(PMATH_OS_UNIX)
-    {
-      int len;
-      char *fname = pmath_string_to_native(info->filename, &len);
-      
-      if(fname){
-        mod->handle = dlopen(fname, RTLD_NOW | RTLD_LOCAL);
+      #elif defined(PMATH_OS_UNIX)
+      {
+        int len;
+        char *fname = pmath_string_to_native(info->filename, &len);
         
-        dlerror(); /* Clear any existing error */
-        
-        if(mod->handle){
-          init_func = (pmath_bool_t(*)(pmath_string_t))dlsym(mod->handle, "pmath_module_init");
-          done_func = (void        (*)(void))          dlsym(mod->handle, "pmath_module_done");
+        if(fname){
+          mod->handle = dlopen(fname, RTLD_NOW | RTLD_LOCAL);
           
           dlerror(); /* Clear any existing error */
           
-          if(init_func && done_func){
-            info->success = init_func(info->filename);
-              
-            if(info->success)
-              mod->done = done_func;
+          if(mod->handle){
+            init_func = (pmath_bool_t(*)(pmath_string_t))dlsym(mod->handle, "pmath_module_init");
+            done_func = (void        (*)(void))          dlsym(mod->handle, "pmath_module_done");
+            
+            dlerror(); /* Clear any existing error */
+            
+            if(init_func && done_func){
+              info->success = init_func(info->filename);
+                
+              if(info->success)
+                mod->done = done_func;
+            }
+            
+            if(!info->success){
+              dlclose(mod->handle);
+              dlerror(); /* Clear any existing error */
+              mod->handle = NULL;
+            }
           }
           
-          if(!info->success){
-            dlclose(mod->handle);
-            dlerror(); /* Clear any existing error */
-            mod->handle = NULL;
-          }
+          pmath_mem_free(fname);
         }
-        
-        pmath_mem_free(fname);
       }
+      #endif
     }
-    #endif
     
     if(!info->success){
       entry = pmath_ht_remove(all_modules, &info->filename);

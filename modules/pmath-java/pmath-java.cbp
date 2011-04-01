@@ -22,7 +22,7 @@
 					<Add option="-fno-exceptions" />
 					<Add option="-DBUILD_DLL" />
 					<Add option="-DPMATH_DEBUG_LOG" />
-					<Add option="-DPMATH_DEBUG_NO_FASTREF" />
+					<Add option="-DPMATH_DEBUG_NO_FORCEINLINE" />
 					<Add directory="$(#jdk.include)\win32" />
 				</Compiler>
 				<Linker>
@@ -151,6 +151,10 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src\pjvm.h" />
+		<Unit filename="src\pmath_Expr.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\pmath_Expr.h" />
 		<Extensions>
 			<code_completion>
 				<search_path add="..\..\library\include" />

@@ -715,7 +715,7 @@ pmath_t pj_builtin_internal_javanew(pmath_expr_t expr){
     }
     else{
       pj_thread_message(companion, 
-        PMATH_NULL, "nocls", 1, pmath_expr_get_item(expr, 1));
+        PJ_SYMBOL_JAVANEW, "nocls", 1, pmath_expr_get_item(expr, 1));
     }
   }
   

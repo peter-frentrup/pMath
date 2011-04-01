@@ -328,7 +328,7 @@ static pmath_t type2pmath(pmath_string_t name, int start){ // name will be freed
   int             len = pmath_string_length(name);
   
   if(len <= start)
-    return name;
+    return pmath_string_part(name, start, -1);
   
   if(start + 1 == len){
     uint16_t ch = buf[start];
@@ -359,7 +359,7 @@ static pmath_t type2pmath(pmath_string_t name, int start){ // name will be freed
 //    return pmath_string_part(name, start + 1, len - start - 2);
 //  }
   
-  return name;
+  return pmath_string_part(name, start, -1);
 }
 
   struct cache_info_t{

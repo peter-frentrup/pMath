@@ -37,7 +37,9 @@ jstring pj_string_to_java(JNIEnv *env, pmath_string_t str){
   const jchar *buf = (const jchar*)pmath_string_buffer(str);
   int len = pmath_string_length(str);
   
-  return (*env)->NewString(env, buf, len);
+  jstring result = (*env)->NewString(env, buf, len);
+  pmath_unref(str);
+  return result;
 }
 
 
@@ -192,17 +194,17 @@ pmath_bool_t pj_value_to_java(JNIEnv *env, pmath_t obj, pmath_t type, jvalue *va
     return TRUE;
   }
   
-  if(pmath_is_string(obj)){
-    if(pmath_is_string(type)
-    && pmath_string_equals_latin1(type, "Ljava/lang/String;")){
-      value->l = (*env)->NewString(env, pmath_string_buffer(obj), pmath_string_length(obj));
-      pmath_unref(obj);
-      return TRUE;
-    }
-    
-    pmath_unref(obj);
-    return FALSE;
-  }
+//  if(pmath_is_string(obj)){
+//    if(pmath_is_string(type)
+//    && pmath_string_equals_latin1(type, "Ljava/lang/String;")){
+//      value->l = (*env)->NewString(env, pmath_string_buffer(obj), pmath_string_length(obj));
+//      pmath_unref(obj);
+//      return TRUE;
+//    }
+//    
+//    pmath_unref(obj);
+//    return FALSE;
+//  }
   
   if(pmath_is_expr_of_len(type, PJ_SYMBOL_TYPE_ARRAY, 1)){
     if(pmath_is_null(obj)){
@@ -309,22 +311,31 @@ pmath_bool_t pj_value_to_java(JNIEnv *env, pmath_t obj, pmath_t type, jvalue *va
     }
   }
   
-  if(pj_object_is_java(env, obj)
-  && (*env)->EnsureLocalCapacity(env, 3) == 0){
+  if((*env)->EnsureLocalCapacity(env, 3) == 0){
     pmath_bool_t success = FALSE;
     jclass dst_class = pj_class_to_java(env, pmath_ref(type));
     
     if(dst_class){
-      jobject val = pj_object_to_java(env, obj); obj = PMATH_NULL;
+      jobject val = NULL;
+    
+      if(pmath_is_string(obj)){
+        val = (*env)->NewString(env, pmath_string_buffer(obj), pmath_string_length(obj));
+        pmath_unref(obj);
+        obj = PMATH_NULL;
+      }
+      else if(pj_object_is_java(env, obj)){
+        val = pj_object_to_java(env, obj);
+        obj = PMATH_NULL;
+      }
       
-      if(val){
+      if(val || pmath_is_null(obj)){
         jclass src_class = (*env)->GetObjectClass(env, val);
         
         if(src_class){
           if((*env)->IsAssignableFrom(env, src_class, dst_class)){
             value->l = val;
-            val = NULL;
-            success = TRUE;
+            val      = NULL;
+            success  = TRUE;
           }
           
           (*env)->DeleteLocalRef(env, src_class);
@@ -333,10 +344,6 @@ pmath_bool_t pj_value_to_java(JNIEnv *env, pmath_t obj, pmath_t type, jvalue *va
         if(val)
           (*env)->DeleteLocalRef(env, val);
       }
-      else{
-        value->l = NULL;
-        success = TRUE;
-      }
       
       (*env)->DeleteLocalRef(env, dst_class);
     }
@@ -344,9 +351,6 @@ pmath_bool_t pj_value_to_java(JNIEnv *env, pmath_t obj, pmath_t type, jvalue *va
     pmath_unref(obj);
     return success;
   }
-  
-  if(pmath_is_null(obj))
-    return TRUE;
   
   pmath_unref(obj);
   return FALSE;

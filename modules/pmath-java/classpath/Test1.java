@@ -11,15 +11,19 @@ public class Test1{
 		return src;
 	}
 	
+	public static Object[] identity2(Object... src){
+		return src;
+	}
+	
 	public Object self(){
 		return this;
 	}
-    
-    public static int recursiveCall(int depth){
-        if(depth > 0)
-            return 1 + recursiveCall(depth - 1);
-        return 0;
-    }
+	
+	public static int recursiveCall(int depth){
+		if(depth > 0)
+			return 1 + recursiveCall(depth - 1);
+		return 0;
+	}
 	
 	public static void endlessLoop(){
 		while(true){
