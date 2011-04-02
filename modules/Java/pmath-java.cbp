@@ -31,9 +31,6 @@
 					<Add library="user32" />
 					<Add directory="..\..\library\bin\windows\debug" />
 				</Linker>
-				<ExtraCommands>
-					<Add after="post-build-windows.bat" />
-				</ExtraCommands>
 			</Target>
 			<Target title="Windows-Release">
 				<Option platforms="Windows;" />
@@ -59,9 +56,6 @@
 					<Add library="user32" />
 					<Add directory="..\..\library\bin\windows\release" />
 				</Linker>
-				<ExtraCommands>
-					<Add after="post-build-windows.bat" />
-				</ExtraCommands>
 			</Target>
 			<Target title="Linux-Debug">
 				<Option platforms="Unix;" />
@@ -123,7 +117,6 @@
 			<Add library="pmath" />
 			<Add directory="$(#jdk.lib)" />
 		</Linker>
-		<Unit filename="scripts\init.pmath" />
 		<Unit filename="src\main.c">
 			<Option compilerVar="CC" />
 		</Unit>

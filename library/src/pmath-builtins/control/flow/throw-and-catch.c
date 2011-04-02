@@ -6,6 +6,7 @@
 #include <pmath-util/messages.h>
 
 #include <pmath-builtins/all-symbols-private.h>
+#include <pmath-builtins/control-private.h>
 
 PMATH_PRIVATE pmath_t builtin_throw(pmath_expr_t expr){
 /* Throw(expr)
@@ -32,14 +33,15 @@ PMATH_PRIVATE pmath_t builtin_throw(pmath_expr_t expr){
 }
 
 PMATH_PRIVATE pmath_t builtin_catch(pmath_expr_t expr){
-/* Catch(expr, pattern)  = Catch(expr, pattern)
-   Catch(expr)           = Catch(expr, ~)
+/* Catch(expr, rule1, rule2, ...)
+   Catch(expr, pattern, ...)  == Catch(expr, x:pattern:>x, ...)
  */
   pmath_t result, exception;
   size_t len = pmath_expr_length(expr);
+  size_t i;
 
-  if(len < 1 || len > 2){
-    pmath_message_argxxx(len, 1, 2);
+  if(len < 2){
+    pmath_message_argxxx(len, 2, SIZE_MAX);
     return expr;
   }
 
@@ -47,32 +49,51 @@ PMATH_PRIVATE pmath_t builtin_catch(pmath_expr_t expr){
 
   exception = pmath_catch();
   if(pmath_is_evaluatable(exception)){
-    pmath_t rhs, pattern;
-
-    if(len == 1){
-      pmath_unref(result);
-      pmath_unref(expr);
-      return exception;
-    }
-
-    rhs = PMATH_NULL;
-    pattern = pmath_expr_get_item(expr, 2);
-    if(_pmath_pattern_match(exception, pattern, &rhs)){
-      pmath_unref(result);
+    pmath_unref(result);
+    
+    for(i = 2;i <= len;++i){
+      pmath_t rule = pmath_expr_get_item(expr, i);
       
-      pmath_debug_print_object("[caught ", exception, "]\n");
+      if(_pmath_is_rule(rule)){
+        pmath_t pattern = pmath_expr_get_item(rule, 1);
+        pmath_t rhs     = pmath_expr_get_item(rule, 2);
+        
+        if(_pmath_pattern_match(exception, pattern, &rhs)){
+          pmath_debug_print_object("[caught ", exception, "]\n");
       
-      pmath_unref(expr);
-      return exception;
+          pmath_unref(exception);
+          pmath_unref(rule);
+          pmath_unref(expr);
+          return rhs;
+        }
+        
+        pmath_unref(rhs);
+      }
+      else{
+        pmath_t pattern = pmath_ref(rule);
+        pmath_t rhs     = PMATH_NULL;
+        
+        if(_pmath_pattern_match(exception, pattern, &rhs)){
+          pmath_debug_print_object("[caught ", exception, "]\n");
+          
+          pmath_unref(rule);
+          pmath_unref(expr);
+          return exception;
+        }
+      }
+      
+      pmath_unref(rule);
     }
-
-    pmath_throw(exception); 
+    
+    pmath_unref(expr);
+    pmath_throw(exception);
+    return PMATH_NULL;
   }
   else{
     if(!pmath_same(exception, PMATH_UNDEFINED))
       pmath_debug_print_object("[uncatchable ", exception, "]\n");
       
-    pmath_unref(exception);
+    pmath_throw(exception);
   }
   
   pmath_unref(expr);

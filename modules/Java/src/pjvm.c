@@ -414,6 +414,83 @@ pmath_bool_t pj_exception_to_pmath(JNIEnv *env){
 }
 
 
+extern void pj_pmath_to_exception(JNIEnv *env, pmath_t ex){
+  jclass throwable_class;
+  jclass ex_class;
+  jthrowable jex;
+  jobject str;
+  
+  if(pmath_same(ex, PMATH_UNDEFINED))
+    return;
+  
+  if(JNI_OK != (*env)->EnsureLocalCapacity(env, 4)){
+    pmath_unref(ex);
+    return;
+  }
+  
+  throwable_class = (*env)->FindClass(env, "java/lang/Throwable");
+  if(!throwable_class){
+    pmath_unref(ex);
+    return;
+  }
+  
+  jex = NULL;
+  
+  if(pmath_is_expr_of(ex, PJ_SYMBOL_JAVAEXCEPTION)){
+    pmath_t inner = pmath_expr_get_item(ex, 1);
+      
+    if(pj_object_is_java(env, inner)){
+      jex = pj_object_to_java(env, inner);
+      
+      if(jex && !(*env)->IsInstanceOf(env, jex, throwable_class)){
+        (*env)->DeleteLocalRef(env, jex);
+        jex = NULL;
+      }
+    }
+    
+    pmath_unref(inner);
+  }
+  
+  if(!jex){
+    ex_class = (*env)->FindClass(env, "pmath/WrappedException");
+    
+    if(ex_class){
+      jmethodID cid = (*env)->GetMethodID(env, ex_class, "<init>", "(Ljava/lang/String;)V");
+      
+      if(cid){
+        ex = pmath_evaluate(
+          pmath_expr_new_extended(
+            pmath_ref(PMATH_SYMBOL_TOSTRING), 1,
+            pmath_expr_new_extended(
+              pmath_ref(PMATH_SYMBOL_INPUTFORM), 1,
+              ex)));
+        
+        str = pj_string_to_java(env, ex);
+        
+        if(str){
+          jvalue val[1];
+          val[0].l = str;
+          
+          jex = (*env)->NewObjectA(env, ex_class, cid, val);
+          
+          (*env)->DeleteLocalRef(env, str);
+        }
+      }
+      
+      (*env)->DeleteLocalRef(env, ex_class);
+    }
+  }
+  
+  if(jex){
+    (*env)->Throw(env, jex);
+    (*env)->DeleteLocalRef(env, jex);
+  }
+  
+  (*env)->DeleteLocalRef(env, throwable_class);
+  pmath_unref(ex);
+}
+
+
 void pjvm_ensure_started(void){
   pmath_t pjvm = pjvm_try_get();
   
@@ -451,84 +528,95 @@ pmath_t pj_builtin_startvm(pmath_expr_t expr){
     {
       if(pmath_is_null(vm)){
         if(load_jvm_library()){
-          JavaVMInitArgs vm_args;
-          JavaVM *jvm = NULL;
+          jint      err;
+          JavaVM   *jvm = NULL;
+          JNIEnv   *env = NULL;
           jvmtiEnv *jvmti = NULL;
-          JNIEnv *env = NULL;
-          JavaVMOption opt[6];
-          jint nOptions = 0;
-          char *classpath = NULL;
-          jint err;
+          jsize     num_vms;
           
-          memset(&vm_args, 0, sizeof(vm_args));
-          memset(opt, 0, sizeof(opt));
-          #ifdef PMATH_DEBUG_LOG
-          {
-            opt[nOptions++].optionString = "-verbose:jni";
-            opt[nOptions++].optionString = "-verbose:class";
-            opt[nOptions++].optionString = "-Xcheck:jni";
+          if(_JNI_GetCreatedJavaVMs(&jvm, 1, &num_vms) == JNI_OK && jvm){
+            pmath_debug_print("[attaching to running jvm]\n");
+            (*jvm)->AttachCurrentThreadAsDaemon(jvm, (void**)&env, NULL);
+            (*jvm)->GetEnv(jvm, (void**)&env, JNI_VERSION_1_4);
           }
-          #endif
-          
-          opt[nOptions++].optionString = "-Xrs";
-          
-          
-          { // setting up classpath
-            pmath_t cp = pmath_evaluate(pmath_ref(PJ_SYMBOL_DEFAULTCLASSPATH));
+          else{
+            JavaVMInitArgs vm_args;
+            JavaVMOption opt[6];
+            jint nOptions = 0;
+            char *classpath = NULL;
             
-            if(pmath_is_string(cp))
-              cp = pmath_build_value("(o)", cp);
+            memset(&vm_args, 0, sizeof(vm_args));
+            memset(opt, 0, sizeof(opt));
+            #ifdef PMATH_DEBUG_LOG
+            {
+              opt[nOptions++].optionString = "-verbose:jni";
+              opt[nOptions++].optionString = "-verbose:class";
+              opt[nOptions++].optionString = "-Xcheck:jni";
+            }
+            #endif
             
-            if(pmath_is_expr_of(cp, PMATH_SYMBOL_LIST)
-            && pmath_expr_length(cp) > 0){
-              pmath_string_t s = PMATH_C_STRING("-Djava.class.path=");
-              size_t i;
+            opt[nOptions++].optionString = "-Xrs";
+            
+            
+            { // setting up classpath
+              pmath_t cp = pmath_evaluate(pmath_ref(PJ_SYMBOL_DEFAULTCLASSPATH));
               
-              for(i = 1;i <= pmath_expr_length(cp);++i){
-                pmath_t item = pmath_expr_get_item(cp, i);
+              if(pmath_is_string(cp))
+                cp = pmath_build_value("(o)", cp);
+              
+              if(pmath_is_expr_of(cp, PMATH_SYMBOL_LIST)
+              && pmath_expr_length(cp) > 0){
+                pmath_string_t s = PMATH_C_STRING("-Djava.class.path=");
+                size_t i;
                 
-                if(!pmath_is_string(item)){
-                  pmath_unref(item);
-                  pmath_unref(s);
-                  s = PMATH_NULL;
-                  break;
+                for(i = 1;i <= pmath_expr_length(cp);++i){
+                  pmath_t item = pmath_expr_get_item(cp, i);
+                  
+                  if(!pmath_is_string(item)){
+                    pmath_unref(item);
+                    pmath_unref(s);
+                    s = PMATH_NULL;
+                    break;
+                  }
+                  
+                  if(i > 1){
+                    s = pmath_string_insert_latin1(s, INT_MAX, 
+                      #ifdef PMATH_OS_WIN32
+                        ";", 1
+                      #else
+                        ":", 1
+                      #endif
+                      );
+                  }
+                  
+                  s = pmath_string_concat(s, item);
                 }
                 
-                if(i > 1){
-                  s = pmath_string_insert_latin1(s, INT_MAX, 
-                    #ifdef PMATH_OS_WIN32
-                      ";", 1
-                    #else
-                      ":", 1
-                    #endif
-                    );
-                }
+                if(!pmath_is_null(s))
+                  classpath = pmath_string_to_utf8(s, NULL);
                 
-                s = pmath_string_concat(s, item);
+                pmath_unref(s);
               }
               
-              if(!pmath_is_null(s))
-                classpath = pmath_string_to_utf8(s, NULL);
-              
-              pmath_unref(s);
+              pmath_unref(cp);
             }
             
-            pmath_unref(cp);
-          }
-          
-          if(classpath){
-            opt[nOptions].optionString = classpath;
-            ++nOptions;
-          }
-          
-          
-          vm_args.version            = JNI_VERSION_1_4;
-          vm_args.nOptions           = nOptions;
-          vm_args.options            = opt;
-          
-          err = _JNI_CreateJavaVM(&jvm, (void**)&env, &vm_args); 
-          if(err != JNI_OK){
-            pmath_debug_print("JNI_CreateJavaVM failed with %d\n", (int)err);
+            if(classpath){
+              opt[nOptions].optionString = classpath;
+              ++nOptions;
+            }
+            
+            
+            vm_args.version  = JNI_VERSION_1_4;
+            vm_args.nOptions = nOptions;
+            vm_args.options  = opt;
+            
+            err = _JNI_CreateJavaVM(&jvm, (void**)&env, &vm_args); 
+            if(err != JNI_OK){
+              pmath_debug_print("JNI_CreateJavaVM failed with %d\n", (int)err);
+            }
+            
+            pmath_mem_free(classpath);
           }
           
           if(env){
@@ -558,8 +646,6 @@ pmath_t pj_builtin_startvm(pmath_expr_t expr){
           }
           
           vm = create_pjvm(jvm);
-          
-          pmath_mem_free(classpath);
           
           jvmti = pjvm_get_jvmti(vm);
           if(jvmti){
@@ -603,50 +689,23 @@ pmath_t pj_builtin_startvm(pmath_expr_t expr){
                 }
               }
               
-              mid = (*env)->GetStaticMethodID(env, system, "getProperty", "(Ljava/lang/String;)Ljava/lang/String;");
+              mid = (*env)->GetStaticMethodID(env, system, "setProperty", "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;");
               if(mid){
-                jstring name = (*env)->NewStringUTF(env, "java.library.path");
+                jvalue args[2]; 
+                args[0].l = (*env)->NewStringUTF(env, "pmath.binding.dll");
                 
-                if(name){
-                  jvalue args[2]; 
-                  args[0].l = name;
-                  jstring str = (*env)->CallStaticObjectMethodA(env, system, mid, args);
+                if(args[0].l){
+                  args[1].l = pj_string_to_java(env, pmath_ref(pjvm_dll_filename));
                   
-                  if(str){
-                    pmath_string_t path = pj_string_from_java(env, str);
-                    (*env)->DeleteLocalRef(env, str); str = NULL;
+                  if(args[1].l){
+                    jobject result = (*env)->CallStaticObjectMethodA(env, system, mid, args);
                     
-                    path = pmath_string_insert_latin1(
-                      path, 0, 
-                      #ifdef PMATH_OS_WIN32
-                        ";", 1
-                      #else
-                        ":", 1
-                      #endif
-                      );
-                    
-                    path = pmath_string_concat(pmath_ref(pjvm_dll_filename), path);
-                    
-                    mid = (*env)->GetStaticMethodID(env, system, "setProperty", "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;");
-                    if(mid){
-                      str = pj_string_to_java(env, path); path = PMATH_NULL;
-                      
-                      if(str){
-                        jstring result;
-                        args[1].l = str;
-                        
-                        result = (*env)->CallStaticObjectMethodA(env, system, mid, args);
-                        
-                        if(result)
-                          (*env)->DeleteLocalRef(env, result);
-                        (*env)->DeleteLocalRef(env, str);
-                      }
-                    }
-                    
-                    pmath_unref(path);
+                    if(result)
+                      (*env)->DeleteLocalRef(env, result);
+                    (*env)->DeleteLocalRef(env, args[1].l);
                   }
                   
-                  (*env)->DeleteLocalRef(env, name);
+                  (*env)->DeleteLocalRef(env, args[0].l);
                 }
               }
               

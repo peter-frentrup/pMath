@@ -661,5 +661,6 @@ pmath_bool_t pmath_register_approx_code(
 #define PMATH_SYMBOL_LENGTHWHILE                            PMATH_SYMBOL_BUILTIN(569)
 #define PMATH_SYMBOL_HEAD                                   PMATH_SYMBOL_BUILTIN(570)
 #define PMATH_SYMBOL_TAKEWHILE                              PMATH_SYMBOL_BUILTIN(571)
+#define PMATH_SYMBOL_PARENTDIRECTORY                        PMATH_SYMBOL_BUILTIN(572)
 
 #endif /* __PMATH_BUILTINS__SYMBOLS_H__ */

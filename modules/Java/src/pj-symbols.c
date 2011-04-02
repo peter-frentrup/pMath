@@ -9,6 +9,9 @@
 pmath_symbol_t _pj_symbols[PJ_SYMBOLS_COUNT];
 
 
+extern pmath_t pj_builtin__pmath_Expr_execute(pmath_t expr);
+
+
 pmath_bool_t pj_symbols_init(void){
   size_t i;
   for(i = 0;i < PJ_SYMBOLS_COUNT;++i){
@@ -28,6 +31,7 @@ pmath_bool_t pj_symbols_init(void){
   VERIFY(PJ_SYMBOL_INTERNAL_JAVACALL        = NEW_SYMBOL("Java`Internal`JavaCall"));
   VERIFY(PJ_SYMBOL_INTERNAL_JAVANEW         = NEW_SYMBOL("Java`Internal`JavaNew"));
   VERIFY(PJ_SYMBOL_INTERNAL_RETURN          = NEW_SYMBOL("Java`Internal`Return"));
+  VERIFY(PJ_SYMBOL_INTERNAL_CALLFROMJAVA    = NEW_SYMBOL("Java`Internal`CallFromJava"));
   
   VERIFY(PJ_SYMBOL_ISJAVAOBJECT        = NEW_SYMBOL("Java`IsJavaObject"));
   VERIFY(PJ_SYMBOL_CLASSNAME           = NEW_SYMBOL("Java`ClassName"));
@@ -68,14 +72,20 @@ pmath_bool_t pj_symbols_init(void){
   BIND_DOWN(PJ_SYMBOL_JAVANEW,           pj_builtin_javanew);
   BIND_DOWN(PJ_SYMBOL_JAVASTARTVM,       pj_builtin_startvm);
   
+  BIND_DOWN(PJ_SYMBOL_INTERNAL_CALLFROMJAVA,    pj_builtin__pmath_Expr_execute);
   BIND_DOWN(PJ_SYMBOL_INTERNAL_JAVACALL,        pj_builtin_internal_javacall);
   BIND_DOWN(PJ_SYMBOL_INTERNAL_JAVANEW,         pj_builtin_internal_javanew);
   BIND_DOWN(PJ_SYMBOL_INTERNAL_RETURN,          pj_builtin_internal_return);
   BIND_DOWN(PJ_SYMBOL_INTERNAL_STOPPEDCOTHREAD, pj_builtin_internal_stoppedcothread);
   
   pmath_symbol_set_attributes(
+    PJ_SYMBOL_INTERNAL_CALLFROMJAVA, 
+    PMATH_SYMBOL_ATTRIBUTE_HOLDALLCOMPLETE);
+    
+  pmath_symbol_set_attributes(
     PJ_SYMBOL_INTERNAL_STOPPEDCOTHREAD, 
     PMATH_SYMBOL_ATTRIBUTE_HOLDALLCOMPLETE);
+    
   for(i = 0;i < PJ_SYMBOLS_COUNT;++i){
     if(pmath_is_null(_pj_symbols[i]))
       pmath_debug_print("Symbol %d not defined.\n", (int)i);

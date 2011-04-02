@@ -275,6 +275,7 @@ PMATH_PRIVATE pmath_t builtin_filetype(                      pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_find(                          pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_findlist(                      pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_get(                           pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_parentdirectory(               pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_print(                         pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_renamedirectory_and_renamefile(pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_resetdirectory(                pmath_expr_t expr);
@@ -974,6 +975,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   VERIFY(   PMATH_SYMBOL_PARALLELMAP               = NEW_SYSTEM_SYMBOL("ParallelMap"))
   VERIFY(   PMATH_SYMBOL_PARALLELSCAN              = NEW_SYSTEM_SYMBOL("ParallelScan"))
   VERIFY(   PMATH_SYMBOL_PARALLELTRY               = NEW_SYSTEM_SYMBOL("ParallelTry"))
+  VERIFY(   PMATH_SYMBOL_PARENTDIRECTORY           = NEW_SYSTEM_SYMBOL("ParentDirectory"))
   VERIFY(   PMATH_SYMBOL_PARENTHESIZEBOXES         = NEW_SYSTEM_SYMBOL("ParenthesizeBoxes"))
   VERIFY(   PMATH_SYMBOL_PARSERARGUMENTS           = NEW_SYSTEM_SYMBOL("ParserArguments"))
   VERIFY(   PMATH_SYMBOL_PARSESYMBOLS              = NEW_SYSTEM_SYMBOL("ParseSymbols"))
@@ -1444,6 +1446,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
     BIND_DOWN(   PMATH_SYMBOL_PARALLELMAP,                 builtin_parallelmap)
     BIND_DOWN(   PMATH_SYMBOL_PARALLELSCAN,                builtin_parallelscan)
     BIND_DOWN(   PMATH_SYMBOL_PARALLELTRY,                 builtin_paralleltry)
+    BIND_DOWN(   PMATH_SYMBOL_PARENTDIRECTORY,             builtin_parentdirectory)
     BIND_DOWN(   PMATH_SYMBOL_PARENTHESIZEBOXES,           builtin_parenthesizeboxes)
     BIND_DOWN(   PMATH_SYMBOL_PART,                        builtin_part)
     BIND_DOWN(   PMATH_SYMBOL_PARTITION,                   builtin_partition)

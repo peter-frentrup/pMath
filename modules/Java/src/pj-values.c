@@ -51,160 +51,151 @@ pmath_bool_t pj_value_to_java(JNIEnv *env, pmath_t obj, pmath_t type, jvalue *va
   }
   
   memset(value, 0, sizeof(jvalue));
-  if(pmath_same(type, PJ_SYMBOL_TYPE_BOOLEAN)){
-    pmath_unref(obj);
-    
-    if(pmath_same(obj, PMATH_SYMBOL_TRUE)){
-      value->z = JNI_TRUE;
-      return TRUE;
-    }
-    
-    if(pmath_same(obj, PMATH_SYMBOL_FALSE)){
-      value->z = JNI_FALSE;
-      return TRUE;
-    }
-    
-    return FALSE;
-  }
   
-  if(pmath_same(type, PJ_SYMBOL_TYPE_BYTE)){
-    int i;
-    
-    if(!pmath_is_int32(obj)){
+  if(pmath_is_symbol(type)){
+    if(pmath_same(type, PJ_SYMBOL_TYPE_BOOLEAN)){
       pmath_unref(obj);
-      return FALSE;
-    }
-    
-    i = PMATH_AS_INT32(obj);
-    pmath_unref(obj);
-    
-    if(i < -128 || i > 127)
-      return FALSE;
-    
-    value->b = (jbyte)i;
-    return TRUE;
-  }
-  
-  if(pmath_same(type, PJ_SYMBOL_TYPE_CHAR)){
-    if(pmath_is_string(obj)
-    && pmath_string_length(obj) == 1){
-      value->c = (jchar)pmath_string_buffer(obj)[0];
-      pmath_unref(obj);
-      return TRUE;
-    }
-    
-    pmath_unref(obj);
-    return FALSE;
-  }
-  
-  if(pmath_same(type, PJ_SYMBOL_TYPE_SHORT)){
-    int i;
-    
-    if(!pmath_is_int32(obj)){
-      pmath_unref(obj);
-      return FALSE;
-    }
-    
-    i = PMATH_AS_INT32(obj);
-    pmath_unref(obj);
-    
-    if(i < -32768 || i > 32767)
-      return FALSE;
-    
-    value->s = (jshort)i;
-    return TRUE;
-  }
-  
-  if(pmath_same(type, PJ_SYMBOL_TYPE_INT)){
-    int i;
-    
-    if(!pmath_is_int32(obj)){
-      pmath_unref(obj);
-      return FALSE;
-    }
-    
-    i = PMATH_AS_INT32(obj);
-    pmath_unref(obj);
-    
-    if(i < -2147483647-1 || i > 2147483647)
-      return FALSE;
-    
-    value->i = (jint)i;
-    return TRUE;
-  }
-  
-  if(pmath_same(type, PJ_SYMBOL_TYPE_LONG)){
-    int64_t j;
-    
-    if(!pmath_is_int32(obj)
-    || !pmath_integer_fits_si64(obj)){
-      pmath_unref(obj);
-      return FALSE;
-    }
-    
-    j = pmath_integer_get_si64(obj);
-    pmath_unref(obj);
-    
-    value->j = (jlong)j;
-    return TRUE;
-  }
-  
-  if(pmath_same(type, PJ_SYMBOL_TYPE_FLOAT)
-  || pmath_same(type, PJ_SYMBOL_TYPE_DOUBLE)){
-    double d = 0;
-    
-    if(pmath_is_float(obj)){
-      d = pmath_number_get_d(obj);
-    }
-    else if(pmath_same(obj, PMATH_SYMBOL_UNDEFINED)
-    || pmath_is_expr_of_len(obj, PMATH_SYMBOL_DIRECTEDINFINITY, 0)){
-      d = NAN;
-    }
-    else if(pmath_is_expr_of_len(obj, PMATH_SYMBOL_DIRECTEDINFINITY, 1)){
-      pmath_t dir = pmath_expr_get_item(obj, 1);
       
-      if(pmath_is_number(dir)){
-        int sign = pmath_number_sign(dir);
-        pmath_unref(dir);
-        
-        if(sign < 0)
-          d = -HUGE_VAL;
-        else if(sign > 0)
-          d = HUGE_VAL;
-        else
-          d = NAN;
+      if(pmath_same(obj, PMATH_SYMBOL_TRUE)){
+        value->z = JNI_TRUE;
+        return TRUE;
       }
-      else{
-        pmath_unref(dir);
+      
+      if(pmath_same(obj, PMATH_SYMBOL_FALSE)){
+        value->z = JNI_FALSE;
+        return TRUE;
+      }
+      
+      return FALSE;
+    }
+    
+    if(pmath_same(type, PJ_SYMBOL_TYPE_BYTE)){
+      int i;
+      
+      if(!pmath_is_int32(obj)){
         pmath_unref(obj);
         return FALSE;
       }
+      
+      i = PMATH_AS_INT32(obj);
+      pmath_unref(obj);
+      
+      if(i < -128 || i > 127)
+        return FALSE;
+      
+      value->b = (jbyte)i;
+      return TRUE;
     }
-    else{
+    
+    if(pmath_same(type, PJ_SYMBOL_TYPE_CHAR)){
+      if(pmath_is_string(obj)
+      && pmath_string_length(obj) == 1){
+        value->c = (jchar)pmath_string_buffer(obj)[0];
+        pmath_unref(obj);
+        return TRUE;
+      }
+      
       pmath_unref(obj);
       return FALSE;
     }
     
-    if(pmath_same(type, PJ_SYMBOL_TYPE_FLOAT))
-      value->f = (float)d;
-    else
-      value->d = d;
+    if(pmath_same(type, PJ_SYMBOL_TYPE_SHORT)){
+      int i;
+      
+      if(!pmath_is_int32(obj)){
+        pmath_unref(obj);
+        return FALSE;
+      }
+      
+      i = PMATH_AS_INT32(obj);
+      pmath_unref(obj);
+      
+      if(i < -32768 || i > 32767)
+        return FALSE;
+      
+      value->s = (jshort)i;
+      return TRUE;
+    }
     
-    pmath_unref(obj);
-    return TRUE;
+    if(pmath_same(type, PJ_SYMBOL_TYPE_INT)){
+      int i;
+      
+      if(!pmath_is_int32(obj)){
+        pmath_unref(obj);
+        return FALSE;
+      }
+      
+      i = PMATH_AS_INT32(obj);
+      pmath_unref(obj);
+      
+      if(i < -2147483647-1 || i > 2147483647)
+        return FALSE;
+      
+      value->i = (jint)i;
+      return TRUE;
+    }
+    
+    if(pmath_same(type, PJ_SYMBOL_TYPE_LONG)){
+      int64_t j;
+      
+      if(!pmath_is_int32(obj)
+      || !pmath_integer_fits_si64(obj)){
+        pmath_unref(obj);
+        return FALSE;
+      }
+      
+      j = pmath_integer_get_si64(obj);
+      pmath_unref(obj);
+      
+      value->j = (jlong)j;
+      return TRUE;
+    }
+    
+    if(pmath_same(type, PJ_SYMBOL_TYPE_FLOAT)
+    || pmath_same(type, PJ_SYMBOL_TYPE_DOUBLE)){
+      double d = 0;
+      
+      if(pmath_is_float(obj)){
+        d = pmath_number_get_d(obj);
+      }
+      else if(pmath_same(obj, PMATH_SYMBOL_UNDEFINED)
+      || pmath_is_expr_of_len(obj, PMATH_SYMBOL_DIRECTEDINFINITY, 0)){
+        d = NAN;
+      }
+      else if(pmath_is_expr_of_len(obj, PMATH_SYMBOL_DIRECTEDINFINITY, 1)){
+        pmath_t dir = pmath_expr_get_item(obj, 1);
+        
+        if(pmath_is_number(dir)){
+          int sign = pmath_number_sign(dir);
+          pmath_unref(dir);
+          
+          if(sign < 0)
+            d = -HUGE_VAL;
+          else if(sign > 0)
+            d = HUGE_VAL;
+          else
+            d = NAN;
+        }
+        else{
+          pmath_unref(dir);
+          pmath_unref(obj);
+          return FALSE;
+        }
+      }
+      else{
+        pmath_unref(obj);
+        return FALSE;
+      }
+      
+      if(pmath_same(type, PJ_SYMBOL_TYPE_FLOAT))
+        value->f = (float)d;
+      else
+        value->d = d;
+      
+      pmath_unref(obj);
+      return TRUE;
+    }
   }
-  
-//  if(pmath_is_string(obj)){
-//    if(pmath_is_string(type)
-//    && pmath_string_equals_latin1(type, "Ljava/lang/String;")){
-//      value->l = (*env)->NewString(env, pmath_string_buffer(obj), pmath_string_length(obj));
-//      pmath_unref(obj);
-//      return TRUE;
-//    }
-//    
-//    pmath_unref(obj);
-//    return FALSE;
-//  }
   
   if(pmath_is_expr_of_len(type, PJ_SYMBOL_TYPE_ARRAY, 1)){
     if(pmath_is_null(obj)){
@@ -327,8 +318,34 @@ pmath_bool_t pj_value_to_java(JNIEnv *env, pmath_t obj, pmath_t type, jvalue *va
         val = pj_object_to_java(env, obj);
         obj = PMATH_NULL;
       }
+      else if(pmath_is_int32(obj)){
+        jclass src_class = (*env)->FindClass(env, "Ljava/lang/Integer;");
+        
+        if(src_class){
+          jmethodID cid = (*env)->GetMethodID(env, src_class, "<init>", "(I)V");
+          
+          if(cid){
+            val = (*env)->NewObject(env, src_class, cid, (jint)PMATH_AS_INT32(obj));
+          }
+          
+          (*env)->DeleteLocalRef(env, src_class);
+        }
+      }
+      else if(pmath_is_double(obj)){
+        jclass src_class = (*env)->FindClass(env, "Ljava/lang/Double;");
+        
+        if(src_class){
+          jmethodID cid = (*env)->GetMethodID(env, src_class, "<init>", "(D)V");
+          
+          if(cid){
+            val = (*env)->NewObject(env, src_class, cid, (jdouble)PMATH_AS_INT32(obj));
+          }
+          
+          (*env)->DeleteLocalRef(env, src_class);
+        }
+      }
       
-      if(val || pmath_is_null(obj)){
+      if(val){
         jclass src_class = (*env)->GetObjectClass(env, val);
         
         if(src_class){
@@ -344,6 +361,10 @@ pmath_bool_t pj_value_to_java(JNIEnv *env, pmath_t obj, pmath_t type, jvalue *va
         if(val)
           (*env)->DeleteLocalRef(env, val);
       }
+      else if(pmath_is_null(obj)){
+        value->l = NULL;
+        success  = TRUE;
+      }
       
       (*env)->DeleteLocalRef(env, dst_class);
     }
@@ -355,6 +376,22 @@ pmath_bool_t pj_value_to_java(JNIEnv *env, pmath_t obj, pmath_t type, jvalue *va
   pmath_unref(obj);
   return FALSE;
 }
+
+
+  static pmath_bool_t starts_with(pmath_string_t str, const char *s){
+    int             len = pmath_string_length(str);
+    const uint16_t *buf = pmath_string_buffer(str);
+    
+    while(len-- > 0){
+      if(!*s)
+        return TRUE;
+        
+      if(*buf++ != (uint16_t)(unsigned char)*s++)
+        return FALSE;
+    }
+    
+    return *s == '\0';
+  }
 
 
 pmath_t pj_value_from_java(JNIEnv *env, char type, const jvalue *value){
@@ -383,12 +420,89 @@ pmath_t pj_value_from_java(JNIEnv *env, char type, const jvalue *value){
     pmath_t class_name  = pj_class_get_name(env, clazz);
     int slen            = pmath_string_length(class_name);
     const uint16_t *buf = pmath_string_buffer(class_name);
-    (*env)->DeleteLocalRef(env, clazz);
     
-    if(pmath_string_equals_latin1(class_name, "Ljava/lang/String;")){
-      pmath_unref(class_name);
-      return pj_string_from_java(env, value->l);
+    if(starts_with(class_name, "Ljava/lang/")){
+      if(pmath_string_equals_latin1(class_name, "Ljava/lang/String;")){
+        pmath_unref(class_name);
+        
+        (*env)->DeleteLocalRef(env, clazz);
+        return pj_string_from_java(env, value->l);
+      }
+      
+      if(pmath_string_equals_latin1(class_name, "Ljava/lang/Boolean;")){
+        jmethodID mid = (*env)->GetMethodID(env, clazz, "booleanValue", "()Z");
+        
+        if(mid){
+          (*env)->DeleteLocalRef(env, clazz);
+          return pmath_build_value("b", (int)(*env)->CallBooleanMethod(env, value->l, mid));
+        }
+      }
+      
+      if(pmath_string_equals_latin1(class_name, "Ljava/lang/Byte;")){
+        jmethodID mid = (*env)->GetMethodID(env, clazz, "byteValue", "()B");
+        
+        if(mid){
+          (*env)->DeleteLocalRef(env, clazz);
+          return pmath_build_value("i", (int)(*env)->CallByteMethod(env, value->l, mid));
+        }
+      }
+      
+      if(pmath_string_equals_latin1(class_name, "Ljava/lang/Character;")){
+        jmethodID mid = (*env)->GetMethodID(env, clazz, "charValue", "()C");
+        
+        if(mid){
+          (*env)->DeleteLocalRef(env, clazz);
+          return pmath_build_value("i", (int)(*env)->CallCharMethod(env, value->l, mid));
+        }
+      }
+      
+      if(pmath_string_equals_latin1(class_name, "Ljava/lang/Short;")){
+        jmethodID mid = (*env)->GetMethodID(env, clazz, "shortValue", "()S");
+        
+        if(mid){
+          (*env)->DeleteLocalRef(env, clazz);
+          return pmath_build_value("i", (int)(*env)->CallShortMethod(env, value->l, mid));
+        }
+      }
+      
+      if(pmath_string_equals_latin1(class_name, "Ljava/lang/Integer;")){
+        jmethodID mid = (*env)->GetMethodID(env, clazz, "intValue", "()I");
+        
+        if(mid){
+          (*env)->DeleteLocalRef(env, clazz);
+          return pmath_build_value("i", (int)(*env)->CallIntMethod(env, value->l, mid));
+        }
+      }
+      
+      if(pmath_string_equals_latin1(class_name, "Ljava/lang/Long;")){
+        jmethodID mid = (*env)->GetMethodID(env, clazz, "longValue", "()J");
+        
+        if(mid){
+          (*env)->DeleteLocalRef(env, clazz);
+          return pmath_build_value("k", (long long)(*env)->CallLongMethod(env, value->l, mid));
+        }
+      }
+      
+      if(pmath_string_equals_latin1(class_name, "Ljava/lang/Float;")){
+        jmethodID mid = (*env)->GetMethodID(env, clazz, "floatValue", "()F");
+        
+        if(mid){
+          (*env)->DeleteLocalRef(env, clazz);
+          return pmath_build_value("f", (double)(*env)->CallFloatMethod(env, value->l, mid));
+        }
+      }
+      
+      if(pmath_string_equals_latin1(class_name, "Ljava/lang/Double;")){
+        jmethodID mid = (*env)->GetMethodID(env, clazz, "doubleValue", "()D");
+        
+        if(mid){
+          (*env)->DeleteLocalRef(env, clazz);
+          return pmath_build_value("f", (*env)->CallDoubleMethod(env, value->l, mid));
+        }
+      }
     }
+    
+    (*env)->DeleteLocalRef(env, clazz);
     
     if(slen > 0 && buf[0] == '['){
       pmath_bool_t is_simple_array = FALSE;

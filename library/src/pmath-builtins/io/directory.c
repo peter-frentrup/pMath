@@ -106,7 +106,7 @@ static int last_slash(const uint16_t *buf, int len){
 
 PMATH_PRIVATE 
 PMATH_ATTRIBUTE_USE_RESULT
-pmath_t _pmath_canonical_file_name(pmath_string_t relname){
+pmath_string_t _pmath_canonical_file_name(pmath_string_t relname){
   if(pmath_string_length(relname) == 0)
     return relname;
   
@@ -352,6 +352,46 @@ PMATH_PRIVATE pmath_t builtin_directoryname(pmath_expr_t expr){
   }
   
   return pmath_string_part(name, 0, i + 1);
+}
+
+PMATH_PRIVATE pmath_t builtin_parentdirectory(pmath_expr_t expr){
+  pmath_string_t dir;
+  
+  if(pmath_expr_length(expr) > 1){
+    pmath_message_argxxx(pmath_expr_length(expr), 0, 1);
+    return expr;
+  }
+  
+  if(pmath_expr_length(expr) == 1)
+    dir = pmath_expr_get_item(expr, 1);
+  else
+    dir = get_directory();
+  
+  if(!pmath_is_string(dir) || pmath_string_length(dir) < 1){
+    pmath_message(PMATH_NULL, "fstr", 1, dir);
+    return expr;
+  }
+  
+  pmath_unref(expr);
+  
+  dir = _pmath_canonical_file_name(dir);
+  if(!pmath_is_null(dir)){
+    const uint16_t *buf = pmath_string_buffer(dir);
+    int             len = pmath_string_length(dir);
+    int i;
+    
+    --len;
+    while(len >= 0 && buf[len] != '\\' && buf[len] != '/')
+      --len;
+    
+    i = len-1;
+    while(i >= 0 && buf[i] != '\\' && buf[i] != '/')
+      --i;
+    
+    return pmath_string_part(dir, 0, len + (i < 0));
+  }
+  
+  return PMATH_NULL;
 }
 
 PMATH_PRIVATE pmath_t builtin_setdirectory(pmath_expr_t expr){

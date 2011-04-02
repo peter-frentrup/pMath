@@ -7,9 +7,14 @@
 
 JNIEXPORT jint JNICALL
 JNI_OnLoad(JavaVM *vm, void *reserved){
+// todo: make this reentrant and thread-safe
+
   printf("[JNI_OnLoad]\n");
-  if(pmath_is_null(pjvm_dll_filename))
+  if(pmath_is_null(pjvm_dll_filename)){
+    // todo: load pmath in a worker thread...
+    printf("[pmath not loaded]\n");
     return 0;
+  }
   
   return JNI_VERSION_1_4;
 }

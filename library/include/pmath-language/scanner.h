@@ -235,7 +235,7 @@ pmath_t pmath_parse_string(pmath_string_t code);
    This function is a short hand for
    -# assigning pmath_build_value(format, ...) to the symbol $ParserArguments
    -# then calling pmath_parse_string(PMATH_C_STRING(code)) and
-   -# restoring the old value of $ParserArguments before 
+   -# restoring the old value of $ParserArguments 
    -# returning the result of the pmath_parse_string-call.
    
    \see pmath_build_value

@@ -215,7 +215,7 @@ jclass pj_class_to_java(JNIEnv *env, pmath_t obj){
   if(env && (*env)->EnsureLocalCapacity(env, 1) == 0){
     char *str;
     
-    if(pmath_is_symbol(obj)){
+    /*if(pmath_is_symbol(obj)){
       if(pmath_same(obj, PJ_SYMBOL_TYPE_BOOLEAN)){
         pmath_unref(obj);
         return (*env)->FindClass(env, "Z");
@@ -255,7 +255,7 @@ jclass pj_class_to_java(JNIEnv *env, pmath_t obj){
         pmath_unref(obj);
         return (*env)->FindClass(env, "D");
       }
-    }
+    }*/
     
     if(pmath_is_expr_of_len(obj, PJ_SYMBOL_TYPE_ARRAY, 1)){
       pmath_string_t prefix = PMATH_NULL;

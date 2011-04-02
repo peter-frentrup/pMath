@@ -34,7 +34,7 @@
 {"ButtonBox", {"ArgumentCount" -> 1}},
 {"ByteCount", {"ArgumentCount" -> 1}},
 {"Cases", {"ArgumentCount" -> 1..4}},
-{"Catch", {"ArgumentCount" -> 1..2}},
+{"Catch", {"ArgumentCount" -> 2..}},
 {"Ceiling", {"ArgumentCount" -> 1..2}},
 {"Characters", {"ArgumentCount" -> 1}},
 {"Chop", {"ArgumentCount" -> 1..2}},
@@ -397,9 +397,17 @@
 }},
 {"Java`",{
 {"Constructors", {"ArgumentCount" -> 1}},
+{"ClassName", {"ArgumentCount" -> 1}},
+{"Fields", {"ArgumentCount" -> 1}},
+{"GetClass", {"ArgumentCount" -> 1}},
+{"InstanceOf", {"ArgumentCount" -> 1}},
+{"IsJavaObject", {"ArgumentCount" -> 1}},
 {"JavaCall", {"ArgumentCount" -> 2..}},
 {"JavaClass", {"ArgumentCount" -> 1}},
+{"JavaClassAsObject", {"ArgumentCount" -> 1}},
+{"JavaException", {"ArgumentCount" -> 3}},
 {"JavaField", {"ArgumentCount" -> 2}},
-{"Fields", {"ArgumentCount" -> 1}},
+{"JavaNew", {"ArgumentCount" -> 1..}},
+{"ParentClass", {"ArgumentCount" -> 1}},
 {"Methods", {"ArgumentCount" -> 1}}
 }}}

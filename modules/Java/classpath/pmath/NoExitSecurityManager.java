@@ -6,12 +6,11 @@ public class NoExitSecurityManager extends SecurityManager {
 	}
 	
 	public void checkLink(String lib){
-		if(!lib.equals("pmath-java"))
-			super.checkLink(lib);
+		//System.out.println("checkLink: " + lib);
+		//if(!lib.equals("pmath-java"))
+		//	super.checkLink(lib);
 	}
 	
 	public void checkPropertyAccess(String key){
-		//if(!key.equals("user.dir"))
-		//	super.checkPropertyAccess(key);
 	}
 }
