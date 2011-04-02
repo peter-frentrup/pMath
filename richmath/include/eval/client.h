@@ -62,6 +62,8 @@ namespace richmath{
       static void execute_for(Expr expr, Box *box, double seconds);
       static void execute_for(Expr expr, Box *box);
       
+      static Expr internal_execute_for(Expr expr, int doc, int sect, int box);
+      
     public:
       static double edit_interrupt_timeout;
       static double interrupt_timeout;

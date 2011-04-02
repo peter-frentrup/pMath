@@ -83,6 +83,10 @@ pmath_bool_t pj_symbols_init(void){
     PMATH_SYMBOL_ATTRIBUTE_HOLDALLCOMPLETE);
     
   pmath_symbol_set_attributes(
+    PJ_SYMBOL_INTERNAL_RETURN, 
+    PMATH_SYMBOL_ATTRIBUTE_HOLDALLCOMPLETE);
+    
+  pmath_symbol_set_attributes(
     PJ_SYMBOL_INTERNAL_STOPPEDCOTHREAD, 
     PMATH_SYMBOL_ATTRIBUTE_HOLDALLCOMPLETE);
     

@@ -28,6 +28,35 @@ static pmath_t builtin_addconfigshaper(pmath_expr_t expr){
   return PMATH_NULL;
 }
 
+static pmath_t builtin_internalexecutefor(pmath_expr_t expr){
+  if(pmath_expr_length(expr) != 4)
+    return expr;
+    
+  pmath_t code        = pmath_expr_get_item(expr, 1);
+  pmath_t document_id = pmath_expr_get_item(expr, 2);
+  pmath_t section_id  = pmath_expr_get_item(expr, 3);
+  pmath_t box_id      = pmath_expr_get_item(expr, 4);
+  pmath_unref(expr);
+  
+  if(pmath_is_int32(document_id)
+  && pmath_is_int32(section_id)
+  && pmath_is_int32(box_id)){
+    code = Client::internal_execute_for(
+      Expr(code), 
+      PMATH_AS_INT32(document_id), 
+      PMATH_AS_INT32(section_id), 
+      PMATH_AS_INT32(box_id)).release();
+  }
+  else
+    code = pmath_evaluate(code);
+  
+  pmath_unref(document_id);
+  pmath_unref(section_id);
+  pmath_unref(box_id);
+  
+  return code;
+}
+
 static pmath_t builtin_documentapply(pmath_expr_t _expr){
   Expr expr(_expr);
   
@@ -759,6 +788,8 @@ bool richmath::init_bindings(){
   VERIFY(fe_symbols[NumberBoxSymbol]       = NEW_SYMBOL("FE`NumberBox"))
   VERIFY(fe_symbols[SymbolInfoSymbol]      = NEW_SYMBOL("FE`SymbolInfo"))
   VERIFY(fe_symbols[AddConfigShaperSymbol] = NEW_SYMBOL("FE`AddConfigShaper"))
+  VERIFY(fe_symbols[InternalExecuteFor]    = NEW_SYMBOL("FE`InternalExecuteFor"))
+  
   
   VERIFY(BIND_DOWN(PMATH_SYMBOL_INTERNAL_DYNAMICUPDATED, builtin_internal_dynamicupdated))
   
@@ -771,6 +802,12 @@ bool richmath::init_bindings(){
   VERIFY(BIND_UP(  PMATH_SYMBOL_FRONTENDOBJECT, builtin_feo_options))
   
   VERIFY(BIND_DOWN(fe_symbols[AddConfigShaperSymbol], builtin_addconfigshaper))
+  VERIFY(BIND_DOWN(fe_symbols[InternalExecuteFor],    builtin_internalexecutefor))
+  
+  pmath_symbol_set_attributes(
+    fe_symbols[InternalExecuteFor],
+    pmath_symbol_get_attributes(
+      fe_symbols[InternalExecuteFor]) | PMATH_SYMBOL_ATTRIBUTE_HOLDFIRST);
 
   return true;
   

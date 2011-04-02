@@ -414,24 +414,38 @@ pmath_bool_t pj_exception_to_pmath(JNIEnv *env){
 }
 
 
-extern void pj_pmath_to_exception(JNIEnv *env, pmath_t ex){
+pmath_bool_t pj_exception_to_java(JNIEnv *env){
   jclass throwable_class;
   jclass ex_class;
   jthrowable jex;
   jobject str;
   
+  pmath_t ex = pmath_catch();
+  
   if(pmath_same(ex, PMATH_UNDEFINED))
-    return;
+    return FALSE;
+  
+  if(pmath_same(ex, PMATH_ABORT_EXCEPTION)){
+    (*env)->Throw(env, pjvm_internal_exception);
+    return TRUE;
+  }
+  
+  if(!pmath_is_evaluatable(ex)){
+    pmath_debug_print_object("[uncatchable exception ", ex, " passing java code]\n");
+    pmath_throw(ex);
+    (*env)->Throw(env, pjvm_internal_exception);
+    return TRUE;
+  }
   
   if(JNI_OK != (*env)->EnsureLocalCapacity(env, 4)){
     pmath_unref(ex);
-    return;
+    return TRUE;
   }
   
   throwable_class = (*env)->FindClass(env, "java/lang/Throwable");
   if(!throwable_class){
     pmath_unref(ex);
-    return;
+    return TRUE;
   }
   
   jex = NULL;
@@ -488,6 +502,7 @@ extern void pj_pmath_to_exception(JNIEnv *env, pmath_t ex){
   
   (*env)->DeleteLocalRef(env, throwable_class);
   pmath_unref(ex);
+  return TRUE;
 }
 
 

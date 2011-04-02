@@ -20,7 +20,7 @@ extern JNIEnv *pjvm_try_get_env(void);
 extern JNIEnv *pjvm_get_env(void);
 
 extern pmath_bool_t pj_exception_to_pmath(JNIEnv *env);
-extern void         pj_pmath_to_exception(JNIEnv *env, pmath_t ex); // ex will be freed
+extern pmath_bool_t pj_exception_to_java(JNIEnv *env);
 
 
 extern void pjvm_ensure_started(void);

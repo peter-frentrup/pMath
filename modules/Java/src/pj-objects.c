@@ -570,16 +570,22 @@ pmath_t pj_builtin_internal_javacall(pmath_expr_t expr){
   
   exception = pmath_catch();
   if(!pmath_same(exception, PMATH_UNDEFINED)){
-    pmath_unref(result);
     
     if(pmath_same(exception, PMATH_ABORT_EXCEPTION)){
+      pmath_unref(result);
       result = pmath_expr_new(
         pmath_ref(PMATH_SYMBOL_ABORT), 0);
     }
-    else{
+    else if(pmath_is_evaluatable(exception)){
+      pmath_unref(result);
       result = pmath_expr_new_extended(
         pmath_ref(PMATH_SYMBOL_THROW), 1,
         exception);
+    }
+    else{
+      pmath_unref(exception);
+      pmath_unref(result);
+      result = pmath_ref(PMATH_SYMBOL_FAILED);
     }
   }
   

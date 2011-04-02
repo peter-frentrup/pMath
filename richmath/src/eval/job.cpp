@@ -11,6 +11,13 @@ using namespace richmath;
 
 //{ class EvaluationPosition ...
 
+EvaluationPosition::EvaluationPosition(int _doc, int _sect, int _box)
+: document_id(_doc),
+  section_id(_sect),
+  box_id(_box)
+{
+}
+
 EvaluationPosition::EvaluationPosition(Box *box)
 : document_id(0),
   section_id(0),

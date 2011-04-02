@@ -43,7 +43,7 @@ pmath_t pj_builtin__pmath_Expr_execute(pmath_t expr){
   result = pmath_evaluate(result);
   
   exception = pmath_catch();
-  if(!pmath_same(exception, PMATH_UNDEFINED)){
+  if(pmath_is_evaluatable(exception)){
     pmath_unref(result);
     result = PMATH_NULL;
     
@@ -66,7 +66,7 @@ JNIEXPORT jobject JNICALL Java_pmath_Expr_execute(
 ){
   pmath_messages_t companion;
   pmath_string_t code;
-  pmath_t args, expr, exception;
+  pmath_t args, expr;
   
   jvalue  val;
   pmath_bool_t load_temporary;
@@ -94,8 +94,10 @@ JNIEXPORT jobject JNICALL Java_pmath_Expr_execute(
   expr = pmath_thread_send_wait(companion, expr, HUGE_VAL, NULL, NULL);
   pmath_unref(companion);
   
-  exception = pmath_catch();
-  pj_pmath_to_exception(env, exception);
+  if(pj_exception_to_java(env)){
+    pmath_unref(expr);
+    return NULL;
+  }
   
   val.l = NULL;
   code = PMATH_C_STRING("Ljava/lang/Object;");

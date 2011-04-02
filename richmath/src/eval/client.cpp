@@ -442,7 +442,7 @@ void Client::abort_all_jobs(){
 }
 
 bool Client::is_idle(){
-  return session->current_job.is_valid();
+  return !session->current_job.is_valid();
 }
 
 bool Client::is_idle(int document_id){
@@ -480,11 +480,39 @@ void Client::execute_for(Expr expr, Box *box, double seconds){
 //  if(box)
 //    print_pos = EvaluationPosition(box);
   
-  Server::local_server->interrupt(expr, seconds);
+  EvaluationPosition pos(box);
+  
+  Server::local_server->interrupt(
+    Call(GetSymbol(InternalExecuteFor), expr, pos.document_id, pos.section_id, pos.box_id), 
+    seconds);
 }
 
 void Client::execute_for(Expr expr, Box *box){
   execute_for(expr, box, interrupt_timeout);
+}
+
+Expr Client::internal_execute_for(Expr expr, int doc, int sect, int box){
+  static PMATH_DECLARE_ATOMIC(lock) = 0;
+  EvaluationPosition old_print_pos;
+  
+  pmath_atomic_lock(&lock);
+  {
+    old_print_pos = print_pos;
+    print_pos.document_id = doc;
+    print_pos.section_id  = sect;
+    print_pos.box_id      = box;
+  }
+  pmath_atomic_unlock(&lock);
+  
+  expr = Evaluate(expr);
+  
+  pmath_atomic_lock(&lock);
+  {
+    print_pos = old_print_pos;
+  }
+  pmath_atomic_unlock(&lock);
+  
+  return expr;
 }
 
 Expr Client::interrupt_cached(Expr expr, double seconds){

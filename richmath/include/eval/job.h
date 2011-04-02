@@ -12,6 +12,7 @@ namespace richmath{
   
   class EvaluationPosition{
     public:
+      EvaluationPosition(int _doc, int _sect, int _box);
       explicit EvaluationPosition(Box *box = 0);
       
     public:
