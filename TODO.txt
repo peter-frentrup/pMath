@@ -2,9 +2,8 @@
 	Button("italic", DocumentApply(SelectedDocument(), StyleBox("\[SelectionPlaceholder]", FontSlant->Italic))),
 	Button("Arg Style", DocumentApply(SelectedDocument(), StyleBox("\[SelectionPlaceholder]", "Arg")))})
 
-- test QRDecomposition with complex matrices. Is Q unitary?, ...
-	
-- Power: simplify Sqrt(10) Sqrt(10)
+- Power: simplify (1/2)/Sqrt(2), ... 
+		x Sqrt(E x) --->  Sqrt(E) x^(3/2)
 	
 - implement QRDecomposition() in C code
 

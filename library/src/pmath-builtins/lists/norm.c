@@ -97,6 +97,40 @@ PMATH_PRIVATE pmath_t builtin_norm(pmath_expr_t expr){
     return expr;
   }
   
+  // special casing Norm({a,b}) = Sqrt(a^2 + b^2) for double values
+  // to circumvalent numerical underflow/owerflow
+  if(pmath_equals(ptype, PMATH_FROM_INT32(2))
+  && pmath_expr_length(matrix) == 2){
+    pmath_t a = pmath_expr_get_item(matrix, 1);
+    pmath_t b = pmath_expr_get_item(matrix, 2);
+    
+    if(pmath_is_double(a) && pmath_is_double(b)){
+      double x = fabs(PMATH_AS_DOUBLE(a));
+      double y = fabs(PMATH_AS_DOUBLE(b));
+      double z;
+      
+      if(x > y){
+        z = y/x;
+        z = x * sqrt(1 + z*z);
+      }
+      else{
+        z = x/y;
+        z = y * sqrt(1 + z*z);
+      }
+      
+      if(isfinite(z)){
+        pmath_unref(ptype);
+        pmath_unref(matrix);
+        pmath_unref(expr);
+        
+        return PMATH_FROM_DOUBLE(z);
+      }
+    }
+    
+    pmath_unref(a);
+    pmath_unref(b);
+  }
+  
   pmath_unref(expr);
   expr = POW(FUNC(pmath_ref(PMATH_SYMBOL_TOTAL), POW(ABS(matrix), pmath_ref(ptype))), INV(pmath_ref(ptype)));
   

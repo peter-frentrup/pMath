@@ -415,17 +415,12 @@ static void split_factor(
   pmath_t *out_num_power,
   pmath_t *out_rest_power
 ){
-  if(pmath_is_expr(factor) && pmath_expr_length(factor) == 2){
-    pmath_t head = pmath_expr_get_item(factor, 0);
-    pmath_unref(head);
-    
-    if(pmath_same(head, PMATH_SYMBOL_POWER)){
-      pmath_t exponent = pmath_expr_get_item(factor, 2);
-      *out_base = pmath_expr_get_item(factor, 1);
-      split_summand(exponent, out_num_power, out_rest_power);
-      pmath_unref(exponent);
-      return;
-    }
+  if(pmath_is_expr_of_len(factor, PMATH_SYMBOL_POWER, 2)){
+    pmath_t exponent = pmath_expr_get_item(factor, 2);
+    *out_base        = pmath_expr_get_item(factor, 1);
+    split_summand(exponent, out_num_power, out_rest_power);
+    pmath_unref(exponent);
+    return;
   }
   *out_base = pmath_ref(factor);
   *out_num_power  = PMATH_FROM_INT32(1);
@@ -590,7 +585,7 @@ static void times_2_arg(pmath_t *a, pmath_t *b){
       return;
     }
   }
-
+  
   {
     pmath_t baseA;
     pmath_t baseB;
@@ -598,7 +593,37 @@ static void times_2_arg(pmath_t *a, pmath_t *b){
     pmath_number_t numPowerB;
     pmath_t restPowerA;
     pmath_t restPowerB;
-
+    
+    if(pmath_is_expr_of_len(*a, PMATH_SYMBOL_POWER, 2)
+    && pmath_is_expr_of_len(*b, PMATH_SYMBOL_POWER, 2)){
+      numPowerA = pmath_expr_get_item(*a, 2);
+      numPowerB = pmath_expr_get_item(*b, 2);
+      
+      if(pmath_equals(numPowerA, numPowerB)){
+        baseA = pmath_expr_get_item(*a, 1);
+        baseB = pmath_expr_get_item(*b, 1);
+        
+        if((_pmath_number_class(baseA) & PMATH_CLASS_REAL)
+        && (_pmath_number_class(baseB) & PMATH_CLASS_REAL)){
+          pmath_unref(*b); *b = PMATH_UNDEFINED;
+          pmath_unref(numPowerA);
+          pmath_unref(numPowerB);
+          *a = pmath_expr_set_item(*a, 1, 
+            pmath_expr_new_extended(
+              pmath_ref(PMATH_SYMBOL_TIMES), 2,
+              baseA, 
+              baseB));
+          return;
+        }
+        
+        pmath_unref(baseA);
+        pmath_unref(baseB);
+      }
+      
+      pmath_unref(numPowerA);
+      pmath_unref(numPowerB);
+    }
+    
     split_factor(*a, &baseA, &numPowerA, &restPowerA);
     split_factor(*b, &baseB, &numPowerB, &restPowerB);
 

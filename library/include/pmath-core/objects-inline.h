@@ -98,7 +98,7 @@ pmath_t PMATH_FROM_DOUBLE(double d){
    objA == objB. 
    
    \note pmath_equals(A, B) might return FALSE although pmath_compare(A, B) == 0
-   e.g. for an integer A and q floating point value B.
+   e.g. for an integer A and a floating point value B.
  */
 PMATH_API
 PMATH_ATTRIBUTE_PURE

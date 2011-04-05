@@ -801,6 +801,9 @@
 		<Unit filename="src\pmath-builtins\lists\operate.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="src\pmath-builtins\lists\padleft-and-padright.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="src\pmath-builtins\lists\partition.c">
 			<Option compilerVar="CC" />
 		</Unit>

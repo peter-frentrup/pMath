@@ -183,6 +183,8 @@ OpenAppend::charcode:= OpenRead::charcode:= OpenWrite::charcode:= "`1` is not a 
 
 Options::optnf:= OptionValue::optnf:= SetOptions::optnf:= "`1` is not a known option for `2`."
 
+PadLeft::margin:= PadRight::margin:= "The list of margins `1` given in `2` must be of the same length (`3`) as the list of padded dimensions `4`."
+
 ParallelTry::toofew:= "Only `1` results received, rather than `2`."
 
 Partition::ohp:= "Overhang parameters in `1` must be nonzero machine-size integers, or lists of nonzero machine-size integers."

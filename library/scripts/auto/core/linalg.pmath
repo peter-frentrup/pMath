@@ -46,12 +46,13 @@ transposeHelper(~tensor, ~perm:List)::= Local({tdim, rdim, invperm, indices, res
 
 
 
-/* QR decomposition via givvens rotation */
+/* QR decomposition with Givens rotation */
 
-givRot(~i,~k,~m,~c,~s)::= Local({A:= IdentityMatrix(m)},
-	A[i,i]:= A[k,k]:= c;
-	A[i,k]:= s;
+givensRot(~i,~k,~m,~c,~s)::= Local({A:= IdentityMatrix(m)},
+	A[i,i]:= c;
+	A[i,k]:= Conjugate(s);
 	A[k,i]:= -s;
+	A[k,k]:= Conjugate(c);
 	A)
 
 QRDecomposition(~A?IsMatrix)::= Local({Q, R, G, r, i, j, m:= Length(A)},
@@ -60,29 +61,13 @@ QRDecomposition(~A?IsMatrix)::= Local({Q, R, G, r, i, j, m:= Length(A)},
 	Do(
 		Do(
 			If((R[i,j] = 0) =!= True,
-				r:= Sqrt(R[j,j]^2 + R[i,j]^2);
-				G:= givRot(j, i, m, R[j,j]/r, R[i,j]/r);
+				r:= Norm({R[j,j], R[i,j]});
+				G:= givensRot(j, i, m, R[j,j]/r, R[i,j]/r);
 				R:= Dot(G, R);
 				Q:= Dot(G, Q);
 				)
 			, i -> j+1 .. m)
 		, j -> Length(A[1]));
-		{Transpose(Q), R}) /* not ConjugateTranspose!!! */
-	
-/* QR decomposition via Householder transformation 
-QRDecomposition(~A?IsMatrix)::=With({dims:= Dimensions(A)},
-	Local({H, Q, R, u, k},
-		Q:= IdentityMatrix(dims[1]);
-		R:= A;
-		Do(
-			u:= R[k..,k];
-			u[1]+= Sign(u[1]) Norm(u);
-			u/= Norm(u);
-			u:= Join(ConstantArray(0,k-1), u);
-			H:= IdentityMatrix(dims[1]) - 2 Dot(Transpose({u}), {Conjugate(u)});
-			Q:= Dot(H, Q);
-			R:= Dot(H, R);
-			, k -> Min(dims));
-		{Conjugate(Transpose(Q)), R * Array(Boole(#1 <= #2) &, dims)})) */
+		{Conjugate(Transpose(Q)), R})
 
 End()

@@ -130,7 +130,7 @@ pmath_expr_t _pmath_expr_prepend(
 /* matrix must point to a quadratic matrix,
    perm must be to sizeof(size_t) * pmath_expr_length(matrix) bytes
    returns: *matrix contains lower and upper matrix, perm the permutation, 
-   return value is 0 iff matrix was singular and siugn of perm otherwise
+   return value is 0 iff matrix was singular and sign of perm otherwise
    
    if sing_fast_exit == TRUE and *matrix is singular, the decomposition stop 
    immediately and the result is possibly not a valid LU-matrix

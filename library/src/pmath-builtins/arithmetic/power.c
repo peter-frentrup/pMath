@@ -636,7 +636,7 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr){
       pmath_t im = pmath_expr_get_item(base, 2);
       
       if(pmath_is_number(re) && pmath_is_number(im)){
-        if(pmath_compare(re, PMATH_FROM_INT32(0)) == 0){
+        if(pmath_number_sign(re) == 0){
           // (I im)^n = I^n im^n
           int lexp4 = PMATH_AS_INT32(exponent) % 4;
           

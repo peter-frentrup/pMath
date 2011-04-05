@@ -370,6 +370,7 @@ PMATH_PRIVATE pmath_t builtin_nestwhile_and_nestwhilelist(  pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_norm(                         pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_operate(                      pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_ordering(                     pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_padleft_and_padright(         pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_partition(                    pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_prepend(                      pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_range(                        pmath_expr_t expr);
@@ -983,6 +984,8 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   VERIFY(   PMATH_SYMBOL_OVERSCRIPTBOX             = NEW_SYSTEM_SYMBOL("OverscriptBox"))
   VERIFY(   PMATH_SYMBOL_OWNRULES                  = NEW_SYSTEM_SYMBOL("OwnRules"))
   VERIFY(   PMATH_SYMBOL_PACKAGES                  = NEW_SYSTEM_SYMBOL("$Packages"))
+  VERIFY(   PMATH_SYMBOL_PADLEFT                   = NEW_SYSTEM_SYMBOL("PadLeft"))
+  VERIFY(   PMATH_SYMBOL_PADRIGHT                  = NEW_SYSTEM_SYMBOL("PadRight"))
   VERIFY(   PMATH_SYMBOL_PAGEWIDTHDEFAULT          = NEW_SYSTEM_SYMBOL("$PageWidth"))
   VERIFY(   PMATH_SYMBOL_PARALLEL_RETURN           = NEW_SYSTEM_SYMBOL("Parallel`Return"))
   VERIFY(   PMATH_SYMBOL_PARALLELMAP               = NEW_SYSTEM_SYMBOL("ParallelMap"))
@@ -1466,6 +1469,8 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
     BIND_DOWN(   PMATH_SYMBOL_OPTIONVALUE,                 builtin_optionvalue)
     BIND_DOWN(   PMATH_SYMBOL_OVERFLOW,                    general_builtin_zeroargs)
     BIND_DOWN(   PMATH_SYMBOL_OWNRULES,                    builtin_ownrules)
+    BIND_DOWN(   PMATH_SYMBOL_PADLEFT,                     builtin_padleft_and_padright)
+    BIND_DOWN(   PMATH_SYMBOL_PADRIGHT,                    builtin_padleft_and_padright)
     BIND_DOWN(   PMATH_SYMBOL_PARALLELMAP,                 builtin_parallelmap)
     BIND_DOWN(   PMATH_SYMBOL_PARALLELSCAN,                builtin_parallelscan)
     BIND_DOWN(   PMATH_SYMBOL_PARALLELTRY,                 builtin_paralleltry)

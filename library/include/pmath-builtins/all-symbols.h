@@ -679,5 +679,7 @@ pmath_bool_t pmath_register_approx_code(
 #define PMATH_SYMBOL_UNITVECTOR                             PMATH_SYMBOL_BUILTIN(587)
 #define PMATH_SYMBOL_QRDECOMPOSITION                        PMATH_SYMBOL_BUILTIN(588)
 #define PMATH_SYMBOL_CONJUGATE                              PMATH_SYMBOL_BUILTIN(589)
+#define PMATH_SYMBOL_PADLEFT                                PMATH_SYMBOL_BUILTIN(590)
+#define PMATH_SYMBOL_PADRIGHT                               PMATH_SYMBOL_BUILTIN(591)
 
 #endif /* __PMATH_BUILTINS__SYMBOLS_H__ */

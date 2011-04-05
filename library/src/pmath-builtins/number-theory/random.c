@@ -45,12 +45,11 @@ struct random_array_data_t{
   size_t          dim;
   size_t          dims;
   size_t          lengths[MAX_DIM];
-  pmath_t  min;
-  pmath_t  max;
-  //mpfr_prec_t       working_precision;
+  pmath_t         min;
+  pmath_t         max;
   double          working_precision;
-  mpfr_prec_t       prec;
-  pmath_bool_t random_integer; // max is INTEGER !!! and one bigger than real max!!!
+  mpfr_prec_t     prec;
+  pmath_bool_t    random_integer; // max is INTEGER !!! and one bigger than real max!!!
 };
 
 static pmath_expr_t random_array(
