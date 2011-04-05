@@ -90,6 +90,7 @@ PMATH_PRIVATE pmath_t builtin_ceiling_or_floor_or_round(pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_chop(                     pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_clip(                     pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_complex(                  pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_conjugate(                pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_cos(                      pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_cosh(                     pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_directedinfinity(         pmath_expr_t expr);
@@ -366,6 +367,7 @@ PMATH_PRIVATE pmath_t builtin_most(                         pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_nest(                         pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_nestlist(                     pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_nestwhile_and_nestwhilelist(  pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_norm(                         pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_operate(                      pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_ordering(                     pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_partition(                    pmath_expr_t expr);
@@ -387,6 +389,7 @@ PMATH_PRIVATE pmath_t builtin_thread(                       pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_through(                      pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_total(                        pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_union(                        pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_unitvector(                   pmath_expr_t expr);
 //} ============================================================================
 //{ builtins from src/pmath-builtins/logic/ ...           
 PMATH_PRIVATE pmath_t builtin_and(                  pmath_expr_t expr);
@@ -710,6 +713,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   VERIFY(   PMATH_SYMBOL_COMPLEXINFINITY           = NEW_SYSTEM_SYMBOL("ComplexInfinity"))
   VERIFY(   PMATH_SYMBOL_CONDITION                 = NEW_SYSTEM_SYMBOL("Condition"))
   VERIFY(   PMATH_SYMBOL_CONDITIONALEXPRESSION     = NEW_SYSTEM_SYMBOL("ConditionalExpression"))
+  VERIFY(   PMATH_SYMBOL_CONJUGATE                 = NEW_SYSTEM_SYMBOL("Conjugate"))
   VERIFY(   PMATH_SYMBOL_CONSTANTARRAY             = NEW_SYSTEM_SYMBOL("ConstantArray"))
   VERIFY(   PMATH_SYMBOL_CONTINUE                  = NEW_SYSTEM_SYMBOL("Continue"))
   VERIFY(   PMATH_SYMBOL_COPYDIRECTORY             = NEW_SYSTEM_SYMBOL("CopyDirectory"))
@@ -758,6 +762,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   VERIFY(   PMATH_SYMBOL_DYNAMICBOX                = NEW_SYSTEM_SYMBOL("DynamicBox"))
   VERIFY(   PMATH_SYMBOL_E                         = NEW_SYSTEM_SYMBOL("E"))
   VERIFY(   PMATH_SYMBOL_EDITABLE                  = NEW_SYSTEM_SYMBOL("Editable"))
+  VERIFY(   PMATH_SYMBOL_ELEMENT                   = NEW_SYSTEM_SYMBOL("Element"))
   VERIFY(   PMATH_SYMBOL_EMIT                      = NEW_SYSTEM_SYMBOL("Emit"))
   VERIFY(   PMATH_SYMBOL_END                       = NEW_SYSTEM_SYMBOL("End"))
   VERIFY(   PMATH_SYMBOL_ENDOFFILE                 = NEW_SYSTEM_SYMBOL("EndOfFile"))
@@ -946,7 +951,14 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   VERIFY(   PMATH_SYMBOL_NHOLDFIRST                = NEW_SYSTEM_SYMBOL("NHoldFirst"))
   VERIFY(   PMATH_SYMBOL_NHOLDREST                 = NEW_SYSTEM_SYMBOL("NHoldRest"))
   VERIFY(   PMATH_SYMBOL_NONE                      = NEW_SYSTEM_SYMBOL("None"))
+  VERIFY(   PMATH_SYMBOL_NORM                      = NEW_SYSTEM_SYMBOL("Norm"))
   VERIFY(   PMATH_SYMBOL_NOT                       = NEW_SYSTEM_SYMBOL("Not"))
+  VERIFY(   PMATH_SYMBOL_NOTELEMENT                = NEW_SYSTEM_SYMBOL("NotElement"))
+  VERIFY(   PMATH_SYMBOL_NOTREVERSEELEMENT         = NEW_SYSTEM_SYMBOL("NotReverseElement"))
+  VERIFY(   PMATH_SYMBOL_NOTSUBSET                 = NEW_SYSTEM_SYMBOL("NotSubset"))
+  VERIFY(   PMATH_SYMBOL_NOTSUBSETEQUAL            = NEW_SYSTEM_SYMBOL("NotSubsetEqual"))
+  VERIFY(   PMATH_SYMBOL_NOTSUPERSET               = NEW_SYSTEM_SYMBOL("NotSuperset"))
+  VERIFY(   PMATH_SYMBOL_NOTSUPERSETEQUAL          = NEW_SYSTEM_SYMBOL("NotSupersetEqual"))
   VERIFY(   PMATH_SYMBOL_NRULES                    = NEW_SYSTEM_SYMBOL("NRules"))
   VERIFY(   PMATH_SYMBOL_NUMBER                    = NEW_SYSTEM_SYMBOL("Number"))
   VERIFY(   PMATH_SYMBOL_NUMBERSTRING              = NEW_SYSTEM_SYMBOL("NumberString"))
@@ -1010,6 +1022,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   VERIFY(   PMATH_SYMBOL_PROTECT                   = NEW_SYSTEM_SYMBOL("Protect"))
   VERIFY(   PMATH_SYMBOL_PROTECTED                 = NEW_SYSTEM_SYMBOL("Protected"))
   VERIFY(   PMATH_SYMBOL_PUREARGUMENT              = NEW_SYSTEM_SYMBOL("PureArgument"))
+  VERIFY(   PMATH_SYMBOL_QRDECOMPOSITION           = NEW_SYSTEM_SYMBOL("QRDecomposition"))
   VERIFY(   PMATH_SYMBOL_QUIT                      = NEW_SYSTEM_SYMBOL("Quit"))
   VERIFY(   PMATH_SYMBOL_QUOTIENT                  = NEW_SYSTEM_SYMBOL("Quotient"))
   VERIFY(   PMATH_SYMBOL_RADICALBOX                = NEW_SYSTEM_SYMBOL("RadicalBox"))
@@ -1039,6 +1052,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   VERIFY(   PMATH_SYMBOL_REST                      = NEW_SYSTEM_SYMBOL("Rest"))
   VERIFY(   PMATH_SYMBOL_RETURN                    = NEW_SYSTEM_SYMBOL("Return"))
   VERIFY(   PMATH_SYMBOL_REVERSE                   = NEW_SYSTEM_SYMBOL("Reverse"))
+  VERIFY(   PMATH_SYMBOL_REVERSEELEMENT            = NEW_SYSTEM_SYMBOL("ReverseElement"))
   VERIFY(   PMATH_SYMBOL_RGBCOLOR                  = NEW_SYSTEM_SYMBOL("RGBColor"))
   VERIFY(   PMATH_SYMBOL_RIFFLE                    = NEW_SYSTEM_SYMBOL("Riffle"))
   VERIFY(   PMATH_SYMBOL_ROTATE                    = NEW_SYSTEM_SYMBOL("Rotate"))
@@ -1118,11 +1132,15 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   VERIFY(   PMATH_SYMBOL_SUBRULES                  = NEW_SYSTEM_SYMBOL("SubRules"))
   VERIFY(   PMATH_SYMBOL_SUBSCRIPT                 = NEW_SYSTEM_SYMBOL("Subscript"))
   VERIFY(   PMATH_SYMBOL_SUBSCRIPTBOX              = NEW_SYSTEM_SYMBOL("SubscriptBox"))
+  VERIFY(   PMATH_SYMBOL_SUBSET                    = NEW_SYSTEM_SYMBOL("Subset"))
+  VERIFY(   PMATH_SYMBOL_SUBSETEQUAL               = NEW_SYSTEM_SYMBOL("SubsetEqual"))
   VERIFY(   PMATH_SYMBOL_SUBSUPERSCRIPT            = NEW_SYSTEM_SYMBOL("Subsuperscript"))
   VERIFY(   PMATH_SYMBOL_SUBSUPERSCRIPTBOX         = NEW_SYSTEM_SYMBOL("SubsuperscriptBox"))
   VERIFY(   PMATH_SYMBOL_SUM                       = NEW_SYSTEM_SYMBOL("Sum"))
   VERIFY(   PMATH_SYMBOL_SUPERSCRIPT               = NEW_SYSTEM_SYMBOL("Superscript"))
   VERIFY(   PMATH_SYMBOL_SUPERSCRIPTBOX            = NEW_SYSTEM_SYMBOL("SuperscriptBox"))
+  VERIFY(   PMATH_SYMBOL_SUPERSET                  = NEW_SYSTEM_SYMBOL("Superset"))
+  VERIFY(   PMATH_SYMBOL_SUPERSETEQUAL             = NEW_SYSTEM_SYMBOL("SupersetEqual"))
   VERIFY(   PMATH_SYMBOL_SYMBOL                    = NEW_SYSTEM_SYMBOL("Symbol"))
   VERIFY(   PMATH_SYMBOL_SYMBOLNAME                = NEW_SYSTEM_SYMBOL("SymbolName"))
   VERIFY(   PMATH_SYMBOL_SYMMETRIC                 = NEW_SYSTEM_SYMBOL("Symmetric"))
@@ -1177,6 +1195,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   VERIFY(   PMATH_SYMBOL_UNEVALUATED               = NEW_SYSTEM_SYMBOL("Unevaluated"))
   VERIFY(   PMATH_SYMBOL_UNIDENTICAL               = NEW_SYSTEM_SYMBOL("Unidentical"))
   VERIFY(   PMATH_SYMBOL_UNION                     = NEW_SYSTEM_SYMBOL("Union"))
+  VERIFY(   PMATH_SYMBOL_UNITVECTOR                = NEW_SYSTEM_SYMBOL("UnitVector"))
   VERIFY(   PMATH_SYMBOL_UNPROTECT                 = NEW_SYSTEM_SYMBOL("Unprotect"))
   VERIFY(   PMATH_SYMBOL_UPDATE                    = NEW_SYSTEM_SYMBOL("Update"))
   VERIFY(   PMATH_SYMBOL_UPRULES                   = NEW_SYSTEM_SYMBOL("UpRules"))
@@ -1287,6 +1306,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
     BIND_DOWN(   PMATH_SYMBOL_CLOSE,                       builtin_close)
     BIND_DOWN(   PMATH_SYMBOL_COMPLEMENT,                  builtin_complement)
     BIND_DOWN(   PMATH_SYMBOL_COMPLEX,                     builtin_complex)
+    BIND_DOWN(   PMATH_SYMBOL_CONJUGATE,                   builtin_conjugate)
     BIND_DOWN(   PMATH_SYMBOL_CONSTANTARRAY,               builtin_constantarray)
     BIND_DOWN(   PMATH_SYMBOL_CONTINUE,                    general_builtin_zeroonearg)
     BIND_DOWN(   PMATH_SYMBOL_COPYDIRECTORY,               builtin_copydirectory_and_copyfile)
@@ -1431,6 +1451,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
     BIND_DOWN(   PMATH_SYMBOL_NEWTASK,                     builtin_newtask)
     BIND_DOWN(   PMATH_SYMBOL_NEXTPRIME,                   builtin_nextprime)
     BIND_DOWN(   PMATH_SYMBOL_NOT,                         builtin_not)
+    BIND_DOWN(   PMATH_SYMBOL_NORM,                        builtin_norm)
     BIND_DOWN(   PMATH_SYMBOL_NRULES,                      builtin_symbol_rules)
     BIND_DOWN(   PMATH_SYMBOL_OFF,                         builtin_on_or_off)
     BIND_DOWN(   PMATH_SYMBOL_ON,                          builtin_on_or_off)
@@ -1543,6 +1564,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
     BIND_DOWN(   PMATH_SYMBOL_UNEQUAL,                     builtin_unequal)
     BIND_DOWN(   PMATH_SYMBOL_UNIDENTICAL,                 builtin_unidentical)
     BIND_DOWN(   PMATH_SYMBOL_UNION,                       builtin_union)
+    BIND_DOWN(   PMATH_SYMBOL_UNITVECTOR,                  builtin_unitvector)
     BIND_DOWN(   PMATH_SYMBOL_UNPROTECT,                   builtin_protect_or_unprotect)
     BIND_DOWN(   PMATH_SYMBOL_UPDATE,                      builtin_update)
     BIND_DOWN(   PMATH_SYMBOL_UPRULES,                     builtin_symbol_rules)
@@ -1627,6 +1649,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   SET_ATTRIB( PMATH_SYMBOL_CLOSE,                            LISTABLE);
   SET_ATTRIB( PMATH_SYMBOL_COMPLEX,                          DEFINITEFUNCTION | NUMERICFUNCTION);
   SET_ATTRIB( PMATH_SYMBOL_CONDITION,                        HOLDALL);
+  SET_ATTRIB( PMATH_SYMBOL_CONJUGATE,                        DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
   SET_ATTRIB( PMATH_SYMBOL_COS,                              DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
   SET_ATTRIB( PMATH_SYMBOL_COSH,                             DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
   SET_ATTRIB( PMATH_SYMBOL_COT,                              DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);

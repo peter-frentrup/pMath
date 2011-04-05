@@ -384,6 +384,9 @@
 		<Unit filename="src\pmath-builtins\arithmetic\complexinfinity.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="src\pmath-builtins\arithmetic\conjugate.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="src\pmath-builtins\arithmetic\cos.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -792,6 +795,9 @@
 		<Unit filename="src\pmath-builtins\lists\nestwhile-and-nestwhilelist.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="src\pmath-builtins\lists\norm.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="src\pmath-builtins\lists\operate.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -841,6 +847,9 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src\pmath-builtins\lists\union.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\pmath-builtins\lists\unitvector.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src\pmath-builtins\logic\and.c">

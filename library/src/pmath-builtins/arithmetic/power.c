@@ -537,7 +537,8 @@ static void _pow_ci_abs(
   
   if(exponent == 1
   || !pmath_is_number(*re_ptr)
-  || !pmath_is_number(*im_ptr)){
+  || !pmath_is_number(*im_ptr)
+  || pmath_number_sign(*re_ptr) == 0){
     return;
   }
   
@@ -635,7 +636,7 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr){
       pmath_t im = pmath_expr_get_item(base, 2);
       
       if(pmath_is_number(re) && pmath_is_number(im)){
-        if(pmath_equals(re, PMATH_FROM_INT32(0))){
+        if(pmath_compare(re, PMATH_FROM_INT32(0)) == 0){
           // (I im)^n = I^n im^n
           int lexp4 = PMATH_AS_INT32(exponent) % 4;
           
@@ -1361,10 +1362,9 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr){
       return expr;
     }
     
-    if(!_pmath_is_inexact(base)){
+    if(!_pmath_is_inexact(base) && !pmath_same(base, PMATH_FROM_INT32(0))){
       double prec = pmath_precision(exponent);
       
-      expr = pmath_expr_set_item(expr, 1, PMATH_NULL);
       base = pmath_approximate(base, prec, HUGE_VAL, NULL);
       expr = pmath_expr_set_item(expr, 1, base);
       return expr;
@@ -1374,7 +1374,6 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr){
     if(!_pmath_is_inexact(exponent)){
       double prec = pmath_precision(base);
       
-      expr     = pmath_expr_set_item(expr, 2, PMATH_NULL);
       exponent = pmath_approximate(exponent, prec, HUGE_VAL, NULL);
       expr     = pmath_expr_set_item(expr, 2, exponent);
       return expr;

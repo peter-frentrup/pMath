@@ -300,6 +300,26 @@ static pmath_t relation(pmath_symbol_t head, int boxform){ // head wont be freed
   if(pmath_same(head, PMATH_SYMBOL_UNIDENTICAL))  RET_ST("=!=");
 
   if(boxform < BOXFORM_OUTPUT){
+    if(pmath_same(head, PMATH_SYMBOL_UNEQUAL))       RET_CH(0x2260);
+    if(pmath_same(head, PMATH_SYMBOL_LESSEQUAL))     RET_CH(0x2264);
+    if(pmath_same(head, PMATH_SYMBOL_GREATEREQUAL))  RET_CH(0x2265);
+    if(pmath_same(head, PMATH_SYMBOL_COLON))         RET_CH(0x2236);
+    
+    if(pmath_same(head, PMATH_SYMBOL_ELEMENT))           RET_CH(0x2208);
+    if(pmath_same(head, PMATH_SYMBOL_NOTELEMENT))        RET_CH(0x2209);
+    if(pmath_same(head, PMATH_SYMBOL_REVERSEELEMENT))    RET_CH(0x220B);
+    if(pmath_same(head, PMATH_SYMBOL_NOTREVERSEELEMENT)) RET_CH(0x220C);
+    
+    if(pmath_same(head, PMATH_SYMBOL_SUBSET))           RET_CH(0x2282);
+    if(pmath_same(head, PMATH_SYMBOL_SUPERSET))         RET_CH(0x2283);
+    if(pmath_same(head, PMATH_SYMBOL_NOTSUBSET))        RET_CH(0x2284);
+    if(pmath_same(head, PMATH_SYMBOL_NOTSUPERSET))      RET_CH(0x2285);
+    if(pmath_same(head, PMATH_SYMBOL_SUBSETEQUAL))      RET_CH(0x2286);
+    if(pmath_same(head, PMATH_SYMBOL_SUPERSETEQUAL))    RET_CH(0x2287);
+    if(pmath_same(head, PMATH_SYMBOL_NOTSUBSETEQUAL))   RET_CH(0x2288);
+    if(pmath_same(head, PMATH_SYMBOL_NOTSUPERSETEQUAL)) RET_CH(0x2289);
+  }
+  else{
     if(pmath_same(head, PMATH_SYMBOL_UNEQUAL))       RET_ST("!=");
     if(pmath_same(head, PMATH_SYMBOL_LESSEQUAL))     RET_ST("<=");
     if(pmath_same(head, PMATH_SYMBOL_GREATEREQUAL))  RET_ST(">=");
@@ -307,13 +327,6 @@ static pmath_t relation(pmath_symbol_t head, int boxform){ // head wont be freed
     if(boxform < BOXFORM_INPUT){
       if(pmath_same(head, PMATH_SYMBOL_COLON))   RET_CH(':');
     }
-  }
-  else{
-    if(pmath_same(head, PMATH_SYMBOL_UNEQUAL))       RET_CH(0x2260);
-    if(pmath_same(head, PMATH_SYMBOL_LESSEQUAL))     RET_CH(0x2264);
-    if(pmath_same(head, PMATH_SYMBOL_GREATEREQUAL))  RET_CH(0x2265);
-    if(pmath_same(head, PMATH_SYMBOL_COLON))         RET_CH(0x2236);
-    
   }
   
   return PMATH_NULL;
@@ -2078,11 +2091,10 @@ static pmath_t longform_to_boxes(
       size_t i, j;
       
       for(i = 1;i <= rows;++i){
-        pmath_t row = pmath_expr_get_item(obj, i);
-        obj = pmath_expr_set_item(obj, i, PMATH_NULL);
+        pmath_t row = pmath_expr_extract_item(obj, i);
         
         for(j = 1;j <= cols;++j){
-          pmath_t item = pmath_expr_get_item(row, j);
+          pmath_t item = pmath_expr_extract_item(row, j);
           
           item = matrixform(thread, item);
           
@@ -2105,8 +2117,7 @@ static pmath_t longform_to_boxes(
       rows = pmath_expr_length(obj);
       
       for(i = 1;i <= rows;++i){
-        pmath_t item = pmath_expr_get_item(obj, i);
-        obj = pmath_expr_set_item(obj, i, PMATH_NULL);
+        pmath_t item = pmath_expr_extract_item(obj, i);
         
         item = object_to_boxes(thread, item);
         item = pmath_build_value("(o)", item);

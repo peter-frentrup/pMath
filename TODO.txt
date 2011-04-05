@@ -1,6 +1,12 @@
-﻿Row({Button("Math in Text",DocumentApply(SelectedDocument(),"\({\"\"}\)")),
-	Button("italic",DocumentApply(SelectedDocument(),StyleBox("",FontSlant->Italic))),
-	Button("Arg Style",DocumentApply(SelectedDocument(),StyleBox("","Arg")))})
+﻿Row({Button("Math in Text", DocumentApply(SelectedDocument(), "\({\"\[SelectionPlaceholder]\"}\)")),
+	Button("italic", DocumentApply(SelectedDocument(), StyleBox("\[SelectionPlaceholder]", FontSlant->Italic))),
+	Button("Arg Style", DocumentApply(SelectedDocument(), StyleBox("\[SelectionPlaceholder]", "Arg")))})
+
+- test QRDecomposition with complex matrices. Is Q unitary?, ...
+	
+- Power: simplify Sqrt(10) Sqrt(10)
+	
+- implement QRDecomposition() in C code
 
 - make $MaxExtraPrecision thread-local
 
@@ -51,9 +57,11 @@
 - eval Complex(0, x)^q with rational q
 
 - add KroneckerProduct(), ArrayFlatten(),
-	Norm(), Cross(), LinearSolve(), Inverse(), PseudoInverse(), RowReduce(), MatrixRank(), Normalize(), 
+	LinearSolve(), Inverse(), PseudoInverse(), RowReduce(), MatrixRank(), Normalize(), 
 	Projection(), Orthogonalize(), ConjugateTranspose(),
-	IdentityMatrix(), ChracteristicPolynomial(), QRDecomposition(), Eigenvalues(), Eigenvectors()
+	IdentityMatrix(), ChracteristicPolynomial(), Eigenvalues(), Eigenvectors()
+
+- implement Norm(matrix, 2)
 
 - add InterpretTemplate(), see Mathematica's ToBoxes[Superscript[1,2]]
 
@@ -90,10 +98,8 @@
 
 - add Insert()
 
-- add Conjugate(), improve Abs() => complex values
+- improve Abs() => complex values
   
-- implement hyperbolic funtions and inverse trigonometric/hyperbolic functions
-
 - add Outer()
 
 ? add IsRule(), IsRuleList(), IsRuleOrRuleList(), IsMatch(p)()

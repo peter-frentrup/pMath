@@ -2,6 +2,7 @@
 #include <pmath-core/numbers-private.h>
 
 #include <pmath-util/evaluation.h>
+#include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
 
 #include <pmath-builtins/all-symbols-private.h>
@@ -126,8 +127,14 @@ PMATH_PRIVATE pmath_t builtin_abs(pmath_expr_t expr){
     pmath_message_argxxx(pmath_expr_length(expr), 1, 1);
     return expr;
   }
-
+  
   x = pmath_expr_get_item(expr, 1);
+  
+  if(pmath_is_double(x)){
+    pmath_unref(expr);
+    return PMATH_FROM_DOUBLE(fabs(PMATH_AS_DOUBLE(x)));
+  }
+
   clazz = _pmath_number_class(x);
   
   if(clazz & (PMATH_CLASS_POS | PMATH_CLASS_ZERO)){
@@ -150,8 +157,8 @@ PMATH_PRIVATE pmath_t builtin_abs(pmath_expr_t expr){
   }
   
   if(clazz & PMATH_CLASS_IMAGINARY){
-    pmath_unref(x);
-    return TIMES(COMPLEX(INT(0), INT(1)), expr);
+    pmath_unref(expr);
+    return TIMES(COMPLEX(INT(0), INT(-1)), x);
   }
   
   if(_pmath_is_nonreal_complex(x)){
@@ -167,6 +174,13 @@ PMATH_PRIVATE pmath_t builtin_abs(pmath_expr_t expr){
   || pmath_equals(x, _pmath_object_underflow)){
     pmath_unref(expr);
     return x;
+  }
+  
+  if(pmath_is_expr_of_len(x, PMATH_SYMBOL_CONJUGATE, 1)){
+    expr = pmath_expr_set_item(expr, 1,
+      pmath_expr_get_item(x, 1));
+    pmath_unref(x);
+    return expr;
   }
   
   pmath_unref(x);

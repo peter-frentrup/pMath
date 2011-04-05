@@ -18,7 +18,8 @@ namespace richmath{
     CNT_MENUCOMMAND,
     CNT_ADDCONFIGSHAPER,
     CNT_GETOPTIONS,
-    CNT_DYNAMICUPDATE
+    CNT_DYNAMICUPDATE,
+    CNT_CREATEDOCUMENT
   }ClientNotificationType;
   
   class Box;

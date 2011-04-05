@@ -57,6 +57,10 @@ static pmath_t builtin_internalexecutefor(pmath_expr_t expr){
   return code;
 }
 
+static pmath_t builtin_createdocument(pmath_expr_t expr){
+  return Client::notify_wait(CNT_CREATEDOCUMENT, Expr(expr)).release();
+}
+
 static pmath_t builtin_documentapply(pmath_expr_t _expr){
   Expr expr(_expr);
   
@@ -793,6 +797,7 @@ bool richmath::init_bindings(){
   
   VERIFY(BIND_DOWN(PMATH_SYMBOL_INTERNAL_DYNAMICUPDATED, builtin_internal_dynamicupdated))
   
+  VERIFY(BIND_DOWN(PMATH_SYMBOL_CREATEDOCUMENT,       builtin_createdocument))
   VERIFY(BIND_DOWN(PMATH_SYMBOL_DOCUMENTAPPLY,        builtin_documentapply))
   VERIFY(BIND_DOWN(PMATH_SYMBOL_DOCUMENTS,            builtin_documents))
   VERIFY(BIND_DOWN(PMATH_SYMBOL_FRONTENDTOKENEXECUTE, builtin_frontendtokenexecute))

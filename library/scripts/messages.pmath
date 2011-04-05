@@ -177,6 +177,8 @@ Most::norest:= "Cannot take the Most of expression `1` with length zero."
 
 NestWhile::nwargs:= NestWhileList::nwargs:= "Argument `1` in `2` is not of the form n, m..n, n..Infinity, or All, where m and n are non-negative machine-size integers."
 
+Norm::ptype:= "The second argument of Norm, `1`, should be a symbol, Infinity, or an integer or real number not less than 1 for vector p-norms; or 1, 2, Infinity, or \"Frobenius\" for matrix norms."
+
 OpenAppend::charcode:= OpenRead::charcode:= OpenWrite::charcode:= "`1` is not a valid character encoding."
 
 Options::optnf:= OptionValue::optnf:= SetOptions::optnf:= "`1` is not a known option for `2`."
@@ -276,3 +278,5 @@ Transpose::perm1:= "Entry `1` in permutation `2` is not a positive machine integ
 Transpose::perm2:= "Entry `1` is out of bounds for permutation `2`."
 
 Try::nomsgs:= "`1` is neither a valid message name nor a list of valid message names."
+
+UnitVector::dir:= "There is no `1` dimensional unit vector in direction `2`."

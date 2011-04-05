@@ -187,10 +187,24 @@ static pmath_symbol_t relation_at(pmath_expr_t expr, size_t i){ // do not free r
     case '>': return PMATH_SYMBOL_GREATER;
     case '=': return PMATH_SYMBOL_EQUAL;
     
+    case 0x2208: return PMATH_SYMBOL_ELEMENT;
+    case 0x2209: return PMATH_SYMBOL_NOTELEMENT;
+    case 0x220B: return PMATH_SYMBOL_REVERSEELEMENT;
+    case 0x220C: return PMATH_SYMBOL_NOTREVERSEELEMENT;
+    
     case 0x2260: return PMATH_SYMBOL_UNEQUAL;
     
     case 0x2264: return PMATH_SYMBOL_LESSEQUAL;
     case 0x2265: return PMATH_SYMBOL_GREATEREQUAL;
+    
+    case 0x2282: return PMATH_SYMBOL_SUBSET;
+    case 0x2283: return PMATH_SYMBOL_SUPERSET;
+    case 0x2284: return PMATH_SYMBOL_NOTSUBSET;
+    case 0x2285: return PMATH_SYMBOL_NOTSUPERSET;
+    case 0x2286: return PMATH_SYMBOL_SUBSETEQUAL;
+    case 0x2287: return PMATH_SYMBOL_SUPERSETEQUAL;
+    case 0x2288: return PMATH_SYMBOL_NOTSUBSETEQUAL;
+    case 0x2289: return PMATH_SYMBOL_NOTSUPERSETEQUAL;
   }
   
   if(is_string_at(expr, i, "<="))  return PMATH_SYMBOL_LESSEQUAL;

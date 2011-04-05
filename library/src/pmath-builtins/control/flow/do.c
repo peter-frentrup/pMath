@@ -144,9 +144,9 @@ PMATH_PRIVATE void _pmath_iterate(
 }
 
 struct iterate_do_data_t{
-  pmath_t  body;
+  pmath_t      body;
+  pmath_t      result;
   pmath_bool_t started;
-  pmath_t  result;
 };
 
 static void init_do(size_t count, pmath_symbol_t sym, struct iterate_do_data_t *data){

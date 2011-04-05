@@ -1,5 +1,6 @@
 #include <pmath-core/numbers-private.h>
 
+#include <pmath-util/helpers.h>
 #include <pmath-util/memory.h>
 #include <pmath-util/messages.h>
 
@@ -11,18 +12,11 @@ PMATH_PRIVATE pmath_bool_t _pmath_is_matrix(
   size_t *rows,
   size_t *cols
 ){
-  pmath_t head;
   pmath_expr_t row;
   size_t i;
   
   *cols = *rows = 0;
-  if(!pmath_is_expr(m))
-    return FALSE;
-  
-  head = pmath_expr_get_item(m, 0);
-  pmath_unref(head);
-  
-  if(!pmath_same(head, PMATH_SYMBOL_LIST))
+  if(!pmath_is_expr_of(m, PMATH_SYMBOL_LIST))
     return FALSE;
   
   *rows = pmath_expr_length(m);
@@ -30,30 +24,21 @@ PMATH_PRIVATE pmath_bool_t _pmath_is_matrix(
     return TRUE;
   
   row = pmath_expr_get_item(m, 1);
-  if(!pmath_is_expr(row)){
+  if(!pmath_is_expr_of(row, PMATH_SYMBOL_LIST)){
     pmath_unref(row);
     return FALSE;
   }
   
   *cols = pmath_expr_length(row);
-  head = pmath_expr_get_item(row, 0);
-  pmath_unref(head);
   pmath_unref(row);
   
-  if(!pmath_same(head, PMATH_SYMBOL_LIST))
-    return FALSE;
-  
   for(i = *rows;i > 1;--i){
-    row = pmath_expr_get_item(m, 1);
-    if(!pmath_is_expr(row) || pmath_expr_length(row) != *cols){
+    row = pmath_expr_get_item(m, i);
+    if(!pmath_is_expr_of_len(row, PMATH_SYMBOL_LIST, *cols)){
       pmath_unref(row);
       return FALSE;
     }
-    head = pmath_expr_get_item(row, 0);
-    pmath_unref(head);
     pmath_unref(row);
-    if(!pmath_same(head, PMATH_SYMBOL_LIST))
-      return FALSE;
   }
   return TRUE;
 }

@@ -10,6 +10,7 @@
 #include <graphics/config-shaper.h>
 
 #include <gui/win32/basic-win32-widget.h>
+#include <gui/win32/win32-document-window.h>
 #include <gui/document.h>
 
 #include <eval/binding.h>
@@ -537,228 +538,337 @@ Expr Client::interrupt_cached(Expr expr){
   return interrupt_cached(expr, interrupt_timeout);
 }
 
-static void execute(ClientNotification &cn){
-  switch(cn.type){
-    case CNT_STARTSESSION: {
-      if(session->current_job){
-        Section *sect = dynamic_cast<Section*>(
-          Box::find(session->current_job->position().section_id));
-        
-        if(sect){
-          sect->dialog_start = true;
-          sect->request_repaint_all();
-        }
-      }
-      
-      session = new Session(session);
-    } break;
+static void cnt_startsession(){
+  if(session->current_job){
+    Section *sect = dynamic_cast<Section*>(
+      Box::find(session->current_job->position().section_id));
     
-    case CNT_ENDSESSION: {
-      SharedPtr<Job> job;
-      while(session->jobs.get(&job)){
-        if(job){
-          job->end();
-        }
-      }
+    if(sect){
+      sect->dialog_start = true;
+      sect->request_repaint_all();
+    }
+  }
+  
+  session = new Session(session);
+}
+
+static void cnt_endsession(){
+  SharedPtr<Job> job;
+  while(session->jobs.get(&job)){
+    if(job){
+      job->end();
+    }
+  }
+  
+  if(session->next){
+    session = session->next;
+  }
+  
+  if(session->current_job){
+    Section *sect = dynamic_cast<Section*>(
+      Box::find(session->current_job->position().section_id));
       
-      if(session->next){
-        session = session->next;
-      }
+    if(sect){
+      sect->dialog_start = false;
+      sect->request_repaint_all();
+    }
+  }
+}
+
+static void cnt_end(Expr data){
+  SharedPtr<Job> job = session->current_job;
+  session->current_job = 0;
+  
+  if(job){
+    job->end();
+    
+    {
+      Document *doc = dynamic_cast<Document*>(
+        Box::find(print_pos.document_id));
       
-      if(session->current_job){
-        Section *sect = dynamic_cast<Section*>(
-          Box::find(session->current_job->position().section_id));
+      Section *sect = dynamic_cast<Section*>(
+        Box::find(print_pos.section_id));
+      
+      if(doc){
+        if(sect && sect->parent() == doc){
+          int index = sect->index() + 1;
           
-        if(sect){
-          sect->dialog_start = false;
-          sect->request_repaint_all();
+          while(index < doc->count()){
+            Section *s = doc->section(index);
+            if(!s || !s->get_style(SectionGenerated))
+              break;
+            
+            doc->remove(index, index + 1);
+            if(doc->selection_box() == doc 
+            && doc->selection_start() > index){
+              doc->select(doc, 
+                doc->selection_start()-1, 
+                doc->selection_end()  -1);
+            }
+          }
         }
       }
-    } break;
+    }
     
-    case CNT_END: {
-      SharedPtr<Job> job = session->current_job;
-      session->current_job = 0;
-      
-      if(job){
+    print_pos = old_job;
+  }
+  
+  bool more = false;
+  if(data == PMATH_SYMBOL_ABORTED){
+    while(session->jobs.get(&job)){
+      if(job)
         job->end();
-        
-        {
-          Document *doc = dynamic_cast<Document*>(
-            Box::find(print_pos.document_id));
-          
-          Section *sect = dynamic_cast<Section*>(
-            Box::find(print_pos.section_id));
-          
-          if(doc){
-            if(sect && sect->parent() == doc){
-              int index = sect->index() + 1;
-              
-              while(index < doc->count()){
-                Section *s = doc->section(index);
-                if(!s || !s->get_style(SectionGenerated))
-                  break;
-                
-                doc->remove(index, index + 1);
-                if(doc->selection_box() == doc 
-                && doc->selection_start() > index){
-                  doc->select(doc, 
-                    doc->selection_start()-1, 
-                    doc->selection_end()  -1);
-                }
-              }
-            }
-          }
-        }
-        
-        print_pos = old_job;
-      }
-      
-      bool more = false;
-      if(cn.data == PMATH_SYMBOL_ABORTED){
-        while(session->jobs.get(&job)){
-          if(job)
-            job->end();
-        }
-      }
-      
-      while(session->jobs.get(&session->current_job)){
-        if(session->current_job){
-          old_job = print_pos;
-          
-          if(session->current_job->start()){
-            print_pos = session->current_job->position();
-            
-            more = true;
-            break;
-          }
-        }
-        
-        session->current_job = 0;
-      }
-      
-      if(!more){
-        for(unsigned int count = 0, i = 0;count < all_document_ids.size();++i){
-          if(all_document_ids.entry(i)){
-            ++count;
-            
-            Document *doc = dynamic_cast<Document*>(
-              Box::find(all_document_ids.entry(i)->key));
-            
-            assert(doc);
-            
-            for(int s = 0;s < doc->count();++s){
-              MathSection *math = dynamic_cast<MathSection*>(doc->section(s));
-              
-              if(math && math->get_style(ShowAutoStyles)){
-                math->invalidate();
-              }
-            }
-          }
-        }
-      }
-      
-      Client::eval_cache.clear();
-    } break;
-    
-    case CNT_RETURN: {
-      if(session->current_job){
-        session->current_job->returned(cn.data);
-      }
-    } break;
-    
-    case CNT_RETURNBOX: {
-      if(session->current_job){
-        session->current_job->returned_boxes(cn.data);
-      }
-    } break;
-    
-    case CNT_PRINTSECTION: {
-      Client::gui_print_section(cn.data);
-    } break;
+    }
+  }
   
-    case CNT_GETDOCUMENTS: {
-      if(cn.result_ptr){
-        Gather gather;
+  while(session->jobs.get(&session->current_job)){
+    if(session->current_job){
+      old_job = print_pos;
+      
+      if(session->current_job->start()){
+        print_pos = session->current_job->position();
         
-        for(unsigned int count = 0, i = 0;count < all_document_ids.size();++i)
-          if(all_document_ids.entry(i)){
-            ++count;
-            Gather::emit(
-              Call(Symbol(PMATH_SYMBOL_FRONTENDOBJECT), 
-                all_document_ids.entry(i)->key));
-          }
-        
-        *cn.result_ptr = gather.end().release();
+        more = true;
+        break;
       }
-    } break;
-  
-    case CNT_MENUCOMMAND: {
-      bool (*func)(Expr);
-      
-      func = menu_commands[cn.data];
-      if(func && func(cn.data))
-        break;
-      
-      func = menu_commands[cn.data[0]];
-      if(func && func(cn.data))
-        break;
-      
-    } break;
+    }
     
-    case CNT_ADDCONFIGSHAPER: {
-      SharedPtr<ConfigShaperDB> db = ConfigShaperDB::load_from_object(cn.data);
-      
-      if(db){
-        SharedPtr<ConfigShaperDB> *olddb;
+    session->current_job = 0;
+  }
+  
+  if(!more){
+    for(unsigned int count = 0, i = 0;count < all_document_ids.size();++i){
+      if(all_document_ids.entry(i)){
+        ++count;
         
-        olddb = ConfigShaperDB::registered.search(db->shaper_name);
-        if(olddb){
-          olddb->ptr()->clear_cache();
+        Document *doc = dynamic_cast<Document*>(
+          Box::find(all_document_ids.entry(i)->key));
+        
+        assert(doc);
+        
+        for(int s = 0;s < doc->count();++s){
+          MathSection *math = dynamic_cast<MathSection*>(doc->section(s));
+          
+          if(math && math->get_style(ShowAutoStyles)){
+            math->invalidate();
+          }
         }
-        
-        ConfigShaperDB::registered.set(db->shaper_name, db);
-        MathShaper::available_shapers.set(db->shaper_name, db->find(NoStyle));
-        
-        pmath_debug_print_object("loaded ", db->shaper_name.get(), "\n");
+      }
+    }
+  }
+  
+  Client::eval_cache.clear();
+}
+
+static void cnt_return(Expr data){
+  if(session->current_job){
+    session->current_job->returned(data);
+  }
+}
+
+static void cnt_returnbox(Expr data){
+  if(session->current_job){
+    session->current_job->returned_boxes(data);
+  }
+}
+
+static void cnt_printsection(Expr data){
+  Client::gui_print_section(data);
+}
+
+static Expr cnt_getdocuments(){
+  Gather gather;
+  
+  for(unsigned int count = 0, i = 0;count < all_document_ids.size();++i)
+    if(all_document_ids.entry(i)){
+      ++count;
+      Gather::emit(
+        Call(Symbol(PMATH_SYMBOL_FRONTENDOBJECT), 
+          all_document_ids.entry(i)->key));
+    }
+  
+  return gather.end();
+}
+
+static void cnt_menucommand(Expr data){
+  bool (*func)(Expr);
+  
+  func = menu_commands[data];
+  if(func && func(data))
+    return;
+  
+  func = menu_commands[data[0]];
+  if(func && func(data))
+    return;
+  
+  // ...
+}
+
+static void cnt_addconfigshaper(Expr data){
+  SharedPtr<ConfigShaperDB> db = ConfigShaperDB::load_from_object(data);
+  
+  if(db){
+    SharedPtr<ConfigShaperDB> *olddb;
+    
+    olddb = ConfigShaperDB::registered.search(db->shaper_name);
+    if(olddb){
+      olddb->ptr()->clear_cache();
+    }
+    
+    ConfigShaperDB::registered.set(db->shaper_name, db);
+    MathShaper::available_shapers.set(db->shaper_name, db->find(NoStyle));
+    
+    pmath_debug_print_object("loaded ", db->shaper_name.get(), "\n");
+  }
+  else{
+    pmath_debug_print("failed.\n");
+  }
+}
+
+static Expr cnt_getoptions(Expr data){
+  Box *obj = Box::find(data);
+  
+  if(obj){
+    Gather gather;
+    
+    if(obj->style)
+      obj->style->emit_to_pmath(0 != dynamic_cast<Section*>(obj), true);
+    
+    return gather.end();
+  }
+  
+  return Symbol(PMATH_SYMBOL_FAILED);
+}
+
+static void cnt_dynamicupate(Expr data){
+  for(size_t i = data.expr_length();i > 0;--i){
+    Expr id_obj = data[i];
+    
+    if(id_obj.is_int32()){
+      Box *box = Box::find(PMATH_AS_INT32(id_obj.get()));
+      
+      if(box)
+        box->dynamic_updated();
+    }
+  }
+}
+
+static Expr cnt_createdocument(Expr data){
+  // CreateDocument({sections...})
+  Document *doc;
+  
+  int x = CW_USEDEFAULT;
+  int y = CW_USEDEFAULT;
+  doc = get_current_document();
+  if(doc){
+    Win32Widget *wid = dynamic_cast<Win32Widget*>(doc->native());
+    if(wid){
+      HWND hwnd = wid->hwnd();
+      while(GetParent(hwnd) != NULL)
+        hwnd = GetParent(hwnd);
+      
+      RECT rect;
+      if(GetWindowRect(hwnd, &rect)){
+        x = rect.left + GetSystemMetrics(SM_CYCAPTION) + GetSystemMetrics(SM_CXSIZEFRAME);
+        y = rect.top  + GetSystemMetrics(SM_CYCAPTION) + GetSystemMetrics(SM_CYSIZEFRAME);
+      }
+    }
+  }
+  
+  Win32DocumentWindow *wnd = new Win32DocumentWindow(
+    new Document,
+    0, WS_OVERLAPPEDWINDOW,
+    x,
+    y,
+    500,
+    550);
+  wnd->init();
+  
+  
+  doc = wnd->document();
+  if(data.expr_length() >= 1){
+    Expr sections = data[1];
+    if(sections[0] != PMATH_SYMBOL_LIST)
+      sections = List(sections);
+    
+    for(size_t i = 1;i <= sections.expr_length();++i){
+      Expr item = sections[i];
+      
+      if(item[0] == PMATH_SYMBOL_SECTION){
+        Section *sect = Section::create_from_object(item);
+        if(sect)
+          doc->insert(doc->length(), sect);
       }
       else{
-        pmath_debug_print("failed.\n");
+        item = Call(Symbol(PMATH_SYMBOL_SECTION),
+          Call(Symbol(PMATH_SYMBOL_BOXDATA),
+            Client::interrupt(Call(Symbol(PMATH_SYMBOL_TOBOXES), item))),
+          String("Input"));
+        
+        Section *sect = Section::create_from_object(item);
+        if(sect)
+          doc->insert(doc->length(), sect);
       }
-    } break;
+    }
+  }
   
-    case CNT_GETOPTIONS: {
-      if(cn.result_ptr){
-        Box *obj = Box::find(cn.data);
-        
-        if(obj){
-          Gather gather;
-          
-          if(obj->style)
-            obj->style->emit_to_pmath(0 != dynamic_cast<Section*>(obj), true);
-          
-          *cn.result_ptr = gather.end().release();
-        }
-        else
-          *cn.result_ptr = pmath_ref(PMATH_SYMBOL_FAILED);
-      }
-    } break;
+  ShowWindow(wnd->hwnd(), SW_SHOWNORMAL);
+  return Call(Symbol(PMATH_SYMBOL_FRONTENDOBJECT), doc->id());
+}
+
+static void execute(ClientNotification &cn){
+  switch(cn.type){
+    case CNT_STARTSESSION: 
+      cnt_startsession();
+      break;
     
-    case CNT_DYNAMICUPDATE: {
-      for(size_t i = cn.data.expr_length();i > 0;--i){
-        Expr id_obj = cn.data[i];
-        
-        if(id_obj.is_int32()){
-          Box *box = Box::find(PMATH_AS_INT32(id_obj.get()));
-          
-          if(box)
-            box->dynamic_updated();
-        }
-      }
-    } break;
+    case CNT_ENDSESSION: 
+      cnt_endsession();
+      break;
+    
+    case CNT_END: 
+      cnt_end(cn.data);
+      break;
+    
+    case CNT_RETURN: 
+      cnt_return(cn.data);
+      break;
+    
+    case CNT_RETURNBOX:
+      cnt_returnbox(cn.data);
+      break;
+    
+    case CNT_PRINTSECTION: 
+      cnt_printsection(cn.data);
+      break;
+  
+    case CNT_GETDOCUMENTS: 
+      if(cn.result_ptr)
+        *cn.result_ptr = cnt_getdocuments().release();
+      break;
+  
+    case CNT_MENUCOMMAND: 
+      cnt_menucommand(cn.data);
+      break;
+    
+    case CNT_ADDCONFIGSHAPER: 
+      cnt_addconfigshaper(cn.data);
+      break;
+  
+    case CNT_GETOPTIONS: 
+      if(cn.result_ptr)
+        *cn.result_ptr = cnt_getoptions(cn.data).release();
+      break;
+    
+    case CNT_DYNAMICUPDATE: 
+      cnt_dynamicupate(cn.data);
+      break;
+    
+    case CNT_CREATEDOCUMENT:
+      if(cn.result_ptr)
+        *cn.result_ptr = cnt_createdocument(cn.data).release();
+      break;
   }
   
   cn.done();
-//  if(cn.sem)
-//    cn.sem->post();
 }

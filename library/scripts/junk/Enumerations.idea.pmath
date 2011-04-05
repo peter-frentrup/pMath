@@ -24,48 +24,48 @@ emitFlatStmt(If(~c,~t))::= Local(
 	{brX}, 
 	Emit(HoldComplete(If(!c,Goto(brX))));
 	emitFlatStmt(t);
-	Emit(HoldComplete(Labal(brX)))
+	Emit(HoldComplete(Label(brX)))
 	)
 emitFlatStmt(If(~c,~t,~f))::= Local(
 	{brT, brX}, 
 	Emit(HoldComplete(If(c,Goto(brT))));
 	emitFlatStmt(f);
 	Emit(HoldComplete(Goto(brX)));
-	Emit(HoldComplete(Labal(brT)));
+	Emit(HoldComplete(Label(brT)));
 	emitFlatStmt(t);
-	Emit(HoldComplete(Labal(brX)))
+	Emit(HoldComplete(Label(brX)))
 	)
 emitFlatStmt(If(~c,~t,~f,~u))::= Local(
 	{brT, brF, brX}, 
 	Emit(HoldComplete(If(c,Goto(brT),Goto(brF))));
 	emitFlatStmt(u);
 	Emit(HoldComplete(Goto(brX)));
-	Emit(HoldComplete(Labal(brT)));
+	Emit(HoldComplete(Label(brT)));
 	emitFlatStmt(t);
 	Emit(HoldComplete(Goto(brX)));
-	Emit(HoldComplete(Labal(brF)));
+	Emit(HoldComplete(Label(brF)));
 	emitFlatStmt(f);
-	Emit(HoldComplete(Labal(brX)))
+	Emit(HoldComplete(Label(brX)))
 	)
 emitFlatStmt(While(~c,~b))::= Local(
 	{brN, brX},
-	Emit(HoldComplete(Labal(brN)));
+	Emit(HoldComplete(Label(brN)));
 	Emit(HoldComplete(If(!c,Goto(brX))));
 	emitFlatStmt(b);
 	Emit(HoldComplete(Goto(brN)));
-	Emit(HoldComplete(Labal(brX)))
+	Emit(HoldComplete(Label(brX)))
 	)
 emitFlatStmt(Do(~b, iter: (~i -> ~s..~e..~d)))::= Local(
 	{brN, brX},
 	Emit(i, VARS);
 	Emit(HoldComplete(If((d > 0 && e < s) || (d < 0 && s < e) || d = 0, Message(Do::iterb, HoldForm(iter)); Goto(brX))));
 	Emit(HoldComplete(i:= s));
-	Emit(HoldComplete(Labal(brN)));
+	Emit(HoldComplete(Label(brN)));
 	emitFlatStmt(b);
 	Emit(HoldComplete(i+= d));
 	Emit(HoldComplete(If((d > 0 && i > e) || (d < 0 && i < e), Goto(brX))));
 	Emit(HoldComplete(Goto(brN)));
-	Emit(HoldComplete(Labal(brX)))
+	Emit(HoldComplete(Label(brX)))
 	)
 emitFlatStmt(Do(~b, ~v -> vals: {~~~}))::= Local(
 	{i,list},
