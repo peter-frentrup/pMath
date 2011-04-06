@@ -13,7 +13,7 @@
 #include <boxes/textsequence.h>
 #include <boxes/underoverscriptbox.h>
 #include <eval/binding.h>
-#include <eval/client.h>
+#include <eval/application.h>
 #include <gui/clipboard.h>
 #include <gui/native-widget.h>
 
@@ -1884,9 +1884,9 @@ String Document::copy_to_text(String mimetype){
     return boxes.to_string(PMATH_WRITE_OPTIONS_INPUTEXPR | PMATH_WRITE_OPTIONS_FULLSTR);
   
   if(mimetype.equals(Clipboard::PlainText)){
-    Expr text = Client::interrupt(
+    Expr text = Application::interrupt(
       Parse("FE`BoxesToText(`1`)", boxes),
-      Client::edit_interrupt_timeout);
+      Application::edit_interrupt_timeout);
     
     return text.to_string();
   }
@@ -1918,9 +1918,9 @@ void Document::cut_to_clipboard(){
 
 void Document::paste_from_text(String mimetype, String data){
   if(mimetype.equals(Clipboard::BoxesText)){
-    Expr parsed = Client::interrupt(Expr(
+    Expr parsed = Application::interrupt(Expr(
       pmath_parse_string(data.release())),
-      Client::edit_interrupt_timeout);
+      Application::edit_interrupt_timeout);
     
     if(context.selection.get() == this && get_style(Editable, true)
     && (parsed[0] == PMATH_SYMBOL_SECTION
@@ -1935,9 +1935,9 @@ void Document::paste_from_text(String mimetype, String data){
       return;
     }
     
-    parsed = Client::interrupt(
+    parsed = Application::interrupt(
       Parse("FE`SectionsToBoxes(`1`)", parsed),
-      Client::edit_interrupt_timeout);
+      Application::edit_interrupt_timeout);
     
     GridBox *grid = dynamic_cast<GridBox*>(context.selection.get());
     if(grid && grid->get_style(Editable)){

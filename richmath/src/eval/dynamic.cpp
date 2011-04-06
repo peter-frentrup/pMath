@@ -1,6 +1,6 @@
 #include <eval/dynamic.h>
 
-#include <eval/client.h>
+#include <eval/application.h>
 #include <eval/job.h>
 
 using namespace richmath;
@@ -76,7 +76,7 @@ void Dynamic::assign(Expr value){
   else
     run = Call(Symbol(PMATH_SYMBOL_ASSIGN), _expr[1], value);
   
-  Client::execute_for(run, _owner, Client::dynamic_timeout);
+  Application::execute_for(run, _owner, Application::dynamic_timeout);
 }
 
 Expr Dynamic::get_value_now(){
@@ -84,12 +84,12 @@ Expr Dynamic::get_value_now(){
     return _expr;
   }
   
-  Expr value = Client::interrupt(
+  Expr value = Application::interrupt(
     Call(
       Symbol(PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATEMULTIPLE),
       _expr,
       _owner->id()), 
-    Client::dynamic_timeout);
+    Application::dynamic_timeout);
   if(value == PMATH_UNDEFINED)
     return Symbol(PMATH_SYMBOL_ABORTED);
   
@@ -101,7 +101,7 @@ void Dynamic::get_value_later(){
     return;
   }
   
-  Client::add_job(new DynamicEvaluationJob(
+  Application::add_job(new DynamicEvaluationJob(
     Expr(), 
     Call(
       Symbol(PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATEMULTIPLE),

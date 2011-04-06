@@ -25,7 +25,7 @@ namespace richmath{
   class Box;
   class Job;
   
-  class Client: public Base{
+  class Application: public Base{
     public:
       static void notify(     ClientNotificationType type, Expr data);
       static Expr notify_wait(ClientNotificationType type, Expr data);
@@ -76,7 +76,7 @@ namespace richmath{
       static Hashtable<Expr, Expr, object_hash> eval_cache;
     
     private:
-      Client(){}
+      Application(){}
   };
 }
 

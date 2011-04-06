@@ -37,6 +37,7 @@
 #include <pmath-language/scanner.h>
 
 #include <pmath-util/approximate.h>
+#include <pmath-util/compression.h>
 #include <pmath-util/concurrency/threadlocks.h>
 #include <pmath-util/concurrency/threadmsg.h>
 #include <pmath-util/concurrency/threadpool.h>
@@ -44,11 +45,11 @@
 #include <pmath-util/debug.h>
 #include <pmath-util/emit-and-gather.h>
 #include <pmath-util/evaluation.h>
-#include <pmath-util/files.h>
 #include <pmath-util/hashtables.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/memory.h>
 #include <pmath-util/messages.h>
+#include <pmath-util/mixed-file.h>
 #include <pmath-util/serialize.h>
 #include <pmath-util/stacks.h>
 #include <pmath-util/version.h>

@@ -37,10 +37,10 @@ const char * const Clipboard::BoxesBinary = "application/x-pmath-boxes";
   };
   
   static void abf_flush(
-    uint8_t       *readable, 
-    uint8_t       *writable, 
-    const uint8_t *end, 
-    void          *closure
+    uint8_t        *readable, 
+    uint8_t       **writable, 
+    const uint8_t  *end, 
+    void           *closure
   ){
     struct abf_info_t *info = (struct abf_info_t*)closure;
     

@@ -1,5 +1,5 @@
 #include <boxes/sliderbox.h>
-#include <eval/client.h>
+#include <eval/application.h>
 #include <gui/document.h>
 #include <gui/native-widget.h>
 

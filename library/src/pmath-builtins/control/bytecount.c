@@ -24,6 +24,7 @@ static size_t bytecount(
     
     case PMATH_TYPE_SHIFT_MP_FLOAT:
       return (PMATH_AS_MP_VALUE(obj)->_mpfr_prec + 8 * sizeof(mp_limb_t) - 1) / 8
+           + (PMATH_AS_MP_ERROR(obj)->_mpfr_prec + 8 * sizeof(mp_limb_t) - 1) / 8
            + sizeof(struct _pmath_mp_float_t);
     
     case PMATH_TYPE_SHIFT_STRING:
@@ -64,7 +65,7 @@ PMATH_PRIVATE pmath_t builtin_bytecount(pmath_expr_t expr){
   obj = pmath_expr_get_item(expr, 1);
   pmath_unref(expr);
 
-  result = bytecount(obj);
+  result = bytecount(obj) + sizeof(pmath_t);
   pmath_unref(obj);
 
   return pmath_integer_new_uiptr(result);

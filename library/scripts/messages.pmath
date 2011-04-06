@@ -281,4 +281,6 @@ Transpose::perm2:= "Entry `1` is out of bounds for permutation `2`."
 
 Try::nomsgs:= "`1` is neither a valid message name nor a list of valid message names."
 
+Uncompress::corrupt: "Compressed data `1` is corrupt and does not represent an expression."
+
 UnitVector::dir:= "There is no `1` dimensional unit vector in direction `2`."

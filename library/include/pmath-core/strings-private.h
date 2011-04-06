@@ -45,7 +45,7 @@ PMATH_FORCE_INLINE size_t _pmath_next_2power_ui(size_t v){
 #define STRING_HEADER_SIZE (ROUND_UP(sizeof(struct _pmath_string_t), sizeof(size_t)))
 #define AFTER_STRING(s) ((uint16_t*)(STRING_HEADER_SIZE + (char*)(s)))
 //#define LENGTH_TO_CAPACITY(length) ((length) <= 0xFFF ? ROUND_UP(2*(length),sizeof(size_t)) : ROUND_UP((length),sizeof(size_t)))
-#define LENGTH_TO_CAPACITY(length)  (((size_t)(length) & ~((size_t)0xFFFF)) + _pmath_next_2power_ui(((length) & 0xFFFF) + STRING_HEADER_SIZE / sizeof(uint16_t)) - STRING_HEADER_SIZE / sizeof(uint16_t))
+#define LENGTH_TO_CAPACITY(length)  (((size_t)(length) & ~((size_t)0xFFF)) + _pmath_next_2power_ui(((length) & 0xFFF) + STRING_HEADER_SIZE / sizeof(uint16_t)) - STRING_HEADER_SIZE / sizeof(uint16_t))
 
 #define UCS2_CHAR(chr) ((uint16_t)(chr))
 

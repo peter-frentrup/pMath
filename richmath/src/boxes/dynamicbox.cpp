@@ -1,7 +1,7 @@
 #include <boxes/dynamicbox.h>
 
 #include <boxes/mathsequence.h>
-#include <eval/client.h>
+#include <eval/application.h>
 #include <eval/job.h>
 #include <graphics/context.h>
 
@@ -20,7 +20,7 @@ DynamicBox::DynamicBox()
 }
 
 DynamicBox::~DynamicBox(){
-  Client::execute_for(Call(Symbol(PMATH_SYMBOL_INTERNAL_DYNAMICREMOVE), id()), 0);
+  Application::execute_for(Call(Symbol(PMATH_SYMBOL_INTERNAL_DYNAMICREMOVE), id()), 0);
 }
 
 DynamicBox *DynamicBox::create(Expr expr, int opts){

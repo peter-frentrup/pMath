@@ -24,7 +24,7 @@
 #include <boxes/underoverscriptbox.h>
 
 #include <eval/binding.h>
-#include <eval/client.h>
+#include <eval/application.h>
 
 #include <graphics/context.h>
 
@@ -1744,7 +1744,7 @@ void MathSequence::check_argcount_span(
   }
   
   if(name.length() > 0){
-    Expr options = Client::interrupt_cached(Expr(
+    Expr options = Application::interrupt_cached(Expr(
       pmath_expr_new_extended(
         pmath_ref(PMATH_SYMBOL_OPTIONS), 1,
         pmath_ref(name.get()))));
@@ -1924,7 +1924,7 @@ int MathSequence::symbol_colorize(
     };
     
     if(!info){
-      Expr syminfo = Client::interrupt_cached(Call(
+      Expr syminfo = Application::interrupt_cached(Call(
         GetSymbol(SymbolInfoSymbol),
         name));
       

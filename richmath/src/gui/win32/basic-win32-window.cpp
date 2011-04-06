@@ -9,7 +9,7 @@
 #include <gui/win32/win32-control-painter.h>
 #include <gui/win32/win32-widget.h>
 
-#include <eval/client.h>
+#include <eval/application.h>
 
 using namespace richmath;
 
@@ -29,7 +29,7 @@ static void init_basic_window_data(){
       
     String s(e);
     if(s.is_null())
-      s = Client::application_directory + "\\frame.png";
+      s = Application::application_directory + "\\frame.png";
     
     int len;
     char *imgname = pmath_string_to_utf8(s.get(), &len);

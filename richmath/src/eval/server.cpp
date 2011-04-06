@@ -9,7 +9,7 @@
   #include <pthread.h>
 #endif
 
-#include <eval/client.h>
+#include <eval/application.h>
 #include <util/concurrent-queue.h>
 
 using namespace richmath;
@@ -32,9 +32,9 @@ Expr richmath::generate_section(String style, Expr boxes){
     Rule(Symbol(PMATH_SYMBOL_SECTIONGENERATED), Symbol(PMATH_SYMBOL_TRUE)));
   
   if(style.equals("Output")){
-    Expr line = Client::interrupt(Symbol(PMATH_SYMBOL_LINE));
+    Expr line = Application::interrupt(Symbol(PMATH_SYMBOL_LINE));
     
-    Expr dlvl = Client::interrupt(Symbol(PMATH_SYMBOL_DIALOGLEVEL));
+    Expr dlvl = Application::interrupt(Symbol(PMATH_SYMBOL_DIALOGLEVEL));
     
     String label = String("out [");
     if(dlvl == PMATH_FROM_INT32(1))
@@ -84,7 +84,7 @@ class LocalServer: public Server{
                   break;
                 }
                 
-                Client::notify(CNT_RETURNBOX, to_boxes(result));
+                Application::notify(CNT_RETURNBOX, to_boxes(result));
               }
             }
             else{
@@ -103,7 +103,7 @@ class LocalServer: public Server{
                 rkind = Returned;
               }
               else
-                Client::notify(CNT_RETURNBOX, to_boxes(result));
+                Application::notify(CNT_RETURNBOX, to_boxes(result));
             }
           }
           else{
@@ -120,15 +120,15 @@ class LocalServer: public Server{
               rkind = Returned;
             }
             else
-              Client::notify(CNT_RETURN, result);
+              Application::notify(CNT_RETURN, result);
           }
           
           if(aborted){
-            Client::notify(CNT_END, Symbol(PMATH_SYMBOL_ABORTED));
+            Application::notify(CNT_END, Symbol(PMATH_SYMBOL_ABORTED));
             rkind = Aborted;
           }
           else
-            Client::notify(CNT_END, Expr());
+            Application::notify(CNT_END, Expr());
           
           return rkind;
         }
@@ -291,7 +291,7 @@ class LocalServer: public Server{
       pmath_atomic_fetch_add(&dialog_depth, 1);
       {
         pmath_t old_dialog = pmath_session_start();
-        Client::notify(CNT_STARTSESSION, Expr());
+        Application::notify(CNT_STARTSESSION, Expr());
         
         firsteval = Expr(pmath_evaluate(firsteval.release()));
         if(firsteval[0] == PMATH_SYMBOL_RETURN
@@ -315,7 +315,7 @@ class LocalServer: public Server{
             if(rk == Token::Aborted) {
               // clear remaining tokens:
               while(me->tokens.get(&token)){
-                Client::notify(CNT_END, Symbol(PMATH_SYMBOL_ABORTED));
+                Application::notify(CNT_END, Symbol(PMATH_SYMBOL_ABORTED));
               }
             }
           }
@@ -323,7 +323,7 @@ class LocalServer: public Server{
         
        FINISH:
         
-        Client::notify(CNT_ENDSESSION, Expr());
+        Application::notify(CNT_ENDSESSION, Expr());
         pmath_session_end(old_dialog);
       }
       pmath_atomic_fetch_add(&dialog_depth, -1);
@@ -349,7 +349,7 @@ class LocalServer: public Server{
           if(rk == Token::Aborted){
             // clear remaining tokens:
             while(me->tokens.get(&token)){
-              Client::notify(CNT_END, Symbol(PMATH_SYMBOL_ABORTED));
+              Application::notify(CNT_END, Symbol(PMATH_SYMBOL_ABORTED));
             }
           }
         }

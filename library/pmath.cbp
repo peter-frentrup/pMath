@@ -44,6 +44,7 @@
 					<Add library="iconv" />
 					<Add library="pcre" />
 					<Add library="shell32" />
+					<Add library="zdll" />
 				</Linker>
 				<ExtraCommands>
 					<Add after="post-build-windows.bat debug" />
@@ -83,6 +84,7 @@
 					<Add library="iconv" />
 					<Add library="pcre" />
 					<Add library="shell32" />
+					<Add library="zdll" />
 				</Linker>
 				<ExtraCommands>
 					<Add after="post-build-windows.bat release" />
@@ -118,6 +120,7 @@
 					<Add library="pcre.lib" />
 					<Add library="shell32.lib" />
 					<Add library="D:\Programme\CodeBlocks\MinGW\lib\gcc\mingw32\4.4.1\libgcc.a" />
+					<Add library="zdll.lib" />
 				</Linker>
 				<ExtraCommands>
 					<Add after="post-build-windows.bat msvc" />
@@ -254,6 +257,7 @@
 					<Add library="iconv" />
 					<Add library="pcre" />
 					<Add library="shell32" />
+					<Add library="zdll" />
 				</Linker>
 				<ExtraCommands>
 					<Add after="post-build-windows.bat llvm-release" />
@@ -307,6 +311,7 @@
 		<Unit filename="include\pmath-private.h" />
 		<Unit filename="include\pmath-types.h" />
 		<Unit filename="include\pmath-util\approximate.h" />
+		<Unit filename="include\pmath-util\compression.h" />
 		<Unit filename="include\pmath-util\concurrency\atomic-private.h" />
 		<Unit filename="include\pmath-util\concurrency\atomic.h" />
 		<Unit filename="include\pmath-util\concurrency\atomic\gcc\built_in_functions.h" />
@@ -336,6 +341,7 @@
 		<Unit filename="include\pmath-util\incremental-hash-private.h" />
 		<Unit filename="include\pmath-util\memory.h" />
 		<Unit filename="include\pmath-util\messages.h" />
+		<Unit filename="include\pmath-util\mixed-file.h" />
 		<Unit filename="include\pmath-util\modules-private.h" />
 		<Unit filename="include\pmath-util\serialize.h" />
 		<Unit filename="include\pmath-util\stacks-private.h" />
@@ -592,6 +598,9 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src\pmath-builtins\io\characters.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\pmath-builtins\io\compress-and-uncompress.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src\pmath-builtins\io\copydirectory-and-copyfile.c">
@@ -951,6 +960,9 @@
 		<Unit filename="src\pmath-util\approximate.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="src\pmath-util\compression.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="src\pmath-util\concurrency\event-private.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -997,6 +1009,9 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src\pmath-util\messages.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\pmath-util\mixed-file.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src\pmath-util\modules-private.c">

@@ -2,7 +2,7 @@
 
 #include <boxes/section.h>
 #include <boxes/mathsequence.h>
-#include <eval/client.h>
+#include <eval/application.h>
 #include <eval/job.h>
 #include <gui/document.h>
 #include <gui/native-widget.h>
@@ -24,7 +24,7 @@ static pmath_t builtin_addconfigshaper(pmath_expr_t expr){
   
   pmath_unref(expr);
   
-  Client::notify(CNT_ADDCONFIGSHAPER, data);
+  Application::notify(CNT_ADDCONFIGSHAPER, data);
   return PMATH_NULL;
 }
 
@@ -41,7 +41,7 @@ static pmath_t builtin_internalexecutefor(pmath_expr_t expr){
   if(pmath_is_int32(document_id)
   && pmath_is_int32(section_id)
   && pmath_is_int32(box_id)){
-    code = Client::internal_execute_for(
+    code = Application::internal_execute_for(
       Expr(code), 
       PMATH_AS_INT32(document_id), 
       PMATH_AS_INT32(section_id), 
@@ -58,7 +58,7 @@ static pmath_t builtin_internalexecutefor(pmath_expr_t expr){
 }
 
 static pmath_t builtin_createdocument(pmath_expr_t expr){
-  return Client::notify_wait(CNT_CREATEDOCUMENT, Expr(expr)).release();
+  return Application::notify_wait(CNT_CREATEDOCUMENT, Expr(expr)).release();
 }
 
 static pmath_t builtin_documentapply(pmath_expr_t _expr){
@@ -69,7 +69,7 @@ static pmath_t builtin_documentapply(pmath_expr_t _expr){
     return expr.release();
   }
   
-  Client::notify_wait(CNT_MENUCOMMAND, expr);
+  Application::notify_wait(CNT_MENUCOMMAND, expr);
   
   return PMATH_NULL;
 }
@@ -82,11 +82,11 @@ static pmath_t builtin_documents(pmath_expr_t expr){
   
   pmath_unref(expr);
   
-  return Client::notify_wait(CNT_GETDOCUMENTS, Expr()).release();
+  return Application::notify_wait(CNT_GETDOCUMENTS, Expr()).release();
 }
 
 static pmath_t builtin_internal_dynamicupdated(pmath_expr_t expr){
-  Client::notify(CNT_DYNAMICUPDATE, Expr(expr));
+  Application::notify(CNT_DYNAMICUPDATE, Expr(expr));
   return PMATH_NULL;
 }
 
@@ -95,7 +95,7 @@ static pmath_t builtin_feo_options(pmath_expr_t _expr){
   
   if(expr[0] == PMATH_SYMBOL_OPTIONS
   && expr.expr_length() == 1){
-    Expr opts = Client::notify_wait(CNT_GETOPTIONS, expr[1]);
+    Expr opts = Application::notify_wait(CNT_GETOPTIONS, expr[1]);
     
     return opts.release();
   }
@@ -112,7 +112,7 @@ static pmath_t builtin_frontendtokenexecute(pmath_expr_t expr){
   Expr cmd = Expr(pmath_expr_get_item(expr, 1));
   pmath_unref(expr);
   
-  Client::run_menucommand(cmd);
+  Application::run_menucommand(cmd);
   
   return PMATH_NULL;
 }
@@ -140,7 +140,7 @@ static pmath_t builtin_sectionprint(pmath_expr_t expr){
         pmath_ref(PMATH_SYMBOL_SECTIONGENERATED),
         pmath_ref(PMATH_SYMBOL_TRUE)));
     
-    Client::notify_wait(CNT_PRINTSECTION, Expr(expr));
+    Application::notify_wait(CNT_PRINTSECTION, Expr(expr));
     
     return PMATH_NULL;
   }
@@ -166,7 +166,7 @@ static pmath_t builtin_selecteddocument(pmath_expr_t expr){
 //{ menu command availability checkers ...
 
 static bool can_abort(Expr cmd){
-  return !Client::is_idle();
+  return !Application::is_idle();
 }
 
 static bool can_copy_cut(Expr cmd){
@@ -313,7 +313,7 @@ static bool can_subsession_evaluate_sections(Expr cmd){
 //{ menu commands ...
 
 static bool abort_cmd(Expr cmd){
-  Client::abort_all_jobs();
+  Application::abort_all_jobs();
   return true;
 }
 
@@ -469,7 +469,7 @@ static bool evaluate_in_place_cmd(Expr cmd){
   MathSequence *seq = dynamic_cast<MathSequence*>(doc->selection_box());
   
   if(seq){
-    Client::add_job(new ReplacementJob(
+    Application::add_job(new ReplacementJob(
       seq, 
       doc->selection_start(),
       doc->selection_end()));
@@ -491,7 +491,7 @@ static bool evaluate_sections_cmd(Expr cmd){
       MathSection *math = dynamic_cast<MathSection*>(doc->item(i));
       
       if(math && math->get_style(Evaluatable))
-        Client::add_job(new InputJob(math));
+        Application::add_job(new InputJob(math));
     }
   }
   else{
@@ -500,22 +500,22 @@ static bool evaluate_sections_cmd(Expr cmd){
     
     MathSection *math = dynamic_cast<MathSection*>(box);
     if(math && math->get_style(Evaluatable))
-      Client::add_job(new InputJob(math));
+      Application::add_job(new InputJob(math));
   }
   
   if(String(cmd).equals("EvaluateSectionsAndReturn")){
-    Client::add_job(new EvaluationJob(Call(Symbol(PMATH_SYMBOL_RETURN))));
+    Application::add_job(new EvaluationJob(Call(Symbol(PMATH_SYMBOL_RETURN))));
   }
   
   return true;
 }
 
 static bool evaluator_subsession_cmd(Expr cmd){
-  if(Client::is_idle())
+  if(Application::is_idle())
     return false;
   
   // non-blocking interrupt
-  Client::execute_for(Call(Symbol(PMATH_SYMBOL_DIALOG)), 0, Infinity);
+  Application::execute_for(Call(Symbol(PMATH_SYMBOL_DIALOG)), 0, Infinity);
   
   return true;
 }
@@ -735,7 +735,7 @@ static bool similar_section_below_cmd(Expr cmd){
 
 static bool subsession_evaluate_sections_cmd(Expr cmd){
   // non-blocking interrupt
-  Client::execute_for(
+  Application::execute_for(
     Call(Symbol(PMATH_SYMBOL_DIALOG),
       Call(Symbol(PMATH_SYMBOL_FRONTENDTOKENEXECUTE), 
         String("EvaluateSectionsAndReturn"))), 
@@ -752,38 +752,38 @@ bool richmath::init_bindings(){
   #define BIND_DOWN(SYMBOL, FUNC)  pmath_register_code(SYMBOL, FUNC, PMATH_CODE_USAGE_DOWNCALL)
   #define BIND_UP(  SYMBOL, FUNC)  pmath_register_code(SYMBOL, FUNC, PMATH_CODE_USAGE_UPCALL)
   
-  Client::register_menucommand(String("Close"),             close_cmd);
+  Application::register_menucommand(String("Close"),             close_cmd);
   
-  Client::register_menucommand(String("Copy"),              copy_cmd,                 can_copy_cut);
-  Client::register_menucommand(String("Cut"),               cut_cmd,                  can_copy_cut);
-  Client::register_menucommand(String("OpenCloseGroup"),    open_close_group_cmd);
-  Client::register_menucommand(String("Paste"),             paste_cmd,                can_document_apply);
-  Client::register_menucommand(String("EditBoxes"),         edit_boxes_cmd,           can_edit_boxes);
-  Client::register_menucommand(String("ExpandSelection"),   expand_selection_cmd);
-  Client::register_menucommand(String("FindMatchingFence"), find_matching_fence_cmd,  can_find_matching_fence);
-  Client::register_menucommand(String("SelectAll"),         select_all_cmd);
+  Application::register_menucommand(String("Copy"),              copy_cmd,                 can_copy_cut);
+  Application::register_menucommand(String("Cut"),               cut_cmd,                  can_copy_cut);
+  Application::register_menucommand(String("OpenCloseGroup"),    open_close_group_cmd);
+  Application::register_menucommand(String("Paste"),             paste_cmd,                can_document_apply);
+  Application::register_menucommand(String("EditBoxes"),         edit_boxes_cmd,           can_edit_boxes);
+  Application::register_menucommand(String("ExpandSelection"),   expand_selection_cmd);
+  Application::register_menucommand(String("FindMatchingFence"), find_matching_fence_cmd,  can_find_matching_fence);
+  Application::register_menucommand(String("SelectAll"),         select_all_cmd);
   
-  Client::register_menucommand(String("DuplicatePreviousInput"),  duplicate_previous_input_output_cmd, can_duplicate_previous_input_output);
-  Client::register_menucommand(String("DuplicatePreviousOutput"), duplicate_previous_input_output_cmd, can_duplicate_previous_input_output);
-  Client::register_menucommand(String("SimilarSectionBelow"),     similar_section_below_cmd,           can_similar_section_below);
-  Client::register_menucommand(String("InsertColumn"),            insert_column_cmd,                   can_document_apply);
-  Client::register_menucommand(String("InsertFraction"),          insert_fraction_cmd,                 can_document_apply);
-  Client::register_menucommand(String("InsertOpposite"),          insert_opposite_cmd);
-  Client::register_menucommand(String("InsertOverscript"),        insert_overscript_cmd,               can_document_apply);
-  Client::register_menucommand(String("InsertRadical"),           insert_radical_cmd,                  can_document_apply);
-  Client::register_menucommand(String("InsertRow"),               insert_row_cmd,                      can_document_apply);
-  Client::register_menucommand(String("InsertSubscript"),         insert_subscript_cmd,                can_document_apply);
-  Client::register_menucommand(String("InsertSuperscript"),       insert_superscript_cmd,              can_document_apply);
-  Client::register_menucommand(String("InsertUnderscript"),       insert_underscript_cmd,              can_document_apply);
+  Application::register_menucommand(String("DuplicatePreviousInput"),  duplicate_previous_input_output_cmd, can_duplicate_previous_input_output);
+  Application::register_menucommand(String("DuplicatePreviousOutput"), duplicate_previous_input_output_cmd, can_duplicate_previous_input_output);
+  Application::register_menucommand(String("SimilarSectionBelow"),     similar_section_below_cmd,           can_similar_section_below);
+  Application::register_menucommand(String("InsertColumn"),            insert_column_cmd,                   can_document_apply);
+  Application::register_menucommand(String("InsertFraction"),          insert_fraction_cmd,                 can_document_apply);
+  Application::register_menucommand(String("InsertOpposite"),          insert_opposite_cmd);
+  Application::register_menucommand(String("InsertOverscript"),        insert_overscript_cmd,               can_document_apply);
+  Application::register_menucommand(String("InsertRadical"),           insert_radical_cmd,                  can_document_apply);
+  Application::register_menucommand(String("InsertRow"),               insert_row_cmd,                      can_document_apply);
+  Application::register_menucommand(String("InsertSubscript"),         insert_subscript_cmd,                can_document_apply);
+  Application::register_menucommand(String("InsertSuperscript"),       insert_superscript_cmd,              can_document_apply);
+  Application::register_menucommand(String("InsertUnderscript"),       insert_underscript_cmd,              can_document_apply);
   
-  Client::register_menucommand(String("EvaluatorAbort"),             abort_cmd,                        can_abort);
-  Client::register_menucommand(String("EvaluateInPlace"),            evaluate_in_place_cmd,            can_evaluate_in_place);
-  Client::register_menucommand(String("EvaluateSections"),           evaluate_sections_cmd,            can_evaluate_sections);
-  Client::register_menucommand(String("EvaluateSectionsAndReturn"),  evaluate_sections_cmd);
-  Client::register_menucommand(String("EvaluatorSubsession"),        evaluator_subsession_cmd,         can_abort);
-  Client::register_menucommand(String("SubsessionEvaluateSections"), subsession_evaluate_sections_cmd, can_subsession_evaluate_sections);
+  Application::register_menucommand(String("EvaluatorAbort"),             abort_cmd,                        can_abort);
+  Application::register_menucommand(String("EvaluateInPlace"),            evaluate_in_place_cmd,            can_evaluate_in_place);
+  Application::register_menucommand(String("EvaluateSections"),           evaluate_sections_cmd,            can_evaluate_sections);
+  Application::register_menucommand(String("EvaluateSectionsAndReturn"),  evaluate_sections_cmd);
+  Application::register_menucommand(String("EvaluatorSubsession"),        evaluator_subsession_cmd,         can_abort);
+  Application::register_menucommand(String("SubsessionEvaluateSections"), subsession_evaluate_sections_cmd, can_subsession_evaluate_sections);
   
-  Client::register_menucommand(Symbol(PMATH_SYMBOL_DOCUMENTAPPLY), document_apply_cmd, can_document_apply);
+  Application::register_menucommand(Symbol(PMATH_SYMBOL_DOCUMENTAPPLY), document_apply_cmd, can_document_apply);
   
   #define VERIFY(x)  if(0 == (x)) goto FAIL_SYMBOLS;
   #define NEW_SYMBOL(name)     pmath_symbol_get(PMATH_C_STRING(name), TRUE)

@@ -1,0 +1,79 @@
+#include <pmath-util/compression.h>
+#include <pmath-util/messages.h>
+#include <pmath-util/mixed-file.h>
+#include <pmath-util/serialize.h>
+
+#include <pmath-builtins/all-symbols-private.h>
+
+
+struct buffer_manipulate_info_t{
+  pmath_string_t string;
+  pmath_bool_t   success;
+};
+  
+
+PMATH_PRIVATE pmath_t builtin_compress(pmath_expr_t expr){
+  pmath_t obj, bfile, zfile, tfile;
+  pmath_serialize_error_t err;
+  
+  if(pmath_expr_length(expr) != 1){
+    pmath_message_argxxx(pmath_expr_length(expr), 1, 1);
+    return expr;
+  }
+  
+  obj = pmath_expr_get_item(expr, 1);
+  
+  pmath_file_create_mixed_buffer("base85", &tfile, &bfile);
+  zfile = pmath_file_create_compressor(pmath_ref(bfile));
+  err = pmath_serialize(zfile, obj); 
+  pmath_file_close(zfile);
+  pmath_file_close(bfile);
+  
+  if(err != PMATH_SERIALIZE_OK){
+    return expr;
+  }
+  
+  pmath_unref(expr);
+  
+  expr = pmath_file_readline(tfile);
+  pmath_file_close(tfile);
+  return expr;
+}
+
+PMATH_PRIVATE pmath_t builtin_uncompress(pmath_expr_t expr){
+  pmath_t obj, str, bfile, tfile, zfile;
+  pmath_serialize_error_t err;
+  
+  if(pmath_expr_length(expr) != 1){
+    pmath_message_argxxx(pmath_expr_length(expr), 1, 1);
+    return expr;
+  }
+  
+  str = pmath_expr_get_item(expr, 1);
+  if(!pmath_is_string(str)){
+    pmath_message(PMATH_NULL, "str", 2, PMATH_FROM_INT32(1), pmath_ref(expr));
+    pmath_unref(str);
+    return expr;
+  }
+  
+  pmath_file_create_mixed_buffer("base85", &tfile, &bfile);
+  
+  pmath_file_writetext(tfile, pmath_string_buffer(str), pmath_string_length(str));
+  pmath_file_close(tfile);
+  
+  zfile = pmath_file_create_uncompressor(pmath_ref(bfile));
+  obj = pmath_deserialize(zfile, &err);
+  pmath_file_close(zfile);
+  pmath_file_close(bfile);
+  
+  if(err != PMATH_SERIALIZE_OK){
+    if(err != PMATH_SERIALIZE_NO_MEMORY)
+      pmath_message(PMATH_NULL, "corrupt", 1, str);
+    pmath_unref(obj);
+    return expr;
+  }
+  
+  pmath_unref(str);
+  pmath_unref(expr);
+  return obj;
+}

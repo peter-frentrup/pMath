@@ -2,7 +2,7 @@
 
 #include <boxes/section.h>
 #include <boxes/mathsequence.h>
-#include <eval/client.h>
+#include <eval/application.h>
 #include <eval/server.h>
 #include <gui/document.h>
 #include <gui/native-widget.h>
@@ -106,8 +106,8 @@ bool InputJob::start(){
   
   doc->move_to(doc, i);
   
-  Expr line = Client::interrupt(Plus(Symbol(PMATH_SYMBOL_LINE), 1));
-  Expr dlvl = Client::interrupt(Symbol(PMATH_SYMBOL_DIALOGLEVEL));
+  Expr line = Application::interrupt(Plus(Symbol(PMATH_SYMBOL_LINE), 1));
+  Expr dlvl = Application::interrupt(Symbol(PMATH_SYMBOL_DIALOGLEVEL));
   
   String label = String("in [");
   if(dlvl == PMATH_FROM_INT32(1))
@@ -132,7 +132,7 @@ void InputJob::returned(Expr expr){
 
 void InputJob::returned_boxes(Expr expr){
   if(!String(expr).equals("/\\/")){
-    Client::gui_print_section(generate_section("Output", expr));
+    Application::gui_print_section(generate_section("Output", expr));
   }
 }
 

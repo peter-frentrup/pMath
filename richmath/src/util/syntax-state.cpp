@@ -3,7 +3,7 @@
 #include <climits>
 
 #include <eval/binding.h>
-#include <eval/client.h>
+#include <eval/application.h>
 #include <graphics/shapers.h>
 
 using namespace richmath;
@@ -105,7 +105,7 @@ SyntaxInformation::SyntaxInformation(Expr name)
   locals_min(1),
   locals_max(INT_MAX)
 {
-  Expr expr = Client::interrupt_cached(Call(
+  Expr expr = Application::interrupt_cached(Call(
     Symbol(PMATH_SYMBOL_SYNTAXINFORMATION),
     name));
   

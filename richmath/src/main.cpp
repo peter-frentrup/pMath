@@ -8,7 +8,7 @@
 #include <boxes/section.h>
 #include <boxes/mathsequence.h>
 #include <eval/binding.h>
-#include <eval/client.h>
+#include <eval/application.h>
 #include <eval/server.h>
 #include <graphics/win32-shaper.h>
 #include <graphics/config-shaper.h>
@@ -64,7 +64,7 @@ class PrivateFont: public Shareable{
     static bool load(String name){
       name+= String::FromChar(0);
       
-      String file = Client::application_directory + "/" + name;
+      String file = Application::application_directory + "/" + name;
       
       guard = new PrivateFont(guard);
       guard->filename.length(file.length());
@@ -195,7 +195,7 @@ int main(){
   }
   
   Win32Themes::init();
-  Client::init();
+  Application::init();
   Server::init_local_server();
   
   GeneralSyntaxInfo::std = new GeneralSyntaxInfo;
@@ -832,12 +832,12 @@ int main(){
       ShowWindow(wndInterrupt->hwnd(), SW_SHOWNORMAL);
     }
       
-    Client::doevents();
+    Application::doevents();
     SetActiveWindow(wndMain->hwnd());
     
   }
   
-  int result = Client::run();
+  int result = Application::run();
   
   printf("quitted\n");
   
@@ -856,7 +856,7 @@ int main(){
   
   GeneralSyntaxInfo::std = 0;
   
-  Client::done();
+  Application::done();
   Win32Clipboard::done();
   
   // needed to clear the message_queue member:

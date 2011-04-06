@@ -14,7 +14,7 @@
 #include <boxes/section.h>
 #include <boxes/mathsequence.h>
 #include <eval/binding.h>
-#include <eval/client.h>
+#include <eval/application.h>
 #include <eval/job.h>
 #include <gui/control-painter.h>
 #include <gui/win32/ole/dataobject.h>
@@ -1087,7 +1087,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam){
         if(cmd.is_null())
           break;
           
-        Client::run_menucommand(cmd);
+        Application::run_menucommand(cmd);
       } return 0;
     }
   }

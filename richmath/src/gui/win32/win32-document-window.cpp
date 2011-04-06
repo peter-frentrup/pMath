@@ -9,7 +9,7 @@
 
 #include <boxes/section.h>
 #include <eval/binding.h>
-#include <eval/client.h>
+#include <eval/application.h>
 #include <gui/control-painter.h>
 #include <gui/win32/win32-control-painter.h>
 #include <gui/win32/win32-menubar.h>
@@ -761,7 +761,7 @@ void Win32DocumentWindow::rearrange(){
 void Win32DocumentWindow::title(String text){
   _title = text;
   
-  if(!Client::is_idle(document()->id()))
+  if(!Application::is_idle(document()->id()))
     text = String("Running... ") + text;
   
   String tmp = text + String::FromChar(0);
@@ -933,7 +933,7 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
           case IDM_NEOEULERSHAPER:        ms = MathShaper::available_shapers["Neo Euler"];      break;
           case IDM_XITSMATHSHAPER:        ms = MathShaper::available_shapers["XITS Math"];      break;
           default:
-            Client::run_menucommand(win32_command_id_to_command_string(LOWORD(wParam)));
+            Application::run_menucommand(win32_command_id_to_command_string(LOWORD(wParam)));
             return 0;
         }
         
@@ -956,7 +956,7 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
           if(cmd.is_null())
             SendMessageW(_hwnd, WM_COMMAND, wParam, lParam);
           else
-            Client::run_menucommand(cmd);
+            Application::run_menucommand(cmd);
         }
       } break;
       

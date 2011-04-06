@@ -15,7 +15,7 @@ typedef enum{
 }pmath_serialize_error_t;
 
 /**\brief Write an object to a binary file.
-   \param file A \ref file_api "file object". It will be freed.
+   \param file A \ref file_api "file object". It wont be freed.
    \param object A pMath object. It will be freed.
    \return An error code.
  */
@@ -25,14 +25,14 @@ pmath_serialize_error_t pmath_serialize(
   pmath_t object);
 
 /**\brief Write an object to a binary file.
-   \param file A \ref file_api "file object".
+   \param file A \ref file_api "file object". It wont be freed.
    \param error Where to put the error code (optional).
    \return The deserialized object.
  */
 PMATH_API 
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_t pmath_deserialize(
-  pmath_t               file,
+  pmath_t                  file,
   pmath_serialize_error_t *error);
 
 #endif /* __PMATH_UTIL__SERIALIZE_H__ */

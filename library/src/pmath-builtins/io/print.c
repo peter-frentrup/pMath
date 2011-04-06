@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <string.h>
 
+
 static void write_to_file(FILE *file, const char *cstr){
   fwrite(cstr, 1, strlen(cstr), file);
 }

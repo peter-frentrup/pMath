@@ -317,13 +317,14 @@ size_t pmath_file_binary_buffer_size(pmath_t binfile);
    \param closure The fourth parameter for \a callback.
    
    The \a callback function must not write before \a readable or after \a end.
-   \a writable gives the current write-position, which is always between
-   \a readable and \a end.
+   \a *writable gives the current write-position, which is always between
+   \a readable and \a end. It can be changed insidethe callback, but must remain
+   between \a readable and \a end.
  */
 PMATH_API
 void pmath_file_binary_buffer_manipulate(
   pmath_t   binfile,
-  void    (*callback)(uint8_t *readable, uint8_t *writable, const uint8_t *end, void *closure),
+  void    (*callback)(uint8_t *readable, uint8_t **writable, const uint8_t *end, void *closure),
   void     *closure);
 
 /** @} */

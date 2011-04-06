@@ -681,5 +681,7 @@ pmath_bool_t pmath_register_approx_code(
 #define PMATH_SYMBOL_CONJUGATE                              PMATH_SYMBOL_BUILTIN(589)
 #define PMATH_SYMBOL_PADLEFT                                PMATH_SYMBOL_BUILTIN(590)
 #define PMATH_SYMBOL_PADRIGHT                               PMATH_SYMBOL_BUILTIN(591)
+#define PMATH_SYMBOL_COMPRESS                               PMATH_SYMBOL_BUILTIN(592)
+#define PMATH_SYMBOL_UNCOMPRESS                             PMATH_SYMBOL_BUILTIN(593)
 
 #endif /* __PMATH_BUILTINS__SYMBOLS_H__ */

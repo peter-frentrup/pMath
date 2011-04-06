@@ -3,7 +3,7 @@
 #include <cmath>
 
 #include <boxes/mathsequence.h>
-#include <eval/client.h>
+#include <eval/application.h>
 #include <eval/job.h>
 #include <gui/document.h>
 #include <gui/native-widget.h>
@@ -114,10 +114,10 @@ void ButtonBox::click(){
         _content->to_pmath(false)));
     
     if(method.equals("Preemptive")){
-      Client::execute_for(fn, this, Client::button_timeout);
+      Application::execute_for(fn, this, Application::button_timeout);
     }
     else
-      Client::add_job(new EvaluationJob(fn, this));
+      Application::add_job(new EvaluationJob(fn, this));
   }
 }
 

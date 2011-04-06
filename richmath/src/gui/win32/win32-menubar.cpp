@@ -10,7 +10,7 @@
 #include <cairo-win32.h>
 
 #include <util/array.h>
-#include <eval/client.h>
+#include <eval/application.h>
 #include <gui/win32/win32-control-painter.h>
 #include <gui/win32/win32-document-window.h>
 #include <gui/win32/win32-themes.h>
@@ -542,7 +542,7 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
         UINT flags = MF_BYPOSITION;
         
         int id = GetMenuItemID(sub, i);
-        if(Client::is_menucommand_runnable(win32_command_id_to_command_string(id)))
+        if(Application::is_menucommand_runnable(win32_command_id_to_command_string(id)))
           flags |= MF_ENABLED;
         else
           flags |= MF_GRAYED;

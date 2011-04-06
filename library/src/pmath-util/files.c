@@ -1331,6 +1331,7 @@ static size_t binbuf_write(void *p, const void *buffer, size_t buffer_size){
   }
   
   memcpy(bb->write_ptr, buffer, buffer_size);
+  bb->write_ptr+= buffer_size;
   return buffer_size;
 }
 
@@ -1381,7 +1382,7 @@ size_t pmath_file_binary_buffer_size(
 }
 
   struct binbuf_manipulate_t{
-    void (*callback)(uint8_t*,uint8_t*,const uint8_t*,void*);
+    void (*callback)(uint8_t*,uint8_t**,const uint8_t*,void*);
     void *closure;
   };
   
@@ -1390,21 +1391,25 @@ size_t pmath_file_binary_buffer_size(
     struct binbuf_manipulate_t *info = (struct binbuf_manipulate_t*)extra;
     
     if(!bb->error){
-      assert((size_t)bb->data     <= (size_t)bb->read_ptr);
-      assert((size_t)bb->read_ptr <= (size_t)bb->write_ptr);
+      assert((size_t)bb->data      <= (size_t)bb->read_ptr);
+      assert((size_t)bb->read_ptr  <= (size_t)bb->write_ptr);
+      assert((size_t)bb->write_ptr <= (size_t)bb->data + bb->capacity);
       
       info->callback(
         bb->read_ptr, 
-        bb->write_ptr, 
+        &bb->write_ptr, 
         bb->data + bb->capacity,
         info->closure);
+      
+      assert((size_t)bb->read_ptr  <= (size_t)bb->write_ptr);
+      assert((size_t)bb->write_ptr <= (size_t)bb->data + bb->capacity);
     }
   }
 
 PMATH_API
 void pmath_file_binary_buffer_manipulate(
   pmath_t   binfile,
-  void    (*callback)(uint8_t *readable, uint8_t *writable, const uint8_t *end, void *closure),
+  void    (*callback)(uint8_t *readable, uint8_t **writable, const uint8_t *end, void *closure),
   void     *closure
 ){
   if(callback){

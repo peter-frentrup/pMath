@@ -9,6 +9,7 @@
 #include <pmath-util/hashtables-private.h>
 #include <pmath-util/memory.h>
 
+
 #define TAG_NULL      0
 #define TAG_NEWREF    1
 #define TAG_REF       2
@@ -177,6 +178,18 @@ static void serialize(
     return;
   }
     
+  if(pmath_is_int32(object)){
+    write_ui8( info->file, TAG_INT32);
+    write_si32(info->file, PMATH_AS_INT32(object));
+    return;
+  }
+  
+  if(pmath_is_double(object)){
+    write_ui8( info->file, TAG_DOUBLE);
+    write_ui64(info->file, object.as_bits);
+    return;
+  }
+  
   if(!pmath_is_pointer(object)){
     pmath_unref(object);
     if(!info->error)
@@ -208,18 +221,6 @@ static void serialize(
         info->error = PMATH_SERIALIZE_NO_MEMORY;
       return;
     }
-  }
-  
-  if(pmath_is_int32(object)){
-    write_ui8( info->file, TAG_INT32);
-    write_si32(info->file, PMATH_AS_INT32(object));
-    return;
-  }
-  
-  if(pmath_is_double(object)){
-    write_ui8( info->file, TAG_DOUBLE);
-    write_ui64(info->file, object.as_bits);
-    return;
   }
   
   switch(PMATH_AS_PTR(object)->type_shift){
@@ -719,7 +720,7 @@ pmath_serialize_error_t pmath_serialize(
 
 PMATH_API 
 pmath_t pmath_deserialize(
-  pmath_t               file,
+  pmath_t                  file,
   pmath_serialize_error_t *error
 ){
   struct deserializer_t info;

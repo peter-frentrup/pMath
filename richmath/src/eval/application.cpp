@@ -1,6 +1,6 @@
 #define _WIN32_WINNT 0x0600
 
-#include <eval/client.h>
+#include <eval/application.h>
 
 #include <cmath>
 #include <cstdio>
@@ -139,16 +139,16 @@ class ClientInfoWindow: public BasicWin32Widget{
 
 static ClientInfoWindow info_window;
 
-double Client::edit_interrupt_timeout = 2.0;
-double Client::interrupt_timeout      = 0.3;
-double Client::button_timeout         = 4.0;
-double Client::dynamic_timeout        = 4.0;
-String Client::application_filename;
-String Client::application_directory;
+double Application::edit_interrupt_timeout = 2.0;
+double Application::interrupt_timeout      = 0.3;
+double Application::button_timeout         = 4.0;
+double Application::dynamic_timeout        = 4.0;
+String Application::application_filename;
+String Application::application_directory;
 
-Hashtable<Expr, Expr, object_hash> Client::eval_cache;
+Hashtable<Expr, Expr, object_hash> Application::eval_cache;
 
-void Client::notify(ClientNotificationType type, Expr data){
+void Application::notify(ClientNotificationType type, Expr data){
   if(state == Quitting)
     return;
   
@@ -161,7 +161,7 @@ void Client::notify(ClientNotificationType type, Expr data){
   PostMessage(info_window.hwnd(), WM_CLIENTNOTIFY, 0, 0);
 }
 
-Expr Client::notify_wait(ClientNotificationType type, Expr data){
+Expr Application::notify_wait(ClientNotificationType type, Expr data){
   if(state != Running)
     return Symbol(PMATH_SYMBOL_FAILED);
     
@@ -192,7 +192,7 @@ Expr Client::notify_wait(ClientNotificationType type, Expr data){
   return Expr(result);
 }
 
-bool Client::is_menucommand_runnable(Expr cmd){
+bool Application::is_menucommand_runnable(Expr cmd){
   bool (*func)(Expr);
   
   func = menu_command_testers[cmd];
@@ -206,7 +206,7 @@ bool Client::is_menucommand_runnable(Expr cmd){
   return true;
 }
 
-void Client::register_menucommand(
+void Application::register_menucommand(
   Expr cmd,
   bool (*func)(Expr cmd), 
   bool (*test)(Expr cmd)
@@ -251,7 +251,7 @@ void Client::register_menucommand(
     #undef BUFSIZE
   }
 
-void Client::gui_print_section(Expr expr){
+void Application::gui_print_section(Expr expr){
   Document *doc = dynamic_cast<Document*>(
     Box::find(print_pos.document_id));
     
@@ -309,7 +309,7 @@ void Client::gui_print_section(Expr expr){
   }
 }
 
-void Client::init(){
+void Application::init(){
   main_message_queue = Expr(pmath_thread_get_queue());
   
   main_thread_id = GetCurrentThreadId();
@@ -338,7 +338,7 @@ void Client::init(){
   keyboard_accelerators = LoadAcceleratorsW(GetModuleHandle(0), MAKEINTRESOURCEW(ACC_TABLE));
 }
 
-void Client::doevents(){
+void Application::doevents(){
   MSG msg;
   
   ClientState old_state = state;
@@ -358,7 +358,7 @@ void Client::doevents(){
   state = old_state;
 }
 
-int Client::run(){
+int Application::run(){
   MSG msg;
   BOOL bRet;
   
@@ -383,7 +383,7 @@ int Client::run(){
   return msg.wParam;
 }
 
-void Client::done(){
+void Application::done(){
   DestroyAcceleratorTable(keyboard_accelerators);
   while(session){
     SharedPtr<Job> job = session->current_job;
@@ -415,7 +415,7 @@ void Client::done(){
   main_message_queue = Expr();
 }
 
-void Client::add_job(SharedPtr<Job> job){
+void Application::add_job(SharedPtr<Job> job){
   if(session && job){
     session->jobs.put(job);
     job->enqueued();
@@ -423,7 +423,7 @@ void Client::add_job(SharedPtr<Job> job){
   }
 }
 
-void Client::abort_all_jobs(){
+void Application::abort_all_jobs(){
   Server::local_server->interrupt(Call(Symbol(PMATH_SYMBOL_ABORT)));
   //Server::local_server->abort_all();
   
@@ -442,11 +442,11 @@ void Client::abort_all_jobs(){
   }
 }
 
-bool Client::is_idle(){
+bool Application::is_idle(){
   return !session->current_job.is_valid();
 }
 
-bool Client::is_idle(int document_id){
+bool Application::is_idle(int document_id){
   SharedPtr<Session> s = session;
   
   while(s){
@@ -469,15 +469,15 @@ bool Client::is_idle(int document_id){
     // answer questions to the frontend (Documents() calls and more)
   }
   
-Expr Client::interrupt(Expr expr, double seconds){
+Expr Application::interrupt(Expr expr, double seconds){
   return Server::local_server->interrupt_wait(expr, seconds, interrupt_wait_idle, NULL);
 }
 
-Expr Client::interrupt(Expr expr){
+Expr Application::interrupt(Expr expr){
   return interrupt(expr, interrupt_timeout);
 }
 
-void Client::execute_for(Expr expr, Box *box, double seconds){
+void Application::execute_for(Expr expr, Box *box, double seconds){
 //  if(box)
 //    print_pos = EvaluationPosition(box);
   
@@ -488,11 +488,11 @@ void Client::execute_for(Expr expr, Box *box, double seconds){
     seconds);
 }
 
-void Client::execute_for(Expr expr, Box *box){
+void Application::execute_for(Expr expr, Box *box){
   execute_for(expr, box, interrupt_timeout);
 }
 
-Expr Client::internal_execute_for(Expr expr, int doc, int sect, int box){
+Expr Application::internal_execute_for(Expr expr, int doc, int sect, int box){
   static PMATH_DECLARE_ATOMIC(lock) = 0;
   EvaluationPosition old_print_pos;
   
@@ -516,7 +516,7 @@ Expr Client::internal_execute_for(Expr expr, int doc, int sect, int box){
   return expr;
 }
 
-Expr Client::interrupt_cached(Expr expr, double seconds){
+Expr Application::interrupt_cached(Expr expr, double seconds){
   if(!expr.is_pointer_of(PMATH_TYPE_SYMBOL | PMATH_TYPE_EXPRESSION))
     return expr;
   
@@ -534,7 +534,7 @@ Expr Client::interrupt_cached(Expr expr, double seconds){
   return result;
 }
 
-Expr Client::interrupt_cached(Expr expr){
+Expr Application::interrupt_cached(Expr expr){
   return interrupt_cached(expr, interrupt_timeout);
 }
 
@@ -657,7 +657,7 @@ static void cnt_end(Expr data){
     }
   }
   
-  Client::eval_cache.clear();
+  Application::eval_cache.clear();
 }
 
 static void cnt_return(Expr data){
@@ -673,7 +673,7 @@ static void cnt_returnbox(Expr data){
 }
 
 static void cnt_printsection(Expr data){
-  Client::gui_print_section(data);
+  Application::gui_print_section(data);
 }
 
 static Expr cnt_getdocuments(){
@@ -802,7 +802,7 @@ static Expr cnt_createdocument(Expr data){
       else{
         item = Call(Symbol(PMATH_SYMBOL_SECTION),
           Call(Symbol(PMATH_SYMBOL_BOXDATA),
-            Client::interrupt(Call(Symbol(PMATH_SYMBOL_TOBOXES), item))),
+            Application::interrupt(Call(Symbol(PMATH_SYMBOL_TOBOXES), item))),
           String("Input"));
         
         Section *sect = Section::create_from_object(item);

@@ -5,7 +5,7 @@
 #include <boxes/sectionlist.h>
 #include <boxes/mathsequence.h>
 #include <boxes/textsequence.h>
-#include <eval/client.h>
+#include <eval/application.h>
 #include <graphics/context.h>
 
 using namespace richmath;
@@ -590,10 +590,10 @@ EditSection::~EditSection(){
 Expr EditSection::to_pmath(bool parseable){
   Expr result = content()->to_pmath(true);
   
-  result = Client::interrupt(Call(
+  result = Application::interrupt(Call(
       Symbol(PMATH_SYMBOL_MAKEEXPRESSION), 
       result),
-    Client::edit_interrupt_timeout);
+    Application::edit_interrupt_timeout);
   
   if(result.expr_length() == 1
   && result[0] == PMATH_SYMBOL_HOLDCOMPLETE){
