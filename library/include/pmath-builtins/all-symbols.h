@@ -683,5 +683,13 @@ pmath_bool_t pmath_register_approx_code(
 #define PMATH_SYMBOL_PADRIGHT                               PMATH_SYMBOL_BUILTIN(591)
 #define PMATH_SYMBOL_COMPRESS                               PMATH_SYMBOL_BUILTIN(592)
 #define PMATH_SYMBOL_UNCOMPRESS                             PMATH_SYMBOL_BUILTIN(593)
+#define PMATH_SYMBOL_EXTENDEDGCD                            PMATH_SYMBOL_BUILTIN(594)
+#define PMATH_SYMBOL_JACOBISYMBOL                           PMATH_SYMBOL_BUILTIN(595)
+#define PMATH_SYMBOL_KRONECKERSYMBOL                        PMATH_SYMBOL_BUILTIN(596)
+#define PMATH_SYMBOL_XOR                                    PMATH_SYMBOL_BUILTIN(597)
+#define PMATH_SYMBOL_BITNOT                                 PMATH_SYMBOL_BUILTIN(598)
+#define PMATH_SYMBOL_BITAND                                 PMATH_SYMBOL_BUILTIN(599)
+#define PMATH_SYMBOL_BITOR                                  PMATH_SYMBOL_BUILTIN(600)
+#define PMATH_SYMBOL_BITXOR                                 PMATH_SYMBOL_BUILTIN(601)
 
 #endif /* __PMATH_BUILTINS__SYMBOLS_H__ */

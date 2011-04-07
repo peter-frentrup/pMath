@@ -98,9 +98,7 @@ PMATH_PRIVATE pmath_t builtin_exp(                      pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_factorial(                pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_factorial2(               pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_gamma(                    pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_gcd(                      pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_im(                       pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_lcm(                      pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_log(                      pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_loggamma(                 pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_mod(                      pmath_expr_t expr);
@@ -408,6 +406,7 @@ PMATH_PRIVATE pmath_t builtin_not(                  pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_or(                   pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_unequal(              pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_unidentical(          pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_xor(                  pmath_expr_t expr);
 
 PMATH_PRIVATE pmath_t builtin_operate_conditionalexpression(pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_operate_undefined(pmath_expr_t expr);
@@ -420,10 +419,18 @@ PMATH_PRIVATE pmath_t builtin_expandall(pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_assign_isnumeric(pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_isnumeric(       pmath_expr_t expr);
 
-PMATH_PRIVATE pmath_t builtin_isprime(      pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_nextprime(    pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_randominteger(pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_randomreal(   pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_bitand(                          pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_bitnot(                          pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_bitor(                           pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_bitxor(                          pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_extendedgcd(                     pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_gcd(                             pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_isprime(                         pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_jacobisymbol_and_kroneckersymbol(pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_lcm(                             pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_nextprime(                       pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_randominteger(                   pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_randomreal(                      pmath_expr_t expr);
 //} ============================================================================
 //{ builtins from src/pmath-builtins/parallel/ ...
 PMATH_PRIVATE pmath_t builtin_abort(       pmath_expr_t expr);
@@ -678,6 +685,10 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   VERIFY(   PMATH_SYMBOL_BINARYREAD                = NEW_SYSTEM_SYMBOL("BinaryRead"))
   VERIFY(   PMATH_SYMBOL_BINARYWRITE               = NEW_SYSTEM_SYMBOL("BinaryWrite"))
   VERIFY(   PMATH_SYMBOL_BINOMIAL                  = NEW_SYSTEM_SYMBOL("Binomial"))
+  VERIFY(   PMATH_SYMBOL_BITAND                    = NEW_SYSTEM_SYMBOL("BitAnd"))
+  VERIFY(   PMATH_SYMBOL_BITNOT                    = NEW_SYSTEM_SYMBOL("BitNot"))
+  VERIFY(   PMATH_SYMBOL_BITOR                     = NEW_SYSTEM_SYMBOL("BitOr"))
+  VERIFY(   PMATH_SYMBOL_BITXOR                    = NEW_SYSTEM_SYMBOL("BitXor"))
   VERIFY(   PMATH_SYMBOL_BOLD                      = NEW_SYSTEM_SYMBOL("Bold"))
   VERIFY(   PMATH_SYMBOL_BOOLE                     = NEW_SYSTEM_SYMBOL("Boole"))
   VERIFY(   PMATH_SYMBOL_BOXDATA                   = NEW_SYSTEM_SYMBOL("BoxData"))
@@ -784,6 +795,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   VERIFY(   PMATH_SYMBOL_EXPAND                    = NEW_SYSTEM_SYMBOL("Expand"))
   VERIFY(   PMATH_SYMBOL_EXPANDALL                 = NEW_SYSTEM_SYMBOL("ExpandAll"))
   VERIFY(   PMATH_SYMBOL_EXPRESSION                = NEW_SYSTEM_SYMBOL("Expression"))
+  VERIFY(   PMATH_SYMBOL_EXTENDEDGCD               = NEW_SYSTEM_SYMBOL("ExtendedGCD"))
   VERIFY(   PMATH_SYMBOL_EXTRACT                   = NEW_SYSTEM_SYMBOL("Extract"))
   VERIFY(   PMATH_SYMBOL_FACTORIAL                 = NEW_SYSTEM_SYMBOL("Factorial"))
   VERIFY(   PMATH_SYMBOL_FACTORIAL2                = NEW_SYSTEM_SYMBOL("Factorial2"))
@@ -891,7 +903,9 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   VERIFY(   PMATH_SYMBOL_ISVALIDARGUMENTCOUNT      = NEW_SYSTEM_SYMBOL("IsValidArgumentCount"))
   VERIFY(   PMATH_SYMBOL_ISVECTOR                  = NEW_SYSTEM_SYMBOL("IsVector"))
   VERIFY(   PMATH_SYMBOL_ITALIC                    = NEW_SYSTEM_SYMBOL("Italic"))
+  VERIFY(   PMATH_SYMBOL_JACOBISYMBOL              = NEW_SYSTEM_SYMBOL("JacobiSymbol"))
   VERIFY(   PMATH_SYMBOL_JOIN                      = NEW_SYSTEM_SYMBOL("Join"))
+  VERIFY(   PMATH_SYMBOL_KRONECKERSYMBOL           = NEW_SYSTEM_SYMBOL("KroneckerSymbol"))
   VERIFY(   PMATH_SYMBOL_LABEL                     = NEW_SYSTEM_SYMBOL("Label"))
   VERIFY(   PMATH_SYMBOL_LAST                      = NEW_SYSTEM_SYMBOL("Last"))
   VERIFY(   PMATH_SYMBOL_LCM                       = NEW_SYSTEM_SYMBOL("LCM"))
@@ -1218,6 +1232,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   VERIFY(   PMATH_SYMBOL_WORKINGPRECISION          = NEW_SYSTEM_SYMBOL("WorkingPrecision"))
   VERIFY(   PMATH_SYMBOL_WRITE                     = NEW_SYSTEM_SYMBOL("Write"))
   VERIFY(   PMATH_SYMBOL_WRITESTRING               = NEW_SYSTEM_SYMBOL("WriteString"))
+  VERIFY(   PMATH_SYMBOL_XOR                       = NEW_SYSTEM_SYMBOL("Xor"))
   VERIFY(   PMATH_SYMBOL_ZETA                      = NEW_SYSTEM_SYMBOL("Zeta"))
   //} ... setting symbol names
 
@@ -1296,6 +1311,10 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
     BIND_DOWN(   PMATH_SYMBOL_BINARYREAD,                  builtin_binaryread)
     BIND_DOWN(   PMATH_SYMBOL_BINARYWRITE,                 builtin_binarywrite)
     BIND_DOWN(   PMATH_SYMBOL_BINOMIAL,                    builtin_binomial)
+    BIND_DOWN(   PMATH_SYMBOL_BITAND,                      builtin_bitand)
+    BIND_DOWN(   PMATH_SYMBOL_BITNOT,                      builtin_bitnot)
+    BIND_DOWN(   PMATH_SYMBOL_BITOR,                       builtin_bitor)
+    BIND_DOWN(   PMATH_SYMBOL_BITXOR,                      builtin_bitxor)
     BIND_DOWN(   PMATH_SYMBOL_BOOLE,                       builtin_boole)
     BIND_DOWN(   PMATH_SYMBOL_BREAK,                       general_builtin_zeroonearg)
     BIND_DOWN(   PMATH_SYMBOL_BUTTON,                      builtin_button)
@@ -1355,6 +1374,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
     BIND_DOWN(   PMATH_SYMBOL_EXP,                         builtin_exp)
     BIND_DOWN(   PMATH_SYMBOL_EXPAND,                      builtin_expand)
     BIND_DOWN(   PMATH_SYMBOL_EXPANDALL,                   builtin_expandall)
+    BIND_DOWN(   PMATH_SYMBOL_EXTENDEDGCD,                 builtin_extendedgcd)
     BIND_DOWN(   PMATH_SYMBOL_EXTRACT,                     builtin_extract)
     BIND_DOWN(   PMATH_SYMBOL_FACTORIAL,                   builtin_factorial)
     BIND_DOWN(   PMATH_SYMBOL_FACTORIAL2,                  builtin_factorial2)
@@ -1420,7 +1440,9 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
     BIND_DOWN(   PMATH_SYMBOL_ISSYMBOL,                    builtin_issymbol)
     BIND_DOWN(   PMATH_SYMBOL_ISVALIDARGUMENTCOUNT,        builtin_isvalidargumentcount)
     BIND_DOWN(   PMATH_SYMBOL_ISVECTOR,                    builtin_isvector)
+    BIND_DOWN(   PMATH_SYMBOL_JACOBISYMBOL,                builtin_jacobisymbol_and_kroneckersymbol)
     BIND_DOWN(   PMATH_SYMBOL_JOIN,                        builtin_join)
+    BIND_DOWN(   PMATH_SYMBOL_KRONECKERSYMBOL,             builtin_jacobisymbol_and_kroneckersymbol)
     BIND_DOWN(   PMATH_SYMBOL_LABEL,                       general_builtin_onearg)
     BIND_DOWN(   PMATH_SYMBOL_LAST,                        builtin_last)
     BIND_DOWN(   PMATH_SYMBOL_LCM,                         builtin_lcm)
@@ -1583,6 +1605,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
     BIND_DOWN(   PMATH_SYMBOL_WITH,                        builtin_with)
     BIND_DOWN(   PMATH_SYMBOL_WRITE,                       builtin_write)
     BIND_DOWN(   PMATH_SYMBOL_WRITESTRING,                 builtin_writestring)
+    BIND_DOWN(   PMATH_SYMBOL_XOR,                         builtin_xor)
     
     BIND_APPROX( PMATH_SYMBOL_E,                 builtin_approximate_e);
     BIND_APPROX( PMATH_SYMBOL_EULERGAMMA,        builtin_approximate_eulergamma);
@@ -1648,6 +1671,10 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   SET_ATTRIB( PMATH_SYMBOL_ATTRIBUTES,                       HOLDFIRST | LISTABLE);
   SET_ATTRIB( PMATH_SYMBOL_BERNOULLIB,                       DEFINITEFUNCTION | LISTABLE);
   SET_ATTRIB( PMATH_SYMBOL_BINOMIAL,                         DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
+  SET_ATTRIB( PMATH_SYMBOL_BITAND,                           ASSOCIATIVE | DEFINITEFUNCTION | HOLDALL | LISTABLE | ONEIDENTITY);
+  SET_ATTRIB( PMATH_SYMBOL_BITNOT,                           ASSOCIATIVE | DEFINITEFUNCTION | HOLDALL | LISTABLE | ONEIDENTITY);
+  SET_ATTRIB( PMATH_SYMBOL_BITOR,                            ASSOCIATIVE | DEFINITEFUNCTION | HOLDALL | LISTABLE | ONEIDENTITY);
+  SET_ATTRIB( PMATH_SYMBOL_BITXOR,                           ASSOCIATIVE | DEFINITEFUNCTION | HOLDALL | LISTABLE | ONEIDENTITY);
   SET_ATTRIB( PMATH_SYMBOL_BOOLE,                            DEFINITEFUNCTION | LISTABLE);
   SET_ATTRIB( PMATH_SYMBOL_MAKEEXPRESSION,                   READPROTECTED);
   SET_ATTRIB( PMATH_SYMBOL_BUTTON,                           HOLDREST);
@@ -1681,6 +1708,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   SET_ATTRIB( PMATH_SYMBOL_EVALUATEDELAYED,                  HOLDFIRST);
   SET_ATTRIB( PMATH_SYMBOL_EVALUATIONSEQUENCE,               HOLDALL);
   SET_ATTRIB( PMATH_SYMBOL_EXP,                              DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
+  SET_ATTRIB( PMATH_SYMBOL_EXTENDEDGCD,                      DEFINITEFUNCTION | LISTABLE);
   SET_ATTRIB( PMATH_SYMBOL_EXTRACT,                          NHOLDREST);
   SET_ATTRIB( PMATH_SYMBOL_FINALLY,                          HOLDALL);
   SET_ATTRIB( PMATH_SYMBOL_FACTORIAL,                        DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
@@ -1709,6 +1737,8 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   SET_ATTRIB( PMATH_SYMBOL_ISEVEN,                           LISTABLE);
   SET_ATTRIB( PMATH_SYMBOL_ISODD,                            LISTABLE);
   SET_ATTRIB( PMATH_SYMBOL_ISPRIME,                          LISTABLE);
+  SET_ATTRIB( PMATH_SYMBOL_JACOBISYMBOL,                     DEFINITEFUNCTION | LISTABLE);
+  SET_ATTRIB( PMATH_SYMBOL_KRONECKERSYMBOL,                  DEFINITEFUNCTION | LISTABLE);
   SET_ATTRIB( PMATH_SYMBOL_LCM,                              ASSOCIATIVE | DEFINITEFUNCTION | LISTABLE | SYMMETRIC);
   SET_ATTRIB( PMATH_SYMBOL_LOCAL,                            HOLDALL);
   SET_ATTRIB( PMATH_SYMBOL_LOG,                              DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
@@ -1784,6 +1814,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   SET_ATTRIB( PMATH_SYMBOL_WAIT,                             LISTABLE);
   SET_ATTRIB( PMATH_SYMBOL_WHILE,                            HOLDALL);
   SET_ATTRIB( PMATH_SYMBOL_WITH,                             HOLDALL);
+  SET_ATTRIB( PMATH_SYMBOL_XOR,                              ASSOCIATIVE | DEFINITEFUNCTION | HOLDALL | ONEIDENTITY);
   SET_ATTRIB( PMATH_SYMBOL_ZETA,                             DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
 
   #undef SET_ATTRIB

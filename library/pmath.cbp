@@ -402,9 +402,6 @@
 		<Unit filename="src\pmath-builtins\arithmetic\gamma.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\arithmetic\gcd-and-lcm.c">
-			<Option compilerVar="CC" />
-		</Unit>
 		<Unit filename="src\pmath-builtins\arithmetic\log.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -885,13 +882,37 @@
 		<Unit filename="src\pmath-builtins\logic\or.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="src\pmath-builtins\logic\xor.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="src\pmath-builtins\manipulate\expand.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\pmath-builtins\number-theory\bitand.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\pmath-builtins\number-theory\bitnot.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\pmath-builtins\number-theory\bitor.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\pmath-builtins\number-theory\bitxor.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\pmath-builtins\number-theory\extendedgcd.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\pmath-builtins\number-theory\gcd-and-lcm.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src\pmath-builtins\number-theory\isnumeric.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src\pmath-builtins\number-theory\isprime.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\pmath-builtins\number-theory\jacobisymbol-and-kroneckersymbol.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src\pmath-builtins\number-theory\nextprime.c">
