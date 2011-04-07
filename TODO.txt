@@ -2,8 +2,8 @@
 	Button("italic", DocumentApply(SelectedDocument(), StyleBox("\[SelectionPlaceholder]", FontSlant->Italic))),
 	Button("Arg Style", DocumentApply(SelectedDocument(), StyleBox("\[SelectionPlaceholder]", "Arg")))})
 
-- add ExtendedGCD
-
+- implement FromCharacterCode and ToCharacterCode
+	
 - Power: simplify (1/2)/Sqrt(2), ... 
 		x Sqrt(E x) --->  Sqrt(E) x^(3/2)
 	
@@ -23,8 +23,6 @@
 - pmath: implement MapThread, MapAt, MapIndexed, HasValue/IsValue
 
 ? pmath: use timsort instead of platforms qsort: http://bugs.python.org/file4451/timsort.txt	
-	
-- pmath: $CreationDate does not yet work (not updated properly)
 
 - richmath: FractionBox: change distance between fraction rule an numerator (too big)
 

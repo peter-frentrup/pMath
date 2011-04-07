@@ -2370,7 +2370,7 @@ static pmath_t skeleton_to_boxes(
     pmath_unref(expr);
     
     if(thread->boxform < BOXFORM_OUTPUT){
-      return pmath_build_value("(coc)", 0x00AB, object_to_boxes(thread, obj), 0x00BB);
+      return pmath_build_value("(ccocc)", 0x00AB, 0x00A0, object_to_boxes(thread, obj), 0x00A0, 0x00BB);
     }
     
     return pmath_build_value("(sos)", "<<", object_to_boxes(thread, obj), ">>");

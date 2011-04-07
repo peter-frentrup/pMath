@@ -340,10 +340,9 @@ pmath_t _pmath_shorten_boxes(pmath_t boxes, long length){
                 --right;
               }
               
-              --removed;
-              for(i = prevright + 1;i <= right;++i){
+              for(i = prevleft;i < left;++i){
                 if(is_operand_at(boxes, i))
-                  ++removed;
+                  --removed;
               }
               
               boxes = pmath_expr_set_item(

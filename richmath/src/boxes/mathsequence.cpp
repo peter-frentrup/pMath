@@ -3373,7 +3373,7 @@ void MathSequence::split_lines(Context *context){
           penalty+= rel_amplitude * rel_amplitude;
         }
         
-        if(!(penalty > break_array[current].penalty)){
+        if(!(penalty >= break_array[current].penalty)){
           break_array[current].penalty = penalty;
           break_array[current].prev_break_index = i;
         }
@@ -3455,6 +3455,14 @@ int MathSequence::fill_penalty_array(
       || buf[pos] == PMATH_CHAR_ASSIGNDELAYED){
         penalty_array[pos-1]+= DepthPenalty;
         //--depth;
+      }
+      
+      if(buf[pos] == 0xA0   /* \[NonBreakingSpace] */
+      || buf[pos] == 0x2011 /* non breaking hyphen */ 
+      || buf[pos] == 0x2060 /* \[NonBreak] */){
+        penalty_array[pos-1] = Infinity;
+        penalty_array[pos]   = Infinity;
+        ++pos;
       }
     }
     

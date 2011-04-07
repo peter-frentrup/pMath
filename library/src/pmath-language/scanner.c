@@ -278,6 +278,50 @@ static int next_token_pos(parser_t *parser){
 
 static void skip_to(parser_t *parser, int span_start, int next, pmath_bool_t optional);
 
+static pmath_bool_t read_more(parser_t *parser){
+  pmath_string_t newline;
+  int extralen;
+  
+  if(!parser)
+    return FALSE;
+  
+  if(!parser->read_line){
+    handle_error(parser);
+    return FALSE;
+  }
+  
+  newline = parser->read_line(parser->data);
+        
+  if(pmath_is_null(newline)){
+    handle_error(parser);
+    return FALSE;
+  }
+  
+  extralen = 1 + pmath_string_length(newline);
+  parser->spans = enlarge_span_array(parser->spans, extralen);
+  if(!parser->spans
+  || parser->spans->length != parser->tokens.len + extralen){
+    parser->tokens.span_items = NULL;
+    pmath_unref(newline);
+    handle_error(parser);
+    return FALSE;
+  }
+  
+  parser->code = pmath_string_insert_latin1(parser->code, INT_MAX, "\n", 1);
+  parser->code = pmath_string_concat(parser->code, newline);
+  
+  if(parser->spans->length != pmath_string_length(parser->code)){
+    pmath_unref(newline);
+    handle_error(parser);
+    return FALSE;
+  }
+  
+  parser->tokens.str = pmath_string_buffer(parser->code);
+  parser->tokens.len = pmath_string_length(parser->code);
+  parser->tokens.span_items = parser->spans->items;
+  return TRUE;
+}
+
 static void skip_space(parser_t *parser, int span_start, pmath_bool_t optional){
   parser->last_was_newline = FALSE;
   
@@ -332,6 +376,20 @@ static void skip_space(parser_t *parser, int span_start, pmath_bool_t optional){
       break;
     }
     
+    if(parser->tokens.pos < parser->tokens.len 
+    && parser->tokens.str[parser->tokens.pos] == '\\'){
+      int i = parser->tokens.pos + 1;
+      
+      while(i < parser->tokens.len
+      && parser->tokens.str[i] <= ' ')
+        ++i;
+      
+      if(i == parser->tokens.len){
+        parser->tokens.pos = i;
+        optional = FALSE;
+      }
+    }
+    
     if(parser->tokens.pos + 1 < parser->tokens.len 
     && !parser->tokens.in_comment
     && parser->tokens.str[parser->tokens.pos] == '/'
@@ -369,37 +427,9 @@ static void skip_space(parser_t *parser, int span_start, pmath_bool_t optional){
     else if(parser->tokens.pos == parser->tokens.len 
     && (!optional || parser->fencelevel > 0)
     && !pmath_aborting()){
-      pmath_string_t newline = PMATH_NULL;
-      int extralen;
-      
-      if(parser->read_line)
-        newline = parser->read_line(parser->data);
+      if(!read_more(parser))
+        break;
         
-      if(pmath_is_null(newline)){
-        handle_error(parser);
-        break;
-      }
-      
-      extralen = 1 + pmath_string_length(newline);
-      parser->spans = enlarge_span_array(parser->spans, extralen);
-      if(parser->spans->length != parser->tokens.len + extralen){
-        pmath_unref(newline);
-        handle_error(parser);
-        break;
-      }
-      
-      parser->code = pmath_string_insert_latin1(parser->code, INT_MAX, "\n", 1);
-      parser->code = pmath_string_concat(parser->code, newline);
-      
-      if(parser->spans->length != pmath_string_length(parser->code)){
-        pmath_unref(newline);
-        handle_error(parser);
-        break;
-      }
-      
-      parser->tokens.str = pmath_string_buffer(parser->code);
-      parser->tokens.len = pmath_string_length(parser->code);
-      parser->tokens.span_items = parser->spans->items;
       if(!parser->tokenizing){
         int          old_pos        = parser->tokens.pos;
         pmath_bool_t old_in_comment = parser->tokens.in_comment;
@@ -575,8 +605,10 @@ static void scan_next(scanner_t *tokens, parser_t *parser){
     case '\\': {
       ++tokens->pos;
       
-      if(tokens->pos == tokens->len)
+      if(tokens->pos == tokens->len){
+        read_more(parser);
         break;
+      }
       
       if(tokens->str[tokens->pos] == 'x'){
         int start = tokens->pos;
@@ -758,18 +790,26 @@ static void scan_next(scanner_t *tokens, parser_t *parser){
         tokens->in_string = TRUE;
         
         ++tokens->pos;
-        while(tokens->pos < tokens->len
-        && (k > 0 || tokens->str[tokens->pos] != '"')){
-          if(tokens->str[tokens->pos] == PMATH_CHAR_LEFT_BOX){
-            ++k;
-            tokens->pos++;
+        for(;;){
+          while(tokens->pos < tokens->len
+          && (k > 0 || tokens->str[tokens->pos] != '"')){
+            if(tokens->str[tokens->pos] == PMATH_CHAR_LEFT_BOX){
+              ++k;
+              tokens->pos++;
+            }
+            else if(tokens->str[tokens->pos] == PMATH_CHAR_RIGHT_BOX){
+              --k;
+              tokens->pos++;
+            }
+            else
+              scan_next(tokens, parser);
           }
-          else if(tokens->str[tokens->pos] == PMATH_CHAR_RIGHT_BOX){
-            --k;
-            tokens->pos++;
-          }
-          else
-            scan_next(tokens, parser);
+          
+          if(tokens->pos < tokens->len)
+            break;
+          
+          if(!read_more(parser))
+            goto END_SCAN;
         }
           
         if(tokens->pos < tokens->len
@@ -904,6 +944,7 @@ static void scan_next(scanner_t *tokens, parser_t *parser){
     }
   }
   
+ END_SCAN:
   if(tokens->span_items)
     tokens->span_items[tokens->pos-1] = 1;
 }
@@ -1700,7 +1741,11 @@ static void skip_whitespace(_pmath_group_t *group){
     && pmath_token_analyse(&group->str[group->pos], 1, NULL) == PMATH_TOK_SPACE)
       ++group->pos;
     
-    if(group->pos + 1 < group->spans->length 
+    if(group->pos < group->spans->length
+    && group->str[group->pos] == '\\'){
+      ++group->pos;
+    }
+    else if(group->pos + 1 < group->spans->length
     && group->str[group->pos]     == '/'
     && group->str[group->pos + 1] == '*'
     && !SPAN_TOK(group->spans->items[group->pos])){
@@ -1739,6 +1784,7 @@ static void emit_span(pmath_span_t *span, _pmath_group_t *group){
     }
     else{
       int start = group->pos;
+      
       while(group->pos < group->spans->length 
       && !SPAN_TOK(group->spans->items[group->pos]))
         ++group->pos;

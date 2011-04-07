@@ -81,6 +81,36 @@ static pmath_bool_t textbuffer_write(void *extra, const uint16_t *str, int len){
   return TRUE;
 }
 
+static pmath_bool_t textbuffer_write_skipping_whitespace(void *extra, const uint16_t *str, int len){
+  struct textbuffer_t *tb = get_textbuffer(extra);
+  int i;
+  
+  if(tb->status != PMATH_FILE_OK)
+    return FALSE;
+  
+  for(i = 0;i < len;){
+    if(str[i] <= ' '){
+      if(i > 0)
+        tb->text = pmath_string_insert_ucs2(tb->text, INT_MAX, str, i);
+      
+      ++i;
+      while(i < len && str[i] <= ' ')
+        ++i;
+      
+      str+= i;
+      len-= i;
+      i = 0;
+    }
+    else
+      ++i;
+  }
+  
+  if(len > 0)
+    tb->text = pmath_string_insert_ucs2(tb->text, INT_MAX, str, len);
+  
+  return TRUE;
+}
+
 static pmath_string_t textbuffer_readln(void *extra){
   struct textbuffer_t *tb = get_textbuffer(extra);
   
@@ -390,15 +420,17 @@ void pmath_file_create_mixed_buffer(
   if(0 == strcmp(encoding, "latin1")){
     binapi.read_function  = textbuffer_read_latin1;
     binapi.write_function = textbuffer_write_latin1;
-    tb->blocklen   = 0;
-    tb->flush_func = NULL;
+    tb->blocklen     = 0;
+    tb->flush_func   = NULL;
   }
   else if(0 == strcmp(encoding, "base85")){
+    txtapi.write_function = textbuffer_write_skipping_whitespace;
+    
     binapi.read_function  = textbuffer_read_base85;
     binapi.write_function = textbuffer_write_base85;
     binapi.flush_function = textbuffer_flush_base85;
-    tb->blocklen   = 5;
-    tb->flush_func = textbuffer_flush_base85;
+    tb->blocklen     = 5;
+    tb->flush_func   = textbuffer_flush_base85;
   }
   else{
     pmath_mem_free(tb);

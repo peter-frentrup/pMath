@@ -856,8 +856,15 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
             } /* fall through */
             
             default:
-              AFTER_STRING(result)[j++] = '\\';
-              AFTER_STRING(result)[j++] = str[i++];
+              if(str[i] <= ' '){
+                ++i;
+                while(i < len && str[i] <= ' ')
+                  ++i;
+              }
+              else{
+                AFTER_STRING(result)[j++] = '\\';
+                AFTER_STRING(result)[j++] = str[i++];
+              }
           }
         }
         else{ 
