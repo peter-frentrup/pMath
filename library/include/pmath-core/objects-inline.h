@@ -16,6 +16,10 @@ struct _pmath_t{ // do not access members
 #define pmath_is_pointer(obj) (((obj).s.tag & PMATH_TAGMASK_POINTER)   == PMATH_TAGMASK_POINTER)
 #define pmath_is_magic(obj)   ((obj).s.tag == PMATH_TAG_MAGIC)
 #define pmath_is_int32(obj)   ((obj).s.tag == PMATH_TAG_INT32)
+#define pmath_is_str0(obj)    ((obj).s.tag == PMATH_TAG_STR0)
+#define pmath_is_str1(obj)    ((obj).s.tag == PMATH_TAG_STR1)
+#define pmath_is_str2(obj)    ((obj).s.tag == PMATH_TAG_STR2)
+#define pmath_is_ministr(obj) (pmath_is_str0(obj) || pmath_is_str1(obj) || pmath_is_str2(obj))
 
 PMATH_FORCE_INLINE
 struct _pmath_t *PMATH_AS_PTR(pmath_t obj){
@@ -60,7 +64,8 @@ pmath_bool_t pmath_is_pointer_of(pmath_t obj, pmath_type_t type){
 #define pmath_is_number(obj)   (pmath_is_float(obj) || pmath_is_rational(obj))
 #define pmath_is_quotient(obj) (pmath_is_pointer_of(obj, PMATH_TYPE_QUOTIENT))
 #define pmath_is_rational(obj) (pmath_is_integer(obj) || pmath_is_quotient(obj))
-#define pmath_is_string(obj)   (pmath_is_pointer_of(obj, PMATH_TYPE_STRING))
+#define pmath_is_bigstr(obj)   (pmath_is_pointer_of(obj, PMATH_TYPE_BIGSTRING))
+#define pmath_is_string(obj)   (pmath_is_ministr(obj) || pmath_is_bigstr(obj))
 #define pmath_is_symbol(obj)   (pmath_is_pointer_of(obj, PMATH_TYPE_SYMBOL))
 
 PMATH_FORCE_INLINE

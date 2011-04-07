@@ -27,7 +27,7 @@ static size_t bytecount(
            + (PMATH_AS_MP_ERROR(obj)->_mpfr_prec + 8 * sizeof(mp_limb_t) - 1) / 8
            + sizeof(struct _pmath_mp_float_t);
     
-    case PMATH_TYPE_SHIFT_STRING:
+    case PMATH_TYPE_SHIFT_BIGSTRING:
       return LENGTH_TO_CAPACITY(pmath_string_length(obj)) * sizeof(uint16_t)
            + STRING_HEADER_SIZE;
     

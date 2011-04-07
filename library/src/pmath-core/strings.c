@@ -24,6 +24,8 @@ static iconv_t from_utf8 = (iconv_t)-1;
 static iconv_t to_native   = (iconv_t)-1;
 static iconv_t from_native = (iconv_t)-1;
 
+
+
 PMATH_PRIVATE 
 struct _pmath_string_t *_pmath_new_string_buffer(int size){
   size_t bytes;
@@ -39,7 +41,7 @@ struct _pmath_string_t *_pmath_new_string_buffer(int size){
     return NULL;
   
   result = (void*)PMATH_AS_PTR(_pmath_create_stub(
-    PMATH_TYPE_SHIFT_STRING, 
+    PMATH_TYPE_SHIFT_BIGSTRING, 
     STRING_HEADER_SIZE + bytes));
   if(!result)
     return result;
@@ -49,6 +51,38 @@ struct _pmath_string_t *_pmath_new_string_buffer(int size){
   result->capacity_or_start = size;
 
   return result;
+}
+
+PMATH_PRIVATE
+pmath_t _pmath_from_buffer(struct _pmath_string_t *b){
+  if(b && b->length <= 2){
+    pmath_t result;
+    const uint16_t *buf = (b->buffer ? AFTER_STRING(b->buffer) + b->capacity_or_start : AFTER_STRING(b));
+    
+    switch(b->length){
+      case 0:
+        result.s.tag = PMATH_TAG_STR0;
+        result.s.u.as_int32 = 0;
+        pmath_unref(PMATH_FROM_PTR(b));
+        return result;
+      
+      case 1:
+        result.s.tag = PMATH_TAG_STR1;
+        result.s.u.as_chars[0] = buf[0];
+        result.s.u.as_chars[1] = 0;
+        pmath_unref(PMATH_FROM_PTR(b));
+        return result;
+        
+      case 2:
+        result.s.tag = PMATH_TAG_STR2;
+        result.s.u.as_chars[0] = buf[0];
+        result.s.u.as_chars[1] = buf[1];
+        pmath_unref(PMATH_FROM_PTR(b));
+        return result;
+    }
+  }
+  
+  return PMATH_FROM_PTR(b);
 }
 
 PMATH_PRIVATE 
@@ -115,15 +149,81 @@ struct _pmath_string_t *enlarge_string(
 
   memcpy(
     AFTER_STRING(result),
-    pmath_string_buffer(PMATH_FROM_PTR(string)),
+    pmath_bigstring_buffer(PMATH_FROM_PTR(string)),
     extra_start * sizeof(uint16_t));
     
   memcpy(
     AFTER_STRING(result) + extra_start + extralen,
-    pmath_string_buffer(PMATH_FROM_PTR(string)) + extra_start,
+    pmath_bigstring_buffer(PMATH_FROM_PTR(string)) + extra_start,
     (string->length - extra_start) * sizeof(uint16_t));
 
   pmath_unref(PMATH_FROM_PTR(string));
+  return result;
+}
+
+static
+struct _pmath_string_t *enlarge_string_2(
+  pmath_string_t string,
+  int            extra_start,
+  int            extralen
+){
+  struct _pmath_string_t *result;
+  uint16_t *buffer;
+  
+  if(pmath_is_pointer(string)){
+    return enlarge_string(
+      (struct _pmath_string_t*)PMATH_AS_PTR(string), extra_start, extralen);
+  }
+  
+  assert(pmath_is_ministr(string));
+  assert(extra_start >= 0);
+  assert(extralen >= 0);
+  
+  if(pmath_is_str0(string)){
+    assert(extra_start == 0);
+    return _pmath_new_string_buffer(extralen);
+  }
+  
+  if(pmath_is_str1(string)){
+    assert(extra_start <= 1);
+    
+    result = _pmath_new_string_buffer(1 + extralen);
+    if(!result)
+      return NULL;
+    
+    buffer = AFTER_STRING(result);
+    
+    if(extra_start == 0){
+      buffer[extralen] = string.s.u.as_chars[0];
+    }
+    else{
+      buffer[0] = string.s.u.as_chars[0];
+    }
+    
+    return result;
+  }
+  
+  assert(pmath_is_str2(string));
+  assert(extra_start <= 2);
+  
+  result = _pmath_new_string_buffer(2 + extralen);
+  if(!result)
+    return NULL;
+  
+  buffer = AFTER_STRING(result);
+  if(extra_start == 0){
+    buffer[extralen]   = string.s.u.as_chars[0];
+    buffer[extralen+1] = string.s.u.as_chars[1];
+  }
+  else if(extra_start == 0){
+    buffer[0]          = string.s.u.as_chars[0];
+    buffer[extralen+1] = string.s.u.as_chars[1];
+  }
+  else{
+    buffer[0] = string.s.u.as_chars[0];
+    buffer[1] = string.s.u.as_chars[1];
+  }
+  
   return result;
 }
 
@@ -136,7 +236,8 @@ static void destroy_string(pmath_t p){
   pmath_mem_free(str);
 }
 
-static pmath_bool_t equal_strings(
+PMATH_PRIVATE
+pmath_bool_t _pmath_strings_equal(
   pmath_t strA,
   pmath_t strB
 ){
@@ -158,7 +259,8 @@ static pmath_bool_t equal_strings(
   return TRUE;
 }
 
-static int compare_strings(
+PMATH_PRIVATE 
+int _pmath_strings_compare(
   pmath_t strA,
   pmath_t strB
 ){
@@ -182,10 +284,31 @@ static int compare_strings(
 }
 
 static unsigned int hash_string(pmath_t str){
-  return incremental_hash(
-    pmath_string_buffer(str),
-    (size_t)pmath_string_length(str) * sizeof(uint16_t),
-    0);
+  int len             = pmath_string_length(str);
+  const uint16_t *buf = pmath_string_buffer(str);
+  
+  if(len <= 2){ /* could be a ministr */
+    pmath_t tmp;
+    switch(len){
+      case 0:
+        tmp.s.tag = PMATH_TAG_STR0;
+        tmp.s.u.as_int32 = 0;
+        
+      case 1:
+        tmp.s.tag = PMATH_TAG_STR1;
+        tmp.s.u.as_chars[0] = buf[0];
+        tmp.s.u.as_chars[1] = 0;
+        
+      case 2:
+        tmp.s.tag = PMATH_TAG_STR2;
+        tmp.s.u.as_chars[0] = buf[0];
+        tmp.s.u.as_chars[1] = buf[1];
+    }
+    
+    return incremental_hash(&tmp, sizeof(pmath_t), 0); 
+  }
+  
+  return incremental_hash(buf, (size_t)len * sizeof(uint16_t), 0);
 }
 
 PMATH_PRIVATE
@@ -377,7 +500,8 @@ static void write_boxes(
     pmath_write(box, options, write, user);
 }
 
-static void write_string(
+PMATH_PRIVATE 
+void _pmath_string_write(
   pmath_t                 str,
   pmath_write_options_t   options,
   pmath_write_func_t      write,
@@ -497,7 +621,18 @@ static void write_string(
 
 PMATH_API 
 pmath_string_t pmath_string_new(int capacity){
-  struct _pmath_string_t *result = _pmath_new_string_buffer(capacity);
+  struct _pmath_string_t *result;
+  
+  assert(capacity >= 0);
+  
+  if(capacity <= 2){
+    pmath_string_t str;
+    str.s.tag = PMATH_TAG_STR0;
+    str.s.u.as_int32 = 0;
+    return str;
+  }
+  
+  result = _pmath_new_string_buffer(capacity);
   if(!result)
     return PMATH_NULL;
 
@@ -526,8 +661,12 @@ PMATH_API pmath_string_t pmath_string_insert_latin1(
     return str;
   }
 
-  if(pmath_is_null(str))
+  if(pmath_is_null(str) || pmath_is_str0(str))
     len = 0;
+  else if(pmath_is_str1(str))
+    len = 1;
+  else if(pmath_is_str2(str))
+    len = 2;
   else
     len = ((struct _pmath_string_t*)PMATH_AS_PTR(str))->length;
   
@@ -536,16 +675,15 @@ PMATH_API pmath_string_t pmath_string_insert_latin1(
   else if(inspos > len)
     inspos = len;
   
-  result = enlarge_string(
-    (struct _pmath_string_t*)PMATH_AS_PTR(str), inspos, inslen);
+  result = enlarge_string_2(str, inspos, inslen);
   if(!result)
     return PMATH_NULL;
-
+  
   ucs = AFTER_STRING(result) + inspos;
   while(inslen-- > 0)
     *ucs++ = (uint16_t)(unsigned char)*ins++;
 
-  return PMATH_FROM_PTR(result);
+  return _pmath_from_buffer(result);
 }
 
 PMATH_API 
@@ -593,13 +731,13 @@ pmath_string_t pmath_string_from_utf8(
       }
       else if(errno == EINVAL){ // incomplete input
         result->length = ((size_t)outbuf - (size_t)AFTER_STRING(result)) / 2;
-        return PMATH_FROM_PTR(result);
+        return _pmath_from_buffer(result);
       }
     }
   }
   
   result->length = ((size_t)outbuf - (size_t)AFTER_STRING(result)) / 2;
-  return PMATH_FROM_PTR(result);
+  return _pmath_from_buffer(result);
 }
 
 PMATH_API 
@@ -766,26 +904,29 @@ pmath_string_t pmath_string_insert_codepage(
     return str;
   }
 
-  if(pmath_is_null(str))
+  if(pmath_is_null(str) || pmath_is_str0(str))
     len = 0;
+  else if(pmath_is_str1(str))
+    len = 1;
+  else if(pmath_is_str2(str))
+    len = 2;
   else
     len = ((struct _pmath_string_t*)PMATH_AS_PTR(str))->length;
-    
+  
   if(inspos < 0)
     inspos = 0;
   else if(inspos > len)
     inspos = len;
   
-  result = enlarge_string(
-    (struct _pmath_string_t*)PMATH_AS_PTR(str), inspos, inslen);
+  result = enlarge_string_2(str, inspos, inslen);
   if(!result)
     return PMATH_NULL;
-
+  
   ucs = AFTER_STRING(result) + inspos;
   while(inslen-- > 0)
     *ucs++ = cp[(unsigned char)*ins++];
 
-  return PMATH_FROM_PTR(result);
+  return _pmath_from_buffer(result);
 }
 
 PMATH_API 
@@ -812,26 +953,29 @@ pmath_string_t pmath_string_insert_ucs2(
     return str;
   }
 
-  if(pmath_is_null(str))
+  if(pmath_is_null(str) || pmath_is_str0(str))
     len = 0;
+  else if(pmath_is_str1(str))
+    len = 1;
+  else if(pmath_is_str2(str))
+    len = 2;
   else
     len = ((struct _pmath_string_t*)PMATH_AS_PTR(str))->length;
-    
+  
   if(inspos < 0)
     inspos = 0;
   else if(inspos > len)
     inspos = len;
   
-  result = enlarge_string(
-    (struct _pmath_string_t*)PMATH_AS_PTR(str), inspos, inslen);
+  result = enlarge_string_2(str, inspos, inslen);
   if(!result)
     return PMATH_NULL;
-
+  
   ucs = AFTER_STRING(result) + inspos;
   while(inslen-- > 0)
     *ucs++ = *ins++;
 
-  return PMATH_FROM_PTR(result);
+  return _pmath_from_buffer(result);
 }
 
 PMATH_API 
@@ -841,9 +985,50 @@ pmath_string_t pmath_string_insert(
   pmath_string_t ins
 ){
   pmath_string_t result;
+  struct _pmath_string_t *_str;
+  struct _pmath_string_t *_ins;
   
-  struct _pmath_string_t *_str = (struct _pmath_string_t*)PMATH_AS_PTR(str);
-  struct _pmath_string_t *_ins = (struct _pmath_string_t*)PMATH_AS_PTR(ins);
+  if(pmath_is_ministr(ins)){
+    int len = 0;
+    if(pmath_is_str1(ins))
+      len = 1;
+    if(pmath_is_str2(ins))
+      len = 2;
+    
+    return pmath_string_insert_ucs2(str, inspos, ins.s.u.as_chars, len);
+  }
+  
+  _ins = (struct _pmath_string_t*)PMATH_AS_PTR(ins);
+  
+  if(pmath_is_str0(str)){
+    _str = NULL;
+  }
+  else if(pmath_is_str1(str)){
+    _str = _pmath_new_string_buffer(1);
+    
+    if(_str == NULL){
+      pmath_unref(ins);
+      return PMATH_NULL;
+    }
+    
+    AFTER_STRING(_str)[0] = str.s.u.as_chars[0];
+    str = PMATH_FROM_PTR(_str);
+  }
+  else if(pmath_is_str2(str)){
+    _str = _pmath_new_string_buffer(2);
+    
+    if(_str == NULL){
+      pmath_unref(ins);
+      return PMATH_NULL;
+    }
+    
+    AFTER_STRING(_str)[0] = str.s.u.as_chars[0];
+    AFTER_STRING(_str)[1] = str.s.u.as_chars[1];
+    str = PMATH_FROM_PTR(_str);
+  }
+  else{
+    _str = (struct _pmath_string_t*)PMATH_AS_PTR(str);
+  }
   
   if(_str && _ins 
   && _str->buffer
@@ -908,11 +1093,59 @@ pmath_string_t pmath_string_part(
   if(pmath_is_null(string))
     return PMATH_NULL;
   
+  if(pmath_is_str0(string))
+    return string;
+  
+  if(length == 0){
+    pmath_unref(string);
+    
+    string.s.tag = PMATH_TAG_STR0;
+    string.s.u.as_chars[0] = 0;
+    string.s.u.as_chars[1] = 0;
+    return string;
+  }
+  
+  if(pmath_is_str1(string)){
+    if(start == 0)
+      return string;
+    
+    string.s.tag = PMATH_TAG_STR0;
+    string.s.u.as_chars[0] = 0;
+    return string;
+  }
+  
+  if(pmath_is_str2(string)){
+    if(start == 0){
+      if(length == 1){
+        string.s.tag = PMATH_TAG_STR1;
+        string.s.u.as_chars[1] = 0;
+      }
+      
+      return string;
+    }
+    
+    if(start == 1){
+      string.s.tag = PMATH_TAG_STR1;
+      string.s.u.as_chars[0] = string.s.u.as_chars[1];
+      string.s.u.as_chars[1] = 0;
+      return string;
+    }
+    
+    string.s.tag = PMATH_TAG_STR0;
+    string.s.u.as_chars[0] = 0;
+    string.s.u.as_chars[1] = 0;
+    return string;
+  }
+  
   _str = (struct _pmath_string_t*)PMATH_AS_PTR(string);
   
   if(start < 0 || start >= _str->length){
     pmath_unref(string);
-    return pmath_string_new(0);
+    
+    string.s.tag = PMATH_TAG_STR0;
+    string.s.u.as_chars[0] = 0;
+    string.s.u.as_chars[1] = 0;
+    return string;
   }
 
   if(length < 0
@@ -922,11 +1155,34 @@ pmath_string_t pmath_string_part(
 
   if(length <= 0){
     pmath_unref(string);
-    return pmath_string_new(0);
+    
+    string.s.tag = PMATH_TAG_STR0;
+    string.s.u.as_chars[0] = 0;
+    string.s.u.as_chars[1] = 0;
+    return string;
   }
 
   if(length == _str->length)
     return string;
+  
+  if(length <= 2){
+    pmath_t result;
+    const uint16_t *buffer = start + (_str->buffer ? AFTER_STRING(_str->buffer) + _str->capacity_or_start : AFTER_STRING(_str));
+    
+    if(length == 1){
+      result.s.tag = PMATH_TAG_STR1;
+      result.s.u.as_chars[0] = buffer[0];
+      result.s.u.as_chars[1] = 0;
+      pmath_unref(string);
+      return result;
+    }
+    
+    result.s.tag = PMATH_TAG_STR2;
+    result.s.u.as_chars[0] = buffer[0];
+    result.s.u.as_chars[1] = buffer[1];
+    pmath_unref(string);
+    return result;
+  }
 
   if(_str->inherited.refcount == 1){
     if(_str->buffer){
@@ -934,6 +1190,7 @@ pmath_string_t pmath_string_part(
       _str->length            = length;
       return string;
     }
+    
     if(start == 0){
       _str->length = length;
       return string;
@@ -958,25 +1215,27 @@ pmath_string_t pmath_string_part(
   
   {
     struct _pmath_string_t *result = (void*)PMATH_AS_PTR(_pmath_create_stub(
-      PMATH_TYPE_SHIFT_STRING,
+      PMATH_TYPE_SHIFT_BIGSTRING,
       sizeof(struct _pmath_string_t)));
     
-    if(!result)
-      return PMATH_FROM_PTR(result);
+    if(!result){
+      pmath_unref(string);
+      return PMATH_NULL;
+    }
     
     result->length            = length;
     result->buffer            = _str;
     result->capacity_or_start = start;
 
-    return PMATH_FROM_PTR(result);
+    return PMATH_FROM_PTR(result); /* already know length > 2 */
   }
 }
 
 PMATH_API 
-const uint16_t *pmath_string_buffer(pmath_string_t string){
+const uint16_t *pmath_bigstring_buffer(pmath_string_t string){
   struct _pmath_string_t *_str;
   
-  if(pmath_is_null(string))
+  if(pmath_is_null(string) || pmath_is_ministr(string))
     return NULL;
   
   assert(pmath_is_string(string));
@@ -992,10 +1251,16 @@ PMATH_API
 int pmath_string_length(pmath_string_t string){
   struct _pmath_string_t *_str;
   
-  if(pmath_is_null(string))
+  if(pmath_is_null(string) || pmath_is_str0(string))
     return 0;
   
-  assert(pmath_is_string(string));
+  if(pmath_is_str1(string))
+    return 1;
+  
+  if(pmath_is_str2(string))
+    return 2;
+  
+  assert(pmath_is_bigstr(string));
   
   _str = (void*)PMATH_AS_PTR(string);
   
@@ -1060,7 +1325,7 @@ pmath_string_t pmath_string_from_native(
   }
   
   result->length = ((size_t)outbuf - (size_t)AFTER_STRING(result))/2;
-  return PMATH_FROM_PTR(result);
+  return _pmath_from_buffer(result);
 }
 
 PMATH_API 
@@ -1104,12 +1369,12 @@ char *pmath_string_to_native(pmath_string_t str, int *result_len){
 PMATH_PRIVATE 
 pmath_bool_t _pmath_strings_init(void){
   _pmath_init_special_type(
-    PMATH_TYPE_SHIFT_STRING,
-    compare_strings,
+    PMATH_TYPE_SHIFT_BIGSTRING,
+    _pmath_strings_compare,
     hash_string,
     destroy_string,
-    equal_strings,
-    write_string);
+    _pmath_strings_equal,
+    _pmath_string_write);
   
   to_utf8 = iconv_open(
     "UTF-8",

@@ -873,7 +873,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
       if(i + 1 == len && str[i] == '"'){
         pmath_unref(box);
         result->length = j;
-        return HOLDCOMPLETE(PMATH_FROM_PTR(result));
+        return HOLDCOMPLETE(_pmath_from_buffer(result));
       }
     }
     

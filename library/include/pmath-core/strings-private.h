@@ -53,6 +53,27 @@ PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
 struct _pmath_string_t *_pmath_new_string_buffer(int size);
 
+PMATH_PRIVATE
+PMATH_ATTRIBUTE_USE_RESULT
+pmath_t _pmath_from_buffer(struct _pmath_string_t *b);
+
+PMATH_PRIVATE
+pmath_bool_t _pmath_strings_equal(
+  pmath_t strA,
+  pmath_t strB);
+
+PMATH_PRIVATE 
+int _pmath_strings_compare(
+  pmath_t strA,
+  pmath_t strB);
+
+PMATH_PRIVATE 
+void _pmath_string_write(
+  pmath_t                 str,
+  pmath_write_options_t   options,
+  pmath_write_func_t      write,
+  void                   *user);
+
 PMATH_PRIVATE void write_cstr(
   const char          *str, 
   pmath_write_func_t   write_ucs2, 

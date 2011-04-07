@@ -691,5 +691,7 @@ pmath_bool_t pmath_register_approx_code(
 #define PMATH_SYMBOL_BITAND                                 PMATH_SYMBOL_BUILTIN(599)
 #define PMATH_SYMBOL_BITOR                                  PMATH_SYMBOL_BUILTIN(600)
 #define PMATH_SYMBOL_BITXOR                                 PMATH_SYMBOL_BUILTIN(601)
+#define PMATH_SYMBOL_COMPRESSSTREAM                         PMATH_SYMBOL_BUILTIN(602)
+#define PMATH_SYMBOL_UNCOMPRESSSTREAM                       PMATH_SYMBOL_BUILTIN(603)
 
 #endif /* __PMATH_BUILTINS__SYMBOLS_H__ */

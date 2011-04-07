@@ -180,6 +180,7 @@ NestWhile::nwargs:= NestWhileList::nwargs:= "Argument `1` in `2` is not of the f
 Norm::ptype:= "The second argument of Norm, `1`, should be a symbol, Infinity, or an integer or real number not less than 1 for vector p-norms; or 1, 2, Infinity, or \"Frobenius\" for matrix norms."
 
 OpenAppend::charcode:= OpenRead::charcode:= OpenWrite::charcode:= "`1` is not a valid character encoding."
+OpenRead::text:= OpenWrite::text:= "BinaryFormat->False expected for reopening the binary stream `1`."
 
 Options::optnf:= OptionValue::optnf:= SetOptions::optnf:= "`1` is not a known option for `2`."
 

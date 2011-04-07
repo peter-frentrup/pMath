@@ -30,6 +30,9 @@
 #define PMATH_TAG_INVALID        (PMATH_TAGMASK_NONDOUBLE | 0xFFFFF)
 #define PMATH_TAG_MAGIC          (PMATH_TAGMASK_NONDOUBLE | 0x10000)
 #define PMATH_TAG_INT32          (PMATH_TAGMASK_NONDOUBLE | 0x20000)
+#define PMATH_TAG_STR0           (PMATH_TAGMASK_NONDOUBLE | 0x30000)
+#define PMATH_TAG_STR1           (PMATH_TAGMASK_NONDOUBLE | 0x40000)
+#define PMATH_TAG_STR2           (PMATH_TAGMASK_NONDOUBLE | 0x50000)
 
 /**\class pmath_t
    \brief The basic type of all pMath objects.
@@ -38,10 +41,10 @@
    You must free unused objects with pmath_unref(), but if pmath_is_pointer() 
    gives FALSE, then calling pmath_ref() and pmath_unref() is not neccessary.
    
-   machine precision floating values (aka double) and certain special values
-   are stored directly in the pmath_t object. Strings, expressions, other values
-   are stored as a pointer. The technique to pack all this in only 8 bytes is 
-   called NaN-boxing. See 
+   machine precision floating point values (aka double) and certain special 
+   values are stored directly in the pmath_t object. Long strings, expressions, 
+   other values are stored as a pointer. The technique to pack all this in only 
+   8 bytes is called NaN-boxing. See 
    http://blog.mozilla.com/rob-sayre/2010/08/02/mozillas-new-javascript-value-representation
  */
 typedef union{
@@ -56,6 +59,7 @@ typedef union{
     #if PMATH_BYTE_ORDER < 0 // little endian 
 			union{
 				int32_t  as_int32;
+				uint16_t as_chars[2];
 				#if PMATH_BITSIZE == 32
 					struct _pmath_t *as_pointer_32;
 				#endif
@@ -65,6 +69,7 @@ typedef union{
 			uint32_t  tag;
 			union{
 				int32_t   as_int32;
+				uint16_t as_chars[2];
 				#if PMATH_BITSIZE == 32
 					struct _pmath_t *as_pointer_32;
 				#endif
@@ -134,7 +139,7 @@ static const pmath_t PMATH_NULL      = PMATH_STATIC_NULL;
      integer values, where the denominator is never 0 or 1. You can cast 
      quotient objects to pmath_rational_t and thus to pmath_number_t too.
 
-   - \c PMATH_TYPE_STRING: The object is a string. You can cast it to
+   - \c PMATH_TYPE_BIGSTRING: The object is a string. You can cast it to
      \ref pmath_string_t.
 
    - \c PMATH_TYPE_SYMBOL: The object is a symbol. You can cast it to
@@ -149,7 +154,7 @@ enum {
   PMATH_TYPE_SHIFT_MP_FLOAT = 0,
   PMATH_TYPE_SHIFT_MP_INT,
   PMATH_TYPE_SHIFT_QUOTIENT,
-  PMATH_TYPE_SHIFT_STRING,
+  PMATH_TYPE_SHIFT_BIGSTRING,
   PMATH_TYPE_SHIFT_SYMBOL,
   PMATH_TYPE_SHIFT_EXPRESSION_GENERAL,
   PMATH_TYPE_SHIFT_EXPRESSION_GENERAL_PART,
@@ -163,7 +168,7 @@ enum {
   PMATH_TYPE_MP_INT                  = 1 << PMATH_TYPE_SHIFT_MP_INT,
   PMATH_TYPE_QUOTIENT                = 1 << PMATH_TYPE_SHIFT_QUOTIENT,
   PMATH_TYPE_MP_FLOAT                = 1 << PMATH_TYPE_SHIFT_MP_FLOAT,
-  PMATH_TYPE_STRING                  = 1 << PMATH_TYPE_SHIFT_STRING,
+  PMATH_TYPE_BIGSTRING               = 1 << PMATH_TYPE_SHIFT_BIGSTRING,
   PMATH_TYPE_SYMBOL                  = 1 << PMATH_TYPE_SHIFT_SYMBOL,
   PMATH_TYPE_EXPRESSION_GENERAL      = 1 << PMATH_TYPE_SHIFT_EXPRESSION_GENERAL,
   PMATH_TYPE_EXPRESSION_GENERAL_PART = 1 << PMATH_TYPE_SHIFT_EXPRESSION_GENERAL_PART,

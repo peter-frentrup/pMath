@@ -190,6 +190,45 @@ static void serialize(
     return;
   }
   
+  if(pmath_is_ministr(object)){
+    if(pmath_is_str0(object)){
+      write_ui8( info->file, TAG_STR8);
+      write_ui32(info->file, 0);
+      return;
+    }
+    
+    if(pmath_is_str1(object)){
+      if(object.s.u.as_chars[0] <= 0xFF){
+        write_ui8( info->file, TAG_STR8);
+        write_ui32(info->file, 1);
+        write_ui8(info->file, (uint8_t)object.s.u.as_chars[0]);
+        return;
+      }
+      
+      write_ui8( info->file, TAG_STR16);
+      write_ui32(info->file, 1);
+      write_ui16(info->file, object.s.u.as_chars[0]);
+      return;
+    }
+    
+    assert(pmath_is_str2(object));
+    
+    if(object.s.u.as_chars[0] <= 0xFF
+    && object.s.u.as_chars[1] <= 0xFF){
+      write_ui8( info->file, TAG_STR8);
+      write_ui32(info->file, 2);
+      write_ui8(info->file, (uint8_t)object.s.u.as_chars[0]);
+      write_ui8(info->file, (uint8_t)object.s.u.as_chars[1]);
+      return;
+    }
+      
+    write_ui8( info->file, TAG_STR16);
+    write_ui32(info->file, 2);
+    write_ui16(info->file, object.s.u.as_chars[0]);
+    write_ui16(info->file, object.s.u.as_chars[1]);
+    return;
+  }
+  
   if(!pmath_is_pointer(object)){
     pmath_unref(object);
     if(!info->error)
@@ -224,7 +263,7 @@ static void serialize(
   }
   
   switch(PMATH_AS_PTR(object)->type_shift){
-    case PMATH_TYPE_SHIFT_STRING: {
+    case PMATH_TYPE_SHIFT_BIGSTRING: {
       const uint16_t *buf =    pmath_string_buffer(object);
       uint32_t len = (uint32_t)pmath_string_length(object);
       unsigned int i;
@@ -479,7 +518,7 @@ static pmath_t deserialize(struct deserializer_t *info){
           buf[len] = data[len];
       }
       
-      return PMATH_FROM_PTR(result);
+      return _pmath_from_buffer(result);
     }
 
     case TAG_STR16: {
@@ -519,7 +558,7 @@ static pmath_t deserialize(struct deserializer_t *info){
       }
       #endif
       
-      return PMATH_FROM_PTR(result);
+      return _pmath_from_buffer(result);
     }
     
     case TAG_SYMBOL: {

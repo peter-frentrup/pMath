@@ -120,7 +120,7 @@ PMATH_PRIVATE pmath_t builtin_environment(pmath_expr_t expr){
           GetEnvironmentVariableW(pmath_string_buffer(name), AFTER_STRING(result), len);
           pmath_unref(name);
           result->length = len-1;
-          return PMATH_FROM_PTR(result);
+          return _pmath_from_buffer(result);
         }
       }
     }

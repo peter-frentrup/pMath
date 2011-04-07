@@ -165,7 +165,7 @@ static pmath_t concat_strings(pmath_expr_t expr){
   }
 
   pmath_unref(expr);
-  return PMATH_FROM_PTR(result);
+  return _pmath_from_buffer(result);
 }
 
 PMATH_PRIVATE pmath_t builtin_join(pmath_expr_t expr){

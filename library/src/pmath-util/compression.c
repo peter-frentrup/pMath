@@ -70,7 +70,7 @@ static size_t compressor_inflate(
 ){
   int ret = Z_OK;
   if(data->status != PMATH_FILE_OK)
-    return data->status;
+    return 0;
   
   data->info.next_out  = buffer;
   data->info.avail_out = buffer_size;

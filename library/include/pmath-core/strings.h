@@ -265,9 +265,11 @@ pmath_string_t pmath_string_part(
 
    Do not forget that pMath strings are not zero-terminated.
  */
+#define pmath_string_buffer(string)  (pmath_is_ministr(string) ? (string).s.u.as_chars : pmath_bigstring_buffer(string))
+ 
 PMATH_API 
 PMATH_ATTRIBUTE_PURE
-const uint16_t *pmath_string_buffer(pmath_string_t string);
+const uint16_t *pmath_bigstring_buffer(pmath_string_t string);
 
 /**\brief Get a string's length.
    \memberof pmath_string_t

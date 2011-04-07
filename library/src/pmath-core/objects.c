@@ -138,6 +138,10 @@ PMATH_API pmath_bool_t pmath_equals(
     eqA  = _pmath_numbers_equal;
     cmpA = _pmath_numbers_compare;
   }
+  else if(pmath_is_ministr(objA)){
+    eqA  = _pmath_strings_equal;
+    cmpA = _pmath_strings_compare;
+  }
   else
     return FALSE;
   
@@ -148,6 +152,10 @@ PMATH_API pmath_bool_t pmath_equals(
   else if(pmath_is_double(objB)){
     eqB  = _pmath_numbers_equal;
     cmpB = _pmath_numbers_compare;
+  }
+  else if(pmath_is_ministr(objB)){
+    eqB  = _pmath_strings_equal;
+    cmpB = _pmath_strings_compare;
   }
   else
     return FALSE;
@@ -174,12 +182,18 @@ PMATH_API int pmath_compare(pmath_t objA, pmath_t objB){
   if(pmath_is_double(objA) || pmath_is_int32(objA)){
     cmpA = _pmath_numbers_compare;
   }
+  else if(pmath_is_ministr(objA)){
+    cmpA = _pmath_strings_compare;
+  }
   else if(pmath_is_pointer(objA) && PMATH_AS_PTR(objA) != NULL){
     cmpA = pmath_type_imps[PMATH_AS_PTR(objA)->type_shift].compare;
   }
   
   if(pmath_is_double(objB) || pmath_is_int32(objB)){
     cmpB = _pmath_numbers_compare;
+  }
+  else if(pmath_is_ministr(objB)){
+    cmpB = _pmath_strings_compare;
   }
   else if(pmath_is_pointer(objB) && PMATH_AS_PTR(objB) != NULL){
     cmpB = pmath_type_imps[PMATH_AS_PTR(objB)->type_shift].compare;
@@ -268,6 +282,11 @@ PMATH_API void pmath_write(
   
   if(pmath_is_int32(obj)){
     _pmath_write_machine_int(obj, options, write, user);
+    return;
+  }
+  
+  if(pmath_is_ministr(obj)){
+    _pmath_string_write(obj, options, write, user);
     return;
   }
   

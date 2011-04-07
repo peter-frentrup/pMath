@@ -390,6 +390,7 @@ static void skip_space(parser_t *parser, int span_start, pmath_bool_t optional){
       
       parser->code = pmath_string_insert_latin1(parser->code, INT_MAX, "\n", 1);
       parser->code = pmath_string_concat(parser->code, newline);
+      
       if(parser->spans->length != pmath_string_length(parser->code)){
         pmath_unref(newline);
         handle_error(parser);
@@ -2121,7 +2122,7 @@ PMATH_API pmath_span_array_t *pmath_spans_from_boxes(
     return NULL;
   }
   
-  g.str      = AFTER_STRING(PMATH_AS_PTR(*result_string));
+  g.str      = (uint16_t*)pmath_string_buffer(*result_string);
   g.pos      = 0;
   g.make_box = make_box;
   g.data     = data;

@@ -453,7 +453,7 @@ pmath_t _pmath_stringform_to_boxes(
       
       buf[rlen] = '"';
       pmath_unref(result);
-      result = PMATH_FROM_PTR(all);
+      result = _pmath_from_buffer(all);
     }
   }
   else if(pmath_is_string(result)){
@@ -557,5 +557,5 @@ pmath_string_t _pmath_string_escape(
     sizeof(uint16_t) * pmath_string_length(postfix));
   pmath_unref(postfix);
   
-  return PMATH_FROM_PTR(result);
+  return _pmath_from_buffer(result);
 }

@@ -3003,6 +3003,19 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj){
     return s;
   }
   
+  if(pmath_is_ministr(obj)){
+    pmath_string_t quote = PMATH_C_STRING("\"");
+
+    obj = _pmath_string_escape(
+      pmath_ref(quote),
+      obj,
+      pmath_ref(quote),
+      thread->boxform >= BOXFORM_INPUT);
+
+    pmath_unref(quote);
+    return obj;
+  }
+  
   if(!pmath_is_pointer(obj)){
     char s[80];
     
@@ -3131,7 +3144,7 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj){
       return result;
     }
 
-    case PMATH_TYPE_SHIFT_STRING: {
+    case PMATH_TYPE_SHIFT_BIGSTRING: {
       pmath_string_t quote = PMATH_C_STRING("\"");
 
       obj = _pmath_string_escape(

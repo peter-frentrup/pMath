@@ -56,7 +56,7 @@ static pmath_string_t get_directory(void){
     }
     
     pmath_mem_free(buffer);
-    return PMATH_FROM_PTR(result);
+    return _pmath_from_buffer(result);
   }
   #else
   {
@@ -136,7 +136,7 @@ pmath_string_t _pmath_canonical_file_name(pmath_string_t relname){
     }
     
     pmath_unref(relname);
-    return PMATH_FROM_PTR(result);
+    return _pmath_from_buffer(result);
   }
   #else
   {
@@ -241,7 +241,7 @@ pmath_string_t _pmath_canonical_file_name(pmath_string_t relname){
       --enddir;
     
     result->length = enddir;
-    return PMATH_FROM_PTR(result);
+    return _pmath_from_buffer(result);
   }
   #endif
 }

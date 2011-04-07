@@ -11,6 +11,9 @@ PMATH_PRIVATE pmath_t _pmath_object_head(pmath_t obj){ // obj wont be freed
   if(pmath_is_int32(obj))
     return pmath_ref(PMATH_SYMBOL_INTEGER);
   
+  if(pmath_is_ministr(obj))
+    return pmath_ref(PMATH_SYMBOL_STRING);
+  
   if(!pmath_is_pointer(obj))
     return pmath_ref(PMATH_SYMBOL_UNDEFINED);
   
@@ -18,11 +21,11 @@ PMATH_PRIVATE pmath_t _pmath_object_head(pmath_t obj){ // obj wont be freed
     return PMATH_NULL;
   
   switch(PMATH_AS_PTR(obj)->type_shift){
-    case PMATH_TYPE_SHIFT_MP_FLOAT: return pmath_ref(PMATH_SYMBOL_REAL);
-    case PMATH_TYPE_SHIFT_MP_INT:   return pmath_ref(PMATH_SYMBOL_INTEGER);
-    case PMATH_TYPE_SHIFT_QUOTIENT: return pmath_ref(PMATH_SYMBOL_RATIONAL);
-    case PMATH_TYPE_SHIFT_STRING:   return pmath_ref(PMATH_SYMBOL_STRING);
-    case PMATH_TYPE_SHIFT_SYMBOL:   return pmath_ref(PMATH_SYMBOL_SYMBOL);
+    case PMATH_TYPE_SHIFT_MP_FLOAT:  return pmath_ref(PMATH_SYMBOL_REAL);
+    case PMATH_TYPE_SHIFT_MP_INT:    return pmath_ref(PMATH_SYMBOL_INTEGER);
+    case PMATH_TYPE_SHIFT_QUOTIENT:  return pmath_ref(PMATH_SYMBOL_RATIONAL);
+    case PMATH_TYPE_SHIFT_BIGSTRING: return pmath_ref(PMATH_SYMBOL_STRING);
+    case PMATH_TYPE_SHIFT_SYMBOL:    return pmath_ref(PMATH_SYMBOL_SYMBOL);
     
     case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL:
     case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL_PART: 

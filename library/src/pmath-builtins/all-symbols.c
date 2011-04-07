@@ -257,6 +257,7 @@ PMATH_PRIVATE pmath_t builtin_binarywrite(                   pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_characters(                    pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_close(                         pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_compress(                      pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_compressstream(                pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_copydirectory_and_copyfile(    pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_createdirectory(               pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_deletedirectory_and_deletefile(pmath_expr_t expr);
@@ -289,6 +290,7 @@ PMATH_PRIVATE pmath_t builtin_stringsplit(                   pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_stringtake(                    pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_tofilename(                    pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_uncompress(                    pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_uncompressstream(              pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_write(                         pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_writestring(                   pmath_expr_t expr);
 //} ============================================================================
@@ -725,6 +727,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   VERIFY(   PMATH_SYMBOL_COMPLEX                   = NEW_SYSTEM_SYMBOL("Complex"))
   VERIFY(   PMATH_SYMBOL_COMPLEXINFINITY           = NEW_SYSTEM_SYMBOL("ComplexInfinity"))
   VERIFY(   PMATH_SYMBOL_COMPRESS                  = NEW_SYSTEM_SYMBOL("Compress"))
+  VERIFY(   PMATH_SYMBOL_COMPRESSSTREAM            = NEW_SYSTEM_SYMBOL("CompressStream"))
   VERIFY(   PMATH_SYMBOL_CONDITION                 = NEW_SYSTEM_SYMBOL("Condition"))
   VERIFY(   PMATH_SYMBOL_CONDITIONALEXPRESSION     = NEW_SYSTEM_SYMBOL("ConditionalExpression"))
   VERIFY(   PMATH_SYMBOL_CONJUGATE                 = NEW_SYSTEM_SYMBOL("Conjugate"))
@@ -1205,6 +1208,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   VERIFY(   PMATH_SYMBOL_TRY                       = NEW_SYSTEM_SYMBOL("Try"))
   VERIFY(   PMATH_SYMBOL_UNASSIGN                  = NEW_SYSTEM_SYMBOL("Unassign"))
   VERIFY(   PMATH_SYMBOL_UNCOMPRESS                = NEW_SYSTEM_SYMBOL("Uncompress"))
+  VERIFY(   PMATH_SYMBOL_UNCOMPRESSSTREAM          = NEW_SYSTEM_SYMBOL("UncompressStream"))
   VERIFY(   PMATH_SYMBOL_UNDEFINED                 = NEW_SYSTEM_SYMBOL("Undefined"))
   VERIFY(   PMATH_SYMBOL_UNDERFLOW                 = NEW_SYSTEM_SYMBOL("Underflow"))
   VERIFY(   PMATH_SYMBOL_UNDERSCRIPT               = NEW_SYSTEM_SYMBOL("Underscript"))
@@ -1332,6 +1336,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
     BIND_DOWN(   PMATH_SYMBOL_COMPLEMENT,                  builtin_complement)
     BIND_DOWN(   PMATH_SYMBOL_COMPLEX,                     builtin_complex)
     BIND_DOWN(   PMATH_SYMBOL_COMPRESS,                    builtin_compress)
+    BIND_DOWN(   PMATH_SYMBOL_COMPRESSSTREAM,              builtin_compressstream)
     BIND_DOWN(   PMATH_SYMBOL_CONJUGATE,                   builtin_conjugate)
     BIND_DOWN(   PMATH_SYMBOL_CONSTANTARRAY,               builtin_constantarray)
     BIND_DOWN(   PMATH_SYMBOL_CONTINUE,                    general_builtin_zeroonearg)
@@ -1592,6 +1597,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
     BIND_DOWN(   PMATH_SYMBOL_TRY,                         builtin_try)
     BIND_DOWN(   PMATH_SYMBOL_UNASSIGN,                    builtin_unassign)
     BIND_DOWN(   PMATH_SYMBOL_UNCOMPRESS,                  builtin_uncompress)
+    BIND_DOWN(   PMATH_SYMBOL_UNCOMPRESSSTREAM,            builtin_uncompressstream)
     BIND_DOWN(   PMATH_SYMBOL_UNDERFLOW,                   general_builtin_zeroargs)
     BIND_DOWN(   PMATH_SYMBOL_UNEQUAL,                     builtin_unequal)
     BIND_DOWN(   PMATH_SYMBOL_UNIDENTICAL,                 builtin_unidentical)

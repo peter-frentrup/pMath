@@ -143,7 +143,7 @@ static pmath_expr_t get_exe_name(void){
     }while(needed == (DWORD)len);
     
     s->length = (int)needed;
-    return PMATH_FROM_PTR(s);
+    return _pmath_from_buffer(s);
   }
   #elif defined(__APPLE__)
   {

@@ -600,6 +600,9 @@
 		<Unit filename="src\pmath-builtins\io\compress-and-uncompress.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="src\pmath-builtins\io\compressstream-and-uncompressstream.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="src\pmath-builtins\io\copydirectory-and-copyfile.c">
 			<Option compilerVar="CC" />
 		</Unit>

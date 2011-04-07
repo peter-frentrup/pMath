@@ -360,6 +360,9 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr){
 /* OpenAppend(filename)
    OpenRead(filename)
    OpenWrite(filename)
+   
+   OpenRead(binarystream)
+   OpenWrite(binarystream)
  */
   pmath_expr_t options;
   pmath_t file;
@@ -375,10 +378,6 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr){
   }
   
   file = pmath_expr_get_item(expr, 1);
-  if(!pmath_is_string(file) || pmath_string_length(file) < 1){
-    pmath_message(PMATH_NULL, "fstr", 1, file);
-    return expr;
-  }
   
   options = pmath_options_extract(expr, 1);
   if(pmath_is_null(options)){
@@ -408,6 +407,68 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr){
     pmath_unref(value);
   }
   
+  { // kind = OPEN_APPEND / OPEN_WRITE / OPEN_READ
+    pmath_t head = pmath_expr_get_item(expr, 0);
+    pmath_unref(head);
+    
+    if(pmath_same(head, PMATH_SYMBOL_OPENAPPEND))
+      kind = OPEN_APPEND;
+    else if(pmath_same(head, PMATH_SYMBOL_OPENWRITE))
+      kind = OPEN_WRITE;
+    else 
+      kind = OPEN_READ;
+  }
+  
+  if(pmath_is_symbol(file)){
+    if(kind == OPEN_APPEND){
+      pmath_message(PMATH_NULL, "fstr", 1, file);
+      return expr;
+    }
+    
+    if(kind == OPEN_WRITE){
+      if(!pmath_file_test(file, PMATH_FILE_PROP_WRITE)){
+        pmath_message(PMATH_NULL, "iow", 1, file);
+        pmath_unref(expr);
+        return pmath_ref(PMATH_SYMBOL_FAILED);
+      }
+      
+      if(!pmath_file_test(file, PMATH_FILE_PROP_WRITE | PMATH_FILE_PROP_BINARY)){
+        pmath_message(PMATH_NULL, "iob", 1, file);
+        pmath_unref(expr);
+        return pmath_ref(PMATH_SYMBOL_FAILED);
+      }
+      
+      if(binary_format){
+        pmath_message(PMATH_NULL, "text", 1, file);
+        pmath_unref(expr);
+        return pmath_ref(PMATH_SYMBOL_FAILED);
+      }
+    }
+    else if(kind == OPEN_READ){
+      if(!pmath_file_test(file, PMATH_FILE_PROP_READ)){
+        pmath_message(PMATH_NULL, "ior", 1, file);
+        pmath_unref(expr);
+        return pmath_ref(PMATH_SYMBOL_FAILED);
+      }
+      
+      if(!pmath_file_test(file, PMATH_FILE_PROP_READ | PMATH_FILE_PROP_BINARY)){
+        pmath_message(PMATH_NULL, "iob", 1, file);
+        pmath_unref(expr);
+        return pmath_ref(PMATH_SYMBOL_FAILED);
+      }
+      
+      if(binary_format){
+        pmath_message(PMATH_NULL, "text", 1, file);
+        pmath_unref(expr);
+        return pmath_ref(PMATH_SYMBOL_FAILED);
+      }
+    }
+  }
+  else if(!pmath_is_string(file) || pmath_string_length(file) < 1){
+    pmath_message(PMATH_NULL, "fstr", 1, file);
+    return expr;
+  }
+  
   { // CharacterEncoding
     encoding = pmath_evaluate(
       pmath_option_value(PMATH_NULL, PMATH_SYMBOL_CHARACTERENCODING, options));
@@ -421,30 +482,24 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr){
     }
   }
   
-  {
-    pmath_t head = pmath_expr_get_item(expr, 0);
-    pmath_unref(head);
-    
-    if(pmath_same(head, PMATH_SYMBOL_OPENAPPEND))
-      kind = OPEN_APPEND;
-    else if(pmath_same(head, PMATH_SYMBOL_OPENWRITE))
-      kind = OPEN_WRITE;
-    else 
-      kind = OPEN_READ;
-  }
-  
   if(!binary_format 
   && kind != OPEN_WRITE
   && pmath_same(encoding, PMATH_SYMBOL_AUTOMATIC)){ // check for byte order mark
-    pmath_t tmpfile;
     size_t count;
     uint8_t buf[4];
-    
+  
     memset(buf, 0, sizeof(buf));
     
-    tmpfile = open_bin_file(pmath_ref(file), OPEN_READ);
-    count = pmath_file_read(tmpfile, buf, sizeof(buf), FALSE);
-    pmath_file_close(tmpfile);
+    if(pmath_is_string(file)){
+      pmath_t tmpfile;
+      
+      tmpfile = open_bin_file(pmath_ref(file), OPEN_READ);
+      count = pmath_file_read(tmpfile, buf, sizeof(buf), FALSE);
+      pmath_file_close(tmpfile);
+    }
+    else{
+      count = pmath_file_read(file, buf, sizeof(buf), TRUE); /* preserve internal buffer */
+    }
     
     pmath_unref(encoding);
     encoding = PMATH_NULL;
@@ -476,7 +531,7 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr){
     }
   }
   
-  if(kind == OPEN_READ){
+  if(kind == OPEN_READ && pmath_is_string(file)){
     pmath_t type = pmath_evaluate(
       pmath_expr_new_extended(
         pmath_ref(PMATH_SYMBOL_FILETYPE), 1,
@@ -487,7 +542,8 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr){
       unbuffered = TRUE;
   }
   
-  file = open_bin_file(file, kind);
+  if(pmath_is_string(file))
+    file = open_bin_file(file, kind);
   
   pmath_unref(options);
   pmath_unref(expr);
