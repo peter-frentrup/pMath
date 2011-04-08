@@ -62,5 +62,5 @@ End()
 
 EndPackage()
 
-AutoLoad(Hold(Button, Dynamic, Setter, SetterBar, Slider), ToFileName({$FrontEndDirectory, "auto", "frontend"}, "guiboxes.pmath"));
+AutoLoad(Hold(Button, Dynamic, ProgressIndicator, Setter, SetterBar, Slider), ToFileName({$FrontEndDirectory, "auto", "frontend"}, "guiboxes.pmath"));
 Get(ToFileName({$FrontEndDirectory, "auto", "frontend"}, "boxestotext.pmath"))

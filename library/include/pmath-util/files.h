@@ -110,7 +110,7 @@ PMATH_API size_t pmath_file_write(
 
 /**\brief Write to a text file.
    \param file A writeable text file object. It wont be freed.
-   \param str A UTF-16 string buffer. e.g. pmath_string_buffer(some_text)
+   \param str A UTF-16 string buffer. e.g. pmath_string_buffer(&some_text)
    \param len The number of uint16_t in the buffer. e.g. 
           pmath_string_length(some_text). This can be -1 if \a str is zero 
           terminated.

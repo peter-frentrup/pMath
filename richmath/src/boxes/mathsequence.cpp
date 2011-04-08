@@ -14,6 +14,7 @@
 #include <boxes/interpretationbox.h>
 #include <boxes/numberbox.h>
 #include <boxes/ownerbox.h>
+#include <boxes/progressindicatorbox.h>
 #include <boxes/radicalbox.h>
 #include <boxes/section.h>
 #include <boxes/setterbox.h>
@@ -4046,6 +4047,14 @@ static void make_box(int pos, pmath_t obj, void *data){
           box->style = new Style(options);
       }
       
+      info->boxes->add(box);
+      return;
+    }
+  }
+  
+  if(expr[0] == PMATH_SYMBOL_PROGRESSINDICATORBOX){
+    ProgressIndicatorBox *box = ProgressIndicatorBox::create(expr);
+    if(box){
       info->boxes->add(box);
       return;
     }

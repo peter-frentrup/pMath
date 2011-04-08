@@ -27,7 +27,7 @@ static uint16_t unichar_at(
   pmath_string_t obj = pmath_expr_get_item(expr, i);
   uint16_t result = 0;
   if(pmath_is_string(obj) && pmath_string_length(obj) == 1){
-    result = *pmath_string_buffer(obj);
+    result = *pmath_string_buffer(&obj);
   }
   pmath_unref(obj);
   return result;
@@ -39,7 +39,7 @@ static pmath_bool_t string_equals(pmath_string_t str, const char *cstr){
   if((size_t)pmath_string_length(str) != len)
     return FALSE;
   
-  buf = pmath_string_buffer(str);
+  buf = pmath_string_buffer(&str);
   while(len-- > 0)
     if(*buf++ != *cstr++)
       return FALSE;
@@ -67,7 +67,7 @@ static pmath_bool_t is_string_at(
     return FALSE;
   }
   
-  buf = pmath_string_buffer(obj);
+  buf = pmath_string_buffer(&obj);
   while(len-- > 0)
     if(*buf++ != (unsigned char)*str++){
       pmath_unref(obj);
@@ -326,7 +326,7 @@ PMATH_PRIVATE pmath_t _pmath_parse_number(
   double prec_acc = HUGE_VAL;
   pmath_bool_t neg = FALSE;
   
-  const uint16_t *str = pmath_string_buffer(string);
+  const uint16_t *str = pmath_string_buffer(&string);
   int len = pmath_string_length(string);
   
   if(len == 0){
@@ -601,7 +601,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
       return HOLDCOMPLETE(PMATH_NULL);
     }
     
-    str = pmath_string_buffer(box);
+    str = pmath_string_buffer(&box);
     
     if(len > 1 && str[0] == '`' && str[len-1] == '`'){
       pmath_t result;
@@ -1710,7 +1710,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
         pmath_unref(expr);
         if(!pmath_is_string(box)
         || pmath_string_length(box) == 0
-        || pmath_string_buffer(box)[0] == '"'){
+        || pmath_string_buffer(&box)[0] == '"'){
           if(!parse(&box))
             return pmath_ref(PMATH_SYMBOL_FAILED);
         }
@@ -1728,7 +1728,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
         pmath_unref(expr);
         if(!pmath_is_string(box)
         || pmath_string_length(box) == 0
-        || pmath_string_buffer(box)[0] == '"'){
+        || pmath_string_buffer(&box)[0] == '"'){
           if(!parse(&box))
             return pmath_ref(PMATH_SYMBOL_FAILED);
         }
@@ -2089,7 +2089,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
           if(pmath_same(box, PMATH_SYMBOL_ASSIGN)
           && pmath_is_string(rhs)
           && pmath_string_length(rhs) == 1
-          && '.' == *pmath_string_buffer(rhs)){
+          && '.' == *pmath_string_buffer(&rhs)){
             pmath_unref(rhs);
             
             return HOLDCOMPLETE(
@@ -2190,7 +2190,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
           if(pmath_same(box, PMATH_SYMBOL_TAGASSIGN)
           && pmath_is_string(rhs)
           && pmath_string_length(rhs) == 1
-          && '.' == *pmath_string_buffer(rhs)){
+          && '.' == *pmath_string_buffer(&rhs)){
             pmath_unref(rhs);
             
             return HOLDCOMPLETE(
@@ -2352,7 +2352,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
         for(i = 4;i < exprlen;i+= 2){
           pmath_string_t op = pmath_expr_get_item(expr, i);
           if((pmath_string_length(op) != 1
-           || *pmath_string_buffer(op) != 0x2227)
+           || *pmath_string_buffer(&op) != 0x2227)
           && !string_equals(op, "&&")){
             pmath_unref(op);
             goto FAILED;
@@ -2364,7 +2364,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
         for(i = 4;i < exprlen;i+= 2){
           pmath_string_t op = pmath_expr_get_item(expr, i);
           if((pmath_string_length(op) != 1
-           || *pmath_string_buffer(op) != 0x2228)
+           || *pmath_string_buffer(&op) != 0x2228)
           && !string_equals(op, "||")){
             pmath_unref(op);
             goto FAILED;

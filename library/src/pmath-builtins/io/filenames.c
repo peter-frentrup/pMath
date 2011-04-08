@@ -45,7 +45,7 @@ static void emit_directory_entries(
         directory = pmath_string_insert_ucs2(PMATH_NULL, 0, rest, 4);
       }
       else{
-        if(pmath_string_buffer(directory)[pmath_string_length(directory) - 1] == '\\')
+        if(pmath_string_buffer(&directory)[pmath_string_length(directory) - 1] == '\\')
           directory = pmath_string_insert_ucs2(directory, INT_MAX, rest + 2, 2);
         else
           directory = pmath_string_insert_ucs2(directory, INT_MAX, rest + 1, 3);
@@ -53,7 +53,7 @@ static void emit_directory_entries(
       
       if(!pmath_is_null(directory)){
         WIN32_FIND_DATAW data;
-        HANDLE h = FindFirstFileW(pmath_string_buffer(directory), &data);
+        HANDLE h = FindFirstFileW(pmath_string_buffer(&directory), &data);
         
         if(!is_default)
           directory = pmath_string_part(directory, 0, pmath_string_length(directory) - 2);
@@ -91,7 +91,7 @@ static void emit_directory_entries(
               
               if(!pmath_is_null(s)){
                 HANDLE hfile = CreateFileW(
-                  (const wchar_t*)pmath_string_buffer(s),
+                  (const wchar_t*)pmath_string_buffer(&s),
                   0,
                   FILE_SHARE_DELETE | FILE_SHARE_READ | FILE_SHARE_WRITE,
                   NULL,
@@ -113,7 +113,7 @@ static void emit_directory_entries(
                   
                   if(!pmath_is_null(s)){
                     hfile = CreateFileW(
-                      (const wchar_t*)pmath_string_buffer(s),
+                      (const wchar_t*)pmath_string_buffer(&s),
                       0,
                       FILE_SHARE_DELETE | FILE_SHARE_READ | FILE_SHARE_WRITE,
                       NULL,
@@ -189,7 +189,7 @@ static void emit_directory_entries(
           dir = opendir(dir_name);
           pmath_mem_free(dir_name);
           
-          if(pmath_string_buffer(directory)[len - 1] != '/')
+          if(pmath_string_buffer(&directory)[len - 1] != '/')
             directory = pmath_string_insert_latin1(directory, len, "/", 1);
         }
       }

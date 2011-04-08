@@ -119,7 +119,7 @@ pmath_string_t _pmath_canonical_file_name(pmath_string_t relname){
     if(pmath_is_null(relname))
       return PMATH_NULL;
     
-    reslen = GetFullPathNameW(pmath_string_buffer(relname), 0, NULL, NULL);
+    reslen = GetFullPathNameW(pmath_string_buffer(&relname), 0, NULL, NULL);
     if((int)reslen * sizeof(uint16_t) <= 0){
       pmath_unref(relname);
       return PMATH_NULL;
@@ -128,7 +128,7 @@ pmath_string_t _pmath_canonical_file_name(pmath_string_t relname){
     result = _pmath_new_string_buffer(reslen);
     if(result){
       GetFullPathNameW(
-        pmath_string_buffer(relname), 
+        pmath_string_buffer(&relname), 
         reslen, 
         (wchar_t*)AFTER_STRING(result), 
         NULL);
@@ -144,7 +144,7 @@ pmath_string_t _pmath_canonical_file_name(pmath_string_t relname){
     pmath_string_t dir;
     int dirlen, namelen, enddir, startname;
     int             rellen = pmath_string_length(relname);
-    const uint16_t *ibuf   = pmath_string_buffer(relname);
+    const uint16_t *ibuf   = pmath_string_buffer(&relname);
     uint16_t       *obuf;
     
     if(ibuf[0] == '/'){
@@ -207,11 +207,11 @@ pmath_string_t _pmath_canonical_file_name(pmath_string_t relname){
       return PMATH_NULL;
     }
     
-    memcpy(AFTER_STRING(result), pmath_string_buffer(dir), sizeof(uint16_t) * dirlen);
+    memcpy(AFTER_STRING(result), pmath_string_buffer(&dir), sizeof(uint16_t) * dirlen);
     pmath_unref(dir);
     obuf = AFTER_STRING(result);
     obuf[dirlen] = '/';
-    memcpy(obuf + dirlen + 1, pmath_string_buffer(relname), sizeof(uint16_t) * namelen);
+    memcpy(obuf + dirlen + 1, pmath_string_buffer(&relname), sizeof(uint16_t) * namelen);
     pmath_unref(relname);
     
     enddir = startname = dirlen + 1;
@@ -257,7 +257,7 @@ static pmath_bool_t try_change_directory(
     if(pmath_is_null(name))
       return FALSE;
     
-    if(SetCurrentDirectoryW((const wchar_t*)pmath_string_buffer(name))){
+    if(SetCurrentDirectoryW((const wchar_t*)pmath_string_buffer(&name))){
       pmath_unref(name);
       return TRUE;
     }
@@ -332,7 +332,7 @@ PMATH_PRIVATE pmath_t builtin_directoryname(pmath_expr_t expr){
   }
   
   pmath_unref(expr);
-  buf = pmath_string_buffer(name);
+  buf = pmath_string_buffer(&name);
   len = pmath_string_length(name);
   i = len;
   while(count-- > 0){
@@ -376,7 +376,7 @@ PMATH_PRIVATE pmath_t builtin_parentdirectory(pmath_expr_t expr){
   
   dir = _pmath_canonical_file_name(dir);
   if(!pmath_is_null(dir)){
-    const uint16_t *buf = pmath_string_buffer(dir);
+    const uint16_t *buf = pmath_string_buffer(&dir);
     int             len = pmath_string_length(dir);
     int i;
     

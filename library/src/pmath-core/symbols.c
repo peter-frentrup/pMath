@@ -214,7 +214,7 @@ PMATH_API pmath_symbol_t pmath_symbol_get(
   pmath_symbol_t result = PMATH_NULL;
   
   if(pmath_string_length(name) == 1){
-    uint16_t ch = *pmath_string_buffer(name);
+    uint16_t ch = *pmath_string_buffer(&name);
     
     switch(ch){
       case 0x00B0: 
@@ -307,7 +307,7 @@ PMATH_API pmath_symbol_t pmath_symbol_get(
       pmath_t newsym = pmath_symbol_get_value(PMATH_SYMBOL_NEWSYMBOL);
       
       if(!pmath_is_null(newsym)){
-        const uint16_t *buf = pmath_string_buffer(name);
+        const uint16_t *buf = pmath_string_buffer(&name);
         int             len = pmath_string_length(name);
         
         pmath_string_t ns, n;
@@ -344,7 +344,7 @@ PMATH_API pmath_symbol_t pmath_symbol_create_temporary(
   int len;
   char val[20];
   
-  buf = pmath_string_buffer(name);
+  buf = pmath_string_buffer(&name);
   len = pmath_string_length(name);
   
   --len;
@@ -429,7 +429,7 @@ PMATH_API pmath_symbol_t pmath_symbol_create_temporary(
     }
 
     ns_len = pmath_string_length(ns);
-    if(ns_len > 0 && pmath_string_buffer(ns)[ns_len-1] != '`')
+    if(ns_len > 0 && pmath_string_buffer(&ns)[ns_len-1] != '`')
       return PMATH_NULL;
       //ns = pmath_string_insert_latin1(ns, ns_len, "`", 1);
       
@@ -507,7 +507,7 @@ PMATH_API pmath_symbol_t pmath_symbol_find(
   }
 
   len = pmath_string_length(name);
-  str = pmath_string_buffer(name);
+  str = pmath_string_buffer(&name);
 
   if(len == 0){
     pmath_unref(name);
@@ -1073,7 +1073,7 @@ static void write_symbol(
   
   name = pmath_symbol_name(symbol);
   len = pmath_string_length(name);
-  str = pmath_string_buffer(name);
+  str = pmath_string_buffer(&name);
   
   if(pmath_symbol_get_attributes(symbol) & PMATH_SYMBOL_ATTRIBUTE_REMOVED){
     write_cstr("Symbol(", write, user);

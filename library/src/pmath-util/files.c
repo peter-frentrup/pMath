@@ -824,7 +824,7 @@ pmath_string_t bintext_extra_readln(struct _bintext_extra_t *extra){
   if(len){
     const uint16_t *buf;
     
-    buf = pmath_string_buffer(extra->rest);
+    buf = pmath_string_buffer(&extra->rest);
     
     i = 0;
     while(i < len){
@@ -975,7 +975,7 @@ pmath_string_t bintext_extra_readln(struct _bintext_extra_t *extra){
       
       result = pmath_string_insert_ucs2(result, INT_MAX, str, chars_read);
       
-      str = pmath_string_buffer(result);
+      str = pmath_string_buffer(&result);
       chars_read = pmath_string_length(result);
       
       for(i = len;i < chars_read;++i){
@@ -1199,7 +1199,7 @@ pmath_symbol_t pmath_file_create_text_from_binary(
       pmath_string_t line = pmath_file_readline(binfile);
       
       if(pmath_string_length(line) > 0
-      && *pmath_string_buffer(line) == 0xFEFF)
+      && *pmath_string_buffer(&line) == 0xFEFF)
         line = pmath_string_part(line, 1, -1);
       
       pmath_file_set_textbuffer(binfile, line);

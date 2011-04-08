@@ -58,7 +58,7 @@ PMATH_PRIVATE pmath_t builtin_uncompress(pmath_expr_t expr){
   
   pmath_file_create_mixed_buffer("base85", &tfile, &bfile);
   
-  pmath_file_writetext(tfile, pmath_string_buffer(str), pmath_string_length(str));
+  pmath_file_writetext(tfile, pmath_string_buffer(&str), pmath_string_length(str));
   pmath_file_close(tfile);
   
   zfile = pmath_file_create_uncompressor(pmath_ref(bfile));

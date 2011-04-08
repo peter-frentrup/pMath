@@ -693,5 +693,7 @@ pmath_bool_t pmath_register_approx_code(
 #define PMATH_SYMBOL_BITXOR                                 PMATH_SYMBOL_BUILTIN(601)
 #define PMATH_SYMBOL_COMPRESSSTREAM                         PMATH_SYMBOL_BUILTIN(602)
 #define PMATH_SYMBOL_UNCOMPRESSSTREAM                       PMATH_SYMBOL_BUILTIN(603)
+#define PMATH_SYMBOL_PROGRESSINDICATOR                      PMATH_SYMBOL_BUILTIN(604)
+#define PMATH_SYMBOL_PROGRESSINDICATORBOX                   PMATH_SYMBOL_BUILTIN(605)
 
 #endif /* __PMATH_BUILTINS__SYMBOLS_H__ */

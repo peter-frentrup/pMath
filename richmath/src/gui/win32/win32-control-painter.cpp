@@ -53,6 +53,7 @@ Win32ControlPainter::Win32ControlPainter()
   blur_input_field(true),
   button_theme(0),
   edit_theme(0),
+  progress_theme(0),
   scrollbar_theme(0),
   slider_theme(0),
   toolbar_theme(0)
@@ -176,6 +177,8 @@ int Win32ControlPainter::control_font_color(ContainerType type, ControlState sta
     
     case SliderHorzChannel:
     case SliderHorzThumb:
+    case ProgressIndicatorBackground:
+    case ProgressIndicatorBar:
       break;
   }
   
@@ -511,6 +514,7 @@ void Win32ControlPainter::draw_container(
           BF_RECT);
       } break;
       
+      case ProgressIndicatorBackground:
       case SliderHorzChannel: {
         FillRect(dc, &rect, (HBRUSH)(COLOR_BTNFACE + 1));
 
@@ -521,6 +525,7 @@ void Win32ControlPainter::draw_container(
           BF_RECT);
       } break;
       
+      case ProgressIndicatorBar:
       case SliderHorzThumb: {
         DrawFrameControl(
           dc,
@@ -528,6 +533,7 @@ void Win32ControlPainter::draw_container(
           DFC_BUTTON,
           DFCS_BUTTONPUSH);
       } break;
+      
     }
   }
   
@@ -1127,6 +1133,14 @@ HANDLE Win32ControlPainter::get_control_theme(
       theme = edit_theme;
     } break;
     
+    case ProgressIndicatorBackground:
+    case ProgressIndicatorBar: {
+      if(!progress_theme)
+        progress_theme = Win32Themes::OpenThemeData(0, L"PROGRESS");
+      
+      theme = progress_theme;
+    } break;
+    
     case SliderHorzChannel: 
     case SliderHorzThumb: {
       if(!slider_theme)
@@ -1191,6 +1205,20 @@ HANDLE Win32ControlPainter::get_control_theme(
       }
     } break;
     
+    case ProgressIndicatorBackground: {
+      *theme_part = 11;
+      *theme_state = 1;
+    } break;
+    
+    case ProgressIndicatorBar: {
+      *theme_part = 5;
+      
+      switch(state){
+        case Hot: *theme_state = 2; break;
+        default:  *theme_state = 1; break;
+      }
+    } break;
+    
     case SliderHorzChannel: {
       *theme_part = 1;
       *theme_state = 1;
@@ -1221,6 +1249,9 @@ void Win32ControlPainter::clear_cache(){
     if(edit_theme)
       Win32Themes::CloseThemeData(edit_theme);
     
+    if(progress_theme)
+      Win32Themes::CloseThemeData(progress_theme);
+    
     if(scrollbar_theme)
       Win32Themes::CloseThemeData(scrollbar_theme);
     
@@ -1231,5 +1262,10 @@ void Win32ControlPainter::clear_cache(){
       Win32Themes::CloseThemeData(toolbar_theme);
   }
   
-  button_theme = edit_theme = scrollbar_theme = slider_theme = toolbar_theme = 0;
+  button_theme    = 0;
+  edit_theme      = 0;
+  progress_theme  = 0;
+  scrollbar_theme = 0;
+  slider_theme    = 0;
+  toolbar_theme   = 0;
 }

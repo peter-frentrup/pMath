@@ -30,7 +30,7 @@
 static pmath_token_t box_token_analyse(pmath_t box, int *prec){ // box will be freed
   if(pmath_is_string(box)){
     pmath_token_t tok = pmath_token_analyse(
-      pmath_string_buffer(box),
+      pmath_string_buffer(&box),
       pmath_string_length(box),
       prec);
     
@@ -66,7 +66,7 @@ static pmath_token_t box_token_analyse(pmath_t box, int *prec){ // box will be f
 static int box_token_prefix_prec(pmath_t box, int defprec){ // box will be freed
   if(pmath_is_string(box)){
     int prec = pmath_token_prefix_precedence(
-      pmath_string_buffer(box),
+      pmath_string_buffer(&box),
       pmath_string_length(box),
       defprec);
     
@@ -584,7 +584,7 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj);
   static pmath_bool_t is_char(pmath_t obj, uint16_t ch){
     return pmath_is_string(obj)
         && pmath_string_length(obj) == 1
-        && pmath_string_buffer(obj)[0] == ch;
+        && pmath_string_buffer(&obj)[0] == ch;
   }
   
   static pmath_bool_t is_char_at(pmath_expr_t expr, size_t i, uint16_t ch){
@@ -624,7 +624,7 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj);
   static uint16_t first_char(pmath_t box){
     if(pmath_is_string(box)){
       if(pmath_string_length(box) > 0)
-        return *pmath_string_buffer(box);
+        return *pmath_string_buffer(&box);
 
       return 0;
     }
@@ -651,7 +651,7 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj);
     if(pmath_is_string(box)){
       int len = pmath_string_length(box);
       if(len > 0)
-        return pmath_string_buffer(box)[len - 1];
+        return pmath_string_buffer(&box)[len - 1];
 
       return 0;
     }
@@ -2995,7 +2995,7 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj){
     pmath_unref(obj);
 
     if(pmath_string_length(s) > 0
-    && *pmath_string_buffer(s) == '-'){
+    && *pmath_string_buffer(&s) == '-'){
       pmath_string_t minus = pmath_string_part(pmath_ref(s), 0, 1);
       return pmath_build_value("(oo)", minus, pmath_string_part(s, 1, -1));
     }
@@ -3090,7 +3090,7 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj){
       pmath_unref(obj);
 
       if(pmath_string_length(s) > 0
-      && *pmath_string_buffer(s) == '-'){
+      && *pmath_string_buffer(&s) == '-'){
         pmath_string_t minus = pmath_string_part(pmath_ref(s), 0, 1);
         return pmath_build_value("(oo)", minus, pmath_string_part(s, 1, -1));
       }
@@ -3115,7 +3115,7 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj){
         (pmath_write_func_t)_pmath_write_to_string,
         &d);
 
-      if(pmath_string_length(n) > 0 && *pmath_string_buffer(n) == '-'){
+      if(pmath_string_length(n) > 0 && *pmath_string_buffer(&n) == '-'){
         s = pmath_string_part(pmath_ref(n), 0, 1);
         n = pmath_string_part(n, 1, -1);
       }

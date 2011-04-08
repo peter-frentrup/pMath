@@ -7,11 +7,14 @@ isDynamic(Dynamic(~)):= True
 isDynamic(Dynamic(~,~)):= True
 isNumberOrDynamic(~x)::= IsNumber(x) || isDynamic(x)
 
-toBeProtected:= Unprotect(Button, Dynamic, Setter, Slider)
+toBeProtected:= Unprotect(Button, Dynamic, ProgressIndicator, Setter, Slider)
 
 MakeBoxes(Button(~text, ~code, options:OptionsPattern()))::= ButtonBox(MakeBoxes(text), ButtonFunction -> (code &), options)
 
 MakeBoxes(Dynamic(~var, options:OptionsPattern()))::= DynamicBox(ToBoxes(var), options)
+
+MakeBoxes(ProgressIndicator(~val ? isNumberOrDynamic))::=             ProgressIndicatorBox(val, 0..1)
+MakeBoxes(ProgressIndicator(~val ? isNumberOrDynamic, ~min..~max))::= ProgressIndicatorBox(val, min..max)
 
 MakeBoxes(Setter(~var, ~value, options:OptionsPattern()))::=         SetterBox(var, value, MakeBoxes(value), options)
 MakeBoxes(Setter(~var, ~value, ~label, options:OptionsPattern()))::= SetterBox(var, value, MakeBoxes(label), options)

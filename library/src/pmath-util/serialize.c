@@ -264,7 +264,7 @@ static void serialize(
   
   switch(PMATH_AS_PTR(object)->type_shift){
     case PMATH_TYPE_SHIFT_BIGSTRING: {
-      const uint16_t *buf =    pmath_string_buffer(object);
+      const uint16_t *buf =    pmath_string_buffer(&object);
       uint32_t len = (uint32_t)pmath_string_length(object);
       unsigned int i;
       

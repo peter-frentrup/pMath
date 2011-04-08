@@ -159,7 +159,7 @@ static pmath_t concat_strings(pmath_expr_t expr){
     pmath_string_t stri = pmath_expr_get_item(expr, i);
     int stri_len = pmath_string_length(stri);
     
-    memcpy(str, pmath_string_buffer(stri), stri_len * sizeof(uint16_t));
+    memcpy(str, pmath_string_buffer(&stri), stri_len * sizeof(uint16_t));
     str+= stri_len;
     pmath_unref(stri);
   }

@@ -240,7 +240,7 @@ PMATH_PRIVATE pmath_t builtin_get(pmath_expr_t expr){
       return PMATH_NULL;
     }
     buf = AFTER_STRING(fname);
-    memcpy(buf, pmath_string_buffer(name), len * sizeof(uint16_t));
+    memcpy(buf, pmath_string_buffer(&name), len * sizeof(uint16_t));
     
     for(j = 0;j < len;++j){
       if(buf[j] == '`'){

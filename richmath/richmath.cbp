@@ -164,6 +164,7 @@
 		<Unit filename="include\boxes\mathsequence.h" />
 		<Unit filename="include\boxes\numberbox.h" />
 		<Unit filename="include\boxes\ownerbox.h" />
+		<Unit filename="include\boxes\progressindicatorbox.h" />
 		<Unit filename="include\boxes\radicalbox.h" />
 		<Unit filename="include\boxes\section.h" />
 		<Unit filename="include\boxes\sectionlist.h" />
@@ -234,6 +235,7 @@
 		<Unit filename="src\boxes\mathsequence.cpp" />
 		<Unit filename="src\boxes\numberbox.cpp" />
 		<Unit filename="src\boxes\ownerbox.cpp" />
+		<Unit filename="src\boxes\progressindicatorbox.cpp" />
 		<Unit filename="src\boxes\radicalbox.cpp" />
 		<Unit filename="src\boxes\section.cpp" />
 		<Unit filename="src\boxes\sectionlist.cpp" />

@@ -40,7 +40,7 @@ static pmath_t stringdrop(
         return pmath_string_part(str, end, -1);
       }
       else{
-        const uint16_t *buf = pmath_string_buffer(str);
+        const uint16_t *buf = pmath_string_buffer(&str);
         struct _pmath_string_t *s;
         long rem = (end - start)/step + 1;
         

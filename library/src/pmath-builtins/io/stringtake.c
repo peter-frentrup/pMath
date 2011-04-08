@@ -33,7 +33,7 @@ static pmath_t stringtake(
     
     if(start > 0 && end > 0 && step > 0 && start <= end && end <= len){
       if(step > 1){
-        const uint16_t *buf = pmath_string_buffer(str);
+        const uint16_t *buf = pmath_string_buffer(&str);
         struct _pmath_string_t *s;
         long newlen = (end - start)/step + 1;
         

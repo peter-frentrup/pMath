@@ -111,7 +111,7 @@ static pmath_t open_bin_file(
       case OPEN_APPEND:     mode = L"ab"; break;
     }
     
-    f = _wfopen((const wchar_t*)pmath_string_buffer(name), mode);
+    f = _wfopen((const wchar_t*)pmath_string_buffer(&name), mode);
   }
   #else
   {
@@ -566,7 +566,7 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr){
     char *str;
     int i, len;
     
-    buf = pmath_string_buffer(encoding);
+    buf = pmath_string_buffer(&encoding);
     len = pmath_string_length(encoding);
     
     str = (char*)pmath_mem_alloc(len + 1);

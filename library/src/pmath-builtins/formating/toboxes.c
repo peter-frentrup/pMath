@@ -69,7 +69,7 @@ pmath_t _pmath_prepare_shallow(
 PMATH_PRIVATE
 long _pmath_boxes_length(pmath_t boxes){  // boxes wont be freed
   if(pmath_is_string(boxes)){
-    const uint16_t *buf = pmath_string_buffer(boxes);
+    const uint16_t *buf = pmath_string_buffer(&boxes);
     int len             = pmath_string_length(boxes);
     
     if(buf[0] == '"' && len > 0){
@@ -173,7 +173,7 @@ long _pmath_boxes_length(pmath_t boxes){  // boxes wont be freed
 
   static pmath_bool_t is_operand(pmath_t box){
     if(pmath_is_string(box)){
-      const uint16_t *buf = pmath_string_buffer(box);
+      const uint16_t *buf = pmath_string_buffer(&box);
       pmath_token_t tok;
       
       if(pmath_string_length(box) == 0)
@@ -209,7 +209,7 @@ PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_t _pmath_shorten_boxes(pmath_t boxes, long length){
   if(pmath_is_string(boxes)){
-    const uint16_t *buf = pmath_string_buffer(boxes);
+    const uint16_t *buf = pmath_string_buffer(&boxes);
     int len             = pmath_string_length(boxes);
     
     if(len > length && len > 2){

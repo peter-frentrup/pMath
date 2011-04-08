@@ -240,7 +240,7 @@ PMATH_API void pmath_message_syntax_error(
   int             lines_before_code
 ){
   int len = pmath_string_length(code);
-  const uint16_t *str = pmath_string_buffer(code);
+  const uint16_t *str = pmath_string_buffer(&code);
   
   if(position == 0){
     pmath_string_t start;

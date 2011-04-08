@@ -484,12 +484,12 @@ namespace pmath{
       
       /**\brief Get the string length. */
       int length() const throw() {
-        return pmath_string_length((pmath_string_t)_obj);
+        return pmath_string_length(_obj);
       }
       
       /**\brief Get the UCS-2/UTF-16 const string buffer. This is not zero-terminated */
       const uint16_t *buffer() const throw() {
-        return pmath_string_buffer((pmath_string_t)_obj);
+        return pmath_string_buffer(const_cast<pmath_string_t*>(&_obj));
       }
       
       /**\brief Get a single character or U+0000 on error */

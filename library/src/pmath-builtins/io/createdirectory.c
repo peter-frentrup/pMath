@@ -41,7 +41,7 @@ PMATH_PRIVATE pmath_t builtin_createdirectory(pmath_expr_t expr){
     name = pmath_string_insert_ucs2(name, INT_MAX, &zero, 1);
     
     if(!pmath_is_null(name)){
-      if(!CreateDirectoryW((const wchar_t*)pmath_string_buffer(name), NULL)){
+      if(!CreateDirectoryW((const wchar_t*)pmath_string_buffer(&name), NULL)){
         switch(GetLastError()){
           case ERROR_ALREADY_EXISTS:
             name = pmath_string_part(name, 0, pmath_string_length(name) - 1);

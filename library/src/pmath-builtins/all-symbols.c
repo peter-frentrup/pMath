@@ -1041,6 +1041,8 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   VERIFY(   PMATH_SYMBOL_PROCESSORCOUNT            = NEW_SYSTEM_SYMBOL("$ProcessorCount"))
   VERIFY(   PMATH_SYMBOL_PROCESSORTYPE             = NEW_SYSTEM_SYMBOL("$ProcessorType"))
   VERIFY(   PMATH_SYMBOL_PRODUCT                   = NEW_SYSTEM_SYMBOL("Product"))
+  VERIFY(   PMATH_SYMBOL_PROGRESSINDICATOR         = NEW_SYSTEM_SYMBOL("ProgressIndicator"))
+  VERIFY(   PMATH_SYMBOL_PROGRESSINDICATORBOX      = NEW_SYSTEM_SYMBOL("ProgressIndicatorBox"))
   VERIFY(   PMATH_SYMBOL_PROTECT                   = NEW_SYSTEM_SYMBOL("Protect"))
   VERIFY(   PMATH_SYMBOL_PROTECTED                 = NEW_SYSTEM_SYMBOL("Protected"))
   VERIFY(   PMATH_SYMBOL_PUREARGUMENT              = NEW_SYSTEM_SYMBOL("PureArgument"))

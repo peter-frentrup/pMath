@@ -16,7 +16,7 @@ PMATH_PRIVATE
 pmath_t _pmath_expand_string( // result is string or expression
   pmath_string_t string // will be freed
 ){
-  const uint16_t *buf = pmath_string_buffer(string);
+  const uint16_t *buf = pmath_string_buffer(&string);
   int len = pmath_string_length(string);
   
   while(len-- > 0)
@@ -28,7 +28,7 @@ pmath_t _pmath_expand_string( // result is string or expression
  HAVE_STH_TO_EXPAND:
   {
     int start, i;
-    buf = pmath_string_buffer(string);
+    buf = pmath_string_buffer(&string);
     len = pmath_string_length(string);
     
     start = i = 0;
@@ -112,7 +112,7 @@ static pmath_bool_t has_param_placeholders(
     }
   }
   else if(pmath_is_string(box)){
-    const uint16_t *buf = pmath_string_buffer(box);
+    const uint16_t *buf = pmath_string_buffer(&box);
     int len = pmath_string_length(box);
     int i;
     
@@ -146,7 +146,7 @@ static pmath_t string_form(
     format = pmath_string_expand_boxes(format);
     
     if(pmath_is_string(format)){
-      const uint16_t *buf = pmath_string_buffer(format);
+      const uint16_t *buf = pmath_string_buffer(&format);
       int len = pmath_string_length(format);
       int start = 0;
       int i = 0;
@@ -441,7 +441,7 @@ pmath_t _pmath_stringform_to_boxes(
         
         memcpy(
           buf + rlen,
-          pmath_string_buffer(si),
+          pmath_string_buffer(&si),
           sizeof(uint16_t) * pmath_string_length(si));
         
         rlen+= pmath_string_length(si);
@@ -486,7 +486,7 @@ pmath_string_t _pmath_string_escape(
   uint16_t *rbuf;
   int len, rlen, i, k;
   
-  buf = pmath_string_buffer(string);
+  buf = pmath_string_buffer(&string);
   len = pmath_string_length(string);
   
   rlen = 0;
@@ -525,7 +525,7 @@ pmath_string_t _pmath_string_escape(
   rbuf = AFTER_STRING(result);
   memcpy(
     rbuf, 
-    pmath_string_buffer(postfix), 
+    pmath_string_buffer(&postfix), 
     sizeof(uint16_t) * rlen);
   pmath_unref(prefix);
   
@@ -553,7 +553,7 @@ pmath_string_t _pmath_string_escape(
   
   memcpy(
     rbuf + rlen, 
-    pmath_string_buffer(postfix), 
+    pmath_string_buffer(&postfix), 
     sizeof(uint16_t) * pmath_string_length(postfix));
   pmath_unref(postfix);
   

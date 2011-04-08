@@ -425,7 +425,7 @@ static pmath_t builtin_dialog(pmath_expr_t expr){
 }
 
   static pmath_string_t next_word(pmath_string_t *line){
-    const uint16_t *buf = pmath_string_buffer(*line);
+    const uint16_t *buf = pmath_string_buffer(line);
     int             len = pmath_string_length(*line);
     pmath_string_t word;
     int i;

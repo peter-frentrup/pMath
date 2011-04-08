@@ -119,7 +119,7 @@ static void destroy_module(void *ptr){
         zero_filename = pmath_string_insert_latin1(zero_filename, INT_MAX, "", 1);
         
         if(!pmath_is_null(zero_filename)){
-          mod->handle = LoadLibraryW((WCHAR*)pmath_string_buffer(zero_filename));
+          mod->handle = LoadLibraryW((WCHAR*)pmath_string_buffer(&zero_filename));
           if(mod->handle){
             init_func = (pmath_bool_t(*)(pmath_string_t))GetProcAddress(mod->handle, "pmath_module_init");
             done_func = (void        (*)(void))          GetProcAddress(mod->handle, "pmath_module_done");

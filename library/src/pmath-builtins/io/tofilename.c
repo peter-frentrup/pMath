@@ -36,7 +36,7 @@ PMATH_PRIVATE pmath_t builtin_tofilename(pmath_expr_t expr){
   if(pmath_is_string(dir)){
     if(pmath_string_length(dir) > 0){
       sublen = pmath_string_length(dir);
-      subbuf = pmath_string_buffer(dir);
+      subbuf = pmath_string_buffer(&dir);
       
       len = sublen;
       if(!IS_PATH_SEP(subbuf[sublen - 1]))
@@ -56,7 +56,7 @@ PMATH_PRIVATE pmath_t builtin_tofilename(pmath_expr_t expr){
       }
       
       sublen = pmath_string_length(sub);
-      subbuf = pmath_string_buffer(sub);
+      subbuf = pmath_string_buffer(&sub);
       if(sublen > 0){
         len+= sublen;
         if(IS_PATH_SEP(subbuf[0]) && i > 1)
@@ -88,7 +88,7 @@ PMATH_PRIVATE pmath_t builtin_tofilename(pmath_expr_t expr){
   pmath_unref(expr);
   
   sublen = pmath_string_length(name);
-  subbuf = pmath_string_buffer(name);
+  subbuf = pmath_string_buffer(&name);
   len+= sublen;
   if(sublen > 0 && IS_PATH_SEP(subbuf[0]))
     --len;
@@ -103,7 +103,7 @@ PMATH_PRIVATE pmath_t builtin_tofilename(pmath_expr_t expr){
   buf = AFTER_STRING(result);
   if(pmath_is_string(dir)){
     sublen = pmath_string_length(dir);
-    subbuf = pmath_string_buffer(dir);
+    subbuf = pmath_string_buffer(&dir);
     
     if(sublen > 0){
       memcpy(buf, subbuf, sizeof(uint16_t) * sublen);
@@ -120,7 +120,7 @@ PMATH_PRIVATE pmath_t builtin_tofilename(pmath_expr_t expr){
       sub = pmath_expr_get_item(dir, i);
       
       sublen = pmath_string_length(sub);
-      subbuf = pmath_string_buffer(sub);
+      subbuf = pmath_string_buffer(&sub);
       if(sublen > 0){
         if(IS_PATH_SEP(subbuf[0]) && i > 1){
           ++subbuf;
@@ -141,7 +141,7 @@ PMATH_PRIVATE pmath_t builtin_tofilename(pmath_expr_t expr){
   
   pmath_unref(dir);
   sublen = pmath_string_length(name);
-  subbuf = pmath_string_buffer(name);
+  subbuf = pmath_string_buffer(&name);
   if(sublen > 0 && IS_PATH_SEP(subbuf[0])){
     ++subbuf;
     --sublen;

@@ -20,7 +20,9 @@ namespace richmath{
     
     // not realy a container:
     SliderHorzChannel,
-    SliderHorzThumb
+    SliderHorzThumb,
+    ProgressIndicatorBackground,
+    ProgressIndicatorBar
   }ContainerType;
   
   typedef enum{

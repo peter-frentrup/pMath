@@ -112,6 +112,12 @@ SliderBox *SliderBox::create(Expr expr){
   return sb;
 }
 
+bool SliderBox::expand(const BoxSize &size){
+  _extents.width = size.width;
+  
+  return true;
+}
+
 void SliderBox::resize(Context *context){
   float em = context->canvas->get_font_size();
   _extents.ascent  = 0.75 * em * 1.5;

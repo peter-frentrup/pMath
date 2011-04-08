@@ -29,7 +29,7 @@ static pmath_bool_t binary_write(
   
   if(pmath_is_null(type) || pmath_is_string(type)){
     if(pmath_is_string(value)){
-      const uint16_t *buf = pmath_string_buffer(value);
+      const uint16_t *buf = pmath_string_buffer(&value);
       const int len = pmath_string_length(value);
       
       if(pmath_is_null(type)
@@ -76,11 +76,11 @@ static pmath_bool_t binary_write(
         if(byte_ordering == PMATH_BYTE_ORDER){
           pmath_file_write(
             file, 
-            pmath_string_buffer(value), 
+            pmath_string_buffer(&value), 
             (size_t)pmath_string_length(value));
         }
         else{
-          const uint16_t *str = pmath_string_buffer(value);
+          const uint16_t *str = pmath_string_buffer(&value);
           const int len = pmath_string_length(value);
           uint8_t data[256];
           int datalen = sizeof(data) / 2;

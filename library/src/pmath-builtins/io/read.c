@@ -30,7 +30,7 @@ static pmath_files_status_t skip_whitespace(pmath_t file, pmath_bool_t *eol){
   while(status == PMATH_FILE_OK){
     line = pmath_file_readline(file);
     len = pmath_string_length(line);
-    str = pmath_string_buffer(line);
+    str = pmath_string_buffer(&line);
     
     i = 0;
     while(i < len && str[i] <= ' ')
@@ -125,7 +125,7 @@ static pmath_string_t read_word(pmath_t file, pmath_bool_t *eol){
   
   line = pmath_file_readline(file);
   len = pmath_string_length(line);
-  str = pmath_string_buffer(line);
+  str = pmath_string_buffer(&line);
   
   start = 0;
   while(start < len && str[start] <= ' ')

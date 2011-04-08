@@ -66,7 +66,7 @@ PMATH_PRIVATE pmath_t builtin_renamedirectory_and_renamefile(pmath_expr_t expr){
     if(!pmath_is_null(name1) 
     && !pmath_is_null(name2)){
       HANDLE h = CreateFileW(
-        (const wchar_t*)pmath_string_buffer(name1),
+        (const wchar_t*)pmath_string_buffer(&name1),
         0,
         FILE_SHARE_READ | FILE_SHARE_WRITE,
         NULL,
@@ -86,8 +86,8 @@ PMATH_PRIVATE pmath_t builtin_renamedirectory_and_renamefile(pmath_expr_t expr){
           CloseHandle(h);
           
           if(MoveFileExW(
-              (const wchar_t*)pmath_string_buffer(name1),
-              (const wchar_t*)pmath_string_buffer(name2),
+              (const wchar_t*)pmath_string_buffer(&name1),
+              (const wchar_t*)pmath_string_buffer(&name2),
               MOVEFILE_COPY_ALLOWED)
           ){
             name2 = pmath_string_part(name2, 0, pmath_string_length(name2) - 1);

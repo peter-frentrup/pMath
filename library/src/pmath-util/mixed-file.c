@@ -145,7 +145,7 @@ static size_t textbuffer_read_latin1(void *extra, void *buffer, size_t buffer_si
   if(tb->status != PMATH_FILE_OK)
     return 0;
     
-  buf = pmath_string_buffer(tb->text);
+  buf = pmath_string_buffer(&tb->text);
   len = pmath_string_length(tb->text);
   
   if(buffer_size < (size_t)len)
@@ -305,7 +305,7 @@ static size_t textbuffer_write_base85(void *extra, const void *buffer, size_t bu
 static size_t textbuffer_read_base85(void *extra, void *buffer, size_t buffer_size){
   struct textbuffer_t *tb = get_textbuffer(extra);
   
-  const uint16_t *buf = pmath_string_buffer(tb->text);
+  const uint16_t *buf = pmath_string_buffer(&tb->text);
   int             len = pmath_string_length(tb->text);
   
   size_t written = 0;

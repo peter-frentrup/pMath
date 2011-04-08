@@ -62,6 +62,13 @@ void ControlPainter::calc_container_size(
     case SliderHorzThumb: {
       extents->width = extents->height() / 2;
     } break;
+    
+    case ProgressIndicatorBackground: 
+    case ProgressIndicatorBar: {
+      extents->ascent *= 0.5;
+      extents->descent*= 0.5;
+      extents->width = extents->height() * 15;
+    } break;
   }
 }
 
@@ -199,14 +206,31 @@ void ControlPainter::draw_container(
       paint_frame(canvas, x, y, width, height, true, 0xFFFFFF);
       break;
     
-    case SliderHorzChannel: {
+    case SliderHorzChannel:
       paint_frame(canvas, x, y, width, height, true);
-    } break;
+      break;
     
-    case SliderHorzThumb: {
+    case SliderHorzThumb:
       paint_frame(canvas, x, y, width, height, false);
-    } break;
+      break;
       
+    case ProgressIndicatorBackground:
+      paint_frame(canvas, x, y, width, height, true);
+      break;
+      
+    case ProgressIndicatorBar:
+      x+= 3/2.f;
+      y+= 3/2.f;
+      width-= 3;
+      height-= 3;
+      
+      if(width > 0){
+        if(state == Normal)
+          paint_frame(canvas, x, y, width, height, false);
+        else if(state == Hot)
+          paint_frame(canvas, x + width/4, y, width/2, height, false);
+      }
+      break;
   }
 
   canvas->restore();

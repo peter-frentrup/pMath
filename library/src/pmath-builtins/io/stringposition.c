@@ -57,7 +57,7 @@ static pmath_t stringposition(
 ){
   if(pmath_is_string(obj)){
     int length, offset;
-    const uint16_t *buf = pmath_string_buffer(obj);
+    const uint16_t *buf = pmath_string_buffer(&obj);
     int buflen          = pmath_string_length(obj);
     char *subject = pmath_string_to_utf8(obj, &length);
     

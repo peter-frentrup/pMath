@@ -171,7 +171,7 @@ PMATH_PRIVATE pmath_t builtin_copydirectory_and_copyfile(pmath_expr_t expr){
     if(!pmath_is_null(abs_name1) 
     && !pmath_is_null(abs_name2)){
       HANDLE h = CreateFileW(
-        (const wchar_t*)pmath_string_buffer(abs_name1),
+        (const wchar_t*)pmath_string_buffer(&abs_name1),
         0,
         FILE_SHARE_READ | FILE_SHARE_WRITE,
         NULL,
@@ -192,7 +192,7 @@ PMATH_PRIVATE pmath_t builtin_copydirectory_and_copyfile(pmath_expr_t expr){
           CloseHandle(h);
           
           h2 = CreateFileW(
-            (const wchar_t*)pmath_string_buffer(abs_name2),
+            (const wchar_t*)pmath_string_buffer(&abs_name2),
             0,
             FILE_SHARE_READ | FILE_SHARE_WRITE,
             NULL,
@@ -210,8 +210,8 @@ PMATH_PRIVATE pmath_t builtin_copydirectory_and_copyfile(pmath_expr_t expr){
             
             memset(&op, 0, sizeof(op));
             op.wFunc  = FO_COPY;
-            op.pFrom  = (const wchar_t*)pmath_string_buffer(abs_name1);
-            op.pTo    = (const wchar_t*)pmath_string_buffer(abs_name2);
+            op.pFrom  = (const wchar_t*)pmath_string_buffer(&abs_name1);
+            op.pTo    = (const wchar_t*)pmath_string_buffer(&abs_name2);
             op.fFlags = FOF_NOCONFIRMATION | FOF_NOCONFIRMMKDIR | FOF_NOERRORUI | FOF_SILENT;
             
             switch(SHFileOperationW(&op)){

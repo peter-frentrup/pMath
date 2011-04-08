@@ -41,7 +41,7 @@ PMATH_PRIVATE pmath_t builtin_filebytecount(pmath_expr_t expr){
     
     // use CreateFile() instead of GetFileAttributes() to follow symbolic links.
     h = CreateFileW(
-      (const wchar_t*)pmath_string_buffer(file),
+      (const wchar_t*)pmath_string_buffer(&file),
       0,
       FILE_SHARE_READ | FILE_SHARE_WRITE,
       NULL,

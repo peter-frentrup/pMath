@@ -144,7 +144,7 @@ static pmath_string_t get_capture_by_rhs( // PMATH_NULL if no capture was found
   
   assert(c != NULL);
   
-  buf = pmath_string_buffer(rhs);
+  buf = pmath_string_buffer(&rhs);
   len = pmath_string_length(rhs);
   
   if(!re || len < 2 || buf[0] != '$')
@@ -496,7 +496,7 @@ struct compile_regex_info_t{
     u8info.user = &(info->pattern);
     
     if(pmath_is_string(obj) && pmath_string_length(obj) == 1){
-      const uint16_t *buf = pmath_string_buffer(obj);
+      const uint16_t *buf = pmath_string_buffer(&obj);
       
       if(is_pcre_class_metachar(*buf))
         concat_utf8(&(info->pattern), "\\");
@@ -511,8 +511,8 @@ struct compile_regex_info_t{
       && pmath_is_string(end)
       && pmath_string_length(start) == 1
       && pmath_string_length(end)   == 1){
-        const uint16_t *s = pmath_string_buffer(start);
-        const uint16_t *e = pmath_string_buffer(end);
+        const uint16_t *s = pmath_string_buffer(&start);
+        const uint16_t *e = pmath_string_buffer(&end);
         
         if(is_pcre_class_metachar(*s))
           concat_utf8(&(info->pattern), "\\");
@@ -552,7 +552,7 @@ static pmath_bool_t compile_regex_part(
     u8info.write_cstr = (void(*)(void*,const char*))concat_utf8;
     u8info.user = &(info->pattern);
     
-    buf = pmath_string_buffer(part);
+    buf = pmath_string_buffer(&part);
     len = pmath_string_length(part);
     
     i = 0;
@@ -839,7 +839,7 @@ static pmath_bool_t compile_regex_part(
         concat_utf8(&(info->pattern), "(?:");
         pmath_utf8_writer(
           &u8info, 
-          pmath_string_buffer(str), 
+          pmath_string_buffer(&str), 
           pmath_string_length(str));
         concat_utf8(&(info->pattern), ")");
         

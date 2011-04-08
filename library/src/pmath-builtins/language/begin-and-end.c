@@ -25,7 +25,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_is_namespace(pmath_t name){
     return FALSE;
   
   len = pmath_string_length(name);
-  buf = pmath_string_buffer(name);
+  buf = pmath_string_buffer(&name);
   
   if(len < 2 || buf[len-1] != '`' || buf[0] == '`')
     return FALSE;
@@ -327,8 +327,8 @@ PMATH_PRIVATE pmath_t builtin_beginpackage(pmath_expr_t expr){
 }
   
   static pmath_bool_t starts_with(pmath_string_t s, pmath_string_t sub){
-    const uint16_t *sbuf   = pmath_string_buffer(s);
-    const uint16_t *subbuf = pmath_string_buffer(sub);
+    const uint16_t *sbuf   = pmath_string_buffer(&s);
+    const uint16_t *subbuf = pmath_string_buffer(&sub);
     int slen   = pmath_string_length(s);
     int sublen = pmath_string_length(sub);
     
@@ -369,7 +369,7 @@ PMATH_PRIVATE pmath_t builtin_beginpackage(pmath_expr_t expr){
         
         other = pmath_symbol_find(pmath_ref(name), FALSE);
         if(!pmath_is_null(other) && !pmath_same(other, current)){
-          const uint16_t *buf = pmath_string_buffer(name);
+          const uint16_t *buf = pmath_string_buffer(&name);
           int             len = pmath_string_length(name);
           
           --len;

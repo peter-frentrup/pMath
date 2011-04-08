@@ -316,7 +316,7 @@ static pmath_bool_t read_more(parser_t *parser){
     return FALSE;
   }
   
-  parser->tokens.str = pmath_string_buffer(parser->code);
+  parser->tokens.str = pmath_string_buffer(&parser->code);
   parser->tokens.len = pmath_string_length(parser->code);
   parser->tokens.span_items = parser->spans->items;
   return TRUE;
@@ -808,10 +808,15 @@ static void scan_next(scanner_t *tokens, parser_t *parser){
           if(tokens->pos < tokens->len)
             break;
           
-          if(!read_more(parser))
+          if(!read_more(parser)){
+            if(tokens->span_items)
+              tokens->span_items[start] |= 3;
+              
+            span(tokens, start);
             goto END_SCAN;
+          }
         }
-          
+        
         if(tokens->pos < tokens->len
         && tokens->str[tokens->pos] == '"')
           scan_next(tokens, parser);
@@ -960,7 +965,7 @@ PMATH_API pmath_span_array_t *pmath_spans_from_string(
   parser_t parser;
   
   parser.code = *code;
-  parser.tokens.str = pmath_string_buffer(parser.code);
+  parser.tokens.str = pmath_string_buffer(&parser.code);
   parser.tokens.len = pmath_string_length(parser.code);
   parser.tokens.pos = 0;
   parser.fencelevel = 0;
@@ -1040,7 +1045,7 @@ static pmath_token_t token_analyse(
     
     if(!pmath_is_null(str)){
       tok = pmath_token_analyse(
-        pmath_string_buffer(str),
+        pmath_string_buffer(&str),
         pmath_string_length(str),
         prec);
       
@@ -1908,7 +1913,7 @@ PMATH_API pmath_t pmath_boxes_from_spans(
   
   group.spans        = spans;
   group.string       = string;
-  group.str          = pmath_string_buffer(string);
+  group.str          = pmath_string_buffer(&string);
   group.pos          = 0;
   group.parseable    = parseable;
   group.box_at_index = box_at_index;
@@ -1945,7 +1950,7 @@ typedef struct{
 
 static int ungrouped_string_length(pmath_t box){ // box wont be freed
   if(pmath_is_string(box)){
-    const uint16_t *str = pmath_string_buffer(box);
+    const uint16_t *str = pmath_string_buffer(&box);
     int i, k, len, result;
     
     len = pmath_string_length(box);
@@ -2012,7 +2017,7 @@ static void ungroup(
       return;
     }
     
-    str = pmath_string_buffer(box);
+    str = pmath_string_buffer(&box);
     start = g->pos;
     
     i = 0;
@@ -2039,7 +2044,7 @@ static void ungroup(
         
         box_in_str = pmath_string_part(pmath_ref(box), i, l);
         
-        sub = pmath_string_buffer(box_in_str);
+        sub = pmath_string_buffer(&box_in_str);
         
         if(g->make_box){
           g->make_box(
@@ -2096,7 +2101,7 @@ static void ungroup(
         pmath_span_t *old = SPAN_PTR(g->spans->items[start]);
         
         if(pmath_is_string(first)){
-          const uint16_t *fbuf = pmath_string_buffer(first);
+          const uint16_t *fbuf = pmath_string_buffer(&first);
           int flen = pmath_string_length(first);
           
           if(flen > 0 && fbuf[0] == '"' && (flen == 1 || fbuf[flen - 1] != '"')){
@@ -2168,7 +2173,7 @@ PMATH_API pmath_span_array_t *pmath_spans_from_boxes(
     return NULL;
   }
   
-  g.str      = (uint16_t*)pmath_string_buffer(*result_string);
+  g.str      = (uint16_t*)pmath_string_buffer(result_string);
   g.pos      = 0;
   g.make_box = make_box;
   g.data     = data;
@@ -2188,7 +2193,7 @@ PMATH_API
 pmath_t pmath_string_expand_boxes(
   pmath_string_t  s
 ){
-  const uint16_t *buf = pmath_string_buffer(s);
+  const uint16_t *buf = pmath_string_buffer(&s);
   int len = pmath_string_length(s);
   
   while(len-- > 0)
@@ -2200,7 +2205,7 @@ pmath_t pmath_string_expand_boxes(
  HAVE_STH_TO_EXPAND:
   {
     int start, i;
-    buf = pmath_string_buffer(s);
+    buf = pmath_string_buffer(&s);
     len = pmath_string_length(s);
     
     start = i = 0;
