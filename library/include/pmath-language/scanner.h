@@ -34,7 +34,7 @@
    But those lists are not practicable for front-ends, so pMath provides a flat 
    representation called \em span-array. It is an array of spans and flags (see 
    pmath_span_at(), pmath_span_array_is_token_end(), 
-   pmath_span_array_is_operator_start()).
+   pmath_span_array_is_operand_start()).
    
    The above code would be scanned to the following span array (the text itself
    is not stored):
@@ -97,7 +97,7 @@ PMATH_API pmath_bool_t pmath_span_array_is_token_end(
           <tt>pmath_span_array_length(spans)-1</tt>.
    \return Whether an operator starts at the specified position.
  */
-PMATH_API pmath_bool_t pmath_span_array_is_operator_start(
+PMATH_API pmath_bool_t pmath_span_array_is_operand_start(
   pmath_span_array_t *spans, 
   int                 pos);
 
@@ -199,9 +199,9 @@ PMATH_API
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_span_array_t *pmath_spans_from_boxes(
   pmath_t           boxes,         // will be freed;
-  pmath_string_t  *result_string,
-  void           (*make_box)(int,pmath_t,void*), // frees 2nd arg
-  void            *data);
+  pmath_string_t   *result_string,
+  void            (*make_box)(int,pmath_t,void*), // frees 2nd arg
+  void             *data);
   
 /**\brief Expand a string that contains boxes to a list of Strings and Boxes
    \relates pmath_string_t

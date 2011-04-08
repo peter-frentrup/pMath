@@ -120,6 +120,33 @@ static pmath_expr_t get_command_line(void){
   return pmath_gather_end();
 }
 
+static void init_pagewidth(void){
+  int width = 72;
+  
+  #ifdef PMATH_OS_WIN32
+  {
+    CONSOLE_SCREEN_BUFFER_INFO info;
+    memset(&info, 0, sizeof(info));
+    
+    if(GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &info)){
+      width = info.dwSize.X;
+    }
+  }
+  #else
+  {
+    const char *col = getenv("COLUMNS");
+    
+    if(col)
+      width = atoi(col);
+  }
+  #endif
+  
+  if(width < 6)
+    width = 6;
+  
+  PMATH_RUN_ARGS("$PageWidth:=`1`", "(i)", width);
+}
+
 static pmath_expr_t get_exe_name(void){
   #ifdef PMATH_OS_WIN32
   {
@@ -517,7 +544,7 @@ PMATH_API pmath_bool_t pmath_init(void){
     PMATH_RUN_ARGS("$MinMachineNumber:=`1`", "(f)", (double)DBL_MIN);
     PMATH_RUN("$MaxExtraPrecision:=50");
     
-    PMATH_RUN("$PageWidth:=72");
+    init_pagewidth();
     
     PMATH_RUN("$Path:={\".\"}");
     

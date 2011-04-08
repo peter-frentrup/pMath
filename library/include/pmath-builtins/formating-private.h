@@ -24,7 +24,7 @@ PMATH_ATTRIBUTE_NONNULL(3)
 pmath_bool_t _pmath_stringform_write(
   pmath_expr_t            stringform, // wont be freed
   pmath_write_options_t   options,
-  pmath_write_func_t      write,
+  void                  (*write)(void *user, const uint16_t *data, int len),
   void                   *user);
 
 PMATH_PRIVATE 

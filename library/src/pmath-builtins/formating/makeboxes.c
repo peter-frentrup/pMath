@@ -2990,7 +2990,7 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj){
     pmath_write(
       obj, 
       PMATH_WRITE_OPTIONS_INPUTEXPR, 
-      (pmath_write_func_t)_pmath_write_to_string, 
+      (void(*)(void*,const uint16_t*,int))_pmath_write_to_string, 
       &s);
     pmath_unref(obj);
 
@@ -3068,7 +3068,7 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj){
       pmath_write(
         obj, 
         thread->longform ? PMATH_WRITE_OPTIONS_FULLNAME : 0, 
-        (pmath_write_func_t)_pmath_write_to_string, 
+        (void(*)(void*,const uint16_t*,int))_pmath_write_to_string, 
         &s);
       pmath_unref(obj);
       return s;
@@ -3085,7 +3085,7 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj){
       pmath_write(
         obj, 
         PMATH_WRITE_OPTIONS_INPUTEXPR, 
-        (pmath_write_func_t)_pmath_write_to_string, 
+        (void(*)(void*,const uint16_t*,int))_pmath_write_to_string, 
         &s);
       pmath_unref(obj);
 
@@ -3106,13 +3106,13 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj){
       pmath_write(
         PMATH_QUOT_NUM(obj),
         PMATH_WRITE_OPTIONS_INPUTEXPR,
-        (pmath_write_func_t)_pmath_write_to_string,
+        (void(*)(void*,const uint16_t*,int))_pmath_write_to_string,
         &n);
 
       pmath_write(
         PMATH_QUOT_DEN(obj),
         PMATH_WRITE_OPTIONS_INPUTEXPR,
-        (pmath_write_func_t)_pmath_write_to_string,
+        (void(*)(void*,const uint16_t*,int))_pmath_write_to_string,
         &d);
 
       if(pmath_string_length(n) > 0 && *pmath_string_buffer(&n) == '-'){

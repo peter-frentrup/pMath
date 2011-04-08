@@ -71,18 +71,18 @@ PMATH_PRIVATE
 void _pmath_string_write(
   pmath_t                 str,
   pmath_write_options_t   options,
-  pmath_write_func_t      write,
+  void                  (*write)(void *user, const uint16_t *data, int len),
   void                   *user);
 
 PMATH_PRIVATE void write_cstr(
-  const char          *str, 
-  pmath_write_func_t   write_ucs2, 
-  void                *user);
+  const char  *str, 
+  void       (*write_ucs2)(void*,const uint16_t*,int),
+  void        *user);
 
 static PMATH_INLINE void write_unichar(
-  uint16_t             ch,
-  pmath_write_func_t   write_ucs2,
-  void                *user
+  uint16_t   ch,
+  void     (*write_ucs2)(void*,const uint16_t*,int),
+  void      *user
 ){
   write_ucs2(user, &ch, 1);
 }

@@ -4,6 +4,7 @@
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/io-private.h>
 
+
 static const uint16_t newline = '\n';
 
 PMATH_PRIVATE pmath_t builtin_write(pmath_expr_t expr){

@@ -47,6 +47,7 @@
 #include <pmath-util/evaluation.h>
 #include <pmath-util/hashtables.h>
 #include <pmath-util/helpers.h>
+#include <pmath-util/line-writer.h>
 #include <pmath-util/memory.h>
 #include <pmath-util/messages.h>
 #include <pmath-util/mixed-file.h>

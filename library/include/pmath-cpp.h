@@ -190,7 +190,7 @@ namespace pmath{
                  otherwise.
        */
       double to_double(double def = 0.0) const throw() {
-        if(is_expr())
+        if(is_number())
           return pmath_number_get_d(_obj);
         
         pmath_t approx = pmath_approximate(

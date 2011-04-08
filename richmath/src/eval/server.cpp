@@ -303,7 +303,7 @@ class LocalServer: public Server{
         while(!me->do_quit){
           pmath_thread_sleep();
           
-          printf("S");
+          pmath_debug_print("S");
           
           Token token;
           while(me->tokens.get(&token)){
@@ -340,7 +340,7 @@ class LocalServer: public Server{
       while(!me->do_quit){
         pmath_thread_sleep();
         
-        printf("S");
+        pmath_debug_print("S");
         
         Token token;
         while(me->tokens.get(&token)){

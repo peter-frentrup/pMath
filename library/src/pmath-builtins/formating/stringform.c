@@ -269,7 +269,7 @@ PMATH_PRIVATE
 pmath_bool_t _pmath_stringform_write(
   pmath_expr_t            stringform, // wont be freed
   pmath_write_options_t   options,
-  pmath_write_func_t      write,
+  void                  (*write)(void*,const uint16_t*,int),
   void                   *user
 ){
   _format_data_t  data;
@@ -297,7 +297,7 @@ pmath_bool_t _pmath_stringform_write(
     pmath_write(
       item,
       options,
-      (pmath_write_func_t)_pmath_write_to_string,
+      (void(*)(void*,const uint16_t*,int))_pmath_write_to_string,
       &str);
     
     pmath_unref(item);
@@ -414,7 +414,7 @@ pmath_t _pmath_stringform_to_boxes(
           item,
             PMATH_WRITE_OPTIONS_FULLSTR
           | PMATH_WRITE_OPTIONS_INPUTEXPR,
-          (pmath_write_func_t)_pmath_write_to_string,
+          (void(*)(void*,const uint16_t*,int))_pmath_write_to_string,
           &nitem);
         
         nitem = pmath_string_insert_ucs2(

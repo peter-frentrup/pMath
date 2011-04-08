@@ -139,7 +139,8 @@ Win32Widget::Win32Widget(
   _width(0),
   _height(0),
   animation_running(false),
-  is_dragging(false)
+  is_dragging(false),
+  is_drop_over(false)
 {
   add_remove_window(1);
 }
@@ -966,7 +967,6 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam){
           } break;
         
           case TID_ANIMATE: {
-            printf("T");
             KillTimer(_hwnd, TID_ANIMATE);
             animation_running = 0;
             
@@ -1082,7 +1082,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam){
       } break;
       
       case WM_COMMAND: {
-        printf("C");
+        pmath_debug_print("C");
         String cmd = win32_command_id_to_command_string(LOWORD(wParam));
         if(cmd.is_null())
           break;

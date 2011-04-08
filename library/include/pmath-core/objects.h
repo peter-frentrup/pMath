@@ -294,7 +294,7 @@ PMATH_ATTRIBUTE_NONNULL(3)
 void pmath_write(
   pmath_t                 obj,
   pmath_write_options_t   options,
-  pmath_write_func_t      write,
+  void                  (*write)(void *user, const uint16_t *data, int len),
   void                   *user);
 
 /**\brief Test whether an object is already evaluated.

@@ -130,7 +130,7 @@ static void write_cstr(FILE *file, const char *cstr){
       printf(" ");
     printf("       ");
 
-    pmath_write(obj, 0, pmath_native_writer, &info);
+    pmath_write_with_pagewidth(obj, 0, pmath_native_writer, &info, -1, 7 + dialog_depth);
     printf("\n");
     fflush(stdout);
   }

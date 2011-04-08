@@ -1156,10 +1156,10 @@ static unsigned int hash_mp_int(pmath_t integer){
 
 PMATH_PRIVATE 
 void _pmath_write_machine_int(
-  pmath_t                  integer,
-  pmath_write_options_t    options,
-  pmath_write_func_t       write,
-  void                    *user
+  pmath_t                 integer,
+  pmath_write_options_t   options,
+  void                  (*write)(void*,const uint16_t*,int),
+  void                   *user
 ){
   char s[12];
   
@@ -1168,10 +1168,10 @@ void _pmath_write_machine_int(
 }
 
 static void write_mp_int(
-  pmath_t                  integer,
-  pmath_write_options_t    options,
-  pmath_write_func_t       write,
-  void                    *user
+  pmath_t                 integer,
+  pmath_write_options_t   options,
+  void                  (*write)(void*,const uint16_t*,int),
+  void                   *user
 ){
   char *str;
   int base = 10;
@@ -1222,10 +1222,10 @@ static unsigned int hash_quotient(pmath_t quotient){
 }
 
 static void write_quotient(
-  pmath_t                   quotient,
-  pmath_write_options_t     options,
-  pmath_write_func_t        write,
-  void                     *user
+  pmath_t                 quotient,
+  pmath_write_options_t   options,
+  void                  (*write)(void*,const uint16_t*,int),
+  void                   *user
 ){
   pmath_write(PMATH_QUOT_NUM(quotient), options, write, user);
   write_cstr("/", write, user);
@@ -1264,7 +1264,11 @@ static unsigned int hash_mp_float(pmath_t f){
     h);
 }
 
-  static void write_short_double(double d, pmath_write_func_t write, void *user){
+  static void write_short_double(
+    double   d, 
+    void   (*write)(void*,const uint16_t*,int),
+    void    *user
+  ){
     char s[100];
     double test;
     int maxprec = 1 + (int)ceil(DBL_MANT_DIG * LOG10_2);
@@ -1282,10 +1286,10 @@ static unsigned int hash_mp_float(pmath_t f){
   }
 
 static void write_mp_float(
-  pmath_t                f,
-  pmath_write_options_t  options,
-  pmath_write_func_t     write,
-  void                  *user
+  pmath_t                 f,
+  pmath_write_options_t   options,
+  void                  (*write)(void*,const uint16_t*,int),
+  void                   *user
 ){
   mp_exp_t exp;
   size_t digits, size;
@@ -1439,10 +1443,10 @@ static void write_mp_float(
 
 PMATH_PRIVATE
 void _pmath_write_machine_float(
-  pmath_t                f,
-  pmath_write_options_t  options,
-  pmath_write_func_t     write,
-  void                  *user
+  pmath_t                 f,
+  pmath_write_options_t   options,
+  void                  (*write)(void*,const uint16_t*,int),
+  void                   *user
 ){
   char s[100];
   double test;

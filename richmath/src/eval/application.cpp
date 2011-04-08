@@ -228,7 +228,9 @@ void Application::register_menucommand(
     menu_command_testers.remove(cmd);
 }
 
-  static void write_data(FILE *file, const uint16_t *data, int len){
+  static void write_data(void *user, const uint16_t *data, int len){
+    FILE *file = (FILE*)user;
+    
     #define BUFSIZE 200
     char buf[BUFSIZE];
     while(len > 0){
@@ -304,7 +306,7 @@ void Application::gui_print_section(Expr expr){
   }
   else{
     printf("\n");
-    pmath_write(expr.get(), 0, (pmath_write_func_t)write_data, stdout);
+    pmath_write(expr.get(), 0, write_data, stdout);
     printf("\n");
   }
 }

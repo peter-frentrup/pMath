@@ -125,17 +125,17 @@ pmath_mpfloat_t _pmath_convert_to_mp_float(pmath_float_t n); // n will be freed
 
 PMATH_PRIVATE 
 void _pmath_write_machine_float(
-  pmath_t                f,
-  pmath_write_options_t  options,
-  pmath_write_func_t     write,
-  void                  *user);
+  pmath_t                 f,
+  pmath_write_options_t   options,
+  void                  (*write)(void *user, const uint16_t *data, int len),
+  void                   *user);
   
 PMATH_PRIVATE 
 void _pmath_write_machine_int(
-  pmath_t                f,
-  pmath_write_options_t  options,
-  pmath_write_func_t     write,
-  void                  *user);
+  pmath_t                 f,
+  pmath_write_options_t   options,
+  void                  (*write)(void *user, const uint16_t *data, int len),
+  void                   *user);
   
 PMATH_PRIVATE
 int _pmath_numbers_compare(

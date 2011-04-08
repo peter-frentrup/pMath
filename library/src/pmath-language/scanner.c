@@ -115,7 +115,7 @@ PMATH_API pmath_bool_t pmath_span_array_is_token_end(
   return 1 == SPAN_TOK(spans->items[pos]);
 }
 
-PMATH_API pmath_bool_t pmath_span_array_is_operator_start(
+PMATH_API pmath_bool_t pmath_span_array_is_operand_start(
   pmath_span_array_t *spans, 
   int pos
 ){
@@ -1849,7 +1849,7 @@ static void emit_span(pmath_span_t *span, _pmath_group_t *group){
         pmath_write(
           box, 
           PMATH_WRITE_OPTIONS_FULLSTR, 
-          (pmath_write_func_t)write_to_str, 
+          (void(*)(void*,const uint16_t*,int))write_to_str, 
           &result);
       
         pmath_unref(box);

@@ -62,7 +62,7 @@ namespace richmath{
       }
       
       bool is_operand_start(int i) const {
-        return pmath_span_array_is_operator_start(_array, i);
+        return pmath_span_array_is_operand_start(_array, i);
       }
       
       pmath_span_array_t *array(){ return _array; }

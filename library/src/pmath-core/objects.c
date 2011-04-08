@@ -238,7 +238,7 @@ PMATH_API int pmath_compare(pmath_t objA, pmath_t objB){
 PMATH_API void pmath_write(
   pmath_t                 obj,
   pmath_write_options_t   options,
-  pmath_write_func_t      write,
+  void                  (*write)(void*,const uint16_t*,int),
   void                   *user
 ){
   assert(write != NULL);

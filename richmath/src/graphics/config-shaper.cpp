@@ -71,6 +71,18 @@ class GlyphGetter: public Base{
     }
     
     uint16_t expr_to_glyph(const Expr expr, uint8_t font){
+      if(expr.is_expr()
+      && expr[0] == PMATH_SYMBOL_ALTERNATIVES){
+        for(size_t i = 1;i <= expr.expr_length();++i){
+          uint16_t res = expr_to_glyph(expr[i], font);
+          
+          if(res)
+            return res;
+        }
+        
+        return 0;
+      }
+      
       if(expr.is_string()){
         uint16_t res = ps2g[font & (FontsPerGlyphCount-1)][String(expr)];
         

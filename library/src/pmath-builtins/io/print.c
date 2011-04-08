@@ -2,6 +2,7 @@
 #include <pmath-core/symbols.h>
 
 #include <pmath-util/concurrency/threadlocks.h>
+#include <pmath-util/line-writer.h>
 
 #include <pmath-builtins/all-symbols-private.h>
 
@@ -9,8 +10,8 @@
 #include <string.h>
 
 
-static void write_to_file(FILE *file, const char *cstr){
-  fwrite(cstr, 1, strlen(cstr), file);
+static void write_to_file(void *file, const char *cstr){
+  fwrite(cstr, 1, strlen(cstr), (FILE*)file);
 }
 
 static pmath_threadlock_t print_lock = NULL;
@@ -21,11 +22,11 @@ static void sectionprint_locked_callback(void *p){
   size_t i;
   
   info.user = stdout;
-  info.write_cstr = (void (*)(void*, const char*))write_to_file;
+  info.write_cstr = write_to_file;
 
   for(i = 2;i <= pmath_expr_length(expr);i++){
     pmath_t item = pmath_expr_get_item(expr, i);
-    pmath_write(item, 0, pmath_native_writer, &info);
+    pmath_write_with_pagewidth(item, 0, pmath_native_writer, &info, -1, 0);
     pmath_unref(item);
   }
   printf("\n\n");

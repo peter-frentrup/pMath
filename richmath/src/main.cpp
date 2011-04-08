@@ -145,7 +145,7 @@ static void load_aliases(
     }
   }
 
-  printf("Loaded aliases in %f seconds.\n", (clock() - start) / (double)CLOCKS_PER_SEC);
+  pmath_debug_print("Loaded aliases in %f seconds.\n", (clock() - start) / (double)CLOCKS_PER_SEC);
 }
 
 static void os_init(){
@@ -203,6 +203,9 @@ int main(){
   
   // load the syntax information table in parallel
   PMATH_RUN("NewTask(SyntaxInformation(Sin))");
+  
+  // do not depend on console window size:
+  PMATH_RUN("$PageWidth:= 72");
       
   PMATH_RUN("BeginPackage(\"FE`\")");
   {

@@ -573,7 +573,7 @@ PMATH_API pmath_bool_t pmath_file_write_object(
   data.file = file;
   data.success = TRUE;
   
-  pmath_write(obj, options, (pmath_write_func_t)write_data, &data);
+  pmath_write(obj, options, (void(*)(void*,const uint16_t*,int))write_data, &data);
   
   return data.success;
 }

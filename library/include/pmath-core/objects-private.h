@@ -43,7 +43,7 @@ _pmath_timer_t _pmath_timer_get_next(void);
 typedef void (*_pmath_object_write_func_t)(
   pmath_t                 obj,
   pmath_write_options_t   options,
-  pmath_write_func_t      write,
+  void                  (*write)(void *user, const uint16_t *data, int len),
   void                   *user);
 
 PMATH_PRIVATE 

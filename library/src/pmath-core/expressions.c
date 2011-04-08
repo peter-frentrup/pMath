@@ -1392,14 +1392,14 @@ static void write_expr_ex(
   pmath_expr_t      expr,
   pmath_write_options_t   options,
   int                     priority,
-  pmath_write_func_t      write,
+  void                  (*write)(void*,const uint16_t*,int),
   void                   *user);
 
 static void write_ex(
   pmath_t          obj,
   pmath_write_options_t   options,
   int                     priority,
-  pmath_write_func_t      write,
+  void                  (*write)(void*,const uint16_t*,int),
   void                   *user
 ){
   if(pmath_is_expr(obj)){
@@ -1419,10 +1419,10 @@ static void write_ex(
 }
 
 typedef struct{
-  void               *next_user;
-  pmath_write_func_t  next;
-  int                 prefix_status;
-  pmath_bool_t        special_end; // for product_writer
+  void         *next_user;
+  void        (*next)(void*,const uint16_t*,int);
+  int           prefix_status;
+  pmath_bool_t  special_end; // for product_writer
 }_writer_hook_data_t;
 
 /* Hook in the given writer function and insert a space before the first 
@@ -1532,7 +1532,7 @@ static void write_expr_ex(
   pmath_expr_t      expr,
   pmath_write_options_t   options,
   int                     priority,
-  pmath_write_func_t      write,
+  void                  (*write)(void*,const uint16_t*,int),
   void                   *user
 ){
   size_t exprlen = pmath_expr_length(expr);
@@ -2209,7 +2209,7 @@ static void write_expr_ex(
         item,
         options,
         PRIO_PLUS+1,
-        (pmath_write_func_t)sum_writer,
+        (void(*)(void*,const uint16_t*,int))sum_writer,
         &sum_writer_data);
       sum_writer_data.prefix_status = FALSE;
       pmath_unref(item);
@@ -2243,7 +2243,7 @@ static void write_expr_ex(
         item,
         options,
         PRIO_TIMES,
-        (pmath_write_func_t)product_writer,
+        (void(*)(void*,const uint16_t*,int))product_writer,
         &product_writer_data);
       product_writer_data.prefix_status = 0;
     }
@@ -2252,7 +2252,8 @@ static void write_expr_ex(
     for(i = 2;i <= exprlen;i++){
       item = pmath_expr_get_item(expr, i);
       
-      if(product_writer_data.special_end){
+      if(product_writer_data.special_end 
+      || (options & PMATH_WRITE_OPTIONS_INPUTEXPR)){
         WRITE_CSTR("*");
         product_writer_data.prefix_status = 1;
       }
@@ -2261,7 +2262,7 @@ static void write_expr_ex(
         item,
         options,
         PRIO_FACTOR,
-        (pmath_write_func_t)product_writer,
+        (void(*)(void*,const uint16_t*,int))product_writer,
         &product_writer_data);
       product_writer_data.prefix_status = 0;
       pmath_unref(item);
@@ -2290,24 +2291,17 @@ static void write_expr_ex(
       WRITE_CSTR(")");
     }
     else if(pmath_equals(exponent, PMATH_FROM_INT32(-1))){
-      
-//      if(write == (pmath_write_func_t)product_writer)
-//        WRITE_CSTR("/");
-//      else
-        WRITE_CSTR("1/");
+      WRITE_CSTR("1/");
       
       write_ex(
         base, 
         options, 
         PRIO_POWER+1, 
-        (pmath_write_func_t)division_writer,
+        (void(*)(void*,const uint16_t*,int))division_writer,
         &division_writer_data);
     }
     else if(pmath_is_integer(exponent) && pmath_number_sign(exponent) < 0){
-//      if(write == (pmath_write_func_t)product_writer)
-//        WRITE_CSTR("/");
-//      else
-        WRITE_CSTR("1/");
+      WRITE_CSTR("1/");
       
       exponent = pmath_number_neg(exponent);
       
@@ -2315,7 +2309,7 @@ static void write_expr_ex(
         base, 
         options, 
         PRIO_POWER+1, 
-        (pmath_write_func_t)division_writer,
+        (void(*)(void*,const uint16_t*,int))division_writer,
         &division_writer_data);
         
       WRITE_CSTR("^");
@@ -2325,10 +2319,7 @@ static void write_expr_ex(
       pmath_t minus_one_half = pmath_number_neg(pmath_ref(_pmath_one_half));
       
       if(pmath_equals(exponent, minus_one_half)){
-//        if(write == (pmath_write_func_t)product_writer)
-//          WRITE_CSTR("/Sqrt(");
-//        else
-          WRITE_CSTR("1/Sqrt(");
+        WRITE_CSTR("1/Sqrt(");
         pmath_write(base, options, write, user);
         WRITE_CSTR(")");
       }
@@ -2831,7 +2822,7 @@ static void write_expr_ex(
 static void write_expression(
   pmath_expr_t            expr,
   pmath_write_options_t   options,
-  pmath_write_func_t      write,
+  void                  (*write)(void*,const uint16_t*,int),
   void                   *user
 ){
   write_expr_ex(expr, options, PRIO_ANY, write, user);

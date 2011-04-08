@@ -42,16 +42,6 @@ typedef char pmath_bool_t;
  */
 typedef void (*pmath_callback_t)(void*);
 
-/**\brief A UCS-2 writer callback function.
-   
-   The to-be-written data is not zero-terminated.
- */
-typedef void (*pmath_write_func_t)(void *user, const uint16_t *data, int len);
-
-/**\brief A callback function to write a single unicode character.
- */
-typedef void (*pmath_write_unichar_func_t)(void *user, uint32_t ch);
-
 /** @} */
 
 #endif /* __PMATH_TYPES_H__ */

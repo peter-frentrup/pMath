@@ -552,7 +552,7 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
     } break;
     
     case WM_NEXTMENU: {
-      printf("[next]");
+      pmath_debug_print("[next]");
     } break;
     
     case WM_SYSKEYDOWN: {

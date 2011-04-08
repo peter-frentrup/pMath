@@ -320,7 +320,7 @@ static unsigned int hash_string(pmath_t str){
 PMATH_PRIVATE
 void write_cstr(
   const char          *str,
-  pmath_write_func_t   write_ucs2,
+  void               (*write_ucs2)(void*,const uint16_t*,int),
   void                *user
 ){
   int len = strlen(str);
@@ -379,13 +379,13 @@ static pmath_bool_t is_single_token(pmath_t box){
 static void write_boxes(
   pmath_t                 box,
   pmath_write_options_t   options,
-  pmath_write_func_t      write,
+  void                  (*write)(void*,const uint16_t*,int),
   void                   *user);
 
 static void write_single_token_box(
   pmath_t                 box,
   pmath_write_options_t   options,
-  pmath_write_func_t      write,
+  void                  (*write)(void*,const uint16_t*,int),
   void                   *user
 ){
   if(is_single_token(box)){
@@ -401,7 +401,7 @@ static void write_single_token_box(
 static void write_boxes(
   pmath_t                 box,
   pmath_write_options_t   options,
-  pmath_write_func_t      write,
+  void                  (*write)(void*,const uint16_t*,int),
   void                   *user
 ){
   if(pmath_is_string(box)){
@@ -510,7 +510,7 @@ PMATH_PRIVATE
 void _pmath_string_write(
   pmath_t                 str,
   pmath_write_options_t   options,
-  pmath_write_func_t      write,
+  void                  (*write)(void*,const uint16_t*,int),
   void                   *user
 ){
   static char hex_digits[16] = "0123456789ABCDEF";

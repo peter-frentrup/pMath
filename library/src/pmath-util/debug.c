@@ -95,7 +95,7 @@ PMATH_API void pmath_debug_print_object(
       obj,
       PMATH_WRITE_OPTIONS_FULLSTR | PMATH_WRITE_OPTIONS_INPUTEXPR
         | PMATH_WRITE_OPTIONS_FULLNAME,
-      (pmath_write_func_t)write_data,
+      (void(*)(void*,const uint16_t*,int))write_data,
       debuglog);
     fputs(post, debuglog);
 

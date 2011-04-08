@@ -1064,7 +1064,7 @@ static void destroy_symbol(pmath_t s){
 static void write_symbol(
   pmath_t                 symbol,
   pmath_write_options_t   options,
-  pmath_write_func_t      write,
+  void                  (*write)(void*,const uint16_t*,int),
   void                   *user
 ){
   pmath_string_t name;

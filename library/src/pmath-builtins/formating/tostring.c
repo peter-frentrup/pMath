@@ -27,7 +27,7 @@ PMATH_PRIVATE pmath_t builtin_tostring(pmath_expr_t expr){
   
   for(i = 1;i <= len;++i){
     pmath_t obj = pmath_expr_get_item(expr, i);
-    pmath_write(obj, 0, (pmath_write_func_t)_pmath_write_to_string, &result);
+    pmath_write(obj, 0, (void(*)(void*,const uint16_t*,int))_pmath_write_to_string, &result);
     pmath_unref(obj);
   }
   pmath_unref(expr);

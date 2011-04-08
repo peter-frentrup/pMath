@@ -35,7 +35,6 @@ class Win32ControlPainterInfo: public BasicWin32Widget{
       switch(message){
         case WM_DWMCOMPOSITIONCHANGED: 
         case WM_THEMECHANGED: {
-          printf("D");
           Win32ControlPainter::win32_painter.clear_cache();
         } break;
       }

@@ -203,9 +203,11 @@ void MathSequence::resize(Context *context){
   }
   while(pos < glyphs.length()){
     if(pos == lines[line].end){
-      if(_extents.width < glyphs[pos - 1].right - x)
-        _extents.width = glyphs[pos - 1].right - x;
-      x = glyphs[pos - 1].right;
+      if(pos > 0){
+        if(_extents.width < glyphs[pos - 1].right - x)
+          _extents.width = glyphs[pos - 1].right - x;
+        x = glyphs[pos - 1].right;
+      }
       
       _extents.descent+= lines[line].ascent + lines[line].descent + line_spacing();
         
