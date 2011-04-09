@@ -1005,6 +1005,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   VERIFY(   PMATH_SYMBOL_PACKAGES                  = NEW_SYSTEM_SYMBOL("$Packages"))
   VERIFY(   PMATH_SYMBOL_PADLEFT                   = NEW_SYSTEM_SYMBOL("PadLeft"))
   VERIFY(   PMATH_SYMBOL_PADRIGHT                  = NEW_SYSTEM_SYMBOL("PadRight"))
+  VERIFY(   PMATH_SYMBOL_PAGEWIDTH                 = NEW_SYSTEM_SYMBOL("PageWidth"))
   VERIFY(   PMATH_SYMBOL_PAGEWIDTHDEFAULT          = NEW_SYSTEM_SYMBOL("$PageWidth"))
   VERIFY(   PMATH_SYMBOL_PARALLEL_RETURN           = NEW_SYSTEM_SYMBOL("Parallel`Return"))
   VERIFY(   PMATH_SYMBOL_PARALLELMAP               = NEW_SYSTEM_SYMBOL("ParallelMap"))

@@ -182,7 +182,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_file_check(pmath_t file, int properties){
 
 PMATH_PRIVATE pmath_bool_t _pmath_open_tmp(
   pmath_t *streams, 
-  int             properties
+  int      properties
 ){
   if(pmath_is_expr_of(*streams, PMATH_SYMBOL_LIST)
   && (properties & OPEN_READ) == 0){
@@ -370,6 +370,7 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr){
   pmath_bool_t binary_format = TRUE;
   pmath_bool_t unbuffered = FALSE;
   pmath_string_t encoding = PMATH_NULL;
+  pmath_t page_width = PMATH_NULL;
   enum open_kind kind;
   
   if(pmath_expr_length(expr) < 1){
@@ -480,6 +481,11 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr){
       pmath_unref(options);
       return expr;
     }
+  }
+  
+  if(kind != OPEN_READ){ // PageWidth
+    page_width = pmath_evaluate(
+      pmath_option_value(PMATH_NULL, PMATH_SYMBOL_PAGEWIDTH, options));
   }
   
   if(!binary_format 
@@ -609,14 +615,25 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr){
   
     PMATH_RUN_ARGS(
         "Unprotect(`1`);"
-        "Options(`1`):= Union({CharacterEncoding->`2`}, Options(`1`));"
+        "Options(`1`):= Union(Options(`1`), {CharacterEncoding->`2`});"
         "Protect(`1`)", 
       "(oo)", 
       pmath_ref(file), 
       pmath_ref(encoding));
   }
   
+  if(kind != OPEN_READ){
+    PMATH_RUN_ARGS(
+        "Unprotect(`1`);"
+        "Options(`1`):= Union(Options(`1`), {PageWidth->`2`});"
+        "Protect(`1`)", 
+      "(oo)", 
+      pmath_ref(file), 
+      pmath_ref(page_width));
+  }
+  
   pmath_unref(encoding);
+  pmath_unref(page_width);
   
   return file;
 }

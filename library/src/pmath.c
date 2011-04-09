@@ -121,7 +121,7 @@ static pmath_expr_t get_command_line(void){
 }
 
 static void init_pagewidth(void){
-  int width = 72;
+  int width = 80;
   
   #ifdef PMATH_OS_WIN32
   {
@@ -709,7 +709,12 @@ PMATH_API pmath_bool_t pmath_init(void){
       "ParserArguments->Automatic,"
       "ParseSymbols->Automatic}");
       
-    PMATH_RUN("Options(OpenRead):=Options(OpenWrite):=Options(OpenAppend):={"
+    PMATH_RUN("Options(OpenAppend):=Options(OpenWrite):={"
+      "BinaryFormat->False,"
+      "CharacterEncoding->Automatic,"
+      "PageWidth:>80}");
+    
+    PMATH_RUN("Options(OpenRead):={"
       "BinaryFormat->False,"
       "CharacterEncoding->Automatic}");
     

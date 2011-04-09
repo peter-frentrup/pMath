@@ -7,6 +7,7 @@
 #include <pmath-util/concurrency/threads.h>
 #include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
+#include <pmath-util/line-writer.h>
 #include <pmath-util/memory.h>
 #include <pmath-util/messages.h>
 
@@ -559,8 +560,10 @@ typedef struct{
   pmath_bool_t success;
 }_write_data_t;
 
-static void write_data(_write_data_t *user, const uint16_t *data, int len){
-  user->success = pmath_file_writetext(user->file, data, len) || user->success;
+static void write_data(void *user, const uint16_t *data, int len){
+  _write_data_t *wd = user;
+  
+  wd->success = pmath_file_writetext(wd->file, data, len) || wd->success;
 }
 
 PMATH_API pmath_bool_t pmath_file_write_object(
@@ -568,12 +571,25 @@ PMATH_API pmath_bool_t pmath_file_write_object(
   pmath_t                 obj,
   pmath_write_options_t   options
 ){
+  int page_width = -1;
+  pmath_t pagewidth_obj;
   _write_data_t data;
   
   data.file = file;
   data.success = TRUE;
   
-  pmath_write(obj, options, (void(*)(void*,const uint16_t*,int))write_data, &data);
+  pagewidth_obj = pmath_evaluate(
+    pmath_parse_string_args("Try(OptionValue(`1`,PageWidth))", "(o)", pmath_ref(file)));
+  
+  if(pmath_is_int32(pagewidth_obj))
+    page_width = PMATH_AS_INT32(pagewidth_obj);
+  
+  pmath_unref(pagewidth_obj);
+  
+  if(page_width >= 6)
+    pmath_write_with_pagewidth(obj, options, write_data, &data, page_width, 0);
+  else
+    pmath_write(obj, options, write_data, &data);
   
   return data.success;
 }
