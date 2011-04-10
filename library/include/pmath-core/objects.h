@@ -3,7 +3,9 @@
 
 #include <pmath-config.h>
 #include <pmath-types.h>
+
 #include <assert.h>
+#include <stdlib.h>
 
 /**\defgroup objects Objects - the Base of pMath
    \brief The basic class for all pMath objects.
@@ -248,6 +250,20 @@ typedef pmath_bool_t (*pmath_equal_func_t)(pmath_t, pmath_t);
  */
 typedef int (*pmath_compare_func_t)(pmath_t, pmath_t);
 
+/**\brief Command structure for pmath_write_ex().
+   This should be inistialized with 
+   <tt>memset(&ex, 0, sizeof(ex)); ex.size = sizeof(ex); ... </tt>
+ */
+struct pmath_write_ex_t{
+  size_t                  size; ///< must be initialized with sizeof(struct pmath_write_ex_t), for version control
+  pmath_write_options_t   options;
+  void                  (*write)(void *user, const uint16_t *data, int len); ///< mandatory, write callback 
+  void                   *user;                                              ///< first parameter of the callbacks
+  
+  void                  (*pre_write)( void *user, pmath_t obj); ///< optional, called before the pmath_t is written
+  void                  (*post_write)(void *user, pmath_t obj); ///< optional, called after the pmath_t is written
+};
+
 /*============================================================================*/
 
 /**\brief Calculates an object's hash value
@@ -296,6 +312,17 @@ void pmath_write(
   pmath_write_options_t   options,
   void                  (*write)(void *user, const uint16_t *data, int len),
   void                   *user);
+
+/**\brief Advanced function to write an object to a stream.
+   \memberof pmath_t
+   \param info All the acutal parameters.
+   \param obj The object to be written.
+   
+   \see pmath_write
+ */
+PMATH_API 
+PMATH_ATTRIBUTE_NONNULL(1)
+void pmath_write_ex(struct pmath_write_ex_t *info, pmath_t obj);
 
 /**\brief Test whether an object is already evaluated.
    \memberof pmath_t

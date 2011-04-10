@@ -11,12 +11,26 @@
 
 #include <string.h>
 
+struct write_pos_t{
+  pmath_t             item;
+  struct write_pos_t *next;
+  int                 pos;
+  pmath_bool_t        is_start;
+};
+
+#define NEWLINE_NONE       0x00
+#define NEWLINE_OK         0x01
+#define NEWLINE_INSTRING   0x02
 
 struct linewriter_t{
-  int            line_length;   // > 2
-  int            buffer_length; // > line_length!!!, <= 2*line_length
-  uint16_t      *buffer;
-  int            pos;
+  int                  line_length;   // > 2
+  int                  buffer_length; // > line_length!!!, <= 2*line_length
+  uint16_t            *buffer;
+  uint8_t             *newlines; // >= line_length + 1
+  int                  pos;
+  struct write_pos_t  *all_write_pos;
+  struct write_pos_t **next_write_pos;
+  int                  string_depth;
   
   int indention_width;
   
@@ -24,10 +38,76 @@ struct linewriter_t{
   void (*write)(void*,const uint16_t*,int);
 };
 
+static void fill_newlines(struct linewriter_t *lw){
+  struct write_pos_t *wp;
+  int string_depth, oldpos;
+  
+  memset(lw->newlines, NEWLINE_NONE, lw->line_length + 1);
+  
+  wp = lw->all_write_pos;
+  while(wp && wp->pos <= lw->line_length){
+    if(wp->is_start)
+      lw->newlines[wp->pos] = NEWLINE_OK;
+    
+    wp = wp->next;
+  }
+  
+  oldpos = 0;
+  string_depth = lw->string_depth;
+  wp = lw->all_write_pos;
+  while(wp && wp->pos <= lw->line_length){
+    if(string_depth > 0){
+      while(oldpos < wp->pos)
+        lw->newlines[oldpos++] |= NEWLINE_INSTRING;
+    }
+    
+    oldpos = wp->pos;
+    if(pmath_is_string(wp->item)){
+      if(wp->is_start){
+        ++string_depth;
+      }
+      else
+        --string_depth;
+    }
+    
+    wp = wp->next;
+  }
+}
+
+static void consume_write_pos(struct linewriter_t *lw, int end){
+  struct write_pos_t *wp;
+  
+  while(lw->all_write_pos && lw->all_write_pos->pos < end){
+    wp = lw->all_write_pos;
+    lw->all_write_pos = wp->next;
+    
+    if(pmath_is_string(wp->item)){
+      if(wp->is_start)
+        lw->string_depth++;
+      else
+        lw->string_depth--;
+    }
+    
+    pmath_unref(wp->item);
+    pmath_mem_free(wp);
+  }
+  
+  if(!lw->all_write_pos)
+    lw->next_write_pos = &lw->all_write_pos;
+  
+  wp = lw->all_write_pos;
+  while(wp){
+    wp->pos-= end;
+    wp = wp->next;
+  }
+}
+
 static void flush_line(struct linewriter_t *lw){
-  int i;
+  int i, nl;
+  pmath_bool_t in_string;
   
   if(lw->pos <= lw->line_length){
+    consume_write_pos(lw, lw->pos);
     lw->write(lw->user, lw->buffer, lw->pos);
     lw->pos = 0;
     return;
@@ -36,6 +116,7 @@ static void flush_line(struct linewriter_t *lw){
   for(i = 0;i < lw->line_length;++i){
     if(lw->buffer[i] == '\n'){
       ++i;
+      consume_write_pos(lw, i);
       lw->write(lw->user, lw->buffer, i);
       memmove(lw->buffer, lw->buffer + i, sizeof(uint16_t) * (lw->buffer_length - i));
       lw->pos-= i;
@@ -43,27 +124,50 @@ static void flush_line(struct linewriter_t *lw){
     }
   }
   
-  i = lw->line_length-1;
-  while(i > 0 && lw->buffer[i] > ' ')
-    --i;
+  fill_newlines(lw);
+  nl = lw->line_length - 1;
+  while(nl > 0 && !(lw->newlines[nl] & NEWLINE_OK))
+    --nl;
   
-  if(i > 0){
-    ++i;
-    lw->write(lw->user, lw->buffer, i);
-    memmove(lw->buffer, lw->buffer + i, sizeof(uint16_t) * (lw->buffer_length - i));
-    lw->pos-= i;
+  if(nl == 0){
+    in_string = TRUE;
     
-    write_cstr("\n", lw->write, lw->user);
+    nl = lw->line_length - 2;
+    while(nl > 0 && lw->buffer[nl] > ' ')
+      --nl;
+    
+    if(nl == 0)
+      nl = lw->line_length - 2;
+    else
+      ++nl;
   }
   else{
-    int wlen = lw->line_length - 2;
-    
-    lw->write(lw->user, lw->buffer, wlen);
-    memmove(lw->buffer, lw->buffer + wlen, sizeof(uint16_t) * (lw->buffer_length - wlen));
-    lw->pos-= wlen;
-    
-    write_cstr("\\\n", lw->write, lw->user);
+    in_string = (lw->newlines[nl - 1] & NEWLINE_INSTRING) != 0;
   }
+  
+  if(in_string){
+    if(nl > lw->line_length - 2)
+      nl = lw->line_length - 2;
+    
+    if(lw->buffer[nl-1] == '\\'){
+      i = nl-1;
+      while(i > 0 && lw->buffer[i-1] == '\\')
+        --i;
+      
+      if((nl - i) % 2 == 1 && nl > 1) 
+        --nl;
+    }
+  }
+  
+  consume_write_pos(lw, nl);
+  lw->write(lw->user, lw->buffer, nl);
+  memmove(lw->buffer, lw->buffer + nl, sizeof(uint16_t) * (lw->buffer_length - nl));
+  lw->pos-= nl;
+  
+  if(in_string)
+    write_cstr("\\\n", lw->write, lw->user);
+  else
+    write_cstr("\n", lw->write, lw->user);
   
   i = lw->indention_width;
   while(i-- > 0)
@@ -94,6 +198,34 @@ static void line_write(void *user, const uint16_t *data, int len){
   }
 }
 
+static void pre_write(void *user, pmath_t item){
+  struct linewriter_t *lw = user;
+  struct write_pos_t *wp = pmath_mem_alloc(sizeof(struct write_pos_t));
+  
+  if(wp){
+    wp->item     = pmath_ref(item);
+    wp->next     = NULL;
+    wp->pos      = lw->pos;
+    wp->is_start = TRUE;
+    *lw->next_write_pos = wp;
+    lw->next_write_pos = &wp->next;
+  }
+}
+
+static void post_write(void *user, pmath_t item){
+  struct linewriter_t *lw = user;
+  struct write_pos_t *wp = pmath_mem_alloc(sizeof(struct write_pos_t));
+  
+  if(wp){
+    wp->item     = pmath_ref(item);
+    wp->next     = NULL;
+    wp->pos      = lw->pos;
+    wp->is_start = FALSE;
+    *lw->next_write_pos = wp;
+    lw->next_write_pos = &wp->next;
+  }
+}
+
 PMATH_API
 void pmath_write_with_pagewidth(
   pmath_t                 obj,
@@ -104,6 +236,7 @@ void pmath_write_with_pagewidth(
   int                     indention_width
 ){
   struct linewriter_t lw;
+  struct pmath_write_ex_t info;
   
   if(page_width < 0){
     pmath_t tmp = pmath_evaluate(pmath_ref(PMATH_SYMBOL_PAGEWIDTHDEFAULT));
@@ -130,21 +263,44 @@ void pmath_write_with_pagewidth(
     
   lw.line_length   = page_width;
   lw.buffer_length = 2 * page_width;
-  lw.buffer = pmath_mem_alloc(sizeof(uint16_t) * lw.buffer_length);
-  if(!lw.buffer){
+  lw.buffer   = pmath_mem_alloc(sizeof(uint16_t) * lw.buffer_length);
+  lw.newlines = pmath_mem_alloc(lw.line_length + 1);
+  if(!lw.buffer || !lw.newlines){
+    pmath_mem_free(lw.buffer);
+    pmath_mem_free(lw.newlines);
     pmath_write(obj, options, write, user);
     return;
   }
   
   lw.pos             = 0;
+  lw.all_write_pos   = NULL;
+  lw.next_write_pos  = &lw.all_write_pos;
+  lw.string_depth    = 0;
   lw.indention_width = indention_width;
   lw.write           = write;
   lw.user            = user;
   
-  pmath_write(obj, options, line_write, &lw);
+  memset(&info, 0, sizeof(info));
+  info.size       = sizeof(info);
+  info.options    = options;
+  info.user       = &lw;
+  info.write      = line_write;
+  info.pre_write  = pre_write;
+  info.post_write = post_write;
+  
+  pmath_write_ex(&info, obj);
   
   while(lw.pos > 0)
     flush_line(&lw);
   
+  while(lw.all_write_pos){
+    struct write_pos_t *wp = lw.all_write_pos;
+    lw.all_write_pos = wp->next;
+    
+    pmath_unref(wp->item);
+    pmath_mem_free(wp);
+  }
+  
   pmath_mem_free(lw.buffer);
+  pmath_mem_free(lw.newlines);
 }

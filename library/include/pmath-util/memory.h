@@ -3,7 +3,9 @@
 
 #include <pmath-config.h>
 #include <pmath-types.h>
+
 #include <stdlib.h>
+
 
 /**\defgroup memory Memory Management
    \brief Memory management for pMath.

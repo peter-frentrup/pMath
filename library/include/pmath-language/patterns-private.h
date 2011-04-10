@@ -7,7 +7,6 @@
 
 #include <pmath-core/expressions.h>
 #include <pmath-util/hashtables.h>
-#include <stdlib.h>
 
 // initialized in pmath_init():
 extern PMATH_PRIVATE pmath_t _pmath_object_range_from_one; /* Range(1,()) readonly */

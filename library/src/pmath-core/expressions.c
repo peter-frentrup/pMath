@@ -1386,36 +1386,32 @@ static void destroy_part_expression(struct _pmath_unpacked_expr_part_t *expr){
 #define PRIO_CALL              170 // f(...)
 #define PRIO_SYMBOL            180
 
-#define WRITE_CSTR(str) write_cstr((str), write, user)
+#define WRITE_CSTR(str) write_cstr((str), info->write, info->user)
 
 static void write_expr_ex(
-  pmath_expr_t      expr,
-  pmath_write_options_t   options,
-  int                     priority,
-  void                  (*write)(void*,const uint16_t*,int),
-  void                   *user);
+  struct pmath_write_ex_t *info,
+  int                      priority,
+  pmath_expr_t             expr);
 
 static void write_ex(
-  pmath_t          obj,
-  pmath_write_options_t   options,
-  int                     priority,
-  void                  (*write)(void*,const uint16_t*,int),
-  void                   *user
+  struct pmath_write_ex_t *info,
+  int                      priority,
+  pmath_t                  obj
 ){
   if(pmath_is_expr(obj)){
-    write_expr_ex(obj, options, priority, write, user);
+    write_expr_ex(info, priority, obj);
   }
   else if(pmath_is_number(obj)
   && ((priority > PRIO_TIMES  && pmath_number_sign(obj) < 0)
    || (priority > PRIO_FACTOR && pmath_is_quotient(obj)))){
     WRITE_CSTR("(");
 
-    pmath_write(obj, options, write, user);
+    pmath_write_ex(info, obj);
 
     WRITE_CSTR(")");
   }
   else
-    pmath_write(obj, options, write, user);
+    pmath_write_ex(info, obj);
 }
 
 typedef struct{
@@ -1529,31 +1525,29 @@ static void sum_writer(
 }
 
 static void write_expr_ex(
-  pmath_expr_t      expr,
-  pmath_write_options_t   options,
-  int                     priority,
-  void                  (*write)(void*,const uint16_t*,int),
-  void                   *user
+  struct pmath_write_ex_t *info,
+  int                       priority,
+  pmath_expr_t              expr
 ){
   size_t exprlen = pmath_expr_length(expr);
   pmath_t head = pmath_expr_get_item(expr, 0);
 
-  if(options & PMATH_WRITE_OPTIONS_FULLEXPR)
+  if(info->options & PMATH_WRITE_OPTIONS_FULLEXPR)
     goto FULLFORM;
 
-  if(options & PMATH_WRITE_OPTIONS_INPUTEXPR)
+  if(info->options & PMATH_WRITE_OPTIONS_INPUTEXPR)
     goto INPUTFORM;
 
   if(pmath_same(head, PMATH_SYMBOL_DIRECTEDINFINITY)){
     if(exprlen == 0){
-      pmath_write(PMATH_SYMBOL_COMPLEXINFINITY, options, write, user);
+      pmath_write_ex(info, PMATH_SYMBOL_COMPLEXINFINITY);
     }
     else if(exprlen == 1){
       pmath_t direction;
       
       direction = pmath_expr_get_item(expr, 1);
       if(pmath_equals(direction, PMATH_FROM_INT32(1))){
-        pmath_write(PMATH_SYMBOL_INFINITY, options, write, user);
+        pmath_write_ex(info, PMATH_SYMBOL_INFINITY);
       }
       else if(pmath_equals(direction, PMATH_FROM_INT32(-1))){
         if(priority > PRIO_FACTOR)
@@ -1561,7 +1555,7 @@ static void write_expr_ex(
         else
           WRITE_CSTR("-");
 
-        pmath_write(PMATH_SYMBOL_INFINITY, options, write, user);
+        pmath_write_ex(info, PMATH_SYMBOL_INFINITY);
 
         if(priority > PRIO_FACTOR)
           WRITE_CSTR(")");
@@ -1577,34 +1571,28 @@ static void write_expr_ex(
   }
   else if(pmath_same(head, PMATH_SYMBOL_FULLFORM)){
     pmath_t item;
+    int old_options = info->options;
     
     if(exprlen != 1)
       goto FULLFORM;
 
     item = pmath_expr_get_item(expr, 1);
-    pmath_write(
-      item,
-      options
-        | PMATH_WRITE_OPTIONS_FULLSTR
-        | PMATH_WRITE_OPTIONS_FULLEXPR,
-      write,
-      user);
+    info->options |= PMATH_WRITE_OPTIONS_FULLSTR | PMATH_WRITE_OPTIONS_FULLEXPR;
+    pmath_write_ex(info, item);
+    info->options = old_options;
     pmath_unref(item);
   }
   else if(pmath_same(head, PMATH_SYMBOL_INPUTFORM)){
     pmath_t item;
+    int old_options = info->options;
     
     if(exprlen != 1)
       goto FULLFORM;
 
     item = pmath_expr_get_item(expr, 1);
-    pmath_write(
-      item,
-      options
-        | PMATH_WRITE_OPTIONS_FULLSTR
-        | PMATH_WRITE_OPTIONS_INPUTEXPR,
-      write,
-      user);
+    info->options |= PMATH_WRITE_OPTIONS_FULLSTR | PMATH_WRITE_OPTIONS_INPUTEXPR;
+    pmath_write_ex(info, item);
+    info->options = old_options;
     pmath_unref(item);
   }
   else if(pmath_same(head, PMATH_SYMBOL_HOLDFORM)
@@ -1615,26 +1603,24 @@ static void write_expr_ex(
       goto FULLFORM;
 
     item = pmath_expr_get_item(expr, 1);
-    pmath_write(item, options, write, user);
+    pmath_write_ex(info, item);
     pmath_unref(item);
   }
   else if(pmath_same(head, PMATH_SYMBOL_LONGFORM)){
     pmath_t item;
+    int old_options = info->options;
     
     if(exprlen != 1)
       goto FULLFORM;
 
     item = pmath_expr_get_item(expr, 1);
-    pmath_write(item, options | PMATH_WRITE_OPTIONS_FULLNAME, write, user);
+    info->options |= PMATH_WRITE_OPTIONS_FULLNAME;
+    pmath_write_ex(info, item);
+    info->options = old_options;
     pmath_unref(item);
   }
   else if(pmath_same(head, PMATH_SYMBOL_STRINGFORM)){
-    if(!_pmath_stringform_write(
-      expr,
-      options,
-      write,
-      user)
-    ){
+    if(!_pmath_stringform_write(info, expr)){
       goto FULLFORM;
     }
   }
@@ -1653,7 +1639,7 @@ static void write_expr_ex(
         WRITE_CSTR(" : ");
       
       item = pmath_expr_get_item(expr, i);
-      write_ex(item, options, PRIO_COLON+1, write, user);
+      write_ex(info, PRIO_COLON+1, item);
       pmath_unref(item);
     }
 
@@ -1687,23 +1673,23 @@ static void write_expr_ex(
       
       for(i = 1;i < listlen;++i){
         obj = pmath_expr_get_item(list, i);
-        pmath_write(obj, options, write, user);
+        pmath_write_ex(info, obj);
         pmath_unref(obj);
-        pmath_write(seperator, options, write, user);
+        pmath_write_ex(info, seperator);
       }
 
       pmath_unref(seperator);
 
       if(listlen > 0){
         obj = pmath_expr_get_item(list, listlen);
-        pmath_write(obj, options, write, user);
+        pmath_write_ex(info, obj);
         pmath_unref(obj);
       }
     }
     else{
       for(i = 1;i <= listlen;++i){
         obj = pmath_expr_get_item(list, i);
-        pmath_write(obj, options, write, user);
+        pmath_write_ex(info, obj);
         pmath_unref(obj);
       }
     }
@@ -1769,7 +1755,7 @@ static void write_expr_ex(
     item = pmath_expr_get_item(expr, 1);
     item = _pmath_prepare_shallow(item, maxdepth, maxlength);
     
-    pmath_write(item, options, write, user);
+    pmath_write_ex(info, item);
 
     pmath_unref(item);
   }
@@ -1793,7 +1779,7 @@ static void write_expr_ex(
     }
     
     item = pmath_expr_get_item(expr, 1);
-    pmath_write(item, options, write, user);
+    pmath_write_ex(info, item);
     pmath_unref(item);
   }
   else if(pmath_same(head, PMATH_SYMBOL_SKELETON)){
@@ -1805,7 +1791,7 @@ static void write_expr_ex(
     item = pmath_expr_get_item(expr, 1);
     
     WRITE_CSTR("<<");
-    pmath_write(item, options, write, user);
+    pmath_write_ex(info, item);
     WRITE_CSTR(">>");
 
     pmath_unref(item);
@@ -1825,7 +1811,7 @@ static void write_expr_ex(
     lhs = pmath_expr_get_item(expr, 1);
     rhs = pmath_expr_get_item(expr, 2);
 
-    write_ex(lhs, options, PRIO_ASSIGN+1, write, user);
+    write_ex(info, PRIO_ASSIGN+1, lhs);
     
     if(     pmath_same(head, PMATH_SYMBOL_ASSIGN))         WRITE_CSTR(":= ");
     else if(pmath_same(head, PMATH_SYMBOL_ASSIGNDELAYED))  WRITE_CSTR("::= ");
@@ -1834,7 +1820,7 @@ static void write_expr_ex(
     else if(pmath_same(head, PMATH_SYMBOL_INCREMENT))      WRITE_CSTR("+= ");
     else                                                   WRITE_CSTR("*= ");
 
-    write_ex(rhs, options, PRIO_ASSIGN, write, user);
+    write_ex(info, PRIO_ASSIGN, rhs);
 
     pmath_unref(lhs);
     pmath_unref(rhs);
@@ -1858,7 +1844,7 @@ static void write_expr_ex(
     else if(pmath_same(head, PMATH_SYMBOL_INCREMENT))  WRITE_CSTR("++");
 
     arg = pmath_expr_get_item(expr, 1);
-    write_ex(arg, options, PRIO_INCDEC+1, write, user);
+    write_ex(info, PRIO_INCDEC+1, arg);
     pmath_unref(arg);
 
     if(     pmath_same(head, PMATH_SYMBOL_POSTDECREMENT))  WRITE_CSTR("--");
@@ -1878,20 +1864,20 @@ static void write_expr_ex(
       WRITE_CSTR("(");
 
     obj = pmath_expr_get_item(expr, 1);
-    write_ex(obj, options, PRIO_SYMBOL, write, user);
+    write_ex(info, PRIO_SYMBOL, obj);
     pmath_unref(obj);
 
     WRITE_CSTR("/: ");
 
     obj = pmath_expr_get_item(expr, 2);
-    write_ex(obj, options, PRIO_ASSIGN+1, write, user);
+    write_ex(info, PRIO_ASSIGN+1, obj);
     pmath_unref(obj);
 
     if(pmath_same(head, PMATH_SYMBOL_TAGASSIGN))  WRITE_CSTR(":= ");
     else                                          WRITE_CSTR("::= ");
 
     obj = pmath_expr_get_item(expr, 3);
-    write_ex(obj, options, PRIO_ASSIGN, write, user);
+    write_ex(info, PRIO_ASSIGN, obj);
     pmath_unref(obj);
 
     if(priority > PRIO_ASSIGN)
@@ -1910,12 +1896,12 @@ static void write_expr_ex(
     lhs = pmath_expr_get_item(expr, 1);
     rhs = pmath_expr_get_item(expr, 2);
 
-    write_ex(lhs, options, PRIO_RULE+1, write, user);
+    write_ex(info, PRIO_RULE+1, lhs);
     
     if(pmath_same(head, PMATH_SYMBOL_RULE))  WRITE_CSTR(" -> ");
     else                                     WRITE_CSTR(" :> ");
       
-    write_ex(rhs, options, PRIO_RULE, write, user);
+    write_ex(info, PRIO_RULE, rhs);
 
     pmath_unref(lhs);
     pmath_unref(rhs);
@@ -1934,7 +1920,7 @@ static void write_expr_ex(
         WRITE_CSTR(", ");
       
       item = pmath_expr_get_item(expr, i);
-      pmath_write(item, options, write, user);
+      pmath_write_ex(info, item);
       pmath_unref(item);
     }
 
@@ -1955,7 +1941,7 @@ static void write_expr_ex(
         WRITE_CSTR(" ++ ");
       
       item = pmath_expr_get_item(expr, i);
-      write_ex(item, options, PRIO_STREXPR+1, write, user);
+      write_ex(info, PRIO_STREXPR+1, item);
       pmath_unref(item);
     }
 
@@ -1977,14 +1963,14 @@ static void write_expr_ex(
         WRITE_CSTR("; ");
         
       item = pmath_expr_get_item(expr, i);
-      write_ex(item, options, PRIO_ANY+1, write, user);
+      write_ex(info, PRIO_ANY+1, item);
       pmath_unref(item);
     }
     
     item = pmath_expr_get_item(expr, exprlen);
     if(!pmath_is_null(item)){
       WRITE_CSTR("; ");
-      write_ex(item, options, PRIO_ANY+1, write, user);
+      write_ex(info, PRIO_ANY+1, item);
       pmath_unref(item);
     }
     else
@@ -2008,7 +1994,7 @@ static void write_expr_ex(
         WRITE_CSTR(" | ");
       
       item = pmath_expr_get_item(expr, i);
-      write_ex(item, options, PRIO_ALTERNATIVES+1, write, user);
+      write_ex(info, PRIO_ALTERNATIVES+1, item);
       pmath_unref(item);
     }
 
@@ -2030,7 +2016,7 @@ static void write_expr_ex(
         WRITE_CSTR(" || ");
       
       item = pmath_expr_get_item(expr, i);
-      write_ex(item, options, PRIO_LOGIC+1, write, user);
+      write_ex(info, PRIO_LOGIC+1, item);
       pmath_unref(item);
     }
 
@@ -2052,7 +2038,7 @@ static void write_expr_ex(
         WRITE_CSTR(" && ");
       
       item = pmath_expr_get_item(expr, i);
-      write_ex(item, options, PRIO_LOGIC+1, write, user);
+      write_ex(info, PRIO_LOGIC+1, item);
       pmath_unref(item);
     }
 
@@ -2069,7 +2055,7 @@ static void write_expr_ex(
     else                     WRITE_CSTR("!");
     
     item = pmath_expr_get_item(expr, 1);
-    write_ex(item, options, PRIO_NOT+1, write, user);
+    write_ex(info, PRIO_NOT+1, item);
     pmath_unref(item);
 
     if(priority > PRIO_NOT)
@@ -2090,7 +2076,7 @@ static void write_expr_ex(
         WRITE_CSTR(" === ");
       
       item = pmath_expr_get_item(expr, i);
-      write_ex(item, options, PRIO_IDENTITY+1, write, user);
+      write_ex(info, PRIO_IDENTITY+1, item);
       pmath_unref(item);
     }
 
@@ -2112,7 +2098,7 @@ static void write_expr_ex(
         WRITE_CSTR(" =!= ");
         
       item = pmath_expr_get_item(expr, i);
-      write_ex(item, options, PRIO_IDENTITY+1, write, user);
+      write_ex(info, PRIO_IDENTITY+1, item);
       pmath_unref(item);
     }
 
@@ -2148,7 +2134,7 @@ static void write_expr_ex(
         WRITE_CSTR(op);
       
       item = pmath_expr_get_item(expr, i);
-      write_ex(item, options, PRIO_EQUATION+1, write, user);
+      write_ex(info, PRIO_EQUATION+1, item);
       pmath_unref(item);
     }
 
@@ -2166,7 +2152,7 @@ static void write_expr_ex(
       WRITE_CSTR("(");
 
     item = pmath_expr_get_item(expr, 1);
-    write_ex(item, options, PRIO_EQUATION+1, write, user);
+    write_ex(info, PRIO_EQUATION+1, item);
     pmath_unref(item);
 
     exprlen/= 2;
@@ -2182,7 +2168,7 @@ static void write_expr_ex(
       pmath_unref(item);
 
       item = pmath_expr_get_item(expr, 2*i+1);
-      write_ex(item, options, PRIO_EQUATION+1, write, user);
+      write_ex(info, PRIO_EQUATION+1, item);
       pmath_unref(item);
     }
 
@@ -2199,28 +2185,30 @@ static void write_expr_ex(
     if(priority > PRIO_PLUS)
       WRITE_CSTR("(");
 
-    sum_writer_data.next_user = user;
-    sum_writer_data.next = write;
+    sum_writer_data.next_user     = info->user;
+    sum_writer_data.next          = info->write;
     sum_writer_data.prefix_status = TRUE;
-
+    
+    info->write = (void(*)(void*,const uint16_t*,int))sum_writer;
+    info->user  = &sum_writer_data;
+    
     for(i = 1;i <= exprlen;i++){
       pmath_t item = pmath_expr_get_item(expr, i);
-      write_ex(
-        item,
-        options,
-        PRIO_PLUS+1,
-        (void(*)(void*,const uint16_t*,int))sum_writer,
-        &sum_writer_data);
+      write_ex(info, PRIO_PLUS+1, item);
+      
       sum_writer_data.prefix_status = FALSE;
       pmath_unref(item);
     }
+    
+    info->write = sum_writer_data.next;
+    info->user  = sum_writer_data.next_user;
 
     if(priority > PRIO_PLUS)
       WRITE_CSTR(")");
   }
   else if(pmath_same(head, PMATH_SYMBOL_TIMES)){
     _writer_hook_data_t  product_writer_data;
-    pmath_t       item;
+    pmath_t item;
     size_t i;
     
     if(exprlen < 2)
@@ -2229,22 +2217,20 @@ static void write_expr_ex(
     if(priority > PRIO_TIMES)
       WRITE_CSTR("(");
 
-    product_writer_data.next_user = user;
-    product_writer_data.next = write;
+    product_writer_data.next_user     = info->user;
+    product_writer_data.next          = info->write;
     product_writer_data.prefix_status = 1;
-    product_writer_data.special_end = FALSE;
-
+    product_writer_data.special_end   = FALSE;
+    
+    info->user  = &product_writer_data;
+    info->write = (void(*)(void*,const uint16_t*,int))product_writer;
+    
     item = pmath_expr_get_item(expr, 1);
     if(pmath_same(item, PMATH_FROM_INT32(-1))){
-      WRITE_CSTR("-");
+      write_cstr("-", product_writer_data.next, product_writer_data.next_user);
     }
     else{
-      write_ex(
-        item,
-        options,
-        PRIO_TIMES,
-        (void(*)(void*,const uint16_t*,int))product_writer,
-        &product_writer_data);
+      write_ex(info, PRIO_TIMES, item);
       product_writer_data.prefix_status = 0;
     }
     pmath_unref(item);
@@ -2253,20 +2239,18 @@ static void write_expr_ex(
       item = pmath_expr_get_item(expr, i);
       
       if(product_writer_data.special_end 
-      || (options & PMATH_WRITE_OPTIONS_INPUTEXPR)){
-        WRITE_CSTR("*");
+      || (info->options & PMATH_WRITE_OPTIONS_INPUTEXPR)){
+        write_cstr("*", product_writer_data.next, product_writer_data.next_user);
         product_writer_data.prefix_status = 1;
       }
       
-      write_ex(
-        item,
-        options,
-        PRIO_FACTOR,
-        (void(*)(void*,const uint16_t*,int))product_writer,
-        &product_writer_data);
+      write_ex(info, PRIO_FACTOR, item);
       product_writer_data.prefix_status = 0;
       pmath_unref(item);
     }
+    
+    info->user  = product_writer_data.next_user;
+    info->write = product_writer_data.next;
 
     if(priority > PRIO_TIMES)
       WRITE_CSTR(")");
@@ -2281,55 +2265,57 @@ static void write_expr_ex(
     exponent = pmath_expr_get_item(expr, 2);
     base = pmath_expr_get_item(expr, 1);
     
-    division_writer_data.next_user = user;
-    division_writer_data.next = write;
+    division_writer_data.next_user     = info->user;
+    division_writer_data.next          = info->write;
     division_writer_data.prefix_status = 0;
 
     if(pmath_equals(exponent, _pmath_one_half)){
       WRITE_CSTR("Sqrt(");
-      pmath_write(base, options, write, user);
+      pmath_write_ex(info, base);
       WRITE_CSTR(")");
     }
     else if(pmath_equals(exponent, PMATH_FROM_INT32(-1))){
       WRITE_CSTR("1/");
       
-      write_ex(
-        base, 
-        options, 
-        PRIO_POWER+1, 
-        (void(*)(void*,const uint16_t*,int))division_writer,
-        &division_writer_data);
+      info->write = (void(*)(void*,const uint16_t*,int))division_writer;
+      info->user  = &division_writer_data;
+      
+      write_ex(info, PRIO_POWER+1, base);
+      
+      info->write = division_writer_data.next;
+      info->user  = division_writer_data.next_user;
     }
     else if(pmath_is_integer(exponent) && pmath_number_sign(exponent) < 0){
       WRITE_CSTR("1/");
       
       exponent = pmath_number_neg(exponent);
       
-      write_ex(
-        base, 
-        options, 
-        PRIO_POWER+1, 
-        (void(*)(void*,const uint16_t*,int))division_writer,
-        &division_writer_data);
-        
+      info->write = (void(*)(void*,const uint16_t*,int))division_writer;
+      info->user  = &division_writer_data;
+      
+      write_ex(info, PRIO_POWER+1, base);
+      
+      info->write = division_writer_data.next;
+      info->user  = division_writer_data.next_user;
+      
       WRITE_CSTR("^");
-      write_ex(exponent, options, PRIO_POWER, write, user);
+      write_ex(info, PRIO_POWER, exponent);
     }
     else{
       pmath_t minus_one_half = pmath_number_neg(pmath_ref(_pmath_one_half));
       
       if(pmath_equals(exponent, minus_one_half)){
         WRITE_CSTR("1/Sqrt(");
-        pmath_write(base, options, write, user);
+        pmath_write_ex(info, base);
         WRITE_CSTR(")");
       }
       else{
         if(priority > PRIO_POWER)
           WRITE_CSTR("(");
 
-        write_ex(base, options, PRIO_POWER+1, write, user);
+        write_ex(info, PRIO_POWER+1, base);
         WRITE_CSTR("^");
-        write_ex(exponent, options, PRIO_POWER, write, user);
+        write_ex(info, PRIO_POWER, exponent);
 
         if(priority > PRIO_POWER)
           WRITE_CSTR(")");
@@ -2351,21 +2337,21 @@ static void write_expr_ex(
 
     item = pmath_expr_get_item(expr, 1);
     if(exprlen > 2 || !pmath_same(item, PMATH_SYMBOL_AUTOMATIC))
-      write_ex(item, options, PRIO_RANGE+1, write, user);
+      write_ex(info, PRIO_RANGE+1, item);
     pmath_unref(item);
 
     WRITE_CSTR(" .. ");
 
     item = pmath_expr_get_item(expr, 2);
     if(exprlen > 2 || !pmath_same(item, PMATH_SYMBOL_AUTOMATIC))
-      write_ex(item, options, PRIO_RANGE+1, write, user);
+      write_ex(info, PRIO_RANGE+1, item);
     pmath_unref(item);
     
     if(exprlen == 3){
       WRITE_CSTR(" .. ");
 
       item = pmath_expr_get_item(expr, 3);
-      write_ex(item, options, PRIO_RANGE+1, write, user);
+      write_ex(info, PRIO_RANGE+1, item);
       pmath_unref(item);
     }
     
@@ -2380,7 +2366,7 @@ static void write_expr_ex(
       goto FULLFORM;
 
     item = pmath_expr_get_item(expr, 1);
-    write_ex(item, options, PRIO_CALL, write, user);
+    write_ex(info, PRIO_CALL, item);
     pmath_unref(item);
 
     WRITE_CSTR("[");
@@ -2389,7 +2375,7 @@ static void write_expr_ex(
         WRITE_CSTR(", ");
       
       item = pmath_expr_get_item(expr, i);
-      pmath_write(item, options, write, user);
+      pmath_write_ex(info, item);
       pmath_unref(item);
     }
     WRITE_CSTR("]");
@@ -2412,9 +2398,9 @@ static void write_expr_ex(
       WRITE_CSTR("(");
     symbol = pmath_expr_get_item(expr, 1);
 
-    write_ex(symbol, options, PRIO_CALL, write, user);
+    write_ex(info, PRIO_CALL, symbol);
     WRITE_CSTR("::");
-    pmath_write(tag, options, write, user);
+    pmath_write_ex(info, tag);
 
     pmath_unref(symbol);
     pmath_unref(tag);
@@ -2438,7 +2424,7 @@ static void write_expr_ex(
         lparen = TRUE;
       }
 
-      pmath_write(re, options, write, user);
+      pmath_write_ex(info, re);
 
       if(pmath_number_sign(im) >= 0)
         WRITE_CSTR(" + ");
@@ -2460,7 +2446,7 @@ static void write_expr_ex(
         WRITE_CSTR("(");
         lparen = TRUE;
       }
-      pmath_write(im, options, write, user);
+      pmath_write_ex(info, im);
       WRITE_CSTR(" I");
     }
 
@@ -2485,15 +2471,15 @@ static void write_expr_ex(
     pat = pmath_expr_get_item(expr, 2);
     if(pmath_equals(pat, _pmath_object_singlematch)){
       WRITE_CSTR("~");
-      pmath_write(sym, options, write, user);
+      pmath_write_ex(info, sym);
     }
     else if(pmath_equals(pat, _pmath_object_multimatch)){
       WRITE_CSTR("~~");
-      pmath_write(sym, options, write, user);
+      pmath_write_ex(info, sym);
     }
     else if(pmath_equals(pat, _pmath_object_zeromultimatch)){
       WRITE_CSTR("~~~");
-      pmath_write(sym, options, write, user);
+      pmath_write_ex(info, sym);
     }
     else{
       pmath_bool_t default_pattern = TRUE;
@@ -2502,10 +2488,10 @@ static void write_expr_ex(
         pmath_t type = pmath_expr_get_item(pat, 1);
         
         WRITE_CSTR("~");
-        pmath_write(sym, options, write, user);
+        pmath_write_ex(info, sym);
         WRITE_CSTR(":");
         
-        write_ex(type, options, PRIO_SYMBOL, write, user);
+        write_ex(info, PRIO_SYMBOL, type);
         
         pmath_unref(type);
         default_pattern = FALSE;
@@ -2519,18 +2505,18 @@ static void write_expr_ex(
           
           if(pmath_equals(range, _pmath_object_range_from_one)){
             WRITE_CSTR("~~");
-            pmath_write(sym, options, write, user);
+            pmath_write_ex(info, sym);
             WRITE_CSTR(":");
             
-            write_ex(type, options, PRIO_SYMBOL, write, user);
+            write_ex(info, PRIO_SYMBOL, type);
             default_pattern = FALSE;
           }
           else if(pmath_equals(range, _pmath_object_range_from_zero)){
             WRITE_CSTR("~~~");
-            pmath_write(sym, options, write, user);
+            pmath_write_ex(info, sym);
             WRITE_CSTR(":");
             
-            write_ex(type, options, PRIO_SYMBOL, write, user);
+            write_ex(info, PRIO_SYMBOL, type);
             default_pattern = FALSE;
           }
            
@@ -2545,9 +2531,9 @@ static void write_expr_ex(
         if(priority > PRIO_ALTERNATIVES)
           WRITE_CSTR("(");
 
-        pmath_write(sym, options, write, user);
+        pmath_write_ex(info, sym);
         WRITE_CSTR(": ");
-        write_ex(pat, options, PRIO_ALTERNATIVES, write, user);
+        write_ex(info, PRIO_ALTERNATIVES, pat);
 
         if(priority > PRIO_ALTERNATIVES)
           WRITE_CSTR(")");
@@ -2567,13 +2553,13 @@ static void write_expr_ex(
       WRITE_CSTR("(");
 
     item = pmath_expr_get_item(expr, 1);
-    write_ex(item, options, PRIO_PATTERN+1, write, user);
+    write_ex(info, PRIO_PATTERN+1, item);
     pmath_unref(item);
     
     WRITE_CSTR(" ? ");
     
     item = pmath_expr_get_item(expr, 2);
-    write_ex(item, options, PRIO_CALL, write, user);
+    write_ex(info, PRIO_CALL, item);
     pmath_unref(item);
 
     if(priority > PRIO_PATTERN)
@@ -2589,13 +2575,13 @@ static void write_expr_ex(
       WRITE_CSTR("(");
 
     item = pmath_expr_get_item(expr, 1);
-    write_ex(item, options, PRIO_CONDITION+1, write, user);
+    write_ex(info, PRIO_CONDITION+1, item);
     pmath_unref(item);
     
     WRITE_CSTR(" /? ");
     
     item= pmath_expr_get_item(expr, 2);
-    write_ex(item, options, PRIO_ALTERNATIVES+1, write, user);
+    write_ex(info, PRIO_ALTERNATIVES+1, item);
     pmath_unref(item);
 
     if(priority > PRIO_CONDITION)
@@ -2609,7 +2595,7 @@ static void write_expr_ex(
       pmath_t type = pmath_expr_get_item(expr, 1);
       
       WRITE_CSTR("~:");
-      write_ex(type, options, PRIO_SYMBOL, write, user);
+      write_ex(info, PRIO_SYMBOL, type);
       
       pmath_unref(type);
     }
@@ -2633,7 +2619,7 @@ static void write_expr_ex(
         pmath_t type = pmath_expr_get_item(pattern, 1);
         
         WRITE_CSTR("~~:");
-        write_ex(type, options, PRIO_SYMBOL, write, user);
+        write_ex(info, PRIO_SYMBOL, type);
         
         pmath_unref(type);
       }
@@ -2641,7 +2627,7 @@ static void write_expr_ex(
         if(priority > PRIO_PATTERN)
           WRITE_CSTR("(");
 
-        write_ex(pattern, options, PRIO_PATTERN+1, write, user);
+        write_ex(info, PRIO_PATTERN+1, pattern);
         WRITE_CSTR("**");
 
         if(priority > PRIO_PATTERN)
@@ -2656,7 +2642,7 @@ static void write_expr_ex(
         pmath_t type = pmath_expr_get_item(pattern, 1);
         
         WRITE_CSTR("~~~:");
-        write_ex(type, options, PRIO_SYMBOL, write, user);
+        write_ex(info, PRIO_SYMBOL, type);
         
         pmath_unref(type);
       }
@@ -2664,7 +2650,7 @@ static void write_expr_ex(
         if(priority > PRIO_PATTERN)
           WRITE_CSTR("(");
 
-        write_ex(pattern, options, PRIO_PATTERN+1, write, user);
+        write_ex(info, PRIO_PATTERN+1, pattern);
         WRITE_CSTR("***");
 
         if(priority > PRIO_PATTERN)
@@ -2690,7 +2676,7 @@ static void write_expr_ex(
       WRITE_CSTR("(");
 
     body = pmath_expr_get_item(expr, 1);
-    write_ex(body, options, PRIO_FUNCTION, write, user);
+    write_ex(info, PRIO_FUNCTION, body);
     pmath_unref(body);
 
     if(priority > PRIO_FUNCTION)
@@ -2710,7 +2696,7 @@ static void write_expr_ex(
 //      
 //      item = pmath_expr_get_item(expr, i);
 //      if(item || exprlen < 2)
-//        pmath_write(item, options, write, user);
+//        pmath_write_ex(info, item);
 //      pmath_unref(item);
 //    }
 //
@@ -2730,7 +2716,7 @@ static void write_expr_ex(
       else
         WRITE_CSTR("#");
       
-      write_ex(item, options, PRIO_CALL + 1, write, user);
+      write_ex(info, PRIO_CALL + 1, item);
       
       if(priority > PRIO_CALL)
         WRITE_CSTR(")");
@@ -2748,7 +2734,7 @@ static void write_expr_ex(
         else
           WRITE_CSTR("##");
         
-        write_ex(a, options, PRIO_CALL + 1, write, user);
+        write_ex(info, PRIO_CALL + 1, a);
         pmath_unref(a);
         
         if(priority > PRIO_CALL)
@@ -2782,14 +2768,14 @@ static void write_expr_ex(
     if(exprlen == 2 && priority > PRIO_TIMES)  WRITE_CSTR("(?");
     else                                       WRITE_CSTR("?");
 
-    pmath_write(item, options, write, user);
+    pmath_write_ex(info, item);
     pmath_unref(item);
 
     if(exprlen == 2){
       WRITE_CSTR(":");
 
       item = pmath_expr_get_item(expr, 2);
-      write_ex(item, options, PRIO_PLUS+1, write, user);
+      write_ex(info, PRIO_PLUS+1, item);
       pmath_unref(item);
 
       if(priority > PRIO_TIMES)
@@ -2802,7 +2788,7 @@ static void write_expr_ex(
     
    FULLFORM:
    
-    write_ex(head, options, PRIO_CALL, write, user);
+    write_ex(info, PRIO_CALL, head);
     WRITE_CSTR("(");
     for(i = 1;i <= exprlen;i++){
       if(i > 1)
@@ -2810,7 +2796,7 @@ static void write_expr_ex(
       
       item = pmath_expr_get_item(expr, i);
       if(!pmath_is_null(item) || exprlen < 2)
-        pmath_write(item, options, write, user);
+        pmath_write_ex(info, item);
       pmath_unref(item);
     }
     WRITE_CSTR(")");
@@ -2819,13 +2805,8 @@ static void write_expr_ex(
   pmath_unref(head);
 }
 
-static void write_expression(
-  pmath_expr_t            expr,
-  pmath_write_options_t   options,
-  void                  (*write)(void*,const uint16_t*,int),
-  void                   *user
-){
-  write_expr_ex(expr, options, PRIO_ANY, write, user);
+static void write_expression(struct pmath_write_ex_t *info, pmath_t expr){
+  write_expr_ex(info, PRIO_ANY, expr);
 }
 
 //}

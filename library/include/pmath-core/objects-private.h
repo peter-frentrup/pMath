@@ -6,7 +6,6 @@
 #endif
 
 #include <pmath-core/objects-inline.h>
-#include <stdlib.h>
 
 enum{ // private pmath_type_t ...
   PMATH_TYPE_SHIFT_MULTIRULE  = 7,
@@ -40,11 +39,7 @@ _pmath_timer_t _pmath_timer_get(void);
 PMATH_PRIVATE
 _pmath_timer_t _pmath_timer_get_next(void);
 
-typedef void (*_pmath_object_write_func_t)(
-  pmath_t                 obj,
-  pmath_write_options_t   options,
-  void                  (*write)(void *user, const uint16_t *data, int len),
-  void                   *user);
+typedef void (*_pmath_object_write_func_t)(struct pmath_write_ex_t*,pmath_t);
 
 PMATH_PRIVATE 
 PMATH_ATTRIBUTE_USE_RESULT

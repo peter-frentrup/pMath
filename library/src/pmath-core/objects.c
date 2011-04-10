@@ -241,17 +241,49 @@ PMATH_API void pmath_write(
   void                  (*write)(void*,const uint16_t*,int),
   void                   *user
 ){
-  assert(write != NULL);
+  struct pmath_write_ex_t info;
+  memset(&info, 0, sizeof(info));
+  info.size    = sizeof(info);
+  info.options = options;
+  info.user    = user;
+  info.write   = write;
+  
+  pmath_write_ex(&info, obj);
+}
+
+PMATH_API
+void pmath_write_ex(struct pmath_write_ex_t *info, pmath_t obj){
+  assert(info != NULL);
+  
+  if(info->size > sizeof(struct pmath_write_ex_t))
+    return;
+  
+  if(info->size < sizeof(struct pmath_write_ex_t)){
+    struct pmath_write_ex_t info2;
+    memset(&info2, 0, sizeof(info2));
+    memcpy(&info2, info, info->size);
+    info2.size = sizeof(info2);
+    
+    pmath_write_ex(&info2, obj);
+    return;
+  }
+  
+  if(info->pre_write)
+     info->pre_write(info->user, obj);
   
   if(pmath_is_pointer(obj)){
     if(PMATH_AS_PTR(obj) == NULL){
-      write_cstr("/\\/", write, user);
+      write_cstr("/\\/", info->write, info->user);
+      
+      if(info->post_write)
+         info->post_write(info->user, obj);
+  
       return;
     }
     
     #ifdef PMATH_DEBUG_MEMORY
     if(PMATH_AS_PTR(obj)->refcount <= 0){
-      write_cstr("[NOREF: ", write, user);
+      write_cstr("[NOREF: ", info->write, info->user);
     }
     #endif
     
@@ -260,33 +292,52 @@ PMATH_API void pmath_write(
     if(!pmath_type_imps[PMATH_AS_PTR(obj)->type_shift].write){
       char s[100];
       snprintf(s, sizeof(s), "<<\? 0x%"PRIxPTR" \?>>", (uintptr_t)PMATH_AS_PTR(obj));
-      write_cstr(s, write, user);
+      write_cstr(s, info->write, info->user);
+      
+      if(info->post_write)
+         info->post_write(info->user, obj);
+  
       return;
     }
     else
-      pmath_type_imps[PMATH_AS_PTR(obj)->type_shift].write(obj, options, write, user);
+      pmath_type_imps[PMATH_AS_PTR(obj)->type_shift].write(info, obj);
   
     #ifdef PMATH_DEBUG_MEMORY
     if(PMATH_AS_PTR(obj)->refcount <= 0){
-      write_cstr("]", write, user);
+      write_cstr("]", info->write, info->user);
     }
     #endif
-    
+  
+    if(info->post_write)
+       info->post_write(info->user, obj);
+
     return;
   }
   
   if(pmath_is_double(obj)){
-    _pmath_write_machine_float(obj, options, write, user);
+    _pmath_write_machine_float(info, obj);
+    
+    if(info->post_write)
+       info->post_write(info->user, obj);
+  
     return;
   }
   
   if(pmath_is_int32(obj)){
-    _pmath_write_machine_int(obj, options, write, user);
+    _pmath_write_machine_int(info, obj);
+    
+    if(info->post_write)
+       info->post_write(info->user, obj);
+  
     return;
   }
   
   if(pmath_is_ministr(obj)){
-    _pmath_string_write(obj, options, write, user);
+    _pmath_string_write(info, obj);
+    
+    if(info->post_write)
+       info->post_write(info->user, obj);
+  
     return;
   }
   
@@ -297,8 +348,11 @@ PMATH_API void pmath_write(
       (int)PMATH_AS_TAG(obj),
       (int)PMATH_AS_INT32(obj));
     
-    write_cstr(s, write, user);
+    write_cstr(s, info->write, info->user);
   }
+  
+  if(info->post_write)
+     info->post_write(info->user, obj);
 }
 
 /*----------------------------------------------------------------------------*/

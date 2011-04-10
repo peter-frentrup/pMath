@@ -2,7 +2,6 @@
 #define __PMATH_CORE__EXPRESSIONS_H__
 
 #include <pmath-core/objects-inline.h>
-#include <stdlib.h>
 
 /**\defgroup expressions Expressions
    \brief Expression objects in pMath.

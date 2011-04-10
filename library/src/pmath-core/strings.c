@@ -376,36 +376,22 @@ static pmath_bool_t is_single_token(pmath_t box){
   return FALSE;
 }
 
-static void write_boxes(
-  pmath_t                 box,
-  pmath_write_options_t   options,
-  void                  (*write)(void*,const uint16_t*,int),
-  void                   *user);
+static void write_boxes(struct pmath_write_ex_t *info, pmath_t box);
 
-static void write_single_token_box(
-  pmath_t                 box,
-  pmath_write_options_t   options,
-  void                  (*write)(void*,const uint16_t*,int),
-  void                   *user
-){
+static void write_single_token_box(struct pmath_write_ex_t *info, pmath_t box){
   if(is_single_token(box)){
-    write_boxes(box, options, write, user);
+    write_boxes(info, box);
   }
   else{
-    write_cstr("(", write, user);
-    write_boxes(box, options, write, user);
-    write_cstr(")", write, user);
+    write_cstr("(", info->write, info->user);
+    write_boxes(info, box);
+    write_cstr(")", info->write, info->user);
   }
 }
 
-static void write_boxes(
-  pmath_t                 box,
-  pmath_write_options_t   options,
-  void                  (*write)(void*,const uint16_t*,int),
-  void                   *user
-){
+static void write_boxes(struct pmath_write_ex_t *info, pmath_t box){
   if(pmath_is_string(box)){
-    write(user, pmath_string_buffer(&box), pmath_string_length(box));
+    info->write(info->user, pmath_string_buffer(&box), pmath_string_length(box));
   }
   else if(pmath_is_expr_of(box, PMATH_SYMBOL_LIST)
   ||      pmath_is_expr_of(box, PMATH_NULL)){
@@ -413,7 +399,7 @@ static void write_boxes(
     
     for(i = 1;i <= pmath_expr_length(box);++i){
       pmath_t part = pmath_expr_get_item(box, i);
-      write_boxes(part, options, write, user);
+      write_boxes(info, part);
       pmath_unref(part);
     }
   }
@@ -421,65 +407,65 @@ static void write_boxes(
   ||      pmath_is_expr_of(box, PMATH_SYMBOL_TAGBOX)
   ||      pmath_is_expr_of(box, PMATH_SYMBOL_INTERPRETATIONBOX)){
     pmath_t part = pmath_expr_get_item(box, 1);
-    write_boxes(part, options, write, user);
+    write_boxes(info, part);
     pmath_unref(part);
   }
   else if(pmath_is_expr_of(box, PMATH_SYMBOL_SUBSCRIPTBOX)){
     pmath_t part = pmath_expr_get_item(box, 1);
-    write_cstr("_", write, user);
-    write_single_token_box(part, options, write, user);
+    write_cstr("_", info->write, info->user);
+    write_single_token_box(info, part);
     pmath_unref(part);
   }
   else if(pmath_is_expr_of(box, PMATH_SYMBOL_SUPERSCRIPTBOX)){
     pmath_t part = pmath_expr_get_item(box, 1);
-    write_cstr("^", write, user);
-    write_single_token_box(part, options, write, user);
+    write_cstr("^", info->write, info->user);
+    write_single_token_box(info, part);
     pmath_unref(part);
   }
   else if(pmath_is_expr_of(box, PMATH_SYMBOL_SUBSUPERSCRIPTBOX)){
     pmath_t part = pmath_expr_get_item(box, 1);
-    write_cstr("_", write, user);
-    write_single_token_box(part, options, write, user);
+    write_cstr("_", info->write, info->user);
+    write_single_token_box(info, part);
     pmath_unref(part);
     
     part = pmath_expr_get_item(box, 2);
-    write_cstr("^", write, user);
-    write_single_token_box(part, options, write, user);
+    write_cstr("^", info->write, info->user);
+    write_single_token_box(info, part);
     pmath_unref(part);
   }
   else if(pmath_is_expr_of(box, PMATH_SYMBOL_UNDERSCRIPTBOX)){
     pmath_t part = pmath_expr_get_item(box, 1);
-    write_boxes(part, options, write, user);
+    write_boxes(info, part);
     pmath_unref(part);
     
     part = pmath_expr_get_item(box, 2);
-    write_cstr("_", write, user);
-    write_single_token_box(part, options, write, user);
+    write_cstr("_", info->write, info->user);
+    write_single_token_box(info, part);
     pmath_unref(part);
   }
   else if(pmath_is_expr_of(box, PMATH_SYMBOL_OVERSCRIPTBOX)){
     pmath_t part = pmath_expr_get_item(box, 1);
-    write_boxes(part, options, write, user);
+    write_boxes(info, part);
     pmath_unref(part);
     
     part = pmath_expr_get_item(box, 2);
-    write_cstr("^", write, user);
-    write_single_token_box(part, options, write, user);
+    write_cstr("^", info->write, info->user);
+    write_single_token_box(info, part);
     pmath_unref(part);
   }
   else if(pmath_is_expr_of(box, PMATH_SYMBOL_UNDEROVERSCRIPTBOX)){
     pmath_t part = pmath_expr_get_item(box, 1);
-    write_boxes(part, options, write, user);
+    write_boxes(info, part);
     pmath_unref(part);
     
     part = pmath_expr_get_item(box, 2);
-    write_cstr("_", write, user);
-    write_single_token_box(part, options, write, user);
+    write_cstr("_", info->write, info->user);
+    write_single_token_box(info, part);
     pmath_unref(part);
     
     part = pmath_expr_get_item(box, 3);
-    write_cstr("^", write, user);
-    write_single_token_box(part, options, write, user);
+    write_cstr("^", info->write, info->user);
+    write_single_token_box(info, part);
     pmath_unref(part);
   }
   else if(pmath_is_expr(box)){
@@ -487,40 +473,35 @@ static void write_boxes(
     size_t i;
     
     part = pmath_expr_get_item(box, 0);
-    pmath_write(part, options, write, user);
+    pmath_write_ex(info, part);
     pmath_unref(part);
     
-    write_cstr("(", write, user);
+    write_cstr("(", info->write, info->user);
     for(i = 1;i <= pmath_expr_length(box);++i){
       if(i > 1)
-        write_cstr(", ", write, user);
+        write_cstr(", ", info->write, info->user);
       
       part = pmath_expr_get_item(box, i);
-      write_boxes(part, options, write, user);
+      write_boxes(info, part);
       pmath_unref(part);
       
     }
-    write_cstr(")", write, user);
+    write_cstr(")", info->write, info->user);
   }
   else
-    pmath_write(box, options, write, user);
+    pmath_write_ex(info, box);
 }
 
 PMATH_PRIVATE 
-void _pmath_string_write(
-  pmath_t                 str,
-  pmath_write_options_t   options,
-  void                  (*write)(void*,const uint16_t*,int),
-  void                   *user
-){
+void _pmath_string_write(struct pmath_write_ex_t *info, pmath_t str){
   static char hex_digits[16] = "0123456789ABCDEF";
 
-  if(options & PMATH_WRITE_OPTIONS_FULLSTR){
+  if(info->options & PMATH_WRITE_OPTIONS_FULLSTR){
     const uint16_t *buffer = pmath_string_buffer(&str);
     const uint16_t *end    = buffer + pmath_string_length(str);
     const uint16_t *s      = buffer;
     
-    write_cstr("\"", write, user);
+    write_cstr("\"", info->write, info->user);
     
     while(s != end){
       const uint16_t *start = s;
@@ -535,23 +516,23 @@ void _pmath_string_write(
       }
 
       if(start != s)
-        write(user, start, len);
+        info->write(info->user, start, len);
 
       if(s != end){
         uint16_t special[10];
         special[0] = '\\';
         switch(*s){
-          case '\"': special[1] = '\"'; write(user, special, 2); break;
-          case '\\': special[1] = '\\'; write(user, special, 2); break;
-          case '\n': special[1] = 'n';  write(user, special, 2); break;
-          case '\r': special[1] = 'r';  write(user, special, 2); break;
+          case '\"': special[1] = '\"'; info->write(info->user, special, 2); break;
+          case '\\': special[1] = '\\'; info->write(info->user, special, 2); break;
+          case '\n': special[1] = 'n';  info->write(info->user, special, 2); break;
+          case '\r': special[1] = 'r';  info->write(info->user, special, 2); break;
           case PMATH_CHAR_LEFT_BOX:
             special[1] = '(';
-            write(user, special, 2); 
+            info->write(info->user, special, 2); 
             break;
           case PMATH_CHAR_RIGHT_BOX:
             special[1] = ')';
-            write(user, special, 2); 
+            info->write(info->user, special, 2); 
             break;
           
           default: {
@@ -563,9 +544,9 @@ void _pmath_string_write(
               
               ++s;
               if(name){
-                write_cstr("\\[", write, user);
-                write_cstr(name, write, user);
-                write_cstr("]", write, user);
+                write_cstr("\\[", info->write, info->user);
+                write_cstr(name,  info->write, info->user);
+                write_cstr("]",   info->write, info->user);
               }
               else{
                 special[1] = 'U';
@@ -577,22 +558,22 @@ void _pmath_string_write(
                 special[7] = hex_digits[(u & 0x00000F00U) >> 8];
                 special[8] = hex_digits[(u & 0x000000F0U) >> 4];
                 special[9] = hex_digits[ u & 0x0000000FU];
-                write(user, special, 10);
+                info->write(info->user, special, 10);
               }
             }
             else{
               const char *name = pmath_char_to_name(*s);
               
               if(name){
-                write_cstr("\\[", write, user);
-                write_cstr(name, write, user);
-                write_cstr("]", write, user);
+                write_cstr("\\[", info->write, info->user);
+                write_cstr(name,  info->write, info->user);
+                write_cstr("]",   info->write, info->user);
               }
               else if(*s <= 0xFF){
                 special[1] = 'x';
                 special[2] = hex_digits[((*s) & 0xF0) >> 4];
                 special[3] = hex_digits[ (*s) & 0x0F];
-                write(user, special, 4);
+                info->write(info->user, special, 4);
               }
               else{
                 special[1] = 'u';
@@ -600,7 +581,7 @@ void _pmath_string_write(
                 special[3] = hex_digits[((*s) & 0x0F00) >>  8];
                 special[4] = hex_digits[((*s) & 0x00F0) >>  4];
                 special[5] = hex_digits[ (*s) & 0x000F];
-                write(user, special, 6);
+                info->write(info->user, special, 6);
               }
             }
           }
@@ -608,19 +589,17 @@ void _pmath_string_write(
         ++s;
       }
     }
-    write_cstr("\"", write, user);
+    write_cstr("\"", info->write, info->user);
 
     return;
   }
   else{
     pmath_t expanded = pmath_string_expand_boxes(pmath_ref(str));
     
-    write_boxes(expanded, options, write, user);
+    write_boxes(info, expanded);
     
     pmath_unref(expanded);
   }
-  
-  //write(user, pmath_string_buffer(&str), pmath_string_length(str));
 }
 
 /*============================================================================*/

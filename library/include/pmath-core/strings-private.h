@@ -6,7 +6,6 @@
 #endif
 
 #include <pmath-core/objects-inline.h>
-#include <stdlib.h>
 
 /* Strings are not zero-terminated.
    Strings can be a buffer themselves or point to a buffer. This reduces memory
@@ -68,11 +67,7 @@ int _pmath_strings_compare(
   pmath_t strB);
 
 PMATH_PRIVATE 
-void _pmath_string_write(
-  pmath_t                 str,
-  pmath_write_options_t   options,
-  void                  (*write)(void *user, const uint16_t *data, int len),
-  void                   *user);
+void _pmath_string_write(struct pmath_write_ex_t *info, pmath_t str);
 
 PMATH_PRIVATE void write_cstr(
   const char  *str, 

@@ -1061,12 +1061,7 @@ static void destroy_symbol(pmath_t s){
   }
 }
 
-static void write_symbol(
-  pmath_t                 symbol,
-  pmath_write_options_t   options,
-  void                  (*write)(void*,const uint16_t*,int),
-  void                   *user
-){
+static void write_symbol(struct pmath_write_ex_t *info, pmath_t symbol){
   pmath_string_t name;
   const uint16_t *str;
   int len;
@@ -1076,14 +1071,14 @@ static void write_symbol(
   str = pmath_string_buffer(&name);
   
   if(pmath_symbol_get_attributes(symbol) & PMATH_SYMBOL_ATTRIBUTE_REMOVED){
-    write_cstr("Symbol(", write, user);
-    pmath_write(name, options, write, user);
-    write_cstr(")", write, user);
+    write_cstr("Symbol(", info->write, info->user);
+    pmath_write_ex(info, name);
+    write_cstr(")", info->write, info->user);
     pmath_unref(name);
     return;
   }
 
-  if((options & PMATH_WRITE_OPTIONS_FULLNAME) == 0){
+  if((info->options & PMATH_WRITE_OPTIONS_FULLNAME) == 0){
     int i = len;
     while(i > 0 && str[i-1] != '`')
       --i;
@@ -1094,14 +1089,14 @@ static void write_symbol(
         FALSE);
       pmath_unref(found);
       if(pmath_same(found, symbol)){
-        write(user, str + i, len - i);
+        info->write(info->user, str + i, len - i);
         pmath_unref(name);
         return;
       }
     }
   }
 
-  write(user, str, len);
+  info->write(info->user, str, len);
   pmath_unref(name);
 }
 

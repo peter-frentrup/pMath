@@ -124,18 +124,10 @@ PMATH_ATTRIBUTE_USE_RESULT
 pmath_mpfloat_t _pmath_convert_to_mp_float(pmath_float_t n); // n will be freed
 
 PMATH_PRIVATE 
-void _pmath_write_machine_float(
-  pmath_t                 f,
-  pmath_write_options_t   options,
-  void                  (*write)(void *user, const uint16_t *data, int len),
-  void                   *user);
+void _pmath_write_machine_float(struct pmath_write_ex_t *info, pmath_t f);
   
 PMATH_PRIVATE 
-void _pmath_write_machine_int(
-  pmath_t                 f,
-  pmath_write_options_t   options,
-  void                  (*write)(void *user, const uint16_t *data, int len),
-  void                   *user);
+void _pmath_write_machine_int(struct pmath_write_ex_t *info, pmath_t integer);
   
 PMATH_PRIVATE
 int _pmath_numbers_compare(

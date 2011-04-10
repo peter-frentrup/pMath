@@ -1,9 +1,11 @@
 #ifndef __PMATH_LANGUAGE__TOKENS_H__
 #define __PMATH_LANGUAGE__TOKENS_H__
 
-#include <stdlib.h>
 #include <pmath-config.h>
 #include <pmath-types.h>
+
+#include <stdlib.h>
+
 
 /**\addtogroup parser
    

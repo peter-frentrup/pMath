@@ -267,10 +267,8 @@ static pmath_t string_form(
 
 PMATH_PRIVATE 
 pmath_bool_t _pmath_stringform_write(
-  pmath_expr_t            stringform, // wont be freed
-  pmath_write_options_t   options,
-  void                  (*write)(void*,const uint16_t*,int),
-  void                   *user
+  struct pmath_write_ex_t *info,
+  pmath_expr_t              stringform // wont be freed
 ){
   _format_data_t  data;
   pmath_t  result;
@@ -296,7 +294,7 @@ pmath_bool_t _pmath_stringform_write(
     
     pmath_write(
       item,
-      options,
+      info->options,
       (void(*)(void*,const uint16_t*,int))_pmath_write_to_string,
       &str);
     
@@ -317,11 +315,7 @@ pmath_bool_t _pmath_stringform_write(
   pmath_unref(data.formated_params);
   
   if(pmath_is_string(result)){
-    pmath_write(
-      result,
-      options,
-      write,
-      user);
+    pmath_write_ex(info, result);
   }
   else if(pmath_is_expr(result)){
     size_t i;
@@ -329,11 +323,7 @@ pmath_bool_t _pmath_stringform_write(
     for(i = 1;i <= pmath_expr_length(result);++i){
       pmath_t item = pmath_expr_get_item(result, i);
       
-      pmath_write(
-        item,
-        options,
-        write,
-        user);
+      pmath_write_ex(info, item);
       
       pmath_unref(item);
     }

@@ -2,7 +2,6 @@
 #define __PMATH_UTIL__FILES_H__
 
 #include <pmath-core/symbols.h>
-#include <stdlib.h>
 
 /**\defgroup file_api File API
    \brief Unified API to access file or other memory content.

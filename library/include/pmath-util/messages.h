@@ -2,7 +2,7 @@
 #define __PMATH_UTIL__MESSAGES_H__
 
 #include <pmath-core/symbols.h>
-#include <stdlib.h>
+
 
 /**\defgroup messages Messages
    \brief Error handling and informing the user.

@@ -1155,24 +1155,14 @@ static unsigned int hash_mp_int(pmath_t integer){
 }
 
 PMATH_PRIVATE 
-void _pmath_write_machine_int(
-  pmath_t                 integer,
-  pmath_write_options_t   options,
-  void                  (*write)(void*,const uint16_t*,int),
-  void                   *user
-){
+void _pmath_write_machine_int(struct pmath_write_ex_t *info, pmath_t integer){
   char s[12];
   
   snprintf(s, sizeof(s), "%d", (int)PMATH_AS_INT32(integer));
-  write_cstr(s, write, user);
+  write_cstr(s, info->write, info->user);
 }
 
-static void write_mp_int(
-  pmath_t                 integer,
-  pmath_write_options_t   options,
-  void                  (*write)(void*,const uint16_t*,int),
-  void                   *user
-){
+static void write_mp_int(struct pmath_write_ex_t *info, pmath_t integer){
   char *str;
   int base = 10;
   size_t size = mpz_sizeinbase(PMATH_AS_MPZ(integer), 16) + 2;
@@ -1187,14 +1177,14 @@ static void write_mp_int(
 
   str = (char*)pmath_mem_alloc(size);
   if(!str){
-    write_cstr("<<out-of-memory>>", write, user);
+    write_cstr("<<out-of-memory>>", info->write, info->user);
     return;
   }
 //  if(base == 16)
 //    write_cstr("16^^", write, user);
   mpz_get_str(str, base, PMATH_AS_MPZ(integer));
 
-  write_cstr(str, write, user);
+  write_cstr(str, info->write, info->user);
 
   pmath_mem_free(str);
 }
@@ -1221,15 +1211,10 @@ static unsigned int hash_quotient(pmath_t quotient){
   return incremental_hash(&h, sizeof(h), next);
 }
 
-static void write_quotient(
-  pmath_t                 quotient,
-  pmath_write_options_t   options,
-  void                  (*write)(void*,const uint16_t*,int),
-  void                   *user
-){
-  pmath_write(PMATH_QUOT_NUM(quotient), options, write, user);
-  write_cstr("/", write, user);
-  pmath_write(PMATH_QUOT_DEN(quotient), options, write, user);
+static void write_quotient(struct pmath_write_ex_t *info, pmath_t quotient){
+  pmath_write_ex(info, PMATH_QUOT_NUM(quotient));
+  write_cstr("/", info->write, info->user);
+  pmath_write_ex(info, PMATH_QUOT_DEN(quotient));
 }
 
 //} ============================================================================
@@ -1285,12 +1270,7 @@ static unsigned int hash_mp_float(pmath_t f){
     write_cstr(s, write, user);
   }
 
-static void write_mp_float(
-  pmath_t                 f,
-  pmath_write_options_t   options,
-  void                  (*write)(void*,const uint16_t*,int),
-  void                   *user
-){
+static void write_mp_float(struct pmath_write_ex_t *info, pmath_t f){
   mp_exp_t exp;
   size_t digits, size;
   char *str;
@@ -1302,13 +1282,13 @@ static void write_mp_float(
     double d = mpfr_get_d_2exp(&exp, PMATH_AS_MP_ERROR(f), MPFR_RNDN);
     d = exp * LOG10_2 + log10(d);
     
-    if(options & PMATH_WRITE_OPTIONS_INPUTEXPR){
-      write_cstr("0``", write, user);
-      write_short_double(-d, write, user);
+    if(info->options & PMATH_WRITE_OPTIONS_INPUTEXPR){
+      write_cstr("0``", info->write, info->user);
+      write_short_double(-d, info->write, info->user);
     }
     else{
-      write_cstr("0.0*^", write, user);
-      write_short_double(d, write, user);
+      write_cstr("0.0*^", info->write, info->user);
+      write_short_double(d, info->write, info->user);
     }
     
     return;
@@ -1324,7 +1304,7 @@ static void write_mp_float(
 
   str = (char*)pmath_mem_alloc(size);
   if(!str){
-    write_cstr("<<out-of-memory>>", write, user);
+    write_cstr("<<out-of-memory>>", info->write, info->user);
     return;
   }
 
@@ -1332,25 +1312,25 @@ static void write_mp_float(
 
   if(exp == 0){
     if(*str == '-'){
-      write_cstr("-0.", write, user);
+      write_cstr("-0.", info->write, info->user);
 
 //      if(prec == DBL_MANT_DIG)
 //        delete_trailing_zeros(str + 1);
 
-      write_cstr(str + 1, write, user);
+      write_cstr(str + 1, info->write, info->user);
     }
     else{
-      write_cstr("0.", write, user);
+      write_cstr("0.", info->write, info->user);
 
 //      if(prec == DBL_MANT_DIG)
 //        delete_trailing_zeros(str);
 
-      write_cstr(str, write, user);
+      write_cstr(str, info->write, info->user);
     }
     
-    if(options & PMATH_WRITE_OPTIONS_INPUTEXPR){
-      write_cstr("`", write, user);
-      write_short_double(prec10, write, user);
+    if(info->options & PMATH_WRITE_OPTIONS_INPUTEXPR){
+      write_cstr("`",            info->write, info->user);
+      write_short_double(prec10, info->write, info->user);
     }
   }
   else if(exp > 0 && (size_t)exp < strlen(str)){
@@ -1359,17 +1339,17 @@ static void write_mp_float(
       exp++;
     c = str[exp];
     str[exp] = '\0';
-    write_cstr(str, write, user);
-    write_cstr(".", write, user);
+    write_cstr(str, info->write, info->user);
+    write_cstr(".", info->write, info->user);
     str[exp] = c;
 
 //    if(prec == DBL_MANT_DIG)
 //      delete_trailing_zeros(str + exp + 1);
-    write_cstr(str + exp, write, user);
+    write_cstr(str + exp, info->write, info->user);
 
-    if(options & PMATH_WRITE_OPTIONS_INPUTEXPR){
-      write_cstr("`", write, user);
-      write_short_double(prec10, write, user);
+    if(info->options & PMATH_WRITE_OPTIONS_INPUTEXPR){
+      write_cstr("`",            info->write, info->user);
+      write_short_double(prec10, info->write, info->user);
     }
   }
   else if(exp < 0 && exp > -5){
@@ -1377,43 +1357,43 @@ static void write_mp_float(
 
     int start;
     if(*str == '-'){
-      write_cstr("-0.", write, user);
+      write_cstr("-0.", info->write, info->user);
       start = 1;
     }
     else{
-      write_cstr("0.", write, user);
+      write_cstr("0.", info->write, info->user);
       start = 0;
     }
 
     do{
-      write(user, &zero_char, 1);
+      info->write(info->user, &zero_char, 1);
     }while(++exp < 0);
 
 //    if(prec == DBL_MANT_DIG)
 //      delete_trailing_zeros(str + start);
 
-    write_cstr(str + start, write, user);
+    write_cstr(str + start, info->write, info->user);
 
-    if(options & PMATH_WRITE_OPTIONS_INPUTEXPR){
-      write_cstr("`", write, user);
-      write_short_double(prec10, write, user);
+    if(info->options & PMATH_WRITE_OPTIONS_INPUTEXPR){
+      write_cstr("`",            info->write, info->user);
+      write_short_double(prec10, info->write, info->user);
     }
   }
   else{
     int start;
     if(*str == '\0'){ // 0.0
-      write_cstr("0.", write, user);
+      write_cstr("0.", info->write, info->user);
       start = 0;
     }
     else if(*str == '-'){
       uint16_t ustr[3] = {UCS2_CHAR('-'), UCS2_CHAR(str[1]), UCS2_CHAR('.')};
-      write(user, ustr, 3);
+      info->write(info->user, ustr, 3);
       start = 2;
       --exp;
     }
     else{
       uint16_t ustr[2] = {UCS2_CHAR(*str), UCS2_CHAR('.')};
-      write(user, ustr, 2);
+      info->write(info->user, ustr, 2);
       start = 1;
       --exp;
     }
@@ -1421,17 +1401,17 @@ static void write_mp_float(
 //    if(prec == DBL_MANT_DIG)
 //      delete_trailing_zeros(str + start);
 
-    write_cstr(str + start, write, user);
+    write_cstr(str + start, info->write, info->user);
 
-    if(options & PMATH_WRITE_OPTIONS_INPUTEXPR){
-      write_cstr("`", write, user);
-      write_short_double(prec10, write, user);
+    if(info->options & PMATH_WRITE_OPTIONS_INPUTEXPR){
+      write_cstr("`",            info->write, info->user);
+      write_short_double(prec10, info->write, info->user);
     }
     
     if(exp != 0){
       char s[30];
       snprintf(s, sizeof(s), "*^%"PRIdMAX, (intmax_t)exp);
-      write_cstr(s, write, user);
+      write_cstr(s, info->write, info->user);
     }
   }
 
@@ -1442,12 +1422,7 @@ static void write_mp_float(
 //{ pMath object functions for machine floats ...
 
 PMATH_PRIVATE
-void _pmath_write_machine_float(
-  pmath_t                 f,
-  pmath_write_options_t   options,
-  void                  (*write)(void*,const uint16_t*,int),
-  void                   *user
-){
+void _pmath_write_machine_float(struct pmath_write_ex_t *info, pmath_t f){
   char s[100];
   double test;
   int maxprec = 1 + (int)ceil(DBL_MANT_DIG * LOG10_2);
@@ -1467,11 +1442,11 @@ void _pmath_write_machine_float(
     ++i;
   
   if(i == len){
-    write_cstr(s, write, user);
-    if(options & PMATH_WRITE_OPTIONS_INPUTEXPR)
-      write_cstr(".0`", write, user);
+    write_cstr(s, info->write, info->user);
+    if(info->options & PMATH_WRITE_OPTIONS_INPUTEXPR)
+      write_cstr(".0`", info->write, info->user);
     else
-      write_cstr(".0", write, user);
+      write_cstr(".0", info->write, info->user);
     return;
   }
   
@@ -1479,26 +1454,26 @@ void _pmath_write_machine_float(
     int exp = atoi(s + i + 1);
     
     s[i] = '\0';
-    write_cstr(s, write, user);
+    write_cstr(s, info->write, info->user);
     
     if(exp > 0 && exp < 6){
       char zeros[] = "000000";
       zeros[exp] = '\0';
-      write_cstr(zeros, write, user);
-      if(options & PMATH_WRITE_OPTIONS_INPUTEXPR)
-        write_cstr(".0`", write, user);
+      write_cstr(zeros, info->write, info->user);
+      if(info->options & PMATH_WRITE_OPTIONS_INPUTEXPR)
+        write_cstr(".0`", info->write, info->user);
       else
-        write_cstr(".0", write, user);
+        write_cstr(".0", info->write, info->user);
       return;
     }
     else{
-      if(options & PMATH_WRITE_OPTIONS_INPUTEXPR)
-        write_cstr(".0`*^", write, user);
+      if(info->options & PMATH_WRITE_OPTIONS_INPUTEXPR)
+        write_cstr(".0`*^", info->write, info->user);
       else
-        write_cstr(".0*^", write, user);
+        write_cstr(".0*^", info->write, info->user);
       
       snprintf(s, sizeof(s), "%d", exp);
-      write_cstr(s, write, user);
+      write_cstr(s, info->write, info->user);
       return;
     }
   }
@@ -1510,20 +1485,20 @@ void _pmath_write_machine_float(
     int exp = atoi(s + i + 1);
     
     s[i] = '\0';
-    write_cstr(s, write, user);
-    if(options & PMATH_WRITE_OPTIONS_INPUTEXPR)
-      write_cstr("`*^", write, user);
+    write_cstr(s, info->write, info->user);
+    if(info->options & PMATH_WRITE_OPTIONS_INPUTEXPR)
+      write_cstr("`*^", info->write, info->user);
     else
-      write_cstr("*^", write, user);
+      write_cstr("*^", info->write, info->user);
     
     snprintf(s, sizeof(s), "%d", exp);
-    write_cstr(s, write, user);
+    write_cstr(s, info->write, info->user);
     return;
   }
   
-  write_cstr(s, write, user);
-  if(options & PMATH_WRITE_OPTIONS_INPUTEXPR)
-    write_cstr("`", write, user);
+  write_cstr(s, info->write, info->user);
+  if(info->options & PMATH_WRITE_OPTIONS_INPUTEXPR)
+    write_cstr("`", info->write, info->user);
 }
 
 //} ============================================================================

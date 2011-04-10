@@ -6,7 +6,6 @@
 #endif
 
 #include <pmath-core/objects-inline.h>
-#include <stdlib.h>
 
 /*----------------------------------------------------------------------------*/
 

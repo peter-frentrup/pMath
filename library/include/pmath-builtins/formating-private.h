@@ -20,12 +20,10 @@ void _pmath_write_to_string(
 
 PMATH_PRIVATE 
 PMATH_ATTRIBUTE_USE_RESULT
-PMATH_ATTRIBUTE_NONNULL(3)
+PMATH_ATTRIBUTE_NONNULL(1)
 pmath_bool_t _pmath_stringform_write(
-  pmath_expr_t            stringform, // wont be freed
-  pmath_write_options_t   options,
-  void                  (*write)(void *user, const uint16_t *data, int len),
-  void                   *user);
+  struct pmath_write_ex_t *info,
+  pmath_expr_t              stringform); // wont be freed
 
 PMATH_PRIVATE 
 PMATH_ATTRIBUTE_USE_RESULT
