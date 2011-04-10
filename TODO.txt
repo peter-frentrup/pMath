@@ -2,8 +2,6 @@
 	Button("italic", DocumentApply(SelectedDocument(), StyleBox("\[SelectionPlaceholder]", FontSlant->Italic))),
 	Button("Arg Style", DocumentApply(SelectedDocument(), StyleBox("\[SelectionPlaceholder]", "Arg")))})
 
-- implement ToString(Short(...)) by using pre_write and post_write callbacks in pmath_write_ex()
-
 - implement FromCharacterCode and ToCharacterCode
 
 - implement BaseForm, NumberForm

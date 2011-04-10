@@ -18,6 +18,7 @@
 #include <pmath-builtins/lists-private.h>
 
 #include <string.h>
+#include <limits.h>
 
 
 struct _pmath_unpacked_expr_part_t{
@@ -1761,16 +1762,27 @@ static void write_expr_ex(
   }
   else if(pmath_same(head, PMATH_SYMBOL_SHORT)){
     pmath_t item;
+    double pagewidth = 72;
+    double lines = 1;
     
     if(exprlen < 1 || exprlen > 2)
       goto FULLFORM;
     
-    if(exprlen == 2){
+    if(pmath_expr_length(expr) == 2){
       item = pmath_expr_get_item(expr, 2);
       
-      if((!pmath_is_number(item) 
-       || pmath_number_sign(item) < 0)
-      && !pmath_equals(item, _pmath_object_infinity)){
+      if(pmath_equals(item, _pmath_object_infinity)){
+        lines = HUGE_VAL;
+      }
+      else if(pmath_is_number(item)){
+        lines = pmath_number_get_d(item);
+        
+        if(lines < 0){
+          pmath_unref(item);
+          goto FULLFORM;
+        }
+      }
+      else{
         pmath_unref(item);
         goto FULLFORM;
       }
@@ -1778,8 +1790,26 @@ static void write_expr_ex(
       pmath_unref(item);
     }
     
+    item = pmath_evaluate(pmath_ref(PMATH_SYMBOL_PAGEWIDTHDEFAULT));
+    if(pmath_equals(item, _pmath_object_infinity)){
+      pagewidth = HUGE_VAL;
+    }
+    else if(pmath_is_number(item) && pmath_number_sign(item) > 0){
+      pagewidth = pmath_number_get_d(item);
+    }
+    else{
+      pmath_unref(item);
+      goto FULLFORM;
+    }
+    
+    pmath_unref(item);
     item = pmath_expr_get_item(expr, 1);
-    pmath_write_ex(info, item);
+    
+    if(lines * pagewidth < INT_MAX/4)
+      _pmath_write_short(info, item, (int)(lines * pagewidth));
+    else
+      pmath_write_ex(info, item);
+      
     pmath_unref(item);
   }
   else if(pmath_same(head, PMATH_SYMBOL_SKELETON)){

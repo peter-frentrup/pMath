@@ -256,7 +256,7 @@ void pmath_write_with_pagewidth(
     return;
   }
   
-  page_width-= indention_width;
+  //page_width-= indention_width;
   
   if(page_width < 6)
      page_width = 6;

@@ -69,6 +69,7 @@ static void os_init(void);
   }
 #endif
 
+static int console_width = 80;
 static volatile int dialog_depth = 0;
 static volatile int quit_result = 0;
 static volatile pmath_bool_t quitting = FALSE;
@@ -130,7 +131,13 @@ static void write_cstr(FILE *file, const char *cstr){
       printf(" ");
     printf("       ");
 
-    pmath_write_with_pagewidth(obj, 0, pmath_native_writer, &info, -1, 7 + dialog_depth);
+    pmath_write_with_pagewidth(
+      obj, 
+      0, 
+      pmath_native_writer, 
+      &info, 
+      console_width - (7 + dialog_depth), 
+      7 + dialog_depth);
     printf("\n");
     fflush(stdout);
   }
@@ -298,6 +305,8 @@ static pmath_t dialog(pmath_t first_eval){
   first_eval = pmath_evaluate(first_eval);
   result = check_dialog_return(first_eval);
   pmath_unref(first_eval);
+  
+  PMATH_RUN_ARGS("$PageWidth:=`1`", "(i)", console_width - (7 + dialog_depth));
 
   if(pmath_same(result, PMATH_UNDEFINED)){
     result = PMATH_NULL;
@@ -376,6 +385,8 @@ static pmath_t dialog(pmath_t first_eval){
       pmath_span_array_free(spans);
     }
   }
+
+  PMATH_RUN_ARGS("$PageWidth:=`1`", "(i)", console_width - (7 + dialog_depth-1));
 
   pmath_session_end(old_dialog);
   return result;
@@ -559,6 +570,15 @@ static pmath_t builtin_quit(pmath_expr_t expr){
   return PMATH_NULL;
 }
 
+static void init_console_width(void){
+  pmath_t pw = pmath_evaluate(pmath_ref(PMATH_SYMBOL_PAGEWIDTHDEFAULT));
+  
+  if(pmath_is_int32(pw))
+    console_width = PMATH_AS_INT32(pw) - 1;
+  
+  pmath_unref(pw);
+}
+
 int main(int argc, const char **argv){
   main_mq = PMATH_NULL;
 
@@ -579,7 +599,9 @@ int main(int argc, const char **argv){
     fprintf(stderr, "Cannot initialize pMath.\n");
     return 1;
   }
-
+  
+  init_console_width();
+  
   pmath_unref(
     pmath_thread_fork_daemon(
       interrupt_daemon,

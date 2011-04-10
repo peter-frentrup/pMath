@@ -50,6 +50,10 @@ long _pmath_boxes_length(pmath_t boxes);  // boxes wont be freed
 
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
-pmath_t _pmath_shorten_boxes(pmath_t boxes, long length);
+pmath_t _pmath_shorten_boxes(pmath_t boxes, int length);
+
+PMATH_PRIVATE
+PMATH_ATTRIBUTE_NONNULL(1)
+void _pmath_write_short(struct pmath_write_ex_t *info, pmath_t obj, int length);
 
 #endif // __PMATH_BUILTINS__FORMATING_PRIVATE_H__
