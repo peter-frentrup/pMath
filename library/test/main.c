@@ -77,7 +77,7 @@ static volatile pmath_bool_t show_mem_stats = TRUE;
 
 static sem_t interrupt_semaphore;
 static volatile pmath_messages_t main_mq;
-static PMATH_DECLARE_ATOMIC(     main_mq_lock) = 0;
+static pmath_atomic_t main_mq_lock = PMATH_ATOMIC_STATIC_INIT;
 
 static pmath_messages_t get_main_mq(void){
   pmath_messages_t mq;

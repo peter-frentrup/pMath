@@ -16,7 +16,7 @@ struct parallel_scan_info_t{
   
   pmath_thread_t parent;
   pmath_expr_t items;
-  intptr_t index; // > 0 ...
+  pmath_atomic_t index; // > 0 ...
 };
 
 static void parallel_scan(struct parallel_scan_info_t *info){
@@ -103,7 +103,7 @@ PMATH_PRIVATE pmath_t builtin_parallelscan(pmath_expr_t expr){
   obj           = pmath_expr_get_item(expr, 1);
   info.function = pmath_expr_get_item(expr, 2);
   
-  info.index = (intptr_t)pmath_expr_length(obj);
+  info.index._data = (intptr_t)pmath_expr_length(obj);
   
   reldepth = _pmath_object_in_levelspec(obj, info.levelmin, info.levelmax, 0);
   
@@ -114,8 +114,8 @@ PMATH_PRIVATE pmath_t builtin_parallelscan(pmath_expr_t expr){
     
     pmath_unref(expr);
     
-    if(task_count > info.index)
-      task_count = info.index;
+    if(task_count > info.index._data)
+      task_count = info.index._data;
     
     tasks = (pmath_task_t*)pmath_mem_alloc(task_count * sizeof(pmath_task_t));
     if(tasks){

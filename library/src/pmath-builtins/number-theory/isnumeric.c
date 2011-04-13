@@ -29,7 +29,7 @@ static const pmath_ht_class_t symbol_set_class = {
   ptr_equal
 };
 
-static void * volatile numeric_symbols;
+static pmath_atomic_t numeric_symbols = PMATH_ATOMIC_STATIC_INIT;
 
 PMATH_PRIVATE pmath_bool_t _pmath_is_inexact(pmath_t obj){
   if(pmath_is_float(obj))
@@ -375,14 +375,16 @@ PMATH_PRIVATE pmath_t builtin_isnumeric(pmath_expr_t expr){
 /*============================================================================*/
 
 PMATH_PRIVATE pmath_bool_t _pmath_numeric_init(void){
-  numeric_symbols = pmath_ht_create(&symbol_set_class, 10);
+  pmath_hashtable_t table = pmath_ht_create(&symbol_set_class, 10);
   
-  if(!numeric_symbols)
+  if(!table)
     return FALSE;
+  
+  pmath_atomic_write_release(&numeric_symbols, (intptr_t)table);
   
   return TRUE;
 }
 
 PMATH_PRIVATE void _pmath_numeric_done(void){
-  pmath_ht_destroy((pmath_hashtable_t)numeric_symbols);
+  pmath_ht_destroy((pmath_hashtable_t)pmath_atomic_read_aquire(&numeric_symbols));
 }

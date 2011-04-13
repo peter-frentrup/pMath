@@ -15,7 +15,7 @@ struct parallel_map_info_t{
   struct _pmath_map_info_t info;
   pmath_thread_t     parent;
   pmath_t           *items;
-  volatile intptr_t  index; // > 0 ...
+  pmath_atomic_t     index; // > 0 ...
 };
 
 static void parallel_map(struct parallel_map_info_t *info){
@@ -81,7 +81,7 @@ PMATH_PRIVATE pmath_t builtin_parallelmap(pmath_expr_t expr){
   obj                = pmath_expr_get_item(expr, 1);
   info.info.function = pmath_expr_get_item(expr, 2);
   
-  info.index = (intptr_t)pmath_expr_length(obj);
+  info.index._data = (intptr_t)pmath_expr_length(obj);
   
   reldepth = _pmath_object_in_levelspec(
     obj, info.info.levelmin, info.info.levelmax, 0);
@@ -92,8 +92,8 @@ PMATH_PRIVATE pmath_t builtin_parallelmap(pmath_expr_t expr){
     
     pmath_unref(expr);
     
-    if(task_count > info.index)
-      task_count = info.index;
+    if(task_count > info.index._data)
+      task_count = info.index._data;
     
     tasks = (pmath_task_t*)pmath_mem_alloc(task_count * sizeof(pmath_task_t));
     if(tasks){
@@ -101,16 +101,16 @@ PMATH_PRIVATE pmath_t builtin_parallelmap(pmath_expr_t expr){
       
       info.items = NULL;
       
-      if(PMATH_AS_PTR(obj)->refcount > 1 
+      if(pmath_refcount(obj) > 1 
       || PMATH_AS_PTR(obj)->type_shift != PMATH_TYPE_SHIFT_EXPRESSION_GENERAL){
         pmath_expr_t obj2 = pmath_expr_new(
           pmath_expr_get_item(obj, 0),
-          info.index);
+          info.index._data);
         
         if(!pmath_is_null(obj2)){
           info.items = ((struct _pmath_unpacked_expr_t*)PMATH_AS_PTR(obj2))->items;
           
-          for(i = (size_t)info.index;i > 0;--i)
+          for(i = (size_t)info.index._data;i > 0;--i)
             info.items[i] = pmath_expr_get_item(obj, i);
           
           pmath_unref(obj);

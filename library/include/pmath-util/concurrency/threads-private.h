@@ -19,11 +19,10 @@ struct _pmath_gather_info_t{
   struct _pmath_gather_info_t *next;    // thread-local write, readable from child-threads
   pmath_t                      pattern; // dito.
 
-  PMATH_DECLARE_ATOMIC(value_count);
-  union{
-    struct _pmath_stack_info_t *ptr;    // child threads may only push items => CAS2 operation not needed
-    intptr_t                    intptr; // "Dereferencing type-punned pointers ..."
-  } emitted_values;
+  pmath_atomic_t value_count;
+  
+  // struct _pmath_stack_info_t 
+  pmath_atomic_t emitted_values;
 };
 
 struct _pmath_abortable_message_t{
@@ -37,8 +36,8 @@ struct _pmath_abortable_message_t{
   pmath_locked_t _pending_abort_request; // dito
 };
 
-PMATH_PRIVATE extern PMATH_DECLARE_ATOMIC(_pmath_abort_timer);
-PMATH_PRIVATE extern PMATH_DECLARE_ATOMIC(_pmath_abort_reasons);
+PMATH_PRIVATE extern pmath_atomic_t _pmath_abort_timer;
+PMATH_PRIVATE extern pmath_atomic_t _pmath_abort_reasons;
 
 enum{
   BOXFORM_STANDARD,

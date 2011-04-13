@@ -42,16 +42,15 @@ struct _pmath_threadlock_t{
   pmath_threadlock_t  reserved;
 
   threadlock_owners_t *owners;
-  PMATH_DECLARE_ATOMIC(spin_lock);
+  pmath_atomic_t       spin_lock;
+  
   #if PMATH_USE_PTHREAD
-  //  pthread_mutex_t   tmp_mutex;
     pthread_mutex_t   fallback_wait_mutex;
   #elif PMATH_USE_WINDOWS_THREADS
-  //  CRITICAL_SECTION  tmp_mutex;
     CRITICAL_SECTION  fallback_wait_mutex;
   #endif
 
-  intptr_t         refcount;
+  pmath_atomic_t      refcount;
 };
 
 static struct _pmath_stack_t  unused_threadlocks;
@@ -59,7 +58,7 @@ static struct _pmath_stack_t  unused_threadlocks;
   static __inline void destroy_all_unused_threadlocks(void){
     pmath_threadlock_t threadlock;
     while((threadlock = pmath_stack_pop(&unused_threadlocks)) != NULL){
-      assert(threadlock->refcount == 0);
+      assert(threadlock->refcount._data == 0);
       assert(threadlock->owners == NULL);
       #if PMATH_USE_PTHREAD
         pthread_mutex_destroy(&threadlock->fallback_wait_mutex);
@@ -73,8 +72,8 @@ static struct _pmath_stack_t  unused_threadlocks;
   static pmath_threadlock_t create_threadlock(void){
     pmath_threadlock_t threadlock = pmath_stack_pop(&unused_threadlocks);
     if(threadlock){
-      assert(threadlock->spin_lock == 0);
-      threadlock->refcount = 1;
+      assert(threadlock->spin_lock._data == 0);
+      pmath_atomic_write_release(&threadlock->refcount, 1);
       return threadlock;
     }
 
@@ -83,14 +82,12 @@ static struct _pmath_stack_t  unused_threadlocks;
       return threadlock;
 
     threadlock->owners = NULL;
-    threadlock->refcount = 1;
+    pmath_atomic_write_release(&threadlock->refcount, 1);
 
-    threadlock->spin_lock = 0;
+    pmath_atomic_write_release(&threadlock->spin_lock, 0);
     #if PMATH_USE_PTHREAD
-//      pthread_mutex_init(&threadlock->tmp_mutex, PMATH_NULL);
       pthread_mutex_init(&threadlock->fallback_wait_mutex, NULL);
     #elif PMATH_USE_WINDOWS_THREADS
-//      InitializeCriticalSectionAndSpinCount(&threadlock->tmp_mutex, 4000);
       InitializeCriticalSectionAndSpinCount(&threadlock->fallback_wait_mutex, 4000);
     #endif
     return threadlock;
@@ -98,13 +95,13 @@ static struct _pmath_stack_t  unused_threadlocks;
 
   static void ref_threadlock(pmath_threadlock_t threadlock){
     if(threadlock)
-      (void)pmath_atomic_fetch_add(&(threadlock->refcount), 1);
+      (void)pmath_atomic_fetch_add(&threadlock->refcount, 1);
   }
 
   static pmath_threadlock_t unref_threadlock(pmath_threadlock_t threadlock){
     if(threadlock){
-      if(1 == pmath_atomic_fetch_add(&(threadlock->refcount), -1)){
-        assert(threadlock->spin_lock == 0);
+      if(1 == pmath_atomic_fetch_add(&threadlock->refcount, -1)){
+        assert(threadlock->spin_lock._data == 0);
         assert(threadlock->owners == NULL);
         pmath_stack_push(&unused_threadlocks, threadlock);
         return NULL;
@@ -134,7 +131,7 @@ PMATH_API void pmath_thread_call_locked(
     return;
 
   threadlock = _pmath_atomic_global_need(
-    (void**)         threadlock_ptr,
+    (pmath_atomic_t*)threadlock_ptr,
     (void*(*)(void)) create_threadlock,
     (void(*)(void*)) ref_threadlock);
 
@@ -187,14 +184,14 @@ PMATH_API void pmath_thread_call_locked(
         pmath_atomic_lock(&waiting_lock->spin_lock);
         
         if(waiting_lock->owners == NULL){
-          assert(waiting_lock->spin_lock == 1);
+          assert(waiting_lock->spin_lock._data == 1);
           
           pmath_atomic_unlock(&waiting_lock->spin_lock);
           break;
         }
 
         if(waiting_lock->owners->owner == me){
-          assert(waiting_lock->spin_lock == 1);
+          assert(waiting_lock->spin_lock._data == 1);
           
           pmath_atomic_unlock(&waiting_lock->spin_lock);
           
@@ -218,7 +215,7 @@ PMATH_API void pmath_thread_call_locked(
         }
         
         if(waiting_lock->owners->owner == NULL){
-          assert(waiting_lock->spin_lock == 1);
+          assert(waiting_lock->spin_lock._data == 1);
           
           pmath_atomic_unlock(&waiting_lock->spin_lock);
           break;
@@ -226,7 +223,7 @@ PMATH_API void pmath_thread_call_locked(
         
         next = waiting_lock->owners->owner->waiting_lock;
         
-        assert(waiting_lock->spin_lock == 1);
+        assert(waiting_lock->spin_lock._data == 1);
         
         pmath_atomic_unlock(&waiting_lock->spin_lock);
 
@@ -252,11 +249,11 @@ PMATH_API void pmath_thread_call_locked(
 
       pmath_atomic_lock(&threadlock->spin_lock);
       
-      assert(threadlock->spin_lock == 1);
+      assert(threadlock->spin_lock._data == 1);
 
       new_owner = pmath_mem_alloc(sizeof(threadlock_owners_t));
       if(!new_owner){
-        assert(threadlock->spin_lock == 1);
+        assert(threadlock->spin_lock._data == 1);
       
         pmath_atomic_unlock(&threadlock->spin_lock);
         #if PMATH_USE_PTHREAD
@@ -278,7 +275,7 @@ PMATH_API void pmath_thread_call_locked(
       #endif
       threadlock->owners = new_owner;
       
-      assert(threadlock->spin_lock == 1);
+      assert(threadlock->spin_lock._data == 1);
       
       pmath_atomic_unlock(&threadlock->spin_lock);
     }
@@ -298,7 +295,7 @@ PMATH_API void pmath_thread_call_locked(
       assert(old_owner->owner == me);
       threadlock->owners = old_owner->next;
       
-      assert(threadlock->spin_lock == 1);
+      assert(threadlock->spin_lock._data == 1);
       
       pmath_atomic_unlock(&threadlock->spin_lock);
 
@@ -319,7 +316,7 @@ PMATH_API void pmath_thread_call_locked(
 
  CLEANUP:
   _pmath_atomic_global_done(
-    (void**)         threadlock_ptr,
+    (pmath_atomic_t*)threadlock_ptr,
     (void*)          threadlock,
     (void*(*)(void*))unref_threadlock);
 }

@@ -23,7 +23,7 @@ PMATH_PRIVATE pmath_t builtin_finally(pmath_expr_t expr){
   fst = pmath_evaluate(pmath_expr_get_item(expr, 1));
 
   old_ignore_older_aborts = current_thread->ignore_older_aborts;
-  current_thread->ignore_older_aborts = 1 + _pmath_abort_timer;
+  current_thread->ignore_older_aborts = 1 + pmath_atomic_read_aquire(&_pmath_abort_timer);
   exception = _pmath_thread_catch(current_thread);
   
   pmath_unref(pmath_evaluate(pmath_expr_get_item(expr, 2)));

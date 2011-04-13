@@ -30,7 +30,7 @@ typedef struct{
 
 PMATH_PRIVATE _pmath_type_imp_t pmath_type_imps[PMATH_TYPE_SHIFT_COUNT];
 #ifdef PMATH_DEBUG_MEMORY
-  static size_t object_alloc_stats[PMATH_TYPE_SHIFT_COUNT];
+  static pmath_atomic_t object_alloc_stats[PMATH_TYPE_SHIFT_COUNT];
   static char *type_names[PMATH_TYPE_SHIFT_COUNT] = {
     "float (multi prec)",
     "integer (multi prec)",
@@ -44,9 +44,11 @@ PMATH_PRIVATE _pmath_type_imp_t pmath_type_imps[PMATH_TYPE_SHIFT_COUNT];
   };
 #endif
 
-static volatile _pmath_timer_t global_timer;
 #if PMATH_BITSIZE < 64
-  static PMATH_DECLARE_ATOMIC(global_timer_spin) = 0;
+  static volatile _pmath_timer_t global_timer;
+  static pmath_atomic_t global_timer_spin = PMATH_ATOMIC_STATIC_INIT;
+#else
+  static pmath_atomic_t global_timer = PMATH_ATOMIC_STATIC_INIT;
 #endif
 
 PMATH_PRIVATE
@@ -62,7 +64,7 @@ _pmath_timer_t _pmath_timer_get(void){
   
   return result;
 #else
-  return global_timer;
+  return pmath_atomic_read_aquire(global_timer);
 #endif
 }
 
@@ -96,7 +98,7 @@ PMATH_API void _pmath_destroy_object(pmath_t obj){
   }
   
   assert(PMATH_VALID_TYPE_SHIFT(PMATH_AS_PTR(obj)->type_shift));
-  assert(PMATH_AS_PTR(obj)->refcount == 0 || PMATH_AS_PTR(obj)->type_shift == PMATH_TYPE_SHIFT_SYMBOL);
+  assert(pmath_refcount(obj) == 0 || PMATH_AS_PTR(obj)->type_shift == PMATH_TYPE_SHIFT_SYMBOL);
   
   if(pmath_type_imps[PMATH_AS_PTR(obj)->type_shift].destroy)
      pmath_type_imps[PMATH_AS_PTR(obj)->type_shift].destroy(obj);
@@ -282,7 +284,7 @@ void pmath_write_ex(struct pmath_write_ex_t *info, pmath_t obj){
     }
     
     #ifdef PMATH_DEBUG_MEMORY
-    if(PMATH_AS_PTR(obj)->refcount <= 0){
+    if(pmath_refcount(obj) <= 0){
       write_cstr("[NOREF: ", info->write, info->user);
     }
     #endif
@@ -303,7 +305,7 @@ void pmath_write_ex(struct pmath_write_ex_t *info, pmath_t obj){
       pmath_type_imps[PMATH_AS_PTR(obj)->type_shift].write(info, obj);
   
     #ifdef PMATH_DEBUG_MEMORY
-    if(PMATH_AS_PTR(obj)->refcount <= 0){
+    if(pmath_refcount(obj) <= 0){
       write_cstr("]", info->write, info->user);
     }
     #endif
@@ -383,9 +385,7 @@ PMATH_PRIVATE pmath_t _pmath_create_stub(unsigned int type_shift, size_t size){
   assert(size >= sizeof(struct _pmath_t));
   assert(PMATH_VALID_TYPE_SHIFT(type_shift));
   #ifdef PMATH_DEBUG_MEMORY
-    (void)pmath_atomic_fetch_add(
-      (intptr_t*)&object_alloc_stats[type_shift],
-      1);
+    (void)pmath_atomic_fetch_add(&object_alloc_stats[type_shift], 1);
   #endif
   
   obj = pmath_mem_alloc(size);
@@ -393,7 +393,7 @@ PMATH_PRIVATE pmath_t _pmath_create_stub(unsigned int type_shift, size_t size){
     return PMATH_NULL;
 
   obj->type_shift = type_shift;
-  obj->refcount   = 1;
+  pmath_atomic_write_release(&obj->refcount, 1);
   return PMATH_FROM_PTR(obj);
 }
 
@@ -431,10 +431,10 @@ PMATH_PRIVATE void _pmath_objects_done(void){
     int i;
     pmath_debug_print("\ntype                 allocations\n");
     for(i = 0;i < PMATH_TYPE_SHIFT_COUNT;i++){
-      pmath_debug_print("%-20s %6"PRIdPTR"\n",
-        type_names[i],
-        object_alloc_stats[i]);
-      total+= object_alloc_stats[i];
+      size_t stat = (size_t)pmath_atomic_read_aquire(&object_alloc_stats[i]);
+      
+      pmath_debug_print("%-20s %6"PRIdPTR"\n", type_names[i], stat);
+      total+= stat;
     }
     pmath_debug_print("total object allocations: %"PRIdPTR"\n", total);
   #endif

@@ -7,7 +7,7 @@
 
 #include <pmath-core/symbols.h>
 
-PMATH_PRIVATE extern volatile intptr_t _pmath_dynamic_trackers;
+PMATH_PRIVATE extern pmath_atomic_t _pmath_dynamic_trackers;
 
 PMATH_PRIVATE void         _pmath_dynamic_bind(pmath_symbol_t symbol, intptr_t id); // symbol wont be freed
 PMATH_PRIVATE pmath_bool_t _pmath_dynamic_remove(intptr_t id);

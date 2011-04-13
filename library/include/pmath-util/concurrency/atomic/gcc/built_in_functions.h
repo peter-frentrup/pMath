@@ -8,31 +8,56 @@
 //  #define pmath_atomic_loop_nop()  __asm __volatile("rep; nop"::)
 //#endif
 
-#define pmath_atomic_fetch_add(atom_ptr, delta) \
-  ((intptr_t)__sync_fetch_and_add( \
-    (intptr_t volatile *)(atom_ptr), \
-    (intptr_t)           (delta)))
 
-#define pmath_atomic_fetch_set(atom_ptr, new_value) \
-  ((intptr_t)__sync_lock_test_and_set( \
-    (intptr_t volatile *)(atom_ptr), \
-    (intptr_t)           (new_value)))
+PMATH_FORCE_INLINE
+void pmath_atomic_barrier(void){
+  __sync_synchronize();
+}
 
-#define pmath_atomic_fetch_compare_and_set(atom_ptr, old_value, new_value) \
-  ((intptr_t)__sync_val_compare_and_swap( \
-    (intptr_t volatile *)(atom_ptr), \
-    (intptr_t)           (old_value), \
-    (intptr_t)           (new_value)))
 
-#define pmath_atomic_compare_and_set(atom_ptr, old_value, new_value) \
-  ((pmath_bool_t)__sync_bool_compare_and_swap( \
-    (intptr_t volatile *)(atom_ptr), \
-    (intptr_t)           (old_value), \
-    (intptr_t)           (new_value)))
+PMATH_FORCE_INLINE
+intptr_t pmath_atomic_read_aquire(pmath_atomic_t *atom){
+  __sync_synchronize();
+  return atom->_data;
+}
+
+
+PMATH_FORCE_INLINE
+void pmath_atomic_write_release(pmath_atomic_t *atom, intptr_t value){
+  atom->_data = value;
+  __sync_synchronize();
+}
+
+
+PMATH_FORCE_INLINE
+intptr_t pmath_atomic_fetch_add(pmath_atomic_t *atom, intptr_t delta){
+  return __sync_fetch_and_add(&atom->_data, delta);
+}
+
+
+PMATH_FORCE_INLINE
+intptr_t pmath_atomic_fetch_set(pmath_atomic_t *atom, intptr_t delta){
+  intptr_t result = __sync_lock_test_and_set(&atom->_data, delta); // has only aquire semantics
+  __sync_synchronize(); // has aquire & release semantics
+  return result;
+}
+
+
+PMATH_FORCE_INLINE
+intptr_t pmath_atomic_fetch_compare_and_set(pmath_atomic_t *atom, intptr_t old_value, intptr_t new_value){
+  return __sync_val_compare_and_swap(&atom->_data, old_value, new_value);
+}
+
+
+PMATH_FORCE_INLINE
+pmath_bool_t pmath_atomic_compare_and_set(pmath_atomic_t *atom, intptr_t old_value, intptr_t new_value){
+  return __sync_bool_compare_and_swap(&atom->_data, old_value, new_value);
+}
+
 
 PMATH_FORCE_INLINE
 pmath_bool_t pmath_atomic_compare_and_set_2(
-  intptr_t volatile *atom,
+  pmath_atomic2_t *atom,
   intptr_t old_value_fst,
   intptr_t old_value_snd,
   intptr_t new_value_fst,
@@ -44,19 +69,19 @@ pmath_bool_t pmath_atomic_compare_and_set_2(
     #elif PMATH_BITSIZE == 64
       __int128_t  big;
     #endif
-    PMATH_DECLARE_ATOMIC_2(arr);
+    pmath_atomic2_t arr;
   } cmp, xch;
   
-  cmp.arr[0] = old_value_fst;
-  cmp.arr[1] = old_value_snd;
-  xch.arr[0] = new_value_fst;
-  xch.arr[1] = new_value_snd;
+  cmp.arr._data[0] = old_value_fst;
+  cmp.arr._data[1] = old_value_snd;
+  xch.arr._data[0] = new_value_fst;
+  xch.arr._data[1] = new_value_snd;
   
   return __sync_bool_compare_and_swap(
     #if PMATH_BITSIZE == 32
-      (int64_t volatile*)atom,
+      (int64_t volatile*)atom->_data,
     #elif PMATH_BITSIZE == 64
-      (__int128_t volatile*)atom,
+      (__int128_t volatile*)atom->_data,
     #endif
     cmp.big,
     xch.big);
@@ -75,9 +100,9 @@ pmath_bool_t pmath_atomic_have_cas2(void){
   int a,b,c,d;
   __cpuid(1, a, b, c, d);
   #if PMATH_BITSIZE == 64
-    return (c & (1 << 13)) != 0; /* CMPXCHG16B support */
+    return (c & (1 << 13)) != 0; // CMPXCHG16B support 
   #elif PMATH_BITSIZE == 32
-    return (d & (1 << 8)) != 0; /* CPMXCHG8B support */
+    return (d & (1 << 8)) != 0; // CPMXCHG8B support 
   #else
     #error unsupported PMATH_BITSIZE
   #endif
@@ -93,7 +118,7 @@ pmath_bool_t pmath_atomic_have_cas2(void){
   : "=c"(ecx)
   : "a"(1));
   
-  return (ecx & (1 << 13)) != 0; /* CMPXCHG16B support */
+  return (ecx & (1 << 13)) != 0; // CMPXCHG16B support
 #elif defined(PMATH_X86)
   uintptr_t edx;
   
@@ -106,34 +131,35 @@ pmath_bool_t pmath_atomic_have_cas2(void){
   : "=d"(edx)
   : "a"(1));
   
-  return (edx & (1 << 8)) != 0; /* CPMXCHG8B support */
+  return (edx & (1 << 8)) != 0; // CPMXCHG8B support
 #else
   return FALSE;
 #endif
 }
 
-#define pmath_atomic_barrier()  __sync_synchronize()
 
-#define pmath_atomic_lock(atom_ptr) \
-  do{ \
-    intptr_t volatile *_pmath_atomic_lock__ptr = (intptr_t volatile*)(atom_ptr); \
-     \
-    int _pmath_atomic_lock__cnt = PMATH_ATOMIC_FASTLOOP_COUNT; \
-    while(_pmath_atomic_lock__cnt > 0 && *_pmath_atomic_lock__ptr != 0){ \
-      --_pmath_atomic_lock__cnt; \
-    } \
-     \
-    if(*_pmath_atomic_lock__ptr != 0){ \
-      pmath_atomic_loop_yield(); \
-    } \
-    while(0 != __sync_lock_test_and_set(_pmath_atomic_lock__ptr, (intptr_t)1)){ \
-      pmath_atomic_loop_nop(); \
-    } \
-  }while(0)
+PMATH_FORCE_INLINE
+void pmath_atomic_lock(pmath_atomic_t *atom){
+  int count = PMATH_ATOMIC_FASTLOOP_COUNT;
+  
+  while(count > 0 && pmath_atomic_read_aquire(atom) != 0){
+    --count;
+  }
+  
+  if(pmath_atomic_read_aquire(atom) != 0){
+    pmath_atomic_loop_yield();
+  }
+  
+  while(0 != __sync_lock_test_and_set(&atom->_data, (intptr_t)1)){
+    pmath_atomic_loop_nop();
+  }
+}
 
-#define pmath_atomic_unlock(atom_ptr) \
-  __sync_lock_release( \
-    (intptr_t volatile *)(atom_ptr))
+
+PMATH_FORCE_INLINE
+void pmath_atomic_unlock(pmath_atomic_t *atom){
+  __sync_lock_release(&atom->_data);
+}
 
 #define HAVE_ATOMIC_OPS
 

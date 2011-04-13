@@ -6,8 +6,8 @@
 #include <assert.h>
 
 struct _pmath_t{ // do not access members
-  unsigned int  type_shift; /* 0..31 */
-  PMATH_DECLARE_ATOMIC(refcount);
+  unsigned int   type_shift; /* 0..31 */
+  pmath_atomic_t refcount;
 };
 
 /*============================================================================*/
@@ -86,6 +86,15 @@ pmath_t PMATH_FROM_DOUBLE(double d){
     return PMATH_NULL;
   
   return r;
+}
+
+/*============================================================================*/
+
+PMATH_FORCE_INLINE
+intptr_t pmath_refcount(pmath_t obj){
+  if(pmath_is_pointer(obj) && !pmath_is_null(obj))
+    return pmath_atomic_read_aquire(&PMATH_AS_PTR(obj)->refcount);
+  return 0;
 }
 
 /*============================================================================*/

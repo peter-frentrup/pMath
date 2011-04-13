@@ -86,7 +86,7 @@ void pmath_mem_usage(size_t *current, size_t *max);
 #ifdef BUILDING_PMATH
   #ifdef PMATH_DEBUG_MEMORY
     #include <pmath-util/concurrency/atomic.h>
-    extern PMATH_DECLARE_ATOMIC(_pmath_debug_global_time);
+    extern pmath_atomic_t _pmath_debug_global_time;
   #endif
   PMATH_PRIVATE pmath_bool_t _pmath_memory_manager_init(void);
   PMATH_PRIVATE void         _pmath_memory_manager_done(void);

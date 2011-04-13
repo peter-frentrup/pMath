@@ -11,7 +11,7 @@
 #include <pmath-util/hashtables-private.h>
 
 struct _pmath_rulecache_t{ // do not access members directly, init all with PMATH_NULL
-  void * volatile _table; // const patterns, no condition in rhs
+  pmath_atomic_t  _table; // pmath_hashtable_t, const patterns, no condition in rhs
   pmath_locked_t  _more;  // _pmath_multirule_t
 };
 
@@ -23,8 +23,7 @@ struct _pmath_symbol_rules_t{ // init all with PMATH_NULL
   struct _pmath_rulecache_t  default_rules; // Default(~~~), Options(~~~)
   struct _pmath_rulecache_t  format_rules;  // MakeBoxes(~~~)
   
-  void * volatile _messages; // only access with _pmath_atomic_[un]lock_ptr()
-                             // this is a hashtable of class pmath_ht_obj_class
+  pmath_atomic_t _messages; // this is a pmath_hashtable_t of class pmath_ht_obj_class
 };
 
 struct _pmath_symbol_rules_entry_t{

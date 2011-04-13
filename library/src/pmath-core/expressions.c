@@ -37,12 +37,12 @@ PMATH_PRIVATE pmath_expr_t _pmath_object_stop_message;     // read-only
 #define CACHE_SIZE  32
 #define CACHE_MASK  (CACHE_SIZE-1)
 
-static intptr_t expr_caches[CACHES_MAX][CACHE_SIZE];
-static PMATH_DECLARE_ATOMIC(expr_cache_pos[CACHES_MAX]);
+static pmath_atomic_t expr_caches[CACHES_MAX][CACHE_SIZE];
+static pmath_atomic_t expr_cache_pos[CACHES_MAX];
 
 #ifdef PMATH_DEBUG_LOG
-static PMATH_DECLARE_ATOMIC(expr_cache_hits);
-static PMATH_DECLARE_ATOMIC(expr_cache_misses);
+static pmath_atomic_t expr_cache_hits   = PMATH_ATOMIC_STATIC_INIT;
+static pmath_atomic_t expr_cache_misses = PMATH_ATOMIC_STATIC_INIT;
 #endif
 
   static uintptr_t expr_cache_inc(size_t length, intptr_t delta){
@@ -74,7 +74,7 @@ static PMATH_DECLARE_ATOMIC(expr_cache_misses);
         struct _pmath_unpacked_expr_t *expr = expr_cache_swap(len, i, NULL);
         
         if(expr){
-          assert(expr->inherited.inherited.inherited.refcount == 0);
+          assert(expr->inherited.inherited.inherited.refcount._data == 0);
           
           pmath_mem_free(expr);
         }
@@ -109,11 +109,12 @@ pmath_expr_t pmath_expr_new(
         (void)pmath_atomic_fetch_add(&expr_cache_hits, 1);
       #endif
       
-      if(expr->inherited.inherited.inherited.refcount != 0){
-        pmath_debug_print("expr refcount = %d\n", (int)expr->inherited.inherited.inherited.refcount);
-        assert(expr->inherited.inherited.inherited.refcount == 0);
+      if(expr->inherited.inherited.inherited.refcount._data != 0){
+        pmath_debug_print("expr refcount = %d\n", (int)expr->inherited.inherited.inherited.refcount._data);
+        assert(expr->inherited.inherited.inherited.refcount._data == 0);
       }
-      expr->inherited.inherited.inherited.refcount = 1;
+      
+      pmath_atomic_write_release(&expr->inherited.inherited.inherited.refcount, 1);
     }
     else{
       #ifdef PMATH_DEBUG_LOG
@@ -181,11 +182,12 @@ pmath_expr_t pmath_expr_new_extended(
         (void)pmath_atomic_fetch_add(&expr_cache_hits, 1);
       #endif
       
-      if(expr->inherited.inherited.inherited.refcount != 0){
-        pmath_debug_print("expr refcount = %d\n", (int)expr->inherited.inherited.inherited.refcount);
-        assert(expr->inherited.inherited.inherited.refcount == 0);
+      if(expr->inherited.inherited.inherited.refcount._data != 0){
+        pmath_debug_print("expr refcount = %d\n", (int)expr->inherited.inherited.inherited.refcount._data);
+        assert(expr->inherited.inherited.inherited.refcount._data == 0);
       }
-      expr->inherited.inherited.inherited.refcount = 1;
+      
+      pmath_atomic_write_release(&expr->inherited.inherited.inherited.refcount, 1);
     }
     else{
       #ifdef PMATH_DEBUG_LOG
@@ -242,7 +244,7 @@ pmath_expr_t pmath_expr_resize(
   if(new_length == old_expr->length)
     return expr;
 
-  if(PMATH_AS_PTR(expr)->refcount > 1
+  if(pmath_refcount(expr) > 1
   || PMATH_AS_PTR(expr)->type_shift != PMATH_TYPE_SHIFT_EXPRESSION_GENERAL){
     new_expr = (void*)PMATH_AS_PTR(pmath_expr_new(
       pmath_ref(old_expr->items[0]),
@@ -405,7 +407,7 @@ PMATH_API pmath_t pmath_expr_extract_item(
   if(PMATH_AS_PTR(expr)->type_shift == PMATH_TYPE_SHIFT_EXPRESSION_GENERAL || index == 0){
     pmath_t item = expr_part_ptr->inherited.items[index];
     
-    if(PMATH_AS_PTR(expr)->refcount == 1){
+    if(pmath_refcount(expr) == 1){
       expr_part_ptr->inherited.items[index] = PMATH_UNDEFINED;
       return item;
     }
@@ -524,7 +526,7 @@ PMATH_API pmath_expr_t pmath_expr_set_item(
     return expr;
   }
 
-  if(PMATH_AS_PTR(expr)->refcount > 1
+  if(pmath_refcount(expr) > 1
   || (index > 0 && PMATH_AS_PTR(expr)->type_shift != PMATH_TYPE_SHIFT_EXPRESSION_GENERAL)){
     const size_t len = expr_part_ptr->inherited.length;
     
@@ -732,7 +734,7 @@ PMATH_PRIVATE pmath_expr_t _pmath_expr_sort_ex(
   if(length < 2)
     return expr;
 
-  if(PMATH_AS_PTR(expr)->refcount > 1
+  if(pmath_refcount(expr) > 1
   || PMATH_AS_PTR(expr)->type_shift != PMATH_TYPE_SHIFT_EXPRESSION_GENERAL){
     struct _pmath_unpacked_expr_t *new_expr = 
       (void*)PMATH_AS_PTR(pmath_expr_new(PMATH_NULL, length));
@@ -792,7 +794,7 @@ PMATH_PRIVATE pmath_expr_t _pmath_expr_sort_ex_context(
   if(length < 2)
     return expr;
 
-  if(PMATH_AS_PTR(expr)->refcount > 1
+  if(pmath_refcount(expr) > 1
   || PMATH_AS_PTR(expr)->type_shift != PMATH_TYPE_SHIFT_EXPRESSION_GENERAL){
     struct _pmath_unpacked_expr_t *new_expr = 
       (void*)PMATH_AS_PTR(pmath_expr_new(PMATH_NULL, length));
@@ -2850,7 +2852,8 @@ PMATH_PRIVATE pmath_bool_t _pmath_expressions_init(void){
   memset((void*)expr_cache_pos, 0, sizeof(expr_cache_pos));
   
   #ifdef PMATH_DEBUG_LOG
-    expr_cache_hits = expr_cache_misses = 0;
+    pmath_atomic_write_release(&expr_cache_hits,   0);
+    pmath_atomic_write_release(&expr_cache_misses, 0);
   #endif
   
   _pmath_init_special_type(
@@ -2877,10 +2880,13 @@ PMATH_PRIVATE pmath_bool_t _pmath_expressions_init(void){
 PMATH_PRIVATE void _pmath_expressions_done(void){
   #ifdef PMATH_DEBUG_LOG
   {
+    intptr_t hits   = pmath_atomic_read_aquire(&expr_cache_hits);
+    intptr_t misses = pmath_atomic_read_aquire(&expr_cache_misses);
+    
     pmath_debug_print("expr cache hit rate:             %f (%d of %d)\n", 
-      (double)expr_cache_hits / (double)(expr_cache_hits + expr_cache_misses),
-      (int) expr_cache_hits,
-      (int)(expr_cache_hits + expr_cache_misses));
+      hits / (double)(hits + misses),
+      (int) hits,
+      (int)(hits + misses));
   }
   #endif
   

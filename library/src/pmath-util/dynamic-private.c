@@ -126,8 +126,8 @@ static pmath_ht_class_t symbol2ids_class = {
   symbol2ids_entry_equals_key
 };
 
-static void * volatile id2symbols; // pmath_hashtable_t
-static void * volatile symbol2ids; // pmath_hashtable_t
+static pmath_atomic_t id2symbols; // pmath_hashtable_t
+static pmath_atomic_t symbol2ids; // pmath_hashtable_t
 
 static void lock_tables(pmath_hashtable_t *i2s, pmath_hashtable_t *s2i){
   *i2s = (pmath_hashtable_t)_pmath_atomic_lock_ptr(&id2symbols);
@@ -348,24 +348,29 @@ PMATH_PRIVATE double _pmath_dynamic_first_eval(intptr_t id){
 
 /*============================================================================*/
 
-PMATH_PRIVATE volatile intptr_t _pmath_dynamic_trackers;
+PMATH_PRIVATE pmath_atomic_t _pmath_dynamic_trackers;
 
 PMATH_PRIVATE pmath_bool_t _pmath_dynamic_init(void){
-  _pmath_dynamic_trackers = 0;
+  pmath_hashtable_t i2s, s2i;
   
-  id2symbols = pmath_ht_create(&id2symbols_class, 0);
-  symbol2ids = pmath_ht_create(&symbol2ids_class, 0);
+  pmath_atomic_write_release(&_pmath_dynamic_trackers, 0);
   
-  if(!id2symbols || !symbol2ids){
-    pmath_ht_destroy(id2symbols);
-    pmath_ht_destroy(symbol2ids);
+  i2s = pmath_ht_create(&id2symbols_class, 0);
+  s2i = pmath_ht_create(&symbol2ids_class, 0);
+  
+  if(!i2s || !s2i){
+    pmath_ht_destroy(i2s);
+    pmath_ht_destroy(s2i);
     return FALSE;
   }
+  
+  pmath_atomic_write_release(&id2symbols, (intptr_t)i2s);
+  pmath_atomic_write_release(&symbol2ids, (intptr_t)s2i);
   
   return TRUE;
 }
 
 PMATH_PRIVATE void _pmath_dynamic_done(void){
-  pmath_ht_destroy((pmath_hashtable_t)id2symbols);
-  pmath_ht_destroy((pmath_hashtable_t)symbol2ids);
+  pmath_ht_destroy((pmath_hashtable_t)pmath_atomic_read_aquire(&id2symbols));
+  pmath_ht_destroy((pmath_hashtable_t)pmath_atomic_read_aquire(&symbol2ids));
 }

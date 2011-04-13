@@ -46,9 +46,44 @@
    #defines:
      HAVE_ATOMIC_OPS
      PMATH_DECLARE_ALIGNED(type, name, alignment)
-     PMATH_DECLARE_ATOMIC(name)
-     PMATH_DECLARE_ATOMIC_2(name)
+     PMATH_ATOMIC_STATIC_INIT
  */
+
+
+#ifdef __GNUC__
+
+  #define PMATH_DECLARE_ALIGNED(TYPE, NAME, ALIGNMENT) \
+    TYPE NAME __attribute__ ((aligned(ALIGNMENT)))
+
+#elif defined(_MSC_VER)
+
+  #define PMATH_DECLARE_ALIGNED(type, name, byte_alignment) \
+    __declspec(align(byte_alignment)) type name
+
+#elif !defined(PMATH_DOXYGEN)
+  #error unknown compiler
+#endif
+
+
+typedef struct { 
+  #if PMATH_BITSIZE == 64
+    PMATH_DECLARE_ALIGNED(intptr_t, _data, 8);
+  #elif PMATH_BITSIZE == 32
+    PMATH_DECLARE_ALIGNED(intptr_t, _data, 4);
+  #endif
+} pmath_atomic_t;
+
+#define PMATH_ATOMIC_STATIC_INIT  {0};
+
+
+typedef struct {
+  #if PMATH_BITSIZE == 64
+    PMATH_DECLARE_ALIGNED(intptr_t, _data[2], 16);
+  #elif PMATH_BITSIZE == 32
+    PMATH_DECLARE_ALIGNED(intptr_t, _data[2], 8);
+  #endif
+} pmath_atomic2_t;
+
 
 #define PMATH_ATOMIC_FASTLOOP_COUNT  (1000)
 
@@ -80,7 +115,7 @@
 #endif
 
 
-#if PMATH_BITSIZE == 64
+/*#if PMATH_BITSIZE == 64
   #define PMATH_DECLARE_ATOMIC(name)   PMATH_DECLARE_ALIGNED(volatile intptr_t, name,    8)
   #define PMATH_DECLARE_ATOMIC_2(name) PMATH_DECLARE_ALIGNED(volatile intptr_t, name[2], 16)
 #elif PMATH_BITSIZE == 32
@@ -88,16 +123,13 @@
   #define PMATH_DECLARE_ATOMIC_2(name) PMATH_DECLARE_ALIGNED(volatile intptr_t, name[2], 8)
 #else
   #error invalid PMATH_BITSIZE
-#endif
+#endif*/
 
 #ifdef PMATH_DOXYGEN
   
   #include <pmath-util/concurrency/atomic/non-atomic.h>
   
 #elif defined(__GNUC__)
-
-  #define PMATH_DECLARE_ALIGNED(TYPE, NAME, ALIGNMENT) \
-    TYPE NAME __attribute__ ((aligned(ALIGNMENT)))
 
   #if PMATH_NEED_GNUC(4, 0)
     #include <pmath-util/concurrency/atomic/gcc/built_in_functions.h>
@@ -113,9 +145,6 @@
   #endif
 
 #elif defined(_MSC_VER)
-
-  #define PMATH_DECLARE_ALIGNED(type, name, byte_alignment) \
-    __declspec(align(byte_alignment)) type name
 
   #include <pmath-util/concurrency/atomic/msvc/intrinsic_functions.h>
 

@@ -39,9 +39,9 @@ struct msg_queue_t{
   struct message_t * volatile head;
   struct message_t * volatile tail;
   
-  PMATH_DECLARE_ATOMIC(head_spin);
-  PMATH_DECLARE_ATOMIC(tail_spin);
-  PMATH_DECLARE_ATOMIC(notifier_spin);
+  pmath_atomic_t head_spin;
+  pmath_atomic_t tail_spin;
+  pmath_atomic_t notifier_spin;
   
   struct notifier_t *notifiers;
   
@@ -53,7 +53,7 @@ struct msg_queue_t{
   volatile pmath_bool_t is_dead; // TRUE when thread is dead, but message queue not
 };
 
-static PMATH_DECLARE_ATOMIC(sleeplist_spin);
+static pmath_atomic_t sleeplist_spin = PMATH_ATOMIC_STATIC_INIT;
 static struct msg_queue_t * volatile sleeplist = NULL;
 
 #ifdef PMATH_OS_WIN32

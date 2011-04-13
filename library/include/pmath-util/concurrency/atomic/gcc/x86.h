@@ -7,53 +7,66 @@
   [1] http://sam.zoy.org/blog/2007-04-13-shlib-with-non-pic-code-have-__inline-assembly-and-pic-mix-well
  */
 
+
 PMATH_FORCE_INLINE
-intptr_t pmath_atomic_fetch_add(
-  intptr_t volatile *atom,
-  intptr_t delta
-){
+void pmath_atomic_barrier(void){
+  __asm __volatile("":::"memory"); // only a compiler barrier
+}
+
+
+PMATH_FORCE_INLINE
+intptr_t pmath_atomic_read_aquire(pmath_atomic_t *atom){
+  pmath_atomic_barrier();
+  return atom->_data;
+}
+
+
+PMATH_FORCE_INLINE
+void pmath_atomic_write_release(pmath_atomic_t *atom, intptr_t value){
+  atom->_data = value;
+  pmath_atomic_barrier();
+}
+
+
+PMATH_FORCE_INLINE
+intptr_t pmath_atomic_fetch_add(pmath_atomic_t *atom, intptr_t delta){
   intptr_t result;
 
   // add or xadd?
   __asm __volatile(
     "lock; xaddl %0,%1"
-    : "=r"(result), "=m"(*atom)
-    : "0"(delta),   "m" (*atom)
+    : "=r"(result), "=m"(atom->_data)
+    : "0"(delta),   "m" (atom->_data)
     : "memory"
   );
 
   return result;
 }
 
+
 PMATH_FORCE_INLINE
-intptr_t pmath_atomic_fetch_set(
-  intptr_t volatile *atom,
-  intptr_t new_value
-){
+intptr_t pmath_atomic_fetch_set(pmath_atomic_t *atom, intptr_t new_value){
   intptr_t result;
 
 /* I read somewhere that xchg does not need a lock prefix. is that true? */
   __asm __volatile(
     "lock; xchgl %0,%1"
-    : "=r"(result),   "=m"(*atom)
-    : "0"(new_value), "m" (*atom)
+    : "=r"(result),   "=m"(atom->_data)
+    : "0"(new_value), "m" (atom->_data)
     : "memory"
   );
 
   return result;
 }
 
+
 PMATH_FORCE_INLINE
-intptr_t pmath_atomic_fetch_compare_and_set(
-  intptr_t volatile *atom,
-  intptr_t old_value,
-  intptr_t new_value
-){
+intptr_t pmath_atomic_fetch_compare_and_set(pmath_atomic_t *atom, intptr_t old_value, intptr_t new_value){
   intptr_t result;
 
   __asm __volatile(
     "lock; cmpxchgl %2,%1"
-    : "=a"(result),   "=m"(*atom)
+    : "=a"(result),   "=m"(atom->_data)
     : "q"(new_value), "0"(old_value)
     : "memory", "cc"
   );
@@ -61,18 +74,15 @@ intptr_t pmath_atomic_fetch_compare_and_set(
   return result;
 }
 
+
 PMATH_FORCE_INLINE
-pmath_bool_t pmath_atomic_compare_and_set(
-  intptr_t volatile *atom,
-  intptr_t old_value,
-  intptr_t new_value
-){
+pmath_bool_t pmath_atomic_compare_and_set(pmath_atomic_t *atom, intptr_t old_value, intptr_t new_value){
   char result;
 
   __asm __volatile(
     "lock; cmpxchgl %2,%1 \n\t"
     "sete %0"
-    : "=a"(result),   "=m"(*atom)
+    : "=a"(result),   "=m"(atom->_data)
     : "q"(new_value), "0"(old_value)
     : "memory", "cc"
   );
@@ -82,7 +92,7 @@ pmath_bool_t pmath_atomic_compare_and_set(
 
 PMATH_FORCE_INLINE
 pmath_bool_t pmath_atomic_compare_and_set_2(
-  intptr_t volatile *atom, // aligned to 2*sizeof(void*)
+  pmath_atomic2_t *atom, 
   intptr_t old_value_fst,
   intptr_t old_value_snd,
   intptr_t new_value_fst,
@@ -90,19 +100,15 @@ pmath_bool_t pmath_atomic_compare_and_set_2(
 ){
   char result;
 
-  /*
-     cmpxchg8b mem64
+  // cmpxchg8b mem64
+  //
+  // -compares EDX:EAX to mem64
+  //  if both equal, loads ECX:EBX into mem64
+  //  otherwise mem64 is loaded into EDX:EAX
+  //
+  // -sets or clears the zero (=equal) flag
 
-     -compares EDX:EAX to mem64
-      if both equal, loads ECX:EBX into mem64
-      otherwise mem64 is loaded into EDX:EAX
-
-     -sets or clears the zero (=equal) flag
-   */
-
-  /*
-     [1] Says we cannot use %%ebx in PIC code.
-   */
+  // [1] Says we cannot use %%ebx in PIC code.
   #if defined(__pic__) || defined(__PIC__)
     uintptr_t ebx_value;
     
@@ -127,7 +133,7 @@ pmath_bool_t pmath_atomic_compare_and_set_2(
       : "memory", "cc"
     );
   #else
-  /* we can use %%ebx in non-PIC code */
+  // we can use %%ebx in non-PIC code 
     __asm __volatile(
       "lock; cmpxchg8b %3 \n\t"
       "sete %%cl \n\t"
@@ -162,42 +168,35 @@ pmath_bool_t pmath_atomic_have_cas2(void){
   : "=d"(edx)
   : "a"(1));
   
-  return (edx & (1 << 8)) != 0; /* CPMXCHG8B support */
-}
- 
-PMATH_FORCE_INLINE
-void pmath_atomic_barrier(void){
-  __asm __volatile("":::"memory");
+  return (edx & (1 << 8)) != 0; // CPMXCHG8B support 
 }
 
 //#undef pmath_atomic_loop_nop
 //#define pmath_atomic_loop_nop()  __asm __volatile("rep; nop"::)
 
 PMATH_FORCE_INLINE
-void pmath_atomic_lock(
-  intptr_t volatile *atom
-){
+void pmath_atomic_lock(pmath_atomic_t *atom){
   int cnt = PMATH_ATOMIC_FASTLOOP_COUNT;
-  while(cnt > 0 && *atom != 0){
+  
+  while(cnt > 0 && atom->_data != 0){
     --cnt;
   }
   
-  if(*atom != 0){
+  if(atom->_data != 0){
     pmath_atomic_loop_yield();
   }
   
   while(0 != pmath_atomic_fetch_set(atom, 1)){
     pmath_atomic_loop_nop();
+    pmath_atomic_barrier();
   }
+  pmath_atomic_barrier();
 }
 
 PMATH_FORCE_INLINE
-void pmath_atomic_unlock(
-  intptr_t volatile *atom
-){
-  assert(*atom == 1);
-  *atom = 0;
-  __asm __volatile("":::"memory");
+void pmath_atomic_unlock(pmath_atomic_t *atom){
+  atom->_data = 0;
+  pmath_atomic_barrier();
 }
 
 #define HAVE_ATOMIC_OPS

@@ -29,10 +29,10 @@ typedef struct{
 
 #define CODE_TABLES_COUNT  5
 
-static pmath_hashtable_t volatile _code_tables[CODE_TABLES_COUNT]; // index: pmath_code_usage_t
+static pmath_atomic_t _code_tables[CODE_TABLES_COUNT]; // index: pmath_code_usage_t
 
-#define LOCK_CODE_TABLE(USAGE)           (pmath_hashtable_t)_pmath_atomic_lock_ptr((void*volatile*)&_code_tables[(USAGE)])
-#define UNLOCK_CODE_TABLE(USAGE, TABLE)  _pmath_atomic_unlock_ptr((void*volatile*)&_code_tables[(USAGE)], (TABLE))
+#define LOCK_CODE_TABLE(USAGE)           (pmath_hashtable_t)_pmath_atomic_lock_ptr(&_code_tables[(USAGE)])
+#define UNLOCK_CODE_TABLE(USAGE, TABLE)  _pmath_atomic_unlock_ptr(&_code_tables[(USAGE)], (TABLE))
 
 static void destroy_func_entry(void *e){
   func_entry_t *entry = (func_entry_t*)e;
@@ -620,10 +620,11 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   memset((void*)_code_tables, 0, CODE_TABLES_COUNT * sizeof(pmath_hashtable_t));
   
   for(i = 0;i < CODE_TABLES_COUNT;++i){
-    _code_tables[i] = pmath_ht_create(&function_table_class, 0);
-    
-    if(!_code_tables[i])
+    pmath_hashtable_t table = pmath_ht_create(&function_table_class, 0);
+    if(!table)
       goto FAIL;
+    
+    pmath_atomic_write_release(&_code_tables[i], (intptr_t)table);
   }
   
   #define VERIFY(X)  do{ pmath_t tmp = (X); if(pmath_is_null(tmp)) goto FAIL; }while(0);
@@ -1848,7 +1849,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   
  FAIL:
   for(i = 0;i < CODE_TABLES_COUNT;++i)
-    pmath_ht_destroy(_code_tables[i]);
+    pmath_ht_destroy((pmath_hashtable_t)pmath_atomic_read_aquire(&_code_tables[i]));
     
   for(i = 0;i < PMATH_BUILTIN_SYMBOL_COUNT;++i)
     pmath_unref(_pmath_builtin_symbol_array[i]);
@@ -1896,7 +1897,7 @@ PMATH_PRIVATE void _pmath_symbol_builtins_done(void){
   int i;
   
   for(i = 0;i < CODE_TABLES_COUNT;++i)
-    pmath_ht_destroy(_code_tables[i]);
+    pmath_ht_destroy((pmath_hashtable_t)pmath_atomic_read_aquire(&_code_tables[i]));
     
   for(i = 0;i < PMATH_BUILTIN_SYMBOL_COUNT;++i)
     pmath_unref(_pmath_builtin_symbol_array[i]);

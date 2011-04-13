@@ -36,7 +36,7 @@ PMATH_PRIVATE int _pmath_processor_count(void);
 
 PMATH_PRIVATE void _pmath_register_timed_msg(struct _pmath_timed_message_t *msg);
 
-extern PMATH_PRIVATE PMATH_DECLARE_ATOMIC(_pmath_threadpool_deamon_count);
+extern PMATH_PRIVATE pmath_atomic_t _pmath_threadpool_deamon_count;
 PMATH_PRIVATE void _pmath_threadpool_kill_daemons(void);
 
 PMATH_PRIVATE pmath_bool_t _pmath_threadpool_init(void);

@@ -38,9 +38,9 @@
   static DWORD threadkey;
 #endif
 
-PMATH_PRIVATE PMATH_DECLARE_ATOMIC(_pmath_abort_reasons) = 0;
+PMATH_PRIVATE pmath_atomic_t _pmath_abort_reasons = PMATH_ATOMIC_STATIC_INIT;
 
-static PMATH_DECLARE_ATOMIC(aborting) = FALSE;
+static pmath_atomic_t aborting = PMATH_ATOMIC_STATIC_INIT;
 
 /*============================================================================*/
 
@@ -353,20 +353,20 @@ PMATH_API pmath_t pmath_catch(void){
 
 /*----------------------------------------------------------------------------*/
 
-PMATH_PRIVATE PMATH_DECLARE_ATOMIC(_pmath_abort_timer) = 0;
+PMATH_PRIVATE pmath_atomic_t _pmath_abort_timer = PMATH_ATOMIC_STATIC_INIT;
 
-static PMATH_DECLARE_ATOMIC(suspending_spin) = 0;
-static PMATH_DECLARE_ATOMIC(suspending) = 0;
+static pmath_atomic_t suspending_spin = PMATH_ATOMIC_STATIC_INIT;
+static pmath_atomic_t suspending      = PMATH_ATOMIC_STATIC_INIT;
 #if PMATH_USE_PTHREAD
-  static volatile pthread_t  suspender;
+  static pthread_t  suspender;
 #elif PMATH_USE_WINDOWS_THREADS
-  static volatile DWORD      suspender;
+  static DWORD      suspender;
 #endif
 
 static void do_suspend(void){
   pmath_atomic_lock(&suspending_spin);
   
-  if(suspending){
+  if(pmath_atomic_read_aquire(&suspending)){
     #if PMATH_USE_PTHREAD
       pthread_t  me = pthread_self();
     #elif PMATH_USE_WINDOWS_THREADS
@@ -381,7 +381,7 @@ static void do_suspend(void){
     {
       pmath_atomic_unlock(&suspending_spin);
       
-      while(suspending){ 
+      while(pmath_atomic_read_aquire(&suspending)){ 
         pmath_atomic_loop_yield();
       }
       
@@ -393,31 +393,32 @@ static void do_suspend(void){
 }
 
 PMATH_API pmath_bool_t pmath_aborting(void){
-  if(_pmath_abort_reasons == 0)
+  if(pmath_atomic_read_aquire(&_pmath_abort_reasons) == 0)
     return FALSE;
+  
   return pmath_thread_aborting(pmath_thread_get_current());
 }
 
 PMATH_API pmath_bool_t pmath_thread_aborting(pmath_thread_t thread){
   _pmath_msq_queue_handle_next(thread);
   
-  if(_pmath_abort_reasons == 0)
+  if(pmath_atomic_read_aquire(&_pmath_abort_reasons) == 0)
     return FALSE;
   
-  if(suspending)
+  if(pmath_atomic_read_aquire(&suspending))
     do_suspend();
   
   if(!thread)
     return TRUE;
     
-  if(aborting 
-  && (thread->ignore_older_aborts <= _pmath_abort_timer
+  if(pmath_atomic_read_aquire(&aborting)
+  && (thread->ignore_older_aborts <= pmath_atomic_read_aquire(&_pmath_abort_timer)
    || !pmath_same(thread->exception, PMATH_UNDEFINED)))
   {
     return TRUE;
   }
   
-  while(thread && thread->ignore_older_aborts <= _pmath_abort_timer){
+  while(thread && thread->ignore_older_aborts <= pmath_atomic_read_aquire(&_pmath_abort_timer)){
     if(!pmath_same(thread->exception, PMATH_UNDEFINED))
       return TRUE;
     
@@ -460,7 +461,7 @@ PMATH_PRIVATE void _pmath_thread_set_current(pmath_thread_t thread){
 PMATH_API void pmath_suspend_all_please(void){
   pmath_atomic_lock(&suspending_spin);
   
-  while(suspending){
+  while(pmath_atomic_read_aquire(&suspending)){
     pmath_atomic_unlock(&suspending_spin);
     
     do_suspend();
@@ -474,7 +475,7 @@ PMATH_API void pmath_suspend_all_please(void){
     suspender = GetCurrentThreadId();
   #endif
   
-  suspending = 1;
+  pmath_atomic_write_release(&suspending, 1);
   (void)pmath_atomic_fetch_add(&_pmath_abort_reasons, 1);
   
   pmath_atomic_unlock(&suspending_spin);
@@ -483,10 +484,10 @@ PMATH_API void pmath_suspend_all_please(void){
 PMATH_API void pmath_resume_all(void){
   pmath_atomic_lock(&suspending_spin);
   
-  if(suspending)
+  if(pmath_atomic_read_aquire(&suspending))
     (void)pmath_atomic_fetch_add(&_pmath_abort_reasons, -1);
   
-  suspending = 0;
+  pmath_atomic_write_release(&suspending, 0);
     
   pmath_atomic_unlock(&suspending_spin);
 }
@@ -556,9 +557,11 @@ PMATH_PRIVATE void _pmath_thread_clean(pmath_bool_t final){
   
     while(thread->gather_info){
       struct _pmath_gather_info_t *next_gather = thread->gather_info->next;
+      struct _pmath_stack_info_t *emitted;
       
+      emitted = (void*)pmath_atomic_read_aquire(&thread->gather_info->emitted_values);
+      free_stack(emitted);
       pmath_unref(thread->gather_info->pattern);
-      free_stack(thread->gather_info->emitted_values.ptr);
       pmath_mem_free(thread->gather_info);
       
       thread->gather_info = next_gather;
@@ -600,9 +603,11 @@ PMATH_PRIVATE void _pmath_thread_free(pmath_thread_t thread){
   
   while(thread->gather_info){
     struct _pmath_gather_info_t *next_gather = thread->gather_info->next;
-    
+    struct _pmath_stack_info_t *emitted;
+      
+    emitted = (void*)pmath_atomic_read_aquire(&thread->gather_info->emitted_values);
+    free_stack(emitted);
     pmath_unref(thread->gather_info->pattern);
-    free_stack(thread->gather_info->emitted_values.ptr);
     pmath_mem_free(thread->gather_info);
     
     
@@ -622,8 +627,8 @@ PMATH_PRIVATE void _pmath_thread_free(pmath_thread_t thread){
 
 PMATH_PRIVATE pmath_bool_t _pmath_threads_init(void){
   {
-    aborting = FALSE;
-    _pmath_abort_reasons = 0;
+    pmath_atomic_write_release(&aborting,             FALSE);
+    pmath_atomic_write_release(&_pmath_abort_reasons, 0);
     
     #if PMATH_USE_PTHREAD
     { /* create threadkey ... */
@@ -675,8 +680,9 @@ PMATH_PRIVATE void _pmath_threads_done(void){
     (void)pmath_atomic_fetch_add(&_pmath_abort_reasons, -1);
   }
   
-  if(_pmath_abort_reasons != 0){
-    pmath_debug_print("\a_pmath_abort_reasons = %d\n", (int)_pmath_abort_reasons);
+  if(pmath_atomic_read_aquire(&_pmath_abort_reasons) != 0){
+    pmath_debug_print("\a_pmath_abort_reasons = %d\n", 
+      (int)pmath_atomic_read_aquire(&_pmath_abort_reasons));
   }
   #endif
 }

@@ -17,9 +17,9 @@ struct parallel_try_info_t{
   pmath_expr_t   items;
   pmath_t       *results;
   
-  size_t   results_count;
-  intptr_t index;         // 1, ..., Length(items)
-  intptr_t result_index;  // 0, ..., results_count-1
+  size_t         results_count;
+  pmath_atomic_t index;         // 1, ..., Length(items)
+  pmath_atomic_t result_index;  // 0, ..., results_count-1
 };
 
 static void parallel_try(void *ptr){
@@ -115,12 +115,13 @@ PMATH_PRIVATE pmath_t builtin_paralleltry(pmath_expr_t expr){
     return PMATH_NULL;
   }
   
-  assert(PMATH_AS_PTR(result)->refcount == 1);
+  assert(pmath_refcount(result) == 1);
   assert(PMATH_AS_PTR(result)->type_shift == PMATH_TYPE_SHIFT_EXPRESSION_GENERAL);
-  info.results = &((struct _pmath_unpacked_expr_t*)PMATH_AS_PTR(result))->items[1];
-  info.result_index = 0;
   
-  info.index = 1;
+  info.results = &((struct _pmath_unpacked_expr_t*)PMATH_AS_PTR(result))->items[1];
+  info.result_index._data = 0;
+  
+  info.index._data = 1;
   info.items = pmath_expr_get_item(expr, 1);
   if(!pmath_is_expr(info.items)){
     pmath_unref(info.items);
@@ -174,16 +175,16 @@ PMATH_PRIVATE pmath_t builtin_paralleltry(pmath_expr_t expr){
   
   pmath_atomic_barrier();
   
-  if((size_t)info.result_index < info.results_count){
+  if((size_t)info.result_index._data < info.results_count){
     pmath_message(PMATH_NULL, "toofew", 2, 
-      pmath_integer_new_siptr(info.result_index),
+      pmath_integer_new_siptr(info.result_index._data),
       pmath_integer_new_uiptr(info.results_count));
     
     if(exprlen == 3){
       pmath_t res = pmath_expr_get_item_range(
         result,
         1,
-        (size_t)info.result_index);
+        (size_t)info.result_index._data);
       pmath_unref(result);
       return res;
     }

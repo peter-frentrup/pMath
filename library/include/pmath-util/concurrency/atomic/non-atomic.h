@@ -179,7 +179,7 @@ void pmath_atomic_barrier(void){
    This function implements a spin lock. It has aquire barrier semantics. Use 
    it with pmath_atomic_unlock():
    \code
-PMATH_DECLARE_ATOMIC(spin);
+pmath_atomic_t spin = PMATH_ATOMIC_STATIC_INIT;
 ...
 pmath_atomic_lock(&spin)
 ... critical section ...

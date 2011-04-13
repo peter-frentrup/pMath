@@ -38,7 +38,7 @@ struct _regex_key_t{
 };
 
 struct _regex_t{
-  PMATH_DECLARE_ATOMIC(refcount);
+  pmath_atomic_t       refcount;
   
   struct _regex_key_t  key;
   
@@ -202,14 +202,14 @@ static pmath_string_t get_capture_by_rhs( // PMATH_NULL if no capture was found
 
 PMATH_PRIVATE struct _regex_t *_pmath_regex_ref(struct _regex_t *re){
   if(re)
-    (void)pmath_atomic_fetch_add(&(re->refcount), 1);
+    (void)pmath_atomic_fetch_add(&re->refcount, 1);
   return re;
 }
 
 PMATH_PRIVATE void _pmath_regex_unref(struct _regex_t *re){
   if(re){
     pmath_atomic_barrier();
-    if(1 == pmath_atomic_fetch_add(&(re->refcount), -1)){ // was 1 -> is 0
+    if(1 == pmath_atomic_fetch_add(&re->refcount, -1)){ // was 1 -> is 0
       pmath_unref(re->key.object);
       free_callouts(re->callouts);
       pmath_ht_destroy(re->named_subpatterns);
@@ -256,7 +256,7 @@ static const pmath_ht_class_t regex_cache_ht_class = {
 };
 
 // all four locked with regex_cache_[un]lock:
-static void * volatile _global_regex_cache = NULL;
+static pmath_atomic_t _global_regex_cache = PMATH_ATOMIC_STATIC_INIT;
 #define REGEX_CACHE_ARRAY_SIZE  128
 static struct _regex_t *regex_cache_array[REGEX_CACHE_ARRAY_SIZE];
 static int regex_cache_array_next = 0;
@@ -276,7 +276,7 @@ static struct _regex_t *create_regex(void){
   
   if(result){
     memset(result, 0, sizeof(struct _regex_t));
-    result->refcount = 1;
+    pmath_atomic_write_release(&result->refcount, 1);
   }
   
   return result;
@@ -1186,17 +1186,19 @@ PMATH_PRIVATE void _pmath_regex_memory_panic(void){
 }
 
 PMATH_PRIVATE pmath_bool_t _pmath_regex_init(void){
-  _global_regex_cache = pmath_ht_create(&regex_cache_ht_class, 0);
+  pmath_hashtable_t table = pmath_ht_create(&regex_cache_ht_class, 0);
+  pmath_atomic_write_release(&_global_regex_cache, (intptr_t)table);
   memset(regex_cache_array, 0, sizeof(regex_cache_array));
   regex_cache_array_next = 0;
   
   pcre_callout = callout;
-  return _global_regex_cache != NULL;
+  return table != NULL;
 }
 
 PMATH_PRIVATE void _pmath_regex_done(void){
   int i;
   for(i = 0;i < REGEX_CACHE_ARRAY_SIZE;++i)
     _pmath_regex_unref(regex_cache_array[i]);
-  pmath_ht_destroy((pmath_hashtable_t)_global_regex_cache);
+    
+  pmath_ht_destroy((pmath_hashtable_t)pmath_atomic_read_aquire(&_global_regex_cache));
 }

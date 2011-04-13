@@ -22,7 +22,7 @@
 
 
 struct _file_t{
-  volatile intptr_t _lock;
+  pmath_atomic_t _lock;
   
   void  *extra;
   void (*extra_destructor)(void*);
@@ -56,7 +56,7 @@ struct _pmath_text_file_t{
 static pmath_bool_t lock_file(struct _file_t *f){
   intptr_t me = (intptr_t)pmath_thread_get_current();
   
-  if(f->_lock == me)
+  if(pmath_atomic_read_aquire(&f->_lock) == me)
     return FALSE;
   
   pmath_atomic_loop_yield();
@@ -73,7 +73,7 @@ static void unlock_file(struct _file_t *f){
 }
 
 static void destroy_binary_file(void *ptr){
-  struct _pmath_binary_file_t *f = (struct _pmath_binary_file_t*)ptr;
+  struct _pmath_binary_file_t *f = ptr;
   
   f->inherited.extra_destructor(f->inherited.extra);
   

@@ -124,7 +124,7 @@ static pmath_integer_t _add_ii(
     
     assert(pmath_is_mpint(intB));
     
-    if(PMATH_AS_PTR(intB)->refcount == 1){
+    if(pmath_refcount(intB) == 1){
       result = pmath_ref(intB);
     }
     else{
@@ -158,7 +158,7 @@ static pmath_integer_t _add_ii(
   if(pmath_is_int32(intB)){
     int b = PMATH_AS_INT32(intB);
       
-    if(PMATH_AS_PTR(intA)->refcount == 1){
+    if(pmath_refcount(intA) == 1){
       result = pmath_ref(intA);
     }
     else{
@@ -189,10 +189,10 @@ static pmath_integer_t _add_ii(
   
   assert(pmath_is_mpint(intB));
   
-  if(PMATH_AS_PTR(intA)->refcount == 1){
+  if(pmath_refcount(intA) == 1){
     result = pmath_ref(intA);
   }
-  else if(PMATH_AS_PTR(intB)->refcount == 1){
+  else if(pmath_refcount(intB) == 1){
     result = pmath_ref(intB);
   }
   else{

@@ -110,8 +110,8 @@
 #ifdef PMATH_DEBUG_MEMORY
   static size_t stat_sizes[] = {4,8,12,16,20,24,28,32,48,56,64,72,80,96,128,192,256,512,1024};
   #define STAT_SIZES (sizeof(stat_sizes)/sizeof(stat_sizes[0]))
-  static size_t alloc_stats[  1 + STAT_SIZES];
-  static size_t realloc_stats[1 + STAT_SIZES];
+  static pmath_atomic_t alloc_stats[  1 + STAT_SIZES];
+  static pmath_atomic_t realloc_stats[1 + STAT_SIZES];
 
   typedef struct _memory_header_t{
     struct _memory_header_t  *next;
@@ -120,7 +120,7 @@
     intptr_t                  alloc_time;
   }memory_header_t;
 
-  PMATH_PRIVATE PMATH_DECLARE_ATOMIC(_pmath_debug_global_time) = 0;
+  PMATH_PRIVATE pmath_atomic_t _pmath_debug_global_time = PMATH_ATOMIC_STATIC_INIT;
 
   #define DEBUG_UNDERFLOW       "UNDERFLOW"
   #define DEBUG_UNDERFLOW_FREE  "FREEFREEF"
@@ -240,7 +240,7 @@
                    DEBUG_UNDERFLOW_SIZE))
     {
       pmath_debug_print("<%p, t=%"PRIuPTR"> DOUBLE FREE at t=%"PRIuPTR" ",
-        p, header->alloc_time, _pmath_debug_global_time);
+        p, header->alloc_time, pmath_atomic_read_aquire(&_pmath_debug_global_time));
       debug_mem_show_extract(p);
       pmath_debug_print("\n\n");
       
@@ -255,7 +255,7 @@
                    DEBUG_UNDERFLOW_SIZE))
     {
       pmath_debug_print("<%p, t=%"PRIuPTR"> UNDERFLOW at t=%"PRIuPTR" ",
-        p, header->alloc_time, _pmath_debug_global_time);
+        p, header->alloc_time, pmath_atomic_read_aquire(&_pmath_debug_global_time));
       debug_mem_show_extract(p);
       pmath_debug_print("\n\n");
       return;
@@ -266,7 +266,7 @@
                    DEBUG_OVERFLOW_SIZE))
     {
       pmath_debug_print("<%p, t=%"PRIuPTR"> OVERFLOW at t=%"PRIuPTR" ",
-        p, header->alloc_time, _pmath_debug_global_time);
+        p, header->alloc_time, pmath_atomic_read_aquire(&_pmath_debug_global_time));
       debug_mem_show_extract(p);
       pmath_debug_print("\n\n");
       return;
@@ -280,9 +280,7 @@
   static void *debug_mem_alloc(size_t size){
     memory_header_t *p;
     
-    (void)pmath_atomic_fetch_add(
-      (intptr_t*)&alloc_stats[stat_size_class(size)],
-      1);
+    (void)pmath_atomic_fetch_add(&alloc_stats[stat_size_class(size)], 1);
 
     p = (memory_header_t*)memory_allocate(DEBUG_HEADER_SIZE + size + DEBUG_OVERFLOW_SIZE);
     if(!p)
@@ -326,9 +324,7 @@
       return debug_mem_alloc(size);
     debug_mem_check(p);
 
-    (void)pmath_atomic_fetch_add(
-      (intptr_t*)&realloc_stats[stat_size_class(size)],
-      1);
+    (void)pmath_atomic_fetch_add(&realloc_stats[stat_size_class(size)], 1);
 
     old_p = DEBUG_MEM_TO_HEADER(p);
     old_size = old_p->size;
@@ -499,24 +495,26 @@
   #define memory_size(p)           debug_mem_size((p))
 #endif
 
-static PMATH_DECLARE_ATOMIC(memory_in_use) = 0;
-
-static PMATH_DECLARE_ATOMIC(max_memory_used) = 0;
+static pmath_atomic_t memory_in_use = PMATH_ATOMIC_STATIC_INIT;
+static pmath_atomic_t max_memory_used = PMATH_ATOMIC_STATIC_INIT;
 
   static void memory_panic(void){
     #ifdef PMATH_DEBUG_LOG
-      intptr_t old_memory_in_use = memory_in_use;
+      intptr_t old_memory_in_use = pmath_atomic_read_aquire(&memory_in_use);
+      
+      pmath_debug_print("memory_panic() [memory_in_use = %"PRIuPTR"] ...\n",
+        old_memory_in_use);
     #endif
-    pmath_debug_print("memory_panic() [memory_in_use = %"PRIuPTR"] ...\n",
-      memory_in_use);
-
+    
     _pmath_regex_memory_panic();
     _pmath_numbers_memory_panic();
     _pmath_symbols_memory_panic();
     _pmath_threadlocks_memory_panic();
 
-    pmath_debug_print("...memory_panic() [safed memory: %"PRIdPTR"]\n",
-      old_memory_in_use - memory_in_use);
+    #ifdef PMATH_DEBUG_LOG
+      pmath_debug_print("...memory_panic() [safed memory: %"PRIdPTR"]\n",
+        old_memory_in_use - pmath_atomic_read_aquire(&memory_in_use));
+    #endif
   }
 
 PMATH_API void *pmath_mem_alloc(size_t size){
@@ -535,7 +533,7 @@ PMATH_API void *pmath_mem_alloc(size_t size){
   
   size = memory_size(p);
   s = size + (size_t)pmath_atomic_fetch_add(&memory_in_use, (intptr_t)size);
-  while((size_t)(max = max_memory_used) < s){
+  while((size_t)(max = pmath_atomic_read_aquire(&max_memory_used)) < s){
     if(pmath_atomic_compare_and_set(
       &max_memory_used,
       max,
@@ -585,7 +583,7 @@ PMATH_API void *pmath_mem_realloc_no_failfree(void *p, size_t new_size){
   }
   
   s = (size_t)size + (size_t)pmath_atomic_fetch_add(&memory_in_use, size);
-  while((size_t)(max = max_memory_used) < s){
+  while((size_t)(max = pmath_atomic_read_aquire(&max_memory_used)) < s){
     if(pmath_atomic_compare_and_set(
       &max_memory_used,
       max,
@@ -604,10 +602,10 @@ PMATH_API void pmath_mem_free(void *p){
 
 PMATH_API void pmath_mem_usage(size_t *current, size_t *max){
   if(current)
-    *current = (size_t)memory_in_use;
+    *current = (size_t)pmath_atomic_read_aquire(&memory_in_use);
     
   if(max)
-    *max = (size_t)max_memory_used;
+    *max = (size_t)pmath_atomic_read_aquire(&max_memory_used);
 }
 
 /*============================================================================*/
@@ -622,7 +620,7 @@ static void pmath_gmp_free(void *p, size_t size){
 
 PMATH_PRIVATE pmath_bool_t _pmath_memory_manager_init(void){
   {
-    max_memory_used = 0;
+    pmath_atomic_write_release(&max_memory_used, 0);
     init_platform_memory_manager();
 
     #ifdef PMATH_DEBUG_MEMORY
@@ -663,6 +661,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_memory_manager_init(void){
 PMATH_PRIVATE void _pmath_memory_manager_done(void){
   #ifdef PMATH_DEBUG_MEMORY
     size_t total_alloc, total_realloc, i;
+    size_t alloc_num, realloc_num;
     
     check_all_freed();
 
@@ -676,21 +675,29 @@ PMATH_PRIVATE void _pmath_memory_manager_done(void){
     total_realloc = 0;
     printf("\n    size allocs resize    sum\n");
     for(i = 0;i < STAT_SIZES;i++){
+      alloc_num   = pmath_atomic_read_aquire(&alloc_stats[  i]);
+      realloc_num = pmath_atomic_read_aquire(&realloc_stats[i]);
+      
       printf("<=%6"PRIuPTR" %6"PRIdPTR" %6"PRIdPTR" %6"PRIdPTR"\n",
         stat_sizes[i],
-        alloc_stats[i],
-        realloc_stats[i],
-        alloc_stats[i] + realloc_stats[i]);
-      total_alloc+=   alloc_stats[i];
-      total_realloc+= realloc_stats[i];
+        alloc_num,
+        realloc_num,
+        alloc_num + realloc_num);
+      total_alloc+=   alloc_num;
+      total_realloc+= realloc_num;
     }
+    
+    alloc_num   = pmath_atomic_read_aquire(&alloc_stats[  STAT_SIZES]);
+    realloc_num = pmath_atomic_read_aquire(&realloc_stats[STAT_SIZES]);
+        
     printf("> %6"PRIuPTR" %6"PRIdPTR" %6"PRIdPTR" %6"PRIdPTR"\n\n",
       stat_sizes[STAT_SIZES-1],
-      alloc_stats[STAT_SIZES],
-      realloc_stats[STAT_SIZES],
-      alloc_stats[STAT_SIZES] + realloc_stats[STAT_SIZES]);
-    total_alloc+=   alloc_stats[STAT_SIZES];
-    total_realloc+= realloc_stats[STAT_SIZES];
+      alloc_num,
+      realloc_num,
+      alloc_num + realloc_num);
+    
+    total_alloc+=   alloc_num;
+    total_realloc+= realloc_num;
     printf("total:   %6"PRIdPTR" %6"PRIdPTR" %6"PRIdPTR"\n\n",
       total_alloc,
       total_realloc,

@@ -551,7 +551,7 @@ static pmath_t evaluate_symbol(
     value = _pmath_symbol_get_global_value(sym);
   }
   
-  if(_pmath_dynamic_trackers){
+  if(pmath_atomic_read_aquire(&_pmath_dynamic_trackers)){
     if(!*thread_ptr){
       *thread_ptr = pmath_thread_get_current();
       

@@ -13,9 +13,8 @@ pmath_stack_t pmath_stack_new(void){
   if(!stack)
     return NULL;
   
-  stack->top = NULL;
-  stack->operation_counter_or_spinlock = 0;
-  
+  memset(stack, 0, sizeof(stack));
+  pmath_atomic_barrier();
   return stack;
 }
 
@@ -31,9 +30,9 @@ static void *(*stack_pop)( pmath_stack_t);
 static void lockfree_push(pmath_stack_t stack, void *item){
   assert(have_cas2);
   do{
-    ((struct _pmath_stack_item_t*)item)->next = stack->top;
+    ((struct _pmath_stack_item_t*)item)->next = stack->u.s.top;
   }while(!pmath_atomic_compare_and_set(
-    (intptr_t*)stack, // &stack->top 
+    (pmath_atomic_t*)&stack->u.s.top,
     (intptr_t)((struct _pmath_stack_item_t*)item)->next, 
     (intptr_t)item));
 }
@@ -46,13 +45,13 @@ static void *lockfree_pop(pmath_stack_t stack){
   assert(have_cas2);
   
   do{
-    head = stack->top;
-    oc   = stack->operation_counter_or_spinlock;
+    head = stack->u.s.top;
+    oc   = stack->u.s.operation_counter_or_spinlock;
     if(!head)
       return NULL;
     next = head->next; // What is if we already freed head?
   }while(!pmath_atomic_compare_and_set_2(
-    (intptr_t*)stack,
+    &stack->u.as_atomic2,
     (intptr_t)head, oc,
     (intptr_t)next, oc+1));
   
@@ -62,23 +61,23 @@ static void *lockfree_pop(pmath_stack_t stack){
 
 //{ threadsafe push/pop through locks ...
 static void locking_push(pmath_stack_t stack, void *item){
-  pmath_atomic_lock(&stack->operation_counter_or_spinlock);
+  pmath_atomic_lock((pmath_atomic_t*)&stack->u.s.operation_counter_or_spinlock);
   
-  ((struct _pmath_stack_item_t*)item)->next = stack->top;
-  stack->top = item;
+  ((struct _pmath_stack_item_t*)item)->next = stack->u.s.top;
+  stack->u.s.top = item;
   
-  pmath_atomic_unlock(&stack->operation_counter_or_spinlock);
+  pmath_atomic_unlock((pmath_atomic_t*)&stack->u.s.operation_counter_or_spinlock);
 }
 
 static void *locking_pop(pmath_stack_t stack){
   void *head;
-  pmath_atomic_lock(&stack->operation_counter_or_spinlock);
+  pmath_atomic_lock((pmath_atomic_t*)&stack->u.s.operation_counter_or_spinlock);
   
-  head = stack->top;
+  head = stack->u.s.top;
   if(head)
-    stack->top = ((struct _pmath_stack_item_t*)head)->next;
+    stack->u.s.top = ((struct _pmath_stack_item_t*)head)->next;
   
-  pmath_atomic_unlock(&stack->operation_counter_or_spinlock);
+  pmath_atomic_unlock((pmath_atomic_t*)&stack->u.s.operation_counter_or_spinlock);
   return head;
 }
 //}

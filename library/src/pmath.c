@@ -67,7 +67,7 @@ static volatile enum{
   PMATH_STATUS_DESTROYING
 } _pmath_status = PMATH_STATUS_NONE;
 
-static PMATH_DECLARE_ATOMIC(pmath_count) = 0;
+static pmath_atomic_t pmath_count = PMATH_ATOMIC_STATIC_INIT;
 
 PMATH_PRIVATE 
 pmath_bool_t _pmath_is_running(void){
@@ -262,34 +262,38 @@ PMATH_API pmath_bool_t pmath_init(void){
     #ifdef PMATH_DEBUG_TESTS
     {
     // This does not test for atomicity.
-      PMATH_DECLARE_ATOMIC(a);
+      pmath_atomic_t a;
       intptr_t b;
-      PMATH_DECLARE_ATOMIC_2(c);
+      pmath_atomic2_t c;
       pmath_bool_t test;
 
-      a = 5;
+      pmath_atomic_write_release(&a, 5);
+      assert(a._data == 5);
+      
       b = pmath_atomic_fetch_add(&a,2);
-      assert(b == 5 && a == 7);
+      assert(b == 5 && pmath_atomic_read_aquire(&a) == 7);
+      assert(b == 5 && a._data                      == 7);
+      
       b = pmath_atomic_fetch_set(&a,27);
-      assert(b == 7 && a == 27);
+      assert(b == 7 && a._data == 27);
 
       b = pmath_atomic_fetch_compare_and_set(&a, 26, 11);
-      assert(b == 27 && a == 27);
+      assert(b == 27 && a._data == 27);
       b = pmath_atomic_fetch_compare_and_set(&a, 27, 11);
-      assert(b == 27 && a == 11);
+      assert(b == 27 && a._data == 11);
 
       test = pmath_atomic_compare_and_set(&a, 13, 22);
-      assert(!test && a == 11);
+      assert(!test && a._data == 11);
       test = pmath_atomic_compare_and_set(&a, 11, 22);
-      assert(test && a == 22);
+      assert(test && a._data == 22);
 
       if(pmath_atomic_have_cas2()){
-        c[0] = 8;
-        c[1] = 33;
-        test = pmath_atomic_compare_and_set_2(c, 5, 6, 1, 2);
-        assert(!test && c[0] == 8 && c[1] == 33);
-        test = pmath_atomic_compare_and_set_2(c, 8, 33, 1, 2);
-        assert(test && c[0] == 1 && c[1] == 2);
+        c._data[0] = 8;
+        c._data[1] = 33;
+        test = pmath_atomic_compare_and_set_2(&c, 5, 6, 1, 2);
+        assert(!test && c._data[0] == 8 && c._data[1] == 33);
+        test = pmath_atomic_compare_and_set_2(&c, 8, 33, 1, 2);
+        assert(test && c._data[0] == 1 && c._data[1] == 2);
       }
       else
         fprintf(stderr, "no CAS2 available\n");
@@ -906,7 +910,7 @@ PMATH_API void pmath_done(void){
   intptr_t thread_count;
   pmath_thread_t thread;
   
-  assert(pmath_count > 0);
+  assert(pmath_count._data > 0);
   
   while(_pmath_status != PMATH_STATUS_RUNNING){
   }
@@ -915,9 +919,9 @@ PMATH_API void pmath_done(void){
   if(!thread)
     return;
   
-  thread_count = pmath_atomic_fetch_add(&pmath_count, 0);
+  thread_count = pmath_atomic_read_aquire(&pmath_count);
   if(!thread->is_daemon 
-  && thread_count == _pmath_threadpool_deamon_count + 1){
+  && thread_count == pmath_atomic_read_aquire(&_pmath_threadpool_deamon_count) + 1){
     _pmath_threadpool_kill_daemons();
   }
   

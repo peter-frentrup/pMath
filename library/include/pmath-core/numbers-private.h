@@ -94,7 +94,7 @@ extern PMATH_PRIVATE pmath_t _pmath_object_infinity;         /* readonly */
 extern PMATH_PRIVATE pmath_t _pmath_object_complex_infinity; /* readonly */
 
 extern PMATH_PRIVATE gmp_randstate_t  _pmath_randstate;
-extern PMATH_PRIVATE PMATH_DECLARE_ATOMIC(_pmath_rand_spinlock);
+extern PMATH_PRIVATE pmath_atomic_t   _pmath_rand_spinlock;
 
 PMATH_PRIVATE 
 PMATH_ATTRIBUTE_USE_RESULT

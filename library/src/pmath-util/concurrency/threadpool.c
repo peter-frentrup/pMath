@@ -145,18 +145,18 @@
 #endif
 
 struct _pmath_task_t{
-  void *reserved;
-  PMATH_DECLARE_ATOMIC(refcount);
-  PMATH_DECLARE_ATOMIC(status);
+  void             *reserved;
+  pmath_atomic_t    refcount;
+  pmath_atomic_t    status;
     #define TASK_IDLE      0
     #define TASK_RUNNING   1
     #define TASK_DONE      2
 
-  sem_t            done;
-  pmath_callback_t run;
-  pmath_callback_t destroy;
-  void *data;
-  pmath_thread_t thread;
+  sem_t             done;
+  pmath_callback_t  run;
+  pmath_callback_t  destroy;
+  void             *data;
+  pmath_thread_t    thread;
 };
 
 struct _pmath_task_t *create_idle_task(
@@ -186,8 +186,8 @@ struct _pmath_task_t *create_idle_task(
     return NULL;
   }
 
-  task->refcount = 1;
-  task->status   = TASK_IDLE;
+  pmath_atomic_write_release(&task->refcount, 1);
+  pmath_atomic_write_release(&task->status, TASK_IDLE);
   task->run      = run;
   task->destroy  = destroy;
   task->data     = data;
@@ -337,7 +337,7 @@ void pmath_task_wait(pmath_task_t task){
       run_task(task);
     }
 
-    (void)pmath_atomic_fetch_set(&task->status, TASK_DONE);
+    pmath_atomic_write_release(&task->status, TASK_DONE);
     sem_post(&task->done);
   }
 }
@@ -372,7 +372,7 @@ void pmath_task_abort(pmath_task_t task){
       // not yet running. do nothing
     }
 
-    (void)pmath_atomic_fetch_set(&task->status, TASK_DONE);
+    pmath_atomic_write_release(&task->status, TASK_DONE);
     sem_post(&task->done);
   }
 }
@@ -399,13 +399,13 @@ struct daemon_t{
   sem_t                     *init_sem;
   pmath_bool_t               alive;
   
-  struct daemon_t * volatile  prev;
-  struct daemon_t * volatile  next;
+  struct daemon_t *prev;
+  struct daemon_t *next;
 };
 
-static struct daemon_t * volatile all_daemons = NULL; // ring buffer
-static PMATH_DECLARE_ATOMIC(daemon_spin) = 0;
-PMATH_PRIVATE PMATH_DECLARE_ATOMIC(_pmath_threadpool_deamon_count) = 0;
+static struct daemon_t *all_daemons = NULL; // ring buffer
+static pmath_atomic_t daemon_spin = PMATH_ATOMIC_STATIC_INIT;
+PMATH_PRIVATE pmath_atomic_t _pmath_threadpool_deamon_count = PMATH_ATOMIC_STATIC_INIT;
 
 PMATH_API pmath_bool_t pmath_init(void);
 PMATH_API void pmath_done(void);
@@ -504,7 +504,7 @@ PMATH_PRIVATE void _pmath_threadpool_kill_daemons(void){
   int loop_count = 0;
   #endif
   
-  while(_pmath_threadpool_deamon_count > 0){
+  while(pmath_atomic_read_aquire(&_pmath_threadpool_deamon_count) > 0){
     pmath_atomic_lock(&daemon_spin);
     {
       struct daemon_t *all;
@@ -629,7 +629,7 @@ pmath_messages_t pmath_thread_fork_daemon(
 /*============================================================================*/
 
 static volatile pmath_bool_t stop_threadpool;
-static PMATH_DECLARE_ATOMIC(init_threads_counter);
+static pmath_atomic_t init_threads_counter = PMATH_ATOMIC_STATIC_INIT;
 
 static struct worker_t{
   thread_handle_t thread;
@@ -649,7 +649,7 @@ static THREAD_PROC(worker_thread_proc, arg){
           run_task(task);
         }
 
-        (void)pmath_atomic_fetch_set(&task->status, TASK_DONE);
+        pmath_atomic_write_release(&task->status, TASK_DONE);
         sem_post(&task->done);
       }
 
@@ -715,7 +715,7 @@ PMATH_API void pmath_collect_temporary_symbols(void){
       // one reference is held by caller
       ++gc_refs;
       
-      return gc_refs == (uintptr_t)PMATH_AS_PTR(obj)->refcount;
+      return gc_refs == (uintptr_t)pmath_refcount(obj);
     }
     
     return TRUE;
@@ -767,8 +767,8 @@ static void run_gc(void){
       // one reference is hold by sym
       ++gc_refs;
       
-      if(gc_refs     <  (uintptr_t)PMATH_AS_PTR(sym)->refcount
-      && gc_refs + 3 >= (uintptr_t)PMATH_AS_PTR(sym)->refcount){
+      if(gc_refs     <  (uintptr_t)pmath_refcount(sym)
+      && gc_refs + 3 >= (uintptr_t)pmath_refcount(sym)){
         if(_pmath_have_code(sym, PMATH_CODE_USAGE_DOWNCALL))
           ++gc_refs;
           
@@ -779,7 +779,7 @@ static void run_gc(void){
           ++gc_refs;
       }
       
-      if(gc_refs == (uintptr_t)PMATH_AS_PTR(sym)->refcount){
+      if(gc_refs == (uintptr_t)pmath_refcount(sym)){
         pmath_bool_t all_visited;
         
         all_visited = _pmath_symbol_value_visit(
@@ -958,8 +958,8 @@ PMATH_PRIVATE pmath_bool_t _pmath_threadpool_init(void){
   int i;
   
   all_daemons = NULL;
-  daemon_spin = 0;
-  _pmath_threadpool_deamon_count = 0;
+  pmath_atomic_write_release(&daemon_spin, 0);
+  pmath_atomic_write_release(&_pmath_threadpool_deamon_count, 0);
   
   memset(&unsorted_msgs, 0, sizeof(unsorted_msgs));
   
@@ -1015,7 +1015,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_threadpool_init(void){
   stop_threadpool = FALSE;
 
   workers = (struct worker_t*)pmath_mem_alloc(worker_count * sizeof(struct worker_t));
-  init_threads_counter = worker_count;
+  pmath_atomic_write_release(&init_threads_counter, worker_count);
   if(!workers)
     goto WORKERS_ARRAY_FAIL;
   
@@ -1066,7 +1066,8 @@ PMATH_PRIVATE pmath_bool_t _pmath_threadpool_init(void){
     #endif
   }
   
-  while(init_threads_counter > 0){
+  while(pmath_atomic_read_aquire(&init_threads_counter) > 0){
+    pmath_atomic_loop_nop();
   }
 
   timer_thread_mq = pmath_thread_fork_daemon(
@@ -1133,7 +1134,7 @@ PMATH_PRIVATE void _pmath_threadpool_done(void){
 
   task = (pmath_task_t)pmath_stack_pop(idle_tasks);
   while(task){
-    assert(task->refcount == 1);
+    assert(pmath_atomic_read_aquire(&task->refcount) == 1);
     pmath_task_unref(task);
     task = (pmath_task_t)pmath_stack_pop(idle_tasks);
   }

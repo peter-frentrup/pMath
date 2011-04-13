@@ -106,7 +106,8 @@ struct _pmath_string_t *enlarge_string(
   
   assert(extra_start <= string->length);
 
-  if(string->buffer == NULL && string->inherited.refcount == 1){
+  if(string->buffer == NULL 
+  && pmath_atomic_read_aquire(&string->inherited.refcount) == 1){
     int newcap;
     size_t bytes;
     if(string->capacity_or_start >= string->length + extralen){
@@ -1020,13 +1021,13 @@ pmath_string_t pmath_string_insert(
   && _str->buffer == _ins->buffer
   && _str->length == inspos
   && _str->capacity_or_start + inspos == _ins->capacity_or_start){
-    if(_str->inherited.refcount == 1){
+    if(pmath_atomic_read_aquire(&_str->inherited.refcount) == 1){
       _str->length+= _ins->length;
       pmath_unref(ins);
       return str;
     }
     
-    if(_ins->inherited.refcount == 1){
+    if(pmath_atomic_read_aquire(&_ins->inherited.refcount) == 1){
       _ins->length+=            _str->length;
       _ins->capacity_or_start = _str->capacity_or_start;
       pmath_unref(str);
@@ -1169,7 +1170,7 @@ pmath_string_t pmath_string_part(
     return result;
   }
 
-  if(_str->inherited.refcount == 1){
+  if(pmath_atomic_read_aquire(&_str->inherited.refcount) == 1){
     if(_str->buffer){
       _str->capacity_or_start+= start;
       _str->length            = length;
@@ -1192,7 +1193,7 @@ pmath_string_t pmath_string_part(
     
     assert(pmath_is_string(string));
 
-    if(start == 0 && PMATH_AS_PTR(string)->refcount == 1){
+    if(start == 0 && pmath_refcount(string) == 1){
       _str->length = length;
       return string;
     }

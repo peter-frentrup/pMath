@@ -33,7 +33,7 @@ PMATH_PRIVATE pmath_t _pmath_object_infinity;          /* readonly */
 PMATH_PRIVATE pmath_t _pmath_object_complex_infinity;  /* readonly */
 
 PMATH_PRIVATE gmp_randstate_t  _pmath_randstate;
-PMATH_PRIVATE PMATH_DECLARE_ATOMIC(_pmath_rand_spinlock);
+PMATH_PRIVATE pmath_atomic_t _pmath_rand_spinlock = PMATH_ATOMIC_STATIC_INIT;
 
 #define CACHE_SIZE 256
 #define CACHE_MASK (CACHE_SIZE-1)
@@ -45,12 +45,12 @@ PMATH_PRIVATE PMATH_DECLARE_ATOMIC(_pmath_rand_spinlock);
 /*============================================================================*/
 //{ caching unused integers ...
 
-static intptr_t int_cache[CACHE_SIZE];
-static PMATH_DECLARE_ATOMIC(int_cache_pos);
+static pmath_atomic_t int_cache[CACHE_SIZE];
+static pmath_atomic_t int_cache_pos = PMATH_ATOMIC_STATIC_INIT;
 
 #ifdef PMATH_DEBUG_LOG
-static PMATH_DECLARE_ATOMIC(int_cache_hits);
-static PMATH_DECLARE_ATOMIC(int_cache_misses);
+static pmath_atomic_t int_cache_hits   = PMATH_ATOMIC_STATIC_INIT;
+static pmath_atomic_t int_cache_misses = PMATH_ATOMIC_STATIC_INIT;
 #endif
 
   static uintptr_t int_cache_inc(intptr_t delta){
@@ -63,7 +63,7 @@ static PMATH_DECLARE_ATOMIC(int_cache_misses);
   ){
     i = i & CACHE_MASK;
     
-    assert(!value || value->inherited.refcount == 0);
+    assert(!value || value->inherited.refcount._data == 0);
     
     return (struct _pmath_mp_int_t*)
       pmath_atomic_fetch_set(&int_cache[i], (intptr_t)value);
@@ -76,7 +76,7 @@ static PMATH_DECLARE_ATOMIC(int_cache_misses);
       struct _pmath_mp_int_t *integer = int_cache_swap(i, NULL);
       
       if(integer){
-        assert(integer->inherited.refcount == 0);
+        assert(integer->inherited.refcount._data == 0);
         
         mpz_clear(integer->value);
         pmath_mem_free(integer);
@@ -95,8 +95,8 @@ static PMATH_DECLARE_ATOMIC(int_cache_misses);
         (void)pmath_atomic_fetch_add(&int_cache_hits, 1);
       #endif
       
-      assert(integer->inherited.refcount == 0);
-      integer->inherited.refcount = 1;
+      assert(integer->inherited.refcount._data == 0);
+      pmath_atomic_write_release(&integer->inherited.refcount, 1);
       
       mpz_set_si(integer->value, value);
       
@@ -152,12 +152,12 @@ static PMATH_DECLARE_ATOMIC(int_cache_misses);
 //} ============================================================================
 //{ caching unused mp floats ...
 
-static intptr_t mp_cache[CACHE_SIZE];
-static PMATH_DECLARE_ATOMIC(mp_cache_pos);
+static pmath_atomic_t mp_cache[CACHE_SIZE];
+static pmath_atomic_t mp_cache_pos = PMATH_ATOMIC_STATIC_INIT;
 
 #ifdef PMATH_DEBUG_LOG
-static PMATH_DECLARE_ATOMIC(mp_cache_hits);
-static PMATH_DECLARE_ATOMIC(mp_cache_misses);
+static pmath_atomic_t mp_cache_hits   = PMATH_ATOMIC_STATIC_INIT;
+static pmath_atomic_t mp_cache_misses = PMATH_ATOMIC_STATIC_INIT;
 #endif
 
   static uintptr_t mp_cache_inc(intptr_t delta){
@@ -180,7 +180,7 @@ static PMATH_DECLARE_ATOMIC(mp_cache_misses);
       struct _pmath_mp_float_t *f = mp_cache_swap(i, NULL);
       
       if(f){
-        assert(f->inherited.refcount == 0);
+        assert(f->inherited.refcount._data == 0);
         
         mpfr_clear(f->value);
         mpfr_clear(f->error);
@@ -207,8 +207,8 @@ static PMATH_DECLARE_ATOMIC(mp_cache_misses);
         (void)pmath_atomic_fetch_add(&mp_cache_hits, 1);
       #endif
   
-      assert(f->inherited.refcount == 0);
-      f->inherited.refcount = 1;
+      assert(f->inherited.refcount._data == 0);
+      pmath_atomic_write_release(&f->inherited.refcount, 1);
       
       mpfr_set_prec(f->value, precision);
       mpfr_set_ui_2exp(f->error, 1, -(mp_exp_t)precision-1, MPFR_RNDU);
@@ -451,7 +451,7 @@ PMATH_API pmath_rational_t pmath_rational_new(
       return PMATH_NULL;
     }
   }
-  else if(PMATH_AS_PTR(numerator)->refcount > 1){
+  else if(pmath_refcount(numerator) > 1){
     pmath_integer_t unique_num = _pmath_create_mp_int(0);
     
     if(pmath_is_null(unique_num)){
@@ -473,7 +473,7 @@ PMATH_API pmath_rational_t pmath_rational_new(
       return PMATH_NULL;
     }
   }
-  else if(PMATH_AS_PTR(denominator)->refcount > 1){
+  else if(pmath_refcount(denominator) > 1){
     pmath_mpint_t unique_den = _pmath_create_mp_int(0);
     
     if(pmath_is_null(unique_den)){
@@ -761,7 +761,7 @@ pmath_t _pmath_float_exceptions(
 PMATH_PRIVATE
 void _pmath_mp_float_normalize(pmath_mpfloat_t f){
   assert(pmath_is_mpfloat(f));
-  assert(PMATH_AS_PTR(f)->refcount == 1);
+  assert(pmath_refcount(f) == 1);
   
   if(mpfr_zero_p(PMATH_AS_MP_ERROR(f)) || mpfr_zero_p(PMATH_AS_MP_VALUE(f)))
     return;
@@ -979,7 +979,7 @@ PMATH_API int pmath_number_sign(pmath_number_t num){
     
     assert(pmath_is_mpint(integer));
 
-    if(PMATH_AS_PTR(integer)->refcount == 1)
+    if(pmath_refcount(integer) == 1)
       result = pmath_ref(integer);
     else
       result = _pmath_create_mp_int(0);
@@ -1023,7 +1023,7 @@ PMATH_API pmath_number_t pmath_number_neg(pmath_number_t num){
     case PMATH_TYPE_SHIFT_MP_FLOAT: {
       pmath_float_t result;
       
-      if(PMATH_AS_PTR(num)->refcount == 1)
+      if(pmath_refcount(num) == 1)
         result = pmath_ref(num);
       else
         result = _pmath_create_mp_float(mpfr_get_prec(PMATH_AS_MP_VALUE(num)));
@@ -1133,12 +1133,12 @@ static void destroy_mp_int(pmath_t integer){
   struct _pmath_mp_int_t *int_ptr;
   uintptr_t i = int_cache_inc(+1);
   
-  assert(PMATH_AS_PTR(integer)->refcount == 0);
+  assert(pmath_refcount(integer) == 0);
   
   int_ptr = (void*)PMATH_AS_PTR(integer);
   int_ptr = int_cache_swap(i, int_ptr);
   if(int_ptr){
-    assert(int_ptr->inherited.refcount == 0);
+    assert(int_ptr->inherited.refcount._data == 0);
     
     mpz_clear(int_ptr->value);
     pmath_mem_free(int_ptr);
@@ -1193,7 +1193,7 @@ static void write_mp_int(struct pmath_write_ex_t *info, pmath_t integer){
 //{ pMath object functions for quotients ...
 
 static void destroy_quotient(pmath_t quotient){
-  assert(PMATH_AS_PTR(quotient)->refcount == 0);
+  assert(pmath_refcount(quotient) == 0);
   
   pmath_unref(PMATH_QUOT_NUM(quotient));
   pmath_unref(PMATH_QUOT_DEN(quotient));
@@ -1224,12 +1224,12 @@ static void destroy_mp_float(pmath_t f){
   uintptr_t i = mp_cache_inc(+1);
   struct _pmath_mp_float_t *f_ptr;
   
-  assert(PMATH_AS_PTR(f)->refcount == 0);
+  assert(pmath_refcount(f) == 0);
   
   f_ptr = (void*)PMATH_AS_PTR(f);
   f_ptr = mp_cache_swap(i, f_ptr);
   if(f_ptr){
-    assert(f_ptr->inherited.refcount == 0);
+    assert(f_ptr->inherited.refcount._data == 0);
     
     mpfr_clear(f_ptr->value);
     mpfr_clear(f_ptr->error);
@@ -1789,16 +1789,19 @@ PMATH_PRIVATE pmath_bool_t _pmath_numbers_init(void){
 
   memset(int_cache, 0, sizeof(int_cache));
   memset(mp_cache,  0, sizeof(mp_cache));
-  int_cache_pos = 0;
-  mp_cache_pos  = 0;
+  pmath_atomic_write_release(&int_cache_pos, 0);
+  pmath_atomic_write_release(&mp_cache_pos,  0);
   
   #ifdef PMATH_DEBUG_LOG
-    int_cache_hits = int_cache_misses = 0;
-    mp_cache_hits  = mp_cache_misses  = 0;
+    pmath_atomic_write_release(&int_cache_hits,   0);
+    pmath_atomic_write_release(&int_cache_misses, 0);
+    
+    pmath_atomic_write_release(&mp_cache_hits,    0);
+    pmath_atomic_write_release(&mp_cache_misses,  0);
   #endif
   
   gmp_randinit_default(_pmath_randstate);
-  _pmath_rand_spinlock = 0;
+  pmath_atomic_write_release(&_pmath_rand_spinlock, 0);
 
   _pmath_init_special_type(
     PMATH_TYPE_SHIFT_MP_INT,
@@ -1830,9 +1833,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_numbers_init(void){
 
   if(pmath_is_null(_pmath_one_half))
     goto FAIL;
-    
-  //pmath_debug_print("mpfr_get_default_prec() = %"PRIdMAX"\n", (intmax_t)mpfr_get_default_prec());
-
+  
   if(!_pmath_primetest_init())
     goto FAIL_PRIME;
 
@@ -1859,14 +1860,19 @@ PMATH_PRIVATE void _pmath_numbers_done(void){
   
   #ifdef PMATH_DEBUG_LOG
   {
+    intptr_t int_hits   = pmath_atomic_read_aquire(&int_cache_hits);
+    intptr_t mp_hits    = pmath_atomic_read_aquire(&mp_cache_hits);
+    intptr_t int_misses = pmath_atomic_read_aquire(&int_cache_misses);
+    intptr_t mp_misses  = pmath_atomic_read_aquire(&mp_cache_misses);
+    
     pmath_debug_print("int cache hit rate:              %f (%d of %d)\n", 
-      (double)int_cache_hits / (double)(int_cache_hits + int_cache_misses),
-      (int) int_cache_hits,
-      (int)(int_cache_hits + int_cache_misses));
+      int_hits / (double)(int_hits + int_misses),
+      (int) int_hits,
+      (int)(int_hits + int_misses));
     pmath_debug_print("multi prec float cache hit rate: %f (%d of %d)\n", 
-      (double)mp_cache_hits  / (double)(mp_cache_hits  + mp_cache_misses),
-      (int) mp_cache_hits,
-      (int)(mp_cache_hits + mp_cache_misses));
+      mp_hits  / (double)(mp_hits  + mp_misses),
+      (int) mp_hits,
+      (int)(mp_hits + mp_misses));
   }
   #endif
 }

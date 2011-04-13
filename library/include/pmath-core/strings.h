@@ -280,7 +280,7 @@ PMATH_API
 PMATH_ATTRIBUTE_PURE
 int pmath_string_length(pmath_string_t string);
 
-/**\brief Compare a pMth sting with a C string.
+/**\brief Compare a pMath string with a C string.
    \memberof pmath_string_t
    \param string A string. It wont be freed.
    \param latin1 A C string (zero terminated). 

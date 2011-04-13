@@ -95,22 +95,24 @@ void _pmath_rulecache_copy(
   assert(dst != NULL);
   
   if(!src){
-    dst->_table      = NULL;
     dst->_more._data = PMATH_NULL;
+    pmath_atomic_write_release(&dst->_table, 0);
     return;
   }
   
   dst->_more._data = move_multirule(_pmath_object_atomic_read(&src->_more));
   
-  if(src->_table){
+  if(pmath_atomic_read_aquire(&src->_table)){
     pmath_hashtable_t table = rulecache_table_lock(src);
     
-    dst->_table = pmath_ht_copy(table, _pmath_object_entry_copy_func);
+    pmath_atomic_write_release(
+      &dst->_table,
+      (intptr_t)pmath_ht_copy(table, _pmath_object_entry_copy_func));
     
     rulecache_table_unlock(src, table);
   }
   else
-    dst->_table = NULL;
+    pmath_atomic_write_release(&dst->_table, 0);
 }
 
 PMATH_PRIVATE
@@ -122,25 +124,21 @@ void _pmath_symbol_rules_copy(
   assert(dst != NULL);
   
   if(!src){
-    dst->up_rules._table      = NULL;
-    dst->up_rules._more._data = PMATH_NULL;
-    
-    dst->down_rules._table      = NULL;
-    dst->down_rules._more._data = PMATH_NULL;
-    
-    dst->sub_rules._table      = NULL;
-    dst->sub_rules._more._data = PMATH_NULL;
-    
-    dst->approx_rules._table      = NULL;
-    dst->approx_rules._more._data = PMATH_NULL;
-    
-    dst->default_rules._table      = NULL;
+    dst->up_rules._more._data      = PMATH_NULL;
+    dst->down_rules._more._data    = PMATH_NULL;
+    dst->sub_rules._more._data     = PMATH_NULL;
+    dst->approx_rules._more._data  = PMATH_NULL;
     dst->default_rules._more._data = PMATH_NULL;
+    dst->format_rules._more._data  = PMATH_NULL;
     
-    dst->format_rules._table      = NULL;
-    dst->format_rules._more._data = PMATH_NULL;
+    pmath_atomic_write_release(&dst->up_rules._table,      0);
+    pmath_atomic_write_release(&dst->down_rules._table,    0);
+    pmath_atomic_write_release(&dst->sub_rules._table,     0);
+    pmath_atomic_write_release(&dst->approx_rules._table,  0);
+    pmath_atomic_write_release(&dst->default_rules._table, 0);
+    pmath_atomic_write_release(&dst->format_rules._table,  0);
     
-    dst->_messages = NULL;
+    pmath_atomic_write_release(&dst->_messages, 0);
     return;
   }
   
@@ -153,9 +151,9 @@ void _pmath_symbol_rules_copy(
   
   src_messages = (pmath_hashtable_t)_pmath_atomic_lock_ptr(&src->_messages);
   
-  dst->_messages = pmath_ht_copy(
-    src_messages,
-    _pmath_object_entry_copy_func);
+  pmath_atomic_write_release(
+    &dst->_messages,
+    (intptr_t)pmath_ht_copy(src_messages, _pmath_object_entry_copy_func));
   
   _pmath_atomic_unlock_ptr(&src->_messages, src_messages);
 }
@@ -172,9 +170,9 @@ static void destroy_multirule(pmath_t p){
 PMATH_PRIVATE
 void _pmath_rulecache_done(struct _pmath_rulecache_t *rc){
   assert(rc != NULL);
-  assert(rc->_table != PMATH_INVALID_PTR);
+  assert(rc->_table._data != (intptr_t)PMATH_INVALID_PTR);
   
-  pmath_ht_destroy((pmath_hashtable_t)rc->_table);
+  pmath_ht_destroy((pmath_hashtable_t)pmath_atomic_read_aquire(&rc->_table));
   pmath_unref(rc->_more._data);
 }
 
@@ -189,7 +187,7 @@ void _pmath_symbol_rules_done(struct _pmath_symbol_rules_t *rules){
   _pmath_rulecache_done(&rules->default_rules);
   _pmath_rulecache_done(&rules->format_rules);
     
-  pmath_ht_destroy((pmath_hashtable_t)rules->_messages);
+  pmath_ht_destroy((pmath_hashtable_t)pmath_atomic_read_aquire(&rules->_messages));
 }
 
 //} ============================================================================

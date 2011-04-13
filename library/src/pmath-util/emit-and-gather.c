@@ -33,8 +33,9 @@ PMATH_API void pmath_gather_begin(pmath_t pattern){
 
   info->next               = thread->gather_info;
   info->pattern            = pattern;
-  info->value_count        = 0;
-  info->emitted_values.ptr = NULL;
+  pmath_atomic_write_release(&info->emitted_values, 0);
+  pmath_atomic_write_release(&info->value_count,    0);
+  
   thread->gather_info      = info;
 }
 
@@ -59,15 +60,13 @@ PMATH_API pmath_expr_t pmath_gather_end(void){
   info = thread->gather_info;
   thread->gather_info = info->next;
   pmath_unref(info->pattern);
+  
+  i = pmath_atomic_read_aquire(&info->value_count);
+  result = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), i);
+  ++i;
 
-  result = pmath_expr_new(
-    pmath_ref(PMATH_SYMBOL_LIST),
-    info->value_count);
-  i = info->value_count + 1;
-
-  while(info->emitted_values.ptr){
-    item = info->emitted_values.ptr;
-    info->emitted_values.ptr = item->next;
+  while(NULL != (item = (void*)pmath_atomic_read_aquire(&info->emitted_values))){
+    pmath_atomic_write_release(&info->emitted_values, (intptr_t)item->next);
 
     result = pmath_expr_set_item(result, --i, item->value);
     pmath_mem_free(item);
@@ -81,8 +80,8 @@ PMATH_API void pmath_emit(pmath_t object, pmath_t tag){
   pmath_bool_t at_least_one_gather = FALSE;
   pmath_thread_t thread = pmath_thread_get_current();
   struct _pmath_gather_info_t *info;
-  struct _pmath_stack_info_t  *item = (struct _pmath_stack_info_t*)
-    pmath_mem_alloc(sizeof(struct _pmath_stack_info_t));
+  struct _pmath_stack_info_t  *item = pmath_mem_alloc(sizeof(struct _pmath_stack_info_t));
+  
   if(!thread || !item){
     pmath_unref(object);
     pmath_unref(tag);
@@ -98,11 +97,11 @@ PMATH_API void pmath_emit(pmath_t object, pmath_t tag){
       info = info->next;
 
     if(info){
-      item->next = (struct _pmath_stack_info_t*)
-        pmath_atomic_fetch_set(
-          &info->emitted_values.intptr,
-          (intptr_t)item);
-      (void)pmath_atomic_fetch_add(&info->value_count, 1);
+      item->next = (void*)pmath_atomic_fetch_set(
+        &info->emitted_values,
+        (intptr_t)item);
+      
+      (void)pmath_atomic_fetch_add(&info->value_count, +1);
       pmath_unref(tag);
       return;
     }
