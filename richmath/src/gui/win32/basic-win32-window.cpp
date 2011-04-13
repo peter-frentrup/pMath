@@ -900,20 +900,21 @@ void BasicWin32Window::paint_themed_caption(HDC hdc_bitmap){
     
     int frame_x = GetSystemMetrics(SM_CXSIZEFRAME);
     int frame_y = GetSystemMetrics(SM_CYSIZEFRAME);
+    int caption_h = GetSystemMetrics(SM_CYCAPTION);
     
     RECT rect;
     get_system_button_bounds(_hwnd, &rect);
     rect.right  = rect.left;
-    rect.left   = frame_x + GetSystemMetrics(SM_CXSMICON) + 4;
-    rect.top    = frame_y;
-    rect.bottom = rect.top + GetSystemMetrics(SM_CYCAPTION);
+    rect.left   = frame_x + GetSystemMetrics(SM_CXSMICON) + 5;
+    rect.top    = 0;
+    rect.bottom = frame_y + caption_h;
     
     Win32Themes::DrawThemeTextEx(
       composition_window_theme,
       hdc_bitmap, 
       0, 0, 
       str, -1, 
-      DT_LEFT | DT_END_ELLIPSIS, 
+      DT_LEFT | DT_VCENTER | DT_SINGLELINE | DT_END_ELLIPSIS, 
       &rect, 
       &dtt_opts);
     
@@ -926,9 +927,16 @@ void BasicWin32Window::paint_themed_caption(HDC hdc_bitmap){
       if(!icon) 
         icon = wndcl.hIcon;
       if(icon){
-        DrawIconEx(hdc_bitmap, frame_x, frame_y, icon,
-          GetSystemMetrics(SM_CXSMICON),
-          GetSystemMetrics(SM_CYSMICON),
+        int icon_w = GetSystemMetrics(SM_CXSMICON);
+        int icon_h = GetSystemMetrics(SM_CYSMICON);
+        
+        DrawIconEx(
+          hdc_bitmap, 
+          1 + frame_x, 
+          (frame_y + caption_h - icon_h) / 2, 
+          icon,
+          icon_w,
+          icon_h,
           0,
           NULL,
           DI_NORMAL);
@@ -1148,7 +1156,7 @@ void BasicWin32Window::paint_background(Canvas *canvas, int x, int y, bool wallp
         if(style_ex & WS_EX_TOOLWINDOW)
           frameradius = 1;
         else
-          frameradius = GetSystemMetrics(SM_CXFRAME)-2;
+          frameradius = 6; //GetSystemMetrics(SM_CXFRAME)-2;
         
         canvas->move_to(rect.left,  rect.top);
         canvas->line_to(rect.left,  rect.bottom);

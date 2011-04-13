@@ -18,13 +18,15 @@ const double richmath::Infinity = HUGE_VAL;
 #ifndef NDEBUG
   class ObjectCounter{
     public:
-      ObjectCounter():count(0){}
+      ObjectCounter(){
+        pmath_atomic_write_release(&count, 0);
+      }
       ~ObjectCounter(){
-        if(count != 0)
-          printf("%d OBJECTS NOT FREED\n", (int)count);
+        if(pmath_atomic_read_aquire(&count) != 0)
+          printf("%d OBJECTS NOT FREED\n", (int)pmath_atomic_read_aquire(&count));
       }
       
-      volatile intptr_t count;
+      pmath_atomic_t count;
   };
   
   static ObjectCounter counter;
@@ -47,13 +49,13 @@ Base::~Base(){
 //{ class Shareable ...
 
 Shareable::Shareable()
-: Base(),
-  _refcount(1)
+: Base()
 {
+  pmath_atomic_write_release(&_refcount, 1);
 }
 
 Shareable::~Shareable(){
-  assert(_refcount == 0);
+  assert(pmath_atomic_read_aquire(&_refcount) == 0);
 }
 
 void Shareable::ref() const {

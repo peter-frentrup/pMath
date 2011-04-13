@@ -1,6 +1,7 @@
 #ifndef __UTIL__BASE_H__
 #define __UTIL__BASE_H__
 
+#include <pmath-util/concurrency/atomic.h>
 #include <stdint.h>
 
 namespace richmath{
@@ -28,9 +29,9 @@ namespace richmath{
       void ref() const;
       void unref() const;
       
-      intptr_t refcount() const { return _refcount; };
+      intptr_t refcount() const { return pmath_atomic_read_aquire(&_refcount); };
     private:
-      mutable volatile intptr_t _refcount;
+      mutable pmath_atomic_t _refcount;
   };
 }
 

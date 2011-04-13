@@ -20,11 +20,11 @@ namespace richmath{
     public:
       ConcurrentQueue()
       : Base(),
-        head_spin(0),
-        tail_spin(0),
         head(new Item),
         tail(head)
       {
+        pmath_atomic_write_release(&head_spin, 0);
+        pmath_atomic_write_release(&tail_spin, 0);
       }
       
       ~ConcurrentQueue(){
@@ -64,8 +64,8 @@ namespace richmath{
       }
       
     private:
-      PMATH_DECLARE_ATOMIC(head_spin);
-      PMATH_DECLARE_ATOMIC(tail_spin);
+      pmath_atomic_t head_spin;
+      pmath_atomic_t tail_spin;
       Item *head;
       Item *tail;
   };

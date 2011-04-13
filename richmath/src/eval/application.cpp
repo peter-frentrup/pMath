@@ -36,7 +36,7 @@ namespace{
       void done(){
         if(finished){
           result_ptr = NULL;
-          *finished = true;
+          pmath_atomic_write_release(finished, 1);
           pmath_thread_wakeup(notify_queue.get());
         }
       }
@@ -45,7 +45,7 @@ namespace{
       ClientNotificationType  type;
       Expr                    data;
       Expr                    notify_queue;
-      volatile bool          *finished;
+      pmath_atomic_t         *finished;
       
       pmath_t *result_ptr;
   };
@@ -73,7 +73,8 @@ enum ClientState{
 };
 
 static DWORD  main_thread_id = 0;
-static volatile enum ClientState state = Starting;
+//static volatile enum ClientState state = Starting;
+static pmath_atomic_t state = { Starting }; // ClientState
 
 static ConcurrentQueue<ClientNotification>   notifications;
 
@@ -149,7 +150,7 @@ String Application::application_directory;
 Hashtable<Expr, Expr, object_hash> Application::eval_cache;
 
 void Application::notify(ClientNotificationType type, Expr data){
-  if(state == Quitting)
+  if(pmath_atomic_read_aquire(&state) == Quitting)
     return;
   
   ClientNotification cn;
@@ -162,7 +163,7 @@ void Application::notify(ClientNotificationType type, Expr data){
 }
 
 Expr Application::notify_wait(ClientNotificationType type, Expr data){
-  if(state != Running)
+  if(pmath_atomic_read_aquire(&state) != Running)
     return Symbol(PMATH_SYMBOL_FAILED);
     
   if(GetCurrentThreadId() == main_thread_id){
@@ -170,7 +171,7 @@ Expr Application::notify_wait(ClientNotificationType type, Expr data){
     return Symbol(PMATH_SYMBOL_FAILED);
   }
   
-  volatile bool finished = false;
+  pmath_atomic_t finished = PMATH_ATOMIC_STATIC_INIT;
   pmath_t result = PMATH_UNDEFINED;
   ClientNotification cn;
   cn.finished = &finished;
@@ -183,7 +184,7 @@ Expr Application::notify_wait(ClientNotificationType type, Expr data){
   pmath_thread_wakeup(main_message_queue.get());
   PostMessage(info_window.hwnd(), WM_CLIENTNOTIFY, 0, 0);
   
-  while(!finished){
+  while(!pmath_atomic_read_aquire(&finished)){
     pmath_thread_sleep();
     pmath_debug_print("w");
   }
@@ -343,8 +344,8 @@ void Application::init(){
 void Application::doevents(){
   MSG msg;
   
-  ClientState old_state = state;
-  state = Running;
+  // ClientState
+  intptr_t old_state = pmath_atomic_fetch_set(&state, Running);
   
   while(PeekMessageW(&msg, NULL, 0, 0, PM_REMOVE)){
     if(msg.message == WM_QUIT){
@@ -357,21 +358,21 @@ void Application::doevents(){
     }
   }
   
-  state = old_state;
+  pmath_atomic_write_release(&state, old_state);
 }
 
 int Application::run(){
   MSG msg;
   BOOL bRet;
   
-  if(state == Running)
+  if(pmath_atomic_read_aquire(&state) == Running)
     return 1;
   
-  state = Running;
+  pmath_atomic_write_release(&state, Running);
   
   while((bRet = GetMessageW(&msg, NULL, 0, 0)) != 0){
     if(bRet == -1) {
-      state = Quitting;
+      pmath_atomic_write_release(&state, Quitting);
       return 1;
     }
     
@@ -381,7 +382,7 @@ int Application::run(){
     }
   }
   
-  state = Quitting;
+  pmath_atomic_write_release(&state, Quitting);
   return msg.wParam;
 }
 
@@ -495,7 +496,7 @@ void Application::execute_for(Expr expr, Box *box){
 }
 
 Expr Application::internal_execute_for(Expr expr, int doc, int sect, int box){
-  static PMATH_DECLARE_ATOMIC(lock) = 0;
+  static pmath_atomic_t lock = PMATH_ATOMIC_STATIC_INIT;
   EvaluationPosition old_print_pos;
   
   pmath_atomic_lock(&lock);

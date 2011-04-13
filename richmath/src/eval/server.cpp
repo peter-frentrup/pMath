@@ -137,7 +137,7 @@ class LocalServer: public Server{
   public:
     LocalServer(){
       data = new Data(this);
-      data->do_quit = false;
+      pmath_atomic_write_release(&data->do_quit, false);
       
       message_queue = Expr(pmath_thread_fork_daemon(
         LocalServer::thread_proc, 
@@ -164,7 +164,7 @@ class LocalServer: public Server{
     }
       
     virtual void run_boxes(Expr boxes){
-      if(data && !data->do_quit){
+      if(data && !pmath_atomic_read_aquire(&data->do_quit)){
         Token t;
         
         t.boxes  = true;
@@ -175,7 +175,7 @@ class LocalServer: public Server{
     }
     
     virtual void run(Expr obj){
-      if(data && !data->do_quit){
+      if(data && !pmath_atomic_read_aquire(&data->do_quit)){
         Token t;
         
         t.boxes  = false;
@@ -186,7 +186,7 @@ class LocalServer: public Server{
     }
       
     virtual Expr interrupt_wait(Expr expr, double timeout_seconds, void (*idle_function)(void*), void *idle_data){
-      if(data && !data->do_quit){
+      if(data && !pmath_atomic_read_aquire(&data->do_quit)){
         return Expr(pmath_thread_send_wait(
           message_queue.get(), 
           expr.release(),
@@ -199,7 +199,7 @@ class LocalServer: public Server{
     }
       
     virtual void interrupt(Expr expr, double timeout_seconds){
-      if(data && !data->do_quit){
+      if(data && !pmath_atomic_read_aquire(&data->do_quit)){
         if(timeout_seconds < Infinity){
           expr = Call(Symbol(PMATH_SYMBOL_TIMECONSTRAINED),
             expr, 
@@ -215,11 +215,11 @@ class LocalServer: public Server{
     }
     
     virtual bool is_accessable(){
-      return data && !data->do_quit;
+      return data && !pmath_atomic_read_aquire(&data->do_quit);
     }
     
   protected:
-    static PMATH_DECLARE_ATOMIC(data_spin);
+    static pmath_atomic_t data_spin;
     Expr message_queue;
     
     class Data {
@@ -242,14 +242,14 @@ class LocalServer: public Server{
         LocalServer *owner;
         
         ConcurrentQueue< Token > tokens;
-        volatile bool do_quit;
+        pmath_atomic_t do_quit;
     };
     
     Data *data;
     
     static void kill(void *arg){
       Data *me = (Data*)arg;
-      me->do_quit = TRUE;
+      pmath_atomic_write_release(&me->do_quit, TRUE);
       
       LocalServer *ls = dynamic_cast<LocalServer*>(local_server.ptr());
       
@@ -285,7 +285,7 @@ class LocalServer: public Server{
     }
     
     static Expr dialog(Data *me, Expr firsteval){
-      static PMATH_DECLARE_ATOMIC(dialog_depth) = 0;
+      static pmath_atomic_t dialog_depth = PMATH_ATOMIC_STATIC_INIT;
       Expr result = Expr();
       
       pmath_atomic_fetch_add(&dialog_depth, 1);
@@ -300,7 +300,7 @@ class LocalServer: public Server{
           goto FINISH;
         }
         
-        while(!me->do_quit){
+        while(!pmath_atomic_read_aquire(&me->do_quit)){
           pmath_thread_sleep();
           
           pmath_debug_print("S");
@@ -337,7 +337,7 @@ class LocalServer: public Server{
       
       pmath_register_code(PMATH_SYMBOL_DIALOG, builtin_dialog, PMATH_CODE_USAGE_DOWNCALL);
       
-      while(!me->do_quit){
+      while(!pmath_atomic_read_aquire(&me->do_quit)){
         pmath_thread_sleep();
         
         pmath_debug_print("S");
@@ -359,7 +359,7 @@ class LocalServer: public Server{
     }
 };
 
-PMATH_DECLARE_ATOMIC(LocalServer::data_spin) = 0;
+pmath_atomic_t LocalServer::data_spin = PMATH_ATOMIC_STATIC_INIT;
 
 bool Server::init_local_server(){
   local_server = new LocalServer;
