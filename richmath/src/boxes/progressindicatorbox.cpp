@@ -82,6 +82,7 @@ void ProgressIndicatorBox::resize(Context *context){
   
   BoxSize size = _extents;
   ControlPainter::std->calc_container_size(context->canvas, ProgressIndicatorBackground, &size);
+  //ControlPainter::std->calc_container_size(context->canvas, ProgressIndicatorBar, &size);
 }
 
 // TODO: support progress bar animations
@@ -124,13 +125,20 @@ void ProgressIndicatorBox::paint(Context *context){
     state = Hot;
   }
   
+  BoxSize content_size = _extents;
+  ControlPainter::std->calc_container_size(
+    context->canvas, 
+    ProgressIndicatorBar,
+    &content_size);
+  
   ControlPainter::std->draw_container(
     context->canvas,
     ProgressIndicatorBar,
     state,
-    x, y, 
-    _extents.width * p, 
-    _extents.height());
+    x + (_extents.width - content_size.width) / 2, 
+    y + _extents.ascent - content_size.ascent, 
+    content_size.width * p, 
+    content_size.height());
 }
 
 Expr ProgressIndicatorBox::to_pmath(bool parseable){

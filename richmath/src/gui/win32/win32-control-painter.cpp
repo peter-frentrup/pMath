@@ -106,21 +106,51 @@ void Win32ControlPainter::calc_container_size(
       
       return;
     }
+    
+//    if(type == ProgressIndicatorBar){
+//      RECT outer = {0,0,100,100};
+//      RECT inner = {0,0,0,0};
+//      
+//      if(theme
+//      && Win32Themes::GetThemeBackgroundContentRect
+//      && SUCCEEDED(Win32Themes::GetThemeBackgroundContentRect(
+//          theme, NULL, theme_part, theme_state, &outer, &inner))
+//      ){
+//        extents->ascent-=  0.75 * inner.top;
+//        extents->descent-= 0.75 * (outer.bottom - inner.bottom);
+//        extents->width-=   0.75 * (outer.right - inner.right + inner.left);
+//        return;
+//      }
+//    }
   }
   
-  if(type == InputField){
-    if(Win32Themes::IsThemeActive
-    && Win32Themes::IsThemeActive()){
-      extents->width+=   3;
-      extents->ascent+=  1.5;
-      extents->descent+= 1.5;
-      return;
-    }
-    
-    extents->width+=   5.25;
-    extents->ascent+=  3;
-    extents->descent+= 2.25;
-    return;
+  switch(type){
+    case InputField: {
+      if(Win32Themes::IsThemeActive
+      && Win32Themes::IsThemeActive()){
+        extents->width+=   3;
+        extents->ascent+=  1.5;
+        extents->descent+= 1.5;
+        return;
+      }
+      
+      extents->width+=   5.25;
+      extents->ascent+=  3;
+      extents->descent+= 2.25;
+    } return;
+  
+    case ProgressIndicatorBar: {
+      int part, state;
+      HANDLE theme = get_control_theme(ProgressIndicatorBar, Normal, &part, &state);
+      
+      if(!theme || part != 5){
+        extents->width-=   4.5;
+        extents->ascent-=  2.25;
+        extents->descent-= 2.25; 
+      }
+    } return;
+  
+    default: break;
   }
   
   ControlPainter::calc_container_size(canvas, type, extents);
@@ -516,7 +546,7 @@ void Win32ControlPainter::draw_container(
       case ProgressIndicatorBackground:
       case SliderHorzChannel: {
         FillRect(dc, &rect, (HBRUSH)(COLOR_BTNFACE + 1));
-
+        
         DrawEdge(
           dc,
           &rect,
@@ -524,7 +554,29 @@ void Win32ControlPainter::draw_container(
           BF_RECT);
       } break;
       
-      case ProgressIndicatorBar:
+      case ProgressIndicatorBar: {
+        int chunk = (rect.bottom - rect.top) / 2;
+        RECT chunk_rect = rect;
+        
+        if(chunk < 2)
+           chunk = 2;
+        
+        int x;
+        for(x = rect.left;x + chunk <= rect.right;x+= chunk + 2){
+          chunk_rect.left = x;
+          chunk_rect.right = x + chunk;
+          
+          FillRect(dc, &chunk_rect, (HBRUSH)(COLOR_HIGHLIGHT + 1));
+        }
+        
+        if(x < rect.right){
+          chunk_rect.left = x;
+          chunk_rect.right = rect.right;
+          
+          FillRect(dc, &chunk_rect, (HBRUSH)(COLOR_HIGHLIGHT + 1));
+        }
+      } break;
+      
       case SliderHorzThumb: {
         DrawFrameControl(
           dc,
@@ -1205,12 +1257,19 @@ HANDLE Win32ControlPainter::get_control_theme(
     } break;
     
     case ProgressIndicatorBackground: {
-      *theme_part = 11;
+      if(Win32Themes::IsThemePartDefined(theme, 11, 1))
+        *theme_part = 11;
+      else
+        *theme_part = 1;
+        
       *theme_state = 1;
     } break;
     
     case ProgressIndicatorBar: {
-      *theme_part = 5;
+      if(Win32Themes::IsThemePartDefined(theme, 5, 1))
+        *theme_part = 5;
+      else
+        *theme_part = 3;
       
       switch(state){
         case Hot: *theme_state = 2; break;

@@ -34,7 +34,7 @@ pmath_string_t pj_string_from_java(JNIEnv *env, jstring jstr){
 }
 
 jstring pj_string_to_java(JNIEnv *env, pmath_string_t str){
-  const jchar *buf = (const jchar*)pmath_string_buffer(str);
+  const jchar *buf = (const jchar*)pmath_string_buffer(&str);
   int len = pmath_string_length(str);
   
   jstring result = (*env)->NewString(env, buf, len);
@@ -90,7 +90,7 @@ pmath_bool_t pj_value_to_java(JNIEnv *env, pmath_t obj, pmath_t type, jvalue *va
     if(pmath_same(type, PJ_SYMBOL_TYPE_CHAR)){
       if(pmath_is_string(obj)
       && pmath_string_length(obj) == 1){
-        value->c = (jchar)pmath_string_buffer(obj)[0];
+        value->c = (jchar)pmath_string_buffer(&obj)[0];
         pmath_unref(obj);
         return TRUE;
       }
@@ -310,7 +310,7 @@ pmath_bool_t pj_value_to_java(JNIEnv *env, pmath_t obj, pmath_t type, jvalue *va
       jobject val = NULL;
     
       if(pmath_is_string(obj)){
-        val = (*env)->NewString(env, pmath_string_buffer(obj), pmath_string_length(obj));
+        val = (*env)->NewString(env, pmath_string_buffer(&obj), pmath_string_length(obj));
         pmath_unref(obj);
         obj = PMATH_NULL;
       }
@@ -380,7 +380,7 @@ pmath_bool_t pj_value_to_java(JNIEnv *env, pmath_t obj, pmath_t type, jvalue *va
 
   static pmath_bool_t starts_with(pmath_string_t str, const char *s){
     int             len = pmath_string_length(str);
-    const uint16_t *buf = pmath_string_buffer(str);
+    const uint16_t *buf = pmath_string_buffer(&str);
     
     while(len-- > 0){
       if(!*s)
@@ -419,7 +419,7 @@ pmath_t pj_value_from_java(JNIEnv *env, char type, const jvalue *value){
     jclass  clazz = (*env)->GetObjectClass(env, value->l);
     pmath_t class_name  = pj_class_get_name(env, clazz);
     int slen            = pmath_string_length(class_name);
-    const uint16_t *buf = pmath_string_buffer(class_name);
+    const uint16_t *buf = pmath_string_buffer(&class_name);
     
     if(starts_with(class_name, "Ljava/lang/")){
       if(pmath_string_equals_latin1(class_name, "Ljava/lang/String;")){

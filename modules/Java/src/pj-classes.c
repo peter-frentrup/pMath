@@ -99,7 +99,7 @@ static pmath_ht_class_t cms2id_class = {
   cms2id_entry_equals_key
 };
 //} ... cms2id Hashtable implementation
-static PMATH_DECLARE_ATOMIC(cms2id_lock) = 0;
+static pmath_atomic_t cms2id_lock = PMATH_ATOMIC_STATIC_INIT;
 static pmath_hashtable_t cms2id;
 
 
@@ -324,7 +324,7 @@ jclass pj_class_to_java(JNIEnv *env, pmath_t obj){
 
 
 static pmath_t type2pmath(pmath_string_t name, int start){ // name will be freed
-  const uint16_t *buf = pmath_string_buffer(name);
+  const uint16_t *buf = pmath_string_buffer(&name);
   int             len = pmath_string_length(name);
   
   if(len <= start)
@@ -550,7 +550,7 @@ static pmath_t type2pmath(pmath_string_t name, int start){ // name will be freed
           goto FAIL_RETURN;
         }
         
-        return_type_char = (char)pmath_string_buffer(name)[0];
+        return_type_char = (char)pmath_string_buffer(&name)[0];
         return_type = type2pmath(name, 0); 
         name = PMATH_NULL;
         
@@ -751,7 +751,7 @@ static pmath_t type2pmath(pmath_string_t name, int start){ // name will be freed
         cache_entry->mid                    = 0;
         cache_entry->fid                    = fid;
         cache_entry->modifiers              = modifiers;
-        cache_entry->return_type            = (char)pmath_string_buffer(type_name)[0];
+        cache_entry->return_type            = (char)pmath_string_buffer(&type_name)[0];
         
         if(!pmath_aborting()){
           pmath_atomic_lock(&cms2id_lock);

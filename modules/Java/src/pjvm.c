@@ -23,14 +23,14 @@ static pmath_messages_t jvm_main_mq = PMATH_STATIC_NULL;
 pmath_t pjvm_auto_detach_key = PMATH_STATIC_NULL; // initialized/freed in main.c
 pmath_t pjvm_dll_filename    = PMATH_STATIC_NULL; // dito.
 
-static PMATH_DECLARE_ATOMIC(vm_lock) = 0;
+static pmath_atomic_t vm_lock = PMATH_ATOMIC_STATIC_INIT;
 static pmath_t vm = PMATH_STATIC_NULL;
 struct pjvm_data_t{
   JavaVM   *jvm;
   jvmtiEnv *jvmti;
 };
 
-static PMATH_DECLARE_ATOMIC(vm_quit) = 0;
+static pmath_atomic_t vm_quit = PMATH_ATOMIC_STATIC_INIT;
 
 #ifdef PMATH_OS_WIN32
   static HINSTANCE vm_library = NULL;
@@ -103,7 +103,7 @@ static jint (JNICALL *_JNI_GetCreatedJavaVMs)(JavaVM **, jsize, jsize *) = NULL;
       const uint16_t *buffer;
       
       vmlibfile = pmath_string_insert_latin1(vmlibfile, INT_MAX, "", 1);
-      buffer = pmath_string_buffer(vmlibfile);
+      buffer = pmath_string_buffer(&vmlibfile);
       
       if(buffer)
         vm_library = LoadLibraryW((const wchar_t*)buffer);
@@ -220,12 +220,12 @@ static jint (JNICALL *_JNI_GetCreatedJavaVMs)(JavaVM **, jsize, jsize *) = NULL;
   }
 
   static void jvm_main_kill(void *arg){
-    vm_quit = TRUE;
+    pmath_atomic_write_release(&vm_quit, TRUE);
     pmath_thread_wakeup(jvm_main_mq);
   }
   
   static void jvm_main(void *arg){
-    while(!vm_quit){
+    while(!pmath_atomic_read_aquire(&vm_quit)){
       pmath_thread_sleep();
     }
     
@@ -744,7 +744,7 @@ pmath_t pj_builtin_startvm(pmath_expr_t expr){
 
 
 pmath_bool_t pjvm_init(void){
-  vm_lock = 0;
+  pmath_atomic_write_release(&vm_lock, 0);
   jvm_main_mq = pmath_thread_fork_daemon(jvm_main, jvm_main_kill, NULL);
   return !pmath_is_null(jvm_main_mq);
 }

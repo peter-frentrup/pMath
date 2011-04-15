@@ -63,11 +63,20 @@ void ControlPainter::calc_container_size(
       extents->width = extents->height() / 2;
     } break;
     
-    case ProgressIndicatorBackground: 
-    case ProgressIndicatorBar: {
+    case ProgressIndicatorBackground: {
       extents->ascent *= 0.5;
       extents->descent*= 0.5;
       extents->width = extents->height() * 15;
+    } break;
+    
+    case ProgressIndicatorBar: {
+//      extents->ascent *= 0.5;
+//      extents->descent*= 0.5;
+//      extents->width = extents->height() * 15;
+      
+      extents->ascent -= 1.5;
+      extents->descent-= 1.5;
+      extents->width  -= 3.0;
     } break;
   }
 }

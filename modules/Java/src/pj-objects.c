@@ -144,7 +144,7 @@ struct obj_entry_t{
     j2p_entry_equals_key
   };
 //}
-static PMATH_DECLARE_ATOMIC(p2j_lock) = 0;
+static pmath_atomic_t p2j_lock = PMATH_ATOMIC_STATIC_INIT;
 static pmath_hashtable_t p2j_objects;
 static pmath_hashtable_t j2p_objects; // does not own the entries.
   

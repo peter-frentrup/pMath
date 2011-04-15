@@ -36,7 +36,7 @@
 
 
 static pmath_t cothread_key = PMATH_STATIC_NULL;
-PMATH_DECLARE_ATOMIC(bye_companions) = 0;
+static pmath_atomic_t bye_companions = PMATH_ATOMIC_STATIC_INIT;
 
   struct cothread_t{
     pmath_messages_t pmath;
@@ -49,7 +49,7 @@ static void cothread_destructor(void *p){
   
   pmath_debug_print("[cothread_destructor data=%p...]\n", p);
   
-  if(!bye_companions){
+  if(!pmath_atomic_read_aquire(&bye_companions)){
     pmath_debug_print("[inform companion ...]\n");
     
     // inform our companion of our end
@@ -59,7 +59,7 @@ static void cothread_destructor(void *p){
         pmath_ref(ct->pmath)));
   }
   
-  pmath_debug_print("[cothread_destructor companion refcount = %d]\n", (int)PMATH_AS_PTR(ct->pmath)->refcount);
+  pmath_debug_print("[cothread_destructor companion refcount = %d]\n", (int)pmath_refcount(ct->pmath));
   
   pmath_unref(ct->pmath);
   
@@ -74,7 +74,7 @@ static void cothread_destructor(void *p){
 }
 
 static void kill_companion(void *dummy){
-  pmath_atomic_fetch_set(&bye_companions, 1);
+  pmath_atomic_write_release(&bye_companions, 1);
 }
   
   struct companion_proc_info_t{
@@ -137,7 +137,7 @@ static void companion_proc(void *p){
       cothread_key, 
       pmath_ref(other)));
     
-    if(pmath_is_null(other) || PMATH_AS_PTR(other)->refcount == 1){
+    if(pmath_is_null(other) || pmath_refcount(other) == 1){
       if(info->out_jthread){
         (*env)->DeleteGlobalRef(env, info->out_jthread);
         info->out_jthread = NULL;
@@ -150,7 +150,7 @@ static void companion_proc(void *p){
   pmath_unref(pjvm);
   sem_post(&info->init_finished);
   
-  while(!bye_companions){
+  while(!pmath_atomic_read_aquire(&bye_companions)){
     pmath_t cc = pmath_thread_local_load(cothread_key);
     
     if(!pmath_is_custom(cc)
@@ -309,7 +309,7 @@ pmath_messages_t pj_thread_get_companion(jthread *out_jthread){
     pmath_unref(pmath_thread_local_save(cothread_key, pmath_ref(cc)));
   }
   
-  if(!pmath_is_null(cc) && PMATH_AS_PTR(cc)->refcount > 1){ // pmath_thread_local_save succeeded
+  if(!pmath_is_null(cc) && pmath_refcount(cc) > 1){ // pmath_thread_local_save succeeded
     struct cothread_t *data = (struct cothread_t*)pmath_custom_get_data(cc);
     
     companion = pmath_ref(data->pmath);
@@ -351,7 +351,7 @@ pmath_bool_t pj_threads_init(void){
     pmath_ref(PJ_SYMBOL_JAVA),1,
     PMATH_C_STRING("Cothread Key"));
   
-  bye_companions = 0;
+  pmath_atomic_write_release(&bye_companions, 0);
   
   return !pmath_is_null(cothread_key);
 }
