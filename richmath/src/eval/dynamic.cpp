@@ -7,6 +7,8 @@ using namespace richmath;
 
 //{ class Dynamic ...
 
+int Dynamic::current_evaluation_box_id = 0;
+
 Dynamic::Dynamic()
 : Base(),
   _owner(0),
@@ -84,12 +86,22 @@ Expr Dynamic::get_value_now(){
     return _expr;
   }
   
+  if(_owner->style){
+    _owner->style->remove(InternalUsesCurrentValueOfMouseOver);
+  }
+  
+  int old_eval_id = current_evaluation_box_id;
+  current_evaluation_box_id = _owner->id();
+  
   Expr value = Application::interrupt(
     Call(
       Symbol(PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATEMULTIPLE),
       _expr,
       _owner->id()), 
     Application::dynamic_timeout);
+  
+  current_evaluation_box_id = old_eval_id;
+  
   if(value == PMATH_UNDEFINED)
     return Symbol(PMATH_SYMBOL_ABORTED);
   
@@ -99,6 +111,10 @@ Expr Dynamic::get_value_now(){
 void Dynamic::get_value_later(){
   if(!is_dynamic()){
     return;
+  }
+  
+  if(_owner->style){
+    _owner->style->remove(InternalUsesCurrentValueOfMouseOver);
   }
   
   Application::add_job(new DynamicEvaluationJob(
@@ -127,5 +143,5 @@ bool Dynamic::get_value(Expr *result){
   get_value_later();
   return false;
 }
-
+    
 //} ... class Dynamic

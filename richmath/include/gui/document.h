@@ -145,7 +145,7 @@ namespace richmath{
       
       bool handle_immediate_macros();
       bool handle_macros();
-    
+      
     protected:
       Context     context;
       float       best_index_rel_x;

@@ -14,6 +14,7 @@
 #include <gui/document.h>
 
 #include <eval/binding.h>
+#include <eval/dynamic.h>
 #include <eval/job.h>
 #include <eval/server.h>
 
@@ -470,6 +471,16 @@ bool Application::is_idle(int document_id){
     // paint() of a box)
     // On the other hand, some blocking notifications should be regarded e.g. to 
     // answer questions to the frontend (Documents() calls and more)
+    
+    ClientNotification cn;
+    
+    while(notifications.get(&cn)){
+      if(cn.type == CNT_END || cn.type == CNT_ENDSESSION){
+        notifications.put_front(cn);
+        return;
+      }
+      execute(cn);
+    }
   }
   
 Expr Application::interrupt(Expr expr, double seconds){
@@ -819,6 +830,61 @@ static Expr cnt_createdocument(Expr data){
   return Call(Symbol(PMATH_SYMBOL_FRONTENDOBJECT), doc->id());
 }
 
+static Expr cnt_currentvalue(Expr data){
+  Expr item;
+  
+  if(data.expr_length() == 1){
+    Box *box = Box::find(Dynamic::current_evaluation_box_id);
+    item = data[1];
+  }
+  else if(data.expr_length() == 2){
+    box = Box::find(expr[1]);
+    item = data[2];
+  }
+  else
+    return Symbol(PMATH_SYMBOL_FAILED);
+  
+  Document *doc = box->find_parent<Document>(true);
+  
+  if(String(item).equals("MouseOver")){
+    if(box && doc){
+      if(!box->style)
+        box->style = new Style();
+      
+      box->style->set(InternalUsesCurrentValueOfMouseOver, true);
+      
+      Box *mo = Box::find(doc->mouseover_box_id());
+      while(mo && mo != box)
+        mo = mo->parent();
+      
+      if(mo)
+        return Symbol(PMATH_SYMBOL_TRUE);
+    }
+    
+    return Symbol(PMATH_SYMBOL_FALSE);
+  }
+  
+//  if(String(item).equals("MousePosition")){
+//    if(box && doc){
+//      if(!box->style)
+//        box->style = new Style();
+//      
+//      box->style->set(InternalUsesCurrentValueOfMousePosition, true);
+//    
+//      MouseEvent ev;
+//      if(doc->native()->cursor_position(&ev.x, &ev.y)){
+//        ev.set_source(box);
+//        
+//        return List(ev.x, ev.y);
+//      }  
+//    }
+//    
+//    return Symbol(PMATH_SYMBOL_NONE);
+//  }
+  
+  return Symbol(PMATH_SYMBOL_FAILED);
+}
+
 static void execute(ClientNotification &cn){
   switch(cn.type){
     case CNT_STARTSESSION: 
@@ -870,6 +936,11 @@ static void execute(ClientNotification &cn){
     case CNT_CREATEDOCUMENT:
       if(cn.result_ptr)
         *cn.result_ptr = cnt_createdocument(cn.data).release();
+      break;
+    
+    case CNT_CURRENTVALUE:
+      if(cn.result_ptr)
+        *cn.result_ptr = cnt_currentvalue(cn.data).release();
       break;
   }
   

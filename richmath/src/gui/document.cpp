@@ -507,8 +507,10 @@ void Document::mouse_exit(){
   if(context.mouseover_box_id){
     Box *over = Box::find(context.mouseover_box_id);
     
-    if(over)
+    while(over && over != this){
       over->on_mouse_exit();
+      over = over->parent();
+    }
     
     context.mouseover_box_id = 0;
   }
@@ -560,6 +562,13 @@ void Document::mouse_up(MouseEvent &event){
   }
 }
 
+  static void reverse_mouse_enter(Box *base, Box *child){
+    if(child && child != base){
+      reverse_mouse_enter(base, child->parent());
+      child->on_mouse_enter();
+    }
+  }
+
 void Document::mouse_move(MouseEvent &event){
   Box *receiver = Box::find(context.clicked_box_id);
   
@@ -580,23 +589,43 @@ void Document::mouse_move(MouseEvent &event){
       invalidate();
     }
     
-    Box *new_over = receiver ? receiver->mouse_sensitive() : 0;
+    //Box *new_over = receiver ? receiver->mouse_sensitive() : 0;
     Box *old_over = Box::find(context.mouseover_box_id);
-    if(new_over != old_over){
-      if(old_over)
-        old_over->on_mouse_exit();
-      
-      if(new_over)
-        new_over->on_mouse_enter();
-    }
     
-    if(new_over){
-      context.mouseover_box_id = new_over->id();
+    if(receiver){
+      Box *base = Box::common_parent(receiver, old_over);
+      Box *box = old_over;
+      while(box != base){
+        box->on_mouse_exit();
+        box = box->parent();
+      }
       
-      new_over->on_mouse_move(event);
+      reverse_mouse_enter(base, receiver);
+      
+      box = receiver->mouse_sensitive();
+      if(box)
+        box->on_mouse_move(event);
+      
+      context.mouseover_box_id = receiver->id();
     }
     else
       context.mouseover_box_id = 0;
+    
+//    if(new_over != old_over){
+//      if(old_over)
+//        old_over->on_mouse_exit();
+//      
+//      if(new_over)
+//        new_over->on_mouse_enter();
+//    }
+//    
+//    if(new_over){
+//      context.mouseover_box_id = new_over->id();
+//      
+//      new_over->on_mouse_move(event);
+//    }
+//    else
+//      context.mouseover_box_id = 0;
   }
 }
 

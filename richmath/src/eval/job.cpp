@@ -2,8 +2,11 @@
 
 #include <boxes/section.h>
 #include <boxes/mathsequence.h>
+
 #include <eval/application.h>
+#include <eval/dynamic.h>
 #include <eval/server.h>
+
 #include <gui/document.h>
 #include <gui/native-widget.h>
 
@@ -185,8 +188,20 @@ void EvaluationJob::end(){
 
 DynamicEvaluationJob::DynamicEvaluationJob(Expr info, Expr expr, Box *box)
 : EvaluationJob(expr, box),
-  _info(info)
+  _info(info),
+  old_eval_id(0)
 {
+}
+
+bool DynamicEvaluationJob::start(){
+  old_eval_id = Dynamic::current_evaluation_box_id;
+  Dynamic::current_evaluation_box_id = _position.box_id;
+  return EvaluationJob::start();
+}
+
+void DynamicEvaluationJob::end(){
+  EvaluationJob::end();
+  Dynamic::current_evaluation_box_id = old_eval_id;
 }
 
 void DynamicEvaluationJob::returned(Expr expr){

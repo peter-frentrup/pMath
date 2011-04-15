@@ -69,6 +69,35 @@ void Win32ControlPainter::calc_container_size(
   ContainerType  type,
   BoxSize       *extents // in/out
 ){
+  switch(type){
+    case InputField: {
+      if(Win32Themes::IsThemeActive
+      && Win32Themes::IsThemeActive()){
+        extents->width+=   3;
+        extents->ascent+=  1.5;
+        extents->descent+= 1.5;
+        return;
+      }
+      
+      extents->width+=   5.25;
+      extents->ascent+=  3;
+      extents->descent+= 2.25;
+    } return;
+  
+    case ProgressIndicatorBar: {
+      int part, state;
+      HANDLE theme = get_control_theme(ProgressIndicatorBar, Normal, &part, &state);
+      
+      if(!theme || part != 5){
+        extents->width-=   4.5;
+        extents->ascent-=  2.25;
+        extents->descent-= 2.25; 
+      }
+    } return;
+  
+    default: break;
+  }
+  
   if(Win32Themes::GetThemeMargins
   && Win32Themes::GetThemePartSize){
     int theme_part, theme_state;
@@ -106,51 +135,6 @@ void Win32ControlPainter::calc_container_size(
       
       return;
     }
-    
-//    if(type == ProgressIndicatorBar){
-//      RECT outer = {0,0,100,100};
-//      RECT inner = {0,0,0,0};
-//      
-//      if(theme
-//      && Win32Themes::GetThemeBackgroundContentRect
-//      && SUCCEEDED(Win32Themes::GetThemeBackgroundContentRect(
-//          theme, NULL, theme_part, theme_state, &outer, &inner))
-//      ){
-//        extents->ascent-=  0.75 * inner.top;
-//        extents->descent-= 0.75 * (outer.bottom - inner.bottom);
-//        extents->width-=   0.75 * (outer.right - inner.right + inner.left);
-//        return;
-//      }
-//    }
-  }
-  
-  switch(type){
-    case InputField: {
-      if(Win32Themes::IsThemeActive
-      && Win32Themes::IsThemeActive()){
-        extents->width+=   3;
-        extents->ascent+=  1.5;
-        extents->descent+= 1.5;
-        return;
-      }
-      
-      extents->width+=   5.25;
-      extents->ascent+=  3;
-      extents->descent+= 2.25;
-    } return;
-  
-    case ProgressIndicatorBar: {
-      int part, state;
-      HANDLE theme = get_control_theme(ProgressIndicatorBar, Normal, &part, &state);
-      
-      if(!theme || part != 5){
-        extents->width-=   4.5;
-        extents->ascent-=  2.25;
-        extents->descent-= 2.25; 
-      }
-    } return;
-  
-    default: break;
   }
   
   ControlPainter::calc_container_size(canvas, type, extents);
@@ -1219,11 +1203,7 @@ HANDLE Win32ControlPainter::get_control_theme(
         case Hovered:  *theme_state = 2; break; // Hot
         case Hot: {
           if(type == DefaultPushButton){
-//            if(Win32Themes::IsThemePartDefined
-//            && Win32Themes::IsThemePartDefined(theme, *theme_part, 6))
-              *theme_state = 6;
-//            else
-//              *theme_state = 5;
+            *theme_state = 6;
           }
           else
             *theme_state = 2;
@@ -1231,12 +1211,6 @@ HANDLE Win32ControlPainter::get_control_theme(
         
         case Normal:
           if(type == DefaultPushButton){
-//            if(state == Hot
-//            && Win32Themes::IsThemePartDefined
-//            && Win32Themes::IsThemePartDefined(theme, *theme_part, 6)){
-//              *theme_state = 6;
-//            }
-//            else
             *theme_state = 5;
           }
           else
@@ -1257,7 +1231,7 @@ HANDLE Win32ControlPainter::get_control_theme(
     } break;
     
     case ProgressIndicatorBackground: {
-      if(Win32Themes::IsThemePartDefined(theme, 11, 1))
+      if(Win32Themes::IsThemePartDefined(theme, 11, 0))
         *theme_part = 11;
       else
         *theme_part = 1;
@@ -1266,15 +1240,12 @@ HANDLE Win32ControlPainter::get_control_theme(
     } break;
     
     case ProgressIndicatorBar: {
-      if(Win32Themes::IsThemePartDefined(theme, 5, 1))
+      if(Win32Themes::IsThemePartDefined(theme, 5, 0))
         *theme_part = 5;
       else
         *theme_part = 3;
       
-      switch(state){
-        case Hot: *theme_state = 2; break;
-        default:  *theme_state = 1; break;
-      }
+      *theme_state = 1;
     } break;
     
     case SliderHorzChannel: {

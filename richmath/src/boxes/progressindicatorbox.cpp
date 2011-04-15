@@ -120,9 +120,11 @@ void ProgressIndicatorBox::paint(Context *context){
   if(range_min <= range_value && range_value <= range_max && range_max - range_min > 0){
     p = (range_value - range_min) / (range_max - range_min);
   }
-  else{
+  else if(range_value > range_max){
     p = 1;
-    state = Hot;
+  }
+  else{
+    p = 0;
   }
   
   BoxSize content_size = _extents;

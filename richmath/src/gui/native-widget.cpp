@@ -37,6 +37,10 @@ class DummyNativeWidget: public NativeWidget{
     }
     virtual void do_drag_drop(Box *src, int start, int end){
     }
+    virtual bool cursor_position(float *x, float *y){
+      *x = *y = 0;
+      return false;
+    }
     
     virtual void close(){}
     

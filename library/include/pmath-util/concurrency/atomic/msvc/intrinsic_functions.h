@@ -26,7 +26,7 @@ intptr_t pmath_atomic_read_aquire(pmath_atomic_t *atom){
 
 
 PMATH_FORCE_INLINE
-void pmath_atomic_write_release(pmath_atomic_t *atom, intptr_t *value){
+void pmath_atomic_write_release(pmath_atomic_t *atom, intptr_t value){
   atom->_data = value;
   pmath_atomic_barrier();
 }
@@ -162,7 +162,8 @@ void pmath_atomic_lock(pmath_atomic_t *atom){
 }
 
 
-void pmath_atomic_lock(pmath_atomic_t *atom){
+PMATH_FORCE_INLINE
+void pmath_atomic_unlock(pmath_atomic_t *atom){
   pmath_atomic_barrier();
   pmath_atomic_fetch_set(atom, 0);
 }

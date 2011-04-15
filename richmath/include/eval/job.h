@@ -66,10 +66,13 @@ namespace richmath{
     public:
       explicit DynamicEvaluationJob(Expr info, Expr expr, Box *box);
       
+      virtual bool start();
+      virtual void end();
       virtual void returned(Expr expr);
     
     protected:
       Expr _info;
+      int old_eval_id;
   };
   
   class ReplacementJob: public InputJob{

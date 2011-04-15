@@ -12,6 +12,16 @@ static int global_id = 0;
 
 //{ class MouseEvent ...
 
+MouseEvent::MouseEvent()
+: x(0), 
+  y(0), 
+  left(false), 
+  middle(false), 
+  right(false), 
+  source(0)
+{
+}
+
 void MouseEvent::set_source(Box *new_source){
   if(source == new_source)
     return;

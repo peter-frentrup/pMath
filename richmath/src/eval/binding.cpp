@@ -85,6 +85,10 @@ static pmath_t builtin_documents(pmath_expr_t expr){
   return Application::notify_wait(CNT_GETDOCUMENTS, Expr()).release();
 }
 
+static pmath_t builtin_currentvalue(pmath_expr_t expr){
+  return Application::notify_wait(CNT_CURRENTVALUE, Expr(expr)).release();
+}
+
 static pmath_t builtin_internal_dynamicupdated(pmath_expr_t expr){
   Application::notify(CNT_DYNAMICUPDATE, Expr(expr));
   return PMATH_NULL;
@@ -798,6 +802,7 @@ bool richmath::init_bindings(){
   VERIFY(BIND_DOWN(PMATH_SYMBOL_INTERNAL_DYNAMICUPDATED, builtin_internal_dynamicupdated))
   
   VERIFY(BIND_DOWN(PMATH_SYMBOL_CREATEDOCUMENT,       builtin_createdocument))
+  VERIFY(BIND_DOWN(PMATH_SYMBOL_CURRENTVALUE,         builtin_currentvalue))
   VERIFY(BIND_DOWN(PMATH_SYMBOL_DOCUMENTAPPLY,        builtin_documentapply))
   VERIFY(BIND_DOWN(PMATH_SYMBOL_DOCUMENTS,            builtin_documents))
   VERIFY(BIND_DOWN(PMATH_SYMBOL_FRONTENDTOKENEXECUTE, builtin_frontendtokenexecute))

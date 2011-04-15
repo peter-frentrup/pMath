@@ -270,6 +270,21 @@ void Win32Widget::do_drag_drop(Box *src, int start, int end){
   is_dragging = false;
 }
 
+bool Win32Widget::cursor_position(float *x, float *y){
+  POINT pt;
+  if(GetCursorPos(&pt)){
+    ScreenToClient(_hwnd, &pt);
+    *x = pt.x + GetScrollPos(_hwnd, SB_HORZ);
+    *y = pt.y + GetScrollPos(_hwnd, SB_VERT);
+    
+    *x/= scale_factor();
+    *y/= scale_factor();
+    return true;
+  }
+  
+  return false;
+}
+
 void Win32Widget::invalidate(){
   is_painting = false; // if inside WM_PAINT; invalidate at end of event
   InvalidateRect(_hwnd, 0, FALSE);

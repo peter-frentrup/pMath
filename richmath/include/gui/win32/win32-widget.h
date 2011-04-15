@@ -39,6 +39,7 @@ namespace richmath{
       virtual double double_click_time();
       virtual void double_click_dist(float *dx, float *dy);
       virtual void do_drag_drop(Box *src, int start, int end);
+      virtual bool cursor_position(float *x, float *y);
       
       virtual void close(){}
       virtual void invalidate();

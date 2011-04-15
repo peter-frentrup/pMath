@@ -69,6 +69,7 @@
 {"Cross", {"ArgumentCount" -> 1..}},
 {"Csc", {"ArgumentCount" -> 1}},
 {"Csch", {"ArgumentCount" -> 1}},
+{"CurrentValue", {"ArgumentCount" -> 1..2}},
 {"DateList", {"ArgumentCount" -> 0..1}},
 {"Decrement", {"ArgumentCount" -> 1..2}},
 {"Default", {"ArgumentCount" -> 1..3}},

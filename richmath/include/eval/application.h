@@ -19,7 +19,8 @@ namespace richmath{
     CNT_ADDCONFIGSHAPER,
     CNT_GETOPTIONS,
     CNT_DYNAMICUPDATE,
-    CNT_CREATEDOCUMENT
+    CNT_CREATEDOCUMENT,
+    CNT_CURRENTVALUE
   }ClientNotificationType;
   
   class Box;

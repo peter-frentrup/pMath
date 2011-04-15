@@ -34,7 +34,9 @@ namespace richmath{
     ShowStringCharacters,
     StripOnInput,
     
-    ButtonFrame // -1 = Automatic,  other: ContainerType value
+    ButtonFrame, // -1 = Automatic,  other: ContainerType value
+    
+    InternalUsesCurrentValueOfMouseOver
   };
   
   static const int FontWeightPlain = 0;

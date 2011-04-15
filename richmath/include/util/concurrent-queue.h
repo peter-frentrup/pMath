@@ -36,12 +36,25 @@ namespace richmath{
       }
       
       void put(const T &t){
+        Item *new_tail = new Item;
         pmath_atomic_lock(&tail_spin);
         
         tail->value = t;
-        tail = tail->next = new Item;
+        tail = tail->next = new_tail;
         
         pmath_atomic_unlock(&tail_spin);
+      }
+      
+      void put_front(const T &t){
+        Item *new_head = new Item;
+        new_head->value = t;
+        
+        pmath_atomic_lock(&head_spin);
+        
+        new_head->next = head;
+        head = new_head;
+        
+        pmath_atomic_unlock(&head_spin);
       }
       
       bool get(T *result){

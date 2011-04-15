@@ -104,4 +104,16 @@ void DynamicBox::dynamic_finished(Expr info, Expr result){
   must_resize = true;
 }
 
+void DynamicBox::on_mouse_enter(){
+  OwnerBox::on_mouse_enter();
+  if(get_own_style(InternalUsesCurrentValueOfMouseOver, false))
+    dynamic_updated();
+}
+
+void DynamicBox::on_mouse_exit(){
+  OwnerBox::on_mouse_exit();
+  if(get_own_style(InternalUsesCurrentValueOfMouseOver, false))
+    dynamic_updated();
+}
+
 //} ... class DynamicBox

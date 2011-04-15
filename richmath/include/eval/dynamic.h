@@ -26,6 +26,8 @@ namespace richmath{
         return _expr[0] == PMATH_SYMBOL_DYNAMIC
             && _expr.expr_length() >= 1; 
       }
+      
+      static int current_evaluation_box_id;
     
     private:
       Box *_owner;

@@ -17,7 +17,7 @@ namespace richmath{
   
   class MouseEvent{
     public:
-      MouseEvent(): source(0){}
+      MouseEvent();
       
       void set_source(Box *new_source);
       
