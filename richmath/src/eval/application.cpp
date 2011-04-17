@@ -832,13 +832,14 @@ static Expr cnt_createdocument(Expr data){
 
 static Expr cnt_currentvalue(Expr data){
   Expr item;
+  Box *box = 0;
   
   if(data.expr_length() == 1){
-    Box *box = Box::find(Dynamic::current_evaluation_box_id);
+    box = Box::find(Dynamic::current_evaluation_box_id);
     item = data[1];
   }
   else if(data.expr_length() == 2){
-    box = Box::find(expr[1]);
+    box = Box::find(data[1]);
     item = data[2];
   }
   else

@@ -697,5 +697,7 @@ pmath_bool_t pmath_register_approx_code(
 #define PMATH_SYMBOL_PROGRESSINDICATORBOX                   PMATH_SYMBOL_BUILTIN(605)
 #define PMATH_SYMBOL_PAGEWIDTH                              PMATH_SYMBOL_BUILTIN(606)
 #define PMATH_SYMBOL_CURRENTVALUE                           PMATH_SYMBOL_BUILTIN(607)
+#define PMATH_SYMBOL_DYNAMICSETTING                         PMATH_SYMBOL_BUILTIN(608)
+#define PMATH_SYMBOL_SETTING                                PMATH_SYMBOL_BUILTIN(609)
 
 #endif /* __PMATH_BUILTINS__SYMBOLS_H__ */

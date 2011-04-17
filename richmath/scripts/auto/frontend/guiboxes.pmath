@@ -7,25 +7,102 @@ isDynamic(Dynamic(~)):= True
 isDynamic(Dynamic(~,~)):= True
 isNumberOrDynamic(~x)::= IsNumber(x) || isDynamic(x)
 
-toBeProtected:= Unprotect(Button, Dynamic, ProgressIndicator, Setter, Slider)
+toBeProtected:= Unprotect(
+	Button, 
+	ButtonBox, 
+	Dynamic, 
+	DynamicBox, 
+	DynamicSetting, 
+	ProgressIndicator, 
+	ProgressIndicatorBox, 
+	Setter, 
+	SetterBar, 
+	SetterBox, 
+	Setting, 
+	Slider, 
+	SliderBox)
 
 MakeBoxes(Button(~text, ~code, options:OptionsPattern()))::= ButtonBox(MakeBoxes(text), ButtonFunction -> (code &), options)
 
 MakeBoxes(Dynamic(~var, options:OptionsPattern()))::= DynamicBox(ToBoxes(var), options)
 
+MakeBoxes(DynamicSetting(~expr))::= TagBox(MakeBoxes(expr), Setting)
+
+MakeBoxes(ProgressIndicator())::=                                     ProgressIndicatorBox(0, 0..1)
 MakeBoxes(ProgressIndicator(~val ? isNumberOrDynamic))::=             ProgressIndicatorBox(val, 0..1)
 MakeBoxes(ProgressIndicator(~val ? isNumberOrDynamic, ~min..~max))::= ProgressIndicatorBox(val, min..max)
 
 MakeBoxes(Setter(~var, ~value, options:OptionsPattern()))::=         SetterBox(var, value, MakeBoxes(value), options)
 MakeBoxes(Setter(~var, ~value, ~label, options:OptionsPattern()))::= SetterBox(var, value, MakeBoxes(label), options)
 
-SetterBar(~var, values:{((~ -> ~) | (~ :> ~))**}, options:OptionsPattern()) ::= Row(values.Map(Setter(var, #[1], #[2], options)&), "\[InvisibleSpace]")
-SetterBar(~var, values:{~~}, options:OptionsPattern()) ::= Row(values.Map(Setter(var, #, options)&), "\[InvisibleSpace]")
+MakeBoxes(sb: SetterBar(~var:Dynamic, values:{((~ -> ~) | (~ :> ~))**}, options:OptionsPattern(SetterBar)))::= 
+	With({boxes:= ToBoxes(Row(values.Map(Setter(var, #[1], #[2], options)&), "\[InvisibleSpace]"))},
+		InterpretationBox(boxes, sb))
 
+MakeBoxes(sb: SetterBar(~var:Dynamic, values:{~~}, options:OptionsPattern(SetterBar)))::= 
+	With({boxes:= ToBoxes(Row(values.Map(Setter(var, #, options)&), "\[InvisibleSpace]"))},
+		InterpretationBox(boxes, sb))
+
+/* TODO: use DynamicLocal */
+MakeBoxes(SetterBar(val: Except(~:Dynamic), values:{~~}, options:OptionsPattern(SetterBar)))::=
+	Local({var:= val},
+		MakeBoxes(SetterBar(Dynamic(var), values, options)))
+
+MakeBoxes(Slider())::=                                                 SliderBox(0.5, 0..1)
 MakeBoxes(Slider(~val ? isNumberOrDynamic))::=                         SliderBox(val, 0..1)
 MakeBoxes(Slider(~val ? isNumberOrDynamic, ~min..~max))::=             SliderBox(val, min..max)
 MakeBoxes(Slider(~val ? isNumberOrDynamic, ~min..~max..~step))::=      SliderBox(val, min..max..step)
 MakeBoxes(Slider(~val ? isNumberOrDynamic, Except({}, ~vals:List)))::= SliderBox(val, vals)
+
+
+
+
+Attibutes(extractFunctionBody):= {HoldAllComplete}
+
+extractFunctionBody(Function(~body))::= HoldComplete(body)
+extractFunctionBody(~body)::= HoldComplete(body())
+
+Attibutes(extractButtonFunction):= {HoldAllComplete}
+
+extractButtonFunction({~~~opt})::= extractButtonFunction(opt)
+extractButtonFunction(~~~opt1, (Rule|RuleDelayed)(ButtonFunction, ~fn), ~~~opt2)::= {extractFunctionBody(fn), {opt1, opt2}}
+extractButtonFunction(~~~opt)::= {HoldComplete(/\/), {opt}}
+
+ButtonBox/: MakeExpression(ButtonBox(~contentBoxes, opt: OptionsPattern()))::= 
+	Local({head},
+		With({tmp:= extractButtonFunction(opt), content:= MakeExpression(contentBoxes)},
+			With({fn:= tmp[1], opt2:= tmp[2]},
+				HoldComplete(Button(head(content), head(fn), head(opt2))).Replace(
+					{head(HoldComplete(~x)) :> x, 
+					 head({~~~args})        :> Sequence(args), 
+					 head(~)                :> $Failed})
+				)
+			)
+		)
+
+DynamicBox/: MakeExpression(DynamicBox(ToBoxes(~var), options:OptionsPattern()))::= HoldComplete(Dynamic(var, options))
+
+ProgressIndicatorBox/: MakeExpression(ProgressIndicatorBox(~val, 0..1))::=   HoldComplete(ProgressIndicator(val))
+ProgressIndicatorBox/: MakeExpression(ProgressIndicatorBox(~val, ~range))::= HoldComplete(ProgressIndicator(val, range))
+
+SetterBox/: MakeExpression(SetterBox(~var, ~value, ~labelBoxes, options:OptionsPattern()))::= 
+	Local({head},
+		With({label:= MakeExpression(labelBoxes)},
+			HoldComplete(Setter(var, value, head(label), options)).Replace(
+				{head(HoldComplete(~x)) :> x,
+				 head(~)                :> $Failed})
+			)
+		)
+
+SliderBox/: MakeExpression(SliderBox(~val, 0..1))::=   HoldComplete(Slider(val))
+SliderBox/: MakeExpression(SliderBox(~val, ~range))::= HoldComplete(Slider(val, range))
+
+
+
+Setting(~expr)::= ReplaceRepeated(expr, 
+	{(Dynamic|ProgressIndicator|Setter|SetterBar|Slider)(~x, ~~~) :> x,
+	ProgressIndicator() :> 0,
+	Slider() :> 0.5})
 
 Protect @@ toBeProtected
 

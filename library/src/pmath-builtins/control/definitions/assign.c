@@ -7,14 +7,9 @@
 #include <pmath-util/symbol-values-private.h>
 
 #include <pmath-builtins/all-symbols-private.h>
+#include <pmath-builtins/control/definitions-private.h>
 
 #include <pmath-private.h>
-
-#define ALL_RULES     0
-#define OWN_RULES     1
-#define UP_RULES      2
-#define DOWN_RULES    3
-#define SUB_RULES     4
 
 static pmath_bool_t assign_funcdef(
   pmath_symbol_t  sym,         // wont be freed
@@ -53,12 +48,8 @@ static pmath_bool_t assign_funcdef(
   return TRUE;
 }
 
-#define SYM_SEARCH_OK            0
-#define SYM_SEARCH_NOTFOUND      1
-#define SYM_SEARCH_ALTERNATIVES  2
-#define SYM_SEARCH_TOODEEP       3
-
-static int find_tag( // SYM_SEARCH_XXX
+PMATH_PRIVATE
+int _pmath_find_tag( // SYM_SEARCH_XXX
   pmath_t          lhs,         // wont be freed
   pmath_symbol_t   in_tag,      // wont be freed; PMATH_UNDEFINED = automatic
   pmath_symbol_t  *out_tag,     // set to PMATH_NULL before call!
@@ -108,7 +99,7 @@ static int find_tag( // SYM_SEARCH_XXX
         pmath_unref(item);
         
         item = pmath_expr_get_item(lhs, 1);
-        error = find_tag(item, in_tag, out_tag, kind_of_lhs, literal);
+        error = _pmath_find_tag(item, in_tag, out_tag, kind_of_lhs, literal);
         pmath_unref(item);
         
         return error;
@@ -118,7 +109,7 @@ static int find_tag( // SYM_SEARCH_XXX
         pmath_unref(item);
         
         item = pmath_expr_get_item(lhs, 1);
-        error = find_tag(item, in_tag, out_tag, kind_of_lhs, TRUE);
+        error = _pmath_find_tag(item, in_tag, out_tag, kind_of_lhs, TRUE);
         pmath_unref(item);
         
         return error;
@@ -128,7 +119,7 @@ static int find_tag( // SYM_SEARCH_XXX
         pmath_unref(item);
         
         item = pmath_expr_get_item(lhs, 2);
-        error = find_tag(item, in_tag, out_tag, kind_of_lhs, literal);
+        error = _pmath_find_tag(item, in_tag, out_tag, kind_of_lhs, literal);
         pmath_unref(item);
         
         return error;
@@ -152,7 +143,7 @@ static int find_tag( // SYM_SEARCH_XXX
       }
     }
     
-    error = find_tag(item, in_tag, out_tag, kind_of_lhs, literal);
+    error = _pmath_find_tag(item, in_tag, out_tag, kind_of_lhs, literal);
     pmath_unref(item);
     
     if(!error){
@@ -171,7 +162,7 @@ static int find_tag( // SYM_SEARCH_XXX
     
     for(i = 1;error && i <= pmath_expr_length(lhs);++i){
       item = pmath_expr_get_item(lhs, i);
-      error = find_tag(item, in_tag, out_tag, kind_of_lhs, literal);
+      error = _pmath_find_tag(item, in_tag, out_tag, kind_of_lhs, literal);
       pmath_unref(item);
       
       if(!error && *kind_of_lhs == UP_RULES){
@@ -204,7 +195,7 @@ pmath_bool_t _pmath_assign(
     lhs = pmath_evaluate_expression(lhs, FALSE);
   
   out_tag = PMATH_NULL;
-  error = find_tag(lhs, tag, &out_tag, &kind_of_lhs, FALSE);
+  error = _pmath_find_tag(lhs, tag, &out_tag, &kind_of_lhs, FALSE);
   
   if(error){
     if(!_pmath_is_running()){

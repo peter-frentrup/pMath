@@ -3195,11 +3195,13 @@ PMATH_PRIVATE pmath_t builtin_makeboxes(pmath_expr_t expr){
 
 PMATH_PRIVATE pmath_t builtin_assign_makeboxes(pmath_expr_t expr){
   struct _pmath_symbol_rules_t *rules;
-  pmath_t tag;
-  pmath_t lhs;
-  pmath_t rhs;
-  pmath_t sym;
-  pmath_t arg;
+  pmath_t        tag;
+  pmath_t        lhs;
+  pmath_t        arg;
+  pmath_t        rhs;
+  pmath_symbol_t out_tag;
+  int            kind_of_lhs;
+  int            error;
   
   if(!_pmath_is_assignment(expr, &tag, &lhs, &rhs))
     return expr;
@@ -3212,24 +3214,61 @@ PMATH_PRIVATE pmath_t builtin_assign_makeboxes(pmath_expr_t expr){
   }
   
   arg = pmath_expr_get_item(lhs, 1);
-  sym = _pmath_topmost_symbol(arg);
+  out_tag = PMATH_NULL;
+  error = _pmath_find_tag(arg, tag, &out_tag, &kind_of_lhs, FALSE);
   pmath_unref(arg);
   
-  if(!pmath_same(tag, PMATH_UNDEFINED)
-  && !pmath_same(tag, sym)){
-    pmath_message(PMATH_NULL, "tag", 3, tag, lhs, sym);
-    
-    pmath_unref(expr);
-    if(pmath_same(rhs, PMATH_UNDEFINED))
-      return pmath_ref(PMATH_SYMBOL_FAILED);
-    return rhs;
+  if(!error && kind_of_lhs == UP_RULES)
+    error = SYM_SEARCH_TOODEEP;
+  
+  switch(error){
+    case SYM_SEARCH_NOTFOUND:
+      if(pmath_same(tag, PMATH_UNDEFINED)){
+        pmath_message(PMATH_NULL, "notag", 1, lhs);
+        pmath_unref(tag);
+      }
+      else
+        pmath_message(PMATH_NULL, "tagnf", 2, tag, lhs);
+        
+      pmath_unref(out_tag);
+      pmath_unref(expr);
+      if(pmath_same(rhs, PMATH_UNDEFINED))
+        return pmath_ref(PMATH_SYMBOL_FAILED);
+      return rhs;
+      
+    case SYM_SEARCH_ALTERNATIVES:
+      pmath_message(PMATH_NULL, "noalt", 1, lhs);
+      pmath_unref(tag);
+      pmath_unref(out_tag);
+      pmath_unref(expr);
+      if(pmath_same(rhs, PMATH_UNDEFINED))
+        return pmath_ref(PMATH_SYMBOL_FAILED);
+      return rhs;
+      
+    case SYM_SEARCH_TOODEEP:
+      pmath_message(PMATH_NULL, "tagpos", 2, out_tag, lhs);
+      pmath_unref(tag);
+      pmath_unref(expr);
+      if(pmath_same(rhs, PMATH_UNDEFINED))
+        return pmath_ref(PMATH_SYMBOL_FAILED);
+      return rhs;
   }
+  
+//  if(!pmath_same(tag, PMATH_UNDEFINED)
+//  && !pmath_same(tag, sym)){
+//    pmath_message(PMATH_NULL, "tag", 3, tag, lhs, sym);
+//    
+//    pmath_unref(expr);
+//    if(pmath_same(rhs, PMATH_UNDEFINED))
+//      return pmath_ref(PMATH_SYMBOL_FAILED);
+//    return rhs;
+//  }
   
   pmath_unref(tag);
   pmath_unref(expr);
   
-  rules = _pmath_symbol_get_rules(sym, RULES_WRITE);
-  pmath_unref(sym);
+  rules = _pmath_symbol_get_rules(out_tag, RULES_WRITE);
+  pmath_unref(out_tag);
   
   if(!rules){
     pmath_unref(lhs);

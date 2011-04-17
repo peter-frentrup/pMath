@@ -43,7 +43,10 @@ ControlState SetterBox::calc_state(Context *context){
   if(is_down)
     return Pressed;
   
-  return ContainerWidgetBox::calc_state(context);
+  ControlState state = ContainerWidgetBox::calc_state(context);
+  if(state == Normal)
+    return Hovered;
+  return state;
 }
 
 bool SetterBox::expand(const BoxSize &size){

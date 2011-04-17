@@ -64,7 +64,7 @@ Expr ButtonBox::to_pmath(bool parseable){
   g.emit(_content->to_pmath(parseable));
   
   if(style)
-    style->emit_to_pmath(false, true);
+    style->emit_to_pmath(false, false);
   
   Expr e = g.end();
   e.set(0, Symbol(PMATH_SYMBOL_BUTTONBOX));

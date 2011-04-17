@@ -23,6 +23,26 @@ pmath_bool_t _pmath_get_attributes(
 PMATH_PRIVATE
 pmath_bool_t _pmath_clear(pmath_symbol_t sym, pmath_bool_t all); // wont be freed
 
+
+#define ALL_RULES     0
+#define OWN_RULES     1
+#define UP_RULES      2
+#define DOWN_RULES    3
+#define SUB_RULES     4
+
+#define SYM_SEARCH_OK            0
+#define SYM_SEARCH_NOTFOUND      1
+#define SYM_SEARCH_ALTERNATIVES  2
+#define SYM_SEARCH_TOODEEP       3
+
+PMATH_PRIVATE
+int _pmath_find_tag( // SYM_SEARCH_XXX
+  pmath_t          lhs,         // wont be freed
+  pmath_symbol_t   in_tag,      // wont be freed; PMATH_UNDEFINED = automatic
+  pmath_symbol_t  *out_tag,     // set to PMATH_NULL before call!
+  int             *kind_of_lhs, // XXX_RULES
+  pmath_bool_t     literal);
+
 PMATH_PRIVATE
 pmath_bool_t _pmath_assign(
   pmath_symbol_t tag,   // wont be freed; PMATH_UNDEFINED = automatic

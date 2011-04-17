@@ -7,6 +7,8 @@
 - implement FromCharacterCode and ToCharacterCode
 
 - implement BaseForm, NumberForm
+
+- implement DynamicModule/DynamicModuleBox
 	
 - Power: simplify (1/2)/Sqrt(2), ... 
 		x Sqrt(E x) --->  Sqrt(E) x^(3/2)
