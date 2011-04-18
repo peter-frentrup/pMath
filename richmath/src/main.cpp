@@ -305,17 +305,19 @@ int main(){
     Stylesheet::Default->base->set(FontSlant,              FontSlantPlain);
     Stylesheet::Default->base->set(FontWeight,             FontWeightPlain);
     
-    Stylesheet::Default->base->set(AutoDelete,             false);
-    Stylesheet::Default->base->set(AutoNumberFormating,    true);
-    Stylesheet::Default->base->set(AutoSpacing,            false);
-    Stylesheet::Default->base->set(Editable,               true);
-    Stylesheet::Default->base->set(Evaluatable,            false);
-    Stylesheet::Default->base->set(LineBreakWithin,        true);
-    Stylesheet::Default->base->set(SectionGenerated,       false);
-    Stylesheet::Default->base->set(ShowAutoStyles,         false);
-    Stylesheet::Default->base->set(SectionLabelAutoDelete, true);
-    Stylesheet::Default->base->set(ShowSectionBracket,     true);
-    Stylesheet::Default->base->set(ShowStringCharacters,   true);
+    Stylesheet::Default->base->set(AutoDelete,                          false);
+    Stylesheet::Default->base->set(AutoNumberFormating,                 true);
+    Stylesheet::Default->base->set(AutoSpacing,                         false);
+    Stylesheet::Default->base->set(ContinousAction,                     true);
+    Stylesheet::Default->base->set(Editable,                            true);
+    Stylesheet::Default->base->set(Evaluatable,                         false);
+    Stylesheet::Default->base->set(InternalUsesCurrentValueOfMouseOver, false);
+    Stylesheet::Default->base->set(LineBreakWithin,                     true);
+    Stylesheet::Default->base->set(SectionGenerated,                    false);
+    Stylesheet::Default->base->set(ShowAutoStyles,                      false);
+    Stylesheet::Default->base->set(SectionLabelAutoDelete,              true);
+    Stylesheet::Default->base->set(ShowSectionBracket,                  true);
+    Stylesheet::Default->base->set(ShowStringCharacters,                true);
     
     Stylesheet::Default->base->set(FontSize,                 10.0);
     Stylesheet::Default->base->set(GridBoxColumnSpacing,      0.4);
@@ -390,7 +392,8 @@ int main(){
     s = new Style;
     s->set(BaseStyleName, "Output");
     s->set(Editable, false);
-    s->set(SectionMarginLeft, 50.0);
+    s->set(SectionGroupPrecedence, 20);
+    s->set(SectionMarginLeft,      50.0);
     Stylesheet::Default->styles.set("Print", s);
     
     s = new Style;
@@ -422,7 +425,7 @@ int main(){
     s->set(FontColor, 0x800000); // 0xAF501A
     s->set(FontSize, 8.0);
 //    s->set(FontFamily, "Arial"); // Segoe UI
-    s->set(SectionGroupPrecedence,  10);
+    s->set(SectionGroupPrecedence,  20);
     s->set(SectionMarginLeft, 50.0);
     Stylesheet::Default->styles.set("Message", s);
     
@@ -441,7 +444,7 @@ int main(){
     s->set(SectionFrameMarginRight,  6.0);
     s->set(SectionFrameMarginTop,    6.0);
     s->set(SectionFrameMarginBottom, 6.0);
-    s->set(SectionGroupPrecedence,  10);
+    s->set(SectionGroupPrecedence,  20);
     s->set(SectionMarginLeft, 50.0);
 //    s->set(FontFamily, "Arial");
     Stylesheet::Default->styles.set("PrintUsage", s);

@@ -22,8 +22,10 @@ namespace richmath{
     AutoDelete,
     AutoNumberFormating,
     AutoSpacing,
+    ContinousAction,
     Editable,
     Evaluatable,
+    InternalUsesCurrentValueOfMouseOver,
     LineBreakWithin,
     Placeholder,
     SectionGenerated,
@@ -34,9 +36,7 @@ namespace richmath{
     ShowStringCharacters,
     StripOnInput,
     
-    ButtonFrame, // -1 = Automatic,  other: ContainerType value
-    
-    InternalUsesCurrentValueOfMouseOver
+    ButtonFrame // -1 = Automatic,  other: ContainerType value
   };
   
   static const int FontWeightPlain = 0;

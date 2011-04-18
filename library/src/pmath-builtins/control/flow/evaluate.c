@@ -83,7 +83,7 @@ PMATH_PRIVATE pmath_t builtin_evaluatedelayed(pmath_expr_t expr){
   
   pmath_unref(reltime_obj);
   if(seconds <= 0){
-    pmath_message(PMATH_NULL, "invtim", 1, pmath_expr_get_item(expr, 2));
+    pmath_message(PMATH_NULL, "timc", 1, pmath_expr_get_item(expr, 2));
     return expr;
   }
   

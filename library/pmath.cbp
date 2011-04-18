@@ -591,6 +591,9 @@
 		<Unit filename="src\pmath-builtins\gui\dynamic.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="src\pmath-builtins\gui\refresh.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="src\pmath-builtins\io\binaryread.c">
 			<Option compilerVar="CC" />
 		</Unit>

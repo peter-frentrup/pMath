@@ -1,6 +1,7 @@
 #include <pmath-core/numbers.h>
+#include <pmath-core/symbols-private.h>
 
-#include <pmath-util/concurrency/threads.h>
+#include <pmath-util/concurrency/threads-private.h>
 #include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
@@ -10,6 +11,21 @@
 #include <pmath-builtins/control/flow-private.h>
 #include <pmath-builtins/control-private.h>
 
+static void set_value_untracked(pmath_symbol_t sym, pmath_t value){
+  pmath_thread_t thread = pmath_thread_get_current();
+  
+  if(thread){
+    intptr_t id = thread->current_dynamic_id;
+    thread->current_dynamic_id = 0;
+    
+    pmath_symbol_set_value(sym, value);
+    
+    thread->current_dynamic_id = id;
+  }
+  else
+    pmath_symbol_set_value(sym, value);
+}
+
 PMATH_PRIVATE void _pmath_iterate(
   pmath_t             iter, // will be freed
   void              (*init)(size_t,pmath_symbol_t,void*),
@@ -18,7 +34,11 @@ PMATH_PRIVATE void _pmath_iterate(
 ){
   pmath_thread_t thread = pmath_thread_get_current();
   size_t count;
-
+  
+  if(!thread){
+    pmath_unref(iter);
+  }
+  
   if(_pmath_is_rule(iter)){
     pmath_t                   start = PMATH_NULL;
     pmath_t                   delta = PMATH_NULL;
@@ -54,11 +74,11 @@ PMATH_PRIVATE void _pmath_iterate(
         old_value = pmath_symbol_get_value(sym);
 
         for(i = 1;i <= count && !pmath_thread_aborting(thread);++i){
-          pmath_symbol_set_value(sym, pmath_expr_get_item(range, i));
+          set_value_untracked(sym, pmath_expr_get_item(range, i));
 
           if(!next(data)){
             pmath_unref(range);
-            pmath_symbol_set_value(sym, old_value);
+            set_value_untracked(sym, old_value);
             pmath_symbol_set_attributes(sym, old_attr);
             pmath_unref(sym);
             return;
@@ -66,7 +86,7 @@ PMATH_PRIVATE void _pmath_iterate(
         }
 
         pmath_unref(range);
-        pmath_symbol_set_value(sym, old_value);
+        set_value_untracked(sym, old_value);
         pmath_symbol_set_attributes(sym, old_attr);
         pmath_unref(sym);
         return;
@@ -91,13 +111,13 @@ PMATH_PRIVATE void _pmath_iterate(
     pmath_symbol_set_attributes(sym, 0);
     old_value = pmath_symbol_get_value(sym);
     while(--count > 0 && !pmath_thread_aborting(thread)){
-      pmath_symbol_set_value(sym, pmath_ref(start));
+      set_value_untracked(sym, pmath_ref(start));
 
       if(!next(data)){
         pmath_unref(iter);
         pmath_unref(start);
         pmath_unref(delta);
-        pmath_symbol_set_value(sym, old_value);
+        set_value_untracked(sym, old_value);
         pmath_symbol_set_attributes(sym, old_attr);
         pmath_unref(sym);
         return;
@@ -113,7 +133,7 @@ PMATH_PRIVATE void _pmath_iterate(
     pmath_unref(iter);
     pmath_unref(start);
     pmath_unref(delta);
-    pmath_symbol_set_value(sym, old_value);
+    set_value_untracked(sym, old_value);
     pmath_symbol_set_attributes(sym, old_attr);
     pmath_unref(sym);
     return;

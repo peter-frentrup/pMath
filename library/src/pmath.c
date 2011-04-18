@@ -725,6 +725,12 @@ PMATH_API pmath_bool_t pmath_init(void){
     
     PMATH_RUN("Options(ReadList):={RecordLists->False}");
     
+    PMATH_RUN(
+      "Options(Refresh):={"
+        "TrackedSymbols->Automatic,"
+        "UpdateInterval->Infinity"
+        "}");
+    
     PMATH_RUN("Options(ReplacePart):={Heads->Automatic}");
     
     PMATH_RUN("Options(RotationBox):={BoxRotation->0}");
@@ -793,6 +799,8 @@ PMATH_API pmath_bool_t pmath_init(void){
       "ShowStringCharacters->True,"
       "TextShadow->None"
       "}");
+    
+    PMATH_RUN("Options(Slider):=Options(SliderBox):={ContinuousAction->True}");
       
     //} ... initialization runs
     

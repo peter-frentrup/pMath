@@ -77,6 +77,7 @@ General::sing:= "Matrix `1` is singular."
 General::str:= "String expected at position `1` in `2`."
 General::strse:= "String or list of strings expected at position `1` in `2`."
 General::sym:= "Argument `1` at position `2` is expected to be a symbol."
+General::timc:= "Number of seconds `1` is neither a positive machine-size integer nor Infinity."
 
 /* level and part specification errors */
 General::level:= "`1` is no valid level specification."
@@ -268,8 +269,6 @@ StringExpression::invld:= "Element `1` is not a valid string or pattern element 
 StringReplace::srep:= "`1` is not a valid string replacement rule."
 
 Take::take:= StringTake::take:= "Cannot take positions `1` through `2` in `3`.";
-
-TimeConstrains::invtim:= "`1` is neither a positive machine-size number, nor Infinity."
 
 Thread::len:= "Cannot combine expressions of unequal length in `1`."
 

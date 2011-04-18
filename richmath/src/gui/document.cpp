@@ -551,15 +551,18 @@ void Document::mouse_down(MouseEvent &event){
 }
 
 void Document::mouse_up(MouseEvent &event){
+  int next_clicked_box_id = context.clicked_box_id;
   Box *receiver = Box::find(context.clicked_box_id);
+  
+  if(--mouse_down_counter <= 0){
+    next_clicked_box_id = 0;
+    mouse_down_counter = 0;
+  }
   
   if(receiver)
     receiver->on_mouse_up(event);
   
-  if(--mouse_down_counter <= 0){
-    context.clicked_box_id = 0;
-    mouse_down_counter = 0;
-  }
+  context.clicked_box_id = next_clicked_box_id;
 }
 
   static void reverse_mouse_enter(Box *base, Box *child){

@@ -112,6 +112,11 @@ typedef pmath_t pmath_symbol_t;
        `sym(ConditionalExpression(arg, cond))` becomes 
        `ConditionalExpression(sym(arg), cond)`
      
+     <li> \c PMATH_SYMBOL_ATTRIBUTE_UNTRACKED
+       The symbol is not tracked by means on Dynamic. This has currently no 
+       equivalent returned by Attributes(symbol). It is set automatically by
+       pmath_symbol_create_temporary()
+     
    </ul>
  */
 typedef int pmath_symbol_attributes_t;
@@ -135,7 +140,8 @@ enum{
   PMATH_SYMBOL_ATTRIBUTE_READPROTECTED         = 1 << 14,
   PMATH_SYMBOL_ATTRIBUTE_SEQUENCEHOLD          = 1 << 15,
   PMATH_SYMBOL_ATTRIBUTE_REMOVED               = 1 << 16,
-  PMATH_SYMBOL_ATTRIBUTE_DEFINITEFUNCTION      = 1 << 17
+  PMATH_SYMBOL_ATTRIBUTE_DEFINITEFUNCTION      = 1 << 17,
+  PMATH_SYMBOL_ATTRIBUTE_UNTRACKED             = 1 << 18
 };
 
 /**\brief Get a symbol by its fully qualified name.

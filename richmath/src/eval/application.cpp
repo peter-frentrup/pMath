@@ -465,26 +465,40 @@ bool Application::is_idle(int document_id){
 }
 
   static void interrupt_wait_idle(void *data){
-    // do nothing currently
-    // We cannot process all notifications here, because boxes must not be 
-    // changed when we hit this code path (we could be between resize() and 
-    // paint() of a box)
-    // On the other hand, some blocking notifications should be regarded e.g. to 
-    // answer questions to the frontend (Documents() calls and more)
+    ConcurrentQueue<ClientNotification> *suppressed_notifications;
+    suppressed_notifications = (ConcurrentQueue<ClientNotification>*)data;
     
     ClientNotification cn;
-    
     while(notifications.get(&cn)){
       if(cn.type == CNT_END || cn.type == CNT_ENDSESSION){
         notifications.put_front(cn);
         return;
       }
+      
+      /* We must filter out CNT_DYNAMICUPDATE because that could update a parent 
+         DynamicBox of the DynamicBox that is currently updated during its 
+         paint() event. That would cause a memory corruption/crash.
+       */
+      if(cn.type == CNT_DYNAMICUPDATE){
+        suppressed_notifications->put_front(cn);
+        continue;
+      }
+      
       execute(cn);
     }
   }
   
 Expr Application::interrupt(Expr expr, double seconds){
-  return Server::local_server->interrupt_wait(expr, seconds, interrupt_wait_idle, NULL);
+  ConcurrentQueue<ClientNotification>  suppressed_notifications;
+  
+  Expr result = Server::local_server->interrupt_wait(expr, seconds, interrupt_wait_idle, &suppressed_notifications);
+  
+  ClientNotification cn;
+  while(suppressed_notifications.get(&cn)){
+    notifications.put_front(cn);
+  }
+  
+  return result;
 }
 
 Expr Application::interrupt(Expr expr){

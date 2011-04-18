@@ -3,6 +3,8 @@
 #include <eval/application.h>
 #include <eval/job.h>
 
+#include <gui/document.h>
+
 using namespace richmath;
 
 //{ class Dynamic ...
@@ -12,14 +14,14 @@ int Dynamic::current_evaluation_box_id = 0;
 Dynamic::Dynamic()
 : Base(),
   _owner(0),
-  synchronous_updating(0)
+  _synchronous_updating(0)
 {
 }
 
 Dynamic::Dynamic(Box *owner, Expr expr)
 : Base(),
   _owner(0),
-  synchronous_updating(0)
+  _synchronous_updating(0)
 {
   init(owner, expr);
 }
@@ -53,11 +55,11 @@ Expr Dynamic::operator=(Expr expr){
         options.get()));
       
       if(su == PMATH_SYMBOL_TRUE)
-        synchronous_updating = 1;
+        _synchronous_updating = 1;
       else if(su == PMATH_SYMBOL_AUTOMATIC)
-        synchronous_updating = 2;
+        _synchronous_updating = 2;
       else
-        synchronous_updating = 0;
+        _synchronous_updating = 0;
     }
   }
   
@@ -130,8 +132,18 @@ bool Dynamic::get_value(Expr *result){
   if(result)
     *result = Expr();
   
-  // TODO: handle synchronous_updating == 2 (Automatic)
-  if(synchronous_updating != 0 || !is_dynamic()){
+  int sync = _synchronous_updating;
+  
+  if(sync == 2){
+    Document *doc = _owner->find_parent<Document>(true);
+    
+    sync = 1;
+    
+    if(doc)
+      sync = doc->is_mouse_down();
+  }
+  
+  if(sync != 0 || !is_dynamic()){
     if(result)
       *result = get_value_now();
     else

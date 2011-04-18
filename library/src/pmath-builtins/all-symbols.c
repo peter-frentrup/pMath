@@ -242,8 +242,9 @@ PMATH_PRIVATE pmath_t builtin_assign_syntaxinformation(pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_syntaxinformation(       pmath_expr_t expr);
 //} ============================================================================
 //{ builtins from src/pmath-builtins/gui/ ...
-PMATH_PRIVATE pmath_t builtin_button(pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_clock(pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_button( pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_clock(  pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_refresh(pmath_expr_t expr);
 
 PMATH_PRIVATE pmath_t builtin_internal_dynamicevaluate(        pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_internal_dynamicevaluatemultiple(pmath_expr_t expr);
@@ -733,6 +734,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   VERIFY(   PMATH_SYMBOL_CONDITIONALEXPRESSION     = NEW_SYSTEM_SYMBOL("ConditionalExpression"))
   VERIFY(   PMATH_SYMBOL_CONJUGATE                 = NEW_SYSTEM_SYMBOL("Conjugate"))
   VERIFY(   PMATH_SYMBOL_CONSTANTARRAY             = NEW_SYSTEM_SYMBOL("ConstantArray"))
+  VERIFY(   PMATH_SYMBOL_CONTINUOUSACTION          = NEW_SYSTEM_SYMBOL("ContinuousAction"))
   VERIFY(   PMATH_SYMBOL_CONTINUE                  = NEW_SYSTEM_SYMBOL("Continue"))
   VERIFY(   PMATH_SYMBOL_COPYDIRECTORY             = NEW_SYSTEM_SYMBOL("CopyDirectory"))
   VERIFY(   PMATH_SYMBOL_COPYFILE                  = NEW_SYSTEM_SYMBOL("CopyFile"))
@@ -1065,6 +1067,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   VERIFY(   PMATH_SYMBOL_READPROTECTED             = NEW_SYSTEM_SYMBOL("ReadProtected"))
   VERIFY(   PMATH_SYMBOL_REAL                      = NEW_SYSTEM_SYMBOL("Real"))
   VERIFY(   PMATH_SYMBOL_RECORDLISTS               = NEW_SYSTEM_SYMBOL("RecordLists"))
+  VERIFY(   PMATH_SYMBOL_REFRESH                   = NEW_SYSTEM_SYMBOL("Refresh"))
   VERIFY(   PMATH_SYMBOL_REGATHER                  = NEW_SYSTEM_SYMBOL("ReGather"))
   VERIFY(   PMATH_SYMBOL_REGULAREXPRESSION         = NEW_SYSTEM_SYMBOL("RegularExpression"))
   VERIFY(   PMATH_SYMBOL_RELEASEHOLD               = NEW_SYSTEM_SYMBOL("ReleaseHold"))
@@ -1229,6 +1232,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   VERIFY(   PMATH_SYMBOL_UNITVECTOR                = NEW_SYSTEM_SYMBOL("UnitVector"))
   VERIFY(   PMATH_SYMBOL_UNPROTECT                 = NEW_SYSTEM_SYMBOL("Unprotect"))
   VERIFY(   PMATH_SYMBOL_UPDATE                    = NEW_SYSTEM_SYMBOL("Update"))
+  VERIFY(   PMATH_SYMBOL_UPDATEINTERVAL            = NEW_SYSTEM_SYMBOL("UpdateInterval"))
   VERIFY(   PMATH_SYMBOL_UPRULES                   = NEW_SYSTEM_SYMBOL("UpRules"))
   VERIFY(   PMATH_SYMBOL_VERSIONLIST               = NEW_SYSTEM_SYMBOL("$VersionList"))
   VERIFY(   PMATH_SYMBOL_VERSIONNUMBER             = NEW_SYSTEM_SYMBOL("$VersionNumber"))
@@ -1535,6 +1539,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
     BIND_DOWN(   PMATH_SYMBOL_RE,                          builtin_re)
     BIND_DOWN(   PMATH_SYMBOL_READ,                        builtin_read)
     BIND_DOWN(   PMATH_SYMBOL_READLIST,                    builtin_readlist)
+    BIND_DOWN(   PMATH_SYMBOL_REFRESH,                     builtin_refresh)
     BIND_DOWN(   PMATH_SYMBOL_REGATHER,                    builtin_regather)
     BIND_DOWN(   PMATH_SYMBOL_RELEASEHOLD,                 builtin_releasehold)
     BIND_DOWN(   PMATH_SYMBOL_REMOVE,                      builtin_remove)
@@ -1788,6 +1793,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   SET_ATTRIB( PMATH_SYMBOL_PUREARGUMENT,                     NHOLDFIRST);
   SET_ATTRIB( PMATH_SYMBOL_QUOTIENT,                         DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
   SET_ATTRIB( PMATH_SYMBOL_RE,                               DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
+  SET_ATTRIB( PMATH_SYMBOL_REFRESH,                          HOLDFIRST);
   SET_ATTRIB( PMATH_SYMBOL_REMOVE,                           HOLDALL);
   SET_ATTRIB( PMATH_SYMBOL_RETURN,                           HOLDFIRST);
   SET_ATTRIB( PMATH_SYMBOL_ROUND,                            DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);

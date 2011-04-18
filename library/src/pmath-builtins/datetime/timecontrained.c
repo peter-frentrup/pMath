@@ -43,7 +43,7 @@ PMATH_PRIVATE pmath_t builtin_timeconstrained(pmath_expr_t expr){
   }
   
   if(seconds <= 0){
-    pmath_message(PMATH_NULL, "invtim", 1, obj);
+    pmath_message(PMATH_NULL, "timc", 1, obj);
     return expr;
   }
   

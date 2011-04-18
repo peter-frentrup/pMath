@@ -161,6 +161,9 @@ void Style::add_pmath(Expr options){
           else if(lhs == PMATH_SYMBOL_BUTTONFUNCTION){
             set(ButtonFunction, rhs);
           }
+          else if(lhs == PMATH_SYMBOL_CONTINUOUSACTION){
+            set_pmath_bool(ContinousAction, rhs);
+          }
           else if(lhs == PMATH_SYMBOL_EDITABLE){
             set_pmath_bool(Editable, rhs);
           }
@@ -503,6 +506,12 @@ void Style::emit_to_pmath(
     Gather::emit(Rule(
       Symbol(PMATH_SYMBOL_BUTTONFUNCTION), 
       e));
+  }
+  
+  if(get(ContinousAction, &i)){
+    Gather::emit(Rule(
+      Symbol(PMATH_SYMBOL_CONTINUOUSACTION), 
+      Symbol(i ? PMATH_SYMBOL_TRUE : PMATH_SYMBOL_FALSE)));
   }
   
   if(get(Editable, &i)){

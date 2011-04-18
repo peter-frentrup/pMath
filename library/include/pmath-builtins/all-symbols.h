@@ -699,5 +699,8 @@ pmath_bool_t pmath_register_approx_code(
 #define PMATH_SYMBOL_CURRENTVALUE                           PMATH_SYMBOL_BUILTIN(607)
 #define PMATH_SYMBOL_DYNAMICSETTING                         PMATH_SYMBOL_BUILTIN(608)
 #define PMATH_SYMBOL_SETTING                                PMATH_SYMBOL_BUILTIN(609)
+#define PMATH_SYMBOL_CONTINUOUSACTION                       PMATH_SYMBOL_BUILTIN(610)
+#define PMATH_SYMBOL_REFRESH                                PMATH_SYMBOL_BUILTIN(611)
+#define PMATH_SYMBOL_UPDATEINTERVAL                         PMATH_SYMBOL_BUILTIN(612)
 
 #endif /* __PMATH_BUILTINS__SYMBOLS_H__ */

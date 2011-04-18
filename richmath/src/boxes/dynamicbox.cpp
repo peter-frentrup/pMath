@@ -74,8 +74,8 @@ void DynamicBox::paint_content(Context *context){
         opt |= BoxOptionFormatNumbers;
       
       content()->load_from_object(result, opt);
-      invalidate();
       must_resize = true;
+      invalidate();
     }
   }
 }
@@ -100,8 +100,8 @@ void DynamicBox::dynamic_finished(Expr info, Expr result){
     opt |= BoxOptionFormatNumbers;
   
   content()->load_from_object(result, opt);
-  invalidate();
   must_resize = true;
+  invalidate();
 }
 
 void DynamicBox::on_mouse_enter(){

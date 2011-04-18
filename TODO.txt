@@ -2,6 +2,8 @@
 	Button("italic", DocumentApply(SelectedDocument(), StyleBox("\[SelectionPlaceholder]", FontSlant->Italic))),
 	Button("Arg Style", DocumentApply(SelectedDocument(), StyleBox("\[SelectionPlaceholder]", "Arg")))})
 
+- add FilterRules(rules, {pat1, ...}), picks only those rules, whose lhs match any patn or lhsn if patn === (lhsn -> ...)
+
 - support euclidian integers in GCD/ExtendedGCD
 
 - implement FromCharacterCode and ToCharacterCode
@@ -108,8 +110,6 @@
 - add Outer()
 
 ? add IsRule(), IsRuleList(), IsRuleOrRuleList(), IsMatch(p)()
-
-- add FilterRules(rules, {pat1, ...}), picks only those rules, whose lhs match any patn.
 
 - add ascii syntax for \mapsto character: x |-> f(x)
 

@@ -48,11 +48,11 @@ MakeBoxes(SetterBar(val: Except(~:Dynamic), values:{~~}, options:OptionsPattern(
 	Local({var:= val},
 		MakeBoxes(SetterBar(Dynamic(var), values, options)))
 
-MakeBoxes(Slider())::=                                                 SliderBox(0.5, 0..1)
-MakeBoxes(Slider(~val ? isNumberOrDynamic))::=                         SliderBox(val, 0..1)
-MakeBoxes(Slider(~val ? isNumberOrDynamic, ~min..~max))::=             SliderBox(val, min..max)
-MakeBoxes(Slider(~val ? isNumberOrDynamic, ~min..~max..~step))::=      SliderBox(val, min..max..step)
-MakeBoxes(Slider(~val ? isNumberOrDynamic, Except({}, ~vals:List)))::= SliderBox(val, vals)
+MakeBoxes(Slider(                                                  options:OptionsPattern()))::= SliderBox(0.5, 0..1, options)
+MakeBoxes(Slider(~val ? isNumberOrDynamic,                         options:OptionsPattern()))::= SliderBox(val, 0..1, options)
+MakeBoxes(Slider(~val ? isNumberOrDynamic, ~min..~max,             options:OptionsPattern()))::= SliderBox(val, min..max, options)
+MakeBoxes(Slider(~val ? isNumberOrDynamic, ~min..~max..~step,      options:OptionsPattern()))::= SliderBox(val, min..max..step, options)
+MakeBoxes(Slider(~val ? isNumberOrDynamic, Except({}, ~vals:List), options:OptionsPattern()))::= SliderBox(val, vals, options)
 
 
 
@@ -94,8 +94,8 @@ SetterBox/: MakeExpression(SetterBox(~var, ~value, ~labelBoxes, options:OptionsP
 			)
 		)
 
-SliderBox/: MakeExpression(SliderBox(~val, 0..1))::=   HoldComplete(Slider(val))
-SliderBox/: MakeExpression(SliderBox(~val, ~range))::= HoldComplete(Slider(val, range))
+SliderBox/: MakeExpression(SliderBox(~val, 0..1,   options:OptionsPattern()))::= HoldComplete(Slider(val, options))
+SliderBox/: MakeExpression(SliderBox(~val, ~range, options:OptionsPattern()))::= HoldComplete(Slider(val, range, options))
 
 
 
