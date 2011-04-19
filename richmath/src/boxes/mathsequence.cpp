@@ -4,6 +4,7 @@
 #include <cmath>
 
 #include <boxes/buttonbox.h>
+#include <boxes/checkboxbox.h>
 #include <boxes/dynamicbox.h>
 #include <boxes/errorbox.h>
 #include <boxes/fillbox.h>
@@ -16,6 +17,7 @@
 #include <boxes/ownerbox.h>
 #include <boxes/progressindicatorbox.h>
 #include <boxes/radicalbox.h>
+#include <boxes/radiobuttonbox.h>
 #include <boxes/section.h>
 #include <boxes/setterbox.h>
 #include <boxes/sliderbox.h>
@@ -3983,6 +3985,14 @@ static void make_box(int pos, pmath_t obj, void *data){
     }
   }
   
+  if(expr[0] == PMATH_SYMBOL_CHECKBOXBOX){
+    CheckboxBox *box = CheckboxBox::create(expr);
+    if(box){
+      info->boxes->add(box);
+      return;
+    }
+  }
+  
   if(expr[0] == PMATH_SYMBOL_DYNAMICBOX){
     DynamicBox *box = DynamicBox::create(expr, info->options);
     if(box){
@@ -4069,6 +4079,14 @@ static void make_box(int pos, pmath_t obj, void *data){
     box->exponent()->load_from_object(expr[2], info->options);
     info->boxes->add(box);
     return;
+  }
+  
+  if(expr[0] == PMATH_SYMBOL_RADIOBUTTONBOX){
+    RadioButtonBox *box = RadioButtonBox::create(expr);
+    if(box){
+      info->boxes->add(box);
+      return;
+    }
   }
   
   if(expr[0] == PMATH_SYMBOL_ROTATIONBOX){

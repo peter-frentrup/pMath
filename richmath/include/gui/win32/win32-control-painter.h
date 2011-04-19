@@ -32,7 +32,8 @@ namespace richmath{
       virtual SharedPtr<BoxAnimation> control_transition(
         int                          widget_id,
         Canvas                      *canvas,
-        ContainerType                type,
+        ContainerType                type1,
+        ContainerType                type2,
         ControlState                 state1,
         ControlState                 state2,
         float                        x,

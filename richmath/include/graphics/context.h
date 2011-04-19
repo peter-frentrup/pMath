@@ -77,6 +77,7 @@ namespace richmath{
       
       SelectionReference  selection;
       SelectionReference  old_selection; // cursor is not drawn, if selection == old_selection
+      int                 cursor_color;
       
       SharedPtr<GeneralSyntaxInfo> syntax;
       
@@ -114,6 +115,7 @@ namespace richmath{
       Context *ctx;
       
       // always set in begin(): 
+      int                   old_cursor_color;
       int                   old_color;
       float                 old_fontsize;
       float                 old_width;

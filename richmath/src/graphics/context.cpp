@@ -69,6 +69,7 @@ Context::Context()
   section_content_window_width(HUGE_VAL),
   sequence_unfilled_width(0),
   text_shaper(0),
+  cursor_color(0x000000),
   syntax(GeneralSyntaxInfo::std),
   multiplication_sign(0x00D7),
   show_auto_styles(true),
@@ -131,7 +132,7 @@ void Context::draw_selection_path(){
   
   if(num_points <= 2){
     if(old_selection != selection){
-      canvas->set_color(0x000000);
+      canvas->set_color(cursor_color);
       canvas->hair_stroke();
     }
     else
@@ -347,6 +348,7 @@ void Context::draw_with_text_shadows(Box *box, Expr shadows){
 //{ class ContextState ...
 
 void ContextState::begin(SharedPtr<Style> style){
+  old_cursor_color           = ctx->cursor_color;
   old_color                  = ctx->canvas->get_color();
   old_fontsize               = ctx->canvas->get_font_size();
   old_width                  = ctx->width;
@@ -450,6 +452,7 @@ void ContextState::begin(SharedPtr<Style> style){
 }
 
 void ContextState::end(){
+  ctx->cursor_color = old_cursor_color;
   ctx->canvas->set_color(old_color);
   ctx->canvas->set_font_size(old_fontsize);
   ctx->width                  = old_width;

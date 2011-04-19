@@ -398,8 +398,8 @@ int main(){
     
     s = new Style;
     ControlPainter::std->system_font_style(s);
-//    s->set(AutoSpacing, false);
-//    s->set(ShowAutoStyles, false);
+    s->set(ShowAutoStyles,       false);
+    s->set(ShowStringCharacters, false);
     Stylesheet::Default->styles.set("ControlStyle", s);
     
     s = new Style;

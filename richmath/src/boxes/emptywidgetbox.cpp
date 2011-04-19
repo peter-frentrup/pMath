@@ -1,32 +1,29 @@
-#include <boxes/containerwidgetbox.h>
+#include <boxes/emptywidgetbox.h>
 
-#include <cmath>
+#include <graphics/context.h>
 
-#include <boxes/mathsequence.h>
 #include <gui/document.h>
 #include <gui/native-widget.h>
 
+
 using namespace richmath;
 
-//{ class ContainerWidgetBox ...
+//{ class EmptyWidgetBox ...
 
-ContainerWidgetBox::ContainerWidgetBox(ContainerType _type, MathSequence *content)
-: AbstractStyleBox(content),
+EmptyWidgetBox::EmptyWidgetBox(ContainerType _type)
+: Box(),
   type(_type),
+  old_type(_type),
   old_state(Normal),
   mouse_inside(false),
   mouse_left_down(false),
   mouse_middle_down(false),
   mouse_right_down(false),
-  selection_inside(false)
+  must_update(true)
 {
-  if(!style)
-    style = new Style();
-  
-  style->set(BaseStyleName, "ControlStyle");
 }
 
-ControlState ContainerWidgetBox::calc_state(Context *context){
+ControlState EmptyWidgetBox::calc_state(Context *context){
   if(context->selection.id == id() && context->active)
     return Pressed;
   
@@ -44,28 +41,24 @@ ControlState ContainerWidgetBox::calc_state(Context *context){
   return Normal;
 }
 
-void ContainerWidgetBox::resize(Context *context){
-  AbstractStyleBox::resize(context);
-  
+void EmptyWidgetBox::resize(Context *context){
   ControlPainter::std->calc_container_size(
     context->canvas,
     type,
     &_extents);
-      
-  cx = (_extents.width - _content->extents().width) / 2;
 }
 
-void ContainerWidgetBox::paint(Context *context){
-  float x,y;
+void EmptyWidgetBox::paint(Context *context){
+  float x, y;
   context->canvas->current_pos(&x, &y);
   
   ControlState state = calc_state(context);
   
-  if(state != old_state || !animation){
+  if(state != old_state || old_type != type || !animation){
     animation = ControlPainter::std->control_transition(
       id(),
       context->canvas,
-      type,
+      old_type,
       type,
       old_state,
       state,
@@ -88,7 +81,7 @@ void ContainerWidgetBox::paint(Context *context){
       animation = ControlPainter::std->control_transition(
         id(),
         context->canvas,
-        type,
+        old_type,
         type,
         old_state,
         old_state,
@@ -99,8 +92,6 @@ void ContainerWidgetBox::paint(Context *context){
     }
   }
 
-  bool very_transparent = ControlPainter::std->is_very_transparent(type, state);
-  
   if(need_bg){
     ControlPainter::std->draw_container(
       context->canvas,
@@ -116,20 +107,6 @@ void ContainerWidgetBox::paint(Context *context){
     type, state, &x, &y);
   
   context->canvas->move_to(x, y);
-  
-  int old_cursor_color = context->cursor_color;
-  int old_color        = context->canvas->get_color();
-  int c = ControlPainter::std->control_font_color(type, state);
-  if(c >= 0){
-    context->canvas->set_color(c);
-    context->cursor_color = c;
-  }
-  
-  if(very_transparent || !context->canvas->show_only_text)
-    AbstractStyleBox::paint(context);
-  
-  context->canvas->set_color(old_color);
-  context->cursor_color = old_cursor_color;
   
   if(type == FramelessButton && state == Pressed){
     context->canvas->save();
@@ -147,23 +124,45 @@ void ContainerWidgetBox::paint(Context *context){
     }
     context->canvas->restore();
   }
+  
+  old_type = type;
 }
 
-void ContainerWidgetBox::on_mouse_enter(){
+void EmptyWidgetBox::dynamic_updated(){
+  if(must_update)
+    return;
+  
+  must_update = true;
+  request_repaint_all();
+}
+
+Box *EmptyWidgetBox::mouse_selection(
+  float  x,
+  float  y,
+  int   *start,
+  int   *end,
+  bool  *was_inside_start
+){
+  *was_inside_start = true;
+  *start = *end = 0;
+  return this;
+}
+
+void EmptyWidgetBox::on_mouse_enter(){
   if(!mouse_inside && ControlPainter::std->container_hover_repaint(type))
     request_repaint_all();
     
   mouse_inside = true;
 }
 
-void ContainerWidgetBox::on_mouse_exit(){
+void EmptyWidgetBox::on_mouse_exit(){
   if(/*mouse_inside && */ControlPainter::std->container_hover_repaint(type))
     request_repaint_all();
   
   mouse_inside = false;
 }
 
-void ContainerWidgetBox::on_mouse_down(MouseEvent &event){
+void EmptyWidgetBox::on_mouse_down(MouseEvent &event){
   event.set_source(this);
   
   mouse_left_down   = mouse_left_down   || event.left;
@@ -177,8 +176,12 @@ void ContainerWidgetBox::on_mouse_down(MouseEvent &event){
   request_repaint_all();
 }
 
-void ContainerWidgetBox::on_mouse_move(MouseEvent &event){
+void EmptyWidgetBox::on_mouse_move(MouseEvent &event){
+  Document *doc = find_parent<Document>(false);
   event.set_source(this);
+  
+  if(doc)
+    doc->native()->set_cursor(DefaultCursor);
   
   bool mi = event.x >= 0 
          && event.x <= _extents.width
@@ -191,7 +194,7 @@ void ContainerWidgetBox::on_mouse_move(MouseEvent &event){
   mouse_inside = mi;
 }
 
-void ContainerWidgetBox::on_mouse_up(MouseEvent &event){
+void EmptyWidgetBox::on_mouse_up(MouseEvent &event){
   request_repaint_all();
   
   mouse_left_down   = mouse_left_down   && !event.left;
@@ -199,20 +202,10 @@ void ContainerWidgetBox::on_mouse_up(MouseEvent &event){
   mouse_right_down  = mouse_right_down  && !event.right;
 }
 
-void ContainerWidgetBox::on_mouse_cancel(){
+void EmptyWidgetBox::on_mouse_cancel(){
   request_repaint_all();
   
   mouse_left_down = mouse_middle_down = mouse_right_down = false;
 }
 
-void ContainerWidgetBox::on_enter(){
-  selection_inside = true;
-  AbstractStyleBox::on_enter();
-}
-
-void ContainerWidgetBox::on_exit(){
-  selection_inside = false;
-  AbstractStyleBox::on_exit();
-}
-
-//} ... class ContainerWidgetBox
+//} ... class EmptyWidgetBox

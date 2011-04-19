@@ -702,5 +702,10 @@ pmath_bool_t pmath_register_approx_code(
 #define PMATH_SYMBOL_CONTINUOUSACTION                       PMATH_SYMBOL_BUILTIN(610)
 #define PMATH_SYMBOL_REFRESH                                PMATH_SYMBOL_BUILTIN(611)
 #define PMATH_SYMBOL_UPDATEINTERVAL                         PMATH_SYMBOL_BUILTIN(612)
+#define PMATH_SYMBOL_CHECKBOX                               PMATH_SYMBOL_BUILTIN(613)
+#define PMATH_SYMBOL_CHECKBOXBOX                            PMATH_SYMBOL_BUILTIN(614)
+#define PMATH_SYMBOL_RADIOBUTTON                            PMATH_SYMBOL_BUILTIN(615)
+#define PMATH_SYMBOL_RADIOBUTTONBOX                         PMATH_SYMBOL_BUILTIN(616)
+#define PMATH_SYMBOL_RADIOBUTTONBAR                         PMATH_SYMBOL_BUILTIN(617)
 
 #endif /* __PMATH_BUILTINS__SYMBOLS_H__ */

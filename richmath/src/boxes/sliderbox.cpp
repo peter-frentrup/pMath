@@ -112,11 +112,11 @@ SliderBox *SliderBox::create(Expr expr){
   return sb;
 }
 
-bool SliderBox::expand(const BoxSize &size){
+/*bool SliderBox::expand(const BoxSize &size){
   _extents.width = size.width;
   
   return true;
-}
+}*/
 
 void SliderBox::resize(Context *context){
   float em = context->canvas->get_font_size();
@@ -220,6 +220,7 @@ void SliderBox::paint(Context *context){
         id(),
         context->canvas,
         SliderHorzThumb,
+        SliderHorzThumb,
         old_thumb_state,
         new_thumb_state,
         thumb_x,
@@ -237,6 +238,7 @@ void SliderBox::paint(Context *context){
       animation = ControlPainter::std->control_transition(
         id(),
         context->canvas,
+        SliderHorzThumb,
         SliderHorzThumb,
         new_thumb_state,
         new_thumb_state,
@@ -397,7 +399,7 @@ void SliderBox::on_mouse_down(MouseEvent &event){
 void SliderBox::on_mouse_move(MouseEvent &event){
   Document *doc = find_parent<Document>(false);
   
-  if(doc && doc->native()){
+  if(doc){
     doc->native()->set_cursor(DefaultCursor);
   }
   

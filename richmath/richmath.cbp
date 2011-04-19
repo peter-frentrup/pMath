@@ -152,8 +152,10 @@
 		</Build>
 		<Unit filename="include\boxes\box.h" />
 		<Unit filename="include\boxes\buttonbox.h" />
+		<Unit filename="include\boxes\checkboxbox.h" />
 		<Unit filename="include\boxes\containerwidgetbox.h" />
 		<Unit filename="include\boxes\dynamicbox.h" />
+		<Unit filename="include\boxes\emptywidgetbox.h" />
 		<Unit filename="include\boxes\errorbox.h" />
 		<Unit filename="include\boxes\fillbox.h" />
 		<Unit filename="include\boxes\fractionbox.h" />
@@ -166,6 +168,9 @@
 		<Unit filename="include\boxes\ownerbox.h" />
 		<Unit filename="include\boxes\progressindicatorbox.h" />
 		<Unit filename="include\boxes\radicalbox.h" />
+		<Unit filename="include\boxes\radiobuttonbox.h">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
 		<Unit filename="include\boxes\section.h" />
 		<Unit filename="include\boxes\sectionlist.h" />
 		<Unit filename="include\boxes\setterbox.h" />
@@ -223,8 +228,10 @@
 		<Unit filename="scripts\frontinit.pmath" />
 		<Unit filename="src\boxes\box.cpp" />
 		<Unit filename="src\boxes\buttonbox.cpp" />
+		<Unit filename="src\boxes\checkboxbox.cpp" />
 		<Unit filename="src\boxes\containerwidgetbox.cpp" />
 		<Unit filename="src\boxes\dynamicbox.cpp" />
+		<Unit filename="src\boxes\emptywidgetbox.cpp" />
 		<Unit filename="src\boxes\errorbox.cpp" />
 		<Unit filename="src\boxes\fillbox.cpp" />
 		<Unit filename="src\boxes\fractionbox.cpp" />
@@ -237,6 +244,7 @@
 		<Unit filename="src\boxes\ownerbox.cpp" />
 		<Unit filename="src\boxes\progressindicatorbox.cpp" />
 		<Unit filename="src\boxes\radicalbox.cpp" />
+		<Unit filename="src\boxes\radiobuttonbox.cpp" />
 		<Unit filename="src\boxes\section.cpp" />
 		<Unit filename="src\boxes\sectionlist.cpp" />
 		<Unit filename="src\boxes\setterbox.cpp" />

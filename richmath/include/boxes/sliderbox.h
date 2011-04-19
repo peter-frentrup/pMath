@@ -16,7 +16,7 @@ namespace richmath{
       virtual int count(){ return 0; }
       virtual int length(){ return 0; }
       
-      virtual bool expand(const BoxSize &size);
+      //virtual bool expand(const BoxSize &size);
       virtual void resize(Context *context);
       virtual void paint(Context *context);
       virtual Box *remove(int *index){ return this; }

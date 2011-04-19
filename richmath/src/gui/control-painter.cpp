@@ -78,6 +78,21 @@ void ControlPainter::calc_container_size(
       extents->descent-= 1.5;
       extents->width  -= 3.0;
     } break;
+    
+    case CheckboxUnchecked:
+    case CheckboxChecked:
+    case CheckboxIndeterminate: {
+      extents->width   = 13 * 0.75;
+      extents->ascent  = extents->width * 0.75;
+      extents->descent = extents->width * 0.25;
+    } break;
+    
+    case RadioButtonUnchecked: 
+    case RadioButtonChecked: {
+      extents->width   = 16 * 0.75;
+      extents->ascent  = extents->width * 0.75;
+      extents->descent = extents->width * 0.25;
+    } break;
   }
 }
 
@@ -104,7 +119,7 @@ static void paint_frame(
   int c1, c3, c;
   
   c = canvas->get_color();
-  c1 = 0xFFFFFF;
+  c1 = 0xF0F0F0;//0xFFFFFF;
   //c2 = 0xDCDCDC;
   c3 = 0x787878; // 0xB4B4B4
   
@@ -227,7 +242,7 @@ void ControlPainter::draw_container(
       paint_frame(canvas, x, y, width, height, true);
       break;
       
-    case ProgressIndicatorBar:
+    case ProgressIndicatorBar: {
       x+= 3/2.f;
       y+= 3/2.f;
       width-= 3;
@@ -239,7 +254,123 @@ void ControlPainter::draw_container(
         else if(state == Hot)
           paint_frame(canvas, x + width/4, y, width/2, height, false);
       }
+    } break;
+    
+    case CheckboxUnchecked: 
+      if(state == Disabled)
+        paint_frame(canvas, x, y, width, height, true);
+      else
+        paint_frame(canvas, x, y, width, height, true, 0xFFFFFF);
+        
       break;
+      
+    case CheckboxChecked: {
+      if(state == Disabled)
+        paint_frame(canvas, x, y, width, height, true);
+      else
+        paint_frame(canvas, x, y, width, height, true, 0xFFFFFF);
+        
+      canvas->save();
+      {
+        canvas->move_to(x +     width/4, y +     height/2);
+        canvas->line_to(x +     width/3, y + 3 * height/4);
+        canvas->line_to(x + 3 * width/4, y +     height/4);
+        
+        cairo_set_line_width(canvas->cairo(), 2.0 * 0.75);
+        cairo_set_line_cap(  canvas->cairo(), CAIRO_LINE_CAP_SQUARE);
+        cairo_set_line_join( canvas->cairo(), CAIRO_LINE_JOIN_MITER);
+        cairo_set_source_rgb(canvas->cairo(), 0,0,0);
+        
+        canvas->stroke();
+      }
+      canvas->restore();
+    } break;
+    
+    case CheckboxIndeterminate: {
+      if(state == Disabled)
+        paint_frame(canvas, x, y, width, height, true);
+      else
+        paint_frame(canvas, x, y, width, height, true, 0xFFFFFF);
+        
+      canvas->save();
+      {
+        canvas->move_to(x +     width/4, y +     height/4);
+        canvas->line_to(x + 3 * width/4, y +     height/4);
+        canvas->line_to(x + 3 * width/4, y + 3 * height/4);
+        canvas->line_to(x +     width/4, y + 3 * height/4);
+        
+        cairo_set_source_rgb(canvas->cairo(), 0,0,0);
+        canvas->fill();
+      }
+      canvas->restore();
+    } break;
+    
+    case RadioButtonUnchecked:
+    case RadioButtonChecked: {
+      canvas->save();
+      {
+        int old_color = canvas->get_color();
+        int inner_color = 0xFFFFFF;
+        
+        if(state == Disabled)
+          inner_color = 0xDCDCDC;
+        
+        canvas->move_to(x + width/2, y);
+        canvas->line_to(x + width,   y + height/2);
+        canvas->line_to(x + width/2, y + height);
+        canvas->line_to(x,           y + height/2);
+        
+        canvas->set_color(inner_color);
+        canvas->fill();
+        
+        
+        canvas->move_to(x,                y + height/2);
+        canvas->line_to(x + width/2,      y + height);
+        canvas->line_to(x + width,        y + height/2);
+        canvas->line_to(x + width - 0.75, y + height/2);
+        canvas->line_to(x + width/2,      y + height - 0.75);
+        canvas->line_to(x + 0.75,         y + height/2);
+        
+        canvas->set_color(0xDCDCDC);
+        canvas->fill();
+        
+        
+        canvas->move_to(x + 0.75,         y + height/2);
+        canvas->line_to(x + width/2,      y + height - 0.75);
+        canvas->line_to(x + width - 0.75, y + height/2);
+        canvas->line_to(x + width - 1.5,  y + height/2);
+        canvas->line_to(x + width/2,      y + height - 1.5);
+        canvas->line_to(x + 1.5,          y + height/2);
+        
+        canvas->set_color(0xF0F0F0);
+        canvas->fill();
+        
+        
+        canvas->move_to(x,               y + height/2);
+        canvas->line_to(x + width/2,     y);
+        canvas->line_to(x + width,       y + height/2);
+        canvas->line_to(x + width - 1.5, y + height/2);
+        canvas->line_to(x + width/2,     y + 1.5);
+        canvas->line_to(x + 1.5,         y + height/2);
+        
+        canvas->set_color(0x787878);
+        canvas->fill();
+        
+        
+        if(type == RadioButtonChecked){
+          canvas->move_to(x +     width/2, y +     height/4);
+          canvas->line_to(x + 3 * width/4, y +     height/2);
+          canvas->line_to(x +     width/2, y + 3 * height/4);
+          canvas->line_to(x +     width/4, y +     height/2);
+          
+          canvas->set_color(0x000000);
+          canvas->fill();
+        }
+        
+        canvas->set_color(old_color);
+      }
+      canvas->restore();
+    } break;
   }
 
   canvas->restore();
@@ -248,7 +379,8 @@ void ControlPainter::draw_container(
 SharedPtr<BoxAnimation> ControlPainter::control_transition(
   int                          widget_id,
   Canvas                      *canvas,
-  ContainerType                type,
+  ContainerType                type1,
+  ContainerType                type2,
   ControlState                 state1,
   ControlState                 state2,
   float                        x,

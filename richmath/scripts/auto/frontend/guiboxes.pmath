@@ -8,21 +8,27 @@ isDynamic(Dynamic(~,~)):= True
 isNumberOrDynamic(~x)::= IsNumber(x) || isDynamic(x)
 
 toBeProtected:= Unprotect(
-	Button, 
-	ButtonBox, 
-	Dynamic, 
-	DynamicBox, 
-	DynamicSetting, 
-	ProgressIndicator, 
-	ProgressIndicatorBox, 
-	Setter, 
-	SetterBar, 
+	Button,
+	ButtonBox,
+	Checkbox,
+	CheckboxBox,
+	Dynamic,
+	DynamicBox,
+	DynamicSetting,
+	ProgressIndicator,
+	ProgressIndicatorBox,
+	Setter,
+	SetterBar,
 	SetterBox, 
-	Setting, 
-	Slider, 
+	Setting,
+	Slider,
 	SliderBox)
 
 MakeBoxes(Button(~text, ~code, options:OptionsPattern()))::= ButtonBox(MakeBoxes(text), ButtonFunction -> (code &), options)
+
+MakeBoxes(Checkbox())::=                                               CheckboxBox(False)
+MakeBoxes(Checkbox(~state,               options:OptionsPattern()))::= CheckboxBox(state, options)
+MakeBoxes(Checkbox(~state, values:{~,~}, options:OptionsPattern()))::= CheckboxBox(state, values, options)
 
 MakeBoxes(Dynamic(~var, options:OptionsPattern()))::= DynamicBox(ToBoxes(var), options)
 
@@ -32,8 +38,28 @@ MakeBoxes(ProgressIndicator())::=                                     ProgressIn
 MakeBoxes(ProgressIndicator(~val ? isNumberOrDynamic))::=             ProgressIndicatorBox(val, 0..1)
 MakeBoxes(ProgressIndicator(~val ? isNumberOrDynamic, ~min..~max))::= ProgressIndicatorBox(val, min..max)
 
+MakeBoxes(RadioButton())::=                                         RadioButtonBox(False)
+MakeBoxes(RadioButton(~state))::=                                   RadioButtonBox(state)
+MakeBoxes(RadioButton(~state, ~value, options:OptionsPattern()))::= RadioButtonBox(state, value, options)
+
+
+MakeBoxes(rb: RadioButtonBar(~var:Dynamic, values:{((~ -> ~) | (~ :> ~))**}, options:OptionsPattern()))::= 
+	With({boxes:= ToBoxes(Grid({values.Map(Row({RadioButton(var, #[1]), #[2]}, "\[InvisibleSpace]")&)}))},
+		InterpretationBox(boxes, rb))
+
+MakeBoxes(rb: RadioButtonBar(~var:Dynamic, values:{~~}, options:OptionsPattern()))::= 
+	With({boxes:= ToBoxes(Grid({values.Map(Row({RadioButton(var, #), #}, "\[InvisibleSpace]")&)}))},
+		InterpretationBox(boxes, rb))
+
+/* TODO: use DynamicLocal */
+MakeBoxes(RadioButtonBar(val: Except(~:Dynamic), values:{~~}, options:OptionsPattern()))::=
+	Local({var:= val},
+		MakeBoxes(RadioButtonBar(Dynamic(var), values, options)))
+
+
 MakeBoxes(Setter(~var, ~value, options:OptionsPattern()))::=         SetterBox(var, value, MakeBoxes(value), options)
 MakeBoxes(Setter(~var, ~value, ~label, options:OptionsPattern()))::= SetterBox(var, value, MakeBoxes(label), options)
+
 
 MakeBoxes(sb: SetterBar(~var:Dynamic, values:{((~ -> ~) | (~ :> ~))**}, options:OptionsPattern(SetterBar)))::= 
 	With({boxes:= ToBoxes(Row(values.Map(Setter(var, #[1], #[2], options)&), "\[InvisibleSpace]"))},
@@ -80,10 +106,16 @@ ButtonBox/: MakeExpression(ButtonBox(~contentBoxes, opt: OptionsPattern()))::=
 			)
 		)
 
+CheckboxBox/: MakeExpression(CheckboxBox(~state))::=                                    HoldComplete(Checkbox(state))
+CheckboxBox/: MakeExpression(CheckboxBox(~state, ~values, options:OptionsPattern()))::= HoldComplete(Checkbox(state, values, options))
+
 DynamicBox/: MakeExpression(DynamicBox(ToBoxes(~var), options:OptionsPattern()))::= HoldComplete(Dynamic(var, options))
 
 ProgressIndicatorBox/: MakeExpression(ProgressIndicatorBox(~val, 0..1))::=   HoldComplete(ProgressIndicator(val))
 ProgressIndicatorBox/: MakeExpression(ProgressIndicatorBox(~val, ~range))::= HoldComplete(ProgressIndicator(val, range))
+
+RadioButtonBox/: MakeExpression(RadioButtonBox(~state))::=                                   HoldComplete(RadioButton(state))
+RadioButtonBox/: MakeExpression(RadioButtonBox(~state, ~value, options:OptionsPattern()))::= HoldComplete(RadioButton(state, value, options))
 
 SetterBox/: MakeExpression(SetterBox(~var, ~value, ~labelBoxes, options:OptionsPattern()))::= 
 	Local({head},
@@ -100,7 +132,7 @@ SliderBox/: MakeExpression(SliderBox(~val, ~range, options:OptionsPattern()))::=
 
 
 Setting(~expr)::= ReplaceRepeated(expr, 
-	{(Dynamic|ProgressIndicator|Setter|SetterBar|Slider)(~x, ~~~) :> x,
+	{(Checkbox|Dynamic|ProgressIndicator|RadioButton|Setter|SetterBar|Slider)(~x, ~~~) :> x,
 	ProgressIndicator() :> 0,
 	Slider() :> 0.5})
 

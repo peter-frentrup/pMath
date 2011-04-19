@@ -192,6 +192,11 @@ int Win32ControlPainter::control_font_color(ContainerType type, ControlState sta
     case SliderHorzThumb:
     case ProgressIndicatorBackground:
     case ProgressIndicatorBar:
+    case CheckboxUnchecked:
+    case CheckboxChecked:
+    case CheckboxIndeterminate:
+    case RadioButtonUnchecked:
+    case RadioButtonChecked:
       break;
   }
   
@@ -494,15 +499,15 @@ void Win32ControlPainter::draw_container(
       case DefaultPushButton: 
       case GenericButton:
       case PushButton: {
-        UINT _state = DFCS_BUTTONPUSH;
+//        UINT _state = DFCS_BUTTONPUSH;
         
-        switch(state){
-          case Disabled: _state|= DFCS_INACTIVE; break;
-          case Pressed:  _state|= DFCS_PUSHED;   break;
-          case Hot:
-          case Hovered:  _state|= DFCS_HOT;      break;
-          default: ;
-        }
+//        switch(state){
+//          case Disabled: _state|= DFCS_INACTIVE; break;
+//          case Pressed:  _state|= DFCS_PUSHED;   break;
+//          case Hot:
+//          case Hovered:  _state|= DFCS_HOT;      break;
+//          default: break;
+//        }
         
         if(type == DefaultPushButton){
           FrameRect(dc, &rect, (HBRUSH)GetStockObject(BLACK_BRUSH));
@@ -510,15 +515,24 @@ void Win32ControlPainter::draw_container(
           InflateRect(&rect, -1, -1);
         }
         
-        DrawFrameControl(
-          dc,
-          &rect,
-          DFC_BUTTON,
-          _state);
+        FillRect(dc, &rect, (HBRUSH)(COLOR_BTNFACE + 1));
+        
+        if(state == Pressed){
+          DrawEdge(dc, &rect, EDGE_SUNKEN, BF_RECT);
+        }
+        else{
+          DrawEdge(dc, &rect, EDGE_RAISED, BF_RECT);
+        }
+        
+//        DrawFrameControl(
+//          dc,
+//          &rect,
+//          DFC_BUTTON,
+//          _state);
       } break;
       
       case InputField: {
-        FillRect(dc, &rect, (HBRUSH)GetStockObject(WHITE_BRUSH));
+        FillRect(dc, &rect, (HBRUSH)(COLOR_WINDOW + 1));
 
         DrawEdge(
           dc,
@@ -569,6 +583,59 @@ void Win32ControlPainter::draw_container(
           DFCS_BUTTONPUSH);
       } break;
       
+      case CheckboxUnchecked: 
+      case CheckboxChecked: 
+      case CheckboxIndeterminate:{
+        UINT _state = DFCS_BUTTONCHECK;
+        
+        if(type == CheckboxChecked)       _state|= DFCS_CHECKED;
+        if(type == CheckboxIndeterminate) _state = DFCS_BUTTON3STATE | DFCS_CHECKED;
+        
+        switch(state){
+          case Disabled: _state|= DFCS_INACTIVE; break;
+          case Pressed:  _state|= DFCS_PUSHED;   break;
+          default: break;
+        }
+        
+        DrawFrameControl(
+          dc,
+          &rect,
+          DFC_BUTTON,
+          _state);
+      } break;
+      
+      case RadioButtonUnchecked:
+      case RadioButtonChecked: {
+        UINT _state = DFCS_BUTTONRADIO;
+        
+        if(type == RadioButtonChecked)    _state|= DFCS_CHECKED;
+        
+        switch(state){
+          case Disabled: _state|= DFCS_INACTIVE; break;
+          case Pressed:  _state|= DFCS_PUSHED;   break;
+          default: break;
+        }
+        
+        if(rect.right - rect.left > 0){
+          double w = (rect.right - rect.left) * 0.75;
+          double c = (rect.right + rect.left) * 0.5;
+          rect.left  = (int)(c - w/2);
+          rect.right = (int)(c + w/2);
+        }
+        
+        if(rect.bottom - rect.top > 12){
+          double w = (rect.bottom - rect.top) * 0.75;
+          double c = (rect.bottom + rect.top) * 0.5;
+          rect.top    = (int)(c - w/2);
+          rect.bottom = (int)(c + w/2);
+        }
+        
+        DrawFrameControl(
+          dc,
+          &rect,
+          DFC_BUTTON,
+          _state);
+      } break;
     }
   }
   
@@ -608,7 +675,8 @@ void Win32ControlPainter::draw_container(
 SharedPtr<BoxAnimation> Win32ControlPainter::control_transition(
   int            widget_id,
   Canvas        *canvas,
-  ContainerType  type,
+  ContainerType  type1,
+  ContainerType  type2,
   ControlState   state1,
   ControlState   state2,
   float          x,
@@ -621,23 +689,24 @@ SharedPtr<BoxAnimation> Win32ControlPainter::control_transition(
     return 0;
   
   bool repeat = false;
-  if(type == DefaultPushButton && state1 == Normal && state2 == Normal){
+  if(type2 == DefaultPushButton && state1 == Normal && state2 == Normal){
     state2 = Hot;
     repeat = true;
   }
   
-  if(state1 == Normal && (state2 == Hot || state2 == Hovered))
+  if(state1 == Normal && (state2 == Hot || state2 == Hovered)
+  && type2 == PaletteButton)
     return 0;
   
   int theme_part, theme_state1, theme_state2;
-  HANDLE theme = get_control_theme(type, state1, &theme_part, &theme_state1);
-                 get_control_theme(type, state2, &theme_part, &theme_state2);
+  HANDLE theme = get_control_theme(type1, state1, &theme_part, &theme_state1);
+                 get_control_theme(type2, state2, &theme_part, &theme_state2);
   if(!theme)
     return 0;
   
-  if(type == PushButton
-  || type == DefaultPushButton
-  || type == PaletteButton){
+  if(type2 == PushButton
+  || type2 == DefaultPushButton
+  || type2 == PaletteButton){
     if(state2 == Pressed/* || state1 == Normal*/)
       return 0;
   }
@@ -655,7 +724,7 @@ SharedPtr<BoxAnimation> Win32ControlPainter::control_transition(
     float w1 = width;
     float h1 = height;
     
-    if(type == InputField){ // bigger buffer for glow rectangle
+    if(type2 == InputField){ // bigger buffer for glow rectangle
       x1-= 4.5;
       y1-= 4.5;
       w1+= 9;
@@ -677,7 +746,7 @@ SharedPtr<BoxAnimation> Win32ControlPainter::control_transition(
     
     draw_container(
       anim->buf1->canvas(),
-      type,
+      type1,
       state1,
       x - x0,
       y - y0,
@@ -686,7 +755,7 @@ SharedPtr<BoxAnimation> Win32ControlPainter::control_transition(
     
     draw_container(
       anim->buf2->canvas(),
-      type,
+      type2,
       state2,
       x - x0,
       y - y0,
@@ -1146,7 +1215,12 @@ HANDLE Win32ControlPainter::get_control_theme(
   
   switch(type){
     case PushButton:
-    case DefaultPushButton: {
+    case DefaultPushButton: 
+    case CheckboxUnchecked: 
+    case CheckboxChecked:
+    case CheckboxIndeterminate: 
+    case RadioButtonUnchecked: 
+    case RadioButtonChecked: {
       if(!button_theme)
         button_theme = Win32Themes::OpenThemeData(0, L"BUTTON");
       
@@ -1261,6 +1335,61 @@ HANDLE Win32ControlPainter::get_control_theme(
         case Hovered:  *theme_state = 2; break;
         case Pressed:  *theme_state = 3; break;
         case Disabled: *theme_state = 4; break;
+      }
+    } break;
+    
+    case CheckboxUnchecked: {
+      *theme_part = 3; // BP_CHECKBOX
+      switch(state){
+        case Normal:   *theme_state = 1; break;
+        case Hot: 
+        case Hovered:  *theme_state = 2; break;
+        case Pressed:  *theme_state = 3; break;
+        case Disabled: *theme_state = 4; break;
+      }
+    } break;
+    
+    case CheckboxChecked: {
+      *theme_part = 3; // BP_CHECKBOX
+      switch(state){
+        case Normal:   *theme_state = 5; break;
+        case Hot: 
+        case Hovered:  *theme_state = 6; break;
+        case Pressed:  *theme_state = 7; break;
+        case Disabled: *theme_state = 8; break;
+      }
+    } break;
+    
+    case CheckboxIndeterminate: {
+      *theme_part = 3; // BP_CHECKBOX
+      switch(state){
+        case Normal:   *theme_state = 9; break;
+        case Hot: 
+        case Hovered:  *theme_state = 10; break;
+        case Pressed:  *theme_state = 11; break;
+        case Disabled: *theme_state = 12; break;
+      }
+    } break;
+    
+    case RadioButtonUnchecked: {
+      *theme_part = 2; // BP_RADIOBUTTON
+      switch(state){
+        case Normal:   *theme_state = 1; break;
+        case Hot: 
+        case Hovered:  *theme_state = 2; break;
+        case Pressed:  *theme_state = 3; break;
+        case Disabled: *theme_state = 4; break;
+      }
+    } break;
+    
+    case RadioButtonChecked: {
+      *theme_part = 2; // BP_RADIOBUTTON
+      switch(state){
+        case Normal:   *theme_state = 5; break;
+        case Hot: 
+        case Hovered:  *theme_state = 6; break;
+        case Pressed:  *theme_state = 7; break;
+        case Disabled: *theme_state = 8; break;
       }
     } break;
     
