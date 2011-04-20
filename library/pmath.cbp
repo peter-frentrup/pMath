@@ -474,6 +474,9 @@
 		<Unit filename="src\pmath-builtins\control\definitions\update.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="src\pmath-builtins\control\filterrules.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="src\pmath-builtins\control\flow\do.c">
 			<Option compilerVar="CC" />
 		</Unit>

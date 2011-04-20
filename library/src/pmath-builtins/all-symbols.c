@@ -134,7 +134,8 @@ PMATH_PRIVATE pmath_t builtin_isheld(          pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_call_isheld(     pmath_expr_t expr);
 
 PMATH_PRIVATE pmath_t builtin_bytecount(       pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_count(          pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_count(           pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_filterrules(     pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_hash(            pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_history(         pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_loadlibrary(     pmath_expr_t expr);
@@ -816,6 +817,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   VERIFY(   PMATH_SYMBOL_FILENAMES                 = NEW_SYSTEM_SYMBOL("FileNames"))
   VERIFY(   PMATH_SYMBOL_FILETYPE                  = NEW_SYSTEM_SYMBOL("FileType"))
   VERIFY(   PMATH_SYMBOL_FILLBOX                   = NEW_SYSTEM_SYMBOL("FillBox"))
+  VERIFY(   PMATH_SYMBOL_FILTERRULES               = NEW_SYSTEM_SYMBOL("FilterRules"))
   VERIFY(   PMATH_SYMBOL_FINALLY                   = NEW_SYSTEM_SYMBOL("Finally"))
   VERIFY(   PMATH_SYMBOL_FIND                      = NEW_SYSTEM_SYMBOL("Find"))
   VERIFY(   PMATH_SYMBOL_FINDLIST                  = NEW_SYSTEM_SYMBOL("FindList"))
@@ -1403,6 +1405,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
     BIND_DOWN(   PMATH_SYMBOL_FILEBYTECOUNT,               builtin_filebytecount)
     BIND_DOWN(   PMATH_SYMBOL_FILENAMES,                   builtin_filenames)
     BIND_DOWN(   PMATH_SYMBOL_FILETYPE,                    builtin_filetype)
+    BIND_DOWN(   PMATH_SYMBOL_FILTERRULES,                 builtin_filterrules)
     BIND_DOWN(   PMATH_SYMBOL_FINALLY,                     builtin_finally)
     BIND_DOWN(   PMATH_SYMBOL_FIND,                        builtin_find)
     BIND_DOWN(   PMATH_SYMBOL_FINDLIST,                    builtin_findlist)

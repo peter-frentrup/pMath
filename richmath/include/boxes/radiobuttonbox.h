@@ -24,6 +24,7 @@ namespace richmath{
     
       Dynamic dynamic;
       Expr    value;
+      bool    first_paint;
   };
 }
 

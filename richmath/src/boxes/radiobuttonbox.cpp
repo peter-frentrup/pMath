@@ -5,7 +5,8 @@ using namespace richmath;
 //{ class RadioButtonBox ...
 
 RadioButtonBox::RadioButtonBox()
-: EmptyWidgetBox(RadioButtonUnchecked)
+: EmptyWidgetBox(RadioButtonUnchecked),
+  first_paint(true)
 {
   dynamic.init(this, Expr());
 }
@@ -53,7 +54,11 @@ void RadioButtonBox::paint(Context *context){
       type = calc_type(val);
   }
   
+  if(first_paint)
+    old_type = type;
+  
   EmptyWidgetBox::paint(context);
+  first_paint = false;
 }
 
 Expr RadioButtonBox::to_pmath(bool parseable){

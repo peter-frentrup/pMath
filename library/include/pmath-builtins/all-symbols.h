@@ -707,5 +707,6 @@ pmath_bool_t pmath_register_approx_code(
 #define PMATH_SYMBOL_RADIOBUTTON                            PMATH_SYMBOL_BUILTIN(615)
 #define PMATH_SYMBOL_RADIOBUTTONBOX                         PMATH_SYMBOL_BUILTIN(616)
 #define PMATH_SYMBOL_RADIOBUTTONBAR                         PMATH_SYMBOL_BUILTIN(617)
+#define PMATH_SYMBOL_FILTERRULES                            PMATH_SYMBOL_BUILTIN(618)
 
 #endif /* __PMATH_BUILTINS__SYMBOLS_H__ */
