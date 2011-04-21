@@ -129,6 +129,7 @@
 {"FormatRules", {"ArgumentCount" -> 1}},
 {"FractionBox", {"ArgumentCount" -> 2}},
 {"FrameBox", {"ArgumentCount" -> 1}},
+{"Framed", {"ArgumentCount" -> 1}},
 {"FrontEndObject", {"ArgumentCount" -> 1}},
 {"FrontEndTokenExecute", {"ArgumentCount" -> 1}},
 {"FullForm", {"ArgumentCount" -> 1}},

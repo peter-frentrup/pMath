@@ -570,6 +570,36 @@ static pmath_t builtin_quit(pmath_expr_t expr){
   return PMATH_NULL;
 }
 
+static pmath_t builtin_sectionprint(pmath_expr_t expr){
+  if(pmath_expr_length(expr) < 2)
+    return expr;
+  
+  ++dialog_depth;
+  
+  if(pmath_expr_length(expr) == 2){
+    pmath_t item = pmath_expr_get_item(expr, 2);
+    pmath_unref(expr);
+    
+    write_output(item);
+    pmath_unref(item);
+  }
+  else{
+    pmath_t row = pmath_expr_get_item_range(expr, 2, SIZE_MAX);
+    pmath_unref(expr);
+    
+    row = pmath_expr_set_item(row, 0, pmath_ref(PMATH_SYMBOL_LIST));
+    row = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_ROW), 1, row);
+    
+    write_output(row);
+    pmath_unref(row);
+  }
+  
+  --dialog_depth;
+  
+  write_line("\n");
+  return PMATH_NULL;
+}
+
 static void init_console_width(void){
   pmath_t pw = pmath_evaluate(pmath_ref(PMATH_SYMBOL_PAGEWIDTHDEFAULT));
   
@@ -593,9 +623,10 @@ int main(int argc, const char **argv){
   signal(SIGTERM, signal_term);
 
   if(!pmath_init()
-  || !pmath_register_code(PMATH_SYMBOL_DIALOG,    builtin_dialog, 0)
-  || !pmath_register_code(PMATH_SYMBOL_INTERRUPT, builtin_interrupt, 0)
-  || !pmath_register_code(PMATH_SYMBOL_QUIT,      builtin_quit, 0)){
+  || !pmath_register_code(PMATH_SYMBOL_DIALOG,       builtin_dialog, 0)
+  || !pmath_register_code(PMATH_SYMBOL_INTERRUPT,    builtin_interrupt, 0)
+  || !pmath_register_code(PMATH_SYMBOL_QUIT,         builtin_quit, 0)
+  || !pmath_register_code(PMATH_SYMBOL_SECTIONPRINT, builtin_sectionprint, 0)){
     fprintf(stderr, "Cannot initialize pMath.\n");
     return 1;
   }

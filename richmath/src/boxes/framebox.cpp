@@ -24,15 +24,19 @@ void FrameBox::resize(Context *context){
   em = context->canvas->get_font_size();
   
   float old_width = context->width;
-  context->width-= em * 0.3f;
+  context->width-= em * 0.5f;
   
   OwnerBox::resize(context);
   
-  _extents.width+= em * 0.5f;
-  _extents.ascent+= em * 0.25f;
-  _extents.descent+= em * 0.25f;
+  cx = em * 0.25f;
+  
+  _extents.width+=   2 * cx;
+  _extents.ascent+=  cx;
+  _extents.descent+= cx;
+  
   if(_extents.ascent < em)
     _extents.ascent = em;
+  
   if(_extents.descent < em * 0.5f)
     _extents.descent = em * 0.5f;
   
@@ -52,9 +56,8 @@ void FrameBox::paint(Context *context){
   
   context->canvas->fill();
   
-  context->canvas->move_to(x + 0.25f * em, y);
-  
-  _content->paint(context);
+  context->canvas->move_to(x, y);
+  OwnerBox::paint(context);
 }
 
 Expr FrameBox::to_pmath(bool parseable){

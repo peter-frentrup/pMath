@@ -32,7 +32,8 @@ struct linewriter_t{
   struct write_pos_t **next_write_pos;
   int                  string_depth;
   
-  int indention_width;
+  int                  indention_width;
+  pmath_bool_t         escape_string_breaks;
   
   void  *user;
   void (*write)(void*,const uint16_t*,int);
@@ -107,6 +108,21 @@ static void flush_line(struct linewriter_t *lw){
   pmath_bool_t in_string;
   
   if(lw->pos <= lw->line_length){
+    for(i = 0;i < lw->pos;++i){
+      if(lw->buffer[i] == '\n'){
+        ++i;
+        consume_write_pos(lw, i);
+        lw->write(lw->user, lw->buffer, i);
+        memmove(lw->buffer, lw->buffer + i, sizeof(uint16_t) * (lw->buffer_length - i));
+        lw->pos-= i;
+        
+        i = lw->indention_width;
+        while(i-- > 0)
+          write_cstr(" ", lw->write, lw->user);
+        return;
+      }
+    }
+    
     consume_write_pos(lw, lw->pos);
     lw->write(lw->user, lw->buffer, lw->pos);
     lw->pos = 0;
@@ -120,6 +136,10 @@ static void flush_line(struct linewriter_t *lw){
       lw->write(lw->user, lw->buffer, i);
       memmove(lw->buffer, lw->buffer + i, sizeof(uint16_t) * (lw->buffer_length - i));
       lw->pos-= i;
+      
+      i = lw->indention_width;
+      while(i-- > 0)
+        write_cstr(" ", lw->write, lw->user);
       return;
     }
   }
@@ -145,7 +165,7 @@ static void flush_line(struct linewriter_t *lw){
     in_string = (lw->newlines[nl - 1] & NEWLINE_INSTRING) != 0;
   }
   
-  if(in_string){
+  if(in_string && lw->escape_string_breaks){
     if(nl > lw->line_length - 2)
       nl = lw->line_length - 2;
     
@@ -164,7 +184,7 @@ static void flush_line(struct linewriter_t *lw){
   memmove(lw->buffer, lw->buffer + nl, sizeof(uint16_t) * (lw->buffer_length - nl));
   lw->pos-= nl;
   
-  if(in_string)
+  if(in_string && lw->escape_string_breaks)
     write_cstr("\\\n", lw->write, lw->user);
   else
     write_cstr("\n", lw->write, lw->user);
@@ -272,13 +292,14 @@ void pmath_write_with_pagewidth(
     return;
   }
   
-  lw.pos             = 0;
-  lw.all_write_pos   = NULL;
-  lw.next_write_pos  = &lw.all_write_pos;
-  lw.string_depth    = 0;
-  lw.indention_width = indention_width;
-  lw.write           = write;
-  lw.user            = user;
+  lw.pos                  = 0;
+  lw.all_write_pos        = NULL;
+  lw.next_write_pos       = &lw.all_write_pos;
+  lw.string_depth         = 0;
+  lw.indention_width      = indention_width;
+  lw.escape_string_breaks = (options & PMATH_WRITE_OPTIONS_FULLSTR) != 0;
+  lw.write                = write;
+  lw.user                 = user;
   
   memset(&info, 0, sizeof(info));
   info.size       = sizeof(info);

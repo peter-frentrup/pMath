@@ -75,7 +75,7 @@ struct _pmath_thread_t{
   uint8_t boxform;           // BOXFORM_XXX
   uint8_t critical_messages; // TRUE / FALSE
   uint8_t longform;          // TRUE / FALSE
-  uint8_t is_daemon;
+  uint8_t is_daemon;         // TRUE / FALSE
 };
 
 PMATH_PRIVATE void _pmath_destroy_abortable_message(void *p);

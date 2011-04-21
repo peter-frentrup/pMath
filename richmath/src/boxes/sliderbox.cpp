@@ -174,6 +174,7 @@ void SliderBox::paint(Context *context){
   if(isnan(range_value)){
     float rx = x + _extents.width/2;
     
+    int old_color = context->canvas->get_color();
     context->canvas->save();
     context->canvas->set_color(0xFF0000, 0.2);
     for(int i = -2;i <= 2;++i){
@@ -181,10 +182,12 @@ void SliderBox::paint(Context *context){
       context->canvas->fill();
     }
     context->canvas->restore();
+    context->canvas->set_color(old_color);
   }
   if(range_value < range_min && range_value < range_max){
     float rx = x + h/2;
     
+    int old_color = context->canvas->get_color();
     context->canvas->save();
     context->canvas->set_color(0xFF0000, 0.2);
     for(int i = 0;i <= 2;++i){
@@ -192,10 +195,12 @@ void SliderBox::paint(Context *context){
       context->canvas->fill();
     }
     context->canvas->restore();
+    context->canvas->set_color(old_color);
   }
   else if(range_value > range_max && range_value > range_min){
     float rx = x + _extents.width - h/2;
     
+    int old_color = context->canvas->get_color();
     context->canvas->save();
     context->canvas->set_color(0xFF0000, 0.2);
     for(int i = -2;i <= 0;++i){
@@ -203,6 +208,7 @@ void SliderBox::paint(Context *context){
       context->canvas->fill();
     }
     context->canvas->restore();
+    context->canvas->set_color(old_color);
   }
   
   ControlPainter::std->draw_container(

@@ -63,6 +63,7 @@ struct _pmath_symbol_t{
   pmath_atomic_t             rules; // struct _pmath_symbol_rules_t *
   
   pmath_atomic_t             current_dynamic_id;
+  pmath_atomic_t             ignore_dynamic_id;
 };
 
 //{ global symbol table ...
@@ -128,6 +129,7 @@ static struct _pmath_symbol_t *create_symbol(void){
     symbol->prev                            = NULL;
     symbol->next                            = NULL;
     pmath_atomic_write_release(&symbol->current_dynamic_id, 0);
+    pmath_atomic_write_release(&symbol->ignore_dynamic_id,  0);
   }
   
   return symbol;
@@ -375,6 +377,8 @@ PMATH_API pmath_symbol_t pmath_symbol_create_temporary(
   if(pmath_is_null(result)){
     struct _pmath_symbol_t *entry;
     struct _pmath_symbol_t *new_symbol = create_symbol();
+    pmath_thread_t thread = pmath_thread_get_current();
+    
     result = PMATH_FROM_PTR(new_symbol);
     if(!new_symbol){
       pmath_unref(name);
@@ -384,9 +388,11 @@ PMATH_API pmath_symbol_t pmath_symbol_create_temporary(
     //new_symbol->last_update = (uintptr_t)global_update_counter;
     new_symbol->lock        = NULL;
     new_symbol->name        = name;
-    new_symbol->attributes  = PMATH_SYMBOL_ATTRIBUTE_TEMPORARY | PMATH_SYMBOL_ATTRIBUTE_UNTRACKED;
+    new_symbol->attributes  = PMATH_SYMBOL_ATTRIBUTE_TEMPORARY;
     new_symbol->value._data = PMATH_UNDEFINED;
     pmath_atomic_write_release(&new_symbol->rules, 0);
+    if(thread)
+      pmath_atomic_write_release(&new_symbol->ignore_dynamic_id, thread->current_dynamic_id);
     
     PMATH_DEBUG_TIMING(
       pmath_atomic_lock(&global_symbol_table_lock);
@@ -407,7 +413,7 @@ PMATH_API pmath_symbol_t pmath_symbol_create_temporary(
   }
   else{
     pmath_unref(name);
-    pmath_symbol_set_attributes(result, PMATH_SYMBOL_ATTRIBUTE_TEMPORARY | PMATH_SYMBOL_ATTRIBUTE_UNTRACKED);
+    pmath_symbol_set_attributes(result, PMATH_SYMBOL_ATTRIBUTE_TEMPORARY);
   }
   
   return result;
@@ -759,8 +765,7 @@ pmath_bool_t _pmath_symbol_assign_value(
   }
   
   sym_ptr->inherited.inherited.last_change = _pmath_timer_get_next();
-  if(!(sym_ptr->attributes & PMATH_SYMBOL_ATTRIBUTE_UNTRACKED)
-  && pmath_atomic_fetch_set(&sym_ptr->current_dynamic_id, 0) != 0)
+  if(pmath_atomic_fetch_set(&sym_ptr->current_dynamic_id, 0) != 0)
     _pmath_dynamic_update(symbol);
     
   return TRUE;
@@ -799,8 +804,7 @@ void _pmath_symbol_set_global_value(
   sym_ptr = (void*)PMATH_AS_PTR(symbol);
   
   sym_ptr->inherited.inherited.last_change = _pmath_timer_get_next();
-  if(!(sym_ptr->attributes & PMATH_SYMBOL_ATTRIBUTE_UNTRACKED)
-  && pmath_atomic_fetch_set(&sym_ptr->current_dynamic_id, 0) != 0)
+  if(pmath_atomic_fetch_set(&sym_ptr->current_dynamic_id, 0) != 0)
     _pmath_dynamic_update(symbol);
 
   _pmath_object_atomic_write(
@@ -820,8 +824,7 @@ PMATH_API void pmath_symbol_set_value(
   }
   
   sym_ptr->inherited.inherited.last_change = _pmath_timer_get_next();
-  if(!(sym_ptr->attributes & PMATH_SYMBOL_ATTRIBUTE_UNTRACKED)
-  && pmath_atomic_fetch_set(&sym_ptr->current_dynamic_id, 0) != 0)
+  if(pmath_atomic_fetch_set(&sym_ptr->current_dynamic_id, 0) != 0)
     _pmath_dynamic_update(symbol);
 
   if(sym_ptr->attributes & PMATH_SYMBOL_ATTRIBUTE_THREADLOCAL){
@@ -862,8 +865,7 @@ PMATH_API void pmath_symbol_update(pmath_symbol_t symbol){
   
   sym_ptr->inherited.inherited.last_change = _pmath_timer_get_next();
   
-  if(!(sym_ptr->attributes & PMATH_SYMBOL_ATTRIBUTE_UNTRACKED)
-  && pmath_atomic_fetch_set(&sym_ptr->current_dynamic_id, 0) != 0)
+  if(pmath_atomic_fetch_set(&sym_ptr->current_dynamic_id, 0) != 0)
     _pmath_dynamic_update(symbol);
 }
 
@@ -879,8 +881,8 @@ void _pmath_symbol_track_dynamic(
 
   assert(pmath_is_symbol(symbol));
   
-  if(!(sym_ptr->attributes & PMATH_SYMBOL_ATTRIBUTE_UNTRACKED)
-  && pmath_atomic_read_aquire(&sym_ptr->current_dynamic_id) != id){
+  if(pmath_atomic_read_aquire(&sym_ptr->current_dynamic_id) != id
+  && pmath_atomic_read_aquire(&sym_ptr->ignore_dynamic_id)  != id){
     pmath_atomic_write_release(&sym_ptr->current_dynamic_id, id);
     
     _pmath_dynamic_bind(symbol, id);
