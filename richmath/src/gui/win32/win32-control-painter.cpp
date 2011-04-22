@@ -52,6 +52,7 @@ Win32ControlPainter::Win32ControlPainter()
   blur_input_field(true),
   button_theme(0),
   edit_theme(0),
+  tooltip_theme(0),
   progress_theme(0),
   scrollbar_theme(0),
   slider_theme(0),
@@ -183,6 +184,13 @@ int Win32ControlPainter::control_font_color(ContainerType type, ControlState sta
       
     case InputField: {
       DWORD col = GetSysColor(COLOR_WINDOWTEXT);
+      return ((col & 0xFF0000) >> 16)
+           |  (col & 0x00FF00)
+           | ((col & 0x0000FF) << 16);
+    } break;
+    
+    case TooltipWindow: {
+      DWORD col = GetSysColor(COLOR_INFOTEXT);
       return ((col & 0xFF0000) >> 16)
            |  (col & 0x00FF00)
            | ((col & 0x0000FF) << 16);
@@ -539,6 +547,19 @@ void Win32ControlPainter::draw_container(
           &rect,
           EDGE_SUNKEN,
           BF_RECT);
+      } break;
+      
+      case TooltipWindow: {
+        DrawEdge(
+          dc,
+          &rect,
+          EDGE_RAISED,
+          BF_RECT);
+        
+        InflateRect(&rect, -1, -1);
+        
+        FillRect(dc, &rect, (HBRUSH)(COLOR_INFOBK + 1));
+
       } break;
       
       case ProgressIndicatorBackground:
@@ -1242,6 +1263,13 @@ HANDLE Win32ControlPainter::get_control_theme(
       theme = edit_theme;
     } break;
     
+    case TooltipWindow: {
+      if(!tooltip_theme)
+        tooltip_theme = Win32Themes::OpenThemeData(0, L"TOOLTIP");
+      
+      theme = tooltip_theme;
+    } break;
+    
     case ProgressIndicatorBackground:
     case ProgressIndicatorBar: {
       if(!progress_theme)
@@ -1302,6 +1330,11 @@ HANDLE Win32ControlPainter::get_control_theme(
         case Pressed:  *theme_state = 3; break; // = focused
         case Disabled: *theme_state = 4; break;
       }
+    } break;
+    
+    case TooltipWindow: {
+      *theme_part  = 1; // TTP_STANDARD
+      *theme_state = 1;
     } break;
     
     case ProgressIndicatorBackground: {
@@ -1407,6 +1440,9 @@ void Win32ControlPainter::clear_cache(){
     if(edit_theme)
       Win32Themes::CloseThemeData(edit_theme);
     
+    if(tooltip_theme)
+      Win32Themes::CloseThemeData(tooltip_theme);
+    
     if(progress_theme)
       Win32Themes::CloseThemeData(progress_theme);
     
@@ -1422,6 +1458,7 @@ void Win32ControlPainter::clear_cache(){
   
   button_theme    = 0;
   edit_theme      = 0;
+  tooltip_theme   = 0;
   progress_theme  = 0;
   scrollbar_theme = 0;
   slider_theme    = 0;

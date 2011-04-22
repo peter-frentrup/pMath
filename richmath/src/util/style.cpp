@@ -86,6 +86,9 @@ static int rhs_to_buttonframe(Expr rhs){
     
     if(str.equals("Frameless"))
       return FramelessButton;
+      
+    if(str.equals("TooltipWindow"))
+      return TooltipWindow;
   }
   
   return -1;
@@ -107,6 +110,9 @@ static Expr buttonframe_to_rhs(int value){
     
     case PaletteButton:
       return String("Palette");
+    
+    case TooltipWindow:
+      return String("TooltipWindow");
     
     default:
       return Symbol(PMATH_SYMBOL_AUTOMATIC);

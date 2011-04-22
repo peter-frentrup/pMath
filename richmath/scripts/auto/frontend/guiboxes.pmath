@@ -22,7 +22,9 @@ toBeProtected:= Unprotect(
 	SetterBox, 
 	Setting,
 	Slider,
-	SliderBox)
+	SliderBox,
+	Tooltip,
+	TooltipBox)
 
 MakeBoxes(Button(~text, ~code, options:OptionsPattern()))::= ButtonBox(MakeBoxes(text), ButtonFunction -> (code &), options)
 
@@ -81,6 +83,8 @@ MakeBoxes(Slider(~val ? isNumberOrDynamic, ~min..~max..~step,      options:Optio
 MakeBoxes(Slider(~val ? isNumberOrDynamic, Except({}, ~vals:List), options:OptionsPattern()))::= SliderBox(val, vals, options)
 
 
+MakeBoxes(Tooltip(~content, ~tooltip))::= TooltipBox(MakeBoxes(content), MakeBoxes(tooltip))
+
 
 
 Attibutes(extractFunctionBody):= {HoldAllComplete}
@@ -98,6 +102,7 @@ ButtonBox/: MakeExpression(ButtonBox(~contentBoxes, opt: OptionsPattern()))::=
 	Local({head},
 		With({tmp:= extractButtonFunction(opt), content:= MakeExpression(contentBoxes)},
 			With({fn:= tmp[1], opt2:= tmp[2]},
+				If(fn === $Failed, Return($Failed));
 				HoldComplete(Button(head(content), head(fn), head(opt2))).Replace(
 					{head(HoldComplete(~x)) :> x, 
 					 head({~~~args})        :> Sequence(args), 
@@ -129,10 +134,15 @@ SetterBox/: MakeExpression(SetterBox(~var, ~value, ~labelBoxes, options:OptionsP
 SliderBox/: MakeExpression(SliderBox(~val, 0..1,   options:OptionsPattern()))::= HoldComplete(Slider(val, options))
 SliderBox/: MakeExpression(SliderBox(~val, ~range, options:OptionsPattern()))::= HoldComplete(Slider(val, range, options))
 
+TooltipBox/: MakeExpression(TooltipBox(~content, ~tooltip, options:OptionsPattern()))::= 
+	With({c:= MakeExpression(content), t:= MakeExpression(tooltip)},
+		If(c === $Failed ||t === $Failed, Return($Failed));
+		HoldComplete(Tooltip(c, t)).Replace({HoldComplete(~x) :> x}, 2)
+		)
 
 
 Setting(~expr)::= ReplaceRepeated(expr, 
-	{(Checkbox|Dynamic|ProgressIndicator|RadioButton|Setter|SetterBar|Slider)(~x, ~~~) :> x,
+	{(Checkbox|Dynamic|ProgressIndicator|RadioButton|Setter|SetterBar|Slider|Tooltip)(~x, ~~~) :> x,
 	ProgressIndicator() :> 0,
 	Slider() :> 0.5})
 

@@ -264,7 +264,6 @@ pmath_token_t SpanExpr::as_token(int *prec){
     
     if(dynamic_cast<UnderoverscriptBox*>(b)
     || dynamic_cast<StyleBox*>(b)
-    || dynamic_cast<TagBox*>(b)
     || dynamic_cast<InterpretationBox*>(b)){
       MathSequence *seq = dynamic_cast<MathSequence*>(b->item(0));
       assert(seq);
@@ -303,7 +302,6 @@ int SpanExpr::as_prefix_prec(int defprec){
   if(b){
     if(dynamic_cast<UnderoverscriptBox*>(b)
     || dynamic_cast<StyleBox*>(b)
-    || dynamic_cast<TagBox*>(b)
     || dynamic_cast<InterpretationBox*>(b)){
       MathSequence *seq = dynamic_cast<MathSequence*>(b->item(0));
       assert(seq);

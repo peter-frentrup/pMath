@@ -20,6 +20,7 @@
 #include <gui/win32/ole/dataobject.h>
 #include <gui/win32/ole/dropsource.h>
 #include <gui/win32/win32-clipboard.h>
+#include <gui/win32/win32-tooltip-window.h>
 
 #include <resources.h>
 
@@ -195,6 +196,17 @@ void Win32Widget::scroll_to(float x, float y){
     ScrollWindow(_hwnd, oldx - newx, oldy - newy, &norect, &norect);
     invalidate();
   }
+}
+
+void Win32Widget::show_tooltip(Expr boxes){
+  POINT pt = {0,0};
+  GetCursorPos(&pt);
+  
+  Win32TooltipWindow::show_global_tooltip(pt.x, pt.y, boxes);
+}
+
+void Win32Widget::hide_tooltip(){
+  Win32TooltipWindow::hide_global_tooltip();
 }
 
 double Win32Widget::message_time(){
@@ -747,20 +759,24 @@ void Win32Widget::on_keydown(DWORD virtkey, bool ctrl, bool alt, bool shift){
 }
 
 LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam){
-  if(!initializing()){
-    switch(message){
-      case WM_SIZE: {
-        RECT rect;
-        GetClientRect(_hwnd, &rect);
-        _width  = rect.right;
-        _height = rect.bottom;
-        
+  switch(message){
+    case WM_SIZE: {
+      RECT rect;
+      GetClientRect(_hwnd, &rect);
+      _width  = rect.right;
+      _height = rect.bottom;
+      
+      if(!initializing()){
         if(_width * scale_factor() != document()->extents().width)
           document()->invalidate_all();
         else
           document()->invalidate();
-      } return 0;
-        
+      }
+    } return 0;
+  }
+  
+  if(!initializing()){
+    switch(message){
       case WM_ERASEBKGND:
         return 1;
         

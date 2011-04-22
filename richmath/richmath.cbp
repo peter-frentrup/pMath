@@ -178,6 +178,7 @@
 		<Unit filename="include\boxes\stylebox.h" />
 		<Unit filename="include\boxes\subsuperscriptbox.h" />
 		<Unit filename="include\boxes\textsequence.h" />
+		<Unit filename="include\boxes\tooltipbox.h" />
 		<Unit filename="include\boxes\transformationbox.h" />
 		<Unit filename="include\boxes\underoverscriptbox.h" />
 		<Unit filename="include\eval\application.h" />
@@ -209,6 +210,7 @@
 		<Unit filename="include\gui\win32\win32-document-window.h" />
 		<Unit filename="include\gui\win32\win32-menubar.h" />
 		<Unit filename="include\gui\win32\win32-themes.h" />
+		<Unit filename="include\gui\win32\win32-tooltip-window.h" />
 		<Unit filename="include\gui\win32\win32-widget.h" />
 		<Unit filename="include\util\array.h" />
 		<Unit filename="include\util\base.h" />
@@ -252,6 +254,7 @@
 		<Unit filename="src\boxes\stylebox.cpp" />
 		<Unit filename="src\boxes\subsuperscriptbox.cpp" />
 		<Unit filename="src\boxes\textsequence.cpp" />
+		<Unit filename="src\boxes\tooltipbox.cpp" />
 		<Unit filename="src\boxes\transformationbox.cpp" />
 		<Unit filename="src\boxes\underoverscriptbox.cpp" />
 		<Unit filename="src\eval\application.cpp" />
@@ -283,6 +286,7 @@
 		<Unit filename="src\gui\win32\win32-document-window.cpp" />
 		<Unit filename="src\gui\win32\win32-menubar.cpp" />
 		<Unit filename="src\gui\win32\win32-themes.cpp" />
+		<Unit filename="src\gui\win32\win32-tooltip-window.cpp" />
 		<Unit filename="src\gui\win32\win32-widget.cpp" />
 		<Unit filename="src\main.cpp" />
 		<Unit filename="src\util\base.cpp" />

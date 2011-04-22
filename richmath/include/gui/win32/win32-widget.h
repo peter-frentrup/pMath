@@ -33,6 +33,9 @@ namespace richmath{
       virtual void scroll_pos(float *x, float *y);
       virtual void scroll_to(float x, float y);
       
+      virtual void show_tooltip(Expr boxes);
+      virtual void hide_tooltip();
+      
       virtual bool is_scaleable(){ return true; }
       
       virtual double message_time();

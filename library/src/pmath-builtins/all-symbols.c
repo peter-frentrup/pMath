@@ -1216,6 +1216,8 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   VERIFY(   PMATH_SYMBOL_TOBOXES                   = NEW_SYSTEM_SYMBOL("ToBoxes"))
   VERIFY(   PMATH_SYMBOL_TOEXPRESSION              = NEW_SYSTEM_SYMBOL("ToExpression"))
   VERIFY(   PMATH_SYMBOL_TOFILENAME                = NEW_SYSTEM_SYMBOL("ToFileName"))
+  VERIFY(   PMATH_SYMBOL_TOOLTIP                   = NEW_SYSTEM_SYMBOL("Tooltip"))
+  VERIFY(   PMATH_SYMBOL_TOOLTIPBOX                = NEW_SYSTEM_SYMBOL("TooltipBox"))
   VERIFY(   PMATH_SYMBOL_TOSTRING                  = NEW_SYSTEM_SYMBOL("ToString"))
   VERIFY(   PMATH_SYMBOL_TOTAL                     = NEW_SYSTEM_SYMBOL("Total"))
   VERIFY(   PMATH_SYMBOL_TRACKEDSYMBOLS            = NEW_SYSTEM_SYMBOL("TrackedSymbols"))

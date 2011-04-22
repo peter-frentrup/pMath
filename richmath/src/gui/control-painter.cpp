@@ -24,7 +24,8 @@ void ControlPainter::calc_container_size(
     
     case GenericButton:
     case PushButton: 
-    case PaletteButton: {
+    case PaletteButton:
+    case TooltipWindow: {
       if(extents->ascent < canvas->get_font_size() * 0.75f)
          extents->ascent = canvas->get_font_size() * 0.75f;// - extents->ascent;
         
@@ -95,6 +96,7 @@ void ControlPainter::calc_container_size(
     } break;
   }
 }
+
 
 int ControlPainter::control_font_color(ContainerType type, ControlState state){
   if(is_very_transparent(type, state))
@@ -228,6 +230,10 @@ void ControlPainter::draw_container(
   
     case InputField: 
       paint_frame(canvas, x, y, width, height, true, 0xFFFFFF);
+      break;
+    
+    case TooltipWindow: 
+      paint_frame(canvas, x, y, width, height, false, 0xFFF4C1);
       break;
     
     case SliderHorzChannel:

@@ -74,7 +74,7 @@ class richmath::WorkingArea: public Win32Widget{
       if(auto_size)
         *w = HUGE_VAL;
     }
-      
+    
     virtual void running_state_changed(){
       if(parent)
         parent->title(parent->title());
@@ -555,18 +555,17 @@ Win32DocumentWindow::~Win32DocumentWindow(){
     );
     
     if(have_only_palettes){
-      static Array<Win32DocumentWindow*> all_windows;
-      
-      all_windows.length(0);
-      FOREACH_WINDOW(win,
-        if(win != this)
-          all_windows.add(win);
-      );
-      
       deleting_all = true;
-      for(int i = 0;i < all_windows.length();++i){
-        delete all_windows[i];
+      
+      BasicWin32Window *other = next_window();
+      while(other && other != this){
+        BasicWin32Window *next = other->next_window();
+        
+        delete other;
+        
+        other = next;
       }
+      
       deleting_all = false;
       
       PostQuitMessage(0);
@@ -812,6 +811,13 @@ void Win32DocumentWindow::is_palette(bool value){
   _working_area->_autohide_vertical_scrollbar = _is_palette;
   
   on_theme_changed();
+}
+
+bool Win32DocumentWindow::is_closed(){
+  if(is_palette())
+    return false;
+  
+  return BasicWin32Window::is_closed();
 }
 
 void Win32DocumentWindow::on_theme_changed(){

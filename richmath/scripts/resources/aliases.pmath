@@ -126,6 +126,7 @@
 		"Zeta" -> "\[CapitalZeta]",
 		"H"   -> "\[CapitalEta]",
 		"Eta" -> "\[CapitalEta]",
+		"Q"     -> "\[CapitalTheta]",
 		"Th"    -> "\[CapitalTheta]",
 		"Theta" -> "\[CapitalTheta]",
 		"I"    -> "\[CapitalIota]",

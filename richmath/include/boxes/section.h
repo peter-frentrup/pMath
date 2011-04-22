@@ -117,14 +117,14 @@ namespace richmath{
   
   class MathSection: public AbstractSequenceSection {
     public:
-      MathSection(SharedPtr<Style> style);
+      explicit MathSection(SharedPtr<Style> style);
       
       MathSequence *content(){ return (MathSequence*)_content; }
   };
   
   class TextSection: public AbstractSequenceSection {
     public:
-      TextSection(SharedPtr<Style> style);
+      explicit TextSection(SharedPtr<Style> style);
       
       TextSection *content(){ return (TextSection*)_content; }
   };

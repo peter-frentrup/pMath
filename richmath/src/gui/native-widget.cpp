@@ -27,6 +27,9 @@ class DummyNativeWidget: public NativeWidget{
     }
     
     virtual void scroll_to(float x, float y){}
+  
+    virtual void show_tooltip(Expr boxes){}
+    virtual void hide_tooltip(){}
     
     virtual bool is_scaleable(){ return false; }
     

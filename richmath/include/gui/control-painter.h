@@ -17,6 +17,7 @@ namespace richmath{
     DefaultPushButton,
     PaletteButton,
     InputField,
+    TooltipWindow,
     
     // not realy a container:
     SliderHorzChannel,

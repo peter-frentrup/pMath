@@ -905,6 +905,10 @@ PMATH_PRIVATE pmath_bool_t _pmath_pattern_match(
             *rhs = res;
           }
         }
+        
+        if(pmath_is_expr_of(*rhs, MAGIC_PATTERN_SEQUENCE)){
+          *rhs = pmath_expr_set_item(*rhs, 0, pmath_ref(PMATH_SYMBOL_SEQUENCE));
+        }
       }
 
       if(info.symmetric){
@@ -1835,7 +1839,7 @@ static match_kind_t match_func_left( // for non-symmetric functions
     return TRUE;
   }
 
-  static __inline pmath_bool_t index_next(
+  static pmath_bool_t index_next(
     size_t  *indices,
     char    *args_in_use,
     size_t   indices_len,
@@ -2481,10 +2485,8 @@ PMATH_PRIVATE pmath_t _pmath_replace_local(
     
     item = _pmath_replace_local(item, name, value);
       
-    if(i != 0 && !do_flatten && pmath_is_expr(item)){
-      pmath_t head = pmath_expr_get_item(item, 0);
-      pmath_unref(head);
-      do_flatten = pmath_same(head, MAGIC_PATTERN_SEQUENCE);
+    if(i != 0 && !do_flatten){
+      do_flatten = pmath_is_expr_of(item, MAGIC_PATTERN_SEQUENCE);
     }
     
     object = pmath_expr_set_item(object, i, item);

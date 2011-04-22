@@ -656,6 +656,8 @@ void Document::focus_killed(){
 }
 
 void Document::key_down(SpecialKeyEvent &event){
+  native()->hide_tooltip();
+
   Box *selbox = context.selection.get();
   if(selbox){
     selbox->on_key_down(event);
@@ -680,6 +682,8 @@ void Document::key_up(SpecialKeyEvent &event){
 }
 
 void Document::key_press(uint16_t unicode){
+  native()->hide_tooltip();
+
   if(unicode == '\r'){
     unicode = '\n';
   }
@@ -705,6 +709,8 @@ void Document::key_press(uint16_t unicode){
 //{ event handlers ...
 
 void Document::on_mouse_down(MouseEvent &event){
+  native()->hide_tooltip();
+
   event.set_source(this);
   
   drag_status = DragStatusIdle;

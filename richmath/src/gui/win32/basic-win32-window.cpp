@@ -7,6 +7,7 @@
 #include <graphics/canvas.h>
 #include <gui/win32/basic-win32-window.h>
 #include <gui/win32/win32-control-painter.h>
+#include <gui/win32/win32-tooltip-window.h>
 #include <gui/win32/win32-widget.h>
 
 #include <eval/application.h>
@@ -57,6 +58,8 @@ static void add_basic_window(){
 static void remove_basic_window(){
   if(--basic_window_count != 0)
     return;
+  
+  Win32TooltipWindow::delete_global_tooltip();
   
   if(background_image){
     cairo_surface_destroy(background_image);
@@ -981,6 +984,10 @@ void BasicWin32Window::extend_glass(Win32Themes::MARGINS *margins){
   }
 }
 
+bool BasicWin32Window::is_closed(){
+  return !IsWindowVisible(_hwnd);
+}
+
 void BasicWin32Window::paint_background(Canvas *canvas, HWND child, bool wallpaper_only){
   RECT rect, child_rect;
   
@@ -1478,8 +1485,10 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam){
             pos->hwndInsertAfter = all_higher[0]->hwnd();
             
             for(int i = 0;i < all_higher.length();++i){
-              SetWindowPos(all_higher[i]->hwnd(), HWND_TOP, 0, 0, 0, 0, 
-                SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
+              if(!all_higher[i]->is_closed()){
+                SetWindowPos(all_higher[i]->hwnd(), HWND_TOP, 0, 0, 0, 0, 
+                  SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
+              }
             }
           }
           

@@ -43,6 +43,9 @@ namespace richmath{
       virtual void scroll_to(float x, float y) = 0;
       virtual void scroll_by(float dx, float dy);
       
+      virtual void show_tooltip(Expr boxes) = 0;
+      virtual void hide_tooltip() = 0;
+      
       virtual bool is_scaleable() = 0;
       void scale_by(float ds);
       void set_scale(float s);

@@ -42,6 +42,8 @@ namespace richmath{
       bool is_palette(){ return _is_palette; }
       void is_palette(bool value);
       
+      virtual bool is_closed();
+      
       Win32Widget *top_glass_area(){    return (Win32Widget*)_top_glass_area; }
       Win32Widget *top_area(){          return (Win32Widget*)_top_area; }
       Win32Widget *working_area(){      return (Win32Widget*)_working_area; }

@@ -33,6 +33,8 @@ namespace richmath{
       void extend_glass(Win32Themes::MARGINS *margins);
       bool glass_enabled(){ return _glass_enabled; }
       
+      virtual bool is_closed();
+      
       void paint_background(Canvas *canvas, HWND child, bool wallpaper_only = false);
       void paint_background(Canvas *canvas, int x, int y, bool wallpaper_only = false);
       

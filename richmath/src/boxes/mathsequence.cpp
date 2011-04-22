@@ -23,6 +23,7 @@
 #include <boxes/sliderbox.h>
 #include <boxes/stylebox.h>
 #include <boxes/subsuperscriptbox.h>
+#include <boxes/tooltipbox.h>
 #include <boxes/transformationbox.h>
 #include <boxes/underoverscriptbox.h>
 
@@ -4157,6 +4158,14 @@ static void make_box(int pos, pmath_t obj, void *data){
   
   if(expr[0] == PMATH_SYMBOL_TAGBOX){
     TagBox *box = TagBox::create(expr, info->options);
+    if(box){
+      info->boxes->add(box);
+      return;
+    }
+  }
+  
+  if(expr[0] == PMATH_SYMBOL_TOOLTIPBOX){
+    TooltipBox *box = TooltipBox::create(expr, info->options);
     if(box){
       info->boxes->add(box);
       return;

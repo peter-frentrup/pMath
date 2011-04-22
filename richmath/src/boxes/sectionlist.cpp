@@ -455,6 +455,9 @@ Section *SectionList::swap(int pos, Section *section){
 }
 
 void SectionList::remove(int start, int end){
+  if(end <= start)
+    return;
+  
   set_open_close_group(start, true);
     
   for(int i = start;i < end;++i)
