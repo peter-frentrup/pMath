@@ -199,10 +199,7 @@ void Win32Widget::scroll_to(float x, float y){
 }
 
 void Win32Widget::show_tooltip(Expr boxes){
-  POINT pt = {0,0};
-  GetCursorPos(&pt);
-  
-  Win32TooltipWindow::show_global_tooltip(pt.x, pt.y, boxes);
+  Win32TooltipWindow::show_global_tooltip(boxes);
 }
 
 void Win32Widget::hide_tooltip(){
@@ -726,6 +723,7 @@ void Win32Widget::on_mousemove(MouseEvent &event){
   mouse_moving = true;
   cursor = DefaultCursor;
   
+  Win32TooltipWindow::move_global_tooltip();
   document()->mouse_move(event);
   
   if(scrolling && mouse_down_event.middle)

@@ -2,8 +2,6 @@
 	Button("italic", DocumentApply(SelectedDocument(), StyleBox("\[SelectionPlaceholder]", FontSlant->Italic))),
 	Button("Arg Style", DocumentApply(SelectedDocument(), StyleBox("\[SelectionPlaceholder]", "Arg")))})
 
-- BUG: $TimeZone is wrong (currently should be -2 in Berlin!?)
-
 - support euclidian integers in GCD/ExtendedGCD
 
 - implement FromCharacterCode and ToCharacterCode

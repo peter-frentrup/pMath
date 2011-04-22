@@ -24,6 +24,9 @@
 					<Add directory="..\library\include" />
 					<Add directory="$(#cairo.include)" />
 					<Add directory="$(#glib.include)" />
+					<Add directory="$(#gtk.include)" />
+					<Add directory="$(#gtk.include)\fontconfig" />
+					<Add directory="$(#gtk.include)\freetype2" />
 					<Add directory="$(#glib.lib)\glib-2.0\include" />
 					<Add directory="$(#pango.include)" />
 				</Compiler>
@@ -42,6 +45,8 @@
 					<Add library="user32" />
 					<Add library="ole32" />
 					<Add library="uuid" />
+					<Add library="fontconfig" />
+					<Add library="freetype" />
 					<Add directory="..\library\bin\windows\debug" />
 					<Add directory="$(#cairo.lib)" />
 					<Add directory="$(#pango.lib)" />
@@ -192,6 +197,7 @@
 		<Unit filename="include\graphics\config-shaper.h" />
 		<Unit filename="include\graphics\context.h" />
 		<Unit filename="include\graphics\fonts.h" />
+		<Unit filename="include\graphics\ft-shaper.h" />
 		<Unit filename="include\graphics\ot-math-shaper.h" />
 		<Unit filename="include\graphics\shapers.h" />
 		<Unit filename="include\graphics\win32-shaper.h" />
@@ -215,6 +221,7 @@
 		<Unit filename="include\util\array.h" />
 		<Unit filename="include\util\base.h" />
 		<Unit filename="include\util\concurrent-queue.h" />
+		<Unit filename="include\util\config.h" />
 		<Unit filename="include\util\hashtable.h" />
 		<Unit filename="include\util\matrix.h" />
 		<Unit filename="include\util\pmath-extra.h" />
@@ -268,6 +275,7 @@
 		<Unit filename="src\graphics\config-shaper.cpp" />
 		<Unit filename="src\graphics\context.cpp" />
 		<Unit filename="src\graphics\fonts.cpp" />
+		<Unit filename="src\graphics\ft-shaper.cpp" />
 		<Unit filename="src\graphics\ot-math-shaper.cpp" />
 		<Unit filename="src\graphics\shapers.cpp" />
 		<Unit filename="src\graphics\win32-shaper.cpp" />

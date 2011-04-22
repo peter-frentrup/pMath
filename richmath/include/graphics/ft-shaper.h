@@ -1,25 +1,25 @@
-#ifndef __GRAPHICS__WIN32_SHAPER_H__
-#define __GRAPHICS__WIN32_SHAPER_H__
+#ifndef __GRAPHICS__FT_SHAPER_H__
+#define __GRAPHICS__FT_SHAPER_H__
 
 #include <graphics/shapers.h>
 #include <util/config.h>
 
-#ifndef RICHMATH_USE_WIN32_FONT
-  #error win32 fonts not supported in this build
+#ifndef RICHMATH_USE_FT_FONT
+  #error freetype fonts not supported in this build
 #endif
 
-#ifndef CAIRO_HAS_WIN32_FONT
-  #error need win32 font backend
+#ifndef CAIRO_HAS_FC_FONT
+  #error need freetype font backend
 #endif
 
 namespace richmath{
-  class WindowsFontShaper: public TextShaper{
+  class FreetypeFontShaper: public TextShaper{
     public:
-      WindowsFontShaper(
+      FreetypeFontShaper(
         const String          &name,
         FontStyle              style);
         
-      virtual ~WindowsFontShaper();
+      virtual ~FreetypeFontShaper();
       
       virtual void decode_token(
         Context        *context,
@@ -41,4 +41,4 @@ namespace richmath{
   };
 }
 
-#endif // __GRAPHICS__WIN32_SHAPER_H__
+#endif // __GRAPHICS__FT_SHAPER_H__

@@ -11,9 +11,6 @@
 #include <cmath>
 
 
-#define TID_UPDATETOOLPOS    101
-
-
 using namespace richmath;
 
 static Win32TooltipWindow *tooltip_window = 0;
@@ -51,7 +48,25 @@ Win32TooltipWindow::~Win32TooltipWindow(){
     tooltip_window = 0;
 }
 
-void Win32TooltipWindow::show_global_tooltip(int x, int y, Expr boxes){
+void Win32TooltipWindow::move_global_tooltip(){
+  if(!tooltip_window || !IsWindowVisible(tooltip_window->_hwnd))
+    return;
+  
+  tooltip_window->resize(true);
+//  POINT pt;
+//  GetCursorPos(&pt);
+//  
+//  SetWindowPos(
+//    tooltip_window->_hwnd, 
+//    HWND_TOPMOST, 
+//    pt.x + GetSystemMetrics(SM_CXSMICON), 
+//    pt.y + GetSystemMetrics(SM_CYSMICON), 
+//    0, 
+//    0, 
+//    SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOREDRAW);
+}
+
+void Win32TooltipWindow::show_global_tooltip(Expr boxes){
   if(!tooltip_window){
     tooltip_window = new Win32TooltipWindow();
     tooltip_window->init();
@@ -83,8 +98,7 @@ void Win32TooltipWindow::show_global_tooltip(int x, int y, Expr boxes){
   if(!IsWindowVisible(tooltip_window->_hwnd))
     ShowWindow(tooltip_window->_hwnd, SW_SHOWNA);
   
-  SetWindowPos(tooltip_window->_hwnd, HWND_TOPMOST, x + 10, y + 10, 0, 0, 
-    SWP_NOACTIVATE | SWP_NOSIZE);
+  move_global_tooltip();
 }
 
 void Win32TooltipWindow::hide_global_tooltip(){
@@ -104,16 +118,54 @@ void Win32TooltipWindow::page_size(float *w, float *h){
   *w = HUGE_VAL;
 }
 
-void Win32TooltipWindow::resize(){
-  if(Win32Themes::IsThemeActive
-  && Win32Themes::IsThemeActive()){
-    SetWindowRgn(_hwnd, CreateRoundRectRgn(0, 0, best_width+1, best_height+1, 4, 4), FALSE);
+void Win32TooltipWindow::resize(bool just_move){
+  if(!just_move){
+    if(Win32Themes::IsThemeActive
+    && Win32Themes::IsThemeActive()){
+      SetWindowRgn(_hwnd, CreateRoundRectRgn(0, 0, best_width+1, best_height+1, 4, 4), FALSE);
+    }
+    else
+      SetWindowRgn(_hwnd, NULL, FALSE);
+  }
+  
+  MONITORINFO moninfo;
+  memset(&moninfo, 0, sizeof(moninfo));
+  moninfo.cbSize = sizeof(moninfo);
+  
+  HMONITOR hmon = MonitorFromWindow(_hwnd, MONITOR_DEFAULTTONEAREST);
+  GetMonitorInfo(hmon, &moninfo);
+  
+  int cx = GetSystemMetrics(SM_CXSMICON);
+  int cy = GetSystemMetrics(SM_CYSMICON);
+  
+  POINT pt;
+  GetCursorPos(&pt);
+  
+  if(pt.x + cx + best_width > moninfo.rcMonitor.right){
+    pt.x-= cx + best_width;
+    
+    if(pt.x < moninfo.rcMonitor.left)
+       pt.x = moninfo.rcMonitor.left;
   }
   else
-    SetWindowRgn(_hwnd, NULL, FALSE);
+    pt.x+= cx;
   
-  SetWindowPos(_hwnd, NULL, 0, 0, best_width, best_height,
-    SWP_NOZORDER | SWP_NOMOVE | SWP_NOACTIVATE);
+  if(pt.y + cy + best_height > moninfo.rcMonitor.bottom){
+    pt.y-= cy + best_height;
+    
+    if(pt.y < moninfo.rcMonitor.top)
+       pt.y = moninfo.rcMonitor.top;
+  }
+  else
+    pt.y+= cy;
+  
+  SetWindowPos(_hwnd, 
+    HWND_TOPMOST, 
+    pt.x, 
+    pt.y, 
+    best_width, 
+    best_height,
+    just_move ? SWP_NOSIZE | SWP_NOACTIVATE : SWP_NOZORDER | SWP_NOACTIVATE);
 }
 
 void Win32TooltipWindow::paint_canvas(Canvas *canvas, bool resize_only){
@@ -139,7 +191,7 @@ void Win32TooltipWindow::paint_canvas(Canvas *canvas, bool resize_only){
   best_height+= outer.bottom - outer.top  - inner.bottom + inner.top;
   
   if(old_bw != best_width || old_bh != best_height){
-    resize();
+    resize(false);
   }
 }
 
@@ -155,27 +207,6 @@ LRESULT Win32TooltipWindow::callback(UINT message, WPARAM wParam, LPARAM lParam)
       case WM_ACTIVATEAPP: 
         if(!wParam)
           ShowWindow(_hwnd, SW_HIDE);
-        break;
-      
-      case WM_SHOWWINDOW:{
-        if(wParam){
-          SetTimer(_hwnd, TID_UPDATETOOLPOS, 500, NULL);
-        }
-        else
-          KillTimer(_hwnd, TID_UPDATETOOLPOS);
-      } break;
-      
-      case WM_TIMER:
-        if(wParam == TID_UPDATETOOLPOS){
-          POINT pt;
-          RECT rect;
-          
-          if(GetCursorPos(&pt)
-          && GetWindowRect(_hwnd, &rect)){
-            SetWindowPos(_hwnd, NULL, pt.x + 10, pt.y + 10, 0, 0, 
-              SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOZORDER);
-          }
-        }
         break;
     }
   }

@@ -1,3 +1,6 @@
+#include <util/config.h>
+#ifdef RICHMATH_USE_WIN32_FONT
+
 #define _WIN32_WINNT 0x501
 
 #include <graphics/win32-shaper.h>
@@ -151,5 +154,7 @@ void WindowsFontShaper::decode_token(
 SharedPtr<TextShaper> WindowsFontShaper::set_style(FontStyle style){
   return find(_name, style);
 }
-  
+
 //} ... class WindowsFontShaper
+
+#endif // RICHMATH_USE_WIN32_FONT

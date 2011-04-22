@@ -166,6 +166,7 @@ int Win32ControlPainter::control_font_color(ContainerType type, ControlState sta
            | ((col & 0x0000FF) << 16);
     }
     
+    return -1;
   }
   
   switch(type){
@@ -184,6 +185,13 @@ int Win32ControlPainter::control_font_color(ContainerType type, ControlState sta
       
     case InputField: {
       DWORD col = GetSysColor(COLOR_WINDOWTEXT);
+      return ((col & 0xFF0000) >> 16)
+           |  (col & 0x00FF00)
+           | ((col & 0x0000FF) << 16);
+    } break;
+    
+    case MenuItemSelected: {
+      DWORD col = GetSysColor(COLOR_HIGHLIGHTTEXT);
       return ((col & 0xFF0000) >> 16)
            |  (col & 0x00FF00)
            | ((col & 0x0000FF) << 16);
@@ -559,8 +567,11 @@ void Win32ControlPainter::draw_container(
         InflateRect(&rect, -1, -1);
         
         FillRect(dc, &rect, (HBRUSH)(COLOR_INFOBK + 1));
-
       } break;
+      
+      case MenuItemSelected: 
+        FillRect(dc, &rect, (HBRUSH)(COLOR_HIGHLIGHT + 1));
+        break;
       
       case ProgressIndicatorBackground:
       case SliderHorzChannel: {

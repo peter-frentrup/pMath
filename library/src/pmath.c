@@ -607,17 +607,33 @@ PMATH_API pmath_bool_t pmath_init(void){
     }
     
     {
-      struct tm epoch;
-      time_t t;
+      time_t t = time(NULL);
+      struct tm local_tm, global_tm;
+      int loc_year_days, glob_year_days;
+      double loc, glob;
       
-      memset(&epoch, 0, sizeof(epoch));
-      epoch.tm_year = 70;
-      epoch.tm_mon  = 0;
-      epoch.tm_mday = 2;
+      memcpy(&local_tm,  localtime(&t), sizeof(struct tm));
+      memcpy(&global_tm, gmtime(&t),    sizeof(struct tm));
       
-      t = mktime(&epoch); // 2 Jan 1970 (the day before would give underflow in -xxxx timezones).
+      local_tm.tm_year+=  1900;
+      global_tm.tm_year+= 1900;
       
-      PMATH_RUN_ARGS("$TimeZone:=`1`", "(f)", t / (60 * 60.0) - 24.0);
+      loc_year_days  = 365 + (local_tm.tm_year % 4 == 0 && (local_tm.tm_year % 100 != 0 || local_tm.tm_year % 400 == 0));
+      glob_year_days = 365 + (global_tm.tm_year % 4 == 0 && (global_tm.tm_year % 100 != 0 || global_tm.tm_year % 400 == 0));
+      
+      if(local_tm.tm_year < global_tm.tm_year){
+        global_tm.tm_year++;
+        global_tm.tm_yday+= loc_year_days;
+      }
+      else if(local_tm.tm_year > global_tm.tm_year){
+        local_tm.tm_year++;
+        local_tm.tm_yday+= glob_year_days;
+      }
+      
+      loc  = local_tm.tm_sec  + 60*(local_tm.tm_min  + 60*(local_tm.tm_hour  + 24*local_tm.tm_yday));
+      glob = global_tm.tm_sec + 60*(global_tm.tm_min + 60*(global_tm.tm_hour + 24*global_tm.tm_yday));
+      
+      PMATH_RUN_ARGS("$TimeZone:=`1`", "(f)", (glob - loc) / (60 * 60.0));
     }
     
     PMATH_RUN("IsNumeric(E):=True");

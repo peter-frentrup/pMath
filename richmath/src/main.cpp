@@ -10,7 +10,6 @@
 #include <eval/binding.h>
 #include <eval/application.h>
 #include <eval/server.h>
-#include <graphics/win32-shaper.h>
 #include <graphics/config-shaper.h>
 #include <graphics/ot-math-shaper.h>
 #include <gui/control-painter.h>
@@ -687,19 +686,19 @@ int main(){
               "GridBoxColumnSpacing->0.2,"
               "GridBoxRowSpacing->0.25),\"\\[SpanFromLeft]\"},"
             //"ButtonBox({\"\\[SelectionPlaceholder]\", SubscriptBox({\"[\", \"\\[Placeholder]\", \"]\"})}),\"\\[SpanFromLeft]\"},"
-          "{TooltipBox(ButtonBox(\"\\[Pi]\"),            \"\\\"\\[AliasDelimiter]pi\\[AliasDelimiter]\\\"\"),"
+          "{TooltipBox(ButtonBox(\"\\[Pi]\"),            \"\\\"\\[AliasDelimiter]p\\[AliasDelimiter]\\\"\"),"
             "TooltipBox(ButtonBox(\"\\[ExponentialE]\"), \"\\\"\\[AliasDelimiter]ee\\[AliasDelimiter]\\\"\"),"
             "TooltipBox(ButtonBox(\"\\[ImaginaryI]\"),   \"\\\"\\[AliasDelimiter]ii\\[AliasDelimiter]\\\"\"),"
             "TooltipBox(ButtonBox(\"\\[Infinity]\"),     \"\\\"\\[AliasDelimiter]inf\\[AliasDelimiter]\\\"\"),"
             "TooltipBox(ButtonBox(\"\\[Degree]\"),       \"\\\"\\[AliasDelimiter]deg\\[AliasDelimiter]\\\"\")},"
-          "{TooltipBox(ButtonBox(\"\\[Times]\"),         \"\\\"\\[AliasDelimiter]}\\[AliasDelimiter]\\\"\"),"
+          "{TooltipBox(ButtonBox(\"\\[Times]\"),         \"\\\"\\[AliasDelimiter]*\\[AliasDelimiter]\\\"\"),"
             "TooltipBox(ButtonBox(\"\\[Dot]\"),          \"\\\"\\[AliasDelimiter].\\[AliasDelimiter]\\\"\"),"
             "TooltipBox(ButtonBox(\"\\[Divide]\"),       \"\\\"\\[AliasDelimiter]/\\[AliasDelimiter]\\\"\"),"
             "TooltipBox(ButtonBox(\"\\[Cross]\"),        \"\\\"\\[AliasDelimiter]cross\\[AliasDelimiter]\\\"\"),"
             "TooltipBox(ButtonBox(\"\\[PlusMinus]\"),    \"\\\"\\[AliasDelimiter]+-\\[AliasDelimiter]\\\"\")},"
           "{TooltipBox(ButtonBox(\"\\[Rule]\"),          \"\\\"\\[AliasDelimiter]->\\[AliasDelimiter]\\\"\"),"
             "TooltipBox(ButtonBox(\"\\[RuleDelayed]\"),  \"\\\"\\[AliasDelimiter]:>\\[AliasDelimiter]\\\"\"),"
-            "TooltipBox(ButtonBox(\"\\[Function]\"),     \"\\\"\\[AliasDelimiter]|->\\[AliasDelimiter]\\\"\"),"
+            "TooltipBox(ButtonBox(\"\\[Function]\"),     \"\\\"\\[AliasDelimiter]mt\\[AliasDelimiter]\\\"\"),"
 //            "ButtonBox(\"\\[Assign]\"),"
 //            "ButtonBox(\"\\[AssignDelayed]\")},"
             "TooltipBox(ButtonBox(\"\\u21D2\"),          \"\\\"\\[AliasDelimiter]=>\\[AliasDelimiter]\\\"\"),"
@@ -710,8 +709,8 @@ int main(){
             "TooltipBox(ButtonBox(\"\\[Element]\"),      \"\\\"\\[AliasDelimiter]elem\\[AliasDelimiter]\\\"\"),"
             "TooltipBox(ButtonBox(\"\\[NotElement]\"),   \"\\\"\\[AliasDelimiter]!elem\\[AliasDelimiter]\\\"\")},"
           "{TooltipBox(ButtonBox(\"\\[Not]\"),           \"\\\"\\[AliasDelimiter]!\\[AliasDelimiter]\\\"\"),"
-            "TooltipBox(ButtonBox(\"\\[And]\"),          \"\\\"\\[AliasDelimiter]&&\\[AliasDelimiter]\\\"\"),"
-            "TooltipBox(ButtonBox(\"\\[Or]\"),           \"\\\"\\[AliasDelimiter]||\\[AliasDelimiter]\\\"\"),"
+            "TooltipBox(ButtonBox(\"\\[And]\"),          \"\\\"\\[AliasDelimiter]and\\[AliasDelimiter]\\\"\"),"
+            "TooltipBox(ButtonBox(\"\\[Or]\"),           \"\\\"\\[AliasDelimiter]or\\[AliasDelimiter]\\\"\"),"
             "TooltipBox(ButtonBox(\"\\[Intersection]\"), \"\\\"\\[AliasDelimiter]inter\\[AliasDelimiter]\\\"\"),"
             "TooltipBox(ButtonBox(\"\\[Union]\"),        \"\\\"\\[AliasDelimiter]un\\[AliasDelimiter]\\\"\")},"
           "{TooltipBox(ButtonBox(\"\\[Alpha]\"),         \"\\\"\\[AliasDelimiter]a\\[AliasDelimiter]\\\"\"),"
@@ -763,7 +762,8 @@ int main(){
         "SectionMargins->0,"
         "ShowSectionBracket->False)"
         
-        ".Replace(TooltipBox(~FE`Private`x,~) :> FE`Private`x)")));
+        //".Replace(TooltipBox(~FE`Private`x,~) :> FE`Private`x)"
+        )));
     
     doc->select(0,0,0);
     

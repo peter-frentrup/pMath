@@ -55,6 +55,12 @@ void ControlPainter::calc_container_size(
       extents->descent+= 3.0;
     } break;
     
+    case MenuItemSelected: {
+      extents->width+=   1.5;
+      extents->ascent+=  0.75;
+      extents->descent+= 0.75;
+    } break;
+    
     case SliderHorzChannel: {
       extents->ascent  = 3.0;
       extents->descent = 1.0;
@@ -101,7 +107,10 @@ void ControlPainter::calc_container_size(
 int ControlPainter::control_font_color(ContainerType type, ControlState state){
   if(is_very_transparent(type, state))
     return -1;
-    
+  
+  if(type == MenuItemSelected)
+    return 0XFFFFFF;
+  
   return 0x000000;
 }
 
@@ -235,6 +244,14 @@ void ControlPainter::draw_container(
     case TooltipWindow: 
       paint_frame(canvas, x, y, width, height, false, 0xFFF4C1);
       break;
+    
+    case MenuItemSelected: {
+      int c = canvas->get_color();
+      canvas->set_color(0x0099ff);
+      canvas->pixrect(x, y, x + width, y + height, false);
+      canvas->fill();
+      canvas->set_color(c);
+    } break;
     
     case SliderHorzChannel:
       paint_frame(canvas, x, y, width, height, true);

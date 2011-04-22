@@ -89,6 +89,9 @@ static int rhs_to_buttonframe(Expr rhs){
       
     if(str.equals("TooltipWindow"))
       return TooltipWindow;
+    
+    if(str.equals("MenuItem"))
+      return MenuItemSelected;
   }
   
   return -1;
@@ -113,6 +116,9 @@ static Expr buttonframe_to_rhs(int value){
     
     case TooltipWindow:
       return String("TooltipWindow");
+    
+    case MenuItemSelected:
+      return String("MenuItem");
     
     default:
       return Symbol(PMATH_SYMBOL_AUTOMATIC);

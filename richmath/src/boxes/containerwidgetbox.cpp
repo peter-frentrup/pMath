@@ -134,15 +134,25 @@ void ContainerWidgetBox::paint(Context *context){
   if(type == FramelessButton && state == Pressed){
     context->canvas->save();
     {
-      context->canvas->pixrect(
-        x,
-        y - _extents.ascent, 
-        x + _extents.width,
-        y + _extents.descent,
-        false);
+//      context->canvas->pixrect(
+//        x,
+//        y - _extents.ascent, 
+//        x + _extents.width,
+//        y + _extents.descent,
+//        false);
       
       cairo_set_operator(context->canvas->cairo(), CAIRO_OPERATOR_DIFFERENCE);
       context->canvas->set_color(0xffffff);
+      
+      /* Cairo 1.10.0 Win32 bug: crash when using CAIRO_OPERATOR_DIFFERENCE for 
+                                 rectangles.
+         So we paint a degenerated rectangle.
+       */
+      context->canvas->move_to(x,                  y - _extents.ascent);
+      context->canvas->line_to(x + _extents.width, y - _extents.ascent);
+      context->canvas->line_to(x + _extents.width, y + _extents.descent);
+      context->canvas->line_to(x - 0.01,           y + _extents.descent);
+      
       context->canvas->fill();
     }
     context->canvas->restore();

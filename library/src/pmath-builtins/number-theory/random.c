@@ -66,25 +66,23 @@ static pmath_expr_t random_array(
       
       if(!pmath_is_null(result)){
         if(pmath_is_int32(data->max)){
-          pmath_atomic_lock(&_pmath_rand_spinlock);
-          
-          mpz_urandomb(
-            PMATH_AS_MPZ(result), 
-            _pmath_randstate,
-            (unsigned)PMATH_AS_INT32(data->max));
-          
-          pmath_atomic_unlock(&_pmath_rand_spinlock);
+          pmath_mpint_t max = _pmath_create_mp_int(PMATH_AS_INT32(data->max));
+          if(pmath_is_null(max)){
+            pmath_unref(result);
+            return PMATH_NULL;
+          }
+            
+          data->max = max;
         }
-        else{
-          pmath_atomic_lock(&_pmath_rand_spinlock);
-          
-          mpz_urandomm(
-            PMATH_AS_MPZ(result), 
-            _pmath_randstate,
-            PMATH_AS_MPZ(data->max));
-          
-          pmath_atomic_unlock(&_pmath_rand_spinlock);
-        }
+      
+        pmath_atomic_lock(&_pmath_rand_spinlock);
+        
+        mpz_urandomm(
+          PMATH_AS_MPZ(result), 
+          _pmath_randstate,
+          PMATH_AS_MPZ(data->max));
+        
+        pmath_atomic_unlock(&_pmath_rand_spinlock);
         
         result = _pmath_mp_int_normalize(result);
         

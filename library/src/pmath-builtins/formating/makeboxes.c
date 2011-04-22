@@ -2192,7 +2192,6 @@ static pmath_t row_to_boxes(
     if(pmath_is_expr_of(list, PMATH_SYMBOL_LIST)){
       size_t i;
       
-      pmath_unref(expr);
       pmath_gather_begin(PMATH_NULL);
       
       for(i = 1;i <= pmath_expr_length(list);++i){
@@ -2202,7 +2201,12 @@ static pmath_t row_to_boxes(
       }
       
       pmath_unref(list);
-      return pmath_gather_end();
+      list = pmath_gather_end();
+      list = pmath_expr_new_extended(
+        pmath_ref(PMATH_SYMBOL_INTERPRETATIONBOX), 2, 
+        list,
+        expr);
+      return list;
     }
     
     pmath_unref(list);
@@ -2216,15 +2220,19 @@ static pmath_t row_to_boxes(
       if(!pmath_is_string(delim))
         delim = object_to_boxes(thread, delim);
       
-      pmath_unref(expr);
-      
-      return nary_to_boxes(
+      list = nary_to_boxes(
         thread,
         list,
         delim,
         PMATH_PREC_ANY,
         PMATH_PREC_ANY,
         TRUE);
+        
+      list = pmath_expr_new_extended(
+        pmath_ref(PMATH_SYMBOL_INTERPRETATIONBOX), 2, 
+        list,
+        expr);
+      return list;
     }
     pmath_unref(list);
   }

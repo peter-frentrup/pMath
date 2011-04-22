@@ -6,8 +6,13 @@
 
 #include <graphics/context.h>
 
-#ifdef CAIRO_HAS_WIN32_FONT
+#include <util/config.h>
+
+
+#ifdef RICHMATH_USE_WIN32_FONT
   #include <graphics/win32-shaper.h>
+#elif defined(RICHMATH_USE_FT_FONT)
+  #include <graphics/ft-shaper.h>
 #else
   #error no support for font backend
 #endif
@@ -191,8 +196,10 @@ SharedPtr<TextShaper> TextShaper::find(
     return *result;
   
   fs =
-    #ifdef CAIRO_HAS_WIN32_FONT
+    #ifdef RICHMATH_USE_WIN32_FONT
       new WindowsFontShaper(name, style);
+    #elif defined(RICHMATH_USE_FT_FONT)
+      new FreetypeFontShaper(name, style);
     #else
       no support for font backend
     #endif

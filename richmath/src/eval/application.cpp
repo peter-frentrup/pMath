@@ -88,10 +88,11 @@ static void execute(ClientNotification &cn);
 
 static EvaluationPosition print_pos;
 static EvaluationPosition old_job;
+static Expr main_message_queue;
+
 
 static HACCEL keyboard_accelerators;
 static HWND hwnd_message = HWND_MESSAGE;
-static Expr main_message_queue;
 
 class ClientInfoWindow: public BasicWin32Widget{
   public:
@@ -140,6 +141,7 @@ class ClientInfoWindow: public BasicWin32Widget{
 };
 
 static ClientInfoWindow info_window;
+
 
 double Application::edit_interrupt_timeout = 2.0;
 double Application::interrupt_timeout      = 0.3;

@@ -1,11 +1,16 @@
 #define _WIN32_WINNT 0x501
 
 #include <graphics/fonts.h>
+#include <util/config.h>
 
-#ifdef CAIRO_HAS_WIN32_FONT
+#ifdef RICHMATH_USE_WIN32_FONT
   #include <windows.h>
   #include <usp10.h>
   #include <cairo-win32.h>
+#elif defined(RICHMATH_USE_FT_FONT)
+  #include <cairo-ft.h>
+  #include <fontconfig.h>
+  #include FT_TRUETYPE_TABLES_H
 #else
   #error no support for font backend
 #endif
@@ -14,16 +19,19 @@
 
 #include <util/array.h>
 
+
 using namespace richmath;
 
-class AutoDC: public Base{
-  public:
-    AutoDC(HDC dc): handle(dc){}
-    ~AutoDC(){ DeleteDC(handle); }
-    HDC handle;
-};
+#ifdef RICHMATH_USE_WIN32_FONT
+  class AutoDC: public Base{
+    public:
+      AutoDC(HDC dc): handle(dc){}
+      ~AutoDC(){ DeleteDC(handle); }
+      HDC handle;
+  };
 
-static AutoDC dc(CreateCompatibleDC(0));
+  static AutoDC dc(CreateCompatibleDC(0));
+#endif
 
 class StaticCanvas: public Base{
   public:
@@ -85,28 +93,49 @@ FontFace::FontFace(
   const FontStyle &style)
 : _face(0)
 {
-#ifdef CAIRO_HAS_WIN32_FONT
-  LOGFONTW logfontw;
-  memset(&logfontw, 0, sizeof(LOGFONTW));
-  logfontw.lfWeight         = style.bold ? FW_BOLD : FW_NORMAL;
-  logfontw.lfItalic         = style.italic; 
-//  logfontw.lfUnderline      = FALSE; 
-//  logfontw.lfStrikeOut      = FALSE; 
-  logfontw.lfCharSet        = DEFAULT_CHARSET; 
-  logfontw.lfOutPrecision   = OUT_DEFAULT_PRECIS; 
-  logfontw.lfClipPrecision  = CLIP_DEFAULT_PRECIS; 
-  logfontw.lfQuality        = DEFAULT_QUALITY; 
-  logfontw.lfPitchAndFamily = FF_DONTCARE | DEFAULT_PITCH; 
-  int len = name.length();
-  if(len >= LF_FACESIZE)
-    len = LF_FACESIZE - 1;
-  memcpy(logfontw.lfFaceName, name.buffer(), len * sizeof(WCHAR));
-  logfontw.lfFaceName[len] = 0;
-  
-  _face = cairo_win32_font_face_create_for_logfontw(&logfontw);
-#else
-  no support for font backend
-#endif
+  #ifdef RICHMATH_USE_WIN32_FONT
+  {
+    LOGFONTW logfontw;
+    memset(&logfontw, 0, sizeof(LOGFONTW));
+    logfontw.lfWeight         = style.bold ? FW_BOLD : FW_NORMAL;
+    logfontw.lfItalic         = style.italic; 
+  //  logfontw.lfUnderline      = FALSE; 
+  //  logfontw.lfStrikeOut      = FALSE; 
+    logfontw.lfCharSet        = DEFAULT_CHARSET; 
+    logfontw.lfOutPrecision   = OUT_DEFAULT_PRECIS; 
+    logfontw.lfClipPrecision  = CLIP_DEFAULT_PRECIS; 
+    logfontw.lfQuality        = DEFAULT_QUALITY; 
+    logfontw.lfPitchAndFamily = FF_DONTCARE | DEFAULT_PITCH; 
+    int len = name.length();
+    if(len >= LF_FACESIZE)
+      len = LF_FACESIZE - 1;
+    memcpy(logfontw.lfFaceName, name.buffer(), len * sizeof(WCHAR));
+    logfontw.lfFaceName[len] = 0;
+    
+    _face = cairo_win32_font_face_create_for_logfontw(&logfontw);
+  }
+  #elif defined(RICHMATH_USE_FT_FONT)
+  {
+    FcPattern *pattern = FcPatternCreate();
+    if(pattern){
+      char *family = pmath_string_to_utf8(name.get(), NULL);
+      
+      FcPatternAddString(pattern, FC_FAMILY, (const FcChar8*)family);
+      
+      pmath_mem_free(family);
+      
+      int fcslant  = style.italic ? FC_SLANT_ITALIC : FC_SLANT_ROMAN;
+      FcPatternAddInteger(pattern, FC_SLANT, fcslant);
+      
+      int fcweight = style.bold   ? FC_WEIGHT_BOLD  : FC_WEIGHT_MEDIUM;
+      FcPatternAddInteger(pattern, FC_WEIGHT, fcweight);
+    }
+    
+    _face = cairo_ft_font_face_create_for_pattern(pattern);
+  }
+  #else
+    #error no support for font backend
+  #endif
 }
         
 FontFace::~FontFace(){
@@ -176,37 +205,61 @@ FontInfo &FontInfo::operator=(FontInfo &src){
   return *this;
 }
 
-  static int CALLBACK emit_font(
-    ENUMLOGFONTEXW *lpelfe,
-    NEWTEXTMETRICEXW *lpntme,
-    DWORD FontType,
-    LPARAM lParam
-  ){
-    Gather::emit(String::FromUcs2((uint16_t*)lpelfe->elfLogFont.lfFaceName));
-    return 1;
-  }
+  #ifdef RICHMATH_USE_WIN32_FONT
+    static int CALLBACK emit_font(
+      ENUMLOGFONTEXW *lpelfe,
+      NEWTEXTMETRICEXW *lpntme,
+      DWORD FontType,
+      LPARAM lParam
+    ){
+      Gather::emit(String::FromUcs2((uint16_t*)lpelfe->elfLogFont.lfFaceName));
+      return 1;
+    }
+  #endif
 
 Expr FontInfo::all_fonts(){
-  LOGFONTW logfont;
-  memset(&logfont, 0, sizeof(logfont));
-  logfont.lfCharSet = DEFAULT_CHARSET;
-  logfont.lfFaceName[0] = '\0';
-  
-  Gather gather;
-  
-  EnumFontFamiliesExW(
-    dc.handle, 
-    &logfont, 
-    (FONTENUMPROCW)emit_font, 
-    0, 
-    0);
+  #ifdef RICHMATH_USE_WIN32_FONT
+  {
+    LOGFONTW logfont;
+    memset(&logfont, 0, sizeof(logfont));
+    logfont.lfCharSet = DEFAULT_CHARSET;
+    logfont.lfFaceName[0] = '\0';
     
-  return gather.end();
+    Gather gather;
+    
+    EnumFontFamiliesExW(
+      dc.handle, 
+      &logfont, 
+      (FONTENUMPROCW)emit_font, 
+      0, 
+      0);
+      
+    return gather.end();
+  }
+  #elif defined(RICHMATH_USE_FT_FONT)
+  {
+    FcFontSet *font_set = FcConfigGetFonts(NULL, FcSetSystem);
+    
+    if(!font_set)
+      return List();
+    
+    Expr expr = MakeList((size_t)font_set->nfont);
+    for(int i = 0;i < font_set->nfont;++i){
+      FcPattern *pattern = font_set->fonts[i];
+      
+      char *name;
+      if(pattern && FcPatternGetString(pattern, FC_FAMILY, 0, (FcChar8**)&name) == FcResultMatch)
+        expr.set(i + 1, String::FromUtf8(name));
+    }
+    
+    return expr;
+  }
+  #endif
 }
 
 uint16_t FontInfo::char_to_glyph(uint32_t ch){
   switch(priv->font_type()){
-    #ifdef CAIRO_HAS_WIN32_FONT
+    #ifdef RICHMATH_USE_WIN32_FONT
     case CAIRO_FONT_TYPE_WIN32: {
       uint16_t index = 0;
       SaveDC(dc.handle);
@@ -270,6 +323,20 @@ uint16_t FontInfo::char_to_glyph(uint32_t ch){
     }
     #endif
     
+    #ifdef RICHMATH_USE_FT_FONT
+    case CAIRO_FONT_TYPE_FT: {
+      uint16_t index = 0;
+      
+      FT_Face face = cairo_ft_scaled_font_lock_face(priv->scaled_font);
+      if(face){
+        index = FT_Get_Char_Index(face, ch);
+      }
+      cairo_ft_scaled_font_unlock_face(priv->scaled_font);
+      
+      return index;
+    }
+    #endif
+    
     default:
       break;
   }
@@ -284,6 +351,7 @@ size_t FontInfo::get_truetype_table(
   size_t    length
 ){
   switch(priv->font_type()){
+    #ifdef RICHMATH_USE_WIN32_FONT
     case CAIRO_FONT_TYPE_WIN32: {
       cairo_win32_scaled_font_select_font(priv->scaled_font, dc.handle);
       
@@ -297,7 +365,27 @@ size_t FontInfo::get_truetype_table(
       if(res == GDI_ERROR)
         return 0;
       return res;
-    } break;
+    }
+    #endif
+    
+    #ifdef RICHMATH_USE_FT_FONT
+    case CAIRO_FONT_TYPE_FT: {
+      FT_Face face = cairo_ft_scaled_font_lock_face(priv->scaled_font);
+      if(face){
+        name = ((name & 0xFF000000) >> 24) | ((name & 0xFF0000) >> 8) | ((name & 0xFF00) << 8) | ((name & 0xFF) << 24);
+      
+        FT_ULong len = length;
+        FT_Error err = FT_Load_Sfnt_Table(face, name, offset, (FT_Byte*)buffer, &len);
+        length = len;
+        
+        if(err)
+          length = 0;
+      }
+      cairo_ft_scaled_font_unlock_face(priv->scaled_font);
+      
+      return length;
+    }
+    #endif
   
     default:
       break;
