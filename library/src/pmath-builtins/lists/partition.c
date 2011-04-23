@@ -330,6 +330,9 @@ static pmath_bool_t get_d(
   long     depth
 ){
   if(pmath_is_int32(d_obj) && depth == 1){
+    if(PMATH_AS_INT32(d_obj) <= 0)
+      return FALSE;
+    
     d[0] = PMATH_AS_INT32(d_obj);
     return TRUE;
   }
@@ -341,6 +344,9 @@ static pmath_bool_t get_d(
       pmath_t item = pmath_expr_get_item(d_obj, 1 + (size_t)i);
       
       if(pmath_is_int32(item)){
+        if(PMATH_AS_INT32(item) <= 0)
+          return FALSE;
+        
         d[i] = PMATH_AS_INT32(item);
       }
       else{
@@ -635,6 +641,8 @@ PMATH_PRIVATE pmath_t builtin_partition(pmath_expr_t expr){
       obj = pmath_expr_get_item(expr, 3);
       
       if(!get_d(obj, d, depth)){
+        pmath_message(PMATH_NULL, "ilsmp", 2, PMATH_FROM_INT32(3), pmath_ref(expr));
+        
         pmath_unref(obj);
         pmath_unref(list);
         goto CLEANUP;
@@ -642,9 +650,10 @@ PMATH_PRIVATE pmath_t builtin_partition(pmath_expr_t expr){
       
       pmath_unref(obj);
     }
-    else
+    else{
       memcpy(d, n, (size_t)depth * sizeof(long));
-      
+    }
+    
     if(exprlen >= 4){
       obj = pmath_expr_get_item(expr, 4);
       

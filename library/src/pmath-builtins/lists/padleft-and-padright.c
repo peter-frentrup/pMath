@@ -323,7 +323,7 @@ PMATH_PRIVATE pmath_t builtin_padleft_and_padright(pmath_expr_t expr){
   
   if(!pmath_is_expr_of(margin, PMATH_SYMBOL_LIST)){
     pmath_t tmp = margin;
-    margin = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_LIST), 1, pmath_expr_length(n_obj));
+    margin = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), pmath_expr_length(n_obj));
     for(i = pmath_expr_length(n_obj);i > 0;--i)
       margin = pmath_expr_set_item(margin, i, pmath_ref(tmp));
     

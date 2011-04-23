@@ -18,11 +18,13 @@
 #include <graphics/canvas.h>
 
 #include <util/array.h>
+#include <util/sharedptr.h>
 
 
 using namespace richmath;
 
 #ifdef RICHMATH_USE_WIN32_FONT
+
   class AutoDC: public Base{
     public:
       AutoDC(HDC dc): handle(dc){}
@@ -31,6 +33,53 @@ using namespace richmath;
   };
 
   static AutoDC dc(CreateCompatibleDC(0));
+
+
+
+
+  class PrivateWin32Font: public Shareable{
+    public:
+      static bool load(String file){
+        file+= String::FromChar(0);
+        
+        guard = new PrivateWin32Font(guard);
+        guard->filename.length(file.length());
+        memcpy(
+          guard->filename.items(), 
+          file.buffer(), 
+          guard->filename.length() * sizeof(uint16_t));
+        
+        if(AddFontResourceExW(guard->filename.items(), FR_PRIVATE, 0) > 0){
+          return true;
+        }
+        
+        guard = guard->next;
+        return false;
+      }
+      
+    private:
+      PrivateWin32Font(SharedPtr<PrivateWin32Font> _next)
+      : Shareable(),
+        filename(0),
+        next(_next)
+      {
+      }
+      
+      ~PrivateWin32Font(){
+        if(filename.length() > 0){
+          RemoveFontResourceExW(filename.items(), FR_PRIVATE, 0);
+        }
+      }
+      
+    private:
+      static SharedPtr<PrivateWin32Font> guard;
+      
+      Array<WCHAR> filename;
+      SharedPtr<PrivateWin32Font> next;
+  };
+
+  SharedPtr<PrivateWin32Font> PrivateWin32Font::guard = 0;
+
 #endif
 
 class StaticCanvas: public Base{
@@ -238,21 +287,51 @@ Expr FontInfo::all_fonts(){
   }
   #elif defined(RICHMATH_USE_FT_FONT)
   {
-    FcFontSet *font_set = FcConfigGetFonts(NULL, FcSetSystem);
+    FcFontSet *app_fonts = FcConfigGetFonts(NULL, FcSetApplication);
+    FcFontSet *sys_fonts = FcConfigGetFonts(NULL, FcSetSystem);
     
-    if(!font_set)
-      return List();
+    int num_app_fonts = app_fonts ? app_fonts->nfont : 0;
+    int num_sys_fonts = sys_fonts ? sys_fonts->nfont : 0;
     
-    Expr expr = MakeList((size_t)font_set->nfont);
-    for(int i = 0;i < font_set->nfont;++i){
-      FcPattern *pattern = font_set->fonts[i];
-      
-      char *name;
-      if(pattern && FcPatternGetString(pattern, FC_FAMILY, 0, (FcChar8**)&name) == FcResultMatch)
-        expr.set(i + 1, String::FromUtf8(name));
+    Expr expr = MakeList((size_t)(num_app_fonts + num_sys_fonts));
+    
+    if(app_fonts){
+      for(int i = 0;i < num_app_fonts;++i){
+        FcPattern *pattern = app_fonts->fonts[i];
+        
+        char *name;
+        if(pattern && FcPatternGetString(pattern, FC_FAMILY, 0, (FcChar8**)&name) == FcResultMatch)
+          expr.set(i + 1, String::FromUtf8(name));
+      }
+    }
+    
+    if(sys_fonts){
+      for(int i = 0;i < num_sys_fonts;++i){
+        FcPattern *pattern = sys_fonts->fonts[i];
+        
+        char *name;
+        if(pattern && FcPatternGetString(pattern, FC_FAMILY, 0, (FcChar8**)&name) == FcResultMatch)
+          expr.set(i + 1 + num_app_fonts, String::FromUtf8(name));
+      }
     }
     
     return expr;
+  }
+  #endif
+}
+
+void FontInfo::add_private_font(String filename){
+  #ifdef RICHMATH_USE_WIN32_FONT
+    PrivateWin32Font::load(filename);
+  #endif
+  
+  #ifdef RICHMATH_USE_FT_FONT
+  {
+    char *file = pmath_string_to_utf8(filename.get(), NULL);
+    
+    FcConfigAppFontAddFile(NULL, (const FcChar8*)file);
+    
+    pmath_mem_free(file);
   }
   #endif
 }

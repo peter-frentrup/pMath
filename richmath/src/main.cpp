@@ -58,51 +58,6 @@ static void todo(Document *doc, String msg){
   write_text_section(doc, "Todo", msg);
 }
 
-class PrivateFont: public Shareable{
-  public:
-    static bool load(String name){
-      name+= String::FromChar(0);
-      
-      String file = Application::application_directory + "/" + name;
-      
-      guard = new PrivateFont(guard);
-      guard->filename.length(file.length());
-      memcpy(
-        guard->filename.items(), 
-        file.buffer(), 
-        guard->filename.length() * sizeof(uint16_t));
-      
-      if(AddFontResourceExW(guard->filename.items(), FR_PRIVATE, 0) > 0){
-        return true;
-      }
-      
-      guard = guard->next;
-      return false;
-    }
-    
-  private:
-    PrivateFont(SharedPtr<PrivateFont> _next)
-    : Shareable(),
-      filename(0),
-      next(_next)
-    {
-    }
-    
-    ~PrivateFont(){
-      if(filename.length() > 0){
-        RemoveFontResourceExW(filename.items(), FR_PRIVATE, 0);
-      }
-    }
-    
-  private:
-    static SharedPtr<PrivateFont> guard;
-    
-    Array<WCHAR> filename;
-    SharedPtr<PrivateFont> next;
-};
-
-SharedPtr<PrivateFont> PrivateFont::guard = 0;
-
 static void load_aliases(
   Expr                                  aliases,
   Hashtable<String, Expr, object_hash> *implicit_macros,
@@ -216,11 +171,11 @@ int main(){
     }
     
     if(!fonttable.search("Asana Math")){
-      PrivateFont::load("Asana-Math.otf");
+      FontInfo::add_private_font(Application::application_directory + "/Asana-Math.otf");
     }
     
     if(!fonttable.search("pMathFallback")){
-      PrivateFont::load("pMathFallback.otf");
+      FontInfo::add_private_font(Application::application_directory + "/pMathFallback.otf");
     }
     
     PMATH_RUN(

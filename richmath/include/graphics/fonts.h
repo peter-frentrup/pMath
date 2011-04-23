@@ -136,6 +136,7 @@ namespace richmath{
       FontInfo &operator=(FontInfo &src);
       
       static Expr all_fonts();
+      static void add_private_font(String filename);
       
       uint16_t char_to_glyph(uint32_t ch);
       
