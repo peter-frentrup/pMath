@@ -1,6 +1,10 @@
 #ifndef __GUI__WIN32__WIN32_CONTROL_PAINTER_H__
 #define __GUI__WIN32__WIN32_CONTROL_PAINTER_H__
 
+#ifndef RICHMATH_USE_WIN32_GUI
+  #error this header is win32 specific
+#endif
+
 #include <windows.h>
 
 #include <gui/control-painter.h>

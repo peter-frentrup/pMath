@@ -1,6 +1,10 @@
 #ifndef __GUI__WIN32__WIN32_DOCUMENT_WINDOW_H__
 #define __GUI__WIN32__WIN32_DOCUMENT_WINDOW_H__
 
+#ifndef RICHMATH_USE_WIN32_GUI
+  #error this header is win32 specific
+#endif
+
 #include <gui/win32/basic-win32-window.h>
 #include <gui/win32/win32-widget.h>
 

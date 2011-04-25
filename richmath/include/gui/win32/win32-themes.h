@@ -1,7 +1,11 @@
 #ifndef __GUI__WIN32__WIN32_THEMES_H__
 #define __GUI__WIN32__WIN32_THEMES_H__
 
-#include <Windows.h>
+#ifndef RICHMATH_USE_WIN32_GUI
+  #error this header is win32 specific
+#endif
+
+#include <windows.h>
 
 #include <util/base.h>
 

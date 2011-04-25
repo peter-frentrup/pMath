@@ -1,9 +1,14 @@
 #ifndef __GUI__WIN32__WIN32_WIDGET_H__
 #define __GUI__WIN32__WIN32_WIDGET_H__
 
+#ifndef RICHMATH_USE_WIN32_GUI
+  #error this header is win32 specific
+#endif
+
 #include <gui/document.h>
 #include <gui/native-widget.h>
 #include <gui/win32/basic-win32-widget.h>
+
 
 namespace richmath{
   // Must call init() immediately after the construction of a derived object!
@@ -105,7 +110,6 @@ namespace richmath{
   };
   
   SpecialKey win32_virtual_to_special_key(DWORD vkey);
-  String win32_command_id_to_command_string(DWORD id);
 }
 
 #endif // __GUI__WIN32__WIN32_WIDGET_H__

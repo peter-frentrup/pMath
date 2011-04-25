@@ -2,7 +2,6 @@
 #define __GRAPHICS__FT_SHAPER_H__
 
 #include <graphics/shapers.h>
-#include <util/config.h>
 
 #ifndef RICHMATH_USE_FT_FONT
   #error freetype fonts not supported in this build

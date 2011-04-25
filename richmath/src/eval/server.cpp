@@ -2,13 +2,6 @@
 
 #include <cstdio>
 
-#ifdef _WIN32
-  #include <windows.h>
-  #include <process.h>
-#else
-  #include <pthread.h>
-#endif
-
 #include <eval/application.h>
 #include <util/concurrent-queue.h>
 

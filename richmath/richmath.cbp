@@ -18,6 +18,7 @@
 					<Add option="-Wall" />
 					<Add option="-g" />
 					<Add option="-fno-exceptions" />
+					<Add option="-mms-bitfields" />
 					<Add option="-DPMATH_DEBUG_LOG" />
 					<Add option="-DRICHMATH_USE_WIN32_FONT" />
 					<Add option="-DRICHMATH_USE_WIN32_GUI" />
@@ -49,6 +50,7 @@
 					<Add directory="$(#cairo.lib)" />
 					<Add directory="$(#pango.lib)" />
 					<Add directory="$(#glib.lib)" />
+					<Add directory="$(#gtk.lib)" />
 				</Linker>
 				<ExtraCommands>
 					<Add after="post-build-windows.bat debug" />
@@ -67,6 +69,7 @@
 					<Add option="-Wall" />
 					<Add option="-g" />
 					<Add option="-fno-exceptions" />
+					<Add option="-mms-bitfields" />
 					<Add option="-DPMATH_DEBUG_LOG" />
 					<Add option="-DRICHMATH_USE_FT_FONT" />
 					<Add option="-DRICHMATH_USE_WIN32_GUI" />
@@ -108,6 +111,62 @@
 					<Mode after="always" />
 				</ExtraCommands>
 			</Target>
+			<Target title="Windows-Debug-Gtk">
+				<Option platforms="Windows;" />
+				<Option output="bin\windows\debug\richmath-gtk" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj\windows\debug\gtk" />
+				<Option external_deps="..\..\pmath_project\library\pmath.cbp;" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-march=i686" />
+					<Add option="-Wall" />
+					<Add option="-g" />
+					<Add option="-fno-exceptions" />
+					<Add option="-mms-bitfields" />
+					<Add option="-DPMATH_DEBUG_LOG" />
+					<Add option="-DRICHMATH_USE_FT_FONT" />
+					<Add option="-DRICHMATH_USE_GTK_GUI" />
+					<Add directory="include" />
+					<Add directory="resources" />
+					<Add directory="..\library\include" />
+					<Add directory="$(#cairo.include)" />
+					<Add directory="$(#pango.include)" />
+					<Add directory="$(#glib.include)" />
+					<Add directory="$(#glib.lib)\glib-2.0\include" />
+					<Add directory="$(#gtk.include)" />
+					<Add directory="$(#gtk.include)\fontconfig" />
+					<Add directory="$(#gtk.include)\freetype2" />
+					<Add directory="$(#gtk.include)\gtk-2.0" />
+					<Add directory="$(#gtk.lib)\gtk-2.0\include" />
+					<Add directory="$(#gtk.include)\gdk" />
+					<Add directory="$(#gtk.include)\atk-1.0" />
+				</Compiler>
+				<Linker>
+					<Add option="-static-libgcc" />
+					<Add library="pmath" />
+					<Add library="cairo" />
+					<Add library="glib-2.0" />
+					<Add library="gobject-2.0" />
+					<Add library="pango-1.0" />
+					<Add library="pangocairo-1.0" />
+					<Add library="pangowin32-1.0" />
+					<Add library="usp10" />
+					<Add library="user32" />
+					<Add library="fontconfig" />
+					<Add library="freetype" />
+					<Add library="gdk-win32-2.0" />
+					<Add library="gtk-win32-2.0" />
+					<Add directory="..\library\bin\windows\debug" />
+					<Add directory="$(#cairo.lib)" />
+					<Add directory="$(#pango.lib)" />
+					<Add directory="$(#glib.lib)" />
+				</Linker>
+				<ExtraCommands>
+					<Add after="post-build-windows.bat debug" />
+					<Mode after="always" />
+				</ExtraCommands>
+			</Target>
 			<Target title="Windows-Release">
 				<Option platforms="Windows;" />
 				<Option output="bin\windows\release\richmath" prefix_auto="1" extension_auto="1" />
@@ -120,6 +179,7 @@
 					<Add option="-Wall" />
 					<Add option="-g" />
 					<Add option="-fno-exceptions" />
+					<Add option="-mms-bitfields" />
 					<Add option="-DNDEBUG" />
 					<Add option="-DRICHMATH_USE_WIN32_FONT" />
 					<Add option="-DRICHMATH_USE_WIN32_GUI" />
@@ -255,28 +315,104 @@
 		<Unit filename="include\graphics\ft-shaper.h" />
 		<Unit filename="include\graphics\ot-math-shaper.h" />
 		<Unit filename="include\graphics\shapers.h" />
-		<Unit filename="include\graphics\win32-shaper.h" />
+		<Unit filename="include\graphics\win32-shaper.h">
+			<Option target="Windows-Debug" />
+			<Option target="Windows-Debug-Freetype" />
+			<Option target="Windows-Release" />
+			<Option target="Windows-MSVC" />
+		</Unit>
 		<Unit filename="include\gui\clipboard.h" />
 		<Unit filename="include\gui\control-painter.h" />
 		<Unit filename="include\gui\document.h" />
+		<Unit filename="include\gui\gtk\basic-gtk-widget.h">
+			<Option target="Windows-Debug-Gtk" />
+		</Unit>
+		<Unit filename="include\gui\gtk\mgtk-widget.h">
+			<Option target="Windows-Debug-Gtk" />
+		</Unit>
 		<Unit filename="include\gui\menu.h" />
 		<Unit filename="include\gui\native-widget.h" />
-		<Unit filename="include\gui\win32\basic-win32-widget.h" />
-		<Unit filename="include\gui\win32\basic-win32-window.h" />
-		<Unit filename="include\gui\win32\ole\dataobject.h" />
-		<Unit filename="include\gui\win32\ole\dropsource.h" />
-		<Unit filename="include\gui\win32\ole\enumformatetc.h" />
-		<Unit filename="include\gui\win32\win32-clipboard.h" />
-		<Unit filename="include\gui\win32\win32-control-painter.h" />
-		<Unit filename="include\gui\win32\win32-document-window.h" />
-		<Unit filename="include\gui\win32\win32-menubar.h" />
-		<Unit filename="include\gui\win32\win32-themes.h" />
-		<Unit filename="include\gui\win32\win32-tooltip-window.h" />
-		<Unit filename="include\gui\win32\win32-widget.h" />
+		<Unit filename="include\gui\win32\basic-win32-widget.h">
+			<Option target="Windows-Debug" />
+			<Option target="Windows-Debug-Freetype" />
+			<Option target="Windows-Release" />
+			<Option target="Windows-MSVC" />
+		</Unit>
+		<Unit filename="include\gui\win32\basic-win32-window.h">
+			<Option target="Windows-Debug" />
+			<Option target="Windows-Debug-Freetype" />
+			<Option target="Windows-Release" />
+			<Option target="Windows-MSVC" />
+		</Unit>
+		<Unit filename="include\gui\win32\ole\dataobject.h">
+			<Option target="Windows-Debug" />
+			<Option target="Windows-Debug-Freetype" />
+			<Option target="Windows-Release" />
+			<Option target="Windows-MSVC" />
+		</Unit>
+		<Unit filename="include\gui\win32\ole\dropsource.h">
+			<Option target="Windows-Debug" />
+			<Option target="Windows-Debug-Freetype" />
+			<Option target="Windows-Release" />
+			<Option target="Windows-MSVC" />
+		</Unit>
+		<Unit filename="include\gui\win32\ole\enumformatetc.h">
+			<Option target="Windows-Debug" />
+			<Option target="Windows-Debug-Freetype" />
+			<Option target="Windows-Release" />
+			<Option target="Windows-MSVC" />
+		</Unit>
+		<Unit filename="include\gui\win32\win32-clipboard.h">
+			<Option target="Windows-Debug" />
+			<Option target="Windows-Debug-Freetype" />
+			<Option target="Windows-Release" />
+			<Option target="Windows-MSVC" />
+		</Unit>
+		<Unit filename="include\gui\win32\win32-control-painter.h">
+			<Option target="Windows-Debug" />
+			<Option target="Windows-Debug-Freetype" />
+			<Option target="Windows-Release" />
+			<Option target="Windows-MSVC" />
+		</Unit>
+		<Unit filename="include\gui\win32\win32-document-window.h">
+			<Option target="Windows-Debug" />
+			<Option target="Windows-Debug-Freetype" />
+			<Option target="Windows-Release" />
+			<Option target="Windows-MSVC" />
+		</Unit>
+		<Unit filename="include\gui\win32\win32-menu.h">
+			<Option target="Windows-Debug" />
+			<Option target="Windows-Debug-Freetype" />
+			<Option target="Windows-Release" />
+			<Option target="Windows-MSVC" />
+		</Unit>
+		<Unit filename="include\gui\win32\win32-menubar.h">
+			<Option target="Windows-Debug" />
+			<Option target="Windows-Debug-Freetype" />
+			<Option target="Windows-Release" />
+			<Option target="Windows-MSVC" />
+		</Unit>
+		<Unit filename="include\gui\win32\win32-themes.h">
+			<Option target="Windows-Debug" />
+			<Option target="Windows-Debug-Freetype" />
+			<Option target="Windows-Release" />
+			<Option target="Windows-MSVC" />
+		</Unit>
+		<Unit filename="include\gui\win32\win32-tooltip-window.h">
+			<Option target="Windows-Debug" />
+			<Option target="Windows-Debug-Freetype" />
+			<Option target="Windows-Release" />
+			<Option target="Windows-MSVC" />
+		</Unit>
+		<Unit filename="include\gui\win32\win32-widget.h">
+			<Option target="Windows-Debug" />
+			<Option target="Windows-Debug-Freetype" />
+			<Option target="Windows-Release" />
+			<Option target="Windows-MSVC" />
+		</Unit>
 		<Unit filename="include\util\array.h" />
 		<Unit filename="include\util\base.h" />
 		<Unit filename="include\util\concurrent-queue.h" />
-		<Unit filename="include\util\config.h" />
 		<Unit filename="include\util\hashtable.h" />
 		<Unit filename="include\util\matrix.h" />
 		<Unit filename="include\util\pmath-extra.h" />
@@ -285,9 +421,18 @@
 		<Unit filename="include\util\spanexpr.h" />
 		<Unit filename="include\util\style.h" />
 		<Unit filename="include\util\syntax-state.h" />
-		<Unit filename="resources\resources.h" />
+		<Unit filename="resources\resources.h">
+			<Option target="Windows-Debug" />
+			<Option target="Windows-Debug-Freetype" />
+			<Option target="Windows-Release" />
+			<Option target="Windows-MSVC" />
+		</Unit>
 		<Unit filename="resources\richmath.rc">
 			<Option compilerVar="WINDRES" />
+			<Option target="Windows-Debug" />
+			<Option target="Windows-Debug-Freetype" />
+			<Option target="Windows-Release" />
+			<Option target="Windows-MSVC" />
 		</Unit>
 		<Unit filename="scripts\frontinit.pmath" />
 		<Unit filename="src\boxes\box.cpp" />
@@ -333,24 +478,101 @@
 		<Unit filename="src\graphics\ft-shaper.cpp" />
 		<Unit filename="src\graphics\ot-math-shaper.cpp" />
 		<Unit filename="src\graphics\shapers.cpp" />
-		<Unit filename="src\graphics\win32-shaper.cpp" />
+		<Unit filename="src\graphics\win32-shaper.cpp">
+			<Option target="Windows-Debug" />
+			<Option target="Windows-Debug-Freetype" />
+			<Option target="Windows-Release" />
+			<Option target="Windows-MSVC" />
+		</Unit>
 		<Unit filename="src\gui\clipboard.cpp" />
 		<Unit filename="src\gui\control-painter.cpp" />
 		<Unit filename="src\gui\document.cpp" />
+		<Unit filename="src\gui\gtk\basic-gtk-widget.cpp">
+			<Option target="Windows-Debug-Gtk" />
+		</Unit>
+		<Unit filename="src\gui\gtk\mgtk-widget.cpp">
+			<Option target="Windows-Debug-Gtk" />
+		</Unit>
 		<Unit filename="src\gui\menu.cpp" />
 		<Unit filename="src\gui\native-widget.cpp" />
-		<Unit filename="src\gui\win32\basic-win32-widget.cpp" />
-		<Unit filename="src\gui\win32\basic-win32-window.cpp" />
-		<Unit filename="src\gui\win32\ole\dataobject.cpp" />
-		<Unit filename="src\gui\win32\ole\dropsource.cpp" />
-		<Unit filename="src\gui\win32\ole\enumformatetc.cpp" />
-		<Unit filename="src\gui\win32\win32-clipboard.cpp" />
-		<Unit filename="src\gui\win32\win32-control-painter.cpp" />
-		<Unit filename="src\gui\win32\win32-document-window.cpp" />
-		<Unit filename="src\gui\win32\win32-menubar.cpp" />
-		<Unit filename="src\gui\win32\win32-themes.cpp" />
-		<Unit filename="src\gui\win32\win32-tooltip-window.cpp" />
-		<Unit filename="src\gui\win32\win32-widget.cpp" />
+		<Unit filename="src\gui\win32\basic-win32-widget.cpp">
+			<Option target="Windows-Debug" />
+			<Option target="Windows-Debug-Freetype" />
+			<Option target="Windows-Release" />
+			<Option target="Windows-MSVC" />
+		</Unit>
+		<Unit filename="src\gui\win32\basic-win32-window.cpp">
+			<Option target="Windows-Debug" />
+			<Option target="Windows-Debug-Freetype" />
+			<Option target="Windows-Release" />
+			<Option target="Windows-MSVC" />
+		</Unit>
+		<Unit filename="src\gui\win32\ole\dataobject.cpp">
+			<Option target="Windows-Debug" />
+			<Option target="Windows-Debug-Freetype" />
+			<Option target="Windows-Release" />
+			<Option target="Windows-MSVC" />
+		</Unit>
+		<Unit filename="src\gui\win32\ole\dropsource.cpp">
+			<Option target="Windows-Debug" />
+			<Option target="Windows-Debug-Freetype" />
+			<Option target="Windows-Release" />
+			<Option target="Windows-MSVC" />
+		</Unit>
+		<Unit filename="src\gui\win32\ole\enumformatetc.cpp">
+			<Option target="Windows-Debug" />
+			<Option target="Windows-Debug-Freetype" />
+			<Option target="Windows-Release" />
+			<Option target="Windows-MSVC" />
+		</Unit>
+		<Unit filename="src\gui\win32\win32-clipboard.cpp">
+			<Option target="Windows-Debug" />
+			<Option target="Windows-Debug-Freetype" />
+			<Option target="Windows-Release" />
+			<Option target="Windows-MSVC" />
+		</Unit>
+		<Unit filename="src\gui\win32\win32-control-painter.cpp">
+			<Option target="Windows-Debug" />
+			<Option target="Windows-Debug-Freetype" />
+			<Option target="Windows-Release" />
+			<Option target="Windows-MSVC" />
+		</Unit>
+		<Unit filename="src\gui\win32\win32-document-window.cpp">
+			<Option target="Windows-Debug" />
+			<Option target="Windows-Debug-Freetype" />
+			<Option target="Windows-Release" />
+			<Option target="Windows-MSVC" />
+		</Unit>
+		<Unit filename="src\gui\win32\win32-menu.cpp">
+			<Option target="Windows-Debug" />
+			<Option target="Windows-Debug-Freetype" />
+			<Option target="Windows-Release" />
+			<Option target="Windows-MSVC" />
+		</Unit>
+		<Unit filename="src\gui\win32\win32-menubar.cpp">
+			<Option target="Windows-Debug" />
+			<Option target="Windows-Debug-Freetype" />
+			<Option target="Windows-Release" />
+			<Option target="Windows-MSVC" />
+		</Unit>
+		<Unit filename="src\gui\win32\win32-themes.cpp">
+			<Option target="Windows-Debug" />
+			<Option target="Windows-Debug-Freetype" />
+			<Option target="Windows-Release" />
+			<Option target="Windows-MSVC" />
+		</Unit>
+		<Unit filename="src\gui\win32\win32-tooltip-window.cpp">
+			<Option target="Windows-Debug" />
+			<Option target="Windows-Debug-Freetype" />
+			<Option target="Windows-Release" />
+			<Option target="Windows-MSVC" />
+		</Unit>
+		<Unit filename="src\gui\win32\win32-widget.cpp">
+			<Option target="Windows-Debug" />
+			<Option target="Windows-Debug-Freetype" />
+			<Option target="Windows-Release" />
+			<Option target="Windows-MSVC" />
+		</Unit>
 		<Unit filename="src\main.cpp" />
 		<Unit filename="src\util\base.cpp" />
 		<Unit filename="src\util\pmath-extra.cpp" />

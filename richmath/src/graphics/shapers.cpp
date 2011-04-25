@@ -6,8 +6,6 @@
 
 #include <graphics/context.h>
 
-#include <util/config.h>
-
 
 #ifdef RICHMATH_USE_WIN32_FONT
   #include <graphics/win32-shaper.h>

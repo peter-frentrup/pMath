@@ -20,6 +20,7 @@
 #include <gui/win32/ole/dataobject.h>
 #include <gui/win32/ole/dropsource.h>
 #include <gui/win32/win32-clipboard.h>
+#include <gui/win32/win32-menu.h>
 #include <gui/win32/win32-tooltip-window.h>
 
 #include <resources.h>
@@ -38,51 +39,6 @@
 #define ANIMATION_DELAY  (50)
 
 using namespace richmath;
-
-static Hashtable<int, String, cast_hash> menucommands;
-
-static void add_remove_window(int count){
-  static int window_count = 0;
-  
-  if(window_count == 0){
-    menucommands.set( SC_CLOSE                    , "Close");
-    
-    menucommands.set( IDM_EDITBOXES               , "EditBoxes");
-    menucommands.set( IDM_EXPANDSELECTION         , "ExpandSelection");
-    menucommands.set( IDM_FINDMATCHINGFENCE       , "FindMatchingFence");
-    menucommands.set( IDM_SELECTALL               , "SelectAll");
-    menucommands.set( IDM_CUT                     , "Cut");
-    menucommands.set( IDM_COPY                    , "Copy");
-    menucommands.set( IDM_PASTE                   , "Paste");
-    menucommands.set( IDM_OPENCLOSEGROUP          , "OpenCloseGroup");
-
-    menucommands.set( IDM_INSERTCOLUMN            , "InsertColumn");
-    menucommands.set( IDM_INSERTFRACTION          , "InsertFraction");
-    menucommands.set( IDM_INSERTOPPOSITE          , "InsertOpposite");
-    menucommands.set( IDM_INSERTOVERSCRIPT        , "InsertOverscript");
-    menucommands.set( IDM_INSERTRADICAL           , "InsertRadical");
-    menucommands.set( IDM_INSERTROW               , "InsertRow");
-    menucommands.set( IDM_INSERTSUBSCRIPT         , "InsertSubscript");
-    menucommands.set( IDM_INSERTSUPERSCRIPT       , "InsertSuperscript");
-    menucommands.set( IDM_INSERTUNDERSCRIPT       , "InsertUnderscript");
-    menucommands.set( IDM_DUPLICATEPREVIOUSINPUT  , "DuplicatePreviousInput");
-    menucommands.set( IDM_DUPLICATEPREVIOUSOUTPUT , "DuplicatePreviousOutput");
-    menucommands.set( IDM_SIMILARSECTIONBELOW     , "SimilarSectionBelow");
-
-    menucommands.set( IDM_EVALUATORABORT              , "EvaluatorAbort");
-    menucommands.set( IDM_EVALUATEINPLACE             , "EvaluateInPlace");
-    menucommands.set( IDM_EVALUATESECTIONS            , "EvaluateSections");
-    menucommands.set( IDM_EVALUATORSUBSESSION         , "EvaluatorSubsession");
-    menucommands.set( IDM_SUBSESSIONEVALUATESECTIONS  , "SubsessionEvaluateSections");
-  }
-  
-  window_count+= count;
-  
-  if(window_count <= 0){
-    menucommands.clear();
-//    PostQuitMessage(0);
-  }
-}
   
 SpecialKey richmath::win32_virtual_to_special_key(DWORD vkey){
   switch(vkey){
@@ -116,10 +72,6 @@ SpecialKey richmath::win32_virtual_to_special_key(DWORD vkey){
   }
 }
 
-String richmath::win32_command_id_to_command_string(DWORD id){
-  return menucommands[id];
-}
-
 //{ class Win32Widget ...
 
 Win32Widget::Win32Widget(
@@ -143,7 +95,6 @@ Win32Widget::Win32Widget(
   is_dragging(false),
   is_drop_over(false)
 {
-  add_remove_window(1);
 }
 
 void Win32Widget::after_construction(){
@@ -154,7 +105,6 @@ Win32Widget::~Win32Widget(){
 //  if(surface)
 //    cairo_surface_destroy(surface);
   
-  add_remove_window(-1);
 }
 
 void Win32Widget::window_size(float *w, float *h){
@@ -295,7 +245,7 @@ bool Win32Widget::cursor_position(float *x, float *y){
 }
 
 void Win32Widget::invalidate(){
-  is_painting = false; // if inside WM_PAINT; invalidate at end of event
+  is_painting = false; // if inside WM_PAINT, invalidate at end of event
   InvalidateRect(_hwnd, 0, FALSE);
 }
 
@@ -1111,8 +1061,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam){
       } break;
       
       case WM_COMMAND: {
-        pmath_debug_print("C");
-        String cmd = win32_command_id_to_command_string(LOWORD(wParam));
+        String cmd = Win32Menu::command_id_to_string(LOWORD(wParam));
         if(cmd.is_null())
           break;
           

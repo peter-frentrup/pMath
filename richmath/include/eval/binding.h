@@ -11,7 +11,14 @@ namespace richmath{
     NumberBoxSymbol,
     SymbolInfoSymbol,
     AddConfigShaperSymbol,
-    InternalExecuteFor,
+    InternalExecuteForSymbol,
+    MenuSymbol,
+    ItemSymbol,
+    DelimiterSymbol,
+    KeyEventSymbol,
+    KeyAltSymbol,
+    KeyControlSymbol,
+    KeyShiftSymbol,
     
     FrontEndSymbolsCount
   }FrontEndSymbolIndex;

@@ -1,0 +1,92 @@
+#include <gui/gtk/basic-gtk-widget.h>
+
+
+using namespace richmath;
+
+const char widget_key[] = "Richmath C++ Pointer";
+
+static void add_remove_window(int count){
+  static int global_window_count = 0;
+
+  global_window_count+= count;
+}
+
+//{ class BasicGtkWidget ...
+
+BasicGtkWidget::BasicGtkWidget()
+: Base(),
+  _widget(0),
+  init_data(new InitData),
+  _initializing(true)
+{
+  add_remove_window(+1);
+}
+
+void BasicGtkWidget::after_construction(){
+  if(!_widget){
+    _widget = gtk_widget_new(GTK_TYPE_WIDGET, NULL);
+  }
+  
+  g_object_set_data_full(
+    G_OBJECT(_widget), 
+    widget_key, 
+    this, 
+    BasicGtkWidget::destroyed_by_gobject);
+  
+  g_signal_connect(
+    _widget, 
+    "event", 
+    G_CALLBACK(BasicGtkWidget::widget_event), 
+    NULL);
+                      
+  delete init_data;
+}
+
+BasicGtkWidget::~BasicGtkWidget(){
+  if(_widget){
+    gtk_widget_destroy(_widget);
+    _widget = 0;
+  }
+  
+  add_remove_window(-1);
+}
+
+BasicGtkWidget *BasicGtkWidget::parent(){
+  if(!_widget)
+    return 0;
+  
+  GtkWidget *p = gtk_widget_get_parent(_widget);
+  
+  if(p)
+    return (BasicGtkWidget*)g_object_get_data(G_OBJECT(p), widget_key);
+  
+  return 0;
+}
+
+BasicGtkWidget *BasicGtkWidget::from_widget(GtkWidget *wid){
+  if(!wid)
+    return 0;
+  
+  return (BasicGtkWidget*)g_object_get_data(G_OBJECT(wid), widget_key);
+}
+
+bool BasicGtkWidget::callback(GdkEvent *event){
+  return true;
+}
+
+void BasicGtkWidget::destroyed_by_gobject(void *_this){
+  BasicGtkWidget *self = (BasicGtkWidget*)_this;
+  self->_widget = 0;
+  delete self;
+}
+
+gboolean BasicGtkWidget::widget_event(GtkWidget *wid, GdkEvent *event, void *dummy){
+  BasicGtkWidget *me = from_widget(wid);
+  
+  if(me)
+    return me->callback(event);
+  
+  return TRUE;
+}
+
+//} ... class BasicGtkWidget

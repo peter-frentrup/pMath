@@ -1,0 +1,53 @@
+
+Begin("FE`")
+
+
+FE`KeyEvent
+FE`Item
+
+FE`KeyAlt
+FE`KeyShift
+FE`KeyControl
+
+
+Begin("FE`Private`")
+
+
+
+FE`Private`shortcuts:= {
+	Item(KeyEvent("X", {KeyControl}),               "Cut"),
+	Item(KeyEvent("C", {KeyControl}),               "Copy"),
+	Item(KeyEvent("V", {KeyControl}),               "Paste"),
+	Item(KeyEvent("E", {KeyControl, KeyShift}),     "EditBoxes"),
+	Item(KeyEvent(".", {KeyControl}),               "ExpandSelection"),
+	Item(KeyEvent("A", {KeyControl}),               "SelectAll"),
+	Item(KeyEvent("B", {KeyControl, KeyShift}),     "FindMatchingFence"),
+	Item(KeyEvent("'", {KeyControl}),               "OpenCloseGroup"),
+	
+	Item(KeyEvent("L", {KeyControl}),               "DuplicatePreviousInput"),
+	Item(KeyEvent("L", {KeyControl, KeyShift}),     "DuplicatePreviousOutput"),
+	Item(KeyEvent("Enter", {KeyAlt}),               "SimilarSectionBelow"),
+	Item(KeyEvent("/", {KeyControl}),               "InsertFraction"),
+	Item(KeyEvent("2", {KeyControl}),               "InsertRadical"),
+	Item(KeyEvent("-", {KeyControl}),               "InsertSubscript"),
+	Item(KeyEvent("^", {KeyControl}),               "InsertSuperscript"),
+	Item(KeyEvent("7", {KeyControl}),               "InsertOverscript"),
+	Item(KeyEvent("+", {KeyControl}),               "InsertUnderscript"),
+	Item(KeyEvent("5", {KeyControl}),               "InsertOpposite"),
+	Item(KeyEvent(",", {KeyControl}),               "InsertColumn"),
+	Item(KeyEvent("Enter", {KeyControl}),           "InsertRow"),
+	
+	Item(KeyEvent("Enter", {KeyShift}),             "EvaluateSections"),
+	Item(KeyEvent("Enter", {KeyControl, KeyShift}), "EvaluateInPlace"),
+	Item(KeyEvent("F7", {}),                        "SubsessionEvaluateSections"),
+	Item(KeyEvent("Esc", {KeyShift}),               "EvaluatorAbort")
+	}
+
+
+End()
+
+
+End()
+
+
+FE`Private`shortcuts

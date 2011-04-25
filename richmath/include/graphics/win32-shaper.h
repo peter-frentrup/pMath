@@ -2,7 +2,6 @@
 #define __GRAPHICS__WIN32_SHAPER_H__
 
 #include <graphics/shapers.h>
-#include <util/config.h>
 
 #ifndef RICHMATH_USE_WIN32_FONT
   #error win32 fonts not supported in this build

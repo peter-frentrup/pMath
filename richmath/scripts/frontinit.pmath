@@ -35,7 +35,7 @@ SymbolInfo(~name:String)::= Try(
 		If(sym.Match(HoldComplete(Symbol(~))),
 			Return(False));
 		
-		If(!sym.Match(HoldComplete(~s /? IsSymbol(Unevaluated(s)))),
+		If(!sym.Match(HoldComplete(~s:Symbol)),
 			Return(True));
 		
 		If(Union($NamespacePath, {$Namespace}).Map(MakeExpression(# ++ name, ParseSymbols -> False)&).Cases(HoldComplete(Except(Symbol(~)))).Length() > 1,

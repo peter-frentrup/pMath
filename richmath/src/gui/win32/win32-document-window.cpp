@@ -12,6 +12,7 @@
 #include <eval/application.h>
 #include <gui/control-painter.h>
 #include <gui/win32/win32-control-painter.h>
+#include <gui/win32/win32-menu.h>
 #include <gui/win32/win32-menubar.h>
 #include <gui/win32/win32-themes.h>
 #include <resources.h>
@@ -502,12 +503,13 @@ void Win32DocumentWindow::after_construction(){
   
   menubar = new Win32Menubar(
     this, _hwnd,
-    LoadMenuW(GetModuleHandle(0), MAKEINTRESOURCEW(MENU_MAIN)));
+    Win32Menu::main_menu);
   
   HMENU sysmenu = GetSystemMenu(_hwnd, FALSE);
   AppendMenuW(sysmenu, MF_SEPARATOR, 0, L"");
   
-  for(int i = 0;i < GetMenuItemCount(menubar->menu());++i){
+  HMENU menu = Win32Menu::main_menu ? Win32Menu::main_menu->hmenu() : NULL;
+  for(int i = 0;i < GetMenuItemCount(menu);++i){
     wchar_t data[100];
     
     MENUITEMINFOW info;
@@ -517,7 +519,7 @@ void Win32DocumentWindow::after_construction(){
     info.dwTypeData = data;
     info.cch = 99;
     
-    GetMenuItemInfoW(menubar->menu(), i, TRUE, &info);
+    GetMenuItemInfoW(menu, i, TRUE, &info);
     InsertMenuItemW(sysmenu, GetMenuItemCount(sysmenu), TRUE, &info);
   }
   
@@ -542,6 +544,13 @@ Win32DocumentWindow::~Win32DocumentWindow(){
   delete _bottom_glass_area;
   delete _working_area;
   delete menubar;
+  
+  // remove all menu items so that the submenus are not destroyed automatically
+  HMENU sysmenu = GetSystemMenu(_hwnd, FALSE);
+  int count = GetMenuItemCount(sysmenu);
+  for(int i = 0;i < count;++i){
+    RemoveMenu(sysmenu, 0, MF_BYPOSITION);
+  }
   
   static bool deleting_all = false;
   
@@ -929,42 +938,38 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
         }
       } break;
       
+      case WM_SYSCOMMAND: 
+        if(wParam >= 0xF000)
+          break;
+        /* no break */
       case WM_COMMAND: {
-        SharedPtr<MathShaper> ms = _working_area->document_context()->math_shaper;
-        switch(LOWORD(wParam)){
-          case IDM_CAMBRIAMATHSHAPER:     ms = MathShaper::available_shapers["Cambria Math"];    break;
-          case IDM_MATHEMATICASHAPER:     ms = MathShaper::available_shapers["Mathematica Serif"];     break;
-          case IDM_MATHEMATICAMONOSHAPER: ms = MathShaper::available_shapers["Mathematica Mono"]; break;
-          case IDM_ASANAMATHSHAPER:       ms = MathShaper::available_shapers["Asana Math"];      break;
-          case IDM_NEOEULERSHAPER:        ms = MathShaper::available_shapers["Neo Euler"];      break;
-          case IDM_XITSMATHSHAPER:        ms = MathShaper::available_shapers["XITS Math"];      break;
-          default:
-            Application::run_menucommand(win32_command_id_to_command_string(LOWORD(wParam)));
-            return 0;
-        }
+        String cmd = Win32Menu::command_id_to_string(LOWORD(wParam));
         
-        _top_glass_area->document_context()->math_shaper = ms;
-        _top_area->document_context()->math_shaper = ms;
-        _bottom_area->document_context()->math_shaper = ms;
-        _bottom_glass_area->document_context()->math_shaper = ms;
-        _working_area->document_context()->math_shaper = ms;
-        
-        _top_glass_area->document()->invalidate_all();
-        _top_area->document()->invalidate_all();
-        _bottom_area->document()->invalidate_all();
-        _bottom_glass_area->document()->invalidate_all();
-        _working_area->document()->invalidate_all();
-      } return 0;
-      
-      case WM_SYSCOMMAND: {
-        if(wParam < 0xF000){
-          String cmd = win32_command_id_to_command_string(LOWORD(wParam));
-          if(cmd.is_null())
-            SendMessageW(_hwnd, WM_COMMAND, wParam, lParam);
+        if(cmd.starts_with(     "@shaper=")){
+          cmd = cmd.part(sizeof("@shaper=") - 1, -1);
+          
+          SharedPtr<MathShaper> ms = MathShaper::available_shapers[cmd];
+          
+          if(ms.is_valid()){
+            _top_glass_area->document_context()->math_shaper    = ms;
+            _top_area->document_context()->math_shaper          = ms;
+            _bottom_area->document_context()->math_shaper       = ms;
+            _bottom_glass_area->document_context()->math_shaper = ms;
+            _working_area->document_context()->math_shaper      = ms;
+            
+            _top_glass_area->document()->invalidate_all();
+            _top_area->document()->invalidate_all();
+            _bottom_area->document()->invalidate_all();
+            _bottom_glass_area->document()->invalidate_all();
+            _working_area->document()->invalidate_all();
+          }
           else
-            Application::run_menucommand(cmd);
+            MessageBeep(0);
         }
-      } break;
+        else
+          Application::run_menucommand(cmd);
+        
+      } return 0;
       
       case WM_KEYDOWN:
       case WM_CHAR: 

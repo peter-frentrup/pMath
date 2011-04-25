@@ -1,5 +1,3 @@
-#include <util/config.h>
-
 #ifdef RICHMATH_USE_FT_FONT
 
 #include <graphics/ft-shaper.h>

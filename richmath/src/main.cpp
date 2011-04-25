@@ -1,3 +1,12 @@
+#if defined( RICHMATH_USE_WIN32_FONT ) + defined( RICHMATH_USE_FT_FONT ) != 1
+  #error either RICHMATH_USE_WIN32_FONT or RICHMATH_USE_FT_FONT must be defined
+#endif
+
+#if defined( RICHMATH_USE_WIN32_GUI ) + defined( RICHMATH_USE_GTK_GUI ) != 1
+  #error RICHMATH_USE_WIN32_GUI or RICHMATH_USE_GTK_GUI must be defined
+#endif
+
+
 #define __STDC_FORMAT_MACROS
 #define WINVER 0x0500 // RegisterFontResoureceEx
 
@@ -13,18 +22,29 @@
 #include <graphics/config-shaper.h>
 #include <graphics/ot-math-shaper.h>
 #include <gui/control-painter.h>
-#include <gui/win32/win32-clipboard.h>
-#include <gui/win32/win32-document-window.h>
-#include <gui/win32/win32-themes.h>
+
+#ifdef RICHMATH_USE_WIN32_GUI
+  #include <gui/win32/win32-clipboard.h>
+  #include <gui/win32/win32-document-window.h>
+  #include <gui/win32/win32-menu.h>
+  #include <gui/win32/win32-themes.h>
+#endif
+#include <gui/document.h>
 
 #include <resources.h>
 
 #undef STRICT
 
 #include <pango/pangocairo.h>
-#include <pango/pangowin32.h>
 
-#include <Windows.h>
+#ifdef RICHMATH_USE_WIN32_GUI
+  #include <pango/pangowin32.h>
+  #include <windows.h>
+#endif
+
+#ifdef RICHMATH_USE_GTK_GUI
+  #include <gtk/gtk.h>
+#endif
 
 using namespace richmath;
 
@@ -65,7 +85,9 @@ static void load_aliases(
 ){
   Hashtable<String, Expr, object_hash> *table = explicit_macros;
   
+  #ifdef PMATH_DEBUG_LOG
   clock_t start = clock();
+  #endif
   
   if(aliases[0] == PMATH_SYMBOL_LIST){
     for(size_t i = 1;i <= aliases.expr_length();++i){
@@ -99,41 +121,87 @@ static void load_aliases(
     }
   }
 
+  #ifdef PMATH_DEBUG_LOG
   pmath_debug_print("Loaded aliases in %f seconds.\n", (clock() - start) / (double)CLOCKS_PER_SEC);
+  #endif
 }
 
 static void os_init(){
-  HMODULE kernel32;
-  
-  // do not show message boxes on LoadLibrary errors:
-  SetErrorMode(SEM_NOOPENFILEERRORBOX);
-  
-  // remove current directory from dll search path:
-  kernel32 = GetModuleHandleW(L"Kernel32");
-  if(kernel32){
-    BOOL (WINAPI *SetDllDirectoryW_ptr)(const WCHAR*);
-    SetDllDirectoryW_ptr = (BOOL (WINAPI*)(const WCHAR*))
-      GetProcAddress(kernel32, "SetDllDirectoryW");
+  #ifdef PMATH_OS_WIN32
+  {
+    HMODULE kernel32;
     
-    if(SetDllDirectoryW_ptr)
-      SetDllDirectoryW_ptr(L"");
+    // do not show message boxes on LoadLibrary errors:
+    SetErrorMode(SEM_NOOPENFILEERRORBOX);
+    
+    // remove current directory from dll search path:
+    kernel32 = GetModuleHandleW(L"Kernel32");
+    if(kernel32){
+      BOOL (WINAPI *SetDllDirectoryW_ptr)(const WCHAR*);
+      SetDllDirectoryW_ptr = (BOOL (WINAPI*)(const WCHAR*))
+        GetProcAddress(kernel32, "SetDllDirectoryW");
+      
+      if(SetDllDirectoryW_ptr)
+        SetDllDirectoryW_ptr(L"");
+    }
   }
+  #endif
 }
 
-int main(){
+static void message_dialog(const char *title, const char *content){
+  #ifdef RICHMATH_USE_WIN32_GUI
+    MessageBoxA(
+      0, 
+      content,
+      title,
+      MB_OK | MB_ICONERROR);
+  #endif
+  
+  #ifdef RICHMATH_USE_GTK_GUI
+  {
+    GtkWidget *dialog = NULL;
+
+    dialog = gtk_message_dialog_new(
+      NULL, 
+      GTK_DIALOG_MODAL, 
+      GTK_MESSAGE_ERROR, 
+      GTK_BUTTONS_OK, 
+      "%s",
+      title);
+    
+    gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(dialog), "%s", content);
+    
+    gtk_window_set_position(GTK_WINDOW(dialog), GTK_WIN_POS_CENTER);
+    gtk_dialog_run(GTK_DIALOG(dialog));
+    gtk_widget_destroy(dialog);
+  }
+  #endif
+}
+
+int main(int argc, char **argv){
   os_init();
   
+  #ifdef RICHMATH_USE_GTK_GUI
+    gtk_init(&argc, &argv);
+  #endif
+  
   if(cairo_version() < CAIRO_VERSION_ENCODE(1,10,0)){
-    fprintf(stderr, 
-      "Cairo Version 1.10.0 or newer needed, but only %s found.\n",
-      cairo_version_string());
+    char str[200];
+    sprintf(str, 
+      "Cairo Version 1.10.0 or newer needed, but only %s found.", 
+      pango_version_string());
+    
+    message_dialog("pMath Fatal Error", str);
     return 1;
   }
   
   if(pango_version() < PANGO_VERSION_ENCODE(1,28,0)){
-    fprintf(stderr, 
-      "Pango Version 1.28.0 or newer needed, but only %s found.\n",
+    char str[200];
+    sprintf(str, 
+      "Pango Version 1.28.0 or newer needed, but only %s found.", 
       pango_version_string());
+    
+    message_dialog("pMath Fatal Error", str);
     return 1;
   }
   
@@ -144,16 +212,20 @@ int main(){
   
   if(!pmath_init()
   || !init_bindings()){
-    fprintf(stderr, "cannot initialize pmath\n");
+    message_dialog("pMath Fatal Error", "Cannot not initialize the pMath library.");
+    
     return 1;
   }
   
-  Win32Themes::init();
+  #ifdef RICHMATH_USE_WIN32_GUI
+    Win32Themes::init();
+    Win32Clipboard::init();
+  #endif
+  
   Application::init();
   Server::init_local_server();
   
   GeneralSyntaxInfo::std = new GeneralSyntaxInfo;
-  Win32Clipboard::init();
   
   // load the syntax information table in parallel
   PMATH_RUN("NewTask(SyntaxInformation(Sin))");
@@ -162,7 +234,18 @@ int main(){
   PMATH_RUN("$PageWidth:= 72");
       
   PMATH_RUN("BeginPackage(\"FE`\")");
+  
+  #ifdef RICHMATH_USE_WIN32_GUI
   {
+    Win32AcceleratorTable::main_table = new Win32AcceleratorTable(Evaluate(Parse(
+        "Get(ToFileName({FE`$FrontEndDirectory,\"resources\"},\"shortcuts.pmath\"))")));
+    
+    Win32Menu::main_menu = new Win32Menu(Evaluate(Parse(
+        "Get(ToFileName({FE`$FrontEndDirectory,\"resources\"},\"mainmenu.pmath\"))")));
+  }
+  #endif
+  
+  { // load fonts
     Expr fontlist = FontInfo::all_fonts();
     
     Hashtable<String, Void> fonttable;
@@ -187,7 +270,7 @@ int main(){
       );
   }
   
-  {
+  { // load shapers
     Expr prefered_fonts = Evaluate(Parse("FE`$MathShapers"));
     
     SharedPtr<MathShaper> shaper;
@@ -200,14 +283,18 @@ int main(){
         shaper = MathShaper::available_shapers[s];
         
         if(!shaper){
+          #ifdef PMATH_DEBUG_LOG
           clock_t start_font = clock();
+          #endif
           
           shaper = OTMathShaperDB::find(s, NoStyle);
           if(shaper){
             MathShaper::available_shapers.set(s, shaper);
             
-            pmath_debug_print_object("loaded ", s.get(), "");
-            pmath_debug_print(" in %f seconds\n", (clock() - start_font) / (float)CLOCKS_PER_SEC);
+            #ifdef PMATH_DEBUG_LOG
+              pmath_debug_print_object("loaded ", s.get(), "");
+              pmath_debug_print(" in %f seconds\n", (clock() - start_font) / (float)CLOCKS_PER_SEC);
+            #endif
           }
         }
         
@@ -232,11 +319,9 @@ int main(){
   }
   
   if(!MathShaper::available_shapers.default_value){
-    MessageBoxW(
-      0, 
-      L"Cannot start pMath because there is no math font on this System.",
-      L"Fatal Error",
-      MB_OK | MB_ICONERROR);
+    message_dialog("pMath Fatal Error", 
+      "Cannot start pMath because there is no math font on this System.");
+    
     return 1;
   }
   
@@ -475,6 +560,7 @@ int main(){
     Stylesheet::Default->styles.set("Placeholder", s);
   }
   
+  #ifdef RICHMATH_USE_WIN32_GUI
   {
     Document *doc;
     Win32DocumentWindow *wndMain;
@@ -565,9 +651,9 @@ int main(){
 //        "SectionFrameMargins->{2, 2, 0, 0},"
 //        "SectionMargins->0)"))));
     
-    PMATH_RUN(
-//      "FE`$StatusSlider:= 0.5;"
-      "FE`$StatusText:=\"Press ALT to show the menu.\"");
+//    PMATH_RUN(
+////      "FE`$StatusSlider:= 0.5;"
+//      "FE`$StatusText:=\"Press ALT to show the menu.\"");
     
 //    wndMain->bottom_glass()->insert(0,
 //    Section::create_from_object(Evaluate(Parse(
@@ -751,18 +837,6 @@ int main(){
     ShowWindow(wndPalette->hwnd(), SW_SHOWNORMAL);
     ShowWindow(wndMain->hwnd(), SW_SHOWNORMAL);
     
-    for(int i = 0;i < 0;++i){
-      wndMain = new Win32DocumentWindow(
-        new Document,
-        0, WS_OVERLAPPEDWINDOW,
-        CW_USEDEFAULT,
-        CW_USEDEFAULT,
-        500,
-        550);
-      wndMain->init();
-      ShowWindow(wndMain->hwnd(), SW_SHOWNORMAL);
-    }
-    
     if(0){
       Win32DocumentWindow *wndInterrupt = new Win32DocumentWindow(
         new Document,
@@ -799,10 +873,17 @@ int main(){
     SetActiveWindow(wndMain->hwnd());
     
   }
+  #endif
   
-  int result = Application::run();
+  int result = 0;
+  if(all_document_ids.size() == 0){
+    message_dialog("pMath Error", 
+      "No document window could be opened. pMath will quit now.");
+  }
+  else
+    Application::run();
   
-  printf("quitted\n");
+  pmath_debug_print("quitted\n");
   
   MathShaper::available_shapers.clear();
   MathShaper::available_shapers.default_value = 0;
@@ -820,7 +901,12 @@ int main(){
   GeneralSyntaxInfo::std = 0;
   
   Application::done();
-  Win32Clipboard::done();
+  
+  #ifdef RICHMATH_USE_WIN32_GUI
+    Win32Clipboard::done();
+    Win32Menu::main_menu              = 0;
+    Win32AcceleratorTable::main_table = 0;
+  #endif
   
   // needed to clear the message_queue member:
   Server::local_server = 0;

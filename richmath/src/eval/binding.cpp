@@ -793,11 +793,17 @@ bool richmath::init_bindings(){
   #define NEW_SYMBOL(name)     pmath_symbol_get(PMATH_C_STRING(name), TRUE)
   
   memset(fe_symbols, 0, sizeof(fe_symbols));
-  VERIFY(fe_symbols[NumberBoxSymbol]       = NEW_SYMBOL("FE`NumberBox"))
-  VERIFY(fe_symbols[SymbolInfoSymbol]      = NEW_SYMBOL("FE`SymbolInfo"))
-  VERIFY(fe_symbols[AddConfigShaperSymbol] = NEW_SYMBOL("FE`AddConfigShaper"))
-  VERIFY(fe_symbols[InternalExecuteFor]    = NEW_SYMBOL("FE`InternalExecuteFor"))
-  
+  VERIFY(fe_symbols[NumberBoxSymbol]          = NEW_SYMBOL("FE`NumberBox"))
+  VERIFY(fe_symbols[SymbolInfoSymbol]         = NEW_SYMBOL("FE`SymbolInfo"))
+  VERIFY(fe_symbols[AddConfigShaperSymbol]    = NEW_SYMBOL("FE`AddConfigShaper"))
+  VERIFY(fe_symbols[DelimiterSymbol]          = NEW_SYMBOL("FE`Delimiter"))
+  VERIFY(fe_symbols[ItemSymbol]               = NEW_SYMBOL("FE`Item"))
+  VERIFY(fe_symbols[KeyEventSymbol]           = NEW_SYMBOL("FE`KeyEvent"))
+  VERIFY(fe_symbols[KeyAltSymbol]             = NEW_SYMBOL("FE`KeyAlt"))
+  VERIFY(fe_symbols[KeyControlSymbol]         = NEW_SYMBOL("FE`KeyControl"))
+  VERIFY(fe_symbols[KeyShiftSymbol]           = NEW_SYMBOL("FE`KeyShift"))
+  VERIFY(fe_symbols[MenuSymbol]               = NEW_SYMBOL("FE`Menu"))
+  VERIFY(fe_symbols[InternalExecuteForSymbol] = NEW_SYMBOL("FE`InternalExecuteForSymbol"))
   
   VERIFY(BIND_DOWN(PMATH_SYMBOL_INTERNAL_DYNAMICUPDATED, builtin_internal_dynamicupdated))
   
@@ -812,12 +818,12 @@ bool richmath::init_bindings(){
   VERIFY(BIND_UP(  PMATH_SYMBOL_FRONTENDOBJECT, builtin_feo_options))
   
   VERIFY(BIND_DOWN(fe_symbols[AddConfigShaperSymbol], builtin_addconfigshaper))
-  VERIFY(BIND_DOWN(fe_symbols[InternalExecuteFor],    builtin_internalexecutefor))
+  VERIFY(BIND_DOWN(fe_symbols[InternalExecuteForSymbol],    builtin_internalexecutefor))
   
   pmath_symbol_set_attributes(
-    fe_symbols[InternalExecuteFor],
+    fe_symbols[InternalExecuteForSymbol],
     pmath_symbol_get_attributes(
-      fe_symbols[InternalExecuteFor]) | PMATH_SYMBOL_ATTRIBUTE_HOLDFIRST);
+      fe_symbols[InternalExecuteForSymbol]) | PMATH_SYMBOL_ATTRIBUTE_HOLDFIRST);
 
   return true;
   

@@ -1,4 +1,7 @@
-#define _WIN32_WINNT 0x0600
+#ifdef RICHMATH_USE_WIN32_GUI
+  #define _WIN32_WINNT 0x0600
+#endif
+
 
 #include <eval/application.h>
 
@@ -9,8 +12,12 @@
 
 #include <graphics/config-shaper.h>
 
-#include <gui/win32/basic-win32-widget.h>
-#include <gui/win32/win32-document-window.h>
+#ifdef RICHMATH_USE_WIN32_GUI
+  #include <gui/win32/basic-win32-widget.h>
+  #include <gui/win32/win32-document-window.h>
+  #include <gui/win32/win32-menu.h>
+#endif
+
 #include <gui/document.h>
 
 #include <eval/binding.h>
@@ -21,13 +28,21 @@
 #include <util/concurrent-queue.h>
 #include <util/semaphore.h>
 
-#include <windows.h>
-#include <resources.h>
+
+#ifdef RICHMATH_USE_WIN32_GUI
+  #include <windows.h>
+  
+  #define WM_CLIENTNOTIFY  (WM_USER + 1)
+  #define WM_ADDJOB        (WM_USER + 2)
+
+#endif
+
+#ifdef RICHMATH_USE_GTK_GUI
+  #include <gtk/gtk.h>
+#endif
+
 
 using namespace richmath;
-
-#define WM_CLIENTNOTIFY  (WM_USER + 1)
-#define WM_ADDJOB        (WM_USER + 2)
 
 namespace{
   class ClientNotification {
@@ -48,7 +63,7 @@ namespace{
       Expr                    notify_queue;
       pmath_atomic_t         *finished;
       
-      pmath_t *result_ptr;
+      pmath_t                *result_ptr;
   };
   
   class Session: public Shareable {
@@ -73,8 +88,6 @@ enum ClientState{
   Quitting = 2
 };
 
-static DWORD  main_thread_id = 0;
-//static volatile enum ClientState state = Starting;
 static pmath_atomic_t state = { Starting }; // ClientState
 
 static ConcurrentQueue<ClientNotification>   notifications;
@@ -90,57 +103,76 @@ static EvaluationPosition print_pos;
 static EvaluationPosition old_job;
 static Expr main_message_queue;
 
-
-static HACCEL keyboard_accelerators;
-static HWND hwnd_message = HWND_MESSAGE;
-
-class ClientInfoWindow: public BasicWin32Widget{
-  public:
-    ClientInfoWindow()
-    : BasicWin32Widget(0, 0, 0, 0, 0, 0, &hwnd_message)
-    {
-      // total exception!!! normally not callable in constructor, but we do not
-      // subclass this class, so this will still happen after the object is 
-      // fully initialized
-      init(); 
+  // also a GSourceFunc, must return 0
+  static int on_client_notify(void *data){
+    ClientNotification cn;
+    
+    if(notifications.get(&cn) && session)
+      execute(cn);
+    
+    return 0;
+  }
+  
+  // also a GSourceFunc, must return 0
+  static int on_add_job(void *data){
+    if(session && !session->current_job){
+      while(session->jobs.get(&session->current_job)){
+        if(session->current_job){
+          old_job = print_pos;
+          
+          if(session->current_job->start()){
+            print_pos = session->current_job->position();
+            
+            break;
+          }
+        }
+        
+        session->current_job = 0;
+      }
     }
     
-  protected:
-    virtual LRESULT callback(UINT message, WPARAM wParam, LPARAM lParam){
-      if(!initializing()){
-        switch(message){
-          case WM_CLIENTNOTIFY: {
-            ClientNotification cn;
-            
-            if(notifications.get(&cn) && session)
-              execute(cn);
-          } return 0;
-          
-          case WM_ADDJOB: {
-            if(session && !session->current_job){
-              while(session->jobs.get(&session->current_job)){
-                if(session->current_job){
-                  old_job = print_pos;
-                  
-                  if(session->current_job->start()){
-                    print_pos = session->current_job->position();
-                    
-                    break;
-                  }
-                }
-                
-                session->current_job = 0;
-              }
-            }
-          } return 0;
-        }
+    return 0;
+  }
+  
+#ifdef RICHMATH_USE_WIN32_GUI
+  static DWORD main_thread_id = 0;
+  static HWND hwnd_message = HWND_MESSAGE;
+
+  class ClientInfoWindow: public BasicWin32Widget{
+    public:
+      ClientInfoWindow()
+      : BasicWin32Widget(0, 0, 0, 0, 0, 0, &hwnd_message)
+      {
+        // total exception!!! normally not callable in constructor, but we do not
+        // subclass this class, so this will still happen after the object is 
+        // fully initialized
+        init(); 
       }
       
-      return BasicWin32Widget::callback(message, wParam, lParam);
-    }
-};
+    protected:
+      virtual LRESULT callback(UINT message, WPARAM wParam, LPARAM lParam){
+        if(!initializing()){
+          switch(message){
+            case WM_CLIENTNOTIFY: 
+              on_client_notify(0);
+              return 0;
+            
+            case WM_ADDJOB: 
+              on_add_job(0);
+              return 0;
+          }
+        }
+        
+        return BasicWin32Widget::callback(message, wParam, lParam);
+      }
+  };
 
-static ClientInfoWindow info_window;
+  static ClientInfoWindow info_window;
+#endif
+
+#ifdef RICHMATH_USE_GTK_GUI
+  static GThread *main_thread = 0;
+#endif
 
 
 double Application::edit_interrupt_timeout = 2.0;
@@ -162,14 +194,27 @@ void Application::notify(ClientNotificationType type, Expr data){
   
   notifications.put(cn);
   pmath_thread_wakeup(main_message_queue.get());
-  PostMessage(info_window.hwnd(), WM_CLIENTNOTIFY, 0, 0);
+  
+  #ifdef RICHMATH_USE_WIN32_GUI
+    PostMessage(info_window.hwnd(), WM_CLIENTNOTIFY, 0, 0);
+  #endif
+  
+  #ifdef RICHMATH_USE_GTK_GUI
+    g_idle_add_full(G_PRIORITY_DEFAULT, on_client_notify, NULL, NULL);
+  #endif
 }
 
 Expr Application::notify_wait(ClientNotificationType type, Expr data){
   if(pmath_atomic_read_aquire(&state) != Running)
     return Symbol(PMATH_SYMBOL_FAILED);
-    
-  if(GetCurrentThreadId() == main_thread_id){
+  
+  if(
+    #ifdef RICHMATH_USE_WIN32_GUI
+      GetCurrentThreadId() == main_thread_id
+    #elif defined( RICHMATH_USE_GTK_GUI )
+      g_thread_self() == main_thread
+    #endif
+  ){
     notify(type, data);
     return Symbol(PMATH_SYMBOL_FAILED);
   }
@@ -185,7 +230,14 @@ Expr Application::notify_wait(ClientNotificationType type, Expr data){
   
   notifications.put(cn);
   pmath_thread_wakeup(main_message_queue.get());
-  PostMessage(info_window.hwnd(), WM_CLIENTNOTIFY, 0, 0);
+  
+  #ifdef RICHMATH_USE_WIN32_GUI
+    PostMessage(info_window.hwnd(), WM_CLIENTNOTIFY, 0, 0);
+  #endif
+  
+  #ifdef RICHMATH_USE_GTK_GUI
+    g_idle_add_full(G_PRIORITY_DEFAULT, on_client_notify, NULL, NULL);
+  #endif
   
   while(!pmath_atomic_read_aquire(&finished)){
     pmath_thread_sleep();
@@ -318,79 +370,113 @@ void Application::gui_print_section(Expr expr){
 void Application::init(){
   main_message_queue = Expr(pmath_thread_get_queue());
   
+  #ifdef RICHMATH_USE_WIN32_GUI
   main_thread_id = GetCurrentThreadId();
   if(!info_window.hwnd())
     PostQuitMessage(1);
+  #endif
   
-  Array<WCHAR> filename(256);
-  while(GetModuleFileNameW(0, filename.items(), filename.length()) == (DWORD)filename.length()
-  && GetLastError() == ERROR_INSUFFICIENT_BUFFER
-  && filename.length() < 4096){
-    filename.length(2 * filename.length());
+  #ifdef RICHMATH_USE_GTK_GUI
+  main_thread = g_thread_self();
+  #endif
+  
+  // initializing application_filename and application_directory
+  #ifdef PMATH_OS_WIN32
+  {
+    Array<WCHAR> filename(256);
+    while(GetModuleFileNameW(0, filename.items(), filename.length()) == (DWORD)filename.length()
+    && GetLastError() == ERROR_INSUFFICIENT_BUFFER
+    && filename.length() < 4096){
+      filename.length(2 * filename.length());
+    }
+    
+    filename[filename.length() - 1] = L'\0';
+    
+    application_filename = String::FromUcs2((uint16_t*)filename.items());
+    int i = application_filename.length() - 1;
+    while(i > 0 && application_filename[i] != '\\')
+      --i;
+    
+    if(i > 0)
+      application_directory = application_filename.part(0, i);
+    else
+      application_directory = application_filename;
   }
-  
-  filename[filename.length() - 1] = L'\0';
-  
-  application_filename = String::FromUcs2((uint16_t*)filename.items());
-  int i = application_filename.length() - 1;
-  while(i > 0 && application_filename[i] != '\\')
-    --i;
-  
-  if(i > 0)
-    application_directory = application_filename.part(0, i);
-  else
-    application_directory = application_filename;
-  
-  keyboard_accelerators = LoadAcceleratorsW(GetModuleHandle(0), MAKEINTRESOURCEW(ACC_TABLE));
+  #else
+    #error not yet implemented
+  #endif
 }
 
 void Application::doevents(){
-  MSG msg;
-  
   // ClientState
   intptr_t old_state = pmath_atomic_fetch_set(&state, Running);
   
-  while(PeekMessageW(&msg, NULL, 0, 0, PM_REMOVE)){
-    if(msg.message == WM_QUIT){
-      PostQuitMessage(0);
-      break;
-    }
-    if(!TranslateAcceleratorW(GetFocus(), keyboard_accelerators, &msg)){
-      TranslateMessage(&msg); 
-      DispatchMessageW(&msg); 
+  #ifdef RICHMATH_USE_WIN32_GUI
+  {
+    MSG msg;
+    while(PeekMessageW(&msg, NULL, 0, 0, PM_REMOVE)){
+      if(msg.message == WM_QUIT){
+        PostQuitMessage(0);
+        break;
+      }
+      
+      if(Win32AcceleratorTable::main_table.is_valid()){
+        if(!TranslateAcceleratorW(GetFocus(), Win32AcceleratorTable::main_table->haccel(), &msg)){
+          TranslateMessage(&msg); 
+          DispatchMessageW(&msg); 
+        }
+      }
     }
   }
+  #endif
+  
+  #ifdef RICHMATH_USE_GTK_GUI
+    while(gtk_events_pending())
+      gtk_main_iteration();
+  #endif
   
   pmath_atomic_write_release(&state, old_state);
 }
 
 int Application::run(){
-  MSG msg;
-  BOOL bRet;
+  int result = 0;
   
   if(pmath_atomic_read_aquire(&state) == Running)
     return 1;
   
   pmath_atomic_write_release(&state, Running);
   
-  while((bRet = GetMessageW(&msg, NULL, 0, 0)) != 0){
-    if(bRet == -1) {
-      pmath_atomic_write_release(&state, Quitting);
-      return 1;
+  #ifdef RICHMATH_USE_WIN32_GUI
+  {
+    MSG msg;
+    BOOL bRet;
+    while((bRet = GetMessageW(&msg, NULL, 0, 0)) != 0){
+      if(bRet == -1) {
+        pmath_atomic_write_release(&state, Quitting);
+        return 1;
+      }
+      
+      if(Win32AcceleratorTable::main_table.is_valid()){
+        if(!TranslateAcceleratorW(GetFocus(), Win32AcceleratorTable::main_table->haccel(), &msg)){
+          TranslateMessage(&msg); 
+          DispatchMessageW(&msg); 
+        }
+      }
     }
     
-    if(!TranslateAcceleratorW(GetFocus(), keyboard_accelerators, &msg)){
-      TranslateMessage(&msg); 
-      DispatchMessageW(&msg); 
-    }
+    result = msg.wParam;
   }
+  #endif
+  
+  #ifdef RICHMATH_USE_GTK_GUI
+    gtk_main();
+  #endif
   
   pmath_atomic_write_release(&state, Quitting);
-  return msg.wParam;
+  return result;
 }
 
 void Application::done(){
-  DestroyAcceleratorTable(keyboard_accelerators);
   while(session){
     SharedPtr<Job> job = session->current_job;
     session->current_job = 0;
@@ -425,7 +511,14 @@ void Application::add_job(SharedPtr<Job> job){
   if(session && job){
     session->jobs.put(job);
     job->enqueued();
-    PostMessage(info_window.hwnd(), WM_ADDJOB, 0, 0);
+    
+    #ifdef RICHMATH_USE_WIN32_GUI
+      PostMessage(info_window.hwnd(), WM_ADDJOB, 0, 0);
+    #endif
+    
+    #ifdef RICHMATH_USE_GTK_GUI
+      g_idle_add_full(G_PRIORITY_DEFAULT, on_add_job, NULL, NULL);
+    #endif
   }
 }
 
@@ -514,7 +607,7 @@ void Application::execute_for(Expr expr, Box *box, double seconds){
   EvaluationPosition pos(box);
   
   Server::local_server->interrupt(
-    Call(GetSymbol(InternalExecuteFor), expr, pos.document_id, pos.section_id, pos.box_id), 
+    Call(GetSymbol(InternalExecuteForSymbol), expr, pos.document_id, pos.section_id, pos.box_id), 
     seconds);
 }
 
@@ -556,11 +649,19 @@ Expr Application::interrupt_cached(Expr expr, double seconds){
   
   Expr result = interrupt(expr, seconds);
   if(result != PMATH_SYMBOL_ABORTED
-  && result != PMATH_SYMBOL_FAILED)
+  && result != PMATH_SYMBOL_FAILED){
     eval_cache.set(expr, result);
-  else if(result == PMATH_SYMBOL_ABORTED)
-    MessageBeep(-1);
+  }
+  else if(result == PMATH_SYMBOL_ABORTED){
+    #ifdef RICHMATH_USE_WIN32_GUI
+      MessageBeep(-1);
+    #endif
     
+    #ifdef RICHMATH_USE_GTK_GUI
+      gdk_beep();
+    #endif
+  }
+  
   return result;
 }
 
@@ -785,65 +886,72 @@ static void cnt_dynamicupate(Expr data){
 
 static Expr cnt_createdocument(Expr data){
   // CreateDocument({sections...})
-  Document *doc;
   
-  int x = CW_USEDEFAULT;
-  int y = CW_USEDEFAULT;
-  doc = get_current_document();
-  if(doc){
-    Win32Widget *wid = dynamic_cast<Win32Widget*>(doc->native());
-    if(wid){
-      HWND hwnd = wid->hwnd();
-      while(GetParent(hwnd) != NULL)
-        hwnd = GetParent(hwnd);
-      
-      RECT rect;
-      if(GetWindowRect(hwnd, &rect)){
-        x = rect.left + GetSystemMetrics(SM_CYCAPTION) + GetSystemMetrics(SM_CXSIZEFRAME);
-        y = rect.top  + GetSystemMetrics(SM_CYCAPTION) + GetSystemMetrics(SM_CYSIZEFRAME);
-      }
-    }
-  }
-  
-  Win32DocumentWindow *wnd = new Win32DocumentWindow(
-    new Document,
-    0, WS_OVERLAPPEDWINDOW,
-    x,
-    y,
-    500,
-    550);
-  wnd->init();
-  
-  
-  doc = wnd->document();
-  if(data.expr_length() >= 1){
-    Expr sections = data[1];
-    if(sections[0] != PMATH_SYMBOL_LIST)
-      sections = List(sections);
+  #ifdef RICHMATH_USE_WIN32_GUI
+  {
+    Document *doc;
     
-    for(size_t i = 1;i <= sections.expr_length();++i){
-      Expr item = sections[i];
-      
-      if(item[0] == PMATH_SYMBOL_SECTION){
-        Section *sect = Section::create_from_object(item);
-        if(sect)
-          doc->insert(doc->length(), sect);
-      }
-      else{
-        item = Call(Symbol(PMATH_SYMBOL_SECTION),
-          Call(Symbol(PMATH_SYMBOL_BOXDATA),
-            Application::interrupt(Call(Symbol(PMATH_SYMBOL_TOBOXES), item))),
-          String("Input"));
+    int x = CW_USEDEFAULT;
+    int y = CW_USEDEFAULT;
+    doc = get_current_document();
+    if(doc){
+      Win32Widget *wid = dynamic_cast<Win32Widget*>(doc->native());
+      if(wid){
+        HWND hwnd = wid->hwnd();
+        while(GetParent(hwnd) != NULL)
+          hwnd = GetParent(hwnd);
         
-        Section *sect = Section::create_from_object(item);
-        if(sect)
-          doc->insert(doc->length(), sect);
+        RECT rect;
+        if(GetWindowRect(hwnd, &rect)){
+          x = rect.left + GetSystemMetrics(SM_CYCAPTION) + GetSystemMetrics(SM_CXSIZEFRAME);
+          y = rect.top  + GetSystemMetrics(SM_CYCAPTION) + GetSystemMetrics(SM_CYSIZEFRAME);
+        }
       }
     }
+    
+    Win32DocumentWindow *wnd = new Win32DocumentWindow(
+      new Document,
+      0, WS_OVERLAPPEDWINDOW,
+      x,
+      y,
+      500,
+      550);
+    wnd->init();
+    
+    
+    doc = wnd->document();
+    if(data.expr_length() >= 1){
+      Expr sections = data[1];
+      if(sections[0] != PMATH_SYMBOL_LIST)
+        sections = List(sections);
+      
+      for(size_t i = 1;i <= sections.expr_length();++i){
+        Expr item = sections[i];
+        
+        if(item[0] == PMATH_SYMBOL_SECTION){
+          Section *sect = Section::create_from_object(item);
+          if(sect)
+            doc->insert(doc->length(), sect);
+        }
+        else{
+          item = Call(Symbol(PMATH_SYMBOL_SECTION),
+            Call(Symbol(PMATH_SYMBOL_BOXDATA),
+              Application::interrupt(Call(Symbol(PMATH_SYMBOL_TOBOXES), item))),
+            String("Input"));
+          
+          Section *sect = Section::create_from_object(item);
+          if(sect)
+            doc->insert(doc->length(), sect);
+        }
+      }
+    }
+    
+    ShowWindow(wnd->hwnd(), SW_SHOWNORMAL);
+    return Call(Symbol(PMATH_SYMBOL_FRONTENDOBJECT), doc->id());
   }
+  #endif
   
-  ShowWindow(wnd->hwnd(), SW_SHOWNORMAL);
-  return Call(Symbol(PMATH_SYMBOL_FRONTENDOBJECT), doc->id());
+  return Symbol(PMATH_SYMBOL_FAILED);
 }
 
 static Expr cnt_currentvalue(Expr data){

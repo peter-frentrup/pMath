@@ -1,12 +1,18 @@
 #ifndef __GUI__WIN32__WIN32_MENUBAR_H__
 #define __GUI__WIN32__WIN32_MENUBAR_H__
 
+#ifndef RICHMATH_USE_WIN32_GUI
+  #error this header is win32 specific
+#endif
+
 #include <windows.h>
 
 #include <util/base.h>
+#include <util/sharedptr.h>
 
 namespace richmath{
   class Win32DocumentWindow;
+  class Win32Menu;
   
   typedef enum{
     MaAllwaysShow,
@@ -16,11 +22,11 @@ namespace richmath{
   
   class Win32Menubar: public Base {
     public:
-      Win32Menubar(Win32DocumentWindow *window, HWND parent, HMENU menu);
+      Win32Menubar(Win32DocumentWindow *window, HWND parent, SharedPtr<Win32Menu> menu);
       ~Win32Menubar();
       
-      HWND  hwnd(){ return _hwnd; }
-      HMENU menu(){ return _menu; }
+      HWND                 hwnd(){ return _hwnd; }
+      SharedPtr<Win32Menu> menu(){ return _menu; }
       
       bool visible();
       int height();
@@ -47,8 +53,8 @@ namespace richmath{
       
     protected:
       Win32DocumentWindow *_window;
-      HWND  _hwnd;
-      HMENU _menu;
+      HWND                 _hwnd;
+      SharedPtr<Win32Menu> _menu;
       
       bool focused;
       bool menu_animation;

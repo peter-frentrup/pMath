@@ -1,6 +1,10 @@
 #ifndef __GUI__WIN32__OLE__DATAOBJECT_H__
 #define __GUI__WIN32__OLE__DATAOBJECT_H__
 
+#ifndef RICHMATH_USE_WIN32_GUI
+  #error this header is win32 specific
+#endif
+
 #include <graphics/context.h>
 
 #include <ole2.h>

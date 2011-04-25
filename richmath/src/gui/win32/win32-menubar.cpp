@@ -13,6 +13,7 @@
 #include <eval/application.h>
 #include <gui/win32/win32-control-painter.h>
 #include <gui/win32/win32-document-window.h>
+#include <gui/win32/win32-menu.h>
 #include <gui/win32/win32-themes.h>
 #include <resources.h>
 
@@ -52,7 +53,9 @@ namespace w{ // win32 typedefs that mingw does not provide
   } NMCHAR, *LPNMCHAR;
 }
 
-Win32Menubar::Win32Menubar(Win32DocumentWindow *window, HWND parent, HMENU menu)
+//{ class Win32Menubar ...
+
+Win32Menubar::Win32Menubar(Win32DocumentWindow *window, HWND parent, SharedPtr<Win32Menu> menu)
 : Base(),
   _appearence(MaAllwaysShow),
   _window(window),
@@ -84,7 +87,7 @@ Win32Menubar::Win32Menubar(Win32DocumentWindow *window, HWND parent, HMENU menu)
   
   SendMessageW(_hwnd, TB_BUTTONSTRUCTSIZE, (WPARAM)sizeof(TBBUTTON), 0);
   
-  Array<TBBUTTON>  buttons(GetMenuItemCount(menu));
+  Array<TBBUTTON>  buttons(_menu.is_valid() ? GetMenuItemCount(_menu->hmenu()) : 0);
   Array<wchar_t[100]> texts(buttons.length());
   
   for(int i = 0;i < buttons.length();++i){
@@ -95,7 +98,7 @@ Win32Menubar::Win32Menubar(Win32DocumentWindow *window, HWND parent, HMENU menu)
     info.dwTypeData = texts[i] + 1;                      // prepend ' '
     info.cch = sizeof(texts[i])/sizeof(texts[i][0]) - 3; // append ' ' + '\0'
     
-    GetMenuItemInfoW(_menu, i, TRUE, &info);
+    GetMenuItemInfoW(_menu->hmenu(), i, TRUE, &info);
     texts[i][0] = ' ';
     texts[i][info.cch + 1] = ' ';
     texts[i][info.cch + 2] = '\0';
@@ -122,7 +125,6 @@ Win32Menubar::~Win32Menubar(){
     current_menubar = 0;
     
   DestroyWindow(_hwnd);
-  DestroyMenu(_menu);
   
   if(Win32Themes::BufferedPaintUnInit)
      Win32Themes::BufferedPaintUnInit();
@@ -173,7 +175,7 @@ void Win32Menubar::appearence(MenuAppearence value){
 }
 
 void Win32Menubar::show_menu(int item){
-  if(item <= 0)
+  if(item <= 0 || !_menu.is_valid())
     return;
   
   next_item = 0;
@@ -196,7 +198,7 @@ void Win32Menubar::show_menu(int item){
   
   HHOOK hook = register_hook(item);
   if(hook){
-    current_popup = GetSubMenu(_menu, item - 1);
+    current_popup = GetSubMenu(_menu->hmenu(), item - 1);
     
     pt.y = tpm.rcExclude.bottom;
     UINT align;
@@ -220,7 +222,7 @@ void Win32Menubar::show_menu(int item){
       pt.y,
       parent,
       &tpm);
-      
+    
     current_popup = 0;
     
     unregister_hook(hook);
@@ -542,17 +544,13 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
         UINT flags = MF_BYPOSITION;
         
         int id = GetMenuItemID(sub, i);
-        if(Application::is_menucommand_runnable(win32_command_id_to_command_string(id)))
+        if(Application::is_menucommand_runnable(Win32Menu::command_id_to_string(id)))
           flags |= MF_ENABLED;
         else
           flags |= MF_GRAYED;
         
         EnableMenuItem(sub, i, flags);
       }
-    } break;
-    
-    case WM_NEXTMENU: {
-      pmath_debug_print("[next]");
     } break;
     
     case WM_SYSKEYDOWN: {
@@ -625,13 +623,13 @@ LRESULT CALLBACK Win32Menubar::menu_hook_proc(int code, WPARAM h_wParam, LPARAM 
       
       case WM_KEYDOWN: {
         switch(msg->wParam){
-          case VK_LEFT: {
-            HMENU menu = current_menubar->_menu;
+          case VK_LEFT: if(current_menubar->_menu.is_valid()){
+            HMENU menu = current_menubar->_menu->hmenu();
             int item = find_hilite_menuitem(&menu);
             
             if(menu == current_menubar->current_popup
             || (item < 0 && current_menubar->current_item >= 0)){
-              int count = GetMenuItemCount(current_menubar->_menu);
+              int count = GetMenuItemCount(current_menubar->_menu->hmenu());
               
               if(count > 1){
                 current_menubar->next_item = current_menubar->current_item - 1;
@@ -644,13 +642,13 @@ LRESULT CALLBACK Win32Menubar::menu_hook_proc(int code, WPARAM h_wParam, LPARAM 
             }
           } break;
           
-          case VK_RIGHT: {
-            HMENU menu = current_menubar->_menu;
+          case VK_RIGHT: if(current_menubar->_menu.is_valid()){
+            HMENU menu = current_menubar->_menu->hmenu();
             int item = find_hilite_menuitem(&menu);
             
             if((item < 0 && current_menubar->current_item >= 0)
             || (GetMenuState(menu, item, MF_BYPOSITION) & MF_POPUP) == 0){
-              int count = GetMenuItemCount(current_menubar->_menu);
+              int count = GetMenuItemCount(current_menubar->_menu->hmenu());
               
               if(count > 1){
                 current_menubar->next_item = current_menubar->current_item + 1;
@@ -669,3 +667,5 @@ LRESULT CALLBACK Win32Menubar::menu_hook_proc(int code, WPARAM h_wParam, LPARAM 
     
   return CallNextHookEx(0, code, h_wParam, h_lParam);
 }
+
+//} ... class Win32Menubar
