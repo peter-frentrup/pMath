@@ -1,6 +1,9 @@
 #include <gui/gtk/mgtk-widget.h>
 
+#include <eval/binding.h>
+
 #include <glib.h>
+#include <gdk/gdkkeysyms.h>
 
 
 using namespace richmath;
@@ -33,30 +36,14 @@ static gboolean animation_timeout(gpointer data){
   return animation_running; // continue ? 
 }
 
-static gboolean blink_caret(gpointer data){
-//  KillTimer(_hwnd, TID_BLINKCURSOR);
-//            
-//  Context *ctx = document_context();
-//  if(ctx->old_selection == ctx->selection 
-//  || _hwnd != GetFocus()
-//  || is_mouse_down())
-//    ctx->old_selection.id = 0;
-//  else
-//    ctx->old_selection = ctx->selection;
-//  
-//  Box *box = ctx->selection.get();
-//  if(box)
-//    box->request_repaint_all();
-  return FALSE;
-}
-
 //{ class MGtkWidget ...
 
 MathGtkWidget::MathGtkWidget(Document *doc)
 : NativeWidget(doc),
   BasicGtkWidget(),
   _autohide_vertical_scrollbar(false),
-  is_painting(false)
+  is_painting(false),
+  is_blinking(false)
 {
 }
 
@@ -66,7 +53,13 @@ MathGtkWidget::~MathGtkWidget(){
 void MathGtkWidget::after_construction(){
   BasicGtkWidget::after_construction();
   
+  signal_connect<MathGtkWidget, &MathGtkWidget::on_expose>(     "expose-event");
+  signal_connect<MathGtkWidget, &MathGtkWidget::on_focus_in>(   "focus-in-event");
+  signal_connect<MathGtkWidget, &MathGtkWidget::on_key_press>(  "key-press-event");
+  signal_connect<MathGtkWidget, &MathGtkWidget::on_key_release>("key-release-event");
+  
   gtk_widget_set_events(_widget, GDK_ALL_EVENTS_MASK);
+  gtk_widget_set_can_focus(_widget, TRUE);
 }
 
 void MathGtkWidget::window_size(float *w, float *h){
@@ -123,10 +116,11 @@ double MathGtkWidget::message_time(){
 }
 
 double MathGtkWidget::double_click_time(){
+  GtkSettings *settings = gtk_widget_get_settings(_widget);
   gint t;
   
   g_object_get(
-    gtk_settings_get_default(),
+    settings,
     "gtk-double-click-time", &t,
     NULL);
   
@@ -134,10 +128,11 @@ double MathGtkWidget::double_click_time(){
 }
 
 void MathGtkWidget::double_click_dist(float *dx, float *dy){
+  GtkSettings *settings = gtk_widget_get_settings(_widget);
   gint d;
   
   g_object_get(
-    gtk_settings_get_default(),
+    settings,
     "gtk-double-click-distance", &d,
     NULL);
   
@@ -166,14 +161,9 @@ bool MathGtkWidget::cursor_position(float *x, float *y){
 }
 
 void MathGtkWidget::invalidate(){
-  if(!_widget)
-    return;
-  
   is_painting = false; // if inside "expose" event, invalidate at end of event
   
-  GtkAllocation rect;
-  gtk_widget_get_allocation(_widget, &rect);
-  gtk_widget_queue_draw_area(_widget, 0, 0, rect.width, rect.height);
+  gtk_widget_queue_draw(_widget);
 }
 
 void MathGtkWidget::force_redraw(){
@@ -231,10 +221,7 @@ bool MathGtkWidget::is_mouse_down(){
     return false;
   
   GdkWindow *w = gtk_widget_get_window(_widget);
-  if(!w)
-    return false;
-    
-  GdkModifierType mod;
+  GdkModifierType mod = (GdkModifierType)0;
   
   gdk_window_get_pointer(w, NULL, NULL, &mod);
   return 0 != (mod & (GDK_BUTTON1_MASK | GDK_BUTTON2_MASK | GDK_BUTTON3_MASK | GDK_BUTTON4_MASK | GDK_BUTTON5_MASK));
@@ -247,7 +234,7 @@ void MathGtkWidget::beep(){
 bool MathGtkWidget::register_timed_event(SharedPtr<TimedEvent> event){
   animations.set(event, Void());
   if(!animation_running){
-    animation_running = 0 < g_timeout_add(ANIMATION_DELAY, animation_timeout, NULL);
+    animation_running = 0 < gdk_threads_add_timeout(ANIMATION_DELAY, animation_timeout, NULL);
     
     if(!animation_running){
       animations.remove(event);
@@ -283,65 +270,204 @@ void MathGtkWidget::paint_canvas(Canvas *canvas, bool resize_only){
   
   document()->paint_resize(canvas, resize_only);
   
-  if(_widget 
-  && gtk_widget_has_focus(_widget)
+  if(gtk_widget_has_focus(_widget)
+  && !is_blinking
   && document()->selection_box()
   && document()->selection_length() == 0){
-    gboolean is_blining;
+    GtkSettings *settings = gtk_widget_get_settings(_widget);
+    gboolean may_blink;
     gint     blink_time;
     
     g_object_get(
-      gtk_settings_get_default(),
-      "gtk-cursor-blink",      &is_blining,
+      settings,
+      "gtk-cursor-blink",      &may_blink,
       "gtk-cursor-blink-time", &blink_time,
       NULL);
     
-    if(is_blining)
-      g_timeout_add(blink_time, blink_caret, NULL);
+    if(may_blink){
+      is_blinking = true;
+      gdk_threads_add_timeout(blink_time / 2, blink_caret, (void*)document()->id());
+    }
   }
 }
 
-bool MathGtkWidget::on_paint(GdkEventExpose *event, bool from_normal_event){
+bool MathGtkWidget::on_expose(GdkEvent *e){
+  GdkEventExpose *event = &e->expose;
+  
+  is_painting = true;
+  
   cairo_t *cr = gdk_cairo_create(event->window);
   {
     Canvas canvas(cr);
     
-    if(!from_normal_event){
-      canvas.clip();
-    }
-    else{
-      canvas.move_to(event->area.x,                     event->area.y);
-      canvas.line_to(event->area.x + event->area.width, event->area.y);
-      canvas.line_to(event->area.x + event->area.width, event->area.y + event->area.height);
-      canvas.line_to(event->area.x,                     event->area.y + event->area.height);
-      canvas.close_path();
-      canvas.clip();
-    }
+    canvas.move_to(event->area.x,                     event->area.y);
+    canvas.line_to(event->area.x + event->area.width, event->area.y);
+    canvas.line_to(event->area.x + event->area.width, event->area.y + event->area.height);
+    canvas.line_to(event->area.x,                     event->area.y + event->area.height);
+    canvas.close_path();
+    canvas.clip();
     
-    paint_canvas(&canvas, !from_normal_event);
+    paint_canvas(&canvas, false);
   }
   cairo_destroy(cr);
+  
+  if(!is_painting)
+    invalidate();
+    
+  is_painting = false;
   
   return false;
 }
 
-bool MathGtkWidget::callback(GdkEvent *event){
-  switch(event->type){
-    case GDK_EXPOSE: {
-      is_painting = true;
-      
-      bool result = on_paint(&event->expose, true);
-      
-      if(!is_painting)
-        invalidate();
-      is_painting = false;
-      return result;
-    }
-    
-    default: break;
+bool MathGtkWidget::on_focus_in(GdkEvent *e){
+  Box *box = document()->selection_box();
+  if(!box)
+    box = document();
+  
+  if(box->selectable()){
+    set_current_document(document());
   }
   
-  return BasicGtkWidget::callback(event);
+  if(document()->selection_box()
+  && document()->selection_length() == 0){
+    invalidate();
+  }
+  
+  return true;
+}
+
+  static SpecialKey keyval_to_special_key(guint keyval){
+    switch(keyval){
+      case GDK_Left:            return KeyLeft;
+      case GDK_Right:           return KeyRight;
+      case GDK_Up:              return KeyUp;
+      case GDK_Down:            return KeyDown;
+      case GDK_Home:            return KeyHome;
+      case GDK_End:             return KeyEnd;
+      case GDK_Page_Up:         return KeyPageUp;
+      case GDK_Page_Down:       return KeyPageDown;
+      case GDK_BackSpace:       return KeyBackspace;
+      case GDK_Delete:          return KeyDelete;
+      case GDK_Return:          return KeyReturn;
+      case GDK_Tab:             return KeyTab;
+      case GDK_Escape:          return KeyEscape;
+      case GDK_F1:              return KeyF1;
+      case GDK_F2:              return KeyF2;
+      case GDK_F3:              return KeyF3;
+      case GDK_F4:              return KeyF4;
+      case GDK_F5:              return KeyF5;
+      case GDK_F6:              return KeyF6;
+      case GDK_F7:              return KeyF7;
+      case GDK_F8:              return KeyF8;
+      case GDK_F9:              return KeyF9;
+      case GDK_F10:             return KeyF10;
+      case GDK_F11:             return KeyF11;
+      case GDK_F12:             return KeyF12;
+      default:                  return KeyUnknown;
+    }
+  }
+
+bool MathGtkWidget::on_key_press(GdkEvent *e){
+  GdkEventKey *event = &e->key;
+  GdkModifierType mod = (GdkModifierType)0;
+  
+  {
+    GdkWindow *w = gtk_widget_get_window(_widget);
+    
+    gdk_window_get_pointer(w, NULL, NULL, &mod);
+  }
+  
+  SpecialKeyEvent ske;
+  ske.key = keyval_to_special_key(event->keyval);
+  ske.ctrl  = 0 != (mod & GDK_CONTROL_MASK);
+  ske.alt   = 0 != (mod & GDK_MOD1_MASK);
+  ske.shift = 0 != (mod & GDK_SHIFT_MASK);
+  if(ske.key){
+    document()->key_down(ske);
+    return false;
+  }
+  
+  if(event->keyval == GDK_Caps_Lock || event->keyval == GDK_Shift_Lock){
+    if(mod & GDK_LOCK_MASK){
+      gdk_event_put(e);
+      while(gtk_events_pending())
+        gtk_main_iteration();
+    }
+    else
+      document()->key_press(PMATH_CHAR_ALIASDELIMITER);
+    
+    return false;
+  }
+  
+  if(ske.ctrl || ske.alt)
+    return false;
+  
+  uint32_t unichar = gdk_keyval_to_unicode(event->keyval);
+  if(unichar){
+    
+    if((unichar == ' ' || unichar == '\r' || unichar == '\n')
+    && (ske.ctrl || ske.alt || ske.shift))
+      return false;
+    
+    if(unichar == '\t')
+      return false;
+    
+    document()->key_press(unichar);
+  }
+  
+  return false;
+}
+
+bool MathGtkWidget::on_key_release(GdkEvent *e){
+  GdkEventKey *event = &e->key;
+  GdkModifierType mod = (GdkModifierType)0;
+  
+  {
+    GdkWindow *w = gtk_widget_get_window(_widget);
+    
+    gdk_window_get_pointer(w, NULL, NULL, &mod);
+  }
+  
+  SpecialKeyEvent ske;
+  ske.key = keyval_to_special_key(event->keyval);
+  if(ske.key){
+    ske.ctrl  = 0 != (mod & GDK_CONTROL_MASK);
+    ske.alt   = 0 != (mod & GDK_MOD1_MASK);
+    ske.shift = 0 != (mod & GDK_SHIFT_MASK);
+    document()->key_up(ske);
+  }
+        
+  return false;
+}
+
+gboolean MathGtkWidget::blink_caret(gpointer id_as_ptr){
+  int id = (int)id_as_ptr;
+  
+  Document *doc = dynamic_cast<Document*>(Box::find(id));
+  if(doc){
+    MathGtkWidget *wid = dynamic_cast<MathGtkWidget*>(doc->native());
+    
+    if(wid){
+      Context *ctx = wid->document_context();
+      
+      if(ctx->old_selection == ctx->selection 
+      || !gtk_widget_is_focus(wid->widget())
+      || wid->is_mouse_down()){
+        ctx->old_selection.id = 0;
+      }
+      else
+        ctx->old_selection = ctx->selection;
+      
+      Box *box = ctx->selection.get();
+      if(box)
+        box->request_repaint_all();
+        
+  
+      wid->is_blinking = false;
+    }
+  }
+  
+  return FALSE;
 }
 
 //} ... class MGtkWidget

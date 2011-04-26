@@ -9,10 +9,10 @@
 #include <gui/win32/win32-widget.h>
 
 namespace richmath{
-  class Dock;
-  class GlassDock;
+  class Win32Dock;
+  class Win32GlassDock;
   class Win32Menubar;
-  class WorkingArea;
+  class Win32WorkingArea;
   
   // Must call init() immediately after the construction of a derived object!
   class Win32DocumentWindow: public BasicWin32Window{
@@ -30,9 +30,9 @@ namespace richmath{
         int height);
       virtual ~Win32DocumentWindow();
       
-      Document *top_glass(){    return ((Win32Widget*)_top_glass_area)->document(); }
-      Document *top(){          return ((Win32Widget*)_top_area)->document();       }
-      Document *document(){     return ((Win32Widget*)_working_area)->document();   }
+      Document *top_glass(){    return ((Win32Widget*)_top_glass_area)->document();    }
+      Document *top(){          return ((Win32Widget*)_top_area)->document();          }
+      Document *document(){     return ((Win32Widget*)_working_area)->document();      }
       Document *bottom(){       return ((Win32Widget*)_bottom_area)->document();       }
       Document *bottom_glass(){ return ((Win32Widget*)_bottom_glass_area)->document(); }
       
@@ -48,18 +48,18 @@ namespace richmath{
       
       virtual bool is_closed();
       
-      Win32Widget *top_glass_area(){    return (Win32Widget*)_top_glass_area; }
-      Win32Widget *top_area(){          return (Win32Widget*)_top_area; }
-      Win32Widget *working_area(){      return (Win32Widget*)_working_area; }
-      Win32Widget *bottom_area(){       return (Win32Widget*)_bottom_area; }
+      Win32Widget *top_glass_area(){    return (Win32Widget*)_top_glass_area;    }
+      Win32Widget *top_area(){          return (Win32Widget*)_top_area;          }
+      Win32Widget *working_area(){      return (Win32Widget*)_working_area;      }
+      Win32Widget *bottom_area(){       return (Win32Widget*)_bottom_area;       }
       Win32Widget *bottom_glass_area(){ return (Win32Widget*)_bottom_glass_area; }
       
     private:
-      GlassDock   *_top_glass_area;
-      Dock        *_top_area;
-      WorkingArea *_working_area;
-      Dock        *_bottom_area;
-      GlassDock   *_bottom_glass_area;
+      Win32GlassDock   *_top_glass_area;
+      Win32Dock        *_top_area;
+      Win32WorkingArea *_working_area;
+      Win32Dock        *_bottom_area;
+      Win32GlassDock   *_bottom_glass_area;
       
       Win32Menubar *menubar;
       bool creation;

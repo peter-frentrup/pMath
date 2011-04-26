@@ -54,14 +54,28 @@ namespace richmath{
     protected:
       GtkWidget *_widget;
       
-      virtual bool callback(GdkEvent *event);
-    
+    protected:
+      virtual bool on_delete(GdkEvent *e);
+      
+    protected:
+      template<class C, bool (C::*method)(GdkEvent*)>
+      struct Marshaller{
+        static gboolean function(GtkWidget *wid, GdkEvent *event, void *dummy){
+          C *_this = (C*)BasicGtkWidget::from_widget(wid);
+          if(_this)
+            return (_this->*method)(event);
+          return TRUE;
+        }
+      };
+      
+      template<class C, bool (C::*method)(GdkEvent*)>
+      void signal_connect(const char *name){
+        g_signal_connect(_widget, name, G_CALLBACK((Marshaller<C,method>::function)), NULL);
+      }
+  
     private:
       InitData *init_data;
       bool _initializing;
-      
-      static void destroyed_by_gobject(void *_this);
-      static gboolean widget_event(GtkWidget *wid, GdkEvent *event, void *dummy);
   };
 }
 

@@ -62,14 +62,18 @@ namespace richmath{
       bool mouse_moving;
       
       bool is_painting;
+      bool is_blinking;
     
     protected:
       virtual void paint_background(Canvas *canvas);
       virtual void paint_canvas(Canvas *canvas, bool resize_only);
       
-      virtual bool on_paint(GdkEventExpose *event, bool from_normal_event);
-    
-      virtual bool callback(GdkEvent *event);
+      virtual bool on_expose(GdkEvent *e);
+      virtual bool on_focus_in(GdkEvent *e);
+      virtual bool on_key_press(GdkEvent *e);
+      virtual bool on_key_release(GdkEvent *e);
+      
+      static gboolean blink_caret(gpointer id_as_ptr);
   };
 }
 

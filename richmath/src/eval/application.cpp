@@ -18,6 +18,10 @@
   #include <gui/win32/win32-menu.h>
 #endif
 
+#ifdef RICHMATH_USE_GTK_GUI
+  #include <gui/gtk/mgtk-document-window.h>
+#endif
+
 #include <gui/document.h>
 
 #include <eval/binding.h>
@@ -30,15 +34,10 @@
 
 
 #ifdef RICHMATH_USE_WIN32_GUI
-  #include <windows.h>
-  
+
   #define WM_CLIENTNOTIFY  (WM_USER + 1)
   #define WM_ADDJOB        (WM_USER + 2)
 
-#endif
-
-#ifdef RICHMATH_USE_GTK_GUI
-  #include <gtk/gtk.h>
 #endif
 
 
@@ -887,12 +886,13 @@ static void cnt_dynamicupate(Expr data){
 static Expr cnt_createdocument(Expr data){
   // CreateDocument({sections...})
   
+  Document *doc = 0;
+  
   #ifdef RICHMATH_USE_WIN32_GUI
   {
-    Document *doc;
-    
     int x = CW_USEDEFAULT;
     int y = CW_USEDEFAULT;
+    
     doc = get_current_document();
     if(doc){
       Win32Widget *wid = dynamic_cast<Win32Widget*>(doc->native());
@@ -918,8 +918,25 @@ static Expr cnt_createdocument(Expr data){
       550);
     wnd->init();
     
+    doc = wnd->document();
+    
+    ShowWindow(wnd->hwnd(), SW_SHOWNORMAL);
+  }
+  #endif
+  
+  #ifdef RICHMATH_USE_GTK_GUI
+  {
+    MathGtkDocumentWindow *wnd = new MathGtkDocumentWindow();
+    wnd->init();
     
     doc = wnd->document();
+    
+    if(wnd->widget())
+      gtk_window_present(GTK_WINDOW(wnd->widget()));
+  }
+  #endif
+  
+  if(doc){
     if(data.expr_length() >= 1){
       Expr sections = data[1];
       if(sections[0] != PMATH_SYMBOL_LIST)
@@ -946,10 +963,8 @@ static Expr cnt_createdocument(Expr data){
       }
     }
     
-    ShowWindow(wnd->hwnd(), SW_SHOWNORMAL);
     return Call(Symbol(PMATH_SYMBOL_FRONTENDOBJECT), doc->id());
   }
-  #endif
   
   return Symbol(PMATH_SYMBOL_FAILED);
 }

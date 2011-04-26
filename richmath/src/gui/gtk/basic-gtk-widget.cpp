@@ -24,21 +24,16 @@ BasicGtkWidget::BasicGtkWidget()
 
 void BasicGtkWidget::after_construction(){
   if(!_widget){
-    _widget = gtk_widget_new(GTK_TYPE_WIDGET, NULL);
+    _widget = gtk_drawing_area_new();
   }
   
-  g_object_set_data_full(
+  g_object_set_data(
     G_OBJECT(_widget), 
     widget_key, 
-    this, 
-    BasicGtkWidget::destroyed_by_gobject);
+    this);
   
-  g_signal_connect(
-    _widget, 
-    "event", 
-    G_CALLBACK(BasicGtkWidget::widget_event), 
-    NULL);
-                      
+  signal_connect<BasicGtkWidget, &BasicGtkWidget::on_delete>("delete-event");
+               
   delete init_data;
 }
 
@@ -70,23 +65,9 @@ BasicGtkWidget *BasicGtkWidget::from_widget(GtkWidget *wid){
   return (BasicGtkWidget*)g_object_get_data(G_OBJECT(wid), widget_key);
 }
 
-bool BasicGtkWidget::callback(GdkEvent *event){
+bool BasicGtkWidget::on_delete(GdkEvent *e){
+  delete this;
   return true;
-}
-
-void BasicGtkWidget::destroyed_by_gobject(void *_this){
-  BasicGtkWidget *self = (BasicGtkWidget*)_this;
-  self->_widget = 0;
-  delete self;
-}
-
-gboolean BasicGtkWidget::widget_event(GtkWidget *wid, GdkEvent *event, void *dummy){
-  BasicGtkWidget *me = from_widget(wid);
-  
-  if(me)
-    return me->callback(event);
-  
-  return TRUE;
 }
 
 //} ... class BasicGtkWidget

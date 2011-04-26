@@ -27,8 +27,12 @@
   #include <gui/win32/win32-clipboard.h>
   #include <gui/win32/win32-document-window.h>
   #include <gui/win32/win32-menu.h>
-  #include <gui/win32/win32-themes.h>
 #endif
+
+#ifdef RICHMATH_USE_GTK_GUI
+  #include <gui/gtk/mgtk-document-window.h>
+#endif
+
 #include <gui/document.h>
 
 #include <resources.h>
@@ -872,6 +876,16 @@ int main(int argc, char **argv){
     Application::doevents();
     SetActiveWindow(wndMain->hwnd());
     
+  }
+  #endif
+  
+  #ifdef RICHMATH_USE_GTK_GUI
+  {
+    MathGtkDocumentWindow *wnd = new MathGtkDocumentWindow();
+    wnd->init();
+    
+    if(wnd->widget())
+      gtk_window_present(GTK_WINDOW(wnd->widget()));
   }
   #endif
   

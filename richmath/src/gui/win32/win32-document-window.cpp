@@ -49,10 +49,10 @@ using namespace richmath;
 
 //}
 
-class richmath::WorkingArea: public Win32Widget{
+class richmath::Win32WorkingArea: public Win32Widget{
   friend class Win32DocumentWindow;
   public:
-    WorkingArea(
+    Win32WorkingArea(
       Document *doc,
       DWORD style_ex, 
       DWORD style, 
@@ -156,7 +156,7 @@ class richmath::WorkingArea: public Win32Widget{
     }
 };
 
-class richmath::Dock: public Win32Widget {
+class richmath::Win32Dock: public Win32Widget {
   friend class Win32DocumentWindow;
   protected:
     virtual void after_construction(){
@@ -171,7 +171,7 @@ class richmath::Dock: public Win32Widget {
     }
     
   public:
-    Dock(Win32DocumentWindow *_parent)
+    Win32Dock(Win32DocumentWindow *_parent)
     : Win32Widget(
         new Document(),
         0,
@@ -339,10 +339,10 @@ class richmath::Dock: public Win32Widget {
     }
 };
 
-class richmath::GlassDock: public richmath::Dock {
+class richmath::Win32GlassDock: public richmath::Win32Dock {
   protected:
     virtual void after_construction(){
-      Dock::after_construction();
+      Win32Dock::after_construction();
       
       document()->style->set(Background, -1);
       
@@ -357,8 +357,8 @@ class richmath::GlassDock: public richmath::Dock {
     }
     
   public:
-    GlassDock(Win32DocumentWindow *_parent)
-    : Dock(_parent)
+    Win32GlassDock(Win32DocumentWindow *_parent)
+    : Win32Dock(_parent)
     {
     }
     
@@ -417,7 +417,7 @@ class richmath::GlassDock: public richmath::Dock {
           canvas->glass_background = true;
       }
       
-      Dock::paint_background(canvas);
+      Win32Dock::paint_background(canvas);
     }
     
     virtual void on_paint(HDC dc, bool from_wmpaint){
@@ -427,14 +427,14 @@ class richmath::GlassDock: public richmath::Dock {
       else
         _image_format = CAIRO_FORMAT_RGB24;
         
-      Dock::on_paint(dc, from_wmpaint);
+      Win32Dock::on_paint(dc, from_wmpaint);
     }
 
     virtual LRESULT callback(UINT message, WPARAM wParam, LPARAM lParam){
       if(!initializing()){
         switch(message){
           case WM_LBUTTONDOWN: {
-            if(Dock::callback(message, wParam, lParam) == 0
+            if(Win32Dock::callback(message, wParam, lParam) == 0
             && document()->clicked_box_id() == document()->id()
             && parent->glass_enabled()){
               SendMessageW(_hwnd, WM_LBUTTONUP, wParam, lParam);
@@ -444,7 +444,7 @@ class richmath::GlassDock: public richmath::Dock {
         }
       }
       
-      return Dock::callback(message, wParam, lParam);
+      return Win32Dock::callback(message, wParam, lParam);
     }
 };
 
@@ -474,17 +474,17 @@ Win32DocumentWindow::Win32DocumentWindow(
   creation(true),
   _is_palette(false)
 {
-  _working_area = new WorkingArea(
+  _working_area = new Win32WorkingArea(
     doc,
     0,
     WS_CHILD | WS_HSCROLL | WS_VSCROLL | WS_VISIBLE,
     0,0,0,0,
     this);
   
-  _top_glass_area    = new GlassDock(this);
-  _top_area          = new Dock(this);
-  _bottom_area       = new Dock(this);
-  _bottom_glass_area = new GlassDock(this);
+  _top_glass_area    = new Win32GlassDock(this);
+  _top_area          = new Win32Dock(this);
+  _bottom_area       = new Win32Dock(this);
+  _bottom_glass_area = new Win32GlassDock(this);
 }
 
 void Win32DocumentWindow::after_construction(){
