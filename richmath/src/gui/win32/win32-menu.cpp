@@ -18,7 +18,7 @@ using namespace richmath;
 #endif
 
 
-DWORD next_id = 1;
+static DWORD next_id = 1;
 static Hashtable<Expr,  DWORD>             cmd_to_id;
 static Hashtable<DWORD, Expr,   cast_hash> id_to_cmd;
 static Hashtable<DWORD, String, cast_hash> id_to_shortcut_text;

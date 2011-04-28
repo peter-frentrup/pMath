@@ -26,6 +26,8 @@ namespace richmath {
       bool is_palette(){ return _is_palette; }
       void is_palette(bool value);
       
+      void run_menucommand(Expr cmd);
+      
       Document *top(){          return ((MathGtkWidget*)_top_area)->document();     }
       Document *document(){     return ((MathGtkWidget*)_working_area)->document(); }
       Document *bottom(){       return ((MathGtkWidget*)_bottom_area)->document();  }
@@ -49,6 +51,8 @@ namespace richmath {
       
       MathGtkDocumentWindow *_prev_window;
       MathGtkDocumentWindow *_next_window;
+      
+      GtkWidget *_menu_bar;
   };
 }
 

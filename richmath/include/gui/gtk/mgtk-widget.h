@@ -8,6 +8,7 @@
 #include <gui/document.h>
 #include <gui/native-widget.h>
 #include <gui/gtk/basic-gtk-widget.h>
+#include <gui/gtk/mgtk-cursors.h>
 
 namespace richmath{
   // Must call init() immediately init after the construction of a derived object!
@@ -63,6 +64,8 @@ namespace richmath{
       
       bool is_painting;
       bool is_blinking;
+      
+      MathGtkCursors cursors;
     
     protected:
       virtual void paint_background(Canvas *canvas);
@@ -72,6 +75,10 @@ namespace richmath{
       virtual bool on_focus_in(GdkEvent *e);
       virtual bool on_key_press(GdkEvent *e);
       virtual bool on_key_release(GdkEvent *e);
+      virtual bool on_button_press(GdkEvent *e);
+      virtual bool on_button_release(GdkEvent *e);
+      virtual bool on_motion_notify(GdkEvent *e);
+      virtual bool on_leave_notify(GdkEvent *e);
       
       static gboolean blink_caret(gpointer id_as_ptr);
   };

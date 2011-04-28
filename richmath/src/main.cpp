@@ -31,6 +31,7 @@
 
 #ifdef RICHMATH_USE_GTK_GUI
   #include <gui/gtk/mgtk-document-window.h>
+  #include <gui/gtk/mgtk-menu-builder.h>
 #endif
 
 #include <gui/document.h>
@@ -239,15 +240,19 @@ int main(int argc, char **argv){
       
   PMATH_RUN("BeginPackage(\"FE`\")");
   
+  #define SHORTCUTS_CMD  "Get(ToFileName({FE`$FrontEndDirectory,\"resources\"},\"shortcuts.pmath\"))"
+  #define MAIN_MENU_CMD  "Get(ToFileName({FE`$FrontEndDirectory,\"resources\"},\"mainmenu.pmath\"))"
+  
   #ifdef RICHMATH_USE_WIN32_GUI
-  {
-    Win32AcceleratorTable::main_table = new Win32AcceleratorTable(Evaluate(Parse(
-        "Get(ToFileName({FE`$FrontEndDirectory,\"resources\"},\"shortcuts.pmath\"))")));
-    
-    Win32Menu::main_menu = new Win32Menu(Evaluate(Parse(
-        "Get(ToFileName({FE`$FrontEndDirectory,\"resources\"},\"mainmenu.pmath\"))")));
-  }
+    Win32AcceleratorTable::main_table = new Win32AcceleratorTable(Evaluate(Parse(SHORTCUTS_CMD)));
+    Win32Menu::main_menu              = new Win32Menu(            Evaluate(Parse(MAIN_MENU_CMD)));
   #endif
+  
+  #ifdef RICHMATH_USE_GTK_GUI
+    MathGtkAccelerators::load(                         Evaluate(Parse(SHORTCUTS_CMD)));
+    MathGtkMenuBuilder::main_menu = MathGtkMenuBuilder(Evaluate(Parse(MAIN_MENU_CMD)));
+  #endif
+  
   
   { // load fonts
     Expr fontlist = FontInfo::all_fonts();
@@ -920,6 +925,10 @@ int main(int argc, char **argv){
     Win32Clipboard::done();
     Win32Menu::main_menu              = 0;
     Win32AcceleratorTable::main_table = 0;
+  #endif
+  
+  #ifdef RICHMATH_USE_GTK_GUI
+    MathGtkMenuBuilder::main_menu = MathGtkMenuBuilder();
   #endif
   
   // needed to clear the message_queue member:

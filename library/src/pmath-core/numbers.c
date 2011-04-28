@@ -1438,8 +1438,11 @@ void _pmath_write_machine_float(struct pmath_write_ex_t *info, pmath_t f){
   
   len = strlen(s);
   i = 0;
-  while(i < len && s[i] != '.' && s[i] != 'e')
+  while(i < len && s[i] != '.' && s[i] != ',' && s[i] != 'e')
     ++i;
+  
+  if(i < len && s[i] == ',')
+    s[i] = '.';
   
   if(i == len){
     write_cstr(s, info->write, info->user);

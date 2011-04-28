@@ -187,6 +187,15 @@ static bool can_copy_cut(Expr cmd){
   return true;
 }
 
+static bool can_open_close_group(Expr cmd){
+  Document *doc = get_current_document();
+  
+  if(!doc || doc->selection_length() == 0)
+    return false;
+  
+  return true;
+}
+
 static bool can_document_apply(Expr cmd){
   Document *doc = get_current_document();
   
@@ -235,6 +244,12 @@ static bool can_edit_boxes(Expr cmd){
   
   return doc && (doc->selection_length() > 0 || doc->selection_box() != doc)
       && doc->get_style(Editable);
+}
+
+static bool can_expand_selection(Expr cmd){
+  Document *doc = get_current_document();
+  
+  return doc && doc->selection_box() && doc->selection_box() != doc;
 }
 
 static bool can_evaluate_in_place(Expr cmd){
@@ -760,10 +775,10 @@ bool richmath::init_bindings(){
   
   Application::register_menucommand(String("Copy"),              copy_cmd,                 can_copy_cut);
   Application::register_menucommand(String("Cut"),               cut_cmd,                  can_copy_cut);
-  Application::register_menucommand(String("OpenCloseGroup"),    open_close_group_cmd);
+  Application::register_menucommand(String("OpenCloseGroup"),    open_close_group_cmd,     can_open_close_group);
   Application::register_menucommand(String("Paste"),             paste_cmd,                can_document_apply);
   Application::register_menucommand(String("EditBoxes"),         edit_boxes_cmd,           can_edit_boxes);
-  Application::register_menucommand(String("ExpandSelection"),   expand_selection_cmd);
+  Application::register_menucommand(String("ExpandSelection"),   expand_selection_cmd,     can_expand_selection);
   Application::register_menucommand(String("FindMatchingFence"), find_matching_fence_cmd,  can_find_matching_fence);
   Application::register_menucommand(String("SelectAll"),         select_all_cmd);
   

@@ -53,13 +53,17 @@ MathGtkWidget::~MathGtkWidget(){
 void MathGtkWidget::after_construction(){
   BasicGtkWidget::after_construction();
   
-  signal_connect<MathGtkWidget, &MathGtkWidget::on_expose>(     "expose-event");
-  signal_connect<MathGtkWidget, &MathGtkWidget::on_focus_in>(   "focus-in-event");
-  signal_connect<MathGtkWidget, &MathGtkWidget::on_key_press>(  "key-press-event");
-  signal_connect<MathGtkWidget, &MathGtkWidget::on_key_release>("key-release-event");
-  
   gtk_widget_set_events(_widget, GDK_ALL_EVENTS_MASK);
   gtk_widget_set_can_focus(_widget, TRUE);
+  
+  signal_connect<MathGtkWidget, &MathGtkWidget::on_button_press>(  "button-press-event");
+  signal_connect<MathGtkWidget, &MathGtkWidget::on_button_release>("button-release-event");
+  signal_connect<MathGtkWidget, &MathGtkWidget::on_expose>(        "expose-event");
+  signal_connect<MathGtkWidget, &MathGtkWidget::on_focus_in>(      "focus-in-event");
+  signal_connect<MathGtkWidget, &MathGtkWidget::on_key_press>(     "key-press-event");
+  signal_connect<MathGtkWidget, &MathGtkWidget::on_key_release>(   "key-release-event");
+  signal_connect<MathGtkWidget, &MathGtkWidget::on_motion_notify>( "motion-notify-event");
+  signal_connect<MathGtkWidget, &MathGtkWidget::on_leave_notify>(  "leave-notify-event");
 }
 
 void MathGtkWidget::window_size(float *w, float *h){
@@ -171,46 +175,16 @@ void MathGtkWidget::force_redraw(){
 }
 
 void MathGtkWidget::set_cursor(CursorType type){
-  if(!_widget)
+  cursor = type;
+  
+  if(mouse_moving)
     return;
   
-  GdkWindow *w = gtk_widget_get_window(_widget);
-  if(!w)
-    return;
+  GdkWindow *win = gtk_widget_get_window(_widget);
   
-  if(mouse_moving){
-    cursor = type;
-    return;
-  }
-  
-  switch(type){
-    case FingerCursor: 
-      gdk_window_set_cursor(w, gdk_cursor_new(GDK_HAND2));
-      return;
-    
-    case DefaultCursor: 
-      gdk_window_set_cursor(w, gdk_cursor_new(GDK_LEFT_PTR));
-      return;
-    
-    case CurrentCursor:
-      break;
-    
-//    TextSECursor   = 101,
-//    TextECursor    = 102,
-//    TextNECursor   = 103,
-//    TextNCursor    = 104,
-//    TextNWCursor   = 105,
-//    TextWCursor    = 106,
-//    TextSWCursor   = 107,
-//    TextSCursor    = 108,
-//    SectionCursor  = 109,
-//    DocumentCursor = 110,
-//    NoSelectCursor = 111
-    default:
-      gdk_window_set_cursor(w, gdk_cursor_new(GDK_XTERM));
-//    default:
-//      SetCursor(LoadCursor(GetModuleHandle(0), MAKEINTRESOURCE((int)type)));
-  }
+  GdkCursor *cur = cursors.get_gdk_cursor(type);
+  if(cur)
+    gdk_window_set_cursor(win, cur);
 }
 
 void MathGtkWidget::running_state_changed(){
@@ -290,7 +264,7 @@ void MathGtkWidget::paint_canvas(Canvas *canvas, bool resize_only){
     }
   }
 }
-
+  
 bool MathGtkWidget::on_expose(GdkEvent *e){
   GdkEventExpose *event = &e->expose;
   
@@ -316,7 +290,7 @@ bool MathGtkWidget::on_expose(GdkEvent *e){
     
   is_painting = false;
   
-  return false;
+  return true;
 }
 
 bool MathGtkWidget::on_focus_in(GdkEvent *e){
@@ -384,7 +358,7 @@ bool MathGtkWidget::on_key_press(GdkEvent *e){
   ske.shift = 0 != (mod & GDK_SHIFT_MASK);
   if(ske.key){
     document()->key_down(ske);
-    return false;
+    return true;
   }
   
   if(event->keyval == GDK_Caps_Lock || event->keyval == GDK_Shift_Lock){
@@ -396,7 +370,7 @@ bool MathGtkWidget::on_key_press(GdkEvent *e){
     else
       document()->key_press(PMATH_CHAR_ALIASDELIMITER);
     
-    return false;
+    return true;
   }
   
   if(ske.ctrl || ske.alt)
@@ -415,7 +389,7 @@ bool MathGtkWidget::on_key_press(GdkEvent *e){
     document()->key_press(unichar);
   }
   
-  return false;
+  return true;
 }
 
 bool MathGtkWidget::on_key_release(GdkEvent *e){
@@ -437,6 +411,105 @@ bool MathGtkWidget::on_key_release(GdkEvent *e){
     document()->key_up(ske);
   }
         
+  return true;
+}
+
+bool MathGtkWidget::on_button_press(GdkEvent *e){
+  GdkEventButton *event = (GdkEventButton*)e;
+  
+  if(event->type != GDK_BUTTON_PRESS)
+    return true;
+  
+  MouseEvent me;
+  me.left   = event->button == 1;
+  me.middle = event->button == 2;
+  me.right  = event->button == 3;
+  
+  me.x = event->x; // + scroll pos
+  me.y = event->y; // + scroll pos
+  
+  me.x/= scale_factor();
+  me.y/= scale_factor();
+  
+  document()->mouse_down(me);
+  
+  if(document()->selection_box()){
+    gtk_widget_grab_focus(_widget);
+  }
+  else{
+    Document *cur = get_current_document();
+    if(cur && cur != document()){
+      MathGtkWidget *w = dynamic_cast<MathGtkWidget*>(cur->native());
+      
+      if(w && !gtk_widget_has_focus(w->widget()))
+        gtk_widget_grab_focus(w->widget());
+    }
+  }
+  
+  return true;
+}
+
+bool MathGtkWidget::on_button_release(GdkEvent *e){
+  GdkEventButton *event = (GdkEventButton*)e;
+  
+  MouseEvent me;
+  me.left   = event->button == 1;
+  me.middle = event->button == 2;
+  me.right  = event->button == 3;
+  
+  me.x = event->x; // + scroll pos
+  me.y = event->y; // + scroll pos
+  
+  me.x/= scale_factor();
+  me.y/= scale_factor();
+  
+  document()->mouse_up(me);
+  
+  return true;
+}
+
+bool MathGtkWidget::on_motion_notify(GdkEvent *e){
+  GdkEventMotion *event = (GdkEventMotion*)e;
+  
+  /* This call is very important; it requests the next motion event.
+   * If you don't call gdk_window_get_pointer() you'll only get
+   * a single motion event. The reason is that we specified
+   * GDK_POINTER_MOTION_HINT_MASK to gtk_widget_set_events().
+   * If we hadn't specified that, we could just use event->x, event->y
+   * as the pointer location. But we'd also get deluged in events.
+   * By requesting the next event as we handle the current one,
+   * we avoid getting a huge number of events faster than we
+   * can cope.
+   */
+  int x, y;
+  GdkModifierType state;
+  gdk_window_get_pointer(event->window, &x, &y, &state);
+  
+  MouseEvent me;
+  me.left   = 0 != (event->state & GDK_BUTTON1_MASK);
+  me.middle = 0 != (event->state & GDK_BUTTON2_MASK);
+  me.right  = 0 != (event->state & GDK_BUTTON3_MASK);
+  
+  me.x = event->x; // + scroll pos
+  me.y = event->y; // + scroll pos
+  
+  me.x/= scale_factor();
+  me.y/= scale_factor();
+  
+  mouse_moving = true;
+  cursor = DefaultCursor;
+  
+  document()->mouse_move(me);
+  
+  mouse_moving = false;
+  set_cursor(cursor);
+  return true;
+}
+
+bool MathGtkWidget::on_leave_notify(GdkEvent *e){
+  //GdkEventCrossing *event = (GdkEventCrossing*)e;
+  
+  document()->mouse_exit();
   return false;
 }
 

@@ -157,6 +157,7 @@
 					<Add library="freetype" />
 					<Add library="gdk-win32-2.0" />
 					<Add library="gtk-win32-2.0" />
+					<Add library="gdk_pixbuf-2.0" />
 					<Add directory="..\library\bin\windows\debug" />
 					<Add directory="$(#cairo.lib)" />
 					<Add directory="$(#pango.lib)" />
@@ -327,7 +328,13 @@
 		<Unit filename="include\gui\gtk\basic-gtk-widget.h">
 			<Option target="Windows-Debug-Gtk" />
 		</Unit>
+		<Unit filename="include\gui\gtk\mgtk-cursors.h">
+			<Option target="Windows-Debug-Gtk" />
+		</Unit>
 		<Unit filename="include\gui\gtk\mgtk-document-window.h">
+			<Option target="Windows-Debug-Gtk" />
+		</Unit>
+		<Unit filename="include\gui\gtk\mgtk-menu-builder.h">
 			<Option target="Windows-Debug-Gtk" />
 		</Unit>
 		<Unit filename="include\gui\gtk\mgtk-widget.h">
@@ -493,7 +500,13 @@
 		<Unit filename="src\gui\gtk\basic-gtk-widget.cpp">
 			<Option target="Windows-Debug-Gtk" />
 		</Unit>
+		<Unit filename="src\gui\gtk\mgtk-cursors.cpp">
+			<Option target="Windows-Debug-Gtk" />
+		</Unit>
 		<Unit filename="src\gui\gtk\mgtk-document-window.cpp">
+			<Option target="Windows-Debug-Gtk" />
+		</Unit>
+		<Unit filename="src\gui\gtk\mgtk-menu-builder.cpp">
 			<Option target="Windows-Debug-Gtk" />
 		</Unit>
 		<Unit filename="src\gui\gtk\mgtk-widget.cpp">

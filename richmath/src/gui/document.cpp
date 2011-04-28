@@ -644,6 +644,7 @@ void Document::focus_set(){
 
 void Document::focus_killed(){
   context.active = false;
+  mouse_down_counter = 0;
   
   if(selection_box())
     selection_box()->on_exit();
