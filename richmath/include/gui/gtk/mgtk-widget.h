@@ -55,6 +55,11 @@ namespace richmath{
     
       virtual bool register_timed_event(SharedPtr<TimedEvent> event);
     
+      GtkAdjustment *hadjustment(){ return _hadjustment; }
+      GtkAdjustment *vadjustment(){ return _vadjustment; }
+      void hadjustment(GtkAdjustment *ha);
+      void vadjustment(GtkAdjustment *va);
+      
     public:
       bool _autohide_vertical_scrollbar;
       
@@ -65,7 +70,12 @@ namespace richmath{
       bool is_painting;
       bool is_blinking;
       
+      int old_width;
+      
       MathGtkCursors cursors;
+      
+      GtkAdjustment *_hadjustment;
+      GtkAdjustment *_vadjustment;
     
     protected:
       virtual void paint_background(Canvas *canvas);

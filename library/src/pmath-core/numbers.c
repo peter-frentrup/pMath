@@ -7,6 +7,7 @@
 #include <pmath-util/incremental-hash-private.h>
 #include <pmath-util/memory.h>
 #include <pmath-util/messages.h>
+#include <pmath-util/strtod.h>
 
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/number-theory-private.h>
@@ -602,7 +603,7 @@ pmath_number_t pmath_float_new_str(
          strtod() generates the value             34643574574574948, which we 
          want.
        */
-        x = strtod(str, NULL);
+        x = pmath_strtod(str, NULL);
         if(isfinite(x))
           return PMATH_FROM_DOUBLE(x);
       }
@@ -1257,15 +1258,20 @@ static unsigned int hash_mp_float(pmath_t f){
     char s[100];
     double test;
     int maxprec = 1 + (int)ceil(DBL_MANT_DIG * LOG10_2);
-    int len;
+    int len, i;
     
     for(len = 1;len <= maxprec;++len){
       snprintf(s, sizeof(s), "%.*f", len, d);
       
+      // not pmath_strtod() because sprintf gives locale specific result
       test = strtod(s, NULL);
       if(test == d)
         break;
     }
+    
+    for(i = 0;i < len;++i)
+      if(s[i] == ',')
+        s[i] = '.';
     
     write_cstr(s, write, user);
   }
@@ -1431,6 +1437,7 @@ void _pmath_write_machine_float(struct pmath_write_ex_t *info, pmath_t f){
   for(len = 1;len <= maxprec;++len){
     snprintf(s, sizeof(s), "%.*g", len, PMATH_AS_DOUBLE(f));
     
+    // not pmath_strtod() because sprintf gives locale specific result
     test = strtod(s, NULL);
     if(test == PMATH_AS_DOUBLE(f))
       break;

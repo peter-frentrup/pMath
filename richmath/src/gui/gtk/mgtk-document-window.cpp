@@ -1,5 +1,7 @@
 #include <gui/gtk/mgtk-document-window.h>
 
+#include <boxes/section.h>
+
 #include <eval/application.h>
 #include <eval/binding.h>
 
@@ -27,6 +29,10 @@ class richmath::MathGtkWorkingArea: public MathGtkWidget{
       }
     }
     
+    virtual void running_state_changed(){
+      _parent->title(_parent->title());
+    }
+    
   private:
     MathGtkDocumentWindow *_parent;
 };
@@ -42,6 +48,8 @@ class richmath::MathGtkDock: public MathGtkWidget{
     
     MathGtkDocumentWindow *parent(){ return _parent; }
     
+    virtual bool is_scrollable(){ return false; }
+    
     virtual void close(){
       if(_parent){
         MathGtkDocumentWindow *p = _parent;
@@ -50,6 +58,50 @@ class richmath::MathGtkDock: public MathGtkWidget{
       }
     }
     
+    virtual int height(){
+      int h = (int)(document()->extents().height() * scale_factor() + 0.5f);
+      if(h < 1)
+        return 1;
+      return h;
+    }
+    
+    virtual int min_width(){
+      return (int)(document()->unfilled_width * scale_factor() + 0.5f);
+    }
+    
+    virtual void running_state_changed(){
+      _parent->title(_parent->title());
+    }
+    
+  protected:
+    virtual void after_construction(){
+      MathGtkWidget::after_construction();
+      
+      if(!document()->style)
+        document()->style = new Style();
+      
+      document()->style->set(Selectable, false);
+      
+      document()->select(0,0,0);
+      document()->border_visible = false;
+    }
+    
+    void rearrange(){
+      GtkAllocation rect;
+      gtk_widget_get_allocation(_widget, &rect);
+      
+      int h = height();
+      if(h != rect.height){
+        gtk_widget_set_size_request(_widget, -1, h);
+      }
+    }
+    
+    virtual bool on_expose(GdkEvent *e){
+      bool result = MathGtkWidget::on_expose(e);
+      rearrange();
+      return result;
+    }
+
   private:
     MathGtkDocumentWindow *_parent;
 };
@@ -61,7 +113,10 @@ static MathGtkDocumentWindow *_first_window = NULL;
 MathGtkDocumentWindow::MathGtkDocumentWindow()
 : BasicGtkWidget(),
   _is_palette(false),
-  _menu_bar(0)
+  _menu_bar(0),
+  _hscrollbar(0),
+  _vscrollbar(0),
+  _table(0)
 {
   _working_area = new MathGtkWorkingArea(this);
   _top_area     = new MathGtkDock(this);
@@ -92,6 +147,26 @@ void MathGtkDocumentWindow::after_construction(){
   top()->main_document    = document();
   bottom()->main_document = document();
   
+  top()->insert(0,
+    Section::create_from_object(Evaluate(Parse(
+      "Section(BoxData({"
+          "\"\\\"Warning\\\"\","
+          "FillBox(\"\"),"
+          "ButtonBox(\"\\\" Apply \\\"\"),"
+          "ButtonBox("
+            "StyleBox("
+                "\"\\[Times]\","
+              "FontWeight->Bold,"
+              "FontColor->RGBColor(0.2),"
+              "TextShadow->{{0,0.75,GrayLevel(0.8)}}),"
+            "ButtonFrame->\"Palette\")"
+        "}),\"Docked\","
+        "Background->RGBColor(1, 0.8, 0.8),"
+        "SectionFrame->{0,0,0,0.5},"
+        "SectionFrameColor->GrayLevel(0.5),"
+        "SectionFrameMargins->{2, 2, 0, 0},"
+        "SectionMargins->0)"))));
+  
   GtkAccelGroup *accel_group = gtk_accel_group_new();
   
   _menu_bar = gtk_menu_bar_new();
@@ -99,20 +174,33 @@ void MathGtkDocumentWindow::after_construction(){
   
   gtk_window_add_accel_group(GTK_WINDOW(_widget), accel_group);
   
-  GtkWidget *vbox = gtk_vbox_new(FALSE, 0);
-  gtk_container_add(GTK_CONTAINER(_widget), vbox);
+  _table = gtk_table_new(2, 5, FALSE);
+  gtk_container_add(GTK_CONTAINER(_widget), _table);
   
-  gtk_box_pack_start(GTK_BOX(vbox), _menu_bar,               FALSE, FALSE, 0);
-  gtk_box_pack_start(GTK_BOX(vbox), _top_area->widget(),     FALSE, FALSE, 0);
-  gtk_box_pack_start(GTK_BOX(vbox), _working_area->widget(), TRUE,  TRUE,  0);
-  gtk_box_pack_end(  GTK_BOX(vbox), _bottom_area->widget(),  FALSE, FALSE, 0);
+  gtk_table_attach(GTK_TABLE(_table), _menu_bar,               0, 2, 0, 1, (GtkAttachOptions)(GTK_EXPAND | GTK_FILL | GTK_SHRINK), (GtkAttachOptions)0,                                    0, 0);
+  gtk_table_attach(GTK_TABLE(_table), _top_area->widget(),     0, 2, 1, 2, (GtkAttachOptions)(GTK_EXPAND | GTK_FILL | GTK_SHRINK), (GtkAttachOptions)0,                                    0, 0);
+  gtk_table_attach(GTK_TABLE(_table), _working_area->widget(), 0, 1, 2, 3, (GtkAttachOptions)(GTK_EXPAND | GTK_FILL | GTK_SHRINK), (GtkAttachOptions)(GTK_EXPAND | GTK_FILL | GTK_SHRINK), 0, 0);
+  gtk_table_attach(GTK_TABLE(_table), _bottom_area->widget(),  0, 2, 4, 5, (GtkAttachOptions)(GTK_EXPAND | GTK_FILL | GTK_SHRINK), (GtkAttachOptions)0,                                    0, 0);
   
-  gtk_widget_show_all(vbox);
+  GtkAdjustment *_hadjustment = GTK_ADJUSTMENT(gtk_adjustment_new(0,0,0,0,0,0));
+  GtkAdjustment *_vadjustment = GTK_ADJUSTMENT(gtk_adjustment_new(0,0,0,0,0,0));
+  g_object_ref(_hadjustment);
+  g_object_ref(_vadjustment);
+  
+  _hscrollbar = gtk_hscrollbar_new(_hadjustment);
+  _vscrollbar = gtk_vscrollbar_new(_vadjustment);
+  gtk_table_attach(GTK_TABLE(_table), _vscrollbar, 1, 2, 2, 3, (GtkAttachOptions)0,                                    (GtkAttachOptions)(GTK_EXPAND | GTK_FILL | GTK_SHRINK), 0, 0);
+  gtk_table_attach(GTK_TABLE(_table), _hscrollbar, 0, 1, 3, 4, (GtkAttachOptions)(GTK_EXPAND | GTK_FILL | GTK_SHRINK), (GtkAttachOptions)0,                                    0, 0);
+  
+  _working_area->hadjustment(_hadjustment);
+  _working_area->vadjustment(_vadjustment);
+  
+  gtk_widget_show_all(_table);
   gtk_widget_set_can_focus(_widget, FALSE);
   
   GList *focus_chain = NULL;
   focus_chain = g_list_prepend(focus_chain, _working_area->widget());
-  gtk_container_set_focus_chain(GTK_CONTAINER(vbox), focus_chain);
+  gtk_container_set_focus_chain(GTK_CONTAINER(_table), focus_chain);
   g_list_free(focus_chain);
   
   gtk_window_set_default_size(GTK_WINDOW(_widget), 500, 550);

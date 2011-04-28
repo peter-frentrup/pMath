@@ -12,6 +12,7 @@
 #include <pmath-util/helpers.h>
 #include <pmath-util/memory.h>
 #include <pmath-util/messages.h>
+#include <pmath-util/strtod.h>
 
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/control-private.h>
@@ -447,7 +448,7 @@ PMATH_PRIVATE pmath_t _pmath_parse_number(
       }
       cstr[i - j] = '\0';
       
-      prec_acc = strtod(cstr, NULL);
+      prec_acc = pmath_strtod(cstr, NULL);
     }
     
     if(prec_control == PMATH_PREC_CTRL_GIVEN_PREC

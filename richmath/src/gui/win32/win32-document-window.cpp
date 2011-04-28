@@ -197,7 +197,7 @@ class richmath::Win32Dock: public Win32Widget {
     virtual int min_width(){
       return (int)(document()->unfilled_width * scale_factor() + 0.5f);
     }
-     
+    
     virtual void running_state_changed(){
       if(parent)
         parent->title(parent->title());

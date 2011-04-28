@@ -349,6 +349,7 @@
 		<Unit filename="include\pmath-util\serialize.h" />
 		<Unit filename="include\pmath-util\stacks-private.h" />
 		<Unit filename="include\pmath-util\stacks.h" />
+		<Unit filename="include\pmath-util\strtod.h" />
 		<Unit filename="include\pmath-util\symbol-values-private.h" />
 		<Unit filename="include\pmath-util\version-private.h" />
 		<Unit filename="include\pmath-util\version.h" />
@@ -1057,6 +1058,9 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src\pmath-util\stacks.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\pmath-util\strtod.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src\pmath-util\symbol-values-private.c">

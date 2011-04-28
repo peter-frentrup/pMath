@@ -4,6 +4,7 @@
 
 #include <glib.h>
 #include <gdk/gdkkeysyms.h>
+#include <math.h>
 
 
 using namespace richmath;
@@ -43,7 +44,10 @@ MathGtkWidget::MathGtkWidget(Document *doc)
   BasicGtkWidget(),
   _autohide_vertical_scrollbar(false),
   is_painting(false),
-  is_blinking(false)
+  is_blinking(false),
+  old_width(0),
+  _hadjustment(0),
+  _vadjustment(0)
 {
 }
 
@@ -67,8 +71,10 @@ void MathGtkWidget::after_construction(){
 }
 
 void MathGtkWidget::window_size(float *w, float *h){
-  if(!_widget)
+  if(!_widget){
+    *w = *h = 0;
     return;
+  }
   
   GtkAllocation rect;
   
@@ -79,18 +85,50 @@ void MathGtkWidget::window_size(float *w, float *h){
 }
 
 void MathGtkWidget::scroll_pos(float *x, float *y){
-  if(!_widget)
+  *x = *y = 0;
+  if(!is_scrollable())
     return;
   
-  // todo: implement gtk scrolling
-  *x = *y = 0;
+  if(_hadjustment){
+    *x = gtk_adjustment_get_value(_hadjustment);
+    *x/= scale_factor();
+  }
+  
+  if(_vadjustment){
+    *y = gtk_adjustment_get_value(_vadjustment);
+    *y/= scale_factor();
+  }
 }
 
 void MathGtkWidget::scroll_to(float x, float y){
-  if(!_widget)
+  if(!is_scrollable())
     return;
   
-  // todo: implement gtk scrolling
+  if(_hadjustment){
+    double oldx = gtk_adjustment_get_value(_hadjustment);
+    double newx = x * scale_factor();
+    
+    double lo = gtk_adjustment_get_lower(_hadjustment);
+    double hi = gtk_adjustment_get_upper(_hadjustment);
+    hi-=        gtk_adjustment_get_page_size(_hadjustment);
+    
+    newx = CLAMP(newx, lo, hi);
+    if(oldx != newx)
+      gtk_adjustment_set_value(_hadjustment, newx);
+  }
+  
+  if(_vadjustment){
+    double oldy = gtk_adjustment_get_value(_vadjustment);
+    double newy = y * scale_factor();
+    
+    double lo = gtk_adjustment_get_lower(_vadjustment);
+    double hi = gtk_adjustment_get_upper(_vadjustment);
+    hi-=        gtk_adjustment_get_page_size(_vadjustment);
+    
+    newy = CLAMP(newy, lo, hi);
+    if(oldy != newy)
+      gtk_adjustment_set_value(_hadjustment, newy);
+  }
 }
 
 void MathGtkWidget::show_tooltip(Expr boxes){
@@ -161,6 +199,11 @@ bool MathGtkWidget::cursor_position(float *x, float *y){
   *x = ix / scale_factor();
   *y = iy / scale_factor();
   
+  float sx, sy;
+  scroll_pos(&sx, &sy);
+  *x+= sx;
+  *y+= sy;
+  
   return true;
 }
 
@@ -219,6 +262,52 @@ bool MathGtkWidget::register_timed_event(SharedPtr<TimedEvent> event){
   return true;
 }
 
+  static void adjustment_value_changed(
+    GtkAdjustment *adjustment,
+    void          *user_data
+  ){
+    MathGtkWidget *self = (MathGtkWidget*)user_data;
+    
+    self->invalidate();
+  }
+
+void MathGtkWidget::hadjustment(GtkAdjustment *ha){
+  if(_hadjustment){
+    g_signal_handlers_disconnect_by_func(
+      _hadjustment,
+      (void*)adjustment_value_changed,
+      this);
+      
+    g_object_unref(_hadjustment);
+  }
+  
+  _hadjustment = ha;
+  if(_hadjustment){
+    g_signal_connect(_hadjustment, "value-changed", G_CALLBACK(adjustment_value_changed), this);
+  }
+  
+  invalidate();
+}
+
+void MathGtkWidget::vadjustment(GtkAdjustment *va){
+  if(_vadjustment){
+    g_signal_handlers_disconnect_by_func(
+      _vadjustment,
+      (void*)adjustment_value_changed,
+      this);
+      
+    g_object_unref(_vadjustment);
+  }
+  
+  _vadjustment = va;
+  if(_vadjustment){
+    g_signal_connect(_vadjustment, "value-changed", G_CALLBACK(adjustment_value_changed), this);
+  }
+  
+  
+  invalidate();
+}
+
 void MathGtkWidget::paint_background(Canvas *canvas){
   canvas->set_color(0xffffff);
   canvas->paint();
@@ -263,10 +352,56 @@ void MathGtkWidget::paint_canvas(Canvas *canvas, bool resize_only){
       gdk_threads_add_timeout(blink_time / 2, blink_caret, (void*)document()->id());
     }
   }
+  
+  
+  if(is_scrollable()){
+    GtkAllocation rect;
+    gtk_widget_get_allocation(_widget, &rect);
+    
+    double w_page = rect.width;
+    double h_page = rect.height;
+    
+    double w_max = floor(scale_factor() * document()->extents().width + 0.5);
+    double h_max;
+    
+    if(autohide_vertical_scrollbar())
+      h_max = floorf( document()->extents().height()                 * scale_factor() + 0.5f);
+    else
+      h_max = floorf((document()->extents().height() + h_page * 0.8) * scale_factor() + 0.5f);
+    
+    if(rect.height >= h_max)
+      h_page = h_max + 1;
+      
+    if(rect.width >= w_max)
+      w_page = w_max + 1;
+    
+    if(_hadjustment){
+      g_object_set(_hadjustment,
+        "lower",     0.0,
+        "page-size", w_page,
+        "upper",     w_max,
+        NULL);
+    }
+    
+    if(_vadjustment){
+      g_object_set(_vadjustment,
+        "lower",     0.0,
+        "page-size", h_page,
+        "upper",     h_max,
+        NULL);
+    }
+  }
 }
   
 bool MathGtkWidget::on_expose(GdkEvent *e){
   GdkEventExpose *event = &e->expose;
+  
+  GtkAllocation rect;
+  gtk_widget_get_allocation(_widget, &rect);
+  if(old_width != rect.width){
+    old_width = rect.width;
+    document()->invalidate_all();
+  }
   
   is_painting = true;
   
@@ -425,11 +560,16 @@ bool MathGtkWidget::on_button_press(GdkEvent *e){
   me.middle = event->button == 2;
   me.right  = event->button == 3;
   
-  me.x = event->x; // + scroll pos
-  me.y = event->y; // + scroll pos
+  me.x = event->x;
+  me.y = event->y;
   
   me.x/= scale_factor();
   me.y/= scale_factor();
+  
+  float sx, sy;
+  scroll_pos(&sx, &sy);
+  me.x+= sx;
+  me.y+= sy;
   
   document()->mouse_down(me);
   
@@ -457,11 +597,16 @@ bool MathGtkWidget::on_button_release(GdkEvent *e){
   me.middle = event->button == 2;
   me.right  = event->button == 3;
   
-  me.x = event->x; // + scroll pos
-  me.y = event->y; // + scroll pos
+  me.x = event->x;
+  me.y = event->y;
   
   me.x/= scale_factor();
   me.y/= scale_factor();
+  
+  float sx, sy;
+  scroll_pos(&sx, &sy);
+  me.x+= sx;
+  me.y+= sy;
   
   document()->mouse_up(me);
   
@@ -490,11 +635,16 @@ bool MathGtkWidget::on_motion_notify(GdkEvent *e){
   me.middle = 0 != (event->state & GDK_BUTTON2_MASK);
   me.right  = 0 != (event->state & GDK_BUTTON3_MASK);
   
-  me.x = event->x; // + scroll pos
-  me.y = event->y; // + scroll pos
+  me.x = event->x;
+  me.y = event->y;
   
   me.x/= scale_factor();
   me.y/= scale_factor();
+  
+  float sx, sy;
+  scroll_pos(&sx, &sy);
+  me.x+= sx;
+  me.y+= sy;
   
   mouse_moving = true;
   cursor = DefaultCursor;

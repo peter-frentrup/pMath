@@ -53,6 +53,9 @@ namespace richmath {
       MathGtkDocumentWindow *_next_window;
       
       GtkWidget *_menu_bar;
+      GtkWidget *_hscrollbar;
+      GtkWidget *_vscrollbar;
+      GtkWidget *_table;
   };
 }
 
