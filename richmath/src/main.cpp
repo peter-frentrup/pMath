@@ -183,6 +183,306 @@ static void message_dialog(const char *title, const char *content){
   #endif
 }
 
+static void load_fonts(){
+  Expr fontlist = FontInfo::all_fonts();
+  
+  Hashtable<String, Void> fonttable;
+  for(size_t i = fontlist.expr_length();i > 0;--i){
+    fonttable.set(String(fontlist[i]), Void());
+  }
+  
+  if(!fonttable.search("Asana Math")){
+    FontInfo::add_private_font(Application::application_directory + "/Asana-Math.otf");
+  }
+  
+  if(!fonttable.search("pMathFallback")){
+    FontInfo::add_private_font(Application::application_directory + "/pMathFallback.otf");
+  }
+}
+
+static void load_math_shapers(){
+  PMATH_RUN(
+    "ParallelScan("
+      "FileNames("
+        "\"*.pmath\","
+        "ToFileName({FE`$FrontEndDirectory,\"resources\"},\"shapers\")),"
+      "FE`AddConfigShaper)"
+    );
+    
+  Expr prefered_fonts = Evaluate(Parse("FE`$MathShapers"));
+  
+  SharedPtr<MathShaper> shaper;
+  SharedPtr<MathShaper> def;
+  
+  if(prefered_fonts[0] == PMATH_SYMBOL_LIST){
+    for(size_t i = 1;i <= prefered_fonts.expr_length();++i){
+      String s(prefered_fonts[i]);
+      
+      shaper = MathShaper::available_shapers[s];
+      
+      if(!shaper){
+        #ifdef PMATH_DEBUG_LOG
+        clock_t start_font = clock();
+        #endif
+        
+        shaper = OTMathShaperDB::find(s, NoStyle);
+        if(shaper){
+          MathShaper::available_shapers.set(s, shaper);
+          
+          #ifdef PMATH_DEBUG_LOG
+            pmath_debug_print_object("loaded ", s.get(), "");
+            pmath_debug_print(" in %f seconds\n", (clock() - start_font) / (float)CLOCKS_PER_SEC);
+          #endif
+        }
+      }
+      
+      if(shaper && !def)
+        def = shaper;
+    }
+  }
+  
+  if(def){
+    MathShaper::available_shapers.default_value = def;
+  }
+  else if(MathShaper::available_shapers.size() > 0){
+    for(int i = 0;;++i){
+      Entry<String, SharedPtr<MathShaper> > *e = MathShaper::available_shapers.entry(i);
+      
+      if(e){
+        MathShaper::available_shapers.default_value = e->value;
+        break;
+      }
+    }
+  }
+}
+
+static void init_stylesheet(){
+  Stylesheet::Default = new Stylesheet;
+  
+  Stylesheet::Default->base = new Style;
+  Stylesheet::Default->base->set(Background,             -1);
+  Stylesheet::Default->base->set(FontColor,              0x000000);
+  Stylesheet::Default->base->set(SectionFrameColor,      0x000000);
+  
+  Stylesheet::Default->base->set(FontSlant,              FontSlantPlain);
+  Stylesheet::Default->base->set(FontWeight,             FontWeightPlain);
+  
+  Stylesheet::Default->base->set(AutoDelete,                          false);
+  Stylesheet::Default->base->set(AutoNumberFormating,                 true);
+  Stylesheet::Default->base->set(AutoSpacing,                         false);
+  Stylesheet::Default->base->set(ContinousAction,                     true);
+  Stylesheet::Default->base->set(Editable,                            true);
+  Stylesheet::Default->base->set(Evaluatable,                         false);
+  Stylesheet::Default->base->set(InternalUsesCurrentValueOfMouseOver, false);
+  Stylesheet::Default->base->set(LineBreakWithin,                     true);
+  Stylesheet::Default->base->set(SectionGenerated,                    false);
+  Stylesheet::Default->base->set(ShowAutoStyles,                      false);
+  Stylesheet::Default->base->set(SectionLabelAutoDelete,              true);
+  Stylesheet::Default->base->set(ShowSectionBracket,                  true);
+  Stylesheet::Default->base->set(ShowStringCharacters,                true);
+  
+  Stylesheet::Default->base->set(FontSize,                 10.0);
+  Stylesheet::Default->base->set(GridBoxColumnSpacing,      0.4);
+  Stylesheet::Default->base->set(GridBoxRowSpacing,         0.5);
+  
+  Stylesheet::Default->base->set(SectionMarginLeft,         7.0);
+  Stylesheet::Default->base->set(SectionMarginRight,        7.0);
+  Stylesheet::Default->base->set(SectionMarginTop,          4.0);
+  Stylesheet::Default->base->set(SectionMarginBottom,       4.0);
+  
+  Stylesheet::Default->base->set(SectionFrameLeft,          0.0);
+  Stylesheet::Default->base->set(SectionFrameRight,         0.0);
+  Stylesheet::Default->base->set(SectionFrameTop,           0.0);
+  Stylesheet::Default->base->set(SectionFrameBottom,        0.0);
+  
+  Stylesheet::Default->base->set(SectionFrameMarginLeft,    0.0);
+  Stylesheet::Default->base->set(SectionFrameMarginRight,   0.0);
+  Stylesheet::Default->base->set(SectionFrameMarginTop,     0.0);
+  Stylesheet::Default->base->set(SectionFrameMarginBottom,  0.0);
+  
+  Stylesheet::Default->base->set(SectionGroupPrecedence,    0);
+  
+  //Stylesheet::Default->base->set(FontFamily,   "Arial");
+  //Stylesheet::Default->base->set(SectionLabel, "");
+  
+  Stylesheet::Default->base->set_pmath_string(Method, 
+    Expr(pmath_option_value(
+      PMATH_SYMBOL_BUTTONBOX,
+      PMATH_SYMBOL_METHOD, 
+      PMATH_UNDEFINED)));
+  
+  Stylesheet::Default->base->set(ButtonFunction, 
+    Expr(pmath_option_value(
+      PMATH_SYMBOL_BUTTONBOX,
+      PMATH_SYMBOL_BUTTONFUNCTION, 
+      PMATH_UNDEFINED)));
+  
+  Style *s;
+  
+  s = new Style;
+  s->set(AutoSpacing, true);
+  s->set(ShowAutoStyles, true);
+  Stylesheet::Default->styles.set("Edit", s);
+  
+  s = new Style;
+  s->set(AutoSpacing, true);
+  s->set(ShowAutoStyles, true);
+  s->set(FontSlant, FontSlantItalic);
+  Stylesheet::Default->styles.set("Arg", s);
+  
+  s = new Style;
+  s->set(AutoSpacing,         true);
+  s->set(AutoNumberFormating, false);
+  s->set(Evaluatable,         true);
+  s->set(ShowAutoStyles,      true);
+  s->set(FontSize,                11.0);
+  s->set(SectionMarginLeft,       56.0);
+  s->set(SectionMarginTop,        10.0);
+  s->set(SectionMarginBottom,      5.0);
+  Stylesheet::Default->styles.set("Input", s);
+  
+  s = new Style;
+  s->set(BaseStyleName, "Input");
+  s->set(AutoNumberFormating,  true);
+  s->set(Evaluatable,          false);
+  s->set(ShowAutoStyles,       false);
+  s->set(ShowStringCharacters, false);
+  s->set(SectionGroupPrecedence,  10);
+  s->set(SectionMarginTop,         5.0);
+  Stylesheet::Default->styles.set("Output", s);
+  
+  s = new Style;
+  s->set(BaseStyleName, "Output");
+  s->set(Editable, false);
+  s->set(SectionGroupPrecedence, 20);
+  s->set(SectionMarginLeft,      50.0);
+  Stylesheet::Default->styles.set("Print", s);
+  
+  s = new Style;
+  ControlPainter::std->system_font_style(s);
+  s->set(ShowAutoStyles,       false);
+  s->set(ShowStringCharacters, false);
+  Stylesheet::Default->styles.set("ControlStyle", s);
+  
+  s = new Style;
+  s->set(BaseStyleName, "ControlStyle");
+  s->set(ShowStringCharacters, false);
+  s->set(SectionMarginLeft,    0.0);
+  s->set(SectionMarginRight,   0.0);
+  s->set(SectionMarginTop,     0.0);
+  s->set(SectionMarginBottom,  0.0);
+  s->set(SectionFrameMarginLeft,   3);
+  s->set(SectionFrameMarginRight,  3);
+  s->set(SectionFrameMarginTop,    3);
+  s->set(SectionFrameMarginBottom, 3);
+  s->set(SectionFrameBottom,  0.0001f);
+  Stylesheet::Default->styles.set("Docked", s);
+  
+  s = new Style;
+  s->set(BaseStyleName, "ControlStyle"); //"Print"
+  s->set(AutoSpacing,          false);
+  s->set(Editable,             false);
+  s->set(ShowAutoStyles,       false);
+  s->set(ShowStringCharacters, false);
+  s->set(FontColor, 0x800000); // 0xAF501A
+  s->set(FontSize, 8.0);
+//    s->set(FontFamily, "Arial"); // Segoe UI
+  s->set(SectionGroupPrecedence,  20);
+  s->set(SectionMarginLeft, 50.0);
+  Stylesheet::Default->styles.set("Message", s);
+  
+  s = new Style;
+  s->set(BaseStyleName, "ControlStyle");
+  s->set(Background, /*0xEEFFDD*/ 0xEEFFCC);
+  s->set(Editable,             false);
+  s->set(ShowAutoStyles,       false);
+  s->set(ShowStringCharacters, false);
+  s->set(SectionFrameColor, /*0x008000*/0xAACC99);
+  s->set(SectionFrameLeft,   0.75);
+  s->set(SectionFrameRight,  0.75);
+  s->set(SectionFrameTop,    0.75);
+  s->set(SectionFrameBottom, 0.75);
+  s->set(SectionFrameMarginLeft,   6.0);
+  s->set(SectionFrameMarginRight,  6.0);
+  s->set(SectionFrameMarginTop,    6.0);
+  s->set(SectionFrameMarginBottom, 6.0);
+  s->set(SectionGroupPrecedence,  20);
+  s->set(SectionMarginLeft, 50.0);
+//    s->set(FontFamily, "Arial");
+  Stylesheet::Default->styles.set("PrintUsage", s);
+  
+  #define CAPTION_FONT "Arial" //"Calibri"
+  #define TEXT_FONT    "Times New Roman" //"Constantia"
+  
+  s = new Style;
+  s->set(ShowStringCharacters, false);
+  s->set(SectionMarginLeft,   50.0);
+  s->set(SectionMarginTop,     7.0);
+  s->set(SectionMarginBottom,  7.0);
+  s->set(FontFamily,           TEXT_FONT);
+  Stylesheet::Default->styles.set("Text", s);
+  
+    s = new Style;
+    s->set(BaseStyleName, "Text");
+    s->set(SectionLabel, "todo:");
+    s->set(SectionLabelAutoDelete, false);
+    Stylesheet::Default->styles.set("Todo", s);
+  
+  s = new Style;
+  s->set(BaseStyleName, "Text");
+  s->set(FontWeight, FontWeightBold);
+  s->set(SectionGroupPrecedence, -100);
+  s->set(FontSize,            22.0);
+  s->set(SectionMarginLeft,   17.0);
+  s->set(SectionMarginTop,    15.0);
+  s->set(SectionMarginBottom, 5.0);
+  s->set(FontFamily,           CAPTION_FONT);
+  Stylesheet::Default->styles.set("Title", s);
+  
+  s = new Style;
+  s->set(BaseStyleName, "Text");
+  s->set(SectionGroupPrecedence, -90);
+  s->set(FontSize,            18.0);
+  s->set(SectionMarginLeft,   17.0);
+  s->set(SectionMarginTop,     2.0);
+  s->set(SectionMarginBottom, 10.0);
+  s->set(FontFamily,           CAPTION_FONT);
+  Stylesheet::Default->styles.set("Subtitle", s);
+  
+  s = new Style;
+  s->set(BaseStyleName, "Text");
+  s->set(SectionGroupPrecedence, -80);
+  s->set(FontSize,            14.0);
+  s->set(SectionMarginLeft,   17.0);
+  s->set(SectionMarginTop,     2.0);
+  s->set(SectionMarginBottom,  8.0);
+  s->set(FontFamily,           CAPTION_FONT);
+  Stylesheet::Default->styles.set("Subsubtitle", s);
+  
+  s = new Style;
+  s->set(BaseStyleName, "Text");
+  s->set(SectionGroupPrecedence, -50);
+  s->set(FontWeight, FontWeightBold);
+  s->set(FontSize,             16.0);
+  s->set(SectionMarginLeft,    17.0);
+  s->set(SectionMarginTop,     14.0);
+  s->set(SectionMarginBottom,   8.0);
+  s->set(SectionFrameTop,       0.75);
+  s->set(SectionFrameMarginTop, 4.0);
+  s->set(FontFamily,           CAPTION_FONT);
+  Stylesheet::Default->styles.set("Section", s);
+  
+  s = new Style;
+  s->set(Background,           0xFFF8CC);
+  s->set(FontColor,            0x808080);//0xE9E381
+  s->set(FontSize,             9.0);
+  s->set(Placeholder,          true);
+  s->set(Selectable,           false);
+  s->set(ShowAutoStyles,       false);
+  s->set(ShowStringCharacters, false);
+  Stylesheet::Default->styles.set("Placeholder", s);
+}
+
 int main(int argc, char **argv){
   os_init();
   
@@ -253,86 +553,8 @@ int main(int argc, char **argv){
     MathGtkMenuBuilder::main_menu = MathGtkMenuBuilder(Evaluate(Parse(MAIN_MENU_CMD)));
   #endif
   
-  
-  { // load fonts
-    Expr fontlist = FontInfo::all_fonts();
-    
-    Hashtable<String, Void> fonttable;
-    for(size_t i = fontlist.expr_length();i > 0;--i){
-      fonttable.set(String(fontlist[i]), Void());
-    }
-    
-    if(!fonttable.search("Asana Math")){
-      FontInfo::add_private_font(Application::application_directory + "/Asana-Math.otf");
-    }
-    
-    if(!fonttable.search("pMathFallback")){
-      FontInfo::add_private_font(Application::application_directory + "/pMathFallback.otf");
-    }
-    
-    PMATH_RUN(
-      "ParallelScan("
-        "FileNames("
-          "\"*.pmath\","
-          "ToFileName({FE`$FrontEndDirectory,\"resources\"},\"shapers\")),"
-        "FE`AddConfigShaper)"
-      );
-  }
-  
-  { // load shapers
-    Expr prefered_fonts = Evaluate(Parse("FE`$MathShapers"));
-    
-    SharedPtr<MathShaper> shaper;
-    SharedPtr<MathShaper> def;
-    
-    if(prefered_fonts[0] == PMATH_SYMBOL_LIST){
-      for(size_t i = 1;i <= prefered_fonts.expr_length();++i){
-        String s(prefered_fonts[i]);
-        
-        shaper = MathShaper::available_shapers[s];
-        
-        if(!shaper){
-          #ifdef PMATH_DEBUG_LOG
-          clock_t start_font = clock();
-          #endif
-          
-          shaper = OTMathShaperDB::find(s, NoStyle);
-          if(shaper){
-            MathShaper::available_shapers.set(s, shaper);
-            
-            #ifdef PMATH_DEBUG_LOG
-              pmath_debug_print_object("loaded ", s.get(), "");
-              pmath_debug_print(" in %f seconds\n", (clock() - start_font) / (float)CLOCKS_PER_SEC);
-            #endif
-          }
-        }
-        
-        if(shaper && !def)
-          def = shaper;
-      }
-    }
-    
-    if(def){
-      MathShaper::available_shapers.default_value = def;
-    }
-    else if(MathShaper::available_shapers.size() > 0){
-      for(int i = 0;;++i){
-        Entry<String, SharedPtr<MathShaper> > *e = MathShaper::available_shapers.entry(i);
-        
-        if(e){
-          MathShaper::available_shapers.default_value = e->value;
-          break;
-        }
-      }
-    }
-  }
-  
-  if(!MathShaper::available_shapers.default_value){
-    message_dialog("pMath Fatal Error", 
-      "Cannot start pMath because there is no math font on this System.");
-    
-    return 1;
-  }
+  load_fonts();
+  load_math_shapers();
   
   load_aliases(
     Evaluate(Parse(
@@ -340,233 +562,17 @@ int main(int argc, char **argv){
     &global_immediate_macros,
     &global_macros);
   
+  init_stylesheet();
+  
   PMATH_RUN("EndPackage()"); /* FE` */
   
-  {
-    Stylesheet::Default = new Stylesheet;
+  int result = 0;
+  if(!MathShaper::available_shapers.default_value){
+    message_dialog("pMath Fatal Error", 
+      "Cannot start pMath because there is no math font on this System.");
     
-    Stylesheet::Default->base = new Style;
-    Stylesheet::Default->base->set(Background,             -1);
-    Stylesheet::Default->base->set(FontColor,              0x000000);
-    Stylesheet::Default->base->set(SectionFrameColor,      0x000000);
-    
-    Stylesheet::Default->base->set(FontSlant,              FontSlantPlain);
-    Stylesheet::Default->base->set(FontWeight,             FontWeightPlain);
-    
-    Stylesheet::Default->base->set(AutoDelete,                          false);
-    Stylesheet::Default->base->set(AutoNumberFormating,                 true);
-    Stylesheet::Default->base->set(AutoSpacing,                         false);
-    Stylesheet::Default->base->set(ContinousAction,                     true);
-    Stylesheet::Default->base->set(Editable,                            true);
-    Stylesheet::Default->base->set(Evaluatable,                         false);
-    Stylesheet::Default->base->set(InternalUsesCurrentValueOfMouseOver, false);
-    Stylesheet::Default->base->set(LineBreakWithin,                     true);
-    Stylesheet::Default->base->set(SectionGenerated,                    false);
-    Stylesheet::Default->base->set(ShowAutoStyles,                      false);
-    Stylesheet::Default->base->set(SectionLabelAutoDelete,              true);
-    Stylesheet::Default->base->set(ShowSectionBracket,                  true);
-    Stylesheet::Default->base->set(ShowStringCharacters,                true);
-    
-    Stylesheet::Default->base->set(FontSize,                 10.0);
-    Stylesheet::Default->base->set(GridBoxColumnSpacing,      0.4);
-    Stylesheet::Default->base->set(GridBoxRowSpacing,         0.5);
-    
-    Stylesheet::Default->base->set(SectionMarginLeft,         7.0);
-    Stylesheet::Default->base->set(SectionMarginRight,        7.0);
-    Stylesheet::Default->base->set(SectionMarginTop,          4.0);
-    Stylesheet::Default->base->set(SectionMarginBottom,       4.0);
-    
-    Stylesheet::Default->base->set(SectionFrameLeft,          0.0);
-    Stylesheet::Default->base->set(SectionFrameRight,         0.0);
-    Stylesheet::Default->base->set(SectionFrameTop,           0.0);
-    Stylesheet::Default->base->set(SectionFrameBottom,        0.0);
-    
-    Stylesheet::Default->base->set(SectionFrameMarginLeft,    0.0);
-    Stylesheet::Default->base->set(SectionFrameMarginRight,   0.0);
-    Stylesheet::Default->base->set(SectionFrameMarginTop,     0.0);
-    Stylesheet::Default->base->set(SectionFrameMarginBottom,  0.0);
-    
-    Stylesheet::Default->base->set(SectionGroupPrecedence,    0);
-    
-    //Stylesheet::Default->base->set(FontFamily,   "Arial");
-    //Stylesheet::Default->base->set(SectionLabel, "");
-    
-    Stylesheet::Default->base->set_pmath_string(Method, 
-      Expr(pmath_option_value(
-        PMATH_SYMBOL_BUTTONBOX,
-        PMATH_SYMBOL_METHOD, 
-        PMATH_UNDEFINED)));
-    
-    Stylesheet::Default->base->set(ButtonFunction, 
-      Expr(pmath_option_value(
-        PMATH_SYMBOL_BUTTONBOX,
-        PMATH_SYMBOL_BUTTONFUNCTION, 
-        PMATH_UNDEFINED)));
-    
-    Style *s;
-    
-    s = new Style;
-    s->set(AutoSpacing, true);
-    s->set(ShowAutoStyles, true);
-    Stylesheet::Default->styles.set("Edit", s);
-    
-    s = new Style;
-    s->set(AutoSpacing, true);
-    s->set(ShowAutoStyles, true);
-    s->set(FontSlant, FontSlantItalic);
-    Stylesheet::Default->styles.set("Arg", s);
-    
-    s = new Style;
-    s->set(AutoSpacing,         true);
-    s->set(AutoNumberFormating, false);
-    s->set(Evaluatable,         true);
-    s->set(ShowAutoStyles,      true);
-    s->set(FontSize,                11.0);
-    s->set(SectionMarginLeft,       56.0);
-    s->set(SectionMarginTop,        10.0);
-    s->set(SectionMarginBottom,      5.0);
-    Stylesheet::Default->styles.set("Input", s);
-    
-    s = new Style;
-    s->set(BaseStyleName, "Input");
-    s->set(AutoNumberFormating,  true);
-    s->set(Evaluatable,          false);
-    s->set(ShowAutoStyles,       false);
-    s->set(ShowStringCharacters, false);
-    s->set(SectionGroupPrecedence,  10);
-    s->set(SectionMarginTop,         5.0);
-    Stylesheet::Default->styles.set("Output", s);
-    
-    s = new Style;
-    s->set(BaseStyleName, "Output");
-    s->set(Editable, false);
-    s->set(SectionGroupPrecedence, 20);
-    s->set(SectionMarginLeft,      50.0);
-    Stylesheet::Default->styles.set("Print", s);
-    
-    s = new Style;
-    ControlPainter::std->system_font_style(s);
-    s->set(ShowAutoStyles,       false);
-    s->set(ShowStringCharacters, false);
-    Stylesheet::Default->styles.set("ControlStyle", s);
-    
-    s = new Style;
-    s->set(BaseStyleName, "ControlStyle");
-    s->set(ShowStringCharacters, false);
-    s->set(SectionMarginLeft,    0.0);
-    s->set(SectionMarginRight,   0.0);
-    s->set(SectionMarginTop,     0.0);
-    s->set(SectionMarginBottom,  0.0);
-    s->set(SectionFrameMarginLeft,   3);
-    s->set(SectionFrameMarginRight,  3);
-    s->set(SectionFrameMarginTop,    3);
-    s->set(SectionFrameMarginBottom, 3);
-    s->set(SectionFrameBottom,  0.0001f);
-    Stylesheet::Default->styles.set("Docked", s);
-    
-    s = new Style;
-    s->set(BaseStyleName, "ControlStyle"); //"Print"
-    s->set(AutoSpacing,          false);
-    s->set(Editable,             false);
-    s->set(ShowAutoStyles,       false);
-    s->set(ShowStringCharacters, false);
-    s->set(FontColor, 0x800000); // 0xAF501A
-    s->set(FontSize, 8.0);
-//    s->set(FontFamily, "Arial"); // Segoe UI
-    s->set(SectionGroupPrecedence,  20);
-    s->set(SectionMarginLeft, 50.0);
-    Stylesheet::Default->styles.set("Message", s);
-    
-    s = new Style;
-    s->set(BaseStyleName, "ControlStyle");
-    s->set(Background, /*0xEEFFDD*/ 0xEEFFCC);
-    s->set(Editable,             false);
-    s->set(ShowAutoStyles,       false);
-    s->set(ShowStringCharacters, false);
-    s->set(SectionFrameColor, /*0x008000*/0xAACC99);
-    s->set(SectionFrameLeft,   0.75);
-    s->set(SectionFrameRight,  0.75);
-    s->set(SectionFrameTop,    0.75);
-    s->set(SectionFrameBottom, 0.75);
-    s->set(SectionFrameMarginLeft,   6.0);
-    s->set(SectionFrameMarginRight,  6.0);
-    s->set(SectionFrameMarginTop,    6.0);
-    s->set(SectionFrameMarginBottom, 6.0);
-    s->set(SectionGroupPrecedence,  20);
-    s->set(SectionMarginLeft, 50.0);
-//    s->set(FontFamily, "Arial");
-    Stylesheet::Default->styles.set("PrintUsage", s);
-    
-    #define CAPTION_FONT "Arial" //"Calibri"
-    #define TEXT_FONT    "Times New Roman" //"Constantia"
-    
-    s = new Style;
-    s->set(ShowStringCharacters, false);
-    s->set(SectionMarginLeft,   50.0);
-    s->set(SectionMarginTop,     7.0);
-    s->set(SectionMarginBottom,  7.0);
-    s->set(FontFamily,           TEXT_FONT);
-    Stylesheet::Default->styles.set("Text", s);
-    
-      s = new Style;
-      s->set(BaseStyleName, "Text");
-      s->set(SectionLabel, "todo:");
-      s->set(SectionLabelAutoDelete, false);
-      Stylesheet::Default->styles.set("Todo", s);
-    
-    s = new Style;
-    s->set(BaseStyleName, "Text");
-    s->set(FontWeight, FontWeightBold);
-    s->set(SectionGroupPrecedence, -100);
-    s->set(FontSize,            22.0);
-    s->set(SectionMarginLeft,   17.0);
-    s->set(SectionMarginTop,    15.0);
-    s->set(SectionMarginBottom, 5.0);
-    s->set(FontFamily,           CAPTION_FONT);
-    Stylesheet::Default->styles.set("Title", s);
-    
-    s = new Style;
-    s->set(BaseStyleName, "Text");
-    s->set(SectionGroupPrecedence, -90);
-    s->set(FontSize,            18.0);
-    s->set(SectionMarginLeft,   17.0);
-    s->set(SectionMarginTop,     2.0);
-    s->set(SectionMarginBottom, 10.0);
-    s->set(FontFamily,           CAPTION_FONT);
-    Stylesheet::Default->styles.set("Subtitle", s);
-    
-    s = new Style;
-    s->set(BaseStyleName, "Text");
-    s->set(SectionGroupPrecedence, -80);
-    s->set(FontSize,            14.0);
-    s->set(SectionMarginLeft,   17.0);
-    s->set(SectionMarginTop,     2.0);
-    s->set(SectionMarginBottom,  8.0);
-    s->set(FontFamily,           CAPTION_FONT);
-    Stylesheet::Default->styles.set("Subsubtitle", s);
-    
-    s = new Style;
-    s->set(BaseStyleName, "Text");
-    s->set(SectionGroupPrecedence, -50);
-    s->set(FontWeight, FontWeightBold);
-    s->set(FontSize,             16.0);
-    s->set(SectionMarginLeft,    17.0);
-    s->set(SectionMarginTop,     14.0);
-    s->set(SectionMarginBottom,   8.0);
-    s->set(SectionFrameTop,       0.75);
-    s->set(SectionFrameMarginTop, 4.0);
-    s->set(FontFamily,           CAPTION_FONT);
-    Stylesheet::Default->styles.set("Section", s);
-    
-    s = new Style;
-    s->set(Background,           0xFFF8CC);
-    s->set(FontColor,            0x808080);//0xE9E381
-    s->set(FontSize,             9.0);
-    s->set(Placeholder,          true);
-    s->set(Selectable,           false);
-    s->set(ShowAutoStyles,       false);
-    s->set(ShowStringCharacters, false);
-    Stylesheet::Default->styles.set("Placeholder", s);
+    result = 1;
+    goto QUIT;
   }
   
   #ifdef RICHMATH_USE_WIN32_GUI
@@ -894,7 +900,6 @@ int main(int argc, char **argv){
   }
   #endif
   
-  int result = 0;
   if(all_document_ids.size() == 0){
     message_dialog("pMath Error", 
       "No document window could be opened. pMath will quit now.");
@@ -902,6 +907,7 @@ int main(int argc, char **argv){
   else
     Application::run();
   
+ QUIT:
   pmath_debug_print("quitted\n");
   
   MathShaper::available_shapers.clear();

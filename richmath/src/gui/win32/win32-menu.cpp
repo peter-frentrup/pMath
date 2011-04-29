@@ -262,7 +262,7 @@ static bool set_accel_key(Expr expr, ACCEL *accel){
 }
 
 static String vk_name(UINT vk){
-  switch(vk){
+  /*switch(vk){
     case VK_CONTROL: return "Ctrl";
     case VK_MENU:    return "Alt";
     case VK_SHIFT:   return "Shift";
@@ -320,9 +320,9 @@ static String vk_name(UINT vk){
     case VK_PLAY:    return "Play";
     case VK_ZOOM:    return "Zoom";
   }
-  
+  */
   UINT ch = MapVirtualKeyW(vk, MAPVK_VK_TO_CHAR) & 0x7FFFFFFF;
-  if(ch)
+  if(ch > ' ')
     return String::FromChar(ch);
   
   // old code....
@@ -346,10 +346,10 @@ static String vk_name(UINT vk){
   
   int len = GetKeyNameTextW(sc << 16, buf, 100);
   
-//  for(int i = 1;i < len;++i){
-//    if(buf[i] >= 'A' && buf[i] <= 'Z')
-//      buf[i] += 'a' - 'A';
-//  }
+  for(int i = 1;i < len;++i){
+    if(buf[i] >= 'A' && buf[i] <= 'Z')
+      buf[i] += 'a' - 'A';
+  }
   
   return String::FromUcs2((const uint16_t*)buf, len);
 }
