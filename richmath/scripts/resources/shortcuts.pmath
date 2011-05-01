@@ -30,6 +30,7 @@ FE`Private`shortcuts:= {
 	Item(KeyEvent("/", {KeyControl}),               "InsertFraction"),
 	Item(KeyEvent("2", {KeyControl}),               "InsertRadical"),
 	Item(KeyEvent("-", {KeyControl}),               "InsertSubscript"),
+	Item(KeyEvent("6", {KeyControl}),               "InsertSuperscript"),
 	Item(KeyEvent("^", {KeyControl}),               "InsertSuperscript"),
 	Item(KeyEvent("7", {KeyControl}),               "InsertOverscript"),
 	Item(KeyEvent("+", {KeyControl}),               "InsertUnderscript"),

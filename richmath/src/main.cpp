@@ -30,6 +30,7 @@
 #endif
 
 #ifdef RICHMATH_USE_GTK_GUI
+  #include <gui/gtk/mgtk-clipboard.h>
   #include <gui/gtk/mgtk-document-window.h>
   #include <gui/gtk/mgtk-menu-builder.h>
 #endif
@@ -522,11 +523,6 @@ int main(int argc, char **argv){
     return 1;
   }
   
-  #ifdef RICHMATH_USE_WIN32_GUI
-    Win32Themes::init();
-    Win32Clipboard::init();
-  #endif
-  
   Application::init();
   Server::init_local_server();
   
@@ -544,11 +540,14 @@ int main(int argc, char **argv){
   #define MAIN_MENU_CMD  "Get(ToFileName({FE`$FrontEndDirectory,\"resources\"},\"mainmenu.pmath\"))"
   
   #ifdef RICHMATH_USE_WIN32_GUI
+    Win32Themes::init();
+    Win32Clipboard::init();
     Win32AcceleratorTable::main_table = new Win32AcceleratorTable(Evaluate(Parse(SHORTCUTS_CMD)));
     Win32Menu::main_menu              = new Win32Menu(            Evaluate(Parse(MAIN_MENU_CMD)));
   #endif
   
   #ifdef RICHMATH_USE_GTK_GUI
+    Clipboard::std = &MathGtkClipboard::obj;
     MathGtkAccelerators::load(                         Evaluate(Parse(SHORTCUTS_CMD)));
     MathGtkMenuBuilder::main_menu = MathGtkMenuBuilder(Evaluate(Parse(MAIN_MENU_CMD)));
   #endif
@@ -566,7 +565,9 @@ int main(int argc, char **argv){
   
   PMATH_RUN("EndPackage()"); /* FE` */
   
+  Document *palette_doc = 0;
   int result = 0;
+  
   if(!MathShaper::available_shapers.default_value){
     message_dialog("pMath Fatal Error", 
       "Cannot start pMath because there is no math font on this System.");
@@ -713,14 +714,102 @@ int main(int argc, char **argv){
       0);
     wndPalette->init();
       
+    wndPalette->title("Math Input");
     wndPalette->is_palette(true);
-    doc = wndPalette->document();
+    palette_doc = wndPalette->document();
     
-    doc->style->set(Editable, false);
-    doc->style->set(Selectable, false);
+    RECT rect;
+    RECT pal_rect;
+    GetWindowRect(wndMain->hwnd(), &rect);
+    GetWindowRect(wndPalette->hwnd(), &pal_rect);
+    rect.left+= 100;
+    
+    SetWindowPos(
+      wndMain->hwnd(),
+      NULL,
+      rect.left,
+      rect.top,
+      0,
+      0,
+      SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE);
+    
+    SetWindowPos(
+      wndPalette->hwnd(),
+      NULL,
+      rect.left - (pal_rect.right - pal_rect.left),//rect.right,
+      rect.top,
+      0,
+      0,
+      SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE);
+    
+    // override CreateProcess STARTF_USESHOWWINDOW flag:
+    //ShowWindow(wndMain->hwnd(), SW_SHOWDEFAULT);
+    ShowWindow(wndPalette->hwnd(), SW_SHOWNORMAL);
+    ShowWindow(wndMain->hwnd(), SW_SHOWNORMAL);
+    
+    if(0){
+      Win32DocumentWindow *wndInterrupt = new Win32DocumentWindow(
+        new Document,
+        0, WS_OVERLAPPEDWINDOW,
+        CW_USEDEFAULT,
+        CW_USEDEFAULT,
+        0,
+        0);
+      wndInterrupt->init();
+        
+      wndInterrupt->is_palette(true);
+      doc = wndInterrupt->document();
+      
+      doc->style->set(Editable, false);
+      doc->style->set(Selectable, false);
+      
+      wndInterrupt->title("Kernel Interrupt");
+      write_section(doc, Evaluate(Parse(
+        "Section(BoxData("
+          "GridBox({"
+            "{ButtonBox(\"\\\"Abort Command Being Evaluated\\\"\")},"
+            "{ButtonBox(\"\\\"Enter Subsession\\\"\")},"
+            "{ButtonBox(\"\\\"Continue Evaluation\\\"\")}})),"
+          "\"ControlStyle\"," 
+          "FontSize->9,"
+          "ShowSectionBracket->False," 
+          "ShowStringCharacters->False)")));
+      
+      doc->select(0,0,0);
+      ShowWindow(wndInterrupt->hwnd(), SW_SHOWNORMAL);
+    }
+      
+    Application::doevents();
+    SetActiveWindow(wndMain->hwnd());
+    
+  }
+  #endif
+  
+  #ifdef RICHMATH_USE_GTK_GUI
+  {
+    MathGtkDocumentWindow *wndMain = new MathGtkDocumentWindow();
+    wndMain->init();
+    
+    gtk_window_present(GTK_WINDOW(wndMain->widget()));
+    
+    MathGtkDocumentWindow *wndPalette = new MathGtkDocumentWindow();
+    wndPalette->init();
     
     wndPalette->title("Math Input");
-    write_section(doc, Evaluate(Parse(
+    wndPalette->is_palette(true);
+    
+    palette_doc = wndPalette->document();
+    
+    gtk_window_present(GTK_WINDOW(wndPalette->widget()));
+  }
+  #endif
+  
+  if(palette_doc){
+    palette_doc->style->set(Editable, false);
+    palette_doc->style->set(Selectable, false);
+    palette_doc->select(0,0,0);
+    
+    write_section(palette_doc, Evaluate(Parse(
       "Section(BoxData("
         "GridBox({"
           "{ButtonBox({\"\\[SelectionPlaceholder]\",SuperscriptBox(\"\\[Placeholder]\")}),\"\\[SpanFromLeft]\",\"\\[SpanFromLeft]\","
@@ -820,85 +909,7 @@ int main(int argc, char **argv){
         
         //".Replace(TooltipBox(~FE`Private`x,~) :> FE`Private`x)"
         )));
-    
-    doc->select(0,0,0);
-    
-    RECT rect;
-    RECT pal_rect;
-    GetWindowRect(wndMain->hwnd(), &rect);
-    GetWindowRect(wndPalette->hwnd(), &pal_rect);
-    rect.left+= 100;
-    
-    SetWindowPos(
-      wndMain->hwnd(),
-      NULL,
-      rect.left,
-      rect.top,
-      0,
-      0,
-      SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE);
-    
-    SetWindowPos(
-      wndPalette->hwnd(),
-      NULL,
-      rect.left - (pal_rect.right - pal_rect.left),//rect.right,
-      rect.top,
-      0,
-      0,
-      SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE);
-    
-    // override CreateProcess STARTF_USESHOWWINDOW flag:
-    //ShowWindow(wndMain->hwnd(), SW_SHOWDEFAULT);
-    ShowWindow(wndPalette->hwnd(), SW_SHOWNORMAL);
-    ShowWindow(wndMain->hwnd(), SW_SHOWNORMAL);
-    
-    if(0){
-      Win32DocumentWindow *wndInterrupt = new Win32DocumentWindow(
-        new Document,
-        0, WS_OVERLAPPEDWINDOW,
-        CW_USEDEFAULT,
-        CW_USEDEFAULT,
-        0,
-        0);
-      wndInterrupt->init();
-        
-      wndInterrupt->is_palette(true);
-      doc = wndInterrupt->document();
-      
-      doc->style->set(Editable, false);
-      doc->style->set(Selectable, false);
-      
-      wndInterrupt->title("Kernel Interrupt");
-      write_section(doc, Evaluate(Parse(
-        "Section(BoxData("
-          "GridBox({"
-            "{ButtonBox(\"\\\"Abort Command Being Evaluated\\\"\")},"
-            "{ButtonBox(\"\\\"Enter Subsession\\\"\")},"
-            "{ButtonBox(\"\\\"Continue Evaluation\\\"\")}})),"
-          "\"ControlStyle\"," 
-          "FontSize->9,"
-          "ShowSectionBracket->False," 
-          "ShowStringCharacters->False)")));
-      
-      doc->select(0,0,0);
-      ShowWindow(wndInterrupt->hwnd(), SW_SHOWNORMAL);
-    }
-      
-    Application::doevents();
-    SetActiveWindow(wndMain->hwnd());
-    
   }
-  #endif
-  
-  #ifdef RICHMATH_USE_GTK_GUI
-  {
-    MathGtkDocumentWindow *wnd = new MathGtkDocumentWindow();
-    wnd->init();
-    
-    if(wnd->widget())
-      gtk_window_present(GTK_WINDOW(wnd->widget()));
-  }
-  #endif
   
   if(all_document_ids.size() == 0){
     message_dialog("pMath Error", 

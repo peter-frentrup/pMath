@@ -98,12 +98,12 @@ void MathGtkMenuBuilder::append_to(GtkMenuShell *menu, GtkAccelGroup *accel_grou
   if(name.is_null())
     return;
   
-  expr = expr[2];
-  if(expr[0] != PMATH_SYMBOL_LIST)
+  Expr list = expr[2];
+  if(list[0] != PMATH_SYMBOL_LIST)
     return;
   
-  for(size_t i = 1;i <= expr.expr_length();++i){
-    Expr item = expr[i];
+  for(size_t i = 1;i <= list.expr_length();++i){
+    Expr item = list[i];
     
     if(item[0] == GetSymbol(ItemSymbol)
     && item.expr_length() == 2){

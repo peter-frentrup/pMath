@@ -89,6 +89,7 @@ namespace richmath{
       virtual bool on_button_release(GdkEvent *e);
       virtual bool on_motion_notify(GdkEvent *e);
       virtual bool on_leave_notify(GdkEvent *e);
+      virtual bool on_scroll(GdkEvent *e);
       
       static gboolean blink_caret(gpointer id_as_ptr);
   };

@@ -97,6 +97,7 @@ namespace richmath{
       void copy_to_clipboard();
       void cut_to_clipboard();
       
+      void paste_from_boxes(Expr boxes);
       void paste_from_text(String mimetype, String data);
       void paste_from_binary(String mimetype, Expr file);
       void paste_from_clipboard();

@@ -1918,7 +1918,7 @@ String Document::copy_to_text(String mimetype){
     return String();
   }
   
-  Expr boxes = Expr(selbox->to_pmath(false, context.selection.start, context.selection.end));
+  Expr boxes = selbox->to_pmath(false, context.selection.start, context.selection.end);
   if(mimetype.equals(Clipboard::BoxesText))
     return boxes.to_string(PMATH_WRITE_OPTIONS_INPUTEXPR | PMATH_WRITE_OPTIONS_FULLSTR);
   
@@ -1935,6 +1935,20 @@ String Document::copy_to_text(String mimetype){
 }
 
 void Document::copy_to_binary(String mimetype, Expr file){
+  if(mimetype.equals(Clipboard::BoxesBinary)){
+    Box *selbox = context.selection.get();
+    if(!selbox){
+      native()->beep();
+      return;
+    }
+    
+    Expr boxes = selbox->to_pmath(false, context.selection.start, context.selection.end);
+    file = Expr(pmath_file_create_compressor(file.release()));
+    pmath_serialize(file.get(), boxes.release());
+    pmath_file_close(file.release());
+    return;
+  }
+  
   String text = copy_to_text(mimetype);
   pmath_file_writetext(file.get(), text.buffer(), text.length());
 }
@@ -1946,7 +1960,10 @@ void Document::copy_to_clipboard(){
     return;
   }
   
-  cb->add_text(Clipboard::BoxesText, copy_to_text(Clipboard::BoxesText));
+  Expr file = Expr(pmath_file_create_binary_buffer(0));
+  copy_to_binary(Clipboard::BoxesBinary, file);
+  cb->add_binary_file(Clipboard::BoxesBinary, file);
+  //cb->add_text(Clipboard::BoxesText, copy_to_text(Clipboard::BoxesText));
   cb->add_text(Clipboard::PlainText, copy_to_text(Clipboard::PlainText));
 }
 
@@ -1955,136 +1972,141 @@ void Document::cut_to_clipboard(){
   remove_selection(false);
 }
 
+void Document::paste_from_boxes(Expr boxes){
+  if(context.selection.get() == this && get_style(Editable, true)
+  && (boxes[0] == PMATH_SYMBOL_SECTION
+   || boxes[0] == PMATH_SYMBOL_SECTIONGROUP)){
+    remove_selection(false);
+    
+    int i = context.selection.start;
+    insert_pmath(&i, boxes);
+    
+    select(this, i, i);
+    
+    return;
+  }
+  
+  boxes = Application::interrupt(
+    Parse("FE`SectionsToBoxes(`1`)", boxes),
+    Application::edit_interrupt_timeout);
+  
+  GridBox *grid = dynamic_cast<GridBox*>(context.selection.get());
+  if(grid && grid->get_style(Editable)){
+    int row1, col1, row2, col2;
+    
+    grid->matrix().index_to_yx(context.selection.start, &row1, &col1);
+    grid->matrix().index_to_yx(context.selection.end-1, &row2, &col2);
+    
+    int w = col2 - col1 + 1;
+    int h = row2 - row1 + 1;
+    
+    int options = BoxOptionDefault;
+    if(grid->get_style(AutoNumberFormating))
+      options |= BoxOptionFormatNumbers;
+      
+    MathSequence *tmp = new MathSequence;
+    tmp->load_from_object(boxes, options);
+    
+    if(tmp->length() == 1 && tmp->count() == 1){
+      GridBox *tmpgrid = dynamic_cast<GridBox*>(tmp->item(0));
+      
+      if(tmpgrid
+      && tmpgrid->rows() <= h
+      && tmpgrid->cols() <= w){
+        for(int col = 0;col < w;++col){
+          for(int row = 0;row < h;++row){
+            if(col < tmpgrid->cols()
+            && row < tmpgrid->rows()){
+              grid->item(row1 + row, col1 + col)->load_from_object(
+                Expr(tmpgrid->item(row, col)->to_pmath(false)),
+                BoxOptionFormatNumbers);
+            }
+            else{
+              grid->item(row1 + row, col1 + col)->load_from_object(
+                String::FromChar(PMATH_CHAR_BOX),
+                BoxOptionDefault);
+            }
+          }
+        }
+        
+        MathSequence *sel = grid->item(
+          row1 + tmpgrid->rows()-1,
+          col1 + tmpgrid->cols()-1)->content();
+        
+        move_to(sel, sel->length());
+        grid->invalidate();
+      
+        delete tmp;
+        return;
+      }
+    }
+    
+    for(int col = 0;col < w;++col){
+      for(int row = 0;row < h;++row){
+        grid->item(row1 + row, col1 + col)->load_from_object(
+          String::FromChar(PMATH_CHAR_BOX),
+          BoxOptionDefault);
+      }
+    }
+    
+    MathSequence *sel = grid->item(row1, col1)->content();
+    sel->remove(0, 1);
+    sel->insert(0, tmp); tmp = 0;
+    move_to(sel, sel->length());
+    
+    grid->invalidate();
+    return;
+  }
+  
+  remove_selection(false);
+  
+  if(prepare_insert()){
+    if(MathSequence *seq = dynamic_cast<MathSequence*>(context.selection.get())){
+      
+      int options = BoxOptionDefault;
+      if(seq->get_style(AutoNumberFormating))
+        options |= BoxOptionFormatNumbers;
+        
+      MathSequence *tmp = new MathSequence;
+      tmp->load_from_object(boxes, options);
+    
+      int newpos = context.selection.end + tmp->length();
+      seq->insert(context.selection.end, tmp);
+      
+      select(seq, newpos, newpos);
+      
+      return;
+    }
+    
+    if(TextSequence *seq = dynamic_cast<TextSequence*>(context.selection.get())){
+      
+      int options = BoxOptionDefault;
+      if(seq->get_style(AutoNumberFormating))
+        options |= BoxOptionFormatNumbers;
+        
+      TextSequence *tmp = new TextSequence;
+      tmp->load_from_object(boxes, options);
+    
+      int newpos = context.selection.end + tmp->length();
+      seq->insert(context.selection.end, tmp);
+      
+      select(seq, newpos, newpos);
+      
+      return;
+    }
+  }
+  
+  native()->beep();
+  return;
+}
+
 void Document::paste_from_text(String mimetype, String data){
   if(mimetype.equals(Clipboard::BoxesText)){
     Expr parsed = Application::interrupt(Expr(
       pmath_parse_string(data.release())),
       Application::edit_interrupt_timeout);
     
-    if(context.selection.get() == this && get_style(Editable, true)
-    && (parsed[0] == PMATH_SYMBOL_SECTION
-     || parsed[0] == PMATH_SYMBOL_SECTIONGROUP)){
-      remove_selection(false);
-      
-      int i = context.selection.start;
-      insert_pmath(&i, parsed);
-      
-      select(this, i, i);
-      
-      return;
-    }
-    
-    parsed = Application::interrupt(
-      Parse("FE`SectionsToBoxes(`1`)", parsed),
-      Application::edit_interrupt_timeout);
-    
-    GridBox *grid = dynamic_cast<GridBox*>(context.selection.get());
-    if(grid && grid->get_style(Editable)){
-      int row1, col1, row2, col2;
-      
-      grid->matrix().index_to_yx(context.selection.start, &row1, &col1);
-      grid->matrix().index_to_yx(context.selection.end-1, &row2, &col2);
-      
-      int w = col2 - col1 + 1;
-      int h = row2 - row1 + 1;
-      
-      int options = BoxOptionDefault;
-      if(grid->get_style(AutoNumberFormating))
-        options |= BoxOptionFormatNumbers;
-        
-      MathSequence *tmp = new MathSequence;
-      tmp->load_from_object(parsed, options);
-      
-      if(tmp->length() == 1 && tmp->count() == 1){
-        GridBox *tmpgrid = dynamic_cast<GridBox*>(tmp->item(0));
-        
-        if(tmpgrid
-        && tmpgrid->rows() <= h
-        && tmpgrid->cols() <= w){
-          for(int col = 0;col < w;++col){
-            for(int row = 0;row < h;++row){
-              if(col < tmpgrid->cols()
-              && row < tmpgrid->rows()){
-                grid->item(row1 + row, col1 + col)->load_from_object(
-                  Expr(tmpgrid->item(row, col)->to_pmath(false)),
-                  BoxOptionFormatNumbers);
-              }
-              else{
-                grid->item(row1 + row, col1 + col)->load_from_object(
-                  String::FromChar(PMATH_CHAR_BOX),
-                  BoxOptionDefault);
-              }
-            }
-          }
-          
-          MathSequence *sel = grid->item(
-            row1 + tmpgrid->rows()-1,
-            col1 + tmpgrid->cols()-1)->content();
-          
-          move_to(sel, sel->length());
-          grid->invalidate();
-        
-          delete tmp;
-          return;
-        }
-      }
-      
-      for(int col = 0;col < w;++col){
-        for(int row = 0;row < h;++row){
-          grid->item(row1 + row, col1 + col)->load_from_object(
-            String::FromChar(PMATH_CHAR_BOX),
-            BoxOptionDefault);
-        }
-      }
-      
-      MathSequence *sel = grid->item(row1, col1)->content();
-      sel->remove(0, 1);
-      sel->insert(0, tmp); tmp = 0;
-      move_to(sel, sel->length());
-      
-      grid->invalidate();
-      return;
-    }
-    
-    remove_selection(false);
-    
-    if(prepare_insert()){
-      if(MathSequence *seq = dynamic_cast<MathSequence*>(context.selection.get())){
-        
-        int options = BoxOptionDefault;
-        if(seq->get_style(AutoNumberFormating))
-          options |= BoxOptionFormatNumbers;
-          
-        MathSequence *tmp = new MathSequence;
-        tmp->load_from_object(parsed, options);
-      
-        int newpos = context.selection.end + tmp->length();
-        seq->insert(context.selection.end, tmp);
-        
-        select(seq, newpos, newpos);
-        
-        return;
-      }
-      
-      if(TextSequence *seq = dynamic_cast<TextSequence*>(context.selection.get())){
-        
-        int options = BoxOptionDefault;
-        if(seq->get_style(AutoNumberFormating))
-          options |= BoxOptionFormatNumbers;
-          
-        TextSequence *tmp = new TextSequence;
-        tmp->load_from_object(parsed, options);
-      
-        int newpos = context.selection.end + tmp->length();
-        seq->insert(context.selection.end, tmp);
-        
-        select(seq, newpos, newpos);
-        
-        return;
-      }
-    }
-    
-    native()->beep();
+    paste_from_boxes(parsed);
     return;
   }
 
@@ -2100,6 +2122,14 @@ void Document::paste_from_text(String mimetype, String data){
 }
 
 void Document::paste_from_binary(String mimetype, Expr file){
+  if(mimetype.equals(Clipboard::BoxesBinary)){
+    pmath_serialize_error_t err = PMATH_SERIALIZE_OK;
+    file = Expr(pmath_file_create_uncompressor(file.release()));
+    Expr boxes = Expr(pmath_deserialize(file.get(), &err));
+    paste_from_boxes(boxes);
+    return;
+  }
+  
   String line;
   
   if(!pmath_file_test(file.get(), PMATH_FILE_PROP_READ | PMATH_FILE_PROP_TEXT)){
@@ -2116,6 +2146,13 @@ void Document::paste_from_binary(String mimetype, Expr file){
 }
 
 void Document::paste_from_clipboard(){
+  if(Clipboard::std->has_format(Clipboard::BoxesBinary)){
+    paste_from_binary(
+      Clipboard::BoxesBinary, 
+      Clipboard::std->read_as_binary_file(Clipboard::BoxesBinary));
+    return;
+  }
+  
   if(Clipboard::std->has_format(Clipboard::BoxesText)){
     paste_from_text(
       Clipboard::BoxesText, 

@@ -28,6 +28,8 @@ namespace richmath {
       
       void run_menucommand(Expr cmd);
       
+      void adjustment_changed(GtkAdjustment *adjustment);
+      
       Document *top(){          return ((MathGtkWidget*)_top_area)->document();     }
       Document *document(){     return ((MathGtkWidget*)_working_area)->document(); }
       Document *bottom(){       return ((MathGtkWidget*)_bottom_area)->document();  }
@@ -53,6 +55,8 @@ namespace richmath {
       MathGtkDocumentWindow *_next_window;
       
       GtkWidget *_menu_bar;
+      GtkAdjustment *_hadjustment;
+      GtkAdjustment *_vadjustment;
       GtkWidget *_hscrollbar;
       GtkWidget *_vscrollbar;
       GtkWidget *_table;

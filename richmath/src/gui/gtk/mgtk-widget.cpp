@@ -68,6 +68,7 @@ void MathGtkWidget::after_construction(){
   signal_connect<MathGtkWidget, &MathGtkWidget::on_key_release>(   "key-release-event");
   signal_connect<MathGtkWidget, &MathGtkWidget::on_motion_notify>( "motion-notify-event");
   signal_connect<MathGtkWidget, &MathGtkWidget::on_leave_notify>(  "leave-notify-event");
+  signal_connect<MathGtkWidget, &MathGtkWidget::on_scroll>(        "scroll-event");
 }
 
 void MathGtkWidget::window_size(float *w, float *h){
@@ -127,7 +128,7 @@ void MathGtkWidget::scroll_to(float x, float y){
     
     newy = CLAMP(newy, lo, hi);
     if(oldy != newy)
-      gtk_adjustment_set_value(_hadjustment, newy);
+      gtk_adjustment_set_value(_vadjustment, newy);
   }
 }
 
@@ -209,7 +210,7 @@ bool MathGtkWidget::cursor_position(float *x, float *y){
 
 void MathGtkWidget::invalidate(){
   is_painting = false; // if inside "expose" event, invalidate at end of event
-  
+   
   gtk_widget_queue_draw(_widget);
 }
 
@@ -361,19 +362,22 @@ void MathGtkWidget::paint_canvas(Canvas *canvas, bool resize_only){
     double w_page = rect.width;
     double h_page = rect.height;
     
-    double w_max = floor(scale_factor() * document()->extents().width + 0.5);
+    double w_max = scale_factor() * document()->extents().width;
     double h_max;
     
     if(autohide_vertical_scrollbar())
-      h_max = floorf( document()->extents().height()                 * scale_factor() + 0.5f);
+      h_max = scale_factor() * document()->extents().height();
     else
-      h_max = floorf((document()->extents().height() + h_page * 0.8) * scale_factor() + 0.5f);
+      h_max = scale_factor() * document()->extents().height() + h_page * 0.8;
+    
+    w_max = floor(w_max + 0.5);
+    h_max = floor(h_max + 0.5);
     
     if(rect.height >= h_max)
-      h_page = h_max + 1;
+      h_page = h_max;
       
     if(rect.width >= w_max)
-      w_page = w_max + 1;
+      w_page = w_max;
     
     if(_hadjustment){
       g_object_set(_hadjustment,
@@ -492,8 +496,10 @@ bool MathGtkWidget::on_key_press(GdkEvent *e){
   ske.alt   = 0 != (mod & GDK_MOD1_MASK);
   ske.shift = 0 != (mod & GDK_SHIFT_MASK);
   if(ske.key){
-    document()->key_down(ske);
-    return true;
+    if(ske.key != KeyReturn || ske.ctrl || ske.alt || ske.shift){
+      document()->key_down(ske);
+      return true;
+    }
   }
   
   if(event->keyval == GDK_Caps_Lock || event->keyval == GDK_Shift_Lock){
@@ -508,12 +514,14 @@ bool MathGtkWidget::on_key_press(GdkEvent *e){
     return true;
   }
   
-  if(ske.ctrl || ske.alt)
-    return false;
+//  if(ske.ctrl || ske.alt)
+//    return false;
   
   uint32_t unichar = gdk_keyval_to_unicode(event->keyval);
+  if(event->keyval == GDK_Return)
+    unichar = '\n';
+  
   if(unichar){
-    
     if((unichar == ' ' || unichar == '\r' || unichar == '\n')
     && (ske.ctrl || ske.alt || ske.shift))
       return false;
@@ -661,6 +669,23 @@ bool MathGtkWidget::on_leave_notify(GdkEvent *e){
   
   document()->mouse_exit();
   return false;
+}
+
+bool MathGtkWidget::on_scroll(GdkEvent *e){
+  GdkEventScroll *event = (GdkEventScroll*)e;
+  
+  float dx = 0;
+  float dy = 0;
+  switch(event->direction){
+    case GDK_SCROLL_UP:    dy = - 60; break;
+    case GDK_SCROLL_DOWN:  dy = + 60; break;
+    case GDK_SCROLL_LEFT:  dx = - 60; break;
+    case GDK_SCROLL_RIGHT: dx = + 60; break;
+  }
+  
+  scroll_by(dx, dy);
+  
+  return true;
 }
 
 gboolean MathGtkWidget::blink_caret(gpointer id_as_ptr){

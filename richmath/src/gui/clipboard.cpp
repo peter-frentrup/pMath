@@ -47,7 +47,7 @@ const char * const Clipboard::BoxesBinary = "application/x-pmath-boxes";
     info->success = info->self->add_binary(
       info->mimetype, 
       readable, 
-      (size_t)end - (size_t)readable);
+      (size_t)*writable - (size_t)readable);
   }
 
 bool OpenedClipboard::add_binary_file(String mimetype, Expr binfile){

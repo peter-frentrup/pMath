@@ -22,6 +22,14 @@
   #include <gui/gtk/mgtk-document-window.h>
 #endif
 
+
+#ifdef PMATH_OS_WIN32
+  #include <windows.h>
+#else
+  #include <pthread.h>
+#endif
+
+
 #include <gui/document.h>
 
 #include <eval/binding.h>
@@ -134,7 +142,6 @@ static Expr main_message_queue;
   }
   
 #ifdef RICHMATH_USE_WIN32_GUI
-  static DWORD main_thread_id = 0;
   static HWND hwnd_message = HWND_MESSAGE;
 
   class ClientInfoWindow: public BasicWin32Widget{
@@ -169,8 +176,11 @@ static Expr main_message_queue;
   static ClientInfoWindow info_window;
 #endif
 
-#ifdef RICHMATH_USE_GTK_GUI
-  static GThread *main_thread = 0;
+
+#ifdef PMATH_OS_WIN32
+  static DWORD main_thread_id = 0;
+#else
+  static pthread_t main_thread = 0;
 #endif
 
 
@@ -208,10 +218,10 @@ Expr Application::notify_wait(ClientNotificationType type, Expr data){
     return Symbol(PMATH_SYMBOL_FAILED);
   
   if(
-    #ifdef RICHMATH_USE_WIN32_GUI
+    #ifdef PMATH_OS_WIN32
       GetCurrentThreadId() == main_thread_id
-    #elif defined( RICHMATH_USE_GTK_GUI )
-      g_thread_self() == main_thread
+    #else
+      pthread_equal(pthread_self(), main_thread)
     #endif
   ){
     notify(type, data);
@@ -370,13 +380,14 @@ void Application::init(){
   main_message_queue = Expr(pmath_thread_get_queue());
   
   #ifdef RICHMATH_USE_WIN32_GUI
-  main_thread_id = GetCurrentThreadId();
   if(!info_window.hwnd())
     PostQuitMessage(1);
   #endif
   
-  #ifdef RICHMATH_USE_GTK_GUI
-  main_thread = g_thread_self();
+  #ifdef PMATH_OS_WIN32
+    main_thread_id = GetCurrentThreadId();
+  #else
+    main_thread = pthread_self();
   #endif
   
   // initializing application_filename and application_directory

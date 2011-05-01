@@ -328,6 +328,9 @@
 		<Unit filename="include\gui\gtk\basic-gtk-widget.h">
 			<Option target="Windows-Debug-Gtk" />
 		</Unit>
+		<Unit filename="include\gui\gtk\mgtk-clipboard.h">
+			<Option target="Windows-Debug-Gtk" />
+		</Unit>
 		<Unit filename="include\gui\gtk\mgtk-cursors.h">
 			<Option target="Windows-Debug-Gtk" />
 		</Unit>
@@ -498,6 +501,9 @@
 		<Unit filename="src\gui\control-painter.cpp" />
 		<Unit filename="src\gui\document.cpp" />
 		<Unit filename="src\gui\gtk\basic-gtk-widget.cpp">
+			<Option target="Windows-Debug-Gtk" />
+		</Unit>
+		<Unit filename="src\gui\gtk\mgtk-clipboard.cpp">
 			<Option target="Windows-Debug-Gtk" />
 		</Unit>
 		<Unit filename="src\gui\gtk\mgtk-cursors.cpp">
