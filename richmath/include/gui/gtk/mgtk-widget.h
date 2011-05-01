@@ -60,6 +60,8 @@ namespace richmath{
       void hadjustment(GtkAdjustment *ha);
       void vadjustment(GtkAdjustment *va);
       
+      GtkIMContext *im_context(){ return _im_context; }
+      
     public:
       bool _autohide_vertical_scrollbar;
       
@@ -76,13 +78,39 @@ namespace richmath{
       
       GtkAdjustment *_hadjustment;
       GtkAdjustment *_vadjustment;
+      GtkIMContext  *_im_context;
+      SelectionReference _im_context_pos;
     
+    private:
+      static void im_commit_callback(
+        GtkIMContext  *context, 
+        const char    *str, 
+        MathGtkWidget *self
+      ){
+        self->on_im_commit(str);
+      }
+      
+      static void im_preedit_changed_callback(
+        GtkIMContext  *context,
+        MathGtkWidget *self
+      ){
+        self->on_im_preedit_changed();
+      }
+      
     protected:
+      virtual void update_im_cursor_location();
+      
+      virtual void on_im_commit(const char *str);
+      virtual void on_im_preedit_changed();
+      
       virtual void paint_background(Canvas *canvas);
       virtual void paint_canvas(Canvas *canvas, bool resize_only);
       
+      virtual bool on_map(GdkEvent *e);
+      virtual bool on_unmap(GdkEvent *e);
       virtual bool on_expose(GdkEvent *e);
       virtual bool on_focus_in(GdkEvent *e);
+      virtual bool on_focus_out(GdkEvent *e);
       virtual bool on_key_press(GdkEvent *e);
       virtual bool on_key_release(GdkEvent *e);
       virtual bool on_button_press(GdkEvent *e);

@@ -47,11 +47,33 @@ MathGtkWidget::MathGtkWidget(Document *doc)
   is_blinking(false),
   old_width(0),
   _hadjustment(0),
-  _vadjustment(0)
+  _vadjustment(0),
+  _im_context(gtk_im_multicontext_new())
 {
+  g_signal_connect(_im_context, "commit",          G_CALLBACK(&MathGtkWidget::im_commit_callback),          this);
+  g_signal_connect(_im_context, "preedit_changed", G_CALLBACK(&MathGtkWidget::im_preedit_changed_callback), this);
+  
+  gtk_im_context_set_use_preedit(_im_context, FALSE);
 }
 
 MathGtkWidget::~MathGtkWidget(){
+  hadjustment(0);
+  vadjustment(0);
+  
+  g_signal_handlers_disconnect_matched(
+    _im_context, 
+    G_SIGNAL_MATCH_DATA,
+    0, 0, 0, 0,
+    this);
+  
+  g_signal_handlers_disconnect_matched(
+    _widget, 
+    G_SIGNAL_MATCH_DATA,
+    0, 0, 0, 0,
+    this);
+  
+  g_object_unref(_im_context);
+  _im_context = 0;
 }
 
 void MathGtkWidget::after_construction(){
@@ -64,11 +86,14 @@ void MathGtkWidget::after_construction(){
   signal_connect<MathGtkWidget, &MathGtkWidget::on_button_release>("button-release-event");
   signal_connect<MathGtkWidget, &MathGtkWidget::on_expose>(        "expose-event");
   signal_connect<MathGtkWidget, &MathGtkWidget::on_focus_in>(      "focus-in-event");
+  signal_connect<MathGtkWidget, &MathGtkWidget::on_focus_out>(     "focus-out-event");
   signal_connect<MathGtkWidget, &MathGtkWidget::on_key_press>(     "key-press-event");
   signal_connect<MathGtkWidget, &MathGtkWidget::on_key_release>(   "key-release-event");
   signal_connect<MathGtkWidget, &MathGtkWidget::on_motion_notify>( "motion-notify-event");
   signal_connect<MathGtkWidget, &MathGtkWidget::on_leave_notify>(  "leave-notify-event");
   signal_connect<MathGtkWidget, &MathGtkWidget::on_scroll>(        "scroll-event");
+  signal_connect<MathGtkWidget, &MathGtkWidget::on_map>(           "map-event");
+  signal_connect<MathGtkWidget, &MathGtkWidget::on_unmap>(         "unmap-event");
 }
 
 void MathGtkWidget::window_size(float *w, float *h){
@@ -210,7 +235,7 @@ bool MathGtkWidget::cursor_position(float *x, float *y){
 
 void MathGtkWidget::invalidate(){
   is_painting = false; // if inside "expose" event, invalidate at end of event
-   
+  
   gtk_widget_queue_draw(_widget);
 }
 
@@ -274,9 +299,10 @@ bool MathGtkWidget::register_timed_event(SharedPtr<TimedEvent> event){
 
 void MathGtkWidget::hadjustment(GtkAdjustment *ha){
   if(_hadjustment){
-    g_signal_handlers_disconnect_by_func(
-      _hadjustment,
-      (void*)adjustment_value_changed,
+    g_signal_handlers_disconnect_matched(
+      _hadjustment, 
+      G_SIGNAL_MATCH_DATA,
+      0, 0, 0, 0,
       this);
       
     g_object_unref(_hadjustment);
@@ -292,9 +318,10 @@ void MathGtkWidget::hadjustment(GtkAdjustment *ha){
 
 void MathGtkWidget::vadjustment(GtkAdjustment *va){
   if(_vadjustment){
-    g_signal_handlers_disconnect_by_func(
-      _vadjustment,
-      (void*)adjustment_value_changed,
+    g_signal_handlers_disconnect_matched(
+      _vadjustment, 
+      G_SIGNAL_MATCH_DATA,
+      0, 0, 0, 0,
       this);
       
     g_object_unref(_vadjustment);
@@ -308,6 +335,45 @@ void MathGtkWidget::vadjustment(GtkAdjustment *va){
   
   invalidate();
 }
+
+void MathGtkWidget::update_im_cursor_location(){
+  GdkRectangle area;
+  
+  float x1 = document_context()->last_cursor_x[0];
+  float x2 = document_context()->last_cursor_x[1];
+  float y1 = document_context()->last_cursor_y[0];
+  float y2 = document_context()->last_cursor_y[1];
+  
+  if(x2 < x1){
+    float t = x2;
+    x2 = x1;
+    x1 = t;
+  }
+  
+  if(y2 < y1){
+    float t = y2;
+    y2 = y1;
+    y1 = t;
+  }
+  
+  float sx, sy;
+  scroll_pos(&sx, &sy);
+  
+  area.x      = (int)((sx + x1) * scale_factor());
+  area.y      = (int)((sy + y1) * scale_factor());
+  area.width  = (int)ceilf((x2 - x1) * scale_factor());
+  area.height = (int)ceilf((y2 - y1) * scale_factor());
+  
+  gtk_im_context_set_cursor_location(_im_context, &area);
+}
+
+void MathGtkWidget::on_im_commit(const char *str){
+  document()->insert_string(String::FromUtf8(str), false);
+}
+
+void MathGtkWidget::on_im_preedit_changed(){
+}
+
 
 void MathGtkWidget::paint_background(Canvas *canvas){
   canvas->set_color(0xffffff);
@@ -396,7 +462,18 @@ void MathGtkWidget::paint_canvas(Canvas *canvas, bool resize_only){
     }
   }
 }
-  
+
+bool MathGtkWidget::on_map(GdkEvent *e){
+  gtk_im_context_set_client_window(_im_context, gtk_widget_get_window(_widget));
+  return false;
+}
+
+bool MathGtkWidget::on_unmap(GdkEvent *e){
+  gtk_im_context_reset(_im_context);
+  gtk_im_context_set_client_window(_im_context, 0);
+  return false;
+}
+
 bool MathGtkWidget::on_expose(GdkEvent *e){
   GdkEventExpose *event = &e->expose;
   
@@ -421,6 +498,13 @@ bool MathGtkWidget::on_expose(GdkEvent *e){
     canvas.clip();
     
     paint_canvas(&canvas, false);
+    
+    if(_im_context_pos != document_context()->selection){
+      _im_context_pos = document_context()->selection;
+      gtk_im_context_reset(_im_context);
+    }
+    else
+      update_im_cursor_location();
   }
   cairo_destroy(cr);
   
@@ -441,12 +525,19 @@ bool MathGtkWidget::on_focus_in(GdkEvent *e){
     set_current_document(document());
   }
   
-  if(document()->selection_box()
-  && document()->selection_length() == 0){
+  gtk_im_context_focus_in(_im_context);
+  
+  if(document()->selection_length() == 0){
     invalidate();
   }
   
-  return true;
+  return false;
+}
+
+bool MathGtkWidget::on_focus_out(GdkEvent *e){
+  gtk_im_context_focus_out(_im_context);
+  
+  return false;
 }
 
   static SpecialKey keyval_to_special_key(guint keyval){
@@ -484,6 +575,10 @@ bool MathGtkWidget::on_key_press(GdkEvent *e){
   GdkEventKey *event = &e->key;
   GdkModifierType mod = (GdkModifierType)0;
   
+  if(gtk_im_context_filter_keypress(_im_context, event)){
+    return true;
+  }
+  
   {
     GdkWindow *w = gtk_widget_get_window(_widget);
     
@@ -498,7 +593,7 @@ bool MathGtkWidget::on_key_press(GdkEvent *e){
   if(ske.key){
     if(ske.key != KeyReturn || ske.ctrl || ske.alt || ske.shift){
       document()->key_down(ske);
-      return true;
+      //return true;
     }
   }
   
@@ -538,6 +633,10 @@ bool MathGtkWidget::on_key_press(GdkEvent *e){
 bool MathGtkWidget::on_key_release(GdkEvent *e){
   GdkEventKey *event = &e->key;
   GdkModifierType mod = (GdkModifierType)0;
+  
+  if(gtk_im_context_filter_keypress(_im_context, event)){
+    return true;
+  }
   
   {
     GdkWindow *w = gtk_widget_get_window(_widget);
@@ -589,8 +688,18 @@ bool MathGtkWidget::on_button_press(GdkEvent *e){
     if(cur && cur != document()){
       MathGtkWidget *w = dynamic_cast<MathGtkWidget*>(cur->native());
       
-      if(w && !gtk_widget_has_focus(w->widget()))
+      if(w && !gtk_widget_has_focus(w->widget())){
+        
+        GtkWidget *wid = w->widget();
+        GtkWidget *parent = gtk_widget_get_parent(wid);
+        while(parent){
+          wid = parent;
+          parent = gtk_widget_get_parent(wid);
+        }
+        gtk_widget_grab_focus(wid);
+        
         gtk_widget_grab_focus(w->widget());
+      }
     }
   }
   
@@ -673,6 +782,14 @@ bool MathGtkWidget::on_leave_notify(GdkEvent *e){
 
 bool MathGtkWidget::on_scroll(GdkEvent *e){
   GdkEventScroll *event = (GdkEventScroll*)e;
+  
+  if(event->state & GDK_CONTROL_MASK){
+    if(event->direction == GDK_SCROLL_UP)
+      scale_by(pow(2, 0.5));
+    else if(event->direction == GDK_SCROLL_DOWN)
+      scale_by(pow(2, -0.5));
+    return true;
+  }
   
   float dx = 0;
   float dy = 0;

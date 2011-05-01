@@ -32,6 +32,7 @@ FE`Private`shortcuts:= {
 	Item(KeyEvent("-", {KeyControl}),               "InsertSubscript"),
 	Item(KeyEvent("6", {KeyControl}),               "InsertSuperscript"),
 	Item(KeyEvent("^", {KeyControl}),               "InsertSuperscript"),
+	/* Item(KeyEvent("\ufe52", {KeyControl}),          "InsertSuperscript"), / * GDK_dead_circumflex, does not yet work :( */
 	Item(KeyEvent("7", {KeyControl}),               "InsertOverscript"),
 	Item(KeyEvent("+", {KeyControl}),               "InsertUnderscript"),
 	Item(KeyEvent("5", {KeyControl}),               "InsertOpposite"),

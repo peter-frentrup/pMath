@@ -102,7 +102,7 @@ namespace richmath{
       void paste_from_binary(String mimetype, Expr file);
       void paste_from_clipboard();
       
-      void insert_string(String text);
+      void insert_string(String text, bool autoformat = true);
       void insert_box(Box *box, bool handle_placeholder = false); // deletes the box
       void insert_fraction();
       void insert_matrix_column();

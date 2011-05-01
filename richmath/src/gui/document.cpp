@@ -1950,6 +1950,7 @@ void Document::copy_to_binary(String mimetype, Expr file){
   }
   
   String text = copy_to_text(mimetype);
+  // pmath_file_write(file.get(), text.buffer(), 2 * (size_t)text.length());
   pmath_file_writetext(file.get(), text.buffer(), text.length());
 }
 
@@ -2170,7 +2171,7 @@ void Document::paste_from_clipboard(){
   native()->beep();
 }
 
-void Document::insert_string(String text){
+void Document::insert_string(String text, bool autoformat){
   const uint16_t *buf = text.buffer();
   int             len = text.length();
   
@@ -2195,54 +2196,53 @@ void Document::insert_string(String text){
     return;
   }
   
-  if(is_inside_string()){
-    bool have_sth_to_escape = false;
-    
-    for(int i = 0;i < len;++i){
-      if(buf[i] < ' ' || buf[i] == '"' || buf[i] == '\\'){
-        have_sth_to_escape = true;
-        break;
-      }
-    }
-    
-    // todo: ask user ...
-    
-    if(have_sth_to_escape){
-      char insbuf[5] = {'\\', 'x', '0', '0', '\0'};
-      const char *ins = insbuf;
+  if(autoformat){
+    if(is_inside_string()){
+      bool have_sth_to_escape = false;
       
       for(int i = 0;i < len;++i){
-        switch(buf[i]){
-          case '\t': ins = "\\t"; break;
-          case '\n': ins = "\\n"; break;
-          case '\r': ins = "\\r"; break;
-          case '\\': ins = "\\\\"; break;
-          case '\"': ins = "\\\""; break;
-          
-          default:
-            if(buf[i] < ' '){
-              static const char *hex = "0123456789ABCDEF";
-              
-              insbuf[2] = hex[(buf[i] & 0xF0) >> 4];
-              insbuf[3] = hex[ buf[i] & 0x0F];
-              ins = insbuf;
-            }
-            else
-              continue;
+        if(buf[i] < ' ' || buf[i] == '"' || buf[i] == '\\'){
+          have_sth_to_escape = true;
+          break;
         }
+      }
+      
+      // todo: ask user ...
+      
+      if(have_sth_to_escape){
+        char insbuf[5] = {'\\', 'x', '0', '0', '\0'};
+        const char *ins = insbuf;
         
-        int il = strlen(ins);
-        text.remove(i, 1);
-        text.insert(i, ins, il);
-        buf = text.buffer();
-        len = text.length();
-        i+= il - 1;
+        for(int i = 0;i < len;++i){
+          switch(buf[i]){
+            case '\t': ins = "\\t"; break;
+            case '\n': ins = "\\n"; break;
+            case '\r': ins = "\\r"; break;
+            case '\\': ins = "\\\\"; break;
+            case '\"': ins = "\\\""; break;
+            
+            default:
+              if(buf[i] < ' '){
+                static const char *hex = "0123456789ABCDEF";
+                
+                insbuf[2] = hex[(buf[i] & 0xF0) >> 4];
+                insbuf[3] = hex[ buf[i] & 0x0F];
+                ins = insbuf;
+              }
+              else
+                continue;
+          }
+          
+          int il = strlen(ins);
+          text.remove(i, 1);
+          text.insert(i, ins, il);
+          buf = text.buffer();
+          len = text.length();
+          i+= il - 1;
+        }
       }
     }
-  }
-  
-  if(len > 0){
-    if(!is_inside_string()){ // remove space characters ...
+    else if(len > 0){ // remove space characters ...
       static Array<bool> del;
       
       del.length(len);
@@ -2343,11 +2343,13 @@ void Document::insert_string(String text){
       buf = text.buffer();
       len = text.length();
     }
-    
+  }
+  
+  if(len > 0){
     MathSequence *seq = new MathSequence;
     seq->insert(0, text);
     
-    if(!is_inside_string()){ // replace tokens from global_immediate_macros ...
+    if(autoformat && !is_inside_string()){ // replace tokens from global_immediate_macros ...
       seq->ensure_spans_valid();
       const SpanArray &spans = seq->span_array();
       

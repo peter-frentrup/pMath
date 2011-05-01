@@ -48,6 +48,11 @@ class richmath::MathGtkWorkingArea: public MathGtkWidget{
     }
     
   protected:
+    virtual void paint_background(Canvas *canvas){
+      if(!_parent->is_palette())
+        MathGtkWidget::paint_background(canvas);
+    }
+    
     void rearrange(){
       if(_parent->is_palette()){
         GtkAllocation rect;
@@ -135,8 +140,6 @@ class richmath::MathGtkDock: public MathGtkWidget{
     }
     
     virtual void paint_background(Canvas *canvas){
-      canvas->set_color(0x808080);
-      canvas->paint();
     }
     
     void rearrange(){
@@ -331,6 +334,7 @@ void MathGtkDocumentWindow::is_palette(bool value){
   
   gtk_widget_set_visible(_menu_bar, !value);
   
+  _working_area->document()->border_visible = !value;
   _working_area->_autohide_vertical_scrollbar = value;
   _working_area->invalidate();
   
