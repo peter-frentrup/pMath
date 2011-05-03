@@ -232,7 +232,7 @@ static bool set_accel_key(Expr expr, guint *accel_key, GdkModifierType *accel_mo
     if(ch >= 'A' && ch <= 'Z')
       ch-= 'A' - 'a';
     
-    *accel_key = ch;
+    *accel_key = gdk_unicode_to_keyval(ch);
     return true;
   }
   
@@ -304,7 +304,8 @@ void MathGtkAccelerators::load(Expr expr){
     if(item[0] == GetSymbol(ItemSymbol)
     && item.expr_length() == 2
     && cmd.length() > 0
-    && set_accel_key(item[1], &accel_key, &accel_mod)){
+    && set_accel_key(item[1], &accel_key, &accel_mod)
+    && gtk_accelerator_valid(accel_key, accel_mod)){
       String accel_path(accel_path_prefix);
       accel_path+= cmd;
       

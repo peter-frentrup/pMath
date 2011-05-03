@@ -1,6 +1,7 @@
 #include <gui/gtk/mgtk-widget.h>
 
 #include <eval/binding.h>
+#include <gui/gtk/mgtk-clipboard.h>
 
 #include <glib.h>
 #include <gdk/gdkkeysyms.h>
@@ -37,19 +38,47 @@ static gboolean animation_timeout(gpointer data){
   return animation_running; // continue ? 
 }
 
+static Array<const char*> drag_mime_types; // index is the info parameter
+static GtkTargetList *drop_targets;
+
+static void add_remove_widget(int delta){
+  static int widget_count = 0;
+  
+  if(widget_count == 0){
+    drag_mime_types.add(Clipboard::BoxesText);
+    drag_mime_types.add(Clipboard::PlainText);
+    
+    drop_targets = gtk_target_list_new(NULL, 0);
+    for(int i = 0;i < drag_mime_types.length();++i){
+      MathGtkClipboard::add_to_target_list(drop_targets, drag_mime_types[i], i);
+    }
+  }
+  
+  widget_count+= delta;
+  
+  if(widget_count == 0){
+    drag_mime_types.length(0);
+    gtk_target_list_unref(drop_targets);
+    drop_targets = 0;
+  }
+}
+
 //{ class MGtkWidget ...
 
 MathGtkWidget::MathGtkWidget(Document *doc)
 : NativeWidget(doc),
   BasicGtkWidget(),
   _autohide_vertical_scrollbar(false),
+  _mouse_down_button(0),
   is_painting(false),
   is_blinking(false),
+  ignore_key_release(true),
   old_width(0),
   _hadjustment(0),
   _vadjustment(0),
   _im_context(gtk_im_multicontext_new())
 {
+  add_remove_widget(+1);
   g_signal_connect(_im_context, "commit",          G_CALLBACK(&MathGtkWidget::im_commit_callback),          this);
   g_signal_connect(_im_context, "preedit_changed", G_CALLBACK(&MathGtkWidget::im_preedit_changed_callback), this);
   
@@ -74,6 +103,8 @@ MathGtkWidget::~MathGtkWidget(){
   
   g_object_unref(_im_context);
   _im_context = 0;
+  
+  add_remove_widget(-1);
 }
 
 void MathGtkWidget::after_construction(){
@@ -94,6 +125,23 @@ void MathGtkWidget::after_construction(){
   signal_connect<MathGtkWidget, &MathGtkWidget::on_scroll>(        "scroll-event");
   signal_connect<MathGtkWidget, &MathGtkWidget::on_map>(           "map-event");
   signal_connect<MathGtkWidget, &MathGtkWidget::on_unmap>(         "unmap-event");
+  
+  g_signal_connect(_widget, "drag-data-delete",   G_CALLBACK(drag_data_delete_callback),   this);
+  g_signal_connect(_widget, "drag-data-get",      G_CALLBACK(drag_data_get_callback),      this);
+  g_signal_connect(_widget, "drag-data-received", G_CALLBACK(drag_data_received_callback), this);
+  g_signal_connect(_widget, "drag-end",           G_CALLBACK(drag_end_callback),           this);
+  g_signal_connect(_widget, "drag-motion",        G_CALLBACK(drag_motion_callback),        this);
+  g_signal_connect(_widget, "drag-drop",          G_CALLBACK(drag_drop_callback),          this);
+  
+  int len;
+  GtkTargetEntry *table = gtk_target_table_new_from_list(drop_targets, &len);
+  gtk_drag_dest_set(
+    _widget, 
+    (GtkDestDefaults)0,
+    table,
+    len,
+    (GdkDragAction)(GDK_ACTION_COPY | GDK_ACTION_MOVE));
+  gtk_target_table_free(table, len);
 }
 
 void MathGtkWidget::window_size(float *w, float *h){
@@ -208,10 +256,26 @@ void MathGtkWidget::double_click_dist(float *dx, float *dy){
 }
 
 void MathGtkWidget::do_drag_drop(Box *src, int start, int end){
-  if(!_widget)
+  GdkEvent *event = gtk_get_current_event();
+  
+  if(!src)
     return;
   
-  // todo: implement gtk drag&drop
+  drag_source_reference().set(src, start, end);
+  
+  GdkDragContext *context;
+  unsigned actions = GDK_ACTION_COPY;
+  if(src->get_style(Editable))
+    actions|= GDK_ACTION_MOVE;
+  
+  context = gtk_drag_begin(
+    _widget, 
+    drop_targets, 
+    (GdkDragAction)actions, 
+    _mouse_down_button, 
+    event);
+  
+  gtk_drag_set_icon_default(context);
 }
 
 bool MathGtkWidget::cursor_position(float *x, float *y){
@@ -374,6 +438,215 @@ void MathGtkWidget::on_im_commit(const char *str){
 void MathGtkWidget::on_im_preedit_changed(){
 }
 
+void MathGtkWidget::on_drag_data_get(
+  GdkDragContext   *context, 
+  GtkSelectionData *data, 
+  guint             info,
+  guint             time
+){
+  Document *doc = document();
+  Box *srcbox = drag_source_reference().get();
+  
+  if(info >= (unsigned)drag_mime_types.length())
+    return;
+  
+  if(!srcbox)
+    return;
+  
+  int  old_s = doc->selection_start();
+  int  old_e = doc->selection_end();
+  Box *old_b = doc->selection_box();
+  
+  doc->select(srcbox, drag_source_reference().start, drag_source_reference().end);
+  String text = doc->copy_to_text(drag_mime_types[info]);
+  
+  int len;
+  char *str = pmath_string_to_utf8(text.get(), &len);
+  GdkAtom target = MathGtkClipboard::mimetype_to_atom(drag_mime_types[info]);
+  gtk_selection_data_set(data, target, 8, (const guchar*)str, len);
+  pmath_mem_free(str);
+  
+  doc->select(old_b, old_s, old_e);
+}
+
+void MathGtkWidget::on_drag_data_delete(GdkDragContext *context){
+  Document *doc = document();
+  Box *srcbox = drag_source_reference().get();
+  
+  if(!srcbox)
+    return;
+  
+  int  old_s = doc->selection_start();
+  int  old_e = doc->selection_end();
+  Box *old_b = doc->selection_box();
+  
+  int s = drag_source_reference().start;
+  int e = drag_source_reference().end;
+  doc->select(srcbox, s, e);
+  doc->remove_selection();
+  
+  if(srcbox == old_b && doc->selection_box() == srcbox){
+    if(old_s >= e)
+      old_s-= e-s;
+    if(old_e >= e)
+      old_e-= e-s;
+  }
+  
+  doc->select(old_b, old_s, old_e);
+  
+  drag_source_reference().reset();
+}
+
+void MathGtkWidget::on_drag_data_received(
+  GdkDragContext   *context, 
+  int               x, 
+  int               y, 
+  GtkSelectionData *data, 
+  guint             info, 
+  guint             time
+){
+  float fx = x / scale_factor();
+  float fy = y / scale_factor();
+  float sx, sy;
+  scroll_pos(&sx, &sy);
+  fx+= sx;
+  fy+= sy;
+  
+  if(info >= (unsigned)drag_mime_types.length()){
+    gtk_drag_finish(context, FALSE, FALSE, time);
+    return;
+  }
+  
+  GtkWidget *source_widget = gtk_drag_get_source_widget(context);
+  
+  int start, end;
+  bool was_inside_start;
+  Box *dst = document()->mouse_selection(fx, fy, &start, &end, &was_inside_start);
+  
+  if(!may_drop_into(dst, start, end, source_widget == _widget)){
+    gtk_drag_finish(context, FALSE, FALSE, time);
+    return;
+  }
+  
+  String mimetype(drag_mime_types[info]);
+  const char *raw_data = (const char*)gtk_selection_data_get_data(data);
+  int         len      =              gtk_selection_data_get_length(data);
+  if(!raw_data){
+    gtk_drag_finish(context, FALSE, FALSE, time);
+    return;
+  }
+  String text = String::FromUtf8(raw_data, len);
+  
+  document()->select(dst, start, end);
+  document()->paste_from_text(mimetype, text);
+  
+  Box *newbox = document()->selection_box();
+  int newend  = document()->selection_start();
+  
+  if(dst == newbox){
+    document()->select(newbox, start, newend);
+    
+    Box *src = drag_source_reference().get();
+    if(src == dst){
+      int s = drag_source_reference().start;
+      int e = drag_source_reference().end;
+
+      if(s >= end)
+        s+= newend-end;
+      if(e >= end)
+        e+= newend-end;
+      
+      drag_source_reference().start = s;
+      drag_source_reference().end   = e;
+    }
+  }
+    
+  gtk_drag_finish(context, TRUE, context->action == GDK_ACTION_MOVE, time);
+}
+
+void MathGtkWidget::on_drag_end(GdkDragContext *context){
+  drag_source_reference().reset();
+}
+
+bool MathGtkWidget::on_drag_motion(GdkDragContext *context, int x, int y, guint time){
+  MouseEvent me;
+  me.left   = false;
+  me.middle = false;
+  me.right  = false;
+  
+  me.x = x;
+  me.y = y;
+  
+  me.x/= scale_factor();
+  me.y/= scale_factor();
+  
+  float sx, sy;
+  scroll_pos(&sx, &sy);
+  me.x+= sx;
+  me.y+= sy;
+  
+  handle_mouse_move(me);
+  
+  GtkWidget *source_widget = gtk_drag_get_source_widget(context);
+  
+  int start, end;
+  bool was_inside_start;
+  Box *dst = document()->mouse_selection(me.x, me.y, &start, &end, &was_inside_start);
+  
+  document()->select(dst, start, end);
+  if(!may_drop_into(dst, start, end, source_widget == _widget))
+    return false;
+  
+  int action = 0;
+  
+  GdkAtom target = gtk_drag_dest_find_target(_widget, context, NULL);
+  if(target != GDK_NONE){
+    GdkModifierType mask;
+    gdk_window_get_pointer(gtk_widget_get_window(_widget), NULL, NULL, &mask);
+    
+    action = context->suggested_action;
+    if(mask & GDK_CONTROL_MASK)
+      action = context->actions & GDK_ACTION_COPY;
+    else if(mask & GDK_SHIFT_MASK)
+      action = context->actions & GDK_ACTION_MOVE;
+      
+    GtkWidget *source_widget = gtk_drag_get_source_widget(context);
+    if(source_widget == _widget 
+    && (context->actions & GDK_ACTION_MOVE) != 0)
+      action = GDK_ACTION_MOVE;
+  }
+  
+  gdk_drag_status(context, (GdkDragAction)action, time);
+  
+  return true;
+}
+
+bool MathGtkWidget::on_drag_drop(GdkDragContext *context, int x, int y, guint time){
+  float fx = x / scale_factor();
+  float fy = y / scale_factor();
+  
+  float sx, sy;
+  scroll_pos(&sx, &sy);
+  fx+= sx;
+  fy+= sy;
+  
+  GtkWidget *source_widget = gtk_drag_get_source_widget(context);
+  
+  int start, end;
+  bool was_inside_start;
+  Box *dst = document()->mouse_selection(fx, fy, &start, &end, &was_inside_start);
+  
+  if(!may_drop_into(dst, start, end, source_widget == _widget))
+    return false;
+  
+  GdkAtom target = gtk_drag_dest_find_target(_widget, context, NULL);
+  if(target != GDK_NONE)
+    gtk_drag_get_data(_widget, context, target, time);
+  else
+    gtk_drag_finish(context, FALSE, FALSE, time);
+
+  return true;
+}
 
 void MathGtkWidget::paint_background(Canvas *canvas){
   canvas->set_color(0xffffff);
@@ -463,6 +736,16 @@ void MathGtkWidget::paint_canvas(Canvas *canvas, bool resize_only){
   }
 }
 
+void MathGtkWidget::handle_mouse_move(MouseEvent &event){
+  mouse_moving = true;
+  cursor = DefaultCursor;
+  
+  document()->mouse_move(event);
+  
+  mouse_moving = false;
+  set_cursor(cursor);
+}
+
 bool MathGtkWidget::on_map(GdkEvent *e){
   gtk_im_context_set_client_window(_im_context, gtk_widget_get_window(_widget));
   return false;
@@ -535,7 +818,8 @@ bool MathGtkWidget::on_focus_in(GdkEvent *e){
 }
 
 bool MathGtkWidget::on_focus_out(GdkEvent *e){
-  gtk_im_context_focus_out(_im_context);
+  if(_im_context)
+    gtk_im_context_focus_out(_im_context);
   
   return false;
 }
@@ -575,9 +859,29 @@ bool MathGtkWidget::on_key_press(GdkEvent *e){
   GdkEventKey *event = &e->key;
   GdkModifierType mod = (GdkModifierType)0;
   
-  if(gtk_im_context_filter_keypress(_im_context, event)){
-    return true;
+  ignore_key_release = false;
+  
+  GtkWidget *wid = _widget;
+  while(wid && !GTK_IS_WINDOW(wid))
+    wid = gtk_widget_get_parent(wid);
+  
+  if(wid){
+    guint keyval = 0;
+    
+    switch(event->keyval){
+      case GDK_dead_grave:      keyval = GDK_grave;       break;
+      case GDK_dead_circumflex: keyval = GDK_asciicircum; break;
+    }
+    
+    if(keyval 
+    && gtk_accel_groups_activate(G_OBJECT(wid), keyval, (GdkModifierType)event->state)){
+      ignore_key_release = true;
+      return true;
+    }
   }
+  
+  if(gtk_im_context_filter_keypress(_im_context, event))
+    return true;
   
   {
     GdkWindow *w = gtk_widget_get_window(_widget);
@@ -609,8 +913,8 @@ bool MathGtkWidget::on_key_press(GdkEvent *e){
     return true;
   }
   
-//  if(ske.ctrl || ske.alt)
-//    return false;
+  if(ske.ctrl || (ske.alt && !ske.shift))
+    return false;
   
   uint32_t unichar = gdk_keyval_to_unicode(event->keyval);
   if(event->keyval == GDK_Return)
@@ -634,9 +938,11 @@ bool MathGtkWidget::on_key_release(GdkEvent *e){
   GdkEventKey *event = &e->key;
   GdkModifierType mod = (GdkModifierType)0;
   
-  if(gtk_im_context_filter_keypress(_im_context, event)){
+  if(ignore_key_release)
     return true;
-  }
+  
+  if(gtk_im_context_filter_keypress(_im_context, event))
+    return true;
   
   {
     GdkWindow *w = gtk_widget_get_window(_widget);
@@ -661,6 +967,8 @@ bool MathGtkWidget::on_button_press(GdkEvent *e){
   
   if(event->type != GDK_BUTTON_PRESS)
     return true;
+  
+  _mouse_down_button = event->button;
   
   MouseEvent me;
   me.left   = event->button == 1;
@@ -708,6 +1016,8 @@ bool MathGtkWidget::on_button_press(GdkEvent *e){
 
 bool MathGtkWidget::on_button_release(GdkEvent *e){
   GdkEventButton *event = (GdkEventButton*)e;
+  
+  _mouse_down_button = 0;
   
   MouseEvent me;
   me.left   = event->button == 1;
@@ -763,13 +1073,7 @@ bool MathGtkWidget::on_motion_notify(GdkEvent *e){
   me.x+= sx;
   me.y+= sy;
   
-  mouse_moving = true;
-  cursor = DefaultCursor;
-  
-  document()->mouse_move(me);
-  
-  mouse_moving = false;
-  set_cursor(cursor);
+  handle_mouse_move(me);
   return true;
 }
 

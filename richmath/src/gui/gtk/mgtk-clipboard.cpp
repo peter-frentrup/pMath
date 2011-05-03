@@ -96,12 +96,7 @@ namespace{
           return false;
         unsigned info = clipboard_data->add((const char*)data, (int)size);
         
-        if(mimetype.equals(Clipboard::PlainText)){
-          gtk_target_list_add_text_targets(targets, info);
-        }
-        else{
-          gtk_target_list_add(targets, MathGtkClipboard::mimetype_to_atom(mimetype), 0, info);
-        }
+        MathGtkClipboard::add_to_target_list(targets, mimetype, info);
         
         return true;
       }
@@ -161,10 +156,12 @@ Expr MathGtkClipboard::read_as_binary_file(String mimetype){
   if(!data)
     return Expr();
   
-  size_t size = (size_t)gtk_selection_data_get_length(data);
+  int size = gtk_selection_data_get_length(data);
+  if(size < 0)
+    return Expr();
   
-  Expr result(pmath_file_create_binary_buffer(size));
-  pmath_file_write(result.get(), gtk_selection_data_get_data(data), size);
+  Expr result(pmath_file_create_binary_buffer((size_t)size));
+  pmath_file_write(result.get(), gtk_selection_data_get_data(data), (size_t)size);
   
   gtk_selection_data_free(data);
   return result;
@@ -212,6 +209,15 @@ GdkAtom MathGtkClipboard::mimetype_to_atom(String mimetype){
   pmath_mem_free(str);
   
   return atom;
+}
+
+void MathGtkClipboard::add_to_target_list(GtkTargetList *targets, String mimetype, int info){
+  if(mimetype.equals(Clipboard::PlainText)){
+    gtk_target_list_add_text_targets(targets, info);
+  }
+  else{
+    gtk_target_list_add(targets, mimetype_to_atom(mimetype), 0, info);
+  }  
 }
 
 //} ... class MathGtkClipboard

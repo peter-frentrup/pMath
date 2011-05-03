@@ -26,6 +26,7 @@ namespace richmath{
       virtual SharedPtr<OpenedClipboard> open_write();
       
       static GdkAtom mimetype_to_atom(String mimetype);
+      static void add_to_target_list(GtkTargetList *targets, String mimetype, int info);
       
       GtkClipboard *clipboard();
       

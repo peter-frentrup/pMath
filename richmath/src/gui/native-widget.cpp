@@ -108,6 +108,54 @@ void NativeWidget::set_scale(float s){
     _document->invalidate_all();
 }
 
+bool NativeWidget::may_drop_into(Box *dst, int start, int end, bool self_is_source){
+  if(!dst || !dst->get_style(Editable) || !dst->selectable(start))
+    return false;
+  
+  if(self_is_source){
+    Box *src = drag_source_reference().get();
+    
+    if(src){
+      Box *box = Box::common_parent(src, dst);
+      
+      if(box == src){
+        int s = start;
+        int e = end;
+        box = dst;
+        
+        if(box == src
+        && s <= drag_source_reference().end && e >= drag_source_reference().start)
+          return false;
+        
+        while(box != src){
+          s = box->index();
+          e = s + 1;
+          box = box->parent();
+        }
+        
+        if(s < drag_source_reference().end && e > drag_source_reference().start)
+          return false;
+      }
+      else if(box == dst){
+        int s = drag_source_reference().start;
+        int e = drag_source_reference().end;
+        box = src;
+        
+        while(box != dst){
+          s = box->index();
+          e = s + 1;
+          box = box->parent();
+        }
+        
+        if(s < end && e > start)
+          return false;
+      }
+    }
+  }
+  
+  return true;
+}
+
 CursorType NativeWidget::text_cursor(float dx, float dy){
   int part = (int)floor(atan2(dx, dy) * 4 / M_PI + 0.5);
   if(part == -4)

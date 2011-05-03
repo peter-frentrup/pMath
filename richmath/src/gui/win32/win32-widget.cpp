@@ -1108,49 +1108,8 @@ DWORD Win32Widget::drop_effect(DWORD key_state, POINTL ptl, DWORD allowed_effect
   bool was_inside_start;
   Box *dst = document()->mouse_selection(x, y, &start, &end, &was_inside_start);
   
-  if(!dst || !dst->get_style(Editable) || !dst->selectable(start))
+  if(!may_drop_into(dst, start, end, is_dragging))
     return DROPEFFECT_NONE;
-  
-  if(is_dragging){
-    Box *src = drag_source_reference().get();
-    
-    if(src){
-      Box *box = Box::common_parent(src, dst);
-      
-      if(box == src){
-        int s = start;
-        int e = end;
-        box = dst;
-        
-        if(box == src
-        && s <= drag_source_reference().end && e >= drag_source_reference().start)
-          return DROPEFFECT_NONE;
-        
-        while(box != src){
-          s = box->index();
-          e = s + 1;
-          box = box->parent();
-        }
-        
-        if(s < drag_source_reference().end && e > drag_source_reference().start)
-          return DROPEFFECT_NONE;
-      }
-      else if(box == dst){
-        int s = drag_source_reference().start;
-        int e = drag_source_reference().end;
-        box = src;
-        
-        while(box != dst){
-          s = box->index();
-          e = s + 1;
-          box = box->parent();
-        }
-        
-        if(s < end && e > start)
-          return DROPEFFECT_NONE;
-      }
-    }
-  }
   
   return BasicWin32Widget::drop_effect(key_state, ptl, allowed_effects);
 }

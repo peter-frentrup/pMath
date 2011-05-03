@@ -64,13 +64,17 @@ namespace richmath{
       
     public:
       bool _autohide_vertical_scrollbar;
-      
+    
+    protected:
+      int _mouse_down_button;
+    
     private:
       CursorType cursor;
       bool mouse_moving;
       
       bool is_painting;
       bool is_blinking;
+      bool ignore_key_release;
       
       int old_width;
       
@@ -97,14 +101,84 @@ namespace richmath{
         self->on_im_preedit_changed();
       }
       
+      static void drag_data_get_callback(
+        GtkWidget        *widget,
+        GdkDragContext   *drag_context,
+        GtkSelectionData *data,
+        guint             info,
+        guint             time,
+        MathGtkWidget    *self
+      ){
+        self->on_drag_data_get(drag_context, data, info, time);
+      }
+      
+      static void drag_data_delete_callback(
+        GtkWidget      *widget,
+        GdkDragContext *drag_context,
+        MathGtkWidget  *self
+      ){
+        self->on_drag_data_delete(drag_context);
+      }
+      
+      static void drag_data_received_callback(
+        GtkWidget        *widget,
+        GdkDragContext   *drag_context,
+        gint              x,
+        gint              y,
+        GtkSelectionData *data,
+        guint             info,
+        guint             time,
+        MathGtkWidget    *self
+      ){
+        return self->on_drag_data_received(drag_context, x, y, data, info, time);
+      }
+      
+      static void drag_end_callback(
+        GtkWidget      *widget,
+        GdkDragContext *drag_context,
+        MathGtkWidget  *self
+      ){
+        self->on_drag_end(drag_context);
+      }
+      
+      static gboolean drag_motion_callback(
+        GtkWidget      *widget,
+        GdkDragContext *drag_context,
+        gint            x,
+        gint            y,
+        guint           time,
+        MathGtkWidget  *self
+      ){
+        return self->on_drag_motion(drag_context, x, y, time);
+      }
+      
+      static gboolean drag_drop_callback(
+        GtkWidget      *widget,
+        GdkDragContext *drag_context,
+        gint            x,
+        gint            y,
+        guint           time,
+        MathGtkWidget  *self
+      ){
+        return self->on_drag_drop(drag_context, x, y, time);
+      }
+      
     protected:
       virtual void update_im_cursor_location();
       
       virtual void on_im_commit(const char *str);
       virtual void on_im_preedit_changed();
       
+      virtual void on_drag_data_get(GdkDragContext *context, GtkSelectionData *data, guint info, guint time);
+      virtual void on_drag_data_delete(GdkDragContext *context);
+      virtual void on_drag_data_received(GdkDragContext *context, int x, int y, GtkSelectionData *data, guint info, guint time);
+      virtual void on_drag_end(GdkDragContext *context);
+      virtual bool on_drag_motion(GdkDragContext *context, int x, int y, guint time);
+      virtual bool on_drag_drop(GdkDragContext *context, int x, int y, guint time);
+      
       virtual void paint_background(Canvas *canvas);
       virtual void paint_canvas(Canvas *canvas, bool resize_only);
+      virtual void handle_mouse_move(MouseEvent &event);
       
       virtual bool on_map(GdkEvent *e);
       virtual bool on_unmap(GdkEvent *e);
