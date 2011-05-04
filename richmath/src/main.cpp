@@ -566,6 +566,7 @@ int main(int argc, char **argv){
   PMATH_RUN("EndPackage()"); /* FE` */
   
   Document *palette_doc = 0;
+  Document *main_doc = 0;
   int result = 0;
   
   if(!MathShaper::available_shapers.default_value){
@@ -578,7 +579,6 @@ int main(int argc, char **argv){
   
   #ifdef RICHMATH_USE_WIN32_GUI
   {
-    Document *doc;
     Win32DocumentWindow *wndMain;
     Win32DocumentWindow *wndPalette;
     
@@ -590,6 +590,8 @@ int main(int argc, char **argv){
       500,
       550);
     wndMain->init();
+    
+    main_doc = wndMain->document();
     
 //    wndMain->top_glass()->insert(0, 
 //      Section::create_from_object(Evaluate(Parse(
@@ -684,26 +686,6 @@ int main(int argc, char **argv){
 //        "LineBreakWithin->False,"
 //        "SectionMargins->{0, 12, 1.5, 0},"
 //        "SectionFrameMargins->0)"))));
-        
-    doc = wndMain->document();
-    
-    write_text_section(doc, "Title", "Welcome");
-    write_text_section(doc, "Section", "Todo-List");
-    todo(doc, "Support macros/DocumentApply in TextSequence");
-    todo(doc, "CTRL-9 to insert inline text/math section into math/text sequence.");
-    todo(doc, "Implement Interrupt().");
-    todo(doc, "Leave caret at end of line at automatic line breaks.");
-    todo(doc, "Navigation: ALT-left/right: previous/next span/sentence.");
-    todo(doc, "Resize every section, not only the visible ones.");
-    todo(doc, "Add option to allways show menu bar.");
-    todo(doc, "Build menu and keybord accelerators at runtime from a script.");
-    todo(doc, "CTRL-R to refactor local variable names.");
-    todo(doc, "Add CounterBox, CounterAssignments, CounterIncrements.");
-    todo(doc, "Implement Options(FrontEndObject(id), option).");
-    todo(doc, "Use/test the Menu class.");
-    doc->select(doc,0,0);
-    doc->move_horizontal(Forward, true);
-    doc->move_horizontal(Backward, false);
     
     wndPalette = new Win32DocumentWindow(
       new Document,
@@ -790,6 +772,8 @@ int main(int argc, char **argv){
     MathGtkDocumentWindow *wndMain = new MathGtkDocumentWindow();
     wndMain->init();
     
+    main_doc = wndMain->document();
+    
     gtk_window_present(GTK_WINDOW(wndMain->widget()));
     
     MathGtkDocumentWindow *wndPalette = new MathGtkDocumentWindow();
@@ -803,6 +787,24 @@ int main(int argc, char **argv){
     gtk_window_present(GTK_WINDOW(wndPalette->widget()));
   }
   #endif
+  
+  if(main_doc){
+    write_text_section(main_doc, "Title", "Welcome");
+    write_text_section(main_doc, "Section", "Todo-List");
+    todo(main_doc, "Support macros/DocumentApply in TextSequence");
+    todo(main_doc, "CTRL-9 to insert inline text/math section into math/text sequence.");
+    todo(main_doc, "Implement Interrupt().");
+    todo(main_doc, "Leave caret at end of line at automatic line breaks.");
+    todo(main_doc, "Navigation: ALT-left/right: previous/next span/sentence.");
+    todo(main_doc, "Resize every section, not only the visible ones.");
+    todo(main_doc, "Add option to allways show menu bar.");
+    todo(main_doc, "CTRL-R to refactor local variable names.");
+    todo(main_doc, "Add CounterBox, CounterAssignments, CounterIncrements.");
+    todo(main_doc, "Implement Options(FrontEndObject(id), option).");
+    main_doc->select(main_doc,0,0);
+    main_doc->move_horizontal(Forward, true);
+    main_doc->move_horizontal(Backward, false);
+  }
   
   if(palette_doc){
     palette_doc->style->set(Editable, false);
