@@ -4,7 +4,7 @@
 #ifdef _WIN32
   #include <Windows.h>
 #else
-  #include <sem.h>
+  #include <semaphore.h>
 #endif
 
 #include <util/base.h>
@@ -14,11 +14,11 @@ namespace richmath{
     public:
       Semaphore();
       virtual ~Semaphore();
-      
+
       void post();
       void wait();
       bool timed_wait(double seconds); // timeout => false
-      
+
     private:
     #ifdef _WIN32
       HANDLE _value;

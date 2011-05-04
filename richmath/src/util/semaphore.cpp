@@ -1,29 +1,29 @@
 #include <util/semaphore.h>
 
+#include <errno.h>
+#include <math.h>
+
+
 using namespace richmath;
 
 //{ class Semaphore ...
 
 Semaphore::Semaphore()
-: Shareable(),
-  _value(0)
+: Shareable()
 {
   #ifdef _WIN32
     _value = CreateSemaphore(0,0,0x7FFFFFFF,0);
   #else
-    if(sem_init(&_value, 0, 0))
-      _value = 0;
+    sem_init(&_value, 0, 0);
   #endif
 }
 
 Semaphore::~Semaphore(){
-  if(_value){
-    #ifdef _WIN32
-      CloseHandle(_value);
-    #else
-      sem_destroy(&_value);
-    #endif
-  }
+  #ifdef _WIN32
+    CloseHandle(_value);
+  #else
+    sem_destroy(&_value);
+  #endif
 }
 
 void Semaphore::post(){
@@ -50,7 +50,7 @@ bool Semaphore::timed_wait(double seconds){
     unsigned int ms = INFINITE;
     if(seconds * 1000 < Infinity && (int)(seconds * 1000) > 0)
       ms = (unsigned int)(seconds * 1000);
-    
+
     return WaitForSingleObject(_value, ms) != WAIT_TIMEOUT;
   }
   #else
@@ -63,14 +63,14 @@ bool Semaphore::timed_wait(double seconds){
       errno = 0;
       while(sem_wait(&_value) == -1 && errno == EINTR){
       }
-      
+
       return errno != ETIMEDOUT;
     }
     else{
       errno = 0;
       while(sem_wait(&_value) == -1 && errno == EINTR){
       }
-      
+
       return true;
     }
   }
