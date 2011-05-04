@@ -518,6 +518,8 @@ PMATH_API pmath_bool_t pmath_init(void){
     //} ... init threadlocal variables
 
     //{ initialize runs ...
+    PMATH_RUN_ARGS("$ApplicationFileName:= `1`", "(o)", get_exe_name());
+    
     PMATH_RUN("$NewMessage:=Function({},,HoldFirst)");
 
     PMATH_RUN("ComplexInfinity:=DirectedInfinity()");
@@ -817,14 +819,13 @@ PMATH_API pmath_bool_t pmath_init(void){
       "}");
 
     PMATH_RUN("Options(Slider):=Options(SliderBox):={ContinuousAction->True}");
-
+    
     //} ... initialization runs
 
     _pmath_symbol_builtins_protect_all();
 
-    { // setting $ApplicationFileName / loading maininit.pmath
-      pmath_string_t exe = get_exe_name();
-
+    { // loading maininit.pmath
+      pmath_string_t exe = pmath_symbol_get_value(PMATH_SYMBOL_APPLICATIONFILENAME);
 
       #ifdef PMATH_OS_UNIX
         #define OS_SPECIFIC_PATH \
@@ -840,17 +841,15 @@ PMATH_API pmath_bool_t pmath_init(void){
         #define OS_SPECIFIC_PATH ""
       #endif
 
-      if(pmath_is_null(exe)){
-        exe = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), 0);
-      }
-      else{
-        PMATH_RUN_ARGS("$ApplicationFileName:= `1`", "(o)", pmath_ref(exe));
-
+      if(pmath_is_string(exe)){
         exe = pmath_expr_new_extended(
           pmath_ref(PMATH_SYMBOL_LIST), 1,
           pmath_expr_new_extended(
             pmath_ref(PMATH_SYMBOL_DIRECTORYNAME), 1,
             exe));
+      }
+      else{
+        exe = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), 0);
       }
 
       PMATH_RUN_ARGS("Get(\"maininit`\","

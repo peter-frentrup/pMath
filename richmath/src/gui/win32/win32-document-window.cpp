@@ -136,6 +136,9 @@ class richmath::Win32WorkingArea: public Win32Widget{
         if(best_height < 1)
           best_height = 1;
           
+        if(best_width < 1)
+          best_width = 1;
+          
         RECT outer, inner;
         GetWindowRect(_hwnd, &outer);
         GetClientRect(_hwnd, &inner);

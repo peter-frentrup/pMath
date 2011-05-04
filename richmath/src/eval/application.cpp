@@ -390,31 +390,16 @@ void Application::init(){
     main_thread = pthread_self();
   #endif
   
-  // initializing application_filename and application_directory
-  #ifdef PMATH_OS_WIN32
-  {
-    Array<WCHAR> filename(256);
-    while(GetModuleFileNameW(0, filename.items(), filename.length()) == (DWORD)filename.length()
-    && GetLastError() == ERROR_INSUFFICIENT_BUFFER
-    && filename.length() < 4096){
-      filename.length(2 * filename.length());
-    }
-    
-    filename[filename.length() - 1] = L'\0';
-    
-    application_filename = String::FromUcs2((uint16_t*)filename.items());
-    int i = application_filename.length() - 1;
-    while(i > 0 && application_filename[i] != '\\')
-      --i;
-    
-    if(i > 0)
-      application_directory = application_filename.part(0, i);
-    else
-      application_directory = application_filename;
-  }
-  #else
-    #error not yet implemented
-  #endif
+  application_filename = String(Evaluate(Symbol(PMATH_SYMBOL_APPLICATIONFILENAME)));
+  int             i   = application_filename.length() - 1;
+  const uint16_t *buf = application_filename.buffer();
+  while(i > 0 && buf[i] != '\\' && buf[i] != '/')
+    --i;
+  
+  if(i > 0)
+    application_directory = application_filename.part(0, i);
+  else
+    application_directory = application_filename;
 }
 
 void Application::doevents(){

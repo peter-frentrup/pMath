@@ -10,6 +10,7 @@
   #include <cairo-ft.h>
   #include <fontconfig.h>
   #include FT_TRUETYPE_TABLES_H
+  
 #else
   #error no support for font backend
 #endif
@@ -32,8 +33,6 @@ using namespace richmath;
   };
 
   static AutoDC dc(CreateCompatibleDC(0));
-
-
 
 
   class PrivateWin32Font: public Shareable{
@@ -164,22 +163,42 @@ FontFace::FontFace(
   }
   #elif defined(RICHMATH_USE_FT_FONT)
   {
-    FcPattern *pattern = FcPatternCreate();
-    if(pattern){
-      char *family = pmath_string_to_utf8(name.get(), NULL);
-      
-      FcPatternAddString(pattern, FC_FAMILY, (const FcChar8*)family);
-      
-      pmath_mem_free(family);
-      
-      int fcslant  = style.italic ? FC_SLANT_ITALIC : FC_SLANT_ROMAN;
-      FcPatternAddInteger(pattern, FC_SLANT, fcslant);
-      
-      int fcweight = style.bold   ? FC_WEIGHT_BOLD  : FC_WEIGHT_MEDIUM;
-      FcPatternAddInteger(pattern, FC_WEIGHT, fcweight);
-    }
+    // fcslant and fcweight are not recognized correctly !?!
+    int fcslant  = style.italic ? FC_SLANT_ITALIC : FC_SLANT_ROMAN;
+    int fcweight = style.bold   ? FC_WEIGHT_BOLD  : FC_WEIGHT_MEDIUM;
+    char *family = pmath_string_to_utf8(name.get(), NULL);
+    
+    FcPattern *pattern = FcPatternBuild(NULL,
+      FC_FAMILY,     FcTypeString,  family,
+      FC_SLANT,      FcTypeInteger, fcslant,
+      FC_WEIGHT,     FcTypeInteger, fcweight,
+      FC_DPI,        FcTypeDouble,  96.0,
+      FC_SCALE,      FcTypeDouble,  0.75,
+      FC_SIZE,       FcTypeDouble,  1024.0,
+      FC_PIXEL_SIZE, FcTypeDouble,  1024.0 * 0.75,
+      FC_SCALABLE,   FcTypeBool,    FcTrue,
+      NULL);
+    
+    
+//    FcPatternPrint(pattern);
+//    
+//    FcConfigSubstitute(NULL, pattern, FcMatchPattern);
+//    FcPatternPrint(pattern);
+//    
+//    FcDefaultSubstitute(pattern);
+//    FcPatternPrint(pattern);
+//    
+//    FcResult result;
+//    FcPattern *resolved = FcFontMatch(NULL, pattern, &result);
+//    FcPatternPrint(resolved);
+//    
+//    FcPatternDestroy(resolved);
+    
     
     _face = cairo_ft_font_face_create_for_pattern(pattern);
+    
+    FcPatternDestroy(pattern);
+    pmath_mem_free(family);
   }
   #else
     #error no support for font backend

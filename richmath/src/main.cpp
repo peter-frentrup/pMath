@@ -696,9 +696,9 @@ int main(int argc, char **argv){
       0);
     wndPalette->init();
       
+    palette_doc = wndPalette->document();
     wndPalette->title("Math Input");
     wndPalette->is_palette(true);
-    palette_doc = wndPalette->document();
     
     RECT rect;
     RECT pal_rect;
@@ -740,7 +740,7 @@ int main(int argc, char **argv){
       wndInterrupt->init();
         
       wndInterrupt->is_palette(true);
-      doc = wndInterrupt->document();
+      Document *doc = wndInterrupt->document();
       
       doc->style->set(Editable, false);
       doc->style->set(Selectable, false);
@@ -911,6 +911,8 @@ int main(int argc, char **argv){
         
         //".Replace(TooltipBox(~FE`Private`x,~) :> FE`Private`x)"
         )));
+    
+    palette_doc->invalidate();
   }
   
   if(all_document_ids.size() == 0){

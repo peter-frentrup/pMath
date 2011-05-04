@@ -1,4 +1,5 @@
 ﻿$Aborted::uage:= "$Aborted is a special symbol that is returned when an evaluation is aborted."
+$ApplicationFileName::usage:= "$ApplicationFileName gives the file name of the \(StyleBox(\"pMath\", FontSlant -> Italic)\) executable."
 $BaseDirectory::usage:= "$BaseDirectory gives the scripts directory of you installation."
 $ByteOrdering::usage:= "$ByteOrdering gives the native ordering of bytes in binary data on your computer."
 $CharacterEncoding::usage:= "$CharacterEncoding is the default character encoding for opening text files."

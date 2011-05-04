@@ -18,14 +18,15 @@
 #include <pmath-types.h>
 #include <pmath-util/strtod.h>
 
-static int maxExponent = 511;	 /* Largest possible base 10 exponent.  Any
+
+static int maxExponent = 511;  /* Largest possible base 10 exponent.  Any
                                 * exponent larger than this will already
                                 * produce underflow or overflow, so there's
                                 * no need to worry about additional digits.
                                 */
-static double powersOf10[] = {	/* Table giving binary powers of 10.  Entry */
-    10.,			                  /* is 10^2^i.  Used to convert decimal */
-    100.,			                  /* exponents into floating-point numbers. */
+static double powersOf10[] = { /* Table giving binary powers of 10.  Entry */
+    10.,                       /* is 10^2^i.  Used to convert decimal */
+    100.,                      /* exponents into floating-point numbers. */
     1.0e4,
     1.0e8,
     1.0e16,
@@ -44,8 +45,8 @@ double pmath_strtod(
   double fraction, dblExp, *d;
   register const char *p;
   register int c;
-  int exp = 0;		    /* Exponent read from "EX" field. */
-  int fracExp = 0;		/* Exponent that derives from the fractional
+  int exp = 0;        /* Exponent read from "EX" field. */
+  int fracExp = 0;    /* Exponent that derives from the fractional
                        * part.  Under normal circumstatnces, it is
                        * the negative of the number of digits in F.
                        * However, if I is very long, the last digits
@@ -54,10 +55,10 @@ double pmath_strtod(
                        * unnecessary overflow on I alone).  In this
                        * case, fracExp is incremented one for each
                        * dropped digit. */
-  int mantSize;		    /* Number of digits in mantissa. */
-  int decPt;			    /* Number of mantissa digits BEFORE decimal
+  int mantSize;       /* Number of digits in mantissa. */
+  int decPt;          /* Number of mantissa digits BEFORE decimal
                        * point. */
-  const char *pExp;		/* Temporarily holds location of exponent in str. */
+  const char *pExp;   /* Temporarily holds location of exponent in str. */
 
   /*
    * Strip off leading blanks and check for a sign.
