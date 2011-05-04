@@ -19,9 +19,9 @@
    instead, where XXX is the uppercase equivalent of the corresponding pMath
    symbol name, e.g. PMATH_SYMBOL_LIST.
  */
- 
+
 PMATH_API
-PMATH_ATTRIBUTE_PURE 
+PMATH_ATTRIBUTE_PURE
 pmath_symbol_t  pmath_symbol_builtin(int index);
 
 /**\brief Prototype of a built-in function.
@@ -32,18 +32,18 @@ typedef pmath_t (*pmath_builtin_func_t)(pmath_expr_t expr);
 
 /**\brief Constants determining when to call a binded function.
    Let f be the pMath symbol.
-   
+
    - PMATH_CODE_USAGE_DOWNCALL Call binded function when evaluating `f(...)`
-   
-   - PMATH_CODE_USAGE_SUBCALL Call binded function when evaluating 
+
+   - PMATH_CODE_USAGE_SUBCALL Call binded function when evaluating
      `f(...)(...)...`
-   
+
    - PMATH_CODE_USAGE_UPCALL Call binded function when evaluating `g(...,f,...)`
      or `g(..., f(...), ...)`
-   
-   These use cases correspond to the DownRules(), SubRules() and UpRules() of a 
+
+   These use cases correspond to the DownRules(), SubRules() and UpRules() of a
    symbol.
-   
+
    \see pmath_register_code
   */
 typedef enum{
@@ -51,16 +51,16 @@ typedef enum{
   PMATH_CODE_USAGE_SUBCALL    = 1,
   PMATH_CODE_USAGE_UPCALL     = 2
 } pmath_code_usage_t;
-  
+
 /**\brief Bind a pMath symbol to some native code
    \param symbol The symbol. It wont be freed.
    \param func A native function.
    \param usage When to call the native function.
    \return Whether the binding succeded.
-   
+
    Any previous binding to the symbol with the same \a usage will be overwritten.
   */
-PMATH_API 
+PMATH_API
 pmath_bool_t pmath_register_code(
   pmath_symbol_t         symbol,
   pmath_builtin_func_t   func,
@@ -68,17 +68,17 @@ pmath_bool_t pmath_register_code(
 
 /**\brief Bind a pMath symbol to some native code for approximation.
    \param symbol The symbol. It wont be freed.
-   \param func A native function that frees/takes ownership of its first 
+   \param func A native function that frees/takes ownership of its first
                argument.
    \return Whether the binding succeded.
-   
+
    Any previous approximation-binding to the symbol will be overwritten.
-   
-   The native function will be called as <tt>func(obj, precision, accuracy)</tt> 
-   when evaluating the pMath expression <tt>N(obj, {precision, accuracy})</tt>, 
+
+   The native function will be called as <tt>func(obj, precision, accuracy)</tt>
+   when evaluating the pMath expression <tt>N(obj, {precision, accuracy})</tt>,
    where obj is either `symbol` or `symbol(...)`.
  */
-PMATH_API 
+PMATH_API
 pmath_bool_t pmath_register_approx_code(
   pmath_symbol_t   symbol,
   pmath_t        (*func)(pmath_t, double, double));
@@ -710,5 +710,6 @@ pmath_bool_t pmath_register_approx_code(
 #define PMATH_SYMBOL_FILTERRULES                            PMATH_SYMBOL_BUILTIN(618)
 #define PMATH_SYMBOL_TOOLTIP                                PMATH_SYMBOL_BUILTIN(619)
 #define PMATH_SYMBOL_TOOLTIPBOX                             PMATH_SYMBOL_BUILTIN(620)
+#define PMATH_SYMBOL_APPLICATIONFILENAME                    PMATH_SYMBOL_BUILTIN(621)
 
 #endif /* __PMATH_BUILTINS__SYMBOLS_H__ */

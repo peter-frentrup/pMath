@@ -395,7 +395,7 @@ PMATH_PRIVATE pmath_t builtin_total(                        pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_union(                        pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_unitvector(                   pmath_expr_t expr);
 //} ============================================================================
-//{ builtins from src/pmath-builtins/logic/ ...           
+//{ builtins from src/pmath-builtins/logic/ ...
 PMATH_PRIVATE pmath_t builtin_and(                  pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_boole(                pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_conditionalexpression(pmath_expr_t expr);
@@ -489,45 +489,45 @@ pmath_bool_t _pmath_have_code(
 ){
   void              *entry;
   pmath_hashtable_t  table;
-  
+
   if((unsigned)usage >= CODE_TABLES_COUNT)
     return FALSE;
-  
+
   table = LOCK_CODE_TABLE(usage);
-  
+
   entry = pmath_ht_search(table, &key);
-  
+
   UNLOCK_CODE_TABLE(usage, table);
-  
+
   return entry != NULL;
 }
 
 PMATH_PRIVATE
 pmath_bool_t _pmath_run_code(
   pmath_t             key,   // wont be freed
-  pmath_code_usage_t  usage, 
+  pmath_code_usage_t  usage,
   pmath_t            *in_out
 ){
   func_entry_t         *entry;
   pmath_hashtable_t     table;
   pmath_builtin_func_t  result = NULL;
-  
+
   assert((unsigned)usage <= PMATH_CODE_USAGE_EARLYCALL);
-  
+
   table = LOCK_CODE_TABLE(usage);
-  
+
   entry = pmath_ht_search(table, &key);
   if(entry)
     result = (pmath_builtin_func_t)entry->function;
-  
+
   UNLOCK_CODE_TABLE(usage, table);
-  
+
   if(result && !pmath_aborting()){
     *in_out = result(*in_out);
-    
+
     return TRUE;
   }
-  
+
   return FALSE;
 }
 
@@ -541,27 +541,27 @@ pmath_bool_t _pmath_run_approx_code(
   func_entry_t         *entry;
   pmath_hashtable_t     table;
   pmath_t             (*result)(pmath_t,double,double) = NULL;
-  
+
   table = LOCK_CODE_TABLE(PMATH_CODE_USAGE_APPROX);
-  
+
   entry = pmath_ht_search(table, &key);
   if(entry)
     result = (pmath_t(*)(pmath_t,double,double))entry->function;
-  
+
   UNLOCK_CODE_TABLE(PMATH_CODE_USAGE_APPROX, table);
-  
+
   if(result){
     *in_out = result(*in_out, prec, acc);
-    
+
     return TRUE;
   }
-  
+
   return FALSE;
 }
 
 /*----------------------------------------------------------------------------*/
 
-PMATH_API 
+PMATH_API
 pmath_bool_t pmath_register_code(
   pmath_symbol_t         symbol,
   pmath_builtin_func_t   func,
@@ -569,45 +569,45 @@ pmath_bool_t pmath_register_code(
 ){
   func_entry_t       *entry;
   pmath_hashtable_t   table;
-  
+
   if((unsigned)usage >= CODE_TABLES_COUNT)
     return FALSE;
-  
+
   if(func){
     entry = (func_entry_t*)pmath_mem_alloc(sizeof(func_entry_t));
     if(!entry)
       return FALSE;
-    
+
     entry->key      = pmath_ref(symbol);
     entry->function = (void(*)())func;
   }
   else
     entry = NULL;
-  
+
   table = LOCK_CODE_TABLE(usage);
-  
+
   if(entry)
     entry = pmath_ht_insert(table, entry);
   else
     entry = pmath_ht_remove(table, &symbol);
-    
+
   UNLOCK_CODE_TABLE(usage, table);
-  
-  
+
+
   if(entry)
     destroy_func_entry(entry);
-    
+
   return TRUE;
 }
 
-PMATH_API 
+PMATH_API
 pmath_bool_t pmath_register_approx_code(
   pmath_symbol_t   symbol,
   pmath_t (*func)(pmath_t, double, double)
 ){
   return pmath_register_code(
-    symbol, 
-    (pmath_builtin_func_t)func, 
+    symbol,
+    (pmath_builtin_func_t)func,
     PMATH_CODE_USAGE_APPROX);
 }
 
@@ -615,26 +615,26 @@ pmath_bool_t pmath_register_approx_code(
 
 PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   int i;
-  
+
   for(i = 0;i < PMATH_BUILTIN_SYMBOL_COUNT;++i)
     _pmath_builtin_symbol_array[i] = PMATH_NULL;
-  
+
   memset((void*)_code_tables, 0, CODE_TABLES_COUNT * sizeof(pmath_hashtable_t));
-  
+
   for(i = 0;i < CODE_TABLES_COUNT;++i){
     pmath_hashtable_t table = pmath_ht_create(&function_table_class, 0);
     if(!table)
       goto FAIL;
-    
+
     pmath_atomic_write_release(&_code_tables[i], (intptr_t)table);
   }
-  
+
   #define VERIFY(X)  do{ pmath_t tmp = (X); if(pmath_is_null(tmp)) goto FAIL; }while(0);
-  
+
   #define NEW_SYMBOL(name)        pmath_symbol_get(PMATH_C_STRING(name), TRUE)
   #define NEW_SYSTEM_SYMBOL(name) NEW_SYMBOL("System`" name)
-  
-  //{ setting symbol names ...  
+
+  //{ setting symbol names ...
   VERIFY(   PMATH_SYMBOL_INTERNAL_ABORTMESSAGE            = NEW_SYMBOL("Internal`AbortMessage"))
   VERIFY(   PMATH_SYMBOL_INTERNAL_CONDITION               = NEW_SYMBOL("Internal`Condition"))
   VERIFY(   PMATH_SYMBOL_INTERNAL_GETTHREADID             = NEW_SYMBOL("Internal`GetThreadId"))
@@ -646,9 +646,9 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   VERIFY(   PMATH_SYMBOL_INTERNAL_NAMESPACEPATHSTACK      = NEW_SYMBOL("Internal`$NamespacePathStack"))
   VERIFY(   PMATH_SYMBOL_INTERNAL_NAMESPACESTACK          = NEW_SYMBOL("Internal`$NamespaceStack"))
   VERIFY(   PMATH_SYMBOL_INTERNAL_THREADIDLE              = NEW_SYMBOL("Internal`ThreadIdle"))
-  
+
   VERIFY(   PMATH_SYMBOL_UTILITIES_GETSYSTEMSYNTAXINFORMATION  = NEW_SYMBOL("System`Utilities`GetSystemSyntaxInformation"))
-  
+
   VERIFY(   PMATH_SYMBOL_ABORTED                   = NEW_SYSTEM_SYMBOL("$Aborted"))
   VERIFY(   PMATH_SYMBOL_ABORT                     = NEW_SYSTEM_SYMBOL("Abort"))
   VERIFY(   PMATH_SYMBOL_ABS                       = NEW_SYSTEM_SYMBOL("Abs"))
@@ -658,6 +658,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   VERIFY(   PMATH_SYMBOL_AND                       = NEW_SYSTEM_SYMBOL("And"))
   VERIFY(   PMATH_SYMBOL_ANTIALIASING              = NEW_SYSTEM_SYMBOL("Antialiasing"))
   VERIFY(   PMATH_SYMBOL_APPEND                    = NEW_SYSTEM_SYMBOL("Append"))
+  VERIFY(   PMATH_SYMBOL_APPLICATIONFILENAME       = NEW_SYSTEM_SYMBOL("$ApplicationFileName"))
   VERIFY(   PMATH_SYMBOL_APPLY                     = NEW_SYSTEM_SYMBOL("Apply"))
   VERIFY(   PMATH_SYMBOL_ARCCOS                    = NEW_SYSTEM_SYMBOL("ArcCos"))
   VERIFY(   PMATH_SYMBOL_ARCCOSH                   = NEW_SYSTEM_SYMBOL("ArcCosh"))
@@ -1266,7 +1267,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
         pmath_debug_print("BUILTIN SYMBOL #%d NOT USED\n", i);
     }
   #endif
-  
+
   //{ binding C functions ...
     #define BIND(sym, func, use)  if(!pmath_register_code((sym), (func), (use))) goto FAIL;
     #define BIND_APPROX(sym, func) if(!pmath_register_approx_code((sym), (func))) goto FAIL;
@@ -1274,14 +1275,14 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
     #define BIND_DOWN(sym, func)   BIND((sym), (func), PMATH_CODE_USAGE_DOWNCALL)
     #define BIND_SUB(sym, func)    BIND((sym), (func), PMATH_CODE_USAGE_SUBCALL)
     #define BIND_UP(sym, func)     BIND((sym), (func), PMATH_CODE_USAGE_UPCALL)
-    
+
     BIND_EARLY(  PMATH_SYMBOL_PLUS,  builtin_plus)
     BIND_EARLY(  PMATH_SYMBOL_POWER, builtin_power)
     BIND_EARLY(  PMATH_SYMBOL_TIMES, builtin_times)
-    
+
     BIND_SUB(    PMATH_SYMBOL_FUNCTION,                    builtin_call_function)
     BIND_SUB(    PMATH_SYMBOL_ISHELD,                      builtin_call_isheld)
-    
+
     BIND_UP(     PMATH_SYMBOL_N,                           builtin_assign_approximate)
     BIND_UP(     PMATH_SYMBOL_NRULES,                      builtin_assign_symbol_rules)
     BIND_UP(     PMATH_SYMBOL_ATTRIBUTES,                  builtin_assign_attributes)
@@ -1305,10 +1306,10 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
     BIND_UP(     PMATH_SYMBOL_SUBRULES,                    builtin_assign_symbol_rules)
     BIND_UP(     PMATH_SYMBOL_SYNTAXINFORMATION,           builtin_assign_syntaxinformation)
     BIND_UP(     PMATH_SYMBOL_UPRULES,                     builtin_assign_symbol_rules)
-    
+
     BIND_UP(     PMATH_SYMBOL_CONDITIONALEXPRESSION,       builtin_operate_conditionalexpression)
     BIND_UP(     PMATH_SYMBOL_UNDEFINED,                   builtin_operate_undefined)
-    
+
     BIND_DOWN(   PMATH_SYMBOL_INTERNAL_ABORTMESSAGE,            builtin_internal_abortmessage)
     BIND_DOWN(   PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATE,         builtin_internal_dynamicevaluate)
     BIND_DOWN(   PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATEMULTIPLE, builtin_internal_dynamicevaluatemultiple)
@@ -1316,7 +1317,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
     BIND_DOWN(   PMATH_SYMBOL_INTERNAL_GETTHREADID,             builtin_getthreadid)
     BIND_DOWN(   PMATH_SYMBOL_INTERNAL_ISCRITICALMESSAGE,       builtin_iscriticalmessage)
     BIND_DOWN(   PMATH_SYMBOL_INTERNAL_THREADIDLE,              builtin_internal_threadidle)
-    
+
     BIND_DOWN(   PMATH_SYMBOL_ABORT,                       builtin_abort)
     BIND_DOWN(   PMATH_SYMBOL_ABS,                         builtin_abs)
     BIND_DOWN(   PMATH_SYMBOL_ACCURACY,                    builtin_accuracy)
@@ -1635,13 +1636,13 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
     BIND_DOWN(   PMATH_SYMBOL_WRITE,                       builtin_write)
     BIND_DOWN(   PMATH_SYMBOL_WRITESTRING,                 builtin_writestring)
     BIND_DOWN(   PMATH_SYMBOL_XOR,                         builtin_xor)
-    
+
     BIND_APPROX( PMATH_SYMBOL_E,                 builtin_approximate_e);
     BIND_APPROX( PMATH_SYMBOL_EULERGAMMA,        builtin_approximate_eulergamma);
     BIND_APPROX( PMATH_SYMBOL_MACHINEPRECISION,  builtin_approximate_machineprecision);
     BIND_APPROX( PMATH_SYMBOL_PI,                builtin_approximate_pi);
     BIND_APPROX( PMATH_SYMBOL_POWER,             builtin_approximate_power);
-    
+
     #undef BIND
     #undef BIND_APPROX
     #undef BIND_EARLY
@@ -1649,7 +1650,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
     #undef BIND_SUB
     #undef BIND_UP
   //} ... binding C functions
-  
+
   //{ setting attributes (except the Protected attribute) ...
   #define SET_ATTRIB(sym,attrib) pmath_symbol_set_attributes((sym), (attrib))
 
@@ -1670,11 +1671,11 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   #define SEQUENCEHOLD          PMATH_SYMBOL_ATTRIBUTE_SEQUENCEHOLD
   #define SYMMETRIC             PMATH_SYMBOL_ATTRIBUTE_SYMMETRIC
   #define THREADLOCAL           PMATH_SYMBOL_ATTRIBUTE_THREADLOCAL
-  
+
   SET_ATTRIB( PMATH_SYMBOL_INTERNAL_ABORTMESSAGE,       HOLDALLCOMPLETE);
   SET_ATTRIB( PMATH_SYMBOL_INTERNAL_CONDITION,          HOLDFIRST);
   SET_ATTRIB( PMATH_SYMBOL_INTERNAL_ISCRITICALMESSAGE,  HOLDALL | THREADLOCAL);
-  
+
   SET_ATTRIB( PMATH_SYMBOL_UTILITIES_GETSYSTEMSYNTAXINFORMATION,  HOLDALL);
 
   SET_ATTRIB( PMATH_SYMBOL_ABORT,                            LISTABLE);
@@ -1864,31 +1865,31 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   #undef SYMMETRIC
   #undef THREADLOCAL
   //} ... setting attributes (except Protected attribute)
-  
+
   return TRUE;
-  
+
  FAIL:
   for(i = 0;i < CODE_TABLES_COUNT;++i)
     pmath_ht_destroy((pmath_hashtable_t)pmath_atomic_read_aquire(&_code_tables[i]));
-    
+
   for(i = 0;i < PMATH_BUILTIN_SYMBOL_COUNT;++i)
     pmath_unref(_pmath_builtin_symbol_array[i]);
-  
+
   return FALSE;
 }
 
 PMATH_PRIVATE void _pmath_symbol_builtins_protect_all(void){
   int i;
-  
+
   for(i = 0;i < PMATH_BUILTIN_SYMBOL_COUNT;i++){
     pmath_symbol_set_attributes(
       _pmath_builtin_symbol_array[i],
       PMATH_SYMBOL_ATTRIBUTE_PROTECTED
        | pmath_symbol_get_attributes(_pmath_builtin_symbol_array[i]));
   }
-  
+
   #define UNPROTECT(sym) pmath_symbol_set_attributes(sym, pmath_symbol_get_attributes(sym) & ~PMATH_SYMBOL_ATTRIBUTE_PROTECTED)
-  
+
   UNPROTECT( PMATH_SYMBOL_CHARACTERENCODINGDEFAULT);
   UNPROTECT( PMATH_SYMBOL_CURRENTNAMESPACE);
   UNPROTECT( PMATH_SYMBOL_DIALOGLEVEL);
@@ -1909,16 +1910,16 @@ PMATH_PRIVATE void _pmath_symbol_builtins_protect_all(void){
   UNPROTECT( PMATH_SYMBOL_SUBSUPERSCRIPT);
   UNPROTECT( PMATH_SYMBOL_SUPERSCRIPT);
   UNPROTECT( PMATH_SYMBOL_SYSTEMCHARACTERENCODING);
-  
+
   #undef UNPROTECT
 }
 
 PMATH_PRIVATE void _pmath_symbol_builtins_done(void){
   int i;
-  
+
   for(i = 0;i < CODE_TABLES_COUNT;++i)
     pmath_ht_destroy((pmath_hashtable_t)pmath_atomic_read_aquire(&_code_tables[i]));
-    
+
   for(i = 0;i < PMATH_BUILTIN_SYMBOL_COUNT;++i)
     pmath_unref(_pmath_builtin_symbol_array[i]);
 }
