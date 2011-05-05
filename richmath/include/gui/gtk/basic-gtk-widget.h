@@ -27,9 +27,15 @@ namespace richmath{
         _initializing = false;
       }
 
+      void destroy(){
+        _destroying = true;
+        delete this;
+      }
+
       virtual ~BasicGtkWidget();
 
       bool initializing(){ return _initializing; }
+      bool destroying(){   return _destroying;   }
 
     public:
       GtkWidget *widget(){ return _widget; }
@@ -76,6 +82,7 @@ namespace richmath{
     private:
       InitData *init_data;
       bool _initializing;
+      bool _destroying;
   };
 }
 

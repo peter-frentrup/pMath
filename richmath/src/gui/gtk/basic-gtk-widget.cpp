@@ -1,5 +1,7 @@
 #include <gui/gtk/basic-gtk-widget.h>
 
+#include <pmath-cpp.h>
+
 
 using namespace richmath;
 
@@ -11,12 +13,10 @@ static void add_remove_window(int count){
   global_window_count+= count;
 }
 
-static gboolean destroy_cpp(GtkWidget *wid, GdkEvent *event, void *dummy){
-  BasicGtkWidget *_this = BasicGtkWidget::from_widget(wid);
-  g_object_set_data(G_OBJECT(wid), widget_key, NULL);
-  if(_this){}
-    delete _this;
-  return TRUE;
+static void destroy_widget_key(BasicGtkWidget *_this){
+  //g_object_set_data(G_OBJECT(_this->widget()), widget_key, NULL);
+  if(!_this->destroying())
+    _this->destroy();
 }
 
 //{ class BasicGtkWidget ...
@@ -25,30 +25,44 @@ BasicGtkWidget::BasicGtkWidget()
 : Base(),
   _widget(0),
   init_data(new InitData),
-  _initializing(true)
+  _initializing(true),
+  _destroying(false)
 {
   add_remove_window(+1);
 }
 
 void BasicGtkWidget::after_construction(){
   if(!_widget){
-    _widget = gtk_drawing_area_new();//math_cpp_widget_new();//
+    _widget = gtk_drawing_area_new();
   }
 
-  g_object_set_data(
+  g_object_set_data_full(
     G_OBJECT(_widget),
     widget_key,
-    this);
+    this,
+    (GDestroyNotify)destroy_widget_key);
 
-  g_signal_connect(_widget, "delete-event", G_CALLBACK(delete_cpp), this);
 //  signal_connect<BasicGtkWidget, &BasicGtkWidget::on_delete>("delete-event");
 
   delete init_data;
 }
 
 BasicGtkWidget::~BasicGtkWidget(){
+
+  if(!_destroying){
+    pmath_debug_print("_destroying unset\n");
+    assert(_destroying);
+  }
+
   if(_widget){
-    gtk_widget_destroy(_widget);
+    g_signal_handlers_disconnect_matched(
+      _widget,
+      G_SIGNAL_MATCH_DATA,
+      0, 0, 0, 0,
+      this);
+
+    if(g_object_get_data(G_OBJECT(_widget), widget_key))
+      gtk_widget_destroy(_widget);
     _widget = 0;
   }
 

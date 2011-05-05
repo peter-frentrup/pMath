@@ -22,11 +22,7 @@ class richmath::MathGtkWorkingArea: public MathGtkWidget{
     MathGtkDocumentWindow *parent(){ return _parent; }
 
     virtual void close(){
-      if(_parent){
-        MathGtkDocumentWindow *p = _parent;
-        _parent = 0;
-        delete p;
-      }
+      _parent->close();
     }
 
     virtual void running_state_changed(){
@@ -104,11 +100,7 @@ class richmath::MathGtkDock: public MathGtkWidget{
     }
 
     virtual void close(){
-      if(_parent){
-        MathGtkDocumentWindow *p = _parent;
-        _parent = 0;
-        delete p;
-      }
+      _parent->close();
     }
 
     int height(){
@@ -289,7 +281,7 @@ MathGtkDocumentWindow::~MathGtkDocumentWindow(){
       while(other && other != this){
         MathGtkDocumentWindow *next = other->next_window();
 
-        delete other;
+        other->destroy();
 
         other = next;
       }
@@ -309,9 +301,10 @@ MathGtkDocumentWindow::~MathGtkDocumentWindow(){
   _next_window->_prev_window = _prev_window;
   _prev_window->_next_window = _next_window;
 
-  delete _top_area;
-  delete _bottom_area;
-  delete _working_area;
+  // those are deleted by their destroy-event:
+//  _top_area->destroy();
+//  _bottom_area->destroy();
+//  _working_area->destroy();
 
   g_object_unref(_hadjustment);
   g_object_unref(_vadjustment);
@@ -394,6 +387,10 @@ void MathGtkDocumentWindow::adjustment_changed(GtkAdjustment *adjustment){
 
 MathGtkDocumentWindow *MathGtkDocumentWindow::first_window(){
   return _first_window;
+}
+
+void MathGtkDocumentWindow::close(){
+  destroy();
 }
 
 //} ... class MathGtkDocumentWindow
