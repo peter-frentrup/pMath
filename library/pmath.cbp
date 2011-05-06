@@ -187,6 +187,7 @@
 					<Add option="-Winline" />
 					<Add option="-Wextra" />
 					<Add option="-Wall" />
+					<Add option="-g" />
 					<Add option="-fPIC" />
 					<Add option="-fno-stack-protector" />
 					<Add option="-Wno-unused-parameter" />

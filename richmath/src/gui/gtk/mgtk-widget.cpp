@@ -86,6 +86,8 @@ MathGtkWidget::MathGtkWidget(Document *doc)
 }
 
 MathGtkWidget::~MathGtkWidget(){
+  all_document_ids.remove(document()->id());
+
   hadjustment(0);
   vadjustment(0);
 
@@ -226,6 +228,9 @@ double MathGtkWidget::message_time(){
 }
 
 double MathGtkWidget::double_click_time(){
+  if(!_widget)
+    return 1.0;
+
   GtkSettings *settings = gtk_widget_get_settings(_widget);
   gint t;
 
@@ -238,6 +243,11 @@ double MathGtkWidget::double_click_time(){
 }
 
 void MathGtkWidget::double_click_dist(float *dx, float *dy){
+  if(!_widget){
+    *dx = *dy = 0;
+    return;
+  }
+
   GtkSettings *settings = gtk_widget_get_settings(_widget);
   gint d;
 
@@ -252,7 +262,7 @@ void MathGtkWidget::double_click_dist(float *dx, float *dy){
 void MathGtkWidget::do_drag_drop(Box *src, int start, int end){
   GdkEvent *event = gtk_get_current_event();
 
-  if(!src)
+  if(!src || !_widget)
     return;
 
   drag_source_reference().set(src, start, end);
@@ -292,6 +302,9 @@ bool MathGtkWidget::cursor_position(float *x, float *y){
 }
 
 void MathGtkWidget::invalidate(){
+  if(!_widget)
+    return;
+
   is_painting = false; // if inside "expose" event, invalidate at end of event
 
   gtk_widget_queue_draw(_widget);
@@ -304,7 +317,7 @@ void MathGtkWidget::force_redraw(){
 void MathGtkWidget::set_cursor(CursorType type){
   cursor = type;
 
-  if(mouse_moving)
+  if(mouse_moving || !_widget)
     return;
 
   GdkWindow *win = gtk_widget_get_window(_widget);
@@ -333,6 +346,9 @@ void MathGtkWidget::beep(){
 }
 
 bool MathGtkWidget::register_timed_event(SharedPtr<TimedEvent> event){
+  if(!_widget)
+    return false;
+
   animations.set(event, Void());
   if(!animation_running){
     animation_running = 0 < gdk_threads_add_timeout(ANIMATION_DELAY, animation_timeout, NULL);
@@ -438,6 +454,9 @@ void MathGtkWidget::on_drag_data_get(
   guint             info,
   guint             time
 ){
+  if(!_widget)
+    return;
+
   Document *doc = document();
   Box *srcbox = drag_source_reference().get();
 
@@ -464,6 +483,9 @@ void MathGtkWidget::on_drag_data_get(
 }
 
 void MathGtkWidget::on_drag_data_delete(GdkDragContext *context){
+  if(!_widget)
+    return;
+
   Document *doc = document();
   Box *srcbox = drag_source_reference().get();
 
@@ -563,6 +585,9 @@ void MathGtkWidget::on_drag_end(GdkDragContext *context){
 }
 
 bool MathGtkWidget::on_drag_motion(GdkDragContext *context, int x, int y, guint time){
+  if(!_widget)
+    return false;
+
   MouseEvent me;
   me.left   = false;
   me.middle = false;
@@ -616,6 +641,9 @@ bool MathGtkWidget::on_drag_motion(GdkDragContext *context, int x, int y, guint 
 }
 
 bool MathGtkWidget::on_drag_drop(GdkDragContext *context, int x, int y, guint time){
+  if(!_widget)
+    return false;
+
   float fx = x / scale_factor();
   float fy = y / scale_factor();
 

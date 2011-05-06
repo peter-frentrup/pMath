@@ -262,8 +262,6 @@ MathGtkDocumentWindow::~MathGtkDocumentWindow(){
 //  _working_area->_parent = 0;
 //  _bottom_area->_parent  = 0;
 
-  all_document_ids.remove(_working_area->document()->id());
-
   static bool deleting_all = false;
   if(!deleting_all){
     bool have_only_palettes = true;
@@ -390,7 +388,13 @@ MathGtkDocumentWindow *MathGtkDocumentWindow::first_window(){
 }
 
 void MathGtkDocumentWindow::close(){
-  destroy();
+//  if(!_widget || destroying())
+//    return;
+//
+//  GtkWidget *w = _widget;
+//  _widget = 0;
+//  gtk_widget_destroy(w);
+//  //destroy();
 }
 
 //} ... class MathGtkDocumentWindow

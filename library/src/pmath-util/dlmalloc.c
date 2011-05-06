@@ -1,4 +1,5 @@
 #ifdef PMATH_USE_DLMALLOC
+#define USE_LOCKS 1
 
 #include <pmath-util/dlmalloc.h>
 
@@ -433,9 +434,9 @@ static FORCEINLINE void pthread_release_lock (MLOCK_T *sl) {
   assert(*lp != 0);
   assert(sl->threadid == CURRENT_THREAD);
   if (--sl->c == 0) {
-    sl->threadid = 0;
     int prev = 0;
     int ret;
+    sl->threadid = 0;
     __asm__ __volatile__ ("lock; xchgl %0, %1"
                           : "=r" (ret)
                           : "m" (*(lp)), "0"(prev)

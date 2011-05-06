@@ -5,9 +5,11 @@
   #error this header is gtk specific
 #endif
 
+#include <util/base.h>
+
+#include <pmath-cpp.h>
 #include <gtk/gtk.h>
 
-#include <util/base.h>
 
 namespace richmath{
   // Must call init() immediately init after the construction of a derived object!
@@ -67,6 +69,10 @@ namespace richmath{
       template<class C, bool (C::*method)(GdkEvent*)>
       struct Marshaller{
         static gboolean function(GtkWidget *wid, GdkEvent *event, void *dummy){
+          if(event->type != GDK_EXPOSE
+          && event->type != GDK_MOTION_NOTIFY)
+            pmath_debug_print("[%s %p] event %d\n", G_OBJECT_TYPE_NAME(wid), wid, event->type);
+
           C *_this = (C*)BasicGtkWidget::from_widget(wid);
           if(_this)
             return (_this->*method)(event);
@@ -83,6 +89,8 @@ namespace richmath{
       InitData *init_data;
       bool _initializing;
       bool _destroying;
+
+      static void destroy_widget_key_callback(BasicGtkWidget *_this);
   };
 }
 

@@ -13,12 +13,6 @@ static void add_remove_window(int count){
   global_window_count+= count;
 }
 
-static void destroy_widget_key(BasicGtkWidget *_this){
-  //g_object_set_data(G_OBJECT(_this->widget()), widget_key, NULL);
-  if(!_this->destroying())
-    _this->destroy();
-}
-
 //{ class BasicGtkWidget ...
 
 BasicGtkWidget::BasicGtkWidget()
@@ -40,14 +34,27 @@ void BasicGtkWidget::after_construction(){
     G_OBJECT(_widget),
     widget_key,
     this,
-    (GDestroyNotify)destroy_widget_key);
+    (GDestroyNotify)BasicGtkWidget::destroy_widget_key_callback);
 
 //  signal_connect<BasicGtkWidget, &BasicGtkWidget::on_delete>("delete-event");
+
+  pmath_debug_print("creating %p (%s)\n", this, G_OBJECT_TYPE_NAME(_widget));
 
   delete init_data;
 }
 
+void BasicGtkWidget::destroy_widget_key_callback(BasicGtkWidget *_this){
+  //g_object_set_data(G_OBJECT(_this->widget()), widget_key, NULL);
+  if(!_this->destroying()){
+    pmath_debug_print("destroy widget %p gobj=%p (%s)...\n", _this, _this->_widget, G_OBJECT_TYPE_NAME(_this->_widget));
+    _this->_widget = 0;
+    _this->destroy();
+    pmath_debug_print("... destroy widget %p\n", _this);
+  }
+}
+
 BasicGtkWidget::~BasicGtkWidget(){
+  pmath_debug_print("~BasicGtkWidget %p\n", this);
 
   if(!_destroying){
     pmath_debug_print("_destroying unset\n");
