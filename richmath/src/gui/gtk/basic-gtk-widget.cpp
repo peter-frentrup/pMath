@@ -18,7 +18,6 @@ static void add_remove_window(int count){
 BasicGtkWidget::BasicGtkWidget()
 : Base(),
   _widget(0),
-  init_data(new InitData),
   _initializing(true),
   _destroying(false)
 {
@@ -36,28 +35,19 @@ void BasicGtkWidget::after_construction(){
     this,
     (GDestroyNotify)BasicGtkWidget::destroy_widget_key_callback);
 
-//  signal_connect<BasicGtkWidget, &BasicGtkWidget::on_delete>("delete-event");
-
-  pmath_debug_print("creating %p (%s)\n", this, G_OBJECT_TYPE_NAME(_widget));
-
-  delete init_data;
+  signal_connect<BasicGtkWidget, &BasicGtkWidget::on_event>("event");
 }
 
 void BasicGtkWidget::destroy_widget_key_callback(BasicGtkWidget *_this){
   //g_object_set_data(G_OBJECT(_this->widget()), widget_key, NULL);
   if(!_this->destroying()){
-    pmath_debug_print("destroy widget %p gobj=%p (%s)...\n", _this, _this->_widget, G_OBJECT_TYPE_NAME(_this->_widget));
     _this->_widget = 0;
     _this->destroy();
-    pmath_debug_print("... destroy widget %p\n", _this);
   }
 }
 
 BasicGtkWidget::~BasicGtkWidget(){
-  pmath_debug_print("~BasicGtkWidget %p\n", this);
-
   if(!_destroying){
-    pmath_debug_print("_destroying unset\n");
     assert(_destroying);
   }
 
@@ -101,9 +91,9 @@ BasicGtkWidget *BasicGtkWidget::from_widget(GtkWidget *wid){
   return (BasicGtkWidget*)g_object_get_data(G_OBJECT(wid), widget_key);
 }
 
-/*bool BasicGtkWidget::on_delete(GdkEvent *e){
-  delete this;
-  return true;
-}*/
+bool BasicGtkWidget::on_event(GdkEvent *e){
+//  pmath_debug_print("[%d]", e->type);
+  return false;
+}
 
 //} ... class BasicGtkWidget

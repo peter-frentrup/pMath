@@ -15,10 +15,6 @@ namespace richmath{
   // Must call init() immediately init after the construction of a derived object!
   class BasicGtkWidget: public virtual Base{
     protected:
-      struct InitData{
-      };
-
-    protected:
       virtual void after_construction();
 
     public:
@@ -63,15 +59,18 @@ namespace richmath{
       GtkWidget *_widget;
 
     protected:
-//      virtual bool on_delete(GdkEvent *e);
+      virtual bool on_event(GdkEvent *e);
 
     protected:
       template<class C, bool (C::*method)(GdkEvent*)>
       struct Marshaller{
         static gboolean function(GtkWidget *wid, GdkEvent *event, void *dummy){
-          if(event->type != GDK_EXPOSE
-          && event->type != GDK_MOTION_NOTIFY)
-            pmath_debug_print("[%s %p] event %d\n", G_OBJECT_TYPE_NAME(wid), wid, event->type);
+//          if(event->type != GDK_EXPOSE
+//          && event->type != GDK_MOTION_NOTIFY
+//          && event->type != GDK_ENTER_NOTIFY
+//          && event->type != GDK_LEAVE_NOTIFY
+//          && event->type != GDK_FOCUS_CHANGE)
+//            pmath_debug_print("[%s %p] event %d\n", G_OBJECT_TYPE_NAME(wid), wid, event->type);
 
           C *_this = (C*)BasicGtkWidget::from_widget(wid);
           if(_this)
@@ -86,7 +85,6 @@ namespace richmath{
       }
 
     private:
-      InitData *init_data;
       bool _initializing;
       bool _destroying;
 

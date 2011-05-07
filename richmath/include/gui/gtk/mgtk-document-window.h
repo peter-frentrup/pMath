@@ -13,6 +13,20 @@ namespace richmath {
   class MathGtkWorkingArea;
 
   class MathGtkDocumentWindow: public BasicGtkWidget{
+    public:
+      class DocumentPosition{
+        public:
+          DocumentPosition(){}
+          DocumentPosition(int _id, int _x, int _y)
+          : id(_id), x(_x), y(_y)
+          {
+          }
+
+          int id;
+          int x;
+          int y;
+      };
+
     protected:
       virtual void after_construction();
 
@@ -45,9 +59,28 @@ namespace richmath {
 
       virtual void close();
 
+      void set_gravity();
+      void set_initial_rect(int x, int y, int w, int h);
+
+      void get_window_margins(int *left, int *right, int *top, int *bottom);
+      void get_outer_rect(GdkRectangle *rect);
+      const GdkRectangle &previous_rect(){ return _previous_rect; }
+      static bool test_rects_touch(const GdkRectangle &rect1, const GdkRectangle &rect2, int *maxdx, int *maxdy, GdkWindowEdge *edge);
+
+      void move_palettes();
+
+    protected:
+      virtual bool on_configure(GdkEvent *e);
+      virtual bool on_focus_in(GdkEvent *e);
+      virtual bool on_focus_out(GdkEvent *e);
+      virtual bool on_scroll(GdkEvent *e);
+
     private:
       String _title;
       bool _is_palette;
+      Array<DocumentPosition> _snapped_documents; // [0] = self
+
+      GdkRectangle _previous_rect;
 
       MathGtkDock        *_top_area;
       MathGtkWorkingArea *_working_area;

@@ -7,8 +7,12 @@
 
 #include <gui/gtk/mgtk-menu-builder.h>
 
+#include <cmath>
+
 
 using namespace richmath;
+
+static const int SnapDistance = 4;
 
 class richmath::MathGtkWorkingArea: public MathGtkWidget{
   friend class MathGtkDocumentWindow;
@@ -21,6 +25,13 @@ class richmath::MathGtkWorkingArea: public MathGtkWidget{
 
     MathGtkDocumentWindow *parent(){ return _parent; }
 
+    virtual void page_size(float *w, float *h){
+      MathGtkWidget::page_size(w, h);
+
+      if(_parent->is_palette())
+        *w = HUGE_VAL;
+    }
+
     virtual void close(){
       _parent->close();
     }
@@ -30,7 +41,7 @@ class richmath::MathGtkWorkingArea: public MathGtkWidget{
     }
 
     int width(){
-      int h = (int)(document()->extents().width * scale_factor() + 0.5f);
+      int h = (int)(document()->unfilled_width * scale_factor() + 0.5f);
       if(h < 1)
         return 1;
       return h;
@@ -57,6 +68,7 @@ class richmath::MathGtkWorkingArea: public MathGtkWidget{
         int h = height();
         int w = width();
         if(h != rect.height || w != rect.width){
+          _parent->set_gravity();
           gtk_widget_set_size_request(_widget, w, h);
         }
       }
@@ -83,6 +95,12 @@ class richmath::MathGtkDock: public MathGtkWidget{
 
     MathGtkDocumentWindow *parent(){ return _parent; }
 
+    virtual void page_size(float *w, float *h){
+      MathGtkWidget::page_size(w, h);
+
+      *w = HUGE_VAL;
+    }
+
     virtual bool is_scrollable(){ return false; }
 
     virtual void invalidate(){
@@ -92,7 +110,7 @@ class richmath::MathGtkDock: public MathGtkWidget{
           gtk_widget_set_visible(_widget, TRUE);
       }
       else{
-        gtk_widget_set_size_request(_widget, -1, -1);
+        gtk_widget_set_size_request(_widget, 1, 1);
         gtk_widget_hide(_widget);
       }
 
@@ -140,7 +158,7 @@ class richmath::MathGtkDock: public MathGtkWidget{
 
       int h = height();
       if(h != rect.height){
-        gtk_widget_set_size_request(_widget, -1, h);
+        gtk_widget_set_size_request(_widget, 1, h);
       }
     }
 
@@ -177,6 +195,11 @@ MathGtkDocumentWindow::MathGtkDocumentWindow()
   _vscrollbar(0),
   _table(0)
 {
+  _previous_rect.x = 0;
+  _previous_rect.y = 0;
+  _previous_rect.width = 1;
+  _previous_rect.height = 1;
+
   _working_area = new MathGtkWorkingArea(this);
   _top_area     = new MathGtkDock(this);
   _bottom_area  = new MathGtkDock(this);
@@ -226,7 +249,7 @@ void MathGtkDocumentWindow::after_construction(){
   _hscrollbar = gtk_hscrollbar_new(_hadjustment);
   _vscrollbar = gtk_vscrollbar_new(_vadjustment);
   gtk_table_attach(GTK_TABLE(_table), _vscrollbar, 1, 2, 2, 3, (GtkAttachOptions)0,                                    (GtkAttachOptions)(GTK_EXPAND | GTK_FILL | GTK_SHRINK), 0, 0);
-  gtk_table_attach(GTK_TABLE(_table), _hscrollbar, 0, 1, 3, 4, (GtkAttachOptions)(GTK_EXPAND | GTK_FILL | GTK_SHRINK), (GtkAttachOptions)0,                                    0, 0);
+  gtk_table_attach(GTK_TABLE(_table), _hscrollbar, 0, 1, 3, 4, (GtkAttachOptions)(GTK_EXPAND | GTK_FILL | GTK_SHRINK), (GtkAttachOptions)0,                            0, 0);
 
   g_signal_connect(_hadjustment, "changed", G_CALLBACK(adjustment_changed_callback), this);
   g_signal_connect(_vadjustment, "changed", G_CALLBACK(adjustment_changed_callback), this);
@@ -253,6 +276,11 @@ void MathGtkDocumentWindow::after_construction(){
   if(get_current_document() == 0){
     set_current_document(document());
   }
+
+  signal_connect<MathGtkDocumentWindow, &MathGtkDocumentWindow::on_configure>("configure-event");
+  signal_connect<MathGtkDocumentWindow, &MathGtkDocumentWindow::on_focus_in>( "focus-in-event");
+  signal_connect<MathGtkDocumentWindow, &MathGtkDocumentWindow::on_focus_out>("focus-out-event");
+  signal_connect<MathGtkDocumentWindow, &MathGtkDocumentWindow::on_scroll>(   "scroll-event");
 
   title("untitled");
 }
@@ -324,8 +352,11 @@ void MathGtkDocumentWindow::title(String text){
 void MathGtkDocumentWindow::is_palette(bool value){
   _is_palette = value;
 
-  gtk_window_set_resizable( GTK_WINDOW(_widget), !value);
-  gtk_window_set_keep_above(GTK_WINDOW(_widget), value);
+  if(!_widget)
+    return;
+
+  gtk_window_set_resizable(   GTK_WINDOW(_widget), !value);
+  gtk_window_set_focus_on_map(GTK_WINDOW(_widget), !value);
 
   gtk_widget_set_visible(_menu_bar, !value);
 
@@ -380,7 +411,7 @@ void MathGtkDocumentWindow::adjustment_changed(GtkAdjustment *adjustment){
     "upper",     &hi,
     NULL);
 
-  gtk_widget_set_visible(scrollbar, lo + page < hi);
+  gtk_widget_set_visible(scrollbar, !is_palette() && lo + page < hi);
 }
 
 MathGtkDocumentWindow *MathGtkDocumentWindow::first_window(){
@@ -388,13 +419,274 @@ MathGtkDocumentWindow *MathGtkDocumentWindow::first_window(){
 }
 
 void MathGtkDocumentWindow::close(){
-//  if(!_widget || destroying())
-//    return;
-//
-//  GtkWidget *w = _widget;
-//  _widget = 0;
-//  gtk_widget_destroy(w);
-//  //destroy();
+  if(!_widget || destroying())
+    return;
+
+  destroy();
+}
+
+void MathGtkDocumentWindow::set_gravity(){
+  if(!_widget)
+    return;
+
+  if(!is_palette()){
+    gtk_window_set_gravity(GTK_WINDOW(_widget), GDK_GRAVITY_NORTH_WEST);
+  }
+  else{
+    GdkRectangle outer;
+    get_outer_rect(&outer);
+
+    pmath_debug_print("\nouter = (%d,%d,%d,%d)", outer.x, outer.y, outer.width, outer.height);
+
+    for(MathGtkDocumentWindow *win = next_window();win != this;win = win->next_window()){
+      if(!win->is_palette()){
+        GdkRectangle rect;
+        win->get_outer_rect(&rect);
+
+        pmath_debug_print(", rect = (%d,%d,%d,%d)", rect.x, rect.y, rect.width, rect.height);
+
+        int dx = SnapDistance;
+        int dy = SnapDistance;
+        GdkWindowEdge edge;
+        if(test_rects_touch(outer, rect, &dx, &dy, &edge)){
+          GdkGravity gravity = GDK_GRAVITY_NORTH_WEST;
+          switch(edge){
+            case GDK_WINDOW_EDGE_NORTH_EAST:
+            case GDK_WINDOW_EDGE_EAST:
+            case GDK_WINDOW_EDGE_SOUTH_EAST:
+              gravity = GDK_GRAVITY_NORTH_EAST;
+              break;
+
+            default: break;
+          }
+
+          gtk_window_set_gravity(GTK_WINDOW(_widget), gravity);
+        }
+      }
+    }
+  }
+}
+
+void MathGtkDocumentWindow::set_initial_rect(int x, int y, int w, int h){
+  if(!_widget || gtk_widget_get_visible(_widget))
+    return;
+
+  _previous_rect.x      = x;
+  _previous_rect.y      = y;
+  _previous_rect.width  = w;
+  _previous_rect.height = h;
+
+  gtk_window_set_default_size(GTK_WINDOW(_widget), w, h);
+  gtk_window_move(GTK_WINDOW(_widget), x, y);
+}
+
+void MathGtkDocumentWindow::get_window_margins(int *left, int *right, int *top, int *bottom){
+  static int l, r, t, b;
+  if(!left)   left   = &l;
+  if(!right)  right  = &r;
+  if(!top)    top    = &t;
+  if(!bottom) bottom = &b;
+
+  int x1, x2, y1, y2;
+  GdkGravity old_gravity = gtk_window_get_gravity(GTK_WINDOW(_widget));
+  gtk_window_set_gravity( GTK_WINDOW(_widget), GDK_GRAVITY_NORTH_WEST);
+  gtk_window_get_position(GTK_WINDOW(_widget), &x1, &y1);
+  gtk_window_set_gravity( GTK_WINDOW(_widget), GDK_GRAVITY_SOUTH_EAST);
+  gtk_window_get_position(GTK_WINDOW(_widget), &x2, &y2); // seems not to take the client widht/height into account
+
+  int cx, cy;
+  gtk_window_set_gravity( GTK_WINDOW(_widget), GDK_GRAVITY_STATIC);
+  gtk_window_get_position(GTK_WINDOW(_widget), &cx, &cy);
+
+  gtk_window_set_gravity(GTK_WINDOW(_widget), old_gravity);
+
+  *left   = cx - x1;
+  *right  = x2 - cx;
+  *top    = cy - y1;
+  *bottom = y2 - cy;
+}
+
+void MathGtkDocumentWindow::get_outer_rect(GdkRectangle *rect){
+  if(!rect || !_widget)
+    return;
+
+  {
+    GdkGravity old_gravity = gtk_window_get_gravity(GTK_WINDOW(_widget));
+    gtk_window_set_gravity(GTK_WINDOW(_widget), GDK_GRAVITY_STATIC);
+    gtk_window_get_position(GTK_WINDOW(_widget), &rect->x, &rect->y);
+    gtk_window_set_gravity(GTK_WINDOW(_widget), old_gravity);
+  }
+
+  gtk_window_get_size(GTK_WINDOW(_widget), &rect->width, &rect->height);
+
+  int l,r,t,b;
+  get_window_margins(&l, &r, &t, &b);
+  rect->x-= l;
+  rect->y-= t;
+  rect->width += l+r;
+  rect->height+= t+b;
+}
+
+bool MathGtkDocumentWindow::test_rects_touch(const GdkRectangle &rect1, const GdkRectangle &rect2, int *maxdx, int *maxdy, GdkWindowEdge *edge){
+  static int global_maxdx;
+  static int global_maxdy;
+  static GdkWindowEdge global_edge;
+
+  if(!maxdx){
+    global_maxdx = 0;
+    maxdx = &global_maxdx;
+  }
+
+  if(!maxdy){
+    global_maxdy = 0;
+    maxdy = &global_maxdy;
+  }
+
+  if(!edge)
+    edge = &global_edge;
+
+  int ldist = abs(rect1.x                - (rect2.x + rect2.width));
+  int rdist = abs(rect1.x + rect1.width  - rect2.x);
+  int tdist = abs(rect1.y                - (rect2.y + rect2.height));
+  int bdist = abs(rect1.y + rect1.height - rect2.y);
+
+  int xdir = 0;
+  int ydir = 0;
+
+  if(ldist <= rdist && ldist <= *maxdx){
+    xdir = -1;
+    *maxdx = ldist;
+  }
+  else if(rdist < ldist && rdist <= *maxdx){
+    xdir = 1;
+    *maxdx = rdist;
+  }
+
+  if(tdist <= bdist && tdist <= *maxdy){
+    ydir = -1;
+    *maxdy = tdist;
+  }
+  else if(bdist < tdist && bdist <= *maxdy){
+    ydir = 1;
+    *maxdy = bdist;
+  }
+
+  if(xdir == 0 && ydir == 0)
+    return false;
+
+  static GdkWindowEdge results[9] = {
+    GDK_WINDOW_EDGE_NORTH_WEST, GDK_WINDOW_EDGE_NORTH, GDK_WINDOW_EDGE_NORTH_EAST,
+    GDK_WINDOW_EDGE_WEST,       (GdkWindowEdge)-1,     GDK_WINDOW_EDGE_EAST,
+    GDK_WINDOW_EDGE_SOUTH_WEST, GDK_WINDOW_EDGE_SOUTH, GDK_WINDOW_EDGE_SOUTH_EAST};
+
+  *edge = results[xdir+1 + 3*(ydir+1)];
+  return true;
+}
+
+void MathGtkDocumentWindow::move_palettes(){
+  if(_snapped_documents.length() < 1)
+    return;
+
+  const DocumentPosition &pos0 = _snapped_documents[0];
+  int dx = _previous_rect.x - pos0.x;
+  int dy = _previous_rect.y - pos0.y;
+
+  if(dx != 0 || dy != 0){
+    for(int i = 1;i < _snapped_documents.length();++i){
+      const DocumentPosition &pos = _snapped_documents[i];
+      Document *doc = dynamic_cast<Document*>(Box::find(pos.id));
+      if(!doc)
+        continue;
+
+      MathGtkWorkingArea *wid = dynamic_cast<MathGtkWorkingArea*>(doc->native());
+      if(!wid)
+        continue;
+
+      MathGtkDocumentWindow *win = wid->parent();
+      GdkGravity old_gravity = gtk_window_get_gravity(GTK_WINDOW(win->widget()));
+      gtk_window_set_gravity(GTK_WINDOW(win->widget()), GDK_GRAVITY_NORTH_WEST);
+      gtk_window_move(GTK_WINDOW(win->widget()), _previous_rect.x + pos.x - pos0.x, _previous_rect.y + pos.y - pos0.y);
+
+      gtk_window_set_gravity(GTK_WINDOW(win->widget()), old_gravity);
+    }
+  }
+}
+
+bool MathGtkDocumentWindow::on_configure(GdkEvent *e){
+  GdkEventConfigure *event = (GdkEventConfigure*)e;
+
+  GdkRectangle client_rect = {event->x, event->y, event->width, event->height};
+  {
+    GdkGravity old_gravity = gtk_window_get_gravity(GTK_WINDOW(_widget));
+    gtk_window_set_gravity(GTK_WINDOW(_widget), GDK_GRAVITY_STATIC);
+    gtk_window_get_position(GTK_WINDOW(_widget), &client_rect.x, &client_rect.y);
+    gtk_window_set_gravity(GTK_WINDOW(_widget), old_gravity);
+  }
+
+  bool is_move_only = event->width  == _previous_rect.width
+                   && event->height == _previous_rect.height;
+
+  _previous_rect = client_rect;
+
+  if(!is_move_only || !_working_area->is_mouse_down() || _snapped_documents.length() < 1)
+    return false;
+
+  move_palettes();
+
+  return false;
+}
+
+bool MathGtkDocumentWindow::on_focus_in(GdkEvent *e){
+//  move_palettes();
+  _snapped_documents.length(0);
+  _snapped_documents.add(DocumentPosition(0, _previous_rect.x, _previous_rect.y));
+
+  return false;
+}
+
+bool MathGtkDocumentWindow::on_focus_out(GdkEvent *e){
+  for(MathGtkDocumentWindow *main = next_window();;main = main->next_window()){
+    main->_snapped_documents.length(0);
+    main->_snapped_documents.add(DocumentPosition(0, main->_previous_rect.x, main->_previous_rect.y));
+
+    if(!main->is_palette()){
+      GdkRectangle rect;
+      main->get_outer_rect(&rect);
+
+      for(MathGtkDocumentWindow *win = main->next_window();win != main;win = win->next_window()){
+        if(win->is_palette()){
+          GdkRectangle other_rect;
+          win->get_outer_rect(&other_rect);
+
+          int dx = SnapDistance;
+          int dy = SnapDistance;
+          if(test_rects_touch(rect, other_rect, &dx, &dy, NULL))
+            main->_snapped_documents.add(DocumentPosition(win->document()->id(), other_rect.x, other_rect.y));
+        }
+      }
+    }
+
+    if(main == this)
+      break;
+  }
+
+  return false;
+}
+
+bool MathGtkDocumentWindow::on_scroll(GdkEvent *e){
+  GdkEventScroll *event = (GdkEventScroll*)e;
+
+  if(event->state & GDK_CONTROL_MASK){
+    if(event->direction == GDK_SCROLL_UP){
+      _working_area->scale_by(pow(2, 0.5));
+    }
+    else if(event->direction == GDK_SCROLL_DOWN){
+      _working_area->scale_by(pow(2, -0.5));
+    }
+    return true;
+  }
+
+  return false;
 }
 
 //} ... class MathGtkDocumentWindow

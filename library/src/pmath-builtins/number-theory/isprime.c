@@ -37,11 +37,11 @@ static pmath_bool_t is_small_prime(unsigned n){
   for(i = 0;i < FIRST_MEDIUM_PRIME_POS; ++i){
     if(n == _pmath_primes16bit[i])
       return TRUE;
-      
+
     if(n < _pmath_primes16bit[i])
       return FALSE;
   }
-  
+
   return FALSE;
 }
 
@@ -50,26 +50,26 @@ PMATH_PRIVATE pmath_bool_t _pmath_integer_is_prime(pmath_integer_t n){
 
   if(pmath_is_int32(n)){
     pmath_bool_t result;
-    
+
     if(PMATH_AS_INT32(n) <= 1)
       return FALSE;
-    
+
     if(PMATH_AS_INT32(n) <= GREATEST_SMALL_PRIME)
       return is_small_prime(PMATH_AS_INT32(n));
-    
+
     n = _pmath_create_mp_int(PMATH_AS_INT32(n));
     if(!pmath_is_null(n)){
       result = _pmath_integer_is_prime(n);
-      
+
       pmath_unref(n);
       return result;
     }
-    
+
     return FALSE;
   }
 
   assert(pmath_is_mpint(n));
-  
+
   if(mpz_sgn(PMATH_AS_MPZ(n)) <= 0)
     return FALSE;
 
@@ -139,119 +139,119 @@ PMATH_PRIVATE pmath_t builtin_isprime(pmath_expr_t expr){
 #if defined(PMATH_DEBUG_LOG) && defined(PMATH_DEBUG_TESTS)
   static pmath_bool_t ui_is_prime(unsigned int n){
     static unsigned int primes55[] = {
-      2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 
-      67, 71, 73, 79, 83, 89, 97, 101, 103, 107, 109, 113, 127, 131, 137, 
-      139, 149, 151, 157, 163, 167, 173, 179, 181, 191, 193, 197, 199, 211, 
+      2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61,
+      67, 71, 73, 79, 83, 89, 97, 101, 103, 107, 109, 113, 127, 131, 137,
+      139, 149, 151, 157, 163, 167, 173, 179, 181, 191, 193, 197, 199, 211,
       223, 227, 229, 233, 239, 241, 251, 257};
-    
+
     unsigned int i, max;
-    
+
     for(i = 0;i < 55;++i){
       if(n % primes55[i] == 0){
         if(n == primes55[i])
           return TRUE;
-        
+
         return FALSE;
       }
     }
-    
+
     max = n >> 4;
     for(i = 259;i < max;i+= 2){
       if(n % i == 0)
         return FALSE;
     }
-    
+
     return TRUE;
   }
-  
+
   /* verify that _pmath_primes16bit contains all the 6542 primes less than 2^16
    */
-  void VERIFY_PRIMES16BIT_SANE(void){
+  static void VERIFY_PRIMES16BIT_SANE(void){
     int i;
-    
+
     assert(_pmath_primes16bit_count == 6542);
-    
+
     if(!ui_is_prime(_pmath_primes16bit[0])){
-      pmath_debug_print("_pmath_primes16bit[0] = %d is not prime\n", 
+      pmath_debug_print("_pmath_primes16bit[0] = %d is not prime\n",
         _pmath_primes16bit[0]);
       abort();
     }
-    
+
     for(i = 1;i < _pmath_primes16bit_count;++i){
       if(!ui_is_prime(_pmath_primes16bit[i])){
-        pmath_debug_print("_pmath_primes16bit[%d] = %d is not prime\n", 
+        pmath_debug_print("_pmath_primes16bit[%d] = %d is not prime\n",
           i, _pmath_primes16bit[i]);
         abort();
       }
-    
+
       if(_pmath_primes16bit[i - 1] >= _pmath_primes16bit[i]){
-        pmath_debug_print("prime at %d (=%d) is too small\n", 
+        pmath_debug_print("prime at %d (=%d) is too small\n",
           i, _pmath_primes16bit[i]);
         abort();
       }
     }
   }
-  
+
   /* verify that product_of_small_primes is the product of all small primes
      (up to GREATEST_SMALL_PRIME)
-     
-     returns TRUE on success, FALSE on out-of-memory and does not return on 
+
+     returns TRUE on success, FALSE on out-of-memory and does not return on
      falsification
    */
-  pmath_bool_t VERIFY_SMALL_PRIMES(void){
+  static pmath_bool_t VERIFY_SMALL_PRIMES(void){
     int i;
     pmath_mpint_t tmp = _pmath_create_mp_int(0);
-    
+
     if(pmath_is_null(tmp))
       return FALSE;
-    
+
     assert(_pmath_primes16bit[FIRST_MEDIUM_PRIME_POS - 1] == GREATEST_SMALL_PRIME);
-    
+
     mpz_set_ui(PMATH_AS_MPZ(tmp), 1);
     for(i = 0;i < FIRST_MEDIUM_PRIME_POS;++i){
       mpz_mul_ui(PMATH_AS_MPZ(tmp), PMATH_AS_MPZ(tmp), _pmath_primes16bit[i]);
     }
-    
+
     if(!pmath_equals(tmp, product_of_small_primes)){
       pmath_debug_print(
-        "product_of_small_primes is not the product of all primes up to %d\n", 
+        "product_of_small_primes is not the product of all primes up to %d\n",
         GREATEST_SMALL_PRIME);
       abort();
     }
-    
+
     pmath_unref(tmp);
     return TRUE;
   }
-  
+
   /* verify that product_of_medium_primes is the product of all medium primes
      (primes with index FIRST_MEDIUM_PRIME_POS .. FIRST_BIG_PRIME_POS - 1,
      stating with 2 at index 0)
-     
-     returns TRUE on success, FALSE on out-of-memory and does not return on 
+
+     returns TRUE on success, FALSE on out-of-memory and does not return on
      falsification
    */
-  pmath_bool_t VERIFY_MEDIUM_PRIMES(void){
+  static pmath_bool_t VERIFY_MEDIUM_PRIMES(void){
     int i;
     pmath_mpint_t tmp = _pmath_create_mp_int(0);
-    
+
     if(pmath_is_null(tmp))
       return FALSE;
-    
+
     assert(SQUARE_OF_FIRST_BIG_PRIME == _pmath_primes16bit[FIRST_BIG_PRIME_POS] * _pmath_primes16bit[FIRST_BIG_PRIME_POS]);
-    
+
     mpz_set_ui(PMATH_AS_MPZ(tmp), 1);
     for(i = FIRST_MEDIUM_PRIME_POS;i < FIRST_BIG_PRIME_POS;++i){
       mpz_mul_ui(PMATH_AS_MPZ(tmp), PMATH_AS_MPZ(tmp), _pmath_primes16bit[i]);
     }
-    
+
     if(!pmath_equals(tmp, product_of_medium_primes)){
       pmath_debug_print(
-        "product_of_medium_primes is not the product of all primes from %d to %d\n", 
+        "product_of_medium_primes is not the product of all primes from %d to %d\n",
         _pmath_primes16bit[FIRST_MEDIUM_PRIME_POS],
         _pmath_primes16bit[FIRST_BIG_PRIME_POS]);
       abort();
     }
-    
+
     pmath_unref(tmp);
     return TRUE;
   }
@@ -264,8 +264,8 @@ PMATH_PRIVATE pmath_t builtin_isprime(pmath_expr_t expr){
 PMATH_PRIVATE pmath_bool_t _pmath_primetest_init(void){
   product_of_small_primes  = pmath_integer_new_str(PRODUCT_OF_SMALL_PRIMES_HEX,  16);
   product_of_medium_primes = pmath_integer_new_str(PRODUCT_OF_MEDIUM_PRIMES_HEX, 16);
-  
-  if(pmath_is_null(product_of_small_primes) 
+
+  if(pmath_is_null(product_of_small_primes)
   || pmath_is_null(product_of_medium_primes)){
     pmath_unref(product_of_small_primes);
     pmath_unref(product_of_medium_primes);
@@ -273,14 +273,14 @@ PMATH_PRIVATE pmath_bool_t _pmath_primetest_init(void){
   }
 
   VERIFY_PRIMES16BIT_SANE();
-  
+
   if(!VERIFY_SMALL_PRIMES()
   || !VERIFY_MEDIUM_PRIMES()){
     pmath_unref(product_of_small_primes);
     pmath_unref(product_of_medium_primes);
     return FALSE;
   }
-  
+
   return TRUE;
 }
 

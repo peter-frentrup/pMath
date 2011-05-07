@@ -163,12 +163,14 @@ FontFace::FontFace(
   #elif defined(RICHMATH_USE_FT_FONT)
   {
     // fcslant and fcweight are not recognized correctly !?!
-    int fcslant  = style.italic ? FC_SLANT_ITALIC : FC_SLANT_ROMAN;
+    int fcslant  = FC_SLANT_ITALIC;//style.italic ? FC_SLANT_ITALIC : FC_SLANT_ROMAN;
     int fcweight = style.bold   ? FC_WEIGHT_BOLD  : FC_WEIGHT_MEDIUM;
     char *family = pmath_string_to_utf8(name.get(), NULL);
+//    const char *style = "Bold Italic";
 
     FcPattern *pattern = FcPatternBuild(NULL,
       FC_FAMILY,     FcTypeString,  family,
+//      FC_STYLE,      FcTypeString,  style,
       FC_SLANT,      FcTypeInteger, fcslant,
       FC_WEIGHT,     FcTypeInteger, fcweight,
       FC_DPI,        FcTypeDouble,  96.0,
@@ -178,7 +180,12 @@ FontFace::FontFace(
       FC_SCALABLE,   FcTypeBool,    FcTrue,
       NULL);
 
-
+//    FcResult result;
+//    pmath_debug_print("fontset for %s:\n", family);
+//    FcFontSet *set = FcFontSort(NULL, pattern, FcFalse, NULL, &result);
+//    FcFontSetPrint(set);
+//    FcFontSetDestroy(set);
+//
 //    FcPatternPrint(pattern);
 //
 //    FcConfigSubstitute(NULL, pattern, FcMatchPattern);
@@ -187,7 +194,6 @@ FontFace::FontFace(
 //    FcDefaultSubstitute(pattern);
 //    FcPatternPrint(pattern);
 //
-//    FcResult result;
 //    FcPattern *resolved = FcFontMatch(NULL, pattern, &result);
 //    FcPatternPrint(resolved);
 //

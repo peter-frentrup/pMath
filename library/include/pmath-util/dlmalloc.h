@@ -261,7 +261,7 @@ FOOTERS                  default: 0
 INSECURE                 default: 0
   If true, omit checks for usage errors and heap space overwrites.
 
-USE_DL_PREFIX            default: NOT defined
+USE_DL_PREFIX            default: NOT defined [pMath: defined below!]
   Causes compiler to prefix all public routines with the string 'dl'.
   This can be useful when you only want to use this malloc in one part
   of a program, using your regular system malloc elsewhere.
@@ -483,6 +483,8 @@ MAX_RELEASE_CHECK_RATE   default: 4095 unless not HAVE_MMAP
 #define __PMATH_UTIL__DLMALLOC_H__
 
 #ifdef PMATH_USE_DLMALLOC
+#define USE_DL_PREFIX 1
+
 
 /* Version identifier to allow people to support multiple versions */
 #ifndef DLMALLOC_VERSION
@@ -774,6 +776,8 @@ extern "C" {
 #define dlindependent_comalloc independent_comalloc
 #endif /* USE_DL_PREFIX */
 
+
+#pragma GCC visibility push(hidden)
 
 /*
   malloc(size_t n)
@@ -1269,5 +1273,6 @@ int mspace_mallopt(int, int);
 };  /* end of extern "C" */
 #endif /* __cplusplus */
 
+#pragma GCC visibility pop
 #endif /* PMATH_USE_DLMALLOC */
 #endif /* __PMATH_UTIL__DLMALLOC_H__ */

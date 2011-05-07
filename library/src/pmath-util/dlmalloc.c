@@ -158,6 +158,8 @@ unsigned char _BitScanReverse(unsigned long *index, unsigned long mask);
 
 
 
+#pragma GCC visibility push(hidden)
+
 /* ------------------- size_t and alignment properties -------------------- */
 
 /* The byte and bit size of a size_t */
@@ -4422,5 +4424,7 @@ History:
          structure of old version,  but most details differ.)
 
 */
+
+#pragma GCC visibility pop
 
 #endif /* PMATH_USE_DLMALLOC */
