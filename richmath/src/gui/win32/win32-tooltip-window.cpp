@@ -168,14 +168,29 @@ void Win32TooltipWindow::resize(bool just_move){
     just_move ? SWP_NOSIZE | SWP_NOACTIVATE : SWP_NOZORDER | SWP_NOACTIVATE);
 }
 
+void Win32TooltipWindow::paint_background(Canvas *canvas){
+  Win32Widget::paint_background(canvas);
+  
+//  RECT rect;
+//  GetClientRect(_hwnd, &rect);
+//  
+//  ControlPainter::std->draw_container(
+//    canvas, 
+//    TooltipWindow, 
+//    Normal,
+//    0, 0,
+//    rect.right,
+//    rect.bottom);
+}
+
 void Win32TooltipWindow::paint_canvas(Canvas *canvas, bool resize_only){
   Win32Widget::paint_canvas(canvas, resize_only);
   
   int old_bh = best_height;
   int old_bw = best_width;
   
-  best_height = (int)ceilf(document()->extents().height() * scale_factor());
-  best_width  = (int)ceilf(document()->unfilled_width     * scale_factor());
+  best_height = (int)floorf(document()->extents().height() * scale_factor() + 0.5);
+  best_width  = (int)floorf(document()->unfilled_width     * scale_factor() + 0.5);
   
   if(best_height < 1)
     best_height = 1;

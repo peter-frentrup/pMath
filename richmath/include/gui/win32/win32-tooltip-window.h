@@ -34,6 +34,7 @@ namespace richmath{
       virtual void after_construction();
       
       void resize(bool just_move);
+      virtual void paint_background(Canvas *canvas);
       virtual void paint_canvas(Canvas *canvas, bool resize_only);
       
       virtual LRESULT callback(UINT message, WPARAM wParam, LPARAM lParam);
