@@ -7,9 +7,10 @@
   #include <usp10.h>
   #include <cairo-win32.h>
 #elif defined(RICHMATH_USE_FT_FONT)
+  #include <pango/pangocairo.h>
   #include <cairo-ft.h>
   #include FT_TRUETYPE_TABLES_H
-
+  #include <stdio.h>
 #else
   #error no support for font backend
 #endif
@@ -84,7 +85,7 @@ class StaticCanvas: public Base{
     StaticCanvas(){
       surface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, 1, 1);
       cr = cairo_create(surface);
-
+      
       canvas = new Canvas(cr);
     }
 
@@ -102,6 +103,43 @@ class StaticCanvas: public Base{
 };
 
 static StaticCanvas static_canvas;
+
+#ifdef RICHMATH_USE_FT_FONT
+  
+  class PangoSettings{
+    public:
+      PangoSettings(){
+        font_map = pango_cairo_font_map_new_for_font_type(CAIRO_FONT_TYPE_FT);
+        
+        if(font_map){
+          pango_cairo_font_map_set_default((PangoCairoFontMap*)font_map);
+        }
+        else
+          fprintf(stderr, "Cannot create Pango font map for Freetype backend.\n");
+        
+        surface = cairo_surface_reference(static_canvas.surface);
+        cr      = cairo_reference(static_canvas.cr);
+        context = pango_cairo_create_context(cr);
+      }
+      
+      ~PangoSettings(){
+        g_object_unref(font_map);
+        g_object_unref(context);
+        cairo_destroy(cr);
+        cairo_surface_destroy(surface);
+      }
+    
+    public:
+    cairo_surface_t *surface;
+      cairo_t       *cr;
+      PangoFontMap  *font_map;
+      PangoContext  *context;
+      
+  };
+  
+  static PangoSettings pango_settings;
+  
+#endif
 
 //{ class FontStyle ...
 
@@ -162,48 +200,68 @@ FontFace::FontFace(
   }
   #elif defined(RICHMATH_USE_FT_FONT)
   {
-    // fcslant and fcweight are not recognized correctly !?!
-    int fcslant  = FC_SLANT_ITALIC;//style.italic ? FC_SLANT_ITALIC : FC_SLANT_ROMAN;
-    int fcweight = style.bold   ? FC_WEIGHT_BOLD  : FC_WEIGHT_MEDIUM;
-    char *family = pmath_string_to_utf8(name.get(), NULL);
-//    const char *style = "Bold Italic";
+    PangoFontDescription *desc = pango_font_description_new();
+    
+    char *utf8_name = pmath_string_to_utf8(name.get_as_string(), NULL);
+    if(utf8_name)
+      pango_font_description_set_family_static(desc, utf8_name);
 
-    FcPattern *pattern = FcPatternBuild(NULL,
-      FC_FAMILY,     FcTypeString,  family,
-//      FC_STYLE,      FcTypeString,  style,
-      FC_SLANT,      FcTypeInteger, fcslant,
-      FC_WEIGHT,     FcTypeInteger, fcweight,
-      FC_DPI,        FcTypeDouble,  96.0,
-      FC_SCALE,      FcTypeDouble,  0.75,
-      FC_SIZE,       FcTypeDouble,  1024.0,
-      FC_PIXEL_SIZE, FcTypeDouble,  1024.0 * 0.75,
-      FC_SCALABLE,   FcTypeBool,    FcTrue,
-      NULL);
+    pango_font_description_set_style( desc, style.italic ? PANGO_STYLE_ITALIC : PANGO_STYLE_NORMAL);
+    pango_font_description_set_weight(desc, style.bold   ? PANGO_WEIGHT_BOLD  : PANGO_WEIGHT_NORMAL);
 
-//    FcResult result;
-//    pmath_debug_print("fontset for %s:\n", family);
-//    FcFontSet *set = FcFontSort(NULL, pattern, FcFalse, NULL, &result);
-//    FcFontSetPrint(set);
-//    FcFontSetDestroy(set);
+    PangoCairoFont *pango_font = (PangoCairoFont*)pango_font_map_load_font(
+      pango_settings.font_map, 
+      pango_settings.context,
+      desc);
+    
+    cairo_scaled_font_t *scaled_font = pango_cairo_font_get_scaled_font(pango_font);
+    _face = cairo_font_face_reference(cairo_scaled_font_get_font_face(scaled_font));
+    
+    pango_font_description_free(desc);
+    pmath_mem_free(utf8_name);
+    
+//    // fcslant and fcweight are not recognized correctly !?!
+//    int fcslant  = FC_SLANT_ITALIC;//style.italic ? FC_SLANT_ITALIC : FC_SLANT_ROMAN;
+//    int fcweight = style.bold   ? FC_WEIGHT_BOLD  : FC_WEIGHT_MEDIUM;
+//    char *family = pmath_string_to_utf8(name.get(), NULL);
+////    const char *style = "Bold Italic";
 //
-//    FcPatternPrint(pattern);
+//    FcPattern *pattern = FcPatternBuild(NULL,
+//      FC_FAMILY,     FcTypeString,  family,
+////      FC_STYLE,      FcTypeString,  style,
+//      FC_SLANT,      FcTypeInteger, fcslant,
+//      FC_WEIGHT,     FcTypeInteger, fcweight,
+//      FC_DPI,        FcTypeDouble,  96.0,
+//      FC_SCALE,      FcTypeDouble,  0.75,
+//      FC_SIZE,       FcTypeDouble,  1024.0,
+//      FC_PIXEL_SIZE, FcTypeDouble,  1024.0 * 0.75,
+//      FC_SCALABLE,   FcTypeBool,    FcTrue,
+//      NULL);
 //
-//    FcConfigSubstitute(NULL, pattern, FcMatchPattern);
-//    FcPatternPrint(pattern);
+////    FcResult result;
+////    pmath_debug_print("fontset for %s:\n", family);
+////    FcFontSet *set = FcFontSort(NULL, pattern, FcFalse, NULL, &result);
+////    FcFontSetPrint(set);
+////    FcFontSetDestroy(set);
+////
+////    FcPatternPrint(pattern);
+////
+////    FcConfigSubstitute(NULL, pattern, FcMatchPattern);
+////    FcPatternPrint(pattern);
+////
+////    FcDefaultSubstitute(pattern);
+////    FcPatternPrint(pattern);
+////
+////    FcPattern *resolved = FcFontMatch(NULL, pattern, &result);
+////    FcPatternPrint(resolved);
+////
+////    FcPatternDestroy(resolved);
 //
-//    FcDefaultSubstitute(pattern);
-//    FcPatternPrint(pattern);
 //
-//    FcPattern *resolved = FcFontMatch(NULL, pattern, &result);
-//    FcPatternPrint(resolved);
+//    _face = cairo_ft_font_face_create_for_pattern(pattern);
 //
-//    FcPatternDestroy(resolved);
-
-
-    _face = cairo_ft_font_face_create_for_pattern(pattern);
-
-    FcPatternDestroy(pattern);
-    pmath_mem_free(family);
+//    FcPatternDestroy(pattern);
+//    pmath_mem_free(family);
   }
   #else
     #error no support for font backend
