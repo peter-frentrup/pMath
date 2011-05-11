@@ -10,7 +10,7 @@
   #include <pango/pangocairo.h>
   #include <cairo-ft.h>
   #include FT_TRUETYPE_TABLES_H
-  #include <stdio.h>
+  #include <cstdio>
 #else
   #error no support for font backend
 #endif

@@ -1,17 +1,12 @@
-#ifndef __GUI__WIN32_TOOLTIP_WINDOW_H__
-#define __GUI__WIN32_TOOLTIP_WINDOW_H__
+#ifndef __GUI__GTK__MGTK_TOOLTIP_WINDOW_H__
+#define __GUI__GTK__MGTK_TOOLTIP_WINDOW_H__
 
-#ifndef RICHMATH_USE_WIN32_GUI
-  #error this header is win32 specific
-#endif
-
-#include <gui/win32/win32-widget.h>
-
+#include <gui/gtk/mgtk-widget.h>
 
 namespace richmath{
-  class Win32TooltipWindow: public Win32Widget{
+  class MathGtkTooltipWindow: public MathGtkWidget {
     public:
-      virtual ~Win32TooltipWindow();
+      virtual ~MathGtkTooltipWindow();
       
       static void move_global_tooltip();
       static void show_global_tooltip(Expr boxes);
@@ -29,18 +24,12 @@ namespace richmath{
       int best_height;
       
     protected:
-      Win32TooltipWindow();
+      MathGtkTooltipWindow();
       virtual void after_construction();
       
       void resize(bool just_move);
-      virtual void paint_background(Canvas *canvas);
       virtual void paint_canvas(Canvas *canvas, bool resize_only);
-      
-      virtual LRESULT callback(UINT message, WPARAM wParam, LPARAM lParam);
-    
-    private:
-      void init_tooltip_class();
   };
 }
 
-#endif // __GUI__WIN32_TOOLTIP_WINDOW_H__
+#endif // __GUI__GTK__MGTK_TOOLTIP_WINDOW_H__

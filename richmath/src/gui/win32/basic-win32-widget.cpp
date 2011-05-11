@@ -1,3 +1,5 @@
+//#define _WIN32_WINNT  0x0501 /* for CS_DROPSHADOW */
+
 #include <gui/win32/basic-win32-widget.h>
 #include <gui/win32/win32-themes.h>
 #include <resources.h>
@@ -7,7 +9,7 @@
 using namespace richmath;
 
 static ATOM win32_widget_class = 0;
-static const WCHAR win32_widget_class_name[] = L"RichmathWin32";
+static const wchar_t win32_widget_class_name[] = L"RichmathWin32";
 
 
 static void add_remove_window(int count){
@@ -48,19 +50,29 @@ BasicWin32Widget::BasicWin32Widget(
   init_window_class();
   add_remove_window(+1);
   
-  init_data->style_ex = style_ex;
-  init_data->style    = style;
-  init_data->x        = x;
-  init_data->y        = y;
-  init_data->width    = width;
-  init_data->height   = height;
-  init_data->parent   = parent;
+  init_data->style_ex          = style_ex;
+  init_data->style             = style;
+  init_data->x                 = x;
+  init_data->y                 = y;
+  init_data->width             = width;
+  init_data->height            = height;
+  init_data->parent            = parent;
+  init_data->window_class_name = 0;
+}
+
+void BasicWin32Widget::set_window_class_name(const wchar_t *static_name){
+  if(init_data)
+    init_data->window_class_name = static_name;
 }
 
 void BasicWin32Widget::after_construction(){
+  const wchar_t *cls_name = init_data->window_class_name;
+  if(!cls_name)
+    cls_name = win32_widget_class_name;
+  
   if(!CreateWindowExW(
     init_data->style_ex,
-    win32_widget_class_name,
+    cls_name,
     L"",
     init_data->style,
     init_data->x,
@@ -76,6 +88,7 @@ void BasicWin32Widget::after_construction(){
   }
   
   delete init_data;
+  init_data = 0;
 }
 
 BasicWin32Widget::~BasicWin32Widget(){
@@ -272,7 +285,7 @@ void BasicWin32Widget::init_window_class(){
                       LR_DEFAULTCOLOR);
   wincl.lpszClassName = win32_widget_class_name;
   wincl.lpfnWndProc = window_proc;
-  wincl.style = 0;
+  wincl.style = 0;//CS_DROPSHADOW;
   
   win32_widget_class = RegisterClassExW(&wincl);
   if(!win32_widget_class){

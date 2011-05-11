@@ -21,6 +21,7 @@ namespace richmath{
         int width;
         int height;
         HWND *parent;
+        const wchar_t *window_class_name;
       };
     
     protected:
@@ -35,7 +36,8 @@ namespace richmath{
         int width,
         int height,
         HWND *parent);
-        
+      
+      void set_window_class_name(const wchar_t *static_name);
       void init(){
         after_construction();
         _initializing = false;
@@ -94,12 +96,13 @@ namespace richmath{
       virtual void do_drop_data(IDataObject *data_object, DWORD effect);
       virtual void position_drop_cursor(POINTL pt);
       
+      static LRESULT CALLBACK window_proc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
+      
     private:
       InitData *init_data;
       bool _initializing;
       
       static void init_window_class();
-      static LRESULT CALLBACK window_proc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
   };
 }
 

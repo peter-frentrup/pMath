@@ -376,6 +376,10 @@
 			<Option target="Windows-Debug-Gtk" />
 			<Option target="Linux-Debug" />
 		</Unit>
+		<Unit filename="include\gui\gtk\mgtk-tooltip-window.h">
+			<Option target="Windows-Debug-Gtk" />
+			<Option target="Linux-Debug" />
+		</Unit>
 		<Unit filename="include\gui\gtk\mgtk-widget.h">
 			<Option target="Windows-Debug-Gtk" />
 			<Option target="Linux-Debug" />
@@ -554,6 +558,10 @@
 			<Option target="Linux-Debug" />
 		</Unit>
 		<Unit filename="src\gui\gtk\mgtk-menu-builder.cpp">
+			<Option target="Windows-Debug-Gtk" />
+			<Option target="Linux-Debug" />
+		</Unit>
+		<Unit filename="src\gui\gtk\mgtk-tooltip-window.cpp">
 			<Option target="Windows-Debug-Gtk" />
 			<Option target="Linux-Debug" />
 		</Unit>

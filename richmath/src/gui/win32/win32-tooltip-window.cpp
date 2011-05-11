@@ -9,11 +9,14 @@
 #include <gui/win32/win32-themes.h>
 
 #include <cmath>
+#include <cstdio>
 
 
 using namespace richmath;
 
 static Win32TooltipWindow *tooltip_window = 0;
+
+static const wchar_t win32_tooltip_class_name[] = L"RichmathWin32Tooltip";
 
 //{ class Win32TooltipWindow ...
 
@@ -26,9 +29,10 @@ Win32TooltipWindow::Win32TooltipWindow()
     0, 
     100, 
     100, 
-    NULL),
-  _align_left(true)
+    NULL)
 {
+  init_tooltip_class();
+  set_window_class_name(win32_tooltip_class_name);
 }
 
 void Win32TooltipWindow::after_construction(){
@@ -53,17 +57,6 @@ void Win32TooltipWindow::move_global_tooltip(){
     return;
   
   tooltip_window->resize(true);
-//  POINT pt;
-//  GetCursorPos(&pt);
-//  
-//  SetWindowPos(
-//    tooltip_window->_hwnd, 
-//    HWND_TOPMOST, 
-//    pt.x + GetSystemMetrics(SM_CXSMICON), 
-//    pt.y + GetSystemMetrics(SM_CYSMICON), 
-//    0, 
-//    0, 
-//    SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOREDRAW);
 }
 
 void Win32TooltipWindow::show_global_tooltip(Expr boxes){
@@ -227,6 +220,29 @@ LRESULT Win32TooltipWindow::callback(UINT message, WPARAM wParam, LPARAM lParam)
   }
   
   return Win32Widget::callback(message, wParam, lParam);
+}
+
+void Win32TooltipWindow::init_tooltip_class(){
+  static bool window_class_initialized = false;
+  if(window_class_initialized)
+    return;
+  
+  WNDCLASSEXW wincl;
+  
+  memset(&wincl, 0, sizeof(wincl));
+  
+  wincl.cbSize        = sizeof(wincl);
+  wincl.hInstance     = GetModuleHandle(0);
+  wincl.lpszClassName = win32_tooltip_class_name;
+  wincl.lpfnWndProc   = BasicWin32Widget::window_proc;
+  wincl.style         = CS_DROPSHADOW;
+  
+  if(!RegisterClassExW(&wincl)){
+    perror("init_tooltip_class() failed\n");
+    abort();
+  }
+  
+  window_class_initialized = true;
 }
 
 //} ... class Win32TooltipWindow

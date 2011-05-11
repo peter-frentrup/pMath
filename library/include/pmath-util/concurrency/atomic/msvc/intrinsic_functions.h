@@ -37,7 +37,7 @@ intptr_t pmath_atomic_fetch_add(pmath_atomic_t *atom, intptr_t delta){
   #if PMATH_BITSIZE == 64
     return _InterlockedExchangeAdd64(&atom->_data, delta);
   #else
-    return _InterlockedExchangeAdd(&atom->_data, delta);
+    return _InterlockedExchangeAdd((volatile long*)&atom->_data, delta);
   #endif
 }
 

@@ -218,7 +218,8 @@ MathGtkDocumentWindow::MathGtkDocumentWindow()
 }
 
 void MathGtkDocumentWindow::after_construction(){
-  _widget = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+  if(!_widget)
+    _widget = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 
   BasicGtkWidget::after_construction();
 

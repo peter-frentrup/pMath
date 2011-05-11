@@ -1,7 +1,7 @@
 #define _WIN32_WINNT 0x0600
 
-#include <math.h>
-#include <stdio.h>
+#include <cmath>
+#include <cstdio>
 #include <cairo-win32.h>
 
 #include <graphics/canvas.h>

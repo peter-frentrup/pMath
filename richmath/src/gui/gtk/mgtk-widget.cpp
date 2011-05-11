@@ -2,10 +2,11 @@
 
 #include <eval/binding.h>
 #include <gui/gtk/mgtk-clipboard.h>
+#include <gui/gtk/mgtk-tooltip-window.h>
 
 #include <glib.h>
 #include <gdk/gdkkeysyms.h>
-#include <math.h>
+#include <cmath>
 
 
 using namespace richmath;
@@ -202,17 +203,11 @@ void MathGtkWidget::scroll_to(float x, float y){
 }
 
 void MathGtkWidget::show_tooltip(Expr boxes){
-  if(!_widget)
-    return;
-
-  // todo: implement gtk tooltips
+  MathGtkTooltipWindow::show_global_tooltip(boxes);
 }
 
 void MathGtkWidget::hide_tooltip(){
-  if(!_widget)
-    return;
-
-  // todo: implement gtk tooltips
+  MathGtkTooltipWindow::hide_global_tooltip();
 }
 
 double MathGtkWidget::message_time(){
@@ -761,7 +756,8 @@ void MathGtkWidget::paint_canvas(Canvas *canvas, bool resize_only){
 void MathGtkWidget::handle_mouse_move(MouseEvent &event){
   mouse_moving = true;
   cursor = DefaultCursor;
-
+  
+  MathGtkTooltipWindow::move_global_tooltip();
   document()->mouse_move(event);
 
   mouse_moving = false;
@@ -1094,7 +1090,7 @@ bool MathGtkWidget::on_motion_notify(GdkEvent *e){
   scroll_pos(&sx, &sy);
   me.x+= sx;
   me.y+= sy;
-
+  
   handle_mouse_move(me);
   return true;
 }

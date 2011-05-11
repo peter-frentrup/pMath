@@ -5,7 +5,7 @@
 #include <eval/job.h>
 #include <graphics/context.h>
 
-#include <stdio.h>
+#include <cstdio>
 
 using namespace richmath;
 

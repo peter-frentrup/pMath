@@ -1,7 +1,7 @@
 #include <util/semaphore.h>
 
-#include <errno.h>
-#include <math.h>
+#include <cerrno>
+#include <cmath>
 
 
 using namespace richmath;

@@ -33,6 +33,7 @@
   #include <gui/gtk/mgtk-clipboard.h>
   #include <gui/gtk/mgtk-document-window.h>
   #include <gui/gtk/mgtk-menu-builder.h>
+  #include <gui/gtk/mgtk-tooltip-window.h>
 #endif
 
 #include <gui/document.h>
@@ -928,6 +929,10 @@ int main(int argc, char **argv){
 
  QUIT:
   pmath_debug_print("quitted\n");
+  
+  #ifdef RICHMATH_USE_GTK_GUI
+    MathGtkTooltipWindow::delete_global_tooltip();
+  #endif
 
   MathShaper::available_shapers.clear();
   MathShaper::available_shapers.default_value = 0;
