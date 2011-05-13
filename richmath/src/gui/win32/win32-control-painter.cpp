@@ -70,6 +70,9 @@ void Win32ControlPainter::calc_container_size(
   ContainerType  type,
   BoxSize       *extents // in/out
 ){
+  int theme_part, theme_state;
+  HANDLE theme = get_control_theme(type, Normal, &theme_part, &theme_state);
+  
   switch(type){
     case InputField: {
       if(Win32Themes::IsThemeActive
@@ -86,13 +89,18 @@ void Win32ControlPainter::calc_container_size(
     } return;
   
     case ProgressIndicatorBar: {
-      int part, state;
-      HANDLE theme = get_control_theme(ProgressIndicatorBar, Normal, &part, &state);
-      
-      if(!theme || part != 5){
+      if(!theme || theme_part != 5){
         extents->width-=   4.5;
         extents->ascent-=  2.25;
         extents->descent-= 2.25; 
+      }
+    } return;
+  
+    case TooltipWindow: {
+      if(!theme){
+        extents->width+=   6;
+        extents->ascent+=  3;
+        extents->descent+= 3; 
       }
     } return;
   
@@ -101,9 +109,6 @@ void Win32ControlPainter::calc_container_size(
   
   if(Win32Themes::GetThemeMargins
   && Win32Themes::GetThemePartSize){
-    int theme_part, theme_state;
-    HANDLE theme = get_control_theme(type, Normal, &theme_part, &theme_state);
-    
     SIZE size = {0,0};
     Win32Themes::MARGINS mar = {0,0,0,0};
     // TMT_SIZINGMARGINS  = 3601
@@ -558,11 +563,7 @@ void Win32ControlPainter::draw_container(
       } break;
       
       case TooltipWindow: {
-        DrawEdge(
-          dc,
-          &rect,
-          EDGE_RAISED,
-          BF_RECT);
+        FrameRect(dc, &rect, GetSysColorBrush(COLOR_WINDOWFRAME));
         
         InflateRect(&rect, -1, -1);
         
