@@ -14,6 +14,7 @@ namespace richmath{
       virtual bool expand(const BoxSize &size);
       virtual void paint(Context *context);
       
+      virtual Expr to_pmath_symbol(){ return Symbol(PMATH_SYMBOL_SETTERBOX); }
       virtual Expr to_pmath(bool parseable);
       
       virtual void on_mouse_down(MouseEvent &event);

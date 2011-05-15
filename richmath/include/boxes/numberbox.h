@@ -10,6 +10,7 @@ namespace richmath{
       
       virtual bool edit_selection(Context *context);
       
+      virtual Expr to_pmath_symbol(){ return Expr(); }
       virtual Expr to_pmath(bool parseable){ return _number; }
       
       static Expr prepare_boxes(Expr boxes);

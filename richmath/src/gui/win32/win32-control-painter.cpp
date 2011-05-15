@@ -101,8 +101,9 @@ void Win32ControlPainter::calc_container_size(
         extents->width+=   6;
         extents->ascent+=  3;
         extents->descent+= 3; 
+        return;
       }
-    } return;
+    }
   
     default: break;
   }

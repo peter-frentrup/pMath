@@ -21,6 +21,7 @@ namespace richmath{
       virtual void paint(Context *context);
       virtual Box *remove(int *index){ return this; }
       
+      virtual Expr to_pmath_symbol(){ return Symbol(PMATH_SYMBOL_PROGRESSINDICATORBOX); }
       virtual Expr to_pmath(bool parseable);
       
       virtual Box *mouse_selection(

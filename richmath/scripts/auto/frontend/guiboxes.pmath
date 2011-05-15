@@ -83,7 +83,7 @@ MakeBoxes(Slider(~val ? isNumberOrDynamic, ~min..~max..~step,      options:Optio
 MakeBoxes(Slider(~val ? isNumberOrDynamic, Except({}, ~vals:List), options:OptionsPattern()))::= SliderBox(val, vals, options)
 
 
-MakeBoxes(Tooltip(~content, ~tooltip))::= TooltipBox(MakeBoxes(content), MakeBoxes(tooltip))
+MakeBoxes(Tooltip(~content, ~tooltip, options:OptionsPattern()))::= TooltipBox(MakeBoxes(content), MakeBoxes(tooltip), options)
 
 
 
@@ -137,7 +137,7 @@ SliderBox/: MakeExpression(SliderBox(~val, ~range, options:OptionsPattern()))::=
 TooltipBox/: MakeExpression(TooltipBox(~content, ~tooltip, options:OptionsPattern()))::= 
 	With({c:= MakeExpression(content), t:= MakeExpression(tooltip)},
 		If(c === $Failed ||t === $Failed, Return($Failed));
-		HoldComplete(Tooltip(c, t)).Replace({HoldComplete(~x) :> x}, 2)
+		HoldComplete(Tooltip(c, t, options)).Replace({HoldComplete(~x) :> x}, 2)
 		)
 
 

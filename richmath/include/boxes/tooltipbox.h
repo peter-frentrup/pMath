@@ -5,14 +5,13 @@
 
 
 namespace richmath{
-  class TooltipBox: public StyleBox{
+  class TooltipBox: public ExpandableAbstractStyleBox{
     public:
       static TooltipBox *create(Expr expr, int opts);
       
+      virtual Expr to_pmath_symbol(){ return Symbol(PMATH_SYMBOL_TOOLTIPBOX); }
       virtual Expr to_pmath(bool parseable);
       
-      virtual bool changes_children_style(){ return false; }
-    
       virtual void on_mouse_enter();
       virtual void on_mouse_exit();
       

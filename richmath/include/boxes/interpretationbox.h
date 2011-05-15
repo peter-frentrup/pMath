@@ -10,6 +10,7 @@ namespace richmath{
       InterpretationBox(MathSequence *content);
       InterpretationBox(MathSequence *content, Expr _interpretation);
       
+      virtual Expr to_pmath_symbol(){ return Symbol(PMATH_SYMBOL_INTERPRETATIONBOX); }
       virtual Expr to_pmath(bool parseable);
       
       virtual bool edit_selection(Context *context);

@@ -130,6 +130,8 @@ namespace richmath{
       SharedPtr<Stylesheet> stylesheet(){ return context.stylesheet; }
       
       void paint_resize(Canvas *canvas, bool resize_only);
+      
+      virtual Expr to_pmath_symbol(){ return Symbol(PMATH_SYMBOL_DOCUMENT); }
     
     public:
       Document *main_document; // not owned

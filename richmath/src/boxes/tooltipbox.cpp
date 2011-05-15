@@ -11,7 +11,7 @@ using namespace richmath;
 //{ class TooltipBox ...
 
 TooltipBox::TooltipBox()
-: StyleBox(0)
+: ExpandableAbstractStyleBox(0)
 {
 }
 
@@ -37,6 +37,10 @@ TooltipBox *TooltipBox::create(Expr expr, int opts){
 }
 
 Expr TooltipBox::to_pmath(bool parseable){
+  if(parseable && get_own_style(StripOnInput, true)){
+    return _content->to_pmath(parseable);
+  }
+  
   Gather g;
   
   Gather::emit(content()->to_pmath(parseable));

@@ -1417,12 +1417,35 @@ static void write_ex(
     pmath_write_ex(info, obj);
 }
 
-typedef struct{
-  void         *next_user;
-  void        (*next)(void*,const uint16_t*,int);
-  int           prefix_status;
-  pmath_bool_t  special_end; // for product_writer
-}_writer_hook_data_t;
+struct _writer_hook_data_t{
+  int                      prefix_status;
+  pmath_bool_t             special_end; // for product_writer
+  struct pmath_write_ex_t *next;
+};
+
+static void hook_pre_write(void *user, pmath_t obj){
+  struct _writer_hook_data_t *hook = user;
+  
+  if(hook->next->pre_write)
+    hook->next->pre_write(hook->next->user, obj);
+}
+
+static void hook_post_write(void *user, pmath_t obj){
+  struct _writer_hook_data_t *hook = user;
+  
+  if(hook->next->post_write)
+    hook->next->post_write(hook->next->user, obj);
+}
+
+static void init_hook_info(struct pmath_write_ex_t *info, struct _writer_hook_data_t *user){
+  memset(info, 0, sizeof(struct pmath_write_ex_t));
+  info->size = sizeof(struct pmath_write_ex_t);
+  
+  info->options    = user->next->options;
+  info->user       = user;
+  info->pre_write  = hook_pre_write;
+  info->post_write = hook_post_write;
+}
 
 /* Hook in the given writer function and insert a space before the first 
    character if it is '?'.
@@ -1432,21 +1455,22 @@ typedef struct{
      a/ ?b   (= Times(a, Power(Optional(b), -1)))
  */
 static void division_writer(
-  _writer_hook_data_t *user,
+  void           *user,
   const uint16_t *data,
   int len
 ){
+  struct _writer_hook_data_t *hook = user;
   if(len == 0)
     return;
   
-  if(user->prefix_status == 0){
-    user->prefix_status = 1;
+  if(hook->prefix_status == 0){
+    hook->prefix_status = 1;
     
     if(data[0] == '?')
-      write_cstr(" ", user->next, user->next_user);
+      write_cstr(" ", hook->next->write, hook->next->user);
   }
   
-  user->next(user->next_user, data, len);
+  hook->next->write(hook->next->user, data, len);
 }
 
 /* Hook in the given writer function and place stars as multilication signs when
@@ -1455,10 +1479,11 @@ static void division_writer(
       times(a,plus(b,c)) becomes "a*(b+c)".
  */
 static void product_writer(
-  _writer_hook_data_t *user,
+  void           *user,
   const uint16_t *data,
-  int len
+  int             len
 ){
+  struct _writer_hook_data_t *hook = user;
   int i = 0;
   
   if(len == 0)
@@ -1467,33 +1492,33 @@ static void product_writer(
   while(i < len && data[i] <= ' ')
     i++;
 
-  if(user->prefix_status == 1){
+  if(hook->prefix_status == 1){
     if(i < len && data[i] == '/')
-      write_cstr("1", user->next, user->next_user);
-    user->prefix_status = 2;
+      write_cstr("1", hook->next->write, hook->next->user);
+    hook->prefix_status = 2;
   }
-  else if(user->prefix_status == 0){
-    user->prefix_status = 2;//i < len;
+  else if(hook->prefix_status == 0){
+    hook->prefix_status = 2;//i < len;
     if(i < len && (data[i] == '('
                 || data[i] == '['
                 || data[i] == '.'))
     {
-      write_cstr("*", user->next, user->next_user);
+      write_cstr("*", hook->next->write, hook->next->user);
     }
     else if(len >= 2 && data[0] == '1' && data[1] == '/'){
       --len;
       ++data;
     }
     else if(i < len && data[i] != '/')
-      write_cstr(" ", user->next, user->next_user);
+      write_cstr(" ", hook->next->write, hook->next->user);
   }
-  //user->prefix_status = user->prefix_status && i >= len;
+  //hook->prefix_status = hook->prefix_status && i >= len;
   i = len;
   while(i > 0 && data[i-1] <= ' ')
     i--;
-  user->special_end = i > 0 && data[i-1] == '~';
+  hook->special_end = i > 0 && data[i-1] == '~';
 
-  user->next(user->next_user, data, len);
+  hook->next->write(hook->next->user, data, len);
 }
 
 /* Hook in the given writer function and place plus or minus signs
@@ -1501,34 +1526,37 @@ static void product_writer(
    => plus(a,times(-2,b)) becomes "a - 2 b" instead of "a + -2 b".
  */
 static void sum_writer(
-  _writer_hook_data_t *user,
+  void           *user,
   const uint16_t *data,
-  int len
+  int             len
 ){
+  struct _writer_hook_data_t *hook = user;
+  
   if(len == 0)
     return;
 
-  if(!user->prefix_status){
+  if(!hook->prefix_status){
     int i = 0;
     while(i < len && data[i] <= ' ')
       i++;
-    user->prefix_status = i < len;
+    hook->prefix_status = i < len;
     if(i < len && data[i] == '-'){
-      write_cstr(" - ", user->next, user->next_user);
+      write_cstr(" - ", hook->next->write, hook->next->user);
       data+= i+1;
       len-= i+1;
-      user->prefix_status = TRUE;
+      hook->prefix_status = TRUE;
     }
     else if(i < len){
-      write_cstr(" + ", user->next, user->next_user);
-      user->prefix_status = TRUE;
+      write_cstr(" + ", hook->next->write, hook->next->user);
+      hook->prefix_status = TRUE;
     }
   }
-  user->next(user->next_user, data, len);
+  
+  hook->next->write(hook->next->user, data, len);
 }
 
 static void write_expr_ex(
-  struct pmath_write_ex_t *info,
+  struct pmath_write_ex_t  *info,
   int                       priority,
   pmath_expr_t              expr
 ){
@@ -2208,7 +2236,8 @@ static void write_expr_ex(
       WRITE_CSTR(")");
   }
   else if(pmath_same(head, PMATH_SYMBOL_PLUS)){
-    _writer_hook_data_t sum_writer_data;
+    struct _writer_hook_data_t sum_writer_data;
+    struct pmath_write_ex_t    hook_info;
     size_t i;
     
     if(exprlen < 2)
@@ -2217,29 +2246,25 @@ static void write_expr_ex(
     if(priority > PRIO_PLUS)
       WRITE_CSTR("(");
 
-    sum_writer_data.next_user     = info->user;
-    sum_writer_data.next          = info->write;
+    sum_writer_data.next          = info;
     sum_writer_data.prefix_status = TRUE;
-    
-    info->write = (void(*)(void*,const uint16_t*,int))sum_writer;
-    info->user  = &sum_writer_data;
-    
+    init_hook_info(&hook_info, &sum_writer_data);
+    hook_info.write = sum_writer;
+
     for(i = 1;i <= exprlen;i++){
       pmath_t item = pmath_expr_get_item(expr, i);
-      write_ex(info, PRIO_PLUS+1, item);
+      write_ex(&hook_info, PRIO_PLUS+1, item);
       
       sum_writer_data.prefix_status = FALSE;
       pmath_unref(item);
     }
     
-    info->write = sum_writer_data.next;
-    info->user  = sum_writer_data.next_user;
-
     if(priority > PRIO_PLUS)
       WRITE_CSTR(")");
   }
   else if(pmath_same(head, PMATH_SYMBOL_TIMES)){
-    _writer_hook_data_t  product_writer_data;
+    struct _writer_hook_data_t  product_writer_data;
+    struct pmath_write_ex_t     hook_info;
     pmath_t item;
     size_t i;
     
@@ -2249,20 +2274,18 @@ static void write_expr_ex(
     if(priority > PRIO_TIMES)
       WRITE_CSTR("(");
 
-    product_writer_data.next_user     = info->user;
-    product_writer_data.next          = info->write;
+    product_writer_data.next          = info;
     product_writer_data.prefix_status = 1;
     product_writer_data.special_end   = FALSE;
-    
-    info->user  = &product_writer_data;
-    info->write = (void(*)(void*,const uint16_t*,int))product_writer;
+    init_hook_info(&hook_info, &product_writer_data);
+    hook_info.write = product_writer;
     
     item = pmath_expr_get_item(expr, 1);
     if(pmath_same(item, PMATH_FROM_INT32(-1))){
-      write_cstr("-", product_writer_data.next, product_writer_data.next_user);
+      write_cstr("-", info->write, info->user);
     }
     else{
-      write_ex(info, PRIO_TIMES, item);
+      write_ex(&hook_info, PRIO_TIMES, item);
       product_writer_data.prefix_status = 0;
     }
     pmath_unref(item);
@@ -2272,23 +2295,21 @@ static void write_expr_ex(
       
       if(product_writer_data.special_end 
       || (info->options & PMATH_WRITE_OPTIONS_INPUTEXPR)){
-        write_cstr("*", product_writer_data.next, product_writer_data.next_user);
+        write_cstr("*", info->write, info->user);
         product_writer_data.prefix_status = 1;
       }
       
-      write_ex(info, PRIO_FACTOR, item);
+      write_ex(&hook_info, PRIO_FACTOR, item);
       product_writer_data.prefix_status = 0;
       pmath_unref(item);
     }
     
-    info->user  = product_writer_data.next_user;
-    info->write = product_writer_data.next;
-
     if(priority > PRIO_TIMES)
       WRITE_CSTR(")");
   }
   else if(pmath_same(head, PMATH_SYMBOL_POWER)){
-    _writer_hook_data_t  division_writer_data;
+    struct _writer_hook_data_t  division_writer_data;
+    struct pmath_write_ex_t     hook_info;
     pmath_t base, exponent;
     
     if(exprlen != 2)
@@ -2297,9 +2318,10 @@ static void write_expr_ex(
     exponent = pmath_expr_get_item(expr, 2);
     base = pmath_expr_get_item(expr, 1);
     
-    division_writer_data.next_user     = info->user;
-    division_writer_data.next          = info->write;
+    division_writer_data.next          = info;
     division_writer_data.prefix_status = 0;
+    init_hook_info(&hook_info, &division_writer_data);
+    hook_info.write = division_writer;
 
     if(pmath_equals(exponent, _pmath_one_half)){
       WRITE_CSTR("Sqrt(");
@@ -2309,26 +2331,14 @@ static void write_expr_ex(
     else if(pmath_equals(exponent, PMATH_FROM_INT32(-1))){
       WRITE_CSTR("1/");
       
-      info->write = (void(*)(void*,const uint16_t*,int))division_writer;
-      info->user  = &division_writer_data;
-      
-      write_ex(info, PRIO_POWER+1, base);
-      
-      info->write = division_writer_data.next;
-      info->user  = division_writer_data.next_user;
+      write_ex(&hook_info, PRIO_POWER+1, base);
     }
     else if(pmath_is_integer(exponent) && pmath_number_sign(exponent) < 0){
       WRITE_CSTR("1/");
       
       exponent = pmath_number_neg(exponent);
       
-      info->write = (void(*)(void*,const uint16_t*,int))division_writer;
-      info->user  = &division_writer_data;
-      
-      write_ex(info, PRIO_POWER+1, base);
-      
-      info->write = division_writer_data.next;
-      info->user  = division_writer_data.next_user;
+      write_ex(&hook_info, PRIO_POWER+1, base);
       
       WRITE_CSTR("^");
       write_ex(info, PRIO_POWER, exponent);

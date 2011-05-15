@@ -820,6 +820,8 @@ PMATH_API pmath_bool_t pmath_init(void){
 
     PMATH_RUN("Options(Slider):=Options(SliderBox):={ContinuousAction->True}");
     
+    PMATH_RUN("Options(Tooltip):=Options(TooltipBox):={StripOnInput->True}");
+    
     //} ... initialization runs
 
     _pmath_symbol_builtins_protect_all();

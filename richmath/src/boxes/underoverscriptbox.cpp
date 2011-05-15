@@ -247,6 +247,16 @@ void UnderoverscriptBox::complete(){
   }
 }
 
+Expr UnderoverscriptBox::to_pmath_symbol(){
+  if(_underscript){
+    if(_overscript)
+      return Symbol(PMATH_SYMBOL_UNDEROVERSCRIPTBOX);
+    return Symbol(PMATH_SYMBOL_UNDERSCRIPTBOX);
+  }
+  
+  return Symbol(PMATH_SYMBOL_OVERSCRIPTBOX);
+}
+
 Expr UnderoverscriptBox::to_pmath(bool parseable){
   if(_underscript){
     if(_overscript)

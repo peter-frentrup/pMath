@@ -161,10 +161,38 @@ Box *AbstractStyleBox::mouse_selection(
 
 //} ... class AbstractStyleBox
 
+//{ class ExpandableAbstractStyleBox ...
+
+bool ExpandableAbstractStyleBox::expand(const BoxSize &size){
+  BoxSize size2 = size;
+  float r = _extents.width - _content->extents().width - cx;
+  float t = _extents.ascent  - _content->extents().ascent;
+  float b = _extents.descent - _content->extents().descent;
+  size2.width-= cx + r;
+  size2.ascent-= t;
+  size2.descent-= b;
+  
+  cy-= _content->extents().ascent;
+  if(_content->expand(size)){
+    _extents = _content->extents();
+    _extents.width+= r;
+    _extents.ascent+= t;
+    _extents.descent+= b;
+    
+    cy+= _content->extents().ascent;
+    return true;
+  }
+  
+  cy+= _content->extents().ascent;
+  return false;
+}
+
+//} ... class ExpandableAbstractStyleBox
+
 //{ class StyleBox ...
 
 StyleBox::StyleBox(MathSequence *content)
-: AbstractStyleBox(content)
+: ExpandableAbstractStyleBox(content)
 {
   style = new Style;
 }
@@ -209,30 +237,6 @@ StyleBox *StyleBox::create(Expr expr, int opts){
   return 0;
 }
 
-bool StyleBox::expand(const BoxSize &size){
-  BoxSize size2 = size;
-  float r = _extents.width - _content->extents().width - cx;
-  float t = _extents.ascent  - _content->extents().ascent;
-  float b = _extents.descent - _content->extents().descent;
-  size2.width-= cx + r;
-  size2.ascent-= t;
-  size2.descent-= b;
-  
-  cy-= _content->extents().ascent;
-  if(_content->expand(size)){
-    _extents = _content->extents();
-    _extents.width+= r;
-    _extents.ascent+= t;
-    _extents.descent+= b;
-    
-    cy+= _content->extents().ascent;
-    return true;
-  }
-  
-  cy+= _content->extents().ascent;
-  return false;
-}
-
 Expr StyleBox::to_pmath(bool parseable){
   if(parseable && get_own_style(StripOnInput, true)){
     return _content->to_pmath(parseable);
@@ -254,19 +258,19 @@ Expr StyleBox::to_pmath(bool parseable){
 //{ class TagBox ...
 
 TagBox::TagBox()
-: AbstractStyleBox()
+: ExpandableAbstractStyleBox()
 {
   style = new Style();
 }
 
 TagBox::TagBox(MathSequence *content)
-: AbstractStyleBox(content)
+: ExpandableAbstractStyleBox(content)
 {
   style = new Style();
 }
 
 TagBox::TagBox(MathSequence *content, Expr _tag)
-: AbstractStyleBox(content),
+: ExpandableAbstractStyleBox(content),
   tag(_tag)
 {
   style = new Style();
@@ -301,33 +305,9 @@ TagBox *TagBox::create(Expr expr, int options){
   return box;
 }
 
-bool TagBox::expand(const BoxSize &size){
-  BoxSize size2 = size;
-  float r = _extents.width - _content->extents().width - cx;
-  float t = _extents.ascent  - _content->extents().ascent;
-  float b = _extents.descent - _content->extents().descent;
-  size2.width-= cx + r;
-  size2.ascent-= t;
-  size2.descent-= b;
-  
-  cy-= _content->extents().ascent;
-  if(_content->expand(size)){
-    _extents = _content->extents();
-    _extents.width+= r;
-    _extents.ascent+= t;
-    _extents.descent+= b;
-    
-    cy+= _content->extents().ascent;
-    return true;
-  }
-  
-  cy+= _content->extents().ascent;
-  return false;
-}
-
 void TagBox::resize(Context *context){
   style->set(BaseStyleName, String(tag));
-  AbstractStyleBox::resize(context);
+  ExpandableAbstractStyleBox::resize(context);
 }
 
 Expr TagBox::to_pmath(bool parseable){

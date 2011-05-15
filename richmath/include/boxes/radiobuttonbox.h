@@ -11,6 +11,7 @@ namespace richmath{
       
       virtual void paint(Context *context);
       
+      virtual Expr to_pmath_symbol(){ return Symbol(PMATH_SYMBOL_RADIOBUTTONBOX); }
       virtual Expr to_pmath(bool parseable);
       
       virtual void dynamic_finished(Expr info, Expr result);

@@ -50,6 +50,7 @@ namespace richmath{
       
       virtual void selection_path(Canvas *canvas, int start, int end);
       
+      virtual Expr to_pmath_symbol(){ return Expr(); }
       virtual Expr to_pmath(bool parseable);
       virtual Expr to_pmath(bool parseable, int start, int end);
       virtual void load_from_object(Expr object, int options); // BoxOptionXXX

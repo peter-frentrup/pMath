@@ -180,6 +180,16 @@ void SubsuperscriptBox::complete(){
   }
 }
 
+Expr SubsuperscriptBox::to_pmath_symbol(){
+  if(_subscript){
+    if(_superscript)
+      return Symbol(PMATH_SYMBOL_SUBSUPERSCRIPTBOX);
+    return Symbol(PMATH_SYMBOL_SUBSCRIPTBOX);
+  }
+  
+  return Symbol(PMATH_SYMBOL_SUPERSCRIPTBOX);
+}
+
 Expr SubsuperscriptBox::to_pmath(bool parseable){
   if(_subscript){
     if(_superscript)

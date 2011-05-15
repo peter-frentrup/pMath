@@ -19,6 +19,7 @@ namespace richmath{
       
       virtual Box *remove(int *index);
       
+      virtual Expr to_pmath_symbol(){ return Symbol(PMATH_SYMBOL_INPUTFIELDBOX); }
       virtual Expr to_pmath(bool parseable);
       
       virtual bool remove_inserts_placeholder(){ return false; }

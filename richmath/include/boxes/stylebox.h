@@ -37,11 +37,21 @@ namespace richmath{
       bool show_auto_styles;
   };
   
-  class StyleBox: public AbstractStyleBox{
+  class ExpandableAbstractStyleBox: public AbstractStyleBox{
+    public:
+      explicit ExpandableAbstractStyleBox(MathSequence *content = 0)
+      : AbstractStyleBox(content)
+      {
+      }
+      
+      virtual bool expand(const BoxSize &size);
+  };
+  
+  class StyleBox: public ExpandableAbstractStyleBox{
     public:
       static StyleBox *create(Expr expr, int opts); // returns 0 on error
       
-      virtual bool expand(const BoxSize &size);
+      virtual Expr to_pmath_symbol(){ return Symbol(PMATH_SYMBOL_STYLEBOX); }
       virtual Expr to_pmath(bool parseable);
       
       virtual bool changes_children_style(){ return true; }
@@ -50,13 +60,13 @@ namespace richmath{
       explicit StyleBox(MathSequence *content = 0);
   };
   
-  class TagBox: public AbstractStyleBox{
+  class TagBox: public ExpandableAbstractStyleBox{
     public:
       static TagBox *create(Expr expr, int options);
       
-      virtual bool expand(const BoxSize &size);
       virtual void resize(Context *context);
       
+      virtual Expr to_pmath_symbol(){ return Symbol(PMATH_SYMBOL_TAGBOX); }
       virtual Expr to_pmath(bool parseable);
       
     protected:

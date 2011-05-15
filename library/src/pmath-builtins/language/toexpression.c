@@ -109,27 +109,6 @@ static pmath_t remove_whitespace_from_boxes(pmath_t boxes){
     return boxes;
   }
   
-  if(pmath_same(head, PMATH_SYMBOL_STYLEBOX)){
-    pmath_expr_t options = pmath_options_extract(boxes, 1);
-    
-    if(!pmath_is_null(options)){
-      pmath_t strip = pmath_option_value(
-        PMATH_SYMBOL_STYLEBOX, 
-        PMATH_SYMBOL_STRIPONINPUT,
-        options);
-      
-      pmath_unref(strip);
-      if(!pmath_same(strip, PMATH_SYMBOL_FALSE)){
-        strip = pmath_expr_get_item(boxes, 1);
-        pmath_unref(options);
-        pmath_unref(boxes);
-        return remove_whitespace_from_boxes(strip);
-      }
-    }
-    
-    pmath_unref(options);
-  }
-  
   max_boxes = 0;
   
   if(     pmath_same(head, PMATH_SYMBOL_FRAMEBOX))           max_boxes = 1;
@@ -145,12 +124,30 @@ static pmath_t remove_whitespace_from_boxes(pmath_t boxes){
   else if(pmath_same(head, PMATH_SYMBOL_SUPERSCRIPTBOX))     max_boxes = 1;
   else if(pmath_same(head, PMATH_SYMBOL_TAGBOX))             max_boxes = 1;
   else if(pmath_same(head, PMATH_SYMBOL_TRANSFORMATIONBOX))  max_boxes = 1;
+  else if(pmath_same(head, PMATH_SYMBOL_TOOLTIPBOX))         max_boxes = 2;
   else if(pmath_same(head, PMATH_SYMBOL_UNDERSCRIPTBOX))     max_boxes = 2;
   else if(pmath_same(head, PMATH_SYMBOL_UNDEROVERSCRIPTBOX)) max_boxes = 3;
-  
+
   if(max_boxes > 0){
     size_t i;
-    
+    pmath_expr_t options = pmath_options_extract(boxes, max_boxes);
+    if(!pmath_is_null(options)){
+      pmath_t strip = pmath_option_value(
+        head, 
+        PMATH_SYMBOL_STRIPONINPUT,
+        options);
+      
+      pmath_unref(strip);
+      if(pmath_same(strip, PMATH_SYMBOL_TRUE)){
+        strip = pmath_expr_get_item(boxes, 1);
+        pmath_unref(options);
+        pmath_unref(boxes);
+        return remove_whitespace_from_boxes(strip);
+      }
+      
+      pmath_unref(options);
+    }
+  
     for(i = max_boxes;i > 0;--i){
       pmath_t item = pmath_expr_get_item(boxes, i);
       boxes = pmath_expr_set_item(boxes, i, PMATH_NULL);

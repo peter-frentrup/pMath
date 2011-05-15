@@ -118,6 +118,7 @@ namespace richmath{
       
       virtual Box *remove(int *index) = 0;
       
+      virtual Expr to_pmath_symbol() = 0;
       virtual Expr to_pmath(bool parseable) = 0;
       virtual Expr to_pmath(bool parseable, int start, int end){
         return to_pmath(parseable);
@@ -228,6 +229,7 @@ namespace richmath{
       
       virtual Box *remove(int *index){ return this; }
       
+      virtual Expr to_pmath_symbol(){ return Expr(); }
       virtual Expr to_pmath(bool parseable){ return Expr(); }
   };
 

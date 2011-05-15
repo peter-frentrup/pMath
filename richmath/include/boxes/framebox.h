@@ -11,6 +11,7 @@ namespace richmath{
       virtual void resize(Context *context);
       virtual void paint(Context *context);
       
+      virtual Expr to_pmath_symbol(){ return Symbol(PMATH_SYMBOL_FRAMEBOX); }
       virtual Expr to_pmath(bool parseable);
     
     protected:
