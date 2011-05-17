@@ -247,6 +247,11 @@ static pmath_t _pow_ri(
   den = _pow_i_abs(base, (unsigned long)exponent);
   pmath_unref(base);
   
+  if(pmath_number_sign(den) < 0){
+    num = pmath_number_neg(num);
+    den = pmath_number_neg(den);
+  }
+  
   if(pmath_equals(den, PMATH_FROM_INT32(1))){
     pmath_unref(den);
     return num;
