@@ -889,7 +889,7 @@ int main(int argc, char **argv){
             "TooltipBox(ButtonBox(\"\\[Sigma]\"),        \"\\\"\\[AliasDelimiter]s\\[AliasDelimiter]\\\"\"),"
             "TooltipBox(ButtonBox(\"\\[FinalSigma]\"),   \"\\\"\\[AliasDelimiter]varsigma\\[AliasDelimiter]\\\"\"),"
             "TooltipBox(ButtonBox(\"\\[Upsilon]\"),      \"\\\"\\[AliasDelimiter]u\\[AliasDelimiter]\\\"\")},"
-          "{TooltipBox(ButtonBox(\"\\[CurlyPhi]\"),      \"\\\"\\[AliasDelimiter]cp\\[AliasDelimiter]\\\"\"),"
+          "{TooltipBox(ButtonBox(\"\\[CurlyPhi]\"),      \"\\\"\\[AliasDelimiter]j\\[AliasDelimiter]\\\"\"),"
             "TooltipBox(ButtonBox(\"\\[Phi]\"),          \"\\\"\\[AliasDelimiter]f\\[AliasDelimiter]\\\"\"),"
             "TooltipBox(ButtonBox(\"\\[Chi]\"),          \"\\\"\\[AliasDelimiter]c\\[AliasDelimiter]\\\"\"),"
             "TooltipBox(ButtonBox(\"\\[Psi]\"),          \"\\\"\\[AliasDelimiter]y\\[AliasDelimiter]\\\"\"),"

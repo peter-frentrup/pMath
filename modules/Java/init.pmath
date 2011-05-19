@@ -51,7 +51,7 @@ JavaClassAsObject::usage:= "JavaClassAsObject(\"\(StyleBox(\"classname\", BaseSt
 JavaException::usage:= "JavaException(\(StyleBox(\"ex\", BaseStyle -> \"Arg\")\), \(StyleBox(\"msg\", BaseStyle -> \"Arg\")\), \(StyleBox(\"stacktrace\", BaseStyle -> \"Arg\")\)) represents an exception \(StyleBox(\"ex\", BaseStyle -> \"Arg\")\) thrown from Java code."
 JavaField::usage:= "JavaField(\(StyleBox(\"obj\", BaseStyle -> \"Arg\")\), \(StyleBox(\"field\", BaseStyle -> \"Arg\")\)) or \(StyleBox(\"obj\", BaseStyle -> \"Arg\")\) @ \(StyleBox(\"field\", BaseStyle -> \"Arg\")\) represents a member field of a Java object.\nJavaField(JavaClass(\"\(StyleBox(\"classname\", BaseStyle -> \"Arg\")\)\"), \(StyleBox(\"field\", BaseStyle -> \"Arg\")\)) or JavaClass(\"\(StyleBox(\"classname\", BaseStyle -> \"Arg\")\)\") @ \(StyleBox(\"field\", BaseStyle -> \"Arg\")\) represents a static member field of a Java class."
 JavaNew::usage:= "JavaNew(\"\(StyleBox(\"classname\", BaseStyle -> \"Arg\")\)\", \(StyleBox(\"arg\", BaseStyle -> \"Arg\")\)\(SubscriptBox(\"1\")\), \(StyleBox(\"arg\", BaseStyle -> \"Arg\")\)\(SubscriptBox(\"2\")\), \[Ellipsis]) or JavaNew(JavaClass(\"\(StyleBox(\"classname\", BaseStyle -> \"Arg\")\)\"), \(StyleBox(\"arg\", BaseStyle -> \"Arg\")\)\(SubscriptBox(\"1\")\), \(StyleBox(\"arg\", BaseStyle -> \"Arg\")\)\(SubscriptBox(\"2\")\), \[Ellipsis]) creates a new Java object."
-JavaStartVM::usage:= "JavaStartVM() starts the Java Virtual Machine if it is not already started.Note that the JVM is started automatically when needed."
+JavaStartVM::usage:= "JavaStartVM() starts the Java Virtual Machine if it is not already started. Note that the JVM is started automatically when needed."
 Methods::usage:= "Methods(JavaClass(\"\(StyleBox(\"classname\", BaseStyle -> \"Arg\")\)\")) lists all public methods of the specified Java class."
 ParentClass::usage:= "ParentClass(JavaClass(\"\(StyleBox(\"classname\", BaseStyle -> \"Arg\")\)\")) gives the parent class of the specified Java class."
 
@@ -132,9 +132,9 @@ syntaxHighlight(~lines)::= lines.StringReplace(
 		WordBoundary ++ (s: "void" | "byte" | "char" | "boolean" | "short" | "int" | "long" | "throws" | "double" | "float" | "static" | "synchronized") ++ WordBoundary :> stringStyle(s, Brown, Bold)
 	)
 
-Constructors(cls: (~:JavaClass | ~:String))::= Column(JavaClassAsObject(cls).JavaCall("getConstructors").Map(#.JavaCall("toString")&).syntaxHighlight)
-Methods(     cls: (~:JavaClass | ~:String))::= Column(JavaClassAsObject(cls).JavaCall("getMethods").Map(     #.JavaCall("toString")&).SortBy(StringReplace(#, StartOfString ++ ~~~ ++ "." ++ (name:WordCharacter**) ++ "(" ++ ~~~ :> name)&).syntaxHighlight)
-Fields(      cls: (~:JavaClass | ~:String))::= Column(JavaClassAsObject(cls).JavaCall("getFields").Map(      #.JavaCall("toString")&).SortBy(StringReplace(#, StartOfString ++ ~~~ ++ "." ++ (name:WordCharacter**) ++ "(" ++ ~~~ :> name)&).syntaxHighlight)
+Constructors(cls: (~:JavaClass | ~:String))::= If(Length(#) > 0, Column(#), Style("no constructors",Italic))&(JavaClassAsObject(cls).JavaCall("getConstructors").Map(#.JavaCall("toString")&).syntaxHighlight)
+Methods(     cls: (~:JavaClass | ~:String))::= If(Length(#) > 0, Column(#), Style("no methods",     Italic))&(JavaClassAsObject(cls).JavaCall("getMethods").Map(     #.JavaCall("toString")&).SortBy(StringReplace(#, StartOfString ++ ~~~ ++ "." ++ (name:WordCharacter**) ++ "(" ++ ~~~ :> name)&).syntaxHighlight)
+Fields(      cls: (~:JavaClass | ~:String))::= If(Length(#) > 0, Column(#), Style("no fields",      Italic))&(JavaClassAsObject(cls).JavaCall("getFields").Map(      #.JavaCall("toString")&).SortBy(StringReplace(#, StartOfString ++ ~~~ ++ "." ++ (name:WordCharacter**) ++ "(" ++ ~~~ :> name)&).syntaxHighlight)
 
 
 

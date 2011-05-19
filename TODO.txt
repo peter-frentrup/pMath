@@ -15,7 +15,7 @@
 	
 - implement QRDecomposition() in C code
 
-- make $MaxExtraPrecision thread-local
+- make $MaxExtraPrecision thread-local, add $MinExtraPrecision
 
 - add Developer`ClearCache() or sth like this to clear all caches
     
