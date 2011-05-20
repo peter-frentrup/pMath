@@ -365,6 +365,7 @@ PMATH_PRIVATE pmath_t builtin_lengthwhile(                  pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_level(                        pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_ludecomposition(              pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_map(                          pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_mapthread(                    pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_max(                          pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_mean(                         pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_min(                          pmath_expr_t expr);
@@ -955,6 +956,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   VERIFY(   PMATH_SYMBOL_MAKEBOXES                 = NEW_SYSTEM_SYMBOL("MakeBoxes"))
   VERIFY(   PMATH_SYMBOL_MAKEEXPRESSION            = NEW_SYSTEM_SYMBOL("MakeExpression"))
   VERIFY(   PMATH_SYMBOL_MAP                       = NEW_SYSTEM_SYMBOL("Map"))
+  VERIFY(   PMATH_SYMBOL_MAPTHREAD                 = NEW_SYSTEM_SYMBOL("MapThread"))
   VERIFY(   PMATH_SYMBOL_MATCH                     = NEW_SYSTEM_SYMBOL("Match"))
   VERIFY(   PMATH_SYMBOL_MATRIXFORM                = NEW_SYSTEM_SYMBOL("MatrixForm"))
   VERIFY(   PMATH_SYMBOL_MAX                       = NEW_SYSTEM_SYMBOL("Max"))
@@ -1496,6 +1498,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
     BIND_DOWN(   PMATH_SYMBOL_LOG,                         builtin_log)
     BIND_DOWN(   PMATH_SYMBOL_LUDECOMPOSITION,             builtin_ludecomposition)
     BIND_DOWN(   PMATH_SYMBOL_MAP,                         builtin_map)
+    BIND_DOWN(   PMATH_SYMBOL_MAPTHREAD,                   builtin_mapthread)
     BIND_DOWN(   PMATH_SYMBOL_MAKEBOXES,                   builtin_makeboxes)
     BIND_DOWN(   PMATH_SYMBOL_MAKEEXPRESSION,              builtin_makeexpression)
     BIND_DOWN(   PMATH_SYMBOL_MATCH,                       builtin_match)
@@ -1748,7 +1751,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   SET_ATTRIB( PMATH_SYMBOL_DYNAMIC,                          HOLDFIRST);
   SET_ATTRIB( PMATH_SYMBOL_DYNAMICBOX,                       HOLDFIRST);
   SET_ATTRIB( PMATH_SYMBOL_DYNAMICLOCAL,                     HOLDALL);
-  SET_ATTRIB( PMATH_SYMBOL_DYNAMICLOCALBOX,                  HOLDALL);
+  SET_ATTRIB( PMATH_SYMBOL_DYNAMICLOCALBOX,                  HOLDFIRST);
   SET_ATTRIB( PMATH_SYMBOL_EVALUATEDELAYED,                  HOLDFIRST);
   SET_ATTRIB( PMATH_SYMBOL_EVALUATIONSEQUENCE,               HOLDALL);
   SET_ATTRIB( PMATH_SYMBOL_EXP,                              DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);

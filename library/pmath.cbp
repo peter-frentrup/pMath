@@ -806,6 +806,9 @@
 		<Unit filename="src\pmath-builtins\lists\map.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="src\pmath-builtins\lists\mapthread.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="src\pmath-builtins\lists\max-and-min.c">
 			<Option compilerVar="CC" />
 		</Unit>

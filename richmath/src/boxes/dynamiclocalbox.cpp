@@ -30,38 +30,22 @@ DynamicLocalBox *DynamicLocalBox::create(Expr expr, int options){
     return 0;
   
   DynamicLocalBox *box = new DynamicLocalBox();
-  Expr init = expr[1];
-  if(init[0] != PMATH_SYMBOL_LIST){
+  Expr symbols = expr[1];
+  if(symbols[0] != PMATH_SYMBOL_LIST){
     delete box;
     return 0;
   }
   
-  box->_public_symbols  = MakeList(init.expr_length());
-  box->_private_symbols = box->_public_symbols;
-  for(size_t i = init.expr_length();i > 0;--i){
-    Expr def = init[i];
+  box->_public_symbols  = symbols;
+  box->_private_symbols = symbols;
+  for(size_t i = symbols.expr_length();i > 0;--i){
+    Expr sym = symbols[i];
     
-    if(def.is_symbol()){
-      box->_public_symbols.set(i, def);
-      continue;
+    if(!sym.is_symbol()){
+      delete box;
+      return 0;
     }
     
-    if(def.expr_length() == 2){
-      if(def[0] == PMATH_SYMBOL_ASSIGN || def[0] == PMATH_SYMBOL_ASSIGNDELAYED){
-        Expr sym = def[1];
-        if(sym.is_symbol()){
-          box->_public_symbols.set(i, sym);
-          continue;
-        }
-      }
-    }
-    
-    delete box;
-    return 0;
-  }
-  
-  for(size_t i = box->_public_symbols.expr_length();i > 0;--i){
-    Expr sym = box->_public_symbols[i];
     sym = Expr(pmath_symbol_create_temporary(pmath_symbol_name(sym.get()), TRUE));
     box->_private_symbols.set(i, sym);
   }
@@ -86,7 +70,7 @@ DynamicLocalBox *DynamicLocalBox::create(Expr expr, int options){
     PMATH_SYMBOL_UNSAVEDVARIABLES,
     options_expr.get()));
   
-  box->_init_call = List(init, values, box->_initialization);
+  box->_init_call = List(values, box->_initialization);
   box->content()->load_from_object(expr[2], options);
   
   return box;

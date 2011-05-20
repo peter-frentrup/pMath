@@ -10,7 +10,7 @@ General::argmu:= "`1` called with 1 argument; `2` or more arguments are expected
 General::argm:=  "`1` called with `2` arguments; `3` or more arguments are expected."
 
 /* invalid options */
-General::nonopt:= "Option rules expected but `1` found after position `1` in `2`."
+General::nonopt:= "Option rules expected but `1` found after position `2` in `3`."
 General::opttf:= "Value of option `1` -> `2` should be True or False."
 General::opttfa:= "Value of option `1` -> `2` should be True, False, or Automatic."
 
@@ -64,6 +64,7 @@ General::invacc:= "Requested accuracy `1` is no machine-size real number in the 
 General::invprec:= "Requested precision `1` is no machine-size real number in the allowed range."
 General::iter:= "`1` does not have the form of an iterator."
 General::iterb:= "The iterator `1` does not have valid bounds."
+General::list:= "List expected at position `2` in `1`."
 General::matsq:= "Argument `1` at position `2` is not a nonempty square matrix."
 General::ncompl:= "Symbolic or noncomplex numerical arguments are expected."
 General::nexprat:= "Nonatomic expression exprected at position `1` in `2`."
@@ -171,6 +172,8 @@ With::nodef:= "Local variable definition `1` contains `2`, which is not an assig
 MakeExpression::base:= "Requested base `1` in `2` should be between 2 and 36."
 MakeExpression::digit:= "Digit at position `1` in `2` is to large to be used in base `3`."
 MakeExpression::inv:= "`1` is neither a string nor a valid box."
+
+MapThread::mptd:= "Object `1` at position `2` in `3` has only `4` of the required `5` dimensions."
 
 $MaxExtraPrecision::meprecset:= "Cannot set $MaxExtraPrecision to `1`; value must be a positive number or Infinity."
 

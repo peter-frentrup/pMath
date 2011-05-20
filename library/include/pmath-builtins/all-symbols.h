@@ -719,5 +719,6 @@ pmath_bool_t pmath_register_approx_code(
 #define PMATH_SYMBOL_DEINITIALIZATION                       PMATH_SYMBOL_BUILTIN(627)
 #define PMATH_SYMBOL_DYNAMICLOCALVALUES                     PMATH_SYMBOL_BUILTIN(628)
 #define PMATH_SYMBOL_UNSAVEDVARIABLES                       PMATH_SYMBOL_BUILTIN(629)
+#define PMATH_SYMBOL_MAPTHREAD                              PMATH_SYMBOL_BUILTIN(630)
 
 #endif /* __PMATH_BUILTINS__SYMBOLS_H__ */

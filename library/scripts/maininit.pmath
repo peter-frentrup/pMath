@@ -78,8 +78,17 @@ Protect(System`Utilities`GetSystemSyntaxInformation)
 Protect(System`Util`latexToBoxes)
 
 
+Unprotect(Setting, System`Setting`$Rules);
+System`Setting`$Rules:= {}
+Setting(~expr, ~level)::= ReplaceRepeated(expr, System`Setting`$Rules, level);
+Setting(~expr        )::= ReplaceRepeated(expr, System`Setting`$Rules);
+Protect(Setting, System`Setting`$Rules);
+
+
 End()
 
+AutoLoad(Hold(DynamicLocal, DynamicLocalBox), 
+	ToFileName({$BaseDirectory, "auto", "core"}, "dynamiclocal.pmath"))
 AutoLoad(Hold(ArcCos,ArcCot,ArcCsc,ArcSec,ArcSin,ArcTan, Cos,Cot,Csc,Sec,Sin,Tan, ArcCosh,ArcCoth,ArcCsch,ArcSech,ArcSinh,ArcTanh, Cosh,Coth,Csch,Sech,Sinh,Tanh), 
 	ToFileName({$BaseDirectory, "auto", "core"}, "trig.pmath"))
 AutoLoad(Hold(BernoulliB,Gamma,LogGamma), 

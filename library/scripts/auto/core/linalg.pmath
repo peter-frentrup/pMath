@@ -10,6 +10,7 @@ Cross(~~vectors)::= With({dim:= Dimensions({vectors})},
 MakeBoxes(Transpose(~x))::= {ParenthesizeBoxes(MakeBoxes(x), Power, "Postfix"), SuperscriptBox("\[DownTee]")}
 Transpose(~tensor:List, ?perm:{2,1})::= With({result:= Catch(transposeHelper(tensor, perm), $Failed)}, result /? result =!= $Failed)
 
+transposeHelper(~tensor, perm: Except(~:List))::= (Message(Transpose::list, HoldForm(Transpose(tensor, perm)), 2); $Failed)
 transposeHelper(~tensor, ~perm:List)::= Local({tdim, rdim, invperm, indices, result, is, tis, i},
 	Do(
 		If(!IsInteger(i) || i <= 0, 
@@ -68,6 +69,6 @@ QRDecomposition(~A?IsMatrix)::= Local({Q, R, G, r, i, j, m:= Length(A)},
 				)
 			, i -> j+1 .. m)
 		, j -> Length(A[1]));
-		{Conjugate(Transpose(Q)), R})
+	{Conjugate(Transpose(Q)), R})
 
 End()

@@ -8,6 +8,7 @@ isDynamic(Dynamic(~,~)):= True
 isNumberOrDynamic(~x)::= IsNumber(x) || isDynamic(x)
 
 toBeProtected:= Unprotect(
+	System`Setting`$Rules,
 	Button,
 	ButtonBox,
 	Checkbox,
@@ -36,22 +37,6 @@ MakeBoxes(Dynamic(~var, options:OptionsPattern()))::= DynamicBox(ToBoxes(var), o
 
 MakeBoxes(DynamicSetting(~expr))::= TagBox(MakeBoxes(expr), Setting)
 
-
-DynamicLocal({def: (~:Symbol | (Assign|AssignDelayed)(~:Symbol, ~))***}, ~body, opt: OptionsPattern()) /? (FilterRules(Flatten({opt}), DynamicLocalValues).Length = 1)::= 
-	Local(
-		{heldsyms, heldlocalsyms, boxes, head},
-		heldsyms:= HoldComplete(def).Replace({~x:Symbol :> x, ~(~x:Symbol, ~) :> x}, 1..1);
-		{heldlocalsyms, boxes}:= ReleaseHold(Replace(HoldComplete(head({def}, {heldsyms, body})), {HoldPattern(heldsyms)->heldsyms, head->Local}));
-		
-        head(heldlocalsyms, boxes, opt)
-		)
-
-
-/* MakeBoxes(DynamicLocal(def: {(~:Symbol | (Assign|AssignDelayed)(~:Symbol, ~))***}, ~body, opt: OptionsPattern()))::= Local(
-    {boxes},
-	boxes:= Local(def, body);
-	); */
-
 MakeBoxes(ProgressIndicator())::=                                     ProgressIndicatorBox(0, 0..1)
 MakeBoxes(ProgressIndicator(~val ? isNumberOrDynamic))::=             ProgressIndicatorBox(val, 0..1)
 MakeBoxes(ProgressIndicator(~val ? isNumberOrDynamic, ~min..~max))::= ProgressIndicatorBox(val, min..max)
@@ -69,28 +54,35 @@ MakeBoxes(rb: RadioButtonBar(~var:Dynamic, values:{~~}, options:OptionsPattern()
 	With({boxes:= ToBoxes(Grid({values.Map(Row({RadioButton(var, #), #}, "\[InvisibleSpace]")&)}))},
 		InterpretationBox(boxes, rb))
 
-/* TODO: use DynamicLocal */
 MakeBoxes(RadioButtonBar(val: Except(~:Dynamic), values:{~~}, options:OptionsPattern()))::=
-	Local({var:= val},
-		MakeBoxes(RadioButtonBar(Dynamic(var), values, options)))
-
+	TagBox(
+		DynamicLocalBox({var}, 
+			MakeBoxes(Interpretation(
+				RadioButtonBar(Dynamic(var), values, options), 
+				RadioButtonBar(var, values, options))), 
+			DynamicLocalValues :> {var:= val}),
+		Setting(#, 0) &);
 
 MakeBoxes(Setter(~var, ~value, options:OptionsPattern()))::=         SetterBox(var, value, MakeBoxes(value), options)
 MakeBoxes(Setter(~var, ~value, ~label, options:OptionsPattern()))::= SetterBox(var, value, MakeBoxes(label), options)
 
 
 MakeBoxes(sb: SetterBar(~var:Dynamic, values:{((~ -> ~) | (~ :> ~))**}, options:OptionsPattern(SetterBar)))::= 
-	With({boxes:= ToBoxes(Row(values.Map(Setter(var, #[1], #[2], options)&), "\[InvisibleSpace]"))},
+	With({boxes:= Riffle(values.Map(ToBoxes(Setter(var, #[1], #[2], options))&), "\[InvisibleSpace]")},
 		InterpretationBox(boxes, sb))
 
 MakeBoxes(sb: SetterBar(~var:Dynamic, values:{~~}, options:OptionsPattern(SetterBar)))::= 
-	With({boxes:= ToBoxes(Row(values.Map(Setter(var, #, options)&), "\[InvisibleSpace]"))},
+	With({boxes:= Riffle(values.Map(ToBoxes(Setter(var, #, options))&), "\[InvisibleSpace]")},
 		InterpretationBox(boxes, sb))
 
-/* TODO: use DynamicLocal */
 MakeBoxes(SetterBar(val: Except(~:Dynamic), values:{~~}, options:OptionsPattern(SetterBar)))::=
-	Local({var:= val},
-		MakeBoxes(SetterBar(Dynamic(var), values, options)))
+	TagBox(
+		DynamicLocalBox({var}, 
+			MakeBoxes(Interpretation(
+				SetterBar(Dynamic(var), values, options), 
+				SetterBar(var, values, options))), 
+			DynamicLocalValues :> {var:= val}),
+		Setting(#, 0) &);
 
 MakeBoxes(Slider(                                                  options:OptionsPattern()))::= SliderBox(0.5, 0..1, options)
 MakeBoxes(Slider(~val ? isNumberOrDynamic,                         options:OptionsPattern()))::= SliderBox(val, 0..1, options)
@@ -157,10 +149,11 @@ TooltipBox/: MakeExpression(TooltipBox(~content, ~tooltip, options:OptionsPatter
 		)
 
 
-Setting(~expr)::= ReplaceRepeated(expr, 
-	{(Checkbox|Dynamic|ProgressIndicator|RadioButton|Setter|SetterBar|Slider|Tooltip)(~x, ~~~) :> x,
+System`Setting`$Rules:= Join(System`Setting`$Rules, {
+	(Checkbox|Dynamic|ProgressIndicator|RadioButton|Setter|SetterBar|Slider|Tooltip)(~x, ~~~) :> x,
 	ProgressIndicator() :> 0,
-	Slider() :> 0.5})
+	Slider() :> 0.5});
+
 
 Protect @@ toBeProtected
 

@@ -5,8 +5,6 @@
 - support euclidian integers in GCD/ExtendedGCD
 
 - implement BaseForm, NumberForm
-
-- implement DynamicLocal/DynamicLocalBox
 	
 - Power: simplify (1/2)/Sqrt(2), ... 
 		x Sqrt(E x) --->  Sqrt(E) x^(3/2)
@@ -24,7 +22,7 @@
 
 - pmath: add ParallelFold() [better name?]
 
-- pmath: implement MapThread, MapAt, MapIndexed, HasValue/IsValue
+- pmath: implement MapAt, MapIndexed, HasValue/IsValue
 
 ? pmath: use timsort instead of platforms qsort: http://bugs.python.org/file4451/timsort.txt	
 
