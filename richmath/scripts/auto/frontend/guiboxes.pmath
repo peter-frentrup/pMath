@@ -36,6 +36,22 @@ MakeBoxes(Dynamic(~var, options:OptionsPattern()))::= DynamicBox(ToBoxes(var), o
 
 MakeBoxes(DynamicSetting(~expr))::= TagBox(MakeBoxes(expr), Setting)
 
+
+DynamicLocal({def: (~:Symbol | (Assign|AssignDelayed)(~:Symbol, ~))***}, ~body, opt: OptionsPattern()) /? (FilterRules(Flatten({opt}), DynamicLocalValues).Length = 1)::= 
+	Local(
+		{heldsyms, heldlocalsyms, boxes, head},
+		heldsyms:= HoldComplete(def).Replace({~x:Symbol :> x, ~(~x:Symbol, ~) :> x}, 1..1);
+		{heldlocalsyms, boxes}:= ReleaseHold(Replace(HoldComplete(head({def}, {heldsyms, body})), {HoldPattern(heldsyms)->heldsyms, head->Local}));
+		
+        head(heldlocalsyms, boxes, opt)
+		)
+
+
+/* MakeBoxes(DynamicLocal(def: {(~:Symbol | (Assign|AssignDelayed)(~:Symbol, ~))***}, ~body, opt: OptionsPattern()))::= Local(
+    {boxes},
+	boxes:= Local(def, body);
+	); */
+
 MakeBoxes(ProgressIndicator())::=                                     ProgressIndicatorBox(0, 0..1)
 MakeBoxes(ProgressIndicator(~val ? isNumberOrDynamic))::=             ProgressIndicatorBox(val, 0..1)
 MakeBoxes(ProgressIndicator(~val ? isNumberOrDynamic, ~min..~max))::= ProgressIndicatorBox(val, min..max)

@@ -346,7 +346,7 @@ void pmath_write_ex(struct pmath_write_ex_t *info, pmath_t obj){
   {
     char s[40];
     
-    snprintf(s, sizeof(s), "/\\/ /* 0x%x, 0x%x */", 
+    snprintf(s, sizeof(s), "(/\\/ /* 0x%x, 0x%x */)", 
       (int)PMATH_AS_TAG(obj),
       (int)PMATH_AS_INT32(obj));
     

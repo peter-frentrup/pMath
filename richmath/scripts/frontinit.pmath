@@ -5,6 +5,7 @@ $FrontEndDirectory;
 $MathShapers;
 $FallbackFonts;
 SymbolInfo;
+SymbolDefinitions;
 BoxesToText;
 SectionsToBoxes;
 
@@ -50,6 +51,17 @@ SymbolInfo(~name:String)::= Try(
 		),
 	Syntax)
 
+Attributes(SymbolDefinitions):= {HoldAllComplete}
+SymbolDefinitions(~sym:Symbol)::= Flatten(HoldComplete @@ Gather(
+	With({r:= OwnRules(sym)},     If(Length(r) > 0, Emit(HoldComplete(OwnRules(sym):=     r))));
+	With({r:= DownRules(sym)},    If(Length(r) > 0, Emit(HoldComplete(DownRules(sym):=    r))));
+	With({r:= UpRules(sym)},      If(Length(r) > 0, Emit(HoldComplete(UpRules(sym):=      r))));
+	With({r:= SubRules(sym)},     If(Length(r) > 0, Emit(HoldComplete(SubRules(sym):=     r))));
+	With({r:= DefaultRules(sym)}, If(Length(r) > 0, Emit(HoldComplete(DefaultRules(sym):= r))));
+	With({r:= FormatRules(sym)},  If(Length(r) > 0, Emit(HoldComplete(FormatRules(sym):=  r))));
+	With({r:= NRules(sym)},       If(Length(r) > 0, Emit(HoldComplete(NRules(sym):=       r))));
+	)[2])
+
 SectionsToBoxes(~b)::= ReplaceRepeated(b, {Section(BoxData(~x), ~~~) :> {x, "\n"}, Section(~x, ~~~) :> {x, "\n"}, SectionGroup(~x, ~) :> x})
 
 $NamespacePath:= oldNamespacePath
@@ -62,7 +74,7 @@ End()
 
 EndPackage()
 
-AutoLoad(Hold(Button, ButtonBox, Checkbox, CheckboxBox, Dynamic, DynamicBox, DynamicSetting, ProgressIndicator, ProgressIndicatorBox, RadioButton, RadioButtonBar, RadioButtonBox, Setter, SetterBar, SetterBox, Setting, Slider, SliderBox, Tooltip, TooltipBox), 
+AutoLoad(Hold(Button, ButtonBox, Checkbox, CheckboxBox, Dynamic, DynamicBox, DynamicLocal, DynamicLocalBox, DynamicSetting, ProgressIndicator, ProgressIndicatorBox, RadioButton, RadioButtonBar, RadioButtonBox, Setter, SetterBar, SetterBox, Setting, Slider, SliderBox, Tooltip, TooltipBox), 
 	ToFileName({$FrontEndDirectory, "auto", "frontend"}, "guiboxes.pmath"));
 AutoLoad(Hold(ShowDefinition), 
 	ToFileName({$FrontEndDirectory, "auto", "frontend"}, "showdefinition.pmath"));

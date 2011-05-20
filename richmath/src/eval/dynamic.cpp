@@ -80,6 +80,7 @@ void Dynamic::assign(Expr value){
   else
     run = Call(Symbol(PMATH_SYMBOL_ASSIGN), _expr[1], value);
   
+  run = _owner->prepare_dynamic(run);
   Application::execute_for(run, _owner, Application::dynamic_timeout);
 }
 
@@ -95,10 +96,12 @@ Expr Dynamic::get_value_now(){
   int old_eval_id = current_evaluation_box_id;
   current_evaluation_box_id = _owner->id();
   
+  Expr call = _owner->prepare_dynamic(_expr);
+  
   Expr value = Application::interrupt(
     Call(
       Symbol(PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATEMULTIPLE),
-      _expr,
+      call,
       _owner->id()), 
     Application::dynamic_timeout);
   
@@ -119,11 +122,13 @@ void Dynamic::get_value_later(){
     _owner->style->remove(InternalUsesCurrentValueOfMouseOver);
   }
   
+  Expr call = _owner->prepare_dynamic(_expr);
+  
   Application::add_job(new DynamicEvaluationJob(
     Expr(), 
     Call(
       Symbol(PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATEMULTIPLE),
-      _expr,
+      call,
       _owner->id()), 
     _owner));
 }

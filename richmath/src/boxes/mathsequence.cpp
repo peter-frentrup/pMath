@@ -6,6 +6,7 @@
 #include <boxes/buttonbox.h>
 #include <boxes/checkboxbox.h>
 #include <boxes/dynamicbox.h>
+#include <boxes/dynamiclocalbox.h>
 #include <boxes/errorbox.h>
 #include <boxes/fillbox.h>
 #include <boxes/fractionbox.h>
@@ -3996,6 +3997,14 @@ static void make_box(int pos, pmath_t obj, void *data){
   
   if(expr[0] == PMATH_SYMBOL_DYNAMICBOX){
     DynamicBox *box = DynamicBox::create(expr, info->options);
+    if(box){
+      info->boxes->add(box);
+      return;
+    }
+  }
+  
+  if(expr[0] == PMATH_SYMBOL_DYNAMICLOCALBOX){
+    DynamicLocalBox *box = DynamicLocalBox::create(expr, info->options);
     if(box){
       info->boxes->add(box);
       return;

@@ -818,7 +818,8 @@ bool richmath::init_bindings(){
   VERIFY(fe_symbols[KeyControlSymbol]         = NEW_SYMBOL("FE`KeyControl"))
   VERIFY(fe_symbols[KeyShiftSymbol]           = NEW_SYMBOL("FE`KeyShift"))
   VERIFY(fe_symbols[MenuSymbol]               = NEW_SYMBOL("FE`Menu"))
-  VERIFY(fe_symbols[InternalExecuteForSymbol] = NEW_SYMBOL("FE`InternalExecuteForSymbol"))
+  VERIFY(fe_symbols[InternalExecuteForSymbol] = NEW_SYMBOL("FE`InternalExecuteFor"))
+  VERIFY(fe_symbols[SymbolDefinitionsSymbol]  = NEW_SYMBOL("FE`SymbolDefinitions"))
   
   VERIFY(BIND_DOWN(PMATH_SYMBOL_INTERNAL_DYNAMICUPDATED, builtin_internal_dynamicupdated))
   

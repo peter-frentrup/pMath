@@ -1238,8 +1238,8 @@ static match_kind_t match_atom(
         goto OPTIONSPATTERN_FIT;
       }
 
-      if(pmath_same(arghead, MAGIC_PATTERN_SEQUENCE)
-      && pmath_same(arghead, PMATH_SYMBOL_LIST))
+      if(!pmath_same(arghead, MAGIC_PATTERN_SEQUENCE)
+      && !pmath_same(arghead, PMATH_SYMBOL_LIST))
         return PMATH_MATCH_KIND_NONE;
 
       for(i = 1;i <= arglen;++i){
@@ -1253,7 +1253,7 @@ static match_kind_t match_atom(
           if(pmath_same(argihead, PMATH_SYMBOL_RULE)
           || pmath_same(argihead, PMATH_SYMBOL_RULEDELAYED)){
             pmath_unref(argi);
-            return PMATH_MATCH_KIND_NONE;
+            continue;
           }
         }
         

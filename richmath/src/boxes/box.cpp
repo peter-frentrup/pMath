@@ -339,6 +339,12 @@ Box *Box::normalize_selection(int *start, int *end){
   return 0;
 }
 
+Expr Box::prepare_dynamic(Expr expr){
+  if(_parent)
+    return _parent->prepare_dynamic(expr);
+  return expr;
+}
+
 bool Box::request_repaint_all(){
   return request_repaint(0, -_extents.ascent, _extents.width + 0.1, _extents.height() + 0.1);
 }

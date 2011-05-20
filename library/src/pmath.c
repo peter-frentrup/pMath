@@ -680,6 +680,15 @@ PMATH_API pmath_bool_t pmath_init(void){
         "TrackedSymbols->Automatic"
         "}");
 
+    PMATH_RUN(
+      "Options(DynamicLocal):="
+      "Options(DynamicLocalBox):={"
+        "Deinitialization->None,"
+        "Initialization->None,"
+        "DynamicLocalValues->Automatic,"
+        "UnsavedVariables->{}"
+        "}");
+
     PMATH_RUN("Options(BinaryRead):=Options(BinaryWrite):={"
       "ByteOrdering:>$ByteOrdering}");
 

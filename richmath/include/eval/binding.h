@@ -19,6 +19,7 @@ namespace richmath{
     KeyAltSymbol,
     KeyControlSymbol,
     KeyShiftSymbol,
+    SymbolDefinitionsSymbol,
     
     FrontEndSymbolsCount
   }FrontEndSymbolIndex;

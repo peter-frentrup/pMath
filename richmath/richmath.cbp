@@ -307,6 +307,7 @@
 		<Unit filename="include\boxes\checkboxbox.h" />
 		<Unit filename="include\boxes\containerwidgetbox.h" />
 		<Unit filename="include\boxes\dynamicbox.h" />
+		<Unit filename="include\boxes\dynamiclocalbox.h" />
 		<Unit filename="include\boxes\emptywidgetbox.h" />
 		<Unit filename="include\boxes\errorbox.h" />
 		<Unit filename="include\boxes\fillbox.h" />
@@ -494,6 +495,7 @@
 		<Unit filename="src\boxes\checkboxbox.cpp" />
 		<Unit filename="src\boxes\containerwidgetbox.cpp" />
 		<Unit filename="src\boxes\dynamicbox.cpp" />
+		<Unit filename="src\boxes\dynamiclocalbox.cpp" />
 		<Unit filename="src\boxes\emptywidgetbox.cpp" />
 		<Unit filename="src\boxes\errorbox.cpp" />
 		<Unit filename="src\boxes\fillbox.cpp" />
