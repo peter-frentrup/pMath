@@ -5,8 +5,7 @@
   #error This header file is not part of the public pMath API
 #endif
 
-#include <pmath-config.h>
-#include <pmath-types.h>
+#include <pmath-util/concurrency/atomic.h>
 
 #ifdef PMATH_OS_WIN32
   #define NOGDI
@@ -14,15 +13,16 @@
   #include <windows.h>
 
   typedef HANDLE pmath_event_t;
-  
+
 #else
-  #include <pthread.h> 
+  #include <pthread.h>
 
   typedef struct {
     pthread_cond_t  cond;
     pthread_mutex_t mutex;
+    pmath_atomic_t  is_signaled; // we don't want to loose a signal
   } pmath_event_t;
-  
+
 #endif
 
 PMATH_PRIVATE

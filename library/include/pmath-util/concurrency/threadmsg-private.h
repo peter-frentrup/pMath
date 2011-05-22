@@ -20,12 +20,12 @@ void _pmath_msg_queue_inform_death(pmath_messages_t mq);
 
 // me must be the current thread or a parent
 PMATH_PRIVATE
-void _pmath_msq_queue_handle_next(struct _pmath_thread_t *me);
+void _pmath_msq_queue_handle_next(pmath_thread_t me);
 
 // me must be the current thread
 PMATH_PRIVATE
 void _pmath_msq_queue_set_child(
-  struct _pmath_thread_t *me, 
+  struct _pmath_thread_t *me,
   struct _pmath_thread_t *child);
 
 PMATH_PRIVATE pmath_bool_t _pmath_threadmsg_init(void);
