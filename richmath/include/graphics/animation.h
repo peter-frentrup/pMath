@@ -16,7 +16,6 @@ namespace richmath{
       }
 
       double timer(){
-        //return (((double)clock()) - (double)start_time) / (double)CLOCKS_PER_SEC;
         return pmath_tickcount() - start_time;
       }
 

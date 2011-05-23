@@ -12,7 +12,6 @@
 
 #include <cmath>
 #include <cstdio>
-#include <ctime>
 
 #include <boxes/section.h>
 #include <boxes/mathsequence.h>
@@ -93,7 +92,7 @@ static void load_aliases(
   Hashtable<String, Expr, object_hash> *table = explicit_macros;
 
   #ifdef PMATH_DEBUG_LOG
-  clock_t start = clock();
+  double start = pmath_tickcount();
   #endif
 
   if(aliases[0] == PMATH_SYMBOL_LIST){
@@ -129,7 +128,7 @@ static void load_aliases(
   }
 
   #ifdef PMATH_DEBUG_LOG
-  pmath_debug_print("Loaded aliases in %f seconds.\n", (clock() - start) / (double)CLOCKS_PER_SEC);
+  pmath_debug_print("Loaded aliases in %f seconds.\n", pmath_tickcount() - start);
   #endif
 }
 
@@ -224,7 +223,7 @@ static void load_math_shapers(){
 
       if(!shaper){
         #ifdef PMATH_DEBUG_LOG
-        clock_t start_font = clock();
+        double start_font = pmath_tickcount();
         #endif
 
         shaper = OTMathShaperDB::find(s, NoStyle);
@@ -233,7 +232,7 @@ static void load_math_shapers(){
 
           #ifdef PMATH_DEBUG_LOG
             pmath_debug_print_object("loaded ", s.get(), "");
-            pmath_debug_print(" in %f seconds\n", (clock() - start_font) / (float)CLOCKS_PER_SEC);
+            pmath_debug_print(" in %f seconds\n", pmath_tickcount() - start_font);
           #endif
         }
       }

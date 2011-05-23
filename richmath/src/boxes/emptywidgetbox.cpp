@@ -180,7 +180,7 @@ void EmptyWidgetBox::on_mouse_move(MouseEvent &event){
   Document *doc = find_parent<Document>(false);
   event.set_source(this);
   
-  if(doc)
+  if(mouse_inside && doc)
     doc->native()->set_cursor(DefaultCursor);
   
   bool mi = event.x >= 0 

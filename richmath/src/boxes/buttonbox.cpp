@@ -80,7 +80,7 @@ void ButtonBox::on_mouse_down(MouseEvent &event){
 void ButtonBox::on_mouse_move(MouseEvent &event){
   Document *doc = find_parent<Document>(false);
   
-  if(doc && doc->native()){
+  if(mouse_inside && doc){
     if(type == FramelessButton)
       doc->native()->set_cursor(FingerCursor);
     else
