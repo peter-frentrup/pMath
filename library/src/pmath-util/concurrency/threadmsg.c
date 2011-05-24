@@ -434,7 +434,6 @@ PMATH_PRIVATE
 void _pmath_msq_queue_handle_next(pmath_thread_t me){
   struct message_t *msg;
   pmath_thread_t start;
-  int counter = 0;
 
   if(!me)
     me = pmath_thread_get_current();
@@ -444,8 +443,6 @@ void _pmath_msq_queue_handle_next(pmath_thread_t me){
   while(me){
     msg = pop_msg(pmath_custom_get_data(me->message_queue));
     if(msg){
-      ++counter;
-
       if(!pmath_is_null(msg->result)){
         pmath_t ex;
         pmath_t val;
@@ -545,8 +542,6 @@ void _pmath_msq_queue_handle_next(pmath_thread_t me){
     else
       me = me->parent;
   }
-
-  pmath_debug_print("[processed %d interrupts]\n", counter);
 }
 
 PMATH_PRIVATE

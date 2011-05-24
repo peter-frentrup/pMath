@@ -109,6 +109,16 @@ static pmath_t remove_whitespace_from_boxes(pmath_t boxes){
     return boxes;
   }
   
+  if(pmath_same(head, PMATH_SYMBOL_DYNAMICLOCALBOX)){
+  // DynamicLocalBox({vars...}, boxes, options...)
+  
+    pmath_t item = pmath_expr_extract_item(boxes, 2);
+    item = remove_whitespace_from_boxes(item);
+    boxes = pmath_expr_set_item(boxes, 2, item);
+  
+    return boxes;
+  }
+  
   max_boxes  = 0;
   
   if(     pmath_same(head, PMATH_SYMBOL_FRAMEBOX))            max_boxes = 1;
@@ -153,8 +163,7 @@ static pmath_t remove_whitespace_from_boxes(pmath_t boxes){
   if(max_boxes > 0){
     size_t i;
     for(i = max_boxes;i > 0;--i){
-      pmath_t item = pmath_expr_get_item(boxes, i);
-      boxes = pmath_expr_set_item(boxes, i, PMATH_NULL);
+      pmath_t item = pmath_expr_extract_item(boxes, i);
       
       item = remove_whitespace_from_boxes(item);
       

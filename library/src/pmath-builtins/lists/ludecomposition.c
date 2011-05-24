@@ -57,16 +57,16 @@ pmath_expr_t _pmath_matrix_set( // return: new matrix
   size_t       c, 
   pmath_t      value   // will be freed
 ){
-  pmath_t row = pmath_expr_get_item(matrix, r);
-  matrix = pmath_expr_set_item(matrix, r, PMATH_NULL);
-  row = pmath_expr_set_item(row, c, value);
-  return pmath_expr_set_item(matrix, r, row);
+  pmath_t row = pmath_expr_extract_item(matrix, r);
+  row         = pmath_expr_set_item(row,    c, value);
+  return        pmath_expr_set_item(matrix, r, row);
 }
 
 /* This uses the LU Decomposition method described in
-     William H. Press, et al,
+     William H. Press et al,
      NUMERICAL RECIPES IN C
      pp 40-47
+   with adapted permutation vector.
  */
 static int numeric_ludecomp(
   pmath_expr_t *matrix,
@@ -364,7 +364,10 @@ int _pmath_matrix_ludecomp(
   return symbolic_ludecomp(matrix, perm, sing_fast_exit);
 }
 
+
 PMATH_PRIVATE pmath_t builtin_ludecomposition(pmath_expr_t expr){
+/* {LU, P} := LUDecomposition(A)
+ */
   pmath_t matrix;
   pmath_t lu_mat;
   size_t rows, cols;

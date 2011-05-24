@@ -328,6 +328,8 @@ PMATH_PRIVATE pmath_t builtin_part(         pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_assign_part(  pmath_expr_t expr); // in replacepart.c
 PMATH_PRIVATE pmath_t builtin_replacepart(  pmath_expr_t expr);
 
+PMATH_PRIVATE pmath_t builtin_call_linearsolvefunction(pmath_expr_t expr);
+
 PMATH_PRIVATE pmath_t builtin_apply(                        pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_append(                       pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_array(                        pmath_expr_t expr);
@@ -363,6 +365,7 @@ PMATH_PRIVATE pmath_t builtin_leafcount(                    pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_length(                       pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_lengthwhile(                  pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_level(                        pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_linearsolve(                  pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_ludecomposition(              pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_map(                          pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_mapthread(                    pmath_expr_t expr);
@@ -939,6 +942,8 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   VERIFY(   PMATH_SYMBOL_LETTERCHARACTER           = NEW_SYSTEM_SYMBOL("LetterCharacter"))
   VERIFY(   PMATH_SYMBOL_LEVEL                     = NEW_SYSTEM_SYMBOL("Level"))
   VERIFY(   PMATH_SYMBOL_LINE                      = NEW_SYSTEM_SYMBOL("$Line"))
+  VERIFY(   PMATH_SYMBOL_LINEARSOLVE               = NEW_SYSTEM_SYMBOL("LinearSolve"))
+  VERIFY(   PMATH_SYMBOL_LINEARSOLVEFUNCTION       = NEW_SYSTEM_SYMBOL("LinearSolveFunction"))
   VERIFY(   PMATH_SYMBOL_LINEBREAKWITHIN           = NEW_SYSTEM_SYMBOL("LineBreakWithin"))
   VERIFY(   PMATH_SYMBOL_LIST                      = NEW_SYSTEM_SYMBOL("List"))
   VERIFY(   PMATH_SYMBOL_LISTABLE                  = NEW_SYSTEM_SYMBOL("Listable"))
@@ -1294,6 +1299,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
 
     BIND_SUB(    PMATH_SYMBOL_FUNCTION,                    builtin_call_function)
     BIND_SUB(    PMATH_SYMBOL_ISHELD,                      builtin_call_isheld)
+    BIND_SUB(    PMATH_SYMBOL_LINEARSOLVEFUNCTION,         builtin_call_linearsolvefunction)
 
     BIND_UP(     PMATH_SYMBOL_N,                           builtin_assign_approximate)
     BIND_UP(     PMATH_SYMBOL_NRULES,                      builtin_assign_symbol_rules)
@@ -1493,6 +1499,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
     BIND_DOWN(   PMATH_SYMBOL_LESS,                        builtin_less)
     BIND_DOWN(   PMATH_SYMBOL_LESSEQUAL,                   builtin_lessequal)
     BIND_DOWN(   PMATH_SYMBOL_LEVEL,                       builtin_level)
+    BIND_DOWN(   PMATH_SYMBOL_LINEARSOLVE,                 builtin_linearsolve)
     BIND_DOWN(   PMATH_SYMBOL_LOADLIBRARY,                 builtin_loadlibrary)
     BIND_DOWN(   PMATH_SYMBOL_LOCAL,                       builtin_local)
     BIND_DOWN(   PMATH_SYMBOL_LOG,                         builtin_log)

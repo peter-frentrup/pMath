@@ -129,8 +129,12 @@ pmath_expr_t _pmath_expr_prepend(
 
 /* matrix must point to a quadratic matrix,
    perm must be to sizeof(size_t) * pmath_expr_length(matrix) bytes
-   returns: *matrix contains lower and upper matrix, perm the permutation, 
-   return value is 0 iff matrix was singular and sign of perm otherwise
+   returns: *matrix contains lower and upper matrix, perm defines the 
+   permutation, return value is 0 iff matrix was singular and sign of 
+   permutation otherwise (#of row excahnges)
+   
+   For a permutation {2,1} you get perm = [2,2]: 
+   (b[i],b[perm[i]]) = (b[perm[i]],b[i])
    
    if sing_fast_exit == TRUE and *matrix is singular, the decomposition stop 
    immediately and the result is possibly not a valid LU-matrix
@@ -141,6 +145,23 @@ int _pmath_matrix_ludecomp(
   size_t       *perm,
   pmath_bool_t  sing_fast_exit);
 
+/* Does the backsubstitution. To solve Dot(A,x) = b, do:
+   *vector may be a matrix.
+
+   ... alloc memory for perm ...
+   d = _pmath_matrix_ludecomp(&A, perm, TRUE or FALSE) // changes A
+   if(d == 0)
+     ... error: matrix is singular ...
+   else
+     _pmath_matrix_lubacksubst(A, perm, b)
+   ... free perm ...
+   x = b;
+ */
+PMATH_PRIVATE
+void _pmath_matrix_lubacksubst(
+  pmath_expr_t  lumatrix,
+  const size_t *perm,
+  pmath_expr_t *vector);
 
 
 PMATH_PRIVATE
