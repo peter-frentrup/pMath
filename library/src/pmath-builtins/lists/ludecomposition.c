@@ -11,6 +11,85 @@
 #include <pmath-builtins/lists-private.h>
 
 
+static pmath_bool_t is_zero(pmath_t x){
+  return pmath_is_number(x) && pmath_number_sign(x) == 0;
+}
+
+PMATH_PRIVATE
+void _pmath_matrix_is_triangular( // in ludecomposition
+  pmath_expr_t  m, // wont be freed
+  pmath_bool_t *lower_has_nonzeros,
+  pmath_bool_t *diagonal_has_nonzeros,
+  pmath_bool_t *diagonal_has_zeros,
+  pmath_bool_t *upper_has_nonzeros
+){
+  const size_t N = pmath_expr_length(m);
+  size_t i, j;
+  int diag;
+  
+  *lower_has_nonzeros = FALSE;
+  *upper_has_nonzeros = FALSE;
+  
+  diag = 0;
+  
+  for(i = N;i > 0;--i){
+    pmath_t row  = pmath_expr_get_item(m, i);
+    pmath_t item = pmath_expr_get_item(row, i);
+    pmath_unref(row);
+    
+    if(is_zero(item))
+      diag|= 2;
+    else
+      diag|= 1;
+    
+    pmath_unref(item);
+    if(diag == 3)
+      break;
+  }
+  
+  *diagonal_has_nonzeros = diag & 1;
+  *diagonal_has_zeros    = diag & 2;
+  
+  // lower:
+  for(i = N;i > 1;--i){
+    pmath_t row = pmath_expr_get_item(m, i);
+    
+    for(j = i-1;j > 0;--j){
+      pmath_t item = pmath_expr_get_item(row, j);
+      
+      if(!is_zero(item)){
+        pmath_unref(row);
+        pmath_unref(item);
+        *lower_has_nonzeros = TRUE;
+        goto UPPER;
+      }
+      pmath_unref(item);
+    }
+    
+    pmath_unref(row);
+  }
+  
+ UPPER:
+  for(i = N-1;i > 0;--i){
+    pmath_t row = pmath_expr_get_item(m, i);
+    
+    for(j = i+1;j <= N;++j){
+      pmath_t item = pmath_expr_get_item(row, j);
+      
+      if(!is_zero(item)){
+        pmath_unref(row);
+        pmath_unref(item);
+        *upper_has_nonzeros = TRUE;
+        return;
+      }
+      pmath_unref(item);
+    }
+    
+    pmath_unref(row);
+  }
+}
+
+
 static pmath_bool_t greater(pmath_t a, pmath_t b){
   pmath_t tmp;
   
@@ -21,10 +100,6 @@ static pmath_bool_t greater(pmath_t a, pmath_t b){
   tmp = pmath_evaluate(GREATER(pmath_ref(a), pmath_ref(b)));
   pmath_unref(tmp);
   return pmath_same(tmp, PMATH_SYMBOL_TRUE);
-}
-
-static pmath_bool_t is_zero(pmath_t x){
-  return pmath_is_number(x) && pmath_number_sign(x) == 0;
 }
 
 static pmath_t calc_abs(pmath_t x){ // will be freed
@@ -70,7 +145,7 @@ pmath_expr_t _pmath_matrix_set( // return: new matrix
  */
 static int numeric_ludecomp(
   pmath_expr_t *matrix,
-  size_t       *perm,
+  size_t       *indx,
   pmath_bool_t  sing_fast_exit,
   pmath_t       tiny
 ){
@@ -80,10 +155,7 @@ static int numeric_ludecomp(
   int sign = 1;
   pmath_expr_t vv = pmath_expr_new(PMATH_NULL, n);
   
-  perm = perm-1; // perm[1] ... perm[n]
-  
-  for(i = n;i > 0;--i)
-    perm[i] = i;
+  indx = indx-1; // indx[1] ... indx[n]
   
   for(i = 1;i <= n;++i){
     pmath_t big = PMATH_FROM_INT32(0);
@@ -109,6 +181,8 @@ static int numeric_ludecomp(
       if(sing_fast_exit){
         *matrix = A;
         pmath_unref(vv);
+        for(j = n;j > 0;--j)
+          indx[j] = j;
         return 0;
       }
       
@@ -174,12 +248,9 @@ static int numeric_ludecomp(
       
       vv = pmath_expr_set_item(vv, imax, pmath_expr_get_item(vv, j));
       
-      k          = perm[j];
-      perm[j]    = perm[imax];
-      perm[imax] = k;
-      
       sign = -sign;
     }
+    indx[j] = imax;
     
     {
       pmath_t dum = _pmath_matrix_get(A, j,j);
@@ -188,6 +259,8 @@ static int numeric_ludecomp(
 //        if(sing_fast_exit){
 //          pmath_unref(vv);
 //          *matrix = A;
+//          for(++j;j <= n;++j)
+//            indx[j] = j;
 //          return 0;
 //        }
 //        else{
@@ -217,7 +290,7 @@ static int numeric_ludecomp(
  */
 static int symbolic_ludecomp(
   pmath_expr_t *matrix,
-  size_t       *perm,
+  size_t       *indx,
   pmath_bool_t  sing_fast_exit
 ){
   pmath_expr_t A = *matrix;
@@ -225,10 +298,7 @@ static int symbolic_ludecomp(
   size_t i,imax,j,k;
   int sign = 1;
   
-  perm = perm-1; // perm[1] ... perm[n]
-  
-  for(i = n;i > 0;--i)
-    perm[i] = i;
+  indx = indx-1; // indx[1] ... indx[n]
   
   if(sing_fast_exit){
     for(i = 1;i <= n;++i){
@@ -245,6 +315,8 @@ static int symbolic_ludecomp(
       if(is_zero(big)){
         *matrix = A;
         pmath_unref(big);
+        for(j = n;j > 0;--j)
+          indx[j] = j;
         return 0;
       }
       
@@ -303,18 +375,17 @@ static int symbolic_ludecomp(
       A = pmath_expr_set_item(A, j, pmath_expr_get_item(A, imax));
       A = pmath_expr_set_item(A, imax, temp);
       
-      k          = perm[j];
-      perm[j]    = perm[imax];
-      perm[imax] = k;
-      
       sign = -sign;
     }
+    indx[j] = imax;
     
     {
       pmath_t dum = _pmath_matrix_get(A, j,j);
       if(is_zero(dum)){
         pmath_unref(dum);
         *matrix = A;
+        for(++j;j <= n;++j)
+          indx[j] = j;
         return 0;
       }
       
@@ -337,41 +408,82 @@ static int symbolic_ludecomp(
 PMATH_PRIVATE
 int _pmath_matrix_ludecomp(
   pmath_expr_t *matrix,
-  size_t       *perm,
+  size_t       *indx,
   pmath_bool_t  sing_fast_exit
 ){
-  double prec = pmath_precision(pmath_ref(*matrix));
+  double prec;
+  pmath_bool_t lower_nz, diag_nz, diag_z, upper_nz;
+  
+  //{ fast paths for triagonal matrices ...
+  _pmath_matrix_is_triangular(*matrix, &lower_nz, &diag_nz, &diag_z, &upper_nz);
+  if(!lower_nz){ // upper triagonal matrix
+    size_t i;
+    for(i = pmath_expr_length(*matrix);i > 0;--i)
+      indx[i-1] = i;
+    
+    return diag_z ? 0 : 1;
+  }
+  
+  if(!upper_nz){ // lower triagonal matrix
+    size_t i;
+    if(diag_z){ // 0 on diagonal => singular
+      for(i = pmath_expr_length(*matrix);i > 0;--i)
+        indx[i-1] = i;
+      
+      return 0;
+    }
+    
+    for(i = pmath_expr_length(*matrix);i > 0;--i){
+      pmath_t item = _pmath_matrix_get(*matrix, i, i);
+      
+      if(pmath_compare(item, PMATH_FROM_INT32(1)) != 0){
+        pmath_unref(item);
+        goto NO_LOWER_DIAG1;
+      }
+      
+      pmath_unref(item);
+    }
+    
+    // diag = (1,1,...,1)
+    for(i = pmath_expr_length(*matrix);i > 0;--i)
+      indx[i-1] = i;
+    return 1;
+    
+   NO_LOWER_DIAG1: ; // diag != (1,1,...,1)
+  }
+  //} ... fast paths for triagonal matrices
+  
+  prec = pmath_precision(pmath_ref(*matrix));
   
   if(isfinite(prec)){
     pmath_t tiny = pmath_evaluate(
       POW(INT(2), pmath_set_precision(PMATH_FROM_DOUBLE(-prec), prec)));
     
-    int sgn = numeric_ludecomp(matrix, perm, sing_fast_exit, tiny);
+    int sgn = numeric_ludecomp(matrix, indx, sing_fast_exit, tiny);
     
     pmath_unref(tiny);
     return sgn;
   }
   
-  if(prec < 0){
+  if(prec < 0){ // -HUGE_VAL = MachinePrecision
     pmath_t tiny = PMATH_FROM_DOUBLE(DBL_EPSILON);
     
-    int sgn = numeric_ludecomp(matrix, perm, sing_fast_exit, tiny);
+    int sgn = numeric_ludecomp(matrix, indx, sing_fast_exit, tiny);
     
     pmath_unref(tiny);
     return sgn;
   }
   
-  return symbolic_ludecomp(matrix, perm, sing_fast_exit);
+  return symbolic_ludecomp(matrix, indx, sing_fast_exit);
 }
 
 
 PMATH_PRIVATE pmath_t builtin_ludecomposition(pmath_expr_t expr){
-/* {LU, P} := LUDecomposition(A)
+/* {LU, Pvec, 1} := LUDecomposition(A)
  */
-  pmath_t matrix;
-  pmath_t lu_mat;
+  pmath_t matrix, perm;
   size_t rows, cols;
-  size_t *perm;
+  size_t *indx;
   int sgn;
   
   if(pmath_expr_length(expr) != 1){
@@ -380,7 +492,7 @@ PMATH_PRIVATE pmath_t builtin_ludecomposition(pmath_expr_t expr){
   }
   
   matrix = pmath_expr_get_item(expr, 1);
-  if(!_pmath_is_matrix(matrix, &rows, &cols)
+  if(!_pmath_is_matrix(matrix, &rows, &cols, TRUE)
   || rows != cols
   || rows == 0){
     pmath_message(PMATH_NULL, "matsq", 2, matrix, PMATH_FROM_INT32(1));
@@ -388,28 +500,32 @@ PMATH_PRIVATE pmath_t builtin_ludecomposition(pmath_expr_t expr){
   }
   
   pmath_unref(expr);
-  perm = pmath_mem_alloc(sizeof(size_t) * rows);
-  if(!perm){
+  indx = pmath_mem_alloc(sizeof(size_t) * rows);
+  if(!indx){
     pmath_unref(matrix);
     return PMATH_NULL;
   }
   
-  lu_mat = pmath_ref(matrix);
-  sgn = _pmath_matrix_ludecomp(&lu_mat, perm, FALSE);
+  sgn = _pmath_matrix_ludecomp(&matrix, indx, FALSE);
   if(sgn == 0){
-    pmath_message(PMATH_NULL, "sing", 1, matrix);
+    pmath_message(PMATH_NULL, "sing", 1, pmath_ref(matrix));
   }
-  else
-    pmath_unref(matrix);
   
-  matrix = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), rows);
+  perm = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), rows);
   for(cols = rows;cols > 0;--cols){
-    matrix = pmath_expr_set_item(
-      matrix, cols,
-      pmath_integer_new_uiptr(
-        perm[cols-1]));
+    perm = pmath_expr_set_item(perm, cols, pmath_integer_new_uiptr(cols));
   }
   
-  pmath_mem_free(perm);
-  return pmath_build_value("(oo)", lu_mat, matrix);
+  for(cols = 1;cols <= rows;++cols){
+    if(indx[cols-1] != cols){
+      pmath_t a = pmath_expr_get_item(perm, cols);
+      pmath_t b = pmath_expr_get_item(perm, indx[cols-1]);
+      perm      = pmath_expr_set_item(perm, cols,         b);
+      perm      = pmath_expr_set_item(perm, indx[cols-1], a);
+    }
+  }
+  
+  pmath_mem_free(indx);
+  // todo set third element to condition number estimate
+  return pmath_build_value("(ooi)", matrix, perm, 1);
 }

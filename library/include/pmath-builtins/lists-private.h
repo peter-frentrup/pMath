@@ -79,7 +79,20 @@ PMATH_PRIVATE
 pmath_bool_t _pmath_is_matrix( // in dimensions.c
   pmath_t m, // wont be freed
   size_t *rows,
-  size_t *cols);
+  size_t *cols,
+  pmath_bool_t check_non_list_entries);
+
+PMATH_PRIVATE 
+pmath_bool_t _pmath_is_vector( // in dimensions.c
+  pmath_t v);
+
+PMATH_PRIVATE
+void _pmath_matrix_is_triangular( // in ludecomposition
+  pmath_expr_t  m, // wont be freed, mjst be a square matrix!
+  pmath_bool_t *lower_has_nonzeros,
+  pmath_bool_t *diagonal_has_nonzeros,
+  pmath_bool_t *diagonal_has_zeros,
+  pmath_bool_t *upper_has_nonzeros);
 
 PMATH_PRIVATE 
 PMATH_ATTRIBUTE_USE_RESULT
@@ -128,13 +141,14 @@ pmath_expr_t _pmath_expr_prepend(
   pmath_t      item); // will be freed
 
 /* matrix must point to a quadratic matrix,
-   perm must be to sizeof(size_t) * pmath_expr_length(matrix) bytes
-   returns: *matrix contains lower and upper matrix, perm defines the 
+   indx must be to sizeof(size_t) * pmath_expr_length(matrix) bytes,
+   returns: *matrix contains lower and upper matrix, indx defines the 
    permutation, return value is 0 iff matrix was singular and sign of 
    permutation otherwise (#of row excahnges)
    
-   For a permutation {2,1} you get perm = [2,2]: 
-   (b[i],b[perm[i]]) = (b[perm[i]],b[i])
+   The actual permutation is given by transitions 
+     (1 indx[1])(2 indx[2])...(n indx[n]), (from left to right)
+   so indx = [3,3,3] stands for the permutation (1 3)(2 3)(3 3) = (3 1 2)
    
    if sing_fast_exit == TRUE and *matrix is singular, the decomposition stop 
    immediately and the result is possibly not a valid LU-matrix
@@ -142,25 +156,29 @@ pmath_expr_t _pmath_expr_prepend(
 PMATH_PRIVATE
 int _pmath_matrix_ludecomp(
   pmath_expr_t *matrix,
-  size_t       *perm,
+  size_t       *indx,
   pmath_bool_t  sing_fast_exit);
 
 /* Does the backsubstitution. To solve Dot(A,x) = b, do:
-   *vector may be a matrix.
+   *vector may be a matrix. You must apply the permutation yourself:
 
-   ... alloc memory for perm ...
-   d = _pmath_matrix_ludecomp(&A, perm, TRUE or FALSE) // changes A
-   if(d == 0)
-     ... error: matrix is singular ...
+   ... alloc memory for indx ...
+   d = _pmath_matrix_ludecomp(&A, indx, TRUE or FALSE) // changes A
+   if(d != 0){
+     for(i = 1..n)
+       {b[i], b[indx[i]]} = {b[indx[i]], b[i]};
+     
+     _pmath_matrix_lubacksubst(A, b)
+   }
    else
-     _pmath_matrix_lubacksubst(A, perm, b)
+     ... error: matrix is singular ...
+   
    ... free perm ...
    x = b;
  */
 PMATH_PRIVATE
 void _pmath_matrix_lubacksubst(
   pmath_expr_t  lumatrix,
-  const size_t *perm,
   pmath_expr_t *vector);
 
 

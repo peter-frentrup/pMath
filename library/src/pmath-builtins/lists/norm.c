@@ -31,20 +31,20 @@ PMATH_PRIVATE pmath_t builtin_norm(pmath_expr_t expr){
   if(pmath_is_string(ptype)
   && pmath_string_equals_latin1(ptype, "Frobenius")){
     pmath_unref(ptype);
-      
-    if(!pmath_is_expr_of(matrix, PMATH_SYMBOL_LIST)){
-      pmath_unref(matrix);
-      return expr;
+    
+    if(_pmath_is_vector(matrix)){
+      pmath_unref(expr);
+      return SQRT(FUNC(pmath_ref(PMATH_SYMBOL_TOTAL), POW(ABS(matrix), INT(2))));
     }
     
-    pmath_unref(expr);
-    
-    if(_pmath_is_matrix(matrix, &rows, &cols)){
+    if(_pmath_is_matrix(matrix, &rows, &cols, TRUE)){
+      pmath_unref(expr);
       return SQRT(FUNC(pmath_ref(PMATH_SYMBOL_TOTAL), 
         FUNC(pmath_ref(PMATH_SYMBOL_TOTAL), POW(ABS(matrix), INT(2)))));
     }
     
-    return SQRT(FUNC(pmath_ref(PMATH_SYMBOL_TOTAL), POW(ABS(matrix), INT(2))));
+    pmath_unref(matrix);
+    return expr;
   }
   
   ptype_class = _pmath_number_class(ptype);
@@ -54,7 +54,36 @@ PMATH_PRIVATE pmath_t builtin_norm(pmath_expr_t expr){
     return expr;
   }
   
-  if(!pmath_is_expr_of(matrix, PMATH_SYMBOL_LIST)){
+  if(_pmath_is_matrix(matrix, &rows, &cols, TRUE)){
+    if(ptype_class == PMATH_CLASS_POSINF){
+      pmath_unref(ptype);
+      pmath_unref(expr);
+      
+      return FUNC(pmath_ref(PMATH_SYMBOL_MAX),
+        FUNC2(pmath_ref(PMATH_SYMBOL_MAP), 
+          ABS(matrix),
+          pmath_ref(PMATH_SYMBOL_TOTAL)));
+    }
+    
+    if(ptype_class == PMATH_CLASS_POSONE){
+      pmath_unref(ptype);
+      pmath_unref(expr);
+      
+      return FUNC(pmath_ref(PMATH_SYMBOL_MAX),
+        FUNC(pmath_ref(PMATH_SYMBOL_TOTAL),
+          ABS(matrix)));
+    }
+    
+    // todo: 2-Norm for matrices
+    if(!pmath_equals(ptype, PMATH_FROM_INT32(2))){
+      pmath_message(PMATH_NULL, "ptype", 1, pmath_ref(ptype));
+    }
+    pmath_unref(ptype);
+    pmath_unref(matrix);
+    return expr;
+  }
+  
+  if(!_pmath_is_vector(matrix)){
     pmath_unref(matrix);
     pmath_unref(ptype);
     return expr;
@@ -64,13 +93,6 @@ PMATH_PRIVATE pmath_t builtin_norm(pmath_expr_t expr){
     pmath_unref(ptype);
     pmath_unref(expr);
     
-    if(_pmath_is_matrix(matrix, &rows, &cols)){
-      return FUNC(pmath_ref(PMATH_SYMBOL_MAX),
-        FUNC2(pmath_ref(PMATH_SYMBOL_MAP), 
-          ABS(matrix),
-          pmath_ref(PMATH_SYMBOL_TOTAL)));
-    }
-    
     return FUNC(pmath_ref(PMATH_SYMBOL_MAX), ABS(matrix));
   }
   
@@ -78,23 +100,7 @@ PMATH_PRIVATE pmath_t builtin_norm(pmath_expr_t expr){
     pmath_unref(ptype);
     pmath_unref(expr);
     
-    if(_pmath_is_matrix(matrix, &rows, &cols)){
-      return FUNC(pmath_ref(PMATH_SYMBOL_MAX),
-        FUNC(pmath_ref(PMATH_SYMBOL_TOTAL),
-          ABS(matrix)));
-    }
-    
     return FUNC(pmath_ref(PMATH_SYMBOL_TOTAL), ABS(matrix));
-  }
-  
-  // todo: 2-Norm for matrices
-  if(_pmath_is_matrix(matrix, &rows, &cols)){
-    if(!pmath_equals(ptype, PMATH_FROM_INT32(2))){
-      pmath_message(PMATH_NULL, "ptype", 1, pmath_ref(ptype));
-    }
-    pmath_unref(ptype);
-    pmath_unref(matrix);
-    return expr;
   }
   
   // special casing Norm({a,b}) = Sqrt(a^2 + b^2) for double values

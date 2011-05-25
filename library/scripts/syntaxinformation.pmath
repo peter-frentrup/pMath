@@ -202,6 +202,7 @@
 {"Less", {"ArgumentCount" -> 2..}},
 {"LessEqual", {"ArgumentCount" -> 2..}},
 {"Level", {"ArgumentCount" -> 2..3}},
+{"LinearSolve", {"ArgumentCount" -> 1..2}},
 {"Literal", {"ArgumentCount" -> 1}},
 {"LoadLibrary", {"ArgumentCount" -> 1}},
 {"Local", {"ArgumentCount" -> 2, "LocalVariables" -> {"Local", 1}}},

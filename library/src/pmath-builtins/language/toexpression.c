@@ -85,7 +85,7 @@ static pmath_t remove_whitespace_from_boxes(pmath_t boxes){
     pmath_t matrix = pmath_expr_get_item(boxes, 1);
     boxes = pmath_expr_set_item(boxes, 1, PMATH_NULL);
     
-    if(_pmath_is_matrix(matrix, &rows, &cols)){
+    if(_pmath_is_matrix(matrix, &rows, &cols, FALSE)){
       size_t i, j;
       
       for(i = rows;i > 0;--i){

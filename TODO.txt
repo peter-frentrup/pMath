@@ -58,7 +58,7 @@
 - eval Complex(0, x)^q with rational q
 
 - add KroneckerProduct(), ArrayFlatten(),
-	LinearSolve(), Inverse(), PseudoInverse(), RowReduce(), MatrixRank(), Normalize(), 
+	Inverse(), PseudoInverse(), RowReduce(), MatrixRank(), Normalize(), 
 	Projection(), Orthogonalize(), ConjugateTranspose(),
 	IdentityMatrix(), ChracteristicPolynomial(), Eigenvalues(), Eigenvectors()
 

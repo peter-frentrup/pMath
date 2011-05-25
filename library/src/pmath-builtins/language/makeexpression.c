@@ -269,7 +269,7 @@ static pmath_t parse_gridbox( // PMATH_NULL on error
 
   matrix = pmath_expr_get_item(expr, 1);
 
-  if(!_pmath_is_matrix(matrix, &height, &width)){
+  if(!_pmath_is_matrix(matrix, &height, &width, FALSE)){
     pmath_unref(options);
     pmath_unref(matrix);
     return PMATH_NULL;

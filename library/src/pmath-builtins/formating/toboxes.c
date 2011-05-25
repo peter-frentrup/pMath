@@ -127,7 +127,7 @@ long _pmath_boxes_length(pmath_t boxes){  // boxes wont be freed
       size_t rows, cols;
       pmath_t matrix = pmath_expr_get_item(boxes, 1);
       
-      if(_pmath_is_matrix(matrix, &rows, &cols)){
+      if(_pmath_is_matrix(matrix, &rows, &cols, FALSE)){
         size_t i, j;
         
         for(i = 1;i <= cols;++i){

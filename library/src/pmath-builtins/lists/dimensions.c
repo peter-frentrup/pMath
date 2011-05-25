@@ -7,10 +7,33 @@
 #include <pmath-builtins/all-symbols-private.h>
 
 
+PMATH_PRIVATE pmath_bool_t _pmath_is_vector(pmath_t v){
+  pmath_t item;
+  size_t i;
+  
+  if(!pmath_is_expr_of(v, PMATH_SYMBOL_LIST))
+    return FALSE;
+  
+  i = pmath_expr_length(v);
+  for(;i > 0;--i){
+    item = pmath_expr_get_item(v, i);
+    
+    if(pmath_is_expr_of(item, PMATH_SYMBOL_LIST)){
+      pmath_unref(item);
+      return FALSE;
+    }
+    
+    pmath_unref(item);
+  }
+  
+  return TRUE;
+}
+
 PMATH_PRIVATE pmath_bool_t _pmath_is_matrix(
-  pmath_t m,
-  size_t *rows,
-  size_t *cols
+  pmath_t       m,
+  size_t       *rows,
+  size_t       *cols,
+  pmath_bool_t  check_non_list_entries
 ){
   pmath_expr_t row;
   size_t i;
@@ -34,12 +57,16 @@ PMATH_PRIVATE pmath_bool_t _pmath_is_matrix(
   
   for(i = *rows;i > 1;--i){
     row = pmath_expr_get_item(m, i);
-    if(!pmath_is_expr_of_len(row, PMATH_SYMBOL_LIST, *cols)){
+    
+    if(!pmath_is_expr_of_len(row, PMATH_SYMBOL_LIST, *cols)
+    || (check_non_list_entries && !_pmath_is_vector(row))){
       pmath_unref(row);
       return FALSE;
     }
+    
     pmath_unref(row);
   }
+  
   return TRUE;
 }
 

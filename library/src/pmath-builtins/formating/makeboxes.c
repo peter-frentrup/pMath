@@ -1858,7 +1858,7 @@ static pmath_t grid_to_boxes(
       pmath_unref(obj);
       obj = pmath_expr_get_item(expr, 1);
       
-      if(_pmath_is_matrix(obj, &rows, &cols)){
+      if(_pmath_is_matrix(obj, &rows, &cols, FALSE)){
         size_t i, j;
         
         expr = pmath_expr_set_item(expr, 1, PMATH_NULL);
@@ -2087,7 +2087,7 @@ static pmath_t longform_to_boxes(
   ){
     size_t rows, cols;
     
-    if(_pmath_is_matrix(obj, &rows, &cols) && rows > 0 && cols > 0){
+    if(_pmath_is_matrix(obj, &rows, &cols, FALSE) && rows > 0 && cols > 0){
       size_t i, j;
       
       for(i = 1;i <= rows;++i){
@@ -2616,7 +2616,7 @@ static pmath_t piecewise_to_boxes(
     size_t rows, cols;
     pmath_expr_t mat = pmath_expr_get_item(expr, 1);
     
-    if(_pmath_is_matrix(mat, &rows, &cols)
+    if(_pmath_is_matrix(mat, &rows, &cols, FALSE)
     && cols == 2){
       size_t i, j;
       

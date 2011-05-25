@@ -285,7 +285,7 @@ PMATH_PRIVATE pmath_t builtin_det(pmath_expr_t expr){
   }
   
   matrix = pmath_expr_get_item(expr, 1);
-  if(!_pmath_is_matrix(matrix, &rows, &cols)
+  if(!_pmath_is_matrix(matrix, &rows, &cols, TRUE)
   || rows != cols
   || rows == 0){
     pmath_message(PMATH_NULL, "matsq", 2, matrix, PMATH_FROM_INT32(1));
