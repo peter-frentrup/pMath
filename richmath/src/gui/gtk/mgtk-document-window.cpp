@@ -376,13 +376,13 @@ void MathGtkDocumentWindow::run_menucommand(Expr cmd){
 
   if(cmd_str.starts_with(         "@shaper=")){
     cmd_str = cmd_str.part(sizeof("@shaper=") - 1, -1);
+    
+    SharedPtr<MathShaper> *ms = MathShaper::available_shapers.search(cmd);
 
-    SharedPtr<MathShaper> ms = MathShaper::available_shapers[cmd];
-
-    if(ms.is_valid()){
-      _top_area->document_context()->math_shaper     = ms;
-      _bottom_area->document_context()->math_shaper  = ms;
-      _working_area->document_context()->math_shaper = ms;
+    if(ms){
+      _top_area->document_context()->math_shaper     = *ms;
+      _bottom_area->document_context()->math_shaper  = *ms;
+      _working_area->document_context()->math_shaper = *ms;
 
       _top_area->document()->invalidate_all();
       _bottom_area->document()->invalidate_all();

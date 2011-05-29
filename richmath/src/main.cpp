@@ -186,6 +186,7 @@ static void message_dialog(const char *title, const char *content){
 
 static void load_fonts(){
   Expr fontlist = FontInfo::all_fonts();
+  PMATH_RUN_ARGS("FE`Private`$AllStartupFonts:= Union(`1`)", "(o)", pmath_ref(fontlist.get()));
 
   Hashtable<String, Void> fonttable;
   for(size_t i = fontlist.expr_length();i > 0;--i){

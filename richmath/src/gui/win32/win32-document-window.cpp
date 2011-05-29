@@ -951,14 +951,14 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
         if(cmd.starts_with(     "@shaper=")){
           cmd = cmd.part(sizeof("@shaper=") - 1, -1);
           
-          SharedPtr<MathShaper> ms = MathShaper::available_shapers[cmd];
+          SharedPtr<MathShaper> *ms = MathShaper::available_shapers.search(cmd);
           
-          if(ms.is_valid()){
-            _top_glass_area->document_context()->math_shaper    = ms;
-            _top_area->document_context()->math_shaper          = ms;
-            _bottom_area->document_context()->math_shaper       = ms;
-            _bottom_glass_area->document_context()->math_shaper = ms;
-            _working_area->document_context()->math_shaper      = ms;
+          if(ms){
+            _top_glass_area->document_context()->math_shaper    = *ms;
+            _top_area->document_context()->math_shaper          = *ms;
+            _bottom_area->document_context()->math_shaper       = *ms;
+            _bottom_glass_area->document_context()->math_shaper = *ms;
+            _working_area->document_context()->math_shaper      = *ms;
             
             _top_glass_area->document()->invalidate_all();
             _top_area->document()->invalidate_all();

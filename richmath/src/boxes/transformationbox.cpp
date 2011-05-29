@@ -84,6 +84,9 @@ void AbstractTransformationBox::resize(Context *context){
 }
 
 void AbstractTransformationBox::paint(Context *context){
+  if(style)
+    style->update_dynamic(this);
+  
   float x,y;
   context->canvas->current_pos(&x, &y);
   

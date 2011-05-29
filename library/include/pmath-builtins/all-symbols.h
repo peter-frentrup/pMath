@@ -722,5 +722,6 @@ pmath_bool_t pmath_register_approx_code(
 #define PMATH_SYMBOL_MAPTHREAD                              PMATH_SYMBOL_BUILTIN(630)
 #define PMATH_SYMBOL_LINEARSOLVE                            PMATH_SYMBOL_BUILTIN(631)
 #define PMATH_SYMBOL_LINEARSOLVEFUNCTION                    PMATH_SYMBOL_BUILTIN(632)
+#define PMATH_SYMBOL_HUE                                    PMATH_SYMBOL_BUILTIN(633)
 
 #endif /* __PMATH_BUILTINS__SYMBOLS_H__ */

@@ -153,6 +153,7 @@
 {"HoldComplete", {"ArgumentCount" -> 1..}},
 {"HoldForm", {"ArgumentCount" -> 1}},
 {"HoldPattern", {"ArgumentCount" -> 1}},
+{"Hue", {"ArgumentCount" -> 1..3}},
 {"Identical", {"ArgumentCount" -> 2..}},
 {"Identity", {"ArgumentCount" -> 1}},
 {"If", {"ArgumentCount" -> 2..4}},

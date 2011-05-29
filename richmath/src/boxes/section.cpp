@@ -279,6 +279,9 @@ void ErrorSection::resize(Context *context){
 }
 
 void ErrorSection::paint(Context *context){
+  if(style)
+    style->update_dynamic(this);
+  
   float x, y;
   context->canvas->current_pos(&x, &y);
   
@@ -410,6 +413,9 @@ void AbstractSequenceSection::resize(Context *context){
 }
 
 void AbstractSequenceSection::paint(Context *context){
+  if(style)
+    style->update_dynamic(this);
+  
   float x, y;
   context->canvas->current_pos(&x, &y);
   

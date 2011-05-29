@@ -267,6 +267,17 @@ bool Application::is_menucommand_runnable(Expr cmd){
   func = menu_command_testers[cmd];
   if(func && !func(cmd))
     return false;
+  
+  if(cmd.is_string()){
+    String scmd(cmd);
+    
+    if(scmd.starts_with("@shaper=")){
+      scmd = scmd.part(sizeof("@shaper=") - 1, -1);
+      
+      if(!MathShaper::available_shapers.search(scmd))
+        return false;
+    }
+  }
 
   return true;
 }
@@ -561,7 +572,8 @@ bool Application::is_idle(int document_id){
 
     ClientNotification cn;
     while(notifications.get(&cn)){
-      if(cn.type == CNT_END || cn.type == CNT_ENDSESSION){
+      if(cn.type == CNT_END 
+      || cn.type == CNT_ENDSESSION){
         notifications.put_front(cn);
         return;
       }
@@ -849,7 +861,7 @@ static void cnt_addconfigshaper(Expr data){
     pmath_debug_print_object("loaded ", db->shaper_name.get(), "\n");
   }
   else{
-    pmath_debug_print("failed.\n");
+    pmath_debug_print("adding config shaper failed.\n");
   }
 }
 

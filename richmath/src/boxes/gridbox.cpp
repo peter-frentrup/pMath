@@ -525,6 +525,9 @@ void GridBox::resize(Context *context){
 }
 
 void GridBox::paint(Context *context){
+  if(style)
+    style->update_dynamic(this);
+  
   float x, y;
   context->canvas->current_pos(&x, &y);
   

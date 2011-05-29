@@ -138,6 +138,9 @@ void SliderBox::paint(Context *context){
   if(context->canvas->show_only_text)
     return;
   
+  if(style)
+    style->update_dynamic(this);
+  
   have_drawn = true;
   
   double old_value = range_value;

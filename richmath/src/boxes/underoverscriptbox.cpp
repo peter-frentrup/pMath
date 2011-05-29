@@ -151,6 +151,9 @@ void UnderoverscriptBox::colorize_scope(SyntaxState *state){
 }
 
 void UnderoverscriptBox::paint(Context *context){
+  if(style)
+    style->update_dynamic(this);
+  
   float x, y;
   context->canvas->current_pos(&x, &y);
   

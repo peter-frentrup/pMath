@@ -200,68 +200,65 @@ FontFace::FontFace(
   }
   #elif defined(RICHMATH_USE_FT_FONT)
   {
-    PangoFontDescription *desc = pango_font_description_new();
+//    PangoFontDescription *desc = pango_font_description_new();
+//    
+//    char *utf8_name = pmath_string_to_utf8(name.get_as_string(), NULL);
+//    if(utf8_name)
+//      pango_font_description_set_family_static(desc, utf8_name);
+//
+//    pango_font_description_set_style( desc, style.italic ? PANGO_STYLE_ITALIC : PANGO_STYLE_NORMAL);
+//    pango_font_description_set_weight(desc, style.bold   ? PANGO_WEIGHT_BOLD  : PANGO_WEIGHT_NORMAL);
+//
+//    PangoCairoFont *pango_font = (PangoCairoFont*)pango_font_map_load_font(
+//      pango_settings.font_map, 
+//      pango_settings.context,
+//      desc);
+//    
+//    cairo_scaled_font_t *scaled_font = pango_cairo_font_get_scaled_font(pango_font);
+//    _face = cairo_font_face_reference(cairo_scaled_font_get_font_face(scaled_font));
+//    
+//    pango_font_description_free(desc);
+//    pmath_mem_free(utf8_name);
     
-    char *utf8_name = pmath_string_to_utf8(name.get_as_string(), NULL);
-    if(utf8_name)
-      pango_font_description_set_family_static(desc, utf8_name);
+    int fcslant  = style.italic ? FC_SLANT_ITALIC : FC_SLANT_ROMAN;
+    int fcweight = style.bold   ? FC_WEIGHT_BOLD  : FC_WEIGHT_MEDIUM;
+    char *family = pmath_string_to_utf8(name.get(), NULL);
 
-    pango_font_description_set_style( desc, style.italic ? PANGO_STYLE_ITALIC : PANGO_STYLE_NORMAL);
-    pango_font_description_set_weight(desc, style.bold   ? PANGO_WEIGHT_BOLD  : PANGO_WEIGHT_NORMAL);
+    FcPattern *pattern = FcPatternBuild(NULL,
+      FC_FAMILY,     FcTypeString,  family,
+      FC_SLANT,      FcTypeInteger, fcslant,
+      FC_WEIGHT,     FcTypeInteger, fcweight,
+      FC_DPI,        FcTypeDouble,  96.0,
+      FC_SCALE,      FcTypeDouble,  0.75,
+      FC_SIZE,       FcTypeDouble,  1024.0,
+      FC_PIXEL_SIZE, FcTypeDouble,  1024.0 * 0.75,
+      FC_SCALABLE,   FcTypeBool,    FcTrue,
+      NULL);
 
-    PangoCairoFont *pango_font = (PangoCairoFont*)pango_font_map_load_font(
-      pango_settings.font_map, 
-      pango_settings.context,
-      desc);
-    
-    cairo_scaled_font_t *scaled_font = pango_cairo_font_get_scaled_font(pango_font);
-    _face = cairo_font_face_reference(cairo_scaled_font_get_font_face(scaled_font));
-    
-    pango_font_description_free(desc);
-    pmath_mem_free(utf8_name);
-    
-//    // fcslant and fcweight are not recognized correctly !?!
-//    int fcslant  = FC_SLANT_ITALIC;//style.italic ? FC_SLANT_ITALIC : FC_SLANT_ROMAN;
-//    int fcweight = style.bold   ? FC_WEIGHT_BOLD  : FC_WEIGHT_MEDIUM;
-//    char *family = pmath_string_to_utf8(name.get(), NULL);
-////    const char *style = "Bold Italic";
+//    FcResult result;
+//    pmath_debug_print("fontset for %s:\n", family);
+//    FcFontSet *set = FcFontSort(NULL, pattern, FcFalse, NULL, &result);
+//    FcFontSetPrint(set);
+//    FcFontSetDestroy(set);
 //
-//    FcPattern *pattern = FcPatternBuild(NULL,
-//      FC_FAMILY,     FcTypeString,  family,
-////      FC_STYLE,      FcTypeString,  style,
-//      FC_SLANT,      FcTypeInteger, fcslant,
-//      FC_WEIGHT,     FcTypeInteger, fcweight,
-//      FC_DPI,        FcTypeDouble,  96.0,
-//      FC_SCALE,      FcTypeDouble,  0.75,
-//      FC_SIZE,       FcTypeDouble,  1024.0,
-//      FC_PIXEL_SIZE, FcTypeDouble,  1024.0 * 0.75,
-//      FC_SCALABLE,   FcTypeBool,    FcTrue,
-//      NULL);
+//    FcPatternPrint(pattern);
 //
-////    FcResult result;
-////    pmath_debug_print("fontset for %s:\n", family);
-////    FcFontSet *set = FcFontSort(NULL, pattern, FcFalse, NULL, &result);
-////    FcFontSetPrint(set);
-////    FcFontSetDestroy(set);
-////
-////    FcPatternPrint(pattern);
-////
-////    FcConfigSubstitute(NULL, pattern, FcMatchPattern);
-////    FcPatternPrint(pattern);
-////
-////    FcDefaultSubstitute(pattern);
-////    FcPatternPrint(pattern);
-////
-////    FcPattern *resolved = FcFontMatch(NULL, pattern, &result);
-////    FcPatternPrint(resolved);
-////
-////    FcPatternDestroy(resolved);
+//    FcConfigSubstitute(NULL, pattern, FcMatchPattern);
+//    FcPatternPrint(pattern);
 //
+//    FcDefaultSubstitute(pattern);
+//    FcPatternPrint(pattern);
 //
-//    _face = cairo_ft_font_face_create_for_pattern(pattern);
+//    FcPattern *resolved = FcFontMatch(NULL, pattern, &result);
+//    FcPatternPrint(resolved);
 //
-//    FcPatternDestroy(pattern);
-//    pmath_mem_free(family);
+//    FcPatternDestroy(resolved);
+
+
+    _face = cairo_ft_font_face_create_for_pattern(pattern);
+
+    FcPatternDestroy(pattern);
+    pmath_mem_free(family);
   }
   #else
     #error no support for font backend
@@ -366,7 +363,9 @@ Expr FontInfo::all_fonts(){
 
     return gather.end();
   }
-  #elif defined(RICHMATH_USE_FT_FONT)
+  #endif
+  
+  #ifdef RICHMATH_USE_FT_FONT
   {
     FcFontSet *app_fonts = FcConfigGetFonts(NULL, FcSetApplication);
     FcFontSet *sys_fonts = FcConfigGetFonts(NULL, FcSetSystem);
@@ -415,6 +414,111 @@ void FontInfo::add_private_font(String filename){
     pmath_mem_free(file);
   }
   #endif
+}
+
+  #ifdef RICHMATH_USE_WIN32_FONT
+    static int CALLBACK search_font(
+      ENUMLOGFONTEXW *lpelfe,
+      NEWTEXTMETRICEXW *lpntme,
+      DWORD FontType,
+      LPARAM lParam
+    ){
+      //Gather::emit(String::FromUcs2((uint16_t*)lpelfe->elfLogFont.lfFaceName));
+      *(bool*)(lParam) = true;
+      return 1;
+    }
+  #endif
+
+bool FontInfo::font_exists(String name){
+  #ifdef RICHMATH_USE_WIN32_FONT
+  {
+    name+= String::FromChar(0);
+    if(name.length() == 0 || name.length() > LF_FACESIZE)
+      return false;
+    
+    LOGFONTW logfont;
+    memset(&logfont, 0, sizeof(logfont));
+    logfont.lfCharSet = DEFAULT_CHARSET;
+    memcpy(logfont.lfFaceName, name.buffer(), 2 * name.length());
+
+    bool *found = false;
+
+    EnumFontFamiliesExW(
+      dc.handle,
+      &logfont,
+      (FONTENUMPROCW)search_font,
+      (LPARAM)&found,
+      0);
+
+    return found;
+  }
+  #endif
+  
+  #ifdef RICHMATH_USE_FT_FONT
+  {
+//    PangoFontDescription *desc = pango_font_description_new();
+//    
+//    char *utf8_name = pmath_string_to_utf8(name.get_as_string(), NULL);
+//    if(!utf8_name){
+//      pango_font_description_free(desc);
+//      return false;
+//    }
+//    
+//    pango_font_description_set_family_static(desc, utf8_name);
+//    
+//    PangoFont *pango_font = pango_font_map_load_font(
+//      pango_settings.font_map, 
+//      pango_settings.context,
+//      desc);
+//    
+//    pango_font_description_free(desc);
+//    desc = pango_font_describe(pango_font);
+//    
+//    const char *family = pango_font_description_get_family(desc);
+//    pango_font_description_free(desc);
+//    if(!family || 0 != strcmp(family, utf8_name)){
+//      pmath_mem_free(utf8_name);
+//      return false;
+//    }
+//    
+//    pmath_mem_free(utf8_name);
+//    return true;
+
+
+    char *family = pmath_string_to_utf8(name.get(), NULL);
+
+    FcPattern *pattern = FcPatternBuild(NULL,
+      FC_FAMILY, FcTypeString, family,
+      NULL);
+    
+    FcResult result = FcResultMatch;
+    FcConfigSubstitute(NULL, pattern, FcMatchPattern);
+    FcDefaultSubstitute(pattern);
+    FcPattern *resolved = FcFontMatch(NULL, pattern, &result);
+    FcPatternDestroy(pattern);
+    
+    if(result != FcResultMatch){
+      FcPatternDestroy(resolved);
+      pmath_mem_free(family);
+      return false;
+    }
+    
+    char *str = 0;
+    if(FcResultTypeMismatch == FcPatternGetString(resolved, FC_FAMILY, 0, (FcChar8**)&str)
+    || !str
+    || 0 != strcmp(str, family)){
+      FcPatternDestroy(resolved);
+      pmath_mem_free(family);
+      return false;
+    }
+    
+    FcPatternDestroy(resolved);
+    pmath_mem_free(family);
+    return true;
+  }
+  #endif
+  
+  return false;
 }
 
 uint16_t FontInfo::char_to_glyph(uint32_t ch){

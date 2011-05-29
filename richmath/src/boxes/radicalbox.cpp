@@ -70,92 +70,44 @@ void RadicalBox::resize(Context *context){
 }
 
 void RadicalBox::paint(Context *context){
-// test Buffer:
-//  
-//  Canvas *old_canvas = context->canvas;
-//  SharedPtr<Buffer> buffer = new Buffer(old_canvas, CAIRO_FORMAT_ARGB32, _extents);
-//  
-//  if(buffer->canvas()){
-//    context->canvas = buffer->canvas();
-//    
-//    context->canvas->set_color(0xFFFF00, 0.3);
-//    context->canvas->paint();
-//    
-//    context->canvas->set_color(0x000000);
-//  }
-    
-  {
-//    context->canvas->save();
-//    {
-//      float x, y;
-//      context->canvas->current_pos(&x, &y);
-//      
-//      context->canvas->align_point(&x, &y, true);
-//      context->canvas->move_to(x, y);
-//      context->canvas->line_to(x+6, y);
-//      
-//      int c = context->canvas->get_color();
-//      context->canvas->set_color(0xFF0000);
-//      context->canvas->hair_stroke();
-//      context->canvas->set_color(c);
-//    }
-//    context->canvas->restore();
-    
-    float x, y;
-    context->canvas->current_pos(&x, &y);
-    
-    context->canvas->move_to(x + rx, y);
-    _radicand->paint(context);
-    
-    if(_exponent){
-      if(ex < _exponent->extents().width)
-        context->canvas->move_to(x + _exponent->extents().width - ex, y);
-      else
-        context->canvas->move_to(x, y);
-    }
+  if(style)
+    style->update_dynamic(this);
+  
+  float x, y;
+  context->canvas->current_pos(&x, &y);
+  
+  context->canvas->move_to(x + rx, y);
+  _radicand->paint(context);
+  
+  if(_exponent){
+    if(ex < _exponent->extents().width)
+      context->canvas->move_to(x + _exponent->extents().width - ex, y);
     else
       context->canvas->move_to(x, y);
-      
-    context->math_shaper->show_radical(
-      context,
-      info);
-    
-    if(_exponent){
-      float old_fs = context->canvas->get_font_size();
-      context->canvas->set_font_size(small_em);
-      
-      if(ex < _exponent->extents().width)
-        context->canvas->move_to(
-          x, 
-          y + ey - _exponent->extents().descent);
-      else
-        context->canvas->move_to(
-          x + ex - _exponent->extents().width, 
-          y + ey - _exponent->extents().descent);
-      _exponent->paint(context);
-      
-      context->canvas->set_font_size(old_fs);
-    }
   }
+  else
+    context->canvas->move_to(x, y);
+    
+  context->math_shaper->show_radical(
+    context,
+    info);
   
-//  buffer->paint(old_canvas);
-//  context->canvas = old_canvas;
-//  
-//  context->canvas->save();
-//  {
-//    float x, y;
-//    context->canvas->current_pos(&x, &y);
-//    
-//    context->canvas->align_point(&x, &y, true);
-//    context->canvas->move_to(x, y);
-//    context->canvas->line_to(x-6, y);
-//    
-//    int c = context->canvas->get_color();
-//    context->canvas->set_color(0xFF0000);
-//    context->canvas->hair_stroke();
-//    context->canvas->set_color(c);
-//  }
-//  context->canvas->restore();
+  if(_exponent){
+    float old_fs = context->canvas->get_font_size();
+    context->canvas->set_font_size(small_em);
+    
+    if(ex < _exponent->extents().width)
+      context->canvas->move_to(
+        x, 
+        y + ey - _exponent->extents().descent);
+    else
+      context->canvas->move_to(
+        x + ex - _exponent->extents().width, 
+        y + ey - _exponent->extents().descent);
+    _exponent->paint(context);
+    
+    context->canvas->set_font_size(old_fs);
+  }
 }
 
 Box *RadicalBox::remove(int *index){

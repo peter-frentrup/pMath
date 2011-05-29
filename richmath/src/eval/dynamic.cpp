@@ -30,7 +30,7 @@ void Dynamic::init(Box *owner, Expr expr){
   assert(_owner == 0 && owner != 0);
   
   _owner = owner;
-  *this = _expr;
+  *this = expr;
 }
 
 Expr Dynamic::operator=(Expr expr){

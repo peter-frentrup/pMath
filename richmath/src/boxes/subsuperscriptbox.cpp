@@ -118,6 +118,9 @@ void SubsuperscriptBox::adjust_x(
 }
 
 void SubsuperscriptBox::paint(Context *context){
+  if(style)
+    style->update_dynamic(this);
+  
   float x, y;
   context->canvas->current_pos(&x, &y);
   

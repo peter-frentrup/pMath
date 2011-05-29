@@ -82,7 +82,7 @@ class LocalServer: public Server{
                   break;
                 }
 
-                Application::notify(CNT_RETURNBOX, to_boxes(result));
+                Application::notify_wait(CNT_RETURNBOX, to_boxes(result));
               }
             }
             else{
@@ -101,7 +101,7 @@ class LocalServer: public Server{
                 rkind = Returned;
               }
               else
-                Application::notify(CNT_RETURNBOX, to_boxes(result));
+                Application::notify_wait(CNT_RETURNBOX, to_boxes(result));
             }
           }
           else{
@@ -118,7 +118,7 @@ class LocalServer: public Server{
               rkind = Returned;
             }
             else
-              Application::notify(CNT_RETURN, result);
+              Application::notify_wait(CNT_RETURN, result);
           }
 
           if(aborted){

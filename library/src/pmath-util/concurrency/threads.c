@@ -255,7 +255,7 @@ PMATH_PRIVATE void _pmath_abort_message(pmath_t abortable){
     }
   }
   
-  pmath_debug_print("[abrotable not found %p]\n", PMATH_AS_PTR(abortable));
+//  pmath_debug_print("[abortable not found %p]\n", PMATH_AS_PTR(abortable));
   pmath_unref(abortable);
 }
 

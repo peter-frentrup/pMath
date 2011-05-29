@@ -88,7 +88,7 @@ class GlyphGetter: public Base{
 
 //        if(!res){
 //          pmath_debug_print_object("Unknown glyph ", expr.get(), "");
-//          pmath_debug_print(" in font %d\n", font);
+//          pmath_debug_print(" in font %d\n", font+1);
 //        }
 
         return res;
@@ -213,7 +213,7 @@ bool ConfigShaperDB::verify(){
     return false;
   }
 
-  if(math_fontnames.length() + text_fontnames.length() > FontsPerGlyphCount){
+  if(math_fontnames.length() + text_fontnames.length() > FontsPerGlyphCount/2){
     printf("[%s, %d]", FUNC_NAME, __LINE__);
     return false;
   }
@@ -275,8 +275,11 @@ bool ConfigShaperDB::verify(){
 
       for(int j = 0;j < e->value.glyphs.length();++j){
         if(e->value.glyphs[j] == 0){
-          printf("[%s, %d, %x, %d]", FUNC_NAME, __LINE__, e->key, j);
-          return false;
+          //printf("[%s, %d, %x, %d]", FUNC_NAME, __LINE__, e->key, j);
+          //return false;
+          printf("strched glyph %x failed.\n", e->key);
+          stretched_glyphs.remove(e->key);
+          goto NEXT_STRETCHED;
         }
       }
 
@@ -287,6 +290,8 @@ bool ConfigShaperDB::verify(){
         }
       }
     }
+    
+    NEXT_STRETCHED: ;
   }
 
   c = composed_glyphs.size();
@@ -344,6 +349,8 @@ bool ConfigShaperDB::verify(){
 
       if(e->value.glyph == 0){
         printf("not found: U+%04x\n", (int)e->key);
+        char_to_glyph_map.remove(e->key);
+        goto NEXT_CHAR_TO_GLYPH;
       }
 
       if(e->value.font >= math_fontnames.length()){
@@ -351,6 +358,8 @@ bool ConfigShaperDB::verify(){
         return false;
       }
     }
+    
+    NEXT_CHAR_TO_GLYPH: ;
   }
 
   c = ligatures.size();
@@ -408,6 +417,37 @@ static uint16_t default_vertical_composed_glyphs[11][5] = {
   {0x230B,               0x23A5, 0x23A6, 0x23A5, 0}  // right floor
 };
 
+static String find_font(Expr name){
+  if(name[0] == PMATH_SYMBOL_ALTERNATIVES){
+    for(size_t i = 1;i <= name.expr_length();++i){
+      String s = find_font(name[i]);
+      if(s.length() > 0)
+        return s;
+    }
+    
+    return String();
+  }
+  
+  String s(name);
+  if(s.length() > 2 && s[0] == '<' && s[s.length()-1] == '>'){
+    s = s.part(1, s.length() - 2);
+    return s;
+  }
+  
+  if(!FontInfo::font_exists(s)){
+    pmath_debug_print_object("Font ", name.get(), " not found.\n");
+    return String();
+  }
+  
+//  FontInfo fontinfo(FontFace(String(name), NoStyle));
+//  if(0 == fontinfo.get_truetype_table(FONT_TABLE_NAME('c', 'm', 'a', 'p'), 0, 0, 0)){
+//    pmath_debug_print_object("Font ", name.get(), "not found.");
+//    return String();
+//  }
+  
+  return s;
+}
+
 SharedPtr<ConfigShaperDB> ConfigShaperDB::load_from_object(const Expr expr){
   SharedPtr<ConfigShaperDB> db = new ConfigShaperDB();
 
@@ -423,14 +463,18 @@ SharedPtr<ConfigShaperDB> ConfigShaperDB::load_from_object(const Expr expr){
       if(lhs.equals("MathFonts")){
         if(rhs.is_string()){
           db->math_fontnames.length(1);
-          db->math_fontnames[0] = String(rhs);
+          db->math_fontnames[0] = find_font(rhs);
+          if(db->math_fontnames[0].length() == 0)
+            return 0;
         }
 
         if(rhs[0] == PMATH_SYMBOL_LIST){
           db->math_fontnames.length(rhs.expr_length());
 
           for(int j = 0;j < db->math_fontnames.length();++j){
-            db->math_fontnames[j] = String(rhs[j+1]);
+            db->math_fontnames[j] = find_font(rhs[j+1]);
+            if(db->math_fontnames[j].length() == 0)
+              return 0;
           }
         }
 
@@ -440,14 +484,18 @@ SharedPtr<ConfigShaperDB> ConfigShaperDB::load_from_object(const Expr expr){
       if(lhs.equals("TextFonts")){
         if(rhs.is_string()){
           db->text_fontnames.length(1);
-          db->text_fontnames[0] = String(rhs);
+          db->text_fontnames[0] = find_font(rhs);
+          if(db->math_fontnames[0].length() == 0)
+            return 0;
         }
 
         if(rhs[0] == PMATH_SYMBOL_LIST){
           db->text_fontnames.length(rhs.expr_length());
 
           for(int j = 0;j < db->text_fontnames.length();++j){
-            db->text_fontnames[j] = String(rhs[j+1]);
+            db->text_fontnames[j] = find_font(rhs[j+1]);
+            if(db->math_fontnames[j].length() == 0)
+              return 0;
           }
         }
 
@@ -521,9 +569,13 @@ SharedPtr<ConfigShaperDB> ConfigShaperDB::load_from_object(const Expr expr){
 
             if(rule[0] == PMATH_SYMBOL_RULE
             && rule.expr_length() == 2){
-              db->char_to_glyph_map.set(
-                expr_to_char(rule[1]),
-                GlyphFontOffset(rule[2]));
+              GlyphFontOffset gfo(rule[2]);
+              
+              if(gfo.glyph){
+                db->char_to_glyph_map.set(
+                  expr_to_char(rule[1]),
+                  gfo);
+              }
             }
           }
         }
@@ -956,8 +1008,8 @@ void ConfigShaper::decode_token(
 //      }
 
       if(!style.italic){
-        result->slant = FontSlantItalic;
         math_set_style(style + Italic)->decode_token(context, len, str, result);
+        result->slant = FontSlantItalic;
         return;
       }
     }

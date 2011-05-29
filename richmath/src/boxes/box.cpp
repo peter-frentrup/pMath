@@ -345,6 +345,13 @@ Expr Box::prepare_dynamic(Expr expr){
   return expr;
 }
 
+void Box::dynamic_updated(){
+  if(style){
+    style->set(InternalHavePendingDynamic, true);
+    request_repaint_all();
+  }
+}
+
 bool Box::request_repaint_all(){
   return request_repaint(0, -_extents.ascent, _extents.width + 0.1, _extents.height() + 0.1);
 }

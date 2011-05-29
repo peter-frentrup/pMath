@@ -881,12 +881,14 @@ void _pmath_symbol_track_dynamic(
 
   assert(pmath_is_symbol(symbol));
   
-  if(pmath_atomic_read_aquire(&sym_ptr->current_dynamic_id) != id
-  && pmath_atomic_read_aquire(&sym_ptr->ignore_dynamic_id)  != id){
-    pmath_atomic_write_release(&sym_ptr->current_dynamic_id, id);
-    
-    _pmath_dynamic_bind(symbol, id);
-  }
+  if(pmath_atomic_read_aquire(&sym_ptr->current_dynamic_id) == id)
+    return;
+  
+  if(id && pmath_atomic_read_aquire(&sym_ptr->ignore_dynamic_id) == id)
+    return;
+  
+  pmath_atomic_write_release(&sym_ptr->current_dynamic_id, id);
+  _pmath_dynamic_bind(symbol, id);
 }
 
 /*----------------------------------------------------------------------------*/

@@ -472,8 +472,8 @@ void _pmath_msq_queue_handle_next(pmath_thread_t me){
         // which now sees that A is the current message again and so it throws
         // "A" to abort it.
 
-        pmath_debug_print("[start abortable %p", PMATH_AS_PTR(msg->result));
-        pmath_debug_print_object(", subject = ", msg->subject, "]\n");
+//        pmath_debug_print("[start abortable %p", PMATH_AS_PTR(msg->result));
+//        pmath_debug_print_object(", subject = ", msg->subject, "]\n");
 
         assert(pmath_is_null(result_data->next));
         result_data->next = pmath_ref(me->abortable_messages);
@@ -498,8 +498,8 @@ void _pmath_msq_queue_handle_next(pmath_thread_t me){
           val = pmath_ref(PMATH_SYMBOL_ABORTED);
 
 
-        pmath_debug_print("[ending abortable %p", PMATH_AS_PTR(msg->result));
-        pmath_debug_print_object(", value = ", val, "]\n");
+//        pmath_debug_print("[ending abortable %p", PMATH_AS_PTR(msg->result));
+//        pmath_debug_print_object(", value = ", val, "]\n");
 
 
         me->abortable_messages = result_data->next;
@@ -519,7 +519,7 @@ void _pmath_msq_queue_handle_next(pmath_thread_t me){
           _pmath_abort_message(ex);
         }
 
-        pmath_debug_print("[ended abortable %p]\n", PMATH_AS_PTR(msg->result));
+//        pmath_debug_print("[ended abortable %p]\n", PMATH_AS_PTR(msg->result));
 
         pmath_unref(msg->result);
         msg->result = PMATH_NULL;

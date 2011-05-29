@@ -880,6 +880,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   VERIFY(   PMATH_SYMBOL_HOLDFORM                  = NEW_SYSTEM_SYMBOL("HoldForm"))
   VERIFY(   PMATH_SYMBOL_HOLDPATTERN               = NEW_SYSTEM_SYMBOL("HoldPattern"))
   VERIFY(   PMATH_SYMBOL_HOLDREST                  = NEW_SYSTEM_SYMBOL("HoldRest"))
+  VERIFY(   PMATH_SYMBOL_HUE                       = NEW_SYSTEM_SYMBOL("Hue"))
   VERIFY(   PMATH_SYMBOL_I                         = NEW_SYSTEM_SYMBOL("I"))
   VERIFY(   PMATH_SYMBOL_IDENTICAL                 = NEW_SYSTEM_SYMBOL("Identical"))
   VERIFY(   PMATH_SYMBOL_IDENTITY                  = NEW_SYSTEM_SYMBOL("Identity"))

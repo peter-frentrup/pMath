@@ -10,34 +10,6 @@ namespace richmath{
   static const int SelectionFillColor = 0x6699FF;
   static const int SelectionBorderColor = 0x0000FF;
   
-  class Point{
-    public:
-      Point(){}
-      Point(float _x, float _y): x(_x), y(_y){}
-      
-      float x;
-      float y;
-  };
-  
-  typedef enum{  // PD = 00 01 10 11
-    BitOp0 = 0,  //       0  0  0  0
-    BitOpDPon,   //       1  0  0  0
-    BitOpDPna,   //       0  1  0  0
-    BitOpPn,     //       1  1  0  0
-    BitOpPDna,   //       0  0  1  0
-    BitOpDn,     //       1  0  1  0
-    BitOpDPx,    //       0  1  1  0
-    BitOpDPan,   //       1  1  1  0
-    BitOpDPa,    //       0  0  0  1
-    BitOpDPxn,   //       1  0  0  1
-    BitOpD,      //       0  1  0  1
-    BitOpDPno,   //       1  1  0  1
-    BitOpP,      //       0  0  1  1
-    BitOpPDno,   //       1  0  1  1
-    BitOpDPo,    //       0  1  1  1
-    BitOp1       //       1  1  1  1
-  }BitOperations;
-
   class Canvas: public Base {
     public:
       Canvas(cairo_t *cr);

@@ -1,7 +1,7 @@
 {
 	"Name" -> "Mathematica Serif",
 	"MathFonts" -> {"Mathematica1", "Mathematica2", "Mathematica3", "Mathematica4", "Mathematica5", "Mathematica6", "Mathematica7"},
-	"TextFonts" -> {"Times New Roman"},
+	"TextFonts" -> {"Times New Roman" | "<serif>"},
 	"PostScriptNames" -> {1,2,3,4,5,6,7},
 	"RadicalFont" -> 2,
 	"SmallRadical" -> {
@@ -73,8 +73,10 @@
 		"\u2A06" -> {{"udieresis", 2}, {"Oslash", 2}, {"oslash", 2}}, /* square cup */
 		"\u2227" -> {{"fl", 2}, {"Idieresis", 2}, {"Igrave", 2}}, /* logical and */
 		"\u22C0" -> {{"fl", 2}, {"Idieresis", 2}, {"Igrave", 2}}, /* logical and */
+		"\u22CF" -> {{"CurlyWedge", 5}, {"CurlyWedge2", 5}, {"CurlyWedge3", 5}}, /* curly logical and */
 		"\u2228" -> {{"fi", 2}, {"Iacute", 2}, {"Icircumflex", 2}}, /* logical or */
 		"\u22C1" -> {{"fi", 2}, {"Iacute", 2}, {"Icircumflex", 2}}, /* logical or */
+		"\u22CE" -> {{"CurlyVee", 5}, {"CurlyVee2", 5}, {"CurlyVee3", 5}}, /* curly logical or */
 		"\u2229" -> {{171, 1}, {"guilsinglright", 2}, {"Edieresis", 2}, {"Egrave", 2}}, /* intersect */
 		"\u22C3" -> {{171, 1}, {"guilsinglright", 2}, {"Edieresis", 2}, {"Egrave", 2}}, /* intersect */
 		"\u222A" -> {{170, 1}, {"guilsinglleft", 2}, {"Ecircumflex", 2}, {"Aacute", 2}}, /* union */
@@ -82,7 +84,7 @@
 		"\u22BB" -> {{"LogicalXor", 5}, {"Xor2", 5}, {"Xor3", 5}}, /* logical xor */
 		"\u22BC" -> {{"LogicalNand", 5}, {"Nand2", 5}, {"Nand3", 5}}, /* logical nand */
 		"\u22BD" -> {{"LogicalNor", 5}, {"Nor2", 5}, {"Nor3", 5}}, /* logical nor */
-		"\uF361" -> {{"greaterequal", 5}, {"yen", 5}, {"mu", 5}, {"partialdiff", 5}}, /* piecewise */
+		"\uF361" -> {{"Piecewise" | "greaterequal", 5}, {"Piecewise2" | "yen", 5}, {"Piecewise3" | "mu", 5}, {"Piecewise4" | "partialdiff", 5}}, /* piecewise */
 		"(" -> {{"H", 2}, {"I", 2}, {"J", 2}, {"K", 2}},
 		")" -> {{"L", 2}, {"M", 2}, {"N", 2}, {"O", 2}},
 		"[" -> {{"at", 2}, {"A", 2}, {"B", 2}, {"C", 2}},
@@ -95,7 +97,7 @@
 		"\u2309" -> {{220, 221, 221}, {}, 1, 1}, /* right ceiling */
 		"\u230A" -> {{205,  206,  205},  {}, 1, 1}, /* left floor */
 		"\u230B" -> {{221, 222, 221}, {}, 1, 1}, /* right floor */
-		"\uF361" -> {{"Oslash", "plusminus", "lessequal", "infinity"}, {}, 5, 5}, /* piecewise */
+		"\uF361" -> {{"PiecewiseTop" | "Oslash", "PiecewiseBottom" | "plusminus", "PiecewiseExt" | "lessequal", "PiecewiseMiddle" | "infinity"}, {}, 5, 5}, /* piecewise */
 		"(" -> {{201, 203, 202}, {}, 1, 1},
 		")" -> {{217, 219, 218}, {}, 1, 1},
 		"[" -> {{204, 206, 205}, {}, 1, 1},
@@ -601,7 +603,8 @@
 		"\u02D8" -> {"Ocircumflex", 4}, /* breve */
 		
 		"\u2665" -> {"FilledHeart", 5}, /* black heart */
-		"\u20AC" -> {"Euro", 5}, /* euro */
+		"\u20AC" -> {"MEuro" | "Euro", 5}, /* euro */
+		"\u20B9" -> {"MRupee", 5}, /* indian rupee */
 		"\u0152" -> {"CapitalOE", 5}, /* OE */
 		"\u0153" -> {"OE", 5}, /* oe */
 		"\u0101" -> {"ABar", 5}, /* a bar */
@@ -653,6 +656,12 @@
 		"\U0001D4B3" -> {"ScriptCapX", 5}, /* script X */
 		"\U0001D4B4" -> {"ScriptCapY", 5}, /* script Y */
 		"\U0001D4B5" -> {"ScriptCapZ", 5}, /* script Z */
+		"\u2654" -> {"wKing", 5}, /* white chess king */
+		"\u2655" -> {"wQueen", 5}, /* white chess queen */
+		"\u2656" -> {"wRook", 5}, /* white chess rook */
+		"\u2657" -> {"wBishop", 5}, /* white chess bishop */
+		"\u2658" -> {"wKnight", 5}, /* white chess knight */
+		"\u2659" -> {"wPawn", 5}, /* white chess knight */
 		"\u2252" -> {"NearlyEquals", 5}, /* nearly equal */
 		"\U0001D4B6" -> {"ScriptA", 5}, /* script a */
 		"\U0001D4B7" -> {"ScriptB", 5}, /* script b */
@@ -712,7 +721,13 @@
 		"\u266C" -> {"BeamedSixteenthNote", 5}, /* beamed sixteenth note */
 		"\u2713" -> {"CheckMark", 5}, /* check mark */
 		"\u2611" -> {"CheckedMarkBox", 5}, /* check mark box */
-		"\uF361" -> {"greaterequal", 5}, /* piecewise */
+		"\uF361" -> {"Piecewise" | "greaterequal", 5}, /* piecewise */
+		"\u265A" -> {"bKing", 5}, /* black chess king */
+		"\u265B" -> {"bQueen", 5}, /* black chess queen */
+		"\u265C" -> {"bRook", 5}, /* black chess rook */
+		"\u265D" -> {"bBishop", 5}, /* black chess bishop */
+		"\u265E" -> {"bKnight", 5}, /* black chess knight */
+		"\u265F" -> {"bPawn", 5}, /* black chess knight */
 		"\u21E0" -> {"summation", 5}, /* left dashed arrow */
 		"\u21E1" -> {"product", 5}, /* up dashed arrow */
 		"\u21E2" -> {"pi", 5}, /* right dashed arrow */
@@ -720,6 +735,12 @@
 		"\uF3BA" -> {"ordfeminine", 5}, /* span from left */
 		"\uF3BB" -> {"ordmasculine", 5}, /* span from above */
 		"\uF3BC" -> {"Omega", 5}, /* span from both */
+		"\u22CE" -> {"CurlyVee", 5}, /* curle logical or */
+		"\u22CF" -> {"CurlyWedge", 5}, /* curle logical and */
+		"\u229E" -> {"SquarePlus", 5}, /* square plus */
+		"\u229F" -> {"SquareMinus", 5}, /* square minus */
+		"\u22A0" -> {"SquaredTimes", 5}, /* square times */
+		"\u22A1" -> {"SquareDot", 5}, /* square dot */
 		"\u2019" -> {"CurlyBackQuote", 5}, /* right single quote */
 		"\u201D" -> {"CurlyQuote", 5}, /* right double quote */
 		"\u2018" -> {"CurlyDblBackQuote", 5}, /* left single quote */
