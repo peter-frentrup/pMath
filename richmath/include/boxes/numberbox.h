@@ -10,6 +10,10 @@ namespace richmath{
       
       virtual bool edit_selection(Context *context);
       
+      virtual void resize(Context *context);
+      virtual void colorize_scope(SyntaxState *state){}
+      virtual void paint(Context *context);
+      
       virtual Expr to_pmath_symbol(){ return Expr(); }
       virtual Expr to_pmath(bool parseable){ return _number; }
       

@@ -114,6 +114,30 @@ bool NumberBox::edit_selection(Context *context){
   return false;
 }
 
+void NumberBox::resize(Context *context){
+  bool old_math_spacing     = context->math_spacing;
+  bool old_show_auto_styles = context->show_auto_styles;
+  context->math_spacing     = false;
+  context->show_auto_styles = false;
+  
+  OwnerBox::resize(context);
+  
+  context->math_spacing     = old_math_spacing;
+  context->show_auto_styles = old_show_auto_styles;
+}
+
+void NumberBox::paint(Context *context){
+  bool old_math_spacing     = context->math_spacing;
+  bool old_show_auto_styles = context->show_auto_styles;
+  context->math_spacing     = false;
+  context->show_auto_styles = false;
+  
+  OwnerBox::paint(context);
+  
+  context->math_spacing     = old_math_spacing;
+  context->show_auto_styles = old_show_auto_styles;
+}
+
 Expr NumberBox::prepare_boxes(Expr boxes){
   if(boxes.is_string()){
     String s = String(boxes);
@@ -173,6 +197,9 @@ Expr NumberBox::prepare_boxes(Expr boxes){
     
     if(decimal_point == len || buf[decimal_point] != '.')
       return number;
+      
+    if(buf[0] == '0')
+      ++maxdigits;
     
     newbuf_array.length(len);
     uint16_t *newbuf = newbuf_array.items();
@@ -284,14 +311,16 @@ void NumberBox::set_number(String n){
     _exponent->insert(0, _number.part(_expstart, -1));
     
     int i = _content->length();
-    _content->insert(i,   0x00D7); // " "
+    _content->insert(i++, 0x2006);
+    _content->insert(i++, 0x00D7);
+    _content->insert(i++, 0x2006);
     if(_numstart > 2){
-      _content->insert(i+1, _number.part(0, _numstart-2));
-      _content->insert(i+_numstart-1, exp);
+      _content->insert(i, _number.part(0, _numstart-2));
+      _content->insert(i+_numstart-2, exp);
     }
     else{
-      _content->insert(i+1, "10");
-      _content->insert(i+3, exp);
+      _content->insert(i, "10");
+      _content->insert(i+2, exp);
     }
   }
   else
