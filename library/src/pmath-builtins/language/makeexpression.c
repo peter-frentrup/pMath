@@ -313,7 +313,7 @@ static pmath_t parse_gridbox( // PMATH_NULL on error
 
 PMATH_PRIVATE pmath_t _pmath_parse_number(
   pmath_string_t  string, // will be freed
-  pmath_bool_t alternative
+  pmath_bool_t    alternative
 ){
   pmath_number_t result;
   pmath_integer_t exponent;
@@ -328,7 +328,7 @@ PMATH_PRIVATE pmath_t _pmath_parse_number(
   pmath_bool_t neg = FALSE;
 
   const uint16_t *str = pmath_string_buffer(&string);
-  int len = pmath_string_length(string);
+  int             len = pmath_string_length(string);
 
   if(len == 0){
     pmath_unref(string);

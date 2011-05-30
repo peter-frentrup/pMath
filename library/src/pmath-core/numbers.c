@@ -2,7 +2,10 @@
 #include <pmath-core/objects-private.h>
 #include <pmath-core/strings-private.h>
 
+#include <pmath-language/tokens.h>
+
 #include <pmath-util/approximate.h>
+#include <pmath-util/concurrency/threads-private.h>
 #include <pmath-util/debug.h>
 #include <pmath-util/incremental-hash-private.h>
 #include <pmath-util/memory.h>
@@ -552,7 +555,7 @@ pmath_number_t pmath_float_new_str(
   int i, len, int_digits, frac_digits;
   double log2_base = log2(base);
   pmath_bool_t automatic = FALSE;
-  pmath_float_t f;
+  pmath_mpfloat_t f;
   
   if(base < 2 || base > 36)
     return PMATH_NULL;
@@ -560,7 +563,7 @@ pmath_number_t pmath_float_new_str(
   len = strlen(str);
   
   int_digits = 0;
-  for(i = 0;i < len && (str[i] < '1' || str[i] > '9');++i){
+  for(i = 0;i < len && !pmath_char_is_basedigit(base, str[i]);++i){
   }
   
   for(;i < len && str[i] != '.';++i)
@@ -591,7 +594,7 @@ pmath_number_t pmath_float_new_str(
       /* We use strtod() because the the formating of machine float numbers is
          done based on strtod to print the smallest number of fractional digits
          possible such that the output would produce the exact same value as 
-         input (see write_machine_float()).
+         input (see _pmath_write_machine_float()).
          
          Example -- Why we avoid mpfr_set_str():
          The input 34643574574574947.427457` equals the double number 
@@ -1155,26 +1158,68 @@ static unsigned int hash_mp_int(pmath_t integer){
     hash_init);
 }
 
+static char alphabet[] = "0123456789abcdefghijklmnopqrstuvwxyz";
+
 PMATH_PRIVATE 
 void _pmath_write_machine_int(struct pmath_write_ex_t *info, pmath_t integer){
-  char s[12];
+  pmath_thread_t thread = pmath_thread_get_current();
+  char s[40];
   
-  snprintf(s, sizeof(s), "%d", (int)PMATH_AS_INT32(integer));
+  if(thread 
+  && thread->numberbase != 10 
+  && thread->numberbase >= 2 
+  && thread->numberbase <= 36){
+    unsigned val;
+    int a, b;
+    
+    if(PMATH_AS_INT32(integer) == 0){
+      snprintf(s, sizeof(s), "%d^^0", (int)thread->numberbase);
+      write_cstr(s, info->write, info->user);
+      return;
+    }
+    
+    if(PMATH_AS_INT32(integer) < 0){
+      a = snprintf(s, sizeof(s), "-%d^^", (int)thread->numberbase);
+      val = (unsigned)(-PMATH_AS_INT32(integer));
+    }
+    else{
+      a = snprintf(s, sizeof(s),  "%d^^", (int)thread->numberbase);
+      val = (unsigned)PMATH_AS_INT32(integer);
+    }
+    
+    b = a-1;
+    while(val > 0){
+      unsigned mod = val % (unsigned)thread->numberbase;
+      val/= (unsigned)thread->numberbase;
+      
+      s[++b] = alphabet[mod];
+    }
+    s[b+1] = '\0';
+    
+    while(a < b){
+      char tmp = s[a];
+      s[a] = s[b];
+      s[b] = tmp;
+      ++a;
+      --b;
+    }
+  }
+  else
+    snprintf(s, sizeof(s), "%d", (int)PMATH_AS_INT32(integer));
+  
   write_cstr(s, info->write, info->user);
 }
 
 static void write_mp_int(struct pmath_write_ex_t *info, pmath_t integer){
+  pmath_thread_t thread = pmath_thread_get_current();
   char *str;
   int base = 10;
-  size_t size = mpz_sizeinbase(PMATH_AS_MPZ(integer), 16) + 2;
-
-//  if(size > 1000)
-//    /* if the number is that big, a decimal notation is realy useless and needs
-//       time and more space.
-//     */
-//    base = 16;
-//  else
-    size = mpz_sizeinbase(PMATH_AS_MPZ(integer), 10) + 2;
+  size_t size;
+  
+  if(thread && thread->numberbase >= 2 && thread->numberbase <= 36)
+    base = (int)thread->numberbase;
+  
+  size = mpz_sizeinbase(PMATH_AS_MPZ(integer), base) + 6;
 
   str = (char*)pmath_mem_alloc(size);
   if(!str){
@@ -1184,8 +1229,23 @@ static void write_mp_int(struct pmath_write_ex_t *info, pmath_t integer){
 //  if(base == 16)
 //    write_cstr("16^^", write, user);
   mpz_get_str(str, base, PMATH_AS_MPZ(integer));
-
-  write_cstr(str, info->write, info->user);
+  
+  if(base != 10){
+    char basestr[6];
+    
+    if(str[0] == '-'){
+      snprintf(basestr, sizeof(basestr), "-%d^^", base);
+      write_cstr(basestr, info->write, info->user);
+      write_cstr(str+1,   info->write, info->user);
+    }
+    else{
+      snprintf(basestr, sizeof(basestr), "%d^^", base);
+      write_cstr(basestr, info->write, info->user);
+      write_cstr(str,     info->write, info->user);
+    }
+  }
+  else
+    write_cstr(str, info->write, info->user);
 
   pmath_mem_free(str);
 }
@@ -1276,23 +1336,77 @@ static unsigned int hash_mp_float(pmath_t f){
     write_cstr(s, write, user);
   }
 
-static void write_mp_float(struct pmath_write_ex_t *info, pmath_t f){
+static void delete_trailing_zeros(char *s){
+  char *s2 = s + strlen(s)-1;
+  
+  while(s2 != s && *s2 == '0')
+    --s2;
+  
+  s2[1] = '\0';
+}
+
+static void write_mp_float_ex(
+  struct pmath_write_ex_t *info, 
+  pmath_t f, 
+  pmath_bool_t for_machine_float
+){
+  pmath_thread_t thread = pmath_thread_get_current();
+  int base = 10;
+  char basestr[10];
   mp_exp_t exp;
   size_t digits, size;
   char *str;
-  double prec10 = LOG10_2 * pmath_precision(pmath_ref(f));
-  double acc10  = LOG10_2 * pmath_accuracy( pmath_ref(f));
+  double prec10 = pmath_precision(pmath_ref(f));
+  double acc10  = pmath_accuracy( pmath_ref(f));
+  double base_prec, base_acc;
+  
+  if(thread && thread->numberbase >= 2 && thread->numberbase <= 36)
+    base = thread->numberbase;
+  
+  if(base == 2){
+    base_prec = prec10;
+    base_acc  = acc10;
+  }
+  else if(base == 10){
+    base_prec = LOG10_2 * prec10;
+    base_acc  = LOG10_2 * acc10;
+  }
+  else{
+    base_prec = prec10 * LOGE_2/log(base);
+    base_acc  = acc10  * LOGE_2/log(base);
+  }
+  prec10*= LOG10_2;
+  acc10 *= LOG10_2;
   
   if(mpfr_zero_p(PMATH_AS_MP_VALUE(f)) || prec10 == 0){
     long exp;
     double d = mpfr_get_d_2exp(&exp, PMATH_AS_MP_ERROR(f), MPFR_RNDN);
-    d = exp * LOG10_2 + log10(d);
     
-    if(info->options & PMATH_WRITE_OPTIONS_INPUTEXPR){
+    if(base != 10){
+      snprintf(basestr, sizeof(basestr), "%d^^", base);
+      write_cstr(basestr, info->write, info->user);
+    }
+  
+    if(for_machine_float){
+      if(info->options & PMATH_WRITE_OPTIONS_INPUTEXPR)
+        write_cstr("0.0", info->write, info->user);
+      else
+        write_cstr("0.0`", info->write, info->user);
+    }
+    else if(info->options & PMATH_WRITE_OPTIONS_INPUTEXPR){
+      d = exp * LOG10_2 + log10(d);
+      
       write_cstr("0``", info->write, info->user);
       write_short_double(-d, info->write, info->user);
     }
     else{
+      if(base == 10)
+        d = exp * LOG10_2 + log10(d);
+      else if(base == 2)
+        d = exp + log(d)/LOGE_2;
+      else
+        d = (exp * LOGE_2 + log(d)) / log(base);
+        
       write_cstr("0.0*^", info->write, info->user);
       write_short_double(d, info->write, info->user);
     }
@@ -1300,7 +1414,7 @@ static void write_mp_float(struct pmath_write_ex_t *info, pmath_t f){
     return;
   }
   
-  digits = 1+(size_t)(floor(prec10 - acc10) + acc10);
+  digits = 1+(size_t)(floor(base_prec - base_acc) + base_acc);
   if(digits < 2)
     digits = 2;
 
@@ -1314,48 +1428,77 @@ static void write_mp_float(struct pmath_write_ex_t *info, pmath_t f){
     return;
   }
 
-  mpfr_get_str(str, &exp, 10, digits, PMATH_AS_MP_VALUE(f), MPFR_RNDN);
+  mpfr_get_str(str, &exp, base, digits, PMATH_AS_MP_VALUE(f), MPFR_RNDN);
 
   if(exp == 0){
     if(*str == '-'){
-      write_cstr("-0.", info->write, info->user);
-
-//      if(prec == DBL_MANT_DIG)
-//        delete_trailing_zeros(str + 1);
-
+      if(for_machine_float)
+        delete_trailing_zeros(str + 1);
+      
+      if(base != 10){
+        snprintf(basestr, sizeof(basestr), "-%d^^0.", base);
+        write_cstr(basestr, info->write, info->user);
+      }
+      else
+        write_cstr("-0.", info->write, info->user);
+      
       write_cstr(str + 1, info->write, info->user);
     }
     else{
-      write_cstr("0.", info->write, info->user);
+      if(for_machine_float)
+        delete_trailing_zeros(str);
+      
+      if(base != 10){
+        snprintf(basestr, sizeof(basestr), "%d^^0.", base);
+        write_cstr(basestr, info->write, info->user);
+      }
+      else
+        write_cstr("0.", info->write, info->user);
 
-//      if(prec == DBL_MANT_DIG)
-//        delete_trailing_zeros(str);
-
-      write_cstr(str, info->write, info->user);
+      write_cstr(str,    info->write, info->user);
     }
     
     if(info->options & PMATH_WRITE_OPTIONS_INPUTEXPR){
-      write_cstr("`",            info->write, info->user);
-      write_short_double(prec10, info->write, info->user);
+      write_cstr("`", info->write, info->user);
+      
+      if(!for_machine_float)
+        write_short_double(prec10, info->write, info->user);
     }
   }
   else if(exp > 0 && (size_t)exp < strlen(str)){
     char c;
     if(*str == '-')
-      exp++;
+      ++exp;
     c = str[exp];
     str[exp] = '\0';
-    write_cstr(str, info->write, info->user);
+    if(base != 10){
+      if(*str == '-'){
+        snprintf(basestr, sizeof(basestr), "-%d^^", base);
+        write_cstr(basestr, info->write, info->user);
+        write_cstr(str+1,   info->write, info->user);
+      }
+      else{
+        snprintf(basestr, sizeof(basestr), "%d^^", base);
+        write_cstr(basestr, info->write, info->user);
+        write_cstr(str,     info->write, info->user);
+      }
+    }
+    else{
+      write_cstr(str, info->write, info->user);
+    }
     write_cstr(".", info->write, info->user);
     str[exp] = c;
 
-//    if(prec == DBL_MANT_DIG)
-//      delete_trailing_zeros(str + exp + 1);
+    if(for_machine_float)
+      delete_trailing_zeros(str + exp);
+    
     write_cstr(str + exp, info->write, info->user);
 
     if(info->options & PMATH_WRITE_OPTIONS_INPUTEXPR){
-      write_cstr("`",            info->write, info->user);
-      write_short_double(prec10, info->write, info->user);
+      write_cstr("`", info->write, info->user);
+      
+      if(!for_machine_float)
+        write_short_double(prec10, info->write, info->user);
     }
   }
   else if(exp < 0 && exp > -5){
@@ -1363,11 +1506,21 @@ static void write_mp_float(struct pmath_write_ex_t *info, pmath_t f){
 
     int start;
     if(*str == '-'){
-      write_cstr("-0.", info->write, info->user);
+      if(base != 10){
+        snprintf(basestr, sizeof(basestr), "-%d^^0.", base);
+        write_cstr(basestr, info->write, info->user);
+      }
+      else
+        write_cstr("-0.", info->write, info->user);
       start = 1;
     }
     else{
-      write_cstr("0.", info->write, info->user);
+      if(base != 10){
+        snprintf(basestr, sizeof(basestr), "%d^^0.", base);
+        write_cstr(basestr, info->write, info->user);
+      }
+      else
+        write_cstr("0.", info->write, info->user);
       start = 0;
     }
 
@@ -1375,43 +1528,65 @@ static void write_mp_float(struct pmath_write_ex_t *info, pmath_t f){
       info->write(info->user, &zero_char, 1);
     }while(++exp < 0);
 
-//    if(prec == DBL_MANT_DIG)
-//      delete_trailing_zeros(str + start);
+    if(for_machine_float)
+      delete_trailing_zeros(str + start);
 
     write_cstr(str + start, info->write, info->user);
 
     if(info->options & PMATH_WRITE_OPTIONS_INPUTEXPR){
-      write_cstr("`",            info->write, info->user);
-      write_short_double(prec10, info->write, info->user);
+      write_cstr("`", info->write, info->user);
+      
+      if(!for_machine_float)
+        write_short_double(prec10, info->write, info->user);
     }
   }
   else{
     int start;
     if(*str == '\0'){ // 0.0
-      write_cstr("0.", info->write, info->user);
+      if(base != 10){
+        snprintf(basestr, sizeof(basestr), "%d^^0.", base);
+        write_cstr(basestr, info->write, info->user);
+      }
+      else
+        write_cstr("0.", info->write, info->user);
       start = 0;
     }
     else if(*str == '-'){
-      uint16_t ustr[3] = {UCS2_CHAR('-'), UCS2_CHAR(str[1]), UCS2_CHAR('.')};
-      info->write(info->user, ustr, 3);
+      if(base != 10){
+        snprintf(basestr, sizeof(basestr), "-%d^^%c.", base, str[1]);
+        write_cstr(basestr, info->write, info->user);
+      }
+      else{
+        uint16_t ustr[3] = {UCS2_CHAR('-'), UCS2_CHAR(str[1]), UCS2_CHAR('.')};
+        info->write(info->user, ustr, 3);
+      }
+      
       start = 2;
       --exp;
     }
     else{
       uint16_t ustr[2] = {UCS2_CHAR(*str), UCS2_CHAR('.')};
+      
+      if(base != 10){
+        snprintf(basestr, sizeof(basestr), "%d^^", base);
+        write_cstr(basestr, info->write, info->user);
+      }
+      
       info->write(info->user, ustr, 2);
       start = 1;
       --exp;
     }
 
-//    if(prec == DBL_MANT_DIG)
-//      delete_trailing_zeros(str + start);
+    if(for_machine_float)
+      delete_trailing_zeros(str + start);
 
     write_cstr(str + start, info->write, info->user);
 
     if(info->options & PMATH_WRITE_OPTIONS_INPUTEXPR){
-      write_cstr("`",            info->write, info->user);
-      write_short_double(prec10, info->write, info->user);
+      write_cstr("`", info->write, info->user);
+      
+      if(!for_machine_float)
+        write_short_double(prec10, info->write, info->user);
     }
     
     if(exp != 0){
@@ -1424,15 +1599,33 @@ static void write_mp_float(struct pmath_write_ex_t *info, pmath_t f){
   pmath_mem_free(str);
 }
 
+static void write_mp_float(struct pmath_write_ex_t *info, pmath_t f){
+  write_mp_float_ex(info, f, FALSE);
+}
+
 //} ============================================================================
 //{ pMath object functions for machine floats ...
 
 PMATH_PRIVATE
 void _pmath_write_machine_float(struct pmath_write_ex_t *info, pmath_t f){
+  pmath_thread_t thread = pmath_thread_get_current();
+  int base = 10;
   char s[100];
   double test;
   int maxprec = 1 + (int)ceil(DBL_MANT_DIG * LOG10_2);
   int len, i;
+  
+  if(thread && thread->numberbase >= 2 && thread->numberbase <= 36)
+    base = thread->numberbase;
+  
+  if(base != 10){
+    pmath_mpfloat_t mpf = _pmath_create_mp_float_from_d(PMATH_AS_DOUBLE(f));
+    
+    write_mp_float_ex(info, mpf, TRUE);
+    
+    pmath_unref(mpf);
+    return;
+  }
   
   for(len = 1;len <= maxprec;++len){
     snprintf(s, sizeof(s), "%.*g", len, PMATH_AS_DOUBLE(f));

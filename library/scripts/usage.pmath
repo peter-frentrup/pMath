@@ -69,6 +69,7 @@ Automatic::usage:= "Automatic represents an option or other value that is to be 
 AutoNumberFormating::usage:= "AutoNumberFormating is an option for Section that specifies whether numbers should be pretty-printed before output."
 AutoSpacing::usage:= "AutoSpacing is an option for Style and Section which specifies whether spaces between successive characters should be adjusted automatically."
 Background::usage:= "Background is an option for boxes to specify its background color."
+BaseForm::usage:= "BaseForm(\(StyleBox(\"expr\", BaseStyle -> \"Arg\")\), \(StyleBox(\"b\", BaseStyle -> \"Arg\")\)) displays as \(StyleBox(\"expr\", BaseStyle -> \"Arg\")\) with all numbers given in base \(StyleBox(\"b\", BaseStyle -> \"Arg\")\)."
 BaseStyle::usage:= "BaseStyle is an option for boxes to specify the base style to use for them."
 Begin::usage:= "Begin(\"\(StyleBox(\"namespace\", BaseStyle -> \"Arg\")\) `\") resets the current namespace."
 BeginPackage::usage:= "BeginPackage(\"\(StyleBox(\"namespace\", BaseStyle -> \"Arg\")\) `\") makes \(StyleBox(\"namespace\", BaseStyle -> \"Arg\")\)` and System` the only active namespaces.\nBeginPackage(\"\(StyleBox(\"namespace\", BaseStyle -> \"Arg\")\) `\", {\(StyleBox(\"need\", BaseStyle -> \"Arg\")\)\(SubscriptBox(\"1\")\), \(StyleBox(\"need\", BaseStyle -> \"Arg\")\)\(SubscriptBox(\"2\")\), \[Ellipsis]}) additionally calls Get on the \(StyleBox({\"need\", SubscriptBox(\"i\")}, BaseStyle -> \"Arg\")\)."

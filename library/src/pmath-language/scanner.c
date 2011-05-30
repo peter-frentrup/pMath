@@ -882,7 +882,7 @@ static void scan_next(scanner_t *tokens, parser_t *parser){
           if(tokens->pos + 1 < tokens->len
           && tokens->str[tokens->pos] == '.'
           && pmath_char_is_36digit(tokens->str[tokens->pos+1])){
-            tokens->pos+= 3;
+            tokens->pos+= 2;
             while(tokens->pos < tokens->len
             && pmath_char_is_36digit(tokens->str[tokens->pos]))
               ++tokens->pos;

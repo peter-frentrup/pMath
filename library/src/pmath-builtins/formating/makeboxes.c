@@ -1771,6 +1771,36 @@ static pmath_t times_to_boxes(
 
 //{ boxforms valid for OutputForm ...
 
+static pmath_t baseform_to_boxes(
+  pmath_thread_t thread,
+  pmath_expr_t   expr    // will be freed
+){
+  if(pmath_expr_length(expr) == 2){
+    pmath_t base = pmath_expr_get_item(expr, 2);
+    pmath_t item;
+    uint8_t oldbase;
+    
+    if(!pmath_is_int32(base)
+    || PMATH_AS_INT32(base) < 2
+    || PMATH_AS_INT32(base) > 36){
+      pmath_unref(base);
+      return call_to_boxes(thread, expr);;
+    }
+    
+    oldbase = thread->numberbase;
+    thread->numberbase = (uint8_t)PMATH_AS_INT32(base);
+    
+    item = pmath_expr_get_item(expr, 1);
+    pmath_unref(expr);
+    item = object_to_boxes(thread, item);
+    
+    thread->numberbase = oldbase;
+    return item;
+  }
+  
+  return call_to_boxes(thread, expr);
+}
+
 static pmath_t column_to_boxes(
   pmath_thread_t thread,
   pmath_expr_t   expr    // will be freed
@@ -2059,6 +2089,21 @@ static pmath_t interpretation_to_boxes(
       value);
   }
 
+  return call_to_boxes(thread, expr);
+}
+
+static pmath_t linearsolvefunction_to_boxes(
+  pmath_thread_t thread,
+  pmath_expr_t   expr    // will be freed
+){
+  if(pmath_expr_length(expr) == 2){
+    pmath_t skeleton = pmath_expr_new_extended(
+      pmath_ref(PMATH_SYMBOL_SKELETON), 1,
+      PMATH_FROM_INT32(1));
+    
+    expr = pmath_expr_set_item(expr, 2, skeleton);
+  }
+  
   return call_to_boxes(thread, expr);
 }
 
@@ -2863,6 +2908,9 @@ static pmath_t expr_to_boxes(pmath_thread_t thread, pmath_expr_t expr){
     
     /*------------------------------------------------------------------------*/
     if(thread->boxform < BOXFORM_INPUT){
+      if(pmath_same(head, PMATH_SYMBOL_BASEFORM))
+        return baseform_to_boxes(thread, expr);
+      
       if(pmath_same(head, PMATH_SYMBOL_COLUMN))
         return column_to_boxes(thread, expr);
       
@@ -2880,6 +2928,9 @@ static pmath_t expr_to_boxes(pmath_thread_t thread, pmath_expr_t expr){
       
       if(pmath_same(head, PMATH_SYMBOL_INTERPRETATION))
         return interpretation_to_boxes(thread, expr);
+      
+      if(pmath_same(head, PMATH_SYMBOL_LINEARSOLVEFUNCTION))
+        return linearsolvefunction_to_boxes(thread, expr);
       
       if(pmath_same(head, PMATH_SYMBOL_LONGFORM))
         return longform_to_boxes(thread, expr);

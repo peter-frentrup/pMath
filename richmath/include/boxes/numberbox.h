@@ -19,9 +19,11 @@ namespace richmath{
       void set_number(String n);
       
     private:
-      String    _number;
+      String        _number;
+      MathSequence *_base;
       MathSequence *_exponent;
       
+      int _numstart;
       int _numend;
       int _expstart;
   };

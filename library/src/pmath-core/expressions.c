@@ -4,7 +4,7 @@
 
 #include <pmath-language/patterns-private.h>
 
-#include <pmath-util/concurrency/threads.h>
+#include <pmath-util/concurrency/threads-private.h>
 #include <pmath-util/debug.h>
 #include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
@@ -17,9 +17,14 @@
 #include <pmath-builtins/formating-private.h>
 #include <pmath-builtins/lists-private.h>
 
-#include <string.h>
 #include <limits.h>
+#include <stdio.h>
+#include <string.h>
 
+
+#ifdef _MSC_VER
+  #define snprintf sprintf_s
+#endif
 
 struct _pmath_unpacked_expr_part_t{
   struct _pmath_unpacked_expr_t   inherited; // item: length = 1
@@ -1569,7 +1574,32 @@ static void write_expr_ex(
   if(info->options & PMATH_WRITE_OPTIONS_INPUTEXPR)
     goto INPUTFORM;
 
-  if(pmath_same(head, PMATH_SYMBOL_DIRECTEDINFINITY)){
+  if(pmath_same(head, PMATH_SYMBOL_BASEFORM)){
+    pmath_t item; 
+    uint8_t oldbase;
+    pmath_thread_t thread = pmath_thread_get_current();
+    
+    if(exprlen != 2 || !thread)
+      goto FULLFORM;
+    
+    item = pmath_expr_get_item(expr, 2);
+    if(!pmath_is_int32(item)
+    || PMATH_AS_INT32(item) < 2
+    || PMATH_AS_INT32(item) > 36){
+      pmath_unref(item);
+      goto FULLFORM;
+    }
+    
+    oldbase = thread->numberbase;
+    thread->numberbase = (uint8_t)PMATH_AS_INT32(item);
+    
+    item = pmath_expr_get_item(expr, 1);
+    write_ex(info, priority, item);
+    pmath_unref(item);
+    
+    thread->numberbase = oldbase;
+  }
+  else if(pmath_same(head, PMATH_SYMBOL_DIRECTEDINFINITY)){
     if(exprlen == 0){
       pmath_write_ex(info, PMATH_SYMBOL_COMPLEXINFINITY);
     }
@@ -1634,7 +1664,25 @@ static void write_expr_ex(
       goto FULLFORM;
 
     item = pmath_expr_get_item(expr, 1);
+    write_ex(info, priority, item);
+    pmath_unref(item);
+  }
+  else if(pmath_same(head, PMATH_SYMBOL_LINEARSOLVEFUNCTION)){
+    pmath_t item;
+    char s[100];
+    
+    if(exprlen <= 1)
+      goto FULLFORM;
+
+    item = pmath_expr_get_item(expr, 1);
+    
+    write_ex(info, PRIO_CALL, head);
+    WRITE_CSTR("(");
     pmath_write_ex(info, item);
+    
+    snprintf(s, sizeof(s), ", <<%u>>)", (int)(exprlen - 1));
+    WRITE_CSTR(s);
+
     pmath_unref(item);
   }
   else if(pmath_same(head, PMATH_SYMBOL_LONGFORM)){

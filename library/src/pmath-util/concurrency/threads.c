@@ -513,10 +513,11 @@ PMATH_PRIVATE pmath_thread_t _pmath_thread_new(pmath_thread_t parent){
   thread->message_queue         = _pmath_msg_queue_create();
   thread->abortable_messages    = parent ? pmath_ref(parent->abortable_messages) : PMATH_NULL;
   thread->current_dynamic_id    = parent ? parent->current_dynamic_id            : 0;
-  thread->boxform               = parent ? parent->boxform                       : BOXFORM_STANDARD;
   thread->critical_messages     = parent ? parent->critical_messages             : FALSE;
-  thread->longform              = parent ? parent->longform                      : FALSE;
   thread->is_daemon             = FALSE;
+  thread->boxform               = parent ? parent->boxform                       : BOXFORM_STANDARD;
+  thread->longform              = parent ? parent->longform                      : FALSE;
+  thread->numberbase            = parent ? parent->numberbase                    : 10;
   
   if(pmath_is_null(thread->message_queue)){
     _pmath_thread_free(thread);

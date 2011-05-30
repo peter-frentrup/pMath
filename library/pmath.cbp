@@ -572,6 +572,9 @@
 		<Unit filename="src\pmath-builtins\datetime\timing.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="src\pmath-builtins\formating\baseform.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="src\pmath-builtins\formating\makeboxes.c">
 			<Option compilerVar="CC" />
 		</Unit>

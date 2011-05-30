@@ -42,7 +42,7 @@ static void print_rule_defs(
     if(tagged){
       if(pmath_is_evaluated(rhs)){
         PMATH_RUN_ARGS(
-            "SectionPrint(\"Print\", HoldForm(InputForm(`1`/: `2`:= `3`)))", 
+            "SectionPrint(\"Print\", HoldForm(`1`/: `2`:= `3`))", 
           "(ooo)", 
           pmath_ref(sym),
           lhs,
@@ -50,7 +50,7 @@ static void print_rule_defs(
       }
       else{
         PMATH_RUN_ARGS(
-            "SectionPrint(\"Print\", HoldForm(InputForm(`1`/: `2`::= `3`)))", 
+            "SectionPrint(\"Print\", HoldForm(`1`/: `2`::= `3`))", 
           "(ooo)", 
           pmath_ref(sym),
           lhs,
@@ -60,14 +60,14 @@ static void print_rule_defs(
     else{
       if(pmath_is_evaluated(rhs)){
         PMATH_RUN_ARGS(
-            "SectionPrint(\"Print\", HoldForm(InputForm(`1`:= `2`)))", 
+            "SectionPrint(\"Print\", HoldForm(`1`:= `2`))", 
           "(oo)", 
           lhs,
           rhs);
       }
       else{
         PMATH_RUN_ARGS(
-            "SectionPrint(\"Print\", HoldForm(InputForm(`1`::= `2`)))", 
+            "SectionPrint(\"Print\", HoldForm(`1`::= `2`))", 
           "(oo)", 
           lhs,
           rhs);

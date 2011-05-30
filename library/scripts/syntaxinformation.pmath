@@ -21,6 +21,7 @@
 {"Array", {"ArgumentCount" -> 1..4}},
 {"Assign", {"ArgumentCount" -> 2}},
 {"AssignDelayed", {"ArgumentCount" -> 2}},
+{"BaseForm", {"ArgumentCount" -> 2}},
 {"Begin", {"ArgumentCount" -> 1}},
 {"BeginGather", {"ArgumentCount" -> 0..1}},
 {"BeginPackage", {"ArgumentCount" -> 1..2}},

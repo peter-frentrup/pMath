@@ -1,6 +1,7 @@
 #include <boxes/numberbox.h>
 
 #include <cfloat>
+#include <cmath>
 
 #include <boxes/mathsequence.h>
 #include <boxes/subsuperscriptbox.h>
@@ -25,14 +26,32 @@ bool NumberBox::edit_selection(Context *context){
       return false;
     
     Box *selbox = context->selection.get();
-    if(selbox == _exponent){
+    if(_exponent && selbox == _exponent){
       int s = context->selection.start + _index + _expstart;
       int e = context->selection.end   + _index + _expstart;
       context->selection.set(seq, s, e);
       
       if(_number[_number.length() - 1] == '`'){
-        if(seq->text()[_index + 1] == '-'
-        || seq->text()[_index + 1] == '+'){
+        if(pmath_char_is_digit(seq->text()[_index + 1])
+        ||                     seq->text()[_index + 1] == '-'
+        ||                     seq->text()[_index + 1] == '+'){
+          seq->insert(_index + 1, " ");
+        }
+      }
+      seq->insert(_index + 1, _number);
+      seq->remove(_index, _index + 1); // deletes this
+      return true;
+    }
+    
+    if(_base && selbox == _base){
+      int s = context->selection.start + _index;
+      int e = context->selection.end   + _index;
+      context->selection.set(seq, s, e);
+      
+      if(_number[_number.length() - 1] == '`'){
+        if(pmath_char_is_digit(seq->text()[_index + 1])
+        ||                     seq->text()[_index + 1] == '-'
+        ||                     seq->text()[_index + 1] == '+'){
           seq->insert(_index + 1, " ");
         }
       }
@@ -47,18 +66,19 @@ bool NumberBox::edit_selection(Context *context){
       if(s == _content->length())
         s = _index + _number.length();
       else
-        s+= _index;
+        s+= _index + _numstart;
       
       if(e == _content->length())
         e = _index + _number.length();
       else
-        e+= _index;
+        e+= _index + _numstart;
       
       context->selection.set(seq, s, e);
       
       if(_number[_number.length() - 1] == '`'){
-        if(seq->text()[_index + 1] == '-'
-        || seq->text()[_index + 1] == '+'){
+        if(pmath_char_is_digit(seq->text()[_index + 1])
+        ||                     seq->text()[_index + 1] == '-'
+        ||                     seq->text()[_index + 1] == '+'){
           seq->insert(_index + 1, " ");
         }
       }
@@ -77,8 +97,9 @@ bool NumberBox::edit_selection(Context *context){
         e+= _number.length();
       
       if(_number[_number.length() - 1] == '`'){
-        if(seq->text()[_index + 1] == '-'
-        || seq->text()[_index + 1] == '+'){
+        if(pmath_char_is_digit(seq->text()[_index + 1])
+        ||                     seq->text()[_index + 1] == '-'
+        ||                     seq->text()[_index + 1] == '+'){
           seq->insert(_index + 1, " ");
         }
       }
@@ -100,13 +121,14 @@ Expr NumberBox::prepare_boxes(Expr boxes){
     const uint16_t *buf = s.buffer();
     const int       len = s.length();
     
-    if(len > 0 && buf[0] >= '0' && buf[1] <= '9'){
-      for(int i = 0;i < len;++i)
-        if(buf[i] == '`'){
+    if(len > 0 && buf[0] >= '0' && buf[0] <= '9'){
+      for(int i = 0;i < len;++i){
+        if(buf[i] == '`' || buf[i] == '^'){
           return Call(
             GetSymbol(NumberBoxSymbol),
             s);
         }
+      }
     }
     
     return s;
@@ -120,8 +142,22 @@ Expr NumberBox::prepare_boxes(Expr boxes){
   
   return boxes;
 }
-
-  static String round_digits(String number, int maxdigits){ // xxx.xxx, without sign or xponent or trailing "`"
+  
+  static int base36_value(uint16_t ch){
+    if('0' <= ch && ch <= '9')
+      return (int)(ch - '0');
+    
+    if('a' <= ch && ch <= 'z')
+      return (int)(ch - 'a' + 10);
+    
+    if('A' <= ch && ch <= 'Z')
+      return (int)(ch - 'A' + 10);
+    
+    return 0;
+  }
+  
+  static String round_digits(String number, int maxdigits, int base){ // xxx.xxx, without sign or exponent or trailing "`"
+    static const char alphabet_low[] = "0123456789abcdefghijklmnopqrstuvwxyz";
     
     static Array<uint16_t> newbuf_array;
     
@@ -132,7 +168,7 @@ Expr NumberBox::prepare_boxes(Expr boxes){
       maxdigits = 1;
     
     int decimal_point = 0;
-    while(decimal_point < len && '0' <= buf[decimal_point] && buf[decimal_point] <= '9')
+    while(decimal_point < len && pmath_char_is_36digit(buf[decimal_point]))
       ++decimal_point;
     
     if(decimal_point == len || buf[decimal_point] != '.')
@@ -143,23 +179,25 @@ Expr NumberBox::prepare_boxes(Expr boxes){
     memcpy(newbuf, buf, decimal_point * sizeof(uint16_t));
     
     int i;
-    for(i = decimal_point+1;i < len && '0' <= buf[i] && buf[i] <= '9';++i)
+    for(i = decimal_point+1;i < len && pmath_char_is_36digit(buf[i]);++i)
       newbuf[i-1] = buf[i];
     
     if(i != len || len <= maxdigits + 1)
       return number;
     
-    bool round_up = newbuf[maxdigits] >= '5';
+    bool round_up = base36_value(newbuf[maxdigits]) >= base - base/2; // round base/2 up
     
     i = maxdigits-1;
     if(round_up){
       while(i >= 0){
-        if(newbuf[i] == '9'){
+        int val = base36_value(newbuf[i]);
+        
+        if(val >= base-1){
           newbuf[i] = '0';
           --i;
         }
         else{
-          newbuf[i] = newbuf[i] + 1;
+          newbuf[i] = alphabet_low[val + 1];
           break;
         }
       }
@@ -181,24 +219,58 @@ Expr NumberBox::prepare_boxes(Expr boxes){
 
 void NumberBox::set_number(String n){
   _number = n;
+  _base     = 0;
   _exponent = 0;
+  int numbase = 0;
   
   const uint16_t *buf = _number.buffer();
   const int       len = _number.length();
   
-  _numend = 0;
+  _numstart = 0;
+  while(_numstart < len && pmath_char_is_digit(buf[_numstart])){
+    numbase = 10 * numbase + (int)(buf[_numstart] - '0');
+    ++_numstart;
+  }
+  
+  if(_numstart + 1 < len
+  && buf[_numstart]     == '^'
+  && buf[_numstart + 1] == '^'){
+    _numstart+= 2;
+  }
+  else{
+    numbase = 10;
+    _numstart = 0;
+  }
+  
+  _numend = _numstart;
   while(_numend < len && buf[_numend] != '`')
     ++_numend;
   
   _expstart = _numend;
   _content->remove(0, _content->length());
   
-  if(_numend + 1 == len){
+  if((_numend + 1 == len || (_numend + 1 < len && buf[_numend + 1] != '`'))
+  && numbase >= 2 
+  && numbase <= 36){
     // machine number: do not show all digits
-    _content->insert(0, round_digits(_number.part(0, _numend), 6));
+    int digits = 6;
+    
+    if(numbase != 10){
+      digits = (int)ceil(digits * log(10.0) / log(numbase));
+    }
+    
+    _content->insert(0, round_digits(_number.part(_numstart, _numend - _numstart), digits, numbase));
   }
   else
-    _content->insert(0, _number.part(0, _numend));
+    _content->insert(0, _number.part(_numstart, _numend - _numstart));
+  
+  if(_numstart > 2){
+    SubsuperscriptBox *bas = new SubsuperscriptBox(new MathSequence, 0);
+    _base = bas->subscript();
+    
+    _base->insert(0, _number.part(0, _numstart-2));
+    _content->insert(_content->length(), bas);
+  }
     
   while(_expstart < len && buf[_expstart] != '^')
     ++_expstart;
@@ -213,8 +285,14 @@ void NumberBox::set_number(String n){
     
     int i = _content->length();
     _content->insert(i,   0x00D7); // " "
-    _content->insert(i+1, "10");
-    _content->insert(i+3, exp);
+    if(_numstart > 2){
+      _content->insert(i+1, _number.part(0, _numstart-2));
+      _content->insert(i+_numstart-1, exp);
+    }
+    else{
+      _content->insert(i+1, "10");
+      _content->insert(i+3, exp);
+    }
   }
   else
     _expstart = -1;

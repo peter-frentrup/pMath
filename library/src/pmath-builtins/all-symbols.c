@@ -233,6 +233,7 @@ PMATH_PRIVATE pmath_t builtin_timeconstrained( pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_timing(          pmath_expr_t expr);
 //} ============================================================================
 //{ builtins from src/pmath-builtins/formating/ ...
+PMATH_PRIVATE pmath_t builtin_baseform(         pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_makeboxes(        pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_parenthesizeboxes(pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_toboxes(          pmath_expr_t expr);
@@ -689,6 +690,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   VERIFY(   PMATH_SYMBOL_AUTONUMBERFORMATING       = NEW_SYSTEM_SYMBOL("AutoNumberFormating"))
   VERIFY(   PMATH_SYMBOL_AUTOSPACING               = NEW_SYSTEM_SYMBOL("AutoSpacing"))
   VERIFY(   PMATH_SYMBOL_BACKGROUND                = NEW_SYSTEM_SYMBOL("Background"))
+  VERIFY(   PMATH_SYMBOL_BASEFORM                  = NEW_SYSTEM_SYMBOL("BaseForm"))
   VERIFY(   PMATH_SYMBOL_BASESTYLE                 = NEW_SYSTEM_SYMBOL("BaseStyle"))
   VERIFY(   PMATH_SYMBOL_BEGIN                     = NEW_SYSTEM_SYMBOL("Begin"))
   VERIFY(   PMATH_SYMBOL_BEGINPACKAGE              = NEW_SYSTEM_SYMBOL("BeginPackage"))
@@ -1350,6 +1352,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
     BIND_DOWN(   PMATH_SYMBOL_ASSIGN,                      builtin_assign)
     BIND_DOWN(   PMATH_SYMBOL_ASSIGNDELAYED,               builtin_assign)
     BIND_DOWN(   PMATH_SYMBOL_ATTRIBUTES,                  builtin_attributes)
+    BIND_DOWN(   PMATH_SYMBOL_BASEFORM,                    builtin_baseform)
     BIND_DOWN(   PMATH_SYMBOL_BEGIN,                       builtin_begin)
     BIND_DOWN(   PMATH_SYMBOL_BEGINPACKAGE,                builtin_beginpackage)
     BIND_DOWN(   PMATH_SYMBOL_BINARYREAD,                  builtin_binaryread)
