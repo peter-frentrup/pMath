@@ -6,7 +6,9 @@
 #include <assert.h>
 
 struct _pmath_t{ // do not access members
-  unsigned int   type_shift; /* 0..31 */
+  uint8_t        type_shift; /* 0..31 */
+  uint8_t        flags8;
+  uint16_t       flags16;
   pmath_atomic_t refcount;
 };
 

@@ -36,7 +36,7 @@ static size_t bytecount(
       size_t i, len, result;
       
       len = pmath_expr_length(obj);
-      result = len * sizeof(pmath_t) + sizeof(struct _pmath_unpacked_expr_t);
+      result = len * sizeof(pmath_t) + sizeof(struct _pmath_expr_t);
       
       for(i = 0;i <= len;++i){
         pmath_t item = pmath_expr_get_item(obj, i);

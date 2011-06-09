@@ -26,10 +26,10 @@
   #define snprintf sprintf_s
 #endif
 
-struct _pmath_unpacked_expr_part_t{
-  struct _pmath_unpacked_expr_t   inherited; // item: length = 1
-  size_t                          start;
-  struct _pmath_unpacked_expr_t  *buffer;
+struct _pmath_expr_part_t{
+  struct _pmath_expr_t   inherited; // item: length = 1
+  size_t                 start;
+  struct _pmath_expr_t  *buffer;
 };
 
 // initialization in pmath_init():
@@ -56,17 +56,17 @@ static pmath_atomic_t expr_cache_misses = PMATH_ATOMIC_STATIC_INIT;
     return (uintptr_t)pmath_atomic_fetch_add(&expr_cache_pos[length], delta);
   }
 
-  static struct _pmath_unpacked_expr_t *expr_cache_swap(
+  static struct _pmath_expr_t *expr_cache_swap(
     size_t                         length,
     uintptr_t                      i, 
-    struct _pmath_unpacked_expr_t *value
+    struct _pmath_expr_t *value
   ){
     i = i & CACHE_MASK;
     
     assert(length < CACHES_MAX);
     assert(!value || value->length == length);
     
-    return (struct _pmath_unpacked_expr_t*)
+    return (struct _pmath_expr_t*)
       pmath_atomic_fetch_set(&expr_caches[length][i], (intptr_t)value);
   }
 
@@ -76,7 +76,7 @@ static pmath_atomic_t expr_cache_misses = PMATH_ATOMIC_STATIC_INIT;
     
     for(len = 0;len < CACHES_MAX;++len){
       for(i = 0;i < CACHE_SIZE;++i){
-        struct _pmath_unpacked_expr_t *expr = expr_cache_swap(len, i, NULL);
+        struct _pmath_expr_t *expr = expr_cache_swap(len, i, NULL);
         
         if(expr){
           assert(expr->inherited.inherited.inherited.refcount._data == 0);
@@ -94,11 +94,11 @@ pmath_expr_t pmath_expr_new(
   pmath_t head,
   size_t  length
 ){
-  struct _pmath_unpacked_expr_t *expr;
+  struct _pmath_expr_t *expr;
   size_t size = length * sizeof(pmath_t);
   
   if(PMATH_UNLIKELY(size / sizeof(pmath_t) != length
-  || size + sizeof(struct _pmath_unpacked_expr_t) < size)){
+  || size + sizeof(struct _pmath_expr_t) < size)){
     // overflow
     pmath_unref(head);
     pmath_abort_please();
@@ -131,9 +131,9 @@ pmath_expr_t pmath_expr_new(
     expr = NULL;
   
   if(!expr){
-    expr = (struct _pmath_unpacked_expr_t*)PMATH_AS_PTR(_pmath_create_stub(
+    expr = (struct _pmath_expr_t*)PMATH_AS_PTR(_pmath_create_stub(
       PMATH_TYPE_SHIFT_EXPRESSION_GENERAL,
-      sizeof(struct _pmath_unpacked_expr_t) + size));
+      sizeof(struct _pmath_expr_t) + size));
   
     if(PMATH_UNLIKELY(!expr)){
       pmath_unref(head);
@@ -158,7 +158,7 @@ pmath_expr_t pmath_expr_new_extended(
   size_t  length,
   ...
 ){
-  struct _pmath_unpacked_expr_t *expr;
+  struct _pmath_expr_t *expr;
   size_t i, size;
   va_list items;
   va_start(items, length);
@@ -166,7 +166,7 @@ pmath_expr_t pmath_expr_new_extended(
   size = length * sizeof(pmath_t);
   
   if(PMATH_UNLIKELY(size / sizeof(pmath_t) != length
-  || size + sizeof(struct _pmath_unpacked_expr_t) < size)){
+  || size + sizeof(struct _pmath_expr_t) < size)){
     // overflow
     pmath_unref(head);
     
@@ -206,7 +206,7 @@ pmath_expr_t pmath_expr_new_extended(
   if(!expr){
     expr = (void*)PMATH_AS_PTR(_pmath_create_stub(
       PMATH_TYPE_SHIFT_EXPRESSION_GENERAL,
-      sizeof(struct _pmath_unpacked_expr_t) + size));
+      sizeof(struct _pmath_expr_t) + size));
   
     if(PMATH_UNLIKELY(!expr)){
       pmath_unref(head);
@@ -236,8 +236,8 @@ pmath_expr_t pmath_expr_resize(
   pmath_expr_t expr,
   size_t       new_length
 ){
-  struct _pmath_unpacked_expr_t *old_expr;
-  struct _pmath_unpacked_expr_t *new_expr;
+  struct _pmath_expr_t *old_expr;
+  struct _pmath_expr_t *new_expr;
   size_t old_length;
   
   if(PMATH_UNLIKELY(pmath_is_null(expr)))
@@ -268,7 +268,7 @@ pmath_expr_t pmath_expr_resize(
         } break;
         
         case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL_PART: {
-          struct _pmath_unpacked_expr_part_t *part = (void*)old_expr;
+          struct _pmath_expr_part_t *part = (void*)old_expr;
           size_t i;
           for(i = 1;i <= max;i++)
             new_expr->items[i] = pmath_ref(part->buffer->items[part->start + i-1]);
@@ -293,7 +293,7 @@ pmath_expr_t pmath_expr_resize(
 
   new_expr = pmath_mem_realloc_no_failfree(
       old_expr,
-      sizeof(struct _pmath_unpacked_expr_t) + new_length * sizeof(pmath_t)
+      sizeof(struct _pmath_expr_t) + new_length * sizeof(pmath_t)
     );
 
   if(new_expr == NULL){
@@ -327,7 +327,7 @@ PMATH_API pmath_expr_t pmath_expr_append(
   size_t       count,
   ...
 ){
-  struct _pmath_unpacked_expr_t *new_expr;
+  struct _pmath_expr_t *new_expr;
   size_t i, old_length, new_length;
   va_list items;
   va_start(items, count);
@@ -369,19 +369,19 @@ PMATH_API size_t pmath_expr_length(pmath_expr_t expr){
     
   assert(pmath_is_expr(expr));
 
-  return ((struct _pmath_unpacked_expr_t*)PMATH_AS_PTR(expr))->length;
+  return ((struct _pmath_expr_t*)PMATH_AS_PTR(expr))->length;
 }
 
 PMATH_API pmath_t pmath_expr_get_item(
   pmath_expr_t expr,
   size_t       index
 ){
-  struct _pmath_unpacked_expr_part_t *expr_part_ptr;
+  struct _pmath_expr_part_t *expr_part_ptr;
   if(pmath_is_null(expr))
     return PMATH_NULL;
     
   assert(pmath_is_expr(expr));
-  expr_part_ptr = (struct _pmath_unpacked_expr_part_t*)PMATH_AS_PTR(expr);
+  expr_part_ptr = (struct _pmath_expr_part_t*)PMATH_AS_PTR(expr);
 
   if(index > expr_part_ptr->inherited.length)
     return PMATH_NULL;
@@ -398,13 +398,13 @@ PMATH_API pmath_t pmath_expr_extract_item(
   pmath_expr_t expr,
   size_t       index
 ){
-  struct _pmath_unpacked_expr_part_t *expr_part_ptr;
+  struct _pmath_expr_part_t *expr_part_ptr;
   
   if(pmath_is_null(expr))
     return PMATH_NULL;
     
   assert(pmath_is_expr(expr));
-  expr_part_ptr = (struct _pmath_unpacked_expr_part_t*)PMATH_AS_PTR(expr);
+  expr_part_ptr = (struct _pmath_expr_part_t*)PMATH_AS_PTR(expr);
 
   if(index > expr_part_ptr->inherited.length)
     return PMATH_NULL;
@@ -429,14 +429,14 @@ PMATH_API pmath_expr_t pmath_expr_get_item_range(
   size_t       start,
   size_t       length
 ){
-  struct _pmath_unpacked_expr_part_t *expr_part_ptr;
+  struct _pmath_expr_part_t *expr_part_ptr;
   const size_t exprlen = pmath_expr_length(expr);
   
   if(PMATH_UNLIKELY(pmath_is_null(expr)))
     return PMATH_NULL;
   
   assert(pmath_is_expr(expr));
-  expr_part_ptr = (struct _pmath_unpacked_expr_part_t*)PMATH_AS_PTR(expr);
+  expr_part_ptr = (struct _pmath_expr_part_t*)PMATH_AS_PTR(expr);
   
   if(start == 1 && length >= exprlen)
     return pmath_ref(expr);
@@ -455,8 +455,8 @@ PMATH_API pmath_expr_t pmath_expr_get_item_range(
       expr_part_ptr->inherited.items[0])))
   {
     size_t i;
-    struct _pmath_unpacked_expr_t *new_expr =
-      (struct _pmath_unpacked_expr_t*)PMATH_AS_PTR(pmath_expr_new(
+    struct _pmath_expr_t *new_expr =
+      (struct _pmath_expr_t*)PMATH_AS_PTR(pmath_expr_new(
         pmath_expr_get_item(expr, 0), length));
 
     if(!new_expr)
@@ -472,10 +472,10 @@ PMATH_API pmath_expr_t pmath_expr_get_item_range(
     return PMATH_FROM_PTR(new_expr);
   }
   else{
-    struct _pmath_unpacked_expr_part_t *new_expr =
-      (struct _pmath_unpacked_expr_part_t*)PMATH_AS_PTR(_pmath_create_stub(
+    struct _pmath_expr_part_t *new_expr =
+      (struct _pmath_expr_part_t*)PMATH_AS_PTR(_pmath_create_stub(
         PMATH_TYPE_SHIFT_EXPRESSION_GENERAL_PART,
-        sizeof(struct _pmath_unpacked_expr_part_t)));
+        sizeof(struct _pmath_expr_part_t)));
 
     if(!new_expr)
       return PMATH_NULL;
@@ -493,7 +493,7 @@ PMATH_API pmath_expr_t pmath_expr_get_item_range(
       
       case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL_PART: {
         new_expr->start  = start + expr_part_ptr->start - 1;
-        new_expr->buffer = (struct _pmath_unpacked_expr_t*)PMATH_AS_PTR(pmath_ref(
+        new_expr->buffer = (struct _pmath_expr_t*)PMATH_AS_PTR(pmath_ref(
           PMATH_FROM_PTR(expr_part_ptr->buffer)));
       } break;
       
@@ -510,7 +510,7 @@ PMATH_API pmath_expr_t pmath_expr_set_item(
   size_t       index,
   pmath_t      item
 ){
-  struct _pmath_unpacked_expr_part_t *expr_part_ptr;
+  struct _pmath_expr_part_t *expr_part_ptr;
   
   if(PMATH_UNLIKELY(pmath_is_null(expr))){
     pmath_unref(item);
@@ -535,8 +535,8 @@ PMATH_API pmath_expr_t pmath_expr_set_item(
   || (index > 0 && PMATH_AS_PTR(expr)->type_shift != PMATH_TYPE_SHIFT_EXPRESSION_GENERAL)){
     const size_t len = expr_part_ptr->inherited.length;
     
-    struct _pmath_unpacked_expr_t *new_expr =
-      (struct _pmath_unpacked_expr_t*)PMATH_AS_PTR(pmath_expr_new(
+    struct _pmath_expr_t *new_expr =
+      (struct _pmath_expr_t*)PMATH_AS_PTR(pmath_expr_new(
         pmath_ref(expr_part_ptr->inherited.items[0]),
         len));
 
@@ -666,7 +666,7 @@ size_t _pmath_expr_find_sorted(
   
   switch(PMATH_AS_PTR(sorted_expr)->type_shift){
     case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL: {
-      struct _pmath_unpacked_expr_t *ge;
+      struct _pmath_expr_t *ge;
       void *found_elem;
       
       ge = (void*)PMATH_AS_PTR(sorted_expr);
@@ -684,7 +684,7 @@ size_t _pmath_expr_find_sorted(
     }
     
     case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL_PART: {
-      struct _pmath_unpacked_expr_part_t *ue;
+      struct _pmath_expr_part_t *ue;
       void *found_elem;
       
       ue = (void*)PMATH_AS_PTR(sorted_expr);
@@ -727,7 +727,7 @@ PMATH_PRIVATE pmath_expr_t _pmath_expr_sort_ex(
   int(*cmp)(pmath_t*, pmath_t*)
 ){
   size_t i, length;
-  struct _pmath_unpacked_expr_part_t *expr_part_ptr;
+  struct _pmath_expr_part_t *expr_part_ptr;
   
   if(PMATH_UNLIKELY(pmath_is_null(expr)))
     return PMATH_NULL;
@@ -741,7 +741,7 @@ PMATH_PRIVATE pmath_expr_t _pmath_expr_sort_ex(
 
   if(pmath_refcount(expr) > 1
   || PMATH_AS_PTR(expr)->type_shift != PMATH_TYPE_SHIFT_EXPRESSION_GENERAL){
-    struct _pmath_unpacked_expr_t *new_expr = 
+    struct _pmath_expr_t *new_expr = 
       (void*)PMATH_AS_PTR(pmath_expr_new(PMATH_NULL, length));
 
     if(!new_expr){
@@ -787,7 +787,7 @@ PMATH_PRIVATE pmath_expr_t _pmath_expr_sort_ex_context(
   void *context
 ){
   size_t i, length;
-  struct _pmath_unpacked_expr_part_t *expr_part_ptr;
+  struct _pmath_expr_part_t *expr_part_ptr;
   
   if(PMATH_UNLIKELY(pmath_is_null(expr)))
     return PMATH_NULL;
@@ -801,7 +801,7 @@ PMATH_PRIVATE pmath_expr_t _pmath_expr_sort_ex_context(
 
   if(pmath_refcount(expr) > 1
   || PMATH_AS_PTR(expr)->type_shift != PMATH_TYPE_SHIFT_EXPRESSION_GENERAL){
-    struct _pmath_unpacked_expr_t *new_expr = 
+    struct _pmath_expr_t *new_expr = 
       (void*)PMATH_AS_PTR(pmath_expr_new(PMATH_NULL, length));
 
     if(!new_expr){
@@ -1064,7 +1064,7 @@ PMATH_API pmath_expr_t pmath_expr_flatten(
   pmath_t       head,
   size_t        depth
 ){
-  struct _pmath_unpacked_expr_t *new_expr;
+  struct _pmath_expr_t *new_expr;
   size_t newlen = 0;
   pmath_t *items;
   
@@ -1197,7 +1197,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_expr_is_updated(
   if(((struct _pmath_timed_t*)PMATH_AS_PTR(expr))->last_change < 0)
     return FALSE;
   
-//  if(((struct _pmath_unpacked_expr_t*)expr)->last_change == 0)
+//  if(((struct _pmath_expr_t*)expr)->last_change == 0)
 //    return FALSE;
 //  
 //  if(last_change == (uintptr_t)global_update_counter)
@@ -1243,12 +1243,12 @@ int _pmath_compare_exprsym(pmath_t a, pmath_t b){
   switch(PMATH_AS_PTR(a)->type_shift){
     case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL:
     case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL_PART: {
-      struct _pmath_unpacked_expr_t *ua = (void*)PMATH_AS_PTR(a);
+      struct _pmath_expr_t *ua = (void*)PMATH_AS_PTR(a);
       
       switch(PMATH_AS_PTR(b)->type_shift){
         case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL:
         case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL_PART: {
-          struct _pmath_unpacked_expr_t *ub = (void*)PMATH_AS_PTR(b);
+          struct _pmath_expr_t *ub = (void*)PMATH_AS_PTR(b);
           size_t i;
           
           if(pmath_same(ua->items[0], PMATH_SYMBOL_COMPLEX)){
@@ -1349,7 +1349,7 @@ static unsigned int hash_expression(
   return next;
 }
 
-static void destroy_general_expression(struct _pmath_unpacked_expr_t *expr){
+static void destroy_general_expression(struct _pmath_expr_t *expr){
   size_t i;
   for(i = 0;i <= expr->length;i++)
     pmath_unref(expr->items[i]);
@@ -1362,7 +1362,7 @@ static void destroy_general_expression(struct _pmath_unpacked_expr_t *expr){
   pmath_mem_free(expr);
 }
 
-static void destroy_part_expression(struct _pmath_unpacked_expr_part_t *expr){
+static void destroy_part_expression(struct _pmath_expr_part_t *expr){
   pmath_unref(expr->inherited.items[0]);
   pmath_unref(PMATH_FROM_PTR(expr->buffer));
 

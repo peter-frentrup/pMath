@@ -108,7 +108,7 @@ PMATH_PRIVATE pmath_t builtin_parallelmap(pmath_expr_t expr){
           info.index._data);
         
         if(!pmath_is_null(obj2)){
-          info.items = ((struct _pmath_unpacked_expr_t*)PMATH_AS_PTR(obj2))->items;
+          info.items = ((struct _pmath_expr_t*)PMATH_AS_PTR(obj2))->items;
           
           for(i = (size_t)info.index._data;i > 0;--i)
             info.items[i] = pmath_expr_get_item(obj, i);
@@ -118,7 +118,7 @@ PMATH_PRIVATE pmath_t builtin_parallelmap(pmath_expr_t expr){
         }
       }
       else
-        info.items = ((struct _pmath_unpacked_expr_t*)PMATH_AS_PTR(obj))->items;
+        info.items = ((struct _pmath_expr_t*)PMATH_AS_PTR(obj))->items;
       
       info.parent = pmath_thread_get_current();
       

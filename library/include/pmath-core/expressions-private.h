@@ -10,7 +10,7 @@
 
 #define PMATH_EXPRESSION_FLATTEN_MAX_DEPTH   (8)
 
-struct _pmath_unpacked_expr_t{
+struct _pmath_expr_t{
   struct _pmath_gc_t   inherited;
   size_t               length;
   pmath_t              items[1];

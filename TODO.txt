@@ -5,6 +5,8 @@
 - support euclidian integers in GCD/ExtendedGCD
 
 - implement NumberForm
+
+- implement BitShiftLeft, BitShiftRight, BitGet, BitSet, BitClear, BitLength
 	
 - Power: simplify (1/2)/Sqrt(2), ... 
 		x Sqrt(E x) --->  Sqrt(E) x^(3/2)

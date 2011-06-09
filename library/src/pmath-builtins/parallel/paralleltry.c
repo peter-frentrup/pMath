@@ -118,7 +118,7 @@ PMATH_PRIVATE pmath_t builtin_paralleltry(pmath_expr_t expr){
   assert(pmath_refcount(result) == 1);
   assert(PMATH_AS_PTR(result)->type_shift == PMATH_TYPE_SHIFT_EXPRESSION_GENERAL);
   
-  info.results = &((struct _pmath_unpacked_expr_t*)PMATH_AS_PTR(result))->items[1];
+  info.results = &((struct _pmath_expr_t*)PMATH_AS_PTR(result))->items[1];
   info.result_index._data = 0;
   
   info.index._data = 1;
