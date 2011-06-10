@@ -119,8 +119,8 @@
 					<Add library="iconv.lib" />
 					<Add library="pcre.lib" />
 					<Add library="shell32.lib" />
-					<Add library="D:\Programme\CodeBlocks\MinGW\lib\gcc\mingw32\4.4.1\libgcc.a" />
 					<Add library="zdll.lib" />
+					<Add library="gcc.lib" />
 				</Linker>
 				<ExtraCommands>
 					<Add after="post-build-windows.bat msvc" />

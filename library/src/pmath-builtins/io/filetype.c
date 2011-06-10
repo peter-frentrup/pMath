@@ -1,3 +1,6 @@
+#include <pmath-language/scanner.h>
+
+#include <pmath-util/evaluation.h>
 #include <pmath-util/memory.h>
 #include <pmath-util/messages.h>
 
@@ -36,6 +39,24 @@ PMATH_PRIVATE pmath_t builtin_filetype(pmath_expr_t expr){
     const uint16_t zero = 0;
     HANDLE h;
     
+    pmath_t tmp;
+    
+    tmp = pmath_parse_string_args( // file ~= \\servername\pipe\pipename
+        "StringMatch(StringReplace(`1`, \"\\\\\" -> \"/\"),"
+          "StartOfString ++"
+          "\"//\" ++"
+          "Except(\"/\")** ++"
+          "\"/pipe/\" ++"
+          "Except(\"/\")** ++"
+          "EndOfString, IgnoreCase->True)", 
+        "(o)", pmath_ref(file));
+    tmp = pmath_evaluate(tmp);
+    pmath_unref(tmp);
+    if(pmath_same(tmp, PMATH_SYMBOL_TRUE)){
+      pmath_unref(file);
+      return pmath_ref(PMATH_SYMBOL_SPECIAL);
+    }
+    
     file = pmath_string_insert_ucs2(file, INT_MAX, &zero, 1);
     
     // use CreateFile() instead of GetFileAttributes() to follow symbolic links.
@@ -45,7 +66,7 @@ PMATH_PRIVATE pmath_t builtin_filetype(pmath_expr_t expr){
       FILE_SHARE_READ | FILE_SHARE_WRITE,
       NULL,
       OPEN_EXISTING,
-      FILE_FLAG_BACKUP_SEMANTICS,
+      FILE_FLAG_BACKUP_SEMANTICS, // needed to open handles to dicretories
       NULL);
     
     if(h != INVALID_HANDLE_VALUE){

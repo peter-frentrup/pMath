@@ -27,7 +27,66 @@ static pmath_bool_t binary_write(
     return TRUE;
   }
   
-  if(pmath_is_null(type) || pmath_is_string(type)){
+  if(pmath_is_expr_of(value, PMATH_SYMBOL_LIST)){
+    size_t i;
+    
+    if(pmath_is_expr_of(type, PMATH_SYMBOL_LIST)){
+      size_t tmax = pmath_expr_length(type);
+      
+      if(tmax == 0){
+        pmath_unref(type);
+        type = PMATH_NULL;
+      }
+      else if(tmax == 1){
+        pmath_t item = pmath_expr_get_item(type, 1);
+        pmath_unref(type);
+        type = item;
+      }
+      else{
+        size_t j = 1;
+        
+        for(i = 1;i <= pmath_expr_length(value);++i){
+          if(!binary_write(
+              file,
+              pmath_expr_get_item(value, i),
+              pmath_expr_get_item(type, j),
+              byte_ordering))
+          {
+            pmath_unref(value);
+            pmath_unref(type);
+            return FALSE;
+          }
+          
+          if(j == tmax)
+            j = 1;
+          else
+            ++j;
+        }
+        
+        pmath_unref(value);
+        pmath_unref(type);
+        return TRUE;
+      }
+    }
+    
+    for(i = 1;i <= pmath_expr_length(value);++i){
+      if(!binary_write(
+          file,
+          pmath_expr_get_item(value, i),
+          pmath_ref(type),
+          byte_ordering))
+      {
+        pmath_unref(value);
+        pmath_unref(type);
+        return FALSE;
+      }
+    }
+    
+    pmath_unref(value);
+    pmath_unref(type);
+    return TRUE;
+  }
+  else if(pmath_is_null(type) || pmath_is_string(type)){
     if(pmath_is_string(value)){
       const uint16_t *buf = pmath_string_buffer(&value);
       const int len = pmath_string_length(value);
@@ -588,8 +647,12 @@ static pmath_bool_t binary_write(
             }
           }
         }
-      
-        if(pmath_is_integer(value)){
+        
+        if(pmath_is_int32(value)){
+          value = _pmath_create_mp_int(PMATH_AS_INT32(value));
+        }
+        
+        if(pmath_is_mpint(value)){
           size_t count;
           pmath_mpint_t pos = PMATH_NULL;
           
@@ -609,24 +672,15 @@ static pmath_bool_t binary_write(
               PMATH_AS_MPZ(pos), 
               PMATH_AS_MPZ(value));
           }
-          else if(out_type == INT){
-            if(pmath_is_int32(value)){
-              pos = _pmath_create_mp_int(PMATH_AS_INT32(value));
-              
-              if(pmath_is_null(pos)){
-                pmath_unref(value);
-                pmath_unref(type);
-                return FALSE;
-              }
-            }
-            else
-              pos = pmath_ref(value);
+          else if((out_type == INT || out_type == UINT)
+          && mpz_sgn(PMATH_AS_MPZ(value)) >= 0){
+            pos = pmath_ref(value);
           }
           else{
             if(pmath_is_null(type))
               type = PMATH_C_STRING("Byte");
                   
-            pmath_message(PMATH_NULL, "nocoerce", 2, value, type);
+            pmath_message(PMATH_NULL, "nocoerce", 2, _pmath_mp_int_normalize(value), type);
             return FALSE;
           }
           
@@ -637,7 +691,7 @@ static pmath_bool_t binary_write(
               type = PMATH_C_STRING("Byte");
             
             pmath_unref(pos);
-            pmath_message(PMATH_NULL, "nocoerce", 2, value, type);
+            pmath_message(PMATH_NULL, "nocoerce", 2, _pmath_mp_int_normalize(value), type);
             return FALSE;
           }
           
@@ -651,6 +705,7 @@ static pmath_bool_t binary_write(
             0,
             PMATH_AS_MPZ(pos));
           
+          pmath_file_write(file, data, size);
           pmath_unref(pos);
           pmath_unref(value);
           pmath_unref(type);
@@ -667,65 +722,6 @@ static pmath_bool_t binary_write(
         return FALSE;
       }
     }
-  }
-  else if(pmath_is_expr_of(value, PMATH_SYMBOL_LIST)){
-    size_t i;
-    
-    if(pmath_is_expr_of(type, PMATH_SYMBOL_LIST)){
-      size_t tmax = pmath_expr_length(type);
-      
-      if(tmax == 0){
-        pmath_unref(type);
-        type = PMATH_NULL;
-      }
-      else if(tmax == 1){
-        pmath_t item = pmath_expr_get_item(type, 1);
-        pmath_unref(type);
-        type = item;
-      }
-      else{
-        size_t j = 1;
-        
-        for(i = 1;i <= pmath_expr_length(value);++i){
-          if(!binary_write(
-              file,
-              pmath_expr_get_item(value, i),
-              pmath_expr_get_item(type, j),
-              byte_ordering))
-          {
-            pmath_unref(value);
-            pmath_unref(type);
-            return FALSE;
-          }
-          
-          if(j == tmax)
-            j = 1;
-          else
-            ++j;
-        }
-        
-        pmath_unref(value);
-        pmath_unref(type);
-        return TRUE;
-      }
-    }
-    
-    for(i = 1;i <= pmath_expr_length(value);++i){
-      if(!binary_write(
-          file,
-          pmath_expr_get_item(value, i),
-          pmath_ref(type),
-          byte_ordering))
-      {
-        pmath_unref(value);
-        pmath_unref(type);
-        return FALSE;
-      }
-    }
-    
-    pmath_unref(value);
-    pmath_unref(type);
-    return TRUE;
   }
   
   pmath_message(PMATH_NULL, "format", 1, type);

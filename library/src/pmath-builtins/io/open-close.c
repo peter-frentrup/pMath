@@ -18,6 +18,8 @@
 #ifdef PMATH_OS_WIN32
   #define NOGDI
   #define WIN32_LEAN_AND_MEAN
+  #include <fcntl.h>
+  #include <io.h>
   #include <windows.h>
 #else
   #include <langinfo.h>
@@ -45,11 +47,15 @@ enum open_kind{
   OPEN_APPEND
 };
 
-static void bin_file_destroy(FILE *file){
+static void bin_file_destroy(void *h){
+  FILE *file = h;
+  
   fclose(file);
 }
 
-static pmath_files_status_t bin_file_status(FILE *file){
+static pmath_files_status_t bin_file_status(void *h){
+  FILE *file = h;
+  
   if(feof(file))
     return PMATH_FILE_ENDOFFILE;
   
@@ -59,16 +65,40 @@ static pmath_files_status_t bin_file_status(FILE *file){
   return PMATH_FILE_OK;
 }
 
-static size_t bin_file_read(FILE *file, void *buffer, size_t buffer_size){
-  return fread(buffer, 1, buffer_size, file);
+static size_t bin_file_read(void *h, void *buffer, size_t buffer_size){
+  FILE *file = h;
+  
+  #ifdef _MSC_VER
+    return _fread_nolock(buffer, 1, buffer_size, file);
+  #elif !defined( PMATH_OS_WIN32 )
+    return fread_unlocked(buffer, 1, buffer_size, file);
+  #else
+    return fread(buffer, 1, buffer_size, file);
+  #endif
 }
 
-static size_t bin_file_write(FILE *file, const void *buffer, size_t buffer_size){
-  return fwrite(buffer, 1, buffer_size, file);
+static size_t bin_file_write(void *h, const void *buffer, size_t buffer_size){
+  FILE *file = h;
+  
+  #ifdef _MSC_VER
+    return _fwrite_nolock(buffer, 1, buffer_size, file);
+  #elif !defined( PMATH_OS_WIN32 )
+    return fwrite_unlocked(buffer, 1, buffer_size, file);
+  #else
+    return fwrite(buffer, 1, buffer_size, file);
+  #endif
 }
 
-static void bin_file_flush(FILE *file){
-  fflush(file);
+static void bin_file_flush(void *h){
+  FILE *file = h;
+  
+  #ifdef _MSC_VER
+    _fflush_nolock(file);
+  #elif !defined( PMATH_OS_WIN32 )
+    fflush_unlocked(file);
+  #else
+    fflush(file);
+  #endif
 }
 
 static pmath_t open_bin_file(
@@ -83,35 +113,81 @@ static pmath_t open_bin_file(
   
   switch(kind){
     case OPEN_READ:
-      api.status_function = (pmath_files_status_t(*)(void*))bin_file_status;
-      api.read_function   = (size_t(*)(void*,void*,size_t))bin_file_read;
+      api.status_function = bin_file_status;
+      api.read_function   = bin_file_read;
       break;
       
     case OPEN_WRITE:  
     case OPEN_APPEND: 
-      api.write_function = (size_t(*)(void*,const void*,size_t))bin_file_write;
-      api.flush_function = (void(*)(void*))bin_file_flush;
+      api.write_function = bin_file_write;
+      api.flush_function = bin_file_flush;
       break;
   }
   
   #ifdef PMATH_OS_WIN32
   {
     static const uint16_t zero = 0;
-    const wchar_t *mode = L"";
+    const wchar_t *fmode = L"";
+    int fdmode = -1;
+    DWORD haccess = 0;
+    DWORD hshare  = 0;
+    DWORD hcredis = 0;
+    DWORD hflags  = 0;
+    int fd = -1;
+    HANDLE h;
     
     name = pmath_string_insert_ucs2(
       name,
       pmath_string_length(name),
       &zero,
       1);
+    
+//    f = _wfopen((const wchar_t*)pmath_string_buffer(&name), mode);
+    // _wfopen cannot open pipes.
+    // But CreateFileW, _open_osfhandle, _wfdopen works.
   
     switch(kind){
-      case OPEN_READ:       mode = L"rb"; break;
-      case OPEN_WRITE:      mode = L"wb"; break;
-      case OPEN_APPEND:     mode = L"ab"; break;
+      case OPEN_READ:
+        haccess = GENERIC_READ;
+        hshare  = FILE_SHARE_READ;
+        hcredis = OPEN_EXISTING;
+        hflags = FILE_ATTRIBUTE_NORMAL;
+        fdmode = _O_RDONLY;
+        fmode = L"rb";
+        break;
+        
+      case OPEN_WRITE:
+        haccess = GENERIC_WRITE;
+        hshare  = FILE_SHARE_READ;
+        hcredis = OPEN_ALWAYS;
+        hflags = FILE_ATTRIBUTE_NORMAL;
+        fdmode = 0;
+        fmode = L"wb";
+        break;
+        
+      case OPEN_APPEND:
+        haccess = GENERIC_WRITE;
+        hshare  = FILE_SHARE_READ;
+        hcredis = OPEN_ALWAYS;
+        hflags = FILE_ATTRIBUTE_NORMAL;
+        fdmode = _O_APPEND;
+        fmode = L"ab";
+        break;
     }
     
-    f = _wfopen((const wchar_t*)pmath_string_buffer(&name), mode);
+    h = CreateFileW(
+      (const wchar_t*)pmath_string_buffer(&name),
+      haccess, 
+      hshare,
+      NULL,
+      hcredis,
+      hflags,
+      NULL);
+    fd = _open_osfhandle((intptr_t)h, fdmode);
+    if(fd < 0)
+      CloseHandle(h);
+    else
+      f = _wfdopen(fd, fmode);
   }
   #else
   {
@@ -488,7 +564,19 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr){
       pmath_option_value(PMATH_NULL, PMATH_SYMBOL_PAGEWIDTH, options));
   }
   
+  if(kind == OPEN_READ && pmath_is_string(file)){
+    pmath_t type = pmath_evaluate(
+      pmath_expr_new_extended(
+        pmath_ref(PMATH_SYMBOL_FILETYPE), 1,
+        pmath_ref(file)));
+    
+    pmath_unref(type);
+    if(!pmath_same(type, PMATH_SYMBOL_FILE))
+      unbuffered = TRUE;
+  }
+  
   if(!binary_format 
+  && !unbuffered
   && kind != OPEN_WRITE
   && pmath_same(encoding, PMATH_SYMBOL_AUTOMATIC)){ // check for byte order mark
     size_t count;
@@ -535,17 +623,6 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr){
       pmath_unref(encoding);
       encoding = PMATH_C_STRING("ASCII");
     }
-  }
-  
-  if(kind == OPEN_READ && pmath_is_string(file)){
-    pmath_t type = pmath_evaluate(
-      pmath_expr_new_extended(
-        pmath_ref(PMATH_SYMBOL_FILETYPE), 1,
-        pmath_ref(file)));
-    
-    pmath_unref(type);
-    if(!pmath_same(type, PMATH_SYMBOL_FILE))
-      unbuffered = TRUE;
   }
   
   if(pmath_is_string(file))

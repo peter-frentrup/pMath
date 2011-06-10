@@ -276,14 +276,14 @@ void NumberBox::set_number(String n){
   _expstart = _numend;
   _content->remove(0, _content->length());
   
-  if((_numend + 1 == len || (_numend + 1 < len && buf[_numend + 1] != '`'))
+  if((_numend + 1 == len || (_numend + 1 < len && buf[_numend + 1] != '`' && !pmath_char_is_digit(buf[_numend + 1])))
   && numbase >= 2 
   && numbase <= 36){
     // machine number: do not show all digits
     int digits = 6;
     
     if(numbase != 10){
-      digits = (int)ceil(digits * log(10.0) / log(numbase));
+      digits = (int)ceil(digits * log(10.0) / log((double)numbase));
     }
     
     _content->insert(0, round_digits(_number.part(_numstart, _numend - _numstart), digits, numbase));
