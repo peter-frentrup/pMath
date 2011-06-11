@@ -26,7 +26,7 @@ General::meprec:= "Internal precision limit $MaxExtraPrecision = `1` reached whi
 General::reclim:= "Recursion limit of `1` exceeded."
 
 /* assignment errores */
-General::altno:= "Use multiple assignments instead of alternatives in `1`."
+General::noalt:= "Use multiple assignments instead of alternatives in `1`."
 General::incomp:= "`2` is not assign-compatible to `1`."
 General::notag:= "`1` does not contain a symbol to attach a rule to."
 General::rval:= "The value of `1` cannot be changed because it is not a variable with a value."
@@ -98,11 +98,11 @@ General::shdw:= "Symbol `1` appears in multiple contexts `2`; definitions in con
 
 General::nopar1:= "`1` cannot be parallelized; proceeding with sequential evaluation."
 
-Syntax::bgn:= "An expression cannot begin with \"`1`\"."
+Syntax::bgn:= MakeExpression::bgn:= "An expression cannot begin with \"`1`\"."
 Syntax::bgnf:= "An expression cannot begin with \"`1`\". (Line `2` in `3`)"
 Syntax::newl:= "The newline character after \"`1`\" is interpreted as a multiplication operator."
 Syntax::newlf:= "The newline character after \"`1`\" is interpreted as a multiplication operator. (Line `2` in `3`)"
-Syntax::nxt:= "\"`1`\" cannot be followed by \"`2`\"."
+Syntax::nxt:= MakeExpression::nxt:= "\"`1`\" cannot be followed by \"`2`\"."
 Syntax::nxtf:= "\"`1`\" cannot be followed by \"`2`\". (Line `3` in `4`)"
 Syntax::more:= "Incomplete expression; more input needed."
 Syntax::moref:= "Unexpected end of file (probably unfinished expression). (Line `1` in `2`)"

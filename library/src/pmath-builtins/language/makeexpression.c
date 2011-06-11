@@ -126,6 +126,82 @@ static pmath_bool_t parse(pmath_t *box){
   return TRUE;
 }
 
+/*static pmath_bool_t parse_quiet(pmath_t *box){
+  pmath_t obj;
+  
+  *box = pmath_expr_new_extended(
+    pmath_ref(PMATH_SYMBOL_TRY), 3,
+    pmath_expr_new_extended(
+      pmath_ref(PMATH_SYMBOL_MAKEEXPRESSION), 1, 
+      *box),
+    pmath_ref(PMATH_SYMBOL_FAILED),
+    pmath_expr_new_extended(
+      pmath_ref(PMATH_SYMBOL_MESSAGENAME), 2,
+      pmath_ref(PMATH_SYMBOL_MESSAGE),
+      PMATH_C_STRING("inv")));
+    
+  *box = pmath_evaluate(*box);
+      
+  if(!pmath_is_expr(*box)){
+    pmath_unref(*box);
+    *box = PMATH_NULL;
+    return FALSE;
+  }
+
+  obj = pmath_expr_get_item(*box, 0);
+  pmath_unref(obj);
+
+  if(!pmath_same(obj, PMATH_SYMBOL_HOLDCOMPLETE)){
+    pmath_unref(*box);
+    *box = PMATH_NULL;
+    return FALSE;
+  }
+
+  if(pmath_expr_length(*box) != 1){
+    *box = pmath_expr_set_item(*box, 0, pmath_ref(PMATH_SYMBOL_SEQUENCE));
+    return TRUE;
+  }
+
+  obj = *box;
+  *box = pmath_expr_get_item(*box, 1);
+  pmath_unref(obj);
+  return TRUE;
+} */
+
+static void handle_row_error_at(pmath_expr_t expr, size_t i){
+  if(i == 1){
+    pmath_message(PMATH_NULL, "bgn", 1, 
+      pmath_expr_new_extended(
+        pmath_ref(PMATH_SYMBOL_RAWBOXES), 1, 
+        pmath_ref(expr)));
+  }
+  else{
+    pmath_message(PMATH_NULL, "nxt", 2, 
+      pmath_expr_new_extended(
+        pmath_ref(PMATH_SYMBOL_RAWBOXES), 1, 
+        pmath_expr_get_item_range(expr, 1, i-1)), 
+      pmath_expr_new_extended(
+        pmath_ref(PMATH_SYMBOL_RAWBOXES), 1, 
+        pmath_expr_get_item_range(expr, i, SIZE_MAX)));
+  }
+}
+
+static pmath_bool_t parse_at(pmath_t *out_box, pmath_expr_t expr, size_t i){
+  *out_box = pmath_expr_get_item(expr, i);
+  
+  if(pmath_is_string(*out_box)){
+    if(!parse/*_quiet*/(out_box)){
+      handle_row_error_at(expr, i);
+      
+      return FALSE;
+    }
+    
+    return TRUE;
+  }
+  
+  return parse(out_box);
+}
+
 static pmath_string_t box_as_string(pmath_t box){
   while(!pmath_is_null(box)){
     if(pmath_is_string(box))
@@ -1345,8 +1421,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
       pmath_t prev = PMATH_NULL;
       pmath_bool_t last_was_comma = unichar_at(expr, 1) == ',';
       if(!last_was_comma){
-        prev = pmath_expr_get_item(expr, 1);
-        if(!parse(&prev)){
+        if(!parse_at(&prev, expr, 1)){
           pmath_unref(expr);
           return pmath_ref(PMATH_SYMBOL_FAILED);
         }
@@ -1372,8 +1447,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
         }
         else{
           last_was_comma = FALSE;
-          prev = pmath_expr_get_item(expr, i);
-          if(!parse(&prev)){
+          if(!parse_at(&prev, expr, i)){
             pmath_unref(expr);
             pmath_unref(pmath_gather_end());
             return pmath_ref(PMATH_SYMBOL_FAILED);
@@ -1413,8 +1487,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
         }
         else{
           last_was_semicolon = FALSE;
-          prev = pmath_expr_get_item(expr, i);
-          if(!parse(&prev)){
+          if(!parse_at(&prev, expr, i)){
             pmath_unref(expr);
             pmath_unref(pmath_gather_end());
             return pmath_ref(PMATH_SYMBOL_FAILED);
@@ -1463,8 +1536,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
     // ?x  and  ?x:v
     if(firstchar == '?'){
       if(exprlen == 2){
-        box = pmath_expr_get_item(expr, 2);
-        if(parse(&box)){
+        if(parse_at(&box, expr, 2)){
           pmath_unref(expr);
           return HOLDCOMPLETE(
             pmath_expr_new_extended(
@@ -1473,18 +1545,21 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
         }
       }
       else if(exprlen == 4 && unichar_at(expr, 3) == ':'){
-        box = pmath_expr_get_item(expr, 2);
-        if(parse(&box)){
-          pmath_t value = pmath_expr_get_item(expr, 4);
-          if(parse(&value)){
-            pmath_unref(expr);
-            return HOLDCOMPLETE(
-              pmath_expr_new_extended(
-                pmath_ref(PMATH_SYMBOL_OPTIONAL), 2,
-                box,
-                value));
-          }
+        pmath_t value = PMATH_NULL;
+        box           = PMATH_NULL;
+        
+        if(parse_at(&box,   expr, 2)
+        && parse_at(&value, expr, 4)){
+          pmath_unref(expr);
+          return HOLDCOMPLETE(
+            pmath_expr_new_extended(
+              pmath_ref(PMATH_SYMBOL_OPTIONAL), 2,
+              box,
+              value));
         }
+        
+        pmath_unref(box);
+        pmath_unref(value);
       }
 
       pmath_unref(expr);
@@ -1494,94 +1569,101 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
     if(exprlen == 2){ // x& x! x++ x-- x.. p** p*** +x -x !x #x ++x --x ..x ??x <<x ~x ~~x ~~~x
       // x &
       if(secondchar == '&'){
-        box = pmath_expr_get_item(expr, 1);
-        pmath_unref(expr);
-        if(parse(&box)){
+        if(parse_at(&box, expr, 1)){
+          pmath_unref(expr);
           return HOLDCOMPLETE(
             pmath_expr_new_extended(
               pmath_ref(PMATH_SYMBOL_FUNCTION), 1,
               box));
         }
+        
+        pmath_unref(expr);
         return pmath_ref(PMATH_SYMBOL_FAILED);
       }
 
       // x!
       if(secondchar == '!'){
-        box = pmath_expr_get_item(expr, 1);
-        pmath_unref(expr);
-        if(parse(&box)){
+        if(parse_at(&box, expr, 1)){
+          pmath_unref(expr);
           return HOLDCOMPLETE(
             pmath_expr_new_extended(
               pmath_ref(PMATH_SYMBOL_FACTORIAL), 1,
               box));
         }
+        
+        pmath_unref(expr);
         return pmath_ref(PMATH_SYMBOL_FAILED);
       }
 
       // x!!
       if(is_string_at(expr, 2, "!!")){
-        box = pmath_expr_get_item(expr, 1);
-        pmath_unref(expr);
-        if(parse(&box)){
+        if(parse_at(&box, expr, 1)){
+          pmath_unref(expr);
           return HOLDCOMPLETE(
             pmath_expr_new_extended(
               pmath_ref(PMATH_SYMBOL_FACTORIAL2), 1,
               box));
         }
+        
+        pmath_unref(expr);
         return pmath_ref(PMATH_SYMBOL_FAILED);
       }
 
       // x++
       if(is_string_at(expr, 2, "++")){
-        box = pmath_expr_get_item(expr, 1);
-        pmath_unref(expr);
-        if(parse(&box)){
+        if(parse_at(&box, expr, 1)){
+          pmath_unref(expr);
           return HOLDCOMPLETE(
             pmath_expr_new_extended(
               pmath_ref(PMATH_SYMBOL_POSTINCREMENT), 1,
               box));
         }
+        
+        pmath_unref(expr);
         return pmath_ref(PMATH_SYMBOL_FAILED);
       }
 
       // x--
       if(is_string_at(expr, 2, "--")){
-        box = pmath_expr_get_item(expr, 1);
-        pmath_unref(expr);
-        if(parse(&box)){
+        if(parse_at(&box, expr, 1)){
+          pmath_unref(expr);
           return HOLDCOMPLETE(
             pmath_expr_new_extended(
               pmath_ref(PMATH_SYMBOL_POSTDECREMENT), 1,
               box));
         }
+        
+        pmath_unref(expr);
         return pmath_ref(PMATH_SYMBOL_FAILED);
       }
 
       // p**
       if(is_string_at(expr, 2, "**")){
-        box = pmath_expr_get_item(expr, 1);
-        pmath_unref(expr);
-        if(parse(&box)){
+        if(parse_at(&box, expr, 1)){
+          pmath_unref(expr);
           return HOLDCOMPLETE(
             pmath_expr_new_extended(
               pmath_ref(PMATH_SYMBOL_REPEATED), 2,
               box,
               pmath_ref(_pmath_object_range_from_one)));
         }
+        
+        pmath_unref(expr);
         return pmath_ref(PMATH_SYMBOL_FAILED);
       }
 
       // p***
       if(is_string_at(expr, 2, "***")){
-        box = pmath_expr_get_item(expr, 1);
-        pmath_unref(expr);
-        if(parse(&box)){
+        if(parse_at(&box, expr, 1)){
+          pmath_unref(expr);
           return HOLDCOMPLETE(
             pmath_expr_new_extended(
               pmath_ref(PMATH_SYMBOL_REPEATED), 2,
               box,
               pmath_ref(_pmath_object_range_from_zero)));
         }
+        
+        pmath_unref(expr);
         return pmath_ref(PMATH_SYMBOL_FAILED);
       }
 
@@ -1595,9 +1677,8 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
 
       // -x
       if(firstchar == '-'){
-        box = pmath_expr_get_item(expr, 2);
-        pmath_unref(expr);
-        if(parse(&box)){
+        if(parse_at(&box, expr, 2)){
+          pmath_unref(expr);
           if(pmath_is_number(box))
             return HOLDCOMPLETE(pmath_number_neg(box));
 
@@ -1607,39 +1688,41 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
               PMATH_FROM_INT32(-1),
               box));
         }
+        
+        pmath_unref(expr);
         return pmath_ref(PMATH_SYMBOL_FAILED);
       }
 
       if(firstchar == PMATH_CHAR_PIECEWISE){
-        box = pmath_expr_get_item(expr, 2);
-        pmath_unref(expr);
-        if(parse(&box)){
+        if(parse_at(&box, expr, 2)){
+          pmath_unref(expr);
           return HOLDCOMPLETE(
             pmath_expr_new_extended(
               pmath_ref(PMATH_SYMBOL_PIECEWISE), 1,
               box));
         }
+        
+        pmath_unref(expr);
         return pmath_ref(PMATH_SYMBOL_FAILED);
       }
 
       // !x
-      if(firstchar == '!'){
-        box = pmath_expr_get_item(expr, 2);
-        pmath_unref(expr);
-        if(parse(&box)){
+      if(firstchar == '!' || firstchar == 0x00AC){
+        if(parse_at(&box, expr, 2)){
+          pmath_unref(expr);
           return HOLDCOMPLETE(
             pmath_expr_new_extended(
               pmath_ref(PMATH_SYMBOL_NOT), 1,
               box));
         }
+        
+        pmath_unref(expr);
         return pmath_ref(PMATH_SYMBOL_FAILED);
       }
 
       // #x
       if(firstchar == '#'){
-        box = pmath_expr_get_item(expr, 2);
-
-        if(!parse(&box)){
+        if(!parse_at(&box, expr, 2)){
           pmath_unref(expr);
           return pmath_ref(PMATH_SYMBOL_FAILED);
         }
@@ -1657,9 +1740,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
 
       // ##x
       if(is_string_at(expr, 1, "##")){
-        box = pmath_expr_get_item(expr, 2);
-
-        if(!parse(&box)){
+        if(!parse_at(&box, expr, 2)){
           pmath_unref(expr);
           return pmath_ref(PMATH_SYMBOL_FAILED);
         }
@@ -1680,27 +1761,29 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
 
       // ++x
       if(is_string_at(expr, 1, "++")){
-        box = pmath_expr_get_item(expr, 2);
-        pmath_unref(expr);
-        if(parse(&box)){
+        if(parse_at(&box, expr, 2)){
+          pmath_unref(expr);
           return HOLDCOMPLETE(
             pmath_expr_new_extended(
               pmath_ref(PMATH_SYMBOL_INCREMENT), 1,
               box));
         }
+        
+        pmath_unref(expr);
         return pmath_ref(PMATH_SYMBOL_FAILED);
       }
 
       // --x
       if(is_string_at(expr, 1, "--")){
-        box = pmath_expr_get_item(expr, 2);
-        pmath_unref(expr);
-        if(parse(&box)){
+        if(parse_at(&box, expr, 2)){
+          pmath_unref(expr);
           return HOLDCOMPLETE(
             pmath_expr_new_extended(
               pmath_ref(PMATH_SYMBOL_DECREMENT), 1,
               box));
         }
+        
+        pmath_unref(expr);
         return pmath_ref(PMATH_SYMBOL_FAILED);
       }
 
@@ -1742,43 +1825,46 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
 
       // ~x
       if(firstchar == '~'){
-        box = pmath_expr_get_item(expr, 2);
-        pmath_unref(expr);
-        if(parse(&box)){
+        if(parse_at(&box, expr, 2)){
+          pmath_unref(expr);
           return HOLDCOMPLETE(
             pmath_expr_new_extended(
               pmath_ref(PMATH_SYMBOL_PATTERN), 2,
               box,
               pmath_ref(_pmath_object_singlematch)));
         }
+        
+        pmath_unref(expr);
         return pmath_ref(PMATH_SYMBOL_FAILED);
       }
 
       // ~~x
       if(is_string_at(expr, 1, "~~")){
-        box = pmath_expr_get_item(expr, 2);
-        pmath_unref(expr);
-        if(parse(&box)){
+        if(parse_at(&box, expr, 2)){
+          pmath_unref(expr);
           return HOLDCOMPLETE(
             pmath_expr_new_extended(
               pmath_ref(PMATH_SYMBOL_PATTERN), 2,
               box,
               pmath_ref(_pmath_object_multimatch)));
         }
+        
+        pmath_unref(expr);
         return pmath_ref(PMATH_SYMBOL_FAILED);
       }
 
       // ~~~x
       if(is_string_at(expr, 1, "~~~")){
-        box = pmath_expr_get_item(expr, 2);
-        pmath_unref(expr);
-        if(parse(&box)){
+        if(parse_at(&box, expr, 2)){
+          pmath_unref(expr);
           return HOLDCOMPLETE(
             pmath_expr_new_extended(
               pmath_ref(PMATH_SYMBOL_PATTERN), 2,
               box,
               pmath_ref(_pmath_object_zeromultimatch)));
         }
+        
+        pmath_unref(expr);
         return pmath_ref(PMATH_SYMBOL_FAILED);
       }
 
@@ -1883,13 +1969,15 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
     if(exprlen == 3){ // a.f  x/y  f@x  f@@list  s::tag  f()  ~:t  ~~:t  ~~~:t  x:p  a//f  p/?c  l->r  l:=r  l+=r  l-=r  l:>r  l::=r  l..r
       // a.f
       if(secondchar == '.'){
-        pmath_t arg = pmath_expr_get_item(expr, 1);
-        pmath_t f = pmath_expr_get_item(expr, 3);
-        pmath_unref(expr);
+        pmath_t arg = PMATH_NULL;
+        pmath_t f   = PMATH_NULL;
 
-        if(parse(&arg) && parse(&f))
+        if(parse_at(&arg, expr, 1) && parse_at(&f, expr, 3)){
+          pmath_unref(expr);
           return HOLDCOMPLETE(pmath_expr_new_extended(f, 1, arg));
-
+        }
+        
+        pmath_unref(expr);
         pmath_unref(arg);
         pmath_unref(f);
         return pmath_ref(PMATH_SYMBOL_FAILED);
@@ -1897,39 +1985,36 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
 
       // f@x
       if(secondchar == '@' || secondchar == PMATH_CHAR_INVISIBLECALL){
-        pmath_t f = pmath_expr_get_item(expr, 1);
-        pmath_t x = pmath_expr_get_item(expr, 3);
-        pmath_unref(expr);
+        pmath_t f = PMATH_NULL;
+        pmath_t x = PMATH_NULL;
 
-        if(parse(&f) && parse(&x)){
+        if(parse_at(&f, expr, 1) && parse_at(&x, expr, 3)){
+          pmath_unref(expr);
           return HOLDCOMPLETE(
             pmath_expr_new_extended(f, 1, x));
         }
-
+        
         pmath_unref(f);
         pmath_unref(x);
+        pmath_unref(expr);
         return pmath_ref(PMATH_SYMBOL_FAILED);
       }
 
       // f()
       if(secondchar == '(' && unichar_at(expr, 3) == ')'){
-        box = pmath_expr_get_item(expr, 1);
-        pmath_unref(expr);
-
-        if(parse(&box))
+        if(parse_at(&box, expr, 1)){
+          pmath_unref(expr);
           return HOLDCOMPLETE(pmath_expr_new(box, 0));
-
-        pmath_unref(box);
+        }
+        
         return pmath_ref(PMATH_SYMBOL_FAILED);
       }
 
       // ~:t  ~~:t  ~~~:t  x:p
       if(secondchar == ':'){
         pmath_t x;
-
-        box = pmath_expr_get_item(expr, 3);
-        if(!parse(&box)){
-          pmath_unref(box);
+        
+        if(!parse_at(&box, expr, 3)){
           pmath_unref(expr);
           return pmath_ref(PMATH_SYMBOL_FAILED);
         }
@@ -1963,45 +2048,46 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
                 box),
               pmath_ref(_pmath_object_range_from_zero)));
         }
-
-        x = pmath_expr_get_item(expr, 1);
-        pmath_unref(expr);
-
-        if(parse(&x)){
+        
+        if(parse_at(&x, expr, 1)){
+          pmath_unref(expr);
           return HOLDCOMPLETE(pmath_expr_new_extended(
             pmath_ref(PMATH_SYMBOL_PATTERN), 2,
             x,
             box));
         }
-
-        pmath_unref(x);
+        
+        pmath_unref(expr);
         pmath_unref(box);
         return pmath_ref(PMATH_SYMBOL_FAILED);
       }
 
       // args :-> body
       if(secondchar == 0x21A6){
-        pmath_t args = pmath_expr_get_item(expr, 1);
-        pmath_t body = pmath_expr_get_item(expr, 3);
-        pmath_unref(expr);
+        pmath_t args = PMATH_NULL;
+        pmath_t body = PMATH_NULL;
 
-        if(parse(&args) && parse(&body)){
-          if(pmath_is_expr_of(args, PMATH_SYMBOL_SEQUENCE))
+        if(parse_at(&args, expr, 1) && parse_at(&body, expr, 3)){
+          pmath_unref(expr);
+          if(pmath_is_expr_of(args, PMATH_SYMBOL_SEQUENCE)){
             args = pmath_expr_set_item(
               args, 0,
               pmath_ref(PMATH_SYMBOL_LIST));
-          else
+          }
+          else{
             args = pmath_expr_new_extended(
               pmath_ref(PMATH_SYMBOL_LIST), 1,
               args);
-
+          }
+          
           return HOLDCOMPLETE(
             pmath_expr_new_extended(
               pmath_ref(PMATH_SYMBOL_FUNCTION), 2,
               args,
               body));
         }
-
+        
+        pmath_unref(expr);
         pmath_unref(args);
         pmath_unref(body);
         return pmath_ref(PMATH_SYMBOL_FAILED);
@@ -2009,11 +2095,11 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
 
       // f@@list
       if(is_string_at(expr, 2, "@@")){
-        pmath_t f =    pmath_expr_get_item(expr, 1);
-        pmath_t list = pmath_expr_get_item(expr, 3);
-        pmath_unref(expr);
+        pmath_t f    = PMATH_NULL;
+        pmath_t list = PMATH_NULL;
 
-        if(parse(&f) && parse(&list)){
+        if(parse_at(&f, expr, 1) && parse_at(&list, expr, 3)){
+          pmath_unref(expr);
           return HOLDCOMPLETE(
             pmath_expr_new_extended(
               pmath_ref(PMATH_SYMBOL_APPLY), 2,
@@ -2023,6 +2109,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
 
         pmath_unref(f);
         pmath_unref(list);
+        pmath_unref(expr);
         return pmath_ref(PMATH_SYMBOL_FAILED);
       }
 
@@ -2031,36 +2118,35 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
         pmath_string_t tag = box_as_string(pmath_expr_get_item(expr, 3));
         if(pmath_is_null(tag))
           goto FAILED;
-
-        box = pmath_expr_get_item(expr, 1);
-        pmath_unref(expr);
-
-        if(parse(&box)){
+        
+        if(parse_at(&box, expr, 1)){
+          pmath_unref(expr);
           return HOLDCOMPLETE(
             pmath_expr_new_extended(
               pmath_ref(PMATH_SYMBOL_MESSAGENAME), 2,
               box,
               tag));
         }
-
-        pmath_unref(box);
+        
         pmath_unref(tag);
+        pmath_unref(expr);
         return pmath_ref(PMATH_SYMBOL_FAILED);
       }
 
       // arg // f
       if(is_string_at(expr, 2, "//")){
-        pmath_t arg = pmath_expr_get_item(expr, 1);
-        pmath_t f   = pmath_expr_get_item(expr, 3);
-        pmath_unref(expr);
+        pmath_t arg = PMATH_NULL;
+        pmath_t f   = PMATH_NULL;
 
-        if(parse(&arg) && parse(&f)){
+        if(parse_at(&arg, expr, 1) && parse_at(&f, expr, 3)){
+          pmath_unref(expr);
           return HOLDCOMPLETE(
             pmath_expr_new_extended(f, 1, arg));
         }
 
         pmath_unref(arg);
         pmath_unref(f);
+        pmath_unref(expr);
         return pmath_ref(PMATH_SYMBOL_FAILED);
       }
 
@@ -2082,42 +2168,43 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
 
       // lhs->rhs  lhs:>rhs  lhs:=rhs  lhs::=rhs  lhs+=rhs  lhs-=lhs  lhs//rhs  lhs..rhs
       if(!pmath_is_null(box)){
-        pmath_string_t lhs = pmath_expr_get_item(expr, 1);
-        pmath_string_t rhs = pmath_expr_get_item(expr, 3);
-        pmath_unref(expr);
+        pmath_string_t lhs;
 
-        if(parse(&lhs)){
+        if(parse_at(&lhs, expr, 1)){
+          pmath_t rhs;
+          
           if(pmath_same(box, PMATH_SYMBOL_ASSIGN)
-          && pmath_is_string(rhs)
-          && pmath_string_length(rhs) == 1
-          && '.' == *pmath_string_buffer(&rhs)){
-            pmath_unref(rhs);
+          && unichar_at(expr, 3) == '.'){
+            pmath_unref(expr);
 
             return HOLDCOMPLETE(
               pmath_expr_new_extended(
                 pmath_ref(PMATH_SYMBOL_UNASSIGN), 1,
                 lhs));
           }
-          else if(parse(&rhs)){
+          
+          if(parse_at(&rhs, expr, 3)){
+            pmath_unref(expr);
             return HOLDCOMPLETE(
               pmath_expr_new_extended(
                 pmath_ref(box), 2,
                 lhs,
                 rhs));
           }
+          
+          pmath_unref(lhs);
         }
 
-        pmath_unref(lhs);
-        pmath_unref(rhs);
+        pmath_unref(expr);
         return pmath_ref(PMATH_SYMBOL_FAILED);
       }
     }
 
     if(exprlen == 4 && unichar_at(expr, 3) == ':'){ // ~x:t  ~~x:t  ~~~x:t
-      pmath_t name = pmath_expr_get_item(expr, 2);
-      pmath_t type = pmath_expr_get_item(expr, 4);
+      pmath_t name = PMATH_NULL;
+      pmath_t type = PMATH_NULL;
 
-      if(!parse(&name) || !parse(&type)){
+      if(!parse_at(&name, expr, 2) || !parse_at(&type, expr, 4)){
         pmath_unref(expr);
         pmath_unref(type);
         pmath_unref(name);
@@ -2172,7 +2259,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
 
     if(exprlen == 5){ // t/:l:=r   t/:l::=r
       if(is_string_at(expr, 2, "/:")){
-        pmath_t tag, lhs, rhs;
+        pmath_t tag, lhs;
 
         if(     unichar_at(expr, 4) == PMATH_CHAR_ASSIGN)        box = PMATH_SYMBOL_TAGASSIGN;
         else if(unichar_at(expr, 4) == PMATH_CHAR_ASSIGNDELAYED) box = PMATH_SYMBOL_TAGASSIGNDELAYED;
@@ -2182,25 +2269,25 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
         if(pmath_is_null(box))
           goto FAILED;
 
-        tag = pmath_expr_get_item(expr, 1);
-        lhs = pmath_expr_get_item(expr, 3);
-        rhs = pmath_expr_get_item(expr, 5);
-        pmath_unref(expr);
+        tag = PMATH_NULL;
+        lhs = PMATH_NULL;
 
-        if(parse(&tag) && parse(&lhs)){
+        if(parse_at(&tag, expr, 1) && parse_at(&lhs, expr, 3)){
+          pmath_t rhs;
+          
           if(pmath_same(box, PMATH_SYMBOL_TAGASSIGN)
-          && pmath_is_string(rhs)
-          && pmath_string_length(rhs) == 1
-          && '.' == *pmath_string_buffer(&rhs)){
-            pmath_unref(rhs);
-
+          && unichar_at(expr, 5) == '.'){
+            pmath_unref(expr);
+            
             return HOLDCOMPLETE(
               pmath_expr_new_extended(
                 pmath_ref(PMATH_SYMBOL_TAGUNASSIGN), 2,
                 tag,
                 lhs));
           }
-          if(parse(&rhs)){
+          
+          if(parse_at(&rhs, expr, 5)){
+            pmath_unref(expr);
             return HOLDCOMPLETE(
               pmath_expr_new_extended(
                 pmath_ref(box), 3,
@@ -2209,10 +2296,10 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
                 rhs));
           }
         }
-
+        
+        pmath_unref(expr);
         pmath_unref(tag);
         pmath_unref(lhs);
-        pmath_unref(rhs);
         return pmath_ref(PMATH_SYMBOL_FAILED);
       }
     }
@@ -2223,10 +2310,9 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
 
       if(secondchar == '+' || secondchar == '-'){
         pmath_expr_t result;
-        pmath_t arg = pmath_expr_get_item(expr, 1);
+        pmath_t arg;
 
-        if(!parse(&arg)){
-          pmath_unref(arg);
+        if(!parse_at(&arg, expr, 1)){
           pmath_unref(expr);
           return pmath_ref(PMATH_SYMBOL_FAILED);
         }
@@ -2239,11 +2325,9 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
           arg);
 
         for(i = 1;i <= exprlen / 2;++i){
-          pmath_t arg = pmath_expr_get_item(expr, 2 * i + 1);
           uint16_t ch;
 
-          if(!parse(&arg)){
-            pmath_unref(arg);
+          if(!parse_at(&arg, expr, 2 * i + 1)){
             pmath_unref(result);
             pmath_unref(expr);
             return pmath_ref(PMATH_SYMBOL_FAILED);
@@ -2286,13 +2370,14 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
 
         result = pmath_expr_new(pmath_ref(box), (1 + exprlen) / 2);
         for(i = 0;i <= exprlen / 2;++i){
-          pmath_t arg = pmath_expr_get_item(expr, 2 * i + 1);
-          if(!parse(&arg)){
-            pmath_unref(arg);
+          pmath_t arg;
+          
+          if(!parse_at(&arg, expr, 2 * i + 1)){
             pmath_unref(result);
             pmath_unref(expr);
             return pmath_ref(PMATH_SYMBOL_FAILED);
           }
+          
           result = pmath_expr_set_item(result, i + 1, arg);
         }
 
@@ -2314,9 +2399,9 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
 
         result = pmath_expr_new(pmath_ref(PMATH_SYMBOL_TIMES), (1 + exprlen) / 2);
         for(i = 0;i <= exprlen / 2;++i){
-          pmath_t arg = pmath_expr_get_item(expr, 2 * i + 1);
-          if(!parse(&arg)){
-            pmath_unref(arg);
+          pmath_t arg;
+          
+          if(!parse_at(&arg, expr, 2 * i + 1)){
             pmath_unref(result);
             pmath_unref(expr);
             return pmath_ref(PMATH_SYMBOL_FAILED);
@@ -2377,13 +2462,14 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
       if(!pmath_is_null(box)){
         pmath_expr_t result = pmath_expr_new(pmath_ref(box), (1 + exprlen) / 2);
         for(i = 0;i <= exprlen / 2;++i){
-          pmath_t arg = pmath_expr_get_item(expr, 2 * i + 1);
-          if(!parse(&arg)){
-            pmath_unref(arg);
+          pmath_t arg;
+          
+          if(!parse_at(&arg, expr, 2 * i + 1)){
             pmath_unref(result);
             pmath_unref(expr);
             return pmath_ref(PMATH_SYMBOL_FAILED);
           }
+          
           result = pmath_expr_set_item(result, i + 1, arg);
         }
 
@@ -2394,53 +2480,55 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
       // relations ...
       box = relation_at(expr, 2);
       if(!pmath_is_null(box)){
-        pmath_expr_t result;
+        pmath_expr_t result = pmath_ref(expr);
 
         for(i = 4;i < exprlen;++i){
           if(!pmath_same(box, relation_at(expr, i))){
-            box = pmath_expr_get_item(expr, 1);
-            if(!parse(&box)){
-              pmath_unref(box);
+            
+            if(!parse_at(&box, expr, 1)){
               pmath_unref(expr);
               return pmath_ref(PMATH_SYMBOL_FAILED);
             }
 
-            expr = pmath_expr_set_item(expr, 1, box);
+            result = pmath_expr_set_item(result, 1, box);
             for(i = 3;i <= exprlen;i+= 2){
               box = relation_at(expr, i - 1);
               if(pmath_is_null(box)){
-                box = expr;
-                expr = pmath_expr_get_item_range(box, i, exprlen);
-                pmath_unref(box);
-                goto FAILED;
-              }
-              expr = pmath_expr_set_item(expr, i - 1, pmath_ref(box));
-
-              box = pmath_expr_get_item(expr, i);
-              if(!parse(&box)){
-                pmath_unref(box);
+                handle_row_error_at(expr, i-1);
                 pmath_unref(expr);
+                pmath_unref(result);
                 return pmath_ref(PMATH_SYMBOL_FAILED);
               }
-              expr = pmath_expr_set_item(expr, i, box);
+              
+              result = pmath_expr_set_item(result, i - 1, pmath_ref(box));
+              
+              if(!parse_at(&box, expr, i)){
+                pmath_unref(expr);
+                pmath_unref(result);
+                return pmath_ref(PMATH_SYMBOL_FAILED);
+              }
+              
+              result = pmath_expr_set_item(result, i, box);
             }
-
+            
+            pmath_unref(expr);
             return HOLDCOMPLETE(
-              pmath_expr_set_item(expr, 0,
+              pmath_expr_set_item(result, 0,
                 pmath_ref(PMATH_SYMBOL_INEQUATION)));
           }
         }
-
-        result = pmath_expr_new(
-          pmath_ref(box), (1 + exprlen) / 2);
+        
+        pmath_unref(result);
+        result = pmath_expr_new(pmath_ref(box), (1 + exprlen) / 2);
         for(i = 0;i <= exprlen / 2;++i){
-          pmath_t arg = pmath_expr_get_item(expr, 2 * i + 1);
-          if(!parse(&arg)){
-            pmath_unref(arg);
+          pmath_t arg;
+          
+          if(!parse_at(&arg, expr, 2 * i + 1)){
             pmath_unref(result);
             pmath_unref(expr);
             return pmath_ref(PMATH_SYMBOL_FAILED);
           }
+          
           result = pmath_expr_set_item(result, i + 1, arg);
         }
 
@@ -2458,15 +2546,18 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
             pmath_expr_get_item(expr, 3)));
 
         if(pmath_is_expr(args)){
-          pmath_t f = pmath_expr_get_item(expr, 1);
-
-          pmath_unref(expr);
-          if(parse(&f))
+          pmath_t f;
+          
+          if(parse_at(&f, expr, 1)){
+            pmath_unref(expr);
             return HOLDCOMPLETE(
               pmath_expr_set_item(args, 0, f));
-
+          }
+          
+          pmath_unref(expr);
           return pmath_ref(PMATH_SYMBOL_FAILED);
         }
+        
         pmath_unref(args);
         pmath_unref(expr);
         return pmath_ref(PMATH_SYMBOL_FAILED);
@@ -2474,9 +2565,9 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
 
       // l[x]
       if(secondchar =='[' && unichar_at(expr, 4) == ']'){
-        pmath_t args;
-        pmath_t list = pmath_expr_get_item(expr, 1);
-        if(!parse(&list)){
+        pmath_t args, list;
+        
+        if(!parse_at(&list, expr, 1)){
           pmath_unref(expr);
           return pmath_ref(PMATH_SYMBOL_FAILED);
         }
@@ -2513,9 +2604,9 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
       // l[[x]]
       if((secondchar == 0x27E6        && unichar_at(expr, 4) == 0x27E7)
       || (is_string_at(expr, 2, "[[") && is_string_at(expr, 4, "]]"))){
-        pmath_t args;
-        pmath_t list = pmath_expr_get_item(expr, 1);
-        if(!parse(&list)){
+        pmath_t args, list;
+        
+        if(!parse_at(&list, expr, 1)){
           pmath_unref(expr);
           return pmath_ref(PMATH_SYMBOL_FAILED);
         }
@@ -2552,15 +2643,17 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
     && secondchar == '.'
     && unichar_at(expr, 4) == '('
     && unichar_at(expr, 5) == ')'){
-      pmath_t arg = pmath_expr_get_item(expr, 1);
-      pmath_t f = pmath_expr_get_item(expr, 3);
-      pmath_unref(expr);
+      pmath_t arg = PMATH_NULL;
+      pmath_t f   = PMATH_NULL;
 
-      if(parse(&arg) && parse(&f))
+      if(parse_at(&arg, expr, 1) && parse_at(&f, expr, 3)){
+        pmath_unref(expr);
         return HOLDCOMPLETE(pmath_expr_new_extended(f, 1, arg));
-
+      }
+      
       pmath_unref(arg);
       pmath_unref(f);
+      pmath_unref(expr);
       return pmath_ref(PMATH_SYMBOL_FAILED);
     }
 
@@ -2570,13 +2663,13 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
     && unichar_at(expr, 4) == '('
     && unichar_at(expr, 6) == ')'){
       pmath_t args;
-      pmath_t arg1 = pmath_expr_get_item(expr, 1);
-      pmath_t f = pmath_expr_get_item(expr, 3);
+      pmath_t arg1 = PMATH_NULL;
+      pmath_t f    = PMATH_NULL;
 
-      if(!parse(&arg1) || !parse(&f)){
+      if(!parse_at(&arg1, expr, 1) || !parse_at(&f, expr, 3)){
         pmath_unref(arg1);
         pmath_unref(f);
-
+        pmath_unref(expr);
         return pmath_ref(PMATH_SYMBOL_FAILED);
       }
 
@@ -2632,10 +2725,8 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
           }
 
           have_arg = TRUE;
-
-          box = pmath_expr_get_item(expr, i);
-          if(!parse(&box)){
-            pmath_unref(box);
+          
+          if(!parse_at(&box, expr, i)){
             pmath_unref(expr);
             pmath_unref(pmath_gather_end());
             return pmath_ref(PMATH_SYMBOL_FAILED);
@@ -2660,8 +2751,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
 
     if(pmath_is_null(box)){
       for(i = 1;i <= exprlen;++i){
-        box = pmath_expr_get_item(expr, i);
-        expr = pmath_expr_set_item(expr, i, PMATH_NULL);
+        box = pmath_expr_extract_item(expr, i);
 
         if(!parse(&box)){
           pmath_unref(box);
@@ -2683,9 +2773,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
 
     i = 1;
     while(i <= exprlen){
-      box = pmath_expr_get_item(expr, i);
-      if(!parse(&box)){
-        pmath_unref(box);
+      if(!parse_at(&box, expr, i)){
         pmath_unref(expr);
         pmath_unref(pmath_gather_end());
         return pmath_ref(PMATH_SYMBOL_FAILED);

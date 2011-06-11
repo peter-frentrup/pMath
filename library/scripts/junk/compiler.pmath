@@ -1,0 +1,404 @@
+
+BeginPackage("Compiler`")
+
+
+TestCompiler
+
+
+Begin("Compiler`Private`")
+
+
+Print("Hello, this is the Compiler Package")
+Print("For Testing, call e.g. ", HoldForm @ TestCompiler({x}, {Real, {Real}}, 3x+Pi))
+
+
+Attributes(TestCompiler):= {HoldAll}
+TestCompiler({~~~vars}, {~tr, ~types:List}, ~body)::= Local({v, code, i},
+	If(Length(HoldComplete(vars)) =!= Length((types)),
+		Message("typs"))
+	
+	resetCompiler();
+	
+	{List @@ HoldComplete(vars).Map(HoldComplete), types}.MapThread(newNamedVar);
+	v:= compile(body);
+	v:= compileCast(tr, v);
+	
+	Do(propagateConstants(i), i->v);
+	
+	resetVisited();
+	code:= Gather(emitCodeId(v))[2];
+	code.Scan(registerSideEffects);
+	
+	resetVisited();
+	code:= Gather(emitCodeId(v))[2];
+	code.Reverse.Scan(inferTypes);
+	
+	Print(Column({"Code:", Grid(code.Map(asNiceCode))}));
+	v
+	)
+
+
+$AllOpCodes:= {
+	OpLoadConst,
+	OpSideEffectConst,
+	OpTrap,
+	OpCast,
+	OpTryCast,
+	OpLoadVar,
+	OpSequence,
+	OpCallNumeric,
+	OpCallUnknown,
+	};
+
+$AllTypes:= {
+	$Aborted
+	None,
+	Integer,
+	Real,
+	Number,
+	Any
+	}
+
+
+Attributes($varId):=        {ThreadLocal}
+Attributes($namedVars):=    {ThreadLocal}
+Attributes(opCodeOf):=      {ThreadLocal}
+Attributes(typeOf):=        {ThreadLocal}
+Attributes(varArgsOf):=     {ThreadLocal}
+Attributes(extraArgsOf):=   {ThreadLocal}
+Attributes(constCache):=    {ThreadLocal}
+Attributes(constValueOf):=  {ThreadLocal}
+
+Attributes(sideEffects):=   {ThreadLocal}
+Attributes(visited):=       {ThreadLocal}
+
+
+resetCompiler()::= (
+	Clear($varId, $namedVars, opCodeOf, typeOf, varArgsOf, extraArgsOf, constCache, constValueOf);
+	$namedVars:= {};
+	$varId:= 0;
+	resetSideEffects();
+	resetVisited();
+	)
+	
+resetSideEffects()::= (
+	Clear(sideEffects);
+	sideEffects(~)::= {};
+	)
+
+
+resetVisited()::= (
+	Clear(visited);
+	visited(~):= False;
+	)
+
+emitCodeId(~i:Integer)::= If(!visited(i),
+	visited(i):= True;
+	varArgsOf(i).Scan(emitCodeId);
+	Emit(i)
+	)
+
+asNiceCode(~i:Integer)::= {i, typeOf(i), SymbolName(Evaluate(opCodeOf(i))), varArgsOf(i), extraArgsOf(i)}
+
+
+contains(~list, ~elem)::=          !IsFreeOf(list, elem)
+containsAny(~list, ~elems:List)::= !IsFreeOf(list, Alternatives @@ elems)
+
+
+Attributes(isConstExpr):= {HoldAllComplete}
+isConstExpr(~e)::= IsFreeOf(HoldComplete, Alternatives @@ $namedVars.Map(#.Apply(HoldPattern) &))
+
+
+newCode(~type, ~opcode, ~args:List, ~extra:List)::= With({id:= ++$varId},
+	typeOf(id):=      type;
+	opCodeOf(id):=    opcode;
+	varArgsOf(id):=   args;
+	extraArgsOf(id):= extra;
+	id
+	)
+
+swapCodeIds(~a, ~b) /? a =!= b ::= (
+	{typeOf(a),      typeOf(b)}:=      {typeOf(b),      typeOf(a)};
+	{opCodeOf(a),    opCodeOf(b)}:=    {opCodeOf(b),    opCodeOf(a)};
+	{varArgsOf(a),   varArgsOf(b)}:=   {varArgsOf(b),   varArgsOf(a)};
+	{extraArgsOf(a), extraArgsOf(b)}:= {extraArgsOf(b), extraArgsOf(a)};
+	{b, a}
+	)
+
+
+Attributes(newNamedVar):= {HoldFirst}
+newNamedVar(HoldComplete(~name), ~type)::= newNamedVar(name, type)
+newNamedVar(~name:Symbol, ~type)::= (
+	$namedVars:= $namedVars.Append(HoldComplete(name));
+	typeOf(HoldComplete(name))::= type)
+
+
+Attributes(canCompileFunction):= {HoldAllComplete}
+canCompileFunction(~f:Symbol)::= Attributes(f).IsFreeOf(HoldAll | HoldFirst | HoldRest | HeldAllComplete)
+canCompileFunction(~):= False
+
+
+Attributes(functionAttributes):= {HoldAllComplete}
+functionAttributes(~f:Symbol)::= Attributes(f)
+functionAttributes(Function(~,~,~att:List))::= att
+functionAttributes(~):= {}
+
+
+Attributes(compile):= {HoldAllComplete}
+compile(~f(~~~args))::= If(canCompileFunction(f), compileFunction(f, compileArgs(args)), compileSpecial(f(args)))
+
+compile(b: True|False)::= compileConst(Boole, b)
+
+compile(~i: Integer)::= compileConst(Integer, i)
+
+compile(~r: Real)::= compileConst(Real, r)
+
+compile(~s: Symbol)::= (
+	If($namedVars.contains(HoldComplete(s)),
+		Return(newCode(typeOf(HoldComplete(s)), OpLoadVar, {}, {Hold(s)})));
+	
+	If(IsNumeric(Unevaluated(s)),
+		Return(compileConst(Number, s)));
+	
+	newCode(All, OpCallUnknown, {}, {s &})
+	)
+
+compile(~x)::= compileTrap("cannot compile access to global `1`", HoldForm(x))
+
+compile(/\/)::= compileConst(Any, /\/)
+
+
+compileConst(~type, ~value)::= With({cc:= constCache(value)},
+	If(cc > 0 && typeOf(cc) === type, Return(cc));
+	
+	constCache(value):= newCode(type, OpLoadConst, {}, {value})
+	)
+
+
+Attributes(compileArgs):= {HoldAllComplete}
+compileArgs(~~~args)::= List @@ HoldComplete(args).Map(compile)
+
+
+Attributes(integerResult):= {HoldAllComplete}
+integerResult(~)::= Number
+integerResult(Plus)::= Integer
+integerResult(Times)::= Integer
+
+
+compileFunction(~f, ~args)::= compileTrap("unknown function `1` of `2`", HoldForm(f), args)
+
+compileFunction(~f, ~args:List)::= With({fa:= functionAttributes(f)},
+	(
+		If(fa.contains(Associative) && Length(args) > 2,
+			Return(compileFunction(f, {First(args), compileFunction(f, Rest(args))})));
+		
+		With({t:= combineTypes @@ Append(args.Map(typeOf), integerResult(f))},
+			With({targs:= args.Map(compileCast(t, #) &)},
+				Return(newCode(t, OpCallNumeric, targs, {f}))
+				));
+		
+		) /? fa.contains(NumericFunction) && !fa.containsAny({NHoldFirst, NHoldRest, NHoldHall})
+	)
+
+compileFunction(~f, ~args)::= newCode(All, OpCallUnknown, args, {f})
+
+compileFunction(N, {~x})::= (
+	If(typeOf(x) === Integer,
+		Return(newCode(Real, OpCast, {x}, {})));
+	
+	If({Real, Number, Complex}.contains(typeOf(x)),
+		Return(x));
+		
+	compileTrap("invalid type `1` for Times", t)
+	)
+
+
+Attributes(compileSpecial):= {HoldAllComplete}
+compileSpecial(~x)::= compileTrap("cannot compile `1`", HoldForm(x))
+
+compileSpecial(EvaluationSequence(~x))::= compile(x)
+compileSpecial(EvaluationSequence(~~x, ~y))::= With({cx:= List @@ HoldComplete(x).Map(compile), cy:= compile(y)},
+	newCode(typeOf(cy), OpSequence, cx.Append(cy), {})
+	)
+
+
+compileTrap(~msg, ~~~args)::= newCode($Aborted, OpTrap, {}, {StringForm(msg, args)})
+
+
+Attributes(combineTypes):= {Symmetric, Associative, OneIdentity}
+combineTypes(~t)::= t
+combineTypes(~t, ~t)::= t
+combineTypes(~, ~)::= $Aborted
+/* combineTypes(None, $Aborted | All)::= None */
+combineTypes(Number, Integer | All):= Number
+combineTypes(Real, Integer | Number | All):= Real
+
+
+compileCast(~t, ~x)::= compileCast(t, typeOf(x), x)
+compileCast(~t, ~t, ~x)::= x
+compileCast(~t, All, ~x)::= newCode(t, OpTryCast, {x}, {})
+compileCast(~tr, ~tx, ~x)::= (
+	If(combineTypes(tr, tx) === tr && tr =!= $Aborted, 
+		Return(newCode(tr, OpCast, {x}, {})));
+		
+	compileTrap("invalid cast `1`", tx -> tr)
+	)
+
+
+isConst(~i)::= HoldComplete @@ {constValueOf(i)} =!= HoldComplete(constValueOf(i))
+
+makeConst(~i, ~v)::= (
+	constValueOf(i):= If(typeOf(i) === Real, N(v), v);
+	opCodeOf(i):= OpSideEffectConst;
+	extraArgsOf(i):= {constValueOf(i)};
+	checkSideEffectConst(i);
+	)
+
+makeTrap(~i, ~msg, ~~~args)::= (
+	typeOf(i):= $Aborted;
+	opCodeOf(i):= OpTrap;
+	varArgsOf(i):= {};
+	extraArgsOf(i):= {StringForm(msg, args)};
+	)
+
+
+propagateConstants(~i)::= If(!isConst(i), 
+		propagateConstants(typeOf(i), opCodeOf(i), varArgsOf(i), extraArgsOf(i), i))
+
+propagateConstants(~t, OpLoadConst, {}, {~v}, ~i)::= makeConst(i, v)
+
+propagateConstants(~t, OpCast, {~c ? isConst}, {}, ~i)::= makeConst(i, constValueOf(c))
+
+propagateConstants(Integer, OpTryCast, {~c ? isConst}, {}, ~i)::= (
+	If(constValueOf(c).IsInteger,
+		Return(makeConst(i, constValueOf(c)))
+		);
+	
+	makeTrap(i, "cast `1` to Integer failed", constValueOf(c))
+	)
+
+propagateConstants(~t, OpSequence, {~~~xs, ~y}, ~, ~i)::= (
+	{xs,y}.Map(propagateConstants);
+	If(y.isConst,
+		extraArgsOf(i):= {constValueOf(y)};
+		constValueOf(i):= constValueOf(y))
+	)
+
+propagateConstants(~t, OpCallNumeric, ~args, {~f}, ~i)::= (
+	If(And @@ args.Map(isConst),
+		makeConst(i, f @@ args.Map(constValueOf))
+		)
+	)
+
+
+inferTypes(~i)::= inferTypes(opCodeOf(i), typeOf(i), varArgsOf(i), extraArgsOf(i), i)
+
+inferTypes(OpLoadConst, Number | All -> t: Real | Integer, {}, ~, ~i)::= (typeOf(i):= t)
+
+inferTypes(OpLoadConst, ~t -> ~, {}, ~, ~i)::= (typeOf(i):= t)
+
+/* inferTypes(OpCast, ~ -> None, {~c}, {}, ~i)::= (
+	typeOf(i):= None;
+	opCodeOf(i):= OpSequence;
+	varArgsOf(i):= sideEffects(c);
+	)*/
+
+inferTypes(OpCast, t: Integer | Real, {~c}, {}, ~i)::= (
+	If({Number, All}.contains(typeOf(c)),
+		opCodeOf(i):= OpSequence;
+		typeOf(c):= typeOf(c) -> t)
+	)
+
+inferTypes(OpCast, Number -> (t: Integer | Real), {~c}, {}, ~i)::= (
+	If(typeOf(c) === Number,
+		typeOf(c):= typeOf(c) -> t;
+		opCodeOf(i):= OpSequence;
+		);
+	typeOf(i):= t;
+	)
+
+/* inferTypes(OpLoadVar, ~ -> None, ~, ~, ~i)::= (
+	typeOf(i):= None;
+	varArgsOf(i):= {};
+	extraArgsOf(i):= {};
+	opCodeOf(i):= OpSequence;
+	)
+*/
+
+inferTypes(OpSideEffectConst, (Number | All) -> (t: Real | Integer), ~, {~c}, ~i)::= (
+	typeOf(i):= t;
+	/* args.Scan((typeOf(#):= typeOf(#) -> None) &);*/
+	If(t === Real,
+		extraArgsOf(i):= N(c))
+	)
+
+/* inferTypes(OpSideEffectConst, ~ -> None, ~args, ~, ~i)::= (
+	typeOf(i):= None;
+	opCodeOf(i):= OpSequence;
+	extraArgsOf(i):= {};
+	args.Scan((typeOf(#):= typeOf(#) -> None) &);
+	)
+
+inferTypes(OpSideEffectConst, Except(~ -> ~), ~args, {~c}, ~i)::= (
+	args.Scan((typeOf(#):= typeOf(#) -> None) &);
+	If(typeOf(i) === Number,
+		If(c.IsInteger,
+			typeOf(i):= Integer);
+		If(c.IsFloat,
+			typeOf(i):= Real);
+		);
+	)
+
+inferTypes(OpCallNumeric, ~ -> None, ~args, ~, ~i)::= (
+	typeOf(i):= None;
+	opCodeOf(i):= OpSequence;
+	extraArgsOf(i):= {};
+	args.Scan((typeOf(#):= typeOf(#) -> None) &);
+	)
+*/
+
+inferTypes(OpCallNumeric, Number -> t: Real | Integer, ~args, ~, ~i)::= (
+	typeOf(i):= t;
+	args.Scan((typeOf(#):= typeOf(#) -> t) &);
+	)
+
+/* inferTypes(OpCallUnknown, ~ -> None, ~args, ~, ~i)::= typeOf(i):= None
+*/
+
+inferTypes(OpSequence, ~ -> ~t, {~~~, ~y}, ~, ~i)::= (
+	typeOf(i):= t;
+	/* {xs}.Scan((typeOf(#):= typeOf(#) -> None)&); */
+	typeOf(y):= (typeOf(y) -> t);
+	)
+
+/* inferTypes(OpSequence, ~, {}, ~, ~i)::= typeOf(i):= None;
+
+inferTypes(OpSequence, Except(~ -> ~), {~~xs, ~}, ~, ~i)::= (
+	{xs}.Scan((typeOf(#):= typeOf(#) -> None)&);
+	)
+*/
+
+inferTypes(~, $Aborted -> ~, ~, ~, ~i)::= typeOf(i):= $Aborted
+inferTypes(~op, t: (~ -> ~), ~, ~, ~i)::= typeOf(i):= makeTrap(i, "infer type `1` in `2`", t, SymbolName(op))
+
+
+registerSideEffects(~i)::= registerSideEffects(opCodeOf(i), typeOf(i), varArgsOf(i), i)
+
+registerSideEffects(OpSequence, Except(None), ~args, ~i)::= (
+	sideEffects(i):= Flatten(args.Most.Map(sideEffects));
+	varArgsOf(i):= sideEffects(i).Append(args.Last);
+	)
+
+registerSideEffects(OpSideEffectConst, ~, ~args, ~i)::= (
+	varArgsOf(i):= sideEffects(i):= Flatten(args.Map(sideEffects))
+	)
+
+registerSideEffects(OpCallUnknown, ~, ~, ~i)::= sideEffects(i):= {i}
+
+registerSideEffects(~, ~, ~args, ~i)::= sideEffects(i):= Flatten(args.Map(sideEffects))
+
+
+End()
+
+
+EndPackage()

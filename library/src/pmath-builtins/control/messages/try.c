@@ -1,5 +1,4 @@
 #include <pmath-language/patterns-private.h>
-#include <pmath-language/scanner.h>
 
 #include <pmath-util/concurrency/threads-private.h>
 #include <pmath-util/evaluation.h>
@@ -9,9 +8,13 @@
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/control/messages-private.h>
 
+
 static void make_critical_message(pmath_t msg){ // msg will be freed
   if(pmath_is_symbol(msg)){
-    PMATH_RUN_ARGS("Internal`IsCriticalMessage(HoldPattern(MessageName(`1`, ~))):= True", "(o)", msg);
+    msg = pmath_expr_new_extended(
+      pmath_ref(PMATH_SYMBOL_MESSAGENAME), 2,
+      msg,
+      pmath_ref(_pmath_object_singlematch));
   }
   else{
     pmath_t sym = pmath_expr_get_item(msg, 1);
@@ -19,9 +22,23 @@ static void make_critical_message(pmath_t msg){ // msg will be freed
     
     if(pmath_same(sym, PMATH_SYMBOL_GENERAL))
       msg = pmath_expr_set_item(msg, 1, pmath_ref(_pmath_object_singlematch));
-    
-    PMATH_RUN_ARGS("Internal`IsCriticalMessage(HoldPattern(`1`)):= True", "(o)", msg);
   }
+    
+  // Internal`IsCriticalMessage(HoldPattern(msg)):= True
+  msg = pmath_expr_new_extended(
+    pmath_ref(PMATH_SYMBOL_HOLDPATTERN), 1,
+    msg);
+  
+  msg = pmath_expr_new_extended(
+    pmath_ref(PMATH_SYMBOL_INTERNAL_ISCRITICALMESSAGE), 1,
+    msg);
+  
+  msg = pmath_expr_new_extended(
+    pmath_ref(PMATH_SYMBOL_ASSIGN), 2,
+    msg,
+    pmath_ref(PMATH_SYMBOL_TRUE));
+  
+  pmath_unref(pmath_evaluate(msg));
 }
 
 PMATH_PRIVATE pmath_t builtin_try(pmath_expr_t expr){
@@ -116,7 +133,19 @@ PMATH_PRIVATE pmath_t builtin_try(pmath_expr_t expr){
     }
   }
   else{
-    PMATH_RUN("Internal`IsCriticalMessage(~):= True");
+    // Internal`IsCriticalMessage(~):= True
+    pmath_t tmp;
+    
+    tmp = pmath_expr_new_extended(
+      pmath_ref(PMATH_SYMBOL_INTERNAL_ISCRITICALMESSAGE), 1,
+      pmath_ref(_pmath_object_singlematch));
+    
+    tmp = pmath_expr_new_extended(
+      pmath_ref(PMATH_SYMBOL_ASSIGN), 2,
+      tmp,
+      pmath_ref(PMATH_SYMBOL_TRUE));
+    
+    pmath_unref(pmath_evaluate(tmp));
   }
   
   old_critical_messages = thread->critical_messages;
@@ -160,7 +189,20 @@ PMATH_PRIVATE pmath_t builtin_try(pmath_expr_t expr){
   pmath_unref(messages);
   pmath_unref(failexpr);
   
-  PMATH_RUN_ARGS("DownRules(Internal`IsCriticalMessage):= `1`", "(o)", old_downrules);
+  { // DownRules(Internal`IsCriticalMessage):= old_downrules
+    pmath_t tmp;
+    
+    tmp = pmath_expr_new_extended(
+      pmath_ref(PMATH_SYMBOL_DOWNRULES), 1, 
+      pmath_ref(PMATH_SYMBOL_INTERNAL_ISCRITICALMESSAGE));
+    
+    tmp = pmath_expr_new_extended(
+      pmath_ref(PMATH_SYMBOL_ASSIGN), 2, 
+      tmp,
+      old_downrules);
+    
+    pmath_unref(pmath_evaluate(tmp));
+  }
   
   if(!pmath_same(exception, PMATH_UNDEFINED))
     _pmath_thread_throw(thread, exception);

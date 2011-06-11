@@ -1808,7 +1808,8 @@ static pmath_t column_to_boxes(
   if(pmath_expr_length(expr) == 1){
     pmath_t list = pmath_expr_get_item(expr, 1);
     
-    if(pmath_is_expr_of(list, PMATH_SYMBOL_LIST)){
+    if(pmath_is_expr_of(list, PMATH_SYMBOL_LIST)
+    && pmath_expr_length(list) > 0){
       size_t i;
       
       pmath_unref(expr);
@@ -1888,7 +1889,9 @@ static pmath_t grid_to_boxes(
       pmath_unref(obj);
       obj = pmath_expr_get_item(expr, 1);
       
-      if(_pmath_is_matrix(obj, &rows, &cols, FALSE)){
+      if(_pmath_is_matrix(obj, &rows, &cols, FALSE)
+      && rows > 0 
+      && cols > 0){
         size_t i, j;
         
         expr = pmath_expr_set_item(expr, 1, PMATH_NULL);

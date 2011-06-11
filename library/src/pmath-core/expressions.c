@@ -1725,6 +1725,16 @@ static void write_expr_ex(
     if(priority > PRIO_COLON)
       WRITE_CSTR(")");
   }
+  else if(pmath_same(head, PMATH_SYMBOL_RAWBOXES)){
+    pmath_t item;
+    
+    if(exprlen != 1)
+      goto FULLFORM;
+    
+    item = pmath_expr_get_item(expr, 1);
+    _pmath_write_boxes(info, item);
+    pmath_unref(item);
+  }
   else if(pmath_same(head, PMATH_SYMBOL_ROW)){
     pmath_expr_t list;
     pmath_t obj;

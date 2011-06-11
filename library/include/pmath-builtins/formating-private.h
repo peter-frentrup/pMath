@@ -22,13 +22,18 @@ PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
 PMATH_ATTRIBUTE_NONNULL(1)
 pmath_bool_t _pmath_stringform_write(
-  struct pmath_write_ex_t *info,
+  struct pmath_write_ex_t  *info,
   pmath_expr_t              stringform); // wont be freed
 
 PMATH_PRIVATE 
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_t _pmath_stringform_to_boxes(
   pmath_expr_t  stringform); // stringform wont be freed
+
+/* actually in pmath-core/string.c Should move to own file or stringform.c */
+PMATH_PRIVATE 
+PMATH_ATTRIBUTE_NONNULL(1)
+void _pmath_write_boxes(struct pmath_write_ex_t *info, pmath_t box);
 
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
