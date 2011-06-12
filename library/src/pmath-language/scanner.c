@@ -1513,17 +1513,24 @@ static void parse_rest(parser_t *parser, int lhs, int min_prec){
         pmath_bool_t  oldnl  = parser->last_was_newline;
         int           oldss  = parser->last_space_start;
         int           oldpos = parser->tokens.pos;
-
+        
         if(cur_prec < min_prec)
           break;
-
+        
         skip_to(parser, -1, next, TRUE);
-
+        
         next2 = next_token_pos(parser);
         tok2  = token_analyse(parser, next2, NULL);
         if(!pmath_token_maybe_first(tok2)){
           if(tok == PMATH_TOK_BINARY_LEFT_AUTOARG
           || tok == PMATH_TOK_NARY_AUTOARG){
+            if(cur_prec < last_prec){
+              int pos = parser->tokens.pos;
+              parser->tokens.pos = oldpos;
+              span(&parser->tokens, lhs);
+              parser->tokens.pos = pos;
+            }
+            
             span(&parser->tokens, lhs);
           }
           else{
@@ -1532,7 +1539,7 @@ static void parse_rest(parser_t *parser, int lhs, int min_prec){
             span(&parser->tokens, lhs);
             skip_to(parser, lhs, next, TRUE);
           }
-
+          
           next           = next2;
           last_tok_start = parser->tokens.pos;
           last_tok_end   = next;
