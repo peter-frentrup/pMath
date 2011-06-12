@@ -11,7 +11,7 @@
 #include <pmath-builtins/lists-private.h>
 
 static pmath_t replace_purearg(
-  pmath_t     function,  // will be freed
+  pmath_t      function,  // will be freed
   pmath_expr_t arguments  // wont be freed
 ){
   pmath_bool_t do_flatten = FALSE;
@@ -21,19 +21,27 @@ static pmath_t replace_purearg(
   if(!pmath_is_expr(function))
     return function;
 
+  head = pmath_expr_get_item(function, 0);
   len = pmath_expr_length(function);
   
-  head = replace_purearg(
-    pmath_expr_get_item(function, 0),
-    arguments);
+  if(pmath_same(head, PMATH_SYMBOL_FUNCTION)){
+    pmath_unref(head);
+    if(len == 1)
+      return function;
     
-  function = pmath_expr_set_item(function, 0, head);
-
-  if(len == 1 && pmath_same(head, PMATH_SYMBOL_PUREARGUMENT)){
+    head = pmath_expr_get_item(function, 1);
+    pmath_unref(head);
+    
+    if(pmath_same(head, PMATH_NULL))
+      return function;
+  }
+  else if(len == 1 && pmath_same(head, PMATH_SYMBOL_PUREARGUMENT)){
     pmath_bool_t reverse;
     pmath_t pos = pmath_expr_get_item(function, 1);
     size_t min = 1;
     size_t max = pmath_expr_length(arguments);
+    
+    pmath_unref(head);
     
     if(extract_range(pos, &min, &max, TRUE)){
       pmath_unref(pos);
@@ -67,6 +75,11 @@ static pmath_t replace_purearg(
     
     pmath_unref(pos);
   }
+  else{
+    head = replace_purearg(head, arguments);
+    
+    function = pmath_expr_set_item(function, 0, head);
+  }
 
   for(i = 1;i <= len;++i){
     pmath_t item = replace_purearg(
@@ -79,12 +92,13 @@ static pmath_t replace_purearg(
     function = pmath_expr_set_item(function, i, item);
   }
   
-  if(do_flatten)
+  if(do_flatten){
     return pmath_expr_flatten(
       function,
       PMATH_UNDEFINED,
       1);
-      
+  }
+  
   return function;
 }
 
