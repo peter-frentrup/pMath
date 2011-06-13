@@ -120,6 +120,8 @@ BaseForm::basf:= "Requested base `1` should be an integer between 2 and `2`."
 BinaryRead::format:= BinaryWrite::format:= "`1` is not a recognized binary format."
 BinaryWrite::nocoerce:= "`1` cannot be coerced to the specified format `2`."
 
+Block::lvsym:= "Local variable specification `1` contains `2`, which is not a symbol or an assignment to a symbol."
+
 Break::nofwd:= Continue::nofwd:= "No surrounding For, While or Do found for `1`."
 
 $CurrentNamespace::nsset:= "Cannot set $CurrentNamespace to `1`; value is not a parsable context name ending in `"

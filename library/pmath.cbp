@@ -479,6 +479,9 @@
 		<Unit filename="src\pmath-builtins\control\filterrules.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="src\pmath-builtins\control\flow\block.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="src\pmath-builtins\control\flow\do.c">
 			<Option compilerVar="CC" />
 		</Unit>

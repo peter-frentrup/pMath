@@ -1184,37 +1184,63 @@ PMATH_PRIVATE pmath_expr_t _pmath_expr_thread(
 
 /*----------------------------------------------------------------------------*/
 
+  static pmath_bool_t has_changed(
+    pmath_t        obj,            // will be freed
+    _pmath_timer_t current_time
+  ){
+    if(pmath_is_symbol(obj)){
+      pmath_bool_t result = (((struct _pmath_timed_t*)PMATH_AS_PTR(obj))->last_change > current_time);
+      pmath_unref(obj);
+      return result;
+    }
+    
+    if(pmath_is_expr(obj)){
+      size_t i, len;
+      
+      if(((struct _pmath_timed_t*)PMATH_AS_PTR(obj))->last_change > current_time){
+        pmath_unref(obj);
+        return TRUE;
+      }
+      
+      len = pmath_expr_length(obj);
+      for(i = 0;i <= len;++i){
+        pmath_t item = pmath_expr_get_item(obj, i);
+        
+        if(has_changed(item, current_time)){
+          pmath_unref(obj);
+          return TRUE;
+        }
+      }
+    }
+    
+    pmath_unref(obj);
+    return FALSE;
+  }
+  
 PMATH_PRIVATE pmath_bool_t _pmath_expr_is_updated(
   pmath_expr_t expr
 ){
   size_t i, len;
+  _pmath_timer_t current_time;
   
   if(PMATH_UNLIKELY(pmath_is_null(expr)))
     return TRUE;
     
   assert(pmath_is_expr(expr));
   
-  if(((struct _pmath_timed_t*)PMATH_AS_PTR(expr))->last_change < 0)
+  current_time = ((struct _pmath_timed_t*)PMATH_AS_PTR(expr))->last_change;
+  if(current_time < 0)
     return FALSE;
   
-//  if(((struct _pmath_expr_t*)expr)->last_change == 0)
-//    return FALSE;
-//  
-//  if(last_change == (uintptr_t)global_update_counter)
-//    return TRUE;
+  if(current_time >= _pmath_timer_get())
+    return TRUE;
   
   len = pmath_expr_length(expr);
-  
   for(i = 0;i <= len;i++){
     pmath_t item = pmath_expr_get_item(expr, i);
     
-    if((pmath_is_symbol(item) || pmath_is_expr(item))
-    && ((struct _pmath_timed_t*)PMATH_AS_PTR(item))->last_change > ((struct _pmath_timed_t*)PMATH_AS_PTR(expr))->last_change){
-      pmath_unref(item);
+    if(has_changed(item, current_time))
       return FALSE;
-    }
-    
-    pmath_unref(item);
   }
   
   return TRUE;

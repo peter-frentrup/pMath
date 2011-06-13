@@ -195,6 +195,7 @@ PMATH_PRIVATE pmath_t builtin_evaluationsequence(pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_function(     pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_call_function(pmath_expr_t expr);
 
+PMATH_PRIVATE pmath_t builtin_block(pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_local(pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_with( pmath_expr_t expr);
 
@@ -708,6 +709,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   VERIFY(   PMATH_SYMBOL_BOXDATA                   = NEW_SYSTEM_SYMBOL("BoxData"))
   VERIFY(   PMATH_SYMBOL_BOXROTATION               = NEW_SYSTEM_SYMBOL("BoxRotation"))
   VERIFY(   PMATH_SYMBOL_BOXTRANSFORMATION         = NEW_SYSTEM_SYMBOL("BoxTransformation"))
+  VERIFY(   PMATH_SYMBOL_BLOCK                     = NEW_SYSTEM_SYMBOL("Block"))
   VERIFY(   PMATH_SYMBOL_BREAK                     = NEW_SYSTEM_SYMBOL("Break"))
   VERIFY(   PMATH_SYMBOL_BUTTON                    = NEW_SYSTEM_SYMBOL("Button"))
   VERIFY(   PMATH_SYMBOL_BUTTONBOX                 = NEW_SYSTEM_SYMBOL("ButtonBox"))
@@ -1362,6 +1364,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
     BIND_DOWN(   PMATH_SYMBOL_BITNOT,                      builtin_bitnot)
     BIND_DOWN(   PMATH_SYMBOL_BITOR,                       builtin_bitor)
     BIND_DOWN(   PMATH_SYMBOL_BITXOR,                      builtin_bitxor)
+    BIND_DOWN(   PMATH_SYMBOL_BLOCK,                       builtin_block)
     BIND_DOWN(   PMATH_SYMBOL_BOOLE,                       builtin_boole)
     BIND_DOWN(   PMATH_SYMBOL_BREAK,                       general_builtin_zeroonearg)
     BIND_DOWN(   PMATH_SYMBOL_BUTTON,                      builtin_button)
@@ -1731,6 +1734,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   SET_ATTRIB( PMATH_SYMBOL_BITNOT,                           ASSOCIATIVE | DEFINITEFUNCTION | HOLDALL | LISTABLE | ONEIDENTITY);
   SET_ATTRIB( PMATH_SYMBOL_BITOR,                            ASSOCIATIVE | DEFINITEFUNCTION | HOLDALL | LISTABLE | ONEIDENTITY);
   SET_ATTRIB( PMATH_SYMBOL_BITXOR,                           ASSOCIATIVE | DEFINITEFUNCTION | HOLDALL | LISTABLE | ONEIDENTITY);
+  SET_ATTRIB( PMATH_SYMBOL_BLOCK,                            HOLDALL);
   SET_ATTRIB( PMATH_SYMBOL_BOOLE,                            DEFINITEFUNCTION | LISTABLE);
   SET_ATTRIB( PMATH_SYMBOL_MAKEEXPRESSION,                   READPROTECTED);
   SET_ATTRIB( PMATH_SYMBOL_BUTTON,                           HOLDREST);

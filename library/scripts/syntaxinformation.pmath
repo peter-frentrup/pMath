@@ -33,6 +33,7 @@
 {"BitNot", {"ArgumentCount" -> 1}},
 {"BitOr", {"ArgumentCount" -> 2..}},
 {"BitXor", {"ArgumentCount" -> 2..}},
+{"Block", {"ArgumentCount" -> 2, "LocalVariables" -> {"Local", 1}}},
 {"Boole", {"ArgumentCount" -> 1}},
 {"Break", {"ArgumentCount" -> 0..1}},
 {"Button", {"ArgumentCount" -> 2}},
