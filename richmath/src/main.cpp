@@ -52,6 +52,13 @@
   #include <gtk/gtk.h>
 #endif
 
+
+
+#ifdef _MSC_VER
+  #define snprintf sprintf_s
+#endif
+
+
 using namespace richmath;
 
 static void write_section(Document *doc, Expr expr){
@@ -494,7 +501,7 @@ int main(int argc, char **argv){
 
   if(cairo_version() < CAIRO_VERSION_ENCODE(1,10,0)){
     char str[200];
-    sprintf(str,
+    snprintf(str, sizeof(str),
       "Cairo Version 1.10.0 or newer needed, but only %s found.",
       pango_version_string());
 
@@ -504,7 +511,7 @@ int main(int argc, char **argv){
 
   if(pango_version() < PANGO_VERSION_ENCODE(1,28,0)){
     char str[200];
-    sprintf(str,
+    snprintf(str, sizeof(str),
       "Pango Version 1.28.0 or newer needed, but only %s found.",
       pango_version_string());
 

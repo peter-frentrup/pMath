@@ -1196,11 +1196,26 @@ pmath_string_t MathSequence::underoverscriptbox_at_index(int i, void *_data){
 void MathSequence::syntax_error(pmath_string_t code, int pos, void *_data, pmath_bool_t err){
   ScanData *data = (ScanData*)_data;
   
+  if(!data->sequence->get_style(ShowAutoStyles))
+    return;
+  
+  const uint16_t *buf = pmath_string_buffer(&code);
+  int             len = pmath_string_length(code);
+  
   if(err){
     if(pos < data->sequence->glyphs.length()
-    && data->sequence->glyphs.length() > 1
-    && data->sequence->get_style(ShowAutoStyles)){
+    && data->sequence->glyphs.length() > pos){
       data->sequence->glyphs[pos].style = GlyphStyleSyntaxError;
+    }
+  }
+  else if(pos < len && buf[pos] == '\n'){ // new line character interpreted as multiplication
+    while(pos > 0 && buf[pos] == '\n')
+      --pos;
+    
+    if(pos >= 0 
+    && pos < data->sequence->glyphs.length()
+    && data->sequence->glyphs.length() > pos){
+      data->sequence->glyphs[pos].missing_after = true;
     }
   }
 }

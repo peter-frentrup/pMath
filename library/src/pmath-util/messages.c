@@ -299,6 +299,9 @@ PMATH_API void pmath_message_syntax_error(
       while(eol < len && str[eol] != '\n')
         ++eol;
       
+      if(eol1 < position)
+        ++eol1;
+      
       before = pmath_string_part(pmath_ref(code), bol, eol1 - bol); // eol1-bol+1
       if(str[position] == '\n'){
         if(pmath_is_null(filename)){

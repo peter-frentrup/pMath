@@ -230,6 +230,19 @@ static void handle_error(parser_t *parser){
     parser->error(parser->code, parser->tokens.pos, parser->data, TRUE);
 }
 
+static void handle_newline_multiplication(parser_t *parser){
+  int i;
+  
+  if(!parser->error || parser->tokens.in_comment)
+    return;
+  
+  i = parser->tokens.pos-1;
+  while(i >= 0 && parser->tokens.str[i] != '\n')
+    --i;
+  
+  parser->error(parser->code, i, parser->data, FALSE);
+}
+
 static pmath_bool_t enter(parser_t *parser){
   if(parser->stack_error)
     return FALSE;
@@ -1499,6 +1512,9 @@ static void parse_rest(parser_t *parser, int lhs, int min_prec){
       case PMATH_TOK_INTEGRAL: {
         if(PMATH_PREC_MUL < min_prec)
           break;
+        
+        if(parser->last_was_newline)
+          handle_newline_multiplication(parser);
 
         cur_prec = PMATH_PREC_MUL;
         tok      = PMATH_TOK_NARY;
