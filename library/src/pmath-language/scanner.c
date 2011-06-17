@@ -1969,6 +1969,7 @@ typedef struct{
   int                  pos;
   void               (*make_box)(int,pmath_t,void*);
   void                *data;
+  pmath_bool_t         split_tokens;
 }_pmath_ungroup_t;
 
 static int ungrouped_string_length(pmath_t box){ // box wont be freed
@@ -2089,15 +2090,21 @@ static void ungroup(
       else
         g->str[g->pos++] = str[i++];
     }
-
-    memset(&tokens, 0, sizeof(tokens));
-    tokens.str        = g->str;
-    tokens.span_items = g->spans->items;
-    tokens.pos        = start;
-    tokens.len        = g->pos;
-    while(tokens.pos < tokens.len)
-      scan_next(&tokens, NULL);
-
+    
+    if(g->split_tokens){
+      memset(&tokens, 0, sizeof(tokens));
+      tokens.str        = g->str;
+      tokens.span_items = g->spans->items;
+      tokens.pos        = start;
+      tokens.len        = g->pos;
+      while(tokens.pos < tokens.len)
+        scan_next(&tokens, NULL);
+    }
+    else{
+      g->spans->items[start]|= 2;    // operand start
+      g->spans->items[g->pos-1]|= 1; // token end
+    }
+    
     pmath_unref(box);
     return;
   }
@@ -2110,12 +2117,37 @@ static void ungroup(
       size_t i, len;
       int start = g->pos;
 
-      len = pmath_expr_length(box);
-      for(i = 1;i <= len;++i)
-        ungroup(g, pmath_expr_get_item(box, i));
-
 	    g->spans->items[start]|= 2; // operand start
 
+      len = pmath_expr_length(box);
+      
+      if(len == 2){
+        pmath_t first  = pmath_expr_get_item(box, 1);
+        pmath_t second = pmath_expr_get_item(box, 2);
+        
+        if(pmath_is_string(first) 
+        && pmath_is_string(second)
+        && (pmath_string_equals_latin1(first, "<<") 
+         || pmath_string_equals_latin1(first, "??"))){
+          pmath_bool_t old_split_tokens = g->split_tokens;
+          g->split_tokens = FALSE;
+          
+          ungroup(g, first);
+          ungroup(g, second);
+          
+          g->split_tokens = old_split_tokens;
+          goto AFTER_UNGROUP;
+        }
+        
+        pmath_unref(first);
+        pmath_unref(second);
+      }
+      
+      for(i = 1;i <= len;++i)
+        ungroup(g, pmath_expr_get_item(box, i));
+      
+     AFTER_UNGROUP:
+      
       if(len >= 1
       && start < g->pos
       && pmath_same(head, PMATH_SYMBOL_LIST)){
@@ -2196,10 +2228,11 @@ PMATH_API pmath_span_array_t *pmath_spans_from_boxes(
     return NULL;
   }
 
-  g.str      = (uint16_t*)pmath_string_buffer(result_string);
-  g.pos      = 0;
-  g.make_box = make_box;
-  g.data     = data;
+  g.str          = (uint16_t*)pmath_string_buffer(result_string);
+  g.pos          = 0;
+  g.make_box     = make_box;
+  g.data         = data;
+  g.split_tokens = TRUE;
 
   ungroup(&g, boxes);
 

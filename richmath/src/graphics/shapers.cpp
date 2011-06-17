@@ -70,6 +70,9 @@ void TextShaper::vertical_glyph_size(
   cg.x = 0;
   cg.y = 0;
   
+  if(ch == '\n')
+    return;
+  
   context->canvas->set_font_face(font(info.fontinfo));
   cg.index = info.index;
   context->canvas->glyph_extents(&cg, 1, &cte);
