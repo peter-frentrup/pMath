@@ -2101,7 +2101,7 @@ static void ungroup(
         scan_next(&tokens, NULL);
     }
     else{
-      g->spans->items[start]|= 2;    // operand start
+      g->spans->items[start]   |= 2; // operand start
       g->spans->items[g->pos-1]|= 1; // token end
     }
     

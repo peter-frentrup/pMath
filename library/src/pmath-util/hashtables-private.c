@@ -3,14 +3,15 @@
 #include <pmath-util/debug.h>
 #include <pmath-util/memory.h>
 
+#include <limits.h>
 #include <string.h>
 
 
 #define HT_MINSIZE   (8)  /* power of 2, >= 2 */
 
-#define DELETED_ENTRY  ((void*)(-(uintptr_t)1)) /* 0xFFF...FF = -1 */
+#define DELETED_ENTRY  ((void*)UINTPTR_MAX) /* 0xFFF...FF = -1 */
 
-#define IS_USED_ENTRY(e)  (((uintptr_t)(e))+1 > 1) /* ((e) && (e) != DELETED_ENTRY) */
+#define IS_USED_ENTRY(e)  (((uintptr_t)(e))+1U > 1U) /* ((e) && (e) != DELETED_ENTRY) */
 
 struct _pmath_hashtable_t{
   const pmath_ht_class_t *klass;
@@ -30,7 +31,7 @@ static unsigned int lookup(
   unsigned int      (*hash)(void*),
   pmath_bool_t      (*entry_equals_key)(void*,void*)
 ){
-  unsigned int freeslot = -(unsigned int)1;
+  unsigned int freeslot = UINT_MAX;
   unsigned int h, index;
   
   assert(ht != NULL);
@@ -40,13 +41,13 @@ static unsigned int lookup(
   
   for(;;){
     if(!ht->table[index]){
-      if(freeslot == -(unsigned int)1)
+      if(freeslot == UINT_MAX)
         return index;
       return freeslot;
     }
     
     if(ht->table[index] == DELETED_ENTRY){
-      if(freeslot == -(unsigned int)1)
+      if(freeslot == UINT_MAX)
         freeslot = index;
     }
     else if(entry_equals_key(ht->table[index], key_or_entry))

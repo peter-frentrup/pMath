@@ -774,7 +774,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr){
       return HOLDCOMPLETE(
         pmath_expr_new_extended(
           pmath_ref(PMATH_SYMBOL_HISTORY), 1,
-          PMATH_FROM_INT32(-(int)len)));
+          PMATH_FROM_INT32(-len)));
     }
 
     if(tok == PMATH_TOK_NAME2){

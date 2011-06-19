@@ -215,7 +215,7 @@ static pmath_atomic_t mp_cache_misses = PMATH_ATOMIC_STATIC_INIT;
       pmath_atomic_write_release(&f->inherited.refcount, 1);
       
       mpfr_set_prec(f->value, precision);
-      mpfr_set_ui_2exp(f->error, 1, -(mp_exp_t)precision-1, MPFR_RNDU);
+      mpfr_set_ui_2exp(f->error, 1, -precision-1, MPFR_RNDU);
       return PMATH_FROM_PTR(f);
     }
     else{
@@ -233,7 +233,7 @@ static pmath_atomic_t mp_cache_misses = PMATH_ATOMIC_STATIC_INIT;
 
     mpfr_init2(f->value, precision);
     mpfr_init2(f->error, PMATH_MP_ERROR_PREC);
-    mpfr_set_ui_2exp(f->error, 1, -(mp_exp_t)precision-1, MPFR_RNDU);
+    mpfr_set_ui_2exp(f->error, 1, -precision-1, MPFR_RNDU);
 
     return PMATH_FROM_PTR(f);
   }
