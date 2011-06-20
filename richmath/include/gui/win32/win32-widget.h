@@ -51,6 +51,7 @@ namespace richmath{
       
       virtual void close(){}
       virtual void invalidate();
+      virtual void invalidate_rect(float x, float y, float w, float h);
       virtual void force_redraw();
       
       virtual void set_cursor(CursorType type);

@@ -249,6 +249,22 @@ void Win32Widget::invalidate(){
   InvalidateRect(_hwnd, 0, FALSE);
 }
 
+void Win32Widget::invalidate_rect(float x, float y, float w, float h){
+  is_painting = false; // if inside WM_PAINT, invalidate at end of event
+
+  float sx, sy, sf;
+  scroll_pos(&sx, &sy);
+  sf = scale_factor();
+  
+  RECT rect;
+  rect.left   = (int)floorf((x - sx) * sf) - 4;
+  rect.top    = (int)floorf((y - sy) * sf) - 4;
+  rect.right  = rect.left + (int)ceilf(w * sf) + 8;
+  rect.bottom = rect.top  + (int)ceilf(h * sf) + 8;
+  
+  InvalidateRect(_hwnd, &rect, FALSE);
+}
+
 void Win32Widget::force_redraw(){
   RECT rect;
   GetClientRect(_hwnd, &rect);
