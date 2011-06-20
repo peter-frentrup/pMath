@@ -105,6 +105,8 @@ namespace richmath{
       void update_group_nesting_part(int *pos, int current_nesting);
       void update_section_visibility();
       
+      virtual bool request_repaint_range(int start, int end);
+      
       void init_section_bracket_sizes(Context *context);
       void resize_section(Context *context, int i);
       void paint_section(Context *context, int i, float scrollx);

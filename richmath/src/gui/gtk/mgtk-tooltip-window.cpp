@@ -115,8 +115,12 @@ void MathGtkTooltipWindow::resize(bool just_move){
   GdkRectangle monitor_rect;
   gdk_screen_get_monitor_geometry(screen, monitor, &monitor_rect);
   
-  const int cx = 16;
-  const int cy = 16;
+   /* Ubuntu 11.04: When there is a screen update near the mouse (radius ~25px), it is hidden :-( 
+      Otherwise we would use a value of 16 or better the actual cursor_size
+      I don't know where that value comes from or where one could set it.
+   */
+  const int cx = 26;
+  const int cy = 26;
   
   bool align_left = true;
   bool align_top  = true;

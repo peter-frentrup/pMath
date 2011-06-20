@@ -305,6 +305,23 @@ void MathGtkWidget::invalidate(){
   gtk_widget_queue_draw(_widget);
 }
 
+void MathGtkWidget::invalidate_rect(float x, float y, float w, float h){
+  if(!_widget)
+    return;
+
+  is_painting = false; // if inside "expose" event, invalidate at end of event
+
+  float sx, sy, sf;
+  scroll_pos(&sx, &sy);
+  sf = scale_factor();
+  
+  gtk_widget_queue_draw_area(_widget, 
+    (int)floorf((x - sx) * sf) - 4,
+    (int)floorf((y - sy) * sf) - 4,
+    (int)ceilf(w * sf) + 8,
+    (int)ceilf(h * sf) + 8);
+}
+
 void MathGtkWidget::force_redraw(){
   invalidate();
 }
@@ -314,7 +331,7 @@ void MathGtkWidget::set_cursor(CursorType type){
 
   if(mouse_moving || !_widget)
     return;
-
+  
   GdkWindow *win = gtk_widget_get_window(_widget);
 
   GdkCursor *cur = cursors.get_gdk_cursor(type);
@@ -811,7 +828,8 @@ bool MathGtkWidget::on_expose(GdkEvent *e){
 
   if(!is_painting)
     invalidate();
-
+  
+//  set_cursor(cursor);
   is_painting = false;
 
   return true;
@@ -1147,7 +1165,7 @@ gboolean MathGtkWidget::blink_caret(gpointer id_as_ptr){
 
       Box *box = ctx->selection.get();
       if(box)
-        box->request_repaint_all();
+        box->request_repaint_range(ctx->selection.start, ctx->selection.end);
 
 
       wid->is_blinking = false;

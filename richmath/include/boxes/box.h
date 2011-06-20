@@ -162,6 +162,7 @@ namespace richmath{
       virtual void dynamic_updated();
       virtual void dynamic_finished(Expr info, Expr result){}
       bool         request_repaint_all();
+      virtual bool request_repaint_range(int start, int end);
       virtual bool request_repaint(float x, float y, float w, float h);
       virtual void invalidate();
       virtual bool edit_selection(Context *context); // *not* automatically called
@@ -251,6 +252,10 @@ namespace richmath{
       
       float get_em(){ return em; }
       virtual int get_line(int index, int guide = 0) = 0; // 0, 1, ...
+      
+      virtual void get_line_heights(int line, float *ascent, float *descent) = 0;
+      
+      virtual bool request_repaint_range(int start, int end);
       
     protected:
       float em;

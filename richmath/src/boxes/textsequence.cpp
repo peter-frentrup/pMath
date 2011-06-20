@@ -953,7 +953,7 @@ Box *TextSequence::normalize_selection(int *start, int *end){
 
   return this;
 }
-
+ 
 PangoLayoutIter *TextSequence::get_iter(){
   ensure_text_valid();
   return pango_layout_get_iter(_layout);
@@ -963,6 +963,20 @@ int TextSequence::get_line(int index, int guide){
   int line = guide, x;
   pango_layout_index_to_line_x(_layout, index, 0, &line, &x);
   return line;
+}
+
+void TextSequence::get_line_heights(int line, float *ascent, float *descent){
+  if(line < 0 || line >= line_y_corrections.length()){
+    *ascent  = 0;
+    *descent = 0;
+    return;
+  }
+  
+  BoxSize size;
+  float x, y;
+  line_extents(line, &x, &y, &size);
+  *ascent  = size.ascent;
+  *descent = size.descent;
 }
 
 void TextSequence::line_extents(PangoLayoutIter *iter, int line, float *x, float *y, BoxSize *size){
@@ -984,9 +998,12 @@ void TextSequence::line_extents(PangoLayoutIter *iter, int line, float *x, float
 
   if(x)
     *x = pango_units_to_double(logic.x);
-
+  
+  if(line < line_y_corrections.length())
+    base-= line_y_corrections[line];
+  
   if(y)
-    *y = pango_units_to_double(base - line_y_corrections[line]) - _extents.ascent;
+    *y = pango_units_to_double(base) - _extents.ascent;
 }
 
 void TextSequence::line_extents(int line, float *x, float *y, BoxSize *size){

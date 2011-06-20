@@ -958,6 +958,9 @@ void MathSequence::child_transformation(
   int             index,
   cairo_matrix_t *matrix
 ){
+  if(lines.length() == 0 || index > glyphs.length())
+    return;
+  
   float x = 0;
   float y = 0;
   
@@ -4324,6 +4327,22 @@ int MathSequence::get_line(int index, int guide){
   }
   
   return lines.length() > 0 ? lines.length()-1 : 0;
+}
+
+void MathSequence::get_line_heights(int line, float *ascent, float *descent){
+  if(length() == 0){
+    *ascent  = 0.75f * em;
+    *descent = 0.25f * em;
+    return;
+  }
+  
+  if(line < 0 || line >= lines.length()){
+    *ascent = *descent = 0;
+    return;
+  }
+  
+  *ascent  = lines[line].ascent;
+  *descent = lines[line].descent;
 }
 
 int MathSequence::get_box(int index, int guide){

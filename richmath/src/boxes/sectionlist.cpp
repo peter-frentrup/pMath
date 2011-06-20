@@ -579,6 +579,31 @@ void SectionList::update_section_visibility(){
   }
 }
 
+bool SectionList::request_repaint_range(int start, int end){
+  float y1 = 0;
+  
+  if(start > _sections.length())
+     start = _sections.length();
+  
+  if(end > _sections.length())
+     end = _sections.length();
+  
+  if(start < _sections.length())
+    y1 = _sections[start]->y_offset;
+  else if(start > 0)
+    y1 = _sections[start-1]->y_offset + _sections[start-1]->extents().height();
+  
+  float y2 = y1;
+  
+  if(end < _sections.length())
+    y2 = _sections[end]->y_offset;
+  else if(end > 0)
+    y2 = _sections[end-1]->y_offset + _sections[end-1]->extents().height();
+  
+  return request_repaint(0, y1, _extents.width, y2 - y1);
+  
+}
+
 void SectionList::init_section_bracket_sizes(Context *context){
   float dx = 1;
   float dy = 0;

@@ -3,6 +3,7 @@
 #include <graphics/context.h>
 #include <gui/native-widget.h>
 
+
 using namespace pmath;
 using namespace richmath;
 
@@ -353,7 +354,15 @@ void Box::dynamic_updated(){
 }
 
 bool Box::request_repaint_all(){
-  return request_repaint(0, -_extents.ascent, _extents.width + 0.1, _extents.height() + 0.1);
+  return request_repaint(
+    0.0, 
+    -_extents.ascent, 
+    _extents.width + 0.1, 
+    _extents.height() + 0.1);
+}
+
+bool Box::request_repaint_range(int start, int end){
+  return request_repaint_all();
 }
 
 bool Box::request_repaint(float x, float y, float w, float h){
@@ -709,6 +718,66 @@ AbstractSequence::AbstractSequence()
 }
 
 AbstractSequence::~AbstractSequence(){
+}
+
+bool AbstractSequence::request_repaint_range(int start, int end){
+  int l1, l2;
+  
+  l1 = l2 = get_line(start);
+  if(start != end)
+    l2 = get_line(end, l1);
+  
+  cairo_matrix_t mat;
+  cairo_matrix_init_identity(&mat);
+  child_transformation(start, &mat);
+  
+  double x1 = 0;
+  double y1 = 0;
+  cairo_matrix_transform_point(&mat, &x1, &y1);
+  
+  double x2;
+  double y2;
+  if(start == end){
+    x2 = x1;
+    y2 = y1;
+  }
+  else{
+    x2 = y2 = 0;
+    cairo_matrix_init_identity(&mat);
+    child_transformation(end, &mat);
+    cairo_matrix_transform_point(&mat, &x2, &y2);
+  }
+  
+  float a1, d1;
+  get_line_heights(l1, &a1, &d1);
+  
+  if(l1 == l2)
+    return request_repaint(
+      x1, 
+      y1 - a1, 
+      x2 - x1, 
+      a1 + d1);
+  
+  float a2, d2;
+  get_line_heights(l2, &a2, &d2);
+  
+  bool result = true;
+  result = request_repaint(
+    x1, 
+    y1 - a1, 
+    extents().width - x1, 
+    a1 + d1) || result;
+  result = request_repaint(
+    0.0, 
+    y1 + d1, 
+    extents().width, 
+    y2 - a2 - y1 - d1) || result;
+  result = request_repaint(
+    0.0, 
+    y2 - a2, 
+    x2, 
+    a2 + d2) || result;
+  return result;
 }
 
 //} ... class AbstractSequence

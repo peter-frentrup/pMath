@@ -21,6 +21,9 @@ using namespace richmath;
 
 bool richmath::DebugFollowMouse = false;
 
+static double MaxFlashingCursorRadius = 9;  /* pixels */
+static double MaxFlashingCursorTime = 0.15; /* seconds */
+
 Hashtable<String, Expr, object_hash> richmath::global_immediate_macros;
 Hashtable<String, Expr, object_hash> richmath::global_macros;
 
@@ -449,9 +452,9 @@ bool Document::request_repaint(float x, float y, float w, float h){
   native()->scroll_pos(&wx, &wy);
   native()->window_size(&ww, &wh);
   
-  if(x + w > wx && x < wx + ww
-  && y + h > wy && y < wy + wh){
-    native()->invalidate();
+  if(x + w >= wx && x <= wx + ww
+  && y + h >= wy && y <= wy + wh){
+    native()->invalidate_rect(x, y, w, h);
     return true;
   }
   
@@ -635,11 +638,12 @@ void Document::mouse_move(MouseEvent &event){
 void Document::focus_set(){
   context.active = true;
   
-  if(selection_box())
+  if(selection_box()){
     selection_box()->on_enter();
     
-  if(selection_length() > 0)
-    native()->invalidate();
+    if(selection_length() > 0)
+      selection_box()->request_repaint_range(selection_start(), selection_end());
+  }
 }
 
 void Document::focus_killed(){
@@ -652,8 +656,8 @@ void Document::focus_killed(){
   if(!selectable())
     select(0,0,0);
   
-  if(selection_length() > 0)
-    native()->invalidate();
+  if(selection_length() > 0 && selection_box())
+    selection_box()->request_repaint_range(selection_start(), selection_end());
 }
 
 void Document::key_down(SpecialKeyEvent &event){
@@ -1371,9 +1375,14 @@ void Document::raw_select(Box *box, int start, int end){
       b = b->parent();
     }
     
+    if(selection_box())
+      selection_box()->request_repaint_range(selection_start(), selection_end());
+    
     context.selection.set(box, start, end);
     
-    native()->invalidate();
+    if(box){
+      box->request_repaint_range(start, end);
+    }
   }
   
   best_index_rel_x = 0;
@@ -3385,7 +3394,7 @@ void Document::paint_resize(Canvas *canvas, bool resize_only){
         int line = seq->get_line(selection_end(), prev_sel_line);
         
         if(line != prev_sel_line){
-          flashing_cursor_circle = new BoxRepaintEvent(prev_sel_box_id, 0);
+          flashing_cursor_circle = new BoxRepaintEvent(this->id()/*prev_sel_box_id*/, 0);
         }
       }
       
@@ -3397,8 +3406,6 @@ void Document::paint_resize(Canvas *canvas, bool resize_only){
       double t = flashing_cursor_circle->timer();
       Box *box = selection_box();
       
-      static double MaxFlashingCursorRadius = 9;  /* pixels */
-      static double MaxFlashingCursorTime = 0.15; /* seconds */
       if(!box
       || t >= MaxFlashingCursorTime
       || !flashing_cursor_circle->register_event())
