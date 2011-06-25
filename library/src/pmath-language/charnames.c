@@ -531,10 +531,6 @@ static struct named_char_t named_char_array[] = {
   { 0x2020, "Dagger"},
   { 0x2021, "DoubleDagger"},
   { 0x2026, "Ellipsis"},
-  { 0x22EE, "VerticalEllipsis"},
-  { 0x22EF, "CenterEllipsis"},
-  { 0x22F0, "AscendingEllipsis"},
-  { 0x22F1, "DescendingEllipsis"},
   
   { 0x2145, "CapitalDifferentialD"},
   { 0x2146, "DifferentialD"},
@@ -564,9 +560,6 @@ static struct named_char_t named_char_array[] = {
   
   { 0x2227, "And"},
   { 0x2228, "Or"},
-  { 0x22BB, "Xor"},
-  { 0x22BC, "Nand"},
-  { 0x22BD, "Nor"},
   { 0x2229, "Intersection"},
   { 0x222A, "Union"},
   { 0x222B, "Integral"},
@@ -585,11 +578,25 @@ static struct named_char_t named_char_array[] = {
   { 0x2247, "NotTildeFullEqual"},
   { 0x2248, "TildeTilde"},
   { 0x2249, "NotTildeTilde"},
+  
+  { 0x224D, "CupCap"},
+  { 0x224E, "HumpDownHump"},
+  { 0x224F, "HumpEqual"},
+  { 0x2250, "DotEqual"},
+  
   { 0x2260, "NotEqual"},
   { 0x2261, "Congruent"},
   { 0x2262, "NotCongruent"},
+  
   { 0x2264, "LessEqual"},
   { 0x2265, "GreaterEqual"},
+  { 0x2266, "LessFullEqual"},
+  { 0x2267, "GreaterFullEqual"},
+  
+  { 0x226A, "LessLess"},
+  { 0x226B, "GreaterGreater"},
+  
+  { 0x226D, "NotCupCap"},
   { 0x226E, "NotLess"},
   { 0x226F, "NotGreater"},
   { 0x2270, "NotLessEqual"},
@@ -598,7 +605,18 @@ static struct named_char_t named_char_array[] = {
   { 0x2273, "GreaterTilde"},
   { 0x2274, "NotLessTilde"},
   { 0x2275, "NotGreaterTilde"},
-  
+  { 0x2276, "LessGreater"},
+  { 0x2277, "GreaterLess"},
+  { 0x2278, "NotLessGreater"},
+  { 0x2279, "NotGreaterLess"},
+  { 0x227A, "Precedes"},
+  { 0x227B, "Succeeds"},
+  { 0x227C, "PrecedesEqual"},
+  { 0x227D, "SucceedsEqual"},
+  { 0x227E, "PrecedesTilde"},
+  { 0x227F, "SucceedsTilde"},
+  { 0x2280, "NotPrecedes"},
+  { 0x2281, "NotSucceeds"},
   { 0x2282, "Subset"},
   { 0x2283, "Superset"},
   { 0x2284, "NotSubset"},
@@ -617,20 +635,49 @@ static struct named_char_t named_char_array[] = {
   { 0x22A3, "LeftTee"},
   { 0x22A4, "DownTee"},
   { 0x22A5, "UpTee"},
+  
+  { 0x22B2, "LeftTriangle"},
+  { 0x22B3, "RightTriangle"},
+  { 0x22B4, "LeftTriangleEqual"},
+  { 0x22B5, "RightTriangleEqual"},
+  
+  { 0x22BB, "Xor"},
+  { 0x22BC, "Nand"},
+  { 0x22BD, "Nor"},
+  
   { 0x22C4, "Diamond"},
+  
   { 0x22C6, "Star"},
+  
+  { 0x22DA, "LessEqualGreater"},
+  { 0x22DB, "GreaterEqualLess"},
+  
+  { 0x22E0, "NotPrecedesEqual"},
+  { 0x22E1, "NotSucceedsEqual"},
+  
+  { 0x22EA, "NotLeftTriangle"},
+  { 0x22EB, "NotRightTriangle"},
+  { 0x22EC, "NotLeftTriangleEqual"},
+  { 0x22ED, "NotRightTriangleEqual"},
+  { 0x22EE, "VerticalEllipsis"},
+  { 0x22EF, "CenterEllipsis"},
+  { 0x22F0, "AscendingEllipsis"},
+  { 0x22F1, "DescendingEllipsis"},
   
   { 0x2308, "LeftCeiling"},
   { 0x2309, "RightCeiling"},
   { 0x230A, "LeftFloor"},
   { 0x230B, "RightFloor"},
+  
   { 0x2329, "LeftAngleBracket"},
   { 0x232A, "RightAngleBracket"},
+  
   { 0x27E6, "LeftDoubleBracket"},
   { 0x27E7, "RightDoubleBracket"},
   
   { 0x23B4, "OverBracket"},
   { 0x23B5, "UnderBracket"},
+  
   { 0x23DC, "OverParenthesis"},
   { 0x23DD, "UnderParenthesis"},
   { 0x23DE, "OverBrace"},

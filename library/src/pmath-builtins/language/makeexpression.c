@@ -264,21 +264,78 @@ static pmath_symbol_t inset_operator(uint16_t ch){ // do not free result!
 }
 
 static pmath_symbol_t relation_at(pmath_expr_t expr, size_t i){ // do not free result
-  switch(unichar_at(expr, i)){
+  uint16_t ch = unichar_at(expr, i);
+  
+  switch(ch){
+    case 0:
+      if(is_string_at(expr, i, "<="))  return PMATH_SYMBOL_LESSEQUAL;
+      if(is_string_at(expr, i, ">="))  return PMATH_SYMBOL_GREATEREQUAL;
+      if(is_string_at(expr, i, "!="))  return PMATH_SYMBOL_UNEQUAL;
+      if(is_string_at(expr, i, "===")) return PMATH_SYMBOL_IDENTICAL;
+      if(is_string_at(expr, i, "=!=")) return PMATH_SYMBOL_UNIDENTICAL;
+      return PMATH_NULL;
+    
     case '<': return PMATH_SYMBOL_LESS;
     case '>': return PMATH_SYMBOL_GREATER;
     case '=': return PMATH_SYMBOL_EQUAL;
-
+  }
+  
+  switch(ch){
     case 0x2208: return PMATH_SYMBOL_ELEMENT;
     case 0x2209: return PMATH_SYMBOL_NOTELEMENT;
     case 0x220B: return PMATH_SYMBOL_REVERSEELEMENT;
     case 0x220C: return PMATH_SYMBOL_NOTREVERSEELEMENT;
-
+  }
+  
+  switch(ch){
+    case 0x2243: return PMATH_SYMBOL_TILDEEQUAL;
+    case 0x2244: return PMATH_SYMBOL_NOTTILDEEQUAL;
+    case 0x2245: return PMATH_SYMBOL_TILDEFULLEQUAL;
+    
+    case 0x2247: return PMATH_SYMBOL_NOTTILDEFULLEQUAL;
+    case 0x2248: return PMATH_SYMBOL_TILDETILDE;
+    case 0x2249: return PMATH_SYMBOL_NOTTILDETILDE;
+    
+    case 0x224D: return PMATH_SYMBOL_CUPCAP;
+    case 0x224E: return PMATH_SYMBOL_HUMPDOWNHUMP;
+    case 0x224F: return PMATH_SYMBOL_HUMPEQUAL;
+    case 0x2250: return PMATH_SYMBOL_DOTEQUAL;
+  }
+  
+  switch(ch){
     case 0x2260: return PMATH_SYMBOL_UNEQUAL;
-
+    case 0x2261: return PMATH_SYMBOL_CONGRUENT;
+    case 0x2262: return PMATH_SYMBOL_NOTCONGRUENT;
+    
     case 0x2264: return PMATH_SYMBOL_LESSEQUAL;
     case 0x2265: return PMATH_SYMBOL_GREATEREQUAL;
-
+    case 0x2266: return PMATH_SYMBOL_LESSFULLEQUAL;
+    case 0x2267: return PMATH_SYMBOL_GREATERFULLEQUAL;
+    
+    case 0x226A: return PMATH_SYMBOL_LESSLESS;
+    case 0x226B: return PMATH_SYMBOL_GREATERGREATER;
+    
+    case 0x226D: return PMATH_SYMBOL_NOTCUPCAP;
+    case 0x226E: return PMATH_SYMBOL_NOTLESS;
+    case 0x226F: return PMATH_SYMBOL_NOTGREATER;
+    case 0x2270: return PMATH_SYMBOL_NOTLESSEQUAL;
+    case 0x2271: return PMATH_SYMBOL_NOTGREATEREQUAL;
+    case 0x2272: return PMATH_SYMBOL_LESSTILDE;
+    case 0x2273: return PMATH_SYMBOL_GREATERTILDE;
+    case 0x2274: return PMATH_SYMBOL_NOTLESSTILDE;
+    case 0x2275: return PMATH_SYMBOL_NOTGREATERTILDE;
+    case 0x2276: return PMATH_SYMBOL_LESSGREATER;
+    case 0x2277: return PMATH_SYMBOL_GREATERLESS;
+    case 0x2278: return PMATH_SYMBOL_NOTLESSGREATER;
+    case 0x2279: return PMATH_SYMBOL_NOTGREATERLESS;
+    case 0x227A: return PMATH_SYMBOL_PRECEDES;
+    case 0x227B: return PMATH_SYMBOL_SUCCEEDS;
+    case 0x227C: return PMATH_SYMBOL_PRECEDESEQUAL;
+    case 0x227D: return PMATH_SYMBOL_SUCCEEDSEQUAL;
+    case 0x227E: return PMATH_SYMBOL_PRECEDESTILDE;
+    case 0x227F: return PMATH_SYMBOL_SUCCEEDSTILDE;
+    case 0x2280: return PMATH_SYMBOL_NOTPRECEDES;
+    case 0x2281: return PMATH_SYMBOL_NOTSUCCEEDS;
     case 0x2282: return PMATH_SYMBOL_SUBSET;
     case 0x2283: return PMATH_SYMBOL_SUPERSET;
     case 0x2284: return PMATH_SYMBOL_NOTSUBSET;
@@ -288,13 +345,27 @@ static pmath_symbol_t relation_at(pmath_expr_t expr, size_t i){ // do not free r
     case 0x2288: return PMATH_SYMBOL_NOTSUBSETEQUAL;
     case 0x2289: return PMATH_SYMBOL_NOTSUPERSETEQUAL;
   }
-
-  if(is_string_at(expr, i, "<="))  return PMATH_SYMBOL_LESSEQUAL;
-  if(is_string_at(expr, i, ">="))  return PMATH_SYMBOL_GREATEREQUAL;
-  if(is_string_at(expr, i, "!="))  return PMATH_SYMBOL_UNEQUAL;
-  if(is_string_at(expr, i, "===")) return PMATH_SYMBOL_IDENTICAL;
-  if(is_string_at(expr, i, "=!=")) return PMATH_SYMBOL_UNIDENTICAL;
-
+  
+  switch(ch){
+    case 0x22B3: return PMATH_SYMBOL_LEFTTRIANGLE;
+    case 0x22B4: return PMATH_SYMBOL_RIGHTTRIANGLE;
+    case 0x22B5: return PMATH_SYMBOL_LEFTTRIANGLEEQUAL;
+    case 0x22B6: return PMATH_SYMBOL_RIGHTTRIANGLEEQUAL;
+  }
+  
+  switch(ch){
+    case 0x22DA: return PMATH_SYMBOL_LESSEQUALGREATER;
+    case 0x22DB: return PMATH_SYMBOL_GREATEREQUALLESS;
+    
+    case 0x22E0: return PMATH_SYMBOL_NOTPRECEDESEQUAL;
+    case 0x22E1: return PMATH_SYMBOL_NOTSUCCEEDSEQUAL;
+    
+    case 0x22EA: return PMATH_SYMBOL_NOTLEFTTRIANGLE;
+    case 0x22EB: return PMATH_SYMBOL_NOTRIGHTTRIANGLE;
+    case 0x22EC: return PMATH_SYMBOL_NOTLEFTTRIANGLEEQUAL;
+    case 0x22ED: return PMATH_SYMBOL_NOTRIGHTTRIANGLEEQUAL;
+  }
+  
   return PMATH_NULL;
 }
 

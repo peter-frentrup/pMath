@@ -300,24 +300,84 @@ static pmath_t relation(pmath_symbol_t head, int boxform){ // head wont be freed
   if(pmath_same(head, PMATH_SYMBOL_UNIDENTICAL))  RET_ST("=!=");
 
   if(boxform < BOXFORM_OUTPUT){
-    if(pmath_same(head, PMATH_SYMBOL_UNEQUAL))       RET_CH(0x2260);
-    if(pmath_same(head, PMATH_SYMBOL_LESSEQUAL))     RET_CH(0x2264);
-    if(pmath_same(head, PMATH_SYMBOL_GREATEREQUAL))  RET_CH(0x2265);
-    if(pmath_same(head, PMATH_SYMBOL_COLON))         RET_CH(0x2236);
+    if(pmath_same(head, PMATH_SYMBOL_ELEMENT))               RET_CH(0x2208);
+    if(pmath_same(head, PMATH_SYMBOL_NOTELEMENT))            RET_CH(0x2209);
+    if(pmath_same(head, PMATH_SYMBOL_REVERSEELEMENT))        RET_CH(0x220B);
+    if(pmath_same(head, PMATH_SYMBOL_NOTREVERSEELEMENT))     RET_CH(0x220C);
     
-    if(pmath_same(head, PMATH_SYMBOL_ELEMENT))           RET_CH(0x2208);
-    if(pmath_same(head, PMATH_SYMBOL_NOTELEMENT))        RET_CH(0x2209);
-    if(pmath_same(head, PMATH_SYMBOL_REVERSEELEMENT))    RET_CH(0x220B);
-    if(pmath_same(head, PMATH_SYMBOL_NOTREVERSEELEMENT)) RET_CH(0x220C);
+    if(pmath_same(head, PMATH_SYMBOL_COLON))                 RET_CH(0x2236);
     
-    if(pmath_same(head, PMATH_SYMBOL_SUBSET))           RET_CH(0x2282);
-    if(pmath_same(head, PMATH_SYMBOL_SUPERSET))         RET_CH(0x2283);
-    if(pmath_same(head, PMATH_SYMBOL_NOTSUBSET))        RET_CH(0x2284);
-    if(pmath_same(head, PMATH_SYMBOL_NOTSUPERSET))      RET_CH(0x2285);
-    if(pmath_same(head, PMATH_SYMBOL_SUBSETEQUAL))      RET_CH(0x2286);
-    if(pmath_same(head, PMATH_SYMBOL_SUPERSETEQUAL))    RET_CH(0x2287);
-    if(pmath_same(head, PMATH_SYMBOL_NOTSUBSETEQUAL))   RET_CH(0x2288);
-    if(pmath_same(head, PMATH_SYMBOL_NOTSUPERSETEQUAL)) RET_CH(0x2289);
+    if(pmath_same(head, PMATH_SYMBOL_TILDEEQUAL))            RET_CH(0x2243);
+    if(pmath_same(head, PMATH_SYMBOL_NOTTILDEEQUAL))         RET_CH(0x2244);
+    if(pmath_same(head, PMATH_SYMBOL_TILDEFULLEQUAL))        RET_CH(0x2245);
+    
+    if(pmath_same(head, PMATH_SYMBOL_NOTTILDEFULLEQUAL))     RET_CH(0x2247);
+    if(pmath_same(head, PMATH_SYMBOL_TILDETILDE))            RET_CH(0x2248);
+    if(pmath_same(head, PMATH_SYMBOL_NOTTILDETILDE))         RET_CH(0x2249);
+    
+    if(pmath_same(head, PMATH_SYMBOL_CUPCAP))                RET_CH(0x224D);
+    if(pmath_same(head, PMATH_SYMBOL_HUMPDOWNHUMP))          RET_CH(0x224E);
+    if(pmath_same(head, PMATH_SYMBOL_HUMPEQUAL))             RET_CH(0x224F);
+    if(pmath_same(head, PMATH_SYMBOL_DOTEQUAL))              RET_CH(0x2250);
+    
+    if(pmath_same(head, PMATH_SYMBOL_UNEQUAL))               RET_CH(0x2260);
+    if(pmath_same(head, PMATH_SYMBOL_CONGRUENT))             RET_CH(0x2261);
+    if(pmath_same(head, PMATH_SYMBOL_NOTCONGRUENT))          RET_CH(0x2262);
+    
+    if(pmath_same(head, PMATH_SYMBOL_LESSEQUAL))             RET_CH(0x2264);
+    if(pmath_same(head, PMATH_SYMBOL_GREATEREQUAL))          RET_CH(0x2265);
+    if(pmath_same(head, PMATH_SYMBOL_LESSFULLEQUAL))         RET_CH(0x2266);
+    if(pmath_same(head, PMATH_SYMBOL_GREATERFULLEQUAL))      RET_CH(0x2267);
+    
+    if(pmath_same(head, PMATH_SYMBOL_LESSLESS))              RET_CH(0x226A);
+    if(pmath_same(head, PMATH_SYMBOL_GREATERGREATER))        RET_CH(0x226B);
+    
+    if(pmath_same(head, PMATH_SYMBOL_NOTCUPCAP))             RET_CH(0x226D);
+    if(pmath_same(head, PMATH_SYMBOL_NOTLESS))               RET_CH(0x226E);
+    if(pmath_same(head, PMATH_SYMBOL_NOTGREATER))            RET_CH(0x226F);
+    if(pmath_same(head, PMATH_SYMBOL_NOTLESSEQUAL))          RET_CH(0x2270);
+    if(pmath_same(head, PMATH_SYMBOL_NOTGREATEREQUAL))       RET_CH(0x2271);
+    if(pmath_same(head, PMATH_SYMBOL_LESSTILDE))             RET_CH(0x2272);
+    if(pmath_same(head, PMATH_SYMBOL_GREATERTILDE))          RET_CH(0x2273);
+    if(pmath_same(head, PMATH_SYMBOL_NOTLESSTILDE))          RET_CH(0x2274);
+    if(pmath_same(head, PMATH_SYMBOL_NOTGREATERTILDE))       RET_CH(0x2275);
+    if(pmath_same(head, PMATH_SYMBOL_LESSGREATER))           RET_CH(0x2276);
+    if(pmath_same(head, PMATH_SYMBOL_GREATERLESS))           RET_CH(0x2277);
+    if(pmath_same(head, PMATH_SYMBOL_NOTLESSGREATER))        RET_CH(0x2278);
+    if(pmath_same(head, PMATH_SYMBOL_NOTGREATERLESS))        RET_CH(0x2279);
+    if(pmath_same(head, PMATH_SYMBOL_PRECEDES))              RET_CH(0x227A);
+    if(pmath_same(head, PMATH_SYMBOL_SUCCEEDS))              RET_CH(0x227B);
+    if(pmath_same(head, PMATH_SYMBOL_PRECEDESEQUAL))         RET_CH(0x227C);
+    if(pmath_same(head, PMATH_SYMBOL_SUCCEEDSEQUAL))         RET_CH(0x227D);
+    if(pmath_same(head, PMATH_SYMBOL_PRECEDESTILDE))         RET_CH(0x227E);
+    if(pmath_same(head, PMATH_SYMBOL_SUCCEEDSTILDE))         RET_CH(0x227F);
+    if(pmath_same(head, PMATH_SYMBOL_NOTPRECEDES))           RET_CH(0x2280);
+    if(pmath_same(head, PMATH_SYMBOL_NOTSUCCEEDS))           RET_CH(0x2281);
+    if(pmath_same(head, PMATH_SYMBOL_SUBSET))                RET_CH(0x2282);
+    if(pmath_same(head, PMATH_SYMBOL_SUPERSET))              RET_CH(0x2283);
+    if(pmath_same(head, PMATH_SYMBOL_NOTSUBSET))             RET_CH(0x2284);
+    if(pmath_same(head, PMATH_SYMBOL_NOTSUPERSET))           RET_CH(0x2285);
+    if(pmath_same(head, PMATH_SYMBOL_SUBSETEQUAL))           RET_CH(0x2286);
+    if(pmath_same(head, PMATH_SYMBOL_SUPERSETEQUAL))         RET_CH(0x2287);
+    if(pmath_same(head, PMATH_SYMBOL_NOTSUBSETEQUAL))        RET_CH(0x2288);
+    if(pmath_same(head, PMATH_SYMBOL_NOTSUPERSETEQUAL))      RET_CH(0x2289);
+    
+    if(pmath_same(head, PMATH_SYMBOL_LEFTTRIANGLE))          RET_CH(0x22B3);
+    if(pmath_same(head, PMATH_SYMBOL_RIGHTTRIANGLE))         RET_CH(0x22B4);
+    if(pmath_same(head, PMATH_SYMBOL_LEFTTRIANGLEEQUAL))     RET_CH(0x22B5);
+    if(pmath_same(head, PMATH_SYMBOL_RIGHTTRIANGLEEQUAL))    RET_CH(0x22B6);
+      
+    if(pmath_same(head, PMATH_SYMBOL_LESSEQUALGREATER))      RET_CH(0x22DA);
+    if(pmath_same(head, PMATH_SYMBOL_GREATEREQUALLESS))      RET_CH(0x22DB);
+      
+    if(pmath_same(head, PMATH_SYMBOL_NOTPRECEDESEQUAL))      RET_CH(0x22E0);
+    if(pmath_same(head, PMATH_SYMBOL_NOTSUCCEEDSEQUAL))      RET_CH(0x22E1);
+    
+    if(pmath_same(head, PMATH_SYMBOL_NOTLEFTTRIANGLE))       RET_CH(0x22EA);
+    if(pmath_same(head, PMATH_SYMBOL_NOTRIGHTTRIANGLE))      RET_CH(0x22EA);
+    if(pmath_same(head, PMATH_SYMBOL_NOTLEFTTRIANGLEEQUAL))  RET_CH(0x22EA);
+    if(pmath_same(head, PMATH_SYMBOL_NOTRIGHTTRIANGLEEQUAL)) RET_CH(0x22EA);
+    
   }
   else{
     if(pmath_same(head, PMATH_SYMBOL_UNEQUAL))       RET_ST("!=");

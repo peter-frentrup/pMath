@@ -2,6 +2,8 @@
 	Button("italic", DocumentApply(SelectedDocument(), StyleBox("\[SelectionPlaceholder]", FontSlant->Italic))),
 	Button("Arg Style", DocumentApply(SelectedDocument(), StyleBox("\[SelectionPlaceholder]", "Arg")))})
 
+? pmath: (Linux/Solaris, not MacOSX though): link with rpath = "$ORIGIN" to indicate that the library should be in the application's directory
+
 - richmath: support Interrupt()
 
 - support euclidian integers in GCD/ExtendedGCD
