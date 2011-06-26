@@ -93,6 +93,7 @@
 					<Add directory="/usr/include" />
 				</Compiler>
 				<Linker>
+					<Add option="-Wl,-rpath,\\$$ORIGIN" />
 					<Add library="pmath" />
 					<Add library="librt" />
 					<Add directory="bin/linux/release" />
@@ -117,6 +118,7 @@
 					<Add directory="/usr/include" />
 				</Compiler>
 				<Linker>
+					<Add option="-Wl,-rpath,\\$$ORIGIN" />
 					<Add library="pmath" />
 					<Add library="librt" />
 					<Add directory="bin/linux/debug" />
