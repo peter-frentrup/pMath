@@ -246,9 +246,18 @@ Expr StyleBox::to_pmath(bool parseable){
   
   g.emit(_content->to_pmath(parseable));
   
-  style->emit_to_pmath(false, true);
+  Expr e;
+  bool with_inherited = true;
+  if(style && !style->get_dynamic(BaseStyleName, &e)){
+    String s;
+    if(style->get(BaseStyleName, &s)){
+      with_inherited = false;
+      Gather::emit(s);
+    }
+  }
+  style->emit_to_pmath(false, with_inherited);
   
-  Expr e = g.end();
+  e = g.end();
   e.set(0, Symbol(PMATH_SYMBOL_STYLEBOX));
   return e;
 }

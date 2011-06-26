@@ -329,15 +329,19 @@ static void init_stylesheet(){
   Style *s;
 
   s = new Style;
-  s->set(AutoSpacing, true);
+  s->set(AutoSpacing,    true);
   s->set(ShowAutoStyles, true);
   Stylesheet::Default->styles.set("Edit", s);
 
   s = new Style;
-  s->set(AutoSpacing, true);
+  s->set(AutoSpacing,    true);
   s->set(ShowAutoStyles, true);
-  s->set(FontSlant, FontSlantItalic);
+  s->set(FontSlant,      FontSlantItalic);
   Stylesheet::Default->styles.set("Arg", s);
+
+  s = new Style;
+  s->set(FontSlant, FontSlantItalic);
+  Stylesheet::Default->styles.set("TI", s);
 
   s = new Style;
   s->set(AutoSpacing,         true);

@@ -45,10 +45,17 @@ static void fill_newlines(struct linewriter_t *lw){
   
   memset(lw->newlines, NEWLINE_NONE, lw->line_length + 1);
   
+  oldpos = -1;
   wp = lw->all_write_pos;
   while(wp && wp->pos <= lw->line_length){
-    if(wp->is_start)
-      lw->newlines[wp->pos] = NEWLINE_OK;
+    if(wp->is_start){
+      if(wp->pos == oldpos) // two expressions without operator/space in between
+        lw->newlines[wp->pos] = NEWLINE_INSTRING;
+      else
+        lw->newlines[wp->pos] = NEWLINE_OK;
+    }
+    else
+      oldpos = wp->pos;
     
     wp = wp->next;
   }

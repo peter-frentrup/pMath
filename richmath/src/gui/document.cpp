@@ -1279,7 +1279,10 @@ void Document::on_key_press(uint32_t unichar){
       }
       
       // handle \[alias]:
-      int i = context.selection.start;
+      int i = context.selection.start - 1;
+      if(i < 0)
+        i = 0;
+      
       const uint16_t *buf = mseq->text().buffer();
       while(i < mseq->length() 
       && buf[i] <= 0x7F 
