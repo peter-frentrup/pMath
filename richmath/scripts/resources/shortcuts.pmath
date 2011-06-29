@@ -34,6 +34,7 @@ FE`Private`shortcuts:= {
 	/* Item(KeyEvent("6", {KeyControl}),               "InsertSuperscript"),*/
 	Item(KeyEvent("7", {KeyControl}),               "InsertOverscript"),
 	Item(KeyEvent("+", {KeyControl}),               "InsertUnderscript"),
+	/* Item(KeyEvent("4", {KeyControl}),               "InsertUnderscript"),*/
 	Item(KeyEvent("5", {KeyControl}),               "InsertOpposite"),
 	Item(KeyEvent(",", {KeyControl}),               "InsertColumn"),
 	Item(KeyEvent("Enter", {KeyControl}),           "InsertRow"),
@@ -41,7 +42,8 @@ FE`Private`shortcuts:= {
 	Item(KeyEvent("Enter", {KeyShift}),             "EvaluateSections"),
 	Item(KeyEvent("Enter", {KeyControl, KeyShift}), "EvaluateInPlace"),
 	Item(KeyEvent("F7", {}),                        "SubsessionEvaluateSections"),
-	Item(KeyEvent("Esc", {KeyShift}),               "EvaluatorAbort")
+	Item(KeyEvent("Esc", {KeyShift}),               "EvaluatorAbort")/*,
+	Item(KeyEvent("Esc", {KeyAlt}),                 "RemoveFromEvaluationQueue")*/
 	}
 
 

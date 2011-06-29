@@ -193,22 +193,22 @@ Expr SubsuperscriptBox::to_pmath_symbol(){
   return Symbol(PMATH_SYMBOL_SUPERSCRIPTBOX);
 }
 
-Expr SubsuperscriptBox::to_pmath(bool parseable){
+Expr SubsuperscriptBox::to_pmath(int flags){
   if(_subscript){
     if(_superscript)
       return Call(
         Symbol(PMATH_SYMBOL_SUBSUPERSCRIPTBOX),
-        _subscript->to_pmath(parseable),
-        _superscript->to_pmath(parseable));
+        _subscript->to_pmath(flags),
+        _superscript->to_pmath(flags));
     
     return Call(
         Symbol(PMATH_SYMBOL_SUBSCRIPTBOX), 
-        _subscript->to_pmath(parseable));
+        _subscript->to_pmath(flags));
   }
   
   return Call(
       Symbol(PMATH_SYMBOL_SUPERSCRIPTBOX), 
-      _superscript->to_pmath(parseable));
+      _superscript->to_pmath(flags));
 }
 
 Box *SubsuperscriptBox::move_vertical(

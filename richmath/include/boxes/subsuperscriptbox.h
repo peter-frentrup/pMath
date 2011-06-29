@@ -30,7 +30,7 @@ namespace richmath{
       virtual void complete();
       
       virtual Expr to_pmath_symbol();
-      virtual Expr to_pmath(bool parseable);
+      virtual Expr to_pmath(int flags);
       
       virtual Box *move_vertical(
         LogicalDirection  direction, 

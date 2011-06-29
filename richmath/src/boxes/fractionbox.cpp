@@ -122,11 +122,11 @@ Box *FractionBox::remove(int *index){
   return move_logical(Backward, false, index);
 }
 
-Expr FractionBox::to_pmath(bool parseable){
+Expr FractionBox::to_pmath(int flags){
   return Call(
     Symbol(PMATH_SYMBOL_FRACTIONBOX),
-    _numerator->to_pmath(parseable),
-    _denominator->to_pmath(parseable));
+    _numerator->to_pmath(flags),
+    _denominator->to_pmath(flags));
 }
 
 Box *FractionBox::move_vertical(

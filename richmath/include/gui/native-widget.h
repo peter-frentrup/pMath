@@ -57,6 +57,7 @@ namespace richmath{
       virtual bool cursor_position(float *x, float *y) = 0;
       virtual bool may_drop_into(Box* dst, int strt, int end, bool self_is_source);
       
+      virtual void bring_to_front() = 0;
       virtual void close() = 0;
       virtual void invalidate() = 0;
       virtual void invalidate_rect(float x, float y, float w, float h){ invalidate(); }

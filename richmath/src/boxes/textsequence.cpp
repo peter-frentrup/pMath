@@ -390,11 +390,11 @@ void TextSequence::selection_path(Canvas *canvas, int start, int end){
   }
 }
 
-Expr TextSequence::to_pmath(bool parseable){
-  return to_pmath(parseable, 0, text.length());
+Expr TextSequence::to_pmath(int flags){
+  return to_pmath(flags, 0, text.length());
 }
 
-Expr TextSequence::to_pmath(bool parseable, int start, int end){
+Expr TextSequence::to_pmath(int flags, int start, int end){
   if(end <= start || start < 0 || end > text.length())
     return String("");
 
@@ -413,7 +413,7 @@ Expr TextSequence::to_pmath(bool parseable, int start, int end){
     if(start < next)
       g.emit(String::FromUtf8(text.buffer() + start, next - start));
 
-    g.emit(boxes[boxi]->to_pmath(parseable));
+    g.emit(boxes[boxi]->to_pmath(flags));
 
     start = next + Utf8BoxCharLen;
     ++boxi;

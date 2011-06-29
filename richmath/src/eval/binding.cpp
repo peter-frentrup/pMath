@@ -175,6 +175,19 @@ static bool can_abort(Expr cmd){
   return !Application::is_idle();
 }
 
+static bool can_convert_dynamic_to_literal(Expr cmd){
+  Document *doc = get_current_document();
+
+  if(!doc || doc->selection_length() == 0)
+    return false;
+
+  Box *sel = doc->selection_box();
+  if(!sel || !sel->get_style(Editable))
+    return false;
+  
+  return true;
+}
+
 static bool can_copy_cut(Expr cmd){
   Document *doc = get_current_document();
 
@@ -288,6 +301,23 @@ static bool can_evaluate_sections(Expr cmd){
   return false;
 }
 
+static bool can_find_evaluating_section(Expr cmd){
+  Box *box = Application::find_current_job();
+  
+  if(!box)
+    return false;
+  
+  Section *sect = box->find_parent<Section>(true);
+  if(!sect)
+    return false;
+  
+  Document *doc = sect->find_parent<Document>(false);
+  if(!doc)
+    return false;
+  
+  return true;
+}
+
 static bool can_find_matching_fence(Expr cmd){
   Document *doc = get_current_document();
 
@@ -308,6 +338,32 @@ static bool can_find_matching_fence(Expr cmd){
     return match >= 0;
   }
 
+  return false;
+}
+
+static bool can_remove_from_evaluation_queue(Expr cmd){
+  Document *doc = get_current_document();
+  
+  if(!doc)
+    return false;
+  
+  int start = doc->selection_start();
+  int end   = doc->selection_end();
+  Box *box  = doc->selection_box();
+  while(box && box != doc){
+    start = box->index();
+    end   = start + 1;
+    box   = box->parent();
+  }
+  
+  if(!box || start >= end)
+    return false;
+  
+  for(int i = end-1;i >= start;--i){
+    if(Application::remove_job(doc->section(i), true))
+      return true;
+  }
+  
   return false;
 }
 
@@ -345,6 +401,24 @@ static bool close_cmd(Expr cmd){
     return false;
 
   doc->native()->close();
+  return true;
+}
+
+static bool convert_dynamic_to_literal(Expr cmd){
+  Document *doc = get_current_document();
+
+  if(!doc || doc->selection_length() == 0)
+    return false;
+
+  Box *sel = doc->selection_box();
+  if(!sel || !sel->get_style(Editable))
+    return false;
+  
+  int start = doc->selection_start();
+  int end   = doc->selection_end();
+  sel = sel->dynamic_to_literal(&start, &end);
+  doc->select(sel, start, end);
+  
   return true;
 }
 
@@ -408,7 +482,7 @@ static bool duplicate_previous_input_output_cmd(Expr cmd){
     && (( input && math->get_style(Evaluatable))
      || (!input && math->get_style(SectionGenerated)))){
       MathSequence *seq = new MathSequence;
-      seq->load_from_object(Expr(math->content()->to_pmath(false)), 0);
+      seq->load_from_object(Expr(math->content()->to_pmath(BoxFlagDefault)), 0);
       doc->insert_box(seq);
 
       return true;
@@ -446,7 +520,7 @@ static bool edit_boxes_cmd(Expr cmd){
       pmath_continue_after_abort();
 
       if(edit){
-        Expr parsed(edit->to_pmath(false));
+        Expr parsed(edit->to_pmath(BoxFlagDefault));
 
         if(parsed == 0){
           doc->native()->beep();//MessageBeep(MB_ICONEXCLAMATION);
@@ -467,7 +541,7 @@ static bool edit_boxes_cmd(Expr cmd){
         edit->swap_id(sect);
         edit->original = doc->swap(i, edit);
 
-        Expr obj(sect->to_pmath(false));
+        Expr obj(sect->to_pmath(BoxFlagDefault));
 
         doc->select(edit->content(), 0, 0);
         doc->insert_string(obj.to_string(
@@ -554,6 +628,35 @@ static bool expand_selection_cmd(Expr cmd){
   box = expand_selection(box, &start, &end);
   doc->select_range(box, start, start, box, end, end);
   doc->native()->invalidate();
+  return true;
+}
+
+static bool find_evaluating_section(Expr cmd){
+  Box *box = Application::find_current_job();
+  Document *current_doc = get_current_document();
+  
+  if(!box){
+    if(current_doc)
+      current_doc->native()->beep();
+    return false;
+  }
+  
+  Section *sect = box->find_parent<Section>(true);
+  if(!sect){
+    if(current_doc)
+      current_doc->native()->beep();
+    return false;
+  }
+  
+  Document *doc = sect->find_parent<Document>(false);
+  if(!doc){
+    if(current_doc)
+      current_doc->native()->beep();
+    return false;
+  }
+  
+  doc->native()->bring_to_front();
+  doc->select(sect->parent(), sect->index(), sect->index() + 1);
   return true;
 }
 
@@ -692,6 +795,40 @@ static bool paste_cmd(Expr cmd){
   return true;
 }
 
+static bool remove_from_evaluation_queue(Expr cmd){
+  Document *doc = get_current_document();
+  
+  if(!doc)
+    return false;
+  
+  int start = doc->selection_start();
+  int end   = doc->selection_end();
+  Box *box  = doc->selection_box();
+  while(box && box != doc){
+    start = box->index();
+    end   = start + 1;
+    box   = box->parent();
+  }
+  
+  if(!box || start >= end){
+    doc->native()->beep();
+    return false;
+  }
+  
+  bool found_any = false;
+  for(int i = end-1;i >= start;--i){
+    if(Application::remove_job(doc->section(i), false))
+      found_any = true;
+  }
+  
+  if(!found_any){
+    doc->native()->beep();
+    return false;
+  }
+  
+  return true;
+}
+
 static bool select_all_cmd(Expr cmd){
   Document *doc = get_current_document();
 
@@ -747,11 +884,11 @@ static bool similar_section_below_cmd(Expr cmd){
     doc->insert(box->index() + 1, section);
     doc->move_to(doc, box->index() + 1);
     doc->move_horizontal(Forward, false);
+    return true;
   }
-  else
-    doc->native()->beep();
-
-  return true;
+  
+  doc->native()->beep();
+  return false;
 }
 
 static bool subsession_evaluate_sections_cmd(Expr cmd){
@@ -797,11 +934,14 @@ bool richmath::init_bindings(){
   Application::register_menucommand(String("InsertSuperscript"),       insert_superscript_cmd,              can_document_apply);
   Application::register_menucommand(String("InsertUnderscript"),       insert_underscript_cmd,              can_document_apply);
 
+  Application::register_menucommand(String("DynamicToLiteral"),           convert_dynamic_to_literal,       can_convert_dynamic_to_literal);
   Application::register_menucommand(String("EvaluatorAbort"),             abort_cmd,                        can_abort);
   Application::register_menucommand(String("EvaluateInPlace"),            evaluate_in_place_cmd,            can_evaluate_in_place);
   Application::register_menucommand(String("EvaluateSections"),           evaluate_sections_cmd,            can_evaluate_sections);
   Application::register_menucommand(String("EvaluateSectionsAndReturn"),  evaluate_sections_cmd);
   Application::register_menucommand(String("EvaluatorSubsession"),        evaluator_subsession_cmd,         can_abort);
+  Application::register_menucommand(String("FindEvaluatingSection"),      find_evaluating_section,          can_find_evaluating_section);
+  Application::register_menucommand(String("RemoveFromEvaluationQueue"),  remove_from_evaluation_queue,     can_remove_from_evaluation_queue);
   Application::register_menucommand(String("SubsessionEvaluateSections"), subsession_evaluate_sections_cmd, can_subsession_evaluate_sections);
 
   Application::register_menucommand(Symbol(PMATH_SYMBOL_DOCUMENTAPPLY), document_apply_cmd, can_document_apply);
@@ -833,9 +973,9 @@ bool richmath::init_bindings(){
   VERIFY(BIND_DOWN(PMATH_SYMBOL_SECTIONPRINT,         builtin_sectionprint))
   VERIFY(BIND_DOWN(PMATH_SYMBOL_SELECTEDDOCUMENT,     builtin_selecteddocument))
 
-  VERIFY(BIND_UP(  PMATH_SYMBOL_FRONTENDOBJECT, builtin_feo_options))
+  VERIFY(BIND_UP(  PMATH_SYMBOL_FRONTENDOBJECT,       builtin_feo_options))
 
-  VERIFY(BIND_DOWN(fe_symbols[AddConfigShaperSymbol], builtin_addconfigshaper))
+  VERIFY(BIND_DOWN(fe_symbols[AddConfigShaperSymbol],       builtin_addconfigshaper))
   VERIFY(BIND_DOWN(fe_symbols[InternalExecuteForSymbol],    builtin_internalexecutefor))
 
   pmath_symbol_set_attributes(

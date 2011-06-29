@@ -52,7 +52,7 @@ namespace richmath{
       static StyleBox *create(Expr expr, int opts); // returns 0 on error
       
       virtual Expr to_pmath_symbol(){ return Symbol(PMATH_SYMBOL_STYLEBOX); }
-      virtual Expr to_pmath(bool parseable);
+      virtual Expr to_pmath(int flags);
       
       virtual bool changes_children_style(){ return true; }
     
@@ -67,7 +67,7 @@ namespace richmath{
       virtual void resize(Context *context);
       
       virtual Expr to_pmath_symbol(){ return Symbol(PMATH_SYMBOL_TAGBOX); }
-      virtual Expr to_pmath(bool parseable);
+      virtual Expr to_pmath(int flags);
       
     protected:
       TagBox();

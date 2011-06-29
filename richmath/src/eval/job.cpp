@@ -122,7 +122,7 @@ bool InputJob::start(){
   section->invalidate();
   
   Server::local_server->run_boxes(
-    Expr(section->content()->to_pmath(true)));
+    Expr(section->content()->to_pmath(BoxFlagParseable)));
   
   doc->native()->running_state_changed();
   
@@ -142,17 +142,19 @@ void InputJob::returned_boxes(Expr expr){
 void InputJob::end(){
   Document *doc = dynamic_cast<Document*>(
     Box::find(_position.document_id));
-    
+  
+  if(doc)
+    doc->native()->running_state_changed();
+}
+
+void InputJob::dequeued(){
   MathSection *section = dynamic_cast<MathSection*>(
     Box::find(_position.section_id));
     
   if(section){
     section->evaluating = false;
-    section->invalidate();
+    section->request_repaint_all();
   }
-  
-  if(doc)
-    doc->native()->running_state_changed();
 }
 
 //} ... class InputJob
@@ -249,7 +251,7 @@ bool ReplacementJob::start(){
   }
     
   Server::local_server->run_boxes(
-    Expr(sequence->to_pmath(true, selection_start, selection_end)));
+    Expr(sequence->to_pmath(BoxFlagParseable, selection_start, selection_end)));
   
   doc->native()->running_state_changed();
   

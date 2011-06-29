@@ -69,6 +69,11 @@ namespace richmath{
       bool shift;
   };
   
+  const int BoxFlagDefault      = 0;
+  const int BoxFlagParseable    = 1; // no StyleBox with StripOnInput->True, ...
+  const int BoxFlagLiteral      = 2; // no DynamicBox
+  const int BoxFlagShortNumbers = 4; // not the internal representation of NumberBox, but the content()
+  
   class Box: public Base{
     public:
       Box();
@@ -119,9 +124,9 @@ namespace richmath{
       virtual Box *remove(int *index) = 0;
       
       virtual Expr to_pmath_symbol() = 0;
-      virtual Expr to_pmath(bool parseable) = 0;
-      virtual Expr to_pmath(bool parseable, int start, int end){
-        return to_pmath(parseable);
+      virtual Expr to_pmath(int flags) = 0; // BoxFlagXXX
+      virtual Expr to_pmath(int flags, int start, int end){
+        return to_pmath(flags);
       }
       
       virtual Box *move_logical(
@@ -161,6 +166,9 @@ namespace richmath{
       virtual Expr prepare_dynamic(Expr expr);
       virtual void dynamic_updated();
       virtual void dynamic_finished(Expr info, Expr result){}
+      
+      virtual Box *dynamic_to_literal(int *start, int *end);
+      
       bool         request_repaint_all();
       virtual bool request_repaint_range(int start, int end);
       virtual bool request_repaint(float x, float y, float w, float h);
@@ -232,7 +240,7 @@ namespace richmath{
       virtual Box *remove(int *index){ return this; }
       
       virtual Expr to_pmath_symbol(){ return Expr(); }
-      virtual Expr to_pmath(bool parseable){ return Expr(); }
+      virtual Expr to_pmath(int flags){ return Expr(); }
   };
 
   class AbstractSequence: public Box {
@@ -247,6 +255,8 @@ namespace richmath{
       
       virtual Box *extract_box(int boxindex) = 0;
       virtual void load_from_object(Expr object, int options) = 0; // BoxOptionXXX
+      
+      virtual Box *dynamic_to_literal(int *start, int *end);
       
       BoxSize &var_extents(){ return _extents; }
       

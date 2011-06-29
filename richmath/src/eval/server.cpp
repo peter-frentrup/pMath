@@ -318,14 +318,18 @@ class LocalServer: public Server{
             }
           }
         }
-
+        
        FINISH:
 
         Application::notify(CNT_ENDSESSION, Expr());
         pmath_session_end(old_dialog);
       }
       pmath_atomic_fetch_add(&dialog_depth, -1);
-
+      
+      if(pmath_atomic_read_aquire(&me->do_quit)){
+        pmath_abort_please();
+      }
+      
       return result;
     }
 

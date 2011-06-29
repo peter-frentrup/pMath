@@ -147,16 +147,16 @@ void RadicalBox::complete(){
   }
 }
 
-Expr RadicalBox::to_pmath(bool parseable){
+Expr RadicalBox::to_pmath(int flags){
   if(_exponent)
     return Call(
       Symbol(PMATH_SYMBOL_RADICALBOX), 
-      _radicand->to_pmath(parseable),
-      _exponent->to_pmath(parseable));
+      _radicand->to_pmath(flags),
+      _exponent->to_pmath(flags));
     
   return Call(
     Symbol(PMATH_SYMBOL_SQRTBOX),
-    _radicand->to_pmath(parseable));
+    _radicand->to_pmath(flags));
 }
 
 Box *RadicalBox::move_vertical(

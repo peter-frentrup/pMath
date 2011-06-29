@@ -50,10 +50,12 @@ namespace richmath{
       static void done();
       
       static void add_job(SharedPtr<Job> job);
+      static Box *find_current_job();
+      static bool remove_job(Box *input_box, bool only_check_possibility);
       static void abort_all_jobs();
       
       static bool is_idle();
-      static bool is_idle(int document_id);
+      static bool is_idle(Box *box);
       
       static Expr interrupt(Expr expr, double seconds);
       static Expr interrupt(Expr expr);
@@ -65,6 +67,8 @@ namespace richmath{
       static void execute_for(Expr expr, Box *box);
       
       static Expr internal_execute_for(Expr expr, int doc, int sect, int box);
+      
+      static void delay_dynamic_updates(bool delay);
       
     public:
       static double edit_interrupt_timeout;

@@ -58,19 +58,19 @@ void FillBox::paint_content(Context *context){
   }
 }
 
-Expr FillBox::to_pmath(bool parseable){
-  if(parseable)
-    return _content->to_pmath(true);
+Expr FillBox::to_pmath(int flags){
+  if(flags & BoxFlagParseable)
+    return _content->to_pmath(flags);
   
   if(weight == 1){
     return Call(
       Symbol(PMATH_SYMBOL_FILLBOX),
-      _content->to_pmath(false));
+      _content->to_pmath(flags));
   }
 
   return Call(
     Symbol(PMATH_SYMBOL_FILLBOX),
-    _content->to_pmath(false),
+    _content->to_pmath(flags),
     Number(weight));
 }
 

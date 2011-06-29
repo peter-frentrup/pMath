@@ -340,7 +340,7 @@ MathGtkDocumentWindow::~MathGtkDocumentWindow(){
 void MathGtkDocumentWindow::title(String text){
   _title = text;
 
-  if(!Application::is_idle(document()->id()))
+  if(!Application::is_idle(document()))
     text = String("Running... ") + text;
 
   char *str = pmath_string_to_utf8(text.get(), NULL);

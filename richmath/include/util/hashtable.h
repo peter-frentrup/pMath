@@ -162,8 +162,8 @@ namespace richmath{
       
       unsigned int size() const { return used_count; }
       
-      const Entry<K,V> *entry(unsigned int i ) const { return is_used(table[i]) ? table[i] : 0; }
-      Entry<K,V>       *entry(unsigned int i )       { return is_used(table[i]) ? table[i] : 0; }
+      const Entry<K,V> *entry(unsigned int i) const { return is_used(table[i]) ? table[i] : 0; }
+      Entry<K,V>       *entry(unsigned int i)       { return is_used(table[i]) ? table[i] : 0; }
       
       const V *search(const K &key) const {
         unsigned int i = lookup(key);

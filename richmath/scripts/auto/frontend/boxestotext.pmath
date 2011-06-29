@@ -52,6 +52,6 @@ FE`BoxesToText(Section(~x,~~~))::= FE`BoxesToText(x)
 
 FE`BoxesToText(SectionGroup(~s:List,~~~))::= s.Map(FE`BoxesToText).Row("\n\n").ToString
 
-FE`BoxesToText(~x)::= "[$Failed : " ++ x.ToString ++ "]"
+FE`BoxesToText(~x)::= x.RawBoxes.ToString /*"[$Failed : " ++ x.ToString ++ "]"*/
 
 End()

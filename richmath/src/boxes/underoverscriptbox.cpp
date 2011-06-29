@@ -260,25 +260,25 @@ Expr UnderoverscriptBox::to_pmath_symbol(){
   return Symbol(PMATH_SYMBOL_OVERSCRIPTBOX);
 }
 
-Expr UnderoverscriptBox::to_pmath(bool parseable){
+Expr UnderoverscriptBox::to_pmath(int flags){
   if(_underscript){
     if(_overscript)
       return Call(
         Symbol(PMATH_SYMBOL_UNDEROVERSCRIPTBOX),
-        _base->to_pmath(parseable),
-        _underscript->to_pmath(parseable),
-        _overscript->to_pmath(parseable));
+        _base->to_pmath(flags),
+        _underscript->to_pmath(flags),
+        _overscript->to_pmath(flags));
     
     return Call(
         Symbol(PMATH_SYMBOL_UNDERSCRIPTBOX),
-        _base->to_pmath(parseable),
-        _underscript->to_pmath(parseable));
+        _base->to_pmath(flags),
+        _underscript->to_pmath(flags));
   }
   
   return Call(
       Symbol(PMATH_SYMBOL_OVERSCRIPTBOX),
-      _base->to_pmath(parseable),
-      _overscript->to_pmath(parseable));
+      _base->to_pmath(flags),
+      _overscript->to_pmath(flags));
 }
 
 Box *UnderoverscriptBox::move_vertical(

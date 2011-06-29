@@ -167,10 +167,10 @@ Box *InputFieldBox::remove(int *index){
   return _content;
 }
 
-Expr InputFieldBox::to_pmath(bool parseable){
+Expr InputFieldBox::to_pmath(int flags){
   return Call(
     Symbol(PMATH_SYMBOL_INPUTFIELDBOX),
-    _content->to_pmath(parseable));
+    _content->to_pmath(flags));
 }
 
 bool InputFieldBox::exitable(){

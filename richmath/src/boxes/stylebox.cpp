@@ -237,14 +237,14 @@ StyleBox *StyleBox::create(Expr expr, int opts){
   return 0;
 }
 
-Expr StyleBox::to_pmath(bool parseable){
-  if(parseable && get_own_style(StripOnInput, true)){
-    return _content->to_pmath(parseable);
+Expr StyleBox::to_pmath(int flags){
+  if((flags & BoxFlagParseable) && get_own_style(StripOnInput, true)){
+    return _content->to_pmath(flags);
   }
   
   Gather g;
   
-  g.emit(_content->to_pmath(parseable));
+  g.emit(_content->to_pmath(flags));
   
   Expr e;
   bool with_inherited = true;
@@ -319,10 +319,10 @@ void TagBox::resize(Context *context){
   ExpandableAbstractStyleBox::resize(context);
 }
 
-Expr TagBox::to_pmath(bool parseable){
+Expr TagBox::to_pmath(int flags){
   Gather g;
   
-  g.emit(_content->to_pmath(parseable));
+  g.emit(_content->to_pmath(flags));
   g.emit(tag);
   
   int i;

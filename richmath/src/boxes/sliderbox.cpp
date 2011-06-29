@@ -328,10 +328,15 @@ double SliderBox::mouse_to_val(double mouse_x){
   return val;
 }
 
-Expr SliderBox::to_pmath(bool parseable){
+Expr SliderBox::to_pmath(int flags){
+  Expr val = dynamic.expr();
+  
+  if((flags & BoxFlagLiteral) && dynamic.is_dynamic())
+    val = val[1];
+  
   return Call(
     Symbol(PMATH_SYMBOL_SLIDERBOX),
-    dynamic.expr(),
+    val,
     range);
 }
 
@@ -360,6 +365,12 @@ void SliderBox::dynamic_finished(Expr info, Expr result){
   
   if(range_value != new_value)
     request_repaint_all();
+}
+
+Box *SliderBox::dynamic_to_literal(int *start, int *end){
+  if(dynamic.is_dynamic())
+    dynamic = dynamic.expr()[1];
+  return this;
 }
 
 void SliderBox::assign_dynamic_value(double d){

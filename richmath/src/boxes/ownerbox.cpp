@@ -61,8 +61,8 @@ Box *OwnerBox::remove(int *index){
   return _content;
 }
 
-Expr OwnerBox::to_pmath(bool parseable){
-  return _content->to_pmath(parseable);
+Expr OwnerBox::to_pmath(int flags){
+  return _content->to_pmath(flags);
 }
 
 Box *OwnerBox::move_vertical(

@@ -45,6 +45,8 @@ class DummyNativeWidget: public NativeWidget{
       return false;
     }
     
+    virtual void bring_to_front(){}
+    
     virtual void close(){}
     
     virtual void invalidate(){}

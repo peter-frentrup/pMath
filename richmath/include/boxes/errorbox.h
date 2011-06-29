@@ -18,7 +18,7 @@ namespace richmath{
       virtual Box *remove(int *index){ return this; }
       
       virtual Expr to_pmath_symbol(){ return Expr(); }
-      virtual Expr to_pmath(bool parseable){ return _object; }
+      virtual Expr to_pmath(int flags){ return _object; }
       
     private:
       Expr _object;

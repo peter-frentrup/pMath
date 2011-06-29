@@ -30,6 +30,7 @@ namespace richmath{
       virtual void returned(Expr expr) = 0;
       virtual void returned_boxes(Expr expr) = 0;
       virtual void end() = 0;
+      virtual void dequeued() = 0;
       
       Document *prepare_print(int *output_index);
       
@@ -49,6 +50,7 @@ namespace richmath{
       virtual void returned(Expr expr);
       virtual void returned_boxes(Expr expr);
       virtual void end();
+      virtual void dequeued();
   };
   
   class EvaluationJob: public InputJob{

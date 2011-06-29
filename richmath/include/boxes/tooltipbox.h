@@ -10,7 +10,7 @@ namespace richmath{
       static TooltipBox *create(Expr expr, int opts);
       
       virtual Expr to_pmath_symbol(){ return Symbol(PMATH_SYMBOL_TOOLTIPBOX); }
-      virtual Expr to_pmath(bool parseable);
+      virtual Expr to_pmath(int flags);
       
       virtual void on_mouse_enter();
       virtual void on_mouse_exit();

@@ -43,8 +43,8 @@ void GridItem::paint(Context *context){
   OwnerBox::paint(context);
 }
 
-Expr GridItem::to_pmath(bool parseable){
-  return _content->to_pmath(parseable);
+Expr GridItem::to_pmath(int flags){
+  return _content->to_pmath(flags);
 }
 
 Box *GridItem::mouse_selection(
@@ -878,11 +878,11 @@ Box *GridBox::remove(int *index){
   return move_logical(Backward, false, index);
 }
 
-Expr GridBox::to_pmath(bool parseable){
-  return to_pmath(parseable, 0, count());
+Expr GridBox::to_pmath(int flags){
+  return to_pmath(flags, 0, count());
 }
 
-Expr GridBox::to_pmath(bool parseable, int start, int end){
+Expr GridBox::to_pmath(int flags, int start, int end){
   int ax, ay, bx, by;
   items.index_to_yx(start,   &ay, &ax);
   items.index_to_yx(end - 1, &by, &bx);
@@ -906,7 +906,7 @@ Expr GridBox::to_pmath(bool parseable, int start, int end){
     
     for(int x = ax;x <= bx;++x){
       row.set(x - ax + 1,
-        item(y, x)->to_pmath(parseable));
+        item(y, x)->to_pmath(flags));
     }
     
     mat.set(y - ay + 1, row);

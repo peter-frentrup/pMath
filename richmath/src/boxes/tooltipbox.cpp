@@ -36,14 +36,14 @@ TooltipBox *TooltipBox::create(Expr expr, int opts){
   return tt;
 }
 
-Expr TooltipBox::to_pmath(bool parseable){
-  if(parseable && get_own_style(StripOnInput, true)){
-    return _content->to_pmath(parseable);
+Expr TooltipBox::to_pmath(int flags){
+  if((flags & BoxFlagParseable) && get_own_style(StripOnInput, true)){
+    return _content->to_pmath(flags);
   }
   
   Gather g;
   
-  Gather::emit(content()->to_pmath(parseable));
+  Gather::emit(content()->to_pmath(flags));
   Gather::emit(tooltip_boxes);
   
   if(style)

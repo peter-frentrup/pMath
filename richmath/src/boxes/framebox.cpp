@@ -60,10 +60,10 @@ void FrameBox::paint(Context *context){
   OwnerBox::paint(context);
 }
 
-Expr FrameBox::to_pmath(bool parseable){
+Expr FrameBox::to_pmath(int flags){
   return Call(
     Symbol(PMATH_SYMBOL_FRAMEBOX),
-    _content->to_pmath(parseable));
+    _content->to_pmath(flags));
 }
 
 //} ... class FrameBox

@@ -68,12 +68,12 @@ void SetterBox::paint(Context *context){
   ContainerWidgetBox::paint(context);
 }
 
-Expr SetterBox::to_pmath(bool parseable){
+Expr SetterBox::to_pmath(int flags){
   Gather g;
   
   g.emit(dynamic.expr());
   g.emit(value);
-  g.emit(_content->to_pmath(false));
+  g.emit(_content->to_pmath(flags & ~BoxFlagParseable));
   
   if(style)
     style->emit_to_pmath();
@@ -121,6 +121,12 @@ void SetterBox::dynamic_finished(Expr info, Expr result){
     is_down = new_is_down;
     request_repaint_all();
   }
+}
+
+Box *SetterBox::dynamic_to_literal(int *start, int *end){
+  if(dynamic.is_dynamic())
+    dynamic = dynamic.expr()[1];
+  return this;
 }
 
 //} ... class SetterBox

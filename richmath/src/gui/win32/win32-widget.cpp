@@ -244,6 +244,10 @@ bool Win32Widget::cursor_position(float *x, float *y){
   return false;
 }
 
+void Win32Widget::bring_to_front(){
+  SetFocus(_hwnd);
+}
+
 void Win32Widget::invalidate(){
   is_painting = false; // if inside WM_PAINT, invalidate at end of event
   InvalidateRect(_hwnd, 0, FALSE);

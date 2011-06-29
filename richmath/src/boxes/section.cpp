@@ -498,10 +498,10 @@ Box *AbstractSequenceSection::remove(int *index){
   return _content;
 }
 
-Expr AbstractSequenceSection::to_pmath(bool parseable){
+Expr AbstractSequenceSection::to_pmath(int flags){
   Gather g;
   
-  Expr cont = _content->to_pmath(false);
+  Expr cont = _content->to_pmath(flags/* & ~BoxFlagParseable*/);
   if(dynamic_cast<MathSequence*>(_content))
     cont = Call(Symbol(PMATH_SYMBOL_BOXDATA), cont);
   
@@ -593,8 +593,8 @@ EditSection::~EditSection(){
   delete original;
 }
 
-Expr EditSection::to_pmath(bool parseable){
-  Expr result = content()->to_pmath(true);
+Expr EditSection::to_pmath(int flags){
+  Expr result = content()->to_pmath(BoxFlagParseable);
   
   result = Application::interrupt(Call(
       Symbol(PMATH_SYMBOL_MAKEEXPRESSION), 

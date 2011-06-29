@@ -178,10 +178,10 @@ bool RotationBox::angle(Expr a){
   return true;
 }
 
-Expr RotationBox::to_pmath(bool parseable){
+Expr RotationBox::to_pmath(int flags){
   return Call(
     Symbol(PMATH_SYMBOL_ROTATIONBOX),
-    _content->to_pmath(parseable),
+    _content->to_pmath(flags),
     Rule(
       Symbol(PMATH_SYMBOL_BOXROTATION),
       _angle));
@@ -245,10 +245,10 @@ bool TransformationBox::matrix(Expr m){
   return false;
 }
 
-Expr TransformationBox::to_pmath(bool parseable){
+Expr TransformationBox::to_pmath(int flags){
   return Call(
     Symbol(PMATH_SYMBOL_TRANSFORMATIONBOX), 
-    _content->to_pmath(parseable),
+    _content->to_pmath(flags),
     Rule(
       Symbol(PMATH_SYMBOL_BOXTRANSFORMATION),
       _matrix));

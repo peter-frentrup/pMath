@@ -141,14 +141,14 @@ void SectionList::selection_path(Canvas *canvas, int start, int end){
   }
 }
 
-Expr SectionList::to_pmath(bool parseable){
-  return to_pmath(parseable, 0, length());
+Expr SectionList::to_pmath(int flags){
+  return to_pmath(flags, 0, length());
 }
 
-Expr SectionList::to_pmath(bool parseable, int start, int end){
+Expr SectionList::to_pmath(int flags, int start, int end){
   Gather g;
   
-  emit_pmath(parseable, start, end);
+  emit_pmath(flags, start, end);
   
   Expr group = g.end();
   
@@ -162,10 +162,10 @@ Expr SectionList::to_pmath(bool parseable, int start, int end){
     Symbol(PMATH_SYMBOL_ALL));
 }
 
-void SectionList::emit_pmath(bool parseable, int start, int end){
+void SectionList::emit_pmath(int flags, int start, int end){
   while(start < end){
     if(_group_info[start].end == start){
-      Gather::emit(_sections[start]->to_pmath(parseable));
+      Gather::emit(_sections[start]->to_pmath(flags));
       ++start;
     }
     else{
@@ -175,9 +175,9 @@ void SectionList::emit_pmath(bool parseable, int start, int end){
       
       Gather g;
       
-      g.emit(_sections[start]->to_pmath(parseable));
+      g.emit(_sections[start]->to_pmath(flags));
       
-      emit_pmath(parseable, start+1, e);
+      emit_pmath(flags, start+1, e);
       
       Expr group = g.end();
       Expr open;

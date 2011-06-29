@@ -49,6 +49,7 @@ namespace richmath{
       virtual void do_drag_drop(Box *src, int start, int end);
       virtual bool cursor_position(float *x, float *y);
       
+      virtual void bring_to_front();
       virtual void close(){}
       virtual void invalidate();
       virtual void invalidate_rect(float x, float y, float w, float h);

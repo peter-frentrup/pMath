@@ -73,6 +73,8 @@ void Dynamic::assign(Expr value){
     return;
   }
   
+  Application::delay_dynamic_updates(false);
+  
   Expr run;
   
   if(_expr.expr_length() >= 2) 

@@ -527,6 +527,7 @@ void Document::mouse_exit(){
 void Document::mouse_down(MouseEvent &event){
   Box *receiver = 0;
   
+  Application::delay_dynamic_updates(true);
   if(++mouse_down_counter == 1){
     event.set_source(this);
     
@@ -558,6 +559,7 @@ void Document::mouse_up(MouseEvent &event){
   Box *receiver = Box::find(context.clicked_box_id);
   
   if(--mouse_down_counter <= 0){
+    Application::delay_dynamic_updates(false);
     next_clicked_box_id = 0;
     mouse_down_counter = 0;
   }
@@ -648,7 +650,7 @@ void Document::focus_set(){
 
 void Document::focus_killed(){
   context.active = false;
-  mouse_down_counter = 0;
+  reset_mouse();
   
   if(selection_box())
     selection_box()->on_exit();
@@ -1930,7 +1932,11 @@ String Document::copy_to_text(String mimetype){
     return String();
   }
   
-  Expr boxes = selbox->to_pmath(false, context.selection.start, context.selection.end);
+  int flags = BoxFlagDefault;
+  if(mimetype.equals(Clipboard::PlainText))
+    flags |= BoxFlagLiteral | BoxFlagShortNumbers;
+  
+  Expr boxes = selbox->to_pmath(flags, context.selection.start, context.selection.end);
   if(mimetype.equals(Clipboard::BoxesText))
     return boxes.to_string(PMATH_WRITE_OPTIONS_INPUTEXPR | PMATH_WRITE_OPTIONS_FULLSTR);
   
@@ -1954,7 +1960,7 @@ void Document::copy_to_binary(String mimetype, Expr file){
       return;
     }
     
-    Expr boxes = selbox->to_pmath(false, context.selection.start, context.selection.end);
+    Expr boxes = selbox->to_pmath(BoxFlagDefault, context.selection.start, context.selection.end);
     file = Expr(pmath_file_create_compressor(file.release()));
     pmath_serialize(file.get(), boxes.release());
     pmath_file_close(file.release());
@@ -2031,7 +2037,7 @@ void Document::paste_from_boxes(Expr boxes){
             if(col < tmpgrid->cols()
             && row < tmpgrid->rows()){
               grid->item(row1 + row, col1 + col)->load_from_object(
-                Expr(tmpgrid->item(row, col)->to_pmath(false)),
+                Expr(tmpgrid->item(row, col)->to_pmath(BoxFlagDefault)),
                 BoxOptionFormatNumbers);
             }
             else{
@@ -3092,6 +3098,11 @@ void Document::complete_box(){
   }
   
   native()->beep();
+}
+
+void Document::reset_mouse(){
+  mouse_down_counter = 0;
+  Application::delay_dynamic_updates(false);
 }
 
 void Document::paint_resize(Canvas *canvas, bool resize_only){

@@ -58,10 +58,10 @@ void ButtonBox::resize(Context *context){
   context->width = old_width;
 }
 
-Expr ButtonBox::to_pmath(bool parseable){
+Expr ButtonBox::to_pmath(int flags){
   Gather g;
   
-  g.emit(_content->to_pmath(parseable));
+  g.emit(_content->to_pmath(flags));
   
   if(style)
     style->emit_to_pmath(false, false);
@@ -111,7 +111,7 @@ void ButtonBox::click(){
       fn,
       Call(
         Symbol(PMATH_SYMBOL_BOXDATA),
-        _content->to_pmath(false)));
+        _content->to_pmath(BoxFlagDefault)));
     
     if(method.equals("Preemptive")){
       Application::execute_for(fn, this, Application::button_timeout);

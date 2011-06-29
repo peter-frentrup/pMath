@@ -143,10 +143,15 @@ void ProgressIndicatorBox::paint(Context *context){
     content_size.height());
 }
 
-Expr ProgressIndicatorBox::to_pmath(bool parseable){
+Expr ProgressIndicatorBox::to_pmath(int flags){
+  Expr val = dynamic.expr();
+  
+  if((flags & BoxFlagLiteral) && dynamic.is_dynamic())
+    val = val[1];
+  
   return Call(
     Symbol(PMATH_SYMBOL_PROGRESSINDICATORBOX),
-    dynamic.expr(),
+    val,
     range);
 }
 
@@ -175,6 +180,12 @@ void ProgressIndicatorBox::dynamic_finished(Expr info, Expr result){
   
   if(range_value != new_value)
     request_repaint_all();
+}
+
+Box *ProgressIndicatorBox::dynamic_to_literal(int *start, int *end){
+  if(dynamic.is_dynamic())
+    dynamic = dynamic.expr()[1];
+  return this;
 }
 
 void ProgressIndicatorBox::on_mouse_move(MouseEvent &event){

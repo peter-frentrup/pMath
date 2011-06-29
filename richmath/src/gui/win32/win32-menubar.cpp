@@ -309,6 +309,8 @@ void Win32Menubar::set_focus(int item){
 //  if(_autohide){
     SetCursor(LoadCursor(0, IDC_ARROW));
     SetCapture(_hwnd);
+    Application::delay_dynamic_updates(true);
+  
 //  }
 }
 
@@ -326,6 +328,7 @@ void Win32Menubar::kill_focus(){
     _window->rearrange();
   }
   
+  Application::delay_dynamic_updates(false);
   if(GetCapture() == _hwnd){
     ReleaseCapture();
   }

@@ -47,7 +47,7 @@ class ScanData{
   public:
     MathSequence *sequence;
     int current_box;
-    bool parseable;
+    int flags;
 };
 
 //{ class MathSequence ...
@@ -622,25 +622,25 @@ void MathSequence::selection_path(Context *opt_context, Canvas *canvas, int star
   }
 }
 
-Expr MathSequence::to_pmath(bool parseable){
+Expr MathSequence::to_pmath(int flags){
   ScanData data;
-  data.sequence = this;
+  data.sequence    = this;
   data.current_box = 0;
-  data.parseable = parseable;
+  data.flags       = flags;
   
   ensure_spans_valid();
   
   return Expr(pmath_boxes_from_spans(
     spans.array(),
     str.get(),
-    parseable,
+    flags & BoxFlagParseable,
     box_at_index,
     &data));
 }
 
-Expr MathSequence::to_pmath(bool parseable, int start, int end){
+Expr MathSequence::to_pmath(int flags, int start, int end){
   if(start == 0 && end >= length())
-    return to_pmath(parseable);
+    return to_pmath(flags);
     
   const uint16_t *buf = str.buffer();
   int firstbox = 0;
@@ -653,7 +653,7 @@ Expr MathSequence::to_pmath(bool parseable, int start, int end){
   tmp->ensure_spans_valid();
   tmp->ensure_boxes_valid();
   
-  Expr result = tmp->to_pmath(parseable);
+  Expr result = tmp->to_pmath(flags);
   
   for(int i = 0;i < tmp->boxes.length();++i){
     Box *box     = boxes[firstbox + i];
@@ -1037,9 +1037,9 @@ void MathSequence::ensure_spans_valid(){
   spans_invalid = false;
   
   ScanData data;
-  data.sequence = this;
+  data.sequence    = this;
   data.current_box = 0;
-  data.parseable = false;
+  data.flags       = 0;
   
   pmath_string_t code = str.get_as_string();
   spans = pmath_spans_from_string(
@@ -1226,22 +1226,22 @@ void MathSequence::syntax_error(pmath_string_t code, int pos, void *_data, pmath
 pmath_t MathSequence::box_at_index(int i, void *_data){
   ScanData *data = (ScanData*)_data;
   
-  bool parseable = data->parseable;
-  if(parseable && data->sequence->is_inside_string(i)){
-    parseable = false;
+  int flags = data->flags;
+  if((flags & BoxFlagParseable) && data->sequence->is_inside_string(i)){
+    flags &= ~BoxFlagParseable;
   }
   
   int start = data->current_box;
   while(data->current_box < data->sequence->boxes.length()){
     if(data->sequence->boxes[data->current_box]->index() == i)
-      return data->sequence->boxes[data->current_box]->to_pmath(parseable).release();
+      return data->sequence->boxes[data->current_box]->to_pmath(flags).release();
     ++data->current_box;
   }
   
   data->current_box = 0;
   while(data->current_box < start){
     if(data->sequence->boxes[data->current_box]->index() == i)
-      return data->sequence->boxes[data->current_box]->to_pmath(parseable).release();
+      return data->sequence->boxes[data->current_box]->to_pmath(flags).release();
     ++data->current_box;
   }
   

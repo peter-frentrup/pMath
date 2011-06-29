@@ -353,6 +353,17 @@ void Box::dynamic_updated(){
   }
 }
 
+Box *Box::dynamic_to_literal(int *start, int *end){
+  for(int b = *start;b < *end;++b){
+    Box *box = item(b);
+    int s = 0;
+    int e = box->length();
+    item(b)->dynamic_to_literal(&s, &e);
+  }
+  
+  return this;
+}
+
 bool Box::request_repaint_all(){
   return request_repaint(
     0.0, 
@@ -718,6 +729,43 @@ AbstractSequence::AbstractSequence()
 }
 
 AbstractSequence::~AbstractSequence(){
+}
+
+Box *AbstractSequence::dynamic_to_literal(int *start, int *end){
+  int b = 0;
+  while(b < count()){
+    Box *box = item(b);
+    if(box->index() >= *start)
+      break;
+    
+    ++b;
+  }
+  
+  while(b < count()){
+    Box *box = item(b);
+    
+    if(box->index() >= *end)
+      break;
+    
+    int s = 0;
+    int e = box->length();
+    Box *next = box->dynamic_to_literal(&s, &e);
+    
+    if(next == this){
+      *end+= e - s - 1;
+      
+      while(b < count()){
+        box = item(b);
+        if(box->index() >= e)
+          break;
+        ++b;
+      }
+    }
+    else
+      ++b;
+  }
+  
+  return this;
 }
 
 bool AbstractSequence::request_repaint_range(int start, int end){

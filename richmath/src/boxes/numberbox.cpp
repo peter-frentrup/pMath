@@ -138,6 +138,13 @@ void NumberBox::paint(Context *context){
   context->show_auto_styles = old_show_auto_styles;
 }
 
+Expr NumberBox::to_pmath(int flags){
+  if(flags & BoxFlagShortNumbers)
+    return content()->to_pmath(flags);
+  
+  return _number;
+}
+
 Expr NumberBox::prepare_boxes(Expr boxes){
   if(boxes.is_string()){
     String s = String(boxes);

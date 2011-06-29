@@ -10,7 +10,7 @@ using namespace richmath;
 //{ class DynamicLocalBox ...
 
 DynamicLocalBox::DynamicLocalBox()
-: OwnerBox()
+: AbstractDynamicBox()
 {
 }
 
@@ -79,7 +79,7 @@ DynamicLocalBox *DynamicLocalBox::create(Expr expr, int options){
 void DynamicLocalBox::paint(Context *context){
   ensure_init();
   
-  OwnerBox::paint(context);
+  AbstractDynamicBox::paint(context);
   
   // todo: fetch variables from Server, maybe after each paint()
 }
@@ -111,13 +111,16 @@ void DynamicLocalBox::paint(Context *context){
     return expr;
   }
 
-Expr DynamicLocalBox::to_pmath(bool parseable){
+Expr DynamicLocalBox::to_pmath(int flags){
   ensure_init();
+  
+  if(flags & BoxFlagLiteral)
+    return content()->to_pmath(flags);
   
   Gather g;
   
   Gather::emit(_public_symbols);
-  Gather::emit(content()->to_pmath(parseable));
+  Gather::emit(content()->to_pmath(flags));
   Gather::emit(RuleDelayed(Symbol(PMATH_SYMBOL_INITIALIZATION),   _initialization));
   Gather::emit(RuleDelayed(Symbol(PMATH_SYMBOL_DEINITIALIZATION), _deinitialization));
   Gather::emit(RuleDelayed(Symbol(PMATH_SYMBOL_UNSAVEDVARIABLES), _unsaved_variables));
@@ -140,7 +143,7 @@ Expr DynamicLocalBox::to_pmath(bool parseable){
     }
     
     Expr values = g2.end();
-    values = OwnerBox::prepare_dynamic(values);
+    values = AbstractDynamicBox::prepare_dynamic(values);
     values = Expr(internal_replace_symbols(values.release(), _private_symbols, _public_symbols));
     Gather::emit(RuleDelayed(Symbol(PMATH_SYMBOL_DYNAMICLOCALVALUES), values));
   }
@@ -152,7 +155,7 @@ Expr DynamicLocalBox::to_pmath(bool parseable){
 
 Expr DynamicLocalBox::prepare_dynamic(Expr expr){
   expr = Expr(internal_replace_symbols(expr.release(), _public_symbols, _private_symbols));
-  return OwnerBox::prepare_dynamic(expr);
+  return AbstractDynamicBox::prepare_dynamic(expr);
 }
 
 void DynamicLocalBox::ensure_init(){

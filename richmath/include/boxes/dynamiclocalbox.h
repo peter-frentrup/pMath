@@ -1,11 +1,11 @@
 #ifndef __BOYES__DYNAMICLOCALBOX_H__
 #define __BOYES__DYNAMICLOCALBOX_H__
 
-#include <boxes/ownerbox.h>
+#include <boxes/dynamicbox.h>
 
 
 namespace richmath{
-  class DynamicLocalBox: public OwnerBox {
+  class DynamicLocalBox: public AbstractDynamicBox {
     public:
       virtual ~DynamicLocalBox();
       static DynamicLocalBox *create(Expr expr, int options);
@@ -13,7 +13,7 @@ namespace richmath{
       virtual void paint(Context *context);
       
       virtual Expr to_pmath_symbol(){ return Symbol(PMATH_SYMBOL_DYNAMICLOCALBOX); }
-      virtual Expr to_pmath(bool parseable);
+      virtual Expr to_pmath(int flags);
       
       virtual Expr prepare_dynamic(Expr expr);
       

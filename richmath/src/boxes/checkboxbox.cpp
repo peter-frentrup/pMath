@@ -63,10 +63,14 @@ void CheckboxBox::paint(Context *context){
   EmptyWidgetBox::paint(context);
 }
 
-Expr CheckboxBox::to_pmath(bool parseable){
+Expr CheckboxBox::to_pmath(int flags){
   Gather gather;
   
-  Gather::emit(dynamic.expr());
+  Expr val = dynamic.expr();
+  if((flags & BoxFlagLiteral) && dynamic.is_dynamic())
+    val = val[1];
+  
+  Gather::emit(val);
   
   if(values.is_null())
     Gather::emit(List(Symbol(PMATH_SYMBOL_FALSE), Symbol(PMATH_SYMBOL_TRUE)));
@@ -78,7 +82,7 @@ Expr CheckboxBox::to_pmath(bool parseable){
   
   Expr result = gather.end();
   if(values.is_null() && result.expr_length() == 2){
-    return Call(Symbol(PMATH_SYMBOL_CHECKBOXBOX), dynamic.expr());
+    return Call(Symbol(PMATH_SYMBOL_CHECKBOXBOX), val);
   }
   
   result.set(0, Symbol(PMATH_SYMBOL_CHECKBOXBOX));
@@ -89,6 +93,12 @@ void CheckboxBox::dynamic_finished(Expr info, Expr result){
   type = calc_type(result);
   
   request_repaint_all();
+}
+
+Box *CheckboxBox::dynamic_to_literal(int *start, int *end){
+  if(dynamic.is_dynamic())
+    dynamic = dynamic.expr()[1];
+  return this;
 }
 
 ContainerType CheckboxBox::calc_type(Expr result){

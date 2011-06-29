@@ -12,7 +12,7 @@ namespace richmath{
       virtual void paint(Context *context);
       
       virtual Expr to_pmath_symbol(){ return Symbol(PMATH_SYMBOL_FRAMEBOX); }
-      virtual Expr to_pmath(bool parseable);
+      virtual Expr to_pmath(int flags);
     
     protected:
       explicit FrameBox(MathSequence *content = 0);

@@ -24,7 +24,7 @@ namespace richmath{
       virtual Box *remove(int *index);
       
       virtual Expr to_pmath_symbol(){ return Symbol(PMATH_SYMBOL_FRACTIONBOX); }
-      virtual Expr to_pmath(bool parseable);
+      virtual Expr to_pmath(int flags);
       
       virtual Box *move_vertical(
         LogicalDirection  direction, 

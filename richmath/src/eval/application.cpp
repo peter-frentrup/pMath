@@ -104,6 +104,9 @@ static SharedPtr<Session>   session = new Session(0);
 static Hashtable<Expr, bool (*)(Expr)> menu_commands;
 static Hashtable<Expr, bool (*)(Expr)> menu_command_testers;
 
+static Hashtable<int, Void, cast_hash> pending_dynamic_updates;
+static bool dynamic_update_delay = false;
+
 static void execute(ClientNotification &cn);
 
 static EvaluationPosition print_pos;
@@ -323,6 +326,7 @@ void Application::register_menucommand(
       }
       if(pmath_aborting())
         return;
+      
       fwrite(buf, 1, len < BUFSIZE ? len : BUFSIZE, file);
       len-= BUFSIZE;
     }
@@ -483,21 +487,22 @@ int Application::run(){
 }
 
 void Application::done(){
+  Server::local_server->interrupt(Call(Symbol(PMATH_SYMBOL_ABORT)));
+  
   while(session){
-    SharedPtr<Job> job = session->current_job;
-    session->current_job = 0;
-    if(job){
-      job->end();
-    }
-
+    SharedPtr<Job> job;
+    
     while(session->jobs.get(&job)){
       if(job)
-        job->end();
+        job->dequeued();
     }
 
+    Server::local_server->interrupt(Call(Symbol(PMATH_SYMBOL_ABORT)));
+    //Server::local_server->abort_all();
+  
     session = session->next;
   }
-
+  
   ClientNotification cn;
   while(notifications.get(&cn)){
     cn.done();
@@ -528,40 +533,120 @@ void Application::add_job(SharedPtr<Job> job){
   }
 }
 
-void Application::abort_all_jobs(){
-  Server::local_server->interrupt(Call(Symbol(PMATH_SYMBOL_ABORT)));
-  //Server::local_server->abort_all();
+Box *Application::find_current_job(){
+  assert(main_message_queue == Expr(pmath_thread_get_queue()));
+  
+  Session *s = session.ptr();
+  
+  while(s && !s->current_job)
+    s = s->next.ptr();
+  
+  if(s){
+    EvaluationPosition pos = s->current_job->position();
+    
+    Box *box = Box::find(pos.box_id);
+    if(box)
+      return box;
+    
+    box = Box::find(pos.section_id);
+    if(box)
+      return box;
+      
+    box = Box::find(pos.document_id);
+    if(box)
+      return box;
+  }
+  
+  return 0;
+}
 
+bool Application::remove_job(Box *input_box, bool only_check_possibility){
+  assert(main_message_queue == Expr(pmath_thread_get_queue()));
+  
+  if(!input_box)
+    return false;
+  
+  ConcurrentQueue< SharedPtr<Job> > tested_jobs;
+  SharedPtr<Job> tmp;
+  
+  bool result = false;
+  SharedPtr<Session> s = session;
+  while(s){
+    while(s->jobs.get(&tmp)){
+      Box *sect = Box::find(tmp->position().section_id);
+      
+      if(sect == input_box){
+        if(only_check_possibility){
+          tested_jobs.put_front(tmp);
+        }
+        else
+          tmp->dequeued();
+          
+        result = true;
+        break;
+      }
+      
+      tested_jobs.put_front(tmp);
+    }
+    
+    while(tested_jobs.get(&tmp)){
+      s->jobs.put_front(tmp);
+    }
+    
+    if(result)
+      return true;
+    
+    s = s->next;
+  }
+  
+  return false;
+}
+
+void Application::abort_all_jobs(){
   if(session){
     SharedPtr<Job> job;
-//    job = session->current_job;
-//    session->current_job = 0;
-//    if(job){
-//      job->end();
-//    }
-
+    
     while(session->jobs.get(&job)){
       if(job)
-        job->end();
+        job->dequeued();
     }
   }
+  
+  Server::local_server->interrupt(Call(Symbol(PMATH_SYMBOL_ABORT)));
+  //Server::local_server->abort_all();
 }
 
 bool Application::is_idle(){
   return !session->current_job.is_valid();
 }
 
-bool Application::is_idle(int document_id){
+bool Application::is_idle(Box *box){
+  if(!box)
+    return true;
+  
+  Section *sect = box->find_parent<Section>(true);
+  
   SharedPtr<Session> s = session;
+  if(sect){
+    while(s){
+      SharedPtr<Job> job = s->current_job;
+      if(job && job->position().section_id == box->id())
+        return false;
 
+      s = s->next;
+    }
+    
+    return true;
+  }
+  
   while(s){
     SharedPtr<Job> job = s->current_job;
-    if(job && job->position().document_id == document_id)
+    if(job && job->position().document_id == box->id())
       return false;
 
     s = s->next;
   }
-
+  
   return true;
 }
 
@@ -609,6 +694,36 @@ Expr Application::interrupt(Expr expr){
   return interrupt(expr, interrupt_timeout);
 }
 
+Expr Application::interrupt_cached(Expr expr, double seconds){
+  if(!expr.is_pointer_of(PMATH_TYPE_SYMBOL | PMATH_TYPE_EXPRESSION))
+    return expr;
+
+  Expr *cached = eval_cache.search(expr);
+  if(cached)
+    return *cached;
+
+  Expr result = interrupt(expr, seconds);
+  if(result != PMATH_SYMBOL_ABORTED
+  && result != PMATH_SYMBOL_FAILED){
+    eval_cache.set(expr, result);
+  }
+  else if(result == PMATH_SYMBOL_ABORTED){
+    #ifdef RICHMATH_USE_WIN32_GUI
+      MessageBeep(-1);
+    #endif
+
+    #ifdef RICHMATH_USE_GTK_GUI
+      gdk_beep();
+    #endif
+  }
+
+  return result;
+}
+
+Expr Application::interrupt_cached(Expr expr){
+  return interrupt_cached(expr, interrupt_timeout);
+}
+
 void Application::execute_for(Expr expr, Box *box, double seconds){
 //  if(box)
 //    print_pos = EvaluationPosition(box);
@@ -648,34 +763,25 @@ Expr Application::internal_execute_for(Expr expr, int doc, int sect, int box){
   return expr;
 }
 
-Expr Application::interrupt_cached(Expr expr, double seconds){
-  if(!expr.is_pointer_of(PMATH_TYPE_SYMBOL | PMATH_TYPE_EXPRESSION))
-    return expr;
-
-  Expr *cached = eval_cache.search(expr);
-  if(cached)
-    return *cached;
-
-  Expr result = interrupt(expr, seconds);
-  if(result != PMATH_SYMBOL_ABORTED
-  && result != PMATH_SYMBOL_FAILED){
-    eval_cache.set(expr, result);
+void Application::delay_dynamic_updates(bool delay){
+  assert(main_message_queue == Expr(pmath_thread_get_queue()));
+  
+  dynamic_update_delay = delay;
+  
+  if(!delay){
+    for(unsigned i = 0, cnt = 0;cnt < pending_dynamic_updates.size();++i){
+      Entry<int, Void> *e = pending_dynamic_updates.entry(i);
+      
+      if(e){
+        ++cnt;
+        
+        Box *box = Box::find(e->key);
+        if(box)
+          box->dynamic_updated();
+      }
+    }
+    pending_dynamic_updates.clear();
   }
-  else if(result == PMATH_SYMBOL_ABORTED){
-    #ifdef RICHMATH_USE_WIN32_GUI
-      MessageBeep(-1);
-    #endif
-
-    #ifdef RICHMATH_USE_GTK_GUI
-      gdk_beep();
-    #endif
-  }
-
-  return result;
-}
-
-Expr Application::interrupt_cached(Expr expr){
-  return interrupt_cached(expr, interrupt_timeout);
 }
 
 static void cnt_startsession(){
@@ -695,9 +801,8 @@ static void cnt_startsession(){
 static void cnt_endsession(){
   SharedPtr<Job> job;
   while(session->jobs.get(&job)){
-    if(job){
-      job->end();
-    }
+    if(job)
+      job->dequeued();
   }
 
   if(session->next){
@@ -721,6 +826,7 @@ static void cnt_end(Expr data){
 
   if(job){
     job->end();
+    job->dequeued();
 
     {
       Document *doc = dynamic_cast<Document*>(
@@ -756,8 +862,10 @@ static void cnt_end(Expr data){
   bool more = false;
   if(data == PMATH_SYMBOL_ABORTED){
     while(session->jobs.get(&job)){
-      if(job)
+      if(job){
         job->end();
+        job->dequeued();
+      }
     }
   }
 
@@ -887,8 +995,14 @@ static void cnt_dynamicupate(Expr data){
     if(id_obj.is_int32()){
       Box *box = Box::find(PMATH_AS_INT32(id_obj.get()));
 
-      if(box)
-        box->dynamic_updated();
+      if(box){
+        if(dynamic_update_delay > 0){
+          pending_dynamic_updates.set(box->id(), Void());
+        }
+        else{
+          box->dynamic_updated();
+        }
+      }
     }
   }
 }

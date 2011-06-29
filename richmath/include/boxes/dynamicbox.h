@@ -5,7 +5,16 @@
 #include <eval/dynamic.h>
 
 namespace richmath{
-  class DynamicBox: public OwnerBox{
+  class AbstractDynamicBox: public OwnerBox{
+    public:
+      virtual ~AbstractDynamicBox();
+      virtual Box *dynamic_to_literal(int *start, int *end);
+      
+    protected:
+      explicit AbstractDynamicBox();
+  };
+  
+  class DynamicBox: public AbstractDynamicBox{
     public:
       virtual ~DynamicBox();
       
@@ -15,15 +24,16 @@ namespace richmath{
       virtual void paint_content(Context *context);
       
       virtual Expr to_pmath_symbol(){ return Symbol(PMATH_SYMBOL_DYNAMICBOX); }
-      virtual Expr to_pmath(bool parseable);
+      virtual Expr to_pmath(int flags);
       
       virtual void dynamic_updated();
       virtual void dynamic_finished(Expr info, Expr result);
+      
       virtual bool edit_selection(Context *context){ return false; }
       
       virtual void on_mouse_enter();
       virtual void on_mouse_exit();
-    
+      
     protected:
       explicit DynamicBox();
     

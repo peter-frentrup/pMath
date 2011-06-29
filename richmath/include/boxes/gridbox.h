@@ -19,7 +19,7 @@ namespace richmath{
       virtual void paint(Context *context);
       
       virtual Expr to_pmath_symbol(){ return Expr(); }
-      virtual Expr to_pmath(bool parseable);
+      virtual Expr to_pmath(int flags);
       
       virtual Box *mouse_selection(
         float  x,
@@ -84,8 +84,8 @@ namespace richmath{
       virtual Box *remove(int *index);
       
       virtual Expr to_pmath_symbol(){ return Symbol(PMATH_SYMBOL_GRIDBOX); }
-      virtual Expr to_pmath(bool parseable);
-      virtual Expr to_pmath(bool parseable, int start, int end);
+      virtual Expr to_pmath(int flags);
+      virtual Expr to_pmath(int flags, int start, int end);
       
       virtual Box *move_vertical(
         LogicalDirection  direction, 

@@ -81,6 +81,11 @@ class richmath::Win32WorkingArea: public Win32Widget{
         parent->title(parent->title());
     }
     
+    void bring_to_front(){
+      SetFocus(_hwnd);
+      SetForegroundWindow(parent->hwnd());
+    }
+    
     virtual void close(){
       SendMessageW(parent->hwnd(), WM_CLOSE, 0, 0);
     }
@@ -188,6 +193,11 @@ class richmath::Win32Dock: public Win32Widget {
     virtual bool is_scrollable(){ return false; }
     virtual void scroll_pos(float *x, float *y){ *x = *y = 0; }
     virtual void scroll_to(float x, float y){}
+    
+    void bring_to_front(){
+      SetFocus(_hwnd);
+      SetForegroundWindow(parent->hwnd());
+    }
     
     virtual void close(){
       SendMessageW(parent->hwnd(), WM_CLOSE, 0, 0);
@@ -772,7 +782,7 @@ void Win32DocumentWindow::rearrange(){
 void Win32DocumentWindow::title(String text){
   _title = text;
   
-  if(!Application::is_idle(document()->id()))
+  if(!Application::is_idle(document()))
     text = String("Running... ") + text;
   
   String tmp = text + String::FromChar(0);

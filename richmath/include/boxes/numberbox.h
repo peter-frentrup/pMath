@@ -15,7 +15,7 @@ namespace richmath{
       virtual void paint(Context *context);
       
       virtual Expr to_pmath_symbol(){ return Expr(); }
-      virtual Expr to_pmath(bool parseable){ return _number; }
+      virtual Expr to_pmath(int flags);
       
       static Expr prepare_boxes(Expr boxes);
       

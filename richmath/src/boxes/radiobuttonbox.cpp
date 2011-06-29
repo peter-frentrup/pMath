@@ -61,10 +61,14 @@ void RadioButtonBox::paint(Context *context){
   first_paint = false;
 }
 
-Expr RadioButtonBox::to_pmath(bool parseable){
+Expr RadioButtonBox::to_pmath(int flags){
   Gather gather;
   
-  Gather::emit(dynamic.expr());
+  Expr val = dynamic.expr();
+  if((flags & BoxFlagLiteral) && dynamic.is_dynamic())
+    val = val[1];
+  
+  Gather::emit(val);
   Gather::emit(value);
   
   if(style)
@@ -83,6 +87,12 @@ void RadioButtonBox::dynamic_finished(Expr info, Expr result){
   type = calc_type(result);
   
   request_repaint_all();
+}
+
+Box *RadioButtonBox::dynamic_to_literal(int *start, int *end){
+  if(dynamic.is_dynamic())
+    dynamic = dynamic.expr()[1];
+  return this;
 }
 
 ContainerType RadioButtonBox::calc_type(Expr result){

@@ -22,7 +22,7 @@ namespace richmath{
       virtual Box *remove(int *index){ return this; }
       
       virtual Expr to_pmath_symbol(){ return Symbol(PMATH_SYMBOL_PROGRESSINDICATORBOX); }
-      virtual Expr to_pmath(bool parseable);
+      virtual Expr to_pmath(int flags);
       
       virtual Box *mouse_selection(
         float  x,
@@ -33,6 +33,7 @@ namespace richmath{
 
       virtual void dynamic_updated();
       virtual void dynamic_finished(Expr info, Expr result);
+      virtual Box *dynamic_to_literal(int *start, int *end);
       
       virtual Box *mouse_sensitive(){ return this; }
       virtual void on_mouse_move(MouseEvent &event);

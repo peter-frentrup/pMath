@@ -12,7 +12,7 @@ namespace richmath{
       virtual void resize(Context *context);
       
       virtual Expr to_pmath_symbol(){ return Symbol(PMATH_SYMBOL_BUTTONBOX); }
-      virtual Expr to_pmath(bool parseable);
+      virtual Expr to_pmath(int flags);
       
       virtual void on_mouse_down(MouseEvent &event);
       virtual void on_mouse_move(MouseEvent &event);

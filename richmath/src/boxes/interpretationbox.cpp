@@ -29,10 +29,10 @@ InterpretationBox::InterpretationBox(MathSequence *content, Expr _interpretation
   style->set(Editable, false);
 }
 
-Expr InterpretationBox::to_pmath(bool parseable){
+Expr InterpretationBox::to_pmath(int flags){
   Gather g;
   
-  g.emit(_content->to_pmath(parseable));
+  g.emit(_content->to_pmath(flags));
   
   g.emit(interpretation);
   

@@ -15,7 +15,7 @@ namespace richmath{
       virtual void paint(Context *context);
       
       virtual Expr to_pmath_symbol(){ return Symbol(PMATH_SYMBOL_SETTERBOX); }
-      virtual Expr to_pmath(bool parseable);
+      virtual Expr to_pmath(int flags);
       
       virtual void on_mouse_down(MouseEvent &event);
       virtual void on_mouse_up(MouseEvent &event);
@@ -24,6 +24,7 @@ namespace richmath{
       
       virtual void dynamic_updated();
       virtual void dynamic_finished(Expr info, Expr result);
+      virtual Box *dynamic_to_literal(int *start, int *end);
     
     protected:
       explicit SetterBox(MathSequence *content = 0);

@@ -1,5 +1,6 @@
 #include <boxes/dynamicbox.h>
 
+#include <boxes/dynamiclocalbox.h>
 #include <boxes/mathsequence.h>
 #include <eval/application.h>
 #include <eval/job.h>
@@ -9,10 +10,40 @@
 
 using namespace richmath;
 
-//{ class DynamicBox ...abandon
+//{ class AbstractDynamicBox ...
+
+AbstractDynamicBox::AbstractDynamicBox()
+: OwnerBox()
+{
+}
+
+AbstractDynamicBox::~AbstractDynamicBox(){
+}
+
+Box *AbstractDynamicBox::dynamic_to_literal(int *start, int *end){
+  if(*start > 0 || *end < 1)
+    return this;
+  
+  int s = 0;
+  int e = content()->length();
+  content()->dynamic_to_literal(&s, &e);
+  
+  MathSequence *seq = dynamic_cast<MathSequence*>(parent());
+  if(!seq)
+    return this;
+  
+  *start = index();
+  *end = seq->insert(index(), content(), 0, content()->length());
+  seq->remove(*end, *end+1); // remove this
+  return seq;
+}
+
+//} ... class AbstractDynamicBox
+
+//{ class DynamicBox ...
 
 DynamicBox::DynamicBox()
-: OwnerBox(),
+: AbstractDynamicBox(),
   must_update(true),
   must_resize(false)
 {
@@ -42,7 +73,7 @@ DynamicBox *DynamicBox::create(Expr expr, int opts){
 }
 
 void DynamicBox::resize(Context *context){
-  OwnerBox::resize(context);
+  AbstractDynamicBox::resize(context);
   must_resize = false;
   
   if(_extents.width <= 0)
@@ -57,12 +88,12 @@ void DynamicBox::resize(Context *context){
 void DynamicBox::paint_content(Context *context){
   if(must_resize){
     context->canvas->save();
-    OwnerBox::resize(context);
+    AbstractDynamicBox::resize(context);
     must_resize = false;
     context->canvas->restore();
   }
   
-  OwnerBox::paint_content(context);
+  AbstractDynamicBox::paint_content(context);
   
   if(must_update){
     must_update = false;
@@ -80,7 +111,10 @@ void DynamicBox::paint_content(Context *context){
   }
 }
 
-Expr DynamicBox::to_pmath(bool parseable){
+Expr DynamicBox::to_pmath(int flags){
+  if(flags & BoxFlagLiteral)
+    return content()->to_pmath(flags);
+    
   Expr e = dynamic.expr();
   e.set(0, Symbol(PMATH_SYMBOL_DYNAMICBOX));
   return e;
@@ -105,13 +139,13 @@ void DynamicBox::dynamic_finished(Expr info, Expr result){
 }
 
 void DynamicBox::on_mouse_enter(){
-  OwnerBox::on_mouse_enter();
+  AbstractDynamicBox::on_mouse_enter();
   if(get_own_style(InternalUsesCurrentValueOfMouseOver, false))
     dynamic_updated();
 }
 
 void DynamicBox::on_mouse_exit(){
-  OwnerBox::on_mouse_exit();
+  AbstractDynamicBox::on_mouse_exit();
   if(get_own_style(InternalUsesCurrentValueOfMouseOver, false))
     dynamic_updated();
 }

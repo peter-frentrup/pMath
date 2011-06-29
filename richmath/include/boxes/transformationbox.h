@@ -38,7 +38,7 @@ namespace richmath{
       bool angle(Expr a);
       
       virtual Expr to_pmath_symbol(){ return Symbol(PMATH_SYMBOL_ROTATIONBOX); }
-      virtual Expr to_pmath(bool parseable);
+      virtual Expr to_pmath(int flags);
     
     private:
       Expr _angle;
@@ -54,7 +54,7 @@ namespace richmath{
       bool matrix(Expr m);
       
       virtual Expr to_pmath_symbol(){ return Symbol(PMATH_SYMBOL_TRANSFORMATIONBOX); }
-      virtual Expr to_pmath(bool parseable);
+      virtual Expr to_pmath(int flags);
       
     private:
       Expr _matrix;
