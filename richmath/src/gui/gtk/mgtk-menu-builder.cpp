@@ -65,11 +65,16 @@ static void on_menu_item_activate(GtkMenuItem *menuitem, void *id_ptr){
   }
 
 static gboolean on_map_menu(GtkWidget *menu, GdkEventAny *event, void *user_data){
+  // todo: handle tearoff menus
+  Application::delay_dynamic_updates(true);
+  
   gtk_container_foreach(GTK_CONTAINER(menu), on_map_menu_callback, NULL);
   return FALSE;
 }
 
 static gboolean on_unmap_menu(GtkWidget *menu, GdkEventAny *event, void *user_data){
+  Application::delay_dynamic_updates(false);
+  
   gtk_container_foreach(GTK_CONTAINER(menu), on_unmap_menu_callback, NULL);
   return FALSE;
 }

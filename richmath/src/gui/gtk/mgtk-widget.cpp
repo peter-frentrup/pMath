@@ -296,6 +296,10 @@ bool MathGtkWidget::cursor_position(float *x, float *y){
   return true;
 }
 
+void MathGtkWidget::bring_to_front(){
+  gtk_widget_grab_focus(_widget);
+}
+
 void MathGtkWidget::invalidate(){
   if(!_widget)
     return;

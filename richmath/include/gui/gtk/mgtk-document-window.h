@@ -56,7 +56,8 @@ namespace richmath {
       static MathGtkDocumentWindow *first_window();
       MathGtkDocumentWindow *prev_window(){ return _prev_window; }
       MathGtkDocumentWindow *next_window(){ return _next_window; }
-
+      
+      virtual void bring_to_front();
       virtual void close();
 
       void set_gravity();

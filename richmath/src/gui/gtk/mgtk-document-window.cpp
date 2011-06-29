@@ -31,6 +31,11 @@ class richmath::MathGtkWorkingArea: public MathGtkWidget{
       if(_parent->is_palette())
         *w = HUGE_VAL;
     }
+    
+    virtual void bring_to_front(){
+      _parent->bring_to_front();
+      gtk_widget_grab_focus(_widget);
+    }
 
     virtual void close(){
       _parent->close();
@@ -115,6 +120,11 @@ class richmath::MathGtkDock: public MathGtkWidget{
       }
 
       MathGtkWidget::invalidate();
+    }
+
+    virtual void bring_to_front(){
+      _parent->bring_to_front();
+      gtk_widget_grab_focus(_widget);
     }
 
     virtual void close(){
@@ -417,6 +427,10 @@ void MathGtkDocumentWindow::adjustment_changed(GtkAdjustment *adjustment){
 
 MathGtkDocumentWindow *MathGtkDocumentWindow::first_window(){
   return _first_window;
+}
+
+void MathGtkDocumentWindow::bring_to_front(){
+  gtk_window_present(GTK_WINDOW(_widget));
 }
 
 void MathGtkDocumentWindow::close(){
