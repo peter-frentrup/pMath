@@ -215,6 +215,8 @@ void Win32Menubar::show_menu(int item){
     if(!menu_animation)
       flags |= TPM_NOANIMATION;
     
+    Application::delay_dynamic_updates(true);
+    
     int cmd = TrackPopupMenuEx(
       current_popup,
       flags,
@@ -222,6 +224,9 @@ void Win32Menubar::show_menu(int item){
       pt.y,
       parent,
       &tpm);
+    
+    if(next_item <= 0)
+      Application::delay_dynamic_updates(false);
     
     current_popup = 0;
     
@@ -272,6 +277,8 @@ void Win32Menubar::show_sysmenu(){
       x = tpm.rcExclude.right;
     }
     
+    Application::delay_dynamic_updates(true);
+    
     int cmd = TrackPopupMenuEx(
       current_popup,
       GetSystemMetrics(SM_MENUDROPALIGNMENT) | TPM_RETURNCMD,
@@ -279,6 +286,8 @@ void Win32Menubar::show_sysmenu(){
       tpm.rcExclude.bottom,
       parent,
       &tpm);
+    
+    Application::delay_dynamic_updates(false);
     
     current_popup = 0;
     
