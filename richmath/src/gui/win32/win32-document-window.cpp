@@ -556,7 +556,7 @@ Win32DocumentWindow::~Win32DocumentWindow(){
   delete _bottom_area;
   delete _bottom_glass_area;
   delete _working_area;
-  delete menubar;
+  delete menubar; menubar = 0;
   
   // remove all menu items so that the submenus are not destroyed automatically
   HMENU sysmenu = GetSystemMenu(_hwnd, FALSE);
@@ -777,6 +777,8 @@ void Win32DocumentWindow::rearrange(){
     _bottom_area->invalidate();
     _bottom_glass_area->invalidate();
   }
+  
+  menubar->resized();
 }
 
 void Win32DocumentWindow::title(String text){

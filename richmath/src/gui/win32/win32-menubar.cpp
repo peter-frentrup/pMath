@@ -87,6 +87,10 @@ Win32Menubar::Win32Menubar(Win32DocumentWindow *window, HWND parent, SharedPtr<W
   
   SendMessageW(_hwnd, TB_BUTTONSTRUCTSIZE, (WPARAM)sizeof(TBBUTTON), 0);
   
+  
+  init_image_list();
+  
+  
   Array<TBBUTTON>  buttons(_menu.is_valid() ? GetMenuItemCount(_menu->hmenu()) : 0);
   Array<wchar_t[100]> texts(buttons.length());
   
@@ -111,6 +115,23 @@ Win32Menubar::Win32Menubar(Win32DocumentWindow *window, HWND parent, SharedPtr<W
     buttons[i].iString = (INT_PTR)texts[i];
   }
   
+  separator_index = buttons.length();
+  buttons.length(separator_index + 2);
+  buttons[separator_index].iBitmap = I_IMAGENONE; 
+  buttons[separator_index].idCommand = separator_index + 1;
+  buttons[separator_index].fsState = TBSTATE_ENABLED;
+  buttons[separator_index].fsStyle = BTNS_BUTTON;
+  buttons[separator_index].dwData = 0;
+  buttons[separator_index].iString = (INT_PTR)L"";
+  
+  pin_index = separator_index + 1;
+  buttons[pin_index].iBitmap = 0; 
+  buttons[pin_index].idCommand = pin_index + 1;
+  buttons[pin_index].fsState = TBSTATE_ENABLED;
+  buttons[pin_index].fsStyle = BTNS_AUTOSIZE | BTNS_BUTTON | BTNS_CHECK;
+  buttons[pin_index].dwData = 0;
+  buttons[pin_index].iString = (INT_PTR)L"";
+  
   SendMessageW(_hwnd, TB_ADDBUTTONSW, 
     (WPARAM)buttons.length(), 
     (LPARAM)buttons.items()); 
@@ -128,6 +149,18 @@ Win32Menubar::~Win32Menubar(){
   
   if(Win32Themes::BufferedPaintUnInit)
      Win32Themes::BufferedPaintUnInit();
+    
+  ImageList_Destroy(image_list);
+}
+
+void Win32Menubar::init_image_list(){
+  image_list = ImageList_Create(16, 16, ILC_COLOR24 | ILC_MASK, 2, 0);
+  
+  HBITMAP hbmp = LoadBitmapW((HINSTANCE)GetModuleHandle(NULL), MAKEINTRESOURCEW(BMP_PIN));
+  ImageList_AddMasked(image_list, hbmp, RGB(0xFF, 0, 0xFF));
+  DeleteObject(hbmp);
+  
+  SendMessageW(_hwnd, TB_SETIMAGELIST, 0, (LPARAM)image_list);
 }
 
 bool Win32Menubar::visible(){
@@ -166,12 +199,39 @@ void Win32Menubar::appearence(MenuAppearence value){
       break;
   }
   
+  for(int i = separator_index;i <= pin_index;++i){
+    TBBUTTONINFOW info;
+    info.cbSize = sizeof(info);
+    info.dwMask = TBIF_BYINDEX | TBIF_STATE;
+    
+    SendMessageW(_hwnd, TB_GETBUTTONINFOW, i, (LPARAM)&info);
+    
+    if(_appearence == MaAutoShow)
+      info.fsState&= ~TBSTATE_HIDDEN;
+    else
+      info.fsState|= TBSTATE_HIDDEN;
+    
+    SendMessageW(_hwnd, TB_SETBUTTONINFOW, i, (LPARAM)&info);
+  }
 //  if(_autohide){
-//    if(visible())
+//    if(visible() && !is_pinned())
 //      kill_focus();
 //  }
 //  else if(!visible())
 //    set_focus(0);
+}
+
+bool Win32Menubar::is_pinned(){
+  if(_appearence != MaAutoShow)
+    return false;
+  
+  TBBUTTONINFOW info;
+  info.cbSize = sizeof(info);
+  info.dwMask = TBIF_BYINDEX | TBIF_STATE;
+  
+  SendMessageW(_hwnd, TB_GETBUTTONINFOW, pin_index, (LPARAM)&info);
+  
+  return (info.fsState & TBSTATE_CHECKED) != 0;
 }
 
 void Win32Menubar::show_menu(int item){
@@ -332,7 +392,7 @@ void Win32Menubar::kill_focus(){
   if(current_menubar == this)
     current_menubar = 0;
   
-  if(_appearence == MaAutoShow){
+  if(_appearence == MaAutoShow && !is_pinned()){
     ShowWindow(_hwnd, SW_HIDE);
     _window->rearrange();
   }
@@ -384,6 +444,26 @@ int Win32Menubar::find_hilite_menuitem(HMENU *menu){
   return -1;
 }
 
+void Win32Menubar::resized(){
+  RECT rect;
+  GetClientRect(_hwnd, &rect);
+  
+  SIZE size;
+  SendMessageW(_hwnd, TB_GETMAXSIZE, 0, (LPARAM)&size);
+  
+  TBBUTTONINFOW info;
+  memset(&info, 0, sizeof(info));
+  info.cbSize = sizeof(info);
+  info.dwMask = TBIF_BYINDEX | TBIF_SIZE;
+  
+  SendMessageW(_hwnd, TB_GETBUTTONINFOW, separator_index, (LPARAM)&info);
+  
+  info.cx+= rect.right - size.cx;
+  if(info.cx < 1)
+    info.cx = 1;
+  SendMessageW(_hwnd, TB_SETBUTTONINFOW, separator_index, (LPARAM)&info);
+}
+
 bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM lParam){
   switch(message){
     case WM_NOTIFY: {
@@ -406,20 +486,47 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
             && current_menubar == this 
             && current_item != hi->idNew
             && hi->idNew){
-              next_item = hi->idNew;
-              
-              EndMenu();
-              return true;
+              if(hi->idNew <= separator_index){
+                next_item = hi->idNew;
+                
+                EndMenu();
+                return true;
+              }
+              else{
+                *result = 0;
+                return true;
+              }
             }
           } break;
           
           case NM_CLICK: {
             POINT pt = ((NMMOUSE*)lParam)->pt;
             
-            if(current_popup == 0
-            && SendMessageW(_hwnd, TB_HITTEST, 0, (LPARAM)&pt) < 0){
-              kill_focus();
-            }
+            if(current_popup == 0){
+              int index = SendMessageW(_hwnd, TB_HITTEST, 0, (LPARAM)&pt);
+              
+              if(index == pin_index){
+                TBBUTTONINFOW info;
+                info.cbSize = sizeof(info);
+                info.dwMask = TBIF_BYINDEX | TBIF_STATE;
+                SendMessageW(_hwnd, TB_GETBUTTONINFOW, pin_index, (LPARAM)&info);
+                
+                info.dwMask = TBIF_BYINDEX | TBIF_IMAGE;
+                if(info.fsState & TBSTATE_CHECKED){
+                  info.iImage = 1;
+                  kill_focus();
+                }
+                else{
+                  info.iImage = 0;
+                  set_focus(0);
+                }
+                
+                SendMessageW(_hwnd, TB_SETBUTTONINFOW, pin_index, (LPARAM)&info);
+              }
+              else if(index < 0 || index == separator_index)
+                kill_focus();
+            } 
+            
           } break;
           
           case NM_KEYDOWN: {
@@ -495,19 +602,47 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
               } return true;
               
               case CDDS_ITEMPREPAINT: {
+                draw->nmcd.uItemState = CDIS_DEFAULT;
+                *result = CDRF_DODEFAULT;
+                
+//                draw->nmcd.rc.left+= 20;
+//                draw->rcText.right+= 20;
+                
                 ControlState state = Normal;
                 if(GetForegroundWindow() == _window->hwnd())
                   draw->clrText = GetSysColor(COLOR_MENUTEXT);
                 else
                   draw->clrText = GetSysColor(COLOR_GRAYTEXT);
-                  
-                if(current_item == (int)draw->nmcd.dwItemSpec
-                ||    next_item == (int)draw->nmcd.dwItemSpec){
-                  state = Pressed;
+                
+                if((int)draw->nmcd.dwItemSpec == separator_index + 1){
+                  *result = CDRF_SKIPDEFAULT;
                 }
-                else if(current_item == 0 && next_item == 0
-                && draw->nmcd.uItemState & CDIS_HOT)
-                  state = Pressed;//Hot;
+                else if((int)draw->nmcd.dwItemSpec > separator_index){
+                  
+                  TBBUTTONINFOW info;
+                  info.cbSize = sizeof(info);
+                  info.dwMask = TBIF_BYINDEX | TBIF_STATE;
+                  
+                  SendMessageW(_hwnd, TB_GETBUTTONINFOW, (int)draw->nmcd.dwItemSpec, (LPARAM)&info);
+                  
+                  if(info.fsState & TBSTATE_CHECKED){
+                    state = Pressed;
+                  }
+                    
+                  if(draw->nmcd.uItemState & CDIS_CHECKED)
+                    state = Pressed;
+                  else if(draw->nmcd.uItemState & CDIS_HOT)
+                    state = Hot;
+                }
+                else{
+                  if(current_item == (int)draw->nmcd.dwItemSpec
+                  ||    next_item == (int)draw->nmcd.dwItemSpec){
+                    state = Pressed;
+                  }
+                  else if(current_item == 0 && next_item == 0
+                  && draw->nmcd.uItemState & CDIS_HOT)
+                    state = Pressed;//Hot;
+                }
                 
                 if(!Win32ControlPainter::win32_painter.draw_menubar_itembg(
                     draw->nmcd.hdc, 
@@ -516,10 +651,6 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
                 && state != Normal){
                   draw->clrText = GetSysColor(COLOR_HIGHLIGHTTEXT);
                 }
-                
-                draw->nmcd.uItemState = CDIS_DEFAULT;
-                
-                *result = CDRF_DODEFAULT;
               } return true;
             }
           } break;
@@ -574,13 +705,19 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
     
     case WM_SYSKEYUP: {
       if(_appearence != MaNeverShow){
+        bool was_visible = visible();
+        
         switch(wParam){
           case VK_MENU: 
             set_focus(0);
+            if(was_visible)
+              show_menu(1);
             return true;
           case VK_F10: 
             if(!(GetKeyState(VK_SHIFT) & ~1)){
               set_focus(0);
+              if(was_visible)
+                show_menu(1);
               return true;
             }
             break;
@@ -589,6 +726,13 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
     } break;
     
     case WM_SYSCOMMAND: {
+      if(wParam == SC_CLOSE){
+        if(focused){
+          *result = 0;
+          return true;
+        }
+      }
+      
       if((wParam & 0xFFF0) == SC_KEYMENU){
         if(!lParam){
           PostMessage(_hwnd, WM_KEYDOWN, VK_ESCAPE, 0);
@@ -598,7 +742,7 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
     } break;
     
     case WM_ACTIVATE: {
-      if(wParam == WA_INACTIVE && _appearence == MaAutoShow && visible()){
+      if(wParam == WA_INACTIVE && _appearence == MaAutoShow && visible() && !is_pinned()){
         ShowWindow(_hwnd, SW_HIDE);
         _window->rearrange();
       }

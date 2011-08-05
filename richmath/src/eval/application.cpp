@@ -996,7 +996,7 @@ static void cnt_dynamicupate(Expr data){
       Box *box = Box::find(PMATH_AS_INT32(id_obj.get()));
 
       if(box){
-        if(dynamic_update_delay > 0){
+        if(dynamic_update_delay){
           pending_dynamic_updates.set(box->id(), Void());
         }
         else{

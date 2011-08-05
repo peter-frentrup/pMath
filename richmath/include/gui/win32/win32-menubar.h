@@ -6,6 +6,7 @@
 #endif
 
 #include <windows.h>
+#include <commctrl.h>
 
 #include <util/base.h>
 #include <util/sharedptr.h>
@@ -33,10 +34,14 @@ namespace richmath{
       
       MenuAppearence appearence(){ return _appearence; }
       void appearence(MenuAppearence value);
+      bool is_pinned();
       
+      void resized();
       bool callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM lParam);
       
     protected:
+      void init_image_list();
+      
       void show_menu(int item);
       void show_sysmenu();
       
@@ -56,12 +61,17 @@ namespace richmath{
       HWND                 _hwnd;
       SharedPtr<Win32Menu> _menu;
       
+      HIMAGELIST image_list;
+      
       bool focused;
       bool menu_animation;
       
       HMENU current_popup;
       int current_item;
       int next_item;
+      
+      int separator_index;
+      int pin_index;
       
       static LRESULT CALLBACK menu_hook_proc(int code, WPARAM wParam, LPARAM lParam);
   };

@@ -16,3 +16,6 @@ CUR_TEXT_NE  CURSOR "text_beam_ne.cur"
 CUR_SECTION  CURSOR "section_beam.cur"
 CUR_DOCUMENT CURSOR "document_beam.cur"
 CUR_NOSELECT CURSOR "no_select.cur"
+
+
+BMP_PIN BITMAP "pin.bmp"
