@@ -277,6 +277,8 @@ SetOptions::changebf:= "The BinaryFormat option of stream `1` cannot be changed 
 StringExpression::invld:= "Element `1` is not a valid string or pattern element in `2`."
 StringReplace::srep:= "`1` is not a valid string replacement rule."
 
+Switch::argct:= "Switch called with `1` arguments. Switch must be called with an odd number of arguments."
+
 Take::take:= StringTake::take:= "Cannot take positions `1` through `2` in `3`.";
 
 Thread::len:= "Cannot combine expressions of unequal length in `1`."
@@ -293,3 +295,5 @@ Try::nomsgs:= "`1` is neither a valid message name nor a list of valid message n
 Uncompress::corrupt: "Compressed data `1` is corrupt and does not represent an expression."
 
 UnitVector::dir:= "There is no `1` dimensional unit vector in direction `2`."
+
+Which::argct:= "Which called with `1` arguments. Which must be called with an even number of arguments."

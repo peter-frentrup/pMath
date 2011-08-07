@@ -244,8 +244,10 @@ void MathGtkDocumentWindow::after_construction(){
 
   _menu_bar = gtk_menu_bar_new();
   MathGtkMenuBuilder::main_menu.append_to(GTK_MENU_SHELL(_menu_bar), accel_group, document()->id());
-
+  MathGtkAccelerators::connect_all(accel_group, document()->id());
+  
   gtk_window_add_accel_group(GTK_WINDOW(_widget), accel_group);
+  g_object_unref(accel_group);
 
   _table = gtk_table_new(2, 5, FALSE);
   gtk_container_add(GTK_CONTAINER(_widget), _table);
@@ -300,7 +302,7 @@ MathGtkDocumentWindow::~MathGtkDocumentWindow(){
 //  _top_area->_parent     = 0;
 //  _working_area->_parent = 0;
 //  _bottom_area->_parent  = 0;
-
+  
   static bool deleting_all = false;
   if(!deleting_all){
     bool have_only_palettes = true;
@@ -383,6 +385,10 @@ void MathGtkDocumentWindow::is_palette(bool value){
 
 void MathGtkDocumentWindow::run_menucommand(Expr cmd){
   String cmd_str(cmd);
+  
+  cmd_str = cmd_str.trim();
+  if(cmd.is_string())
+    cmd = cmd_str;
 
   if(cmd_str.starts_with(         "@shaper=")){
     cmd_str = cmd_str.part(sizeof("@shaper=") - 1, -1);

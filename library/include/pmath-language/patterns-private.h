@@ -52,7 +52,7 @@ PMATH_PRIVATE
 pmath_bool_t _pmath_pattern_match(
   pmath_t  obj,      // wont be freed
   pmath_t  pattern,  // will be freed
-  pmath_t *rhs);     // in/out (right hand side of assign, Rule, ...)
+  pmath_t *rhs);     // [optional] in/out (right hand side of assign, Rule, ...)
 
 PMATH_PRIVATE pmath_bool_t _pmath_contains_any(
   pmath_t           object,         // wont be freed

@@ -974,6 +974,7 @@ int main(int argc, char **argv){
 
   #ifdef RICHMATH_USE_GTK_GUI
     MathGtkMenuBuilder::main_menu = MathGtkMenuBuilder();
+    MathGtkAccelerators::done();
   #endif
 
   // needed to clear the message_queue member:

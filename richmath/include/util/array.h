@@ -67,6 +67,8 @@ namespace richmath{
       
       Array &operator=(const Array &src){
         if(this != &src){
+          delete[] _items;
+          
           _length   = src._length;
           _capacity = best_capacity(src._length);
           _items    = 0;

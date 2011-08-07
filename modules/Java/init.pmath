@@ -56,40 +56,45 @@ Methods::usage:= "Methods(JavaClass(\"\(StyleBox(\"classname\", BaseStyle -> \"A
 ParentClass::usage:= "ParentClass(JavaClass(\"\(StyleBox(\"classname\", BaseStyle -> \"Arg\")\)\")) gives the parent class of the specified Java class."
 
 
-If($SystemId === "Windows",
-	path:= Join(Environment("PATH").StringSplit($PathListSeparator),
-	            Environment("ProgramFiles").StringSplit($PathListSeparator));
+Which(
+	$SystemId === "Windows",
+	(
+		path:= Join(Environment("PATH").StringSplit($PathListSeparator),
+					Environment("ProgramFiles").StringSplit($PathListSeparator));
+		
+		path:= FileNames("Java", path).Reverse;
+		path:= Join(FileNames("jre*", path), FileNames("jre", FileNames("jdk*", path)));
+		path:= FileNames("bin", path);
+		path:= FileNames({"server","client"}, path);
+		path:= FileNames("jvm.dll", path);
+		
+		Unprotect($JavaVMLibraryName);
+		$JavaVMLibraryName:= First(path);
+		Unprotect($JavaVMLibraryName);
+		),
 	
-	path:= FileNames("Java", path).Reverse;
-	path:= Join(FileNames("jre*", path), FileNames("jre", FileNames("jdk*", path)));
-	path:= FileNames("bin", path);
-	path:= FileNames({"server","client"}, path);
-	path:= FileNames("jvm.dll", path);
-	
-	Unprotect($JavaVMLibraryName);
-	$JavaVMLibraryName:= First(path);
-	Unprotect($JavaVMLibraryName);
-	)
-If($SystemId === "Linux",
-	If($ProcessorType === "x64", 
-		arch:= "amd64";
-		path:= {"/usr/lib64", "/usr/local/lib64"};
-	,
-		arch:= "i386";
-		path:= {"/usr/lib", "/usr/local/lib"});
-	
-	path:= FileNames("jvm", path);
-	path:= FileNames("*", path);
-	path:= FileNames("jre", path);
-	path:= FileNames("lib", path);
-	path:= FileNames(arch, path);
-	path:= FileNames({"server","client"}, path);
-	path:= FileNames("libjvm.so", path);
-	
-	Unprotect($JavaVMLibraryName);
-	$JavaVMLibraryName:= First(path);
-	Unprotect($JavaVMLibraryName);
-	)
+	$SystemId === "Linux",
+	(
+		If($ProcessorType === "x64", 
+			arch:= "amd64";
+			path:= {"/usr/lib64", "/usr/local/lib64"};
+		,
+			arch:= "i386";
+			path:= {"/usr/lib", "/usr/local/lib"});
+		
+		path:= FileNames("jvm", path);
+		path:= FileNames("*", path);
+		path:= FileNames("jre", path);
+		path:= FileNames("lib", path);
+		path:= FileNames(arch, path);
+		path:= FileNames({"server","client"}, path);
+		path:= FileNames("libjvm.so", path);
+		
+		Unprotect($JavaVMLibraryName);
+		$JavaVMLibraryName:= First(path);
+		Unprotect($JavaVMLibraryName);
+		)
+	);
 
 $DefaultClassPath:= {ToFileName(DirectoryName($Input), "classpath")}
 

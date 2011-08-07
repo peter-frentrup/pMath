@@ -960,6 +960,8 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
       case WM_COMMAND: {
         String cmd = Win32Menu::command_id_to_string(LOWORD(wParam));
         
+        cmd = cmd.trim();
+        
         if(cmd.starts_with(     "@shaper=")){
           cmd = cmd.part(sizeof("@shaper=") - 1, -1);
           

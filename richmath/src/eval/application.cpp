@@ -262,7 +262,22 @@ Expr Application::notify_wait(ClientNotificationType type, Expr data){
 
 bool Application::is_menucommand_runnable(Expr cmd){
   bool (*func)(Expr);
-
+  
+  if(cmd.is_string()){
+    String scmd(cmd);
+    
+    scmd = scmd.trim();
+    
+    if(scmd.starts_with("@shaper=")){
+      scmd = scmd.part(sizeof("@shaper=") - 1, -1);
+      
+      if(!MathShaper::available_shapers.search(scmd))
+        return false;
+    }
+    
+    cmd = scmd;
+  }
+  
   func = menu_command_testers[cmd];
   if(func && !func(cmd))
     return false;
@@ -271,17 +286,6 @@ bool Application::is_menucommand_runnable(Expr cmd){
   if(func && !func(cmd))
     return false;
   
-  if(cmd.is_string()){
-    String scmd(cmd);
-    
-    if(scmd.starts_with("@shaper=")){
-      scmd = scmd.part(sizeof("@shaper=") - 1, -1);
-      
-      if(!MathShaper::available_shapers.search(scmd))
-        return false;
-    }
-  }
-
   return true;
 }
 

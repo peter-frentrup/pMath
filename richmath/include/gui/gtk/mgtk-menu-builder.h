@@ -9,6 +9,8 @@
 
 #include <gtk/gtk.h>
 
+#include <util/array.h>
+
 namespace richmath{
   using namespace pmath; // bad style!!!
   
@@ -30,6 +32,15 @@ namespace richmath{
   class MathGtkAccelerators{
     public:
       static void load(Expr expr);
+      
+      static void done(){
+        all_accelerators = Array<String>();
+      }
+      
+      static void connect_all(GtkAccelGroup *accel_group, int document_id);
+      
+    public:
+      static Array<String> all_accelerators;
   };
 }
 

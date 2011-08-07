@@ -386,7 +386,7 @@ namespace pmath{
       }
       
       /**\brief Get string part. */
-      String part(int start, int length) const throw() {
+      String part(int start, int length = -1) const throw() {
         return String(pmath_string_part(
           (pmath_string_t)pmath_ref(_obj), start, length));
       }
@@ -480,6 +480,20 @@ namespace pmath{
           
         pmath_unref(_obj);
         _obj = pmath_string_concat(prefix, postfix);
+      }
+      
+      const String trim() const throw() {
+        int end = length()-1;
+        int start = 0;
+        const uint16_t *buf = buffer();
+        
+        while(start <= end && buf[start] <= ' ')
+          ++start;
+        
+        while(start < end && buf[end] <= ' ')
+          --end;
+        
+        return part(start, end+1-start);
       }
       
       /**\brief Get the string length. */

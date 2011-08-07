@@ -29,13 +29,17 @@ FE`Private`shortcuts:= {
 	Item(KeyEvent("Enter", {KeyAlt}),               "SimilarSectionBelow"),
 	Item(KeyEvent("/", {KeyControl}),               "InsertFraction"),
 	Item(KeyEvent("2", {KeyControl}),               "InsertRadical"),
-	Item(KeyEvent("-", {KeyControl}),               "InsertSubscript"),
-	Item(KeyEvent("^", {KeyControl}),               "InsertSuperscript"),
-	/* Item(KeyEvent("6", {KeyControl}),               "InsertSuperscript"),*/
-	Item(KeyEvent("7", {KeyControl}),               "InsertOverscript"),
+	Item(KeyEvent("@", {KeyControl}),               "InsertRadical"),
+	Item(KeyEvent("4", {KeyControl}),               "InsertUnderscript"),
 	Item(KeyEvent("+", {KeyControl}),               "InsertUnderscript"),
-	/* Item(KeyEvent("4", {KeyControl}),               "InsertUnderscript"),*/
 	Item(KeyEvent("5", {KeyControl}),               "InsertOpposite"),
+	Item(KeyEvent("%", {KeyControl}),               "InsertOpposite"),
+	Item(KeyEvent("6", {KeyControl}),               "InsertSuperscript"),
+	Item(KeyEvent("^", {KeyControl}),               "InsertSuperscript"),
+	Item(KeyEvent("7", {KeyControl}),               "InsertOverscript"),
+	Item(KeyEvent("&", {KeyControl}),               "InsertOverscript"),
+	Item(KeyEvent("-", {KeyControl}),               "InsertSubscript"),
+	Item(KeyEvent("_", {KeyControl}),               "InsertSubscript"),
 	Item(KeyEvent(",", {KeyControl}),               "InsertColumn"),
 	Item(KeyEvent("Enter", {KeyControl}),           "InsertRow"),
 	

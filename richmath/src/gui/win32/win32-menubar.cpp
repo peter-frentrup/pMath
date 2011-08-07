@@ -21,6 +21,10 @@
   #define TPM_NOANIMATION 0x4000
 #endif
 
+#ifndef TBCDRF_USECDCOLORS
+  #define TBCDRF_USECDCOLORS  0x00800000
+#endif
+
 using namespace richmath;
 
 static Win32Menubar *current_menubar = 0;
@@ -603,10 +607,10 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
               
               case CDDS_ITEMPREPAINT: {
                 draw->nmcd.uItemState = CDIS_DEFAULT;
-                *result = CDRF_DODEFAULT;
-                
-//                draw->nmcd.rc.left+= 20;
-//                draw->rcText.right+= 20;
+                if(Win32Themes::DwmEnableComposition != 0) // >= Vista
+                  *result = TBCDRF_USECDCOLORS;
+                else
+                  *result = CDRF_DODEFAULT;
                 
                 ControlState state = Normal;
                 if(GetForegroundWindow() == _window->hwnd())
