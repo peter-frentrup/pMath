@@ -99,11 +99,19 @@ static pmath_t builtin_internal_dynamicupdated(pmath_expr_t expr){
 static pmath_t builtin_feo_options(pmath_expr_t _expr){
   Expr expr(_expr);
 
-  if(expr[0] == PMATH_SYMBOL_OPTIONS
-  && expr.expr_length() == 1){
-    Expr opts = Application::notify_wait(CNT_GETOPTIONS, expr[1]);
+  if(expr[0] == PMATH_SYMBOL_OPTIONS){
+    if(expr.expr_length() == 1){
+      Expr opts = Application::notify_wait(CNT_GETOPTIONS, expr[1]);
 
-    return opts.release();
+      return opts.release();
+    }
+    
+    if(expr.expr_length() == 2
+    && expr[1][0] == PMATH_SYMBOL_FRONTENDOBJECT){
+      Expr opts = Application::notify_wait(CNT_GETOPTIONS, expr[1]);
+      
+      expr.set(1, opts);
+    }
   }
 
   return expr.release();

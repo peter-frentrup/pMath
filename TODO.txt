@@ -4,6 +4,8 @@
 
 - richmath: support Interrupt()
 
+- richmath: add DocumentEventActions
+
 - support euclidian integers in GCD/ExtendedGCD
 
 - implement NumberForm
