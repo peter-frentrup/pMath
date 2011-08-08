@@ -48,9 +48,9 @@ int richmath::pmath_to_color(Expr obj){
         double g = obj[2].to_double();
         double b = obj[3].to_double();
         
-        if(r < 0){ r = 0; } else if(r > 1){ r = 1; }
-        if(g < 0){ g = 0; } else if(g > 1){ g = 1; }
-        if(b < 0){ b = 0; } else if(b > 1){ b = 1; }
+        if(r < 0) r = 0; else if(!(r <= 1)) r = 1;
+        if(g < 0) g = 0; else if(!(g <= 1)) g = 1;
+        if(b < 0) b = 0; else if(!(b <= 1)) b = 1;
         
         return ((int)(r * 255) << 16) | ((int)(g * 255) << 8) | (int)(b * 255);
       }
@@ -70,15 +70,17 @@ int richmath::pmath_to_color(Expr obj){
         if(h < 0)
           h+= 1.0;
         
-        if(!(h >= 0 && h <= 1)) h = 0.0;
+        if(!(h >= 0 && h <= 1)) 
+          return -1;
         
         if(obj.expr_length() >= 2){
-          s = obj[1].to_double();
-          if(s < 0){ s = 0; } else if(!(s <= 1)){ s = 1; }
+          s = obj[2].to_double();
+          if(s < 0) s = 0; else if(!(s <= 1)) s = 1;
            
           if(obj.expr_length() >= 3){
-            v = obj[1].to_double();
-            if(v < 0){ v = 0; } else if(!(v <= 1)){ v = 1; }
+            v = obj[3].to_double();
+            v = fmod(v, 1.0);
+            if(v < 0) v = 0; else if(!(v <= 1)) v = 1;
           }
         }
         
@@ -105,8 +107,7 @@ int richmath::pmath_to_color(Expr obj){
     && obj.expr_length() == 1
     && obj[1].is_number()){
       double l = obj[1].to_double();
-      
-      if(l < 0) l = 0; else if(l > 1) l = 1;
+      if(l < 0) l = 0; else if(!(l <= 1)) l = 1;
       
       return ((int)(l * 255) << 16) | ((int)(l * 255) << 8) | (int)(l * 255);
     }

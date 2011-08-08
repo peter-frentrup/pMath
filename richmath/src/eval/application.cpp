@@ -1047,7 +1047,7 @@ static void cnt_dynamicupate(Expr data){
 }
 
 static Expr cnt_createdocument(Expr data){
-  // CreateDocument({sections...})
+  // CreateDocument({sections...}, options...)
 
   Document *doc = 0;
 
@@ -1101,6 +1101,10 @@ static Expr cnt_createdocument(Expr data){
 
   if(doc){
     if(data.expr_length() >= 1){
+      Expr options(pmath_options_extract(data.get(), 1));
+      if(options.is_expr())
+        doc->style->add_pmath(options);
+      
       Expr sections = data[1];
       if(sections[0] != PMATH_SYMBOL_LIST)
         sections = List(sections);

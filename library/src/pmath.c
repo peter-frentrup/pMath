@@ -671,6 +671,30 @@ PMATH_API pmath_bool_t pmath_init(void){
 
     PMATH_RUN("Options(Complement):={SameTest->Automatic}");
 
+    PMATH_RUN("Options(CreateDocument):=Options(Document):={"
+      "Antialiasing->Inherited,"
+      "AutoNumberFormating->Inherited,"
+      "AutoSpacing->Inherited,"
+      "Background->None,"
+      "BaseStyle->None,"
+      "ButtonFrame->Inherited,"
+      "ButtonFunction->Inherited,"
+      "Editable->Inherited,"
+      "FontColor->Inherited,"
+      "FontFamily->Inherited,"
+      "FontSize->Inherited,"
+      "FontSlant->Inherited,"
+      "FontWeight->Inherited,"
+      "GridBoxColumnSpacing->Inherited,"
+      "GridBoxRowSpacing->Inherited,"
+      "LineBreakWithin->Inherited,"
+      "ScriptSizeMultipliers->Inherited,"
+      "Selectable->Inherited,"
+      "ShowAutoStyles->Inherited,"
+      "ShowStringCharacters->Inherited,"
+      "TextShadow->Inherited"
+      "}");
+
     PMATH_RUN("Options(DateList):={TimeZone:>$TimeZone}");
 
     PMATH_RUN(
