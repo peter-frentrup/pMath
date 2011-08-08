@@ -2,10 +2,13 @@
   #define _WIN32_WINNT 0x0600
 #endif
 
+#define __STDC_LIMIT_MACROS
+
 
 #include <eval/application.h>
 
 #include <cmath>
+#include <stdint.h>
 #include <cstdio>
 
 #include <boxes/section.h>
@@ -986,7 +989,39 @@ static Expr cnt_getoptions(Expr data){
     if(obj->style)
       obj->style->emit_to_pmath(0 != dynamic_cast<Section*>(obj), true);
 
-    return gather.end();
+    Expr options = gather.end();
+    if(!obj->to_pmath_symbol().is_symbol())
+      return options;
+    
+    Expr default_options = 
+      Call(Symbol(PMATH_SYMBOL_UNION),
+      options,
+      Call(Symbol(PMATH_SYMBOL_FILTERRULES),
+        Call(Symbol(PMATH_SYMBOL_OPTIONS), obj->to_pmath_symbol()),
+        Call(Symbol(PMATH_SYMBOL_EXCEPT),
+          options)));
+    
+    default_options = Expr(pmath_evaluate(default_options.release()));
+    return default_options;
+  }
+
+  return Symbol(PMATH_SYMBOL_FAILED);
+}
+
+static Expr cnt_setoptions(Expr data){
+  Box *obj = Box::find(data[1]);
+
+  if(obj){
+    Expr options = Expr(pmath_expr_get_item_range(data.get(), 2, SIZE_MAX));
+    options.set(0, Symbol(PMATH_SYMBOL_LIST));
+    
+    if(!obj->style)
+      obj->style = new Style();
+    
+    obj->style->add_pmath(options);
+    obj->invalidate();
+    
+    return options;
   }
 
   return Symbol(PMATH_SYMBOL_FAILED);
@@ -1195,6 +1230,11 @@ static void execute(ClientNotification &cn){
     case CNT_GETOPTIONS:
       if(cn.result_ptr)
         *cn.result_ptr = cnt_getoptions(cn.data).release();
+      break;
+
+    case CNT_SETOPTIONS:
+      if(cn.result_ptr)
+        *cn.result_ptr = cnt_setoptions(cn.data).release();
       break;
 
     case CNT_DYNAMICUPDATE:

@@ -113,6 +113,14 @@ static pmath_t builtin_feo_options(pmath_expr_t _expr){
       expr.set(1, opts);
     }
   }
+  else if(expr[0] == PMATH_SYMBOL_SETOPTIONS){
+    if(expr.expr_length() >= 1
+    && expr[1][0] == PMATH_SYMBOL_FRONTENDOBJECT){
+      Expr opts = Application::notify_wait(CNT_SETOPTIONS, expr);
+
+      return opts.release();
+    }
+  }
 
   return expr.release();
 }
