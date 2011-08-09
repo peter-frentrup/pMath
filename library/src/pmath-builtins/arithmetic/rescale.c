@@ -65,14 +65,21 @@ PMATH_PRIVATE pmath_t builtin_rescale(pmath_expr_t expr){
   
   pmath_unref(expr);
   {
-    #define AA  pmath_ref(min)
-    #define BB  pmath_ref(max)
-    #define CC  pmath_ref(xmin)
-    #define DD  pmath_ref(xmax)
+    #define AA     pmath_ref(min)
+    #define BB     pmath_ref(max)
+    #define CC     pmath_ref(xmin)
+    #define DD     pmath_ref(xmax)
+    #define BB_AA  pmath_ref(diff)
     
     pmath_t diff = pmath_evaluate(MINUS(BB, AA));
     
-    expr = PLUS(DIV(TIMES(MINUS(DD, CC), x), diff), DIV(PLUS(TIMES(CC, BB), TIMES3(INT(-1), AA, DD)), diff));
+    expr = PLUS(DIV(TIMES(MINUS(DD, CC), x), BB_AA), DIV(PLUS(TIMES(CC, BB), TIMES3(INT(-1), AA, DD)), BB_AA));
+    
+    pmath_unref(min);
+    pmath_unref(max);
+    pmath_unref(xmin);
+    pmath_unref(xmax);
+    pmath_unref(diff);
   }
   
   return expr;
