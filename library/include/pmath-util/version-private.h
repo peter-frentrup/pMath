@@ -2,7 +2,7 @@
 #define __PMATH_UTIL__VERSION_PRIVATE_H__
 
 	//Date Version Types
-	static const char _PMATH_VERSION_DATE[] = "08";
+	static const char _PMATH_VERSION_DATE[] = "09";
 	static const char _PMATH_VERSION_MONTH[] = "08";
 	static const char _PMATH_VERSION_YEAR[] = "2011";
 	static const char _PMATH_VERSION_UBUNTU_VERSION_STYLE[] = "11.08";
@@ -14,14 +14,14 @@
 	//Standard Version Type
 	static const long _PMATH_VERSION_MAJOR = 0;
 	static const long _PMATH_VERSION_MINOR = 2;
-	static const long _PMATH_VERSION_BUILD = 311;
-	static const long _PMATH_VERSION_REVISION = 311;
+	static const long _PMATH_VERSION_BUILD = 314;
+	static const long _PMATH_VERSION_REVISION = 314;
 	
 	//Miscellaneous Version Types
-	static const long _PMATH_VERSION_BUILDS_COUNT = 414;
-	#define _PMATH_VERSION_RC_FILEVERSION 0,2,311,311
-	#define _PMATH_VERSION_RC_FILEVERSION_STRING "0, 2, 311, 311\0"
-	static const char _PMATH_VERSION_FULLVERSION_STRING[] = "0.2.311.311";
+	static const long _PMATH_VERSION_BUILDS_COUNT = 417;
+	#define _PMATH_VERSION_RC_FILEVERSION 0,2,314,314
+	#define _PMATH_VERSION_RC_FILEVERSION_STRING "0, 2, 314, 314\0"
+	static const char _PMATH_VERSION_FULLVERSION_STRING[] = "0.2.314.314";
 	
 	//SVN Version
 	static const char _PMATH_VERSION_SVN_REVISION[] = "241";

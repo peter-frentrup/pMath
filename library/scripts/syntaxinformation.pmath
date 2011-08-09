@@ -357,6 +357,7 @@
 {"ReplaceList", {"ArgumentCount" -> 2..3}},
 {"ReplacePart", {"ArgumentCount" -> 2}},
 {"ReplaceRepeated", {"ArgumentCount" -> 2..3}},
+{"Rescale", {"ArgumentCount" -> 1..3}},
 {"ResetDirectory", {"ArgumentCount" -> 0}},
 {"Rest", {"ArgumentCount" -> 1}},
 {"Return", {"ArgumentCount" -> 0..2}},

@@ -418,6 +418,9 @@
 		<Unit filename="src\pmath-builtins\arithmetic\quotient-and-mod.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="src\pmath-builtins\arithmetic\rescale.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="src\pmath-builtins\arithmetic\sin.c">
 			<Option compilerVar="CC" />
 		</Unit>

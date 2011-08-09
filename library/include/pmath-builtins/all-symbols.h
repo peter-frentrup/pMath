@@ -776,5 +776,6 @@ pmath_bool_t pmath_register_approx_code(
 #define PMATH_SYMBOL_GREATEREQUALLESS                       PMATH_SYMBOL_BUILTIN(684)
 #define PMATH_SYMBOL_SWITCH                                 PMATH_SYMBOL_BUILTIN(685)
 #define PMATH_SYMBOL_WHICH                                  PMATH_SYMBOL_BUILTIN(686)
+#define PMATH_SYMBOL_RESCALE                                PMATH_SYMBOL_BUILTIN(687)
 
 #endif /* __PMATH_BUILTINS__SYMBOLS_H__ */

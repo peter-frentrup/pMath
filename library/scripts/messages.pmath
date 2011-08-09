@@ -268,6 +268,9 @@ RegularExpression::msg64:= "] is an invalid data character in JavaScript compati
 
 Remove::rmptc:= "Symbol `1` is Protected and cannot be removed."
 
+Rescale::nargs:= "If the first argument is not a list, two or three arguments are expected."
+Rescale::rtwo:= "The argument `1` at position `2` is expected to be a range `lower..upper`."
+
 ResetDirectory::dtop:= "Directory stack is empty."
 
 Rest::norest:= "Cannot take the rest of expression `1` with length zero."

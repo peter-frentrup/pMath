@@ -109,6 +109,7 @@ PMATH_PRIVATE pmath_t builtin_precision(                pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_product(                  pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_quotient(                 pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_re(                       pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_rescale(                  pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_setaccuracy(              pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_setprecision(             pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_sign(                     pmath_expr_t expr);
@@ -1150,6 +1151,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   VERIFY(   PMATH_SYMBOL_REPLACELIST               = NEW_SYSTEM_SYMBOL("ReplaceList"))
   VERIFY(   PMATH_SYMBOL_REPLACEPART               = NEW_SYSTEM_SYMBOL("ReplacePart"))
   VERIFY(   PMATH_SYMBOL_REPLACEREPEATED           = NEW_SYSTEM_SYMBOL("ReplaceRepeated"))
+  VERIFY(   PMATH_SYMBOL_RESCALE                   = NEW_SYSTEM_SYMBOL("Rescale"))
   VERIFY(   PMATH_SYMBOL_RESETDIRECTORY            = NEW_SYSTEM_SYMBOL("ResetDirectory"))
   VERIFY(   PMATH_SYMBOL_REST                      = NEW_SYSTEM_SYMBOL("Rest"))
   VERIFY(   PMATH_SYMBOL_RETURN                    = NEW_SYSTEM_SYMBOL("Return"))
@@ -1641,6 +1643,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
     BIND_DOWN(   PMATH_SYMBOL_REPLACELIST,                 builtin_replacelist)
     BIND_DOWN(   PMATH_SYMBOL_REPLACEPART,                 builtin_replacepart)
     BIND_DOWN(   PMATH_SYMBOL_REPLACEREPEATED,             builtin_replace)
+    BIND_DOWN(   PMATH_SYMBOL_RESCALE,                     builtin_rescale)
     BIND_DOWN(   PMATH_SYMBOL_RESETDIRECTORY,              builtin_resetdirectory)
     BIND_DOWN(   PMATH_SYMBOL_REST,                        builtin_rest)
     BIND_DOWN(   PMATH_SYMBOL_RETURN,                      general_builtin_zerotwoarg)
@@ -1893,6 +1896,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   SET_ATTRIB( PMATH_SYMBOL_RE,                               DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
   SET_ATTRIB( PMATH_SYMBOL_REFRESH,                          HOLDFIRST);
   SET_ATTRIB( PMATH_SYMBOL_REMOVE,                           HOLDALL);
+  SET_ATTRIB( PMATH_SYMBOL_RESCALE,                          NUMERICFUNCTION);
   SET_ATTRIB( PMATH_SYMBOL_RETURN,                           HOLDFIRST);
   SET_ATTRIB( PMATH_SYMBOL_ROUND,                            DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
   SET_ATTRIB( PMATH_SYMBOL_RULE,                             SEQUENCEHOLD);
