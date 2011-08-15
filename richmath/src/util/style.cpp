@@ -228,7 +228,7 @@ void Style::add_pmath(Expr options){
             set(ButtonFunction, rhs);
           }
           else if(lhs == PMATH_SYMBOL_CONTINUOUSACTION){
-            set_pmath_bool(ContinousAction, rhs);
+            set_pmath_bool(ContinuousAction, rhs);
           }
           else if(lhs == PMATH_SYMBOL_EDITABLE){
             set_pmath_bool(Editable, rhs);
@@ -546,7 +546,7 @@ bool Style::modifies_size(int style_name){
     case FontColor:
     case SectionFrameColor:
     case AutoDelete:
-    case ContinousAction:
+    case ContinuousAction:
     case Editable:
     case Evaluatable:
     case InternalHavePendingDynamic:
@@ -655,7 +655,7 @@ Expr Style::get_symbol(int n){
     case AutoDelete:                          return Symbol(PMATH_SYMBOL_AUTODELETE);
     case AutoNumberFormating:                 return Symbol(PMATH_SYMBOL_AUTONUMBERFORMATING);
     case AutoSpacing:                         return Symbol(PMATH_SYMBOL_AUTOSPACING);
-    case ContinousAction:                     return Symbol(PMATH_SYMBOL_CONTINUOUSACTION);
+    case ContinuousAction:                     return Symbol(PMATH_SYMBOL_CONTINUOUSACTION);
     case Editable:                            return Symbol(PMATH_SYMBOL_EDITABLE);
     case Evaluatable:                         return Symbol(PMATH_SYMBOL_EVALUATABLE);
     case InternalHavePendingDynamic:          return Expr();
@@ -813,14 +813,14 @@ void Style::emit_to_pmath(
       e));
   }
   
-  if(get_dynamic(ContinousAction, &e)){
+  if(get_dynamic(ContinuousAction, &e)){
     Gather::emit(Rule(
-      get_symbol(ContinousAction), 
+      get_symbol(ContinuousAction), 
       e));
   }
-  else if(get(ContinousAction, &i)){
+  else if(get(ContinuousAction, &i)){
     Gather::emit(Rule(
-      get_symbol(ContinousAction), 
+      get_symbol(ContinuousAction), 
       Symbol(i ? PMATH_SYMBOL_TRUE : PMATH_SYMBOL_FALSE)));
   }
   

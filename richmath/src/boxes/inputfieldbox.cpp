@@ -3,6 +3,7 @@
 #include <cmath>
 
 #include <boxes/mathsequence.h>
+#include <eval/application.h>
 #include <gui/document.h>
 #include <gui/native-widget.h>
 
@@ -12,6 +13,8 @@ using namespace richmath;
 
 InputFieldBox::InputFieldBox(MathSequence *content)
 : ContainerWidgetBox(InputField, content),
+  must_update(true),
+  invalidated(false),
   transparent(false),
 //  autoscroll(false),
   last_click_time(0),
@@ -19,8 +22,27 @@ InputFieldBox::InputFieldBox(MathSequence *content)
   last_click_global_y(0.0),
   frame_x(0)
 {
-  style = new Style(String("ControlStyle"));
+  dynamic.init(this, Expr());
+  input_type = Symbol(PMATH_SYMBOL_EXPRESSION);
+  style = new Style(String("InputField"));
   cx = 0;
+}
+
+InputFieldBox *InputFieldBox::create(Expr expr, int opts){
+  if(expr.expr_length() < 2)
+    return 0;
+  
+  Expr options(pmath_options_extract(expr.get(), 2));
+  if(options.is_null())
+    return 0;
+    
+  InputFieldBox *box = new InputFieldBox(new MathSequence);
+  box->dynamic    = expr[1];
+  box->input_type = expr[2];
+  
+  box->style->add_pmath(options);
+  
+  return box;
 }
 
 ControlState InputFieldBox::calc_state(Context *context){
@@ -70,49 +92,68 @@ void InputFieldBox::resize(Context *context){
 }
 
 void InputFieldBox::paint_content(Context *context){
+  if(must_update){
+    must_update = false;
+    
+    Expr result;
+    if(dynamic.get_value(&result)){
+      int opt = BoxOptionDefault;
+      if(get_style(AutoNumberFormating))
+        opt |= BoxOptionFormatNumbers;
+      
+      invalidated = true;
+      
+      if(input_type == PMATH_SYMBOL_NUMBER){
+        if(result.is_number()){
+          result = Call(Symbol(PMATH_SYMBOL_MAKEBOXES), result);
+          result = Application::interrupt(result, Application::dynamic_timeout);
+        }
+        else
+          result = String("");
+      }
+      else if(input_type == PMATH_SYMBOL_STRING){
+        if(!result.is_string())
+          result = String("");
+      }
+      else if(input_type[0] == PMATH_SYMBOL_HOLD){ // Hold(Expression)
+        if(result.expr_length() == 1 && result[0] == PMATH_SYMBOL_HOLD)
+          result.set(0, Symbol(PMATH_SYMBOL_MAKEBOXES));
+        else
+          result = Call(Symbol(PMATH_SYMBOL_MAKEBOXES), result);
+          
+        result = Application::interrupt(result, Application::dynamic_timeout);
+      }
+      else if(input_type != PMATH_SYMBOL_RAWBOXES){
+        result = Call(Symbol(PMATH_SYMBOL_MAKEBOXES), result);
+        result = Application::interrupt(result, Application::dynamic_timeout);
+      }
+      
+      if(result.is_null())
+        result = String("");
+      else if(result == PMATH_UNDEFINED || result == PMATH_SYMBOL_ABORTED)
+        result = String("$Aborted");
+      
+      bool was_parent = is_parent_of(context->selection.get());
+      
+      content()->load_from_object(result, opt);
+      context->canvas->save();
+      resize(context);
+      context->canvas->restore();
+      
+      if(was_parent){
+        context->selection = SelectionReference();
+        Document *doc = find_parent<Document>(false);
+        if(doc)
+          doc->select(content(), content()->length(), content()->length());
+      }
+      
+      invalidate();
+      invalidated = false;
+    }
+  }
+  
   float x, y;
   context->canvas->current_pos(&x, &y);
-  
-//  if(autoscroll){
-//    autoscroll = false;
-//    
-//    Box *box = context->selection.get();
-//    while(box && box != this)
-//      box = box->parent();
-//    
-//    if(box == this){
-//      double x1, y1, x2, y2;
-//      Box *sel = context->selection.get();
-//      
-//      cairo_matrix_t mat;
-//      cairo_matrix_init_identity(&mat);
-//      sel->transformation(_content, &mat);
-//      
-//      context->canvas->save();
-//      {
-//        context->canvas->transform(mat);
-//        context->canvas->move_to(0, 0);
-//        
-//        sel->selection_path(
-//          context->canvas, 
-//          context->selection.start, 
-//          context->selection.end);
-//        
-//        cairo_path_extents(context->canvas->cairo(), &x1, &y1, &x2, &y2);
-//        
-//        context->canvas->new_path();
-//      }
-//      context->canvas->restore();
-//      
-//      float x = x1;
-//      float y = y1;
-//      float w = x2 - x1;
-//      float h = y2 - y1;
-//      cairo_matrix_invert(&mat);
-//      Canvas::transform_rect(mat, &x, &y, &w, &h);
-//      scroll_to(x, y, w, h);
-//    }
-//  }
   
   float dx = frame_x - 0.75f;
   float dy = frame_x;
@@ -168,9 +209,58 @@ Box *InputFieldBox::remove(int *index){
 }
 
 Expr InputFieldBox::to_pmath(int flags){
-  return Call(
-    Symbol(PMATH_SYMBOL_INPUTFIELDBOX),
-    _content->to_pmath(flags));
+  if(invalidated)
+    assign_dynamic();
+  
+  Gather g;
+  Gather::emit(dynamic.expr());
+  Gather::emit(input_type);
+  
+  if(style)
+    style->emit_to_pmath(false, false);
+  
+  Expr result = g.end();
+  result.set(0, Symbol(PMATH_SYMBOL_INPUTFIELDBOX));
+  return result;
+}
+
+void InputFieldBox::dynamic_updated(){
+  if(must_update)
+    return;
+  
+  must_update = true;
+  request_repaint_all();
+}
+
+void InputFieldBox::dynamic_finished(Expr info, Expr result){
+  int opt = BoxOptionDefault;
+  if(get_style(AutoNumberFormating))
+    opt |= BoxOptionFormatNumbers;
+  
+  content()->load_from_object(result, opt);
+  invalidate();
+  invalidated = false;
+}
+
+Box *InputFieldBox::dynamic_to_literal(int *start, int *end){
+  if(dynamic.is_dynamic()){
+    dynamic = Expr();
+    assign_dynamic();
+  }
+  
+  return this;
+}
+
+void InputFieldBox::invalidate(){
+  ContainerWidgetBox::invalidate();
+  
+  if(invalidated)
+    return;
+  
+  invalidated = true;
+  if(get_own_style(ContinuousAction, false)){
+    assign_dynamic();
+  }
 }
 
 bool InputFieldBox::exitable(){
@@ -258,11 +348,28 @@ void InputFieldBox::on_exit(){
   }
   
   ContainerWidgetBox::on_exit();
+  
+  if(invalidated)
+    assign_dynamic();
 }
 
 void InputFieldBox::on_key_down(SpecialKeyEvent &event){
   switch(event.key){
     case KeyReturn:
+      if(!invalidated)
+        dynamic_updated();
+        
+      if(!assign_dynamic()){
+        Document *doc = find_parent<Document>(false);
+        if(doc)
+          doc->native()->beep();
+        
+        must_update = true;
+      }
+      
+      event.key = KeyUnknown;
+      return;
+      
     case KeyTab:
       event.key = KeyUnknown;
       return;
@@ -274,15 +381,89 @@ void InputFieldBox::on_key_down(SpecialKeyEvent &event){
       break;
   }
   
-//  autoscroll = true;
   ContainerWidgetBox::on_key_down(event);
 }
 
 void InputFieldBox::on_key_press(uint32_t unichar){
-  if(unichar != '\n' || unichar != '\t'){
-//    autoscroll = true;
+  if(unichar != '\n' && unichar != '\t'){
     ContainerWidgetBox::on_key_press(unichar);
   }
+}
+
+bool InputFieldBox::assign_dynamic(){
+  invalidated = false;
+  
+  if(input_type == PMATH_SYMBOL_EXPRESSION || input_type[0] == PMATH_SYMBOL_HOLD){ // Expression or Hold(Expression)
+    Expr boxes = _content->to_pmath(BoxFlagParseable);
+    
+    Expr value = Call(Symbol(PMATH_SYMBOL_TRY),
+      Call(Symbol(PMATH_SYMBOL_MAKEEXPRESSION), boxes),
+      Call(Symbol(PMATH_SYMBOL_RAWBOXES), boxes));
+      
+    value = Expr(pmath_evaluate(value.release()));
+    
+    if(value[0] == PMATH_SYMBOL_HOLDCOMPLETE){
+      if(input_type[0] == PMATH_SYMBOL_HOLD){
+        value.set(0, Symbol(PMATH_SYMBOL_HOLD));
+      }
+      else{
+        if(value.expr_length() == 1)
+          value = value[1];
+        else
+          value.set(0, Symbol(PMATH_SYMBOL_SEQUENCE));
+      }
+    }
+    
+    dynamic.assign(value);
+    return true;
+  }
+  
+  if(input_type == PMATH_SYMBOL_NUMBER){
+    Expr boxes = _content->to_pmath(BoxFlagParseable);
+    
+    Expr value = Call(Symbol(PMATH_SYMBOL_TRY),
+      Call(Symbol(PMATH_SYMBOL_MAKEEXPRESSION), boxes));
+      
+    value = Expr(pmath_evaluate(value.release()));
+    
+    if(value[0] == PMATH_SYMBOL_HOLDCOMPLETE
+    && value.expr_length() == 1
+    && value[1].is_number()){
+      dynamic.assign(value[1]);
+      return true;
+    }
+    
+    return false;
+  }
+  
+  if(input_type == PMATH_SYMBOL_RAWBOXES){
+    Expr boxes = _content->to_pmath(BoxFlagDefault);
+    
+    dynamic.assign(boxes);
+    return true;
+  }
+  
+  if(input_type == PMATH_SYMBOL_STRING){
+    if(_content->count() > 0){
+      Expr boxes = _content->to_pmath(BoxFlagParseable);
+      
+      Expr value = Call(Symbol(PMATH_SYMBOL_TOSTRING),
+        Call(Symbol(PMATH_SYMBOL_RAWBOXES), boxes));
+      
+      value = Expr(pmath_evaluate(value.release()));
+      
+      dynamic.assign(value);
+      if(!dynamic.is_dynamic())
+        must_update = true;
+    }
+    else{
+      dynamic.assign(_content->text());
+    }
+    
+    return true;
+  }
+  
+  return false;
 }
 
 //} ... class InputFieldBox

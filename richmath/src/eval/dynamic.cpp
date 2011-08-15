@@ -68,6 +68,9 @@ Expr Dynamic::operator=(Expr expr){
 
 void Dynamic::assign(Expr value){
   if(!is_dynamic()){
+    //if(!value.is_evaluated())
+    //  value = Application::interrupt(value, Application::dynamic_timeout);
+      
     _expr = value;
     _owner->dynamic_updated();
     return;

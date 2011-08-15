@@ -89,6 +89,10 @@ namespace pmath{
         return pmath_is_pointer_of(_obj, type); 
       }
       
+      bool is_evaluated() const throw() { 
+        return pmath_is_evaluated(_obj); 
+      }
+      
       /**\brief Get a hash value. */
       unsigned int hash() const throw() {
         return pmath_hash(_obj);

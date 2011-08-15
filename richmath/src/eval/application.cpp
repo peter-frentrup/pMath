@@ -100,9 +100,9 @@ enum ClientState{
 
 static pmath_atomic_t state = { Starting }; // ClientState
 
-static ConcurrentQueue<ClientNotification>   notifications;
+static ConcurrentQueue<ClientNotification> notifications;
 
-static SharedPtr<Session>   session = new Session(0);
+static SharedPtr<Session> session = new Session(0);
 
 static Hashtable<Expr, bool (*)(Expr)> menu_commands;
 static Hashtable<Expr, bool (*)(Expr)> menu_command_testers;

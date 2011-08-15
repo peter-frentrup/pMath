@@ -777,5 +777,6 @@ pmath_bool_t pmath_register_approx_code(
 #define PMATH_SYMBOL_SWITCH                                 PMATH_SYMBOL_BUILTIN(685)
 #define PMATH_SYMBOL_WHICH                                  PMATH_SYMBOL_BUILTIN(686)
 #define PMATH_SYMBOL_RESCALE                                PMATH_SYMBOL_BUILTIN(687)
+#define PMATH_SYMBOL_INPUTFIELD                             PMATH_SYMBOL_BUILTIN(688)
 
 #endif /* __PMATH_BUILTINS__SYMBOLS_H__ */

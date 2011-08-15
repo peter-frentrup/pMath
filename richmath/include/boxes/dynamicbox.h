@@ -29,7 +29,7 @@ namespace richmath{
       virtual void dynamic_updated();
       virtual void dynamic_finished(Expr info, Expr result);
       
-      virtual bool edit_selection(Context *context){ return false; }
+      virtual bool edit_selection(Context *context);
       
       virtual void on_mouse_enter();
       virtual void on_mouse_exit();

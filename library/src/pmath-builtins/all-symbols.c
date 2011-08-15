@@ -913,6 +913,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void){
   VERIFY(   PMATH_SYMBOL_INITIALIZATION            = NEW_SYSTEM_SYMBOL("Initialization"))
   VERIFY(   PMATH_SYMBOL_INNER                     = NEW_SYSTEM_SYMBOL("Inner"))
   VERIFY(   PMATH_SYMBOL_INPUT                     = NEW_SYSTEM_SYMBOL("$Input"))
+  VERIFY(   PMATH_SYMBOL_INPUTFIELD                = NEW_SYSTEM_SYMBOL("InputField"))
   VERIFY(   PMATH_SYMBOL_INPUTFIELDBOX             = NEW_SYSTEM_SYMBOL("InputFieldBox"))
   VERIFY(   PMATH_SYMBOL_INPUTFORM                 = NEW_SYSTEM_SYMBOL("InputForm"))
   VERIFY(   PMATH_SYMBOL_INTEGER                   = NEW_SYSTEM_SYMBOL("Integer"))

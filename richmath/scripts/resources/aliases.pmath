@@ -30,7 +30,7 @@
 		"sumt" -> {UnderoverscriptBox("\[Sum]", {"\[SelectionPlaceholder]", "=", "\[Placeholder]"}, "\[Placeholder]"), "\[Placeholder]"},
 		"prodt" -> {UnderoverscriptBox("\[Product]", {"\[SelectionPlaceholder]", "=", "\[Placeholder]"}, "\[Placeholder]"), "\[Placeholder]"},
 		
-		"input" -> InputFieldBox("\[SelectionPlaceholder]"),
+		"input" -> InputFieldBox("\[SelectionPlaceholder]", String),
 		"rot" -> RotationBox("\[SelectionPlaceholder]", BoxRotation->Pi/4),
 		"scale" -> TransformationBox("\[SelectionPlaceholder]", BoxTransformation->{{2,0},{0,2}}),
 		"trans" -> TransformationBox("\[SelectionPlaceholder]", BoxTransformation->{{1,0.3},{0,1}}),

@@ -24,7 +24,7 @@ namespace richmath{
     AutoDelete,
     AutoNumberFormating,
     AutoSpacing,
-    ContinousAction,
+    ContinuousAction,
     Editable,
     Evaluatable,
     InternalHavePendingDynamic,

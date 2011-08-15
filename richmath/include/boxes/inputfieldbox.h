@@ -2,11 +2,12 @@
 #define __BOXES__INPUTFIELDBOX_H__
 
 #include <boxes/containerwidgetbox.h>
+#include <eval/dynamic.h>
 
 namespace richmath{
   class InputFieldBox: public ContainerWidgetBox {
     public:
-      InputFieldBox(MathSequence *content = 0);
+      static InputFieldBox *create(Expr expr, int opts);
       
       virtual ControlState calc_state(Context *context);
       
@@ -21,6 +22,12 @@ namespace richmath{
       
       virtual Expr to_pmath_symbol(){ return Symbol(PMATH_SYMBOL_INPUTFIELDBOX); }
       virtual Expr to_pmath(int flags);
+      
+      virtual void dynamic_updated();
+      virtual void dynamic_finished(Expr info, Expr result);
+      virtual Box *dynamic_to_literal(int *start, int *end);
+      
+      virtual void invalidate();
       
       virtual bool remove_inserts_placeholder(){ return false; }
       
@@ -39,13 +46,21 @@ namespace richmath{
       virtual void on_key_press(uint32_t unichar);
       
     protected:
+      InputFieldBox(MathSequence *content = 0);
+      
+      bool assign_dynamic();
+      
+    protected:
+      bool must_update;
+      bool invalidated;
       bool transparent;
-//      bool autoscroll;
       double last_click_time;
       float last_click_global_x;
       float last_click_global_y;
-      
       float frame_x;
+      
+      Dynamic dynamic;
+      Expr input_type;
   };
 }
 

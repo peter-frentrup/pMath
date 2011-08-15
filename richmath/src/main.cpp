@@ -279,7 +279,7 @@ static void init_stylesheet(){
   Stylesheet::Default->base->set(AutoDelete,                          false);
   Stylesheet::Default->base->set(AutoNumberFormating,                 true);
   Stylesheet::Default->base->set(AutoSpacing,                         false);
-  Stylesheet::Default->base->set(ContinousAction,                     true);
+  //Stylesheet::Default->base->set(ContinuousAction,                    false);
   Stylesheet::Default->base->set(Editable,                            true);
   Stylesheet::Default->base->set(Evaluatable,                         false);
   Stylesheet::Default->base->set(InternalUsesCurrentValueOfMouseOver, false);
@@ -376,6 +376,12 @@ static void init_stylesheet(){
   s->set(ShowAutoStyles,       false);
   s->set(ShowStringCharacters, false);
   Stylesheet::Default->styles.set("ControlStyle", s);
+
+  s = new Style;
+  s->set(BaseStyleName, "ControlStyle");
+  //s->set(ContinuousAction,     false);
+  s->set(ShowStringCharacters, true);
+  Stylesheet::Default->styles.set("InputField", s);
 
   s = new Style;
   s->set(BaseStyleName, "ControlStyle");

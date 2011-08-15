@@ -406,7 +406,7 @@ void SliderBox::on_mouse_down(MouseEvent &event){
     
     double val = mouse_to_val(event.x);
     
-    if(val != range_value && get_own_style(ContinousAction))
+    if(val != range_value && get_own_style(ContinuousAction, true))
       assign_dynamic_value(val);
     else
       range_value = val;
@@ -428,7 +428,7 @@ void SliderBox::on_mouse_move(MouseEvent &event){
     double val = mouse_to_val(event.x);
     
     if(val != range_value){
-      if(get_own_style(ContinousAction))
+      if(get_own_style(ContinuousAction, true))
         assign_dynamic_value(val);
       else
         range_value = val;
@@ -461,7 +461,7 @@ void SliderBox::on_mouse_up(MouseEvent &event){
     double val = mouse_to_val(event.x);
     if(val != range_value 
     || dynamic.synchronous_updating() == 2
-    || !get_own_style(ContinousAction))
+    || !get_own_style(ContinuousAction, true))
       assign_dynamic_value(val);
     
     request_repaint_all();

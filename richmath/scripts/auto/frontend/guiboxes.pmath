@@ -6,6 +6,7 @@ isDynamic(~):= False
 isDynamic(Dynamic(~)):= True
 isDynamic(Dynamic(~,~)):= True
 isNumberOrDynamic(~x)::= IsNumber(x) || isDynamic(x)
+isStringOrDynamic(~x)::= IsString(x) || isDynamic(x)
 
 toBeProtected:= Unprotect(
 	System`Setting`$Rules,
@@ -36,6 +37,12 @@ MakeBoxes(Checkbox(~state, values:{~,~}, options:OptionsPattern()))::= CheckboxB
 MakeBoxes(Dynamic(~var, options:OptionsPattern()))::= DynamicBox(ToBoxes(var), options)
 
 MakeBoxes(DynamicSetting(~expr))::= TagBox(MakeBoxes(expr), Setting)
+
+MakeBoxes(InputField())::=                                                                                                   InputFieldBox(,      Expression, options)
+MakeBoxes(InputField(~value,                                                                   options:OptionsPattern()))::= InputFieldBox(value, Expression, options)
+MakeBoxes(InputField(~value?isStringOrDynamic, String,                                         options:OptionsPattern()))::= InputFieldBox(value, String,     options)
+MakeBoxes(InputField(~value?isNumberOrDynamic, Number,                                         options:OptionsPattern()))::= InputFieldBox(value, Number,     options)
+MakeBoxes(InputField(~value,                   type: Expression | RawBoxes | Hold(Expression), options:OptionsPattern()))::= InputFieldBox(value, type,       options)
 
 MakeBoxes(ProgressIndicator())::=                                     ProgressIndicatorBox(0, 0..1)
 MakeBoxes(ProgressIndicator(~val ? isNumberOrDynamic))::=             ProgressIndicatorBox(val, 0..1)
@@ -123,6 +130,8 @@ CheckboxBox/: MakeExpression(CheckboxBox(~state))::=                            
 CheckboxBox/: MakeExpression(CheckboxBox(~state, ~values, options:OptionsPattern()))::= HoldComplete(Checkbox(state, values, options))
 
 DynamicBox/: MakeExpression(DynamicBox(ToBoxes(~var), options:OptionsPattern()))::= HoldComplete(Dynamic(var, options))
+
+InputFieldBox/: MakeExpression(InputFieldBox(~value, ~type, options:OptionsPattern()))::= HoldComplete(InputField(value, type, options))
 
 ProgressIndicatorBox/: MakeExpression(ProgressIndicatorBox(~val, 0..1))::=   HoldComplete(ProgressIndicator(val))
 ProgressIndicatorBox/: MakeExpression(ProgressIndicatorBox(~val, ~range))::= HoldComplete(ProgressIndicator(val, range))

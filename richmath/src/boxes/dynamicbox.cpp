@@ -138,6 +138,15 @@ void DynamicBox::dynamic_finished(Expr info, Expr result){
   invalidate();
 }
 
+bool DynamicBox::edit_selection(Context *context){
+  if(get_own_style(Editable, false)){
+    if(_parent)
+      return _parent->edit_selection(context);
+  }
+    
+  return false; 
+}
+
 void DynamicBox::on_mouse_enter(){
   AbstractDynamicBox::on_mouse_enter();
   if(get_own_style(InternalUsesCurrentValueOfMouseOver, false))

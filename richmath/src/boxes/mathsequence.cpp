@@ -4029,14 +4029,6 @@ static void make_box(int pos, pmath_t obj, void *data){
     }
   }
   
-  if(expr[0] == PMATH_SYMBOL_INPUTFIELDBOX
-  && expr.expr_length() == 1){
-    InputFieldBox *box = new InputFieldBox(new MathSequence);
-    box->content()->load_from_object(expr[1], info->options);
-    info->boxes->add(box);
-    return;
-  }
-  
   if(expr[0] == PMATH_SYMBOL_FILLBOX){
     FillBox *box = FillBox::create(expr, info->options);
     if(box){
@@ -4065,6 +4057,14 @@ static void make_box(int pos, pmath_t obj, void *data){
   
   if(expr[0] == PMATH_SYMBOL_GRIDBOX){
     GridBox *box = GridBox::create(expr, info->options);
+    if(box){
+      info->boxes->add(box);
+      return;
+    }
+  }
+  
+  if(expr[0] == PMATH_SYMBOL_INPUTFIELDBOX){
+    InputFieldBox *box = InputFieldBox::create(expr, info->options);
     if(box){
       info->boxes->add(box);
       return;
