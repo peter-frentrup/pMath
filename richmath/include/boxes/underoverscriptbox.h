@@ -54,7 +54,8 @@ namespace richmath{
       float base_x, under_x, under_y, over_x, over_y;
       
 //      float ou_displacement;
-      bool o_stretched, u_stretched;
+      bool _overscript_is_stretched;
+      bool _underscript_is_stretched;
   };
 }
 

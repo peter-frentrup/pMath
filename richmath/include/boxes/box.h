@@ -2,7 +2,7 @@
 #define __BOXES__BOX_H__
 
 #include <graphics/shapers.h>
-#include <util/pmath-extra.h>
+#include <util/frontendobject.h>
 #include <util/sharedptr.h>
 #include <util/style.h>
 
@@ -74,18 +74,13 @@ namespace richmath{
   const int BoxFlagLiteral      = 2; // no DynamicBox
   const int BoxFlagShortNumbers = 4; // not the internal representation of NumberBox, but the content()
   
-  class Box: public Base{
+  class Box: public FrontEndObject {
     public:
       Box();
       virtual ~Box();
       
       Box *parent(){ return _parent; }
       int  index(){  return _index; }
-      
-      int id(){ return _id; }
-      static Box *find(int id);
-      static Box *find(Expr frontendobject);
-      void swap_id(Box *other);
       
       template<class T>
       T *find_parent(bool selfincluding){
@@ -113,7 +108,6 @@ namespace richmath{
       virtual bool expand(const BoxSize &size){ return false; }
       virtual void resize(Context *context) = 0;
       virtual void colorize_scope(SyntaxState *state);
-      virtual void clear_coloring();
       virtual void paint(Context *context) = 0;
       virtual Box *get_highlight_child(Box *src, int *start, int *end);
       virtual void selection_path(Canvas *canvas, int start, int end);
@@ -220,9 +214,6 @@ namespace richmath{
       BoxSize  _extents;
       Box     *_parent;
       int      _index;
-      
-    private:
-      int _id;
   };
   
   class DummyBox: public Box {

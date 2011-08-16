@@ -207,7 +207,7 @@ void DynamicEvaluationJob::end(){
 }
 
 void DynamicEvaluationJob::returned(Expr expr){
-  Box *box = Box::find(_position.box_id);
+  Box *box = FrontEndObject::find_cast<Box>(_position.box_id);
   
   if(box)
     box->dynamic_finished(_info, expr);

@@ -341,11 +341,8 @@ void Application::register_menucommand(
   }
 
 void Application::gui_print_section(Expr expr){
-  Document *doc = dynamic_cast<Document*>(
-    Box::find(print_pos.document_id));
-
-  Section *sect = dynamic_cast<Section*>(
-    Box::find(print_pos.section_id));
+  Document *doc = FrontEndObject::find_cast<Document>(print_pos.document_id);
+  Section *sect = FrontEndObject::find_cast<Section>( print_pos.section_id);
 
   if(doc){
     int index;
@@ -551,15 +548,15 @@ Box *Application::find_current_job(){
   if(s){
     EvaluationPosition pos = s->current_job->position();
     
-    Box *box = Box::find(pos.box_id);
+    Box *box = FrontEndObject::find_cast<Box>(pos.box_id);
     if(box)
       return box;
     
-    box = Box::find(pos.section_id);
+    box = FrontEndObject::find_cast<Box>(pos.section_id);
     if(box)
       return box;
       
-    box = Box::find(pos.document_id);
+    box = FrontEndObject::find_cast<Box>(pos.document_id);
     if(box)
       return box;
   }
@@ -580,7 +577,7 @@ bool Application::remove_job(Box *input_box, bool only_check_possibility){
   SharedPtr<Session> s = session;
   while(s){
     while(s->jobs.get(&tmp)){
-      Box *sect = Box::find(tmp->position().section_id);
+      Box *sect = FrontEndObject::find_cast<Box>(tmp->position().section_id);
       
       if(sect == input_box){
         if(only_check_possibility){
@@ -782,9 +779,9 @@ void Application::delay_dynamic_updates(bool delay){
       if(e){
         ++cnt;
         
-        Box *box = Box::find(e->key);
-        if(box)
-          box->dynamic_updated();
+        FrontEndObject *feo = FrontEndObject::find(e->key);
+        if(feo)
+          feo->dynamic_updated();
       }
     }
     pending_dynamic_updates.clear();
@@ -793,8 +790,8 @@ void Application::delay_dynamic_updates(bool delay){
 
 static void cnt_startsession(){
   if(session->current_job){
-    Section *sect = dynamic_cast<Section*>(
-      Box::find(session->current_job->position().section_id));
+    Section *sect = FrontEndObject::find_cast<Section>(
+      session->current_job->position().section_id);
 
     if(sect){
       sect->dialog_start = true;
@@ -817,8 +814,8 @@ static void cnt_endsession(){
   }
 
   if(session->current_job){
-    Section *sect = dynamic_cast<Section*>(
-      Box::find(session->current_job->position().section_id));
+    Section *sect = FrontEndObject::find_cast<Section>(
+      session->current_job->position().section_id);
 
     if(sect){
       sect->dialog_start = false;
@@ -836,11 +833,9 @@ static void cnt_end(Expr data){
     job->dequeued();
 
     {
-      Document *doc = dynamic_cast<Document*>(
-        Box::find(print_pos.document_id));
+      Document *doc = FrontEndObject::find_cast<Document>(print_pos.document_id);
 
-      Section *sect = dynamic_cast<Section*>(
-        Box::find(print_pos.section_id));
+      Section *sect = FrontEndObject::find_cast<Section>(print_pos.section_id);
 
       if(doc){
         if(sect && sect->parent() == doc){
@@ -896,8 +891,7 @@ static void cnt_end(Expr data){
       if(all_document_ids.entry(i)){
         ++count;
 
-        Document *doc = dynamic_cast<Document*>(
-          Box::find(all_document_ids.entry(i)->key));
+        Document *doc = FrontEndObject::find_cast<Document>(all_document_ids.entry(i)->key);
 
         assert(doc);
 
@@ -981,23 +975,23 @@ static void cnt_addconfigshaper(Expr data){
 }
 
 static Expr cnt_getoptions(Expr data){
-  Box *obj = Box::find(data);
+  Box *box = FrontEndObject::find_cast<Box>(data);
 
-  if(obj){
+  if(box){
     Gather gather;
 
-    if(obj->style)
-      obj->style->emit_to_pmath(0 != dynamic_cast<Section*>(obj), true);
+    if(box->style)
+      box->style->emit_to_pmath(0 != dynamic_cast<Section*>(box), true);
 
     Expr options = gather.end();
-    if(!obj->to_pmath_symbol().is_symbol())
+    if(!box->to_pmath_symbol().is_symbol())
       return options;
     
     Expr default_options = 
       Call(Symbol(PMATH_SYMBOL_UNION),
       options,
       Call(Symbol(PMATH_SYMBOL_FILTERRULES),
-        Call(Symbol(PMATH_SYMBOL_OPTIONS), obj->to_pmath_symbol()),
+        Call(Symbol(PMATH_SYMBOL_OPTIONS), box->to_pmath_symbol()),
         Call(Symbol(PMATH_SYMBOL_EXCEPT),
           options)));
     
@@ -1009,17 +1003,17 @@ static Expr cnt_getoptions(Expr data){
 }
 
 static Expr cnt_setoptions(Expr data){
-  Box *obj = Box::find(data[1]);
+  Box *box = FrontEndObject::find_cast<Box>(data[1]);
 
-  if(obj){
+  if(box){
     Expr options = Expr(pmath_expr_get_item_range(data.get(), 2, SIZE_MAX));
     options.set(0, Symbol(PMATH_SYMBOL_LIST));
     
-    if(!obj->style)
-      obj->style = new Style();
+    if(!box->style)
+      box->style = new Style();
     
-    obj->style->add_pmath(options);
-    obj->invalidate();
+    box->style->add_pmath(options);
+    box->invalidate();
     
     return options;
   }
@@ -1032,7 +1026,7 @@ static void cnt_dynamicupate(Expr data){
     Expr id_obj = data[i];
 
     if(id_obj.is_int32()){
-      Box *box = Box::find(PMATH_AS_INT32(id_obj.get()));
+      Box *box = FrontEndObject::find_cast<Box>(PMATH_AS_INT32(id_obj.get()));
 
       if(box){
         if(dynamic_update_delay){
@@ -1141,11 +1135,11 @@ static Expr cnt_currentvalue(Expr data){
   Box *box = 0;
 
   if(data.expr_length() == 1){
-    box = Box::find(Dynamic::current_evaluation_box_id);
+    box = FrontEndObject::find_cast<Box>(Dynamic::current_evaluation_box_id);
     item = data[1];
   }
   else if(data.expr_length() == 2){
-    box = Box::find(data[1]);
+    box = FrontEndObject::find_cast<Box>(data[1]);
     item = data[2];
   }
   else
@@ -1160,7 +1154,7 @@ static Expr cnt_currentvalue(Expr data){
 
       box->style->set(InternalUsesCurrentValueOfMouseOver, true);
 
-      Box *mo = Box::find(doc->mouseover_box_id());
+      Box *mo = FrontEndObject::find_cast<Box>(doc->mouseover_box_id());
       while(mo && mo != box)
         mo = mo->parent();
 

@@ -37,7 +37,6 @@ namespace richmath{
       virtual bool expand(const BoxSize &size);
       virtual void resize(Context *context);
       virtual void colorize_scope(SyntaxState *state);
-      virtual void clear_coloring();
       virtual void paint(Context *context);
       
       virtual void selection_path(Canvas *canvas, int start, int end);
@@ -115,7 +114,7 @@ namespace richmath{
         Span     span, 
         int     *pos);
       
-      int symbol_colorize(
+       int symbol_colorize(
         SyntaxState *state,
         int          start,
         SymbolKind   kind);
@@ -183,9 +182,9 @@ namespace richmath{
       
       virtual void load_from_object(Expr object, int options); // BoxOptionXXX
       
-      const String &text(){ return str; }
-      const SpanArray        &span_array(){  return spans; }
-      const Array<Line>      &line_array(){  return lines; }
+      const String           &text(){        return str;    }
+      const SpanArray        &span_array(){  return spans;  }
+      const Array<Line>      &line_array(){  return lines;  }
       const Array<GlyphInfo> &glyph_array(){ return glyphs; }
       
       bool stretch_horizontal(Context *context, float width);

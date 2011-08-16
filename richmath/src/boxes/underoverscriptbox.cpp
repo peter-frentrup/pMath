@@ -68,12 +68,12 @@ void UnderoverscriptBox::resize(Context *context){
     
   float w = 0;
   
-  u_stretched = o_stretched = false;
+  _underscript_is_stretched = _overscript_is_stretched = false;
   
   if(_underscript){
     _underscript->resize(context);
     
-    u_stretched = _underscript->stretch_horizontal(
+    _underscript_is_stretched = _underscript->stretch_horizontal(
       context, _base->extents().width);
     
     w = _underscript->extents().width;
@@ -82,7 +82,7 @@ void UnderoverscriptBox::resize(Context *context){
   if(_overscript){
     _overscript->resize(context);
     
-    o_stretched = _overscript->stretch_horizontal(
+    _overscript_is_stretched = _overscript->stretch_horizontal(
       context, _base->extents().width);
     
     if(w < _overscript->extents().width)
@@ -92,7 +92,7 @@ void UnderoverscriptBox::resize(Context *context){
   context->canvas->set_font_size(old_fs);
   context->width = old_w;
   
-  if(!u_stretched && !o_stretched 
+  if(!_underscript_is_stretched && !_overscript_is_stretched 
   && _base->length() == 1){
     if(_parent && _parent->length() == 1){
       UnderoverscriptBox *uo = dynamic_cast<UnderoverscriptBox*>(_parent->parent());
@@ -143,10 +143,10 @@ void UnderoverscriptBox::after_items_resize(Context *context){
 void UnderoverscriptBox::colorize_scope(SyntaxState *state){
   _base->colorize_scope(state);
   
-  if(_underscript && !u_stretched)
+  if(_underscript && !_underscript_is_stretched)
     _underscript->colorize_scope(state);
   
-  if(_overscript && !o_stretched)
+  if(_overscript && !_overscript_is_stretched)
     _overscript->colorize_scope(state);
 }
 

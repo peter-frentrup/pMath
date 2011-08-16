@@ -15,7 +15,7 @@ TimedEvent::TimedEvent(double _min_wait_seconds)
 }
 
 bool TimedEvent::register_for(int box_id){
-  Box *box = Box::find(box_id);
+  Box *box = FrontEndObject::find_cast<Box>(box_id);
 
   if(!box)
     return false;
@@ -44,7 +44,7 @@ BoxRepaintEvent::BoxRepaintEvent(int _box_id, double _min_wait_seconds)
 }
 
 void BoxRepaintEvent::execute_event(){
-  Box *box = Box::find(box_id);
+  Box *box = FrontEndObject::find_cast<Box>(box_id);
 
   if(box)
     box->request_repaint_all();

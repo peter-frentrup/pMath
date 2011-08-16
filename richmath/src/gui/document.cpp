@@ -508,7 +508,7 @@ void Document::scroll_to(Canvas *canvas, Box *child, int start, int end){
 
 void Document::mouse_exit(){
   if(context.mouseover_box_id){
-    Box *over = Box::find(context.mouseover_box_id);
+    Box *over = FrontEndObject::find_cast<Box>(context.mouseover_box_id);
     
     while(over && over != this){
       over->on_mouse_exit();
@@ -543,7 +543,7 @@ void Document::mouse_down(MouseEvent &event){
     context.clicked_box_id = receiver->id();
   }
   else{
-    receiver = Box::find(context.clicked_box_id);
+    receiver = FrontEndObject::find_cast<Box>(context.clicked_box_id);
     
     if(!receiver){
       context.clicked_box_id = this->id();
@@ -556,7 +556,7 @@ void Document::mouse_down(MouseEvent &event){
 
 void Document::mouse_up(MouseEvent &event){
   int next_clicked_box_id = context.clicked_box_id;
-  Box *receiver = Box::find(context.clicked_box_id);
+  Box *receiver = FrontEndObject::find_cast<Box>(context.clicked_box_id);
   
   if(--mouse_down_counter <= 0){
     Application::delay_dynamic_updates(false);
@@ -578,7 +578,7 @@ void Document::mouse_up(MouseEvent &event){
   }
 
 void Document::mouse_move(MouseEvent &event){
-  Box *receiver = Box::find(context.clicked_box_id);
+  Box *receiver = FrontEndObject::find_cast<Box>(context.clicked_box_id);
   
   if(receiver){
     native()->set_cursor(CurrentCursor);
@@ -598,7 +598,7 @@ void Document::mouse_move(MouseEvent &event){
     }
     
     //Box *new_over = receiver ? receiver->mouse_sensitive() : 0;
-    Box *old_over = Box::find(context.mouseover_box_id);
+    Box *old_over = FrontEndObject::find_cast<Box>(context.mouseover_box_id);
     
     if(receiver){
       Box *base = Box::common_parent(receiver, old_over);
@@ -1107,7 +1107,7 @@ void Document::on_key_down(SpecialKeyEvent &event){
     
     case KeyEscape: {
       if(context.clicked_box_id){
-        Box *receiver = Box::find(context.clicked_box_id);
+        Box *receiver = FrontEndObject::find_cast<Box>(context.clicked_box_id);
           
         if(receiver)
           receiver->on_mouse_cancel();

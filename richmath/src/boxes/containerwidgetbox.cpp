@@ -37,7 +37,7 @@ ControlState ContainerWidgetBox::calc_state(Context *context){
     return Hot;
   }
   
-  Box *mo = Box::find(context->mouseover_box_id);
+  Box *mo = FrontEndObject::find_cast<Box>(context->mouseover_box_id);
   if(mo && mo->mouse_sensitive() == this)
     return Hovered;
   

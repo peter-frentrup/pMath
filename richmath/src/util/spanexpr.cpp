@@ -540,3 +540,204 @@ Box *SpanExpr::item_as_box(int i){
 }
 
 //} ... class SpanExpr
+
+//{ class FunctionCallSpan ...
+
+bool FunctionCallSpan::is_sequence(){
+  if(!_span)
+    return false;
+    
+  if(_span->count() < 1)
+    return false;
+  
+  for(int i = 0;i < _span->count();++i)
+    if(!_span->item_is_operand(i)
+    && !_span->item_equals(i, ","))
+      return false;
+  
+  return true;
+}
+
+bool FunctionCallSpan::is_simple_call(){
+  if(!_span)
+    return false;
+    
+  if(_span->count() == 3){
+    return _span->item_equals(1, "(")
+        && _span->item_equals(2, ")")
+        && _span->item_is_operand(0);
+  }
+  
+  if(_span->count() == 4){
+    return _span->item_equals(1, "(")
+        && _span->item_equals(3, ")")
+        && _span->item_is_operand(0)
+        && _span->item_is_operand(2);
+  }
+  
+  return false;
+}
+
+bool FunctionCallSpan::is_complex_call(){
+  if(!_span)
+    return false;
+    
+  if(_span->count() == 5){
+    return _span->item_equals(1, ".")
+        && _span->item_equals(3, "(")
+        && _span->item_equals(4, ")")
+        && _span->item_is_operand(0)
+        && _span->item_is_operand(2);
+  }
+  
+  if(_span->count() == 6){
+    return _span->item_equals(1, ".")
+        && _span->item_equals(3, "(")
+        && _span->item_equals(5, ")")
+        && _span->item_is_operand(0)
+        && _span->item_is_operand(2)
+        && _span->item_is_operand(4);
+  }
+  
+  return false;
+}
+
+bool FunctionCallSpan::is_simple_list(){
+  if(!_span)
+    return false;
+    
+  if(_span->count() == 2){
+    return _span->item_equals(0, "{")
+        && _span->item_equals(1, "}");
+  }
+  
+  if(_span->count() == 3){
+    return _span->item_equals(0, "{")
+        && _span->item_equals(2, "}")
+        && _span->item_is_operand(1);
+  }
+  
+  return 0;
+}
+
+bool FunctionCallSpan::is_list(){
+  if(is_simple_list())
+    return true;
+  
+  SpanExpr *head = function_head();
+  if(head)
+    return head->equals("List");
+  
+  return false;
+}
+
+SpanExpr *FunctionCallSpan::sequence_argument(int i){
+  if(!_span || i <= 0)
+    return 0;
+  
+  if(i == 1){
+    if(_span->equals(","))
+      return 0;
+    
+    if(_span->count() < 1)
+      return _span;
+    
+    if(_span->item_equals(0, ","))
+      return 0;
+    
+    if(_span->count() > 1 && _span->item_equals(1, ","))
+      return _span->item(0);
+    
+    return _span;
+  }
+  
+  const int ii = i;
+  int k;
+  for(k = 0;k < _span->count() && i > 0;++k){
+    if(_span->item_is_operand(k)){
+      --i;
+    }
+    else if(!_span->item_equals(k, ",")){
+      if(ii == 1)
+        return _span;
+      return 0;
+    }
+  }
+  
+  if(i != 1)
+    return 0;
+  
+  if(k + 1 < _span->count()
+  && !_span->item_equals(k + 1, ","))
+    return 0;
+  
+  return _span->item(k);
+}
+
+SpanExpr *FunctionCallSpan::function_head(){
+  if(is_simple_call())
+    return _span->item(0);
+    
+  if(is_complex_call())
+    return _span->item(2);
+  
+  return 0;
+}
+
+SpanExpr *FunctionCallSpan::function_argument(int i){
+  if(is_simple_call()){
+    if(_span->count() == 3)
+      return 0;
+    
+    FunctionCallSpan args(_span->item(2));
+    return args.sequence_argument(i);
+  }
+  
+  if(is_complex_call()){
+    if(i == 1)
+      return _span->item(0);
+    
+    if(_span->count() == 5)
+      return 0;
+    
+    FunctionCallSpan args(_span->item(4));
+    return args.sequence_argument(i - 1);
+  }
+  
+  return 0;
+}
+
+int FunctionCallSpan::function_argument_count(){
+  int i = 1;
+  while(function_argument(i))
+    ++i;
+  
+  return i-1;
+}
+
+SpanExpr *FunctionCallSpan::list_element(int i){
+  if(is_simple_list()){
+    if(_span->count() == 3){
+      FunctionCallSpan args(_span->item(1));
+      return args.sequence_argument(i);
+    }
+    
+    return 0;
+  }
+  
+  if(is_list())
+    return function_argument(i);
+  
+  return 0;
+}
+
+int FunctionCallSpan::list_length(){
+  int i = 1;
+  while(list_element(i))
+    ++i;
+  
+  return i-1;
+}
+
+//} ... class FunctionCallSpan
+

@@ -7,10 +7,6 @@
 using namespace pmath;
 using namespace richmath;
 
-static Hashtable<int, Box*, cast_hash> box_cache;
-
-static int global_id = 0;
-
 //{ class MouseEvent ...
 
 MouseEvent::MouseEvent()
@@ -50,43 +46,14 @@ void MouseEvent::set_source(Box *new_source){
 //{ class Box ...
 
 Box::Box()
-: Base(),
+: FrontEndObject(),
   _extents(0,0,0),
   _parent(0),
-  _index(0),
-  _id(++global_id)
+  _index(0)
 {
-  box_cache.set(_id, this);
 }
 
 Box::~Box(){
-  box_cache.remove(_id);
-}
-
-Box *Box::find(int id){
-  return box_cache[id];
-}
-
-Box *Box::find(Expr frontendobject){
-  if(frontendobject.expr_length() == 1
-  && frontendobject[0] == PMATH_SYMBOL_FRONTENDOBJECT){
-    Expr num = frontendobject[1];
-    
-    if(num.is_int32())
-      return find(PMATH_AS_INT32(num.get()));
-  }
-  
-  return 0;
-}
-
-void Box::swap_id(Box *other){
-  if(other){
-    int id = other->_id;
-    other->_id = this->_id;
-    this->_id  = id;
-    box_cache.set(other->_id, other);
-    box_cache.set(this->_id,  this);
-  }
 }
 
 bool Box::is_parent_of(Box *child){
@@ -132,11 +99,6 @@ Box *Box::common_parent(Box *a, Box *b){
 void Box::colorize_scope(SyntaxState *state){
   for(int i = 0;i < count();++i)
     item(i)->colorize_scope(state);
-}
-
-void Box::clear_coloring(){
-  for(int i = 0;i < count();++i)
-    item(i)->clear_coloring();
 }
 
 Box *Box::get_highlight_child(Box *src, int *start, int *end){

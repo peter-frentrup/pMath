@@ -6,18 +6,18 @@
 #include <boxes/mathsequence.h>
 
 namespace richmath{
-  /* SpanExpr represents a span of Boxes (like Span class, but higher level)
+  /* SpanExpr represents a span of Boxes (like Span class, but higher level).
      It can be seen like the pMath representation of boxes: A Span/SpanExpr is 
      a list of other Spans or tokens (plain strings in pMath representation).
      
-     SpanExpr is lazy loading its operates on a SpanArray. This means you build
-     sub trees of the whole span tree of a MathSequence and then may expand() them 
-     to analyse the surrounding syntax.
+     SpanExpr is lazy loading and operates on a SpanArray. This means you build
+     sub trees of the whole span tree of a MathSequence and then may expand() 
+     them to analyse the surrounding syntax.
      
      This class is used to easily analyse the syntax of a MathSequence for 
      colorization. 
      
-     See MathSequence::colorize_scope() for the main use case.
+     See SyntaxColorizer::colorize_scope() for the main use case.
      
      
      
@@ -58,7 +58,7 @@ namespace richmath{
       rules to gat those option names that begin with "Ax"
      
    */
-  class SpanExpr: public Base{
+  class SpanExpr: public Base {
     public:
       SpanExpr(int start, Span span, MathSequence *sequence);
       ~SpanExpr();
@@ -72,6 +72,7 @@ namespace richmath{
       Span span(){  return _span; }
       int count(){ return _items.length(); } // 0 if this is a simple token
       SpanExpr *parent(){ return _parent; }
+      MathSequence *sequence(){ return _sequence; }
       
       SpanExpr *item(int i);
       int item_pos(int i){ return _items_pos[i]; }
@@ -90,13 +91,15 @@ namespace richmath{
       int as_prefix_prec(int defprec);
       int precedence(int *pos = 0); // -1,0,+1 = Prefix,Infix,Postfix
       
-      bool is_box(){ return as_char() == PMATH_CHAR_BOX; }
+      bool is_box(){     return as_char() == PMATH_CHAR_BOX; }
+      bool is_operand(){ return _sequence->span_array().is_operand_start(_start); }
       
       uint16_t      item_first_char(int i);
       uint16_t      item_as_char(   int i);
       String        item_as_text(   int i);
       Box          *item_as_box(    int i);
       bool          item_is_box(    int i){ return item_as_char(i) == PMATH_CHAR_BOX; }
+      bool          item_is_operand(int i){ return _sequence->span_array().is_operand_start(item_pos(i)); }
       
     private:
       SpanExpr(SpanExpr *parent, int start, Span span, MathSequence *sequence);
@@ -111,6 +114,30 @@ namespace richmath{
       
       Array<int>       _items_pos;
       Array<SpanExpr*> _items;
+  };
+  
+  class FunctionCallSpan {
+    public:
+      FunctionCallSpan(SpanExpr *span): _span(span){}
+      
+      bool is_sequence();       // a,b,c
+      bool is_simple_call();    // f(a,b,c)
+      bool is_complex_call();   // a.f(b,c)
+      bool is_call(){ return is_simple_call() || is_complex_call(); }
+      
+      bool is_simple_list();
+      bool is_list();
+      
+      SpanExpr *sequence_argument(int i); // 1-based
+      SpanExpr *function_head();
+      SpanExpr *function_argument(int i); // 1-based
+      int function_argument_count();
+      
+      SpanExpr *list_element(int i); // 1-based
+      int list_length();
+      
+    private:
+      SpanExpr *_span;
   };
 }
 

@@ -26,7 +26,7 @@ Box *SelectionReference::get(){
   if(!id)
     return 0;
 
-  Box *result = Box::find(id);
+  Box *result = FrontEndObject::find_cast<Box>(id);
   if(!result)
     return 0;
 

@@ -271,13 +271,6 @@ void MathSequence::colorize_scope(SyntaxState *state){
   }
 }
 
-void MathSequence::clear_coloring(){
-  for(int i = 0;i < glyphs.length();++i)
-    glyphs[i].style = GlyphStyleNone;
-  
-  Box::clear_coloring();
-}
-
 void MathSequence::paint(Context *context){
   float x0, y0;
   context->canvas->current_pos(&x0, &y0);
