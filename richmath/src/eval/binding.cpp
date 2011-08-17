@@ -441,7 +441,7 @@ static bool convert_dynamic_to_literal(Expr cmd){
 static bool copy_cmd(Expr cmd){
   Document *doc = get_current_document();
 
-  if(!doc)
+  if(!doc || doc->selection_length() == 0)
     return false;
 
   doc->copy_to_clipboard();
@@ -451,7 +451,7 @@ static bool copy_cmd(Expr cmd){
 static bool cut_cmd(Expr cmd){
   Document *doc = get_current_document();
 
-  if(!doc)
+  if(!doc || doc->selection_length() == 0)
     return false;
 
   doc->cut_to_clipboard();

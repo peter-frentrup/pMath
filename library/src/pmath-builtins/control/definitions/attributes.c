@@ -1,5 +1,8 @@
 #include <pmath-core/numbers.h>
+#include <pmath-core/symbols-private.h>
 
+#include <pmath-util/concurrency/threads-private.h>
+#include <pmath-util/dynamic-private.h>
 #include <pmath-util/emit-and-gather.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
@@ -146,6 +149,15 @@ PMATH_PRIVATE pmath_t builtin_attributes(pmath_expr_t expr){
   }
 
   attr = pmath_symbol_get_attributes(sym);
+  
+  if(pmath_atomic_read_aquire(&_pmath_dynamic_trackers)){
+    pmath_thread_t thread = pmath_thread_get_current();
+    
+    if(thread->current_dynamic_id){
+      _pmath_symbol_track_dynamic(sym, thread->current_dynamic_id);
+    }
+  }
+  
   pmath_unref(expr);
   pmath_unref(sym);
 

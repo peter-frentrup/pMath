@@ -3,6 +3,7 @@
 #include <pmath-util/emit-and-gather.h>
 #include <pmath-util/messages.h>
 
+
 static void protect_callback(pmath_symbol_t *symbol){
   pmath_symbol_attributes_t attr = pmath_symbol_get_attributes(*symbol);
   
@@ -60,7 +61,7 @@ PMATH_PRIVATE pmath_t builtin_protect_or_unprotect(pmath_expr_t expr){
     pmath_symbol_synchronized(symbol, callback, &symbol);
     pmath_unref(symbol);
   }
-
+  
   pmath_unref(expr);
   return pmath_gather_end();
 }

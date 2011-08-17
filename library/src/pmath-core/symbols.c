@@ -564,12 +564,18 @@ PMATH_API void pmath_symbol_set_attributes(
   pmath_symbol_t             symbol,
   pmath_symbol_attributes_t  attr
 ){
+  struct _pmath_symbol_t *sym_ptr;
+  
   if(pmath_is_null(symbol))
     return;
   
-  ((struct _pmath_timed_t*)PMATH_AS_PTR(symbol))->last_change = _pmath_timer_get_next();
+  sym_ptr = (struct _pmath_symbol_t*)PMATH_AS_PTR(symbol);
+  sym_ptr->inherited.inherited.last_change = _pmath_timer_get_next();
   
-  ((struct _pmath_symbol_t*)PMATH_AS_PTR(symbol))->attributes = attr;
+  sym_ptr->attributes = attr;
+  
+  if(pmath_atomic_fetch_set(&sym_ptr->current_dynamic_id, 0) != 0)
+    _pmath_dynamic_update(symbol);
 }
 
 /*----------------------------------------------------------------------------*/

@@ -61,7 +61,6 @@ namespace richmath{
   
   class SyntaxInformation{
     public:
-      SyntaxInformation(int min = 0, int max = -1); // max < 0: converted to INT_MAX
       SyntaxInformation(Expr name);
       
     public:

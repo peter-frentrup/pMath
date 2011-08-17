@@ -34,9 +34,15 @@ void pmath_debug_print_object(
   pmath_t     obj, 
   const char *post);
   
+/**\brief Print the current pMath stack trace to the debug log.
+ */
+PMATH_API
+void pmath_debug_print_stack(void);
+
 #ifndef PMATH_DEBUG_LOG
   #define pmath_debug_print(...)                    ((void)0)
   #define pmath_debug_print_object(PRE, OBJ, POST)  ((void)0)
+  #define pmath_debug_print_stack()                 ((void)0)
 #endif /* PMATH_DEBUG_LOG */
 
 /** @} */

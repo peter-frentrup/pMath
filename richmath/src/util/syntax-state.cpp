@@ -89,15 +89,6 @@ void SymbolInfo::add(SymbolKind _kind, SharedPtr<ScopePos> _pos){
 
 //{ class SyntaxInformation ...
 
-SyntaxInformation::SyntaxInformation(int min, int max)
-: minargs(min),
-  maxargs(max < 0 ? INT_MAX : max),
-  locals_form(NoSpec),
-  locals_min(1),
-  locals_max(INT_MAX)
-{
-}
-
 SyntaxInformation::SyntaxInformation(Expr name)
 : minargs(0),
   maxargs(INT_MAX),

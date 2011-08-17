@@ -8,7 +8,7 @@
 
 namespace richmath {
 
-  class FrontEndObject: public Base {
+  class FrontEndObject: public virtual Base {
     public:
       FrontEndObject();
       virtual ~FrontEndObject();

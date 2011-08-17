@@ -1,9 +1,11 @@
 #include <pmath-core/symbols-private.h>
 
+#include <pmath-util/concurrency/threads-private.h>
 #include <pmath-util/emit-and-gather.h>
-#include <pmath-util/symbol-values-private.h>
+#include <pmath-util/dynamic-private.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
+#include <pmath-util/symbol-values-private.h>
 
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/control/definitions-private.h>
@@ -18,6 +20,16 @@ pmath_t _pmath_extract_holdpattern(pmath_t pat){
   }
   
   return pat;
+}
+
+static void track_symbol(pmath_symbol_t sym){
+  if(pmath_atomic_read_aquire(&_pmath_dynamic_trackers)){
+    pmath_thread_t thread = pmath_thread_get_current();
+    
+    if(thread->current_dynamic_id){
+      _pmath_symbol_track_dynamic(sym, thread->current_dynamic_id);
+    }
+  }
 }
 
 PMATH_PRIVATE pmath_t builtin_assign_ownrules(pmath_expr_t expr){
@@ -308,6 +320,7 @@ PMATH_PRIVATE pmath_t builtin_ownrules(pmath_expr_t expr){
     sym,
     pmath_symbol_get_value(sym));
   
+  track_symbol(sym);
   pmath_unref(sym);
   
   return pmath_gather_end();
@@ -350,7 +363,8 @@ PMATH_PRIVATE pmath_t builtin_symbol_rules(pmath_expr_t expr){
     else if(pmath_same(head, PMATH_SYMBOL_SUBRULES))     _pmath_rulecache_emit(&rules->sub_rules);
     else if(pmath_same(head, PMATH_SYMBOL_UPRULES))      _pmath_rulecache_emit(&rules->up_rules);
   }
-    
+  
+  track_symbol(sym);
   pmath_unref(sym);
   
   return pmath_gather_end();

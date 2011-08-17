@@ -114,28 +114,6 @@ namespace richmath{
         Span     span, 
         int     *pos);
       
-       int symbol_colorize(
-        SyntaxState *state,
-        int          start,
-        SymbolKind   kind);
-        
-      void symdef_colorize_spanexpr(
-        SyntaxState *state,
-        SpanExpr    *se,    // "x"  "x:=y"
-        SymbolKind   kind);
-        
-      void symdeflist_colorize_spanexpr(
-        SyntaxState *state,
-        SpanExpr    *se,    // "{symdefs ...}"
-        SymbolKind   kind);
-        
-      void replacement_colorize_spanexpr(
-        SyntaxState *state,
-        SpanExpr    *se,    // "x->value"
-        SymbolKind   kind);
-      
-      void scope_colorize_spanexpr(SyntaxState *state, SpanExpr *se);
-      
       void stretch_span(
         Context *context, 
         Span     span, 

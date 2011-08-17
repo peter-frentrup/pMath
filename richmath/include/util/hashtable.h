@@ -165,18 +165,25 @@ namespace richmath{
       const Entry<K,V> *entry(unsigned int i) const { return is_used(table[i]) ? table[i] : 0; }
       Entry<K,V>       *entry(unsigned int i)       { return is_used(table[i]) ? table[i] : 0; }
       
-      const V *search(const K &key) const {
+      V *search(const K &key) const {
         unsigned int i = lookup(key);
         if(is_used(table[i]))
           return &table[i]->value;
         return 0;
       }
     
-      V *search(const K &key){
+      Entry<K,V> *search_entry(const K &key) const {
         unsigned int i = lookup(key);
         if(is_used(table[i]))
-          return &table[i]->value;
+          return table[i];
         return 0;
+      }
+      
+      V &get(const K &key, V &def) const {
+        unsigned int i = lookup(key);
+        if(is_used(table[i]))
+          return table[i]->value;
+        return def;
       }
       
       const V &get(const K &key, const V &def) const {
@@ -186,21 +193,14 @@ namespace richmath{
         return def;
       }
       
-      V &get(const K &key, const V &def){
-        unsigned int i = lookup(key);
-        if(is_used(table[i]))
-          return table[i]->value;
-        return def;
-      }
-      
-      const V &operator[](const K &key) const {
+      V &operator[](const K &key){
         unsigned int i = lookup(key);
         if(is_used(table[i]))
           return table[i]->value;
         return default_value;
       }
       
-      V &operator[](const K &key){
+      const V &operator[](const K &key) const {
         unsigned int i = lookup(key);
         if(is_used(table[i]))
           return table[i]->value;

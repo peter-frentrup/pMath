@@ -1123,7 +1123,10 @@ static Expr cnt_createdocument(Expr data){
         }
       }
     }
-
+    
+    if(doc->selectable())
+      set_current_document(doc);
+    
     return Call(Symbol(PMATH_SYMBOL_FRONTENDOBJECT), doc->id());
   }
 

@@ -1,4 +1,5 @@
 #include <pmath-util/debug.h>
+#include <pmath-util/helpers.h>
 
 #include <stdarg.h>
 #include <stdio.h>
@@ -103,6 +104,17 @@ PMATH_API void pmath_debug_print_object(
 
     debugging_output = TRUE;
   }
+}
+
+  static pmath_bool_t stack_walker(pmath_t head, void *p){
+    pmath_debug_print_object("  in ", head, "\n");
+    
+    return TRUE;
+  }
+
+PMATH_API void pmath_debug_print_stack(void){
+  pmath_debug_print("pMath stack:\n");
+  pmath_walk_stack(stack_walker, NULL);
 }
 
 PMATH_PRIVATE pmath_bool_t _pmath_debug_library_init(void){

@@ -34,13 +34,13 @@ SymbolInfo(~name:String)::= Try(
 	With(
 		{sym:= name.MakeExpression(ParseSymbols -> False)},
 		If(sym.Match(HoldComplete(Symbol(~))),
-			Return(False));
+			Return(False)); /* symbol does not exist */
 		
 		If(!sym.Match(HoldComplete(~s:Symbol)),
-			Return(True));
+			Return(True)); /* name parses to something not a symbol */
 		
 		If(Union($NamespacePath, {$Namespace}).Map(MakeExpression(# ++ name, ParseSymbols -> False)&).Cases(HoldComplete(Except(Symbol(~)))).Length() > 1,
-			Return($Failed));
+			Return(Alternatives));
 		
 		Return(Namespace @@ sym =!= "Global`"
 			|| Attributes @@ sym =!= {} 

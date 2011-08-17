@@ -115,25 +115,25 @@ namespace richmath{
         return *this;
       }
       
-      T &operator[](int i){
+      T &operator[](int i) const {
         return get(i);
       }
       
-      const T &operator[](int i) const {
-        return get(i);
-      }
+//      const T &operator[](int i) const {
+//        return get(i);
+//      }
       
       Array<T> operator[](const Range &range) const {
         return Array<T>(range.end - range.start + 1, _items + range.start);
       }
       
-      const T &get(int i) const {
-        ARRAY_ASSERT(i >= 0);
-        ARRAY_ASSERT(i < _length);
-        return _items[i];
-      }
+//      const T &get(int i) const {
+//        ARRAY_ASSERT(i >= 0);
+//        ARRAY_ASSERT(i < _length);
+//        return _items[i];
+//      }
       
-      T &get(int i){
+      T &get(int i) const {
         ARRAY_ASSERT(i >= 0);
         ARRAY_ASSERT(i < _length);
         return _items[i];
