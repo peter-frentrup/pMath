@@ -14,10 +14,10 @@
 
 using namespace richmath;
 
-class AutoDC: public Base{
+class AutoDC: public Base {
   public:
-    AutoDC(HDC dc): handle(dc){}
-    ~AutoDC(){ DeleteDC(handle); }
+    AutoDC(HDC dc): handle(dc) {}
+    ~AutoDC() { DeleteDC(handle); }
     HDC handle;
 };
 
@@ -28,22 +28,22 @@ static AutoDC dc(CreateCompatibleDC(0));
 WindowsFontShaper::WindowsFontShaper(
   const String  &name,
   FontStyle      style)
-: TextShaper(),
+  : TextShaper(),
   _name(name),
   _style(style),
   _font(name, style)
 {
 }
 
-WindowsFontShaper::~WindowsFontShaper(){
+WindowsFontShaper::~WindowsFontShaper() {
 }
 
 void WindowsFontShaper::decode_token(
   Context        *context,
   int             len,
-  const uint16_t *str, 
+  const uint16_t *str,
   GlyphInfo      *result
-){
+) {
   static Array<uint16_t> indices;
   cairo_text_extents_t cte;
   cairo_glyph_t cg;
@@ -57,53 +57,53 @@ void WindowsFontShaper::decode_token(
   cairo_win32_scaled_font_select_font(
     cairo_get_scaled_font(context->canvas->cairo()),
     dc.handle);
-  
+    
   GetGlyphIndicesW(
-    dc.handle, 
-    (const WCHAR*)str, 
-    len, 
+    dc.handle,
+    (const WCHAR*)str,
+    len,
     indices.items(),
     GGI_MARK_NONEXISTING_GLYPHS); /* marks nonexistent glyphs with 0xffff = UnknownGlyph */
-  
+    
   cg.x = 0;
   cg.y = 0;
-  for(int i = 0;i < len;++i){
+  for(int i = 0; i < len; ++i) {
     if(i + 1 < len
-    && is_utf16_high(str[i])
-    && is_utf16_low(str[i + 1])){
+        && is_utf16_high(str[i])
+        && is_utf16_low(str[i + 1])) {
       SCRIPT_ITEM uniscribe_items[3];
       int num_items;
       
       if(!ScriptItemize(
-          (const WCHAR*)str + i,
-          2, 
-          2,
-          NULL,
-          NULL,
-          uniscribe_items,
-          &num_items)
-      && num_items == 1)
+            (const WCHAR*)str + i,
+            2,
+            2,
+            NULL,
+            NULL,
+            uniscribe_items,
+            &num_items)
+          && num_items == 1)
       {
         SCRIPT_CACHE   cache = NULL;
         WORD           out_glyphs[2];
         SCRIPT_VISATTR vis_attr[  2];
-        WORD log_clust[2] = {0,1};
+        WORD log_clust[2] = {0, 1};
         int num_glyphs;
         
         // todo: use ScriptShapeOpenType when available
         if(!ScriptShape(
-            dc.handle,
-            &cache,
-            (const WCHAR*)str + i + uniscribe_items[0].iCharPos,
-            uniscribe_items[1].iCharPos - uniscribe_items[0].iCharPos,
-            2,
-            &uniscribe_items[0].a,
-            out_glyphs,
-            log_clust,
-            vis_attr,
-            &num_glyphs)
-        && num_glyphs == 1
-        && out_glyphs[0] != 0)
+              dc.handle,
+              &cache,
+              (const WCHAR*)str + i + uniscribe_items[0].iCharPos,
+              uniscribe_items[1].iCharPos - uniscribe_items[0].iCharPos,
+              2,
+              &uniscribe_items[0].a,
+              out_glyphs,
+              log_clust,
+              vis_attr,
+              &num_glyphs)
+            && num_glyphs == 1
+            && out_glyphs[0] != 0)
         {
           result[i].index = cg.index = out_glyphs[0];
           
@@ -112,7 +112,7 @@ void WindowsFontShaper::decode_token(
           
           result[i + 1].index = 0;
         }
-        else{
+        else {
           result[i].index = result[i+1].index = UnknownGlyph;
           result[i].right = 0.0;
         }
@@ -138,10 +138,10 @@ void WindowsFontShaper::decode_token(
     result[i].index = cg.index = indices[i];
     
     result[i].x_offset = 0;
-    if(!cg.index){
+    if(!cg.index) {
       result[i].right = 0;
     }
-    else{
+    else {
       context->canvas->glyph_extents(&cg, 1, &cte);
       result[i].right = cte.x_advance;
     }
@@ -150,7 +150,7 @@ void WindowsFontShaper::decode_token(
   RestoreDC(dc.handle, 1);
 }
 
-SharedPtr<TextShaper> WindowsFontShaper::set_style(FontStyle style){
+SharedPtr<TextShaper> WindowsFontShaper::set_style(FontStyle style) {
   return find(_name, style);
 }
 

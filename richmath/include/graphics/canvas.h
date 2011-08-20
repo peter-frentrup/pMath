@@ -3,7 +3,8 @@
 
 #include <graphics/fonts.h>
 
-namespace richmath{
+
+namespace richmath {
   class Base;
   
   static const float SelectionAlpha = 0.4f;
@@ -18,13 +19,13 @@ namespace richmath{
       static void transform_point(
         const cairo_matrix_t &m,
         float *x, float *y);
-      
+        
       static void transform_rect(
         const cairo_matrix_t &m,
         float *x, float *y, float *w, float *h);
-      
-      cairo_t *cairo(){ return _cr; }
-      cairo_surface_t *target(){ return cairo_get_target(_cr); }
+        
+      cairo_t *cairo() { return _cr; }
+      cairo_surface_t *target() { return cairo_get_target(_cr); }
       
       void save();
       void restore();
@@ -44,20 +45,20 @@ namespace richmath{
       
       void set_font_face(FontFace font);
       void set_font_size(float size);
-      float get_font_size(){ return _font_size; }
+      float get_font_size() { return _font_size; }
       
-      void move_to(    float x, float y);
+      void move_to(float x, float y);
       void rel_move_to(float x, float y);
-      void line_to(    float x, float y);
+      void line_to(float x, float y);
       void rel_line_to(float x, float y);
       
       void arc(
-        float x, float y, 
-        float radius, 
-        float angle1, 
+        float x, float y,
+        float radius,
+        float angle1,
         float angle2,
         bool negative);
-      
+        
       void close_path();
       
       void align_point(float *x, float *y, bool tostroke);
@@ -66,23 +67,23 @@ namespace richmath{
       void pixframe(float x1, float y1, float x2, float y2, float thickness);
       
 //      void paint_selection(
-//        float x1, float y1, float x2, float y2, 
+//        float x1, float y1, float x2, float y2,
 //        bool rect = true);
-      
+
       void show_blur_rect(
         float x1, float y1,
-        float x2, float y2, 
+        float x2, float y2,
         float radius);
-      
+        
       void show_blur_line(float x1, float y1, float x2, float y2, float radius);
       
       void show_blur_arc(
-        float x, float y, 
-        float radius, 
-        float angle1, 
+        float x, float y,
+        float radius,
+        float angle1,
         float angle2,
         bool negative);
-      
+        
       void show_blur_stroke(float radius, bool preserve);
       
       void glyph_extents(const cairo_glyph_t *glyphs, int num_glyphs, cairo_text_extents_t *extents);
@@ -99,7 +100,7 @@ namespace richmath{
       
       void paint();
       void paint_with_alpha(float alpha);
-    
+      
     public:
       bool pixel_device;
       bool glass_background;

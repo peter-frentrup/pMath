@@ -6,16 +6,17 @@
 #include <util/sharedptr.h>
 #include <util/style.h>
 
-namespace richmath{
+
+namespace richmath {
   typedef enum {
-    Forward, 
+    Forward,
     Backward
   } LogicalDirection;
   
   class Box;
   class SyntaxState;
   
-  class MouseEvent{
+  class MouseEvent {
     public:
       MouseEvent();
       
@@ -31,7 +32,7 @@ namespace richmath{
       Box *source;
   };
   
-  typedef enum{
+  typedef enum {
     KeyUnknown = 0,
     
     KeyLeft,
@@ -59,9 +60,9 @@ namespace richmath{
     KeyF10,
     KeyF11,
     KeyF12
-  }SpecialKey;
+  } SpecialKey;
   
-  class SpecialKeyEvent{
+  class SpecialKeyEvent {
     public:
       SpecialKey key;
       bool ctrl;
@@ -79,19 +80,19 @@ namespace richmath{
       Box();
       virtual ~Box();
       
-      Box *parent(){ return _parent; }
-      int  index(){  return _index; }
+      Box *parent() { return _parent; }
+      int  index() {  return _index; }
       
       template<class T>
-      T *find_parent(bool selfincluding){
+      T *find_parent(bool selfincluding) {
         Box *b = this;
         
         if(!selfincluding)
           b = _parent;
-        
+          
         while(b && !dynamic_cast<T*>(b))
           b = b->parent();
-        
+          
         return dynamic_cast<T*>(b);
       }
       
@@ -101,11 +102,11 @@ namespace richmath{
       
       virtual Box *item(int i) = 0;
       virtual int count() = 0;
-      virtual int length(){ return count(); }
+      virtual int length() { return count(); }
       
-      const BoxSize &extents(){ return _extents; }
+      const BoxSize &extents() { return _extents; }
       
-      virtual bool expand(const BoxSize &size){ return false; }
+      virtual bool expand(const BoxSize &size) { return false; }
       virtual void resize(Context *context) = 0;
       virtual void colorize_scope(SyntaxState *state);
       virtual void paint(Context *context) = 0;
@@ -119,47 +120,47 @@ namespace richmath{
       
       virtual Expr to_pmath_symbol() = 0;
       virtual Expr to_pmath(int flags) = 0; // BoxFlagXXX
-      virtual Expr to_pmath(int flags, int start, int end){
+      virtual Expr to_pmath(int flags, int start, int end) {
         return to_pmath(flags);
       }
       
       virtual Box *move_logical(
-        LogicalDirection  direction, 
-        bool              jumping, 
+        LogicalDirection  direction,
+        bool              jumping,
         int              *index);
-      
+        
       virtual Box *move_vertical(
-        LogicalDirection  direction, 
+        LogicalDirection  direction,
         float            *index_rel_x,
         int              *index);
-      
+        
       virtual Box *mouse_selection(
         float  x,
         float  y,
         int   *start,
         int   *end,
         bool  *was_inside_start);
-      
+        
       // ?todo: rename to transform_from_child()
       virtual void child_transformation(
         int             index,
         cairo_matrix_t *matrix);
-      
+        
       // ?todo: rename to transform_to_parent()
       void transformation(
-        Box            *parent, 
+        Box            *parent,
         cairo_matrix_t *matrix);
+        
+      virtual bool remove_inserts_placeholder() { return true; }
       
-      virtual bool remove_inserts_placeholder(){ return true; }
-      
-      virtual bool exitable(){ return true; }
+      virtual bool exitable() { return true; }
       virtual bool selectable(int i = -1);
       
       virtual Box *normalize_selection(int *start, int *end);
       
       virtual Expr prepare_dynamic(Expr expr);
       virtual void dynamic_updated();
-      virtual void dynamic_finished(Expr info, Expr result){}
+      virtual void dynamic_finished(Expr info, Expr result) {}
       
       virtual Box *dynamic_to_literal(int *start, int *end);
       
@@ -169,7 +170,7 @@ namespace richmath{
       virtual void invalidate();
       virtual bool edit_selection(Context *context); // *not* automatically called
       
-      virtual bool changes_children_style(){ return false; }
+      virtual bool changes_children_style() { return false; }
       
       virtual SharedPtr<Stylesheet> stylesheet();
       
@@ -193,14 +194,14 @@ namespace richmath{
       virtual void on_mouse_exit();
       virtual void on_mouse_down(MouseEvent &event);
       virtual void on_mouse_move(MouseEvent &event);
-      virtual void on_mouse_up(  MouseEvent &event);
+      virtual void on_mouse_up(MouseEvent &event);
       virtual void on_mouse_cancel();
       
       virtual void on_enter();
       virtual void on_exit();
       
       virtual void on_key_down(SpecialKeyEvent &event);
-      virtual void on_key_up(  SpecialKeyEvent &event);
+      virtual void on_key_up(SpecialKeyEvent &event);
       virtual void on_key_press(uint32_t unichar);
       
     public:
@@ -219,27 +220,27 @@ namespace richmath{
   class DummyBox: public Box {
     public:
       DummyBox(): Box() {}
-      virtual ~DummyBox(){}
+      virtual ~DummyBox() {}
       
-      virtual Box *item(int i){ return 0; }
-      virtual int count(){ return 0; }
-      virtual int length(){ return 0; }
+      virtual Box *item(int i) { return 0; }
+      virtual int count() { return 0; }
+      virtual int length() { return 0; }
       
-      virtual void resize(Context *context){}
-      virtual void paint(Context *context){}
+      virtual void resize(Context *context) {}
+      virtual void paint(Context *context) {}
       
-      virtual Box *remove(int *index){ return this; }
+      virtual Box *remove(int *index) { return this; }
       
-      virtual Expr to_pmath_symbol(){ return Expr(); }
-      virtual Expr to_pmath(int flags){ return Expr(); }
+      virtual Expr to_pmath_symbol() { return Expr(); }
+      virtual Expr to_pmath(int flags) { return Expr(); }
   };
-
+  
   class AbstractSequence: public Box {
     public:
       AbstractSequence();
       virtual ~AbstractSequence();
       
-      virtual int insert(int pos, uint16_t chr){ return insert(pos, String::FromChar(chr)); }
+      virtual int insert(int pos, uint16_t chr) { return insert(pos, String::FromChar(chr)); }
       virtual int insert(int pos, const String &s) = 0; // unsafe: allows PMATH_BOX_CHAR
       virtual int insert(int pos, Box *box) = 0;
       virtual void remove(int start, int end) = 0;
@@ -249,9 +250,9 @@ namespace richmath{
       
       virtual Box *dynamic_to_literal(int *start, int *end);
       
-      BoxSize &var_extents(){ return _extents; }
+      BoxSize &var_extents() { return _extents; }
       
-      float get_em(){ return em; }
+      float get_em() { return em; }
       virtual int get_line(int index, int guide = 0) = 0; // 0, 1, ...
       
       virtual void get_line_heights(int line, float *ascent, float *descent) = 0;

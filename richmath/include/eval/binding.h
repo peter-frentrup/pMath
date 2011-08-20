@@ -4,10 +4,11 @@
 #include <util/hashtable.h>
 #include <util/pmath-extra.h>
 
-namespace richmath{
+
+namespace richmath {
   class Document;
   
-  typedef enum{
+  typedef enum {
     NumberBoxSymbol,
     SymbolInfoSymbol,
     AddConfigShaperSymbol,
@@ -22,7 +23,7 @@ namespace richmath{
     SymbolDefinitionsSymbol,
     
     FrontEndSymbolsCount
-  }FrontEndSymbolIndex;
+  } FrontEndSymbolIndex;
   
   bool init_bindings();
   void done_bindings();

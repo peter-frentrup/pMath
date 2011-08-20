@@ -10,7 +10,7 @@ using namespace richmath;
 //{ class AbstractTransformationBox ...
 
 AbstractTransformationBox::AbstractTransformationBox()
-: OwnerBox(0)
+  : OwnerBox(0)
 {
   mat.xx = 1;
   mat.xy = 0;
@@ -18,7 +18,7 @@ AbstractTransformationBox::AbstractTransformationBox()
   mat.yy = 1;
 }
 
-void AbstractTransformationBox::resize(Context *context){
+void AbstractTransformationBox::resize(Context *context) {
   context->canvas->save();
   context->canvas->transform(mat);
   float w = context->width;
@@ -83,11 +83,11 @@ void AbstractTransformationBox::resize(Context *context){
   _extents.descent = yb;
 }
 
-void AbstractTransformationBox::paint(Context *context){
+void AbstractTransformationBox::paint(Context *context) {
   if(style)
     style->update_dynamic(this);
-  
-  float x,y;
+    
+  float x, y;
   context->canvas->current_pos(&x, &y);
   
   context->canvas->save();
@@ -108,7 +108,7 @@ Box *AbstractTransformationBox::mouse_selection(
   int   *start,
   int   *end,
   bool  *was_inside_start
-){
+) {
   double mx = 0;//_content->extents().width / 2;
   double my = _content->extents().ascent;//_content->extents().height() / 2;
   
@@ -119,19 +119,19 @@ Box *AbstractTransformationBox::mouse_selection(
   cairo_matrix_translate(&inv_mat, x, y);
   x = inv_mat.x0;
   y = inv_mat.y0;
-        
+  
   return _content->mouse_selection(
-    x,
-    y,
-    start,
-    end,
-    was_inside_start);
+           x,
+           y,
+           start,
+           end,
+           was_inside_start);
 }
 
 void AbstractTransformationBox::child_transformation(
   int             index,
   cairo_matrix_t *matrix
-){
+) {
   cairo_matrix_multiply(matrix, &mat, matrix);
 }
 
@@ -140,33 +140,33 @@ void AbstractTransformationBox::child_transformation(
 //{ class RotationBox ...
 
 RotationBox::RotationBox()
-: AbstractTransformationBox(),
+  : AbstractTransformationBox(),
   _angle(0)
 {
 }
 
-RotationBox *RotationBox::create(Expr expr, int opts){
+RotationBox *RotationBox::create(Expr expr, int opts) {
   if(!expr.is_expr()
-  || expr.expr_length() < 1)
+      || expr.expr_length() < 1)
     return 0;
-  
+    
   pmath_t options = pmath_options_extract(expr.get(), 1);
   if(pmath_is_null(options))
     return 0;
-  
+    
   RotationBox *result = new RotationBox();
   result->_content->load_from_object(expr[1], opts);
   result->angle(
     Expr(pmath_option_value(
-      PMATH_SYMBOL_ROTATIONBOX, 
-      PMATH_SYMBOL_BOXROTATION,
-      options)));
-  
+           PMATH_SYMBOL_ROTATIONBOX,
+           PMATH_SYMBOL_BOXROTATION,
+           options)));
+           
   pmath_unref(options);
   return result;
 }
 
-bool RotationBox::angle(Expr a){
+bool RotationBox::angle(Expr a) {
   _angle = a;
   double angle = a.to_double();
   
@@ -178,13 +178,13 @@ bool RotationBox::angle(Expr a){
   return true;
 }
 
-Expr RotationBox::to_pmath(int flags){
+Expr RotationBox::to_pmath(int flags) {
   return Call(
-    Symbol(PMATH_SYMBOL_ROTATIONBOX),
-    _content->to_pmath(flags),
-    Rule(
-      Symbol(PMATH_SYMBOL_BOXROTATION),
-      _angle));
+           Symbol(PMATH_SYMBOL_ROTATIONBOX),
+           _content->to_pmath(flags),
+           Rule(
+             Symbol(PMATH_SYMBOL_BOXROTATION),
+             _angle));
 }
 
 //} ... class FrameBox
@@ -192,27 +192,27 @@ Expr RotationBox::to_pmath(int flags){
 //{ class TransformationBox ...
 
 TransformationBox::TransformationBox()
-: AbstractTransformationBox(),
+  : AbstractTransformationBox(),
   _matrix(0)
 {
 }
 
-TransformationBox *TransformationBox::create(Expr expr, int opts){
+TransformationBox *TransformationBox::create(Expr expr, int opts) {
   if(!expr.is_expr()
-  || expr.expr_length() < 1)
+      || expr.expr_length() < 1)
     return 0;
-  
+    
   pmath_t options = pmath_options_extract(expr.get(), 1);
   if(pmath_is_null(options))
     return 0;
-  
+    
   TransformationBox *result = new TransformationBox();
   
   if(result->matrix(Expr(pmath_option_value(
-      PMATH_SYMBOL_TRANSFORMATIONBOX, 
-      PMATH_SYMBOL_BOXTRANSFORMATION,
-      options)))
-  ){
+                           PMATH_SYMBOL_TRANSFORMATIONBOX,
+                           PMATH_SYMBOL_BOXTRANSFORMATION,
+                           options)))
+    ) {
     result->_content->load_from_object(expr[1], opts);
     pmath_unref(options);
     return result;
@@ -223,13 +223,13 @@ TransformationBox *TransformationBox::create(Expr expr, int opts){
   return 0;
 }
 
-bool TransformationBox::matrix(Expr m){
+bool TransformationBox::matrix(Expr m) {
   if(m.expr_length() == 2
-  && m[0] == PMATH_SYMBOL_LIST
-  && m[1].expr_length() == 2
-  && m[1][0] == PMATH_SYMBOL_LIST
-  && m[2].expr_length() == 2
-  && m[2][0] == PMATH_SYMBOL_LIST){
+      && m[0] == PMATH_SYMBOL_LIST
+      && m[1].expr_length() == 2
+      && m[1][0] == PMATH_SYMBOL_LIST
+      && m[2].expr_length() == 2
+      && m[2][0] == PMATH_SYMBOL_LIST) {
     _matrix = m;
     mat.xx =   _matrix[1][1].to_double();
     mat.xy = - _matrix[1][2].to_double();
@@ -245,13 +245,13 @@ bool TransformationBox::matrix(Expr m){
   return false;
 }
 
-Expr TransformationBox::to_pmath(int flags){
+Expr TransformationBox::to_pmath(int flags) {
   return Call(
-    Symbol(PMATH_SYMBOL_TRANSFORMATIONBOX), 
-    _content->to_pmath(flags),
-    Rule(
-      Symbol(PMATH_SYMBOL_BOXTRANSFORMATION),
-      _matrix));
+           Symbol(PMATH_SYMBOL_TRANSFORMATIONBOX),
+           _content->to_pmath(flags),
+           Rule(
+             Symbol(PMATH_SYMBOL_BOXTRANSFORMATION),
+             _matrix));
 }
 
 //} ... class TransformationBox

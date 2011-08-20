@@ -7,7 +7,8 @@
 
 #include <graphics/shapers.h>
 
-namespace richmath{
+
+namespace richmath {
   class Box;
   class GeneralSyntaxInfo;
   class Style;
@@ -15,13 +16,13 @@ namespace richmath{
   class SyntaxState;
   class WidgetBox;
   
-  class SelectionReference{
+  class SelectionReference {
     public:
       explicit SelectionReference(int _id = 0, int _start = 0, int _end = 0);
       
       Box *get();
       void set(Box *box, int _start, int _end);
-      void reset(){ set(0,0,0); }
+      void reset() { set(0, 0, 0); }
       
       bool equals(Box *box, int _start, int _end) const;
       bool equals(const SelectionReference &other) const;
@@ -34,13 +35,13 @@ namespace richmath{
         return !(*this == other);
       }
       
-    public: 
+    public:
       int id;
       int start;
       int end;
   };
   
-  class Context: public Base{
+  class Context: public Base {
     public:
       Context();
       
@@ -51,12 +52,12 @@ namespace richmath{
       void set_script_size_multis(Expr expr);
       
       void draw_text_shadow(
-        Box   *box, 
-        int    color, 
+        Box   *box,
+        int    color,
         float  radius,
         float  dx,
         float  dy);
-      
+        
       void draw_with_text_shadows(Box *box, Expr shadows);
       
     public:
@@ -102,9 +103,9 @@ namespace richmath{
       bool active;
   };
   
-  class ContextState{
+  class ContextState {
     public:
-      explicit ContextState(Context *context): ctx(context){}
+      explicit ContextState(Context *context): ctx(context) {}
       
       // does not change the color:
       void begin(SharedPtr<Style> style);
@@ -114,7 +115,7 @@ namespace richmath{
     public:
       Context *ctx;
       
-      // always set in begin(): 
+      // always set in begin():
       int                   old_cursor_color;
       int                   old_color;
       float                 old_fontsize;

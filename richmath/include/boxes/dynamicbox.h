@@ -4,8 +4,9 @@
 #include <boxes/ownerbox.h>
 #include <eval/dynamic.h>
 
-namespace richmath{
-  class AbstractDynamicBox: public OwnerBox{
+
+namespace richmath {
+  class AbstractDynamicBox: public OwnerBox {
     public:
       virtual ~AbstractDynamicBox();
       virtual Box *dynamic_to_literal(int *start, int *end);
@@ -14,7 +15,7 @@ namespace richmath{
       explicit AbstractDynamicBox();
   };
   
-  class DynamicBox: public AbstractDynamicBox{
+  class DynamicBox: public AbstractDynamicBox {
     public:
       virtual ~DynamicBox();
       
@@ -23,7 +24,7 @@ namespace richmath{
       virtual void resize(Context *context);
       virtual void paint_content(Context *context);
       
-      virtual Expr to_pmath_symbol(){ return Symbol(PMATH_SYMBOL_DYNAMICBOX); }
+      virtual Expr to_pmath_symbol() { return Symbol(PMATH_SYMBOL_DYNAMICBOX); }
       virtual Expr to_pmath(int flags);
       
       virtual void dynamic_updated();
@@ -36,10 +37,10 @@ namespace richmath{
       
     protected:
       explicit DynamicBox();
-    
+      
     public:
       Dynamic dynamic;
-    
+      
     protected:
       bool must_update;
       bool must_resize;

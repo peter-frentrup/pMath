@@ -4,7 +4,8 @@
 #include <boxes/containerwidgetbox.h>
 #include <eval/dynamic.h>
 
-namespace richmath{
+
+namespace richmath {
   class InputFieldBox: public ContainerWidgetBox {
     public:
       static InputFieldBox *create(Expr expr, int opts);
@@ -20,7 +21,7 @@ namespace richmath{
       
       virtual Box *remove(int *index);
       
-      virtual Expr to_pmath_symbol(){ return Symbol(PMATH_SYMBOL_INPUTFIELDBOX); }
+      virtual Expr to_pmath_symbol() { return Symbol(PMATH_SYMBOL_INPUTFIELDBOX); }
       virtual Expr to_pmath(int flags);
       
       virtual void dynamic_updated();
@@ -29,12 +30,12 @@ namespace richmath{
       
       virtual void invalidate();
       
-      virtual bool remove_inserts_placeholder(){ return false; }
+      virtual bool remove_inserts_placeholder() { return false; }
       
       virtual bool exitable();
       virtual bool selectable(int i = -1);
       
-      virtual bool edit_selection(Context *context){ return true; }
+      virtual bool edit_selection(Context *context) { return true; }
       
       virtual void on_mouse_down(MouseEvent &event);
       virtual void on_mouse_move(MouseEvent &event);

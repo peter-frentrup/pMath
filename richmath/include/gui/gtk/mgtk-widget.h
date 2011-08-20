@@ -2,7 +2,7 @@
 #define __GUI__GTK__RMGTK_WIDGET_H__
 
 #ifndef RICHMATH_USE_GTK_GUI
-  #error this header is gtk specific
+#error this header is gtk specific
 #endif
 
 #include <gui/document.h>
@@ -10,30 +10,31 @@
 #include <gui/gtk/basic-gtk-widget.h>
 #include <gui/gtk/mgtk-cursors.h>
 
-namespace richmath{
+
+namespace richmath {
   // Must call init() immediately init after the construction of a derived object!
   class MathGtkWidget: public NativeWidget, public BasicGtkWidget {
     protected:
       virtual void after_construction();
-    
+      
     public:
       MathGtkWidget(Document *doc);
       virtual ~MathGtkWidget();
       
       virtual void window_size(float *w, float *h);
-      virtual void page_size(float *w, float *h){
-        window_size(w, h); 
+      virtual void page_size(float *w, float *h) {
+        window_size(w, h);
       }
       
-      virtual bool is_scrollable(){ return true; }
-      virtual bool autohide_vertical_scrollbar(){ return _autohide_vertical_scrollbar; }
+      virtual bool is_scrollable() { return true; }
+      virtual bool autohide_vertical_scrollbar() { return _autohide_vertical_scrollbar; }
       virtual void scroll_pos(float *x, float *y);
       virtual void scroll_to(float x, float y);
       
       virtual void show_tooltip(Expr boxes);
       virtual void hide_tooltip();
       
-      virtual bool is_scaleable(){ return true; }
+      virtual bool is_scaleable() { return true; }
       
       virtual double message_time();
       virtual double double_click_time();
@@ -42,7 +43,7 @@ namespace richmath{
       virtual bool cursor_position(float *x, float *y);
       
       virtual void bring_to_front();
-      virtual void close(){}
+      virtual void close() {}
       virtual void invalidate();
       virtual void invalidate_rect(float x, float y, float w, float h);
       virtual void force_redraw();
@@ -54,22 +55,22 @@ namespace richmath{
       virtual bool is_mouse_down();
       
       virtual void beep();
-    
+      
       virtual bool register_timed_event(SharedPtr<TimedEvent> event);
-    
-      GtkAdjustment *hadjustment(){ return _hadjustment; }
-      GtkAdjustment *vadjustment(){ return _vadjustment; }
+      
+      GtkAdjustment *hadjustment() { return _hadjustment; }
+      GtkAdjustment *vadjustment() { return _vadjustment; }
       void hadjustment(GtkAdjustment *ha);
       void vadjustment(GtkAdjustment *va);
       
-      GtkIMContext *im_context(){ return _im_context; }
+      GtkIMContext *im_context() { return _im_context; }
       
     public:
       bool _autohide_vertical_scrollbar;
-    
+      
     protected:
       int _mouse_down_button;
-    
+      
     private:
       CursorType cursor;
       bool mouse_moving;
@@ -86,20 +87,20 @@ namespace richmath{
       GtkAdjustment *_vadjustment;
       GtkIMContext  *_im_context;
       SelectionReference _im_context_pos;
-    
+      
     private:
       static void im_commit_callback(
-        GtkIMContext  *context, 
-        const char    *str, 
+        GtkIMContext  *context,
+        const char    *str,
         MathGtkWidget *self
-      ){
+      ) {
         self->on_im_commit(str);
       }
       
       static void im_preedit_changed_callback(
         GtkIMContext  *context,
         MathGtkWidget *self
-      ){
+      ) {
         self->on_im_preedit_changed();
       }
       
@@ -110,7 +111,7 @@ namespace richmath{
         guint             info,
         guint             time,
         MathGtkWidget    *self
-      ){
+      ) {
         self->on_drag_data_get(drag_context, data, info, time);
       }
       
@@ -118,7 +119,7 @@ namespace richmath{
         GtkWidget      *widget,
         GdkDragContext *drag_context,
         MathGtkWidget  *self
-      ){
+      ) {
         self->on_drag_data_delete(drag_context);
       }
       
@@ -131,7 +132,7 @@ namespace richmath{
         guint             info,
         guint             time,
         MathGtkWidget    *self
-      ){
+      ) {
         return self->on_drag_data_received(drag_context, x, y, data, info, time);
       }
       
@@ -139,7 +140,7 @@ namespace richmath{
         GtkWidget      *widget,
         GdkDragContext *drag_context,
         MathGtkWidget  *self
-      ){
+      ) {
         self->on_drag_end(drag_context);
       }
       
@@ -150,7 +151,7 @@ namespace richmath{
         gint            y,
         guint           time,
         MathGtkWidget  *self
-      ){
+      ) {
         return self->on_drag_motion(drag_context, x, y, time);
       }
       
@@ -161,7 +162,7 @@ namespace richmath{
         gint            y,
         guint           time,
         MathGtkWidget  *self
-      ){
+      ) {
         return self->on_drag_drop(drag_context, x, y, time);
       }
       

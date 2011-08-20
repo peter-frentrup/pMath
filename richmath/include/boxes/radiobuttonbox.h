@@ -4,14 +4,15 @@
 #include <boxes/emptywidgetbox.h>
 #include <eval/dynamic.h>
 
-namespace richmath{
-  class RadioButtonBox: public EmptyWidgetBox{
+
+namespace richmath {
+  class RadioButtonBox: public EmptyWidgetBox {
     public:
       static RadioButtonBox *create(Expr expr);
       
       virtual void paint(Context *context);
       
-      virtual Expr to_pmath_symbol(){ return Symbol(PMATH_SYMBOL_RADIOBUTTONBOX); }
+      virtual Expr to_pmath_symbol() { return Symbol(PMATH_SYMBOL_RADIOBUTTONBOX); }
       virtual Expr to_pmath(int flags);
       
       virtual void dynamic_finished(Expr info, Expr result);
@@ -23,7 +24,7 @@ namespace richmath{
       RadioButtonBox();
       
       ContainerType calc_type(Expr result);
-    
+      
       Dynamic dynamic;
       Expr    value;
       bool    first_paint;

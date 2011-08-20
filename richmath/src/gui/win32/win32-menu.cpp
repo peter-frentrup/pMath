@@ -23,24 +23,24 @@ static Hashtable<Expr,  DWORD>             cmd_to_id;
 static Hashtable<DWORD, Expr,   cast_hash> id_to_cmd;
 static Hashtable<DWORD, String, cast_hash> id_to_shortcut_text;
 
-static void add_command(DWORD id, String str){
+static void add_command(DWORD id, String str) {
   cmd_to_id.set(str, id);
   id_to_cmd.set(id,  str);
 }
 
-static void add_remove_menu(int delta){
+static void add_remove_menu(int delta) {
   static int num_menus = 0;
   
-  if(num_menus == 0){
+  if(num_menus == 0) {
     assert(delta == 1);
     
     cmd_to_id.default_value = 0;
     
-    add_command( SC_CLOSE, "Close");
+    add_command(SC_CLOSE, "Close");
   }
   
-  num_menus+= delta;
-  if(num_menus == 0){
+  num_menus += delta;
+  if(num_menus == 0) {
     cmd_to_id.clear();
     id_to_cmd.clear();
     id_to_shortcut_text.clear();
@@ -50,74 +50,74 @@ static void add_remove_menu(int delta){
 
 //{ class Win32Menu ...
 
-static HMENU create_menu(Expr expr){
+static HMENU create_menu(Expr expr) {
   if(expr[0] != GetSymbol(MenuSymbol)
-  || expr.expr_length() != 2)
+      || expr.expr_length() != 2)
     return NULL;
-  
+    
   String name(expr[1]);
   if(name.is_null())
     return NULL;
-  
+    
   expr = expr[2];
   if(expr[0] != PMATH_SYMBOL_LIST)
     return NULL;
-  
+    
   HMENU menu = CreateMenu();
-  if(menu){
-    for(size_t i = 1;i <= expr.expr_length();++i){
+  if(menu) {
+    for(size_t i = 1; i <= expr.expr_length(); ++i) {
       Expr item = expr[i];
       
       if(item[0] == GetSymbol(ItemSymbol)
-      && item.expr_length() == 2){
+          && item.expr_length() == 2) {
         String name(item[1]);
-        String cmd( item[2]);
+        String cmd(item[2]);
         
-        if(name.length() > 0 && cmd.is_valid()){
+        if(name.length() > 0 && cmd.is_valid()) {
           DWORD id = cmd_to_id[cmd];
           
-          if(!id){
+          if(!id) {
             id = next_id++;
             add_command(id, cmd);
           }
           
           String shortcut = id_to_shortcut_text[id];
           if(shortcut.length() > 0)
-            name+= String::FromChar('\t') + shortcut;
-          
-          name+= String::FromChar(0);
+            name += String::FromChar('\t') + shortcut;
+            
+          name += String::FromChar(0);
           AppendMenuW(
-            menu, 
-            MF_STRING | MF_ENABLED, 
-            id, 
+            menu,
+            MF_STRING | MF_ENABLED,
+            id,
             (const wchar_t*)name.buffer());
         }
         
         continue;
       }
       
-      if(item == GetSymbol(DelimiterSymbol)){
+      if(item == GetSymbol(DelimiterSymbol)) {
         AppendMenuW(
-          menu, 
-          MF_SEPARATOR, 
+          menu,
+          MF_SEPARATOR,
           0,
           L"");
         continue;
       }
       
       if(item[0] == GetSymbol(MenuSymbol)
-      && item.expr_length() == 2){
+          && item.expr_length() == 2) {
         String name(item[1]);
         
-        if(name.length() > 0){
+        if(name.length() > 0) {
           HMENU submenu = create_menu(item);
           
-          if(submenu){
-            name+= String::FromChar(0);
+          if(submenu) {
+            name += String::FromChar(0);
             AppendMenuW(
-              menu, 
-              MF_STRING | MF_ENABLED | MF_POPUP, 
-              (UINT_PTR)submenu, 
+              menu,
+              MF_STRING | MF_ENABLED | MF_POPUP,
+              (UINT_PTR)submenu,
               (const wchar_t*)name.buffer());
           }
         }
@@ -132,22 +132,22 @@ static HMENU create_menu(Expr expr){
 SharedPtr<Win32Menu>  Win32Menu::main_menu;
 
 Win32Menu::Win32Menu(Expr expr)
-: Shareable()
+  : Shareable()
 {
   add_remove_menu(1);
   _hmenu = create_menu(expr);
 }
 
-Win32Menu::~Win32Menu(){
+Win32Menu::~Win32Menu() {
   add_remove_menu(-1);
   DestroyMenu(_hmenu);
 }
 
-String Win32Menu::command_id_to_string(DWORD  id){
+String Win32Menu::command_id_to_string(DWORD  id) {
   return String(id_to_cmd[id]);
 }
 
-DWORD  Win32Menu::command_string_to_id(String str){
+DWORD  Win32Menu::command_string_to_id(String str) {
   return cmd_to_id[str];
 }
 
@@ -156,25 +156,25 @@ DWORD  Win32Menu::command_string_to_id(String str){
 
 //{ class Win32AcceleratorTable ...
 
-static bool set_accel_key(Expr expr, ACCEL *accel){
+static bool set_accel_key(Expr expr, ACCEL *accel) {
   if(expr[0] != GetSymbol(KeyEventSymbol)
-  || expr.expr_length() != 2)
+      || expr.expr_length() != 2)
     return false;
-  
+    
   Expr modifiers = expr[2];
   if(modifiers[0] != PMATH_SYMBOL_LIST)
     return false;
-  
+    
   accel->fVirt = 0;
-  for(size_t i = modifiers.expr_length();i > 0;--i){
+  for(size_t i = modifiers.expr_length(); i > 0; --i) {
     Expr item = modifiers[i];
     
     if(item == GetSymbol(KeyAltSymbol))
-      accel->fVirt|= FALT;
+      accel->fVirt |= FALT;
     else if(item == GetSymbol(KeyControlSymbol))
-      accel->fVirt|= FCONTROL;
+      accel->fVirt |= FCONTROL;
     else if(item == GetSymbol(KeyShiftSymbol))
-      accel->fVirt|= FSHIFT;
+      accel->fVirt |= FSHIFT;
     else
       return false;
   }
@@ -182,32 +182,32 @@ static bool set_accel_key(Expr expr, ACCEL *accel){
   String key(expr[1]);
   if(key.length() == 0)
     return false;
-  
-  if(key.length() == 1){
+    
+  if(key.length() == 1) {
     uint16_t ch = key.buffer()[0];
     
     if(ch >= 'A' && ch <= 'Z')
-      ch-= 'A' - 'a';
-    
-    accel->fVirt|= FVIRTKEY;
+      ch -= 'A' - 'a';
+      
+    accel->fVirt |= FVIRTKEY;
     unsigned short vk = VkKeyScanW(ch);
     if(vk == 0xFFFF)
       return false;
-    
+      
     accel->key = vk & 0xFF;
     if(vk & 0x100)
-      accel->fVirt|= FSHIFT;
+      accel->fVirt |= FSHIFT;
     if(vk & 0x200)
-      accel->fVirt|= FCONTROL;
+      accel->fVirt |= FCONTROL;
     if(vk & 0x400)
-      accel->fVirt|= FALT;
+      accel->fVirt |= FALT;
       
     return true;
   }
   
-  accel->fVirt|= FVIRTKEY;
+  accel->fVirt |= FVIRTKEY;
   
-  if(     key.equals("F1"))                 accel->key = VK_F1;
+  if(key.equals("F1"))                 accel->key = VK_F1;
   else if(key.equals("F2"))                 accel->key = VK_F2;
   else if(key.equals("F3"))                 accel->key = VK_F3;
   else if(key.equals("F4"))                 accel->key = VK_F4;
@@ -261,12 +261,12 @@ static bool set_accel_key(Expr expr, ACCEL *accel){
   return true;
 }
 
-static String vk_name(UINT vk){
+static String vk_name(UINT vk) {
   /*switch(vk){
     case VK_CONTROL: return "Ctrl";
     case VK_MENU:    return "Alt";
     case VK_SHIFT:   return "Shift";
-    
+  
     case VK_F1:      return "F1";
     case VK_F2:      return "F2";
     case VK_F3:      return "F3";
@@ -291,7 +291,7 @@ static String vk_name(UINT vk){
     case VK_F22:     return "F22";
     case VK_F23:     return "F23";
     case VK_F24:     return "F24";
-    
+  
     case VK_RETURN:  return "Enter";
     case VK_TAB:     return "Tab";
     case VK_ESCAPE:  return "Esc";
@@ -305,7 +305,7 @@ static String vk_name(UINT vk){
     case VK_DOWN:    return "Down";
     case VK_INSERT:  return "Insert";
     case VK_DELETE:  return "Delete";
-    
+  
     case VK_NUMPAD0: return "0";
     case VK_NUMPAD1: return "1";
     case VK_NUMPAD2: return "2";
@@ -316,7 +316,7 @@ static String vk_name(UINT vk){
     case VK_NUMPAD7: return "7";
     case VK_NUMPAD8: return "8";
     case VK_NUMPAD9: return "9";
-    
+  
     case VK_PLAY:    return "Play";
     case VK_ZOOM:    return "Zoom";
   }
@@ -324,7 +324,7 @@ static String vk_name(UINT vk){
   UINT ch = MapVirtualKeyW(vk, MAPVK_VK_TO_CHAR) & 0x7FFFFFFF;
   if(ch > ' ')
     return String::FromChar(ch);
-  
+    
   // old code....
   wchar_t buf[100];
   
@@ -341,12 +341,12 @@ static String vk_name(UINT vk){
     case VK_RIGHT:
     case VK_UP:
     case VK_DOWN:
-      sc|= 0x100; // Add extended bit
+      sc |= 0x100; // Add extended bit
   }
   
   int len = GetKeyNameTextW(sc << 16, buf, 100);
   
-  for(int i = 1;i < len;++i){
+  for(int i = 1; i < len; ++i) {
     if(buf[i] >= 'A' && buf[i] <= 'Z')
       buf[i] += 'a' - 'A';
   }
@@ -354,44 +354,44 @@ static String vk_name(UINT vk){
   return String::FromUcs2((const uint16_t*)buf, len);
 }
 
-static String accel_text(const ACCEL &accel){
+static String accel_text(const ACCEL &accel) {
   String s("");
   
   if(accel.fVirt & FCONTROL)
-    s+= vk_name(VK_CONTROL) + "+";
-
+    s += vk_name(VK_CONTROL) + "+";
+    
   if(accel.fVirt & FALT)
-    s+= vk_name(VK_MENU) + "+";
-  
+    s += vk_name(VK_MENU) + "+";
+    
   if(accel.fVirt & FSHIFT)
-    s+= vk_name(VK_SHIFT) + "+";
-  
+    s += vk_name(VK_SHIFT) + "+";
+    
   if(accel.fVirt & FVIRTKEY)
-    s+= vk_name(accel.key);
+    s += vk_name(accel.key);
   else // ASCII key code
-    s+= (char)accel.key;
-  
+    s += (char)accel.key;
+    
   return s;
 }
 
-static HACCEL create_accel(Expr expr){
+static HACCEL create_accel(Expr expr) {
   if(expr[0] != PMATH_SYMBOL_LIST)
     return NULL;
-  
+    
   Array<ACCEL> accel(expr.expr_length());
   int j = 0;
   
-  for(size_t i = 1;i <= expr.expr_length();++i){
+  for(size_t i = 1; i <= expr.expr_length(); ++i) {
     Expr item = expr[i];
-    String cmd( item[2]);
+    String cmd(item[2]);
     
     if(item[0] == GetSymbol(ItemSymbol)
-    && item.expr_length() == 2
-    && cmd.length() > 0
-    && set_accel_key(item[1], &accel[j])){
+        && item.expr_length() == 2
+        && cmd.length() > 0
+        && set_accel_key(item[1], &accel[j])) {
       DWORD id = cmd_to_id[cmd];
       
-      if(!id){
+      if(!id) {
         id = next_id++;
         add_command(id, cmd);
       }
@@ -413,13 +413,13 @@ static HACCEL create_accel(Expr expr){
 SharedPtr<Win32AcceleratorTable>  Win32AcceleratorTable::main_table;
 
 Win32AcceleratorTable::Win32AcceleratorTable(Expr expr)
-: Shareable()
+  : Shareable()
 {
   add_remove_menu(+1);
   _haccel = create_accel(expr);
 }
 
-Win32AcceleratorTable::~Win32AcceleratorTable(){
+Win32AcceleratorTable::~Win32AcceleratorTable() {
   DestroyAcceleratorTable(_haccel);
   add_remove_menu(-1);
 }

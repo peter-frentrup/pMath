@@ -10,38 +10,38 @@ using namespace richmath;
 //{ class DynamicLocalBox ...
 
 DynamicLocalBox::DynamicLocalBox()
-: AbstractDynamicBox()
+  : AbstractDynamicBox()
 {
 }
 
-DynamicLocalBox::~DynamicLocalBox(){
+DynamicLocalBox::~DynamicLocalBox() {
   if(_deinitialization.is_valid()
-  && _deinitialization != PMATH_SYMBOL_NONE
-  && !_init_call.is_valid()) // only call Deinitialization if the initialization was called
+      && _deinitialization != PMATH_SYMBOL_NONE
+      && !_init_call.is_valid()) // only call Deinitialization if the initialization was called
     Application::interrupt(prepare_dynamic(_deinitialization), Application::dynamic_timeout);
 }
 
-DynamicLocalBox *DynamicLocalBox::create(Expr expr, int options){
+DynamicLocalBox *DynamicLocalBox::create(Expr expr, int options) {
   if(expr.expr_length() < 2)
     return 0;
-  
+    
   Expr options_expr = Expr(pmath_options_extract(expr.get(), 2));
   if(options_expr.is_null())
     return 0;
-  
+    
   DynamicLocalBox *box = new DynamicLocalBox();
   Expr symbols = expr[1];
-  if(symbols[0] != PMATH_SYMBOL_LIST){
+  if(symbols[0] != PMATH_SYMBOL_LIST) {
     delete box;
     return 0;
   }
   
   box->_public_symbols  = symbols;
   box->_private_symbols = symbols;
-  for(size_t i = symbols.expr_length();i > 0;--i){
+  for(size_t i = symbols.expr_length(); i > 0; --i) {
     Expr sym = symbols[i];
     
-    if(!sym.is_symbol()){
+    if(!sym.is_symbol()) {
       delete box;
       return 0;
     }
@@ -51,32 +51,32 @@ DynamicLocalBox *DynamicLocalBox::create(Expr expr, int options){
   }
   
   Expr values = Expr(pmath_option_value(
-    PMATH_SYMBOL_DYNAMICLOCALBOX, 
-    PMATH_SYMBOL_DYNAMICLOCALVALUES,
-    options_expr.get()));
-  
+                       PMATH_SYMBOL_DYNAMICLOCALBOX,
+                       PMATH_SYMBOL_DYNAMICLOCALVALUES,
+                       options_expr.get()));
+                       
   box->_initialization = Expr(pmath_option_value(
-    PMATH_SYMBOL_DYNAMICLOCALBOX, 
-    PMATH_SYMBOL_INITIALIZATION,
-    options_expr.get()));
-  
+                                PMATH_SYMBOL_DYNAMICLOCALBOX,
+                                PMATH_SYMBOL_INITIALIZATION,
+                                options_expr.get()));
+                                
   box->_deinitialization = Expr(pmath_option_value(
-    PMATH_SYMBOL_DYNAMICLOCALBOX, 
-    PMATH_SYMBOL_DEINITIALIZATION,
-    options_expr.get()));
-  
+                                  PMATH_SYMBOL_DYNAMICLOCALBOX,
+                                  PMATH_SYMBOL_DEINITIALIZATION,
+                                  options_expr.get()));
+                                  
   box->_unsaved_variables = Expr(pmath_option_value(
-    PMATH_SYMBOL_DYNAMICLOCALBOX, 
-    PMATH_SYMBOL_UNSAVEDVARIABLES,
-    options_expr.get()));
-  
+                                   PMATH_SYMBOL_DYNAMICLOCALBOX,
+                                   PMATH_SYMBOL_UNSAVEDVARIABLES,
+                                   options_expr.get()));
+                                   
   box->_init_call = List(values, box->_initialization);
   box->content()->load_from_object(expr[2], options);
   
   return box;
 }
 
-void DynamicLocalBox::paint(Context *context){
+void DynamicLocalBox::paint(Context *context) {
   ensure_init();
   
   AbstractDynamicBox::paint(context);
@@ -84,39 +84,39 @@ void DynamicLocalBox::paint(Context *context){
   // todo: fetch variables from Server, maybe after each paint()
 }
 
-  static pmath_t internal_replace_symbols(pmath_t expr, const Expr &old_syms, const Expr &new_syms){
-    if(pmath_is_symbol(expr)){
-      size_t i;
-      for(i = old_syms.expr_length();i > 0;--i){
-        if(old_syms[i] == expr){
-          pmath_unref(expr);
-          return new_syms[i].release();
-        }
-      }
-      
-      return expr;
-    }
-  
-    if(pmath_is_expr(expr)){
-      size_t i;
-      for(i = 0;i <= pmath_expr_length(expr);++i){
-        pmath_t item = pmath_expr_extract_item(expr, i);
-        
-        item = internal_replace_symbols(item, old_syms, new_syms);
-        
-        expr = pmath_expr_set_item(expr, i, item);
+static pmath_t internal_replace_symbols(pmath_t expr, const Expr &old_syms, const Expr &new_syms) {
+  if(pmath_is_symbol(expr)) {
+    size_t i;
+    for(i = old_syms.expr_length(); i > 0; --i) {
+      if(old_syms[i] == expr) {
+        pmath_unref(expr);
+        return new_syms[i].release();
       }
     }
     
     return expr;
   }
+  
+  if(pmath_is_expr(expr)) {
+    size_t i;
+    for(i = 0; i <= pmath_expr_length(expr); ++i) {
+      pmath_t item = pmath_expr_extract_item(expr, i);
+      
+      item = internal_replace_symbols(item, old_syms, new_syms);
+      
+      expr = pmath_expr_set_item(expr, i, item);
+    }
+  }
+  
+  return expr;
+}
 
-Expr DynamicLocalBox::to_pmath(int flags){
+Expr DynamicLocalBox::to_pmath(int flags) {
   ensure_init();
   
   if(flags & BoxFlagLiteral)
     return content()->to_pmath(flags);
-  
+    
   Gather g;
   
   Gather::emit(_public_symbols);
@@ -128,11 +128,11 @@ Expr DynamicLocalBox::to_pmath(int flags){
   {
     Gather g2;
     
-    for(size_t i = 1;i <= _public_symbols.expr_length();++i){
+    for(size_t i = 1; i <= _public_symbols.expr_length(); ++i) {
       Expr sym = _public_symbols[i];
       
-      for(size_t j = _unsaved_variables.expr_length();j > 0;--j){
-        if(_unsaved_variables[j] == sym){
+      for(size_t j = _unsaved_variables.expr_length(); j > 0; --j) {
+        if(_unsaved_variables[j] == sym) {
           sym = Expr();
           break;
         }
@@ -153,26 +153,26 @@ Expr DynamicLocalBox::to_pmath(int flags){
   return expr;
 }
 
-Expr DynamicLocalBox::prepare_dynamic(Expr expr){
+Expr DynamicLocalBox::prepare_dynamic(Expr expr) {
   expr = Expr(internal_replace_symbols(expr.release(), _public_symbols, _private_symbols));
   return AbstractDynamicBox::prepare_dynamic(expr);
 }
 
-void DynamicLocalBox::ensure_init(){
-  if(_init_call.is_valid()){
+void DynamicLocalBox::ensure_init() {
+  if(_init_call.is_valid()) {
     Application::interrupt(prepare_dynamic(_init_call), Application::dynamic_timeout);
     _init_call = Expr();
   }
 }
 
-void DynamicLocalBox::emit_values(Expr symbol){
+void DynamicLocalBox::emit_values(Expr symbol) {
   // todo: fetch variables from Server, maybe after each paint()
   
   Expr rules =  Application::interrupt(
-    Call(GetSymbol(SymbolDefinitionsSymbol), prepare_dynamic(symbol)), 
-    Application::dynamic_timeout);
-  
-  if(rules[0] == PMATH_SYMBOL_HOLDCOMPLETE && rules.expr_length() > 0){
+                  Call(GetSymbol(SymbolDefinitionsSymbol), prepare_dynamic(symbol)),
+                  Application::dynamic_timeout);
+                  
+  if(rules[0] == PMATH_SYMBOL_HOLDCOMPLETE && rules.expr_length() > 0) {
     rules.set(0, Symbol(PMATH_SYMBOL_LIST));
     Gather::emit(rules);
   }

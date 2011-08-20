@@ -4,12 +4,12 @@
 #include <boxes/stylebox.h>
 
 
-namespace richmath{
-  class TooltipBox: public ExpandableAbstractStyleBox{
+namespace richmath {
+  class TooltipBox: public ExpandableAbstractStyleBox {
     public:
       static TooltipBox *create(Expr expr, int opts);
       
-      virtual Expr to_pmath_symbol(){ return Symbol(PMATH_SYMBOL_TOOLTIPBOX); }
+      virtual Expr to_pmath_symbol() { return Symbol(PMATH_SYMBOL_TOOLTIPBOX); }
       virtual Expr to_pmath(int flags);
       
       virtual void on_mouse_enter();
@@ -17,7 +17,7 @@ namespace richmath{
       
     protected:
       TooltipBox();
-    
+      
     protected:
       Expr tooltip_boxes;
   };

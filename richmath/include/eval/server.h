@@ -4,11 +4,12 @@
 #include <util/pmath-extra.h>
 #include <util/sharedptr.h>
 
-namespace richmath{
+
+namespace richmath {
   Expr to_boxes(Expr obj);
   Expr generate_section(String style, Expr boxes);
   
-  class Server: public Shareable{
+  class Server: public Shareable {
     public:
       virtual void run_boxes(Expr boxes) = 0;
       

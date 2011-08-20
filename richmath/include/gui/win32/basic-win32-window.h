@@ -2,7 +2,7 @@
 #define __GUI__WIN32__BASIC_WIN32_WINDOW_H__
 
 #ifndef RICHMATH_USE_WIN32_GUI
-  #error this header is win32 specific
+#error this header is win32 specific
 #endif
 
 #include <graphics/canvas.h>
@@ -11,18 +11,19 @@
 #include <gui/control-painter.h>
 #include <util/hashtable.h>
 
-namespace richmath{
+
+namespace richmath {
   // Must call init() immediately after the construction of a derived object!
-  class BasicWin32Window: public BasicWin32Widget{
+  class BasicWin32Window: public BasicWin32Widget {
     protected:
       virtual void after_construction();
       
     public:
       BasicWin32Window(
-        DWORD style_ex, 
+        DWORD style_ex,
         DWORD style,
-        int x, 
-        int y, 
+        int x,
+        int y,
         int width,
         int height);
       virtual ~BasicWin32Window();
@@ -35,7 +36,7 @@ namespace richmath{
       void get_snap_alignment(bool *right, bool *bottom);
       
       void extend_glass(Win32Themes::MARGINS *margins);
-      bool glass_enabled(){ return _glass_enabled; }
+      bool glass_enabled() { return _glass_enabled; }
       
       virtual bool is_closed();
       
@@ -43,12 +44,12 @@ namespace richmath{
       void paint_background(Canvas *canvas, int x, int y, bool wallpaper_only = false);
       
       virtual void on_paint_background(Canvas *canvas);
-      bool has_themed_frame(){ return _themed_frame; }
+      bool has_themed_frame() { return _themed_frame; }
       
       // all windows are arranged in a ring buffer:
       static BasicWin32Window *first_window();
-      BasicWin32Window *prev_window(){ return _prev_window; }
-      BasicWin32Window *next_window(){ return _next_window; }
+      BasicWin32Window *prev_window() { return _prev_window; }
+      BasicWin32Window *next_window() { return _next_window; }
       
     protected:
       int min_client_height;
@@ -77,7 +78,7 @@ namespace richmath{
       virtual LRESULT callback(UINT message, WPARAM wParam, LPARAM lParam);
       
     protected:
-      Hashtable<HWND,Void,cast_hash> all_snappers;
+      Hashtable<HWND, Void, cast_hash> all_snappers;
       
     private:
       bool _active;

@@ -11,23 +11,23 @@ using namespace richmath;
 //{ class TooltipBox ...
 
 TooltipBox::TooltipBox()
-: ExpandableAbstractStyleBox(0)
+  : ExpandableAbstractStyleBox(0)
 {
 }
 
-TooltipBox *TooltipBox::create(Expr expr, int opts){
+TooltipBox *TooltipBox::create(Expr expr, int opts) {
   if(expr.expr_length() < 2)
     return 0;
-  
+    
   Expr options(pmath_options_extract(expr.get(), 2));
   if(options.is_null())
     return 0;
-  
+    
   TooltipBox *tt = new TooltipBox;
-  if(options != PMATH_UNDEFINED){
+  if(options != PMATH_UNDEFINED) {
     if(!tt->style)
       tt->style = new Style();
-    
+      
     tt->style->add_pmath(options);
   }
   
@@ -36,8 +36,8 @@ TooltipBox *TooltipBox::create(Expr expr, int opts){
   return tt;
 }
 
-Expr TooltipBox::to_pmath(int flags){
-  if((flags & BoxFlagParseable) && get_own_style(StripOnInput, true)){
+Expr TooltipBox::to_pmath(int flags) {
+  if((flags & BoxFlagParseable) && get_own_style(StripOnInput, true)) {
     return _content->to_pmath(flags);
   }
   
@@ -48,20 +48,20 @@ Expr TooltipBox::to_pmath(int flags){
   
   if(style)
     style->emit_to_pmath(false, false);
-  
+    
   Expr result = g.end();
   result.set(0, Symbol(PMATH_SYMBOL_TOOLTIPBOX));
   return result;
 }
-      
-void TooltipBox::on_mouse_enter(){
+
+void TooltipBox::on_mouse_enter() {
   Document *doc = find_parent<Document>(false);
   
   if(doc)
     doc->native()->show_tooltip(tooltip_boxes);
 }
 
-void TooltipBox::on_mouse_exit(){
+void TooltipBox::on_mouse_exit() {
   Document *doc = find_parent<Document>(false);
   
   if(doc)

@@ -5,8 +5,9 @@
 #include <util/pmath-extra.h>
 #include <util/sharedptr.h>
 
-namespace richmath{
-  typedef enum{
+
+namespace richmath {
+  typedef enum {
     CNT_END,
     CNT_PRINTSECTION,
     CNT_RETURN,
@@ -22,27 +23,27 @@ namespace richmath{
     CNT_DYNAMICUPDATE,
     CNT_CREATEDOCUMENT,
     CNT_CURRENTVALUE
-  }ClientNotificationType;
+  } ClientNotificationType;
   
   class Box;
   class Job;
   
-  class Application: public Base{
+  class Application: public Base {
     public:
-      static void notify(     ClientNotificationType type, Expr data);
+      static void notify(ClientNotificationType type, Expr data);
       static Expr notify_wait(ClientNotificationType type, Expr data);
       
-      static void run_menucommand(Expr cmd){
+      static void run_menucommand(Expr cmd) {
         notify(CNT_MENUCOMMAND, cmd);
       }
       
       static bool is_menucommand_runnable(Expr cmd); // call from GUI thread only
       
       static void register_menucommand(
-        Expr cmd, 
-        bool (*func)(Expr cmd), 
+        Expr cmd,
+        bool (*func)(Expr cmd),
         bool (*test)(Expr cmd) = 0);
-      
+        
       static void gui_print_section(Expr expr); // call from GUI thread only
       
       static void init();
@@ -63,7 +64,7 @@ namespace richmath{
       
       static Expr interrupt_cached(Expr expr, double seconds);
       static Expr interrupt_cached(Expr expr);
-    
+      
       static void execute_for(Expr expr, Box *box, double seconds);
       static void execute_for(Expr expr, Box *box);
       
@@ -80,9 +81,9 @@ namespace richmath{
       static String application_directory; // without trailing (back)slash
       
       static Hashtable<Expr, Expr, object_hash> eval_cache;
-    
+      
     private:
-      Application(){}
+      Application() {}
   };
 }
 

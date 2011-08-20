@@ -3,7 +3,8 @@
 
 #include <boxes/ownerbox.h>
 
-namespace richmath{
+
+namespace richmath {
   class NumberBox: public OwnerBox {
     public:
       NumberBox(String number);
@@ -11,10 +12,10 @@ namespace richmath{
       virtual bool edit_selection(Context *context);
       
       virtual void resize(Context *context);
-      virtual void colorize_scope(SyntaxState *state){}
+      virtual void colorize_scope(SyntaxState *state) {}
       virtual void paint(Context *context);
       
-      virtual Expr to_pmath_symbol(){ return Expr(); }
+      virtual Expr to_pmath_symbol() { return Expr(); }
       virtual Expr to_pmath(int flags);
       
       static Expr prepare_boxes(Expr boxes);

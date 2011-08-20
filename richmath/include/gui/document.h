@@ -4,7 +4,8 @@
 #include <boxes/sectionlist.h>
 #include <graphics/context.h>
 
-namespace richmath{
+
+namespace richmath {
   class BoxRepaintEvent;
   class MouseEvent;
   class NativeWidget;
@@ -18,8 +19,8 @@ namespace richmath{
     DragStatusCurrentlyDragging
   } DragStatus;
   
-  class Document: public SectionList{
-    friend class NativeWidget;
+  class Document: public SectionList {
+      friend class NativeWidget;
     public:
       Document();
       ~Document();
@@ -28,27 +29,27 @@ namespace richmath{
       virtual void invalidate();
       void invalidate_all();
       
-      NativeWidget *native(){ return _native; } // never NULL
+      NativeWidget *native() { return _native; } // never NULL
       
       virtual void scroll_to(float x, float y, float w, float h);
       virtual void scroll_to(Canvas *canvas, Box *child, int start, int end);
       
       void mouse_exit();
       void mouse_down(MouseEvent &event);
-      void mouse_up(  MouseEvent &event);
+      void mouse_up(MouseEvent &event);
       void mouse_move(MouseEvent &event);
       
       void focus_set();
       void focus_killed();
       
       void key_down(SpecialKeyEvent &event);
-      void key_up(  SpecialKeyEvent &event);
+      void key_up(SpecialKeyEvent &event);
       void key_press(uint16_t unicode);
       
-      virtual Box *mouse_sensitive(){ return this; }
+      virtual Box *mouse_sensitive() { return this; }
       virtual void on_mouse_down(MouseEvent &event);
       virtual void on_mouse_move(MouseEvent &event);
-      virtual void on_mouse_up(  MouseEvent &event);
+      virtual void on_mouse_up(MouseEvent &event);
       virtual void on_mouse_cancel();
       
       virtual void on_key_down(SpecialKeyEvent &event);
@@ -64,22 +65,22 @@ namespace richmath{
       void select_range(
         Box *box1, int start1, int end1,
         Box *box2, int start2, int end2);
-      
+        
       void move_to(Box *box, int index, bool selecting = false);
       
       void move_horizontal(
-        LogicalDirection direction, 
+        LogicalDirection direction,
         bool             jumping,
         bool             selecting = false);
-      
+        
       void move_vertical(
         LogicalDirection direction,
         bool             selecting = false);
-      
+        
       void move_start_end(
-        LogicalDirection direction, 
+        LogicalDirection direction,
         bool             selecting = false);
-      
+        
       void move_tab(LogicalDirection direction);
       
       bool is_inside_string();
@@ -117,25 +118,25 @@ namespace richmath{
       
       void complete_box();
       
-      Box *selection_box(){   return context.selection.get();   }
-      int selection_start(){  return context.selection.start; }
-      int selection_end(){    return context.selection.end;   }
-      int selection_length(){ return context.selection.end - context.selection.start; }
+      Box *selection_box() {   return context.selection.get();   }
+      int selection_start() {  return context.selection.start; }
+      int selection_end() {    return context.selection.end;   }
+      int selection_length() { return context.selection.end - context.selection.start; }
       
-      int clicked_box_id(){   return context.clicked_box_id; }
-      int mouseover_box_id(){ return context.mouseover_box_id; }
+      int clicked_box_id() {   return context.clicked_box_id; }
+      int mouseover_box_id() { return context.mouseover_box_id; }
       void reset_mouse();
-      bool is_mouse_down(){ return mouse_down_counter > 0; }
+      bool is_mouse_down() { return mouse_down_counter > 0; }
       
-      SharedPtr<Stylesheet> stylesheet(){ return context.stylesheet; }
+      SharedPtr<Stylesheet> stylesheet() { return context.stylesheet; }
       
       void paint_resize(Canvas *canvas, bool resize_only);
       
-      virtual Expr to_pmath_symbol(){ return Symbol(PMATH_SYMBOL_DOCUMENT); }
-    
+      virtual Expr to_pmath_symbol() { return Symbol(PMATH_SYMBOL_DOCUMENT); }
+      
     public:
       Document *main_document; // not owned
-    
+      
     protected:
       void raw_select(Box *box, int start, int end);
       
@@ -146,7 +147,7 @@ namespace richmath{
         const Hashtable<String, Expr, object_hash> &table);
       bool handle_macros(
         const Hashtable<String, Expr, object_hash> &table);
-      
+        
       bool handle_immediate_macros();
       bool handle_macros();
       
@@ -160,7 +161,7 @@ namespace richmath{
       bool        auto_scroll;
       
       SharedPtr<BoxRepaintEvent> flashing_cursor_circle;
-    
+      
       SelectionReference sel_first;
       SelectionReference sel_last;
       
@@ -180,7 +181,7 @@ namespace richmath{
   
   extern Hashtable<String, Expr, object_hash> global_immediate_macros;
   extern Hashtable<String, Expr, object_hash> global_macros;
-
+  
   extern Box *expand_selection(Box *box, int *start, int *end);
   extern int box_depth(Box *box);
   extern int box_order(Box *b1, int i1, Box *b2, int i2);

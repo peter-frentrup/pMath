@@ -3,19 +3,20 @@
 
 #include <gui/document.h>
 
-namespace richmath{
-  class Menu: public Document{
+
+namespace richmath {
+  class Menu: public Document {
     public:
       Menu();
       virtual ~Menu();
       
       virtual Box *move_logical(
-        LogicalDirection  direction, 
-        bool              jumping, 
+        LogicalDirection  direction,
+        bool              jumping,
         int              *index);
-      
+        
       virtual Box *move_vertical(
-        LogicalDirection  direction, 
+        LogicalDirection  direction,
         float            *index_rel_x,
         int              *index);
         
@@ -25,7 +26,7 @@ namespace richmath{
         int   *start,
         int   *end,
         bool  *was_inside_start);
-      
+        
       virtual Box *normalize_selection(int *start, int *end);
   };
 };

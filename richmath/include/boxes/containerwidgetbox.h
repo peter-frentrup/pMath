@@ -4,7 +4,8 @@
 #include <boxes/stylebox.h>
 #include <gui/control-painter.h>
 
-namespace richmath{
+
+namespace richmath {
   class ContainerWidgetBox: public AbstractStyleBox {
     public:
       explicit ContainerWidgetBox(ContainerType _type, MathSequence *content = 0);
@@ -14,17 +15,17 @@ namespace richmath{
       virtual void resize(Context *context);
       virtual void paint(Context *context);
       
-      virtual Box *mouse_sensitive(){ return this; }
+      virtual Box *mouse_sensitive() { return this; }
       virtual void on_mouse_enter();
       virtual void on_mouse_exit();
       virtual void on_mouse_down(MouseEvent &event);
       virtual void on_mouse_move(MouseEvent &event);
-      virtual void on_mouse_up(  MouseEvent &event);
+      virtual void on_mouse_up(MouseEvent &event);
       virtual void on_mouse_cancel();
       
       virtual void on_enter();
       virtual void on_exit();
-    
+      
     protected:
       SharedPtr<BoxAnimation> animation;
       ContainerType type;

@@ -10,20 +10,20 @@ using namespace richmath;
 //{ class SpanExpr ...
 
 SpanExpr::SpanExpr(int start, Span span, MathSequence *sequence)
-: Base(),
+  : Base(),
   _span(0)
 {
   init(0, start, span, sequence);
 }
 
 SpanExpr::SpanExpr(SpanExpr *parent, int start, Span span, MathSequence *sequence)
-: Base(),
+  : Base(),
   _span(0)
 {
   init(parent, start, span, sequence);
 }
 
-void SpanExpr::init(SpanExpr *parent, int start, Span span, MathSequence *sequence){
+void SpanExpr::init(SpanExpr *parent, int start, Span span, MathSequence *sequence) {
   _parent   = parent;
   _start    = start;
   _span     = span;
@@ -33,12 +33,12 @@ void SpanExpr::init(SpanExpr *parent, int start, Span span, MathSequence *sequen
   assert(_start >= 0 && _start < sequence->length());
   assert(!_parent || _parent->_start <= _start);
   
-  if(_span){
+  if(_span) {
     _end = _span.end();
   }
-  else{
+  else {
     _end = _start;
-    while(!sequence->span_array().is_token_end(_end)) 
+    while(!sequence->span_array().is_token_end(_end))
       ++_end;
   }
   
@@ -52,18 +52,18 @@ void SpanExpr::init(SpanExpr *parent, int start, Span span, MathSequence *sequen
   
   if(str[_start] == '"' && _span && !_span.next())
     _span = 0;
-  
-  if(_span){
+    
+  if(_span) {
     int prev = _start;
     int pos = prev;
     
-    if(_span.next()){
+    if(_span.next()) {
       pos = _span.next().end() + 1;
       
       if(pos > prev + 1 && str[prev] != '/' && str[prev + 1] != '*')
         _items_pos.add(prev);
     }
-    else{
+    else {
       while(!sequence->span_array().is_token_end(pos))
         ++pos;
       ++pos;
@@ -72,20 +72,20 @@ void SpanExpr::init(SpanExpr *parent, int start, Span span, MathSequence *sequen
         _items_pos.add(prev);
     }
     
-    while(pos <= _end){
+    while(pos <= _end) {
       prev = pos;
       
-      if(sequence->span_array()[pos]){
+      if(sequence->span_array()[pos]) {
         pos = sequence->span_array()[pos].end() + 1;
-      
+        
         if(pos > prev + 1 && (str[prev] != '/' || str[prev + 1] != '*'))
           _items_pos.add(prev);
       }
-      else{
+      else {
         while(!sequence->span_array().is_token_end(pos))
           ++pos;
         ++pos;
-          
+        
         if(str[prev] > ' ')
           _items_pos.add(prev);
       }
@@ -95,90 +95,90 @@ void SpanExpr::init(SpanExpr *parent, int start, Span span, MathSequence *sequen
   _items.length(_items_pos.length(), 0);
 }
 
-SpanExpr::~SpanExpr(){
-  if(_parent){
-    for(int i = 0;i < _parent->_items.length();++i)
-      if(_parent->_items[i] == this){
+SpanExpr::~SpanExpr() {
+  if(_parent) {
+    for(int i = 0; i < _parent->_items.length(); ++i)
+      if(_parent->_items[i] == this) {
         _parent->_items[i] = 0;
         break;
       }
   }
   
-  for(int i = 0;i < _items.length();++i)
-    if(_items[i]){
+  for(int i = 0; i < _items.length(); ++i)
+    if(_items[i]) {
       _items[i]->_parent = 0;
       delete _items[i];
     }
 }
 
-SpanExpr *find(MathSequence *sequence, int pos, bool before){
+SpanExpr *find(MathSequence *sequence, int pos, bool before) {
   assert(sequence != 0);
   
   if(pos == sequence->length())
     before = true;
-  
+    
   int start = pos;
-  if(pos > 0 && before){
+  if(pos > 0 && before) {
     start = pos - 1;
     while(start >= 0 && !sequence->span_array().is_token_end(start))
       --start;
-    
+      
     ++start;
   }
   
   if(start == sequence->length())
     return 0;
-  
+    
   Span span = sequence->span_array()[start];
   while(span && span.next() && span.next().end() >= pos - 1)
     span = span.next();
-  
+    
   return new SpanExpr(start, span, sequence);
 }
 
-SpanExpr *SpanExpr::expand(bool self_destruction){
+SpanExpr *SpanExpr::expand(bool self_destruction) {
   if(_parent)
     return _parent;
-  
+    
   int start = _start;
   Span sp = _sequence->span_array()[_start];
   while(sp && sp.next() != _span)
     sp = sp.next();
-  
-  if(!sp){
-    if(_start == 0){
+    
+  if(!sp) {
+    if(_start == 0) {
       if(self_destruction)
         return this;
-      
+        
       return 0;
     }
-      
+    
     start = _start - 1;
-    while(start > 0){
+    while(start > 0) {
       sp = _sequence->span_array()[start];
       while(sp && sp.next() && sp.next().end() >= _end)
         sp = sp.next();
-      
+        
       if(sp)
         break;
     }
   }
   
   SpanExpr *result = new SpanExpr(0, start, sp, _sequence);
-  for(int i = 0;i < result->count();++i)
-    if(result->item_pos(i) == _start){
+  for(int i = 0; i < result->count(); ++i)
+    if(result->item_pos(i) == _start) {
       result->_items[i] = this;
       _parent = result;
       return result;
     }
-  
+    
   if(self_destruction)
     delete this;
   return result;
 }
 
-SpanExpr *SpanExpr::item(int i){
-  if(!_items[i]){
+SpanExpr *SpanExpr::item(int i) {
+  if(!_items[i]) {
     Span subspan(0);
     
     if(_items_pos[i] == _start && _span)
@@ -192,84 +192,84 @@ SpanExpr *SpanExpr::item(int i){
   return _items[i];
 }
 
-bool SpanExpr::equals(const char *latin1){
+bool SpanExpr::equals(const char *latin1) {
   const uint16_t *str = _sequence->text().buffer();
   
   int i = 0;
-  for(;latin1[i] != '\0' && _start + i <= _end;++i)
+  for(; latin1[i] != '\0' && _start + i <= _end; ++i)
     if(str[_start + i] != (unsigned char)latin1[i])
       return false;
-  
+      
   return _start + i == _end + 1 && latin1[i] == '\0';
 }
 
-bool SpanExpr::item_equals(int i, const char *latin1){
+bool SpanExpr::item_equals(int i, const char *latin1) {
   if(_items[i])
     return _items[i]->equals(latin1);
-  
+    
   const uint16_t *str = _sequence->text().buffer();
   
   int s = _items_pos[i];
   int e;
   
-  if(s == _start && _span.next()){
+  if(s == _start && _span.next()) {
     e = _span.next().end();
   }
-  else if(s > _start && _sequence->span_array()[s]){
+  else if(s > _start && _sequence->span_array()[s]) {
     e = _sequence->span_array()[s].end();
   }
-  else{
-    for(e = 0;latin1[e] != '\0' && (e == 0 || !_sequence->span_array().is_token_end(s + e - 1));++e)
+  else {
+    for(e = 0; latin1[e] != '\0' && (e == 0 || !_sequence->span_array().is_token_end(s + e - 1)); ++e)
       if(str[s + e] != (unsigned char)latin1[e])
         return false;
-    
+        
     return latin1[e] == '\0' && e > 0 && _sequence->span_array().is_token_end(s + e - 1);
   }
   
-  for(i = 0;latin1[i] != '\0' && s + i <= e;++i)
+  for(i = 0; latin1[i] != '\0' && s + i <= e; ++i)
     if(str[s + i] != (unsigned char)latin1[i])
       return false;
-  
+      
   return s + i == e + 1 && latin1[i] == '\0';
 }
 
-String SpanExpr::as_text(){
+String SpanExpr::as_text() {
   return _sequence->text().part(_start, length());
 }
 
-Box *SpanExpr::as_box(){
+Box *SpanExpr::as_box() {
   if(!is_box())
     return 0;
-  
+    
   int b = 0;
   while(_sequence->item(b)->index() < _start)
     ++b;
-  
+    
   return _sequence->item(b);
 }
 
-pmath_token_t SpanExpr::as_token(int *prec){
+pmath_token_t SpanExpr::as_token(int *prec) {
   if(count() == 0)
     return pmath_token_analyse(_sequence->text().buffer() + _start, length(), prec);
-  
+    
   if(count() == 1)
     return item(0)->as_token((prec));
-  
+    
   Box *b = as_box();
-  if(b){
-    if(dynamic_cast<SubsuperscriptBox*>(b)){
+  if(b) {
+    if(dynamic_cast<SubsuperscriptBox*>(b)) {
       if(prec) *prec = PMATH_PREC_POW;
       return PMATH_TOK_BINARY_RIGHT;
     }
     
     if(dynamic_cast<UnderoverscriptBox*>(b)
-    || dynamic_cast<StyleBox*>(b)
-    || dynamic_cast<InterpretationBox*>(b)){
+        || dynamic_cast<StyleBox*>(b)
+        || dynamic_cast<InterpretationBox*>(b)) {
       MathSequence *seq = dynamic_cast<MathSequence*>(b->item(0));
       assert(seq);
       
       seq->ensure_spans_valid();
-      if(seq->length() > 0){
+      if(seq->length() > 0) {
         SpanExpr *se = new SpanExpr(0, seq->span_array()[0], seq);
         
         pmath_token_t tok = se->as_token(prec);
@@ -285,29 +285,29 @@ pmath_token_t SpanExpr::as_token(int *prec){
   return PMATH_TOK_NAME2;
 }
 
-int SpanExpr::as_prefix_prec(int defprec){
-  if(count() == 0){
+int SpanExpr::as_prefix_prec(int defprec) {
+  if(count() == 0) {
     int prec = pmath_token_prefix_precedence(
-      _sequence->text().buffer() + _start, 
-      length(),
-      defprec);
-    
+                 _sequence->text().buffer() + _start,
+                 length(),
+                 defprec);
+                 
     return prec;
   }
   
   if(count() == 1)
     return item(0)->as_prefix_prec(defprec);
-  
+    
   Box *b = as_box();
-  if(b){
+  if(b) {
     if(dynamic_cast<UnderoverscriptBox*>(b)
-    || dynamic_cast<StyleBox*>(b)
-    || dynamic_cast<InterpretationBox*>(b)){
+        || dynamic_cast<StyleBox*>(b)
+        || dynamic_cast<InterpretationBox*>(b)) {
       MathSequence *seq = dynamic_cast<MathSequence*>(b->item(0));
       assert(seq);
       
       seq->ensure_spans_valid();
-      if(seq->length() > 0){
+      if(seq->length() > 0) {
         SpanExpr *se = new SpanExpr(0, seq->span_array()[0], seq);
         
         int prec = se->as_prefix_prec(defprec);
@@ -319,29 +319,29 @@ int SpanExpr::as_prefix_prec(int defprec){
     }
   }
   
-  return defprec+1;
+  return defprec + 1;
 }
 
-int SpanExpr::precedence(int *pos){
+int SpanExpr::precedence(int *pos) {
   int dummy_pos;
   if(!pos)
     pos = &dummy_pos;
-  
+    
   *pos = 0;
   
-  if(count() == 0){
+  if(count() == 0) {
     int prec;
     pmath_token_analyse(_sequence->text().buffer() + _start, length(), &prec);
     return prec;
   }
   
-  if(count() == 1){
+  if(count() == 1) {
     return item(0)->precedence(pos);
   }
   
   int prec;
   pmath_token_t tok = item(0)->as_token(&prec);
-  switch(tok){
+  switch(tok) {
     case PMATH_TOK_NONE:
     case PMATH_TOK_SPACE:
     case PMATH_TOK_DIGIT:
@@ -350,13 +350,13 @@ int SpanExpr::precedence(int *pos){
     case PMATH_TOK_NAME2:
     case PMATH_TOK_SLOT:
       break;
-    
+      
     case PMATH_TOK_BINARY_LEFT_OR_PREFIX:
     case PMATH_TOK_NARY_OR_PREFIX:
     case PMATH_TOK_POSTFIX_OR_PREFIX:
     case PMATH_TOK_PLUSPLUS:
       prec = item(0)->as_prefix_prec(prec);
-      if(count() == 2){
+      if(count() == 2) {
         *pos = -1;
         goto FINISH;
       }
@@ -374,21 +374,21 @@ int SpanExpr::precedence(int *pos){
     case PMATH_TOK_COLON:
     case PMATH_TOK_TILDES:
     case PMATH_TOK_INTEGRAL:
-      if(count() == 2){
+      if(count() == 2) {
         *pos = -1;
         goto FINISH;
       }
       return prec;
-    
+      
     case PMATH_TOK_LEFTCALL:
     case PMATH_TOK_LEFT:
     case PMATH_TOK_RIGHT:
     case PMATH_TOK_COMMENTEND:
       return PMATH_PREC_PRIM;
-    
+      
     case PMATH_TOK_PRETEXT:
     case PMATH_TOK_QUESTION:
-      if(count() == 2){
+      if(count() == 2) {
         *pos = -1;
         prec = PMATH_PREC_CALL;
         goto FINISH;
@@ -397,7 +397,7 @@ int SpanExpr::precedence(int *pos){
   }
   
   tok = item(1)->as_token(&prec);
-  switch(tok){
+  switch(tok) {
     case PMATH_TOK_NONE:
     case PMATH_TOK_SPACE:
     case PMATH_TOK_DIGIT:
@@ -412,12 +412,12 @@ int SpanExpr::precedence(int *pos){
     case PMATH_TOK_INTEGRAL:
       prec = PMATH_PREC_MUL;
       break;
-    
+      
     case PMATH_TOK_CALL:
     case PMATH_TOK_LEFTCALL:
       prec = PMATH_PREC_CALL;
       break;
-    
+      
     case PMATH_TOK_RIGHT:
     case PMATH_TOK_COMMENTEND:
       prec = PMATH_PREC_PRIM;
@@ -435,43 +435,43 @@ int SpanExpr::precedence(int *pos){
     case PMATH_TOK_COLON:
       //prec = prec;  // TODO: what did i mean here?
       break;
-    
+      
     case PMATH_TOK_POSTFIX_OR_PREFIX:
     case PMATH_TOK_POSTFIX:
-      if(count() == 2) 
+      if(count() == 2)
         *pos = +1;
       prec = prec;
       break;
       
     case PMATH_TOK_PLUSPLUS:
-      if(count() == 2){
+      if(count() == 2) {
         *pos = +1;
         prec = PMATH_PREC_INC;
       }
-      else{
+      else {
         prec = PMATH_PREC_STR;
       }
       break;
   }
   
- FINISH:
-  if(*pos >= 0){ // infix or postfix
+FINISH:
+  if(*pos >= 0) { // infix or postfix
     int prec2, pos2;
     
     prec2 = item(0)->precedence(&pos2);
     
-    if(pos2 > 0 && prec2 < prec){ // starts with postfix operator, eg. box = a+b&*c = ((a+b)&)*c
+    if(pos2 > 0 && prec2 < prec) { // starts with postfix operator, eg. box = a+b&*c = ((a+b)&)*c
       prec = prec2;
       *pos = 0;
     }
   }
   
-  if(*pos <= 0){ // prefix or infix
+  if(*pos <= 0) { // prefix or infix
     int prec2, pos2;
     
-    prec2 = item(count()-1)->precedence(&pos2);
+    prec2 = item(count() - 1)->precedence(&pos2);
     
-    if(pos2 < 0 && prec2 < prec){ // ends with prefix operator, eg. box = a*!b+c = a*(!(b+c))
+    if(pos2 < 0 && prec2 < prec) { // ends with prefix operator, eg. box = a*!b+c = a*(!(b+c))
       prec = prec2;
       *pos = 0;
     }
@@ -480,46 +480,46 @@ int SpanExpr::precedence(int *pos){
   return prec;
 }
 
-uint16_t SpanExpr::item_first_char(int i){
+uint16_t SpanExpr::item_first_char(int i) {
   if(_items[i])
     return _items[i]->first_char();
-  
+    
   int s = _items_pos[i];
   
-  if(s == _start){
+  if(s == _start) {
     if(_span.next())
       return 0;
   }
   else if(_sequence->span_array()[s])
     return 0;
-  
+    
   return _sequence->text()[s];
 }
 
-uint16_t SpanExpr::item_as_char(int i){
+uint16_t SpanExpr::item_as_char(int i) {
   if(_items[i])
     return _items[i]->as_char();
-  
+    
   if(!_sequence->span_array().is_token_end(_items_pos[i]))
     return 0;
-  
+    
   return _sequence->text()[_items_pos[i]];
 }
 
-String SpanExpr::item_as_text(int i){
+String SpanExpr::item_as_text(int i) {
   if(_items[i])
     return _items[i]->as_text();
-  
+    
   int s = _items_pos[i];
   
   int end;
-  if(s == _start && _span.next()){
+  if(s == _start && _span.next()) {
     end = _span.next().end();
   }
-  else if(s > _start && _sequence->span_array()[s]){
+  else if(s > _start && _sequence->span_array()[s]) {
     end = _sequence->span_array()[s].end();
   }
-  else{
+  else {
     end = s;
     while(end <= _end && !_sequence->span_array().is_token_end(end))
       ++end;
@@ -528,14 +528,14 @@ String SpanExpr::item_as_text(int i){
   return _sequence->text().part(s, end + 1 - s);
 }
 
-Box *SpanExpr::item_as_box(int i){
+Box *SpanExpr::item_as_box(int i) {
   if(!item_is_box(i))
     return 0;
-  
+    
   int b = 0;
   while(_sequence->item(b)->index() < _items_pos[i])
     ++b;
-  
+    
   return _sequence->item(b);
 }
 
@@ -543,121 +543,121 @@ Box *SpanExpr::item_as_box(int i){
 
 //{ class FunctionCallSpan ...
 
-bool FunctionCallSpan::is_sequence(){
+bool FunctionCallSpan::is_sequence() {
   if(!_span)
     return false;
     
   if(_span->count() < 1)
     return false;
-  
-  for(int i = 0;i < _span->count();++i)
+    
+  for(int i = 0; i < _span->count(); ++i)
     if(!_span->item_is_operand(i)
-    && !_span->item_equals(i, ","))
+        && !_span->item_equals(i, ","))
       return false;
-  
+      
   return true;
 }
 
-bool FunctionCallSpan::is_simple_call(){
+bool FunctionCallSpan::is_simple_call() {
   if(!_span)
     return false;
     
-  if(_span->count() == 3){
+  if(_span->count() == 3) {
     return _span->item_equals(1, "(")
-        && _span->item_equals(2, ")")
-        && _span->item_is_operand(0);
+           && _span->item_equals(2, ")")
+           && _span->item_is_operand(0);
   }
   
-  if(_span->count() == 4){
+  if(_span->count() == 4) {
     return _span->item_equals(1, "(")
-        && _span->item_equals(3, ")")
-        && _span->item_is_operand(0)
-        && _span->item_is_operand(2);
+           && _span->item_equals(3, ")")
+           && _span->item_is_operand(0)
+           && _span->item_is_operand(2);
   }
   
   return false;
 }
 
-bool FunctionCallSpan::is_complex_call(){
+bool FunctionCallSpan::is_complex_call() {
   if(!_span)
     return false;
     
-  if(_span->count() == 5){
+  if(_span->count() == 5) {
     return _span->item_equals(1, ".")
-        && _span->item_equals(3, "(")
-        && _span->item_equals(4, ")")
-        && _span->item_is_operand(0)
-        && _span->item_is_operand(2);
+           && _span->item_equals(3, "(")
+           && _span->item_equals(4, ")")
+           && _span->item_is_operand(0)
+           && _span->item_is_operand(2);
   }
   
-  if(_span->count() == 6){
+  if(_span->count() == 6) {
     return _span->item_equals(1, ".")
-        && _span->item_equals(3, "(")
-        && _span->item_equals(5, ")")
-        && _span->item_is_operand(0)
-        && _span->item_is_operand(2)
-        && _span->item_is_operand(4);
+           && _span->item_equals(3, "(")
+           && _span->item_equals(5, ")")
+           && _span->item_is_operand(0)
+           && _span->item_is_operand(2)
+           && _span->item_is_operand(4);
   }
   
   return false;
 }
 
-bool FunctionCallSpan::is_simple_list(){
+bool FunctionCallSpan::is_simple_list() {
   if(!_span)
     return false;
     
-  if(_span->count() == 2){
+  if(_span->count() == 2) {
     return _span->item_equals(0, "{")
-        && _span->item_equals(1, "}");
+           && _span->item_equals(1, "}");
   }
   
-  if(_span->count() == 3){
+  if(_span->count() == 3) {
     return _span->item_equals(0, "{")
-        && _span->item_equals(2, "}")
-        && _span->item_is_operand(1);
+           && _span->item_equals(2, "}")
+           && _span->item_is_operand(1);
   }
   
   return 0;
 }
 
-bool FunctionCallSpan::is_list(){
+bool FunctionCallSpan::is_list() {
   if(is_simple_list())
     return true;
-  
+    
   SpanExpr *head = function_head();
   if(head)
     return head->equals("List");
-  
+    
   return false;
 }
 
-SpanExpr *FunctionCallSpan::sequence_argument(int i){
+SpanExpr *FunctionCallSpan::sequence_argument(int i) {
   if(!_span || i <= 0)
     return 0;
-  
-  if(i == 1){
+    
+  if(i == 1) {
     if(_span->equals(","))
       return 0;
-    
+      
     if(_span->count() < 1)
       return _span;
-    
+      
     if(_span->item_equals(0, ","))
       return 0;
-    
+      
     if(_span->count() > 1 && _span->item_equals(1, ","))
       return _span->item(0);
-    
+      
     return _span;
   }
   
   const int ii = i;
   int k;
-  for(k = 0;k < _span->count() && i > 0;++k){
-    if(_span->item_is_operand(k)){
+  for(k = 0; k < _span->count() && i > 0; ++k) {
+    if(_span->item_is_operand(k)) {
       --i;
     }
-    else if(!_span->item_equals(k, ",")){
+    else if(!_span->item_equals(k, ",")) {
       if(ii == 1)
         return _span;
       return 0;
@@ -666,40 +666,40 @@ SpanExpr *FunctionCallSpan::sequence_argument(int i){
   
   if(i != 1)
     return 0;
-  
+    
   if(k + 1 < _span->count()
-  && !_span->item_equals(k + 1, ","))
+      && !_span->item_equals(k + 1, ","))
     return 0;
-  
+    
   return _span->item(k);
 }
 
-SpanExpr *FunctionCallSpan::function_head(){
+SpanExpr *FunctionCallSpan::function_head() {
   if(is_simple_call())
     return _span->item(0);
     
   if(is_complex_call())
     return _span->item(2);
-  
+    
   return 0;
 }
 
-SpanExpr *FunctionCallSpan::function_argument(int i){
-  if(is_simple_call()){
+SpanExpr *FunctionCallSpan::function_argument(int i) {
+  if(is_simple_call()) {
     if(_span->count() == 3)
       return 0;
-    
+      
     FunctionCallSpan args(_span->item(2));
     return args.sequence_argument(i);
   }
   
-  if(is_complex_call()){
+  if(is_complex_call()) {
     if(i == 1)
       return _span->item(0);
-    
+      
     if(_span->count() == 5)
       return 0;
-    
+      
     FunctionCallSpan args(_span->item(4));
     return args.sequence_argument(i - 1);
   }
@@ -707,17 +707,17 @@ SpanExpr *FunctionCallSpan::function_argument(int i){
   return 0;
 }
 
-int FunctionCallSpan::function_argument_count(){
+int FunctionCallSpan::function_argument_count() {
   int i = 1;
   while(function_argument(i))
     ++i;
-  
-  return i-1;
+    
+  return i - 1;
 }
 
-SpanExpr *FunctionCallSpan::list_element(int i){
-  if(is_simple_list()){
-    if(_span->count() == 3){
+SpanExpr *FunctionCallSpan::list_element(int i) {
+  if(is_simple_list()) {
+    if(_span->count() == 3) {
       FunctionCallSpan args(_span->item(1));
       return args.sequence_argument(i);
     }
@@ -727,16 +727,16 @@ SpanExpr *FunctionCallSpan::list_element(int i){
   
   if(is_list())
     return function_argument(i);
-  
+    
   return 0;
 }
 
-int FunctionCallSpan::list_length(){
+int FunctionCallSpan::list_length() {
   int i = 1;
   while(list_element(i))
     ++i;
-  
-  return i-1;
+    
+  return i - 1;
 }
 
 //} ... class FunctionCallSpan

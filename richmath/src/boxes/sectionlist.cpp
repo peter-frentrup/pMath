@@ -10,7 +10,7 @@ using namespace richmath;
 //{ class SectionList ...
 
 SectionList::SectionList()
-: Box(),
+  : Box(),
   border_visible(true),
   section_bracket_width(8),
   section_bracket_right_margin(2),
@@ -18,41 +18,41 @@ SectionList::SectionList()
 {
 }
 
-SectionList::~SectionList(){
-  for(int i = 0;i < _sections.length();++i)
+SectionList::~SectionList() {
+  for(int i = 0; i < _sections.length(); ++i)
     delete _sections[i];
 }
 
-Box *SectionList::item(int i){
+Box *SectionList::item(int i) {
   return _sections[i];
 }
 
-void SectionList::resize(Context *context){
+void SectionList::resize(Context *context) {
   unfilled_width = 0;
   _extents.ascent = 0;
   _extents.descent = 0;
   _extents.width = _page_width = context->width;
   init_section_bracket_sizes(context);
   
-  for(int i = 0;i < _sections.length();++i){
+  for(int i = 0; i < _sections.length(); ++i) {
     resize_section(context, i);
     
     _sections[i]->y_offset = _extents.descent;
     if(_sections[i]->visible)
-      _extents.descent+= _sections[i]->extents().height();
-    
+      _extents.descent += _sections[i]->extents().height();
+      
     float w  = _sections[i]->extents().width;
     float uw = _sections[i]->unfilled_width;
-    if(border_visible){
-      w+=  section_bracket_right_margin + section_bracket_width * _group_info[i].nesting;
-      uw+= section_bracket_right_margin + section_bracket_width * _group_info[i].nesting;
+    if(border_visible) {
+      w +=  section_bracket_right_margin + section_bracket_width * _group_info[i].nesting;
+      uw += section_bracket_right_margin + section_bracket_width * _group_info[i].nesting;
     }
     
     if(_extents.width < w)
-       _extents.width = w;
-    
+      _extents.width = w;
+      
     if(unfilled_width < uw)
-       unfilled_width = uw;
+      unfilled_width = uw;
   }
   
 //  if(border_visible){
@@ -61,10 +61,10 @@ void SectionList::resize(Context *context){
 //  }
 }
 
-void SectionList::paint(Context *context){
+void SectionList::paint(Context *context) {
   if(style)
     style->update_dynamic(this);
-  
+    
   float x, y;
   context->canvas->current_pos(&x, &y);
   
@@ -72,13 +72,13 @@ void SectionList::paint(Context *context){
   cairo_translate(context->canvas->cairo(), x, y);
   
   _scrollx = 0;
-  for(int i = 0;i < _sections.length();++i){
+  for(int i = 0; i < _sections.length(); ++i) {
     context->canvas->move_to(0, _sections[i]->y_offset);
     paint_section(context, i, _scrollx);
   }
   
   if(context->selection.get() == this
-  && context->selection.start == _sections.length()){
+      && context->selection.start == _sections.length()) {
     float x1 = 0;
     float y1 = _extents.descent;
     float x2 = _extents.width;
@@ -91,21 +91,21 @@ void SectionList::paint(Context *context){
     
     context->draw_selection_path();
   }
-
+  
   context->canvas->restore();
 }
 
-void SectionList::selection_path(Canvas *canvas, int start, int end){
+void SectionList::selection_path(Canvas *canvas, int start, int end) {
   float yend;
   if(end < length())
     yend = _sections[end]->y_offset;
   else
     yend = _extents.height();
-  
+    
   float x, y;
   canvas->current_pos(&x, &y);
   
-  if(start == end){
+  if(start == end) {
     float x1 = x;
     float y1 = y + yend;
     float x2 = x + _extents.width;
@@ -118,7 +118,7 @@ void SectionList::selection_path(Canvas *canvas, int start, int end){
     canvas->line_to(x2, y2);
     canvas->close_path();
   }
-  else{
+  else {
     float x1 = x;
     float y1 = y + _sections[start]->y_offset;
     float x2 = x + _extents.width;
@@ -141,56 +141,56 @@ void SectionList::selection_path(Canvas *canvas, int start, int end){
   }
 }
 
-Expr SectionList::to_pmath(int flags){
+Expr SectionList::to_pmath(int flags) {
   return to_pmath(flags, 0, length());
 }
 
-Expr SectionList::to_pmath(int flags, int start, int end){
+Expr SectionList::to_pmath(int flags, int start, int end) {
   Gather g;
   
   emit_pmath(flags, start, end);
   
   Expr group = g.end();
   
-  if(group.expr_length() == 1){
+  if(group.expr_length() == 1) {
     return group[1];
   }
   
   return Call(
-    Symbol(PMATH_SYMBOL_SECTIONGROUP),
-    group,
-    Symbol(PMATH_SYMBOL_ALL));
+           Symbol(PMATH_SYMBOL_SECTIONGROUP),
+           group,
+           Symbol(PMATH_SYMBOL_ALL));
 }
 
-void SectionList::emit_pmath(int flags, int start, int end){
-  while(start < end){
-    if(_group_info[start].end == start){
+void SectionList::emit_pmath(int flags, int start, int end) {
+  while(start < end) {
+    if(_group_info[start].end == start) {
       Gather::emit(_sections[start]->to_pmath(flags));
       ++start;
     }
-    else{
-      int e = _group_info[start].end+1;
+    else {
+      int e = _group_info[start].end + 1;
       if(e > end)
-         e = end;
-      
+        e = end;
+        
       Gather g;
       
       g.emit(_sections[start]->to_pmath(flags));
       
-      emit_pmath(flags, start+1, e);
+      emit_pmath(flags, start + 1, e);
       
       Expr group = g.end();
       Expr open;
       if(_group_info[start].close_rel >= 0
-      && _group_info[start].close_rel <= e)
+          && _group_info[start].close_rel <= e)
         open = Expr(_group_info[start].close_rel + 1);
       else
         open = Symbol(PMATH_SYMBOL_ALL);
-      
+        
       group = Call(
-        Symbol(PMATH_SYMBOL_SECTIONGROUP),
-        group,
-        open);
+                Symbol(PMATH_SYMBOL_SECTIONGROUP),
+                group,
+                open);
       Gather::emit(group);
       
       start = e;
@@ -199,20 +199,20 @@ void SectionList::emit_pmath(int flags, int start, int end){
 }
 
 Box *SectionList::move_logical(
-  LogicalDirection  direction, 
-  bool              jumping, 
+  LogicalDirection  direction,
+  bool              jumping,
   int              *index
-){
-  if(direction == Forward){
-    if(*index >= count()){
-      if(_parent){
+) {
+  if(direction == Forward) {
+    if(*index >= count()) {
+      if(_parent) {
         *index = _index;
         return _parent->move_logical(Forward, true, index);
       }
       return this;
     }
-      
-    if(jumping){
+    
+    if(jumping) {
       ++*index;
       return this;
     }
@@ -222,15 +222,15 @@ Box *SectionList::move_logical(
     return _sections[b]->move_logical(Forward, true, index);
   }
   
-  if(*index <= 0){
-    if(_parent){
+  if(*index <= 0) {
+    if(_parent) {
       *index = _index + 1;
       return _parent->move_logical(Backward, true, index);
     }
     return this;
   }
-
-  if(jumping){
+  
+  if(jumping) {
     --*index;
     return this;
   }
@@ -241,19 +241,19 @@ Box *SectionList::move_logical(
 }
 
 Box *SectionList::move_vertical(
-  LogicalDirection  direction, 
+  LogicalDirection  direction,
   float            *index_rel_x,
   int              *index
-){
+) {
   int s = *index;
   
-  if(direction == Backward){
-    do{
+  if(direction == Backward) {
+    do {
       --s;
-    }while(s >= 0 && s < _sections.length() && !_sections[s]->visible);
+    } while(s >= 0 && s < _sections.length() && !_sections[s]->visible);
   }
-  else{
-    while(s >= 0 && s < _sections.length() && !_sections[s]->visible){
+  else {
+    while(s >= 0 && s < _sections.length() && !_sections[s]->visible) {
       ++s;
     }
   }
@@ -264,48 +264,48 @@ Box *SectionList::move_vertical(
   *index = -1;
   return _sections[s]->move_vertical(direction, index_rel_x, index);
 }
-  
+
 Box *SectionList::mouse_selection(
   float  x,
   float  y,
   int   *start,
   int   *end,
   bool  *was_inside_start
-){
+) {
   *was_inside_start = true;
   
   float right = _scrollx + _window_width - section_bracket_right_margin;
   int border_level = -1;
   
   if(border_visible
-  && section_bracket_width > 0){
-    border_level = (int)ceil((right - x)/section_bracket_width + 0.2);
+      && section_bracket_width > 0) {
+    border_level = (int)ceil((right - x) / section_bracket_width + 0.2);
     if(border_level < 0)
-       border_level = 0;
-  } 
+      border_level = 0;
+  }
   
   *start = 0;
-  while(*start < _sections.length()){
-    if(_sections[*start]->visible){
-      if(y <= _sections[*start]->y_offset + _sections[*start]->top_margin){
-        int lastvis = *start-1;
+  while(*start < _sections.length()) {
+    if(_sections[*start]->visible) {
+      if(y <= _sections[*start]->y_offset + _sections[*start]->top_margin) {
+        int lastvis = *start - 1;
         while(lastvis >= 0 && !_sections[lastvis]->visible)
           --lastvis;
+          
+        *end = *start = lastvis + 1;
         
-        *end = *start = lastvis+1;
-        
-        if(border_level >= 0 && border_level < _group_info[*start].nesting){
+        if(border_level >= 0 && border_level < _group_info[*start].nesting) {
           int d = _group_info[*start].nesting - border_level;
           
           if(_group_info[*start].end > *start)
-            d-= 1;
+            d -= 1;
           while(d-- > 0 && *start >= 0)
             *start = _group_info[*start].first;
             
-          if(*start >= 0){
+          if(*start >= 0) {
             *end = _group_info[*start].end + 1;
           }
-          else{
+          else {
             *start = 0;
             *end = _sections.length();
           }
@@ -314,26 +314,26 @@ Box *SectionList::mouse_selection(
         return this;
       }
       
-      if(y < _sections[*start]->y_offset + _sections[*start]->extents().height() - _sections[*start]->bottom_margin){
-        if(border_level >= 0 && border_level <= _group_info[*start].nesting){
+      if(y < _sections[*start]->y_offset + _sections[*start]->extents().height() - _sections[*start]->bottom_margin) {
+        if(border_level >= 0 && border_level <= _group_info[*start].nesting) {
           int d = _group_info[*start].nesting - border_level;
           
-          if(_group_info[*start].end > *start){
-            if(d == 0){
+          if(_group_info[*start].end > *start) {
+            if(d == 0) {
               *end = *start + 1;
               return this;
             }
             
-            d-= 1;
+            d -= 1;
           }
-            
+          
           while(d-- > 0 && *start >= 0)
             *start = _group_info[*start].first;
             
-          if(*start >= 0){
+          if(*start >= 0) {
             *end = _group_info[*start].end + 1;
           }
-          else{
+          else {
             *start = 0;
             *end = _sections.length();
           }
@@ -341,7 +341,7 @@ Box *SectionList::mouse_selection(
           return this;
         }
         
-        y-= _sections[*start]->y_offset;
+        y -= _sections[*start]->y_offset;
         return _sections[*start]->mouse_selection(x, y, start, end, was_inside_start);
       }
     }
@@ -356,19 +356,19 @@ Box *SectionList::mouse_selection(
 void SectionList::child_transformation(
   int             index,
   cairo_matrix_t *matrix
-){
+) {
   if(index < _sections.length())
     cairo_matrix_translate(matrix, 0, _sections[index]->y_offset);
   else
     cairo_matrix_translate(matrix, 0, _extents.height());
 }
 
-void SectionList::set_open_close_group(int i, bool open){
-  if(_group_info[i].end > i){
+void SectionList::set_open_close_group(int i, bool open) {
+  if(_group_info[i].end > i) {
     _group_info[i].close_rel = open ? -1 : 0;
     update_section_visibility();
   }
-  else if(_group_info[i].first >= 0){
+  else if(_group_info[i].first >= 0) {
     if(open)
       _group_info[_group_info[i].first].close_rel = -1;
     else
@@ -378,58 +378,58 @@ void SectionList::set_open_close_group(int i, bool open){
   }
 }
 
-void SectionList::toggle_open_close_group(int i){
-  if(_group_info[i].end > i){
+void SectionList::toggle_open_close_group(int i) {
+  if(_group_info[i].end > i) {
     set_open_close_group(i, _group_info[i].close_rel >= 0);
   }
-  else if(_group_info[i].first >= 0){
+  else if(_group_info[i].first >= 0) {
     set_open_close_group(i, _group_info[_group_info[i].first].close_rel >= 0);
   }
 }
 
-void SectionList::insert_pmath(int *pos, Expr boxes){
+void SectionList::insert_pmath(int *pos, Expr boxes) {
   if(boxes[0] == PMATH_SYMBOL_SECTIONGROUP
-  && boxes[1][0] == PMATH_SYMBOL_LIST){
+      && boxes[1][0] == PMATH_SYMBOL_LIST) {
     Expr sect = boxes[1];
     Expr open = boxes[2];
     
     int start = *pos;
     int opened = 0;
     int close_rel = -1;
-    if(open.is_int32()){
+    if(open.is_int32()) {
       opened = PMATH_AS_INT32(open.get());
     }
     
     size_t i;
-    for(i = 1;i <= sect.expr_length();++i){
-      if(--opened == 0){
+    for(i = 1; i <= sect.expr_length(); ++i) {
+      if(--opened == 0) {
         close_rel = *pos - start;
       }
       
       insert_pmath(pos, sect[i]);
     }
     
-    if(start < _sections.length() && close_rel >= 0){
+    if(start < _sections.length() && close_rel >= 0) {
       _group_info[start].close_rel = close_rel;
       update_section_visibility();
     }
   }
-  else{
+  else {
     Section *s = Section::create_from_object(boxes);
     
-    if(s){
+    if(s) {
       insert(*pos, s);
       ++*pos;
     }
   }
 }
 
-void SectionList::insert(int pos, Section *section){
+void SectionList::insert(int pos, Section *section) {
   _sections.insert(pos, 1, &section);
   
-  for(int i = pos;i < _sections.length();++i)
+  for(int i = pos; i < _sections.length(); ++i)
     adopt(_sections[i], i);
-  
+    
   SectionGroupInfo sgi;
   sgi.precedence = section->get_own_style(SectionGroupPrecedence, 0.0);
   _group_info.insert(pos, 1, &sgi);
@@ -440,7 +440,7 @@ void SectionList::insert(int pos, Section *section){
   invalidate();
 }
 
-Section *SectionList::swap(int pos, Section *section){
+Section *SectionList::swap(int pos, Section *section) {
   Section *old = _sections[pos];
   
   assert(section != old);
@@ -457,54 +457,54 @@ Section *SectionList::swap(int pos, Section *section){
   return old;
 }
 
-void SectionList::remove(int start, int end){
+void SectionList::remove(int start, int end) {
   if(end <= start)
     return;
-  
-  set_open_close_group(start, true);
     
-  for(int i = start;i < end;++i)
-    delete _sections[i];
+  set_open_close_group(start, true);
   
-  if(end < _sections.length()){
+  for(int i = start; i < end; ++i)
+    delete _sections[i];
+    
+  if(end < _sections.length()) {
     double y = 0;
     if(start > 0)
       y = _sections[start - 1]->y_offset;
-    
+      
     y = _sections[end]->y_offset - y;
-    for(int i = end;i < _sections.length();++i)
-      _sections[i]->y_offset-= y;
+    for(int i = end; i < _sections.length(); ++i)
+      _sections[i]->y_offset -= y;
   }
   
-  _sections.remove(  start, end - start);
+  _sections.remove(start, end - start);
   _group_info.remove(start, end - start);
-  for(int i = start;i < _sections.length();++i)
+  for(int i = start; i < _sections.length(); ++i)
     adopt(_sections[i], i);
-  
+    
   recalc_group_info();
   update_group_nesting();
   invalidate();
 }
 
-Box *SectionList::remove(int *index){
+Box *SectionList::remove(int *index) {
   remove(*index, *index + 1);
   return this;
 }
 
-void SectionList::recalc_group_info(){
+void SectionList::recalc_group_info() {
   int pos = 0;
-  while(pos < _group_info.length()){
+  while(pos < _group_info.length()) {
     _group_info[pos].first = -1;
     recalc_group_info_part(&pos);
   }
 }
 
-void SectionList::recalc_group_info_part(int *pos){
+void SectionList::recalc_group_info_part(int *pos) {
   int start = *pos;
   ++*pos;
   
   while(*pos < _group_info.length()
-  && _group_info[start].precedence < _group_info[*pos].precedence){
+        && _group_info[start].precedence < _group_info[*pos].precedence) {
     _group_info[*pos].first = start;
     recalc_group_info_part(pos);
   }
@@ -512,53 +512,53 @@ void SectionList::recalc_group_info_part(int *pos){
   _group_info[start].end = *pos - 1;
 }
 
-void SectionList::update_group_nesting(){
+void SectionList::update_group_nesting() {
   int pos = 0;
   while(pos < _group_info.length())
     update_group_nesting_part(&pos, 1);
 }
 
-void SectionList::update_group_nesting_part(int *pos, int current_nesting){
+void SectionList::update_group_nesting_part(int *pos, int current_nesting) {
   int end = _group_info[*pos].end;
   
   if(*pos < end)
     ++current_nesting;
-  
-  if(_group_info[*pos].nesting != current_nesting){
-    if(_sections[*pos]->get_own_style(LineBreakWithin, true)){
+    
+  if(_group_info[*pos].nesting != current_nesting) {
+    if(_sections[*pos]->get_own_style(LineBreakWithin, true)) {
       _sections[*pos]->invalidate();
     }
   }
   _group_info[*pos].nesting = current_nesting;
-    
+  
   ++*pos;
   while(*pos <= end)
     update_group_nesting_part(pos, current_nesting);
 }
 
-void SectionList::update_section_visibility(){
+void SectionList::update_section_visibility() {
   int pos = 0;
-  while(pos < _sections.length()){
-    if(_group_info[pos].end != pos){
+  while(pos < _sections.length()) {
+    if(_group_info[pos].end != pos) {
       int start = pos;
       if(_group_info[start].close_rel >= 0
-      && _group_info[start].close_rel <= _group_info[start].end - start){
-        while(pos < start + _group_info[start].close_rel){
-          if(_sections[pos]->visible){
+          && _group_info[start].close_rel <= _group_info[start].end - start) {
+        while(pos < start + _group_info[start].close_rel) {
+          if(_sections[pos]->visible) {
             invalidate();
             _sections[pos]->visible = false;
           }
           ++pos;
         }
         
-        if(!_sections[pos]->visible){
+        if(!_sections[pos]->visible) {
           invalidate();
           _sections[pos]->visible = true;
         }
         
         ++pos;
-        while(pos <= _group_info[start].end){
-          if(_sections[pos]->visible){
+        while(pos <= _group_info[start].end) {
+          if(_sections[pos]->visible) {
             invalidate();
             _sections[pos]->visible = false;
           }
@@ -571,7 +571,7 @@ void SectionList::update_section_visibility(){
       _group_info[start].close_rel = -1;
     }
     
-    if(!_sections[pos]->visible){
+    if(!_sections[pos]->visible) {
       invalidate();
       _sections[pos]->visible = true;
     }
@@ -579,47 +579,47 @@ void SectionList::update_section_visibility(){
   }
 }
 
-bool SectionList::request_repaint_range(int start, int end){
+bool SectionList::request_repaint_range(int start, int end) {
   float y1 = 0;
   
   if(start > _sections.length())
-     start = _sections.length();
-  
+    start = _sections.length();
+    
   if(end > _sections.length())
-     end = _sections.length();
-  
+    end = _sections.length();
+    
   if(start < _sections.length())
     y1 = _sections[start]->y_offset;
   else if(start > 0)
     y1 = _sections[start-1]->y_offset + _sections[start-1]->extents().height();
-  
+    
   float y2 = y1;
   
   if(end < _sections.length())
     y2 = _sections[end]->y_offset;
   else if(end > 0)
     y2 = _sections[end-1]->y_offset + _sections[end-1]->extents().height();
-  
+    
   return request_repaint(0, y1, _extents.width, y2 - y1);
   
 }
 
-void SectionList::init_section_bracket_sizes(Context *context){
+void SectionList::init_section_bracket_sizes(Context *context) {
   float dx = 1;
   float dy = 0;
   
   context->canvas->user_to_device_dist(&dx, &dy);
-  float pix = 1/sqrt(dx * dx + dy * dy);
+  float pix = 1 / sqrt(dx * dx + dy * dy);
   
   section_bracket_width        = 8 * pix;
   section_bracket_right_margin = 2 * pix;
 }
 
-void SectionList::resize_section(Context *context, int i){
+void SectionList::resize_section(Context *context, int i) {
   float old_w = context->width;
   
-  if(border_visible){
-    context->width-= section_bracket_right_margin + section_bracket_width * _group_info[i].nesting;
+  if(border_visible) {
+    context->width -= section_bracket_right_margin + section_bracket_width * _group_info[i].nesting;
   }
   
   _sections[i]->resize(context);
@@ -627,13 +627,13 @@ void SectionList::resize_section(Context *context, int i){
   context->width = old_w;
 }
 
-void SectionList::paint_section(Context *context, int i, float scrollx){
+void SectionList::paint_section(Context *context, int i, float scrollx) {
   float old_w = context->width;
   _scrollx = scrollx;
   
   if(border_visible)
-    context->width-= section_bracket_right_margin + section_bracket_width * _group_info[i].nesting;
-  
+    context->width -= section_bracket_right_margin + section_bracket_width * _group_info[i].nesting;
+    
   if(_sections[i]->must_resize)
     _sections[i]->resize(context);
     
@@ -641,12 +641,12 @@ void SectionList::paint_section(Context *context, int i, float scrollx){
   
   if(!_sections[i]->visible)
     return;
-  
+    
   float x, y;
   context->canvas->current_pos(&x, &y);
   
   float w = context->width;
-  if(w == HUGE_VAL){
+  if(w == HUGE_VAL) {
     w = _window_width;
   }
   
@@ -659,7 +659,7 @@ void SectionList::paint_section(Context *context, int i, float scrollx){
       y + _sections[i]->extents().descent,
       false);
     context->canvas->clip();
-      
+    
     context->canvas->move_to(x, y);
     
     Expr expr;
@@ -673,32 +673,32 @@ void SectionList::paint_section(Context *context, int i, float scrollx){
   context->canvas->move_to(x, y + _sections[i]->extents().height());
 }
 
-void SectionList::paint_section_brackets(Context *context, int i, float right, float top){
-  if(border_visible){
+void SectionList::paint_section_brackets(Context *context, int i, float right, float top) {
+  if(border_visible) {
     int style = BorderDefault;
     
     if(_sections[i]->evaluating)
       style = style + BorderEval;
-    
+      
     if(_sections[i]->dialog_start)
       style = style + BorderSession;
-    
+      
     if(!_sections[i]->get_style(Editable))
       style = style + BorderNoEditable;
-    
+      
     if(dynamic_cast<TextSection*>(_sections[i]))
       style = style + BorderText;
-    
+      
     if(_sections[i]->get_style(SectionGenerated))
       style = style + BorderOutput;
       
     if(_sections[i]->get_style(BaseStyleName).equals("Input"))
       style = style + BorderInput;
-    
+      
     float x1 = right
-      - section_bracket_right_margin 
-      - section_bracket_width * _group_info[i].nesting;
-    
+               - section_bracket_right_margin
+               - section_bracket_width * _group_info[i].nesting;
+               
     float x2 = x1 + section_bracket_width;
     float y1 = top + _sections[i]->top_margin;
     float y2 = top + _sections[i]->extents().height() - _sections[i]->bottom_margin;
@@ -708,14 +708,14 @@ void SectionList::paint_section_brackets(Context *context, int i, float right, f
     
     int sel_depth = -1;
     if(context->selection.get() == this
-    && context->selection.start <= i
-    && context->selection.end > i){
+        && context->selection.start <= i
+        && context->selection.end > i) {
       int start = i;
       if(_group_info[i].end > i)
         ++sel_depth;
         
       while(start >= context->selection.start
-      && _group_info[start].end < context->selection.end){
+            && _group_info[start].end < context->selection.end) {
         ++sel_depth;
         start = _group_info[start].first;
       }
@@ -723,8 +723,8 @@ void SectionList::paint_section_brackets(Context *context, int i, float right, f
     
     if(_sections[i]->get_style(ShowSectionBracket))
       paint_single_section_bracket(context, x1, y1, x2, y2, style);
-    
-    if(sel_depth-- == 0){
+      
+    if(sel_depth-- == 0) {
       context->canvas->pixrect(x1, sel_y1, x2, sel_y2, false);
       context->draw_selection_path();
     }
@@ -734,54 +734,54 @@ void SectionList::paint_section_brackets(Context *context, int i, float right, f
     
     style = BorderDefault;
     int start = i;
-    while(start >= 0){
+    while(start >= 0) {
       int end = _group_info[start].end;
       
-      if(start < end){
+      if(start < end) {
         float pixel = section_bracket_width / 8;
         x1 = x2;
         x2 = x1 + section_bracket_width;
-        x1+= pixel;
+        x1 += pixel;
         
-        if(_group_info[start].close_rel + start == s){
+        if(_group_info[start].close_rel + start == s) {
           if(start < s)
             style |= BorderTopArrow;
-          
+            
           if(end > e)
             style |= BorderBottomArrow;
-          
+            
           s = start;
           e = end;
         }
         
-        if(start < s && !(style & BorderTopArrow)){
+        if(start < s && !(style & BorderTopArrow)) {
           y1 = sel_y1 = top;
           style |= BorderNoTop;
         }
         
-        if(end > e && !(style & BorderBottomArrow)){
+        if(end > e && !(style & BorderBottomArrow)) {
           y2 = sel_y2 = top + _sections[i]->extents().height();
           style |= BorderNoBottom;
         }
         
         if(_sections[start]->get_style(ShowSectionBracket))
           paint_single_section_bracket(context, x1, y1, x2, y2, style);
-        
+          
         style = style & ~BorderTopArrow;
         style = style & ~BorderBottomArrow;
         
-        if(sel_depth-- == 0){
+        if(sel_depth-- == 0) {
           context->canvas->save();
-          if((style & BorderNoTop) || (style & BorderNoBottom)){
+          if((style & BorderNoTop) || (style & BorderNoBottom)) {
             float clip_top    = sel_y1;
             float clip_bottom = sel_y2;
             
             if((style & BorderNoTop) == 0)
-              clip_top-= pixel;
+              clip_top -= pixel;
               
             if((style & BorderNoBottom) == 0)
-              clip_bottom+= pixel;
-            
+              clip_bottom += pixel;
+              
             context->canvas->pixrect(x1 - pixel, clip_top, x2 + pixel, clip_bottom, false);
             context->canvas->clip();
           }
@@ -804,10 +804,10 @@ void SectionList::paint_single_section_bracket(
   float    x2,
   float    y2,
   int      style  // int BorderXXX constants
-){
-  float px1 = x1 + 0.2 * (x2-x1);
+) {
+  float px1 = x1 + 0.2 * (x2 - x1);
   float py1 = y1;
-  float px2 = x1 + 0.8 * (x2-x1);
+  float px2 = x1 + 0.8 * (x2 - x1);
   float py2 = y1;
   float px3 = px2;
   float py3 = y2 - 0.75;
@@ -823,7 +823,7 @@ void SectionList::paint_single_section_bracket(
   int c = context->canvas->get_color();
   {
     cairo_set_line_width(context->canvas->cairo(), 1);
-    cairo_set_line_cap( context->canvas->cairo(), CAIRO_LINE_CAP_SQUARE);
+    cairo_set_line_cap(context->canvas->cairo(), CAIRO_LINE_CAP_SQUARE);
     cairo_set_line_join(context->canvas->cairo(), CAIRO_LINE_JOIN_MITER);
     
     context->canvas->user_to_device(&px1, &py1);
@@ -837,12 +837,12 @@ void SectionList::paint_single_section_bracket(
     float picy = 1;
     
     float hyp = sqrt(pdxx * pdxx + pdxy * pdxy);
-    pdxx/= hyp;
-    pdxy/= hyp;
+    pdxx /= hyp;
+    pdxy /= hyp;
     
     hyp = sqrt(pdyx * pdyx + pdyy * pdyy);
-    pdyx/= hyp;
-    pdyy/= hyp;
+    pdyx /= hyp;
+    pdyy /= hyp;
     
     px1 = ceilf(px1) - 0.5f;   py1 = ceilf(py1) - 0.5f;
     px2 = ceilf(px2) - 0.5f;   py2 = ceilf(py2) - 0.5f;
@@ -852,42 +852,42 @@ void SectionList::paint_single_section_bracket(
 //    context->canvas->align_point(&px2, &py2, true);
 //    context->canvas->align_point(&px3, &py3, true);
 //    context->canvas->align_point(&px4, &py4, true);
-    
+
     cairo_matrix_t mat;
     cairo_matrix_init_identity(&mat);
     cairo_set_matrix(context->canvas->cairo(), &mat);
     
     int col = 0x999999; // 0x454E99
     context->canvas->set_color(col);
-    if(style & BorderTopArrow){
+    if(style & BorderTopArrow) {
       context->canvas->move_to(px2, py2);
-      context->canvas->line_to(px1, py1 + (px2-px1));
-      context->canvas->line_to(px2, py2 + (px2-px1));
+      context->canvas->line_to(px1, py1 + (px2 - px1));
+      context->canvas->line_to(px2, py2 + (px2 - px1));
       context->canvas->close_path();
       context->canvas->fill_preserve();
       context->canvas->stroke();
-      style|= BorderNoTop;
+      style |= BorderNoTop;
     }
     
-    if(style & BorderBottomArrow){
+    if(style & BorderBottomArrow) {
       context->canvas->move_to(px3, py3);
-      context->canvas->line_to(px4, py4 - (px2-px1));
-      context->canvas->line_to(px3, py3 - (px2-px1));
+      context->canvas->line_to(px4, py4 - (px2 - px1));
+      context->canvas->line_to(px3, py3 - (px2 - px1));
       context->canvas->close_path();
       context->canvas->fill_preserve();
       context->canvas->stroke();
-      style|= BorderNoBottom;
+      style |= BorderNoBottom;
     }
     
-    if(style & BorderNoTop){
+    if(style & BorderNoTop) {
       context->canvas->move_to(px2, py2);
     }
-    else{
-      if(style & BorderNoEditable){
+    else {
+      if(style & BorderNoEditable) {
         context->canvas->move_to(px1 + pdyx, py1 + pdyy);
         context->canvas->line_to(px2 + pdyx, py2 + pdyy);
         
-        picy+= 1;
+        picy += 1;
       }
       
       context->canvas->move_to(px1, py1);
@@ -896,18 +896,18 @@ void SectionList::paint_single_section_bracket(
     
     context->canvas->line_to(px3, py3);
     
-    if(!(style & BorderNoBottom)){
+    if(!(style & BorderNoBottom)) {
       context->canvas->line_to(px4, py4);
     }
     
-    if(style & BorderSession){
+    if(style & BorderSession) {
       double dashes[2] = {
-       1.0,  /* ink */
-       1.0   /* skip*/
+        1.0,  /* ink */
+        1.0   /* skip*/
       };
       
-      cairo_set_dash(      context->canvas->cairo(), dashes, 2, 0.5);
-      cairo_set_line_cap(  context->canvas->cairo(), CAIRO_LINE_CAP_BUTT);
+      cairo_set_dash(context->canvas->cairo(), dashes, 2, 0.5);
+      cairo_set_line_cap(context->canvas->cairo(), CAIRO_LINE_CAP_BUTT);
       cairo_set_line_width(context->canvas->cairo(), 3.0);
       
       context->canvas->set_color(0x000000);
@@ -915,7 +915,7 @@ void SectionList::paint_single_section_bracket(
       
       cairo_set_dash(context->canvas->cairo(), NULL, 0, 0.0);
     }
-    else if(style & BorderEval){
+    else if(style & BorderEval) {
       cairo_set_line_width(context->canvas->cairo(), 3.0);
       
       context->canvas->set_color(0x000000);
@@ -928,20 +928,20 @@ void SectionList::paint_single_section_bracket(
     context->canvas->set_color(col);
     context->canvas->stroke();
     
-    if(style & BorderInput){
-      float cx = px2 + (picy+1) * pdyx - 3 * pdxx;
-      float cy = py2 + (picy+1) * pdyy - 3 * pdxy;
+    if(style & BorderInput) {
+      float cx = px2 + (picy + 1) * pdyx - 3 * pdxx;
+      float cy = py2 + (picy + 1) * pdyy - 3 * pdxy;
       
       context->canvas->move_to(cx, cy);
       context->canvas->line_to(cx + 3 * pdyx, cy + 3 * pdyy);
       context->canvas->stroke();
       
-      picy+= 5;
+      picy += 5;
     }
     
-    if(style & BorderText){
-      float cx = px2 + (picy+1) * pdyx - 3 * pdxx;
-      float cy = py2 + (picy+1) * pdyy - 3 * pdxy;
+    if(style & BorderText) {
+      float cx = px2 + (picy + 1) * pdyx - 3 * pdxx;
+      float cy = py2 + (picy + 1) * pdyy - 3 * pdxy;
       
       context->canvas->move_to(cx, cy);
       context->canvas->line_to(cx + 3 * pdyx, cy + 3 * pdyy);
@@ -950,17 +950,17 @@ void SectionList::paint_single_section_bracket(
       
       context->canvas->stroke();
       
-      picy+= 5;
+      picy += 5;
     }
     
-    if(style & BorderOutput){
-      float cx = px2 + (picy+2) * pdyx - 3 * pdxx;
-      float cy = py2 + (picy+2) * pdyy - 3 * pdxy;
+    if(style & BorderOutput) {
+      float cx = px2 + (picy + 2) * pdyx - 3 * pdxx;
+      float cy = py2 + (picy + 2) * pdyy - 3 * pdxy;
       
       context->canvas->arc(cx, cy, 1, 0, 2 * M_PI, false);
       context->canvas->stroke();
       
-      picy+= 4;
+      picy += 4;
     }
   }
   context->canvas->set_color(c);

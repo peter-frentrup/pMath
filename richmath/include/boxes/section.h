@@ -4,7 +4,8 @@
 #include <boxes/box.h>
 #include <util/array.h>
 
-namespace richmath{
+
+namespace richmath {
   class MathSequence;
   class TextSequence;
   
@@ -15,7 +16,7 @@ namespace richmath{
       
       static Section *create_from_object(const Expr object);
       
-      const String label(){ return get_style(SectionLabel); } // { return style->section_label; }
+      const String label() { return get_style(SectionLabel); } // { return style->section_label; }
       void label(const String str);
       
       float label_width();
@@ -23,12 +24,12 @@ namespace richmath{
       void paint_label(Context *context);
       
       virtual Box *move_vertical(
-        LogicalDirection  direction, 
+        LogicalDirection  direction,
         float            *index_rel_x,
         int              *index);
         
-      virtual bool exitable(){ return false; }
-      virtual bool remove_inserts_placeholder(){ return false; }
+      virtual bool exitable() { return false; }
+      virtual bool remove_inserts_placeholder() { return false; }
       
       virtual bool selectable(int i = -1);
       
@@ -37,7 +38,7 @@ namespace richmath{
       virtual void invalidate();
       virtual bool edit_selection(Context *context);
       
-      virtual bool changes_children_style(){ return true; }
+      virtual bool changes_children_style() { return true; }
       
     public:
       float y_offset;
@@ -58,16 +59,16 @@ namespace richmath{
     public:
       ErrorSection(const Expr object);
       
-      virtual Box *item(int i){ return 0; }
-      virtual int count(){ return 0; }
+      virtual Box *item(int i) { return 0; }
+      virtual int count() { return 0; }
       
       virtual void resize(Context *context);
       virtual void paint(Context *context);
       
-      virtual Box *remove(int *index){ return this; }
+      virtual Box *remove(int *index) { return this; }
       
-      virtual Expr to_pmath_symbol(){ return Expr(); }
-      virtual Expr to_pmath(int flags){ return _object; }
+      virtual Expr to_pmath_symbol() { return Expr(); }
+      virtual Expr to_pmath(int flags) { return _object; }
       
       virtual Box *mouse_selection(
         float  x,
@@ -86,18 +87,18 @@ namespace richmath{
       virtual ~AbstractSequenceSection();
       
       virtual Box *item(int i);
-      virtual int count(){ return 1; }
+      virtual int count() { return 1; }
       
       virtual void resize(Context *context);
       virtual void paint(Context *context);
       
       virtual Box *remove(int *index);
       
-      virtual Expr to_pmath_symbol(){ return Symbol(PMATH_SYMBOL_SECTION); }
+      virtual Expr to_pmath_symbol() { return Symbol(PMATH_SYMBOL_SECTION); }
       virtual Expr to_pmath(int flags);
       
       virtual Box *move_vertical(
-        LogicalDirection  direction, 
+        LogicalDirection  direction,
         float            *index_rel_x,
         int              *index);
         
@@ -111,7 +112,7 @@ namespace richmath{
       virtual void child_transformation(
         int             index,
         cairo_matrix_t *matrix);
-      
+        
     protected:
       AbstractSequence *_content; // TextSequence or MathSequence
       float cx, cy;
@@ -121,14 +122,14 @@ namespace richmath{
     public:
       explicit MathSection(SharedPtr<Style> style);
       
-      MathSequence *content(){ return (MathSequence*)_content; }
+      MathSequence *content() { return (MathSequence*)_content; }
   };
   
   class TextSection: public AbstractSequenceSection {
     public:
       explicit TextSection(SharedPtr<Style> style);
       
-      TextSection *content(){ return (TextSection*)_content; }
+      TextSection *content() { return (TextSection*)_content; }
   };
   
   class EditSection: public MathSection {
@@ -136,7 +137,7 @@ namespace richmath{
       EditSection();
       virtual ~EditSection();
       
-      virtual Expr to_pmath_symbol(){ return Expr(); }
+      virtual Expr to_pmath_symbol() { return Expr(); }
       virtual Expr to_pmath(int flags);
       
     public:

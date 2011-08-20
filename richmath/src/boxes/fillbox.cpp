@@ -10,21 +10,21 @@ using namespace richmath;
 //{ class FillBox ...
 
 FillBox::FillBox(MathSequence *content, float _weight)
-: OwnerBox(content),
+  : OwnerBox(content),
   weight(_weight)
 {
 }
 
-FillBox::~FillBox(){
+FillBox::~FillBox() {
 }
 
-FillBox *FillBox::create(Expr expr, int opts){
+FillBox *FillBox::create(Expr expr, int opts) {
   if(!expr.is_expr())
     return 0;
-  
+    
   if(expr.expr_length() < 1 || expr.expr_length() > 2)
     return 0;
-  
+    
   FillBox *result = new FillBox();
   result->_content->load_from_object(expr[1], opts);
   result->weight = expr[2].to_double(1.0);
@@ -32,55 +32,55 @@ FillBox *FillBox::create(Expr expr, int opts){
   return result;
 }
 
-bool FillBox::expand(const BoxSize &size){
+bool FillBox::expand(const BoxSize &size) {
   _content->expand(size);
   _extents = size;
   cx = 0;
   return true;
 }
 
-void FillBox::paint_content(Context *context){
-  if(_content->extents().width > 0){
+void FillBox::paint_content(Context *context) {
+  if(_content->extents().width > 0) {
     float x, y;
     context->canvas->current_pos(&x, &y);
     
 //    context->canvas->rel_move_to(cx, cy);
-    
+
     int i = (int)(_extents.width / _content->extents().width);
     
-    while(i-- > 0){
+    while(i-- > 0) {
       context->canvas->move_to(x, y);
       
       _content->paint(context);
       
-      x+= _content->extents().width;
+      x += _content->extents().width;
     }
   }
 }
 
-Expr FillBox::to_pmath(int flags){
+Expr FillBox::to_pmath(int flags) {
   if(flags & BoxFlagParseable)
     return _content->to_pmath(flags);
-  
-  if(weight == 1){
+    
+  if(weight == 1) {
     return Call(
-      Symbol(PMATH_SYMBOL_FILLBOX),
-      _content->to_pmath(flags));
+             Symbol(PMATH_SYMBOL_FILLBOX),
+             _content->to_pmath(flags));
   }
-
+  
   return Call(
-    Symbol(PMATH_SYMBOL_FILLBOX),
-    _content->to_pmath(flags),
-    Number(weight));
+           Symbol(PMATH_SYMBOL_FILLBOX),
+           _content->to_pmath(flags),
+           Number(weight));
 }
 
 Box *FillBox::move_vertical(
-  LogicalDirection  direction, 
+  LogicalDirection  direction,
   float            *index_rel_x,
   int              *index
-){
-  if(_content->extents().width > 0 && *index < 0){
-    *index_rel_x-= cx;
+) {
+  if(_content->extents().width > 0 && *index < 0) {
+    *index_rel_x -= cx;
     *index_rel_x = fmodf(*index_rel_x, _content->extents().width);
     return _content->move_vertical(direction, index_rel_x, index);
   }
@@ -94,11 +94,11 @@ Box *FillBox::mouse_selection(
   int   *start,
   int   *end,
   bool  *was_inside_start
-){
-  x-= cx;
-  y-= cy;
+) {
+  x -= cx;
+  y -= cy;
   
-  if(_content->extents().width > 0){
+  if(_content->extents().width > 0) {
     x = fmodf(x, _content->extents().width);
   }
   return _content->mouse_selection(x, y, start, end, was_inside_start);

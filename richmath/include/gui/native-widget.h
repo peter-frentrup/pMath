@@ -5,14 +5,15 @@
 
 #include <gui/control-painter.h>
 
-namespace richmath{
+
+namespace richmath {
   class Box;
   class Context;
   class Document;
   class SelectionReference;
   class TimedEvent;
   
-  typedef enum{
+  typedef enum {
     FingerCursor   = -3,
     CurrentCursor  = -2,
     DefaultCursor  = -1,
@@ -27,9 +28,9 @@ namespace richmath{
     SectionCursor  = 109,
     DocumentCursor = 110,
     NoSelectCursor = 111
-  }CursorType;
+  } CursorType;
   
-  class NativeWidget: public virtual Base{
+  class NativeWidget: public virtual Base {
     public:
       explicit NativeWidget(Document *doc);
       virtual ~NativeWidget();
@@ -55,12 +56,12 @@ namespace richmath{
       virtual void double_click_dist(float *dx, float *dy) = 0;
       virtual void do_drag_drop(Box *src, int start, int end) = 0;
       virtual bool cursor_position(float *x, float *y) = 0;
-      virtual bool may_drop_into(Box* dst, int strt, int end, bool self_is_source);
+      virtual bool may_drop_into(Box *dst, int strt, int end, bool self_is_source);
       
       virtual void bring_to_front() = 0;
       virtual void close() = 0;
       virtual void invalidate() = 0;
-      virtual void invalidate_rect(float x, float y, float w, float h){ invalidate(); }
+      virtual void invalidate_rect(float x, float y, float w, float h) { invalidate(); }
       virtual void force_redraw() = 0;
       
       virtual void set_cursor(CursorType type) = 0;
@@ -74,8 +75,8 @@ namespace richmath{
       
       virtual bool register_timed_event(SharedPtr<TimedEvent> event) = 0;
       
-      Document *document(){ return _document; }
-      float scale_factor(){ return _scale_factor; }
+      Document *document() { return _document; }
+      float scale_factor() { return _scale_factor; }
       
     public:
       static NativeWidget *dummy;
@@ -86,16 +87,16 @@ namespace richmath{
       Context *document_context();
       
       SelectionReference &drag_source_reference();
-    
+      
     protected:
       float _scale_factor;
-    
+      
     private:
       Document *_document;
   };
-
-  static const float ScaleDefault = 4/3.f;
-  static const float ScaleMin     = 1/4.f;
+  
+  static const float ScaleDefault = 4 / 3.f;
+  static const float ScaleMin     = 1 / 4.f;
   static const float ScaleMax     = 32.f;
 }
 

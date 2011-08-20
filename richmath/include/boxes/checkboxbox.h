@@ -4,14 +4,15 @@
 #include <boxes/emptywidgetbox.h>
 #include <eval/dynamic.h>
 
-namespace richmath{
-  class CheckboxBox: public EmptyWidgetBox{
+
+namespace richmath {
+  class CheckboxBox: public EmptyWidgetBox {
     public:
       static CheckboxBox *create(Expr expr);
       
       virtual void paint(Context *context);
       
-      virtual Expr to_pmath_symbol(){ return Symbol(PMATH_SYMBOL_CHECKBOXBOX); }
+      virtual Expr to_pmath_symbol() { return Symbol(PMATH_SYMBOL_CHECKBOXBOX); }
       virtual Expr to_pmath(int flags);
       
       virtual void dynamic_finished(Expr info, Expr result);
@@ -23,7 +24,7 @@ namespace richmath{
       CheckboxBox();
       
       ContainerType calc_type(Expr result);
-    
+      
     protected:
       Dynamic dynamic;
       Expr    values;

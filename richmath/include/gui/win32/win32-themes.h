@@ -2,16 +2,17 @@
 #define __GUI__WIN32__WIN32_THEMES_H__
 
 #ifndef RICHMATH_USE_WIN32_GUI
-  #error this header is win32 specific
+#error this header is win32 specific
 #endif
 
 #include <windows.h>
 
 #include <util/base.h>
 
-namespace richmath{
-/* (optional) XP Theming API and Vista DWM API */
-  class Win32Themes: public Base{
+
+namespace richmath {
+  /* (optional) XP Theming API and Vista DWM API */
+  class Win32Themes: public Base {
     public:
       typedef struct _MARGINS {
         int cxLeftWidth;
@@ -22,7 +23,7 @@ namespace richmath{
       
       typedef ULONGLONG DWM_FRAME_COUNT;
       typedef ULONGLONG QPC_TIME;
-
+      
       typedef struct _UNSIGNED_RATIO {
         UINT32 uiNumerator;
         UINT32 uiDenominator;
@@ -83,18 +84,18 @@ namespace richmath{
         ULONGLONG cPixelsDrawn;
         DWM_FRAME_COUNT cBuffersEmpty;
       } DWM_TIMING_INFO;
-
-      typedef enum _BP_BUFFERFORMAT{
+      
+      typedef enum _BP_BUFFERFORMAT {
         BPBF_COMPATIBLEBITMAP,
         BPBF_DIB,
         BPBF_TOPDOWNDIB,
         BPBF_TOPDOWNMONODIB,
       } BP_BUFFERFORMAT;
-
-      typedef struct _BP_PAINTPARAMS{
+      
+      typedef struct _BP_PAINTPARAMS {
         DWORD                cbSize;
         DWORD                dwFlags;
-        const RECT *         prcExclude;
+        const RECT          *prcExclude;
         const BLENDFUNCTION *pBlendFunction;
       } BP_PAINTPARAMS, *PBP_PAINTPARAMS;
       
@@ -111,7 +112,7 @@ namespace richmath{
         TS_DRAW
       } THEME_SIZE;
       
-      typedef int (WINAPI *DTT_CALLBACK_PROC)(HDC,LPWSTR,int,LPRECT,UINT,LPARAM);
+      typedef int (WINAPI *DTT_CALLBACK_PROC)(HDC, LPWSTR, int, LPRECT, UINT, LPARAM);
       
       typedef struct _DTTOPTS {
         DWORD dwSize;
@@ -131,71 +132,71 @@ namespace richmath{
         LPARAM lParam;
       } DTTOPTS, *PDTTOPTS;
       
-      #ifndef DTT_VALIDBITS
-        #define DTT_TEXTCOLOR       (1UL << 0) 
-        #define DTT_BORDERCOLOR     (1UL << 1) 
-        #define DTT_SHADOWCOLOR     (1UL << 2) 
-        #define DTT_SHADOWTYPE      (1UL << 3) 
-        #define DTT_SHADOWOFFSET    (1UL << 4) 
-        #define DTT_BORDERSIZE      (1UL << 5) 
-        #define DTT_FONTPROP        (1UL << 6) 
-        #define DTT_COLORPROP       (1UL << 7) 
-        #define DTT_STATEID         (1UL << 8) 
-        #define DTT_CALCRECT        (1UL << 9) 
-        #define DTT_APPLYOVERLAY    (1UL << 10)
-        #define DTT_GLOWSIZE        (1UL << 11)
-        #define DTT_CALLBACK        (1UL << 12)
-        #define DTT_COMPOSITED      (1UL << 13)
-        #define DTT_VALIDBITS       (DTT_TEXTCOLOR | \
-                                     DTT_BORDERCOLOR | \
-                                     DTT_SHADOWCOLOR | \
-                                     DTT_SHADOWTYPE | \
-                                     DTT_SHADOWOFFSET | \
-                                     DTT_BORDERSIZE | \
-                                     DTT_FONTPROP | \
-                                     DTT_COLORPROP | \
-                                     DTT_STATEID | \
-                                     DTT_CALCRECT | \
-                                     DTT_APPLYOVERLAY | \
-                                     DTT_GLOWSIZE | \
-                                     DTT_COMPOSITED)
-      #endif
-    
-    public:
-      static HRESULT (WINAPI *DwmEnableComposition)(UINT);
-      static HRESULT (WINAPI *DwmExtendFrameIntoClientArea)(HWND,const MARGINS*);
-      static HRESULT (WINAPI *DwmSetWindowAttribute)(HWND,DWORD,LPCVOID,DWORD);
-      static HRESULT (WINAPI *DwmGetCompositionTimingInfo)(HWND,DWM_TIMING_INFO*);
-      static HRESULT (WINAPI *DwmDefWindowProc)(HWND,UINT,WPARAM,LPARAM,LRESULT*);
-
-      static HANDLE (WINAPI *OpenThemeData)(HWND,LPCWSTR);
-      static HRESULT (WINAPI *CloseThemeData)(HANDLE);
-      static HRESULT (WINAPI *DrawThemeBackground)(HANDLE,HDC,int,int,const RECT*,const RECT*);
-      static HRESULT (WINAPI *DrawThemeEdge)(HANDLE,HDC,int,int,LPCRECT,UINT,UINT,LPRECT);
-      static HRESULT (WINAPI *DrawThemeTextEx)(HANDLE,HDC,int,int,LPCWSTR,int,DWORD,LPRECT,const DTTOPTS*);
-      static HRESULT (WINAPI *GetThemeSysFont)(HANDLE,int,LOGFONTW*);
-      static COLORREF (WINAPI *GetThemeSysColor)(HANDLE,int);
-      static HRESULT (WINAPI *GetThemeBackgroundExtent)(HANDLE,HDC,int,int,LPCRECT,LPRECT);
-      static HRESULT (WINAPI *GetThemeBackgroundContentRect)(HANDLE,HDC hdc,int,int,LPCRECT,LPRECT);
-      static HRESULT (WINAPI *GetThemeBool)(HANDLE,int,int,int,BOOL*);
-      static HRESULT (WINAPI *GetThemeColor)(HANDLE,int,int,int,COLORREF*);
-      static HRESULT (WINAPI *GetThemeMargins)(HANDLE,HDC,int,int,int,LPRECT,MARGINS*);
-      static HRESULT (WINAPI *GetThemeMetric)(HANDLE,HDC,int,int,int,int*);
-      static HRESULT (WINAPI *GetThemeInt)(HANDLE,int,int,int,int*);
-      static HRESULT (WINAPI *GetThemeIntList)(HANDLE,int,int,int,INTLIST*);
-      static HRESULT (WINAPI *GetThemePartSize)(HANDLE hTheme,HDC,int,int,LPCRECT,THEME_SIZE,SIZE*);
-      static HRESULT (WINAPI *GetThemePosition)(HANDLE,int,int,int,POINT*);
-      static HRESULT (WINAPI *GetThemeTransitionDuration)(HANDLE,int,int,int,int,DWORD*);
-      static HRESULT (WINAPI *GetCurrentThemeName)(LPWSTR,int,LPWSTR,int,LPWSTR,int);
-      static BOOL (WINAPI *IsThemePartDefined)(HANDLE,int,int);
-      static int (WINAPI *GetThemeSysSize)(HANDLE,int);
-      static HRESULT (WINAPI *SetWindowTheme)(HWND,LPCWSTR,LPCWSTR);
+#ifndef DTT_VALIDBITS
+#define DTT_TEXTCOLOR       (1UL << 0)
+#define DTT_BORDERCOLOR     (1UL << 1)
+#define DTT_SHADOWCOLOR     (1UL << 2)
+#define DTT_SHADOWTYPE      (1UL << 3)
+#define DTT_SHADOWOFFSET    (1UL << 4)
+#define DTT_BORDERSIZE      (1UL << 5)
+#define DTT_FONTPROP        (1UL << 6)
+#define DTT_COLORPROP       (1UL << 7)
+#define DTT_STATEID         (1UL << 8)
+#define DTT_CALCRECT        (1UL << 9)
+#define DTT_APPLYOVERLAY    (1UL << 10)
+#define DTT_GLOWSIZE        (1UL << 11)
+#define DTT_CALLBACK        (1UL << 12)
+#define DTT_COMPOSITED      (1UL << 13)
+#define DTT_VALIDBITS       (DTT_TEXTCOLOR | \
+                             DTT_BORDERCOLOR | \
+                             DTT_SHADOWCOLOR | \
+                             DTT_SHADOWTYPE | \
+                             DTT_SHADOWOFFSET | \
+                             DTT_BORDERSIZE | \
+                             DTT_FONTPROP | \
+                             DTT_COLORPROP | \
+                             DTT_STATEID | \
+                             DTT_CALCRECT | \
+                             DTT_APPLYOVERLAY | \
+                             DTT_GLOWSIZE | \
+                             DTT_COMPOSITED)
+#endif
       
-      static HRESULT (WINAPI *BufferedPaintInit)(void);
-      static HRESULT (WINAPI *BufferedPaintUnInit)(void);
-      static HRESULT (WINAPI *BufferedPaintStopAllAnimations)(HWND);
-      static HANDLE (WINAPI *BeginBufferedPaint)(HDC,const RECT*,BP_BUFFERFORMAT,BP_PAINTPARAMS*,HDC*);
-      static HANDLE (WINAPI *EndBufferedPaint)(HANDLE,BOOL);
+    public:
+      static HRESULT(WINAPI *DwmEnableComposition)(UINT);
+      static HRESULT(WINAPI *DwmExtendFrameIntoClientArea)(HWND, const MARGINS*);
+      static HRESULT(WINAPI *DwmSetWindowAttribute)(HWND, DWORD, LPCVOID, DWORD);
+      static HRESULT(WINAPI *DwmGetCompositionTimingInfo)(HWND, DWM_TIMING_INFO*);
+      static HRESULT(WINAPI *DwmDefWindowProc)(HWND, UINT, WPARAM, LPARAM, LRESULT*);
+      
+      static HANDLE(WINAPI *OpenThemeData)(HWND, LPCWSTR);
+      static HRESULT(WINAPI *CloseThemeData)(HANDLE);
+      static HRESULT(WINAPI *DrawThemeBackground)(HANDLE, HDC, int, int, const RECT*, const RECT*);
+      static HRESULT(WINAPI *DrawThemeEdge)(HANDLE, HDC, int, int, LPCRECT, UINT, UINT, LPRECT);
+      static HRESULT(WINAPI *DrawThemeTextEx)(HANDLE, HDC, int, int, LPCWSTR, int, DWORD, LPRECT, const DTTOPTS*);
+      static HRESULT(WINAPI *GetThemeSysFont)(HANDLE, int, LOGFONTW*);
+      static COLORREF(WINAPI *GetThemeSysColor)(HANDLE, int);
+      static HRESULT(WINAPI *GetThemeBackgroundExtent)(HANDLE, HDC, int, int, LPCRECT, LPRECT);
+      static HRESULT(WINAPI *GetThemeBackgroundContentRect)(HANDLE, HDC hdc, int, int, LPCRECT, LPRECT);
+      static HRESULT(WINAPI *GetThemeBool)(HANDLE, int, int, int, BOOL*);
+      static HRESULT(WINAPI *GetThemeColor)(HANDLE, int, int, int, COLORREF*);
+      static HRESULT(WINAPI *GetThemeMargins)(HANDLE, HDC, int, int, int, LPRECT, MARGINS*);
+      static HRESULT(WINAPI *GetThemeMetric)(HANDLE, HDC, int, int, int, int*);
+      static HRESULT(WINAPI *GetThemeInt)(HANDLE, int, int, int, int*);
+      static HRESULT(WINAPI *GetThemeIntList)(HANDLE, int, int, int, INTLIST*);
+      static HRESULT(WINAPI *GetThemePartSize)(HANDLE hTheme, HDC, int, int, LPCRECT, THEME_SIZE, SIZE*);
+      static HRESULT(WINAPI *GetThemePosition)(HANDLE, int, int, int, POINT*);
+      static HRESULT(WINAPI *GetThemeTransitionDuration)(HANDLE, int, int, int, int, DWORD*);
+      static HRESULT(WINAPI *GetCurrentThemeName)(LPWSTR, int, LPWSTR, int, LPWSTR, int);
+      static BOOL (WINAPI *IsThemePartDefined)(HANDLE, int, int);
+      static int (WINAPI *GetThemeSysSize)(HANDLE, int);
+      static HRESULT(WINAPI *SetWindowTheme)(HWND, LPCWSTR, LPCWSTR);
+      
+      static HRESULT(WINAPI *BufferedPaintInit)(void);
+      static HRESULT(WINAPI *BufferedPaintUnInit)(void);
+      static HRESULT(WINAPI *BufferedPaintStopAllAnimations)(HWND);
+      static HANDLE(WINAPI *BeginBufferedPaint)(HDC, const RECT*, BP_BUFFERFORMAT, BP_PAINTPARAMS*, HDC*);
+      static HANDLE(WINAPI *EndBufferedPaint)(HANDLE, BOOL);
       static BOOL (WINAPI *IsCompositionActive)(void);
       static BOOL (WINAPI *IsThemeActive)(void);
       
@@ -205,7 +206,7 @@ namespace richmath{
     private:
       static HMODULE dwmapi;
       static HMODULE uxtheme;
-    
+      
     protected:
       Win32Themes();
       ~Win32Themes();

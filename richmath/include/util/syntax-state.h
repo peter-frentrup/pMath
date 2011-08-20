@@ -5,23 +5,24 @@
 #include <util/pmath-extra.h>
 #include <util/sharedptr.h>
 
-namespace richmath{
-  typedef enum{
-    Error, 
+
+namespace richmath {
+  typedef enum {
+    Error,
     Global,
     LocalSymbol,
     Special,
     Parameter
   } SymbolKind;
   
-  typedef enum{
+  typedef enum {
     NoSpec,
     TableSpec,
     FunctionSpec,
     LocalSpec
   } LocalVariableForm;
   
-  class GeneralSyntaxInfo: public Shareable{
+  class GeneralSyntaxInfo: public Shareable {
     public:
       static SharedPtr<GeneralSyntaxInfo> std;
       
@@ -33,7 +34,7 @@ namespace richmath{
       int glyph_style_colors[256];
   };
   
-  class ScopePos: public Shareable{
+  class ScopePos: public Shareable {
     public:
       ScopePos(SharedPtr<ScopePos> super = 0);
       
@@ -43,10 +44,10 @@ namespace richmath{
       SharedPtr<ScopePos> _super;
   };
   
-  class SymbolInfo: public Shareable{
+  class SymbolInfo: public Shareable {
     public:
       SymbolInfo(
-        SymbolKind            _kind = LocalSymbol, 
+        SymbolKind            _kind = LocalSymbol,
         SharedPtr<ScopePos>   _pos = 0,
         SharedPtr<SymbolInfo> _next = 0);
       ~SymbolInfo();
@@ -59,7 +60,7 @@ namespace richmath{
       SharedPtr<SymbolInfo> next;
   };
   
-  class SyntaxInformation{
+  class SyntaxInformation {
     public:
       SyntaxInformation(Expr name);
       
@@ -72,14 +73,14 @@ namespace richmath{
       int locals_max;
   };
   
-  class SyntaxState: public Base{
+  class SyntaxState: public Base {
     public:
       SyntaxState();
       ~SyntaxState();
       
       void clear();
       
-      SharedPtr<ScopePos> new_scope(){
+      SharedPtr<ScopePos> new_scope() {
         return current_pos = new ScopePos(current_pos);
       }
       
@@ -89,10 +90,10 @@ namespace richmath{
       
       SharedPtr<ScopePos>  current_pos;
       
-      Hashtable<
-        String, 
-        SharedPtr<SymbolInfo>, 
-        object_hash>   local_symbols;
+      Hashtable <
+      String,
+      SharedPtr<SymbolInfo>,
+      object_hash >   local_symbols;
   };
 }
 

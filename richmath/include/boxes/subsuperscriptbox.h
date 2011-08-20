@@ -3,16 +3,17 @@
 
 #include <boxes/box.h>
 
-namespace richmath{
+
+namespace richmath {
   class MathSequence;
   
-  class SubsuperscriptBox: public Box{
+  class SubsuperscriptBox: public Box {
     public:
       SubsuperscriptBox(MathSequence *sub, MathSequence *super);
       virtual ~SubsuperscriptBox();
       
-      MathSequence *subscript(){   return _subscript; }
-      MathSequence *superscript(){ return _superscript; }
+      MathSequence *subscript() {   return _subscript; }
+      MathSequence *superscript() { return _superscript; }
       
       virtual Box *item(int i);
       virtual int count();
@@ -20,8 +21,8 @@ namespace richmath{
       virtual void resize(Context *context);
       virtual void stretch(Context *context, const BoxSize &base);
       virtual void adjust_x(
-        Context           *context, 
-        uint16_t           base_char, 
+        Context           *context,
+        uint16_t           base_char,
         const GlyphInfo   &base_info);
       virtual void paint(Context *context);
       
@@ -33,10 +34,10 @@ namespace richmath{
       virtual Expr to_pmath(int flags);
       
       virtual Box *move_vertical(
-        LogicalDirection  direction, 
+        LogicalDirection  direction,
         float            *index_rel_x,
         int              *index);
-      
+        
       virtual Box *mouse_selection(
         float x,
         float y,
@@ -47,7 +48,7 @@ namespace richmath{
       virtual void child_transformation(
         int             index,
         cairo_matrix_t *matrix);
-      
+        
     private:
       MathSequence *_subscript;
       MathSequence *_superscript;

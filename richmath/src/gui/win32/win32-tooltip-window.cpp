@@ -21,51 +21,51 @@ static const wchar_t win32_tooltip_class_name[] = L"RichmathWin32Tooltip";
 //{ class Win32TooltipWindow ...
 
 Win32TooltipWindow::Win32TooltipWindow()
-: Win32Widget(
-    new Document(), 
-    WS_EX_TOOLWINDOW, 
-    WS_POPUP | WS_CLIPCHILDREN | WS_DISABLED, 
-    0, 
-    0, 
-    100, 
-    100, 
+  : Win32Widget(
+    new Document(),
+    WS_EX_TOOLWINDOW,
+    WS_POPUP | WS_CLIPCHILDREN | WS_DISABLED,
+    0,
+    0,
+    100,
+    100,
     NULL)
 {
   init_tooltip_class();
   set_window_class_name(win32_tooltip_class_name);
 }
 
-void Win32TooltipWindow::after_construction(){
+void Win32TooltipWindow::after_construction() {
   Win32Widget::after_construction();
   
   if(!document()->style)
     document()->style = new Style;
   document()->style->set(Editable,            false);
   document()->style->set(Selectable,          false);
-  document()->select(0,0,0);
+  document()->select(0, 0, 0);
   
   document()->border_visible = false;
 }
 
-Win32TooltipWindow::~Win32TooltipWindow(){
+Win32TooltipWindow::~Win32TooltipWindow() {
   if(this == tooltip_window)
     tooltip_window = 0;
 }
 
-void Win32TooltipWindow::move_global_tooltip(){
+void Win32TooltipWindow::move_global_tooltip() {
   if(!tooltip_window || !IsWindowVisible(tooltip_window->_hwnd))
     return;
-  
+    
   tooltip_window->resize(true);
 }
 
-void Win32TooltipWindow::show_global_tooltip(Expr boxes){
-  if(!tooltip_window){
+void Win32TooltipWindow::show_global_tooltip(Expr boxes) {
+  if(!tooltip_window) {
     tooltip_window = new Win32TooltipWindow();
     tooltip_window->init();
   }
   
-  if(tooltip_window->_content_expr != boxes){
+  if(tooltip_window->_content_expr != boxes) {
     tooltip_window->_content_expr = boxes;
     
     Document *doc = tooltip_window->document();
@@ -78,11 +78,11 @@ void Win32TooltipWindow::show_global_tooltip(Expr boxes){
     style->set(SectionMarginRight,  0);
     style->set(SectionMarginBottom, 0);
     
-    boxes = Call(Symbol(PMATH_SYMBOL_BUTTONBOX), 
-      boxes, 
-      Rule(Symbol(PMATH_SYMBOL_BUTTONFRAME),
-      String("TooltipWindow")));
-    
+    boxes = Call(Symbol(PMATH_SYMBOL_BUTTONBOX),
+                 boxes,
+                 Rule(Symbol(PMATH_SYMBOL_BUTTONFRAME),
+                      String("TooltipWindow")));
+                      
     MathSection *section = new MathSection(style);
     section->content()->load_from_object(boxes, BoxOptionFormatNumbers);
     doc->insert(0, section);
@@ -90,32 +90,32 @@ void Win32TooltipWindow::show_global_tooltip(Expr boxes){
   
   if(!IsWindowVisible(tooltip_window->_hwnd))
     ShowWindow(tooltip_window->_hwnd, SW_SHOWNA);
-  
+    
   move_global_tooltip();
 }
 
-void Win32TooltipWindow::hide_global_tooltip(){
-  if(tooltip_window){
+void Win32TooltipWindow::hide_global_tooltip() {
+  if(tooltip_window) {
     ShowWindow(tooltip_window->_hwnd, SW_HIDE);
     tooltip_window->_content_expr = Expr(PMATH_UNDEFINED);
   }
 }
 
-void Win32TooltipWindow::delete_global_tooltip(){
+void Win32TooltipWindow::delete_global_tooltip() {
   if(tooltip_window)
     delete tooltip_window;
 }
 
-void Win32TooltipWindow::page_size(float *w, float *h){
+void Win32TooltipWindow::page_size(float *w, float *h) {
   Win32Widget::page_size(w, h);
   *w = HUGE_VAL;
 }
 
-void Win32TooltipWindow::resize(bool just_move){
-  if(!just_move){
+void Win32TooltipWindow::resize(bool just_move) {
+  if(!just_move) {
     if(Win32Themes::IsThemeActive
-    && Win32Themes::IsThemeActive()){
-      SetWindowRgn(_hwnd, CreateRoundRectRgn(0, 0, best_width+1, best_height+1, 4, 4), FALSE);
+        && Win32Themes::IsThemeActive()) {
+      SetWindowRgn(_hwnd, CreateRoundRectRgn(0, 0, best_width + 1, best_height + 1, 4, 4), FALSE);
     }
     else
       SetWindowRgn(_hwnd, NULL, FALSE);
@@ -134,49 +134,49 @@ void Win32TooltipWindow::resize(bool just_move){
   POINT pt;
   GetCursorPos(&pt);
   
-  if(pt.x + cx + best_width > moninfo.rcMonitor.right){
-    pt.x-= cx + best_width;
+  if(pt.x + cx + best_width > moninfo.rcMonitor.right) {
+    pt.x -= cx + best_width;
     
     if(pt.x < moninfo.rcMonitor.left)
-       pt.x = moninfo.rcMonitor.left;
+      pt.x = moninfo.rcMonitor.left;
   }
   else
-    pt.x+= cx;
-  
-  if(pt.y + cy + best_height > moninfo.rcMonitor.bottom){
-    pt.y-= cy + best_height;
+    pt.x += cx;
+    
+  if(pt.y + cy + best_height > moninfo.rcMonitor.bottom) {
+    pt.y -= cy + best_height;
     
     if(pt.y < moninfo.rcMonitor.top)
-       pt.y = moninfo.rcMonitor.top;
+      pt.y = moninfo.rcMonitor.top;
   }
   else
-    pt.y+= cy;
-  
-  SetWindowPos(_hwnd, 
-    HWND_TOPMOST, 
-    pt.x, 
-    pt.y, 
-    best_width, 
-    best_height,
-    just_move ? SWP_NOSIZE | SWP_NOACTIVATE : SWP_NOZORDER | SWP_NOACTIVATE);
+    pt.y += cy;
+    
+  SetWindowPos(_hwnd,
+               HWND_TOPMOST,
+               pt.x,
+               pt.y,
+               best_width,
+               best_height,
+               just_move ? SWP_NOSIZE | SWP_NOACTIVATE : SWP_NOZORDER | SWP_NOACTIVATE);
 }
 
-void Win32TooltipWindow::paint_background(Canvas *canvas){
+void Win32TooltipWindow::paint_background(Canvas *canvas) {
   Win32Widget::paint_background(canvas);
   
 //  RECT rect;
 //  GetClientRect(_hwnd, &rect);
-//  
+//
 //  ControlPainter::std->draw_container(
-//    canvas, 
-//    TooltipWindow, 
+//    canvas,
+//    TooltipWindow,
 //    Normal,
 //    0, 0,
 //    rect.right,
 //    rect.bottom);
 }
 
-void Win32TooltipWindow::paint_canvas(Canvas *canvas, bool resize_only){
+void Win32TooltipWindow::paint_canvas(Canvas *canvas, bool resize_only) {
   Win32Widget::paint_canvas(canvas, resize_only);
   
   int old_bh = best_height;
@@ -195,24 +195,24 @@ void Win32TooltipWindow::paint_canvas(Canvas *canvas, bool resize_only){
   GetWindowRect(_hwnd, &outer);
   GetClientRect(_hwnd, &inner);
   
-  best_width+=  outer.right  - outer.left - inner.right  + inner.left;
-  best_height+= outer.bottom - outer.top  - inner.bottom + inner.top;
+  best_width +=  outer.right  - outer.left - inner.right  + inner.left;
+  best_height += outer.bottom - outer.top  - inner.bottom + inner.top;
   
-  if(old_bw != best_width || old_bh != best_height){
+  if(old_bw != best_width || old_bh != best_height) {
     resize(false);
   }
 }
 
-LRESULT Win32TooltipWindow::callback(UINT message, WPARAM wParam, LPARAM lParam){
-  if(!initializing()){
-    switch(message){
+LRESULT Win32TooltipWindow::callback(UINT message, WPARAM wParam, LPARAM lParam) {
+  if(!initializing()) {
+    switch(message) {
       case WM_NCHITTEST:
         return HTNOWHERE;
-      
-      case WM_MOUSEACTIVATE: 
+        
+      case WM_MOUSEACTIVATE:
         return MA_NOACTIVATE;
-      
-      case WM_ACTIVATEAPP: 
+        
+      case WM_ACTIVATEAPP:
         if(!wParam)
           ShowWindow(_hwnd, SW_HIDE);
         break;
@@ -222,11 +222,11 @@ LRESULT Win32TooltipWindow::callback(UINT message, WPARAM wParam, LPARAM lParam)
   return Win32Widget::callback(message, wParam, lParam);
 }
 
-void Win32TooltipWindow::init_tooltip_class(){
+void Win32TooltipWindow::init_tooltip_class() {
   static bool window_class_initialized = false;
   if(window_class_initialized)
     return;
-  
+    
   WNDCLASSEXW wincl;
   
   memset(&wincl, 0, sizeof(wincl));
@@ -237,7 +237,7 @@ void Win32TooltipWindow::init_tooltip_class(){
   wincl.lpfnWndProc   = BasicWin32Widget::window_proc;
   wincl.style         = CS_DROPSHADOW;
   
-  if(!RegisterClassExW(&wincl)){
+  if(!RegisterClassExW(&wincl)) {
     perror("init_tooltip_class() failed\n");
     abort();
   }

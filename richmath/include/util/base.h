@@ -4,24 +4,25 @@
 #include <pmath-util/concurrency/atomic.h>
 #include <stdint.h>
 
-namespace richmath{
+
+namespace richmath {
   void assert_failed();
   
-  static inline int boole(bool b){ return b ? 1 : 0; }
+  static inline int boole(bool b) { return b ? 1 : 0; }
   
   extern const double Infinity;
-
-  class Base{
+  
+  class Base {
     public:
       Base();
       ~Base();
       
     private:
-      Base(const Base &src){}
-      Base const &operator=(Base const &src){ return *this; }
+      Base(const Base &src) {}
+      Base const &operator=(Base const &src) { return *this; }
   };
   
-  class Shareable: public Base{
+  class Shareable: public Base {
     public:
       Shareable();
       virtual ~Shareable();

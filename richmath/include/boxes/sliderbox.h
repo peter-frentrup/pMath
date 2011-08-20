@@ -5,23 +5,24 @@
 #include <eval/dynamic.h>
 #include <gui/control-painter.h>
 
-namespace richmath{
+
+namespace richmath {
   class SliderBox: public Box {
     public:
       virtual ~SliderBox();
       
       static SliderBox *create(Expr expr);
       
-      virtual Box *item(int i){ return 0; }
-      virtual int count(){ return 0; }
-      virtual int length(){ return 0; }
+      virtual Box *item(int i) { return 0; }
+      virtual int count() { return 0; }
+      virtual int length() { return 0; }
       
       //virtual bool expand(const BoxSize &size);
       virtual void resize(Context *context);
       virtual void paint(Context *context);
-      virtual Box *remove(int *index){ return this; }
+      virtual Box *remove(int *index) { return this; }
       
-      virtual Expr to_pmath_symbol(){ return Symbol(PMATH_SYMBOL_SLIDERBOX); }
+      virtual Expr to_pmath_symbol() { return Symbol(PMATH_SYMBOL_SLIDERBOX); }
       virtual Expr to_pmath(int flags);
       
       virtual void dynamic_updated();
@@ -34,13 +35,13 @@ namespace richmath{
         int   *start,
         int   *end,
         bool  *was_inside_start);
-
-      virtual Box *mouse_sensitive(){ return this; }
+        
+      virtual Box *mouse_sensitive() { return this; }
       virtual void on_mouse_enter();
       virtual void on_mouse_exit();
       virtual void on_mouse_down(MouseEvent &event);
       virtual void on_mouse_move(MouseEvent &event);
-      virtual void on_mouse_up(  MouseEvent &event);
+      virtual void on_mouse_up(MouseEvent &event);
       
     protected:
       explicit SliderBox();
@@ -48,7 +49,7 @@ namespace richmath{
       float calc_thumb_pos(double val);
       double mouse_to_val(double mouse_x);
       void assign_dynamic_value(double d);
-    
+      
     protected:
       double range_min;
       double range_max;

@@ -10,22 +10,22 @@ using namespace richmath;
 FreetypeFontShaper::FreetypeFontShaper(
   const String  &name,
   FontStyle      style)
-: TextShaper(),
+  : TextShaper(),
   _name(name),
   _style(style),
   _font(name, style)
 {
 }
 
-FreetypeFontShaper::~FreetypeFontShaper(){
+FreetypeFontShaper::~FreetypeFontShaper() {
 }
 
 void FreetypeFontShaper::decode_token(
   Context        *context,
   int             len,
-  const uint16_t *str, 
+  const uint16_t *str,
   GlyphInfo      *result
-){
+) {
   memset(result, 0, len * sizeof(GlyphInfo));
   cairo_text_extents_t cte;
   cairo_glyph_t cg;
@@ -35,27 +35,27 @@ void FreetypeFontShaper::decode_token(
   
   cg.x = 0;
   cg.y = 0;
-  for(int i = 0;i < len;++i){
-    if(is_utf16_high(str[i]) && i + 1 < len && is_utf16_low(str[i+1])){
+  for(int i = 0; i < len; ++i) {
+    if(is_utf16_high(str[i]) && i + 1 < len && is_utf16_low(str[i+1])) {
       uint32_t ch = 0x10000 + (((str[i] & 0x03FF) << 10) | (str[i+1] & 0x03FF));
       
       result[i].index = cg.index = info.char_to_glyph(ch);
-      if(cg.index == 0){
+      if(cg.index == 0) {
         result[i].index = UnknownGlyph;
       }
-      else{
+      else {
         context->canvas->glyph_extents(&cg, 1, &cte);
         result[i].right = cte.x_advance;
       }
       
       ++i;
     }
-    else{
+    else {
       result[i].index = cg.index = info.char_to_glyph(str[i]);
-      if(cg.index == 0){
+      if(cg.index == 0) {
         result[i].index = UnknownGlyph;
       }
-      else{
+      else {
         context->canvas->glyph_extents(&cg, 1, &cte);
         result[i].right = cte.x_advance;
       }
@@ -64,7 +64,7 @@ void FreetypeFontShaper::decode_token(
   
 }
 
-SharedPtr<TextShaper> FreetypeFontShaper::set_style(FontStyle style){
+SharedPtr<TextShaper> FreetypeFontShaper::set_style(FontStyle style) {
   return find(_name, style);
 }
 

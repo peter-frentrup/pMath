@@ -5,12 +5,13 @@
 
 #include <pmath-util/concurrency/atomic.h>
 
-namespace richmath{
-  template<typename T> class ConcurrentQueue: public Base{
+
+namespace richmath {
+  template<typename T> class ConcurrentQueue: public Base {
     private:
-      class Item{
+      class Item {
         public:
-          Item(): next(0){
+          Item(): next(0) {
           }
           
         public:
@@ -19,7 +20,7 @@ namespace richmath{
       };
     public:
       ConcurrentQueue()
-      : Base(),
+        : Base(),
         head(new Item),
         tail(head)
       {
@@ -27,15 +28,15 @@ namespace richmath{
         pmath_atomic_write_release(&tail_spin, 0);
       }
       
-      ~ConcurrentQueue(){
-        while(head){
+      ~ConcurrentQueue() {
+        while(head) {
           Item *next = head->next;
           delete head;
           head = next;
         }
       }
       
-      void put(const T &t){
+      void put(const T &t) {
         Item *new_tail = new Item;
         pmath_atomic_lock(&tail_spin);
         
@@ -45,7 +46,7 @@ namespace richmath{
         pmath_atomic_unlock(&tail_spin);
       }
       
-      void put_front(const T &t){
+      void put_front(const T &t) {
         Item *new_head = new Item;
         new_head->value = t;
         
@@ -57,18 +58,18 @@ namespace richmath{
         pmath_atomic_unlock(&head_spin);
       }
       
-      bool get(T *result){
+      bool get(T *result) {
         Item *item = 0;
         pmath_atomic_lock(&head_spin);
         
-        if(head != tail){
+        if(head != tail) {
           item = head;
           head = head->next;
         }
         
         pmath_atomic_unlock(&head_spin);
         
-        if(item){
+        if(item) {
           *result = item->value;
           delete item;
           return true;

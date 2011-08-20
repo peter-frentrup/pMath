@@ -3,16 +3,17 @@
 
 #include <boxes/box.h>
 
-namespace richmath{
+
+namespace richmath {
   class MathSequence;
   
-  class RadicalBox: public Box{
+  class RadicalBox: public Box {
     public:
       RadicalBox(MathSequence *radicand = 0, MathSequence *exponent = 0);
       virtual ~RadicalBox();
       
-      MathSequence *radicand(){ return _radicand; }
-      MathSequence *exponent(){ return _exponent; }
+      MathSequence *radicand() { return _radicand; }
+      MathSequence *exponent() { return _exponent; }
       
       virtual Box *item(int i);
       virtual int count();
@@ -24,14 +25,14 @@ namespace richmath{
       
       void complete();
       
-      virtual Expr to_pmath_symbol(){ return Symbol(PMATH_SYMBOL_RADICALBOX); }
+      virtual Expr to_pmath_symbol() { return Symbol(PMATH_SYMBOL_RADICALBOX); }
       virtual Expr to_pmath(int flags);
       
       virtual Box *move_vertical(
-        LogicalDirection  direction, 
+        LogicalDirection  direction,
         float            *index_rel_x,
         int              *index);
-      
+        
       virtual Box *mouse_selection(
         float  x,
         float  y,
@@ -42,7 +43,7 @@ namespace richmath{
       virtual void child_transformation(
         int             index,
         cairo_matrix_t *matrix);
-      
+        
     private:
       MathSequence *_radicand;
       MathSequence *_exponent;

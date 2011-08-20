@@ -4,8 +4,9 @@
 #include <util/sharedptr.h>
 #include <util/pmath-extra.h>
 
-namespace richmath{
-  class OpenedClipboard: public Shareable{
+
+namespace richmath {
+  class OpenedClipboard: public Shareable {
     public:
       virtual bool add_binary(String mimetype, void *data, size_t size) = 0;
       virtual bool add_text(String mimetype, String data) = 0;
@@ -13,18 +14,18 @@ namespace richmath{
       virtual bool add_binary_file(String mimetype, Expr binfile);
   };
   
-  class Clipboard: public Base{
+  class Clipboard: public Base {
     public:
       static Clipboard *dummy;
       static Clipboard *std;
       
       // mimetypes:
-      static const char * const PlainText;
-      static const char * const BoxesText;
-      static const char * const BoxesBinary;
-    
+      static const char *const PlainText;
+      static const char *const BoxesText;
+      static const char *const BoxesBinary;
+      
     public:
-      virtual ~Clipboard(){}
+      virtual ~Clipboard() {}
       
       virtual bool has_format(String mimetype) = 0;
       

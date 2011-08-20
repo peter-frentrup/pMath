@@ -2,17 +2,18 @@
 #define __GUI__WIN32__WIN32_CLIPBOARD_H__
 
 #ifndef RICHMATH_USE_WIN32_GUI
-  #error this header is win32 specific
+#error this header is win32 specific
 #endif
 
 #include <gui/clipboard.h>
 #include <util/hashtable.h>
 
-namespace richmath{
-  class Win32Clipboard: public Clipboard{
+
+namespace richmath {
+  class Win32Clipboard: public Clipboard {
     public:
       static Win32Clipboard obj;
-    
+      
     public:
       virtual ~Win32Clipboard();
       

@@ -3,7 +3,8 @@
 
 #include <gui/gtk/mgtk-widget.h>
 
-namespace richmath{
+
+namespace richmath {
   class MathGtkTooltipWindow: public MathGtkWidget {
     public:
       virtual ~MathGtkTooltipWindow();
@@ -15,7 +16,7 @@ namespace richmath{
       
       virtual void page_size(float *w, float *h);
       
-      virtual bool is_scrollable(){ return false; }
+      virtual bool is_scrollable() { return false; }
       
     protected:
       Expr  _content_expr;

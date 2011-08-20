@@ -2,15 +2,16 @@
 #define __GUI__GTK__MGTK_CURSORS_H__
 
 #ifndef RICHMATH_USE_GTK_GUI
-  #error this header is gtk specific
+#error this header is gtk specific
 #endif
 
 #include <gui/native-widget.h>
 
 #include <gdk/gdk.h>
 
-namespace richmath{
-  class MathGtkCursors: public Base{
+
+namespace richmath {
+  class MathGtkCursors: public Base {
     public:
       MathGtkCursors();
       ~MathGtkCursors();

@@ -2,7 +2,7 @@
 #define __GUI__GTK__BASIC_GTK_WIDGET_H__
 
 #ifndef RICHMATH_USE_GTK_GUI
-  #error this header is gtk specific
+#error this header is gtk specific
 #endif
 
 #include <util/base.h>
@@ -11,60 +11,60 @@
 #include <gtk/gtk.h>
 
 
-namespace richmath{
+namespace richmath {
   // Must call init() immediately init after the construction of a derived object!
-  class BasicGtkWidget: public virtual Base{
+  class BasicGtkWidget: public virtual Base {
     protected:
       virtual void after_construction();
-
+      
     public:
       BasicGtkWidget();
-
-      void init(){
+      
+      void init() {
         after_construction();
         _initializing = false;
       }
-
-      void destroy(){
+      
+      void destroy() {
         _destroying = true;
         delete this;
       }
-
+      
       virtual ~BasicGtkWidget();
-
-      bool initializing(){ return _initializing; }
-      bool destroying(){   return _destroying;   }
-
+      
+      bool initializing() { return _initializing; }
+      bool destroying() {   return _destroying;   }
+      
     public:
-      GtkWidget *widget(){ return _widget; }
-
+      GtkWidget *widget() { return _widget; }
+      
       BasicGtkWidget *parent();
       static BasicGtkWidget *from_widget(GtkWidget *wid);
-
+      
       template<class T>
-      T *find_parent(){
+      T *find_parent() {
         BasicGtkWidget *p = parent();
-        while(p){
+        while(p) {
           T *t = dynamic_cast<T*>(p);
           if(t)
             return t;
-
+            
           p = p->parent();
         }
-
+        
         return 0;
       }
-
+      
     protected:
       GtkWidget *_widget;
-
+      
     protected:
       virtual bool on_event(GdkEvent *e);
-
+      
     protected:
       template<class C, bool (C::*method)(GdkEvent*)>
-      struct Marshaller{
-        static gboolean function(GtkWidget *wid, GdkEvent *event, void *dummy){
+      struct Marshaller {
+        static gboolean function(GtkWidget *wid, GdkEvent *event, void *dummy) {
 //          if(event->type != GDK_EXPOSE
 //          && event->type != GDK_MOTION_NOTIFY
 //          && event->type != GDK_ENTER_NOTIFY
@@ -78,16 +78,16 @@ namespace richmath{
           return TRUE;
         }
       };
-
+      
       template<class C, bool (C::*method)(GdkEvent*)>
-      void signal_connect(const char *name){
-        g_signal_connect(_widget, name, G_CALLBACK((Marshaller<C,method>::function)), NULL);
+      void signal_connect(const char *name) {
+        g_signal_connect(_widget, name, G_CALLBACK((Marshaller<C, method>::function)), NULL);
       }
-
+      
     private:
       bool _initializing;
       bool _destroying;
-
+      
       static void destroy_widget_key_callback(BasicGtkWidget *_this);
   };
 }

@@ -6,10 +6,11 @@
 #include <util/array.h>
 #include <util/pmath-extra.h>
 
-namespace richmath{
+
+namespace richmath {
   class OTMathShaper;
   
-  typedef struct{
+  typedef struct {
     uint32_t version;
     uint16_t constants_offset;
     uint16_t glyphinfo_offset;
@@ -20,7 +21,7 @@ namespace richmath{
     int16_t value;
     uint16_t device_table_offset;
   } MathValueRecord;
-
+  
   typedef struct {
     uint16_t script_percent_scale_down;
     uint16_t script_script_percent_scale_down;
@@ -90,12 +91,12 @@ namespace richmath{
 //    uint16_t vert_glyph_construction_offsets[1]; // ANY
 //    uint16_t horz_glyph_construction_offsets[1]; // ANY
   } MathVariants;
-      
+  
   typedef struct {
     uint16_t glyph;
     uint16_t advance;
   } MathGlyphVariantRecord;
-
+  
   typedef struct {
     uint16_t assembly_offset;
     uint16_t count;
@@ -119,20 +120,20 @@ namespace richmath{
     uint16_t            count;
     MathGlyphPartRecord parts[1]; // count
   } MathGlyphAssembly;
-
+  
   typedef struct {
     uint16_t  italics_correction_info_offset;
     uint16_t  top_accent_attachment_offset;
     uint16_t  extended_shape_coverage_offset;
     uint16_t  kern_info_offset;
   } MathGlyphInfo;
-
+  
   typedef struct {
     uint16_t        coverage_offset;
     uint16_t        count;
     MathValueRecord  italics_corrections[1]; // count
   } MathItalicsCorrectionInfo;
-
+  
   typedef struct {
     uint16_t        coverage_offset;
     uint16_t        count;
@@ -170,7 +171,7 @@ namespace richmath{
   
   class DeviceAdjustment {
     public:
-      DeviceAdjustment(): start_size(0){}
+      DeviceAdjustment(): start_size(0) {}
       DeviceAdjustment(const uint16_t *data);
       
       int adjustment(int fontsize);
@@ -182,7 +183,7 @@ namespace richmath{
   
   class KernVertexObject {
     public:
-      KernVertexObject(){}
+      KernVertexObject() {}
       KernVertexObject(const MathKernVertex *v);
       
       int16_t height_to_kern(int16_t height, bool above);
@@ -192,7 +193,7 @@ namespace richmath{
   };
   
   class OTMathShaperDB: public Shareable {
-    friend class OTMathShaper;
+      friend class OTMathShaper;
     public:
       virtual ~OTMathShaperDB();
       void clear_cache();
@@ -243,19 +244,19 @@ namespace richmath{
       FontInfo *fi;
   };
   
-  class OTMathShaper: public MathShaper{
-    friend class OTMathShaperDB;
+  class OTMathShaper: public MathShaper {
+      friend class OTMathShaperDB;
     public:
       virtual ~OTMathShaper();
       
-      virtual uint8_t num_fonts(){ return text_shaper->num_fonts(); }
-      virtual FontFace font(   uint8_t fontinfo){ return text_shaper->font(fontinfo); }
-      virtual String font_name(uint8_t fontinfo){ return text_shaper->font_name(fontinfo); }
+      virtual uint8_t num_fonts() { return text_shaper->num_fonts(); }
+      virtual FontFace font(uint8_t fontinfo) { return text_shaper->font(fontinfo); }
+      virtual String font_name(uint8_t fontinfo) { return text_shaper->font_name(fontinfo); }
       
       virtual void decode_token(
         Context        *context,
         int             len,
-        const uint16_t *str, 
+        const uint16_t *str,
         GlyphInfo      *result);
         
       virtual void vertical_glyph_size(
@@ -264,14 +265,14 @@ namespace richmath{
         const GlyphInfo &info,
         float           *ascent,
         float           *descent);
-      
+        
       virtual void show_glyph(
-        Context         *context, 
+        Context         *context,
         float            x,
         float            y,
         const uint16_t   ch,
         const GlyphInfo &info);
-      
+        
       virtual bool horizontal_stretch_char(
         Context        *context,
         float           width,
@@ -285,7 +286,7 @@ namespace richmath{
         bool            full_stretch,
         const uint16_t  ch,
         GlyphInfo      *result);
-      
+        
       virtual void accent_positions(
         Context           *context,
         MathSequence      *base,
@@ -296,7 +297,7 @@ namespace richmath{
         float             *under_y,
         float             *over_x,
         float             *over_y);
-      
+        
       virtual void script_positions(
         Context           *context,
         float              base_ascent,
@@ -305,10 +306,10 @@ namespace richmath{
         MathSequence      *super,
         float             *sub_y,
         float             *super_y);
-      
+        
       virtual void script_corrections(
         Context           *context,
-        uint16_t           base_char, 
+        uint16_t           base_char,
         const GlyphInfo   &base_info,
         MathSequence      *sub,
         MathSequence      *super,
@@ -316,7 +317,7 @@ namespace richmath{
         float              super_y,
         float             *sub_x,
         float             *super_x);
-      
+        
       virtual void shape_fraction(
         Context        *context,
         const BoxSize  &num,
@@ -324,16 +325,16 @@ namespace richmath{
         float          *num_y,
         float          *den_y,
         float          *width);
-      
+        
       virtual void show_fraction(
         Context        *context,
         float           width);
-      
+        
       virtual float italic_correction(
         Context          *context,
         uint16_t          ch,
         const GlyphInfo  &info);
-      
+        
       virtual void shape_radical(
         Context          *context,    // in
         BoxSize          *box,        // in/out
@@ -341,26 +342,26 @@ namespace richmath{
         float            *exponent_x, // out
         float            *exponent_y, // out
         RadicalShapeInfo *info);      // out
-      
+        
       virtual void show_radical(
         Context                *context,
         const RadicalShapeInfo &info);
-      
+        
       virtual void get_script_size_multis(Array<float> *arr);
       
       virtual SharedPtr<TextShaper> set_style(FontStyle _style);
       
-      virtual FontStyle get_style(){ return style; }
+      virtual FontStyle get_style() { return style; }
       
       virtual float get_center_height(Context *context, uint8_t fontinfo);
-
+      
     protected:
       void stretch_glyph_assembly(
         Context                    *context,
         float                       width,
         Array<MathGlyphPartRecord> *parts,
         GlyphInfo                  *result);
-      
+        
       OTMathShaper(SharedPtr<OTMathShaperDB> _db, FontStyle _style);
       
     protected:

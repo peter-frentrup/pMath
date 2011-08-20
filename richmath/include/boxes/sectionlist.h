@@ -4,34 +4,35 @@
 #include <boxes/box.h>
 #include <util/array.h>
 
-namespace richmath{
+
+namespace richmath {
   class Section;
   
-  /* Every section has a SectionGroupPrecedence (SGP) option to specify how deep 
+  /* Every section has a SectionGroupPrecedence (SGP) option to specify how deep
      it will be nested in the section groups. When a section X is followed by a
      section Y, three possible situations arise:
-     
+  
      [ notation:
        First(X) = SectionGroupInfo.first for section X
-       LFirst   = previous group start (index of the first section in the 
+       LFirst   = previous group start (index of the first section in the
                   current group).
      ]
-     
+  
      SGP(X) < SGP(Y): A new group starts with X. First(Y) = X, First(X) = LFirst
-                      
-     SGP(X) = SGP(Y): X and Y are both in the current group. 
+  
+     SGP(X) = SGP(Y): X and Y are both in the current group.
                       First(X) = First(Y) = LFirst
-     
+  
      SGP(X) > SGP(Y): The previous group ends with X. A new group starts with Y.
-                      First(X) = LFirst, First(Y) = the last section Z with 
+                      First(X) = LFirst, First(Y) = the last section Z with
                       SGP(Z) < SGP(Y) or Y itself iff there is no such section.
                       LFIG:= -1
-     
+  
    */
-  class SectionGroupInfo{
+  class SectionGroupInfo {
     public:
       SectionGroupInfo()
-      : precedence(0.0),
+        : precedence(0.0),
         nesting(0),
         first(-1),
         end(-1),
@@ -51,26 +52,26 @@ namespace richmath{
       SectionList();
       virtual ~SectionList();
       
-      Section *section(int i){ return _sections[i]; }
-      const SectionGroupInfo &group_info(int i){ return _group_info[i]; }
+      Section *section(int i) { return _sections[i]; }
+      const SectionGroupInfo &group_info(int i) { return _group_info[i]; }
       
       virtual Box *item(int i);
-      virtual int count(){ return _sections.length(); }
+      virtual int count() { return _sections.length(); }
       virtual void resize(Context *context);
       virtual void paint(Context *context);
       virtual void selection_path(Canvas *canvas, int start, int end);
       
-      virtual Expr to_pmath_symbol(){ return Expr(); }
+      virtual Expr to_pmath_symbol() { return Expr(); }
       virtual Expr to_pmath(int flags);
       virtual Expr to_pmath(int flags, int start, int end);
       
       virtual Box *move_logical(
-        LogicalDirection  direction, 
-        bool              jumping, 
+        LogicalDirection  direction,
+        bool              jumping,
         int              *index);
-      
+        
       virtual Box *move_vertical(
-        LogicalDirection  direction, 
+        LogicalDirection  direction,
         float            *index_rel_x,
         int              *index);
         
@@ -80,12 +81,12 @@ namespace richmath{
         int   *start,
         int   *end,
         bool  *was_inside_start);
-      
+        
       virtual void child_transformation(
         int             index,
         cairo_matrix_t *matrix);
-      
-      virtual Box *normalize_selection(int *start, int *end){ return this; }
+        
+      virtual Box *normalize_selection(int *start, int *end) { return this; }
       
       void set_open_close_group(int i, bool open);
       void toggle_open_close_group(int i);
@@ -120,7 +121,7 @@ namespace richmath{
         float    x2,
         float    y2,
         int      style); // int BorderXXX constants
-      
+        
     public:
       bool  border_visible;
       float section_bracket_width;
@@ -131,7 +132,7 @@ namespace richmath{
       float _scrollx;
       float _page_width;
       float _window_width;
-    
+      
     private:
       Array<Section*>          _sections;
       Array<SectionGroupInfo>  _group_info;

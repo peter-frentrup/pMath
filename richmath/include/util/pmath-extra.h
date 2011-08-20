@@ -5,14 +5,15 @@
 
 #include <util/base.h>
 
-namespace richmath{
+
+namespace richmath {
   using namespace pmath; // bad style!!!
   
-  inline bool is_utf16_high(uint16_t c){
+  inline bool is_utf16_high(uint16_t c) {
     return (c & 0xFC00) == 0xD800;
   }
   
-  inline bool is_utf16_low(uint16_t c){
+  inline bool is_utf16_low(uint16_t c) {
     return (c & 0xFC00) == 0xDC00;
   }
   
@@ -21,21 +22,21 @@ namespace richmath{
   
   Expr expand_string_boxes(String s);
   
-  class Span{
+  class Span {
     public:
-      Span(pmath_span_t *data): _data(data){}
-      operator bool(){ return _data != 0; }
+      Span(pmath_span_t *data): _data(data) {}
+      operator bool() { return _data != 0; }
       
-      Span next(){ return Span(pmath_span_next(_data)); }
-      int  end(){  return pmath_span_end(_data); }
+      Span next() { return Span(pmath_span_next(_data)); }
+      int  end() {  return pmath_span_end(_data); }
       
-      bool operator==(const Span &other){ return _data == other._data; }
-      bool operator!=(const Span &other){ return _data != other._data; }
+      bool operator==(const Span &other) { return _data == other._data; }
+      bool operator!=(const Span &other) { return _data != other._data; }
     private:
       pmath_span_t *_data;
   };
   
-  class SpanArray: public Base{
+  class SpanArray: public Base {
     public:
       SpanArray(pmath_span_array_t *spans = 0);
       ~SpanArray();
@@ -45,7 +46,7 @@ namespace richmath{
       int length() const {
         return pmath_span_array_length(_array);
       }
-
+      
       Span operator[](int i) const {
         return Span(pmath_span_at(_array, i));
       }
@@ -65,7 +66,7 @@ namespace richmath{
         return pmath_span_array_is_operand_start(_array, i);
       }
       
-      pmath_span_array_t *array(){ return _array; }
+      pmath_span_array_t *array() { return _array; }
       
     private:
       pmath_span_array_t *_array;

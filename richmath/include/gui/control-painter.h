@@ -6,11 +6,12 @@
 
 #include <util/hashtable.h>
 
-namespace richmath{
+
+namespace richmath {
   class Canvas;
   class Style;
   
-  typedef enum{
+  typedef enum {
     FramelessButton,
     GenericButton,
     PushButton,
@@ -30,9 +31,9 @@ namespace richmath{
     CheckboxIndeterminate,
     RadioButtonUnchecked,
     RadioButtonChecked
-  }ContainerType;
+  } ContainerType;
   
-  typedef enum{
+  typedef enum {
     ScrollbarNowhere,
     ScrollbarUpLeft,
     ScrollbarLowerRange,
@@ -40,20 +41,20 @@ namespace richmath{
     ScrollbarUpperRange,
     ScrollbarDownRight,
     ScrollbarSizeGrip
-  }ScrollbarPart;
+  } ScrollbarPart;
   
-  typedef enum{
+  typedef enum {
     ScrollbarHorizontal,
     ScrollbarVertical
-  }ScrollbarDirection;
+  } ScrollbarDirection;
   
-  typedef enum{
+  typedef enum {
     Normal,
     Hovered,
     Hot,
     Pressed,
     Disabled
-  }ControlState;
+  } ControlState;
   
   class ControlPainter: public Base {
     public:
@@ -65,7 +66,7 @@ namespace richmath{
         Canvas        *canvas,
         ContainerType  type,
         BoxSize       *extents);
-      
+        
       // -1 for none/default
       virtual int control_font_color(ContainerType type, ControlState state);
       
@@ -79,7 +80,7 @@ namespace richmath{
         float          y,
         float          width,
         float          height);
-      
+        
       virtual SharedPtr<BoxAnimation> control_transition(
         int                          widget_id,
         Canvas                      *canvas,
@@ -91,27 +92,27 @@ namespace richmath{
         float                        y,
         float                        width,
         float                        height);
-      
+        
       virtual void container_content_move(
         ContainerType  type,
         ControlState   state,
         float         *x,
         float         *y);
-      
+        
       virtual bool container_hover_repaint(ContainerType type);
       
       virtual void paint_scroll_indicator(
-        Canvas *canvas, 
-        float   x, 
-        float   y, 
-        bool    horz, 
+        Canvas *canvas,
+        float   x,
+        float   y,
+        bool    horz,
         bool    vert);
-      
+        
       virtual void system_font_style(Style *style);
       
       virtual int selection_color();
       
-      virtual float scrollbar_width(){ return 16 * 3/4.f; };
+      virtual float scrollbar_width() { return 16 * 3 / 4.f; };
       
       virtual void paint_scrollbar_part(
         Canvas             *canvas,
@@ -122,9 +123,9 @@ namespace richmath{
         float               y,
         float               width,
         float               height);
-      
+        
       /* scrollbars scroll text, so "upper range" is below current thumb pos:
-         
+      
          .---.
          | ^ | up
          |---|              <-- lower_y
@@ -147,13 +148,13 @@ namespace richmath{
         float *thumb_y,
         float *upper_y,
         float *down_y);
-      
+        
       ScrollbarPart mouse_to_scrollbar_part(
         float rel_mouse,
         float scrollbar_height,
         float track_pos,      // 0..1
         float rel_page_size); // =0: default;  >0..<1: relative;  other: no thumb
-      
+        
       void paint_scrollbar(
         Canvas             *canvas,
         float               track_pos,
@@ -165,10 +166,10 @@ namespace richmath{
         float               y,
         float               width,
         float               height);
-      
+        
     protected:
-      ControlPainter(): Base(){}
-      virtual ~ControlPainter(){}
+      ControlPainter(): Base() {}
+      virtual ~ControlPainter() {}
   };
 }
 

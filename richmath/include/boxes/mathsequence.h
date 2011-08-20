@@ -5,10 +5,11 @@
 #include <util/array.h>
 #include <util/syntax-state.h>
 
-namespace richmath{
+
+namespace richmath {
   class SpanExpr;
   
-  class Line{
+  class Line {
     public:
       int end; // after last character of the line
       float ascent;
@@ -17,7 +18,7 @@ namespace richmath{
       unsigned continuation: 1;
   };
   
-  enum{
+  enum {
     BoxOptionDefault       = 0,
     BoxOptionFormatNumbers = 1
   };
@@ -31,8 +32,8 @@ namespace richmath{
       virtual ~MathSequence();
       
       virtual Box *item(int i);
-      virtual int count(){      return boxes.length(); }
-      virtual int length(){     return str.length(); }
+      virtual int count() {      return boxes.length(); }
+      virtual int length() {     return str.length(); }
       
       virtual bool expand(const BoxSize &size);
       virtual void resize(Context *context);
@@ -41,17 +42,17 @@ namespace richmath{
       
       virtual void selection_path(Canvas *canvas, int start, int end);
       
-      virtual Expr to_pmath_symbol(){ return Expr(); }
+      virtual Expr to_pmath_symbol() { return Expr(); }
       virtual Expr to_pmath(int flags);
       virtual Expr to_pmath(int flags, int start, int end);
       
       virtual Box *move_logical(
-        LogicalDirection  direction, 
-        bool              jumping, 
+        LogicalDirection  direction,
+        bool              jumping,
         int              *index);
-      
+        
       virtual Box *move_vertical(
-        LogicalDirection  direction, 
+        LogicalDirection  direction,
         float            *index_rel_x,
         int              *index);
         
@@ -61,11 +62,11 @@ namespace richmath{
         int   *start,
         int   *end,
         bool  *was_inside_start);
-      
+        
       virtual void child_transformation(
         int             index,
         cairo_matrix_t *matrix);
-      
+        
       virtual Box *normalize_selection(int *start, int *end);
       
       bool is_inside_string(int pos);
@@ -85,65 +86,65 @@ namespace richmath{
       static pmath_t box_at_index(int i, void *_data);
       
       void boxes_size(Context *context, int start, int end, float *a, float *d);
-      void box_size(  Context *context, int pos, int box, float *a, float *d);
+      void box_size(Context *context, int pos, int box, float *a, float *d);
       void caret_size(Context *context, int pos, int box, float *a, float *d);
       
       void selection_path(Context *opt_context, Canvas *canvas, int start, int end);
       
       void resize_span(
-        Context *context, 
-        Span     span, 
-        int     *pos, 
+        Context *context,
+        Span     span,
+        int     *pos,
         int     *box);
-      
+        
       void check_options(
         Expr         options,
         Context     *context,
         int          pos,
         int          end);
-      
+        
       bool is_arglist_span(Span span, int pos);
       
       void syntax_restyle_span(
-        Context *context, 
-        Span     span, 
+        Context *context,
+        Span     span,
         int     *pos);
-      
+        
       void check_argcount_span(
-        Context *context, 
-        Span     span, 
+        Context *context,
+        Span     span,
         int     *pos);
-      
+        
       void stretch_span(
-        Context *context, 
-        Span     span, 
-        int     *pos, 
+        Context *context,
+        Span     span,
+        int     *pos,
         int     *box,
         float   *core_ascent,
         float   *core_descent,
         float   *ascent,
         float   *descent);
-      
+        
       void enlarge_space(Context *context);
       
       void split_lines(Context *context);
       
       void hstretch_lines(
-        float width, 
+        float width,
         float window_width,
         float *unfilled_width);
-      
+        
       int fill_penalty_array(
         Span  span,
         int   depth,
         int   pos,
         int  *box);
-      
+        
       int fill_indention_array(
         Span span,
         int  depth,
         int  pos);
-      
+        
       void new_line(int pos, unsigned int indent, bool continuation = false);
       
     public:
@@ -160,10 +161,10 @@ namespace richmath{
       
       virtual void load_from_object(Expr object, int options); // BoxOptionXXX
       
-      const String           &text(){        return str;    }
-      const SpanArray        &span_array(){  return spans;  }
-      const Array<Line>      &line_array(){  return lines;  }
-      const Array<GlyphInfo> &glyph_array(){ return glyphs; }
+      const String           &text() {        return str;    }
+      const SpanArray        &span_array() {  return spans;  }
+      const Array<Line>      &line_array() {  return lines;  }
+      const Array<GlyphInfo> &glyph_array() { return glyphs; }
       
       bool stretch_horizontal(Context *context, float width);
       
@@ -173,8 +174,8 @@ namespace richmath{
       
       int get_box(int index, int guide = 0);
       float indention_width(int i);
-      float font_size(){ return em; }
-      float line_spacing(){ return 0.3f * em; }
+      float font_size() { return em; }
+      float line_spacing() { return 0.3f * em; }
       
     private:
       Array<Box*>      boxes;

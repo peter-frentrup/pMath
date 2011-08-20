@@ -17,26 +17,26 @@
 #include <util/style.h>
 
 #ifndef WM_DWMCOMPOSITIONCHANGED
-  #define WM_DWMCOMPOSITIONCHANGED   0x031E
+#define WM_DWMCOMPOSITIONCHANGED   0x031E
 #endif
 
 using namespace richmath;
 
-class Win32ControlPainterInfo: public BasicWin32Widget{
+class Win32ControlPainterInfo: public BasicWin32Widget {
   public:
     Win32ControlPainterInfo()
-    : BasicWin32Widget(0, 0, 0, 0, 0, 0, NULL)
-    {  
+      : BasicWin32Widget(0, 0, 0, 0, 0, 0, NULL)
+    {
       init(); // total exception!!! normally not callable in constructor
     }
-  
+    
   protected:
-    virtual LRESULT callback(UINT message, WPARAM wParam, LPARAM lParam){
-      switch(message){
-        case WM_DWMCOMPOSITIONCHANGED: 
+    virtual LRESULT callback(UINT message, WPARAM wParam, LPARAM lParam) {
+      switch(message) {
+        case WM_DWMCOMPOSITIONCHANGED:
         case WM_THEMECHANGED: {
-          Win32ControlPainter::win32_painter.clear_cache();
-        } break;
+            Win32ControlPainter::win32_painter.clear_cache();
+          } break;
       }
       
       return BasicWin32Widget::callback(message, wParam, lParam);
@@ -48,7 +48,7 @@ static Win32ControlPainterInfo w32cpinfo;
 Win32ControlPainter Win32ControlPainter::win32_painter;
 
 Win32ControlPainter::Win32ControlPainter()
-: ControlPainter(),
+  : ControlPainter(),
   blur_input_field(true),
   button_theme(0),
   edit_theme(0),
@@ -61,79 +61,79 @@ Win32ControlPainter::Win32ControlPainter()
   ControlPainter::std = this;
 }
 
-Win32ControlPainter::~Win32ControlPainter(){
+Win32ControlPainter::~Win32ControlPainter() {
   clear_cache();
 }
-      
+
 void Win32ControlPainter::calc_container_size(
   Canvas        *canvas,
   ContainerType  type,
   BoxSize       *extents // in/out
-){
+) {
   int theme_part, theme_state;
   HANDLE theme = get_control_theme(type, Normal, &theme_part, &theme_state);
   
-  switch(type){
+  switch(type) {
     case InputField: {
-      if(Win32Themes::IsThemeActive
-      && Win32Themes::IsThemeActive()){
-        extents->width+=   3;
-        extents->ascent+=  1.5;
-        extents->descent+= 1.5;
-        return;
+        if(Win32Themes::IsThemeActive
+            && Win32Themes::IsThemeActive()) {
+          extents->width +=   3;
+          extents->ascent +=  1.5;
+          extents->descent += 1.5;
+          return;
+        }
+        
+        extents->width +=   5.25;
+        extents->ascent +=  3;
+        extents->descent += 2.25;
+      } return;
+      
+    case ProgressIndicatorBar: {
+        if(!theme || theme_part != 5) {
+          extents->width -=   4.5;
+          extents->ascent -=  2.25;
+          extents->descent -= 2.25;
+        }
+      } return;
+      
+    case TooltipWindow: {
+        if(!theme) {
+          extents->width +=   6;
+          extents->ascent +=  3;
+          extents->descent += 3;
+          return;
+        }
       }
       
-      extents->width+=   5.25;
-      extents->ascent+=  3;
-      extents->descent+= 2.25;
-    } return;
-  
-    case ProgressIndicatorBar: {
-      if(!theme || theme_part != 5){
-        extents->width-=   4.5;
-        extents->ascent-=  2.25;
-        extents->descent-= 2.25; 
-      }
-    } return;
-  
-    case TooltipWindow: {
-      if(!theme){
-        extents->width+=   6;
-        extents->ascent+=  3;
-        extents->descent+= 3; 
-        return;
-      }
-    }
-  
     default: break;
   }
   
   if(Win32Themes::GetThemeMargins
-  && Win32Themes::GetThemePartSize){
-    SIZE size = {0,0};
-    Win32Themes::MARGINS mar = {0,0,0,0};
+      && Win32Themes::GetThemePartSize) {
+    SIZE size = {0, 0};
+    Win32Themes::MARGINS mar = {0, 0, 0, 0};
     // TMT_SIZINGMARGINS  = 3601
     // TMT_CONTENTMARGINS = 3602
     // TMT_CAPTIONMARGINS = 3603
-    if(theme 
-    && SUCCEEDED(Win32Themes::GetThemeMargins(
-        theme, NULL, theme_part, theme_state, 3602, NULL, &mar))
-    && (mar.cxLeftWidth > 0 
-     || mar.cxRightWidth > 0 
-     || mar.cyBottomHeight > 0 
-     || mar.cyTopHeight > 0)
-    ){
-      extents->width+=   0.75f * (mar.cxLeftWidth + mar.cxRightWidth);
-      extents->ascent+=  0.75f * mar.cyTopHeight;
-      extents->descent+= 0.75f * mar.cyBottomHeight;
+    if(theme
+        && SUCCEEDED(Win32Themes::GetThemeMargins(
+                       theme, NULL, theme_part, theme_state, 3602, NULL, &mar))
+        && (mar.cxLeftWidth > 0
+            || mar.cxRightWidth > 0
+            || mar.cyBottomHeight > 0
+            || mar.cyTopHeight > 0)
+      ) {
+      extents->width +=   0.75f * (mar.cxLeftWidth + mar.cxRightWidth);
+      extents->ascent +=  0.75f * mar.cyTopHeight;
+      extents->descent += 0.75f * mar.cyBottomHeight;
       
       Win32Themes::GetThemePartSize(
         theme, NULL, theme_part, theme_state, NULL, Win32Themes::TS_TRUE, &size);
-      
+        
       if(extents->width < 0.75 * size.cx)
-         extents->width = 0.75 * size.cx;
-      
-      if(extents->height() < 0.75 * size.cy){
+        extents->width = 0.75 * size.cx;
+        
+      if(extents->height() < 0.75 * size.cy) {
         float axis = 0.4 * canvas->get_font_size();
         
         extents->ascent  = size.cy * 0.75 / 2 + axis;
@@ -147,69 +147,69 @@ void Win32ControlPainter::calc_container_size(
   ControlPainter::calc_container_size(canvas, type, extents);
 }
 
-int Win32ControlPainter::control_font_color(ContainerType type, ControlState state){
+int Win32ControlPainter::control_font_color(ContainerType type, ControlState state) {
   if(is_very_transparent(type, state))
     return -1;
-  
+    
   int theme_part, theme_state;
   HANDLE theme = get_control_theme(type, state, &theme_part, &theme_state);
   
-  if(theme && Win32Themes::GetThemeColor){
+  if(theme && Win32Themes::GetThemeColor) {
     COLORREF col = 0;
     
     // TMT_TEXTCOLOR  = 3803
     // TMT_WINDOWTEXT  = 1609
     // TMT_BTNTEXT    = 1619
     if(SUCCEEDED(Win32Themes::GetThemeColor(
-        theme, theme_part, theme_state, 3803, &col))
-    || SUCCEEDED(Win32Themes::GetThemeColor(
-        theme, theme_part, theme_state, 1609, &col))
-    || SUCCEEDED(Win32Themes::GetThemeColor(
-        theme, theme_part, theme_state, 1619, &col))
-    ){
+                   theme, theme_part, theme_state, 3803, &col))
+        || SUCCEEDED(Win32Themes::GetThemeColor(
+                       theme, theme_part, theme_state, 1609, &col))
+        || SUCCEEDED(Win32Themes::GetThemeColor(
+                       theme, theme_part, theme_state, 1619, &col))
+      ) {
       return ((col & 0xFF0000) >> 16)
-           |  (col & 0x00FF00)
-           | ((col & 0x0000FF) << 16);
+             | (col & 0x00FF00)
+             | ((col & 0x0000FF) << 16);
     }
     
     return -1;
   }
   
-  switch(type){
+  switch(type) {
     case FramelessButton:
     case GenericButton:
       return ControlPainter::control_font_color(type, state);
-    
+      
     case PushButton:
     case DefaultPushButton:
     case PaletteButton: {
-      DWORD col = GetSysColor(COLOR_BTNTEXT);
-      return ((col & 0xFF0000) >> 16)
-           |  (col & 0x00FF00)
-           | ((col & 0x0000FF) << 16);
-    } break;
+        DWORD col = GetSysColor(COLOR_BTNTEXT);
+        return ((col & 0xFF0000) >> 16)
+               | (col & 0x00FF00)
+               | ((col & 0x0000FF) << 16);
+      } break;
       
     case InputField: {
-      DWORD col = GetSysColor(COLOR_WINDOWTEXT);
-      return ((col & 0xFF0000) >> 16)
-           |  (col & 0x00FF00)
-           | ((col & 0x0000FF) << 16);
-    } break;
-    
+        DWORD col = GetSysColor(COLOR_WINDOWTEXT);
+        return ((col & 0xFF0000) >> 16)
+               | (col & 0x00FF00)
+               | ((col & 0x0000FF) << 16);
+      } break;
+      
     case MenuItemSelected: {
-      DWORD col = GetSysColor(COLOR_HIGHLIGHTTEXT);
-      return ((col & 0xFF0000) >> 16)
-           |  (col & 0x00FF00)
-           | ((col & 0x0000FF) << 16);
-    } break;
-    
+        DWORD col = GetSysColor(COLOR_HIGHLIGHTTEXT);
+        return ((col & 0xFF0000) >> 16)
+               | (col & 0x00FF00)
+               | ((col & 0x0000FF) << 16);
+      } break;
+      
     case TooltipWindow: {
-      DWORD col = GetSysColor(COLOR_INFOTEXT);
-      return ((col & 0xFF0000) >> 16)
-           |  (col & 0x00FF00)
-           | ((col & 0x0000FF) << 16);
-    } break;
-    
+        DWORD col = GetSysColor(COLOR_INFOTEXT);
+        return ((col & 0xFF0000) >> 16)
+               | (col & 0x00FF00)
+               | ((col & 0x0000FF) << 16);
+      } break;
+      
     case SliderHorzChannel:
     case SliderHorzThumb:
     case ProgressIndicatorBackground:
@@ -225,59 +225,59 @@ int Win32ControlPainter::control_font_color(ContainerType type, ControlState sta
   return -1;
 }
 
-bool Win32ControlPainter::is_very_transparent(ContainerType type, ControlState state){
-  switch(type){
+bool Win32ControlPainter::is_very_transparent(ContainerType type, ControlState state) {
+  switch(type) {
     case FramelessButton:
     case GenericButton:
       return ControlPainter::is_very_transparent(type, state);
       
     case PaletteButton: {
-      if(!Win32Themes::GetThemeBool)
-        return false;
+        if(!Win32Themes::GetThemeBool)
+          return false;
+          
+        int theme_part, theme_state;
+        HANDLE theme = get_control_theme(type, state, &theme_part, &theme_state);
+        
+        // TMT_TRANSPARENT = 2201
+        BOOL value;
+        if(theme && SUCCEEDED(Win32Themes::GetThemeBool(
+                                theme, theme_part, theme_state, 2201, &value))
+          ) {
+          return value;
+        }
+      } break;
       
-      int theme_part, theme_state;
-      HANDLE theme = get_control_theme(type, state, &theme_part, &theme_state);
-      
-      // TMT_TRANSPARENT = 2201
-      BOOL value;
-      if(theme && SUCCEEDED(Win32Themes::GetThemeBool(
-          theme, theme_part, theme_state, 2201, &value))
-      ){
-        return value;
-      }
-    } break;
-    
     default: break;
   }
   
   return false;
 }
 
-  static bool rect_in_clip(
-    Canvas *canvas,
-    float   x,
-    float   y,
-    float   width,
-    float   height
-  ){
-    cairo_rectangle_list_t *clip_rects = cairo_copy_clip_rectangle_list(canvas->cairo());
-    
-    if(clip_rects->status == CAIRO_STATUS_SUCCESS){
-      for(int i = 0;i < clip_rects->num_rectangles;++i){
-        cairo_rectangle_t *rect = &clip_rects->rectangles[i];
-        if(x          >= rect->x 
-        && y          >= rect->y 
-        && x + width  <= rect->x + rect->width
-        && y + height <= rect->y + rect->height){
-          cairo_rectangle_list_destroy(clip_rects);
-          return true;
-        }
+static bool rect_in_clip(
+  Canvas *canvas,
+  float   x,
+  float   y,
+  float   width,
+  float   height
+) {
+  cairo_rectangle_list_t *clip_rects = cairo_copy_clip_rectangle_list(canvas->cairo());
+  
+  if(clip_rects->status == CAIRO_STATUS_SUCCESS) {
+    for(int i = 0; i < clip_rects->num_rectangles; ++i) {
+      cairo_rectangle_t *rect = &clip_rects->rectangles[i];
+      if(x          >= rect->x
+          && y          >= rect->y
+          && x + width  <= rect->x + rect->width
+          && y + height <= rect->y + rect->height) {
+        cairo_rectangle_list_destroy(clip_rects);
+        return true;
       }
     }
-    
-    cairo_rectangle_list_destroy(clip_rects);
-    return false;
   }
+  
+  cairo_rectangle_list_destroy(clip_rects);
+  return false;
+}
 
 void Win32ControlPainter::draw_container(
   Canvas        *canvas,
@@ -287,11 +287,11 @@ void Win32ControlPainter::draw_container(
   float          y,
   float          width,
   float          height
-){
+) {
   if(width <= 0 || height <= 0)
     return;
-  
-  switch(type){
+    
+  switch(type) {
     case FramelessButton:
     case GenericButton:
       ControlPainter::generic_painter.draw_container(
@@ -301,7 +301,7 @@ void Win32ControlPainter::draw_container(
     default: break;
   }
   
-  if(canvas->pixel_device){
+  if(canvas->pixel_device) {
     canvas->user_to_device_dist(&width, &height);
     width  = floor(width  + 0.5);
     height = floor(height + 0.5);
@@ -309,15 +309,15 @@ void Win32ControlPainter::draw_container(
   }
   
   if(type == InputField
-  && Win32Themes::IsThemeActive
-  && Win32Themes::IsThemeActive()
-  && Win32Themes::OpenThemeData 
-  && Win32Themes::CloseThemeData 
-  && Win32Themes::DrawThemeBackground){
+      && Win32Themes::IsThemeActive
+      && Win32Themes::IsThemeActive()
+      && Win32Themes::OpenThemeData
+      && Win32Themes::CloseThemeData
+      && Win32Themes::DrawThemeBackground) {
     canvas->save();
     int c = canvas->get_color();
     
-    if(canvas->glass_background){
+    if(canvas->glass_background) {
       cairo_pattern_t *pat;
       
       float x1, x2, x3, x4, y1, y2, y3, y4;
@@ -333,10 +333,10 @@ void Win32ControlPainter::draw_container(
       
       float r = 0.75;
       canvas->move_to(x1, y1 + r);
-      canvas->arc(x1 + r, y1 + r, r,   M_PI,   3*M_PI/2, false);
-      canvas->arc(x2 - r, y2 + r, r, 3*M_PI/2, 2*M_PI,   false);
-      canvas->arc(x3 - r, y3 - r, r,        0,   M_PI/2, false);
-      canvas->arc(x4 + r, y4 - r, r,   M_PI/2,   M_PI,   false);
+      canvas->arc(x1 + r, y1 + r, r,   M_PI,   3 * M_PI / 2, false);
+      canvas->arc(x2 - r, y2 + r, r, 3 * M_PI / 2, 2 * M_PI,   false);
+      canvas->arc(x3 - r, y3 - r, r,        0,   M_PI / 2, false);
+      canvas->arc(x4 + r, y4 - r, r,   M_PI / 2,   M_PI,   false);
       canvas->close_path();
       
       pat = cairo_pattern_create_linear(x4, y4, x1, y1);
@@ -363,18 +363,18 @@ void Win32ControlPainter::draw_container(
       canvas->stroke();
       
     }
-    else{
+    else {
       canvas->pixrect(x, y, x + width, y + height, true);
-      if(state == Pressed && blur_input_field){
+      if(state == Pressed && blur_input_field) {
         canvas->set_color(0x8080FF);
         canvas->show_blur_stroke(4, true);
       }
       
       DWORD col = GetSysColor(COLOR_WINDOW);
       col = ((col & 0xFF0000) >> 16)
-          |  (col & 0x00FF00)
-          | ((col & 0x0000FF) << 16);
-           
+            | (col & 0x00FF00)
+            | ((col & 0x0000FF) << 16);
+            
       canvas->set_color(col);
       canvas->fill_preserve();
       
@@ -393,30 +393,30 @@ void Win32ControlPainter::draw_container(
   float uw, uh, a, b;
   a = width; b = 0;
   canvas->user_to_device_dist(&a, &b);
-  uw = sqrt(a*a + b*b);
+  uw = sqrt(a * a + b * b);
   int w = (int)ceil(uw);
   
   a = 0; b = height;
   canvas->user_to_device_dist(&a, &b);
-  uh = sqrt(a*a + b*b);
+  uh = sqrt(a * a + b * b);
   int h = (int)ceil(uh);
   
   if(w == 0 || h == 0)
     return;
-  
+    
   canvas->align_point(&x, &y, false);
   
   HDC dc = cairo_win32_surface_get_dc(canvas->target());
   cairo_surface_t *surface = 0;
   
-  if(dc){
+  if(dc) {
     cairo_matrix_t ctm;
     cairo_get_matrix(canvas->cairo(), &ctm);
     
-    if((ctm.xx == 0) == (ctm.yy == 0) 
-    && (ctm.xy == 0) == (ctm.yx == 0)
-    && (ctm.xx == 0) != (ctm.xy == 0)
-    && rect_in_clip(canvas, x, y, width, height)){
+    if((ctm.xx == 0) == (ctm.yy == 0)
+        && (ctm.xy == 0) == (ctm.yx == 0)
+        && (ctm.xx == 0) != (ctm.xy == 0)
+        && rect_in_clip(canvas, x, y, width, height)) {
       float ux = x;
       float uy = y;
       canvas->user_to_device(&ux, &uy);
@@ -424,28 +424,28 @@ void Win32ControlPainter::draw_container(
       dc_y = (int)floor(uy + 0.5);
       cairo_surface_flush(cairo_get_target(canvas->cairo()));
     }
-    else{
+    else {
       dc = 0;
     }
   }
   
-  if(!dc){
+  if(!dc) {
     if(Win32Themes::IsThemeActive
-    && Win32Themes::IsThemeActive()
-    && Win32Themes::IsCompositionActive /* XP not enough */
-    && Win32Themes::OpenThemeData 
-    && Win32Themes::CloseThemeData
-    && Win32Themes::DrawThemeBackground){
+        && Win32Themes::IsThemeActive()
+        && Win32Themes::IsCompositionActive /* XP not enough */
+        && Win32Themes::OpenThemeData
+        && Win32Themes::CloseThemeData
+        && Win32Themes::DrawThemeBackground) {
       surface = cairo_win32_surface_create_with_dib(
-        CAIRO_FORMAT_ARGB32,
-        w, 
-        h);
+                  CAIRO_FORMAT_ARGB32,
+                  w,
+                  h);
     }
-    else{
+    else {
       surface = cairo_win32_surface_create_with_dib(
-        CAIRO_FORMAT_RGB24,
-        w, 
-        h);
+                  CAIRO_FORMAT_RGB24,
+                  w,
+                  h);
     }
     
     dc = cairo_win32_surface_get_dc(surface);
@@ -457,12 +457,12 @@ void Win32ControlPainter::draw_container(
   rect.right  = dc_x + w;
   rect.bottom = dc_y + h;
   
-  if(Win32Themes::OpenThemeData 
-  && Win32Themes::CloseThemeData 
-  && Win32Themes::DrawThemeBackground){
-    
+  if(Win32Themes::OpenThemeData
+      && Win32Themes::CloseThemeData
+      && Win32Themes::DrawThemeBackground) {
+      
     bool two_times = false;
-    if(canvas->glass_background && type == PaletteButton){
+    if(canvas->glass_background && type == PaletteButton) {
       if(state == Normal)
         state = Hovered;
       else if(state == Hovered)
@@ -473,8 +473,8 @@ void Win32ControlPainter::draw_container(
     HANDLE theme = get_control_theme(type, state, &_part, &_state);
     if(!theme)
       goto FALLBACK;
-    
-    if(!Win32Themes::IsCompositionActive){ /* XP not enough */
+      
+    if(!Win32Themes::IsCompositionActive) { /* XP not enough */
       FillRect(dc, &rect, (HBRUSH)(COLOR_BTNFACE + 1));
     }
     
@@ -485,8 +485,8 @@ void Win32ControlPainter::draw_container(
       _state,
       &rect,
       0);
-    
-    if(two_times){
+      
+    if(two_times) {
       Win32Themes::DrawThemeBackground(
         theme,
         dc,
@@ -503,26 +503,27 @@ void Win32ControlPainter::draw_container(
         0);
     }
   }
-  else{ FALLBACK: ;
-    switch(type){
+  else {
+  FALLBACK: ;
+    switch(type) {
       case FramelessButton:
         break;
         
       case PaletteButton: {
-        FillRect(dc, &rect, (HBRUSH)(COLOR_BTNFACE + 1));
+          FillRect(dc, &rect, (HBRUSH)(COLOR_BTNFACE + 1));
+          
+          if(state == Pressed)
+            DrawEdge(dc, &rect, BDR_SUNKENOUTER, BF_RECT);
+          else if(state == Hot || state == Hovered)
+            DrawEdge(dc, &rect, BDR_RAISEDINNER, BF_RECT);
+            
+        } break;
         
-        if(state == Pressed)
-          DrawEdge(dc, &rect, BDR_SUNKENOUTER, BF_RECT);
-        else if(state == Hot || state == Hovered)
-          DrawEdge(dc, &rect, BDR_RAISEDINNER, BF_RECT);
-        
-      } break;
-        
-      case DefaultPushButton: 
+      case DefaultPushButton:
       case GenericButton:
       case PushButton: {
 //        UINT _state = DFCS_BUTTONPUSH;
-        
+
 //        switch(state){
 //          case Disabled: _state|= DFCS_INACTIVE; break;
 //          case Pressed:  _state|= DFCS_PUSHED;   break;
@@ -530,150 +531,150 @@ void Win32ControlPainter::draw_container(
 //          case Hovered:  _state|= DFCS_HOT;      break;
 //          default: break;
 //        }
-        
-        if(type == DefaultPushButton){
-          FrameRect(dc, &rect, (HBRUSH)GetStockObject(BLACK_BRUSH));
+
+          if(type == DefaultPushButton) {
+            FrameRect(dc, &rect, (HBRUSH)GetStockObject(BLACK_BRUSH));
+            
+            InflateRect(&rect, -1, -1);
+          }
           
-          InflateRect(&rect, -1, -1);
-        }
-        
-        FillRect(dc, &rect, (HBRUSH)(COLOR_BTNFACE + 1));
-        
-        if(state == Pressed){
-          DrawEdge(dc, &rect, EDGE_SUNKEN, BF_RECT);
-        }
-        else{
-          DrawEdge(dc, &rect, EDGE_RAISED, BF_RECT);
-        }
-        
+          FillRect(dc, &rect, (HBRUSH)(COLOR_BTNFACE + 1));
+          
+          if(state == Pressed) {
+            DrawEdge(dc, &rect, EDGE_SUNKEN, BF_RECT);
+          }
+          else {
+            DrawEdge(dc, &rect, EDGE_RAISED, BF_RECT);
+          }
+          
 //        DrawFrameControl(
 //          dc,
 //          &rect,
 //          DFC_BUTTON,
 //          _state);
-      } break;
-      
+        } break;
+        
       case InputField: {
-        FillRect(dc, &rect, (HBRUSH)(COLOR_WINDOW + 1));
-
-        DrawEdge(
-          dc,
-          &rect,
-          EDGE_SUNKEN,
-          BF_RECT);
-      } break;
-      
+          FillRect(dc, &rect, (HBRUSH)(COLOR_WINDOW + 1));
+          
+          DrawEdge(
+            dc,
+            &rect,
+            EDGE_SUNKEN,
+            BF_RECT);
+        } break;
+        
       case TooltipWindow: {
-        FrameRect(dc, &rect, GetSysColorBrush(COLOR_WINDOWFRAME));
+          FrameRect(dc, &rect, GetSysColorBrush(COLOR_WINDOWFRAME));
+          
+          InflateRect(&rect, -1, -1);
+          
+          FillRect(dc, &rect, (HBRUSH)(COLOR_INFOBK + 1));
+        } break;
         
-        InflateRect(&rect, -1, -1);
-        
-        FillRect(dc, &rect, (HBRUSH)(COLOR_INFOBK + 1));
-      } break;
-      
-      case MenuItemSelected: 
+      case MenuItemSelected:
         FillRect(dc, &rect, (HBRUSH)(COLOR_HIGHLIGHT + 1));
         break;
-      
+        
       case ProgressIndicatorBackground:
       case SliderHorzChannel: {
-        FillRect(dc, &rect, (HBRUSH)(COLOR_BTNFACE + 1));
+          FillRect(dc, &rect, (HBRUSH)(COLOR_BTNFACE + 1));
+          
+          DrawEdge(
+            dc,
+            &rect,
+            EDGE_SUNKEN,
+            BF_RECT);
+        } break;
         
-        DrawEdge(
-          dc,
-          &rect,
-          EDGE_SUNKEN,
-          BF_RECT);
-      } break;
-      
       case ProgressIndicatorBar: {
-        int chunk = (rect.bottom - rect.top) / 2;
-        RECT chunk_rect = rect;
-        
-        if(chunk < 2)
-           chunk = 2;
-        
-        int x;
-        for(x = rect.left;x + chunk <= rect.right;x+= chunk + 2){
-          chunk_rect.left = x;
-          chunk_rect.right = x + chunk;
+          int chunk = (rect.bottom - rect.top) / 2;
+          RECT chunk_rect = rect;
           
-          FillRect(dc, &chunk_rect, (HBRUSH)(COLOR_HIGHLIGHT + 1));
-        }
-        
-        if(x < rect.right){
-          chunk_rect.left = x;
-          chunk_rect.right = rect.right;
+          if(chunk < 2)
+            chunk = 2;
+            
+          int x;
+          for(x = rect.left; x + chunk <= rect.right; x += chunk + 2) {
+            chunk_rect.left = x;
+            chunk_rect.right = x + chunk;
+            
+            FillRect(dc, &chunk_rect, (HBRUSH)(COLOR_HIGHLIGHT + 1));
+          }
           
-          FillRect(dc, &chunk_rect, (HBRUSH)(COLOR_HIGHLIGHT + 1));
-        }
-      } break;
-      
+          if(x < rect.right) {
+            chunk_rect.left = x;
+            chunk_rect.right = rect.right;
+            
+            FillRect(dc, &chunk_rect, (HBRUSH)(COLOR_HIGHLIGHT + 1));
+          }
+        } break;
+        
       case SliderHorzThumb: {
-        DrawFrameControl(
-          dc,
-          &rect,
-          DFC_BUTTON,
-          DFCS_BUTTONPUSH);
-      } break;
-      
-      case CheckboxUnchecked: 
-      case CheckboxChecked: 
-      case CheckboxIndeterminate:{
-        UINT _state = DFCS_BUTTONCHECK;
+          DrawFrameControl(
+            dc,
+            &rect,
+            DFC_BUTTON,
+            DFCS_BUTTONPUSH);
+        } break;
         
-        if(type == CheckboxChecked)       _state|= DFCS_CHECKED;
-        if(type == CheckboxIndeterminate) _state = DFCS_BUTTON3STATE | DFCS_CHECKED;
+      case CheckboxUnchecked:
+      case CheckboxChecked:
+      case CheckboxIndeterminate: {
+          UINT _state = DFCS_BUTTONCHECK;
+          
+          if(type == CheckboxChecked)       _state |= DFCS_CHECKED;
+          if(type == CheckboxIndeterminate) _state = DFCS_BUTTON3STATE | DFCS_CHECKED;
+          
+          switch(state) {
+            case Disabled: _state|= DFCS_INACTIVE; break;
+            case Pressed:  _state|= DFCS_PUSHED;   break;
+            default: break;
+          }
+          
+          DrawFrameControl(
+            dc,
+            &rect,
+            DFC_BUTTON,
+            _state);
+        } break;
         
-        switch(state){
-          case Disabled: _state|= DFCS_INACTIVE; break;
-          case Pressed:  _state|= DFCS_PUSHED;   break;
-          default: break;
-        }
-        
-        DrawFrameControl(
-          dc,
-          &rect,
-          DFC_BUTTON,
-          _state);
-      } break;
-      
       case RadioButtonUnchecked:
       case RadioButtonChecked: {
-        UINT _state = DFCS_BUTTONRADIO;
-        
-        if(type == RadioButtonChecked)    _state|= DFCS_CHECKED;
-        
-        switch(state){
-          case Disabled: _state|= DFCS_INACTIVE; break;
-          case Pressed:  _state|= DFCS_PUSHED;   break;
-          default: break;
-        }
-        
-        if(rect.right - rect.left > 0){
-          double w = (rect.right - rect.left) * 0.75;
-          double c = (rect.right + rect.left) * 0.5;
-          rect.left  = (int)(c - w/2);
-          rect.right = (int)(c + w/2);
-        }
-        
-        if(rect.bottom - rect.top > 12){
-          double w = (rect.bottom - rect.top) * 0.75;
-          double c = (rect.bottom + rect.top) * 0.5;
-          rect.top    = (int)(c - w/2);
-          rect.bottom = (int)(c + w/2);
-        }
-        
-        DrawFrameControl(
-          dc,
-          &rect,
-          DFC_BUTTON,
-          _state);
-      } break;
+          UINT _state = DFCS_BUTTONRADIO;
+          
+          if(type == RadioButtonChecked)    _state |= DFCS_CHECKED;
+          
+          switch(state) {
+            case Disabled: _state|= DFCS_INACTIVE; break;
+            case Pressed:  _state|= DFCS_PUSHED;   break;
+            default: break;
+          }
+          
+          if(rect.right - rect.left > 0) {
+            double w = (rect.right - rect.left) * 0.75;
+            double c = (rect.right + rect.left) * 0.5;
+            rect.left  = (int)(c - w / 2);
+            rect.right = (int)(c + w / 2);
+          }
+          
+          if(rect.bottom - rect.top > 12) {
+            double w = (rect.bottom - rect.top) * 0.75;
+            double c = (rect.bottom + rect.top) * 0.5;
+            rect.top    = (int)(c - w / 2);
+            rect.bottom = (int)(c + w / 2);
+          }
+          
+          DrawFrameControl(
+            dc,
+            &rect,
+            DFC_BUTTON,
+            _state);
+        } break;
     }
   }
   
-  if(surface){
+  if(surface) {
     cairo_surface_mark_dirty(surface);
     
     canvas->save();
@@ -681,14 +682,14 @@ void Win32ControlPainter::draw_container(
     //cairo_reset_clip(canvas->cairo());
     
     cairo_set_source_surface(
-      canvas->cairo(), 
+      canvas->cairo(),
       surface,
       x, y);
       
-    if(w != width || h != height){
+    if(w != width || h != height) {
       cairo_matrix_t mat;
-      mat.xx = w/width;
-      mat.yy = h/height;
+      mat.xx = w / width;
+      mat.yy = h / height;
       mat.xy = mat.yx = 0;
       mat.x0 = -x * mat.xx;
       mat.y0 = -y * mat.yy;
@@ -701,7 +702,7 @@ void Win32ControlPainter::draw_container(
     canvas->restore();
     cairo_surface_destroy(surface);
   }
-  else{
+  else {
     cairo_surface_mark_dirty(cairo_get_target(canvas->cairo()));
   }
 }
@@ -717,30 +718,30 @@ SharedPtr<BoxAnimation> Win32ControlPainter::control_transition(
   float          y,
   float          width,
   float          height
-){
-  if(!Win32Themes::GetThemeTransitionDuration 
-  || widget_id == 0) 
+) {
+  if(!Win32Themes::GetThemeTransitionDuration
+      || widget_id == 0)
     return 0;
-  
+    
   bool repeat = false;
-  if(type2 == DefaultPushButton && state1 == Normal && state2 == Normal){
+  if(type2 == DefaultPushButton && state1 == Normal && state2 == Normal) {
     state2 = Hot;
     repeat = true;
   }
   
   if(state1 == Normal && (state2 == Hot || state2 == Hovered)
-  && type2 == PaletteButton)
+      && type2 == PaletteButton)
     return 0;
-  
+    
   int theme_part, theme_state1, theme_state2;
   HANDLE theme = get_control_theme(type1, state1, &theme_part, &theme_state1);
-                 get_control_theme(type2, state2, &theme_part, &theme_state2);
+  get_control_theme(type2, state2, &theme_part, &theme_state2);
   if(!theme)
     return 0;
-  
+    
   if(type2 == PushButton
-  || type2 == DefaultPushButton
-  || type2 == PaletteButton){
+      || type2 == DefaultPushButton
+      || type2 == PaletteButton) {
     if(state2 == Pressed/* || state1 == Normal*/)
       return 0;
   }
@@ -749,7 +750,7 @@ SharedPtr<BoxAnimation> Win32ControlPainter::control_transition(
   Win32Themes::GetThemeTransitionDuration(
     theme, theme_part, theme_state1, theme_state2, 6000, &duration);
     
-  if(duration > 0){
+  if(duration > 0) {
     float x0, y0;
     canvas->current_pos(&x0, &y0);
     
@@ -758,24 +759,24 @@ SharedPtr<BoxAnimation> Win32ControlPainter::control_transition(
     float w1 = width;
     float h1 = height;
     
-    if(type2 == InputField){ // bigger buffer for glow rectangle
-      x1-= 4.5;
-      y1-= 4.5;
-      w1+= 9;
-      h1+= 9;
+    if(type2 == InputField) { // bigger buffer for glow rectangle
+      x1 -= 4.5;
+      y1 -= 4.5;
+      w1 += 9;
+      h1 += 9;
     }
     
     SharedPtr<LinearTransition> anim = new LinearTransition(
-      widget_id, 
+      widget_id,
       canvas,
       x1, y1, w1, h1,
       duration / 1000.0);
-    
-    if(anim->box_id == 0 
-    || !anim->buf1 
-    || !anim->buf2)
+      
+    if(anim->box_id == 0
+        || !anim->buf1
+        || !anim->buf2)
       return 0;
-    
+      
     anim->repeat = repeat;
     
     draw_container(
@@ -786,7 +787,7 @@ SharedPtr<BoxAnimation> Win32ControlPainter::control_transition(
       y - y0,
       width,
       height);
-    
+      
     draw_container(
       anim->buf2->canvas(),
       type2,
@@ -795,7 +796,7 @@ SharedPtr<BoxAnimation> Win32ControlPainter::control_transition(
       y - y0,
       width,
       height);
-    
+      
     return anim;
   }
   
@@ -807,11 +808,11 @@ void Win32ControlPainter::container_content_move(
   ControlState   state,
   float         *x,
   float         *y
-){
+) {
 //  if(Win32Themes::GetThemePosition){
 //    int theme_part, theme_state;
 //    HANDLE theme = get_control_theme(type, state, &theme_part, &theme_state);
-//    
+//
 //    POINT off;
 //    // TMT_OFFSET  = 3401
 //    if(theme
@@ -822,61 +823,61 @@ void Win32ControlPainter::container_content_move(
 //      *y+= 0.75f * off.y;
 //      return;
 //    }
-//    
+//
 //    if(theme)
 //      return;
 //  }
-  
+
   ControlPainter::container_content_move(type, state, x, y);
 }
 
-bool Win32ControlPainter::container_hover_repaint(ContainerType type){
-  return Win32Themes::OpenThemeData 
-      && Win32Themes::CloseThemeData 
-      && Win32Themes::DrawThemeBackground;
+bool Win32ControlPainter::container_hover_repaint(ContainerType type) {
+  return Win32Themes::OpenThemeData
+         && Win32Themes::CloseThemeData
+         && Win32Themes::DrawThemeBackground;
 }
 
-void Win32ControlPainter::system_font_style(Style *style){
+void Win32ControlPainter::system_font_style(Style *style) {
   NONCLIENTMETRICSW nonclientmetrics;
   LOGFONTW *logfont = 0;
   
-  if(Win32Themes::GetThemeSysFont){
+  if(Win32Themes::GetThemeSysFont) {
     logfont = &nonclientmetrics.lfMessageFont;
     if(!Win32Themes::GetThemeSysFont(NULL, 0x0325/*TMT_MSGBOXFONT*/, logfont))
       logfont = 0;
   }
   
-  if(!logfont){
+  if(!logfont) {
     nonclientmetrics.cbSize = sizeof(nonclientmetrics);
     SystemParametersInfoW(
-      SPI_GETNONCLIENTMETRICS, 
+      SPI_GETNONCLIENTMETRICS,
       sizeof(nonclientmetrics),
       &nonclientmetrics,
       FALSE);
       
     logfont = &nonclientmetrics.lfMessageFont;
   }
-    
+  
   style->set(FontFamily, String::FromUcs2((const uint16_t*)logfont->lfFaceName));
-  style->set(FontSize, abs(logfont->lfHeight) * 3/4.f);
+  style->set(FontSize, abs(logfont->lfHeight) * 3 / 4.f);
   
   if(logfont->lfWeight > FW_NORMAL)
     style->set(FontWeight, FontWeightBold);
   else
     style->set(FontWeight, FontWeightPlain);
-  
-  style->set(FontSlant, logfont->lfItalic ? FontSlantItalic: FontSlantPlain);
+    
+  style->set(FontSlant, logfont->lfItalic ? FontSlantItalic : FontSlantPlain);
 }
 
-int Win32ControlPainter::selection_color(){
+int Win32ControlPainter::selection_color() {
   DWORD col = GetSysColor(COLOR_HIGHLIGHT);
   return ((col & 0xFF0000) >> 16)
-       |  (col & 0x00FF00)
-       | ((col & 0x0000FF) << 16);
+         | (col & 0x00FF00)
+         | ((col & 0x0000FF) << 16);
 }
 
-float Win32ControlPainter::scrollbar_width(){
-  return GetSystemMetrics(SM_CXHTHUMB) * 3/4.f;
+float Win32ControlPainter::scrollbar_width() {
+  return GetSystemMetrics(SM_CXHTHUMB) * 3 / 4.f;
 }
 
 void Win32ControlPainter::paint_scrollbar_part(
@@ -888,10 +889,10 @@ void Win32ControlPainter::paint_scrollbar_part(
   float               y,
   float               width,
   float               height
-){
+) {
   if(part == ScrollbarNowhere)
     return;
-  
+    
   int dc_x = 0;
   int dc_y = 0;
   
@@ -906,17 +907,17 @@ void Win32ControlPainter::paint_scrollbar_part(
   
   if(w == 0 || h == 0)
     return;
-  
+    
   canvas->align_point(&x, &y, true);
   
   HDC dc = cairo_win32_surface_get_dc(cairo_get_target(canvas->cairo()));
   cairo_surface_t *surface = 0;
-
-  if(dc){
+  
+  if(dc) {
     cairo_matrix_t ctm;
     cairo_get_matrix(canvas->cairo(), &ctm);
     
-    if(ctm.xx > 0 && ctm.yy > 0 && ctm.xy == 0 && ctm.yx == 0){
+    if(ctm.xx > 0 && ctm.yy > 0 && ctm.xy == 0 && ctm.yx == 0) {
       float ux = x;
       float uy = y;
       canvas->user_to_device(&ux, &uy);
@@ -929,20 +930,20 @@ void Win32ControlPainter::paint_scrollbar_part(
       dc = 0;
   }
   
-  if(!dc){
-    if(Win32Themes::OpenThemeData 
-    && Win32Themes::CloseThemeData 
-    && Win32Themes::DrawThemeBackground){
+  if(!dc) {
+    if(Win32Themes::OpenThemeData
+        && Win32Themes::CloseThemeData
+        && Win32Themes::DrawThemeBackground) {
       surface = cairo_win32_surface_create_with_dib(
-        CAIRO_FORMAT_ARGB32,
-        w, 
-        h);
+                  CAIRO_FORMAT_ARGB32,
+                  w,
+                  h);
     }
-    else{
+    else {
       surface = cairo_win32_surface_create_with_dib(
-        CAIRO_FORMAT_RGB24,
-        w, 
-        h);
+                  CAIRO_FORMAT_RGB24,
+                  w,
+                  h);
     }
     
     dc = cairo_win32_surface_get_dc(surface);
@@ -954,51 +955,51 @@ void Win32ControlPainter::paint_scrollbar_part(
   rect.right  = dc_x + w;
   rect.bottom = dc_y + h;
   
-  if(Win32Themes::OpenThemeData 
-  && Win32Themes::CloseThemeData 
-  && Win32Themes::DrawThemeBackground){
+  if(Win32Themes::OpenThemeData
+      && Win32Themes::CloseThemeData
+      && Win32Themes::DrawThemeBackground) {
     if(!scrollbar_theme)
       scrollbar_theme = Win32Themes::OpenThemeData(0, L"SCROLLBAR");
-    
+      
     if(!scrollbar_theme)
       goto FALLBACK;
-    
+      
     int _part = 0;
     int _state = 0;
     
-    switch(part){
+    switch(part) {
       case ScrollbarUpLeft:
-      case ScrollbarDownRight: 
+      case ScrollbarDownRight:
         _part = 1; // SBP_ARROWBTN
         break;
-      
+        
       case ScrollbarThumb: {
-        if(dir == ScrollbarHorizontal) 
-          _part = 2; 
-        else
-          _part = 3;
-      } break;
-      
+          if(dir == ScrollbarHorizontal)
+            _part = 2;
+          else
+            _part = 3;
+        } break;
+        
       case ScrollbarLowerRange: {
-        if(dir == ScrollbarHorizontal) 
-          _part = 4; 
-        else
-          _part = 6;
-      } break;
-      
+          if(dir == ScrollbarHorizontal)
+            _part = 4;
+          else
+            _part = 6;
+        } break;
+        
       case ScrollbarUpperRange: {
-        if(dir == ScrollbarHorizontal) 
-          _part = 5; 
-        else
-          _part = 7;
-      } break;
-      
+          if(dir == ScrollbarHorizontal)
+            _part = 5;
+          else
+            _part = 7;
+        } break;
+        
       case ScrollbarNowhere:
       case ScrollbarSizeGrip: _part = 10; break;
     }
     
-    if(_part == 1){ // arrow button
-      switch(state){
+    if(_part == 1) { // arrow button
+      switch(state) {
         case Disabled: _state = 4; break;
         case Pressed:  _state = 3; break;
         case Hovered:
@@ -1008,26 +1009,26 @@ void Win32ControlPainter::paint_scrollbar_part(
         default: ;
       }
       
-      if(_state){
-        if(dir == ScrollbarHorizontal){
+      if(_state) {
+        if(dir == ScrollbarHorizontal) {
           if(part == ScrollbarDownRight)
-            _state+= 12;
+            _state += 12;
           else
-            _state+= 8;
+            _state += 8;
         }
-        else{
+        else {
           if(part == ScrollbarDownRight)
-            _state+= 4;
+            _state += 4;
         }
       }
-      else{
-        if(dir == ScrollbarHorizontal){
+      else {
+        if(dir == ScrollbarHorizontal) {
           if(part == ScrollbarDownRight)
             _state = 20;
           else
             _state = 19;
         }
-        else{
+        else {
           if(part == ScrollbarDownRight)
             _state = 18;
           else
@@ -1035,11 +1036,11 @@ void Win32ControlPainter::paint_scrollbar_part(
         }
       }
     }
-    else if(_part == 10){ // size box
+    else if(_part == 10) { // size box
       _state = 1;
     }
-    else{ // thumbs, ranges
-      switch(state){
+    else { // thumbs, ranges
+      switch(state) {
         case Normal:   _state = 1; break;
         case Hot:      _state = 2; break;
         case Pressed:  _state = 3; break;
@@ -1055,10 +1056,10 @@ void Win32ControlPainter::paint_scrollbar_part(
       _state,
       &rect,
       0);
-    
-    if(part == ScrollbarThumb){
-      if(dir == ScrollbarHorizontal){
-        if(width >= height){
+      
+    if(part == ScrollbarThumb) {
+      if(dir == ScrollbarHorizontal) {
+        if(width >= height) {
           Win32Themes::DrawThemeBackground(
             scrollbar_theme,
             dc,
@@ -1068,8 +1069,8 @@ void Win32ControlPainter::paint_scrollbar_part(
             0);
         }
       }
-      else if(height >= width){
-        if(height >= width){
+      else if(height >= width) {
+        if(height >= width) {
           Win32Themes::DrawThemeBackground(
             scrollbar_theme,
             dc,
@@ -1083,39 +1084,40 @@ void Win32ControlPainter::paint_scrollbar_part(
     
 //    Win32Themes::CloseThemeData(theme);
   }
-  else{ FALLBACK: ;
+  else {
+  FALLBACK: ;
     UINT _type = DFC_SCROLL;
     UINT _state = 0;
     
     bool bg = false;
     
-    switch(part){
+    switch(part) {
       case ScrollbarUpLeft: {
-        if(dir == ScrollbarHorizontal)
-          _state = DFCS_SCROLLLEFT;
-        else
-          _state = DFCS_SCROLLUP;
-      } break;
-      
+          if(dir == ScrollbarHorizontal)
+            _state = DFCS_SCROLLLEFT;
+          else
+            _state = DFCS_SCROLLUP;
+        } break;
+        
       case ScrollbarDownRight: {
-        if(dir == ScrollbarHorizontal)
-          _state = DFCS_SCROLLRIGHT;
-        else
-          _state = DFCS_SCROLLDOWN;
-      } break;
-      
+          if(dir == ScrollbarHorizontal)
+            _state = DFCS_SCROLLRIGHT;
+          else
+            _state = DFCS_SCROLLDOWN;
+        } break;
+        
       case ScrollbarSizeGrip: _state = DFCS_SCROLLSIZEGRIP; break;
       
       case ScrollbarThumb:
         _type = DFC_BUTTON;
         _state = DFCS_BUTTONPUSH;
         break;
-      
+        
       default: bg = true;
     }
     
-    if(!bg){
-      switch(state){
+    if(!bg) {
+      switch(state) {
         case Pressed:  _state|= DFCS_PUSHED;   break;
         case Hot:
         case Hovered:  _state|= DFCS_HOT;      break;
@@ -1131,7 +1133,7 @@ void Win32ControlPainter::paint_scrollbar_part(
     }
   }
   
-  if(surface){
+  if(surface) {
     cairo_surface_mark_dirty(surface);
     
     canvas->save();
@@ -1139,14 +1141,14 @@ void Win32ControlPainter::paint_scrollbar_part(
     cairo_reset_clip(canvas->cairo());
     
     cairo_set_source_surface(
-      canvas->cairo(), 
+      canvas->cairo(),
       surface,
       x, y);
       
-    if(w != width || h != height){
+    if(w != width || h != height) {
       cairo_matrix_t mat;
-      mat.xx = w/width;
-      mat.yy = h/height;
+      mat.xx = w / width;
+      mat.yy = h / height;
       mat.xy = mat.yx = 0;
       mat.x0 = -x * mat.xx;
       mat.y0 = -y * mat.yy;
@@ -1159,19 +1161,19 @@ void Win32ControlPainter::paint_scrollbar_part(
     canvas->restore();
     cairo_surface_destroy(surface);
   }
-  else{
+  else {
     cairo_surface_mark_dirty(cairo_get_target(canvas->cairo()));
   }
 }
 
-void Win32ControlPainter::draw_menubar(HDC dc, RECT *rect){
-  if(Win32Themes::OpenThemeData 
-  && Win32Themes::CloseThemeData 
-  && Win32Themes::DrawThemeBackground){
+void Win32ControlPainter::draw_menubar(HDC dc, RECT *rect) {
+  if(Win32Themes::OpenThemeData
+      && Win32Themes::CloseThemeData
+      && Win32Themes::DrawThemeBackground) {
     HANDLE theme = Win32Themes::OpenThemeData(0, L"MENU");
     if(!theme)
       goto FALLBACK;
-    
+      
     Win32Themes::DrawThemeBackground(
       theme,
       dc,
@@ -1179,25 +1181,26 @@ void Win32ControlPainter::draw_menubar(HDC dc, RECT *rect){
       0,
       rect,
       0);
-    
+      
     Win32Themes::CloseThemeData(theme);
   }
-  else{ FALLBACK: ;
+  else {
+  FALLBACK: ;
     FillRect(dc, rect, GetSysColorBrush(COLOR_BTNFACE));
   }
 }
 
-bool Win32ControlPainter::draw_menubar_itembg(HDC dc, RECT *rect, ControlState state){
+bool Win32ControlPainter::draw_menubar_itembg(HDC dc, RECT *rect, ControlState state) {
   if(Win32Themes::OpenThemeData
-  && Win32Themes::CloseThemeData 
-  && Win32Themes::DrawThemeBackground){
+      && Win32Themes::CloseThemeData
+      && Win32Themes::DrawThemeBackground) {
     HANDLE theme = Win32Themes::OpenThemeData(0, L"MENU");
-      
+    
     if(!theme)
       goto FALLBACK;
-    
+      
     int _state;
-    switch(state){
+    switch(state) {
       case Hot:     _state = 2; break;
       case Pressed: _state = 3; break;
       default: _state = 1;
@@ -1210,13 +1213,13 @@ bool Win32ControlPainter::draw_menubar_itembg(HDC dc, RECT *rect, ControlState s
       _state,
       rect,
       0);
-    
+      
     Win32Themes::CloseThemeData(theme);
     return true;
   }
   
- FALLBACK:
-  if(state != Normal){
+FALLBACK:
+  if(state != Normal) {
     FillRect(dc, rect, GetSysColorBrush(COLOR_HIGHLIGHT));
     return false;
   }
@@ -1225,17 +1228,17 @@ bool Win32ControlPainter::draw_menubar_itembg(HDC dc, RECT *rect, ControlState s
 }
 
 HANDLE Win32ControlPainter::get_control_theme(
-  ContainerType  type, 
+  ContainerType  type,
   ControlState   state,
   int           *theme_part,
   int           *theme_state
-){
-  if(!theme_part){
+) {
+  if(!theme_part) {
     static int dummy_part;
     theme_part = &dummy_part;
   }
   
-  if(!theme_state){
+  if(!theme_state) {
     static int dummy_state;
     theme_state = &dummy_state;
   }
@@ -1244,227 +1247,227 @@ HANDLE Win32ControlPainter::get_control_theme(
   *theme_state = 0;
   if(!Win32Themes::OpenThemeData)
     return 0;
-  
+    
   HANDLE theme = 0;
   
-  switch(type){
+  switch(type) {
     case PushButton:
-    case DefaultPushButton: 
-    case CheckboxUnchecked: 
+    case DefaultPushButton:
+    case CheckboxUnchecked:
     case CheckboxChecked:
-    case CheckboxIndeterminate: 
-    case RadioButtonUnchecked: 
+    case CheckboxIndeterminate:
+    case RadioButtonUnchecked:
     case RadioButtonChecked: {
-      if(!button_theme)
-        button_theme = Win32Themes::OpenThemeData(0, L"BUTTON");
-      
-      theme = button_theme;
-    } break;
+        if(!button_theme)
+          button_theme = Win32Themes::OpenThemeData(0, L"BUTTON");
+          
+        theme = button_theme;
+      } break;
       
     case PaletteButton: {
-      if(!toolbar_theme)
-        toolbar_theme = Win32Themes::OpenThemeData(0, L"TOOLBAR");
-      
-      theme = toolbar_theme;
+        if(!toolbar_theme)
+          toolbar_theme = Win32Themes::OpenThemeData(0, L"TOOLBAR");
+          
+        theme = toolbar_theme;
 //      very_transparent = true;
-    } break;
-    
+      } break;
+      
     case InputField: {
-      if(!edit_theme)
-        edit_theme = Win32Themes::OpenThemeData(0, L"EDIT");
+        if(!edit_theme)
+          edit_theme = Win32Themes::OpenThemeData(0, L"EDIT");
+          
+        theme = edit_theme;
+      } break;
       
-      theme = edit_theme;
-    } break;
-    
     case TooltipWindow: {
-      if(!tooltip_theme)
-        tooltip_theme = Win32Themes::OpenThemeData(0, L"TOOLTIP");
+        if(!tooltip_theme)
+          tooltip_theme = Win32Themes::OpenThemeData(0, L"TOOLTIP");
+          
+        theme = tooltip_theme;
+      } break;
       
-      theme = tooltip_theme;
-    } break;
-    
     case ProgressIndicatorBackground:
     case ProgressIndicatorBar: {
-      if(!progress_theme)
-        progress_theme = Win32Themes::OpenThemeData(0, L"PROGRESS");
+        if(!progress_theme)
+          progress_theme = Win32Themes::OpenThemeData(0, L"PROGRESS");
+          
+        theme = progress_theme;
+      } break;
       
-      theme = progress_theme;
-    } break;
-    
-    case SliderHorzChannel: 
+    case SliderHorzChannel:
     case SliderHorzThumb: {
-      if(!slider_theme)
-        slider_theme = Win32Themes::OpenThemeData(0, L"TRACKBAR");
+        if(!slider_theme)
+          slider_theme = Win32Themes::OpenThemeData(0, L"TRACKBAR");
+          
+        theme = slider_theme;
+      } break;
       
-      theme = slider_theme;
-    } break;
-    
     default: return 0;
   }
   
   if(!theme)
     return 0;
     
-  switch(type){
+  switch(type) {
     case GenericButton:
     case PushButton:
     case DefaultPushButton:
     case PaletteButton: {
-      *theme_part = 1;//BP_PUSHBUTTON / TP_BUTTON
-       
-      switch(state){
-        case Disabled: *theme_state = 4; break;
-        case Pressed:  *theme_state = 3; break;
-        case Hovered:  *theme_state = 2; break; // Hot
-        case Hot: {
-          if(type == DefaultPushButton){
-            *theme_state = 6;
-          }
-          else
-            *theme_state = 2;
-        } break;
+        *theme_part = 1;//BP_PUSHBUTTON / TP_BUTTON
         
-        case Normal:
-          if(type == DefaultPushButton){
-            *theme_state = 5;
-          }
-          else
-            *theme_state = 1;
-      }
-    } break;
-    
+        switch(state) {
+          case Disabled: *theme_state = 4; break;
+          case Pressed:  *theme_state = 3; break;
+          case Hovered:  *theme_state = 2; break; // Hot
+          case Hot: {
+              if(type == DefaultPushButton) {
+                *theme_state = 6;
+              }
+              else
+                *theme_state = 2;
+            } break;
+            
+          case Normal:
+            if(type == DefaultPushButton) {
+              *theme_state = 5;
+            }
+            else
+              *theme_state = 1;
+        }
+      } break;
+      
     case InputField: {
-      *theme_part = 6;//EP_EDITBORDER_NOSCROLL
-      
-      switch(state){
-        case Normal:   *theme_state = 1; break;
-        case Hot: 
-        case Hovered:  *theme_state = 2; break;
-        case Pressed:  *theme_state = 3; break; // = focused
-        case Disabled: *theme_state = 4; break;
-      }
-    } break;
-    
-    case TooltipWindow: {
-      *theme_part  = 1; // TTP_STANDARD
-      *theme_state = 1;
-    } break;
-    
-    case ProgressIndicatorBackground: {
-      if(Win32Themes::IsThemePartDefined(theme, 11, 0))
-        *theme_part = 11;
-      else
-        *theme_part = 1;
+        *theme_part = 6;//EP_EDITBORDER_NOSCROLL
         
-      *theme_state = 1;
-    } break;
-    
-    case ProgressIndicatorBar: {
-      if(Win32Themes::IsThemePartDefined(theme, 5, 0))
-        *theme_part = 5;
-      else
-        *theme_part = 3;
+        switch(state) {
+          case Normal:   *theme_state = 1; break;
+          case Hot:
+          case Hovered:  *theme_state = 2; break;
+          case Pressed:  *theme_state = 3; break; // = focused
+          case Disabled: *theme_state = 4; break;
+        }
+      } break;
       
-      *theme_state = 1;
-    } break;
-    
+    case TooltipWindow: {
+        *theme_part  = 1; // TTP_STANDARD
+        *theme_state = 1;
+      } break;
+      
+    case ProgressIndicatorBackground: {
+        if(Win32Themes::IsThemePartDefined(theme, 11, 0))
+          *theme_part = 11;
+        else
+          *theme_part = 1;
+          
+        *theme_state = 1;
+      } break;
+      
+    case ProgressIndicatorBar: {
+        if(Win32Themes::IsThemePartDefined(theme, 5, 0))
+          *theme_part = 5;
+        else
+          *theme_part = 3;
+          
+        *theme_state = 1;
+      } break;
+      
     case SliderHorzChannel: {
-      *theme_part = 1;
-      *theme_state = 1;
-    } break;
-    
+        *theme_part = 1;
+        *theme_state = 1;
+      } break;
+      
     case SliderHorzThumb: {
-      *theme_part = 3;
-      switch(state){
-        case Normal:   *theme_state = 1; break;
-        case Hot: 
-        case Hovered:  *theme_state = 2; break;
-        case Pressed:  *theme_state = 3; break;
-        case Disabled: *theme_state = 4; break;
-      }
-    } break;
-    
+        *theme_part = 3;
+        switch(state) {
+          case Normal:   *theme_state = 1; break;
+          case Hot:
+          case Hovered:  *theme_state = 2; break;
+          case Pressed:  *theme_state = 3; break;
+          case Disabled: *theme_state = 4; break;
+        }
+      } break;
+      
     case CheckboxUnchecked: {
-      *theme_part = 3; // BP_CHECKBOX
-      switch(state){
-        case Normal:   *theme_state = 1; break;
-        case Hot: 
-        case Hovered:  *theme_state = 2; break;
-        case Pressed:  *theme_state = 3; break;
-        case Disabled: *theme_state = 4; break;
-      }
-    } break;
-    
+        *theme_part = 3; // BP_CHECKBOX
+        switch(state) {
+          case Normal:   *theme_state = 1; break;
+          case Hot:
+          case Hovered:  *theme_state = 2; break;
+          case Pressed:  *theme_state = 3; break;
+          case Disabled: *theme_state = 4; break;
+        }
+      } break;
+      
     case CheckboxChecked: {
-      *theme_part = 3; // BP_CHECKBOX
-      switch(state){
-        case Normal:   *theme_state = 5; break;
-        case Hot: 
-        case Hovered:  *theme_state = 6; break;
-        case Pressed:  *theme_state = 7; break;
-        case Disabled: *theme_state = 8; break;
-      }
-    } break;
-    
+        *theme_part = 3; // BP_CHECKBOX
+        switch(state) {
+          case Normal:   *theme_state = 5; break;
+          case Hot:
+          case Hovered:  *theme_state = 6; break;
+          case Pressed:  *theme_state = 7; break;
+          case Disabled: *theme_state = 8; break;
+        }
+      } break;
+      
     case CheckboxIndeterminate: {
-      *theme_part = 3; // BP_CHECKBOX
-      switch(state){
-        case Normal:   *theme_state = 9; break;
-        case Hot: 
-        case Hovered:  *theme_state = 10; break;
-        case Pressed:  *theme_state = 11; break;
-        case Disabled: *theme_state = 12; break;
-      }
-    } break;
-    
+        *theme_part = 3; // BP_CHECKBOX
+        switch(state) {
+          case Normal:   *theme_state = 9; break;
+          case Hot:
+          case Hovered:  *theme_state = 10; break;
+          case Pressed:  *theme_state = 11; break;
+          case Disabled: *theme_state = 12; break;
+        }
+      } break;
+      
     case RadioButtonUnchecked: {
-      *theme_part = 2; // BP_RADIOBUTTON
-      switch(state){
-        case Normal:   *theme_state = 1; break;
-        case Hot: 
-        case Hovered:  *theme_state = 2; break;
-        case Pressed:  *theme_state = 3; break;
-        case Disabled: *theme_state = 4; break;
-      }
-    } break;
-    
+        *theme_part = 2; // BP_RADIOBUTTON
+        switch(state) {
+          case Normal:   *theme_state = 1; break;
+          case Hot:
+          case Hovered:  *theme_state = 2; break;
+          case Pressed:  *theme_state = 3; break;
+          case Disabled: *theme_state = 4; break;
+        }
+      } break;
+      
     case RadioButtonChecked: {
-      *theme_part = 2; // BP_RADIOBUTTON
-      switch(state){
-        case Normal:   *theme_state = 5; break;
-        case Hot: 
-        case Hovered:  *theme_state = 6; break;
-        case Pressed:  *theme_state = 7; break;
-        case Disabled: *theme_state = 8; break;
-      }
-    } break;
-    
+        *theme_part = 2; // BP_RADIOBUTTON
+        switch(state) {
+          case Normal:   *theme_state = 5; break;
+          case Hot:
+          case Hovered:  *theme_state = 6; break;
+          case Pressed:  *theme_state = 7; break;
+          case Disabled: *theme_state = 8; break;
+        }
+      } break;
+      
     default: break;
   }
   
   return theme;
 }
 
-void Win32ControlPainter::clear_cache(){
-  if(Win32Themes::CloseThemeData){
+void Win32ControlPainter::clear_cache() {
+  if(Win32Themes::CloseThemeData) {
     if(button_theme)
       Win32Themes::CloseThemeData(button_theme);
-    
+      
     if(edit_theme)
       Win32Themes::CloseThemeData(edit_theme);
-    
+      
     if(tooltip_theme)
       Win32Themes::CloseThemeData(tooltip_theme);
-    
+      
     if(progress_theme)
       Win32Themes::CloseThemeData(progress_theme);
-    
+      
     if(scrollbar_theme)
       Win32Themes::CloseThemeData(scrollbar_theme);
-    
+      
     if(slider_theme)
       Win32Themes::CloseThemeData(slider_theme);
-    
+      
     if(toolbar_theme)
       Win32Themes::CloseThemeData(toolbar_theme);
   }

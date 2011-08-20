@@ -8,7 +8,7 @@ using namespace richmath;
 
 //{ class RadicalBox ...
 RadicalBox::RadicalBox(MathSequence *radicand, MathSequence *exponent)
-: Box(),
+  : Box(),
   _radicand(radicand),
   _exponent(exponent)
 {
@@ -19,22 +19,22 @@ RadicalBox::RadicalBox(MathSequence *radicand, MathSequence *exponent)
     adopt(_exponent, 1);
 }
 
-RadicalBox::~RadicalBox(){
+RadicalBox::~RadicalBox() {
   delete _radicand;
   delete _exponent;
 }
 
-Box *RadicalBox::item(int i){
+Box *RadicalBox::item(int i) {
   if(i == 0)
     return _radicand;
   return _exponent;
 }
 
-int RadicalBox::count(){
+int RadicalBox::count() {
   return 1 + (_exponent ? 1 : 0);
 }
 
-void RadicalBox::resize(Context *context){
+void RadicalBox::resize(Context *context) {
   _radicand->resize(context);
   
   _extents = _radicand->extents();
@@ -46,8 +46,8 @@ void RadicalBox::resize(Context *context){
     &ex,
     &ey,
     &info);
-  
-  if(_exponent){
+    
+  if(_exponent) {
     float old_fs = context->canvas->get_font_size();
     
     context->script_indent++;
@@ -60,26 +60,26 @@ void RadicalBox::resize(Context *context){
     context->canvas->set_font_size(old_fs);
     
     if(_extents.ascent < _exponent->extents().height() - ey)
-       _extents.ascent = _exponent->extents().height() - ey;
-    
-    if(ex < _exponent->extents().width){
-      rx+=             _exponent->extents().width - ex;
-      _extents.width+= _exponent->extents().width - ex;
+      _extents.ascent = _exponent->extents().height() - ey;
+      
+    if(ex < _exponent->extents().width) {
+      rx +=             _exponent->extents().width - ex;
+      _extents.width += _exponent->extents().width - ex;
     }
   }
 }
 
-void RadicalBox::paint(Context *context){
+void RadicalBox::paint(Context *context) {
   if(style)
     style->update_dynamic(this);
-  
+    
   float x, y;
   context->canvas->current_pos(&x, &y);
   
   context->canvas->move_to(x + rx, y);
   _radicand->paint(context);
   
-  if(_exponent){
+  if(_exponent) {
     if(ex < _exponent->extents().width)
       context->canvas->move_to(x + _exponent->extents().width - ex, y);
     else
@@ -91,18 +91,18 @@ void RadicalBox::paint(Context *context){
   context->math_shaper->show_radical(
     context,
     info);
-  
-  if(_exponent){
+    
+  if(_exponent) {
     float old_fs = context->canvas->get_font_size();
     context->canvas->set_font_size(small_em);
     
     if(ex < _exponent->extents().width)
       context->canvas->move_to(
-        x, 
+        x,
         y + ey - _exponent->extents().descent);
     else
       context->canvas->move_to(
-        x + ex - _exponent->extents().width, 
+        x + ex - _exponent->extents().width,
         y + ey - _exponent->extents().descent);
     _exponent->paint(context);
     
@@ -110,9 +110,9 @@ void RadicalBox::paint(Context *context){
   }
 }
 
-Box *RadicalBox::remove(int *index){
-  if(_exponent && *index == 1){
-    if(_exponent->length() == 0){
+Box *RadicalBox::remove(int *index) {
+  if(_exponent && *index == 1) {
+    if(_exponent->length() == 0) {
       delete _exponent;
       _exponent = 0;
       invalidate();
@@ -120,14 +120,14 @@ Box *RadicalBox::remove(int *index){
     return move_logical(Backward, false, index);
   }
   
-  if(_parent){
+  if(_parent) {
     MathSequence *seq = dynamic_cast<MathSequence*>(_parent);
     *index = _index;
-    if(seq){
-      if(_exponent){
+    if(seq) {
+      if(_exponent) {
         if(_radicand->length() > 0)
           return move_logical(Backward, false, index);
-        
+          
         seq->insert(_index + 1, _exponent, 0, _exponent->length());
       }
       else
@@ -140,32 +140,32 @@ Box *RadicalBox::remove(int *index){
   return _radicand;
 }
 
-void RadicalBox::complete(){
-  if(!_exponent){
+void RadicalBox::complete() {
+  if(!_exponent) {
     _exponent = new MathSequence;
     adopt(_exponent, 1);
   }
 }
 
-Expr RadicalBox::to_pmath(int flags){
+Expr RadicalBox::to_pmath(int flags) {
   if(_exponent)
     return Call(
-      Symbol(PMATH_SYMBOL_RADICALBOX), 
-      _radicand->to_pmath(flags),
-      _exponent->to_pmath(flags));
-    
+             Symbol(PMATH_SYMBOL_RADICALBOX),
+             _radicand->to_pmath(flags),
+             _exponent->to_pmath(flags));
+             
   return Call(
-    Symbol(PMATH_SYMBOL_SQRTBOX),
-    _radicand->to_pmath(flags));
+           Symbol(PMATH_SYMBOL_SQRTBOX),
+           _radicand->to_pmath(flags));
 }
 
 Box *RadicalBox::move_vertical(
-  LogicalDirection  direction, 
+  LogicalDirection  direction,
   float            *index_rel_x,
   int              *index
-){
-  if(*index < 0){
-    if(_exponent){
+) {
+  if(*index < 0) {
+    if(_exponent) {
       float er;
       if(ex < _exponent->extents().width)
         er = _exponent->extents().width;
@@ -174,10 +174,10 @@ Box *RadicalBox::move_vertical(
         
       if(*index_rel_x < (er + rx) / 2)
         return _exponent->move_vertical(direction, index_rel_x, index);
-      
+        
     }
     
-    *index_rel_x-= rx;
+    *index_rel_x -= rx;
     return _radicand->move_vertical(direction, index_rel_x, index);
   }
   
@@ -185,38 +185,38 @@ Box *RadicalBox::move_vertical(
     return this;
     
   if(*index == 0)
-    *index_rel_x+= rx;
+    *index_rel_x += rx;
     
   *index = _index;
   return _parent->move_vertical(direction, index_rel_x, index);
 }
-      
+
 Box *RadicalBox::mouse_selection(
   float  x,
   float  y,
   int   *start,
   int   *end,
   bool  *was_inside_start
-){
-  if(_parent && x > (_extents.width + rx + _radicand->extents().width) / 2){
+) {
+  if(_parent && x > (_extents.width + rx + _radicand->extents().width) / 2) {
     *start = *end = _index + 1;
     *was_inside_start = false;
     return _parent;
   }
   
-  if(_exponent){
+  if(_exponent) {
     float el = 0;
     if(ex > _exponent->extents().width)
       el = ex - _exponent->extents().width;
-    
+      
     if(x > el / 2 && x < (el + _exponent->extents().width + rx) / 2)
       return _exponent->mouse_selection(
-        x - el, 
-        y - ey + _exponent->extents().descent, 
-        start, end, was_inside_start);
+               x - el,
+               y - ey + _exponent->extents().descent,
+               start, end, was_inside_start);
   }
   
-  if(_parent && x < rx / 2){
+  if(_parent && x < rx / 2) {
     *start = *end = _index;
     *was_inside_start = true;
     return _parent;
@@ -229,15 +229,15 @@ Box *RadicalBox::mouse_selection(
 void RadicalBox::child_transformation(
   int             index,
   cairo_matrix_t *matrix
-){
-  if(index == 0){
+) {
+  if(index == 0) {
     cairo_matrix_translate(matrix, rx, 0);
   }
-  else{
+  else {
     float el = 0;
     if(ex > _exponent->extents().width)
       el = ex - _exponent->extents().width;
-    
+      
     cairo_matrix_translate(matrix, el, ey - _exponent->extents().descent);
   }
 }

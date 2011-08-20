@@ -424,28 +424,28 @@ static const char *xpm_text_w[] = {
 
 using namespace richmath;
 
-namespace{
-  class CppGdkCursor{
+namespace {
+  class CppGdkCursor {
     public:
       CppGdkCursor(GdkCursor *_cursor = 0)
-      : cursor(_cursor)
+        : cursor(_cursor)
       {
       }
       
-      CppGdkCursor(GdkPixbuf *pixbuf){
+      CppGdkCursor(GdkPixbuf *pixbuf) {
         cursor = gdk_cursor_new_from_pixbuf(
-          gdk_display_get_default(), 
-          pixbuf, 
-          gdk_pixbuf_get_width( pixbuf)/2, 
-          gdk_pixbuf_get_height(pixbuf)/2);
+                   gdk_display_get_default(),
+                   pixbuf,
+                   gdk_pixbuf_get_width(pixbuf) / 2,
+                   gdk_pixbuf_get_height(pixbuf) / 2);
       }
       
       CppGdkCursor(const CppGdkCursor &src)
-      : cursor(src.cursor ? gdk_cursor_ref(src.cursor) : 0)
+        : cursor(src.cursor ? gdk_cursor_ref(src.cursor) : 0)
       {
       }
       
-      CppGdkCursor &operator=(const CppGdkCursor &src){
+      CppGdkCursor &operator=(const CppGdkCursor &src) {
         GdkCursor *c = src.cursor ? gdk_cursor_ref(src.cursor) : 0;
         if(cursor)
           gdk_cursor_unref(cursor);
@@ -453,7 +453,7 @@ namespace{
         return *this;
       }
       
-      ~CppGdkCursor(){
+      ~CppGdkCursor() {
         if(cursor)
           gdk_cursor_unref(cursor);
       }
@@ -470,9 +470,9 @@ static Hashtable<CursorType, CppGdkCursor, cast_hash> all_cursors;
 //{ class MathGtkCursors ...
 
 MathGtkCursors::MathGtkCursors()
-: Base()
+  : Base()
 {
-  if(num_refs++ == 0){
+  if(num_refs++ == 0) {
     all_cursors.set(FingerCursor,  gdk_cursor_new(GDK_HAND2));
     all_cursors.set(DefaultCursor, gdk_cursor_new(GDK_LEFT_PTR));
     
@@ -490,13 +490,13 @@ MathGtkCursors::MathGtkCursors()
   }
 }
 
-MathGtkCursors::~MathGtkCursors(){
-  if(--num_refs == 0){
+MathGtkCursors::~MathGtkCursors() {
+  if(--num_refs == 0) {
     all_cursors.clear();
   }
 }
 
-GdkCursor *MathGtkCursors::get_gdk_cursor(CursorType type){
+GdkCursor *MathGtkCursors::get_gdk_cursor(CursorType type) {
   GdkCursor *c = all_cursors[type].cursor;
   
   if(c)

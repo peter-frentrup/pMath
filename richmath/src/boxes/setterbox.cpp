@@ -7,17 +7,17 @@ using namespace richmath;
 //{ class SetterBox ...
 
 SetterBox::SetterBox(MathSequence *content)
-: ContainerWidgetBox(PaletteButton, content),
+  : ContainerWidgetBox(PaletteButton, content),
   must_update(true),
   is_down(false)
 {
   dynamic.init(this, Expr());
 }
 
-SetterBox *SetterBox::create(Expr expr, int opts){
+SetterBox *SetterBox::create(Expr expr, int opts) {
   if(expr.expr_length() < 3)
     return 0;
-  
+    
   Expr options(pmath_options_extract(expr.get(), 3));
   
   if(options.is_null())
@@ -29,7 +29,7 @@ SetterBox *SetterBox::create(Expr expr, int opts){
   box->is_down = (!box->dynamic.is_dynamic() && box->dynamic.expr() == box->value);
   box->content()->load_from_object(expr[3], opts);
   
-  if(options != PMATH_UNDEFINED){
+  if(options != PMATH_UNDEFINED) {
     if(box->style)
       box->style->add_pmath(options);
     else
@@ -39,28 +39,28 @@ SetterBox *SetterBox::create(Expr expr, int opts){
   return box;
 }
 
-ControlState SetterBox::calc_state(Context *context){
+ControlState SetterBox::calc_state(Context *context) {
   if(is_down)
     return Pressed;
-  
+    
   ControlState state = ContainerWidgetBox::calc_state(context);
   if(state == Normal)
     return Hovered;
   return state;
 }
 
-bool SetterBox::expand(const BoxSize &size){
+bool SetterBox::expand(const BoxSize &size) {
   _extents = size;
   cx = (_extents.width - _content->extents().width) / 2;
   return true;
 }
 
-void SetterBox::paint(Context *context){
-  if(must_update){
+void SetterBox::paint(Context *context) {
+  if(must_update) {
     must_update = false;
     
     Expr dyn_val;
-    if(dynamic.get_value(&dyn_val)){
+    if(dynamic.get_value(&dyn_val)) {
       is_down = (dyn_val == value);
     }
   }
@@ -68,7 +68,7 @@ void SetterBox::paint(Context *context){
   ContainerWidgetBox::paint(context);
 }
 
-Expr SetterBox::to_pmath(int flags){
+Expr SetterBox::to_pmath(int flags) {
   Gather g;
   
   g.emit(dynamic.expr());
@@ -77,20 +77,20 @@ Expr SetterBox::to_pmath(int flags){
   
   if(style)
     style->emit_to_pmath();
-  
+    
   Expr e = g.end();
   e.set(0, Symbol(PMATH_SYMBOL_SETTERBOX));
   return e;
 }
 
-void SetterBox::on_mouse_down(MouseEvent &event){
+void SetterBox::on_mouse_down(MouseEvent &event) {
   animation = 0;
   
   ContainerWidgetBox::on_mouse_down(event);
 }
 
-void SetterBox::on_mouse_up(MouseEvent &event){
-  if(event.left){
+void SetterBox::on_mouse_up(MouseEvent &event) {
+  if(event.left) {
     request_repaint_all();
     
     if(mouse_inside && mouse_left_down)
@@ -100,30 +100,30 @@ void SetterBox::on_mouse_up(MouseEvent &event){
   ContainerWidgetBox::on_mouse_up(event);
 }
 
-void SetterBox::click(){
+void SetterBox::click() {
   dynamic.assign(value);
   is_down = true;
   request_repaint_all();
 }
 
-void SetterBox::dynamic_updated(){
+void SetterBox::dynamic_updated() {
   if(must_update)
     return;
-  
+    
   must_update = true;
   request_repaint_all();
 }
 
-void SetterBox::dynamic_finished(Expr info, Expr result){
+void SetterBox::dynamic_finished(Expr info, Expr result) {
   bool new_is_down = result == value;
   
-  if(is_down != new_is_down){
+  if(is_down != new_is_down) {
     is_down = new_is_down;
     request_repaint_all();
   }
 }
 
-Box *SetterBox::dynamic_to_literal(int *start, int *end){
+Box *SetterBox::dynamic_to_literal(int *start, int *end) {
   if(dynamic.is_dynamic())
     dynamic = dynamic.expr()[1];
   return this;

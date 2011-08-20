@@ -8,28 +8,28 @@ using namespace richmath;
 //{ class InterpretationBox ...
 
 InterpretationBox::InterpretationBox()
-: OwnerBox()
+  : OwnerBox()
 {
   style = new Style;
   style->set(Editable, false);
 }
 
 InterpretationBox::InterpretationBox(MathSequence *content)
-: OwnerBox(content)
+  : OwnerBox(content)
 {
   style = new Style;
   style->set(Editable, false);
 }
 
 InterpretationBox::InterpretationBox(MathSequence *content, Expr _interpretation)
-: OwnerBox(content),
+  : OwnerBox(content),
   interpretation(_interpretation)
 {
   style = new Style;
   style->set(Editable, false);
 }
 
-Expr InterpretationBox::to_pmath(int flags){
+Expr InterpretationBox::to_pmath(int flags) {
   Gather g;
   
   g.emit(_content->to_pmath(flags));
@@ -38,14 +38,14 @@ Expr InterpretationBox::to_pmath(int flags){
   
   int i;
   
-  if(style->get(AutoDelete, &i)){
+  if(style->get(AutoDelete, &i)) {
     g.emit(
       Rule(
         Symbol(PMATH_SYMBOL_EDITABLE),
         Symbol(i ? PMATH_SYMBOL_TRUE : PMATH_SYMBOL_FALSE)));
   }
   
-  if(style->get(Editable, &i) && i){
+  if(style->get(Editable, &i) && i) {
     g.emit(
       Rule(
         Symbol(PMATH_SYMBOL_EDITABLE),
@@ -57,17 +57,17 @@ Expr InterpretationBox::to_pmath(int flags){
   return e;
 }
 
-bool InterpretationBox::edit_selection(Context *context){
+bool InterpretationBox::edit_selection(Context *context) {
   if(!OwnerBox::edit_selection(context))
     return false;
-  
-  if(get_own_style(AutoDelete)){
+    
+  if(get_own_style(AutoDelete)) {
     MathSequence *seq = dynamic_cast<MathSequence*>(_parent);
     
-    if(seq){
+    if(seq) {
       int len = _content->length();
       
-      if(context->selection.get() == _content){
+      if(context->selection.get() == _content) {
         int s = context->selection.start + _index;
         int e = context->selection.end + _index;
         context->selection.set(seq, s, e);

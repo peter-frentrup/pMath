@@ -13,17 +13,17 @@ using namespace richmath;
 //{ class AbstractDynamicBox ...
 
 AbstractDynamicBox::AbstractDynamicBox()
-: OwnerBox()
+  : OwnerBox()
 {
 }
 
-AbstractDynamicBox::~AbstractDynamicBox(){
+AbstractDynamicBox::~AbstractDynamicBox() {
 }
 
-Box *AbstractDynamicBox::dynamic_to_literal(int *start, int *end){
+Box *AbstractDynamicBox::dynamic_to_literal(int *start, int *end) {
   if(*start > 0 || *end < 1)
     return this;
-  
+    
   int s = 0;
   int e = content()->length();
   content()->dynamic_to_literal(&s, &e);
@@ -31,10 +31,10 @@ Box *AbstractDynamicBox::dynamic_to_literal(int *start, int *end){
   MathSequence *seq = dynamic_cast<MathSequence*>(parent());
   if(!seq)
     return this;
-  
+    
   *start = index();
   *end = seq->insert(index(), content(), 0, content()->length());
-  seq->remove(*end, *end+1); // remove this
+  seq->remove(*end, *end + 1); // remove this
   return seq;
 }
 
@@ -43,28 +43,28 @@ Box *AbstractDynamicBox::dynamic_to_literal(int *start, int *end){
 //{ class DynamicBox ...
 
 DynamicBox::DynamicBox()
-: AbstractDynamicBox(),
+  : AbstractDynamicBox(),
   must_update(true),
   must_resize(false)
 {
   dynamic.init(this, Expr());
 }
 
-DynamicBox::~DynamicBox(){
+DynamicBox::~DynamicBox() {
   Application::execute_for(Call(Symbol(PMATH_SYMBOL_INTERNAL_DYNAMICREMOVE), id()), 0);
 }
 
-DynamicBox *DynamicBox::create(Expr expr, int opts){
+DynamicBox *DynamicBox::create(Expr expr, int opts) {
   if(expr[0] == PMATH_SYMBOL_DYNAMICBOX
-  && expr.expr_length() >= 1){
+      && expr.expr_length() >= 1) {
     Expr options = Expr(pmath_options_extract(expr.get(), 1));
     
-    if(!options.is_null()){
+    if(!options.is_null()) {
       DynamicBox *box = new DynamicBox();
       
       expr.set(0, Symbol(PMATH_SYMBOL_DYNAMIC));
       box->dynamic = expr;
-    
+      
       return box;
     }
   }
@@ -72,21 +72,21 @@ DynamicBox *DynamicBox::create(Expr expr, int opts){
   return 0;
 }
 
-void DynamicBox::resize(Context *context){
+void DynamicBox::resize(Context *context) {
   AbstractDynamicBox::resize(context);
   must_resize = false;
   
   if(_extents.width <= 0)
-     _extents.width = 0.75;
-  
-  if(_extents.height() <= 0){
+    _extents.width = 0.75;
+    
+  if(_extents.height() <= 0) {
     _extents.ascent  = 0.75;
     _extents.descent = 0.0;
   }
 }
 
-void DynamicBox::paint_content(Context *context){
-  if(must_resize){
+void DynamicBox::paint_content(Context *context) {
+  if(must_resize) {
     context->canvas->save();
     AbstractDynamicBox::resize(context);
     must_resize = false;
@@ -95,15 +95,15 @@ void DynamicBox::paint_content(Context *context){
   
   AbstractDynamicBox::paint_content(context);
   
-  if(must_update){
+  if(must_update) {
     must_update = false;
     
     Expr result;
-    if(dynamic.get_value(&result)){
+    if(dynamic.get_value(&result)) {
       int opt = BoxOptionDefault;
       if(get_style(AutoNumberFormating))
         opt |= BoxOptionFormatNumbers;
-      
+        
       content()->load_from_object(result, opt);
       must_resize = true;
       invalidate();
@@ -111,7 +111,7 @@ void DynamicBox::paint_content(Context *context){
   }
 }
 
-Expr DynamicBox::to_pmath(int flags){
+Expr DynamicBox::to_pmath(int flags) {
   if(flags & BoxFlagLiteral)
     return content()->to_pmath(flags);
     
@@ -120,40 +120,40 @@ Expr DynamicBox::to_pmath(int flags){
   return e;
 }
 
-void DynamicBox::dynamic_updated(){
+void DynamicBox::dynamic_updated() {
   if(must_update)
     return;
-  
+    
   must_update = true;
   request_repaint_all();
 }
 
-void DynamicBox::dynamic_finished(Expr info, Expr result){
+void DynamicBox::dynamic_finished(Expr info, Expr result) {
   int opt = BoxOptionDefault;
   if(get_style(AutoNumberFormating))
     opt |= BoxOptionFormatNumbers;
-  
+    
   content()->load_from_object(result, opt);
   must_resize = true;
   invalidate();
 }
 
-bool DynamicBox::edit_selection(Context *context){
-  if(get_own_style(Editable, false)){
+bool DynamicBox::edit_selection(Context *context) {
+  if(get_own_style(Editable, false)) {
     if(_parent)
       return _parent->edit_selection(context);
   }
-    
-  return false; 
+  
+  return false;
 }
 
-void DynamicBox::on_mouse_enter(){
+void DynamicBox::on_mouse_enter() {
   AbstractDynamicBox::on_mouse_enter();
   if(get_own_style(InternalUsesCurrentValueOfMouseOver, false))
     dynamic_updated();
 }
 
-void DynamicBox::on_mouse_exit(){
+void DynamicBox::on_mouse_exit() {
   AbstractDynamicBox::on_mouse_exit();
   if(get_own_style(InternalUsesCurrentValueOfMouseOver, false))
     dynamic_updated();

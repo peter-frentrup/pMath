@@ -13,18 +13,18 @@ namespace richmath {
       FrontEndObject();
       virtual ~FrontEndObject();
       
-      int id(){ return _id; }
+      int id() { return _id; }
       
       static FrontEndObject *find(int id);
       static FrontEndObject *find(pmath::Expr frontendobject);
       
       template<class T>
-      static T *find_cast(int id){ 
-        return dynamic_cast<T*>(find(id)); 
+      static T *find_cast(int id) {
+        return dynamic_cast<T*>(find(id));
       }
       
       template<class T>
-      static T *find_cast(pmath::Expr frontendobject){ 
+      static T *find_cast(pmath::Expr frontendobject) {
         return dynamic_cast<T*>(find(frontendobject));
       }
       

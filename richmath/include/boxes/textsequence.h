@@ -5,10 +5,11 @@
 
 #include <boxes/box.h>
 
-namespace richmath{
-  
+
+namespace richmath {
+
   /* A character buffer (Utf-8) with pmath_mem_xxx memory handling. */
-  class TextBuffer: public Base{
+  class TextBuffer: public Base {
     public:
       TextBuffer(char *buf, int len);
       ~TextBuffer();
@@ -16,7 +17,7 @@ namespace richmath{
       int capacity() const {       return _capacity; }
       int length()   const {       return _length; }
       const char *buffer() const { return _buffer; }
-      char       *buffer(){        return _buffer; }
+      char       *buffer() {        return _buffer; }
       
       // return number of bytes inserted at pos
       int insert(int pos, const char *ins, int inslen);
@@ -31,26 +32,26 @@ namespace richmath{
       char *_buffer;
   };
   
-  /* This is a box containing text (no math) and other boxes. 
+  /* This is a box containing text (no math) and other boxes.
      It uses Pango for text layout. For math, use class MathSequence.
    */
-  class TextSequence: public AbstractSequence{
+  class TextSequence: public AbstractSequence {
     public:
       TextSequence();
       virtual ~TextSequence();
       
-      virtual Box *item(int i){ return boxes[i]; }
-      virtual int count(){      return boxes.length(); }
-      virtual int length(){     return text.length(); }
+      virtual Box *item(int i) { return boxes[i]; }
+      virtual int count() {      return boxes.length(); }
+      virtual int length() {     return text.length(); }
       
-      const TextBuffer &text_buffer(){ return text; }
+      const TextBuffer &text_buffer() { return text; }
       
       virtual void resize(Context *context);
       virtual void paint(Context *context);
       
       virtual void selection_path(Canvas *canvas, int start, int end);
       
-      virtual Expr to_pmath_symbol(){ return Expr(); }
+      virtual Expr to_pmath_symbol() { return Expr(); }
       virtual Expr to_pmath(int flags);
       virtual Expr to_pmath(int flags, int start, int end);
       virtual void load_from_object(Expr object, int options); // BoxOptionXXX
@@ -68,12 +69,12 @@ namespace richmath{
       virtual Box *extract_box(int boxindex);
       
       virtual Box *move_logical(
-        LogicalDirection  direction, 
-        bool              jumping, 
+        LogicalDirection  direction,
+        bool              jumping,
         int              *index);
-      
+        
       virtual Box *move_vertical(
-        LogicalDirection  direction, 
+        LogicalDirection  direction,
         float            *index_rel_x,
         int              *index);
         
@@ -83,15 +84,15 @@ namespace richmath{
         int   *start,
         int   *end,
         bool  *was_inside_start);
-      
+        
       virtual void child_transformation(
         int             index,
         cairo_matrix_t *matrix);
-      
+        
       virtual Box *normalize_selection(int *start, int *end);
       
       PangoLayoutIter *get_iter();
-      PangoLayout     *get_layout(){ return _layout; }
+      PangoLayout     *get_layout() { return _layout; }
       virtual int get_line(int index, int guide = 0); // 0, 1, 2, ...
       
       virtual void get_line_heights(int line, float *ascent, float *descent);

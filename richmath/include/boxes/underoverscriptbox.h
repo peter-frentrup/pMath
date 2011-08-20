@@ -3,17 +3,18 @@
 
 #include <boxes/box.h>
 
-namespace richmath{
+
+namespace richmath {
   class MathSequence;
   
-  class UnderoverscriptBox: public Box{
+  class UnderoverscriptBox: public Box {
     public:
       UnderoverscriptBox(MathSequence *base, MathSequence *under, MathSequence *over);
       virtual ~UnderoverscriptBox();
       
-      MathSequence *base(){        return _base; }
-      MathSequence *underscript(){ return _underscript; }
-      MathSequence *overscript(){  return _overscript; }
+      MathSequence *base() {        return _base; }
+      MathSequence *underscript() { return _underscript; }
+      MathSequence *overscript() {  return _overscript; }
       
       virtual Box *item(int i);
       virtual int count();
@@ -31,10 +32,10 @@ namespace richmath{
       virtual Expr to_pmath(int flags);
       
       virtual Box *move_vertical(
-        LogicalDirection  direction, 
+        LogicalDirection  direction,
         float            *index_rel_x,
         int              *index);
-      
+        
       virtual Box *mouse_selection(
         float  x,
         float  y,
@@ -45,7 +46,7 @@ namespace richmath{
       virtual void child_transformation(
         int             index,
         cairo_matrix_t *matrixn);
-      
+        
     private:
       MathSequence *_base;
       MathSequence *_underscript;

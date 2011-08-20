@@ -3,7 +3,8 @@
 
 #include <boxes/containerwidgetbox.h>
 
-namespace richmath{
+
+namespace richmath {
   class ButtonBox: public ContainerWidgetBox {
     public:
       static ButtonBox *create(Expr expr, int opts);
@@ -11,7 +12,7 @@ namespace richmath{
       virtual bool expand(const BoxSize &size);
       virtual void resize(Context *context);
       
-      virtual Expr to_pmath_symbol(){ return Symbol(PMATH_SYMBOL_BUTTONBOX); }
+      virtual Expr to_pmath_symbol() { return Symbol(PMATH_SYMBOL_BUTTONBOX); }
       virtual Expr to_pmath(int flags);
       
       virtual void on_mouse_down(MouseEvent &event);
@@ -19,7 +20,7 @@ namespace richmath{
       virtual void on_mouse_up(MouseEvent &event);
       
       virtual void click();
-    
+      
     protected:
       explicit ButtonBox(MathSequence *content = 0);
   };

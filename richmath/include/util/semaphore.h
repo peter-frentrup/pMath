@@ -2,29 +2,30 @@
 #define SEMAPHORE_H_INCLUDED
 
 #ifdef _WIN32
-  #include <Windows.h>
+#include <Windows.h>
 #else
-  #include <semaphore.h>
+#include <semaphore.h>
 #endif
 
 #include <util/base.h>
 
-namespace richmath{
+
+namespace richmath {
   class Semaphore: public Shareable {
     public:
       Semaphore();
       virtual ~Semaphore();
-
+      
       void post();
       void wait();
       bool timed_wait(double seconds); // timeout => false
-
+      
     private:
-    #ifdef _WIN32
+#ifdef _WIN32
       HANDLE _value;
-    #else
+#else
       sem_t  _value;
-    #endif
+#endif
   };
 }
 

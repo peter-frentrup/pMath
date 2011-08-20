@@ -15,358 +15,358 @@ static int current_document_id = 0;
 
 //{ pmath functions ...
 
-static pmath_t builtin_addconfigshaper(pmath_expr_t expr){
+static pmath_t builtin_addconfigshaper(pmath_expr_t expr) {
   Expr data = Expr(
-    pmath_evaluate(
-      pmath_expr_new_extended(
-        pmath_ref(PMATH_SYMBOL_GET), 1,
-        pmath_expr_get_item(expr, 1))));
-
+                pmath_evaluate(
+                  pmath_expr_new_extended(
+                    pmath_ref(PMATH_SYMBOL_GET), 1,
+                    pmath_expr_get_item(expr, 1))));
+                    
   pmath_unref(expr);
-
+  
   Application::notify(CNT_ADDCONFIGSHAPER, data);
   return PMATH_NULL;
 }
 
-static pmath_t builtin_internalexecutefor(pmath_expr_t expr){
+static pmath_t builtin_internalexecutefor(pmath_expr_t expr) {
   if(pmath_expr_length(expr) != 4)
     return expr;
-
+    
   pmath_debug_print_object("[", expr, "]\n");
-
+  
   pmath_t code        = pmath_expr_get_item(expr, 1);
   pmath_t document_id = pmath_expr_get_item(expr, 2);
   pmath_t section_id  = pmath_expr_get_item(expr, 3);
   pmath_t box_id      = pmath_expr_get_item(expr, 4);
   pmath_unref(expr);
-
+  
   if(pmath_is_int32(document_id)
-  && pmath_is_int32(section_id)
-  && pmath_is_int32(box_id)){
+      && pmath_is_int32(section_id)
+      && pmath_is_int32(box_id)) {
     code = Application::internal_execute_for(
-      Expr(code),
-      PMATH_AS_INT32(document_id),
-      PMATH_AS_INT32(section_id),
-      PMATH_AS_INT32(box_id)).release();
+             Expr(code),
+             PMATH_AS_INT32(document_id),
+             PMATH_AS_INT32(section_id),
+             PMATH_AS_INT32(box_id)).release();
   }
   else
     code = pmath_evaluate(code);
-
+    
   pmath_unref(document_id);
   pmath_unref(section_id);
   pmath_unref(box_id);
-
+  
   return code;
 }
 
-static pmath_t builtin_createdocument(pmath_expr_t expr){
+static pmath_t builtin_createdocument(pmath_expr_t expr) {
   return Application::notify_wait(CNT_CREATEDOCUMENT, Expr(expr)).release();
 }
 
-static pmath_t builtin_documentapply(pmath_expr_t _expr){
+static pmath_t builtin_documentapply(pmath_expr_t _expr) {
   Expr expr(_expr);
-
-  if(expr.expr_length() != 2){
+  
+  if(expr.expr_length() != 2) {
     pmath_message_argxxx(expr.expr_length(), 2, 2);
     return expr.release();
   }
-
+  
   Application::notify_wait(CNT_MENUCOMMAND, expr);
-
+  
   return PMATH_NULL;
 }
 
-static pmath_t builtin_documents(pmath_expr_t expr){
-  if(pmath_expr_length(expr) > 0){
+static pmath_t builtin_documents(pmath_expr_t expr) {
+  if(pmath_expr_length(expr) > 0) {
     pmath_message_argxxx(pmath_expr_length(expr), 0, 0);
     return expr;
   }
-
+  
   pmath_unref(expr);
-
+  
   return Application::notify_wait(CNT_GETDOCUMENTS, Expr()).release();
 }
 
-static pmath_t builtin_currentvalue(pmath_expr_t expr){
+static pmath_t builtin_currentvalue(pmath_expr_t expr) {
   return Application::notify_wait(CNT_CURRENTVALUE, Expr(expr)).release();
 }
 
-static pmath_t builtin_internal_dynamicupdated(pmath_expr_t expr){
+static pmath_t builtin_internal_dynamicupdated(pmath_expr_t expr) {
   Application::notify(CNT_DYNAMICUPDATE, Expr(expr));
   return PMATH_NULL;
 }
 
-static pmath_t builtin_feo_options(pmath_expr_t _expr){
+static pmath_t builtin_feo_options(pmath_expr_t _expr) {
   Expr expr(_expr);
-
-  if(expr[0] == PMATH_SYMBOL_OPTIONS){
-    if(expr.expr_length() == 1){
+  
+  if(expr[0] == PMATH_SYMBOL_OPTIONS) {
+    if(expr.expr_length() == 1) {
       Expr opts = Application::notify_wait(CNT_GETOPTIONS, expr[1]);
-
+      
       return opts.release();
     }
     
     if(expr.expr_length() == 2
-    && expr[1][0] == PMATH_SYMBOL_FRONTENDOBJECT){
+        && expr[1][0] == PMATH_SYMBOL_FRONTENDOBJECT) {
       Expr opts = Application::notify_wait(CNT_GETOPTIONS, expr[1]);
       
       expr.set(1, opts);
     }
   }
-  else if(expr[0] == PMATH_SYMBOL_SETOPTIONS){
+  else if(expr[0] == PMATH_SYMBOL_SETOPTIONS) {
     if(expr.expr_length() >= 1
-    && expr[1][0] == PMATH_SYMBOL_FRONTENDOBJECT){
+        && expr[1][0] == PMATH_SYMBOL_FRONTENDOBJECT) {
       Expr opts = Application::notify_wait(CNT_SETOPTIONS, expr);
-
+      
       return opts.release();
     }
   }
-
+  
   return expr.release();
 }
 
-static pmath_t builtin_frontendtokenexecute(pmath_expr_t expr){
-  if(pmath_expr_length(expr) != 1){
+static pmath_t builtin_frontendtokenexecute(pmath_expr_t expr) {
+  if(pmath_expr_length(expr) != 1) {
     pmath_message_argxxx(pmath_expr_length(expr), 1, 1);
     return expr;
   }
-
+  
   Expr cmd = Expr(pmath_expr_get_item(expr, 1));
   pmath_unref(expr);
-
+  
   Application::run_menucommand(cmd);
-
+  
   return PMATH_NULL;
 }
 
-static pmath_t builtin_sectionprint(pmath_expr_t expr){
-  if(pmath_expr_length(expr) == 2){
+static pmath_t builtin_sectionprint(pmath_expr_t expr) {
+  if(pmath_expr_length(expr) == 2) {
     pmath_t style = pmath_expr_get_item(expr, 1);
     pmath_t boxes = pmath_expr_get_item(expr, 2);
-
+    
     pmath_unref(expr);
-
+    
     boxes = pmath_evaluate(
-      pmath_expr_new_extended(
-        pmath_ref(PMATH_SYMBOL_TOBOXES), 1,
-        boxes));
-
+              pmath_expr_new_extended(
+                pmath_ref(PMATH_SYMBOL_TOBOXES), 1,
+                boxes));
+                
     expr = pmath_expr_new_extended(
-      pmath_ref(PMATH_SYMBOL_SECTION), 3,
-      pmath_expr_new_extended(
-        pmath_ref(PMATH_SYMBOL_BOXDATA), 1,
-        boxes),
-      style,
-      pmath_expr_new_extended(
-        pmath_ref(PMATH_SYMBOL_RULE), 2,
-        pmath_ref(PMATH_SYMBOL_SECTIONGENERATED),
-        pmath_ref(PMATH_SYMBOL_TRUE)));
-
+             pmath_ref(PMATH_SYMBOL_SECTION), 3,
+             pmath_expr_new_extended(
+               pmath_ref(PMATH_SYMBOL_BOXDATA), 1,
+               boxes),
+             style,
+             pmath_expr_new_extended(
+               pmath_ref(PMATH_SYMBOL_RULE), 2,
+               pmath_ref(PMATH_SYMBOL_SECTIONGENERATED),
+               pmath_ref(PMATH_SYMBOL_TRUE)));
+               
     Application::notify_wait(CNT_PRINTSECTION, Expr(expr));
-
+    
     return PMATH_NULL;
   }
-
+  
   return expr;
 }
 
-static pmath_t builtin_selecteddocument(pmath_expr_t expr){
-  if(pmath_expr_length(expr) > 0){
+static pmath_t builtin_selecteddocument(pmath_expr_t expr) {
+  if(pmath_expr_length(expr) > 0) {
     pmath_message_argxxx(pmath_expr_length(expr), 0, 0);
     return expr;
   }
-
+  
   pmath_unref(expr);
-
+  
   return pmath_expr_new_extended(
-    pmath_ref(PMATH_SYMBOL_FRONTENDOBJECT), 1,
-    PMATH_FROM_INT32(current_document_id));
+           pmath_ref(PMATH_SYMBOL_FRONTENDOBJECT), 1,
+           PMATH_FROM_INT32(current_document_id));
 }
 
 //} ... pmath functions
 
 //{ menu command availability checkers ...
 
-static bool can_abort(Expr cmd){
+static bool can_abort(Expr cmd) {
   return !Application::is_idle();
 }
 
-static bool can_convert_dynamic_to_literal(Expr cmd){
+static bool can_convert_dynamic_to_literal(Expr cmd) {
   Document *doc = get_current_document();
-
+  
   if(!doc || doc->selection_length() == 0)
     return false;
-
+    
   Box *sel = doc->selection_box();
   if(!sel || !sel->get_style(Editable))
     return false;
+    
+  return true;
+}
+
+static bool can_copy_cut(Expr cmd) {
+  Document *doc = get_current_document();
+  
+  if(!doc || doc->selection_length() == 0)
+    return false;
+    
+  if(String(cmd).equals("Cut")) {
+    Box *sel = doc->selection_box();
+    return sel && sel->get_style(Editable);
+  }
   
   return true;
 }
 
-static bool can_copy_cut(Expr cmd){
+static bool can_open_close_group(Expr cmd) {
   Document *doc = get_current_document();
-
+  
   if(!doc || doc->selection_length() == 0)
     return false;
-
-  if(String(cmd).equals("Cut")){
-    Box *sel = doc->selection_box();
-    return sel && sel->get_style(Editable);
-  }
-
+    
   return true;
 }
 
-static bool can_open_close_group(Expr cmd){
+static bool can_document_apply(Expr cmd) {
   Document *doc = get_current_document();
-
-  if(!doc || doc->selection_length() == 0)
-    return false;
-
-  return true;
-}
-
-static bool can_document_apply(Expr cmd){
-  Document *doc = get_current_document();
-
+  
   if(!doc)
     return false;
-
+    
   Box *sel = doc->selection_box();
   return sel && sel->get_style(Editable);
 }
 
-static bool can_duplicate_previous_input_output(Expr cmd){
+static bool can_duplicate_previous_input_output(Expr cmd) {
   Document *doc = get_current_document();
-
+  
   if(!doc)
     return false;
-
+    
   if(doc->selection_box() == doc && doc->selection_length() > 0)
     return false;
-
+    
   Box *box = doc->selection_box();
   int a = doc->selection_start();
   int b = doc->selection_end();
-  while(box && box != doc){
+  while(box && box != doc) {
     a = box->index();
     b = a + 1;
     box = box->parent();
   }
-
+  
   bool input = String(cmd).equals("DuplicatePreviousInput");
-
-  for(int i = a - 1;i >= 0;--i){
+  
+  for(int i = a - 1; i >= 0; --i) {
     MathSection *math = dynamic_cast<MathSection*>(doc->item(i));
-
+    
     if(math
-    && (( input && math->get_style(Evaluatable))
-     || (!input && math->get_style(SectionGenerated)))){
+        && ((input && math->get_style(Evaluatable))
+            || (!input && math->get_style(SectionGenerated)))) {
       return true;
     }
   }
-
+  
   return false;
 }
 
-static bool can_edit_boxes(Expr cmd){
+static bool can_edit_boxes(Expr cmd) {
   Document *doc = get_current_document();
-
+  
   return doc && (doc->selection_length() > 0 || doc->selection_box() != doc)
-      && doc->get_style(Editable);
+         && doc->get_style(Editable);
 }
 
-static bool can_expand_selection(Expr cmd){
+static bool can_expand_selection(Expr cmd) {
   Document *doc = get_current_document();
-
+  
   return doc && doc->selection_box() && doc->selection_box() != doc;
 }
 
-static bool can_evaluate_in_place(Expr cmd){
+static bool can_evaluate_in_place(Expr cmd) {
   Document *doc = get_current_document();
-
+  
   return doc && 0 != dynamic_cast<MathSequence*>(doc->selection_box());
 }
 
-static bool can_evaluate_sections(Expr cmd){
+static bool can_evaluate_sections(Expr cmd) {
   Document *doc = get_current_document();
-
+  
   if(!doc)
     return false;
-
+    
   Box *box = doc->selection_box();
-
-  if(box == doc){
-    for(int i = doc->selection_start();i < doc->selection_end();++i){
+  
+  if(box == doc) {
+    for(int i = doc->selection_start(); i < doc->selection_end(); ++i) {
       MathSection *math = dynamic_cast<MathSection*>(doc->item(i));
-
+      
       if(math && math->get_style(Evaluatable))
         return true;
     }
   }
-  else{
+  else {
     while(box && !dynamic_cast<MathSection*>(box))
       box = box->parent();
-
+      
     MathSection *math = dynamic_cast<MathSection*>(box);
     if(math && math->get_style(Evaluatable))
       return true;
   }
-
+  
   return false;
 }
 
-static bool can_find_evaluating_section(Expr cmd){
+static bool can_find_evaluating_section(Expr cmd) {
   Box *box = Application::find_current_job();
   
   if(!box)
     return false;
-  
+    
   Section *sect = box->find_parent<Section>(true);
   if(!sect)
     return false;
-  
+    
   Document *doc = sect->find_parent<Document>(false);
   if(!doc)
     return false;
-  
+    
   return true;
 }
 
-static bool can_find_matching_fence(Expr cmd){
+static bool can_find_matching_fence(Expr cmd) {
   Document *doc = get_current_document();
-
+  
   if(!doc)
     return false;
-
+    
   MathSequence *seq = dynamic_cast<MathSequence*>(doc->selection_box());
-
-  if(seq){
+  
+  if(seq) {
     int pos = doc->selection_end() - 1;
     int match = seq->matching_fence(pos);
-
-    if(match < 0 && doc->selection_start() == doc->selection_end()){
+    
+    if(match < 0 && doc->selection_start() == doc->selection_end()) {
       ++pos;
       match = seq->matching_fence(pos);
     }
-
+    
     return match >= 0;
   }
-
+  
   return false;
 }
 
-static bool can_remove_from_evaluation_queue(Expr cmd){
+static bool can_remove_from_evaluation_queue(Expr cmd) {
   Document *doc = get_current_document();
   
   if(!doc)
     return false;
-  
+    
   int start = doc->selection_start();
   int end   = doc->selection_end();
   Box *box  = doc->selection_box();
-  while(box && box != doc){
+  while(box && box != doc) {
     start = box->index();
     end   = start + 1;
     box   = box->parent();
@@ -374,8 +374,8 @@ static bool can_remove_from_evaluation_queue(Expr cmd){
   
   if(!box || start >= end)
     return false;
-  
-  for(int i = end-1;i >= start;--i){
+    
+  for(int i = end - 1; i >= start; --i) {
     if(Application::remove_job(doc->section(i), true))
       return true;
   }
@@ -383,21 +383,21 @@ static bool can_remove_from_evaluation_queue(Expr cmd){
   return false;
 }
 
-static bool can_similar_section_below(Expr cmd){
+static bool can_similar_section_below(Expr cmd) {
   Document *doc = get_current_document();
-
+  
   if(!doc || !doc->get_style(Editable))
     return false;
-
+    
   Box *box = doc->selection_box();
-  while(box && box->parent() != doc){
+  while(box && box->parent() != doc) {
     box = box->parent();
   }
-
+  
   return 0 != dynamic_cast<AbstractSequenceSection*>(box);
 }
 
-static bool can_subsession_evaluate_sections(Expr cmd){
+static bool can_subsession_evaluate_sections(Expr cmd) {
   return !can_abort(Expr()) && can_evaluate_sections(Expr());
 }
 
@@ -405,31 +405,31 @@ static bool can_subsession_evaluate_sections(Expr cmd){
 
 //{ menu commands ...
 
-static bool abort_cmd(Expr cmd){
+static bool abort_cmd(Expr cmd) {
   Application::abort_all_jobs();
   return true;
 }
 
-static bool close_cmd(Expr cmd){
+static bool close_cmd(Expr cmd) {
   Document *doc = get_current_document();
-
+  
   if(!doc)
     return false;
-
+    
   doc->native()->close();
   return true;
 }
 
-static bool convert_dynamic_to_literal(Expr cmd){
+static bool convert_dynamic_to_literal(Expr cmd) {
   Document *doc = get_current_document();
-
+  
   if(!doc || doc->selection_length() == 0)
     return false;
-
+    
   Box *sel = doc->selection_box();
   if(!sel || !sel->get_style(Editable))
     return false;
-  
+    
   int start = doc->selection_start();
   int end   = doc->selection_end();
   sel = sel->dynamic_to_literal(&start, &end);
@@ -438,117 +438,117 @@ static bool convert_dynamic_to_literal(Expr cmd){
   return true;
 }
 
-static bool copy_cmd(Expr cmd){
+static bool copy_cmd(Expr cmd) {
   Document *doc = get_current_document();
-
+  
   if(!doc || doc->selection_length() == 0)
     return false;
-
+    
   doc->copy_to_clipboard();
   return true;
 }
 
-static bool cut_cmd(Expr cmd){
+static bool cut_cmd(Expr cmd) {
   Document *doc = get_current_document();
-
+  
   if(!doc || doc->selection_length() == 0)
     return false;
-
+    
   doc->cut_to_clipboard();
   return true;
 }
 
-static bool document_apply_cmd(Expr cmd){
+static bool document_apply_cmd(Expr cmd) {
   Document *doc = dynamic_cast<Document*>(Box::find(cmd[1]));
-
+  
   if(!doc)
     return false;
-
+    
   MathSequence *seq = new MathSequence;
   seq->load_from_object(cmd[2], BoxOptionDefault);
   doc->insert_box(seq, true);
-
+  
   return true;
 }
 
-static bool duplicate_previous_input_output_cmd(Expr cmd){
+static bool duplicate_previous_input_output_cmd(Expr cmd) {
   Document *doc = get_current_document();
-
+  
   if(!doc)
     return false;
-
+    
   if(doc->selection_box() == doc && doc->selection_length() > 0)
     return false;
-
+    
   Box *box = doc->selection_box();
   int a = doc->selection_start();
   int b = doc->selection_end();
-  while(box && box != doc){
+  while(box && box != doc) {
     a = box->index();
     b = a + 1;
     box = box->parent();
   }
-
+  
   bool input = String(cmd).equals("DuplicatePreviousInput");
-
-  for(int i = a - 1;i >= 0;--i){
+  
+  for(int i = a - 1; i >= 0; --i) {
     MathSection *math = dynamic_cast<MathSection*>(doc->item(i));
-
+    
     if(math
-    && (( input && math->get_style(Evaluatable))
-     || (!input && math->get_style(SectionGenerated)))){
+        && ((input && math->get_style(Evaluatable))
+            || (!input && math->get_style(SectionGenerated)))) {
       MathSequence *seq = new MathSequence;
       seq->load_from_object(Expr(math->content()->to_pmath(BoxFlagDefault)), 0);
       doc->insert_box(seq);
-
+      
       return true;
     }
   }
-
+  
   doc->native()->beep();
   return true;
 }
 
-static bool edit_boxes_cmd(Expr cmd){
+static bool edit_boxes_cmd(Expr cmd) {
   Document *doc = get_current_document();
-
+  
   if(!doc || !doc->selectable(-1))
     return false;
-
+    
   int a, b;
   a = doc->selection_start();
   b = doc->selection_end();
   Box *box = doc->selection_box();
-
-  while(box){
+  
+  while(box) {
     if(box == doc)
       break;
     a = box->index();
     b = a + 1;
     box = box->parent();
   }
-
-  if(box == doc){
-    doc->select(0,0,0);
-
-    for(int i = a;i < b;++i){
+  
+  if(box == doc) {
+    doc->select(0, 0, 0);
+    
+    for(int i = a; i < b; ++i) {
       EditSection *edit = dynamic_cast<EditSection*>(doc->section(i));
       pmath_continue_after_abort();
-
-      if(edit){
+      
+      if(edit) {
         Expr parsed(edit->to_pmath(BoxFlagDefault));
-
-        if(parsed == 0){
+        
+        if(parsed == 0) {
           doc->native()->beep();//MessageBeep(MB_ICONEXCLAMATION);
         }
-        else{
+        else {
           Section *sect = Section::create_from_object(parsed);
           sect->swap_id(edit);
-
+          
           delete doc->swap(i, sect);
         }
       }
-      else{
+      else {
         Section *sect = doc->section(i);
         edit = new EditSection;
         if(!edit->style)
@@ -556,116 +556,116 @@ static bool edit_boxes_cmd(Expr cmd){
         edit->style->set(SectionGroupPrecedence, sect->get_style(SectionGroupPrecedence));
         edit->swap_id(sect);
         edit->original = doc->swap(i, edit);
-
+        
         Expr obj(sect->to_pmath(BoxFlagDefault));
-
+        
         doc->select(edit->content(), 0, 0);
         doc->insert_string(obj.to_string(
-          PMATH_WRITE_OPTIONS_FULLSTR | PMATH_WRITE_OPTIONS_INPUTEXPR));
+                             PMATH_WRITE_OPTIONS_FULLSTR | PMATH_WRITE_OPTIONS_INPUTEXPR));
       }
     }
-
+    
     doc->select_range(box, a, a, box, b, b);
   }
-
+  
   return true;
 }
 
-static bool evaluate_in_place_cmd(Expr cmd){
+static bool evaluate_in_place_cmd(Expr cmd) {
   Document *doc = get_current_document();
-
+  
   if(!doc)
     return false;
-
+    
   MathSequence *seq = dynamic_cast<MathSequence*>(doc->selection_box());
-
-  if(seq){
+  
+  if(seq) {
     Application::add_job(new ReplacementJob(
-      seq,
-      doc->selection_start(),
-      doc->selection_end()));
+                           seq,
+                           doc->selection_start(),
+                           doc->selection_end()));
   }
-
+  
   return true;
 }
 
-static bool evaluate_sections_cmd(Expr cmd){
+static bool evaluate_sections_cmd(Expr cmd) {
   Document *doc = get_current_document();
-
+  
   if(!doc)
     return false;
-
+    
   Box *box = doc->selection_box();
-
-  if(box == doc){
-    for(int i = doc->selection_start();i < doc->selection_end();++i){
+  
+  if(box == doc) {
+    for(int i = doc->selection_start(); i < doc->selection_end(); ++i) {
       MathSection *math = dynamic_cast<MathSection*>(doc->item(i));
-
+      
       if(math && math->get_style(Evaluatable))
         Application::add_job(new InputJob(math));
     }
   }
-  else{
+  else {
     while(box && !dynamic_cast<MathSection*>(box))
       box = box->parent();
-
+      
     MathSection *math = dynamic_cast<MathSection*>(box);
     if(math && math->get_style(Evaluatable))
       Application::add_job(new InputJob(math));
   }
-
-  if(String(cmd).equals("EvaluateSectionsAndReturn")){
+  
+  if(String(cmd).equals("EvaluateSectionsAndReturn")) {
     Application::add_job(new EvaluationJob(Call(Symbol(PMATH_SYMBOL_RETURN))));
   }
-
+  
   return true;
 }
 
-static bool evaluator_subsession_cmd(Expr cmd){
+static bool evaluator_subsession_cmd(Expr cmd) {
   if(Application::is_idle())
     return false;
-
+    
   // non-blocking interrupt
   Application::execute_for(Call(Symbol(PMATH_SYMBOL_DIALOG)), 0, Infinity);
-
+  
   return true;
 }
 
-static bool expand_selection_cmd(Expr cmd){
+static bool expand_selection_cmd(Expr cmd) {
   Document *doc = get_current_document();
-
+  
   if(!doc)
     return false;
-
+    
   Box *box  = doc->selection_box();
   int start = doc->selection_start();
   int end   = doc->selection_end();
-
+  
   box = expand_selection(box, &start, &end);
   doc->select_range(box, start, start, box, end, end);
   doc->native()->invalidate();
   return true;
 }
 
-static bool find_evaluating_section(Expr cmd){
+static bool find_evaluating_section(Expr cmd) {
   Box *box = Application::find_current_job();
   Document *current_doc = get_current_document();
   
-  if(!box){
+  if(!box) {
     if(current_doc)
       current_doc->native()->beep();
     return false;
   }
   
   Section *sect = box->find_parent<Section>(true);
-  if(!sect){
+  if(!sect) {
     if(current_doc)
       current_doc->native()->beep();
     return false;
   }
   
   Document *doc = sect->find_parent<Document>(false);
-  if(!doc){
+  if(!doc) {
     if(current_doc)
       current_doc->native()->beep();
     return false;
@@ -676,168 +676,168 @@ static bool find_evaluating_section(Expr cmd){
   return true;
 }
 
-static bool find_matching_fence_cmd(Expr cmd){
+static bool find_matching_fence_cmd(Expr cmd) {
   Document *doc = get_current_document();
-
+  
   if(!doc)
     return false;
-
+    
   MathSequence *seq = dynamic_cast<MathSequence*>(doc->selection_box());
-
-  if(seq){
+  
+  if(seq) {
     int pos = doc->selection_end() - 1;
     int match = seq->matching_fence(pos);
-
-    if(match < 0 && doc->selection_start() == doc->selection_end()){
+    
+    if(match < 0 && doc->selection_start() == doc->selection_end()) {
       ++pos;
       match = seq->matching_fence(pos);
     }
-
-    if(match >= 0){
+    
+    if(match >= 0) {
       doc->select(seq, match, match + 1);
     }
   }
-
+  
   return true;
 }
 
-static bool insert_column_cmd(Expr cmd){
+static bool insert_column_cmd(Expr cmd) {
   Document *doc = get_current_document();
-
+  
   if(!doc)
     return false;
-
+    
   doc->insert_matrix_column();
   return true;
 }
 
-static bool insert_fraction_cmd(Expr cmd){
+static bool insert_fraction_cmd(Expr cmd) {
   Document *doc = get_current_document();
-
+  
   if(!doc)
     return false;
-
+    
   doc->insert_fraction();
   return true;
 }
 
-static bool insert_opposite_cmd(Expr cmd){
+static bool insert_opposite_cmd(Expr cmd) {
   Document *doc = get_current_document();
-
+  
   if(!doc)
     return false;
-
+    
   doc->complete_box();
   return true;
 }
 
-static bool insert_overscript_cmd(Expr cmd){
+static bool insert_overscript_cmd(Expr cmd) {
   Document *doc = get_current_document();
-
+  
   if(!doc)
     return false;
-
+    
   doc->insert_underoverscript(false);
   return true;
 }
 
-static bool insert_radical_cmd(Expr cmd){
+static bool insert_radical_cmd(Expr cmd) {
   Document *doc = get_current_document();
-
+  
   if(!doc)
     return false;
-
+    
   doc->insert_sqrt();
   return true;
 }
 
-static bool insert_row_cmd(Expr cmd){
+static bool insert_row_cmd(Expr cmd) {
   Document *doc = get_current_document();
-
+  
   if(!doc)
     return false;
-
+    
   doc->insert_matrix_row();
   return true;
 }
 
-static bool insert_subscript_cmd(Expr cmd){
+static bool insert_subscript_cmd(Expr cmd) {
   Document *doc = get_current_document();
-
+  
   if(!doc)
     return false;
-
+    
   doc->insert_subsuperscript(true);
   return true;
 }
 
-static bool insert_superscript_cmd(Expr cmd){
+static bool insert_superscript_cmd(Expr cmd) {
   Document *doc = get_current_document();
-
+  
   if(!doc)
     return false;
-
+    
   doc->insert_subsuperscript(false);
   return true;
 }
 
-static bool insert_underscript_cmd(Expr cmd){
+static bool insert_underscript_cmd(Expr cmd) {
   Document *doc = get_current_document();
-
+  
   if(!doc)
     return false;
-
+    
   doc->insert_underoverscript(true);
   return true;
 }
 
-static bool open_close_group_cmd(Expr cmd){
+static bool open_close_group_cmd(Expr cmd) {
   Document *doc = get_current_document();
-
+  
   if(!doc)
     return false;
-
+    
   doc->toggle_open_close_current_group();
   return true;
 }
 
-static bool paste_cmd(Expr cmd){
+static bool paste_cmd(Expr cmd) {
   Document *doc = get_current_document();
-
+  
   if(!doc)
     return false;
-
+    
   doc->paste_from_clipboard();
   return true;
 }
 
-static bool remove_from_evaluation_queue(Expr cmd){
+static bool remove_from_evaluation_queue(Expr cmd) {
   Document *doc = get_current_document();
   
   if(!doc)
     return false;
-  
+    
   int start = doc->selection_start();
   int end   = doc->selection_end();
   Box *box  = doc->selection_box();
-  while(box && box != doc){
+  while(box && box != doc) {
     start = box->index();
     end   = start + 1;
     box   = box->parent();
   }
   
-  if(!box || start >= end){
+  if(!box || start >= end) {
     doc->native()->beep();
     return false;
   }
   
   bool found_any = false;
-  for(int i = end-1;i >= start;--i){
+  for(int i = end - 1; i >= start; --i) {
     if(Application::remove_job(doc->section(i), false))
       found_any = true;
   }
   
-  if(!found_any){
+  if(!found_any) {
     doc->native()->beep();
     return false;
   }
@@ -845,58 +845,58 @@ static bool remove_from_evaluation_queue(Expr cmd){
   return true;
 }
 
-static bool select_all_cmd(Expr cmd){
+static bool select_all_cmd(Expr cmd) {
   Document *doc = get_current_document();
-
+  
   if(!doc)
     return false;
-
-  if(doc->selectable()){
+    
+  if(doc->selectable()) {
     doc->select(doc, 0, doc->length());
     return true;
   }
-
+  
   Box *sel = doc->selection_box();
   if(!sel)
     return false;
-
+    
   Box *next = sel;
-  while(next && next->selectable()){
+  while(next && next->selectable()) {
     sel = next;
     next = next->parent();
   }
-
-  if(sel->selectable()){
+  
+  if(sel->selectable()) {
     doc->select(sel, 0, sel->length());
     return true;
   }
-
+  
   return false;
 }
 
-static bool similar_section_below_cmd(Expr cmd){
+static bool similar_section_below_cmd(Expr cmd) {
   Document *doc = get_current_document();
-
+  
   if(!doc)
     return false;
-
+    
   Box *box = doc->selection_box();
-  while(box && box->parent() != doc){
+  while(box && box->parent() != doc) {
     box = box->parent();
   }
-
-  if(dynamic_cast<AbstractSequenceSection*>(box)){
+  
+  if(dynamic_cast<AbstractSequenceSection*>(box)) {
     Style *style = new Style;
     style->merge(static_cast<Section*>(box)->style);
     style->remove(SectionLabel);
     style->remove(SectionGenerated);
-
+    
     Section *section;
     if(dynamic_cast<TextSection*>(box))
       section = new TextSection(style);
     else
       section = new MathSection(style);
-
+      
     doc->insert(box->index() + 1, section);
     doc->move_to(doc, box->index() + 1);
     doc->move_horizontal(Forward, false);
@@ -907,14 +907,14 @@ static bool similar_section_below_cmd(Expr cmd){
   return false;
 }
 
-static bool subsession_evaluate_sections_cmd(Expr cmd){
+static bool subsession_evaluate_sections_cmd(Expr cmd) {
   // non-blocking interrupt
   Application::execute_for(
     Call(Symbol(PMATH_SYMBOL_DIALOG),
-      Call(Symbol(PMATH_SYMBOL_FRONTENDTOKENEXECUTE),
-        String("EvaluateSectionsAndReturn"))),
+         Call(Symbol(PMATH_SYMBOL_FRONTENDTOKENEXECUTE),
+              String("EvaluateSectionsAndReturn"))),
     0, Infinity);
-
+    
   return false;
 }
 
@@ -922,12 +922,12 @@ static bool subsession_evaluate_sections_cmd(Expr cmd){
 
 static pmath_symbol_t fe_symbols[FrontEndSymbolsCount];
 
-bool richmath::init_bindings(){
-  #define BIND_DOWN(SYMBOL, FUNC)  pmath_register_code(SYMBOL, FUNC, PMATH_CODE_USAGE_DOWNCALL)
-  #define BIND_UP(  SYMBOL, FUNC)  pmath_register_code(SYMBOL, FUNC, PMATH_CODE_USAGE_UPCALL)
+bool richmath::init_bindings() {
+#define BIND_DOWN(SYMBOL, FUNC)  pmath_register_code(SYMBOL, FUNC, PMATH_CODE_USAGE_DOWNCALL)
+#define BIND_UP(  SYMBOL, FUNC)  pmath_register_code(SYMBOL, FUNC, PMATH_CODE_USAGE_UPCALL)
 
   Application::register_menucommand(String("Close"),             close_cmd);
-
+  
   Application::register_menucommand(String("Copy"),              copy_cmd,                 can_copy_cut);
   Application::register_menucommand(String("Cut"),               cut_cmd,                  can_copy_cut);
   Application::register_menucommand(String("OpenCloseGroup"),    open_close_group_cmd,     can_open_close_group);
@@ -936,7 +936,7 @@ bool richmath::init_bindings(){
   Application::register_menucommand(String("ExpandSelection"),   expand_selection_cmd,     can_expand_selection);
   Application::register_menucommand(String("FindMatchingFence"), find_matching_fence_cmd,  can_find_matching_fence);
   Application::register_menucommand(String("SelectAll"),         select_all_cmd);
-
+  
   Application::register_menucommand(String("DuplicatePreviousInput"),  duplicate_previous_input_output_cmd, can_duplicate_previous_input_output);
   Application::register_menucommand(String("DuplicatePreviousOutput"), duplicate_previous_input_output_cmd, can_duplicate_previous_input_output);
   Application::register_menucommand(String("SimilarSectionBelow"),     similar_section_below_cmd,           can_similar_section_below);
@@ -949,7 +949,7 @@ bool richmath::init_bindings(){
   Application::register_menucommand(String("InsertSubscript"),         insert_subscript_cmd,                can_document_apply);
   Application::register_menucommand(String("InsertSuperscript"),       insert_superscript_cmd,              can_document_apply);
   Application::register_menucommand(String("InsertUnderscript"),       insert_underscript_cmd,              can_document_apply);
-
+  
   Application::register_menucommand(String("DynamicToLiteral"),           convert_dynamic_to_literal,       can_convert_dynamic_to_literal);
   Application::register_menucommand(String("EvaluatorAbort"),             abort_cmd,                        can_abort);
   Application::register_menucommand(String("EvaluateInPlace"),            evaluate_in_place_cmd,            can_evaluate_in_place);
@@ -959,12 +959,12 @@ bool richmath::init_bindings(){
   Application::register_menucommand(String("FindEvaluatingSection"),      find_evaluating_section,          can_find_evaluating_section);
   Application::register_menucommand(String("RemoveFromEvaluationQueue"),  remove_from_evaluation_queue,     can_remove_from_evaluation_queue);
   Application::register_menucommand(String("SubsessionEvaluateSections"), subsession_evaluate_sections_cmd, can_subsession_evaluate_sections);
-
+  
   Application::register_menucommand(Symbol(PMATH_SYMBOL_DOCUMENTAPPLY), document_apply_cmd, can_document_apply);
-
-  #define VERIFY(x)  if(0 == (x)) goto FAIL_SYMBOLS;
-  #define NEW_SYMBOL(name)     pmath_symbol_get(PMATH_C_STRING(name), TRUE)
-
+  
+#define VERIFY(x)  if(0 == (x)) goto FAIL_SYMBOLS;
+#define NEW_SYMBOL(name)     pmath_symbol_get(PMATH_C_STRING(name), TRUE)
+  
   memset(fe_symbols, 0, sizeof(fe_symbols));
   VERIFY(fe_symbols[NumberBoxSymbol]          = NEW_SYMBOL("FE`NumberBox"))
   VERIFY(fe_symbols[SymbolInfoSymbol]         = NEW_SYMBOL("FE`SymbolInfo"))
@@ -978,9 +978,9 @@ bool richmath::init_bindings(){
   VERIFY(fe_symbols[MenuSymbol]               = NEW_SYMBOL("FE`Menu"))
   VERIFY(fe_symbols[InternalExecuteForSymbol] = NEW_SYMBOL("FE`InternalExecuteFor"))
   VERIFY(fe_symbols[SymbolDefinitionsSymbol]  = NEW_SYMBOL("FE`SymbolDefinitions"))
-
+  
   VERIFY(BIND_DOWN(PMATH_SYMBOL_INTERNAL_DYNAMICUPDATED, builtin_internal_dynamicupdated))
-
+  
   VERIFY(BIND_DOWN(PMATH_SYMBOL_CREATEDOCUMENT,       builtin_createdocument))
   VERIFY(BIND_DOWN(PMATH_SYMBOL_CURRENTVALUE,         builtin_currentvalue))
   VERIFY(BIND_DOWN(PMATH_SYMBOL_DOCUMENTAPPLY,        builtin_documentapply))
@@ -988,53 +988,53 @@ bool richmath::init_bindings(){
   VERIFY(BIND_DOWN(PMATH_SYMBOL_FRONTENDTOKENEXECUTE, builtin_frontendtokenexecute))
   VERIFY(BIND_DOWN(PMATH_SYMBOL_SECTIONPRINT,         builtin_sectionprint))
   VERIFY(BIND_DOWN(PMATH_SYMBOL_SELECTEDDOCUMENT,     builtin_selecteddocument))
-
-  VERIFY(BIND_UP(  PMATH_SYMBOL_FRONTENDOBJECT,       builtin_feo_options))
-
+  
+  VERIFY(BIND_UP(PMATH_SYMBOL_FRONTENDOBJECT,       builtin_feo_options))
+  
   VERIFY(BIND_DOWN(fe_symbols[AddConfigShaperSymbol],       builtin_addconfigshaper))
   VERIFY(BIND_DOWN(fe_symbols[InternalExecuteForSymbol],    builtin_internalexecutefor))
-
+  
   pmath_symbol_set_attributes(
     fe_symbols[InternalExecuteForSymbol],
     pmath_symbol_get_attributes(
       fe_symbols[InternalExecuteForSymbol]) | PMATH_SYMBOL_ATTRIBUTE_HOLDFIRST);
-
+      
   return true;
-
- FAIL_SYMBOLS:
-  for(size_t i = 0;i < FrontEndSymbolsCount;++i)
+  
+FAIL_SYMBOLS:
+  for(size_t i = 0; i < FrontEndSymbolsCount; ++i)
     pmath_unref(fe_symbols[i]);
-
+    
   memset(fe_symbols, 0, sizeof(fe_symbols));
   return false;
 }
 
-void richmath::done_bindings(){
-  for(size_t i = 0;i < FrontEndSymbolsCount;++i)
+void richmath::done_bindings() {
+  for(size_t i = 0; i < FrontEndSymbolsCount; ++i)
     pmath_unref(fe_symbols[i]);
-
+    
   memset(fe_symbols, 0, sizeof(fe_symbols));
 }
 
-Expr richmath::GetSymbol(FrontEndSymbolIndex i){
+Expr richmath::GetSymbol(FrontEndSymbolIndex i) {
   if((size_t)i >= (size_t)FrontEndSymbolsCount)
     return Expr();
-
+    
   return Symbol(fe_symbols[(size_t)i]);
 }
 
-void richmath::set_current_document(Document *document){
+void richmath::set_current_document(Document *document) {
   Document *old = get_current_document();
-
+  
   if(old)
     old->focus_killed();
-
+    
   if(document)
     document->focus_set();
-
+    
   current_document_id = document ? document->id() : 0;
 }
 
-Document *richmath::get_current_document(){
+Document *richmath::get_current_document() {
   return dynamic_cast<Document*>(Box::find(current_document_id));
 }

@@ -5,13 +5,14 @@
 #include <util/pmath-extra.h>
 #include <util/sharedptr.h>
 
-namespace richmath{
+
+namespace richmath {
   class Box;
   
   Expr color_to_pmath(int color);
   int pmath_to_color(Expr obj); // -2 on error, -1=None
   
-  enum IntStyleOptionName{
+  enum IntStyleOptionName {
     Background = 0,
     FontColor,
     SectionFrameColor,
@@ -45,7 +46,7 @@ namespace richmath{
   static const int FontWeightPlain = 0;
   static const int FontWeightBold  = 100;
   
-  enum FloatStyleOptionName{
+  enum FloatStyleOptionName {
     FontSize = 10000, // greater than any IntStyleOptionName value
     
     GridBoxColumnSpacing,
@@ -69,14 +70,14 @@ namespace richmath{
     SectionGroupPrecedence
   };
   
-  enum StringStyleOptionName{
+  enum StringStyleOptionName {
     BaseStyleName = 20000, // greater than any FloatStyleOptionName value
     FontFamily,
     SectionLabel,
     Method
   };
   
-  enum ObjectStyleOptionName{
+  enum ObjectStyleOptionName {
     ButtonFunction = 30000, // greater than any StringStyleOptionName value
     ScriptSizeMultipliers,
     TextShadow
@@ -84,10 +85,10 @@ namespace richmath{
   
   const int DynamicOffset = 1000000;
   
-  typedef union{
+  typedef union {
     int   int_value;
     float float_value;
-  }IntFloatUnion;
+  } IntFloatUnion;
   
   class Style: public Shareable {
     public:
@@ -103,30 +104,30 @@ namespace richmath{
       bool get(StringStyleOptionName n, String *value);
       bool get(ObjectStyleOptionName n, Expr   *value);
       
-      bool get_dynamic(IntStyleOptionName    n, Expr *value){ return get_dynamic((int)n, value); }
-      bool get_dynamic(FloatStyleOptionName  n, Expr *value){ return get_dynamic((int)n, value); }
-      bool get_dynamic(StringStyleOptionName n, Expr *value){ return get_dynamic((int)n, value); }
-      bool get_dynamic(ObjectStyleOptionName n, Expr *value){ return get_dynamic((int)n, value); }
+      bool get_dynamic(IntStyleOptionName    n, Expr *value) { return get_dynamic((int)n, value); }
+      bool get_dynamic(FloatStyleOptionName  n, Expr *value) { return get_dynamic((int)n, value); }
+      bool get_dynamic(StringStyleOptionName n, Expr *value) { return get_dynamic((int)n, value); }
+      bool get_dynamic(ObjectStyleOptionName n, Expr *value) { return get_dynamic((int)n, value); }
       
       void set(IntStyleOptionName    n, int    value);
       void set(FloatStyleOptionName  n, float  value);
       void set(StringStyleOptionName n, String value);
       void set(ObjectStyleOptionName n, Expr   value);
       
-      void set_dynamic(IntStyleOptionName    n, Expr value){ set_dynamic((int)n, value); }
-      void set_dynamic(FloatStyleOptionName  n, Expr value){ set_dynamic((int)n, value); }
-      void set_dynamic(StringStyleOptionName n, Expr value){ set_dynamic((int)n, value); }
-      void set_dynamic(ObjectStyleOptionName n, Expr value){ set_dynamic((int)n, value); }
+      void set_dynamic(IntStyleOptionName    n, Expr value) { set_dynamic((int)n, value); }
+      void set_dynamic(FloatStyleOptionName  n, Expr value) { set_dynamic((int)n, value); }
+      void set_dynamic(StringStyleOptionName n, Expr value) { set_dynamic((int)n, value); }
+      void set_dynamic(ObjectStyleOptionName n, Expr value) { set_dynamic((int)n, value); }
       
       void remove(IntStyleOptionName    n);
       void remove(FloatStyleOptionName  n);
       void remove(StringStyleOptionName n);
       void remove(ObjectStyleOptionName n);
       
-      void remove_dynamic(IntStyleOptionName    n){ remove_dynamic((int)n); } 
-      void remove_dynamic(FloatStyleOptionName  n){ remove_dynamic((int)n); } 
-      void remove_dynamic(StringStyleOptionName n){ remove_dynamic((int)n); } 
-      void remove_dynamic(ObjectStyleOptionName n){ remove_dynamic((int)n); } 
+      void remove_dynamic(IntStyleOptionName    n) { remove_dynamic((int)n); }
+      void remove_dynamic(FloatStyleOptionName  n) { remove_dynamic((int)n); }
+      void remove_dynamic(StringStyleOptionName n) { remove_dynamic((int)n); }
+      void remove_dynamic(ObjectStyleOptionName n) { remove_dynamic((int)n); }
       
       void set_pmath_bool_auto(IntStyleOptionName n, Expr obj); // 0/1=true/false, 2=auto
       void set_pmath_bool(IntStyleOptionName      n, Expr obj);
@@ -137,38 +138,38 @@ namespace richmath{
       
       unsigned int count();
       
-      static bool modifies_size(IntStyleOptionName    style_name){ return modifies_size((int)style_name); }
-      static bool modifies_size(FloatStyleOptionName  style_name){ return modifies_size((int)style_name); }
-      static bool modifies_size(StringStyleOptionName style_name){ return modifies_size((int)style_name); }
-      static bool modifies_size(ObjectStyleOptionName style_name){ return modifies_size((int)style_name); }
+      static bool modifies_size(IntStyleOptionName    style_name) { return modifies_size((int)style_name); }
+      static bool modifies_size(FloatStyleOptionName  style_name) { return modifies_size((int)style_name); }
+      static bool modifies_size(StringStyleOptionName style_name) { return modifies_size((int)style_name); }
+      static bool modifies_size(ObjectStyleOptionName style_name) { return modifies_size((int)style_name); }
       
-      static Expr get_symbol(IntStyleOptionName    n){ return get_symbol((int)n); }
-      static Expr get_symbol(FloatStyleOptionName  n){ return get_symbol((int)n); }
-      static Expr get_symbol(StringStyleOptionName n){ return get_symbol((int)n); }
-      static Expr get_symbol(ObjectStyleOptionName n){ return get_symbol((int)n); }
+      static Expr get_symbol(IntStyleOptionName    n) { return get_symbol((int)n); }
+      static Expr get_symbol(FloatStyleOptionName  n) { return get_symbol((int)n); }
+      static Expr get_symbol(StringStyleOptionName n) { return get_symbol((int)n); }
+      static Expr get_symbol(ObjectStyleOptionName n) { return get_symbol((int)n); }
       
       bool update_dynamic(Box *parent);
       
       void emit_to_pmath(bool for_sections = true, bool with_inherited = false);
-    
+      
     protected:
       static bool modifies_size(int style_name);
       
       static Expr get_symbol(int n);
       
-      bool get_dynamic(int n, Expr *value){
-        return get((ObjectStyleOptionName)(n + DynamicOffset), value); 
+      bool get_dynamic(int n, Expr *value) {
+        return get((ObjectStyleOptionName)(n + DynamicOffset), value);
       }
       
-      void set_dynamic(int n, Expr value){ 
-        remove((ObjectStyleOptionName)(n + DynamicOffset)); 
-        set(   (ObjectStyleOptionName)(n + DynamicOffset), value); 
+      void set_dynamic(int n, Expr value) {
+        remove((ObjectStyleOptionName)(n + DynamicOffset));
+        set((ObjectStyleOptionName)(n + DynamicOffset), value);
         
         set(InternalHavePendingDynamic, true);
       }
       
-      void remove_dynamic(int n){ 
-        remove((ObjectStyleOptionName)(n + DynamicOffset)); 
+      void remove_dynamic(int n) {
+        remove((ObjectStyleOptionName)(n + DynamicOffset));
       }
       
     private:

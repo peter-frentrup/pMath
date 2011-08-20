@@ -2,7 +2,7 @@
 #define __GUI__GTK__MGTK_MENU_BUILDER_H__
 
 #ifndef RICHMATH_USE_GTK_GUI
-  #error this header is gtk specific
+#error this header is gtk specific
 #endif
 
 #include <pmath-cpp.h>
@@ -11,10 +11,11 @@
 
 #include <util/array.h>
 
-namespace richmath{
+
+namespace richmath {
   using namespace pmath; // bad style!!!
   
-  class MathGtkMenuBuilder{
+  class MathGtkMenuBuilder {
     public:
       MathGtkMenuBuilder();
       explicit MathGtkMenuBuilder(Expr _expr);
@@ -29,11 +30,11 @@ namespace richmath{
       Expr expr;
   };
   
-  class MathGtkAccelerators{
+  class MathGtkAccelerators {
     public:
       static void load(Expr expr);
       
-      static void done(){
+      static void done() {
         all_accelerators = Array<String>();
       }
       

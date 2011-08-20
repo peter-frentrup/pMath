@@ -5,37 +5,37 @@ using namespace richmath;
 //{ class RadioButtonBox ...
 
 RadioButtonBox::RadioButtonBox()
-: EmptyWidgetBox(RadioButtonUnchecked),
+  : EmptyWidgetBox(RadioButtonUnchecked),
   first_paint(true)
 {
   dynamic.init(this, Expr());
 }
 
-RadioButtonBox *RadioButtonBox::create(Expr expr){
+RadioButtonBox *RadioButtonBox::create(Expr expr) {
   RadioButtonBox *rb = new RadioButtonBox();
   Expr options(PMATH_UNDEFINED);
   
-  if(expr.expr_length() >= 1){
+  if(expr.expr_length() >= 1) {
     rb->dynamic = expr[1];
   }
-  else{
+  else {
     rb->dynamic = Symbol(PMATH_SYMBOL_FALSE);
   }
   
-  if(expr.expr_length() >= 2){
+  if(expr.expr_length() >= 2) {
     rb->value = expr[2];
     options = Expr(pmath_options_extract(expr.get(), 2));
   }
-  else{
+  else {
     rb->value = Symbol(PMATH_SYMBOL_TRUE);
   }
   
-  if(options.is_null()){
+  if(options.is_null()) {
     delete rb;
     return 0;
   }
   
-  if(options != PMATH_UNDEFINED){
+  if(options != PMATH_UNDEFINED) {
     if(rb->style)
       rb->style->add_pmath(options);
     else
@@ -45,8 +45,8 @@ RadioButtonBox *RadioButtonBox::create(Expr expr){
   return rb;
 }
 
-void RadioButtonBox::paint(Context *context){
-  if(must_update){
+void RadioButtonBox::paint(Context *context) {
+  if(must_update) {
     must_update = false;
     
     Expr val;
@@ -56,26 +56,26 @@ void RadioButtonBox::paint(Context *context){
   
   if(first_paint)
     old_type = type;
-  
+    
   EmptyWidgetBox::paint(context);
   first_paint = false;
 }
 
-Expr RadioButtonBox::to_pmath(int flags){
+Expr RadioButtonBox::to_pmath(int flags) {
   Gather gather;
   
   Expr val = dynamic.expr();
   if((flags & BoxFlagLiteral) && dynamic.is_dynamic())
     val = val[1];
-  
+    
   Gather::emit(val);
   Gather::emit(value);
   
   if(style)
     style->emit_to_pmath(false, false);
-  
+    
   Expr result = gather.end();
-  if(value == PMATH_SYMBOL_TRUE && result.expr_length() == 2){
+  if(value == PMATH_SYMBOL_TRUE && result.expr_length() == 2) {
     return Call(Symbol(PMATH_SYMBOL_RADIOBUTTONBOX), dynamic.expr());
   }
   
@@ -83,27 +83,27 @@ Expr RadioButtonBox::to_pmath(int flags){
   return result;
 }
 
-void RadioButtonBox::dynamic_finished(Expr info, Expr result){
+void RadioButtonBox::dynamic_finished(Expr info, Expr result) {
   type = calc_type(result);
   
   request_repaint_all();
 }
 
-Box *RadioButtonBox::dynamic_to_literal(int *start, int *end){
+Box *RadioButtonBox::dynamic_to_literal(int *start, int *end) {
   if(dynamic.is_dynamic())
     dynamic = dynamic.expr()[1];
   return this;
 }
 
-ContainerType RadioButtonBox::calc_type(Expr result){
+ContainerType RadioButtonBox::calc_type(Expr result) {
   if(result == value)
     return RadioButtonChecked;
-  
+    
   return RadioButtonUnchecked;
 }
 
-void RadioButtonBox::on_mouse_up(MouseEvent &event){
-  if(event.left){
+void RadioButtonBox::on_mouse_up(MouseEvent &event) {
+  if(event.left) {
     dynamic.assign(value);
   }
   

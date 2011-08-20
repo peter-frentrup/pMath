@@ -12,7 +12,7 @@ using namespace richmath;
 //{ class InputFieldBox ...
 
 InputFieldBox::InputFieldBox(MathSequence *content)
-: ContainerWidgetBox(InputField, content),
+  : ContainerWidgetBox(InputField, content),
   must_update(true),
   invalidated(false),
   transparent(false),
@@ -28,10 +28,10 @@ InputFieldBox::InputFieldBox(MathSequence *content)
   cx = 0;
 }
 
-InputFieldBox *InputFieldBox::create(Expr expr, int opts){
+InputFieldBox *InputFieldBox::create(Expr expr, int opts) {
   if(expr.expr_length() < 2)
     return 0;
-  
+    
   Expr options(pmath_options_extract(expr.get(), 2));
   if(options.is_null())
     return 0;
@@ -45,19 +45,19 @@ InputFieldBox *InputFieldBox::create(Expr expr, int opts){
   return box;
 }
 
-ControlState InputFieldBox::calc_state(Context *context){
+ControlState InputFieldBox::calc_state(Context *context) {
   if(selection_inside)
     return Pressed;
-  
+    
   return ContainerWidgetBox::calc_state(context);
 }
 
-bool InputFieldBox::expand(const BoxSize &size){
+bool InputFieldBox::expand(const BoxSize &size) {
   _extents = size;
   return true;
 }
 
-void InputFieldBox::resize(Context *context){
+void InputFieldBox::resize(Context *context) {
   bool  old_math_spacing = context->math_spacing;
   float old_width        = context->width;
   context->math_spacing = false;
@@ -71,13 +71,13 @@ void InputFieldBox::resize(Context *context){
   context->width = old_width;
   
   if(_content->var_extents().ascent < 0.95 * _content->get_em())
-     _content->var_extents().ascent = 0.95 * _content->get_em();
-  
+    _content->var_extents().ascent = 0.95 * _content->get_em();
+    
   if(_content->var_extents().descent < 0.25 * _content->get_em())
-     _content->var_extents().descent = 0.25 * _content->get_em();
-
+    _content->var_extents().descent = 0.25 * _content->get_em();
+    
   _extents = _content->extents();
-
+  
   float w = 10 * context->canvas->get_font_size();
   _extents.width = w;
   
@@ -85,37 +85,37 @@ void InputFieldBox::resize(Context *context){
     context->canvas,
     type,
     &_extents);
-  
-  cx-= frame_x;
+    
+  cx -= frame_x;
   frame_x = (_extents.width - w) / 2;
-  cx+= frame_x;
+  cx += frame_x;
 }
 
-void InputFieldBox::paint_content(Context *context){
-  if(must_update){
+void InputFieldBox::paint_content(Context *context) {
+  if(must_update) {
     must_update = false;
     
     Expr result;
-    if(dynamic.get_value(&result)){
+    if(dynamic.get_value(&result)) {
       int opt = BoxOptionDefault;
       if(get_style(AutoNumberFormating))
         opt |= BoxOptionFormatNumbers;
-      
+        
       invalidated = true;
       
-      if(input_type == PMATH_SYMBOL_NUMBER){
-        if(result.is_number()){
+      if(input_type == PMATH_SYMBOL_NUMBER) {
+        if(result.is_number()) {
           result = Call(Symbol(PMATH_SYMBOL_MAKEBOXES), result);
           result = Application::interrupt(result, Application::dynamic_timeout);
         }
         else
           result = String("");
       }
-      else if(input_type == PMATH_SYMBOL_STRING){
+      else if(input_type == PMATH_SYMBOL_STRING) {
         if(!result.is_string())
           result = String("");
       }
-      else if(input_type[0] == PMATH_SYMBOL_HOLD){ // Hold(Expression)
+      else if(input_type[0] == PMATH_SYMBOL_HOLD) { // Hold(Expression)
         if(result.expr_length() == 1 && result[0] == PMATH_SYMBOL_HOLD)
           result.set(0, Symbol(PMATH_SYMBOL_MAKEBOXES));
         else
@@ -123,7 +123,7 @@ void InputFieldBox::paint_content(Context *context){
           
         result = Application::interrupt(result, Application::dynamic_timeout);
       }
-      else if(input_type != PMATH_SYMBOL_RAWBOXES){
+      else if(input_type != PMATH_SYMBOL_RAWBOXES) {
         result = Call(Symbol(PMATH_SYMBOL_MAKEBOXES), result);
         result = Application::interrupt(result, Application::dynamic_timeout);
       }
@@ -132,7 +132,7 @@ void InputFieldBox::paint_content(Context *context){
         result = String("");
       else if(result == PMATH_UNDEFINED || result == PMATH_SYMBOL_ABORTED)
         result = String("$Aborted");
-      
+        
       bool was_parent = is_parent_of(context->selection.get());
       
       content()->load_from_object(result, opt);
@@ -140,7 +140,7 @@ void InputFieldBox::paint_content(Context *context){
       resize(context);
       context->canvas->restore();
       
-      if(was_parent){
+      if(was_parent) {
         context->selection = SelectionReference();
         Document *doc = find_parent<Document>(false);
         if(doc)
@@ -160,10 +160,10 @@ void InputFieldBox::paint_content(Context *context){
   
   context->canvas->save();
   context->canvas->pixrect(
-    x + dx, 
-    y - _extents.ascent + dy, 
-    x + _extents.width - dx, 
-    y + _extents.descent - dy, 
+    x + dx,
+    y - _extents.ascent + dy,
+    x + _extents.width - dx,
+    y + _extents.descent - dy,
     false);
   context->canvas->clip();
   context->canvas->move_to(x, y);
@@ -173,77 +173,77 @@ void InputFieldBox::paint_content(Context *context){
   context->canvas->restore();
 }
 
-void InputFieldBox::scroll_to(float x, float y, float w, float h){
-  if(x + cx < frame_x){
+void InputFieldBox::scroll_to(float x, float y, float w, float h) {
+  if(x + cx < frame_x) {
     cx = frame_x - x;
     
     float extra = (_extents.width - 2 * frame_x) * 0.2;
     if(extra + w > _extents.width - 2 * frame_x)
       extra = _extents.width - 2 * frame_x - w;
-    
-    cx+= extra;
+      
+    cx += extra;
     if(cx > frame_x)
       cx = frame_x;
   }
-  else if(x + w > -cx + _extents.width - 2 * frame_x){
+  else if(x + w > -cx + _extents.width - 2 * frame_x) {
     cx = _extents.width - frame_x - x - w;
     
     float extra = (_extents.width - 2 * frame_x) * 0.2;
     if(extra + w > _extents.width - 2 * frame_x)
       extra = _extents.width - 2 * frame_x - w;
-    
-    cx-= extra;
+      
+    cx -= extra;
   }
   else if(x + w < _extents.width - 2 * frame_x)
     cx = frame_x;
 }
 
-void InputFieldBox::scroll_to(Canvas *canvas, Box *child, int start, int end){
+void InputFieldBox::scroll_to(Canvas *canvas, Box *child, int start, int end) {
   default_scroll_to(canvas, _content, child, start, end);
 }
 
-Box *InputFieldBox::remove(int *index){
+Box *InputFieldBox::remove(int *index) {
   *index = 0;
   _content->remove(0, _content->length());
   return _content;
 }
 
-Expr InputFieldBox::to_pmath(int flags){
+Expr InputFieldBox::to_pmath(int flags) {
   if(invalidated)
     assign_dynamic();
-  
+    
   Gather g;
   Gather::emit(dynamic.expr());
   Gather::emit(input_type);
   
   if(style)
     style->emit_to_pmath(false, false);
-  
+    
   Expr result = g.end();
   result.set(0, Symbol(PMATH_SYMBOL_INPUTFIELDBOX));
   return result;
 }
 
-void InputFieldBox::dynamic_updated(){
+void InputFieldBox::dynamic_updated() {
   if(must_update)
     return;
-  
+    
   must_update = true;
   request_repaint_all();
 }
 
-void InputFieldBox::dynamic_finished(Expr info, Expr result){
+void InputFieldBox::dynamic_finished(Expr info, Expr result) {
   int opt = BoxOptionDefault;
   if(get_style(AutoNumberFormating))
     opt |= BoxOptionFormatNumbers;
-  
+    
   content()->load_from_object(result, opt);
   invalidate();
   invalidated = false;
 }
 
-Box *InputFieldBox::dynamic_to_literal(int *start, int *end){
-  if(dynamic.is_dynamic()){
+Box *InputFieldBox::dynamic_to_literal(int *start, int *end) {
+  if(dynamic.is_dynamic()) {
     dynamic = Expr();
     assign_dynamic();
   }
@@ -251,43 +251,43 @@ Box *InputFieldBox::dynamic_to_literal(int *start, int *end){
   return this;
 }
 
-void InputFieldBox::invalidate(){
+void InputFieldBox::invalidate() {
   ContainerWidgetBox::invalidate();
   
   if(invalidated)
     return;
-  
+    
   invalidated = true;
-  if(get_own_style(ContinuousAction, false)){
+  if(get_own_style(ContinuousAction, false)) {
     assign_dynamic();
   }
 }
 
-bool InputFieldBox::exitable(){
+bool InputFieldBox::exitable() {
   return false;//_parent && _parent->selectable();
 }
-      
-bool InputFieldBox::selectable(int i){
+
+bool InputFieldBox::selectable(int i) {
   return i >= 0;
 }
 
-void InputFieldBox::on_mouse_down(MouseEvent &event){
+void InputFieldBox::on_mouse_down(MouseEvent &event) {
   Document *doc = find_parent<Document>(false);
-  if(doc){
-    if(event.left){
+  if(doc) {
+    if(event.left) {
       event.set_source(0);
       float gx = event.x;
       float gy = event.y;
       
-      gx*= doc->native()->scale_factor();
-      gy*= doc->native()->scale_factor();
+      gx *= doc->native()->scale_factor();
+      gy *= doc->native()->scale_factor();
       
       float ddx, ddy;
       doc->native()->double_click_dist(&ddx, &ddy);
       
       if(abs(doc->native()->message_time() - last_click_time) <= doc->native()->double_click_time()
-      && fabs(gx - last_click_global_x) <= ddx
-      && fabs(gy - last_click_global_y) <= ddy)
+          && fabs(gx - last_click_global_x) <= ddx
+          && fabs(gy - last_click_global_y) <= ddy)
       {
         Box *box  = doc->selection_box();
         int start = doc->selection_start();
@@ -297,9 +297,9 @@ void InputFieldBox::on_mouse_down(MouseEvent &event){
         
         doc->select(box, start, end);
       }
-      else{
+      else {
         event.set_source(this);
-        int start, end; 
+        int start, end;
         bool was_inside_start;
         Box *box = mouse_selection(event.x, event.y, &start, &end, &was_inside_start);
         doc->select(box, start, end);
@@ -314,19 +314,19 @@ void InputFieldBox::on_mouse_down(MouseEvent &event){
   ContainerWidgetBox::on_mouse_down(event);
 }
 
-void InputFieldBox::on_mouse_move(MouseEvent &event){
+void InputFieldBox::on_mouse_move(MouseEvent &event) {
   Document *doc = find_parent<Document>(false);
   
-  if(doc){
+  if(doc) {
     event.set_source(this);
     
-    int start, end; 
+    int start, end;
     bool was_inside_start;
     Box *box = mouse_selection(event.x, event.y, &start, &end, &was_inside_start);
     
     doc->native()->set_cursor(NativeWidget::text_cursor(box, start));
     
-    if(event.left && mouse_left_down){
+    if(event.left && mouse_left_down) {
       doc->select_to(box, start, end);
     }
   }
@@ -334,16 +334,16 @@ void InputFieldBox::on_mouse_move(MouseEvent &event){
   ContainerWidgetBox::on_mouse_move(event);
 }
 
-void InputFieldBox::on_enter(){
-  if(transparent){
+void InputFieldBox::on_enter() {
+  if(transparent) {
     request_repaint_all();
   }
   
   ContainerWidgetBox::on_enter();
 }
 
-void InputFieldBox::on_exit(){
-  if(transparent){
+void InputFieldBox::on_exit() {
+  if(transparent) {
     request_repaint_all();
   }
   
@@ -353,17 +353,17 @@ void InputFieldBox::on_exit(){
     assign_dynamic();
 }
 
-void InputFieldBox::on_key_down(SpecialKeyEvent &event){
-  switch(event.key){
+void InputFieldBox::on_key_down(SpecialKeyEvent &event) {
+  switch(event.key) {
     case KeyReturn:
       if(!invalidated)
         dynamic_updated();
         
-      if(!assign_dynamic()){
+      if(!assign_dynamic()) {
         Document *doc = find_parent<Document>(false);
         if(doc)
           doc->native()->beep();
-        
+          
         must_update = true;
       }
       
@@ -373,7 +373,7 @@ void InputFieldBox::on_key_down(SpecialKeyEvent &event){
     case KeyTab:
       event.key = KeyUnknown;
       return;
-    
+      
     case KeyUp:   event.key = KeyLeft;  break;
     case KeyDown: event.key = KeyRight; break;
     
@@ -384,29 +384,29 @@ void InputFieldBox::on_key_down(SpecialKeyEvent &event){
   ContainerWidgetBox::on_key_down(event);
 }
 
-void InputFieldBox::on_key_press(uint32_t unichar){
-  if(unichar != '\n' && unichar != '\t'){
+void InputFieldBox::on_key_press(uint32_t unichar) {
+  if(unichar != '\n' && unichar != '\t') {
     ContainerWidgetBox::on_key_press(unichar);
   }
 }
 
-bool InputFieldBox::assign_dynamic(){
+bool InputFieldBox::assign_dynamic() {
   invalidated = false;
   
-  if(input_type == PMATH_SYMBOL_EXPRESSION || input_type[0] == PMATH_SYMBOL_HOLD){ // Expression or Hold(Expression)
+  if(input_type == PMATH_SYMBOL_EXPRESSION || input_type[0] == PMATH_SYMBOL_HOLD) { // Expression or Hold(Expression)
     Expr boxes = _content->to_pmath(BoxFlagParseable);
     
     Expr value = Call(Symbol(PMATH_SYMBOL_TRY),
-      Call(Symbol(PMATH_SYMBOL_MAKEEXPRESSION), boxes),
-      Call(Symbol(PMATH_SYMBOL_RAWBOXES), boxes));
-      
+                      Call(Symbol(PMATH_SYMBOL_MAKEEXPRESSION), boxes),
+                      Call(Symbol(PMATH_SYMBOL_RAWBOXES), boxes));
+                      
     value = Expr(pmath_evaluate(value.release()));
     
-    if(value[0] == PMATH_SYMBOL_HOLDCOMPLETE){
-      if(input_type[0] == PMATH_SYMBOL_HOLD){
+    if(value[0] == PMATH_SYMBOL_HOLDCOMPLETE) {
+      if(input_type[0] == PMATH_SYMBOL_HOLD) {
         value.set(0, Symbol(PMATH_SYMBOL_HOLD));
       }
-      else{
+      else {
         if(value.expr_length() == 1)
           value = value[1];
         else
@@ -418,17 +418,17 @@ bool InputFieldBox::assign_dynamic(){
     return true;
   }
   
-  if(input_type == PMATH_SYMBOL_NUMBER){
+  if(input_type == PMATH_SYMBOL_NUMBER) {
     Expr boxes = _content->to_pmath(BoxFlagParseable);
     
     Expr value = Call(Symbol(PMATH_SYMBOL_TRY),
-      Call(Symbol(PMATH_SYMBOL_MAKEEXPRESSION), boxes));
-      
+                      Call(Symbol(PMATH_SYMBOL_MAKEEXPRESSION), boxes));
+                      
     value = Expr(pmath_evaluate(value.release()));
     
     if(value[0] == PMATH_SYMBOL_HOLDCOMPLETE
-    && value.expr_length() == 1
-    && value[1].is_number()){
+        && value.expr_length() == 1
+        && value[1].is_number()) {
       dynamic.assign(value[1]);
       return true;
     }
@@ -436,27 +436,27 @@ bool InputFieldBox::assign_dynamic(){
     return false;
   }
   
-  if(input_type == PMATH_SYMBOL_RAWBOXES){
+  if(input_type == PMATH_SYMBOL_RAWBOXES) {
     Expr boxes = _content->to_pmath(BoxFlagDefault);
     
     dynamic.assign(boxes);
     return true;
   }
   
-  if(input_type == PMATH_SYMBOL_STRING){
-    if(_content->count() > 0){
+  if(input_type == PMATH_SYMBOL_STRING) {
+    if(_content->count() > 0) {
       Expr boxes = _content->to_pmath(BoxFlagParseable);
       
       Expr value = Call(Symbol(PMATH_SYMBOL_TOSTRING),
-        Call(Symbol(PMATH_SYMBOL_RAWBOXES), boxes));
-      
+                        Call(Symbol(PMATH_SYMBOL_RAWBOXES), boxes));
+                        
       value = Expr(pmath_evaluate(value.release()));
       
       dynamic.assign(value);
       if(!dynamic.is_dynamic())
         must_update = true;
     }
-    else{
+    else {
       dynamic.assign(_content->text());
     }
     

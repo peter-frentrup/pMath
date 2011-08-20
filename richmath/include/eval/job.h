@@ -4,13 +4,14 @@
 #include <util/pmath-extra.h>
 #include <util/sharedptr.h>
 
-namespace richmath{
+
+namespace richmath {
   class Box;
   class Document;
   class MathSection;
   class MathSequence;
   
-  class EvaluationPosition{
+  class EvaluationPosition {
     public:
       EvaluationPosition(int _doc, int _sect, int _box);
       explicit EvaluationPosition(Box *box = 0);
@@ -21,7 +22,7 @@ namespace richmath{
       int box_id;
   };
   
-  class Job: public Shareable{
+  class Job: public Shareable {
     public:
       Job();
       
@@ -34,14 +35,14 @@ namespace richmath{
       
       Document *prepare_print(int *output_index);
       
-      const EvaluationPosition &position(){ return _position; }
+      const EvaluationPosition &position() { return _position; }
       
     protected:
       EvaluationPosition _position;
       bool have_printed;
   };
   
-  class InputJob: public Job{
+  class InputJob: public Job {
     public:
       explicit InputJob(MathSection *section);
       
@@ -53,31 +54,31 @@ namespace richmath{
       virtual void dequeued();
   };
   
-  class EvaluationJob: public InputJob{
+  class EvaluationJob: public InputJob {
     public:
       explicit EvaluationJob(Expr expr, Box *box = 0);
       
       virtual bool start();
       virtual void end();
-    
+      
     protected:
       Expr _expr;
   };
   
-  class DynamicEvaluationJob: public EvaluationJob{
+  class DynamicEvaluationJob: public EvaluationJob {
     public:
       explicit DynamicEvaluationJob(Expr info, Expr expr, Box *box);
       
       virtual bool start();
       virtual void end();
       virtual void returned(Expr expr);
-    
+      
     protected:
       Expr _info;
       int old_eval_id;
   };
   
-  class ReplacementJob: public InputJob{
+  class ReplacementJob: public InputJob {
     public:
       explicit ReplacementJob(MathSequence *seq, int start, int end);
       

@@ -6,22 +6,22 @@ using namespace richmath;
 
 //{ class ErrorBox ...
 ErrorBox::ErrorBox(const Expr object)
-: Box(),
+  : Box(),
   _object(object)
 {
 }
 
-ErrorBox::~ErrorBox(){
+ErrorBox::~ErrorBox() {
 }
 
-void ErrorBox::resize(Context *context){
+void ErrorBox::resize(Context *context) {
   float em = context->canvas->get_font_size();
   _extents.ascent = 0.75f * em;
   _extents.descent = 0.25f * em;
   _extents.width = 2 * em;
 }
 
-void ErrorBox::paint(Context *context){
+void ErrorBox::paint(Context *context) {
   float x, y;
   context->canvas->current_pos(&x, &y);
   
@@ -31,7 +31,7 @@ void ErrorBox::paint(Context *context){
     x + _extents.width,
     y + _extents.descent,
     true);
-  
+    
   context->canvas->save();
   context->canvas->set_color(0xFFE6E6);
   context->canvas->fill_preserve();

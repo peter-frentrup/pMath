@@ -3,7 +3,8 @@
 
 #include <boxes/box.h>
 
-namespace richmath{
+
+namespace richmath {
   class Dynamic: public Base {
     public:
       Dynamic();
@@ -19,19 +20,19 @@ namespace richmath{
       void get_value_later();
       bool get_value(Expr *result);
       
-      Box *owner(){ return _owner; }
-      Expr expr(){  return _expr;  }
+      Box *owner() { return _owner; }
+      Expr expr() {  return _expr;  }
       
-      bool is_dynamic(){ 
+      bool is_dynamic() {
         return _expr[0] == PMATH_SYMBOL_DYNAMIC
-            && _expr.expr_length() >= 1; 
+               && _expr.expr_length() >= 1;
       }
       
       // 0 = False, 1 = True, 2 = Automatic
-      int synchronous_updating(){ return _synchronous_updating; }
+      int synchronous_updating() { return _synchronous_updating; }
       
       static int current_evaluation_box_id;
-    
+      
     private:
       Box *_owner;
       Expr _expr;

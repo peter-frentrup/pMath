@@ -13,26 +13,26 @@ static const char accel_path_prefix[] = "<Richmath>/";
 
 using namespace richmath;
 
-static void on_menu_item_activate(GtkMenuItem *menuitem, void *id_ptr){
+static void on_menu_item_activate(GtkMenuItem *menuitem, void *id_ptr) {
   const char *accel_path_str = (const char*)gtk_menu_item_get_accel_path(menuitem);
   if(!accel_path_str)
     return;
-  
+    
   String cmd(accel_path_str);
-  if(cmd.starts_with(accel_path_prefix)){
+  if(cmd.starts_with(accel_path_prefix)) {
     cmd = cmd.part(sizeof(accel_path_prefix) - 1, -1);
     
     Document *doc = dynamic_cast<Document*>(Box::find((int)id_ptr));
-    if(doc){
+    if(doc) {
       BasicGtkWidget *wid = dynamic_cast<BasicGtkWidget*>(doc->native());
       
-      while(wid){
+      while(wid) {
         MathGtkDocumentWindow *win = dynamic_cast<MathGtkDocumentWindow*>(wid);
-        if(win){
+        if(win) {
           win->run_menucommand(cmd);
           return;
         }
-          
+        
         wid = wid->parent();
       }
     }
@@ -43,28 +43,28 @@ static void on_menu_item_activate(GtkMenuItem *menuitem, void *id_ptr){
   }
 }
 
-  static void on_map_menu_callback(GtkWidget *item, void *data){
-    if(GTK_IS_MENU_ITEM(item)){
-      const char *accel_path_str = (const char*)gtk_menu_item_get_accel_path(GTK_MENU_ITEM(item));
-      if(!accel_path_str)
-        return;
+static void on_map_menu_callback(GtkWidget *item, void *data) {
+  if(GTK_IS_MENU_ITEM(item)) {
+    const char *accel_path_str = (const char*)gtk_menu_item_get_accel_path(GTK_MENU_ITEM(item));
+    if(!accel_path_str)
+      return;
       
-      String cmd(accel_path_str);
-      if(cmd.starts_with(accel_path_prefix)){
-        cmd = cmd.part(sizeof(accel_path_prefix) - 1, -1);
-        
-        gtk_widget_set_sensitive(item, Application::is_menucommand_runnable(cmd));
-      }
+    String cmd(accel_path_str);
+    if(cmd.starts_with(accel_path_prefix)) {
+      cmd = cmd.part(sizeof(accel_path_prefix) - 1, -1);
+      
+      gtk_widget_set_sensitive(item, Application::is_menucommand_runnable(cmd));
     }
   }
+}
 
-  static void on_unmap_menu_callback(GtkWidget *item, void *data){
-    if(GTK_IS_MENU_ITEM(item)){
-      gtk_widget_set_sensitive(item, TRUE);
-    }
+static void on_unmap_menu_callback(GtkWidget *item, void *data) {
+  if(GTK_IS_MENU_ITEM(item)) {
+    gtk_widget_set_sensitive(item, TRUE);
   }
+}
 
-static gboolean on_map_menu(GtkWidget *menu, GdkEventAny *event, void *user_data){
+static gboolean on_map_menu(GtkWidget *menu, GdkEventAny *event, void *user_data) {
   // todo: handle tearoff menus
   Application::delay_dynamic_updates(true);
   
@@ -72,7 +72,7 @@ static gboolean on_map_menu(GtkWidget *menu, GdkEventAny *event, void *user_data
   return FALSE;
 }
 
-static gboolean on_unmap_menu(GtkWidget *menu, GdkEventAny *event, void *user_data){
+static gboolean on_unmap_menu(GtkWidget *menu, GdkEventAny *event, void *user_data) {
   Application::delay_dynamic_updates(false);
   
   gtk_container_foreach(GTK_CONTAINER(menu), on_unmap_menu_callback, NULL);
@@ -83,45 +83,45 @@ static gboolean on_unmap_menu(GtkWidget *menu, GdkEventAny *event, void *user_da
 
 MathGtkMenuBuilder MathGtkMenuBuilder::main_menu;
 
-MathGtkMenuBuilder::MathGtkMenuBuilder(){
+MathGtkMenuBuilder::MathGtkMenuBuilder() {
 }
 
 MathGtkMenuBuilder::MathGtkMenuBuilder(Expr _expr)
-: expr(_expr)
+  : expr(_expr)
 {
 }
 
-MathGtkMenuBuilder::~MathGtkMenuBuilder(){
+MathGtkMenuBuilder::~MathGtkMenuBuilder() {
 }
 
-void MathGtkMenuBuilder::append_to(GtkMenuShell *menu, GtkAccelGroup *accel_group, int for_document_window_id){
+void MathGtkMenuBuilder::append_to(GtkMenuShell *menu, GtkAccelGroup *accel_group, int for_document_window_id) {
   if(expr[0] != GetSymbol(MenuSymbol)
-  || expr.expr_length() != 2)
+      || expr.expr_length() != 2)
     return;
-  
+    
   String name(expr[1]);
   if(name.is_null())
     return;
-  
+    
   Expr list = expr[2];
   if(list[0] != PMATH_SYMBOL_LIST)
     return;
-  
-  for(size_t i = 1;i <= list.expr_length();++i){
+    
+  for(size_t i = 1; i <= list.expr_length(); ++i) {
     Expr item = list[i];
     
     if(item[0] == GetSymbol(ItemSymbol)
-    && item.expr_length() == 2){
+        && item.expr_length() == 2) {
       String name(item[1]);
-      String cmd( item[2]);
+      String cmd(item[2]);
       
-      if(name.length() > 0 && cmd.is_valid()){
+      if(name.length() > 0 && cmd.is_valid()) {
         GtkWidget *menu_item;
         
         int len;
         char *label = pmath_string_to_utf8(name.get(), &len);
-        if(label){
-          for(int i = 0;i < len;++i){
+        if(label) {
+          for(int i = 0; i < len; ++i) {
             if(label[i] == '&')
               label[i] = '_';
           }
@@ -130,9 +130,9 @@ void MathGtkMenuBuilder::append_to(GtkMenuShell *menu, GtkAccelGroup *accel_grou
         }
         
         String accel_path(accel_path_prefix);
-        accel_path+= cmd;
+        accel_path += cmd;
         char *accel_path_str = pmath_string_to_utf8(accel_path.get(), NULL);
-        if(accel_path_str){
+        if(accel_path_str) {
           gtk_menu_item_set_accel_path(GTK_MENU_ITEM(menu_item), accel_path_str);
           pmath_mem_free(accel_path_str);
         }
@@ -145,7 +145,7 @@ void MathGtkMenuBuilder::append_to(GtkMenuShell *menu, GtkAccelGroup *accel_grou
       continue;
     }
     
-    if(item == GetSymbol(DelimiterSymbol)){
+    if(item == GetSymbol(DelimiterSymbol)) {
       GtkWidget *menu_item = gtk_separator_menu_item_new();
       
       gtk_menu_shell_append(menu, menu_item);
@@ -153,16 +153,16 @@ void MathGtkMenuBuilder::append_to(GtkMenuShell *menu, GtkAccelGroup *accel_grou
     }
     
     if(item[0] == GetSymbol(MenuSymbol)
-    && item.expr_length() == 2){
+        && item.expr_length() == 2) {
       String name(item[1]);
       
-      if(name.length() > 0){
+      if(name.length() > 0) {
         GtkWidget *menu_item;
         
         int len;
         char *label = pmath_string_to_utf8(name.get(), &len);
-        if(label){
-          for(int i = 0;i < len;++i){
+        if(label) {
+          for(int i = 0; i < len; ++i) {
             if(label[i] == '&')
               label[i] = '_';
           }
@@ -180,16 +180,16 @@ void MathGtkMenuBuilder::append_to(GtkMenuShell *menu, GtkAccelGroup *accel_grou
         g_signal_connect(GTK_WIDGET(submenu), "unmap-event", G_CALLBACK(on_unmap_menu), NULL);
         
         gtk_menu_set_accel_group(
-          GTK_MENU(submenu), 
+          GTK_MENU(submenu),
           GTK_ACCEL_GROUP(accel_group));
-        
+          
 //        gtk_menu_shell_append(GTK_MENU_SHELL(submenu), gtk_tearoff_menu_item_new());
 
         MathGtkMenuBuilder(item).append_to(
-          GTK_MENU_SHELL(submenu), 
-          accel_group, 
+          GTK_MENU_SHELL(submenu),
+          accel_group,
           for_document_window_id);
-        
+          
         gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_item), submenu);
         gtk_menu_shell_append(menu, menu_item);
       }
@@ -204,25 +204,25 @@ void MathGtkMenuBuilder::append_to(GtkMenuShell *menu, GtkAccelGroup *accel_grou
 
 Array<String> MathGtkAccelerators::all_accelerators;
 
-static bool set_accel_key(Expr expr, guint *accel_key, GdkModifierType *accel_mods){
+static bool set_accel_key(Expr expr, guint *accel_key, GdkModifierType *accel_mods) {
   if(expr[0] != GetSymbol(KeyEventSymbol)
-  || expr.expr_length() != 2)
+      || expr.expr_length() != 2)
     return false;
-  
+    
   Expr modifiers = expr[2];
   if(modifiers[0] != PMATH_SYMBOL_LIST)
     return false;
-  
+    
   int mods = 0;
-  for(size_t i = modifiers.expr_length();i > 0;--i){
+  for(size_t i = modifiers.expr_length(); i > 0; --i) {
     Expr item = modifiers[i];
     
     if(item == GetSymbol(KeyAltSymbol))
-      mods|= GDK_MOD1_MASK;
+      mods |= GDK_MOD1_MASK;
     else if(item == GetSymbol(KeyControlSymbol))
-      mods|= GDK_CONTROL_MASK;
+      mods |= GDK_CONTROL_MASK;
     else if(item == GetSymbol(KeyShiftSymbol))
-      mods|= GDK_SHIFT_MASK;
+      mods |= GDK_SHIFT_MASK;
     else
       return false;
   }
@@ -232,18 +232,18 @@ static bool set_accel_key(Expr expr, guint *accel_key, GdkModifierType *accel_mo
   String key(expr[1]);
   if(key.length() == 0)
     return false;
-  
-  if(key.length() == 1){
+    
+  if(key.length() == 1) {
     uint16_t ch = key.buffer()[0];
     
     if(ch >= 'A' && ch <= 'Z')
-      ch-= 'A' - 'a';
-    
+      ch -= 'A' - 'a';
+      
     *accel_key = gdk_unicode_to_keyval(ch);
     return true;
   }
   
-  if(     key.equals("F1"))                 *accel_key = GDK_F1;
+  if(key.equals("F1"))                 *accel_key = GDK_F1;
   else if(key.equals("F2"))                 *accel_key = GDK_F2;
   else if(key.equals("F3"))                 *accel_key = GDK_F3;
   else if(key.equals("F4"))                 *accel_key = GDK_F4;
@@ -297,35 +297,35 @@ static bool set_accel_key(Expr expr, guint *accel_key, GdkModifierType *accel_mo
   return true;
 }
 
-void MathGtkAccelerators::load(Expr expr){
+void MathGtkAccelerators::load(Expr expr) {
   if(expr[0] != PMATH_SYMBOL_LIST)
     return;
-  
-  for(size_t i = 1;i <= expr.expr_length();++i){
+    
+  for(size_t i = 1; i <= expr.expr_length(); ++i) {
     Expr item = expr[i];
-    String cmd( item[2]);
+    String cmd(item[2]);
     
     guint           accel_key;
     GdkModifierType accel_mod;
     
     if(item[0] == GetSymbol(ItemSymbol)
-    && item.expr_length() == 2
-    && cmd.length() > 0
-    && set_accel_key(item[1], &accel_key, &accel_mod)
-    && gtk_accelerator_valid(accel_key, accel_mod)){
+        && item.expr_length() == 2
+        && cmd.length() > 0
+        && set_accel_key(item[1], &accel_key, &accel_mod)
+        && gtk_accelerator_valid(accel_key, accel_mod)) {
       String accel_path(accel_path_prefix);
-      accel_path+= cmd;
+      accel_path += cmd;
       
-      while(true){
+      while(true) {
         char *str = pmath_string_to_utf8(accel_path.get(), NULL);
         if(!str)
           break;
-        
-        if(gtk_accel_map_lookup_entry(str, 0)){
+          
+        if(gtk_accel_map_lookup_entry(str, 0)) {
           pmath_mem_free(str);
-          accel_path+= " ";
+          accel_path += " ";
         }
-        else{
+        else {
           gtk_accel_map_add_entry(str, accel_key, accel_mod);
           all_accelerators.add(accel_path);
           //gtk_accel_group_connect_by_path(str, str, 0);
@@ -338,73 +338,73 @@ void MathGtkAccelerators::load(Expr expr){
       pmath_debug_print_object("Cannot add shortcut ", item.get(), ".\n");
   }
 }
+
+struct accel_data {
+  char *path;
+  int   document_id;
+};
+
+static void accel_data_destroy(void *data, GClosure *closure) {
+  struct accel_data *accel_data = (struct accel_data*)data;
   
-  struct accel_data{
-    char *path;
-    int   document_id;
-  };
+  pmath_mem_free(accel_data->path);
+  pmath_mem_free(accel_data);
+}
+
+static gboolean closure_callback(
+  GtkAccelGroup   *group,
+  GObject         *acceleratable,
+  guint            keyval,
+  GdkModifierType  modifier,
+  void            *user_data
+) {
+  struct accel_data *accel_data = (struct accel_data*)user_data;
   
-  static void accel_data_destroy(void *data, GClosure *closure){
-    struct accel_data *accel_data = (struct accel_data*)data;
+  String cmd(accel_data->path);
+  if(cmd.starts_with(accel_path_prefix)) {
+    cmd = cmd.part(sizeof(accel_path_prefix) - 1, -1);
     
-    pmath_mem_free(accel_data->path);
-    pmath_mem_free(accel_data);
-  }
-  
-  static gboolean closure_callback(
-    GtkAccelGroup   *group, 
-    GObject         *acceleratable, 
-    guint            keyval, 
-    GdkModifierType  modifier,
-    void            *user_data
-  ){
-    struct accel_data *accel_data = (struct accel_data*)user_data;
-    
-    String cmd(accel_data->path);
-    if(cmd.starts_with(accel_path_prefix)){
-      cmd = cmd.part(sizeof(accel_path_prefix) - 1, -1);
+    Document *doc = dynamic_cast<Document*>(Box::find(accel_data->document_id));
+    if(doc) {
+      BasicGtkWidget *wid = dynamic_cast<BasicGtkWidget*>(doc->native());
       
-      Document *doc = dynamic_cast<Document*>(Box::find(accel_data->document_id));
-      if(doc){
-        BasicGtkWidget *wid = dynamic_cast<BasicGtkWidget*>(doc->native());
-        
-        while(wid){
-          MathGtkDocumentWindow *win = dynamic_cast<MathGtkDocumentWindow*>(wid);
-          if(win){
-            win->run_menucommand(cmd);
-            return TRUE;
-          }
-            
-          wid = wid->parent();
+      while(wid) {
+        MathGtkDocumentWindow *win = dynamic_cast<MathGtkDocumentWindow*>(wid);
+        if(win) {
+          win->run_menucommand(cmd);
+          return TRUE;
         }
+        
+        wid = wid->parent();
       }
-      
-      g_warning("no MathGtkDocumentWindow parent found.");
-      
-      Application::run_menucommand(cmd);
     }
     
-    return TRUE;
+    g_warning("no MathGtkDocumentWindow parent found.");
+    
+    Application::run_menucommand(cmd);
   }
- 
-void MathGtkAccelerators::connect_all(GtkAccelGroup *accel_group, int document_id){
-  for(int i = 0;i < all_accelerators.length();++i){
+  
+  return TRUE;
+}
+
+void MathGtkAccelerators::connect_all(GtkAccelGroup *accel_group, int document_id) {
+  for(int i = 0; i < all_accelerators.length(); ++i) {
     char *path = pmath_string_to_utf8(all_accelerators[i].get_as_string(), 0);
     struct accel_data *accel_data = (struct accel_data*)pmath_mem_alloc(sizeof(struct accel_data));
     
-    if(path && accel_data){
+    if(path && accel_data) {
       accel_data->document_id = document_id;
       accel_data->path = path;
       
       gtk_accel_group_connect_by_path(
-        accel_group, 
-        path, 
+        accel_group,
+        path,
         g_cclosure_new(
           G_CALLBACK(closure_callback),
           accel_data,
           accel_data_destroy));
     }
-    else{
+    else {
       pmath_mem_free(path);
       pmath_mem_free(accel_data);
     }
