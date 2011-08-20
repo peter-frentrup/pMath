@@ -9,7 +9,7 @@
 #include <pmath-builtins/control/definitions-private.h>
 #include <pmath-builtins/number-theory-private.h>
 
-static void destroy_symset_entry(void *p){
+static void destroy_symset_entry(void *p) {
   pmath_t entry = PMATH_FROM_PTR(p);
   
   assert(!p || pmath_is_symbol(entry));
@@ -17,7 +17,7 @@ static void destroy_symset_entry(void *p){
   pmath_unref(entry);
 }
 
-static pmath_bool_t ptr_equal(void *a, void *b){
+static pmath_bool_t ptr_equal(void *a, void *b) {
   return a == b;
 }
 
@@ -31,20 +31,20 @@ static const pmath_ht_class_t symbol_set_class = {
 
 static pmath_atomic_t numeric_symbols = PMATH_ATOMIC_STATIC_INIT;
 
-PMATH_PRIVATE pmath_bool_t _pmath_is_inexact(pmath_t obj){
+PMATH_PRIVATE pmath_bool_t _pmath_is_inexact(pmath_t obj) {
   if(pmath_is_float(obj))
     return TRUE;
-  
-  if(_pmath_is_nonreal_complex(obj)){
+    
+  if(_pmath_is_nonreal_complex(obj)) {
     pmath_t part = pmath_expr_get_item(obj, 1);
-    if(pmath_is_float(part)){
+    if(pmath_is_float(part)) {
       pmath_unref(part);
       return TRUE;
     }
     pmath_unref(part);
     
     part = pmath_expr_get_item(obj, 2);
-    if(pmath_is_float(part)){
+    if(pmath_is_float(part)) {
       pmath_unref(part);
       return TRUE;
     }
@@ -54,169 +54,169 @@ PMATH_PRIVATE pmath_bool_t _pmath_is_inexact(pmath_t obj){
   return FALSE;
 }
 
-  static int _simple_real_class(pmath_t obj){
-    if(pmath_is_int32(obj)){
-      switch(PMATH_AS_INT32(obj)){
-        case -1: return PMATH_CLASS_NEGONE;
-        case  0: return PMATH_CLASS_ZERO;
-        case  1: return PMATH_CLASS_POSONE;
-      }
-      
-      if(PMATH_AS_INT32(obj) < 0)
-        return PMATH_CLASS_NEGBIG;
-      
-      return PMATH_CLASS_POSBIG;
+static int _simple_real_class(pmath_t obj) {
+  if(pmath_is_int32(obj)) {
+    switch(PMATH_AS_INT32(obj)) {
+      case -1: return PMATH_CLASS_NEGONE;
+      case  0: return PMATH_CLASS_ZERO;
+      case  1: return PMATH_CLASS_POSONE;
     }
     
-    if(pmath_is_mpint(obj)){
-      if(mpz_sgn(PMATH_AS_MPZ(obj)) < 0)
-        return PMATH_CLASS_NEGBIG;
+    if(PMATH_AS_INT32(obj) < 0)
+      return PMATH_CLASS_NEGBIG;
       
-      return PMATH_CLASS_POSBIG;
-    }
+    return PMATH_CLASS_POSBIG;
+  }
+  
+  if(pmath_is_mpint(obj)) {
+    if(mpz_sgn(PMATH_AS_MPZ(obj)) < 0)
+      return PMATH_CLASS_NEGBIG;
+      
+    return PMATH_CLASS_POSBIG;
+  }
+  
+  if(pmath_is_double(obj)) {
+    if(PMATH_AS_DOUBLE(obj) < -1)
+      return PMATH_CLASS_NEGBIG;
+      
+    if(PMATH_AS_DOUBLE(obj) == -1)
+      return PMATH_CLASS_NEGONE;
+      
+    if(PMATH_AS_DOUBLE(obj) < 0)
+      return PMATH_CLASS_NEGSMALL;
+      
+    if(PMATH_AS_DOUBLE(obj) == 0)
+      return PMATH_CLASS_ZERO;
+      
+    if(PMATH_AS_DOUBLE(obj) < 1)
+      return PMATH_CLASS_POSSMALL;
+      
+    if(PMATH_AS_DOUBLE(obj) == 1)
+      return PMATH_CLASS_POSONE;
+      
+    return PMATH_CLASS_POSBIG;
+  }
+  
+  if(pmath_is_quotient(obj)) {
+    pmath_integer_t num = PMATH_QUOT_NUM(obj);
+    pmath_integer_t den = PMATH_QUOT_DEN(obj);
     
-    if(pmath_is_double(obj)){
-      if(PMATH_AS_DOUBLE(obj) < -1)
-        return PMATH_CLASS_NEGBIG;
-        
-      if(PMATH_AS_DOUBLE(obj) == -1)
-        return PMATH_CLASS_NEGONE;
-        
-      if(PMATH_AS_DOUBLE(obj) < 0)
-        return PMATH_CLASS_NEGSMALL;
-        
-      if(PMATH_AS_DOUBLE(obj) == 0)
-        return PMATH_CLASS_ZERO;
-        
-      if(PMATH_AS_DOUBLE(obj) < 1)
-        return PMATH_CLASS_POSSMALL;
-        
-      if(PMATH_AS_DOUBLE(obj) == 1)
-        return PMATH_CLASS_POSONE;
-      
-      return PMATH_CLASS_POSBIG;
-    }
-    
-    if(pmath_is_quotient(obj)){
-      pmath_integer_t num = PMATH_QUOT_NUM(obj);
-      pmath_integer_t den = PMATH_QUOT_DEN(obj);
-      
-      if(pmath_is_int32(num)){
-        if(pmath_is_int32(den)){
-          if(PMATH_AS_INT32(num) <  PMATH_AS_INT32(den)
-          && PMATH_AS_INT32(num) > -PMATH_AS_INT32(den)){
-            if(PMATH_AS_INT32(num) < 0)
-              return PMATH_CLASS_NEGSMALL;
-            return PMATH_CLASS_POSSMALL;
-          }
+    if(pmath_is_int32(num)) {
+      if(pmath_is_int32(den)) {
+        if(PMATH_AS_INT32(num) <  PMATH_AS_INT32(den)
+            && PMATH_AS_INT32(num) > -PMATH_AS_INT32(den)) {
+          if(PMATH_AS_INT32(num) < 0)
+            return PMATH_CLASS_NEGSMALL;
+          return PMATH_CLASS_POSSMALL;
         }
-        
-        if(PMATH_AS_INT32(num) < 0)
-          return PMATH_CLASS_NEGBIG;
-        return PMATH_CLASS_POSBIG;
       }
       
-      assert(pmath_is_mpint(num));
-      
-      if(pmath_is_int32(den)){
-        if(mpz_sgn(PMATH_AS_MPZ(num)) < 0)
-          return PMATH_CLASS_NEGBIG;
-        return PMATH_CLASS_POSBIG;
-      }
-      
-      assert(pmath_is_mpint(den));
-      
-      if(0 > mpz_cmpabs(PMATH_AS_MPZ(num), PMATH_AS_MPZ(den))){
-        if(mpz_sgn(PMATH_AS_MPZ(num)) < 0)
-          return PMATH_CLASS_NEGSMALL;
-        return PMATH_CLASS_POSSMALL;
-      }
-      
+      if(PMATH_AS_INT32(num) < 0)
+        return PMATH_CLASS_NEGBIG;
+      return PMATH_CLASS_POSBIG;
+    }
+    
+    assert(pmath_is_mpint(num));
+    
+    if(pmath_is_int32(den)) {
       if(mpz_sgn(PMATH_AS_MPZ(num)) < 0)
         return PMATH_CLASS_NEGBIG;
       return PMATH_CLASS_POSBIG;
     }
     
-    if(pmath_is_mpfloat(obj)){
-      int sign = mpfr_sgn(PMATH_AS_MP_VALUE(obj));
-      
-      if(sign < 0){
-        int one = mpfr_cmp_si(PMATH_AS_MP_VALUE(obj), -1);
-        
-        if(one < 0)
-          return PMATH_CLASS_NEGBIG;
-        
-        if(one == 0)
-          return PMATH_CLASS_NEGONE;
-          
+    assert(pmath_is_mpint(den));
+    
+    if(0 > mpz_cmpabs(PMATH_AS_MPZ(num), PMATH_AS_MPZ(den))) {
+      if(mpz_sgn(PMATH_AS_MPZ(num)) < 0)
         return PMATH_CLASS_NEGSMALL;
-      }
-      
-      if(sign > 0){
-        int one = mpfr_cmp_si(PMATH_AS_MP_VALUE(obj), 1);
-        
-        if(one > 0)
-          return PMATH_CLASS_POSBIG;
-        
-        if(one == 0)
-          return PMATH_CLASS_POSONE;
-          
-        return PMATH_CLASS_POSSMALL;
-      }
-      
-      return PMATH_CLASS_ZERO;
+      return PMATH_CLASS_POSSMALL;
     }
     
-    if(pmath_is_expr_of_len(obj, PMATH_SYMBOL_COMPLEX, 2)){
-      pmath_t re = pmath_expr_get_item(obj, 1);
-      pmath_t im = pmath_expr_get_item(obj, 2);
+    if(mpz_sgn(PMATH_AS_MPZ(num)) < 0)
+      return PMATH_CLASS_NEGBIG;
+    return PMATH_CLASS_POSBIG;
+  }
+  
+  if(pmath_is_mpfloat(obj)) {
+    int sign = mpfr_sgn(PMATH_AS_MP_VALUE(obj));
+    
+    if(sign < 0) {
+      int one = mpfr_cmp_si(PMATH_AS_MP_VALUE(obj), -1);
       
-      if(pmath_is_number(re) && pmath_is_number(re)){
-        if(pmath_number_sign(re) == 0){
-          pmath_unref(re);
-          pmath_unref(im);
-          
-          return PMATH_CLASS_IMAGINARY;
-        }
+      if(one < 0)
+        return PMATH_CLASS_NEGBIG;
         
+      if(one == 0)
+        return PMATH_CLASS_NEGONE;
+        
+      return PMATH_CLASS_NEGSMALL;
+    }
+    
+    if(sign > 0) {
+      int one = mpfr_cmp_si(PMATH_AS_MP_VALUE(obj), 1);
+      
+      if(one > 0)
+        return PMATH_CLASS_POSBIG;
+        
+      if(one == 0)
+        return PMATH_CLASS_POSONE;
+        
+      return PMATH_CLASS_POSSMALL;
+    }
+    
+    return PMATH_CLASS_ZERO;
+  }
+  
+  if(pmath_is_expr_of_len(obj, PMATH_SYMBOL_COMPLEX, 2)) {
+    pmath_t re = pmath_expr_get_item(obj, 1);
+    pmath_t im = pmath_expr_get_item(obj, 2);
+    
+    if(pmath_is_number(re) && pmath_is_number(re)) {
+      if(pmath_number_sign(re) == 0) {
         pmath_unref(re);
         pmath_unref(im);
-        return PMATH_CLASS_OTCOMPLEX;
+        
+        return PMATH_CLASS_IMAGINARY;
       }
       
       pmath_unref(re);
       pmath_unref(im);
-      return PMATH_CLASS_UNKNOWN;
+      return PMATH_CLASS_OTCOMPLEX;
     }
     
-    if(_pmath_is_infinite(obj)){
-      pmath_t dir = pmath_expr_get_item(obj, 1);
-      
-      int dir_class = _simple_real_class(dir);
-      pmath_unref(dir);
-      
-      if(dir_class & PMATH_CLASS_ZERO)
-        return PMATH_CLASS_UINF;
-      
-      if(dir_class & PMATH_CLASS_POS)
-        return PMATH_CLASS_POSINF;
-      
-      if(dir_class & PMATH_CLASS_NEG)
-        return PMATH_CLASS_NEGINF;
-      
-      if(dir_class & PMATH_CLASS_IMAGINARY)
-        return PMATH_CLASS_CINF | PMATH_CLASS_IMAGINARY;
-      
-      return PMATH_CLASS_CINF;
-    }
-    
+    pmath_unref(re);
+    pmath_unref(im);
     return PMATH_CLASS_UNKNOWN;
   }
+  
+  if(_pmath_is_infinite(obj)) {
+    pmath_t dir = pmath_expr_get_item(obj, 1);
+    
+    int dir_class = _simple_real_class(dir);
+    pmath_unref(dir);
+    
+    if(dir_class & PMATH_CLASS_ZERO)
+      return PMATH_CLASS_UINF;
+      
+    if(dir_class & PMATH_CLASS_POS)
+      return PMATH_CLASS_POSINF;
+      
+    if(dir_class & PMATH_CLASS_NEG)
+      return PMATH_CLASS_NEGINF;
+      
+    if(dir_class & PMATH_CLASS_IMAGINARY)
+      return PMATH_CLASS_CINF | PMATH_CLASS_IMAGINARY;
+      
+    return PMATH_CLASS_CINF;
+  }
+  
+  return PMATH_CLASS_UNKNOWN;
+}
 
-PMATH_PRIVATE int _pmath_number_class(pmath_t obj){
+PMATH_PRIVATE int _pmath_number_class(pmath_t obj) {
   int result = _simple_real_class(obj);
   
-  if((result & PMATH_CLASS_UNKNOWN) && _pmath_is_numeric(obj)){
+  if((result & PMATH_CLASS_UNKNOWN) && _pmath_is_numeric(obj)) {
     obj = pmath_approximate(pmath_ref(obj), -HUGE_VAL, -HUGE_VAL, NULL);
     result = _simple_real_class(obj);
     pmath_unref(obj);
@@ -225,19 +225,19 @@ PMATH_PRIVATE int _pmath_number_class(pmath_t obj){
   return result;
 }
 
-PMATH_PRIVATE pmath_bool_t _pmath_is_numeric(pmath_t obj){
+PMATH_PRIVATE pmath_bool_t _pmath_is_numeric(pmath_t obj) {
   if(pmath_is_number(obj))
     return TRUE;
-  
-  if(pmath_is_expr(obj)){
+    
+  if(pmath_is_expr(obj)) {
     pmath_t h = pmath_expr_get_item(obj, 0);
     if(pmath_is_symbol(h)
-    && (pmath_symbol_get_attributes(h) & PMATH_SYMBOL_ATTRIBUTE_NUMERICFUNCTION) != 0){
+        && (pmath_symbol_get_attributes(h) & PMATH_SYMBOL_ATTRIBUTE_NUMERICFUNCTION) != 0) {
       pmath_bool_t result;
       size_t i;
       
       pmath_unref(h);
-      for(i = pmath_expr_length(obj);i > 0;--i){
+      for(i = pmath_expr_length(obj); i > 0; --i) {
         h = pmath_expr_get_item(obj, i);
         result = _pmath_is_numeric(h);
         pmath_unref(h);
@@ -253,7 +253,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_is_numeric(pmath_t obj){
     return FALSE;
   }
   
-  if(pmath_is_symbol(obj)){
+  if(pmath_is_symbol(obj)) {
     pmath_bool_t      result;
     pmath_hashtable_t table;
     
@@ -269,7 +269,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_is_numeric(pmath_t obj){
   return FALSE;
 }
 
-PMATH_PRIVATE pmath_t builtin_assign_isnumeric(pmath_expr_t expr){
+PMATH_PRIVATE pmath_t builtin_assign_isnumeric(pmath_expr_t expr) {
   pmath_t         tag;
   pmath_t         lhs;
   pmath_t         rhs;
@@ -281,8 +281,8 @@ PMATH_PRIVATE pmath_t builtin_assign_isnumeric(pmath_expr_t expr){
   assignment = _pmath_is_assignment(expr, &tag, &lhs, &rhs);
   if(!assignment)
     return expr;
-  
-  if(!pmath_is_expr_of_len(lhs, PMATH_SYMBOL_ISNUMERIC, 1)){
+    
+  if(!pmath_is_expr_of_len(lhs, PMATH_SYMBOL_ISNUMERIC, 1)) {
     pmath_unref(tag);
     pmath_unref(lhs);
     pmath_unref(rhs);
@@ -292,7 +292,7 @@ PMATH_PRIVATE pmath_t builtin_assign_isnumeric(pmath_expr_t expr){
   sym = pmath_expr_get_item(lhs, 1);
   
   if(!pmath_same(tag, PMATH_UNDEFINED)
-  && !pmath_same(tag, sym)){
+      && !pmath_same(tag, sym)) {
     pmath_message(PMATH_NULL, "tag", 3, tag, lhs, sym);
     
     pmath_unref(expr);
@@ -304,7 +304,7 @@ PMATH_PRIVATE pmath_t builtin_assign_isnumeric(pmath_expr_t expr){
   pmath_unref(tag);
   pmath_unref(expr);
   
-  if(!pmath_is_symbol(sym)){
+  if(!pmath_is_symbol(sym)) {
     pmath_message(PMATH_NULL, "fnsym", 1, lhs);
     
     pmath_unref(sym);
@@ -314,17 +314,17 @@ PMATH_PRIVATE pmath_t builtin_assign_isnumeric(pmath_expr_t expr){
   }
   
   if(!pmath_same(rhs, PMATH_SYMBOL_TRUE)
-  && !pmath_same(rhs, PMATH_SYMBOL_FALSE)
-  && !pmath_same(rhs, PMATH_UNDEFINED)){
+      && !pmath_same(rhs, PMATH_SYMBOL_FALSE)
+      && !pmath_same(rhs, PMATH_UNDEFINED)) {
     pmath_unref(sym);
     pmath_message(
       PMATH_SYMBOL_ISNUMERIC, "set", 2,
-      lhs, 
+      lhs,
       pmath_ref(rhs));
-    
+      
     if(assignment > 0)
       return rhs;
-    
+      
     pmath_unref(rhs);
     return pmath_ref(PMATH_SYMBOL_FAILED);
   }
@@ -334,11 +334,11 @@ PMATH_PRIVATE pmath_t builtin_assign_isnumeric(pmath_expr_t expr){
   table = (pmath_hashtable_t)_pmath_atomic_lock_ptr(&numeric_symbols);
   
   entry = pmath_ht_search(table, PMATH_AS_PTR(sym));
-  if(!entry && pmath_same(rhs, PMATH_SYMBOL_TRUE)){
+  if(!entry && pmath_same(rhs, PMATH_SYMBOL_TRUE)) {
     entry = pmath_ht_insert(table, PMATH_AS_PTR(sym));
     sym = PMATH_NULL;
   }
-  else if(entry && !pmath_same(rhs, PMATH_SYMBOL_TRUE)){
+  else if(entry && !pmath_same(rhs, PMATH_SYMBOL_TRUE)) {
     entry = pmath_ht_remove(table, PMATH_AS_PTR(sym));
   }
   
@@ -349,20 +349,20 @@ PMATH_PRIVATE pmath_t builtin_assign_isnumeric(pmath_expr_t expr){
   
   if(assignment > 0)
     return rhs;
-  
+    
   pmath_unref(rhs);
   return PMATH_NULL;
 }
 
-PMATH_PRIVATE pmath_t builtin_isnumeric(pmath_expr_t expr){
+PMATH_PRIVATE pmath_t builtin_isnumeric(pmath_expr_t expr) {
   pmath_bool_t result;
   pmath_t  obj;
-
-  if(pmath_expr_length(expr) != 1){
+  
+  if(pmath_expr_length(expr) != 1) {
     pmath_message_argxxx(pmath_expr_length(expr), 1, 1);
     return expr;
   }
-
+  
   obj = pmath_expr_get_item(expr, 1);
   pmath_unref(expr);
   
@@ -374,17 +374,17 @@ PMATH_PRIVATE pmath_t builtin_isnumeric(pmath_expr_t expr){
 
 /*============================================================================*/
 
-PMATH_PRIVATE pmath_bool_t _pmath_numeric_init(void){
+PMATH_PRIVATE pmath_bool_t _pmath_numeric_init(void) {
   pmath_hashtable_t table = pmath_ht_create(&symbol_set_class, 10);
   
   if(!table)
     return FALSE;
-  
+    
   pmath_atomic_write_release(&numeric_symbols, (intptr_t)table);
   
   return TRUE;
 }
 
-PMATH_PRIVATE void _pmath_numeric_done(void){
+PMATH_PRIVATE void _pmath_numeric_done(void) {
   pmath_ht_destroy((pmath_hashtable_t)pmath_atomic_read_aquire(&numeric_symbols));
 }

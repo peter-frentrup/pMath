@@ -18,13 +18,13 @@ static pmath_t stringcount(
   struct _regex_t   *regex,
   struct _capture_t *capture,
   pmath_bool_t       overlaps
-){
-  if(pmath_is_string(obj)){
+) {
+  if(pmath_is_string(obj)) {
     int length, offset;
     char *subject = pmath_string_to_utf8(obj, &length);
     size_t count = 0;
     
-    if(!subject){
+    if(!subject) {
       pmath_unref(obj);
       return PMATH_UNDEFINED;
     }
@@ -32,15 +32,15 @@ static pmath_t stringcount(
     offset = 0;
     
     while(!pmath_aborting()
-    && _pmath_regex_match(
-        regex, 
-        subject, 
-        length, 
-        offset, 
-        PCRE_NO_UTF8_CHECK, 
-        capture, 
-        NULL)
-    ){
+          && _pmath_regex_match(
+            regex,
+            subject,
+            length,
+            offset,
+            PCRE_NO_UTF8_CHECK,
+            capture,
+            NULL)
+         ) {
       ++count;
       
       if(overlaps || capture->ovector[0] == capture->ovector[1])
@@ -48,20 +48,20 @@ static pmath_t stringcount(
       else
         offset = capture->ovector[1];
     }
-      
+    
     pmath_unref(obj);
     pmath_mem_free(subject);
     return pmath_integer_new_uiptr(count);
   }
   
-  if(pmath_is_expr_of(obj, PMATH_SYMBOL_LIST)){
+  if(pmath_is_expr_of(obj, PMATH_SYMBOL_LIST)) {
     size_t i;
-    for(i = 1;i <= pmath_expr_length(obj);++i){
+    for(i = 1; i <= pmath_expr_length(obj); ++i) {
       pmath_t item = pmath_expr_extract_item(obj, i);
       
       item = stringcount(item, regex, capture, overlaps);
       
-      if(pmath_same(item, PMATH_UNDEFINED)){
+      if(pmath_same(item, PMATH_UNDEFINED)) {
         pmath_unref(obj);
         return PMATH_UNDEFINED;
       }
@@ -77,11 +77,11 @@ static pmath_t stringcount(
 }
 
 
-PMATH_PRIVATE pmath_t builtin_stringcount(pmath_expr_t expr){
-/* StringCount("string", "sub")
-   StringCount("string", patt)
-   StringCount({s1, s2, ...}, p)
- */
+PMATH_PRIVATE pmath_t builtin_stringcount(pmath_expr_t expr) {
+  /* StringCount("string", "sub")
+     StringCount("string", patt)
+     StringCount({s1, s2, ...}, p)
+   */
   pmath_expr_t options;
   pmath_bool_t overlaps;
   pmath_t obj;
@@ -89,7 +89,7 @@ PMATH_PRIVATE pmath_t builtin_stringcount(pmath_expr_t expr){
   struct _capture_t capture;
   int regex_options;
   
-  if(pmath_expr_length(expr) < 2){
+  if(pmath_expr_length(expr) < 2) {
     pmath_message_argxxx(pmath_expr_length(expr), 2, 2);
     return expr;
   }
@@ -98,13 +98,13 @@ PMATH_PRIVATE pmath_t builtin_stringcount(pmath_expr_t expr){
   options = pmath_options_extract(expr, 2);
   if(pmath_is_null(options))
     return expr;
-  
+    
   regex_options = 0;
   obj = pmath_option_value(PMATH_NULL, PMATH_SYMBOL_IGNORECASE, options);
-  if(pmath_same(obj, PMATH_SYMBOL_TRUE)){
-    regex_options|= PCRE_CASELESS;
+  if(pmath_same(obj, PMATH_SYMBOL_TRUE)) {
+    regex_options |= PCRE_CASELESS;
   }
-  else if(!pmath_same(obj, PMATH_SYMBOL_FALSE)){
+  else if(!pmath_same(obj, PMATH_SYMBOL_FALSE)) {
     pmath_message(
       PMATH_NULL, "opttf", 2,
       pmath_ref(PMATH_SYMBOL_IGNORECASE),
@@ -116,10 +116,10 @@ PMATH_PRIVATE pmath_t builtin_stringcount(pmath_expr_t expr){
   
   overlaps = FALSE;
   obj = pmath_option_value(PMATH_NULL, PMATH_SYMBOL_OVERLAPS, options);
-  if(pmath_same(obj, PMATH_SYMBOL_TRUE)){
+  if(pmath_same(obj, PMATH_SYMBOL_TRUE)) {
     overlaps = TRUE;
   }
-  else if(!pmath_same(obj, PMATH_SYMBOL_FALSE)){
+  else if(!pmath_same(obj, PMATH_SYMBOL_FALSE)) {
     pmath_message(
       PMATH_NULL, "opttf", 2,
       pmath_ref(PMATH_SYMBOL_OVERLAPS),
@@ -136,10 +136,10 @@ PMATH_PRIVATE pmath_t builtin_stringcount(pmath_expr_t expr){
   
   if(!regex)
     return expr;
-  
+    
   obj = PMATH_NULL;
   _pmath_regex_init_capture(regex, &capture);
-  if(capture.ovector){
+  if(capture.ovector) {
     obj = pmath_expr_get_item(expr, 1);
     obj = stringcount(obj, regex, &capture, overlaps);
   }
@@ -147,7 +147,7 @@ PMATH_PRIVATE pmath_t builtin_stringcount(pmath_expr_t expr){
   _pmath_regex_free_capture(&capture);
   _pmath_regex_unref(regex);
   
-  if(pmath_same(obj, PMATH_UNDEFINED)){
+  if(pmath_same(obj, PMATH_UNDEFINED)) {
     pmath_message(PMATH_NULL, "strse", 2, PMATH_FROM_INT32(1), pmath_ref(expr));
     return expr;
   }

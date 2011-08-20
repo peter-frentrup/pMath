@@ -5,18 +5,18 @@
 #include <pmath-builtins/all-symbols-private.h>
 
 
-PMATH_PRIVATE pmath_t builtin_first(pmath_expr_t expr){
+PMATH_PRIVATE pmath_t builtin_first(pmath_expr_t expr) {
   pmath_t obj;
   
-  if(pmath_expr_length(expr) != 1){
+  if(pmath_expr_length(expr) != 1) {
     pmath_message_argxxx(pmath_expr_length(expr), 1, 1);
     return expr;
   }
   
   obj = pmath_expr_get_item(expr, 1);
   
-  if(pmath_is_expr(obj)){
-    if(pmath_expr_length(obj) > 0){
+  if(pmath_is_expr(obj)) {
+    if(pmath_expr_length(obj) > 0) {
       pmath_unref(expr);
       expr = pmath_expr_get_item(obj, 1);
       pmath_unref(obj);
@@ -33,18 +33,18 @@ PMATH_PRIVATE pmath_t builtin_first(pmath_expr_t expr){
   return expr;
 }
 
-PMATH_PRIVATE pmath_t builtin_last(pmath_expr_t expr){
+PMATH_PRIVATE pmath_t builtin_last(pmath_expr_t expr) {
   pmath_t obj;
   
-  if(pmath_expr_length(expr) != 1){
+  if(pmath_expr_length(expr) != 1) {
     pmath_message_argxxx(pmath_expr_length(expr), 1, 1);
     return expr;
   }
   
   obj = pmath_expr_get_item(expr, 1);
   
-  if(pmath_is_expr(obj)){
-    if(pmath_expr_length(obj) > 0){
+  if(pmath_is_expr(obj)) {
+    if(pmath_expr_length(obj) > 0) {
       pmath_unref(expr);
       expr = pmath_expr_get_item(obj, pmath_expr_length(obj));
       pmath_unref(obj);
@@ -61,21 +61,21 @@ PMATH_PRIVATE pmath_t builtin_last(pmath_expr_t expr){
   return expr;
 }
 
-PMATH_PRIVATE pmath_t builtin_most(pmath_expr_t expr){
+PMATH_PRIVATE pmath_t builtin_most(pmath_expr_t expr) {
   pmath_t obj;
   
-  if(pmath_expr_length(expr) != 1){
+  if(pmath_expr_length(expr) != 1) {
     pmath_message_argxxx(pmath_expr_length(expr), 1, 1);
     return expr;
   }
   
   obj = pmath_expr_get_item(expr, 1);
   
-  if(pmath_is_expr(obj)){
-    if(pmath_expr_length(obj) > 0){
+  if(pmath_is_expr(obj)) {
+    if(pmath_expr_length(obj) > 0) {
       pmath_unref(expr);
       expr = pmath_expr_get_item_range(
-        obj, 1, pmath_expr_length(obj) - 1);
+               obj, 1, pmath_expr_length(obj) - 1);
       pmath_unref(obj);
       return expr;
     }
@@ -90,21 +90,21 @@ PMATH_PRIVATE pmath_t builtin_most(pmath_expr_t expr){
   return expr;
 }
 
-PMATH_PRIVATE pmath_t builtin_rest(pmath_expr_t expr){
+PMATH_PRIVATE pmath_t builtin_rest(pmath_expr_t expr) {
   pmath_t obj;
   
-  if(pmath_expr_length(expr) != 1){
+  if(pmath_expr_length(expr) != 1) {
     pmath_message_argxxx(pmath_expr_length(expr), 1, 1);
     return expr;
   }
   
   obj = pmath_expr_get_item(expr, 1);
   
-  if(pmath_is_expr(obj)){
-    if(pmath_expr_length(obj) > 0){
+  if(pmath_is_expr(obj)) {
+    if(pmath_expr_length(obj) > 0) {
       pmath_unref(expr);
       expr = pmath_expr_get_item_range(
-        obj, 2, pmath_expr_length(obj));
+               obj, 2, pmath_expr_length(obj));
       pmath_unref(obj);
       return expr;
     }

@@ -8,20 +8,20 @@ static pmath_t chop(
   pmath_t obj,   // will be freed
   pmath_number_t ntol,  // wont be freed
   pmath_number_t ptol   // wont be freed
-){
-  if(pmath_is_float(obj)){
-    if(pmath_number_sign(obj) == 0){
+) {
+  if(pmath_is_float(obj)) {
+    if(pmath_number_sign(obj) == 0) {
       pmath_unref(obj);
       return PMATH_FROM_INT32(0);
     }
     
-    if(pmath_number_sign(obj) < 0){
-      if(pmath_compare(ntol, obj) < 0){
+    if(pmath_number_sign(obj) < 0) {
+      if(pmath_compare(ntol, obj) < 0) {
         pmath_unref(obj);
         return PMATH_FROM_INT32(0);
       }
     }
-    else if(pmath_compare(obj, ptol) < 0){
+    else if(pmath_compare(obj, ptol) < 0) {
       pmath_unref(obj);
       return PMATH_FROM_INT32(0);
     }
@@ -29,16 +29,16 @@ static pmath_t chop(
     return obj;
   }
   
-  if(pmath_is_expr(obj)){
+  if(pmath_is_expr(obj)) {
     size_t i;
     
-    for(i = 0;i <= pmath_expr_length(obj);++i){
+    for(i = 0; i <= pmath_expr_length(obj); ++i) {
       obj = pmath_expr_set_item(
-        obj, i, 
-        chop(
-          pmath_expr_get_item(obj, i),
-          ntol,
-          ptol));
+              obj, i,
+              chop(
+                pmath_expr_get_item(obj, i),
+                ntol,
+                ptol));
     }
   }
   
@@ -46,33 +46,33 @@ static pmath_t chop(
 }
 
 PMATH_PRIVATE
-pmath_t builtin_chop(pmath_expr_t expr){
+pmath_t builtin_chop(pmath_expr_t expr) {
   pmath_t obj;
   pmath_number_t ntol, ptol;
   size_t exprlen = pmath_expr_length(expr);
-
-  if(exprlen < 1 || exprlen > 2){
+  
+  if(exprlen < 1 || exprlen > 2) {
     pmath_message_argxxx(exprlen, 1, 2);
     return expr;
   }
   
-  if(exprlen == 2){
+  if(exprlen == 2) {
     ptol = pmath_expr_get_item(expr, 2);
     
-    if(!pmath_is_number(ptol) || pmath_number_sign(ptol) < 0){
+    if(!pmath_is_number(ptol) || pmath_number_sign(ptol) < 0) {
       pmath_unref(ptol);
       
       pmath_message(
         PMATH_NULL, "numn", 2,
         PMATH_FROM_INT32(2),
         pmath_ref(expr));
-      
+        
       return expr;
     }
   }
   else
     ptol = PMATH_FROM_DOUBLE(1e-10);
-  
+    
   ntol = pmath_number_neg(pmath_ref(ptol));
   
   obj = pmath_expr_get_item(expr, 1);

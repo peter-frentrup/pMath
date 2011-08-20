@@ -21,17 +21,17 @@
 //#define DEBUG_LOG_EVAL
 
 #ifdef DEBUG_LOG_EVAL
-  static int indented = 0;
-  static void debug_indent(void){
-    int i;
-    
-    #ifdef PMATH_DEBUG_MEMORY
-      pmath_debug_print("[t=%6"PRIuPTR"]", _pmath_debug_global_time);
-    #endif
-    
-    for(i = indented % 30;i > 0;--i)
-      pmath_debug_print("  ");
-  }
+static int indented = 0;
+static void debug_indent(void) {
+  int i;
+  
+#ifdef PMATH_DEBUG_MEMORY
+  pmath_debug_print("[t=%6"PRIuPTR"]", _pmath_debug_global_time);
+#endif
+  
+  for(i = indented % 30; i > 0; --i)
+    pmath_debug_print("  ");
+}
 #endif
 
 static pmath_t evaluate_expression(
@@ -46,34 +46,34 @@ static pmath_t evaluate_symbol(
 static pmath_t evaluate(
   pmath_t  obj,
   pmath_thread_t *thread_ptr
-){
-  #ifdef DEBUG_LOG_EVAL
-    int iter = 0;
-    ++indented;
-    debug_indent();
-    pmath_debug_print_object("eval ", obj, "");
-    pmath_debug_print(" [%"PRIx64"] ...\n", obj.as_bits);
-  #endif
+) {
+#ifdef DEBUG_LOG_EVAL
+  int iter = 0;
+  ++indented;
+  debug_indent();
+  pmath_debug_print_object("eval ", obj, "");
+  pmath_debug_print(" [%"PRIx64"] ...\n", obj.as_bits);
+#endif
   
-  while(!pmath_aborting()){
-    #ifdef DEBUG_LOG_EVAL
-      if(iter > 0){
-        debug_indent();
-        pmath_debug_print("... [# %d]: ", iter);
-        pmath_debug_print_object("", obj, "");
-        pmath_debug_print(" [%"PRIx64"] ...\n", obj.as_bits);
-      }
-    #endif
-
-    if(pmath_is_expr(obj)){
+  while(!pmath_aborting()) {
+#ifdef DEBUG_LOG_EVAL
+    if(iter > 0) {
+      debug_indent();
+      pmath_debug_print("... [# %d]: ", iter);
+      pmath_debug_print_object("", obj, "");
+      pmath_debug_print(" [%"PRIx64"] ...\n", obj.as_bits);
+    }
+#endif
+    
+    if(pmath_is_expr(obj)) {
       if(_pmath_expr_is_updated(obj))
         break;
-      
+        
       obj = evaluate_expression(obj, thread_ptr, TRUE);
       continue;
     }
     
-    if(pmath_is_symbol(obj)){
+    if(pmath_is_symbol(obj)) {
       pmath_t result = evaluate_symbol(obj, thread_ptr);
       
       if(pmath_same(result, PMATH_UNDEFINED))
@@ -84,15 +84,15 @@ static pmath_t evaluate(
       continue;
     }
     
-    #ifdef PMATH_DEBUG_LOG
-    if(pmath_is_mpint(obj)){
-      if(mpz_fits_sint_p(PMATH_AS_MPZ(obj))){
+#ifdef PMATH_DEBUG_LOG
+    if(pmath_is_mpint(obj)) {
+      if(mpz_fits_sint_p(PMATH_AS_MPZ(obj))) {
         pmath_debug_print_object("\n[WARNING unnormalized mp int ", obj, "]\n");
       }
     }
-    #endif
+#endif
     
-    if(!pmath_is_string(obj) && !pmath_is_number(obj)){
+    if(!pmath_is_string(obj) && !pmath_is_number(obj)) {
       obj = PMATH_NULL;
       break;
     }
@@ -100,48 +100,48 @@ static pmath_t evaluate(
     break;
   }
   
-  #ifdef DEBUG_LOG_EVAL
-    debug_indent();
-    pmath_debug_print_object("... eval ", obj, "");
-    pmath_debug_print(" [%"PRIx64"] ...\n", obj.as_bits);
-    --indented;
-  #endif
+#ifdef DEBUG_LOG_EVAL
+  debug_indent();
+  pmath_debug_print_object("... eval ", obj, "");
+  pmath_debug_print(" [%"PRIx64"] ...\n", obj.as_bits);
+  --indented;
+#endif
   
   return obj;
 }
 
-static pmath_t handle_explicit_return(pmath_t expr){
+static pmath_t handle_explicit_return(pmath_t expr) {
   pmath_t obj;
   
   if(_pmath_contains_symbol(expr, PMATH_SYMBOL_RETURN))
     expr = pmath_evaluate(expr);
-              
-  if(pmath_is_expr_of(expr, PMATH_SYMBOL_RETURN)){
-    switch(pmath_expr_length(expr)){
-      case 0: 
-        pmath_unref(expr); 
-        return PMATH_NULL; 
-      
+    
+  if(pmath_is_expr_of(expr, PMATH_SYMBOL_RETURN)) {
+    switch(pmath_expr_length(expr)) {
+      case 0:
+        pmath_unref(expr);
+        return PMATH_NULL;
+        
       case 1:
         obj = pmath_expr_get_item(expr, 1);
-        pmath_unref(expr); 
+        pmath_unref(expr);
         return obj;
-      
-      case 2: 
+        
+      case 2:
         obj = pmath_expr_get_item(expr, 2);
-        if(pmath_is_integer(obj)){
-          if(pmath_compare(obj, PMATH_FROM_INT32(1)) <= 0){
+        if(pmath_is_integer(obj)) {
+          if(pmath_compare(obj, PMATH_FROM_INT32(1)) <= 0) {
             pmath_unref(obj);
             obj = pmath_expr_get_item(expr, 1);
-            pmath_unref(expr); 
+            pmath_unref(expr);
             return obj;
           }
           
           return pmath_expr_set_item(expr, 2,
-            pmath_expr_new_extended(
-              pmath_ref(PMATH_SYMBOL_PLUS), 2,
-              obj,
-              PMATH_FROM_INT32(-1)));
+                                     pmath_expr_new_extended(
+                                       pmath_ref(PMATH_SYMBOL_PLUS), 2,
+                                       obj,
+                                       PMATH_FROM_INT32(-1)));
         }
         pmath_unref(obj);
         break;
@@ -155,7 +155,7 @@ static pmath_t evaluate_expression(
   pmath_expr_t     expr,
   pmath_thread_t  *thread_ptr,
   pmath_bool_t     apply_rules
-){
+) {
   struct _pmath_stack_info_t     stack_frame;
   struct _pmath_symbol_rules_t  *rules;
   pmath_symbol_t                 head;
@@ -177,32 +177,32 @@ static pmath_t evaluate_expression(
   
   assert(thread_ptr != NULL);
   assert(pmath_is_expr(expr));
-    
-  if(!*thread_ptr){
+  
+  if(!*thread_ptr) {
     *thread_ptr = pmath_thread_get_current();
-    if(!*thread_ptr){
+    if(!*thread_ptr) {
       pmath_unref(expr);
       return PMATH_NULL;
     }
   }
   
-  if(pmath_maxrecursion < (*thread_ptr)->evaldepth){
-    if(!(*thread_ptr)->critical_messages){
+  if(pmath_maxrecursion < (*thread_ptr)->evaldepth) {
+    if(!(*thread_ptr)->critical_messages) {
       int tmp = (*thread_ptr)->evaldepth;
       (*thread_ptr)->evaldepth = 0;
       (*thread_ptr)->critical_messages = TRUE;
-  
+      
       pmath_debug_print("reclim with expr = ");
       pmath_debug_print_object("", expr, "\n");
       
       pmath_message(
         PMATH_SYMBOL_GENERAL, "reclim", 1,
         PMATH_FROM_INT32(pmath_maxrecursion));
-
+        
       (*thread_ptr)->critical_messages = FALSE;
       (*thread_ptr)->evaldepth = tmp;
     }
-    else{
+    else {
       pmath_debug_print("[abort] reclim with expr = ");
       pmath_debug_print_object("", expr, "\n");
       pmath_throw(
@@ -239,9 +239,9 @@ static pmath_t evaluate_expression(
   associative   = FALSE;
   sequence_hold = FALSE;
   symmetric     = FALSE;
-  if(pmath_same(head_sym, head)){
+  if(pmath_same(head_sym, head)) {
     hold_complete = (attr & PMATH_SYMBOL_ATTRIBUTE_HOLDALLCOMPLETE) != 0;
-    if(!hold_complete){
+    if(!hold_complete) {
       hold_first    = (attr & PMATH_SYMBOL_ATTRIBUTE_HOLDFIRST) != 0;
       hold_rest     = (attr & PMATH_SYMBOL_ATTRIBUTE_HOLDREST)  != 0;
       listable      = (attr & PMATH_SYMBOL_ATTRIBUTE_LISTABLE) != 0;
@@ -250,26 +250,26 @@ static pmath_t evaluate_expression(
       symmetric     = (attr & PMATH_SYMBOL_ATTRIBUTE_SYMMETRIC) != 0;
     }
   }
-  else{
+  else {
     hold_first = hold_rest =      (attr & PMATH_SYMBOL_ATTRIBUTE_DEEPHOLDALL) != 0;
     hold_complete = hold_first && (attr & PMATH_SYMBOL_ATTRIBUTE_HOLDALLCOMPLETE) != 0;
   }
   
-  if(!hold_complete){
+  if(!hold_complete) {
     item = pmath_expr_get_item(expr, 1);
     
-    if(!hold_first || pmath_is_expr_of_len(item, PMATH_SYMBOL_EVALUATE, 1)){
+    if(!hold_first || pmath_is_expr_of_len(item, PMATH_SYMBOL_EVALUATE, 1)) {
       item = evaluate(item, thread_ptr);
       expr = pmath_expr_set_item(expr, 1, item);
     }
     else
       pmath_unref(item);
-    
-    if(hold_rest){
-      for(i = 2;i <= exprlen;++i){
+      
+    if(hold_rest) {
+      for(i = 2; i <= exprlen; ++i) {
         item = pmath_expr_get_item(expr, i);
         
-        if(pmath_is_expr_of_len(item, PMATH_SYMBOL_EVALUATE, 1)){
+        if(pmath_is_expr_of_len(item, PMATH_SYMBOL_EVALUATE, 1)) {
           item = evaluate(item, thread_ptr);
           expr = pmath_expr_set_item(expr, i, item);
         }
@@ -277,38 +277,38 @@ static pmath_t evaluate_expression(
           pmath_unref(item);
       }
     }
-    else{
-      for(i = 2;i <= exprlen;++i){
+    else {
+      for(i = 2; i <= exprlen; ++i) {
         item = pmath_expr_get_item(expr, i);
         item = evaluate(item, thread_ptr);
         expr = pmath_expr_set_item(expr, i, item);
       }
     }
-
-    if(apply_rules){
-      if(_pmath_have_code(head, PMATH_CODE_USAGE_EARLYCALL)){
+    
+    if(apply_rules) {
+      if(_pmath_have_code(head, PMATH_CODE_USAGE_EARLYCALL)) {
         expr_changes = _pmath_expr_last_change(expr);
         
-        if(_pmath_run_code(head, PMATH_CODE_USAGE_EARLYCALL, &expr)){
+        if(_pmath_run_code(head, PMATH_CODE_USAGE_EARLYCALL, &expr)) {
           if(!pmath_is_expr(expr)
-          || expr_changes != _pmath_expr_last_change(expr)){
+              || expr_changes != _pmath_expr_last_change(expr)) {
             goto FINISH;
           }
         }
       }
     }
     
-    if(listable){
-      for(i = exprlen;i > 0;--i){
+    if(listable) {
+      for(i = exprlen; i > 0; --i) {
         item = pmath_expr_get_item(expr, i);
         
-        if(pmath_is_expr_of(item, PMATH_SYMBOL_LIST)){
+        if(pmath_is_expr_of(item, PMATH_SYMBOL_LIST)) {
           pmath_bool_t error_message = TRUE;
           pmath_unref(item);
-            
-          expr = _pmath_expr_thread(
-            expr, PMATH_SYMBOL_LIST, 1, exprlen, &error_message);
           
+          expr = _pmath_expr_thread(
+                   expr, PMATH_SYMBOL_LIST, 1, exprlen, &error_message);
+                   
           if(error_message)
             _pmath_expr_update(expr);
             
@@ -319,27 +319,27 @@ static pmath_t evaluate_expression(
       }
     }
     
-    for(i = 1;i <= exprlen;++i){ // Unevaluated(...) items
+    for(i = 1; i <= exprlen; ++i) { // Unevaluated(...) items
       item = pmath_expr_get_item(expr, i);
       
-      if(pmath_is_expr_of_len(item, PMATH_SYMBOL_UNEVALUATED, 1)){
+      if(pmath_is_expr_of_len(item, PMATH_SYMBOL_UNEVALUATED, 1)) {
         expr_with_unevaluated = pmath_ref(expr);
         
         expr = pmath_expr_set_item(
-          expr, i, 
-          pmath_expr_get_item(
-            item, 1));
-        
+                 expr, i,
+                 pmath_expr_get_item(
+                   item, 1));
+                   
         pmath_unref(item);
         
-        for(++i;i <= exprlen;++i){
+        for(++i; i <= exprlen; ++i) {
           item = pmath_expr_get_item(expr, i);
           
-          if(pmath_is_expr_of_len(item, PMATH_SYMBOL_UNEVALUATED, 1)){
+          if(pmath_is_expr_of_len(item, PMATH_SYMBOL_UNEVALUATED, 1)) {
             expr = pmath_expr_set_item(
-              expr, i, 
-              pmath_expr_get_item(
-                item, 1));
+                     expr, i,
+                     pmath_expr_get_item(
+                       item, 1));
           }
           
           pmath_unref(item);
@@ -351,40 +351,40 @@ static pmath_t evaluate_expression(
       pmath_unref(item);
     }
     
-    if(associative){
+    if(associative) {
       expr = pmath_expr_flatten(
-        expr,
-        pmath_ref(head),
-        PMATH_EXPRESSION_FLATTEN_MAX_DEPTH);
+               expr,
+               pmath_ref(head),
+               PMATH_EXPRESSION_FLATTEN_MAX_DEPTH);
     }
     
-    if(!sequence_hold){
+    if(!sequence_hold) {
       pmath_bool_t more = TRUE;
       
-      while(more){
+      while(more) {
         more = FALSE;
         
-        for(i = 1;i <= exprlen;++i){
+        for(i = 1; i <= exprlen; ++i) {
           item = pmath_expr_get_item(expr, i);
           
-          if(pmath_is_expr_of(item, PMATH_SYMBOL_SEQUENCE)){
+          if(pmath_is_expr_of(item, PMATH_SYMBOL_SEQUENCE)) {
             pmath_unref(item);
             expr = pmath_expr_flatten(
-              expr,
-              pmath_ref(PMATH_SYMBOL_SEQUENCE),
-              PMATH_EXPRESSION_FLATTEN_MAX_DEPTH);
-            
+                     expr,
+                     pmath_ref(PMATH_SYMBOL_SEQUENCE),
+                     PMATH_EXPRESSION_FLATTEN_MAX_DEPTH);
+                     
             more = associative;
             break;
           }
           
-          if(associative && pmath_is_expr_of(item, head)){
+          if(associative && pmath_is_expr_of(item, head)) {
             pmath_unref(item);
             expr = pmath_expr_flatten(
-              expr,
-              pmath_ref(head),
-              PMATH_EXPRESSION_FLATTEN_MAX_DEPTH);
-            
+                     expr,
+                     pmath_ref(head),
+                     PMATH_EXPRESSION_FLATTEN_MAX_DEPTH);
+                     
             more = TRUE;
             break;
           }
@@ -396,25 +396,25 @@ static pmath_t evaluate_expression(
     
     if(symmetric)
       expr = pmath_expr_sort(expr);
-    
+      
     if(!pmath_is_null(expr_with_unevaluated)) // expr contained Unevaluated(...) items
       expr_without_unevaluated = pmath_ref(expr);
-    
-    if(apply_rules){
-      for(i = 1;i <= exprlen;++i){ // up rules
+      
+    if(apply_rules) {
+      for(i = 1; i <= exprlen; ++i) { // up rules
         pmath_symbol_t sym;
         
         item = pmath_expr_get_item(expr, i);
         sym = _pmath_topmost_symbol(item);
         pmath_unref(item);
         
-        if(!pmath_is_null(sym)){
+        if(!pmath_is_null(sym)) {
           rules = _pmath_symbol_get_rules(sym, RULES_READ);
           
-          if(rules){
+          if(rules) {
             pmath_unref(stack_frame.value);
             stack_frame.value = pmath_ref(sym);
-            if(_pmath_rulecache_find(&rules->up_rules, &expr)){
+            if(_pmath_rulecache_find(&rules->up_rules, &expr)) {
               expr = handle_explicit_return(expr);
               pmath_unref(sym);
               goto FINISH;
@@ -427,19 +427,19 @@ static pmath_t evaluate_expression(
     }
   }
   
-  if(apply_rules){
-    if(!pmath_is_null(head_sym)){ // down/sub rules ...
+  if(apply_rules) {
+    if(!pmath_is_null(head_sym)) { // down/sub rules ...
       rules = _pmath_symbol_get_rules(head_sym, RULES_READ);
-      if(rules){
+      if(rules) {
         pmath_unref(stack_frame.value);
         stack_frame.value = pmath_ref(head_sym);
-        if(pmath_same(head_sym, head)){
-          if(_pmath_rulecache_find(&rules->down_rules, &expr)){
+        if(pmath_same(head_sym, head)) {
+          if(_pmath_rulecache_find(&rules->down_rules, &expr)) {
             expr = handle_explicit_return(expr);
             goto FINISH;
           }
         }
-        else if(_pmath_rulecache_find(&rules->sub_rules, &expr)){
+        else if(_pmath_rulecache_find(&rules->sub_rules, &expr)) {
           expr = handle_explicit_return(expr);
           goto FINISH;
         }
@@ -448,21 +448,21 @@ static pmath_t evaluate_expression(
     
     expr_changes = _pmath_expr_last_change(expr);
     
-    if(!hold_complete){ // up code
-      for(i = 1;i <= exprlen;++i){
+    if(!hold_complete) { // up code
+      for(i = 1; i <= exprlen; ++i) {
         pmath_symbol_t sym;
         
         item = pmath_expr_get_item(expr, i);
         sym = _pmath_topmost_symbol(item);
         pmath_unref(item);
         
-        if(!pmath_is_null(sym)){
+        if(!pmath_is_null(sym)) {
           pmath_unref(stack_frame.value);
           stack_frame.value = pmath_ref(sym);
           
-          if(_pmath_run_code(sym, PMATH_CODE_USAGE_UPCALL, &expr)){
+          if(_pmath_run_code(sym, PMATH_CODE_USAGE_UPCALL, &expr)) {
             if(!pmath_is_expr(expr)
-            || expr_changes != _pmath_expr_last_change(expr)){
+                || expr_changes != _pmath_expr_last_change(expr)) {
               pmath_unref(sym);
               goto FINISH;
             }
@@ -473,29 +473,29 @@ static pmath_t evaluate_expression(
       }
     }
     
-    if(pmath_same(head_sym, head)){ // down code
+    if(pmath_same(head_sym, head)) { // down code
       pmath_unref(stack_frame.value);
       stack_frame.value = pmath_ref(head_sym);
       
-      if(_pmath_run_code(head_sym, PMATH_CODE_USAGE_DOWNCALL, &expr)){
+      if(_pmath_run_code(head_sym, PMATH_CODE_USAGE_DOWNCALL, &expr)) {
         if(!pmath_is_expr(expr)
-        || expr_changes != _pmath_expr_last_change(expr)){
+            || expr_changes != _pmath_expr_last_change(expr)) {
           goto FINISH;
         }
       }
     }
-    else{ // sub code
+    else { // sub code
       pmath_unref(stack_frame.value);
       stack_frame.value = pmath_ref(head_sym);
       
-      if(_pmath_run_code(head_sym, PMATH_CODE_USAGE_SUBCALL, &expr)){
+      if(_pmath_run_code(head_sym, PMATH_CODE_USAGE_SUBCALL, &expr)) {
         if(!pmath_is_expr(expr)
-        || expr_changes != _pmath_expr_last_change(expr)){
+            || expr_changes != _pmath_expr_last_change(expr)) {
           goto FINISH;
         }
       }
     }
-
+    
     
     assert(pmath_is_expr(expr));
     assert(expr_changes == _pmath_expr_last_change(expr));
@@ -503,16 +503,16 @@ static pmath_t evaluate_expression(
     _pmath_expr_update(expr);
   }
   
- FINISH:
-  if(!pmath_is_null(expr_with_unevaluated) || !pmath_is_null(expr_without_unevaluated)){
-    if(apply_rules && pmath_equals(expr, expr_without_unevaluated)){
+FINISH:
+  if(!pmath_is_null(expr_with_unevaluated) || !pmath_is_null(expr_without_unevaluated)) {
+    if(apply_rules && pmath_equals(expr, expr_without_unevaluated)) {
       pmath_unref(expr);
       expr = expr_with_unevaluated;
       _pmath_expr_update(expr);
     }
     else
       pmath_unref(expr_with_unevaluated);
-    
+      
     pmath_unref(expr_without_unevaluated);
   }
   
@@ -528,7 +528,7 @@ static pmath_t evaluate_expression(
 static pmath_t evaluate_symbol(
   pmath_symbol_t  sym,         // wont be freed
   pmath_thread_t *thread_ptr
-){
+) {
   pmath_symbol_attributes_t   attr;
   pmath_t                     value;
   
@@ -537,8 +537,8 @@ static pmath_t evaluate_symbol(
   
   attr = pmath_symbol_get_attributes(sym);
   
-  if((attr & PMATH_SYMBOL_ATTRIBUTE_THREADLOCAL) != 0){
-    if(!*thread_ptr){
+  if((attr & PMATH_SYMBOL_ATTRIBUTE_THREADLOCAL) != 0) {
+    if(!*thread_ptr) {
       *thread_ptr = pmath_thread_get_current();
       
       if(!*thread_ptr)
@@ -547,21 +547,21 @@ static pmath_t evaluate_symbol(
     
     value = _pmath_thread_local_load_with(sym, *thread_ptr);
   }
-  else{
+  else {
     value = _pmath_symbol_get_global_value(sym);
   }
   
-  if(pmath_atomic_read_aquire(&_pmath_dynamic_trackers)){
-    if(!*thread_ptr){
+  if(pmath_atomic_read_aquire(&_pmath_dynamic_trackers)) {
+    if(!*thread_ptr) {
       *thread_ptr = pmath_thread_get_current();
       
-      if(!*thread_ptr){
+      if(!*thread_ptr) {
         pmath_unref(value);
         return PMATH_NULL;
       }
     }
     
-    if((*thread_ptr)->current_dynamic_id){
+    if((*thread_ptr)->current_dynamic_id) {
       _pmath_symbol_track_dynamic(sym, (*thread_ptr)->current_dynamic_id);
     }
   }
@@ -570,13 +570,13 @@ static pmath_t evaluate_symbol(
   
   if(pmath_is_evaluatable(value))
     return value;
-  
+    
   pmath_unref(value);
   return PMATH_UNDEFINED;
 }
-  
+
 PMATH_API
-pmath_t pmath_evaluate(pmath_t obj){
+pmath_t pmath_evaluate(pmath_t obj) {
   pmath_thread_t current_thread = NULL;
   
   return evaluate(obj, &current_thread);
@@ -586,7 +586,7 @@ PMATH_API
 pmath_t pmath_evaluate_expression(
   pmath_expr_t  expr,    // will be freed
   pmath_bool_t  apply_rules
-){
+) {
   pmath_thread_t current_thread = NULL;
   
   return evaluate_expression(expr, &current_thread, apply_rules);

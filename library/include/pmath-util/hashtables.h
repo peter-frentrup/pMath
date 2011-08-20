@@ -5,9 +5,9 @@
 
 /**\defgroup hashtables Hashtables
    \brief A general hashtable implementation.
-   
+
    The user of this API is responsible for the memory layout of the entries.
-   
+
   @{
  */
 
@@ -52,7 +52,7 @@ typedef unsigned int (*pmath_ht_key_hash_func_t)(void *key);
    \return TRUE if both enties' keys are equal, FALSE otherwise.
  */
 typedef pmath_bool_t (*pmath_ht_entry_equal_func_t)(
-  void *entry1, 
+  void *entry1,
   void *entry2);
 
 
@@ -69,13 +69,13 @@ typedef pmath_bool_t (*pmath_ht_entry_equals_key_func_t)(
 /**\class pmath_ht_class_t
    \brief A hashtable interface.
  */
-typedef struct{
+typedef struct {
   pmath_callback_t                  entry_destructor;
   pmath_ht_entry_hash_func_t        entry_hash;
   pmath_ht_entry_equal_func_t       entry_keys_equal;
   pmath_ht_key_hash_func_t          key_hash;
   pmath_ht_entry_equals_key_func_t  entry_equals_key;
-}pmath_ht_class_t;
+} pmath_ht_class_t;
 
 /*============================================================================*/
 
@@ -145,7 +145,7 @@ PMATH_API void *pmath_ht_entry(pmath_hashtable_t ht, unsigned int i);
 /**\brief Search for an entry in a given hashtable.
    \memberof pmath_hashtable_t
    \param ht    The hashtable.
-   \param key   The key. It will be send to the kes_hash and entry_keys_equal 
+   \param key   The key. It will be send to the kes_hash and entry_keys_equal
                 functions of the table's interface pointer.
    \return The entry or PMATH_NULL. It is owned by the table.
  */
@@ -156,7 +156,7 @@ void *pmath_ht_search(pmath_hashtable_t ht, void *key);
 /**\brief Insert an entry into a given hashtable
    \memberof pmath_hashtable_t
    \param ht     The hashtable.
-   \param entry  The entry. It must be compatible with all functions of the 
+   \param entry  The entry. It must be compatible with all functions of the
                  table's interface.
    \return PMATH_NULL or a possible old entry or the entry itself in case of an error.
            You must destroy it.
@@ -169,11 +169,11 @@ void *pmath_ht_insert(pmath_hashtable_t ht, void *entry);
 /**\brief Remove an entry from a given hashtable
    \memberof pmath_hashtable_t
    \param ht     The hashtable.
-   \param key    The entry's key. It will be send to the kes_hash and 
+   \param key    The entry's key. It will be send to the kes_hash and
                  entry_keys_equal functions of the table's interface pointer.
    \return PMATH_NULL or the old entry. You must destroy it.
  */
-PMATH_API 
+PMATH_API
 PMATH_ATTRIBUTE_USE_RESULT
 void *pmath_ht_remove(pmath_hashtable_t ht, void *key);
 

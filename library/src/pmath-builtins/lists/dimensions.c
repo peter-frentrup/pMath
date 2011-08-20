@@ -7,18 +7,18 @@
 #include <pmath-builtins/all-symbols-private.h>
 
 
-PMATH_PRIVATE pmath_bool_t _pmath_is_vector(pmath_t v){
+PMATH_PRIVATE pmath_bool_t _pmath_is_vector(pmath_t v) {
   pmath_t item;
   size_t i;
   
   if(!pmath_is_expr_of(v, PMATH_SYMBOL_LIST))
     return FALSE;
-  
+    
   i = pmath_expr_length(v);
-  for(;i > 0;--i){
+  for(; i > 0; --i) {
     item = pmath_expr_get_item(v, i);
     
-    if(pmath_is_expr_of(item, PMATH_SYMBOL_LIST)){
+    if(pmath_is_expr_of(item, PMATH_SYMBOL_LIST)) {
       pmath_unref(item);
       return FALSE;
     }
@@ -34,20 +34,20 @@ PMATH_PRIVATE pmath_bool_t _pmath_is_matrix(
   size_t       *rows,
   size_t       *cols,
   pmath_bool_t  check_non_list_entries
-){
+) {
   pmath_expr_t row;
   size_t i;
   
   *cols = *rows = 0;
   if(!pmath_is_expr_of(m, PMATH_SYMBOL_LIST))
     return FALSE;
-  
+    
   *rows = pmath_expr_length(m);
   if(*rows == 0)
     return TRUE;
-  
+    
   row = pmath_expr_get_item(m, 1);
-  if(!pmath_is_expr_of(row, PMATH_SYMBOL_LIST)){
+  if(!pmath_is_expr_of(row, PMATH_SYMBOL_LIST)) {
     pmath_unref(row);
     return FALSE;
   }
@@ -55,11 +55,11 @@ PMATH_PRIVATE pmath_bool_t _pmath_is_matrix(
   *cols = pmath_expr_length(row);
   pmath_unref(row);
   
-  for(i = *rows;i > 1;--i){
+  for(i = *rows; i > 1; --i) {
     row = pmath_expr_get_item(m, i);
     
     if(!pmath_is_expr_of_len(row, PMATH_SYMBOL_LIST, *cols)
-    || (check_non_list_entries && !_pmath_is_vector(row))){
+        || (check_non_list_entries && !_pmath_is_vector(row))) {
       pmath_unref(row);
       return FALSE;
     }
@@ -70,37 +70,37 @@ PMATH_PRIVATE pmath_bool_t _pmath_is_matrix(
   return TRUE;
 }
 
-typedef struct{
+typedef struct {
   pmath_t   head;
   size_t    maxdim;
   size_t   *dim_arr;
-}dims_data_t;
+} dims_data_t;
 
 static void check_rest_dims(
   dims_data_t     *data,
   pmath_t          obj,  // wont be freed
   size_t           level
-){
+) {
   pmath_t tmp;
   size_t i;
   
   if(level >= data->maxdim)
     return;
     
-  if(!pmath_is_expr(obj) || pmath_expr_length(obj) != data->dim_arr[level]){
+  if(!pmath_is_expr(obj) || pmath_expr_length(obj) != data->dim_arr[level]) {
     data->maxdim = level;
     return;
   }
   
   tmp = pmath_expr_get_item(obj, 0);
-  if(!pmath_equals(tmp, data->head)){
+  if(!pmath_equals(tmp, data->head)) {
     pmath_unref(tmp);
     data->maxdim = level;
     return;
   }
   
   pmath_unref(tmp);
-  for(i = pmath_expr_length(obj);i > 0;--i){
+  for(i = pmath_expr_length(obj); i > 0; --i) {
     tmp = pmath_expr_get_item(obj, i);
     
     check_rest_dims(data, tmp, level + 1);
@@ -112,28 +112,28 @@ static void check_rest_dims(
 PMATH_PRIVATE pmath_expr_t _pmath_dimensions(
   pmath_t obj, // wont be freed
   size_t maxdepth
-){
+) {
   dims_data_t data;
   size_t dims, i;
   pmath_t tmp, item;
   
   if(!pmath_is_expr(obj) || maxdepth == 0)
     return pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), 0);
-  
+    
   data.head = pmath_expr_get_item(obj, 0);
   
   dims = 1;
   tmp = pmath_expr_get_item(obj, 1);
-  while(dims < maxdepth && pmath_is_expr(tmp)){
+  while(dims < maxdepth && pmath_is_expr(tmp)) {
     item = pmath_expr_get_item(tmp, 0);
     
-    if(!pmath_equals(item, data.head)){
+    if(!pmath_equals(item, data.head)) {
       pmath_unref(item);
       break;
     }
     
     ++dims;
-    if(dims < maxdepth){
+    if(dims < maxdepth) {
       pmath_unref(item);
       item = pmath_expr_get_item(tmp, 1);
       pmath_unref(tmp);
@@ -145,15 +145,15 @@ PMATH_PRIVATE pmath_expr_t _pmath_dimensions(
   data.dim_arr = (size_t*)pmath_mem_alloc(dims * sizeof(size_t));
   if(!data.dim_arr)
     return PMATH_NULL;
-  
+    
   data.maxdim = dims;
   tmp = pmath_ref(obj);
-  for(i = 0;;){
+  for(i = 0;;) {
     data.dim_arr[i++] = pmath_expr_length(tmp);
     
     if(i >= dims)
       break;
-    
+      
     item = pmath_expr_get_item(tmp, 1);
     pmath_unref(tmp);
     tmp = item;
@@ -164,7 +164,7 @@ PMATH_PRIVATE pmath_expr_t _pmath_dimensions(
   check_rest_dims(&data, obj, 0);
   
   tmp = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), data.maxdim);
-  for(i = 0;i < data.maxdim;){
+  for(i = 0; i < data.maxdim;) {
     item = pmath_integer_new_uiptr(data.dim_arr[i++]);
     tmp = pmath_expr_set_item(tmp, i, item);
   }
@@ -175,36 +175,36 @@ PMATH_PRIVATE pmath_expr_t _pmath_dimensions(
   return tmp;
 }
 
-PMATH_PRIVATE pmath_t builtin_dimensions(pmath_expr_t expr){
-/* Dimensions(obj, n)
-   
-   Dimensions(obj)  ==  Dimensions(obj, Infinity)
- */
+PMATH_PRIVATE pmath_t builtin_dimensions(pmath_expr_t expr) {
+  /* Dimensions(obj, n)
+  
+     Dimensions(obj)  ==  Dimensions(obj, Infinity)
+   */
   pmath_t obj;
   size_t maxdepth = SIZE_MAX;
   size_t exprlen;
   
   exprlen = pmath_expr_length(expr);
   
-  if(exprlen < 1 || exprlen > 2){
+  if(exprlen < 1 || exprlen > 2) {
     pmath_message_argxxx(exprlen, 1, 2);
     return expr;
   }
   
-  if(exprlen == 2){
+  if(exprlen == 2) {
     obj = pmath_expr_get_item(expr, 2);
     
-    if(pmath_is_integer(obj) && pmath_number_sign(obj) >= 0){
+    if(pmath_is_integer(obj) && pmath_number_sign(obj) >= 0) {
       if(pmath_is_int32(obj))
         maxdepth = (size_t)PMATH_AS_INT32(obj);
     }
-    else if(!pmath_equals(obj, _pmath_object_infinity)){
+    else if(!pmath_equals(obj, _pmath_object_infinity)) {
       pmath_unref(obj);
       
       pmath_message(PMATH_NULL, "innf", 2,
-        PMATH_FROM_INT32(2),
-        pmath_ref(expr));
-      
+                    PMATH_FROM_INT32(2),
+                    pmath_ref(expr));
+                    
       return expr;
     }
     

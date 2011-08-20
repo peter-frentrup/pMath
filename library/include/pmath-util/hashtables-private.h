@@ -2,13 +2,13 @@
 #define __PMATH_UTIL__HASHTABLES_PRIVATE_H__
 
 #ifndef BUILDING_PMATH
-  #error This header file is not part of the public pMath API
+#error This header file is not part of the public pMath API
 #endif
 
 #include <pmath-util/hashtables.h>
 
 
-struct _pmath_object_entry_t{
+struct _pmath_object_entry_t {
   pmath_t key;
   pmath_t value;
 };
@@ -20,7 +20,7 @@ PMATH_PRIVATE void *_pmath_object_entry_copy_func(void *entry); // for use with 
 
 /*============================================================================*/
 
-struct _pmath_object_int_entry_t{
+struct _pmath_object_int_entry_t {
   pmath_t  key;
   intptr_t value;
 };
@@ -37,9 +37,9 @@ PMATH_PRIVATE unsigned int _pmath_hash_pointer(void *ptr);
 /*============================================================================*/
 
 #ifdef PMATH_DEBUG_TESTS
-  PMATH_PRIVATE void PMATH_TEST_NEW_HASHTABLES(void);
+PMATH_PRIVATE void PMATH_TEST_NEW_HASHTABLES(void);
 #else
-  #define PMATH_TEST_NEW_HASHTABLES() ((void)0)
+#define PMATH_TEST_NEW_HASHTABLES() ((void)0)
 #endif
 
 #endif /* __PMATH_UTIL__HASHTABLES_PRIVATE_H__ */

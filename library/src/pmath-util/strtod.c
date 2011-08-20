@@ -1,6 +1,6 @@
 /* original source: http://svn.ruby-lang.org/repos/ruby/branches/ruby_1_8/missing/strtod.c
  *
- *	Source code for the "strtod" library procedure.
+ *  Source code for the "strtod" library procedure.
  *
  * Copyright (c) 1988-1993 The Regents of the University of California.
  * Copyright (c) 1994 Sun Microsystems, Inc.
@@ -10,7 +10,7 @@
  * fee is hereby granted, provided that the above copyright
  * notice appear in all copies.  The University of California
  * makes no representations about the suitability of this
- * software for any purpose.  It is provided "as is" without
+ * software for any purpose. It is provided "as is" without
  * express or implied warranty.
  *
  */
@@ -25,22 +25,22 @@ static int maxExponent = 511;  /* Largest possible base 10 exponent.  Any
                                 * no need to worry about additional digits.
                                 */
 static double powersOf10[] = { /* Table giving binary powers of 10.  Entry */
-    10.,                       /* is 10^2^i.  Used to convert decimal */
-    100.,                      /* exponents into floating-point numbers. */
-    1.0e4,
-    1.0e8,
-    1.0e16,
-    1.0e32,
-    1.0e64,
-    1.0e128,
-    1.0e256
+  10.,                         /* is 10^2^i.  Used to convert decimal */
+  100.,                        /* exponents into floating-point numbers. */
+  1.0e4,
+  1.0e8,
+  1.0e16,
+  1.0e32,
+  1.0e64,
+  1.0e128,
+  1.0e256
 };
 
-PMATH_API 
+PMATH_API
 double pmath_strtod(
-  const char  *str, 
+  const char  *str,
   const char **end
-){
+) {
   int sign, expSign = FALSE;
   double fraction, dblExp, *d;
   register const char *p;
@@ -59,35 +59,35 @@ double pmath_strtod(
   int decPt;          /* Number of mantissa digits BEFORE decimal
                        * point. */
   const char *pExp;   /* Temporarily holds location of exponent in str. */
-
+  
   /*
    * Strip off leading blanks and check for a sign.
    */
-
+  
   p = str;
   while(*p <= ' ')
     ++p;
-  
-  if(*p == '-'){
+    
+  if(*p == '-') {
     sign = TRUE;
     ++p;
   }
-  else{
+  else {
     if(*p == '+')
       ++p;
-    
+      
     sign = FALSE;
   }
-
+  
   /*
    * Count the number of digits in the mantissa (including the decimal
    * point), and also locate the decimal point.
    */
-
+  
   decPt = -1;
-  for(mantSize = 0;;mantSize += 1){
+  for(mantSize = 0;; mantSize += 1) {
     c = *p;
-    if(c < '0' || c > '9'){
+    if(c < '0' || c > '9') {
       if(c != '.' || decPt >= 0)
         break;
         
@@ -96,26 +96,26 @@ double pmath_strtod(
     
     ++p;
   }
-
+  
   /*
    * Now suck up the digits in the mantissa.  Use two integers to
    * collect 9 digits each (this is faster than using floating-point).
    * If the mantissa has more than 18 digits, ignore the extras, since
    * they can't affect the value anyway.
    */
-    
+  
   pExp  = p;
-  p-= mantSize;
+  p -= mantSize;
   if(decPt < 0)
     decPt = mantSize;
   else
     --mantSize;   /* One of the digits was the point. */
-  
-  if(mantSize > 18){
+    
+  if(mantSize > 18) {
     fracExp = decPt - 18;
     mantSize = 18;
   }
-  else{
+  else {
     fracExp = decPt - mantSize;
   }
   
@@ -124,48 +124,48 @@ double pmath_strtod(
     p = str;
     goto DONE;
   }
-  else{
+  else {
     int frac1, frac2;
     frac1 = 0;
-    for(;mantSize > 9;--mantSize){
+    for(; mantSize > 9; --mantSize) {
       c = *p++;
       if(c == '.')
         c = *p++;
-      
+        
       frac1 = 10 * frac1 + (c - '0');
     }
     
     frac2 = 0;
-    for(;mantSize > 0;--mantSize){
+    for(; mantSize > 0; --mantSize) {
       c = *p++;
       if(c == '.')
         c = *p++;
-      
+        
       frac2 = 10 * frac2 + (c - '0');
     }
     
     fraction = (1.0e9 * frac1) + frac2;
   }
-
+  
   /*
    * Skim off the exponent.
    */
-
+  
   p = pExp;
-  if(*p == 'E' || *p == 'e'){
+  if(*p == 'E' || *p == 'e') {
     ++p;
-    if(*p == '-'){
+    if(*p == '-') {
       expSign = TRUE;
       ++p;
     }
-    else{
-      if(*p == '+') 
+    else {
+      if(*p == '+')
         ++p;
-      
+        
       expSign = FALSE;
     }
     
-    while(*p >= '0' && *p <= '9'){
+    while(*p >= '0' && *p <= '9') {
       exp = exp * 10 + (*p - '0');
       ++p;
     }
@@ -173,46 +173,46 @@ double pmath_strtod(
   
   if(expSign)
     exp = fracExp - exp;
-  else 
+  else
     exp = fracExp + exp;
     
-
+    
   /*
    * Generate a floating-point number that represents the exponent.
    * Do this by processing the exponent one bit at a time to combine
    * many powers of 2 of 10. Then combine the exponent with the
    * fraction.
    */
-    
-  if(exp < 0){
+  
+  if(exp < 0) {
     expSign = TRUE;
     exp = -exp;
   }
   else
     expSign = FALSE;
-  
-  if(exp > maxExponent){
+    
+  if(exp > maxExponent) {
     exp = maxExponent;
     //errno = ERANGE;
   }
   
   dblExp = 1.0;
-  for(d = powersOf10;exp != 0;exp >>= 1, d += 1){
-    if(exp & 01) 
+  for(d = powersOf10; exp != 0; exp >>= 1, d += 1) {
+    if(exp & 01)
       dblExp *= *d;
   }
   
   if(expSign)
     fraction /= dblExp;
-  else 
+  else
     fraction *= dblExp;
-  
+    
 DONE:
   if(end)
     *end = p;
-
+    
   if(sign)
     return -fraction;
-  
+    
   return fraction;
 }

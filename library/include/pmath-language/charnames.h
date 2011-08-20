@@ -5,7 +5,7 @@
 #include <pmath-types.h>
 
 /**\addtogroup strings
-   
+
    @{
  */
 
@@ -27,8 +27,8 @@ const char *pmath_char_to_name(uint32_t unichar);
 /*============================================================================*/
 
 #ifdef BUILDING_PMATH
-  PMATH_PRIVATE pmath_bool_t _pmath_charnames_init(void);
-  PMATH_PRIVATE void         _pmath_charnames_done(void);
+PMATH_PRIVATE pmath_bool_t _pmath_charnames_init(void);
+PMATH_PRIVATE void         _pmath_charnames_done(void);
 #endif
 
 #endif /* __PMATH_LANGUAGE__CHARNAMES_H__ */

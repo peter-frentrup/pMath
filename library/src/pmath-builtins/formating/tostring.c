@@ -9,7 +9,7 @@
 
 #define APPROX_SKELETON_WIDTH  8
 
-struct write_short_span_t{
+struct write_short_span_t {
   pmath_t                    item;
   struct write_short_span_t *owner;
   struct write_short_span_t *down;
@@ -20,7 +20,7 @@ struct write_short_span_t{
   pmath_bool_t               is_skeleton;
 };
 
-struct write_short_t{
+struct write_short_t {
   pmath_string_t text;
   
   struct write_short_span_t *all_spans;
@@ -30,54 +30,54 @@ struct write_short_t{
   
   void (*write)(void *user, const uint16_t *data, int len);
   void  *user;
-  void (*pre_write)( void *user, pmath_t obj);
+  void (*pre_write)(void *user, pmath_t obj);
   void (*post_write)(void *user, pmath_t obj);
 };
 
 
-static void write_short(void *user, const uint16_t *data, int len){
+static void write_short(void *user, const uint16_t *data, int len) {
   struct write_short_t *ws = user;
   int pos;
   
   if(ws->have_error)
     return;
-  
+    
   pos = pmath_string_length(ws->text);
   ws->text = pmath_string_insert_ucs2(ws->text, INT_MAX, data, len);
-  if(pmath_is_null(ws->text)){
+  if(pmath_is_null(ws->text)) {
     ws->have_error = TRUE;
     return;
   }
 }
 
-static void pre_write_short(void *user, pmath_t item){
+static void pre_write_short(void *user, pmath_t item) {
   struct write_short_span_t *span;
   struct write_short_t *ws = user;
   
   if(ws->have_error)
     return;
-  
+    
   span = pmath_mem_alloc(sizeof(struct write_short_span_t));
-  if(!span){
+  if(!span) {
     ws->have_error = TRUE;
     return;
   }
   
-  if(ws->current_span){
+  if(ws->current_span) {
     assert(ws->current_span->next == NULL);
     
-    if(ws->current_span->end < 0){
+    if(ws->current_span->end < 0) {
       ws->current_span->down = span;
       span->owner = ws->current_span;
       span->prev  = NULL;
     }
-    else{
+    else {
       ws->current_span->next = span;
       span->owner = ws->current_span->owner;
       span->prev  = ws->current_span;
     }
   }
-  else{
+  else {
     assert(ws->all_spans == NULL);
     ws->all_spans = span;
     span->owner = NULL;
@@ -93,15 +93,15 @@ static void pre_write_short(void *user, pmath_t item){
   ws->current_span = span;
 }
 
-static void post_write_short(void *user, pmath_t item){
+static void post_write_short(void *user, pmath_t item) {
   struct write_short_t *ws = user;
   
   if(ws->have_error)
     return;
-  
+    
   assert(ws->current_span != NULL);
   
-  if(!pmath_same(item, ws->current_span->item)){
+  if(!pmath_same(item, ws->current_span->item)) {
     assert(ws->current_span->end >= 0);
     
     ws->current_span = ws->current_span->owner;
@@ -114,22 +114,22 @@ static void post_write_short(void *user, pmath_t item){
 }
 
 static void visit_spans(
-  struct write_short_t      *ws, 
-  struct pmath_write_ex_t   *info, 
-  int                       *pos, 
+  struct write_short_t      *ws,
+  struct pmath_write_ex_t   *info,
+  int                       *pos,
   struct write_short_span_t *span
-){
+) {
   struct write_short_span_t *sub;
   const uint16_t *buf = pmath_string_buffer(&ws->text);
   if(!span)
     return;
-  
-  if(span->start > *pos){
+    
+  if(span->start > *pos) {
     ws->write(ws->user, buf + *pos, span->start - *pos);
     *pos = span->start;
   }
   
-  if(span->is_skeleton){
+  if(span->is_skeleton) {
     pmath_write_ex(info, span->item);
     *pos = span->end;
     return;
@@ -137,14 +137,14 @@ static void visit_spans(
   
   if(ws->pre_write)
     ws->pre_write(ws->user, span->item);
-  
+    
   sub = span->down;
-  while(sub){
+  while(sub) {
     visit_spans(ws, info, pos, sub);
     sub = sub->next;
   }
   
-  if(span->end > *pos){
+  if(span->end > *pos) {
     ws->write(ws->user, buf + *pos, span->end - *pos);
     *pos = span->end;
   }
@@ -153,14 +153,14 @@ static void visit_spans(
     ws->post_write(ws->user, span->item);
 }
 
-static void free_spans(struct write_short_span_t *span){
-  
+static void free_spans(struct write_short_span_t *span) {
+
   if(!span)
     return;
-  
+    
   pmath_unref(span->item);
   
-  while(span->down){
+  while(span->down) {
     struct write_short_span_t *sub = span->down;
     span->down = sub->next;
     free_spans(sub);
@@ -169,11 +169,11 @@ static void free_spans(struct write_short_span_t *span){
   pmath_mem_free(span);
 }
 
-static void shorten_span(struct write_short_t *ws, struct write_short_span_t *span, int length){
+static void shorten_span(struct write_short_t *ws, struct write_short_span_t *span, int length) {
   if(span->end - span->start < length)
     return;
-  
-  if(span->down && span->end - span->start > APPROX_SKELETON_WIDTH){
+    
+  if(span->down && span->end - span->start > APPROX_SKELETON_WIDTH) {
     struct write_short_span_t *skip;
     int left_pos;
     int right_pos;
@@ -182,15 +182,15 @@ static void shorten_span(struct write_short_t *ws, struct write_short_span_t *sp
     struct write_short_span_t *left  = span->down;
     struct write_short_span_t *right = left;
     
-    while(right->next){
+    while(right->next) {
       assert(right == right->next->prev);
       
       right = right->next;
     }
     
-    if(left == right){
-      length-= left->start - span->start;
-      length-= span->end - right->end;
+    if(left == right) {
+      length -= left->start - span->start;
+      length -= span->end - right->end;
       shorten_span(ws, left, length);
       return;
     }
@@ -198,40 +198,40 @@ static void shorten_span(struct write_short_t *ws, struct write_short_span_t *sp
     left_pos  = left->start;
     right_pos = right->end;
     
-    while(left != right->next){
+    while(left != right->next) {
       int lew = left_pos - span->start;
       int riw = span->end - right_pos;
       
-      if(lew < riw || left == span->down){
+      if(lew < riw || left == span->down) {
         int w = left->next->start - left_pos;
         
-        if(lew + w + riw + APPROX_SKELETON_WIDTH > length){
+        if(lew + w + riw + APPROX_SKELETON_WIDTH > length) {
           if(!left->down || w < APPROX_SKELETON_WIDTH)
             break;
-          
+            
           left     = left->next;
           left_pos = left->start;
           shorten_span(ws, left->prev, length - lew - riw);
           break;
         }
-        else{
+        else {
           left     = left->next;
           left_pos = left->start;
         }
       }
-      else{
+      else {
         int w = right_pos - right->prev->end;
         
-        if(lew + w + riw + APPROX_SKELETON_WIDTH > length){
+        if(lew + w + riw + APPROX_SKELETON_WIDTH > length) {
           if(!right->down || w <= APPROX_SKELETON_WIDTH)
             break;
-          
+            
           right     = right->prev;
           right_pos = right->end;
           shorten_span(ws, right->next, length - lew - riw);
           break;
         }
-        else{
+        else {
           right     = right->prev;
           right_pos = right->end;
         }
@@ -240,26 +240,26 @@ static void shorten_span(struct write_short_t *ws, struct write_short_span_t *sp
     
     num_skip = 0;
     skip = left;
-    while(skip != right->next){
+    while(skip != right->next) {
       ++num_skip;
       skip = skip->next;
     }
     
-    if(num_skip == 1){
+    if(num_skip == 1) {
       pmath_unref(left->item);
       left->item = pmath_expr_new_extended(
-        pmath_ref(PMATH_SYMBOL_SKELETON), 1,
-        PMATH_FROM_INT32(1));
-      
+                     pmath_ref(PMATH_SYMBOL_SKELETON), 1,
+                     PMATH_FROM_INT32(1));
+                     
       left->is_skeleton = TRUE;
     }
-    else if(num_skip > 0){
+    else if(num_skip > 0) {
       skip = pmath_mem_alloc(sizeof(struct write_short_span_t));
       
-      if(skip){
+      if(skip) {
         skip->item = pmath_expr_new_extended(
-          pmath_ref(PMATH_SYMBOL_SKELETON), 1,
-          PMATH_FROM_INT32(num_skip));
+                       pmath_ref(PMATH_SYMBOL_SKELETON), 1,
+                       PMATH_FROM_INT32(num_skip));
         skip->owner       = span;
         skip->down        = left;
         skip->prev        = left->prev;
@@ -273,7 +273,7 @@ static void shorten_span(struct write_short_t *ws, struct write_short_span_t *sp
         
         if(skip->prev)
           skip->prev->next = skip;
-        else{
+        else {
           assert(skip->owner->down == left);
           skip->owner->down = skip;
         }
@@ -284,37 +284,37 @@ static void shorten_span(struct write_short_t *ws, struct write_short_span_t *sp
     }
   }
   else if(length > 6
-  && pmath_is_string(span->item) 
-  && pmath_string_length(span->item) > 6){
+          && pmath_is_string(span->item)
+          && pmath_string_length(span->item) > 6) {
     struct write_short_span_t *skip;
     skip = pmath_mem_alloc(sizeof(struct write_short_span_t));
-      
-    if(skip){
+    
+    if(skip) {
       skip->item = pmath_expr_new_extended(
-        pmath_ref(PMATH_SYMBOL_SKELETON), 1,
-        PMATH_FROM_INT32(span->end - span->start - 2*(length/2) + 6));
+                     pmath_ref(PMATH_SYMBOL_SKELETON), 1,
+                     PMATH_FROM_INT32(span->end - span->start - 2 * (length / 2) + 6));
       skip->owner       = span;
       skip->down        = NULL;
       skip->prev        = NULL;
       skip->next        = NULL;
-      skip->start       = span->start + length/2 - 3;
-      skip->end         = span->end   - length/2 + 3;
+      skip->start       = span->start + length / 2 - 3;
+      skip->end         = span->end   - length / 2 + 3;
       skip->is_skeleton = TRUE;
       
       span->down = skip;
     }
   }
-  else{
+  else {
     pmath_unref(span->item);
     span->item = pmath_expr_new_extended(
-      pmath_ref(PMATH_SYMBOL_SKELETON), 1,
-      PMATH_FROM_INT32(1));
+                   pmath_ref(PMATH_SYMBOL_SKELETON), 1,
+                   PMATH_FROM_INT32(1));
     span->is_skeleton = TRUE;
   }
 }
 
 PMATH_PRIVATE
-void _pmath_write_short(struct pmath_write_ex_t *info, pmath_t obj, int length){
+void _pmath_write_short(struct pmath_write_ex_t *info, pmath_t obj, int length) {
   struct write_short_t ws;
   
   ws.text         = PMATH_NULL;
@@ -338,10 +338,10 @@ void _pmath_write_short(struct pmath_write_ex_t *info, pmath_t obj, int length){
   info->pre_write  = ws.pre_write;
   info->post_write = ws.post_write;
   
-  if(ws.have_error || ws.current_span != ws.all_spans){
+  if(ws.have_error || ws.current_span != ws.all_spans) {
     pmath_write_ex(info, obj);
   }
-  else{
+  else {
     int pos;
     
     shorten_span(&ws, ws.all_spans, length);
@@ -358,34 +358,34 @@ void _pmath_write_short(struct pmath_write_ex_t *info, pmath_t obj, int length){
 
 PMATH_PRIVATE
 void _pmath_write_to_string(
-  pmath_string_t *result, 
-  const uint16_t *data, 
+  pmath_string_t *result,
+  const uint16_t *data,
   int             len
-){
+) {
   *result = pmath_string_insert_ucs2(
-    *result, pmath_string_length(*result), data, len);
+              *result, pmath_string_length(*result), data, len);
 }
 
-PMATH_PRIVATE pmath_t builtin_tostring(pmath_expr_t expr){
-/* ToString(object)
- */
+PMATH_PRIVATE pmath_t builtin_tostring(pmath_expr_t expr) {
+  /* ToString(object)
+   */
   pmath_string_t result;
   size_t i, len;
   
   len = pmath_expr_length(expr);
-  if(len == 0){
+  if(len == 0) {
     pmath_unref(expr);
     return pmath_string_new(0);
   }
   
   result = PMATH_NULL;
   
-  for(i = 1;i <= len;++i){
+  for(i = 1; i <= len; ++i) {
     pmath_t obj = pmath_expr_get_item(expr, i);
-    pmath_write(obj, 0, (void(*)(void*,const uint16_t*,int))_pmath_write_to_string, &result);
+    pmath_write(obj, 0, (void(*)(void*, const uint16_t*, int))_pmath_write_to_string, &result);
     pmath_unref(obj);
   }
   pmath_unref(expr);
-
+  
   return result;
 }

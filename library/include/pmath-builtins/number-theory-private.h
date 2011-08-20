@@ -2,7 +2,7 @@
 #define __PMATH_BUILTINS__NUMBER_THEORY_PRIVATE_H__
 
 #ifndef BUILDING_PMATH
-  #error This header file is not part of the public pMath API
+#error This header file is not part of the public pMath API
 #endif
 
 #include <pmath-core/numbers.h>
@@ -12,11 +12,11 @@
  */
 
 // float or complex
-PMATH_PRIVATE pmath_bool_t _pmath_is_inexact(pmath_t obj); 
+PMATH_PRIVATE pmath_bool_t _pmath_is_inexact(pmath_t obj);
 
 PMATH_PRIVATE int _pmath_number_class(pmath_t obj);
 
-enum{
+enum {
   PMATH_CLASS_ZERO      = 1 <<  0, // x = 0
   PMATH_CLASS_NEGSMALL  = 1 <<  1, // -1 < x < 0
   PMATH_CLASS_POSSMALL  = 1 <<  2, // 0 < x < 1

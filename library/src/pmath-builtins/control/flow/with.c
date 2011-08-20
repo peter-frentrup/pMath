@@ -7,36 +7,36 @@
 #include <pmath-builtins/all-symbols-private.h>
 
 
-PMATH_PRIVATE pmath_t builtin_with(pmath_expr_t expr){
+PMATH_PRIVATE pmath_t builtin_with(pmath_expr_t expr) {
   pmath_expr_t symbols;
   pmath_t      body;
   size_t i, len;
   
-  if(pmath_expr_length(expr) != 2){
+  if(pmath_expr_length(expr) != 2) {
     pmath_message_argxxx(pmath_expr_length(expr), 2, 2);
     return expr;
   }
-
+  
   symbols = pmath_expr_get_item(expr, 1);
-  if(!pmath_is_expr_of(symbols, PMATH_SYMBOL_LIST)){
+  if(!pmath_is_expr_of(symbols, PMATH_SYMBOL_LIST)) {
     pmath_message(PMATH_NULL, "nolist", 1, symbols);
     return expr;
   }
   
   body = pmath_expr_get_item(expr, 2);
   len  = pmath_expr_length(symbols);
-  if(len == 0){
+  if(len == 0) {
     pmath_unref(symbols);
     pmath_unref(expr);
     return body;
   }
   
-  for(i = 1;i <= len;++i){
+  for(i = 1; i <= len; ++i) {
     pmath_t defi = pmath_expr_get_item(symbols, i);
     
-    if(pmath_is_expr_of_len(defi, PMATH_SYMBOL_ASSIGN, 2)){
+    if(pmath_is_expr_of_len(defi, PMATH_SYMBOL_ASSIGN, 2)) {
       pmath_t sym = pmath_expr_get_item(defi, 1);
-      if(pmath_is_symbol(sym)){
+      if(pmath_is_symbol(sym)) {
         pmath_t value = pmath_evaluate(pmath_expr_get_item(defi, 2));
         
         pmath_unref(defi);
@@ -49,9 +49,9 @@ PMATH_PRIVATE pmath_t builtin_with(pmath_expr_t expr){
       pmath_unref(sym);
     }
     
-    if(pmath_is_expr_of_len(defi, PMATH_SYMBOL_ASSIGNDELAYED, 2)){
+    if(pmath_is_expr_of_len(defi, PMATH_SYMBOL_ASSIGNDELAYED, 2)) {
       pmath_t sym = pmath_expr_get_item(defi, 1);
-      if(pmath_is_symbol(sym)){
+      if(pmath_is_symbol(sym)) {
         pmath_t value = pmath_expr_get_item(defi, 2);
         
         pmath_unref(defi);

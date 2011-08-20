@@ -3,7 +3,7 @@
 
 #include <pmath-config.h>
 
-/**\addtogroup helpers
+/**\defgroup version Version Information
   
   @{
  */

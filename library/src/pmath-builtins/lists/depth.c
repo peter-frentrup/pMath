@@ -6,19 +6,19 @@
 
 
 // ignores head of expressions
-PMATH_PRIVATE long _pmath_object_depth(pmath_t obj){
-  if(pmath_is_expr(obj)){
+PMATH_PRIVATE long _pmath_object_depth(pmath_t obj) {
+  if(pmath_is_expr(obj)) {
     long result = 1;
     size_t i;
     
     //for(i = 01;i <= pmath_expr_length(obj);++i)
-    for(i = pmath_expr_length(obj);i > 0;--i){
+    for(i = pmath_expr_length(obj); i > 0; --i) {
       pmath_t item = pmath_expr_get_item(obj, i);
       
       long d = _pmath_object_depth(item);
       if(result < d)
-         result = d;
-      
+        result = d;
+        
       pmath_unref(item);
     }
     
@@ -28,10 +28,10 @@ PMATH_PRIVATE long _pmath_object_depth(pmath_t obj){
   return 1;
 }
 
-PMATH_PRIVATE pmath_t builtin_depth(pmath_expr_t expr){
+PMATH_PRIVATE pmath_t builtin_depth(pmath_expr_t expr) {
   pmath_t obj;
   
-  if(pmath_expr_length(expr) != 1){
+  if(pmath_expr_length(expr) != 1) {
     pmath_message_argxxx(pmath_expr_length(expr), 1, 1);
     return expr;
   }

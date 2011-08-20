@@ -46,7 +46,7 @@ typedef pmath_t (*pmath_builtin_func_t)(pmath_expr_t expr);
 
    \see pmath_register_code
   */
-typedef enum{
+typedef enum {
   PMATH_CODE_USAGE_DOWNCALL   = 0,
   PMATH_CODE_USAGE_SUBCALL    = 1,
   PMATH_CODE_USAGE_UPCALL     = 2
@@ -81,12 +81,12 @@ pmath_bool_t pmath_register_code(
 PMATH_API
 pmath_bool_t pmath_register_approx_code(
   pmath_symbol_t   symbol,
-  pmath_t        (*func)(pmath_t, double, double));
+  pmath_t (*func)(pmath_t, double, double));
 
 /** @} */
 
 #ifndef BUILDING_PMATH
-  #define PMATH_SYMBOL_BUILTIN(index)  pmath_symbol_builtin((index))
+#define PMATH_SYMBOL_BUILTIN(index)  pmath_symbol_builtin((index))
 #endif
 
 #define PMATH_SYMBOL_LINE                                   PMATH_SYMBOL_BUILTIN(0)

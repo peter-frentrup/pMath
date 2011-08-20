@@ -9,21 +9,21 @@
 
   #undef pmath_debug_print
   #undef pmath_debug_print_object
-  
+
 #endif
 
 #ifdef PMATH_OS_WIN32
-  /* no flockfile()/funlockfile() on windows/mingw -> do it your self */
+/* no flockfile()/funlockfile() on windows/mingw -> do it your self */
   #if PMATH_USE_PTHREAD
-  
+
     #include <pthread.h>
     static pthread_mutex_t  debuglog_mutex;
 
     #define flockfile(  file)  ((void)pthread_mutex_lock(  &debuglog_mutex))
     #define funlockfile(file)  ((void)pthread_mutex_unlock(&debuglog_mutex))
-  
-  #elif PMATH_USE_WINDOWS_THREADS
-  
+
+    #elif PMATH_USE_WINDOWS_THREADS
+
     #define NOGDI
     #define WIN32_LEAN_AND_MEAN
     #include <windows.h>
@@ -31,42 +31,43 @@
 
     #define flockfile(  file)  ((void)EnterCriticalSection(&debuglog_critical_section))
     #define funlockfile(file)  ((void)LeaveCriticalSection(&debuglog_critical_section))
-  
+
   #else
-  
+
     #error Either PThread or Windows Threads must be used
-  
+
   #endif
+  
 #endif
 
 static FILE *debuglog = NULL;
 
 static pmath_bool_t debugging_output = TRUE;
 
-PMATH_API void pmath_debug_print(const char *fmt, ...){
-  if(debugging_output){
+PMATH_API void pmath_debug_print(const char *fmt, ...) {
+  if(debugging_output) {
     va_list args;
     
     debugging_output = FALSE;
-
+    
     va_start(args, fmt);
     flockfile(debuglog);
     vfprintf(debuglog, fmt, args);
     funlockfile(debuglog);
     va_end(args);
     fflush(debuglog);
-
+    
     debugging_output = TRUE;
   }
 }
 
-static void write_data(FILE *file, const uint16_t *data, int len){
-  while(len-- > 0){
-    if(*data <= 0xFF){
-      unsigned char c = (unsigned char)*data;
+static void write_data(FILE *file, const uint16_t *data, int len) {
+  while(len-- > 0) {
+    if(*data <= 0xFF) {
+      unsigned char c = (unsigned char) * data;
       fwrite(&c, 1, 1, file);
     }
-    else{
+    else {
       char hex[16] = "0123456789ABCDEF";
       char out[6];
       out[0] = '\\';
@@ -85,55 +86,55 @@ PMATH_API void pmath_debug_print_object(
   const char *pre,
   pmath_t obj,
   const char *post
-){
-  if(debugging_output){
+) {
+  if(debugging_output) {
     debugging_output = FALSE;
-
+    
     flockfile(debuglog);
-
+    
     fputs(pre, debuglog);
     pmath_write(
       obj,
       PMATH_WRITE_OPTIONS_FULLSTR | PMATH_WRITE_OPTIONS_INPUTEXPR
-        | PMATH_WRITE_OPTIONS_FULLNAME,
-      (void(*)(void*,const uint16_t*,int))write_data,
+      | PMATH_WRITE_OPTIONS_FULLNAME,
+      (void(*)(void*, const uint16_t*, int))write_data,
       debuglog);
     fputs(post, debuglog);
-
+    
     funlockfile(debuglog);
-
+    
     debugging_output = TRUE;
   }
 }
 
-  static pmath_bool_t stack_walker(pmath_t head, void *p){
-    pmath_debug_print_object("  in ", head, "\n");
-    
-    return TRUE;
-  }
+static pmath_bool_t stack_walker(pmath_t head, void *p) {
+  pmath_debug_print_object("  in ", head, "\n");
+  
+  return TRUE;
+}
 
-PMATH_API void pmath_debug_print_stack(void){
+PMATH_API void pmath_debug_print_stack(void) {
   pmath_debug_print("pMath stack:\n");
   pmath_walk_stack(stack_walker, NULL);
 }
 
-PMATH_PRIVATE pmath_bool_t _pmath_debug_library_init(void){
-  #ifdef PMATH_OS_WIN32
-    #if PMATH_USE_PTHREAD
-    {/* initialize debuglog_mutex ... */
-      int err = pthread_mutex_init(&debuglog_mutex, NULL);
-      if(err != 0)
-        return FALSE;
-    }
-    #elif PMATH_USE_WINDOWS_THREADS
-    /* initialize debuglog_critical_section ... */
-    if(!InitializeCriticalSectionAndSpinCount(&debuglog_critical_section, 4000))
+PMATH_PRIVATE pmath_bool_t _pmath_debug_library_init(void) {
+#ifdef PMATH_OS_WIN32
+#if PMATH_USE_PTHREAD
+  { /* initialize debuglog_mutex ... */
+    int err = pthread_mutex_init(&debuglog_mutex, NULL);
+    if(err != 0)
       return FALSE;
-    #endif
-  #endif
-
+  }
+#elif PMATH_USE_WINDOWS_THREADS
+  /* initialize debuglog_critical_section ... */
+  if(!InitializeCriticalSectionAndSpinCount(&debuglog_critical_section, 4000))
+    return FALSE;
+#endif
+#endif
+  
   debuglog = stderr;
-
+  
 //  debuglog = fopen("pmath-debug.log", "w+");
 //  char name[100];
 //  int i = 0;
@@ -147,17 +148,17 @@ PMATH_PRIVATE pmath_bool_t _pmath_debug_library_init(void){
   return TRUE;
 }
 
-PMATH_PRIVATE void _pmath_debug_library_done(void){
-  if(debuglog && debuglog != stderr && debuglog != stdout){
+PMATH_PRIVATE void _pmath_debug_library_done(void) {
+  if(debuglog && debuglog != stderr && debuglog != stdout) {
     fclose(debuglog);
     debuglog = NULL;
   }
-
-  #ifdef PMATH_OS_WIN32
-    #if PMATH_USE_PTHREAD
-      pthread_mutex_destroy(&debuglog_mutex);
-    #elif PMATH_USE_WINDOWS_THREADS
-      DeleteCriticalSection(&debuglog_critical_section);
-    #endif
-  #endif
+  
+#ifdef PMATH_OS_WIN32
+#if PMATH_USE_PTHREAD
+  pthread_mutex_destroy(&debuglog_mutex);
+#elif PMATH_USE_WINDOWS_THREADS
+  DeleteCriticalSection(&debuglog_critical_section);
+#endif
+#endif
 }

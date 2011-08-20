@@ -2,7 +2,7 @@
 #define __PMATH_BUILTINS__SYMBOLS_PRIVATE_H__
 
 #ifndef BUILDING_PMATH
-  #error This header file is not part of the public pMath API
+#error This header file is not part of the public pMath API
 #endif
 
 #include <pmath-builtins/all-symbols.h>

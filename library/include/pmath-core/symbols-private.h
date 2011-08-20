@@ -2,16 +2,16 @@
 #define __PMATH_CORE__SYMBOLS_PRIVATE_H__
 
 #ifndef BUILDING_PMATH
-  #error This header file is not part of the public pMath API
+#error This header file is not part of the public pMath API
 #endif
 
 #include <pmath-core/symbols.h>
 
-typedef enum{
+typedef enum {
   RULES_READ,
   RULES_WRITEOPTIONS, // writeable even if symbol is Protected
   RULES_WRITE
-}rule_access_t;
+} rule_access_t;
 
 PMATH_PRIVATE
 struct _pmath_symbol_rules_t *_pmath_symbol_get_rules(
@@ -24,11 +24,11 @@ pmath_bool_t _pmath_symbol_assign_value(
   pmath_t         lhs,    // will be freed. typically pmath_ref(sym)
   pmath_t         rhs);   // will be freed
 
-PMATH_PRIVATE 
+PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_t _pmath_symbol_get_global_value(
   pmath_symbol_t symbol); // wont be freed
-  
+
 PMATH_PRIVATE
 void _pmath_symbol_set_global_value( // used in init
   pmath_symbol_t symbol, // wont be freed

@@ -2,7 +2,7 @@
 #define __PMATH_CORE__NUMBERS_PRIVATE_H__
 
 #ifndef BUILDING_PMATH
-  #error This header file is not part of the public pMath API
+#error This header file is not part of the public pMath API
 #endif
 
 #include <pmath-core/numbers.h>
@@ -11,6 +11,7 @@
 #include <math.h>
 #include <gmp.h>
 #include <mpfr.h>
+
 
 #ifdef PMATH_OS_WIN32
   #define exp2(x)      pow(2, x)
@@ -54,24 +55,24 @@
 #define PMATH_MP_ERROR_PREC  DBL_MANT_DIG
 #define PMATH_MP_PREC_MAX    1000000
 
-struct _pmath_mp_int_t{
+struct _pmath_mp_int_t {
   struct _pmath_t  inherited;
   mpz_t            value;
 };
 
 /* We don't use mpq_t to store quotients, because this would involve a lot of
-   memory copying during automatic quotient-to-integer conversion. 
-   
-   When freeing a quotient, its numerator and denominator are freed seperately 
+   memory copying during automatic quotient-to-integer conversion.
+
+   When freeing a quotient, its numerator and denominator are freed seperately
    to be stored in the integer cache.
  */
-struct _pmath_quotient_t{
+struct _pmath_quotient_t {
   struct _pmath_t  inherited;
   pmath_integer_t  numerator;
   pmath_integer_t  denominator;
 };
 
-struct _pmath_mp_float_t{
+struct _pmath_mp_float_t {
   struct _pmath_t  inherited;
   mpfr_t           value;
   mpfr_t           error;
@@ -97,12 +98,12 @@ extern PMATH_PRIVATE pmath_t _pmath_object_complex_infinity; /* readonly */
 extern PMATH_PRIVATE gmp_randstate_t  _pmath_randstate;
 extern PMATH_PRIVATE pmath_atomic_t   _pmath_rand_spinlock;
 
-PMATH_PRIVATE 
+PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
 // struct _pmath_integer_t_ *
 pmath_mpint_t _pmath_create_mp_int(signed long value);
 
-PMATH_PRIVATE 
+PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
 // struct _pmath_quotient_t_ *
 pmath_quotient_t _pmath_create_quotient(
@@ -110,31 +111,31 @@ pmath_quotient_t _pmath_create_quotient(
   pmath_integer_t denominator); // will be freed; must be > 1
 
 PMATH_PRIVATE
-PMATH_ATTRIBUTE_USE_RESULT 
+PMATH_ATTRIBUTE_USE_RESULT
 //struct _pmath_mp_float_t *
 pmath_mpfloat_t _pmath_create_mp_float(mpfr_prec_t precision);
 
 PMATH_PRIVATE
-PMATH_ATTRIBUTE_USE_RESULT 
+PMATH_ATTRIBUTE_USE_RESULT
 //struct _pmath_mp_float_t *
 pmath_mpfloat_t _pmath_create_mp_float_from_d(double value);
 
 PMATH_PRIVATE
-PMATH_ATTRIBUTE_USE_RESULT 
+PMATH_ATTRIBUTE_USE_RESULT
 // struct _pmath_mp_float_t*
 pmath_mpfloat_t _pmath_convert_to_mp_float(pmath_float_t n); // n will be freed
 
-PMATH_PRIVATE 
+PMATH_PRIVATE
 void _pmath_write_machine_float(struct pmath_write_ex_t *info, pmath_t f);
-  
-PMATH_PRIVATE 
+
+PMATH_PRIVATE
 void _pmath_write_machine_int(struct pmath_write_ex_t *info, pmath_t integer);
-  
+
 PMATH_PRIVATE
 int _pmath_numbers_compare(
   pmath_number_t numA,
   pmath_number_t numB);
-  
+
 PMATH_PRIVATE
 pmath_bool_t _pmath_numbers_equal(
   pmath_number_t numA,

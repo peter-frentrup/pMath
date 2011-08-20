@@ -9,32 +9,32 @@
 #include <limits.h>
 
 #ifdef PMATH_OS_WIN32
-  #define WIN32_LEAN_AND_MEAN 
-  #define NOGDI
-  #include <Windows.h>
+#define WIN32_LEAN_AND_MEAN
+#define NOGDI
+#include <Windows.h>
 #else
-  #include <sys/stat.h>
+#include <sys/stat.h>
 #endif
 
 
-PMATH_PRIVATE pmath_t builtin_filetype(pmath_expr_t expr){
-/* FileType(file)
- */
+PMATH_PRIVATE pmath_t builtin_filetype(pmath_expr_t expr) {
+  /* FileType(file)
+   */
   pmath_t file;
   
-  if(pmath_expr_length(expr) != 1){
+  if(pmath_expr_length(expr) != 1) {
     pmath_message_argxxx(pmath_expr_length(expr), 1, 1);
     return expr;
   }
   
   file = pmath_expr_get_item(expr, 1);
-  if(!pmath_is_string(file) || pmath_string_length(file) == 0){
+  if(!pmath_is_string(file) || pmath_string_length(file) == 0) {
     pmath_message(PMATH_NULL, "fstr", 1, file);
     return expr;
   }
   pmath_unref(expr);
   
-  #ifdef PMATH_OS_WIN32
+#ifdef PMATH_OS_WIN32
   {
     const uint16_t zero = 0;
     HANDLE h;
@@ -42,17 +42,17 @@ PMATH_PRIVATE pmath_t builtin_filetype(pmath_expr_t expr){
     pmath_t tmp;
     
     tmp = pmath_parse_string_args( // file ~= \\servername\pipe\pipename
-        "StringMatch(StringReplace(`1`, \"\\\\\" -> \"/\"),"
-          "StartOfString ++"
-          "\"//\" ++"
-          "Except(\"/\")** ++"
-          "\"/pipe/\" ++"
-          "Except(\"/\")** ++"
-          "EndOfString, IgnoreCase->True)", 
-        "(o)", pmath_ref(file));
+            "StringMatch(StringReplace(`1`, \"\\\\\" -> \"/\"),"
+            "StartOfString ++"
+            "\"//\" ++"
+            "Except(\"/\")** ++"
+            "\"/pipe/\" ++"
+            "Except(\"/\")** ++"
+            "EndOfString, IgnoreCase->True)",
+            "(o)", pmath_ref(file));
     tmp = pmath_evaluate(tmp);
     pmath_unref(tmp);
-    if(pmath_same(tmp, PMATH_SYMBOL_TRUE)){
+    if(pmath_same(tmp, PMATH_SYMBOL_TRUE)) {
       pmath_unref(file);
       return pmath_ref(PMATH_SYMBOL_SPECIAL);
     }
@@ -61,57 +61,57 @@ PMATH_PRIVATE pmath_t builtin_filetype(pmath_expr_t expr){
     
     // use CreateFile() instead of GetFileAttributes() to follow symbolic links.
     h = CreateFileW(
-      (const wchar_t*)pmath_string_buffer(&file),
-      0,
-      FILE_SHARE_READ | FILE_SHARE_WRITE,
-      NULL,
-      OPEN_EXISTING,
-      FILE_FLAG_BACKUP_SEMANTICS, // needed to open handles to dicretories
-      NULL);
-    
-    if(h != INVALID_HANDLE_VALUE){
+          (const wchar_t*)pmath_string_buffer(&file),
+          0,
+          FILE_SHARE_READ | FILE_SHARE_WRITE,
+          NULL,
+          OPEN_EXISTING,
+          FILE_FLAG_BACKUP_SEMANTICS, // needed to open handles to dicretories
+          NULL);
+          
+    if(h != INVALID_HANDLE_VALUE) {
       BY_HANDLE_FILE_INFORMATION info;
       
-      if(GetFileInformationByHandle(h, &info)){
+      if(GetFileInformationByHandle(h, &info)) {
         pmath_unref(file);
         CloseHandle(h);
         
         if(info.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
           return pmath_ref(PMATH_SYMBOL_DIRECTORY);
-      
+          
         if(info.dwFileAttributes & (FILE_ATTRIBUTE_DEVICE | FILE_ATTRIBUTE_REPARSE_POINT))
           return pmath_ref(PMATH_SYMBOL_SPECIAL);
-        
+          
         return pmath_ref(PMATH_SYMBOL_FILE);
       }
       
       CloseHandle(h);
     }
   }
-  #else
+#else
   {
     char *str = pmath_string_to_native(file, NULL);
-    
-    if(str){
+  
+    if(str) {
       struct stat buf;
-      
-      if(stat(str, &buf) == 0){
+  
+      if(stat(str, &buf) == 0) {
         pmath_mem_free(str);
         pmath_unref(file);
-        
+  
         if(S_ISDIR(buf.st_mode))
           return pmath_ref(PMATH_SYMBOL_DIRECTORY);
-        
+  
         if(S_ISREG(buf.st_mode))
           return pmath_ref(PMATH_SYMBOL_FILE);
-        
+  
         return pmath_ref(PMATH_SYMBOL_SPECIAL);
       }
-      
+  
       pmath_mem_free(str);
     }
   }
-  #endif
+#endif
   
   pmath_unref(file);
   return pmath_ref(PMATH_SYMBOL_NONE);

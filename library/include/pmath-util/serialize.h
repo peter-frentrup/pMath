@@ -5,21 +5,21 @@
 
 /**\brief (De-)Serialization error codes.
  */
-typedef enum{
+typedef enum {
   PMATH_SERIALIZE_OK         = 0, ///< No error occured.
   PMATH_SERIALIZE_NO_MEMORY  = 1,
   PMATH_SERIALIZE_BAD_OBJECT = 2, ///< The object cannot be serialized (e.g. custom objects)
   PMATH_SERIALIZE_EOF        = 3, ///< Unexpected end of file.
   PMATH_SERIALIZE_BAD_BYTE   = 4, ///< Unexpected byte.
   PMATH_SERIALIZE_BAD_REF    = 5, ///< Unknown back reference.
-}pmath_serialize_error_t;
+} pmath_serialize_error_t;
 
 /**\brief Write an object to a binary file.
    \param file A \ref file_api "file object". It wont be freed.
    \param object A pMath object. It will be freed.
    \return An error code.
  */
-PMATH_API 
+PMATH_API
 pmath_serialize_error_t pmath_serialize(
   pmath_t file,
   pmath_t object);
@@ -29,7 +29,7 @@ pmath_serialize_error_t pmath_serialize(
    \param error Where to put the error code (optional).
    \return The deserialized object.
  */
-PMATH_API 
+PMATH_API
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_t pmath_deserialize(
   pmath_t                  file,

@@ -8,23 +8,23 @@
 #include <pmath-builtins/build-expr-private.h>
 #include <pmath-builtins/number-theory-private.h>
 
-PMATH_PRIVATE pmath_t builtin_arctan(pmath_expr_t expr){
+PMATH_PRIVATE pmath_t builtin_arctan(pmath_expr_t expr) {
   pmath_t x;
   int xclass;
   
-  if(pmath_expr_length(expr) != 1){
+  if(pmath_expr_length(expr) != 1) {
     pmath_message_argxxx(pmath_expr_length(expr), 1, 1);
     return expr;
   }
   
   x = pmath_expr_get_item(expr, 1);
   
-  if(pmath_equals(x, PMATH_FROM_INT32(0))){
+  if(pmath_equals(x, PMATH_FROM_INT32(0))) {
     pmath_unref(expr);
     return x;
   }
   
-  if(pmath_is_double(x)){
+  if(pmath_is_double(x)) {
     double d = PMATH_AS_DOUBLE(x);
     pmath_unref(expr);
     pmath_unref(x);
@@ -32,10 +32,10 @@ PMATH_PRIVATE pmath_t builtin_arctan(pmath_expr_t expr){
     return PMATH_FROM_DOUBLE(atan(d));
   }
   
-  if(pmath_is_mpfloat(x)){
+  if(pmath_is_mpfloat(x)) {
     pmath_mpfloat_t tmp = _pmath_create_mp_float(PMATH_MP_ERROR_PREC);
     
-    if(!pmath_is_null(tmp)){
+    if(!pmath_is_null(tmp)) {
       pmath_mpfloat_t result;
       double accmant, acc, prec;
       long accexp;
@@ -45,19 +45,19 @@ PMATH_PRIVATE pmath_t builtin_arctan(pmath_expr_t expr){
         PMATH_AS_MP_ERROR(tmp),
         PMATH_AS_MP_VALUE(x),
         MPFR_RNDD);
-      
+        
       mpfr_add_ui(
         PMATH_AS_MP_VALUE(tmp),
         PMATH_AS_MP_ERROR(tmp),
         1,
         MPFR_RNDD);
-      
+        
       mpfr_div(
         PMATH_AS_MP_ERROR(tmp),
         PMATH_AS_MP_ERROR(x),
         PMATH_AS_MP_VALUE(tmp),
         MPFR_RNDU);
-      
+        
       // Precision(y) = -Log(base, y) + Accuracy(y)
       accmant = mpfr_get_d_2exp(&accexp, PMATH_AS_MP_ERROR(tmp), MPFR_RNDN);
       acc  = -log2(fabs(accmant)) - accexp;
@@ -68,16 +68,16 @@ PMATH_PRIVATE pmath_t builtin_arctan(pmath_expr_t expr){
         prec = acc + pmath_max_extra_precision;
       else if(prec < 0)
         prec = 0;
-      
+        
       result = _pmath_create_mp_float((mpfr_prec_t)prec);
-      if(!pmath_is_null(result)){
+      if(!pmath_is_null(result)) {
         mpfr_swap(PMATH_AS_MP_ERROR(result), PMATH_AS_MP_ERROR(tmp));
         
         mpfr_atan(
-          PMATH_AS_MP_VALUE(result), 
+          PMATH_AS_MP_VALUE(result),
           PMATH_AS_MP_VALUE(x),
           MPFR_RNDN);
-        
+          
         pmath_unref(x);
         pmath_unref(expr);
         pmath_unref(tmp);
@@ -88,15 +88,15 @@ PMATH_PRIVATE pmath_t builtin_arctan(pmath_expr_t expr){
     }
   }
   
-  if(pmath_is_expr(x)){
+  if(pmath_is_expr(x)) {
     pmath_t head = pmath_expr_get_item(x, 0);
     pmath_unref(head);
     
-    if(pmath_same(head, PMATH_SYMBOL_TIMES)){
+    if(pmath_same(head, PMATH_SYMBOL_TIMES)) {
       pmath_t fst = pmath_expr_get_item(x, 1);
       
-      if(pmath_is_number(fst)){
-        if(pmath_number_sign(fst) < 0){
+      if(pmath_is_number(fst)) {
+        if(pmath_number_sign(fst) < 0) {
           x = pmath_expr_set_item(x, 1, pmath_number_neg(fst));
           expr = pmath_expr_set_item(expr, 1, x);
           return NEG(expr);
@@ -105,7 +105,7 @@ PMATH_PRIVATE pmath_t builtin_arctan(pmath_expr_t expr){
       
       pmath_unref(fst);
       
-      if(_pmath_is_imaginary(&x)){
+      if(_pmath_is_imaginary(&x)) {
         expr = pmath_expr_set_item(expr, 0, pmath_ref(PMATH_SYMBOL_ARCTANH));
         expr = pmath_expr_set_item(expr, 1, x);
         return TIMES(COMPLEX(INT(0), INT(1)), expr);
@@ -113,11 +113,11 @@ PMATH_PRIVATE pmath_t builtin_arctan(pmath_expr_t expr){
     }
   }
   
-  if(pmath_is_expr_of(x, PMATH_SYMBOL_TIMES)){
+  if(pmath_is_expr_of(x, PMATH_SYMBOL_TIMES)) {
     pmath_t fst = pmath_expr_get_item(x, 1);
     
-    if(pmath_is_number(fst)){
-      if(pmath_number_sign(fst) < 0){
+    if(pmath_is_number(fst)) {
+      if(pmath_number_sign(fst) < 0) {
         x = pmath_expr_set_item(x, 1, pmath_number_neg(fst));
         expr = pmath_expr_set_item(expr, 1, x);
         return TIMES(INT(-1), expr);
@@ -129,30 +129,30 @@ PMATH_PRIVATE pmath_t builtin_arctan(pmath_expr_t expr){
   
   xclass = _pmath_number_class(x);
   
-  if(xclass & PMATH_CLASS_ZERO){
+  if(xclass & PMATH_CLASS_ZERO) {
     pmath_unref(expr);
     return x;
   }
   
-  if(xclass & PMATH_CLASS_POSONE){
+  if(xclass & PMATH_CLASS_POSONE) {
     pmath_unref(expr);
     pmath_unref(x);
     return TIMES(QUOT(1, 4), pmath_ref(PMATH_SYMBOL_PI));
   }
   
-  if(xclass & PMATH_CLASS_NEG){
+  if(xclass & PMATH_CLASS_NEG) {
     x = NEG(x);
     expr = pmath_expr_set_item(expr, 1, x);
     return NEG(expr);
   }
   
-  if(xclass & PMATH_CLASS_INF){
+  if(xclass & PMATH_CLASS_INF) {
     pmath_t infdir = _pmath_directed_infinity_direction(x);
-    if(!pmath_same(infdir, PMATH_NULL)){
+    if(!pmath_same(infdir, PMATH_NULL)) {
       pmath_unref(expr);
       pmath_unref(x);
       
-      if(pmath_equals(infdir, PMATH_FROM_INT32(0))){
+      if(pmath_equals(infdir, PMATH_FROM_INT32(0))) {
         pmath_unref(infdir);
         return pmath_ref(PMATH_SYMBOL_UNDEFINED);
       }
@@ -161,11 +161,11 @@ PMATH_PRIVATE pmath_t builtin_arctan(pmath_expr_t expr){
     }
   }
   
-  if(xclass & PMATH_CLASS_COMPLEX){
+  if(xclass & PMATH_CLASS_COMPLEX) {
     pmath_t re = PMATH_NULL;
     pmath_t im = PMATH_NULL;
-    if(_pmath_re_im(x, &re, &im)){
-      if(pmath_equals(re, PMATH_FROM_INT32(0))){
+    if(_pmath_re_im(x, &re, &im)) {
+      if(pmath_equals(re, PMATH_FROM_INT32(0))) {
         pmath_unref(expr);
         pmath_unref(re);
         pmath_unref(x);
@@ -173,17 +173,17 @@ PMATH_PRIVATE pmath_t builtin_arctan(pmath_expr_t expr){
         return TIMES(COMPLEX(INT(0), INT(1)), FUNC(pmath_ref(PMATH_SYMBOL_ARCTANH), im));
       }
       
-      if(pmath_is_mpfloat(re) || pmath_is_mpfloat(im)){
+      if(pmath_is_mpfloat(re) || pmath_is_mpfloat(im)) {
         pmath_unref(re);
         pmath_unref(im);
         pmath_unref(expr);
         
         // ArcTan(x) = -1/2 I Log((1 + I x) / (1 - I x))
         expr = TIMES(
-          COMPLEX(INT(0), QUOT(-1, 2)),
-          LOG(DIV(
-            PLUS(INT(1), TIMES(COMPLEX(INT(0), INT( 1)), pmath_ref(x))),
-            PLUS(INT(1), TIMES(COMPLEX(INT(0), INT(-1)), pmath_ref(x))))));
+                 COMPLEX(INT(0), QUOT(-1, 2)),
+                 LOG(DIV(
+                       PLUS(INT(1), TIMES(COMPLEX(INT(0), INT(1)), pmath_ref(x))),
+                       PLUS(INT(1), TIMES(COMPLEX(INT(0), INT(-1)), pmath_ref(x))))));
         pmath_unref(x);
         return expr;
       }

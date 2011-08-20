@@ -7,11 +7,11 @@
 #include <pmath-builtins/all-symbols-private.h>
 
 
-PMATH_PRIVATE pmath_t builtin_timing(pmath_expr_t expr){
+PMATH_PRIVATE pmath_t builtin_timing(pmath_expr_t expr) {
   pmath_t obj;
   double start, end;
   
-  if(pmath_expr_length(expr) != 1){
+  if(pmath_expr_length(expr) != 1) {
     pmath_message_argxxx(pmath_expr_length(expr), 1, 1);
     return expr;
   }
@@ -23,7 +23,7 @@ PMATH_PRIVATE pmath_t builtin_timing(pmath_expr_t expr){
   end = pmath_tickcount();
   
   return pmath_expr_new_extended(
-    pmath_ref(PMATH_SYMBOL_LIST), 2,
-    PMATH_FROM_DOUBLE(end - start),
-    obj);
+           pmath_ref(PMATH_SYMBOL_LIST), 2,
+           PMATH_FROM_DOUBLE(end - start),
+           obj);
 }

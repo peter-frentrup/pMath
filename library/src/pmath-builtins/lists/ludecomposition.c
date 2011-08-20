@@ -11,7 +11,7 @@
 #include <pmath-builtins/lists-private.h>
 
 
-static pmath_bool_t is_zero(pmath_t x){
+static pmath_bool_t is_zero(pmath_t x) {
   return pmath_is_number(x) && pmath_number_sign(x) == 0;
 }
 
@@ -22,7 +22,7 @@ void _pmath_matrix_is_triangular( // in ludecomposition
   pmath_bool_t *diagonal_has_nonzeros,
   pmath_bool_t *diagonal_has_zeros,
   pmath_bool_t *upper_has_nonzeros
-){
+) {
   const size_t N = pmath_expr_length(m);
   size_t i, j;
   int diag;
@@ -32,16 +32,16 @@ void _pmath_matrix_is_triangular( // in ludecomposition
   
   diag = 0;
   
-  for(i = N;i > 0;--i){
+  for(i = N; i > 0; --i) {
     pmath_t row  = pmath_expr_get_item(m, i);
     pmath_t item = pmath_expr_get_item(row, i);
     pmath_unref(row);
     
     if(is_zero(item))
-      diag|= 2;
+      diag |= 2;
     else
-      diag|= 1;
-    
+      diag |= 1;
+      
     pmath_unref(item);
     if(diag == 3)
       break;
@@ -51,13 +51,13 @@ void _pmath_matrix_is_triangular( // in ludecomposition
   *diagonal_has_zeros    = diag & 2;
   
   // lower:
-  for(i = N;i > 1;--i){
+  for(i = N; i > 1; --i) {
     pmath_t row = pmath_expr_get_item(m, i);
     
-    for(j = i-1;j > 0;--j){
+    for(j = i - 1; j > 0; --j) {
       pmath_t item = pmath_expr_get_item(row, j);
       
-      if(!is_zero(item)){
+      if(!is_zero(item)) {
         pmath_unref(row);
         pmath_unref(item);
         *lower_has_nonzeros = TRUE;
@@ -69,14 +69,14 @@ void _pmath_matrix_is_triangular( // in ludecomposition
     pmath_unref(row);
   }
   
- UPPER:
-  for(i = N-1;i > 0;--i){
+UPPER:
+  for(i = N - 1; i > 0; --i) {
     pmath_t row = pmath_expr_get_item(m, i);
     
-    for(j = i+1;j <= N;++j){
+    for(j = i + 1; j <= N; ++j) {
       pmath_t item = pmath_expr_get_item(row, j);
       
-      if(!is_zero(item)){
+      if(!is_zero(item)) {
         pmath_unref(row);
         pmath_unref(item);
         *upper_has_nonzeros = TRUE;
@@ -90,10 +90,10 @@ void _pmath_matrix_is_triangular( // in ludecomposition
 }
 
 
-static pmath_bool_t greater(pmath_t a, pmath_t b){
+static pmath_bool_t greater(pmath_t a, pmath_t b) {
   pmath_t tmp;
   
-  if(pmath_is_number(a) && pmath_is_number(b)){
+  if(pmath_is_number(a) && pmath_is_number(b)) {
     return pmath_compare(a, b) > 0;
   }
   
@@ -102,8 +102,8 @@ static pmath_bool_t greater(pmath_t a, pmath_t b){
   return pmath_same(tmp, PMATH_SYMBOL_TRUE);
 }
 
-static pmath_t calc_abs(pmath_t x){ // will be freed
-  if(pmath_is_number(x)){
+static pmath_t calc_abs(pmath_t x) { // will be freed
+  if(pmath_is_number(x)) {
     if(pmath_number_sign(x) < 0)
       return pmath_number_neg(x);
     return x;
@@ -114,10 +114,10 @@ static pmath_t calc_abs(pmath_t x){ // will be freed
 
 PMATH_PRIVATE
 pmath_t _pmath_matrix_get(
-  pmath_expr_t matrix, 
-  size_t       r, 
+  pmath_expr_t matrix,
+  size_t       r,
   size_t       c
-){
+) {
   pmath_t row  = pmath_expr_get_item(matrix, r);
   pmath_t item = pmath_expr_get_item(row, c);
   
@@ -125,13 +125,13 @@ pmath_t _pmath_matrix_get(
   return item;
 }
 
-PMATH_PRIVATE 
+PMATH_PRIVATE
 pmath_expr_t _pmath_matrix_set( // return: new matrix
   pmath_expr_t matrix, // will be freed
-  size_t       r, 
-  size_t       c, 
+  size_t       r,
+  size_t       c,
   pmath_t      value   // will be freed
-){
+) {
   pmath_t row = pmath_expr_extract_item(matrix, r);
   row         = pmath_expr_set_item(row,    c, value);
   return        pmath_expr_set_item(matrix, r, row);
@@ -148,26 +148,26 @@ static int numeric_ludecomp(
   size_t       *indx,
   pmath_bool_t  sing_fast_exit,
   pmath_t       tiny
-){
+) {
   pmath_expr_t A = *matrix;
   const size_t n = pmath_expr_length(*matrix);
-  size_t i,j,k,imax = 1;
+  size_t i, j, k, imax = 1;
   int sign = 1;
   pmath_expr_t vv = pmath_expr_new(PMATH_NULL, n);
   
-  indx = indx-1; // indx[1] ... indx[n]
+  indx = indx - 1; // indx[1] ... indx[n]
   
-  for(i = 1;i <= n;++i){
+  for(i = 1; i <= n; ++i) {
     pmath_t big = PMATH_FROM_INT32(0);
-    for(j = 1;j <= n;++j){
-      if(is_zero(big)){
+    for(j = 1; j <= n; ++j) {
+      if(is_zero(big)) {
         pmath_unref(big);
-        big = calc_abs(_pmath_matrix_get(A, i,j));
+        big = calc_abs(_pmath_matrix_get(A, i, j));
       }
-      else{
-        pmath_t tmp = calc_abs(_pmath_matrix_get(A, i,j));
+      else {
+        pmath_t tmp = calc_abs(_pmath_matrix_get(A, i, j));
         
-        if(greater(tmp, big)){
+        if(greater(tmp, big)) {
           pmath_unref(big);
           big = tmp;
         }
@@ -176,12 +176,12 @@ static int numeric_ludecomp(
       }
     }
     
-    if(is_zero(big)){
+    if(is_zero(big)) {
       pmath_unref(big);
-      if(sing_fast_exit){
+      if(sing_fast_exit) {
         *matrix = A;
         pmath_unref(vv);
-        for(j = n;j > 0;--j)
+        for(j = n; j > 0; --j)
           indx[j] = j;
         return 0;
       }
@@ -192,44 +192,44 @@ static int numeric_ludecomp(
     vv = pmath_expr_set_item(vv, i, pmath_evaluate(INV(big)));
   }
   
-  for(j = 1;j <= n;++j){
-    for(i = 1;i < j;++i){
-      pmath_t sum = _pmath_matrix_get(A, i,j);
-      for(k = 1;k < i;++k){
+  for(j = 1; j <= n; ++j) {
+    for(i = 1; i < j; ++i) {
+      pmath_t sum = _pmath_matrix_get(A, i, j);
+      for(k = 1; k < i; ++k) {
         sum = pmath_evaluate(
-          PLUS(
-            sum, 
-            TIMES3(
-              INT(-1), 
-              _pmath_matrix_get(A, i,k),
-              _pmath_matrix_get(A, k,j))));
+                PLUS(
+                  sum,
+                  TIMES3(
+                    INT(-1),
+                    _pmath_matrix_get(A, i, k),
+                    _pmath_matrix_get(A, k, j))));
       }
       A = _pmath_matrix_set(A, i, j, sum);
     }
     
     {
       pmath_t big = PMATH_FROM_INT32(0);
-      for(i = j;i <= n;++i){
-        pmath_t sum = _pmath_matrix_get(A, i,j);
-        for(k = 1;k < j;++k){
+      for(i = j; i <= n; ++i) {
+        pmath_t sum = _pmath_matrix_get(A, i, j);
+        for(k = 1; k < j; ++k) {
           sum = pmath_evaluate(
-            PLUS(
-              sum, 
-              TIMES3(
-                INT(-1), 
-                _pmath_matrix_get(A, i,k), 
-                _pmath_matrix_get(A, k,j))));
+                  PLUS(
+                    sum,
+                    TIMES3(
+                      INT(-1),
+                      _pmath_matrix_get(A, i, k),
+                      _pmath_matrix_get(A, k, j))));
         }
         A = _pmath_matrix_set(A, i, j, pmath_ref(sum));
         
-        if(is_zero(big)){
+        if(is_zero(big)) {
           pmath_unref(big);
           big = pmath_evaluate(TIMES(pmath_expr_get_item(vv, i), ABS(sum)));
           imax = i;
         }
-        else{
+        else {
           sum = pmath_evaluate(TIMES(pmath_expr_get_item(vv, i), ABS(sum)));
-          if(greater(sum, big)){
+          if(greater(sum, big)) {
             pmath_unref(big);
             big = sum;
             imax = i;
@@ -241,7 +241,7 @@ static int numeric_ludecomp(
       pmath_unref(big);
     }
     
-    if(j != imax){
+    if(j != imax) {
       pmath_t temp = pmath_expr_get_item(A, j);
       A = pmath_expr_set_item(A, j, pmath_expr_get_item(A, imax));
       A = pmath_expr_set_item(A, imax, temp);
@@ -253,8 +253,8 @@ static int numeric_ludecomp(
     indx[j] = imax;
     
     {
-      pmath_t dum = _pmath_matrix_get(A, j,j);
-      if(is_zero(dum)){
+      pmath_t dum = _pmath_matrix_get(A, j, j);
+      if(is_zero(dum)) {
         pmath_unref(dum);
 //        if(sing_fast_exit){
 //          pmath_unref(vv);
@@ -264,16 +264,16 @@ static int numeric_ludecomp(
 //          return 0;
 //        }
 //        else{
-          dum = pmath_ref(tiny);
-          A = _pmath_matrix_set(A, j,j, pmath_ref(dum));
+        dum = pmath_ref(tiny);
+        A = _pmath_matrix_set(A, j, j, pmath_ref(dum));
 //        }
       }
       
-      if(j != n){
+      if(j != n) {
         dum = pmath_evaluate(INV(dum));
-        for(i = j+1;i <= n;++i){
-          A = _pmath_matrix_set(A, i,j, 
-            pmath_evaluate(TIMES(_pmath_matrix_get(A, i,j), pmath_ref(dum))));
+        for(i = j + 1; i <= n; ++i) {
+          A = _pmath_matrix_set(A, i, j,
+                                pmath_evaluate(TIMES(_pmath_matrix_get(A, i, j), pmath_ref(dum))));
         }
       }
       pmath_unref(dum);
@@ -292,30 +292,30 @@ static int symbolic_ludecomp(
   pmath_expr_t *matrix,
   size_t       *indx,
   pmath_bool_t  sing_fast_exit
-){
+) {
   pmath_expr_t A = *matrix;
   const size_t n = pmath_expr_length(*matrix);
-  size_t i,imax,j,k;
+  size_t i, imax, j, k;
   int sign = 1;
   
-  indx = indx-1; // indx[1] ... indx[n]
+  indx = indx - 1; // indx[1] ... indx[n]
   
-  if(sing_fast_exit){
-    for(i = 1;i <= n;++i){
+  if(sing_fast_exit) {
+    for(i = 1; i <= n; ++i) {
       pmath_t big = PMATH_FROM_INT32(0);
-      for(j = 1;j <= n;++j){
-        if(is_zero(big)){
+      for(j = 1; j <= n; ++j) {
+        if(is_zero(big)) {
           pmath_unref(big);
-          big = _pmath_matrix_get(A, i,j);
+          big = _pmath_matrix_get(A, i, j);
         }
         else
           break;
       }
       
-      if(is_zero(big)){
+      if(is_zero(big)) {
         *matrix = A;
         pmath_unref(big);
-        for(j = n;j > 0;--j)
+        for(j = n; j > 0; --j)
           indx[j] = j;
         return 0;
       }
@@ -324,17 +324,17 @@ static int symbolic_ludecomp(
     }
   }
   
-  for(j = 1;j <= n;++j){
-    for(i = 1;i < j;++i){
-      pmath_t sum = _pmath_matrix_get(A, i,j);
-      for(k = 1;k < i;++k){
+  for(j = 1; j <= n; ++j) {
+    for(i = 1; i < j; ++i) {
+      pmath_t sum = _pmath_matrix_get(A, i, j);
+      for(k = 1; k < i; ++k) {
         sum = pmath_evaluate(
-          PLUS(
-            sum, 
-            TIMES3(
-              INT(-1), 
-              _pmath_matrix_get(A, i,k), 
-              _pmath_matrix_get(A, k,j))));
+                PLUS(
+                  sum,
+                  TIMES3(
+                    INT(-1),
+                    _pmath_matrix_get(A, i, k),
+                    _pmath_matrix_get(A, k, j))));
       }
       A = _pmath_matrix_set(A, i, j, sum);
     }
@@ -342,20 +342,20 @@ static int symbolic_ludecomp(
     {
       imax = j;
 //      pmath_t big = PMATH_FROM_INT32(0);
-      for(i = j;i <= n;++i){
-        pmath_t sum = _pmath_matrix_get(A, i,j);
-        for(k = 1;k < j;++k){
+      for(i = j; i <= n; ++i) {
+        pmath_t sum = _pmath_matrix_get(A, i, j);
+        for(k = 1; k < j; ++k) {
           sum = pmath_evaluate(
-            PLUS(
-              sum, 
-              TIMES3(
-                INT(-1), 
-                _pmath_matrix_get(A, i,k), 
-                _pmath_matrix_get(A, k,j))));
+                  PLUS(
+                    sum,
+                    TIMES3(
+                      INT(-1),
+                      _pmath_matrix_get(A, i, k),
+                      _pmath_matrix_get(A, k, j))));
         }
         A = _pmath_matrix_set(A, i, j, pmath_ref(sum));
         
-        if(imax == j && !is_zero(sum)){
+        if(imax == j && !is_zero(sum)) {
           imax = i;
         }
         pmath_unref(sum);
@@ -370,7 +370,7 @@ static int symbolic_ludecomp(
 //      pmath_unref(big);
     }
     
-    if(j != imax){
+    if(j != imax) {
       pmath_t temp = pmath_expr_get_item(A, j);
       A = pmath_expr_set_item(A, j, pmath_expr_get_item(A, imax));
       A = pmath_expr_set_item(A, imax, temp);
@@ -380,21 +380,21 @@ static int symbolic_ludecomp(
     indx[j] = imax;
     
     {
-      pmath_t dum = _pmath_matrix_get(A, j,j);
-      if(is_zero(dum)){
+      pmath_t dum = _pmath_matrix_get(A, j, j);
+      if(is_zero(dum)) {
         pmath_unref(dum);
         *matrix = A;
-        for(++j;j <= n;++j)
+        for(++j; j <= n; ++j)
           indx[j] = j;
         return 0;
       }
       
-      if(j != n){
+      if(j != n) {
         dum = pmath_evaluate(INV(dum));
-        for(i = j+1;i <= n;++i){
+        for(i = j + 1; i <= n; ++i) {
           A = _pmath_matrix_set(
-            A, i,j, 
-            pmath_evaluate(TIMES(_pmath_matrix_get(A, i,j), pmath_ref(dum))));
+                A, i, j,
+                pmath_evaluate(TIMES(_pmath_matrix_get(A, i, j), pmath_ref(dum))));
         }
       }
       pmath_unref(dum);
@@ -410,33 +410,33 @@ int _pmath_matrix_ludecomp(
   pmath_expr_t *matrix,
   size_t       *indx,
   pmath_bool_t  sing_fast_exit
-){
+) {
   double prec;
   pmath_bool_t lower_nz, diag_nz, diag_z, upper_nz;
   
   //{ fast paths for triagonal matrices ...
   _pmath_matrix_is_triangular(*matrix, &lower_nz, &diag_nz, &diag_z, &upper_nz);
-  if(!lower_nz){ // upper triagonal matrix
+  if(!lower_nz) { // upper triagonal matrix
     size_t i;
-    for(i = pmath_expr_length(*matrix);i > 0;--i)
+    for(i = pmath_expr_length(*matrix); i > 0; --i)
       indx[i-1] = i;
-    
+      
     return diag_z ? 0 : 1;
   }
   
-  if(!upper_nz){ // lower triagonal matrix
+  if(!upper_nz) { // lower triagonal matrix
     size_t i;
-    if(diag_z){ // 0 on diagonal => singular
-      for(i = pmath_expr_length(*matrix);i > 0;--i)
+    if(diag_z) { // 0 on diagonal => singular
+      for(i = pmath_expr_length(*matrix); i > 0; --i)
         indx[i-1] = i;
-      
+        
       return 0;
     }
     
-    for(i = pmath_expr_length(*matrix);i > 0;--i){
+    for(i = pmath_expr_length(*matrix); i > 0; --i) {
       pmath_t item = _pmath_matrix_get(*matrix, i, i);
       
-      if(pmath_compare(item, PMATH_FROM_INT32(1)) != 0){
+      if(pmath_compare(item, PMATH_FROM_INT32(1)) != 0) {
         pmath_unref(item);
         goto NO_LOWER_DIAG1;
       }
@@ -445,27 +445,27 @@ int _pmath_matrix_ludecomp(
     }
     
     // diag = (1,1,...,1)
-    for(i = pmath_expr_length(*matrix);i > 0;--i)
+    for(i = pmath_expr_length(*matrix); i > 0; --i)
       indx[i-1] = i;
     return 1;
     
-   NO_LOWER_DIAG1: ; // diag != (1,1,...,1)
+  NO_LOWER_DIAG1: ; // diag != (1,1,...,1)
   }
   //} ... fast paths for triagonal matrices
   
   prec = pmath_precision(pmath_ref(*matrix));
   
-  if(isfinite(prec)){
+  if(isfinite(prec)) {
     pmath_t tiny = pmath_evaluate(
-      POW(INT(2), pmath_set_precision(PMATH_FROM_DOUBLE(-prec), prec)));
-    
+                     POW(INT(2), pmath_set_precision(PMATH_FROM_DOUBLE(-prec), prec)));
+                     
     int sgn = numeric_ludecomp(matrix, indx, sing_fast_exit, tiny);
     
     pmath_unref(tiny);
     return sgn;
   }
   
-  if(prec < 0){ // -HUGE_VAL = MachinePrecision
+  if(prec < 0) { // -HUGE_VAL = MachinePrecision
     pmath_t tiny = PMATH_FROM_DOUBLE(DBL_EPSILON);
     
     int sgn = numeric_ludecomp(matrix, indx, sing_fast_exit, tiny);
@@ -478,46 +478,46 @@ int _pmath_matrix_ludecomp(
 }
 
 
-PMATH_PRIVATE pmath_t builtin_ludecomposition(pmath_expr_t expr){
-/* {LU, Pvec, 1} := LUDecomposition(A)
- */
+PMATH_PRIVATE pmath_t builtin_ludecomposition(pmath_expr_t expr) {
+  /* {LU, Pvec, 1} := LUDecomposition(A)
+   */
   pmath_t matrix, perm;
   size_t rows, cols;
   size_t *indx;
   int sgn;
   
-  if(pmath_expr_length(expr) != 1){
+  if(pmath_expr_length(expr) != 1) {
     pmath_message_argxxx(pmath_expr_length(expr), 1, 1);
     return expr;
   }
   
   matrix = pmath_expr_get_item(expr, 1);
   if(!_pmath_is_matrix(matrix, &rows, &cols, TRUE)
-  || rows != cols
-  || rows == 0){
+      || rows != cols
+      || rows == 0) {
     pmath_message(PMATH_NULL, "matsq", 2, matrix, PMATH_FROM_INT32(1));
     return expr;
   }
   
   pmath_unref(expr);
   indx = pmath_mem_alloc(sizeof(size_t) * rows);
-  if(!indx){
+  if(!indx) {
     pmath_unref(matrix);
     return PMATH_NULL;
   }
   
   sgn = _pmath_matrix_ludecomp(&matrix, indx, FALSE);
-  if(sgn == 0){
+  if(sgn == 0) {
     pmath_message(PMATH_NULL, "sing", 1, pmath_ref(matrix));
   }
   
   perm = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), rows);
-  for(cols = rows;cols > 0;--cols){
+  for(cols = rows; cols > 0; --cols) {
     perm = pmath_expr_set_item(perm, cols, pmath_integer_new_uiptr(cols));
   }
   
-  for(cols = 1;cols <= rows;++cols){
-    if(indx[cols-1] != cols){
+  for(cols = 1; cols <= rows; ++cols) {
+    if(indx[cols-1] != cols) {
       pmath_t a = pmath_expr_get_item(perm, cols);
       pmath_t b = pmath_expr_get_item(perm, indx[cols-1]);
       perm      = pmath_expr_set_item(perm, cols,         b);

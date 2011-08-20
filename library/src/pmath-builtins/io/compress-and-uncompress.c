@@ -6,17 +6,17 @@
 #include <pmath-builtins/all-symbols-private.h>
 
 
-struct buffer_manipulate_info_t{
+struct buffer_manipulate_info_t {
   pmath_string_t string;
   pmath_bool_t   success;
 };
-  
 
-PMATH_PRIVATE pmath_t builtin_compress(pmath_expr_t expr){
+
+PMATH_PRIVATE pmath_t builtin_compress(pmath_expr_t expr) {
   pmath_t obj, bfile, zfile, tfile;
   pmath_serialize_error_t err;
   
-  if(pmath_expr_length(expr) != 1){
+  if(pmath_expr_length(expr) != 1) {
     pmath_message_argxxx(pmath_expr_length(expr), 1, 1);
     return expr;
   }
@@ -25,11 +25,11 @@ PMATH_PRIVATE pmath_t builtin_compress(pmath_expr_t expr){
   
   pmath_file_create_mixed_buffer("base85", &tfile, &bfile);
   zfile = pmath_file_create_compressor(pmath_ref(bfile));
-  err = pmath_serialize(zfile, obj); 
+  err = pmath_serialize(zfile, obj);
   pmath_file_close(zfile);
   pmath_file_close(bfile);
   
-  if(err != PMATH_SERIALIZE_OK){
+  if(err != PMATH_SERIALIZE_OK) {
     return expr;
   }
   
@@ -40,17 +40,17 @@ PMATH_PRIVATE pmath_t builtin_compress(pmath_expr_t expr){
   return expr;
 }
 
-PMATH_PRIVATE pmath_t builtin_uncompress(pmath_expr_t expr){
+PMATH_PRIVATE pmath_t builtin_uncompress(pmath_expr_t expr) {
   pmath_t obj, str, bfile, tfile, zfile;
   pmath_serialize_error_t err;
   
-  if(pmath_expr_length(expr) != 1){
+  if(pmath_expr_length(expr) != 1) {
     pmath_message_argxxx(pmath_expr_length(expr), 1, 1);
     return expr;
   }
   
   str = pmath_expr_get_item(expr, 1);
-  if(!pmath_is_string(str)){
+  if(!pmath_is_string(str)) {
     pmath_message(PMATH_NULL, "str", 2, PMATH_FROM_INT32(1), pmath_ref(expr));
     pmath_unref(str);
     return expr;
@@ -66,7 +66,7 @@ PMATH_PRIVATE pmath_t builtin_uncompress(pmath_expr_t expr){
   pmath_file_close(zfile);
   pmath_file_close(bfile);
   
-  if(err != PMATH_SERIALIZE_OK){
+  if(err != PMATH_SERIALIZE_OK) {
     if(err != PMATH_SERIALIZE_NO_MEMORY)
       pmath_message(PMATH_NULL, "corrupt", 1, str);
     pmath_unref(obj);

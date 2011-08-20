@@ -2,7 +2,7 @@
 #define __PMATH_CORE__EXPRESSIONS_PRIVATE_H__
 
 #ifndef BUILDING_PMATH
-  #error This header file is not part of the public pMath API
+#error This header file is not part of the public pMath API
 #endif
 
 #include <pmath-core/objects-private.h>
@@ -10,7 +10,7 @@
 
 #define PMATH_EXPRESSION_FLATTEN_MAX_DEPTH   (8)
 
-struct _pmath_expr_t{
+struct _pmath_expr_t {
   struct _pmath_gc_t   inherited;
   size_t               length;
   pmath_t              items[1];
@@ -21,21 +21,21 @@ size_t _pmath_expr_find_sorted(
   pmath_expr_t sorted_expr, // wont be freed
   pmath_t      item);       // wont be freed
 
-PMATH_PRIVATE 
+PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_expr_t _pmath_expr_sort_ex(
-  pmath_expr_t expr, // will be freed
-  int(*cmp)(pmath_t*, pmath_t*));
+  pmath_expr_t   expr, // will be freed
+  int          (*cmp)(pmath_t*, pmath_t*));
 
-PMATH_PRIVATE 
+PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_expr_t _pmath_expr_sort_ex_context(
-  pmath_expr_t expr, // will be freed
-  int(*cmp)(void*, pmath_t*, pmath_t*),
-  void *context);
+  pmath_expr_t   expr, // will be freed
+  int          (*cmp)(void*, pmath_t*, pmath_t*),
+  void          *context);
 
 // expr=f(args): thread f over any expression with head h in the first coun args.
-PMATH_PRIVATE 
+PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_expr_t _pmath_expr_thread(
   pmath_expr_t  expr, // will be freed
@@ -44,19 +44,19 @@ pmath_expr_t _pmath_expr_thread(
   size_t        end,
   pmath_bool_t *error_message);
 
-PMATH_PRIVATE 
+PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_t _pmath_expr_shrink_associative(
   pmath_expr_t  expr,
   pmath_t       magic_rem);
 
-PMATH_PRIVATE 
+PMATH_PRIVATE
 pmath_bool_t _pmath_expr_is_updated(pmath_expr_t expr);
 
-PMATH_PRIVATE 
+PMATH_PRIVATE
 _pmath_timer_t _pmath_expr_last_change(pmath_expr_t expr);
 
-PMATH_PRIVATE 
+PMATH_PRIVATE
 void _pmath_expr_update(pmath_expr_t expr);
 
 PMATH_PRIVATE

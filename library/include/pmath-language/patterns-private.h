@@ -2,7 +2,7 @@
 #define __PMATH_LANGUAGE__PATTERNS_PRIVATE_H__
 
 #ifndef BUILDING_PMATH
-  #error This header file is not part of the public pMath API
+#error This header file is not part of the public pMath API
 #endif
 
 #include <pmath-core/expressions.h>
@@ -15,7 +15,7 @@ extern PMATH_PRIVATE pmath_t _pmath_object_singlematch; /* SingleMatch() readonl
 extern PMATH_PRIVATE pmath_t _pmath_object_multimatch; /* Repeated(SingleMatch(),1..) readonly */
 extern PMATH_PRIVATE pmath_t _pmath_object_zeromultimatch; /* Repeated(SingleMatch(),0..) readonly */
 
-PMATH_PRIVATE 
+PMATH_PRIVATE
 int _pmath_pattern_compare(
   pmath_t pat1,  // wont be freed
   pmath_t pat2); // wont be freed
@@ -25,25 +25,25 @@ pmath_bool_t _pmath_rhs_condition(
   pmath_t  *rhs,
   pmath_bool_t  adjust);
 
-PMATH_PRIVATE 
+PMATH_PRIVATE
 pmath_bool_t _pmath_pattern_is_const(pmath_t pattern);
 
-typedef struct{
+typedef struct {
   pmath_t parent_pat_head; // wont be freed
   pmath_t pat;             // wont be freed
   
   uint8_t associative;
-}_pmath_pattern_analyse_input_t;
+} _pmath_pattern_analyse_input_t;
 
-typedef struct{
+typedef struct {
   size_t min;
   size_t max;
   
   uint8_t no_sequence; // can only be TRUE if input.associative is TRUE
   uint8_t longest;
-}_pmath_pattern_analyse_output_t;
+} _pmath_pattern_analyse_output_t;
 
-PMATH_PRIVATE 
+PMATH_PRIVATE
 void _pmath_pattern_analyse(
   _pmath_pattern_analyse_input_t  *input,
   _pmath_pattern_analyse_output_t *output);
@@ -65,5 +65,5 @@ PMATH_PRIVATE pmath_t _pmath_replace_local(
   pmath_t  object, // will be freed
   pmath_t  name,
   pmath_t  value);
-  
+
 #endif /* __PMATH_LANGUAGE__PATTERNS_PRIVATE_H__ */

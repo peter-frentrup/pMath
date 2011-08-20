@@ -4,16 +4,16 @@
 
 #include <pmath-builtins/all-symbols-private.h>
 
-PMATH_PRIVATE pmath_t builtin_symbolname(pmath_expr_t expr){
+PMATH_PRIVATE pmath_t builtin_symbolname(pmath_expr_t expr) {
   pmath_t sym;
   
-  if(pmath_expr_length(expr) != 1){
+  if(pmath_expr_length(expr) != 1) {
     pmath_message_argxxx(pmath_expr_length(expr), 1, 1);
     return expr;
   }
   
   sym = pmath_expr_get_item(expr, 1);
-  if(pmath_is_symbol(sym)){
+  if(pmath_is_symbol(sym)) {
     pmath_string_t name = pmath_symbol_name(sym);
     const uint16_t *buf = pmath_string_buffer(&name);
     int             len = pmath_string_length(name);
@@ -24,7 +24,7 @@ PMATH_PRIVATE pmath_t builtin_symbolname(pmath_expr_t expr){
     --len;
     while(len > 0 && buf[len] != '`')
       --len;
-    
+      
     return pmath_string_part(name, len + 1, -1);
   }
   

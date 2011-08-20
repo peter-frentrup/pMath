@@ -2,7 +2,7 @@
 #define __PMATH_UTIL__INCREMENTAL_HASH_PRIVATE_H__
 
 #ifndef BUILDING_PMATH
-  #error This header file is not part of the public pMath API
+#error This header file is not part of the public pMath API
 #endif
 
 #include <pmath-config.h>
@@ -10,10 +10,10 @@
 #include <stdlib.h>
 
 
-PMATH_PRIVATE 
+PMATH_PRIVATE
 unsigned int incremental_hash(
-  const void   *data, 
-  size_t        len, 
+  const void   *data,
+  size_t        len,
   unsigned int  hash);
 
 #endif

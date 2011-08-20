@@ -8,7 +8,7 @@
 #include <pmath-builtins/control/definitions-private.h>
 
 
-static pmath_t get_definition_and_clear(pmath_symbol_t sym){
+static pmath_t get_definition_and_clear(pmath_symbol_t sym) {
   pmath_t lhs, rhs;
   pmath_symbol_attributes_t att = pmath_symbol_get_attributes(sym);
   
@@ -21,9 +21,9 @@ static pmath_t get_definition_and_clear(pmath_symbol_t sym){
   pmath_emit(
     pmath_expr_new_extended(
       pmath_ref(PMATH_SYMBOL_UNPROTECT), 1,
-      pmath_ref(sym)), 
+      pmath_ref(sym)),
     PMATH_NULL);
-  
+    
   lhs = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_DEFAULTRULES), 1, pmath_ref(sym));
   rhs = pmath_evaluate(pmath_ref(lhs));
   pmath_emit(pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_ASSIGN), 2, lhs, rhs), PMATH_NULL);
@@ -52,13 +52,13 @@ static pmath_t get_definition_and_clear(pmath_symbol_t sym){
   rhs = pmath_evaluate(pmath_ref(lhs));
   pmath_emit(pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_ASSIGN), 2, lhs, rhs), PMATH_NULL);
   
-  if(att & PMATH_SYMBOL_ATTRIBUTE_PROTECTED){
+  if(att & PMATH_SYMBOL_ATTRIBUTE_PROTECTED) {
     pmath_emit(
       pmath_expr_new_extended(
         pmath_ref(PMATH_SYMBOL_PROTECT), 1,
-        pmath_ref(sym)), 
+        pmath_ref(sym)),
       PMATH_NULL);
-    
+      
     pmath_symbol_set_attributes(sym, att & (~PMATH_SYMBOL_ATTRIBUTE_PROTECTED));
   }
   
@@ -69,38 +69,38 @@ static pmath_t get_definition_and_clear(pmath_symbol_t sym){
 }
 
 
-PMATH_PRIVATE pmath_t builtin_block(pmath_expr_t expr){
-/* Block({x1:= v1, x2:= v2, x3, ...}, body)
- */
+PMATH_PRIVATE pmath_t builtin_block(pmath_expr_t expr) {
+  /* Block({x1:= v1, x2:= v2, x3, ...}, body)
+   */
   pmath_t vars, body, oldvals, ex;
   size_t i;
   
-  if(pmath_expr_length(expr) != 2){
+  if(pmath_expr_length(expr) != 2) {
     pmath_message_argxxx(pmath_expr_length(expr), 2, 2);
     return expr;
   }
   
   vars = pmath_expr_get_item(expr, 1);
-  for(i = 1;i <= pmath_expr_length(vars);++i){
+  for(i = 1; i <= pmath_expr_length(vars); ++i) {
     pmath_t def = pmath_expr_get_item(vars, i);
     
-    if(pmath_is_symbol(def)){
+    if(pmath_is_symbol(def)) {
       pmath_unref(def);
       continue;
     }
     
     if(pmath_is_expr_of_len(def, PMATH_SYMBOL_ASSIGNDELAYED, 2)
-    || pmath_is_expr_of_len(def, PMATH_SYMBOL_ASSIGN, 2)){
+        || pmath_is_expr_of_len(def, PMATH_SYMBOL_ASSIGN, 2)) {
       pmath_t lhs = pmath_expr_get_item(def, 1);
       
-      if(pmath_is_symbol(lhs)){
+      if(pmath_is_symbol(lhs)) {
         pmath_unref(def);
         pmath_unref(lhs);
         continue;
       }
       
     }
-      
+    
     pmath_message(PMATH_NULL, "lvsym", 2, vars, def);
     return expr;
   }
@@ -108,10 +108,10 @@ PMATH_PRIVATE pmath_t builtin_block(pmath_expr_t expr){
   body = pmath_expr_get_item(expr, 2);
   pmath_unref(expr);
   
-  for(i = 1;i <= pmath_expr_length(vars);++i){
+  for(i = 1; i <= pmath_expr_length(vars); ++i) {
     pmath_t def = pmath_expr_extract_item(vars, i);
     
-    if(pmath_is_expr_of_len(def, PMATH_SYMBOL_ASSIGN, 2)){
+    if(pmath_is_expr_of_len(def, PMATH_SYMBOL_ASSIGN, 2)) {
       pmath_t val = pmath_expr_extract_item(def, 2);
       
       val = pmath_evaluate(val);
@@ -123,10 +123,10 @@ PMATH_PRIVATE pmath_t builtin_block(pmath_expr_t expr){
   }
   
   oldvals = pmath_ref(vars);
-  for(i = pmath_expr_length(vars);i > 0;--i){
+  for(i = pmath_expr_length(vars); i > 0; --i) {
     pmath_t sym = pmath_expr_get_item(vars, i);
     
-    if(!pmath_is_symbol(sym)){
+    if(!pmath_is_symbol(sym)) {
       pmath_t tmp = sym;
       
       assert(pmath_is_expr(tmp));
@@ -148,6 +148,6 @@ PMATH_PRIVATE pmath_t builtin_block(pmath_expr_t expr){
   pmath_unref(pmath_evaluate(oldvals));
   if(!pmath_same(ex, PMATH_UNDEFINED))
     pmath_throw(ex);
-  
+    
   return body;
 }

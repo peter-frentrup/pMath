@@ -8,7 +8,7 @@
 
 
 /**\addtogroup parser
-   
+
    @{
  */
 
@@ -47,7 +47,7 @@ typedef enum {
   PMATH_TOK_COMMENTEND
 } pmath_token_t;
 
-enum{
+enum {
   PMATH_PREC_ANY =       0,
   PMATH_PREC_SEQ =      10,
   PMATH_PREC_EVAL =     20,
@@ -85,7 +85,7 @@ enum{
   PMATH_PREC_REPEAT =  340,
   PMATH_PREC_TEST =    350,
   PMATH_PREC_INC =     360,
-
+  
   PMATH_PREC_CALL =    400,
   PMATH_PREC_DIFF =    410,
   PMATH_PREC_PRIM =   1000
@@ -109,24 +109,24 @@ enum{
 /**\brief Analyse a token.
    \param str A UTF16-string.
    \param len The length (in uint16_t-s) of the token \a str.
-   \param prec Optional address, where to store the default operator precedence 
+   \param prec Optional address, where to store the default operator precedence
                for the token.
    \return The associated token class.
  */
 PMATH_API pmath_token_t pmath_token_analyse(
-  const uint16_t *str, 
+  const uint16_t *str,
   int             len,
   int            *prec);
 
 /**\brief Give the prefix oprator precedence for a token
    \param str A UTF16-string.
    \param len The length (in uint16_t-s) of the token \a str.
-   \param defprec The default operator precedence as given by 
+   \param defprec The default operator precedence as given by
                   pmath_token_analyse()
    \return The prefix operator precedence.
  */
 PMATH_API int pmath_token_prefix_precedence(
-  const uint16_t *str, 
+  const uint16_t *str,
   int             len,
   int             defprec);
 
@@ -134,63 +134,63 @@ PMATH_API int pmath_token_prefix_precedence(
    \param tok A token class.
    \return Whether tok may start a new subexpression
  */
-static PMATH_INLINE pmath_bool_t pmath_token_maybe_first(pmath_token_t tok){
+static PMATH_INLINE pmath_bool_t pmath_token_maybe_first(pmath_token_t tok) {
   return tok == PMATH_TOK_NONE
-      || tok == PMATH_TOK_SPACE
-      || tok == PMATH_TOK_NAME
-      || tok == PMATH_TOK_NAME2
-      || tok == PMATH_TOK_DIGIT
-      || tok == PMATH_TOK_STRING
-      || tok == PMATH_TOK_PREFIX
-      || tok == PMATH_TOK_BINARY_LEFT_AUTOARG
-      || tok == PMATH_TOK_BINARY_LEFT_OR_PREFIX
-      || tok == PMATH_TOK_NARY_AUTOARG
-      || tok == PMATH_TOK_NARY_OR_PREFIX
-      || tok == PMATH_TOK_POSTFIX_OR_PREFIX
-      || tok == PMATH_TOK_LEFT
-      || tok == PMATH_TOK_LEFTCALL
-      || tok == PMATH_TOK_PRETEXT
-      || tok == PMATH_TOK_PLUSPLUS
-      || tok == PMATH_TOK_TILDES
-      || tok == PMATH_TOK_SLOT
-      || tok == PMATH_TOK_QUESTION
-      || tok == PMATH_TOK_INTEGRAL;
+         || tok == PMATH_TOK_SPACE
+         || tok == PMATH_TOK_NAME
+         || tok == PMATH_TOK_NAME2
+         || tok == PMATH_TOK_DIGIT
+         || tok == PMATH_TOK_STRING
+         || tok == PMATH_TOK_PREFIX
+         || tok == PMATH_TOK_BINARY_LEFT_AUTOARG
+         || tok == PMATH_TOK_BINARY_LEFT_OR_PREFIX
+         || tok == PMATH_TOK_NARY_AUTOARG
+         || tok == PMATH_TOK_NARY_OR_PREFIX
+         || tok == PMATH_TOK_POSTFIX_OR_PREFIX
+         || tok == PMATH_TOK_LEFT
+         || tok == PMATH_TOK_LEFTCALL
+         || tok == PMATH_TOK_PRETEXT
+         || tok == PMATH_TOK_PLUSPLUS
+         || tok == PMATH_TOK_TILDES
+         || tok == PMATH_TOK_SLOT
+         || tok == PMATH_TOK_QUESTION
+         || tok == PMATH_TOK_INTEGRAL;
 }
 
 /**\brief Test whether a token need not be the first token in a subexpression.
    \param tok A token class.
    \return Whether tok may reside inside a subexpression.
  */
-static PMATH_INLINE pmath_bool_t pmath_token_maybe_rest(pmath_token_t tok){
+static PMATH_INLINE pmath_bool_t pmath_token_maybe_rest(pmath_token_t tok) {
   return tok != PMATH_TOK_NONE
-      && tok != PMATH_TOK_SPACE
-      && tok != PMATH_TOK_NAME
-      && tok != PMATH_TOK_NAME2
-      && tok != PMATH_TOK_DIGIT
-      && tok != PMATH_TOK_PREFIX
-      && tok != PMATH_TOK_PRETEXT
-      && tok != PMATH_TOK_LEFT
-      && tok != PMATH_TOK_RIGHT
-      && tok != PMATH_TOK_TILDES
-      && tok != PMATH_TOK_SLOT
-      && tok != PMATH_TOK_INTEGRAL;
+         && tok != PMATH_TOK_SPACE
+         && tok != PMATH_TOK_NAME
+         && tok != PMATH_TOK_NAME2
+         && tok != PMATH_TOK_DIGIT
+         && tok != PMATH_TOK_PREFIX
+         && tok != PMATH_TOK_PRETEXT
+         && tok != PMATH_TOK_LEFT
+         && tok != PMATH_TOK_RIGHT
+         && tok != PMATH_TOK_TILDES
+         && tok != PMATH_TOK_SLOT
+         && tok != PMATH_TOK_INTEGRAL;
 }
 
 /**\brief Test if a unicode character is a left bracket
  */
-static PMATH_INLINE pmath_bool_t pmath_char_is_left(uint16_t ch){
+static PMATH_INLINE pmath_bool_t pmath_char_is_left(uint16_t ch) {
   pmath_token_t tok;
   
   if(ch == PMATH_CHAR_PIECEWISE)
     return TRUE;
-  
+    
   tok = pmath_token_analyse(&ch, 1, NULL);
   return tok == PMATH_TOK_LEFT || tok == PMATH_TOK_LEFTCALL;
 }
 
 /**\brief Get the corresponding right bracket to a given left bracket or 0.
  */
-static PMATH_INLINE uint16_t pmath_right_fence(uint16_t left){
+static PMATH_INLINE uint16_t pmath_right_fence(uint16_t left) {
   int prec;
   pmath_token_t tok;
   
@@ -205,77 +205,77 @@ static PMATH_INLINE uint16_t pmath_right_fence(uint16_t left){
   
   if(tok == PMATH_TOK_RIGHT && prec == -2)
     return left;
-  
+    
   return 0;
 }
 
 /**\brief Test if a unicode character is a right bracket
  */
-static PMATH_INLINE pmath_bool_t pmath_char_is_right(uint16_t ch){
+static PMATH_INLINE pmath_bool_t pmath_char_is_right(uint16_t ch) {
   return PMATH_TOK_RIGHT == pmath_token_analyse(&ch, 1, NULL);
 }
 
 /**\brief Test if a unicode character can be the start of an identifier/name.
  */
-static PMATH_INLINE pmath_bool_t pmath_char_is_name(uint16_t ch){
+static PMATH_INLINE pmath_bool_t pmath_char_is_name(uint16_t ch) {
   return PMATH_TOK_NAME == pmath_token_analyse(&ch, 1, NULL);
 }
 
 /**\brief Test if a unicode character is an integral.
  */
-static PMATH_INLINE pmath_bool_t pmath_char_is_integral(uint16_t ch){
+static PMATH_INLINE pmath_bool_t pmath_char_is_integral(uint16_t ch) {
   return PMATH_TOK_INTEGRAL == pmath_token_analyse(&ch, 1, NULL);
 }
 
 /**\brief Test if a token may be a big operator
  */
-static PMATH_INLINE pmath_bool_t pmath_token_maybe_bigop(pmath_token_t tok){
+static PMATH_INLINE pmath_bool_t pmath_token_maybe_bigop(pmath_token_t tok) {
   return tok == PMATH_TOK_BINARY_LEFT
-      || tok == PMATH_TOK_BINARY_RIGHT
-      || tok == PMATH_TOK_BINARY_LEFT_OR_PREFIX
-      || tok == PMATH_TOK_NARY
-      || tok == PMATH_TOK_NARY_OR_PREFIX
-      || tok == PMATH_TOK_POSTFIX_OR_PREFIX
-      || tok == PMATH_TOK_PREFIX;
+         || tok == PMATH_TOK_BINARY_RIGHT
+         || tok == PMATH_TOK_BINARY_LEFT_OR_PREFIX
+         || tok == PMATH_TOK_NARY
+         || tok == PMATH_TOK_NARY_OR_PREFIX
+         || tok == PMATH_TOK_POSTFIX_OR_PREFIX
+         || tok == PMATH_TOK_PREFIX;
 }
 
 /**\brief Test if a unicode character may be a big operation, e.g. Union, Sum.
  */
-static PMATH_INLINE pmath_bool_t pmath_char_maybe_bigop(uint16_t ch){
+static PMATH_INLINE pmath_bool_t pmath_char_maybe_bigop(uint16_t ch) {
   return pmath_token_maybe_bigop(pmath_token_analyse(&ch, 1, NULL));
 }
 
 /**\brief Test if a unicode character is a digit '0' - '9'.
  */
-static PMATH_INLINE pmath_bool_t pmath_char_is_digit(uint16_t ch){
+static PMATH_INLINE pmath_bool_t pmath_char_is_digit(uint16_t ch) {
   return ch >= '0' && ch <= '9';
 }
 
-/**\brief Test if a unicode character is a base-36 digit '0' - '9', 'a' - 'z', 
+/**\brief Test if a unicode character is a base-36 digit '0' - '9', 'a' - 'z',
           'A' - 'Z'.
  */
-static PMATH_INLINE pmath_bool_t pmath_char_is_36digit(uint16_t ch){
-  return (ch >= '0' && ch <= '9') 
-      || (ch >= 'a' && ch <= 'z') 
-      || (ch >= 'A' && ch <= 'Z');
+static PMATH_INLINE pmath_bool_t pmath_char_is_36digit(uint16_t ch) {
+  return (ch >= '0' && ch <= '9')
+         || (ch >= 'a' && ch <= 'z')
+         || (ch >= 'A' && ch <= 'Z');
 }
 
 /**\brief Test if in a given base, a unicode character is a digit.
  */
-static PMATH_INLINE pmath_bool_t pmath_char_is_basedigit(int base, uint16_t ch){
-  return (base <= 10 && ch >= '0' && ch < '0' + base) 
-      || (base > 10 
-       && ((ch >= '0' && ch <= '9')
-        || (ch >= 'a' && ch <= 'a' + base - 10)
-        || (ch >= 'A' && ch <= 'A' + base - 10)));
+static PMATH_INLINE pmath_bool_t pmath_char_is_basedigit(int base, uint16_t ch) {
+  return (base <= 10 && ch >= '0' && ch < '0' + base)
+         || (base > 10
+             && ((ch >= '0' && ch <= '9')
+                 || (ch >= 'a' && ch <= 'a' + base - 10)
+                 || (ch >= 'A' && ch <= 'A' + base - 10)));
 }
 
 /**\brief Test if a unicode character is a hexadecimal digit.
  */
-static PMATH_INLINE pmath_bool_t pmath_char_is_hexdigit(uint16_t ch){
-  return (ch >= '0' && ch <= '9') 
-      || (ch >= 'a' && ch <= 'f') 
-      || (ch >= 'A' && ch <= 'F');
+static PMATH_INLINE pmath_bool_t pmath_char_is_hexdigit(uint16_t ch) {
+  return (ch >= '0' && ch <= '9')
+         || (ch >= 'a' && ch <= 'f')
+         || (ch >= 'A' && ch <= 'F');
 }
 
 /** @} */

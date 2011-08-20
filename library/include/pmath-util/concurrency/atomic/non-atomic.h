@@ -10,12 +10,12 @@
 #undef PMATH_ATOMIC_FASTLOOP_COUNT
 /**\def PMATH_ATOMIC_FASTLOOP_COUNT
    \brief Loop iterations in spinlocks before yielding control.
-   
+
    If the thread holding the lock sits on another CPU, spinning around a bit
    before pmath_atomic_loop_yield() reduces idle time. But if the thread holding
-   the lock lives on the same CPU as the current thread (and thus is interrupted 
+   the lock lives on the same CPU as the current thread (and thus is interrupted
    by the current thread), spinning elongates the wait time.
-   
+
   In summary, this should not be a compile time constant as it is now!
  */
 #define PMATH_ATOMIC_FASTLOOP_COUNT  (0)
@@ -42,17 +42,17 @@
    \param atom A sizeof(void*) aligned pointer.
    \param delta The difference between the new and the old value.
    \return The old value of \c *atom.
-   
+
    This function increments \c *atom atomically by \c delta. It has full memory
    barrier semantics.
  */
 PMATH_FORCE_INLINE
 intptr_t pmath_atomic_fetch_add(
-  intptr_t volatile *atom, 
+  intptr_t volatile *atom,
   intptr_t delta
-){
+) {
   intptr_t result = *atom;
-  *atom+= delta;
+  *atom += delta;
   return result;
 }
 
@@ -60,15 +60,15 @@ intptr_t pmath_atomic_fetch_add(
    \param atom A sizeof(void*) aligned pointer.
    \param new_value The new value of \c *atom.
    \return The old value of \c *atom.
-   
+
    This function sets \c *atom to \c new_value and returns the old value
    atomically. It has full memory barrier semantics.
  */
 PMATH_FORCE_INLINE
 intptr_t pmath_atomic_fetch_set(
-  intptr_t volatile *atom, 
+  intptr_t volatile *atom,
   intptr_t new_value
-){
+) {
   intptr_t result = *atom;
   *atom = new_value;
   return result;
@@ -79,18 +79,18 @@ intptr_t pmath_atomic_fetch_set(
    \param old_value The comparisor.
    \param new_value The possible new value of \c *atom.
    \return The old value of \c *atom.
-   
-   You should use pmath_atomic_compare_and_set() if you don't need the exact old 
-   value of \c *atom, because this function might be non-existent on some 
+
+   You should use pmath_atomic_compare_and_set() if you don't need the exact old
+   value of \c *atom, because this function might be non-existent on some
    systems. This function has aquire barrier semantics.
  */
 PMATH_FORCE_INLINE
 intptr_t pmath_atomic_fetch_compare_and_set(
-  intptr_t volatile *atom, 
+  intptr_t volatile *atom,
   intptr_t old_value,
   intptr_t new_value
-){
-  if(*atom == old_value){
+) {
+  if(*atom == old_value) {
     *atom = new_value;
     return old_value;
   }
@@ -102,18 +102,18 @@ intptr_t pmath_atomic_fetch_compare_and_set(
    \param old_value The comparisor.
    \param new_value The possible new value of \c *atom.
    \return Whether the exchange was performed.
-   
+
    This function compares \c *atom with \c old_value and iff both equal sets
    \c *atom to \c new_value, everything atomically and with aquire barrier
    semantics.
  */
 PMATH_FORCE_INLINE
 pmath_bool_t pmath_atomic_compare_and_set(
-  intptr_t volatile *atom, 
+  intptr_t volatile *atom,
   intptr_t old_value,
   intptr_t new_value
-){
-  if(*atom == old_value){
+) {
+  if(*atom == old_value) {
     *atom = new_value;
     return TRUE;
   }
@@ -127,16 +127,16 @@ pmath_bool_t pmath_atomic_compare_and_set(
    \param new_value_fst The possible new value of \c atom[0].
    \param new_value_snd The possible new value of \c atom[1].
    \return Whether the exchange was performed or not.
-   
+
    This function compares \c old_value_fst with \c atom[0] and \c old_value_snd
-   with atom[1]. 
-   If they equal, \c atom[0] is set to \c new_value_fst and \c atom[1] is set to 
+   with atom[1].
+   If they equal, \c atom[0] is set to \c new_value_fst and \c atom[1] is set to
    \c new_value_snd and TRUE is returned. Otherwise, FALSE will be returned.
-   
+
    This function has aquire barrier semantics.
-   
-   \note This function is not available on all Platforms. You must not call it 
-         if pmath_atomic_have_cas2() returns FALSE. 
+
+   \note This function is not available on all Platforms. You must not call it
+         if pmath_atomic_have_cas2() returns FALSE.
  */
 PMATH_FORCE_INLINE
 pmath_bool_t pmath_atomic_compare_and_set_2(
@@ -145,8 +145,8 @@ pmath_bool_t pmath_atomic_compare_and_set_2(
   intptr_t old_value_snd,
   intptr_t new_value_fst,
   intptr_t new_value_snd
-){
-  if(atom[0] == old_value_fst && atom[1] == old_value_snd){
+) {
+  if(atom[0] == old_value_fst && atom[1] == old_value_snd) {
     atom[0] = new_value_fst;
     atom[0] = new_value_snd;
     return TRUE;
@@ -156,27 +156,27 @@ pmath_bool_t pmath_atomic_compare_and_set_2(
 
 /**\brief Check, whether the CPU supports pmath_atomic_compare_and_set_2().
    \return whether pmath_atomic_compare_and_set_2() is supported.
-   
-   Note, that a call to pmath_atomic_compare_and_set_2() will crash your 
-   application on any platform that does not support the operation (e.g. 
+
+   Note, that a call to pmath_atomic_compare_and_set_2() will crash your
+   application on any platform that does not support the operation (e.g.
    pre-Pentiums, early AMD64).
  */
 PMATH_FORCE_INLINE
-pmath_bool_t pmath_atomic_have_cas2(void){
+pmath_bool_t pmath_atomic_have_cas2(void) {
   return FALSE;
 }
 
 /**\brief Insert an explicit memory barrier.
  */
 PMATH_FORCE_INLINE
-void pmath_atomic_barrier(void){
+void pmath_atomic_barrier(void) {
 }
 
 
 /**\brief Try to aquire a lock.
    \param atom The lock. A sizeof(void*) aligned pointer.
-   
-   This function implements a spin lock. It has aquire barrier semantics. Use 
+
+   This function implements a spin lock. It has aquire barrier semantics. Use
    it with pmath_atomic_unlock():
    \code
 pmath_atomic_t spin = PMATH_ATOMIC_STATIC_INIT;
@@ -189,19 +189,19 @@ pmath_atomic_unlock(&spin);
 PMATH_FORCE_INLINE
 void pmath_atomic_lock(
   intptr_t volatile *atom
-){
+) {
   *atom = 1;
 }
 
 /**\brief Release a previously aquired lock.
    \param atom The lock. A sizeof(void*) aligned pointer.
-   
+
    \see pmath_atomic_lock
  */
 PMATH_FORCE_INLINE
 void pmath_atomic_unlock(
   intptr_t volatile *atom
-){
+) {
   *atom = 0;
 }
 
@@ -209,14 +209,14 @@ void pmath_atomic_unlock(
 /**\brief Yield control to another thread (used in spinlocks).
  */
 PMATH_FORCE_INLINE
-void pmath_atomic_loop_yield(void){
+void pmath_atomic_loop_yield(void) {
 }
 
 #undef pmath_atomic_loop_nop
 /**\brief A no-operation or short wait for use in spin locks.
  */
 PMATH_FORCE_INLINE
-void pmath_atomic_loop_nop(void){
+void pmath_atomic_loop_nop(void) {
 }
 
 /** @} */

@@ -16,14 +16,14 @@
    \see helpers
   @{
  */
- 
+
 /* (big endian notation)
-   
-	seeeeeee_eeeemmmm_mmmmmmmm_mmmmmmmm__mmmmmmmm_mmmmmmmm_mmmmmmmm_mmmmmmmm = ieee double
-	
-	x1111111_1111xxxx_xxxxxxxx_xxxxxxxx__xxxxxxxx_xxxxxxxx_xxxxxxxx_xxxxxxxx = ieee NaN/Inf
-	
-	I assume same endianness for double and integer.
+
+  seeeeeee_eeeemmmm_mmmmmmmm_mmmmmmmm__mmmmmmmm_mmmmmmmm_mmmmmmmm_mmmmmmmm = ieee double
+
+  x1111111_1111xxxx_xxxxxxxx_xxxxxxxx__xxxxxxxx_xxxxxxxx_xxxxxxxx_xxxxxxxx = ieee NaN/Inf
+
+  I assume same endianness for double and integer.
  */
 
 #define PMATH_TAGMASK_BITCOUNT   12          /* |||||||| |||| */
@@ -40,49 +40,49 @@
    \brief The basic type of all pMath objects.
 
    Use pmath_is_XXX() to determine whether an object is of a specific type.
-   You must free unused objects with pmath_unref(), but if pmath_is_pointer() 
+   You must free unused objects with pmath_unref(), but if pmath_is_pointer()
    gives FALSE, then calling pmath_ref() and pmath_unref() is not neccessary.
-   
-   machine precision floating point values (aka double) and certain special 
-   values are stored directly in the pmath_t object. Long strings, expressions, 
-   other values are stored as a pointer. The technique to pack all this in only 
-   8 bytes is called NaN-boxing. See 
+
+   machine precision floating point values (aka double) and certain special
+   values are stored directly in the pmath_t object. Long strings, expressions,
+   other values are stored as a pointer. The technique to pack all this in only
+   8 bytes is called NaN-boxing. See
    http://blog.mozilla.com/rob-sayre/2010/08/02/mozillas-new-javascript-value-representation
  */
-typedef union{
+typedef union {
   uint64_t as_bits;
   double   as_double;
   
-	#if PMATH_BITSIZE == 64
-	struct _pmath_t *as_pointer_64;
-	#endif
-	
-  struct{
-    #if PMATH_BYTE_ORDER < 0 // little endian 
-			union{
-				int32_t  as_int32;
-				uint16_t as_chars[2];
-				#if PMATH_BITSIZE == 32
-					struct _pmath_t *as_pointer_32;
-				#endif
-			} u;
-			uint32_t  tag;
-		#else
-			uint32_t  tag;
-			union{
-				int32_t   as_int32;
-				uint16_t as_chars[2];
-				#if PMATH_BITSIZE == 32
-					struct _pmath_t *as_pointer_32;
-				#endif
-			} u;
-		#endif
-  }s;
+#if PMATH_BITSIZE == 64
+  struct _pmath_t *as_pointer_64;
+#endif
+  
+  struct {
+#if PMATH_BYTE_ORDER < 0 // little endian 
+    union {
+      int32_t  as_int32;
+      uint16_t as_chars[2];
+#if PMATH_BITSIZE == 32
+      struct _pmath_t *as_pointer_32;
+#endif
+    } u;
+    uint32_t  tag;
+#else
+    uint32_t  tag;
+    union {
+      int32_t   as_int32;
+      uint16_t as_chars[2];
+#if PMATH_BITSIZE == 32
+      struct _pmath_t *as_pointer_32;
+#endif
+    } u;
+#endif
+  } s;
 } pmath_t;
 
 PMATH_FORCE_INLINE
 PMATH_ATTRIBUTE_USE_RESULT
-pmath_t PMATH_FROM_TAG(uint32_t tag, int32_t value){
+pmath_t PMATH_FROM_TAG(uint32_t tag, int32_t value) {
   pmath_t r;
   
   assert((tag & PMATH_TAGMASK_POINTER) == PMATH_TAGMASK_NONDOUBLE);
@@ -99,7 +99,7 @@ pmath_t PMATH_FROM_TAG(uint32_t tag, int32_t value){
 
 PMATH_FORCE_INLINE
 PMATH_ATTRIBUTE_USE_RESULT
-pmath_t PMATH_FROM_PTR(void *p){
+pmath_t PMATH_FROM_PTR(void *p) {
   pmath_t r;
   
 #if PMATH_BITSIZE == 64
@@ -130,15 +130,15 @@ static const pmath_t PMATH_NULL      = PMATH_STATIC_NULL;
 
    This is a bitset of the \c PMATH_TYPE_XXX constants:
 
-   - \c PMATH_TYPE_MP_FLOAT: The object is a floating point number with 
-     arbitrary precision. You can cast it to \ref pmath_float_t and 
+   - \c PMATH_TYPE_MP_FLOAT: The object is a floating point number with
+     arbitrary precision. You can cast it to \ref pmath_float_t and
      pmath_number_t.
 
-   - \c PMATH_TYPE_INTEGER: The object is an integer value. You can cast it 
+   - \c PMATH_TYPE_INTEGER: The object is an integer value. You can cast it
      to \ref pmath_integer_t, \ref pmath_rational_t and \ref pmath_number_t.
 
-   - \c PMATH_TYPE_QUOTIENT: The object is a reduced quotient of two 
-     integer values, where the denominator is never 0 or 1. You can cast 
+   - \c PMATH_TYPE_QUOTIENT: The object is a reduced quotient of two
+     integer values, where the denominator is never 0 or 1. You can cast
      quotient objects to pmath_rational_t and thus to pmath_number_t too.
 
    - \c PMATH_TYPE_BIGSTRING: The object is a string. You can cast it to
@@ -152,7 +152,7 @@ static const pmath_t PMATH_NULL      = PMATH_STATIC_NULL;
  */
 typedef int pmath_type_t;
 
-enum { 
+enum {
   PMATH_TYPE_SHIFT_MP_FLOAT = 0,
   PMATH_TYPE_SHIFT_MP_INT,
   PMATH_TYPE_SHIFT_QUOTIENT,
@@ -162,11 +162,11 @@ enum {
   PMATH_TYPE_SHIFT_EXPRESSION_GENERAL_PART,
   PMATH_TYPE_SHIFT_RESERVED_1,
   PMATH_TYPE_SHIFT_CUSTOM,
-
+  
   PMATH_TYPE_SHIFT_COUNT
 };
 
-enum { 
+enum {
   PMATH_TYPE_MP_INT                  = 1 << PMATH_TYPE_SHIFT_MP_INT,
   PMATH_TYPE_QUOTIENT                = 1 << PMATH_TYPE_SHIFT_QUOTIENT,
   PMATH_TYPE_MP_FLOAT                = 1 << PMATH_TYPE_SHIFT_MP_FLOAT,
@@ -200,7 +200,7 @@ enum {
  */
 
 typedef int pmath_write_options_t;
-enum{
+enum {
   PMATH_WRITE_OPTIONS_FULLEXPR  = 1 << 0,
   PMATH_WRITE_OPTIONS_FULLSTR   = 1 << 1,
   PMATH_WRITE_OPTIONS_FULLNAME  = 1 << 2,
@@ -219,7 +219,7 @@ typedef void (*pmath_proc_t)(pmath_t);
    It depends on the context whether the (second) argument is destroyed by the
    procedure or not.
  */
-typedef void (*pmath_param_proc_t)(void*,pmath_t);
+typedef void (*pmath_param_proc_t)(void*, pmath_t);
 
 /**\brief A simple function operating on an object and returning one.
 
@@ -251,17 +251,17 @@ typedef pmath_bool_t (*pmath_equal_func_t)(pmath_t, pmath_t);
 typedef int (*pmath_compare_func_t)(pmath_t, pmath_t);
 
 /**\brief Command structure for pmath_write_ex().
-   This should be inistialized with 
+   This should be inistialized with
    <tt>memset(&ex, 0, sizeof(ex)); ex.size = sizeof(ex); ... </tt>
  */
-struct pmath_write_ex_t{
+struct pmath_write_ex_t {
   size_t                  size; ///< must be initialized with sizeof(struct pmath_write_ex_t), for version control
   pmath_write_options_t   options;
-  void                  (*write)(void *user, const uint16_t *data, int len); ///< mandatory, write callback 
+  void                  (*write)(void *user, const uint16_t *data, int len);                  ///< mandatory, write callback
   void                   *user;                                              ///< first parameter of the callbacks
   
-  void                  (*pre_write)( void *user, pmath_t obj); ///< optional, called before the pmath_t is written
-  void                  (*post_write)(void *user, pmath_t obj); ///< optional, called after the pmath_t is written
+  void (*pre_write)(void *user, pmath_t obj);                   ///< optional, called before the pmath_t is written
+  void (*post_write)(void *user, pmath_t obj);                  ///< optional, called after the pmath_t is written
 };
 
 /*============================================================================*/
@@ -273,7 +273,7 @@ struct pmath_write_ex_t{
 
    pmath_equals(A, B) implies pmath_hash(A) == pmath_hash(B).
  */
-PMATH_API 
+PMATH_API
 PMATH_ATTRIBUTE_PURE
 unsigned int pmath_hash(pmath_t obj);
 
@@ -284,13 +284,13 @@ unsigned int pmath_hash(pmath_t obj);
    \return < 0 if \a objA is less than \a objB, == 0 if both are equal and > 0
            if \a objA is greater than \a objB.
 
-   `syntactically` means that for two symbols X and Y, pmath_compare(X, Y) < 0 
+   `syntactically` means that for two symbols X and Y, pmath_compare(X, Y) < 0
    even if X:=2 and Y:=1, because X appears before Y in the alphabet.
-   
+
    \note pmath_equals(A, B) might return FALSE although pmath_compare(A, B) == 0
    e.g. for an integer A and q floating point value B.
 */
-PMATH_API 
+PMATH_API
 PMATH_ATTRIBUTE_PURE
 int pmath_compare(
   pmath_t objA,
@@ -302,10 +302,10 @@ int pmath_compare(
    \param options Some options defining the format.
    \param write The stream's output function.
    \param user The user-argument of write (e.g. the stream itself).
-   
+
    \see pmath_utf8_writer
  */
-PMATH_API 
+PMATH_API
 PMATH_ATTRIBUTE_NONNULL(3)
 void pmath_write(
   pmath_t                 obj,
@@ -317,10 +317,10 @@ void pmath_write(
    \memberof pmath_t
    \param info All the acutal parameters.
    \param obj The object to be written.
-   
+
    \see pmath_write
  */
-PMATH_API 
+PMATH_API
 PMATH_ATTRIBUTE_NONNULL(1)
 void pmath_write_ex(struct pmath_write_ex_t *info, pmath_t obj);
 

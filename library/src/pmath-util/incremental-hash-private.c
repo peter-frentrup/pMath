@@ -12,51 +12,51 @@
 
 #if !defined (get16bits)
 #define get16bits(d) ((((uint32_t)(((const uint8_t *)(d))[1])) << 8)\
-                       +(uint32_t)(((const uint8_t *)(d))[0]) )
+                      +(uint32_t)(((const uint8_t *)(d))[0]) )
 #endif
 
 PMATH_PRIVATE unsigned int incremental_hash(
-  const void   *data,  
-  size_t        len, 
-  unsigned int  hash 
-){
+  const void   *data,
+  size_t        len,
+  unsigned int  hash
+) {
   unsigned int tmp;
   unsigned int rem;
-
+  
   if(len == 0 || data == NULL)
     return hash;
-
+    
   rem = len & 3;
   len >>= 2;
-
+  
   /* Main loop */
-  for(;len > 0; len--){
-    hash+= get16bits(data);
-    tmp  = (get16bits(((char*)data)+2) << 11) ^ hash;
+  for(; len > 0; len--) {
+    hash += get16bits(data);
+    tmp  = (get16bits(((char*)data) + 2) << 11) ^ hash;
     hash = (hash << 16) ^ tmp;
     data = (char*)data + 2 * sizeof(uint16_t);
-    hash+= hash >> 11;
+    hash += hash >> 11;
   }
-
+  
   /* Handle end cases */
-  switch(rem){
-    case 3: 
-      hash+= get16bits (data);
-      hash^= hash << 16;
-      hash^= ((char*)data)[sizeof(uint16_t)] << 18;
-      hash+= hash >> 11;
+  switch(rem) {
+    case 3:
+      hash += get16bits (data);
+      hash ^= hash << 16;
+      hash ^= ((char*)data)[sizeof(uint16_t)] << 18;
+      hash += hash >> 11;
       break;
-    case 2: 
-      hash+= get16bits (data);
-      hash^= hash << 11;
-      hash+= hash >> 17;
+    case 2:
+      hash += get16bits (data);
+      hash ^= hash << 11;
+      hash += hash >> 17;
       break;
-    case 1: 
-      hash+= *(char*)data;
-      hash^= hash << 10;
-      hash+= hash >> 1;
+    case 1:
+      hash += *(char*)data;
+      hash ^= hash << 10;
+      hash += hash >> 1;
   }
-
+  
   /* Force "avalanching" of final 127 bits */
   hash ^= hash << 3;
   hash += hash >> 5;
@@ -64,6 +64,6 @@ PMATH_PRIVATE unsigned int incremental_hash(
   hash += hash >> 17;
   hash ^= hash << 25;
   hash += hash >> 6;
-
+  
   return hash;
 }

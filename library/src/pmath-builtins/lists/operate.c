@@ -9,20 +9,20 @@ static pmath_t operate(
   pmath_t expr, // will be freed
   pmath_t p,    // will be freed
   size_t level
-){
+) {
   if(level == 0)
     return pmath_expr_new_extended(p, 1, expr);
-  
-  if(!pmath_is_expr(expr)){
+    
+  if(!pmath_is_expr(expr)) {
     pmath_unref(p);
     return expr;
   }
   
-  return pmath_expr_set_item(expr, 0, 
-    operate(pmath_expr_get_item(expr, 0), p, level - 1));
+  return pmath_expr_set_item(expr, 0,
+                             operate(pmath_expr_get_item(expr, 0), p, level - 1));
 }
 
-PMATH_PRIVATE pmath_t builtin_operate(pmath_expr_t expr){
+PMATH_PRIVATE pmath_t builtin_operate(pmath_expr_t expr) {
   /* Operate(h(x, y), p)     =  p(h)(x, y)
      Operate(h(x, y), p, n)  operates on level n (default = 1) of h
    */
@@ -30,17 +30,17 @@ PMATH_PRIVATE pmath_t builtin_operate(pmath_expr_t expr){
   size_t exprlen, level;
   
   exprlen = pmath_expr_length(expr);
-  if(exprlen < 2 || exprlen > 3){
+  if(exprlen < 2 || exprlen > 3) {
     pmath_message_argxxx(exprlen, 2, 3);
     return expr;
   }
   
   level = 1;
   
-  if(exprlen == 3){
+  if(exprlen == 3) {
     pmath_t obj = pmath_expr_get_item(expr, 3);
     
-    if(!pmath_is_int32(obj) || PMATH_AS_INT32(obj) < 0){
+    if(!pmath_is_int32(obj) || PMATH_AS_INT32(obj) < 0) {
       pmath_unref(obj);
       pmath_message(
         PMATH_NULL, "numn", 2,

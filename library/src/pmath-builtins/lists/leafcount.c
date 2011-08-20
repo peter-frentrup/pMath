@@ -5,14 +5,14 @@
 #include <pmath-builtins/all-symbols-private.h>
 
 
-static size_t leafcount(pmath_t obj){ // obj will be freed
-  if(pmath_is_expr(obj)){
+static size_t leafcount(pmath_t obj) { // obj will be freed
+  if(pmath_is_expr(obj)) {
     size_t result = 0;
     size_t i;
     
-    for(i = 0;i <= pmath_expr_length(obj);++i)
-      result+= leafcount(pmath_expr_get_item(obj, i));
-    
+    for(i = 0; i <= pmath_expr_length(obj); ++i)
+      result += leafcount(pmath_expr_get_item(obj, i));
+      
     pmath_unref(obj);
     return result;
   }
@@ -21,10 +21,10 @@ static size_t leafcount(pmath_t obj){ // obj will be freed
   return 1;
 }
 
-PMATH_PRIVATE pmath_t builtin_leafcount(pmath_expr_t expr){
+PMATH_PRIVATE pmath_t builtin_leafcount(pmath_expr_t expr) {
   pmath_t obj;
   
-  if(pmath_expr_length(expr) != 1){
+  if(pmath_expr_length(expr) != 1) {
     pmath_message_argxxx(pmath_expr_length(expr), 1, 1);
     return expr;
   }

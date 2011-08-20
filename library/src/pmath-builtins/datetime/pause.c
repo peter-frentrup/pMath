@@ -6,22 +6,22 @@
 
 #include <pmath-builtins/all-symbols-private.h>
 
-PMATH_PRIVATE pmath_t builtin_pause(pmath_expr_t expr){
+PMATH_PRIVATE pmath_t builtin_pause(pmath_expr_t expr) {
   pmath_t  arg;
-
-  if(pmath_expr_length(expr) != 1){
+  
+  if(pmath_expr_length(expr) != 1) {
     pmath_message_argxxx(pmath_expr_length(expr), 1, 1);
     return expr;
   }
-
+  
   arg = pmath_expr_get_item(expr, 1);
   
-  if(!pmath_is_number(arg) || pmath_number_sign(arg) < 0){
+  if(!pmath_is_number(arg) || pmath_number_sign(arg) < 0) {
     pmath_message(
       PMATH_NULL, "numn", 2,
       PMATH_FROM_INT32(1),
       pmath_ref(expr));
-    
+      
     pmath_unref(arg);
     return expr;
   }
@@ -39,22 +39,22 @@ PMATH_PRIVATE pmath_t builtin_pause(pmath_expr_t expr){
       return PMATH_NULL;
       
     guard = pmath_symbol_create_temporary(
-      PMATH_C_STRING("System`Pause`stop"), TRUE);
-    
+              PMATH_C_STRING("System`Pause`stop"), TRUE);
+              
     // guard:= Throw(Unevaluated(guard))
-    pmath_symbol_set_value(guard, 
-      pmath_expr_new_extended(
-        pmath_ref(PMATH_SYMBOL_THROW), 1,
-        pmath_expr_new_extended(
-          pmath_ref(PMATH_SYMBOL_UNEVALUATED), 1,
-          pmath_ref(guard))));
-    
+    pmath_symbol_set_value(guard,
+                           pmath_expr_new_extended(
+                             pmath_ref(PMATH_SYMBOL_THROW), 1,
+                             pmath_expr_new_extended(
+                               pmath_ref(PMATH_SYMBOL_UNEVALUATED), 1,
+                               pmath_ref(guard))));
+                               
     mq = pmath_ref(current_thread->message_queue);// = pmath_thread_get_queue();
     pmath_thread_send_delayed(mq, pmath_ref(guard), time);
     pmath_unref(mq);
     
     
-    while(!pmath_thread_aborting(current_thread)){
+    while(!pmath_thread_aborting(current_thread)) {
       pmath_thread_sleep();
     }
     
@@ -63,12 +63,12 @@ PMATH_PRIVATE pmath_t builtin_pause(pmath_expr_t expr){
     pmath_symbol_set_value(guard, PMATH_UNDEFINED);
     
     arg = _pmath_thread_catch(current_thread);
-    if(pmath_same(arg, guard)){ // time-out
+    if(pmath_same(arg, guard)) { // time-out
       pmath_unref(arg);
     }
     else if(!pmath_same(arg, PMATH_UNDEFINED)) // other error
       _pmath_thread_throw(current_thread, arg);
-    
+      
     pmath_unref(guard);
   }
   

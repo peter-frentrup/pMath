@@ -18,7 +18,7 @@
 PMATH_API
 PMATH_ATTRIBUTE_NONNULL(1)
 void pmath_file_create_mixed_buffer(
-  const char *encoding,
+  const char     *encoding,
   pmath_symbol_t *out_textfile,
   pmath_symbol_t *out_binfile);
 

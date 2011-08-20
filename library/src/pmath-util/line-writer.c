@@ -11,7 +11,7 @@
 
 #include <string.h>
 
-struct write_pos_t{
+struct write_pos_t {
   pmath_t             item;
   struct write_pos_t *next;
   int                 pos;
@@ -22,7 +22,7 @@ struct write_pos_t{
 #define NEWLINE_OK         0x01
 #define NEWLINE_INSTRING   0x02
 
-struct linewriter_t{
+struct linewriter_t {
   int                  line_length;   // > 2
   int                  buffer_length; // > line_length!!!, <= 2*line_length
   uint16_t            *buffer;
@@ -36,10 +36,10 @@ struct linewriter_t{
   pmath_bool_t         escape_string_breaks;
   
   void  *user;
-  void (*write)(void*,const uint16_t*,int);
+  void (*write)(void*, const uint16_t*, int);
 };
 
-static void fill_newlines(struct linewriter_t *lw){
+static void fill_newlines(struct linewriter_t *lw) {
   struct write_pos_t *wp;
   int string_depth, oldpos;
   
@@ -47,8 +47,8 @@ static void fill_newlines(struct linewriter_t *lw){
   
   oldpos = -1;
   wp = lw->all_write_pos;
-  while(wp && wp->pos <= lw->line_length){
-    if(wp->is_start){
+  while(wp && wp->pos <= lw->line_length) {
+    if(wp->is_start) {
       if(wp->pos == oldpos) // two expressions without operator/space in between
         lw->newlines[wp->pos] = NEWLINE_INSTRING;
       else
@@ -56,22 +56,22 @@ static void fill_newlines(struct linewriter_t *lw){
     }
     else
       oldpos = wp->pos;
-    
+      
     wp = wp->next;
   }
   
   oldpos = 0;
   string_depth = lw->string_depth;
   wp = lw->all_write_pos;
-  while(wp && wp->pos <= lw->line_length){
-    if(string_depth > 0){
+  while(wp && wp->pos <= lw->line_length) {
+    if(string_depth > 0) {
       while(oldpos < wp->pos)
         lw->newlines[oldpos++] |= NEWLINE_INSTRING;
     }
     
     oldpos = wp->pos;
-    if(pmath_is_string(wp->item)){
-      if(wp->is_start){
+    if(pmath_is_string(wp->item)) {
+      if(wp->is_start) {
         ++string_depth;
       }
       else
@@ -82,14 +82,14 @@ static void fill_newlines(struct linewriter_t *lw){
   }
 }
 
-static void consume_write_pos(struct linewriter_t *lw, int end){
+static void consume_write_pos(struct linewriter_t *lw, int end) {
   struct write_pos_t *wp;
   
-  while(lw->all_write_pos && lw->all_write_pos->pos < end){
+  while(lw->all_write_pos && lw->all_write_pos->pos < end) {
     wp = lw->all_write_pos;
     lw->all_write_pos = wp->next;
     
-    if(pmath_is_string(wp->item)){
+    if(pmath_is_string(wp->item)) {
       if(wp->is_start)
         lw->string_depth++;
       else
@@ -102,26 +102,26 @@ static void consume_write_pos(struct linewriter_t *lw, int end){
   
   if(!lw->all_write_pos)
     lw->next_write_pos = &lw->all_write_pos;
-  
+    
   wp = lw->all_write_pos;
-  while(wp){
-    wp->pos-= end;
+  while(wp) {
+    wp->pos -= end;
     wp = wp->next;
   }
 }
 
-static void flush_line(struct linewriter_t *lw){
+static void flush_line(struct linewriter_t *lw) {
   int i, nl;
   pmath_bool_t in_string;
   
-  if(lw->pos <= lw->line_length){
-    for(i = 0;i < lw->pos;++i){
-      if(lw->buffer[i] == '\n'){
+  if(lw->pos <= lw->line_length) {
+    for(i = 0; i < lw->pos; ++i) {
+      if(lw->buffer[i] == '\n') {
         ++i;
         consume_write_pos(lw, i);
         lw->write(lw->user, lw->buffer, i);
         memmove(lw->buffer, lw->buffer + i, sizeof(uint16_t) * (lw->buffer_length - i));
-        lw->pos-= i;
+        lw->pos -= i;
         
         i = lw->indention_width;
         while(i-- > 0)
@@ -136,13 +136,13 @@ static void flush_line(struct linewriter_t *lw){
     return;
   }
   
-  for(i = 0;i < lw->line_length;++i){
-    if(lw->buffer[i] == '\n'){
+  for(i = 0; i < lw->line_length; ++i) {
+    if(lw->buffer[i] == '\n') {
       ++i;
       consume_write_pos(lw, i);
       lw->write(lw->user, lw->buffer, i);
       memmove(lw->buffer, lw->buffer + i, sizeof(uint16_t) * (lw->buffer_length - i));
-      lw->pos-= i;
+      lw->pos -= i;
       
       i = lw->indention_width;
       while(i-- > 0)
@@ -155,33 +155,33 @@ static void flush_line(struct linewriter_t *lw){
   nl = lw->line_length - 1;
   while(nl > 0 && !(lw->newlines[nl] & NEWLINE_OK))
     --nl;
-  
-  if(nl == 0){
+    
+  if(nl == 0) {
     in_string = TRUE;
     
     nl = lw->line_length - 2;
     while(nl > 0 && lw->buffer[nl] > ' ')
       --nl;
-    
+      
     if(nl == 0)
       nl = lw->line_length - 2;
     else
       ++nl;
   }
-  else{
+  else {
     in_string = (lw->newlines[nl - 1] & NEWLINE_INSTRING) != 0;
   }
   
-  if(in_string && lw->escape_string_breaks){
+  if(in_string && lw->escape_string_breaks) {
     if(nl > lw->line_length - 2)
       nl = lw->line_length - 2;
-    
-    if(lw->buffer[nl-1] == '\\'){
-      i = nl-1;
+      
+    if(lw->buffer[nl-1] == '\\') {
+      i = nl - 1;
       while(i > 0 && lw->buffer[i-1] == '\\')
         --i;
-      
-      if((nl - i) % 2 == 1 && nl > 1) 
+        
+      if((nl - i) % 2 == 1 && nl > 1)
         --nl;
     }
   }
@@ -189,35 +189,35 @@ static void flush_line(struct linewriter_t *lw){
   consume_write_pos(lw, nl);
   lw->write(lw->user, lw->buffer, nl);
   memmove(lw->buffer, lw->buffer + nl, sizeof(uint16_t) * (lw->buffer_length - nl));
-  lw->pos-= nl;
+  lw->pos -= nl;
   
   if(in_string && lw->escape_string_breaks)
     write_cstr("\\\n", lw->write, lw->user);
   else
     write_cstr("\n", lw->write, lw->user);
-  
+    
   i = lw->indention_width;
   while(i-- > 0)
     write_cstr(" ", lw->write, lw->user);
 }
 
-static void line_write(void *user, const uint16_t *data, int len){
+static void line_write(void *user, const uint16_t *data, int len) {
   struct linewriter_t *lw = user;
   
   assert(lw->line_length > 2);
   
-  while(len > 0){
-    if(lw->pos + len <= lw->buffer_length){
+  while(len > 0) {
+    if(lw->pos + len <= lw->buffer_length) {
       memcpy(lw->buffer + lw->pos, data, len * sizeof(uint16_t));
-      lw->pos+= len;
+      lw->pos += len;
       return;
     }
     
-    if(lw->pos < lw->buffer_length){
+    if(lw->pos < lw->buffer_length) {
       int copylen = lw->buffer_length - lw->pos;
       memcpy(lw->buffer + lw->pos, data, copylen * sizeof(uint16_t));
-      len-=  copylen;
-      data+= copylen;
+      len -=  copylen;
+      data += copylen;
       lw->pos = lw->buffer_length;
     }
     
@@ -225,11 +225,11 @@ static void line_write(void *user, const uint16_t *data, int len){
   }
 }
 
-static void pre_write(void *user, pmath_t item){
+static void pre_write(void *user, pmath_t item) {
   struct linewriter_t *lw = user;
   struct write_pos_t *wp = pmath_mem_alloc(sizeof(struct write_pos_t));
   
-  if(wp){
+  if(wp) {
     wp->item     = pmath_ref(item);
     wp->next     = NULL;
     wp->pos      = lw->pos;
@@ -239,11 +239,11 @@ static void pre_write(void *user, pmath_t item){
   }
 }
 
-static void post_write(void *user, pmath_t item){
+static void post_write(void *user, pmath_t item) {
   struct linewriter_t *lw = user;
   struct write_pos_t *wp = pmath_mem_alloc(sizeof(struct write_pos_t));
   
-  if(wp){
+  if(wp) {
     wp->item     = pmath_ref(item);
     wp->next     = NULL;
     wp->pos      = lw->pos;
@@ -261,11 +261,11 @@ void pmath_write_with_pagewidth(
   void                   *user,
   int                     page_width,
   int                     indention_width
-){
+) {
   struct linewriter_t lw;
   struct pmath_write_ex_t info;
   
-  if(page_width < 0){
+  if(page_width < 0) {
     pmath_t tmp = pmath_evaluate(pmath_ref(PMATH_SYMBOL_PAGEWIDTHDEFAULT));
     
     if(pmath_is_int32(tmp))
@@ -274,11 +274,11 @@ void pmath_write_with_pagewidth(
       page_width = 0xFFFFFF;
     else
       page_width = 72;
-    
+      
     pmath_unref(tmp);
   }
   
-  if(page_width > 0xFFFF){
+  if(page_width > 0xFFFF) {
     pmath_write(obj, options, write, user);
     return;
   }
@@ -286,13 +286,13 @@ void pmath_write_with_pagewidth(
   //page_width-= indention_width;
   
   if(page_width < 6)
-     page_width = 6;
+    page_width = 6;
     
   lw.line_length   = page_width;
   lw.buffer_length = 2 * page_width;
   lw.buffer   = pmath_mem_alloc(sizeof(uint16_t) * lw.buffer_length);
   lw.newlines = pmath_mem_alloc(lw.line_length + 1);
-  if(!lw.buffer || !lw.newlines){
+  if(!lw.buffer || !lw.newlines) {
     pmath_mem_free(lw.buffer);
     pmath_mem_free(lw.newlines);
     pmath_write(obj, options, write, user);
@@ -320,8 +320,8 @@ void pmath_write_with_pagewidth(
   
   while(lw.pos > 0)
     flush_line(&lw);
-  
-  while(lw.all_write_pos){
+    
+  while(lw.all_write_pos) {
     struct write_pos_t *wp = lw.all_write_pos;
     lw.all_write_pos = wp->next;
     

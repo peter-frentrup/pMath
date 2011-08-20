@@ -4,22 +4,22 @@
 #include <pmath-core/objects-inline.h>
 
 /**\defgroup debug Debugging
-   
+
    These functions are for logging purposes. They default to ((void)0) unless
    \c PMATH_DEBUG_LOG is defined.
-   
+
    @{
  */
 
 /**\brief Print out a simple debug message.
    \param fmt A printf-compatible format string
    \param ...  The variables to be printed as specified by format.
-   
+
    The format string and arguments are as in printf.
  */
-PMATH_API 
+PMATH_API
 #if PMATH_NEED_GNUC(2, 4)
-  __attribute__((__format__(__printf__, 1, 2)))
+__attribute__((__format__(__printf__, 1, 2)))
 #endif
 void pmath_debug_print(const char *fmt, ...);
 
@@ -28,12 +28,12 @@ void pmath_debug_print(const char *fmt, ...);
    \param obj A pMath object. It wont be freed.
    \param post A string that should be printed after the object.
  */
-PMATH_API 
+PMATH_API
 void pmath_debug_print_object(
   const char *pre,
-  pmath_t     obj, 
+  pmath_t     obj,
   const char *post);
-  
+
 /**\brief Print the current pMath stack trace to the debug log.
  */
 PMATH_API
@@ -51,5 +51,5 @@ void pmath_debug_print_stack(void);
   PMATH_PRIVATE pmath_bool_t _pmath_debug_library_init(void);
   PMATH_PRIVATE void         _pmath_debug_library_done(void);
 #endif
-  
+
 #endif /* __PMATH_DEBUG_H__ */

@@ -2,7 +2,7 @@
 #define __PMATH_UTIL__SYMBOL_VALUES_PRIVATE_H__
 
 #ifndef BUILDING_PMATH
-  #error This header file is not part of the public pMath API
+#error This header file is not part of the public pMath API
 #endif
 
 #include <pmath-core/symbols.h>
@@ -10,12 +10,12 @@
 #include <pmath-util/concurrency/atomic-private.h>
 #include <pmath-util/hashtables-private.h>
 
-struct _pmath_rulecache_t{ // do not access members directly, init all with PMATH_NULL
+struct _pmath_rulecache_t { // do not access members directly, init all with PMATH_NULL
   pmath_atomic_t  _table; // pmath_hashtable_t, const patterns, no condition in rhs
   pmath_locked_t  _more;  // _pmath_multirule_t
 };
 
-struct _pmath_symbol_rules_t{ // init all with PMATH_NULL
+struct _pmath_symbol_rules_t { // init all with PMATH_NULL
   struct _pmath_rulecache_t  up_rules;      // ~(~~~,f,~~~), ~(~~~,f(~~~),~~~)
   struct _pmath_rulecache_t  down_rules;    // f(~~~)
   struct _pmath_rulecache_t  sub_rules;     // f(~~~)(~~~)...
@@ -26,13 +26,13 @@ struct _pmath_symbol_rules_t{ // init all with PMATH_NULL
   pmath_atomic_t _messages; // this is a pmath_hashtable_t of class pmath_ht_obj_class
 };
 
-struct _pmath_symbol_rules_entry_t{
+struct _pmath_symbol_rules_entry_t {
   pmath_symbol_t                key;
   struct _pmath_symbol_rules_t  rules;
 };
 
 PMATH_PRIVATE
-extern const pmath_ht_class_t  _pmath_symbol_rules_ht_class; 
+extern const pmath_ht_class_t  _pmath_symbol_rules_ht_class;
 // hashtables of struct _pmath_symbol_rules_entry_t*
 // used for _pmath_thread_t::local_rules
 
@@ -66,21 +66,21 @@ void _pmath_symbol_rules_done(struct _pmath_symbol_rules_t *rules);
 PMATH_PRIVATE
 pmath_bool_t _pmath_symbol_value_visit(
   pmath_t        value, // will be freed
-  pmath_bool_t (*callback)(pmath_t,void*),
+  pmath_bool_t (*callback)(pmath_t, void*),
   void          *closure);
 
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_NONNULL(1)
 pmath_bool_t _pmath_rulecache_visit(
-  struct _pmath_rulecache_t *rc, 
-  pmath_bool_t (*callback)(pmath_t,void*),
+  struct _pmath_rulecache_t *rc,
+  pmath_bool_t (*callback)(pmath_t, void*),
   void *closure);
 
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_NONNULL(1)
 pmath_bool_t _pmath_symbol_rules_visit(
-  struct _pmath_symbol_rules_t *rules, 
-  pmath_bool_t (*callback)(pmath_t,void*),
+  struct _pmath_symbol_rules_t *rules,
+  pmath_bool_t (*callback)(pmath_t, void*),
   void *closure);
 
 /*============================================================================*/
@@ -146,7 +146,7 @@ PMATH_PRIVATE
 PMATH_ATTRIBUTE_NONNULL(1)
 void _pmath_rulecache_emit(
   struct _pmath_rulecache_t *rc);
-  
+
 /*============================================================================*/
 
 PMATH_PRIVATE
@@ -154,7 +154,7 @@ PMATH_ATTRIBUTE_USE_RESULT
 pmath_t _pmath_symbol_value_prepare(
   pmath_symbol_t sym,    // wont be freed
   pmath_t        value); // will be freed
-  
+
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_t _pmath_symbol_find_value(pmath_symbol_t sym); // sym wont be freed
@@ -165,7 +165,7 @@ void _pmath_symbol_define_value_pos(
   pmath_locked_t *value_position,  //accessed via _pmath_object_atomic_[read|write]()
   pmath_t         pattern,         // will be freed; PMATH_UNDEFINED: ignore old value
   pmath_t         body);           // will be freed; PMATH_UNDEFINED: remove patterns
- 
+
 /*============================================================================*/
 
 PMATH_PRIVATE pmath_bool_t _pmath_symbol_values_init(void);
