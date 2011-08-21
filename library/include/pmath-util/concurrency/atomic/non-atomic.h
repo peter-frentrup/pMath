@@ -18,7 +18,7 @@
 
   In summary, this should not be a compile time constant as it is now!
  */
-#define PMATH_ATOMIC_FASTLOOP_COUNT  (0)
+#define PMATH_ATOMIC_FASTLOOP_COUNT    (0)
 
 
 /**\brief Declares a variable with specified alignment.
@@ -26,20 +26,10 @@
    \param NAME The variable name.
    \param ALIGNMENT The alignment in bytes
  */
-#define PMATH_DECLARE_ALIGNED(TYPE, NAME, ALIGNMENT)
-
-/**\brief Declares a volatile machine size integer with proper alignment.
-   \param NAME The variable name.
- */
-#define PMATH_DECLARE_ATOMIC(NAME)
-
-/**\brief Declares a volatile double-machine-size integer with proper alignment.
-   \param NAME The variable name.
- */
-#define PMATH_DECLARE_ATOMIC_2(NAME)
+#define PMATH_DECLARE_ALIGNED(TYPE, NAME, ALIGNMENT)  TYPE NAME
 
 /**\brief Add a value to another.
-   \param atom A sizeof(void*) aligned pointer.
+   \param atom An atomic variable.
    \param delta The difference between the new and the old value.
    \return The old value of \c *atom.
 
@@ -48,8 +38,8 @@
  */
 PMATH_FORCE_INLINE
 intptr_t pmath_atomic_fetch_add(
-  intptr_t volatile *atom,
-  intptr_t delta
+  pmath_atomic_t *atom, 
+  intptr_t        delta
 ) {
   intptr_t result = *atom;
   *atom += delta;
@@ -57,7 +47,7 @@ intptr_t pmath_atomic_fetch_add(
 }
 
 /**\brief Exchange a value.
-   \param atom A sizeof(void*) aligned pointer.
+   \param atom An atomic variable.
    \param new_value The new value of \c *atom.
    \return The old value of \c *atom.
 
@@ -66,8 +56,8 @@ intptr_t pmath_atomic_fetch_add(
  */
 PMATH_FORCE_INLINE
 intptr_t pmath_atomic_fetch_set(
-  intptr_t volatile *atom,
-  intptr_t new_value
+  pmath_atomic_t *atom,
+  intptr_t        new_value
 ) {
   intptr_t result = *atom;
   *atom = new_value;
@@ -75,7 +65,7 @@ intptr_t pmath_atomic_fetch_set(
 }
 
 /**\brief Exchange a value if it equals another value.
-   \param atom A sizeof(void*) aligned pointer.
+   \param atom An atomic variable.
    \param old_value The comparisor.
    \param new_value The possible new value of \c *atom.
    \return The old value of \c *atom.
@@ -86,9 +76,9 @@ intptr_t pmath_atomic_fetch_set(
  */
 PMATH_FORCE_INLINE
 intptr_t pmath_atomic_fetch_compare_and_set(
-  intptr_t volatile *atom,
-  intptr_t old_value,
-  intptr_t new_value
+  pmath_atomic_t *atom,
+  intptr_t        old_value,
+  intptr_t        new_value
 ) {
   if(*atom == old_value) {
     *atom = new_value;
@@ -98,7 +88,7 @@ intptr_t pmath_atomic_fetch_compare_and_set(
 }
 
 /**\brief Exchange a value if it equals another value.
-   \param atom A sizeof(void*) aligned pointer.
+   \param atom An atomic variable.
    \param old_value The comparisor.
    \param new_value The possible new value of \c *atom.
    \return Whether the exchange was performed.
@@ -109,9 +99,9 @@ intptr_t pmath_atomic_fetch_compare_and_set(
  */
 PMATH_FORCE_INLINE
 pmath_bool_t pmath_atomic_compare_and_set(
-  intptr_t volatile *atom,
-  intptr_t old_value,
-  intptr_t new_value
+  pmath_atomic_t *atom,
+  intptr_t        old_value,
+  intptr_t        new_value
 ) {
   if(*atom == old_value) {
     *atom = new_value;
@@ -121,7 +111,7 @@ pmath_bool_t pmath_atomic_compare_and_set(
 }
 
 /**\brief Exchange two values value if they equal another two values.
-   \param *atom A 2*sizeof(void*) aligned pointer to two values.
+   \param *atom An atomic variable of size 2 * sizeof(void*).
    \param old_value_fst The first old value.
    \param old_value_snd The second old value.
    \param new_value_fst The possible new value of \c atom[0].
@@ -140,11 +130,11 @@ pmath_bool_t pmath_atomic_compare_and_set(
  */
 PMATH_FORCE_INLINE
 pmath_bool_t pmath_atomic_compare_and_set_2(
-  intptr_t volatile *atom,
-  intptr_t old_value_fst,
-  intptr_t old_value_snd,
-  intptr_t new_value_fst,
-  intptr_t new_value_snd
+  pmath_atomic2_t *atom,
+  intptr_t         old_value_fst,
+  intptr_t         old_value_snd,
+  intptr_t         new_value_fst,
+  intptr_t         new_value_snd
 ) {
   if(atom[0] == old_value_fst && atom[1] == old_value_snd) {
     atom[0] = new_value_fst;
@@ -174,7 +164,7 @@ void pmath_atomic_barrier(void) {
 
 
 /**\brief Try to aquire a lock.
-   \param atom The lock. A sizeof(void*) aligned pointer.
+   \param atom The lock. An atomic variable.
 
    This function implements a spin lock. It has aquire barrier semantics. Use
    it with pmath_atomic_unlock():
@@ -188,19 +178,19 @@ pmath_atomic_unlock(&spin);
  */
 PMATH_FORCE_INLINE
 void pmath_atomic_lock(
-  intptr_t volatile *atom
+  pmath_atomic_t *atom
 ) {
   *atom = 1;
 }
 
 /**\brief Release a previously aquired lock.
-   \param atom The lock. A sizeof(void*) aligned pointer.
+   \param atom The lock. An atomic variable.
 
    \see pmath_atomic_lock
  */
 PMATH_FORCE_INLINE
 void pmath_atomic_unlock(
-  intptr_t volatile *atom
+  pmath_atomic_t *atom
 ) {
   *atom = 0;
 }

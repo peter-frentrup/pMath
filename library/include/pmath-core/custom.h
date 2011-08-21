@@ -51,7 +51,7 @@ typedef pmath_t pmath_custom_t;
 PMATH_API 
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_custom_t pmath_custom_new(
-  void                   *data,
+  void              *data,
   pmath_callback_t   destructor);
 
 /**\brief Get a custom object's data member.

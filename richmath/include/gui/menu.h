@@ -5,6 +5,7 @@
 
 
 namespace richmath {
+  /// @deprecated Never used, never tested
   class Menu: public Document {
     public:
       Menu();

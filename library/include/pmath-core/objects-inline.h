@@ -14,8 +14,8 @@ struct _pmath_t { // do not access members
 
 /*============================================================================*/
 
-#define pmath_is_double(obj)  (((obj).s.tag & PMATH_TAGMASK_NONDOUBLE) != PMATH_TAGMASK_NONDOUBLE)
-#define pmath_is_pointer(obj) (((obj).s.tag & PMATH_TAGMASK_POINTER)   == PMATH_TAGMASK_POINTER)
+#define pmath_is_double(obj)  (((obj).s.tag & PMATH_TAGMASK_NONDOUBLE) != PMATH_TAGMASK_NONDOUBLE) 
+#define pmath_is_pointer(obj) (((obj).s.tag & PMATH_TAGMASK_POINTER)   == PMATH_TAGMASK_POINTER)   
 #define pmath_is_magic(obj)   ((obj).s.tag == PMATH_TAG_MAGIC)
 #define pmath_is_int32(obj)   ((obj).s.tag == PMATH_TAG_INT32)
 #define pmath_is_str0(obj)    ((obj).s.tag == PMATH_TAG_STR0)

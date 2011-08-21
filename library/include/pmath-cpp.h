@@ -9,38 +9,44 @@
 
    There exists a thin layer to easily use pMath with C++. This is usably
    prefreable over the C API because it handles reference counting/type checking
-   automatically and leads to less "boilerplate code"
+   automatically and leads to less "boilerplate code".
 
    To use it, simply <tt>\#include <pmath-cpp.h></tt>. The classes are in the
    \c pmath namespace.
 
    This namespace also containts numerous helper functions to easily construct
-   expression trees.
+   expression trees. None of the classes and functions generate C++ exceptions,
+   they are all fault tolerant (in contrast to most of the plain C API).
 
    @{
  */
 
 namespace pmath {
+  class ReadableBinaryFile;
   class String;
+  class WriteableBinaryFile;
+  class WriteableTextFile;
   
   /**\brief A wrapper for pmath_t and drived types.
      \ingroup cpp_binding
   
-     This class wraps a single pmath_t, so its size is sizeof(void*).
+     This class wraps a single pmath_t, so its sizeof(Expr) == sizeof(pmath_t).
    */
   class Expr {
     public:
-      /**\brief Construct form a pmath_t, stealing the reference. */
+      /**\brief Initialize with PMATH_NULL */
       Expr() throw()
         : _obj(PMATH_NULL)
       {
       }
       
+      /**\brief Construct form a pmath_t, that will be freed automatically with the Expr. */
       explicit Expr(pmath_t obj) throw()
         : _obj(obj)
       {
       }
       
+      /**\brief Copy an Expr, inrecementing the reference counter. */
       Expr(const Expr &src) throw()
         : _obj(pmath_ref(src._obj))
       {
@@ -58,10 +64,12 @@ namespace pmath {
       {
       }
       
+      /**\brief Destructor. Frees the wrapped object. */
       ~Expr() throw() {
         pmath_unref(_obj);
       }
       
+      /**\brief Copy an Expr. Increments the new value's reference counter and frees the old one. */
       Expr &operator=(const Expr &src) throw() {
         pmath_t tmp = _obj;
         _obj = pmath_ref(src._obj);
@@ -98,12 +106,12 @@ namespace pmath {
         return pmath_hash(_obj);
       }
       
-      /**\brief check for identity. The pMath === operator. */
+      /**\brief Check for identity. The pMath === operator. */
       bool operator==(const Expr &other) const throw() {
         return pmath_equals(_obj, other._obj);
       }
       
-      /**\brief check for non-identity. The pMath =!= operator. */
+      /**\brief Check for non-identity. The pMath =!= operator. */
       bool operator!=(const Expr &other) const throw() {
         return !pmath_equals(_obj, other._obj);
       }
@@ -113,22 +121,22 @@ namespace pmath {
         return pmath_compare(_obj, other._obj);
       }
       
-      /**\brief Compare with another Expr */
+      /**\brief Compare with another Expr. See pmath_compare() */
       bool operator<(const Expr &other) const throw() {
         return compare(other) < 0;
       }
       
-      /**\brief Compare with another Expr */
+      /**\brief Compare with another Expr. See pmath_compare() */
       bool operator<=(const Expr &other) const throw() {
         return compare(other) <= 0;
       }
       
-      /**\brief Compare with another Expr */
+      /**\brief Compare with another Expr. See pmath_compare() */
       bool operator>(const Expr &other) const throw() {
         return compare(other) > 0;
       }
       
-      /**\brief Compare with another Expr */
+      /**\brief Compare with another Expr. See pmath_compare() */
       bool operator>=(const Expr &other) const throw() {
         return compare(other) >= 0;
       }
@@ -139,7 +147,7 @@ namespace pmath {
       /**\brief Get the pmath_t. Reference is held by the Expr object. */
       const pmath_t get() const throw() { return _obj; }
       
-      /**\brief Check for null pointer. */
+      /**\brief Check for not holding the null pointer. */
       bool is_valid() const throw() { return !is_null(); }
       
       /**\brief Length of the expression or 0 on error. */
@@ -210,11 +218,30 @@ namespace pmath {
         return def;
       }
       
-      /**\brief Convert to a string.
-         \param options Optional output options.
+      /**\brief Convert to a string. The pMath ToString function.
+         \param options Optional formating options.
          \return The String representation.
        */
       String to_string(pmath_write_options_t options = 0) const throw();
+      
+      /**\brief Write to a file/text stream.
+         \param file The text file object. It must be writeable.
+         \param options Optional formating options.
+       */
+      void write_to_file(WriteableTextFile file, pmath_write_options_t options = 0) const throw();
+      
+      /**\brief Serialize to a binary file/stream.
+         \param file The binary file/stream. It must be writeable.
+         \return An error number.
+       */
+      pmath_serialize_error_t serialize(WriteableBinaryFile file) const throw();
+      
+      /**\brief Deserialize an Expr from a binary file/stream.
+         \param file The binary file/stream. It must be writeable.
+         \param error An error number is stored here. May be NULL if not needed.
+         \return The deserialized expression.
+       */
+      static Expr deserialize(ReadableBinaryFile file, pmath_serialize_error_t *error) throw();
       
     protected:
       pmath_t _obj;
@@ -236,30 +263,29 @@ namespace pmath {
   /**\brief check for identity. The pMath === operator.
      \memberof pmath::Expr
    */
-  inline bool operator==(pmath_t o1, const Expr &o2) {
+  inline bool operator==(pmath_t o1, const Expr &o2) throw() {
     return pmath_equals(o1, o2.get());
   }
   
   /**\brief check for non-identity. The pMath =!= operator.
      \memberof pmath::Expr
    */
-  inline bool operator!=(pmath_t o1, const Expr &o2) {
+  inline bool operator!=(pmath_t o1, const Expr &o2) throw() {
     return !pmath_equals(o1, o2.get());
   }
   
-  /**\brief check for identity. The pMath === operator.
-     \memberof pmath::Expr
+  /**\memberof pmath::Expr
    */
-  inline bool operator==(const Expr &o1, pmath_t o2) {
+  inline bool operator==(const Expr &o1, pmath_t o2) throw() {
     return pmath_equals(o1.get(), o2);
   }
   
-  /**\brief check for non-identity. The pMath =!= operator.
-     \memberof pmath::Expr
+  /**\memberof pmath::Expr
    */
-  inline bool operator!=(const Expr &o1, pmath_t o2) {
+  inline bool operator!=(const Expr &o1, pmath_t o2) throw() {
     return !pmath_equals(o1.get(), o2);
   }
+  
   
   /**\brief A wrapper for pmath_string_t.
      \ingroup cpp_binding
@@ -268,12 +294,12 @@ namespace pmath {
    */
   class String: public Expr {
     public:
-      /**\brief Construct form a pmath_string_t, stealing the reference. */
       String() throw()
         : Expr()
       {
       }
       
+      /**\brief Construct form a pmath_string_t, stealing the reference. */
       explicit String(pmath_string_t _str) throw()
         : Expr(pmath_is_string(_str) ? pmath_ref(_str) : PMATH_NULL)
       {
@@ -362,7 +388,6 @@ namespace pmath {
                         (pmath_string_t)pmath_ref(other._obj)));
       }
       
-      /**\brief Concatenate a String and a C string. */
       String operator+(const char *latin1) const throw() {
         return String(pmath_string_insert_latin1(
                         (pmath_string_t)pmath_ref(_obj),
@@ -371,7 +396,6 @@ namespace pmath {
                         -1));
       }
       
-      /**\brief Concatenate a String and a UTF-16-string */
       String operator+(const uint16_t *ucs2) const throw() {
         return String(pmath_string_insert_ucs2(
                         (pmath_string_t)pmath_ref(_obj),
@@ -395,7 +419,7 @@ namespace pmath {
                         (pmath_string_t)pmath_ref(_obj), start, length));
       }
       
-      /**\brief Check for equality with a C string. */
+      /**\brief Check for equality with a C string (Latin-1 encoded). */
       bool equals(const char *latin1) const throw() {
         return pmath_string_equals_latin1((pmath_string_t)_obj, latin1);
       }
@@ -416,10 +440,9 @@ namespace pmath {
         return true;
       }
       
-      /**\brief Check for prefix equality with a C string (Latin-1). */
-      bool starts_with(const char *s, int len = -1) const throw() {
+      bool starts_with(const char *latin1, int len = -1) const throw() {
         if(len < 0) {
-          const char *tmp = s;
+          const char *tmp = latin1;
           len = 0;
           while(*tmp++)
             ++len;
@@ -431,16 +454,15 @@ namespace pmath {
         const uint16_t *buf   = buffer();
         
         while(len-- > 0)
-          if(*buf++ != *(unsigned char*)s++)
+          if(*buf++ != *(unsigned char*)latin1++)
             return false;
             
         return true;
       }
       
-      /**\brief Check for prefix equality with a UCS-2/UTF-16 string. */
-      bool starts_with(const uint16_t *s, int len = -1) const throw() {
+      bool starts_with(const uint16_t *ucs2, int len = -1) const throw() {
         if(len < 0) {
-          const uint16_t *tmp = s;
+          const uint16_t *tmp = ucs2;
           len = 0;
           while(*tmp++)
             ++len;
@@ -452,7 +474,7 @@ namespace pmath {
         const uint16_t *buf = buffer();
         
         while(len-- > 0)
-          if(*buf++ != *s++)
+          if(*buf++ != *ucs2++)
             return false;
             
         return true;
@@ -463,12 +485,10 @@ namespace pmath {
         _obj = pmath_string_insert(_obj, pos, pmath_ref(other._obj));
       }
       
-      /**\brief Insert a substring. Changes the object itself. */
       void insert(int pos, const char *latin1, int len = -1) throw() {
         _obj = pmath_string_insert_latin1(_obj, pos, latin1, len);
       }
       
-      /**\brief Insert a substring. Changes the object itself. */
       void insert(int pos, const uint16_t *ucs2, int len = -1) throw() {
         _obj = pmath_string_insert_ucs2(_obj, pos, ucs2, len);
       }
@@ -486,6 +506,7 @@ namespace pmath {
         _obj = pmath_string_concat(prefix, postfix);
       }
       
+      /**\brief Trim leading and trailing whitespace. */
       const String trim() const throw() {
         int end = length() - 1;
         int start = 0;
@@ -510,7 +531,7 @@ namespace pmath {
         return pmath_string_buffer(const_cast<pmath_string_t*>(&_obj));
       }
       
-      /**\brief Get a single character or U+0000 on error */
+      /**\brief Get a single character or U+0000 on error. */
       uint16_t operator[](int i) const throw() {
         if(i < 0 || i >= length())
           return 0;
@@ -521,62 +542,53 @@ namespace pmath {
       const pmath_string_t get_as_string() const throw() { return (pmath_string_t)_obj; }
       
     private:
-      Expr &operator=(const Expr &src) { /* not supported */
+      String &operator=(const Expr &src) { // use explicit cast instead
         return *this;
       }
       
   };
   
-  inline String Expr::to_string(pmath_write_options_t options) const throw() {
-    pmath_string_t result = PMATH_NULL;
-    
-    pmath_write(_obj, options, write_to_string, &result);
-    
-    return String(result);
-  }
-  
-  /**\brief Utility class for emitting and gathering expressions/building lists
+  /**\brief Utility class for emitting and gathering expressions/building lists.
      \ingroup cpp_binding
   
      Gathering begins with the construction of the object and ends with a call
-     to end() or the object destruction.
-  
-     \note Gathering multiple lists at once is not supported!
+     to end() or the object destruction. This removes the burden of calling
+     pmath_gather_end() for every pmath_gather_begin().
     */
   class Gather {
     public:
       /**\brief The constructor. Starts gathering. */
-      Gather()
+      Gather() throw()
         : ended(false)
       {
         pmath_gather_begin(PMATH_NULL);
       }
       
-      explicit Gather(Expr pattern)
+      explicit Gather(Expr pattern) throw()
         : ended(false)
       {
         pmath_gather_begin(pattern.release());
       }
       
-      ~Gather() {
+      ~Gather() throw() {
         end();
       }
       
-      /**\brief end gathering. */
-      Expr end() {
+      /**\brief end gathering. Calling end() multiple times returns PMATH_NULL. */
+      Expr end() throw() {
         if(ended)
           return Expr();
         ended = true;
         return Expr(pmath_gather_end());
       }
       
-      /**\brief emit a value to be gathered. */
-      static void emit(Expr e) {
+      /**\brief Emmit a value to be gathered. */
+      static void emit(Expr e) throw() {
         pmath_emit(e.release(), PMATH_NULL);
       }
       
-      /**\brief emit a value to be gathered. */
-      static void emit(Expr e, Expr tag) {
+      /**\brief Emit a value to be gathered. */
+      static void emit(Expr e, Expr tag) throw() {
         pmath_emit(e.release(), tag.release());
       }
       
@@ -731,6 +743,7 @@ namespace pmath {
                   "o",
                   arglist.release()));
   }
+  inline Expr Parse(String code) { return Expr(pmath_parse_string(code.get())); }
   inline Expr Parse(const char *code) { return Expr(pmath_parse_string(PMATH_C_STRING(code))); }
   inline Expr Parse(const char *code, Expr x1) {
     return ParseArgs(code, List(x1));
@@ -743,6 +756,609 @@ namespace pmath {
   }
   inline Expr Parse(const char *code, Expr x1, Expr x2, Expr x3, Expr x4) {
     return ParseArgs(code, List(x1, x2, x3, x4));
+  }
+  
+  
+  
+  
+  /**\brief A wrapper for pMath file objects (data streams).
+     \ingroup cpp_binding
+  
+     This class provides some stream utility functions in addition to Expr.
+     Note that a pMath file does not have to correspond to any operating system
+     file object.
+   */
+  class File: public Expr {
+    public:
+      File() throw()
+        : Expr()
+      {
+      }
+      
+      explicit File(pmath_t file_object) throw()
+        : Expr(pmath_file_test(file_object, 0) ? pmath_ref(file_object) : PMATH_NULL)
+      {
+        pmath_unref(file_object);
+      }
+      
+      explicit File(const Expr &file_object) throw()
+        : Expr(pmath_file_test(file_object.get(), 0) ? file_object : Expr())
+      {
+      }
+      
+      File(const File &src) throw()
+        : Expr(src)
+      {
+      }
+      
+      /**\brief Test for file properties/capabilities
+         \param properties 0 or one or more of the PMATH_FILE_PROP_XXX constants.
+         \return Whether the file has all the specified capabilities.
+       */
+      bool has_capabilities(int properties) const throw() { return pmath_file_test(_obj, properties); }
+      
+      bool is_file()      const throw() { return has_capabilities(0); }
+      bool is_readable()  const throw() { return has_capabilities(PMATH_FILE_PROP_READ); }
+      bool is_writeable() const throw() { return has_capabilities(PMATH_FILE_PROP_WRITE); }
+      bool is_binary()    const throw() { return has_capabilities(PMATH_FILE_PROP_BINARY); }
+      bool is_text()      const throw() { return has_capabilities(PMATH_FILE_PROP_TEXT); }
+      
+      pmath_files_status_t status() const throw() { return pmath_file_status(_obj); }
+      
+      /**\brief Flush the output buffer of a writeable file.
+       */
+      void flush() throw() {
+      }
+      
+      /**\brief Closes a file immediatly instead of letting the garbage collector close it later.
+       */
+      void close() throw() {
+        pmath_file_close(_obj);
+      }
+      
+    private:
+      File &operator=(const Expr &src) { // use explicit cast instead
+        return *this;
+      }
+      
+  };
+  
+  /**\brief A wrapper for pMath binary file objects (byte data streams).
+     \ingroup cpp_binding
+   */
+  class BinaryFile: public File {
+    public:
+      BinaryFile()
+        : File()
+      {
+      }
+      
+      explicit BinaryFile(pmath_t file_object) throw()
+        : File(pmath_file_test(file_object, PMATH_FILE_PROP_BINARY) ? file_object : PMATH_NULL)
+      {
+        pmath_unref(file_object);
+      }
+      
+      explicit BinaryFile(const Expr &file_object) throw()
+        : File(File(file_object).is_binary() ? file_object : Expr())
+      {
+      }
+      
+      BinaryFile(const BinaryFile &src) throw()
+        : File(src)
+      {
+      }
+      
+      /**\brief Create a memory buffer for as a double ended queue.
+         \return The binary file. Can be used as ReadableBinaryFile and as
+                 WriteableBinaryFile
+       */
+      static BinaryFile create_buffer(size_t mincapacity) throw() {
+        return BinaryFile(pmath_file_create_binary_buffer(mincapacity));
+      }
+      
+      /**\brief Get the current buffer size in bytes. */
+      size_t get_buffer_size() const throw() {
+        return pmath_file_binary_buffer_size(_obj);
+      }
+      
+      /**\brief See file_set_binbuffer(). */
+      bool set_buffer_size(size_t size) throw() {
+        return pmath_file_set_binbuffer(_obj, size);
+      }
+  };
+  
+  
+  /**\brief A wrapper for readable pMath binary file objects (byte data streams).
+     \ingroup cpp_binding
+   */
+  class ReadableBinaryFile: public BinaryFile {
+    public:
+      ReadableBinaryFile()
+        : BinaryFile()
+      {
+      }
+      
+      explicit ReadableBinaryFile(pmath_t file_object) throw()
+        : BinaryFile(pmath_file_test(file_object, PMATH_FILE_PROP_READ) ? pmath_ref(file_object) : PMATH_NULL)
+      {
+        pmath_unref(file_object);
+      }
+      
+      explicit ReadableBinaryFile(const Expr &file_object) throw()
+        : BinaryFile(File(file_object).is_readable() ? file_object : Expr())
+      {
+      }
+      
+      ReadableBinaryFile(const ReadableBinaryFile &src) throw()
+        : BinaryFile(src)
+      {
+      }
+      
+      /**\brief Create binary file object whose content is uncompressed from another binary file. */
+      static ReadableBinaryFile create_uncompressor(ReadableBinaryFile srcfile) throw() {
+        return ReadableBinaryFile(pmath_file_create_uncompressor(srcfile.get()));
+      }
+      
+      /**\brief Read some bytes from the file. See pmath_file_read(). */
+      size_t read(void *buffer, size_t buffer_size, bool preserve_internal_buffer = false) throw() {
+        return pmath_file_read(_obj, buffer, buffer_size, preserve_internal_buffer);
+      }
+  };
+  
+  /**\brief A wrapper for writeable pMath binary file objects (byte data streams).
+     \ingroup cpp_binding
+   */
+  class WriteableBinaryFile: public BinaryFile {
+    public:
+      WriteableBinaryFile()
+        : BinaryFile()
+      {
+      }
+      
+      explicit WriteableBinaryFile(pmath_t file_object) throw()
+        : BinaryFile(pmath_file_test(file_object, PMATH_FILE_PROP_WRITE) ? pmath_ref(file_object) : PMATH_NULL)
+      {
+        pmath_unref(file_object);
+      }
+      
+      explicit WriteableBinaryFile(const Expr &file_object) throw()
+        : BinaryFile(File(file_object).is_writeable() ? file_object : Expr())
+      {
+      }
+      
+      WriteableBinaryFile(const WriteableBinaryFile &src) throw()
+        : BinaryFile(pmath_ref(src._obj))
+      {
+      }
+      
+      /**\brief Create binary file object whose content is compressed into another binary file. */
+      static WriteableBinaryFile create_compressor(WriteableBinaryFile dstfile) throw() {
+        return WriteableBinaryFile(pmath_file_create_compressor(dstfile.get()));
+      }
+      
+      /**\brief Write some bytes to the file. See pmath_file_write(). */
+      size_t write(const void *buffer, size_t buffer_size) throw() {
+        return pmath_file_write(_obj, buffer, buffer_size);
+      }
+      
+  };
+  
+  
+  /**\brief A wrapper for pMath text file objects (byte data streams).
+     \ingroup cpp_binding
+   */
+  class TextFile: public File {
+    public:
+      TextFile()
+        : File()
+      {
+      }
+      
+      explicit TextFile(pmath_t file_object) throw()
+        : File(pmath_file_test(file_object, PMATH_FILE_PROP_TEXT) ? pmath_ref(file_object) : PMATH_NULL)
+      {
+        pmath_unref(file_object);
+      }
+      
+      explicit TextFile(const Expr &file_object) throw()
+        : File(File(file_object).is_text() ? file_object : Expr())
+      {
+      }
+      
+      TextFile(const TextFile &src) throw()
+        : File(src)
+      {
+      }
+      
+      /**\brief Create a text file from a binary file using a known character encoding. */
+      static TextFile create_from_binary(BinaryFile binfile, const char *encoding) throw() {
+        return TextFile(pmath_file_create_text_from_binary(binfile.release(), encoding));
+      }
+      
+      /**\brief Create a text file from a binary file using UTF-16BE or UTF-16LE, depending on the machine architecture. */
+      static TextFile create_from_binary(BinaryFile binfile) {
+        return create_from_binary(binfile, PMATH_BYTE_ORDER < 0 ? "UTF-16LE" : "UTF-16BE");
+      }
+      
+      /**\brief Set a file's internal text buffer.
+         \param buffer The new line buffer. It should not contain any newline
+                       character!
+          \see pmath_file_set_textbuffer().
+       */
+      void set_buffer(String buffer) {
+        pmath_file_set_textbuffer(_obj, (pmath_string_t)buffer.release());
+      }
+  };
+  
+  /**\brief A wrapper for pMath readable text file objects (byte data streams).
+     \ingroup cpp_binding
+   */
+  class ReadableTextFile: public TextFile {
+    public:
+      ReadableTextFile()
+        : TextFile()
+      {
+      }
+      
+      explicit ReadableTextFile(pmath_t file_object) throw()
+        : TextFile(pmath_file_test(file_object, PMATH_FILE_PROP_READ) ? pmath_ref(file_object) : PMATH_NULL)
+      {
+        pmath_unref(file_object);
+      }
+      
+      explicit ReadableTextFile(const Expr &file_object) throw()
+        : TextFile(File(file_object).is_readable() ? file_object : Expr())
+      {
+      }
+      
+      ReadableTextFile(const ReadableTextFile &src) throw()
+        : TextFile(src)
+      {
+      }
+      
+      /**\brief Create a text file from a binary file using a known character encoding. */
+      static ReadableTextFile create_from_binary(ReadableBinaryFile binfile, const char *encoding) throw() {
+        return ReadableTextFile(TextFile::create_from_binary(binfile, encoding));
+      }
+      
+      /**\brief Create a text file from a binary file using UTF-16BE or UTF-16LE, depending on the machine architecture. */
+      static ReadableTextFile create_from_binary(ReadableBinaryFile binfile) {
+        return ReadableTextFile(TextFile::create_from_binary(binfile));
+      }
+      
+      /**\brief Read the next line from the file. */
+      String readline() throw() {
+        return String(pmath_file_readline(_obj));
+      }
+      
+  };
+  
+  /**\brief A wrapper for pMath writeable text file objects (byte data streams).
+     \ingroup cpp_binding
+   */
+  class WriteableTextFile: public TextFile {
+    public:
+      WriteableTextFile() throw()
+        : TextFile()
+      {
+      }
+      
+      explicit WriteableTextFile(pmath_t file_object) throw()
+        : TextFile(pmath_file_test(file_object, PMATH_FILE_PROP_WRITE) ? pmath_ref(file_object) : PMATH_NULL)
+      {
+        pmath_unref(file_object);
+      }
+      
+      explicit WriteableTextFile(const Expr &file_object) throw()
+        : TextFile(File(file_object).is_writeable() ? file_object : Expr())
+      {
+      }
+      
+      WriteableTextFile(const WriteableTextFile &src) throw()
+        : TextFile(src)
+      {
+      }
+      
+      /**\brief Create a text file from a binary file using a known character encoding. */
+      static WriteableTextFile create_from_binary(WriteableBinaryFile binfile, const char *encoding) throw() {
+        return WriteableTextFile(TextFile::create_from_binary(binfile, encoding));
+      }
+      
+      /**\brief Create a text file from a binary file using UTF-16BE or UTF-16LE, depending on the machine architecture. */
+      static WriteableTextFile create_from_binary(WriteableBinaryFile binfile) throw() {
+        return WriteableTextFile(TextFile::create_from_binary(binfile));
+      }
+      
+      /**\brief Write some text to the file. */
+      void write(String str) throw() {
+        pmath_file_writetext(_obj, str.buffer(), str.length());
+      }
+  };
+  
+  
+  
+  /**\brief Abstract base class for C++ callbacks used as pMath files.
+     \ingroup cpp_binding
+  
+     You can plug in C++ methods
+  
+     The object destructor must be thread-safe (e.g. by not using any global
+     data), because it is typically called from another thread than where the
+     object was created. If synchronization is needed, it can be done in the
+     dereference() callback method.
+  
+     All other callback methods are synchronized: pMath ensures that no
+     callback is entered twice at the same time.
+   */
+  class UserStream {
+    public:
+      virtual ~UserStream() {}
+      
+      /**\brief Test whether a pMath file wraps a user stream.
+         \param file The pMath file.
+         \return true iff \a file wraps UserStream subclass U object
+       */
+      template<class U>
+      static bool file_wraps(File file) {
+        return manipulate<U>(file, noop);
+      }
+      
+    protected:
+      /**\brief Called by pMath when the object is no longer needed.
+      
+         This method destroys the object by default.
+       */
+      virtual void dereference() { delete this; }
+      
+    protected:
+      /**\brief Call a method on the user stream behind a pMath file.
+         \param file A pMath file that was created from a user stream class U.
+         \param callback A member method of the user stream function Uto be
+                         called by pMath.
+         \param arg An argument to the callback.
+         \return Whether the callback was called. That is, whether the file is
+                 actually a user stream of class U.
+       */
+      template<class U, typename A>
+      static bool manipulate(File file, void (U::*callback)(const A&), const A &arg) {
+        Manipulator<U, A> manipulator;
+        
+        manipulator.method = callback;
+        manipulator.arg = arg;
+        manipulator.success = false;
+        
+        pmath_file_manipulate(
+          file.get(),
+          destructor_function,
+          Manipulator<U, A>::callback,
+          &manipulator);
+          
+        return manipulator.success;
+      }
+      
+      /**\brief Call a method on the user stream behind a pMath file.
+         \param file A pMath file that was created from a user stream class U.
+         \param callback A member method of the user stream function Uto be
+                         called by pMath.
+         \return Whether the callback was called. That is, whether the file is
+                 actually a user stream of class U.
+       */
+      template<class U>
+      static bool manipulate(BinaryFile file, void (U::*callback)()) {
+        VoidManipulator<U> manipulator;
+        
+        manipulator.method = callback;
+        manipulator.success = false;
+        
+        pmath_file_manipulate(
+          file.get(),
+          destructor_function,
+          VoidManipulator<U>::callback,
+          &manipulator);
+          
+        return manipulator.success;
+      }
+      
+    protected:
+      /**\brief Called by pMath.
+       */
+      static void destructor_function(void *extra) {
+        UserStream *stream = (UserStream*)extra;
+        stream->dereference();
+      }
+      
+    private:
+      void noop() {
+      }
+      
+    private:
+      template<class C, typename A>
+      class Manipulator {
+        public:
+          void (C::*method)(const A &);
+          const A &arg;
+          bool success;
+          
+          static void callback(void *extra, void *data) {
+            C                 *obj  = (C*)extra;
+            Manipulator<C, A> *info = (Manipulator<C, A>*)data;
+            
+            (obj->*(info->method))(info->arg);
+            info->success = true;
+          }
+      };
+      
+      template<class C>
+      class VoidManipulator {
+        public:
+          void (C::*method)();
+          bool success;
+          
+          static void callback(void *extra, void *data) {
+            C                  *obj  = (C*)extra;
+            VoidManipulator<C> *info = (VoidManipulator<C>*)data;
+            
+            (obj->*(info->method))();
+            info->success = true;
+          }
+      };
+      
+  };
+  
+  /**\brief Abstract base class for C++ callbacks used as pMath binary files.
+     \ingroup cpp_binding
+   */
+  class BinaryUserStream: public UserStream {
+    protected:
+      /**\brief Called by pMath to check for end-of-file and other errors.
+       */
+      virtual pmath_files_status_t status() = 0;
+      
+      /**\brief Called by pMath to flush data to disk.
+       */
+      virtual void flush() {}
+      
+      /**\brief Called by pMath to read data.
+       */
+      virtual size_t read(void *buffer, size_t buffer_size) = 0;
+      
+      /**\brief Called by pMath to write data.
+       */
+      virtual size_t write(const void *buffer, size_t buffer_size) = 0;
+      
+    protected:
+      /**\brief Convert to a binary file. pMath will take ownership of the C++ object.
+      
+         Because pMath now owns the C++ object, you must not touch it directly
+         after this call
+       */
+      BinaryFile convert_to_file(bool readable, bool writeable) {
+        pmath_binary_file_api_t api = {0};
+        api.struct_size = sizeof(api);
+        
+        api.status_function = status_function;
+        api.flush_function  = flush_function;
+        api.read_function   = readable ? read_function : 0;
+        api.write_function  = writeable ? write_function : 0;
+        
+        return BinaryFile(pmath_file_create_binary(this, destructor_function, &api));
+      }
+      
+      ReadableBinaryFile convert_to_file_readonly() {
+        return ReadableBinaryFile(convert_to_file(true, false));
+      }
+      
+      WriteableBinaryFile convert_to_file_writeonly() {
+        return WriteableBinaryFile(convert_to_file(false, true));
+      }
+      
+    private:
+      static pmath_files_status_t status_function(void *extra) {
+        BinaryUserStream *stream = (BinaryUserStream*)extra;
+        return stream->status();
+      }
+      
+      static void flush_function(void *extra) {
+        BinaryUserStream *stream = (BinaryUserStream*)extra;
+        return stream->flush();
+      }
+      
+      static size_t read_function(void *extra, void *buffer, size_t buffer_size) {
+        BinaryUserStream *stream = (BinaryUserStream*)extra;
+        return stream->read(buffer, buffer_size);
+      }
+      
+      static size_t write_function(void *extra, const void *buffer, size_t buffer_size) {
+        BinaryUserStream *stream = (BinaryUserStream*)extra;
+        return stream->write(buffer, buffer_size);
+      }
+  };
+  
+  /**\brief Abstract base class for C++ callbacks used as pMath text files.
+     \ingroup cpp_binding
+   */
+  class TextUserStream: public UserStream {
+    public:
+      /**\brief Called by pMath to check for end-of-file and other errors.
+       */
+      virtual pmath_files_status_t status() = 0;
+      
+      /**\brief Called by pMath to flush data to disk.
+       */
+      virtual void flush() {}
+      
+      /**\brief Called by pMath to read a line of text, excluding any newline characters.
+       */
+      virtual String readline() = 0;
+      
+      /**\brief Called by pMath to write text.
+       */
+      virtual bool write(const uint16_t *str, int len) = 0;
+      
+    protected:
+      TextFile convert_to_file(bool readable, bool writeable) {
+        pmath_text_file_api_t api = {0};
+        api.struct_size = sizeof(api);
+        
+        api.status_function = status_function;
+        api.flush_function  = flush_function;
+        api.readln_function = readable ? readln_function : 0;
+        api.write_function  = writeable ? write_function : 0;
+        
+        return TextFile(pmath_file_create_text(this, destructor_function, &api));
+      }
+      
+      ReadableTextFile convert_to_file_readonly() {
+        return ReadableTextFile(convert_to_file(true, false));
+      }
+      
+      WriteableTextFile convert_to_file_writeonly() {
+        return WriteableTextFile(convert_to_file(false, true));
+      }
+      
+    private:
+      static pmath_files_status_t status_function(void *extra) {
+        TextUserStream *stream = (TextUserStream*)extra;
+        return stream->status();
+      }
+      
+      static void flush_function(void *extra) {
+        TextUserStream *stream = (TextUserStream*)extra;
+        return stream->flush();
+      }
+      
+      static pmath_string_t readln_function(void *extra) {
+        TextUserStream *stream = (TextUserStream*)extra;
+        return stream->readline().release();
+      }
+      
+      static pmath_bool_t write_function(void *extra, const uint16_t *str, int len) {
+        TextUserStream *stream = (TextUserStream*)extra;
+        return stream->write(str, len);
+      }
+  };
+  
+  
+  
+  inline String Expr::to_string(pmath_write_options_t options) const throw() {
+    pmath_string_t result = PMATH_NULL;
+    
+    pmath_write(_obj, options, write_to_string, &result);
+    
+    return String(result);
+  }
+  
+  inline void Expr::write_to_file(WriteableTextFile file, pmath_write_options_t options) const throw() {
+    pmath_file_write_object(file.get(), _obj, options);
+  }
+  
+  inline pmath_serialize_error_t Expr::serialize(WriteableBinaryFile file) const throw() {
+    return pmath_serialize(file.get(), _obj);
+  }
+  
+  inline Expr Expr::deserialize(ReadableBinaryFile file, pmath_serialize_error_t *error) throw() {
+    return Expr(pmath_deserialize(file.get(), error));
   }
 };
 

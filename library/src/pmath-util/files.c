@@ -1146,6 +1146,9 @@ pmath_symbol_t pmath_file_create_text_from_binary(
   struct _bintext_extra_t *extra;
   pmath_text_file_api_t api;
   
+  if(!pmath_file_test(binfile, PMATH_FILE_PROP_BINARY))
+    return PMATH_NULL;
+  
   extra = (struct _bintext_extra_t*)pmath_mem_alloc(sizeof(struct _bintext_extra_t));
   
   if(!extra) {

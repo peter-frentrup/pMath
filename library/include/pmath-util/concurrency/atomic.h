@@ -65,6 +65,10 @@
 #endif
 
 
+/**\brief A pointer-sized atomic variable type. 
+   
+   Initialize it with PMATH_ATOMIC_STATIC_INIT.
+ */
 typedef struct { 
   #if PMATH_BITSIZE == 64
     PMATH_DECLARE_ALIGNED(intptr_t, _data, 8);
@@ -73,9 +77,12 @@ typedef struct {
   #endif
 } pmath_atomic_t;
 
+
 #define PMATH_ATOMIC_STATIC_INIT  {0};
 
 
+/**\brief A 2-pointer-sized atomic variable type. 
+ */
 typedef struct {
   #if PMATH_BITSIZE == 64
     PMATH_DECLARE_ALIGNED(intptr_t, _data[2], 16);
@@ -114,16 +121,6 @@ typedef struct {
     }while(0)
 #endif
 
-
-/*#if PMATH_BITSIZE == 64
-  #define PMATH_DECLARE_ATOMIC(name)   PMATH_DECLARE_ALIGNED(volatile intptr_t, name,    8)
-  #define PMATH_DECLARE_ATOMIC_2(name) PMATH_DECLARE_ALIGNED(volatile intptr_t, name[2], 16)
-#elif PMATH_BITSIZE == 32
-  #define PMATH_DECLARE_ATOMIC(name)   PMATH_DECLARE_ALIGNED(volatile intptr_t, name,    4)
-  #define PMATH_DECLARE_ATOMIC_2(name) PMATH_DECLARE_ALIGNED(volatile intptr_t, name[2], 8)
-#else
-  #error invalid PMATH_BITSIZE
-#endif*/
 
 #ifdef PMATH_DOXYGEN
   

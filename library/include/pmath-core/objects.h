@@ -11,7 +11,15 @@
    \brief The basic class for all pMath objects.
 
    pMath works on objects. They can be expressions (trees of pMath objects),
-   symbols, numbers, strings or `magic objects` (special integer values).
+   symbols, numbers, strings or `magic objects` (special integer values). 
+   
+   For efficiency reasons, 32 bit integers, double precision floating point 
+   values, short strings up to 2 characters and magic values are stored inline 
+   in the pmath_t struct. The struct size is only 8 bytes (= sizeof(double)) 
+   thanks to a technique called NaN-boxing.
+   
+   This implementation could change in future version and/or on different 
+   architectures, so do not rely on it.
 
    \see helpers
   @{
@@ -26,14 +34,23 @@
   I assume same endianness for double and integer.
  */
 
-#define PMATH_TAGMASK_BITCOUNT   12          /* |||||||| |||| */
-#define PMATH_TAGMASK_NONDOUBLE  0x7FF00000U /* 01111111_11110000_00000000_00000000 0...0 : ieee double NaN or Inf */
-#define PMATH_TAGMASK_POINTER    0xFFF00000U /* 11111111_11110000_00000000_00000000 0...0 */
+/**\internal */
+#define PMATH_TAGMASK_BITCOUNT   12           /* |||||||| |||| */
+/**\internal */
+#define PMATH_TAGMASK_NONDOUBLE  0x7FF00000U  /* 01111111_11110000_00000000_00000000 0...0 : ieee double NaN or Inf */
+/**\internal */
+#define PMATH_TAGMASK_POINTER    0xFFF00000U  /* 11111111_11110000_00000000_00000000 0...0 */
+/**\internal */
 #define PMATH_TAG_INVALID        (PMATH_TAGMASK_NONDOUBLE | 0xFFFFF)
+/**\internal */
 #define PMATH_TAG_MAGIC          (PMATH_TAGMASK_NONDOUBLE | 0x10000)
+/**\internal */
 #define PMATH_TAG_INT32          (PMATH_TAGMASK_NONDOUBLE | 0x20000)
+/**\internal */
 #define PMATH_TAG_STR0           (PMATH_TAGMASK_NONDOUBLE | 0x30000)
+/**\internal */
 #define PMATH_TAG_STR1           (PMATH_TAGMASK_NONDOUBLE | 0x40000)
+/**\internal */
 #define PMATH_TAG_STR2           (PMATH_TAGMASK_NONDOUBLE | 0x50000)
 
 /**\class pmath_t
@@ -50,34 +67,34 @@
    http://blog.mozilla.com/rob-sayre/2010/08/02/mozillas-new-javascript-value-representation
  */
 typedef union {
-  uint64_t as_bits;
-  double   as_double;
+  uint64_t as_bits;                        ///< \internal
+  double   as_double;                      ///< \internal
   
 #if PMATH_BITSIZE == 64
-  struct _pmath_t *as_pointer_64;
+  struct _pmath_t *as_pointer_64;          ///< \internal
 #endif
   
   struct {
 #if PMATH_BYTE_ORDER < 0 // little endian 
     union {
-      int32_t  as_int32;
-      uint16_t as_chars[2];
+      int32_t  as_int32;                   ///< \internal
+      uint16_t as_chars[2];                ///< \internal
 #if PMATH_BITSIZE == 32
-      struct _pmath_t *as_pointer_32;
+      struct _pmath_t *as_pointer_32;      ///< \internal
 #endif
     } u;
-    uint32_t  tag;
+    uint32_t  tag;                         ///< \internal
 #else
-    uint32_t  tag;
+    uint32_t  tag;                         ///< \internal
     union {
-      int32_t   as_int32;
-      uint16_t as_chars[2];
+      int32_t  as_int32;                   ///< \internal
+      uint16_t as_chars[2];                ///< \internal
 #if PMATH_BITSIZE == 32
-      struct _pmath_t *as_pointer_32;
+      struct _pmath_t *as_pointer_32;      ///< \internal
 #endif
-    } u;
+    } u;                                   ///< \internal
 #endif
-  } s;
+  } s;                                     ///< \internal
 } pmath_t;
 
 PMATH_FORCE_INLINE
@@ -116,12 +133,21 @@ pmath_t PMATH_FROM_PTR(void *p) {
 #define PMATH_THREAD_KEY_PARSERARGUMENTS  PMATH_FROM_TAG(PMATH_TAG_MAGIC, 253)
 #define PMATH_ABORT_EXCEPTION             PMATH_FROM_TAG(PMATH_TAG_MAGIC, 254)
 
+/**\internal */
 #define PMATH_STATIC_UNDEFINED            { (((uint64_t)PMATH_TAG_MAGIC) << 32) | 255 }
+
+/**\internal */
 #define PMATH_STATIC_NULL                 { ((uint64_t)PMATH_TAGMASK_POINTER) << 32 }
 
+/**\brief Magic value to indicate unset variable values/...
+   \hideinitializer
+ */
 PMATH_UNUSED
 static const pmath_t PMATH_UNDEFINED = PMATH_STATIC_UNDEFINED;
 
+/**\brief The NULL pointer. /\\/ in pMath.
+   \hideinitializer
+ */
 PMATH_UNUSED
 static const pmath_t PMATH_NULL      = PMATH_STATIC_NULL;
 
@@ -152,6 +178,7 @@ static const pmath_t PMATH_NULL      = PMATH_STATIC_NULL;
  */
 typedef int pmath_type_t;
 
+/**\internal */
 enum {
   PMATH_TYPE_SHIFT_MP_FLOAT = 0,
   PMATH_TYPE_SHIFT_MP_INT,
@@ -166,6 +193,7 @@ enum {
   PMATH_TYPE_SHIFT_COUNT
 };
 
+/**\hideinitializer */
 enum {
   PMATH_TYPE_MP_INT                  = 1 << PMATH_TYPE_SHIFT_MP_INT,
   PMATH_TYPE_QUOTIENT                = 1 << PMATH_TYPE_SHIFT_QUOTIENT,
@@ -255,13 +283,13 @@ typedef int (*pmath_compare_func_t)(pmath_t, pmath_t);
    <tt>memset(&ex, 0, sizeof(ex)); ex.size = sizeof(ex); ... </tt>
  */
 struct pmath_write_ex_t {
-  size_t                  size; ///< must be initialized with sizeof(struct pmath_write_ex_t), for version control
+  size_t                  size;                                              ///< must be initialized with sizeof(struct pmath_write_ex_t), for version control
   pmath_write_options_t   options;
-  void                  (*write)(void *user, const uint16_t *data, int len);                  ///< mandatory, write callback
+  void                  (*write)(void *user, const uint16_t *data, int len); ///< mandatory, write callback
   void                   *user;                                              ///< first parameter of the callbacks
   
-  void (*pre_write)(void *user, pmath_t obj);                   ///< optional, called before the pmath_t is written
-  void (*post_write)(void *user, pmath_t obj);                  ///< optional, called after the pmath_t is written
+  void (*pre_write)(void *user, pmath_t obj);   ///< optional, called before the pmath_t is written
+  void (*post_write)(void *user, pmath_t obj);  ///< optional, called after the pmath_t is written
 };
 
 /*============================================================================*/

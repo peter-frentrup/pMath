@@ -79,9 +79,9 @@ pmath_string_t pmath_string_from_utf8(
    \return A zero-terminated UTF-8  string or PMATH_NULL on error. You have to free
            the memory with pmath_mem_free(result, *size_ptr).
 
-   \note pMath strings may contain embedded '\0', but C strings may not.
+   \note pMath strings may contain embedded '\\0', but C strings may not.
          However, the conversion is done to the whole string even though your C
-         functions will only \em see the content up to the first '\0'.
+         functions will only \em see the content up to the first '\\0'.
  */
 PMATH_API
 PMATH_ATTRIBUTE_USE_RESULT
@@ -111,9 +111,9 @@ pmath_string_t pmath_string_from_native(
    \return A zero terminated string or PMATH_NULL on error. You have to free the
            memory with pmath_mem_free(result, *size_ptr).
 
-   \note pMath strings may contain embedded '\0', but C strings may not.
+   \note pMath strings may contain embedded '\\0', but C strings may not.
          However, the conversion is done to the whole string even though your C
-         functions will only \em see the content up to the first '\0'.
+         functions will only \em see the content up to the first '\\0'.
  */
 PMATH_API
 PMATH_ATTRIBUTE_USE_RESULT

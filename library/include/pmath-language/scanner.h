@@ -28,7 +28,7 @@
 /**\class pmath_span_array_t
    \brief Internal flat representaion of spans.
 
-   The boxform of <tt>aa*bbb+cc^-dd*ee</tt> is
+   The box-form of the expression <tt>aa*bbb+cc^-dd*ee</tt> is
    <tt>{{"aa", "*", "bbb"}, "+", {{"cc", "^", {"-", "dd"}}, "*", "ee"}}</tt>
 
    But those lists are not practicable for front-ends, so pMath provides a flat
@@ -41,7 +41,7 @@
    \verbatim
                 aa*bbb+cc^-dd*ee
 operand start:  x  x   x  xx  x
-token end:       x   xx xxx xx x
+token end:       xx  xx xxx xx x
        /                  \_/
 spans <         \____/ \____/
        \               \_______/
@@ -55,9 +55,10 @@ index:          0    5    10   15
    ends with index 12. \n
    The last span is at index 10 and also ends with index 12.
 
-   No two spans can cross-overlap so there is a definite hierachy. You create
+   No two spans may cross-overlap so there is a definite hierachy. You create
    such a span-array with pmath_spans_from_string() and destroy it with
-   pmath_span_array_free().
+   pmath_span_array_free(). Conversion to and from boxes expressions can be done
+   via pmath_boxes_from_spans() and pmath_spans_from_boxes() respectively.
  */
 typedef struct _pmath_span_array_t pmath_span_array_t;
 

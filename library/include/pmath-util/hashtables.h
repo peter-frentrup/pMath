@@ -82,8 +82,8 @@ typedef struct {
 /**\brief Create a new hashtable.
    \memberof pmath_hashtable_t
    \param klass    An interface pointer.
-   \param minsize  Initiol minimal size.
-   \return The new hashtable or PMATH_NULL on error.
+   \param minsize  Initial minimal size.
+   \return The new hashtable or NULL on error.
  */
 PMATH_API pmath_hashtable_t pmath_ht_create(
   const pmath_ht_class_t  *klass,
@@ -94,7 +94,7 @@ PMATH_API pmath_hashtable_t pmath_ht_create(
    \memberof pmath_hashtable_t
    \param ht          The old hashtable
    \param entry_copy  A function for copying entires.
-   \return The new hashtable or PMATH_NULL on error.
+   \return The new hashtable or NULL on error.
  */
 PMATH_API
 PMATH_ATTRIBUTE_USE_RESULT
@@ -128,7 +128,7 @@ PMATH_API unsigned int pmath_ht_capacity(pmath_hashtable_t ht);
 /**\brief Get the number of valid entries in a given hashtable.
    \memberof pmath_hashtable_t
    \param ht    The hashtable.
-   \return The number of non-PMATH_NULL entires.
+   \return The number of non-NULL entires.
  */
 PMATH_API unsigned int pmath_ht_count(pmath_hashtable_t ht);
 
@@ -137,7 +137,7 @@ PMATH_API unsigned int pmath_ht_count(pmath_hashtable_t ht);
    \memberof pmath_hashtable_t
    \param ht    The hashtable.
    \param i     The index. from range 0..pmath_ht_capacity(ht) - 1
-   \return The entry or PMATH_NULL. It is owned by the table.
+   \return The entry or NULL. It is owned by the table.
  */
 PMATH_API void *pmath_ht_entry(pmath_hashtable_t ht, unsigned int i);
 
@@ -147,7 +147,7 @@ PMATH_API void *pmath_ht_entry(pmath_hashtable_t ht, unsigned int i);
    \param ht    The hashtable.
    \param key   The key. It will be send to the kes_hash and entry_keys_equal
                 functions of the table's interface pointer.
-   \return The entry or PMATH_NULL. It is owned by the table.
+   \return The entry or NULL. It is owned by the table.
  */
 PMATH_API
 void *pmath_ht_search(pmath_hashtable_t ht, void *key);
@@ -158,7 +158,7 @@ void *pmath_ht_search(pmath_hashtable_t ht, void *key);
    \param ht     The hashtable.
    \param entry  The entry. It must be compatible with all functions of the
                  table's interface.
-   \return PMATH_NULL or a possible old entry or the entry itself in case of an error.
+   \return NULL or a possible old entry or the entry itself in case of an error.
            You must destroy it.
  */
 PMATH_API
@@ -171,7 +171,7 @@ void *pmath_ht_insert(pmath_hashtable_t ht, void *entry);
    \param ht     The hashtable.
    \param key    The entry's key. It will be send to the kes_hash and
                  entry_keys_equal functions of the table's interface pointer.
-   \return PMATH_NULL or the old entry. You must destroy it.
+   \return NULL or the old entry. You must destroy it.
  */
 PMATH_API
 PMATH_ATTRIBUTE_USE_RESULT

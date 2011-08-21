@@ -87,9 +87,10 @@ PMATH_API size_t pmath_file_read(
  */
 PMATH_API pmath_string_t pmath_file_readline(pmath_t file);
 
-/**\brief Set a file's text buffer.
+/**\brief Set a file's internal text buffer.
    \param file A readable text file. It wont be freed.
-   \param buffer A string. It should not contain any new line characters.
+   \param buffer A string. It should not contain any new line characters. It 
+                 will be freed.
  */
 PMATH_API
 void pmath_file_set_textbuffer(pmath_t file, pmath_string_t buffer);
@@ -174,6 +175,11 @@ void pmath_file_manipulate(
 /**\brief Closes a file.
    \param file A file object. It will be freed.
    \return Whether file was a valid file object.
+   
+   Files are closed automatically by the garbage collector when the reference 
+   counter becomes zero, which could be at an unpredictable point time in the 
+   future. This function closes a file immediatly (by clearing the value of the 
+   symbol representing the file).
  */
 PMATH_API
 pmath_bool_t pmath_file_close(pmath_t file);

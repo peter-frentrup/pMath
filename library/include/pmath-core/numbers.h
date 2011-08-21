@@ -111,15 +111,12 @@ pmath_integer_t pmath_integer_new_ulong(unsigned long int ui);
    \param si An int32_t.
    \return A pMath integer with the specified value.
  */
-
 #define pmath_integer_new_si32(si) PMATH_FROM_INT32(si)
 
 
-//#define pmath_integer_new_si32(si)  PMATH_FROM_INT32((int32_t)(si))
-
 /**\brief Create an integer object from an uint32_t.
    \memberof pmath_integer_t
-   \param si An uint32_t
+   \param ui An uint32_t
    \return A pMath integer with the specified value or PMATH_NULL.
  */
 PMATH_FORCE_INLINE
@@ -130,22 +127,38 @@ pmath_integer_t pmath_integer_new_ui32(uint32_t ui) {
   return PMATH_FROM_INT32((int32_t)ui);
 }
 
+/**\brief Create an integer object from an int64_t.
+   \memberof pmath_integer_t
+   \param si An int64_t value.
+   \return A pMath integer with the specified value or PMATH_NULL.
+ */
 PMATH_API
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_integer_t pmath_integer_new_si64(int64_t si);
 
-/**\brief Create an integer object from an size_t.
+/**\brief Create an integer object from an uint64_t.
    \memberof pmath_integer_t
-   \param size A size_t value.
+   \param ui A uint64_t value.
    \return A pMath integer with the specified value or PMATH_NULL.
-
-   Note that on Win64, sizeof(long) == 4, but sizeof(size_t) == 8.
  */
 PMATH_API
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_integer_t pmath_integer_new_ui64(uint64_t ui);
 
+/**\brief Create an integer object from an intptr_t.
+   \memberof pmath_integer_t
+   \param si An intptr_t value.
+   \return A pMath integer with the specified value or PMATH_NULL.
+   \hideinitializer
+ */
 #define pmath_integer_new_siptr(si)  PMATH_CONCAT(pmath_integer_new_si, PMATH_BITSIZE)(si)
+
+/**\brief Create an integer object from an uintptr_t.
+   \memberof pmath_integer_t
+   \param ui A uintptr_t value.
+   \return A pMath integer with the specified value or PMATH_NULL.
+   \hideinitializer
+ */
 #define pmath_integer_new_uiptr(ui)  PMATH_CONCAT(pmath_integer_new_ui, PMATH_BITSIZE)(ui)
 
 /**\brief Create an integer object from a data buffer.
@@ -294,23 +307,23 @@ pmath_number_t pmath_float_new_str(
 
 /*============================================================================*/
 
-/**\brief Find out whether a pMath integer fits into a signed long int.
+/**\brief Check whether a pMath integer is in range -2^31 .. 2^31-1.
    \memberof pmath_integer_t
    \param integer A pMath integer. It wont be freed.
-   \return TRUE iff the value is small enough for a signed long int.
+   \return TRUE iff the value is small enough for an int32_t.
  */
 #define pmath_integer_fits_si32(integer)  pmath_is_int32(integer)
 
-/**\brief Find out whether a pMath integer fits into a unsigned long int.
+/**\brief Check whether a pMath integer is in range 0 .. 2^32-1.
    \memberof pmath_integer_t
    \param integer A pMath integer. It wont be freed.
-   \return TRUE iff the value is small enough for a unsigned long int.
+   \return TRUE iff the value is small enough for an uint32_t.
  */
 PMATH_API
 PMATH_ATTRIBUTE_PURE
 pmath_bool_t pmath_integer_fits_ui32(pmath_integer_t integer);
 
-/**\brief Find out whether a pMath integer fits into an int64_t.
+/**\brief Check whether a pMath integer is in range -2^63 .. 2^63-1.
    \memberof pmath_integer_t
    \param integer A pMath integer. It wont be freed.
    \return TRUE iff the value is small enough for an int64_t.
@@ -319,7 +332,7 @@ PMATH_API
 PMATH_ATTRIBUTE_PURE
 pmath_bool_t pmath_integer_fits_si64(pmath_integer_t integer);
 
-/**\brief Find out whether a pMath integer fits into an uint64_t.
+/**\brief Check whether a pMath integer is in range 0 .. 2^64-1.
    \memberof pmath_integer_t
    \param integer A pMath integer. It wont be freed.
    \return TRUE iff the value is small enough for an uint64_t.
@@ -328,7 +341,20 @@ PMATH_API
 PMATH_ATTRIBUTE_PURE
 pmath_bool_t pmath_integer_fits_ui64(pmath_integer_t integer);
 
+/**\brief Check whether a pMath integer fits into an intptr_t.
+   \memberof pmath_integer_t
+   \param integer A pMath integer. It wont be freed.
+   \return TRUE iff the value is small enough.
+   \hideinitializer
+ */
 #define pmath_integer_fits_siptr(integer)  PMATH_CONCAT(pmath_integer_fits_si, PMATH_BITSIZE)(integer)
+
+/**\brief Check whether a pMath integer fits into an uintptr_t.
+   \memberof pmath_integer_t
+   \param integer A pMath integer. It wont be freed.
+   \return TRUE iff the value is small enough.
+   \hideinitializer
+ */
 #define pmath_integer_fits_uiptr(integer)  PMATH_CONCAT(pmath_integer_fits_ui, PMATH_BITSIZE)(integer)
 
 /**\brief Convert a pMath integer to a signed long int.
@@ -375,7 +401,24 @@ PMATH_API
 PMATH_ATTRIBUTE_PURE
 uint64_t pmath_integer_get_ui64(pmath_integer_t integer);
 
+/**\brief Convert a pMath integer to a intptr_t.
+   \memberof pmath_integer_t
+   \param integer A pMath integer. It wont be freed.
+   \return The integer's value if it fits.
+   \hideinitializer
+
+   \see pmath_integer_fits_siptr
+ */
 #define pmath_integer_get_siptr  PMATH_CONCAT(pmath_integer_get_si, PMATH_BITSIZE)
+
+/**\brief Convert a pMath integer to a uintptr_t.
+   \memberof pmath_integer_t
+   \param integer A pMath integer. It wont be freed.
+   \return The integer's value if it fits.
+   \hideinitializer
+
+   \see pmath_integer_fits_uiptr
+ */
 #define pmath_integer_get_uiptr  PMATH_CONCAT(pmath_integer_get_ui, PMATH_BITSIZE)
 
 /**\brief Convert a pMath number to a double.

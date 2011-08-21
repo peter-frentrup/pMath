@@ -19,7 +19,7 @@ PMATH_ATTRIBUTE_USE_RESULT
 pmath_symbol_t pmath_file_create_compressor(pmath_t dstfile);
 
 /**\brief Create a binary file object that uncompresses its input.
-   \param dstfile A readable binary file object to read the compressed data 
+   \param srcfile A readable binary file object to read the compressed data 
                   from. It will be freed.
    \return A binary file object or PMATH_NULL on error.
    
