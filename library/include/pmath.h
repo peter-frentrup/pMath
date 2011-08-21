@@ -3,7 +3,7 @@
 
 /**\mainpage The pMath Computer Algebra System Library
    \author Peter Frentrup
-   \date 2011-08-21
+   \date 2011
 
    \par Introduction
    pMath is a free CAS for Windows and Unix like systems. The whole CAS consists
@@ -62,7 +62,7 @@
 /**\defgroup frontend Front-ends
    \brief Functions for use front-ends.
 
-   A front-end to pMath is an executable, that initializes and finalizes the
+   A front-end to pMath is an executable that initializes and finalizes the
    library and handles User input and output or otherwise invokes expression
    evalueation with the library. That is, what pMath does: parse and evaluate
    pMath code.

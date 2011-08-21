@@ -21,15 +21,17 @@
    @{
  */
 
+/**\brief Provides the C++ binding.
+ */
 namespace pmath {
   class ReadableBinaryFile;
   class String;
   class WriteableBinaryFile;
   class WriteableTextFile;
   
-  /**\brief A wrapper for pmath_t and drived types.
-     \ingroup cpp_binding
-  
+  /**\ingroup cpp_binding
+     \brief A wrapper for pmath_t and drived types.
+     
      This class wraps a single pmath_t, so its sizeof(Expr) == sizeof(pmath_t).
    */
   class Expr {
@@ -287,9 +289,9 @@ namespace pmath {
   }
   
   
-  /**\brief A wrapper for pmath_string_t.
-     \ingroup cpp_binding
-  
+  /**\ingroup cpp_binding
+     \brief A wrapper for pmath_string_t.
+     
      This class provides some string utility functions in addition to Expr.
    */
   class String: public Expr {
@@ -548,9 +550,9 @@ namespace pmath {
       
   };
   
-  /**\brief Utility class for emitting and gathering expressions/building lists.
-     \ingroup cpp_binding
-  
+  /**\ingroup cpp_binding
+     \brief Utility class for emitting and gathering expressions/building lists.
+     
      Gathering begins with the construction of the object and ends with a call
      to end() or the object destruction. This removes the burden of calling
      pmath_gather_end() for every pmath_gather_begin().
@@ -761,9 +763,9 @@ namespace pmath {
   
   
   
-  /**\brief A wrapper for pMath file objects (data streams).
-     \ingroup cpp_binding
-  
+  /**\ingroup cpp_binding
+     \brief A wrapper for pMath file objects (data streams).
+     
      This class provides some stream utility functions in addition to Expr.
      Note that a pMath file does not have to correspond to any operating system
      file object.
@@ -823,8 +825,8 @@ namespace pmath {
       
   };
   
-  /**\brief A wrapper for pMath binary file objects (byte data streams).
-     \ingroup cpp_binding
+  /**\ingroup cpp_binding
+     \brief A wrapper for pMath binary file objects (byte data streams).
    */
   class BinaryFile: public File {
     public:
@@ -869,8 +871,8 @@ namespace pmath {
   };
   
   
-  /**\brief A wrapper for readable pMath binary file objects (byte data streams).
-     \ingroup cpp_binding
+  /**\ingroup cpp_binding
+     \brief A wrapper for readable pMath binary file objects (byte data streams).
    */
   class ReadableBinaryFile: public BinaryFile {
     public:
@@ -906,8 +908,8 @@ namespace pmath {
       }
   };
   
-  /**\brief A wrapper for writeable pMath binary file objects (byte data streams).
-     \ingroup cpp_binding
+  /**\ingroup cpp_binding
+     \brief A wrapper for writeable pMath binary file objects (byte data streams).
    */
   class WriteableBinaryFile: public BinaryFile {
     public:
@@ -945,8 +947,8 @@ namespace pmath {
   };
   
   
-  /**\brief A wrapper for pMath text file objects (byte data streams).
-     \ingroup cpp_binding
+  /**\ingroup cpp_binding
+     \brief A wrapper for pMath text file objects (byte data streams).
    */
   class TextFile: public File {
     public:
@@ -991,8 +993,8 @@ namespace pmath {
       }
   };
   
-  /**\brief A wrapper for pMath readable text file objects (byte data streams).
-     \ingroup cpp_binding
+  /**\ingroup cpp_binding
+     \brief A wrapper for pMath readable text file objects (byte data streams).
    */
   class ReadableTextFile: public TextFile {
     public:
@@ -1034,8 +1036,8 @@ namespace pmath {
       
   };
   
-  /**\brief A wrapper for pMath writeable text file objects (byte data streams).
-     \ingroup cpp_binding
+  /**\ingroup cpp_binding
+     \brief A wrapper for pMath writeable text file objects (byte data streams).
    */
   class WriteableTextFile: public TextFile {
     public:
@@ -1078,10 +1080,8 @@ namespace pmath {
   
   
   
-  /**\brief Abstract base class for C++ callbacks used as pMath files.
-     \ingroup cpp_binding
-  
-     You can plug in C++ methods
+  /**\ingroup cpp_binding
+     \brief Abstract base class for C++ callbacks used as pMath files.
   
      The object destructor must be thread-safe (e.g. by not using any global
      data), because it is typically called from another thread than where the
@@ -1206,8 +1206,8 @@ namespace pmath {
       
   };
   
-  /**\brief Abstract base class for C++ callbacks used as pMath binary files.
-     \ingroup cpp_binding
+  /**\ingroup cpp_binding
+     \brief Abstract base class for C++ callbacks used as pMath binary files.
    */
   class BinaryUserStream: public UserStream {
     protected:
@@ -1275,8 +1275,8 @@ namespace pmath {
       }
   };
   
-  /**\brief Abstract base class for C++ callbacks used as pMath text files.
-     \ingroup cpp_binding
+  /**\ingroup cpp_binding
+     \brief Abstract base class for C++ callbacks used as pMath text files.
    */
   class TextUserStream: public UserStream {
     public:

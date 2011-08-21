@@ -69,22 +69,22 @@ typedef struct _pmath_span_t       pmath_span_t;
 
 /**\brief Destroy a span-array and all its spans.
    \memberof pmath_span_array_t
-   \param spans The span-array.
+   \param spans  The span-array.
  */
 PMATH_API void pmath_span_array_free(pmath_span_array_t *spans);
 
 /**\brief Get a span-array's length.
    \memberof pmath_span_array_t
-   \param spans The span-array.
+   \param spans  The span-array.
    \return Its length or 0 if it's PMATH_NULL.
  */
 PMATH_API int pmath_span_array_length(pmath_span_array_t *spans);
 
 /**\brief Test the token-end-flag at an index.
    \memberof pmath_span_array_t
-   \param spans The span-array.
-   \param pos The position. Must be between <tt>0</tt> and
-          <tt>pmath_span_array_length(spans)-1</tt>.
+   \param spans  The span-array.
+   \param pos    The position. Must be between <tt>0</tt> and
+                 <tt>pmath_span_array_length(spans)-1</tt>.
    \return Whether a token ends at the specified position.
  */
 PMATH_API pmath_bool_t pmath_span_array_is_token_end(
@@ -93,9 +93,9 @@ PMATH_API pmath_bool_t pmath_span_array_is_token_end(
 
 /**\brief Test the operator-start-flag at an index.
    \memberof pmath_span_array_t
-   \param spans The span-array.
-   \param pos The position. Must be between <tt>0</tt> and
-          <tt>pmath_span_array_length(spans)-1</tt>.
+   \param spans  The span-array.
+   \param pos    The position. Must be between <tt>0</tt> and
+                 <tt>pmath_span_array_length(spans)-1</tt>.
    \return Whether an operator starts at the specified position.
  */
 PMATH_API pmath_bool_t pmath_span_array_is_operand_start(
@@ -104,54 +104,61 @@ PMATH_API pmath_bool_t pmath_span_array_is_operand_start(
 
 /**\brief Get a span starting at an index
    \memberof pmath_span_array_t
-   \param spans The span-array.
-   \param pos The position. Must be between <tt>0</tt> and
-          <tt>pmath_span_array_length(spans)-1</tt>.
+   \param spans  The span-array.
+   \param pos    The position. Must be between <tt>0</tt> and
+                 <tt>pmath_span_array_length(spans)-1</tt>.
    \return The largest span stating at \a pos or PMATH_NULL if there is no span.
  */
 PMATH_API pmath_span_t *pmath_span_at(pmath_span_array_t *spans, int pos);
 
 /**\brief Get the next-shorter span starting at the same position.
    \memberof pmath_span_t
-   \param span A span.
+   \param span  A span.
    \return The next-shorter span stating at \a pos or PMATH_NULL if there is no span.
  */
 PMATH_API pmath_span_t *pmath_span_next(pmath_span_t *span);
 
 /**\brief Get end of a span.
    \memberof pmath_span_t
-   \param span A span.
+   \param span  A span.
    \return The last index which is covered by the span.
  */
 PMATH_API int pmath_span_end(pmath_span_t *span);
 
 /**\brief Parses pMath code to a span array.
-   \param code A pointer to a pMath string.
-   \param line_reader An optional function to be called, when there is more
-          input needed. Its result will be appended to *code.
-   \param subsuperscriptbox_at_index An optional function that returns TRUE iff
-          at a given position in the code (indicated by the PMATH_CHAR_BOX
-          character) is a SubscriptBox, SuperscriptBox or SubsuperscriptBox.
-   \param underoverscriptbox_at_index (optional) If there is an UnderscriptBox,
-          OverscriptBox or UnderoverscriptBox at a given position in the code
-          (indicated by the PMATH_CHAR_BOX character) its base (e.g. middle part
-          of UnderoverscriptBox) should be returned by this function, otherwise
-          PMATH_NULL should be returned.
-   \param error A function that will be called on syntax errors.
-          The first argument is \c *code. It must not be freed.
-          The second argument is the position in the code.
-          The third argument is \a data
-          The fourth argument is TRUE if the error is critical and FALSE if it
-          is just a warning (Syntax::newl)
-          This function is optional, if it is PMATH_NULL, no messages will be
-          generated during the scanning.
-   \param data An arbitrary pointer, that will be provided as the last argument
-          to the callback functions.
-   \return A span-array that can be used by pmath_boxes_from_spans to convert the
-           code to boxed form, which, in turn, is used by
-           System`MakeExpression().
-           The span-array must be freed with pmath_span_array_free() when it is
-           no longer needed.
+   \param code                        A pointer to a pMath string.
+   \param line_reader                 An optional function to be called, when 
+                                      there is more input needed. Its result 
+                                      will be appended to *code.
+   \param subsuperscriptbox_at_index  An optional function that returns TRUE iff
+                                      at a given position in the code (indicated 
+                                      by the PMATH_CHAR_BOX character) is a 
+                                      SubscriptBox, SuperscriptBox or 
+                                      SubsuperscriptBox.
+   \param underoverscriptbox_at_index [optional] If there is an UnderscriptBox,
+                                      OverscriptBox or UnderoverscriptBox at a 
+                                      given position in the code (indicated by 
+                                      the PMATH_CHAR_BOX character) its base 
+                                      (e.g. middle part of UnderoverscriptBox) 
+                                      should be returned by this function, 
+                                      otherwise PMATH_NULL should be returned.
+   \param error                       A function that will be called on syntax 
+                                      errors. The first argument is \c *code. 
+                                      It must not be freed. The second argument 
+                                      is the position in the code. The third 
+                                      argument is \a data. The fourth argument 
+                                      is TRUE if the error is critical and FALSE 
+                                      if it is just a warning (Syntax::newl)
+                                      This function is optional, if it is 
+                                      PMATH_NULL, no messages will be generated 
+                                      during the scanning.
+   \param data                        An arbitrary pointer, that will be 
+                                      provided as the last argument to the 
+                                      callback functions.
+   \return A span-array that can be used by pmath_boxes_from_spans to convert 
+           the code to boxed form, which, in turn, is used by 
+           System`MakeExpression(). The span-array must be freed with 
+           pmath_span_array_free() when it is no longer needed.
  */
 PMATH_API
 PMATH_ATTRIBUTE_USE_RESULT
@@ -164,16 +171,17 @@ pmath_span_array_t *pmath_spans_from_string(
   void             *data);
 
 /**\brief Convert a span-array with the according code to boxed form.
-   \param spans A span-array. It can be obtained by pmath_spans_from_string() or
-          pmath_spans_from_boxes().
-   \param string The corresponding code to \a span. It wont be freed.
-   \param parseable Whether whitespace and comments should be skipped or not.
-   \param box_at_index An optional function that returns the box at a given
-          position (indicated by the PMATH_CHAR_BOX character). This function
-          will be called (at most) one time for every box and in their order of
-          apperance.
-   \param data A pointer that will be provided as the last argument to
-          \a box_at_index.
+   \param spans         A span-array. It can be obtained by 
+                        pmath_spans_from_string() or pmath_spans_from_boxes().
+   \param string        The corresponding code to \a span. It wont be freed.
+   \param parseable     Whether whitespace and comments should be skipped or 
+                        not.
+   \param box_at_index  An optional function that returns the box at a given
+                        position (indicated by the PMATH_CHAR_BOX character). 
+                        This function will be called (at most) one time for
+                        every box and in their order of apperance.
+   \param data          A pointer that will be provided as the last argument to
+                        \a box_at_index.
    \return A pMath object representing the boxed form. It must be freed.
 
  */
@@ -187,12 +195,14 @@ pmath_t pmath_boxes_from_spans(
   void                 *data);
 
 /**\brief Convert boxed form back to span-array and code.
-   \param boxes A pMath object representing the boxed form.
-   \param result_string A pointer where the resulting code will go to. Its
-          previous value is ignored.
-   \param make_box A function that converts a boxed form (pMath object) to an
-          actual box. It must free this object (the second argument).
-   \param data A pointer that will be provided to make_box as the last argument.
+   \param boxes          A pMath object representing the boxed form.
+   \param result_string  A pointer where the resulting code will go to. Its
+                         previous value is ignored.
+   \param make_box       A function that converts a boxed form (pMath object) to 
+                         an actual box. It must free this object (the second 
+                         argument).
+   \param data           A pointer that will be provided to make_box as the last 
+                         argument.
    \return A span-array. It must be freed with pmath_span_array_free() when it
            is no longer needed.
  */
@@ -206,7 +216,7 @@ pmath_span_array_t *pmath_spans_from_boxes(
 
 /**\brief Expand a string that contains boxes to a list of Strings and Boxes
    \relates pmath_string_t
-   \param s The string to be expanded. It will be freed.
+   \param s  The string to be expanded. It will be freed.
    \return A string if there is nothing to expand or an expression representing
            s as boxes.
  */
@@ -216,7 +226,7 @@ pmath_t pmath_string_expand_boxes(pmath_string_t s);
 
 /**\brief Parse a string to an expression.
    \relates pmath_string_t
-   \param code A pMath String representing the code. It will be freed.
+   \param code  A pMath String representing the code. It will be freed.
    \return A pMath object.
 
    This function returns ToExpression("code"), but
@@ -228,9 +238,9 @@ pmath_t pmath_parse_string(pmath_string_t code);
 
 /**\brief Parse a string with additional arguments to an expression.
    \relates pmath_string_t
-   \param code A pMath String representing the code. It will be freed.
-   \param format A format string for the arguments.
-   \param ... The additional arguments.
+   \param code    A pMath String representing the code. It will be freed.
+   \param format  A format string for the arguments.
+   \param ...     The additional arguments.
    \return A pMath object.
 
    This function is a short hand for
@@ -259,9 +269,9 @@ pmath_t pmath_parse_string_args(
                                    PMATH_C_STRING(code))))
 
 /**\brief Execute some pMath code with arguments.
-   \param code The code as a C string.
-   \param format The argument's type format string.
-   \param ... The arguments.
+   \param code    The code as a C string.
+   \param format  The argument's type format string.
+   \param ...     The arguments.
 
    See pmath_build_value() for the meaning of \a format and \a ...
  */

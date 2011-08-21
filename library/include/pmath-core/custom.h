@@ -63,18 +63,18 @@ pmath_custom_t pmath_custom_new(
    you know its destructor (check \ref pmath_custom_has_destructor ).
 
    All access to *data must be threadsafe/synchronized. By convention, you are
-   the onlyx one who moves custom objects with your destructor around (other
-   modules should not handle custom objects, whose destructor they do not know).
-   And normally, each of your custom objects are stored in one symbols. So
+   the only one who moves custom objects with your destructor around (other
+   modules should not handle custom objects whose destructor they do not know).
+   And normally, each of your custom objects is stored in one symbol. So
    synchronization can be done with pmath_symbol_synchronized(). If one of these
    conditions is not met and a custom object could be accessd from multiple
-   threads ( \ref threads ), you must also store a synchronization object
+   threads (See \ref threads), you must also store a synchronization object
    (e.g. symbol or threadlock) in the \a data member und use this.
  */
 PMATH_API 
 void *pmath_custom_get_data(pmath_custom_t custom);
 
-/**\brief  Get a custom object's data destructor.
+/**\brief Check for a custom object's data type.
    \memberof pmath_custom_t
    \param custom A custom object.
    \param dtor A callback function.

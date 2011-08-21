@@ -23,10 +23,9 @@ typedef pmath_bool_t (*pmath_stack_walker_t)(pmath_t head, void *closure);
 /*============================================================================*/
 
 /**\brief Check if an object is an expression with a specified head.
-   \param obj  A pMath object. It wont be freed.
-   \param head A pMath symbol. It wont be freed.
-   \return TRUE iff obj is an expression with the given \a head which must be a 
-           symbol.
+   \param obj    A pMath object. It wont be freed.
+   \param head   A pMath symbol. It wont be freed.
+   \return TRUE iff obj is an expression with the given \a head symbol.
  */
 PMATH_API 
 pmath_bool_t pmath_is_expr_of(
@@ -38,7 +37,7 @@ pmath_bool_t pmath_is_expr_of(
    \param head   A pMath symbol. It wont be freed.
    \param length The requested expression length.
    \return TRUE iff obj is an expression with the given \a length and \a head 
-           which must be a symbol.
+           symbol.
  */
 PMATH_API 
 pmath_bool_t pmath_is_expr_of_len(
@@ -50,8 +49,8 @@ pmath_bool_t pmath_is_expr_of_len(
 
 /**\brief Generate a List of objects with a format string.
    \relates pmath_t
-   \param format A string that specifies the tuple's item's type.
-   \param args A va_list - variable argument list.
+   \param format   A string that specifies the tuple's item's type.
+   \param args     A va_list - variable argument list.
    
    \see pmath_build_value
  */
@@ -62,11 +61,11 @@ pmath_t pmath_build_value_v(const char *format, va_list args);
 
 /**\brief Generate a List of objects with a format string.
    \relates pmath_t
-   \param format A string that specifies the tuple's item's type. See below.
-   \param ... The tuple/list items
+   \param format  A string that specifies the tuple's item's type. See below.
+   \param ...     The tuple/list items
    
    The format string characters specify the item's type:
-   - <tt>b</tt> [int] converts a C int to True or False
+   - <tt>b</tt> [int] Converts a C int to True or False.
    
    - <tt>i</tt> [int]
    - <tt>l</tt> [long int]
@@ -78,43 +77,46 @@ pmath_t pmath_build_value_v(const char *format, va_list args);
    - <tt>K</tt> [unsigned long long int]
    - <tt>N</tt> [size_t]
    
-   - <tt>f</tt> [double] NaN's and Ininity are converted to Undefined and 
-                         +/-Infinity
+   - <tt>f</tt> [double] NaN's and Infinity are converted to the symbols 
+                         Undefined and +/-Infinity respectively.
    
-   - <tt>o</tt> [pmath_t] A pMath Object, the reference is stolen
+   - <tt>o</tt> [pmath_t] A pMath object, the reference is stolen.
    
-   - <tt>c</tt> [int] convert a C int representing a (unicode) character to
-      a string of length 1.
+   - <tt>c</tt> [int] Convert a C int representing a (unicode) character to
+                      a string of length 1.
    
-   - <tt>s</tt> [char*] converts a zero-terminated C string to a pMath string 
-      using Latin-1 encoding.
+   - <tt>s</tt> [char*] Converts a zero-terminated C string to a pMath string 
+                        using Latin-1 encoding.
    
-   - <tt>s#</tt> [char*,int] takes a char buffer and a length to build a pMath
-      string of that length using Latin-1 encoding.
+   - <tt>s#</tt> [char*,int] Takes a char buffer and a length to build a pMath
+                             string of that length using Latin-1 encoding.
    
-   - <tt>z</tt> [char*] a zero-terminated C string and converts it to a symbol
-      using pmath_symbol_find().
+   - <tt>z</tt> [char*] Takes a zero-terminated C string and converts it to a 
+                        symbol using pmath_symbol_find().
    
-   - <tt>u</tt> [char*] converts a zero-terminated C string to a pMath string 
-      using UTF-8 encoding.
+   - <tt>u</tt> [char*] Converts a zero-terminated C string to a pMath string 
+                        using UTF-8 encoding.
    
-   - <tt>u#</tt> [char*,int] takes a char buffer and a length to build a pMath
-      string of that length using UTF-8 encoding.
+   - <tt>u#</tt> [char*,int] Takes a char buffer and a length to build a pMath
+                             string of that length using UTF-8 encoding.
    
-   - <tt>U</tt> [uint16_t*] converts a zero-terminated double-byte C string to 
-      a pMath string using UTF-16 encoding. This is generally useful only where
-      sizeof(uint16_t) == sizeof(wchar_t), e.g. on Windows but not on Linux.
+   - <tt>U</tt> [uint16_t*] Converts a zero-terminated double-byte C string to 
+                            a pMath string using UTF-16 encoding. This is 
+                            generally useful only where 
+                            sizeof(uint16_t) == sizeof(wchar_t), e.g. on Windows 
+                            but not on Linux.
    
-   - <tt>U#</tt> [uint16_t*,int] takes a character buffer and a length to build 
-      a pMath string of that length using UTF-16 encoding. This is generally 
-      useful only on platforms with sizeof(uint16_t) == sizeof(wchar_t), e.g. on
-      Windows but not on Linux.
+   - <tt>U#</tt> [uint16_t*,int] Takes a character buffer and a length to build 
+                                 a pMath string of that length using UTF-16 
+                                 encoding. This is generally useful only on 
+                                 platforms with 
+                                 sizeof(uint16_t) == sizeof(wchar_t), e.g. on
+                                 Windows but not on Linux.
    
-   - <tt>C<i>tt</i></tt> [maching the 2 t's] build a complex value
-   - <tt>Q<i>tt</i></tt> [maching the 2 t's] build a rational value from two 
-      integers.
+   - <tt>C<i>tt</i></tt> [matching the 2 <tt><i>t</i></tt>'s] Build a complex value.
+   - <tt>Q<i>tt</i></tt> [matching the 2 <tt><i>t</i></tt>'s] Build a rational value.
    
-   - <tt>(items)</tt> [matching items] constructs a sublist of items.
+   - <tt>(<i>items</i>)</tt> [matching <tt><i>items</i></tt>] constructs a sublist of items.
    
    \note When the format string denotes only one object, this object will be
          returned alone. So for a pmath_t x, pmath_build_value("o", x) == x.
@@ -130,21 +132,22 @@ pmath_t pmath_build_value(const char *format, ...);
 
 /*============================================================================*/
 
-/**\brief Extract custom option values from an expression.
+/**\brief Extract option values from an expression.
    \relates pmath_expr_t
-   \param expr The expression that may custom option values. It wont be freed.
+   \param expr           The expression containing option values. It wont be 
+                         freed.
    \param last_nonoption The index of the last argument that is not an option 
-          rule.
-   \return A list of all given option values or PMATH_NULL on error. You must destroy
-           it.
+                        rule.
+   \return A list of all given option values or PMATH_NULL on error. You must 
+           destroy it.
 
-   Imagine, \c expr = `f(a,b,A->1,B->2)` and \c last_nonoption is 2, then the
-   result value is a list `{A->1, B->2}`. You can use this return value as the
-   \c extra parameter in pmath_option_value().
+   Imagine, \c expr = `f(a,b,A->1,B->2)` and \c last_nonoption = 2, then the
+   return value is a list `{A->1, B->2}`. You can now use this return value as 
+   the \c extra parameter in pmath_option_value().
 
-   When \c last_nonoption was 1, a message would be generated (b is no rule ...)
-   and the return value is PMATH_NULL. In that case, the calling function should have
-   no further effects and return.
+   If \c last_nonoption was 1, a message would be generated (b is no rule ...)
+   and the return value is PMATH_NULL. In that case, the calling function should 
+   have no further effects and return.
  */
 PMATH_API 
 PMATH_ATTRIBUTE_USE_RESULT

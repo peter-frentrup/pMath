@@ -10,7 +10,7 @@
 /**\defgroup memory Memory Management
    \brief Memory management for pMath.
 
-   These functions may return PMATH_NULL. In this case, the current evaluation will
+   These functions may return NULL. In this case, the current evaluation will
    abort and used cache will be freed to safe memory (the garbage collector is
    invoked and a pMath exception is thrown so pmath_aborting() yields TRUE).
 
@@ -19,7 +19,7 @@
 
 /**\brief Allocate some amount of memory.
    \param size The number of bytes to be allocated.
-   \return A pointer to a block of mamory of at least size bytes or PMATH_NULL.
+   \return A pointer to a block of mamory of at least size bytes or NULL.
 
    You must free the result with pmath_mem_free() or indirectly via
    pmath_mem_realloc().
@@ -29,20 +29,20 @@ PMATH_ATTRIBUTE_USE_RESULT
 void *pmath_mem_alloc(size_t size);
 
 /**\brief Change the size of a memory-chunk.
-   \param p PMATH_NULL or a pointer to a block of old_size bytes allocated with
+   \param p NULL or a pointer to a block of old_size bytes allocated with
           pmath_mem_alloc() or pmath_mem_realloc().
    \param new_size The requested new size.
-   \return A pointer to a block of at least new_size bytes or PMATH_NULL.
+   \return A pointer to a block of at least new_size bytes or NULL.
 
-   If there is not enough memory available or if new_size == 0, PMATH_NULL is
+   If there is not enough memory available or if new_size == 0, NULL is
    returned. Otherwise, the result points to a block of new_size bytes, whose
    first min(old_size,new_size) bytes are copied from the old p. The rest is
    initialized with 0.
 
-   The old pointer p will _allways_be freed. even, if the result is PMATH_NULL because
-   there is not enough memory.
+   The old pointer p will _allways_be freed. even, if the resizing failed with 
+   NULL.
 
-   You must free the result with pmath_mem_free() or indirectly via
+   You must later free the result with pmath_mem_free() or indirectly via
    pmath_mem_realloc().
  */
 PMATH_API
@@ -52,13 +52,13 @@ void *pmath_mem_realloc(
   size_t  new_size);
 
 /**\brief Change the size of a memory-chunk.
-   \param p PMATH_NULL or a pointer to a block of old_size bytes allocated with
+   \param p NULL or a pointer to a block of old_size bytes allocated with
           pmath_mem_alloc() or pmath_mem_realloc().
    \param new_size The requested new size.
-   \return A pointer to a block of at least new_size bytes or PMATH_NULL.
+   \return A pointer to a block of at least new_size bytes or NULL.
 
    If there is enough memory, this acts like pmath_mem_realloc(). Otherwise,
-   p is \em not freed and PMATH_NULL is returned.
+   p is \em not freed and NULL is returned.
  */
 PMATH_API
 PMATH_ATTRIBUTE_USE_RESULT
@@ -67,7 +67,7 @@ void *pmath_mem_realloc_no_failfree(
   size_t  new_size);
 
 /**\brief Free a memory-chunk.
-   \param p PMATH_NULL or a pointer to a block of old_size bytes allocated with
+   \param p NULL or a pointer to a block of old_size bytes allocated with
           pmath_mem_alloc() or pmath_mem_realloc().
  */
 PMATH_API
@@ -75,7 +75,7 @@ void pmath_mem_free(void *p);
 
 /**\brief Get memory usage information
    \param current Here goes the number of currently allocated bytes.
-   \param max here goes the maximum number of allocated bytes until now.
+   \param max here goes the maximum number of allocated bytes so far.
  */
 PMATH_API
 void pmath_mem_usage(size_t *current, size_t *max);

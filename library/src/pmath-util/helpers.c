@@ -205,8 +205,8 @@ static pmath_t next_value(const char **format, va_list *args) {
         
         if(pmath_same(num, PMATH_UNDEFINED)
             || pmath_same(den, PMATH_UNDEFINED)) {
-          pmath_debug_print("unclosed complex\n");
-          assert(0 && "unclosed complex");
+          pmath_debug_print("unclosed rational\n");
+          assert(0 && "unclosed rational");
         }
         
         if(pmath_is_integer(num) && pmath_is_integer(den)) {
