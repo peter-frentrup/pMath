@@ -23,9 +23,9 @@ typedef struct _pmath_threadlock_t *pmath_threadlock_t;
    \param data A pointer that will be passed to callback.
 
    All you have to do is initialize the threadlock \c threadlock_ptr points to 
-   with PMATH_NULL before you call this function for the first time:
+   with NULL before you call this function for the first time:
    \code
-static pmath_threadlock_t lock = PMATH_NULL;
+static pmath_threadlock_t lock = NULL;
 ...
 pmath_thread_call_locked(&lock, my_callback, my_data);
    \endcode

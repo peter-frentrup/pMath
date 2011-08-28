@@ -19,7 +19,7 @@ $FrontEndDirectory:= DirectoryName($Input)
 Protect($FrontEndDirectory)
 
 
-$MathShapers:= {"Cambria Math", "Asana Math", "Neo Euler", "XITS Math"}
+$MathShapers:= {"Cambria Math", "Asana Math", "Neo Euler", "XITS Math", "Latin Modern Math"}
 Protect($MathShapers)
 
 

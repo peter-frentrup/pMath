@@ -14,18 +14,18 @@
 	//Standard Version Type
 	static const long _PMATH_VERSION_MAJOR = 0;
 	static const long _PMATH_VERSION_MINOR = 2;
-	static const long _PMATH_VERSION_BUILD = 338;
-	static const long _PMATH_VERSION_REVISION = 338;
+	static const long _PMATH_VERSION_BUILD = 339;
+	static const long _PMATH_VERSION_REVISION = 339;
 	
 	//Miscellaneous Version Types
 	static const long _PMATH_VERSION_BUILDS_COUNT = 439;
-	#define _PMATH_VERSION_RC_FILEVERSION 0,2,338,338
-	#define _PMATH_VERSION_RC_FILEVERSION_STRING "0, 2, 338, 338\0"
-	static const char _PMATH_VERSION_FULLVERSION_STRING[] = "0.2.338.338";
+	#define _PMATH_VERSION_RC_FILEVERSION 0,2,339,339
+	#define _PMATH_VERSION_RC_FILEVERSION_STRING "0, 2, 339, 339\0"
+	static const char _PMATH_VERSION_FULLVERSION_STRING[] = "0.2.339.339";
 	
 	//SVN Version
-	static const char _PMATH_VERSION_SVN_REVISION[] = "241";
-	static const char _PMATH_VERSION_SVN_DATE[] = "2011-06-26T22:15:33.884129Z";
+	static const char _PMATH_VERSION_SVN_REVISION[] = "256";
+	static const char _PMATH_VERSION_SVN_DATE[] = "2011-08-20T16:41:58.283600Z";
 	
 	//These values are to keep track of your versioning state, don't modify them.
 	static const long _PMATH_VERSION_BUILD_HISTORY = 0;
