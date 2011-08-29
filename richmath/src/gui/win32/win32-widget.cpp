@@ -253,6 +253,9 @@ void Win32Widget::invalidate() {
   InvalidateRect(_hwnd, 0, FALSE);
 }
 
+void Win32Widget::invalidate_options() {
+}
+
 void Win32Widget::invalidate_rect(float x, float y, float w, float h) {
   is_painting = false; // if inside WM_PAINT, invalidate at end of event
   

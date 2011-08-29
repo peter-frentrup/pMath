@@ -80,7 +80,8 @@ namespace richmath {
   enum ObjectStyleOptionName {
     ButtonFunction = 30000, // greater than any StringStyleOptionName value
     ScriptSizeMultipliers,
-    TextShadow
+    TextShadow,
+    UnknownOptions,
   };
   
   const int DynamicOffset = 1000000;

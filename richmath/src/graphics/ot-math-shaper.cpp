@@ -380,7 +380,7 @@ SharedPtr<OTMathShaper> OTMathShaperDB::find(String name, FontStyle style) {
               const uint16_t *glyphs = (const uint16_t*)
                                        (((const char*)coverage) + 4); // skip format, count
                                        
-              for(uint16_t i = 0; i < kern_info->count; ++i) {
+              for(uint16_t i = 0; i < big_endian(kern_info->count); ++i) {
                 const MathKernVertex *vertex;
                 
                 for(int edge = 0; edge < 4; ++edge) {

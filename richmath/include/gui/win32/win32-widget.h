@@ -52,6 +52,7 @@ namespace richmath{
       virtual void bring_to_front();
       virtual void close(){}
       virtual void invalidate();
+      virtual void invalidate_options();
       virtual void invalidate_rect(float x, float y, float w, float h);
       virtual void force_redraw();
       

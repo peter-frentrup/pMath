@@ -309,6 +309,9 @@ void MathGtkWidget::invalidate() {
   gtk_widget_queue_draw(_widget);
 }
 
+void MathGtkWidget::invalidate_options(){
+}
+
 void MathGtkWidget::invalidate_rect(float x, float y, float w, float h) {
   if(!_widget)
     return;

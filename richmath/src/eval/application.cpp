@@ -1013,7 +1013,7 @@ static Expr cnt_setoptions(Expr data) {
       box->style = new Style();
       
     box->style->add_pmath(options);
-    box->invalidate();
+    box->invalidate_options();
     
     return options;
   }

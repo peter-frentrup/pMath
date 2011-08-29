@@ -27,6 +27,7 @@ namespace richmath {
       
       virtual bool request_repaint(float x, float y, float w, float h);
       virtual void invalidate();
+      virtual void invalidate_options();
       void invalidate_all();
       
       NativeWidget *native() { return _native; } // never NULL

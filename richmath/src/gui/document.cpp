@@ -467,6 +467,12 @@ void Document::invalidate() {
   Box::invalidate();
 }
 
+void Document::invalidate_options() {
+  native()->invalidate_options();
+  
+  Box::invalidate_options();
+}
+
 void Document::invalidate_all() {
   must_resize_min = count();
   for(int i = 0; i < length(); ++i)

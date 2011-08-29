@@ -330,6 +330,24 @@ void Style::add_pmath(Expr options) {
             else
               set(TextShadow, rhs);
           }
+          else {
+            pmath_debug_print_object("[unknown option ", rule.get(), "]\n");
+            
+            Expr sym;
+            if(!get(UnknownOptions, &sym) || !sym.is_symbol()) {
+              sym = Expr(pmath_symbol_create_temporary(PMATH_C_STRING("FE`Styles`unknown"), TRUE));
+              set(UnknownOptions, sym);
+            }
+            
+            rule.set(1, Call(Symbol(PMATH_SYMBOL_HOLDPATTERN), Call(sym, lhs)));
+            Expr eval = Call(Symbol(PMATH_SYMBOL_ASSIGN),
+                             Call(Symbol(PMATH_SYMBOL_DOWNRULES), sym),
+                             Call(Symbol(PMATH_SYMBOL_APPEND),
+                                  Call(Symbol(PMATH_SYMBOL_DOWNRULES), sym),
+                                  rule));
+                                  
+            Evaluate(eval);
+          }
         }
       }
     }
@@ -339,7 +357,23 @@ void Style::add_pmath(Expr options) {
 void Style::merge(SharedPtr<Style> other) {
   int_float_values.merge(other->int_float_values);
   
+  Expr old_unknown_sym;
+  Expr new_unknown_sym;
+  get(UnknownOptions, &old_unknown_sym);
+  other->get(UnknownOptions, &new_unknown_sym);
+  
   object_values.merge(other->object_values);
+  
+  if(old_unknown_sym.is_symbol() && new_unknown_sym.is_symbol()) {
+    Expr eval = Parse(
+                  "OwnRules(`2`):= Join("
+                  "Replace(OwnRules(`1`), {HoldPattern(`1`) :> `2`}, Heads->True),"
+                  "OwnRules(`2`))",
+                  old_unknown_sym,
+                  new_unknown_sym);
+                  
+    Evaluate(eval);
+  }
 }
 
 bool Style::get(IntStyleOptionName n, int *value) {
@@ -1235,6 +1269,23 @@ void Style::emit_to_pmath(
                      Symbol(i ? PMATH_SYMBOL_TRUE : PMATH_SYMBOL_FALSE)));
     }
     
+  }
+  
+  if(get(UnknownOptions, &e)) {
+    Expr rules = Evaluate(Call(Symbol(PMATH_SYMBOL_DOWNRULES), e));
+    
+    for(size_t i = 1; i <= rules.expr_length(); ++i) {
+      Expr rule = rules[i];
+      Expr lhs = rule[1]; // HoldPattern(symbol(x))
+      lhs = lhs[1];       //             symbol(x)
+      lhs = lhs[1];       //                    x
+      
+      if(rule[2].is_evaluated())
+        rule.set(0, Symbol(PMATH_SYMBOL_RULE));
+      
+      rule.set(1, lhs);
+      Gather::emit(rule);
+    }
   }
 }
 

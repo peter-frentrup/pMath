@@ -51,6 +51,8 @@ class DummyNativeWidget: public NativeWidget {
     
     virtual void invalidate() {}
     
+    virtual void invalidate_options() {}
+    
     virtual void force_redraw() {}
     
     virtual void set_cursor(CursorType type) {}

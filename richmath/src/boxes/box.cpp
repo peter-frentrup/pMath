@@ -362,6 +362,10 @@ void Box::invalidate() {
     _parent->invalidate();
 }
 
+void Box::invalidate_options() {
+  invalidate();
+}
+
 bool Box::edit_selection(Context *context) {
   int editable;
   

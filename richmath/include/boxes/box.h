@@ -168,6 +168,7 @@ namespace richmath {
       virtual bool request_repaint_range(int start, int end);
       virtual bool request_repaint(float x, float y, float w, float h);
       virtual void invalidate();
+      virtual void invalidate_options();
       virtual bool edit_selection(Context *context); // *not* automatically called
       
       virtual bool changes_children_style() { return false; }
