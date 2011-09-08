@@ -49,6 +49,8 @@ void ButtonBox::resize(Context *context) {
   int bf = get_style(ButtonFrame, -1);
   if(bf >= 0)
     type = (ContainerType)bf;
+  else
+    type = PushButton;
     
   float old_width = context->width;
   context->width = HUGE_VAL;

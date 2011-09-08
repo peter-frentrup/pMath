@@ -19,7 +19,8 @@ namespace richmath {
     PaletteButton,
     InputField,
     TooltipWindow,
-    MenuItemSelected,
+    ListViewItem,
+    ListViewItemSelected,
     
     // not realy a container:
     SliderHorzChannel,

@@ -788,8 +788,6 @@ PMATH_API pmath_bool_t pmath_init(void) {
     PMATH_RUN("Options(ReplacePart):={Heads->Automatic}");
     
     PMATH_RUN("Options(RotationBox):={BoxRotation->0}");
-    PMATH_RUN("Options(TransformationBox):={BoxTransformation->{{1,0},{0,1}}}");
-    
     PMATH_RUN("Options(StringCases):=Options(StringCount):={IgnoreCase->False,Overlaps->False}");
     PMATH_RUN("Options(StringPosition):={IgnoreCase->False,Overlaps->True}");
     
@@ -853,10 +851,15 @@ PMATH_API pmath_bool_t pmath_init(void) {
               "ShowStringCharacters->True,"
               "TextShadow->None"
               "}");
-              
+            
+    PMATH_RUN("Options(Setter):=Options(SetterBox):={"
+              "ButtonFrame->Automatic}");
+                
     PMATH_RUN("Options(Slider):=Options(SliderBox):={ContinuousAction->True}");
     
     PMATH_RUN("Options(Tooltip):=Options(TooltipBox):={StripOnInput->True}");
+    
+    PMATH_RUN("Options(TransformationBox):={BoxTransformation->{{1,0},{0,1}}}");
     
     //} ... initialization runs
     

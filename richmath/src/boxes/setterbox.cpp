@@ -17,7 +17,7 @@ SetterBox::SetterBox(MathSequence *content)
 SetterBox *SetterBox::create(Expr expr, int opts) {
   if(expr.expr_length() < 3)
     return 0;
-    
+  
   Expr options(pmath_options_extract(expr.get(), 3));
   
   if(options.is_null())
@@ -44,8 +44,8 @@ ControlState SetterBox::calc_state(Context *context) {
     return Pressed;
     
   ControlState state = ContainerWidgetBox::calc_state(context);
-  if(state == Normal)
-    return Hovered;
+  //if(state == Normal)
+  //  return Hovered;
   return state;
 }
 
@@ -53,6 +53,16 @@ bool SetterBox::expand(const BoxSize &size) {
   _extents = size;
   cx = (_extents.width - _content->extents().width) / 2;
   return true;
+}
+
+void SetterBox::resize(Context *context) {
+  int bf = get_style(ButtonFrame, -1);
+  if(bf >= 0)
+    type = (ContainerType)bf;
+  else
+    type = PaletteButton;
+    
+  ContainerWidgetBox::resize(context);
 }
 
 void SetterBox::paint(Context *context) {

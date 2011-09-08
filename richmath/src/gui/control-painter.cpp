@@ -25,7 +25,9 @@ void ControlPainter::calc_container_size(
     case GenericButton:
     case PushButton:
     case PaletteButton:
-    case TooltipWindow: {
+    case TooltipWindow: 
+    case ListViewItem:
+    case ListViewItemSelected: {
         if(extents->ascent < canvas->get_font_size() * 0.75f)
           extents->ascent = canvas->get_font_size() * 0.75f;// - extents->ascent;
           
@@ -53,12 +55,6 @@ void ControlPainter::calc_container_size(
         extents->width +=   6.0;
         extents->ascent +=  3.0;
         extents->descent += 3.0;
-      } break;
-      
-    case MenuItemSelected: {
-        extents->width +=   1.5;
-        extents->ascent +=  0.75;
-        extents->descent += 0.75;
       } break;
       
     case SliderHorzChannel: {
@@ -108,8 +104,8 @@ int ControlPainter::control_font_color(ContainerType type, ControlState state) {
   if(is_very_transparent(type, state))
     return -1;
     
-  if(type == MenuItemSelected)
-    return 0XFFFFFF;
+  if(type == ListViewItemSelected)
+    return 0xFFFFFF;
     
   return 0x000000;
 }
@@ -245,7 +241,15 @@ void ControlPainter::draw_container(
       paint_frame(canvas, x, y, width, height, false, 0xFFF4C1);
       break;
       
-    case MenuItemSelected: {
+    case ListViewItem: {
+        int c = canvas->get_color();
+        canvas->set_color(0xffffff);
+        canvas->pixrect(x, y, x + width, y + height, false);
+        canvas->fill();
+        canvas->set_color(c);
+      } break;
+      
+    case ListViewItemSelected: {
         int c = canvas->get_color();
         canvas->set_color(0x0099ff);
         canvas->pixrect(x, y, x + width, y + height, false);

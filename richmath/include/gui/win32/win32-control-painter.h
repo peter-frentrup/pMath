@@ -91,6 +91,7 @@ namespace richmath {
       
       HANDLE button_theme;
       HANDLE edit_theme;
+      HANDLE explorer_listview_theme;
       HANDLE tooltip_theme;
       HANDLE progress_theme;
       HANDLE scrollbar_theme;

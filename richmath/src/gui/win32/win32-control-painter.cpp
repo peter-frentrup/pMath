@@ -52,6 +52,7 @@ Win32ControlPainter::Win32ControlPainter()
   blur_input_field(true),
   button_theme(0),
   edit_theme(0),
+  explorer_listview_theme(0),
   tooltip_theme(0),
   progress_theme(0),
   scrollbar_theme(0),
@@ -75,8 +76,7 @@ void Win32ControlPainter::calc_container_size(
   
   switch(type) {
     case InputField: {
-        if(Win32Themes::IsThemeActive
-            && Win32Themes::IsThemeActive()) {
+        if(Win32Themes::IsThemeActive && Win32Themes::IsThemeActive()) {
           extents->width +=   3;
           extents->ascent +=  1.5;
           extents->descent += 1.5;
@@ -87,6 +87,11 @@ void Win32ControlPainter::calc_container_size(
         extents->ascent +=  3;
         extents->descent += 2.25;
       } return;
+      
+    case ListViewItem:
+    case ListViewItemSelected:
+      ControlPainter::calc_container_size(canvas, type, extents);
+      return;
       
     case ProgressIndicatorBar: {
         if(!theme || theme_part != 5) {
@@ -116,13 +121,14 @@ void Win32ControlPainter::calc_container_size(
     // TMT_CONTENTMARGINS = 3602
     // TMT_CAPTIONMARGINS = 3603
     if(theme
-        && SUCCEEDED(Win32Themes::GetThemeMargins(
-                       theme, NULL, theme_part, theme_state, 3602, NULL, &mar))
+        && SUCCEEDED(
+          Win32Themes::GetThemeMargins(
+            theme, NULL, theme_part, theme_state, 3602, NULL, &mar))
         && (mar.cxLeftWidth > 0
             || mar.cxRightWidth > 0
             || mar.cyBottomHeight > 0
-            || mar.cyTopHeight > 0)
-      ) {
+            || mar.cyTopHeight > 0))
+    {
       extents->width +=   0.75f * (mar.cxLeftWidth + mar.cxRightWidth);
       extents->ascent +=  0.75f * mar.cyTopHeight;
       extents->descent += 0.75f * mar.cyBottomHeight;
@@ -196,7 +202,14 @@ int Win32ControlPainter::control_font_color(ContainerType type, ControlState sta
                | ((col & 0x0000FF) << 16);
       } break;
       
-    case MenuItemSelected: {
+    case ListViewItem: {
+        DWORD col = GetSysColor(COLOR_WINDOWTEXT);
+        return ((col & 0xFF0000) >> 16)
+               | (col & 0x00FF00)
+               | ((col & 0x0000FF) << 16);
+      } break;
+      
+    case ListViewItemSelected: {
         DWORD col = GetSysColor(COLOR_HIGHLIGHTTEXT);
         return ((col & 0xFF0000) >> 16)
                | (col & 0x00FF00)
@@ -572,7 +585,11 @@ void Win32ControlPainter::draw_container(
           FillRect(dc, &rect, (HBRUSH)(COLOR_INFOBK + 1));
         } break;
         
-      case MenuItemSelected:
+      case ListViewItem:
+        FillRect(dc, &rect, (HBRUSH)(COLOR_WINDOW + 1));
+        break;
+        
+      case ListViewItemSelected:
         FillRect(dc, &rect, (HBRUSH)(COLOR_HIGHLIGHT + 1));
         break;
         
@@ -1279,6 +1296,14 @@ HANDLE Win32ControlPainter::get_control_theme(
         theme = edit_theme;
       } break;
       
+    case ListViewItem:
+    case ListViewItemSelected: {
+        if(!edit_theme)
+          explorer_listview_theme = Win32Themes::OpenThemeData(0, L"Explorer::LISTVIEW;LISTVIEW");
+          
+        theme = explorer_listview_theme;
+      } break;
+      
     case TooltipWindow: {
         if(!tooltip_theme)
           tooltip_theme = Win32Themes::OpenThemeData(0, L"TOOLTIP");
@@ -1345,6 +1370,30 @@ HANDLE Win32ControlPainter::get_control_theme(
           case Hovered:  *theme_state = 2; break;
           case Pressed:  *theme_state = 3; break; // = focused
           case Disabled: *theme_state = 4; break;
+        }
+      } break;
+      
+    case ListViewItem: {
+        *theme_part = 1;//LVP_LISTITEM
+        
+        switch(state) {
+          case Normal:    theme = 0; break;
+          case Hot:
+          case Hovered:  *theme_state = 2; break;
+          case Pressed:  *theme_state = 3; break;
+          case Disabled: *theme_state = 4; break;
+        }
+      } break;
+      
+    case ListViewItemSelected: {
+        *theme_part = 1;//LVP_LISTITEM
+        
+        switch(state) {
+          case Normal:   *theme_state = 3; break;
+          case Hot:
+          case Hovered:  *theme_state = 6; break;
+          case Pressed:  *theme_state = 6; break;
+          case Disabled: *theme_state = 5; break;
         }
       } break;
       
@@ -1456,6 +1505,9 @@ void Win32ControlPainter::clear_cache() {
     if(edit_theme)
       Win32Themes::CloseThemeData(edit_theme);
       
+    if(explorer_listview_theme)
+      Win32Themes::CloseThemeData(explorer_listview_theme);
+      
     if(tooltip_theme)
       Win32Themes::CloseThemeData(tooltip_theme);
       
@@ -1472,11 +1524,12 @@ void Win32ControlPainter::clear_cache() {
       Win32Themes::CloseThemeData(toolbar_theme);
   }
   
-  button_theme    = 0;
-  edit_theme      = 0;
-  tooltip_theme   = 0;
-  progress_theme  = 0;
-  scrollbar_theme = 0;
-  slider_theme    = 0;
-  toolbar_theme   = 0;
+  button_theme            = 0;
+  edit_theme              = 0;
+  explorer_listview_theme = 0;
+  tooltip_theme           = 0;
+  progress_theme          = 0;
+  scrollbar_theme         = 0;
+  slider_theme            = 0;
+  toolbar_theme           = 0;
 }

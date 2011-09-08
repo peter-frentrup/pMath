@@ -70,8 +70,8 @@ MakeBoxes(RadioButtonBar(val: Except(~:Dynamic), values:{~~}, options:OptionsPat
 			DynamicLocalValues :> {var:= val}),
 		Setting(#, 0) &);
 
-MakeBoxes(Setter(~var, ~value, options:OptionsPattern()))::=         SetterBox(var, value, MakeBoxes(value), options)
-MakeBoxes(Setter(~var, ~value, ~label, options:OptionsPattern()))::= SetterBox(var, value, MakeBoxes(label), options)
+MakeBoxes(Setter(~var, ~value,                                    options:OptionsPattern()))::= SetterBox(var, value, MakeBoxes(value), options)
+MakeBoxes(Setter(~var, ~value, label:Except((~ -> ~) | (~ :> ~)), options:OptionsPattern()))::= SetterBox(var, value, MakeBoxes(label), options)
 
 
 MakeBoxes(sb: SetterBar(~var:Dynamic, values:{((~ -> ~) | (~ :> ~))**}, options:OptionsPattern(SetterBar)))::= 

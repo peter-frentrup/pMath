@@ -13,6 +13,7 @@ namespace richmath {
       virtual ControlState calc_state(Context *context);
       
       virtual bool expand(const BoxSize &size);
+      virtual void resize(Context *context);
       virtual void paint(Context *context);
       
       virtual Expr to_pmath_symbol() { return Symbol(PMATH_SYMBOL_SETTERBOX); }
