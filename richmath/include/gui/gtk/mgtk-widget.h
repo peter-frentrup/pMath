@@ -186,7 +186,7 @@ namespace richmath {
       
       virtual bool on_map(GdkEvent *e);
       virtual bool on_unmap(GdkEvent *e);
-      virtual bool on_expose(GdkEvent *e);
+      virtual bool on_draw(cairo_t *cr);
       virtual bool on_focus_in(GdkEvent *e);
       virtual bool on_focus_out(GdkEvent *e);
       virtual bool on_key_press(GdkEvent *e);
@@ -198,6 +198,9 @@ namespace richmath {
       virtual bool on_scroll(GdkEvent *e);
       
       static gboolean blink_caret(gpointer id_as_ptr);
+      
+    private:
+      virtual bool on_expose(GdkEvent *e);
   };
 }
 

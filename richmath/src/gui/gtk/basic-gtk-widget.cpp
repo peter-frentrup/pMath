@@ -35,7 +35,7 @@ void BasicGtkWidget::after_construction() {
     this,
     (GDestroyNotify)BasicGtkWidget::destroy_widget_key_callback);
     
-  signal_connect<BasicGtkWidget, &BasicGtkWidget::on_event>("event");
+  signal_connect<BasicGtkWidget, GdkEvent*, &BasicGtkWidget::on_event>("event");
 }
 
 void BasicGtkWidget::destroy_widget_key_callback(BasicGtkWidget *_this) {

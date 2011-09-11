@@ -62,9 +62,9 @@ namespace richmath {
       virtual bool on_event(GdkEvent *e);
       
     protected:
-      template<class C, bool (C::*method)(GdkEvent*)>
+      template<class C, typename A, bool (C::*method)(A)>
       struct Marshaller {
-        static gboolean function(GtkWidget *wid, GdkEvent *event, void *dummy) {
+        static gboolean function(GtkWidget *wid, A arg, void *dummy) {
 //          if(event->type != GDK_EXPOSE
 //          && event->type != GDK_MOTION_NOTIFY
 //          && event->type != GDK_ENTER_NOTIFY
@@ -74,14 +74,14 @@ namespace richmath {
 
           C *_this = (C*)BasicGtkWidget::from_widget(wid);
           if(_this)
-            return (_this->*method)(event);
+            return (_this->*method)(arg);
           return TRUE;
         }
       };
       
-      template<class C, bool (C::*method)(GdkEvent*)>
+      template<class C, typename A, bool (C::*method)(A)>
       void signal_connect(const char *name) {
-        g_signal_connect(_widget, name, G_CALLBACK((Marshaller<C, method>::function)), NULL);
+        g_signal_connect(_widget, name, G_CALLBACK((Marshaller<C, A, method>::function)), NULL);
       }
       
     private:

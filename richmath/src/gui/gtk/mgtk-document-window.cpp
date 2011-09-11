@@ -79,8 +79,8 @@ class richmath::MathGtkWorkingArea: public MathGtkWidget {
       }
     }
     
-    virtual bool on_expose(GdkEvent *e) {
-      bool result = MathGtkWidget::on_expose(e);
+    virtual bool on_draw(cairo_t *cr) {
+      bool result = MathGtkWidget::on_draw(cr);
       rearrange();
       return result;
     }
@@ -172,8 +172,8 @@ class richmath::MathGtkDock: public MathGtkWidget {
       }
     }
     
-    virtual bool on_expose(GdkEvent *e) {
-      bool result = MathGtkWidget::on_expose(e);
+    virtual bool on_draw(cairo_t *cr) {
+      bool result = MathGtkWidget::on_draw(cr);
       rearrange();
       return result;
     }
@@ -290,10 +290,10 @@ void MathGtkDocumentWindow::after_construction() {
     set_current_document(document());
   }
   
-  signal_connect<MathGtkDocumentWindow, &MathGtkDocumentWindow::on_configure>("configure-event");
-  signal_connect<MathGtkDocumentWindow, &MathGtkDocumentWindow::on_focus_in>("focus-in-event");
-  signal_connect<MathGtkDocumentWindow, &MathGtkDocumentWindow::on_focus_out>("focus-out-event");
-  signal_connect<MathGtkDocumentWindow, &MathGtkDocumentWindow::on_scroll>("scroll-event");
+  signal_connect<MathGtkDocumentWindow, GdkEvent*, &MathGtkDocumentWindow::on_configure>("configure-event");
+  signal_connect<MathGtkDocumentWindow, GdkEvent*, &MathGtkDocumentWindow::on_focus_in>("focus-in-event");
+  signal_connect<MathGtkDocumentWindow, GdkEvent*, &MathGtkDocumentWindow::on_focus_out>("focus-out-event");
+  signal_connect<MathGtkDocumentWindow, GdkEvent*, &MathGtkDocumentWindow::on_scroll>("scroll-event");
   
   title("untitled");
 }

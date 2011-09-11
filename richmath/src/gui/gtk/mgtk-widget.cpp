@@ -110,18 +110,23 @@ void MathGtkWidget::after_construction() {
   gtk_widget_set_events(_widget, GDK_ALL_EVENTS_MASK);
   gtk_widget_set_can_focus(_widget, TRUE);
   
-  signal_connect<MathGtkWidget, &MathGtkWidget::on_button_press>("button-press-event");
-  signal_connect<MathGtkWidget, &MathGtkWidget::on_button_release>("button-release-event");
-  signal_connect<MathGtkWidget, &MathGtkWidget::on_expose>("expose-event");
-  signal_connect<MathGtkWidget, &MathGtkWidget::on_focus_in>("focus-in-event");
-  signal_connect<MathGtkWidget, &MathGtkWidget::on_focus_out>("focus-out-event");
-  signal_connect<MathGtkWidget, &MathGtkWidget::on_key_press>("key-press-event");
-  signal_connect<MathGtkWidget, &MathGtkWidget::on_key_release>("key-release-event");
-  signal_connect<MathGtkWidget, &MathGtkWidget::on_motion_notify>("motion-notify-event");
-  signal_connect<MathGtkWidget, &MathGtkWidget::on_leave_notify>("leave-notify-event");
-  signal_connect<MathGtkWidget, &MathGtkWidget::on_scroll>("scroll-event");
-  signal_connect<MathGtkWidget, &MathGtkWidget::on_map>("map-event");
-  signal_connect<MathGtkWidget, &MathGtkWidget::on_unmap>("unmap-event");
+#if GTK_MAJOR_VERSION >= 3
+  signal_connect<MathGtkWidget, cairo_t*, &MathGtkWidget::on_draw>("draw");
+#else
+  signal_connect<MathGtkWidget, GdkEvent*, &MathGtkWidget::on_expose>("expose-event");
+#endif
+
+  signal_connect<MathGtkWidget, GdkEvent*, &MathGtkWidget::on_button_press>("button-press-event");
+  signal_connect<MathGtkWidget, GdkEvent*, &MathGtkWidget::on_button_release>("button-release-event");
+  signal_connect<MathGtkWidget, GdkEvent*, &MathGtkWidget::on_focus_in>("focus-in-event");
+  signal_connect<MathGtkWidget, GdkEvent*, &MathGtkWidget::on_focus_out>("focus-out-event");
+  signal_connect<MathGtkWidget, GdkEvent*, &MathGtkWidget::on_key_press>("key-press-event");
+  signal_connect<MathGtkWidget, GdkEvent*, &MathGtkWidget::on_key_release>("key-release-event");
+  signal_connect<MathGtkWidget, GdkEvent*, &MathGtkWidget::on_motion_notify>("motion-notify-event");
+  signal_connect<MathGtkWidget, GdkEvent*, &MathGtkWidget::on_leave_notify>("leave-notify-event");
+  signal_connect<MathGtkWidget, GdkEvent*, &MathGtkWidget::on_scroll>("scroll-event");
+  signal_connect<MathGtkWidget, GdkEvent*, &MathGtkWidget::on_map>("map-event");
+  signal_connect<MathGtkWidget, GdkEvent*, &MathGtkWidget::on_unmap>("unmap-event");
   
   g_signal_connect(_widget, "drag-data-delete",   G_CALLBACK(drag_data_delete_callback),   this);
   g_signal_connect(_widget, "drag-data-get",      G_CALLBACK(drag_data_get_callback),      this);
@@ -596,7 +601,7 @@ void MathGtkWidget::on_drag_data_received(
     }
   }
   
-  gtk_drag_finish(context, TRUE, context->action == GDK_ACTION_MOVE, time);
+  gtk_drag_finish(context, TRUE, gdk_drag_context_get_selected_action(context) == GDK_ACTION_MOVE, time);
 }
 
 void MathGtkWidget::on_drag_end(GdkDragContext *context) {
@@ -642,15 +647,14 @@ bool MathGtkWidget::on_drag_motion(GdkDragContext *context, int x, int y, guint 
     GdkModifierType mask;
     gdk_window_get_pointer(gtk_widget_get_window(_widget), NULL, NULL, &mask);
     
-    action = context->suggested_action;
+    action = gdk_drag_context_get_suggested_action(context);
     if(mask & GDK_CONTROL_MASK)
-      action = context->actions & GDK_ACTION_COPY;
+      action = gdk_drag_context_get_actions(context) & GDK_ACTION_COPY;
     else if(mask & GDK_SHIFT_MASK)
-      action = context->actions & GDK_ACTION_MOVE;
+      action = gdk_drag_context_get_actions(context) & GDK_ACTION_MOVE;
       
     GtkWidget *source_widget = gtk_drag_get_source_widget(context);
-    if(source_widget == _widget
-        && (context->actions & GDK_ACTION_MOVE) != 0)
+    if(source_widget == _widget && (gdk_drag_context_get_actions(context) & GDK_ACTION_MOVE) != 0)
       action = GDK_ACTION_MOVE;
   }
   
@@ -799,9 +803,7 @@ bool MathGtkWidget::on_unmap(GdkEvent *e) {
   return false;
 }
 
-bool MathGtkWidget::on_expose(GdkEvent *e) {
-  GdkEventExpose *event = &e->expose;
-  
+bool MathGtkWidget::on_draw(cairo_t *cr) {
   GtkAllocation rect;
   gtk_widget_get_allocation(_widget, &rect);
   if(old_width != rect.width) {
@@ -811,14 +813,13 @@ bool MathGtkWidget::on_expose(GdkEvent *e) {
   
   is_painting = true;
   
-  cairo_t *cr = gdk_cairo_create(event->window);
   {
     Canvas canvas(cr);
     
-    canvas.move_to(event->area.x,                     event->area.y);
-    canvas.line_to(event->area.x + event->area.width, event->area.y);
-    canvas.line_to(event->area.x + event->area.width, event->area.y + event->area.height);
-    canvas.line_to(event->area.x,                     event->area.y + event->area.height);
+    canvas.move_to(0, 0);
+    canvas.line_to(rect.width, 0);
+    canvas.line_to(rect.width, rect.height);
+    canvas.line_to(0, rect.height);
     canvas.close_path();
     canvas.clip();
     
@@ -831,15 +832,31 @@ bool MathGtkWidget::on_expose(GdkEvent *e) {
     else
       update_im_cursor_location();
   }
-  cairo_destroy(cr);
   
   if(!is_painting)
     invalidate();
     
 //  set_cursor(cursor);
   is_painting = false;
-  
   return true;
+}
+
+bool MathGtkWidget::on_expose(GdkEvent *e) {
+  GdkEventExpose *event = &e->expose;
+  
+  cairo_t *cr = gdk_cairo_create(event->window);
+    
+  cairo_move_to(cr, event->area.x, event->area.y);
+  cairo_line_to(cr, event->area.x + event->area.width, event->area.y);
+  cairo_line_to(cr, event->area.x + event->area.width, event->area.y + event->area.height);
+  cairo_line_to(cr, event->area.x,                     event->area.y + event->area.height);
+  cairo_close_path(cr);
+  cairo_clip(cr);
+    
+  bool result = on_draw(cr);
+  cairo_destroy(cr);
+  
+  return result;
 }
 
 bool MathGtkWidget::on_focus_in(GdkEvent *e) {
@@ -869,31 +886,31 @@ bool MathGtkWidget::on_focus_out(GdkEvent *e) {
 
 static SpecialKey keyval_to_special_key(guint keyval) {
   switch(keyval) {
-    case GDK_Left:            return KeyLeft;
-    case GDK_Right:           return KeyRight;
-    case GDK_Up:              return KeyUp;
-    case GDK_Down:            return KeyDown;
-    case GDK_Home:            return KeyHome;
-    case GDK_End:             return KeyEnd;
-    case GDK_Page_Up:         return KeyPageUp;
-    case GDK_Page_Down:       return KeyPageDown;
-    case GDK_BackSpace:       return KeyBackspace;
-    case GDK_Delete:          return KeyDelete;
-    case GDK_Return:          return KeyReturn;
-    case GDK_Tab:             return KeyTab;
-    case GDK_Escape:          return KeyEscape;
-    case GDK_F1:              return KeyF1;
-    case GDK_F2:              return KeyF2;
-    case GDK_F3:              return KeyF3;
-    case GDK_F4:              return KeyF4;
-    case GDK_F5:              return KeyF5;
-    case GDK_F6:              return KeyF6;
-    case GDK_F7:              return KeyF7;
-    case GDK_F8:              return KeyF8;
-    case GDK_F9:              return KeyF9;
-    case GDK_F10:             return KeyF10;
-    case GDK_F11:             return KeyF11;
-    case GDK_F12:             return KeyF12;
+    case GDK_KEY_Left:            return KeyLeft;
+    case GDK_KEY_Right:           return KeyRight;
+    case GDK_KEY_Up:              return KeyUp;
+    case GDK_KEY_Down:            return KeyDown;
+    case GDK_KEY_Home:            return KeyHome;
+    case GDK_KEY_End:             return KeyEnd;
+    case GDK_KEY_Page_Up:         return KeyPageUp;
+    case GDK_KEY_Page_Down:       return KeyPageDown;
+    case GDK_KEY_BackSpace:       return KeyBackspace;
+    case GDK_KEY_Delete:          return KeyDelete;
+    case GDK_KEY_Return:          return KeyReturn;
+    case GDK_KEY_Tab:             return KeyTab;
+    case GDK_KEY_Escape:          return KeyEscape;
+    case GDK_KEY_F1:              return KeyF1;
+    case GDK_KEY_F2:              return KeyF2;
+    case GDK_KEY_F3:              return KeyF3;
+    case GDK_KEY_F4:              return KeyF4;
+    case GDK_KEY_F5:              return KeyF5;
+    case GDK_KEY_F6:              return KeyF6;
+    case GDK_KEY_F7:              return KeyF7;
+    case GDK_KEY_F8:              return KeyF8;
+    case GDK_KEY_F9:              return KeyF9;
+    case GDK_KEY_F10:             return KeyF10;
+    case GDK_KEY_F11:             return KeyF11;
+    case GDK_KEY_F12:             return KeyF12;
     default:                  return KeyUnknown;
   }
 }
@@ -912,8 +929,8 @@ bool MathGtkWidget::on_key_press(GdkEvent *e) {
     guint keyval = 0;
     
     switch(event->keyval) {
-      case GDK_dead_grave:      keyval = GDK_grave;       break;
-      case GDK_dead_circumflex: keyval = GDK_asciicircum; break;
+      case GDK_KEY_dead_grave:      keyval = GDK_KEY_grave;       break;
+      case GDK_KEY_dead_circumflex: keyval = GDK_KEY_asciicircum; break;
     }
     
     if(keyval
@@ -944,7 +961,7 @@ bool MathGtkWidget::on_key_press(GdkEvent *e) {
     }
   }
   
-  if(event->keyval == GDK_Caps_Lock || event->keyval == GDK_Shift_Lock) {
+  if(event->keyval == GDK_KEY_Caps_Lock || event->keyval == GDK_KEY_Shift_Lock) {
     if(mod & GDK_LOCK_MASK) {
       gdk_event_put(e);
       while(gtk_events_pending())
@@ -960,7 +977,7 @@ bool MathGtkWidget::on_key_press(GdkEvent *e) {
     return false;
     
   uint32_t unichar = gdk_keyval_to_unicode(event->keyval);
-  if(event->keyval == GDK_Return)
+  if(event->keyval == GDK_KEY_Return)
     unichar = '\n';
     
   if(unichar) {

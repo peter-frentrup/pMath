@@ -37,7 +37,7 @@ namespace {
         
         gtk_selection_data_set(
           selection_data,
-          selection_data->target,
+          gtk_selection_data_get_data_type(selection_data),
           8,
           (const guchar*)(self->all_data.items() + start),
           end - start);
