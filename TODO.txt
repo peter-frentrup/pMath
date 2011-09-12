@@ -6,7 +6,7 @@
    " after a space or the beginning of the text gives left double quotation mark
    " after a number gives prime (or only after a digit?)
    " after anything else gives right quotation mark
-   analoguous for '
+   analoguous for ' 
    
 - richmath: support Interrupt()
 
