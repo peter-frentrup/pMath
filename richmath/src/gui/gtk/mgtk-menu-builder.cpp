@@ -7,7 +7,7 @@
 
 #include <util/hashtable.h>
 
-#include <gdk/gdkkeysyms.h>
+#include <gdk/gdkkeysyms-compat.h>
 
 static const char accel_path_prefix[] = "<Richmath>/";
 
@@ -243,55 +243,55 @@ static bool set_accel_key(Expr expr, guint *accel_key, GdkModifierType *accel_mo
     return true;
   }
   
-  if(key.equals("F1"))                      *accel_key = GDK_KEY_F1;
-  else if(key.equals("F2"))                 *accel_key = GDK_KEY_F2;
-  else if(key.equals("F3"))                 *accel_key = GDK_KEY_F3;
-  else if(key.equals("F4"))                 *accel_key = GDK_KEY_F4;
-  else if(key.equals("F5"))                 *accel_key = GDK_KEY_F5;
-  else if(key.equals("F6"))                 *accel_key = GDK_KEY_F6;
-  else if(key.equals("F7"))                 *accel_key = GDK_KEY_F7;
-  else if(key.equals("F8"))                 *accel_key = GDK_KEY_F8;
-  else if(key.equals("F9"))                 *accel_key = GDK_KEY_F9;
-  else if(key.equals("F10"))                *accel_key = GDK_KEY_F10;
-  else if(key.equals("F11"))                *accel_key = GDK_KEY_F11;
-  else if(key.equals("F12"))                *accel_key = GDK_KEY_F12;
-  else if(key.equals("F13"))                *accel_key = GDK_KEY_F13;
-  else if(key.equals("F14"))                *accel_key = GDK_KEY_F14;
-  else if(key.equals("F15"))                *accel_key = GDK_KEY_F15;
-  else if(key.equals("F16"))                *accel_key = GDK_KEY_F16;
-  else if(key.equals("F17"))                *accel_key = GDK_KEY_F17;
-  else if(key.equals("F18"))                *accel_key = GDK_KEY_F18;
-  else if(key.equals("F19"))                *accel_key = GDK_KEY_F19;
-  else if(key.equals("F20"))                *accel_key = GDK_KEY_F20;
-  else if(key.equals("F21"))                *accel_key = GDK_KEY_F21;
-  else if(key.equals("F22"))                *accel_key = GDK_KEY_F22;
-  else if(key.equals("F23"))                *accel_key = GDK_KEY_F23;
-  else if(key.equals("F24"))                *accel_key = GDK_KEY_F24;
-  else if(key.equals("Enter"))              *accel_key = GDK_KEY_Return;
-  else if(key.equals("Tab"))                *accel_key = GDK_KEY_Tab;
-  else if(key.equals("Esc"))                *accel_key = GDK_KEY_Escape;
-  else if(key.equals("PageUp"))             *accel_key = GDK_KEY_Page_Up;
-  else if(key.equals("PageDown"))           *accel_key = GDK_KEY_Page_Down;
-  else if(key.equals("End"))                *accel_key = GDK_KEY_End;
-  else if(key.equals("Home"))               *accel_key = GDK_KEY_Home;
-  else if(key.equals("Left"))               *accel_key = GDK_KEY_Left;
-  else if(key.equals("Up"))                 *accel_key = GDK_KEY_Up;
-  else if(key.equals("Right"))              *accel_key = GDK_KEY_Right;
-  else if(key.equals("Down"))               *accel_key = GDK_KEY_Down;
-  else if(key.equals("Insert"))             *accel_key = GDK_KEY_Insert;
-  else if(key.equals("Delete"))             *accel_key = GDK_KEY_Delete;
-  else if(key.equals("Numpad0"))            *accel_key = GDK_KEY_0;
-  else if(key.equals("Numpad1"))            *accel_key = GDK_KEY_1;
-  else if(key.equals("Numpad2"))            *accel_key = GDK_KEY_2;
-  else if(key.equals("Numpad3"))            *accel_key = GDK_KEY_3;
-  else if(key.equals("Numpad4"))            *accel_key = GDK_KEY_4;
-  else if(key.equals("Numpad5"))            *accel_key = GDK_KEY_5;
-  else if(key.equals("Numpad6"))            *accel_key = GDK_KEY_6;
-  else if(key.equals("Numpad7"))            *accel_key = GDK_KEY_7;
-  else if(key.equals("Numpad8"))            *accel_key = GDK_KEY_8;
-  else if(key.equals("Numpad9"))            *accel_key = GDK_KEY_9;
-  else if(key.equals("Play"))               *accel_key = GDK_KEY_AudioPlay;
-  else if(key.equals("Zoom"))               *accel_key = GDK_KEY_ZoomIn;
+  if(key.equals("F1"))                      *accel_key = GDK_F1;
+  else if(key.equals("F2"))                 *accel_key = GDK_F2;
+  else if(key.equals("F3"))                 *accel_key = GDK_F3;
+  else if(key.equals("F4"))                 *accel_key = GDK_F4;
+  else if(key.equals("F5"))                 *accel_key = GDK_F5;
+  else if(key.equals("F6"))                 *accel_key = GDK_F6;
+  else if(key.equals("F7"))                 *accel_key = GDK_F7;
+  else if(key.equals("F8"))                 *accel_key = GDK_F8;
+  else if(key.equals("F9"))                 *accel_key = GDK_F9;
+  else if(key.equals("F10"))                *accel_key = GDK_F10;
+  else if(key.equals("F11"))                *accel_key = GDK_F11;
+  else if(key.equals("F12"))                *accel_key = GDK_F12;
+  else if(key.equals("F13"))                *accel_key = GDK_F13;
+  else if(key.equals("F14"))                *accel_key = GDK_F14;
+  else if(key.equals("F15"))                *accel_key = GDK_F15;
+  else if(key.equals("F16"))                *accel_key = GDK_F16;
+  else if(key.equals("F17"))                *accel_key = GDK_F17;
+  else if(key.equals("F18"))                *accel_key = GDK_F18;
+  else if(key.equals("F19"))                *accel_key = GDK_F19;
+  else if(key.equals("F20"))                *accel_key = GDK_F20;
+  else if(key.equals("F21"))                *accel_key = GDK_F21;
+  else if(key.equals("F22"))                *accel_key = GDK_F22;
+  else if(key.equals("F23"))                *accel_key = GDK_F23;
+  else if(key.equals("F24"))                *accel_key = GDK_F24;
+  else if(key.equals("Enter"))              *accel_key = GDK_Return;
+  else if(key.equals("Tab"))                *accel_key = GDK_Tab;
+  else if(key.equals("Esc"))                *accel_key = GDK_Escape;
+  else if(key.equals("PageUp"))             *accel_key = GDK_Page_Up;
+  else if(key.equals("PageDown"))           *accel_key = GDK_Page_Down;
+  else if(key.equals("End"))                *accel_key = GDK_End;
+  else if(key.equals("Home"))               *accel_key = GDK_Home;
+  else if(key.equals("Left"))               *accel_key = GDK_Left;
+  else if(key.equals("Up"))                 *accel_key = GDK_Up;
+  else if(key.equals("Right"))              *accel_key = GDK_Right;
+  else if(key.equals("Down"))               *accel_key = GDK_Down;
+  else if(key.equals("Insert"))             *accel_key = GDK_Insert;
+  else if(key.equals("Delete"))             *accel_key = GDK_Delete;
+  else if(key.equals("Numpad0"))            *accel_key = GDK_0;
+  else if(key.equals("Numpad1"))            *accel_key = GDK_1;
+  else if(key.equals("Numpad2"))            *accel_key = GDK_2;
+  else if(key.equals("Numpad3"))            *accel_key = GDK_3;
+  else if(key.equals("Numpad4"))            *accel_key = GDK_4;
+  else if(key.equals("Numpad5"))            *accel_key = GDK_5;
+  else if(key.equals("Numpad6"))            *accel_key = GDK_6;
+  else if(key.equals("Numpad7"))            *accel_key = GDK_7;
+  else if(key.equals("Numpad8"))            *accel_key = GDK_8;
+  else if(key.equals("Numpad9"))            *accel_key = GDK_9;
+  else if(key.equals("Play"))               *accel_key = GDK_AudioPlay;
+  else if(key.equals("Zoom"))               *accel_key = GDK_ZoomIn;
   else                                      return false;
   
   return true;

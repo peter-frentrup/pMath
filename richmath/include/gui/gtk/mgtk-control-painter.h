@@ -34,6 +34,14 @@ namespace richmath {
         float          y,
         float          width,
         float          height);
+    
+    public:
+      GtkStyleContext *get_control_theme(ContainerType type);
+      GtkStateFlags    get_state_flags(ControlState state);
+        
+    protected:
+      GtkStyleContext *button_context;
+      
 #endif
     
     protected:

@@ -5,7 +5,7 @@
 #include <gui/gtk/mgtk-tooltip-window.h>
 
 #include <glib.h>
-#include <gdk/gdkkeysyms.h>
+#include <gdk/gdkkeysyms-compat.h>
 #include <cmath>
 
 
@@ -886,31 +886,31 @@ bool MathGtkWidget::on_focus_out(GdkEvent *e) {
 
 static SpecialKey keyval_to_special_key(guint keyval) {
   switch(keyval) {
-    case GDK_KEY_Left:            return KeyLeft;
-    case GDK_KEY_Right:           return KeyRight;
-    case GDK_KEY_Up:              return KeyUp;
-    case GDK_KEY_Down:            return KeyDown;
-    case GDK_KEY_Home:            return KeyHome;
-    case GDK_KEY_End:             return KeyEnd;
-    case GDK_KEY_Page_Up:         return KeyPageUp;
-    case GDK_KEY_Page_Down:       return KeyPageDown;
-    case GDK_KEY_BackSpace:       return KeyBackspace;
-    case GDK_KEY_Delete:          return KeyDelete;
-    case GDK_KEY_Return:          return KeyReturn;
-    case GDK_KEY_Tab:             return KeyTab;
-    case GDK_KEY_Escape:          return KeyEscape;
-    case GDK_KEY_F1:              return KeyF1;
-    case GDK_KEY_F2:              return KeyF2;
-    case GDK_KEY_F3:              return KeyF3;
-    case GDK_KEY_F4:              return KeyF4;
-    case GDK_KEY_F5:              return KeyF5;
-    case GDK_KEY_F6:              return KeyF6;
-    case GDK_KEY_F7:              return KeyF7;
-    case GDK_KEY_F8:              return KeyF8;
-    case GDK_KEY_F9:              return KeyF9;
-    case GDK_KEY_F10:             return KeyF10;
-    case GDK_KEY_F11:             return KeyF11;
-    case GDK_KEY_F12:             return KeyF12;
+    case GDK_Left:            return KeyLeft;
+    case GDK_Right:           return KeyRight;
+    case GDK_Up:              return KeyUp;
+    case GDK_Down:            return KeyDown;
+    case GDK_Home:            return KeyHome;
+    case GDK_End:             return KeyEnd;
+    case GDK_Page_Up:         return KeyPageUp;
+    case GDK_Page_Down:       return KeyPageDown;
+    case GDK_BackSpace:       return KeyBackspace;
+    case GDK_Delete:          return KeyDelete;
+    case GDK_Return:          return KeyReturn;
+    case GDK_Tab:             return KeyTab;
+    case GDK_Escape:          return KeyEscape;
+    case GDK_F1:              return KeyF1;
+    case GDK_F2:              return KeyF2;
+    case GDK_F3:              return KeyF3;
+    case GDK_F4:              return KeyF4;
+    case GDK_F5:              return KeyF5;
+    case GDK_F6:              return KeyF6;
+    case GDK_F7:              return KeyF7;
+    case GDK_F8:              return KeyF8;
+    case GDK_F9:              return KeyF9;
+    case GDK_F10:             return KeyF10;
+    case GDK_F11:             return KeyF11;
+    case GDK_F12:             return KeyF12;
     default:                  return KeyUnknown;
   }
 }
@@ -929,8 +929,8 @@ bool MathGtkWidget::on_key_press(GdkEvent *e) {
     guint keyval = 0;
     
     switch(event->keyval) {
-      case GDK_KEY_dead_grave:      keyval = GDK_KEY_grave;       break;
-      case GDK_KEY_dead_circumflex: keyval = GDK_KEY_asciicircum; break;
+      case GDK_dead_grave:      keyval = GDK_grave;       break;
+      case GDK_dead_circumflex: keyval = GDK_asciicircum; break;
     }
     
     if(keyval
@@ -961,7 +961,7 @@ bool MathGtkWidget::on_key_press(GdkEvent *e) {
     }
   }
   
-  if(event->keyval == GDK_KEY_Caps_Lock || event->keyval == GDK_KEY_Shift_Lock) {
+  if(event->keyval == GDK_Caps_Lock || event->keyval == GDK_Shift_Lock) {
     if(mod & GDK_LOCK_MASK) {
       gdk_event_put(e);
       while(gtk_events_pending())
@@ -977,7 +977,7 @@ bool MathGtkWidget::on_key_press(GdkEvent *e) {
     return false;
     
   uint32_t unichar = gdk_keyval_to_unicode(event->keyval);
-  if(event->keyval == GDK_KEY_Return)
+  if(event->keyval == GDK_Return)
     unichar = '\n';
     
   if(unichar) {
