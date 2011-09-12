@@ -8,9 +8,9 @@
 		<Build>
 			<Target title="Windows-Debug">
 				<Option platforms="Windows;" />
-				<Option output="bin/windows/debug/richmath" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj/windows/debug/no-ft" />
-				<Option external_deps="../../pmath_project/library/pmath.cbp;" />
+				<Option output="bin\windows\debug\richmath" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj\windows\debug\no-ft" />
+				<Option external_deps="..\..\pmath_project\library\pmath.cbp;" />
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
@@ -24,11 +24,11 @@
 					<Add option="-DRICHMATH_USE_WIN32_GUI" />
 					<Add directory="include" />
 					<Add directory="resources" />
-					<Add directory="../library/include" />
+					<Add directory="..\library\include" />
 					<Add directory="$(#cairo.include)" />
 					<Add directory="$(#glib.include)" />
 					<Add directory="$(#gtk.include)" />
-					<Add directory="$(#glib.lib)/glib-2.0/include" />
+					<Add directory="$(#glib.lib)\glib-2.0\include" />
 					<Add directory="$(#pango.include)" />
 				</Compiler>
 				<Linker>
@@ -46,7 +46,7 @@
 					<Add library="user32" />
 					<Add library="ole32" />
 					<Add library="uuid" />
-					<Add directory="../library/bin/windows/debug" />
+					<Add directory="..\library\bin\windows\debug" />
 					<Add directory="$(#cairo.lib)" />
 					<Add directory="$(#pango.lib)" />
 					<Add directory="$(#glib.lib)" />
@@ -59,9 +59,9 @@
 			</Target>
 			<Target title="Windows-Debug-Freetype">
 				<Option platforms="Windows;" />
-				<Option output="bin/windows/debug/richmath-ft" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj/windows/debug/ft" />
-				<Option external_deps="../../pmath_project/library/pmath.cbp;" />
+				<Option output="bin\windows\debug\richmath-ft" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj\windows\debug\ft" />
+				<Option external_deps="..\..\pmath_project\library\pmath.cbp;" />
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
@@ -75,13 +75,13 @@
 					<Add option="-DRICHMATH_USE_WIN32_GUI" />
 					<Add directory="include" />
 					<Add directory="resources" />
-					<Add directory="../library/include" />
+					<Add directory="..\library\include" />
 					<Add directory="$(#cairo.include)" />
 					<Add directory="$(#glib.include)" />
 					<Add directory="$(#gtk.include)" />
-					<Add directory="$(#gtk.include)/fontconfig" />
-					<Add directory="$(#gtk.include)/freetype2" />
-					<Add directory="$(#glib.lib)/glib-2.0/include" />
+					<Add directory="$(#gtk.include)\fontconfig" />
+					<Add directory="$(#gtk.include)\freetype2" />
+					<Add directory="$(#glib.lib)\glib-2.0\include" />
 					<Add directory="$(#pango.include)" />
 				</Compiler>
 				<Linker>
@@ -100,7 +100,7 @@
 					<Add library="uuid" />
 					<Add library="fontconfig" />
 					<Add library="freetype" />
-					<Add directory="../library/bin/windows/debug" />
+					<Add directory="..\library\bin\windows\debug" />
 					<Add directory="$(#cairo.lib)" />
 					<Add directory="$(#pango.lib)" />
 					<Add directory="$(#glib.lib)" />
@@ -112,9 +112,9 @@
 			</Target>
 			<Target title="Windows-Debug-Gtk">
 				<Option platforms="Windows;" />
-				<Option output="bin/windows/debug/richmath-gtk" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj/windows/debug/gtk" />
-				<Option external_deps="../../pmath_project/library/pmath.cbp;" />
+				<Option output="bin\windows\debug\richmath-gtk" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj\windows\debug\gtk" />
+				<Option external_deps="..\..\pmath_project\library\pmath.cbp;" />
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
@@ -128,18 +128,18 @@
 					<Add option="-DRICHMATH_USE_GTK_GUI" />
 					<Add directory="include" />
 					<Add directory="resources" />
-					<Add directory="../library/include" />
+					<Add directory="..\library\include" />
 					<Add directory="$(#cairo.include)" />
 					<Add directory="$(#pango.include)" />
 					<Add directory="$(#glib.include)" />
-					<Add directory="$(#glib.lib)/glib-2.0/include" />
+					<Add directory="$(#glib.lib)\glib-2.0\include" />
 					<Add directory="$(#gtk.include)" />
-					<Add directory="$(#gtk.include)/fontconfig" />
-					<Add directory="$(#gtk.include)/freetype2" />
-					<Add directory="$(#gtk.include)/gtk-2.0" />
-					<Add directory="$(#gtk.lib)/gtk-2.0/include" />
-					<Add directory="$(#gtk.include)/gdk" />
-					<Add directory="$(#gtk.include)/atk-1.0" />
+					<Add directory="$(#gtk.include)\fontconfig" />
+					<Add directory="$(#gtk.include)\freetype2" />
+					<Add directory="$(#gtk.include)\gtk-2.0" />
+					<Add directory="$(#gtk.lib)\gtk-2.0\include" />
+					<Add directory="$(#gtk.include)\gdk" />
+					<Add directory="$(#gtk.include)\atk-1.0" />
 				</Compiler>
 				<Linker>
 					<Add option="-static-libgcc" />
@@ -156,7 +156,7 @@
 					<Add library="gdk-win32-2.0" />
 					<Add library="gtk-win32-2.0" />
 					<Add library="gdk_pixbuf-2.0" />
-					<Add directory="../library/bin/windows/debug" />
+					<Add directory="..\library\bin\windows\debug" />
 					<Add directory="$(#cairo.lib)" />
 					<Add directory="$(#pango.lib)" />
 					<Add directory="$(#glib.lib)" />
@@ -168,8 +168,8 @@
 			</Target>
 			<Target title="Windows-Release">
 				<Option platforms="Windows;" />
-				<Option output="bin/windows/release/richmath" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj/windows/release/" />
+				<Option output="bin\windows\release\richmath" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj\windows\release\" />
 				<Option type="0" />
 				<Option compiler="gcc" />
 				<Compiler>
@@ -184,10 +184,10 @@
 					<Add option="-DRICHMATH_USE_WIN32_GUI" />
 					<Add directory="include" />
 					<Add directory="resources" />
-					<Add directory="../library/include" />
+					<Add directory="..\library\include" />
 					<Add directory="$(#cairo.include)" />
 					<Add directory="$(#glib.include)" />
-					<Add directory="$(#glib.lib)/glib-2.0/include" />
+					<Add directory="$(#glib.lib)\glib-2.0\include" />
 					<Add directory="$(#pango.include)" />
 				</Compiler>
 				<Linker>
@@ -205,7 +205,7 @@
 					<Add library="user32" />
 					<Add library="ole32" />
 					<Add library="uuid" />
-					<Add directory="../library/bin/windows/release" />
+					<Add directory="..\library\bin\windows\release" />
 					<Add directory="$(#cairo.lib)" />
 					<Add directory="$(#pango.lib)" />
 					<Add directory="$(#glib.lib)" />
@@ -217,8 +217,8 @@
 			</Target>
 			<Target title="Windows-MSVC">
 				<Option platforms="Windows;" />
-				<Option output="bin/windows/msvc/richmath" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj/windows/msvc/" />
+				<Option output="bin\windows\msvc\richmath" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj\windows\msvc\" />
 				<Option type="0" />
 				<Option compiler="msvc8" />
 				<Compiler>
@@ -236,12 +236,12 @@
 					<Add option="/DRICHMATH_USE_WIN32_GUI" />
 					<Add directory="include" />
 					<Add directory="resources" />
-					<Add directory="../library/include" />
+					<Add directory="..\library\include" />
 					<Add directory="$(#cairo.include)" />
 					<Add directory="$(#glib.include)" />
-					<Add directory="$(#glib.lib)/glib-2.0/include" />
+					<Add directory="$(#glib.lib)\glib-2.0\include" />
 					<Add directory="$(#pango.include)" />
-					<Add directory="../msvc-c99" />
+					<Add directory="..\msvc-c99" />
 				</Compiler>
 				<Linker>
 					<Add option="/ENTRY:mainCRTStartup" />
@@ -258,7 +258,7 @@
 					<Add library="user32" />
 					<Add library="ole32" />
 					<Add library="uuid" />
-					<Add directory="../library/bin/windows/msvc" />
+					<Add directory="..\library\bin\windows\msvc" />
 					<Add directory="$(#cairo.lib)" />
 					<Add directory="$(#pango.lib)" />
 					<Add directory="$(#glib.lib)" />
@@ -270,9 +270,9 @@
 			</Target>
 			<Target title="Linux-Debug">
 				<Option platforms="Unix;" />
-				<Option output="bin/linux/debug/richmath" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj/linux/debug" />
-				<Option external_deps="../../pmath_project/library/pmath.cbp;" />
+				<Option output="bin\linux\debug\richmath" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj\linux\debug" />
+				<Option external_deps="..\..\pmath_project\library\pmath.cbp;" />
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
@@ -286,13 +286,13 @@
 					<Add option="-DRICHMATH_USE_GTK_GUI" />
 					<Add directory="include" />
 					<Add directory="resources" />
-					<Add directory="../library/include" />
+					<Add directory="..\library\include" />
 				</Compiler>
 				<Linker>
 					<Add option="`pkg-config gtk+-2.0 --libs`" />
 					<Add option="-Wl,-rpath,\\$$ORIGIN" />
 					<Add library="pmath" />
-					<Add directory="../library/bin/linux/debug" />
+					<Add directory="..\library\bin\linux\debug" />
 					<Add directory="$(#cairo.lib)" />
 					<Add directory="$(#pango.lib)" />
 					<Add directory="$(#glib.lib)" />
@@ -304,9 +304,9 @@
 			</Target>
 			<Target title="Linux-Debug-Gtk3">
 				<Option platforms="Unix;" />
-				<Option output="bin/linux/debug/richmath-gtk3" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj/linux/debug-gtk3" />
-				<Option external_deps="../../pmath_project/library/pmath.cbp;" />
+				<Option output="bin\linux\debug\richmath-gtk3" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj\linux\debug-gtk3" />
+				<Option external_deps="..\..\pmath_project\library\pmath.cbp;" />
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
@@ -320,13 +320,13 @@
 					<Add option="-DRICHMATH_USE_GTK_GUI" />
 					<Add directory="include" />
 					<Add directory="resources" />
-					<Add directory="../library/include" />
+					<Add directory="..\library\include" />
 				</Compiler>
 				<Linker>
 					<Add option="`pkg-config gtk+-3.0 --libs`" />
 					<Add option="-Wl,-rpath,\\$$ORIGIN" />
 					<Add library="pmath" />
-					<Add directory="../library/bin/linux/debug" />
+					<Add directory="..\library\bin\linux\debug" />
 					<Add directory="$(#cairo.lib)" />
 					<Add directory="$(#pango.lib)" />
 					<Add directory="$(#glib.lib)" />
@@ -337,382 +337,386 @@
 				</ExtraCommands>
 			</Target>
 		</Build>
-		<Unit filename="include/boxes/box.h" />
-		<Unit filename="include/boxes/buttonbox.h" />
-		<Unit filename="include/boxes/checkboxbox.h" />
-		<Unit filename="include/boxes/containerwidgetbox.h" />
-		<Unit filename="include/boxes/dynamicbox.h" />
-		<Unit filename="include/boxes/dynamiclocalbox.h" />
-		<Unit filename="include/boxes/emptywidgetbox.h" />
-		<Unit filename="include/boxes/errorbox.h" />
-		<Unit filename="include/boxes/fillbox.h" />
-		<Unit filename="include/boxes/fractionbox.h" />
-		<Unit filename="include/boxes/framebox.h" />
-		<Unit filename="include/boxes/gridbox.h" />
-		<Unit filename="include/boxes/inputfieldbox.h" />
-		<Unit filename="include/boxes/interpretationbox.h" />
-		<Unit filename="include/boxes/mathsequence.h" />
-		<Unit filename="include/boxes/numberbox.h" />
-		<Unit filename="include/boxes/ownerbox.h" />
-		<Unit filename="include/boxes/progressindicatorbox.h" />
-		<Unit filename="include/boxes/radicalbox.h" />
-		<Unit filename="include/boxes/radiobuttonbox.h">
+		<Unit filename="include\boxes\box.h" />
+		<Unit filename="include\boxes\buttonbox.h" />
+		<Unit filename="include\boxes\checkboxbox.h" />
+		<Unit filename="include\boxes\containerwidgetbox.h" />
+		<Unit filename="include\boxes\dynamicbox.h" />
+		<Unit filename="include\boxes\dynamiclocalbox.h" />
+		<Unit filename="include\boxes\emptywidgetbox.h" />
+		<Unit filename="include\boxes\errorbox.h" />
+		<Unit filename="include\boxes\fillbox.h" />
+		<Unit filename="include\boxes\fractionbox.h" />
+		<Unit filename="include\boxes\framebox.h" />
+		<Unit filename="include\boxes\gridbox.h" />
+		<Unit filename="include\boxes\inputfieldbox.h" />
+		<Unit filename="include\boxes\interpretationbox.h" />
+		<Unit filename="include\boxes\mathsequence.h" />
+		<Unit filename="include\boxes\numberbox.h" />
+		<Unit filename="include\boxes\ownerbox.h" />
+		<Unit filename="include\boxes\progressindicatorbox.h" />
+		<Unit filename="include\boxes\radicalbox.h" />
+		<Unit filename="include\boxes\radiobuttonbox.h">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
-		<Unit filename="include/boxes/section.h" />
-		<Unit filename="include/boxes/sectionlist.h" />
-		<Unit filename="include/boxes/setterbox.h" />
-		<Unit filename="include/boxes/sliderbox.h" />
-		<Unit filename="include/boxes/stylebox.h" />
-		<Unit filename="include/boxes/subsuperscriptbox.h" />
-		<Unit filename="include/boxes/textsequence.h" />
-		<Unit filename="include/boxes/tooltipbox.h" />
-		<Unit filename="include/boxes/transformationbox.h" />
-		<Unit filename="include/boxes/underoverscriptbox.h" />
-		<Unit filename="include/eval/application.h" />
-		<Unit filename="include/eval/binding.h" />
-		<Unit filename="include/eval/dynamic.h" />
-		<Unit filename="include/eval/job.h" />
-		<Unit filename="include/eval/server.h" />
-		<Unit filename="include/graphics/animation.h" />
-		<Unit filename="include/graphics/buffer.h" />
-		<Unit filename="include/graphics/canvas.h" />
-		<Unit filename="include/graphics/config-shaper.h" />
-		<Unit filename="include/graphics/context.h" />
-		<Unit filename="include/graphics/fonts.h" />
-		<Unit filename="include/graphics/ft-shaper.h" />
-		<Unit filename="include/graphics/ot-math-shaper.h" />
-		<Unit filename="include/graphics/scope-colorizer.h" />
-		<Unit filename="include/graphics/shapers.h" />
-		<Unit filename="include/graphics/win32-shaper.h">
+		<Unit filename="include\boxes\section.h" />
+		<Unit filename="include\boxes\sectionlist.h" />
+		<Unit filename="include\boxes\setterbox.h" />
+		<Unit filename="include\boxes\sliderbox.h" />
+		<Unit filename="include\boxes\stylebox.h" />
+		<Unit filename="include\boxes\subsuperscriptbox.h" />
+		<Unit filename="include\boxes\textsequence.h" />
+		<Unit filename="include\boxes\tooltipbox.h" />
+		<Unit filename="include\boxes\transformationbox.h" />
+		<Unit filename="include\boxes\underoverscriptbox.h" />
+		<Unit filename="include\eval\application.h" />
+		<Unit filename="include\eval\binding.h" />
+		<Unit filename="include\eval\dynamic.h" />
+		<Unit filename="include\eval\job.h" />
+		<Unit filename="include\eval\server.h" />
+		<Unit filename="include\graphics\animation.h" />
+		<Unit filename="include\graphics\buffer.h" />
+		<Unit filename="include\graphics\canvas.h" />
+		<Unit filename="include\graphics\config-shaper.h" />
+		<Unit filename="include\graphics\context.h" />
+		<Unit filename="include\graphics\fonts.h" />
+		<Unit filename="include\graphics\ft-shaper.h" />
+		<Unit filename="include\graphics\ot-math-shaper.h" />
+		<Unit filename="include\graphics\scope-colorizer.h" />
+		<Unit filename="include\graphics\shapers.h" />
+		<Unit filename="include\graphics\win32-shaper.h">
 			<Option target="Windows-Debug" />
 			<Option target="Windows-Debug-Freetype" />
 			<Option target="Windows-Release" />
 			<Option target="Windows-MSVC" />
 		</Unit>
-		<Unit filename="include/gui/clipboard.h" />
-		<Unit filename="include/gui/control-painter.h" />
-		<Unit filename="include/gui/document.h" />
-		<Unit filename="include/gui/gtk/basic-gtk-widget.h">
+		<Unit filename="include\gui\clipboard.h" />
+		<Unit filename="include\gui\control-painter.h" />
+		<Unit filename="include\gui\document.h" />
+		<Unit filename="include\gui\gtk\basic-gtk-widget.h">
 			<Option target="Windows-Debug-Gtk" />
 			<Option target="Linux-Debug" />
 			<Option target="Linux-Debug-Gtk3" />
 		</Unit>
-		<Unit filename="include/gui/gtk/mgtk-clipboard.h">
+		<Unit filename="include\gui\gtk\mgtk-clipboard.h">
 			<Option target="Windows-Debug-Gtk" />
 			<Option target="Linux-Debug" />
 			<Option target="Linux-Debug-Gtk3" />
 		</Unit>
-		<Unit filename="include/gui/gtk/mgtk-control-painter.h" />
-		<Unit filename="include/gui/gtk/mgtk-cursors.h">
+		<Unit filename="include\gui\gtk\mgtk-control-painter.h" />
+		<Unit filename="include\gui\gtk\mgtk-cursors.h">
 			<Option target="Windows-Debug-Gtk" />
 			<Option target="Linux-Debug" />
 			<Option target="Linux-Debug-Gtk3" />
 		</Unit>
-		<Unit filename="include/gui/gtk/mgtk-document-window.h">
+		<Unit filename="include\gui\gtk\mgtk-document-window.h">
 			<Option target="Windows-Debug-Gtk" />
 			<Option target="Linux-Debug" />
 			<Option target="Linux-Debug-Gtk3" />
 		</Unit>
-		<Unit filename="include/gui/gtk/mgtk-menu-builder.h">
+		<Unit filename="include\gui\gtk\mgtk-menu-builder.h">
 			<Option target="Windows-Debug-Gtk" />
 			<Option target="Linux-Debug" />
 			<Option target="Linux-Debug-Gtk3" />
 		</Unit>
-		<Unit filename="include/gui/gtk/mgtk-tooltip-window.h">
+		<Unit filename="include\gui\gtk\mgtk-tooltip-window.h">
 			<Option target="Windows-Debug-Gtk" />
 			<Option target="Linux-Debug" />
 			<Option target="Linux-Debug-Gtk3" />
 		</Unit>
-		<Unit filename="include/gui/gtk/mgtk-widget.h">
+		<Unit filename="include\gui\gtk\mgtk-widget.h">
 			<Option target="Windows-Debug-Gtk" />
 			<Option target="Linux-Debug" />
 			<Option target="Linux-Debug-Gtk3" />
 		</Unit>
-		<Unit filename="include/gui/menu.h" />
-		<Unit filename="include/gui/native-widget.h" />
-		<Unit filename="include/gui/win32/basic-win32-widget.h">
+		<Unit filename="include\gui\menu.h" />
+		<Unit filename="include\gui\native-widget.h" />
+		<Unit filename="include\gui\win32\basic-win32-widget.h">
 			<Option target="Windows-Debug" />
 			<Option target="Windows-Debug-Freetype" />
 			<Option target="Windows-Release" />
 			<Option target="Windows-MSVC" />
 		</Unit>
-		<Unit filename="include/gui/win32/basic-win32-window.h">
+		<Unit filename="include\gui\win32\basic-win32-window.h">
 			<Option target="Windows-Debug" />
 			<Option target="Windows-Debug-Freetype" />
 			<Option target="Windows-Release" />
 			<Option target="Windows-MSVC" />
 		</Unit>
-		<Unit filename="include/gui/win32/ole/dataobject.h">
+		<Unit filename="include\gui\win32\ole\dataobject.h">
 			<Option target="Windows-Debug" />
 			<Option target="Windows-Debug-Freetype" />
 			<Option target="Windows-Release" />
 			<Option target="Windows-MSVC" />
 		</Unit>
-		<Unit filename="include/gui/win32/ole/dropsource.h">
+		<Unit filename="include\gui\win32\ole\dropsource.h">
 			<Option target="Windows-Debug" />
 			<Option target="Windows-Debug-Freetype" />
 			<Option target="Windows-Release" />
 			<Option target="Windows-MSVC" />
 		</Unit>
-		<Unit filename="include/gui/win32/ole/enumformatetc.h">
+		<Unit filename="include\gui\win32\ole\enumformatetc.h">
 			<Option target="Windows-Debug" />
 			<Option target="Windows-Debug-Freetype" />
 			<Option target="Windows-Release" />
 			<Option target="Windows-MSVC" />
 		</Unit>
-		<Unit filename="include/gui/win32/win32-clipboard.h">
+		<Unit filename="include\gui\win32\win32-clipboard.h">
 			<Option target="Windows-Debug" />
 			<Option target="Windows-Debug-Freetype" />
 			<Option target="Windows-Release" />
 			<Option target="Windows-MSVC" />
 		</Unit>
-		<Unit filename="include/gui/win32/win32-control-painter.h">
+		<Unit filename="include\gui\win32\win32-control-painter.h">
 			<Option target="Windows-Debug" />
 			<Option target="Windows-Debug-Freetype" />
 			<Option target="Windows-Release" />
 			<Option target="Windows-MSVC" />
 		</Unit>
-		<Unit filename="include/gui/win32/win32-document-window.h">
+		<Unit filename="include\gui\win32\win32-document-window.h">
 			<Option target="Windows-Debug" />
 			<Option target="Windows-Debug-Freetype" />
 			<Option target="Windows-Release" />
 			<Option target="Windows-MSVC" />
 		</Unit>
-		<Unit filename="include/gui/win32/win32-menu.h">
+		<Unit filename="include\gui\win32\win32-menu.h">
 			<Option target="Windows-Debug" />
 			<Option target="Windows-Debug-Freetype" />
 			<Option target="Windows-Release" />
 			<Option target="Windows-MSVC" />
 		</Unit>
-		<Unit filename="include/gui/win32/win32-menubar.h">
+		<Unit filename="include\gui\win32\win32-menubar.h">
 			<Option target="Windows-Debug" />
 			<Option target="Windows-Debug-Freetype" />
 			<Option target="Windows-Release" />
 			<Option target="Windows-MSVC" />
 		</Unit>
-		<Unit filename="include/gui/win32/win32-themes.h">
+		<Unit filename="include\gui\win32\win32-themes.h">
 			<Option target="Windows-Debug" />
 			<Option target="Windows-Debug-Freetype" />
 			<Option target="Windows-Release" />
 			<Option target="Windows-MSVC" />
 		</Unit>
-		<Unit filename="include/gui/win32/win32-tooltip-window.h">
+		<Unit filename="include\gui\win32\win32-tooltip-window.h">
 			<Option target="Windows-Debug" />
 			<Option target="Windows-Debug-Freetype" />
 			<Option target="Windows-Release" />
 			<Option target="Windows-MSVC" />
 		</Unit>
-		<Unit filename="include/gui/win32/win32-widget.h">
+		<Unit filename="include\gui\win32\win32-widget.h">
 			<Option target="Windows-Debug" />
 			<Option target="Windows-Debug-Freetype" />
 			<Option target="Windows-Release" />
 			<Option target="Windows-MSVC" />
 		</Unit>
-		<Unit filename="include/util/array.h" />
-		<Unit filename="include/util/base.h" />
-		<Unit filename="include/util/concurrent-queue.h" />
-		<Unit filename="include/util/frontendobject.h" />
-		<Unit filename="include/util/hashtable.h" />
-		<Unit filename="include/util/matrix.h" />
-		<Unit filename="include/util/pmath-extra.h" />
-		<Unit filename="include/util/semaphore.h" />
-		<Unit filename="include/util/sharedptr.h" />
-		<Unit filename="include/util/spanexpr.h" />
-		<Unit filename="include/util/style.h" />
-		<Unit filename="include/util/syntax-state.h" />
-		<Unit filename="resources/resources.h">
+		<Unit filename="include\util\array.h" />
+		<Unit filename="include\util\base.h" />
+		<Unit filename="include\util\concurrent-queue.h" />
+		<Unit filename="include\util\frontendobject.h" />
+		<Unit filename="include\util\hashtable.h" />
+		<Unit filename="include\util\matrix.h" />
+		<Unit filename="include\util\pmath-extra.h" />
+		<Unit filename="include\util\semaphore.h" />
+		<Unit filename="include\util\sharedptr.h" />
+		<Unit filename="include\util\spanexpr.h" />
+		<Unit filename="include\util\style.h" />
+		<Unit filename="include\util\syntax-state.h" />
+		<Unit filename="resources\resources.h">
 			<Option target="Windows-Debug" />
 			<Option target="Windows-Debug-Freetype" />
 			<Option target="Windows-Release" />
 			<Option target="Windows-MSVC" />
 		</Unit>
-		<Unit filename="resources/richmath.rc">
+		<Unit filename="resources\richmath.rc">
 			<Option compilerVar="WINDRES" />
 			<Option target="Windows-Debug" />
 			<Option target="Windows-Debug-Freetype" />
 			<Option target="Windows-Release" />
 			<Option target="Windows-MSVC" />
 		</Unit>
-		<Unit filename="scripts/frontinit.pmath" />
-		<Unit filename="src/boxes/box.cpp" />
-		<Unit filename="src/boxes/buttonbox.cpp" />
-		<Unit filename="src/boxes/checkboxbox.cpp" />
-		<Unit filename="src/boxes/containerwidgetbox.cpp" />
-		<Unit filename="src/boxes/dynamicbox.cpp" />
-		<Unit filename="src/boxes/dynamiclocalbox.cpp" />
-		<Unit filename="src/boxes/emptywidgetbox.cpp" />
-		<Unit filename="src/boxes/errorbox.cpp" />
-		<Unit filename="src/boxes/fillbox.cpp" />
-		<Unit filename="src/boxes/fractionbox.cpp" />
-		<Unit filename="src/boxes/framebox.cpp" />
-		<Unit filename="src/boxes/gridbox.cpp" />
-		<Unit filename="src/boxes/inputfieldbox.cpp" />
-		<Unit filename="src/boxes/interpretationbox.cpp" />
-		<Unit filename="src/boxes/mathsequence.cpp" />
-		<Unit filename="src/boxes/numberbox.cpp" />
-		<Unit filename="src/boxes/ownerbox.cpp" />
-		<Unit filename="src/boxes/progressindicatorbox.cpp" />
-		<Unit filename="src/boxes/radicalbox.cpp" />
-		<Unit filename="src/boxes/radiobuttonbox.cpp" />
-		<Unit filename="src/boxes/section.cpp" />
-		<Unit filename="src/boxes/sectionlist.cpp" />
-		<Unit filename="src/boxes/setterbox.cpp" />
-		<Unit filename="src/boxes/sliderbox.cpp" />
-		<Unit filename="src/boxes/stylebox.cpp" />
-		<Unit filename="src/boxes/subsuperscriptbox.cpp" />
-		<Unit filename="src/boxes/textsequence.cpp" />
-		<Unit filename="src/boxes/tooltipbox.cpp" />
-		<Unit filename="src/boxes/transformationbox.cpp" />
-		<Unit filename="src/boxes/underoverscriptbox.cpp" />
-		<Unit filename="src/eval/application.cpp" />
-		<Unit filename="src/eval/binding.cpp" />
-		<Unit filename="src/eval/dynamic.cpp" />
-		<Unit filename="src/eval/job.cpp" />
-		<Unit filename="src/eval/server.cpp" />
-		<Unit filename="src/graphics/animation.cpp" />
-		<Unit filename="src/graphics/buffer.cpp" />
-		<Unit filename="src/graphics/canvas.cpp" />
-		<Unit filename="src/graphics/config-shaper.cpp" />
-		<Unit filename="src/graphics/context.cpp" />
-		<Unit filename="src/graphics/fonts.cpp" />
-		<Unit filename="src/graphics/ft-shaper.cpp" />
-		<Unit filename="src/graphics/ot-math-shaper.cpp" />
-		<Unit filename="src/graphics/scope-colorizer.cpp" />
-		<Unit filename="src/graphics/shapers.cpp" />
-		<Unit filename="src/graphics/win32-shaper.cpp">
+		<Unit filename="scripts\frontinit.pmath" />
+		<Unit filename="src\boxes\box.cpp" />
+		<Unit filename="src\boxes\buttonbox.cpp" />
+		<Unit filename="src\boxes\checkboxbox.cpp" />
+		<Unit filename="src\boxes\containerwidgetbox.cpp" />
+		<Unit filename="src\boxes\dynamicbox.cpp" />
+		<Unit filename="src\boxes\dynamiclocalbox.cpp" />
+		<Unit filename="src\boxes\emptywidgetbox.cpp" />
+		<Unit filename="src\boxes\errorbox.cpp" />
+		<Unit filename="src\boxes\fillbox.cpp" />
+		<Unit filename="src\boxes\fractionbox.cpp" />
+		<Unit filename="src\boxes\framebox.cpp" />
+		<Unit filename="src\boxes\gridbox.cpp" />
+		<Unit filename="src\boxes\inputfieldbox.cpp" />
+		<Unit filename="src\boxes\interpretationbox.cpp" />
+		<Unit filename="src\boxes\mathsequence.cpp" />
+		<Unit filename="src\boxes\numberbox.cpp" />
+		<Unit filename="src\boxes\ownerbox.cpp" />
+		<Unit filename="src\boxes\progressindicatorbox.cpp" />
+		<Unit filename="src\boxes\radicalbox.cpp" />
+		<Unit filename="src\boxes\radiobuttonbox.cpp" />
+		<Unit filename="src\boxes\section.cpp" />
+		<Unit filename="src\boxes\sectionlist.cpp" />
+		<Unit filename="src\boxes\setterbox.cpp" />
+		<Unit filename="src\boxes\sliderbox.cpp" />
+		<Unit filename="src\boxes\stylebox.cpp" />
+		<Unit filename="src\boxes\subsuperscriptbox.cpp" />
+		<Unit filename="src\boxes\textsequence.cpp" />
+		<Unit filename="src\boxes\tooltipbox.cpp" />
+		<Unit filename="src\boxes\transformationbox.cpp" />
+		<Unit filename="src\boxes\underoverscriptbox.cpp" />
+		<Unit filename="src\eval\application.cpp" />
+		<Unit filename="src\eval\binding.cpp" />
+		<Unit filename="src\eval\dynamic.cpp" />
+		<Unit filename="src\eval\job.cpp" />
+		<Unit filename="src\eval\server.cpp" />
+		<Unit filename="src\graphics\animation.cpp" />
+		<Unit filename="src\graphics\buffer.cpp" />
+		<Unit filename="src\graphics\canvas.cpp" />
+		<Unit filename="src\graphics\config-shaper.cpp" />
+		<Unit filename="src\graphics\context.cpp" />
+		<Unit filename="src\graphics\fonts.cpp" />
+		<Unit filename="src\graphics\ft-shaper.cpp" />
+		<Unit filename="src\graphics\ot-math-shaper.cpp" />
+		<Unit filename="src\graphics\scope-colorizer.cpp" />
+		<Unit filename="src\graphics\shapers.cpp" />
+		<Unit filename="src\graphics\win32-shaper.cpp">
 			<Option target="Windows-Debug" />
 			<Option target="Windows-Debug-Freetype" />
 			<Option target="Windows-Release" />
 			<Option target="Windows-MSVC" />
 		</Unit>
-		<Unit filename="src/gui/clipboard.cpp" />
-		<Unit filename="src/gui/control-painter.cpp" />
-		<Unit filename="src/gui/document.cpp" />
-		<Unit filename="src/gui/gtk/basic-gtk-widget.cpp">
+		<Unit filename="src\gui\clipboard.cpp" />
+		<Unit filename="src\gui\control-painter.cpp" />
+		<Unit filename="src\gui\document.cpp" />
+		<Unit filename="src\gui\gtk\basic-gtk-widget.cpp">
 			<Option target="Windows-Debug-Gtk" />
 			<Option target="Linux-Debug" />
 			<Option target="Linux-Debug-Gtk3" />
 		</Unit>
-		<Unit filename="src/gui/gtk/mgtk-clipboard.cpp">
+		<Unit filename="src\gui\gtk\mgtk-clipboard.cpp">
 			<Option target="Windows-Debug-Gtk" />
 			<Option target="Linux-Debug" />
 			<Option target="Linux-Debug-Gtk3" />
 		</Unit>
-		<Unit filename="src/gui/gtk/mgtk-control-painter.cpp" />
-		<Unit filename="src/gui/gtk/mgtk-cursors.cpp">
+		<Unit filename="src\gui\gtk\mgtk-control-painter.cpp">
 			<Option target="Windows-Debug-Gtk" />
 			<Option target="Linux-Debug" />
 			<Option target="Linux-Debug-Gtk3" />
 		</Unit>
-		<Unit filename="src/gui/gtk/mgtk-document-window.cpp">
+		<Unit filename="src\gui\gtk\mgtk-cursors.cpp">
 			<Option target="Windows-Debug-Gtk" />
 			<Option target="Linux-Debug" />
 			<Option target="Linux-Debug-Gtk3" />
 		</Unit>
-		<Unit filename="src/gui/gtk/mgtk-menu-builder.cpp">
+		<Unit filename="src\gui\gtk\mgtk-document-window.cpp">
 			<Option target="Windows-Debug-Gtk" />
 			<Option target="Linux-Debug" />
 			<Option target="Linux-Debug-Gtk3" />
 		</Unit>
-		<Unit filename="src/gui/gtk/mgtk-tooltip-window.cpp">
+		<Unit filename="src\gui\gtk\mgtk-menu-builder.cpp">
 			<Option target="Windows-Debug-Gtk" />
 			<Option target="Linux-Debug" />
 			<Option target="Linux-Debug-Gtk3" />
 		</Unit>
-		<Unit filename="src/gui/gtk/mgtk-widget.cpp">
+		<Unit filename="src\gui\gtk\mgtk-tooltip-window.cpp">
 			<Option target="Windows-Debug-Gtk" />
 			<Option target="Linux-Debug" />
 			<Option target="Linux-Debug-Gtk3" />
 		</Unit>
-		<Unit filename="src/gui/menu.cpp" />
-		<Unit filename="src/gui/native-widget.cpp" />
-		<Unit filename="src/gui/win32/basic-win32-widget.cpp">
+		<Unit filename="src\gui\gtk\mgtk-widget.cpp">
+			<Option target="Windows-Debug-Gtk" />
+			<Option target="Linux-Debug" />
+			<Option target="Linux-Debug-Gtk3" />
+		</Unit>
+		<Unit filename="src\gui\menu.cpp" />
+		<Unit filename="src\gui\native-widget.cpp" />
+		<Unit filename="src\gui\win32\basic-win32-widget.cpp">
 			<Option target="Windows-Debug" />
 			<Option target="Windows-Debug-Freetype" />
 			<Option target="Windows-Release" />
 			<Option target="Windows-MSVC" />
 		</Unit>
-		<Unit filename="src/gui/win32/basic-win32-window.cpp">
+		<Unit filename="src\gui\win32\basic-win32-window.cpp">
 			<Option target="Windows-Debug" />
 			<Option target="Windows-Debug-Freetype" />
 			<Option target="Windows-Release" />
 			<Option target="Windows-MSVC" />
 		</Unit>
-		<Unit filename="src/gui/win32/ole/dataobject.cpp">
+		<Unit filename="src\gui\win32\ole\dataobject.cpp">
 			<Option target="Windows-Debug" />
 			<Option target="Windows-Debug-Freetype" />
 			<Option target="Windows-Release" />
 			<Option target="Windows-MSVC" />
 		</Unit>
-		<Unit filename="src/gui/win32/ole/dropsource.cpp">
+		<Unit filename="src\gui\win32\ole\dropsource.cpp">
 			<Option target="Windows-Debug" />
 			<Option target="Windows-Debug-Freetype" />
 			<Option target="Windows-Release" />
 			<Option target="Windows-MSVC" />
 		</Unit>
-		<Unit filename="src/gui/win32/ole/enumformatetc.cpp">
+		<Unit filename="src\gui\win32\ole\enumformatetc.cpp">
 			<Option target="Windows-Debug" />
 			<Option target="Windows-Debug-Freetype" />
 			<Option target="Windows-Release" />
 			<Option target="Windows-MSVC" />
 		</Unit>
-		<Unit filename="src/gui/win32/win32-clipboard.cpp">
+		<Unit filename="src\gui\win32\win32-clipboard.cpp">
 			<Option target="Windows-Debug" />
 			<Option target="Windows-Debug-Freetype" />
 			<Option target="Windows-Release" />
 			<Option target="Windows-MSVC" />
 		</Unit>
-		<Unit filename="src/gui/win32/win32-control-painter.cpp">
+		<Unit filename="src\gui\win32\win32-control-painter.cpp">
 			<Option target="Windows-Debug" />
 			<Option target="Windows-Debug-Freetype" />
 			<Option target="Windows-Release" />
 			<Option target="Windows-MSVC" />
 		</Unit>
-		<Unit filename="src/gui/win32/win32-document-window.cpp">
+		<Unit filename="src\gui\win32\win32-document-window.cpp">
 			<Option target="Windows-Debug" />
 			<Option target="Windows-Debug-Freetype" />
 			<Option target="Windows-Release" />
 			<Option target="Windows-MSVC" />
 		</Unit>
-		<Unit filename="src/gui/win32/win32-menu.cpp">
+		<Unit filename="src\gui\win32\win32-menu.cpp">
 			<Option target="Windows-Debug" />
 			<Option target="Windows-Debug-Freetype" />
 			<Option target="Windows-Release" />
 			<Option target="Windows-MSVC" />
 		</Unit>
-		<Unit filename="src/gui/win32/win32-menubar.cpp">
+		<Unit filename="src\gui\win32\win32-menubar.cpp">
 			<Option target="Windows-Debug" />
 			<Option target="Windows-Debug-Freetype" />
 			<Option target="Windows-Release" />
 			<Option target="Windows-MSVC" />
 		</Unit>
-		<Unit filename="src/gui/win32/win32-themes.cpp">
+		<Unit filename="src\gui\win32\win32-themes.cpp">
 			<Option target="Windows-Debug" />
 			<Option target="Windows-Debug-Freetype" />
 			<Option target="Windows-Release" />
 			<Option target="Windows-MSVC" />
 		</Unit>
-		<Unit filename="src/gui/win32/win32-tooltip-window.cpp">
+		<Unit filename="src\gui\win32\win32-tooltip-window.cpp">
 			<Option target="Windows-Debug" />
 			<Option target="Windows-Debug-Freetype" />
 			<Option target="Windows-Release" />
 			<Option target="Windows-MSVC" />
 		</Unit>
-		<Unit filename="src/gui/win32/win32-widget.cpp">
+		<Unit filename="src\gui\win32\win32-widget.cpp">
 			<Option target="Windows-Debug" />
 			<Option target="Windows-Debug-Freetype" />
 			<Option target="Windows-Release" />
 			<Option target="Windows-MSVC" />
 		</Unit>
-		<Unit filename="src/main.cpp" />
-		<Unit filename="src/util/base.cpp" />
-		<Unit filename="src/util/frontendobject.cpp" />
-		<Unit filename="src/util/pmath-extra.cpp" />
-		<Unit filename="src/util/semaphore.cpp" />
-		<Unit filename="src/util/spanexpr.cpp" />
-		<Unit filename="src/util/style.cpp" />
-		<Unit filename="src/util/syntax-state.cpp" />
+		<Unit filename="src\main.cpp" />
+		<Unit filename="src\util\base.cpp" />
+		<Unit filename="src\util\frontendobject.cpp" />
+		<Unit filename="src\util\pmath-extra.cpp" />
+		<Unit filename="src\util\semaphore.cpp" />
+		<Unit filename="src\util\spanexpr.cpp" />
+		<Unit filename="src\util\style.cpp" />
+		<Unit filename="src\util\syntax-state.cpp" />
 		<Extensions>
 			<code_completion />
 			<envvars />
