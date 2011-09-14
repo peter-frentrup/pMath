@@ -35,12 +35,17 @@ namespace richmath {
         float          width,
         float          height);
     
+      virtual bool container_hover_repaint(ContainerType type);
+      
+      virtual void system_font_style(Style *style);
+      
     public:
       GtkStyleContext *get_control_theme(ContainerType type);
       GtkStateFlags    get_state_flags(ControlState state);
         
     protected:
       GtkStyleContext *button_context;
+      GtkStyleContext *tool_button_context;
       
 #endif
     
