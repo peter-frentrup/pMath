@@ -429,7 +429,7 @@ void ControlPainter::container_content_move(
     case PaletteButton:
     case PushButton:
     case DefaultPushButton: {
-        if(state == Pressed) {
+        if(state == PressedHovered) {
           *x += 0.75f;
           *y += 0.75f;
         }
