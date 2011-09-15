@@ -1,16 +1,16 @@
 #include <boxes/inputfieldbox.h>
-
+ 
 #include <cmath>
-
+ 
 #include <boxes/mathsequence.h>
 #include <eval/application.h>
 #include <gui/document.h>
 #include <gui/native-widget.h>
-
+ 
 using namespace richmath;
-
+ 
 //{ class InputFieldBox ...
-
+ 
 InputFieldBox::InputFieldBox(MathSequence *content)
   : ContainerWidgetBox(InputField, content),
   must_update(true),
@@ -27,7 +27,7 @@ InputFieldBox::InputFieldBox(MathSequence *content)
   style = new Style(String("InputField"));
   cx = 0;
 }
-
+ 
 InputFieldBox *InputFieldBox::create(Expr expr, int opts) {
   if(expr.expr_length() < 2)
     return 0;
@@ -44,19 +44,23 @@ InputFieldBox *InputFieldBox::create(Expr expr, int opts) {
   
   return box;
 }
-
+ 
 ControlState InputFieldBox::calc_state(Context *context) {
-  if(selection_inside)
+  if(selection_inside) {
+    if(mouse_inside)
+      return PressedHovered;
+      
     return Pressed;
-    
+  }
+  
   return ContainerWidgetBox::calc_state(context);
 }
-
+ 
 bool InputFieldBox::expand(const BoxSize &size) {
   _extents = size;
   return true;
 }
-
+ 
 void InputFieldBox::resize(Context *context) {
   bool  old_math_spacing = context->math_spacing;
   float old_width        = context->width;
@@ -90,7 +94,7 @@ void InputFieldBox::resize(Context *context) {
   frame_x = (_extents.width - w) / 2;
   cx += frame_x;
 }
-
+ 
 void InputFieldBox::paint_content(Context *context) {
   if(must_update) {
     must_update = false;
@@ -172,7 +176,7 @@ void InputFieldBox::paint_content(Context *context) {
   
   context->canvas->restore();
 }
-
+ 
 void InputFieldBox::scroll_to(float x, float y, float w, float h) {
   if(x + cx < frame_x) {
     cx = frame_x - x;
@@ -197,17 +201,17 @@ void InputFieldBox::scroll_to(float x, float y, float w, float h) {
   else if(x + w < _extents.width - 2 * frame_x)
     cx = frame_x;
 }
-
+ 
 void InputFieldBox::scroll_to(Canvas *canvas, Box *child, int start, int end) {
   default_scroll_to(canvas, _content, child, start, end);
 }
-
+ 
 Box *InputFieldBox::remove(int *index) {
   *index = 0;
   _content->remove(0, _content->length());
   return _content;
 }
-
+ 
 Expr InputFieldBox::to_pmath(int flags) {
   if(invalidated)
     assign_dynamic();
@@ -223,7 +227,7 @@ Expr InputFieldBox::to_pmath(int flags) {
   result.set(0, Symbol(PMATH_SYMBOL_INPUTFIELDBOX));
   return result;
 }
-
+ 
 void InputFieldBox::dynamic_updated() {
   if(must_update)
     return;
@@ -231,7 +235,7 @@ void InputFieldBox::dynamic_updated() {
   must_update = true;
   request_repaint_all();
 }
-
+ 
 void InputFieldBox::dynamic_finished(Expr info, Expr result) {
   int opt = BoxOptionDefault;
   if(get_style(AutoNumberFormating))
@@ -241,7 +245,7 @@ void InputFieldBox::dynamic_finished(Expr info, Expr result) {
   invalidate();
   invalidated = false;
 }
-
+ 
 Box *InputFieldBox::dynamic_to_literal(int *start, int *end) {
   if(dynamic.is_dynamic()) {
     dynamic = Expr();
@@ -250,7 +254,7 @@ Box *InputFieldBox::dynamic_to_literal(int *start, int *end) {
   
   return this;
 }
-
+ 
 void InputFieldBox::invalidate() {
   ContainerWidgetBox::invalidate();
   
@@ -262,15 +266,15 @@ void InputFieldBox::invalidate() {
     assign_dynamic();
   }
 }
-
+ 
 bool InputFieldBox::exitable() {
   return false;//_parent && _parent->selectable();
 }
-
+ 
 bool InputFieldBox::selectable(int i) {
   return i >= 0;
 }
-
+ 
 void InputFieldBox::on_mouse_down(MouseEvent &event) {
   Document *doc = find_parent<Document>(false);
   if(doc) {
@@ -313,7 +317,7 @@ void InputFieldBox::on_mouse_down(MouseEvent &event) {
   
   ContainerWidgetBox::on_mouse_down(event);
 }
-
+ 
 void InputFieldBox::on_mouse_move(MouseEvent &event) {
   Document *doc = find_parent<Document>(false);
   
@@ -333,7 +337,7 @@ void InputFieldBox::on_mouse_move(MouseEvent &event) {
   
   ContainerWidgetBox::on_mouse_move(event);
 }
-
+ 
 void InputFieldBox::on_enter() {
   if(transparent) {
     request_repaint_all();
@@ -341,7 +345,7 @@ void InputFieldBox::on_enter() {
   
   ContainerWidgetBox::on_enter();
 }
-
+ 
 void InputFieldBox::on_exit() {
   if(transparent) {
     request_repaint_all();
@@ -352,7 +356,7 @@ void InputFieldBox::on_exit() {
   if(invalidated)
     assign_dynamic();
 }
-
+ 
 void InputFieldBox::on_key_down(SpecialKeyEvent &event) {
   switch(event.key) {
     case KeyReturn:
@@ -383,13 +387,13 @@ void InputFieldBox::on_key_down(SpecialKeyEvent &event) {
   
   ContainerWidgetBox::on_key_down(event);
 }
-
+ 
 void InputFieldBox::on_key_press(uint32_t unichar) {
   if(unichar != '\n' && unichar != '\t') {
     ContainerWidgetBox::on_key_press(unichar);
   }
 }
-
+ 
 bool InputFieldBox::assign_dynamic() {
   invalidated = false;
   
@@ -465,5 +469,6 @@ bool InputFieldBox::assign_dynamic() {
   
   return false;
 }
-
+ 
 //} ... class InputFieldBox
+ 

@@ -32,9 +32,9 @@ ControlState ContainerWidgetBox::calc_state(Context *context) {
     
   if(context->clicked_box_id == id() && mouse_left_down) {
     if(mouse_inside)
-      return Pressed;
+      return PressedHovered;
       
-    return Hot;
+    return Pressed;
   }
   
   Box *mo = FrontEndObject::find_cast<Box>(context->mouseover_box_id);
@@ -131,7 +131,7 @@ void ContainerWidgetBox::paint(Context *context) {
   context->canvas->set_color(old_color);
   context->cursor_color = old_cursor_color;
   
-  if(type == FramelessButton && state == Pressed) {
+  if(type == FramelessButton && state == PressedHovered) {
     context->canvas->save();
     {
 //      context->canvas->pixrect(

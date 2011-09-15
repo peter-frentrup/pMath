@@ -35,6 +35,12 @@ namespace richmath {
         float          width,
         float          height);
     
+      virtual void container_content_move(
+        ContainerType  type,
+        ControlState   state,
+        float         *x,
+        float         *y);
+        
       virtual bool container_hover_repaint(ContainerType type);
       
       virtual void system_font_style(Style *style);
@@ -46,6 +52,7 @@ namespace richmath {
     protected:
       GtkStyleContext *button_context;
       GtkStyleContext *tool_button_context;
+      GtkStyleContext *input_field_context;
       
 #endif
     

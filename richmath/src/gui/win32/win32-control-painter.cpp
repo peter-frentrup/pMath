@@ -378,7 +378,7 @@ void Win32ControlPainter::draw_container(
     }
     else {
       canvas->pixrect(x, y, x + width, y + height, true);
-      if(state == Pressed && blur_input_field) {
+      if(blur_input_field && (state == PressedHovered || state == Pressed)) {
         canvas->set_color(0x8080FF);
         canvas->show_blur_stroke(4, true);
       }
@@ -525,9 +525,9 @@ void Win32ControlPainter::draw_container(
       case PaletteButton: {
           FillRect(dc, &rect, (HBRUSH)(COLOR_BTNFACE + 1));
           
-          if(state == Pressed)
+          if(state == PressedHovered)
             DrawEdge(dc, &rect, BDR_SUNKENOUTER, BF_RECT);
-          else if(state == Hot || state == Hovered)
+          else if(state == Hovered)
             DrawEdge(dc, &rect, BDR_RAISEDINNER, BF_RECT);
             
         } break;
@@ -535,16 +535,6 @@ void Win32ControlPainter::draw_container(
       case DefaultPushButton:
       case GenericButton:
       case PushButton: {
-//        UINT _state = DFCS_BUTTONPUSH;
-
-//        switch(state){
-//          case Disabled: _state|= DFCS_INACTIVE; break;
-//          case Pressed:  _state|= DFCS_PUSHED;   break;
-//          case Hot:
-//          case Hovered:  _state|= DFCS_HOT;      break;
-//          default: break;
-//        }
-
           if(type == DefaultPushButton) {
             FrameRect(dc, &rect, (HBRUSH)GetStockObject(BLACK_BRUSH));
             
@@ -553,7 +543,7 @@ void Win32ControlPainter::draw_container(
           
           FillRect(dc, &rect, (HBRUSH)(COLOR_BTNFACE + 1));
           
-          if(state == Pressed) {
+          if(state == PressedHovered) {
             DrawEdge(dc, &rect, EDGE_SUNKEN, BF_RECT);
           }
           else {
@@ -644,8 +634,8 @@ void Win32ControlPainter::draw_container(
           if(type == CheckboxIndeterminate) _state = DFCS_BUTTON3STATE | DFCS_CHECKED;
           
           switch(state) {
-            case Disabled: _state|= DFCS_INACTIVE; break;
-            case Pressed:  _state|= DFCS_PUSHED;   break;
+            case Disabled:       _state|= DFCS_INACTIVE; break;
+            case PressedHovered: _state|= DFCS_PUSHED;   break;
             default: break;
           }
           
@@ -663,8 +653,8 @@ void Win32ControlPainter::draw_container(
           if(type == RadioButtonChecked)    _state |= DFCS_CHECKED;
           
           switch(state) {
-            case Disabled: _state|= DFCS_INACTIVE; break;
-            case Pressed:  _state|= DFCS_PUSHED;   break;
+            case Disabled:       _state|= DFCS_INACTIVE; break;
+            case PressedHovered: _state|= DFCS_PUSHED;   break;
             default: break;
           }
           
@@ -759,7 +749,7 @@ SharedPtr<BoxAnimation> Win32ControlPainter::control_transition(
   if(type2 == PushButton
       || type2 == DefaultPushButton
       || type2 == PaletteButton) {
-    if(state2 == Pressed/* || state1 == Normal*/)
+    if(state2 == PressedHovered/* || state1 == Normal*/)
       return 0;
   }
   DWORD duration = 0;
@@ -1017,11 +1007,12 @@ void Win32ControlPainter::paint_scrollbar_part(
     
     if(_part == 1) { // arrow button
       switch(state) {
-        case Disabled: _state = 4; break;
-        case Pressed:  _state = 3; break;
-        case Hovered:
-        case Hot:      _state = 2; break;
-        case Normal:   _state = 1; break;
+        case Disabled:        _state = 4; break;
+        case PressedHovered:  _state = 3; break;
+        case Hovered:         _state = 2; break;
+        case Hot:     
+        case Pressed:
+        case Normal:          _state = 1; break;
         
         default: ;
       }
@@ -1058,11 +1049,12 @@ void Win32ControlPainter::paint_scrollbar_part(
     }
     else { // thumbs, ranges
       switch(state) {
-        case Normal:   _state = 1; break;
-        case Hot:      _state = 2; break;
-        case Pressed:  _state = 3; break;
-        case Disabled: _state = 4; break;
-        case Hovered:  _state = 5; break;
+        case Pressed:
+        case Normal:         _state = 1; break;
+        case Hot:            _state = 2; break;
+        case PressedHovered: _state = 3; break;
+        case Disabled:       _state = 4; break;
+        case Hovered:        _state = 5; break;
       }
     }
     
@@ -1135,11 +1127,11 @@ void Win32ControlPainter::paint_scrollbar_part(
     
     if(!bg) {
       switch(state) {
-        case Pressed:  _state|= DFCS_PUSHED;   break;
+        case PressedHovered:  _state|= DFCS_PUSHED;   break;
         case Hot:
-        case Hovered:  _state|= DFCS_HOT;      break;
-        case Disabled: _state|= DFCS_INACTIVE; break;
-        default: ;
+        case Hovered:         _state|= DFCS_HOT;      break;
+        case Disabled:        _state|= DFCS_INACTIVE; break;
+        default: break;
       }
       
       DrawFrameControl(
@@ -1218,7 +1210,7 @@ bool Win32ControlPainter::draw_menubar_itembg(HDC dc, RECT *rect, ControlState s
       
     int _state;
     switch(state) {
-      case Hot:     _state = 2; break;
+      case Hovered: _state = 2; break;
       case Pressed: _state = 3; break;
       default: _state = 1;
     }
@@ -1341,9 +1333,9 @@ HANDLE Win32ControlPainter::get_control_theme(
         *theme_part = 1;//BP_PUSHBUTTON / TP_BUTTON
         
         switch(state) {
-          case Disabled: *theme_state = 4; break;
-          case Pressed:  *theme_state = 3; break;
-          case Hovered:  *theme_state = 2; break; // Hot
+          case Disabled:        *theme_state = 4; break;
+          case PressedHovered:  *theme_state = 3; break;
+          case Hovered:         *theme_state = 2; break;
           case Hot: {
               if(type == DefaultPushButton) {
                 *theme_state = 6;
@@ -1351,7 +1343,8 @@ HANDLE Win32ControlPainter::get_control_theme(
               else
                 *theme_state = 2;
             } break;
-            
+          
+          case Pressed:
           case Normal:
             if(type == DefaultPushButton) {
               *theme_state = 5;
@@ -1365,11 +1358,12 @@ HANDLE Win32ControlPainter::get_control_theme(
         *theme_part = 6;//EP_EDITBORDER_NOSCROLL
         
         switch(state) {
-          case Normal:   *theme_state = 1; break;
+          case Normal:         *theme_state = 1; break;
           case Hot:
-          case Hovered:  *theme_state = 2; break;
-          case Pressed:  *theme_state = 3; break; // = focused
-          case Disabled: *theme_state = 4; break;
+          case Hovered:        *theme_state = 2; break;
+          case Pressed:
+          case PressedHovered: *theme_state = 3; break; // = focused
+          case Disabled:       *theme_state = 4; break;
         }
       } break;
       
@@ -1377,11 +1371,12 @@ HANDLE Win32ControlPainter::get_control_theme(
         *theme_part = 1;//LVP_LISTITEM
         
         switch(state) {
-          case Normal:    theme = 0; break;
+          case Normal:          theme = 0; break;
           case Hot:
-          case Hovered:  *theme_state = 2; break;
-          case Pressed:  *theme_state = 3; break;
-          case Disabled: *theme_state = 4; break;
+          case Hovered:        *theme_state = 2; break;
+          case Pressed:
+          case PressedHovered: *theme_state = 3; break;
+          case Disabled:       *theme_state = 4; break;
         }
       } break;
       
@@ -1389,11 +1384,12 @@ HANDLE Win32ControlPainter::get_control_theme(
         *theme_part = 1;//LVP_LISTITEM
         
         switch(state) {
-          case Normal:   *theme_state = 3; break;
+          case Pressed:
+          case Normal:         *theme_state = 3; break;
           case Hot:
-          case Hovered:  *theme_state = 6; break;
-          case Pressed:  *theme_state = 6; break;
-          case Disabled: *theme_state = 5; break;
+          case Hovered:        *theme_state = 6; break;
+          case PressedHovered: *theme_state = 6; break;
+          case Disabled:       *theme_state = 5; break;
         }
       } break;
       
@@ -1404,90 +1400,96 @@ HANDLE Win32ControlPainter::get_control_theme(
       
     case ProgressIndicatorBackground: {
         if(Win32Themes::IsThemePartDefined(theme, 11, 0))
-          *theme_part = 11;
+          *theme_part = 11; // PP_TRANSPARENTBAR
         else
-          *theme_part = 1;
+          *theme_part = 1;  // PP_BAR
           
         *theme_state = 1;
       } break;
       
     case ProgressIndicatorBar: {
         if(Win32Themes::IsThemePartDefined(theme, 5, 0))
-          *theme_part = 5;
+          *theme_part = 5; // PP_FILL
         else
-          *theme_part = 3;
+          *theme_part = 3; // PP_CHUNK
           
         *theme_state = 1;
       } break;
       
     case SliderHorzChannel: {
-        *theme_part = 1;
+        *theme_part  = 1; // TKP_TRACK
         *theme_state = 1;
       } break;
       
     case SliderHorzThumb: {
-        *theme_part = 3;
+        *theme_part = 3; // TKP_THUMB
         switch(state) {
-          case Normal:   *theme_state = 1; break;
+          case Normal:         *theme_state = 1; break;
+          case Pressed:
           case Hot:
-          case Hovered:  *theme_state = 2; break;
-          case Pressed:  *theme_state = 3; break;
-          case Disabled: *theme_state = 4; break;
+          case Hovered:        *theme_state = 2; break;
+          case PressedHovered: *theme_state = 3; break;
+          case Disabled:       *theme_state = 4; break;
         }
       } break;
       
     case CheckboxUnchecked: {
         *theme_part = 3; // BP_CHECKBOX
         switch(state) {
-          case Normal:   *theme_state = 1; break;
+          case Normal:         *theme_state = 1; break;
+          case Pressed:
           case Hot:
-          case Hovered:  *theme_state = 2; break;
-          case Pressed:  *theme_state = 3; break;
-          case Disabled: *theme_state = 4; break;
+          case Hovered:        *theme_state = 2; break;
+          case PressedHovered: *theme_state = 3; break;
+          case Disabled:       *theme_state = 4; break;
         }
       } break;
       
     case CheckboxChecked: {
         *theme_part = 3; // BP_CHECKBOX
         switch(state) {
-          case Normal:   *theme_state = 5; break;
+          case Normal:         *theme_state = 5; break;
+          case Pressed:
           case Hot:
-          case Hovered:  *theme_state = 6; break;
-          case Pressed:  *theme_state = 7; break;
-          case Disabled: *theme_state = 8; break;
+          case Hovered:        *theme_state = 6; break;
+          case PressedHovered: *theme_state = 7; break;
+          case Disabled:       *theme_state = 8; break;
         }
       } break;
       
     case CheckboxIndeterminate: {
         *theme_part = 3; // BP_CHECKBOX
         switch(state) {
-          case Normal:   *theme_state = 9; break;
+          case Normal:         *theme_state = 9; break;
+          case Pressed:
           case Hot:
-          case Hovered:  *theme_state = 10; break;
-          case Pressed:  *theme_state = 11; break;
-          case Disabled: *theme_state = 12; break;
+          case Hovered:        *theme_state = 10; break;
+          case PressedHovered: *theme_state = 11; break;
+          case Disabled:       *theme_state = 12; break;
         }
       } break;
       
     case RadioButtonUnchecked: {
         *theme_part = 2; // BP_RADIOBUTTON
         switch(state) {
-          case Normal:   *theme_state = 1; break;
+          case Normal:         *theme_state = 1; break;
+          case Pressed:
           case Hot:
-          case Hovered:  *theme_state = 2; break;
-          case Pressed:  *theme_state = 3; break;
-          case Disabled: *theme_state = 4; break;
+          case Hovered:        *theme_state = 2; break;
+          case PressedHovered: *theme_state = 3; break;
+          case Disabled:       *theme_state = 4; break;
         }
       } break;
       
     case RadioButtonChecked: {
         *theme_part = 2; // BP_RADIOBUTTON
         switch(state) {
-          case Normal:   *theme_state = 5; break;
+          case Normal:         *theme_state = 5; break;
+          case Pressed:
           case Hot:
-          case Hovered:  *theme_state = 6; break;
-          case Pressed:  *theme_state = 7; break;
-          case Disabled: *theme_state = 8; break;
+          case Hovered:        *theme_state = 6; break;
+          case PressedHovered: *theme_state = 7; break;
+          case Disabled:       *theme_state = 8; break;
         }
       } break;
       

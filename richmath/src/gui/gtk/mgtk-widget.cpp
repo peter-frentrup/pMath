@@ -962,10 +962,16 @@ bool MathGtkWidget::on_key_press(GdkEvent *e) {
   }
   
   if(event->keyval == GDK_Caps_Lock || event->keyval == GDK_Shift_Lock) {
-    if(mod & GDK_LOCK_MASK) {
+    static bool recursion = false;
+    
+    if(!recursion && 0 != (mod & GDK_LOCK_MASK)) {
+      recursion = true;
+      
       gdk_event_put(e);
       while(gtk_events_pending())
         gtk_main_iteration();
+      
+      recursion = false;
     }
     else
       document()->key_press(PMATH_CHAR_ALIASDELIMITER);

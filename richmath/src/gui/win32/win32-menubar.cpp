@@ -636,7 +636,7 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
                         if(draw->nmcd.uItemState & CDIS_CHECKED)
                           state = Pressed;
                         else if(draw->nmcd.uItemState & CDIS_HOT)
-                          state = Hot;
+                          state = Hovered; // Hot
                       }
                       else {
                         if(current_item == (int)draw->nmcd.dwItemSpec
@@ -645,7 +645,7 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
                         }
                         else if(current_item == 0 && next_item == 0
                                 && draw->nmcd.uItemState & CDIS_HOT)
-                          state = Pressed;//Hot;
+                          state = Pressed;//Hovered;
                       }
                       
                       if(!Win32ControlPainter::win32_painter.draw_menubar_itembg(

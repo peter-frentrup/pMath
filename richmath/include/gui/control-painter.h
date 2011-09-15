@@ -50,11 +50,12 @@ namespace richmath {
   } ScrollbarDirection;
   
   typedef enum {
-    Normal,
-    Hovered,
-    Hot,
-    Pressed,
-    Disabled
+    Normal,         // mouse avay, not pressed
+    Hovered,        // mouse over, not pressed
+    Hot,            // mouse over other part of the widget (possibly pressed there)
+    Pressed,        // mouse away, pressed
+    PressedHovered, // mouse over, pressed
+    Disabled        // inactive widget
   } ControlState;
   
   class ControlPainter: public Base {

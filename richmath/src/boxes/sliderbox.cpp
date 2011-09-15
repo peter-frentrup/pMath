@@ -411,7 +411,7 @@ void SliderBox::on_mouse_down(MouseEvent &event) {
     else
       range_value = val;
       
-    new_thumb_state = Pressed;
+    new_thumb_state = PressedHovered;
     request_repaint_all();
   }
 }
