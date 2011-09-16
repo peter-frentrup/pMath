@@ -178,6 +178,8 @@ void InputFieldBox::paint_content(Context *context) {
 }
  
 void InputFieldBox::scroll_to(float x, float y, float w, float h) {
+  float old_cx = cx;
+  
   if(x + cx < frame_x) {
     cx = frame_x - x;
     
@@ -200,6 +202,9 @@ void InputFieldBox::scroll_to(float x, float y, float w, float h) {
   }
   else if(x + w < _extents.width - 2 * frame_x)
     cx = frame_x;
+  
+  if(cx != old_cx)
+    request_repaint_all(); 
 }
  
 void InputFieldBox::scroll_to(Canvas *canvas, Box *child, int start, int end) {
@@ -339,17 +344,17 @@ void InputFieldBox::on_mouse_move(MouseEvent &event) {
 }
  
 void InputFieldBox::on_enter() {
-  if(transparent) {
+  //if(transparent) {
     request_repaint_all();
-  }
+  //}
   
   ContainerWidgetBox::on_enter();
 }
  
 void InputFieldBox::on_exit() {
-  if(transparent) {
+  //if(transparent) {
     request_repaint_all();
-  }
+  //}
   
   ContainerWidgetBox::on_exit();
   
@@ -360,6 +365,7 @@ void InputFieldBox::on_exit() {
 void InputFieldBox::on_key_down(SpecialKeyEvent &event) {
   switch(event.key) {
     case KeyReturn:
+      
       if(!invalidated)
         dynamic_updated();
         
@@ -378,8 +384,21 @@ void InputFieldBox::on_key_down(SpecialKeyEvent &event) {
       event.key = KeyUnknown;
       return;
       
-    case KeyUp:   event.key = KeyLeft;  break;
-    case KeyDown: event.key = KeyRight; break;
+    case KeyUp: {      
+      Document *doc = find_parent<Document>(false);
+      if(doc && doc->selection_box() == _content && doc->selection_start() == 0)
+        break;
+      
+      event.key = KeyLeft;
+    } break;
+      
+    case KeyDown: {
+      Document *doc = find_parent<Document>(false);
+      if(doc && doc->selection_box() == _content && doc->selection_start() == _content->length())
+        break;
+      
+      event.key = KeyRight; 
+    } break;
     
     default:
       break;

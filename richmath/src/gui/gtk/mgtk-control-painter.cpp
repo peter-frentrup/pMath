@@ -14,7 +14,11 @@ MathGtkControlPainter::MathGtkControlPainter()
   : ControlPainter(),
   button_context(0),
   tool_button_context(0),
-  input_field_context(0)
+  input_field_context(0),
+  slider_context(0),
+  progress_indicator_context(0),
+  checkbox_context(0),
+  radio_button_context(0)
 {
   ControlPainter::std = this;
 }
@@ -31,6 +35,18 @@ MathGtkControlPainter::~MathGtkControlPainter() {
     
   if(input_field_context)
     g_object_unref(input_field_context);
+    
+  if(slider_context)
+    g_object_unref(slider_context);
+    
+  if(progress_indicator_context)
+    g_object_unref(progress_indicator_context);
+    
+  if(checkbox_context)
+    g_object_unref(checkbox_context);
+    
+  if(radio_button_context)
+    g_object_unref(radio_button_context);
 }
  
 #if GTK_MAJOR_VERSION >= 3
@@ -55,6 +71,21 @@ void MathGtkControlPainter::calc_container_size(
         if(extents->descent < canvas->get_font_size() * 0.25f)
           extents->descent = canvas->get_font_size() * 0.25f;
         break;
+      
+      case CheckboxUnchecked:
+      case CheckboxChecked:
+      case CheckboxIndeterminate:
+      case RadioButtonUnchecked:
+      case RadioButtonChecked: 
+        {
+          int size;
+          gtk_style_context_get_style(context, "indicator-size", &size, NULL);
+          
+          extents->width   = 0.75f * size;
+          extents->ascent  = 0.75f * extents->width;
+          extents->descent = 0.25f * extents->width;
+        }
+        return;
         
       default:
         break;
@@ -89,7 +120,7 @@ int MathGtkControlPainter::control_font_color(ContainerType type, ControlState s
   
   if(context) {
     GdkRGBA color;
-    gtk_style_context_get_color(context, get_state_flags(state), &color);
+    gtk_style_context_get_color(context, get_state_flags(type, state), &color);
     
     // ignoring color.alpha
     int red   = (int)(color.red   * 255);
@@ -135,9 +166,25 @@ void MathGtkControlPainter::draw_container(
     width+=  0.75f;
     height+= 0.75f;
     
-    gtk_style_context_set_state(context, get_state_flags(state));
+    gtk_style_context_set_state(context, get_state_flags(type, state));
     gtk_render_background(context, canvas->cairo(), x, y, width, height);
-    gtk_render_frame(context, canvas->cairo(), x, y, width, height);
+    
+    switch(type){
+      case CheckboxUnchecked:
+      case CheckboxChecked:
+      case CheckboxIndeterminate:
+        gtk_render_check(context, canvas->cairo(), x, y, width, height);
+        break;
+        
+      case RadioButtonUnchecked:
+      case RadioButtonChecked:
+        gtk_render_option(context, canvas->cairo(), x, y, width, height);
+        break;
+        
+      default:
+        gtk_render_frame(context, canvas->cairo(), x, y, width, height);
+        break;
+    }
     
     gtk_style_context_restore(context);
     canvas->restore();
@@ -288,6 +335,45 @@ GtkStyleContext *MathGtkControlPainter::get_control_theme(ContainerType type) {
       }
       return input_field_context;
       
+    case CheckboxUnchecked:
+    case CheckboxChecked:
+    case CheckboxIndeterminate:
+      if(!checkbox_context) {
+        checkbox_context = gtk_style_context_new();
+        
+        GtkWidgetPath *path;
+        
+        path = gtk_widget_path_new ();
+        gtk_widget_path_append_type (path, GTK_TYPE_WINDOW);
+        int pos = gtk_widget_path_append_type (path, GTK_TYPE_CHECK_BUTTON);
+        gtk_widget_path_iter_add_class(path, pos, GTK_STYLE_CLASS_CHECK);
+        
+        gtk_style_context_set_path(    checkbox_context, path);
+        gtk_style_context_set_screen(  checkbox_context, gdk_screen_get_default());
+        gtk_style_context_add_provider(checkbox_context, GTK_STYLE_PROVIDER(gtk_settings_get_default()), GTK_STYLE_PROVIDER_PRIORITY_FALLBACK);
+        gtk_style_context_add_class(   checkbox_context, GTK_STYLE_CLASS_CHECK);
+      }
+      return checkbox_context;
+    
+    case RadioButtonUnchecked:
+    case RadioButtonChecked:
+      if(!radio_button_context) {
+        radio_button_context = gtk_style_context_new();
+        
+        GtkWidgetPath *path;
+        
+        path = gtk_widget_path_new ();
+        gtk_widget_path_append_type (path, GTK_TYPE_WINDOW);
+        int pos = gtk_widget_path_append_type (path, GTK_TYPE_RADIO_BUTTON);
+        gtk_widget_path_iter_add_class(path, pos, GTK_STYLE_CLASS_RADIO);
+        
+        gtk_style_context_set_path(    radio_button_context, path);
+        gtk_style_context_set_screen(  radio_button_context, gdk_screen_get_default());
+        gtk_style_context_add_provider(radio_button_context, GTK_STYLE_PROVIDER(gtk_settings_get_default()), GTK_STYLE_PROVIDER_PRIORITY_FALLBACK);
+        gtk_style_context_add_class(   radio_button_context, GTK_STYLE_CLASS_RADIO);
+      }
+      return radio_button_context;
+    
     case TooltipWindow:
     case ListViewItem:
     case ListViewItemSelected:
@@ -295,11 +381,6 @@ GtkStyleContext *MathGtkControlPainter::get_control_theme(ContainerType type) {
     case SliderHorzThumb:
     case ProgressIndicatorBackground:
     case ProgressIndicatorBar:
-    case CheckboxUnchecked:
-    case CheckboxChecked:
-    case CheckboxIndeterminate:
-    case RadioButtonUnchecked:
-    case RadioButtonChecked:
     
     default:
       break;
@@ -308,17 +389,56 @@ GtkStyleContext *MathGtkControlPainter::get_control_theme(ContainerType type) {
   return 0;
 }
  
-GtkStateFlags MathGtkControlPainter::get_state_flags(ControlState state) {
+GtkStateFlags MathGtkControlPainter::get_state_flags(ContainerType type, ControlState state) {
+  int result;
+  
   switch(state) {
-    case Normal:         return GTK_STATE_FLAG_NORMAL;
     case Hovered:
-    case Hot:            return GTK_STATE_FLAG_PRELIGHT;
-    case Pressed:        return GTK_STATE_FLAG_ACTIVE;
-    case PressedHovered: return (GtkStateFlags)((int)GTK_STATE_FLAG_ACTIVE | (int)GTK_STATE_FLAG_PRELIGHT);
-    case Disabled:       return GTK_STATE_FLAG_INSENSITIVE;
+    case Hot: 
+      result = (int)GTK_STATE_FLAG_PRELIGHT;
+      break;
+      
+    case Pressed:
+      result = (int)GTK_STATE_FLAG_ACTIVE | (int)GTK_STATE_FLAG_SELECTED | (int)GTK_STATE_FLAG_FOCUSED;
+      break;
+      
+    case PressedHovered: 
+      result = (int)GTK_STATE_FLAG_ACTIVE | (int)GTK_STATE_FLAG_SELECTED | (int)GTK_STATE_FLAG_FOCUSED | (int)GTK_STATE_FLAG_PRELIGHT;
+      break;
+      
+    case Disabled:
+      result = (int)GTK_STATE_FLAG_INSENSITIVE;
+      break;
+      
+    case Normal:
+    default:
+      result = (int)GTK_STATE_FLAG_NORMAL;
+      break;
   }
   
-  return GTK_STATE_FLAG_NORMAL;
+  switch(type){
+    case InputField:
+      result &= ~(int)GTK_STATE_FLAG_SELECTED;
+      break;
+    
+    case CheckboxIndeterminate:
+      result |= (int)GTK_STATE_FLAG_INCONSISTENT;
+      break;
+    
+    case CheckboxChecked:
+    case RadioButtonChecked:
+      result |= (int)GTK_STATE_FLAG_ACTIVE;
+      break;
+    
+    case CheckboxUnchecked:
+    case RadioButtonUnchecked:
+      result &= ~(int)GTK_STATE_FLAG_ACTIVE;
+      break;
+      
+    default: break;
+  }
+  
+  return (GtkStateFlags)result;
 }
  
 #endif

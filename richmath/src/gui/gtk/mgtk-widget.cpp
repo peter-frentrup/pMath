@@ -896,7 +896,9 @@ static SpecialKey keyval_to_special_key(guint keyval) {
     case GDK_Page_Down:       return KeyPageDown;
     case GDK_BackSpace:       return KeyBackspace;
     case GDK_Delete:          return KeyDelete;
-    case GDK_Return:          return KeyReturn;
+    case GDK_Linefeed:
+    case GDK_Return:          
+    case GDK_KP_Enter:        return KeyReturn;
     case GDK_Tab:             return KeyTab;
     case GDK_Escape:          return KeyEscape;
     case GDK_F1:              return KeyF1;
@@ -933,16 +935,17 @@ bool MathGtkWidget::on_key_press(GdkEvent *e) {
       case GDK_dead_circumflex: keyval = GDK_asciicircum; break;
     }
     
-    if(keyval
-        && gtk_accel_groups_activate(G_OBJECT(wid), keyval, (GdkModifierType)event->state)) {
+    if(keyval && gtk_accel_groups_activate(G_OBJECT(wid), keyval, (GdkModifierType)event->state)) {
+      pmath_debug_print("[accel %x %x]", keyval, event->state);
       ignore_key_release = true;
       return true;
     }
   }
   
-  if(gtk_im_context_filter_keypress(_im_context, event))
+  if(gtk_im_context_filter_keypress(_im_context, event)) {
     return true;
-    
+  }
+  
   {
     GdkWindow *w = gtk_widget_get_window(_widget);
     
@@ -955,10 +958,11 @@ bool MathGtkWidget::on_key_press(GdkEvent *e) {
   ske.alt   = 0 != (mod & GDK_MOD1_MASK);
   ske.shift = 0 != (mod & GDK_SHIFT_MASK);
   if(ske.key) {
-    if(ske.key != KeyReturn || ske.ctrl || ske.alt || ske.shift) {
-      document()->key_down(ske);
-      //return true;
-    }
+    document()->key_down(ske);
+    //if(ske.key != KeyReturn || ske.ctrl || ske.alt || ske.shift) {
+    //  document()->key_down(ske);
+    //  //return true;
+    //}
   }
   
   if(event->keyval == GDK_Caps_Lock || event->keyval == GDK_Shift_Lock) {
@@ -983,7 +987,7 @@ bool MathGtkWidget::on_key_press(GdkEvent *e) {
     return false;
     
   uint32_t unichar = gdk_keyval_to_unicode(event->keyval);
-  if(event->keyval == GDK_Return)
+  if(event->keyval == GDK_Return || event->keyval == GDK_Linefeed)
     unichar = '\n';
     
   if(unichar) {

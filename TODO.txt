@@ -2,6 +2,8 @@
 	Button("italic", DocumentApply(SelectedDocument(), StyleBox("\[SelectionPlaceholder]", "TI"))),
 	Button("Arg Style", DocumentApply(SelectedDocument(), StyleBox("\[SelectionPlaceholder]", "Arg")))})
 
+- richmath: call pmath_resume_all() after a timeout/before next evaluation
+
 - richmath: smart quotes in text:
    " after a space or the beginning of the text gives left double quotation mark
    " after a number gives prime (or only after a digit?)

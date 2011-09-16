@@ -38,7 +38,7 @@ MakeBoxes(Dynamic(~var, options:OptionsPattern()))::= DynamicBox(ToBoxes(var), o
 
 MakeBoxes(DynamicSetting(~expr))::= TagBox(MakeBoxes(expr), Setting)
 
-MakeBoxes(InputField())::=                                                                                                   InputFieldBox(,      Expression, options)
+MakeBoxes(InputField())::=                                                                                                   InputFieldBox(,      Expression)
 MakeBoxes(InputField(~value,                                                                   options:OptionsPattern()))::= InputFieldBox(value, Expression, options)
 MakeBoxes(InputField(~value?isStringOrDynamic, String,                                         options:OptionsPattern()))::= InputFieldBox(value, String,     options)
 MakeBoxes(InputField(~value?isNumberOrDynamic, Number,                                         options:OptionsPattern()))::= InputFieldBox(value, Number,     options)

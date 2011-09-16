@@ -47,12 +47,16 @@ namespace richmath {
       
     public:
       GtkStyleContext *get_control_theme(ContainerType type);
-      GtkStateFlags    get_state_flags(ControlState state);
+      GtkStateFlags    get_state_flags(ContainerType type, ControlState state);
         
     protected:
       GtkStyleContext *button_context;
       GtkStyleContext *tool_button_context;
       GtkStyleContext *input_field_context;
+      GtkStyleContext *slider_context;
+      GtkStyleContext *progress_indicator_context;
+      GtkStyleContext *checkbox_context;
+      GtkStyleContext *radio_button_context;
       
 #endif
     
