@@ -63,6 +63,8 @@ class LocalServer: public Server {
           pmath_bool_t aborted = FALSE;
           ResultKind rkind = Normal;
           
+          pmath_resume_all();
+          
           if(boxes) {
             if(object.is_expr() && object[0].is_null()) {
               for(size_t i = 1; i <= object.expr_length(); ++i) {
@@ -122,6 +124,7 @@ class LocalServer: public Server {
           }
           
           if(aborted) {
+            //pmath_resume_all();
             Application::notify(CNT_END, Symbol(PMATH_SYMBOL_ABORTED));
             rkind = Aborted;
           }
