@@ -49,6 +49,8 @@
 #define WM_CLIENTNOTIFY  (WM_USER + 1)
 #define WM_ADDJOB        (WM_USER + 2)
 
+#define TID_DYNAMIC_UPDATE  1
+
 #endif
 
 
@@ -109,12 +111,15 @@ static Hashtable<Expr, bool (*)(Expr)> menu_command_testers;
 
 static Hashtable<int, Void, cast_hash> pending_dynamic_updates;
 static bool dynamic_update_delay = false;
+static bool dynamic_update_delay_timer_active = false;
+static double last_dynamic_evaluation = 0.0;
 
 static void execute(ClientNotification &cn);
 
+static pmath_atomic_t     print_pos_lock = PMATH_ATOMIC_STATIC_INIT;
 static EvaluationPosition print_pos;
 static EvaluationPosition old_job;
-static Expr main_message_queue;
+static Expr               main_message_queue;
 
 // also a GSourceFunc, must return 0
 static int on_client_notify(void *data) {
@@ -147,6 +152,16 @@ static int on_add_job(void *data) {
   return 0;
 }
 
+// also a GSourceFunc, must return 0
+static int on_dynamic_update_delay_timeout(void *data) {
+  dynamic_update_delay_timer_active = false;
+  
+  if(!dynamic_update_delay)
+    Application::delay_dynamic_updates(false);
+    
+  return 0;
+}
+
 #ifdef RICHMATH_USE_WIN32_GUI
 static HWND hwnd_message = HWND_MESSAGE;
 
@@ -172,6 +187,11 @@ class ClientInfoWindow: public BasicWin32Widget {
           case WM_ADDJOB:
             on_add_job(0);
             return 0;
+            
+          case WM_TIMER:
+            on_dynamic_update_delay_timeout(0);
+            KillTimer(_hwnd, TID_DYNAMIC_UPDATE);
+            return 0;
         }
       }
       
@@ -190,10 +210,11 @@ static pthread_t main_thread = 0;
 #endif
 
 
-double Application::edit_interrupt_timeout = 2.0;
-double Application::interrupt_timeout      = 0.3;
-double Application::button_timeout         = 4.0;
-double Application::dynamic_timeout        = 4.0;
+double Application::edit_interrupt_timeout      = 2.0;
+double Application::interrupt_timeout           = 0.3;
+double Application::button_timeout              = 4.0;
+double Application::dynamic_timeout             = 4.0;
+double Application::min_dynamic_update_interval = 0.025;
 String Application::application_filename;
 String Application::application_directory;
 
@@ -684,6 +705,8 @@ static void interrupt_wait_idle(void *data) {
 Expr Application::interrupt(Expr expr, double seconds) {
   ConcurrentQueue<ClientNotification>  suppressed_notifications;
   
+  last_dynamic_evaluation = pmath_tickcount();
+  
   Expr result = Server::local_server->interrupt_wait(expr, seconds, interrupt_wait_idle, &suppressed_notifications);
   
   ClientNotification cn;
@@ -744,25 +767,24 @@ void Application::execute_for(Expr expr, Box *box) {
 }
 
 Expr Application::internal_execute_for(Expr expr, int doc, int sect, int box) {
-  static pmath_atomic_t lock = PMATH_ATOMIC_STATIC_INIT;
   EvaluationPosition old_print_pos;
   
-  pmath_atomic_lock(&lock);
+  pmath_atomic_lock(&print_pos_lock);
   {
     old_print_pos = print_pos;
     print_pos.document_id = doc;
     print_pos.section_id  = sect;
     print_pos.box_id      = box;
   }
-  pmath_atomic_unlock(&lock);
+  pmath_atomic_unlock(&print_pos_lock);
   
   expr = Evaluate(expr);
   
-  pmath_atomic_lock(&lock);
+  pmath_atomic_lock(&print_pos_lock);
   {
     print_pos = old_print_pos;
   }
-  pmath_atomic_unlock(&lock);
+  pmath_atomic_unlock(&print_pos_lock);
   
   return expr;
 }
@@ -1022,21 +1044,54 @@ static Expr cnt_setoptions(Expr data) {
 }
 
 static void cnt_dynamicupate(Expr data) {
+
+  double now = pmath_tickcount();
+  bool need_timer = (now < last_dynamic_evaluation + Application::min_dynamic_update_interval);
+  
+  if(need_timer || dynamic_update_delay) {
+    for(size_t i = data.expr_length(); i > 0; --i) {
+      Expr id_obj = data[i];
+      
+      if(!id_obj.is_int32())
+        continue;
+        
+      Box *box = FrontEndObject::find_cast<Box>(PMATH_AS_INT32(id_obj.get()));
+      
+      if(!box)
+        continue;
+        
+      pending_dynamic_updates.set(box->id(), Void());
+    }
+    
+    if(need_timer && !dynamic_update_delay_timer_active) {
+      int milliseconds = (int)(Application::min_dynamic_update_interval * 1000);
+      
+#ifdef RICHMATH_USE_WIN32_GUI
+      if(SetTimer(info_window.hwnd(), TID_DYNAMIC_UPDATE, milliseconds, 0))
+        dynamic_update_delay_timer_active = true;
+#endif
+      
+#ifdef RICHMATH_USE_GTK_GUI
+      if(g_timeout_add_full(G_PRIORITY_DEFAULT, milliseconds, on_dynamic_update_delay_timeout, NULL, NULL))
+        dynamic_update_delay_timer_active = true;
+#endif
+    }
+    
+    return;
+  }
+  
   for(size_t i = data.expr_length(); i > 0; --i) {
     Expr id_obj = data[i];
     
-    if(id_obj.is_int32()) {
-      Box *box = FrontEndObject::find_cast<Box>(PMATH_AS_INT32(id_obj.get()));
+    if(!id_obj.is_int32())
+      continue;
       
-      if(box) {
-        if(dynamic_update_delay) {
-          pending_dynamic_updates.set(box->id(), Void());
-        }
-        else {
-          box->dynamic_updated();
-        }
-      }
-    }
+    Box *box = FrontEndObject::find_cast<Box>(PMATH_AS_INT32(id_obj.get()));
+    
+    if(!box)
+      continue;
+      
+    box->dynamic_updated();
   }
 }
 
@@ -1049,6 +1104,8 @@ static Expr cnt_createdocument(Expr data) {
   {
     int x = CW_USEDEFAULT;
     int y = CW_USEDEFAULT;
+    int w = 500;
+    int h = 550;
     
     doc = get_current_document();
     if(doc) {
@@ -1058,10 +1115,30 @@ static Expr cnt_createdocument(Expr data) {
         while(GetParent(hwnd) != NULL)
           hwnd = GetParent(hwnd);
           
+        int dx = GetSystemMetrics(SM_CYCAPTION) + GetSystemMetrics(SM_CXSIZEFRAME);
+        int dy = GetSystemMetrics(SM_CYCAPTION) + GetSystemMetrics(SM_CYSIZEFRAME);
+        
         RECT rect;
         if(GetWindowRect(hwnd, &rect)) {
-          x = rect.left + GetSystemMetrics(SM_CYCAPTION) + GetSystemMetrics(SM_CXSIZEFRAME);
-          y = rect.top  + GetSystemMetrics(SM_CYCAPTION) + GetSystemMetrics(SM_CYSIZEFRAME);
+          x = rect.left + dx;
+          y = rect.top  + dy;
+        }
+        
+        MONITORINFO monitor_info;
+        memset(&monitor_info, 0, sizeof(monitor_info));
+        monitor_info.cbSize = sizeof(monitor_info);
+        
+        HMONITOR hmon = MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST);
+        if(GetMonitorInfo(hmon, &monitor_info)) {
+        
+          if(y + h > monitor_info.rcWork.bottom) {
+            y = monitor_info.rcWork.top;
+          }
+          
+          if(x + w > monitor_info.rcWork.right) {
+            x = monitor_info.rcWork.left;
+            y = monitor_info.rcWork.top;
+          }
         }
       }
     }
@@ -1071,8 +1148,8 @@ static Expr cnt_createdocument(Expr data) {
       0, WS_OVERLAPPEDWINDOW,
       x,
       y,
-      500,
-      550);
+      w,
+      h);
     wnd->init();
     
     doc = wnd->document();
@@ -1189,6 +1266,27 @@ static Expr cnt_currentvalue(Expr data) {
   return Symbol(PMATH_SYMBOL_FAILED);
 }
 
+static Expr cnt_getevaluationdocument(Expr data) {
+  Box      *box = FrontEndObject::find_cast<Box>(Dynamic::current_evaluation_box_id);
+  Document *doc = box->find_parent<Document>(true);
+  
+  if(doc)
+    return Call(Symbol(PMATH_SYMBOL_FRONTENDOBJECT), doc->id());
+    
+  int doc_id;
+  
+  pmath_atomic_lock(&print_pos_lock);
+  {
+    doc_id = print_pos.document_id;
+  }
+  pmath_atomic_unlock(&print_pos_lock);
+  
+  if(doc_id)
+    return Call(Symbol(PMATH_SYMBOL_FRONTENDOBJECT), doc_id);
+    
+  return Symbol(PMATH_SYMBOL_FAILED);
+}
+
 static void execute(ClientNotification &cn) {
   switch(cn.type) {
     case CNT_STARTSESSION:
@@ -1236,6 +1334,9 @@ static void execute(ClientNotification &cn) {
     case CNT_SETOPTIONS:
       if(cn.result_ptr)
         *cn.result_ptr = cnt_setoptions(cn.data).release();
+      else
+        cnt_setoptions(cn.data);
+        
       break;
       
     case CNT_DYNAMICUPDATE:
@@ -1245,13 +1346,23 @@ static void execute(ClientNotification &cn) {
     case CNT_CREATEDOCUMENT:
       if(cn.result_ptr)
         *cn.result_ptr = cnt_createdocument(cn.data).release();
+      else
+        cnt_createdocument(cn.data);
+        
       break;
       
     case CNT_CURRENTVALUE:
       if(cn.result_ptr)
         *cn.result_ptr = cnt_currentvalue(cn.data).release();
       break;
+      
+    case CNT_GETEVALUATIONDOCUMENT:
+      if(cn.result_ptr)
+        *cn.result_ptr = cnt_getevaluationdocument(cn.data).release();
   }
   
   cn.done();
 }
+
+
+

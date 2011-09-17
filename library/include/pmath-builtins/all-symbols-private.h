@@ -47,6 +47,6 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void);
 PMATH_PRIVATE void _pmath_symbol_builtins_protect_all(void);
 PMATH_PRIVATE void _pmath_symbol_builtins_done(void);
 
-#define PMATH_BUILTIN_SYMBOL_COUNT  689
+#define PMATH_BUILTIN_SYMBOL_COUNT  690
 
 #endif /* __PMATH_BUILTINS__SYMBOLS_PRIVATE_H__ */

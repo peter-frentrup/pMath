@@ -22,7 +22,8 @@ namespace richmath {
     CNT_SETOPTIONS,
     CNT_DYNAMICUPDATE,
     CNT_CREATEDOCUMENT,
-    CNT_CURRENTVALUE
+    CNT_CURRENTVALUE,
+    CNT_GETEVALUATIONDOCUMENT
   } ClientNotificationType;
   
   class Box;
@@ -68,6 +69,7 @@ namespace richmath {
       static void execute_for(Expr expr, Box *box, double seconds);
       static void execute_for(Expr expr, Box *box);
       
+      // callable from non-gui thread:
       static Expr internal_execute_for(Expr expr, int doc, int sect, int box);
       
       static void delay_dynamic_updates(bool delay);
@@ -77,6 +79,7 @@ namespace richmath {
       static double interrupt_timeout;
       static double button_timeout;
       static double dynamic_timeout;
+      static double min_dynamic_update_interval;
       static String application_filename;
       static String application_directory; // without trailing (back)slash
       

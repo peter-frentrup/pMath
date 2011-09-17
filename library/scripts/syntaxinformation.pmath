@@ -109,6 +109,7 @@
 {"Equal", {"ArgumentCount" -> 2..}},
 {"Evaluate", {"ArgumentCount" -> 1}},
 {"EvaluateDelayed", {"ArgumentCount" -> 2}},
+{"EvaluationDocument", {"ArgumentCount" -> 0}},
 {"EvaluationSequence", {"ArgumentCount" -> 1..}},
 {"Except", {"ArgumentCount" -> 1..2}},
 {"Exp", {"ArgumentCount" -> 1}},

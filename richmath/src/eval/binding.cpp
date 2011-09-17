@@ -40,9 +40,10 @@ static pmath_t builtin_internalexecutefor(pmath_expr_t expr) {
   pmath_t box_id      = pmath_expr_get_item(expr, 4);
   pmath_unref(expr);
   
-  if(pmath_is_int32(document_id)
-      && pmath_is_int32(section_id)
-      && pmath_is_int32(box_id)) {
+  if( pmath_is_int32(document_id) &&
+      pmath_is_int32(section_id) &&
+      pmath_is_int32(box_id))
+  {
     code = Application::internal_execute_for(
              Expr(code),
              PMATH_AS_INT32(document_id),
@@ -168,6 +169,17 @@ static pmath_t builtin_sectionprint(pmath_expr_t expr) {
   }
   
   return expr;
+}
+
+static pmath_t builtin_evaluationdocument(pmath_expr_t expr) {
+  if(pmath_expr_length(expr) > 0) {
+    pmath_message_argxxx(pmath_expr_length(expr), 0, 0);
+    return expr;
+  }
+  
+  pmath_unref(expr);
+  
+  return Application::notify_wait(CNT_GETEVALUATIONDOCUMENT, Expr()).release();
 }
 
 static pmath_t builtin_selecteddocument(pmath_expr_t expr) {
@@ -791,6 +803,14 @@ static bool insert_underscript_cmd(Expr cmd) {
   return true;
 }
 
+static bool new_cmd(Expr cmd) {
+  Application::notify(
+    CNT_CREATEDOCUMENT,
+    Call(Symbol(PMATH_SYMBOL_CREATEDOCUMENT), List()));
+    
+  return true;
+}
+
 static bool open_close_group_cmd(Expr cmd) {
   Document *doc = get_current_document();
   
@@ -926,39 +946,40 @@ bool richmath::init_bindings() {
 #define BIND_DOWN(SYMBOL, FUNC)  pmath_register_code(SYMBOL, FUNC, PMATH_CODE_USAGE_DOWNCALL)
 #define BIND_UP(  SYMBOL, FUNC)  pmath_register_code(SYMBOL, FUNC, PMATH_CODE_USAGE_UPCALL)
 
-  Application::register_menucommand(String("Close"),             close_cmd);
+  Application::register_menucommand(String("New"),                        new_cmd);
+  Application::register_menucommand(String("Close"),                      close_cmd);
   
-  Application::register_menucommand(String("Copy"),              copy_cmd,                 can_copy_cut);
-  Application::register_menucommand(String("Cut"),               cut_cmd,                  can_copy_cut);
-  Application::register_menucommand(String("OpenCloseGroup"),    open_close_group_cmd,     can_open_close_group);
-  Application::register_menucommand(String("Paste"),             paste_cmd,                can_document_apply);
-  Application::register_menucommand(String("EditBoxes"),         edit_boxes_cmd,           can_edit_boxes);
-  Application::register_menucommand(String("ExpandSelection"),   expand_selection_cmd,     can_expand_selection);
-  Application::register_menucommand(String("FindMatchingFence"), find_matching_fence_cmd,  can_find_matching_fence);
-  Application::register_menucommand(String("SelectAll"),         select_all_cmd);
+  Application::register_menucommand(String("Copy"),                       copy_cmd,                            can_copy_cut);
+  Application::register_menucommand(String("Cut"),                        cut_cmd,                             can_copy_cut);
+  Application::register_menucommand(String("OpenCloseGroup"),             open_close_group_cmd,                can_open_close_group);
+  Application::register_menucommand(String("Paste"),                      paste_cmd,                           can_document_apply);
+  Application::register_menucommand(String("EditBoxes"),                  edit_boxes_cmd,                      can_edit_boxes);
+  Application::register_menucommand(String("ExpandSelection"),            expand_selection_cmd,                can_expand_selection);
+  Application::register_menucommand(String("FindMatchingFence"),          find_matching_fence_cmd,             can_find_matching_fence);
+  Application::register_menucommand(String("SelectAll"),                  select_all_cmd);
   
-  Application::register_menucommand(String("DuplicatePreviousInput"),  duplicate_previous_input_output_cmd, can_duplicate_previous_input_output);
-  Application::register_menucommand(String("DuplicatePreviousOutput"), duplicate_previous_input_output_cmd, can_duplicate_previous_input_output);
-  Application::register_menucommand(String("SimilarSectionBelow"),     similar_section_below_cmd,           can_similar_section_below);
-  Application::register_menucommand(String("InsertColumn"),            insert_column_cmd,                   can_document_apply);
-  Application::register_menucommand(String("InsertFraction"),          insert_fraction_cmd,                 can_document_apply);
-  Application::register_menucommand(String("InsertOpposite"),          insert_opposite_cmd);
-  Application::register_menucommand(String("InsertOverscript"),        insert_overscript_cmd,               can_document_apply);
-  Application::register_menucommand(String("InsertRadical"),           insert_radical_cmd,                  can_document_apply);
-  Application::register_menucommand(String("InsertRow"),               insert_row_cmd,                      can_document_apply);
-  Application::register_menucommand(String("InsertSubscript"),         insert_subscript_cmd,                can_document_apply);
-  Application::register_menucommand(String("InsertSuperscript"),       insert_superscript_cmd,              can_document_apply);
-  Application::register_menucommand(String("InsertUnderscript"),       insert_underscript_cmd,              can_document_apply);
+  Application::register_menucommand(String("DuplicatePreviousInput"),     duplicate_previous_input_output_cmd, can_duplicate_previous_input_output);
+  Application::register_menucommand(String("DuplicatePreviousOutput"),    duplicate_previous_input_output_cmd, can_duplicate_previous_input_output);
+  Application::register_menucommand(String("SimilarSectionBelow"),        similar_section_below_cmd,           can_similar_section_below);
+  Application::register_menucommand(String("InsertColumn"),               insert_column_cmd,                   can_document_apply);
+  Application::register_menucommand(String("InsertFraction"),             insert_fraction_cmd,                 can_document_apply);
+  Application::register_menucommand(String("InsertOpposite"),             insert_opposite_cmd);
+  Application::register_menucommand(String("InsertOverscript"),           insert_overscript_cmd,               can_document_apply);
+  Application::register_menucommand(String("InsertRadical"),              insert_radical_cmd,                  can_document_apply);
+  Application::register_menucommand(String("InsertRow"),                  insert_row_cmd,                      can_document_apply);
+  Application::register_menucommand(String("InsertSubscript"),            insert_subscript_cmd,                can_document_apply);
+  Application::register_menucommand(String("InsertSuperscript"),          insert_superscript_cmd,              can_document_apply);
+  Application::register_menucommand(String("InsertUnderscript"),          insert_underscript_cmd,              can_document_apply);
   
-  Application::register_menucommand(String("DynamicToLiteral"),           convert_dynamic_to_literal,       can_convert_dynamic_to_literal);
-  Application::register_menucommand(String("EvaluatorAbort"),             abort_cmd,                        can_abort);
-  Application::register_menucommand(String("EvaluateInPlace"),            evaluate_in_place_cmd,            can_evaluate_in_place);
-  Application::register_menucommand(String("EvaluateSections"),           evaluate_sections_cmd,            can_evaluate_sections);
+  Application::register_menucommand(String("DynamicToLiteral"),           convert_dynamic_to_literal,          can_convert_dynamic_to_literal);
+  Application::register_menucommand(String("EvaluatorAbort"),             abort_cmd,                           can_abort);
+  Application::register_menucommand(String("EvaluateInPlace"),            evaluate_in_place_cmd,               can_evaluate_in_place);
+  Application::register_menucommand(String("EvaluateSections"),           evaluate_sections_cmd,               can_evaluate_sections);
   Application::register_menucommand(String("EvaluateSectionsAndReturn"),  evaluate_sections_cmd);
-  Application::register_menucommand(String("EvaluatorSubsession"),        evaluator_subsession_cmd,         can_abort);
-  Application::register_menucommand(String("FindEvaluatingSection"),      find_evaluating_section,          can_find_evaluating_section);
-  Application::register_menucommand(String("RemoveFromEvaluationQueue"),  remove_from_evaluation_queue,     can_remove_from_evaluation_queue);
-  Application::register_menucommand(String("SubsessionEvaluateSections"), subsession_evaluate_sections_cmd, can_subsession_evaluate_sections);
+  Application::register_menucommand(String("EvaluatorSubsession"),        evaluator_subsession_cmd,            can_abort);
+  Application::register_menucommand(String("FindEvaluatingSection"),      find_evaluating_section,             can_find_evaluating_section);
+  Application::register_menucommand(String("RemoveFromEvaluationQueue"),  remove_from_evaluation_queue,        can_remove_from_evaluation_queue);
+  Application::register_menucommand(String("SubsessionEvaluateSections"), subsession_evaluate_sections_cmd,    can_subsession_evaluate_sections);
   
   Application::register_menucommand(Symbol(PMATH_SYMBOL_DOCUMENTAPPLY), document_apply_cmd, can_document_apply);
   
@@ -979,20 +1000,21 @@ bool richmath::init_bindings() {
   VERIFY(fe_symbols[InternalExecuteForSymbol] = NEW_SYMBOL("FE`InternalExecuteFor"))
   VERIFY(fe_symbols[SymbolDefinitionsSymbol]  = NEW_SYMBOL("FE`SymbolDefinitions"))
   
-  VERIFY(BIND_DOWN(PMATH_SYMBOL_INTERNAL_DYNAMICUPDATED, builtin_internal_dynamicupdated))
+  VERIFY(BIND_DOWN(PMATH_SYMBOL_INTERNAL_DYNAMICUPDATED,  builtin_internal_dynamicupdated))
   
-  VERIFY(BIND_DOWN(PMATH_SYMBOL_CREATEDOCUMENT,       builtin_createdocument))
-  VERIFY(BIND_DOWN(PMATH_SYMBOL_CURRENTVALUE,         builtin_currentvalue))
-  VERIFY(BIND_DOWN(PMATH_SYMBOL_DOCUMENTAPPLY,        builtin_documentapply))
-  VERIFY(BIND_DOWN(PMATH_SYMBOL_DOCUMENTS,            builtin_documents))
-  VERIFY(BIND_DOWN(PMATH_SYMBOL_FRONTENDTOKENEXECUTE, builtin_frontendtokenexecute))
-  VERIFY(BIND_DOWN(PMATH_SYMBOL_SECTIONPRINT,         builtin_sectionprint))
-  VERIFY(BIND_DOWN(PMATH_SYMBOL_SELECTEDDOCUMENT,     builtin_selecteddocument))
+  VERIFY(BIND_DOWN(PMATH_SYMBOL_CREATEDOCUMENT,           builtin_createdocument))
+  VERIFY(BIND_DOWN(PMATH_SYMBOL_CURRENTVALUE,             builtin_currentvalue))
+  VERIFY(BIND_DOWN(PMATH_SYMBOL_DOCUMENTAPPLY,            builtin_documentapply))
+  VERIFY(BIND_DOWN(PMATH_SYMBOL_DOCUMENTS,                builtin_documents))
+  VERIFY(BIND_DOWN(PMATH_SYMBOL_EVALUATIONDOCUMENT,       builtin_evaluationdocument))
+  VERIFY(BIND_DOWN(PMATH_SYMBOL_FRONTENDTOKENEXECUTE,     builtin_frontendtokenexecute))
+  VERIFY(BIND_DOWN(PMATH_SYMBOL_SECTIONPRINT,             builtin_sectionprint))
+  VERIFY(BIND_DOWN(PMATH_SYMBOL_SELECTEDDOCUMENT,         builtin_selecteddocument))
   
-  VERIFY(BIND_UP(PMATH_SYMBOL_FRONTENDOBJECT,       builtin_feo_options))
+  VERIFY(BIND_UP(PMATH_SYMBOL_FRONTENDOBJECT,             builtin_feo_options))
   
-  VERIFY(BIND_DOWN(fe_symbols[AddConfigShaperSymbol],       builtin_addconfigshaper))
-  VERIFY(BIND_DOWN(fe_symbols[InternalExecuteForSymbol],    builtin_internalexecutefor))
+  VERIFY(BIND_DOWN(fe_symbols[AddConfigShaperSymbol],     builtin_addconfigshaper))
+  VERIFY(BIND_DOWN(fe_symbols[InternalExecuteForSymbol],  builtin_internalexecutefor))
   
   pmath_symbol_set_attributes(
     fe_symbols[InternalExecuteForSymbol],

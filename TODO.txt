@@ -42,9 +42,6 @@
 
 - pmath: crash with recursive String patterns
 
-- richmath: allow altering MakeExpression with symbols...
-    MakeExpression(~s /? StringMatch(s, StartOfString ++ "java`" ++ ~~ ++ EndOfString))::= With({cls:= s.StringDrop(5).StringReplace("`" -> ".")}, HoldComplete(JavaClass(cls)))
-
 !? make <<context` parse as Needs("context`") and do not provide special syntax for Get()	
 	
 ? implement Stack(pattern)   
