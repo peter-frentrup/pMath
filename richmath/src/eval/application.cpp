@@ -214,7 +214,7 @@ double Application::edit_interrupt_timeout      = 2.0;
 double Application::interrupt_timeout           = 0.3;
 double Application::button_timeout              = 4.0;
 double Application::dynamic_timeout             = 4.0;
-double Application::min_dynamic_update_interval = 0.025;
+double Application::min_dynamic_update_interval = 0.05;
 String Application::application_filename;
 String Application::application_directory;
 
@@ -1046,7 +1046,8 @@ static Expr cnt_setoptions(Expr data) {
 static void cnt_dynamicupate(Expr data) {
 
   double now = pmath_tickcount();
-  bool need_timer = (now < last_dynamic_evaluation + Application::min_dynamic_update_interval);
+  double next_eval = last_dynamic_evaluation + Application::min_dynamic_update_interval - now;
+  bool need_timer = (next_eval > 0);
   
   if(need_timer || dynamic_update_delay) {
     for(size_t i = data.expr_length(); i > 0; --i) {
@@ -1064,7 +1065,7 @@ static void cnt_dynamicupate(Expr data) {
     }
     
     if(need_timer && !dynamic_update_delay_timer_active) {
-      int milliseconds = (int)(Application::min_dynamic_update_interval * 1000);
+      int milliseconds = (int)(next_eval * 1000);
       
 #ifdef RICHMATH_USE_WIN32_GUI
       if(SetTimer(info_window.hwnd(), TID_DYNAMIC_UPDATE, milliseconds, 0))

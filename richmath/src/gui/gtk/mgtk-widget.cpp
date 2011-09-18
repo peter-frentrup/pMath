@@ -1,20 +1,25 @@
 #include <gui/gtk/mgtk-widget.h>
-
+ 
 #include <eval/binding.h>
 #include <gui/gtk/mgtk-clipboard.h>
 #include <gui/gtk/mgtk-tooltip-window.h>
-
+ 
 #include <glib.h>
 #include <gdk/gdkkeysyms-compat.h>
 #include <cmath>
-
-
+ 
+#ifdef GDK_WINDOWING_X11
+#include <gdk/gdkx.h>
+#include <X11/XKBlib.h>
+#endif
+ 
+ 
 using namespace richmath;
-
+ 
 #define ANIMATION_DELAY  (50)
 static bool animation_running = false;
 Hashtable<SharedPtr<TimedEvent>, Void> animations;
-
+ 
 static gboolean animation_timeout(gpointer data) {
   animation_running = false;
   
@@ -38,10 +43,10 @@ static gboolean animation_timeout(gpointer data) {
   
   return animation_running; // continue ?
 }
-
+ 
 static Array<const char*> drag_mime_types; // index is the info parameter
 static GtkTargetList *drop_targets;
-
+ 
 static void add_remove_widget(int delta) {
   static int widget_count = 0;
   
@@ -63,9 +68,9 @@ static void add_remove_widget(int delta) {
     drop_targets = 0;
   }
 }
-
+ 
 //{ class MGtkWidget ...
-
+ 
 MathGtkWidget::MathGtkWidget(Document *doc)
   : NativeWidget(doc),
   BasicGtkWidget(),
@@ -85,7 +90,7 @@ MathGtkWidget::MathGtkWidget(Document *doc)
   
   gtk_im_context_set_use_preedit(_im_context, FALSE);
 }
-
+ 
 MathGtkWidget::~MathGtkWidget() {
   all_document_ids.remove(document()->id());
   
@@ -103,7 +108,7 @@ MathGtkWidget::~MathGtkWidget() {
   
   add_remove_widget(-1);
 }
-
+ 
 void MathGtkWidget::after_construction() {
   BasicGtkWidget::after_construction();
   
@@ -115,7 +120,7 @@ void MathGtkWidget::after_construction() {
 #else
   signal_connect<MathGtkWidget, GdkEvent*, &MathGtkWidget::on_expose>("expose-event");
 #endif
-
+  
   signal_connect<MathGtkWidget, GdkEvent*, &MathGtkWidget::on_button_press>("button-press-event");
   signal_connect<MathGtkWidget, GdkEvent*, &MathGtkWidget::on_button_release>("button-release-event");
   signal_connect<MathGtkWidget, GdkEvent*, &MathGtkWidget::on_focus_in>("focus-in-event");
@@ -145,7 +150,7 @@ void MathGtkWidget::after_construction() {
     (GdkDragAction)(GDK_ACTION_COPY | GDK_ACTION_MOVE));
   gtk_target_table_free(table, len);
 }
-
+ 
 void MathGtkWidget::window_size(float *w, float *h) {
   if(!_widget) {
     *w = *h = 0;
@@ -159,7 +164,7 @@ void MathGtkWidget::window_size(float *w, float *h) {
   *w = rect.width  / scale_factor();
   *h = rect.height / scale_factor();
 }
-
+ 
 void MathGtkWidget::scroll_pos(float *x, float *y) {
   *x = *y = 0;
   if(!is_scrollable())
@@ -175,7 +180,7 @@ void MathGtkWidget::scroll_pos(float *x, float *y) {
     *y /= scale_factor();
   }
 }
-
+ 
 void MathGtkWidget::scroll_to(float x, float y) {
   if(!is_scrollable())
     return;
@@ -206,15 +211,15 @@ void MathGtkWidget::scroll_to(float x, float y) {
       gtk_adjustment_set_value(_vadjustment, newy);
   }
 }
-
+ 
 void MathGtkWidget::show_tooltip(Expr boxes) {
   MathGtkTooltipWindow::show_global_tooltip(boxes);
 }
-
+ 
 void MathGtkWidget::hide_tooltip() {
   MathGtkTooltipWindow::hide_global_tooltip();
 }
-
+ 
 double MathGtkWidget::message_time() {
   guint32 timestamp = gtk_get_current_event_time();
   
@@ -226,7 +231,7 @@ double MathGtkWidget::message_time() {
   
   return timestamp / 1000000.0;
 }
-
+ 
 double MathGtkWidget::double_click_time() {
   if(!_widget)
     return 1.0;
@@ -241,7 +246,7 @@ double MathGtkWidget::double_click_time() {
     
   return t / 1000.0;
 }
-
+ 
 void MathGtkWidget::double_click_dist(float *dx, float *dy) {
   if(!_widget) {
     *dx = *dy = 0;
@@ -258,7 +263,7 @@ void MathGtkWidget::double_click_dist(float *dx, float *dy) {
     
   *dx = *dy = d / scale_factor();
 }
-
+ 
 void MathGtkWidget::do_drag_drop(Box *src, int start, int end) {
   GdkEvent *event = gtk_get_current_event();
   
@@ -281,7 +286,7 @@ void MathGtkWidget::do_drag_drop(Box *src, int start, int end) {
               
   gtk_drag_set_icon_default(context);
 }
-
+ 
 bool MathGtkWidget::cursor_position(float *x, float *y) {
   if(!_widget)
     return false;
@@ -300,11 +305,11 @@ bool MathGtkWidget::cursor_position(float *x, float *y) {
   
   return true;
 }
-
+ 
 void MathGtkWidget::bring_to_front() {
   gtk_widget_grab_focus(_widget);
 }
-
+ 
 void MathGtkWidget::invalidate() {
   if(!_widget)
     return;
@@ -313,10 +318,10 @@ void MathGtkWidget::invalidate() {
   
   gtk_widget_queue_draw(_widget);
 }
-
-void MathGtkWidget::invalidate_options(){
+ 
+void MathGtkWidget::invalidate_options() {
 }
-
+ 
 void MathGtkWidget::invalidate_rect(float x, float y, float w, float h) {
   if(!_widget)
     return;
@@ -333,11 +338,11 @@ void MathGtkWidget::invalidate_rect(float x, float y, float w, float h) {
                              (int)ceilf(w * sf) + 8,
                              (int)ceilf(h * sf) + 8);
 }
-
+ 
 void MathGtkWidget::force_redraw() {
   invalidate();
 }
-
+ 
 void MathGtkWidget::set_cursor(CursorType type) {
   cursor = type;
   
@@ -350,10 +355,10 @@ void MathGtkWidget::set_cursor(CursorType type) {
   if(cur)
     gdk_window_set_cursor(win, cur);
 }
-
+ 
 void MathGtkWidget::running_state_changed() {
 }
-
+ 
 bool MathGtkWidget::is_mouse_down() {
   if(!_widget)
     return false;
@@ -364,11 +369,11 @@ bool MathGtkWidget::is_mouse_down() {
   gdk_window_get_pointer(w, NULL, NULL, &mod);
   return 0 != (mod & (GDK_BUTTON1_MASK | GDK_BUTTON2_MASK | GDK_BUTTON3_MASK | GDK_BUTTON4_MASK | GDK_BUTTON5_MASK));
 }
-
+ 
 void MathGtkWidget::beep() {
   gdk_beep();
 }
-
+ 
 bool MathGtkWidget::register_timed_event(SharedPtr<TimedEvent> event) {
   if(!_widget)
     return false;
@@ -385,7 +390,7 @@ bool MathGtkWidget::register_timed_event(SharedPtr<TimedEvent> event) {
   
   return true;
 }
-
+ 
 static void adjustment_value_changed(
   GtkAdjustment *adjustment,
   void          *user_data
@@ -394,7 +399,7 @@ static void adjustment_value_changed(
   
   self->invalidate();
 }
-
+ 
 void MathGtkWidget::hadjustment(GtkAdjustment *ha) {
   if(_hadjustment) {
     g_signal_handlers_disconnect_matched(
@@ -413,7 +418,7 @@ void MathGtkWidget::hadjustment(GtkAdjustment *ha) {
   
   invalidate();
 }
-
+ 
 void MathGtkWidget::vadjustment(GtkAdjustment *va) {
   if(_vadjustment) {
     g_signal_handlers_disconnect_matched(
@@ -433,7 +438,7 @@ void MathGtkWidget::vadjustment(GtkAdjustment *va) {
   
   invalidate();
 }
-
+ 
 void MathGtkWidget::update_im_cursor_location() {
   GdkRectangle area;
   
@@ -464,14 +469,14 @@ void MathGtkWidget::update_im_cursor_location() {
   
   gtk_im_context_set_cursor_location(_im_context, &area);
 }
-
+ 
 void MathGtkWidget::on_im_commit(const char *str) {
   document()->insert_string(String::FromUtf8(str), false);
 }
-
+ 
 void MathGtkWidget::on_im_preedit_changed() {
 }
-
+ 
 void MathGtkWidget::on_drag_data_get(
   GdkDragContext   *context,
   GtkSelectionData *data,
@@ -505,7 +510,7 @@ void MathGtkWidget::on_drag_data_get(
   
   doc->select(old_b, old_s, old_e);
 }
-
+ 
 void MathGtkWidget::on_drag_data_delete(GdkDragContext *context) {
   if(!_widget)
     return;
@@ -536,7 +541,7 @@ void MathGtkWidget::on_drag_data_delete(GdkDragContext *context) {
   
   drag_source_reference().reset();
 }
-
+ 
 void MathGtkWidget::on_drag_data_received(
   GdkDragContext   *context,
   int               x,
@@ -603,11 +608,11 @@ void MathGtkWidget::on_drag_data_received(
   
   gtk_drag_finish(context, TRUE, gdk_drag_context_get_selected_action(context) == GDK_ACTION_MOVE, time);
 }
-
+ 
 void MathGtkWidget::on_drag_end(GdkDragContext *context) {
   drag_source_reference().reset();
 }
-
+ 
 bool MathGtkWidget::on_drag_motion(GdkDragContext *context, int x, int y, guint time) {
   if(!_widget)
     return false;
@@ -662,7 +667,7 @@ bool MathGtkWidget::on_drag_motion(GdkDragContext *context, int x, int y, guint 
   
   return true;
 }
-
+ 
 bool MathGtkWidget::on_drag_drop(GdkDragContext *context, int x, int y, guint time) {
   if(!_widget)
     return false;
@@ -692,12 +697,12 @@ bool MathGtkWidget::on_drag_drop(GdkDragContext *context, int x, int y, guint ti
     
   return true;
 }
-
+ 
 void MathGtkWidget::paint_background(Canvas *canvas) {
   canvas->set_color(0xffffff);
   canvas->paint();
 }
-
+ 
 void MathGtkWidget::paint_canvas(Canvas *canvas, bool resize_only) {
   cairo_set_line_width(canvas->cairo(), 1);
   cairo_set_line_cap(canvas->cairo(), CAIRO_LINE_CAP_SQUARE);
@@ -780,7 +785,7 @@ void MathGtkWidget::paint_canvas(Canvas *canvas, bool resize_only) {
     }
   }
 }
-
+ 
 void MathGtkWidget::handle_mouse_move(MouseEvent &event) {
   mouse_moving = true;
   cursor = DefaultCursor;
@@ -791,18 +796,18 @@ void MathGtkWidget::handle_mouse_move(MouseEvent &event) {
   mouse_moving = false;
   set_cursor(cursor);
 }
-
+ 
 bool MathGtkWidget::on_map(GdkEvent *e) {
   gtk_im_context_set_client_window(_im_context, gtk_widget_get_window(_widget));
   return false;
 }
-
+ 
 bool MathGtkWidget::on_unmap(GdkEvent *e) {
   gtk_im_context_reset(_im_context);
   gtk_im_context_set_client_window(_im_context, 0);
   return false;
 }
-
+ 
 bool MathGtkWidget::on_draw(cairo_t *cr) {
   GtkAllocation rect;
   gtk_widget_get_allocation(_widget, &rect);
@@ -840,25 +845,25 @@ bool MathGtkWidget::on_draw(cairo_t *cr) {
   is_painting = false;
   return true;
 }
-
+ 
 bool MathGtkWidget::on_expose(GdkEvent *e) {
   GdkEventExpose *event = &e->expose;
   
   cairo_t *cr = gdk_cairo_create(event->window);
-    
+  
   cairo_move_to(cr, event->area.x, event->area.y);
   cairo_line_to(cr, event->area.x + event->area.width, event->area.y);
   cairo_line_to(cr, event->area.x + event->area.width, event->area.y + event->area.height);
   cairo_line_to(cr, event->area.x,                     event->area.y + event->area.height);
   cairo_close_path(cr);
   cairo_clip(cr);
-    
+  
   bool result = on_draw(cr);
   cairo_destroy(cr);
   
   return result;
 }
-
+ 
 bool MathGtkWidget::on_focus_in(GdkEvent *e) {
   Box *box = document()->selection_box();
   if(!box)
@@ -876,14 +881,14 @@ bool MathGtkWidget::on_focus_in(GdkEvent *e) {
   
   return false;
 }
-
+ 
 bool MathGtkWidget::on_focus_out(GdkEvent *e) {
   if(_im_context)
     gtk_im_context_focus_out(_im_context);
     
   return false;
 }
-
+ 
 static SpecialKey keyval_to_special_key(guint keyval) {
   switch(keyval) {
     case GDK_Left:            return KeyLeft;
@@ -897,7 +902,7 @@ static SpecialKey keyval_to_special_key(guint keyval) {
     case GDK_BackSpace:       return KeyBackspace;
     case GDK_Delete:          return KeyDelete;
     case GDK_Linefeed:
-    case GDK_Return:          
+    case GDK_Return:
     case GDK_KP_Enter:        return KeyReturn;
     case GDK_Tab:             return KeyTab;
     case GDK_Escape:          return KeyEscape;
@@ -916,7 +921,7 @@ static SpecialKey keyval_to_special_key(guint keyval) {
     default:                  return KeyUnknown;
   }
 }
-
+ 
 bool MathGtkWidget::on_key_press(GdkEvent *e) {
   GdkEventKey *event = &e->key;
   GdkModifierType mod = (GdkModifierType)0;
@@ -959,27 +964,49 @@ bool MathGtkWidget::on_key_press(GdkEvent *e) {
   ske.shift = 0 != (mod & GDK_SHIFT_MASK);
   if(ske.key) {
     document()->key_down(ske);
-    //if(ske.key != KeyReturn || ske.ctrl || ske.alt || ske.shift) {
-    //  document()->key_down(ske);
-    //  //return true;
-    //}
   }
   
   if(event->keyval == GDK_Caps_Lock || event->keyval == GDK_Shift_Lock) {
-    static bool recursion = false;
+  
+#ifdef GDK_WINDOWING_X11
+  
+    // Reset CAPS LOCK and input PMATH_CHAR_ALIASDELIMITER.
+    //
+    // If you type too fast, the next few character(s) are inserted before we turned off CAPS LOCK.
+    //
+    // Based on numlockx.c and
+    // bugzilla.novell.com/show_bug.cgi?id=394949
+    // (Bug 394949 - Simulated Caps lock key press via XTestFakeKeyEvent does not toggle the LED indicator)
     
-    if(!recursion && 0 != (mod & GDK_LOCK_MASK)) {
-      recursion = true;
+    Display *display = XOpenDisplay(NULL);
+    
+    unsigned state;
+    
+    XkbGetIndicatorState(display, XkbUseCoreKbd, &state);
+    bool capslock_active_before = (state & 0x01) == 1;
+    
+    if(capslock_active_before) {
+      int capslock_mask = 0;
       
-      gdk_event_put(e);
-      while(gtk_events_pending())
-        gtk_main_iteration();
+      KeyCode capslock_keycode = XKeysymToKeycode(display, XK_Caps_Lock);
+      XModifierKeymap *map = XGetModifierMapping(display);
+      for(int i = 0; i < 8; ++i) {
+        if(map->modifiermap[map->max_keypermod *i] == capslock_keycode)
+          capslock_mask = 1 << i;
+      }
+      XFreeModifiermap(map);
       
-      recursion = false;
+      if(capslock_mask != 0) {
+        XkbLockModifiers(display, XkbUseCoreKbd, capslock_mask, 0);
+        
+        document()->key_press(PMATH_CHAR_ALIASDELIMITER);
+      }
     }
-    else
-      document()->key_press(PMATH_CHAR_ALIASDELIMITER);
-      
+    
+    XCloseDisplay(display);
+    
+#endif
+    
     return true;
   }
   
@@ -1003,7 +1030,7 @@ bool MathGtkWidget::on_key_press(GdkEvent *e) {
   
   return true;
 }
-
+ 
 bool MathGtkWidget::on_key_release(GdkEvent *e) {
   GdkEventKey *event = &e->key;
   GdkModifierType mod = (GdkModifierType)0;
@@ -1031,7 +1058,7 @@ bool MathGtkWidget::on_key_release(GdkEvent *e) {
   
   return true;
 }
-
+ 
 bool MathGtkWidget::on_button_press(GdkEvent *e) {
   GdkEventButton *event = (GdkEventButton*)e;
   
@@ -1083,7 +1110,7 @@ bool MathGtkWidget::on_button_press(GdkEvent *e) {
   
   return true;
 }
-
+ 
 bool MathGtkWidget::on_button_release(GdkEvent *e) {
   GdkEventButton *event = (GdkEventButton*)e;
   
@@ -1109,7 +1136,7 @@ bool MathGtkWidget::on_button_release(GdkEvent *e) {
   
   return true;
 }
-
+ 
 bool MathGtkWidget::on_motion_notify(GdkEvent *e) {
   GdkEventMotion *event = (GdkEventMotion*)e;
   
@@ -1146,14 +1173,14 @@ bool MathGtkWidget::on_motion_notify(GdkEvent *e) {
   handle_mouse_move(me);
   return true;
 }
-
+ 
 bool MathGtkWidget::on_leave_notify(GdkEvent *e) {
   //GdkEventCrossing *event = (GdkEventCrossing*)e;
   
   document()->mouse_exit();
   return false;
 }
-
+ 
 bool MathGtkWidget::on_scroll(GdkEvent *e) {
   GdkEventScroll *event = (GdkEventScroll*)e;
   
@@ -1178,7 +1205,7 @@ bool MathGtkWidget::on_scroll(GdkEvent *e) {
   
   return true;
 }
-
+ 
 gboolean MathGtkWidget::blink_caret(gpointer id_as_ptr) {
   int id = (int)id_as_ptr;
   
@@ -1208,5 +1235,9 @@ gboolean MathGtkWidget::blink_caret(gpointer id_as_ptr) {
   
   return FALSE;
 }
-
+ 
 //} ... class MGtkWidget
+ 
+ 
+ 
+ 

@@ -128,6 +128,8 @@ void SliderBox::resize(Context *context) {
   ControlPainter::std->calc_container_size(context->canvas, SliderHorzThumb, &size);
   
   thumb_width = size.width;
+  _extents.ascent  = size.ascent;
+  _extents.descent = size.descent;
   
   size = _extents;
   ControlPainter::std->calc_container_size(context->canvas, SliderHorzChannel, &size);
@@ -187,7 +189,7 @@ void SliderBox::paint(Context *context) {
     context->canvas->restore();
     context->canvas->set_color(old_color);
   }
-  if(range_value < range_min && range_value < range_max) {
+  else if(range_value < range_min && range_value < range_max) {
     float rx = x + h / 2;
     
     int old_color = context->canvas->get_color();
