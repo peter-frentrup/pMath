@@ -17,6 +17,8 @@
 - implement NumberForm
 
 - implement BitShiftLeft, BitShiftRight, BitGet, BitSet, BitClear, BitLength
+
+- implement rotateLeft, RotateRight
 	
 - Power: simplify (1/2)/Sqrt(2), ... 
 		x Sqrt(E x) --->  Sqrt(E) x^(3/2)
@@ -34,7 +36,7 @@
 
 - pmath: add ParallelFold() [better name?]
 
-- pmath: implement MapAt, MapIndexed, HasValue/IsValue
+- pmath: implement MapAt, HasValue/IsValue
 
 ? pmath: use timsort instead of platforms qsort: http://bugs.python.org/file4451/timsort.txt	
 

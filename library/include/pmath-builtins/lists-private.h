@@ -119,8 +119,15 @@ PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_t _pmath_map(
   struct _pmath_map_info_t *info,
-  pmath_t                   obj, // will be freed
+  pmath_t                   obj,   // will be freed
   long                      level);
+
+PMATH_PRIVATE
+PMATH_ATTRIBUTE_USE_RESULT
+pmath_t _pmath_map_indexed(
+  struct _pmath_map_info_t *info,
+  pmath_t                   obj,    // will be freed
+  pmath_expr_t              index); // will be freed
 
 PMATH_PRIVATE
 pmath_bool_t _pmath_scan(

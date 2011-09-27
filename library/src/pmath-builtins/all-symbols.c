@@ -373,6 +373,7 @@ PMATH_PRIVATE pmath_t builtin_level(                        pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_linearsolve(                  pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_ludecomposition(              pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_map(                          pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_mapindexed(                   pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_mapthread(                    pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_max(                          pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_mean(                         pmath_expr_t expr);
@@ -448,13 +449,14 @@ PMATH_PRIVATE pmath_t builtin_randominteger(                   pmath_expr_t expr
 PMATH_PRIVATE pmath_t builtin_randomreal(                      pmath_expr_t expr);
 //} ============================================================================
 //{ builtins from src/pmath-builtins/parallel/ ...
-PMATH_PRIVATE pmath_t builtin_abort(       pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_getthreadid( pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_newtask(     pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_parallelmap( pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_parallelscan(pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_paralleltry( pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_wait(        pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_abort(             pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_getthreadid(       pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_newtask(           pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_parallelmap(       pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_parallelmapindexed(pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_parallelscan(      pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_paralleltry(       pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_wait(              pmath_expr_t expr);
 
 PMATH_PRIVATE pmath_t builtin_internal_threadidle(pmath_expr_t expr);
 //} ============================================================================
@@ -988,6 +990,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_MAKEBOXES                 = NEW_SYSTEM_SYMBOL("MakeBoxes"))
   VERIFY(   PMATH_SYMBOL_MAKEEXPRESSION            = NEW_SYSTEM_SYMBOL("MakeExpression"))
   VERIFY(   PMATH_SYMBOL_MAP                       = NEW_SYSTEM_SYMBOL("Map"))
+  VERIFY(   PMATH_SYMBOL_MAPINDEXED                = NEW_SYSTEM_SYMBOL("MapIndexed"))
   VERIFY(   PMATH_SYMBOL_MAPTHREAD                 = NEW_SYSTEM_SYMBOL("MapThread"))
   VERIFY(   PMATH_SYMBOL_MATCH                     = NEW_SYSTEM_SYMBOL("Match"))
   VERIFY(   PMATH_SYMBOL_MATRIXFORM                = NEW_SYSTEM_SYMBOL("MatrixForm"))
@@ -1082,6 +1085,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_PAGEWIDTHDEFAULT          = NEW_SYSTEM_SYMBOL("$PageWidth"))
   VERIFY(   PMATH_SYMBOL_PARALLEL_RETURN           = NEW_SYSTEM_SYMBOL("Parallel`Return"))
   VERIFY(   PMATH_SYMBOL_PARALLELMAP               = NEW_SYSTEM_SYMBOL("ParallelMap"))
+  VERIFY(   PMATH_SYMBOL_PARALLELMAPINDEXED        = NEW_SYSTEM_SYMBOL("ParallelMapIndexed"))
   VERIFY(   PMATH_SYMBOL_PARALLELSCAN              = NEW_SYSTEM_SYMBOL("ParallelScan"))
   VERIFY(   PMATH_SYMBOL_PARALLELTRY               = NEW_SYSTEM_SYMBOL("ParallelTry"))
   VERIFY(   PMATH_SYMBOL_PARENTDIRECTORY           = NEW_SYSTEM_SYMBOL("ParentDirectory"))
@@ -1570,6 +1574,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   PMATH_SYMBOL_LOG,                         builtin_log)
   BIND_DOWN(   PMATH_SYMBOL_LUDECOMPOSITION,             builtin_ludecomposition)
   BIND_DOWN(   PMATH_SYMBOL_MAP,                         builtin_map)
+  BIND_DOWN(   PMATH_SYMBOL_MAPINDEXED,                  builtin_mapindexed)
   BIND_DOWN(   PMATH_SYMBOL_MAPTHREAD,                   builtin_mapthread)
   BIND_DOWN(   PMATH_SYMBOL_MAKEBOXES,                   builtin_makeboxes)
   BIND_DOWN(   PMATH_SYMBOL_MAKEEXPRESSION,              builtin_makeexpression)
@@ -1612,6 +1617,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   PMATH_SYMBOL_PADLEFT,                     builtin_padleft_and_padright)
   BIND_DOWN(   PMATH_SYMBOL_PADRIGHT,                    builtin_padleft_and_padright)
   BIND_DOWN(   PMATH_SYMBOL_PARALLELMAP,                 builtin_parallelmap)
+  BIND_DOWN(   PMATH_SYMBOL_PARALLELMAPINDEXED,          builtin_parallelmapindexed)
   BIND_DOWN(   PMATH_SYMBOL_PARALLELSCAN,                builtin_parallelscan)
   BIND_DOWN(   PMATH_SYMBOL_PARALLELTRY,                 builtin_paralleltry)
   BIND_DOWN(   PMATH_SYMBOL_PARENTDIRECTORY,             builtin_parentdirectory)

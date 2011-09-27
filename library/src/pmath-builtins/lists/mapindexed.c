@@ -1,3 +1,5 @@
+#include <pmath-core/numbers.h>
+
 #include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
@@ -8,41 +10,53 @@
 
 
 PMATH_PRIVATE
-pmath_t _pmath_map(
+pmath_t _pmath_map_indexed(
   struct _pmath_map_info_t *info,
-  pmath_t                   obj, // will be freed
-  long                      level
+  pmath_t                   obj,  // will be freed
+  pmath_expr_t              index // will be freed
 ) {
+  size_t level = pmath_expr_length(index);
   int reldepth = _pmath_object_in_levelspec(
-                   obj, info->levelmin, info->levelmax, level);
+                   obj, 
+                   info->levelmin, 
+                   info->levelmax, 
+                   (long)level);
                    
   if(reldepth <= 0 && pmath_is_expr(obj)) {
     size_t len = pmath_expr_length(obj);
     size_t i;
     
+    index = pmath_expr_resize(index, level + 1);
+    
     for(i = info->with_heads ? 0 : 1; i <= len; ++i) {
+      index = pmath_expr_set_item(index, level + 1, pmath_integer_new_uiptr(i));
+      
       obj = pmath_expr_set_item(
         obj, i,
-        _pmath_map(
+        _pmath_map_indexed(
           info,
           pmath_expr_get_item(obj, i),
-          level + 1));
+          pmath_ref(index)));
     }
   }
   
   if(reldepth == 0) {
+    index = pmath_expr_resize(index, level);
+    
     return pmath_expr_new_extended(
-             pmath_ref(info->function), 1,
-             obj);
+             pmath_ref(info->function), 2,
+             obj,
+             index);
   }
   
+  pmath_unref(index);
   return obj;
 }
 
-PMATH_PRIVATE pmath_t builtin_map(pmath_expr_t expr) {
-  /* Map(list, f, startlevel..endlevel)
-     Map(list, f)    = Map(list, f, 1..1)
-     Map(list, f, n) = Map(list, f, n..n)
+PMATH_PRIVATE pmath_t builtin_mapindexed(pmath_expr_t expr) {
+  /* MapIndexed(list, f, startlevel..endlevel)
+     MapIndexed(list, f)    = MapIndexed(list, f, 1..1)
+     MapIndexed(list, f, n) = MapIndexed(list, f, n..n)
   
      options:
        Heads->False
@@ -103,7 +117,10 @@ PMATH_PRIVATE pmath_t builtin_map(pmath_expr_t expr) {
   
   obj = pmath_expr_get_item(expr, 1);
   pmath_unref(expr);
-  obj = _pmath_map(&info, obj, 0);
+  obj = _pmath_map_indexed(
+    &info, 
+    obj, 
+    pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), 0));
   pmath_unref(info.function);
   return obj;
 }

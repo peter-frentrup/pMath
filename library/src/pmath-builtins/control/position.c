@@ -176,6 +176,9 @@ PMATH_PRIVATE pmath_t builtin_position(pmath_expr_t expr){
   if(pmath_same(obj, PMATH_SYMBOL_TRUE)){
     info.with_heads = TRUE;
   }
+  else if(pmath_same(obj, PMATH_SYMBOL_FALSE)){
+    info.with_heads = FALSE;
+  }
   else if(!pmath_same(obj, PMATH_SYMBOL_FALSE)){
     pmath_unref(pattern);
     pmath_unref(options);
