@@ -209,8 +209,8 @@ void MathSequence::resize(Context *context) {
   while(pos < glyphs.length()) {
     if(pos == lines[line].end) {
       if(pos > 0) {
-        if(_extents.width < glyphs[pos - 1].right - x)
-          _extents.width = glyphs[pos - 1].right - x;
+        if(_extents.width < glyphs[pos - 1].right - x + indention_width(lines[line].indent))
+          _extents.width = glyphs[pos - 1].right - x + indention_width(lines[line].indent);
         x = glyphs[pos - 1].right;
       }
       
@@ -2861,18 +2861,18 @@ int MathSequence::fill_penalty_array(
       depth++;
       
     if(buf[pos] == ' ') {
-      penalty_array[pos] = depth * DepthPenalty;
+      penalty_array[pos]+= depth * DepthPenalty;
       
       return pos + 1;
     }
     
     while(pos < spans.length() && !spans.is_token_end(pos)) {
-      penalty_array[pos] = depth * DepthPenalty + WordPenalty;
+      penalty_array[pos]+= depth * DepthPenalty + WordPenalty;
       ++pos;
     }
     
     if(pos < spans.length()) {
-      penalty_array[pos] = depth * DepthPenalty;
+      penalty_array[pos]+= depth * DepthPenalty;
       ++pos;
     }
     
@@ -2955,7 +2955,11 @@ int MathSequence::fill_penalty_array(
         
       default:
         if(pmath_char_is_left(buf[next])) {
-          penalty_array[next] += WordPenalty;
+          if(spans.is_operand_start(next))
+            penalty_array[next] += WordPenalty;
+          else
+            penalty_array[next - 1] += WordPenalty;
+          
           depth = func_depth;
         }
         else if(pmath_char_is_right(buf[next])) {

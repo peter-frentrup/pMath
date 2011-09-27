@@ -2,6 +2,7 @@
 
 #include <boxes/section.h>
 #include <boxes/mathsequence.h>
+#include <boxes/textsequence.h>
 #include <eval/application.h>
 #include <eval/job.h>
 #include <gui/document.h>
@@ -64,7 +65,7 @@ static pmath_t builtin_createdocument(pmath_expr_t expr) {
   return Application::notify_wait(CNT_CREATEDOCUMENT, Expr(expr)).release();
 }
 
-static pmath_t builtin_documentapply(pmath_expr_t _expr) {
+static pmath_t builtin_documentapply_or_documentwrite(pmath_expr_t _expr) {
   Expr expr(_expr);
   
   if(expr.expr_length() != 2) {
@@ -73,6 +74,45 @@ static pmath_t builtin_documentapply(pmath_expr_t _expr) {
   }
   
   Application::notify_wait(CNT_MENUCOMMAND, expr);
+  
+  return PMATH_NULL;
+}
+
+static pmath_t builtin_documentdelete(pmath_expr_t _expr) {
+  Expr expr(_expr);
+  
+  if(expr.expr_length() > 1) {
+    pmath_message_argxxx(expr.expr_length(), 0, 1);
+    return expr.release();
+  }
+  
+  Application::notify_wait(CNT_MENUCOMMAND, expr);
+  
+  return PMATH_NULL;
+}
+
+static pmath_t builtin_documentget(pmath_expr_t _expr) {
+  Expr expr(_expr);
+  
+  if(expr.expr_length() > 1) {
+    pmath_message_argxxx(expr.expr_length(), 0, 1);
+    return expr.release();
+  }
+  
+  return Application::notify_wait(CNT_DOCUMENTGET, expr).release();
+  
+  return PMATH_NULL;
+}
+
+static pmath_t builtin_documentread(pmath_expr_t _expr) {
+  Expr expr(_expr);
+  
+  if(expr.expr_length() > 1) {
+    pmath_message_argxxx(expr.expr_length(), 0, 1);
+    return expr.release();
+  }
+  
+  return Application::notify_wait(CNT_DOCUMENTREAD, expr).release();
   
   return PMATH_NULL;
 }
@@ -239,7 +279,7 @@ static bool can_open_close_group(Expr cmd) {
   return true;
 }
 
-static bool can_document_apply(Expr cmd) {
+static bool can_document_write(Expr cmd) {
   Document *doc = get_current_document();
   
   if(!doc)
@@ -475,10 +515,51 @@ static bool document_apply_cmd(Expr cmd) {
   
   if(!doc)
     return false;
+  
+  AbstractSequence *seq;
+  
+  if(dynamic_cast<TextSequence*>(doc->selection_box()))
+    seq = new TextSequence;
+  else 
+    seq = new MathSequence;
     
-  MathSequence *seq = new MathSequence;
   seq->load_from_object(cmd[2], BoxOptionDefault);
   doc->insert_box(seq, true);
+  
+  return true;
+}
+
+static bool document_delete_cmd(Expr cmd) {
+  Document *doc;
+  
+  if(cmd.expr_length() == 0)
+    doc = get_current_document();
+  else
+    doc = dynamic_cast<Document*>(Box::find(cmd[1]));
+  
+  if(!doc)
+    return false;
+    
+  doc->remove_selection();
+  
+  return true;
+}
+
+static bool document_write_cmd(Expr cmd) {
+  Document *doc = dynamic_cast<Document*>(Box::find(cmd[1]));
+  
+  if(!doc)
+    return false;
+    
+  AbstractSequence *seq;
+  
+  if(dynamic_cast<TextSequence*>(doc->selection_box()))
+    seq = new TextSequence;
+  else 
+    seq = new MathSequence;
+    
+  seq->load_from_object(cmd[2], BoxOptionDefault);
+  doc->insert_box(seq, false);
   
   return true;
 }
@@ -952,7 +1033,7 @@ bool richmath::init_bindings() {
   Application::register_menucommand(String("Copy"),                       copy_cmd,                            can_copy_cut);
   Application::register_menucommand(String("Cut"),                        cut_cmd,                             can_copy_cut);
   Application::register_menucommand(String("OpenCloseGroup"),             open_close_group_cmd,                can_open_close_group);
-  Application::register_menucommand(String("Paste"),                      paste_cmd,                           can_document_apply);
+  Application::register_menucommand(String("Paste"),                      paste_cmd,                           can_document_write);
   Application::register_menucommand(String("EditBoxes"),                  edit_boxes_cmd,                      can_edit_boxes);
   Application::register_menucommand(String("ExpandSelection"),            expand_selection_cmd,                can_expand_selection);
   Application::register_menucommand(String("FindMatchingFence"),          find_matching_fence_cmd,             can_find_matching_fence);
@@ -961,15 +1042,15 @@ bool richmath::init_bindings() {
   Application::register_menucommand(String("DuplicatePreviousInput"),     duplicate_previous_input_output_cmd, can_duplicate_previous_input_output);
   Application::register_menucommand(String("DuplicatePreviousOutput"),    duplicate_previous_input_output_cmd, can_duplicate_previous_input_output);
   Application::register_menucommand(String("SimilarSectionBelow"),        similar_section_below_cmd,           can_similar_section_below);
-  Application::register_menucommand(String("InsertColumn"),               insert_column_cmd,                   can_document_apply);
-  Application::register_menucommand(String("InsertFraction"),             insert_fraction_cmd,                 can_document_apply);
+  Application::register_menucommand(String("InsertColumn"),               insert_column_cmd,                   can_document_write);
+  Application::register_menucommand(String("InsertFraction"),             insert_fraction_cmd,                 can_document_write);
   Application::register_menucommand(String("InsertOpposite"),             insert_opposite_cmd);
-  Application::register_menucommand(String("InsertOverscript"),           insert_overscript_cmd,               can_document_apply);
-  Application::register_menucommand(String("InsertRadical"),              insert_radical_cmd,                  can_document_apply);
-  Application::register_menucommand(String("InsertRow"),                  insert_row_cmd,                      can_document_apply);
-  Application::register_menucommand(String("InsertSubscript"),            insert_subscript_cmd,                can_document_apply);
-  Application::register_menucommand(String("InsertSuperscript"),          insert_superscript_cmd,              can_document_apply);
-  Application::register_menucommand(String("InsertUnderscript"),          insert_underscript_cmd,              can_document_apply);
+  Application::register_menucommand(String("InsertOverscript"),           insert_overscript_cmd,               can_document_write);
+  Application::register_menucommand(String("InsertRadical"),              insert_radical_cmd,                  can_document_write);
+  Application::register_menucommand(String("InsertRow"),                  insert_row_cmd,                      can_document_write);
+  Application::register_menucommand(String("InsertSubscript"),            insert_subscript_cmd,                can_document_write);
+  Application::register_menucommand(String("InsertSuperscript"),          insert_superscript_cmd,              can_document_write);
+  Application::register_menucommand(String("InsertUnderscript"),          insert_underscript_cmd,              can_document_write);
   
   Application::register_menucommand(String("DynamicToLiteral"),           convert_dynamic_to_literal,          can_convert_dynamic_to_literal);
   Application::register_menucommand(String("EvaluatorAbort"),             abort_cmd,                           can_abort);
@@ -981,7 +1062,9 @@ bool richmath::init_bindings() {
   Application::register_menucommand(String("RemoveFromEvaluationQueue"),  remove_from_evaluation_queue,        can_remove_from_evaluation_queue);
   Application::register_menucommand(String("SubsessionEvaluateSections"), subsession_evaluate_sections_cmd,    can_subsession_evaluate_sections);
   
-  Application::register_menucommand(Symbol(PMATH_SYMBOL_DOCUMENTAPPLY), document_apply_cmd, can_document_apply);
+  Application::register_menucommand(Symbol(PMATH_SYMBOL_DOCUMENTAPPLY),  document_apply_cmd,  can_document_write);
+  Application::register_menucommand(Symbol(PMATH_SYMBOL_DOCUMENTDELETE), document_delete_cmd, can_document_write);
+  Application::register_menucommand(Symbol(PMATH_SYMBOL_DOCUMENTWRITE),  document_write_cmd,  can_document_write);
   
 #define VERIFY(x)  if(0 == (x)) goto FAIL_SYMBOLS;
 #define NEW_SYMBOL(name)     pmath_symbol_get(PMATH_C_STRING(name), TRUE)
@@ -1004,7 +1087,11 @@ bool richmath::init_bindings() {
   
   VERIFY(BIND_DOWN(PMATH_SYMBOL_CREATEDOCUMENT,           builtin_createdocument))
   VERIFY(BIND_DOWN(PMATH_SYMBOL_CURRENTVALUE,             builtin_currentvalue))
-  VERIFY(BIND_DOWN(PMATH_SYMBOL_DOCUMENTAPPLY,            builtin_documentapply))
+  VERIFY(BIND_DOWN(PMATH_SYMBOL_DOCUMENTAPPLY,            builtin_documentapply_or_documentwrite))
+  VERIFY(BIND_DOWN(PMATH_SYMBOL_DOCUMENTDELETE,           builtin_documentdelete))
+  VERIFY(BIND_DOWN(PMATH_SYMBOL_DOCUMENTGET,              builtin_documentget))
+  VERIFY(BIND_DOWN(PMATH_SYMBOL_DOCUMENTREAD,             builtin_documentread))
+  VERIFY(BIND_DOWN(PMATH_SYMBOL_DOCUMENTWRITE,            builtin_documentapply_or_documentwrite))
   VERIFY(BIND_DOWN(PMATH_SYMBOL_DOCUMENTS,                builtin_documents))
   VERIFY(BIND_DOWN(PMATH_SYMBOL_EVALUATIONDOCUMENT,       builtin_evaluationdocument))
   VERIFY(BIND_DOWN(PMATH_SYMBOL_FRONTENDTOKENEXECUTE,     builtin_frontendtokenexecute))

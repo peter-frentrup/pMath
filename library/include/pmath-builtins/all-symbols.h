@@ -781,5 +781,9 @@ pmath_bool_t pmath_register_approx_code(
 #define PMATH_SYMBOL_EVALUATIONDOCUMENT                     PMATH_SYMBOL_BUILTIN(689)
 #define PMATH_SYMBOL_MAPINDEXED                             PMATH_SYMBOL_BUILTIN(690)
 #define PMATH_SYMBOL_PARALLELMAPINDEXED                     PMATH_SYMBOL_BUILTIN(691)
+#define PMATH_SYMBOL_DOCUMENTGET                            PMATH_SYMBOL_BUILTIN(692)
+#define PMATH_SYMBOL_DOCUMENTREAD                           PMATH_SYMBOL_BUILTIN(693)
+#define PMATH_SYMBOL_DOCUMENTWRITE                          PMATH_SYMBOL_BUILTIN(694)
+#define PMATH_SYMBOL_DOCUMENTDELETE                         PMATH_SYMBOL_BUILTIN(695)
 
 #endif /* __PMATH_BUILTINS__SYMBOLS_H__ */

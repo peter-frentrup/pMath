@@ -797,6 +797,10 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_DO                        = NEW_SYSTEM_SYMBOL("Do"))
   VERIFY(   PMATH_SYMBOL_DOCUMENT                  = NEW_SYSTEM_SYMBOL("Document"))
   VERIFY(   PMATH_SYMBOL_DOCUMENTAPPLY             = NEW_SYSTEM_SYMBOL("DocumentApply"))
+  VERIFY(   PMATH_SYMBOL_DOCUMENTDELETE            = NEW_SYSTEM_SYMBOL("DocumentDelete"))
+  VERIFY(   PMATH_SYMBOL_DOCUMENTGET               = NEW_SYSTEM_SYMBOL("DocumentGet"))
+  VERIFY(   PMATH_SYMBOL_DOCUMENTREAD              = NEW_SYSTEM_SYMBOL("DocumentRead"))
+  VERIFY(   PMATH_SYMBOL_DOCUMENTWRITE             = NEW_SYSTEM_SYMBOL("DocumentWrite"))
   VERIFY(   PMATH_SYMBOL_DOCUMENTS                 = NEW_SYSTEM_SYMBOL("Documents"))
   VERIFY(   PMATH_SYMBOL_DOT                       = NEW_SYSTEM_SYMBOL("Dot"))
   VERIFY(   PMATH_SYMBOL_DOTEQUAL                  = NEW_SYSTEM_SYMBOL("DotEqual"))
@@ -1472,6 +1476,10 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   PMATH_SYMBOL_DIVIDEBY,                    builtin_divideby_or_timesby)
   BIND_DOWN(   PMATH_SYMBOL_DO,                          builtin_do)
   BIND_DOWN(   PMATH_SYMBOL_DOCUMENTAPPLY,               general_builtin_nofront);
+  BIND_DOWN(   PMATH_SYMBOL_DOCUMENTDELETE,              general_builtin_nofront);
+  BIND_DOWN(   PMATH_SYMBOL_DOCUMENTGET,                 general_builtin_nofront);
+  BIND_DOWN(   PMATH_SYMBOL_DOCUMENTREAD,                general_builtin_nofront);
+  BIND_DOWN(   PMATH_SYMBOL_DOCUMENTWRITE,               general_builtin_nofront);
   BIND_DOWN(   PMATH_SYMBOL_DOCUMENTS,                   general_builtin_nofront);
   BIND_DOWN(   PMATH_SYMBOL_DOT,                         builtin_dot)
   BIND_DOWN(   PMATH_SYMBOL_DOWNRULES,                   builtin_symbol_rules)

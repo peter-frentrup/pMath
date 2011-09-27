@@ -1268,8 +1268,11 @@ static Expr cnt_currentvalue(Expr data) {
 }
 
 static Expr cnt_getevaluationdocument(Expr data) {
+  Document *doc = 0;
   Box      *box = FrontEndObject::find_cast<Box>(Dynamic::current_evaluation_box_id);
-  Document *doc = box->find_parent<Document>(true);
+  
+  if(box)
+    doc = box->find_parent<Document>(true);
   
   if(doc)
     return Call(Symbol(PMATH_SYMBOL_FRONTENDOBJECT), doc->id());
@@ -1286,6 +1289,41 @@ static Expr cnt_getevaluationdocument(Expr data) {
     return Call(Symbol(PMATH_SYMBOL_FRONTENDOBJECT), doc_id);
     
   return Symbol(PMATH_SYMBOL_FAILED);
+}
+
+static Expr cnt_documentget(Expr data) {
+  Box *box;
+  
+  if(data.expr_length() == 0)
+    box = get_current_document();
+  else
+    box = FrontEndObject::find_cast<Box>(data[1]);
+  
+  if(box == 0)
+    return Symbol(PMATH_SYMBOL_FAILED);
+    
+  return box->to_pmath(BoxFlagDefault);
+}
+
+static Expr cnt_documentread(Expr data) {
+  Document *doc = 0;
+  
+  if(data.expr_length() == 0) {
+    doc = get_current_document();
+  }
+  else {
+    Box *box = FrontEndObject::find_cast<Box>(data[1]);
+    
+    if(box)
+      doc = box->find_parent<Document>(true);
+  }
+  
+  if(!doc || !doc->selection_box() || doc->selection_length() == 0)
+    return String("");
+    
+  return doc->selection_box()->to_pmath(BoxFlagDefault, 
+                                        doc->selection_start(), 
+                                        doc->selection_end());
 }
 
 static void execute(ClientNotification &cn) {
@@ -1360,6 +1398,17 @@ static void execute(ClientNotification &cn) {
     case CNT_GETEVALUATIONDOCUMENT:
       if(cn.result_ptr)
         *cn.result_ptr = cnt_getevaluationdocument(cn.data).release();
+      break;
+        
+    case CNT_DOCUMENTGET:
+      if(cn.result_ptr)
+        *cn.result_ptr = cnt_documentget(cn.data).release();
+      break;
+        
+    case CNT_DOCUMENTREAD:
+      if(cn.result_ptr)
+        *cn.result_ptr = cnt_documentread(cn.data).release();
+      break;
   }
   
   cn.done();

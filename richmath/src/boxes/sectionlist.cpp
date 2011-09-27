@@ -541,8 +541,9 @@ void SectionList::update_section_visibility() {
   while(pos < _sections.length()) {
     if(_group_info[pos].end != pos) {
       int start = pos;
-      if(_group_info[start].close_rel >= 0
-          && _group_info[start].close_rel <= _group_info[start].end - start) {
+      if(_group_info[start].close_rel >= 0 && 
+        _group_info[start].close_rel <= _group_info[start].end - start) 
+      {
         while(pos < start + _group_info[start].close_rel) {
           if(_sections[pos]->visible) {
             invalidate();

@@ -2438,139 +2438,138 @@ void Document::insert_box(Box *box, bool handle_placeholder) {
       && !handle_immediate_macros())
     handle_macros();
     
-  MathSequence *seq = dynamic_cast<MathSequence*>(context.selection.get());
-  
-  Box *new_sel_box = 0;
-  int new_sel_start = 0;
-  int new_sel_end = 0;
-  
-  if(!seq) {
-    delete box;
-    return;
-  }
-  
-  if(handle_placeholder) {
-    MathSequence *placeholder_seq = 0;
-    int placeholder_pos = 0;
+  if(MathSequence *seq = dynamic_cast<MathSequence*>(context.selection.get())){
+    Box *new_sel_box = 0;
+    int new_sel_start = 0;
+    int new_sel_end = 0;
     
-    int i = 0;
-    Box *current = box;
-    while(current && (current != box || i < box->length())) {
-      MathSequence *current_seq = dynamic_cast<MathSequence*>(current);
+    if(handle_placeholder) {
+      MathSequence *placeholder_seq = 0;
+      int placeholder_pos = 0;
       
-      if(current_seq && current_seq->is_placeholder(i)) {
-        if(current_seq->text()[i] == CHAR_REPLACEMENT) {
-          placeholder_seq = current_seq;
-          placeholder_pos = i;
-          break;
-        }
+      int i = 0;
+      Box *current = box;
+      while(current && (current != box || i < box->length())) {
+        MathSequence *current_seq = dynamic_cast<MathSequence*>(current);
         
-        if(!placeholder_seq) {
-          placeholder_seq = current_seq;
-          placeholder_pos = i;
-        }
-      }
-      
-      current = current->move_logical(Forward, false, &i);
-    }
-    
-    if(placeholder_seq) {
-      if(selection_length() == 0) {
-        if(placeholder_seq->text()[placeholder_pos] == CHAR_REPLACEMENT) {
-          placeholder_seq->remove(placeholder_pos, placeholder_pos + 1);
-          placeholder_seq->insert(placeholder_pos, PMATH_CHAR_PLACEHOLDER);
-        }
-        
-        new_sel_box   = placeholder_seq;
-        new_sel_start = placeholder_pos;
-        new_sel_end   = new_sel_start + 1;
-      }
-      else {
-        placeholder_seq->remove(placeholder_pos, placeholder_pos + 1);
-        placeholder_seq->insert(
-          placeholder_pos,
-          seq,
-          context.selection.start,
-          context.selection.end);
+        if(current_seq && current_seq->is_placeholder(i)) {
+          if(current_seq->text()[i] == CHAR_REPLACEMENT) {
+            placeholder_seq = current_seq;
+            placeholder_pos = i;
+            break;
+          }
           
-        if(selection_length() == 1
-            && placeholder_seq->is_placeholder(placeholder_pos)) {
+          if(!placeholder_seq) {
+            placeholder_seq = current_seq;
+            placeholder_pos = i;
+          }
+        }
+        
+        current = current->move_logical(Forward, false, &i);
+      }
+      
+      if(placeholder_seq) {
+        if(selection_length() == 0) {
+          if(placeholder_seq->text()[placeholder_pos] == CHAR_REPLACEMENT) {
+            placeholder_seq->remove(placeholder_pos, placeholder_pos + 1);
+            placeholder_seq->insert(placeholder_pos, PMATH_CHAR_PLACEHOLDER);
+          }
+          
           new_sel_box   = placeholder_seq;
           new_sel_start = placeholder_pos;
           new_sel_end   = new_sel_start + 1;
         }
         else {
-          current = placeholder_seq;
-          i = placeholder_pos + selection_length();
-          while(current) {
-            MathSequence *current_seq = dynamic_cast<MathSequence*>(current);
+          placeholder_seq->remove(placeholder_pos, placeholder_pos + 1);
+          placeholder_seq->insert(
+            placeholder_pos,
+            seq,
+            context.selection.start,
+            context.selection.end);
             
-            if(current_seq && current_seq->is_placeholder(i)) {
-              new_sel_box = current_seq;
-              new_sel_start = i;
-              new_sel_end = i + 1;
-              break;
-            }
-            
-            Box *prev = current;
-            int prev_index = i;
-            current = current->move_logical(Forward, false, &i);
-            
-            if(prev == current && i == prev_index)
-              break;
+          if(selection_length() == 1
+              && placeholder_seq->is_placeholder(placeholder_pos)) {
+            new_sel_box   = placeholder_seq;
+            new_sel_start = placeholder_pos;
+            new_sel_end   = new_sel_start + 1;
           }
-          
-          if(!new_sel_box) {
-            current = box;
-            i = 0;
-            while(current && (current != placeholder_seq || i < placeholder_pos)) {
+          else {
+            current = placeholder_seq;
+            i = placeholder_pos + selection_length();
+            while(current) {
               MathSequence *current_seq = dynamic_cast<MathSequence*>(current);
               
               if(current_seq && current_seq->is_placeholder(i)) {
-                new_sel_box   = current_seq;
+                new_sel_box = current_seq;
                 new_sel_start = i;
-                new_sel_end   = i + 1;
+                new_sel_end = i + 1;
                 break;
               }
               
+              Box *prev = current;
+              int prev_index = i;
               current = current->move_logical(Forward, false, &i);
+              
+              if(prev == current && i == prev_index)
+                break;
+            }
+            
+            if(!new_sel_box) {
+              current = box;
+              i = 0;
+              while(current && (current != placeholder_seq || i < placeholder_pos)) {
+                MathSequence *current_seq = dynamic_cast<MathSequence*>(current);
+                
+                if(current_seq && current_seq->is_placeholder(i)) {
+                  new_sel_box   = current_seq;
+                  new_sel_start = i;
+                  new_sel_end   = i + 1;
+                  break;
+                }
+                
+                current = current->move_logical(Forward, false, &i);
+              }
             }
           }
         }
       }
     }
-  }
-  
-  seq = dynamic_cast<MathSequence*>(context.selection.get());
-  if(!seq) {
-    delete box;
+    
+    seq = dynamic_cast<MathSequence*>(context.selection.get());
+    if(!seq) {
+      delete box;
+      return;
+    }
+    
+    if(context.selection.start < context.selection.end) {
+      seq->remove(context.selection.start, context.selection.end);
+      context.selection.end = context.selection.start;
+    }
+    
+    if(new_sel_box) {
+      if(new_sel_box == box) {
+        new_sel_box   = seq;
+        new_sel_start += context.selection.start;
+        new_sel_end  += context.selection.start;
+      }
+      
+      seq->insert(context.selection.start, box);
+      select(new_sel_box, new_sel_start, new_sel_end);
+    }
+    else {
+      int len = 1;
+      if(dynamic_cast<MathSequence*>(box))
+        len = box->length();
+        
+      seq->insert(context.selection.start, box);
+      
+      move_to(seq, context.selection.start + len);
+    }
+    
     return;
   }
   
-  if(context.selection.start < context.selection.end) {
-    seq->remove(context.selection.start, context.selection.end);
-    context.selection.end = context.selection.start;
-  }
-  
-  if(new_sel_box) {
-    if(new_sel_box == box) {
-      new_sel_box   = seq;
-      new_sel_start += context.selection.start;
-      new_sel_end  += context.selection.start;
-    }
-    
-    seq->insert(context.selection.start, box);
-    select(new_sel_box, new_sel_start, new_sel_end);
-  }
-  else {
-    int len = 1;
-    if(dynamic_cast<MathSequence*>(box))
-      len = box->length();
-      
-    seq->insert(context.selection.start, box);
-    
-    move_to(seq, context.selection.start + len);
-  }
+  delete box;
 }
 
 void Document::insert_fraction() {
