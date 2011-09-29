@@ -124,19 +124,19 @@ GridBox::~GridBox() {
 }
 
 GridBox *GridBox::create(Expr expr, int opts) {
-  if(expr[0] == PMATH_SYMBOL_GRIDBOX
-      && expr.expr_length() >= 1) {
+  if(expr[0] == PMATH_SYMBOL_GRIDBOX && expr.expr_length() >= 1) {
     Expr options(pmath_options_extract(expr.get(), 1));
     
     if(options.is_null())
       return 0;
       
     Expr matrix = expr[1];
-    if(matrix.is_expr()
-        && matrix[0] == PMATH_SYMBOL_LIST
-        && matrix.expr_length() >= 1
-        && matrix[1].is_expr()
-        && matrix[1][0] == PMATH_SYMBOL_LIST) {
+    if( matrix.is_expr() &&
+        matrix[0] == PMATH_SYMBOL_LIST &&
+        matrix.expr_length() >= 1 &&
+        matrix[1].is_expr() &&
+        matrix[1][0] == PMATH_SYMBOL_LIST)
+    {
       int cols = (int)matrix[1].expr_length();
       
       if(cols > 0) {

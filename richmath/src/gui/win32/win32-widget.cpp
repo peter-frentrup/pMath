@@ -309,6 +309,26 @@ void Win32Widget::set_cursor(CursorType type) {
     case CurrentCursor:
       break;
       
+    case SizeNCursor:
+    case SizeSCursor:
+      SetCursor(LoadCursor(0, IDC_SIZENS));
+      return;
+      
+    case SizeNWCursor:
+    case SizeSECursor:
+      SetCursor(LoadCursor(0, IDC_SIZENWSE));
+      return;
+      
+    case SizeECursor:
+    case SizeWCursor:
+      SetCursor(LoadCursor(0, IDC_SIZEWE));
+      return;
+      
+    case SizeNECursor:
+    case SizeSWCursor:
+      SetCursor(LoadCursor(0, IDC_SIZENESW));
+      return;
+      
     default:
       SetCursor(LoadCursor(GetModuleHandle(0), MAKEINTRESOURCE((int)type)));
   }
@@ -1155,8 +1175,9 @@ void Win32Widget::do_drop_data(IDataObject *data_object, DWORD effect) {
   do {
     mimetype = Clipboard::BoxesText;
     fmt.cfFormat = Win32Clipboard::mime_to_win32cbformat[mimetype];
-    if(data_object->QueryGetData(&fmt) == S_OK
-        && data_object->GetData(&fmt, &stgmed) == S_OK) {
+    if( data_object->QueryGetData(&fmt) == S_OK &&
+        data_object->GetData(&fmt, &stgmed) == S_OK)
+    {
       const uint16_t *data = (const uint16_t*)GlobalLock(stgmed.hGlobal);
       
       text_data = String::FromUcs2(data, -1);
@@ -1169,8 +1190,9 @@ void Win32Widget::do_drop_data(IDataObject *data_object, DWORD effect) {
     
     mimetype = Clipboard::PlainText;
     fmt.cfFormat = Win32Clipboard::mime_to_win32cbformat[Clipboard::PlainText];
-    if(data_object->QueryGetData(&fmt) == S_OK
-        && data_object->GetData(&fmt, &stgmed) == S_OK) {
+    if( data_object->QueryGetData(&fmt) == S_OK &&
+        data_object->GetData(&fmt, &stgmed) == S_OK)
+    {
       const uint16_t *data = (const uint16_t*)GlobalLock(stgmed.hGlobal);
       
       text_data = String::FromUcs2(data, -1);
@@ -1181,8 +1203,9 @@ void Win32Widget::do_drop_data(IDataObject *data_object, DWORD effect) {
     }
     
     fmt.cfFormat = CF_TEXT;
-    if(data_object->QueryGetData(&fmt) == S_OK
-        && data_object->GetData(&fmt, &stgmed) == S_OK) {
+    if( data_object->QueryGetData(&fmt) == S_OK &&
+        data_object->GetData(&fmt, &stgmed) == S_OK)
+    {
       const char *data = (const char*)GlobalLock(stgmed.hGlobal);
       
       text_data = String(pmath_string_from_native(data, -1));

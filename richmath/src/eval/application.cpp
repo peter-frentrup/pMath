@@ -410,6 +410,14 @@ void Application::gui_print_section(Expr expr) {
     }
   }
   else {
+    if(expr[0] == PMATH_SYMBOL_SECTION){
+      Expr boxes = expr[1];
+      if(boxes[0] == PMATH_SYMBOL_BOXDATA)
+        boxes = boxes[1];
+      
+      expr = Call(Symbol(PMATH_SYMBOL_RAWBOXES), boxes);
+    }
+    
     printf("\n");
     pmath_write(expr.get(), 0, write_data, stdout);
     printf("\n");

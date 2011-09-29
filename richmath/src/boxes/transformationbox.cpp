@@ -143,6 +143,8 @@ RotationBox::RotationBox()
   : AbstractTransformationBox(),
   _angle(0)
 {
+  if(!style)
+    style = new Style;
 }
 
 RotationBox *RotationBox::create(Expr expr, int opts) {
@@ -150,19 +152,19 @@ RotationBox *RotationBox::create(Expr expr, int opts) {
       || expr.expr_length() < 1)
     return 0;
     
-  pmath_t options = pmath_options_extract(expr.get(), 1);
-  if(pmath_is_null(options))
+  Expr options(pmath_options_extract(expr.get(), 1));
+  if(options.is_null())
     return 0;
     
   RotationBox *result = new RotationBox();
   result->_content->load_from_object(expr[1], opts);
+  result->style->add_pmath(options);
   result->angle(
     Expr(pmath_option_value(
            PMATH_SYMBOL_ROTATIONBOX,
            PMATH_SYMBOL_BOXROTATION,
-           options)));
+           options.get())));
            
-  pmath_unref(options);
   return result;
 }
 
@@ -178,6 +180,18 @@ bool RotationBox::angle(Expr a) {
   return true;
 }
 
+void RotationBox::paint(Context *context) {
+  bool have_dynamic = style->update_dynamic(this);
+  
+  AbstractTransformationBox::paint(context);
+  
+  if(have_dynamic) {
+    Expr e = get_style(BoxRotation, Expr());
+    if(e.is_valid())
+      angle(e);
+  }
+}
+
 Expr RotationBox::to_pmath(int flags) {
   return Call(
            Symbol(PMATH_SYMBOL_ROTATIONBOX),
@@ -187,7 +201,7 @@ Expr RotationBox::to_pmath(int flags) {
              _angle));
 }
 
-//} ... class FrameBox
+//} ... class RotationBox
 
 //{ class TransformationBox ...
 
@@ -198,12 +212,11 @@ TransformationBox::TransformationBox()
 }
 
 TransformationBox *TransformationBox::create(Expr expr, int opts) {
-  if(!expr.is_expr()
-      || expr.expr_length() < 1)
+  if(!expr.is_expr() || expr.expr_length() < 1)
     return 0;
     
-  pmath_t options = pmath_options_extract(expr.get(), 1);
-  if(pmath_is_null(options))
+  Expr options(pmath_options_extract(expr.get(), 1));
+  if(options.is_null())
     return 0;
     
   TransformationBox *result = new TransformationBox();
@@ -211,14 +224,15 @@ TransformationBox *TransformationBox::create(Expr expr, int opts) {
   if(result->matrix(Expr(pmath_option_value(
                            PMATH_SYMBOL_TRANSFORMATIONBOX,
                            PMATH_SYMBOL_BOXTRANSFORMATION,
-                           options)))
-    ) {
+                           options.get()))))
+  {
+    result->style->add_pmath(options);
+    
     result->_content->load_from_object(expr[1], opts);
-    pmath_unref(options);
+    
     return result;
   }
   
-  pmath_unref(options);
   delete result;
   return 0;
 }
@@ -243,6 +257,18 @@ bool TransformationBox::matrix(Expr m) {
     return true;
   }
   return false;
+}
+
+void TransformationBox::paint(Context *context) {
+  bool have_dynamic = style->update_dynamic(this);
+  
+  AbstractTransformationBox::paint(context);
+  
+  if(have_dynamic) {
+    Expr e = get_style(BoxTransformstion, Expr());
+    if(e.is_valid())
+      matrix(e);
+  }
 }
 
 Expr TransformationBox::to_pmath(int flags) {

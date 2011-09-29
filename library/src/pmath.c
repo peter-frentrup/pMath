@@ -744,6 +744,9 @@ PMATH_API pmath_bool_t pmath_init(void) {
       
     PMATH_RUN("Options(Get):={Path:>$Path}");
     
+    PMATH_RUN("Options(GraphicsBox):={"
+              "ImageSize->Automatic}");
+              
     PMATH_RUN("Options(Grid):={"
               "ColumnSpacing->Inherited,"
               "RowSpacing->Inherited}");
@@ -853,10 +856,10 @@ PMATH_API pmath_bool_t pmath_init(void) {
               "ShowStringCharacters->True,"
               "TextShadow->None"
               "}");
-            
+              
     PMATH_RUN("Options(Setter):=Options(SetterBox):={"
               "ButtonFrame->Automatic}");
-                
+              
     PMATH_RUN("Options(Slider):=Options(SliderBox):={ContinuousAction->True}");
     
     PMATH_RUN("Options(Tooltip):=Options(TooltipBox):={StripOnInput->True}");

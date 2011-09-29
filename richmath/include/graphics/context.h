@@ -77,7 +77,7 @@ namespace richmath {
       SharedPtr<MathShaper> math_shaper;
       
       SelectionReference  selection;
-      SelectionReference  old_selection; // cursor is not drawn, if selection == old_selection
+      SelectionReference  old_selection; // cursor is not drawn if selection == old_selection
       int                 cursor_color;
       
       SharedPtr<GeneralSyntaxInfo> syntax;

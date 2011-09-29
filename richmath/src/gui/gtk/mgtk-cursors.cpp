@@ -479,6 +479,7 @@ MathGtkCursors::MathGtkCursors()
     all_cursors.set(DocumentCursor, gdk_pixbuf_new_from_xpm_data(xpm_document));
     all_cursors.set(NoSelectCursor, gdk_pixbuf_new_from_xpm_data(xpm_no_select));
     all_cursors.set(SectionCursor,  gdk_pixbuf_new_from_xpm_data(xpm_section));
+    
     all_cursors.set(TextECursor,    gdk_pixbuf_new_from_xpm_data(xpm_text_e));
     all_cursors.set(TextNECursor,   gdk_pixbuf_new_from_xpm_data(xpm_text_ne));
     all_cursors.set(TextNCursor,    gdk_pixbuf_new_from_xpm_data(xpm_text_n));
@@ -487,6 +488,16 @@ MathGtkCursors::MathGtkCursors()
     all_cursors.set(TextSWCursor,   gdk_pixbuf_new_from_xpm_data(xpm_text_sw));
     all_cursors.set(TextSCursor,    gdk_pixbuf_new_from_xpm_data(xpm_text_s));
     all_cursors.set(TextSECursor,   gdk_pixbuf_new_from_xpm_data(xpm_text_se));
+    
+    all_cursors.set(SizeECursor,    gdk_cursor_new(GDK_RIGHT_SIDE));
+    all_cursors.set(SizeNECursor,   gdk_cursor_new(GDK_TOP_RIGHT_CORNER));
+    all_cursors.set(SizeNCursor,    gdk_cursor_new(GDK_TOP_SIDE));
+    all_cursors.set(SizeNWCursor,   gdk_cursor_new(GDK_TOP_LEFT_CORNER));
+    all_cursors.set(SizeWCursor,    gdk_cursor_new(GDK_LEFT_SIDE));
+    all_cursors.set(SizeSWCursor,   gdk_cursor_new(GDK_BOTTOM_LEFT_CORNER));
+    all_cursors.set(SizeSCursor,    gdk_cursor_new(GDK_BOTTOM_SIDE));
+    all_cursors.set(SizeSECursor,   gdk_cursor_new(GDK_BOTTOM_RIGHT_CORNER));
+    
   }
 }
 

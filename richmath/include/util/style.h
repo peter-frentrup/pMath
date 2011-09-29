@@ -52,6 +52,9 @@ namespace richmath {
     GridBoxColumnSpacing,
     GridBoxRowSpacing,
     
+    ImageSizeHorizontal, // <= 0: Automatic
+    ImageSizeVertical,   // <= 0: Automatic
+    
     SectionMarginLeft,
     SectionMarginRight,
     SectionMarginTop,
@@ -82,6 +85,9 @@ namespace richmath {
     ScriptSizeMultipliers,
     TextShadow,
     UnknownOptions,
+    
+    BoxRotation,
+    BoxTransformstion
   };
   
   const int DynamicOffset = 1000000;
@@ -135,7 +141,9 @@ namespace richmath {
       void set_pmath_color(IntStyleOptionName     n, Expr obj);
       void set_pmath_float(FloatStyleOptionName   n, Expr obj);
       void set_pmath_margin(FloatStyleOptionName  n, Expr obj); // n + {0,1,2,3} ~= {Left, Right, Top, Bottom}
+      void set_pmath_size(  FloatStyleOptionName  n, Expr obj); // n + {0,1} ~= {Horizontal, Vertical}
       void set_pmath_string(StringStyleOptionName n, Expr obj);
+      void set_pmath_object(ObjectStyleOptionName n, Expr obj);
       
       unsigned int count();
       

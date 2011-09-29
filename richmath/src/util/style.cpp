@@ -230,6 +230,9 @@ void Style::add_pmath(Expr options) {
             else
               set(ButtonFrame, rhs_to_buttonframe(rhs));
           }
+          else if(lhs == PMATH_SYMBOL_BOXROTATION) {
+            set_pmath_object(BoxRotation, rhs);
+          }
           else if(lhs == PMATH_SYMBOL_BUTTONFUNCTION) {
             set(ButtonFunction, rhs);
           }
@@ -273,6 +276,9 @@ void Style::add_pmath(Expr options) {
           else if(lhs == PMATH_SYMBOL_GRIDBOXROWSPACING) {
             set_pmath_float(GridBoxRowSpacing, rhs);
           }
+          else if(lhs == PMATH_SYMBOL_IMAGESIZE) {
+            set_pmath_size(ImageSizeHorizontal, rhs);
+          }
           else if(lhs == PMATH_SYMBOL_LINEBREAKWITHIN) {
             set_pmath_bool(LineBreakWithin, rhs);
           }
@@ -283,10 +289,7 @@ void Style::add_pmath(Expr options) {
             set_pmath_bool(Placeholder, rhs);
           }
           else if(lhs == PMATH_SYMBOL_SCRIPTSIZEMULTIPLIERS) {
-            if(rhs[0] == PMATH_SYMBOL_DYNAMIC)
-              set_dynamic(ScriptSizeMultipliers, rhs);
-            else
-              set(ScriptSizeMultipliers, rhs);
+            set_pmath_object(ScriptSizeMultipliers, rhs);
           }
           else if(lhs == PMATH_SYMBOL_SECTIONFRAME) {
             set_pmath_margin(SectionFrameLeft, rhs);
@@ -331,10 +334,7 @@ void Style::add_pmath(Expr options) {
             set_pmath_bool(StripOnInput, rhs);
           }
           else if(lhs == PMATH_SYMBOL_TEXTSHADOW) {
-            if(rhs[0] == PMATH_SYMBOL_DYNAMIC)
-              set_dynamic(TextShadow, rhs);
-            else
-              set(TextShadow, rhs);
+            set_pmath_object(TextShadow, rhs);
           }
           else {
             pmath_debug_print_object("[unknown option ", rule.get(), "]\n");
@@ -494,6 +494,38 @@ void Style::set_pmath_float(FloatStyleOptionName n, Expr obj) {
     set_dynamic(n, obj);
 }
 
+void Style::set_pmath_size(FloatStyleOptionName n, Expr obj) {
+  FloatStyleOptionName Horizontal = n;
+  FloatStyleOptionName Vertical   = FloatStyleOptionName(n + 1);
+  
+  if(obj == PMATH_SYMBOL_AUTOMATIC) {
+    set(Horizontal, 0.0);
+    set(Vertical,   0.0);
+    return;
+  }
+  
+  if(obj.is_number()) {
+    float f = obj.to_double();
+    set(Horizontal, f);
+    set(Vertical,   0.0); // Automatic
+    return;
+  }
+  
+  if(obj.is_expr() && obj[0] == PMATH_SYMBOL_LIST) {
+    if(obj.expr_length() == 2) {
+      set_pmath_float(Horizontal, obj[1]);
+      set_pmath_float(Vertical,   obj[2]);
+      return;
+    }
+  }
+  
+  if(obj[0] == PMATH_SYMBOL_DYNAMIC) {
+    remove(Horizontal);
+    remove(Vertical);
+    set_dynamic(Horizontal, obj);
+  }
+}
+
 void Style::set_pmath_margin(FloatStyleOptionName n, Expr obj) {
   FloatStyleOptionName Left   = n;
   FloatStyleOptionName Right  = FloatStyleOptionName(n + 1);
@@ -580,6 +612,13 @@ void Style::set_pmath_string(StringStyleOptionName n, Expr obj) {
     set_dynamic(n, obj);
 }
 
+void Style::set_pmath_object(ObjectStyleOptionName n, Expr obj) {
+  if(obj[0] == PMATH_SYMBOL_DYNAMIC)
+    set_dynamic(n, obj);
+  else
+    set(n, obj);
+}
+
 bool Style::modifies_size(int style_name) {
   switch(style_name) {
     case Background:
@@ -662,8 +701,7 @@ bool Style::update_dynamic(Box *parent) {
       
       e = dyn.get_value_now();
       
-      if(e != PMATH_SYMBOL_ABORTED
-          && e[0] != PMATH_SYMBOL_DYNAMIC)
+      if(e != PMATH_SYMBOL_ABORTED && e[0] != PMATH_SYMBOL_DYNAMIC)
         Gather::emit(Rule(get_symbol(dynamic_options[i]), e));
     }
     
@@ -695,7 +733,7 @@ Expr Style::get_symbol(int n) {
     case AutoDelete:                          return Symbol(PMATH_SYMBOL_AUTODELETE);
     case AutoNumberFormating:                 return Symbol(PMATH_SYMBOL_AUTONUMBERFORMATING);
     case AutoSpacing:                         return Symbol(PMATH_SYMBOL_AUTOSPACING);
-    case ContinuousAction:                     return Symbol(PMATH_SYMBOL_CONTINUOUSACTION);
+    case ContinuousAction:                    return Symbol(PMATH_SYMBOL_CONTINUOUSACTION);
     case Editable:                            return Symbol(PMATH_SYMBOL_EDITABLE);
     case Evaluatable:                         return Symbol(PMATH_SYMBOL_EVALUATABLE);
     case InternalHavePendingDynamic:          return Expr();
@@ -719,6 +757,9 @@ Expr Style::get_symbol(int n) {
     case GridBoxColumnSpacing:     return Symbol(PMATH_SYMBOL_GRIDBOXCOLUMNSPACING);
     case GridBoxRowSpacing:        return Symbol(PMATH_SYMBOL_GRIDBOXROWSPACING);
     
+    case ImageSizeHorizontal:      return Symbol(PMATH_SYMBOL_IMAGESIZE);
+    case ImageSizeVertical:        return Expr();
+    
     case SectionMarginLeft:        return Symbol(PMATH_SYMBOL_SECTIONMARGINS);
     case SectionMarginRight:
     case SectionMarginTop:
@@ -735,6 +776,8 @@ Expr Style::get_symbol(int n) {
     case SectionFrameMarginBottom: return Expr();
     
     case SectionGroupPrecedence:   return Symbol(PMATH_SYMBOL_SECTIONGROUPPRECEDENCE);
+    
+    case BoxRotation:              return Symbol(PMATH_SYMBOL_BOXROTATION);
   }
   
   switch(n) {
@@ -748,6 +791,8 @@ Expr Style::get_symbol(int n) {
     case ButtonFunction:        return Symbol(PMATH_SYMBOL_BUTTONFUNCTION);
     case ScriptSizeMultipliers: return Symbol(PMATH_SYMBOL_SCRIPTSIZEMULTIPLIERS);
     case TextShadow:            return Symbol(PMATH_SYMBOL_TEXTSHADOW);
+    
+    case BoxTransformstion:     return Symbol(PMATH_SYMBOL_BOXTRANSFORMATION);
   }
   
   return Expr();
@@ -829,6 +874,28 @@ void Style::emit_to_pmath(
                      get_symbol(BaseStyleName),
                      s));
     }
+  }
+  
+  if(get_dynamic(BoxRotation, &e)) {
+    Gather::emit(Rule(
+                   get_symbol(BoxRotation),
+                   e));
+  }
+  else if(get(BoxRotation, &e)) {
+    Gather::emit(Rule(
+                   get_symbol(BoxRotation),
+                   e));
+  }
+  
+  if(get_dynamic(BoxTransformstion, &e)) {
+    Gather::emit(Rule(
+                   get_symbol(BoxTransformstion),
+                   e));
+  }
+  else if(get(BoxTransformstion, &e)) {
+    Gather::emit(Rule(
+                   get_symbol(BoxTransformstion),
+                   e));
   }
   
   if(get_dynamic(ButtonFrame, &e)) {
@@ -981,6 +1048,44 @@ void Style::emit_to_pmath(
     Gather::emit(Rule(
                    get_symbol(GridBoxRowSpacing),
                    Number(f)));
+  }
+  
+  if(get_dynamic(ImageSizeHorizontal, &e)) {
+    Gather::emit(Rule(
+                   get_symbol(ImageSizeHorizontal),
+                   e));
+  }
+  else {
+    float horz, vert;
+    bool have_horz, have_vert;
+    
+    have_horz = get(ImageSizeHorizontal, &horz);
+    have_vert = get(ImageSizeVertical,   &vert);
+    if(have_horz || have_vert) {
+      Expr h, v;
+      
+      if(have_horz) {
+        if(horz > 0)
+          h = Number(horz);
+        else
+          h = Symbol(PMATH_SYMBOL_AUTOMATIC);
+      }
+      else
+        h = Symbol(PMATH_SYMBOL_INHERITED);
+        
+      if(have_vert) {
+        if(vert > 0)
+          v = Number(vert);
+        else
+          v = Symbol(PMATH_SYMBOL_AUTOMATIC);
+      }
+      else
+        v = Symbol(PMATH_SYMBOL_INHERITED);
+        
+      Gather::emit(Rule(
+                     get_symbol(ImageSizeHorizontal),
+                     List(h, v)));
+    }
   }
   
   if(get_dynamic(LineBreakWithin, &e)) {
@@ -1288,7 +1393,7 @@ void Style::emit_to_pmath(
       
       if(rule[2].is_evaluated())
         rule.set(0, Symbol(PMATH_SYMBOL_RULE));
-      
+        
       rule.set(1, lhs);
       Gather::emit(rule);
     }

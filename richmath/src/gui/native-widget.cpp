@@ -176,6 +176,34 @@ CursorType NativeWidget::text_cursor(Box *box, int index) {
   return text_cursor(mat.xy, mat.yy);
 }
 
+CursorType NativeWidget::size_cursor(float dx, float dy, CursorType base) {
+  int delta = base - SizeNCursor;
+  
+  if(delta < -8 || delta > 8)
+    return base;
+  
+  int part = (int)floor(atan2(dx, dy) * 4 / M_PI + 0.5);
+  if(part == -4)
+    part = 4;
+  
+  part+= delta;
+  
+  if(part > 4)
+    part-= 8;
+  else if(part <= -4)
+    part+= 8;
+  
+  return (CursorType)(SizeNCursor + part);
+}
+
+CursorType NativeWidget::size_cursor(Box *box, CursorType base) {
+  cairo_matrix_t mat;
+  cairo_matrix_init_identity(&mat);
+  box->transformation(0, &mat);
+  
+  return size_cursor(mat.xy, mat.yy, base);
+}
+
 void NativeWidget::adopt(Document *doc) {
   if(_document)
     _document->_native = dummy;

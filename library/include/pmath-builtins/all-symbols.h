@@ -785,5 +785,7 @@ pmath_bool_t pmath_register_approx_code(
 #define PMATH_SYMBOL_DOCUMENTREAD                           PMATH_SYMBOL_BUILTIN(693)
 #define PMATH_SYMBOL_DOCUMENTWRITE                          PMATH_SYMBOL_BUILTIN(694)
 #define PMATH_SYMBOL_DOCUMENTDELETE                         PMATH_SYMBOL_BUILTIN(695)
+#define PMATH_SYMBOL_GRAPHICSBOX                            PMATH_SYMBOL_BUILTIN(696)
+#define PMATH_SYMBOL_IMAGESIZE                              PMATH_SYMBOL_BUILTIN(697)
 
 #endif /* __PMATH_BUILTINS__SYMBOLS_H__ */

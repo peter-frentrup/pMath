@@ -179,10 +179,10 @@ void ContainerWidgetBox::on_mouse_down(MouseEvent &event) {
   mouse_left_down   = mouse_left_down   || event.left;
   mouse_middle_down = mouse_middle_down || event.middle;
   mouse_right_down  = mouse_right_down  || event.right;
-  mouse_inside = event.x >= 0
-                 && event.x <= _extents.width
-                 && event.y >= -_extents.ascent
-                 && event.y <= _extents.descent;
+  mouse_inside = event.x >= 0 &&
+                 event.x <= _extents.width &&
+                 event.y >= -_extents.ascent &&
+                 event.y <= _extents.descent;
                  
   request_repaint_all();
 }
@@ -190,10 +190,10 @@ void ContainerWidgetBox::on_mouse_down(MouseEvent &event) {
 void ContainerWidgetBox::on_mouse_move(MouseEvent &event) {
   event.set_source(this);
   
-  bool mi = event.x >= 0
-            && event.x <= _extents.width
-            && event.y >= -_extents.ascent
-            && event.y <= _extents.descent;
+  bool mi = event.x >= 0 &&
+            event.x <= _extents.width &&
+            event.y >= -_extents.ascent &&
+            event.y <= _extents.descent;
             
   if(mi != mouse_inside)
     request_repaint_all();

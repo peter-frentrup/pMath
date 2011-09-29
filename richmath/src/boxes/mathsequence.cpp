@@ -27,6 +27,7 @@
 #include <boxes/tooltipbox.h>
 #include <boxes/transformationbox.h>
 #include <boxes/underoverscriptbox.h>
+#include <boxes/graphics/graphicsbox.h>
 
 #include <eval/binding.h>
 #include <eval/application.h>
@@ -3383,6 +3384,14 @@ START:
   if(expr[0] == PMATH_SYMBOL_FRAMEBOX
       && expr.expr_length() == 1) {
     FrameBox *box = FrameBox::create(expr, info->options);
+    if(box) {
+      info->boxes->add(box);
+      return;
+    }
+  }
+  
+  if(expr[0] == PMATH_SYMBOL_GRAPHICSBOX) {
+    GraphicsBox *box = GraphicsBox::create(expr, info->options);
     if(box) {
       info->boxes->add(box);
       return;

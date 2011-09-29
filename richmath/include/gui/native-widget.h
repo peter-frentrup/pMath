@@ -27,7 +27,15 @@ namespace richmath {
     TextSCursor    = 108,
     SectionCursor  = 109,
     DocumentCursor = 110,
-    NoSelectCursor = 111
+    NoSelectCursor = 111,
+    SizeSECursor   = 120,
+    SizeECursor    = 121,
+    SizeNECursor   = 122,
+    SizeNCursor    = 123,
+    SizeNWCursor   = 124,
+    SizeWCursor    = 125,
+    SizeSWCursor   = 126,
+    SizeSCursor    = 127,
   } CursorType;
   
   class NativeWidget: public virtual Base {
@@ -68,6 +76,8 @@ namespace richmath {
       virtual void set_cursor(CursorType type) = 0;
       static CursorType text_cursor(float dx, float dy);
       static CursorType text_cursor(Box *box, int index);
+      static CursorType size_cursor(float dx, float dy, CursorType base);
+      static CursorType size_cursor(Box *box, CursorType base);
       
       virtual void running_state_changed() = 0;
       

@@ -38,6 +38,8 @@ namespace richmath {
       Expr angle() { return _angle; }
       bool angle(Expr a);
       
+      virtual void paint(Context *context);
+      
       virtual Expr to_pmath_symbol() { return Symbol(PMATH_SYMBOL_ROTATIONBOX); }
       virtual Expr to_pmath(int flags);
       
@@ -53,6 +55,8 @@ namespace richmath {
       
       Expr matrix() { return _matrix; }
       bool matrix(Expr m);
+      
+      virtual void paint(Context *context);
       
       virtual Expr to_pmath_symbol() { return Symbol(PMATH_SYMBOL_TRANSFORMATIONBOX); }
       virtual Expr to_pmath(int flags);
