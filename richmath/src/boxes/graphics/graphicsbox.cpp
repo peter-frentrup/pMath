@@ -1,4 +1,5 @@
 #include <boxes/graphics/graphicsbox.h>
+#include <boxes/inputfieldbox.h>
 
 #include <graphics/context.h>
 
@@ -147,9 +148,9 @@ Box *GraphicsBox::mouse_selection(
   int   *end,
   bool  *was_inside_start
 ) {
-  //if(x < 0 || x > _extents.width)
-  //  return Box::mouse_selection(x, y, start, end, was_inside_start);
-  
+  if(!selectable())
+    return Box::mouse_selection(x, y, start, end, was_inside_start);
+    
   *was_inside_start = false;
   *start = *end = 0;
   return this;
@@ -157,6 +158,15 @@ Box *GraphicsBox::mouse_selection(
 
 Box *GraphicsBox::normalize_selection(int *start, int *end) {
   *start = *end = 0;
+  
+  return this;
+}
+
+Box *GraphicsBox::mouse_sensitive() {
+  Box *box = Box::mouse_sensitive();
+  
+  if(box && !dynamic_cast<Document*>(box) && !dynamic_cast<InputFieldBox*>(box))
+    return box;
   
   return this;
 }

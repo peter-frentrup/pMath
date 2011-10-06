@@ -1609,9 +1609,10 @@ static void write_expr_ex(
       goto FULLFORM;
       
     item = pmath_expr_get_item(expr, 2);
-    if(!pmath_is_int32(item)
-        || PMATH_AS_INT32(item) < 2
-        || PMATH_AS_INT32(item) > 36) {
+    if(!pmath_is_int32(item) ||
+        PMATH_AS_INT32(item) < 2 ||
+        PMATH_AS_INT32(item) > 36)
+    {
       pmath_unref(item);
       goto FULLFORM;
     }

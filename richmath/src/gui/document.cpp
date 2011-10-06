@@ -2438,7 +2438,7 @@ void Document::insert_box(Box *box, bool handle_placeholder) {
       && !handle_immediate_macros())
     handle_macros();
     
-  if(MathSequence *seq = dynamic_cast<MathSequence*>(context.selection.get())){
+  if(MathSequence *seq = dynamic_cast<MathSequence*>(context.selection.get())) {
     Box *new_sel_box = 0;
     int new_sel_start = 0;
     int new_sel_end = 0;
@@ -2586,19 +2586,22 @@ void Document::insert_fraction() {
     return;
   }
   
-  if(!is_inside_string()
-      && !is_inside_alias()
-      && !handle_immediate_macros())
+  if( !is_inside_string() &&
+      !is_inside_alias() &&
+      !handle_immediate_macros())
+  {
     handle_macros();
-    
+  }
+  
   select_prev(true);
   
   MathSequence *seq = dynamic_cast<MathSequence*>(context.selection.get());
   if(seq) {
-    int pos = context.selection.start;
-    
     MathSequence *num = new MathSequence;
     MathSequence *den = new MathSequence;
+    
+    seq->insert(context.selection.end, new FractionBox(num, den));
+    
     den->insert(0, PMATH_CHAR_PLACEHOLDER);
     if(context.selection.start < context.selection.end) {
       num->insert(
@@ -2615,8 +2618,6 @@ void Document::insert_fraction() {
       num->insert(0, PMATH_CHAR_PLACEHOLDER);
       select(num, 0, 1);
     }
-    
-    seq->insert(pos, new FractionBox(num, den));
   }
 }
 
@@ -2634,17 +2635,20 @@ void Document::insert_matrix_column() {
     return;
   }
   
-  if(!is_inside_string()
-      && !is_inside_alias()
-      && !handle_immediate_macros())
+  if( !is_inside_string() &&
+      !is_inside_alias() &&
+      !handle_immediate_macros())
+  {
     handle_macros();
-    
+  }
+  
   GridBox *grid = 0;
   
   MathSequence *seq = dynamic_cast<MathSequence*>(context.selection.get());
   
-  if(context.selection.start == context.selection.end
-      || (seq && seq->is_placeholder())) {
+  if(context.selection.start == context.selection.end ||
+      (seq && seq->is_placeholder()))
+  {
     Box *b = context.selection.get();
     int i = 0;
     while(b) {
@@ -2686,9 +2690,8 @@ void Document::insert_matrix_column() {
   select_prev(true);
   
   if(seq) {
-    int pos = context.selection.start;
-    
     grid = new GridBox(1, 2);
+    seq->insert(context.selection.end, grid);
     
     if(context.selection.start < context.selection.end) {
       grid->item(0, 0)->content()->remove(0, grid->item(0, 0)->content()->length());
@@ -2705,8 +2708,6 @@ void Document::insert_matrix_column() {
     else {
       select(grid->item(0, 0)->content(), 0, 1);
     }
-    
-    seq->insert(pos, grid);
   }
 }
 
@@ -2724,17 +2725,20 @@ void Document::insert_matrix_row() {
     return;
   }
   
-  if(!is_inside_string()
-      && !is_inside_alias()
-      && !handle_immediate_macros())
+  if( !is_inside_string() &&
+      !is_inside_alias() &&
+      !handle_immediate_macros())
+  {
     handle_macros();
-    
+  }
+  
   GridBox *grid = 0;
   
   MathSequence *seq = dynamic_cast<MathSequence*>(context.selection.get());
   
-  if(context.selection.start == context.selection.end
-      || (seq && seq->is_placeholder())) {
+  if(context.selection.start == context.selection.end ||
+      (seq && seq->is_placeholder()))
+  {
     Box *b = context.selection.get();
     int i = 0;
     
@@ -2777,9 +2781,8 @@ void Document::insert_matrix_row() {
   select_prev(true);
   
   if(seq) {
-    int pos = context.selection.start;
-    
     grid = new GridBox(2, 1);
+    seq->insert(context.selection.end, grid);
     
     if(context.selection.start < context.selection.end) {
       grid->item(0, 0)->content()->remove(0, grid->item(0, 0)->content()->length());
@@ -2796,8 +2799,6 @@ void Document::insert_matrix_row() {
     else {
       select(grid->item(0, 0)->content(), 0, 1);
     }
-    
-    seq->insert(pos, grid);
   }
 }
 
@@ -2815,22 +2816,26 @@ void Document::insert_sqrt() {
     return;
   }
   
-  if(!is_inside_string()
-      && !is_inside_alias()
-      && !handle_immediate_macros())
+  if( !is_inside_string() &&
+      !is_inside_alias() &&
+      !handle_immediate_macros())
+  {
     handle_macros();
-    
+  }
+  
   MathSequence *seq = dynamic_cast<MathSequence*>(context.selection.get());
   if(seq) {
-    int pos = context.selection.start;
-    
     MathSequence *content = new MathSequence;
+    seq->insert(context.selection.end, new RadicalBox(content, 0));
+    
     if(context.selection.start < context.selection.end) {
       content->insert(
         0, seq,
         context.selection.start,
         context.selection.end);
+        
       seq->remove(context.selection.start, context.selection.end);
+      
       if(content->is_placeholder())
         select(content, 0, 1);
       else
@@ -2840,8 +2845,6 @@ void Document::insert_sqrt() {
       content->insert(0, PMATH_CHAR_PLACEHOLDER);
       select(content, 0, 1);
     }
-    
-    seq->insert(pos, new RadicalBox(content, 0));
   }
 }
 
@@ -2859,11 +2862,13 @@ void Document::insert_subsuperscript(bool sub) {
     return;
   }
   
-  if(!is_inside_string()
-      && !is_inside_alias()
-      && !handle_immediate_macros())
+  if( !is_inside_string() &&
+      !is_inside_alias() &&
+      !handle_immediate_macros())
+  {
     handle_macros();
-    
+  }
+  
   MathSequence *seq = dynamic_cast<MathSequence*>(context.selection.get());
   if(seq) {
     int pos = context.selection.end;
@@ -2919,25 +2924,34 @@ void Document::insert_underoverscript(bool under) {
     return;
   }
   
-  if(!is_inside_string()
-      && !is_inside_alias()
-      && !handle_immediate_macros())
+  if( !is_inside_string() &&
+      !is_inside_alias() &&
+      !handle_immediate_macros())
+  {
     handle_macros();
-    
+  }
+  
   select_prev(false);
   
   MathSequence *seq = dynamic_cast<MathSequence*>(context.selection.get());
   if(seq) {
-    int pos = selection_start();
-    
     MathSequence *base = new MathSequence;
     MathSequence *uo = new MathSequence;
     uo->insert(0, PMATH_CHAR_PLACEHOLDER);
+    
+    seq->insert(
+      context.selection.end,
+      new UnderoverscriptBox(
+        base,
+        under  ? uo : 0,
+        !under ? uo : 0));
+        
     if(context.selection.start < context.selection.end) {
       base->insert(
         0, seq,
         context.selection.start,
         context.selection.end);
+        
       seq->remove(context.selection.start, context.selection.end);
       if(base->is_placeholder())
         select(base, 0, 1);
@@ -2948,11 +2962,6 @@ void Document::insert_underoverscript(bool under) {
       base->insert(0, PMATH_CHAR_PLACEHOLDER);
       select(base, 0, 1);
     }
-    
-    seq->insert(pos, new UnderoverscriptBox(
-                  base,
-                  under  ? uo : 0,
-                  !under ? uo : 0));
   }
 }
 
@@ -2966,15 +2975,17 @@ bool Document::remove_selection(bool insert_default) {
   AbstractSequence *seq = dynamic_cast<AbstractSequence*>(context.selection.get());
   if(seq) {
     if(MathSequence *mseq = dynamic_cast<MathSequence*>(seq)) {
-      bool was_empty = mseq->length() == 0
-                       || (mseq->length() == 1 && mseq->text()[0] == PMATH_CHAR_PLACEHOLDER);
-                       
+      bool was_empty = mseq->length() == 0 ||
+                       (mseq->length() == 1 &&
+                        mseq->text()[0] == PMATH_CHAR_PLACEHOLDER);
+                        
       mseq->remove(context.selection.start, context.selection.end);
       
-      if(insert_default
-          && was_empty
-          && mseq->parent()
-          && mseq->parent()->remove_inserts_placeholder()) {
+      if( insert_default &&
+          was_empty &&
+          mseq->parent() &&
+          mseq->parent()->remove_inserts_placeholder())
+      {
         int index = mseq->index();
         Box *box = mseq->parent()->remove(&index);
         

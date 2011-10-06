@@ -39,7 +39,7 @@ namespace richmath {
       
       int calc_mouse_over_part(float x, float y);
       
-      virtual Box *mouse_sensitive() { return this; }
+      virtual Box *mouse_sensitive();
       virtual void on_mouse_enter();
       virtual void on_mouse_exit();
       virtual void on_mouse_down(MouseEvent &event);

@@ -916,21 +916,23 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
             bool have_only_palettes = true;
             
             FOREACH_WINDOW(wnd,
-                           if(wnd != this
-                              && !wnd->_is_palette
-                              && IsWindowVisible(wnd->hwnd())
-            && (GetWindowLongW(wnd->hwnd(), GWL_STYLE) & WS_MINIMIZE) == 0) {
-            have_only_palettes = false;
-            break;
-          }
-                        );
-                        
+            {
+              if(wnd != this
+              && !wnd->_is_palette
+              && IsWindowVisible(wnd->hwnd())
+              && (GetWindowLongW(wnd->hwnd(), GWL_STYLE) & WS_MINIMIZE) == 0) {
+                have_only_palettes = false;
+                break;
+              }
+            });
+            
             if(have_only_palettes) {
               FOREACH_WINDOW(tool,
-              if(tool->_is_palette) {
-              ShowWindow(tool->hwnd(), SW_HIDE);
-              }
-                            );
+              {
+                if(tool->_is_palette) {
+                  ShowWindow(tool->hwnd(), SW_HIDE);
+                }
+              });
             }
           }
         } break;
@@ -941,11 +943,12 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
           if(wParam) { // activate
             if(!already_activated) {
               FOREACH_WINDOW(wnd,
-              if(!wnd->_is_palette) {
-              SetWindowPos(wnd->hwnd(), HWND_TOP, 0, 0, 0, 0,
-                           SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
-              }
-                            );
+              {
+                if(!wnd->_is_palette) {
+                  SetWindowPos(wnd->hwnd(), HWND_TOP, 0, 0, 0, 0,
+                  SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
+                }
+              });
             }
             already_activated = true;
           }

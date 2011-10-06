@@ -11,14 +11,14 @@
    \brief The basic class for all pMath objects.
 
    pMath works on objects. They can be expressions (trees of pMath objects),
-   symbols, numbers, strings or `magic objects` (special integer values). 
-   
-   For efficiency reasons, 32 bit integers, double precision floating point 
-   values, short strings up to 2 characters and magic values are stored inline 
-   in the pmath_t struct. The struct size is only 8 bytes (= sizeof(double)) 
+   symbols, numbers, strings or `magic objects` (special integer values).
+
+   For efficiency reasons, 32 bit integers, double precision floating point
+   values, short strings up to 2 characters and magic values are stored inline
+   in the pmath_t struct. The struct size is only 8 bytes (= sizeof(double))
    thanks to a technique called NaN-boxing.
-   
-   This implementation could change in future version and/or on different 
+
+   This implementation could change in future version and/or on different
    architectures, so do not rely on it.
 
    \see helpers
@@ -57,10 +57,11 @@
    \brief The basic type of all pMath objects.
 
    Use pmath_is_XXX() to determine whether an object is of a specific type.
-   You must free unused objects with pmath_unref(), but if pmath_is_pointer()
-   gives FALSE, then calling pmath_ref() and pmath_unref() is not neccessary.
+   Generally, you must free unused objects with pmath_unref(), but if
+   pmath_is_pointer() gives FALSE, then calling pmath_ref() and pmath_unref() is
+   not neccessary.
 
-   machine precision floating point values (aka double) and certain special
+   Machine precision floating point values (aka double) and certain special
    values are stored directly in the pmath_t object. Long strings, expressions,
    other values are stored as a pointer. The technique to pack all this in only
    8 bytes is called NaN-boxing. See
@@ -84,7 +85,9 @@ typedef union {
 #endif
     } u;
     uint32_t  tag;                         ///< \internal
-#else
+#endif
+
+#if PMATH_BYTE_ORDER > 0 // big endian:
     uint32_t  tag;                         ///< \internal
     union {
       int32_t  as_int32;                   ///< \internal
@@ -98,7 +101,6 @@ typedef union {
 } pmath_t;
 
 PMATH_FORCE_INLINE
-PMATH_ATTRIBUTE_USE_RESULT
 pmath_t PMATH_FROM_TAG(uint32_t tag, int32_t value) {
   pmath_t r;
   
@@ -111,7 +113,11 @@ pmath_t PMATH_FROM_TAG(uint32_t tag, int32_t value) {
   return r;
 }
 
-#define PMATH_FROM_INT32(i)  (PMATH_FROM_TAG(PMATH_TAG_INT32, (i)))
+
+PMATH_FORCE_INLINE
+pmath_t PMATH_FROM_INT32(int32_t i) {
+  return PMATH_FROM_TAG(PMATH_TAG_INT32, i);
+}
 
 
 PMATH_FORCE_INLINE
@@ -126,6 +132,7 @@ pmath_t PMATH_FROM_PTR(void *p) {
   r.s.tag = PMATH_TAGMASK_POINTER;
   r.s.u.as_pointer_32 = (struct _pmath_t*)p;
 #endif
+
   return r;
 }
 
