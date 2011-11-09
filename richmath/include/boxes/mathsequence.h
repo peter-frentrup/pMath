@@ -35,6 +35,9 @@ namespace richmath {
       virtual int count() {      return boxes.length(); }
       virtual int length() {     return str.length(); }
       
+      virtual String raw_substring(int start, int length);
+      virtual uint32_t char_at(int pos); // return 0 on Out-Of-Range
+      
       virtual bool expand(const BoxSize &size);
       virtual void resize(Context *context);
       virtual void colorize_scope(SyntaxState *state);
@@ -71,11 +74,11 @@ namespace richmath {
       
       bool is_inside_string(int pos);
       
-      void ensure_boxes_valid();
+      virtual void ensure_boxes_valid();
       void ensure_spans_valid();
       
       bool is_placeholder();
-      bool is_placeholder(int i);
+      virtual bool is_placeholder(int i);
       
       int matching_fence(int pos); // -1 on error
       
@@ -151,9 +154,12 @@ namespace richmath {
       int insert(int pos, uint16_t chr);                  // unsafe, allows PMATH_BOX_CHAR
       int insert(int pos, const uint16_t *ucs2, int len); // unsafe, allows PMATH_BOX_CHAR
       int insert(int pos, const char *latin1, int len);   // unsafe, allows PMATH_BOX_CHAR
-      int insert(int pos, MathSequence *sequence, int start, int end);
       virtual int insert(int pos, const String &s);       // unsafe, allows PMATH_BOX_CHAR
       virtual int insert(int pos, Box *box);
+      virtual int insert(int pos, AbstractSequence *seq, int start, int end) {
+        return AbstractSequence::insert(pos, seq, start, end);
+      }
+      
       virtual void remove(int start, int end);
       virtual Box *remove(int *index);
       

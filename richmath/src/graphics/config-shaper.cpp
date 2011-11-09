@@ -1092,9 +1092,10 @@ void ConfigShaper::decode_token(
     while(sub_len < len && !gfo) {
       char_len = 1;
       
-      if(sub_len + 1 < len
-          && is_utf16_high(str[sub_len])
-          && is_utf16_low(str[sub_len+1])) {
+      if( sub_len + 1 < len &&
+          is_utf16_high(str[sub_len]) &&
+          is_utf16_low(str[sub_len+1]))
+      {
         uint32_t hi = str[sub_len];
         uint32_t lo = str[sub_len+1];
         uint32_t ch = 0x10000 + (((hi & 0x03FF) << 10) | (lo & 0x03FF));

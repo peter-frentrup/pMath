@@ -68,9 +68,10 @@ void WindowsFontShaper::decode_token(
   cg.x = 0;
   cg.y = 0;
   for(int i = 0; i < len; ++i) {
-    if(i + 1 < len
-        && is_utf16_high(str[i])
-        && is_utf16_low(str[i + 1])) {
+    if( i + 1 < len &&
+        is_utf16_high(str[i]) &&
+        is_utf16_low(str[i + 1]))
+    {
       SCRIPT_ITEM uniscribe_items[3];
       int num_items;
       

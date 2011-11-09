@@ -17,7 +17,9 @@ namespace richmath {
       int capacity() const {       return _capacity; }
       int length()   const {       return _length; }
       const char *buffer() const { return _buffer; }
-      char       *buffer() {        return _buffer; }
+      char       *buffer() {       return _buffer; }
+      
+      uint32_t char_at(int pos);
       
       // return number of bytes inserted at pos
       int insert(int pos, const char *ins, int inslen);
@@ -44,6 +46,10 @@ namespace richmath {
       virtual int count() {      return boxes.length(); }
       virtual int length() {     return text.length(); }
       
+      virtual String raw_substring(int start, int length);
+      virtual uint32_t char_at(int pos) { return text.char_at(pos); }
+      virtual bool is_placeholder(int i);
+      
       const TextBuffer &text_buffer() { return text; }
       
       virtual void resize(Context *context);
@@ -56,13 +62,15 @@ namespace richmath {
       virtual Expr to_pmath(int flags, int start, int end);
       virtual void load_from_object(Expr object, int options); // BoxOptionXXX
       
-      void ensure_boxes_valid();
+      virtual void ensure_boxes_valid();
       void ensure_text_valid();
       
       int insert(int pos, const char *utf8, int len);
       int insert(int pos, TextSequence *txt, int start, int end);
       virtual int insert(int pos, const String &s); // unsafe: allows PMATH_BOX_CHAR
       virtual int insert(int pos, Box *box);
+      virtual int insert(int pos, AbstractSequence *seq, int start, int end);
+      
       virtual void remove(int start, int end);
       virtual Box *remove(int *index);
       

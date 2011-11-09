@@ -935,7 +935,8 @@ void Document::on_key_down(SpecialKeyEvent &event) {
           else if(dynamic_cast<GridBox*>(selbox)
                   || (selbox
                       && dynamic_cast<GridItem*>(selbox->parent())
-                      && ((MathSequence*)selbox)->is_placeholder())) {
+                      && ((MathSequence*)selbox)->is_placeholder()))
+          {
             move_horizontal(Backward, event.ctrl);
           }
           else
@@ -961,7 +962,8 @@ void Document::on_key_down(SpecialKeyEvent &event) {
           else if(dynamic_cast<GridBox*>(selbox)
                   || (selbox
                       && dynamic_cast<GridItem*>(selbox->parent())
-                      && ((MathSequence*)selbox)->is_placeholder())) {
+                      && ((MathSequence*)selbox)->is_placeholder()))
+          {
             move_horizontal(Forward, event.ctrl);
           }
           else
@@ -1010,11 +1012,12 @@ void Document::on_key_down(SpecialKeyEvent &event) {
         }
         
         Box *selbox = context.selection.get();
-        if(context.selection.start == 0
-            && selbox
-            && selbox->get_style(Editable)
-            && selbox->parent()
-            && selbox->parent()->exitable()) {
+        if( context.selection.start == 0 &&
+            selbox &&
+            selbox->get_style(Editable) &&
+            selbox->parent() &&
+            selbox->parent()->exitable())
+        {
           int index = selbox->index();
           selbox = selbox->parent()->remove(&index);
           
@@ -2433,27 +2436,27 @@ void Document::insert_box(Box *box, bool handle_placeholder) {
   
   assert(box->parent() == 0);
   
-  if(!is_inside_string()
-      && !is_inside_alias()
-      && !handle_immediate_macros())
+  if( !is_inside_string() &&
+      !is_inside_alias() &&
+      !handle_immediate_macros())
     handle_macros();
     
-  if(MathSequence *seq = dynamic_cast<MathSequence*>(context.selection.get())) {
+  if(AbstractSequence *seq = dynamic_cast<AbstractSequence*>(context.selection.get())) {
     Box *new_sel_box = 0;
     int new_sel_start = 0;
     int new_sel_end = 0;
     
     if(handle_placeholder) {
-      MathSequence *placeholder_seq = 0;
+      AbstractSequence *placeholder_seq = 0;
       int placeholder_pos = 0;
       
       int i = 0;
       Box *current = box;
       while(current && (current != box || i < box->length())) {
-        MathSequence *current_seq = dynamic_cast<MathSequence*>(current);
+        AbstractSequence *current_seq = dynamic_cast<AbstractSequence*>(current);
         
         if(current_seq && current_seq->is_placeholder(i)) {
-          if(current_seq->text()[i] == CHAR_REPLACEMENT) {
+          if(current_seq->char_at(i) == CHAR_REPLACEMENT) {
             placeholder_seq = current_seq;
             placeholder_pos = i;
             break;
@@ -2470,7 +2473,7 @@ void Document::insert_box(Box *box, bool handle_placeholder) {
       
       if(placeholder_seq) {
         if(selection_length() == 0) {
-          if(placeholder_seq->text()[placeholder_pos] == CHAR_REPLACEMENT) {
+          if(placeholder_seq->char_at(placeholder_pos) == CHAR_REPLACEMENT) {
             placeholder_seq->remove(placeholder_pos, placeholder_pos + 1);
             placeholder_seq->insert(placeholder_pos, PMATH_CHAR_PLACEHOLDER);
           }
@@ -2487,8 +2490,9 @@ void Document::insert_box(Box *box, bool handle_placeholder) {
             context.selection.start,
             context.selection.end);
             
-          if(selection_length() == 1
-              && placeholder_seq->is_placeholder(placeholder_pos)) {
+          if(selection_length() == 1 &&
+              placeholder_seq->is_placeholder(placeholder_pos))
+          {
             new_sel_box   = placeholder_seq;
             new_sel_start = placeholder_pos;
             new_sel_end   = new_sel_start + 1;
@@ -2535,7 +2539,7 @@ void Document::insert_box(Box *box, bool handle_placeholder) {
       }
     }
     
-    seq = dynamic_cast<MathSequence*>(context.selection.get());
+    seq = dynamic_cast<AbstractSequence*>(context.selection.get());
     if(!seq) {
       delete box;
       return;
@@ -2548,9 +2552,9 @@ void Document::insert_box(Box *box, bool handle_placeholder) {
     
     if(new_sel_box) {
       if(new_sel_box == box) {
-        new_sel_box   = seq;
+        new_sel_box    = seq;
         new_sel_start += context.selection.start;
-        new_sel_end  += context.selection.start;
+        new_sel_end   += context.selection.start;
       }
       
       seq->insert(context.selection.start, box);
@@ -2573,7 +2577,7 @@ void Document::insert_box(Box *box, bool handle_placeholder) {
 }
 
 void Document::insert_fraction() {
-  if(!prepare_insert()) {
+  if(!prepare_insert_math(true)) {
     Document *cur = get_current_document();
     
     if(cur && cur != this) {
@@ -2622,7 +2626,7 @@ void Document::insert_fraction() {
 }
 
 void Document::insert_matrix_column() {
-  if(!prepare_insert()) {
+  if(!prepare_insert_math(true)) {
     Document *cur = get_current_document();
     
     if(cur && cur != this) {
@@ -2712,7 +2716,7 @@ void Document::insert_matrix_column() {
 }
 
 void Document::insert_matrix_row() {
-  if(!prepare_insert()) {
+  if(!prepare_insert_math(true)) {
     Document *cur = get_current_document();
     
     if(cur && cur != this) {
@@ -2803,7 +2807,7 @@ void Document::insert_matrix_row() {
 }
 
 void Document::insert_sqrt() {
-  if(!prepare_insert()) {
+  if(!prepare_insert_math(false)) {
     Document *cur = get_current_document();
     
     if(cur && cur != this) {
@@ -2849,7 +2853,7 @@ void Document::insert_sqrt() {
 }
 
 void Document::insert_subsuperscript(bool sub) {
-  if(!prepare_insert()) {
+  if(!prepare_insert_math(true)) {
     Document *cur = get_current_document();
     
     if(cur && cur != this) {
@@ -2911,7 +2915,7 @@ void Document::insert_subsuperscript(bool sub) {
 }
 
 void Document::insert_underoverscript(bool under) {
-  if(!prepare_insert()) {
+  if(!prepare_insert_math(true)) {
     Document *cur = get_current_document();
     
     if(cur && cur != this) {
@@ -3551,6 +3555,43 @@ bool Document::prepare_insert() {
   }
   
   return false;
+}
+
+bool Document::prepare_insert_math(bool include_previous_word) {
+  if(!prepare_insert())
+    return false;
+    
+  if(dynamic_cast<MathSequence*>(selection_box()))
+    return true;
+    
+  AbstractSequence *seq = dynamic_cast<AbstractSequence*>(selection_box());
+  if(!seq)
+    return false;
+    
+  if(include_previous_word && selection_length() == 0) {
+    TextSequence *txt = dynamic_cast<TextSequence*>(seq);
+    
+    if(txt) {
+      const char *buf = txt->text_buffer().buffer();
+      int i = selection_start();
+      
+      while(i > 0 && (unsigned char)buf[i] > ' ')
+        --i;
+      
+      select(txt, i, selection_end());
+    }
+  }
+  
+  InlineSequenceBox *box = new InlineSequenceBox;
+  
+  int s = selection_start();
+  int e = selection_end();
+  box->content()->insert(0, seq, s, e);
+  seq->remove(s, e);
+  seq->insert(s, box);
+  
+  select(box->content(), 0, box->content()->length());
+  return true;
 }
 
 bool Document::handle_immediate_macros(

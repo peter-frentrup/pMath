@@ -51,10 +51,14 @@ void OwnerBox::paint_content(Context *context) {
 
 Box *OwnerBox::remove(int *index) {
   if(_parent) {
-    MathSequence *seq = dynamic_cast<MathSequence*>(_parent);
+    AbstractSequence *seq = dynamic_cast<AbstractSequence*>(_parent);
     *index = _index;
-    if(seq)
-      seq->insert(_index + 1, _content, 0, _content->length());
+    if(seq) {
+      int s = _index;
+      int e = _index + 1;
+      seq->normalize_selection(&s, &e);
+      seq->insert(e, _content, 0, _content->length());
+    }
     return _parent->remove(index);
   }
   *index = 0;
@@ -133,3 +137,55 @@ bool OwnerBox::edit_selection(Context *context) {
 }
 
 //} ... class OwnerBox
+
+//{ ... class InlineSequenceBox
+
+void InlineSequenceBox::resize(Context *context) {
+  bool old_math_spacing = context->math_spacing;
+  context->math_spacing = true;
+  OwnerBox::resize(context);
+  context->math_spacing = old_math_spacing;
+}
+
+void InlineSequenceBox::paint(Context *context) {
+  bool old_math_spacing = context->math_spacing;
+  context->math_spacing = true;
+  
+  Box *b = context->selection.get();
+  while(b && b != this)
+    b = b->parent();
+    
+  if(b == this) {
+    float x, y;
+    int c = context->canvas->get_color();
+    context->canvas->current_pos(&x, &y);
+    context->canvas->pixrect(
+      x,
+      y - _extents.ascent - 1,
+      x + _extents.width,
+      y + _extents.descent + 1,
+      false);
+      
+    context->canvas->set_color(0xF6EDD6);
+    context->canvas->fill();
+    context->canvas->set_color(c);
+    context->canvas->move_to(x, y);
+  }
+  
+  OwnerBox::paint(context);
+  context->math_spacing = old_math_spacing;
+}
+
+void InlineSequenceBox::on_enter() {
+  request_repaint_all();
+  
+  OwnerBox::on_enter();
+}
+
+void InlineSequenceBox::on_exit() {
+  request_repaint_all();
+  
+  OwnerBox::on_exit();
+}
+
+//} ... class InlineSequenceBox

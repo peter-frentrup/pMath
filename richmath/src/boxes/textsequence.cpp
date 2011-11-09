@@ -3,6 +3,7 @@
 #include <cstdlib>
 
 #include <boxes/mathsequence.h>
+#include <boxes/ownerbox.h>
 #include <graphics/context.h>
 
 using namespace richmath;
@@ -29,6 +30,77 @@ TextBuffer::TextBuffer(char *buf, int len)
 
 TextBuffer::~TextBuffer() {
   pmath_mem_free(_buffer);
+}
+
+uint32_t TextBuffer::char_at(int pos) {
+  if(pos < 0 || pos >= _length)
+    return 0;
+    
+  static int8_t chr_lens[16] = {
+    1, // 0000 = 0xxx
+    1, // 0001 = 0xxx
+    1, // 0010 = 0xxx
+    1, // 0011 = 0xxx
+    1, // 0100 = 0xxx
+    1, // 0101 = 0xxx
+    1, // 0110 = 0xxx
+    1, // 0111 = 0xxx
+    0, // 1000 = 10xx
+    0, // 1001 = 10xx
+    0, // 1010 = 10xx
+    0, // 1011 = 10xx
+    2, // 1100 = 110x
+    2, // 1101 = 110x
+    3, // 1110 = 1110...
+    4  // 1111 = 11110xxx
+  };
+  
+  int len = chr_lens[((uint8_t)_buffer[pos]) >> 4];
+  if(len == 0 || pos + len > _length)
+    return 0;
+    
+  switch(len) {
+    case 1:
+      return _buffer[pos];
+      
+    case 2: {
+        uint32_t c1 = _buffer[pos];
+        uint32_t c2 = _buffer[pos + 1];
+        
+        c1 = c1 & 0x1Fu;
+        c2 = c2 & 0x3Fu;
+        
+        return (c1 << 6) | c2;
+      }
+      
+    case 3: {
+        uint32_t c1 = _buffer[pos];
+        uint32_t c2 = _buffer[pos + 1];
+        uint32_t c3 = _buffer[pos + 2];
+        
+        c1 = c1 & 0x0Fu;
+        c2 = c2 & 0x3Fu;
+        c3 = c3 & 0x3Fu;
+        
+        return (c1 << 12) | (c2 << 6) | c3;
+      }
+      
+    case 4: {
+        uint32_t c1 = _buffer[pos];
+        uint32_t c2 = _buffer[pos + 1];
+        uint32_t c3 = _buffer[pos + 2];
+        uint32_t c4 = _buffer[pos + 3];
+        
+        c1 = c1 & 0x07u;
+        c2 = c2 & 0x3Fu;
+        c3 = c3 & 0x3Fu;
+        c4 = c4 & 0x3Fu;
+        
+        return (c1 << 18) | (c2 << 12) | (c3 << 6) | c4;
+      }
+  }
+  
+  return 0;
 }
 
 int TextBuffer::insert(int pos, const char *ins, int inslen) {
@@ -179,6 +251,20 @@ TextSequence::~TextSequence() {
   g_object_unref(_layout);
   for(int i = 0; i < boxes.length(); ++i)
     delete boxes[i];
+}
+
+String TextSequence::raw_substring(int start, int length) {
+  assert(start >= 0);
+  assert(length >= 0);
+  assert(start + length <= text.length());
+  
+  return String::FromUtf8(text.buffer() + start, length);
+}
+
+bool TextSequence::is_placeholder(int i) {
+  uint32_t ch = char_at(i);
+  
+  return ch == PMATH_CHAR_PLACEHOLDER || CHAR_REPLACEMENT;
 }
 
 void TextSequence::resize(Context *context) {
@@ -486,18 +572,18 @@ void TextSequence::load_from_object(Expr object, int options) { // BoxOptionXXX
         }
       }
       else {
-        MathSequence *box = new MathSequence(); // TODO: use special container?
+        InlineSequenceBox *box = new InlineSequenceBox();
         
-        box->load_from_object(item, options);
+        box->content()->load_from_object(item, options);
         
         insert(text.length(), box);
       }
     }
   }
   else {
-    MathSequence *box = new MathSequence(); // TODO: use special container?
+    InlineSequenceBox *box = new InlineSequenceBox();
     
-    box->load_from_object(object, options);
+    box->content()->load_from_object(object, options);
     
     insert(text.length(), box);
   }
@@ -587,9 +673,9 @@ int TextSequence::insert(int pos, Box *box) {
   
   int result = pos + text.insert(pos, Utf8BoxChar, Utf8BoxCharLen);
   adopt(box, pos);
-  int i = 0;
-  while(i < boxes.length() && boxes[i]->index() < pos)
-    ++i;
+  int i = boxes.length();
+  while(i > 0 && boxes[i - 1]->index() > pos)
+    --i;
   boxes.insert(i, 1, &box);
   invalidate();
   return result;
@@ -624,6 +710,15 @@ int TextSequence::insert(int pos, TextSequence *txt, int start, int end) {
   }
   
   return pos;
+}
+
+int TextSequence::insert(int pos, AbstractSequence *seq, int start, int end) {
+  TextSequence *ts = dynamic_cast<TextSequence*>(seq);
+  
+  if(ts)
+    return insert(pos, ts, start, end);
+    
+  return AbstractSequence::insert(pos, seq, start, end);
 }
 
 void TextSequence::remove(int start, int end) {
@@ -941,13 +1036,11 @@ void TextSequence::child_transformation(
 }
 
 Box *TextSequence::normalize_selection(int *start, int *end) {
-  while(*end < text.length()
-        && (text.buffer()[*end] & 0xC0) == 0x80)
+  while(*end < text.length() && (text.buffer()[*end] & 0xC0) == 0x80)
     ++*end;
     
   if(*start < text.length()) {
-    while(*start > 0
-          && (text.buffer()[*start] & 0xC0) == 0x80)
+    while(*start > 0 && (text.buffer()[*start] & 0xC0) == 0x80)
       --*start;
   }
   

@@ -41,7 +41,7 @@ class FontKey {
     }
     
     unsigned int hash() const {
-      return _name.hash() ^(unsigned int)_style;
+      return _name.hash() ^ (unsigned int)_style;
     }
     
   private:
@@ -493,9 +493,10 @@ void CharBoxTextShaper::decode_token(
   float em = context->canvas->get_font_size();
   
   for(int i = 0; i < len; ++i) {
-    if(i + 1 < len
-        && is_utf16_high(str[i])
-        && is_utf16_low(str[i+1])) {
+    if( i + 1 < len &&
+        is_utf16_high(str[i]) &&
+        is_utf16_low(str[i+1]))
+    {
       result[i].index = str[i+1];
       result[i].right = em;
       

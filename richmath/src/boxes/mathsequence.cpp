@@ -72,6 +72,30 @@ Box *MathSequence::item(int i) {
   return boxes[i];
 }
 
+String MathSequence::raw_substring(int start, int length) {
+  assert(start >= 0);
+  assert(length >= 0);
+  assert(start + length <= str.length());
+  
+  return str.part(start, length);
+}
+
+uint32_t MathSequence::char_at(int pos) {
+  if(pos < 0 || pos > str.length())
+    return 0;
+    
+  const uint16_t *buf = str.buffer();
+  
+  if(is_utf16_high(buf[pos]) && is_utf16_low((buf[pos + 1]))) {
+    uint32_t hi = buf[pos];
+    uint32_t lo = buf[pos + 1];
+    
+    return 0x10000 + (((hi & 0x03FF) << 10) | (lo & 0x03FF));
+  }
+  
+  return buf[pos];
+}
+
 bool MathSequence::expand(const BoxSize &size) {
   if(boxes.length() == 1 && glyphs.length() == 1 && str.length() == 1) {
     if(boxes[0]->expand(size)) {
@@ -641,6 +665,7 @@ Expr MathSequence::to_pmath(int flags, int start, int end) {
     
   const uint16_t *buf = str.buffer();
   int firstbox = 0;
+  
   for(int i = 0; i < start; ++i)
     if(buf[i] == PMATH_CHAR_BOX)
       ++firstbox;
@@ -653,8 +678,8 @@ Expr MathSequence::to_pmath(int flags, int start, int end) {
   Expr result = tmp->to_pmath(flags);
   
   for(int i = 0; i < tmp->boxes.length(); ++i) {
-    Box *box     = boxes[firstbox + i];
-    Box *tmp_box = tmp->boxes[i];
+    Box *box          = boxes[firstbox + i];
+    Box *tmp_box      = tmp->boxes[i];
     int box_index     = box->index();
     int tmp_box_index = tmp_box->index();
     
@@ -694,8 +719,8 @@ Box *MathSequence::move_logical(
         ++*index;
       }
       else {
-        if(is_utf16_high(str[*index])
-            && is_utf16_low(str[*index + 1]))
+        if( is_utf16_high(str[*index]) &&
+            is_utf16_low(str[*index + 1]))
           ++*index;
           
         ++*index;
@@ -732,8 +757,8 @@ Box *MathSequence::move_logical(
   if(str[*index - 1] != PMATH_CHAR_BOX) {
     --*index;
     
-    if(is_utf16_high(str[*index - 1])
-        && is_utf16_low(str[*index]))
+    if( is_utf16_high(str[*index - 1]) &&
+        is_utf16_low(str[*index]))
       --*index;
       
     return this;
@@ -792,8 +817,8 @@ Box *MathSequence::move_vertical(
       
     if(i < lines[dstline].end
         && str[i] != PMATH_CHAR_BOX) {
-      if((i == 0 && l +  glyphs[i].right                      / 2 <= x)
-          || (i >  0 && l + (glyphs[i].right + glyphs[i-1].right) / 2 <= x))
+      if( (i == 0 && l +  glyphs[i].right                      / 2 <= x) ||
+          (i >  0 && l + (glyphs[i].right + glyphs[i-1].right) / 2 <= x))
         ++i;
         
       if(is_utf16_high(str[i - 1]))
@@ -1056,8 +1081,7 @@ bool MathSequence::is_placeholder(int i) {
   if(i < 0 || i >= str.length())
     return false;
     
-  if(str[i] == PMATH_CHAR_PLACEHOLDER
-      || str[i] == CHAR_REPLACEMENT)
+  if(str[i] == PMATH_CHAR_PLACEHOLDER || str[i] == CHAR_REPLACEMENT)
     return true;
     
   if(str[i] == PMATH_CHAR_BOX) {
@@ -2862,18 +2886,18 @@ int MathSequence::fill_penalty_array(
       depth++;
       
     if(buf[pos] == ' ') {
-      penalty_array[pos]+= depth * DepthPenalty;
+      penalty_array[pos] += depth * DepthPenalty;
       
       return pos + 1;
     }
     
     while(pos < spans.length() && !spans.is_token_end(pos)) {
-      penalty_array[pos]+= depth * DepthPenalty + WordPenalty;
+      penalty_array[pos] += depth * DepthPenalty + WordPenalty;
       ++pos;
     }
     
     if(pos < spans.length()) {
-      penalty_array[pos]+= depth * DepthPenalty;
+      penalty_array[pos] += depth * DepthPenalty;
       ++pos;
     }
     
@@ -2960,7 +2984,7 @@ int MathSequence::fill_penalty_array(
             penalty_array[next] += WordPenalty;
           else
             penalty_array[next - 1] += WordPenalty;
-          
+            
           depth = func_depth;
         }
         else if(pmath_char_is_right(buf[next])) {
@@ -3191,37 +3215,6 @@ int MathSequence::insert(int pos, Box *box) {
   return pos + 1;
 }
 
-int MathSequence::insert(int pos, MathSequence *sequence, int start, int end) {
-  if(pos > length())
-    pos = length();
-    
-  sequence->ensure_boxes_valid();
-  
-  const uint16_t *buf = sequence->str.buffer();
-  int box = -1;
-  while(start < end) {
-    int next = start;
-    while(next < end && buf[next] != PMATH_CHAR_BOX)
-      ++next;
-      
-    pos = insert(pos, buf + start, next - start);
-    
-    if(next < end/* && buf[next] == PMATH_CHAR_BOX*/) {
-      if(box < 0) {
-        box = 0;
-        while(box < sequence->count() && sequence->boxes[box]->index() < next)
-          ++box;
-      }
-      
-      pos = insert(pos, sequence->extract_box(box++));
-    }
-    
-    start = next + 1;
-  }
-  
-  return pos;
-}
-
 void MathSequence::remove(int start, int end) {
   ensure_boxes_valid();
   
@@ -3259,45 +3252,6 @@ Box *MathSequence::extract_box(int boxindex) {
 
 ////} ... insert/remove
 
-class TmpBox: public OwnerBox {
-  public:
-    virtual void resize(Context *context) {
-      bool old_math_spacing = context->math_spacing;
-      context->math_spacing = true;
-      OwnerBox::resize(context);
-      context->math_spacing = old_math_spacing;
-    }
-    
-    virtual void paint(Context *context) {
-      bool old_math_spacing = context->math_spacing;
-      context->math_spacing = true;
-      
-      Box *b = context->selection.get();
-      while(b && b != this)
-        b = b->parent();
-        
-      if(b == this) {
-        float x, y;
-        int c = context->canvas->get_color();
-        context->canvas->current_pos(&x, &y);
-        context->canvas->pixrect(
-          x,
-          y - _extents.ascent - 1,
-          x + _extents.width,
-          y + _extents.descent + 1,
-          false);
-          
-        context->canvas->set_color(0xF6EDD6);
-        context->canvas->fill();
-        context->canvas->set_color(c);
-        context->canvas->move_to(x, y);
-      }
-      
-      OwnerBox::paint(context);
-      context->math_spacing = old_math_spacing;
-    }
-};
-
 struct make_box_info_t {
   Array<Box*> *boxes;
   int          options;
@@ -3309,7 +3263,7 @@ static void make_box(int pos, pmath_t obj, void *data) {
   
 START:
   if(expr.is_string()) {
-    TmpBox *box = new TmpBox;
+    InlineSequenceBox *box = new InlineSequenceBox;
     box->content()->load_from_object(expr, info->options);
     info->boxes->add(box);
     return;
@@ -3326,7 +3280,7 @@ START:
       goto START;
     }
     
-    TmpBox *box = new TmpBox;
+    InlineSequenceBox *box = new InlineSequenceBox;
     box->content()->load_from_object(expr, info->options);
     info->boxes->add(box);
     return;

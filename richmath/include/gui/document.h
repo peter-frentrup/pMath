@@ -143,6 +143,7 @@ namespace richmath {
       
       void set_prev_sel_line();
       bool prepare_insert();
+      bool prepare_insert_math(bool include_previous_word);
       
       bool handle_immediate_macros(
         const Hashtable<String, Expr, object_hash> &table);

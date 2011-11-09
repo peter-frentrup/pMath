@@ -49,6 +49,15 @@ namespace richmath {
       float     cx;
       float     cy;
   };
+  
+  class InlineSequenceBox: public OwnerBox {
+    public:
+      virtual void resize(Context *context);
+      virtual void paint(Context *context);
+      
+      virtual void on_enter();
+      virtual void on_exit();
+  };
 }
 
 #endif // __BOXES__OWNERBOX_H__
