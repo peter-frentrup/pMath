@@ -787,5 +787,11 @@ pmath_bool_t pmath_register_approx_code(
 #define PMATH_SYMBOL_DOCUMENTDELETE                         PMATH_SYMBOL_BUILTIN(695)
 #define PMATH_SYMBOL_GRAPHICSBOX                            PMATH_SYMBOL_BUILTIN(696)
 #define PMATH_SYMBOL_IMAGESIZE                              PMATH_SYMBOL_BUILTIN(697)
+#define PMATH_SYMBOL_BITLENGTH                              PMATH_SYMBOL_BUILTIN(698)
+#define PMATH_SYMBOL_BITCLEAR                               PMATH_SYMBOL_BUILTIN(699)
+#define PMATH_SYMBOL_BITGET                                 PMATH_SYMBOL_BUILTIN(700)
+#define PMATH_SYMBOL_BITSET                                 PMATH_SYMBOL_BUILTIN(701)
+#define PMATH_SYMBOL_BITSHIFTLEFT                           PMATH_SYMBOL_BUILTIN(702)
+#define PMATH_SYMBOL_BITSHIFTRIGHT                          PMATH_SYMBOL_BUILTIN(703)
 
 #endif /* __PMATH_BUILTINS__SYMBOLS_H__ */

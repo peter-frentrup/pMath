@@ -436,8 +436,14 @@ PMATH_PRIVATE pmath_t builtin_assign_isnumeric(pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_isnumeric(       pmath_expr_t expr);
 
 PMATH_PRIVATE pmath_t builtin_bitand(                          pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_bitclear(                        pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_bitget(                          pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_bitlength(                       pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_bitnot(                          pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_bitor(                           pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_bitset(                          pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_bitshiftleft(                    pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_bitshiftright(                   pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_bitxor(                          pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_extendedgcd(                     pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_gcd(                             pmath_expr_t expr);
@@ -706,8 +712,14 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_BINARYWRITE               = NEW_SYSTEM_SYMBOL("BinaryWrite"))
   VERIFY(   PMATH_SYMBOL_BINOMIAL                  = NEW_SYSTEM_SYMBOL("Binomial"))
   VERIFY(   PMATH_SYMBOL_BITAND                    = NEW_SYSTEM_SYMBOL("BitAnd"))
+  VERIFY(   PMATH_SYMBOL_BITCLEAR                  = NEW_SYSTEM_SYMBOL("BitClear"))
+  VERIFY(   PMATH_SYMBOL_BITGET                    = NEW_SYSTEM_SYMBOL("BitGet"))
+  VERIFY(   PMATH_SYMBOL_BITLENGTH                 = NEW_SYSTEM_SYMBOL("BitLength"))
   VERIFY(   PMATH_SYMBOL_BITNOT                    = NEW_SYSTEM_SYMBOL("BitNot"))
   VERIFY(   PMATH_SYMBOL_BITOR                     = NEW_SYSTEM_SYMBOL("BitOr"))
+  VERIFY(   PMATH_SYMBOL_BITSET                    = NEW_SYSTEM_SYMBOL("BitSet"))
+  VERIFY(   PMATH_SYMBOL_BITSHIFTLEFT              = NEW_SYSTEM_SYMBOL("BitShiftLeft"))
+  VERIFY(   PMATH_SYMBOL_BITSHIFTRIGHT             = NEW_SYSTEM_SYMBOL("BitShiftRight"))
   VERIFY(   PMATH_SYMBOL_BITXOR                    = NEW_SYSTEM_SYMBOL("BitXor"))
   VERIFY(   PMATH_SYMBOL_BOLD                      = NEW_SYSTEM_SYMBOL("Bold"))
   VERIFY(   PMATH_SYMBOL_BOOLE                     = NEW_SYSTEM_SYMBOL("Boole"))
@@ -1428,8 +1440,14 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   PMATH_SYMBOL_BINARYWRITE,                 builtin_binarywrite)
   BIND_DOWN(   PMATH_SYMBOL_BINOMIAL,                    builtin_binomial)
   BIND_DOWN(   PMATH_SYMBOL_BITAND,                      builtin_bitand)
+  BIND_DOWN(   PMATH_SYMBOL_BITCLEAR,                    builtin_bitclear)
+  BIND_DOWN(   PMATH_SYMBOL_BITGET,                      builtin_bitget)
+  BIND_DOWN(   PMATH_SYMBOL_BITLENGTH,                   builtin_bitlength)
   BIND_DOWN(   PMATH_SYMBOL_BITNOT,                      builtin_bitnot)
   BIND_DOWN(   PMATH_SYMBOL_BITOR,                       builtin_bitor)
+  BIND_DOWN(   PMATH_SYMBOL_BITSET,                      builtin_bitset)
+  BIND_DOWN(   PMATH_SYMBOL_BITSHIFTLEFT,                builtin_bitshiftleft)
+  BIND_DOWN(   PMATH_SYMBOL_BITSHIFTRIGHT,               builtin_bitshiftright)
   BIND_DOWN(   PMATH_SYMBOL_BITXOR,                      builtin_bitxor)
   BIND_DOWN(   PMATH_SYMBOL_BLOCK,                       builtin_block)
   BIND_DOWN(   PMATH_SYMBOL_BOOLE,                       builtin_boole)
@@ -1807,10 +1825,16 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   SET_ATTRIB( PMATH_SYMBOL_ATTRIBUTES,                       HOLDFIRST | LISTABLE);
   SET_ATTRIB( PMATH_SYMBOL_BERNOULLIB,                       DEFINITEFUNCTION | LISTABLE);
   SET_ATTRIB( PMATH_SYMBOL_BINOMIAL,                         DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_BITAND,                           ASSOCIATIVE | DEFINITEFUNCTION | HOLDALL | LISTABLE | ONEIDENTITY);
-  SET_ATTRIB( PMATH_SYMBOL_BITNOT,                           ASSOCIATIVE | DEFINITEFUNCTION | HOLDALL | LISTABLE | ONEIDENTITY);
-  SET_ATTRIB( PMATH_SYMBOL_BITOR,                            ASSOCIATIVE | DEFINITEFUNCTION | HOLDALL | LISTABLE | ONEIDENTITY);
-  SET_ATTRIB( PMATH_SYMBOL_BITXOR,                           ASSOCIATIVE | DEFINITEFUNCTION | HOLDALL | LISTABLE | ONEIDENTITY);
+  SET_ATTRIB( PMATH_SYMBOL_BITAND,                           ASSOCIATIVE | DEFINITEFUNCTION | LISTABLE | ONEIDENTITY);
+  SET_ATTRIB( PMATH_SYMBOL_BITCLEAR,                         DEFINITEFUNCTION | LISTABLE);
+  SET_ATTRIB( PMATH_SYMBOL_BITGET,                           DEFINITEFUNCTION | LISTABLE);
+  SET_ATTRIB( PMATH_SYMBOL_BITLENGTH,                        DEFINITEFUNCTION | LISTABLE);
+  SET_ATTRIB( PMATH_SYMBOL_BITNOT,                           DEFINITEFUNCTION | LISTABLE);
+  SET_ATTRIB( PMATH_SYMBOL_BITOR,                            ASSOCIATIVE | DEFINITEFUNCTION | LISTABLE | ONEIDENTITY);
+  SET_ATTRIB( PMATH_SYMBOL_BITSET,                           DEFINITEFUNCTION | LISTABLE);
+  SET_ATTRIB( PMATH_SYMBOL_BITSHIFTLEFT,                     DEFINITEFUNCTION | LISTABLE);
+  SET_ATTRIB( PMATH_SYMBOL_BITSHIFTRIGHT,                    DEFINITEFUNCTION | LISTABLE);
+  SET_ATTRIB( PMATH_SYMBOL_BITXOR,                           ASSOCIATIVE | DEFINITEFUNCTION | LISTABLE | ONEIDENTITY);
   SET_ATTRIB( PMATH_SYMBOL_BLOCK,                            HOLDALL);
   SET_ATTRIB( PMATH_SYMBOL_BOOLE,                            DEFINITEFUNCTION | LISTABLE);
   SET_ATTRIB( PMATH_SYMBOL_MAKEEXPRESSION,                   READPROTECTED);
