@@ -880,81 +880,100 @@ static void scan_next(scanner_t *tokens, parser_t *parser) {
         if(tok == PMATH_TOK_DIGIT) {
           do {
             ++tokens->pos;
-          } while(tokens->pos < tokens->len
-                  && pmath_char_is_digit(tokens->str[tokens->pos]));
+          } while(tokens->pos < tokens->len &&
+                  pmath_char_is_digit(tokens->str[tokens->pos]));
                   
-          if(tokens->pos + 2 < tokens->len
-              && tokens->str[tokens->pos]   == '^'
-              && tokens->str[tokens->pos+1] == '^'
-              && pmath_char_is_36digit(tokens->str[tokens->pos+2])) {
+          if( tokens->pos + 2 < tokens->len &&
+              tokens->str[tokens->pos]   == '^' &&
+              tokens->str[tokens->pos+1] == '^' &&
+              pmath_char_is_36digit(tokens->str[tokens->pos+2]))
+          {
             tokens->pos += 3;
-            while(tokens->pos < tokens->len
-                  && pmath_char_is_36digit(tokens->str[tokens->pos]))
+            while(tokens->pos < tokens->len &&
+                  pmath_char_is_36digit(tokens->str[tokens->pos]))
+            {
               ++tokens->pos;
-              
-            if(tokens->pos + 1 < tokens->len
-                && tokens->str[tokens->pos] == '.'
-                && pmath_char_is_36digit(tokens->str[tokens->pos+1])) {
+            }
+            
+            if( tokens->pos + 1 < tokens->len &&
+                tokens->str[tokens->pos] == '.' &&
+                pmath_char_is_36digit(tokens->str[tokens->pos+1]))
+            {
               tokens->pos += 2;
               while(tokens->pos < tokens->len
                     && pmath_char_is_36digit(tokens->str[tokens->pos]))
+              {
                 ++tokens->pos;
+              }
             }
           }
-          else if(tokens->pos + 1 < tokens->len
-                  && tokens->str[tokens->pos] == '.'
-                  && pmath_char_is_digit(tokens->str[tokens->pos+1])) {
+          else if(tokens->pos + 1 < tokens->len &&
+                  tokens->str[tokens->pos] == '.' &&
+                  pmath_char_is_digit(tokens->str[tokens->pos+1]))
+          {
             tokens->pos += 2;
             while(tokens->pos < tokens->len
                   && pmath_char_is_digit(tokens->str[tokens->pos]))
+            {
               ++tokens->pos;
+            }
           }
           
-          if(tokens->pos < tokens->len
-              && tokens->str[tokens->pos] == '`') {
+          if( tokens->pos < tokens->len &&
+              tokens->str[tokens->pos] == '`')
+          {
             ++tokens->pos;
             
-            if(tokens->pos < tokens->len
-                && tokens->str[tokens->pos] == '`') {
+            if( tokens->pos < tokens->len &&
+                tokens->str[tokens->pos] == '`')
+            {
               ++tokens->pos;
             }
             
-            if(tokens->pos + 1 < tokens->len
-                && (tokens->str[tokens->pos] == '+'
-                    || tokens->str[tokens->pos] == '-')
-                && pmath_char_is_digit(tokens->str[tokens->pos + 1])) {
+            if( tokens->pos + 1 < tokens->len &&
+                (tokens->str[tokens->pos] == '+' || tokens->str[tokens->pos] == '-') &&
+                pmath_char_is_digit(tokens->str[tokens->pos + 1]))
+            {
               ++tokens->pos;
             }
             
             if(pmath_char_is_digit(tokens->str[tokens->pos])) {
               ++tokens->pos;
-              while(tokens->pos < tokens->len
-                    && pmath_char_is_digit(tokens->str[tokens->pos]))
+              while(tokens->pos < tokens->len &&
+                    pmath_char_is_digit(tokens->str[tokens->pos]))
+              {
                 ++tokens->pos;
-                
-              if(tokens->pos + 1 < tokens->len
-                  && tokens->str[tokens->pos] == '.'
-                  && pmath_char_is_digit(tokens->str[tokens->pos+1])) {
+              }
+              
+              if( tokens->pos + 1 < tokens->len &&
+                  tokens->str[tokens->pos] == '.' &&
+                  pmath_char_is_digit(tokens->str[tokens->pos+1]))
+              {
                 tokens->pos += 2;
-                while(tokens->pos < tokens->len
-                      && pmath_char_is_digit(tokens->str[tokens->pos]))
+                while(tokens->pos < tokens->len &&
+                      pmath_char_is_digit(tokens->str[tokens->pos]))
+                {
                   ++tokens->pos;
+                }
               }
             }
           }
           
-          if(tokens->pos + 2 < tokens->len
-              && tokens->str[tokens->pos]   == '*'
-              && tokens->str[tokens->pos+1] == '^'
-              && (pmath_char_is_digit(tokens->str[tokens->pos+2])
-                  || (tokens->pos + 3 < tokens->len
-                      && (tokens->str[tokens->pos+2] == '-'
-                          || tokens->str[tokens->pos+2] == '+')
-                      && pmath_char_is_digit(tokens->str[tokens->pos+3])))) {
+          if( tokens->pos + 2 < tokens->len &&
+              tokens->str[tokens->pos]   == '*' &&
+              tokens->str[tokens->pos+1] == '^' &&
+              (pmath_char_is_digit(tokens->str[tokens->pos+2]) ||
+               (tokens->pos + 3 < tokens->len &&
+                (tokens->str[tokens->pos+2] == '-' ||
+                 tokens->str[tokens->pos+2] == '+') &&
+                pmath_char_is_digit(tokens->str[tokens->pos+3]))))
+          {
             tokens->pos += 3;
-            while(tokens->pos < tokens->len
-                  && pmath_char_is_digit(tokens->str[tokens->pos]))
+            while(tokens->pos < tokens->len &&
+                  pmath_char_is_digit(tokens->str[tokens->pos]))
+            {
               ++tokens->pos;
+            }
           }
         }
         else

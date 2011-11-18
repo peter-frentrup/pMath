@@ -461,8 +461,9 @@ static pmath_t evaluate_expression(
           stack_frame.value = pmath_ref(sym);
           
           if(_pmath_run_code(sym, PMATH_CODE_USAGE_UPCALL, &expr)) {
-            if(!pmath_is_expr(expr)
-                || expr_changes != _pmath_expr_last_change(expr)) {
+            if(!pmath_is_expr(expr) ||
+                expr_changes != _pmath_expr_last_change(expr))
+            {
               pmath_unref(sym);
               goto FINISH;
             }
@@ -478,8 +479,8 @@ static pmath_t evaluate_expression(
       stack_frame.value = pmath_ref(head_sym);
       
       if(_pmath_run_code(head_sym, PMATH_CODE_USAGE_DOWNCALL, &expr)) {
-        if(!pmath_is_expr(expr)
-            || expr_changes != _pmath_expr_last_change(expr)) {
+        if(!pmath_is_expr(expr) ||
+            expr_changes != _pmath_expr_last_change(expr)) {
           goto FINISH;
         }
       }
@@ -489,8 +490,8 @@ static pmath_t evaluate_expression(
       stack_frame.value = pmath_ref(head_sym);
       
       if(_pmath_run_code(head_sym, PMATH_CODE_USAGE_SUBCALL, &expr)) {
-        if(!pmath_is_expr(expr)
-            || expr_changes != _pmath_expr_last_change(expr)) {
+        if(!pmath_is_expr(expr) ||
+            expr_changes != _pmath_expr_last_change(expr)) {
           goto FINISH;
         }
       }

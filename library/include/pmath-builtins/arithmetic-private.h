@@ -79,15 +79,15 @@ pmath_bool_t _pmath_equals_rational_at(
 
 PMATH_PRIVATE
 pmath_bool_t _pmath_to_precision(
-  pmath_t  obj, // wont be freed
-  double         *result);
+  pmath_t   obj, // wont be freed
+  double   *result);
 
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_t _pmath_approximate_step(
   pmath_t obj, // will be freed
-  double         prec, // -inf = MachinePrecision
-  double         acc); // -inf = MachinePrecision
+  double  prec, // -inf = MachinePrecision
+  double  acc); // -inf = MachinePrecision
 
 PMATH_PRIVATE extern double pmath_max_extra_precision;
 
