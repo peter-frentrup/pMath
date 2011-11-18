@@ -86,8 +86,12 @@ double pmath_precision(pmath_t obj) { // will be freed
       double prec2 = pmath_precision(
                        pmath_expr_get_item(obj, i));
                        
-      if(prec2 < prec)
+      if(prec2 < prec) {
         prec = prec2;
+        
+        if(prec == -HUGE_VAL)
+          break;
+      }
     }
   }
   

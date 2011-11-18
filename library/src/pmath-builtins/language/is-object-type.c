@@ -166,6 +166,30 @@ PMATH_PRIVATE pmath_t builtin_isinteger(pmath_expr_t expr) {
   return pmath_ref(PMATH_SYMBOL_FALSE);
 }
 
+PMATH_PRIVATE pmath_bool_t _pmath_is_machinenumber(pmath_t x){
+  if(pmath_is_double(x)) 
+    return TRUE;
+  
+  if(_pmath_is_nonreal_complex(x)) {
+    pmath_t part = pmath_expr_get_item(x, 1);
+    
+    if(pmath_is_double(part)) {
+      pmath_unref(part);
+      
+      part = pmath_expr_get_item(x, 2);
+      if(pmath_is_double(part)) {
+        pmath_unref(part);
+        
+        return TRUE;
+      }
+    }
+    
+    pmath_unref(part);
+  }
+  
+  return FALSE;
+}
+
 PMATH_PRIVATE pmath_t builtin_ismachinenumber(pmath_expr_t expr) {
   pmath_t obj;
   
@@ -177,23 +201,9 @@ PMATH_PRIVATE pmath_t builtin_ismachinenumber(pmath_expr_t expr) {
   obj = pmath_expr_get_item(expr, 1);
   pmath_unref(expr);
   
-  if(pmath_is_double(obj)) {
+  if(_pmath_is_machinenumber(obj)){
     pmath_unref(obj);
     return pmath_ref(PMATH_SYMBOL_TRUE);
-  }
-  
-  if(_pmath_is_nonreal_complex(obj)) {
-    pmath_t part = pmath_expr_get_item(obj, 1);
-    if(pmath_is_double(part)) {
-      pmath_unref(part);
-      part = pmath_expr_get_item(obj, 2);
-      if(pmath_is_double(part)) {
-        pmath_unref(part);
-        pmath_unref(obj);
-        return pmath_ref(PMATH_SYMBOL_TRUE);
-      }
-    }
-    pmath_unref(part);
   }
   
   pmath_unref(obj);

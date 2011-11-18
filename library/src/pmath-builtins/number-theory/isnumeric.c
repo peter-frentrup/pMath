@@ -171,11 +171,18 @@ static int _simple_real_class(pmath_t obj) {
     pmath_t re = pmath_expr_get_item(obj, 1);
     pmath_t im = pmath_expr_get_item(obj, 2);
     
-    if(pmath_is_number(re) && pmath_is_number(re)) {
+    if(pmath_is_number(re) && pmath_is_number(im)) {
+      if(pmath_number_sign(im) == 0){
+        int result = _simple_real_class(re);
+        
+        pmath_unref(re);
+        pmath_unref(im);
+        return result;
+      }
+      
       if(pmath_number_sign(re) == 0) {
         pmath_unref(re);
         pmath_unref(im);
-        
         return PMATH_CLASS_IMAGINARY;
       }
       
@@ -231,8 +238,9 @@ PMATH_PRIVATE pmath_bool_t _pmath_is_numeric(pmath_t obj) {
     
   if(pmath_is_expr(obj)) {
     pmath_t h = pmath_expr_get_item(obj, 0);
-    if(pmath_is_symbol(h)
-        && (pmath_symbol_get_attributes(h) & PMATH_SYMBOL_ATTRIBUTE_NUMERICFUNCTION) != 0) {
+    if(pmath_is_symbol(h) &&
+        (pmath_symbol_get_attributes(h) & PMATH_SYMBOL_ATTRIBUTE_NUMERICFUNCTION) != 0)
+    {
       pmath_bool_t result;
       size_t i;
       

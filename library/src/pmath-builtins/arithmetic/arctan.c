@@ -113,20 +113,6 @@ PMATH_PRIVATE pmath_t builtin_arctan(pmath_expr_t expr) {
     }
   }
   
-  if(pmath_is_expr_of(x, PMATH_SYMBOL_TIMES)) {
-    pmath_t fst = pmath_expr_get_item(x, 1);
-    
-    if(pmath_is_number(fst)) {
-      if(pmath_number_sign(fst) < 0) {
-        x = pmath_expr_set_item(x, 1, pmath_number_neg(fst));
-        expr = pmath_expr_set_item(expr, 1, x);
-        return TIMES(INT(-1), expr);
-      }
-    }
-    
-    pmath_unref(fst);
-  }
-  
   xclass = _pmath_number_class(x);
   
   if(xclass & PMATH_CLASS_ZERO) {
@@ -164,6 +150,7 @@ PMATH_PRIVATE pmath_t builtin_arctan(pmath_expr_t expr) {
   if(xclass & PMATH_CLASS_COMPLEX) {
     pmath_t re = PMATH_NULL;
     pmath_t im = PMATH_NULL;
+    
     if(_pmath_re_im(x, &re, &im)) {
       if(pmath_equals(re, PMATH_FROM_INT32(0))) {
         pmath_unref(expr);

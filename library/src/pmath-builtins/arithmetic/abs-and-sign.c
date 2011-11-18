@@ -1,6 +1,7 @@
 #include <pmath-core/expressions-private.h>
 #include <pmath-core/numbers-private.h>
 
+#include <pmath-util/approximate.h>
 #include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
@@ -8,6 +9,7 @@
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/arithmetic-private.h>
 #include <pmath-builtins/build-expr-private.h>
+#include <pmath-builtins/language-private.h>
 #include <pmath-builtins/number-theory-private.h>
 
 /** Assumes that for expr == f(...), the following is true:
@@ -137,17 +139,39 @@ PMATH_PRIVATE pmath_t builtin_abs(pmath_expr_t expr) {
   
   clazz = _pmath_number_class(x);
   
-  if(clazz & (PMATH_CLASS_POS | PMATH_CLASS_ZERO)) {
+  if(clazz & PMATH_CLASS_ZERO) {
     pmath_unref(expr);
+    
+    if(pmath_is_number(x))
+      return x;
+      
+    // 0.0 + 0.0*I
+    if(_pmath_is_machinenumber(x)) {
+      pmath_unref(x);
+      
+      return PMATH_FROM_DOUBLE(0.0);
+    }
+    
+    // 0``200 + 0``100*I
+    if(_pmath_is_inexact(x)) {
+      double accuracy = pmath_accuracy(x); // frees x
+      
+      return pmath_float_new_str("0", 2, PMATH_PREC_CTRL_GIVEN_ACC, accuracy);
+    }
+    
+    pmath_unref(x);
+    return INT(0);
+  }
+  
+  if(clazz & PMATH_CLASS_POS) {
+    pmath_unref(expr);
+    
     return x;
   }
   
   if(clazz & PMATH_CLASS_NEG) {
     pmath_unref(expr);
-    return pmath_expr_new_extended(
-             pmath_ref(PMATH_SYMBOL_TIMES), 2,
-             INT(-1),
-             x);
+    return NEG(x);
   }
   
   if(clazz & PMATH_CLASS_INF) {
@@ -170,8 +194,9 @@ PMATH_PRIVATE pmath_t builtin_abs(pmath_expr_t expr) {
     return SQRT(PLUS(POW(re, INT(2)), POW(im, INT(2))));
   }
   
-  if(pmath_equals(x, _pmath_object_overflow)
-      || pmath_equals(x, _pmath_object_underflow)) {
+  if( pmath_equals(x, _pmath_object_overflow) ||
+      pmath_equals(x, _pmath_object_underflow))
+  {
     pmath_unref(expr);
     return x;
   }
@@ -205,8 +230,9 @@ PMATH_PRIVATE pmath_t builtin_sign(pmath_expr_t expr) {
     return PMATH_FROM_INT32(sign);
   }
   
-  if(pmath_equals(x, _pmath_object_overflow)
-      || pmath_equals(x, _pmath_object_underflow)) {
+  if( pmath_equals(x, _pmath_object_overflow) ||
+      pmath_equals(x, _pmath_object_underflow))
+  {
     pmath_unref(expr);
     return x;
   }
@@ -216,11 +242,11 @@ PMATH_PRIVATE pmath_t builtin_sign(pmath_expr_t expr) {
     if(!pmath_same(xinfdir, PMATH_NULL)) {
       pmath_unref(x);
       pmath_unref(expr);
-      if(pmath_is_number(xinfdir)
-          && pmath_number_sign(xinfdir) == 0) {
+      if(pmath_is_number(xinfdir) && pmath_number_sign(xinfdir) == 0) {
         pmath_unref(xinfdir);
         return pmath_ref(PMATH_SYMBOL_UNDEFINED);
       }
+      
       return pmath_expr_new_extended(
                pmath_ref(PMATH_SYMBOL_SIGN), 1,
                xinfdir);
@@ -228,6 +254,29 @@ PMATH_PRIVATE pmath_t builtin_sign(pmath_expr_t expr) {
   }
   
   if(_pmath_is_numeric(x)) {
+    int clazz = _pmath_number_class(x);
+    
+    if(clazz & PMATH_CLASS_POS){
+      pmath_unref(expr);
+      pmath_unref(x);
+      
+      return INT(1);
+    }
+  
+    if(clazz & PMATH_CLASS_NEG){
+      pmath_unref(expr);
+      pmath_unref(x);
+      
+      return INT(-1);
+    }
+  
+    if(clazz & PMATH_CLASS_ZERO){
+      pmath_unref(expr);
+      pmath_unref(x);
+      
+      return INT(0);
+    }
+  
     expr = pmath_expr_set_item(expr, 0, pmath_ref(PMATH_SYMBOL_ABS));
     return DIV(x, expr);
   }

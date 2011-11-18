@@ -16,6 +16,8 @@ PMATH_PRIVATE pmath_t _pmath_parse_number(
   pmath_string_t  string, // will be freed
   pmath_bool_t    alternative);
 
+PMATH_PRIVATE pmath_bool_t _pmath_is_machinenumber(pmath_t x);
+
 PMATH_PRIVATE pmath_bool_t _pmath_is_namespace(pmath_t name);
 PMATH_PRIVATE pmath_bool_t _pmath_is_namespace_list(pmath_t list);
 
