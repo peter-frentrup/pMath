@@ -1400,6 +1400,8 @@ static void write_mp_float_ex(
       write_short_double(-d, info->write, info->user);
     }
     else {
+      char s[30];
+      
       if(base == 10)
         d = exp * LOG10_2 + log10(d);
       else if(base == 2)
@@ -1407,8 +1409,8 @@ static void write_mp_float_ex(
       else
         d = (exp * LOGE_2 + log(d)) / log(base);
         
-      write_cstr("0.0*^", info->write, info->user);
-      write_short_double(d, info->write, info->user);
+      snprintf(s, sizeof(s), "0.0*^%"PRIdMAX, (intmax_t)d);
+      write_cstr(s, info->write, info->user);
     }
     
     return;

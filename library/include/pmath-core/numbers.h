@@ -256,10 +256,10 @@ typedef enum {
           with "ennn" or if \a base != 10 "@nnn".
    \param base The base between 2 and 36.
    \param precision_control flag for controling the precision.
-   \param base_precision_accuracy given precinion or accuracy. depending on the
+   \param base_precision_accuracy given precision or accuracy. depending on the
           value of the above flag.
-   \return a new pMath floating point number or PMATH_NULL on error or the integer 0
-           (see below when this happens).
+   \return a new pMath floating point number or PMATH_NULL on error or the 
+           integer 0 (see below when this happens).
 
    \remarks
      \a precision_control may have one of the following values:
