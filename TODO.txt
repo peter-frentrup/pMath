@@ -18,9 +18,6 @@
 
 - implement RotateLeft, RotateRight
 	
-- Power: simplify (1/2)/Sqrt(2), ... 
-		x Sqrt(E x) --->  Sqrt(E) x^(3/2)
-	
 - implement QRDecomposition() in C code
 
 - make $MaxExtraPrecision thread-local, add $MinExtraPrecision

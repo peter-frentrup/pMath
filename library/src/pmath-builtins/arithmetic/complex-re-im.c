@@ -141,16 +141,17 @@ PMATH_PRIVATE pmath_bool_t _pmath_re_im(
     pmath_t zhead = pmath_expr_get_item(z, 0);
     pmath_unref(zhead);
     
-    if((pmath_same(zhead, PMATH_SYMBOL_RE)
-        ||  pmath_same(zhead, PMATH_SYMBOL_IM))
-        && pmath_expr_length(z) == 1) {
+    if( pmath_expr_length(z) == 1 &&
+        (pmath_same(zhead, PMATH_SYMBOL_RE) || pmath_same(zhead, PMATH_SYMBOL_IM)))
+    {
       if(re) *re = z;
       if(im) *im = PMATH_FROM_INT32(0);
       return TRUE;
     }
     
-    if(pmath_same(zhead, PMATH_SYMBOL_COMPLEX)
-        && pmath_expr_length(z) == 2) {
+    if( pmath_expr_length(z) == 2 &&
+        pmath_same(zhead, PMATH_SYMBOL_COMPLEX))
+    {
       if(re) *re = pmath_expr_get_item(z, 1);
       if(im) *im = pmath_expr_get_item(z, 2);
       pmath_unref(z);
@@ -163,11 +164,12 @@ PMATH_PRIVATE pmath_bool_t _pmath_re_im(
       for(j = 0, i = pmath_expr_length(z); i > 0; --i) {
         pmath_t re2, im2;
         
-        if(_pmath_re_im(pmath_expr_get_item(z, i), &re2, &im2)
-            && !_pmath_contains_symbol(re2, PMATH_SYMBOL_RE)
-            && !_pmath_contains_symbol(re2, PMATH_SYMBOL_IM)
-            && !_pmath_contains_symbol(im2, PMATH_SYMBOL_IM)
-            && !_pmath_contains_symbol(im2, PMATH_SYMBOL_IM)) {
+        if( _pmath_re_im(pmath_expr_get_item(z, i), &re2, &im2) &&
+            !_pmath_contains_symbol(re2, PMATH_SYMBOL_RE) &&
+            !_pmath_contains_symbol(re2, PMATH_SYMBOL_IM) &&
+            !_pmath_contains_symbol(im2, PMATH_SYMBOL_IM) &&
+            !_pmath_contains_symbol(im2, PMATH_SYMBOL_IM))
+        {
           z = pmath_expr_set_item(z, i, PMATH_UNDEFINED);
           
           if(j == 0) {

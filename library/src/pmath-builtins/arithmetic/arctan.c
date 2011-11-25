@@ -8,6 +8,7 @@
 #include <pmath-builtins/build-expr-private.h>
 #include <pmath-builtins/number-theory-private.h>
 
+
 PMATH_PRIVATE pmath_t builtin_arctan(pmath_expr_t expr) {
   pmath_t x;
   int xclass;
