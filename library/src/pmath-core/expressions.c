@@ -2269,7 +2269,7 @@ else INPUTFORM: if(exprlen == 2 && /*=========================================*/
     if(exprlen < 2)
       goto FULLFORM;
       
-    if(pmath_same(head, PMATH_SYMBOL_LESS))          op = " < ";
+    if(     pmath_same(head, PMATH_SYMBOL_LESS))          op = " < ";
     else if(pmath_same(head, PMATH_SYMBOL_LESSEQUAL))     op = " <= ";
     else if(pmath_same(head, PMATH_SYMBOL_GREATER))       op = " > ";
     else if(pmath_same(head, PMATH_SYMBOL_GREATEREQUAL))  op = " >= ";
@@ -2309,7 +2309,7 @@ else INPUTFORM: if(exprlen == 2 && /*=========================================*/
     exprlen /= 2;
     for(i = 1; i <= exprlen; i++) {
       item = pmath_expr_get_item(expr, 2 * i);
-      if(pmath_same(item, PMATH_SYMBOL_LESS))          WRITE_CSTR(" < ");
+      if(     pmath_same(item, PMATH_SYMBOL_LESS))          WRITE_CSTR(" < ");
       else if(pmath_same(item, PMATH_SYMBOL_LESSEQUAL))     WRITE_CSTR(" <= ");
       else if(pmath_same(item, PMATH_SYMBOL_GREATER))       WRITE_CSTR(" > ");
       else if(pmath_same(item, PMATH_SYMBOL_GREATEREQUAL))  WRITE_CSTR(" >= ");
@@ -2559,8 +2559,8 @@ else INPUTFORM: if(exprlen == 2 && /*=========================================*/
     re = pmath_expr_get_item(expr, 1);
     im = pmath_expr_get_item(expr, 2);
     
-    if(!pmath_equals(re, PMATH_FROM_INT32(0))) {
-      if(priority > PRIO_TIMES) {
+    if(!pmath_same(re, PMATH_FROM_INT32(0))) {
+      if(priority > PRIO_PLUS) {
         WRITE_CSTR("(");
         lparen = TRUE;
       }
@@ -2572,6 +2572,7 @@ else INPUTFORM: if(exprlen == 2 && /*=========================================*/
       else
         WRITE_CSTR(" ");
     }
+    
     if(pmath_equals(im, PMATH_FROM_INT32(-1))) {
       if(!lparen && priority > PRIO_TIMES) {
         WRITE_CSTR("(");
