@@ -7,9 +7,11 @@
 namespace richmath {
   class Base;
   
-  static const float SelectionAlpha = 0.4f;
-  static const int SelectionFillColor = 0x6699FF;
-  static const int SelectionBorderColor = 0x0000FF;
+  static const float SelectionAlpha             = 0.4f;
+  static const int SelectionFillColor           = 0x6699FF;
+  static const int SelectionBorderColor         = 0x0000FF;
+  static const int InactiveSelectionFillColor   = 0xA0A0A0;
+  static const int InactiveSelectionBorderColor = 0x000000;
   
   class Canvas: public Base {
     public:

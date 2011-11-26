@@ -940,6 +940,8 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
       case WM_ACTIVATEAPP: {
           static bool already_activated = false;
           
+          Document *current_doc = get_current_document();
+          
           if(wParam) { // activate
             if(!already_activated) {
               FOREACH_WINDOW(wnd,
@@ -950,10 +952,17 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
                 }
               });
             }
+            
             already_activated = true;
+            
+            if(current_doc)
+              current_doc->focus_set();
           }
           else {
             already_activated = false;
+            
+            if(current_doc)
+              current_doc->focus_killed();
           }
         } break;
         

@@ -94,8 +94,9 @@ void Context::draw_selection_path() {
   cairo_path_t *path = cairo_copy_path(canvas->cairo());
   int num_points = 0;
   int end = 0;
-  while(end < path->num_data
-        && path->data[end].header.type != CAIRO_PATH_CLOSE_PATH) {
+  while(end < path->num_data &&
+        path->data[end].header.type != CAIRO_PATH_CLOSE_PATH)
+  {
     end += path->data[end].header.length;
     ++num_points;
   }
@@ -142,74 +143,24 @@ void Context::draw_selection_path() {
       canvas->new_path();
   }
   else {
-    if(active) {
-      cairo_push_group(canvas->cairo());
+    cairo_push_group(canvas->cairo());
+    {
+      canvas->save();
       {
-        canvas->save();
-        {
-          cairo_matrix_t idmat;
-          cairo_matrix_init_identity(&idmat);
-          cairo_set_matrix(canvas->cairo(), &idmat);
-          cairo_set_line_width(canvas->cairo(), 2.0);
-          canvas->set_color(SelectionBorderColor);
-          canvas->stroke_preserve();
-        }
-        canvas->restore();
-        
-        canvas->set_color(SelectionFillColor); //ControlPainter::std->selection_color()
-        canvas->fill();
+        cairo_matrix_t idmat;
+        cairo_matrix_init_identity(&idmat);
+        cairo_set_matrix(canvas->cairo(), &idmat);
+        cairo_set_line_width(canvas->cairo(), 2.0);
+        canvas->set_color(active ? SelectionBorderColor : InactiveSelectionBorderColor);
+        canvas->stroke_preserve();
       }
-      cairo_pop_group_to_source(canvas->cairo());
-      canvas->paint_with_alpha(SelectionAlpha);
-    }
-    else {
-      // todo: use a checkerboard source instead of dashes.
-      double dashes[] = {
-        1.0,  /* ink */
-        1.0   /* skip*/
-      };
+      canvas->restore();
       
-      cairo_path_t *path = cairo_copy_path(canvas->cairo());
-      {
-        canvas->save();
-        {
-          double x1, y1, x2, y2;
-          
-          cairo_matrix_t idmat;
-          cairo_matrix_init_identity(&idmat);
-          cairo_set_matrix(canvas->cairo(), &idmat);
-          
-          cairo_path_extents(canvas->cairo(), &x1, &y1, &x2, &y2);
-          
-          x1 = floor(x1 - 2);
-          y1 = floor(y1 - 2);
-          x2 = ceil(x2 + 2);
-          y2 = ceil(y2 + 2);
-          
-          canvas->move_to(x1, y1);
-          canvas->line_to(x1, y2);
-          canvas->line_to(x2, y2);
-          canvas->line_to(x2, y1);
-          canvas->close_path();
-        }
-        canvas->restore();
-        
-        canvas->save();
-        {
-          canvas->set_color(0);
-          cairo_set_line_width(canvas->cairo(), 2);
-          cairo_set_line_cap(canvas->cairo(), CAIRO_LINE_CAP_BUTT);
-          cairo_set_fill_rule(canvas->cairo(), CAIRO_FILL_RULE_WINDING);
-          cairo_set_dash(canvas->cairo(), dashes, sizeof(dashes) / sizeof(dashes[0]), 0.0);
-          canvas->clip();
-          
-          cairo_append_path(canvas->cairo(), path);
-          canvas->hair_stroke();
-        }
-        canvas->restore();
-      }
-      cairo_path_destroy(path);
+      canvas->set_color(active ? SelectionFillColor : InactiveSelectionFillColor); //ControlPainter::std->selection_color()
+      canvas->fill();
     }
+    cairo_pop_group_to_source(canvas->cairo());
+    canvas->paint_with_alpha(SelectionAlpha);
   }
 }
 
@@ -324,9 +275,10 @@ void Context::draw_with_text_shadows(Box *box, Expr shadows) {
     for(size_t i = 1; i <= shadows.expr_length(); ++i) {
       Expr shadow = shadows[i];
       
-      if(shadow[0] == PMATH_SYMBOL_LIST
-          && shadow.expr_length() >= 3
-          && shadow.expr_length() <= 4) {
+      if( shadow[0] == PMATH_SYMBOL_LIST &&
+          shadow.expr_length() >= 3 &&
+          shadow.expr_length() <= 4)
+      {
         int col = pmath_to_color(shadow[3]);
         
         if(col >= 0) {
@@ -436,12 +388,12 @@ void ContextState::begin(SharedPtr<Style> style) {
     
     if(ctx->stylesheet->get(style, AutoSpacing, &i)) {
       ctx->math_spacing = i;
-      //    show_auto_styles = i;
+      //show_auto_styles = i;
     }
     
     if(ctx->stylesheet->get(style, ShowAutoStyles, &i)) {
       ctx->show_auto_styles = i;
-      //    show_auto_styles = i;
+      //show_auto_styles = i;
     }
     
     if(ctx->stylesheet->get(style, ShowStringCharacters, &i)) {
@@ -456,15 +408,14 @@ void ContextState::begin(SharedPtr<Style> style) {
 
 void ContextState::end() {
   ctx->cursor_color = old_cursor_color;
-  ctx->canvas->set_color(old_color);
-  ctx->canvas->set_font_size(old_fontsize);
+  ctx->canvas->set_color(       old_color);
+  ctx->canvas->set_font_size(   old_fontsize);
   ctx->width                  = old_width;
   ctx->show_string_characters = old_show_string_characters;
   ctx->show_auto_styles       = old_show_auto_styles;
   ctx->math_spacing           = old_math_spacing;
-  
-  ctx->math_shaper = old_math_shaper;
-  ctx->text_shaper = old_text_shaper;
+  ctx->math_shaper            = old_math_shaper;
+  ctx->text_shaper            = old_text_shaper;
   
   if(old_antialiasing >= 0)
     cairo_set_antialias(ctx->canvas->cairo(), old_antialiasing);
