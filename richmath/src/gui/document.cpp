@@ -3440,11 +3440,13 @@ void Document::paint_resize(Canvas *canvas, bool resize_only) {
       double t = flashing_cursor_circle->timer();
       Box *box = selection_box();
       
-      if(!box
-          || t >= MaxFlashingCursorTime
-          || !flashing_cursor_circle->register_event())
+      if( !box ||
+          t >= MaxFlashingCursorTime ||
+          !flashing_cursor_circle->register_event())
+      {
         flashing_cursor_circle = 0;
-        
+      }
+      
       t = t / MaxFlashingCursorTime;
       
       if(flashing_cursor_circle) {
@@ -3492,8 +3494,7 @@ void Document::paint_resize(Canvas *canvas, bool resize_only) {
       }
     }
     
-    if(selection_length() == 1
-        && best_index_rel_x == 0) {
+    if(selection_length() == 1 && best_index_rel_x == 0) {
       MathSequence *seq = dynamic_cast<MathSequence*>(selection_box());
       if(seq) {
         best_index_rel_x = seq->glyph_array()[selection_end() - 1].right;
@@ -3577,7 +3578,7 @@ bool Document::prepare_insert_math(bool include_previous_word) {
       
       while(i > 0 && (unsigned char)buf[i] > ' ')
         --i;
-      
+        
       select(txt, i, selection_end());
     }
   }

@@ -339,12 +339,14 @@ bool Box::request_repaint_range(int start, int end) {
 }
 
 bool Box::request_repaint(float x, float y, float w, float h) {
-  if(x > _extents.width
-      || x + w < 0
-      || y > _extents.descent
-      || y + h < -_extents.ascent)
+  if( x     > _extents.width   ||
+      x + w < 0                ||
+      y     > _extents.descent ||
+      y + h < -_extents.ascent)
+  {
     return false;
-    
+  }
+  
   if(_parent) {
     cairo_matrix_t matrix;
     cairo_matrix_init_identity(&matrix);

@@ -418,11 +418,12 @@ void Win32Widget::paint_canvas(Canvas *canvas, bool resize_only) {
   canvas->set_color(document()->get_style(FontColor, 0));
   
   document()->paint_resize(canvas, resize_only);
-  if(_hwnd
-      && _hwnd == GetFocus()
-      && document()->selection_box()
-      && document()->selection_length() == 0
-      && GetCaretBlinkTime() != INFINITE) {
+  if( _hwnd &&
+      _hwnd == GetFocus() &&
+      document()->selection_box() &&
+      document()->selection_length() == 0 &&
+      GetCaretBlinkTime() != INFINITE)
+  {
     SetTimer(_hwnd, TID_BLINKCURSOR, GetCaretBlinkTime(), NULL);
   }
   
@@ -1022,10 +1023,12 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
                 KillTimer(_hwnd, TID_BLINKCURSOR);
                 
                 Context *ctx = document_context();
-                if(ctx->old_selection == ctx->selection
-                    || _hwnd != GetFocus()
-                    || is_mouse_down())
+                if( ctx->old_selection == ctx->selection ||
+                    _hwnd != GetFocus() ||
+                    is_mouse_down())
+                {
                   ctx->old_selection.id = 0;
+                }
                 else
                   ctx->old_selection = ctx->selection;
                   
@@ -1059,14 +1062,16 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
           if(wParam == 0xFFFF)
             return 1;
             
-          if((wParam == ' '
-              || wParam == '\r'
-              || wParam == '\n')
-              && ((GetKeyState(VK_CONTROL) & ~1)
-                  || (GetKeyState(VK_MENU) & ~1)
-                  || (GetKeyState(VK_SHIFT) & ~1)))
+          if((wParam == ' ' ||
+              wParam == '\r' ||
+              wParam == '\n') &&
+              ((GetKeyState(VK_CONTROL) & ~1) ||
+               (GetKeyState(VK_MENU) & ~1) ||
+               (GetKeyState(VK_SHIFT) & ~1)))
+          {
             return 0;
-            
+          }
+          
           if(wParam == '\t')
             return 0;
             
@@ -1088,9 +1093,10 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
             set_current_document(document());
           }
           
-          if(document()->selection_box()
-              && document()->selection_length() == 0
-              && GetCaretBlinkTime() != INFINITE) {
+          if( document()->selection_box() &&
+              document()->selection_length() == 0 &&
+              GetCaretBlinkTime() != INFINITE)
+          {
             SetTimer(_hwnd, TID_BLINKCURSOR, GetCaretBlinkTime(), NULL);
           }
         } return 0;
