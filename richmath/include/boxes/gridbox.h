@@ -17,22 +17,10 @@ namespace richmath {
       
       virtual bool expand(const BoxSize &size);
       virtual void resize(Context *context);
-      virtual void paint(Context *context);
       
       virtual Expr to_pmath_symbol() { return Expr(); }
       virtual Expr to_pmath(int flags);
       
-      virtual Box *mouse_selection(
-        float  x,
-        float  y,
-        int   *start,
-        int   *end,
-        bool  *was_inside_start);
-        
-      virtual void child_transformation(
-        int             index,
-        cairo_matrix_t *matrix);
-        
       virtual void load_from_object(const Expr object, int opts);
       
       bool span_from_left();

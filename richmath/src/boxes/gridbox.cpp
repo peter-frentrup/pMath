@@ -29,7 +29,9 @@ bool GridItem::expand(const BoxSize &size) {
 void GridItem::resize(Context *context) {
   bool smf = context->smaller_fraction_parts;
   context->smaller_fraction_parts = true;
+  
   OwnerBox::resize(context);
+  
   context->smaller_fraction_parts = smf;
   _span_right = 0;
   _span_down = 0;
@@ -37,35 +39,8 @@ void GridItem::resize(Context *context) {
   _really_span_from_above = false;
 }
 
-void GridItem::paint(Context *context) {
-  context->canvas->rel_move_to(0, _extents.ascent);
-  
-  OwnerBox::paint(context);
-}
-
 Expr GridItem::to_pmath(int flags) {
   return _content->to_pmath(flags);
-}
-
-Box *GridItem::mouse_selection(
-  float x,
-  float y,
-  int   *start,
-  int   *end,
-  bool  *was_inside_start
-) {
-//  x-= (_extents.width - _content->extents().width) / 2;
-//  y+= _extents.ascent;
-  return _content->mouse_selection(x, y, start, end, was_inside_start);
-}
-
-void GridItem::child_transformation(
-  int             index,
-  cairo_matrix_t *matrix
-) {
-  cairo_matrix_translate(matrix,
-                         0/*(_extents.width - _content->extents().width)/2*/,
-                         _extents.ascent);
 }
 
 void GridItem::load_from_object(const Expr object, int opts) {
@@ -73,27 +48,27 @@ void GridItem::load_from_object(const Expr object, int opts) {
 }
 
 bool GridItem::span_from_left() {
-  return content()->length() == 1
-         && (_content->text()[0] == 0xF3BA
-             || _content->text()[0] == 0xF3BC);
+  return content()->length() == 1 &&
+         (_content->text()[0] == 0xF3BA ||
+          _content->text()[0] == 0xF3BC);
 }
 
 bool GridItem::span_from_above() {
-  return _content->length() == 1
-         && (_content->text()[0] == 0xF3BB
-             || _content->text()[0] == 0xF3BC);
+  return _content->length() == 1 &&
+         (_content->text()[0] == 0xF3BB ||
+          _content->text()[0] == 0xF3BC);
 }
 
 bool GridItem::span_from_both() {
-  return _content->length() == 1
-         && _content->text()[0] == 0xF3BC;
+  return _content->length() == 1 &&
+         _content->text()[0] == 0xF3BC;
 }
 
 bool GridItem::span_from_any() {
-  return _content->length() == 1
-         && (_content->text()[0] == 0xF3BA
-             || _content->text()[0] == 0xF3BB
-             || _content->text()[0] == 0xF3BC);
+  return _content->length() == 1 &&
+         (_content->text()[0] == 0xF3BA ||
+          _content->text()[0] == 0xF3BB ||
+          _content->text()[0] == 0xF3BC);
 }
 
 //} ... class GridItem
@@ -146,9 +121,9 @@ GridBox *GridBox::create(Expr expr, int opts) {
           // compile with gcc -O1 ..., the app crashes, because matrix[row]._obj
           // is freed 1 time too often.
           
-          if(!r.is_expr()
-              ||  r[0] != PMATH_SYMBOL_LIST
-              ||  r.expr_length() != (size_t)cols) {
+          if(!r.is_expr() ||
+              r[0] != PMATH_SYMBOL_LIST ||  r.expr_length() != (size_t)cols)
+          {
             cols = 0;
             break;
           }
@@ -274,8 +249,9 @@ int GridBox::resize_items(Context *context) {
         gi->_span_right--;
         
         gi->_span_down = 1;
-        while(y + gi->_span_down < rows()
-              && item(y + gi->_span_down, x)->span_from_above()) {
+        while(y + gi->_span_down < rows() &&
+              item(y + gi->_span_down, x)->span_from_above())
+        {
           for(int i = x + gi->_span_right; i > x; --i)
             if(!item(y + gi->_span_down, i)->span_from_both())
               goto END_DOWN;
@@ -300,6 +276,7 @@ int GridBox::resize_items(Context *context) {
 void GridBox::simple_spacing(float em) {
   float right = 0;//colspacing / 2;
   xpos.length(items.cols());
+  
   for(int x = 0; x < xpos.length(); ++x) {
     float w = 0;
     for(int y = 0; y < rows(); ++y) {
@@ -317,10 +294,12 @@ void GridBox::simple_spacing(float em) {
             w = rest_w;
         }
       }
-      else if(!gi->_span_right
-              && !gi->_really_span_from_above
-              && w < gi->extents().width)
+      else if(!gi->_span_right &&
+              !gi->_really_span_from_above &&
+              w < gi->extents().width)
+      {
         w = gi->extents().width;
+      }
     }
     
     xpos[x] = right;
@@ -339,10 +318,12 @@ void GridBox::simple_spacing(float em) {
     for(int x = 0; x < cols(); ++x) {
       GridItem *gi = item(y, x);
       
-      if(!gi->_span_down
-          && !gi->_really_span_from_left
-          && !gi->_really_span_from_above)
+      if( !gi->_span_down &&
+          !gi->_really_span_from_left &&
+          !gi->_really_span_from_above)
+      {
         gi->extents().bigger_y(&a, &d);
+      }
     }
     
     BoxSize size(0, a, d);
@@ -533,13 +514,16 @@ void GridBox::paint(Context *context) {
   
   for(int ix = 0; ix < items.cols(); ++ix) {
     for(int iy = 0; iy < items.rows(); ++iy) {
-      context->canvas->move_to(x + xpos[ix], y - _extents.ascent + ypos[iy]);
-      
       GridItem *gi = item(iy, ix);
       
-      if(!gi->_really_span_from_left
-          && !gi->_really_span_from_above)
+      if( !gi->_really_span_from_left &&
+          !gi->_really_span_from_above)
+      {
+        context->canvas->move_to(
+          x + xpos[ix], 
+          y + ypos[iy] + gi->extents().ascent - _extents.ascent);
         gi->paint(context);
+      }
     }
   }
   
@@ -1010,7 +994,7 @@ void GridBox::child_transformation(
   cairo_matrix_translate(
     matrix,
     xpos[col],
-    ypos[row] - _extents.ascent);
+    ypos[row] + item(index)->extents().ascent - _extents.ascent);
 }
 
 Box *GridBox::normalize_selection(int *start, int *end) {
