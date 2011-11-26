@@ -11,14 +11,16 @@ namespace richmath {
   const int GraphicsPartSizeBottom      = -4;
   const int GraphicsPartSizeBottomRight = -5;
   
+  class AxisTicks;
+  
   class GraphicsBox: public Box {
     public:
       virtual ~GraphicsBox();
       
       static GraphicsBox *create(Expr expr, int opts);
       
-      virtual Box *item(int i) { return NULL; }
-      virtual int count() { return 0; }
+      virtual Box *item(int i);
+      virtual int count();
       
       virtual void resize(Context *context);
       virtual void paint(Context *context);
@@ -50,6 +52,14 @@ namespace richmath {
       int   mouse_over_part; // GraphicsPartXXX
       float mouse_down_x;
       float mouse_down_y;
+      
+      float margin_left;
+      float margin_right;
+      float margin_top;
+      float margin_bottom;
+      
+      AxisTicks *x_axis_ticks;
+      AxisTicks *y_axis_ticks;
     
     protected:
       GraphicsBox();

@@ -793,5 +793,8 @@ pmath_bool_t pmath_register_approx_code(
 #define PMATH_SYMBOL_BITSET                                 PMATH_SYMBOL_BUILTIN(701)
 #define PMATH_SYMBOL_BITSHIFTLEFT                           PMATH_SYMBOL_BUILTIN(702)
 #define PMATH_SYMBOL_BITSHIFTRIGHT                          PMATH_SYMBOL_BUILTIN(703)
+#define PMATH_SYMBOL_TICKS                                  PMATH_SYMBOL_BUILTIN(704)
+#define PMATH_SYMBOL_AXES                                   PMATH_SYMBOL_BUILTIN(705)
+#define PMATH_SYMBOL_PLOTRANGE                              PMATH_SYMBOL_BUILTIN(706)
 
 #endif /* __PMATH_BUILTINS__SYMBOLS_H__ */

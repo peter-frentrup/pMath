@@ -350,6 +350,7 @@
 		<Unit filename="include\boxes\fillbox.h" />
 		<Unit filename="include\boxes\fractionbox.h" />
 		<Unit filename="include\boxes\framebox.h" />
+		<Unit filename="include\boxes\graphics\axisticks.h" />
 		<Unit filename="include\boxes\graphics\graphicsbox.h" />
 		<Unit filename="include\boxes\gridbox.h" />
 		<Unit filename="include\boxes\inputfieldbox.h" />
@@ -549,6 +550,7 @@
 		<Unit filename="src\boxes\fillbox.cpp" />
 		<Unit filename="src\boxes\fractionbox.cpp" />
 		<Unit filename="src\boxes\framebox.cpp" />
+		<Unit filename="src\boxes\graphics\axisticks.cpp" />
 		<Unit filename="src\boxes\graphics\graphicsbox.cpp" />
 		<Unit filename="src\boxes\gridbox.cpp" />
 		<Unit filename="src\boxes\inputfieldbox.cpp" />
