@@ -25,6 +25,8 @@ GraphicsBox::GraphicsBox()
   if(!style)
     style = new Style();
     
+  style->set(BaseStyleName, "Graphics");
+  
   x_axis_ticks = new AxisTicks;
   y_axis_ticks = new AxisTicks;
   
@@ -57,20 +59,6 @@ GraphicsBox *GraphicsBox::create(Expr expr, int opts) {
     box->style->add_pmath(options);
   }
   
-  box->x_axis_ticks->load_from_object(
-    Evaluate(Parse(
-               "{{0.0, ToBoxes(0)},"
-               " {0.5, ToBoxes(1/2)},"
-               " {1.0, ToBoxes(1)}}")),
-    opts);
-    
-  box->y_axis_ticks->load_from_object(
-    Evaluate(Parse(
-               "{{0.0, ToBoxes(0)},"
-               " {0.5, ToBoxes(1/2)},"
-               " {1.0, ToBoxes(1)}}")),
-    opts);
-    
   return box;
 }
 
@@ -95,50 +83,83 @@ void GraphicsBox::resize(Context *context) {
   
   if(w <= 0) {
     if(h <= 0)
-      w = h = 10 * em;
+      w = h = 15 * em;
     else
       w = h;
   }
   else if(h <= 0)
     h = w;
-  
+    
   _extents.width = w;
   _extents.ascent  = h / 2 + 0.25 * em;
   _extents.descent = h - _extents.ascent;
   
-  x_axis_ticks->start_position = 0.0;
-  x_axis_ticks->end_position   = 1.0;
-  x_axis_ticks->resize(context);
-  
-  y_axis_ticks->start_position = 0.0;
-  y_axis_ticks->end_position   = 1.0;
-  y_axis_ticks->resize(context);
-  
-  margin_left   = 0;
-  margin_right  = 0;
-  margin_top    = 0;
-  margin_bottom = 0;
-  
-  BoxSize xlabels = x_axis_ticks->all_labels_extents();
-  BoxSize ylabels = y_axis_ticks->all_labels_extents();
-  
-  x_axis_ticks->extra_offset = 0.75 * 4;
-  y_axis_ticks->extra_offset = 0.75 * 4;
-  
-  margin_left   = fmax(ylabels.width    + x_axis_ticks->extra_offset, xlabels.width    / 2);
-  margin_bottom = fmax(xlabels.height() + y_axis_ticks->extra_offset, ylabels.height() / 2);
-  margin_right  = xlabels.width    / 2;
-  margin_top    = ylabels.height() / 2;
-  
-  x_axis_ticks->start_x = margin_left;
-  x_axis_ticks->start_y = _extents.descent - margin_bottom;
-  x_axis_ticks->end_x   = _extents.width   - margin_right;
-  x_axis_ticks->end_y   = _extents.descent - margin_bottom;
-  
-  y_axis_ticks->start_x = margin_left;
-  y_axis_ticks->start_y = _extents.descent - margin_bottom;
-  y_axis_ticks->end_x   = margin_left;
-  y_axis_ticks->end_y   = margin_top - _extents.ascent;
+  ContextState cc(context);
+  cc.begin(style);
+  {
+    double xmin = -1;
+    double xmax =  1;
+    double ymin = -1;
+    double ymax =  1;
+    
+    if( x_axis_ticks->start_position != xmin ||
+        x_axis_ticks->end_position   != xmax)
+    {
+      x_axis_ticks->load_from_object(
+        Evaluate(Parse(
+                   "FE`Graphics`TickPositions(`1`, `2`).Map({#, ToBoxes(#)}&)",
+                   xmin,
+                   xmax)),
+        BoxOptionFormatNumbers);
+        
+      x_axis_ticks->start_position = xmin;
+      x_axis_ticks->end_position   = xmax;
+    }
+    
+    if( y_axis_ticks->start_position != ymin ||
+        y_axis_ticks->end_position   != ymax)
+    {
+      y_axis_ticks->load_from_object(
+        Evaluate(Parse(
+                   "FE`Graphics`TickPositions(`1`, `2`).Map({#, ToBoxes(#)}&)",
+                   ymin,
+                   ymax)),
+        BoxOptionFormatNumbers);
+        
+      y_axis_ticks->start_position = ymin;
+      y_axis_ticks->end_position   = ymax;
+    }
+    
+    x_axis_ticks->resize(context);
+    y_axis_ticks->resize(context);
+    
+    margin_left   = 0;
+    margin_right  = 0;
+    margin_top    = 0;
+    margin_bottom = 0;
+    
+    BoxSize xlabels = x_axis_ticks->all_labels_extents();
+    BoxSize ylabels = y_axis_ticks->all_labels_extents();
+    
+    x_axis_ticks->extra_offset = 0.75 * 6;
+    y_axis_ticks->extra_offset = 0.75 * 6;
+    
+    margin_left   = fmax(ylabels.width    + x_axis_ticks->extra_offset, xlabels.width    / 2);
+    margin_bottom = fmax(xlabels.height() + y_axis_ticks->extra_offset, ylabels.height() / 2);
+    margin_right  = xlabels.width    / 2;
+    margin_top    = ylabels.height() / 2;
+    
+    x_axis_ticks->start_x = margin_left;
+    x_axis_ticks->start_y = _extents.descent - margin_bottom;
+    x_axis_ticks->end_x   = _extents.width   - margin_right;
+    x_axis_ticks->end_y   = _extents.descent - margin_bottom;
+    
+    y_axis_ticks->start_x = margin_left;
+    y_axis_ticks->start_y = _extents.descent - margin_bottom;
+    y_axis_ticks->end_x   = margin_left;
+    y_axis_ticks->end_y   = margin_top - _extents.ascent;
+  }
+  cc.end();
 }
 
 void GraphicsBox::paint(Context *context) {
@@ -150,61 +171,66 @@ void GraphicsBox::paint(Context *context) {
   float w = _extents.width;
   float h = _extents.height();
   
-  context->canvas->save();
+  ContextState cc(context);
+  cc.begin(style);
   {
-    context->canvas->pixrect(x, y, x + w, y + h, false);
-    context->canvas->clip();
-    
-    context->canvas->pixrect(
-      x + margin_left,
-      y + margin_top,
-      x + w - margin_right,
-      y + h - margin_bottom,
-      true);
-    
-    context->canvas->hair_stroke();
-    
-    context->canvas->move_to(x, y + _extents.ascent);
-    x_axis_ticks->paint(context);
-    
-    context->canvas->move_to(x, y + _extents.ascent);
-    y_axis_ticks->paint(context);
-  }
-  context->canvas->restore();
-  
-  if(context->selection.equals(this, 0, 0)) {
     context->canvas->save();
-    
-    context->canvas->pixrect(x, y, x + w, y + h, true);
-    
-    context->canvas->set_color(0xFF8000);
-    context->canvas->hair_stroke();
-    
-    context->canvas->pixrect(
-      x + w - 2.25,
-      y + h / 2 - 1.5,
-      x + w,
-      y + h / 2 + 0.75,
-      false);
+    {
+      context->canvas->pixrect(x, y, x + w, y + h, false);
+      context->canvas->clip();
       
-    context->canvas->pixrect(
-      x + w - 2.25,
-      y + h - 2.25,
-      x + w,
-      y + h,
-      false);
+      context->canvas->pixrect(
+        x + margin_left,
+        y + margin_top,
+        x + w - margin_right,
+        y + h - margin_bottom,
+        true);
+        
+      context->canvas->hair_stroke();
       
-    context->canvas->pixrect(
-      x + w / 2 - 1.5,
-      y + h - 2.25,
-      x + w / 2 + 0.75,
-      y + h,
-      false);
+      context->canvas->move_to(x, y + _extents.ascent);
+      x_axis_ticks->paint(context);
       
-    context->canvas->fill();
-    
+      context->canvas->move_to(x, y + _extents.ascent);
+      y_axis_ticks->paint(context);
+    }
     context->canvas->restore();
+    
+    if(context->selection.equals(this, 0, 0)) {
+      context->canvas->save();
+      
+      context->canvas->pixrect(x, y, x + w, y + h, true);
+      
+      context->canvas->set_color(0xFF8000);
+      context->canvas->hair_stroke();
+      
+      context->canvas->pixrect(
+        x + w - 2.25,
+        y + h / 2 - 1.5,
+        x + w,
+        y + h / 2 + 0.75,
+        false);
+        
+      context->canvas->pixrect(
+        x + w - 2.25,
+        y + h - 2.25,
+        x + w,
+        y + h,
+        false);
+        
+      context->canvas->pixrect(
+        x + w / 2 - 1.5,
+        y + h - 2.25,
+        x + w / 2 + 0.75,
+        y + h,
+        false);
+        
+      context->canvas->fill();
+      
+      context->canvas->restore();
+    }
   }
+  cc.end();
 }
 
 Expr GraphicsBox::to_pmath(int flags) {
@@ -253,18 +279,25 @@ Box *GraphicsBox::mouse_selection(
   
   if(tmp != x_axis_ticks)
     return tmp;
-  
+    
   tmp = y_axis_ticks->mouse_selection(x, y, start, end, was_inside_start);
   
   if(tmp != y_axis_ticks)
     return tmp;
-  
+    
   //if(!selectable())
   //  return Box::mouse_selection(x, y, start, end, was_inside_start);
-    
+  
   *was_inside_start = false;
   *start = *end = 0;
   return this;
+}
+
+bool GraphicsBox::selectable(int i) {
+  if(i < 0)
+    return Box::selectable(i);
+    
+  return false;
 }
 
 Box *GraphicsBox::normalize_selection(int *start, int *end) {

@@ -57,12 +57,17 @@ void AxisTicks::load_from_object(Expr expr, int options) { // BoxOptionXXX
 }
 
 void AxisTicks::resize(Context *context) {
+  float old_width = context->width;
+  context->width = HUGE_VAL;
+  
   for(int i = 0; i < _labels.length(); ++i)
     _labels[i]->resize(context);
     
   _extents.width   = 0;
   _extents.ascent  = 0;
   _extents.descent = 0;
+  
+  context->width = old_width;
 }
 
 void AxisTicks::paint(Context *context) {

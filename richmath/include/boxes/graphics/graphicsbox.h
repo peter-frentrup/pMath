@@ -37,6 +37,9 @@ namespace richmath {
         int   *end,
         bool  *was_inside_start);
         
+        
+      virtual bool selectable(int i = -1);
+        
       virtual Box *normalize_selection(int *start, int *end);
       
       int calc_mouse_over_part(float x, float y);

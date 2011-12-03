@@ -1,0 +1,25 @@
+/* Helper functions for GraphicsBox */
+
+BeginPackage("FE`Graphics`")
+
+FE`Graphics`StepSize
+FE`Graphics`TickPositions
+
+Begin("FE`Graphics`Private`")
+
+
+StepSize(~width ? IsPositive)::= 
+   First @ Select(
+      {5,10,20,50} 10^(Round @ Log(10, width) - 2), 
+      width < 8 # &, 
+      1)
+
+
+TickPositions(~start, ~end) /? start < end ::=
+   With({step:= StepSize(end - start)},
+      N @ Array(Ceiling(start, step) .. end .. step))
+
+
+End()
+
+EndPackage()

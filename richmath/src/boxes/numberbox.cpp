@@ -115,27 +115,39 @@ bool NumberBox::edit_selection(Context *context) {
 }
 
 void NumberBox::resize(Context *context) {
-  bool old_math_spacing     = context->math_spacing;
-  bool old_show_auto_styles = context->show_auto_styles;
+  bool                  old_math_spacing     = context->math_spacing;
+  bool                  old_show_auto_styles = context->show_auto_styles;
+  SharedPtr<TextShaper> old_text_shaper      = context->text_shaper;
+  
   context->math_spacing     = false;
   context->show_auto_styles = false;
+  
+  if(old_math_spacing)
+    context->text_shaper = context->math_shaper;
   
   OwnerBox::resize(context);
   
   context->math_spacing     = old_math_spacing;
   context->show_auto_styles = old_show_auto_styles;
+  context->text_shaper      = old_text_shaper;
 }
 
 void NumberBox::paint(Context *context) {
-  bool old_math_spacing     = context->math_spacing;
-  bool old_show_auto_styles = context->show_auto_styles;
+  bool                  old_math_spacing     = context->math_spacing;
+  bool                  old_show_auto_styles = context->show_auto_styles;
+  SharedPtr<TextShaper> old_text_shaper      = context->text_shaper;
+  
   context->math_spacing     = false;
   context->show_auto_styles = false;
+  
+  if(old_math_spacing)
+    context->text_shaper = context->math_shaper;
   
   OwnerBox::paint(context);
   
   context->math_spacing     = old_math_spacing;
   context->show_auto_styles = old_show_auto_styles;
+  context->text_shaper      = old_text_shaper;
 }
 
 Expr NumberBox::to_pmath(int flags) {

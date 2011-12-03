@@ -623,6 +623,9 @@ void ScopeColorizer::scope_colorize_spanexpr(
             
           }
           return;
+      
+        case NoSpec:
+          break;
       }
     }
     

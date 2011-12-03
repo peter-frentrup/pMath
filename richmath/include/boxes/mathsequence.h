@@ -18,11 +18,6 @@ namespace richmath {
       unsigned continuation: 1;
   };
   
-  enum {
-    BoxOptionDefault       = 0,
-    BoxOptionFormatNumbers = 1
-  };
-  
   /* This is a box containing math.
      For normal text, use class TextSequence.
    */

@@ -154,8 +154,9 @@ void MathSequence::resize(Context *context) {
     float a = 0;
     float d = 0;
     
-    if(glyphs.length() == 1
-        && !dynamic_cast<UnderoverscriptBox*>(_parent)) {
+    if(glyphs.length() == 1 &&
+        !dynamic_cast<UnderoverscriptBox*>(_parent))
+    {
       pmath_token_t tok = pmath_token_analyse(str.buffer(), 1, NULL);
       
       if(tok == PMATH_TOK_INTEGRAL || tok == PMATH_TOK_PREFIX) {
@@ -251,6 +252,14 @@ void MathSequence::resize(Context *context) {
     if(buf[pos] == PMATH_CHAR_BOX) {
       boxes[box]->extents().bigger_y(&lines[line].ascent, &lines[line].descent);
       ++box;
+    }
+    else if(glyphs[pos].is_normal_text) {
+      context->text_shaper->vertical_glyph_size(
+        context,
+        buf[pos],
+        glyphs[pos],
+        &lines[line].ascent,
+        &lines[line].descent);
     }
     else {
       context->math_shaper->vertical_glyph_size(
@@ -2212,8 +2221,9 @@ void MathSequence::stretch_span(
         if(underover->base()->length() == 1)
           ch = underover->base()->text()[0];
           
-        if(spans.is_operand_start(*pos)
-            && (pmath_char_maybe_bigop(ch) || pmath_char_is_integral(ch))) {
+        if(spans.is_operand_start(*pos) &&
+            (pmath_char_maybe_bigop(ch) || pmath_char_is_integral(ch)))
+        {
           context->math_shaper->vertical_stretch_char(
             context,
             0,

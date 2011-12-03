@@ -70,10 +70,17 @@ namespace richmath {
       bool shift;
   };
   
-  const int BoxFlagDefault      = 0;
-  const int BoxFlagParseable    = 1; // no StyleBox with StripOnInput->True, ...
-  const int BoxFlagLiteral      = 2; // no DynamicBox
-  const int BoxFlagShortNumbers = 4; // not the internal representation of NumberBox, but the content()
+  enum {
+    BoxFlagDefault      = 0,
+    BoxFlagParseable    = 1, // no StyleBox with StripOnInput->True, ...
+    BoxFlagLiteral      = 2, // no DynamicBox
+    BoxFlagShortNumbers = 4  // not the internal representation of NumberBox, but the content()
+  };
+  
+  enum {
+    BoxOptionDefault       = 0,
+    BoxOptionFormatNumbers = 1
+  };
   
   class Box: public FrontEndObject {
     public:

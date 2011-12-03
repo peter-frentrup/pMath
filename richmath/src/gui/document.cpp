@@ -1564,6 +1564,14 @@ void Document::move_horizontal(
   else
     box = box->move_logical(direction, jumping, &i);
     
+  while(box && !box->selectable(i)) {
+    i = box->index();
+    if(direction == Forward)
+      ++i;
+    
+    box = box->parent();
+  }
+  
   if(selecting) {
     select_to(box, i, i);
   }

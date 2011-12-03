@@ -344,29 +344,36 @@ static void init_stylesheet() {
   Stylesheet::Default->styles.set("TI", s);
   
   s = new Style;
+  s->set(AutoNumberFormating, true);
+  s->set(AutoSpacing,         true);
+  s->set(ShowAutoStyles,      false);
+  s->set(FontSize,            9.0);
+  Stylesheet::Default->styles.set("Graphics", s);
+  
+  s = new Style;
   s->set(AutoSpacing,         true);
   s->set(AutoNumberFormating, false);
   s->set(Evaluatable,         true);
   s->set(ShowAutoStyles,      true);
-  s->set(FontSize,                11.0);
-  s->set(SectionMarginLeft,       56.0);
-  s->set(SectionMarginTop,        10.0);
-  s->set(SectionMarginBottom,      5.0);
+  s->set(FontSize,            11.0);
+  s->set(SectionMarginLeft,   56.0);
+  s->set(SectionMarginTop,    10.0);
+  s->set(SectionMarginBottom,  5.0);
   Stylesheet::Default->styles.set("Input", s);
   
   s = new Style;
   s->set(BaseStyleName, "Input");
-  s->set(AutoNumberFormating,  true);
-  s->set(Evaluatable,          false);
-  s->set(ShowAutoStyles,       false);
-  s->set(ShowStringCharacters, false);
+  s->set(AutoNumberFormating,     true);
+  s->set(Evaluatable,             false);
+  s->set(ShowAutoStyles,          false);
+  s->set(ShowStringCharacters,    false);
   s->set(SectionGroupPrecedence,  10);
   s->set(SectionMarginTop,         5.0);
   Stylesheet::Default->styles.set("Output", s);
   
   s = new Style;
   s->set(BaseStyleName, "Output");
-  s->set(Editable, false);
+  s->set(Editable,               false);
   s->set(SectionGroupPrecedence, 20);
   s->set(SectionMarginLeft,      50.0);
   Stylesheet::Default->styles.set("Print", s);
