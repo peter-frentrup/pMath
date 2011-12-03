@@ -18,15 +18,20 @@ DynamicLocal({def: (~:Symbol | (Assign|AssignDelayed)(~:Symbol,~))***}, ~body, o
 	)::= Local(
 		{heldsyms, heldlocalsyms, content, head, vals, unsaved, repsyms},
 		
-		heldsyms:= HoldComplete(def).Replace({~x:Symbol :> x, ~(~x:Symbol,~) :> x}, 1);
-		{heldlocalsyms, content}:= ReleaseHold @ Replace(
-			HoldComplete(head({def},{heldsyms,body})),
-			{HoldPattern(heldsyms) -> heldsyms, head -> Local}, Heads -> True);
-			
 		unsaved:= HoldComplete(UnsavedVariables).Replace(
 			Flatten({opt, UnsavedVariables -> {}, HoldComplete({~~~x}) :> HoldComplete(x)}));
+         
+		heldsyms:= HoldComplete(def).Replace({~x:Symbol :> x, ~(~x:Symbol,~) :> x}, 1);
+      
+		{heldlocalsyms, unsaved, content}:= ReleaseHold @ Replace(
+			HoldComplete(head({def},{heldsyms, unsaved, body})),
+			{HoldPattern(heldsyms) -> heldsyms, 
+          HoldPattern(unsaved)  -> unsaved, 
+          head                  -> Local}, 
+         Heads -> True);
+			
 		vals:= Complement(heldlocalsyms, unsaved);
-		vals:= ReleaseHold @ vals.Map(symDefs);
+		vals:= Flatten @ HoldComplete @@ List @ ReleaseHold @ vals.Map(symDefs);
 		
 		repsyms:= With({heldlocalsyms:= heldlocalsyms, heldsyms:= heldsyms}, 
 			With({arr:= HoldComplete(heldlocalsyms, heldsyms).Replace(HoldComplete -> List, 2, Heads->True)},
@@ -37,11 +42,12 @@ DynamicLocal({def: (~:Symbol | (Assign|AssignDelayed)(~:Symbol,~))***}, ~body, o
 		
 		With({content:= content, heldlocalsyms:= heldlocalsyms, vals:= vals}, 
 				HoldComplete(head(heldlocalsyms), content, DynamicLocalValues :> vals)
-			).Replace({
-				head(HoldComplete(~~~x)) :> {x}, 
-				(DynamicLocalValues :> HoldComplete(~~~s)) :> (DynamicLocalValues :> {s})}
 			).Replace(
-				repsyms, Heads -> True
+            {head(HoldComplete(~~~x))                   :> {x}, 
+				 (DynamicLocalValues :> HoldComplete(~~~s)) :> (DynamicLocalValues :> {s})}
+			).Replace(
+				repsyms, 
+            Heads -> True
 			).Apply(DynamicLocal)
 		)
 
