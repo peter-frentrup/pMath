@@ -705,13 +705,15 @@ int AbstractSequence::insert(int pos, AbstractSequence *seq, int start, int end)
     
   seq->ensure_boxes_valid();
   
+  int box = 0;
+  while(box < seq->count() && seq->item(box)->index() < start)
+    ++box;
+    
   String s = seq->raw_substring(start, end - start);
-  
   const uint16_t *buf = s.buffer();
   start = 0;
   end   = s.length();
   
-  int box = -1;
   while(start < end) {
     int next = start;
     while(next < end && buf[next] != PMATH_CHAR_BOX)
@@ -719,15 +721,8 @@ int AbstractSequence::insert(int pos, AbstractSequence *seq, int start, int end)
       
     pos = insert(pos, s.part(start, next - start));
     
-    if(next < end/* && buf[next] == PMATH_CHAR_BOX*/) {
-      if(box < 0) {
-        box = 0;
-        while(box < seq->count() && seq->item(box)->index() < next)
-          ++box;
-      }
-      
+    if(next < end) 
       pos = insert(pos, seq->extract_box(box++));
-    }
     
     start = next + 1;
   }

@@ -490,8 +490,9 @@ void ScopeColorizer::scope_colorize_spanexpr(
   }
   
   if(se->count() >= 3 && se->count() <= 4) { // F(x)   ~x:t
-    if(se->item_as_char(1) == '('
-        && pmath_char_is_name(se->item_first_char(0))) {
+    if( se->item_as_char(1) == '(' &&
+        pmath_char_is_name(se->item_first_char(0)))
+    {
       String name = se->item_as_text(0);
       SyntaxInformation info(name);
       
@@ -500,132 +501,135 @@ void ScopeColorizer::scope_colorize_spanexpr(
       
       scope_colorize_spanexpr(state, se->item(0));
       
-      if(name.equals("Local") || name.equals("With")) {
-        if(multiargs)
-          scope_colorize_spanexpr(state, args->item(0));
-        else
-          scope_colorize_spanexpr(state, args);
-          
-        SharedPtr<ScopePos> next_scope = state->new_scope();
-        state->new_scope();
-        
-        symdeflist_colorize_spanexpr(state, multiargs ? args->item(0) : args, LocalSymbol);
-        
-        if(multiargs && args->count() >= 3) {
-          scope_colorize_spanexpr(state, args->item(2));
-        }
-        
-        state->current_pos = next_scope;
-        
-        if(multiargs) {
-          for(int i = 3; i < args->count(); ++i)
-            scope_colorize_spanexpr(state, args->item(i));
-        }
-        
-        return;
-      }
-      
-      if(name.equals("Function")) {
-        if(multiargs) {
-          scope_colorize_spanexpr(state, args->item(0));
-          
-          SharedPtr<ScopePos> next_scope = state->new_scope();
-          state->new_scope();
-          
-          if(multiargs) {
-            if(pmath_char_is_name(args->item(0)->first_char()))
-              symbol_colorize(state, args->item_pos(0), Parameter);
+      switch(info.locals_form) {
+        case LocalSpec: {
+            if(multiargs)
+              scope_colorize_spanexpr(state, args->item(0));
             else
-              symdeflist_colorize_spanexpr(state, args->item(0), Parameter);
-          }
-          else if(pmath_char_is_name(args->first_char()))
-            symbol_colorize(state, args->start(), Parameter);
-          else
-            symdeflist_colorize_spanexpr(state, args, Parameter);
-            
-          if(multiargs && args->count() >= 3) {
-            scope_colorize_spanexpr(state, args->item(2));
-          }
-          
-          state->current_pos = next_scope;
-          
-          if(multiargs) {
-            for(int i = 3; i < args->count(); ++i)
-              scope_colorize_spanexpr(state, args->item(i));
-          }
-          
-          return;
-        }
-        
-        bool old_in_function = state->in_function;
-        state->in_function = true;
-        
-        scope_colorize_spanexpr(state, args);
-        
-        state->in_function = old_in_function;
-        return;
-      }
-      
-      if(info.locals_form == TableSpec) {
-        int locals_min_item = 0;
-        int locals_max_item = 0;
-        
-        if(multiargs) {
-          int argpos = 1;
-          int i;
-          
-          for(i = 0; i < args->count() && argpos <= info.locals_max; ++i) {
-            if(args->item_as_char(i) == ',') {
-              ++argpos;
+              scope_colorize_spanexpr(state, args);
               
-              if(argpos == info.locals_min)
-                locals_min_item = i + 1;
-            }
-            else if(argpos >= info.locals_min)
-              scope_colorize_spanexpr(state, args->item(i));
-          }
-          
-          locals_max_item = i - 1;
-        }
-        else if(info.locals_min <= 1 && info.locals_max >= 1) {
-          scope_colorize_spanexpr(state, args);
-        }
-        else
-          goto COLORIZE_ITEMS;
-          
-        SharedPtr<ScopePos> next_scope = state->new_scope();
-        state->new_scope();
-        
-        if(multiargs) {
-          for(int i = locals_min_item; i <= locals_max_item; ++i) {
-            replacement_colorize_spanexpr(state, args->item(i), Special);
+            SharedPtr<ScopePos> next_scope = state->new_scope();
+            state->new_scope();
             
-            for(int j = i + 1; j <= locals_max_item; ++j) {
-              for(int p = args->item(j)->start(); p <= args->item(j)->end(); ++p)
-                glyphs[p].style = GlyphStyleNone;
+            symdeflist_colorize_spanexpr(state, multiargs ? args->item(0) : args, LocalSymbol);
+            
+            if(multiargs && args->count() >= 3) {
+              scope_colorize_spanexpr(state, args->item(2));
+            }
+            
+            state->current_pos = next_scope;
+            
+            if(multiargs) {
+              for(int i = 3; i < args->count(); ++i)
+                scope_colorize_spanexpr(state, args->item(i));
+            }
+            
+          }
+          return;
+          
+        case FunctionSpec: {
+            if(multiargs) {
+              scope_colorize_spanexpr(state, args->item(0));
+              
+              SharedPtr<ScopePos> next_scope = state->new_scope();
+              state->new_scope();
+              
+              if(multiargs) {
+                if(pmath_char_is_name(args->item(0)->first_char()))
+                  symbol_colorize(state, args->item_pos(0), Parameter);
+                else
+                  symdeflist_colorize_spanexpr(state, args->item(0), Parameter);
+              }
+              else if(pmath_char_is_name(args->first_char()))
+                symbol_colorize(state, args->start(), Parameter);
+              else
+                symdeflist_colorize_spanexpr(state, args, Parameter);
                 
-              scope_colorize_spanexpr(state, args->item(j));
+              if(multiargs && args->count() >= 3) {
+                scope_colorize_spanexpr(state, args->item(2));
+              }
+              
+              state->current_pos = next_scope;
+              
+              if(multiargs) {
+                for(int i = 3; i < args->count(); ++i)
+                  scope_colorize_spanexpr(state, args->item(i));
+              }
+              
+              return;
             }
-          }
-          
-          for(int i = 0; i < locals_min_item; ++i)
-            scope_colorize_spanexpr(state, args->item(i));
             
-          for(int i = locals_max_item + 1; i < args->count(); ++i)
-            scope_colorize_spanexpr(state, args->item(i));
-        }
-        else
-          replacement_colorize_spanexpr(state, args, Special);
+            bool old_in_function = state->in_function;
+            state->in_function = true;
+            
+            scope_colorize_spanexpr(state, args);
+            
+            state->in_function = old_in_function;
+          }
+          return;
           
-        state->current_pos = next_scope;
-        
-        return;
+        case TableSpec: {
+            int locals_min_item = 0;
+            int locals_max_item = 0;
+            
+            if(multiargs) {
+              int argpos = 1;
+              int i;
+              
+              for(i = 0; i < args->count() && argpos <= info.locals_max; ++i) {
+                if(args->item_as_char(i) == ',') {
+                  ++argpos;
+                  
+                  if(argpos == info.locals_min)
+                    locals_min_item = i + 1;
+                }
+                else if(argpos >= info.locals_min)
+                  scope_colorize_spanexpr(state, args->item(i));
+              }
+              
+              locals_max_item = i - 1;
+            }
+            else if(info.locals_min <= 1 && info.locals_max >= 1) {
+              scope_colorize_spanexpr(state, args);
+            }
+            else
+              goto COLORIZE_ITEMS;
+              
+            SharedPtr<ScopePos> next_scope = state->new_scope();
+            state->new_scope();
+            
+            if(multiargs) {
+              for(int i = locals_min_item; i <= locals_max_item; ++i) {
+                replacement_colorize_spanexpr(state, args->item(i), Special);
+                
+                for(int j = i + 1; j <= locals_max_item; ++j) {
+                  for(int p = args->item(j)->start(); p <= args->item(j)->end(); ++p)
+                    glyphs[p].style = GlyphStyleNone;
+                    
+                  scope_colorize_spanexpr(state, args->item(j));
+                }
+              }
+              
+              for(int i = 0; i < locals_min_item; ++i)
+                scope_colorize_spanexpr(state, args->item(i));
+                
+              for(int i = locals_max_item + 1; i < args->count(); ++i)
+                scope_colorize_spanexpr(state, args->item(i));
+            }
+            else
+              replacement_colorize_spanexpr(state, args, Special);
+              
+            state->current_pos = next_scope;
+            
+          }
+          return;
       }
     }
     
-    if(se->item_as_char(2) == ':'
-        && se->item_first_char(0) == '~'
-        && pmath_char_is_name(se->item_first_char(1))) {
+    if( se->item_as_char(2)    == ':' &&
+        se->item_first_char(0) == '~' &&
+        pmath_char_is_name(se->item_first_char(1)))
+    {
       if(!state->in_pattern)
         return;
         
@@ -641,8 +645,9 @@ void ScopeColorizer::scope_colorize_spanexpr(
   
   if(se->count() >= 4 && se->count() <= 5) { // x/:y:=z   x/:y::=z
     if(se->item_equals(1, "/:")) {
-      if(se->item_as_char(3) == PMATH_CHAR_ASSIGN
-          || se->item_equals(3, ":=")) {
+      if( se->item_as_char(3) == PMATH_CHAR_ASSIGN ||
+          se->item_equals(3, ":="))
+      {
         scope_colorize_spanexpr(state, se->item(0));
         
         SharedPtr<ScopePos> next_scope = state->new_scope();
@@ -667,8 +672,9 @@ void ScopeColorizer::scope_colorize_spanexpr(
         return;
       }
       
-      if(se->item_as_char(3) == PMATH_CHAR_ASSIGNDELAYED
-          || se->item_equals(3, "::=")) {
+      if( se->item_as_char(3) == PMATH_CHAR_ASSIGNDELAYED ||
+          se->item_equals(3, "::="))
+      {
         scope_colorize_spanexpr(state, se->item(0));
         
         SharedPtr<ScopePos> next_scope = state->new_scope();
