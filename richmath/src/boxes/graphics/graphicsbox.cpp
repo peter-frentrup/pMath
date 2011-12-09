@@ -8,7 +8,11 @@
 #include <gui/document.h>
 #include <gui/native-widget.h>
 
-#include <cmath>
+#include <algorithm>
+
+#ifdef max
+  #undef max
+#endif
 
 
 using namespace richmath;
@@ -144,8 +148,8 @@ void GraphicsBox::resize(Context *context) {
     x_axis_ticks->extra_offset = 0.75 * 6;
     y_axis_ticks->extra_offset = 0.75 * 6;
     
-    margin_left   = fmax(ylabels.width    + x_axis_ticks->extra_offset, xlabels.width    / 2);
-    margin_bottom = fmax(xlabels.height() + y_axis_ticks->extra_offset, ylabels.height() / 2);
+    margin_left   = std::max(ylabels.width    + x_axis_ticks->extra_offset, xlabels.width    / 2);
+    margin_bottom = std::max(xlabels.height() + y_axis_ticks->extra_offset, ylabels.height() / 2);
     margin_right  = xlabels.width    / 2;
     margin_top    = ylabels.height() / 2;
     
