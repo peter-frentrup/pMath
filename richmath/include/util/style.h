@@ -46,14 +46,16 @@ namespace richmath {
   static const int FontWeightPlain = 0;
   static const int FontWeightBold  = 100;
   
+  static const float ImageSizeAutomatic = -1.0f;
+  
   enum FloatStyleOptionName {
     FontSize = 10000, // greater than any IntStyleOptionName value
     
     GridBoxColumnSpacing,
     GridBoxRowSpacing,
     
-    ImageSizeHorizontal, // <= 0: Automatic
-    ImageSizeVertical,   // <= 0: Automatic
+    ImageSizeHorizontal, // > 0 or ImageSizeAutomatic
+    ImageSizeVertical,   // > 0 or ImageSizeAutomatic
     
     SectionMarginLeft,
     SectionMarginRight,

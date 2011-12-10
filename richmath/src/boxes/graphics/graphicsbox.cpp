@@ -1,21 +1,84 @@
 #include <boxes/graphics/graphicsbox.h>
 #include <boxes/graphics/axisticks.h>
 
+#include <boxes/gridbox.h>
 #include <boxes/inputfieldbox.h>
+#include <boxes/section.h>
 
 #include <graphics/context.h>
 
 #include <gui/document.h>
 #include <gui/native-widget.h>
 
+#include <util/spanexpr.h>
+
 #include <algorithm>
 
 #ifdef max
-  #undef max
+#undef max
 #endif
 
 
 using namespace richmath;
+
+
+enum SyntaxPosition {
+  Alone,
+  InsideList,
+  InsideOther
+};
+
+
+static enum SyntaxPosition find_syntax_position(Box *box, int index) {
+  if(!box || dynamic_cast<Section*>(box))
+    return Alone;
+    
+  if(MathSequence *seq = dynamic_cast<MathSequence*>(box)) {
+    SpanExpr *expr = new SpanExpr(index, 0, seq);
+    
+    expr = expr->expand();
+    
+    bool inside_list = false;
+    
+    while(expr && expr->sequence() == seq) {
+      FunctionCallSpan call(expr);
+      
+      if( call.is_simple_list() ||
+          call.is_sequence())
+      {
+        inside_list = true;
+      }
+      else if(!expr->is_box())
+      {
+        delete expr;
+        return InsideOther;
+      }
+      
+      expr = expr->expand();
+    }
+    
+    if(expr)
+      delete expr;
+    
+    enum SyntaxPosition pos = find_syntax_position(box->parent(), box->index());
+    
+    if(inside_list && pos < InsideList)
+      return InsideList;
+      
+    return pos;
+  }
+  
+  if(dynamic_cast<GridBox*>(box) || dynamic_cast<OwnerBox*>(box)) {
+    enum SyntaxPosition pos = find_syntax_position(box->parent(), box->index());
+    
+    if(pos < InsideList)
+      return InsideList;
+      
+    return pos;
+  }
+  
+  return InsideOther;
+}
 
 
 //{ class GraphicsBox ...
@@ -82,21 +145,8 @@ int GraphicsBox::count() {
 void GraphicsBox::resize(Context *context) {
   float em = context->canvas->get_font_size();
   
-  float w = get_style(ImageSizeHorizontal, 0);
-  float h = get_style(ImageSizeVertical,   0);
-  
-  if(w <= 0) {
-    if(h <= 0)
-      w = h = 15 * em;
-    else
-      w = h;
-  }
-  else if(h <= 0)
-    h = w;
-    
-  _extents.width = w;
-  _extents.ascent  = h / 2 + 0.25 * em;
-  _extents.descent = h - _extents.ascent;
+  float w = get_style(ImageSizeHorizontal, ImageSizeAutomatic);
+  float h = get_style(ImageSizeVertical,   ImageSizeAutomatic);
   
   ContextState cc(context);
   cc.begin(style);
@@ -152,21 +202,75 @@ void GraphicsBox::resize(Context *context) {
     margin_bottom = std::max(xlabels.height() + y_axis_ticks->extra_offset, ylabels.height() / 2);
     margin_right  = xlabels.width    / 2;
     margin_top    = ylabels.height() / 2;
-    
-    x_axis_ticks->start_x = margin_left;
-    x_axis_ticks->start_y = _extents.descent - margin_bottom;
-    x_axis_ticks->end_x   = _extents.width   - margin_right;
-    x_axis_ticks->end_y   = _extents.descent - margin_bottom;
-    
-    y_axis_ticks->start_x = margin_left;
-    y_axis_ticks->start_y = _extents.descent - margin_bottom;
-    y_axis_ticks->end_x   = margin_left;
-    y_axis_ticks->end_y   = margin_top - _extents.ascent;
   }
   cc.end();
+  
+  
+  if(w <= 0 && h <= 0) {
+    enum SyntaxPosition pos = find_syntax_position(parent(), index());
+    
+    switch(pos) {
+      case Alone:
+        w = 16 * em;
+        break;
+        
+      case InsideList:
+        w = 12 * em;
+        break;
+        
+      case InsideOther:
+        w = 8 * em;
+        break;
+    }
+  }
+  
+  if(w <= 0) {
+    float content_h = h - margin_top - margin_bottom;
+    
+    double dy = y_axis_ticks->end_position - y_axis_ticks->start_position;
+    
+    if(content_h > 0 && dy > 0) {
+      double dx = x_axis_ticks->end_position - x_axis_ticks->start_position;
+      
+      w = content_h * dx / dy + margin_left + margin_right;
+    }
+    else
+      w = margin_left + margin_right;
+  }
+  
+  if(h <= 0) {
+    float content_w = w - margin_left - margin_right;
+    
+    double dx = x_axis_ticks->end_position - x_axis_ticks->start_position;
+    
+    if(content_w > 0 && dx > 0) {
+      double dy = y_axis_ticks->end_position - y_axis_ticks->start_position;
+      
+      h = content_w * dy / dx + margin_top + margin_bottom;
+    }
+    else
+      h = margin_top + margin_bottom;
+  }
+  
+  _extents.width = w;
+  _extents.ascent  = h / 2 + 0.25 * em;
+  _extents.descent = h - _extents.ascent;
+  
+  
+  x_axis_ticks->start_x = margin_left;
+  x_axis_ticks->start_y = _extents.descent - margin_bottom;
+  x_axis_ticks->end_x   = _extents.width   - margin_right;
+  x_axis_ticks->end_y   = _extents.descent - margin_bottom;
+  
+  y_axis_ticks->start_x = margin_left;
+  y_axis_ticks->start_y = _extents.descent - margin_bottom;
+  y_axis_ticks->end_x   = margin_left;
+  y_axis_ticks->end_y   = margin_top - _extents.ascent;
 }
 
 void GraphicsBox::paint(Context *context) {
+  style->update_dynamic(this);
+  
   float x, y;
   context->canvas->current_pos(&x, &y);
   
@@ -404,8 +508,14 @@ void GraphicsBox::on_mouse_move(MouseEvent &event) {
         
       }
       
-      style->set(ImageSizeHorizontal, w);
-      style->set(ImageSizeVertical,   h);
+      if(mouse_over_part == GraphicsPartSizeBottom) {
+        style->set(ImageSizeHorizontal, ImageSizeAutomatic);
+        style->set(ImageSizeVertical,   h);
+      }
+      else {
+        style->set(ImageSizeHorizontal, w);
+        style->set(ImageSizeVertical,   ImageSizeAutomatic);
+      }
       invalidate();
       
       mouse_down_x += w - _extents.width;

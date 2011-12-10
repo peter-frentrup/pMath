@@ -25,19 +25,11 @@ void ErrorBox::paint(Context *context) {
   float x, y;
   context->canvas->current_pos(&x, &y);
   
-  context->canvas->pixrect(
+  context->draw_error_rect(
     x,
     y - _extents.ascent,
     x + _extents.width,
-    y + _extents.descent,
-    true);
-    
-  context->canvas->save();
-  context->canvas->set_color(0xFFE6E6);
-  context->canvas->fill_preserve();
-  context->canvas->set_color(0xFF5454);
-  context->canvas->hair_stroke();
-  context->canvas->restore();
+    y + _extents.descent);
 }
 
 //} ... class ErrorBox

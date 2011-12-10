@@ -33,6 +33,8 @@ void SpanExpr::init(SpanExpr *parent, int start, Span span, MathSequence *sequen
   assert(_start >= 0 && _start < sequence->length());
   assert(!_parent || _parent->_start <= _start);
   
+  sequence->ensure_spans_valid();
+  
   if(_span) {
     _end = _span.end();
   }
@@ -114,6 +116,8 @@ SpanExpr::~SpanExpr() {
 SpanExpr *find(MathSequence *sequence, int pos, bool before) {
   assert(sequence != 0);
   
+  sequence->ensure_spans_valid();
+  
   if(pos == sequence->length())
     before = true;
     
@@ -137,34 +141,59 @@ SpanExpr *find(MathSequence *sequence, int pos, bool before) {
 }
 
 SpanExpr *SpanExpr::expand(bool self_destruction) {
+  SpanExpr *result;
+  
   if(_parent)
     return _parent;
     
+  _sequence->ensure_spans_valid();
+  
   int start = _start;
   Span sp = _sequence->span_array()[_start];
   while(sp && sp.next() != _span)
     sp = sp.next();
     
   if(!sp) {
-    if(_start == 0) {
-      if(self_destruction)
-        return this;
+  
+    if(_start > 0) {
+      start = _start - 1;
+      while(start >= 0) {
+        sp = _sequence->span_array()[start];
+        while(sp && sp.next() && sp.next().end() >= _end)
+          sp = sp.next();
+          
+        if(sp || start == 0)
+          break;
         
-      return 0;
+        --start;
+      }
     }
     
-    start = _start - 1;
-    while(start > 0) {
-      sp = _sequence->span_array()[start];
-      while(sp && sp.next() && sp.next().end() >= _end)
-        sp = sp.next();
+    if(!sp) {
+      if(self_destruction) {
+        int index = 0;
+        Box *box = _sequence;
         
-      if(sp)
-        break;
+        while(box) {
+          index = box->index();
+          box   = box->parent();
+          
+          if(MathSequence *seq = dynamic_cast<MathSequence*>(box)) {
+            result = new SpanExpr(0, index, 0, seq);
+            delete this;
+            return result;
+          }
+        }
+        
+        delete this;
+        return 0;
+      }
+      
+      return 0;
     }
   }
   
-  SpanExpr *result = new SpanExpr(0, start, sp, _sequence);
+  result = new SpanExpr(0, start, sp, _sequence);
   for(int i = 0; i < result->count(); ++i)
     if(result->item_pos(i) == _start) {
       result->_items[i] = this;
@@ -550,74 +579,158 @@ bool FunctionCallSpan::is_sequence() {
   if(_span->count() < 1)
     return false;
     
-  for(int i = 0; i < _span->count(); ++i)
-    if(!_span->item_is_operand(i)
-        && !_span->item_equals(i, ","))
+  bool prev_was_operand = false;
+  
+  for(int i = 0; i < _span->count(); ++i) {
+    bool is_operand = _span->item_is_operand(i);
+    
+    if(is_operand && prev_was_operand)
       return false;
       
+    prev_was_operand = is_operand;
+    if(!is_operand && !_span->item_equals(i, ","))
+      return false;
+  }
+  
   return true;
 }
 
 bool FunctionCallSpan::is_simple_call() {
+  // 0123
+  // f(
+  // f()
+  // f(a
+  // f(a)
+  
   if(!_span)
     return false;
     
+  if(_span->count() < 2)
+    return false;
+    
+  if(_span->count() > 4)
+    return false;
+    
+  if(!_span->item_equals(1, "("))
+    return false;
+    
+  if(!_span->item_is_operand(0))
+    return false;
+    
+  if(_span->count() == 2)
+    return true;
+    
   if(_span->count() == 3) {
-    return _span->item_equals(1, "(")
-           && _span->item_equals(2, ")")
-           && _span->item_is_operand(0);
+    if(_span->item_equals(2, ")"))
+      return true;
+      
+    if(_span->item_is_operand(2))
+      return true;
+      
+    return false;
   }
   
-  if(_span->count() == 4) {
-    return _span->item_equals(1, "(")
-           && _span->item_equals(3, ")")
-           && _span->item_is_operand(0)
-           && _span->item_is_operand(2);
-  }
-  
-  return false;
+  if(!_span->item_equals(3, ")"))
+    return false;
+    
+  if(!_span->item_is_operand(2))
+    return false;
+    
+  return true;
 }
 
 bool FunctionCallSpan::is_complex_call() {
+  // 012345
+  // a.f
+  // a.f(
+  // a.f()
+  // a.f(b
+  // a.f(b)
+  
   if(!_span)
     return false;
     
+  if(_span->count() < 3)
+    return false;
+    
+  if(_span->count() > 6)
+    return false;
+    
+  if(!_span->item_equals(1, "."))
+    return false;
+    
+  if(!_span->item_is_operand(0))
+    return false;
+    
+  if(!_span->item_is_operand(2))
+    return false;
+    
+  if(_span->count() == 3)
+    return true;
+    
+  if(!_span->item_equals(3, "("))
+    return false;
+    
+  if(_span->count() == 4)
+    return true;
+    
   if(_span->count() == 5) {
-    return _span->item_equals(1, ".")
-           && _span->item_equals(3, "(")
-           && _span->item_equals(4, ")")
-           && _span->item_is_operand(0)
-           && _span->item_is_operand(2);
+    if(_span->item_equals(4, "("))
+      return true;
+      
+    if(_span->item_is_operand(4))
+      return true;
+      
+    return false;
   }
   
-  if(_span->count() == 6) {
-    return _span->item_equals(1, ".")
-           && _span->item_equals(3, "(")
-           && _span->item_equals(5, ")")
-           && _span->item_is_operand(0)
-           && _span->item_is_operand(2)
-           && _span->item_is_operand(4);
-  }
-  
-  return false;
+  if(!_span->item_equals(5, ")"))
+    return false;
+    
+  if(!_span->item_is_operand(4))
+    return false;
+    
+  return true;
 }
 
 bool FunctionCallSpan::is_simple_list() {
+  // 012
+  // {
+  // {}
+  // {a}
+  
   if(!_span)
     return false;
     
+  if(_span->count() < 1)
+    return false;
+    
+  if(_span->count() > 3)
+    return false;
+    
+  if(!_span->item_equals(0, "{"))
+    return false;
+    
+  if(_span->count() == 1)
+    return true;
+    
   if(_span->count() == 2) {
-    return _span->item_equals(0, "{")
-           && _span->item_equals(1, "}");
+    if(_span->item_equals(1, "}"))
+      return true;
+      
+    if(_span->item_is_operand(1))
+      return true;
+      
+    return false;
   }
   
-  if(_span->count() == 3) {
-    return _span->item_equals(0, "{")
-           && _span->item_equals(2, "}")
-           && _span->item_is_operand(1);
-  }
-  
-  return 0;
+  if(!_span->item_equals(2, "}"))
+    return false;
+    
+  if(!_span->item_is_operand(1))
+    return false;
+    
+  return true;
 }
 
 bool FunctionCallSpan::is_list() {
@@ -651,27 +764,30 @@ SpanExpr *FunctionCallSpan::sequence_argument(int i) {
     return _span;
   }
   
-  const int ii = i;
+  bool prev_was_operand = false;
   int k;
-  for(k = 0; k < _span->count() && i > 0; ++k) {
+  for(k = 0; k < _span->count(); ++k) {
     if(_span->item_is_operand(k)) {
+      if(prev_was_operand)
+        return 0;
+        
+      if(i == 1)
+        return _span->item(k);
+        
+      prev_was_operand = true;
+    }
+    else if(_span->item_equals(k, ",")) {
+      prev_was_operand = false;
       --i;
+      
+      if(i < 1)
+        return 0;
     }
-    else if(!_span->item_equals(k, ",")) {
-      if(ii == 1)
-        return _span;
+    else
       return 0;
-    }
   }
   
-  if(i != 1)
-    return 0;
-    
-  if(k + 1 < _span->count()
-      && !_span->item_equals(k + 1, ","))
-    return 0;
-    
-  return _span->item(k);
+  return 0;
 }
 
 SpanExpr *FunctionCallSpan::function_head() {
@@ -686,9 +802,12 @@ SpanExpr *FunctionCallSpan::function_head() {
 
 SpanExpr *FunctionCallSpan::function_argument(int i) {
   if(is_simple_call()) {
-    if(_span->count() == 3)
+    if(_span->count() <= 2)   // f(
       return 0;
-      
+    
+    if(!_span->item_is_operand(2)) // f()
+      return 0;
+    
     FunctionCallSpan args(_span->item(2));
     return args.sequence_argument(i);
   }
@@ -697,9 +816,12 @@ SpanExpr *FunctionCallSpan::function_argument(int i) {
     if(i == 1)
       return _span->item(0);
       
-    if(_span->count() == 5)
+    if(_span->count() <= 4) // a.f(   or shorter
       return 0;
       
+    if(!_span->item_is_operand(4)) // a.f()
+      return 0;
+    
     FunctionCallSpan args(_span->item(4));
     return args.sequence_argument(i - 1);
   }
@@ -717,12 +839,14 @@ int FunctionCallSpan::function_argument_count() {
 
 SpanExpr *FunctionCallSpan::list_element(int i) {
   if(is_simple_list()) {
-    if(_span->count() == 3) {
-      FunctionCallSpan args(_span->item(1));
-      return args.sequence_argument(i);
-    }
+    if(_span->count() <= 1)   // {
+      return 0;
+      
+    if(!_span->item_is_operand(1))
+      return 0;
     
-    return 0;
+    FunctionCallSpan args(_span->item(1));
+    return args.sequence_argument(i);
   }
   
   if(is_list())

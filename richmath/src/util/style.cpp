@@ -499,22 +499,29 @@ void Style::set_pmath_size(FloatStyleOptionName n, Expr obj) {
   FloatStyleOptionName Vertical   = FloatStyleOptionName(n + 1);
   
   if(obj == PMATH_SYMBOL_AUTOMATIC) {
-    set(Horizontal, 0.0);
-    set(Vertical,   0.0);
+    set(Horizontal, ImageSizeAutomatic);
+    set(Vertical,   ImageSizeAutomatic);
     return;
   }
   
   if(obj.is_number()) {
     float f = obj.to_double();
     set(Horizontal, f);
-    set(Vertical,   0.0); // Automatic
+    set(Vertical,   ImageSizeAutomatic);
     return;
   }
   
   if(obj.is_expr() && obj[0] == PMATH_SYMBOL_LIST) {
     if(obj.expr_length() == 2) {
-      set_pmath_float(Horizontal, obj[1]);
-      set_pmath_float(Vertical,   obj[2]);
+      if(obj[1] == PMATH_SYMBOL_AUTOMATIC)
+        set(Horizontal, ImageSizeAutomatic);
+      else
+        set_pmath_float(Horizontal, obj[1]);
+        
+      if(obj[2] == PMATH_SYMBOL_AUTOMATIC)
+        set(Vertical, ImageSizeAutomatic);
+      else
+        set_pmath_float(Vertical, obj[2]);
       return;
     }
   }

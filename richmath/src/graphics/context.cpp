@@ -90,6 +90,23 @@ Context::Context()
   script_size_multis.length(1, 0.71f);
 }
 
+void Context::draw_error_rect(
+  float x1,
+  float y1,
+  float x2,
+  float y2
+) {
+  canvas->save();
+  {
+    canvas->pixrect(x1, y1, x2, y2, true);
+    canvas->set_color(0xFFE6E6);
+    canvas->fill_preserve();
+    canvas->set_color(0xFF5454);
+    canvas->hair_stroke();
+  }
+  canvas->restore();
+}
+
 void Context::draw_selection_path() {
   cairo_path_t *path = cairo_copy_path(canvas->cairo());
   int num_points = 0;

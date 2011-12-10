@@ -45,6 +45,12 @@ namespace richmath {
     public:
       Context();
       
+      void draw_error_rect(
+        float x1,
+        float y1,
+        float x2, 
+        float y2);
+      
       void draw_selection_path();
       
       float get_script_size(float oldem);

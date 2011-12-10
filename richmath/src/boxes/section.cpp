@@ -285,20 +285,11 @@ void ErrorSection::paint(Context *context) {
   float x, y;
   context->canvas->current_pos(&x, &y);
   
-  context->canvas->save();
-  
-  context->canvas->pixrect(
-    x + get_style(SectionMarginLeft),
-    y + get_style(SectionMarginTop),
+  context->draw_error_rect(
+    x +                    get_style(SectionMarginLeft),
+    y +                    get_style(SectionMarginTop),
     x + _extents.width   - get_style(SectionMarginRight),
-    y + _extents.descent - get_style(SectionMarginBottom),
-    true);
-    
-  context->canvas->set_color(0xFFE6E6);
-  context->canvas->fill_preserve();
-  context->canvas->set_color(0xFF5454);
-  context->canvas->hair_stroke();
-  context->canvas->restore();
+    y + _extents.descent - get_style(SectionMarginBottom));
 }
 
 Box *ErrorSection::mouse_selection(
