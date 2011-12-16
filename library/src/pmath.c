@@ -177,9 +177,10 @@ static pmath_expr_t get_exe_name(void) {
     FSRef               *fsr;
     char                *path;
   
-    if(GetCurrentProcess(&psn) == noErr
-    && GetProcessBundleLocation(&psn, &fsr) == noErr
-    && FSRefMakePath(&fsr, (UInt8*)path, sizeof(path))) {
+    if( GetCurrentProcess(&psn)              == noErr &&
+    GetProcessBundleLocation(&psn, &fsr) == noErr &&
+    FSRefMakePath(&fsr, (UInt8*)path, sizeof(path)))
+    {
       return pmath_string_from_utf8(path, -1);
     }
   }
@@ -253,7 +254,6 @@ PMATH_API pmath_bool_t pmath_init(void) {
     }
     
     _pmath_status = PMATH_STATUS_INITIALIZING;
-    
     
 //    #ifdef PMATH_OS_WIN32
 //      SetErrorMode(SEM_NOOPENFILEERRORBOX);
@@ -381,495 +381,497 @@ PMATH_API pmath_bool_t pmath_init(void) {
     
     if(!_pmath_dynamic_init())                goto FAIL_DYNAMIC;
     
-    //{ init static objects ...
-    // SystemException("OutOfMemory")
-    _pmath_object_memory_exception = pmath_expr_new_extended(
-                                       pmath_ref(PMATH_SYMBOL_SYSTEMEXCEPTION), 1,
-                                       PMATH_C_STRING("OutOfMemory"));
-                                       
-    // Overflow()
-    _pmath_object_overflow = pmath_expr_new(
-                               pmath_ref(PMATH_SYMBOL_OVERFLOW), 0);
-                               
-    // Underflow()
-    _pmath_object_underflow = pmath_expr_new(
-                                pmath_ref(PMATH_SYMBOL_UNDERFLOW), 0);
-                                
-    // DirectedInfinity(1)
-    _pmath_object_infinity = pmath_expr_new_extended(
-                               pmath_ref(PMATH_SYMBOL_DIRECTEDINFINITY), 1,
-                               PMATH_FROM_INT32(1));
-                               
-    // DirectedInfinity()
-    _pmath_object_complex_infinity = pmath_expr_new(
-                                       pmath_ref(PMATH_SYMBOL_DIRECTEDINFINITY), 0);
-                                       
-    // Range(1, Automatic)
-    _pmath_object_range_from_one = pmath_expr_new_extended(
-                                     pmath_ref(PMATH_SYMBOL_RANGE), 2,
-                                     PMATH_FROM_INT32(1),
-                                     pmath_ref(PMATH_SYMBOL_AUTOMATIC));
-                                     
-    // Range(0, Automatic)
-    _pmath_object_range_from_zero = pmath_expr_new_extended(
-                                      pmath_ref(PMATH_SYMBOL_RANGE), 2,
-                                      PMATH_FROM_INT32(0),
-                                      pmath_ref(PMATH_SYMBOL_AUTOMATIC));
-                                      
-    // SingleMatch()
-    _pmath_object_singlematch = pmath_expr_new(
-                                  pmath_ref(PMATH_SYMBOL_SINGLEMATCH), 0);
-                                  
-    // Repeated(SingleMatch(), Range(1, /\/))
-    _pmath_object_multimatch = pmath_expr_new_extended(
-                                 pmath_ref(PMATH_SYMBOL_REPEATED), 2,
-                                 pmath_ref(_pmath_object_singlematch),
-                                 pmath_ref(_pmath_object_range_from_one));
+    { // init static objects ...
+      // SystemException("OutOfMemory")
+      _pmath_object_memory_exception = pmath_expr_new_extended(
+                                         pmath_ref(PMATH_SYMBOL_SYSTEMEXCEPTION), 1,
+                                         PMATH_C_STRING("OutOfMemory"));
+                                         
+      // Overflow()
+      _pmath_object_overflow = pmath_expr_new(
+                                 pmath_ref(PMATH_SYMBOL_OVERFLOW), 0);
                                  
-    // Repeated(SingleMatch(), Range(0, /\/))
-    _pmath_object_zeromultimatch = pmath_expr_new_extended(
-                                     pmath_ref(PMATH_SYMBOL_REPEATED), 2,
-                                     pmath_ref(_pmath_object_singlematch),
-                                     pmath_ref(_pmath_object_range_from_zero));
-                                     
-    // List()
-    _pmath_object_emptylist = pmath_expr_new(
-                                pmath_ref(PMATH_SYMBOL_LIST), 0);
-                                
-    // MessageName(General, "stop")
-    _pmath_object_stop_message = pmath_expr_new_extended(
-                                   pmath_ref(PMATH_SYMBOL_MESSAGENAME), 2,
-                                   pmath_ref(PMATH_SYMBOL_GENERAL),
-                                   PMATH_C_STRING("stop"));
+      // Underflow()
+      _pmath_object_underflow = pmath_expr_new(
+                                  pmath_ref(PMATH_SYMBOL_UNDERFLOW), 0);
+                                  
+      // DirectedInfinity(1)
+      _pmath_object_infinity = pmath_expr_new_extended(
+                                 pmath_ref(PMATH_SYMBOL_DIRECTEDINFINITY), 1,
+                                 PMATH_FROM_INT32(1));
+                                 
+      // DirectedInfinity()
+      _pmath_object_complex_infinity = pmath_expr_new(
+                                         pmath_ref(PMATH_SYMBOL_DIRECTEDINFINITY), 0);
+                                         
+      // Range(1, Automatic)
+      _pmath_object_range_from_one = pmath_expr_new_extended(
+                                       pmath_ref(PMATH_SYMBOL_RANGE), 2,
+                                       PMATH_FROM_INT32(1),
+                                       pmath_ref(PMATH_SYMBOL_AUTOMATIC));
+                                       
+      // Range(0, Automatic)
+      _pmath_object_range_from_zero = pmath_expr_new_extended(
+                                        pmath_ref(PMATH_SYMBOL_RANGE), 2,
+                                        PMATH_FROM_INT32(0),
+                                        pmath_ref(PMATH_SYMBOL_AUTOMATIC));
+                                        
+      // SingleMatch()
+      _pmath_object_singlematch = pmath_expr_new(
+                                    pmath_ref(PMATH_SYMBOL_SINGLEMATCH), 0);
+                                    
+      // Repeated(SingleMatch(), Range(1, /\/))
+      _pmath_object_multimatch = pmath_expr_new_extended(
+                                   pmath_ref(PMATH_SYMBOL_REPEATED), 2,
+                                   pmath_ref(_pmath_object_singlematch),
+                                   pmath_ref(_pmath_object_range_from_one));
                                    
+      // Repeated(SingleMatch(), Range(0, /\/))
+      _pmath_object_zeromultimatch = pmath_expr_new_extended(
+                                       pmath_ref(PMATH_SYMBOL_REPEATED), 2,
+                                       pmath_ref(_pmath_object_singlematch),
+                                       pmath_ref(_pmath_object_range_from_zero));
+                                       
+      // List()
+      _pmath_object_emptylist = pmath_expr_new(
+                                  pmath_ref(PMATH_SYMBOL_LIST), 0);
+                                  
+      // MessageName(General, "stop")
+      _pmath_object_stop_message = pmath_expr_new_extended(
+                                     pmath_ref(PMATH_SYMBOL_MESSAGENAME), 2,
+                                     pmath_ref(PMATH_SYMBOL_GENERAL),
+                                     PMATH_C_STRING("stop"));
+                                     
 //    // MessageName(General, "newsym")
 //    _pmath_object_newsym_message = pmath_expr_new_extended(
 //      pmath_ref(PMATH_SYMBOL_MESSAGENAME), 2,
 //      pmath_ref(PMATH_SYMBOL_GENERAL),
 //      PMATH_C_STRING("newsym"));
 
-    // MessageName(Get, "load")
-    _pmath_object_loadlibrary_load_message = pmath_expr_new_extended(
-          pmath_ref(PMATH_SYMBOL_MESSAGENAME), 2,
-          pmath_ref(PMATH_SYMBOL_LOADLIBRARY),
-          PMATH_C_STRING("load"));
-          
-    // MessageName(LoadLibrary, "load")
-    _pmath_object_get_load_message = pmath_expr_new_extended(
-                                       pmath_ref(PMATH_SYMBOL_MESSAGENAME), 2,
-                                       pmath_ref(PMATH_SYMBOL_GET),
-                                       PMATH_C_STRING("load"));
-                                       
-    if(pmath_is_null(_pmath_object_complex_infinity)
-        || pmath_is_null(_pmath_object_emptylist)
-        || pmath_is_null(_pmath_object_get_load_message)
-        || pmath_is_null(_pmath_object_infinity)
-        || pmath_is_null(_pmath_object_loadlibrary_load_message)
-        || pmath_is_null(_pmath_object_memory_exception)
-        || pmath_is_null(_pmath_object_multimatch)
-//    || pmath_is_null(_pmath_object_newsym_message)
-        || pmath_is_null(_pmath_object_overflow)
-        || pmath_is_null(_pmath_object_range_from_one)
-        || pmath_is_null(_pmath_object_range_from_zero)
-        || pmath_is_null(_pmath_object_singlematch)
-        || pmath_is_null(_pmath_object_stop_message)
-        || pmath_is_null(_pmath_object_underflow)
-        || pmath_is_null(_pmath_object_zeromultimatch))
-      goto FAIL_STATIC_OBJECTS;
-    //}
+      // MessageName(Get, "load")
+      _pmath_object_loadlibrary_load_message = pmath_expr_new_extended(
+            pmath_ref(PMATH_SYMBOL_MESSAGENAME), 2,
+            pmath_ref(PMATH_SYMBOL_LOADLIBRARY),
+            PMATH_C_STRING("load"));
+            
+      // MessageName(LoadLibrary, "load")
+      _pmath_object_get_load_message = pmath_expr_new_extended(
+                                         pmath_ref(PMATH_SYMBOL_MESSAGENAME), 2,
+                                         pmath_ref(PMATH_SYMBOL_GET),
+                                         PMATH_C_STRING("load"));
+                                         
+      if( pmath_is_null(_pmath_object_complex_infinity)         ||
+          pmath_is_null(_pmath_object_emptylist)                ||
+          pmath_is_null(_pmath_object_get_load_message)         ||
+          pmath_is_null(_pmath_object_infinity)                 ||
+          pmath_is_null(_pmath_object_loadlibrary_load_message) ||
+          pmath_is_null(_pmath_object_memory_exception)         ||
+          pmath_is_null(_pmath_object_multimatch)               ||
+          // pmath_is_null(_pmath_object_newsym_message) ||
+          pmath_is_null(_pmath_object_overflow)                 ||
+          pmath_is_null(_pmath_object_range_from_one)           ||
+          pmath_is_null(_pmath_object_range_from_zero)          ||
+          pmath_is_null(_pmath_object_singlematch)              ||
+          pmath_is_null(_pmath_object_stop_message)             ||
+          pmath_is_null(_pmath_object_underflow)                ||
+          pmath_is_null(_pmath_object_zeromultimatch))
+      {
+        goto FAIL_STATIC_OBJECTS;
+      }
+    }
     
     _pmath_status = PMATH_STATUS_RUNNING;
     
-    //{ init threadlocal variables ...
-    // $NamespacePath:= {"System`"}
-    _pmath_symbol_set_global_value(
-      PMATH_SYMBOL_NAMESPACEPATH,
-      pmath_build_value("(s)", "System`"));
-      
-    // $Packages:= {"System`", "Global`"}
-    _pmath_symbol_set_global_value(
-      PMATH_SYMBOL_PACKAGES,
-      pmath_build_value("(ss)", "System`", "Global`"));
-      
-    // $Namespace:= "Global`"
-    _pmath_symbol_set_global_value(
-      PMATH_SYMBOL_CURRENTNAMESPACE,
-      PMATH_C_STRING("Global`"));
-      
-    // $DirectoryStack:= {}
-    _pmath_symbol_set_global_value(
-      PMATH_SYMBOL_DIRECTORYSTACK,
-      pmath_ref(_pmath_object_emptylist));
-      
-    // $DirectoryStack:= {}
-    _pmath_symbol_set_global_value(
-      PMATH_SYMBOL_INPUT,
-      pmath_string_new(0));
-      
-    // Internal`$NamespacePathStack:= {}
-    _pmath_symbol_set_global_value(
-      PMATH_SYMBOL_INTERNAL_NAMESPACEPATHSTACK,
-      pmath_ref(_pmath_object_emptylist));
-      
-    // Internal`$NamespaceStack:= {}
-    _pmath_symbol_set_global_value(
-      PMATH_SYMBOL_INTERNAL_NAMESPACESTACK,
-      pmath_ref(_pmath_object_emptylist));
-    //} ... init threadlocal variables
+    { // init threadlocal variables ...
+      // $NamespacePath:= {"System`"}
+      _pmath_symbol_set_global_value(
+        PMATH_SYMBOL_NAMESPACEPATH,
+        pmath_build_value("(s)", "System`"));
+        
+      // $Packages:= {"System`", "Global`"}
+      _pmath_symbol_set_global_value(
+        PMATH_SYMBOL_PACKAGES,
+        pmath_build_value("(ss)", "System`", "Global`"));
+        
+      // $Namespace:= "Global`"
+      _pmath_symbol_set_global_value(
+        PMATH_SYMBOL_CURRENTNAMESPACE,
+        PMATH_C_STRING("Global`"));
+        
+      // $DirectoryStack:= {}
+      _pmath_symbol_set_global_value(
+        PMATH_SYMBOL_DIRECTORYSTACK,
+        pmath_ref(_pmath_object_emptylist));
+        
+      // $DirectoryStack:= {}
+      _pmath_symbol_set_global_value(
+        PMATH_SYMBOL_INPUT,
+        pmath_string_new(0));
+        
+      // Internal`$NamespacePathStack:= {}
+      _pmath_symbol_set_global_value(
+        PMATH_SYMBOL_INTERNAL_NAMESPACEPATHSTACK,
+        pmath_ref(_pmath_object_emptylist));
+        
+      // Internal`$NamespaceStack:= {}
+      _pmath_symbol_set_global_value(
+        PMATH_SYMBOL_INTERNAL_NAMESPACESTACK,
+        pmath_ref(_pmath_object_emptylist));
+    }
     
-    //{ initialize runs ...
-    PMATH_RUN_ARGS("$ApplicationFileName:= `1`", "(o)", get_exe_name());
-    
-    PMATH_RUN("$NewMessage:=Function({},,HoldFirst)");
-    
-    PMATH_RUN("ComplexInfinity:=DirectedInfinity()");
-    PMATH_RUN("Infinity:=DirectedInfinity(1)");
-    PMATH_RUN("I:=Complex(0,1)");
+    { // initialize runs ...
+      PMATH_RUN_ARGS("$ApplicationFileName:= `1`", "(o)", get_exe_name());
+      
+      PMATH_RUN("$NewMessage:=Function({},,HoldFirst)");
+      
+      PMATH_RUN("ComplexInfinity:=DirectedInfinity()");
+      PMATH_RUN("Infinity:=DirectedInfinity(1)");
+      PMATH_RUN("I:=Complex(0,1)");
 #ifdef PMATH_OS_WIN32
-    PMATH_RUN("$PathListSeparator:=\";\"");
-    PMATH_RUN("$PathnameSeparator:=\"\\\\\"");
+      PMATH_RUN("$PathListSeparator:=\";\"");
+      PMATH_RUN("$PathnameSeparator:=\"\\\\\"");
 #else
-    PMATH_RUN("$PathListSeparator:=\":\"");
-    PMATH_RUN("$PathnameSeparator:=\"/\"");
+      PMATH_RUN("$PathListSeparator:=\":\"");
+      PMATH_RUN("$PathnameSeparator:=\"/\"");
 #endif
-    
-    PMATH_RUN("$InitialDirectory:=Directory()");
-    
-    PMATH_RUN_ARGS("$ByteOrdering:=`1`", "(i)", PMATH_BYTE_ORDER);
-    PMATH_RUN_ARGS(
-      "$CharacterEncoding:=$SystemCharacterEncoding:=`1`",
-      "(s)", _pmath_native_encoding);
-    PMATH_RUN_ARGS("$CommandLine:=`1`", "(o)", get_command_line());
-    PMATH_RUN("$HistoryLength:=10");
-    PMATH_RUN("$Line:=0");
-    
-    PMATH_RUN_ARGS("$MachineEpsilon:=`1`",   "(f)", (double)DBL_EPSILON);
-    PMATH_RUN_ARGS("$MachinePrecision:=`1`", "(f)", (double)LOG10_2 * DBL_MANT_DIG);
-    PMATH_RUN_ARGS("$MaxMachineNumber:=`1`", "(f)", (double)DBL_MAX);
-    PMATH_RUN_ARGS("$MinMachineNumber:=`1`", "(f)", (double)DBL_MIN);
-    PMATH_RUN("$MaxExtraPrecision:=50");
-    
-    init_pagewidth();
-    
-    PMATH_RUN("$Path:={\".\"}");
-    
+      
+      PMATH_RUN("$InitialDirectory:=Directory()");
+      
+      PMATH_RUN_ARGS("$ByteOrdering:=`1`", "(i)", PMATH_BYTE_ORDER);
+      PMATH_RUN_ARGS(
+        "$CharacterEncoding:=$SystemCharacterEncoding:=`1`",
+        "(s)", _pmath_native_encoding);
+      PMATH_RUN_ARGS("$CommandLine:=`1`", "(o)", get_command_line());
+      PMATH_RUN("$HistoryLength:=10");
+      PMATH_RUN("$Line:=0");
+      
+      PMATH_RUN_ARGS("$MachineEpsilon:=`1`",   "(f)", (double)DBL_EPSILON);
+      PMATH_RUN_ARGS("$MachinePrecision:=`1`", "(f)", (double)LOG10_2 * DBL_MANT_DIG);
+      PMATH_RUN_ARGS("$MaxMachineNumber:=`1`", "(f)", (double)DBL_MAX);
+      PMATH_RUN_ARGS("$MinMachineNumber:=`1`", "(f)", (double)DBL_MIN);
+      PMATH_RUN("$MaxExtraPrecision:=50");
+      
+      init_pagewidth();
+      
+      PMATH_RUN("$Path:={\".\"}");
+      
 #ifdef PMATH_OS_WIN32
-    PMATH_RUN_ARGS("$ProcessId:=`1`", "(N)", (size_t)GetCurrentProcessId());
+      PMATH_RUN_ARGS("$ProcessId:=`1`", "(N)", (size_t)GetCurrentProcessId());
 #else
-    PMATH_RUN_ARGS("$ProcessId:=`1`", "(N)", (size_t)getpid());
+      PMATH_RUN_ARGS("$ProcessId:=`1`", "(N)", (size_t)getpid());
 #endif
-    
-    PMATH_RUN_ARGS("$ProcessorCount:=`1`", "(i)", _pmath_processor_count());
-    
-    PMATH_RUN("$ThreadId::=Internal`GetThreadId()");
-    
+      
+      PMATH_RUN_ARGS("$ProcessorCount:=`1`", "(i)", _pmath_processor_count());
+      
+      PMATH_RUN("$ThreadId::=Internal`GetThreadId()");
+      
 #ifdef PMATH_OS_WIN32
-    PMATH_RUN("$SystemId:=\"Windows\"");
+      PMATH_RUN("$SystemId:=\"Windows\"");
 #elif defined(linux) || defined(__linux) || defined(__linux__)
-    PMATH_RUN("$SystemId:=\"Linux\"");
+      PMATH_RUN("$SystemId:=\"Linux\"");
 #elif defined(sun) || defined(__sun)
 #if defined(__SVR4) || defined(__svr4__)
-    PMATH_RUN("$SystemId:=\"Solaris\"");
+      PMATH_RUN("$SystemId:=\"Solaris\"");
 #else
-    PMATH_RUN("$SystemId:=\"SunOS\"");
+      PMATH_RUN("$SystemId:=\"SunOS\"");
 #endif
 #elif defined (__APPLE__)
-    PMATH_RUN("$SystemId:=\"MacOSX\"");
+      PMATH_RUN("$SystemId:=\"MacOSX\"");
 #else
-    unknown operating system
+      unknown operating system
 #endif
-    
+      
 #ifdef PMATH_X86
-    PMATH_RUN("$ProcessorType:=\"x86\"");
+      PMATH_RUN("$ProcessorType:=\"x86\"");
 #elif defined(PMATH_AMD64)
-    PMATH_RUN("$ProcessorType:=\"x86-64\"");
+      PMATH_RUN("$ProcessorType:=\"x86-64\"");
 #elif defined(PMATH_SPARC32)
-    PMATH_RUN("$ProcessorType:=\"Sparc\"");
+      PMATH_RUN("$ProcessorType:=\"Sparc\"");
 #elif defined(PMATH_SPARC64)
-    PMATH_RUN("$ProcessorType:=\"Sparc64\"");
+      PMATH_RUN("$ProcessorType:=\"Sparc64\"");
 #else
-    unknown processor
+      unknown processor
 #endif
-    
-    PMATH_RUN("$DialogLevel:=0");
-    
-    {
-      int year, month, day, hour, minute, second;
-      pmath_version_datetime(&year, &month, &day, &hour, &minute, &second);
       
-      PMATH_RUN_ARGS("$CreationDate:= `1`", "((iiiiii))",
-                     year, month, day, hour, minute, second);
-                     
-      PMATH_RUN_ARGS("$VersionList:= `1`", "((iiii))",
-                     pmath_version_number_part(1),
-                     pmath_version_number_part(2),
-                     pmath_version_number_part(3),
-                     pmath_version_number_part(4));
-      PMATH_RUN_ARGS("$VersionNumber:= `1`", "(f)", pmath_version_number());
-    }
-    
-    {
-      time_t t = time(NULL);
-      struct tm local_tm, global_tm;
-      int loc_year_days, glob_year_days;
-      double loc, glob;
+      PMATH_RUN("$DialogLevel:=0");
       
-      memcpy(&local_tm,  localtime(&t), sizeof(struct tm));
-      memcpy(&global_tm, gmtime(&t),    sizeof(struct tm));
-      
-      local_tm.tm_year +=  1900;
-      global_tm.tm_year += 1900;
-      
-      loc_year_days  = 365 + (local_tm.tm_year % 4 == 0 && (local_tm.tm_year % 100 != 0 || local_tm.tm_year % 400 == 0));
-      glob_year_days = 365 + (global_tm.tm_year % 4 == 0 && (global_tm.tm_year % 100 != 0 || global_tm.tm_year % 400 == 0));
-      
-      if(local_tm.tm_year < global_tm.tm_year) {
-        global_tm.tm_year++;
-        global_tm.tm_yday += loc_year_days;
-      }
-      else if(local_tm.tm_year > global_tm.tm_year) {
-        local_tm.tm_year++;
-        local_tm.tm_yday += glob_year_days;
+      {
+        int year, month, day, hour, minute, second;
+        pmath_version_datetime(&year, &month, &day, &hour, &minute, &second);
+        
+        PMATH_RUN_ARGS("$CreationDate:= `1`", "((iiiiii))",
+                       year, month, day, hour, minute, second);
+                       
+        PMATH_RUN_ARGS("$VersionList:= `1`", "((iiii))",
+                       pmath_version_number_part(1),
+                       pmath_version_number_part(2),
+                       pmath_version_number_part(3),
+                       pmath_version_number_part(4));
+        PMATH_RUN_ARGS("$VersionNumber:= `1`", "(f)", pmath_version_number());
       }
       
-      loc  = local_tm.tm_sec  + 60 * (local_tm.tm_min  + 60 * (local_tm.tm_hour  + 24 * local_tm.tm_yday));
-      glob = global_tm.tm_sec + 60 * (global_tm.tm_min + 60 * (global_tm.tm_hour + 24 * global_tm.tm_yday));
+      {
+        time_t t = time(NULL);
+        struct tm local_tm, global_tm;
+        int loc_year_days, glob_year_days;
+        double loc, glob;
+        
+        memcpy(&local_tm,  localtime(&t), sizeof(struct tm));
+        memcpy(&global_tm, gmtime(&t),    sizeof(struct tm));
+        
+        local_tm.tm_year +=  1900;
+        global_tm.tm_year += 1900;
+        
+        loc_year_days  = 365 + (local_tm.tm_year % 4 == 0 && (local_tm.tm_year % 100 != 0 || local_tm.tm_year % 400 == 0));
+        glob_year_days = 365 + (global_tm.tm_year % 4 == 0 && (global_tm.tm_year % 100 != 0 || global_tm.tm_year % 400 == 0));
+        
+        if(local_tm.tm_year < global_tm.tm_year) {
+          global_tm.tm_year++;
+          global_tm.tm_yday += loc_year_days;
+        }
+        else if(local_tm.tm_year > global_tm.tm_year) {
+          local_tm.tm_year++;
+          local_tm.tm_yday += glob_year_days;
+        }
+        
+        loc  = local_tm.tm_sec  + 60 * (local_tm.tm_min  + 60 * (local_tm.tm_hour  + 24 * local_tm.tm_yday));
+        glob = global_tm.tm_sec + 60 * (global_tm.tm_min + 60 * (global_tm.tm_hour + 24 * global_tm.tm_yday));
+        
+        PMATH_RUN_ARGS("$TimeZone:=`1`", "(f)", (glob - loc) / (60 * 60.0));
+      }
       
-      PMATH_RUN_ARGS("$TimeZone:=`1`", "(f)", (glob - loc) / (60 * 60.0));
+      PMATH_RUN("IsNumeric(E):=True");
+      PMATH_RUN("IsNumeric(EulerGamma):=True");
+      PMATH_RUN("IsNumeric(Degree):=True");
+      PMATH_RUN("IsNumeric(MachinePrecision):=True");
+      PMATH_RUN("IsNumeric(Pi):=True");
+      
+      PMATH_RUN("N(Degree,~System`Private`x)::=N(Pi/180, System`Private`x)");
+      PMATH_RUN("MakeBoxes(Degree)::=\"\\[Degree]\"");
+      
+      PMATH_RUN("Default(Ceiling,2):=1");
+      PMATH_RUN("Default(Floor,2):=1");
+      PMATH_RUN("Default(Piecewise,2):=0");
+      PMATH_RUN("Default(Plus):=0");
+      PMATH_RUN("Default(PolyGamma,1):=0");
+      PMATH_RUN("Default(Power,2):=1");
+      PMATH_RUN("Default(Round,2):=1");
+      PMATH_RUN("Default(Times):=1");
+      
+      PMATH_RUN(
+        "Options(Apply):="
+        "Options(Cases):="
+        "Options(Count):="
+        "Options(Level):="
+        "Options(Map):="
+        "Options(MapIndexed):="
+        "Options(ParallelMap):="
+        "Options(ParallelMapIndexed):="
+        "Options(ParallelScan):="
+        "Options(Replace):="
+        "Options(ReplaceList):="
+        "Options(ReplaceRepeated):="
+        "Options(Scan):={Heads->False}");
+        
+      PMATH_RUN("Options(Complement):={SameTest->Automatic}");
+      
+      PMATH_RUN("Options(CreateDocument):=Options(Document):={"
+                "Antialiasing->Inherited,"
+                "AutoNumberFormating->Inherited,"
+                "AutoSpacing->Inherited,"
+                "Background->None,"
+                "BaseStyle->None,"
+                "ButtonFrame->Inherited,"
+                "ButtonFunction->Inherited,"
+                "Editable->Inherited,"
+                "FontColor->Inherited,"
+                "FontFamily->Inherited,"
+                "FontSize->Inherited,"
+                "FontSlant->Inherited,"
+                "FontWeight->Inherited,"
+                "GridBoxColumnSpacing->Inherited,"
+                "GridBoxRowSpacing->Inherited,"
+                "LineBreakWithin->Inherited,"
+                "ScriptSizeMultipliers->Inherited,"
+                "Selectable->Inherited,"
+                "ShowAutoStyles->Inherited,"
+                "ShowStringCharacters->Inherited,"
+                "TextShadow->Inherited"
+                "}");
+                
+      PMATH_RUN("Options(DateList):={TimeZone:>$TimeZone}");
+      
+      PMATH_RUN(
+        "Options(Dynamic):="
+        "Options(DynamicBox):={"
+        "SynchronousUpdating->True,"
+        "TrackedSymbols->Automatic"
+        "}");
+        
+      PMATH_RUN(
+        "Options(DynamicLocal):="
+        "Options(DynamicLocalBox):={"
+        "Deinitialization->None,"
+        "Initialization->None,"
+        "DynamicLocalValues->Automatic,"
+        "UnsavedVariables->{}"
+        "}");
+        
+      PMATH_RUN("Options(BinaryRead):=Options(BinaryWrite):={"
+                "ByteOrdering:>$ByteOrdering}");
+                
+      PMATH_RUN("Options(Button):={"
+                "ButtonFrame->Automatic,"
+                "Method->\"Preemptive\"}");
+                
+      PMATH_RUN("Options(ButtonBox):={"
+                "ButtonFrame->Automatic,"
+                "ButtonFunction->(/\\/ &),"
+                "Method->\"Preemptive\"}");
+                
+      PMATH_RUN("Options(DeleteDirectory):={DeleteContents->False}");
+      
+      PMATH_RUN("Options(FileNames):={IgnoreCase->Automatic}");
+      
+      PMATH_RUN(
+        "Options(Find):="
+        "Options(FindList):="
+        "Options(StringMatch):="
+        "Options(StringReplace):="
+        "Options(StringSplit):={IgnoreCase->False}");
+        
+      PMATH_RUN(
+        "Options(FixedPoint):="
+        "Options(FixedPointList):={SameTest->Identical}");
+        
+      PMATH_RUN("Options(Get):={Path:>$Path}");
+      
+      PMATH_RUN("Options(GraphicsBox):={"
+                "Axes->False,"
+                "ImageSize->Automatic,"
+                "PlotRange->Automatic,"
+                "Ticks->Automatic}");
+                
+      PMATH_RUN("Options(Grid):={"
+                "ColumnSpacing->Inherited,"
+                "RowSpacing->Inherited}");
+                
+      PMATH_RUN("Options(GridBox):={"
+                "GridBoxColumnSpacing->Inherited,"
+                "GridBoxRowSpacing->Inherited}");
+                
+      PMATH_RUN("Options(InputField):= Options(InputFieldBox):= {"
+                "ContinuousAction->False}");
+                
+      PMATH_RUN("Options(InterpretationBox):=Options(Interpretation):={"
+                "AutoDelete->False,"
+                "Editable->False"
+                "}");
+                
+      PMATH_RUN(
+        "Options(IsFreeOf):="
+        "Options(Position):={Heads->True}");
+        
+      PMATH_RUN("Options(MakeExpression):=Options(ToExpression):={"
+                "ParserArguments->Automatic,"
+                "ParseSymbols->Automatic}");
+                
+      PMATH_RUN("Options(OpenAppend):=Options(OpenWrite):={"
+                "BinaryFormat->False,"
+                "CharacterEncoding->Automatic,"
+                "PageWidth:>80}");
+                
+      PMATH_RUN("Options(OpenRead):={"
+                "BinaryFormat->False,"
+                "CharacterEncoding->Automatic}");
+                
+      PMATH_RUN("Options(RandomReal):={WorkingPrecision->MachinePrecision}");
+      
+      PMATH_RUN("Options(ReadList):={RecordLists->False}");
+      
+      PMATH_RUN(
+        "Options(Refresh):={"
+        "TrackedSymbols->Automatic,"
+        "UpdateInterval->Infinity"
+        "}");
+        
+      PMATH_RUN("Options(ReplacePart):={Heads->Automatic}");
+      
+      PMATH_RUN("Options(RotationBox):={BoxRotation->0}");
+      PMATH_RUN("Options(StringCases):=Options(StringCount):={IgnoreCase->False,Overlaps->False}");
+      PMATH_RUN("Options(StringPosition):={IgnoreCase->False,Overlaps->True}");
+      
+      PMATH_RUN("Options(Style):=Options(StyleBox):={"
+                "Antialiasing->Inherited,"
+                "AutoDelete->False,"
+                "AutoNumberFormating->Inherited,"
+                "AutoSpacing->Inherited,"
+                "Background->None,"
+                "BaseStyle->None,"
+                "ButtonFrame->Inherited,"
+                "ButtonFunction->Inherited,"
+                "Editable->Inherited,"
+                "FontColor->Inherited,"
+                "FontFamily->Inherited,"
+                "FontSize->Inherited,"
+                "FontSlant->Inherited,"
+                "FontWeight->Inherited,"
+                "GridBoxColumnSpacing->Inherited,"
+                "GridBoxRowSpacing->Inherited,"
+                "LineBreakWithin->Inherited,"
+                "Placeholder->Inherited,"
+                "ScriptSizeMultipliers->Inherited,"
+                "Selectable->Inherited,"
+                "ShowAutoStyles->Inherited,"
+                "ShowStringCharacters->Inherited,"
+                "StripOnInput->True,"
+                "TextShadow->Inherited"
+                "}");
+                
+      PMATH_RUN("Options(Section):={"
+                "Antialiasing->Automatic,"
+                "AutoNumberFormating->Inherited,"
+                "AutoSpacing->Inherited,"
+                "Background->Automatic,"
+                "BaseStyle->None,"
+                "ButtonFrame->Automatic,"
+                "ButtonFunction->(/\\/ &),"
+                "Editable->True,"
+                "Evaluatable->False,"
+                "FontColor->GrayLevel(0),"
+                "FontFamily->\"Times\","
+                "FontSize->10,"
+                "FontSlant->Plain,"
+                "FontWeight->Plain,"
+                "GridBoxColumnSpacing->0.5,"
+                "GridBoxRowSpacing->0.5,"
+                "LineBreakWithin->True,"
+                "ScriptSizeMultipliers->Automatic,"
+                "SectionFrame->False,"
+                "SectionFrameColor->GrayLevel(0),"
+                "SectionFrameMargins->8,"
+                "SectionGenerated->False,"
+                "SectionGroupPrecedence->0,"
+                "SectionMargins->{{60, 30}, {4, 4}},"
+                "SectionLabel->None,"
+                "SectionLabelAutoDelete->True,"
+                "Selectable->Inherited,"
+                "ShowAutoStyles->True,"
+                "ShowSectionBracket->True,"
+                "ShowStringCharacters->True,"
+                "TextShadow->None"
+                "}");
+                
+      PMATH_RUN("Options(Setter):=Options(SetterBox):={"
+                "ButtonFrame->Automatic}");
+                
+      PMATH_RUN("Options(Slider):=Options(SliderBox):={ContinuousAction->True}");
+      
+      PMATH_RUN("Options(Tooltip):=Options(TooltipBox):={StripOnInput->True}");
+      
+      PMATH_RUN("Options(TransformationBox):={BoxTransformation->{{1,0},{0,1}}}");
+      
     }
-    
-    PMATH_RUN("IsNumeric(E):=True");
-    PMATH_RUN("IsNumeric(EulerGamma):=True");
-    PMATH_RUN("IsNumeric(Degree):=True");
-    PMATH_RUN("IsNumeric(MachinePrecision):=True");
-    PMATH_RUN("IsNumeric(Pi):=True");
-    
-    PMATH_RUN("N(Degree,~System`Private`x)::=N(Pi/180, System`Private`x)");
-    PMATH_RUN("MakeBoxes(Degree)::=\"\\[Degree]\"");
-    
-    PMATH_RUN("Default(Ceiling,2):=1");
-    PMATH_RUN("Default(Floor,2):=1");
-    PMATH_RUN("Default(Piecewise,2):=0");
-    PMATH_RUN("Default(Plus):=0");
-    PMATH_RUN("Default(PolyGamma,1):=0");
-    PMATH_RUN("Default(Power,2):=1");
-    PMATH_RUN("Default(Round,2):=1");
-    PMATH_RUN("Default(Times):=1");
-    
-    PMATH_RUN(
-      "Options(Apply):="
-      "Options(Cases):="
-      "Options(Count):="
-      "Options(Level):="
-      "Options(Map):="
-      "Options(MapIndexed):="
-      "Options(ParallelMap):="
-      "Options(ParallelMapIndexed):="
-      "Options(ParallelScan):="
-      "Options(Replace):="
-      "Options(ReplaceList):="
-      "Options(ReplaceRepeated):="
-      "Options(Scan):={Heads->False}");
-      
-    PMATH_RUN("Options(Complement):={SameTest->Automatic}");
-    
-    PMATH_RUN("Options(CreateDocument):=Options(Document):={"
-              "Antialiasing->Inherited,"
-              "AutoNumberFormating->Inherited,"
-              "AutoSpacing->Inherited,"
-              "Background->None,"
-              "BaseStyle->None,"
-              "ButtonFrame->Inherited,"
-              "ButtonFunction->Inherited,"
-              "Editable->Inherited,"
-              "FontColor->Inherited,"
-              "FontFamily->Inherited,"
-              "FontSize->Inherited,"
-              "FontSlant->Inherited,"
-              "FontWeight->Inherited,"
-              "GridBoxColumnSpacing->Inherited,"
-              "GridBoxRowSpacing->Inherited,"
-              "LineBreakWithin->Inherited,"
-              "ScriptSizeMultipliers->Inherited,"
-              "Selectable->Inherited,"
-              "ShowAutoStyles->Inherited,"
-              "ShowStringCharacters->Inherited,"
-              "TextShadow->Inherited"
-              "}");
-              
-    PMATH_RUN("Options(DateList):={TimeZone:>$TimeZone}");
-    
-    PMATH_RUN(
-      "Options(Dynamic):="
-      "Options(DynamicBox):={"
-      "SynchronousUpdating->True,"
-      "TrackedSymbols->Automatic"
-      "}");
-      
-    PMATH_RUN(
-      "Options(DynamicLocal):="
-      "Options(DynamicLocalBox):={"
-      "Deinitialization->None,"
-      "Initialization->None,"
-      "DynamicLocalValues->Automatic,"
-      "UnsavedVariables->{}"
-      "}");
-      
-    PMATH_RUN("Options(BinaryRead):=Options(BinaryWrite):={"
-              "ByteOrdering:>$ByteOrdering}");
-              
-    PMATH_RUN("Options(Button):={"
-              "ButtonFrame->Automatic,"
-              "Method->\"Preemptive\"}");
-              
-    PMATH_RUN("Options(ButtonBox):={"
-              "ButtonFrame->Automatic,"
-              "ButtonFunction->(/\\/ &),"
-              "Method->\"Preemptive\"}");
-              
-    PMATH_RUN("Options(DeleteDirectory):={DeleteContents->False}");
-    
-    PMATH_RUN("Options(FileNames):={IgnoreCase->Automatic}");
-    
-    PMATH_RUN(
-      "Options(Find):="
-      "Options(FindList):="
-      "Options(StringMatch):="
-      "Options(StringReplace):="
-      "Options(StringSplit):={IgnoreCase->False}");
-      
-    PMATH_RUN(
-      "Options(FixedPoint):="
-      "Options(FixedPointList):={SameTest->Identical}");
-      
-    PMATH_RUN("Options(Get):={Path:>$Path}");
-    
-    PMATH_RUN("Options(GraphicsBox):={"
-              "Axes->False,"
-              "ImageSize->Automatic,"
-              "PlotRange->Automatic,"
-              "Ticks->Automatic}");
-              
-    PMATH_RUN("Options(Grid):={"
-              "ColumnSpacing->Inherited,"
-              "RowSpacing->Inherited}");
-              
-    PMATH_RUN("Options(GridBox):={"
-              "GridBoxColumnSpacing->Inherited,"
-              "GridBoxRowSpacing->Inherited}");
-              
-    PMATH_RUN("Options(InputField):= Options(InputFieldBox):= {"
-              "ContinuousAction->False}");
-              
-    PMATH_RUN("Options(InterpretationBox):=Options(Interpretation):={"
-              "AutoDelete->False,"
-              "Editable->False"
-              "}");
-              
-    PMATH_RUN(
-      "Options(IsFreeOf):="
-      "Options(Position):={Heads->True}");
-      
-    PMATH_RUN("Options(MakeExpression):=Options(ToExpression):={"
-              "ParserArguments->Automatic,"
-              "ParseSymbols->Automatic}");
-              
-    PMATH_RUN("Options(OpenAppend):=Options(OpenWrite):={"
-              "BinaryFormat->False,"
-              "CharacterEncoding->Automatic,"
-              "PageWidth:>80}");
-              
-    PMATH_RUN("Options(OpenRead):={"
-              "BinaryFormat->False,"
-              "CharacterEncoding->Automatic}");
-              
-    PMATH_RUN("Options(RandomReal):={WorkingPrecision->MachinePrecision}");
-    
-    PMATH_RUN("Options(ReadList):={RecordLists->False}");
-    
-    PMATH_RUN(
-      "Options(Refresh):={"
-      "TrackedSymbols->Automatic,"
-      "UpdateInterval->Infinity"
-      "}");
-      
-    PMATH_RUN("Options(ReplacePart):={Heads->Automatic}");
-    
-    PMATH_RUN("Options(RotationBox):={BoxRotation->0}");
-    PMATH_RUN("Options(StringCases):=Options(StringCount):={IgnoreCase->False,Overlaps->False}");
-    PMATH_RUN("Options(StringPosition):={IgnoreCase->False,Overlaps->True}");
-    
-    PMATH_RUN("Options(Style):=Options(StyleBox):={"
-              "Antialiasing->Inherited,"
-              "AutoDelete->False,"
-              "AutoNumberFormating->Inherited,"
-              "AutoSpacing->Inherited,"
-              "Background->None,"
-              "BaseStyle->None,"
-              "ButtonFrame->Inherited,"
-              "ButtonFunction->Inherited,"
-              "Editable->Inherited,"
-              "FontColor->Inherited,"
-              "FontFamily->Inherited,"
-              "FontSize->Inherited,"
-              "FontSlant->Inherited,"
-              "FontWeight->Inherited,"
-              "GridBoxColumnSpacing->Inherited,"
-              "GridBoxRowSpacing->Inherited,"
-              "LineBreakWithin->Inherited,"
-              "Placeholder->Inherited,"
-              "ScriptSizeMultipliers->Inherited,"
-              "Selectable->Inherited,"
-              "ShowAutoStyles->Inherited,"
-              "ShowStringCharacters->Inherited,"
-              "StripOnInput->True,"
-              "TextShadow->Inherited"
-              "}");
-              
-    PMATH_RUN("Options(Section):={"
-              "Antialiasing->Automatic,"
-              "AutoNumberFormating->Inherited,"
-              "AutoSpacing->Inherited,"
-              "Background->Automatic,"
-              "BaseStyle->None,"
-              "ButtonFrame->Automatic,"
-              "ButtonFunction->(/\\/ &),"
-              "Editable->True,"
-              "Evaluatable->False,"
-              "FontColor->GrayLevel(0),"
-              "FontFamily->\"Times\","
-              "FontSize->10,"
-              "FontSlant->Plain,"
-              "FontWeight->Plain,"
-              "GridBoxColumnSpacing->0.5,"
-              "GridBoxRowSpacing->0.5,"
-              "LineBreakWithin->True,"
-              "ScriptSizeMultipliers->Automatic,"
-              "SectionFrame->False,"
-              "SectionFrameColor->GrayLevel(0),"
-              "SectionFrameMargins->8,"
-              "SectionGenerated->False,"
-              "SectionGroupPrecedence->0,"
-              "SectionMargins->{{60, 30}, {4, 4}},"
-              "SectionLabel->None,"
-              "SectionLabelAutoDelete->True,"
-              "Selectable->Inherited,"
-              "ShowAutoStyles->True,"
-              "ShowSectionBracket->True,"
-              "ShowStringCharacters->True,"
-              "TextShadow->None"
-              "}");
-              
-    PMATH_RUN("Options(Setter):=Options(SetterBox):={"
-              "ButtonFrame->Automatic}");
-              
-    PMATH_RUN("Options(Slider):=Options(SliderBox):={ContinuousAction->True}");
-    
-    PMATH_RUN("Options(Tooltip):=Options(TooltipBox):={StripOnInput->True}");
-    
-    PMATH_RUN("Options(TransformationBox):={BoxTransformation->{{1,0},{0,1}}}");
-    
-    //} ... initialization runs
     
     _pmath_symbol_builtins_protect_all();
     
@@ -916,7 +918,7 @@ PMATH_API pmath_bool_t pmath_init(void) {
       
     _pmath_status = PMATH_STATUS_DESTROYING;
     
-  FAIL_STATIC_OBJECTS:
+  FAIL_STATIC_OBJECTS: 
     pmath_unref(_pmath_object_complex_infinity);         _pmath_object_complex_infinity =         PMATH_NULL;
     pmath_unref(_pmath_object_emptylist);                _pmath_object_emptylist =                PMATH_NULL;
     pmath_unref(_pmath_object_get_load_message);         _pmath_object_get_load_message =         PMATH_NULL;
@@ -964,8 +966,9 @@ PMATH_API pmath_bool_t pmath_init(void) {
     return FALSE;
   }
   else {
-    while(_pmath_status != PMATH_STATUS_RUNNING
-          &&    _pmath_status != PMATH_STATUS_INITIALIZING) {
+    while(_pmath_status != PMATH_STATUS_RUNNING &&
+          _pmath_status != PMATH_STATUS_INITIALIZING)
+    {
     }
     
     thread = _pmath_thread_new(NULL);

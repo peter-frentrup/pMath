@@ -241,6 +241,7 @@ static pmath_string_t scanner_read(void *dummy) {
 static void scanner_error(pmath_string_t code, int pos, void *flag, pmath_bool_t critical) {
   if(critical)
     *(pmath_bool_t*)flag = TRUE;
+    
   pmath_message_syntax_error(code, pos, PMATH_NULL, 0);
 }
 
@@ -252,15 +253,17 @@ static void handle_options(int argc, const char **argv) {
       quitting = TRUE;
       show_mem_stats = FALSE;
     }
-    else if((strcmp(*argv, "-l") == 0 || strcmp(*argv, "--load") == 0)
-            && argc > 1) {
+    else if((strcmp(*argv, "-l") == 0 || strcmp(*argv, "--load") == 0) &&
+            argc > 1)
+    {
       --argc;
       ++argv;
       
       PMATH_RUN_ARGS("Get(`1`)", "(o)", pmath_string_from_native(*argv, -1));
     }
-    else if((strcmp(*argv, "-x") == 0 || strcmp(*argv, "--exec") == 0)
-            && argc > 1) {
+    else if((strcmp(*argv, "-x") == 0 || strcmp(*argv, "--exec") == 0) &&
+            argc > 1)
+    {
       --argc;
       ++argv;
       
@@ -290,8 +293,9 @@ static void handle_options(int argc, const char **argv) {
 }
 
 static pmath_t check_dialog_return(pmath_t result) { // result wont be freed
-  if(pmath_is_expr_of(result, PMATH_SYMBOL_RETURN)
-      && pmath_expr_length(result) <= 1) {
+  if( pmath_is_expr_of(result, PMATH_SYMBOL_RETURN) &&
+      pmath_expr_length(result) <= 1)
+  {
     return pmath_expr_get_item(result, 1);
   }
   
@@ -470,21 +474,24 @@ static void interrupt_callback(void *dummy) {
     line = read_line(stdin);
     word = next_word(&line);
     
-    if(pmath_string_equals_latin1(word, "a")
-        || pmath_string_equals_latin1(word, "abort")) {
+    if( pmath_string_equals_latin1(word, "a") ||
+        pmath_string_equals_latin1(word, "abort"))
+    {
       write_line("aborting...\n");
       pmath_abort_please();
       break;
     }
     
-    if(pmath_string_equals_latin1(word, "c")
-        || pmath_string_equals_latin1(word, "continue")) {
+    if( pmath_string_equals_latin1(word, "c") ||
+        pmath_string_equals_latin1(word, "continue"))
+    {
       write_line("continuing...\n");
       break;
     }
     
-    if(pmath_string_equals_latin1(word, "i")
-        || pmath_string_equals_latin1(word, "inspect")) {
+    if( pmath_string_equals_latin1(word, "i") ||
+        pmath_string_equals_latin1(word, "inspect"))
+    {
       pmath_messages_t mq ;
       
       write_line("entering interactive dialog (finish with `Return()`) ...\n");
@@ -622,11 +629,12 @@ int main(int argc, const char **argv) {
   signal(SIGINT, signal_handler);
   signal(SIGTERM, signal_term);
   
-  if(!pmath_init()
-      || !pmath_register_code(PMATH_SYMBOL_DIALOG,       builtin_dialog, 0)
-      || !pmath_register_code(PMATH_SYMBOL_INTERRUPT,    builtin_interrupt, 0)
-      || !pmath_register_code(PMATH_SYMBOL_QUIT,         builtin_quit, 0)
-      || !pmath_register_code(PMATH_SYMBOL_SECTIONPRINT, builtin_sectionprint, 0)) {
+  if( !pmath_init() ||
+      !pmath_register_code(PMATH_SYMBOL_DIALOG,       builtin_dialog,       0) ||
+      !pmath_register_code(PMATH_SYMBOL_INTERRUPT,    builtin_interrupt,    0) ||
+      !pmath_register_code(PMATH_SYMBOL_QUIT,         builtin_quit,         0) ||
+      !pmath_register_code(PMATH_SYMBOL_SECTIONPRINT, builtin_sectionprint, 0))
+  {
     fprintf(stderr, "Cannot initialize pMath.\n");
     return 1;
   }
