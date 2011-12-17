@@ -233,108 +233,147 @@ PMATH_API pmath_string_t pmath_message_find_text(pmath_t name) {
   return PMATH_NULL;
 }
 
-PMATH_API void pmath_message_syntax_error(
-  pmath_string_t  code, // wont be freed
-  int             position,
-  pmath_string_t  filename,
-  int             lines_before_code
+static void syntax_error_bgn(
+  pmath_string_t code,              // wont be freed
+  pmath_string_t filename,          // will be freed
+  int            lines_before_code
 ) {
+  pmath_string_t start;
   int len = pmath_string_length(code);
   const uint16_t *str = pmath_string_buffer(&code);
   
-  if(position == 0) {
-    pmath_string_t start;
+  int eol = 0;
+  while(eol < len && str[eol] != '\n')
+    ++eol;
     
-    int eol = position;
-    while(eol < len && str[eol] != '\n')
-      ++eol;
-      
-    start = pmath_string_part(pmath_ref(code), position, eol - position);
+  start = pmath_string_part(pmath_ref(code), 0, eol - 0);
+  if(pmath_is_null(filename)) {
+    pmath_message(
+      PMATH_SYMBOL_SYNTAX, "bgn", 1,
+      start);
+  }
+  else {
+    pmath_message(
+      PMATH_SYMBOL_SYNTAX, "bgnf", 3,
+      start,
+      PMATH_FROM_INT32(lines_before_code),
+      filename);
+  }
+}
+
+static void syntax_error_more(
+  pmath_string_t code,              // wont be freed
+  pmath_string_t filename,          // will be freed
+  int            lines_before_code
+) {
+  if(pmath_is_null(filename)) {
+    pmath_message(PMATH_SYMBOL_SYNTAX, "more", 0);
+  }
+  else {
+    int             len = pmath_string_length(code);
+    const uint16_t *str = pmath_string_buffer(&code);
+    
+    int i;
+    for(i = 0; i < len; ++i)
+      if(str[i] == '\n')
+        ++lines_before_code;
+        
+    pmath_message(PMATH_SYMBOL_SYNTAX, "moref", 2,
+                  PMATH_FROM_INT32(lines_before_code),
+                  filename);
+  }
+}
+
+static void syntax_error_newl_or_nxt(
+  pmath_string_t  code,              // wont be freed
+  int             position,
+  pmath_string_t  filename,          // will be freed
+  int             lines_before_code
+) {
+  pmath_string_t before;
+  int eol1, eol, bol;
+  
+  int             len = pmath_string_length(code);
+  const uint16_t *str = pmath_string_buffer(&code);
+  
+  eol1 = position;
+  while(eol1 > 0 && str[eol1] <= ' ')
+    --eol1;
+    
+  bol = eol1;
+  while(bol > 0 && str[bol] != '\n')
+    --bol;
+  while(bol <= position && str[bol] <= ' ')
+    ++bol;
+    
+  eol = position;
+  while(eol < len && str[eol] != '\n')
+    ++eol;
+    
+  if(eol1 < position)
+    ++eol1;
+    
+  if(!pmath_is_null(filename)) {
+    int i;
+    for(i = 0; i < bol; ++i)
+      if(str[i] == '\n')
+        ++lines_before_code;
+  }
+  
+  before = pmath_string_part(pmath_ref(code), bol, eol1 - bol); // eol1-bol+1
+  if(str[position] == '\n') {
     if(pmath_is_null(filename)) {
       pmath_message(
-        PMATH_SYMBOL_SYNTAX, "bgn", 1,
-        start);
+        PMATH_SYMBOL_SYNTAX, "newl", 1,
+        before);
     }
     else {
       pmath_message(
-        PMATH_SYMBOL_SYNTAX, "bgnf", 3,
-        start,
+        PMATH_SYMBOL_SYNTAX, "newlf", 3,
+        before,
         PMATH_FROM_INT32(lines_before_code),
         filename);
     }
   }
   else {
-    if(!pmath_is_null(filename)) {
-      int i;
-      for(i = 0; i < position; ++i)
-        if(str[i] == '\n')
-          ++lines_before_code;
-    }
+    pmath_string_t after = pmath_string_part(pmath_ref(code), position, eol - position); // pos+1, eol-pos-1
     
-    if(position == len) {
-      if(pmath_is_null(filename)) {
-        pmath_message(PMATH_SYMBOL_SYNTAX, "more", 0);
-      }
-      else {
-        pmath_message(PMATH_SYMBOL_SYNTAX, "moref", 2,
-                      PMATH_FROM_INT32(lines_before_code),
-                      filename);
-      }
+    if(pmath_is_null(filename)) {
+      pmath_message(
+        PMATH_SYMBOL_SYNTAX, "nxt", 2,
+        before,
+        after);
     }
     else {
-      pmath_string_t before;
-      int eol1, eol, bol;
-      
-      eol1 = position;
-      while(eol1 > 0 && str[eol1] == '\n')
-        --eol1;
-        
-      bol = eol1;
-      while(bol > 0 && str[bol] != '\n')
-        --bol;
-      while(bol <= position && str[bol] <= ' ')
-        ++bol;
-        
-      eol = position;
-      while(eol < len && str[eol] != '\n')
-        ++eol;
-        
-      if(eol1 < position)
-        ++eol1;
-        
-      before = pmath_string_part(pmath_ref(code), bol, eol1 - bol); // eol1-bol+1
-      if(str[position] == '\n') {
-        if(pmath_is_null(filename)) {
-          pmath_message(
-            PMATH_SYMBOL_SYNTAX, "newl", 1,
-            before);
-        }
-        else {
-          pmath_message(
-            PMATH_SYMBOL_SYNTAX, "newlf", 3,
-            before,
-            PMATH_FROM_INT32(lines_before_code),
-            filename);
-        }
-      }
-      else {
-        pmath_string_t after  = pmath_string_part(pmath_ref(code), position, eol - position); // pos+1, eol-pos-1
-        
-        if(pmath_is_null(filename)) {
-          pmath_message(
-            PMATH_SYMBOL_SYNTAX, "nxt", 2,
-            before,
-            after);
-        }
-        else {
-          pmath_message(
-            PMATH_SYMBOL_SYNTAX, "nxtf", 4,
-            before,
-            after,
-            PMATH_FROM_INT32(lines_before_code),
-            filename);
-        }
-      }
+      pmath_message(
+        PMATH_SYMBOL_SYNTAX, "nxtf", 4,
+        before,
+        after,
+        PMATH_FROM_INT32(lines_before_code),
+        filename);
     }
   }
+}
+
+PMATH_API void pmath_message_syntax_error(
+  pmath_string_t  code,              // wont be freed
+  int             position,
+  pmath_string_t  filename,          // will be freed
+  int             lines_before_code
+) {
+  int len;
+  
+  if(position == 0) {
+    syntax_error_bgn(code, filename, lines_before_code);
+    return;
+  }
+  
+  len = pmath_string_length(code);
+  
+  if(position == len) {
+    syntax_error_more(code, filename, lines_before_code);
+    return;
+  }
+  
+  syntax_error_newl_or_nxt(code, position, filename, lines_before_code);
 }

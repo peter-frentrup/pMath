@@ -368,9 +368,11 @@ void MathSequence::paint(Context *context) {
       y += lines[line].ascent;
       
       for(; pos < lines[line].end; ++pos) {
-        if(buf[pos] <= '\n')
+        if(buf[pos] <= '\n') {
+          glyph_left = glyphs[pos].right;
           continue;
-          
+        }
+        
         if(have_style || glyphs[pos].style) {
           int color = context->syntax->glyph_style_colors[glyphs[pos].style];
           
@@ -406,9 +408,10 @@ void MathSequence::paint(Context *context) {
           context->syntax->glyph_style_colors[GlyphStyleNone] = default_color;
           ++box;
         }
-        else if(glyphs[pos].index
-                || glyphs[pos].composed
-                || glyphs[pos].horizontal_stretch) {
+        else if(glyphs[pos].index ||
+                glyphs[pos].composed ||
+                glyphs[pos].horizontal_stretch)
+        {
           if(glyphs[pos].is_normal_text) {
             context->text_shaper->show_glyph(
               context,

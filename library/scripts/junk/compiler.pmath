@@ -2,7 +2,7 @@
 BeginPackage("Compiler`")
 
 
-TestCompiler
+Compiler`TestCompiler
 
 
 Begin("Compiler`Private`")
@@ -13,15 +13,15 @@ Print("For Testing, call e.g. ", HoldForm @ TestCompiler({x}, {Real, {Real}}, 3x
 
 
 Attributes(TestCompiler):= {HoldAll}
-TestCompiler({~~~vars}, {~tr, ~types:List}, ~body)::= Local({v, code, i},
-	If(Length(HoldComplete(vars)) =!= Length((types)),
-		Message("typs"))
+TestCompiler({~~~args}, {~resultType, ~argumentTypes:List}, ~body)::= Local({v, code, i},
+	If(Length(HoldComplete(args)) =!= Length((argumentTypes)),
+		Message("typs"));
 	
 	resetCompiler();
 	
-	{List @@ HoldComplete(vars).Map(HoldComplete), types}.MapThread(newNamedVar);
+	{List @@ HoldComplete(args).Map(HoldComplete), argumentTypes}.MapThread(newNamedVar);
 	v:= compile(body);
-	v:= compileCast(tr, v);
+	v:= compileCast(resultType, v);
 	
 	Do(propagateConstants(i), i->v);
 	
@@ -53,7 +53,7 @@ $AllOpCodes:= {
 	};
 
 $AllTypes:= {
-	$Aborted
+	$Aborted,
 	None,
 	Integer,
 	Real,
@@ -74,7 +74,7 @@ Attributes(sideEffects):=   {ThreadLocal}
 Attributes(visited):=       {ThreadLocal}
 
 
-resetCompiler()::= (
+resetCompiler()::= Local({logging:=True, x},
 	Clear($varId, $namedVars, opCodeOf, typeOf, varArgsOf, extraArgsOf, constValueOf);
 	$namedVars:= {};
 	$varId:= 0;
@@ -127,7 +127,7 @@ newNamedVar(~name:Symbol, ~type)::= (
 
 
 Attributes(canCompileFunction):= {HoldAllComplete}
-canCompileFunction(~f:Symbol)::= Attributes(f).IsFreeOf(HoldAll | HoldFirst | HoldRest | HeldAllComplete)
+canCompileFunction(~f:Symbol)::= Attributes(f).IsFreeOf(HoldAll | HoldFirst | HoldRest | HoldAllComplete)
 canCompileFunction(~):= False
 
 
@@ -251,8 +251,10 @@ makeTrap(~i, ~msg, ~~~args)::= (
 	)
 
 
-propagateConstants(~i)::= If(!isConst(i), 
-		propagateConstants(typeOf(i), opCodeOf(i), varArgsOf(i), extraArgsOf(i), i))
+propagateConstants(~i)::= 
+	If(!isConst(i), 
+		propagateConstants(typeOf(i), opCodeOf(i), varArgsOf(i), extraArgsOf(i), i)
+		)
 
 propagateConstants(~t, OpLoadConst, {}, {~v}, ~i)::= makeConst(i, v)
 
@@ -270,7 +272,8 @@ propagateConstants(~t, OpSequence, {~~~xs, ~y}, ~, ~i)::= (
 	{xs,y}.Map(propagateConstants);
 	If(y.isConst,
 		extraArgsOf(i):= {constValueOf(y)};
-		constValueOf(i):= constValueOf(y))
+		constValueOf(i):= constValueOf(y)
+		)
 	)
 
 propagateConstants(~t, OpCallSimple, ~args, {~f}, ~i)::= (
@@ -287,24 +290,25 @@ inferTypes(~i)::= (
 
 inferTypes(OpLoadConst, Number | All -> t: Integer, ~eff, ~, ~i)::= (
 	typeOf(i):= t;
-	varArgsOf(i):= eff.Map(typeOf(#):= typeOf(#) -> None)
+	varArgsOf(i):= eff.Map((typeOf(#):= typeOf(#) -> None) &)
 	)
 
 inferTypes(OpLoadConst, ~ -> Real, ~eff, {~c}, ~i)::= (
 	typeOf(i):= Real;
 	extraArgsOf(i):= {N(c)};
-	varArgsOf(i):= eff.Map(typeOf(#):= typeOf(#) -> None)
+	varArgsOf(i):= eff.Map((typeOf(#):= typeOf(#) -> None) &)
 	)
 
 inferTypes(OpLoadConst, (Number | All) -> Integer, ~eff, {~c}, ~i)::= (
 	typeOf(i):= Integer;
-	varArgsOf(i):= eff.Map(typeOf(#):= typeOf(#) -> None)
+	varArgsOf(i):= eff.Map((typeOf(#):= typeOf(#) -> None) &)
 	)
 
 inferTypes(OpCast, t: Integer | Real, {~c}, {}, ~i)::= (
 	If({Number, All}.contains(typeOf(c)),
 		opCodeOf(i):= OpSequence;
-		typeOf(c):= typeOf(c) -> t)
+		typeOf(c):= typeOf(c) -> t
+		)
 	)
 
 inferTypes(OpCast, Number -> (t: Integer | Real), {~c}, {}, ~i)::= (
@@ -353,7 +357,7 @@ inferTypes(~, (t: Except($Aborted)) -> None, ~, ~, ~i)::= (
 	)
 
 inferTypes(~, $Aborted -> ~, ~, ~, ~i)::= typeOf(i):= $Aborted
-inferTypes(~op, t: (~ -> ~), ~, ~, ~i)::= typeOf(i):= makeTrap(i, "infer type `1` in `2`", t, SymbolName(op))
+inferTypes(~op, t: (~ -> ~), ~, ~, ~i)::= makeTrap(i, "infer type `1` in `2`", t, SymbolName(op))
 
 
 registerSideEffects(~i)::= registerSideEffects(opCodeOf(i), typeOf(i), varArgsOf(i), i)

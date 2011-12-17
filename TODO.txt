@@ -5,6 +5,8 @@
 - richmath: add options for Section/Style to manipulate 
    Context::smaller_fraction_parts
 
+- richmath: fix syntax coloring in Literal(f)(x,y)
+
 - richmath: smart quotes in text:
    " after a space or the beginning of the text gives left double quotation mark
    " after a number gives prime (or only after a digit?)
