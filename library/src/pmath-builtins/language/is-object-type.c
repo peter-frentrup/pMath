@@ -51,6 +51,105 @@ PMATH_PRIVATE pmath_t builtin_call_isheld(pmath_expr_t expr) {
   return expr;
 }
 
+PMATH_PRIVATE pmath_t builtin_iscomplex(pmath_expr_t expr) {
+  pmath_t obj;
+  int clazz;
+  
+  if(pmath_expr_length(expr) != 1) {
+    pmath_message_argxxx(pmath_expr_length(expr), 1, 1);
+    return expr;
+  }
+  
+  obj = pmath_expr_get_item(expr, 1);
+  clazz = _pmath_number_class(obj);
+  pmath_unref(obj);
+  
+  if(clazz & PMATH_CLASS_UNKNOWN)
+    return expr;
+    
+  pmath_unref(expr);
+  if(clazz & (PMATH_CLASS_COMPLEX | PMATH_CLASS_REAL))
+    return pmath_ref(PMATH_SYMBOL_TRUE);
+    
+  return pmath_ref(PMATH_SYMBOL_FALSE);
+}
+
+PMATH_PRIVATE pmath_t builtin_isimaginary(pmath_expr_t expr) {
+  pmath_t obj;
+  int clazz;
+  
+  if(pmath_expr_length(expr) != 1) {
+    pmath_message_argxxx(pmath_expr_length(expr), 1, 1);
+    return expr;
+  }
+  
+  obj = pmath_expr_get_item(expr, 1);
+  clazz = _pmath_number_class(obj);
+  pmath_unref(obj);
+  
+  if(clazz & PMATH_CLASS_UNKNOWN)
+    return expr;
+    
+  pmath_unref(expr);
+  if(clazz & PMATH_CLASS_IMAGINARY)
+    return pmath_ref(PMATH_SYMBOL_TRUE);
+    
+  return pmath_ref(PMATH_SYMBOL_FALSE);
+}
+
+PMATH_PRIVATE pmath_t builtin_isreal(pmath_expr_t expr) {
+  pmath_t obj;
+  int clazz;
+  
+  if(pmath_expr_length(expr) != 1) {
+    pmath_message_argxxx(pmath_expr_length(expr), 1, 1);
+    return expr;
+  }
+  
+  obj = pmath_expr_get_item(expr, 1);
+  clazz = _pmath_number_class(obj);
+  pmath_unref(obj);
+  
+  if(clazz & PMATH_CLASS_UNKNOWN)
+    return expr;
+    
+  pmath_unref(expr);
+  if(clazz & PMATH_CLASS_REAL)
+    return pmath_ref(PMATH_SYMBOL_TRUE);
+    
+  return pmath_ref(PMATH_SYMBOL_FALSE);
+}
+
+PMATH_PRIVATE pmath_t builtin_ispos_or_isneg(pmath_expr_t expr) {
+  pmath_t head, obj;
+  int clazz, needclazz = 0;
+  
+  if(pmath_expr_length(expr) != 1) {
+    pmath_message_argxxx(pmath_expr_length(expr), 1, 1);
+    return expr;
+  }
+  
+  head = pmath_expr_get_item(expr, 0);
+  pmath_unref(head);
+  if(pmath_same(head, PMATH_SYMBOL_ISNEGATIVE))     needclazz = PMATH_CLASS_NEG;
+  else if(pmath_same(head, PMATH_SYMBOL_ISNONNEGATIVE))  needclazz = PMATH_CLASS_POS | PMATH_CLASS_ZERO;
+  else if(pmath_same(head, PMATH_SYMBOL_ISNONPOSITIVE))  needclazz = PMATH_CLASS_NEG | PMATH_CLASS_ZERO;
+  else if(pmath_same(head, PMATH_SYMBOL_ISPOSITIVE))     needclazz = PMATH_CLASS_POS;
+  
+  obj = pmath_expr_get_item(expr, 1);
+  clazz = _pmath_number_class(obj);
+  pmath_unref(obj);
+  
+  if(clazz & PMATH_CLASS_UNKNOWN)
+    return expr;
+    
+  pmath_unref(expr);
+  if(clazz & ~needclazz)
+    return pmath_ref(PMATH_SYMBOL_FALSE);
+    
+  return pmath_ref(PMATH_SYMBOL_TRUE);
+}
+
 PMATH_PRIVATE pmath_t builtin_iseven(pmath_expr_t expr) {
   pmath_t obj;
   
@@ -253,36 +352,6 @@ PMATH_PRIVATE pmath_t builtin_isodd(pmath_expr_t expr) {
   
   pmath_unref(obj);
   return pmath_ref(PMATH_SYMBOL_FALSE);
-}
-
-PMATH_PRIVATE pmath_t builtin_ispos_or_isneg(pmath_expr_t expr) {
-  pmath_t head, obj;
-  int clazz, needclazz = 0;
-  
-  if(pmath_expr_length(expr) != 1) {
-    pmath_message_argxxx(pmath_expr_length(expr), 1, 1);
-    return expr;
-  }
-  
-  head = pmath_expr_get_item(expr, 0);
-  pmath_unref(head);
-  if(pmath_same(head, PMATH_SYMBOL_ISNEGATIVE))     needclazz = PMATH_CLASS_NEG;
-  else if(pmath_same(head, PMATH_SYMBOL_ISNONNEGATIVE))  needclazz = PMATH_CLASS_POS | PMATH_CLASS_ZERO;
-  else if(pmath_same(head, PMATH_SYMBOL_ISNONPOSITIVE))  needclazz = PMATH_CLASS_NEG | PMATH_CLASS_ZERO;
-  else if(pmath_same(head, PMATH_SYMBOL_ISPOSITIVE))     needclazz = PMATH_CLASS_POS;
-  
-  obj = pmath_expr_get_item(expr, 1);
-  clazz = _pmath_number_class(obj);
-  pmath_unref(obj);
-  
-  if(clazz & PMATH_CLASS_UNKNOWN)
-    return expr;
-    
-  pmath_unref(expr);
-  if(clazz & ~needclazz)
-    return pmath_ref(PMATH_SYMBOL_FALSE);
-    
-  return pmath_ref(PMATH_SYMBOL_TRUE);
 }
 
 PMATH_PRIVATE pmath_t builtin_isquotient(pmath_expr_t expr) {

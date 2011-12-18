@@ -307,10 +307,12 @@ PMATH_PRIVATE pmath_t builtin_writestring(                   pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_assign_namespace(    pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_assign_namespacepath(pmath_expr_t expr);
 
+PMATH_PRIVATE pmath_t builtin_iscomplex(        pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_iseven(           pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_isexactnumber(    pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_isfloat(          pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_isinexactnumber(  pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_isimaginary(      pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_isinteger(        pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_ismachinenumber(  pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_isnumber(         pmath_expr_t expr);
@@ -318,6 +320,7 @@ PMATH_PRIVATE pmath_t builtin_isodd(            pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_ispos_or_isneg(   pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_isquotient(       pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_isrational(       pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_isreal(           pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_isstring(         pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_issymbol(         pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_makeexpression(   pmath_expr_t expr);
@@ -944,11 +947,13 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_INTERRUPT                 = NEW_SYSTEM_SYMBOL("Interrupt"))
   VERIFY(   PMATH_SYMBOL_INTERSECTION              = NEW_SYSTEM_SYMBOL("Intersection"))
   VERIFY(   PMATH_SYMBOL_ISARRAY                   = NEW_SYSTEM_SYMBOL("IsArray"))
+  VERIFY(   PMATH_SYMBOL_ISCOMPLEX                 = NEW_SYSTEM_SYMBOL("IsComplex"))
   VERIFY(   PMATH_SYMBOL_ISEVEN                    = NEW_SYSTEM_SYMBOL("IsEven"))
   VERIFY(   PMATH_SYMBOL_ISEXACTNUMBER             = NEW_SYSTEM_SYMBOL("IsExactNumber"))
   VERIFY(   PMATH_SYMBOL_ISFLOAT                   = NEW_SYSTEM_SYMBOL("IsFloat"))
   VERIFY(   PMATH_SYMBOL_ISFREEOF                  = NEW_SYSTEM_SYMBOL("IsFreeOf"))
   VERIFY(   PMATH_SYMBOL_ISHELD                    = NEW_SYSTEM_SYMBOL("IsHeld"))
+  VERIFY(   PMATH_SYMBOL_ISIMAGINARY               = NEW_SYSTEM_SYMBOL("IsImaginary"))
   VERIFY(   PMATH_SYMBOL_ISINEXACTNUMBER           = NEW_SYSTEM_SYMBOL("IsInexactNumber"))
   VERIFY(   PMATH_SYMBOL_ISINTEGER                 = NEW_SYSTEM_SYMBOL("IsInteger"))
   VERIFY(   PMATH_SYMBOL_ISMACHINENUMBER           = NEW_SYSTEM_SYMBOL("IsMachineNumber"))
@@ -964,6 +969,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_ISPRIME                   = NEW_SYSTEM_SYMBOL("IsPrime"))
   VERIFY(   PMATH_SYMBOL_ISQUOTIENT                = NEW_SYSTEM_SYMBOL("IsQuotient"))
   VERIFY(   PMATH_SYMBOL_ISRATIONAL                = NEW_SYSTEM_SYMBOL("IsRational"))
+  VERIFY(   PMATH_SYMBOL_ISREAL                    = NEW_SYSTEM_SYMBOL("IsReal"))
   VERIFY(   PMATH_SYMBOL_ISSTRING                  = NEW_SYSTEM_SYMBOL("IsString"))
   VERIFY(   PMATH_SYMBOL_ISSYMBOL                  = NEW_SYSTEM_SYMBOL("IsSymbol"))
   VERIFY(   PMATH_SYMBOL_ISVALIDARGUMENTCOUNT      = NEW_SYSTEM_SYMBOL("IsValidArgumentCount"))
@@ -1563,11 +1569,13 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   PMATH_SYMBOL_INTERRUPT,                   general_builtin_nofront)
   BIND_DOWN(   PMATH_SYMBOL_INTERSECTION,                builtin_intersection)
   BIND_DOWN(   PMATH_SYMBOL_ISARRAY,                     builtin_isarray)
+  BIND_DOWN(   PMATH_SYMBOL_ISCOMPLEX,                   builtin_iscomplex)
   BIND_DOWN(   PMATH_SYMBOL_ISEVEN,                      builtin_iseven)
   BIND_DOWN(   PMATH_SYMBOL_ISEXACTNUMBER,               builtin_isexactnumber)
   BIND_DOWN(   PMATH_SYMBOL_ISFLOAT,                     builtin_isfloat)
   BIND_DOWN(   PMATH_SYMBOL_ISFREEOF,                    builtin_isfreeof)
   BIND_DOWN(   PMATH_SYMBOL_ISHELD,                      builtin_isheld)
+  BIND_DOWN(   PMATH_SYMBOL_ISIMAGINARY,                 builtin_isimaginary)
   BIND_DOWN(   PMATH_SYMBOL_ISINEXACTNUMBER,             builtin_isinexactnumber)
   BIND_DOWN(   PMATH_SYMBOL_ISINTEGER,                   builtin_isinteger)
   BIND_DOWN(   PMATH_SYMBOL_ISMACHINENUMBER,             builtin_ismachinenumber)
@@ -1583,6 +1591,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   PMATH_SYMBOL_ISPRIME,                     builtin_isprime)
   BIND_DOWN(   PMATH_SYMBOL_ISQUOTIENT,                  builtin_isquotient)
   BIND_DOWN(   PMATH_SYMBOL_ISRATIONAL,                  builtin_isrational)
+  BIND_DOWN(   PMATH_SYMBOL_ISREAL,                      builtin_isreal)
   BIND_DOWN(   PMATH_SYMBOL_ISSTRING,                    builtin_isstring)
   BIND_DOWN(   PMATH_SYMBOL_ISSYMBOL,                    builtin_issymbol)
   BIND_DOWN(   PMATH_SYMBOL_ISVALIDARGUMENTCOUNT,        builtin_isvalidargumentcount)
