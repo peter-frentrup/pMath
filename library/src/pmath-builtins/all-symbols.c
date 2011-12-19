@@ -946,6 +946,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_INTERPRETATIONBOX         = NEW_SYSTEM_SYMBOL("InterpretationBox"))
   VERIFY(   PMATH_SYMBOL_INTERRUPT                 = NEW_SYSTEM_SYMBOL("Interrupt"))
   VERIFY(   PMATH_SYMBOL_INTERSECTION              = NEW_SYSTEM_SYMBOL("Intersection"))
+  VERIFY(   PMATH_SYMBOL_INTERVAL                  = NEW_SYSTEM_SYMBOL("Interval"))
   VERIFY(   PMATH_SYMBOL_ISARRAY                   = NEW_SYSTEM_SYMBOL("IsArray"))
   VERIFY(   PMATH_SYMBOL_ISCOMPLEX                 = NEW_SYSTEM_SYMBOL("IsComplex"))
   VERIFY(   PMATH_SYMBOL_ISEVEN                    = NEW_SYSTEM_SYMBOL("IsEven"))
@@ -1908,6 +1909,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   SET_ATTRIB( PMATH_SYMBOL_INTERNAL_NAMESPACEPATHSTACK,      THREADLOCAL);
   SET_ATTRIB( PMATH_SYMBOL_INTERNAL_NAMESPACESTACK,          THREADLOCAL);
   SET_ATTRIB( PMATH_SYMBOL_INTERPRETATIONBOX,                HOLDALLCOMPLETE);
+  SET_ATTRIB( PMATH_SYMBOL_INTERSECTION,                     ASSOCIATIVE | ONEIDENTITY | SYMMETRIC);
   SET_ATTRIB( PMATH_SYMBOL_ISHELD,                           DEEPHOLDALL | HOLDALLCOMPLETE);
   SET_ATTRIB( PMATH_SYMBOL_ISEVEN,                           LISTABLE);
   SET_ATTRIB( PMATH_SYMBOL_ISODD,                            LISTABLE);
@@ -1986,8 +1988,9 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   SET_ATTRIB( PMATH_SYMBOL_TRY,                              HOLDALL);
   SET_ATTRIB( PMATH_SYMBOL_UNASSIGN,                         HOLDFIRST | SEQUENCEHOLD);
   SET_ATTRIB( PMATH_SYMBOL_UNDERFLOW,                        NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_UNPROTECT,                        HOLDALL);
   SET_ATTRIB( PMATH_SYMBOL_UNEVALUATED,                      HOLDALLCOMPLETE);
+  SET_ATTRIB( PMATH_SYMBOL_UNION,                            ASSOCIATIVE | ONEIDENTITY | SYMMETRIC);
+  SET_ATTRIB( PMATH_SYMBOL_UNPROTECT,                        HOLDALL);
   SET_ATTRIB( PMATH_SYMBOL_UPRULES,                          HOLDALL);
   SET_ATTRIB( PMATH_SYMBOL_WAIT,                             LISTABLE);
   SET_ATTRIB( PMATH_SYMBOL_WHICH,                            HOLDALL);

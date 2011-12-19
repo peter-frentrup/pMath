@@ -359,7 +359,7 @@ void pmath_write_ex(struct pmath_write_ex_t *info, pmath_t obj) {
 
 /*----------------------------------------------------------------------------*/
 
-PMATH_PRIVATE int pmath_maxrecursion = 256;
+PMATH_PRIVATE int pmath_maxrecursion = 128;
 //static int maxiteration = 4096;
 
 PMATH_API

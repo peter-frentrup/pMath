@@ -5,6 +5,8 @@
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/arithmetic-private.h>
 #include <pmath-builtins/build-expr-private.h>
+#include <pmath-builtins/number-theory-private.h>
+
 
 PMATH_PRIVATE pmath_t builtin_sinh(pmath_expr_t expr) {
   pmath_t x;
@@ -235,6 +237,32 @@ PMATH_PRIVATE pmath_t builtin_sinh(pmath_expr_t expr) {
       }
       
       pmath_unref(u);
+    }
+  }
+  
+  {
+    pmath_t dir = _pmath_directed_infinity_direction(x);
+    
+    if(!pmath_is_null(dir)) {
+      int dirclass = _pmath_number_class(dir);
+      pmath_unref(dir);
+      
+      if(dirclass & PMATH_CLASS_ZERO) {
+        pmath_unref(expr);
+        pmath_unref(x);
+        return pmath_ref(PMATH_SYMBOL_UNDEFINED);
+      }
+      
+      if(dirclass & PMATH_CLASS_REAL) {
+        pmath_unref(expr);
+        return x;
+      }
+      
+      if(dirclass & PMATH_CLASS_IMAGINARY) {
+        pmath_unref(expr);
+        pmath_unref(x);
+        return CINFTY;
+      }
     }
   }
   

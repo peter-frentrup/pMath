@@ -1,7 +1,10 @@
 /* inverse trigonometric functions ArcCos, ArcCot, ArcCsc, ArcSec, ArsSin, ArcTan
  */
 
-Begin("System`Private`")
+BeginPackage("System`")
+
+
+Begin("System`Trigonometry`Private`")
 
 (Pi*{1/3,1/4,1/5,2/5,1/6,1/10,3/10,1/12,5/12}).Map((ArcSin(Sin(#)):= #)&)
 (Pi*{1/3,1/4,1/5,2/5,1/6,1/10,3/10,1/12,5/12}).Map((ArcTan(Tan(#)):= #)&)
@@ -40,3 +43,6 @@ Sinh /: Sinh(~x)^(~n?IsInteger /? n < 0)::= Csch(x)^-n
 Tanh /: Tanh(~x)^(~n?IsInteger /? n < 0)::= Coth(x)^-n
 
 End()
+
+
+EndPackage()

@@ -192,6 +192,7 @@
 {"InterpretationBox", {"ArgumentCount" -> 2}},
 {"Interrupt", {"ArgumentCount" -> 0}},
 {"Intersection", {"ArgumentCount" -> 0..}},
+{"Interval", {"ArgumentCount" -> 0..}},
 {"IsArray", {"ArgumentCount" -> 1..3}},
 {"IsComplex", {"ArgumentCount" -> 1}},
 {"IsEven", {"ArgumentCount" -> 1}},

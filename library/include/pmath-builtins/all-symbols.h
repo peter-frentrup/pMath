@@ -799,5 +799,6 @@ pmath_bool_t pmath_register_approx_code(
 #define PMATH_SYMBOL_ISREAL                                 PMATH_SYMBOL_BUILTIN(707)
 #define PMATH_SYMBOL_ISCOMPLEX                              PMATH_SYMBOL_BUILTIN(708)
 #define PMATH_SYMBOL_ISIMAGINARY                            PMATH_SYMBOL_BUILTIN(709)
+#define PMATH_SYMBOL_INTERVAL                               PMATH_SYMBOL_BUILTIN(710)
 
 #endif /* __PMATH_BUILTINS__SYMBOLS_H__ */

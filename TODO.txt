@@ -2,6 +2,10 @@
 	Button("italic", DocumentApply(SelectedDocument(), StyleBox("\[SelectionPlaceholder]", "TI"))),
 	Button("Arg Style", DocumentApply(SelectedDocument(), StyleBox("\[SelectionPlaceholder]", "Arg")))})
 
+- pmath: implement ArcSinh, ArcCosh, ArcTanh, ArcCsch, ArcSech, ArcCoth
+
+- pmath: Sin(Infinity) ---> Interval(-1 .. 1) and so on
+   
 - richmath: add options for Section/Style to manipulate 
    Context::smaller_fraction_parts
 
