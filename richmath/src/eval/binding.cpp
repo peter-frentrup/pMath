@@ -300,10 +300,8 @@ static bool can_duplicate_previous_input_output(Expr cmd) {
     
   Box *box = doc->selection_box();
   int a = doc->selection_start();
-  int b = doc->selection_end();
   while(box && box != doc) {
     a = box->index();
-    b = a + 1;
     box = box->parent();
   }
   
@@ -312,9 +310,10 @@ static bool can_duplicate_previous_input_output(Expr cmd) {
   for(int i = a - 1; i >= 0; --i) {
     MathSection *math = dynamic_cast<MathSection*>(doc->item(i));
     
-    if(math
-        && ((input && math->get_style(Evaluatable))
-            || (!input && math->get_style(SectionGenerated)))) {
+    if(math &&
+        (( input && math->get_style(Evaluatable)) ||
+         (!input && math->get_style(SectionGenerated))))
+    {
       return true;
     }
   }
@@ -325,8 +324,7 @@ static bool can_duplicate_previous_input_output(Expr cmd) {
 static bool can_edit_boxes(Expr cmd) {
   Document *doc = get_current_document();
   
-  return doc && (doc->selection_length() > 0 || doc->selection_box() != doc)
-         && doc->get_style(Editable);
+  return doc && (doc->selection_length() > 0 || doc->selection_box() != doc) && doc->get_style(Editable);
 }
 
 static bool can_expand_selection(Expr cmd) {
@@ -489,7 +487,7 @@ static bool convert_dynamic_to_literal(Expr cmd) {
   
   return true;
 }
-
+ 
 static bool copy_cmd(Expr cmd) {
   Document *doc = get_current_document();
   
@@ -499,7 +497,7 @@ static bool copy_cmd(Expr cmd) {
   doc->copy_to_clipboard();
   return true;
 }
-
+ 
 static bool cut_cmd(Expr cmd) {
   Document *doc = get_current_document();
   
@@ -509,18 +507,18 @@ static bool cut_cmd(Expr cmd) {
   doc->cut_to_clipboard();
   return true;
 }
-
+ 
 static bool document_apply_cmd(Expr cmd) {
   Document *doc = dynamic_cast<Document*>(Box::find(cmd[1]));
   
   if(!doc)
     return false;
-  
+    
   AbstractSequence *seq;
   
   if(dynamic_cast<TextSequence*>(doc->selection_box()))
     seq = new TextSequence;
-  else 
+  else
     seq = new MathSequence;
     
   seq->load_from_object(cmd[2], BoxOptionDefault);
@@ -528,7 +526,7 @@ static bool document_apply_cmd(Expr cmd) {
   
   return true;
 }
-
+ 
 static bool document_delete_cmd(Expr cmd) {
   Document *doc;
   
@@ -536,7 +534,7 @@ static bool document_delete_cmd(Expr cmd) {
     doc = get_current_document();
   else
     doc = dynamic_cast<Document*>(Box::find(cmd[1]));
-  
+    
   if(!doc)
     return false;
     
@@ -544,7 +542,7 @@ static bool document_delete_cmd(Expr cmd) {
   
   return true;
 }
-
+ 
 static bool document_write_cmd(Expr cmd) {
   Document *doc = dynamic_cast<Document*>(Box::find(cmd[1]));
   
@@ -555,7 +553,7 @@ static bool document_write_cmd(Expr cmd) {
   
   if(dynamic_cast<TextSequence*>(doc->selection_box()))
     seq = new TextSequence;
-  else 
+  else
     seq = new MathSequence;
     
   seq->load_from_object(cmd[2], BoxOptionDefault);
@@ -563,7 +561,7 @@ static bool document_write_cmd(Expr cmd) {
   
   return true;
 }
-
+ 
 static bool duplicate_previous_input_output_cmd(Expr cmd) {
   Document *doc = get_current_document();
   
@@ -575,10 +573,8 @@ static bool duplicate_previous_input_output_cmd(Expr cmd) {
     
   Box *box = doc->selection_box();
   int a = doc->selection_start();
-  int b = doc->selection_end();
   while(box && box != doc) {
     a = box->index();
-    b = a + 1;
     box = box->parent();
   }
   
@@ -601,7 +597,7 @@ static bool duplicate_previous_input_output_cmd(Expr cmd) {
   doc->native()->beep();
   return true;
 }
-
+ 
 static bool edit_boxes_cmd(Expr cmd) {
   Document *doc = get_current_document();
   
@@ -663,7 +659,7 @@ static bool edit_boxes_cmd(Expr cmd) {
   
   return true;
 }
-
+ 
 static bool evaluate_in_place_cmd(Expr cmd) {
   Document *doc = get_current_document();
   
@@ -681,7 +677,7 @@ static bool evaluate_in_place_cmd(Expr cmd) {
   
   return true;
 }
-
+ 
 static bool evaluate_sections_cmd(Expr cmd) {
   Document *doc = get_current_document();
   
@@ -713,7 +709,7 @@ static bool evaluate_sections_cmd(Expr cmd) {
   
   return true;
 }
-
+ 
 static bool evaluator_subsession_cmd(Expr cmd) {
   if(Application::is_idle())
     return false;
@@ -723,7 +719,7 @@ static bool evaluator_subsession_cmd(Expr cmd) {
   
   return true;
 }
-
+ 
 static bool expand_selection_cmd(Expr cmd) {
   Document *doc = get_current_document();
   
@@ -739,7 +735,7 @@ static bool expand_selection_cmd(Expr cmd) {
   doc->native()->invalidate();
   return true;
 }
-
+ 
 static bool find_evaluating_section(Expr cmd) {
   Box *box = Application::find_current_job();
   Document *current_doc = get_current_document();
@@ -768,7 +764,7 @@ static bool find_evaluating_section(Expr cmd) {
   doc->select(sect->parent(), sect->index(), sect->index() + 1);
   return true;
 }
-
+ 
 static bool find_matching_fence_cmd(Expr cmd) {
   Document *doc = get_current_document();
   
@@ -793,7 +789,7 @@ static bool find_matching_fence_cmd(Expr cmd) {
   
   return true;
 }
-
+ 
 static bool insert_column_cmd(Expr cmd) {
   Document *doc = get_current_document();
   
@@ -803,7 +799,7 @@ static bool insert_column_cmd(Expr cmd) {
   doc->insert_matrix_column();
   return true;
 }
-
+ 
 static bool insert_fraction_cmd(Expr cmd) {
   Document *doc = get_current_document();
   
@@ -813,7 +809,7 @@ static bool insert_fraction_cmd(Expr cmd) {
   doc->insert_fraction();
   return true;
 }
-
+ 
 static bool insert_opposite_cmd(Expr cmd) {
   Document *doc = get_current_document();
   
@@ -823,7 +819,7 @@ static bool insert_opposite_cmd(Expr cmd) {
   doc->complete_box();
   return true;
 }
-
+ 
 static bool insert_overscript_cmd(Expr cmd) {
   Document *doc = get_current_document();
   
@@ -833,7 +829,7 @@ static bool insert_overscript_cmd(Expr cmd) {
   doc->insert_underoverscript(false);
   return true;
 }
-
+ 
 static bool insert_radical_cmd(Expr cmd) {
   Document *doc = get_current_document();
   
@@ -843,7 +839,7 @@ static bool insert_radical_cmd(Expr cmd) {
   doc->insert_sqrt();
   return true;
 }
-
+ 
 static bool insert_row_cmd(Expr cmd) {
   Document *doc = get_current_document();
   
@@ -853,7 +849,7 @@ static bool insert_row_cmd(Expr cmd) {
   doc->insert_matrix_row();
   return true;
 }
-
+ 
 static bool insert_subscript_cmd(Expr cmd) {
   Document *doc = get_current_document();
   
@@ -863,7 +859,7 @@ static bool insert_subscript_cmd(Expr cmd) {
   doc->insert_subsuperscript(true);
   return true;
 }
-
+ 
 static bool insert_superscript_cmd(Expr cmd) {
   Document *doc = get_current_document();
   
@@ -873,7 +869,7 @@ static bool insert_superscript_cmd(Expr cmd) {
   doc->insert_subsuperscript(false);
   return true;
 }
-
+ 
 static bool insert_underscript_cmd(Expr cmd) {
   Document *doc = get_current_document();
   
@@ -883,7 +879,7 @@ static bool insert_underscript_cmd(Expr cmd) {
   doc->insert_underoverscript(true);
   return true;
 }
-
+ 
 static bool new_cmd(Expr cmd) {
   Application::notify(
     CNT_CREATEDOCUMENT,
@@ -891,7 +887,7 @@ static bool new_cmd(Expr cmd) {
     
   return true;
 }
-
+ 
 static bool open_close_group_cmd(Expr cmd) {
   Document *doc = get_current_document();
   
@@ -901,7 +897,7 @@ static bool open_close_group_cmd(Expr cmd) {
   doc->toggle_open_close_current_group();
   return true;
 }
-
+ 
 static bool paste_cmd(Expr cmd) {
   Document *doc = get_current_document();
   
@@ -911,7 +907,7 @@ static bool paste_cmd(Expr cmd) {
   doc->paste_from_clipboard();
   return true;
 }
-
+ 
 static bool remove_from_evaluation_queue(Expr cmd) {
   Document *doc = get_current_document();
   
@@ -945,7 +941,7 @@ static bool remove_from_evaluation_queue(Expr cmd) {
   
   return true;
 }
-
+ 
 static bool select_all_cmd(Expr cmd) {
   Document *doc = get_current_document();
   
@@ -974,7 +970,7 @@ static bool select_all_cmd(Expr cmd) {
   
   return false;
 }
-
+ 
 static bool similar_section_below_cmd(Expr cmd) {
   Document *doc = get_current_document();
   
@@ -1007,7 +1003,7 @@ static bool similar_section_below_cmd(Expr cmd) {
   doc->native()->beep();
   return false;
 }
-
+ 
 static bool subsession_evaluate_sections_cmd(Expr cmd) {
   // non-blocking interrupt
   Application::execute_for(
@@ -1018,15 +1014,15 @@ static bool subsession_evaluate_sections_cmd(Expr cmd) {
     
   return false;
 }
-
+ 
 //} ... menu commands
-
+ 
 static pmath_symbol_t fe_symbols[FrontEndSymbolsCount];
-
+ 
 bool richmath::init_bindings() {
 #define BIND_DOWN(SYMBOL, FUNC)  pmath_register_code(SYMBOL, FUNC, PMATH_CODE_USAGE_DOWNCALL)
 #define BIND_UP(  SYMBOL, FUNC)  pmath_register_code(SYMBOL, FUNC, PMATH_CODE_USAGE_UPCALL)
-
+ 
   Application::register_menucommand(String("New"),                        new_cmd);
   Application::register_menucommand(String("Close"),                      close_cmd);
   
@@ -1117,21 +1113,21 @@ FAIL_SYMBOLS:
   memset(fe_symbols, 0, sizeof(fe_symbols));
   return false;
 }
-
+ 
 void richmath::done_bindings() {
   for(size_t i = 0; i < FrontEndSymbolsCount; ++i)
     pmath_unref(fe_symbols[i]);
     
   memset(fe_symbols, 0, sizeof(fe_symbols));
 }
-
+ 
 Expr richmath::GetSymbol(FrontEndSymbolIndex i) {
   if((size_t)i >= (size_t)FrontEndSymbolsCount)
     return Expr();
     
   return Symbol(fe_symbols[(size_t)i]);
 }
-
+ 
 void richmath::set_current_document(Document *document) {
   Document *old = get_current_document();
   
@@ -1143,7 +1139,8 @@ void richmath::set_current_document(Document *document) {
     
   current_document_id = document ? document->id() : 0;
 }
-
+ 
 Document *richmath::get_current_document() {
   return dynamic_cast<Document*>(Box::find(current_document_id));
 }
+ 

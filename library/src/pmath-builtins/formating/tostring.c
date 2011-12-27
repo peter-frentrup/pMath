@@ -37,12 +37,10 @@ struct write_short_t {
 
 static void write_short(void *user, const uint16_t *data, int len) {
   struct write_short_t *ws = user;
-  int pos;
   
   if(ws->have_error)
     return;
-    
-  pos = pmath_string_length(ws->text);
+  
   ws->text = pmath_string_insert_ucs2(ws->text, INT_MAX, data, len);
   if(pmath_is_null(ws->text)) {
     ws->have_error = TRUE;

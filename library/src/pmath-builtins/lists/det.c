@@ -244,7 +244,6 @@ static pmath_t symbolic_det(pmath_expr_t matrix){ // matrix will be freed
 */
 
 static pmath_bool_t use_symbolic_det(pmath_expr_t matrix) { // wont be freed
-  pmath_bool_t inexact = FALSE;
   size_t i, j;
   
   for(i = pmath_expr_length(matrix); i > 0; --i) {
@@ -253,10 +252,7 @@ static pmath_bool_t use_symbolic_det(pmath_expr_t matrix) { // wont be freed
     for(j = pmath_expr_length(row); j > 0; --j) {
       pmath_t obj = pmath_expr_get_item(row, j);
       
-      if(pmath_is_float(obj)) {
-        inexact = TRUE;
-      }
-      else if(!pmath_is_number(obj)) {
+      if(!pmath_is_number(obj)) {
         if(!_pmath_is_nonreal_complex(obj)) {
           if(!_pmath_is_numeric(obj)) { // non-numeric entity found
             pmath_unref(obj);

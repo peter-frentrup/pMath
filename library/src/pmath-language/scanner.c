@@ -2070,7 +2070,6 @@ static void ungroup(
         pmath_string_t box_in_str;
         int k = 1;
         int l;
-        const uint16_t *sub;
         
         j = ++i;
         while(j < len) {
@@ -2087,8 +2086,6 @@ static void ungroup(
         l = j - i;
         
         box_in_str = pmath_string_part(pmath_ref(box), i, l);
-        
-        sub = pmath_string_buffer(&box_in_str);
         
         if(g->make_box) {
           g->make_box(

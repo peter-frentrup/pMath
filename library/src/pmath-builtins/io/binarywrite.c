@@ -521,8 +521,8 @@ static pmath_bool_t binary_write(
             pmath_t im = PMATH_NULL;
             
             if(_pmath_re_im(infdir, &re, &im)) {
-              int re_dir = 2;
-              int im_dir = 2;
+              re_dir = 2;
+              im_dir = 2;
               
               if(!pmath_is_number(re) || !pmath_is_number(im)) {
                 re_dir = im_dir = 0;

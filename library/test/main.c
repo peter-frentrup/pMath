@@ -88,7 +88,7 @@ static pmath_messages_t get_main_mq(void) {
   }
   pmath_atomic_unlock(&main_mq_lock);
   
-  return main_mq;
+  return mq;
 }
 
 // Reads a line from file without the ending "\n".

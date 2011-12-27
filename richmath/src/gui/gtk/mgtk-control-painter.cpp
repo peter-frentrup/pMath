@@ -1,22 +1,22 @@
 #include <gui/gtk/mgtk-control-painter.h>
- 
+
 #include <util/style.h>
 #include <graphics/shapers.h>
- 
- 
+
+
 using namespace richmath;
- 
+
 #if GTK_MAJOR_VERSION >= 3
 static bool initialized_change_notifications = false;
 static void on_theme_changed(GObject*, GParamSpec*) {
   MathGtkControlPainter::gtk_painter.clear_cache();
 }
 #endif
- 
+
 //{ class MathGtkControlPainter ...
- 
+
 MathGtkControlPainter MathGtkControlPainter::gtk_painter;
- 
+
 MathGtkControlPainter::MathGtkControlPainter()
   : ControlPainter()
 {
@@ -33,7 +33,7 @@ MathGtkControlPainter::MathGtkControlPainter()
   radio_button_context        = 0;
 #endif
 }
- 
+
 MathGtkControlPainter::~MathGtkControlPainter() {
   if(ControlPainter::std == this)
     ControlPainter::std = &ControlPainter::generic_painter;
@@ -42,9 +42,9 @@ MathGtkControlPainter::~MathGtkControlPainter() {
   clear_cache();
 #endif
 }
- 
+
 #if GTK_MAJOR_VERSION >= 3
- 
+
 void MathGtkControlPainter::calc_container_size(
   Canvas        *canvas,
   ContainerType  type,
@@ -215,13 +215,10 @@ void MathGtkControlPainter::draw_container(
         
       case SliderHorzThumb:
         {
-          //int w;
-          //gtk_style_context_get_style(context, "slider-width", &w, NULL);
-          //
-          //float h2 = w * 0.75f;
-          //y+= (height - h2) / 2;
-          //height = h2;
-          gtk_render_slider(context, canvas->cairo(), x, y, width, height, GTK_ORIENTATION_HORIZONTAL);
+          gtk_render_background(context, canvas->cairo(), x, y, width, height);
+                         
+          // gtk_render_slider() draws to the wrong location (coordinates scaled by ~ 2/3)
+          //gtk_render_slider(context, canvas->cairo(), x, y, width, height, GTK_ORIENTATION_HORIZONTAL);
         }
         break;
         
@@ -492,6 +489,7 @@ GtkStyleContext *MathGtkControlPainter::get_control_theme(ContainerType type) {
         
         path = gtk_widget_path_new ();
         gtk_widget_path_append_type (path, GTK_TYPE_WINDOW);
+        gtk_widget_path_append_type (path, GTK_TYPE_SCALE);
         int pos = gtk_widget_path_append_type (path, GTK_TYPE_HSCALE);
         gtk_widget_path_iter_add_class(path, pos, GTK_STYLE_CLASS_SCALE);
         gtk_widget_path_iter_add_class(path, pos, GTK_STYLE_CLASS_SLIDER);
@@ -611,6 +609,7 @@ void MathGtkControlPainter::clear_cache() {
 #endif
  
 //} ... class MathGtkControlPainter
+ 
  
  
  

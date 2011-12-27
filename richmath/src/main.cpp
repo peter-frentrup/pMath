@@ -545,8 +545,7 @@ int main(int argc, char **argv) {
 #endif
 #endif
   
-  if(!pmath_init()
-      || !init_bindings()) {
+  if(!pmath_init() || !init_bindings()) {
     message_dialog("pMath Fatal Error", "Cannot not initialize the pMath library.");
     
     return 1;
@@ -806,9 +805,9 @@ int main(int argc, char **argv) {
     wndMain->set_initial_rect(200, 50, 500, 550);
     gtk_window_present(GTK_WINDOW(wndMain->widget()));
     
+    
     MathGtkDocumentWindow *wndPalette = new MathGtkDocumentWindow();
     wndPalette->init();
-    
     
     wndPalette->set_initial_rect(704, 50, 100, 100);
     

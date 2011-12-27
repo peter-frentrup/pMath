@@ -364,6 +364,9 @@ bool MathGtkWidget::is_mouse_down() {
     return false;
     
   GdkWindow *w = gtk_widget_get_window(_widget);
+  if(!w)
+    return false;
+  
   GdkModifierType mod = (GdkModifierType)0;
   
   gdk_window_get_pointer(w, NULL, NULL, &mod);
