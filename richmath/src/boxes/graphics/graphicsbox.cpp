@@ -59,7 +59,7 @@ static enum SyntaxPosition find_syntax_position(Box *box, int index) {
     
     if(expr)
       delete expr;
-    
+      
     enum SyntaxPosition pos = find_syntax_position(box->parent(), box->index());
     
     if(inside_list && pos < InsideList)
@@ -125,6 +125,8 @@ GraphicsBox *GraphicsBox::create(Expr expr, int opts) {
     
     box->style->add_pmath(options);
   }
+  
+  box->elements.load_from_object(expr[1], opts);
   
   return box;
 }
@@ -282,6 +284,35 @@ void GraphicsBox::paint(Context *context) {
   ContextState cc(context);
   cc.begin(style);
   {
+    if(error_boxes_expr.is_valid())
+      context->draw_error_rect(x, y, x + w, y + h);
+      
+    context->canvas->save();
+    {
+      context->canvas->pixrect(x, y, x + w, y + h, false);
+      context->canvas->clip();
+      
+      cairo_matrix_t m;
+      cairo_matrix_init_identity(&m);
+      
+      cairo_matrix_translate(&m, x, y + _extents.ascent);
+      transform_inner_to_outer(&m);
+      context->canvas->transform(m);
+      
+      int old_color = context->canvas->get_color();
+      
+      //context->canvas->set_color(0xff0000);
+      //context->canvas->move_to(0, 0);
+      //context->canvas->line_to(1, 1);
+      //context->canvas->hair_stroke();
+      
+      context->canvas->set_color(0x000000);
+      elements.paint(context);
+      
+      context->canvas->set_color(old_color);
+    }
+    context->canvas->restore();
+    
     context->canvas->save();
     {
       context->canvas->pixrect(x, y, x + w, y + h, false);
@@ -344,7 +375,7 @@ void GraphicsBox::paint(Context *context) {
 Expr GraphicsBox::to_pmath(int flags) {
   Gather g;
   
-  Gather::emit(List());
+  Gather::emit(elements.to_pmath(flags));
   style->emit_to_pmath(false, false);
   
   Expr result = g.end();
@@ -374,6 +405,34 @@ int GraphicsBox::calc_mouse_over_part(float x, float y) {
   }
   
   return GraphicsPartBackground;
+}
+
+void GraphicsBox::transform_inner_to_outer(cairo_matrix_t *mat) {
+  cairo_matrix_scale(mat, 1, -1);
+  
+  cairo_matrix_translate(
+    mat,
+    margin_left,
+    margin_bottom - _extents.descent);
+    
+  double sx = _extents.width    - margin_left - margin_right;
+  double sy = _extents.height() - margin_top  - margin_bottom;
+  if(sx == 0) sx = 1;
+  if(sy == 0) sy = 1;
+  
+  cairo_matrix_scale(mat, sx, sy);
+  
+  sx = x_axis_ticks->end_position - x_axis_ticks->start_position;
+  sy = y_axis_ticks->end_position - y_axis_ticks->start_position;
+  if(sx == 0) sx = 1;
+  if(sy == 0) sy = 1;
+  
+  cairo_matrix_scale(mat, 1 / sx, 1 / sy);
+  
+  cairo_matrix_translate(
+    mat,
+    - x_axis_ticks->start_position,
+    - y_axis_ticks->start_position);
 }
 
 Box *GraphicsBox::mouse_selection(
@@ -424,9 +483,21 @@ Box *GraphicsBox::mouse_sensitive() {
 }
 
 void GraphicsBox::on_mouse_enter() {
+  if(error_boxes_expr.is_valid()) {
+    Document *doc = find_parent<Document>(false);
+    
+    if(doc)
+      doc->native()->show_tooltip(error_boxes_expr);
+  }
 }
 
 void GraphicsBox::on_mouse_exit() {
+  if(error_boxes_expr.is_valid()) {
+    Document *doc = find_parent<Document>(false);
+    
+    if(doc)
+      doc->native()->hide_tooltip();
+  }
 }
 
 void GraphicsBox::on_mouse_down(MouseEvent &event) {

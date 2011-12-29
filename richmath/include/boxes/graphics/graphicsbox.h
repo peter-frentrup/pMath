@@ -2,6 +2,7 @@
 #define __BOXES__GRAPHICS__GRAPHICSBOX_H__
 
 #include <boxes/box.h>
+#include <boxes/graphics/graphicselement.h>
 
 
 namespace richmath {
@@ -37,12 +38,12 @@ namespace richmath {
         int   *end,
         bool  *was_inside_start);
         
-        
       virtual bool selectable(int i = -1);
         
       virtual Box *normalize_selection(int *start, int *end);
       
       int calc_mouse_over_part(float x, float y);
+      void transform_inner_to_outer(cairo_matrix_t *mat);
       
       virtual Box *mouse_sensitive();
       virtual void on_mouse_enter();
@@ -63,6 +64,9 @@ namespace richmath {
       
       AxisTicks *x_axis_ticks;
       AxisTicks *y_axis_ticks;
+      
+      GraphicsElementCollection elements;
+      Expr error_boxes_expr;
     
     protected:
       GraphicsBox();

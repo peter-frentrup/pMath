@@ -800,5 +800,7 @@ pmath_bool_t pmath_register_approx_code(
 #define PMATH_SYMBOL_ISCOMPLEX                              PMATH_SYMBOL_BUILTIN(708)
 #define PMATH_SYMBOL_ISIMAGINARY                            PMATH_SYMBOL_BUILTIN(709)
 #define PMATH_SYMBOL_INTERVAL                               PMATH_SYMBOL_BUILTIN(710)
+#define PMATH_SYMBOL_LINEBOX                                PMATH_SYMBOL_BUILTIN(711)
+#define PMATH_SYMBOL_LINE_GRAPHICS                          PMATH_SYMBOL_BUILTIN(712)
 
 #endif /* __PMATH_BUILTINS__SYMBOLS_H__ */

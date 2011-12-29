@@ -997,6 +997,8 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_LETTERCHARACTER           = NEW_SYSTEM_SYMBOL("LetterCharacter"))
   VERIFY(   PMATH_SYMBOL_LEVEL                     = NEW_SYSTEM_SYMBOL("Level"))
   VERIFY(   PMATH_SYMBOL_LINE                      = NEW_SYSTEM_SYMBOL("$Line"))
+  VERIFY(   PMATH_SYMBOL_LINE_GRAPHICS             = NEW_SYSTEM_SYMBOL("Line"))
+  VERIFY(   PMATH_SYMBOL_LINEBOX                   = NEW_SYSTEM_SYMBOL("LineBox"))
   VERIFY(   PMATH_SYMBOL_LINEARSOLVE               = NEW_SYSTEM_SYMBOL("LinearSolve"))
   VERIFY(   PMATH_SYMBOL_LINEARSOLVEFUNCTION       = NEW_SYSTEM_SYMBOL("LinearSolveFunction"))
   VERIFY(   PMATH_SYMBOL_LINEBREAKWITHIN           = NEW_SYSTEM_SYMBOL("LineBreakWithin"))

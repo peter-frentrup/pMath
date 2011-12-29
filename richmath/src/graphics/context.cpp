@@ -98,11 +98,13 @@ void Context::draw_error_rect(
 ) {
   canvas->save();
   {
+    int c = canvas->get_color();
     canvas->pixrect(x1, y1, x2, y2, true);
     canvas->set_color(0xFFE6E6);
     canvas->fill_preserve();
     canvas->set_color(0xFF5454);
     canvas->hair_stroke();
+    canvas->set_color(c);
   }
   canvas->restore();
 }

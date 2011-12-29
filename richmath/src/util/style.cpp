@@ -35,15 +35,17 @@ int richmath::pmath_to_color(Expr obj) {
     
   if(obj.is_expr()) {
     if(obj[0] == PMATH_SYMBOL_RGBCOLOR) {
-      if(obj.expr_length() == 1
-          && obj[1][0] == PMATH_SYMBOL_LIST) {
+      if( obj.expr_length() == 1 &&
+          obj[1][0] == PMATH_SYMBOL_LIST)
+      {
         obj = obj[1];
       }
       
-      if(obj.expr_length() == 3
-          && obj[1].is_number()
-          && obj[2].is_number()
-          && obj[3].is_number()) {
+      if( obj.expr_length() == 3 &&
+          obj[1].is_number() &&
+          obj[2].is_number() &&
+          obj[3].is_number())
+      {
         double r = obj[1].to_double();
         double g = obj[2].to_double();
         double b = obj[3].to_double();
@@ -57,8 +59,9 @@ int richmath::pmath_to_color(Expr obj) {
     }
     
     if(obj[0] == PMATH_SYMBOL_HUE) {
-      if(obj.expr_length() == 1
-          && obj[1][0] == PMATH_SYMBOL_LIST) {
+      if( obj.expr_length() == 1 &&
+          obj[1][0] == PMATH_SYMBOL_LIST)
+      {
         obj = obj[1];
       }
       
@@ -103,9 +106,10 @@ int richmath::pmath_to_color(Expr obj) {
       }
     }
     
-    if(obj[0] == PMATH_SYMBOL_GRAYLEVEL
-        && obj.expr_length() == 1
-        && obj[1].is_number()) {
+    if( obj[0] == PMATH_SYMBOL_GRAYLEVEL &&
+        obj.expr_length() == 1 &&
+        obj[1].is_number())
+    {
       double l = obj[1].to_double();
       if(l < 0) l = 0; else if(!(l <= 1)) l = 1;
       
