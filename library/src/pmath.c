@@ -32,20 +32,20 @@
 #include <pmath-builtins/number-theory-private.h>
 
 #ifdef PMATH_OS_WIN32
-#define NOGDI
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#include <shellapi.h>
+#  define NOGDI
+#  define WIN32_LEAN_AND_MEAN
+#  include <windows.h>
+#  include <shellapi.h>
 #elif defined(__APPLE__)
-#include <CoreServices/CoreServices.h>
+#  include <CoreServices/CoreServices.h>
 #else
-#include <dlfcn.h>
-#include <link.h>
-#include <unistd.h>
+#  include <dlfcn.h>
+#  include <link.h>
+#  include <unistd.h>
 #endif
 
 #if PMATH_USE_PTHREAD
-#include <pthread.h>
+#  include <pthread.h>
 #endif
 
 #include <time.h>
@@ -918,7 +918,7 @@ PMATH_API pmath_bool_t pmath_init(void) {
       
     _pmath_status = PMATH_STATUS_DESTROYING;
     
-  FAIL_STATIC_OBJECTS: 
+  FAIL_STATIC_OBJECTS:
     pmath_unref(_pmath_object_complex_infinity);         _pmath_object_complex_infinity =         PMATH_NULL;
     pmath_unref(_pmath_object_emptylist);                _pmath_object_emptylist =                PMATH_NULL;
     pmath_unref(_pmath_object_get_load_message);         _pmath_object_get_load_message =         PMATH_NULL;

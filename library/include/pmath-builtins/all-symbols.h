@@ -41,7 +41,7 @@ typedef pmath_t (*pmath_builtin_func_t)(pmath_expr_t expr);
    - PMATH_CODE_USAGE_UPCALL Call binded function when evaluating `g(...,f,...)`
      or `g(..., f(...), ...)`
 
-   These use cases correspond to the DownRules(), SubRules() and UpRules() of a
+   These use-cases correspond to the DownRules(), SubRules() and UpRules() of a
    symbol.
 
    \see pmath_register_code

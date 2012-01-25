@@ -11,8 +11,9 @@
  
 /**\brief A boolean type. 
    
-   C does not define a boolean type, so we do it here for code clarity. The
-   constants TRUE and FALSE can be used as return values for pmath_bool_t,
+   The C99 boolean type _Bool is not supported by all compilers, so we define a
+   boolean type here for code clarity. The constants TRUE and FALSE can be used 
+   as return values for pmath_bool_t,
    but do not test on these. E.g. use <tt>if(test)...</tt> instead of 
    <tt>if(test == TRUE)...</tt> but <tt>return TRUE;</tt> instead of 
    <tt>return 1;</tt>
@@ -23,14 +24,14 @@ typedef char pmath_bool_t;
    \brief The FALSE value for pmath_bool_t.
  */
 #ifndef FALSE
-  #define FALSE ((pmath_bool_t)0)
+#  define FALSE ((pmath_bool_t)0)
 #endif
 
 /**\def TRUE
    \brief The TRUE value for pmath_bool_t.
  */
 #ifndef TRUE
-  #define TRUE (!FALSE)
+#  define TRUE (!FALSE)
 #endif
 
 #define PMATH_INVALID_PTR ((void*)UINTPTR_MAX) /* 0xffffffff... */

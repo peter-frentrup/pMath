@@ -14,7 +14,8 @@
    e.g. with Unprotect(Plus);2+2:= 5
    But the main reason for EARLYCALL is the performance boost for Plus and Times
    with numbers (which comes at the additional cost of testing for the
-   availability of EARLYCALL code for everey other function) */
+   availability of EARLYCALL code for every other function) 
+ */
 static const pmath_code_usage_t PMATH_CODE_USAGE_EARLYCALL = (pmath_code_usage_t)3;
 
 

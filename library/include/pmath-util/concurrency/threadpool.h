@@ -54,8 +54,8 @@ for each deamon thread t:
    \endcode
 
    pmath_init() will be called automatically before callback() and pmath_done()
-   after callback returns. So the pMath thread (pmath_get_current()) will be
-   allready initialized and you must not call these two functions in the
+   after callback returns. So the pMath thread (pmath_thread_get_current()) will 
+   be already initialized and you must not call these two functions in the
    \a callback routine.
 
    You can use the \a kill function to set your own abort-please-flags if
