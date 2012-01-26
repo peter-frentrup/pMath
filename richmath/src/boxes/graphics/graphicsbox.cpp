@@ -13,13 +13,20 @@
 #include <util/spanexpr.h>
 
 #include <algorithm>
+#include <cmath>
 
 #ifdef max
-#undef max
+#  undef max
+#endif
+
+
+#ifdef _MSC_VER
+#  define isfinite(x)  (_finite(x))
 #endif
 
 
 using namespace richmath;
+using namespace std;
 
 
 enum SyntaxPosition {
@@ -147,9 +154,80 @@ int GraphicsBox::count() {
 void GraphicsBox::resize(Context *context) {
   float em = context->canvas->get_font_size();
   
-  float w = get_style(ImageSizeHorizontal, ImageSizeAutomatic);
-  float h = get_style(ImageSizeVertical,   ImageSizeAutomatic);
+  float w     = get_own_style(ImageSizeHorizontal, ImageSizeAutomatic);
+  float h     = get_own_style(ImageSizeVertical,   ImageSizeAutomatic);
+  float ratio = get_own_style(AspectRatio, 0.61803);
   
+  if(ratio <= 0)
+    ratio = 0.61803;
+    
+  resize_axes(context);
+  
+  margin_left   = 0;
+  margin_right  = 0;
+  margin_top    = 0;
+  margin_bottom = 0;
+  
+  BoxSize xlabels = x_axis_ticks->all_labels_extents();
+  BoxSize ylabels = y_axis_ticks->all_labels_extents();
+  
+  x_axis_ticks->extra_offset = 0.75 * 6;
+  y_axis_ticks->extra_offset = 0.75 * 6;
+  
+  margin_left   = std::max(ylabels.width    + x_axis_ticks->extra_offset, xlabels.width    / 2);
+  margin_bottom = std::max(xlabels.height() + y_axis_ticks->extra_offset, ylabels.height() / 2);
+  margin_right  = xlabels.width    / 2;
+  margin_top    = ylabels.height() / 2;
+  
+  
+  if(w <= 0 && h <= 0) {
+    enum SyntaxPosition pos = find_syntax_position(parent(), index());
+    
+    switch(pos) {
+      case Alone:
+        w = 30 * em;
+        break;
+        
+      case InsideList:
+        w = 15 * em;
+        break;
+        
+      case InsideOther:
+        w = 8 * em;
+        break;
+    }
+  }
+  
+  if(w <= 0) {
+    float content_h = h - margin_top - margin_bottom;
+    
+    w = content_h / ratio + margin_left + margin_right;
+  }
+  
+  if(h <= 0) {
+    float content_w = w - margin_left - margin_right;
+    
+    h = content_w * ratio + margin_top  + margin_bottom;
+  }
+  
+  _extents.width = w;
+  _extents.ascent  = h / 2 + 0.25 * em;
+  _extents.descent = h - _extents.ascent;
+  
+  
+  x_axis_ticks->start_x = margin_left;
+  x_axis_ticks->start_y = _extents.descent - margin_bottom;
+  x_axis_ticks->end_x   = _extents.width   - margin_right;
+  x_axis_ticks->end_y   = _extents.descent - margin_bottom;
+  
+  y_axis_ticks->start_x = margin_left;
+  y_axis_ticks->start_y = _extents.descent - margin_bottom;
+  y_axis_ticks->end_x   = margin_left;
+  y_axis_ticks->end_y   = margin_top - _extents.ascent;
+  
+}
+
+void GraphicsBox::resize_axes(Context *context) {
   ContextState cc(context);
   cc.begin(style);
   {
@@ -157,6 +235,44 @@ void GraphicsBox::resize(Context *context) {
     double xmax =  1;
     double ymin = -1;
     double ymax =  1;
+    
+    
+    Expr plot_range = get_own_style(PlotRange, Symbol(PMATH_SYMBOL_AUTOMATIC));
+    if( plot_range[0] == PMATH_SYMBOL_LIST &&
+        plot_range.expr_length() == 2)
+    {
+      Expr xrange = plot_range[1];
+      Expr yrange = plot_range[2];
+      
+      if( xrange[0] == PMATH_SYMBOL_RANGE &&
+          xrange.expr_length() == 2 &&
+          xrange[1].is_number() &&
+          xrange[2].is_number())
+      {
+        xmin = xrange[1].to_double();
+        xmax = xrange[2].to_double();
+        if(!isfinite(xmin) || !isfinite(xmax) || xmin >= xmax)
+        {
+          xmin = -1;
+          xmax = 1;
+        }
+      }
+      
+      if( yrange[0] == PMATH_SYMBOL_RANGE &&
+          yrange.expr_length() == 2 &&
+          yrange[1].is_number() &&
+          yrange[2].is_number())
+      {
+        ymin = yrange[1].to_double();
+        ymax = yrange[2].to_double();
+        if(!isfinite(ymin) || !isfinite(ymax) || ymin >= ymax)
+        {
+          ymin = -1;
+          ymin = 1;
+        }
+      }
+    }
+    
     
     if( x_axis_ticks->start_position != xmin ||
         x_axis_ticks->end_position   != xmax)
@@ -188,86 +304,8 @@ void GraphicsBox::resize(Context *context) {
     
     x_axis_ticks->resize(context);
     y_axis_ticks->resize(context);
-    
-    margin_left   = 0;
-    margin_right  = 0;
-    margin_top    = 0;
-    margin_bottom = 0;
-    
-    BoxSize xlabels = x_axis_ticks->all_labels_extents();
-    BoxSize ylabels = y_axis_ticks->all_labels_extents();
-    
-    x_axis_ticks->extra_offset = 0.75 * 6;
-    y_axis_ticks->extra_offset = 0.75 * 6;
-    
-    margin_left   = std::max(ylabels.width    + x_axis_ticks->extra_offset, xlabels.width    / 2);
-    margin_bottom = std::max(xlabels.height() + y_axis_ticks->extra_offset, ylabels.height() / 2);
-    margin_right  = xlabels.width    / 2;
-    margin_top    = ylabels.height() / 2;
   }
   cc.end();
-  
-  
-  if(w <= 0 && h <= 0) {
-    enum SyntaxPosition pos = find_syntax_position(parent(), index());
-    
-    switch(pos) {
-      case Alone:
-        w = 16 * em;
-        break;
-        
-      case InsideList:
-        w = 12 * em;
-        break;
-        
-      case InsideOther:
-        w = 8 * em;
-        break;
-    }
-  }
-  
-  if(w <= 0) {
-    float content_h = h - margin_top - margin_bottom;
-    
-    double dy = y_axis_ticks->end_position - y_axis_ticks->start_position;
-    
-    if(content_h > 0 && dy > 0) {
-      double dx = x_axis_ticks->end_position - x_axis_ticks->start_position;
-      
-      w = content_h * dx / dy + margin_left + margin_right;
-    }
-    else
-      w = margin_left + margin_right;
-  }
-  
-  if(h <= 0) {
-    float content_w = w - margin_left - margin_right;
-    
-    double dx = x_axis_ticks->end_position - x_axis_ticks->start_position;
-    
-    if(content_w > 0 && dx > 0) {
-      double dy = y_axis_ticks->end_position - y_axis_ticks->start_position;
-      
-      h = content_w * dy / dx + margin_top + margin_bottom;
-    }
-    else
-      h = margin_top + margin_bottom;
-  }
-  
-  _extents.width = w;
-  _extents.ascent  = h / 2 + 0.25 * em;
-  _extents.descent = h - _extents.ascent;
-  
-  
-  x_axis_ticks->start_x = margin_left;
-  x_axis_ticks->start_y = _extents.descent - margin_bottom;
-  x_axis_ticks->end_x   = _extents.width   - margin_right;
-  x_axis_ticks->end_y   = _extents.descent - margin_bottom;
-  
-  y_axis_ticks->start_x = margin_left;
-  y_axis_ticks->start_y = _extents.descent - margin_bottom;
-  y_axis_ticks->end_x   = margin_left;
-  y_axis_ticks->end_y   = margin_top - _extents.ascent;
 }
 
 void GraphicsBox::paint(Context *context) {
@@ -289,7 +327,12 @@ void GraphicsBox::paint(Context *context) {
       
     context->canvas->save();
     {
-      context->canvas->pixrect(x, y, x + w, y + h, false);
+      context->canvas->pixrect(
+        x + margin_left,
+        y + margin_top,
+        x + w - margin_right,
+        y + h - margin_bottom,
+        false);
       context->canvas->clip();
       
       cairo_matrix_t m;
@@ -313,10 +356,43 @@ void GraphicsBox::paint(Context *context) {
     }
     context->canvas->restore();
     
+    
     context->canvas->save();
     {
       context->canvas->pixrect(x, y, x + w, y + h, false);
       context->canvas->clip();
+      
+      if(x_axis_ticks->is_visible(0.0)) {
+        float zero_x, zero_y1, zero_y2;
+        x_axis_ticks->get_tick_position(0.0, &zero_x, &zero_y1);
+        
+        zero_x += x;
+        zero_y1 = y + margin_top;
+        zero_y2 = y + h - margin_bottom;
+        
+        context->canvas->align_point(&zero_x, &zero_y1, true);
+        context->canvas->align_point(&zero_x, &zero_y2, true);
+        
+        context->canvas->move_to(zero_x, zero_y1);
+        context->canvas->line_to(zero_x, zero_y2);
+        context->canvas->hair_stroke();
+      }
+      
+      if(y_axis_ticks->is_visible(0.0)) {
+        float zero_x1, zero_x2, zero_y;
+        y_axis_ticks->get_tick_position(0.0, &zero_x1, &zero_y);
+        
+        zero_x1 = x + margin_left;
+        zero_x2 = x + w - margin_right;
+        zero_y += y + _extents.ascent;
+        
+        context->canvas->align_point(&zero_x1, &zero_y, true);
+        context->canvas->align_point(&zero_x2, &zero_y, true);
+        
+        context->canvas->move_to(zero_x1, zero_y);
+        context->canvas->line_to(zero_x2, zero_y);
+        context->canvas->hair_stroke();
+      }
       
       context->canvas->pixrect(
         x + margin_left,

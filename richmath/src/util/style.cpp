@@ -200,9 +200,10 @@ void Style::add_pmath(Expr options) {
     for(size_t i = 1; i <= options.expr_length(); ++i) {
       Expr rule = options[i];
       
-      if(rule.is_expr()
-          && rule.expr_length() == 2
-          && (rule[0] == PMATH_SYMBOL_RULE || rule[0] == PMATH_SYMBOL_RULEDELAYED)) {
+      if( rule.is_expr() && 
+          rule.expr_length() == 2 && 
+          (rule[0] == PMATH_SYMBOL_RULE || rule[0] == PMATH_SYMBOL_RULEDELAYED)) 
+      {
         Expr lhs = rule[1];
         Expr rhs = rule[2];
         
@@ -210,7 +211,10 @@ void Style::add_pmath(Expr options) {
           if(lhs == PMATH_SYMBOL_ANTIALIASING) {
             set_pmath_bool_auto(Antialiasing, rhs);
           }
-          if(lhs == PMATH_SYMBOL_AUTODELETE) {
+          else if(lhs == PMATH_SYMBOL_ASPECTRATIO) {
+            set_pmath_float(AspectRatio, rhs);
+          }
+          else if(lhs == PMATH_SYMBOL_AUTODELETE) {
             set_pmath_bool(AutoDelete, rhs);
           }
           else if(lhs == PMATH_SYMBOL_AUTONUMBERFORMATING) {
@@ -291,6 +295,9 @@ void Style::add_pmath(Expr options) {
           }
           else if(lhs == PMATH_SYMBOL_PLACEHOLDER) {
             set_pmath_bool(Placeholder, rhs);
+          }
+          else if(lhs == PMATH_SYMBOL_PLOTRANGE) {
+            set_pmath_object(PlotRange, rhs);
           }
           else if(lhs == PMATH_SYMBOL_SCRIPTSIZEMULTIPLIERS) {
             set_pmath_object(ScriptSizeMultipliers, rhs);
@@ -765,6 +772,8 @@ Expr Style::get_symbol(int n) {
   switch(n) {
     case FontSize:                 return Symbol(PMATH_SYMBOL_FONTSIZE);
     
+    case AspectRatio:              return Symbol(PMATH_SYMBOL_ASPECTRATIO);
+    
     case GridBoxColumnSpacing:     return Symbol(PMATH_SYMBOL_GRIDBOXCOLUMNSPACING);
     case GridBoxRowSpacing:        return Symbol(PMATH_SYMBOL_GRIDBOXROWSPACING);
     
@@ -787,8 +796,6 @@ Expr Style::get_symbol(int n) {
     case SectionFrameMarginBottom: return Expr();
     
     case SectionGroupPrecedence:   return Symbol(PMATH_SYMBOL_SECTIONGROUPPRECEDENCE);
-    
-    case BoxRotation:              return Symbol(PMATH_SYMBOL_BOXROTATION);
   }
   
   switch(n) {
@@ -800,10 +807,14 @@ Expr Style::get_symbol(int n) {
   
   switch(n) {
     case ButtonFunction:        return Symbol(PMATH_SYMBOL_BUTTONFUNCTION);
+    
     case ScriptSizeMultipliers: return Symbol(PMATH_SYMBOL_SCRIPTSIZEMULTIPLIERS);
     case TextShadow:            return Symbol(PMATH_SYMBOL_TEXTSHADOW);
     
-    case BoxTransformstion:     return Symbol(PMATH_SYMBOL_BOXTRANSFORMATION);
+    case BoxRotation:           return Symbol(PMATH_SYMBOL_BOXROTATION);
+    case BoxTransformation:     return Symbol(PMATH_SYMBOL_BOXTRANSFORMATION);
+    
+    case PlotRange:             return Symbol(PMATH_SYMBOL_PLOTRANGE);
   }
   
   return Expr();
@@ -828,6 +839,17 @@ void Style::emit_to_pmath(
                    get_symbol(Antialiasing),
                    Symbol(i == 0 ? PMATH_SYMBOL_FALSE :
                           (i == 1 ? PMATH_SYMBOL_TRUE : PMATH_SYMBOL_AUTOMATIC))));
+  }
+  
+  if(get_dynamic(AspectRatio, &e)) {
+    Gather::emit(Rule(
+                   get_symbol(AspectRatio),
+                   e));
+  }
+  else if(get(AspectRatio, &f)) {
+    Gather::emit(Rule(
+                   get_symbol(AspectRatio),
+                   Number(f)));
   }
   
   if(get_dynamic(AutoDelete, &e)) {
@@ -898,14 +920,14 @@ void Style::emit_to_pmath(
                    e));
   }
   
-  if(get_dynamic(BoxTransformstion, &e)) {
+  if(get_dynamic(BoxTransformation, &e)) {
     Gather::emit(Rule(
-                   get_symbol(BoxTransformstion),
+                   get_symbol(BoxTransformation),
                    e));
   }
-  else if(get(BoxTransformstion, &e)) {
+  else if(get(BoxTransformation, &e)) {
     Gather::emit(Rule(
-                   get_symbol(BoxTransformstion),
+                   get_symbol(BoxTransformation),
                    e));
   }
   
@@ -1130,6 +1152,17 @@ void Style::emit_to_pmath(
     Gather::emit(Rule(
                    get_symbol(Placeholder),
                    Symbol(i ? PMATH_SYMBOL_TRUE : PMATH_SYMBOL_FALSE)));
+  }
+  
+  if(get_dynamic(PlotRange, &e)) {
+    Gather::emit(Rule(
+                   get_symbol(PlotRange),
+                   e));
+  }
+  else if(get(PlotRange, &e)) {
+    Gather::emit(Rule(
+                   get_symbol(PlotRange),
+                   e));
   }
   
   if(get_dynamic(ScriptSizeMultipliers, &e)) {

@@ -265,7 +265,7 @@ void TransformationBox::paint(Context *context) {
   AbstractTransformationBox::paint(context);
   
   if(have_dynamic) {
-    Expr e = get_style(BoxTransformstion, Expr());
+    Expr e = get_style(BoxTransformation, Expr());
     if(e.is_valid())
       matrix(e);
   }

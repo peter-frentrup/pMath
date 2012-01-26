@@ -51,6 +51,8 @@ namespace richmath {
   enum FloatStyleOptionName {
     FontSize = 10000, // greater than any IntStyleOptionName value
     
+    AspectRatio,
+    
     GridBoxColumnSpacing,
     GridBoxRowSpacing,
     
@@ -89,7 +91,8 @@ namespace richmath {
     UnknownOptions,
     
     BoxRotation,
-    BoxTransformstion
+    BoxTransformation,
+    PlotRange
   };
   
   const int DynamicOffset = 1000000;

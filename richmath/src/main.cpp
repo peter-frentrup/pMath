@@ -291,6 +291,7 @@ static void init_stylesheet() {
   Stylesheet::Default->base->set(ShowStringCharacters,                true);
   
   Stylesheet::Default->base->set(FontSize,                 10.0);
+  Stylesheet::Default->base->set(AspectRatio,               1.0);
   Stylesheet::Default->base->set(GridBoxColumnSpacing,      0.4);
   Stylesheet::Default->base->set(GridBoxRowSpacing,         0.5);
   
@@ -344,10 +345,11 @@ static void init_stylesheet() {
   Stylesheet::Default->styles.set("TI", s);
   
   s = new Style;
+  s->set(AspectRatio,         0.61803);
   s->set(AutoNumberFormating, true);
   s->set(AutoSpacing,         true);
   s->set(ShowAutoStyles,      false);
-  s->set(FontSize,            9.0);
+  s->set(FontSize,            8.0);
   Stylesheet::Default->styles.set("Graphics", s);
   
   s = new Style;
@@ -615,8 +617,8 @@ int main(int argc, char **argv) {
       0, WS_OVERLAPPEDWINDOW,
       CW_USEDEFAULT,
       CW_USEDEFAULT,
-      500,
-      550);
+      580,
+      600);
     wndMain->init();
     
     main_doc = wndMain->document();
@@ -802,7 +804,7 @@ int main(int argc, char **argv) {
     
     main_doc = wndMain->document();
     
-    wndMain->set_initial_rect(200, 50, 500, 550);
+    wndMain->set_initial_rect(200, 50, 580, 600);
     gtk_window_present(GTK_WINDOW(wndMain->widget()));
     
     

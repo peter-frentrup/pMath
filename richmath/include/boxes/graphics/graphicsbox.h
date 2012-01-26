@@ -70,6 +70,8 @@ namespace richmath {
     
     protected:
       GraphicsBox();
+      
+      void resize_axes(Context *context);
   };
 }
 

@@ -76,7 +76,7 @@ void AxisTicks::paint(Context *context) {
   context->canvas->current_pos(&x, &y);
   
   for(int i = 0; i < count(); ++i) {
-    if(is_visible(i)) {
+    if(is_visible(position(i))) {
       float lx, ly;
       get_label_position(i, &lx, &ly);
       
@@ -111,7 +111,7 @@ void AxisTicks::calc_bounds(float *x1, float *y1, float *x2, float *y2) {
   }
   
   for(int i = 0; i < count(); ++i) {
-    if(is_visible(i)) {
+    if(is_visible(position(i))) {
       float lx, ly;
       get_label_position(i, &lx, &ly);
       

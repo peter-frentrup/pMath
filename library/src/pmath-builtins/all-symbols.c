@@ -696,6 +696,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_ARCTANH                   = NEW_SYSTEM_SYMBOL("ArcTanh"))
   VERIFY(   PMATH_SYMBOL_ARG                       = NEW_SYSTEM_SYMBOL("Arg"))
   VERIFY(   PMATH_SYMBOL_ARRAY                     = NEW_SYSTEM_SYMBOL("Array"))
+  VERIFY(   PMATH_SYMBOL_ASPECTRATIO               = NEW_SYSTEM_SYMBOL("AspectRatio"))
   VERIFY(   PMATH_SYMBOL_ASSIGN                    = NEW_SYSTEM_SYMBOL("Assign"))
   VERIFY(   PMATH_SYMBOL_ASSIGNDELAYED             = NEW_SYSTEM_SYMBOL("AssignDelayed"))
   VERIFY(   PMATH_SYMBOL_ASSOCIATIVE               = NEW_SYSTEM_SYMBOL("Associative"))

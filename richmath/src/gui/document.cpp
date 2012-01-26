@@ -1027,7 +1027,9 @@ void Document::on_key_down(SpecialKeyEvent &event) {
           int old = context.selection.id;
           MathSequence *seq = dynamic_cast<MathSequence*>(selbox);
           
-          if(seq && seq->text()[context.selection.start - 1] == PMATH_CHAR_BOX) {
+          if( seq &&
+              seq->text()[context.selection.start - 1] == PMATH_CHAR_BOX)
+          {
             int boxi = 0;
             while(seq->item(boxi)->index() < context.selection.start - 1)
               ++boxi;
@@ -1038,12 +1040,24 @@ void Document::on_key_down(SpecialKeyEvent &event) {
               return;
             }
             
-            move_horizontal(Backward, event.ctrl, event.shift);
+            int old_sel_end = selection_end();
+            move_horizontal(Backward, event.ctrl, event.ctrl || event.shift);
+            
+            if(selection_length() == 0 &&
+                old == context.selection.id)
+            {
+              select(seq, selection_start(), old_sel_end);
+              event.key = KeyUnknown;
+              return;
+            }
           }
           else
             move_horizontal(Backward, event.ctrl, true);
             
-          if(!event.ctrl && seq && seq->text()[context.selection.start] == PMATH_CHAR_BOX) {
+          if(!event.ctrl &&
+              seq &&
+              seq->text()[context.selection.start] == PMATH_CHAR_BOX)
+          {
             event.key = KeyUnknown;
             return;
           }
@@ -1101,8 +1115,18 @@ void Document::on_key_down(SpecialKeyEvent &event) {
               if(seq && seq->is_placeholder(index)) {
                 select(seq, index, index + 1);
               }
-              else
+              else {
+                int  old_start = selection_start();
+                Box *old_box   = selection_box();
+                
                 move_to(box, index);
+                
+                if( selection_start() == old_start &&
+                    selection_box()   == old_box)
+                {
+                  select(old_box, old_start, old_start + 1);
+                }
+              }
             }
             else
               native()->beep();
@@ -1568,7 +1592,7 @@ void Document::move_horizontal(
     i = box->index();
     if(direction == Forward)
       ++i;
-    
+      
     box = box->parent();
   }
   

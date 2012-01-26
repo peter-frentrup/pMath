@@ -205,8 +205,9 @@ void Canvas::align_point(float *x, float *y, bool tostroke) {
     cairo_matrix_t ctm;
     cairo_get_matrix(_cr, &ctm);
     
-    if((ctm.xx == 0 && ctm.yy == 0)
-        || (ctm.xy == 0 && ctm.yx == 0)) {
+    if( (ctm.xx == 0 && ctm.yy == 0) ||
+        (ctm.xy == 0 && ctm.yx == 0))
+    {
       user_to_device(x, y);
       if(tostroke) {
         *x = ceil(*x) - 0.5;
@@ -228,6 +229,7 @@ void Canvas::pixrect(float x1, float y1, float x2, float y2, bool tostroke) {
     user_to_device(&x1, &y1);
     user_to_device(&x2, &y2);
     user_to_device(&x3, &y3);
+    
     if(x3 == x1 || x3 == x2) {
       /* only align to pixel boundaries,
          if the rectangle is rotated by 0°, 90°, 180° or 270° */

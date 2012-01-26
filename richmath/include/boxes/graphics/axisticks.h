@@ -17,9 +17,9 @@ namespace richmath {
       virtual int count() {      return _labels.length(); }
       
       AbstractSequence *label(   int i) { return _labels[   i]; }
-      double           &position(int i) {  return _positions[i]; }
+      double           &position(int i) { return _positions[i]; }
       
-      bool is_visible(int i){ return start_position <= position(i) && position(i) <= end_position; }
+      bool is_visible(double t){ return start_position <= t && t <= end_position; }
       
       virtual void resize(Context *context);
       virtual void paint(Context *context);
@@ -45,16 +45,16 @@ namespace richmath {
         
       virtual bool selectable(int i = -1) { return false; }
       
-    protected:
-      void set_count(int new_count);
-      
-      void draw_tick(Canvas *canvas, float x, float y, float length);
-      
       void get_tick_position(
         double  t,
         float  *x,
         float  *y);
         
+    protected:
+      void set_count(int new_count);
+      
+      void draw_tick(Canvas *canvas, float x, float y, float length);
+      
       void get_label_center(
         double  t,
         float   label_width,
