@@ -219,15 +219,16 @@
 				<Option platforms="Windows;" />
 				<Option output="bin\windows\msvc\richmath" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj\windows\msvc\" />
-				<Option type="0" />
+				<Option type="1" />
 				<Option compiler="msvc8" />
+				<Option use_console_runner="0" />
 				<Compiler>
 					<Add option="/MT" />
 					<Add option="/arch:SSE2" />
 					<Add option="/Gd" />
 					<Add option="/GF" />
-					<Add option="/Ox" />
 					<Add option="/W3" />
+					<Add option="/Zi" />
 					<Add option="/wd4800 /wd4710 /wd4711 /wd4738 /wd4244 /wd4146 /wd4305" />
 					<Add option="/DNDEBUG" />
 					<Add option="/D_STATIC_CPPLIB" />
@@ -244,6 +245,7 @@
 					<Add directory="..\msvc-c99" />
 				</Compiler>
 				<Linker>
+					<Add option="/DEBUG" />
 					<Add option="/ENTRY:mainCRTStartup" />
 					<Add library="pmath" />
 					<Add library="cairo" />

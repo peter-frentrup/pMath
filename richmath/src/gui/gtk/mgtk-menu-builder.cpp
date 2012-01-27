@@ -7,7 +7,11 @@
 
 #include <util/hashtable.h>
 
-#include <gdk/gdkkeysyms-compat.h>
+#if GTK_MAJOR_VERSION >= 3
+#  include <gdk/gdkkeysyms-compat.h>
+#else
+#  include <gdk/gdkkeysyms.h>
+#endif
 
 static const char accel_path_prefix[] = "<Richmath>/";
 

@@ -5,12 +5,17 @@
 #include <gui/gtk/mgtk-tooltip-window.h>
  
 #include <glib.h>
-#include <gdk/gdkkeysyms-compat.h>
 #include <cmath>
- 
+
+#if GTK_MAJOR_VERSION >= 3
+#  include <gdk/gdkkeysyms-compat.h>
+#else
+#  include <gdk/gdkkeysyms.h>
+#endif
+
 #ifdef GDK_WINDOWING_X11
-#include <gdk/gdkx.h>
-#include <X11/XKBlib.h>
+#  include <gdk/gdkx.h>
+#  include <X11/XKBlib.h>
 #endif
  
  
