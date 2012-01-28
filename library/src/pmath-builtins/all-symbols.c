@@ -1364,6 +1364,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_WHILE                     = NEW_SYSTEM_SYMBOL("While"))
   VERIFY(   PMATH_SYMBOL_WHITESPACE                = NEW_SYSTEM_SYMBOL("Whitespace"))
   VERIFY(   PMATH_SYMBOL_WHITESPACECHARACTER       = NEW_SYSTEM_SYMBOL("WhitespaceCharacter"))
+  VERIFY(   PMATH_SYMBOL_WINDOWTITLE               = NEW_SYSTEM_SYMBOL("WindowTitle"))
   VERIFY(   PMATH_SYMBOL_WITH                      = NEW_SYSTEM_SYMBOL("With"))
   VERIFY(   PMATH_SYMBOL_WORD                      = NEW_SYSTEM_SYMBOL("Word"))
   VERIFY(   PMATH_SYMBOL_WORDBOUNDARY              = NEW_SYSTEM_SYMBOL("WordBoundary"))

@@ -78,7 +78,7 @@ class richmath::Win32WorkingArea: public Win32Widget {
     
     virtual void running_state_changed() {
       if(parent)
-        parent->title(parent->title());
+        parent->reset_title();
     }
     
     void bring_to_front() {
@@ -88,6 +88,11 @@ class richmath::Win32WorkingArea: public Win32Widget {
     
     virtual void close() {
       SendMessageW(parent->hwnd(), WM_CLOSE, 0, 0);
+    }
+    
+    virtual void invalidate_options() {
+      if(parent)
+        parent->invalidate_options();
     }
     
   protected:
@@ -104,8 +109,8 @@ class richmath::Win32WorkingArea: public Win32Widget {
       if(auto_size) {
         RECT rect;
         GetClientRect(_hwnd, &rect);
-        if(best_width  != rect.right - rect.left
-            || best_height != rect.bottom - rect.top)
+        if( best_width  != rect.right - rect.left ||
+            best_height != rect.bottom - rect.top)
           parent->rearrange();
       }
     }
@@ -118,8 +123,7 @@ class richmath::Win32WorkingArea: public Win32Widget {
     }
     
     virtual void paint_background(Canvas *canvas) {
-      if((auto_size && document()->count() == 0)
-          || parent->is_palette()) {
+      if((auto_size && document()->count() == 0) || parent->is_palette()) {
         parent->paint_background(canvas, _hwnd);
       }
       else {
@@ -213,7 +217,7 @@ class richmath::Win32Dock: public Win32Widget {
     
     virtual void running_state_changed() {
       if(parent)
-        parent->title(parent->title());
+        parent->reset_title();
     }
     
     void resize() {
@@ -545,7 +549,7 @@ void Win32DocumentWindow::after_construction() {
   
   on_theme_changed();
   
-  title("untitled");
+  title(String());
 }
 
 Win32DocumentWindow::~Win32DocumentWindow() {
@@ -596,9 +600,9 @@ Win32DocumentWindow::~Win32DocumentWindow() {
 }
 
 bool Win32DocumentWindow::is_all_glass() {
-  return _top_area->document()->count()     == 0
-         && _working_area->document()->count() == 0
-         && _bottom_area->document()->count()  == 0;
+  return _top_area->document()->count()     == 0 &&
+         _working_area->document()->count() == 0 &&
+         _bottom_area->document()->count()  == 0;
 }
 
 void Win32DocumentWindow::rearrange() {
@@ -629,8 +633,9 @@ void Win32DocumentWindow::rearrange() {
   
   int work_height = new_ys[4] - new_ys[3];
   if(_working_area->auto_size) {
-    if(work_height            != _working_area->best_height
-        || rect.right - rect.left != _working_area->best_width) {
+    if( work_height            != _working_area->best_height ||
+        rect.right - rect.left != _working_area->best_width)
+    {
       RECT outer;
       GetWindowRect(_hwnd, &outer);
       
@@ -782,8 +787,19 @@ void Win32DocumentWindow::rearrange() {
   menubar->resized();
 }
 
+void Win32DocumentWindow::invalidate_options() {
+  String s = document()->get_style(WindowTitle, String());
+  
+  if(_title != s){
+    title(s);
+  }
+}
+
 void Win32DocumentWindow::title(String text) {
   _title = text;
+  
+  if(text.is_null())
+    text = "untitled";
   
   if(!Application::is_idle(document()))
     text = String("Running... ") + text;

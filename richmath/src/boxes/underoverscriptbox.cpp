@@ -92,8 +92,10 @@ void UnderoverscriptBox::resize(Context *context) {
   context->canvas->set_font_size(old_fs);
   context->width = old_w;
   
-  if(!_underscript_is_stretched && !_overscript_is_stretched
-      && _base->length() == 1) {
+  if( !_underscript_is_stretched &&
+      !_overscript_is_stretched &&
+      _base->length() == 1)
+  {
     if(_parent && _parent->length() == 1) {
       UnderoverscriptBox *uo = dynamic_cast<UnderoverscriptBox*>(_parent->parent());
       
@@ -116,8 +118,15 @@ void UnderoverscriptBox::resize(Context *context) {
 
 void UnderoverscriptBox::after_items_resize(Context *context) {
   context->math_shaper->accent_positions(
-    context, _base, _underscript, _overscript,
-    &base_x, &under_x, &under_y, &over_x, &over_y);
+    context,
+    _base,
+    _underscript,
+    _overscript,
+    &base_x,
+    &under_x,
+    &under_y,
+    &over_x,
+    &over_y);
     
   _extents = _base->extents();
   if(base_x > 0)

@@ -1381,9 +1381,9 @@ void OTMathShaper::accent_positions(
   if(base->length() == 1)
     base_char = base->text()[0];
     
-  if(context->script_indent > 0
-      && (pmath_char_is_integral(base_char)
-          /*|| pmath_char_maybe_bigop(base_char)*/)) {
+  if(context->script_indent > 0 &&
+      (pmath_char_is_integral(base_char) /*|| pmath_char_maybe_bigop(base_char)*/))
+  {
     script_positions(
       context, base->extents().ascent, base->extents().descent,
       under, over,
@@ -1403,31 +1403,26 @@ void OTMathShaper::accent_positions(
   *under_y = base->extents().descent;
   if(under) {
     float gap = db->consts.lower_limit_gap_min.value * pt;
-    if(under->glyph_array().length() == 1
-        && under->glyph_array()[0].horizontal_stretch) {
-      *under_y += gap + under->extents().ascent;
-    }
-    else {
-      *under_y += db->consts.lower_limit_baseline_drop_min.value * pt;
+    
+    if(*under_y < db->consts.lower_limit_baseline_drop_min.value * pt)
+      *under_y  = db->consts.lower_limit_baseline_drop_min.value * pt;
       
-      if(*under_y < base->extents().descent + gap + under->extents().ascent)
-        *under_y = base->extents().descent + gap + under->extents().ascent;
-    }
+    if(*under_y < base->extents().descent + gap + under->extents().ascent)
+      *under_y = base->extents().descent + gap + under->extents().ascent;
   }
   
   *over_y = -base->extents().ascent;
   if(over) {
     float gap = db->consts.upper_limit_gap_min.value * pt;
-    if(over->glyph_array().length() == 1
-        && over->glyph_array()[0].horizontal_stretch) {
-      *over_y -= gap + over->extents().descent;
-    }
-    else {
-      *over_y -= db->consts.upper_limit_baseline_rise_min.value * pt;
+    
+    if(over->extents().descent < 0)
+      *over_y -= over->extents().descent;
       
-      if(*over_y > -base->extents().ascent - gap - over->extents().descent)
-        *over_y = -base->extents().ascent - gap - over->extents().descent;
-    }
+    if(*over_y > -db->consts.upper_limit_baseline_rise_min.value * pt)
+      *over_y  = -db->consts.upper_limit_baseline_rise_min.value * pt;
+      
+    if(*over_y > -base->extents().ascent - gap - over->extents().descent)
+      *over_y  = -base->extents().ascent - gap - over->extents().descent;
   }
   
   float w = base->extents().width;

@@ -56,7 +56,7 @@ namespace richmath {
     GridBoxColumnSpacing,
     GridBoxRowSpacing,
     
-    ImageSizeHorizontal, // > 0 or ImageSizeAutomatic
+    ImageSizeHorizontal, // > 0 or ImageSizeAutomatic or ImageSizeAll
     ImageSizeVertical,   // > 0 or ImageSizeAutomatic
     
     SectionMarginLeft,
@@ -81,7 +81,8 @@ namespace richmath {
     BaseStyleName = 20000, // greater than any FloatStyleOptionName value
     FontFamily,
     SectionLabel,
-    Method
+    Method,
+    WindowTitle
   };
   
   enum ObjectStyleOptionName {

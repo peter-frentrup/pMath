@@ -34,7 +34,8 @@ FillBox *FillBox::create(Expr expr, int opts) {
 
 bool FillBox::expand(const BoxSize &size) {
   _content->expand(size);
-  _extents = size;
+  _extents = _content->extents();
+  _extents.merge(size);
   cx = 0;
   return true;
 }
@@ -44,8 +45,6 @@ void FillBox::paint_content(Context *context) {
     float x, y;
     context->canvas->current_pos(&x, &y);
     
-//    context->canvas->rel_move_to(cx, cy);
-
     int i = (int)(_extents.width / _content->extents().width);
     
     while(i-- > 0) {
@@ -102,6 +101,20 @@ Box *FillBox::mouse_selection(
     x = fmodf(x, _content->extents().width);
   }
   return _content->mouse_selection(x, y, start, end, was_inside_start);
+}
+
+bool FillBox::request_repaint(float x, float y, float w, float h) {
+  int num_repititions = (int)(_extents.width / _content->extents().width);
+  
+  if(num_repititions > 1){
+    x = 0.0;
+    y = -_extents.ascent;
+    w = _extents.width + 0.1;
+    h = _extents.height() + 0.1;
+  }
+  
+  
+  return OwnerBox::request_repaint(x, y, w, h);
 }
 
 //} ... class FillBox

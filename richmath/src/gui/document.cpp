@@ -1396,9 +1396,10 @@ void Document::raw_select(Box *box, int start, int end) {
     box = box->normalize_selection(&start, &end);
     
   Box *selbox = context.selection.get();
-  if(selbox != box
-      || context.selection.start != start
-      || context.selection.end   != end) {
+  if( selbox != box ||
+      context.selection.start != start ||
+      context.selection.end   != end)
+  {
     Box *common_parent = Box::common_parent(selbox, box);
     
     Box *b = selbox;
@@ -1456,8 +1457,9 @@ void Document::select_range(
   Box *box1, int start1, int end1,
   Box *box2, int start2, int end2
 ) {
-  if((box1 && !box1->selectable())
-      || (box2 && !box2->selectable())) {
+  if( (box1 && !box1->selectable()) ||
+      (box2 && !box2->selectable()))
+  {
     sel_first.set(0, 0, 0);
     sel_last = sel_first;
     raw_select(0, 0, 0);
@@ -2023,6 +2025,7 @@ void Document::copy_to_clipboard() {
   Expr file = Expr(pmath_file_create_binary_buffer(0));
   copy_to_binary(Clipboard::BoxesBinary, file);
   cb->add_binary_file(Clipboard::BoxesBinary, file);
+  
   //cb->add_text(Clipboard::BoxesText, copy_to_text(Clipboard::BoxesText));
   cb->add_text(Clipboard::PlainText, copy_to_text(Clipboard::PlainText));
 }
@@ -3158,6 +3161,8 @@ void Document::reset_mouse() {
 }
 
 void Document::paint_resize(Canvas *canvas, bool resize_only) {
+  style->update_dynamic(this);
+    
   context.canvas = canvas;
   
   float sx, sy, h;

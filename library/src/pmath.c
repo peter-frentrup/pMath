@@ -696,7 +696,8 @@ PMATH_API pmath_bool_t pmath_init(void) {
                 "Selectable->Inherited,"
                 "ShowAutoStyles->Inherited,"
                 "ShowStringCharacters->Inherited,"
-                "TextShadow->Inherited"
+                "TextShadow->Inherited,"
+                "WindowTitle->Automatic"
                 "}");
                 
       PMATH_RUN("Options(DateList):={TimeZone:>$TimeZone}");

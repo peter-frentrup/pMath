@@ -30,6 +30,9 @@ namespace richmath {
         int   *end,
         bool  *was_inside_start);
         
+        
+      virtual bool request_repaint(float x, float y, float w, float h);
+        
     public:
       float weight;
   };

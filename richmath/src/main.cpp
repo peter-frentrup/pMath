@@ -212,9 +212,9 @@ static void load_fonts() {
 static void load_math_shapers() {
   PMATH_RUN(
     "ParallelScan("
-    "FileNames("
-    "\"*.pmath\","
-    "ToFileName({FE`$FrontEndDirectory,\"resources\"},\"shapers\")),"
+    " FileNames("
+    "  ToFileName({FE`$FrontEndDirectory,\"resources\"},\"shapers\"),"
+    "  \"*.pmath\"),"
     "FE`AddConfigShaper)"
   );
   
@@ -727,7 +727,6 @@ int main(int argc, char **argv) {
     wndPalette->init();
     
     palette_doc = wndPalette->document();
-    wndPalette->title("Math Input");
     wndPalette->is_palette(true);
     
     RECT rect;
@@ -757,7 +756,7 @@ int main(int argc, char **argv) {
     // override CreateProcess STARTF_USESHOWWINDOW flag:
     //ShowWindow(wndMain->hwnd(), SW_SHOWDEFAULT);
     ShowWindow(wndPalette->hwnd(), SW_SHOWNORMAL);
-    ShowWindow(wndMain->hwnd(), SW_SHOWNORMAL);
+    ShowWindow(wndMain->hwnd(),    SW_SHOWNORMAL);
     
     if(0) {
       Win32DocumentWindow *wndInterrupt = new Win32DocumentWindow(
@@ -772,10 +771,10 @@ int main(int argc, char **argv) {
       wndInterrupt->is_palette(true);
       Document *doc = wndInterrupt->document();
       
-      doc->style->set(Editable, false);
-      doc->style->set(Selectable, false);
+      doc->style->set(Editable,    false);
+      doc->style->set(Selectable,  false);
+      doc->style->set(WindowTitle, "Kernel Interrupt");
       
-      wndInterrupt->title("Kernel Interrupt");
       write_section(doc, Evaluate(Parse(
                                     "Section(BoxData("
                                     "GridBox({"
@@ -788,6 +787,7 @@ int main(int argc, char **argv) {
                                     "ShowStringCharacters->False)")));
                                     
       doc->select(0, 0, 0);
+      doc->invalidate_options();
       ShowWindow(wndInterrupt->hwnd(), SW_SHOWNORMAL);
     }
     
@@ -812,8 +812,6 @@ int main(int argc, char **argv) {
     wndPalette->init();
     
     wndPalette->set_initial_rect(704, 50, 100, 100);
-    
-    wndPalette->title("Math Input");
     wndPalette->is_palette(true);
     
     palette_doc = wndPalette->document();
@@ -843,6 +841,7 @@ int main(int argc, char **argv) {
   if(palette_doc) {
     palette_doc->style->set(Editable, false);
     palette_doc->style->set(Selectable, false);
+    palette_doc->style->set(WindowTitle, "Math Input");
     palette_doc->select(0, 0, 0);
     
     write_section(
@@ -965,6 +964,7 @@ int main(int argc, char **argv) {
           //".Replace(TooltipBox(~FE`Private`x,~) :> FE`Private`x)"
         )));
         
+    palette_doc->invalidate_options();
     palette_doc->invalidate();
   }
   

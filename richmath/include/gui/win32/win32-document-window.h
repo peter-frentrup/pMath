@@ -40,9 +40,8 @@ namespace richmath {
       bool is_all_glass();
       
       void rearrange();
-      
-      const String title() { return _title; }
-      void title(String text);
+      void invalidate_options();
+      void reset_title(){ title(_title); }
       
       bool is_palette() { return _is_palette; }
       void is_palette(bool value);
@@ -71,6 +70,8 @@ namespace richmath {
       
     protected:
       virtual void on_theme_changed();
+      
+      void title(String text);
       
       virtual LRESULT callback(UINT message, WPARAM wParam, LPARAM lParam);
   };

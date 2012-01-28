@@ -100,7 +100,7 @@ bool MathSequence::expand(const BoxSize &size) {
   if(boxes.length() == 1 && glyphs.length() == 1 && str.length() == 1) {
     if(boxes[0]->expand(size)) {
       _extents = boxes[0]->extents();
-      glyphs[0].right = _extents.width;
+      glyphs[0].right  = _extents.width;
       lines[0].ascent  = _extents.ascent;
       lines[0].descent = _extents.descent;
       return true;
@@ -120,7 +120,7 @@ bool MathSequence::expand(const BoxSize &size) {
   
   return false;
 }
- 
+
 void MathSequence::resize(Context *context) {
   glyphs.length(str.length());
   glyphs.zeromem();
@@ -296,7 +296,7 @@ void MathSequence::resize(Context *context) {
   if(context->sequence_unfilled_width == -HUGE_VAL)
     context->sequence_unfilled_width = _extents.width;
 }
- 
+
 void MathSequence::colorize_scope(SyntaxState *state) {
   assert(glyphs.length() == spans.length());
   assert(glyphs.length() == str.length());
@@ -313,7 +313,7 @@ void MathSequence::colorize_scope(SyntaxState *state) {
     delete se;
   }
 }
- 
+
 void MathSequence::paint(Context *context) {
   float x0, y0;
   context->canvas->current_pos(&x0, &y0);
@@ -494,11 +494,11 @@ void MathSequence::paint(Context *context) {
   context->canvas->set_color(default_color);
   context->math_shaper = default_math_shaper;
 }
- 
+
 void MathSequence::selection_path(Canvas *canvas, int start, int end) {
   selection_path(0, canvas, start, end);
 }
- 
+
 void MathSequence::selection_path(Context *opt_context, Canvas *canvas, int start, int end) {
   float x0, y0, x1, y1, x2, y2;
   
@@ -508,8 +508,7 @@ void MathSequence::selection_path(Context *opt_context, Canvas *canvas, int star
   y1 = y0;
   
   int startline = 0;
-  while(startline < lines.length()
-        && start >= lines[startline].end) {
+  while(startline < lines.length() && start >= lines[startline].end) {
     y1 += lines[startline].ascent + lines[startline].descent + line_spacing();
     ++startline;
   }
@@ -521,8 +520,7 @@ void MathSequence::selection_path(Context *opt_context, Canvas *canvas, int star
   
   y2 = y1;
   int endline = startline;
-  while(endline < lines.length()
-        && end >= lines[endline].end) {
+  while(endline < lines.length() && end >= lines[endline].end) {
     y2 += lines[endline].ascent + lines[endline].descent + line_spacing();
     ++endline;
   }
@@ -660,7 +658,7 @@ void MathSequence::selection_path(Context *opt_context, Canvas *canvas, int star
     canvas->close_path();
   }
 }
- 
+
 Expr MathSequence::to_pmath(int flags) {
   ScanData data;
   data.sequence    = this;
@@ -676,7 +674,7 @@ Expr MathSequence::to_pmath(int flags) {
                 box_at_index,
                 &data));
 }
- 
+
 Expr MathSequence::to_pmath(int flags, int start, int end) {
   if(start == 0 && end >= length())
     return to_pmath(flags);
@@ -714,7 +712,7 @@ Expr MathSequence::to_pmath(int flags, int start, int end) {
   delete tmp;
   return result;
 }
- 
+
 Box *MathSequence::move_logical(
   LogicalDirection  direction,
   bool              jumping,
@@ -790,7 +788,7 @@ Box *MathSequence::move_logical(
   *index = boxes[b]->length() + 1;
   return boxes[b]->move_logical(Backward, true, index);
 }
- 
+
 Box *MathSequence::move_vertical(
   LogicalDirection  direction,
   float            *index_rel_x,
@@ -885,7 +883,7 @@ Box *MathSequence::move_vertical(
   
   return this;
 }
- 
+
 Box *MathSequence::mouse_selection(
   float  x,
   float  y,
@@ -993,7 +991,7 @@ Box *MathSequence::mouse_selection(
 //  }
   return this;
 }
- 
+
 void MathSequence::child_transformation(
   int             index,
   cairo_matrix_t *matrix
@@ -1010,20 +1008,23 @@ void MathSequence::child_transformation(
     ++l;
   }
   
-  x += indention_width(lines[l].indent);
+  x+= indention_width(lines[l].indent);
+  
   if(index < glyphs.length())
     x += glyphs[index].x_offset;
     
   if(index > 0) {
     x += glyphs[index - 1].right;
     
-    if(l > 0 && lines[l - 1].end > 0)
+    if(l > 0 && lines[l - 1].end > 0){
       x -= glyphs[lines[l - 1].end - 1].right;
+      x -= glyphs[lines[l - 1].end    ].x_offset;
+    }
   }
   
   cairo_matrix_translate(matrix, x, y);
 }
- 
+
 Box *MathSequence::normalize_selection(int *start, int *end) {
   if(is_utf16_high(str[*start - 1]))
     --*start;
@@ -1033,7 +1034,7 @@ Box *MathSequence::normalize_selection(int *start, int *end) {
     
   return this;
 }
- 
+
 bool MathSequence::is_inside_string(int pos) {
   const uint16_t *buf = str.buffer();
   int i = 0;
@@ -1056,7 +1057,7 @@ bool MathSequence::is_inside_string(int pos) {
   
   return i > pos;
 }
- 
+
 void MathSequence::ensure_boxes_valid() {
   if(!boxes_invalid)
     return;
@@ -1069,7 +1070,7 @@ void MathSequence::ensure_boxes_valid() {
     if(buf[i] == PMATH_CHAR_BOX)
       adopt(boxes[box++], i);
 }
- 
+
 void MathSequence::ensure_spans_valid() {
   if(!spans_invalid)
     return;
@@ -1090,11 +1091,11 @@ void MathSequence::ensure_spans_valid() {
             syntax_error,
             &data);
 }
- 
+
 bool MathSequence::is_placeholder() {
   return str.length() == 1 && is_placeholder(0);
 }
- 
+
 bool MathSequence::is_placeholder(int i) {
   if(i < 0 || i >= str.length())
     return false;
@@ -1114,7 +1115,7 @@ bool MathSequence::is_placeholder(int i) {
   
   return false;
 }
- 
+
 int MathSequence::matching_fence(int pos) {
   int len = str.length();
   if(pos < 0 || pos >= len)
@@ -1180,7 +1181,7 @@ int MathSequence::matching_fence(int pos) {
   
   return -1;
 }
- 
+
 pmath_bool_t MathSequence::subsuperscriptbox_at_index(int i, void *_data) {
   ScanData *data = (ScanData*)_data;
   
@@ -1204,7 +1205,7 @@ pmath_bool_t MathSequence::subsuperscriptbox_at_index(int i, void *_data) {
   
   return FALSE;
 }
- 
+
 pmath_string_t MathSequence::underoverscriptbox_at_index(int i, void *_data) {
   ScanData *data = (ScanData*)_data;
   
@@ -1234,7 +1235,7 @@ pmath_string_t MathSequence::underoverscriptbox_at_index(int i, void *_data) {
   
   return PMATH_NULL;
 }
- 
+
 void MathSequence::syntax_error(pmath_string_t code, int pos, void *_data, pmath_bool_t err) {
   ScanData *data = (ScanData*)_data;
   
@@ -1261,7 +1262,7 @@ void MathSequence::syntax_error(pmath_string_t code, int pos, void *_data, pmath
     }
   }
 }
- 
+
 pmath_t MathSequence::box_at_index(int i, void *_data) {
   ScanData *data = (ScanData*)_data;
   
@@ -1286,7 +1287,7 @@ pmath_t MathSequence::box_at_index(int i, void *_data) {
   
   return PMATH_NULL;
 }
- 
+
 void MathSequence::boxes_size(
   Context *context,
   int      start,
@@ -1323,7 +1324,7 @@ void MathSequence::boxes_size(
     }
   }
 }
- 
+
 void MathSequence::box_size(
   Context *context,
   int      pos,
@@ -1355,7 +1356,7 @@ void MathSequence::box_size(
         d);
   }
 }
- 
+
 void MathSequence::caret_size(
   Context *context,
   int      pos,
@@ -1372,7 +1373,7 @@ void MathSequence::caret_size(
     *d = _extents.descent;
   }
 }
- 
+
 void MathSequence::resize_span(
   Context *context,
   Span     span,
@@ -1499,7 +1500,7 @@ void MathSequence::resize_span(
       resize_span(context, spans[*pos], pos, box);
   }
 }
- 
+
 void MathSequence::check_options(
   Expr         options,
   Context     *context,
@@ -1600,7 +1601,7 @@ void MathSequence::check_options(
     }
   }
 }
- 
+
 bool MathSequence::is_arglist_span(Span span, int pos) {
   if(!span)
     return false;
@@ -1625,7 +1626,7 @@ bool MathSequence::is_arglist_span(Span span, int pos) {
     
   return pos <= span.end() && buf[pos] == ',';
 }
- 
+
 void MathSequence::syntax_restyle_span(
   Context *context,
   Span     span,
@@ -1738,7 +1739,7 @@ void MathSequence::syntax_restyle_span(
       syntax_restyle_span(context, spans[*pos], pos);
   }
 }
- 
+
 void MathSequence::check_argcount_span(
   Context *context,
   Span     span,
@@ -1946,7 +1947,7 @@ void MathSequence::check_argcount_span(
   while(*pos <= span.end())
     check_argcount_span(context, spans[*pos], pos);
 }
- 
+
 void MathSequence::stretch_span(
   Context *context,
   Span     span,
@@ -2298,7 +2299,7 @@ void MathSequence::stretch_span(
   if(*descent < *core_descent)
     *descent = *core_descent;
 }
- 
+
 void MathSequence::enlarge_space(Context *context) {
   if(context->script_indent > 0)
     return;
@@ -2649,24 +2650,24 @@ void MathSequence::enlarge_space(Context *context) {
     }
   }
 }
- 
+
 /* indention_array[i]: indention of the next line, if there is a line break
    before the i-th character.
  */
 static Array<int> indention_array(0);
- 
+
 /* penalty_array[i]: A penalty value, which is used to decide whether a line
    break should be placed after (testme: before???) the i-th character.
    The higher this value is, the lower is the probability of a line break after
    character i.
  */
 static Array<double> penalty_array(0);
- 
+
 static const double DepthPenalty = 1.0;
 static const double WordPenalty = 100.0;//2.0;
 static const double BestLineWidth = 0.95;
 static const double LineWidthFactor = 2.0;
- 
+
 class BreakPositionWithPenalty {
   public:
     BreakPositionWithPenalty()
@@ -2687,10 +2688,10 @@ class BreakPositionWithPenalty {
     int prev_break_index;
     double penalty;
 };
- 
+
 static Array<BreakPositionWithPenalty>  break_array(0);
 static Array<int>                       break_result(0);
- 
+
 void MathSequence::split_lines(Context *context) {
   if(glyphs.length() == 0)
     return;
@@ -2835,7 +2836,7 @@ void MathSequence::split_lines(Context *context) {
     }
   }
 }
- 
+
 int MathSequence::fill_penalty_array(
   Span  span,
   int   depth,
@@ -3021,7 +3022,7 @@ int MathSequence::fill_penalty_array(
   
   return next;
 }
- 
+
 int MathSequence::fill_indention_array(
   Span  span,
   int   depth,
@@ -3051,7 +3052,7 @@ int MathSequence::fill_indention_array(
   indention_array[pos] = depth;
 //  if(in_string)
 //    depth+= 1;
- 
+
   bool depth_dec = false;
   while(next <= span.end()) {
     if(in_string && next > 0 && buf[next-1] == '\n') {
@@ -3070,7 +3071,7 @@ int MathSequence::fill_indention_array(
   
   return next;
 }
- 
+
 void MathSequence::new_line(int pos, unsigned int indent, bool continuation) {
   int len = lines.length();
   if(lines[len - 1].end < pos
@@ -3088,7 +3089,7 @@ void MathSequence::new_line(int pos, unsigned int indent, bool continuation) {
   lines[len].continuation = 0;
   return;
 }
- 
+
 void MathSequence::hstretch_lines(
   float width,
   float window_width,
@@ -3156,6 +3157,12 @@ void MathSequence::hstretch_lines(
               fillbox->expand(size);
               
               dx += size.width;
+              
+              if(lines[line].ascent < fillbox->extents().ascent)
+                lines[line].ascent = fillbox->extents().ascent;
+                
+              if(lines[line].descent < fillbox->extents().descent)
+                lines[line].descent = fillbox->extents().descent;
             }
           }
           
@@ -3173,9 +3180,9 @@ void MathSequence::hstretch_lines(
     start = lines[line].end;
   }
 }
- 
+
 //{ insert/remove ...
- 
+
 int MathSequence::insert(int pos, uint16_t chr) {
   spans_invalid = true;
   boxes_invalid = true;
@@ -3183,7 +3190,7 @@ int MathSequence::insert(int pos, uint16_t chr) {
   invalidate();
   return pos + 1;
 }
- 
+
 int MathSequence::insert(int pos, const uint16_t *ucs2, int len) {
   spans_invalid = true;
   boxes_invalid = true;
@@ -3191,7 +3198,7 @@ int MathSequence::insert(int pos, const uint16_t *ucs2, int len) {
   invalidate();
   return pos + len;
 }
- 
+
 int MathSequence::insert(int pos, const char *latin1, int len) {
   spans_invalid = true;
   boxes_invalid = true;
@@ -3199,7 +3206,7 @@ int MathSequence::insert(int pos, const char *latin1, int len) {
   invalidate();
   return pos + len;
 }
- 
+
 int MathSequence::insert(int pos, const String &s) {
   spans_invalid = true;
   boxes_invalid = true;
@@ -3207,7 +3214,7 @@ int MathSequence::insert(int pos, const String &s) {
   invalidate();
   return pos + s.length();
 }
- 
+
 int MathSequence::insert(int pos, Box *box) {
   if(pos > length())
     pos = length();
@@ -3232,7 +3239,7 @@ int MathSequence::insert(int pos, Box *box) {
   invalidate();
   return pos + 1;
 }
- 
+
 void MathSequence::remove(int start, int end) {
   ensure_boxes_valid();
   
@@ -3251,12 +3258,12 @@ void MathSequence::remove(int start, int end) {
   str.remove(start, end - start);
   invalidate();
 }
- 
+
 Box *MathSequence::remove(int *index) {
   remove(*index, *index + 1);
   return this;
 }
- 
+
 Box *MathSequence::extract_box(int boxindex) {
   Box *box = boxes[boxindex];
   
@@ -3267,14 +3274,14 @@ Box *MathSequence::extract_box(int boxindex) {
   abandon(box);
   return box;
 }
- 
+
 ////} ... insert/remove
- 
+
 struct make_box_info_t {
   Array<Box*> *boxes;
   int          options;
 };
- 
+
 static void make_box(int pos, pmath_t obj, void *data) {
   struct make_box_info_t *info = (struct make_box_info_t*)data;
   Expr expr(obj);
@@ -3562,7 +3569,7 @@ START:
   
   info->boxes->add(new ErrorBox(expr));
 }
- 
+
 void MathSequence::load_from_object(Expr object, int options) {
   struct make_box_info_t info;
   
@@ -3593,7 +3600,7 @@ void MathSequence::load_from_object(Expr object, int options) {
   str = String(result);
   boxes_invalid = true;
 }
- 
+
 bool MathSequence::stretch_horizontal(Context *context, float width) {
   if(glyphs.length() != 1 || str[0] == PMATH_CHAR_BOX)
     return false;
@@ -3602,8 +3609,8 @@ bool MathSequence::stretch_horizontal(Context *context, float width) {
         context,
         width,
         str[0],
-        &glyphs[0])
-    ) {
+        &glyphs[0])) 
+  {
     _extents.width = glyphs[0].right;
     _extents.ascent  = _extents.descent = -1e9;
     context->math_shaper->vertical_glyph_size(
@@ -3614,7 +3621,7 @@ bool MathSequence::stretch_horizontal(Context *context, float width) {
   }
   return false;
 }
- 
+
 int MathSequence::get_line(int index, int guide) {
   if(guide >= lines.length())
     guide = lines.length() - 1;
@@ -3643,7 +3650,7 @@ int MathSequence::get_line(int index, int guide) {
   
   return lines.length() > 0 ? lines.length() - 1 : 0;
 }
- 
+
 void MathSequence::get_line_heights(int line, float *ascent, float *descent) {
   if(length() == 0) {
     *ascent  = 0.75f * em;
@@ -3659,7 +3666,7 @@ void MathSequence::get_line_heights(int line, float *ascent, float *descent) {
   *ascent  = lines[line].ascent;
   *descent = lines[line].descent;
 }
- 
+
 int MathSequence::get_box(int index, int guide) {
   assert(str[index] == PMATH_CHAR_BOX);
   
@@ -3684,7 +3691,7 @@ int MathSequence::get_box(int index, int guide) {
   assert(0 && "no box found at index.");
   return -1;
 }
- 
+
 float MathSequence::indention_width(int i) {
   float f = i * em / 2;
   
@@ -3693,6 +3700,6 @@ float MathSequence::indention_width(int i) {
     
   return floor(_extents.width / em) * em / 2;
 }
- 
+
 //} ... class MathSequence
- 
+

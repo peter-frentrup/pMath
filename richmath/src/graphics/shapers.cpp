@@ -1244,9 +1244,9 @@ void SimpleMathShaper::accent_positions(
   if(base->length() == 1)
     base_char = base->text()[0];
     
-  if(context->script_indent > 0
-      && (pmath_char_is_integral(base_char)
-          /*|| pmath_char_maybe_bigop(base_char)*/)) {
+  if(context->script_indent > 0 &&
+      (pmath_char_is_integral(base_char) /*|| pmath_char_maybe_bigop(base_char)*/))
+  {
     script_positions(
       context, base->extents().ascent, base->extents().descent,
       under, over,

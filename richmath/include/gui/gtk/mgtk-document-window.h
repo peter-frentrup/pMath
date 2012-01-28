@@ -35,8 +35,8 @@ namespace richmath {
       MathGtkDocumentWindow();
       virtual ~MathGtkDocumentWindow();
       
-      const String title() { return _title; }
-      void title(String text);
+      void invalidate_options();
+      void reset_title(){ title(_title); }
       
       bool is_palette() { return _is_palette; }
       void is_palette(bool value);
@@ -72,6 +72,8 @@ namespace richmath {
       void move_palettes();
       
     protected:
+      void title(String text);
+      
       virtual bool on_configure(GdkEvent *e);
       virtual bool on_focus_in(GdkEvent *e);
       virtual bool on_focus_out(GdkEvent *e);

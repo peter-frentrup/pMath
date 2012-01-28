@@ -66,6 +66,10 @@ int richmath::pmath_to_color(Expr obj) {
       }
       
       if(obj.expr_length() >= 1 && obj.expr_length() <= 3) {
+        for(int i = obj.expr_length(); i > 0; --i)
+          if(!obj[i].is_number())
+            return -1;
+            
         double h, s = 1, v = 1;
         
         h = obj[1].to_double();
@@ -183,6 +187,8 @@ static Expr buttonframe_to_rhs(int value) {
   }
 }
 
+static bool keep_dynamic = false;
+
 //{ class Style ...
 
 Style::Style(): Shareable() {
@@ -200,9 +206,9 @@ void Style::add_pmath(Expr options) {
     for(size_t i = 1; i <= options.expr_length(); ++i) {
       Expr rule = options[i];
       
-      if( rule.is_expr() && 
-          rule.expr_length() == 2 && 
-          (rule[0] == PMATH_SYMBOL_RULE || rule[0] == PMATH_SYMBOL_RULEDELAYED)) 
+      if( rule.is_expr() &&
+          rule.expr_length() == 2 &&
+          (rule[0] == PMATH_SYMBOL_RULE || rule[0] == PMATH_SYMBOL_RULEDELAYED))
       {
         Expr lhs = rule[1];
         Expr rhs = rule[2];
@@ -347,6 +353,12 @@ void Style::add_pmath(Expr options) {
           else if(lhs == PMATH_SYMBOL_TEXTSHADOW) {
             set_pmath_object(TextShadow, rhs);
           }
+          else if(lhs == PMATH_SYMBOL_WINDOWTITLE) {
+            if(rhs == PMATH_SYMBOL_AUTOMATIC)
+              set(WindowTitle, String());
+            else
+              set_pmath_string(WindowTitle, rhs);
+          }
           else {
             pmath_debug_print_object("[unknown option ", rule.get(), "]\n");
             
@@ -437,20 +449,32 @@ void Style::set(IntStyleOptionName n, int value) {
   IntFloatUnion v;
   v.int_value = value;
   int_float_values.set(n, v);
+  
+  if(!keep_dynamic)
+    remove_dynamic(n);
 }
 
 void Style::set(FloatStyleOptionName n, float value) {
   IntFloatUnion v;
   v.float_value = value;
   int_float_values.set(n, v);
+  
+  if(!keep_dynamic)
+    remove_dynamic(n);
 }
 
 void Style::set(StringStyleOptionName n, String value) {
   object_values.set(n, value);
+  
+  if(!keep_dynamic)
+    remove_dynamic(n);
 }
 
 void Style::set(ObjectStyleOptionName n, Expr value) {
   object_values.set(n, value);
+  
+  if(!keep_dynamic)
+    remove_dynamic(n);
 }
 
 void Style::remove(IntStyleOptionName n) {
@@ -657,6 +681,7 @@ bool Style::modifies_size(int style_name) {
     
     case SectionLabel:
     case Method:
+    case WindowTitle:
     
     case ButtonFunction:
     case ScriptSizeMultipliers:
@@ -723,7 +748,9 @@ bool Style::update_dynamic(Box *parent) {
         Gather::emit(Rule(get_symbol(dynamic_options[i]), e));
     }
     
+    keep_dynamic = true;
     add_pmath(g.end());
+    keep_dynamic = false;
   }
   
   if(resize)
@@ -803,6 +830,7 @@ Expr Style::get_symbol(int n) {
     case FontFamily:    return Symbol(PMATH_SYMBOL_FONTFAMILY);
     case SectionLabel:  return Symbol(PMATH_SYMBOL_SECTIONLABEL);
     case Method:        return Symbol(PMATH_SYMBOL_METHOD);
+    case WindowTitle:   return Symbol(PMATH_SYMBOL_WINDOWTITLE);
   }
   
   switch(n) {
@@ -1231,6 +1259,17 @@ void Style::emit_to_pmath(
                    e));
   }
   
+    if(get_dynamic(WindowTitle, &e)) {
+      Gather::emit(Rule(
+                     get_symbol(WindowTitle),
+                     e));
+    }
+    else if(get(WindowTitle, &s)) {
+      Gather::emit(Rule(
+                     get_symbol(WindowTitle),
+                     s.is_null() ? Symbol(PMATH_SYMBOL_AUTOMATIC) : s));
+    }
+    
   if(for_sections) {
     if(get_dynamic(SectionFrameLeft, &e)) {
       Gather::emit(Rule(
@@ -1399,7 +1438,7 @@ void Style::emit_to_pmath(
     else if(get(SectionLabel, &s)) {
       Gather::emit(Rule(
                      get_symbol(SectionLabel),
-                     s));
+                     s.is_null() ? Symbol(PMATH_SYMBOL_NONE) : s));
     }
     
     if(get_dynamic(SectionLabelAutoDelete, &e)) {

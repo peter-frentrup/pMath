@@ -23,6 +23,7 @@ namespace richmath {
       virtual Box *item(int i);
       virtual int count();
       
+      virtual bool expand(const BoxSize &size);
       virtual void resize(Context *context);
       virtual void paint(Context *context);
     
@@ -62,6 +63,8 @@ namespace richmath {
       float margin_top;
       float margin_bottom;
       
+      float em;
+      
       AxisTicks *x_axis_ticks;
       AxisTicks *y_axis_ticks;
       
@@ -71,6 +74,7 @@ namespace richmath {
     protected:
       GraphicsBox();
       
+      void calculate_size(const float *optional_expand_width = 0);
       void resize_axes(Context *context);
   };
 }

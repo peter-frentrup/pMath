@@ -1,6 +1,7 @@
 #include <boxes/graphics/graphicsbox.h>
 #include <boxes/graphics/axisticks.h>
 
+#include <boxes/fillbox.h>
 #include <boxes/gridbox.h>
 #include <boxes/inputfieldbox.h>
 #include <boxes/section.h>
@@ -151,16 +152,21 @@ int GraphicsBox::count() {
   return 2;
 }
 
+bool GraphicsBox::expand(const BoxSize &size){
+  MathSequence *seq = dynamic_cast<MathSequence*>(_parent);
+  if(_parent && seq->length() == 1){
+    if(dynamic_cast<FillBox*>(seq->parent())){
+      calculate_size(&size.width);
+      return true;
+    }
+  }
+  
+  return false;
+}
+
 void GraphicsBox::resize(Context *context) {
-  float em = context->canvas->get_font_size();
+  em = context->canvas->get_font_size();
   
-  float w     = get_own_style(ImageSizeHorizontal, ImageSizeAutomatic);
-  float h     = get_own_style(ImageSizeVertical,   ImageSizeAutomatic);
-  float ratio = get_own_style(AspectRatio, 0.61803);
-  
-  if(ratio <= 0)
-    ratio = 0.61803;
-    
   resize_axes(context);
   
   margin_left   = 0;
@@ -179,22 +185,37 @@ void GraphicsBox::resize(Context *context) {
   margin_right  = xlabels.width    / 2;
   margin_top    = ylabels.height() / 2;
   
+  calculate_size();
+}
+
+void GraphicsBox::calculate_size(const float *optional_expand_width) {
+  float w     = get_own_style(ImageSizeHorizontal, ImageSizeAutomatic);
+  float h     = get_own_style(ImageSizeVertical,   ImageSizeAutomatic);
+  float ratio = get_own_style(AspectRatio, 0.61803);
+  
+  if(ratio <= 0)
+    ratio = 0.61803;
   
   if(w <= 0 && h <= 0) {
-    enum SyntaxPosition pos = find_syntax_position(parent(), index());
-    
-    switch(pos) {
-      case Alone:
-        w = 30 * em;
-        break;
-        
-      case InsideList:
-        w = 15 * em;
-        break;
-        
-      case InsideOther:
-        w = 8 * em;
-        break;
+    if(optional_expand_width){
+      w = *optional_expand_width;
+    }
+    else{
+      enum SyntaxPosition pos = find_syntax_position(parent(), index());
+      
+      switch(pos) {
+        case Alone:
+          w = 30 * em;
+          break;
+          
+        case InsideList:
+          w = 15 * em;
+          break;
+          
+        case InsideOther:
+          w = 8 * em;
+          break;
+      }
     }
   }
   
@@ -224,7 +245,6 @@ void GraphicsBox::resize(Context *context) {
   y_axis_ticks->start_y = _extents.descent - margin_bottom;
   y_axis_ticks->end_x   = margin_left;
   y_axis_ticks->end_y   = margin_top - _extents.ascent;
-  
 }
 
 void GraphicsBox::resize_axes(Context *context) {
