@@ -433,6 +433,7 @@ pmath_t pj_value_from_java(JNIEnv *env, char type, const jvalue *value){
         jmethodID mid = (*env)->GetMethodID(env, clazz, "booleanValue", "()Z");
         
         if(mid){
+          pmath_unref(class_name);
           (*env)->DeleteLocalRef(env, clazz);
           return pmath_build_value("b", (int)(*env)->CallBooleanMethod(env, value->l, mid));
         }
@@ -442,6 +443,7 @@ pmath_t pj_value_from_java(JNIEnv *env, char type, const jvalue *value){
         jmethodID mid = (*env)->GetMethodID(env, clazz, "byteValue", "()B");
         
         if(mid){
+          pmath_unref(class_name);
           (*env)->DeleteLocalRef(env, clazz);
           return pmath_build_value("i", (int)(*env)->CallByteMethod(env, value->l, mid));
         }
@@ -451,6 +453,7 @@ pmath_t pj_value_from_java(JNIEnv *env, char type, const jvalue *value){
         jmethodID mid = (*env)->GetMethodID(env, clazz, "charValue", "()C");
         
         if(mid){
+          pmath_unref(class_name);
           (*env)->DeleteLocalRef(env, clazz);
           return pmath_build_value("i", (int)(*env)->CallCharMethod(env, value->l, mid));
         }
@@ -460,6 +463,7 @@ pmath_t pj_value_from_java(JNIEnv *env, char type, const jvalue *value){
         jmethodID mid = (*env)->GetMethodID(env, clazz, "shortValue", "()S");
         
         if(mid){
+          pmath_unref(class_name);
           (*env)->DeleteLocalRef(env, clazz);
           return pmath_build_value("i", (int)(*env)->CallShortMethod(env, value->l, mid));
         }
@@ -469,6 +473,7 @@ pmath_t pj_value_from_java(JNIEnv *env, char type, const jvalue *value){
         jmethodID mid = (*env)->GetMethodID(env, clazz, "intValue", "()I");
         
         if(mid){
+          pmath_unref(class_name);
           (*env)->DeleteLocalRef(env, clazz);
           return pmath_build_value("i", (int)(*env)->CallIntMethod(env, value->l, mid));
         }
@@ -478,6 +483,7 @@ pmath_t pj_value_from_java(JNIEnv *env, char type, const jvalue *value){
         jmethodID mid = (*env)->GetMethodID(env, clazz, "longValue", "()J");
         
         if(mid){
+          pmath_unref(class_name);
           (*env)->DeleteLocalRef(env, clazz);
           return pmath_build_value("k", (long long)(*env)->CallLongMethod(env, value->l, mid));
         }
@@ -487,6 +493,7 @@ pmath_t pj_value_from_java(JNIEnv *env, char type, const jvalue *value){
         jmethodID mid = (*env)->GetMethodID(env, clazz, "floatValue", "()F");
         
         if(mid){
+          pmath_unref(class_name);
           (*env)->DeleteLocalRef(env, clazz);
           return pmath_build_value("f", (double)(*env)->CallFloatMethod(env, value->l, mid));
         }
@@ -496,6 +503,7 @@ pmath_t pj_value_from_java(JNIEnv *env, char type, const jvalue *value){
         jmethodID mid = (*env)->GetMethodID(env, clazz, "doubleValue", "()D");
         
         if(mid){
+          pmath_unref(class_name);
           (*env)->DeleteLocalRef(env, clazz);
           return pmath_build_value("f", (*env)->CallDoubleMethod(env, value->l, mid));
         }

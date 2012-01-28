@@ -13,7 +13,7 @@
 				<Option object_output="obj\Windows\debug\" />
 				<Option type="3" />
 				<Option compiler="gcc" />
-				<Option host_application="..\..\..\..\richmath\bin\windows\debug\richmath.exe" />
+				<Option host_application="..\..\richmath\bin\windows\debug\richmath.exe" />
 				<Compiler>
 					<Add option="-march=i686" />
 					<Add option="-Wundef" />
