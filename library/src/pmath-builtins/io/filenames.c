@@ -287,10 +287,10 @@ static pmath_t prepare_filename_form(pmath_t obj) {
 }
 
 PMATH_PRIVATE pmath_t builtin_filenames(pmath_expr_t expr) {
-  /* FileNames()                         = FileNames("*",  ".")
-     FileNames(form)                     = FileNames(form, ".")
-     FileNames(form, dir)
-     FileNames(form, {dir1, dir2, ...}) ... search in directories dir_i
+  /* FileNames()                         = FileNames(".",  "*")
+     FileNames(form)                     = FileNames(".", form)
+     FileNames(dir, form)
+     FileNames({dir1, dir2, ...}, form) ... search in directories dir_i
   
      form can be StringExpression(...), RegularExpression(...), Literal("text")
      or "string". If it is "string", "*" stands for a sequence of any characters.
@@ -301,7 +301,7 @@ PMATH_PRIVATE pmath_t builtin_filenames(pmath_expr_t expr) {
      Messages:
       General::opttfa
    */
-  pmath_t options, obj, directory;
+  pmath_t form, directory;
   struct _regex_t   *regex;
   struct _capture_t  capture;
   size_t exprlen = pmath_expr_length(expr);
@@ -310,50 +310,56 @@ PMATH_PRIVATE pmath_t builtin_filenames(pmath_expr_t expr) {
   
   directory = PMATH_UNDEFINED;
   if(exprlen >= 2) {
-    obj = pmath_expr_get_item(expr, 2);
-    if(!_pmath_is_list_of_rules(obj)) {
-      directory = obj;
+    pmath_t snd = pmath_expr_get_item(expr, 2);
+    
+    if(!_pmath_is_list_of_rules(snd)) {
+      directory = pmath_expr_get_item(expr, 1);
       last_nonoption = 2;
     }
+    
+    pmath_unref(snd);
   }
   else {
     if(exprlen == 0)
       last_nonoption = 0;
   }
   
-  options = pmath_options_extract(expr, last_nonoption);
-  if(pmath_is_null(options))
-    return expr;
+  { // options
+    pmath_t option_value, options;
     
-  obj = pmath_evaluate(pmath_option_value(PMATH_NULL, PMATH_SYMBOL_IGNORECASE, options));
-  pmath_unref(options);
-  if(pmath_same(obj, PMATH_SYMBOL_TRUE)) {
-    pcre_options = PCRE_CASELESS;
-  }
-  else if(pmath_same(obj, PMATH_SYMBOL_AUTOMATIC)) {
+    options = pmath_options_extract(expr, last_nonoption);
+    if(pmath_is_null(options))
+      return expr;
+    
+    option_value = pmath_evaluate(pmath_option_value(PMATH_NULL, PMATH_SYMBOL_IGNORECASE, options));
+    pmath_unref(options);
+    if(pmath_same(option_value, PMATH_SYMBOL_TRUE)) {
+      pcre_options = PCRE_CASELESS;
+    }
+    else if(pmath_same(option_value, PMATH_SYMBOL_AUTOMATIC)) {
 #ifdef PMATH_OS_WIN32
-    pcre_options = PCRE_CASELESS;
+      pcre_options = PCRE_CASELESS;
 #endif
+    }
+    else if(!pmath_same(option_value, PMATH_SYMBOL_FALSE)) {
+      pmath_message(
+        PMATH_NULL, "opttfa", 2,
+        pmath_ref(PMATH_SYMBOL_IGNORECASE),
+        option_value);
+      pmath_unref(directory);
+      return expr;
+    }
+    pmath_unref(option_value);
   }
-  else if(!pmath_same(obj, PMATH_SYMBOL_FALSE)) {
-    pmath_message(
-      PMATH_NULL, "opttfa", 2,
-      pmath_ref(PMATH_SYMBOL_IGNORECASE),
-      obj);
-    pmath_unref(directory);
-    return expr;
-  }
-  pmath_unref(obj);
-  
   
   regex = 0;
-  if(exprlen > 0)
-    obj = pmath_expr_get_item(expr, 1);
+  if(last_nonoption > 0)
+    form = pmath_expr_get_item(expr, last_nonoption);
   else
-    obj = PMATH_C_STRING("*");
+    form = PMATH_C_STRING("*");
     
   pmath_unref(expr);
-  regex = _pmath_regex_compile(prepare_filename_form(obj), pcre_options);
+  regex = _pmath_regex_compile(prepare_filename_form(form), pcre_options);
   
   if(!regex) {
     pmath_unref(directory);

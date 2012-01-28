@@ -62,11 +62,11 @@ Which(
 		path:= Join(Environment("PATH").StringSplit($PathListSeparator),
 					Environment("ProgramFiles").StringSplit($PathListSeparator));
 		
-		path:= FileNames("Java", path).Reverse;
-		path:= Join(FileNames("jre*", path), FileNames("jre", FileNames("jdk*", path)));
-		path:= FileNames("bin", path);
-		path:= FileNames({"server","client"}, path);
-		path:= FileNames("jvm.dll", path);
+		path:= path.FileNames("Java").Reverse;
+		path:= Join(path.FileNames("jre*"), path.FileNames("jdk*").FileNames("jre"));
+		path:= path.FileNames("bin");
+		path:= path.FileNames({"server","client"});
+		path:= path.FileNames("jvm.dll");
 		
 		Unprotect($JavaVMLibraryName);
 		$JavaVMLibraryName:= First(path);
@@ -82,13 +82,13 @@ Which(
 			arch:= "i386";
 			path:= {"/usr/lib", "/usr/local/lib"});
 		
-		path:= FileNames("jvm", path);
-		path:= FileNames("*", path);
-		path:= FileNames("jre", path);
-		path:= FileNames("lib", path);
-		path:= FileNames(arch, path);
-		path:= FileNames({"server","client"}, path);
-		path:= FileNames("libjvm.so", path);
+		path:= path.FileNames("jvm");
+		path:= path.FileNames("*");
+		path:= path.FileNames("jre");
+		path:= path.FileNames("lib");
+		path:= path.FileNames(arch);
+		path:= path.FileNames({"server","client"});
+		path:= path.FileNames("libjvm.so");
 		
 		Unprotect($JavaVMLibraryName);
 		$JavaVMLibraryName:= First(path);
