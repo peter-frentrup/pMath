@@ -5,6 +5,8 @@
 #include <pmath.h>
 #include <jni.h>
 
+extern void pj_companion_run_init(void);
+
 extern pmath_bool_t pj_load_pmath(JNIEnv *env);
 
 

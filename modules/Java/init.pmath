@@ -121,7 +121,7 @@ LoadLibrary(ToFileName(
 
 
 
-stringStyle(~s, ~~~styles)::= "\(" ++ Style(s, styles).ToBoxes.InputForm.ToString ++ "\)"
+stringStyle(~s, ~~~styles)::= "\(" ++ Style(s, styles, ShowStringCharacters->False).ToBoxes.InputForm.ToString ++ "\)"
 
 syntaxHighlight(~lines)::= lines.StringReplace(
 		{("final " | "public " | "native ") -> ""}
@@ -130,16 +130,16 @@ syntaxHighlight(~lines)::= lines.StringReplace(
 	).StringReplace(
 		"java.lang." ++ (name: WordCharacter**) ++ (c: " " | "[" | "," | "(" | ")" | EndOfString) :> name ++ c
 	).StringReplace(
-		" " ++ Shortest((WordCharacter|".")**) ++ "." ++ (name:WordCharacter**) ++ "(" :> " " ++ stringStyle(name, Blue, Italic) ++ "("
+		" " ++ Shortest((WordCharacter | "$" | ".")**) ++ "." ++ (name:WordCharacter**) ++ "(" :> " " ++ stringStyle(name, Blue, Italic) ++ "("
 	).StringReplace(
 		(s: WordBoundary ++ ("Object" | "String") ++ WordBoundary) :> stringStyle(s, Bold)
 	).StringReplace(
 		WordBoundary ++ (s: "void" | "byte" | "char" | "boolean" | "short" | "int" | "long" | "throws" | "double" | "float" | "static" | "synchronized") ++ WordBoundary :> stringStyle(s, Brown, Bold)
 	)
 
-Constructors(cls: (~:JavaClass | ~:String))::= If(Length(#) > 0, Column(#), Style("no constructors",Italic))&(JavaClassAsObject(cls).JavaCall("getConstructors").Map(#.JavaCall("toString")&).syntaxHighlight)
-Methods(     cls: (~:JavaClass | ~:String))::= If(Length(#) > 0, Column(#), Style("no methods",     Italic))&(JavaClassAsObject(cls).JavaCall("getMethods").Map(     #.JavaCall("toString")&).SortBy(StringReplace(#, StartOfString ++ ~~~ ++ "." ++ (name:WordCharacter**) ++ "(" ++ ~~~ :> name)&).syntaxHighlight)
-Fields(      cls: (~:JavaClass | ~:String))::= If(Length(#) > 0, Column(#), Style("no fields",      Italic))&(JavaClassAsObject(cls).JavaCall("getFields").Map(      #.JavaCall("toString")&).SortBy(StringReplace(#, StartOfString ++ ~~~ ++ "." ++ (name:WordCharacter**) ++ "(" ++ ~~~ :> name)&).syntaxHighlight)
+Constructors(cls: (~:JavaClass | ~:String))::= If(Length(#) > 0, Row(#, "\n"), Style("no constructors",Italic))&(JavaClassAsObject(cls).JavaCall("getConstructors").Map(#.JavaCall("toString")&).syntaxHighlight)
+Methods(     cls: (~:JavaClass | ~:String))::= If(Length(#) > 0, Row(#, "\n"), Style("no methods",     Italic))&(JavaClassAsObject(cls).JavaCall("getMethods").Map(     #.JavaCall("toString")&).SortBy(StringReplace(#, StartOfString ++ ~~~ ++ "." ++ (name:WordCharacter**) ++ "(" ++ ~~~ :> name)&).syntaxHighlight)
+Fields(      cls: (~:JavaClass | ~:String))::= If(Length(#) > 0, Row(#, "\n"), Style("no fields",      Italic))&(JavaClassAsObject(cls).JavaCall("getFields").Map(      #.JavaCall("toString")&).SortBy(StringReplace(#, StartOfString ++ ~~~ ++ "." ++ (name:WordCharacter**) ++ "(" ++ ~~~ :> name)&).syntaxHighlight)
 
 
 

@@ -6,14 +6,38 @@
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
 		<Build>
-			<Target title="Windows-Debug">
+			<Target title="Windows-Debug Richmath Host">
 				<Option platforms="Windows;" />
 				<Option output="bin\Windows\pmath-java" prefix_auto="1" extension_auto="1" />
-				<Option working_dir="bin\Windows\" />
 				<Option object_output="obj\Windows\debug\" />
 				<Option type="3" />
 				<Option compiler="gcc" />
-				<Option parameters="-Dpmath.core.dll=d:\peter\programmieren\pmath\library\bin\windows\debug\pmath.dll -Dpmath.core.base_directory=d:\peter\programmieren\pmath\library\scripts -Dpmath.binding.dll=d:\peter\programmieren\pmath\modules\java\bin\windows\pmath-java.dll -classpath d:\peter\programmieren\pmath\modules\java\classpath;d:\peter\programmieren\pmath\modules\java\test\app TestApp" />
+				<Option host_application="..\..\richmath\bin\windows\debug\richmath.exe" />
+				<Compiler>
+					<Add option="-march=i686" />
+					<Add option="-Wundef" />
+					<Add option="-Wall" />
+					<Add option="-g" />
+					<Add option="-fno-exceptions" />
+					<Add option="-DBUILD_DLL" />
+					<Add option="-DPMATH_DEBUG_LOG" />
+					<Add option="-DPMATH_DEBUG_NO_FORCEINLINE" />
+					<Add directory="$(#jdk.include)\win32" />
+				</Compiler>
+				<Linker>
+					<Add option="-static-libgcc" />
+					<Add option="-Wl,-kill-at" />
+					<Add library="user32" />
+					<Add directory="..\..\library\bin\windows\debug" />
+				</Linker>
+			</Target>
+			<Target title="Windows-Debug Java Host">
+				<Option platforms="Windows;" />
+				<Option output="bin\Windows\pmath-java" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj\Windows\debug\" />
+				<Option type="3" />
+				<Option compiler="gcc" />
+				<Option parameters="-Dpmath.core.dll=..\..\library\bin\windows\debug\pmath.dll -Dpmath.core.base_directory=..\..\library\scripts -Dpmath.binding.dll=.\bin\windows\pmath-java.dll -classpath .\classpath;.\test\app TestApp" />
 				<Option host_application="java" />
 				<Compiler>
 					<Add option="-march=i686" />
@@ -36,7 +60,6 @@
 			<Target title="Windows-Release">
 				<Option platforms="Windows;" />
 				<Option output="bin\Windows\pmath-java" prefix_auto="1" extension_auto="1" />
-				<Option working_dir="bin\Windows\" />
 				<Option object_output="obj\Windows\release\" />
 				<Option type="3" />
 				<Option compiler="gcc" />
@@ -150,10 +173,10 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src\pjvm.h" />
-		<Unit filename="src\pmath_Expr.c">
+		<Unit filename="src\pmath_Core.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath_Expr.h" />
+		<Unit filename="src\pmath_Core.h" />
 		<Extensions>
 			<code_completion>
 				<search_path add="..\..\library\include" />

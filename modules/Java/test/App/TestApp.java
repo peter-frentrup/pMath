@@ -12,7 +12,7 @@ public class TestApp{
 		System.out.println();
 		System.out.println("pMath. Type 'QUIT' or 'Quit()' to exit.");
 		
-		pmath.Expr.execute("Print(`1`)", "Hello");
+		pmath.Core.execute("Print(`1`)", "Hello");
 		
 		Console console = System.console();
 		if (console == null) {
@@ -22,7 +22,7 @@ public class TestApp{
 		
 		CapturedLocalValues locals = new CapturedLocalValues();
 		locals.quit = false;
-		pmath.Expr.execute(
+		pmath.Core.execute(
 			"Unprotect(Quit);" +
 			"Quit()::= `1` @ quit:= True;" + // ignoring Quit(~exitcode)
 			"Protect(Quit);", 
@@ -34,7 +34,7 @@ public class TestApp{
 			if("QUIT".equals(input))
 				break;
 				
-			Object result = pmath.Expr.execute(input);
+			Object result = pmath.Core.execute(input);
 			if(result != null){
 				console.printf(" > " + result + "\n");
 			}

@@ -9,7 +9,7 @@
 pmath_symbol_t _pj_symbols[PJ_SYMBOLS_COUNT];
 
 
-extern pmath_t pj_builtin__pmath_Expr_execute(pmath_t expr);
+extern pmath_t pj_builtin__pmath_Core_execute(pmath_t expr);
 
 
 pmath_bool_t pj_symbols_init(void){
@@ -74,7 +74,7 @@ pmath_bool_t pj_symbols_init(void){
   BIND_DOWN(PJ_SYMBOL_JAVANEW,           pj_builtin_javanew);
   BIND_DOWN(PJ_SYMBOL_JAVASTARTVM,       pj_builtin_startvm);
   
-  BIND_DOWN(PJ_SYMBOL_INTERNAL_CALLFROMJAVA,    pj_builtin__pmath_Expr_execute);
+  BIND_DOWN(PJ_SYMBOL_INTERNAL_CALLFROMJAVA,    pj_builtin__pmath_Core_execute);
   BIND_DOWN(PJ_SYMBOL_INTERNAL_JAVACALL,        pj_builtin_internal_javacall);
   BIND_DOWN(PJ_SYMBOL_INTERNAL_JAVANEW,         pj_builtin_internal_javanew);
   BIND_DOWN(PJ_SYMBOL_INTERNAL_RETURN,          pj_builtin_internal_return);

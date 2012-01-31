@@ -211,7 +211,7 @@ static void auto_detach_proc(void *p) {
   pmath_t pjvm = pjvm_try_get();
   
 #ifdef PMATH_DEBUG_LOG
-  fprintf(stderr, "[auto_detach_proc]\n");
+  fprintf(stderr, "[pmath-java: auto_detach_proc]\n");
 #endif
   
   if(!pmath_is_null(pjvm)) {
@@ -221,10 +221,10 @@ static void auto_detach_proc(void *p) {
       JNIEnv *env = NULL;
       
       (*jvm)->GetEnv(jvm, (void**)&env, JNI_VERSION_1_4);
-      if(env)
+      if(env){
         (*env)->ExceptionClear(env);
-        
-      (*jvm)->DetachCurrentThread(jvm);
+        (*jvm)->DetachCurrentThread(jvm);
+      }
     }
     
     pmath_unref(pjvm);

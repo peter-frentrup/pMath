@@ -338,7 +338,7 @@ pmath_bool_t pj_value_to_java(JNIEnv *env, pmath_t obj, pmath_t type, jvalue *va
           jmethodID cid = (*env)->GetMethodID(env, src_class, "<init>", "(D)V");
           
           if(cid){
-            val = (*env)->NewObject(env, src_class, cid, (jdouble)PMATH_AS_INT32(obj));
+            val = (*env)->NewObject(env, src_class, cid, (jdouble)PMATH_AS_DOUBLE(obj));
           }
           
           (*env)->DeleteLocalRef(env, src_class);
