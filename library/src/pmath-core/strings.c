@@ -11,6 +11,7 @@
 #include <pmath-util/memory.h>
 
 #include <pmath-builtins/all-symbols-private.h>
+#include <pmath-builtins/control-private.h>
 #include <pmath-builtins/formating-private.h>
 #include <pmath-builtins/io-private.h>
 
@@ -363,9 +364,10 @@ static pmath_bool_t is_single_token(pmath_t box) {
     return result;
   }
   
-  if(pmath_is_expr_of(box, PMATH_SYMBOL_STYLEBOX)
-      || pmath_is_expr_of(box, PMATH_SYMBOL_TAGBOX)
-      || pmath_is_expr_of(box, PMATH_SYMBOL_INTERPRETATIONBOX)) {
+  if( pmath_is_expr_of(box, PMATH_SYMBOL_STYLEBOX) ||
+      pmath_is_expr_of(box, PMATH_SYMBOL_TAGBOX) ||
+      pmath_is_expr_of(box, PMATH_SYMBOL_INTERPRETATIONBOX))
+  {
     pmath_t part;
     pmath_bool_t result;
     
@@ -389,13 +391,65 @@ static void write_single_token_box(struct pmath_write_ex_t *info, pmath_t box) {
   }
 }
 
+
+static void write_and_skip_string_chars(void *user, const uint16_t *data, int len) {
+  struct pmath_write_ex_t *old_info = user;
+  int i = 0;
+  
+  while(i < len) {
+    if( data[i] == '\\' &&
+        i + 1 < len &&
+        (data[i+1] == '"' || data[i+1] == '\\'))
+    {
+      old_info->write(old_info->user, data, i);
+      
+      old_info->write(old_info->user, &data[i+1], 1);
+      
+      i    += 2;
+      data += i;
+      len  -= i;
+      i     = 0;
+      continue;
+    }
+    
+    if(data[i] == '"') {
+      old_info->write(old_info->user, data, i);
+      ++i;
+      data += i;
+      len  -= i;
+      i     = 0;
+      continue;
+    }
+    
+    ++i;
+  }
+  
+  if(len > 0)
+    old_info->write(old_info->user, data, len);
+}
+
+static void call_old_pre_write(void *user, pmath_t obj) {
+  struct pmath_write_ex_t *old_info = user;
+  
+  old_info->pre_write(old_info->user, obj);
+}
+
+static void call_old_post_write(void *user, pmath_t obj) {
+  struct pmath_write_ex_t *old_info = user;
+  
+  old_info->post_write(old_info->user, obj);
+}
+
 PMATH_PRIVATE
 void _pmath_write_boxes(struct pmath_write_ex_t *info, pmath_t box) {
   if(pmath_is_string(box)) {
     info->write(info->user, pmath_string_buffer(&box), pmath_string_length(box));
+    return;
   }
-  else if(pmath_is_expr_of(box, PMATH_SYMBOL_LIST)
-          ||      pmath_is_expr_of(box, PMATH_NULL)) {
+  
+  if( pmath_is_expr_of(box, PMATH_SYMBOL_LIST) ||
+      pmath_is_expr_of(box, PMATH_NULL))
+  {
     size_t i;
     
     for(i = 1; i <= pmath_expr_length(box); ++i) {
@@ -403,27 +457,84 @@ void _pmath_write_boxes(struct pmath_write_ex_t *info, pmath_t box) {
       _pmath_write_boxes(info, part);
       pmath_unref(part);
     }
+    
+    return;
   }
-  else if(pmath_is_expr_of(box, PMATH_SYMBOL_STYLEBOX)
-          ||      pmath_is_expr_of(box, PMATH_SYMBOL_TAGBOX)
-          ||      pmath_is_expr_of(box, PMATH_SYMBOL_INTERPRETATIONBOX)) {
+  
+  if(pmath_is_expr_of(box, PMATH_SYMBOL_STYLEBOX)) {
+    pmath_bool_t hide_string_characters = FALSE;
+    pmath_t part;
+    
+    size_t i;
+    for(i = pmath_expr_length(box); i > 1; --i) {
+      pmath_t option = pmath_expr_get_item(box, i);
+      
+      if(_pmath_is_rule(option)) {
+        pmath_t lhs = pmath_expr_get_item(option, 1);
+        pmath_t rhs = pmath_expr_get_item(option, 2);
+        pmath_unref(lhs);
+        pmath_unref(rhs);
+        
+        if(pmath_same(lhs, PMATH_SYMBOL_SHOWSTRINGCHARACTERS))
+          hide_string_characters = pmath_same(rhs, PMATH_SYMBOL_FALSE);
+      }
+      
+      pmath_unref(option);
+    }
+    
+    if(hide_string_characters) {
+      struct pmath_write_ex_t info2;
+      memset(&info2, 0, sizeof(info2));
+      info2.size       = sizeof(info2);
+      info2.options    = info->options;
+      info2.user       = info;
+      info2.write      = write_and_skip_string_chars;
+      info2.pre_write  = call_old_pre_write;
+      info2.post_write = call_old_post_write;
+      
+      part = pmath_expr_get_item(box, 1);
+      _pmath_write_boxes(&info2, part);
+      pmath_unref(part);
+      
+      return;
+    }
+    
+    part = pmath_expr_get_item(box, 1);
+    _pmath_write_boxes(info, part);
+    pmath_unref(part);
+    
+    return;
+  }
+  
+  if( pmath_is_expr_of(box, PMATH_SYMBOL_TAGBOX)   ||
+      pmath_is_expr_of(box, PMATH_SYMBOL_INTERPRETATIONBOX))
+  {
     pmath_t part = pmath_expr_get_item(box, 1);
     _pmath_write_boxes(info, part);
     pmath_unref(part);
+    
+    return;
   }
-  else if(pmath_is_expr_of(box, PMATH_SYMBOL_SUBSCRIPTBOX)) {
+  
+  if(pmath_is_expr_of(box, PMATH_SYMBOL_SUBSCRIPTBOX)) {
     pmath_t part = pmath_expr_get_item(box, 1);
     write_cstr("_", info->write, info->user);
     write_single_token_box(info, part);
     pmath_unref(part);
+    
+    return;
   }
-  else if(pmath_is_expr_of(box, PMATH_SYMBOL_SUPERSCRIPTBOX)) {
+  
+  if(pmath_is_expr_of(box, PMATH_SYMBOL_SUPERSCRIPTBOX)) {
     pmath_t part = pmath_expr_get_item(box, 1);
     write_cstr("^", info->write, info->user);
     write_single_token_box(info, part);
     pmath_unref(part);
+    
+    return;
   }
-  else if(pmath_is_expr_of(box, PMATH_SYMBOL_SUBSUPERSCRIPTBOX)) {
+  
+  if(pmath_is_expr_of(box, PMATH_SYMBOL_SUBSUPERSCRIPTBOX)) {
     pmath_t part = pmath_expr_get_item(box, 1);
     write_cstr("_", info->write, info->user);
     write_single_token_box(info, part);
@@ -433,8 +544,11 @@ void _pmath_write_boxes(struct pmath_write_ex_t *info, pmath_t box) {
     write_cstr("^", info->write, info->user);
     write_single_token_box(info, part);
     pmath_unref(part);
+    
+    return;
   }
-  else if(pmath_is_expr_of(box, PMATH_SYMBOL_UNDERSCRIPTBOX)) {
+  
+  if(pmath_is_expr_of(box, PMATH_SYMBOL_UNDERSCRIPTBOX)) {
     pmath_t part = pmath_expr_get_item(box, 1);
     _pmath_write_boxes(info, part);
     pmath_unref(part);
@@ -443,8 +557,11 @@ void _pmath_write_boxes(struct pmath_write_ex_t *info, pmath_t box) {
     write_cstr("_", info->write, info->user);
     write_single_token_box(info, part);
     pmath_unref(part);
+    
+    return;
   }
-  else if(pmath_is_expr_of(box, PMATH_SYMBOL_OVERSCRIPTBOX)) {
+  
+  if(pmath_is_expr_of(box, PMATH_SYMBOL_OVERSCRIPTBOX)) {
     pmath_t part = pmath_expr_get_item(box, 1);
     _pmath_write_boxes(info, part);
     pmath_unref(part);
@@ -453,8 +570,11 @@ void _pmath_write_boxes(struct pmath_write_ex_t *info, pmath_t box) {
     write_cstr("^", info->write, info->user);
     write_single_token_box(info, part);
     pmath_unref(part);
+    
+    return;
   }
-  else if(pmath_is_expr_of(box, PMATH_SYMBOL_UNDEROVERSCRIPTBOX)) {
+  
+  if(pmath_is_expr_of(box, PMATH_SYMBOL_UNDEROVERSCRIPTBOX)) {
     pmath_t part = pmath_expr_get_item(box, 1);
     _pmath_write_boxes(info, part);
     pmath_unref(part);
@@ -468,8 +588,11 @@ void _pmath_write_boxes(struct pmath_write_ex_t *info, pmath_t box) {
     write_cstr("^", info->write, info->user);
     write_single_token_box(info, part);
     pmath_unref(part);
+    
+    return;
   }
-  else if(pmath_is_expr(box)) {
+  
+  if(pmath_is_expr(box)) {
     pmath_t part;
     size_t i;
     
@@ -488,9 +611,11 @@ void _pmath_write_boxes(struct pmath_write_ex_t *info, pmath_t box) {
       
     }
     write_cstr(")", info->write, info->user);
+    
+    return;
   }
-  else
-    pmath_write_ex(info, box);
+  
+  pmath_write_ex(info, box);
 }
 
 PMATH_PRIVATE
