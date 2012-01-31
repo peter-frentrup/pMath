@@ -1,4 +1,4 @@
-#include "pmath_Expr.h"
+#include "pmath_Core.h"
 #include "pj-objects.h"
 #include "pj-symbols.h"
 #include "pj-threads.h"
@@ -9,7 +9,7 @@
 #include <math.h>
 
 
-pmath_t pj_builtin__pmath_Expr_execute(pmath_t expr) {
+pmath_t pj_builtin__pmath_Core_execute(pmath_t expr) {
   pmath_messages_t mq   = pmath_expr_get_item(expr, 1);
   pmath_string_t code   = pmath_expr_get_item(expr, 2);
   pmath_t        args   = pmath_expr_get_item(expr, 3);
@@ -65,7 +65,7 @@ pmath_t pj_builtin__pmath_Expr_execute(pmath_t expr) {
 }
 
 
-JNIEXPORT jobject JNICALL Java_pmath_Expr_execute(
+JNIEXPORT jobject JNICALL Java_pmath_Core_execute(
   JNIEnv       *env,
   jclass        j_clazz,
   jstring       j_code,
@@ -90,6 +90,8 @@ JNIEXPORT jobject JNICALL Java_pmath_Expr_execute(
   if(load_temporary) {
     if(!pmath_init())
       return NULL;
+    
+    pj_companion_run_init();
   }
   
   code = pj_string_from_java(env, j_code);
@@ -129,8 +131,8 @@ JNIEXPORT jobject JNICALL Java_pmath_Expr_execute(
   pj_value_to_java(env, expr, code, &val);
   pmath_unref(code);
   
-//  if(load_temporary)
-//    pmath_done();
+  if(load_temporary)
+    pmath_done();
     
   return val.l;
 }
