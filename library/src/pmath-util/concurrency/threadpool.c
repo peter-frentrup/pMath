@@ -380,27 +380,25 @@ void pmath_task_abort(pmath_task_t task) {
 /*============================================================================*/
 
 #ifdef PMATH_OS_WIN32
-#define THREAD_PROC(name,arg) unsigned __stdcall name(void *arg)
+#  define THREAD_PROC(name,arg) unsigned __stdcall name(void *arg)
 typedef uintptr_t thread_handle_t;
 #else
-#define THREAD_PROC(name,arg) void *name(void *arg)
+#  define THREAD_PROC(name,arg) void *name(void *arg)
 typedef pthread_t thread_handle_t;
 #endif
 
 struct daemon_t {
-  thread_handle_t             handle;
-  pmath_thread_t              thread;
-  pmath_callback_t            callback;
-  pmath_callback_t            kill;
-  void                       *cb_data;
+  thread_handle_t    handle;
+  pmath_thread_t     thread;
+  pmath_callback_t   callback;
+  pmath_callback_t   kill;
+  void              *cb_data;
   
-  pmath_messages_t          *message_queue_ptr;
-  volatile pmath_bool_t     *init_ok;
-  sem_t                     *init_sem;
-  pmath_bool_t               alive;
+  pmath_messages_t  *message_queue_ptr;
+  pmath_bool_t       alive;
   
-  struct daemon_t *prev;
-  struct daemon_t *next;
+  struct daemon_t   *prev;
+  struct daemon_t   *next;
 };
 
 static struct daemon_t *all_daemons = NULL; // ring buffer
@@ -410,20 +408,15 @@ PMATH_PRIVATE pmath_atomic_t _pmath_threadpool_deamon_count = PMATH_ATOMIC_STATI
 PMATH_API pmath_bool_t pmath_init(void);
 PMATH_API void pmath_done(void);
 
-static THREAD_PROC(daemon_proc, arg) {
+static pmath_bool_t daemon_init(void *arg) {
   struct daemon_t *me = (struct daemon_t*)arg;
-  thread_handle_t handle = 0;
   
   pmath_debug_print("[new deamon %p]\n", me);
   
-  *me->init_ok = FALSE;
-  
-  if(!pmath_init()) {
-    sem_post(me->init_sem);
-    return 0;
-  }
-  
-  me->thread = pmath_thread_get_current();
+  if(!pmath_init())
+    return FALSE;
+    
+  me->thread            = pmath_thread_get_current();
   me->thread->is_daemon = TRUE;
   
   (void)pmath_atomic_fetch_add(&_pmath_threadpool_deamon_count, 1);
@@ -445,20 +438,19 @@ static THREAD_PROC(daemon_proc, arg) {
   pmath_atomic_unlock(&daemon_spin);
   
   *me->message_queue_ptr = pmath_ref(me->thread->message_queue);
-  me->message_queue_ptr = NULL;
-  *me->init_ok = TRUE;
-  pmath_atomic_barrier();
-  sem_post(me->init_sem);
-  me->init_sem = NULL;
+  me->message_queue_ptr  = NULL;
+  
+  return TRUE;
+}
+
+static void daemon_proc(void *arg) {
+  struct daemon_t *me = (struct daemon_t*)arg;
   
   me->callback(me->cb_data);
   
   pmath_atomic_lock(&daemon_spin);
   {
     me->kill = NULL;
-    
-    handle = me->handle;
-    me->handle = 0;
     
     pmath_debug_print("[almost free deamon %p, next = %p, prev = %p, all_daemons = %p]\n", me, me->next, me->prev, all_daemons);
     
@@ -480,23 +472,11 @@ static THREAD_PROC(daemon_proc, arg) {
   }
   pmath_atomic_unlock(&daemon_spin);
   
-  if(handle) {
-#ifdef PMATH_OS_WIN32
-    CloseHandle((HANDLE)handle);
-#else
-    pthread_detach(handle);
-#endif
-  }
-  else
-    pmath_debug_print("[no deamon handle for %p]\n", me);
-    
   pmath_debug_print("[free deamon %p, all_daemons = %p]\n", me, all_daemons);
   pmath_mem_free(me);
   
   pmath_done();
   (void)pmath_atomic_fetch_add(&_pmath_threadpool_deamon_count, -1);
-  
-  return 0;
 }
 
 PMATH_PRIVATE void _pmath_threadpool_kill_daemons(void) {
@@ -550,14 +530,8 @@ pmath_messages_t pmath_thread_fork_daemon(
   void             *data
 ) {
   pmath_messages_t message_queue = PMATH_NULL;
-  pmath_bool_t error;
-  volatile pmath_bool_t init_ok;
   struct daemon_t *daemon;
-  sem_t sem;
   
-  if(sem_init(&sem, 0, 0) == -1)
-    return PMATH_NULL;
-    
   daemon = pmath_mem_alloc(sizeof(struct daemon_t));
   if(!daemon)
     return PMATH_NULL;
@@ -567,63 +541,126 @@ pmath_messages_t pmath_thread_fork_daemon(
   daemon->kill              = kill;
   daemon->cb_data           = data;
   daemon->message_queue_ptr = &message_queue;
-  daemon->init_ok           = &init_ok;
-  daemon->init_sem          = &sem;
   daemon->alive             = TRUE;
   daemon->prev              = daemon;
   daemon->next              = daemon;
   
-  init_ok = FALSE;
-  error = TRUE;
-#ifdef PMATH_OS_WIN32
-  {
-    daemon->handle = _beginthreadex(
-                       NULL,     // default security
-                       0,        // default stack size
-                       daemon_proc,
-                       daemon,   // argument
-                       0,        // running
-                       NULL);    // do not need thread id
-                       
-    error = daemon->handle == 0;
-  }
-#else
-  {
-    error = pthread_create(
-              &daemon->handle,
-              NULL,
-              daemon_proc,
-              daemon);      // argument
-  }
-#endif
-  
-  if(error) {
-    pmath_mem_free(daemon);
-    sem_destroy(&sem);
-    return PMATH_NULL;
-  }
-  
-  while(sem_wait(&sem) == -1 && errno == EINTR)
-    continue;
-    
-  sem_destroy(&sem);
-  pmath_atomic_barrier();
-  if(!init_ok) {
-    assert(pmath_is_null(message_queue));
-    
-#ifdef PMATH_OS_WIN32
-    WaitForSingleObject((HANDLE)daemon->handle, INFINITE);
-    CloseHandle((HANDLE)daemon->handle);
-#else
-    pthread_join(daemon->handle, 0);
-    pthread_detach(daemon->handle);
-#endif
-    
+  if(!pmath_thread_fork_unmanaged(daemon_init, daemon_proc, daemon)) {
     pmath_mem_free(daemon);
     return PMATH_NULL;
   }
   
   return message_queue;
+}
+
+/*============================================================================*/
+
+struct unmanaged_thread_t {
+  sem_t                 *init_sem;
+  volatile pmath_bool_t *init_ok;
+  
+  pmath_bool_t         (*init)(void*);
+  void                 (*callback)(void*);
+  void                  *data;
+};
+
+
+static THREAD_PROC(unmanaged_thread_proc, arg) {
+  struct unmanaged_thread_t *me = (struct unmanaged_thread_t*)arg;
+  
+  pmath_bool_t init_ok = TRUE;
+  
+  if(me->init)
+    init_ok = me->init(me->data);
+    
+  *me->init_ok = init_ok;
+  
+  pmath_atomic_barrier();
+  sem_post(me->init_sem);
+  me->init_sem = NULL;
+  
+  if(init_ok) {
+    me->callback(me->data);
+    free(me);
+  }
+  
+  return 0;
+}
+
+
+PMATH_API
+pmath_bool_t pmath_thread_fork_unmanaged(
+  pmath_bool_t    (*init)(    void*),
+  void            (*callback)(void*),
+  void             *data
+) {
+  struct unmanaged_thread_t *arg;
+  pmath_bool_t               error;
+  sem_t                      init_sem;
+  volatile pmath_bool_t      init_ok;
+  
+  arg = malloc(sizeof(struct unmanaged_thread_t));
+  
+  if(!arg)
+    return FALSE;
+    
+  if(sem_init(&init_sem, 0, 0) == -1) {
+    free(arg);
+    return FALSE;
+  }
+  
+  init_ok = FALSE;
+  
+  arg->init_sem = &init_sem;
+  arg->init_ok  = &init_ok;
+  
+  arg->init     = init;
+  arg->callback = callback;
+  arg->data     = data;
+  
+#ifdef PMATH_OS_WIN32
+  {
+    HANDLE handle;
+    handle = (HANDLE)_beginthreadex(
+               NULL,     // default security
+               0,        // default stack size
+               unmanaged_thread_proc,
+               arg,      // argument
+               0,        // running
+               NULL);    // do not need thread id
+               
+    error = handle == 0;
+    
+    if(handle)
+      CloseHandle(handle);
+  }
+#else
+  {
+    pthread_t handle;
+  
+    error = pthread_create(
+              &handle,
+              NULL,
+              unmanaged_thread_proc,
+              arg);      // argument
+  
+    pthread_detach(handle);
+  }
+#endif
+  
+  if(error) {
+    free(arg);
+    sem_destroy(&init_sem);
+    return FALSE;
+  }
+  
+  while(sem_wait(&init_sem) == -1 && errno == EINTR)
+    continue;
+    
+  sem_destroy(&init_sem);
+  pmath_atomic_barrier();
+  
+  return init_ok;
 }
 
 /*============================================================================*/

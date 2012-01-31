@@ -218,7 +218,7 @@ PMATH_PRIVATE pmath_t builtin_begin(pmath_expr_t expr) {
   
   PMATH_RUN_ARGS(
     "Internal`$NamespaceStack:= Append("
-    "Internal`$NamespaceStack, $Namespace);"
+    "  Internal`$NamespaceStack, $Namespace);"
     "$Namespace:= `1`",
     "(o)", pmath_ref(ns));
     
@@ -309,16 +309,16 @@ PMATH_PRIVATE pmath_t builtin_beginpackage(pmath_expr_t expr) {
     
   PMATH_RUN_ARGS(
     "Internal`$NamespacePathStack:= Append("
-    "Internal`$NamespacePathStack, $NamespacePath);"
+    "  Internal`$NamespacePathStack, $NamespacePath);"
     "Internal`$NamespaceStack:= Append("
-    "Internal`$NamespaceStack, $Namespace);"
+    "  Internal`$NamespaceStack, $Namespace);"
     "$Namespace:= `1`;"
     "$NamespacePath:= Join({`1`}, `2`, {\"System`\"});"
     "Synchronize($Packages,"
-    "If(Length(Position($Packages, `1`)) === 0,"
-    "Unprotect($Packages);"
-    "$Packages:= Append($Packages, `1`);"
-    "Protect($Packages)));"
+    "  If(Length(Position($Packages, `1`)) === 0,"
+    "    Unprotect($Packages);"
+    "    $Packages:= Append($Packages, `1`);"
+    "    Protect($Packages)));"
     "Scan(`2`, Get)",
     "(oo)", package, nspath);
     
@@ -435,10 +435,11 @@ PMATH_PRIVATE pmath_t builtin_endpackage(pmath_expr_t expr) {
   nspathstack = pmath_expr_get_item_range(expr, 1, nspathlen - 1);
   pmath_unref(expr);
   
-  if(pmath_is_null(ns)
-      || pmath_is_null(nspath)
-      || pmath_is_null(nsstack)
-      || pmath_is_null(nspathstack)) {
+  if( pmath_is_null(ns)      || 
+      pmath_is_null(nspath)  || 
+      pmath_is_null(nsstack) || 
+      pmath_is_null(nspathstack)) 
+  {
     pmath_unref(oldns);
     pmath_unref(ns);
     pmath_unref(nsstack);

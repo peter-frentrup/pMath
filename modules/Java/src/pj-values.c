@@ -319,7 +319,7 @@ pmath_bool_t pj_value_to_java(JNIEnv *env, pmath_t obj, pmath_t type, jvalue *va
         obj = PMATH_NULL;
       }
       else if(pmath_is_int32(obj)){
-        jclass src_class = (*env)->FindClass(env, "Ljava/lang/Integer;");
+        jclass src_class = (*env)->FindClass(env, "java/lang/Integer");
         
         if(src_class){
           jmethodID cid = (*env)->GetMethodID(env, src_class, "<init>", "(I)V");
@@ -332,7 +332,7 @@ pmath_bool_t pj_value_to_java(JNIEnv *env, pmath_t obj, pmath_t type, jvalue *va
         }
       }
       else if(pmath_is_double(obj)){
-        jclass src_class = (*env)->FindClass(env, "Ljava/lang/Double;");
+        jclass src_class = (*env)->FindClass(env, "java/lang/Double");
         
         if(src_class){
           jmethodID cid = (*env)->GetMethodID(env, src_class, "<init>", "(D)V");

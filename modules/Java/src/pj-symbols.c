@@ -32,6 +32,8 @@ pmath_bool_t pj_symbols_init(void){
   VERIFY(PJ_SYMBOL_INTERNAL_JAVANEW         = NEW_SYMBOL("Java`Internal`JavaNew"));
   VERIFY(PJ_SYMBOL_INTERNAL_RETURN          = NEW_SYMBOL("Java`Internal`Return"));
   VERIFY(PJ_SYMBOL_INTERNAL_CALLFROMJAVA    = NEW_SYMBOL("Java`Internal`CallFromJava"));
+  VERIFY(PJ_SYMBOL_INTERNAL_SUCCEEDED       = NEW_SYMBOL("Java`Internal`Succeeded"));
+  VERIFY(PJ_SYMBOL_INTERNAL_FAILED          = NEW_SYMBOL("Java`Internal`Failed"));
   
   VERIFY(PJ_SYMBOL_ISJAVAOBJECT        = NEW_SYMBOL("Java`IsJavaObject"));
   VERIFY(PJ_SYMBOL_CLASSNAME           = NEW_SYMBOL("Java`ClassName"));

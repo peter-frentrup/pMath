@@ -12,6 +12,7 @@ extern jthrowable pjvm_internal_exception;
 extern pmath_bool_t pjvm_register_external(JavaVM *jvm);
 
 
+extern pmath_bool_t pjvm_java_is_running(void);
 extern pmath_t pjvm_try_get(void); // must be freed
 extern JavaVM   *pjvm_get_java(pmath_t pjvm);
 extern jvmtiEnv *pjvm_get_jvmti(pmath_t pjvm);

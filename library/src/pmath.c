@@ -177,9 +177,9 @@ static pmath_expr_t get_exe_name(void) {
     FSRef               *fsr;
     char                *path;
   
-    if( GetCurrentProcess(&psn)              == noErr &&
-    GetProcessBundleLocation(&psn, &fsr) == noErr &&
-    FSRefMakePath(&fsr, (UInt8*)path, sizeof(path)))
+    if(GetCurrentProcess(&psn)              == noErr
+    && GetProcessBundleLocation(&psn, &fsr) == noErr
+    && FSRefMakePath(&fsr, (UInt8*)path, sizeof(path)))
     {
       return pmath_string_from_utf8(path, -1);
     }

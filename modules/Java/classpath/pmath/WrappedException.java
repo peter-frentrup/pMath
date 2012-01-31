@@ -1,9 +1,14 @@
 package pmath;
 
 public class WrappedException extends RuntimeException {
-	public String pmathException;
+	private String code;
+	
+	public String getCode(){
+		return code;
+	}
+	
 	public WrappedException(String ex){
-		super("pmath.WrappedException: " + ex);
-		this.pmathException = ex;
+		super("wrapped pMath exception: " + ex);
+		this.code = ex;
 	}
 }

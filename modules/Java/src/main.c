@@ -12,8 +12,8 @@ JNI_OnLoad(JavaVM *vm, void *reserved){
   printf("[JNI_OnLoad]\n");
   if(pmath_is_null(pjvm_dll_filename)){
     // todo: load pmath in a worker thread...
-    printf("[pmath not loaded]\n");
-    return 0;
+    printf("[pmath not yet loaded]\n");
+    return JNI_VERSION_1_4;
   }
   
   return JNI_VERSION_1_4;
@@ -27,6 +27,8 @@ JNI_OnUnload(JavaVM *vm, void *reserved){
 
 PMATH_MODULE
 pmath_bool_t pmath_module_init(pmath_string_t dll_filename){
+  
+  printf("[pmath_module_init]\n");
   
   pjvm_auto_detach_key = PMATH_NULL;
   pjvm_dll_filename    = PMATH_NULL;
@@ -71,5 +73,5 @@ void pmath_module_done(void){
   pmath_unref(pjvm_auto_detach_key);
   pjvm_auto_detach_key = PMATH_NULL;
   
-  pmath_debug_print("[java done]\n");
+  pmath_debug_print("[pmath_module_done]\n");
 }

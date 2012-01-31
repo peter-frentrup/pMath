@@ -227,7 +227,13 @@ PMATH_PRIVATE pmath_t builtin_get(pmath_expr_t expr) {
                pmath_ref(name)));
     pmath_unref(expr);
     if(!pmath_same(expr, PMATH_SYMBOL_TRUE)) {
-      pmath_unref(name);
+    
+      PMATH_RUN_ARGS(
+        "If(IsFreeOf($NamespacePath, `1`),"
+        "  $NamespacePath:= Prepend($NamespacePath, `1`))",
+        "(o)", 
+        name);
+        
       pmath_unref(path);
       return PMATH_NULL;
     }

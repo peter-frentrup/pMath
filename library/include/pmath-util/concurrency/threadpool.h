@@ -68,6 +68,25 @@ pmath_messages_t pmath_thread_fork_daemon(
   pmath_callback_t  kill,
   void             *data);
 
+
+/**\brief Create a new system thread.
+   \relates pmath_thread_t
+   \param init     An optional function to be called in the new thread before 
+                   pmath_thread_fork_unmanaged() returns.
+   \param callback The thread function.
+   \param data A pointer to be passed to callback()
+   \return TRUE if a new thead was created and init() returned TRUE there.
+   
+   This function is just a wrapper around operating system functions. It can be
+   used without initializing the pMath library.
+ */
+PMATH_API
+pmath_bool_t pmath_thread_fork_unmanaged(
+  pmath_bool_t    (*init)(    void*),
+  void            (*callback)(void*),
+  void             *data);
+
+
 /**\brief Collect unused symbols with the Temporary attribute.
    \relates pmath_symbol_t
 
