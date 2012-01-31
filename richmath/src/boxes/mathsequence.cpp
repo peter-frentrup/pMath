@@ -1018,7 +1018,9 @@ void MathSequence::child_transformation(
     
     if(l > 0 && lines[l - 1].end > 0){
       x -= glyphs[lines[l - 1].end - 1].right;
-      x -= glyphs[lines[l - 1].end    ].x_offset;
+      
+      if(lines[l - 1].end < glyphs.length())
+        x -= glyphs[lines[l - 1].end].x_offset;
     }
   }
   

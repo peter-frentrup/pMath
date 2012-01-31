@@ -1017,15 +1017,5 @@ QUIT:
   
   pmath_done();
   
-  size_t current, max;
-  pmath_mem_usage(&current, &max);
-  printf("memory: %"PRIuPTR" (should be 0)\n", current);
-  printf("max. used: %"PRIuPTR"\n", max);
-  
-  if(current != 0) {
-    printf("\a");
-    system("pause");
-  }
-  
   return result;
 }
