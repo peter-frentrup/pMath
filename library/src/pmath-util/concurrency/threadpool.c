@@ -18,15 +18,15 @@
 
 
 #if PMATH_USE_PTHREAD
-#include <pthread.h>
-#include <sched.h>
+#  include <pthread.h>
+#  include <sched.h>
 #endif
 
 #ifdef PMATH_OS_WIN32
-#define NOGDI
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#include <process.h> // _beginthreadex
+#  define NOGDI
+#  define WIN32_LEAN_AND_MEAN
+#  include <windows.h>
+#  include <process.h> // _beginthreadex
 
 typedef HANDLE sem_t;
 
@@ -50,10 +50,10 @@ static int sem_post(sem_t *sem) {
 
 #else
 
-#include <stdio.h>
-#include <string.h>
+#  include <stdio.h>
+#  include <string.h>
 
-#ifdef __APPLE__
+#  ifdef __APPLE__
 /* Mac OS X has no sem_timedwait. We use pthread_mutex_t with pthread_cond_t
    instead. See Firebird: src/common/classes/semaphore.h for the idea.
  */
@@ -135,13 +135,13 @@ static int sem_post(sem_t *sem) {
   return err ? -1 : 0;
 }
 
-#else
+#  else
 
-#include <semaphore.h>
-#include <time.h>
-#include <unistd.h>
+#    include <semaphore.h>
+#    include <time.h>
+#    include <unistd.h>
 
-#endif
+#  endif
 #endif
 
 struct _pmath_task_t {
@@ -669,10 +669,12 @@ static volatile pmath_bool_t stop_threadpool;
 static pmath_atomic_t init_threads_counter = PMATH_ATOMIC_STATIC_INIT;
 
 static struct worker_t {
-  thread_handle_t thread;
+  sem_t  finish_sem;
 }*workers;
 
 static THREAD_PROC(worker_thread_proc, arg) {
+  int worker_index = (int)arg;
+  
   (void)pmath_atomic_fetch_add(&init_threads_counter, -1);
   
   while(!stop_threadpool) {
@@ -696,6 +698,8 @@ static THREAD_PROC(worker_thread_proc, arg) {
     while(sem_wait(&have_idle_tasks) == -1 && errno == EINTR)
       continue;
   }
+  
+  sem_post(&workers[worker_index].finish_sem);
   
   return 0;
 }
@@ -1057,50 +1061,64 @@ PMATH_PRIVATE pmath_bool_t _pmath_threadpool_init(void) {
     goto WORKERS_ARRAY_FAIL;
     
   for(i = 0; i < worker_count; ++i) {
-#ifdef PMATH_OS_WIN32
-    workers[i].thread = _beginthreadex(
-                          NULL,     // default security
-                          0,        // default stack size
-                          worker_thread_proc,
-                          (void*)i, // argument
-                          0,        // running
-                          NULL);    // do not need thread id
-    if(workers[i].thread == 0) {
+    if(0 != sem_init(&workers[i].finish_sem, 0, 0)) {
       int j;
+      
+      for(j = 0; j < i; ++j)
+        sem_destroy(&workers[i].finish_sem);
+        
+      goto WORKERS_FAIL;
+    }
+  }
+  
+  for(i = 0; i < worker_count; ++i) {
+#ifdef PMATH_OS_WIN32
+    {
+      HANDLE thread = (HANDLE)_beginthreadex(
+        NULL,     // default security
+        0,        // default stack size
+        worker_thread_proc,
+        (void*)i, // argument
+        0,        // running
+        NULL);    // do not need thread id
+        
+      if(thread != 0) {
+        CloseHandle(thread);
+        continue;
+      }
+    }
+#else
+    {
+      pthread_t thread;
+      int err = pthread_create(
+        &thread,
+        NULL,                  // default attributes
+        worker_thread_proc,
+        (void*)(uintptr_t)i);  // argument
+    
+      if(!err) {
+        pthread_detach(thread);
+        continue;
+      }
+    }
+#endif
+    
+    {
+      int j;
+      
+      sem_destroy(&workers[i].finish_sem);
       
       stop_threadpool = TRUE;
       for(j = 0; j < i; ++j)
         sem_post(&have_idle_tasks);
         
       for(j = 0; j < i; ++j) {
-        WaitForSingleObject((HANDLE)workers[j].thread, INFINITE);
-        CloseHandle((HANDLE)workers[j].thread);
+        sem_wait(   &workers[j].finish_sem);
+        sem_destroy(&workers[j].finish_sem);
       }
       
       goto WORKERS_FAIL;
     }
-#else
-    int err = pthread_create(
-                &workers[i].thread,
-                NULL,                  // default attributes
-                worker_thread_proc,
-                (void*)(uintptr_t)i);  // argument
-    
-    if(err) {
-      int j;
-    
-      stop_threadpool = TRUE;
-      for(j = 0; j < i; ++j)
-        sem_post(&have_idle_tasks);
-    
-      for(j = 0; j < i; ++j) {
-        pthread_join(workers[j].thread, 0);
-        pthread_detach(workers[j].thread);
-      }
-    
-      goto WORKERS_FAIL;
-    }
-#endif
   }
   
   while(pmath_atomic_read_aquire(&init_threads_counter) > 0) {
@@ -1131,13 +1149,8 @@ TIMER_FAIL:
     sem_post(&have_idle_tasks);
     
   for(i = 0; i < worker_count; ++i) {
-#ifdef PMATH_OS_WIN32
-    WaitForSingleObject((HANDLE)workers[i].thread, INFINITE);
-    CloseHandle((HANDLE)workers[i].thread);
-#else
-    pthread_join(workers[i].thread, 0);
-    pthread_detach(workers[i].thread);
-#endif
+    sem_wait(   &workers[i].finish_sem);
+    sem_destroy(&workers[i].finish_sem);
   }
   
 WORKERS_FAIL:         pmath_mem_free(workers);
@@ -1158,13 +1171,8 @@ PMATH_PRIVATE void _pmath_threadpool_done(void) {
     sem_post(&have_idle_tasks);
     
   for(i = 0; i < worker_count; ++i) {
-#ifdef PMATH_OS_WIN32
-    WaitForSingleObject((HANDLE)workers[i].thread, INFINITE);
-    CloseHandle((HANDLE)workers[i].thread);
-#else
-    pthread_join(workers[i].thread, 0);
-    pthread_detach(workers[i].thread);
-#endif
+    sem_wait(   &workers[i].finish_sem);
+    sem_destroy(&workers[i].finish_sem);
   }
   
   pmath_mem_free(workers);

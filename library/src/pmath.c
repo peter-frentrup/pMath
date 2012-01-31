@@ -1059,29 +1059,35 @@ PMATH_API void pmath_done(void) {
   }
 }
 
-#ifdef PMATH_DEBUG_LOG
-#if defined(PMATH_OS_WIN32)
+#ifdef PMATH_OS_WIN32
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
+
+  if(fdwReason == DLL_THREAD_DETACH)
+    _pmath_thread_destructed();
+    
+#  ifdef PMATH_DEBUG_LOG
   switch(fdwReason) {
     case DLL_PROCESS_ATTACH:
-      fprintf(stderr, "[+ process]\n");
+      fprintf(stderr, "[+ process threadid=%u]\n", (unsigned)GetCurrentThreadId());
       break;
       
     case DLL_PROCESS_DETACH:
-      fprintf(stderr, "[- process]\n");
+      fprintf(stderr, "[- process threadid=%u]\n", (unsigned)GetCurrentThreadId());
       break;
       
     case DLL_THREAD_ATTACH:
-      fprintf(stderr, "[+ thread]\n");
+      fprintf(stderr, "[+ thread id=%u]\n", (unsigned)GetCurrentThreadId());
       break;
       
     case DLL_THREAD_DETACH:
-      fprintf(stderr, "[- thread]\n");
+      fprintf(stderr, "[- thread id=%u]\n", (unsigned)GetCurrentThreadId());
       break;
   }
+#  endif
+  
   return TRUE; // succesful
 }
-#elif defined(__GNUC__)
+#elif defined(__GNUC__) && defined(PMATH_DEBUG_LOG)
 static
 __attribute__((__constructor__))
 void shared_object_pmath_init(void) {
@@ -1093,5 +1099,4 @@ __attribute__((__destructor__))
 void shared_object_pmath_done(void) {
   fprintf(stderr, "[- process]\n");
 }
-#endif
 #endif

@@ -1,5 +1,5 @@
 #ifndef _WIN32_WINNT
-#define _WIN32_WINNT 0x0501 /* Windows XP for HEAP_INFORMATION_CLASS */
+#  define _WIN32_WINNT 0x0501 /* Windows XP for HEAP_INFORMATION_CLASS */
 // <pmath-util/concurrency/atomic.h> includes <windows.h>
 #endif
 
@@ -24,39 +24,31 @@
 
 
 #ifdef PMATH_USE_DLMALLOC
-
-#include <pmath-util/dlmalloc.h>
-
+#  include <pmath-util/dlmalloc.h>
 #else
-
-#include <malloc.h>
-
+#  include <malloc.h>
 #endif
 
 #if defined(PMATH_DEBUG_MEMORY) && PMATH_USE_PTHREAD
-
-#include <pthread.h>
-
+#  include <pthread.h>
 #endif
 
 #ifdef PMATH_OS_WIN32
-
-#define NOGDI
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-
+#  define NOGDI
+#  define WIN32_LEAN_AND_MEAN
+#  include <windows.h>
 #endif
 
 #define round_up_int(x, r) ((((x) + (r) - 1) / (r)) * (r))
 
 #ifdef PMATH_USE_DLMALLOC
 
-#define memory_allocate(s)      dlmalloc((s))
-#define memory_reallocate(p,s)  dlrealloc((p), (s))
-#define memory_free(p)          dlfree((p))
-#define memory_size(p)          dlmalloc_usable_size((p))
+#  define memory_allocate(s)      dlmalloc((s))
+#  define memory_reallocate(p,s)  dlrealloc((p), (s))
+#  define memory_free(p)          dlfree((p))
+#  define memory_size(p)          dlmalloc_usable_size((p))
 
-#define init_platform_memory_manager(o) ((void)0)
+#  define init_platform_memory_manager(o) ((void)0)
 
 #elif defined(PMATH_OS_WIN32)
 /* Using Low-fragmentation Heap on Windows (XP, Server 2003 or newer).
@@ -64,10 +56,10 @@
  */
 static HANDLE heap;
 
-#define memory_allocate(size)       HeapAlloc(heap, 0, (size))
-#define memory_reallocate(p, size)  HeapReAlloc(heap, 0, (p), (size))
-#define memory_free(p)              HeapFree(heap, 0, (p))
-#define memory_size(p)              HeapSize(heap, 0, (p))
+#  define memory_allocate(size)       HeapAlloc(heap, 0, (size))
+#  define memory_reallocate(p, size)  HeapReAlloc(heap, 0, (p), (size))
+#  define memory_free(p)              HeapFree(heap, 0, (p))
+#  define memory_size(p)              HeapSize(heap, 0, (p))
 
 typedef BOOL (WINAPI *heap_set_information_func_t)(
   HANDLE,
@@ -99,17 +91,17 @@ static void init_platform_memory_manager(void) {
     sizeof(low_fragmentation_heap));
 }
 #else
-#define memory_allocate(s)      malloc((s))
-#define memory_reallocate(p,s)  realloc((p), (s))
-#define memory_free(p)          free((p))
-#define memory_size(p)          malloc_usable_size((p))
+#  define memory_allocate(s)      malloc((s))
+#  define memory_reallocate(p,s)  realloc((p), (s))
+#  define memory_free(p)          free((p))
+#  define memory_size(p)          malloc_usable_size((p))
 
-#define init_platform_memory_manager(o) ((void)0)
+#  define init_platform_memory_manager(o) ((void)0)
 #endif
 
 #ifdef PMATH_DEBUG_MEMORY
 static size_t stat_sizes[] = {4, 8, 12, 16, 20, 24, 28, 32, 48, 56, 64, 72, 80, 96, 128, 192, 256, 512, 1024};
-#define STAT_SIZES (sizeof(stat_sizes)/sizeof(stat_sizes[0]))
+#  define STAT_SIZES (sizeof(stat_sizes)/sizeof(stat_sizes[0]))
 static pmath_atomic_t alloc_stats[  1 + STAT_SIZES];
 static pmath_atomic_t realloc_stats[1 + STAT_SIZES];
 
@@ -122,16 +114,16 @@ typedef struct _memory_header_t {
 
 PMATH_PRIVATE pmath_atomic_t _pmath_debug_global_time = PMATH_ATOMIC_STATIC_INIT;
 
-#define DEBUG_UNDERFLOW       "UNDERFLOW"
-#define DEBUG_UNDERFLOW_FREE  "FREEFREEF"
-#define DEBUG_UNDERFLOW_SIZE  9
-#define DEBUG_OVERFLOW        "OVERFLOW"
-#define DEBUG_OVERFLOW_FREE   "FREEFREE"
-#define DEBUG_OVERFLOW_SIZE   8
-#define DEBUG_HEADER_SIZE  round_up_int(sizeof(memory_header_t) + DEBUG_UNDERFLOW_SIZE, 2*sizeof(/*(void*)*/size_t))
+#  define DEBUG_UNDERFLOW       "UNDERFLOW"
+#  define DEBUG_UNDERFLOW_FREE  "FREEFREEF"
+#  define DEBUG_UNDERFLOW_SIZE  9
+#  define DEBUG_OVERFLOW        "OVERFLOW"
+#  define DEBUG_OVERFLOW_FREE   "FREEFREE"
+#  define DEBUG_OVERFLOW_SIZE   8
+#  define DEBUG_HEADER_SIZE  round_up_int(sizeof(memory_header_t) + DEBUG_UNDERFLOW_SIZE, 2*sizeof(/*(void*)*/size_t))
 
-#define DEBUG_MEM_TO_HEADER(  p)  ((memory_header_t*)(((char*)(p)) - DEBUG_HEADER_SIZE))
-#define DEBUG_MEM_FROM_HEADER(p)  (((char*)(p)) + DEBUG_HEADER_SIZE)
+#  define DEBUG_MEM_TO_HEADER(  p)  ((memory_header_t*)(((char*)(p)) - DEBUG_HEADER_SIZE))
+#  define DEBUG_MEM_FROM_HEADER(p)  (((char*)(p)) + DEBUG_HEADER_SIZE)
 
 #if PMATH_USE_PTHREAD
 static pthread_mutex_t   mem_list_mutex;
@@ -662,6 +654,7 @@ PMATH_PRIVATE void _pmath_memory_manager_done(void) {
 #ifdef PMATH_DEBUG_MEMORY
   size_t total_alloc, total_realloc, i;
   size_t alloc_num, realloc_num;
+  size_t max_alloc, current_alloc;
   
   check_all_freed();
   
@@ -673,16 +666,16 @@ PMATH_PRIVATE void _pmath_memory_manager_done(void) {
   
   total_alloc = 0;
   total_realloc = 0;
-  printf("\n    size allocs resize    sum\n");
+  fprintf(stderr, "\n    size allocs resize    sum\n");
   for(i = 0; i < STAT_SIZES; i++) {
     alloc_num   = pmath_atomic_read_aquire(&alloc_stats[  i]);
     realloc_num = pmath_atomic_read_aquire(&realloc_stats[i]);
     
-    printf("<=%6"PRIuPTR" %6"PRIdPTR" %6"PRIdPTR" %6"PRIdPTR"\n",
-           stat_sizes[i],
-           alloc_num,
-           realloc_num,
-           alloc_num + realloc_num);
+    fprintf(stderr, "<=%6"PRIuPTR" %6"PRIdPTR" %6"PRIdPTR" %6"PRIdPTR"\n",
+            stat_sizes[i],
+            alloc_num,
+            realloc_num,
+            alloc_num + realloc_num);
     total_alloc +=   alloc_num;
     total_realloc += realloc_num;
   }
@@ -690,17 +683,20 @@ PMATH_PRIVATE void _pmath_memory_manager_done(void) {
   alloc_num   = pmath_atomic_read_aquire(&alloc_stats[  STAT_SIZES]);
   realloc_num = pmath_atomic_read_aquire(&realloc_stats[STAT_SIZES]);
   
-  printf("> %6"PRIuPTR" %6"PRIdPTR" %6"PRIdPTR" %6"PRIdPTR"\n\n",
-         stat_sizes[STAT_SIZES-1],
-         alloc_num,
-         realloc_num,
-         alloc_num + realloc_num);
-         
+  fprintf(stderr, "> %6"PRIuPTR" %6"PRIdPTR" %6"PRIdPTR" %6"PRIdPTR"\n\n",
+          stat_sizes[STAT_SIZES-1],
+          alloc_num,
+          realloc_num,
+          alloc_num + realloc_num);
+          
   total_alloc +=   alloc_num;
   total_realloc += realloc_num;
-  printf("total:   %6"PRIdPTR" %6"PRIdPTR" %6"PRIdPTR"\n\n",
-         total_alloc,
-         total_realloc,
-         total_alloc + total_realloc);
+  fprintf(stderr, "total:   %6"PRIdPTR" %6"PRIdPTR" %6"PRIdPTR"\n\n",
+          total_alloc,
+          total_realloc,
+          total_alloc + total_realloc);
+          
+  pmath_mem_usage(&current_alloc, &max_alloc);
+  fprintf(stderr, "[memory %"PRIdPTR" (should be 0), max used = %"PRIdPTR"]\n", current_alloc, max_alloc);
 #endif
 }

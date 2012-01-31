@@ -112,6 +112,8 @@ PMATH_PRIVATE pmath_thread_t _pmath_thread_new(pmath_thread_t parent);
 PMATH_PRIVATE void           _pmath_thread_clean(pmath_bool_t final);
 PMATH_PRIVATE void           _pmath_thread_free(pmath_thread_t thread);
 
+PMATH_PRIVATE void _pmath_thread_destructed(void);
+
 PMATH_PRIVATE pmath_bool_t _pmath_threads_init(void);
 PMATH_PRIVATE void         _pmath_threads_done(void);
 

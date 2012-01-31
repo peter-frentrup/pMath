@@ -4,31 +4,32 @@
 
 #include <pmath-util/concurrency/atomic-private.h>
 #include <pmath-util/concurrency/threadmsg-private.h>
-#include <pmath-util/debug.h>
+//#include <pmath-util/debug.h>
 #include <pmath-util/hashtables-private.h>
-#include <pmath-util/memory.h>
-#include <pmath-util/messages.h>
+//#include <pmath-util/memory.h>
+//#include <pmath-util/messages.h>
 
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/control/definitions-private.h>
 
 #include <pmath-private.h>
+#include <pmath.h>
 
 
 #if PMATH_USE_PTHREAD
 
-#include <errno.h>
-#include <pthread.h>
+#  include <errno.h>
+#  include <pthread.h>
 
 #elif PMATH_USE_WINDOWS_THREADS
 
-#define NOGDI
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
+#  define NOGDI
+#  define WIN32_LEAN_AND_MEAN
+#  include <windows.h>
 
 #else
 
-#error Either PThread or Windows Threads must be used
+#  error Either PThread or Windows Threads must be used
 
 #endif
 
@@ -624,7 +625,28 @@ PMATH_PRIVATE void _pmath_thread_free(pmath_thread_t thread) {
   pmath_mem_free(thread);
 }
 
+PMATH_PRIVATE void _pmath_thread_destructed(void){
+  pmath_thread_t self = pmath_thread_get_current();
+  
+  if(self){
+    pmath_debug_print("[automatic pmath_done() at thread exit...]\n");
+    pmath_done();
+  }
+}
+
 /*============================================================================*/
+
+#if PMATH_USE_PTHREAD
+  static void destroy_threadkey_data(void *data){
+    fprintf(stderr, "[destroy_threadkey_data %p]\n", data);
+    
+    pthread_setspecific(threadkey, data);
+    
+    _pmath_thread_destructed();
+    
+    pthread_setspecific(threadkey, NULL);
+  }
+#endif
 
 PMATH_PRIVATE pmath_bool_t _pmath_threads_init(void) {
   {
@@ -636,7 +658,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_threads_init(void) {
       int callcount = 2;
       int err;
       do {
-        err = pthread_key_create(&threadkey, NULL/*(void(*)(void*)) destroy_threadkey_data*/);
+        err = pthread_key_create(&threadkey, destroy_threadkey_data);
       } while(err == EAGAIN && --callcount >= 0);
       if(err)
         goto FAIL_THREAD_KEY;

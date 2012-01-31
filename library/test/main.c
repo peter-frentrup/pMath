@@ -11,17 +11,17 @@
 static void os_init(void);
 
 #ifdef PMATH_OS_WIN32
-#include <io.h>
-#define dup    _dup
-#ifdef fileno
-#undef fileno
-#endif
-#define fileno _fileno
-#define fdopen _fdopen
+#  include <io.h>
+#  define dup    _dup
+#  ifdef fileno
+#    undef fileno
+#  endif
+#  define fileno _fileno
+#  define fdopen _fdopen
 
-#define NOGDI
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
+#  define NOGDI
+#  define WIN32_LEAN_AND_MEAN
+#  include <windows.h>
 
 typedef HANDLE sem_t;
 
@@ -61,8 +61,8 @@ static void os_init(void) {
   }
 }
 #elif defined(PMATH_OS_UNIX)
-#include <unistd.h>
-#include <semaphore.h>
+#  include <unistd.h>
+#  include <semaphore.h>
 
 static void os_init(void) {
 
