@@ -26,6 +26,7 @@ namespace richmath {
       static LineBox *create(Expr expr, int opts);
       virtual ~LineBox();
       
+      virtual void find_extends(GraphicsBounds &bounds);
       virtual void paint(Context *context);
       
       virtual Expr to_pmath(int flags) { return _expr; } // BoxFlagXXX

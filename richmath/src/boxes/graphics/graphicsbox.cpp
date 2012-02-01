@@ -152,10 +152,10 @@ int GraphicsBox::count() {
   return 2;
 }
 
-bool GraphicsBox::expand(const BoxSize &size){
+bool GraphicsBox::expand(const BoxSize &size) {
   MathSequence *seq = dynamic_cast<MathSequence*>(_parent);
-  if(_parent && seq->length() == 1){
-    if(dynamic_cast<FillBox*>(seq->parent())){
+  if(_parent && seq->length() == 1) {
+    if(dynamic_cast<FillBox*>(seq->parent())) {
       calculate_size(&size.width);
       return true;
     }
@@ -195,12 +195,12 @@ void GraphicsBox::calculate_size(const float *optional_expand_width) {
   
   if(ratio <= 0)
     ratio = 0.61803;
-  
+    
   if(w <= 0 && h <= 0) {
-    if(optional_expand_width){
+    if(optional_expand_width) {
       w = *optional_expand_width;
     }
-    else{
+    else {
       enum SyntaxPosition pos = find_syntax_position(parent(), index());
       
       switch(pos) {
@@ -251,31 +251,29 @@ void GraphicsBox::resize_axes(Context *context) {
   ContextState cc(context);
   cc.begin(style);
   {
-    double xmin = -1;
-    double xmax =  1;
-    double ymin = -1;
-    double ymax =  1;
-    
+    GraphicsBounds bounds;
     
     Expr plot_range = get_own_style(PlotRange, Symbol(PMATH_SYMBOL_AUTOMATIC));
-    if( plot_range[0] == PMATH_SYMBOL_LIST &&
-        plot_range.expr_length() == 2)
+    
+    if(plot_range == PMATH_SYMBOL_AUTOMATIC) {
+      elements.find_extends(bounds);
+    }
+    else if(plot_range[0] == PMATH_SYMBOL_LIST &&
+            plot_range.expr_length() == 2)
     {
       Expr xrange = plot_range[1];
       Expr yrange = plot_range[2];
       
+      if(xrange == PMATH_SYMBOL_AUTOMATIC || yrange == PMATH_SYMBOL_AUTOMATIC)
+        elements.find_extends(bounds);
+        
       if( xrange[0] == PMATH_SYMBOL_RANGE &&
           xrange.expr_length() == 2 &&
           xrange[1].is_number() &&
           xrange[2].is_number())
       {
-        xmin = xrange[1].to_double();
-        xmax = xrange[2].to_double();
-        if(!isfinite(xmin) || !isfinite(xmax) || xmin >= xmax)
-        {
-          xmin = -1;
-          xmax = 1;
-        }
+        bounds.xmin = xrange[1].to_double();
+        bounds.xmax = xrange[2].to_double();
       }
       
       if( yrange[0] == PMATH_SYMBOL_RANGE &&
@@ -283,43 +281,61 @@ void GraphicsBox::resize_axes(Context *context) {
           yrange[1].is_number() &&
           yrange[2].is_number())
       {
-        ymin = yrange[1].to_double();
-        ymax = yrange[2].to_double();
-        if(!isfinite(ymin) || !isfinite(ymax) || ymin >= ymax)
-        {
-          ymin = -1;
-          ymin = 1;
-        }
+        bounds.ymin = yrange[1].to_double();
+        bounds.ymax = yrange[2].to_double();
       }
     }
     
+    if( !isfinite(bounds.xmin) ||
+        !isfinite(bounds.xmax) ||
+        bounds.xmin >= bounds.xmax)
+    {
+      bounds.xmin = -1;
+      bounds.xmax = 1;
+    }
+    else if(bounds.xmin == bounds.xmax) {
+      bounds.xmin -= 1;
+      bounds.xmax += 1;
+    }
     
-    if( x_axis_ticks->start_position != xmin ||
-        x_axis_ticks->end_position   != xmax)
+    if( !isfinite(bounds.ymin) ||
+        !isfinite(bounds.ymax) ||
+        bounds.ymin >= bounds.ymax)
+    {
+      bounds.ymin = -1;
+      bounds.ymax = 1;
+    }
+    else if(bounds.ymin == bounds.ymax) {
+      bounds.ymin -= 1;
+      bounds.ymax += 1;
+    }
+    
+    if( x_axis_ticks->start_position != bounds.xmin ||
+        x_axis_ticks->end_position   != bounds.xmax)
     {
       x_axis_ticks->load_from_object(
         Evaluate(Parse(
                    "FE`Graphics`TickPositions(`1`, `2`).Map({#, ToBoxes(#)}&)",
-                   xmin,
-                   xmax)),
+                   bounds.xmin,
+                   bounds.xmax)),
         BoxOptionFormatNumbers);
         
-      x_axis_ticks->start_position = xmin;
-      x_axis_ticks->end_position   = xmax;
+      x_axis_ticks->start_position = bounds.xmin;
+      x_axis_ticks->end_position   = bounds.xmax;
     }
     
-    if( y_axis_ticks->start_position != ymin ||
-        y_axis_ticks->end_position   != ymax)
+    if( y_axis_ticks->start_position != bounds.ymin ||
+        y_axis_ticks->end_position   != bounds.ymax)
     {
       y_axis_ticks->load_from_object(
         Evaluate(Parse(
                    "FE`Graphics`TickPositions(`1`, `2`).Map({#, ToBoxes(#)}&)",
-                   ymin,
-                   ymax)),
+                   bounds.ymin,
+                   bounds.ymax)),
         BoxOptionFormatNumbers);
         
-      y_axis_ticks->start_position = ymin;
-      y_axis_ticks->end_position   = ymax;
+      y_axis_ticks->start_position = bounds.ymin;
+      y_axis_ticks->end_position   = bounds.ymax;
     }
     
     x_axis_ticks->resize(context);
@@ -348,10 +364,10 @@ void GraphicsBox::paint(Context *context) {
     context->canvas->save();
     {
       context->canvas->pixrect(
-        x + margin_left,
-        y + margin_top,
-        x + w - margin_right,
-        y + h - margin_bottom,
+        x +     margin_left   - 0.75f,
+        y +     margin_top    - 0.75f,
+        x + w - margin_right  + 0.75f,
+        y + h - margin_bottom + 0.75f,
         false);
       context->canvas->clip();
       
@@ -379,7 +395,12 @@ void GraphicsBox::paint(Context *context) {
     
     context->canvas->save();
     {
-      context->canvas->pixrect(x, y, x + w, y + h, false);
+      context->canvas->pixrect(
+        x     - 0.75f,
+        y     - 0.75f,
+        x + w + 0.75f,
+        y + h + 0.75f,
+        false);
       context->canvas->clip();
       
       if(x_axis_ticks->is_visible(0.0)) {
@@ -415,8 +436,8 @@ void GraphicsBox::paint(Context *context) {
       }
       
       context->canvas->pixrect(
-        x + margin_left,
-        y + margin_top,
+        x +     margin_left,
+        y +     margin_top,
         x + w - margin_right,
         y + h - margin_bottom,
         true);

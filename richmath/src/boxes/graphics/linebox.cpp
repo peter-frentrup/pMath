@@ -36,7 +36,7 @@ static bool load_point(LineBox::Point &point, Expr coords) {
     
   if(coords.expr_length() != 2)
     return false;
-  
+    
   point.x = coords[1].to_double(NAN);
   point.y = coords[2].to_double(NAN);
   
@@ -49,7 +49,7 @@ static bool load_line(Array<LineBox::Point> &line, Expr coords) {
     
   line.length((int)coords.expr_length());
   for(int i = 0; i < line.length(); ++i) {
-    if(!load_point(line[i], coords[i + 1])){
+    if(!load_point(line[i], coords[i + 1])) {
       line.length(0);
       return false;
     }
@@ -61,14 +61,14 @@ static bool load_line(Array<LineBox::Point> &line, Expr coords) {
 static bool load_lines(Array< Array<LineBox::Point> > &lines, Expr coords) {
   if(coords[0] != PMATH_SYMBOL_LIST)
     return false;
-  
+    
   lines.length(1);
   if(load_line(lines[0], coords))
     return true;
-  
+    
   lines.length((int)coords.expr_length());
   for(int i = 0; i < lines.length(); ++i) {
-    if(!load_line(lines[i], coords[i + 1])){
+    if(!load_line(lines[i], coords[i + 1])) {
       lines.length(0);
       return false;
     }
@@ -84,6 +84,17 @@ LineBox *LineBox::create(Expr expr, int opts) {
   load_lines(box->_lines, expr[1]);
   
   return box;
+}
+
+void LineBox::find_extends(GraphicsBounds &bounds) {
+  for(int i = 0; i < _lines.length(); ++i) {
+    Array<Point> &line = _lines[i];
+    
+    for(int j = 0; j < line.length(); ++j) {
+      Point &pt = line[j];
+      bounds.add_point(pt.x, pt.y);
+    }
+  }
 }
 
 void LineBox::paint(Context *context) {

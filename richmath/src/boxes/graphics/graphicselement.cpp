@@ -5,6 +5,8 @@
 
 #include <graphics/context.h>
 
+#include <cmath>
+
 
 using namespace richmath;
 
@@ -15,6 +17,9 @@ namespace {
         : GraphicsElement(),
         _expr(expr)
       {
+      }
+      
+      virtual void find_extends(GraphicsBounds &bounds) {
       }
       
       virtual void paint(Context *context) {
@@ -28,6 +33,27 @@ namespace {
       Expr _expr;
   };
 }
+
+//{ class GraphicsBounds ...
+
+GraphicsBounds::GraphicsBounds() {
+  cairo_matrix_init_identity(&elem_to_container);
+  
+  xmin = ymin =  HUGE_VAL;
+  xmax = ymax = -HUGE_VAL;
+}
+
+void GraphicsBounds::add_point(double elem_x, double elem_y) {
+  cairo_matrix_transform_point(&elem_to_container, &elem_x, &elem_y);
+  
+  if(elem_x < xmin) xmin = elem_x;
+  if(elem_x > xmax) xmax = elem_x;
+  
+  if(elem_y < ymin) ymin = elem_y;
+  if(elem_y > ymax) ymax = elem_y;
+}
+
+//} ... class GraphicsBounds
 
 //{ class GraphicsElement ...
 
@@ -117,6 +143,11 @@ void GraphicsElementCollection::remove(int i) {
   
   delete _items[i];
   _items.remove(i, 1);
+}
+
+void GraphicsElementCollection::find_extends(GraphicsBounds &bounds) {
+  for(int i = 0; i < count(); ++i)
+    item(i)->find_extends(bounds);
 }
 
 void GraphicsElementCollection::paint(Context *context) {

@@ -11,6 +11,7 @@ namespace richmath {
       static ColorBox *create(Expr expr, int opts);
       virtual ~ColorBox();
       
+      virtual void find_extends(GraphicsBounds &bounds){}
       virtual void paint(Context *context);
       
       virtual Expr to_pmath(int flags);

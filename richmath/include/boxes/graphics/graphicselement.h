@@ -5,9 +5,26 @@
 #include <util/array.h>
 #include <util/pmath-extra.h>
 
+#include <cairo.h>
+
 
 namespace richmath {
   class Context;
+  
+  class GraphicsBounds {
+    public:
+      GraphicsBounds();
+      
+      void add_point(double elem_x, double elem_y);
+      
+    public:
+      cairo_matrix_t elem_to_container;
+      
+      double xmin;
+      double xmax;
+      double ymin;
+      double ymax;
+  };
   
   class GraphicsElement: public Base {
     public:
@@ -15,9 +32,10 @@ namespace richmath {
       
       virtual ~GraphicsElement();
       
+      virtual void find_extends(GraphicsBounds &bounds) = 0;
       virtual void paint(Context *context) = 0;
       virtual Expr to_pmath(int flags) = 0; // BoxFlagXXX
-    
+      
     protected:
       GraphicsElement();
   };
@@ -29,13 +47,14 @@ namespace richmath {
       
       virtual ~GraphicsElementCollection();
       
-      int              count(){     return _items.length(); }
-      GraphicsElement *item(int i){ return _items[i]; }
+      int              count() {     return _items.length(); }
+      GraphicsElement *item(int i) { return _items[i]; }
       
       void add(GraphicsElement *g);
       void insert(int i, GraphicsElement *g);
       void remove(int i);
       
+      virtual void find_extends(GraphicsBounds &bounds);
       virtual void paint(Context *context);
       virtual Expr to_pmath(int flags); // BoxFlagXXX
       
