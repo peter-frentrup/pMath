@@ -811,7 +811,7 @@ int main(int argc, char **argv) {
     MathGtkDocumentWindow *wndPalette = new MathGtkDocumentWindow();
     wndPalette->init();
     
-    wndPalette->set_initial_rect(704, 50, 100, 100);
+    wndPalette->set_initial_rect(784, 50, 100, 100);
     wndPalette->is_palette(true);
     
     palette_doc = wndPalette->document();

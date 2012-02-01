@@ -20,6 +20,7 @@
 
 #  include <errno.h>
 #  include <pthread.h>
+#  include <stdio.h>
 
 #elif PMATH_USE_WINDOWS_THREADS
 
@@ -132,7 +133,7 @@ pmath_t _pmath_thread_local_save_with(
   
   return PMATH_UNDEFINED;
 }
-
+ 
 PMATH_PRIVATE
 pmath_t _pmath_thread_local_load_with(
   pmath_t        key,
@@ -153,22 +154,22 @@ pmath_t _pmath_thread_local_load_with(
     
   return PMATH_UNDEFINED;
 }
-
+ 
 PMATH_API pmath_t pmath_thread_local_save(
   pmath_t key,
   pmath_t value
 ) {
   return _pmath_thread_local_save_with(key, value, pmath_thread_get_current());
 }
-
+ 
 PMATH_API pmath_t pmath_thread_local_load(
   pmath_t key
 ) {
   return _pmath_thread_local_load_with(key, pmath_thread_get_current());
 }
-
+ 
 /*----------------------------------------------------------------------------*/
-
+ 
 PMATH_PRIVATE void _pmath_destroy_abortable_message(void *p) {
   struct _pmath_abortable_message_t *data = (struct _pmath_abortable_message_t*)p;
   
@@ -179,7 +180,7 @@ PMATH_PRIVATE void _pmath_destroy_abortable_message(void *p) {
     pmath_mem_free(data);
   }
 }
-
+ 
 PMATH_PRIVATE void _pmath_abort_message(pmath_t abortable) {
   pmath_thread_t thread = pmath_thread_get_current();
   pmath_t current, pending;
@@ -259,19 +260,19 @@ PMATH_PRIVATE void _pmath_abort_message(pmath_t abortable) {
 //  pmath_debug_print("[abortable not found %p]\n", PMATH_AS_PTR(abortable));
   pmath_unref(abortable);
 }
-
+ 
 /*----------------------------------------------------------------------------*/
-
+ 
 //{ exception handling ...
-
+ 
 static pmath_threadlock_t exception_handler_lock = NULL;
-
+ 
 struct _change_exception_data_t {
   pmath_thread_t thread;
   pmath_t        exception;
   unsigned       prefer_new: 1;
 };
-
+ 
 static void change_exception(struct _change_exception_data_t *data) {
   pmath_t old = data->thread->exception;
   
@@ -298,7 +299,7 @@ static void change_exception(struct _change_exception_data_t *data) {
     data->exception = old;
   }
 }
-
+ 
 PMATH_PRIVATE void _pmath_thread_throw(
   pmath_thread_t   thread,
   pmath_t          exception
@@ -321,7 +322,7 @@ PMATH_PRIVATE void _pmath_thread_throw(
     
   pmath_unref(data.exception);
 }
-
+ 
 PMATH_PRIVATE
 pmath_t _pmath_thread_catch(
   pmath_thread_t thread
@@ -341,21 +342,21 @@ pmath_t _pmath_thread_catch(
     
   return data.exception;
 }
-
+ 
 PMATH_API void pmath_throw(pmath_t exception) {
   _pmath_thread_throw(pmath_thread_get_current(), exception);
 }
-
+ 
 PMATH_API pmath_t pmath_catch(void) {
   return _pmath_thread_catch(pmath_thread_get_current());
 }
-
+ 
 //} ... exception handling
-
+ 
 /*----------------------------------------------------------------------------*/
-
+ 
 PMATH_PRIVATE pmath_atomic_t _pmath_abort_timer = PMATH_ATOMIC_STATIC_INIT;
-
+ 
 static pmath_atomic_t suspending_spin = PMATH_ATOMIC_STATIC_INIT;
 static pmath_atomic_t suspending      = PMATH_ATOMIC_STATIC_INIT;
 #if PMATH_USE_PTHREAD
@@ -363,7 +364,7 @@ static pthread_t  suspender;
 #elif PMATH_USE_WINDOWS_THREADS
 static DWORD      suspender;
 #endif
-
+ 
 static void do_suspend(void) {
   pmath_atomic_lock(&suspending_spin);
   
@@ -392,14 +393,14 @@ static void do_suspend(void) {
   
   pmath_atomic_unlock(&suspending_spin);
 }
-
+ 
 PMATH_API pmath_bool_t pmath_aborting(void) {
   if(pmath_atomic_read_aquire(&_pmath_abort_reasons) == 0)
     return FALSE;
     
   return pmath_thread_aborting(pmath_thread_get_current());
 }
-
+ 
 PMATH_API pmath_bool_t pmath_thread_aborting(pmath_thread_t thread) {
   _pmath_msq_queue_handle_next(thread);
   
@@ -428,14 +429,14 @@ PMATH_API pmath_bool_t pmath_thread_aborting(pmath_thread_t thread) {
   
   return FALSE;
 }
-
+ 
 PMATH_API void pmath_abort_please(void) {
   if(!pmath_atomic_fetch_set(&aborting, 1)) {
     (void)pmath_atomic_fetch_add(&_pmath_abort_reasons, 1);
   }
   _pmath_msq_queue_awake_all();
 }
-
+ 
 PMATH_API pmath_bool_t pmath_continue_after_abort(void) {
   pmath_bool_t was_set = pmath_atomic_fetch_set(&aborting, 0) != 0;
   
@@ -448,9 +449,9 @@ PMATH_API pmath_bool_t pmath_continue_after_abort(void) {
   _pmath_clear(PMATH_SYMBOL_MESSAGECOUNT, FALSE);
   return was_set;
 }
-
+ 
 /*----------------------------------------------------------------------------*/
-
+ 
 PMATH_PRIVATE void _pmath_thread_set_current(pmath_thread_t thread) {
 #if PMATH_USE_PTHREAD
   pthread_setspecific(threadkey, thread);
@@ -458,7 +459,7 @@ PMATH_PRIVATE void _pmath_thread_set_current(pmath_thread_t thread) {
   TlsSetValue(threadkey, thread);
 #endif
 }
-
+ 
 PMATH_API void pmath_suspend_all_please(void) {
   pmath_atomic_lock(&suspending_spin);
   
@@ -481,7 +482,7 @@ PMATH_API void pmath_suspend_all_please(void) {
   
   pmath_atomic_unlock(&suspending_spin);
 }
-
+ 
 PMATH_API void pmath_resume_all(void) {
   pmath_atomic_lock(&suspending_spin);
   
@@ -492,9 +493,9 @@ PMATH_API void pmath_resume_all(void) {
   
   pmath_atomic_unlock(&suspending_spin);
 }
-
+ 
 /*============================================================================*/
-
+ 
 PMATH_PRIVATE pmath_thread_t _pmath_thread_new(pmath_thread_t parent) {
   pmath_thread_t thread = pmath_mem_alloc(sizeof(struct _pmath_thread_t));
   
@@ -527,7 +528,7 @@ PMATH_PRIVATE pmath_thread_t _pmath_thread_new(pmath_thread_t parent) {
   
   return thread;
 }
-
+ 
 static void free_stack(struct _pmath_stack_info_t *s) {
   while(s) {
     struct _pmath_stack_info_t *n = s->next;
@@ -538,7 +539,7 @@ static void free_stack(struct _pmath_stack_info_t *s) {
     s = n;
   }
 }
-
+ 
 PMATH_PRIVATE void _pmath_thread_clean(pmath_bool_t final) {
   pmath_thread_t thread = pmath_thread_get_current();
   
@@ -588,7 +589,7 @@ PMATH_PRIVATE void _pmath_thread_clean(pmath_bool_t final) {
     }
   }
 }
-
+ 
 PMATH_PRIVATE void _pmath_thread_free(pmath_thread_t thread) {
   if(!thread)
     return;
@@ -624,30 +625,32 @@ PMATH_PRIVATE void _pmath_thread_free(pmath_thread_t thread) {
 //  pmath_unref(thread->messenger);
   pmath_mem_free(thread);
 }
-
-PMATH_PRIVATE void _pmath_thread_destructed(void){
+ 
+PMATH_PRIVATE void _pmath_thread_destructed(void) {
   pmath_thread_t self = pmath_thread_get_current();
   
-  if(self){
+  if(self) {
     pmath_debug_print("[automatic pmath_done() at thread exit...]\n");
     pmath_done();
   }
 }
-
+ 
 /*============================================================================*/
-
+ 
 #if PMATH_USE_PTHREAD
-  static void destroy_threadkey_data(void *data){
-    fprintf(stderr, "[destroy_threadkey_data %p]\n", data);
-    
-    pthread_setspecific(threadkey, data);
-    
-    _pmath_thread_destructed();
-    
-    pthread_setspecific(threadkey, NULL);
-  }
+static void destroy_threadkey_data(void *data) {
+#  ifdef PMATH_DEBUG_LOG
+  fprintf(stderr, "[destroy_threadkey_data %p]\n", data);
+#  endif
+  
+  pthread_setspecific(threadkey, data);
+  
+  _pmath_thread_destructed();
+  
+  pthread_setspecific(threadkey, NULL);
+}
 #endif
-
+ 
 PMATH_PRIVATE pmath_bool_t _pmath_threads_init(void) {
   {
     pmath_atomic_write_release(&aborting,             FALSE);
@@ -675,11 +678,11 @@ PMATH_PRIVATE pmath_bool_t _pmath_threads_init(void) {
 FAIL_THREAD_KEY:
   return FALSE;
 }
-
+ 
 PMATH_PRIVATE void _pmath_threads_done(void) {
   /* destroy the main (=current) thread's thread data ... */
 //  pmath_continue_after_abort();
-
+ 
 #if PMATH_USE_PTHREAD
   {
 #ifdef PMATH_DEBUG_LOG
@@ -709,3 +712,4 @@ PMATH_PRIVATE void _pmath_threads_done(void) {
   }
 #endif
 }
+ 
