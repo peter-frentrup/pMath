@@ -184,6 +184,14 @@ void pmath_file_manipulate(
 PMATH_API
 pmath_bool_t pmath_file_close(pmath_t file);
 
+/**\brief Closes a file if it is not referenced somewhere else.
+   \param file A file object. It will be freed.
+   
+   \see pmath_file_close
+ */
+PMATH_API
+void pmath_file_close_if_unused(pmath_t file);
+
 /**\class pmath_binary_file_api_t
    \brief Access functions for binary files.
 

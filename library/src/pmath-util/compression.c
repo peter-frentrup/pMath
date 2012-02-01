@@ -138,7 +138,7 @@ static void compressor_deflate_destructor(void *extra) {
   compressor_deflate(data, NULL, 0, Z_FINISH);
   pmath_file_write(data->file, data->outbuffer, sizeof(data->outbuffer) - data->info.avail_out);
   deflateEnd(&data->info);
-  pmath_unref(data->file);
+  pmath_file_close_if_unused(data->file);
   pmath_mem_free(data);
 }
 
@@ -147,7 +147,7 @@ static void compressor_inflate_destructor(void *extra) {
   
   //compressor_inflate(data, NULL, 0, Z_FINISH);
   inflateEnd(&data->info);
-  pmath_unref(data->file);
+  pmath_file_close_if_unused(data->file);
   pmath_mem_free(data);
 }
 

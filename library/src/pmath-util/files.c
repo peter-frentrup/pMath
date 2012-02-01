@@ -1,10 +1,12 @@
 #include <pmath-util/files.h>
 
 #include <pmath-core/custom.h>
+#include <pmath-core/symbols-private.h>
 
 #include <pmath-language/scanner.h>
 
 #include <pmath-util/concurrency/threads.h>
+#include <pmath-util/debug.h>
 #include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/line-writer.h>
@@ -627,9 +629,10 @@ pmath_bool_t pmath_file_close(pmath_t file) {
   if(pmath_is_symbol(file)) {
     pmath_custom_t custom = pmath_symbol_get_value(file);
     
-    if(pmath_is_custom(custom)
-        && (pmath_custom_has_destructor(custom, destroy_binary_file)
-            || pmath_custom_has_destructor(custom, destroy_text_file))) {
+    if( pmath_is_custom(custom) &&
+        (pmath_custom_has_destructor(custom, destroy_binary_file) ||
+         pmath_custom_has_destructor(custom, destroy_text_file)))
+    {
       pmath_bool_t result;
       
       pmath_symbol_set_attributes(file, PMATH_SYMBOL_ATTRIBUTE_TEMPORARY);
@@ -659,6 +662,35 @@ pmath_bool_t pmath_file_close(pmath_t file) {
   return FALSE;
 }
 
+PMATH_API
+void pmath_file_close_if_unused(pmath_t file) {
+  if(pmath_is_symbol(file)) {
+    if(pmath_file_test(file, 0)) {
+      intptr_t file_refs = _pmath_symbol_self_refcount(file);
+      
+      if(file_refs + 1 == pmath_refcount(file)) {
+        pmath_file_close(file);
+        return;
+      }
+    }
+  }
+  else if(pmath_is_expr_of(file, PMATH_SYMBOL_LIST)){
+    size_t i;
+    
+    if(pmath_refcount(file) > 1){
+      pmath_unref(file);
+      return;
+    }
+    
+    for(i = pmath_expr_length(file);i > 0;--i){
+      pmath_file_close_if_unused(
+        pmath_expr_extract_item(file, i));
+    }
+  }
+  
+  pmath_unref(file);
+}
+
 //==============================================================================
 
 PMATH_API
@@ -671,11 +703,13 @@ pmath_symbol_t pmath_file_create_binary(
   pmath_custom_t custom;
   pmath_symbol_t file;
   
-  if(api->struct_size < sizeof(size_t) + 3 * sizeof(void*)
-      || !extra_destructor
-      || (!api->status_function && api->read_function))
+  if( api->struct_size < sizeof(size_t) + 3 * sizeof(void*) ||
+      !extra_destructor ||
+      (!api->status_function && api->read_function))
+  {
     return PMATH_NULL;
-    
+  }
+  
   data = (struct _pmath_binary_file_t*)pmath_mem_alloc(sizeof(struct _pmath_binary_file_t));
   if(!data) {
     extra_destructor(extra);
@@ -743,11 +777,12 @@ pmath_symbol_t pmath_file_create_text(
   pmath_custom_t custom;
   pmath_symbol_t file;
   
-  if(api->struct_size < sizeof(size_t) + 3 * sizeof(void*)
-      || !extra_destructor
-      || (!api->status_function && api->readln_function))
+  if( api->struct_size < sizeof(size_t) + 3 * sizeof(void*) ||
+      !extra_destructor || (!api->status_function && api->readln_function))
+  {
     return PMATH_NULL;
-    
+  }
+  
   data = (struct _pmath_text_file_t*)pmath_mem_alloc(sizeof(struct _pmath_text_file_t));
   if(!data) {
     extra_destructor(extra);
@@ -804,8 +839,10 @@ struct _bintext_extra_t {
   iconv_t  out_cd;
 };
 
-static void destroy_bintext_extra(struct _bintext_extra_t *extra) {
-  pmath_unref(extra->binfile);
+static void destroy_bintext_extra(void *data) {
+  struct _bintext_extra_t *extra = data;
+  
+  pmath_file_close_if_unused(extra->binfile);
   pmath_unref(extra->rest);
   
   if(extra->in_cd != (iconv_t) - 1)
@@ -1146,8 +1183,10 @@ pmath_symbol_t pmath_file_create_text_from_binary(
   struct _bintext_extra_t *extra;
   pmath_text_file_api_t api;
   
-  if(!pmath_file_test(binfile, PMATH_FILE_PROP_BINARY))
+  if(!pmath_file_test(binfile, PMATH_FILE_PROP_BINARY)) {
+    pmath_unref(binfile);
     return PMATH_NULL;
+  }
   
   extra = (struct _bintext_extra_t*)pmath_mem_alloc(sizeof(struct _bintext_extra_t));
   
@@ -1210,7 +1249,7 @@ pmath_symbol_t pmath_file_create_text_from_binary(
   
   binfile = pmath_file_create_text(
               extra,
-              (void(*)(void*))destroy_bintext_extra,
+              destroy_bintext_extra,
               &api);
               
   if(!pmath_is_null(binfile)) {

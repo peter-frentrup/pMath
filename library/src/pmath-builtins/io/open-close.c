@@ -16,22 +16,22 @@
 #include <iconv.h>
 
 #ifdef PMATH_OS_WIN32
-  #define NOGDI
-  #define WIN32_LEAN_AND_MEAN
-  #include <fcntl.h>
-  #include <io.h>
-  #include <windows.h>
+#define NOGDI
+#define WIN32_LEAN_AND_MEAN
+#include <fcntl.h>
+#include <io.h>
+#include <windows.h>
 #else
-  #include <langinfo.h>
-  #include <locale.h>
+#include <langinfo.h>
+#include <locale.h>
 #endif
 
 #ifdef _MSC_VER
-  #define snprintf sprintf_s
+#define snprintf sprintf_s
 #endif
 
-static pmath_bool_t eq_caseless(const char *s1, const char *s2){
-  while(*s1 && *s2){
+static pmath_bool_t eq_caseless(const char *s1, const char *s2) {
+  while(*s1 && *s2) {
     if(tolower(*s1++) != tolower(*s2++))
       return FALSE;
   }
@@ -41,90 +41,90 @@ static pmath_bool_t eq_caseless(const char *s1, const char *s2){
 
 PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr);
 
-enum open_kind{
+enum open_kind {
   OPEN_READ,
   OPEN_WRITE,
   OPEN_APPEND
 };
 
-static void bin_file_destroy(void *h){
+static void bin_file_destroy(void *h) {
   FILE *file = h;
   
   fclose(file);
 }
 
-static pmath_files_status_t bin_file_status(void *h){
+static pmath_files_status_t bin_file_status(void *h) {
   FILE *file = h;
   
   if(feof(file))
     return PMATH_FILE_ENDOFFILE;
-  
+    
   if(ferror(file))
     return PMATH_FILE_OTHERERROR;
-  
+    
   return PMATH_FILE_OK;
 }
 
-static size_t bin_file_read(void *h, void *buffer, size_t buffer_size){
+static size_t bin_file_read(void *h, void *buffer, size_t buffer_size) {
   FILE *file = h;
   
-  #ifdef _MSC_VER
-    return _fread_nolock(buffer, 1, buffer_size, file);
-  #elif !defined( PMATH_OS_WIN32 )
-    return fread_unlocked(buffer, 1, buffer_size, file);
-  #else
-    return fread(buffer, 1, buffer_size, file);
-  #endif
+#ifdef _MSC_VER
+  return _fread_nolock(buffer, 1, buffer_size, file);
+#elif !defined( PMATH_OS_WIN32 )
+  return fread_unlocked(buffer, 1, buffer_size, file);
+#else
+  return fread(buffer, 1, buffer_size, file);
+#endif
 }
 
-static size_t bin_file_write(void *h, const void *buffer, size_t buffer_size){
+static size_t bin_file_write(void *h, const void *buffer, size_t buffer_size) {
   FILE *file = h;
   
-  #ifdef _MSC_VER
-    return _fwrite_nolock(buffer, 1, buffer_size, file);
-  #elif !defined( PMATH_OS_WIN32 )
-    return fwrite_unlocked(buffer, 1, buffer_size, file);
-  #else
-    return fwrite(buffer, 1, buffer_size, file);
-  #endif
+#ifdef _MSC_VER
+  return _fwrite_nolock(buffer, 1, buffer_size, file);
+#elif !defined( PMATH_OS_WIN32 )
+  return fwrite_unlocked(buffer, 1, buffer_size, file);
+#else
+  return fwrite(buffer, 1, buffer_size, file);
+#endif
 }
 
-static void bin_file_flush(void *h){
+static void bin_file_flush(void *h) {
   FILE *file = h;
   
-  #ifdef _MSC_VER
-    _fflush_nolock(file);
-  #elif !defined( PMATH_OS_WIN32 )
-    fflush_unlocked(file);
-  #else
-    fflush(file);
-  #endif
+#ifdef _MSC_VER
+  _fflush_nolock(file);
+#elif !defined( PMATH_OS_WIN32 )
+  fflush_unlocked(file);
+#else
+  fflush(file);
+#endif
 }
 
 static pmath_t open_bin_file(
   pmath_string_t name, // will be freed
   enum open_kind kind
-){
+) {
   FILE *f = NULL;
   pmath_binary_file_api_t api;
   
   memset(&api, 0, sizeof(api));
   api.struct_size = sizeof(api);
   
-  switch(kind){
+  switch(kind) {
     case OPEN_READ:
       api.status_function = bin_file_status;
       api.read_function   = bin_file_read;
       break;
       
-    case OPEN_WRITE:  
-    case OPEN_APPEND: 
+    case OPEN_WRITE:
+    case OPEN_APPEND:
       api.write_function = bin_file_write;
       api.flush_function = bin_file_flush;
       break;
   }
   
-  #ifdef PMATH_OS_WIN32
+#ifdef PMATH_OS_WIN32
   {
     static const uint16_t zero = 0;
     const wchar_t *fmode = L"";
@@ -137,16 +137,16 @@ static pmath_t open_bin_file(
     HANDLE h;
     
     name = pmath_string_insert_ucs2(
-      name,
-      pmath_string_length(name),
-      &zero,
-      1);
-    
+             name,
+             pmath_string_length(name),
+             &zero,
+             1);
+             
 //    f = _wfopen((const wchar_t*)pmath_string_buffer(&name), mode);
     // _wfopen cannot open pipes.
     // But CreateFileW, _open_osfhandle, _wfdopen works.
-  
-    switch(kind){
+    
+    switch(kind) {
       case OPEN_READ:
         haccess = GENERIC_READ;
         hshare  = FILE_SHARE_READ;
@@ -176,53 +176,54 @@ static pmath_t open_bin_file(
     }
     
     h = CreateFileW(
-      (const wchar_t*)pmath_string_buffer(&name),
-      haccess, 
-      hshare,
-      NULL,
-      hcredis,
-      hflags,
-      NULL);
+          (const wchar_t*)pmath_string_buffer(&name),
+          haccess,
+          hshare,
+          NULL,
+          hcredis,
+          hflags,
+          NULL);
     fd = _open_osfhandle((intptr_t)h, fdmode);
     if(fd < 0)
       CloseHandle(h);
     else
       f = _wfdopen(fd, fmode);
   }
-  #else
+#else
   {
     char *fn = pmath_string_to_native(name, NULL);
-    
-    if(fn){
+  
+    if(fn) {
       const char *mode = "";
-      switch(kind){
+      switch(kind) {
         case OPEN_READ:       mode = "rb"; break;
         case OPEN_WRITE:      mode = "wb"; break;
         case OPEN_APPEND:     mode = "ab"; break;
       }
-      
+  
       f = fopen(fn, mode);
-      
+  
       pmath_mem_free(fn);
     }
   }
-  #endif
+#endif
   
   pmath_unref(name);
   
   if(!f)
     return PMATH_NULL;
-  
+    
   return pmath_file_create_binary(f, (void(*)(void*))bin_file_destroy, &api);
 }
 
-PMATH_PRIVATE pmath_bool_t _pmath_file_check(pmath_t file, int properties){
-  if(pmath_is_expr_of(file, PMATH_SYMBOL_LIST)
-  && (properties & OPEN_READ) == 0){
+PMATH_PRIVATE pmath_bool_t _pmath_file_check(pmath_t file, int properties) {
+  if(pmath_is_expr_of(file, PMATH_SYMBOL_LIST) &&
+      (properties & OPEN_READ) == 0)
+  {
     pmath_bool_t result = TRUE;
     size_t i;
     
-    for(i = 1;i <= pmath_expr_length(file);++i){
+    for(i = 1; i <= pmath_expr_length(file); ++i) {
       pmath_t item = pmath_expr_get_item(file, i);
       
       result = _pmath_file_check(item, properties) || result;
@@ -233,20 +234,23 @@ PMATH_PRIVATE pmath_bool_t _pmath_file_check(pmath_t file, int properties){
     return result;
   }
   
-  if(!pmath_file_test(file, properties)){
-    if(!pmath_file_test(file, 0)){
+  if(!pmath_file_test(file, properties)) {
+    if(!pmath_file_test(file, 0)) {
       pmath_message(PMATH_NULL, "invio", 1, pmath_ref(file));
     }
-    else if((properties & PMATH_FILE_PROP_READ) != 0
-    && !pmath_file_test(file, PMATH_FILE_PROP_READ)){
+    else if((properties & PMATH_FILE_PROP_READ) != 0 &&
+            !pmath_file_test(file, PMATH_FILE_PROP_READ))
+    {
       pmath_message(PMATH_NULL, "ior", 1, pmath_ref(file));
     }
-    else if((properties & PMATH_FILE_PROP_WRITE) != 0
-    && !pmath_file_test(file, PMATH_FILE_PROP_WRITE)){
+    else if((properties & PMATH_FILE_PROP_WRITE) != 0 &&
+            !pmath_file_test(file, PMATH_FILE_PROP_WRITE))
+    {
       pmath_message(PMATH_NULL, "iow", 1, pmath_ref(file));
     }
-    else if((properties & PMATH_FILE_PROP_BINARY) != 0
-    && !pmath_file_test(file, PMATH_FILE_PROP_BINARY)){
+    else if((properties & PMATH_FILE_PROP_BINARY) != 0 &&
+            !pmath_file_test(file, PMATH_FILE_PROP_BINARY))
+    {
       pmath_message(PMATH_NULL, "iob", 1, pmath_ref(file));
     }
     
@@ -257,15 +261,16 @@ PMATH_PRIVATE pmath_bool_t _pmath_file_check(pmath_t file, int properties){
 }
 
 PMATH_PRIVATE pmath_bool_t _pmath_open_tmp(
-  pmath_t *streams, 
+  pmath_t *streams,
   int      properties
-){
-  if(pmath_is_expr_of(*streams, PMATH_SYMBOL_LIST)
-  && (properties & OPEN_READ) == 0){
+) {
+  if( pmath_is_expr_of(*streams, PMATH_SYMBOL_LIST) &&
+      (properties & OPEN_READ) == 0)
+  {
     pmath_bool_t result = TRUE;
     size_t i;
     
-    for(i = 1;i <= pmath_expr_length(*streams);++i){
+    for(i = 1; i <= pmath_expr_length(*streams); ++i) {
       pmath_t item = pmath_expr_get_item(*streams, i);
       
       result = _pmath_open_tmp(&item, properties) || result;
@@ -276,7 +281,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_open_tmp(
     return result;
   }
   
-  if(pmath_is_string(*streams)){
+  if(pmath_is_string(*streams)) {
     pmath_t head;
     pmath_t expr;
     
@@ -284,37 +289,38 @@ PMATH_PRIVATE pmath_bool_t _pmath_open_tmp(
       head = pmath_ref(PMATH_SYMBOL_OPENREAD);
     else
       head = pmath_ref(PMATH_SYMBOL_OPENWRITE);
-    
+      
     expr = pmath_expr_new_extended(
-      head, 2,
-      *streams,
-      pmath_expr_new_extended(
-        pmath_ref(PMATH_SYMBOL_RULE), 2,
-        pmath_ref(PMATH_SYMBOL_BINARYFORMAT),
-        pmath_ref((properties & PMATH_FILE_PROP_BINARY) ? PMATH_SYMBOL_TRUE : PMATH_SYMBOL_FALSE)));
-    
+             head, 2,
+             *streams,
+             pmath_expr_new_extended(
+               pmath_ref(PMATH_SYMBOL_RULE), 2,
+               pmath_ref(PMATH_SYMBOL_BINARYFORMAT),
+               pmath_ref((properties & PMATH_FILE_PROP_BINARY) ? PMATH_SYMBOL_TRUE : PMATH_SYMBOL_FALSE)));
+               
     *streams = builtin_open(expr);
     
     if(pmath_same(*streams, PMATH_SYMBOL_FAILED))
       return FALSE;
-    
+      
     return TRUE;
   }
   
-  if(!pmath_file_test(*streams, properties)){
-    if(!pmath_file_test(*streams, 0)){
+  if(!pmath_file_test(*streams, properties)) {
+    if(!pmath_file_test(*streams, 0)) {
       pmath_message(PMATH_NULL, "invio", 1, pmath_ref(*streams));
     }
-    else if((properties & PMATH_FILE_PROP_READ) != 0
-    && !pmath_file_test(*streams, PMATH_FILE_PROP_READ)){
+    else if((properties & PMATH_FILE_PROP_READ) != 0 &&
+            !pmath_file_test(*streams, PMATH_FILE_PROP_READ))
+    {
       pmath_message(PMATH_NULL, "ior", 1, pmath_ref(*streams));
     }
-    else if((properties & PMATH_FILE_PROP_WRITE) != 0
-    && !pmath_file_test(*streams, PMATH_FILE_PROP_WRITE)){
+    else if((properties & PMATH_FILE_PROP_WRITE) != 0 && !pmath_file_test(*streams, PMATH_FILE_PROP_WRITE)) {
       pmath_message(PMATH_NULL, "iow", 1, pmath_ref(*streams));
     }
-    else if((properties & PMATH_FILE_PROP_BINARY) != 0
-    && !pmath_file_test(*streams, PMATH_FILE_PROP_BINARY)){
+    else if((properties & PMATH_FILE_PROP_BINARY) != 0 &&
+            !pmath_file_test(*streams, PMATH_FILE_PROP_BINARY))
+    {
       pmath_message(PMATH_NULL, "iob", 1, pmath_ref(*streams));
     }
     
@@ -327,14 +333,14 @@ PMATH_PRIVATE pmath_bool_t _pmath_open_tmp(
 PMATH_PRIVATE const char *_pmath_native_encoding = "ISO-8859-1";
 PMATH_PRIVATE pmath_bool_t _pmath_native_encoding_is_utf8 = FALSE;
 
-PMATH_PRIVATE void _init_pmath_native_encoding(void){
+PMATH_PRIVATE void _init_pmath_native_encoding(void) {
   iconv_t cd;
   
-  #ifdef PMATH_OS_WIN32
+#ifdef PMATH_OS_WIN32
   {
     DWORD codepage = GetACP();
     
-    switch(codepage){
+    switch(codepage) {
       case 1200: _pmath_native_encoding = "UTF-16LE"; break;
       case 1201: _pmath_native_encoding = "UTF-16BE"; break;
       
@@ -356,74 +362,74 @@ PMATH_PRIVATE void _init_pmath_native_encoding(void){
       
       case 65000: _pmath_native_encoding = "UTF-7"; break;
       
-      case 65001: 
-        _pmath_native_encoding = "UTF-8"; 
+      case 65001:
+        _pmath_native_encoding = "UTF-8";
         _pmath_native_encoding_is_utf8 = TRUE;
         break;
-      
+        
       default: {
-        static char encoding[20];
-        
-        snprintf(encoding, sizeof(encoding), "CP%d", (int)codepage);
-        
-        _pmath_native_encoding = encoding;
-      }
+          static char encoding[20];
+          
+          snprintf(encoding, sizeof(encoding), "CP%d", (int)codepage);
+          
+          _pmath_native_encoding = encoding;
+        }
     }
     
     
-    if(!SetConsoleCP(codepage)){
+    if(!SetConsoleCP(codepage)) {
       pmath_debug_print("SetConsoleCP failed.\n");
     }
     
-    if(!SetConsoleOutputCP(codepage)){
+    if(!SetConsoleOutputCP(codepage)) {
       pmath_debug_print("SetConsoleOutputCP failed.\n");
     }
   }
-  #else
+#else
   {
     const char *old_locale = setlocale(LC_CTYPE, "");
     _pmath_native_encoding = nl_langinfo(CODESET);
     setlocale(LC_CTYPE, old_locale);
-    
+  
     _pmath_native_encoding_is_utf8 = strcmp(_pmath_native_encoding, "UTF-8") == 0;
   }
-  #endif
+#endif
   
   // ensure that iconv knows the encoding ...
   cd = iconv_open(
-    _pmath_native_encoding, 
-    PMATH_BYTE_ORDER < 0 ? "UTF-16LE" : "UTF-16BE");
-    
-  if(cd == (iconv_t)(-1)){
+         _pmath_native_encoding,
+         PMATH_BYTE_ORDER < 0 ? "UTF-16LE" : "UTF-16BE");
+         
+  if(cd == (iconv_t)(-1)) {
     pmath_debug_print("unknown encoding %s\n", _pmath_native_encoding);
     _pmath_native_encoding = "ASCII";
   }
-  else{
+  else {
     iconv_close(cd);
     
     cd = iconv_open(
-      PMATH_BYTE_ORDER < 0 ? "UTF-16LE" : "UTF-16BE", 
-      _pmath_native_encoding);
-      
-    if(cd == (iconv_t)(-1)){
+           PMATH_BYTE_ORDER < 0 ? "UTF-16LE" : "UTF-16BE",
+           _pmath_native_encoding);
+           
+    if(cd == (iconv_t)(-1)) {
       pmath_debug_print("unknown encoding %s\n", _pmath_native_encoding);
-     _pmath_native_encoding = "ASCII";
+      _pmath_native_encoding = "ASCII";
     }
-    else{
+    else {
       iconv_close(cd);
     }
   }
 }
 
-PMATH_PRIVATE pmath_t builtin_close(pmath_expr_t expr){
-  if(pmath_expr_length(expr) != 1){
+PMATH_PRIVATE pmath_t builtin_close(pmath_expr_t expr) {
+  if(pmath_expr_length(expr) != 1) {
     pmath_message_argxxx(0, 1, SIZE_MAX);
     return expr;
   }
   
-  if(!pmath_file_close(pmath_expr_get_item(expr, 1))){
+  if(!pmath_file_close(pmath_expr_get_item(expr, 1))) {
     pmath_message(
-      PMATH_NULL, "invio", 1, 
+      PMATH_NULL, "invio", 1,
       pmath_expr_get_item(expr, 1));
     return expr;
   }
@@ -432,14 +438,14 @@ PMATH_PRIVATE pmath_t builtin_close(pmath_expr_t expr){
   return PMATH_NULL;
 }
 
-PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr){
-/* OpenAppend(filename)
-   OpenRead(filename)
-   OpenWrite(filename)
-   
-   OpenRead(binarystream)
-   OpenWrite(binarystream)
- */
+PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr) {
+  /* OpenAppend(filename)
+     OpenRead(filename)
+     OpenWrite(filename)
+  
+     OpenRead(binarystream)
+     OpenWrite(binarystream)
+   */
   pmath_expr_t options;
   pmath_t file;
   
@@ -449,7 +455,7 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr){
   pmath_t page_width = PMATH_NULL;
   enum open_kind kind;
   
-  if(pmath_expr_length(expr) < 1){
+  if(pmath_expr_length(expr) < 1) {
     pmath_message_argxxx(0, 1, SIZE_MAX);
     return expr;
   }
@@ -457,7 +463,7 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr){
   file = pmath_expr_get_item(expr, 1);
   
   options = pmath_options_extract(expr, 1);
-  if(pmath_is_null(options)){
+  if(pmath_is_null(options)) {
     pmath_unref(file);
     return expr;
   }
@@ -465,13 +471,13 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr){
   { // BinaryFormat
     pmath_t value = pmath_option_value(PMATH_NULL, PMATH_SYMBOL_BINARYFORMAT, options);
     
-    if(pmath_same(value, PMATH_SYMBOL_TRUE)){
+    if(pmath_same(value, PMATH_SYMBOL_TRUE)) {
       binary_format = TRUE;
     }
-    else if(pmath_same(value, PMATH_SYMBOL_FALSE)){
+    else if(pmath_same(value, PMATH_SYMBOL_FALSE)) {
       binary_format = FALSE;
     }
-    else{
+    else {
       pmath_unref(file);
       pmath_unref(options);
       pmath_message(
@@ -492,66 +498,67 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr){
       kind = OPEN_APPEND;
     else if(pmath_same(head, PMATH_SYMBOL_OPENWRITE))
       kind = OPEN_WRITE;
-    else 
+    else
       kind = OPEN_READ;
   }
   
-  if(pmath_is_symbol(file)){
-    if(kind == OPEN_APPEND){
+  if(pmath_is_symbol(file)) {
+    if(kind == OPEN_APPEND) {
       pmath_message(PMATH_NULL, "fstr", 1, file);
       return expr;
     }
     
-    if(kind == OPEN_WRITE){
-      if(!pmath_file_test(file, PMATH_FILE_PROP_WRITE)){
+    if(kind == OPEN_WRITE) {
+      if(!pmath_file_test(file, PMATH_FILE_PROP_WRITE)) {
         pmath_message(PMATH_NULL, "iow", 1, file);
         pmath_unref(expr);
         return pmath_ref(PMATH_SYMBOL_FAILED);
       }
       
-      if(!pmath_file_test(file, PMATH_FILE_PROP_WRITE | PMATH_FILE_PROP_BINARY)){
+      if(!pmath_file_test(file, PMATH_FILE_PROP_WRITE | PMATH_FILE_PROP_BINARY)) {
         pmath_message(PMATH_NULL, "iob", 1, file);
         pmath_unref(expr);
         return pmath_ref(PMATH_SYMBOL_FAILED);
       }
       
-      if(binary_format){
+      if(binary_format) {
         pmath_message(PMATH_NULL, "text", 1, file);
         pmath_unref(expr);
         return pmath_ref(PMATH_SYMBOL_FAILED);
       }
     }
-    else if(kind == OPEN_READ){
-      if(!pmath_file_test(file, PMATH_FILE_PROP_READ)){
+    else if(kind == OPEN_READ) {
+      if(!pmath_file_test(file, PMATH_FILE_PROP_READ)) {
         pmath_message(PMATH_NULL, "ior", 1, file);
         pmath_unref(expr);
         return pmath_ref(PMATH_SYMBOL_FAILED);
       }
       
-      if(!pmath_file_test(file, PMATH_FILE_PROP_READ | PMATH_FILE_PROP_BINARY)){
+      if(!pmath_file_test(file, PMATH_FILE_PROP_READ | PMATH_FILE_PROP_BINARY)) {
         pmath_message(PMATH_NULL, "iob", 1, file);
         pmath_unref(expr);
         return pmath_ref(PMATH_SYMBOL_FAILED);
       }
       
-      if(binary_format){
+      if(binary_format) {
         pmath_message(PMATH_NULL, "text", 1, file);
         pmath_unref(expr);
         return pmath_ref(PMATH_SYMBOL_FAILED);
       }
     }
   }
-  else if(!pmath_is_string(file) || pmath_string_length(file) < 1){
+  else if(!pmath_is_string(file) || pmath_string_length(file) < 1) {
     pmath_message(PMATH_NULL, "fstr", 1, file);
     return expr;
   }
   
   { // CharacterEncoding
     encoding = pmath_evaluate(
-      pmath_option_value(PMATH_NULL, PMATH_SYMBOL_CHARACTERENCODING, options));
-    
-    if(!pmath_same(encoding, PMATH_SYMBOL_AUTOMATIC)
-    && !pmath_is_string(encoding)){
+                 pmath_option_value(PMATH_NULL, PMATH_SYMBOL_CHARACTERENCODING, options));
+                 
+    if( !pmath_same(encoding, PMATH_SYMBOL_AUTOMATIC) &&
+        !pmath_is_string(encoding))
+    {
       pmath_message(PMATH_NULL, "charcode", 1, encoding);
       pmath_unref(file);
       pmath_unref(options);
@@ -559,67 +566,72 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr){
     }
   }
   
-  if(kind != OPEN_READ){ // PageWidth
+  if(kind != OPEN_READ) { // PageWidth
     page_width = pmath_evaluate(
-      pmath_option_value(PMATH_NULL, PMATH_SYMBOL_PAGEWIDTH, options));
+                   pmath_option_value(PMATH_NULL, PMATH_SYMBOL_PAGEWIDTH, options));
   }
   
-  if(kind == OPEN_READ && pmath_is_string(file)){
+  if(kind == OPEN_READ && pmath_is_string(file)) {
     pmath_t type = pmath_evaluate(
-      pmath_expr_new_extended(
-        pmath_ref(PMATH_SYMBOL_FILETYPE), 1,
-        pmath_ref(file)));
-    
+                     pmath_expr_new_extended(
+                       pmath_ref(PMATH_SYMBOL_FILETYPE), 1,
+                       pmath_ref(file)));
+                       
     pmath_unref(type);
     if(!pmath_same(type, PMATH_SYMBOL_FILE))
       unbuffered = TRUE;
   }
   
-  if(!binary_format 
-  && !unbuffered
-  && kind != OPEN_WRITE
-  && pmath_same(encoding, PMATH_SYMBOL_AUTOMATIC)){ // check for byte order mark
+  if( !binary_format     &&
+      !unbuffered        &&
+      kind != OPEN_WRITE &&
+      pmath_same(encoding, PMATH_SYMBOL_AUTOMATIC))
+  { // check for byte order mark
     size_t count;
     uint8_t buf[4];
-  
+    
     memset(buf, 0, sizeof(buf));
     
-    if(pmath_is_string(file)){
+    if(pmath_is_string(file)) {
       pmath_t tmpfile;
       
       tmpfile = open_bin_file(pmath_ref(file), OPEN_READ);
       count = pmath_file_read(tmpfile, buf, sizeof(buf), FALSE);
       pmath_file_close(tmpfile);
     }
-    else{
+    else {
       count = pmath_file_read(file, buf, sizeof(buf), TRUE); /* preserve internal buffer */
     }
     
     pmath_unref(encoding);
     encoding = PMATH_NULL;
-    if(buf[0] == 0xEF && buf[1] == 0xBB && buf[2] == 0xBF){
+    if(buf[0] == 0xEF && buf[1] == 0xBB && buf[2] == 0xBF) {
       encoding = PMATH_C_STRING("UTF-8");
     }
-    else if(buf[0] == 0xFE && buf[1] == 0xFF){
+    else if(buf[0] == 0xFE && buf[1] == 0xFF) {
       encoding = PMATH_C_STRING("UTF-16BE");
     }
-    else if(buf[0] == 0xFF && buf[1] == 0xFE){
+    else if(buf[0] == 0xFF && buf[1] == 0xFE) {
       if(count == 4 && buf[2] == 0 && buf[3] == 0)
         encoding = PMATH_C_STRING("UTF-32LE");
       else
         encoding = PMATH_C_STRING("UTF-16LE");
     }
-    else if(count == 4 
-    && buf[0] == 0 && buf[1] == 0 && buf[2] == 0xFE && buf[3] == 0xFF){
+    else if(count == 4     &&
+            buf[0] == 0    &&
+            buf[1] == 0    &&
+            buf[2] == 0xFE &&
+            buf[3] == 0xFF)
+    {
       encoding = PMATH_C_STRING("UTF-32BE");
     }
   }
   
-  if(!pmath_is_string(encoding)){
+  if(!pmath_is_string(encoding)) {
     pmath_unref(encoding);
     encoding = pmath_evaluate(pmath_ref(PMATH_SYMBOL_CHARACTERENCODINGDEFAULT));
     
-    if(!pmath_is_string(encoding)){
+    if(!pmath_is_string(encoding)) {
       pmath_unref(encoding);
       encoding = PMATH_C_STRING("ASCII");
     }
@@ -627,15 +639,15 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr){
   
   if(pmath_is_string(file))
     file = open_bin_file(file, kind);
-  
+    
   pmath_unref(options);
   pmath_unref(expr);
   
-  if(pmath_is_null(file)){
+  if(pmath_is_null(file)) {
     pmath_message(
       PMATH_NULL, "noopen", 1,
       pmath_expr_get_item(expr, 1));
-    
+      
     pmath_unref(encoding);
     
     return pmath_ref(PMATH_SYMBOL_FAILED);
@@ -643,8 +655,8 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr){
   
   if(unbuffered)
     pmath_file_set_binbuffer(file, 0);
-  
-  if(!binary_format){
+    
+  if(!binary_format) {
     const uint16_t *buf;
     char *str;
     int i, len;
@@ -653,8 +665,8 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr){
     len = pmath_string_length(encoding);
     
     str = (char*)pmath_mem_alloc(len + 1);
-    if(str){
-      for(i = 0;i < len;++i){
+    if(str) {
+      for(i = 0; i < len; ++i) {
         str[i] = (char)(unsigned char)buf[i];
       }
       
@@ -662,50 +674,51 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr){
       
       file = pmath_file_create_text_from_binary(file, str);
       
-      if(kind == OPEN_WRITE){
-        if(eq_caseless(str, "utf-8") // TODO: add Option to control UTF-8 BOM usage
-        || eq_caseless(str, "utf-16") 
-        || eq_caseless(str, "utf-32")){
+      if(kind == OPEN_WRITE) {
+        if( eq_caseless(str, "utf-8")  || // TODO: add Option to control UTF-8 BOM usage
+            eq_caseless(str, "utf-16") ||
+            eq_caseless(str, "utf-32"))
+        {
           static const uint16_t byte_order_mark = 0xFEFF;
-    
+          
           pmath_file_writetext(file, &byte_order_mark, 1);
         }
       }
       
       pmath_mem_free(str);
     }
-    else{
+    else {
       pmath_unref(file);
       pmath_unref(encoding);
       return PMATH_NULL;
     }
-      
-    if(pmath_is_null(file)){
+    
+    if(pmath_is_null(file)) {
       pmath_message(
         PMATH_NULL, "noopen", 1,
         pmath_expr_get_item(expr, 1));
-    
-      pmath_unref(encoding);
         
+      pmath_unref(encoding);
+      
       return pmath_ref(PMATH_SYMBOL_FAILED);
     }
-  
+    
     PMATH_RUN_ARGS(
-        "Unprotect(`1`);"
-        "Options(`1`):= Union(Options(`1`), {CharacterEncoding->`2`});"
-        "Protect(`1`)", 
-      "(oo)", 
-      pmath_ref(file), 
+      "Unprotect(`1`);"
+      "Options(`1`):= Union(Options(`1`), {CharacterEncoding->`2`});"
+      "Protect(`1`)",
+      "(oo)",
+      pmath_ref(file),
       pmath_ref(encoding));
   }
   
-  if(kind != OPEN_READ){
+  if(kind != OPEN_READ) {
     PMATH_RUN_ARGS(
-        "Unprotect(`1`);"
-        "Options(`1`):= Union(Options(`1`), {PageWidth->`2`});"
-        "Protect(`1`)", 
-      "(oo)", 
-      pmath_ref(file), 
+      "Unprotect(`1`);"
+      "Options(`1`):= Union(Options(`1`), {PageWidth->`2`});"
+      "Protect(`1`)",
+      "(oo)",
+      pmath_ref(file),
       pmath_ref(page_width));
   }
   

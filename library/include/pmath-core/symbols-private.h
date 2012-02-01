@@ -39,6 +39,11 @@ void _pmath_symbol_track_dynamic(
   pmath_symbol_t symbol, // wont be freed
   intptr_t       id);
 
+
+// Gives the number of references to the symbol held by itself.
+PMATH_PRIVATE
+intptr_t _pmath_symbol_self_refcount(pmath_symbol_t symbol);
+
 PMATH_PRIVATE void         _pmath_symbols_memory_panic(void);
 PMATH_PRIVATE pmath_bool_t _pmath_symbols_init(void);
 PMATH_PRIVATE void         _pmath_symbols_almost_done(void);

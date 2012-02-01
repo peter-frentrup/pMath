@@ -269,6 +269,7 @@ PMATH_API
 void pmath_symbol_update(pmath_symbol_t symbol);
 
 /**\brief Remove a symbol completely from the system.
+   \memberof pmath_symbol_t
    \param symbol a pMath symbol. It will be freed.
 
    Symbols with attribute protected wont be removed.
@@ -289,6 +290,7 @@ PMATH_API
 void pmath_symbol_remove(pmath_symbol_t symbol);
 
 /**\brief Iterate through the global symbol table.
+   \memberof pmath_symbol_t
    \param old The previous symbol. It will be freed.
    \return The next symbol.
 

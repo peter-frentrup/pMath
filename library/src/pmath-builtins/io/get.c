@@ -183,7 +183,7 @@ static pmath_t get_file(
 }
 
 PMATH_PRIVATE pmath_t builtin_get(pmath_expr_t expr) {
-  pmath_t options, path, name, file;
+  pmath_t options, path, name, file, file_type;
   
   if(pmath_expr_length(expr) < 1) {
     pmath_message_argxxx(pmath_expr_length(expr), 1, 1);
@@ -345,12 +345,12 @@ PMATH_PRIVATE pmath_t builtin_get(pmath_expr_t expr) {
   
   pmath_unref(path);
   
-  file = pmath_evaluate(
+  file_type = pmath_evaluate(
            pmath_expr_new_extended(
              pmath_ref(PMATH_SYMBOL_FILETYPE), 1,
              pmath_ref(name)));
-  pmath_unref(file);
-  if(!pmath_same(file, PMATH_SYMBOL_FILE)) {
+  pmath_unref(file_type);
+  if(!pmath_same(file_type, PMATH_SYMBOL_FILE)) {
     pmath_message(PMATH_NULL, "noopen", 1, name);
     return pmath_ref(PMATH_SYMBOL_FAILED);
   }

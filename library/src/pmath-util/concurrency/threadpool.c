@@ -808,8 +808,9 @@ static void run_gc(void) {
       // one reference is hold by sym
       ++gc_refs;
       
-      if(gc_refs     <  (uintptr_t)pmath_refcount(sym)
-          && gc_refs + 3 >= (uintptr_t)pmath_refcount(sym)) {
+      if( gc_refs     <  (uintptr_t)pmath_refcount(sym) &&
+          gc_refs + 3 >= (uintptr_t)pmath_refcount(sym))
+      {
         if(_pmath_have_code(sym, PMATH_CODE_USAGE_DOWNCALL))
           ++gc_refs;
           

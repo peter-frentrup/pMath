@@ -207,6 +207,58 @@ PMATH_API pmath_symbol_t pmath_symbol_iter_next(pmath_symbol_t old) {
 
 /*----------------------------------------------------------------------------*/
 
+struct symbol_refcounter_t {
+  pmath_symbol_t symbol;
+  intptr_t       count;
+};
+
+static pmath_bool_t count_symbol_callback(pmath_t obj, void *data) {
+  struct symbol_refcounter_t *counter = data;
+  
+  if(pmath_same(counter->symbol, obj))
+    ++counter->count;
+  
+  return TRUE;
+}
+
+// does not yet check thread local storage
+PMATH_PRIVATE
+intptr_t _pmath_symbol_self_refcount(pmath_symbol_t symbol) {
+  struct symbol_refcounter_t     counter;
+  struct _pmath_symbol_rules_t  *rules;
+  
+  if(pmath_is_null(symbol))
+    return 0;
+    
+  assert(pmath_is_symbol(symbol));
+  
+  counter.symbol = symbol;
+  counter.count  = 0;
+  
+  _pmath_symbol_value_visit(
+    _pmath_symbol_get_global_value(symbol),
+    count_symbol_callback,
+    &counter);
+    
+  rules = _pmath_symbol_get_rules(symbol, RULES_READ);
+  
+  if(rules)
+    _pmath_symbol_rules_visit(rules, count_symbol_callback, &counter);
+  
+  if(_pmath_have_code(symbol, PMATH_CODE_USAGE_DOWNCALL))
+    ++counter.count;
+    
+  if(_pmath_have_code(symbol, PMATH_CODE_USAGE_UPCALL))
+    ++counter.count;
+    
+  if(_pmath_have_code(symbol, PMATH_CODE_USAGE_SUBCALL))
+    ++counter.count;
+  
+  return counter.count;
+}
+
+/*----------------------------------------------------------------------------*/
+
 PMATH_API pmath_symbol_t pmath_symbol_get(
   pmath_string_t  name,   // will be freed
   pmath_bool_t    create

@@ -195,9 +195,9 @@ void _pmath_symbol_rules_done(struct _pmath_symbol_rules_t *rules) {
 
 PMATH_PRIVATE
 pmath_bool_t _pmath_symbol_value_visit(
-  pmath_t value, // will be freed
+  pmath_t        value, // will be freed
   pmath_bool_t (*callback)(pmath_t, void*),
-  void *closure
+  void          *closure
 ) {
   if(!callback(value, closure)) {
     pmath_unref(value);
@@ -211,8 +211,8 @@ pmath_bool_t _pmath_symbol_value_visit(
       if(!_pmath_symbol_value_visit(
             pmath_expr_get_item(value, i),
             callback,
-            closure)
-        ) {
+            closure))
+      {
         pmath_unref(value);
         return FALSE;
       }
