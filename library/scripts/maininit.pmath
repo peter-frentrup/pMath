@@ -103,3 +103,4 @@ AutoLoad(Hold(System`Util`latexToBoxes),
 Get(ToFileName({$BaseDirectory, "auto", "core"}, "colors.pmath"));
 Get(ToFileName({$BaseDirectory, "auto", "core", "format"}, "accents.pmath"));
 Get(ToFileName({$BaseDirectory, "auto", "core", "format"}, "sumprod.pmath"));
+Get(ToFileName({$BaseDirectory, "auto", "core", "graphics"}, "init.pmath"));

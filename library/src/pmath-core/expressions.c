@@ -1753,6 +1753,9 @@ static void write_expr_ex(
     if(priority > PRIO_COLON)
       WRITE_CSTR(")");
   }
+  else if(pmath_same(head, PMATH_SYMBOL_GRAPHICS)) {
+    WRITE_CSTR("<< Graphics >>");
+  }
   else if(pmath_same(head, PMATH_SYMBOL_RAWBOXES)) {
     pmath_t item;
     

@@ -2118,7 +2118,7 @@ static void ungroup(
         scan_next(&tokens, NULL);
     }
     else {
-      g->spans->items[start]   |= 2; // operand start
+      g->spans->items[start]    |= 2; // operand start
       g->spans->items[g->pos-1] |= 1; // token end
     }
     
@@ -2129,8 +2129,9 @@ static void ungroup(
   if(pmath_is_expr(box)) {
     pmath_t head = pmath_expr_get_item(box, 0);
     pmath_unref(head);
-    if(pmath_same(head, PMATH_SYMBOL_LIST)
-        || pmath_is_null(head)) {
+    if( pmath_same(head, PMATH_SYMBOL_LIST) ||
+        pmath_is_null(head))
+    {
       size_t i, len;
       int start = g->pos;
       
@@ -2142,10 +2143,11 @@ static void ungroup(
         pmath_t first  = pmath_expr_get_item(box, 1);
         pmath_t second = pmath_expr_get_item(box, 2);
         
-        if(pmath_is_string(first)
-            && pmath_is_string(second)
-            && (pmath_string_equals_latin1(first, "<<")
-                || pmath_string_equals_latin1(first, "??"))) {
+        if( pmath_is_string(first) &&
+            pmath_is_string(second) &&
+            (pmath_string_equals_latin1(first, "<<") ||
+             pmath_string_equals_latin1(first, "??")))
+        {
           pmath_bool_t old_split_tokens = g->split_tokens;
           g->split_tokens = FALSE;
           
@@ -2165,16 +2167,17 @@ static void ungroup(
         
     AFTER_UNGROUP:
     
-      if(len >= 1
-          && start < g->pos
-          && pmath_same(head, PMATH_SYMBOL_LIST)) {
+      if( len >= 1 &&
+          start < g->pos &&
+          pmath_same(head, PMATH_SYMBOL_LIST))
+      {
         pmath_t first = pmath_expr_get_item(box, 1);
         
         pmath_span_t *old = SPAN_PTR(g->spans->items[start]);
         
         if(pmath_is_string(first)) {
           const uint16_t *fbuf = pmath_string_buffer(&first);
-          int flen = pmath_string_length(first);
+          int             flen = pmath_string_length(first);
           
           if(flen > 0 && fbuf[0] == '"' && (flen == 1 || fbuf[flen - 1] != '"')) {
             if(old) {
@@ -2196,13 +2199,25 @@ static void ungroup(
         pmath_unref(first);
         
         if(!old || old->end != g->pos - 1) {
-          pmath_span_t *s = pmath_mem_alloc(sizeof(pmath_span_t));
-          if(s) {
-            s->next = old;
-            s->end = g->pos - 1;
-            g->spans->items[start] = (uintptr_t)s
-                                     | SPAN_TOK(g->spans->items[start])
-                                     | SPAN_OP( g->spans->items[start]);
+        
+          pmath_bool_t have_mutliple_tokens = FALSE;
+          int i;
+          for(i = start; i < g->pos - 1; ++i) {
+            if(1 == SPAN_TOK(g->spans->items[i])) {
+              have_mutliple_tokens = TRUE;
+              break;
+            }
+          }
+          
+          if(have_mutliple_tokens) {
+            pmath_span_t *s = pmath_mem_alloc(sizeof(pmath_span_t));
+            if(s) {
+              s->next = old;
+              s->end = g->pos - 1;
+              g->spans->items[start] = (uintptr_t)s
+                                       | SPAN_TOK(g->spans->items[start])
+                                       | SPAN_OP( g->spans->items[start]);
+            }
           }
         }
       }
@@ -2217,7 +2232,7 @@ static void ungroup(
   else
     pmath_unref(box);
     
-  g->spans->items[g->pos] = 1;
+  g->spans->items[g->pos] = 3; // operand start (2), token end (1)
   g->str[g->pos++] = PMATH_CHAR_BOX;
 }
 
@@ -2231,8 +2246,7 @@ PMATH_API pmath_span_array_t *pmath_spans_from_boxes(
   
   assert(result_string);
   
-  g.spans = create_span_array(
-              ungrouped_string_length(boxes));
+  g.spans = create_span_array(ungrouped_string_length(boxes));
   if(!g.spans) {
     pmath_unref(boxes);
     *result_string = pmath_string_new(0);

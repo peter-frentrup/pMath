@@ -164,10 +164,10 @@ PMATH_API
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_span_array_t *pmath_spans_from_string(
   pmath_string_t   *code,
-  pmath_string_t (*line_reader)(void*),
-  pmath_bool_t (*subsuperscriptbox_at_index)(int, void*),
-  pmath_string_t (*underoverscriptbox_at_index)(int, void*),
-  void (*error)(pmath_string_t, int, void*, pmath_bool_t),         //does not free 1st arg
+  pmath_string_t  (*line_reader)(void*),
+  pmath_bool_t    (*subsuperscriptbox_at_index)(int, void*),
+  pmath_string_t  (*underoverscriptbox_at_index)(int, void*),
+  void            (*error)(pmath_string_t, int, void*, pmath_bool_t), //does not free 1st arg
   void             *data);
 
 /**\brief Convert a span-array with the according code to boxed form.
@@ -191,7 +191,7 @@ pmath_t pmath_boxes_from_spans(
   pmath_span_array_t   *spans,
   pmath_string_t        string, // wont be freed
   pmath_bool_t          parseable,
-  pmath_t (*box_at_index)(int, void*),
+  pmath_t             (*box_at_index)(int, void*),
   void                 *data);
 
 /**\brief Convert boxed form back to span-array and code.
@@ -211,7 +211,7 @@ PMATH_ATTRIBUTE_USE_RESULT
 pmath_span_array_t *pmath_spans_from_boxes(
   pmath_t           boxes,         // will be freed;
   pmath_string_t   *result_string,
-  void (*make_box)(int, pmath_t, void*),          // frees 2nd arg
+  void            (*make_box)(int, pmath_t, void*),          // frees 2nd arg
   void             *data);
 
 /**\brief Expand a string that contains boxes to a list of Strings and Boxes

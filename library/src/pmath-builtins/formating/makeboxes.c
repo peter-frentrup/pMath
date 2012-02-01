@@ -38,21 +38,23 @@ static pmath_token_t box_token_analyse(pmath_t box, int *prec) { // box will be 
     return tok;
   }
   
-  if(pmath_is_expr_of_len(box, PMATH_SYMBOL_LIST, 1)
-      || pmath_is_expr_of(box, PMATH_SYMBOL_OVERSCRIPTBOX)
-      || pmath_is_expr_of(box, PMATH_SYMBOL_UNDERSCRIPTBOX)
-      || pmath_is_expr_of(box, PMATH_SYMBOL_UNDEROVERSCRIPTBOX)
-      || pmath_is_expr_of(box, PMATH_SYMBOL_STYLEBOX)
-      || pmath_is_expr_of(box, PMATH_SYMBOL_TAGBOX)
-      || pmath_is_expr_of(box, PMATH_SYMBOL_INTERPRETATIONBOX)) {
+  if( pmath_is_expr_of_len(box, PMATH_SYMBOL_LIST, 1)        ||
+      pmath_is_expr_of(box, PMATH_SYMBOL_OVERSCRIPTBOX)      ||
+      pmath_is_expr_of(box, PMATH_SYMBOL_UNDERSCRIPTBOX)     ||
+      pmath_is_expr_of(box, PMATH_SYMBOL_UNDEROVERSCRIPTBOX) ||
+      pmath_is_expr_of(box, PMATH_SYMBOL_STYLEBOX)           ||
+      pmath_is_expr_of(box, PMATH_SYMBOL_TAGBOX)             ||
+      pmath_is_expr_of(box, PMATH_SYMBOL_INTERPRETATIONBOX))
+  {
     pmath_token_t tok = box_token_analyse(pmath_expr_get_item(box, 1), prec);
     pmath_unref(box);
     return tok;
   }
   
-  if(pmath_is_expr_of(box, PMATH_SYMBOL_SUBSCRIPTBOX)
-      || pmath_is_expr_of(box, PMATH_SYMBOL_SUBSUPERSCRIPTBOX)
-      || pmath_is_expr_of(box, PMATH_SYMBOL_SUPERSCRIPTBOX)) {
+  if( pmath_is_expr_of(box, PMATH_SYMBOL_SUBSCRIPTBOX)      ||
+      pmath_is_expr_of(box, PMATH_SYMBOL_SUBSUPERSCRIPTBOX) ||
+      pmath_is_expr_of(box, PMATH_SYMBOL_SUPERSCRIPTBOX))
+  {
     pmath_unref(box);
     *prec = PMATH_PREC_PRIM;//PMATH_PREC_POW;
     return PMATH_TOK_BINARY_RIGHT;
@@ -74,13 +76,14 @@ static int box_token_prefix_prec(pmath_t box, int defprec) { // box will be free
     return prec;
   }
   
-  if(pmath_is_expr_of_len(box, PMATH_SYMBOL_LIST, 1)
-      || pmath_is_expr_of_len(box, PMATH_SYMBOL_OVERSCRIPTBOX, 2)
-      || pmath_is_expr_of_len(box, PMATH_SYMBOL_UNDERSCRIPTBOX, 2)
-      || pmath_is_expr_of_len(box, PMATH_SYMBOL_UNDEROVERSCRIPTBOX, 3)
-      || pmath_is_expr_of(box, PMATH_SYMBOL_STYLEBOX)
-      || pmath_is_expr_of(box, PMATH_SYMBOL_TAGBOX)
-      || pmath_is_expr_of(box, PMATH_SYMBOL_INTERPRETATIONBOX)) {
+  if( pmath_is_expr_of_len(box, PMATH_SYMBOL_LIST, 1)               ||
+      pmath_is_expr_of_len(box, PMATH_SYMBOL_OVERSCRIPTBOX, 2)      ||
+      pmath_is_expr_of_len(box, PMATH_SYMBOL_UNDERSCRIPTBOX, 2)     ||
+      pmath_is_expr_of_len(box, PMATH_SYMBOL_UNDEROVERSCRIPTBOX, 3) ||
+      pmath_is_expr_of(box, PMATH_SYMBOL_STYLEBOX)                  ||
+      pmath_is_expr_of(box, PMATH_SYMBOL_TAGBOX)                    ||
+      pmath_is_expr_of(box, PMATH_SYMBOL_INTERPRETATIONBOX))
+  {
     int prec = box_token_prefix_prec(pmath_expr_get_item(box, 1), defprec);
     pmath_unref(box);
     return prec;
@@ -3018,10 +3021,12 @@ static pmath_t expr_to_boxes(pmath_thread_t thread, pmath_expr_t expr) {
     if(pmath_same(head, PMATH_SYMBOL_SINGLEMATCH))
       return singlematch_to_boxes(thread, expr);
       
-    if(pmath_same(head, PMATH_SYMBOL_TAGASSIGN)
-        || pmath_same(head, PMATH_SYMBOL_TAGASSIGNDELAYED))
+    if( pmath_same(head, PMATH_SYMBOL_TAGASSIGN) ||
+        pmath_same(head, PMATH_SYMBOL_TAGASSIGNDELAYED))
+    {
       return tagassign_to_boxes(thread, expr);
-      
+    }
+    
     if(pmath_same(head, PMATH_SYMBOL_TIMES))
       return times_to_boxes(thread, expr);
       
@@ -3036,6 +3041,17 @@ static pmath_t expr_to_boxes(pmath_thread_t thread, pmath_expr_t expr) {
       if(pmath_same(head, PMATH_SYMBOL_FULLFORM))
         return fullform_to_boxes(thread, expr);
         
+      if(pmath_same(head, PMATH_SYMBOL_GRAPHICS)) {
+        expr = pmath_expr_new_extended(
+                 pmath_ref(PMATH_SYMBOL_INTERPRETATION), 2,
+                 pmath_expr_new_extended(
+                   pmath_ref(PMATH_SYMBOL_SKELETON), 1,
+                   pmath_ref(PMATH_SYMBOL_GRAPHICS)),
+                 expr);
+                 
+        return expr_to_boxes(thread, expr);
+      }
+      
       if(pmath_same(head, PMATH_SYMBOL_GRID))
         return grid_to_boxes(thread, expr);
         
@@ -3095,10 +3111,12 @@ static pmath_t expr_to_boxes(pmath_thread_t thread, pmath_expr_t expr) {
       if(pmath_same(head, PMATH_SYMBOL_STYLE))
         return style_to_boxes(thread, expr);
         
-      if(pmath_same(head, PMATH_SYMBOL_UNDERSCRIPT)
-          || pmath_same(head, PMATH_SYMBOL_OVERSCRIPT))
+      if( pmath_same(head, PMATH_SYMBOL_UNDERSCRIPT) ||
+          pmath_same(head, PMATH_SYMBOL_OVERSCRIPT))
+      {
         return underscript_or_overscript_to_boxes(thread, expr);
-        
+      }
+      
       if(pmath_same(head, PMATH_SYMBOL_UNDEROVERSCRIPT))
         return underoverscript_to_boxes(thread, expr);
         
@@ -3165,8 +3183,7 @@ static pmath_bool_t user_make_boxes(pmath_t *obj) {
 }
 
 static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj) {
-  if(pmath_is_double(obj)
-      || pmath_is_int32(obj)) {
+  if(pmath_is_double(obj) || pmath_is_int32(obj)) {
     pmath_string_t s = PMATH_NULL;
     pmath_write(
       obj,

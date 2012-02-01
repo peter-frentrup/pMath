@@ -894,6 +894,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_GENERAL                   = NEW_SYSTEM_SYMBOL("General"))
   VERIFY(   PMATH_SYMBOL_GET                       = NEW_SYSTEM_SYMBOL("Get"))
   VERIFY(   PMATH_SYMBOL_GOTO                      = NEW_SYSTEM_SYMBOL("Goto"))
+  VERIFY(   PMATH_SYMBOL_GRAPHICS                  = NEW_SYSTEM_SYMBOL("Graphics"))
   VERIFY(   PMATH_SYMBOL_GRAPHICSBOX               = NEW_SYSTEM_SYMBOL("GraphicsBox"))
   VERIFY(   PMATH_SYMBOL_GRAYLEVEL                 = NEW_SYSTEM_SYMBOL("GrayLevel"))
   VERIFY(   PMATH_SYMBOL_GREATER                   = NEW_SYSTEM_SYMBOL("Greater"))
@@ -1900,6 +1901,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   SET_ATTRIB( PMATH_SYMBOL_GAMMA,                            DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
   SET_ATTRIB( PMATH_SYMBOL_GATHER,                           HOLDFIRST);
   SET_ATTRIB( PMATH_SYMBOL_GCD,                              ASSOCIATIVE | DEFINITEFUNCTION | LISTABLE | SYMMETRIC);
+  SET_ATTRIB( PMATH_SYMBOL_GRAPHICSBOX,                      HOLDALL);
   SET_ATTRIB( PMATH_SYMBOL_HOLD,                             HOLDALL);
   SET_ATTRIB( PMATH_SYMBOL_HOLDCOMPLETE,                     HOLDALLCOMPLETE);
   SET_ATTRIB( PMATH_SYMBOL_HOLDFORM,                         HOLDALL);
@@ -1921,6 +1923,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   SET_ATTRIB( PMATH_SYMBOL_JACOBISYMBOL,                     DEFINITEFUNCTION | LISTABLE);
   SET_ATTRIB( PMATH_SYMBOL_KRONECKERSYMBOL,                  DEFINITEFUNCTION | LISTABLE);
   SET_ATTRIB( PMATH_SYMBOL_LCM,                              ASSOCIATIVE | DEFINITEFUNCTION | LISTABLE | SYMMETRIC);
+  SET_ATTRIB( PMATH_SYMBOL_LINEBOX,                          HOLDALL);
   SET_ATTRIB( PMATH_SYMBOL_LOCAL,                            HOLDALL);
   SET_ATTRIB( PMATH_SYMBOL_LOG,                              DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
   SET_ATTRIB( PMATH_SYMBOL_LOGGAMMA,                         DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);

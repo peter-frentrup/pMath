@@ -1,0 +1,39 @@
+
+BeginPackage("System`Graphics`")
+
+System`Graphics`MakeGraphicsBoxes
+System`Graphics`MakeGraphicsExpression
+
+Begin("System`Graphics`Private`")
+
+
+Unprotect(Graphics)
+Attributes(Graphics):= {ReadProtected}
+MakeBoxes(Graphics(~elements, ~~~options))::= 
+	With({elem:= MakeGraphicsBoxes(elements)},
+		GraphicsBox(tmp(elem), options).Replace({
+			HoldPattern(tmp(HoldComplete(~x))) :> x, 
+			HoldPattern(~:tmp)                 :> $Failed}))
+Protect(Graphics)
+
+
+Unprotect(GraphicsBox)
+Attributes(Graphics):= {ReadProtected, HoldAll}
+GraphicsBox/: MakeExpression(GraphicsBox(~elements, ~~~options))::=
+	With({elem:= MakeGraphicsExpression(elements)},
+		HoldComplete(Graphics(tmp(elem), options)).Replace({
+			HoldPattern(tmp(HoldComplete(~x))) :> x, 
+			HoldPattern(~:tmp)                 :> $Failed}))
+Protect(GraphicsBox)
+
+
+Attributes(MakeGraphicsBoxes):=      {HoldAllComplete, Protected}
+Attributes(MakeGraphicsExpression):= {HoldAllComplete, Protected}
+
+AutoLoad(Hold(MakeGraphicsBoxes),      ToFileName(DirectoryName($Input), "makegraphicsboxes.pmath"))
+AutoLoad(Hold(MakeGraphicsExpression), ToFileName(DirectoryName($Input), "makegraphicsexpression.pmath"))
+
+
+End()
+
+EndPackage()

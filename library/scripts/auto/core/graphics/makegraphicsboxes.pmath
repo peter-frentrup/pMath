@@ -1,0 +1,21 @@
+
+BeginPackage("System`Graphics`")
+
+MakeGraphicsBoxes
+
+Begin("System`Graphics`Private`")
+
+
+MakeGraphicsBoxes(~x)            ::= HoldComplete(x);
+
+MakeGraphicsBoxes(~multi: List)  ::= HoldComplete @@ List @ HoldComplete(multi).Map(MakeGraphicsBoxes, 2).ReleaseHold.Replace(HoldComplete(~~~x) :> x, 1)
+MakeGraphicsBoxes(Line(~~~args)) ::= HoldComplete(LineBox(args))
+MakeGraphicsBoxes(~c: RGBColor)  ::= HoldComplete(c);
+MakeGraphicsBoxes(~c: Hue)       ::= HoldComplete(c);
+MakeGraphicsBoxes(~c: GrayLevel) ::= HoldComplete(c);
+
+
+End()
+
+EndPackage()
+

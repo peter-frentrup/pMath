@@ -747,7 +747,7 @@ PMATH_API pmath_bool_t pmath_init(void) {
         
       PMATH_RUN("Options(Get):={Path:>$Path}");
       
-      PMATH_RUN("Options(GraphicsBox):={"
+      PMATH_RUN("Options(Graphics):=Options(GraphicsBox):={"
                 "AspectRatio->Automatic,"
                 "Axes->False,"
                 "ImageSize->Automatic,"
