@@ -4,6 +4,10 @@
 
 - pmath-java: add pmath.Expr.cleanup() to call pmath_done() on the current Java thread
 
+- add Differences, Accumulate, ListConvolve
+
+- add PreserveImageOptions option
+
 - BUG: MSVC-richmath crashes/hangs on CTRL-C 
 	(seems to be connected with fully optimized build, pmath_file_create_compressor and pmath_serialize)
 	

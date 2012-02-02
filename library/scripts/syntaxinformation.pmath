@@ -68,6 +68,7 @@
 {"Condition", {"ArgumentCount" -> 2}},
 {"ConditionalExpression", {"ArgumentCount" -> 2}},
 {"Congruent", {"ArgumentCount" -> 2..}},
+{"Conjugate", {"ArgumentCount" -> 1}},
 {"CopyDirectory", {"ArgumentCount" -> 2}},
 {"CopyFile", {"ArgumentCount" -> 2}},
 {"Cos", {"ArgumentCount" -> 1}},
