@@ -4,7 +4,7 @@
 #include <pmath.h>
 
 
-#define PJ_SYMBOLS_COUNT   31
+#define PJ_SYMBOLS_COUNT   32
 extern pmath_symbol_t _pj_symbols[PJ_SYMBOLS_COUNT];
 
 #define PJ_SYMBOL_JAVA                        (_pj_symbols[0])
@@ -38,6 +38,7 @@ extern pmath_symbol_t _pj_symbols[PJ_SYMBOLS_COUNT];
 #define PJ_SYMBOL_INTERNAL_CALLFROMJAVA       (_pj_symbols[28])
 #define PJ_SYMBOL_INTERNAL_SUCCEEDED          (_pj_symbols[29])
 #define PJ_SYMBOL_INTERNAL_FAILED             (_pj_symbols[30])
+#define PJ_SYMBOL_JAVAOBJECT                  (_pj_symbols[31])
 
 
 extern pmath_bool_t pj_symbols_init(void);

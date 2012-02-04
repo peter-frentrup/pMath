@@ -8,6 +8,7 @@ Java`JavaException
 Java`JavaField
 Java`JavaKillVM
 Java`JavaNew
+Java`JavaObject
 Java`JavaStartVM
 Java`$JavaVMLibraryName
 Java`$DefaultClassPath
@@ -51,6 +52,7 @@ JavaClassAsObject::usage:= "JavaClassAsObject(\"\(StyleBox(\"classname\", BaseSt
 JavaException::usage:= "JavaException(\(StyleBox(\"ex\", BaseStyle -> \"Arg\")\), \(StyleBox(\"msg\", BaseStyle -> \"Arg\")\), \(StyleBox(\"stacktrace\", BaseStyle -> \"Arg\")\)) represents an exception \(StyleBox(\"ex\", BaseStyle -> \"Arg\")\) thrown from Java code."
 JavaField::usage:= "JavaField(\(StyleBox(\"obj\", BaseStyle -> \"Arg\")\), \(StyleBox(\"field\", BaseStyle -> \"Arg\")\)) or \(StyleBox(\"obj\", BaseStyle -> \"Arg\")\) @ \(StyleBox(\"field\", BaseStyle -> \"Arg\")\) represents a member field of a Java object.\nJavaField(JavaClass(\"\(StyleBox(\"classname\", BaseStyle -> \"Arg\")\)\"), \(StyleBox(\"field\", BaseStyle -> \"Arg\")\)) or JavaClass(\"\(StyleBox(\"classname\", BaseStyle -> \"Arg\")\)\") @ \(StyleBox(\"field\", BaseStyle -> \"Arg\")\) represents a static member field of a Java class."
 JavaNew::usage:= "JavaNew(\"\(StyleBox(\"classname\", BaseStyle -> \"Arg\")\)\", \(StyleBox(\"arg\", BaseStyle -> \"Arg\")\)\(SubscriptBox(\"1\")\), \(StyleBox(\"arg\", BaseStyle -> \"Arg\")\)\(SubscriptBox(\"2\")\), \[Ellipsis]) or JavaNew(JavaClass(\"\(StyleBox(\"classname\", BaseStyle -> \"Arg\")\)\"), \(StyleBox(\"arg\", BaseStyle -> \"Arg\")\)\(SubscriptBox(\"1\")\), \(StyleBox(\"arg\", BaseStyle -> \"Arg\")\)\(SubscriptBox(\"2\")\), \[Ellipsis]) creates a new Java object."
+JavaObject::usage:= "JavaObject(\[Ellipsis]) represents a java object."
 JavaStartVM::usage:= "JavaStartVM() starts the Java Virtual Machine if it is not already started. Note that the JVM is started automatically when needed."
 Methods::usage:= "Methods(JavaClass(\"\(StyleBox(\"classname\", BaseStyle -> \"Arg\")\)\")) lists all public methods of the specified Java class."
 ParentClass::usage:= "ParentClass(JavaClass(\"\(StyleBox(\"classname\", BaseStyle -> \"Arg\")\)\")) gives the parent class of the specified Java class."
@@ -99,6 +101,7 @@ Which(
 $DefaultClassPath:= {ToFileName(DirectoryName($Input), "classpath")}
 
 
+/* JavaClass */
 JavaClass(~cls:String) @ (~f:String)::= JavaField(cls, f)
 JavaClass(~cls:String) @ (~f:Symbol)::= JavaField(cls, SymbolName(f))
 
@@ -109,7 +112,26 @@ JavaClass(~cls:String) @ (~m:String)(~~~args) ::= JavaCall(cls, m,             a
 JavaClass(~cls:String) @ (~m:Symbol)(~~~args) ::= JavaCall(cls, SymbolName(m), args)
 ~c:JavaClass @ (e1: ~(~~~))(~e2)              ::= (c @ e1) @ e2
 
-Attributes(JavaClass):= {DeepHoldAll}
+Attributes(JavaClass):= {DeepHoldAll, Protectd, ReadProtected}
+
+
+/* JavaObject */
+MakeBoxes(o: JavaObject(~, ~name))::= With({boxes:= MakeBoxes(Skeleton(name))}, InterpretationBox(boxes, o))
+
+JavaObject/: ClassName(JavaObject(~, ~name))::= name
+JavaObject/: GetClass(JavaObject(~, ~name))::= JavaClass(name)
+
+~o:JavaObject @ (~f:String)::= JavaField(o, f)
+~o:JavaObject @ (~f:Symbol)::= JavaField(o, SymbolName(f))
+
+JavaObject/: (~o:JavaObject @ (~f:String):= ~rhs)::= JavaField(o, f):= rhs
+JavaObject/: (~o:JavaObject @ (~f:Symbol):= ~rhs)::= With({fs:= SymbolName(f)}, JavaField(o, fs):= rhs)
+
+~o:JavaObject @ (~m:String)(~~~args) ::= JavaCall(o, m,             args)
+~o:JavaObject @ (~m:Symbol)(~~~args) ::= JavaCall(o, SymbolName(m), args)
+~o:JavaObject @ (e1: ~(~~~))(~e2)    ::= (o @ e1) @ e2
+
+Attributes(JavaObject):= {DeepHoldAll, Protectd, ReadProtected}
 
 
 
@@ -143,7 +165,7 @@ Fields(      cls: (~:JavaClass | ~:String))::= If(Length(#) > 0, Row(#, "\n"), S
 
 
 
-Attributes(Constructors):= Attributes(Methods):= Attributes(Fields):= Attributes(JavaClass):= {Protected, ReadProtected}
+Attributes(Constructors):= Attributes(Methods):= Attributes(Fields):= {Protected, ReadProtected}
 
 End()
 

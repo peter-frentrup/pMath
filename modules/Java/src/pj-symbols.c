@@ -49,6 +49,7 @@ pmath_bool_t pj_symbols_init(void){
   VERIFY(PJ_SYMBOL_JAVAEXCEPTION       = NEW_SYMBOL("Java`JavaException"));
   VERIFY(PJ_SYMBOL_JAVAFIELD           = NEW_SYMBOL("Java`JavaField"));
   VERIFY(PJ_SYMBOL_JAVANEW             = NEW_SYMBOL("Java`JavaNew"));
+  VERIFY(PJ_SYMBOL_JAVAOBJECT          = NEW_SYMBOL("Java`JavaObject"));
   VERIFY(PJ_SYMBOL_JAVASTARTVM         = NEW_SYMBOL("Java`JavaStartVM"));
   VERIFY(PJ_SYMBOL_JAVAVMLIBRARYNAME   = NEW_SYMBOL("Java`$JavaVMLibraryName"));
     
@@ -98,6 +99,7 @@ pmath_bool_t pj_symbols_init(void){
       
     PROTECT(_pj_symbols[i]);
   }
+  
   
   return TRUE;
   
