@@ -1,4 +1,4 @@
-package pmath;
+package pmath.util;
 
 public class InternalException extends RuntimeException {
 	public InternalException(){

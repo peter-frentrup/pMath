@@ -1,4 +1,4 @@
-package pmath;
+package pmath.util;
 
 public class WrappedException extends RuntimeException {
 	private String code;

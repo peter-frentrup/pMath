@@ -204,6 +204,8 @@ static pmath_custom_t create_pjvm(JavaVM *jvm) {
     return PMATH_NULL;
   }
   
+  pmath_symbol_set_value(PJ_SYMBOL_ISJAVAOBJECT, pmath_ref(PMATH_SYMBOL_TRUE));
+  
   return pmath_custom_new(d, pjvm_destructor);
 }
 
@@ -370,7 +372,7 @@ pmath_bool_t pj_exception_to_pmath(JNIEnv *env) {
       pmath_t pex = PMATH_UNDEFINED;
       
       if(JNI_OK == (*env)->EnsureLocalCapacity(env, 2)) {
-        jclass wrapped_ex_class = (*env)->FindClass(env, "pmath/WrappedException");
+        jclass wrapped_ex_class = (*env)->FindClass(env, "pmath/util/WrappedException");
         
         if(wrapped_ex_class &&
             (*env)->IsInstanceOf(env, jex, wrapped_ex_class))
@@ -520,7 +522,7 @@ pmath_bool_t pj_exception_to_java(JNIEnv *env) {
   }
   
   if(!jex) {
-    ex_class = (*env)->FindClass(env, "pmath/WrappedException");
+    ex_class = (*env)->FindClass(env, "pmath/util/WrappedException");
     
     if(ex_class) {
       jmethodID cid = (*env)->GetMethodID(env, ex_class, "<init>", "(Ljava/lang/String;)V");
@@ -570,6 +572,21 @@ void pjvm_ensure_started(void) {
   
   pmath_unref(pmath_evaluate(pmath_expr_new(
                                pmath_ref(PJ_SYMBOL_JAVASTARTVM), 0)));
+}
+
+
+extern pmath_t pj_builtin_javaisrunning(pmath_expr_t expr){
+  if(pmath_expr_length(expr) > 0) {
+    pmath_message_argxxx(pmath_expr_length(expr), 0, 0);
+    return expr;
+  }
+  
+  pmath_unref(expr);
+  
+  if(pjvm_java_is_running())
+    return pmath_ref(PMATH_SYMBOL_TRUE);
+  
+  return pmath_ref(PMATH_SYMBOL_FALSE);
 }
 
 pmath_t pj_builtin_startvm(pmath_expr_t expr) {
@@ -690,10 +707,10 @@ pmath_t pj_builtin_startvm(pmath_expr_t expr) {
           }
           
           if(env) {
-            jclass exclass = (*env)->FindClass(env, "pmath/InternalException");
+            jclass exclass = (*env)->FindClass(env, "pmath/util/InternalException");
             
             if(!exclass) {
-              pmath_debug_print("[cannot find pmath.InternalException class]\n");
+              pmath_debug_print("[cannot find pmath.util.InternalException class]\n");
               
               exclass = (*env)->FindClass(env, "java/lang/ThreadDeath");
             }
@@ -740,7 +757,7 @@ pmath_t pj_builtin_startvm(pmath_expr_t expr) {
               jmethodID mid = (*env)->GetStaticMethodID(env, system, "setSecurityManager", "(Ljava/lang/SecurityManager;)V");
               
               if(mid) {
-                jobject sm_class = (*env)->FindClass(env, "pmath/NoExitSecurityManager");
+                jobject sm_class = (*env)->FindClass(env, "pmath/util/NoExitSecurityManager");
                 
                 if(sm_class) {
                   jmethodID ctor = (*env)->GetMethodID(env, sm_class, "<init>", "()V");

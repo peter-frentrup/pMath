@@ -8,20 +8,20 @@
 
 
 #ifndef NAN
-  
-  static uint64_t nan_as_int = ((uint64_t)1 << 63) - 1;
-  #define NAN (*(double*)&nan_as_int)
-  
+
+static uint64_t nan_as_int = ((uint64_t)1 << 63) - 1;
+#define NAN (*(double*)&nan_as_int)
+
 #endif
 
 
-pmath_string_t pj_string_from_java(JNIEnv *env, jstring jstr){
+pmath_string_t pj_string_from_java(JNIEnv *env, jstring jstr) {
   pmath_string_t s;
   const jchar *buf;
   int len;
   
   len = (int)(*env)->GetStringLength(env, jstr);
-  if(len < 0){
+  if(len < 0) {
     (*env)->ExceptionDescribe(env);
     return PMATH_NULL;
   }
@@ -33,7 +33,7 @@ pmath_string_t pj_string_from_java(JNIEnv *env, jstring jstr){
   return s;
 }
 
-jstring pj_string_to_java(JNIEnv *env, pmath_string_t str){
+jstring pj_string_to_java(JNIEnv *env, pmath_string_t str) {
   const jchar *buf = (const jchar*)pmath_string_buffer(&str);
   int len = pmath_string_length(str);
   
@@ -44,24 +44,24 @@ jstring pj_string_to_java(JNIEnv *env, pmath_string_t str){
 
 
 // obj will be freed; type wont be freed
-pmath_bool_t pj_value_to_java(JNIEnv *env, pmath_t obj, pmath_t type, jvalue *value){
-  if(!env || !value){
+pmath_bool_t pj_value_to_java(JNIEnv *env, pmath_t obj, pmath_t type, jvalue *value) {
+  if(!env || !value) {
     pmath_unref(obj);
     return FALSE;
   }
   
   memset(value, 0, sizeof(jvalue));
   
-  if(pmath_is_symbol(type)){
-    if(pmath_same(type, PJ_SYMBOL_TYPE_BOOLEAN)){
+  if(pmath_is_symbol(type)) {
+    if(pmath_same(type, PJ_SYMBOL_TYPE_BOOLEAN)) {
       pmath_unref(obj);
       
-      if(pmath_same(obj, PMATH_SYMBOL_TRUE)){
+      if(pmath_same(obj, PMATH_SYMBOL_TRUE)) {
         value->z = JNI_TRUE;
         return TRUE;
       }
       
-      if(pmath_same(obj, PMATH_SYMBOL_FALSE)){
+      if(pmath_same(obj, PMATH_SYMBOL_FALSE)) {
         value->z = JNI_FALSE;
         return TRUE;
       }
@@ -69,10 +69,10 @@ pmath_bool_t pj_value_to_java(JNIEnv *env, pmath_t obj, pmath_t type, jvalue *va
       return FALSE;
     }
     
-    if(pmath_same(type, PJ_SYMBOL_TYPE_BYTE)){
+    if(pmath_same(type, PJ_SYMBOL_TYPE_BYTE)) {
       int i;
       
-      if(!pmath_is_int32(obj)){
+      if(!pmath_is_int32(obj)) {
         pmath_unref(obj);
         return FALSE;
       }
@@ -82,14 +82,14 @@ pmath_bool_t pj_value_to_java(JNIEnv *env, pmath_t obj, pmath_t type, jvalue *va
       
       if(i < -128 || i > 127)
         return FALSE;
-      
+        
       value->b = (jbyte)i;
       return TRUE;
     }
     
-    if(pmath_same(type, PJ_SYMBOL_TYPE_CHAR)){
+    if(pmath_same(type, PJ_SYMBOL_TYPE_CHAR)) {
       if(pmath_is_string(obj)
-      && pmath_string_length(obj) == 1){
+          && pmath_string_length(obj) == 1) {
         value->c = (jchar)pmath_string_buffer(&obj)[0];
         pmath_unref(obj);
         return TRUE;
@@ -99,10 +99,10 @@ pmath_bool_t pj_value_to_java(JNIEnv *env, pmath_t obj, pmath_t type, jvalue *va
       return FALSE;
     }
     
-    if(pmath_same(type, PJ_SYMBOL_TYPE_SHORT)){
+    if(pmath_same(type, PJ_SYMBOL_TYPE_SHORT)) {
       int i;
       
-      if(!pmath_is_int32(obj)){
+      if(!pmath_is_int32(obj)) {
         pmath_unref(obj);
         return FALSE;
       }
@@ -112,15 +112,15 @@ pmath_bool_t pj_value_to_java(JNIEnv *env, pmath_t obj, pmath_t type, jvalue *va
       
       if(i < -32768 || i > 32767)
         return FALSE;
-      
+        
       value->s = (jshort)i;
       return TRUE;
     }
     
-    if(pmath_same(type, PJ_SYMBOL_TYPE_INT)){
+    if(pmath_same(type, PJ_SYMBOL_TYPE_INT)) {
       int i;
       
-      if(!pmath_is_int32(obj)){
+      if(!pmath_is_int32(obj)) {
         pmath_unref(obj);
         return FALSE;
       }
@@ -128,18 +128,18 @@ pmath_bool_t pj_value_to_java(JNIEnv *env, pmath_t obj, pmath_t type, jvalue *va
       i = PMATH_AS_INT32(obj);
       pmath_unref(obj);
       
-      if(i < -2147483647-1 || i > 2147483647)
+      if(i < -2147483647 - 1 || i > 2147483647)
         return FALSE;
-      
+        
       value->i = (jint)i;
       return TRUE;
     }
     
-    if(pmath_same(type, PJ_SYMBOL_TYPE_LONG)){
+    if(pmath_same(type, PJ_SYMBOL_TYPE_LONG)) {
       int64_t j;
       
       if(!pmath_is_int32(obj)
-      || !pmath_integer_fits_si64(obj)){
+          || !pmath_integer_fits_si64(obj)) {
         pmath_unref(obj);
         return FALSE;
       }
@@ -151,21 +151,22 @@ pmath_bool_t pj_value_to_java(JNIEnv *env, pmath_t obj, pmath_t type, jvalue *va
       return TRUE;
     }
     
-    if(pmath_same(type, PJ_SYMBOL_TYPE_FLOAT)
-    || pmath_same(type, PJ_SYMBOL_TYPE_DOUBLE)){
+    if( pmath_same(type, PJ_SYMBOL_TYPE_FLOAT) ||
+        pmath_same(type, PJ_SYMBOL_TYPE_DOUBLE))
+    {
       double d = 0;
       
-      if(pmath_is_float(obj)){
+      if(pmath_is_float(obj)) {
         d = pmath_number_get_d(obj);
       }
       else if(pmath_same(obj, PMATH_SYMBOL_UNDEFINED)
-      || pmath_is_expr_of_len(obj, PMATH_SYMBOL_DIRECTEDINFINITY, 0)){
+              || pmath_is_expr_of_len(obj, PMATH_SYMBOL_DIRECTEDINFINITY, 0)) {
         d = NAN;
       }
-      else if(pmath_is_expr_of_len(obj, PMATH_SYMBOL_DIRECTEDINFINITY, 1)){
+      else if(pmath_is_expr_of_len(obj, PMATH_SYMBOL_DIRECTEDINFINITY, 1)) {
         pmath_t dir = pmath_expr_get_item(obj, 1);
         
-        if(pmath_is_number(dir)){
+        if(pmath_is_number(dir)) {
           int sign = pmath_number_sign(dir);
           pmath_unref(dir);
           
@@ -176,13 +177,13 @@ pmath_bool_t pj_value_to_java(JNIEnv *env, pmath_t obj, pmath_t type, jvalue *va
           else
             d = NAN;
         }
-        else{
+        else {
           pmath_unref(dir);
           pmath_unref(obj);
           return FALSE;
         }
       }
-      else{
+      else {
         pmath_unref(obj);
         return FALSE;
       }
@@ -191,73 +192,73 @@ pmath_bool_t pj_value_to_java(JNIEnv *env, pmath_t obj, pmath_t type, jvalue *va
         value->f = (float)d;
       else
         value->d = d;
-      
+        
       pmath_unref(obj);
       return TRUE;
     }
   }
   
-  if(pmath_is_expr_of_len(type, PJ_SYMBOL_TYPE_ARRAY, 1)){
-    if(pmath_is_null(obj)){
+  if(pmath_is_expr_of_len(type, PJ_SYMBOL_TYPE_ARRAY, 1)) {
+    if(pmath_is_null(obj)) {
       value->l = NULL;
       return TRUE;
     }
     
-    if(pmath_is_expr_of(obj, PMATH_SYMBOL_LIST)){
+    if(pmath_is_expr_of(obj, PMATH_SYMBOL_LIST)) {
       pmath_t elem_type = pmath_expr_get_item(type, 1);
       jsize len = (jsize)pmath_expr_length(obj);
       jobject arr = NULL;
       size_t item_size = 0;
       
-      if(pmath_same(elem_type, PJ_SYMBOL_TYPE_BOOLEAN)){
+      if(pmath_same(elem_type, PJ_SYMBOL_TYPE_BOOLEAN)) {
         item_size = sizeof(jboolean);
         arr = (*env)->NewBooleanArray(env, len);
       }
-      else if(pmath_same(elem_type, PJ_SYMBOL_TYPE_BYTE)){
+      else if(pmath_same(elem_type, PJ_SYMBOL_TYPE_BYTE)) {
         item_size = sizeof(jbyte);
         arr = (*env)->NewByteArray(env, len);
       }
-      else if(pmath_same(elem_type, PJ_SYMBOL_TYPE_CHAR)){
+      else if(pmath_same(elem_type, PJ_SYMBOL_TYPE_CHAR)) {
         item_size = sizeof(jchar);
         arr = (*env)->NewCharArray(env, len);
       }
-      else if(pmath_same(elem_type, PJ_SYMBOL_TYPE_SHORT)){
+      else if(pmath_same(elem_type, PJ_SYMBOL_TYPE_SHORT)) {
         item_size = sizeof(jshort);
         arr = (*env)->NewShortArray(env, len);
       }
-      else if(pmath_same(elem_type, PJ_SYMBOL_TYPE_INT)){
+      else if(pmath_same(elem_type, PJ_SYMBOL_TYPE_INT)) {
         item_size = sizeof(jint);
         arr = (*env)->NewIntArray(env, len);
       }
-      else if(pmath_same(elem_type, PJ_SYMBOL_TYPE_LONG)){
+      else if(pmath_same(elem_type, PJ_SYMBOL_TYPE_LONG)) {
         item_size = sizeof(jlong);
         arr = (*env)->NewLongArray(env, len);
       }
-      else if(pmath_same(elem_type, PJ_SYMBOL_TYPE_FLOAT)){
+      else if(pmath_same(elem_type, PJ_SYMBOL_TYPE_FLOAT)) {
         item_size = sizeof(jfloat);
         arr = (*env)->NewFloatArray(env, len);
       }
-      else if(pmath_same(elem_type, PJ_SYMBOL_TYPE_DOUBLE)){
+      else if(pmath_same(elem_type, PJ_SYMBOL_TYPE_DOUBLE)) {
         item_size = sizeof(jdouble);
         arr = (*env)->NewDoubleArray(env, len);
       }
-      else if((*env)->EnsureLocalCapacity(env, 2) == 0){
+      else if((*env)->EnsureLocalCapacity(env, 2) == 0) {
         jclass item_class = pj_class_to_java(env, pmath_ref(elem_type));
         
-        if(item_class){
+        if(item_class) {
           arr = (*env)->NewObjectArray(env, len, item_class, NULL);
           
           (*env)->DeleteLocalRef(env, item_class);
         }
       }
       
-      if(arr){
+      if(arr) {
         pmath_bool_t success = TRUE;
         value->l = arr;
         
-        if(item_size == 0){
+        if(item_size == 0) {
           jsize i;
-          for(i = 0;i < len;++i){
+          for(i = 0; i < len; ++i) {
             pmath_t item = pmath_expr_get_item(obj, (size_t)i + 1);
             jvalue val;
             
@@ -267,19 +268,19 @@ pmath_bool_t pj_value_to_java(JNIEnv *env, pmath_t obj, pmath_t type, jvalue *va
             
             if(val.l)
               (*env)->DeleteLocalRef(env, val.l);
-            
+              
             if(!success)
               break;
           }
         }
-        else{
+        else {
           void *data = (*env)->GetPrimitiveArrayCritical(env, arr, NULL);
-          if(data){
+          if(data) {
             jsize i;
-            for(i = 0;i < len;++i){
+            for(i = 0; i < len; ++i) {
               pmath_t item = pmath_expr_get_item(obj, (size_t)i + 1);
               
-              if(!pj_value_to_java(env, item, elem_type, (jvalue*)(data + item_size * (size_t)i))){
+              if(!pj_value_to_java(env, item, elem_type, (jvalue*)(data + item_size * (size_t)i))) {
                 success = FALSE;
                 break;
               }
@@ -295,61 +296,74 @@ pmath_bool_t pj_value_to_java(JNIEnv *env, pmath_t obj, pmath_t type, jvalue *va
         pmath_unref(obj);
         return success;
       }
-    
+      
       pmath_unref(elem_type);
       pmath_unref(obj);
       return FALSE;
     }
   }
   
-  if((*env)->EnsureLocalCapacity(env, 3) == 0){
+  if((*env)->EnsureLocalCapacity(env, 3) == 0) {
     pmath_bool_t success = FALSE;
     jclass dst_class = pj_class_to_java(env, pmath_ref(type));
     
-    if(dst_class){
+    if(dst_class) {
       jobject val = NULL;
-    
-      if(pmath_is_string(obj)){
-        val = (*env)->NewString(env, pmath_string_buffer(&obj), pmath_string_length(obj));
-        pmath_unref(obj);
-        obj = PMATH_NULL;
-      }
-      else if(pj_object_is_java(env, obj)){
-        val = pj_object_to_java(env, obj);
-        obj = PMATH_NULL;
-      }
-      else if(pmath_is_int32(obj)){
+      
+      if(pmath_is_int32(obj)) {
         jclass src_class = (*env)->FindClass(env, "java/lang/Integer");
         
-        if(src_class){
+        if(src_class) {
           jmethodID cid = (*env)->GetMethodID(env, src_class, "<init>", "(I)V");
           
-          if(cid){
+          if(cid) {
             val = (*env)->NewObject(env, src_class, cid, (jint)PMATH_AS_INT32(obj));
           }
           
           (*env)->DeleteLocalRef(env, src_class);
         }
       }
-      else if(pmath_is_double(obj)){
+      else if(pmath_is_double(obj)) {
         jclass src_class = (*env)->FindClass(env, "java/lang/Double");
         
-        if(src_class){
+        if(src_class) {
           jmethodID cid = (*env)->GetMethodID(env, src_class, "<init>", "(D)V");
           
-          if(cid){
+          if(cid) {
             val = (*env)->NewObject(env, src_class, cid, (jdouble)PMATH_AS_DOUBLE(obj));
           }
           
           (*env)->DeleteLocalRef(env, src_class);
         }
       }
+      else if(pmath_is_string(obj)) {
+        val = (*env)->NewString(env, pmath_string_buffer(&obj), pmath_string_length(obj));
+        pmath_unref(obj);
+        obj = PMATH_NULL;
+      }
+      else if(pmath_same(obj, PMATH_SYMBOL_TRUE) || pmath_same(obj, PMATH_SYMBOL_FALSE)){
+        jclass src_class = (*env)->FindClass(env, "java/lang/Boolean");
+        
+        if(src_class) {
+          jmethodID cid = (*env)->GetMethodID(env, src_class, "<init>", "(Z)V");
+          
+          if(cid) {
+            val = (*env)->NewObject(env, src_class, cid, (jboolean)pmath_same(obj, PMATH_SYMBOL_TRUE));
+          }
+          
+          (*env)->DeleteLocalRef(env, src_class);
+        }
+      }
+      else if(pj_object_is_java(env, obj)) {
+        val = pj_object_to_java(env, obj);
+        obj = PMATH_NULL;
+      }
       
-      if(val){
+      if(val) {
         jclass src_class = (*env)->GetObjectClass(env, val);
         
-        if(src_class){
-          if((*env)->IsAssignableFrom(env, src_class, dst_class)){
+        if(src_class) {
+          if((*env)->IsAssignableFrom(env, src_class, dst_class)) {
             value->l = val;
             val      = NULL;
             success  = TRUE;
@@ -361,7 +375,7 @@ pmath_bool_t pj_value_to_java(JNIEnv *env, pmath_t obj, pmath_t type, jvalue *va
         if(val)
           (*env)->DeleteLocalRef(env, val);
       }
-      else if(pmath_is_null(obj)){
+      else if(pmath_is_null(obj)) {
         value->l = NULL;
         success  = TRUE;
       }
@@ -378,24 +392,24 @@ pmath_bool_t pj_value_to_java(JNIEnv *env, pmath_t obj, pmath_t type, jvalue *va
 }
 
 
-  static pmath_bool_t starts_with(pmath_string_t str, const char *s){
-    int             len = pmath_string_length(str);
-    const uint16_t *buf = pmath_string_buffer(&str);
-    
-    while(len-- > 0){
-      if(!*s)
-        return TRUE;
-        
-      if(*buf++ != (uint16_t)(unsigned char)*s++)
-        return FALSE;
-    }
-    
-    return *s == '\0';
+static pmath_bool_t starts_with(pmath_string_t str, const char *s) {
+  int             len = pmath_string_length(str);
+  const uint16_t *buf = pmath_string_buffer(&str);
+  
+  while(len-- > 0) {
+    if(!*s)
+      return TRUE;
+      
+    if(*buf++ != (uint16_t)(unsigned char)*s++)
+      return FALSE;
   }
+  
+  return *s == '\0';
+}
 
 
-pmath_t pj_value_from_java(JNIEnv *env, char type, const jvalue *value){
-  switch(type){
+pmath_t pj_value_from_java(JNIEnv *env, char type, const jvalue *value) {
+  switch(type) {
     case 'Z':  return pmath_build_value("b", (int)value->z);
     case 'B':  return pmath_build_value("i", (int)value->b);
     case 'C':  return pmath_build_value("c", (uint16_t)value->c);
@@ -414,95 +428,95 @@ pmath_t pj_value_from_java(JNIEnv *env, char type, const jvalue *value){
   
   if(!value->l)
     return PMATH_NULL;
-  
-  if((*env)->EnsureLocalCapacity(env, 2) == 0){
+    
+  if((*env)->EnsureLocalCapacity(env, 2) == 0) {
     jclass  clazz = (*env)->GetObjectClass(env, value->l);
     pmath_t class_name  = pj_class_get_name(env, clazz);
     int slen            = pmath_string_length(class_name);
     const uint16_t *buf = pmath_string_buffer(&class_name);
     
-    if(starts_with(class_name, "Ljava/lang/")){
-      if(pmath_string_equals_latin1(class_name, "Ljava/lang/String;")){
+    if(starts_with(class_name, "Ljava/lang/")) {
+      if(pmath_string_equals_latin1(class_name, "Ljava/lang/String;")) {
         pmath_unref(class_name);
         
         (*env)->DeleteLocalRef(env, clazz);
         return pj_string_from_java(env, value->l);
       }
       
-      if(pmath_string_equals_latin1(class_name, "Ljava/lang/Boolean;")){
+      if(pmath_string_equals_latin1(class_name, "Ljava/lang/Boolean;")) {
         jmethodID mid = (*env)->GetMethodID(env, clazz, "booleanValue", "()Z");
         
-        if(mid){
+        if(mid) {
           pmath_unref(class_name);
           (*env)->DeleteLocalRef(env, clazz);
           return pmath_build_value("b", (int)(*env)->CallBooleanMethod(env, value->l, mid));
         }
       }
       
-      if(pmath_string_equals_latin1(class_name, "Ljava/lang/Byte;")){
+      if(pmath_string_equals_latin1(class_name, "Ljava/lang/Byte;")) {
         jmethodID mid = (*env)->GetMethodID(env, clazz, "byteValue", "()B");
         
-        if(mid){
+        if(mid) {
           pmath_unref(class_name);
           (*env)->DeleteLocalRef(env, clazz);
           return pmath_build_value("i", (int)(*env)->CallByteMethod(env, value->l, mid));
         }
       }
       
-      if(pmath_string_equals_latin1(class_name, "Ljava/lang/Character;")){
+      if(pmath_string_equals_latin1(class_name, "Ljava/lang/Character;")) {
         jmethodID mid = (*env)->GetMethodID(env, clazz, "charValue", "()C");
         
-        if(mid){
+        if(mid) {
           pmath_unref(class_name);
           (*env)->DeleteLocalRef(env, clazz);
           return pmath_build_value("i", (int)(*env)->CallCharMethod(env, value->l, mid));
         }
       }
       
-      if(pmath_string_equals_latin1(class_name, "Ljava/lang/Short;")){
+      if(pmath_string_equals_latin1(class_name, "Ljava/lang/Short;")) {
         jmethodID mid = (*env)->GetMethodID(env, clazz, "shortValue", "()S");
         
-        if(mid){
+        if(mid) {
           pmath_unref(class_name);
           (*env)->DeleteLocalRef(env, clazz);
           return pmath_build_value("i", (int)(*env)->CallShortMethod(env, value->l, mid));
         }
       }
       
-      if(pmath_string_equals_latin1(class_name, "Ljava/lang/Integer;")){
+      if(pmath_string_equals_latin1(class_name, "Ljava/lang/Integer;")) {
         jmethodID mid = (*env)->GetMethodID(env, clazz, "intValue", "()I");
         
-        if(mid){
+        if(mid) {
           pmath_unref(class_name);
           (*env)->DeleteLocalRef(env, clazz);
           return pmath_build_value("i", (int)(*env)->CallIntMethod(env, value->l, mid));
         }
       }
       
-      if(pmath_string_equals_latin1(class_name, "Ljava/lang/Long;")){
+      if(pmath_string_equals_latin1(class_name, "Ljava/lang/Long;")) {
         jmethodID mid = (*env)->GetMethodID(env, clazz, "longValue", "()J");
         
-        if(mid){
+        if(mid) {
           pmath_unref(class_name);
           (*env)->DeleteLocalRef(env, clazz);
           return pmath_build_value("k", (long long)(*env)->CallLongMethod(env, value->l, mid));
         }
       }
       
-      if(pmath_string_equals_latin1(class_name, "Ljava/lang/Float;")){
+      if(pmath_string_equals_latin1(class_name, "Ljava/lang/Float;")) {
         jmethodID mid = (*env)->GetMethodID(env, clazz, "floatValue", "()F");
         
-        if(mid){
+        if(mid) {
           pmath_unref(class_name);
           (*env)->DeleteLocalRef(env, clazz);
           return pmath_build_value("f", (double)(*env)->CallFloatMethod(env, value->l, mid));
         }
       }
       
-      if(pmath_string_equals_latin1(class_name, "Ljava/lang/Double;")){
+      if(pmath_string_equals_latin1(class_name, "Ljava/lang/Double;")) {
         jmethodID mid = (*env)->GetMethodID(env, clazz, "doubleValue", "()D");
         
-        if(mid){
+        if(mid) {
           pmath_unref(class_name);
           (*env)->DeleteLocalRef(env, clazz);
           return pmath_build_value("f", (*env)->CallDoubleMethod(env, value->l, mid));
@@ -512,18 +526,18 @@ pmath_t pj_value_from_java(JNIEnv *env, char type, const jvalue *value){
     
     (*env)->DeleteLocalRef(env, clazz);
     
-    if(slen > 0 && buf[0] == '['){
+    if(slen > 0 && buf[0] == '[') {
       pmath_bool_t is_simple_array = FALSE;
       
       int i = 1;
       while(i < slen && buf[i] == '[')
         ++i;
-      
+        
       is_simple_array = TRUE;
 //      if(i < slen && buf[i] != 'L'){
 //        is_simple_array = TRUE;
 //      }
-//      else if(i + 18 == slen 
+//      else if(i + 18 == slen
 //      && buf[i + 11] == 'S'
 //      && buf[i + 12] == 't'
 //      && buf[i + 13] == 'r'
@@ -544,13 +558,13 @@ pmath_t pj_value_from_java(JNIEnv *env, char type, const jvalue *value){
 //      && buf[i + 17] == ';'){
 //        is_simple_array = TRUE;
 //      }
-      
-      if(is_simple_array){
+
+      if(is_simple_array) {
         jsize len = (*env)->GetArrayLength(env, value->l);
         pmath_t arr = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), (size_t)len);
         size_t item_size = 0;
         
-        switch(buf[1]){
+        switch(buf[1]) {
           case 'Z': item_size = sizeof(value->z); break;
           case 'B': item_size = sizeof(value->b); break;
           case 'S': item_size = sizeof(value->s); break;
@@ -561,26 +575,26 @@ pmath_t pj_value_from_java(JNIEnv *env, char type, const jvalue *value){
           case 'D': item_size = sizeof(value->d); break;
         }
         
-        if(item_size == 0){
+        if(item_size == 0) {
           jsize i;
           jvalue v;
           
-          for(i = len;i > 0;--i){
-            v.l = (*env)->GetObjectArrayElement(env, value->l, i-1);
+          for(i = len; i > 0; --i) {
+            v.l = (*env)->GetObjectArrayElement(env, value->l, i - 1);
             
-            arr = pmath_expr_set_item(arr, (size_t)i, 
-              pj_value_from_java(env, (char)buf[1], &v));
-            
+            arr = pmath_expr_set_item(arr, (size_t)i,
+                                      pj_value_from_java(env, (char)buf[1], &v));
+                                      
             (*env)->DeleteLocalRef(env, v.l);
           }
         }
-        else{
+        else {
           void *data = (*env)->GetPrimitiveArrayCritical(env, value->l, NULL);
           
-          if(data){
+          if(data) {
             size_t i;
             
-            for(i = 0;i < (size_t)len;++i){
+            for(i = 0; i < (size_t)len; ++i) {
               pmath_t item = pj_value_from_java(env, (char)buf[1], (const jvalue*)(data + i * item_size));
               
               arr = pmath_expr_set_item(arr, i + 1, item);
@@ -604,18 +618,18 @@ pmath_t pj_value_from_java(JNIEnv *env, char type, const jvalue *value){
 
 
 // args and types wont be freed
-pmath_bool_t pj_value_fill_args(JNIEnv *env, pmath_expr_t types, pmath_expr_t args, jvalue *jargs){
+pmath_bool_t pj_value_fill_args(JNIEnv *env, pmath_expr_t types, pmath_expr_t args, jvalue *jargs) {
   size_t i;
   size_t len = pmath_expr_length(args);
   
   if(len != pmath_expr_length(types))
     return FALSE;
-  
-  for(i = 1;i <= len;++i){
+    
+  for(i = 1; i <= len; ++i) {
     pmath_t arg  = pmath_expr_get_item(args, i);
     pmath_t type = pmath_expr_get_item(types, i);
     
-    if(!pj_value_to_java(env, arg, type, &jargs[i-1])){
+    if(!pj_value_to_java(env, arg, type, &jargs[i-1])) {
       pmath_unref(type);
       return FALSE;
     }

@@ -25,6 +25,7 @@ extern pmath_bool_t pj_exception_to_java(JNIEnv *env);
 
 
 extern void pjvm_ensure_started(void);
+extern pmath_t pj_builtin_javaisrunning(pmath_expr_t expr);
 extern pmath_t pj_builtin_startvm(pmath_expr_t expr);
 
 

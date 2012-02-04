@@ -48,6 +48,7 @@ pmath_bool_t pj_symbols_init(void){
   VERIFY(PJ_SYMBOL_JAVACLASSASOBJECT   = NEW_SYMBOL("Java`JavaClassAsObject"));
   VERIFY(PJ_SYMBOL_JAVAEXCEPTION       = NEW_SYMBOL("Java`JavaException"));
   VERIFY(PJ_SYMBOL_JAVAFIELD           = NEW_SYMBOL("Java`JavaField"));
+  VERIFY(PJ_SYMBOL_JAVAISRUNNING       = NEW_SYMBOL("Java`JavaIsRunning"));
   VERIFY(PJ_SYMBOL_JAVANEW             = NEW_SYMBOL("Java`JavaNew"));
   VERIFY(PJ_SYMBOL_JAVAOBJECT          = NEW_SYMBOL("Java`JavaObject"));
   VERIFY(PJ_SYMBOL_JAVASTARTVM         = NEW_SYMBOL("Java`JavaStartVM"));
@@ -68,10 +69,11 @@ pmath_bool_t pj_symbols_init(void){
   BIND_DOWN(PJ_SYMBOL_ISJAVAOBJECT,      pj_builtin_isjavaobject);
   BIND_DOWN(PJ_SYMBOL_PARENTCLASS,       pj_builtin_parentclass);
   
+  BIND_DOWN(PJ_SYMBOL_INSTANCEOF,        pj_builtin_instanceof);
   BIND_DOWN(PJ_SYMBOL_JAVACALL,          pj_builtin_javacall);
   BIND_DOWN(PJ_SYMBOL_JAVACLASSASOBJECT, pj_builtin_javaclassasobject);
   BIND_DOWN(PJ_SYMBOL_JAVAFIELD,         pj_builtin_javafield);
-  BIND_DOWN(PJ_SYMBOL_INSTANCEOF,        pj_builtin_instanceof);
+  BIND_DOWN(PJ_SYMBOL_JAVAISRUNNING,     pj_builtin_javaisrunning);
   BIND_DOWN(PJ_SYMBOL_JAVANEW,           pj_builtin_javanew);
   BIND_DOWN(PJ_SYMBOL_JAVASTARTVM,       pj_builtin_startvm);
   

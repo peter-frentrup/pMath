@@ -1104,8 +1104,6 @@ pmath_t pj_class_call_method(
   
   pmath_unref(key);
   pmath_unref(signatures);
-  if(!is_static)
-    (*env)->DeleteLocalRef(env, clazz);
     
   if(pmath_same(result, PMATH_UNDEFINED)) {
     if(num_args == 0) {
@@ -1125,8 +1123,13 @@ pmath_t pj_class_call_method(
                         args);
     }
     
-    return pmath_ref(PMATH_SYMBOL_FAILED);
+    name = PMATH_UNDEFINED;
+    args = PMATH_UNDEFINED;
+    result = pmath_ref(PMATH_SYMBOL_FAILED);
   }
+  
+  if(!is_static)
+    (*env)->DeleteLocalRef(env, clazz);
   
   pmath_unref(name);
   pmath_unref(args);

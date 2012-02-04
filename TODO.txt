@@ -2,7 +2,9 @@
 	Button("italic", DocumentApply(SelectedDocument(), StyleBox("\[SelectionPlaceholder]", "TI"))),
 	Button("Arg Style", DocumentApply(SelectedDocument(), StyleBox("\[SelectionPlaceholder]", "Arg")))})
 
-- pmath-java: add pmath.Expr.cleanup() to call pmath_done() on the current Java thread
+- pmath-java: add pmath.Core.cleanup() to call pmath_done() on the current Java thread
+
+- add ToAbsoluteFileName(), AppendTo(), PrependTo()
 
 - add Differences, Accumulate, ListConvolve
 
