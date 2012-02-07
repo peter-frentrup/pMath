@@ -176,7 +176,7 @@ AddToClassPath(~path:String)::=
 	,
 		With({protected:= Unprotect($DefaultClassPath)},
 			$DefaultClassPath:= Append($DefaultClassPath, path);
-			Protect(protected);
+			Protect @@ protected;
 			)
 		)
 

@@ -15,6 +15,7 @@
 #include <pmath-util/strtod.h>
 
 #include <pmath-builtins/all-symbols-private.h>
+#include <pmath-builtins/build-expr-private.h>
 #include <pmath-builtins/control-private.h>
 #include <pmath-builtins/lists-private.h>
 
@@ -126,48 +127,6 @@ static pmath_bool_t parse(pmath_t *box) {
   return TRUE;
 }
 
-/*static pmath_bool_t parse_quiet(pmath_t *box){
-  pmath_t obj;
-
-  *box = pmath_expr_new_extended(
-    pmath_ref(PMATH_SYMBOL_TRY), 3,
-    pmath_expr_new_extended(
-      pmath_ref(PMATH_SYMBOL_MAKEEXPRESSION), 1,
-      *box),
-    pmath_ref(PMATH_SYMBOL_FAILED),
-    pmath_expr_new_extended(
-      pmath_ref(PMATH_SYMBOL_MESSAGENAME), 2,
-      pmath_ref(PMATH_SYMBOL_MESSAGE),
-      PMATH_C_STRING("inv")));
-
-  *box = pmath_evaluate(*box);
-
-  if(!pmath_is_expr(*box)){
-    pmath_unref(*box);
-    *box = PMATH_NULL;
-    return FALSE;
-  }
-
-  obj = pmath_expr_get_item(*box, 0);
-  pmath_unref(obj);
-
-  if(!pmath_same(obj, PMATH_SYMBOL_HOLDCOMPLETE)){
-    pmath_unref(*box);
-    *box = PMATH_NULL;
-    return FALSE;
-  }
-
-  if(pmath_expr_length(*box) != 1){
-    *box = pmath_expr_set_item(*box, 0, pmath_ref(PMATH_SYMBOL_SEQUENCE));
-    return TRUE;
-  }
-
-  obj = *box;
-  *box = pmath_expr_get_item(*box, 1);
-  pmath_unref(obj);
-  return TRUE;
-} */
-
 static void handle_row_error_at(pmath_expr_t expr, size_t i) {
   if(i == 1) {
     pmath_message(PMATH_NULL, "bgn", 1,
@@ -192,7 +151,7 @@ static pmath_t parse_at(pmath_expr_t expr, size_t i) {
   pmath_t result = pmath_expr_get_item(expr, i);
   
   if(pmath_is_string(result)) {
-    if(!parse/*_quiet*/(&result)) {
+    if(!parse(&result)) {
       handle_row_error_at(expr, i);
       
       return PMATH_UNDEFINED;
@@ -205,26 +164,6 @@ static pmath_t parse_at(pmath_expr_t expr, size_t i) {
     return result;
     
   return PMATH_UNDEFINED;
-}
-
-static pmath_string_t box_as_string(pmath_t box) {
-  while(!pmath_is_null(box)) {
-    if(pmath_is_string(box))
-      return box;
-      
-    if(pmath_is_expr(box)
-        && pmath_expr_length(box) == 1) {
-      pmath_t obj = pmath_expr_get_item(box, 1);
-      pmath_unref(box);
-      box = obj;
-    }
-    else {
-      pmath_unref(box);
-      return PMATH_NULL;
-    }
-  }
-  
-  return PMATH_NULL;
 }
 
 static pmath_symbol_t inset_operator(uint16_t ch) { // do not free result!
@@ -684,6 +623,865 @@ PMATH_PRIVATE pmath_t _pmath_parse_number(
   return PMATH_NULL;
 }
 
+static pmath_t make_expression_with_options(pmath_expr_t expr) {
+  pmath_expr_t options = pmath_options_extract(expr, 1);
+  
+  if(!pmath_is_null(options)) {
+    pmath_t args = pmath_option_value(PMATH_NULL, PMATH_SYMBOL_PARSERARGUMENTS, options);
+    pmath_t syms = pmath_option_value(PMATH_NULL, PMATH_SYMBOL_PARSESYMBOLS,    options);
+    pmath_t box;
+    
+    if(!pmath_same(args, PMATH_SYMBOL_AUTOMATIC)) {
+      args = pmath_thread_local_save(PMATH_THREAD_KEY_PARSERARGUMENTS, args);
+    }
+    
+    if(!pmath_same(syms, PMATH_SYMBOL_AUTOMATIC)) {
+      syms = pmath_thread_local_save(PMATH_THREAD_KEY_PARSESYMBOLS, syms);
+    }
+    
+    box = pmath_expr_get_item(expr, 1);
+    pmath_unref(expr);
+    expr = pmath_expr_new_extended(
+             pmath_ref(PMATH_SYMBOL_MAKEEXPRESSION), 1,
+             box);
+             
+    expr = pmath_evaluate(expr);
+    
+    pmath_unref(options);
+    if(!pmath_same(args, PMATH_SYMBOL_AUTOMATIC)) {
+      pmath_unref(pmath_thread_local_save(PMATH_THREAD_KEY_PARSERARGUMENTS, args));
+    }
+    else
+      pmath_unref(args);
+      
+    if(!pmath_same(syms, PMATH_SYMBOL_AUTOMATIC)) {
+      pmath_unref(pmath_thread_local_save(PMATH_THREAD_KEY_PARSESYMBOLS, syms));
+    }
+    else
+      pmath_unref(syms);
+  }
+  
+  return expr;
+}
+
+static pmath_t get_parser_argument_from_string(pmath_string_t string) { // will be freed
+  const uint16_t *str = pmath_string_buffer(&string);
+  int             len = pmath_string_length(string);
+  
+  pmath_t result;
+  pmath_t args;
+  
+  size_t argi = 1;
+  if(len > 2) {
+    int i;
+    argi = 0;
+    for(i = 1; i < len - 1; ++i)
+      argi = 10 * argi + str[i] - '0';
+  }
+  
+  pmath_unref(string);
+  args = pmath_thread_local_load(PMATH_THREAD_KEY_PARSERARGUMENTS);
+  if(!pmath_is_expr(args))
+    return HOLDCOMPLETE(args);
+    
+  result = pmath_expr_get_item(args, argi);
+  pmath_unref(args);
+  return HOLDCOMPLETE(result);
+}
+
+static pmath_t make_expression_from_name_token(pmath_string_t string) {
+  pmath_t         obj;
+  pmath_token_t   tok;
+  const uint16_t *str = pmath_string_buffer(&string);
+  int             len = pmath_string_length( string);
+  
+  int i = 1;
+  while(i < len) {
+    if(str[i] == '`') {
+      if(i + 1 == len)
+        break;
+        
+      ++i;
+      tok = pmath_token_analyse(str + i, 1, NULL);
+      if(tok != PMATH_TOK_NAME)
+        break;
+        
+      ++i;
+      continue;
+    }
+    
+    tok = pmath_token_analyse(str + i, 1, NULL);
+    if(tok != PMATH_TOK_NAME
+        && tok != PMATH_TOK_DIGIT)
+      break;
+      
+    ++i;
+  }
+  
+  if(i < len) {
+    pmath_message(PMATH_NULL, "inv", 1, string);
+    return pmath_ref(PMATH_SYMBOL_FAILED);
+  }
+  
+  obj = pmath_thread_local_load(PMATH_THREAD_KEY_PARSESYMBOLS);
+  pmath_unref(obj);
+  
+  obj = pmath_symbol_find(
+          pmath_ref(string),
+          pmath_same(obj, PMATH_SYMBOL_TRUE) || pmath_same(obj, PMATH_UNDEFINED));
+          
+  if(!pmath_is_null(obj)) {
+    pmath_unref(string);
+    return HOLDCOMPLETE(obj);
+  }
+  
+  return HOLDCOMPLETE(pmath_expr_new_extended(
+                        pmath_ref(PMATH_SYMBOL_SYMBOL), 1,
+                        string));
+}
+
+static pmath_t make_expression_from_string_token(pmath_string_t string) {
+  const uint16_t *str = pmath_string_buffer(&string);
+  int             len = pmath_string_length( string);
+  
+  struct _pmath_string_t *result = _pmath_new_string_buffer(len - 1);
+  int j = 0;
+  int i = 1;
+  int k = 0;
+  
+  while(i < len - 1) {
+    if(k == 0 && str[i] == '\\') {
+      ++i;
+      if(i == len) {
+        AFTER_STRING(result)[j++] = '\\';
+      }
+      else switch(str[i]) {
+          case '\\':
+          case '"': AFTER_STRING(result)[j++] = str[i++]; break;
+          
+          case 'n':
+            ++i;
+            AFTER_STRING(result)[j++] = '\n';
+            break;
+            
+          case 'r':
+            ++i;
+            AFTER_STRING(result)[j++] = '\r';
+            break;
+            
+          case 't':
+            ++i;
+            AFTER_STRING(result)[j++] = '\t';
+            break;
+            
+          case '(':
+            ++i;
+            AFTER_STRING(result)[j++] = PMATH_CHAR_LEFT_BOX;
+            break;
+            
+          case ')':
+            ++i;
+            AFTER_STRING(result)[j++] = PMATH_CHAR_RIGHT_BOX;
+            break;
+            
+          case 'x':
+            if(i + 2 < len) {
+              int h1 = hex(str[++i]);
+              int h2 = hex(str[++i]);
+              if(h1 >= 0 && h2 >= 0) {
+                ++i;
+                AFTER_STRING(result)[j++] = (uint16_t)((h1 << 4) | h2);
+              }
+              else
+                i -= 2;
+            }
+            break;
+            
+          case 'u':
+            if(i + 4 < len) {
+              int h1 = hex(str[++i]);
+              int h2 = hex(str[++i]);
+              int h3 = hex(str[++i]);
+              int h4 = hex(str[++i]);
+              if(h1 >= 0 && h2 >= 0 && h3 >= 0 && h4 >= 0) {
+                ++i;
+                AFTER_STRING(result)[j++] = (uint16_t)((h1 << 12) | (h2 << 8) | (h3 << 4) | h4);
+              }
+              else
+                i -= 4;
+            }
+            break;
+            
+          case 'U':
+            if(i + 8 < len) {
+              int h1 = hex(str[++i]);
+              int h2 = hex(str[++i]);
+              int h3 = hex(str[++i]);
+              int h4 = hex(str[++i]);
+              int h5 = hex(str[++i]);
+              int h6 = hex(str[++i]);
+              int h7 = hex(str[++i]);
+              int h8 = hex(str[++i]);
+              if(h1 >= 0 && h2 >= 0 && h3 >= 0 && h4 >= 0
+                  && h5 >= 0 && h6 >= 0 && h7 >= 0 && h8 >= 0) {
+                uint32_t u = ((uint32_t)h1) << 28;
+                u |= h2 << 24;
+                u |= h3 << 20;
+                u |= h4 << 16;
+                u |= h5 << 12;
+                u |= h6 <<  8;
+                u |= h7 <<  4;
+                u |= h8;
+                
+                if(u <= 0x10FFFF) {
+                  ++i;
+                  if(u <= 0xFFFF) {
+                    AFTER_STRING(result)[j++] = (uint16_t)u;
+                  }
+                  else {
+                    u -= 0x10000;
+                    AFTER_STRING(result)[j++] = 0xD800 | (uint16_t)((u >> 10) & 0x03FF);
+                    AFTER_STRING(result)[j++] = 0xDC00 | (uint16_t)(u & 0x03FF);
+                  }
+                }
+                else
+                  i -= 8;
+              }
+              else
+                i -= 8;
+            }
+            break;
+            
+          case '[': {
+              int e = i;
+              while(e < len && str[e] <= 0x7F && str[e] != ']') {
+                ++e;
+              }
+              
+              if(e < len && str[e] == ']' && e - i - 1 < 64) {
+                char s[64];
+                int ii;
+                unsigned int unichar;
+                
+                for(ii = 0; ii < e - i - 1; ++ii) {
+                  s[ii] = (char)str[i+1+ii];
+                }
+                
+                s[ii] = '\0';
+                unichar = pmath_char_from_name(s);
+                if(unichar != 0xFFFFFFFFU) {
+                
+                  if(unichar <= 0xFFFF) {
+                    AFTER_STRING(result)[j++] = (uint16_t)unichar;
+                  }
+                  else {
+                    unichar -= 0x10000;
+                    AFTER_STRING(result)[j++] = 0xD800 | (uint16_t)((unichar >> 10) & 0x03FF);
+                    AFTER_STRING(result)[j++] = 0xDC00 | (uint16_t)(unichar & 0x03FF);
+                  }
+                  
+                  i = e + 1;
+                  break;
+                }
+              }
+            } /* fall through */
+            
+          default:
+            if(str[i] <= ' ') {
+              ++i;
+              while(i < len && str[i] <= ' ')
+                ++i;
+            }
+            else {
+              AFTER_STRING(result)[j++] = '\\';
+              AFTER_STRING(result)[j++] = str[i++];
+            }
+        }
+    }
+    else {
+      if(str[i] == PMATH_CHAR_LEFT_BOX)
+        ++k;
+      else if(str[i] == PMATH_CHAR_RIGHT_BOX)
+        --k;
+        
+      AFTER_STRING(result)[j++] = str[i++];
+    }
+  }
+  
+  if(i + 1 == len && str[i] == '"') {
+    pmath_unref(string);
+    result->length = j;
+    return HOLDCOMPLETE(_pmath_from_buffer(result));
+  }
+  
+  pmath_message(PMATH_NULL, "inv", 1, string);
+  return pmath_ref(PMATH_SYMBOL_FAILED);
+}
+
+static pmath_t make_expression_from_string(pmath_string_t string) { // will be freed
+  pmath_token_t   tok;
+  const uint16_t *str = pmath_string_buffer(&string);
+  int             len = pmath_string_length( string);
+  
+  if(len == 0) {
+    pmath_unref(string);
+    return HOLDCOMPLETE(PMATH_NULL);
+  }
+  
+  str = pmath_string_buffer(&string);
+  
+  if(len > 1 && str[0] == '`' && str[len-1] == '`')
+    return get_parser_argument_from_string(string);
+    
+  tok = pmath_token_analyse(str, 1, NULL);
+  if(tok == PMATH_TOK_DIGIT) {
+    pmath_number_t result = _pmath_parse_number(string, TRUE);
+    
+    if(pmath_is_null(result))
+      return pmath_ref(PMATH_SYMBOL_FAILED);
+      
+    return HOLDCOMPLETE(result);
+  }
+  
+  if(tok == PMATH_TOK_NAME)
+    return make_expression_from_name_token(string);
+    
+  // History(-n) = %%%% (n times)
+  if(str[0] == '%') {
+    int i;
+    for(i = 1; i < len; ++i)
+      if(str[i] != '%') {
+        pmath_unref(string);
+        return pmath_ref(PMATH_SYMBOL_FAILED);
+      }
+      
+    pmath_unref(string);
+    return HOLDCOMPLETE(
+             pmath_expr_new_extended(
+               pmath_ref(PMATH_SYMBOL_HISTORY), 1,
+               PMATH_FROM_INT32(-len)));
+  }
+  
+  if(tok == PMATH_TOK_NAME2) {
+    pmath_t obj = pmath_thread_local_load(PMATH_THREAD_KEY_PARSESYMBOLS);
+    pmath_unref(obj);
+    
+    obj = pmath_symbol_find(
+            pmath_ref(string),
+            pmath_same(obj, PMATH_SYMBOL_TRUE) || pmath_same(obj, PMATH_UNDEFINED));
+            
+    if(!pmath_is_null(obj)) {
+      pmath_unref(string);
+      return HOLDCOMPLETE(obj);
+    }
+    
+    return HOLDCOMPLETE(pmath_expr_new_extended(
+                          pmath_ref(PMATH_SYMBOL_SYMBOL), 1,
+                          string));
+  }
+  
+  if(str[0] == '"')
+    return make_expression_from_string_token(string);
+    
+  // now come special cases of generally longer expressions:
+  
+  if(len == 1 && str[0] == '#') {
+    pmath_unref(string);
+    return HOLDCOMPLETE(
+             pmath_expr_new_extended(
+               pmath_ref(PMATH_SYMBOL_PUREARGUMENT), 1,
+               PMATH_FROM_INT32(1)));
+  }
+  
+  if(len == 1 && str[0] == ',') {
+    pmath_unref(string);
+    return pmath_expr_new(
+             pmath_ref(PMATH_SYMBOL_HOLDCOMPLETE), 2);
+  }
+  
+  if(len == 1 && str[0] == '~') {
+    pmath_unref(string);
+    return HOLDCOMPLETE(pmath_ref(_pmath_object_singlematch));
+  }
+  
+  if(len == 2 && str[0] == '#' && str[1] == '#') {
+    pmath_unref(string);
+    return HOLDCOMPLETE(
+             pmath_expr_new_extended(
+               pmath_ref(PMATH_SYMBOL_PUREARGUMENT), 1,
+               pmath_ref(_pmath_object_range_from_one)));
+  }
+  
+  if(len == 2 && str[0] == '~' && str[1] == '~') {
+    pmath_unref(string);
+    return HOLDCOMPLETE(pmath_ref(_pmath_object_multimatch));
+  }
+  
+  if(len == 2 && str[0] == '.' && str[1] == '.') {
+    pmath_unref(string);
+    return HOLDCOMPLETE(
+             pmath_expr_new_extended(
+               pmath_ref(PMATH_SYMBOL_RANGE), 2,
+               pmath_ref(PMATH_SYMBOL_AUTOMATIC),
+               pmath_ref(PMATH_SYMBOL_AUTOMATIC)));
+  }
+  
+  if(len == 3 && str[0] == '~' && str[1] == '~' && str[2] == '~') {
+    pmath_unref(string);
+    return HOLDCOMPLETE(pmath_ref(_pmath_object_zeromultimatch));
+  }
+  
+  if(len == 3 && str[0] == '/' && str[1] == '\\' && str[2] == '/') {
+    pmath_unref(string);
+    return HOLDCOMPLETE(PMATH_NULL);
+  }
+  
+  pmath_message(PMATH_NULL, "inv", 1, string);
+  return pmath_ref(PMATH_SYMBOL_FAILED);
+}
+
+static pmath_string_t box_as_string(pmath_t box) {
+  while(!pmath_is_null(box)) {
+    if(pmath_is_string(box)) {
+      const uint16_t *buf = pmath_string_buffer(&box);
+      int             len = pmath_string_length(box);
+      
+      if(len >= 1 && buf[0] == '"') {
+        pmath_t held_string = make_expression_from_string_token(pmath_ref(box));
+        
+        if( pmath_is_expr_of_len(held_string, PMATH_SYMBOL_HOLDCOMPLETE, 1)) {
+          pmath_t str = pmath_expr_get_item(held_string, 1);
+          pmath_unref(held_string);
+          
+          if(pmath_is_string(str)) {
+            pmath_unref(box);
+            return str;
+          }
+          pmath_unref(str);
+        }
+      }
+      
+      return box;
+    }
+    
+    if(pmath_is_expr(box) && pmath_expr_length(box) == 1) {
+      pmath_t obj = pmath_expr_get_item(box, 1);
+      pmath_unref(box);
+      box = obj;
+    }
+    else {
+      pmath_unref(box);
+      return PMATH_NULL;
+    }
+  }
+  
+  return PMATH_NULL;
+}
+
+static pmath_t make_expression_from_fractionbox(pmath_expr_t box) {
+  size_t len = pmath_expr_length(box);
+  
+  if(len == 2) {
+    pmath_t num = pmath_expr_get_item(box, 1);
+    pmath_t den = pmath_expr_get_item(box, 2);
+    
+    if(parse(&num) && parse(&den)) {
+      pmath_unref(box);
+      
+      if(pmath_is_integer(num) && pmath_is_integer(den))
+        return HOLDCOMPLETE(pmath_rational_new(num, den));
+        
+      if(pmath_same(num, INT(1))) {
+        pmath_unref(num);
+        
+        return HOLDCOMPLETE(INV(den));
+      }
+      
+      return HOLDCOMPLETE(DIV(num, den));
+    }
+    
+    pmath_unref(num);
+    pmath_unref(den);
+  }
+  
+  pmath_message(PMATH_NULL, "inv", 1, box);
+  return pmath_ref(PMATH_SYMBOL_FAILED);
+}
+
+static pmath_t make_expression_from_framebox(pmath_expr_t box) {
+  size_t len = pmath_expr_length(box);
+  
+  if(len == 1) {
+    pmath_t item = pmath_expr_get_item(box, 1);
+    
+    if(parse(&item)) {
+      pmath_unref(box);
+      return HOLDCOMPLETE(
+               pmath_expr_new_extended(
+                 pmath_ref(PMATH_SYMBOL_FRAMED), 1,
+                 box));
+    }
+  }
+  
+  pmath_message(PMATH_NULL, "inv", 1, box);
+  return pmath_ref(PMATH_SYMBOL_FAILED);
+}
+
+static pmath_t make_expression_from_gridbox(pmath_expr_t box) {
+  size_t len = pmath_expr_length(box);
+  
+  if(len >= 1) {
+    pmath_t result = parse_gridbox(box, TRUE);
+    
+    if(!pmath_is_null(result)) {
+      pmath_unref(box);
+      return result;
+    }
+  }
+  
+  pmath_message(PMATH_NULL, "inv", 1, box);
+  return pmath_ref(PMATH_SYMBOL_FAILED);
+}
+
+static pmath_t make_expression_from_interpretationbox(pmath_expr_t box) {
+  size_t len = pmath_expr_length(box);
+  
+  if(len >= 2) {
+    pmath_expr_t options = pmath_options_extract(box, 2);
+    pmath_unref(options);
+    
+    if(!pmath_is_null(options)) {
+      pmath_t value = pmath_expr_get_item(box, 2);
+      pmath_unref(box);
+      return HOLDCOMPLETE(value);
+    }
+  }
+  
+  pmath_message(PMATH_NULL, "inv", 1, box);
+  return pmath_ref(PMATH_SYMBOL_FAILED);
+}
+
+static pmath_t make_expression_from_overscriptbox(pmath_expr_t box) {
+  size_t len = pmath_expr_length(box);
+  
+  if(len == 2) {
+    pmath_t base = pmath_expr_get_item(box, 1);
+    pmath_t over = pmath_expr_get_item(box, 2);
+    
+    if(parse(&base) && parse(&over)) {
+      box = pmath_expr_set_item(box, 1, base);
+      box = pmath_expr_set_item(box, 2, over);
+      box = pmath_expr_set_item(box, 0, pmath_ref(PMATH_SYMBOL_OVERSCRIPT));
+      
+      return HOLDCOMPLETE(box);
+    }
+    
+    pmath_unref(base);
+    pmath_unref(over);
+  }
+  
+  pmath_message(PMATH_NULL, "inv", 1, box);
+  return pmath_ref(PMATH_SYMBOL_FAILED);
+}
+
+static pmath_t make_expression_from_radicalbox(pmath_expr_t box) {
+  size_t len = pmath_expr_length(box);
+  
+  if(len == 2) {
+    pmath_t base     = pmath_expr_get_item(box, 1);
+    pmath_t exponent = pmath_expr_get_item(box, 2);
+    
+    if(parse(&base) && parse(&exponent)) {
+      pmath_unref(box);
+      
+      return HOLDCOMPLETE(POW(base, INV(exponent)));
+    }
+    
+    pmath_unref(base);
+    pmath_unref(exponent);
+  }
+  
+  pmath_message(PMATH_NULL, "inv", 1, box);
+  return pmath_ref(PMATH_SYMBOL_FAILED);
+}
+
+static pmath_t make_expression_from_rotationbox(pmath_expr_t box) {
+  size_t len = pmath_expr_length(box);
+  
+  if(len >= 1) {
+    pmath_t options = pmath_options_extract(box, 1);
+    
+    if(!pmath_is_null(options)) {
+      pmath_t content = pmath_expr_get_item(box, 1);
+      
+      pmath_t angle = pmath_option_value(
+                        PMATH_SYMBOL_ROTATIONBOX,
+                        PMATH_SYMBOL_BOXROTATION,
+                        options);
+                        
+      pmath_unref(options);
+      
+      if(parse(&content)) {
+        pmath_unref(box);
+        
+        return HOLDCOMPLETE(
+                 pmath_expr_new_extended(
+                   pmath_ref(PMATH_SYMBOL_ROTATE), 2,
+                   content,
+                   angle));
+      }
+    }
+  }
+  
+  pmath_message(PMATH_NULL, "inv", 1, box);
+  return pmath_ref(PMATH_SYMBOL_FAILED);
+}
+
+static pmath_t make_expression_from_sqrtbox(pmath_expr_t box) {
+  size_t len = pmath_expr_length(box);
+  
+  if(len == 1) {
+    pmath_t base = pmath_expr_get_item(box, 1);
+    
+    if(parse(&base)) {
+      pmath_unref(box);
+      return HOLDCOMPLETE(SQRT(base));
+    }
+  }
+  
+  pmath_message(PMATH_NULL, "inv", 1, box);
+  return pmath_ref(PMATH_SYMBOL_FAILED);
+}
+
+static pmath_t make_expression_from_stylebox(pmath_expr_t box) {
+  size_t len = pmath_expr_length(box);
+  
+  if(len >= 1) {
+    pmath_t content = pmath_expr_get_item(box, 1);
+    
+    if(parse(&content)) {
+      box = pmath_expr_set_item(box, 1, content);
+      box = pmath_expr_set_item(box, 0, pmath_ref(PMATH_SYMBOL_STYLE));
+      
+      return HOLDCOMPLETE(box);
+    }
+  }
+  
+  pmath_message(PMATH_NULL, "inv", 1, box);
+  return pmath_ref(PMATH_SYMBOL_FAILED);
+}
+
+static pmath_t make_expression_from_tagbox(pmath_expr_t box) {
+  size_t len = pmath_expr_length(box);
+  
+  if(len == 2) {
+    pmath_t view = pmath_expr_get_item(box, 1);
+    pmath_t tag  = pmath_expr_get_item(box, 2);
+    
+    if(pmath_is_string(tag)) {
+    
+      if( pmath_string_equals_latin1(tag, "Column") &&
+          pmath_is_expr_of(view, PMATH_SYMBOL_GRIDBOX))
+      {
+        pmath_t held;
+        pmath_t grid;
+        pmath_t matrix;
+        pmath_t row;
+        
+        held   = parse_gridbox(view, FALSE);
+        grid   = pmath_expr_get_item(held, 1);
+        matrix = pmath_expr_get_item(grid, 1);
+        row    = pmath_expr_get_item(matrix, 1);
+        
+        if(pmath_expr_length(row) == 1) {
+          size_t i;
+          
+          pmath_unref(held);
+          pmath_unref(grid);
+          pmath_unref(row);
+          pmath_unref(view);
+          pmath_unref(tag);
+          pmath_unref(box);
+          
+          for(i = pmath_expr_length(matrix); i > 0; --i) {
+            row = pmath_expr_get_item(matrix, i);
+            
+            matrix = pmath_expr_set_item(matrix, i,
+                                         pmath_expr_get_item(row, 1));
+                                         
+            pmath_unref(row);
+          }
+          
+          return HOLDCOMPLETE(
+                   pmath_expr_new_extended(
+                     pmath_ref(PMATH_SYMBOL_COLUMN), 1,
+                     matrix));
+        }
+        
+        pmath_unref(grid);
+        pmath_unref(matrix);
+        pmath_unref(row);
+        
+        if(!pmath_is_null(held)) {
+          pmath_unref(box);
+          return held;
+        }
+        
+        goto FAILED;
+      }
+      
+      if(pmath_string_equals_latin1(tag, "Placeholder")) {
+        if(pmath_is_expr_of(view, PMATH_SYMBOL_FRAMEBOX)) {
+          pmath_t tmp = pmath_expr_get_item(view, 1);
+          pmath_unref(view);
+          view = tmp;
+        }
+        
+        if(parse(&view)) {
+          pmath_unref(box);
+          pmath_unref(tag);
+          return HOLDCOMPLETE(
+                   pmath_expr_new_extended(
+                     pmath_ref(PMATH_SYMBOL_PLACEHOLDER), 1,
+                     view));
+        }
+        
+        pmath_unref(view);
+        pmath_unref(tag);
+        goto FAILED;
+      }
+      
+      if( pmath_string_equals_latin1(tag, "Grid") &&
+          pmath_is_expr_of(view, PMATH_SYMBOL_GRIDBOX))
+      {
+        pmath_t grid = parse_gridbox(view, FALSE);
+        
+        pmath_unref(view);
+        pmath_unref(tag);
+        
+        if(!pmath_is_null(grid)) {
+          pmath_unref(box);
+          return grid;
+        }
+        
+        goto FAILED;
+      }
+    }
+    
+    if( pmath_same(tag, PMATH_SYMBOL_COLUMN) &&
+        pmath_is_expr_of(view, PMATH_SYMBOL_GRIDBOX))
+    {
+      pmath_t held;
+      pmath_t grid;
+      pmath_t matrix;
+      pmath_t row;
+      
+      held   = parse_gridbox(view, FALSE);
+      grid   = pmath_expr_get_item(held, 1);
+      matrix = pmath_expr_get_item(grid, 1);
+      row    = pmath_expr_get_item(matrix, 1);
+      
+      if(pmath_expr_length(row) == 1) {
+        size_t i;
+        
+        pmath_unref(box);
+        pmath_unref(tag);
+        pmath_unref(view);
+        pmath_unref(held);
+        pmath_unref(grid);
+        pmath_unref(row);
+        
+        for(i = pmath_expr_length(matrix); i > 0; --i) {
+          row = pmath_expr_get_item(matrix, i);
+          
+          matrix = pmath_expr_set_item(matrix, i,
+                                       pmath_expr_get_item(row, 1));
+                                       
+          pmath_unref(row);
+        }
+        
+        return HOLDCOMPLETE(matrix);
+      }
+      
+      pmath_unref(grid);
+      pmath_unref(matrix);
+      pmath_unref(row);
+      pmath_unref(view);
+      pmath_unref(tag);
+      
+      if(!pmath_is_null(held)) {
+        pmath_unref(box);
+        return held;
+      }
+      
+      goto FAILED;
+    }
+    
+    if(parse(&view)) {
+      pmath_unref(box);
+      return HOLDCOMPLETE(
+               pmath_expr_new_extended(
+                 tag, 1,
+                 view));
+    }
+    
+    pmath_unref(view);
+    pmath_unref(tag);
+  }
+  
+FAILED:
+  pmath_message(PMATH_NULL, "inv", 1, box);
+  return pmath_ref(PMATH_SYMBOL_FAILED);
+}
+
+static pmath_t make_expression_from_underscriptbox(pmath_expr_t box) {
+  size_t len = pmath_expr_length(box);
+  
+  if(len == 2) {
+    pmath_t base  = pmath_expr_get_item(box, 1);
+    pmath_t under = pmath_expr_get_item(box, 2);
+    
+    if(parse(&base) && parse(&under)) {
+      box = pmath_expr_set_item(box, 1, base);
+      box = pmath_expr_set_item(box, 2, under);
+      box = pmath_expr_set_item(box, 0, pmath_ref(PMATH_SYMBOL_UNDERSCRIPT));
+      
+      return HOLDCOMPLETE(box);
+    }
+    
+    pmath_unref(base);
+    pmath_unref(under);
+  }
+  
+  pmath_message(PMATH_NULL, "inv", 1, box);
+  return pmath_ref(PMATH_SYMBOL_FAILED);
+}
+
+static pmath_t make_expression_from_underoverscriptbox(pmath_expr_t box) {
+  size_t len = pmath_expr_length(box);
+  
+  if(len == 3) {
+    pmath_t base  = pmath_expr_get_item(box, 1);
+    pmath_t under = pmath_expr_get_item(box, 2);
+    pmath_t over  = pmath_expr_get_item(box, 3);
+    
+    if(parse(&base) && parse(&under) && parse(&over)) {
+      box = pmath_expr_set_item(box, 1, base);
+      box = pmath_expr_set_item(box, 2, under);
+      box = pmath_expr_set_item(box, 3, over);
+      box = pmath_expr_set_item(box, 0, pmath_ref(PMATH_SYMBOL_UNDEROVERSCRIPT));
+      
+      return HOLDCOMPLETE(box);
+    }
+    
+    pmath_unref(base);
+    pmath_unref(over);
+  }
+  
+  pmath_message(PMATH_NULL, "inv", 1, box);
+  return pmath_ref(PMATH_SYMBOL_FAILED);
+}
+
 PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
   /* MakeExpression(boxes)
      returns $Failed on error and HoldComplete(result) on success.
@@ -695,46 +1493,9 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
   pmath_t box;
   size_t exprlen = pmath_expr_length(expr);
   
-  if(exprlen > 1) {
-    pmath_expr_t options = pmath_options_extract(expr, 1);
+  if(exprlen > 1)
+    return make_expression_with_options(expr);
     
-    if(!pmath_is_null(options)) {
-      pmath_t args = pmath_option_value(PMATH_NULL, PMATH_SYMBOL_PARSERARGUMENTS, options);
-      pmath_t syms = pmath_option_value(PMATH_NULL, PMATH_SYMBOL_PARSESYMBOLS,    options);
-      
-      if(!pmath_same(args, PMATH_SYMBOL_AUTOMATIC)) {
-        args = pmath_thread_local_save(PMATH_THREAD_KEY_PARSERARGUMENTS, args);
-      }
-      
-      if(!pmath_same(syms, PMATH_SYMBOL_AUTOMATIC)) {
-        syms = pmath_thread_local_save(PMATH_THREAD_KEY_PARSESYMBOLS, syms);
-      }
-      
-      box = pmath_expr_get_item(expr, 1);
-      pmath_unref(expr);
-      expr = pmath_expr_new_extended(
-               pmath_ref(PMATH_SYMBOL_MAKEEXPRESSION), 1,
-               box);
-               
-      expr = pmath_evaluate(expr);
-      
-      pmath_unref(options);
-      if(!pmath_same(args, PMATH_SYMBOL_AUTOMATIC)) {
-        pmath_unref(pmath_thread_local_save(PMATH_THREAD_KEY_PARSERARGUMENTS, args));
-      }
-      else
-        pmath_unref(args);
-        
-      if(!pmath_same(syms, PMATH_SYMBOL_AUTOMATIC)) {
-        pmath_unref(pmath_thread_local_save(PMATH_THREAD_KEY_PARSESYMBOLS, syms));
-      }
-      else
-        pmath_unref(syms);
-    }
-    
-    return expr;
-  }
-  
   if(exprlen != 1) {
     pmath_message_argxxx(exprlen, 1, 1);
     pmath_unref(expr);
@@ -744,735 +1505,71 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
   box = pmath_expr_get_item(expr, 1);
   pmath_unref(expr);
   
-  if(pmath_is_string(box)) {
-    pmath_token_t tok;
-    const uint16_t *str;
-    int len = pmath_string_length(box);
+  if(pmath_is_string(box))
+    return make_expression_from_string(box);
     
-    if(len == 0) {
-      pmath_unref(box);
-      return HOLDCOMPLETE(PMATH_NULL);
-    }
-    
-    str = pmath_string_buffer(&box);
-    
-    if(len > 1 && str[0] == '`' && str[len-1] == '`') {
-      pmath_t result;
-      
-      size_t argi = 1;
-      if(len > 2) {
-        int i;
-        argi = 0;
-        for(i = 1; i < len - 1; ++i)
-          argi = 10 * argi + str[i] - '0';
-      }
-      
-      pmath_unref(box);
-      box = pmath_thread_local_load(PMATH_THREAD_KEY_PARSERARGUMENTS);
-      if(!pmath_is_expr(box))
-        return HOLDCOMPLETE(box);
-        
-      result = pmath_expr_get_item(box, argi);
-      pmath_unref(box);
-      return HOLDCOMPLETE(result);
-    }
-    
-    tok = pmath_token_analyse(str, 1, NULL);
-    if(tok == PMATH_TOK_DIGIT) {
-      pmath_number_t result = _pmath_parse_number(box, TRUE);
-      
-      if(pmath_is_null(result))
-        return pmath_ref(PMATH_SYMBOL_FAILED);
-        
-      return HOLDCOMPLETE(result);
-    }
-    
-    if(tok == PMATH_TOK_NAME) {
-      int i = 1;
-      while(i < len) {
-        if(str[i] == '`') {
-          if(i + 1 == len)
-            break;
-            
-          ++i;
-          tok = pmath_token_analyse(str + i, 1, NULL);
-          if(tok != PMATH_TOK_NAME)
-            break;
-            
-          ++i;
-          continue;
-        }
-        
-        tok = pmath_token_analyse(str + i, 1, NULL);
-        if(tok != PMATH_TOK_NAME
-            && tok != PMATH_TOK_DIGIT)
-          break;
-          
-        ++i;
-      }
-      
-      if(i < len) {
-        pmath_message(PMATH_NULL, "inv", 1, box);
-        return pmath_ref(PMATH_SYMBOL_FAILED);
-      }
-      
-      expr = pmath_thread_local_load(PMATH_THREAD_KEY_PARSESYMBOLS);
-      pmath_unref(expr);
-      
-      expr = pmath_symbol_find(
-               pmath_ref(box),
-               pmath_same(expr, PMATH_SYMBOL_TRUE) || pmath_same(expr, PMATH_UNDEFINED));
-               
-      if(!pmath_is_null(expr)) {
-        pmath_unref(box);
-        return HOLDCOMPLETE(expr);
-      }
-      
-      return HOLDCOMPLETE(pmath_expr_new_extended(
-                            pmath_ref(PMATH_SYMBOL_SYMBOL), 1,
-                            box));
-    }
-    
-    if(str[0] == '%') {
-      int i;
-      for(i = 1; i < len; ++i)
-        if(str[i] != '%') {
-          pmath_unref(box);
-          return pmath_ref(PMATH_SYMBOL_FAILED);
-        }
-        
-      pmath_unref(box);
-      return HOLDCOMPLETE(
-               pmath_expr_new_extended(
-                 pmath_ref(PMATH_SYMBOL_HISTORY), 1,
-                 PMATH_FROM_INT32(-len)));
-    }
-    
-    if(tok == PMATH_TOK_NAME2) {
-      expr = pmath_thread_local_load(PMATH_THREAD_KEY_PARSESYMBOLS);
-      pmath_unref(expr);
-      
-      expr = pmath_symbol_find(
-               pmath_ref(box),
-               pmath_same(expr, PMATH_SYMBOL_TRUE) || pmath_same(expr, PMATH_UNDEFINED));
-               
-      if(!pmath_is_null(expr)) {
-        pmath_unref(box);
-        return HOLDCOMPLETE(expr);
-      }
-      
-      return HOLDCOMPLETE(pmath_expr_new_extended(
-                            pmath_ref(PMATH_SYMBOL_SYMBOL), 1,
-                            box));
-    }
-    
-    if(str[0] == '"') {
-      struct _pmath_string_t *result = _pmath_new_string_buffer(len - 1);
-      int j = 0;
-      int i = 1;
-      int k = 0;
-      while(i < len - 1) {
-        if(k == 0 && str[i] == '\\') {
-          ++i;
-          if(i == len) {
-            AFTER_STRING(result)[j++] = '\\';
-          }
-          else switch(str[i]) {
-              case '\\':
-              case '"': AFTER_STRING(result)[j++] = str[i++]; break;
-              
-              case 'n':
-                ++i;
-                AFTER_STRING(result)[j++] = '\n';
-                break;
-                
-              case 'r':
-                ++i;
-                AFTER_STRING(result)[j++] = '\r';
-                break;
-                
-              case 't':
-                ++i;
-                AFTER_STRING(result)[j++] = '\t';
-                break;
-                
-              case '(':
-                ++i;
-                AFTER_STRING(result)[j++] = PMATH_CHAR_LEFT_BOX;
-                break;
-                
-              case ')':
-                ++i;
-                AFTER_STRING(result)[j++] = PMATH_CHAR_RIGHT_BOX;
-                break;
-                
-              case 'x':
-                if(i + 2 < len) {
-                  int h1 = hex(str[++i]);
-                  int h2 = hex(str[++i]);
-                  if(h1 >= 0 && h2 >= 0) {
-                    ++i;
-                    AFTER_STRING(result)[j++] = (uint16_t)((h1 << 4) | h2);
-                  }
-                  else
-                    i -= 2;
-                }
-                break;
-                
-              case 'u':
-                if(i + 4 < len) {
-                  int h1 = hex(str[++i]);
-                  int h2 = hex(str[++i]);
-                  int h3 = hex(str[++i]);
-                  int h4 = hex(str[++i]);
-                  if(h1 >= 0 && h2 >= 0 && h3 >= 0 && h4 >= 0) {
-                    ++i;
-                    AFTER_STRING(result)[j++] = (uint16_t)((h1 << 12) | (h2 << 8) | (h3 << 4) | h4);
-                  }
-                  else
-                    i -= 4;
-                }
-                break;
-                
-              case 'U':
-                if(i + 8 < len) {
-                  int h1 = hex(str[++i]);
-                  int h2 = hex(str[++i]);
-                  int h3 = hex(str[++i]);
-                  int h4 = hex(str[++i]);
-                  int h5 = hex(str[++i]);
-                  int h6 = hex(str[++i]);
-                  int h7 = hex(str[++i]);
-                  int h8 = hex(str[++i]);
-                  if(h1 >= 0 && h2 >= 0 && h3 >= 0 && h4 >= 0
-                      && h5 >= 0 && h6 >= 0 && h7 >= 0 && h8 >= 0) {
-                    uint32_t u = ((uint32_t)h1) << 28;
-                    u |= h2 << 24;
-                    u |= h3 << 20;
-                    u |= h4 << 16;
-                    u |= h5 << 12;
-                    u |= h6 <<  8;
-                    u |= h7 <<  4;
-                    u |= h8;
-                    
-                    if(u <= 0x10FFFF) {
-                      ++i;
-                      if(u <= 0xFFFF) {
-                        AFTER_STRING(result)[j++] = (uint16_t)u;
-                      }
-                      else {
-                        u -= 0x10000;
-                        AFTER_STRING(result)[j++] = 0xD800 | (uint16_t)((u >> 10) & 0x03FF);
-                        AFTER_STRING(result)[j++] = 0xDC00 | (uint16_t)(u & 0x03FF);
-                      }
-                    }
-                    else
-                      i -= 8;
-                  }
-                  else
-                    i -= 8;
-                }
-                break;
-                
-              case '[': {
-                  int e = i;
-                  while(e < len && str[e] <= 0x7F && str[e] != ']') {
-                    ++e;
-                  }
-                  
-                  if(e < len && str[e] == ']' && e - i - 1 < 64) {
-                    char s[64];
-                    int ii;
-                    unsigned int unichar;
-                    
-                    for(ii = 0; ii < e - i - 1; ++ii) {
-                      s[ii] = (char)str[i+1+ii];
-                    }
-                    
-                    s[ii] = '\0';
-                    unichar = pmath_char_from_name(s);
-                    if(unichar != 0xFFFFFFFFU) {
-                    
-                      if(unichar <= 0xFFFF) {
-                        AFTER_STRING(result)[j++] = (uint16_t)unichar;
-                      }
-                      else {
-                        unichar -= 0x10000;
-                        AFTER_STRING(result)[j++] = 0xD800 | (uint16_t)((unichar >> 10) & 0x03FF);
-                        AFTER_STRING(result)[j++] = 0xDC00 | (uint16_t)(unichar & 0x03FF);
-                      }
-                      
-                      i = e + 1;
-                      break;
-                    }
-                  }
-                } /* fall through */
-                
-              default:
-                if(str[i] <= ' ') {
-                  ++i;
-                  while(i < len && str[i] <= ' ')
-                    ++i;
-                }
-                else {
-                  AFTER_STRING(result)[j++] = '\\';
-                  AFTER_STRING(result)[j++] = str[i++];
-                }
-            }
-        }
-        else {
-          if(str[i] == PMATH_CHAR_LEFT_BOX)
-            ++k;
-          else if(str[i] == PMATH_CHAR_RIGHT_BOX)
-            --k;
-            
-          AFTER_STRING(result)[j++] = str[i++];
-        }
-      }
-      
-      if(i + 1 == len && str[i] == '"') {
-        pmath_unref(box);
-        result->length = j;
-        return HOLDCOMPLETE(_pmath_from_buffer(result));
-      }
-    }
-    
-    if(len == 1 && str[0] == '#') {
-      pmath_unref(box);
-      return HOLDCOMPLETE(
-               pmath_expr_new_extended(
-                 pmath_ref(PMATH_SYMBOL_PUREARGUMENT), 1,
-                 PMATH_FROM_INT32(1)));
-    }
-    
-    if(len == 1 && str[0] == ',') {
-      pmath_unref(box);
-      return pmath_expr_new(
-               pmath_ref(PMATH_SYMBOL_HOLDCOMPLETE), 2);
-    }
-    
-    if(len == 1 && str[0] == '~') {
-      pmath_unref(box);
-      return HOLDCOMPLETE(pmath_ref(_pmath_object_singlematch));
-    }
-    
-    if(len == 2 && str[0] == '#' && str[1] == '#') {
-      pmath_unref(box);
-      return HOLDCOMPLETE(
-               pmath_expr_new_extended(
-                 pmath_ref(PMATH_SYMBOL_PUREARGUMENT), 1,
-                 pmath_ref(_pmath_object_range_from_one)));
-    }
-    
-    if(len == 2 && str[0] == '~' && str[1] == '~') {
-      pmath_unref(box);
-      return HOLDCOMPLETE(pmath_ref(_pmath_object_multimatch));
-    }
-    
-    if(len == 2 && str[0] == '.' && str[1] == '.') {
-      pmath_unref(box);
-      return HOLDCOMPLETE(
-               pmath_expr_new_extended(
-                 pmath_ref(PMATH_SYMBOL_RANGE), 2,
-                 pmath_ref(PMATH_SYMBOL_AUTOMATIC),
-                 pmath_ref(PMATH_SYMBOL_AUTOMATIC)));
-    }
-    
-    if(len == 3 && str[0] == '~' && str[1] == '~' && str[2] == '~') {
-      pmath_unref(box);
-      return HOLDCOMPLETE(pmath_ref(_pmath_object_zeromultimatch));
-    }
-    
-    if(len == 3 && str[0] == '/' && str[1] == '\\' && str[2] == '/') {
-      pmath_unref(box);
-      return HOLDCOMPLETE(PMATH_NULL);
-    }
-    
-    pmath_message(PMATH_NULL, "inv", 1, box);
-    return pmath_ref(PMATH_SYMBOL_FAILED);
-  }
-  
   if(pmath_is_expr(box)) {
+    pmath_t head;
     uint16_t firstchar, secondchar;
     size_t i;
     
+    head = pmath_expr_get_item(box, 0);
+    pmath_unref(head);
+    
     expr = box;
-    exprlen = pmath_expr_length(expr);
-    box = pmath_expr_get_item(expr, 0);
-    pmath_unref(box);
-    
-    if(!pmath_is_null(box) && !pmath_same(box, PMATH_SYMBOL_LIST)) {
-      if(exprlen == 2 && pmath_same(box, PMATH_SYMBOL_FRACTIONBOX)) {
-        pmath_t num = pmath_expr_get_item(expr, 1);
-        box = pmath_expr_get_item(expr, 2);
-        
-        if(parse(&num) && parse(&box)) {
-          pmath_unref(expr);
-          
-          if(pmath_is_integer(num) && pmath_is_integer(box))
-            return HOLDCOMPLETE(pmath_rational_new(num, box));
-            
-          if(pmath_equals(num, PMATH_FROM_INT32(1))) {
-            pmath_unref(num);
-            
-            return HOLDCOMPLETE(pmath_expr_new_extended(
-                                  pmath_ref(PMATH_SYMBOL_POWER), 2,
-                                  box,
-                                  PMATH_FROM_INT32(-1)));
-          }
-          
-          return HOLDCOMPLETE(
-                   pmath_expr_new_extended(
-                     pmath_ref(PMATH_SYMBOL_TIMES), 2,
-                     num,
-                     pmath_expr_new_extended(
-                       pmath_ref(PMATH_SYMBOL_POWER), 2,
-                       box,
-                       PMATH_FROM_INT32(-1))));
-        }
-        
-        pmath_unref(num);
-        pmath_unref(box);
-        goto FAILED;
-      }
-      
-      if(exprlen == 1 && pmath_same(box, PMATH_SYMBOL_FRAMEBOX)) {
-        box = pmath_expr_get_item(expr, 1);
-        
-        if(parse(&box)) {
-          pmath_unref(expr);
-          return HOLDCOMPLETE(
-                   pmath_expr_new_extended(
-                     pmath_ref(PMATH_SYMBOL_FRAMED), 1,
-                     box));
-        }
-        
-        goto FAILED;
-      }
-      
-      if(exprlen >= 1 && pmath_same(box, PMATH_SYMBOL_GRIDBOX)) {
-        box = parse_gridbox(expr, TRUE);
-        
-        if(!pmath_is_null(box)) {
-          pmath_unref(expr);
-          return box;
-        }
-        
-        goto FAILED;
-      }
-      
-      if(pmath_same(box, PMATH_SYMBOL_HOLDCOMPLETE)) {
-        return expr;
-      }
-      
-      if(exprlen >= 2 && pmath_same(box, PMATH_SYMBOL_INTERPRETATIONBOX)) {
-        pmath_expr_t options = pmath_options_extract(expr, 2);
-        pmath_unref(options);
-        
-        if(!pmath_is_null(options)) {
-          box = pmath_expr_get_item(expr, 2);
-          pmath_unref(expr);
-          return HOLDCOMPLETE(box);
-        }
-        
-        goto FAILED;
-      }
-      
-      if(exprlen == 2 && pmath_same(box, PMATH_SYMBOL_OVERSCRIPTBOX)) {
-        pmath_t base = pmath_expr_get_item(expr, 1);
-        box = pmath_expr_get_item(expr, 2);
-        
-        if(parse(&base) && parse(&box)) {
-          expr = pmath_expr_set_item(expr, 1, base);
-          expr = pmath_expr_set_item(expr, 2, box);
-          expr = pmath_expr_set_item(expr, 0, pmath_ref(PMATH_SYMBOL_OVERSCRIPT));
-          
-          return HOLDCOMPLETE(expr);
-        }
-        
-        pmath_unref(base);
-        pmath_unref(box);
-        goto FAILED;
-      }
-      
-      if(exprlen == 2 && pmath_same(box, PMATH_SYMBOL_RADICALBOX)) {
-        pmath_t base = pmath_expr_get_item(expr, 1);
-        box = pmath_expr_get_item(expr, 2);
-        
-        if(parse(&base) && parse(&box)) {
-          pmath_unref(expr);
-          
-          return HOLDCOMPLETE(
-                   pmath_expr_new_extended(
-                     pmath_ref(PMATH_SYMBOL_POWER), 2,
-                     base,
-                     pmath_expr_new_extended(
-                       pmath_ref(PMATH_SYMBOL_POWER), 2,
-                       box,
-                       PMATH_FROM_INT32(-1))));
-        }
-        
-        pmath_unref(base);
-        pmath_unref(box);
-        goto FAILED;
-      }
-      
-      if(exprlen >= 1 && pmath_same(box, PMATH_SYMBOL_ROTATIONBOX)) {
-        pmath_t options = pmath_options_extract(expr, 1);
-        
-        if(!pmath_is_null(options)) {
-          pmath_t angle = pmath_option_value(
-                            PMATH_SYMBOL_ROTATIONBOX,
-                            PMATH_SYMBOL_BOXROTATION,
-                            options);
-                            
-          pmath_unref(options);
-          box = pmath_expr_get_item(expr, 1);
-          
-          if(parse(&box)) {
-            pmath_unref(expr);
-            return HOLDCOMPLETE(
-                     pmath_expr_new_extended(
-                       pmath_ref(PMATH_SYMBOL_ROTATE), 2,
-                       box,
-                       angle));
-          }
-        }
-        
-        goto FAILED;
-      }
-      
-      if(exprlen == 1 && pmath_same(box, PMATH_SYMBOL_SQRTBOX)) {
-        box = pmath_expr_get_item(expr, 1);
-        
-        if(parse(&box)) {
-          pmath_unref(expr);
-          return HOLDCOMPLETE(
-                   pmath_expr_new_extended(
-                     pmath_ref(PMATH_SYMBOL_POWER), 2,
-                     box,
-                     pmath_ref(_pmath_one_half)));
-        }
-        
-        goto FAILED;
-      }
-      
-      if(exprlen >= 1 && pmath_same(box, PMATH_SYMBOL_STYLEBOX)) {
-        box = pmath_expr_get_item(expr, 1);
-        
-        if(parse(&box)) {
-          expr = pmath_expr_set_item(expr, 1, box);
-          expr = pmath_expr_set_item(expr, 0, pmath_ref(PMATH_SYMBOL_STYLE));
-          
-          return HOLDCOMPLETE(expr);
-        }
-        
-        goto FAILED;
-      }
-      
-      if(exprlen == 2 && pmath_same(box, PMATH_SYMBOL_TAGBOX)) {
-        pmath_t view = pmath_expr_get_item(expr, 1);
-        pmath_t tag  = pmath_expr_get_item(expr, 2);
-        
-        if(pmath_is_string(tag)) {
-        
-          if(pmath_string_equals_latin1(tag, "Column")
-              && pmath_is_expr_of(view, PMATH_SYMBOL_GRIDBOX)) {
-            pmath_t held;
-            pmath_t grid;
-            pmath_t matrix;
-            pmath_t row;
-            
-            held = parse_gridbox(view, FALSE);
-            grid = pmath_expr_get_item(held, 1);
-            matrix = pmath_expr_get_item(grid, 1);
-            row = pmath_expr_get_item(matrix, 1);
-            
-            if(pmath_expr_length(row) == 1) {
-              size_t i;
-              
-              pmath_unref(held);
-              pmath_unref(grid);
-              pmath_unref(row);
-              pmath_unref(view);
-              pmath_unref(tag);
-              pmath_unref(expr);
-              
-              for(i = pmath_expr_length(matrix); i > 0; --i) {
-                row = pmath_expr_get_item(matrix, i);
-                
-                matrix = pmath_expr_set_item(matrix, i,
-                                             pmath_expr_get_item(row, 1));
-                                             
-                pmath_unref(row);
-              }
-              
-              return HOLDCOMPLETE(
-                       pmath_expr_new_extended(
-                         pmath_ref(PMATH_SYMBOL_COLUMN), 1,
-                         matrix));
-            }
-            
-            pmath_unref(grid);
-            pmath_unref(matrix);
-            pmath_unref(row);
-            
-            if(!pmath_is_null(held)) {
-              pmath_unref(expr);
-              return held;
-            }
-            
-            goto FAILED;
-          }
-          
-          if(pmath_string_equals_latin1(tag, "Placeholder")) {
-            if(pmath_is_expr_of(view, PMATH_SYMBOL_FRAMEBOX)) {
-              box = pmath_expr_get_item(view, 1);
-              pmath_unref(view);
-              view = box;
-            }
-            
-            if(parse(&view)) {
-              pmath_unref(expr);
-              pmath_unref(tag);
-              return HOLDCOMPLETE(
-                       pmath_expr_new_extended(
-                         pmath_ref(PMATH_SYMBOL_PLACEHOLDER), 1,
-                         view));
-            }
-            
-            pmath_unref(view);
-            pmath_unref(tag);
-            goto FAILED;
-          }
-          
-          if(pmath_string_equals_latin1(tag, "Grid")
-              && pmath_is_expr_of(view, PMATH_SYMBOL_GRIDBOX)) {
-            box = parse_gridbox(view, FALSE);
-            
-            pmath_unref(view);
-            pmath_unref(tag);
-            
-            if(!pmath_is_null(box)) {
-              pmath_unref(expr);
-              return box;
-            }
-            
-            goto FAILED;
-          }
-        }
-        
-        if(pmath_same(tag, PMATH_SYMBOL_COLUMN)
-            && pmath_is_expr_of(view, PMATH_SYMBOL_GRIDBOX)) {
-          pmath_t held;
-          pmath_t grid;
-          pmath_t matrix;
-          pmath_t row;
-          
-          held   = parse_gridbox(view, FALSE);
-          grid   = pmath_expr_get_item(held, 1);
-          matrix = pmath_expr_get_item(grid, 1);
-          row    = pmath_expr_get_item(matrix, 1);
-          
-          if(pmath_expr_length(row) == 1) {
-            size_t i;
-            
-            pmath_unref(expr);
-            pmath_unref(tag);
-            pmath_unref(view);
-            pmath_unref(held);
-            pmath_unref(grid);
-            pmath_unref(row);
-            
-            for(i = pmath_expr_length(matrix); i > 0; --i) {
-              row = pmath_expr_get_item(matrix, i);
-              
-              matrix = pmath_expr_set_item(matrix, i,
-                                           pmath_expr_get_item(row, 1));
-                                           
-              pmath_unref(row);
-            }
-            
-            return HOLDCOMPLETE(matrix);
-          }
-          
-          pmath_unref(grid);
-          pmath_unref(matrix);
-          pmath_unref(row);
-          pmath_unref(view);
-          pmath_unref(tag);
-          
-          if(!pmath_is_null(held)) {
-            pmath_unref(expr);
-            return held;
-          }
-          
-          goto FAILED;
-        }
-        
-        if(parse(&view)) {
-          pmath_unref(expr);
-          return HOLDCOMPLETE(
-                   pmath_expr_new_extended(
-                     tag, 1,
-                     view));
-        }
-        
-        pmath_unref(view);
-        pmath_unref(tag);
-        goto FAILED;
-      }
-      
-      if(exprlen == 2 && pmath_same(box, PMATH_SYMBOL_UNDERSCRIPTBOX)) {
-        pmath_t base = pmath_expr_get_item(expr, 1);
-        box = pmath_expr_get_item(expr, 2);
-        
-        if(parse(&base) && parse(&box)) {
-          expr = pmath_expr_set_item(expr, 1, base);
-          expr = pmath_expr_set_item(expr, 2, box);
-          expr = pmath_expr_set_item(expr, 0, pmath_ref(PMATH_SYMBOL_UNDERSCRIPT));
-          
-          return HOLDCOMPLETE(expr);
-        }
-        
-        pmath_unref(base);
-        pmath_unref(box);
-        goto FAILED;
-      }
-      
-      if(exprlen == 3 && pmath_same(box, PMATH_SYMBOL_UNDEROVERSCRIPTBOX)) {
-        pmath_t base = pmath_expr_get_item(expr, 1);
-        pmath_t under = pmath_expr_get_item(expr, 2);
-        box = pmath_expr_get_item(expr, 3);
-        
-        if(parse(&base) && parse(&under) && parse(&box)) {
-          expr = pmath_expr_set_item(expr, 1, base);
-          expr = pmath_expr_set_item(expr, 2, under);
-          expr = pmath_expr_set_item(expr, 3, box);
-          expr = pmath_expr_set_item(expr, 0, pmath_ref(PMATH_SYMBOL_UNDEROVERSCRIPT));
-          
-          return HOLDCOMPLETE(expr);
-        }
-        
-        pmath_unref(base);
-        pmath_unref(box);
-        goto FAILED;
-      }
-      
-      goto FAILED;
-    }
-    
     box = PMATH_NULL;
     
-    // box is invalid, expr is valid
+    exprlen = pmath_expr_length(expr);
+    
+    if(!pmath_is_null(head) && !pmath_same(head, PMATH_SYMBOL_LIST)) {
+      if(pmath_same(head, PMATH_SYMBOL_FRACTIONBOX))
+        return make_expression_from_fractionbox(expr);
+        
+      if(pmath_same(head, PMATH_SYMBOL_FRAMEBOX))
+        return make_expression_from_framebox(expr);
+        
+      if(pmath_same(head, PMATH_SYMBOL_GRIDBOX))
+        return make_expression_from_gridbox(expr);
+        
+      if(pmath_same(head, PMATH_SYMBOL_HOLDCOMPLETE))
+        return expr;
+        
+      if(pmath_same(head, PMATH_SYMBOL_INTERPRETATIONBOX))
+        return make_expression_from_interpretationbox(expr);
+        
+      if(pmath_same(head, PMATH_SYMBOL_OVERSCRIPTBOX))
+        return make_expression_from_overscriptbox(expr);
+        
+      if(pmath_same(head, PMATH_SYMBOL_RADICALBOX))
+        return make_expression_from_radicalbox(expr);
+        
+      if(pmath_same(head, PMATH_SYMBOL_ROTATIONBOX))
+        return make_expression_from_rotationbox(expr);
+        
+      if(pmath_same(head, PMATH_SYMBOL_SQRTBOX))
+        return make_expression_from_sqrtbox(expr);
+        
+      if(pmath_same(head, PMATH_SYMBOL_STYLEBOX))
+        return make_expression_from_stylebox(expr);
+        
+      if(pmath_same(head, PMATH_SYMBOL_TAGBOX))
+        return make_expression_from_tagbox(expr);
+        
+      if(pmath_same(head, PMATH_SYMBOL_UNDERSCRIPTBOX))
+        return make_expression_from_underscriptbox(expr);
+        
+      if(pmath_same(head, PMATH_SYMBOL_UNDEROVERSCRIPTBOX))
+        return make_expression_from_underoverscriptbox(expr);
+        
+      goto FAILED;
+    }
     
     if(exprlen == 0) {
       pmath_unref(expr);
       return HOLDCOMPLETE(PMATH_NULL);
-      //return pmath_expr_set_item(expr, 0, pmath_ref(PMATH_SYMBOL_HOLDCOMPLETE));
     }
     
-    firstchar = unichar_at(expr, 1);
+    firstchar  = unichar_at(expr, 1);
     secondchar = unichar_at(expr, 2);
     
     // ()  and  (x) ...
@@ -1649,7 +1746,8 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
       return pmath_ref(PMATH_SYMBOL_FAILED);
     }
     
-    if(exprlen == 2) { // x& x! x++ x-- x.. p** p*** +x -x !x #x ++x --x ..x ??x <<x ~x ~~x ~~~x
+    // x& x! x++ x-- x.. p** p*** +x -x !x #x ++x --x ..x ??x <<x ~x ~~x ~~~x
+    if(exprlen == 2) {
       // x &
       if(secondchar == '&') {
         box = parse_at(expr, 1);
@@ -1903,9 +2001,10 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
         box = pmath_expr_get_item(expr, 2);
         
         pmath_unref(expr);
-        if(!pmath_is_string(box)
-            || pmath_string_length(box) == 0
-            || pmath_string_buffer(&box)[0] == '"') {
+        if(!pmath_is_string(box)              ||
+            pmath_string_length(box)     == 0 ||
+            pmath_string_buffer(&box)[0] == '"')
+        {
           if(!parse(&box))
             return pmath_ref(PMATH_SYMBOL_FAILED);
         }
@@ -1921,9 +2020,10 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
         box = pmath_expr_get_item(expr, 2);
         
         pmath_unref(expr);
-        if(!pmath_is_string(box)
-            || pmath_string_length(box) == 0
-            || pmath_string_buffer(&box)[0] == '"') {
+        if(!pmath_is_string(box)              ||
+            pmath_string_length(box)     == 0 ||
+            pmath_string_buffer(&box)[0] == '"')
+        {
           if(!parse(&box))
             return pmath_ref(PMATH_SYMBOL_FAILED);
         }
@@ -2083,8 +2183,8 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
       }
     }
     
-    if(exprlen == 3) { // a.f  x/y  f@x  f@@list  s::tag  f()  ~:t  ~~:t  ~~~:t  x:p  a//f  p/?c  l->r  l:=r  l+=r  l-=r  l:>r  l::=r  l..r
-      // a.f
+    // a.f  x/y  f@x  f@@list  s::tag  f()  ~:t  ~~:t  ~~~:t  x:p  a//f  p/?c  l->r  l:=r  l+=r  l-=r  l:>r  l::=r  l..r
+    if(exprlen == 3) {       // a.f
       if(secondchar == '.') {
         pmath_t arg = parse_at(expr, 1);
         
@@ -2153,7 +2253,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
                      box));
         }
         
-        if(is_string_at(expr, 2, "~~")) {
+        if(is_string_at(expr, 1, "~~")) {
           pmath_unref(expr);
           return HOLDCOMPLETE(
                    pmath_expr_new_extended(
@@ -2164,7 +2264,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
                      pmath_ref(_pmath_object_range_from_one)));
         }
         
-        if(is_string_at(expr, 2, "~~~")) {
+        if(is_string_at(expr, 1, "~~~")) {
           pmath_unref(expr);
           return HOLDCOMPLETE(
                    pmath_expr_new_extended(
@@ -2289,20 +2389,20 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
       }
       
       box = PMATH_NULL;
-      if(secondchar == PMATH_CHAR_ASSIGN)        box = PMATH_SYMBOL_ASSIGN;
-      if(secondchar == PMATH_CHAR_ASSIGNDELAYED) box = PMATH_SYMBOL_ASSIGNDELAYED;
-      if(secondchar == PMATH_CHAR_RULE)          box = PMATH_SYMBOL_RULE;
-      if(secondchar == PMATH_CHAR_RULEDELAYED)   box = PMATH_SYMBOL_RULEDELAYED;
-      if(secondchar == '?')            box = PMATH_SYMBOL_TESTPATTERN;
-      else if(is_string_at(expr, 2, ":="))  box = PMATH_SYMBOL_ASSIGN;
-      else if(is_string_at(expr, 2, "::=")) box = PMATH_SYMBOL_ASSIGNDELAYED;
-      else if(is_string_at(expr, 2, "->"))  box = PMATH_SYMBOL_RULE;
-      else if(is_string_at(expr, 2, ":>"))  box = PMATH_SYMBOL_RULEDELAYED;
-      else if(is_string_at(expr, 2, "+="))  box = PMATH_SYMBOL_INCREMENT;
-      else if(is_string_at(expr, 2, "-="))  box = PMATH_SYMBOL_DECREMENT;
-      else if(is_string_at(expr, 2, "*="))  box = PMATH_SYMBOL_TIMESBY;
-      else if(is_string_at(expr, 2, "/="))  box = PMATH_SYMBOL_DIVIDEBY;
-      else if(is_string_at(expr, 2, "/?"))  box = PMATH_SYMBOL_CONDITION;
+      if(     secondchar == PMATH_CHAR_ASSIGN)        box = PMATH_SYMBOL_ASSIGN;
+      else if(secondchar == PMATH_CHAR_ASSIGNDELAYED) box = PMATH_SYMBOL_ASSIGNDELAYED;
+      else if(secondchar == PMATH_CHAR_RULE)          box = PMATH_SYMBOL_RULE;
+      else if(secondchar == PMATH_CHAR_RULEDELAYED)   box = PMATH_SYMBOL_RULEDELAYED;
+      else if(secondchar == '?')                      box = PMATH_SYMBOL_TESTPATTERN;
+      else if(is_string_at(expr, 2, ":="))            box = PMATH_SYMBOL_ASSIGN;
+      else if(is_string_at(expr, 2, "::="))           box = PMATH_SYMBOL_ASSIGNDELAYED;
+      else if(is_string_at(expr, 2, "->"))            box = PMATH_SYMBOL_RULE;
+      else if(is_string_at(expr, 2, ":>"))            box = PMATH_SYMBOL_RULEDELAYED;
+      else if(is_string_at(expr, 2, "+="))            box = PMATH_SYMBOL_INCREMENT;
+      else if(is_string_at(expr, 2, "-="))            box = PMATH_SYMBOL_DECREMENT;
+      else if(is_string_at(expr, 2, "*="))            box = PMATH_SYMBOL_TIMESBY;
+      else if(is_string_at(expr, 2, "/="))            box = PMATH_SYMBOL_DIVIDEBY;
+      else if(is_string_at(expr, 2, "/?"))            box = PMATH_SYMBOL_CONDITION;
       
       // lhs->rhs  lhs:>rhs  lhs:=rhs  lhs::=rhs  lhs+=rhs  lhs-=lhs  lhs//rhs  lhs..rhs
       if(!pmath_is_null(box)) {
@@ -2339,7 +2439,8 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
       }
     }
     
-    if(exprlen == 4 && unichar_at(expr, 3) == ':') { // ~x:t  ~~x:t  ~~~x:t
+    // ~x:t  ~~x:t  ~~~x:t
+    if(exprlen == 4 && unichar_at(expr, 3) == ':') {
       pmath_t x, t;
       
       x = parse_at(expr, 2);
@@ -2401,11 +2502,12 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
       pmath_unref(t);
     }
     
-    if(exprlen == 5) { // t/:l:=r   t/:l::=r
+    // t/:l:=r   t/:l::=r
+    if(exprlen == 5) {
       if(is_string_at(expr, 2, "/:")) {
         pmath_t tag;
         
-        if(unichar_at(expr, 4) == PMATH_CHAR_ASSIGN)        box = PMATH_SYMBOL_TAGASSIGN;
+        if(     unichar_at(expr, 4) == PMATH_CHAR_ASSIGN)        box = PMATH_SYMBOL_TAGASSIGN;
         else if(unichar_at(expr, 4) == PMATH_CHAR_ASSIGNDELAYED) box = PMATH_SYMBOL_TAGASSIGNDELAYED;
         else if(is_string_at(expr, 4, ":="))                     box = PMATH_SYMBOL_TAGASSIGN;
         else if(is_string_at(expr, 4, "::="))                    box = PMATH_SYMBOL_TAGASSIGNDELAYED;
@@ -2543,7 +2645,9 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
       }
       
       pmath_token_analyse(&secondchar, 1, &tokprec);
-      if(tokprec == PMATH_PREC_DIV) { // x/y/.../z
+      
+      // x/y/.../z
+      if(tokprec == PMATH_PREC_DIV) {
         pmath_expr_t result;
         
         for(i = 4; i < exprlen; i += 2) {
@@ -2582,12 +2686,12 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
       }
       
       // a&&b  a||b  a++b...
-      if(secondchar == 0x2227)  box = PMATH_SYMBOL_AND;
+      if(     secondchar == 0x2227)  box = PMATH_SYMBOL_AND;
       else if(secondchar == 0x2228)  box = PMATH_SYMBOL_OR;
       else {
         pmath_string_t snd = pmath_expr_get_item(expr, 2);
         if(pmath_is_string(snd)) {
-          if(string_equals(snd, "&&"))  box = PMATH_SYMBOL_AND;
+          if(     string_equals(snd, "&&"))  box = PMATH_SYMBOL_AND;
           else if(string_equals(snd, "||"))  box = PMATH_SYMBOL_OR;
           else if(string_equals(snd, "++"))  box = PMATH_SYMBOL_STRINGEXPRESSION;
         }
@@ -2707,6 +2811,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
       }
     }
     
+    // f(x)  l[x]  l[[x]]
     if(exprlen == 4) {
       // f(x)
       if(secondchar == '(' && unichar_at(expr, 4) == ')') {
@@ -2773,8 +2878,9 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
       }
       
       // l[[x]]
-      if((secondchar == 0x27E6        && unichar_at(expr, 4) == 0x27E7)
-          || (is_string_at(expr, 2, "[[") && is_string_at(expr, 4, "]]"))) {
+      if( (secondchar == 0x27E6        && unichar_at(expr, 4) == 0x27E7) ||
+          (is_string_at(expr, 2, "[[") && is_string_at(expr, 4, "]]")))
+      {
         pmath_t args, list;
         
         list = parse_at(expr, 1);
@@ -2811,10 +2917,11 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
     }
     
     // a.f()
-    if(exprlen == 5
-        && secondchar == '.'
-        && unichar_at(expr, 4) == '('
-        && unichar_at(expr, 5) == ')') {
+    if( exprlen == 5               &&
+        secondchar == '.'          &&
+        unichar_at(expr, 4) == '(' &&
+        unichar_at(expr, 5) == ')')
+    {
       pmath_t arg = parse_at(expr, 1);
       
       if(!is_parse_error(arg)) {
@@ -2833,10 +2940,11 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
     }
     
     // a.f(x)
-    if(exprlen == 6
-        && secondchar == '.'
-        && unichar_at(expr, 4) == '('
-        && unichar_at(expr, 6) == ')') {
+    if( exprlen == 6               &&
+        secondchar == '.'          &&
+        unichar_at(expr, 4) == '(' &&
+        unichar_at(expr, 6) == ')')
+    {
       pmath_t args, arg1, f;
       
       arg1 = parse_at(expr, 1);
@@ -2883,8 +2991,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
     }
     
     // a..b..c
-    if(is_string_at(expr, 2, "..")
-        || is_string_at(expr, 1, "..")) {
+    if(is_string_at(expr, 2, "..") || is_string_at(expr, 1, "..")) {
       size_t have_arg = FALSE;
       size_t i;
       
@@ -2928,10 +3035,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
     }
     
     // implicit evaluation sequence (newlines -> head = /\/ = PMATH_NULL) ...
-    box = pmath_expr_get_item(expr, 0);
-    pmath_unref(box);
-    
-    if(pmath_is_null(box)) {
+    if(pmath_is_expr_of(expr, PMATH_NULL)) {
       for(i = 1; i <= exprlen; ++i) {
         box = pmath_expr_extract_item(expr, i);
         
@@ -2950,32 +3054,33 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
                  pmath_ref(PMATH_SYMBOL_EVALUATIONSEQUENCE)));
     }
     
-    // multiplication ...
-    pmath_gather_begin(PMATH_NULL);
-    
-    i = 1;
-    while(i <= exprlen) {
-      box = parse_at(expr, i);
-      if(is_parse_error(box)) {
-        pmath_unref(expr);
-        pmath_unref(pmath_gather_end());
-        return pmath_ref(PMATH_SYMBOL_FAILED);
-      }
-      pmath_emit(box, PMATH_NULL);
+    { // everything else is multiplication ...
+      pmath_gather_begin(PMATH_NULL);
       
-      firstchar = i + 1 >= exprlen ? 0 : unichar_at(expr, i + 1);
-      if(firstchar == '*' || firstchar == 0x00D7 || firstchar == ' ')
-        i += 2;
-      else
-        ++i;
+      i = 1;
+      while(i <= exprlen) {
+        box = parse_at(expr, i);
+        if(is_parse_error(box)) {
+          pmath_unref(expr);
+          pmath_unref(pmath_gather_end());
+          return pmath_ref(PMATH_SYMBOL_FAILED);
+        }
+        pmath_emit(box, PMATH_NULL);
+        
+        firstchar = i + 1 >= exprlen ? 0 : unichar_at(expr, i + 1);
+        if(firstchar == '*' || firstchar == 0x00D7 || firstchar == ' ')
+          i += 2;
+        else
+          ++i;
+      }
+      
+      pmath_unref(expr);
+      return HOLDCOMPLETE(
+               pmath_expr_set_item(
+                 pmath_gather_end(), 0,
+                 pmath_ref(PMATH_SYMBOL_TIMES)));
     }
     
-    pmath_unref(expr);
-    return HOLDCOMPLETE(
-             pmath_expr_set_item(
-               pmath_gather_end(), 0,
-               pmath_ref(PMATH_SYMBOL_TIMES)));
-               
   FAILED:
     pmath_message(PMATH_NULL, "inv", 1, expr);
     return pmath_ref(PMATH_SYMBOL_FAILED);

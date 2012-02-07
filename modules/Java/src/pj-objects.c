@@ -710,8 +710,6 @@ pmath_t pj_builtin_internal_javanew(pmath_expr_t expr) {
       
       jresult = pj_class_new_object(env, clazz, args, PMATH_NULL);
       if(jresult) {
-        (*env)->DeleteLocalRef(env, clazz);
-        
         pmath_unref(result);
         result = pj_object_from_java(env, jresult);
         (*env)->DeleteLocalRef(env, jresult);

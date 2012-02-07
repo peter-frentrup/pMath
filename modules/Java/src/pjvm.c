@@ -517,8 +517,8 @@ pmath_bool_t pj_exception_to_java(JNIEnv *env) {
         jex = NULL;
       }
     }
-    
-    pmath_unref(inner);
+    else
+      pmath_unref(inner);
   }
   
   if(!jex) {
@@ -535,7 +535,13 @@ pmath_bool_t pj_exception_to_java(JNIEnv *env) {
                    pmath_ref(PMATH_SYMBOL_INPUTFORM), 1,
                    ex)));
                    
-        str = pj_string_to_java(env, ex);
+        if(!pmath_is_string(ex)){
+          pmath_debug_print_object("[ToString did not return a string: ", ex, "]\n");
+          pmath_unref(ex);
+          ex = PMATH_C_STRING("$Failed");
+        }
+        
+        str = pj_string_to_java(env, pmath_ref(ex));
         
         if(str) {
           jvalue val[1];

@@ -55,11 +55,14 @@ pmath_t pj_builtin__pmath_Core_execute(pmath_t expr) {
 //        pmath_ref(PMATH_SYMBOL_THROW), 1,
 //        exception));
   }
-  else
+  else{
+    pmath_unref(exception);
+  
     result = pmath_expr_new_extended(
                pmath_ref(PJ_SYMBOL_INTERNAL_SUCCEEDED), 1,
                result);
-               
+  }
+  
   pmath_unref(mq);
   return result;
 }
