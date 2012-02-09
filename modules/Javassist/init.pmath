@@ -1,0 +1,202 @@
+
+BeginPackage("Javassist`", {"Java`"})
+
+Javassist`ImplementJavaClass
+
+Begin("Javassist`Private`")
+
+
+Javassist`Private`MakeNewJavaClass
+Javassist`Private`WithMultiple
+Javassist`Private`DoCallback
+Javassist`Private`javaThrow
+Javassist`Private`BuildImplementationClass
+Javassist`Private`GetImplementationClass
+
+
+AddToClassPath(ToFileName(ParentDirectory($Input), "javassist.jar"))
+
+
+javaThrow(~ex)::= Throw(JavaException(ex, ex @ toString(), Map(ex @ getStackTrace(), # @ toString() &)))
+
+DoCallback(~symbol, ~javaObject, ~methodName, ~argumentList)::=
+	javaThrow(JavaNew("java.lang.UnsupportedOperationException", "Not yet implemented: " ++ ClassName(javaClass) ++ "." ++ methodName ++ "(\[Ellipsis])"))
+Protect(Javassist`Private`DoCallback)
+
+
+
+/* WithMultiple({repl}, body) is like With(...) but the symbols in repl can be used in subsequent expressions inside repl.
+ */
+Attributes(WithMultiple):= {HoldAll}
+
+WithMultiple({}, ~body)::= body
+WithMultiple({~repl, ~~~rest}, ~body)::= With @@ HoldComplete({repl}, WithMultiple({rest}, body))
+
+
+
+ImplementJavaClass::multi:= "Cannot derive from multiple classes."
+ImplementJavaClass::miss:= "No implementation for abstract method `1` given."
+ImplementJavaClass::static:= "Cannot implement static method `1`."
+
+
+BuildImplementationClass(classes: {~~~:JavaClass}, methods: {~~~:String})::=
+	Local({class},
+		WithMultiple(
+			{
+				pool:=              JavaClass("javassist.ClassPool") @ getDefault();
+				ctclasses:=         classes.Map(pool @ get(First(#)) &);
+				ctinterfaces:=      ctclasses.Select(# @ isInterface() &);
+				ctsuper:=           Complement(ctclasses, ctinterfaces);
+				abstract:=          JavaClass("java.lang.reflect.Modifier") @ ABSTRACT;
+				static:=            JavaClass("java.lang.reflect.Modifier") @ STATIC;
+				ctmethods:=         ctclasses.Map(# @ getMethods() &).Flatten.Select(
+				                       BitAnd(# @ getModifiers(), abstract) != 0 || 
+				                       !methods.IsFreeOf(# @ getName()) &);
+			},
+			
+			If(Length(ctsuper) > 1,
+				Message(ImplementJavaClass::multi);
+				Return($Failed));
+				
+			ctmethods.Scan(
+				(
+					If(BitAnd(# @ getModifiers(), static) != 0,
+						Message(ImplementJavaClass::static, # @ toString());
+						Return(Return($Failed));
+						);
+					If(methods.IsFreeOf(# @ getName()),
+						Message(ImplementJavaClass::miss, # @ toString());
+						Return(Return($Failed));
+						);
+				)&);
+			
+			WithMultiple(
+				{
+					newCtClass:=  pool @ makeClass("pmath.javabridge." ++ SymbolName(class));
+					classLoader:= First({pool @ getClassLoader(), JavaClass("java.lang.ClassLoader") @ getSystemClassLoader()}.Select(# =!= /\/ &));
+				},
+				
+				(
+					ctinterfaces.Scan(newCtClass @ addInterface(#) &);
+					If(ctsuper.Length = 1,
+						newCtClass @ setSuperclass( First(ctsuper) ));
+				
+					newCtClass @ addField(JavaClass("javassist.CtField") @ make("private String __pmath_impl", newCtClass));
+					newCtClass @ addMethod(
+						JavaClass("javassist.CtNewMethod") @ make(
+							"public void __pmath_init(String impl){ if(this.__pmath_impl == null) this.__pmath_impl = impl; }", 
+							newCtClass));
+				
+					ctmethodsWithImpl.Scan(
+						WithMultiple({
+								origMethod:=  #[1],
+								implMethod:=  Namespace(#[2]) ++ SymbolName(#[2]),
+								modifiers:=   BitAnd(origMethod @ getModifiers(), BitNot(abstract)),
+								returnType:=  origMethod @ getReturnType(),
+								parameters:=  origMethod @ getParameterTypes(),
+								exceptions:=  origMethod @ getExceptionTypes(),
+								methodName:=  origMethod @ getName(),
+								javaBody:=    "{ return ($r)pmath.Core.execute(\
+													\"Javassist`Private`DoCallback(\" + this.__pmath_impl + \", `1`, " ++ (# @ getName()) ++ ", `2`)\", \
+													new Object[]{ this, $args });\
+											   }",
+								newMethod:=   JavaClass("javassist.CtNewMethod") @ make(
+												modifiers, returnType, methodName, parameters, exceptions, javaBody, newCtClass)
+							},
+							
+							newCtClass @ addMethod(newMethod)
+							)&);
+					
+					Return(Evaluate(newCtClass @ toClass(classLoader, /\/)));
+					).Finally(newCtClass @ prune())
+				)
+			)
+		)
+
+
+GetImplementationClass(classes: {~~~:JavaClass}, methods: {~~~:String})::=
+	With({class:= BuildImplementationClass(classes, methods)},
+		If(class =!= $Failed,
+			GetImplementationClass(classes, methods):= class); 
+		class)
+	
+
+Options(ImplementJavaClass):= {ConstructorArguments->{}}
+
+ImplementJavaClass(classes: {~~~:JavaClass}, methods: {(~:String -> ~:Symbol)***}, OptionsPattern())::=
+	With({class:= GetImplementationClass(Union(classes), Union(methods[All, 1]))},
+		If(class === $Failed,
+			Return($Failed));
+		
+		With({obj:= JavaNew(class @ getName(), Sequence @@ OptionValue(ConstructorArguments))},
+			If(obj =!= $Failed,
+				Local({impl},
+					methods.Scan(
+						With({methodName:= #[1], methodImpl:= #[2]},
+							impl/: DoCallback(impl, ~this, methodName, {~~~args})::= methodImpl(args)
+							) &
+						);
+					obj @ "__pmath_init"(LongForm(impl).ToString);
+					));
+			Return(obj);
+			)
+		)
+
+
+MakeNewJavaClass(~impl: Symbol, ~classname:String, classes:{~~~:JavaClass}, methods: {~~~:String})::= 
+	WithMultiple(
+		{
+			abstract:=        JavaClass("java.lang.reflect.Modifier") @ ABSTRACT,
+			static:=          JavaClass("java.lang.reflect.Modifier") @ STATIC,
+			pool:=            JavaClass("javassist.ClassPool") @ getDefault(),
+			ctclasses:=       classes.Map(pool @ get(First(#)) &),
+			ctinterfaces:=    ctclasses.Select(# @ isInterface() &),
+			ctsuper:=         Complement(ctclasses, ctinterfaces),
+			overrideMethods:= ctclasses.Map(# @ getMethods() &).Flatten.Select(
+			                    BitAnd(# @ getModifiers(), abstract) != 0 || !methods.IsFreeOf(# @ getName()) &),
+			implName:=        Namespace(impl) ++ SymbolName(impl)
+		},
+		
+		If(ctsuper.Length > 1,
+			Return($Failed));
+		
+		With(
+			{
+				newCtClass:=  pool @ makeClass(classname),
+				classLoader:= First({pool @ getClassLoader(), JavaClass("java.lang.ClassLoader") @ getSystemClassLoader()}.Select(# =!= /\/ &))
+			},
+			
+			Finally(
+				If(ctsuper.Length = 1,
+					newCtClass @ setSuperclass( First(ctsuper) ));
+				
+				ctinterfaces.Scan(newCtClass @ addInterface(#) &);
+				
+				overrideMethods.Scan(Function({origMethod},
+					WithMultiple(
+						{
+							modifiers:=   BitAnd(origMethod @ getModifiers(), BitNot(abstract)),
+							returnType:=  origMethod @ getReturnType(),
+							parameters:=  origMethod @ getParameterTypes(),
+							exceptions:=  origMethod @ getExceptionTypes(),
+							methodName:=  origMethod @ getName(),
+							thisArg:=     If(BitAnd(modifiers, static) === 0, "this", "/\\/"),
+							pmathBody:=   "Javassist`Private`DoCallback(" ++ implName ++ ", `1`, `2`, " ++ methodName.InputForm.ToString() ++", `3`)",
+							javaBody:=    "{ return ($r)pmath.Core.execute(" ++  pmathBody.InputForm.ToString() ++ ", new Object[]{ $class, " ++ thisArg ++ ", $args }); }",
+							newMethod:=   JavaClass("javassist.CtNewMethod") @ make(
+											modifiers, returnType, methodName, parameters, exceptions, javaBody, newCtClass)
+						},
+						newCtClass @ addMethod(newMethod)
+						)));
+						
+				Return(Evaluate(newCtClass @ toClass(classLoader, /\/)));
+			,
+				newCtClass @ prune()
+				)
+			)
+		)
+
+
+End()
+
+EndPackage()
