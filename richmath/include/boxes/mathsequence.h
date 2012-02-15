@@ -84,7 +84,7 @@ namespace richmath {
       static pmath_t box_at_index(int i, void *_data);
       
       void boxes_size(Context *context, int start, int end, float *a, float *d);
-      void box_size(Context *context, int pos, int box, float *a, float *d);
+      void box_size(  Context *context, int pos, int box, float *a, float *d);
       void caret_size(Context *context, int pos, int box, float *a, float *d);
       
       void selection_path(Context *opt_context, Canvas *canvas, int start, int end);
@@ -94,24 +94,6 @@ namespace richmath {
         Span     span,
         int     *pos,
         int     *box);
-        
-      void check_options(
-        Expr         options,
-        Context     *context,
-        int          pos,
-        int          end);
-        
-      bool is_arglist_span(Span span, int pos);
-      
-      void syntax_restyle_span(
-        Context *context,
-        Span     span,
-        int     *pos);
-        
-      void check_argcount_span(
-        Context *context,
-        Span     span,
-        int     *pos);
         
       void stretch_span(
         Context *context,

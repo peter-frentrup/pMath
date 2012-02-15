@@ -33,7 +33,18 @@ namespace richmath {
         SymbolKind   kind);
       
       void scope_colorize_spanexpr(SyntaxState *state, SpanExpr *se);
-    
+      
+      
+      
+      void comments_colorize_span(Span span, int *pos);
+      
+      void syntax_colorize_spanexpr(SpanExpr *se);
+      
+      void arglist_errors_colorize_spanexpr(          SpanExpr *se, float error_indicator_height);
+      void arglist_errors_colorize_spanexpr_norecurse(SpanExpr *se, float error_indicator_height);
+      
+      void unknown_option_colorize_spanexpr(SpanExpr *se, Expr options);
+      
     private:
       MathSequence *sequence;
   };

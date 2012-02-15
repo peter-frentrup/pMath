@@ -9,6 +9,8 @@
 #include <eval/application.h>
 #include <eval/binding.h>
 
+#include <climits>
+
 
 using namespace richmath;
 
@@ -37,12 +39,14 @@ int ScopeColorizer::symbol_colorize(
   if(sequence->is_placeholder(start) && start + 1 == end)
     return end;
     
-  if(glyphs[start].style != GlyphStyleNone
-      && glyphs[start].style != GlyphStyleParameter
-      && glyphs[start].style != GylphStyleLocal
-      && glyphs[start].style != GlyphStyleNewSymbol)
+  if( glyphs[start].style != GlyphStyleNone      &&
+      glyphs[start].style != GlyphStyleParameter &&
+      glyphs[start].style != GylphStyleLocal     &&
+      glyphs[start].style != GlyphStyleNewSymbol)
+  {
     return end;
-    
+  }
+  
   String name(str.part(start, end - start));
   
   SharedPtr<SymbolInfo> info = state->local_symbols[name];
@@ -153,16 +157,21 @@ void ScopeColorizer::symdef_colorize_spanexpr(
   SpanExpr    *se,    // "x"  "x:=y"
   SymbolKind   kind
 ) {
-  if(se->count() >= 2 && se->count() <= 3
-      && (se->item_as_char(1) == PMATH_CHAR_ASSIGN
-          || se->item_as_char(1) == PMATH_CHAR_ASSIGNDELAYED
-          || se->item_equals(1, ":=")
-          || se->item_equals(1, "::="))
-      && pmath_char_is_name(se->item_first_char(0))) {
-    symbol_colorize(state, se->item_pos(0), kind);
+  if( se->count() >= 2 &&
+      se->count() <= 3 &&
+      pmath_char_is_name(se->item_first_char(0)))
+  {
+    if(se->item_as_char(1) == PMATH_CHAR_ASSIGN        ||
+        se->item_as_char(1) == PMATH_CHAR_ASSIGNDELAYED ||
+        se->item_equals(1, ":=")                        ||
+        se->item_equals(1, "::="))
+    {
+      symbol_colorize(state, se->item_pos(0), kind);
+      return;
+    }
   }
-  else if(pmath_char_is_name(se->first_char()))
-    symbol_colorize(state, se->start(), kind);
+  
+  symbol_colorize(state, se->start(), kind);
 }
 
 void ScopeColorizer::symdeflist_colorize_spanexpr(
@@ -240,8 +249,10 @@ void ScopeColorizer::scope_colorize_spanexpr(
   }
   
   if(se->count() == 2) { // #x   ~x   ?x   x&   <<x
-    if(se->item_first_char(0) == '#'
-        && pmath_char_is_digit(se->item_first_char(1))) {
+  
+    if( se->item_first_char(0) == '#' &&
+        pmath_char_is_digit(se->item_first_char(1)))
+    {
       uint8_t style;
       if(state->in_function)
         style = GlyphStyleParameter;
@@ -254,9 +265,10 @@ void ScopeColorizer::scope_colorize_spanexpr(
       return;
     }
     
-    if((se->item_first_char(0) == '~'
-        || se->item_as_char(0)    == '?')
-        && pmath_char_is_name(se->item_first_char(1))) {
+    if((se->item_first_char(0) == '~' ||
+        se->item_as_char(0)    == '?') &&
+        pmath_char_is_name(se->item_first_char(1)))
+    {
       if(!state->in_pattern)
         return;
         
@@ -278,8 +290,9 @@ void ScopeColorizer::scope_colorize_spanexpr(
       return;
     }
     
-    if(se->item_equals(0, "<<")
-        || se->item_equals(0, "??")) {
+    if( se->item_equals(0, "<<") ||
+        se->item_equals(0, "??"))
+    {
       return;
     }
   }
@@ -315,18 +328,21 @@ void ScopeColorizer::scope_colorize_spanexpr(
       SpanExpr *sub = se->item(0);
       scope_colorize_spanexpr(state, sub);
       
-      if(sub->count() == 3
-          && sub->item_as_char(0) == '('
-          && sub->item_as_char(2) == ')') {
+      if( sub->count() == 3 &&
+          sub->item_as_char(0) == '(' &&
+          sub->item_as_char(2) == ')')
+      {
         sub = sub->item(1);
       }
       
-      if(sub->count() == 0
-          && pmath_char_is_name(sub->first_char())) {
+      if( sub->count() == 0 &&
+          pmath_char_is_name(sub->first_char()))
+      {
         symbol_colorize(state, sub->start(), Parameter);
       }
-      else if(sub->count() > 0
-              && sub->item_as_char(1) == ',') {
+      else if(sub->count() > 0 &&
+              sub->item_as_char(1) == ',')
+      {
         const uint16_t *buf = str.buffer();
         
         for(int i = 0; i < sub->count(); ++i)
@@ -346,10 +362,11 @@ void ScopeColorizer::scope_colorize_spanexpr(
       return;
     }
     
-    if(se->item_as_char(1) == PMATH_CHAR_RULE
-        || se->item_as_char(1) == PMATH_CHAR_ASSIGN
-        || se->item_equals(1, "->")
-        || se->item_equals(1, ":=")) {
+    if( se->item_as_char(1) == PMATH_CHAR_RULE   ||
+        se->item_as_char(1) == PMATH_CHAR_ASSIGN ||
+        se->item_equals(1, "->")                 ||
+        se->item_equals(1, ":="))
+    {
       SharedPtr<ScopePos> next_scope = state->new_scope();
       state->new_scope();
       
@@ -372,10 +389,11 @@ void ScopeColorizer::scope_colorize_spanexpr(
       return;
     }
     
-    if(se->item_as_char(1) == PMATH_CHAR_RULEDELAYED
-        || se->item_as_char(1) == PMATH_CHAR_ASSIGNDELAYED
-        || se->item_equals(1, ":>")
-        || se->item_equals(1, "::=")) {
+    if( se->item_as_char(1) == PMATH_CHAR_RULEDELAYED   ||
+        se->item_as_char(1) == PMATH_CHAR_ASSIGNDELAYED ||
+        se->item_equals(1, ":>")                        ||
+        se->item_equals(1, "::="))
+    {
       SharedPtr<ScopePos> next_scope = state->new_scope();
       state->new_scope();
       
@@ -418,10 +436,11 @@ void ScopeColorizer::scope_colorize_spanexpr(
       if(integrand && integrand->count() >= 1) {
         SpanExpr *dx = integrand->item(integrand->count() - 1);
         
-        if(dx
-            && dx->count() == 2
-            && dx->item_as_char(0) == PMATH_CHAR_INTEGRAL_D
-            && pmath_char_is_name(dx->item_first_char(1))) {
+        if( dx &&
+            dx->count() == 2 &&
+            dx->item_as_char(0) == PMATH_CHAR_INTEGRAL_D &&
+            pmath_char_is_name(dx->item_first_char(1)))
+        {
           for(int i = 0; i < se->count() - 1; ++i)
             scope_colorize_spanexpr(state, se->item(i));
             
@@ -452,10 +471,12 @@ void ScopeColorizer::scope_colorize_spanexpr(
     else {
       UnderoverscriptBox *uo = dynamic_cast<UnderoverscriptBox*>(se->item_as_box(0));
       
-      if(uo
-          && uo->base()->length() == 1
-          && pmath_char_maybe_bigop(uo->base()->text()[0]))
+      if( uo &&
+          uo->base()->length() == 1 &&
+          pmath_char_maybe_bigop(uo->base()->text()[0]))
+      {
         bigop_init = uo->underscript();
+      }
     }
     
     if(bigop_init
@@ -623,7 +644,7 @@ void ScopeColorizer::scope_colorize_spanexpr(
             
           }
           return;
-      
+          
         case NoSpec:
           break;
       }
@@ -709,6 +730,239 @@ COLORIZE_ITEMS:
     SpanExpr *sub = se->item(i);
     
     scope_colorize_spanexpr(state, sub);
+  }
+}
+
+
+
+void ScopeColorizer::comments_colorize_span(Span span, int *pos) {
+  const uint16_t         *buf    = sequence->text().buffer();
+  const Array<GlyphInfo> &glyphs = sequence->glyph_array();
+  const SpanArray        &spans  = sequence->span_array();
+  
+  if(!span) {
+    while(*pos < glyphs.length() && !spans.is_token_end(*pos))
+      ++*pos;
+      
+    ++*pos;
+    return;
+  }
+  
+  
+  if(!span.next()) {
+    if(*pos + 1 < span.end() &&
+        buf[*pos]     == '/' &&
+        buf[*pos + 1] == '*')
+    {
+      for(; *pos <= span.end(); ++*pos)
+        glyphs[*pos].style = GlyphStyleComment;
+        
+      return;
+    }
+  }
+  
+  comments_colorize_span(span.next(), pos);
+  
+  while(*pos <= span.end())
+    comments_colorize_span(spans[*pos], pos);
+}
+
+void ScopeColorizer::syntax_colorize_spanexpr(SpanExpr *se) {
+  const Array<GlyphInfo> &glyphs = se->sequence()->glyph_array();
+  
+  if(se->count() == 0) {
+    if(pmath_char_is_left( se->as_char())) {
+      SpanExpr *parent = se->parent();
+      
+      if( !parent ||
+          !pmath_char_is_right(parent->item_as_char(parent->count() - 1)))
+      {
+        glyphs[se->start()].style = GlyphStyleSyntaxError;
+        return;
+      }
+      
+      return;
+    }
+    
+    if(pmath_char_is_right(se->as_char())) {
+      SpanExpr *parent = se->parent();
+      
+      if(!parent) {
+        glyphs[se->start()].style = GlyphStyleSyntaxError;
+        return;
+      }
+      
+      for(int i = parent->count() - 1; i >= 0; --i)
+        if(pmath_char_is_left(parent->item_as_char(i)))
+          return;
+          
+      glyphs[se->start()].style = GlyphStyleSyntaxError;
+      return;
+    }
+    
+    if(se->first_char() == '"') {
+      for(int i = 1 + se->start(); i < se->end(); ++i)
+        glyphs[i].style = GlyphStyleString;
+        
+      if(se->sequence()->text()[se->end()] != '"')
+        glyphs[se->end()].style = GlyphStyleString;
+    }
+    
+    return;
+  }
+  
+  if( se->count() == 3 &&
+      se->item_as_text(1).equals("::") &&
+      se->item(2)->count() == 0)
+  {
+    for(int i = se->item_pos(2); i <= se->end(); ++i)
+      glyphs[i].style = GlyphStyleString;
+      
+    syntax_colorize_spanexpr(se->item(0));
+    return;
+  }
+  
+  for(int i = 0; i < se->count(); ++i)
+    syntax_colorize_spanexpr(se->item(i));
+}
+
+void ScopeColorizer::arglist_errors_colorize_spanexpr(SpanExpr *se, float error_indicator_height) {
+  arglist_errors_colorize_spanexpr_norecurse(se, error_indicator_height);
+  
+  for(int i = 0; i < se->count(); ++i)
+    arglist_errors_colorize_spanexpr(se->item(i), error_indicator_height);
+}
+
+
+void ScopeColorizer::arglist_errors_colorize_spanexpr_norecurse(SpanExpr *se, float error_indicator_height) {
+  if(!FunctionCallSpan::is_call(se))
+    return;
+    
+  FunctionCallSpan        call   = se;
+  SpanExpr               *head   = call.function_head();
+  const Array<GlyphInfo> &glyphs = se->sequence()->glyph_array();
+  
+  if(head->count() != 0)
+    return;
+    
+  if(GlyphStyleNone != glyphs[head->start()].style)
+    return;
+    
+  if(head->as_token() != PMATH_TOK_NAME)
+    return;
+    
+  String name = head->as_text();
+  SyntaxInformation info(name);
+  
+  if(info.minargs == 0 && info.maxargs == INT_MAX)
+    return;
+    
+  int arg_count = call.function_argument_count();
+  
+  if(arg_count > info.maxargs) {
+    Expr options = Application::interrupt_cached(
+                     Call(Symbol(PMATH_SYMBOL_OPTIONS), name));
+                     
+    if( options.expr_length() == 0 ||
+        options[0] != PMATH_SYMBOL_LIST)
+    {
+      int end = call.arguments_span()->end();
+      int start;
+      
+      if(info.maxargs == 0){
+        start = call.arguments_span()->start();
+        
+        if(call.is_complex_call()){
+          int arg1_start = call.function_argument(1)->start();
+          int arg1_end   = call.function_argument(1)->end();
+          
+          for(int pos = arg1_start; pos <= arg1_end; ++pos)
+            glyphs[pos].style = GlyphStyleExcessArg;
+        }
+      }
+      else if(info.maxargs == 1 && call.is_complex_call()){
+        start = call.arguments_span()->start();
+      }
+      else{
+        start = call.function_argument(info.maxargs)->end() + 1;
+      }
+      
+      for(int pos = start; pos <= end; ++pos)
+        glyphs[pos].style = GlyphStyleExcessArg;
+        
+      return;
+    }
+    
+    for(int i = info.maxargs + 1; i <= arg_count; ++i)
+      unknown_option_colorize_spanexpr(call.function_argument(i), options);
+  }
+  
+  if(arg_count < info.minargs) {
+    int end = call.arguments_span()->end();
+    
+    glyphs[end].missing_after = 1;
+    
+    if(end + 1 < glyphs.length()) {
+      glyphs[end + 1].x_offset += 2 * error_indicator_height;
+      glyphs[end + 1].right    += 2 * error_indicator_height;
+    }
+    else
+      glyphs[end].right += error_indicator_height;
+  }
+}
+
+void ScopeColorizer::unknown_option_colorize_spanexpr(SpanExpr *se, Expr options) {
+  FunctionCallSpan call(se);
+  
+  if(call.is_list()) {
+    for(int i = call.list_length(); i >= 1; --i)
+      unknown_option_colorize_spanexpr(call.list_element(i), options);
+      
+    return;
+  }
+  
+  if(se->count() == 3) {
+    if(se->item(0)->as_token() != PMATH_TOK_NAME)
+      return;
+      
+    if( se->item_as_char(1) == PMATH_CHAR_RULE        ||
+        se->item_as_char(1) == PMATH_CHAR_RULEDELAYED ||
+        se->item_as_text(1).equals("->")              ||
+        se->item_as_text(1).equals(":>"))
+    {
+      String          name = se->item_as_text(0);
+      const uint16_t *buf  = name.buffer();
+      int             len  = name.length();
+      
+      for(size_t i = options.expr_length(); i > 0; --i) {
+        Expr rule = options[i];
+        Expr lhs  = rule[1];
+        
+        if(!lhs.is_symbol())
+          continue;
+          
+        String          lhs_name(pmath_symbol_name(lhs.get()));
+        const uint16_t *lhs_buf = lhs_name.buffer();
+        int             lhs_len = lhs_name.length();
+        
+        if(lhs_len < len)
+          continue;
+          
+        if(0 != memcmp(buf, lhs_buf + lhs_len - len, len * sizeof(uint16_t)))
+          continue;
+          
+        if(lhs_len == len || lhs_buf[lhs_len - len - 1] == '`')
+          return;
+      }
+      
+      int name_start = se->item(0)->start();
+      int name_end   = se->item(0)->end();
+      
+      const Array<GlyphInfo> &glyphs = se->sequence()->glyph_array();
+      
+      for(int i = name_start; i <= name_end; ++i)
+        glyphs[i].style = GlyphStyleInvalidOption;
+    }
   }
 }
 

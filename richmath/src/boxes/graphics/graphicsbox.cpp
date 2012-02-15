@@ -49,10 +49,8 @@ static enum SyntaxPosition find_syntax_position(Box *box, int index) {
     bool inside_list = false;
     
     while(expr && expr->sequence() == seq) {
-      FunctionCallSpan call(expr);
-      
-      if( call.is_simple_list() ||
-          call.is_sequence())
+      if( FunctionCallSpan::is_list(expr) ||
+          FunctionCallSpan::is_sequence(expr))
       {
         inside_list = true;
       }

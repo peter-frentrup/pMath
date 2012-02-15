@@ -139,13 +139,24 @@ void MathSequence::resize(Context *context) {
     resize_span(context, spans[pos], &pos, &box);
     
   if(context->show_auto_styles) {
+    ScopeColorizer colorizer(this);
+    
     pos = 0;
     while(pos < glyphs.length())
-      syntax_restyle_span(context, spans[pos], &pos);
+      colorizer.comments_colorize_span(spans[pos], &pos);
       
     pos = 0;
-    while(pos < glyphs.length())
-      check_argcount_span(context, spans[pos], &pos);
+    while(pos < glyphs.length()) {
+      SpanExpr *se = new SpanExpr(pos, spans[pos], this);
+      
+      if(se->count() == 0 || !se->item_as_text(0).equals("/*")){
+        colorizer.syntax_colorize_spanexpr(        se);
+        colorizer.arglist_errors_colorize_spanexpr(se, em * ref_error_indicator_height);
+      }
+        
+      pos = se->end() + 1;
+      delete se;
+    }
   }
   
   if(context->math_spacing) {
@@ -1008,7 +1019,7 @@ void MathSequence::child_transformation(
     ++l;
   }
   
-  x+= indention_width(lines[l].indent);
+  x += indention_width(lines[l].indent);
   
   if(index < glyphs.length())
     x += glyphs[index].x_offset;
@@ -1016,7 +1027,7 @@ void MathSequence::child_transformation(
   if(index > 0) {
     x += glyphs[index - 1].right;
     
-    if(l > 0 && lines[l - 1].end > 0){
+    if(l > 0 && lines[l - 1].end > 0) {
       x -= glyphs[lines[l - 1].end - 1].right;
       
       if(lines[l - 1].end < glyphs.length())
@@ -1501,453 +1512,6 @@ void MathSequence::resize_span(
     while(*pos <= span.end())
       resize_span(context, spans[*pos], pos, box);
   }
-}
-
-void MathSequence::check_options(
-  Expr         options,
-  Context     *context,
-  int          pos,
-  int          end
-) {
-  if(!options.is_expr()
-      || options.expr_length() == 0
-      || options[0] != PMATH_SYMBOL_LIST) {
-    for(; pos <= end; ++pos)
-      glyphs[pos].style = GlyphStyleExcessArg;
-  }
-  
-  const uint16_t *buf = str.buffer();
-  
-  while(pos <= end) {
-    Span arg = spans[pos];
-    if(arg) {
-      int first = pos;
-      int second;
-      
-      if(arg.next()) {
-        second = arg.next().end() + 1;
-      }
-      else {
-        second = pos;
-        while(second <= end && !spans.is_token_end(second))
-          ++second;
-          
-        ++second;
-        while(second <= end && char_is_white(buf[second]))
-          ++second;
-      }
-      
-      check_argcount_span(context, arg.next(), &pos);
-      while(pos < second)
-        check_argcount_span(context, spans[pos], &pos);
-        
-      if(second <= end
-          && (buf[second] == 0x2192   // ->
-              || buf[second] == 0x29F4   // :>
-              || (second + 1 <= end
-                  && buf[second + 1] == '>'
-                  && (buf[second] == '-'
-                      || buf[second] == ':'))))
-      {
-        bool valid_option = false;
-        
-        if(pmath_token_analyse(buf + first, 1, NULL) == PMATH_TOK_NAME/*pmath_char_is_name(buf[first])*/) {
-          int e = first;
-          while(e < second && !spans.is_token_end(e))
-            ++e;
-            
-          String name = str.part(first, e - first + 1);
-          Expr sym(pmath_symbol_find(pmath_ref(name.get()), FALSE));
-          if(!sym.is_null()) {
-            for(size_t i = options.expr_length(); i > 0; --i) {
-              if(options[i].is_expr()
-                  && options[i][1] == sym
-                  && options[i].expr_length() == 2
-                  && (options[i][0] == PMATH_SYMBOL_RULE
-                      || options[i][0] == PMATH_SYMBOL_RULEDELAYED))
-              {
-                valid_option = true;
-                break;
-              }
-            }
-          }
-        }
-        
-        if(!valid_option) {
-          while(first < second) {
-            if(pmath_token_analyse(buf + first, 1, NULL) == PMATH_TOK_NAME//pmath_char_is_name(buf[first])
-                && !glyphs[first].style) {
-              do {
-                glyphs[first].style = GlyphStyleInvalidOption;
-                ++first;
-              } while(first < second && !spans.is_token_end(first - 1));
-            }
-            else {
-              while(first < second && !spans.is_token_end(first))
-                ++first;
-                
-              ++first;
-            }
-          }
-        }
-      }
-      
-      while(pos <= arg.end())
-        check_argcount_span(context, spans[pos], &pos);
-    }
-    else {
-      while(pos <= end && !spans.is_token_end(pos))
-        ++pos;
-        
-      ++pos;
-    }
-  }
-}
-
-bool MathSequence::is_arglist_span(Span span, int pos) {
-  if(!span)
-    return false;
-    
-  const uint16_t *buf = str.buffer();
-  
-  if(buf[pos] == ',')
-    return true;
-    
-  if(span.next()) {
-    pos = span.next().end() + 1;
-  }
-  else {
-    while(pos <= span.end() && !spans.is_token_end(pos))
-      ++pos;
-      
-    ++pos;
-  }
-  
-  while(pos <= span.end() && char_is_white(buf[pos]))
-    ++pos;
-    
-  return pos <= span.end() && buf[pos] == ',';
-}
-
-void MathSequence::syntax_restyle_span(
-  Context *context,
-  Span     span,
-  int     *pos
-) {
-  const uint16_t *buf = str.buffer();
-  
-  if(!span) {
-    if(!glyphs[*pos].style
-        && (pmath_char_is_left(buf[*pos])
-            || pmath_char_is_right(buf[*pos]))) {
-      glyphs[*pos].style = GlyphStyleSyntaxError;
-      ++*pos;
-      return;
-    }
-    
-    while(*pos < glyphs.length() && !spans.is_token_end(*pos))
-      ++*pos;
-      
-    ++*pos;
-    return;
-  }
-  
-  int opening_pos = -1;
-  uint16_t closing = 0;
-  
-  if(!span.next()) {
-    if(buf[*pos] == '"') {
-      ++*pos;
-      for(; *pos <= span.end(); ++*pos)
-        glyphs[*pos].style = GlyphStyleString;
-        
-      if(buf[*pos - 1] == '"')
-        glyphs[*pos - 1].style = GlyphStyleNone;
-        
-      return;
-    }
-    
-    if(*pos + 1 < span.end()
-        && buf[*pos]     == '/'
-        && buf[*pos + 1] == '*') {
-      for(; *pos <= span.end(); ++*pos)
-        glyphs[*pos].style = GlyphStyleComment;
-        
-      return;
-    }
-    
-    if(!glyphs[*pos].style
-        && pmath_char_is_left(buf[*pos])) {
-      opening_pos = *pos;
-      closing = pmath_right_fence(buf[*pos]);
-      if(!closing)
-        closing = 0xFFFF;
-    }
-  }
-  
-  syntax_restyle_span(context, span.next(), pos);
-  
-  if(!closing) {
-    if(*pos + 2 <= span.end()
-        && buf[*pos]     == ':'
-        && buf[*pos + 1] == ':'
-        && spans.is_token_end(*pos + 1)
-        && !spans[*pos + 2]) {
-      *pos += 2;
-      for(; *pos <= span.end(); ++*pos)
-        glyphs[*pos].style = GlyphStyleString;
-        
-      return;
-    }
-    
-    while(*pos <= span.end()) {
-      if(!spans[*pos] && pmath_char_is_left(buf[*pos])) {
-        opening_pos = *pos;
-        closing = pmath_right_fence(buf[*pos]);
-        break;
-      }
-      syntax_restyle_span(context, spans[*pos], pos);
-    }
-  }
-  
-  if(closing == UnknownGlyph) {
-    glyphs[opening_pos].style = GlyphStyleNone;
-    
-    while(*pos <= span.end())
-      syntax_restyle_span(context, spans[*pos], pos);
-  }
-  else if(closing) {
-    while(*pos <= span.end()) {
-      if(buf[*pos] == closing) {
-        do {
-          glyphs[opening_pos++].style = GlyphStyleNone;
-        } while(!spans.is_token_end(opening_pos - 1));
-        
-        do {
-          ++*pos;
-        } while(!spans.is_token_end(*pos - 1));
-        
-        while(*pos <= span.end())
-          syntax_restyle_span(context, spans[*pos], pos);
-          
-        return;
-      }
-      else
-        syntax_restyle_span(context, spans[*pos], pos);
-    }
-  }
-  else {
-    while(*pos <= span.end())
-      syntax_restyle_span(context, spans[*pos], pos);
-  }
-}
-
-void MathSequence::check_argcount_span(
-  Context *context,
-  Span     span,
-  int     *pos
-) {
-  if(!span) {
-    while(*pos < glyphs.length() && !spans.is_token_end(*pos))
-      ++*pos;
-      
-    ++*pos;
-    return;
-  }
-  
-  const uint16_t *buf = str.buffer();
-  
-  int second = *pos;
-  if(span.next()) {
-    second = span.next().end() + 1;
-  }
-  else {
-    while(second < glyphs.length() && !spans.is_token_end(second))
-      ++second;
-      
-    ++second;
-  }
-  
-  while(second < glyphs.length() && char_is_white(buf[second]))
-    ++second;
-    
-  String name;
-  
-  if(second < glyphs.length()) {
-    if(buf[second] == '.') {
-      int third = second + 1;
-      while(third < glyphs.length() && char_is_white(buf[third]))
-        ++third;
-        
-      if(third <= span.end()
-          && pmath_token_analyse(buf + third, 1, NULL) == PMATH_TOK_NAME/*pmath_char_is_name(buf[third])*/) {
-        int n = third + 1;
-        while(n <= span.end()) {
-          pmath_token_t tok = pmath_token_analyse(buf + n, 1, NULL);
-          
-          if(tok != PMATH_TOK_NAME && tok != PMATH_TOK_DIGIT)
-            break;
-            
-          ++n;
-        }
-        
-        name = str.part(third, n - third);
-      }
-    }
-    else if(buf[second] == '('
-            && pmath_token_analyse(buf + *pos, 1, NULL) == PMATH_TOK_NAME/*pmath_char_is_name(buf[*pos])*/) {
-      int n = *pos + 1;
-      while(n <= second) {
-        pmath_token_t tok = pmath_token_analyse(buf + n, 1, NULL);
-        
-        if(tok != PMATH_TOK_NAME && tok != PMATH_TOK_DIGIT)
-          break;
-          
-        ++n;
-      }
-      
-      name = str.part(*pos, n - *pos);
-    }
-  }
-  
-  if(name.length() > 0) {
-    Expr options = Application::interrupt_cached(Expr(
-                     pmath_expr_new_extended(
-                       pmath_ref(PMATH_SYMBOL_OPTIONS), 1,
-                       pmath_ref(name.get()))));
-                       
-    if(options != PMATH_SYMBOL_FAILED) {
-      SyntaxInformation info(name); // sym
-      
-      if(info.minargs > 0 || info.maxargs < INT_MAX) {
-        int args = 0;
-        
-        if(buf[second] == '.') {
-          int after_name = second + 1;
-          while(after_name <= glyphs.length() && char_is_white(buf[after_name]))
-            ++after_name;
-            
-          // skip function name:
-          if(spans[after_name]) {
-            after_name = spans[after_name].end() + 1;
-          }
-          else {
-            while(after_name < glyphs.length() && !spans.is_token_end(after_name))
-              ++after_name;
-              
-            ++after_name;
-          }
-          
-          if(info.maxargs == 0) {
-            check_options(options, context, *pos,       second - 1);
-            check_options(options, context, after_name, span.end());
-            
-            *pos = span.end() + 1;
-            return;
-          }
-          
-          ++args;
-          check_argcount_span(context, span.next(), pos);
-          while(*pos < after_name)
-            check_argcount_span(context, spans[*pos], pos);
-        }
-        else { // buf[second] == '('
-          check_argcount_span(context, span.next(), pos);
-          while(*pos < second)
-            check_argcount_span(context, spans[*pos], pos);
-        }
-        
-        if(*pos <= span.end()
-            && buf[*pos] == '(') {
-          ++*pos;
-          while(*pos < glyphs.length() && char_is_white(buf[*pos]))
-            ++*pos;
-            
-          if(*pos <= span.end()) {
-            Span argspan = spans[*pos];
-            
-            if(is_arglist_span(argspan, *pos)) {
-              if(args++ == info.maxargs)
-                goto EXCESS;
-                
-              if(buf[*pos] == ',') {
-                if(args++ == info.maxargs)
-                  goto EXCESS;
-              }
-              
-              check_argcount_span(context, argspan.next(), pos);
-              while(*pos <= argspan.end()) {
-                if(buf[*pos] == ',') {
-                  if(args++ == info.maxargs)
-                    goto EXCESS;
-                    
-                  ++*pos;
-                }
-                else
-                  check_argcount_span(context, spans[*pos], pos);
-              }
-              
-              if(buf[*pos - 1] == ',')
-                --args;
-            }
-            else if(buf[*pos] == ',') {
-              if(info.maxargs < args + 2)
-                goto EXCESS;
-                
-              args += 2;
-            }
-            else if(buf[*pos] != ')') {
-              if(info.maxargs < args + 1)
-                goto EXCESS;
-                
-              check_argcount_span(context, spans[*pos], pos);
-              
-              ++args;
-            }
-            
-            if(false) {
-            EXCESS:
-              int e;
-              if(argspan) {
-                e = argspan.end();
-              }
-              else {
-                e = span.end();
-                if(buf[e] == ')')
-                  --e;
-              }
-              
-              check_options(options, context, *pos, e);
-              
-              *pos = span.end() + 1;
-              return;
-            }
-          }
-        }
-        
-        if(args < info.minargs) {
-          if(*pos <= glyphs.length()) {
-            float d = em * ref_error_indicator_height;
-            
-            glyphs[*pos - 1].missing_after = 1;
-            if(*pos < glyphs.length()) {
-              glyphs[*pos].x_offset += 2 * d;
-              glyphs[*pos].right +=    2 * d;
-            }
-            else
-              glyphs[*pos - 1].right += d;
-          }
-        }
-        
-        *pos = span.end() + 1;
-        return;
-      }
-    }
-  }
-  
-  check_argcount_span(context, span.next(), pos);
-  while(*pos <= span.end())
-    check_argcount_span(context, spans[*pos], pos);
 }
 
 void MathSequence::stretch_span(
@@ -3611,7 +3175,7 @@ bool MathSequence::stretch_horizontal(Context *context, float width) {
         context,
         width,
         str[0],
-        &glyphs[0])) 
+        &glyphs[0]))
   {
     _extents.width = glyphs[0].right;
     _extents.ascent  = _extents.descent = -1e9;

@@ -18,7 +18,7 @@ namespace richmath {
      This class is used to easily analyse the syntax of a MathSequence for
      colorization.
   
-     See SyntaxColorizer::colorize_scope() for the main use case.
+     See ScopeColorizer::colorize_scope() for the main use case.
   
   
   
@@ -61,18 +61,19 @@ namespace richmath {
    */
   class SpanExpr: public Base {
     public:
+      SpanExpr(int position, MathSequence *sequence); // creates an empty span
       SpanExpr(int start, Span span, MathSequence *sequence);
       ~SpanExpr();
       
       static SpanExpr *find(MathSequence *sequence, int pos, bool before = true);
       SpanExpr *expand(bool self_destruction = true);
       
-      int start() { return _start; }
-      int end() {   return _end; }
-      int length() { return _end - _start + 1; }
-      Span span() {  return _span; }
-      int count() { return _items.length(); } // 0 if this is a simple token
-      SpanExpr *parent() { return _parent; }
+      int           start() {    return _start; }
+      int           end() {      return _end; }
+      int           length() {   return _end - _start + 1; }
+      Span          span() {     return _span; }
+      int           count() {    return _items.length(); } // 0 if this is a simple token
+      SpanExpr     *parent() {   return _parent; }
       MathSequence *sequence() { return _sequence; }
       
       SpanExpr *item(int i);
@@ -82,7 +83,7 @@ namespace richmath {
       
       bool item_equals(int i, const char *latin1);
       
-      uint16_t first_char() { return count() > 0 ? 0 : _sequence->text()[_start]; }
+      uint16_t first_char();
       
       uint16_t      as_char() { return length() != 1 ? 0 : first_char(); }
       String        as_text();
@@ -93,7 +94,7 @@ namespace richmath {
       int precedence(int *pos = 0); // -1,0,+1 = Prefix,Infix,Postfix
       
       bool is_box() {     return as_char() == PMATH_CHAR_BOX; }
-      bool is_operand() { return _sequence->span_array().is_operand_start(_start); }
+      bool is_operand() { return _start <= _end && _sequence->span_array().is_operand_start(_start); }
       
       uint16_t      item_first_char(int i);
       uint16_t      item_as_char(int i);
@@ -117,28 +118,52 @@ namespace richmath {
       Array<SpanExpr*> _items;
   };
   
+  class SequenceSpan { // a,b,c
+    public:
+      SequenceSpan(SpanExpr *span); // does not take ownership of span!
+      
+      bool is_sequence(){ return _is_sequence; }
+      int  length(){      return _items.length(); }
+      
+      SpanExpr *item(int i); // 1-based; may return empty SpanExpr!
+      SpanExpr *all(){ return _span; }
+      
+    protected:
+      SpanExpr         *_span;
+      Array<SpanExpr*>  _items;
+      bool              _is_sequence;
+  };
+  
   class FunctionCallSpan {
     public:
-      FunctionCallSpan(SpanExpr *span): _span(span) {}
+      FunctionCallSpan(SpanExpr *span);
       
-      bool is_sequence();       // a,b,c
-      bool is_simple_call();    // f(a,b,c)
-      bool is_complex_call();   // a.f(b,c)
-      bool is_call() { return is_simple_call() || is_complex_call(); }
+      static bool is_simple_call( SpanExpr *span); // f(a,b,c)
+      static bool is_complex_call(SpanExpr *span); // a.f(b,c)
+      static bool is_call(        SpanExpr *span) { return is_simple_call(span) || is_complex_call(span); }
+      static bool is_list(        SpanExpr *span);
+      static bool is_sequence(    SpanExpr *span);
       
-      bool is_simple_list();
-      bool is_list();
+      bool is_simple_call(){  return is_simple_call(_span);  }
+      bool is_complex_call(){ return is_complex_call(_span); }
+      bool is_call(){         return is_call(_span);         }
+      bool is_list() {        return is_list(_span); }
       
-      SpanExpr *sequence_argument(int i); // 1-based
+      SpanExpr *arguments_span(){ return _args.all(); }
+      
       SpanExpr *function_head();
       SpanExpr *function_argument(int i); // 1-based
-      int function_argument_count();
+      int       function_argument_count();
       
       SpanExpr *list_element(int i); // 1-based
-      int list_length();
-      
+      int       list_length();
+    
     private:
-      SpanExpr *_span;
+      void init_args();
+    
+    private:
+      SpanExpr     *_span;
+      SequenceSpan  _args;
   };
 }
 
