@@ -6,7 +6,6 @@ Javassist`ImplementJavaClass
 Begin("Javassist`Private`")
 
 
-Javassist`Private`MakeNewJavaClass
 Javassist`Private`WithMultiple
 Javassist`Private`DoCallback
 Javassist`Private`javaThrow
@@ -15,6 +14,9 @@ Javassist`Private`GetImplementationClass
 
 
 AddToClassPath(ToFileName(ParentDirectory($Input), "javassist.jar"))
+
+
+ImplementJavaClass::usage:= "ImplementJavaClass(\(StyleBox(\"class\", \"Arg\")\), {\"\(StyleBox(\"meth\", \"Arg\")\)\(SubscriptBox(\"1\")\)\" \[Rule] \(StyleBox(\"sym\", \"Arg\")\)\(SubscriptBox(\"1\")\), \"\(StyleBox(\"meth\", \"Arg\")\)\(SubscriptBox(\"2\")\)\" \[Rule] \(StyleBox(\"sym\", \"Arg\")\)\(SubscriptBox(\"2\")\), \[Ellipsis]}) creates a new Java object of type \(StyleBox(\"class\", \"Arg\")\) with methods \(StyleBox(\"meth\", \"Arg\")\)\(SubscriptBox(StyleBox(\"i\", \"Arg\"))\) implemented by \(StyleBox(\"pMath\", \"TI\")\) functions \(StyleBox(\"sym\", \"Arg\")\)\(SubscriptBox(StyleBox(\"i\", \"Arg\"))\).\nImplementJavaClass({\(StyleBox(\"class\", \"Arg\")\)\(SubscriptBox(\"1\")\), \(StyleBox(\"class\", \"Arg\")\)\(SubscriptBox(\"2\")\), \[Ellipsis]}, \[Ellipsis]) allows multiple Java interfaces to be specified."
 
 
 javaThrow(~ex)::= Throw(JavaException(ex, ex @ toString(), Map(ex @ getStackTrace(), # @ toString() &)))
@@ -123,6 +125,12 @@ GetImplementationClass(classes: {~~~:JavaClass}, methods: {~~~:String})::=
 
 Options(ImplementJavaClass):= {ConstructorArguments->{}}
 
+ImplementJavaClass(class: (~:String | ~:JavaClass), methods: {(~:String -> ~:Symbol)***}, options: OptionsPattern())::=
+	ImplementJavaClass({class}, methods, options)
+
+ImplementJavaClass(classes: {(~:String | ~:JavaClass)***}, methods: {(~:String -> ~:Symbol)***}, options: OptionsPattern())::=
+	ImplementJavaClass(classes.Map(If(IsString(#), JavaClass(#), #)&), methods, options)
+
 ImplementJavaClass(classes: {~~~:JavaClass}, methods: {(~:String -> ~:Symbol)***}, OptionsPattern())::=
 	With({class:= GetImplementationClass(Union(classes), Union(methods[All, 1]))},
 		If(class === $Failed,
@@ -142,59 +150,7 @@ ImplementJavaClass(classes: {~~~:JavaClass}, methods: {(~:String -> ~:Symbol)***
 			)
 		)
 
-
-MakeNewJavaClass(~impl: Symbol, ~classname:String, classes:{~~~:JavaClass}, methods: {~~~:String})::= 
-	WithMultiple(
-		{
-			abstract:=        JavaClass("java.lang.reflect.Modifier") @ ABSTRACT,
-			static:=          JavaClass("java.lang.reflect.Modifier") @ STATIC,
-			pool:=            JavaClass("javassist.ClassPool") @ getDefault(),
-			ctclasses:=       classes.Map(pool @ get(First(#)) &),
-			ctinterfaces:=    ctclasses.Select(# @ isInterface() &),
-			ctsuper:=         Complement(ctclasses, ctinterfaces),
-			overrideMethods:= ctclasses.Map(# @ getMethods() &).Flatten.Select(
-			                    BitAnd(# @ getModifiers(), abstract) != 0 || !methods.IsFreeOf(# @ getName()) &),
-			implName:=        Namespace(impl) ++ SymbolName(impl)
-		},
-		
-		If(ctsuper.Length > 1,
-			Return($Failed));
-		
-		With(
-			{
-				newCtClass:=  pool @ makeClass(classname),
-				classLoader:= First({pool @ getClassLoader(), JavaClass("java.lang.ClassLoader") @ getSystemClassLoader()}.Select(# =!= /\/ &))
-			},
-			
-			Finally(
-				If(ctsuper.Length = 1,
-					newCtClass @ setSuperclass( First(ctsuper) ));
-				
-				ctinterfaces.Scan(newCtClass @ addInterface(#) &);
-				
-				overrideMethods.Scan(Function({origMethod},
-					WithMultiple(
-						{
-							modifiers:=   BitAnd(origMethod @ getModifiers(), BitNot(abstract)),
-							returnType:=  origMethod @ getReturnType(),
-							parameters:=  origMethod @ getParameterTypes(),
-							exceptions:=  origMethod @ getExceptionTypes(),
-							methodName:=  origMethod @ getName(),
-							thisArg:=     If(BitAnd(modifiers, static) === 0, "this", "/\\/"),
-							pmathBody:=   "Javassist`Private`DoCallback(" ++ implName ++ ", `1`, `2`, " ++ methodName.InputForm.ToString() ++", `3`)",
-							javaBody:=    "{ return ($r)pmath.Core.execute(" ++  pmathBody.InputForm.ToString() ++ ", new Object[]{ $class, " ++ thisArg ++ ", $args }); }",
-							newMethod:=   JavaClass("javassist.CtNewMethod") @ make(
-											modifiers, returnType, methodName, parameters, exceptions, javaBody, newCtClass)
-						},
-						newCtClass @ addMethod(newMethod)
-						)));
-						
-				Return(Evaluate(newCtClass @ toClass(classLoader, /\/)));
-			,
-				newCtClass @ prune()
-				)
-			)
-		)
+Attributes(ImplementJavaClass):= {Protected, ReadProtected}
 
 
 End()
