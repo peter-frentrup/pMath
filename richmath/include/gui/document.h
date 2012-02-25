@@ -94,6 +94,8 @@ namespace richmath {
       virtual void insert(int pos, Section *section);
       virtual Section *swap(int pos, Section *section);
       
+      Box *prepare_copy(int *start, int *end);
+      bool can_copy();
       String copy_to_text(String mimetype);
       void copy_to_binary(String mimetype, Expr file);
       void copy_to_clipboard();

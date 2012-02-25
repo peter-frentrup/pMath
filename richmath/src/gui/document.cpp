@@ -1089,7 +1089,11 @@ void Document::on_key_down(SpecialKeyEvent &event) {
           int index = context.selection.start;
           Box *box = selbox->move_logical(Forward, event.ctrl, &index);
           
-          if(box == selbox) {
+          while(box && !box->selectable()) {
+            box = box->move_logical(Forward, true, &index);
+          }
+          
+          if(box == selbox || box == selbox->parent()) {
             move_to(box, index, true);
             selbox = selection_box();
             
@@ -1968,8 +1972,40 @@ void Document::select_prev(bool operands_only) {
   }
 }
 
+Box *Document::prepare_copy(int *start, int *end) {
+  if(selection_length() > 0) {
+    *start = selection_start();
+    *end = selection_end();
+    return selection_box();
+  }
+  
+  Box *box = selection_box();
+  if(box && !dynamic_cast<AbstractSequence*>(box)) {
+    AbstractSequence *parent = dynamic_cast<AbstractSequence*>(box->parent());
+    
+    if(parent) {
+      *start = box->index();
+      *end   = *start + 1;
+      return parent->normalize_selection(start, end);
+    }
+  }
+  
+  *start = -1;
+  *end   = -1;
+  return 0;
+}
+
+bool Document::can_copy() {
+  int start, end;
+  Box *box = prepare_copy(&start, &end);
+  
+  return box && start < end;
+}
+
 String Document::copy_to_text(String mimetype) {
-  Box *selbox = context.selection.get();
+  int start, end;
+  
+  Box *selbox = prepare_copy(&start, &end);
   if(!selbox) {
     native()->beep();
     return String();
@@ -1979,7 +2015,7 @@ String Document::copy_to_text(String mimetype) {
   if(mimetype.equals(Clipboard::PlainText))
     flags |= BoxFlagLiteral | BoxFlagShortNumbers;
     
-  Expr boxes = selbox->to_pmath(flags, context.selection.start, context.selection.end);
+  Expr boxes = selbox->to_pmath(flags, start, end);
   if(mimetype.equals(Clipboard::BoxesText))
     return boxes.to_string(PMATH_WRITE_OPTIONS_INPUTEXPR | PMATH_WRITE_OPTIONS_FULLSTR);
     
@@ -1997,13 +2033,15 @@ String Document::copy_to_text(String mimetype) {
 
 void Document::copy_to_binary(String mimetype, Expr file) {
   if(mimetype.equals(Clipboard::BoxesBinary)) {
-    Box *selbox = context.selection.get();
+    int start, end;
+    
+    Box *selbox = prepare_copy(&start, &end);
     if(!selbox) {
       native()->beep();
       return;
     }
     
-    Expr boxes = selbox->to_pmath(BoxFlagDefault, context.selection.start, context.selection.end);
+    Expr boxes = selbox->to_pmath(BoxFlagDefault, start, end);
     file = Expr(pmath_file_create_compressor(file.release()));
     pmath_serialize(file.get(), boxes.release());
     pmath_file_close(file.release());
@@ -2032,13 +2070,21 @@ void Document::copy_to_clipboard() {
 
 void Document::cut_to_clipboard() {
   copy_to_clipboard();
-  remove_selection(false);
+  
+  int start, end;
+  Box *box = prepare_copy(&start, &end);
+  if(box) {
+    select(box, start, end);
+    
+    remove_selection(false);
+  }
 }
 
 void Document::paste_from_boxes(Expr boxes) {
-  if(context.selection.get() == this && get_style(Editable, true)
-      && (boxes[0] == PMATH_SYMBOL_SECTION
-          || boxes[0] == PMATH_SYMBOL_SECTIONGROUP)) {
+  if(context.selection.get() == this &&
+      get_style(Editable, true) &&
+      (boxes[0] == PMATH_SYMBOL_SECTION || boxes[0] == PMATH_SYMBOL_SECTIONGROUP))
+  {
     remove_selection(false);
     
     int i = context.selection.start;
@@ -3162,7 +3208,7 @@ void Document::reset_mouse() {
 
 void Document::paint_resize(Canvas *canvas, bool resize_only) {
   style->update_dynamic(this);
-    
+  
   context.canvas = canvas;
   
   float sx, sy, h;

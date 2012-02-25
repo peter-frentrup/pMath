@@ -259,7 +259,7 @@ static bool can_convert_dynamic_to_literal(Expr cmd) {
 static bool can_copy_cut(Expr cmd) {
   Document *doc = get_current_document();
   
-  if(!doc || doc->selection_length() == 0)
+  if(!doc || !doc->can_copy())
     return false;
     
   if(String(cmd).equals("Cut")) {
@@ -491,7 +491,7 @@ static bool convert_dynamic_to_literal(Expr cmd) {
 static bool copy_cmd(Expr cmd) {
   Document *doc = get_current_document();
   
-  if(!doc || doc->selection_length() == 0)
+  if(!doc || !doc->can_copy())
     return false;
     
   doc->copy_to_clipboard();
@@ -501,7 +501,7 @@ static bool copy_cmd(Expr cmd) {
 static bool cut_cmd(Expr cmd) {
   Document *doc = get_current_document();
   
-  if(!doc || doc->selection_length() == 0)
+  if(!doc || !doc->can_copy())
     return false;
     
   doc->cut_to_clipboard();
