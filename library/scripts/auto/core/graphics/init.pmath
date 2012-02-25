@@ -18,7 +18,7 @@ Protect(Graphics)
 
 
 Unprotect(GraphicsBox)
-Attributes(Graphics):= {ReadProtected, HoldAll}
+Attributes(GraphicsBox):= {ReadProtected, HoldAll}
 GraphicsBox/: MakeExpression(GraphicsBox(~elements, ~~~options))::=
 	With({elem:= MakeGraphicsExpression(elements)},
 		HoldComplete(Graphics(tmp(elem), options)).Replace({
