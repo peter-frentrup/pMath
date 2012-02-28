@@ -701,7 +701,7 @@ void SequenceSpan::init(SpanExpr *span) {
 
 void SequenceSpan::reset() {
   for(int i = 0; i < _items.length(); ++i)
-    if(_items[i] != _span && _items[i]->parent())
+    if(_items[i] != _span && _items[i]->parent() == 0)
       delete _items[i];
       
   if(_has_ownership)
