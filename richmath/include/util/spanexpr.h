@@ -134,6 +134,7 @@ namespace richmath {
       
     protected:
       void init(SpanExpr *span);
+      void reset();
       
     protected:
       SpanExpr         *_span;

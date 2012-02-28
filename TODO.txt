@@ -2,8 +2,6 @@
 	Button("italic", DocumentApply(SelectedDocument(), StyleBox("\[SelectionPlaceholder]", "TI"))),
 	Button("Arg Style", DocumentApply(SelectedDocument(), StyleBox("\[SelectionPlaceholder]", "Arg")))})
 
-- richmath: memory leak in syntax_colorizer for "f(x,"
-    
 - pmath-java: add pmath.Core.cleanup() to call pmath_done() on the current Java thread
 
 - add ToAbsoluteFileName(), AppendTo(), PrependTo()
