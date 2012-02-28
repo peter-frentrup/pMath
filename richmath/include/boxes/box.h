@@ -87,6 +87,18 @@ namespace richmath {
       Box();
       virtual ~Box();
       
+      template<class T>
+      static T *try_create(Expr expr, int options){
+        T *box = new T();
+        
+        if(!box->try_load_from_object(expr, options)){
+          delete box;
+          return 0;
+        }
+        
+        return box;
+      }
+      
       Box *parent() { return _parent; }
       int  index() {  return _index; }
       
@@ -169,6 +181,7 @@ namespace richmath {
       virtual void dynamic_updated();
       virtual void dynamic_finished(Expr info, Expr result) {}
       
+      virtual bool try_load_from_object(Expr object, int options) = 0; // BoxOptionXXX
       virtual Box *dynamic_to_literal(int *start, int *end);
       
       bool         request_repaint_all();
@@ -230,9 +243,11 @@ namespace richmath {
       DummyBox(): Box() {}
       virtual ~DummyBox() {}
       
+      virtual bool try_load_from_object(Expr expr, int options) { return false; }
+      
       virtual Box *item(int i) { return 0; }
-      virtual int count() { return 0; }
-      virtual int length() { return 0; }
+      virtual int  count() {     return 0; }
+      virtual int  length() {    return 0; }
       
       virtual void resize(Context *context) {}
       virtual void paint(Context *context) {}
@@ -262,6 +277,7 @@ namespace richmath {
       virtual void remove(int start, int end) = 0;
       
       virtual Box *extract_box(int boxindex) = 0;
+      virtual bool try_load_from_object(Expr object, int options);
       virtual void load_from_object(Expr object, int options) = 0; // BoxOptionXXX
       
       virtual Box *dynamic_to_literal(int *start, int *end);

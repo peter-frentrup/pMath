@@ -9,9 +9,11 @@
 namespace richmath {
   class ProgressIndicatorBox: public Box {
     public:
+      explicit ProgressIndicatorBox();
       virtual ~ProgressIndicatorBox();
       
-      static ProgressIndicatorBox *create(Expr expr);
+      // Box::try_create<ProgressIndicatorBox>(expr, opts);
+      virtual bool try_load_from_object(Expr expr, int opts);
       
       virtual Box *item(int i) { return 0; }
       virtual int count() { return 0; }
@@ -38,9 +40,6 @@ namespace richmath {
       
       virtual Box *mouse_sensitive() { return this; }
       virtual void on_mouse_move(MouseEvent &event);
-      
-    protected:
-      explicit ProgressIndicatorBox();
       
     protected:
       double range_min;

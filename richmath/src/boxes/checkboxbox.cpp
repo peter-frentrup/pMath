@@ -9,46 +9,49 @@ CheckboxBox::CheckboxBox()
 {
   dynamic.init(this, Expr());
 }
-
-CheckboxBox *CheckboxBox::create(Expr expr) {
-  CheckboxBox *cb = new CheckboxBox();
+      
+bool CheckboxBox::try_load_from_object(Expr expr, int opts) {
+  if(expr[0] != PMATH_SYMBOL_CHECKBOXBOX)
+    return false;
+  
   Expr options(PMATH_UNDEFINED);
   
-  if(expr.expr_length() >= 1) {
-    cb->dynamic = expr[1];
-  }
-  else {
-    cb->dynamic = Symbol(PMATH_SYMBOL_FALSE);
-  }
-  
   if(expr.expr_length() >= 2) {
-    cb->values = expr[2];
+    Expr _values = expr[2];
     
-    if(cb->values.expr_length() != 2 || cb->values[0] != PMATH_SYMBOL_LIST) {
-      cb->values = Expr();
+    if(_values.expr_length() != 2 || _values[0] != PMATH_SYMBOL_LIST) {
+      _values = Expr();
       options = Expr(pmath_options_extract(expr.get(), 1));
     }
-    else {
+    else 
       options = Expr(pmath_options_extract(expr.get(), 2));
-    }
+    
+    if(options.is_null())
+      return false;
+      
+    values = _values;
   }
   else {
-    cb->values = Expr();
+    values = Expr();
+  }
+
+  /* now success is guaranteed */
+
+  if(style){
+    style->clear();
+    style->add_pmath(options);
+  }
+  else if(options != PMATH_UNDEFINED)
+    style = new Style(options);
+  
+  if(expr.expr_length() >= 1) {
+    dynamic = expr[1];
+  }
+  else {
+    dynamic = Symbol(PMATH_SYMBOL_FALSE);
   }
   
-  if(options.is_null()) {
-    delete cb;
-    return 0;
-  }
-  
-  if(options != PMATH_UNDEFINED) {
-    if(cb->style)
-      cb->style->add_pmath(options);
-    else
-      cb->style = new Style(options);
-  }
-  
-  return cb;
+  return true;
 }
 
 void CheckboxBox::paint(Context *context) {

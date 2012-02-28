@@ -12,6 +12,9 @@ namespace richmath {
       RadicalBox(MathSequence *radicand = 0, MathSequence *exponent = 0);
       virtual ~RadicalBox();
       
+      // Box::try_create<RadicalBox>(expr, opts);
+      virtual bool try_load_from_object(Expr expr, int opts);
+      
       MathSequence *radicand() { return _radicand; }
       MathSequence *exponent() { return _exponent; }
       
@@ -25,7 +28,7 @@ namespace richmath {
       
       void complete();
       
-      virtual Expr to_pmath_symbol() { return Symbol(PMATH_SYMBOL_RADICALBOX); }
+      virtual Expr to_pmath_symbol();
       virtual Expr to_pmath(int flags);
       
       virtual Box *move_vertical(

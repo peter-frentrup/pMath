@@ -12,10 +12,31 @@ using namespace richmath;
 
 //{ class NumberBox ...
 
+NumberBox::NumberBox()
+  : OwnerBox()
+{
+  set_number(String(""));
+}
+
 NumberBox::NumberBox(String number)
   : OwnerBox()
 {
   set_number(number);
+}
+
+bool NumberBox::try_load_from_object(Expr expr, int opts) {
+  if(expr[0] != GetSymbol(NumberBoxSymbol))
+    return false;
+    
+  if(expr.expr_length() != 1)
+    return false;
+    
+  String s(expr[1]);
+  if(s.is_null())
+    return false;
+    
+  set_number(s);
+  return true;
 }
 
 bool NumberBox::edit_selection(Context *context) {
@@ -32,9 +53,10 @@ bool NumberBox::edit_selection(Context *context) {
       context->selection.set(seq, s, e);
       
       if(_number[_number.length() - 1] == '`') {
-        if(pmath_char_is_digit(seq->text()[_index + 1])
-            ||                     seq->text()[_index + 1] == '-'
-            ||                     seq->text()[_index + 1] == '+') {
+        if( pmath_char_is_digit(seq->text()[_index + 1]) ||
+            seq->text()[_index + 1] == '-'               ||
+            seq->text()[_index + 1] == '+')
+        {
           seq->insert(_index + 1, " ");
         }
       }
@@ -49,9 +71,10 @@ bool NumberBox::edit_selection(Context *context) {
       context->selection.set(seq, s, e);
       
       if(_number[_number.length() - 1] == '`') {
-        if(pmath_char_is_digit(seq->text()[_index + 1])
-            ||                     seq->text()[_index + 1] == '-'
-            ||                     seq->text()[_index + 1] == '+') {
+        if(pmath_char_is_digit(seq->text()[_index + 1]) ||
+            seq->text()[_index + 1] == '-'              ||
+            seq->text()[_index + 1] == '+')
+        {
           seq->insert(_index + 1, " ");
         }
       }
@@ -76,9 +99,10 @@ bool NumberBox::edit_selection(Context *context) {
       context->selection.set(seq, s, e);
       
       if(_number[_number.length() - 1] == '`') {
-        if(pmath_char_is_digit(seq->text()[_index + 1])
-            ||                     seq->text()[_index + 1] == '-'
-            ||                     seq->text()[_index + 1] == '+') {
+        if(pmath_char_is_digit(seq->text()[_index + 1]) ||
+            seq->text()[_index + 1] == '-'              ||
+            seq->text()[_index + 1] == '+')
+        {
           seq->insert(_index + 1, " ");
         }
       }
@@ -97,9 +121,10 @@ bool NumberBox::edit_selection(Context *context) {
         e += _number.length();
         
       if(_number[_number.length() - 1] == '`') {
-        if(pmath_char_is_digit(seq->text()[_index + 1])
-            ||                     seq->text()[_index + 1] == '-'
-            ||                     seq->text()[_index + 1] == '+') {
+        if(pmath_char_is_digit(seq->text()[_index + 1]) ||
+            seq->text()[_index + 1] == '-'              ||
+            seq->text()[_index + 1] == '+')
+        {
           seq->insert(_index + 1, " ");
         }
       }
@@ -124,7 +149,7 @@ void NumberBox::resize(Context *context) {
   
   if(old_math_spacing)
     context->text_shaper = context->math_shaper;
-  
+    
   OwnerBox::resize(context);
   
   context->math_spacing     = old_math_spacing;
@@ -142,7 +167,7 @@ void NumberBox::paint(Context *context) {
   
   if(old_math_spacing)
     context->text_shaper = context->math_shaper;
-  
+    
   OwnerBox::paint(context);
   
   context->math_spacing     = old_math_spacing;
@@ -278,9 +303,10 @@ void NumberBox::set_number(String n) {
     ++_numstart;
   }
   
-  if(_numstart + 1 < len
-      && buf[_numstart]     == '^'
-      && buf[_numstart + 1] == '^') {
+  if(_numstart + 1 < len        &&
+      buf[_numstart]     == '^' &&
+      buf[_numstart + 1] == '^')
+  {
     _numstart += 2;
   }
   else {
@@ -295,9 +321,13 @@ void NumberBox::set_number(String n) {
   _expstart = _numend;
   _content->remove(0, _content->length());
   
-  if((_numend + 1 == len || (_numend + 1 < len && buf[_numend + 1] != '`' && !pmath_char_is_digit(buf[_numend + 1])))
-      && numbase >= 2
-      && numbase <= 36) {
+  if( numbase >= 2 &&
+      numbase <= 36 &&
+      (_numend + 1 == len ||
+       (_numend + 1 < len &&
+        buf[_numend + 1] != '`' &&
+        !pmath_char_is_digit(buf[_numend + 1]))))
+  {
     // machine number: do not show all digits
     int digits = 6;
     

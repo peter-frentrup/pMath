@@ -8,7 +8,10 @@
 namespace richmath {
   class CheckboxBox: public EmptyWidgetBox {
     public:
-      static CheckboxBox *create(Expr expr);
+      CheckboxBox();
+      
+      // Box::try_create<CheckboxBox>(expr, opts);
+      virtual bool try_load_from_object(Expr expr, int opts);
       
       virtual void paint(Context *context);
       
@@ -21,8 +24,6 @@ namespace richmath {
       virtual void on_mouse_up(MouseEvent &event);
       
     protected:
-      CheckboxBox();
-      
       ContainerType calc_type(Expr result);
       
     protected:

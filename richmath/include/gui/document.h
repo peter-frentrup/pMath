@@ -25,6 +25,8 @@ namespace richmath {
       Document();
       ~Document();
       
+      virtual bool try_load_from_object(Expr expr, int options);
+      
       virtual bool request_repaint(float x, float y, float w, float h);
       virtual void invalidate();
       virtual void invalidate_options();

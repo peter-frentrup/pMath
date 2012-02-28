@@ -8,7 +8,10 @@
 namespace richmath {
   class SetterBox: public ContainerWidgetBox {
     public:
-      static SetterBox *create(Expr expr, int opts);
+      explicit SetterBox(MathSequence *content = 0);
+      
+      // Box::try_create<SetterBox>(expr, opts);
+      virtual bool try_load_from_object(Expr expr, int opts);
       
       virtual ControlState calc_state(Context *context);
       
@@ -27,10 +30,7 @@ namespace richmath {
       virtual void dynamic_updated();
       virtual void dynamic_finished(Expr info, Expr result);
       virtual Box *dynamic_to_literal(int *start, int *end);
-      
-    protected:
-      explicit SetterBox(MathSequence *content = 0);
-      
+    
     protected:
       Dynamic dynamic;
       Expr    value;

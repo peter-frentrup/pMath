@@ -27,13 +27,29 @@ FractionBox::FractionBox(MathSequence *num, MathSequence *den)
     _numerator = new MathSequence;
   if(!_denominator)
     _denominator = new MathSequence;
-  adopt(_numerator, 0);
+    
+  adopt(_numerator,   0);
   adopt(_denominator, 1);
 }
 
 FractionBox::~FractionBox() {
   delete _numerator;
   delete _denominator;
+}
+
+bool FractionBox::try_load_from_object(Expr expr, int opts) {
+  if(expr[0] != PMATH_SYMBOL_FRACTIONBOX)
+    return false;
+    
+  if(expr.expr_length() != 2)
+    return false;
+    
+  /* now success is guaranteed */
+  
+  _numerator->load_from_object(  expr[1], opts);
+  _denominator->load_from_object(expr[2], opts);
+  
+  return true;
 }
 
 Box *FractionBox::item(int i) {
@@ -43,9 +59,9 @@ Box *FractionBox::item(int i) {
 }
 
 void FractionBox::resize(Context *context) {
-  float tmp = context->width;
-  float old_fs = context->canvas->get_font_size();
-  int old_script_indent = context->script_indent;
+  float old_width         = context->width;
+  float old_fs            = context->canvas->get_font_size();
+  int   old_script_indent = context->script_indent;
   
   if(context->smaller_fraction_parts) {
     context->script_indent++;
@@ -56,7 +72,7 @@ void FractionBox::resize(Context *context) {
   context->width = HUGE_VAL;
   _numerator->resize(context);
   _denominator->resize(context);
-  context->width = tmp;
+  context->width = old_width;
   
   if(context->smaller_fraction_parts)
     context->canvas->set_font_size(old_fs);
@@ -104,6 +120,7 @@ void FractionBox::paint(Context *context) {
 
 Box *FractionBox::remove(int *index) {
   MathSequence *seq = dynamic_cast<MathSequence*>(_parent);
+  
   if(seq) {
     if(*index == 0 && _numerator->length() == 0) {
       *index = _index;

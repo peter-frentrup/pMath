@@ -56,67 +56,83 @@ SliderBox::SliderBox()
 SliderBox::~SliderBox() {
 }
 
-SliderBox *SliderBox::create(Expr expr) {
+bool SliderBox::try_load_from_object(Expr expr, int opts) {
+  if(expr[0] != PMATH_SYMBOL_SLIDERBOX)
+    return false;
+    
   if(expr.expr_length() < 2)
-    return 0;
+    return false;
     
   Expr options = Expr(pmath_options_extract(expr.get(), 2));
   
   if(options.is_null())
-    return 0;
+    return false;
     
-  SliderBox *sb = new SliderBox();
-  sb->dynamic = expr[1];
+  Expr   new_range             = expr[2];
+  double new_range_min         = NAN;
+  double new_range_max         = NAN;
+  double new_range_step        = 0.0;
+  bool   new_use_double_values = true;
   
-  sb->style = new Style(options);
-  
-  sb->range = expr[2];
-  if(sb->range.expr_length() == 2
-      && sb->range[0] == PMATH_SYMBOL_RANGE) {
-    sb->range_min = sb->range[1].to_double(NAN);
-    sb->range_max = sb->range[2].to_double(NAN);
-    
-    if(isnan(sb->range_min) || isnan(sb->range_max)) {
-      delete sb;
-      return 0;
+  if(new_range[0] == PMATH_SYMBOL_RANGE) {
+    if(new_range.expr_length() == 2) {
+      new_range_min = new_range[1].to_double(NAN);
+      new_range_max = new_range[2].to_double(NAN);
+      
+      new_range_step = 0.0;
     }
-  }
-  else if(sb->range.expr_length() == 3
-          &&      sb->range[0] == PMATH_SYMBOL_RANGE) {
-    sb->range_min  = sb->range[1].to_double(NAN);
-    sb->range_max  = sb->range[2].to_double(NAN);
-    sb->range_step = sb->range[3].to_double(0);
-    
-    if(isnan(sb->range_min) || isnan(sb->range_max) || sb->range_step == 0) {
-      delete sb;
-      return 0;
+    else if(new_range.expr_length() == 3) {
+      new_range_min  = new_range[1].to_double(NAN);
+      new_range_max  = new_range[2].to_double(NAN);
+      new_range_step = new_range[3].to_double(NAN);
+      
+      if(new_range_step != 0.0) {
+        new_use_double_values = !Evaluate(
+                                  Divide(
+                                    Minus(new_range[2], new_range[1]),
+                                    new_range[3])
+                                ).is_rational();
+      }
+      
     }
+    else
+      return false;
+  }
+  else if(new_range.expr_length() > 0 && new_range[0] == PMATH_SYMBOL_LIST) {
+    new_range_min  = 1;
+    new_range_max  = new_range.expr_length();
+    new_range_step = 1;
+  }
+  else
+    return false;
     
-    sb->use_double_values = !Evaluate(
-                              Divide(
-                                Minus(sb->range[2], sb->range[1]),
-                                sb->range[3])
-                            ).is_rational();
-  }
-  else if(sb->range.expr_length() > 0
-          &&      sb->range[0] == PMATH_SYMBOL_LIST) {
-    sb->range_min = 1;
-    sb->range_max = sb->range.expr_length();
-    sb->range_step = 1;
-  }
-  else {
-    delete sb;
-    return 0;
+  if(isnan(new_range_min))
+    return false;
+    
+  if(isnan(new_range_max))
+    return false;
+    
+  if(isnan(new_range_step))
+    return false;
+    
+  /* now success is guaranteed */
+  
+  if(dynamic.expr() != expr[1]) {
+    dynamic     = expr[1];
+    must_update = true;
   }
   
-  return sb;
-}
-
-/*bool SliderBox::expand(const BoxSize &size){
-  _extents.width = size.width;
-
+  style->clear();
+  style->add_pmath(options);
+  
+  range             = new_range;
+  range_min         = new_range_min;
+  range_max         = new_range_max;
+  range_step        = new_range_step;
+  use_double_values = new_use_double_values;
+  
   return true;
-}*/
+}
 
 void SliderBox::resize(Context *context) {
   float em = context->canvas->get_font_size();

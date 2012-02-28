@@ -52,6 +52,8 @@ namespace richmath {
   
   class InlineSequenceBox: public OwnerBox {
     public:
+      virtual bool try_load_from_object(Expr expr, int options);
+      
       virtual void resize(Context *context);
       virtual void paint(Context *context);
       

@@ -128,6 +128,12 @@ SpanArray::~SpanArray() {
   pmath_span_array_free(_array);
 }
 
+pmath_span_array_t *SpanArray::extract_array() {
+  pmath_span_array_t *tmp = _array;
+  _array = 0;
+  return tmp;
+}
+
 SpanArray &SpanArray::operator=(pmath_span_array_t *spans) {
   if(_array == spans)
     return *this;

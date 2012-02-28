@@ -10,7 +10,8 @@ namespace richmath {
       explicit FillBox(MathSequence *content = 0, float _weight = 1);
       ~FillBox();
       
-      static FillBox *create(Expr expr, int opts);
+      // Box::try_create<FillBox>(expr, opts);
+      virtual bool try_load_from_object(Expr expr, int opts);
       
       virtual bool expand(const BoxSize &size);
       virtual void paint_content(Context *context);

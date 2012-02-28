@@ -8,7 +8,10 @@
 namespace richmath {
   class RadioButtonBox: public EmptyWidgetBox {
     public:
-      static RadioButtonBox *create(Expr expr);
+      RadioButtonBox();
+      
+      // Box::try_create<RadioButtonBox>(expr, opts);
+      virtual bool try_load_from_object(Expr expr, int opts);
       
       virtual void paint(Context *context);
       
@@ -21,8 +24,6 @@ namespace richmath {
       virtual void on_mouse_up(MouseEvent &event);
       
     protected:
-      RadioButtonBox();
-      
       ContainerType calc_type(Expr result);
       
       Dynamic dynamic;

@@ -9,15 +9,16 @@
 namespace richmath {
   class SliderBox: public Box {
     public:
+      explicit SliderBox();
       virtual ~SliderBox();
       
-      static SliderBox *create(Expr expr);
+      // Box::try_create<SliderBox>(expr, opts);
+      virtual bool try_load_from_object(Expr expr, int opts);
       
       virtual Box *item(int i) { return 0; }
       virtual int count() { return 0; }
       virtual int length() { return 0; }
       
-      //virtual bool expand(const BoxSize &size);
       virtual void resize(Context *context);
       virtual void paint(Context *context);
       virtual Box *remove(int *index) { return this; }
@@ -44,8 +45,6 @@ namespace richmath {
       virtual void on_mouse_up(MouseEvent &event);
       
     protected:
-      explicit SliderBox();
-      
       float calc_thumb_pos(double val);
       double mouse_to_val(double mouse_x);
       void assign_dynamic_value(double d);

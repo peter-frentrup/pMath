@@ -22,8 +22,9 @@ class ObjectCounter {
       pmath_atomic_write_release(&count, 0);
     }
     ~ObjectCounter() {
-      if(pmath_atomic_read_aquire(&count) != 0)
+      if(pmath_atomic_read_aquire(&count) != 0){
         printf("%d OBJECTS NOT FREED\n", (int)pmath_atomic_read_aquire(&count));
+      }
     }
     
     pmath_atomic_t count;

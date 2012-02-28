@@ -7,8 +7,11 @@
 namespace richmath {
   class DynamicLocalBox: public AbstractDynamicBox {
     public:
+      DynamicLocalBox();
       virtual ~DynamicLocalBox();
-      static DynamicLocalBox *create(Expr expr, int options);
+      
+      // Box::try_create<DynamicLocalBox>(expr, options)
+      virtual bool try_load_from_object(Expr expr, int options);
       
       virtual void paint(Context *context);
       
@@ -18,8 +21,6 @@ namespace richmath {
       virtual Expr prepare_dynamic(Expr expr);
       
     protected:
-      DynamicLocalBox();
-      
       void ensure_init();
       void emit_values(Expr symbol);
       

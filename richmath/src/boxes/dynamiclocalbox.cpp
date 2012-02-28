@@ -15,39 +15,50 @@ DynamicLocalBox::DynamicLocalBox()
 }
 
 DynamicLocalBox::~DynamicLocalBox() {
-  if(_deinitialization.is_valid()
-      && _deinitialization != PMATH_SYMBOL_NONE
-      && !_init_call.is_valid()) // only call Deinitialization if the initialization was called
+  if( _deinitialization.is_valid() &&
+      _deinitialization != PMATH_SYMBOL_NONE &&
+      !_init_call.is_valid())
+  {
+    // only call Deinitialization if the initialization was called
     Application::interrupt(prepare_dynamic(_deinitialization), Application::dynamic_timeout);
+  }
 }
 
-DynamicLocalBox *DynamicLocalBox::create(Expr expr, int options) {
+bool DynamicLocalBox::try_load_from_object(Expr expr, int options) {
+  if(expr[0] != PMATH_SYMBOL_DYNAMICLOCALBOX)
+    return false;
+    
   if(expr.expr_length() < 2)
-    return 0;
+    return false;
     
   Expr options_expr = Expr(pmath_options_extract(expr.get(), 2));
   if(options_expr.is_null())
-    return 0;
+    return false;
     
-  DynamicLocalBox *box = new DynamicLocalBox();
   Expr symbols = expr[1];
-  if(symbols[0] != PMATH_SYMBOL_LIST) {
-    delete box;
-    return 0;
-  }
-  
-  box->_public_symbols  = symbols;
-  box->_private_symbols = symbols;
+  if(symbols[0] != PMATH_SYMBOL_LIST)
+    return false;
+    
   for(size_t i = symbols.expr_length(); i > 0; --i) {
     Expr sym = symbols[i];
     
-    if(!sym.is_symbol()) {
-      delete box;
-      return 0;
-    }
+    if(!sym.is_symbol())
+      return false;
+  }
+  
+  /* now success is guaranteed */
+  
+  _public_symbols  = symbols;
+  _private_symbols = symbols;
+  
+  for(size_t i = symbols.expr_length(); i > 0; --i) {
+    Expr sym = symbols[i];
     
-    sym = Expr(pmath_symbol_create_temporary(pmath_symbol_name(sym.get()), TRUE));
-    box->_private_symbols.set(i, sym);
+    sym = Expr(pmath_symbol_create_temporary(
+                 pmath_symbol_name(sym.get()),
+                 TRUE));
+                 
+    _private_symbols.set(i, sym);
   }
   
   Expr values = Expr(pmath_option_value(
@@ -55,25 +66,25 @@ DynamicLocalBox *DynamicLocalBox::create(Expr expr, int options) {
                        PMATH_SYMBOL_DYNAMICLOCALVALUES,
                        options_expr.get()));
                        
-  box->_initialization = Expr(pmath_option_value(
-                                PMATH_SYMBOL_DYNAMICLOCALBOX,
-                                PMATH_SYMBOL_INITIALIZATION,
-                                options_expr.get()));
-                                
-  box->_deinitialization = Expr(pmath_option_value(
-                                  PMATH_SYMBOL_DYNAMICLOCALBOX,
-                                  PMATH_SYMBOL_DEINITIALIZATION,
-                                  options_expr.get()));
-                                  
-  box->_unsaved_variables = Expr(pmath_option_value(
-                                   PMATH_SYMBOL_DYNAMICLOCALBOX,
-                                   PMATH_SYMBOL_UNSAVEDVARIABLES,
-                                   options_expr.get()));
-                                   
-  box->_init_call = List(values, box->_initialization);
-  box->content()->load_from_object(expr[2], options);
+  _initialization = Expr(pmath_option_value(
+                           PMATH_SYMBOL_DYNAMICLOCALBOX,
+                           PMATH_SYMBOL_INITIALIZATION,
+                           options_expr.get()));
+                           
+  _deinitialization = Expr(pmath_option_value(
+                             PMATH_SYMBOL_DYNAMICLOCALBOX,
+                             PMATH_SYMBOL_DEINITIALIZATION,
+                             options_expr.get()));
+                             
+  _unsaved_variables = Expr(pmath_option_value(
+                              PMATH_SYMBOL_DYNAMICLOCALBOX,
+                              PMATH_SYMBOL_UNSAVEDVARIABLES,
+                              options_expr.get()));
+                              
+  _init_call = List(values, _initialization);
+  content()->load_from_object(expr[2], options);
   
-  return box;
+  return true;
 }
 
 void DynamicLocalBox::paint(Context *context) {

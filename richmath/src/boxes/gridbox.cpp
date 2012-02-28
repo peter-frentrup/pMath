@@ -43,6 +43,11 @@ Expr GridItem::to_pmath(int flags) {
   return _content->to_pmath(flags);
 }
 
+bool GridItem::try_load_from_object(Expr object, int options) {
+  load_from_object(object, options);
+  return true;
+}
+
 void GridItem::load_from_object(const Expr object, int opts) {
   _content->load_from_object(object, opts);
 }
@@ -98,59 +103,77 @@ GridBox::~GridBox() {
     delete items[i];
 }
 
-GridBox *GridBox::create(Expr expr, int opts) {
-  if(expr[0] == PMATH_SYMBOL_GRIDBOX && expr.expr_length() >= 1) {
-    Expr options(pmath_options_extract(expr.get(), 1));
+bool GridBox::try_load_from_object(Expr expr, int opts) {
+  if(expr[0] != PMATH_SYMBOL_GRIDBOX)
+    return false;
     
-    if(options.is_null())
-      return 0;
+  if(expr.expr_length() < 1)
+    return false;
+    
+  Expr options(pmath_options_extract(expr.get(), 1));
+  
+  if(options.is_null())
+    return false;
+    
+  Expr matrix = expr[1];
+  
+  if(matrix[0] != PMATH_SYMBOL_LIST)
+    return false;
+    
+  if(matrix.expr_length() < 1)
+    return false;
+    
+  int n_rows = (int)matrix.expr_length();
+  if(n_rows <= 0)
+    return false;
+    
+  if(matrix[1][0] != PMATH_SYMBOL_LIST)
+    return false;
+    
+  int n_cols = (int)matrix[1].expr_length();
+  if(n_cols <= 0)
+    return false;
+    
+  for(int r = 2; r <= n_rows; ++r) {
+    Expr row = matrix[r];
+    
+    // if we directly write matrix[row] in the following lines, and
+    // compile with gcc -O1 ..., the app crashes, because matrix[row]._obj
+    // is freed 1 time too often.
+    
+    if(row[0] != PMATH_SYMBOL_LIST)
+      return false;
       
-    Expr matrix = expr[1];
-    if( matrix.is_expr() &&
-        matrix[0] == PMATH_SYMBOL_LIST &&
-        matrix.expr_length() >= 1 &&
-        matrix[1].is_expr() &&
-        matrix[1][0] == PMATH_SYMBOL_LIST)
-    {
-      int cols = (int)matrix[1].expr_length();
-      
-      if(cols > 0) {
-        for(size_t row = 2; row <= matrix.expr_length(); ++row) {
-          Expr r = matrix[row];
-          // if we directly write matrix[row] in the following lines, and
-          // compile with gcc -O1 ..., the app crashes, because matrix[row]._obj
-          // is freed 1 time too often.
-          
-          if(!r.is_expr() ||
-              r[0] != PMATH_SYMBOL_LIST ||  r.expr_length() != (size_t)cols)
-          {
-            cols = 0;
-            break;
-          }
-        }
-      }
-      
-      if(cols > 0) {
-        GridBox *box = new GridBox((int)matrix.expr_length(), cols);
-        for(int r = 0; r < box->rows(); ++r) {
-          for(int c = 0; c < cols; ++c) {
-            box->item(r, c)->load_from_object(matrix[r + 1][c + 1], opts);
-          }
-        }
-        
-        if(options != PMATH_UNDEFINED) {
-          if(box->style)
-            box->style->add_pmath(options);
-          else
-            box->style = new Style(options);
-        }
-        
-        return box;
-      }
+    if(row.expr_length() != (size_t)n_cols)
+      return false;
+  }
+  
+  /* now success is guaranteed */
+  
+  if(n_cols < cols())
+    remove_cols(n_cols, cols() - n_cols);
+  else if(n_cols > cols())
+    insert_cols(cols(), n_cols - cols());
+    
+  if(n_rows < rows())
+    remove_rows(n_rows, rows() - n_rows);
+  else if(n_rows > rows())
+    insert_rows(rows(), n_rows - rows());
+    
+  for(int r = 0; r < n_rows; ++r) {
+    for(int c = 0; c < n_cols; ++c) {
+      item(r, c)->load_from_object(matrix[r + 1][c + 1], opts);
     }
   }
   
-  return 0;
+  if(style) {
+    style->clear();
+    style->add_pmath(options);
+  }
+  else if(options != PMATH_UNDEFINED)
+    style = new Style(options);
+    
+  return true;
 }
 
 void GridBox::insert_rows(int yindex, int count) {
@@ -520,7 +543,7 @@ void GridBox::paint(Context *context) {
           !gi->_really_span_from_above)
       {
         context->canvas->move_to(
-          x + xpos[ix], 
+          x + xpos[ix],
           y + ypos[iy] + gi->extents().ascent - _extents.ascent);
         gi->paint(context);
       }

@@ -21,7 +21,8 @@ namespace richmath {
       virtual Expr to_pmath_symbol() { return Expr(); }
       virtual Expr to_pmath(int flags);
       
-      virtual void load_from_object(const Expr object, int opts);
+      virtual bool try_load_from_object(Expr object, int options);
+      void             load_from_object(Expr object, int options);
       
       bool span_from_left();
       bool span_from_above();
@@ -46,7 +47,8 @@ namespace richmath {
       GridBox(int rows, int cols);
       virtual ~GridBox();
       
-      static GridBox *create(Expr expr, int opts);
+      // Box::try_create<GridBox>(expr, opts);
+      virtual bool try_load_from_object(Expr expr, int opts);
       
       const Matrix<GridItem*> &matrix() { return items; }
       const Array<float> &xpos_array() { need_pos_vectors(); return xpos; }

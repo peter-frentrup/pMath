@@ -7,7 +7,11 @@
 namespace richmath {
   class NumberBox: public OwnerBox {
     public:
-      NumberBox(String number);
+      NumberBox();
+      explicit NumberBox(String number);
+      
+      // Box::try_create<NumberBox>(expr, opts);
+      virtual bool try_load_from_object(Expr expr, int opts);
       
       virtual bool edit_selection(Context *context);
       

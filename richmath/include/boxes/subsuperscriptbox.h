@@ -9,8 +9,12 @@ namespace richmath {
   
   class SubsuperscriptBox: public Box {
     public:
+      SubsuperscriptBox();
       SubsuperscriptBox(MathSequence *sub, MathSequence *super);
       virtual ~SubsuperscriptBox();
+      
+      // Box::try_create<SubsuperscriptBox>(expr, opts);
+      virtual bool try_load_from_object(Expr expr, int opts);
       
       MathSequence *subscript() {   return _subscript; }
       MathSequence *superscript() { return _superscript; }

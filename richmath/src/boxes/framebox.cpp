@@ -12,12 +12,18 @@ FrameBox::FrameBox(MathSequence *content)
 {
 }
 
-FrameBox *FrameBox::create(Expr expr, int options) {
-  FrameBox *box = new FrameBox(new MathSequence);
+bool FrameBox::try_load_from_object(Expr expr, int options) {
+  if(expr[0] != PMATH_SYMBOL_FRAMEBOX)
+    return false;
   
-  box->content()->load_from_object(expr[1], options);
+  if(expr.expr_length() != 1)
+    return false;
+    
+  /* now success is guaranteed */
   
-  return box;
+  _content->load_from_object(expr[1], options);
+  
+  return true;
 }
 
 void FrameBox::resize(Context *context) {

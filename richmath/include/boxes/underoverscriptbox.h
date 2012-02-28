@@ -9,8 +9,12 @@ namespace richmath {
   
   class UnderoverscriptBox: public Box {
     public:
+      UnderoverscriptBox();
       UnderoverscriptBox(MathSequence *base, MathSequence *under, MathSequence *over);
       virtual ~UnderoverscriptBox();
+      
+      // Box::try_create<UnderoverscriptBox>(expr, opts);
+      virtual bool try_load_from_object(Expr expr, int opts);
       
       MathSequence *base() {        return _base; }
       MathSequence *underscript() { return _underscript; }

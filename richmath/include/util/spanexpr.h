@@ -120,7 +120,11 @@ namespace richmath {
   
   class SequenceSpan { // a,b,c
     public:
-      SequenceSpan(SpanExpr *span); // does not take ownership of span!
+      explicit SequenceSpan(SpanExpr *span, bool take_ownership);
+      ~SequenceSpan();
+      
+      void set(SpanExpr *span, bool take_ownership);
+      SequenceSpan &operator=(const SequenceSpan &other);
       
       bool is_sequence(){ return _is_sequence; }
       int  length(){      return _items.length(); }
@@ -129,9 +133,13 @@ namespace richmath {
       SpanExpr *all(){ return _span; }
       
     protected:
+      void init(SpanExpr *span);
+      
+    protected:
       SpanExpr         *_span;
       Array<SpanExpr*>  _items;
       bool              _is_sequence;
+      bool              _has_ownership;
   };
   
   class FunctionCallSpan {

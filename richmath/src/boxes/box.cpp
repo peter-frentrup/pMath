@@ -721,13 +721,18 @@ int AbstractSequence::insert(int pos, AbstractSequence *seq, int start, int end)
       
     pos = insert(pos, s.part(start, next - start));
     
-    if(next < end) 
+    if(next < end)
       pos = insert(pos, seq->extract_box(box++));
-    
+      
     start = next + 1;
   }
   
   return pos;
+}
+
+bool AbstractSequence::try_load_from_object(Expr object, int options) {
+  load_from_object(object, options);
+  return true;
 }
 
 Box *AbstractSequence::dynamic_to_literal(int *start, int *end) {

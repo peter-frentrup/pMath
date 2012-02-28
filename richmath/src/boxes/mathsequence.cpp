@@ -149,11 +149,11 @@ void MathSequence::resize(Context *context) {
     while(pos < glyphs.length()) {
       SpanExpr *se = new SpanExpr(pos, spans[pos], this);
       
-      if(se->count() == 0 || !se->item_as_text(0).equals("/*")){
+      if(se->count() == 0 || !se->item_as_text(0).equals("/*")) {
         colorizer.syntax_colorize_spanexpr(        se);
         colorizer.arglist_errors_colorize_spanexpr(se, em * ref_error_indicator_height);
       }
-        
+      
       pos = se->end() + 1;
       delete se;
     }
@@ -2843,327 +2843,362 @@ Box *MathSequence::extract_box(int boxindex) {
 
 ////} ... insert/remove
 
-struct make_box_info_t {
-  Array<Box*> *boxes;
-  int          options;
-};
+template <class T>
+static Box *create_or_error(Expr expr, int options) {
+  T *box = Box::try_create<T>(expr, options);
+  if(box)
+    return box;
+    
+  return new ErrorBox(expr);
+}
 
-static void make_box(int pos, pmath_t obj, void *data) {
-  struct make_box_info_t *info = (struct make_box_info_t*)data;
-  Expr expr(obj);
-  
-START:
+static Box *create_box(Expr expr, int options) {
   if(expr.is_string()) {
     InlineSequenceBox *box = new InlineSequenceBox;
-    box->content()->load_from_object(expr, info->options);
-    info->boxes->add(box);
-    return;
+    box->content()->load_from_object(expr, options);
+    return box;
   }
   
-  if(!expr.is_expr()) {
-    info->boxes->add(new ErrorBox(expr));
-    return;
-  }
-  
+  if(!expr.is_expr())
+    return new ErrorBox(expr);
+    
   if(expr[0] == PMATH_SYMBOL_LIST) {
     if(expr.expr_length() == 1) {
       expr = expr[1];
-      goto START;
+      return create_box(expr, options);
     }
     
     InlineSequenceBox *box = new InlineSequenceBox;
-    box->content()->load_from_object(expr, info->options);
-    info->boxes->add(box);
-    return;
+    box->content()->load_from_object(expr, options);
+    return box;
   }
   
-  if(expr[0] == PMATH_SYMBOL_BUTTONBOX) {
-    ButtonBox *box = ButtonBox::create(expr, info->options);
-    if(box) {
-      info->boxes->add(box);
-      return;
-    }
-  }
+  if(expr[0] == PMATH_SYMBOL_BUTTONBOX) 
+    return create_or_error<  ButtonBox>(expr, options);
   
-  if(expr[0] == PMATH_SYMBOL_CHECKBOXBOX) {
-    CheckboxBox *box = CheckboxBox::create(expr);
-    if(box) {
-      info->boxes->add(box);
-      return;
-    }
-  }
+  if(expr[0] == PMATH_SYMBOL_CHECKBOXBOX) 
+    return create_or_error<  CheckboxBox>(expr, options);
   
-  if(expr[0] == PMATH_SYMBOL_DYNAMICBOX) {
-    DynamicBox *box = DynamicBox::create(expr, info->options);
-    if(box) {
-      info->boxes->add(box);
-      return;
-    }
-  }
+  if(expr[0] == PMATH_SYMBOL_DYNAMICBOX) 
+    return create_or_error<  DynamicBox>(expr, options);
   
-  if(expr[0] == PMATH_SYMBOL_DYNAMICLOCALBOX) {
-    DynamicLocalBox *box = DynamicLocalBox::create(expr, info->options);
-    if(box) {
-      info->boxes->add(box);
-      return;
-    }
-  }
+  if(expr[0] == PMATH_SYMBOL_DYNAMICLOCALBOX) 
+    return create_or_error<  DynamicLocalBox>(expr, options);
   
-  if(expr[0] == PMATH_SYMBOL_FILLBOX) {
-    FillBox *box = FillBox::create(expr, info->options);
-    if(box) {
-      info->boxes->add(box);
-      return;
-    }
-  }
+  if(expr[0] == PMATH_SYMBOL_FILLBOX) 
+    return create_or_error<  FillBox>(expr, options);
   
-  if(expr[0] == PMATH_SYMBOL_FRACTIONBOX
-      && expr.expr_length() == 2) {
-    FractionBox *box = new FractionBox;
-    box->numerator()->load_from_object(expr[1], info->options);
-    box->denominator()->load_from_object(expr[2], info->options);
-    info->boxes->add(box);
-    return;
-  }
+  if(expr[0] == PMATH_SYMBOL_FRACTIONBOX) 
+    return create_or_error<  FractionBox>(expr, options);
   
-  if(expr[0] == PMATH_SYMBOL_FRAMEBOX
-      && expr.expr_length() == 1) {
-    FrameBox *box = FrameBox::create(expr, info->options);
-    if(box) {
-      info->boxes->add(box);
-      return;
-    }
-  }
+  if(expr[0] == PMATH_SYMBOL_FRAMEBOX) 
+    return create_or_error<  FrameBox>(expr, options);
   
-  if(expr[0] == PMATH_SYMBOL_GRAPHICSBOX) {
-    GraphicsBox *box = GraphicsBox::create(expr, info->options);
-    if(box) {
-      info->boxes->add(box);
-      return;
-    }
-  }
+  if(expr[0] == PMATH_SYMBOL_GRAPHICSBOX)
+    return create_or_error<  GraphicsBox>(expr, options);
   
-  if(expr[0] == PMATH_SYMBOL_GRIDBOX) {
-    GridBox *box = GridBox::create(expr, info->options);
-    if(box) {
-      info->boxes->add(box);
-      return;
-    }
-  }
+  if(expr[0] == PMATH_SYMBOL_GRIDBOX) 
+    return create_or_error<  GridBox>(expr, options);
   
-  if(expr[0] == PMATH_SYMBOL_INPUTFIELDBOX) {
-    InputFieldBox *box = InputFieldBox::create(expr, info->options);
-    if(box) {
-      info->boxes->add(box);
-      return;
-    }
-  }
+  if(expr[0] == PMATH_SYMBOL_INPUTFIELDBOX)
+    return create_or_error<  InputFieldBox>(expr, options);
   
-  if(expr[0] == PMATH_SYMBOL_INTERPRETATIONBOX
-      && expr.expr_length() >= 2) {
-    Expr options(pmath_options_extract(expr.get(), 2));
-    
-    if(!options.is_null()) {
-      InterpretationBox *box = new InterpretationBox;
-      box->content()->load_from_object(expr[1], info->options);
-      box->interpretation = expr[2];
-      
-      if(options != PMATH_UNDEFINED) {
-        if(box->style)
-          box->style->add_pmath(options);
-        else
-          box->style = new Style(options);
-      }
-      
-      info->boxes->add(box);
-      return;
-    }
-  }
+  if(expr[0] == PMATH_SYMBOL_INTERPRETATIONBOX)
+    return create_or_error<  InterpretationBox>(expr, options);
   
-  if(expr[0] == PMATH_SYMBOL_PROGRESSINDICATORBOX) {
-    ProgressIndicatorBox *box = ProgressIndicatorBox::create(expr);
-    if(box) {
-      info->boxes->add(box);
-      return;
-    }
-  }
+  if(expr[0] == PMATH_SYMBOL_PROGRESSINDICATORBOX)
+    return create_or_error<  ProgressIndicatorBox>(expr, options);
   
-  if(expr[0] == PMATH_SYMBOL_RADICALBOX
-      && expr.expr_length() == 2) {
-    RadicalBox *box = new RadicalBox(new MathSequence, new MathSequence);
-    box->radicand()->load_from_object(expr[1], info->options);
-    box->exponent()->load_from_object(expr[2], info->options);
-    info->boxes->add(box);
-    return;
-  }
+  if(expr[0] == PMATH_SYMBOL_RADICALBOX)
+    return create_or_error<  RadicalBox>(expr, options);
   
-  if(expr[0] == PMATH_SYMBOL_RADIOBUTTONBOX) {
-    RadioButtonBox *box = RadioButtonBox::create(expr);
-    if(box) {
-      info->boxes->add(box);
-      return;
-    }
-  }
+  if(expr[0] == PMATH_SYMBOL_RADIOBUTTONBOX)
+    return create_or_error<  RadioButtonBox>(expr, options);
   
-  if(expr[0] == PMATH_SYMBOL_ROTATIONBOX) {
-    RotationBox *box = RotationBox::create(expr, info->options);
-    if(box) {
-      info->boxes->add(box);
-      return;
-    }
-  }
+  if(expr[0] == PMATH_SYMBOL_ROTATIONBOX) 
+    return create_or_error<  RotationBox>(expr, options);
   
-  if(expr[0] == PMATH_SYMBOL_SETTERBOX) {
-    SetterBox *box = SetterBox::create(expr, info->options);
-    if(box) {
-      info->boxes->add(box);
-      return;
-    }
-  }
+  if(expr[0] == PMATH_SYMBOL_SETTERBOX) 
+    return create_or_error<  SetterBox>(expr, options);
   
-  if(expr[0] == PMATH_SYMBOL_SLIDERBOX) {
-    SliderBox *box = SliderBox::create(expr);
-    if(box) {
-      info->boxes->add(box);
-      return;
-    }
-  }
+  if(expr[0] == PMATH_SYMBOL_SLIDERBOX) 
+    return create_or_error<  SliderBox>(expr, options);
   
-  if(expr[0] == PMATH_SYMBOL_SUBSCRIPTBOX
-      && expr.expr_length() == 1) {
-    SubsuperscriptBox *box = new SubsuperscriptBox(new MathSequence, 0);
-    box->subscript()->load_from_object(expr[1], info->options);
-    info->boxes->add(box);
-    return;
-  }
+  if(expr[0] == PMATH_SYMBOL_SUBSCRIPTBOX)
+    return create_or_error<  SubsuperscriptBox>(expr, options);
   
-  if(expr[0] == PMATH_SYMBOL_SUPERSCRIPTBOX
-      && expr.expr_length() == 1) {
-    SubsuperscriptBox *box = new SubsuperscriptBox(0, new MathSequence);
-    box->superscript()->load_from_object(expr[1], info->options);
-    info->boxes->add(box);
-    return;
-  }
+  if(expr[0] == PMATH_SYMBOL_SUPERSCRIPTBOX)
+    return create_or_error<  SubsuperscriptBox>(expr, options);
   
-  if(expr[0] == PMATH_SYMBOL_SUBSUPERSCRIPTBOX
-      && expr.expr_length() == 2) {
-    SubsuperscriptBox *box = new SubsuperscriptBox(new MathSequence, new MathSequence);
-    box->subscript()->load_from_object(expr[1], info->options);
-    box->superscript()->load_from_object(expr[2], info->options);
-    info->boxes->add(box);
-    return;
-  }
+  if(expr[0] == PMATH_SYMBOL_SUBSUPERSCRIPTBOX)
+    return create_or_error<  SubsuperscriptBox>(expr, options);
   
-  if(expr[0] == PMATH_SYMBOL_SQRTBOX
-      && expr.expr_length() == 1) {
-    RadicalBox *box = new RadicalBox;
-    box->radicand()->load_from_object(expr[1], info->options);
-    info->boxes->add(box);
-    return;
-  }
+  if( expr[0] == PMATH_SYMBOL_SQRTBOX)
+    return create_or_error<  RadicalBox>(expr, options);
   
-  if(expr[0] == PMATH_SYMBOL_STYLEBOX
-      && expr.expr_length() >= 1) {
-    StyleBox *box = StyleBox::create(expr, info->options);
-    if(box) {
-      info->boxes->add(box);
-      return;
-    }
-  }
+  if(expr[0] == PMATH_SYMBOL_STYLEBOX)
+    return create_or_error<  StyleBox>(expr, options);
   
-  if(expr[0] == PMATH_SYMBOL_TAGBOX) {
-    TagBox *box = TagBox::create(expr, info->options);
-    if(box) {
-      info->boxes->add(box);
-      return;
-    }
-  }
+  if(expr[0] == PMATH_SYMBOL_TAGBOX)
+    return create_or_error<  TagBox>(expr, options);
   
-  if(expr[0] == PMATH_SYMBOL_TOOLTIPBOX) {
-    TooltipBox *box = TooltipBox::create(expr, info->options);
-    if(box) {
-      info->boxes->add(box);
-      return;
-    }
-  }
+  if(expr[0] == PMATH_SYMBOL_TOOLTIPBOX)
+    return create_or_error<  TooltipBox>(expr, options);
   
-  if(expr[0] == PMATH_SYMBOL_TRANSFORMATIONBOX) {
-    TransformationBox *box = TransformationBox::create(expr, info->options);
-    if(box) {
-      info->boxes->add(box);
-      return;
-    }
-  }
+  if(expr[0] == PMATH_SYMBOL_TRANSFORMATIONBOX)
+    return create_or_error<  TransformationBox>(expr, options);
   
-  if(expr[0] == PMATH_SYMBOL_UNDERSCRIPTBOX
-      && expr.expr_length() == 2) {
-    UnderoverscriptBox *box = new UnderoverscriptBox(new MathSequence, new MathSequence, 0);
-    box->base()->load_from_object(expr[1], info->options);
-    box->underscript()->load_from_object(expr[2], info->options);
-    info->boxes->add(box);
-    return;
-  }
+  if(expr[0] == PMATH_SYMBOL_UNDERSCRIPTBOX)
+    return create_or_error<  UnderoverscriptBox>(expr, options);
   
-  if(expr[0] == PMATH_SYMBOL_OVERSCRIPTBOX
-      && expr.expr_length() == 2) {
-    UnderoverscriptBox *box = new UnderoverscriptBox(new MathSequence, 0, new MathSequence);
-    box->base()->load_from_object(expr[1], info->options);
-    box->overscript()->load_from_object(expr[2], info->options);
-    info->boxes->add(box);
-    return;
-  }
+  if(expr[0] == PMATH_SYMBOL_OVERSCRIPTBOX)
+    return create_or_error<  UnderoverscriptBox>(expr, options);
   
-  if(expr[0] == PMATH_SYMBOL_UNDEROVERSCRIPTBOX
-      && expr.expr_length() == 3) {
-    UnderoverscriptBox *box = new UnderoverscriptBox(new MathSequence, new MathSequence, new MathSequence);
-    box->base()->load_from_object(expr[1], info->options);
-    box->underscript()->load_from_object(expr[2], info->options);
-    box->overscript()->load_from_object(expr[3], info->options);
-    info->boxes->add(box);
-    return;
-  }
+  if(expr[0] == PMATH_SYMBOL_UNDEROVERSCRIPTBOX)
+    return create_or_error<  UnderoverscriptBox>(expr, options);
   
-  if(expr[0] == GetSymbol(NumberBoxSymbol)
-      && expr.expr_length() == 1) {
-    String s(expr[1]);
-    
-    if(!s.is_null()) {
-      info->boxes->add(new NumberBox(s));
-      return;
-    }
-  }
+  if(expr[0] == GetSymbol( NumberBoxSymbol))
+    return create_or_error<NumberBox>(expr, options);
   
-  info->boxes->add(new ErrorBox(expr));
+  return new ErrorBox(expr);
 }
 
-void MathSequence::load_from_object(Expr object, int options) {
-  struct make_box_info_t info;
-  
-  for(int i = 0; i < boxes.length(); ++i)
-    delete boxes[i];
+class PositionedExpr {
+  public:
+    PositionedExpr()
+      : pos(0)
+    {
+    }
     
-  boxes.length(0);
+    PositionedExpr(Expr _expr, int _pos)
+      : expr(_expr), pos(_pos)
+    {
+    }
+    
+  public:
+    Expr expr;
+    int  pos;
+};
+
+static void defered_make_box(int pos, pmath_t obj, void *data) {
+  Array<PositionedExpr> *boxes = (Array<PositionedExpr>*)data;
   
-  pmath_string_t result;
+  boxes->add(PositionedExpr(Expr(obj), pos));
+}
+
+class SpanSynchronizer: public Base {
+  public:
+    SpanSynchronizer(
+      int                    _new_load_options,
+      Array<Box*>           &_old_boxes,
+      SpanArray             &_old_spans,
+      Array<PositionedExpr> &_new_boxes,
+      SpanArray             &_new_spans
+    ) : Base(),
+      old_boxes(       _old_boxes),
+      old_spans(       _old_spans),
+      old_pos(         0),
+      old_next_box(    0),
+      new_load_options(_new_load_options),
+      new_boxes(       _new_boxes),
+      new_spans(       _new_spans),
+      new_pos(         0),
+      new_next_box(    0)
+    {
+    }
+    
+    bool is_in_range() {
+      if(old_pos >= old_spans.length())
+        return false;
+        
+      if(old_next_box >= old_boxes.length())
+        return false;
+        
+      if(new_pos >= new_spans.length())
+        return false;
+        
+      if(new_next_box >= new_boxes.length())
+        return false;
+        
+      return true;
+    }
+    
+    void next() {
+      if(is_in_range())
+        next(old_spans[old_pos], new_spans[new_pos]);
+    }
+    
+    void finish() {
+      if(old_pos == old_spans.length()) {
+        assert(old_next_box == old_boxes.length());
+      }
+      
+      if(new_pos == new_spans.length()) {
+        assert(new_next_box == new_boxes.length());
+      }
+      
+      int rem = 0;
+      while(old_next_box + rem < old_boxes.length() &&
+            old_boxes[old_next_box + rem]->index() < old_spans.length())
+      {
+        ++rem;
+      }
+      
+      if(rem > 0) {
+        for(int i = 0; i < rem; ++i)
+          delete old_boxes[old_next_box + i];
+          
+        old_boxes.remove(old_next_box, rem);
+      }
+      
+      while(new_next_box < new_boxes.length()) {
+        PositionedExpr &new_box = new_boxes[new_next_box];
+        
+        assert(new_box.pos < new_spans.length());
+        
+        Box *box = create_box(new_box.expr, new_load_options);
+        old_boxes.insert(old_next_box, 1, &box);
+        
+        ++old_next_box;
+        ++new_next_box;
+      }
+    }
+    
+  protected:
+    void next(Span old_span, Span new_span) {
+      if(!is_in_range()){
+        old_pos = old_spans.length();
+        new_pos = new_spans.length();
+        return;
+      }
+        
+      if(old_span && new_span) {
+        int old_start = old_pos;
+        int new_start = new_pos;
+        
+        next(old_span.next(), new_span.next());
+        
+        assert(old_start < old_pos);
+        assert(new_start < new_pos);
+        
+        while(old_pos <= old_span.end() &&
+              new_pos <= new_span.end())
+        {
+          next(old_spans[old_pos], new_spans[new_pos]);
+        }
+      }
+      
+      if(old_span) {
+        old_pos = old_span.end() + 1;
+      }
+      else {
+        while(!old_spans.is_token_end(old_pos))
+          ++old_pos;
+        ++old_pos;
+      }
+      
+      if(new_span) {
+        new_pos = new_span.end() + 1;
+      }
+      else {
+        while(!new_spans.is_token_end(new_pos))
+          ++new_pos;
+        ++new_pos;
+      }
+      
+      while(old_next_box < old_boxes.length() &&
+            new_next_box < new_boxes.length())
+      {
+        Box *box = old_boxes[old_next_box];
+        
+        if(box->index() >= old_pos)
+          break;
+          
+        PositionedExpr &new_box = new_boxes[new_next_box];
+        
+        if(new_box.pos >= new_pos)
+          break;
+          
+        if(!box->try_load_from_object(new_box.expr, new_load_options)) {
+          box = create_box(new_box.expr, new_load_options);
+          
+          old_boxes.set(old_next_box, box);
+        }
+        
+        ++old_next_box;
+        ++new_next_box;
+      }
+      
+      int rem = 0;
+      while(old_next_box + rem < old_boxes.length() &&
+            old_boxes[old_next_box + rem]->index() < old_pos)
+      {
+        ++rem;
+      }
+      
+      if(rem > 0) {
+        for(int i = 0; i < rem; ++i)
+          delete old_boxes[old_next_box + i];
+          
+        old_boxes.remove(old_next_box, rem);
+      }
+      
+      while(new_next_box < new_boxes.length()) {
+        PositionedExpr &new_box = new_boxes[new_next_box];
+        
+        if(new_box.pos >= new_pos)
+          break;
+          
+        Box *box = create_box(new_box.expr, new_load_options);
+        old_boxes.insert(old_next_box, 1, &box);
+        
+        ++old_next_box;
+        ++new_next_box;
+      }
+    }
+    
+  public:
+    Array<Box*>     &old_boxes;
+    const SpanArray &old_spans;
+    int              old_pos;
+    int              old_next_box;
+    
+    int                         new_load_options;
+    const Array<PositionedExpr> &new_boxes;
+    const SpanArray             &new_spans;
+    int                          new_pos;
+    int                          new_next_box;
+};
+
+void MathSequence::load_from_object(Expr object, int options) {
+  ensure_boxes_valid();
+  
+  Array<PositionedExpr> new_boxes;
+  pmath_string_t        new_string;
+  SpanArray             new_spans;
+  
   Expr obj = object;
-  
-  info.boxes   = &boxes;
-  info.options = options;
   
   if(obj[0] == PMATH_SYMBOL_BOXDATA && obj.expr_length() == 1)
     obj = obj[1];
     
-  if(options & BoxOptionFormatNumbers) {
+  if(options & BoxOptionFormatNumbers)
     obj = NumberBox::prepare_boxes(obj);
-  }
+    
+  new_spans = pmath_spans_from_boxes(
+                pmath_ref(obj.get()),
+                &new_string,
+                defered_make_box,
+                &new_boxes);
+                
+  SpanSynchronizer syncer(options, boxes, spans, new_boxes, new_spans);
   
-  spans = pmath_spans_from_boxes(
-            pmath_ref(obj.get()),
-            &result,
-            make_box,
-            &info);
-            
-  str = String(result);
+  while(syncer.is_in_range())
+    syncer.next();
+  syncer.finish();
+  
+  spans         = new_spans.extract_array();
+  str           = String(new_string);
   boxes_invalid = true;
 }
 

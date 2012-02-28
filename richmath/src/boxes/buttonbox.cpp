@@ -17,26 +17,32 @@ ButtonBox::ButtonBox(MathSequence *content)
 {
 }
 
-ButtonBox *ButtonBox::create(Expr expr, int opts) {
+bool ButtonBox::try_load_from_object(Expr expr, int opts){
+  if(expr[0] != PMATH_SYMBOL_BUTTONBOX)
+    return false;
+  
   if(expr.expr_length() < 1)
-    return 0;
+    return false;
     
   Expr options(pmath_options_extract(expr.get(), 1));
   
   if(options.is_null())
-    return 0;
-    
-  ButtonBox *box = new ButtonBox(new MathSequence);
-  box->content()->load_from_object(expr[1], opts);
+    return false;
+  
+  /* now success is guaranteed */
+  
+  content()->load_from_object(expr[1], opts);
   
   if(options != PMATH_UNDEFINED) {
-    if(box->style)
-      box->style->add_pmath(options);
+    if(style){
+      style->clear();
+      style->add_pmath(options);
+    }
     else
-      box->style = new Style(options);
+      style = new Style(options);
   }
   
-  return box;
+  return true;
 }
 
 bool ButtonBox::expand(const BoxSize &size) {

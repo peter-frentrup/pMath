@@ -7,16 +7,16 @@
 namespace richmath {
   class TooltipBox: public ExpandableAbstractStyleBox {
     public:
-      static TooltipBox *create(Expr expr, int opts);
+      TooltipBox();
+      
+      // Box::try_create<TooltipBox>(expr, opts);
+      virtual bool try_load_from_object(Expr expr, int opts);
       
       virtual Expr to_pmath_symbol() { return Symbol(PMATH_SYMBOL_TOOLTIPBOX); }
       virtual Expr to_pmath(int flags);
       
       virtual void on_mouse_enter();
       virtual void on_mouse_exit();
-      
-    protected:
-      TooltipBox();
       
     protected:
       Expr tooltip_boxes;

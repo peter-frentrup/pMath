@@ -10,6 +10,8 @@ namespace richmath {
       ErrorBox(const Expr object);
       virtual ~ErrorBox();
       
+      virtual bool try_load_from_object(Expr expr, int options);
+      
       virtual Box *item(int i) { return NULL; }
       virtual int count() { return 0; }
       

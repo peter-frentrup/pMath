@@ -17,9 +17,11 @@ namespace richmath {
   
   class DynamicBox: public AbstractDynamicBox {
     public:
+      explicit DynamicBox();
       virtual ~DynamicBox();
       
-      static DynamicBox *create(Expr expr, int opts);
+      // Box::try_create<DynamicBox>(expr, options)
+      virtual bool try_load_from_object(Expr expr, int opts);
       
       virtual void resize(Context *context);
       virtual void paint_content(Context *context);
@@ -34,9 +36,6 @@ namespace richmath {
       
       virtual void on_mouse_enter();
       virtual void on_mouse_exit();
-      
-    protected:
-      explicit DynamicBox();
       
     public:
       Dynamic dynamic;

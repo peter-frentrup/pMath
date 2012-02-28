@@ -35,37 +35,52 @@ ProgressIndicatorBox::ProgressIndicatorBox()
 ProgressIndicatorBox::~ProgressIndicatorBox() {
 }
 
-ProgressIndicatorBox *ProgressIndicatorBox::create(Expr expr) {
+bool ProgressIndicatorBox::try_load_from_object(Expr expr, int opts) {
+  if(expr[0] != PMATH_SYMBOL_PROGRESSINDICATORBOX)
+    return false;
+    
   if(expr.expr_length() < 2)
-    return 0;
+    return false;
     
   Expr options = Expr(pmath_options_extract(expr.get(), 2));
-  
   if(options.is_null())
-    return 0;
+    return false;
     
-  ProgressIndicatorBox *pi = new ProgressIndicatorBox();
-  pi->dynamic = expr[1];
-  
-  pi->style = new Style(options);
-  
-  pi->range = expr[2];
-  if(pi->range.expr_length() == 2
-      && pi->range[0] == PMATH_SYMBOL_RANGE) {
-    pi->range_min = pi->range[1].to_double(NAN);
-    pi->range_max = pi->range[2].to_double(NAN);
+  Expr new_range = expr[2];
+  if(new_range[0] != PMATH_SYMBOL_RANGE)
+    return false;
     
-    if(isnan(pi->range_min) || isnan(pi->range_max)) {
-      delete pi;
-      return 0;
-    }
-  }
-  else {
-    delete pi;
-    return 0;
+  if(new_range.expr_length() != 2)
+    return false;
+    
+  double new_range_min = new_range[1].to_double(NAN);
+  double new_range_max = new_range[2].to_double(NAN);
+  
+  if(isnan(new_range_min))
+    return false;
+    
+  if(isnan(new_range_max))
+    return false;
+    
+  /* now success is guaranteed */
+  
+  range     = new_range;
+  range_min = new_range_min;
+  range_max = new_range_max;
+  
+  if(dynamic.expr() != expr[1]) {
+    dynamic = expr[1];
+    must_update = true;
   }
   
-  return pi;
+  if(style) {
+    style->clear();
+    style->add_pmath(options);
+  }
+  else if(options != PMATH_UNDEFINED)
+    style = new Style(options);
+    
+  return true;
 }
 
 bool ProgressIndicatorBox::expand(const BoxSize &size) {

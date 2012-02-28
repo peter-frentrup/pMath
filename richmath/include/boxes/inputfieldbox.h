@@ -8,7 +8,10 @@
 namespace richmath {
   class InputFieldBox: public ContainerWidgetBox {
     public:
-      static InputFieldBox *create(Expr expr, int opts);
+      InputFieldBox(MathSequence *content = 0);
+      
+      // Box::try_create<InputFieldBox>(expr, opts);
+      virtual bool try_load_from_object(Expr expr, int opts);
       
       virtual ControlState calc_state(Context *context);
       
@@ -47,8 +50,6 @@ namespace richmath {
       virtual void on_key_press(uint32_t unichar);
       
     protected:
-      InputFieldBox(MathSequence *content = 0);
-      
       bool assign_dynamic();
       
     protected:

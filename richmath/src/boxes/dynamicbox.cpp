@@ -54,22 +54,27 @@ DynamicBox::~DynamicBox() {
   Application::execute_for(Call(Symbol(PMATH_SYMBOL_INTERNAL_DYNAMICREMOVE), id()), 0);
 }
 
-DynamicBox *DynamicBox::create(Expr expr, int opts) {
-  if(expr[0] == PMATH_SYMBOL_DYNAMICBOX
-      && expr.expr_length() >= 1) {
-    Expr options = Expr(pmath_options_extract(expr.get(), 1));
+bool DynamicBox::try_load_from_object(Expr expr, int opts) {
+  if(expr[0] != PMATH_SYMBOL_DYNAMICBOX)
+    return false;
     
-    if(!options.is_null()) {
-      DynamicBox *box = new DynamicBox();
-      
-      expr.set(0, Symbol(PMATH_SYMBOL_DYNAMIC));
-      box->dynamic = expr;
-      
-      return box;
-    }
+  if(expr.expr_length() < 1) 
+    return false;
+    
+  Expr options_expr = Expr(pmath_options_extract(expr.get(), 1));
+  if(options_expr.is_null())
+    return false;
+    
+  /* now success is guaranteed */
+  
+  expr.set(0, Symbol(PMATH_SYMBOL_DYNAMIC));
+  
+  if(dynamic.expr() != expr){
+    must_update = true;
+    dynamic     = expr;
   }
   
-  return 0;
+  return true;
 }
 
 void DynamicBox::resize(Context *context) {

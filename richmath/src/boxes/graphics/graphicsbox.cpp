@@ -93,7 +93,8 @@ GraphicsBox::GraphicsBox()
   : Box(),
   mouse_over_part(GraphicsPartNone),
   mouse_down_x(0),
-  mouse_down_y(0)
+  mouse_down_y(0),
+  user_has_changed_size(false)
 {
   if(!style)
     style = new Style();
@@ -118,23 +119,51 @@ GraphicsBox::~GraphicsBox() {
   delete y_axis_ticks;
 }
 
-GraphicsBox *GraphicsBox::create(Expr expr, int opts) {
-  GraphicsBox *box = new GraphicsBox;
+bool GraphicsBox::try_load_from_object(Expr expr, int opts) {
+  if(expr[0] != PMATH_SYMBOL_GRAPHICSBOX)
+    return false;
+    
+  if(expr.expr_length() < 1)
+    return false;
+    
+  Expr options(PMATH_UNDEFINED);
   
   if(expr.expr_length() > 1) {
-    Expr options(pmath_options_extract(expr.get(), 1));
+    options = Expr(pmath_options_extract(expr.get(), 1));
     
-    if(options.is_null()) {
-      delete box;
-      return 0;
-    }
-    
-    box->style->add_pmath(options);
+    if(options.is_null())
+      return false;
   }
   
-  box->elements.load_from_object(expr[1], opts);
+  /* now success is guaranteed */
   
-  return box;
+  Expr user_options;
+  if(user_has_changed_size) {
+    Gather g;
+    
+    style->emit_to_pmath(false, false);
+    
+    user_options = g.end();
+    for(size_t i = user_options.expr_length(); i > 0; --i) {
+      Expr rule = user_options[i];
+      
+      if(rule[1] == PMATH_SYMBOL_ASPECTRATIO)
+        continue;
+        
+      if(rule[1] == PMATH_SYMBOL_IMAGESIZE)
+        continue;
+        
+      user_options.set(0, Expr());
+    }
+  }
+  
+  style->clear();
+  style->add_pmath(options);
+  style->add_pmath(user_options);
+  
+  elements.load_from_object(expr[1], opts);
+  
+  return true;
 }
 
 Box *GraphicsBox::item(int i) {
@@ -702,6 +731,8 @@ void GraphicsBox::on_mouse_move(MouseEvent &event) {
         style->set(ImageSizeHorizontal, w);
         style->set(ImageSizeVertical,   ImageSizeAutomatic);
       }
+      
+      user_has_changed_size = true;
       invalidate();
       
       mouse_down_x += w - _extents.width;

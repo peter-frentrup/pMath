@@ -24,8 +24,7 @@ namespace richmath {
       Expr expr() {  return _expr;  }
       
       bool is_dynamic() {
-        return _expr[0] == PMATH_SYMBOL_DYNAMIC
-               && _expr.expr_length() >= 1;
+        return _expr[0] == PMATH_SYMBOL_DYNAMIC && _expr.expr_length() >= 1;
       }
       
       // 0 = False, 1 = True, 2 = Automatic

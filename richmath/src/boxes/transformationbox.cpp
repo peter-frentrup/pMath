@@ -147,25 +147,29 @@ RotationBox::RotationBox()
     style = new Style;
 }
 
-RotationBox *RotationBox::create(Expr expr, int opts) {
-  if(!expr.is_expr()
-      || expr.expr_length() < 1)
-    return 0;
+bool RotationBox::try_load_from_object(Expr expr, int opts) {
+  if(expr[0] != PMATH_SYMBOL_ROTATIONBOX)
+    return false;
+    
+  if(expr.expr_length() < 1)
+    return false;
     
   Expr options(pmath_options_extract(expr.get(), 1));
   if(options.is_null())
-    return 0;
+    return false;
     
-  RotationBox *result = new RotationBox();
-  result->_content->load_from_object(expr[1], opts);
-  result->style->add_pmath(options);
-  result->angle(
+  /* now success is guaranteed */
+  
+  _content->load_from_object(expr[1], opts);
+  style->clear();
+  style->add_pmath(options);
+  angle(
     Expr(pmath_option_value(
            PMATH_SYMBOL_ROTATIONBOX,
            PMATH_SYMBOL_BOXROTATION,
            options.get())));
            
-  return result;
+  return true;
 }
 
 bool RotationBox::angle(Expr a) {
@@ -211,39 +215,43 @@ TransformationBox::TransformationBox()
 {
 }
 
-TransformationBox *TransformationBox::create(Expr expr, int opts) {
-  if(!expr.is_expr() || expr.expr_length() < 1)
-    return 0;
+bool TransformationBox::try_load_from_object(Expr expr, int opts) {
+  if(expr[0] != PMATH_SYMBOL_TRANSFORMATIONBOX)
+    return false;
+    
+  if(expr.expr_length() < 1)
+    return false;
     
   Expr options(pmath_options_extract(expr.get(), 1));
   if(options.is_null())
-    return 0;
+    return false;
     
-  TransformationBox *result = new TransformationBox();
-  
-  if(result->matrix(Expr(pmath_option_value(
-                           PMATH_SYMBOL_TRANSFORMATIONBOX,
-                           PMATH_SYMBOL_BOXTRANSFORMATION,
-                           options.get()))))
+  if(!matrix(Expr(pmath_option_value(
+                    PMATH_SYMBOL_TRANSFORMATIONBOX,
+                    PMATH_SYMBOL_BOXTRANSFORMATION,
+                    options.get()))))
   {
-    result->style->add_pmath(options);
-    
-    result->_content->load_from_object(expr[1], opts);
-    
-    return result;
+    return false;
   }
   
-  delete result;
-  return 0;
+  /* now success is guaranteed */
+  
+  style->clear();
+  style->add_pmath(options);
+  
+  _content->load_from_object(expr[1], opts);
+  
+  return true;
 }
 
 bool TransformationBox::matrix(Expr m) {
-  if(m.expr_length() == 2
-      && m[0] == PMATH_SYMBOL_LIST
-      && m[1].expr_length() == 2
-      && m[1][0] == PMATH_SYMBOL_LIST
-      && m[2].expr_length() == 2
-      && m[2][0] == PMATH_SYMBOL_LIST) {
+  if(m.expr_length() == 2         && 
+     m[0] == PMATH_SYMBOL_LIST    &&
+     m[1].expr_length() == 2      && 
+     m[1][0] == PMATH_SYMBOL_LIST && 
+     m[2].expr_length() == 2      && 
+     m[2][0] == PMATH_SYMBOL_LIST) 
+  {
     _matrix = m;
     mat.xx =   _matrix[1][1].to_double();
     mat.xy = - _matrix[1][2].to_double();
@@ -254,6 +262,7 @@ bool TransformationBox::matrix(Expr m) {
     memcpy(&m2, &mat, sizeof(m2));
     if(cairo_matrix_invert(&m2) != CAIRO_STATUS_SUCCESS)
       cairo_matrix_init_identity(&mat);
+      
     return true;
   }
   return false;

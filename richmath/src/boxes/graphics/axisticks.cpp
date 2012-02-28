@@ -30,6 +30,11 @@ AxisTicks::~AxisTicks() {
   set_count(0);
 }
 
+bool AxisTicks::try_load_from_object(Expr object, int options) {
+  load_from_object(object, options);
+  return true;
+}
+
 void AxisTicks::load_from_object(Expr expr, int options) { // BoxOptionXXX
   /* {{pos1, label1, __ignored_rest__}, {pos2, label2, __ignored_rest__}, ...}
    */
@@ -223,13 +228,13 @@ void AxisTicks::set_count(int new_count) {
 void AxisTicks::draw_tick(Canvas *canvas, float x, float y, float length) {
   if(length == 0)
     return;
-  
+    
   float factor = label_direction_x * label_direction_x + label_direction_y * label_direction_y;
   
   if(factor == 0)
     return;
-  
-  factor = 1/sqrt(factor);
+    
+  factor = 1 / sqrt(factor);
   
   float x1 = x;
   float y1 = y;
@@ -237,7 +242,7 @@ void AxisTicks::draw_tick(Canvas *canvas, float x, float y, float length) {
   float x2 = x + length * label_direction_x * factor;
   float y2 = y + length * label_direction_y * factor;
   
-  if(label_direction_x == 0 || label_direction_y == 0){
+  if(label_direction_x == 0 || label_direction_y == 0) {
     canvas->align_point(&x1, &y1, true);
     canvas->align_point(&x2, &y2, true);
   }

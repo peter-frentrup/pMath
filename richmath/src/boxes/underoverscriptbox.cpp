@@ -15,17 +15,29 @@ static inline bool char_is_vertical_paren(uint16_t ch) {
 
 //{ class UnderoverscriptBox ...
 
+UnderoverscriptBox::UnderoverscriptBox()
+  : Box(),
+  _base(       new MathSequence),
+  _underscript(new MathSequence),
+  _overscript( new MathSequence)
+{
+  adopt(_base,        0);
+  adopt(_underscript, 1);
+  adopt(_overscript,  2);
+}
+
 UnderoverscriptBox::UnderoverscriptBox(
   MathSequence *base,
   MathSequence *under,
   MathSequence *over)
   : Box(),
-  _base(base),
+  _base(       base),
   _underscript(under),
-  _overscript(over)
+  _overscript( over)
 {
   assert(_base && (_underscript || _overscript));
   adopt(_base, 0);
+  
   int i = 1;
   if(_underscript)
     adopt(_underscript, i++);
@@ -37,6 +49,70 @@ UnderoverscriptBox::~UnderoverscriptBox() {
   delete _base;
   delete _underscript;
   delete _overscript;
+}
+
+bool UnderoverscriptBox::try_load_from_object(Expr expr, int opts) {
+  if(expr[0] == PMATH_SYMBOL_OVERSCRIPTBOX) {
+    if(expr.expr_length() != 2)
+      return false;
+      
+    if(_underscript) {
+      delete _underscript;
+      _underscript = 0;
+    }
+    
+    if(!_overscript)
+      _overscript = new MathSequence;
+      
+    adopt(_overscript, 1);
+    
+    _base->load_from_object(      expr[1], opts);
+    _overscript->load_from_object(expr[2], opts);
+    
+    return true;
+  }
+  
+  if(expr[0] == PMATH_SYMBOL_UNDERSCRIPTBOX) {
+    if(expr.expr_length() != 2)
+      return false;
+      
+    if(_overscript) {
+      delete _overscript;
+      _overscript = 0;
+    }
+    
+    if(!_underscript)
+      _underscript = new MathSequence;
+      
+    adopt(_underscript, 1);
+    
+    _base->load_from_object(       expr[1], opts);
+    _underscript->load_from_object(expr[2], opts);
+    
+    return true;
+  }
+  
+  if(expr[0] == PMATH_SYMBOL_UNDEROVERSCRIPTBOX) {
+    if(expr.expr_length() != 3)
+      return false;
+      
+    if(!_underscript)
+      _underscript = new MathSequence;
+      
+    if(!_overscript)
+      _overscript = new MathSequence;
+      
+    adopt(_underscript, 1);
+    adopt(_overscript, 2);
+    
+    _base->load_from_object(       expr[1], opts);
+    _underscript->load_from_object(expr[2], opts);
+    _overscript->load_from_object( expr[3], opts);
+    
+    return true;
+  }
+  
+  return false;
 }
 
 Box *UnderoverscriptBox::item(int i) {

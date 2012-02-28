@@ -29,6 +29,34 @@ InterpretationBox::InterpretationBox(MathSequence *content, Expr _interpretation
   style->set(Editable, false);
 }
 
+bool InterpretationBox::try_load_from_object(Expr expr, int opts) {
+  if(expr[0] != PMATH_SYMBOL_INTERPRETATIONBOX)
+    return false;
+    
+  if(expr.expr_length() < 2)
+    return false;
+    
+  Expr options_expr(pmath_options_extract(expr.get(), 2));
+  if(options_expr.is_null())
+    return false;
+    
+  /* now success is guaranteed */
+  
+  _content->load_from_object(expr[1], opts);
+  interpretation = expr[2];
+  
+  if(options_expr != PMATH_UNDEFINED) {
+    if(style) {
+      style->clear();
+      style->add_pmath(options_expr);
+    }
+    else
+      style = new Style(options_expr);
+  }
+  
+  return true;
+}
+
 Expr InterpretationBox::to_pmath(int flags) {
   Gather g;
   

@@ -11,38 +11,42 @@ RadioButtonBox::RadioButtonBox()
   dynamic.init(this, Expr());
 }
 
-RadioButtonBox *RadioButtonBox::create(Expr expr) {
-  RadioButtonBox *rb = new RadioButtonBox();
+bool RadioButtonBox::try_load_from_object(Expr expr, int opts) {
+  if(expr[0] != PMATH_SYMBOL_RADIOBUTTONBOX)
+    return false;
+    
   Expr options(PMATH_UNDEFINED);
-  
-  if(expr.expr_length() >= 1) {
-    rb->dynamic = expr[1];
-  }
-  else {
-    rb->dynamic = Symbol(PMATH_SYMBOL_FALSE);
-  }
+  Expr new_value;
   
   if(expr.expr_length() >= 2) {
-    rb->value = expr[2];
     options = Expr(pmath_options_extract(expr.get(), 2));
+    
+    if(options.is_null())
+      return false;
+      
+    new_value = expr[2];
   }
   else {
-    rb->value = Symbol(PMATH_SYMBOL_TRUE);
+    new_value = Symbol(PMATH_SYMBOL_TRUE);
   }
   
-  if(options.is_null()) {
-    delete rb;
-    return 0;
-  }
+  /* now success is guaranteed */
   
-  if(options != PMATH_UNDEFINED) {
-    if(rb->style)
-      rb->style->add_pmath(options);
-    else
-      rb->style = new Style(options);
-  }
+  value = new_value;
   
-  return rb;
+  if(expr.expr_length() >= 1) 
+    dynamic = expr[1];
+  else 
+    dynamic = Symbol(PMATH_SYMBOL_FALSE);
+  
+  if(style) {
+    style->clear();
+    style->add_pmath(options);
+  }
+  else if(options != PMATH_UNDEFINED)
+    style = new Style(options);
+    
+  return true;
 }
 
 void RadioButtonBox::paint(Context *context) {

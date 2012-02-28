@@ -447,6 +447,10 @@ Document::Document()
 Document::~Document() {
 }
 
+bool Document::try_load_from_object(Expr expr, int options) {
+  return false;
+}
+
 bool Document::request_repaint(float x, float y, float w, float h) {
   float wx, wy, ww, wh;
   native()->scroll_pos(&wx, &wy);

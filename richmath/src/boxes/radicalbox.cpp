@@ -24,6 +24,40 @@ RadicalBox::~RadicalBox() {
   delete _exponent;
 }
 
+bool RadicalBox::try_load_from_object(Expr expr, int opts){
+  if(expr[0] == PMATH_SYMBOL_RADICALBOX){
+    if(expr.expr_length() != 2)
+      return false;
+    
+    _radicand->load_from_object(expr[1], opts);
+    
+    if(!_exponent){
+      _exponent = new MathSequence;
+      adopt(_exponent, 1);
+    }
+    
+    _exponent->load_from_object(expr[2], opts);
+    
+    return true;
+  }
+  
+  if(expr[0] == PMATH_SYMBOL_SQRTBOX){
+    if(expr.expr_length() != 1)
+      return false;
+    
+    if(_exponent){
+      delete _exponent;
+      _exponent = 0;
+    }
+    
+    _radicand->load_from_object(expr[1], opts);
+    
+    return true;
+  }
+  
+  return false;
+}
+
 Box *RadicalBox::item(int i) {
   if(i == 0)
     return _radicand;
@@ -145,6 +179,13 @@ void RadicalBox::complete() {
     _exponent = new MathSequence;
     adopt(_exponent, 1);
   }
+}
+
+Expr RadicalBox::to_pmath_symbol(){
+  if(_exponent)
+    return Symbol(PMATH_SYMBOL_RADICALBOX);
+  
+  return Symbol(PMATH_SYMBOL_SQRTBOX);
 }
 
 Expr RadicalBox::to_pmath(int flags) {

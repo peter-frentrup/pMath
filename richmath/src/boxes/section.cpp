@@ -29,54 +29,22 @@ Section::Section(SharedPtr<Style> _style)
 Section::~Section() {
 }
 
-Section *Section::create_from_object(const Expr object) {
-  if(object.is_expr()) {
-    if(object[0] == PMATH_SYMBOL_SECTION) {
-      Expr options(pmath_options_extract(object.get(), 2));
+Section *Section::create_from_object(const Expr expr) {
+  if(expr[0] == PMATH_SYMBOL_SECTION) {
+    Expr content = expr[1];
+    
+    Section *section = 0;
+    
+    if(content.expr_length() == 1 && content[0] == PMATH_SYMBOL_BOXDATA)
+      section = Box::try_create<MathSection>(expr, BoxOptionDefault);
+    else
+      section = Box::try_create<TextSection>(expr, BoxOptionDefault);
       
-      if(!options.is_null()) {
-        int opts = BoxOptionDefault;
-        
-        Expr content = object[1];
-        Expr stylename = object[2];
-        if(!stylename.is_string())
-          stylename = String("Input");
-          
-        SharedPtr<Style> style = new Style(options);
-        style->set(BaseStyleName, stylename);
-        
-        AbstractSequenceSection *result = 0;
-        
-        if(content.expr_length() == 1 && content[0] == PMATH_SYMBOL_BOXDATA) {
-          content = content[1];
-          
-          result = new MathSection(style);
-        }
-        else if(content.is_string() || content[0] == PMATH_SYMBOL_LIST) {
-          result = new TextSection(style);
-        }
-        
-        if(result) {
-          Expr label = Expr(pmath_option_value(
-                              PMATH_SYMBOL_SECTION,
-                              PMATH_SYMBOL_SECTIONLABEL,
-                              options.get()));
-                              
-          if(label.is_string())
-            result->label(label);
-            
-          if(result->get_own_style(AutoNumberFormating))
-            opts |= BoxOptionFormatNumbers;
-            
-          ((AbstractSequence*)result->item(0))->load_from_object(content, opts);
-          
-          return result;
-        }
-      }
-    }
+    if(section)
+      return section;
   }
   
-  return new ErrorSection(object);
+  return new ErrorSection(expr);
 }
 
 void Section::label(const String str) {
@@ -264,6 +232,10 @@ ErrorSection::ErrorSection(const Expr object)
 {
 }
 
+bool ErrorSection::try_load_from_object(Expr expr, int opts) {
+  return false;
+}
+
 void ErrorSection::resize(Context *context) {
   must_resize = false;
   
@@ -308,8 +280,8 @@ Box *ErrorSection::mouse_selection(
 
 //{ class AbstractSequenceSection ...
 
-AbstractSequenceSection::AbstractSequenceSection(AbstractSequence *content, SharedPtr<Style> style)
-  : Section(style),
+AbstractSequenceSection::AbstractSequenceSection(AbstractSequence *content, SharedPtr<Style> _style)
+  : Section(_style),
   _content(content)
 {
   adopt(_content, 0);
@@ -386,10 +358,12 @@ void AbstractSequenceSection::resize(Context *context) {
   _extents.ascent = 0;
   _extents.descent = cy + _content->extents().descent + bottom_margin;
   
-  if(context->width < HUGE_VAL
-      && _content->var_extents().width < context->width)
+  if( context->width < HUGE_VAL &&
+      _content->var_extents().width < context->width)
+  {
     _content->var_extents().width = context->width;
-    
+  }
+  
   context->section_content_window_width = old_scww;
   cc.end();
   
@@ -556,18 +530,110 @@ void AbstractSequenceSection::child_transformation(
 
 //{ class MathSection ...
 
-MathSection::MathSection(SharedPtr<Style> style)
-  : AbstractSequenceSection(new MathSequence, style)
+MathSection::MathSection()
+  : AbstractSequenceSection(new MathSequence, new Style)
 {
+}
+
+MathSection::MathSection(SharedPtr<Style> _style)
+  : AbstractSequenceSection(new MathSequence, _style)
+{
+  if(!style)
+    style = new Style;
+}
+
+bool MathSection::try_load_from_object(Expr expr, int opts) {
+  if(expr[0] != PMATH_SYMBOL_SECTION)
+    return false;
+    
+  Expr content = expr[1];
+  if(content[0] != PMATH_SYMBOL_BOXDATA)
+    return false;
+    
+  content = content[1];
+  
+  Expr options(pmath_options_extract(expr.get(), 2));
+  if(options.is_null())
+    return false;
+    
+  Expr stylename = expr[2];
+  if(!stylename.is_string())
+    stylename = String("Input");
+    
+  style->clear();
+  style->add_pmath(options);
+  style->set(BaseStyleName, stylename);
+  
+  Expr new_label = Expr(pmath_option_value(
+                          PMATH_SYMBOL_SECTION,
+                          PMATH_SYMBOL_SECTIONLABEL,
+                          options.get()));
+                          
+  if(new_label.is_string())
+    label(new_label);
+  else
+    label(String(""));
+    
+  opts = BoxOptionDefault;
+  if(get_own_style(AutoNumberFormating))
+    opts |= BoxOptionFormatNumbers;
+    
+  _content->load_from_object(content, opts);
+  return true;
 }
 
 //} ... class MathSection
 
 //{ class TextSection ...
 
-TextSection::TextSection(SharedPtr<Style> style)
-  : AbstractSequenceSection(new TextSequence, style)
+TextSection::TextSection()
+  : AbstractSequenceSection(new TextSequence, new Style)
 {
+}
+
+TextSection::TextSection(SharedPtr<Style> _style)
+  : AbstractSequenceSection(new TextSequence, _style)
+{
+  if(!style)
+    style = new Style;
+}
+
+bool TextSection::try_load_from_object(Expr expr, int opts) {
+  if(expr[0] != PMATH_SYMBOL_SECTION)
+    return false;
+    
+  Expr content = expr[1];
+  if(!content.is_string() && content[0] != PMATH_SYMBOL_LIST)
+    return false;
+    
+  Expr options(pmath_options_extract(expr.get(), 2));
+  if(options.is_null())
+    return false;
+    
+  Expr stylename = expr[2];
+  if(!stylename.is_string())
+    stylename = String("Input");
+    
+  style->clear();
+  style->add_pmath(options);
+  style->set(BaseStyleName, stylename);
+  
+  Expr new_label = Expr(pmath_option_value(
+                          PMATH_SYMBOL_SECTION,
+                          PMATH_SYMBOL_SECTIONLABEL,
+                          options.get()));
+                          
+  if(new_label.is_string())
+    label(new_label);
+  else
+    label(String(""));
+    
+  opts = BoxOptionDefault;
+  if(get_own_style(AutoNumberFormating))
+    opts |= BoxOptionFormatNumbers;
+    
+  _content->load_from_object(content, opts);
+  return true;
 }
 
 //} ... class TextSection
@@ -582,6 +648,10 @@ EditSection::EditSection()
 
 EditSection::~EditSection() {
   delete original;
+}
+
+bool EditSection::try_load_from_object(Expr expr, int opts) {
+  return false;
 }
 
 Expr EditSection::to_pmath(int flags) {

@@ -18,18 +18,22 @@ FillBox::FillBox(MathSequence *content, float _weight)
 FillBox::~FillBox() {
 }
 
-FillBox *FillBox::create(Expr expr, int opts) {
-  if(!expr.is_expr())
-    return 0;
+bool FillBox::try_load_from_object(Expr expr, int opts) {
+  if(expr[0] != PMATH_SYMBOL_FILLBOX)
+    return false;
     
-  if(expr.expr_length() < 1 || expr.expr_length() > 2)
-    return 0;
+  if(expr.expr_length() < 1)
+    return false;
     
-  FillBox *result = new FillBox();
-  result->_content->load_from_object(expr[1], opts);
-  result->weight = expr[2].to_double(1.0);
+  if(expr.expr_length() > 2)
+    return false;
+    
+  /* now success is guaranteed */
   
-  return result;
+  _content->load_from_object(expr[1], opts);
+  weight = expr[2].to_double(1.0);
+  
+  return true;
 }
 
 bool FillBox::expand(const BoxSize &size) {

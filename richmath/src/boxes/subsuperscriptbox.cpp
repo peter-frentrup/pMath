@@ -9,6 +9,16 @@ using namespace richmath;
 
 //{ class SubsuperscriptBox ...
 
+SubsuperscriptBox::SubsuperscriptBox()
+  : Box(),
+  _subscript(  new MathSequence),
+  _superscript(new MathSequence)
+{
+  adopt(_subscript,   0);
+  adopt(_superscript, 0);
+}
+
+
 SubsuperscriptBox::SubsuperscriptBox(MathSequence *sub, MathSequence *super)
   : Box(),
   _subscript(sub),
@@ -25,6 +35,67 @@ SubsuperscriptBox::SubsuperscriptBox(MathSequence *sub, MathSequence *super)
 SubsuperscriptBox::~SubsuperscriptBox() {
   delete _subscript;
   delete _superscript;
+}
+
+bool SubsuperscriptBox::try_load_from_object(Expr expr, int opts) {
+  if(expr[0] == PMATH_SYMBOL_SUBSCRIPTBOX) {
+    if(expr.expr_length() != 1)
+      return false;
+      
+    if(_superscript) {
+      delete _superscript;
+      _superscript = 0;
+    }
+    
+    if(!_subscript)
+      _subscript = new MathSequence;
+      
+    adopt(_subscript, 0);
+    
+    _subscript->load_from_object(expr[1], opts);
+    
+    return true;
+  }
+  
+  if(expr[0] == PMATH_SYMBOL_SUPERSCRIPTBOX) {
+    if(expr.expr_length() != 1)
+      return false;
+      
+    if(_subscript) {
+      delete _subscript;
+      _subscript = 0;
+    }
+    
+    if(!_superscript)
+      _superscript = new MathSequence;
+      
+    adopt(_superscript, 0);
+    
+    _superscript->load_from_object(expr[1], opts);
+    
+    return true;
+  }
+  
+  if(expr[0] == PMATH_SYMBOL_SUBSUPERSCRIPTBOX) {
+    if(expr.expr_length() != 2)
+      return false;
+      
+    if(!_subscript)
+      _subscript = new MathSequence;
+      
+    if(!_superscript)
+      _superscript = new MathSequence;
+      
+    adopt(_subscript,   0);
+    adopt(_superscript, 1);
+    
+    _subscript->load_from_object(  expr[1], opts);
+    _superscript->load_from_object(expr[2], opts);
+    
+    return true;
+  }
+  
+  return false;
 }
 
 Box *SubsuperscriptBox::item(int i) {

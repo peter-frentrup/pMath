@@ -14,7 +14,7 @@ namespace richmath {
       Section(SharedPtr<Style> _style);
       virtual ~Section();
       
-      static Section *create_from_object(const Expr object);
+      static Section *create_from_object(const Expr expr);
       
       const String label() { return get_style(SectionLabel); } // { return style->section_label; }
       void label(const String str);
@@ -59,6 +59,8 @@ namespace richmath {
     public:
       ErrorSection(const Expr object);
       
+      virtual bool try_load_from_object(Expr expr, int opts);
+      
       virtual Box *item(int i) { return 0; }
       virtual int count() { return 0; }
       
@@ -83,7 +85,7 @@ namespace richmath {
   
   class AbstractSequenceSection: public Section {
     public:
-      AbstractSequenceSection(AbstractSequence *content, SharedPtr<Style> style);
+      AbstractSequenceSection(AbstractSequence *content, SharedPtr<Style> _style);
       virtual ~AbstractSequenceSection();
       
       virtual Box *item(int i);
@@ -120,14 +122,20 @@ namespace richmath {
   
   class MathSection: public AbstractSequenceSection {
     public:
-      explicit MathSection(SharedPtr<Style> style);
+      MathSection();
+      explicit MathSection(SharedPtr<Style> _style);
+      
+      virtual bool try_load_from_object(Expr expr, int opts);
       
       MathSequence *content() { return (MathSequence*)_content; }
   };
   
   class TextSection: public AbstractSequenceSection {
     public:
-      explicit TextSection(SharedPtr<Style> style);
+      TextSection();
+      explicit TextSection(SharedPtr<Style> _style);
+      
+      virtual bool try_load_from_object(Expr expr, int opts);
       
       TextSection *content() { return (TextSection*)_content; }
   };
@@ -136,6 +144,8 @@ namespace richmath {
     public:
       EditSection();
       virtual ~EditSection();
+      
+      virtual bool try_load_from_object(Expr expr, int opts);
       
       virtual Expr to_pmath_symbol() { return Expr(); }
       virtual Expr to_pmath(int flags);

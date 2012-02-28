@@ -33,7 +33,8 @@ namespace richmath {
     public:
       RotationBox();
       
-      static RotationBox *create(Expr expr, int opts);
+      // Box::try_create<RotationBox>(expr, opts);
+      virtual bool try_load_from_object(Expr expr, int opts);
       
       Expr angle() { return _angle; }
       bool angle(Expr a);
@@ -51,7 +52,8 @@ namespace richmath {
     public:
       TransformationBox();
       
-      static TransformationBox *create(Expr expr, int opts);
+      // Box::try_create<TransformationBox>(expr, opts);
+      virtual bool try_load_from_object(Expr expr, int opts);
       
       Expr matrix() { return _matrix; }
       bool matrix(Expr m);

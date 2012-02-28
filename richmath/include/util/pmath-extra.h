@@ -41,6 +41,9 @@ namespace richmath {
       SpanArray(pmath_span_array_t *spans = 0);
       ~SpanArray();
       
+      pmath_span_array_t *extract_array();
+      pmath_span_array_t *array() { return _array; }
+      
       SpanArray &operator=(pmath_span_array_t *spans);
       
       int length() const {
@@ -65,8 +68,6 @@ namespace richmath {
       bool is_operand_start(int i) const {
         return pmath_span_array_is_operand_start(_array, i);
       }
-      
-      pmath_span_array_t *array() { return _array; }
       
     private:
       pmath_span_array_t *_array;

@@ -14,6 +14,11 @@ ErrorBox::ErrorBox(const Expr object)
 ErrorBox::~ErrorBox() {
 }
 
+bool ErrorBox::try_load_from_object(Expr expr, int options){
+  _object = expr;
+  return true;
+}
+
 void ErrorBox::resize(Context *context) {
   float em = context->canvas->get_font_size();
   _extents.ascent = 0.75f * em;

@@ -13,6 +13,9 @@ namespace richmath {
       FractionBox(MathSequence *num, MathSequence *den);
       virtual ~FractionBox();
       
+      // Box::try_create<FractionBox>(expr, opts);
+      virtual bool try_load_from_object(Expr expr, int opts);
+      
       MathSequence *numerator() {   return _numerator; }
       MathSequence *denominator() { return _denominator; }
       

@@ -15,25 +15,31 @@ TooltipBox::TooltipBox()
 {
 }
 
-TooltipBox *TooltipBox::create(Expr expr, int opts) {
+bool TooltipBox::try_load_from_object(Expr expr, int opts) {
+  if(expr[0] != PMATH_SYMBOL_TOOLTIPBOX)
+    return false;
+  
   if(expr.expr_length() < 2)
-    return 0;
+    return false;
     
   Expr options(pmath_options_extract(expr.get(), 2));
   if(options.is_null())
-    return 0;
+    return false;
     
-  TooltipBox *tt = new TooltipBox;
-  if(options != PMATH_UNDEFINED) {
-    if(!tt->style)
-      tt->style = new Style();
-      
-    tt->style->add_pmath(options);
-  }
+  /* now success is guaranteed */
   
-  tt->content()->load_from_object(expr[1], opts);
-  tt->tooltip_boxes = expr[2];
-  return tt;
+  if(style){
+    style->clear();
+    style->add_pmath(options);
+  }
+  else if(options != PMATH_UNDEFINED)
+    style = new Style(options);
+  
+  _content->load_from_object(expr[1], opts);
+  
+  tooltip_boxes = expr[2];
+  
+  return true;
 }
 
 Expr TooltipBox::to_pmath(int flags) {

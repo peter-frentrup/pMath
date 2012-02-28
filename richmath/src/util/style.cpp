@@ -198,6 +198,11 @@ Style::Style(Expr options): Shareable() {
   add_pmath(options);
 }
 
+void Style::clear() {
+  int_float_values.clear();
+  object_values.clear();
+}
+
 void Style::add_pmath(Expr options) {
   if(options.is_string()) {
     set(BaseStyleName, String(options));
@@ -1259,17 +1264,17 @@ void Style::emit_to_pmath(
                    e));
   }
   
-    if(get_dynamic(WindowTitle, &e)) {
-      Gather::emit(Rule(
-                     get_symbol(WindowTitle),
-                     e));
-    }
-    else if(get(WindowTitle, &s)) {
-      Gather::emit(Rule(
-                     get_symbol(WindowTitle),
-                     s.is_null() ? Symbol(PMATH_SYMBOL_AUTOMATIC) : s));
-    }
-    
+  if(get_dynamic(WindowTitle, &e)) {
+    Gather::emit(Rule(
+                   get_symbol(WindowTitle),
+                   e));
+  }
+  else if(get(WindowTitle, &s)) {
+    Gather::emit(Rule(
+                   get_symbol(WindowTitle),
+                   s.is_null() ? Symbol(PMATH_SYMBOL_AUTOMATIC) : s));
+  }
+  
   if(for_sections) {
     if(get_dynamic(SectionFrameLeft, &e)) {
       Gather::emit(Rule(

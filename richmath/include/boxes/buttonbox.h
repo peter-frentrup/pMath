@@ -7,7 +7,10 @@
 namespace richmath {
   class ButtonBox: public ContainerWidgetBox {
     public:
-      static ButtonBox *create(Expr expr, int opts);
+      explicit ButtonBox(MathSequence *content = 0);
+      
+      // Box::try_create<ButtonBox>(expr, opts);
+      virtual bool try_load_from_object(Expr expr, int opts);
       
       virtual bool expand(const BoxSize &size);
       virtual void resize(Context *context);
@@ -20,9 +23,6 @@ namespace richmath {
       virtual void on_mouse_up(MouseEvent &event);
       
       virtual void click();
-      
-    protected:
-      explicit ButtonBox(MathSequence *content = 0);
   };
 }
 

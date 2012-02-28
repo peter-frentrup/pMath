@@ -50,30 +50,29 @@ namespace richmath {
   
   class StyleBox: public ExpandableAbstractStyleBox {
     public:
-      static StyleBox *create(Expr expr, int opts); // returns 0 on error
+      explicit StyleBox(MathSequence *content = 0);
+      
+      // Box::try_create<StyleBox>(expr, opts);
+      virtual bool try_load_from_object(Expr expr, int opts);
       
       virtual Expr to_pmath_symbol() { return Symbol(PMATH_SYMBOL_STYLEBOX); }
       virtual Expr to_pmath(int flags);
       
       virtual bool changes_children_style() { return true; }
-      
-    protected:
-      explicit StyleBox(MathSequence *content = 0);
   };
   
   class TagBox: public ExpandableAbstractStyleBox {
     public:
-      static TagBox *create(Expr expr, int options);
+      explicit TagBox(MathSequence *content = 0);
+      TagBox(MathSequence *content, Expr _tag);
+      
+      // Box::try_create<TagBox>(expr, opts);
+      virtual bool try_load_from_object(Expr expr, int opts);
       
       virtual void resize(Context *context);
       
       virtual Expr to_pmath_symbol() { return Symbol(PMATH_SYMBOL_TAGBOX); }
       virtual Expr to_pmath(int flags);
-      
-    protected:
-      TagBox();
-      explicit TagBox(MathSequence *content);
-      TagBox(MathSequence *content, Expr _tag);
       
     public:
       Expr tag;

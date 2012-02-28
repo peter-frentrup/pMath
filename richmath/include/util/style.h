@@ -108,6 +108,7 @@ namespace richmath {
       Style();
       Style(Expr options);
       
+      void clear();
       void add_pmath(Expr options);
       
       void merge(SharedPtr<Style> other);

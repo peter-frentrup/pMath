@@ -156,15 +156,15 @@ SpanExpr *SpanExpr::expand(bool self_destruction) {
   if(_parent)
     return _parent;
     
-  if(_start > _end){
+  if(_start > _end) {
     if(!self_destruction)
       return 0;
-    
+      
     SpanExpr *result = new SpanExpr(_start, 0, _sequence);
     delete this;
     return result;
   }
-    
+  
   _sequence->ensure_spans_valid();
   
   int start = _start;
@@ -282,7 +282,7 @@ bool SpanExpr::item_equals(int i, const char *latin1) {
 }
 
 uint16_t SpanExpr::first_char() {
-    
+
   if(_start > _end)
     return 0;
     
@@ -612,10 +612,48 @@ Box *SpanExpr::item_as_box(int i) {
 
 //{ class SequenceSpan ...
 
-SequenceSpan::SequenceSpan(SpanExpr *span) 
-  : _span(span)
+SequenceSpan::SequenceSpan(SpanExpr *span, bool take_ownership)
+  : _span(span),
+  _has_ownership (take_ownership)
 {
+  init(span);
+}
+
+void SequenceSpan::set(SpanExpr *span, bool take_ownership){
+  if(_span == span){
+    _has_ownership = take_ownership;
+    return;
+  }
+  
+  if(_has_ownership)
+    delete _span;
+  
+  _has_ownership = take_ownership;
+  init(span);
+}
+
+SequenceSpan &SequenceSpan::operator=(const SequenceSpan &other) {
+  if(this == &other)
+    return *this;
+    
+  if(_has_ownership)
+    delete _span;
+    
+  _has_ownership = other._has_ownership;
+  init(other._span);
+  
+  return *this;
+}
+
+SequenceSpan::~SequenceSpan() {
+  if(_has_ownership)
+    delete _span;
+}
+
+void SequenceSpan::init(SpanExpr *span) {
   _is_sequence = false;
+  _span        = span;
+  _items.length(0);
   
   if(!span)
     return;
@@ -682,7 +720,7 @@ SpanExpr *SequenceSpan::item(int i) { // 1-based; always may return 0
 
 FunctionCallSpan::FunctionCallSpan(SpanExpr *span)
   : _span(span)
-  , _args(0)
+  , _args(0, false)
 {
   init_args();
 }
@@ -690,46 +728,47 @@ FunctionCallSpan::FunctionCallSpan(SpanExpr *span)
 void FunctionCallSpan::init_args() {
   if(is_list()) {
     if(_span->count() <= 1) {   // {
-      _args = new SpanExpr(_span->end() + 1, _span->sequence());
+      _args.set(new SpanExpr(_span->end() + 1, _span->sequence()), true);
       return;
     }
     
     if(!_span->item_is_operand(1)) {   // {}
-      _args = new SpanExpr(_span->item_pos(1), _span->sequence());
+      _args.set(new SpanExpr(_span->item_pos(1), _span->sequence()), true);
       return;
     }
-      
-    _args = _span->item(1);
+    
+    _args.set(_span->item(1), false);
+    assert(_args.all()->parent() == _span);
     return;
   }
   
   if(is_simple_call()) {
     if(_span->count() <= 2) {   // f(
-      _args = new SpanExpr(_span->end() + 1, _span->sequence());
+      _args.set(new SpanExpr(_span->end() + 1, _span->sequence()), true);
       return;
     }
-      
+    
     if(!_span->item_is_operand(2)) {   // f()
-      _args = new SpanExpr(_span->item_pos(2), _span->sequence());
+      _args.set(new SpanExpr(_span->item_pos(2), _span->sequence()), true);
       return;
     }
-      
-    _args = _span->item(2);
+    
+    _args.set(_span->item(2), false);
     return;
   }
   
   if(is_complex_call()) {
     if(_span->count() <= 4) {   // a.f(   or shorter
-      _args = new SpanExpr(_span->end() + 1, _span->sequence());
+      _args.set(new SpanExpr(_span->end() + 1, _span->sequence()), true);
       return;
     }
-      
+    
     if(!_span->item_is_operand(4)) {   // a.f()
-      _args = new SpanExpr(_span->item_pos(4), _span->sequence());
+      _args.set(new SpanExpr(_span->item_pos(4), _span->sequence()), true);
       return;
     }
-      
-    _args = _span->item(4);
+    
+    _args.set(_span->item(4), false);
     return;
   }
 }
@@ -875,7 +914,7 @@ bool FunctionCallSpan::is_list(SpanExpr *span) {
 bool FunctionCallSpan::is_sequence(SpanExpr *span) {
   if(!span)
     return false;
-  
+    
   bool prev_was_operand = false;
   
   for(int i = 0; i < span->count(); ++i) {
@@ -884,9 +923,9 @@ bool FunctionCallSpan::is_sequence(SpanExpr *span) {
       continue;
     }
     
-    if(!span->item_is_operand(i)) 
+    if(!span->item_is_operand(i))
       return false;
-    
+      
     prev_was_operand = true;
   }
   

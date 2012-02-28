@@ -16,9 +16,11 @@ namespace richmath {
   
   class GraphicsBox: public Box {
     public:
+      GraphicsBox();
       virtual ~GraphicsBox();
       
-      static GraphicsBox *create(Expr expr, int opts);
+      // Box::try_create<GraphicsBox>(expr, opts);
+      virtual bool try_load_from_object(Expr expr, int opts);
       
       virtual Box *item(int i);
       virtual int count();
@@ -69,11 +71,11 @@ namespace richmath {
       AxisTicks *y_axis_ticks;
       
       GraphicsElementCollection elements;
-      Expr error_boxes_expr;
-    
-    protected:
-      GraphicsBox();
+      Expr                      error_boxes_expr;
       
+      bool user_has_changed_size;
+      
+    protected:
       void calculate_size(const float *optional_expand_width = 0);
       void resize_axes(Context *context);
   };

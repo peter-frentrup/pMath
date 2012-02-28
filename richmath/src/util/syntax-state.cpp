@@ -100,8 +100,9 @@ SyntaxInformation::SyntaxInformation(Expr name)
                 Symbol(PMATH_SYMBOL_SYNTAXINFORMATION),
                 name));
                 
-  if(expr.is_expr()
-      && expr[0] == PMATH_SYMBOL_LIST) {
+  if( expr.is_expr() &&
+      expr[0] == PMATH_SYMBOL_LIST)
+  {
     for(size_t i = 1; i <= expr.expr_length(); ++i) {
       Expr opt = expr[i];
       
@@ -113,19 +114,24 @@ SyntaxInformation::SyntaxInformation(Expr name)
         if(key.equals("ArgumentCount")) {
           Expr value = opt[2];
           
-          if(value.is_int32() && PMATH_AS_INT32(value.get()) >= 0) {
+          if( value.is_int32() &&
+              PMATH_AS_INT32(value.get()) >= 0)
+          {
             minargs = maxargs = PMATH_AS_INT32(value.get());
           }
-          else if(value.is_expr()
-                  && value[0] == PMATH_SYMBOL_RANGE
-                  && value.expr_length() == 2) {
-            if(value[1].is_int32()
-                && PMATH_AS_INT32(value[1].get()) >= 0) {
+          else if( value.is_expr()                &&
+                   value[0] == PMATH_SYMBOL_RANGE &&
+                   value.expr_length() == 2)
+          {
+            if( value[1].is_int32() &&
+                PMATH_AS_INT32(value[1].get()) >= 0)
+            {
               minargs = PMATH_AS_INT32(value[1].get());
             }
             
-            if(value[2].is_int32()
-                && PMATH_AS_INT32(value[2].get()) >= 0) {
+            if( value[2].is_int32() &&
+                PMATH_AS_INT32(value[2].get()) >= 0)
+            {
               maxargs = PMATH_AS_INT32(value[2].get());
             }
           }
@@ -133,9 +139,10 @@ SyntaxInformation::SyntaxInformation(Expr name)
         else if(key.equals("LocalVariables")) {
           Expr value = opt[2];
           
-          if(value.is_expr()
-              && value.expr_length() == 2
-              && value[0] == PMATH_SYMBOL_LIST) {
+          if( value.is_expr()          &&
+              value.expr_length() == 2 &&
+              value[0] == PMATH_SYMBOL_LIST)
+          {
             String form(value[1]);
             
             if(form.equals("Function"))
@@ -148,20 +155,24 @@ SyntaxInformation::SyntaxInformation(Expr name)
             if(locals_form != NoSpec) {
               value = value[2];
               
-              if(value.is_int32()
-                  && PMATH_AS_INT32(value.get()) >= 0) {
+              if( value.is_int32() &&
+                  PMATH_AS_INT32(value.get()) >= 0)
+              {
                 locals_min = locals_max = PMATH_AS_INT32(value.get());
               }
-              else if(value.is_expr()
-                      && value[0] == PMATH_SYMBOL_RANGE
-                      && value.expr_length() == 2) {
-                if(value[1].is_int32()
-                    && PMATH_AS_INT32(value[1].get()) >= 0) {
+              else if( value.is_expr()                &&
+                       value[0] == PMATH_SYMBOL_RANGE &&
+                       value.expr_length() == 2)
+              {
+                if( value[1].is_int32() &&
+                    PMATH_AS_INT32(value[1].get()) >= 0)
+                {
                   locals_min = PMATH_AS_INT32(value[1].get());
                 }
                 
-                if(value[2].is_int32()
-                    && PMATH_AS_INT32(value[2].get()) >= 0) {
+                if( value[2].is_int32() &&
+                    PMATH_AS_INT32(value[2].get()) >= 0)
+                {
                   locals_max = PMATH_AS_INT32(value[2].get());
                 }
               }

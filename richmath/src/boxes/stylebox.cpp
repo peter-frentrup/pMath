@@ -197,7 +197,13 @@ StyleBox::StyleBox(MathSequence *content)
   style = new Style;
 }
 
-StyleBox *StyleBox::create(Expr expr, int opts) {
+bool StyleBox::try_load_from_object(Expr expr, int opts) {
+  if(expr[0] != PMATH_SYMBOL_STYLEBOX)
+    return false;
+  
+  if(expr.expr_length() < 1)
+    return 0;
+  
   Expr options;
   
   if(expr[2].is_string())
@@ -205,36 +211,39 @@ StyleBox *StyleBox::create(Expr expr, int opts) {
   else
     options = Expr(pmath_options_extract(expr.get(), 1));
     
-  if(!options.is_null()) {
-    StyleBox *box = new StyleBox;
+  if(options.is_null()) 
+    return false;
     
-    if(expr[2].is_string()) {
-      if(!box->style)
-        box->style = new Style();
-      box->style->set_pmath_string(BaseStyleName, expr[2]);
-    }
+  /* now success is guaranteed */
+  
+  if(style)
+    style->clear();
+  
+  if(expr[2].is_string()) {
+    if(!style)
+      style = new Style();
     
-    if(options != PMATH_UNDEFINED) {
-      if(box->style)
-        box->style->add_pmath(options);
-      else
-        box->style = new Style(options);
-        
-      int i;
-      if(box->style->get(AutoNumberFormating, &i)) {
-        if(i)
-          opts |= BoxOptionFormatNumbers;
-        else
-          opts &= ~BoxOptionFormatNumbers;
-      }
-    }
-    
-    box->content()->load_from_object(expr[1], opts);
-    
-    return box;
+    style->set_pmath_string(BaseStyleName, expr[2]);
   }
   
-  return 0;
+  if(options != PMATH_UNDEFINED) {
+    if(style)
+      style->add_pmath(options);
+    else
+      style = new Style(options);
+      
+    int i;
+    if(style->get(AutoNumberFormating, &i)) {
+      if(i)
+        opts |= BoxOptionFormatNumbers;
+      else
+        opts &= ~BoxOptionFormatNumbers;
+    }
+  }
+  
+  _content->load_from_object(expr[1], opts);
+  
+  return true;
 }
 
 Expr StyleBox::to_pmath(int flags) {
@@ -266,12 +275,6 @@ Expr StyleBox::to_pmath(int flags) {
 
 //{ class TagBox ...
 
-TagBox::TagBox()
-  : ExpandableAbstractStyleBox()
-{
-  style = new Style();
-}
-
 TagBox::TagBox(MathSequence *content)
   : ExpandableAbstractStyleBox(content)
 {
@@ -285,33 +288,40 @@ TagBox::TagBox(MathSequence *content, Expr _tag)
   style = new Style();
 }
 
-TagBox *TagBox::create(Expr expr, int options) {
+bool TagBox::try_load_from_object(Expr expr, int opts) {
+  if(expr[0] != PMATH_SYMBOL_TAGBOX)
+    return false;
+  
+  if(expr.expr_length() < 2)
+    return false;
+  
   Expr options_expr(pmath_options_extract(expr.get(), 2));
   
   if(options_expr.is_null())
-    return 0;
+    return false;
     
-  TagBox *box = new TagBox;
-  box->tag = expr[2];
+  /* now success is guaranteed */
   
-  if(options_expr != PMATH_UNDEFINED) {
-    if(box->style)
-      box->style->add_pmath(options_expr);
+  tag = expr[2];
+  
+  if(style){
+    style->clear();
+    style->add_pmath(options_expr);
+  }
+  else if(options_expr != PMATH_UNDEFINED)
+    style = new Style(options_expr);
+  
+  int i;
+  if(style->get(AutoNumberFormating, &i)) {
+    if(i)
+      opts |= BoxOptionFormatNumbers;
     else
-      box->style = new Style(options_expr);
-      
-    int i;
-    if(box->style->get(AutoNumberFormating, &i)) {
-      if(i)
-        options |= BoxOptionFormatNumbers;
-      else
-        options &= ~BoxOptionFormatNumbers;
-    }
+      opts &= ~BoxOptionFormatNumbers;
   }
   
-  box->content()->load_from_object(expr[1], options);
+  _content->load_from_object(expr[1], opts);
   
-  return box;
+  return true;
 }
 
 void TagBox::resize(Context *context) {
