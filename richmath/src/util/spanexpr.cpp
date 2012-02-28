@@ -619,26 +619,22 @@ SequenceSpan::SequenceSpan(SpanExpr *span, bool take_ownership)
   init(span);
 }
 
-void SequenceSpan::set(SpanExpr *span, bool take_ownership){
-  if(_span == span){
+void SequenceSpan::set(SpanExpr *span, bool take_ownership) {
+  if(_span == span) {
     _has_ownership = take_ownership;
     return;
   }
   
-  reset();
-  
-  _has_ownership = take_ownership;
   init(span);
+  _has_ownership = take_ownership;
 }
 
 SequenceSpan &SequenceSpan::operator=(const SequenceSpan &other) {
   if(this == &other)
     return *this;
-    
-  reset();
-    
-  _has_ownership = other._has_ownership;
+  
   init(other._span);
+  _has_ownership = other._has_ownership;
   
   return *this;
 }
@@ -653,6 +649,7 @@ void SequenceSpan::init(SpanExpr *span) {
   if(!span)
     return;
     
+  _span = span;
   if(span->count() < 1) {
     if(span->equals(",")) {
       _items.add(new SpanExpr(span->start(),     span->sequence()));
@@ -702,14 +699,14 @@ void SequenceSpan::init(SpanExpr *span) {
   _is_sequence = true;
 }
 
-void SequenceSpan::reset(){
-  for(int i = 0;i < _items.length();++i)
-    if(!_items[i]->parent())
+void SequenceSpan::reset() {
+  for(int i = 0; i < _items.length(); ++i)
+    if(_items[i] != _span && _items[i]->parent())
       delete _items[i];
-    
+      
   if(_has_ownership)
     delete _span;
-  
+    
   _items.length(0);
   _span        = 0;
   _is_sequence = false;
