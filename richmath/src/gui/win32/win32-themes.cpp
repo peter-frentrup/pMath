@@ -242,3 +242,15 @@ bool Win32Themes::current_theme_is_aero() {
   
   return len == namelen || filebuf[len - namelen - 1] == '\\';
 }
+
+bool Win32Themes::check_osversion(int min_major, int min_minor) {
+  OSVERSIONINFO osvi;
+  memset(&osvi, 0, sizeof(osvi));
+  osvi.dwOSVersionInfoSize = sizeof(osvi);
+  GetVersionEx(&osvi);
+  
+  if(osvi.dwMajorVersion > min_major)
+    return true;
+  
+  return osvi.dwMajorVersion == min_major && osvi.dwMinorVersion >= min_minor;
+}

@@ -42,8 +42,9 @@ static void init_basic_window_data() {
     }
   }
   
-  if(!composition_window_theme
-      && Win32Themes::OpenThemeData) {
+  if(!composition_window_theme &&
+      Win32Themes::OpenThemeData)
+  {
     composition_window_theme = Win32Themes::OpenThemeData(NULL, L"CompositedWindow::Window");
   }
 }
@@ -232,8 +233,9 @@ static bool snap_inside(
     }
   }
   
-  if((outer.right >= orig.left && outer.left  <= orig.right)
-      || (outer.left  >= orig.left && outer.right <= orig.right)) {
+  if( (outer.right >= orig.left && outer.left  <= orig.right) ||
+      (outer.left  >= orig.left && outer.right <= orig.right))
+  {
     if(pt) {
       if(abs(outer.top - pt->y) < *max_dy) {
         *dy = *max_dy = outer.top - pt->y;
@@ -571,10 +573,11 @@ void BasicWin32Window::get_snap_alignment(bool *right, bool *bottom) {
   *right  = info.align_right  && !info.align_left;
   *bottom = info.align_bottom && !info.align_top;
   
-  if(!info.align_left
-      && !info.align_right
-      && !info.align_top
-      && !info.align_bottom) {
+  if( !info.align_left &&
+      !info.align_right &&
+      !info.align_top &&
+      !info.align_bottom)
+  {
     MONITORINFO monitor_info;
     memset(&monitor_info, 0, sizeof(monitor_info));
     monitor_info.cbSize = sizeof(monitor_info);
@@ -870,22 +873,24 @@ void get_system_button_bounds(HWND hwnd, RECT *rect) {
 }
 
 void BasicWin32Window::paint_themed_caption(HDC hdc_bitmap) {
-  if(!_themed_frame
-      || !Win32Themes::OpenThemeData
-      || !Win32Themes::CloseThemeData
-      || !Win32Themes::GetThemeSysColor
-      || !Win32Themes::GetThemeSysFont
-      || !Win32Themes::DrawThemeTextEx)
+  if( !_themed_frame                 ||
+      !Win32Themes::OpenThemeData    ||
+      !Win32Themes::CloseThemeData   ||
+      !Win32Themes::GetThemeSysColor ||
+      !Win32Themes::GetThemeSysFont  ||
+      !Win32Themes::DrawThemeTextEx)
+  {
     return;
-    
+  }
+  
   init_basic_window_data();
   
   if(composition_window_theme) {
     Win32Themes::DTTOPTS dtt_opts;
     memset(&dtt_opts, 0, sizeof(dtt_opts));
-    dtt_opts.crText = Win32Themes::GetThemeSysColor(composition_window_theme, _active ? COLOR_CAPTIONTEXT : COLOR_INACTIVECAPTIONTEXT);
-    dtt_opts.dwSize = sizeof(dtt_opts);
-    dtt_opts.dwFlags = DTT_COMPOSITED | DTT_GLOWSIZE | DTT_TEXTCOLOR;
+    dtt_opts.crText    = Win32Themes::GetThemeSysColor(composition_window_theme, _active ? COLOR_CAPTIONTEXT : COLOR_INACTIVECAPTIONTEXT);
+    dtt_opts.dwSize    = sizeof(dtt_opts);
+    dtt_opts.dwFlags   = DTT_COMPOSITED | DTT_GLOWSIZE | DTT_TEXTCOLOR;
     dtt_opts.iGlowSize = 10;
     
 #define MAX_STR_LEN 1024
@@ -901,23 +906,63 @@ void BasicWin32Window::paint_themed_caption(HDC hdc_bitmap) {
       old_font = (HFONT)SelectObject(hdc_bitmap, font);
     }
     
-    int frame_x = GetSystemMetrics(SM_CXSIZEFRAME);
-    int frame_y = GetSystemMetrics(SM_CYSIZEFRAME);
+    int frame_x   = GetSystemMetrics(SM_CXSIZEFRAME);
+    int frame_y   = GetSystemMetrics(SM_CYSIZEFRAME);
     int caption_h = GetSystemMetrics(SM_CYCAPTION);
+    
+    bool center_caption = false;
+    
+    // center caption on Windows 8 or newer
+    if(Win32Themes::check_osversion(6, 2)) {
+      center_caption = true;
+    }
+    
+    int flags = DT_VCENTER | DT_SINGLELINE | DT_END_ELLIPSIS;
     
     RECT rect;
     get_system_button_bounds(_hwnd, &rect);
-    rect.right  = rect.left;
-    rect.left   = frame_x + GetSystemMetrics(SM_CXSMICON) + 5;
-    rect.top    = 0;
-    rect.bottom = frame_y + caption_h;
+    if(center_caption) {
+      flags |= DT_CENTER;
+      
+      RECT calc_rect = {0};
+      //calc_rect.right = rect.right;
+      
+      dtt_opts.dwFlags |= DTT_CALCRECT;
+      
+      Win32Themes::DrawThemeTextEx(
+        composition_window_theme,
+        hdc_bitmap,
+        0, 0,
+        str, -1,
+        flags | DT_CALCRECT,
+        &calc_rect,
+        &dtt_opts);
+        
+      dtt_opts.dwFlags &= ~DTT_CALCRECT;
+      
+      int buttons_left = rect.left;
+      rect.left   = rect.right - buttons_left;
+      rect.right  = buttons_left;
+      rect.top    = 0;
+      rect.bottom = frame_y + caption_h;
+      
+      if(calc_rect.right + 8 > rect.right - rect.left) {
+        rect.left = frame_x + GetSystemMetrics(SM_CXSMICON) + 5;
+      }
+    }
+    else {
+      rect.right  = rect.left;
+      rect.left   = frame_x + GetSystemMetrics(SM_CXSMICON) + 5;
+      rect.top    = 0;
+      rect.bottom = frame_y + caption_h;
+    }
     
     Win32Themes::DrawThemeTextEx(
       composition_window_theme,
       hdc_bitmap,
       0, 0,
       str, -1,
-      DT_LEFT | DT_VCENTER | DT_SINGLELINE | DT_END_ELLIPSIS,
+      flags,
       &rect,
       &dtt_opts);
       
@@ -1018,14 +1063,15 @@ void BasicWin32Window::paint_background(Canvas *canvas, int x, int y, bool wallp
     
     RECT glassfree;
     get_glassfree_rect(&glassfree);
-    glassfree.left -=   rect.left;
-    glassfree.right -=  rect.left;
-    glassfree.top -=    rect.top;
+    glassfree.left   -= rect.left;
+    glassfree.right  -= rect.left;
+    glassfree.top    -= rect.top;
     glassfree.bottom -= rect.top;
     
     if(!wallpaper_only) {
-      if(!Win32Themes::IsCompositionActive
-          || !Win32Themes::IsCompositionActive()) {
+      if( !Win32Themes::IsCompositionActive ||
+          !Win32Themes::IsCompositionActive())
+      {
         if(glass_enabled()) {
           int color;
           
@@ -1034,8 +1080,8 @@ void BasicWin32Window::paint_background(Canvas *canvas, int x, int y, bool wallp
           else
             color = GetSysColor(COLOR_GRADIENTINACTIVECAPTION);
             
-          color = ((color & 0xFF0000) >> 16)
-                  | (color & 0x00FF00)
+          color = (  (color & 0xFF0000) >> 16)
+                  |  (color & 0x00FF00)
                   | ((color & 0x0000FF) << 16);
                   
           canvas->set_color(color);
@@ -1044,8 +1090,8 @@ void BasicWin32Window::paint_background(Canvas *canvas, int x, int y, bool wallp
         else {
           int color = GetSysColor(COLOR_BTNFACE);
           
-          color = ((color & 0xFF0000) >> 16)
-                  | (color & 0x00FF00)
+          color = (  (color & 0xFF0000) >> 16)
+                  |  (color & 0x00FF00)
                   | ((color & 0x0000FF) << 16);
                   
           canvas->set_color(color);
@@ -1060,8 +1106,8 @@ void BasicWin32Window::paint_background(Canvas *canvas, int x, int y, bool wallp
       if(!IsRectEmpty(&glassfree)) {
         int color = GetSysColor(COLOR_BTNFACE);
         
-        color = ((color & 0xFF0000) >> 16)
-                | (color & 0x00FF00)
+        color = (  (color & 0xFF0000) >> 16)
+                |  (color & 0x00FF00)
                 | ((color & 0x0000FF) << 16);
                 
         canvas->move_to(glassfree.left,  glassfree.top);
@@ -1136,8 +1182,8 @@ void BasicWin32Window::paint_background(Canvas *canvas, int x, int y, bool wallp
         else {
           int buttonradius = 5;
           canvas->move_to(buttons.left + 0.5,   buttons.top);
-          canvas->arc(buttons.left + 0.5  + buttonradius, buttons.bottom - 0.5 - buttonradius, buttonradius, M_PI,   M_PI / 2, true);
-          canvas->arc(buttons.right - 0.5 - buttonradius, buttons.bottom - 0.5 - buttonradius, buttonradius, M_PI / 2, 0,      true);
+          canvas->arc(    buttons.left + 0.5  + buttonradius, buttons.bottom - 0.5 - buttonradius, buttonradius, M_PI,   M_PI / 2, true);
+          canvas->arc(    buttons.right - 0.5 - buttonradius, buttons.bottom - 0.5 - buttonradius, buttonradius, M_PI / 2, 0,      true);
           canvas->line_to(buttons.right - 0.5,  buttons.top);
           canvas->close_path();
         }
@@ -1160,9 +1206,11 @@ void BasicWin32Window::paint_background(Canvas *canvas, int x, int y, bool wallp
       { // make the edges round again
         int frameradius;
         
-        if(style_ex & WS_EX_TOOLWINDOW)
+        if(Win32Themes::check_osversion(6, 2)) // Windows 8 or newer
           frameradius = 1;
-        else
+        else if(style_ex & WS_EX_TOOLWINDOW)
+          frameradius = 1;
+        else 
           frameradius = 6; //GetSystemMetrics(SM_CXFRAME)-2;
           
         canvas->move_to(rect.left,  rect.top);

@@ -627,7 +627,7 @@ int main(int argc, char **argv) {
 //      Section::create_from_object(Evaluate(Parse(
 //        "Section(BoxData("
 //          "{\"\\\" Help Topic:  \\\"\","
-//            "FillBox(InputFieldBox(\"not yet implemented\")),"
+//            "FillBox(InputFieldBox(\"not yet implemented\", String)),"
 //            "ButtonBox("
 //              "\"\\\" Go \\\"\","
 //              "ButtonFrame->\"Palette\")}),"

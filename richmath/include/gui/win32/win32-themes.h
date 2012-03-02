@@ -202,6 +202,7 @@ namespace richmath {
       
       static void init();
       static bool current_theme_is_aero();
+      static bool check_osversion(int min_major, int min_minor);
       
     private:
       static HMODULE dwmapi;
