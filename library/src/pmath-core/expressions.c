@@ -1454,18 +1454,18 @@ struct _writer_hook_data_t {
   struct pmath_write_ex_t *next;
 };
 
-static void hook_pre_write(void *user, pmath_t obj) {
+static void hook_pre_write(void *user, pmath_t obj, pmath_write_options_t options) {
   struct _writer_hook_data_t *hook = user;
   
   if(hook->next->pre_write)
-    hook->next->pre_write(hook->next->user, obj);
+    hook->next->pre_write(hook->next->user, obj, options);
 }
 
-static void hook_post_write(void *user, pmath_t obj) {
+static void hook_post_write(void *user, pmath_t obj, pmath_write_options_t options) {
   struct _writer_hook_data_t *hook = user;
   
   if(hook->next->post_write)
-    hook->next->post_write(hook->next->user, obj);
+    hook->next->post_write(hook->next->user, obj, options);
 }
 
 static void init_hook_info(struct pmath_write_ex_t *info, struct _writer_hook_data_t *user) {

@@ -17,6 +17,7 @@ struct write_short_span_t {
   struct write_short_span_t *next;
   int                        start;
   int                        end;
+  pmath_write_options_t      options;
   pmath_bool_t               is_skeleton;
 };
 
@@ -26,12 +27,13 @@ struct write_short_t {
   struct write_short_span_t *all_spans;
   struct write_short_span_t *current_span;
   
-  pmath_bool_t have_error;
+  pmath_bool_t          have_error;
+  pmath_write_options_t options;
   
   void (*write)(void *user, const uint16_t *data, int len);
   void  *user;
-  void (*pre_write)(void *user, pmath_t obj);
-  void (*post_write)(void *user, pmath_t obj);
+  void (*pre_write)( void *user, pmath_t obj, pmath_write_options_t options);
+  void (*post_write)(void *user, pmath_t obj, pmath_write_options_t options);
 };
 
 
@@ -48,7 +50,7 @@ static void write_short(void *user, const uint16_t *data, int len) {
   }
 }
 
-static void pre_write_short(void *user, pmath_t item) {
+static void pre_write_short(void *user, pmath_t item, pmath_write_options_t options) {
   struct write_short_span_t *span;
   struct write_short_t *ws = user;
   
@@ -66,20 +68,20 @@ static void pre_write_short(void *user, pmath_t item) {
     
     if(ws->current_span->end < 0) {
       ws->current_span->down = span;
-      span->owner = ws->current_span;
-      span->prev  = NULL;
+      span->owner            = ws->current_span;
+      span->prev             = NULL;
     }
     else {
       ws->current_span->next = span;
-      span->owner = ws->current_span->owner;
-      span->prev  = ws->current_span;
+      span->owner            = ws->current_span->owner;
+      span->prev             = ws->current_span;
     }
   }
   else {
     assert(ws->all_spans == NULL);
     ws->all_spans = span;
-    span->owner = NULL;
-    span->prev  = NULL;
+    span->owner   = NULL;
+    span->prev    = NULL;
   }
   
   span->item        = pmath_ref(item);
@@ -87,11 +89,12 @@ static void pre_write_short(void *user, pmath_t item) {
   span->next        = NULL;
   span->start       = pmath_string_length(ws->text);
   span->end         = -1;
+  span->options     = options;
   span->is_skeleton = FALSE;
-  ws->current_span = span;
+  ws->current_span  = span;
 }
 
-static void post_write_short(void *user, pmath_t item) {
+static void post_write_short(void *user, pmath_t item, pmath_write_options_t options) {
   struct write_short_t *ws = user;
   
   if(ws->have_error)
@@ -106,6 +109,8 @@ static void post_write_short(void *user, pmath_t item) {
     
     assert(ws->current_span != NULL);
     assert(pmath_same(item, ws->current_span->item));
+    
+    // options should equal ws->current_span->options
   }
   
   ws->current_span->end = pmath_string_length(ws->text);
@@ -134,7 +139,7 @@ static void visit_spans(
   }
   
   if(ws->pre_write)
-    ws->pre_write(ws->user, span->item);
+    ws->pre_write(ws->user, span->item, span->options);
     
   sub = span->down;
   while(sub) {
@@ -147,8 +152,15 @@ static void visit_spans(
     *pos = span->end;
   }
   
-  if(ws->post_write)
-    ws->post_write(ws->user, span->item);
+  if(ws->post_write){
+    pmath_write_options_t old_options;
+    if(span->owner)
+      old_options = span->owner->options;
+    else
+      old_options = ws->options;
+    
+    ws->post_write(ws->user, span->item, old_options);
+  }
 }
 
 static void free_spans(struct write_short_span_t *span) {
@@ -319,6 +331,7 @@ void _pmath_write_short(struct pmath_write_ex_t *info, pmath_t obj, int length) 
   ws.all_spans    = NULL;
   ws.current_span = NULL;
   ws.have_error   = FALSE;
+  ws.options      = info->options;
   ws.write        = info->write;
   ws.user         = info->user;
   ws.pre_write    = info->pre_write;

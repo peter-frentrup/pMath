@@ -271,14 +271,14 @@ void pmath_write_ex(struct pmath_write_ex_t *info, pmath_t obj) {
   }
   
   if(info->pre_write)
-    info->pre_write(info->user, obj);
+    info->pre_write(info->user, obj, info->options);
     
   if(pmath_is_pointer(obj)) {
     if(PMATH_AS_PTR(obj) == NULL) {
       write_cstr("/\\/", info->write, info->user);
       
       if(info->post_write)
-        info->post_write(info->user, obj);
+        info->post_write(info->user, obj, info->options);
         
       return;
     }
@@ -297,7 +297,7 @@ void pmath_write_ex(struct pmath_write_ex_t *info, pmath_t obj) {
       write_cstr(s, info->write, info->user);
       
       if(info->post_write)
-        info->post_write(info->user, obj);
+        info->post_write(info->user, obj, info->options);
         
       return;
     }
@@ -311,7 +311,7 @@ void pmath_write_ex(struct pmath_write_ex_t *info, pmath_t obj) {
 #endif
     
     if(info->post_write)
-      info->post_write(info->user, obj);
+      info->post_write(info->user, obj, info->options);
       
     return;
   }
@@ -320,7 +320,7 @@ void pmath_write_ex(struct pmath_write_ex_t *info, pmath_t obj) {
     _pmath_write_machine_float(info, obj);
     
     if(info->post_write)
-      info->post_write(info->user, obj);
+      info->post_write(info->user, obj, info->options);
       
     return;
   }
@@ -329,7 +329,7 @@ void pmath_write_ex(struct pmath_write_ex_t *info, pmath_t obj) {
     _pmath_write_machine_int(info, obj);
     
     if(info->post_write)
-      info->post_write(info->user, obj);
+      info->post_write(info->user, obj, info->options);
       
     return;
   }
@@ -338,7 +338,7 @@ void pmath_write_ex(struct pmath_write_ex_t *info, pmath_t obj) {
     _pmath_string_write(info, obj);
     
     if(info->post_write)
-      info->post_write(info->user, obj);
+      info->post_write(info->user, obj, info->options);
       
     return;
   }
@@ -354,7 +354,7 @@ void pmath_write_ex(struct pmath_write_ex_t *info, pmath_t obj) {
   }
   
   if(info->post_write)
-    info->post_write(info->user, obj);
+    info->post_write(info->user, obj, info->options);
 }
 
 /*----------------------------------------------------------------------------*/

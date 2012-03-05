@@ -142,7 +142,7 @@ PMATH_PRIVATE pmath_t builtin_showdefinition(pmath_expr_t expr) {
   obj = EVAL_CODE_ARGS("`1`::usage", "(o)", pmath_ref(sym));
   if(pmath_is_string(obj)) {
     PMATH_RUN_ARGS(
-      "SectionPrint(\"PrintUsage\", HoldForm(LongForm(`1`)))",
+      "SectionPrint(\"PrintUsage\", `1`)",
       "(o)",
       obj);
   }

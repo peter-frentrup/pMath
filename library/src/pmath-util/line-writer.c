@@ -23,17 +23,21 @@ struct write_pos_t {
 #define NEWLINE_INSTRING   0x02
 
 struct linewriter_t {
-  int                  line_length;   // > 2
-  int                  buffer_length; // > line_length!!!, <= 2*line_length
-  uint16_t            *buffer;
-  uint8_t             *newlines; // >= line_length + 1
-  int                  pos;
-  struct write_pos_t  *all_write_pos;
-  struct write_pos_t **next_write_pos;
-  int                  string_depth;
+  int                    line_length;   // > 2
+  int                    buffer_length; // > line_length!!!, <= 2*line_length
+  uint16_t              *buffer;        // size == buffer_length
+  int                   *depths;        // size == buffer_length
+  pmath_write_options_t *char_options;  // size == buffer_length
+  uint8_t               *newlines;      // size >= line_length + 1
+  int                    pos;
+  struct write_pos_t    *all_write_pos;
+  struct write_pos_t   **next_write_pos;
+  int                    string_depth;
+  int                    expr_depth;
+  int                    prev_depth;
   
-  int                  indention_width;
-  pmath_bool_t         escape_string_breaks;
+  int                    indentation_width;
+  pmath_write_options_t  next_options;
   
   void  *user;
   void (*write)(void*, const uint16_t*, int);
@@ -46,7 +50,8 @@ static void fill_newlines(struct linewriter_t *lw) {
   memset(lw->newlines, NEWLINE_NONE, lw->line_length + 1);
   
   oldpos = -1;
-  wp = lw->all_write_pos;
+  wp     = lw->all_write_pos;
+  
   while(wp && wp->pos <= lw->line_length) {
     if(wp->is_start) {
       if(wp->pos == oldpos) // two expressions without operator/space in between
@@ -60,9 +65,10 @@ static void fill_newlines(struct linewriter_t *lw) {
     wp = wp->next;
   }
   
-  oldpos = 0;
+  oldpos       = 0;
   string_depth = lw->string_depth;
-  wp = lw->all_write_pos;
+  wp           = lw->all_write_pos;
+  
   while(wp && wp->pos <= lw->line_length) {
     if(string_depth > 0) {
       while(oldpos < wp->pos)
@@ -86,7 +92,8 @@ static void consume_write_pos(struct linewriter_t *lw, int end) {
   struct write_pos_t *wp;
   
   while(lw->all_write_pos && lw->all_write_pos->pos < end) {
-    wp = lw->all_write_pos;
+  
+    wp                = lw->all_write_pos;
     lw->all_write_pos = wp->next;
     
     if(pmath_is_string(wp->item)) {
@@ -106,24 +113,103 @@ static void consume_write_pos(struct linewriter_t *lw, int end) {
   wp = lw->all_write_pos;
   while(wp) {
     wp->pos -= end;
-    wp = wp->next;
+    wp       = wp->next;
   }
+}
+
+static double calc_penalty(struct linewriter_t *lw, int pos, int max){
+  double error;
+  
+  assert(0   <  pos);
+  assert(pos <= max);
+  assert(0   <  max);
+  
+  error = pos - max;
+  error = 4.0 * error * error / ((double) max * max);
+  error+= 1.0 * lw->depths[pos - 1];
+  
+  return error;
+}
+
+static int get_expr_indention_depth(struct linewriter_t *lw) {
+  int depth;
+  if(lw->pos > 0)
+    depth = lw->depths[0];
+  else
+    depth = lw->prev_depth;
+  
+  if(depth > lw->line_length / 2)
+    depth  = lw->line_length / 2;
+  
+  return depth;
+}
+
+static int find_best_linebreak(
+  struct linewriter_t *lw, 
+  pmath_bool_t        *is_inside_string
+) {
+  int depth = get_expr_indention_depth(lw);
+  int last  = lw->line_length - 1 - depth;
+  int nl;
+  
+  fill_newlines(lw);
+  nl = last;
+  while(nl > 0 && !(lw->newlines[nl] & NEWLINE_OK))
+    --nl;
+  
+  if(nl == 0) {
+    *is_inside_string = TRUE;
+    
+    nl = last - 1;
+    while(nl > 0 && lw->buffer[nl] > ' ')
+      --nl;
+      
+    if(nl == 0)
+      nl = last - 1;
+    else
+      ++nl;
+  }
+  else {
+    double error = calc_penalty(lw, nl, last);
+    int new_nl = nl - 1;
+    
+    while(new_nl > 0){
+      if(lw->newlines[new_nl] & NEWLINE_OK){
+        double new_error = calc_penalty(lw, new_nl, last);
+        if(new_error < error)
+          nl = new_nl;
+      }
+      
+      --new_nl;
+    }
+    
+    *is_inside_string = (lw->newlines[nl - 1] & NEWLINE_INSTRING) != 0;
+  }
+  
+  return nl;
 }
 
 static void flush_line(struct linewriter_t *lw) {
   int i, nl;
-  pmath_bool_t in_string;
+  pmath_bool_t is_inside_string;
+  pmath_bool_t escape_string;
+  int depth = get_expr_indention_depth(lw);
   
-  if(lw->pos <= lw->line_length) {
+  if(lw->pos <= lw->line_length - depth) {
     for(i = 0; i < lw->pos; ++i) {
       if(lw->buffer[i] == '\n') {
         ++i;
         consume_write_pos(lw, i);
+        lw->prev_depth = lw->depths[i];
+        
         lw->write(lw->user, lw->buffer, i);
-        memmove(lw->buffer, lw->buffer + i, sizeof(uint16_t) * (lw->buffer_length - i));
+        memmove(lw->buffer,       lw->buffer       + i, sizeof(lw->buffer[      0]) * (lw->buffer_length - i));
+        memmove(lw->depths,       lw->depths       + i, sizeof(lw->depths[      0]) * (lw->buffer_length - i));
+        memmove(lw->char_options, lw->char_options + i, sizeof(lw->char_options[0]) * (lw->buffer_length - i));
         lw->pos -= i;
         
-        i = lw->indention_width;
+        depth = get_expr_indention_depth(lw);
+        i     = lw->indentation_width + depth;
         while(i-- > 0)
           write_cstr(" ", lw->write, lw->user);
         return;
@@ -136,43 +222,29 @@ static void flush_line(struct linewriter_t *lw) {
     return;
   }
   
-  for(i = 0; i < lw->line_length; ++i) {
+  for(i = 0; i < lw->line_length - depth; ++i) {
     if(lw->buffer[i] == '\n') {
       ++i;
       consume_write_pos(lw, i);
       lw->write(lw->user, lw->buffer, i);
-      memmove(lw->buffer, lw->buffer + i, sizeof(uint16_t) * (lw->buffer_length - i));
+      memmove(lw->buffer,       lw->buffer       + i, sizeof(lw->buffer[      0]) * (lw->buffer_length - i));
+      memmove(lw->depths,       lw->depths       + i, sizeof(lw->depths[      0]) * (lw->buffer_length - i));
+      memmove(lw->char_options, lw->char_options + i, sizeof(lw->char_options[0]) * (lw->buffer_length - i));
       lw->pos -= i;
       
-      i = lw->indention_width;
+      depth = get_expr_indention_depth(lw);
+      i     = lw->indentation_width + depth;
       while(i-- > 0)
         write_cstr(" ", lw->write, lw->user);
       return;
     }
   }
   
-  fill_newlines(lw);
-  nl = lw->line_length - 1;
-  while(nl > 0 && !(lw->newlines[nl] & NEWLINE_OK))
-    --nl;
-    
-  if(nl == 0) {
-    in_string = TRUE;
-    
-    nl = lw->line_length - 2;
-    while(nl > 0 && lw->buffer[nl] > ' ')
-      --nl;
-      
-    if(nl == 0)
-      nl = lw->line_length - 2;
-    else
-      ++nl;
-  }
-  else {
-    in_string = (lw->newlines[nl - 1] & NEWLINE_INSTRING) != 0;
-  }
+  nl            = find_best_linebreak(lw, &is_inside_string);
+  escape_string = (lw->char_options[nl - 1] & PMATH_WRITE_OPTIONS_FULLSTR) != 0;
   
-  if(in_string && lw->escape_string_breaks) {
+  if(is_inside_string && escape_string) {
+  
     if(nl > lw->line_length - 2)
       nl = lw->line_length - 2;
       
@@ -188,35 +260,57 @@ static void flush_line(struct linewriter_t *lw) {
   
   consume_write_pos(lw, nl);
   lw->write(lw->user, lw->buffer, nl);
-  memmove(lw->buffer, lw->buffer + nl, sizeof(uint16_t) * (lw->buffer_length - nl));
+  memmove(lw->buffer,       lw->buffer       + nl, sizeof(lw->buffer[      0]) * (lw->buffer_length - nl));
+  memmove(lw->depths,       lw->depths       + nl, sizeof(lw->depths[      0]) * (lw->buffer_length - nl));
+  memmove(lw->char_options, lw->char_options + nl, sizeof(lw->char_options[0]) * (lw->buffer_length - nl));
   lw->pos -= nl;
   
-  if(in_string && lw->escape_string_breaks)
+  if(is_inside_string && escape_string)
     write_cstr("\\\n", lw->write, lw->user);
   else
     write_cstr("\n", lw->write, lw->user);
     
-  i = lw->indention_width;
+  depth = get_expr_indention_depth(lw);
+  i     = lw->indentation_width + depth;
   while(i-- > 0)
     write_cstr(" ", lw->write, lw->user);
 }
 
 static void line_write(void *user, const uint16_t *data, int len) {
   struct linewriter_t *lw = user;
+  int i;
   
   assert(lw->line_length > 2);
   
   while(len > 0) {
     if(lw->pos + len <= lw->buffer_length) {
-      memcpy(lw->buffer + lw->pos, data, len * sizeof(uint16_t));
+      memcpy(lw->buffer + lw->pos, data, len * sizeof(lw->buffer[0]));
+      
+      lw->depths[lw->pos] = lw->prev_depth;
+      lw->prev_depth      = lw->expr_depth;
+      for(i = 1;i < len;++i)
+        lw->depths[lw->pos + i] = lw->expr_depth;
+      
+      for(i = 0;i < len;++i)
+        lw->char_options[lw->pos + i] = lw->next_options;
+      
       lw->pos += len;
       return;
     }
     
     if(lw->pos < lw->buffer_length) {
       int copylen = lw->buffer_length - lw->pos;
-      memcpy(lw->buffer + lw->pos, data, copylen * sizeof(uint16_t));
-      len -=  copylen;
+      memcpy(lw->buffer + lw->pos, data, copylen * sizeof(lw->buffer[0]));
+      
+      lw->depths[lw->pos] = lw->prev_depth;
+      lw->prev_depth      = lw->expr_depth;
+      for(i = 1;i < copylen;++i)
+        lw->depths[lw->pos + i] = lw->expr_depth;
+        
+      for(i = 0;i < copylen;++i)
+        lw->char_options[lw->pos + i] = lw->next_options;
+      
+      len  -= copylen;
       data += copylen;
       lw->pos = lw->buffer_length;
     }
@@ -225,31 +319,44 @@ static void line_write(void *user, const uint16_t *data, int len) {
   }
 }
 
-static void pre_write(void *user, pmath_t item) {
+static void pre_write(void *user, pmath_t item, pmath_write_options_t options) {
   struct linewriter_t *lw = user;
-  struct write_pos_t *wp = pmath_mem_alloc(sizeof(struct write_pos_t));
+  struct write_pos_t  *wp = pmath_mem_alloc(sizeof(struct write_pos_t));
+  
+  if(!pmath_is_string(item))
+    lw->expr_depth++;
+  
+  lw->next_options = options;
   
   if(wp) {
-    wp->item     = pmath_ref(item);
-    wp->next     = NULL;
-    wp->pos      = lw->pos;
-    wp->is_start = TRUE;
+    wp->item            = pmath_ref(item);
+    wp->next            = NULL;
+    wp->pos             = lw->pos;
+    wp->is_start        = TRUE;
     *lw->next_write_pos = wp;
-    lw->next_write_pos = &wp->next;
+    lw->next_write_pos  = &wp->next;
   }
 }
 
-static void post_write(void *user, pmath_t item) {
+static void post_write(void *user, pmath_t item, pmath_write_options_t options) {
   struct linewriter_t *lw = user;
-  struct write_pos_t *wp = pmath_mem_alloc(sizeof(struct write_pos_t));
+  struct write_pos_t  *wp = pmath_mem_alloc(sizeof(struct write_pos_t));
+  
+  if(!pmath_is_string(item))
+    lw->expr_depth--;
+  
+  if(lw->prev_depth > lw->expr_depth)
+    lw->prev_depth = lw->expr_depth;
+  
+  lw->next_options = options;
   
   if(wp) {
-    wp->item     = pmath_ref(item);
-    wp->next     = NULL;
-    wp->pos      = lw->pos;
-    wp->is_start = FALSE;
+    wp->item            = pmath_ref(item);
+    wp->next            = NULL;
+    wp->pos             = lw->pos;
+    wp->is_start        = FALSE;
     *lw->next_write_pos = wp;
-    lw->next_write_pos = &wp->next;
+    lw->next_write_pos  = &wp->next;
   }
 }
 
@@ -260,7 +367,7 @@ void pmath_write_with_pagewidth(
   void                  (*write)(void *user, const uint16_t *data, int len),
   void                   *user,
   int                     page_width,
-  int                     indention_width
+  int                     indentation_width
 ) {
   struct linewriter_t lw;
   struct pmath_write_ex_t info;
@@ -283,17 +390,22 @@ void pmath_write_with_pagewidth(
     return;
   }
   
-  //page_width-= indention_width;
+  //page_width-= indentation_width;
   
   if(page_width < 6)
     page_width = 6;
     
   lw.line_length   = page_width;
   lw.buffer_length = 2 * page_width;
-  lw.buffer   = pmath_mem_alloc(sizeof(uint16_t) * lw.buffer_length);
-  lw.newlines = pmath_mem_alloc(lw.line_length + 1);
-  if(!lw.buffer || !lw.newlines) {
+  lw.buffer        = pmath_mem_alloc(sizeof(lw.buffer[0])       *  lw.buffer_length);
+  lw.depths        = pmath_mem_alloc(sizeof(lw.depths[0])       *  lw.buffer_length);
+  lw.char_options  = pmath_mem_alloc(sizeof(lw.char_options[0]) *  lw.buffer_length);
+  lw.newlines      = pmath_mem_alloc(sizeof(lw.newlines[0])     * (lw.line_length + 1));
+  
+  if(!lw.buffer || !lw.depths || !lw.newlines) {
     pmath_mem_free(lw.buffer);
+    pmath_mem_free(lw.depths);
+    pmath_mem_free(lw.char_options);
     pmath_mem_free(lw.newlines);
     pmath_write(obj, options, write, user);
     return;
@@ -303,8 +415,10 @@ void pmath_write_with_pagewidth(
   lw.all_write_pos        = NULL;
   lw.next_write_pos       = &lw.all_write_pos;
   lw.string_depth         = 0;
-  lw.indention_width      = indention_width;
-  lw.escape_string_breaks = (options & PMATH_WRITE_OPTIONS_FULLSTR) != 0;
+  lw.expr_depth           = 0;
+  lw.prev_depth           = 0;
+  lw.indentation_width    = indentation_width;
+  lw.next_options         = 0;
   lw.write                = write;
   lw.user                 = user;
   
@@ -330,5 +444,7 @@ void pmath_write_with_pagewidth(
   }
   
   pmath_mem_free(lw.buffer);
+  pmath_mem_free(lw.depths);
+  pmath_mem_free(lw.char_options);
   pmath_mem_free(lw.newlines);
 }

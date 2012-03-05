@@ -295,8 +295,8 @@ struct pmath_write_ex_t {
   void                  (*write)(void *user, const uint16_t *data, int len); ///< mandatory, write callback
   void                   *user;                                              ///< first parameter of the callbacks
   
-  void (*pre_write)(void *user, pmath_t obj);   ///< optional, called before the pmath_t is written
-  void (*post_write)(void *user, pmath_t obj);  ///< optional, called after the pmath_t is written
+  void (*pre_write)( void *user, pmath_t obj, pmath_write_options_t options);  ///< optional, called before the pmath_t is written
+  void (*post_write)(void *user, pmath_t obj, pmath_write_options_t options);  ///< optional, called after the pmath_t is written
 };
 
 /*============================================================================*/

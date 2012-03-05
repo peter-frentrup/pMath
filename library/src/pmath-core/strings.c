@@ -428,16 +428,16 @@ static void write_and_skip_string_chars(void *user, const uint16_t *data, int le
     old_info->write(old_info->user, data, len);
 }
 
-static void call_old_pre_write(void *user, pmath_t obj) {
+static void call_old_pre_write(void *user, pmath_t obj, pmath_write_options_t options) {
   struct pmath_write_ex_t *old_info = user;
   
-  old_info->pre_write(old_info->user, obj);
+  old_info->pre_write(old_info->user, obj, options);
 }
 
-static void call_old_post_write(void *user, pmath_t obj) {
+static void call_old_post_write(void *user, pmath_t obj, pmath_write_options_t options) {
   struct pmath_write_ex_t *old_info = user;
   
-  old_info->post_write(old_info->user, obj);
+  old_info->post_write(old_info->user, obj, options);
 }
 
 PMATH_PRIVATE
