@@ -2,9 +2,11 @@
 	Button("italic", DocumentApply(SelectedDocument(), StyleBox("\[SelectionPlaceholder]", "TI"))),
 	Button("Arg Style", DocumentApply(SelectedDocument(), StyleBox("\[SelectionPlaceholder]", "Arg")))})
 
+- add ArrayPad(), ArrayFlatten()
+
 - pmath-java: add pmath.Core.cleanup() to call pmath_done() on the current Java thread
 
-- add ToAbsoluteFileName(), AppendTo(), PrependTo()
+- add ToAbsoluteFileName(), AppendTo(), PrependTo() [find better name for the last two!]
 
 - add Differences, Accumulate, ListConvolve
 
@@ -83,7 +85,7 @@
 
 - eval Complex(0, x)^q with rational q
 
-- add KroneckerProduct(), ArrayFlatten(),
+- add KroneckerProduct(),
 	Inverse(), PseudoInverse(), RowReduce(), MatrixRank(), Normalize(), 
 	Projection(), Orthogonalize(), ConjugateTranspose(),
 	IdentityMatrix(), ChracteristicPolynomial(), Eigenvalues(), Eigenvectors()

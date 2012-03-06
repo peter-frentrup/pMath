@@ -1,9 +1,9 @@
 #if defined( RICHMATH_USE_WIN32_FONT ) + defined( RICHMATH_USE_FT_FONT ) != 1
-#error either RICHMATH_USE_WIN32_FONT or RICHMATH_USE_FT_FONT must be defined
+#  error either RICHMATH_USE_WIN32_FONT or RICHMATH_USE_FT_FONT must be defined
 #endif
 
 #if defined( RICHMATH_USE_WIN32_GUI ) + defined( RICHMATH_USE_GTK_GUI ) != 1
-#error RICHMATH_USE_WIN32_GUI or RICHMATH_USE_GTK_GUI must be defined
+#  error either RICHMATH_USE_WIN32_GUI or RICHMATH_USE_GTK_GUI must be defined
 #endif
 
 
@@ -23,16 +23,16 @@
 #include <gui/control-painter.h>
 
 #ifdef RICHMATH_USE_WIN32_GUI
-#include <gui/win32/win32-clipboard.h>
-#include <gui/win32/win32-document-window.h>
-#include <gui/win32/win32-menu.h>
+#  include <gui/win32/win32-clipboard.h>
+#  include <gui/win32/win32-document-window.h>
+#  include <gui/win32/win32-menu.h>
 #endif
 
 #ifdef RICHMATH_USE_GTK_GUI
-#include <gui/gtk/mgtk-clipboard.h>
-#include <gui/gtk/mgtk-document-window.h>
-#include <gui/gtk/mgtk-menu-builder.h>
-#include <gui/gtk/mgtk-tooltip-window.h>
+#  include <gui/gtk/mgtk-clipboard.h>
+#  include <gui/gtk/mgtk-document-window.h>
+#  include <gui/gtk/mgtk-menu-builder.h>
+#  include <gui/gtk/mgtk-tooltip-window.h>
 #endif
 
 #include <gui/document.h>
@@ -44,18 +44,18 @@
 #include <pango/pangocairo.h>
 
 #ifdef RICHMATH_USE_WIN32_GUI
-#include <pango/pangowin32.h>
-#include <windows.h>
+#  include <pango/pangowin32.h>
+#  include <windows.h>
 #endif
 
 #ifdef RICHMATH_USE_GTK_GUI
-#include <gtk/gtk.h>
+#  include <gtk/gtk.h>
 #endif
 
 
 
 #ifdef _MSC_VER
-#define snprintf sprintf_s
+#  define snprintf sprintf_s
 #endif
 
 

@@ -1,6 +1,7 @@
 #include <pmath-core/expressions-private.h>
 #include <pmath-core/numbers.h>
 
+#include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/memory.h>
 #include <pmath-util/messages.h>
@@ -45,8 +46,7 @@ pmath_t _pmath_tensor_set(
     return obj;
   }
   
-  ti = pmath_expr_get_item(tensor, idx[0]);
-  tensor = pmath_expr_set_item(tensor, idx[0], PMATH_NULL);
+  ti = pmath_expr_extract_item(tensor, idx[0]);
   
   return pmath_expr_set_item(
            tensor, idx[0],
@@ -252,7 +252,9 @@ static pmath_t inner(struct _inner_info_t *info, pmath_t t1, pmath_t t2) {
         sum = pmath_expr_set_item(sum, k, obj);
       }
       
+      sum    = pmath_evaluate(sum);
       result = _pmath_tensor_set(result, info->dims, info->idx, sum);
+      
     } while(prev(info->dims, info->idx, info->lens));
   }
   

@@ -11,17 +11,33 @@
 
 
 struct make_rect_t {
-  int           depth;
+  pmath_t       head;
   size_t       *lengths;
+  int           depth;
   pmath_bool_t  padleft;
 };
 
-static int estimate_rect_depth(pmath_t array, pmath_bool_t *maybe_bigger) {
+static pmath_bool_t is_expr_of_general(pmath_t obj, pmath_t head) {
+  if(pmath_is_expr(obj)) {
+    pmath_t h = pmath_expr_get_item(obj, 0);
+    
+    if(pmath_equals(h, head)){
+      pmath_unref(h);
+      return TRUE;
+    }
+    
+    pmath_unref(h);
+  }
+  
+  return FALSE;
+}
+
+static int estimate_rect_depth(pmath_t head, pmath_t array, pmath_bool_t *maybe_bigger) {
   size_t i;
   int depth = 0;
   
   *maybe_bigger = FALSE;
-  if(!pmath_is_expr_of(array, PMATH_SYMBOL_LIST))
+  if(!is_expr_of_general(array, head))
     return 0;
     
   if(pmath_expr_length(array) == 0) {
@@ -31,7 +47,7 @@ static int estimate_rect_depth(pmath_t array, pmath_bool_t *maybe_bigger) {
   
   for(i = pmath_expr_length(array); i > 0; --i) {
     pmath_t obj = pmath_expr_get_item(array, i);
-    int depth2 = estimate_rect_depth(obj, maybe_bigger);
+    int depth2 = estimate_rect_depth(head, obj, maybe_bigger);
     pmath_unref(obj);
     
     if(!*maybe_bigger)
@@ -50,7 +66,7 @@ static void init_rect_length(struct make_rect_t *info, pmath_t array, int level)
   if(level >= info->depth)
     return;
     
-  if(!pmath_is_expr_of(array, PMATH_SYMBOL_LIST)) {
+  if(!is_expr_of_general(array, info->head)) {
     info->depth = level;
     return;
   }
@@ -71,7 +87,7 @@ static pmath_bool_t init_make_rect(struct make_rect_t *info, pmath_t array) {
   
   assert(info != NULL);
   
-  info->depth = estimate_rect_depth(array, &maybe_bigger);
+  info->depth = estimate_rect_depth(info->head, array, &maybe_bigger);
   info->lengths = pmath_mem_alloc(sizeof(intptr_t) * info->depth);
   if(info->depth && !info->lengths)
     return FALSE;
@@ -111,7 +127,7 @@ static pmath_t simple_fill_rect(const struct make_rect_t *info, pmath_t array, i
       }
     }
     else {
-      pmath_t item = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), 0);
+      pmath_t item = pmath_expr_new(pmath_ref(info->head), 0);
       item = simple_fill_rect(info, item, level + 1);
       
       for(i = delta; i > 0; --i) {
@@ -138,7 +154,7 @@ static pmath_t simple_fill_rect(const struct make_rect_t *info, pmath_t array, i
       }
     }
     else {
-      pmath_t item = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), 0);
+      pmath_t item = pmath_expr_new(pmath_ref(info->head), 0);
       item = simple_fill_rect(info, item, level + 1);
       
       for(i = delta; i > 0; --i) {
@@ -172,8 +188,9 @@ struct make_rect_ex_t {
 };
 
 static pmath_t next_pad(pmath_t pad, intptr_t i) {
-  if(pmath_is_expr_of(pad, PMATH_SYMBOL_LIST)
-      && pmath_expr_length(pad) > 0) {
+  if(pmath_is_expr_of(pad, PMATH_SYMBOL_LIST) &&
+      pmath_expr_length(pad) > 0)
+  {
     intptr_t len = (intptr_t)pmath_expr_length(pad);
     
     i = i % len;
@@ -196,7 +213,7 @@ static pmath_t advanced_make_rect(const struct make_rect_ex_t *info, pmath_t arr
     return array;
   }
   
-  if(!pmath_is_expr_of(array, PMATH_SYMBOL_LIST)) {
+  if(!is_expr_of_general(array, info->inherited.head)) {
     pmath_unref(array);
     // message ...
     return pad;
@@ -227,15 +244,15 @@ static pmath_t advanced_make_rect(const struct make_rect_ex_t *info, pmath_t arr
   if(delta < 0) {
     for(i = left; i <= right; ++i) {
       pmath_t item = pmath_expr_extract_item(array, i);
-      item = advanced_make_rect(info, item, level + 1, next_pad(pad, i - base));
-      array = pmath_expr_set_item(array, i + delta, item);
+      item         = advanced_make_rect(info, item, level + 1, next_pad(pad, i - base));
+      array        = pmath_expr_set_item(array, i + delta, item);
     }
   }
   else {
     for(i = right; i >= left; --i) {
       pmath_t item = pmath_expr_extract_item(array, i);
-      item = advanced_make_rect(info, item, level + 1, next_pad(pad, i - base));
-      array = pmath_expr_set_item(array, i + delta, item);
+      item         = advanced_make_rect(info, item, level + 1, next_pad(pad, i - base));
+      array        = pmath_expr_set_item(array, i + delta, item);
     }
   }
   
@@ -255,14 +272,14 @@ static pmath_t advanced_make_rect(const struct make_rect_ex_t *info, pmath_t arr
   else {
     for(i = 1 - delta; i < left; ++i) {
       pmath_t item = pmath_ref(_pmath_object_emptylist);
-      item = advanced_make_rect(info, item, level + 1, next_pad(pad, i - base));
-      array = pmath_expr_set_item(array, i + delta, item);
+      item         = advanced_make_rect(info, item, level + 1, next_pad(pad, i - base));
+      array        = pmath_expr_set_item(array, i + delta, item);
     }
     
     for(i = right + 1; i <= len - delta; ++i) {
       pmath_t item = pmath_ref(_pmath_object_emptylist);
-      item = advanced_make_rect(info, item, level + 1, next_pad(pad, i - base));
-      array = pmath_expr_set_item(array, i + delta, item);
+      item         = advanced_make_rect(info, item, level + 1, next_pad(pad, i - base));
+      array        = pmath_expr_set_item(array, i + delta, item);
     }
   }
   
@@ -293,13 +310,13 @@ PMATH_PRIVATE pmath_t builtin_padleft_and_padright(pmath_expr_t expr) {
   }
   
   list = pmath_expr_get_item(expr, 1);
-  if(!pmath_is_expr_of(list, PMATH_SYMBOL_LIST)) {
-    if(!pmath_is_expr(list))
-      pmath_message(PMATH_NULL, "nexprat", 2, PMATH_FROM_INT32(1), pmath_ref(expr));
+  if(!pmath_is_expr(list)) {
+    pmath_message(PMATH_NULL, "nexprat", 2, PMATH_FROM_INT32(1), pmath_ref(expr));
     pmath_unref(list);
     return expr;
   }
   
+  info.inherited.head    = pmath_expr_get_item(list, 0);
   info.inherited.padleft = pmath_is_expr_of(expr, PMATH_SYMBOL_PADLEFT);
   if(exprlen == 1) {
     pmath_unref(expr);
@@ -359,7 +376,7 @@ PMATH_PRIVATE pmath_t builtin_padleft_and_padright(pmath_expr_t expr) {
       goto FINISH;
     }
     
-    info.inherited.lengths[i-1] = pmath_integer_get_siptr(n);
+    info.inherited.lengths[i - 1] = pmath_integer_get_siptr(n);
     pmath_unref(n);
   }
   
@@ -372,7 +389,7 @@ PMATH_PRIVATE pmath_t builtin_padleft_and_padright(pmath_expr_t expr) {
       goto FINISH;
     }
     
-    info.margins[i-1] = pmath_integer_get_siptr(m);
+    info.margins[i - 1] = pmath_integer_get_siptr(m);
     pmath_unref(m);
   }
   
@@ -382,6 +399,7 @@ PMATH_PRIVATE pmath_t builtin_padleft_and_padright(pmath_expr_t expr) {
   padding = PMATH_NULL;
   
 FINISH:
+  pmath_unref(info.inherited.head);
   pmath_mem_free(info.inherited.lengths);
   pmath_mem_free(info.margins);
   pmath_unref(list);
