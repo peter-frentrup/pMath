@@ -640,14 +640,17 @@ PMATH_API pmath_bool_t pmath_init(void) {
         PMATH_RUN_ARGS("$TimeZone:=`1`", "(f)", (glob - loc) / (60 * 60.0));
       }
       
+      PMATH_RUN("IsNumeric(Degree):=True");
       PMATH_RUN("IsNumeric(E):=True");
       PMATH_RUN("IsNumeric(EulerGamma):=True");
-      PMATH_RUN("IsNumeric(Degree):=True");
+      PMATH_RUN("IsNumeric(GoldenRatio):=True");
       PMATH_RUN("IsNumeric(MachinePrecision):=True");
       PMATH_RUN("IsNumeric(Pi):=True");
       
       PMATH_RUN("N(Degree,~System`Private`x)::=N(Pi/180, System`Private`x)");
       PMATH_RUN("MakeBoxes(Degree)::=\"\\[Degree]\"");
+      
+      PMATH_RUN("N(GoldenRatio,~System`Private`x)::=N((Sqrt(5)+1)/2, System`Private`x)");
       
       PMATH_RUN("Default(Ceiling,2):=1");
       PMATH_RUN("Default(Floor,2):=1");

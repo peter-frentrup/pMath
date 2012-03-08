@@ -1,37 +1,48 @@
 
 BeginPackage("System`Graphics`")
 
+System`Graphics`ComposeHeldExpr
 System`Graphics`MakeGraphicsBoxes
+System`Graphics`MakeGraphicsBoxesOptions
 System`Graphics`MakeGraphicsExpression
+System`Graphics`MakeGraphicsExpressionOptions
 
 Begin("System`Graphics`Private`")
+
+
+ComposeHeldExpr(~sym, HoldComplete(~~~a))::= 
+	HoldComplete(sym(a))
+
+ComposeHeldExpr(~sym, HoldComplete(~~~a), HoldComplete(~~~b), ~~~c:HoldComplete)::=
+	ComposeHeldExpr(sym, HoldComplete(a,b), c)
+
+ComposeHeldExpr(~~~):= $Failed
 
 
 Unprotect(Graphics)
 Attributes(Graphics):= {ReadProtected}
 MakeBoxes(Graphics(~elements, ~~~options))::= 
-	With({elem:= MakeGraphicsBoxes(elements)},
-		GraphicsBox(tmp(elem), options).Replace({
-			HoldPattern(tmp(HoldComplete(~x))) :> x, 
-			HoldPattern(~:tmp)                 :> $Failed}))
+	ReleaseHold @ ComposeHeldExpr(GraphicsBox, MakeGraphicsBoxes(elements), MakeGraphicsBoxesOptions(options))
 Protect(Graphics)
 
 
 Unprotect(GraphicsBox)
 Attributes(GraphicsBox):= {ReadProtected, HoldAll}
 GraphicsBox/: MakeExpression(GraphicsBox(~elements, ~~~options))::=
-	With({elem:= MakeGraphicsExpression(elements)},
-		HoldComplete(Graphics(tmp(elem), options)).Replace({
-			HoldPattern(tmp(HoldComplete(~x))) :> x, 
-			HoldPattern(~:tmp)                 :> $Failed}))
+	ComposeHeldExpr(Graphics, MakeGraphicsExpression(elements), MakeGraphicsExpressionOptions(options))
 Protect(GraphicsBox)
 
 
-Attributes(MakeGraphicsBoxes):=      {HoldAllComplete, Protected}
-Attributes(MakeGraphicsExpression):= {HoldAllComplete, Protected}
+Attributes(MakeGraphicsBoxes):=             {HoldAllComplete, Protected}
+Attributes(MakeGraphicsBoxesOptions):=      {HoldAllComplete, Protected}
+Attributes(MakeGraphicsExpression):=        {HoldAllComplete, Protected}
+Attributes(MakeGraphicsExpressionOptions):= {HoldAllComplete, Protected}
 
-AutoLoad(Hold(MakeGraphicsBoxes),      ToFileName(DirectoryName($Input), "makegraphicsboxes.pmath"))
-AutoLoad(Hold(MakeGraphicsExpression), ToFileName(DirectoryName($Input), "makegraphicsexpression.pmath"))
+AutoLoad(Hold(MakeGraphicsBoxes, MakeGraphicsBoxesOptions), 
+	ToFileName(DirectoryName($Input), "makegraphicsboxes.pmath"))
+
+AutoLoad(Hold(MakeGraphicsExpression, MakeGraphicsExpressionOptions),
+	ToFileName(DirectoryName($Input), "makegraphicsexpression.pmath"))
 
 
 End()

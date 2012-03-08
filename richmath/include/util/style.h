@@ -56,6 +56,7 @@ namespace richmath {
     GridBoxColumnSpacing,
     GridBoxRowSpacing,
     
+    ImageSizeCommon,
     ImageSizeHorizontal, // > 0 or ImageSizeAutomatic or ImageSizeAll
     ImageSizeVertical,   // > 0 or ImageSizeAutomatic
     
@@ -179,7 +180,7 @@ namespace richmath {
       
       void set_dynamic(int n, Expr value) {
         remove((ObjectStyleOptionName)(n + DynamicOffset));
-        set((ObjectStyleOptionName)(n + DynamicOffset), value);
+        set(   (ObjectStyleOptionName)(n + DynamicOffset), value);
         
         set(InternalHavePendingDynamic, true);
       }

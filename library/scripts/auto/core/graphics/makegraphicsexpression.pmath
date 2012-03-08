@@ -1,7 +1,8 @@
 
 BeginPackage("System`Graphics`")
 
-MakeGraphicsBoxes
+MakeGraphicsExpression
+MakeGraphicsExpressionOptions
 
 Begin("System`Graphics`Private`")
 
@@ -13,6 +14,16 @@ MakeGraphicsExpression(LineBox(~~~args)) ::= HoldComplete(Line(args))
 MakeGraphicsExpression(~c: RGBColor)     ::= HoldComplete(c);
 MakeGraphicsExpression(~c: Hue)          ::= HoldComplete(c);
 MakeGraphicsExpression(~c: GrayLevel)    ::= HoldComplete(c);
+
+
+Attributes(makeHeldGraphicsOption):= {HoldAllComplete}
+makeHeldGraphicsOption(~r)::= HoldComplete(r)
+makeHeldGraphicsOption((h: Rule|RuleDelayed)(~lhs, NCache(~v,~)))::=
+	HoldComplete(h(lhs, v))
+
+
+MakeGraphicsExpressionOptions({~~~opts})::= ComposeHeldExpr(List, MakeGraphicsExpressionOptions(opts))
+MakeGraphicsExpressionOptions(~~~opts)::= Join @@ HoldComplete(opts).Map(makeHeldGraphicsOption)
 
 
 End()

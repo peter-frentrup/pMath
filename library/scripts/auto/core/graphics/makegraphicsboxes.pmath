@@ -2,6 +2,7 @@
 BeginPackage("System`Graphics`")
 
 MakeGraphicsBoxes
+MakeGraphicsBoxesOptions
 
 Begin("System`Graphics`Private`")
 
@@ -13,6 +14,33 @@ MakeGraphicsBoxes(Line(~~~args)) ::= HoldComplete(LineBox(args))
 MakeGraphicsBoxes(~c: RGBColor)  ::= HoldComplete(c);
 MakeGraphicsBoxes(~c: Hue)       ::= HoldComplete(c);
 MakeGraphicsBoxes(~c: GrayLevel) ::= HoldComplete(c);
+
+
+Attributes(isNumericCachableOption):= {HoldAllComplete}
+isNumericCachableOption(~):= False
+isNumericCachableOption(AspectRatio):= True
+isNumericCachableOption(ImageSize):= True
+isNumericCachableOption(PlotRange):= True
+
+
+Attributes(isHeldNumericList):= {HoldAllComplete}
+isHeldNumericList(~val)::= IsNumeric @ Unevaluated(val)
+isHeldNumericList(~val:List) ::= And @@ val.Unevaluated.Map(isHeldNumericList)
+isHeldNumericList(~val:Range)::= And @@ val.Unevaluated.Map(isHeldNumericList)
+
+
+Attributes(makeHeldGraphicsBoxOption):= {HoldAllComplete}
+makeHeldGraphicsBoxOption(~r)::= HoldComplete(r)
+makeHeldGraphicsBoxOption((h: Rule|RuleDelayed)(~lhs ? isNumericCachableOption, ~rhs ? isHeldNumericList))::=
+	With({num:= N(rhs)},
+		If(HoldComplete(num) === HoldComplete(rhs),
+			Return(HoldComplete(h(lhs, rhs))));
+		Return(HoldComplete(h(lhs, NCache(rhs, num))))
+		)
+
+
+MakeGraphicsBoxesOptions({~~~opts})::= ComposeHeldExpr(List, MakeGraphicsBoxesOptions(opts))
+MakeGraphicsBoxesOptions(~~~opts)::= Join @@ HoldComplete(opts).Map(makeHeldGraphicsBoxOption)
 
 
 End()

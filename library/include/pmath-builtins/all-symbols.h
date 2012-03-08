@@ -805,5 +805,7 @@ pmath_bool_t pmath_register_approx_code(
 #define PMATH_SYMBOL_ASPECTRATIO                            PMATH_SYMBOL_BUILTIN(713)
 #define PMATH_SYMBOL_WINDOWTITLE                            PMATH_SYMBOL_BUILTIN(714)
 #define PMATH_SYMBOL_GRAPHICS                               PMATH_SYMBOL_BUILTIN(715)
+#define PMATH_SYMBOL_NCACHE                                 PMATH_SYMBOL_BUILTIN(716)
+#define PMATH_SYMBOL_GOLDENRATIO                            PMATH_SYMBOL_BUILTIN(717)
 
 #endif /* __PMATH_BUILTINS__SYMBOLS_H__ */

@@ -38,10 +38,10 @@ enum SyntaxPosition {
 
 
 static enum SyntaxPosition find_syntax_position(Box *box, int index) {
-  if(!box || dynamic_cast<Section*>(box))
+  if(!box || dynamic_cast<Section *>(box))
     return Alone;
     
-  if(MathSequence *seq = dynamic_cast<MathSequence*>(box)) {
+  if(MathSequence *seq = dynamic_cast<MathSequence *>(box)) {
     SpanExpr *expr = new SpanExpr(index, 0, seq);
     
     expr = expr->expand();
@@ -74,7 +74,7 @@ static enum SyntaxPosition find_syntax_position(Box *box, int index) {
     return pos;
   }
   
-  if(dynamic_cast<GridBox*>(box) || dynamic_cast<OwnerBox*>(box)) {
+  if(dynamic_cast<GridBox *>(box) || dynamic_cast<OwnerBox *>(box)) {
     enum SyntaxPosition pos = find_syntax_position(box->parent(), box->index());
     
     if(pos < InsideList)
@@ -91,10 +91,10 @@ static enum SyntaxPosition find_syntax_position(Box *box, int index) {
 
 GraphicsBox::GraphicsBox()
   : Box(),
-  mouse_over_part(GraphicsPartNone),
-  mouse_down_x(0),
-  mouse_down_y(0),
-  user_has_changed_size(false)
+    mouse_over_part(GraphicsPartNone),
+    mouse_down_x(0),
+    mouse_down_y(0),
+    user_has_changed_size(false)
 {
   if(!style)
     style = new Style();
@@ -180,9 +180,9 @@ int GraphicsBox::count() {
 }
 
 bool GraphicsBox::expand(const BoxSize &size) {
-  MathSequence *seq = dynamic_cast<MathSequence*>(_parent);
+  MathSequence *seq = dynamic_cast<MathSequence *>(_parent);
   if(_parent && seq->length() == 1) {
-    if(dynamic_cast<FillBox*>(seq->parent())) {
+    if(dynamic_cast<FillBox *>(seq->parent())) {
       calculate_size(&size.width);
       return true;
     }
@@ -218,10 +218,10 @@ void GraphicsBox::resize(Context *context) {
 void GraphicsBox::calculate_size(const float *optional_expand_width) {
   float w     = get_own_style(ImageSizeHorizontal, ImageSizeAutomatic);
   float h     = get_own_style(ImageSizeVertical,   ImageSizeAutomatic);
-  float ratio = get_own_style(AspectRatio, 0.61803);
+  float ratio = get_own_style(AspectRatio, 1.0f); //0.61803f
   
   if(ratio <= 0)
-    ratio = 0.61803;
+    ratio = 1.0f; // 0.61803f;
     
   if(w <= 0 && h <= 0) {
     if(optional_expand_width) {
@@ -282,6 +282,9 @@ void GraphicsBox::resize_axes(Context *context) {
     
     Expr plot_range = get_own_style(PlotRange, Symbol(PMATH_SYMBOL_AUTOMATIC));
     
+    if(plot_range[0] == PMATH_SYMBOL_NCACHE)
+      plot_range = plot_range[2];
+    
     if(plot_range == PMATH_SYMBOL_AUTOMATIC) {
       elements.find_extends(bounds);
     }
@@ -295,21 +298,37 @@ void GraphicsBox::resize_axes(Context *context) {
         elements.find_extends(bounds);
         
       if( xrange[0] == PMATH_SYMBOL_RANGE &&
-          xrange.expr_length() == 2 &&
-          xrange[1].is_number() &&
-          xrange[2].is_number())
+          xrange.expr_length() == 2)
       {
-        bounds.xmin = xrange[1].to_double();
-        bounds.xmax = xrange[2].to_double();
+        Expr xmin = xrange[1];
+        if(xmin[0] == PMATH_SYMBOL_NCACHE)
+          xmin = xmin[2];
+          
+        Expr xmax = xrange[2];
+        if(xmax[0] == PMATH_SYMBOL_NCACHE)
+          xmax = xmax[2];
+          
+        if(xmin.is_number() && xmax.is_number()) {
+          bounds.xmin = xmin.to_double();
+          bounds.xmax = xmax.to_double();
+        }
       }
       
       if( yrange[0] == PMATH_SYMBOL_RANGE &&
-          yrange.expr_length() == 2 &&
-          yrange[1].is_number() &&
-          yrange[2].is_number())
+          yrange.expr_length() == 2)
       {
-        bounds.ymin = yrange[1].to_double();
-        bounds.ymax = yrange[2].to_double();
+        Expr ymin = yrange[1];
+        if(ymin[0] == PMATH_SYMBOL_NCACHE)
+          ymin = ymin[2];
+          
+        Expr ymax = yrange[2];
+        if(ymax[0] == PMATH_SYMBOL_NCACHE)
+          ymax = ymax[2];
+          
+        if(ymin.is_number() && ymax.is_number()) {
+          bounds.ymin = ymin.to_double();
+          bounds.ymax = ymax.to_double();
+        }
       }
     }
     
@@ -620,7 +639,7 @@ Box *GraphicsBox::normalize_selection(int *start, int *end) {
 Box *GraphicsBox::mouse_sensitive() {
   Box *box = Box::mouse_sensitive();
   
-  if(box && !dynamic_cast<Document*>(box) && !dynamic_cast<InputFieldBox*>(box))
+  if(box && !dynamic_cast<Document *>(box) && !dynamic_cast<InputFieldBox *>(box))
     return box;
     
   return this;

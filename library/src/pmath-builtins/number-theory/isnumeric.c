@@ -172,7 +172,7 @@ static int _simple_real_class(pmath_t obj) {
     pmath_t im = pmath_expr_get_item(obj, 2);
     
     if(pmath_is_number(re) && pmath_is_number(im)) {
-      if(pmath_number_sign(im) == 0){
+      if(pmath_number_sign(im) == 0) {
         int result = _simple_real_class(re);
         
         pmath_unref(re);
@@ -299,8 +299,9 @@ PMATH_PRIVATE pmath_t builtin_assign_isnumeric(pmath_expr_t expr) {
   
   sym = pmath_expr_get_item(lhs, 1);
   
-  if(!pmath_same(tag, PMATH_UNDEFINED)
-      && !pmath_same(tag, sym)) {
+  if( !pmath_same(tag, PMATH_UNDEFINED) &&
+      !pmath_same(tag, sym))
+  {
     pmath_message(PMATH_NULL, "tag", 3, tag, lhs, sym);
     
     pmath_unref(expr);
@@ -321,9 +322,10 @@ PMATH_PRIVATE pmath_t builtin_assign_isnumeric(pmath_expr_t expr) {
     return rhs;
   }
   
-  if(!pmath_same(rhs, PMATH_SYMBOL_TRUE)
-      && !pmath_same(rhs, PMATH_SYMBOL_FALSE)
-      && !pmath_same(rhs, PMATH_UNDEFINED)) {
+  if( !pmath_same(rhs, PMATH_SYMBOL_TRUE) &&
+      !pmath_same(rhs, PMATH_SYMBOL_FALSE) &&
+      !pmath_same(rhs, PMATH_UNDEFINED))
+  {
     pmath_unref(sym);
     pmath_message(
       PMATH_SYMBOL_ISNUMERIC, "set", 2,

@@ -296,7 +296,7 @@ void Style::add_pmath(Expr options) {
             set_pmath_float(GridBoxRowSpacing, rhs);
           }
           else if(lhs == PMATH_SYMBOL_IMAGESIZE) {
-            set_pmath_size(ImageSizeHorizontal, rhs);
+            set_pmath_size(ImageSizeCommon, rhs);
           }
           else if(lhs == PMATH_SYMBOL_LINEBREAKWITHIN) {
             set_pmath_bool(LineBreakWithin, rhs);
@@ -528,48 +528,87 @@ void Style::set_pmath_color(IntStyleOptionName n, Expr obj) {
 }
 
 void Style::set_pmath_float(FloatStyleOptionName n, Expr obj) {
-  if(obj.is_number())
+  if(obj.is_number()) {
     set(n, obj.to_double());
-  else if(obj[0] == PMATH_SYMBOL_DYNAMIC)
+    return;
+  }
+  
+  if(obj[0] == PMATH_SYMBOL_DYNAMIC) {
     set_dynamic(n, obj);
+    return;
+  }
+  
+  if(obj[0] == PMATH_SYMBOL_NCACHE) {
+    set(n, obj[2].to_double());
+    
+    if(!keep_dynamic)
+      set((ObjectStyleOptionName)(n + DynamicOffset), obj);
+    
+    return;
+  }
 }
 
 void Style::set_pmath_size(FloatStyleOptionName n, Expr obj) {
-  FloatStyleOptionName Horizontal = n;
-  FloatStyleOptionName Vertical   = FloatStyleOptionName(n + 1);
+  FloatStyleOptionName Horizontal = FloatStyleOptionName(n + 1);
+  FloatStyleOptionName Vertical   = FloatStyleOptionName(n + 2);
   
   if(obj == PMATH_SYMBOL_AUTOMATIC) {
+    remove(n);
+    if(!keep_dynamic)
+      remove_dynamic(n);
+      
     set(Horizontal, ImageSizeAutomatic);
     set(Vertical,   ImageSizeAutomatic);
     return;
   }
   
   if(obj.is_number()) {
+    remove(n);
+    if(!keep_dynamic)
+      remove_dynamic(n);
+      
     float f = obj.to_double();
     set(Horizontal, f);
     set(Vertical,   ImageSizeAutomatic);
     return;
   }
   
-  if(obj.is_expr() && obj[0] == PMATH_SYMBOL_LIST) {
-    if(obj.expr_length() == 2) {
-      if(obj[1] == PMATH_SYMBOL_AUTOMATIC)
-        set(Horizontal, ImageSizeAutomatic);
-      else
-        set_pmath_float(Horizontal, obj[1]);
-        
-      if(obj[2] == PMATH_SYMBOL_AUTOMATIC)
-        set(Vertical, ImageSizeAutomatic);
-      else
-        set_pmath_float(Vertical, obj[2]);
-      return;
-    }
+  if(obj[0] == PMATH_SYMBOL_LIST &&
+      obj.expr_length() == 2)
+  {
+    remove(n);
+    if(!keep_dynamic)
+      remove_dynamic(n);
+    
+    if(obj[1] == PMATH_SYMBOL_AUTOMATIC)
+      set(Horizontal, ImageSizeAutomatic);
+    else
+      set_pmath_float(Horizontal, obj[1]);
+      
+    if(obj[2] == PMATH_SYMBOL_AUTOMATIC)
+      set(Vertical, ImageSizeAutomatic);
+    else
+      set_pmath_float(Vertical, obj[2]);
+    return;
   }
   
   if(obj[0] == PMATH_SYMBOL_DYNAMIC) {
+    remove(n);
     remove(Horizontal);
     remove(Vertical);
-    set_dynamic(Horizontal, obj);
+    remove((ObjectStyleOptionName)(Horizontal + DynamicOffset));
+    remove((ObjectStyleOptionName)(Vertical   + DynamicOffset));
+    set_dynamic(n, obj);
+    return;
+  }
+  
+  if(obj[0] == PMATH_SYMBOL_NCACHE) {
+    set_pmath_size(n, obj[2]);
+    
+    if(!keep_dynamic) 
+      set((ObjectStyleOptionName)(n + DynamicOffset), obj);
+    
+    return;
   }
 }
 
@@ -726,11 +765,6 @@ bool Style::update_dynamic(Box *parent) {
   if(dynamic_options.length() == 0)
     return false;
     
-//  if(!get(InternalHavePendingDynamic, &i) || !i){
-//    pmath_debug_print(".\n");
-//    return false;
-//  }
-
   set(InternalHavePendingDynamic, false);
   
   bool resize = false;
@@ -809,7 +843,8 @@ Expr Style::get_symbol(int n) {
     case GridBoxColumnSpacing:     return Symbol(PMATH_SYMBOL_GRIDBOXCOLUMNSPACING);
     case GridBoxRowSpacing:        return Symbol(PMATH_SYMBOL_GRIDBOXROWSPACING);
     
-    case ImageSizeHorizontal:      return Symbol(PMATH_SYMBOL_IMAGESIZE);
+    case ImageSizeCommon:          return Symbol(PMATH_SYMBOL_IMAGESIZE);
+    case ImageSizeHorizontal:
     case ImageSizeVertical:        return Expr();
     
     case SectionMarginLeft:        return Symbol(PMATH_SYMBOL_SECTIONMARGINS);
@@ -1116,41 +1151,50 @@ void Style::emit_to_pmath(
                    Number(f)));
   }
   
-  if(get_dynamic(ImageSizeHorizontal, &e)) {
+  if(get_dynamic(ImageSizeCommon, &e))
+  {
     Gather::emit(Rule(
-                   get_symbol(ImageSizeHorizontal),
+                   get_symbol(ImageSizeCommon),
                    e));
   }
   else {
-    float horz, vert;
     bool have_horz, have_vert;
+    Expr horz, vert;
     
-    have_horz = get(ImageSizeHorizontal, &horz);
-    have_vert = get(ImageSizeVertical,   &vert);
-    if(have_horz || have_vert) {
-      Expr h, v;
+    have_horz = get_dynamic(ImageSizeHorizontal, &horz);
+    if(!have_horz) {
+      float h;
+      have_horz = get(ImageSizeHorizontal, &h);
       
       if(have_horz) {
-        if(horz > 0)
-          h = Number(horz);
+        if(h > 0)
+          horz = Number(h);
         else
-          h = Symbol(PMATH_SYMBOL_AUTOMATIC);
+          horz = Symbol(PMATH_SYMBOL_AUTOMATIC);
       }
       else
-        h = Symbol(PMATH_SYMBOL_INHERITED);
-        
+        horz = Symbol(PMATH_SYMBOL_INHERITED);
+    }
+    
+    have_vert = get_dynamic(ImageSizeVertical, &vert);
+    if(!have_vert) {
+      float v;
+      have_vert = get(ImageSizeVertical, &v);
+      
       if(have_vert) {
-        if(vert > 0)
-          v = Number(vert);
+        if(v > 0)
+          vert = Number(v);
         else
-          v = Symbol(PMATH_SYMBOL_AUTOMATIC);
+          vert = Symbol(PMATH_SYMBOL_AUTOMATIC);
       }
       else
-        v = Symbol(PMATH_SYMBOL_INHERITED);
-        
+        vert = Symbol(PMATH_SYMBOL_INHERITED);
+    }
+    
+    if(have_horz || have_vert) {
       Gather::emit(Rule(
-                     get_symbol(ImageSizeHorizontal),
-                     List(h, v)));
+                     get_symbol(ImageSizeCommon),
+                     List(horz, vert)));
     }
   }
   

@@ -502,9 +502,10 @@ PMATH_API pmath_t pmath_approximate(
     prec2 = pmath_precision(pmath_ref(res));
     acc2  = pmath_accuracy( pmath_ref(res));
     
-    if(prec2 >= precision_goal
-        || acc2 >= accuracy_goal
-        || pmath_equals(res, obj)) {
+    if( prec2 >= precision_goal ||
+        acc2  >= accuracy_goal ||
+        pmath_equals(res, obj))
+    {
       pmath_unref(obj);
       return res;
     }
@@ -515,8 +516,9 @@ PMATH_API pmath_t pmath_approximate(
       acc = 2 * acc - acc2 + 2;
       
     pmath_unref(res);
-    if(prec > precision_goal + pmath_max_extra_precision
-        || acc  > accuracy_goal  + pmath_max_extra_precision) {
+    if( prec > precision_goal + pmath_max_extra_precision ||
+        acc  > accuracy_goal  + pmath_max_extra_precision)
+    {
       // max. extra precision reached
       if(aborted) {
         *aborted = TRUE;

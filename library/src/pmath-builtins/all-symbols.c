@@ -893,6 +893,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_GCD                       = NEW_SYSTEM_SYMBOL("GCD"))
   VERIFY(   PMATH_SYMBOL_GENERAL                   = NEW_SYSTEM_SYMBOL("General"))
   VERIFY(   PMATH_SYMBOL_GET                       = NEW_SYSTEM_SYMBOL("Get"))
+  VERIFY(   PMATH_SYMBOL_GOLDENRATIO               = NEW_SYSTEM_SYMBOL("GoldenRatio"))
   VERIFY(   PMATH_SYMBOL_GOTO                      = NEW_SYSTEM_SYMBOL("Goto"))
   VERIFY(   PMATH_SYMBOL_GRAPHICS                  = NEW_SYSTEM_SYMBOL("Graphics"))
   VERIFY(   PMATH_SYMBOL_GRAPHICSBOX               = NEW_SYSTEM_SYMBOL("GraphicsBox"))
@@ -1044,6 +1045,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_CURRENTNAMESPACE          = NEW_SYSTEM_SYMBOL("$Namespace"))
   VERIFY(   PMATH_SYMBOL_NAMESPACE                 = NEW_SYSTEM_SYMBOL("Namespace"))
   VERIFY(   PMATH_SYMBOL_NAMESPACEPATH             = NEW_SYSTEM_SYMBOL("$NamespacePath"))
+  VERIFY(   PMATH_SYMBOL_NCACHE                    = NEW_SYSTEM_SYMBOL("NCache"))
   VERIFY(   PMATH_SYMBOL_NEWMESSAGE                = NEW_SYSTEM_SYMBOL("$NewMessage"))
   VERIFY(   PMATH_SYMBOL_NEWSYMBOL                 = NEW_SYSTEM_SYMBOL("$NewSymbol"))
   VERIFY(   PMATH_SYMBOL_NEST                      = NEW_SYSTEM_SYMBOL("Nest"))
@@ -1937,6 +1939,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   SET_ATTRIB( PMATH_SYMBOL_MOD,                              DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
   SET_ATTRIB( PMATH_SYMBOL_NAMESPACE,                        HOLDFIRST);
   SET_ATTRIB( PMATH_SYMBOL_NAMESPACEPATH,                    THREADLOCAL);
+  SET_ATTRIB( PMATH_SYMBOL_NCACHE,                           HOLDFIRST);
   SET_ATTRIB( PMATH_SYMBOL_NEWTASK,                          HOLDALL);
   SET_ATTRIB( PMATH_SYMBOL_NEXTPRIME,                        LISTABLE);
   SET_ATTRIB( PMATH_SYMBOL_OFF,                              HOLDALL);

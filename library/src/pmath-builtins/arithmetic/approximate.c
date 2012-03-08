@@ -248,8 +248,9 @@ PMATH_PRIVATE pmath_t builtin_assign_approximate(pmath_expr_t expr) {
   sym = _pmath_topmost_symbol(arg);
   pmath_unref(arg);
   
-  if(!pmath_same(tag, PMATH_UNDEFINED)
-      && !pmath_same(tag, sym)) {
+  if(!pmath_same(tag, PMATH_UNDEFINED) &&
+      !pmath_same(tag, sym))
+  {
     pmath_message(PMATH_NULL, "tag", 3, tag, lhs, sym);
     
     pmath_unref(expr);

@@ -249,8 +249,8 @@ bool Win32Themes::check_osversion(int min_major, int min_minor) {
   osvi.dwOSVersionInfoSize = sizeof(osvi);
   GetVersionEx(&osvi);
   
-  if(osvi.dwMajorVersion > min_major)
+  if((int)osvi.dwMajorVersion > min_major)
     return true;
   
-  return osvi.dwMajorVersion == min_major && osvi.dwMinorVersion >= min_minor;
+  return (int)osvi.dwMajorVersion == min_major && (int)osvi.dwMinorVersion >= min_minor;
 }
