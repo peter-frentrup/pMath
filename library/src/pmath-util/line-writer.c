@@ -40,8 +40,10 @@ struct linewriter_t {
   pmath_write_options_t  next_options;
   
   void  *user;
-  void (*write)(void*, const uint16_t*, int);
+  void (*write)(void *, const uint16_t *, int);
 };
+
+static char HEX_DIGITS[] = "0123456789ABCDEF";
 
 static void fill_newlines(struct linewriter_t *lw) {
   struct write_pos_t *wp;
@@ -117,7 +119,18 @@ static void consume_write_pos(struct linewriter_t *lw, int end) {
   }
 }
 
-static double calc_penalty(struct linewriter_t *lw, int pos, int max){
+static void injection_adjust_write_pos(struct linewriter_t *lw, int pos, int len) {
+  struct write_pos_t *wp;
+  
+  wp = lw->all_write_pos;
+  while(wp) {
+    if(wp->pos >= pos)
+      wp->pos += len;
+    wp       = wp->next;
+  }
+}
+
+static double calc_penalty(struct linewriter_t *lw, int pos, int max) {
   double error;
   
   assert(0   <  pos);
@@ -126,7 +139,7 @@ static double calc_penalty(struct linewriter_t *lw, int pos, int max){
   
   error = pos - max;
   error = 4.0 * error * error / ((double) max * max);
-  error+= 1.0 * lw->depths[pos - 1];
+  error += 1.0 * lw->depths[pos - 1];
   
   return error;
 }
@@ -137,15 +150,15 @@ static int get_expr_indention_depth(struct linewriter_t *lw) {
     depth = lw->depths[0];
   else
     depth = lw->prev_depth;
-  
+    
   if(depth > lw->line_length / 2)
     depth  = lw->line_length / 2;
-  
+    
   return depth;
 }
 
 static int find_best_linebreak(
-  struct linewriter_t *lw, 
+  struct linewriter_t *lw,
   pmath_bool_t        *is_inside_string
 ) {
   int depth = get_expr_indention_depth(lw);
@@ -156,7 +169,7 @@ static int find_best_linebreak(
   nl = last;
   while(nl > 0 && !(lw->newlines[nl] & NEWLINE_OK))
     --nl;
-  
+    
   if(nl == 0) {
     *is_inside_string = TRUE;
     
@@ -173,8 +186,8 @@ static int find_best_linebreak(
     double error = calc_penalty(lw, nl, last);
     int new_nl = nl - 1;
     
-    while(new_nl > 0){
-      if(lw->newlines[new_nl] & NEWLINE_OK){
+    while(new_nl > 0) {
+      if(lw->newlines[new_nl] & NEWLINE_OK) {
         double new_error = calc_penalty(lw, new_nl, last);
         if(new_error < error)
           nl = new_nl;
@@ -248,9 +261,9 @@ static void flush_line(struct linewriter_t *lw) {
     if(nl > lw->line_length - 2)
       nl = lw->line_length - 2;
       
-    if(lw->buffer[nl-1] == '\\') {
+    if(lw->buffer[nl - 1] == '\\') {
       i = nl - 1;
-      while(i > 0 && lw->buffer[i-1] == '\\')
+      while(i > 0 && lw->buffer[i - 1] == '\\')
         --i;
         
       if((nl - i) % 2 == 1 && nl > 1)
@@ -265,8 +278,30 @@ static void flush_line(struct linewriter_t *lw) {
   memmove(lw->char_options, lw->char_options + nl, sizeof(lw->char_options[0]) * (lw->buffer_length - nl));
   lw->pos -= nl;
   
-  if(is_inside_string && escape_string)
+  if(is_inside_string && escape_string) {
     write_cstr("\\\n", lw->write, lw->user);
+    
+    if( lw->pos > 0                         &&
+        lw->pos < lw->buffer_length - 4 + 1 &&
+        lw->buffer[0] <= ' ')
+    {
+      char hex_hi = HEX_DIGITS[lw->buffer[0] >> 4];
+      char hex_lo = HEX_DIGITS[lw->buffer[0] & 0xF];
+      
+      injection_adjust_write_pos(lw, 1, 3);
+      memmove(lw->buffer       + 3, lw->buffer,       sizeof(lw->buffer[      0]) * (lw->buffer_length - 3));
+      memmove(lw->depths       + 3, lw->depths,       sizeof(lw->depths[      0]) * (lw->buffer_length - 3));
+      memmove(lw->char_options + 3, lw->char_options, sizeof(lw->char_options[0]) * (lw->buffer_length - 3));
+      lw->pos+= 3;
+      
+      lw->depths[0]       = lw->depths[1]       = lw->depths[2]       = lw->depths[3];
+      lw->char_options[0] = lw->char_options[1] = lw->char_options[2] = lw->char_options[3];
+      lw->buffer[0] = '\\';
+      lw->buffer[1] = 'x';
+      lw->buffer[2] = hex_hi;
+      lw->buffer[3] = hex_lo;
+    }
+  }
   else
     write_cstr("\n", lw->write, lw->user);
     
@@ -288,12 +323,12 @@ static void line_write(void *user, const uint16_t *data, int len) {
       
       lw->depths[lw->pos] = lw->prev_depth;
       lw->prev_depth      = lw->expr_depth;
-      for(i = 1;i < len;++i)
+      for(i = 1; i < len; ++i)
         lw->depths[lw->pos + i] = lw->expr_depth;
-      
-      for(i = 0;i < len;++i)
+        
+      for(i = 0; i < len; ++i)
         lw->char_options[lw->pos + i] = lw->next_options;
-      
+        
       lw->pos += len;
       return;
     }
@@ -304,12 +339,12 @@ static void line_write(void *user, const uint16_t *data, int len) {
       
       lw->depths[lw->pos] = lw->prev_depth;
       lw->prev_depth      = lw->expr_depth;
-      for(i = 1;i < copylen;++i)
+      for(i = 1; i < copylen; ++i)
         lw->depths[lw->pos + i] = lw->expr_depth;
         
-      for(i = 0;i < copylen;++i)
+      for(i = 0; i < copylen; ++i)
         lw->char_options[lw->pos + i] = lw->next_options;
-      
+        
       len  -= copylen;
       data += copylen;
       lw->pos = lw->buffer_length;
@@ -325,7 +360,7 @@ static void pre_write(void *user, pmath_t item, pmath_write_options_t options) {
   
   if(!pmath_is_string(item))
     lw->expr_depth++;
-  
+    
   lw->next_options = options;
   
   if(wp) {
@@ -344,10 +379,10 @@ static void post_write(void *user, pmath_t item, pmath_write_options_t options) 
   
   if(!pmath_is_string(item))
     lw->expr_depth--;
-  
+    
   if(lw->prev_depth > lw->expr_depth)
     lw->prev_depth = lw->expr_depth;
-  
+    
   lw->next_options = options;
   
   if(wp) {
