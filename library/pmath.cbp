@@ -18,6 +18,7 @@
 				<Option type="3" />
 				<Option compiler="gcc" />
 				<Option host_application="test\bin\windows\debug\test.exe" />
+				<Option run_host_application_in_terminal="0" />
 				<Option createDefFile="1" />
 				<Option createStaticLib="1" />
 				<Compiler>
@@ -58,6 +59,7 @@
 				<Option type="3" />
 				<Option compiler="gcc" />
 				<Option host_application="test\bin\windows\release\test.exe" />
+				<Option run_host_application_in_terminal="0" />
 				<Option createDefFile="1" />
 				<Option createStaticLib="1" />
 				<Compiler>
@@ -98,6 +100,7 @@
 				<Option type="3" />
 				<Option compiler="msvc8" />
 				<Option host_application="test\bin\windows\msvc\test.exe" />
+				<Option run_host_application_in_terminal="0" />
 				<Option createDefFile="1" />
 				<Option createStaticLib="1" />
 				<Compiler>
@@ -135,6 +138,7 @@
 				<Option type="3" />
 				<Option compiler="gcc" />
 				<Option host_application="test\bin\linux\release\test" />
+				<Option run_host_application_in_terminal="0" />
 				<Compiler>
 					<Add option="-march=i686" />
 					<Add option="-O3" />
@@ -181,6 +185,7 @@
 				<Option type="3" />
 				<Option compiler="gcc" />
 				<Option host_application="test\bin\linux\debug\test" />
+				<Option run_host_application_in_terminal="0" />
 				<Compiler>
 					<Add option="-march=pentium4" />
 					<Add option="-march=i686" />
@@ -232,6 +237,7 @@
 				<Option type="3" />
 				<Option compiler="llvmgcc" />
 				<Option host_application="test\bin\windows\release\test.exe" />
+				<Option run_host_application_in_terminal="0" />
 				<Option createDefFile="1" />
 				<Option createStaticLib="1" />
 				<Compiler>
@@ -1133,10 +1139,19 @@
 			<debugger />
 			<AutoVersioning>
 				<Scheme minor_max="100" build_max="0" rev_max="0" rev_rand_max="1" build_times_to_increment_minor="1" />
-				<Settings autoincrement="0" date_declarations="1" do_auto_increment="1" ask_to_increment="0" language="C" svn="1" svn_directory=".." header_path="include\pmath-util\version-private.h" />
+				<Settings autoincrement="0" date_declarations="1" update_manifest="4" do_auto_increment="1" ask_to_increment="0" language="C" svn="1" svn_directory=".." header_path="include\pmath-util\version-private.h" />
 				<Changes_Log show_changes_editor="0" app_title="released version %M.%m.%b of %p" changeslog_path="ChangesLog.txt" />
 				<Code header_guard="__PMATH_UTIL__VERSION_PRIVATE_H__" namespace="AutoVersion" prefix="_PMATH_VERSION" />
 			</AutoVersioning>
+			<DoxyBlocks>
+				<comment_style block="0" line="0" />
+				<doxyfile_project />
+				<doxyfile_build />
+				<doxyfile_warnings />
+				<doxyfile_output />
+				<doxyfile_dot />
+				<general />
+			</DoxyBlocks>
 		</Extensions>
 	</Project>
 </CodeBlocks_project_file>

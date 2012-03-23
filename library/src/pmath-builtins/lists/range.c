@@ -170,7 +170,7 @@ pmath_bool_t _pmath_extract_longrange(
     *end  = PMATH_AS_INT32(range);
     *step = 1;
     
-    if(*end <= 0) {
+    if(*end < 0) {
       *start = *end;
       *end   = -1;
     }

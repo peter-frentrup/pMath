@@ -1222,10 +1222,10 @@ void BasicWin32Window::paint_background(Canvas *canvas, int x, int y, bool wallp
         {
           InflateRect(&rect, -1, -1);
           canvas->move_to(rect.left, rect.top + frameradius);
-          canvas->arc(rect.left  + frameradius, rect.top    + frameradius, frameradius, M_PI,     3 * M_PI / 2, false);
-          canvas->arc(rect.right - frameradius, rect.top    + frameradius, frameradius, 3 * M_PI / 2, 2 * M_PI,   false);
-          canvas->arc(rect.right - frameradius, rect.bottom - frameradius, frameradius, 0,          M_PI / 2, false);
-          canvas->arc(rect.left  + frameradius, rect.bottom - frameradius, frameradius, M_PI / 2,     M_PI,   false);
+          canvas->arc(rect.left  + frameradius, rect.top    + frameradius, frameradius,     M_PI,     3 * M_PI / 2, false);
+          canvas->arc(rect.right - frameradius, rect.top    + frameradius, frameradius, 3 * M_PI / 2, 2 * M_PI,     false);
+          canvas->arc(rect.right - frameradius, rect.bottom - frameradius, frameradius, 0,                M_PI / 2, false);
+          canvas->arc(rect.left  + frameradius, rect.bottom - frameradius, frameradius,     M_PI / 2,     M_PI,     false);
           canvas->close_path();
           
           InflateRect(&rect, 1, 1);

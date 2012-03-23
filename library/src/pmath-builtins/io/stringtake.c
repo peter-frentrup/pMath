@@ -56,6 +56,10 @@ static pmath_t stringtake(
       else
         return pmath_string_part(str, start - 1, end - start + 1);
     }
+    else if(start == end + 1) {
+      pmath_unref(str);
+      return PMATH_C_STRING("");
+    }
     
     pmath_message(PMATH_NULL, "take", 3,
                   pmath_integer_new_slong(start),

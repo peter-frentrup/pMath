@@ -72,6 +72,9 @@ static pmath_t stringdrop(
         return _pmath_from_buffer(s);
       }
     }
+    else if(start + 1 == end) {
+      return str;
+    }
     
     pmath_message(PMATH_NULL, "drop", 3,
                   pmath_integer_new_slong(start),

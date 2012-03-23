@@ -39,8 +39,8 @@ static pmath_bool_t convert_take_positions(
               item,
               &pos[i - exprstart].start,
               &pos[i - exprstart].end,
-              &pos[i - exprstart].step)
-           ) {
+              &pos[i - exprstart].step))
+    {
       pmath_unref(item);
       pmath_message(PMATH_NULL, "seqs", 2, pmath_integer_new_uiptr(i), pmath_ref(expr));
       return FALSE;
@@ -103,11 +103,12 @@ static pmath_bool_t drop(
   if(depth == 0)
     return TRUE;
     
-  if(pmath_is_expr(*obj)
-      && convert_start_end_step(*obj, pos, &start, &end, &step)) {
+  if( pmath_is_expr(*obj) &&
+      convert_start_end_step(*obj, pos, &start, &end, &step))
+  {
     size_t i;
     
-    for(i = 1; start <= end; start += step, ++i) {
+    for(i = start; i <= end; i += step) {
       *obj = pmath_expr_set_item(*obj, i, PMATH_UNDEFINED);
     }
     
@@ -207,9 +208,10 @@ PMATH_PRIVATE pmath_t builtin_drop(pmath_expr_t expr) {
   
   item = pmath_expr_get_item(expr, 1);
   
-  if(pos
-      && convert_take_positions(expr, 2, pos)
-      && drop(&item, depth, pos)) {
+  if( pos &&
+      convert_take_positions(expr, 2, pos) &&
+      drop(&item, depth, pos))
+  {
     pmath_unref(expr);
     pmath_mem_free(pos);
     return item;
@@ -236,9 +238,10 @@ PMATH_PRIVATE pmath_t builtin_take(pmath_expr_t expr) {
   
   item = pmath_expr_get_item(expr, 1);
   
-  if(pos
-      && convert_take_positions(expr, 2, pos)
-      && take(&item, depth, pos)) {
+  if( pos &&
+      convert_take_positions(expr, 2, pos) &&
+      take(&item, depth, pos))
+  {
     pmath_unref(expr);
     pmath_mem_free(pos);
     return item;

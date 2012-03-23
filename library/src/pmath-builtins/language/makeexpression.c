@@ -444,8 +444,8 @@ PMATH_PRIVATE pmath_t _pmath_parse_number(
   while(i < len && '0' <= str[i] && str[i] <= '9')
     ++i;
     
-  if(i + 2 < len && str[i] == '^' && str[i+1] == '^') {
-    cstr = (char*)pmath_mem_alloc(i + 1);
+  if(i + 2 < len && str[i] == '^' && str[i + 1] == '^') {
+    cstr = (char *)pmath_mem_alloc(i + 1);
     if(!cstr) {
       pmath_unref(string);
       return PMATH_NULL;
@@ -499,7 +499,7 @@ PMATH_PRIVATE pmath_t _pmath_parse_number(
   
   end = i;
   
-  cstr = (char*)pmath_mem_alloc(len - start + 1);
+  cstr = (char *)pmath_mem_alloc(len - start + 1);
   if(!cstr) {
     pmath_unref(string);
     return PMATH_NULL;
@@ -552,7 +552,7 @@ PMATH_PRIVATE pmath_t _pmath_parse_number(
   cstr[end - start] = '\0';
   
   exponent = PMATH_NULL;
-  if((i + 2 < len && str[i] == '*' && str[i+1] == '^')
+  if((i + 2 < len && str[i] == '*' && str[i + 1] == '^')
       || (alternative && i + 1 < len && (str[i] == 'e' || str[i] == 'E'))) {
     int exp;
     int delta = end - start - i;
@@ -822,8 +822,9 @@ static pmath_t make_expression_from_string_token(pmath_string_t string) {
               int h6 = hex(str[++i]);
               int h7 = hex(str[++i]);
               int h8 = hex(str[++i]);
-              if(h1 >= 0 && h2 >= 0 && h3 >= 0 && h4 >= 0
-                  && h5 >= 0 && h6 >= 0 && h7 >= 0 && h8 >= 0) {
+              if( h1 >= 0 && h2 >= 0 && h3 >= 0 && h4 >= 0 &&
+                  h5 >= 0 && h6 >= 0 && h7 >= 0 && h8 >= 0)
+              {
                 uint32_t u = ((uint32_t)h1) << 28;
                 u |= h2 << 24;
                 u |= h3 << 20;
@@ -864,7 +865,7 @@ static pmath_t make_expression_from_string_token(pmath_string_t string) {
                 unsigned int unichar;
                 
                 for(ii = 0; ii < e - i - 1; ++ii) {
-                  s[ii] = (char)str[i+1+ii];
+                  s[ii] = (char)str[i + 1 + ii];
                 }
                 
                 s[ii] = '\0';
@@ -930,7 +931,7 @@ static pmath_t make_expression_from_string(pmath_string_t string) { // will be f
   
   str = pmath_string_buffer(&string);
   
-  if(len > 1 && str[0] == '`' && str[len-1] == '`')
+  if(len > 1 && str[0] == '`' && str[len - 1] == '`')
     return get_parser_argument_from_string(string);
     
   tok = pmath_token_analyse(str, 1, NULL);

@@ -6,6 +6,7 @@
 #include <pmath-util/messages.h>
 
 #include <pmath-builtins/all-symbols-private.h>
+#include <pmath-builtins/build-expr-private.h>
 #include <pmath-builtins/lists-private.h>
 
 
@@ -50,12 +51,14 @@ static pmath_t array(struct _array_data_t *data) {
   if(data->dim >= data->depth) {
     if(data->start_is_list) {
       for(i = 1; i <= len && !pmath_aborting(); ++i) {
+        pmath_t ind = pmath_expr_get_item(data->start, data->dim);
+        
+        ind = PLUS(ind, pmath_integer_new_uiptr(i - 1));
+        ind = pmath_evaluate(ind);
+        
         data->index = pmath_expr_set_item(
                         data->index, data->dim,
-                        pmath_expr_new_extended(
-                          pmath_ref(PMATH_SYMBOL_PLUS), 2,
-                          pmath_expr_get_item(data->start, data->dim),
-                          pmath_integer_new_uiptr(i - 1)));
+                        ind);
                           
         list = pmath_expr_set_item(list, i,
                                    pmath_expr_set_item(
@@ -65,13 +68,16 @@ static pmath_t array(struct _array_data_t *data) {
     }
     else {
       for(i = 1; i <= len && !pmath_aborting(); ++i) {
+        pmath_t ind = PLUS(
+                        pmath_ref(data->start),
+                        pmath_integer_new_uiptr(i - 1));
+                        
+        ind = pmath_evaluate(ind);
+        
         data->index = pmath_expr_set_item(
                         data->index, data->dim,
-                        pmath_expr_new_extended(
-                          pmath_ref(PMATH_SYMBOL_PLUS), 2,
-                          pmath_ref(data->start),
-                          pmath_integer_new_uiptr(i - 1)));
-                          
+                        ind);
+                        
         list = pmath_expr_set_item(list, i,
                                    pmath_expr_set_item(
                                      pmath_ref(data->index), 0,
@@ -85,28 +91,34 @@ static pmath_t array(struct _array_data_t *data) {
   data->dim++;
   if(data->start_is_list) {
     for(i = 1; i <= len && !pmath_aborting(); ++i) {
+      pmath_t ind = pmath_expr_get_item(data->start, data->dim - 1);
+      
+      ind = PLUS(ind, pmath_integer_new_uiptr(i - 1));
+      ind = pmath_evaluate(ind);
+      
       data->index = pmath_expr_set_item(
                       data->index, data->dim - 1,
-                      pmath_expr_new_extended(
-                        pmath_ref(PMATH_SYMBOL_PLUS), 2,
-                        pmath_expr_get_item(data->start, data->dim - 1),
-                        pmath_integer_new_uiptr(i - 1)));
+                      ind);
                         
       list = pmath_expr_set_item(list, i, array(data));
     }
   }
   else {
     for(i = 1; i <= len && !pmath_aborting(); ++i) {
+      pmath_t ind = PLUS(
+                      pmath_ref(data->start),
+                      pmath_integer_new_uiptr(i - 1));
+                      
+      ind = pmath_evaluate(ind);
+      
       data->index = pmath_expr_set_item(
                       data->index, data->dim - 1,
-                      pmath_expr_new_extended(
-                        pmath_ref(PMATH_SYMBOL_PLUS), 2,
-                        pmath_ref(data->start),
-                        pmath_integer_new_uiptr(i - 1)));
-                        
+                      ind);
+                      
       list = pmath_expr_set_item(list, i, array(data));
     }
   }
+  data->dim--;
   
   return list;
 }
@@ -240,9 +252,9 @@ static pmath_t special_array(special_array_data_t *data) {
   
   list = pmath_expr_new(
            pmath_ref(PMATH_SYMBOL_LIST),
-           data->lengths[data->dim-1]);
+           data->lengths[data->dim - 1]);
            
-  for(i = 1; i <= data->lengths[data->dim-1] && !pmath_aborting(); ++i) {
+  for(i = 1; i <= data->lengths[data->dim - 1] && !pmath_aborting(); ++i) {
     list = pmath_expr_set_item(list, i, special_array(data));
   }
   
@@ -292,7 +304,7 @@ PMATH_PRIVATE pmath_t builtin_constantarray(pmath_expr_t expr) {
           return expr;
         }
         
-        data.lengths[data.dim-1] = pmath_integer_get_uiptr(l);
+        data.lengths[data.dim - 1] = pmath_integer_get_uiptr(l);
         
         pmath_unref(l);
       }
