@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="pmath-eigen" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Windows-Debug">
+				<Option platforms="Windows;" />
+				<Option output="bin\pmath-eigen" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj\Debug\" />
+				<Option type="3" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Option createStaticLib="1" />
+				<Compiler>
+					<Add option="-march=i686" />
+					<Add option="-Wall" />
+					<Add option="-g" />
+					<Add option="-fno-exceptions" />
+					<Add option="-DBUILD_DLL" />
+				</Compiler>
+				<Linker>
+					<Add option="-static-libgcc" />
+					<Add directory="..\..\library\bin\windows\debug" />
+				</Linker>
+			</Target>
+			<Target title="Windows-Release">
+				<Option platforms="Windows;" />
+				<Option output="bin\pmath-eigen" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj\Release\" />
+				<Option type="3" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Option createStaticLib="1" />
+				<Compiler>
+					<Add option="-march=i686" />
+					<Add option="-O2" />
+					<Add option="-Wall" />
+					<Add option="-fno-exceptions" />
+					<Add option="-DBUILD_DLL" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+					<Add option="-static-libgcc" />
+					<Add directory="..\..\library\bin\windows\release" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add directory="..\..\library\include" />
+			<Add directory="$(#Eigen.include)" />
+		</Compiler>
+		<Linker>
+			<Add library="pmath" />
+		</Linker>
+		<Unit filename="src\arithmetic-expr.h" />
+		<Unit filename="src\builtin-test.cpp" />
+		<Unit filename="src\classification.cpp" />
+		<Unit filename="src\classification.h" />
+		<Unit filename="src\conversion.cpp" />
+		<Unit filename="src\conversion.h" />
+		<Unit filename="src\main.cpp" />
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<debugger />
+			<lib_finder disable_auto="1" />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

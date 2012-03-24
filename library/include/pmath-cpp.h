@@ -60,6 +60,12 @@ namespace pmath {
       {
       }
       
+      /**\brief Construct from an size_t. */
+      Expr(size_t i) throw()
+        : _obj(pmath_integer_new_uiptr(i))
+      {
+      }
+      
       /**\brief Construct from a double. May yield Infinity or Undefined (NaN) values */
       Expr(double f) throw()
         : _obj(pmath_build_value("f", f))
