@@ -10,6 +10,11 @@
 #include <pmath-builtins/control/definitions-private.h>
 #include <pmath-builtins/lists-private.h>
 
+static pmath_bool_t part(
+  pmath_expr_t  *list,
+  pmath_expr_t   position,
+  size_t         position_start);
+
 
 static pmath_bool_t part(
   pmath_expr_t  *list,
@@ -57,48 +62,7 @@ static pmath_bool_t part(
     ++position_start;
   }
   
-  if(pmath_is_expr_of(pos, PMATH_SYMBOL_RANGE)) {
-    pmath_t old;
-    pmath_bool_t reverse = FALSE;
-    size_t start_index = 1;
-    size_t end_index = listlen;
-    
-    if(!extract_range(pos, &start_index, &end_index, TRUE)) {
-      pmath_message(PMATH_NULL, "pspec", 1, pos);
-      return FALSE;
-    }
-    
-    if(start_index > listlen || end_index > listlen) {
-      pmath_message(PMATH_NULL, "partw", 2, pmath_ref(*list), pos);
-      return FALSE;
-    }
-    
-    if(start_index > end_index) {
-      size_t t = start_index;
-      start_index = end_index;
-      end_index = t;
-      
-      reverse = TRUE;
-    }
-    
-    old = *list;
-    *list = pmath_expr_get_item_range(
-              old, start_index, end_index + 1 - start_index);
-              
-    pmath_unref(old);
-    
-    if(reverse) {
-      listlen = pmath_expr_length(*list);
-      
-      for(i = 1; i <= listlen / 2; i++) {
-        pmath_t first = pmath_expr_get_item(*list, i);
-        pmath_t last  = pmath_expr_get_item(*list, listlen - i + 1);
-        *list = pmath_expr_set_item(*list, i,           last);
-        *list = pmath_expr_set_item(*list, listlen - i + 1, first);
-      }
-    }
-  }
-  else if(pmath_is_expr_of(pos, PMATH_SYMBOL_LIST)) {
+  if(pmath_is_expr_of(pos, PMATH_SYMBOL_LIST)) {
     size_t poslen = pmath_expr_length(pos);
     
     for(i = 1; i <= poslen; ++i) {
@@ -129,9 +93,21 @@ static pmath_bool_t part(
     *list = pos;
     pos = PMATH_NULL;
   }
-  else if(!pmath_same(pos, PMATH_SYMBOL_ALL)) {
-    pmath_message(PMATH_NULL, "pspec", 1, pos);
-    return FALSE;
+  else {
+    long start_index;
+    long end_index;
+    long step;
+    
+    // also handles ALL
+    if(!_pmath_extract_longrange(pos, &start_index, &end_index, &step)) {
+      pmath_message(PMATH_NULL, "pspec", 1, pos);
+      return FALSE;
+    }
+    
+    if(!_pmath_expr_try_take(list, start_index, end_index, step)) {
+      pmath_message(PMATH_NULL, "partw", 2, pmath_ref(*list), pos);
+      return FALSE;
+    }
   }
   
   pmath_unref(pos);
@@ -141,7 +117,7 @@ static pmath_bool_t part(
     ++position_start;
     
     for(i = 1; i <= listlen; ++i) {
-      pmath_expr_t item = pmath_expr_get_item(*list, i);
+      pmath_expr_t item = pmath_expr_extract_item(*list, i);
       
       if(!part(&item, position, position_start)) {
         pmath_unref(item);
@@ -258,80 +234,6 @@ static pmath_t assign_part(
                                assign_part(index, position, position_start + 1, new_value, error));
   }
   
-  if(pmath_is_expr_of(index, PMATH_SYMBOL_RANGE)) {
-    pmath_bool_t reverse = FALSE;
-    size_t start_index = 1;
-    size_t end_index = listlen;
-    
-    if(!extract_range(index, &start_index, &end_index, TRUE)) {
-      if(*error)
-        pmath_unref(index);
-      else
-        pmath_message(PMATH_NULL, "pspec", 1, index);
-      *error = TRUE;
-      return list;
-    }
-    
-    if(start_index > listlen || end_index > listlen) {
-      if(*error)
-        pmath_unref(index);
-      else
-        pmath_message(PMATH_NULL, "partw", 2, pmath_ref(list), index);
-      *error = TRUE;
-      return list;
-    }
-    
-    if(start_index > end_index) {
-      size_t t = start_index;
-      start_index = end_index;
-      end_index = t;
-      
-      reverse = TRUE;
-    }
-    
-    pmath_unref(index);
-    index = PMATH_NULL;
-    
-    if(pmath_is_expr_of_len(new_value, PMATH_SYMBOL_LIST, end_index + 1 - start_index)) {
-      size_t i;
-      
-      if(reverse) {
-        for(i = start_index; i <= end_index; ++i) {
-          pmath_t item     = pmath_expr_extract_item(list, i);
-          pmath_t new_item = pmath_expr_get_item(new_value, end_index + 1 - i);
-          
-          list = pmath_expr_set_item(list, i,
-                                     assign_part(item, position, position_start + 1, new_item, error));
-                                     
-          pmath_unref(new_item);
-        }
-      }
-      else {
-        for(i = start_index; i <= end_index; ++i) {
-          pmath_t item     = pmath_expr_extract_item(list,  i);
-          pmath_t new_item = pmath_expr_get_item(new_value, i - start_index + 1);
-          
-          list = pmath_expr_set_item(list, i,
-                                     assign_part(item, position, position_start + 1, new_item, error));
-                                     
-          pmath_unref(new_item);
-        }
-      }
-    }
-    else {
-      size_t i;
-      
-      for(i = start_index; i <= end_index; ++i) {
-        pmath_t item = pmath_expr_extract_item(list, i);
-        
-        list = pmath_expr_set_item(list, i,
-                                   assign_part(item, position, position_start + 1, new_value, error));
-      }
-    }
-    
-    return list;
-  }
-  
   if(pmath_is_expr_of(index, PMATH_SYMBOL_LIST)) {
     size_t i;
     size_t indexlen = pmath_expr_length(index);
@@ -387,34 +289,69 @@ static pmath_t assign_part(
     return list;
   }
   
-  if(pmath_same(index, PMATH_SYMBOL_ALL)) {
-    size_t i;
-    pmath_unref(index);
-    index = PMATH_NULL;
+  if( pmath_same(index, PMATH_SYMBOL_ALL) ||
+      pmath_is_expr_of(index, PMATH_SYMBOL_RANGE))
+  {
+    pmath_expr_t overlay;
+    long start_index;
+    long end_index;
+    long step;
     
-    if(pmath_is_expr_of_len(new_value, PMATH_SYMBOL_LIST, listlen)) {
-      for(i = 1; i <= listlen; ++i) {
-        pmath_t item     = pmath_expr_get_item(list, i);
-        pmath_t new_item = pmath_expr_get_item(new_value, i);
-        
-        list = pmath_expr_set_item(list, i, PMATH_NULL);
-        list = pmath_expr_set_item(list, i,
-                                   assign_part(item, position, position_start + 1, new_item, error));
-                                   
-        pmath_unref(new_item);
-      }
-      
+    // also handles ALL
+    if(!_pmath_extract_longrange(index, &start_index, &end_index, &step)) {
+      pmath_message(PMATH_NULL, "pspec", 1, index);
+      *error = TRUE;
       return list;
     }
     
-    for(i = 1; i <= listlen; ++i) {
-      pmath_t item = pmath_expr_get_item(list, i);
+    if(position_start < pmath_expr_length(position)) {
+      size_t i, len;
       
-      list = pmath_expr_set_item(list, i, PMATH_NULL);
-      list = pmath_expr_set_item(list, i,
-                                 assign_part(item, position, position_start + 1, new_value, error));
+      overlay = pmath_ref(list);
+      
+      if(!_pmath_expr_try_take(&overlay, start_index, end_index, step)) {
+        pmath_message(PMATH_NULL, "partw", 2, overlay, index);
+        *error = TRUE;
+        return list;
+      }
+      
+      len = pmath_expr_length(overlay);
+      if(pmath_is_expr_of_len(new_value, PMATH_SYMBOL_LIST, len)) {
+        for(i = 1; i <= len; ++i) {
+          pmath_t item     = pmath_expr_extract_item(overlay,  i);
+          pmath_t new_item = pmath_expr_get_item(    new_value, i);
+          
+          item = assign_part(item, position, position_start + 1, new_item, error);
+          
+          overlay = pmath_expr_set_item(overlay, i, item);
+                                     
+          pmath_unref(new_item);
+        }
+      }
+      else {
+        for(i = 1; i <= len; ++i) {
+          pmath_t item = pmath_expr_extract_item(overlay, i);
+          
+          item = assign_part(item, position, position_start + 1, new_value, error);
+          
+          overlay = pmath_expr_set_item(overlay, i, item);
+        }
+      }
+      
+      overlay = pmath_expr_set_item(overlay, 0, pmath_ref(PMATH_SYMBOL_LIST));
+    }
+    else
+      overlay = pmath_ref(new_value);
+    
+    if(!_pmath_expr_try_overlay(&list, overlay, start_index, end_index, step)) {
+      pmath_message(PMATH_NULL, "partw", 2, pmath_ref(list), index);
+      *error = TRUE;
+      pmath_unref(overlay);
+      return list;
     }
     
+    pmath_unref(overlay);
+    pmath_unref(index);
     return list;
   }
   
@@ -423,6 +360,7 @@ static pmath_t assign_part(
     pmath_unref(index);
   else
     pmath_message(PMATH_NULL, "pspec", 1, index);
+    
   return list;
 }
 
@@ -439,9 +377,10 @@ PMATH_PRIVATE pmath_t builtin_assign_part(pmath_expr_t expr) {
   if(!assignment)
     return expr;
     
-  if(!pmath_is_expr(lhs)
-      || pmath_expr_length(lhs) <= 1
-      || pmath_same(rhs, PMATH_UNDEFINED)) {
+  if(!pmath_is_expr(lhs) ||
+      pmath_expr_length(lhs) <= 1 ||
+      pmath_same(rhs, PMATH_UNDEFINED))
+  {
     pmath_unref(tag);
     pmath_unref(lhs);
     pmath_unref(rhs);

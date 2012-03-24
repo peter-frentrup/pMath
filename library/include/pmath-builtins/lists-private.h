@@ -73,6 +73,21 @@ pmath_bool_t _pmath_extract_longrange(
   long    *step);
 
 PMATH_PRIVATE
+pmath_bool_t _pmath_expr_try_take( 
+  pmath_expr_t *list, 
+  long          start,
+  long          end,
+  long          step);
+
+PMATH_PRIVATE
+pmath_bool_t _pmath_expr_try_overlay( 
+  pmath_expr_t *list, 
+  pmath_t       values, // wont be freed
+  long          start,
+  long          end,
+  long          step);
+
+PMATH_PRIVATE
 pmath_symbol_t _pmath_topmost_symbol(pmath_t obj); // obj wont be freed
 
 PMATH_PRIVATE

@@ -65,16 +65,18 @@ PMATH_PRIVATE pmath_bool_t extract_range(
   if(pmath_is_expr_of_len(range, PMATH_SYMBOL_RANGE, 2)) {
     pmath_t obj = pmath_expr_get_item(range, 1);
     
-    if(!pmath_same(obj, PMATH_SYMBOL_AUTOMATIC)
-        && !extract_number(obj, *max, min)) {
+    if( !pmath_same(obj, PMATH_SYMBOL_AUTOMATIC) &&
+        !extract_number(obj, *max, min))
+    {
       pmath_unref(obj);
       return FALSE;
     }
     pmath_unref(obj);
     
     obj = pmath_expr_get_item(range, 2);
-    if(!pmath_same(obj, PMATH_SYMBOL_AUTOMATIC)
-        && !extract_number(obj, *max, max)) {
+    if( !pmath_same(obj, PMATH_SYMBOL_AUTOMATIC) &&
+        !extract_number(obj, *max, max))
+    {
       pmath_unref(obj);
       return FALSE;
     }
