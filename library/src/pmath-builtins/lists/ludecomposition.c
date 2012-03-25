@@ -142,6 +142,15 @@ pmath_expr_t _pmath_matrix_set( // return: new matrix
      NUMERICAL RECIPES IN C
      pp 40-47
    with adapted permutation vector.
+   
+   @param [in/out] matrix          Combined LU decomposition of input value on 
+                                   exit.
+   @param [out]    indx            Permutaion vector.
+   @param [in]     sing_fast_exit  Whether to stop when matrix is found to be
+                                   (almost) singular.
+   @param [in]     tiny            A small positive constant used in a 
+                                   divide-by-zero scenario (through numeric 
+                                   roundoff)
  */
 static int numeric_ludecomp(
   pmath_expr_t *matrix,
