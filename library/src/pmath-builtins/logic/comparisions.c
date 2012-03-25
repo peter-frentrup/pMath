@@ -139,7 +139,7 @@ static pmath_t ordered(
         pmath_bool_t old_prev_was_true = prev_was_true;
         prev_was_true = TRUE;
         
-        if(pmath_is_double(prev) && _pmath_is_numeric(next)) {
+        if(pmath_is_double(prev) && pmath_is_numeric(next)) {
           pmath_t n = pmath_approximate(pmath_ref(next), -HUGE_VAL, -HUGE_VAL, NULL);
           int c;
           
@@ -172,7 +172,7 @@ static pmath_t ordered(
           continue;
         }
         
-        if(pmath_is_double(next) && _pmath_is_numeric(prev)) {
+        if(pmath_is_double(next) && pmath_is_numeric(prev)) {
           pmath_t p = pmath_approximate(pmath_ref(prev), -HUGE_VAL, -HUGE_VAL, NULL);
           int c;
           
@@ -270,7 +270,7 @@ static pmath_t ordered(
           
           if(pmath_equals(prev_infdir, PMATH_FROM_INT32(-1))) {
             n = pmath_ref(next);
-            if(pmath_is_null(next_infdir) && _pmath_is_numeric(n))
+            if(pmath_is_null(next_infdir) && pmath_is_numeric(n))
               n = pmath_approximate(n, -HUGE_VAL, -HUGE_VAL, NULL);
               
             if(pmath_is_number(n)
@@ -297,7 +297,7 @@ static pmath_t ordered(
           }
           else if(pmath_equals(prev_infdir, PMATH_FROM_INT32(1))) {
             n = pmath_ref(next);
-            if(pmath_is_null(next_infdir) && _pmath_is_numeric(n))
+            if(pmath_is_null(next_infdir) && pmath_is_numeric(n))
               n = pmath_approximate(n, -HUGE_VAL, -HUGE_VAL, NULL);
               
             if(pmath_is_number(n)
@@ -323,7 +323,7 @@ static pmath_t ordered(
           }
           else if(pmath_equals(next_infdir, PMATH_FROM_INT32(-1))) {
             p = pmath_ref(prev);
-            if(pmath_is_null(prev_infdir) && _pmath_is_numeric(p))
+            if(pmath_is_null(prev_infdir) && pmath_is_numeric(p))
               p = pmath_approximate(p, -HUGE_VAL, -HUGE_VAL, NULL);
               
             if(pmath_is_number(p)
@@ -349,7 +349,7 @@ static pmath_t ordered(
           }
           else if(pmath_equals(next_infdir, PMATH_FROM_INT32(1))) {
             p = pmath_ref(prev);
-            if(pmath_is_null(prev_infdir) && _pmath_is_numeric(p))
+            if(pmath_is_null(prev_infdir) && pmath_is_numeric(p))
               p = pmath_approximate(p, -HUGE_VAL, -HUGE_VAL, NULL);
               
             if(pmath_is_number(prev)
@@ -378,7 +378,7 @@ static pmath_t ordered(
           pmath_unref(next_infdir);
         }
         
-        if(_pmath_is_numeric(prev) && _pmath_is_numeric(next)) {
+        if(pmath_is_numeric(prev) && pmath_is_numeric(next)) {
           int c = 0;
           
           if(pmath_is_mpfloat(prev)) {

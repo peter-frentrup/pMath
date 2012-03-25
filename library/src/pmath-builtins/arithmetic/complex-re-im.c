@@ -362,7 +362,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_re_im(
     }
   }
   
-  if(!_pmath_is_numeric(z)) {
+  if(!pmath_is_numeric(z)) {
     pmath_unref(z);
     return FALSE;
   }

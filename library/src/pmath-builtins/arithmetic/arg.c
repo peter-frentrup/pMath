@@ -1,5 +1,6 @@
 #include <pmath-core/numbers-private.h>
 
+#include <pmath-util/approximate.h>
 #include <pmath-util/messages.h>
 
 #include <pmath-builtins/all-symbols-private.h>
@@ -17,7 +18,7 @@ PMATH_PRIVATE pmath_t builtin_arg(pmath_expr_t expr) {
   
   z = pmath_expr_get_item(expr, 1);
   
-  if(!_pmath_is_numeric(z)) {
+  if(!pmath_is_numeric(z)) {
     pmath_unref(z);
     return expr;
   }

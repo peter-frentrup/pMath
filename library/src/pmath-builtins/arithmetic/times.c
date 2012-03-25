@@ -460,7 +460,7 @@ static void times_2_arg(pmath_t *a, pmath_t *b) {
       return;
     }
     
-    if(pmath_is_float(*a) && _pmath_is_numeric(*b)) {
+    if(pmath_is_float(*a) && pmath_is_numeric(*b)) {
       *b = pmath_approximate(*b, pmath_precision(pmath_ref(*a)), HUGE_VAL, NULL);
       return;
     }
@@ -551,7 +551,7 @@ static void times_2_arg(pmath_t *a, pmath_t *b) {
       return;
     }
     
-    if(_pmath_is_inexact(*a) && _pmath_is_numeric(*b)) {
+    if(_pmath_is_inexact(*a) && pmath_is_numeric(*b)) {
       *b = pmath_approximate(*b, pmath_precision(pmath_ref(*a)), HUGE_VAL, NULL);
       return;
     }
@@ -682,7 +682,7 @@ static void times_2_arg(pmath_t *a, pmath_t *b) {
   
   if((pmath_equals(*a, _pmath_object_overflow)
       || pmath_equals(*a, _pmath_object_underflow))
-      && _pmath_is_numeric(*b)) {
+      && pmath_is_numeric(*b)) {
     if(pmath_equals(*a, _pmath_object_overflow)
         || pmath_equals(*a, _pmath_object_underflow))
       pmath_unref(*b);
@@ -692,7 +692,7 @@ static void times_2_arg(pmath_t *a, pmath_t *b) {
   
   if((pmath_equals(*b, _pmath_object_overflow)
       || pmath_equals(*b, _pmath_object_underflow))
-      && _pmath_is_numeric(*a)) {
+      && pmath_is_numeric(*a)) {
     pmath_unref(*a);
     *a = *b;
     *b = PMATH_UNDEFINED;

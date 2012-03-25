@@ -1,5 +1,6 @@
 #include <pmath-core/numbers-private.h>
 
+#include <pmath-util/approximate.h>
 #include <pmath-util/evaluation.h>
 #include <pmath-util/messages.h>
 
@@ -27,7 +28,7 @@ pmath_bool_t _pmath_is_infinite(pmath_t obj) {
     return FALSE;
     
   item = pmath_expr_get_item(obj, 1);
-  result = _pmath_is_numeric(item);
+  result = pmath_is_numeric(item);
   pmath_unref(item);
   
   return result;

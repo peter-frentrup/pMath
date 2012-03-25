@@ -44,8 +44,6 @@ enum {
   PMATH_CLASS_KNOWN     = (PMATH_CLASS_REAL | PMATH_CLASS_COMPLEX | PMATH_CLASS_INF)
 };
 
-PMATH_PRIVATE pmath_bool_t _pmath_is_numeric(pmath_t obj);
-
 //PMATH_PRIVATE pmath_t _pmath_assign_is_numeric(
 //  pmath_t lhs,  // will be freed. form: IsNumeric(~?IsSymbol)
 //  pmath_t rhs); // will be freed. form: True|False

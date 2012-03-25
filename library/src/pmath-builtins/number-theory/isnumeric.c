@@ -223,7 +223,7 @@ static int _simple_real_class(pmath_t obj) {
 PMATH_PRIVATE int _pmath_number_class(pmath_t obj) {
   int result = _simple_real_class(obj);
   
-  if((result & PMATH_CLASS_UNKNOWN) && _pmath_is_numeric(obj)) {
+  if((result & PMATH_CLASS_UNKNOWN) && pmath_is_numeric(obj)) {
     obj = pmath_approximate(pmath_ref(obj), -HUGE_VAL, -HUGE_VAL, NULL);
     result = _simple_real_class(obj);
     pmath_unref(obj);
@@ -232,7 +232,7 @@ PMATH_PRIVATE int _pmath_number_class(pmath_t obj) {
   return result;
 }
 
-PMATH_PRIVATE pmath_bool_t _pmath_is_numeric(pmath_t obj) {
+PMATH_API pmath_bool_t pmath_is_numeric(pmath_t obj) {
   if(pmath_is_number(obj))
     return TRUE;
     
@@ -247,7 +247,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_is_numeric(pmath_t obj) {
       pmath_unref(h);
       for(i = pmath_expr_length(obj); i > 0; --i) {
         h = pmath_expr_get_item(obj, i);
-        result = _pmath_is_numeric(h);
+        result = pmath_is_numeric(h);
         pmath_unref(h);
         
         if(!result)
@@ -376,7 +376,7 @@ PMATH_PRIVATE pmath_t builtin_isnumeric(pmath_expr_t expr) {
   obj = pmath_expr_get_item(expr, 1);
   pmath_unref(expr);
   
-  result = _pmath_is_numeric(obj);
+  result = pmath_is_numeric(obj);
   pmath_unref(obj);
   
   return pmath_ref(result ? PMATH_SYMBOL_TRUE : PMATH_SYMBOL_FALSE);

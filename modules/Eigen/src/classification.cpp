@@ -39,8 +39,6 @@ bool MatrixKind::get_matrix_dimensions(
 }
 
 MatrixKind::Type MatrixKind::classify(const Expr &matrix) {
-  // TODO: check for "all double" or "all double or complex double"
-  
   bool has_complex_double = false;
   
   for(size_t r = matrix.expr_length();r > 0;--r){
@@ -81,4 +79,24 @@ MatrixKind::Type MatrixKind::classify(const Expr &matrix) {
     return MatrixKind::MachineComplex;
   
   return MatrixKind::MachineReal;
+}
+
+bool MatrixKind::is_symbolic_matrix(const pmath::Expr &matrix){
+  for(size_t r = matrix.expr_length();r > 0;--r){
+    Expr row = matrix[r];
+    
+    for(size_t c = row.expr_length();c > 0;--c){
+      Expr elem = row[c];
+      
+      if(elem.is_number())
+        continue;
+      
+      if(pmath_is_numeric(elem.get()))
+        continue;
+        
+      return true;
+    }
+  }
+  
+  return false;
 }

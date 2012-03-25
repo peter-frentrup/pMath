@@ -730,7 +730,7 @@ static void plus_2_arg(pmath_t *a, pmath_t *b) {
       return;
     }
     
-    if(pmath_is_float(*a) && _pmath_is_numeric(*b)) {
+    if(pmath_is_float(*a) && pmath_is_numeric(*b)) {
       if(pmath_number_sign(*a) == 0)
         *b = pmath_approximate(*b, HUGE_VAL, pmath_accuracy(pmath_ref(*a)), NULL);
       else
@@ -779,19 +779,19 @@ static void plus_2_arg(pmath_t *a, pmath_t *b) {
   if(pmath_equals(*a, _pmath_object_overflow)
       && (pmath_equals(*b, _pmath_object_overflow)
           || pmath_equals(*b, _pmath_object_underflow)
-          || _pmath_is_numeric(*b)))
+          || pmath_is_numeric(*b)))
   {
     pmath_unref(*b);
     *b = PMATH_UNDEFINED;
   }
   
-  if(pmath_equals(*b, _pmath_object_overflow) && _pmath_is_numeric(*a)) {
+  if(pmath_equals(*b, _pmath_object_overflow) && pmath_is_numeric(*a)) {
     pmath_unref(*a);
     *a = *b;
     *b = PMATH_UNDEFINED;
   }
   
-  if(pmath_equals(*a, _pmath_object_underflow) && _pmath_is_numeric(*b)) {
+  if(pmath_equals(*a, _pmath_object_underflow) && pmath_is_numeric(*b)) {
     pmath_unref(*b);
     *b = PMATH_UNDEFINED;
   }

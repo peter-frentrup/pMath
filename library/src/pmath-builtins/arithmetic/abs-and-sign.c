@@ -253,7 +253,7 @@ PMATH_PRIVATE pmath_t builtin_sign(pmath_expr_t expr) {
     }
   }
   
-  if(_pmath_is_numeric(x)) {
+  if(pmath_is_numeric(x)) {
     int clazz = _pmath_number_class(x);
     
     if(clazz & PMATH_CLASS_POS){

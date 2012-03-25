@@ -1,5 +1,6 @@
 #include <pmath-core/numbers-private.h>
 
+#include <pmath-util/approximate.h>
 #include <pmath-util/evaluation.h>
 #include <pmath-util/messages.h>
 
@@ -30,8 +31,8 @@ PMATH_PRIVATE pmath_t builtin_quotient(pmath_expr_t expr) {
     return expr;
   }
   
-  if(!_pmath_is_numeric(m)
-      || !_pmath_is_numeric(n)) {
+  if(!pmath_is_numeric(m)
+      || !pmath_is_numeric(n)) {
     pmath_unref(m);
     pmath_unref(n);
     return expr;
@@ -40,7 +41,7 @@ PMATH_PRIVATE pmath_t builtin_quotient(pmath_expr_t expr) {
   if(exprlen == 3) {
     pmath_t d = pmath_expr_get_item(expr, 3);
     
-    if(_pmath_is_numeric(d)) {
+    if(pmath_is_numeric(d)) {
       pmath_unref(m);
       pmath_unref(n);
       pmath_unref(d);
@@ -79,8 +80,8 @@ PMATH_PRIVATE pmath_t builtin_mod(pmath_expr_t expr) {
     return expr;
   }
   
-  if(!_pmath_is_numeric(m)
-      || !_pmath_is_numeric(n)) {
+  if(!pmath_is_numeric(m)
+      || !pmath_is_numeric(n)) {
     pmath_unref(m);
     pmath_unref(n);
     return expr;
@@ -89,7 +90,7 @@ PMATH_PRIVATE pmath_t builtin_mod(pmath_expr_t expr) {
   if(exprlen == 3) {
     pmath_t d = pmath_expr_get_item(expr, 3);
     
-    if(_pmath_is_numeric(d)) {
+    if(pmath_is_numeric(d)) {
       pmath_unref(m);
       pmath_unref(n);
       pmath_unref(d);

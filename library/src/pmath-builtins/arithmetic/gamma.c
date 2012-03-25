@@ -1,5 +1,6 @@
 #include <pmath-core/numbers-private.h>
 
+#include <pmath-util/approximate.h>
 #include <pmath-util/concurrency/threads.h>
 #include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
@@ -648,8 +649,8 @@ PMATH_PRIVATE pmath_t builtin_binomial(pmath_expr_t expr) {
   z = pmath_expr_get_item(expr, 1);
   k = pmath_expr_get_item(expr, 2);
   
-  if((_pmath_is_inexact(z) && _pmath_is_numeric(k))
-      || (_pmath_is_numeric(z) && _pmath_is_inexact(k))) {
+  if((_pmath_is_inexact(z) && pmath_is_numeric(k))
+      || (pmath_is_numeric(z) && _pmath_is_inexact(k))) {
     /* Binomial(z, k) = z!/(k! (n-k)!) = Gamma(z+1) / (Gamma(k+1) * Gamma(z-k+1))
     
        Todo:

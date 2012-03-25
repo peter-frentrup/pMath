@@ -218,7 +218,7 @@ PMATH_PRIVATE pmath_t builtin_log(pmath_expr_t expr) {
       pmath_unref(b);
       b = pmath_expr_get_item(x, 2);
       
-      if(_pmath_is_numeric(b)) {
+      if(pmath_is_numeric(b)) {
         pmath_unref(expr);
         pmath_unref(base);
         pmath_unref(x);

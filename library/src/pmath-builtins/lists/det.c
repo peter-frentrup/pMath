@@ -1,3 +1,4 @@
+#include <pmath-util/approximate.h>
 #include <pmath-util/emit-and-gather.h>
 #include <pmath-util/evaluation.h>
 #include <pmath-util/memory.h>
@@ -254,7 +255,7 @@ static pmath_bool_t use_symbolic_det(pmath_expr_t matrix) { // wont be freed
       
       if(!pmath_is_number(obj)) {
         if(!_pmath_is_nonreal_complex(obj)) {
-          if(!_pmath_is_numeric(obj)) { // non-numeric entity found
+          if(!pmath_is_numeric(obj)) { // non-numeric entity found
             pmath_unref(obj);
             pmath_unref(row);
             return TRUE;

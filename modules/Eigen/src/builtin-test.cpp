@@ -40,14 +40,11 @@ template<typename MatrixType>
 static void test(Expr matrix, size_t rows, size_t cols){
   MatrixType eigen_matrix(rows, cols);
   
-  bool success = Converter::toEigen(eigen_matrix, matrix);
-  if(!success){
-    print("internal error: Converter::toEigen failed");
-  }
+  Converter::to_eigen(eigen_matrix, matrix);
   
   eigen_matrix*= 3;
   
-  Expr back = Converter::fromEigen(eigen_matrix);
+  Expr back = Converter::from_eigen(eigen_matrix);
   
   print("multiplied with 3: `1`", matrix_form(back));
 }
@@ -71,7 +68,7 @@ pmath_t p4e_builtin_test(pmath_expr_t _expr) {
   switch(type) {
     case MatrixKind::General:
       print("classified as General");
-      test<ArithmeticExprMatrix>(matrix, rows, cols);
+      test<MatrixXa>(matrix, rows, cols);
       break;
       
     case MatrixKind::MachineReal:

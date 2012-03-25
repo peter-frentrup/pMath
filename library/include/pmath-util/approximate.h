@@ -8,6 +8,14 @@
    @{
  */
 
+/**\brief Test whether an expression is a numeric quantity.
+   \param obj An object. It wont be freed.
+   \return Whether calling pmath_approximate() may return an appxoximate
+           floating point number.
+ */
+PMATH_API pmath_bool_t pmath_is_numeric(pmath_t obj);
+
+
 /**\brief Get the accuracy (in bits) of an object.
    \param obj An object. It will be freed.
    \return The number of known bits after the decimal point.

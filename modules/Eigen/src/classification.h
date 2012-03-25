@@ -22,6 +22,8 @@ namespace pmath4eigen {
         
       static Type classify(const pmath::Expr &matrix);
       
+      static bool is_symbolic_matrix(const pmath::Expr &matrix);
+      
   };
   
 }

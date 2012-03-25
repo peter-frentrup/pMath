@@ -1,9 +1,11 @@
 #include <pmath.h>
 
 
-static pmath_symbol_t P4E_SYMBOL_TEST = PMATH_STATIC_NULL;
+static pmath_symbol_t P4E_SYMBOL_TEST      = PMATH_STATIC_NULL;
+static pmath_symbol_t P4E_SYMBOL_FULLPIVLU = PMATH_STATIC_NULL;
 
-extern pmath_t p4e_builtin_test(pmath_expr_t _expr);
+extern pmath_t p4e_builtin_test(     pmath_expr_t _expr);
+extern pmath_t p4e_builtin_fullpivlu(pmath_expr_t _expr);
 
 
 PMATH_MODULE
@@ -17,11 +19,14 @@ pmath_bool_t pmath_module_init(pmath_string_t filename) {
 #define PROTECT(sym) pmath_symbol_set_attributes((sym), pmath_symbol_get_attributes((sym)) | PMATH_SYMBOL_ATTRIBUTE_PROTECTED)
 
 
-  VERIFY(P4E_SYMBOL_TEST = NEW_SYMBOL("Eigen`Test"));
+  VERIFY( P4E_SYMBOL_TEST      = NEW_SYMBOL("Eigen`Test"));
+  VERIFY( P4E_SYMBOL_FULLPIVLU = NEW_SYMBOL("Eigen`FullPivLU"));
   
-  BIND_DOWN(P4E_SYMBOL_TEST, p4e_builtin_test);
+  BIND_DOWN( P4E_SYMBOL_TEST,      p4e_builtin_test);
+  BIND_DOWN( P4E_SYMBOL_FULLPIVLU, p4e_builtin_fullpivlu);
   
-  PROTECT(P4E_SYMBOL_TEST);
+  PROTECT( P4E_SYMBOL_TEST);
+  PROTECT( P4E_SYMBOL_FULLPIVLU);
   
   return TRUE;
   
@@ -39,4 +44,5 @@ FAIL:
 PMATH_MODULE
 void pmath_module_done(void) {
   pmath_unref(P4E_SYMBOL_TEST);
+  pmath_unref(P4E_SYMBOL_FULLPIVLU);
 }

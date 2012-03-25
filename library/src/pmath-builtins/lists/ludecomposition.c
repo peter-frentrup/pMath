@@ -419,7 +419,7 @@ int _pmath_matrix_ludecomp(
   if(!lower_nz) { // upper triagonal matrix
     size_t i;
     for(i = pmath_expr_length(*matrix); i > 0; --i)
-      indx[i-1] = i;
+      indx[i - 1] = i;
       
     return diag_z ? 0 : 1;
   }
@@ -428,7 +428,7 @@ int _pmath_matrix_ludecomp(
     size_t i;
     if(diag_z) { // 0 on diagonal => singular
       for(i = pmath_expr_length(*matrix); i > 0; --i)
-        indx[i-1] = i;
+        indx[i - 1] = i;
         
       return 0;
     }
@@ -446,7 +446,7 @@ int _pmath_matrix_ludecomp(
     
     // diag = (1,1,...,1)
     for(i = pmath_expr_length(*matrix); i > 0; --i)
-      indx[i-1] = i;
+      indx[i - 1] = i;
     return 1;
     
   NO_LOWER_DIAG1: ; // diag != (1,1,...,1)
@@ -492,9 +492,10 @@ PMATH_PRIVATE pmath_t builtin_ludecomposition(pmath_expr_t expr) {
   }
   
   matrix = pmath_expr_get_item(expr, 1);
-  if(!_pmath_is_matrix(matrix, &rows, &cols, TRUE)
-      || rows != cols
-      || rows == 0) {
+  if(!_pmath_is_matrix(matrix, &rows, &cols, TRUE) ||
+      rows != cols                                 ||
+      rows == 0)
+  {
     pmath_message(PMATH_NULL, "matsq", 2, matrix, PMATH_FROM_INT32(1));
     return expr;
   }
@@ -517,11 +518,11 @@ PMATH_PRIVATE pmath_t builtin_ludecomposition(pmath_expr_t expr) {
   }
   
   for(cols = 1; cols <= rows; ++cols) {
-    if(indx[cols-1] != cols) {
+    if(indx[cols - 1] != cols) {
       pmath_t a = pmath_expr_get_item(perm, cols);
-      pmath_t b = pmath_expr_get_item(perm, indx[cols-1]);
+      pmath_t b = pmath_expr_get_item(perm, indx[cols - 1]);
       perm      = pmath_expr_set_item(perm, cols,         b);
-      perm      = pmath_expr_set_item(perm, indx[cols-1], a);
+      perm      = pmath_expr_set_item(perm, indx[cols - 1], a);
     }
   }
   
