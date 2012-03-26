@@ -57,6 +57,7 @@
 		</Linker>
 		<Unit filename="src\arithmetic-expr.h" />
 		<Unit filename="src\builtin-fullpivlu.cpp" />
+		<Unit filename="src\builtin-partialpivlu.cpp" />
 		<Unit filename="src\builtin-test.cpp" />
 		<Unit filename="src\classification.cpp" />
 		<Unit filename="src\classification.h" />

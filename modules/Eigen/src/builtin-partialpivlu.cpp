@@ -10,27 +10,38 @@ using namespace Eigen;
 
 
 template<typename MatrixType>
-static Expr fullpivlu(Expr &matrix_expr, size_t rows, size_t cols)
+static Expr partialpivlu(Expr &matrix_expr, size_t rows_and_cols)
 {
-  MatrixType matrix(rows, cols);
+  typedef typename Eigen::internal::traits<MatrixType>::Scalar ScalarType;
+  
+  MatrixType matrix(rows_and_cols, rows_and_cols);
   
   Converter::to_eigen(matrix, matrix_expr);
   
-  FullPivLU<MatrixType> lu(matrix);
+  PartialPivLU<MatrixType> lu(matrix);
   
-  //matrix_expr   = Converter::from_eigen(lu.matrixLU());
+  for(size_t i = 0;i < rows_and_cols;++i){
+    if(Eigen::internal::isApprox(lu.matrixLU()(i, i), ScalarType(0))){
+      pmath_message(
+        PMATH_NULL,
+        "sing", 1,
+        pmath_ref(matrix_expr.get()));
+      
+      break;
+    }
+  }
+  
   Converter::from_eigen(matrix_expr, lu.matrixLU());
   Expr p_expr = Converter::list_from_permutation(lu.permutationP());
-  Expr q_expr = Converter::list_from_permutation(lu.permutationQ());
   
-  return List(matrix_expr, p_expr, q_expr);
+  return List(matrix_expr, p_expr);
 }
 
 
-pmath_t p4e_builtin_fullpivlu(pmath_expr_t _expr)
+pmath_t p4e_builtin_partialpivlu(pmath_expr_t _expr)
 {
-/* Eigen`FullPivLU(M) gives {lu, p, q} such that Dot(P, M, Q) = Dot(L, U)
-     - M may be rectangular or non-invertibale.
+/* Eigen`PartialPivLU(M) gives {lu, p} such that Dot(P, M) = Dot(L, U)
+     - M must be square and invertible.
      - lu is the combined LU-matrix.
      - p and q are permutation index vectors representing the permutation 
        matrices P and Q
@@ -49,12 +60,12 @@ pmath_t p4e_builtin_fullpivlu(pmath_expr_t _expr)
   
   size_t rows, cols;
   if( !MatrixKind::get_matrix_dimensions(matrix, rows, cols) || 
-      rows == 0 ||
-      cols == 0) 
+      rows != cols ||
+      rows == 0) 
   {
     pmath_message(
       PMATH_NULL,
-      "mat", 2,
+      "matsq", 2,
       matrix.release(),
       PMATH_FROM_INT32(1));
       
@@ -66,13 +77,13 @@ pmath_t p4e_builtin_fullpivlu(pmath_expr_t _expr)
   
   switch(type) {
     case MatrixKind::General:
-      return fullpivlu<MatrixXa>(matrix, rows, cols).release();
+      return partialpivlu<MatrixXa>(matrix, rows).release();
       
     case MatrixKind::MachineReal:
-      return fullpivlu<MatrixXd>(matrix, rows, cols).release();
+      return partialpivlu<MatrixXd>(matrix, rows).release();
       
     case MatrixKind::MachineComplex:
-      return fullpivlu<MatrixXcd>(matrix, rows, cols).release();
+      return partialpivlu<MatrixXcd>(matrix, rows).release();
       
   }
   

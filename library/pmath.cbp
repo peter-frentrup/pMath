@@ -109,7 +109,7 @@
 					<Add option="/GL" />
 					<Add option="/W3" />
 					<Add option="/Zi" />
-					<Add option="/wd4100 /wd4127 /wd4152 /wd4201 /wd4204 /wd4255 /wd4668 /wd4820 /wd4996 /wd4146" />
+					<Add option="/wd4100 /wd4127 /wd4146 /wd4152 /wd4201 /wd4204 /wd4255 /wd4668 /wd4748 /wd4820 /wd4996" />
 					<Add option="/DNDEBUG" />
 					<Add option="/DPMATH_USE_WINDOWS_THREADS=1" />
 					<Add option="/D_USE_MATH_DEFINES" />

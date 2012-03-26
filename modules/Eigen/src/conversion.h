@@ -16,6 +16,10 @@ namespace pmath4eigen {
       template<typename Derived>
       static pmath::Expr from_eigen(const Eigen::MatrixBase<Derived> &matrix);
       
+      // expr must already be properly sized.
+      template<typename Derived>
+      static void from_eigen(pmath::Expr &expr, const Eigen::MatrixBase<Derived> &matrix);
+      
       template<typename ScalarType>
       static ScalarType to_scalar(const pmath::Expr &e);
       
@@ -54,6 +58,20 @@ namespace pmath4eigen {
     }
     
     return expr;
+  }
+  
+  template<typename Derived>
+  inline void Converter::from_eigen(pmath::Expr &expr, const Eigen::MatrixBase<Derived> &matrix)
+  {
+    for(size_t r = matrix.rows(); r > 0; --r) {
+      pmath::Expr row_expr(pmath_expr_extract_item(expr.get(), r));
+      
+      for(size_t c = matrix.cols(); c > 0; --c) {
+        row_expr.set(c, ArithmeticExpr(matrix(r - 1, c - 1)));
+      }
+      
+      expr.set(r, row_expr);
+    }
   }
   
   template<> 
