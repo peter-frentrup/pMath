@@ -13,6 +13,11 @@ namespace pmath4eigen {
       template<typename Derived>
       static void to_eigen(Eigen::MatrixBase<Derived> const &matrix, const pmath::Expr &expr);
       
+      static pmath::Expr const_matrix(size_t rows, size_t cols, const pmath::Expr &val);
+      
+      // expr must already be properly sized.
+      static void const_matrix(pmath::Expr &expr, size_t rows, size_t cols, const pmath::Expr &val);
+      
       template<typename Derived>
       static pmath::Expr from_eigen(const Eigen::MatrixBase<Derived> &matrix);
       
@@ -20,19 +25,39 @@ namespace pmath4eigen {
       template<typename Derived>
       static void from_eigen(pmath::Expr &expr, const Eigen::MatrixBase<Derived> &matrix);
       
+      // expr must already be properly sized. and initialized with 0
+      template<typename Derived>
+      static pmath::Expr from_eigen(const Eigen::TriangularBase<Derived> &matrix);
+      
+      // expr must already be properly sized. and initialized with 0
+      template<typename Derived>
+      static void from_eigen(pmath::Expr &expr, const Eigen::TriangularBase<Derived> &matrix);
+      
       template<typename ScalarType>
       static ScalarType to_scalar(const pmath::Expr &e);
       
       template<typename Derived>
       static pmath::Expr list_from_permutation(const Eigen::PermutationBase<Derived> &perm);
+      
+      template<typename Derived>
+      static size_t diagonalSize(const Eigen::EigenBase<Derived> &matrix){
+        return std::min(matrix.rows(), matrix.cols());
+      }
+      
+    protected:
+      template<unsigned int Mode>
+      struct Triangle {
+        template<typename Derived>
+        static void from_eigen(pmath::Expr &expr, const Eigen::EigenBase<Derived> &matrix);
+      };
   };
   
   
-  template<typename Derived> 
-  inline void Converter::to_eigen(Eigen::MatrixBase<Derived> const &matrix, const pmath::Expr &expr) 
+  template<typename Derived>
+  inline void Converter::to_eigen(Eigen::MatrixBase<Derived> const &matrix, const pmath::Expr &expr)
   {
-    Eigen::MatrixBase<Derived>& matrix_ = const_cast< Eigen::MatrixBase<Derived>& >(matrix);
-  
+    Eigen::MatrixBase<Derived> &matrix_ = const_cast< Eigen::MatrixBase<Derived>& >(matrix);
+    
     for(size_t r = matrix_.rows(); r > 0; --r) {
       pmath::Expr row_expr = expr[r];
       
@@ -41,7 +66,35 @@ namespace pmath4eigen {
       }
     }
   }
-
+  
+  inline pmath::Expr Converter::const_matrix(size_t rows, size_t cols, const pmath::Expr &val) {
+    pmath::Expr expr = pmath::MakeList(rows);
+    
+    for(size_t r = rows; r > 0; --r) {
+      pmath::Expr row_expr = pmath::MakeList(cols);
+      
+      for(size_t c = cols; c > 0; --c) {
+        row_expr.set(c, val);
+      }
+      
+      expr.set(r, row_expr);
+    }
+    
+    return expr;
+  }
+  
+  inline void Converter::const_matrix(pmath::Expr &expr, size_t rows, size_t cols, const pmath::Expr &val) {
+    for(size_t r = rows; r > 0; --r) {
+      pmath::Expr row_expr(pmath_expr_extract_item(expr.get(), r));
+      
+      for(size_t c = cols; c > 0; --c) {
+        row_expr.set(c, val);
+      }
+      
+      expr.set(r, row_expr);
+    }
+  }
+  
   template<typename Derived>
   inline pmath::Expr Converter::from_eigen(const Eigen::MatrixBase<Derived> &matrix)
   {
@@ -51,7 +104,7 @@ namespace pmath4eigen {
       pmath::Expr row_expr = pmath::MakeList(matrix.cols());
       
       for(size_t c = matrix.cols(); c > 0; --c) {
-        row_expr.set(c, ArithmeticExpr(matrix(r - 1, c - 1)));
+        row_expr.set(c, ArithmeticExpr(matrix.derived()(r - 1, c - 1)));
       }
       
       expr.set(r, row_expr);
@@ -67,14 +120,134 @@ namespace pmath4eigen {
       pmath::Expr row_expr(pmath_expr_extract_item(expr.get(), r));
       
       for(size_t c = matrix.cols(); c > 0; --c) {
-        row_expr.set(c, ArithmeticExpr(matrix(r - 1, c - 1)));
+        row_expr.set(c, ArithmeticExpr(matrix.derived()(r - 1, c - 1)));
       }
       
       expr.set(r, row_expr);
     }
   }
   
-  template<> 
+  template<typename Derived>
+  inline pmath::Expr Converter::from_eigen(const Eigen::TriangularBase<Derived> &matrix)
+  {
+    typedef typename Eigen::internal::traits<Derived>::Scalar ScalarType;
+    
+    pmath::Expr expr = Converter::const_matrix(
+                         matrix.rows(),
+                         matrix.cols(),
+                         ArithmeticExpr(ScalarType(0)));
+                         
+    from_eigen(expr, matrix);
+    
+    return expr;
+  }
+  
+  template<>
+  struct Converter::Triangle<Eigen::StrictlyUpper> {
+  
+    template<typename Derived>
+    static void from_eigen(pmath::Expr &expr, const Eigen::EigenBase<Derived> &matrix)
+    {
+      for(size_t r = Converter::diagonalSize(matrix); r > 0; --r) {
+        pmath::Expr row_expr(pmath_expr_extract_item(expr.get(), r));
+        
+        for(size_t c = matrix.cols(); c > r; --c) {
+          row_expr.set(c, ArithmeticExpr(matrix.derived()(r - 1, c - 1)));
+        }
+        
+        expr.set(r, row_expr);
+      }
+    }
+    
+  };
+  
+  template<>
+  struct Converter::Triangle<Eigen::Upper> {
+  
+    template<typename Derived>
+    static void from_eigen(pmath::Expr &expr, const Eigen::EigenBase<Derived> &matrix)
+    {
+      Converter::Triangle<Eigen::StrictlyUpper>::from_eigen(expr, matrix);
+      
+      for(size_t r = Converter::diagonalSize(matrix); r > 0; --r) {
+        expr.set(r, r, ArithmeticExpr(matrix.derived()(r - 1, r - 1)));
+      }
+    }
+    
+  };
+  
+  template<>
+  struct Converter::Triangle<Eigen::UnitUpper> {
+  
+    template<typename Derived>
+    static void from_eigen(pmath::Expr &expr, const Eigen::EigenBase<Derived> &matrix)
+    {
+      Converter::Triangle<Eigen::StrictlyUpper>::from_eigen(expr, matrix);
+      
+      for(size_t r = Converter::diagonalSize(matrix); r > 0; --r) {
+        expr.set(r, r, pmath::Expr(1));
+      }
+    }
+    
+  };
+  
+  template<>
+  struct Converter::Triangle<Eigen::StrictlyLower> {
+  
+    template<typename Derived>
+    static void from_eigen(pmath::Expr &expr, const Eigen::EigenBase<Derived> &matrix)
+    {
+      for(size_t r = Converter::diagonalSize(matrix); r > 0; --r) {
+        pmath::Expr row_expr(pmath_expr_extract_item(expr.get(), r));
+        
+        for(size_t c = r; c > 0; --c) {
+          row_expr.set(c, ArithmeticExpr(matrix.derived()(r - 1, c - 1)));
+        }
+        
+        expr.set(r, row_expr);
+      }
+    }
+    
+  };
+  
+  template<>
+  struct Converter::Triangle<Eigen::Lower> {
+  
+    template<typename Derived>
+    static void from_eigen(pmath::Expr &expr, const Eigen::EigenBase<Derived> &matrix)
+    {
+      Converter::Triangle<Eigen::StrictlyLower>::from_eigen(expr, matrix);
+      
+      for(size_t r = Converter::diagonalSize(matrix); r > 0; --r) {
+        expr.set(r, r, ArithmeticExpr(matrix.derived()(r - 1, r - 1)));
+      }
+    }
+    
+  };
+  
+  
+  template<>
+  struct Converter::Triangle<Eigen::UnitLower> {
+  
+    template<typename Derived>
+    static void from_eigen(pmath::Expr &expr, const Eigen::EigenBase<Derived> &matrix)
+    {
+      Converter::Triangle<Eigen::StrictlyLower>::from_eigen(expr, matrix);
+      
+      for(size_t r = Converter::diagonalSize(matrix); r > 0; --r) {
+        expr.set(r, r, pmath::Expr(1));
+      }
+    }
+    
+  };
+  
+  template<typename Derived>
+  inline void Converter::from_eigen(pmath::Expr &expr, const Eigen::TriangularBase<Derived> &matrix)
+  {
+    Converter::Triangle< Eigen::internal::traits<Derived>::Mode >::from_eigen(expr, matrix);
+  }
+  
+  template<>
   inline double Converter::to_scalar<double>(const pmath::Expr &e)
   {
     if(e.is_number())
@@ -83,7 +256,7 @@ namespace pmath4eigen {
     return std::numeric_limits<double>::quiet_NaN();
   }
   
-  template<> 
+  template<>
   inline std::complex<double> Converter::to_scalar< std::complex<double> >(const pmath::Expr &e)
   {
     if(e.is_number())
@@ -95,7 +268,7 @@ namespace pmath4eigen {
     return std::numeric_limits<double>::quiet_NaN();
   }
   
-  template<> 
+  template<>
   inline ArithmeticExpr Converter::to_scalar< ArithmeticExpr >(const pmath::Expr &e)
   {
     return ArithmeticExpr(e);
@@ -106,7 +279,7 @@ namespace pmath4eigen {
   {
     pmath::Expr list = pmath::MakeList(perm.size());
     
-    for(size_t i = perm.size();i > 0;--i)
+    for(size_t i = perm.size(); i > 0; --i)
       list.set(i, 1 + (size_t)perm.indices()[i - 1]);
       
     return list;

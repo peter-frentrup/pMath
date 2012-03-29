@@ -134,13 +134,13 @@ namespace pmath4eigen {
   {
     if(left.is_number() && right.is_number())
       return pmath_equals(left.get(), right.get());
-    
+      
     return pmath::Evaluate(
-               pmath::Call(
-                 pmath::Symbol(PMATH_SYMBOL_EQUAL),
-                 left,
-                 right)
-             ) == PMATH_SYMBOL_TRUE;
+             pmath::Call(
+               pmath::Symbol(PMATH_SYMBOL_EQUAL),
+               left,
+               right)
+           ) == PMATH_SYMBOL_TRUE;
   }
   
   // not that (x != y) and (x == y) both may return false!
@@ -149,13 +149,13 @@ namespace pmath4eigen {
   {
     if(left.is_number() && right.is_number())
       return !pmath_equals(left.get(), right.get());
-    
+      
     return pmath::Evaluate(
-               pmath::Call(
-                 pmath::Symbol(PMATH_SYMBOL_EQUAL),
-                 left,
-                 right)
-             ) == PMATH_SYMBOL_FALSE;
+             pmath::Call(
+               pmath::Symbol(PMATH_SYMBOL_EQUAL),
+               left,
+               right)
+           ) == PMATH_SYMBOL_FALSE;
   }
   
   inline bool
@@ -163,13 +163,13 @@ namespace pmath4eigen {
   {
     if(left.is_number() && right.is_number())
       return left.compare(right) < 0;
-    
+      
     return pmath::Evaluate(
-               pmath::Call(
-                 pmath::Symbol(PMATH_SYMBOL_LESS),
-                 left,
-                 right)
-             ) == PMATH_SYMBOL_TRUE;
+             pmath::Call(
+               pmath::Symbol(PMATH_SYMBOL_LESS),
+               left,
+               right)
+           ) == PMATH_SYMBOL_TRUE;
   }
   
   inline bool
@@ -177,13 +177,13 @@ namespace pmath4eigen {
   {
     if(left.is_number() && right.is_number())
       return left.compare(right) <= 0;
-    
+      
     return pmath::Evaluate(
-               pmath::Call(
-                 pmath::Symbol(PMATH_SYMBOL_LESSEQUAL),
-                 left,
-                 right)
-             ) == PMATH_SYMBOL_TRUE;
+             pmath::Call(
+               pmath::Symbol(PMATH_SYMBOL_LESSEQUAL),
+               left,
+               right)
+           ) == PMATH_SYMBOL_TRUE;
   }
   
   inline bool
@@ -191,13 +191,13 @@ namespace pmath4eigen {
   {
     if(left.is_number() && right.is_number())
       return left.compare(right) > 0;
-    
+      
     return pmath::Evaluate(
-               pmath::Call(
-                 pmath::Symbol(PMATH_SYMBOL_GREATER),
-                 left,
-                 right)
-             ) == PMATH_SYMBOL_TRUE;
+             pmath::Call(
+               pmath::Symbol(PMATH_SYMBOL_GREATER),
+               left,
+               right)
+           ) == PMATH_SYMBOL_TRUE;
   }
   
   inline bool
@@ -205,13 +205,13 @@ namespace pmath4eigen {
   {
     if(left.is_number() && right.is_number())
       return left.compare(right) >= 0;
-    
+      
     return pmath::Evaluate(
-               pmath::Call(
-                 pmath::Symbol(PMATH_SYMBOL_GREATEREQUAL),
-                 left,
-                 right)
-             ) == PMATH_SYMBOL_TRUE;
+             pmath::Call(
+               pmath::Symbol(PMATH_SYMBOL_GREATEREQUAL),
+               left,
+               right)
+           ) == PMATH_SYMBOL_TRUE;
   }
   
   
@@ -345,6 +345,85 @@ namespace Eigen {
              ) == PMATH_SYMBOL_TRUE;
     }
     
+    
+    
+    template<>
+    struct conj_helper<pmath4eigen::ArithmeticExpr, pmath4eigen::ArithmeticExpr, false, true>
+    {
+      typedef pmath4eigen::ArithmeticExpr Scalar;
+      
+      EIGEN_STRONG_INLINE Scalar pmadd(const Scalar &x, const Scalar &y, const Scalar &c) const
+      {
+        return Scalar(
+                 pmath::Evaluate(
+                   pmath::Plus(
+                     c,
+                     pmath::Times(
+                       x,
+                       pmath::Call(pmath::Symbol(PMATH_SYMBOL_CONJUGATE), y)))));
+      }
+      
+      EIGEN_STRONG_INLINE Scalar pmul(const Scalar &x, const Scalar &y) const
+      {
+        return Scalar(
+                 pmath::Evaluate(
+                   pmath::Times(
+                     x,
+                     pmath::Call(pmath::Symbol(PMATH_SYMBOL_CONJUGATE), y))));
+      }
+    };
+    
+    template<>
+    struct conj_helper<pmath4eigen::ArithmeticExpr, pmath4eigen::ArithmeticExpr, true, false>
+    {
+      typedef pmath4eigen::ArithmeticExpr Scalar;
+      
+      EIGEN_STRONG_INLINE Scalar pmadd(const Scalar &x, const Scalar &y, const Scalar &c) const
+      {
+        return Scalar(
+                 pmath::Evaluate(
+                   pmath::Plus(
+                     c,
+                     pmath::Times(
+                       pmath::Call(pmath::Symbol(PMATH_SYMBOL_CONJUGATE), x),
+                       y))));
+      }
+      
+      EIGEN_STRONG_INLINE Scalar pmul(const Scalar &x, const Scalar &y) const
+      {
+        return Scalar(
+                 pmath::Evaluate(
+                   pmath::Times(
+                     pmath::Call(pmath::Symbol(PMATH_SYMBOL_CONJUGATE), x),
+                     y)));
+      }
+    };
+    
+    template<>
+    struct conj_helper<pmath4eigen::ArithmeticExpr, pmath4eigen::ArithmeticExpr, true, true>
+    {
+      typedef pmath4eigen::ArithmeticExpr Scalar;
+      
+      EIGEN_STRONG_INLINE Scalar pmadd(const Scalar &x, const Scalar &y, const Scalar &c) const
+      {
+        return Scalar(
+                 pmath::Evaluate(
+                   pmath::Plus(
+                     c,
+                     pmath::Times(
+                       pmath::Call(pmath::Symbol(PMATH_SYMBOL_CONJUGATE), x),
+                       pmath::Call(pmath::Symbol(PMATH_SYMBOL_CONJUGATE), y)))));
+      }
+      
+      EIGEN_STRONG_INLINE Scalar pmul(const Scalar &x, const Scalar &y) const
+      {
+        return Scalar(
+                 pmath::Evaluate(
+                   pmath::Times(
+                     pmath::Call(pmath::Symbol(PMATH_SYMBOL_CONJUGATE), x),
+                     pmath::Call(pmath::Symbol(PMATH_SYMBOL_CONJUGATE), y))));
+      }
+    };
   }
 }
 
