@@ -23,8 +23,9 @@ static Expr fullpivhouseholderqr(Expr &matrix_expr, size_t rows, size_t cols)
   Converter::from_eigen(matrix_expr, qr.matrixQ());
   Expr r_expr = Converter::from_eigen(qr.matrixQR().template triangularView<Upper>());
   Expr p_expr = Converter::list_from_permutation(qr.colsPermutation());
+  Expr t_expr = Converter::list_from_vector(qr.rowsTranspositions());
   
-  return List(matrix_expr, r_expr, p_expr, Expr());
+  return List(matrix_expr, r_expr, p_expr, t_expr);
 }
 
 

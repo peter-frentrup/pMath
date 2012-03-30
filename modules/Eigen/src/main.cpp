@@ -47,8 +47,8 @@ pmath_bool_t pmath_module_init(pmath_string_t filename) {
   BIND_DOWN( P4E_SYMBOL_FULLPIVLU,            p4e_builtin_fullpivlu);
   BIND_DOWN( P4E_SYMBOL_PARTIALPIVLU,         p4e_builtin_partialpivlu);
   BIND_DOWN( P4E_SYMBOL_HOUSEHOLDERQR,        p4e_builtin_householderqr);
-  BIND_DOWN( P4E_SYMBOL_COLPIVHOUSEHOLDERQR,  p4e_builtin_householderqr);
-  BIND_DOWN( P4E_SYMBOL_FULLPIVHOUSEHOLDERQR, p4e_builtin_householderqr);
+  BIND_DOWN( P4E_SYMBOL_COLPIVHOUSEHOLDERQR,  p4e_builtin_colpivhouseholderqr);
+  BIND_DOWN( P4E_SYMBOL_FULLPIVHOUSEHOLDERQR, p4e_builtin_fullpivhouseholderqr);
   
   PROTECT( P4E_SYMBOL_TEST);
   PROTECT( P4E_SYMBOL_FULLPIVLU);

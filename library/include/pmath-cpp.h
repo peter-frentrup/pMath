@@ -85,6 +85,23 @@ namespace pmath {
         return *this;
       }
       
+      #if __cplusplus >= 201103L
+      Expr(Expr &&src) throw()
+        : _obj(src._obj)
+      {
+        src._obj = PMATH_NULL;
+      }
+      
+      Expr &operator=(Expr &&src) throw() {
+        if(this != &other){
+          pmath_unref(_obj);
+          _obj     = src._obj;
+          src._obj = PMATH_NULL;
+        }
+        return *this;
+      }
+      #endif
+      
       bool is_custom()   const throw() { return pmath_is_custom(_obj); }
       bool is_double()   const throw() { return pmath_is_double(_obj); }
       bool is_expr()     const throw() { return pmath_is_expr(_obj); }
@@ -314,7 +331,7 @@ namespace pmath {
         pmath_unref(_str);
       }
       
-      String(const Expr &src) throw()
+      explicit String(const Expr &src) throw()
         : Expr(src.is_string() ? pmath_ref(src.get()) : PMATH_NULL)
       {
       }
@@ -364,6 +381,29 @@ namespace pmath {
         Expr::operator=(src);
         return *this;
       }
+      
+      #if __cplusplus >= 201103L
+      explicit String(Expr &&src) throw()
+        : _obj(src._obj)
+      {
+        src._obj = PMATH_NULL;
+      }
+      
+      String(String &&src) throw()
+        : _obj(src._obj)
+      {
+        src._obj = PMATH_NULL;
+      }
+      
+      String &operator=(String &&src) throw() {
+        if(this != &other){
+          pmath_unref(_obj);
+          _obj     = src._obj;
+          src._obj = PMATH_NULL;
+        }
+        return *this;
+      }
+      #endif
       
       /**\brief Append a string. */
       String &operator+=(const String &src) throw() {
@@ -590,7 +630,7 @@ namespace pmath {
         return Expr(pmath_gather_end());
       }
       
-      /**\brief Emmit a value to be gathered. */
+      /**\brief Emit a value to be gathered. */
       static void emit(Expr e) throw() {
         pmath_emit(e.release(), PMATH_NULL);
       }
@@ -620,149 +660,149 @@ namespace pmath {
       
     return Expr(d);
   }
-  inline Expr Complex(Expr re, Expr im) { return Expr(pmath_build_value("Coo", re.release(), im.release())); }
-  inline Expr Imaginary(Expr im) { return Complex(0, im); }
-  inline Expr Rational(Expr num, Expr den) { return Expr(pmath_build_value("Qoo", num.release(), den.release())); }
+  inline Expr Complex(const Expr &re, const Expr &im)    { return Expr(pmath_build_value("Coo", pmath_ref(re.get()), pmath_ref(im.get()))); }
+  inline Expr Imaginary(const Expr &im)                  { return Complex(0, im); }
+  inline Expr Rational(const Expr &num, const Expr &den) { return Expr(pmath_build_value("Qoo", pmath_ref(num.get()), pmath_ref(den.get()))); }
   
-  inline Expr Ref(pmath_t o) { return Expr(pmath_ref(o)); }
+  inline Expr Ref(pmath_t o)           { return Expr(pmath_ref(o)); }
   inline Expr Symbol(pmath_symbol_t h) { return Ref(h); }
-  inline Expr SymbolPi() { return Symbol(PMATH_SYMBOL_PI); }
+  inline Expr SymbolPi()               { return Symbol(PMATH_SYMBOL_PI); }
   
   inline Expr MakeList(size_t len) { return Expr(pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), len)); }
   
-  inline Expr Call(Expr h) {
-    return Expr(pmath_expr_new(h.release(), 0));
+  inline Expr Call(const Expr &h) {
+    return Expr(pmath_expr_new(pmath_ref(h.get()), 0));
   }
-  inline Expr Call(Expr h, Expr x1) {
-    return Expr(pmath_expr_new_extended(h.release(), 1, x1.release()));
+  inline Expr Call(const Expr &h, const Expr &x1) {
+    return Expr(pmath_expr_new_extended(pmath_ref(h.get()), 1, pmath_ref(x1.get())));
   }
-  inline Expr Call(Expr h, Expr x1, Expr x2) {
-    return Expr(pmath_expr_new_extended(h.release(), 2, x1.release(), x2.release()));
+  inline Expr Call(const Expr &h, const Expr &x1, const Expr &x2) {
+    return Expr(pmath_expr_new_extended(pmath_ref(h.get()), 2, pmath_ref(x1.get()), pmath_ref(x2.get())));
   }
-  inline Expr Call(Expr h, Expr x1, Expr x2, Expr x3) {
-    return Expr(pmath_expr_new_extended(h.release(), 3, x1.release(), x2.release(), x3.release()));
+  inline Expr Call(const Expr &h, const Expr &x1, const Expr &x2, const Expr &x3) {
+    return Expr(pmath_expr_new_extended(pmath_ref(h.get()), 3, pmath_ref(x1.get()), pmath_ref(x2.get()), pmath_ref(x3.get())));
   }
-  inline Expr Call(Expr h, Expr x1, Expr x2, Expr x3, Expr x4) {
-    return Expr(pmath_expr_new_extended(h.release(), 4, x1.release(), x2.release(), x3.release(), x4.release()));
+  inline Expr Call(const Expr &h, const Expr &x1, const Expr &x2, const Expr &x3, const Expr &x4) {
+    return Expr(pmath_expr_new_extended(pmath_ref(h.get()), 4, pmath_ref(x1.get()), pmath_ref(x2.get()), pmath_ref(x3.get()), pmath_ref(x4.get())));
   }
-  inline Expr Call(Expr h, Expr x1, Expr x2, Expr x3, Expr x4, Expr x5) {
-    return Expr(pmath_expr_new_extended(h.release(), 5, x1.release(), x2.release(), x3.release(), x4.release(), x5.release()));
+  inline Expr Call(const Expr &h, const Expr &x1, const Expr &x2, const Expr &x3, const Expr &x4, const Expr &x5) {
+    return Expr(pmath_expr_new_extended(pmath_ref(h.get()), 5, pmath_ref(x1.get()), pmath_ref(x2.get()), pmath_ref(x3.get()), pmath_ref(x4.get()), pmath_ref(x5.get())));
   }
-  inline Expr Call(Expr h, Expr x1, Expr x2, Expr x3, Expr x4, Expr x5, Expr x6) {
-    return Expr(pmath_expr_new_extended(h.release(), 6, x1.release(), x2.release(), x3.release(), x4.release(), x5.release(), x6.release()));
+  inline Expr Call(const Expr &h, const Expr &x1, const Expr &x2, const Expr &x3, const Expr &x4, const Expr &x5, const Expr &x6) {
+    return Expr(pmath_expr_new_extended(pmath_ref(h.get()), 6, pmath_ref(x1.get()), pmath_ref(x2.get()), pmath_ref(x3.get()), pmath_ref(x4.get()), pmath_ref(x5.get()), pmath_ref(x6.get())));
   }
-  inline Expr Call(Expr h, Expr x1, Expr x2, Expr x3, Expr x4, Expr x5, Expr x6, Expr x7) {
-    return Expr(pmath_expr_new_extended(h.release(), 7, x1.release(), x2.release(), x3.release(), x4.release(), x5.release(), x6.release(), x7.release()));
+  inline Expr Call(const Expr &h, const Expr &x1, const Expr &x2, const Expr &x3, const Expr &x4, const Expr &x5, const Expr &x6, const Expr &x7) {
+    return Expr(pmath_expr_new_extended(pmath_ref(h.get()), 7, pmath_ref(x1.get()), pmath_ref(x2.get()), pmath_ref(x3.get()), pmath_ref(x4.get()), pmath_ref(x5.get()), pmath_ref(x6.get()), pmath_ref(x7.get())));
   }
-  inline Expr Call(Expr h, Expr x1, Expr x2, Expr x3, Expr x4, Expr x5, Expr x6, Expr x7, Expr x8) {
-    return Expr(pmath_expr_new_extended(h.release(), 8, x1.release(), x2.release(), x3.release(), x4.release(), x5.release(), x6.release(), x7.release(), x8.release()));
+  inline Expr Call(const Expr &h, const Expr &x1, const Expr &x2, const Expr &x3, const Expr &x4, const Expr &x5, const Expr &x6, const Expr &x7, const Expr &x8) {
+    return Expr(pmath_expr_new_extended(pmath_ref(h.get()), 8, pmath_ref(x1.get()), pmath_ref(x2.get()), pmath_ref(x3.get()), pmath_ref(x4.get()), pmath_ref(x5.get()), pmath_ref(x6.get()), pmath_ref(x7.get()), pmath_ref(x8.get())));
   }
-  inline Expr Call(Expr h, Expr x1, Expr x2, Expr x3, Expr x4, Expr x5, Expr x6, Expr x7, Expr x8, Expr x9) {
-    return Expr(pmath_expr_new_extended(h.release(), 9, x1.release(), x2.release(), x3.release(), x4.release(), x5.release(), x6.release(), x7.release(), x8.release(), x9.release()));
+  inline Expr Call(const Expr &h, const Expr &x1, const Expr &x2, const Expr &x3, const Expr &x4, const Expr &x5, const Expr &x6, const Expr &x7, const Expr &x8, const Expr &x9) {
+    return Expr(pmath_expr_new_extended(pmath_ref(h.get()), 9, pmath_ref(x1.get()), pmath_ref(x2.get()), pmath_ref(x3.get()), pmath_ref(x4.get()), pmath_ref(x5.get()), pmath_ref(x6.get()), pmath_ref(x7.get()), pmath_ref(x8.get()), pmath_ref(x9.get())));
   }
   
   inline Expr List() {
     return Call(Symbol(PMATH_SYMBOL_LIST));
   }
-  inline Expr List(Expr x1) {
+  inline Expr List(const Expr &x1) {
     return Call(Symbol(PMATH_SYMBOL_LIST), x1);
   }
-  inline Expr List(Expr x1, Expr x2) {
+  inline Expr List(const Expr &x1, const Expr &x2) {
     return Call(Symbol(PMATH_SYMBOL_LIST), x1, x2);
   }
-  inline Expr List(Expr x1, Expr x2, Expr x3) {
+  inline Expr List(const Expr &x1, const Expr &x2, const Expr &x3) {
     return Call(Symbol(PMATH_SYMBOL_LIST), x1, x2, x3);
   }
-  inline Expr List(Expr x1, Expr x2, Expr x3, Expr x4) {
+  inline Expr List(const Expr &x1, const Expr &x2, const Expr &x3, const Expr &x4) {
     return Call(Symbol(PMATH_SYMBOL_LIST), x1, x2, x3, x4);
   }
-  inline Expr List(Expr x1, Expr x2, Expr x3, Expr x4, Expr x5) {
+  inline Expr List(const Expr &x1, const Expr &x2, const Expr &x3, const Expr &x4, const Expr &x5) {
     return Call(Symbol(PMATH_SYMBOL_LIST), x1, x2, x3, x4, x5);
   }
-  inline Expr List(Expr x1, Expr x2, Expr x3, Expr x4, Expr x5, Expr x6) {
+  inline Expr List(const Expr &x1, const Expr &x2, const Expr &x3, const Expr &x4, const Expr &x5, const Expr &x6) {
     return Call(Symbol(PMATH_SYMBOL_LIST), x1, x2, x3, x4, x5, x6);
   }
-  inline Expr List(Expr x1, Expr x2, Expr x3, Expr x4, Expr x5, Expr x6, Expr x7) {
+  inline Expr List(const Expr &x1, const Expr &x2, const Expr &x3, const Expr &x4, const Expr &x5, const Expr &x6, const Expr &x7) {
     return Call(Symbol(PMATH_SYMBOL_LIST), x1, x2, x3, x4, x5, x6, x7);
   }
-  inline Expr List(Expr x1, Expr x2, Expr x3, Expr x4, Expr x5, Expr x6, Expr x7, Expr x8) {
+  inline Expr List(const Expr &x1, const Expr &x2, const Expr &x3, const Expr &x4, const Expr &x5, const Expr &x6, const Expr &x7, const Expr &x8) {
     return Call(Symbol(PMATH_SYMBOL_LIST), x1, x2, x3, x4, x5, x6, x7, x8);
   }
-  inline Expr List(Expr x1, Expr x2, Expr x3, Expr x4, Expr x5, Expr x6, Expr x7, Expr x8, Expr x9) {
+  inline Expr List(const Expr &x1, const Expr &x2, const Expr &x3, const Expr &x4, const Expr &x5, const Expr &x6, const Expr &x7, const Expr &x8, const Expr &x9) {
     return Call(Symbol(PMATH_SYMBOL_LIST), x1, x2, x3, x4, x5, x6, x7, x8, x9);
   }
   
-  inline Expr Rule(Expr l, Expr r) { return Call(Symbol(PMATH_SYMBOL_RULE),        l, r); }
-  inline Expr RuleDelayed(Expr l, Expr r) { return Call(Symbol(PMATH_SYMBOL_RULEDELAYED), l, r); }
+  inline Expr Rule(       const Expr &l, const Expr &r) { return Call(Symbol(PMATH_SYMBOL_RULE),        l, r); }
+  inline Expr RuleDelayed(const Expr &l, const Expr &r) { return Call(Symbol(PMATH_SYMBOL_RULEDELAYED), l, r); }
   
-  inline Expr Power(Expr x, Expr y) { return Call(Symbol(PMATH_SYMBOL_POWER), x, y); }
+  inline Expr Power(const Expr &x, const Expr &y) { return Call(Symbol(PMATH_SYMBOL_POWER), x, y); }
   
-  inline Expr Sqrt(Expr x) { return Power(x, Rational(1, 2)); }
-  inline Expr Inv(Expr x) {  return Power(x, -1); }
+  inline Expr Sqrt(const Expr &x) { return Power(x, Rational(1, 2)); }
+  inline Expr Inv(const Expr &x) {  return Power(x, -1); }
   
-  inline Expr Exp(Expr x) {  return Power(Symbol(PMATH_SYMBOL_E), x); }
+  inline Expr Exp(const Expr &x) { return Power(Symbol(PMATH_SYMBOL_E), x); }
   
-  inline Expr Log(Expr x) {  return Call(Symbol(PMATH_SYMBOL_LOG), x); }
-  inline Expr Log(Expr b, Expr x) { return Call(Symbol(PMATH_SYMBOL_LOG), b, x); }
+  inline Expr Log(const Expr &x) {                return Call(Symbol(PMATH_SYMBOL_LOG), x); }
+  inline Expr Log(const Expr &b, const Expr &x) { return Call(Symbol(PMATH_SYMBOL_LOG), b, x); }
   
-  inline Expr Sin(Expr x) { return Call(Symbol(PMATH_SYMBOL_SIN), x); }
-  inline Expr Cos(Expr x) { return Call(Symbol(PMATH_SYMBOL_COS), x); }
-  inline Expr Tan(Expr x) { return Call(Symbol(PMATH_SYMBOL_TAN), x); }
-  inline Expr ArcSin(Expr x) { return Call(Symbol(PMATH_SYMBOL_ARCSIN), x); }
-  inline Expr ArcCos(Expr x) { return Call(Symbol(PMATH_SYMBOL_ARCCOS), x); }
-  inline Expr ArcTan(Expr x) { return Call(Symbol(PMATH_SYMBOL_ARCTAN), x); }
+  inline Expr Sin(   const Expr &x) { return Call(Symbol(PMATH_SYMBOL_SIN), x); }
+  inline Expr Cos(   const Expr &x) { return Call(Symbol(PMATH_SYMBOL_COS), x); }
+  inline Expr Tan(   const Expr &x) { return Call(Symbol(PMATH_SYMBOL_TAN), x); }
+  inline Expr ArcSin(const Expr &x) { return Call(Symbol(PMATH_SYMBOL_ARCSIN), x); }
+  inline Expr ArcCos(const Expr &x) { return Call(Symbol(PMATH_SYMBOL_ARCCOS), x); }
+  inline Expr ArcTan(const Expr &x) { return Call(Symbol(PMATH_SYMBOL_ARCTAN), x); }
   
-  inline Expr Times(Expr x1, Expr x2) {                   return Call(Symbol(PMATH_SYMBOL_TIMES), x1, x2); }
-  inline Expr Times(Expr x1, Expr x2, Expr x3) {          return Call(Symbol(PMATH_SYMBOL_TIMES), x1, x2, x3); }
-  inline Expr Times(Expr x1, Expr x2, Expr x3, Expr x4) { return Call(Symbol(PMATH_SYMBOL_TIMES), x1, x2, x3, x4); }
+  inline Expr Times(const Expr &x1, const Expr &x2) {                                 return Call(Symbol(PMATH_SYMBOL_TIMES), x1, x2); }
+  inline Expr Times(const Expr &x1, const Expr &x2, const Expr &x3) {                 return Call(Symbol(PMATH_SYMBOL_TIMES), x1, x2, x3); }
+  inline Expr Times(const Expr &x1, const Expr &x2, const Expr &x3, const Expr &x4) { return Call(Symbol(PMATH_SYMBOL_TIMES), x1, x2, x3, x4); }
   
-  inline Expr Divide(Expr x, Expr y) { return Times(x, Inv(y)); }
+  inline Expr Divide(const Expr &x, const Expr &y) { return Times(x, Inv(y)); }
   
-  inline Expr Plus(Expr x1, Expr x2) {                   return Call(Symbol(PMATH_SYMBOL_PLUS), x1, x2); }
-  inline Expr Plus(Expr x1, Expr x2, Expr x3) {          return Call(Symbol(PMATH_SYMBOL_PLUS), x1, x2, x3); }
-  inline Expr Plus(Expr x1, Expr x2, Expr x3, Expr x4) { return Call(Symbol(PMATH_SYMBOL_PLUS), x1, x2, x3, x4); }
+  inline Expr Plus(const Expr &x1, const Expr &x2) {                                 return Call(Symbol(PMATH_SYMBOL_PLUS), x1, x2); }
+  inline Expr Plus(const Expr &x1, const Expr &x2, const Expr &x3) {                 return Call(Symbol(PMATH_SYMBOL_PLUS), x1, x2, x3); }
+  inline Expr Plus(const Expr &x1, const Expr &x2, const Expr &x3, const Expr &x4) { return Call(Symbol(PMATH_SYMBOL_PLUS), x1, x2, x3, x4); }
   
-  inline Expr Minus(Expr x) {         return Times(-1, x); }
-  inline Expr Minus(Expr x, Expr y) { return Plus(x, Minus(y)); }
+  inline Expr Minus(const Expr &x) {                return Times(-1, x); }
+  inline Expr Minus(const Expr &x, const Expr &y) { return Plus(x, Minus(y)); }
   
-  inline Expr Abs(Expr x) { return Call(Symbol(PMATH_SYMBOL_ABS),  x); }
-  inline Expr Arg(Expr x) { return Call(Symbol(PMATH_SYMBOL_ARG),  x); }
-  inline Expr Sign(Expr x) { return Call(Symbol(PMATH_SYMBOL_SIGN), x); }
-  inline Expr Re(Expr x) { return Call(Symbol(PMATH_SYMBOL_RE),   x); }
-  inline Expr Im(Expr x) { return Call(Symbol(PMATH_SYMBOL_IM),   x); }
+  inline Expr Abs( const Expr &x) { return Call(Symbol(PMATH_SYMBOL_ABS),  x); }
+  inline Expr Arg( const Expr &x) { return Call(Symbol(PMATH_SYMBOL_ARG),  x); }
+  inline Expr Sign(const Expr &x) { return Call(Symbol(PMATH_SYMBOL_SIGN), x); }
+  inline Expr Re(  const Expr &x) { return Call(Symbol(PMATH_SYMBOL_RE),   x); }
+  inline Expr Im(  const Expr &x) { return Call(Symbol(PMATH_SYMBOL_IM),   x); }
   
-  inline Expr Ceiling(Expr x) {         return Call(Symbol(PMATH_SYMBOL_CEILING), x); }
-  inline Expr Ceiling(Expr x, Expr a) { return Call(Symbol(PMATH_SYMBOL_CEILING), x, a); }
-  inline Expr Floor(Expr x) {         return Call(Symbol(PMATH_SYMBOL_FLOOR),   x); }
-  inline Expr Floor(Expr x, Expr a) { return Call(Symbol(PMATH_SYMBOL_FLOOR),   x, a); }
-  inline Expr Round(Expr x) {         return Call(Symbol(PMATH_SYMBOL_ROUND),   x); }
-  inline Expr Round(Expr x, Expr a) { return Call(Symbol(PMATH_SYMBOL_ROUND),   x, a); }
+  inline Expr Ceiling(const Expr &x) {                return Call(Symbol(PMATH_SYMBOL_CEILING), x); }
+  inline Expr Ceiling(const Expr &x, const Expr &a) { return Call(Symbol(PMATH_SYMBOL_CEILING), x, a); }
+  inline Expr Floor(  const Expr &x) {                return Call(Symbol(PMATH_SYMBOL_FLOOR),   x); }
+  inline Expr Floor(  const Expr &x, const Expr &a) { return Call(Symbol(PMATH_SYMBOL_FLOOR),   x, a); }
+  inline Expr Round(  const Expr &x) {                return Call(Symbol(PMATH_SYMBOL_ROUND),   x); }
+  inline Expr Round(  const Expr &x, const Expr &a) { return Call(Symbol(PMATH_SYMBOL_ROUND),   x, a); }
   
-  inline Expr Quotient(Expr m, Expr n) {         return Call(Symbol(PMATH_SYMBOL_QUOTIENT), m, n); }
-  inline Expr Quotient(Expr m, Expr n, Expr d) { return Call(Symbol(PMATH_SYMBOL_QUOTIENT), m, n, d); }
-  inline Expr Mod(Expr m, Expr n) {         return Call(Symbol(PMATH_SYMBOL_MOD),      m, n); }
-  inline Expr Mod(Expr m, Expr n, Expr d) { return Call(Symbol(PMATH_SYMBOL_MOD),      m, n, d); }
+  inline Expr Quotient(const Expr &m, const Expr &n) {                return Call(Symbol(PMATH_SYMBOL_QUOTIENT), m, n); }
+  inline Expr Quotient(const Expr &m, const Expr &n, const Expr &d) { return Call(Symbol(PMATH_SYMBOL_QUOTIENT), m, n, d); }
+  inline Expr Mod(     const Expr &m, const Expr &n) {                return Call(Symbol(PMATH_SYMBOL_MOD),      m, n); }
+  inline Expr Mod(     const Expr &m, const Expr &n, const Expr &d) { return Call(Symbol(PMATH_SYMBOL_MOD),      m, n, d); }
   
   
-  inline Expr Evaluate(Expr x) { return Expr(pmath_evaluate(x.release())); }
-  inline Expr ParseArgs(const char *code, Expr arglist) {
+  inline Expr Evaluate(const Expr &x) { return Expr(pmath_evaluate(pmath_ref(x.get()))); }
+  inline Expr ParseArgs(const char *code, const Expr &arglist) {
     return Expr(pmath_parse_string_args(
                   code,
                   "o",
-                  arglist.release()));
+                  pmath_ref(arglist.get())));
   }
-  inline Expr Parse(String code) { return Expr(pmath_parse_string(code.get())); }
+  inline Expr Parse(const String &code) { return Expr(pmath_parse_string(code.get())); }
   inline Expr Parse(const char *code) { return Expr(pmath_parse_string(PMATH_C_STRING(code))); }
-  inline Expr Parse(const char *code, Expr x1) {
+  inline Expr Parse(const char *code, const Expr &x1) {
     return ParseArgs(code, List(x1));
   }
-  inline Expr Parse(const char *code, Expr x1, Expr x2) {
+  inline Expr Parse(const char *code, const Expr &x1, const Expr &x2) {
     return ParseArgs(code, List(x1, x2));
   }
-  inline Expr Parse(const char *code, Expr x1, Expr x2, Expr x3) {
+  inline Expr Parse(const char *code, const Expr &x1, const Expr &x2, const Expr &x3) {
     return ParseArgs(code, List(x1, x2, x3));
   }
-  inline Expr Parse(const char *code, Expr x1, Expr x2, Expr x3, Expr x4) {
+  inline Expr Parse(const char *code, const Expr &x1, const Expr &x2, const Expr &x3, const Expr &x4) {
     return ParseArgs(code, List(x1, x2, x3, x4));
   }
   
