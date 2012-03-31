@@ -1,7 +1,8 @@
 #ifndef __P4E__CLASSIFICATION_H__
 #define __P4E__CLASSIFICATION_H__
 
-#include <pmath-cpp.h>
+#include "arithmetic-expr.h"
+#include <Eigen/Core>
 
 
 namespace pmath4eigen {
@@ -24,6 +25,11 @@ namespace pmath4eigen {
       
       static bool is_symbolic_matrix(const pmath::Expr &matrix);
       
+      template<typename Derived>
+      static bool is_hermetian_matrix(const Eigen::MatrixBase<Derived> &m) {
+        return Eigen::internal::isApprox(
+                 (m.conjugate() - m.transpose()).cwiseAbs().maxCoeff(), 0);
+      }
   };
   
 }

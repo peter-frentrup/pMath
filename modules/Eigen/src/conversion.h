@@ -40,6 +40,9 @@ namespace pmath4eigen {
       static pmath::Expr list_from_permutation(const Eigen::PermutationBase<Derived> &perm);
       
       template<typename Derived>
+      static pmath::Expr list_from_transpositions(const Eigen::TranspositionsBase<Derived> &perm);
+      
+      template<typename Derived>
       static pmath::Expr list_from_vector(const Eigen::MatrixBase<Derived> &vec);
       
       template<typename Derived>
@@ -279,6 +282,17 @@ namespace pmath4eigen {
   
   template<typename Derived>
   inline pmath::Expr Converter::list_from_permutation(const Eigen::PermutationBase<Derived> &perm)
+  {
+    pmath::Expr list = pmath::MakeList(perm.size());
+    
+    for(size_t i = perm.size(); i > 0; --i)
+      list.set(i, 1 + (size_t)perm.indices()[i - 1]);
+      
+    return list;
+  }
+  
+  template<typename Derived>
+  inline pmath::Expr Converter::list_from_transpositions(const Eigen::TranspositionsBase<Derived> &perm)
   {
     pmath::Expr list = pmath::MakeList(perm.size());
     

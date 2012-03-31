@@ -18,7 +18,6 @@ static Expr fullpivlu(Expr &matrix_expr, size_t rows, size_t cols)
   
   FullPivLU<MatrixType> lu(matrix);
   
-  //matrix_expr   = Converter::from_eigen(lu.matrixLU());
   Converter::from_eigen(matrix_expr, lu.matrixLU());
   Expr p_expr = Converter::list_from_permutation(lu.permutationP());
   Expr q_expr = Converter::list_from_permutation(lu.permutationQ());

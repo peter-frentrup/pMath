@@ -62,8 +62,10 @@
 		<Unit filename="src\builtin-fullpivhouseholderqr.cpp" />
 		<Unit filename="src\builtin-fullpivlu.cpp" />
 		<Unit filename="src\builtin-householderqr.cpp" />
+		<Unit filename="src\builtin-jacobisvd.cpp" />
+		<Unit filename="src\builtin-ldlt.cpp" />
+		<Unit filename="src\builtin-llt.cpp" />
 		<Unit filename="src\builtin-partialpivlu.cpp" />
-		<Unit filename="src\builtin-test.cpp" />
 		<Unit filename="src\classification.cpp" />
 		<Unit filename="src\classification.h" />
 		<Unit filename="src\conversion.h" />

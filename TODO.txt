@@ -2,6 +2,8 @@
 	Button("italic", DocumentApply(SelectedDocument(), StyleBox("\[SelectionPlaceholder]", "TI"))),
 	Button("Arg Style", DocumentApply(SelectedDocument(), StyleBox("\[SelectionPlaceholder]", "Arg")))})
 
+- simplify Conjugate(2a + 5 + b + c + Re(d)) to 2 Conjugate(a) + 5 + Conjugate(b + c) + Re(d)
+
 - add InverseFunction
 
 - produce syntax error when in "\U12345678", i.e. when the character is not in the unicode range.

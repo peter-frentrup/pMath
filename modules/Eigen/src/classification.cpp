@@ -100,3 +100,4 @@ bool MatrixKind::is_symbolic_matrix(const pmath::Expr &matrix){
   
   return false;
 }
+
