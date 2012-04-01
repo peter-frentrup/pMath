@@ -12,7 +12,7 @@
 				<Option object_output="obj\Debug\" />
 				<Option type="3" />
 				<Option compiler="gcc" />
-				<Option host_application="D:\Data\C++\pmath\richmath\bin\windows\debug\richmath.exe" />
+				<Option host_application="D:\Peter\Programmieren\pmath\richmath\bin\windows\debug\richmath.exe" />
 				<Option run_host_application_in_terminal="1" />
 				<Option createDefFile="1" />
 				<Option createStaticLib="1" />

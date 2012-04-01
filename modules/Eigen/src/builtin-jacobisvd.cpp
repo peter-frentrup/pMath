@@ -16,7 +16,7 @@ static Expr jacobisvd(Expr &expr, Expr &matrix_expr, size_t rows, size_t cols)
   
   Converter::to_eigen(matrix, matrix_expr);
   
-  JacobiSVD<MatrixType, QRPreconditioner> svd(matrix);
+  JacobiSVD<MatrixType, QRPreconditioner> svd(matrix, ComputeFullU | ComputeFullV);
   
   expr        = Expr();
   matrix_expr = Expr();

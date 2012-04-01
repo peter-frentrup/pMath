@@ -308,7 +308,7 @@ namespace pmath4eigen {
     pmath::Expr list = pmath::MakeList(vec.size());
     
     for(size_t i = vec.size(); i > 0; --i)
-      list.set(i, 1 + ArithmeticExpr(vec(i - 1)));
+      list.set(i, ArithmeticExpr(vec(i - 1)));
       
     return list;
   }
