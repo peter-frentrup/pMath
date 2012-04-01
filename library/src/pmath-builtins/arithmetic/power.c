@@ -604,7 +604,11 @@ static void expand_natural_power_of_complex(
   *im_ptr = _add_nn(dst[1], pmath_number_neg(dst[3]));
 }
 
-static pmath_integer_t factor_gcd_int(pmath_integer_t *a, pmath_integer_t *b) {
+PMATH_PRIVATE
+pmath_integer_t _pmath_factor_gcd_int(
+  pmath_integer_t *a, 
+  pmath_integer_t *b) 
+{
   pmath_mpint_t aa, bb, dd, xx, yy;
   
   if(pmath_is_int32(*a))
@@ -651,12 +655,16 @@ static pmath_integer_t factor_gcd_int(pmath_integer_t *a, pmath_integer_t *b) {
   return PMATH_NULL;
 }
 
-static pmath_rational_t factor_rationals(pmath_rational_t *a, pmath_rational_t *b) {
+PMATH_PRIVATE
+pmath_rational_t _pmath_factor_rationals(
+  pmath_rational_t *a, 
+  pmath_rational_t *b) 
+{
   pmath_integer_t a_den, b_den;
   pmath_mpint_t mm, aa, bb;
   
   if(pmath_is_integer(*a) && pmath_is_integer(*b))
-    return factor_gcd_int(a, b);
+    return _pmath_factor_gcd_int(a, b);
     
   a_den = pmath_rational_denominator(*a);
   b_den = pmath_rational_denominator(*b);
@@ -689,15 +697,15 @@ static pmath_rational_t factor_rationals(pmath_rational_t *a, pmath_rational_t *
     a_num = _mul_ii(a_num, aa);
     b_num = _mul_ii(b_num, bb);
     
-    result = factor_gcd_int(&a_num, &b_num);
+    aa = PMATH_NULL;
+    bb = PMATH_NULL;
+    
+    result = _pmath_factor_gcd_int(&a_num, &b_num);
     
     if(!pmath_is_null(result)) {
     
       pmath_unref(a_den);
       pmath_unref(b_den);
-      pmath_unref(mm);
-      pmath_unref(aa);
-      pmath_unref(bb);
       pmath_unref(*a);
       pmath_unref(*b);
       
@@ -727,9 +735,9 @@ static pmath_rational_t factor_complex(pmath_expr_t *z) {
       pmath_is_rational(re) &&
       pmath_is_rational(im))
   {
-    pmath_rational_t result = factor_rationals(
-                                (pmath_rational_t*)&re,
-                                (pmath_rational_t*)&im);
+    pmath_rational_t result = _pmath_factor_rationals(
+                                (pmath_rational_t *)&re,
+                                (pmath_rational_t *)&im);
                                 
     pmath_unref(*z);
     *z = COMPLEX(re, im);
@@ -1330,11 +1338,11 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr) {
       pmath_unref(exp_den);
     }
     
-    if(pmath_is_expr_of(base, PMATH_SYMBOL_TIMES)) { // (x * y) ^ (p/q)
-      pmath_unref(base);
-      pmath_unref(exponent);
-      return expand_numeric_power_of_product(expr);
-    }
+//    if(pmath_is_expr_of(base, PMATH_SYMBOL_TIMES)) { // (x * y) ^ (p/q)
+//      pmath_unref(base);
+//      pmath_unref(exponent);
+//      return expand_numeric_power_of_product(expr);
+//    }
   }
   
   if(pmath_is_quotient(base)) {
@@ -1646,8 +1654,9 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr) {
       return pmath_expr_set_item(base, 2, TIMES(exponent, inner_exp));
     }
     
-    if(pmath_is_rational(exponent)
-        && pmath_is_rational(inner_exp)) {
+    if(pmath_is_rational(exponent) &&
+        pmath_is_rational(inner_exp))
+    {
       if(pmath_number_sign(inner_exp) > 0) {
         if(pmath_compare(inner_exp, PMATH_FROM_INT32(1)) < 0) {
           pmath_unref(expr);
@@ -1853,8 +1862,7 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr) {
     return base;
   }
   
-  if(exp_class & (PMATH_CLASS_REAL | PMATH_CLASS_COMPLEX))
-  {
+  if(exp_class & (PMATH_CLASS_REAL | PMATH_CLASS_COMPLEX)) {
     if(pmath_is_expr_of(base, PMATH_SYMBOL_TIMES)) {
       pmath_unref(base);
       pmath_unref(exponent);
@@ -1873,6 +1881,12 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr) {
       expr = pmath_expr_set_item(expr, 1, base);
       return TIMES(factor, expr);
     }
+  }
+  
+  if(pmath_is_expr_of(base, PMATH_SYMBOL_TIMES)) { // (x y)^z = x^z y^z, if x > 0
+    pmath_unref(base);
+    pmath_unref(exponent);
+    return expand_numeric_power_of_product(expr);
   }
   
   if( pmath_equals(exponent, _pmath_object_overflow) ||

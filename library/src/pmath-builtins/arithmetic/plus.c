@@ -661,8 +661,9 @@ PMATH_PRIVATE void split_summand(
       
       if(len > 1) {
         pmath_t first = pmath_expr_get_item(summand, 1);
-        if(pmath_is_number(first)
-            || _pmath_is_nonreal_complex(first)) {
+        if( pmath_is_number(first) ||
+            _pmath_is_nonreal_complex(first))
+        {
           *out_num_factor = first;
           
           if(len == 2) {

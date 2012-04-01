@@ -33,6 +33,16 @@ pmath_t _pow_fi( // returns struct _pmath_mp_float_t* iff null_on_errors is TRUE
   pmath_bool_t  null_on_errors);
 
 PMATH_PRIVATE
+pmath_integer_t _pmath_factor_gcd_int(
+  pmath_integer_t *a,   // not PMATH_NULL!  never PMATH_NULL on output
+  pmath_integer_t *b);  // not PMATH_NULL!  never PMATH_NULL on output
+
+PMATH_PRIVATE
+pmath_rational_t _pmath_factor_rationals(
+  pmath_rational_t *a,   // not PMATH_NULL!  integer on successful output
+  pmath_rational_t *b);  // not PMATH_NULL!  integer on successful output
+
+PMATH_PRIVATE
 pmath_bool_t _pmath_is_infinite(pmath_t obj);
 
 // PMATH_NULL if obj is no DirectedInfinity:
