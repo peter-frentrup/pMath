@@ -210,9 +210,9 @@ static pmath_integer_t int_root(
   pmath_unref(prime_power);
   
   if(neg)
-    *new_base = pmath_number_neg(old_base);
+    *new_base = pmath_number_neg(_pmath_mp_int_normalize(old_base));
   else
-    *new_base = old_base;
+    *new_base = _pmath_mp_int_normalize(old_base);
     
   return PMATH_NULL;
 }
@@ -606,8 +606,8 @@ static void expand_natural_power_of_complex(
 
 PMATH_PRIVATE
 pmath_integer_t _pmath_factor_gcd_int(
-  pmath_integer_t *a, 
-  pmath_integer_t *b) 
+  pmath_integer_t *a,
+  pmath_integer_t *b)
 {
   pmath_mpint_t aa, bb, dd, xx, yy;
   
@@ -657,8 +657,8 @@ pmath_integer_t _pmath_factor_gcd_int(
 
 PMATH_PRIVATE
 pmath_rational_t _pmath_factor_rationals(
-  pmath_rational_t *a, 
-  pmath_rational_t *b) 
+  pmath_rational_t *a,
+  pmath_rational_t *b)
 {
   pmath_integer_t a_den, b_den;
   pmath_mpint_t mm, aa, bb;
@@ -762,7 +762,10 @@ static pmath_t expand_numeric_power_of_product(pmath_expr_t power) {
     
     int factor_class = _pmath_number_class(factor);
     
-    if(factor_class & (PMATH_CLASS_REAL & ~PMATH_CLASS_NEGONE)) {
+    if(factor_class & PMATH_CLASS_NEGONE) {
+      pmath_unref(factor);
+    }
+    else if(factor_class & PMATH_CLASS_REAL) {
       pmath_unref(factor);
       
       if(numeric_factor_index == 0)
@@ -771,10 +774,10 @@ static pmath_t expand_numeric_power_of_product(pmath_expr_t power) {
       if(has_symbolic_factor)
         break;
         
-      if(factor_class & PMATH_CLASS_NEG) {
-        has_symbolic_factor = TRUE;
-        break;
-      }
+//      if(factor_class & PMATH_CLASS_NEG) {
+//        has_symbolic_factor = TRUE;
+//        break;
+//      }
     }
     else if(pmath_is_expr_of_len(factor, PMATH_SYMBOL_COMPLEX, 2)) {
       pmath_rational_t gcd = factor_complex(&factor);
@@ -837,6 +840,33 @@ static pmath_t expand_numeric_power_of_product(pmath_expr_t power) {
     power = pmath_expr_set_item(power, 1, product);
     power = TIMES(numeric_factors, power);
     return power;
+  }
+  
+  for(i = numeric_factor_index; i > 0; --i) {
+    pmath_t factor = pmath_expr_get_item(product, i);
+    
+    int factor_class = _pmath_number_class(factor);
+    
+    if(factor_class & PMATH_CLASS_REAL) {
+      if(factor_class & PMATH_CLASS_NEG)
+        factor = NEG(factor);
+        
+      factor = POW(factor, pmath_expr_get_item(power, 2));
+      factor = pmath_evaluate(factor);
+      
+      if(!pmath_is_expr_of(factor, PMATH_SYMBOL_POWER)) {
+        if(factor_class & PMATH_CLASS_NEG)
+          product = pmath_expr_set_item(product, i, INT(-1));
+        else
+          product = pmath_expr_set_item(product, i, INT(1));
+          
+        power = pmath_expr_set_item(power, 1, product);
+        power = TIMES(factor, power);
+        return power;
+      }
+    }
+    
+    pmath_unref(factor);
   }
   
   pmath_unref(product);
@@ -1108,7 +1138,7 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr) {
   }
   
   if(pmath_is_quotient(exponent)) {
-    if(pmath_is_rational(base) && !pmath_equals(base, PMATH_FROM_INT32(0))) { // (a/b)^(c/d)
+    if(pmath_is_rational(base) && !pmath_equals(base, INT(0))) { // (a/b)^(c/d)
       pmath_integer_t exp_num;
       pmath_integer_t exp_den;
       
@@ -1162,8 +1192,8 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr) {
         assert(PMATH_AS_INT32(exp_den) > 0);
         
         if(pmath_is_int32(exp_num)) {
-          outside_one = PMATH_AS_INT32(exp_num) >  PMATH_AS_INT32(exp_den)
-                        || PMATH_AS_INT32(exp_num) < -PMATH_AS_INT32(exp_den);
+          outside_one = PMATH_AS_INT32(exp_num) >  PMATH_AS_INT32(exp_den) ||
+                        PMATH_AS_INT32(exp_num) < -PMATH_AS_INT32(exp_den);
         }
         else {
           assert(pmath_is_mpint(exp_num));
@@ -1208,8 +1238,9 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr) {
           return TIMES(POW(base, qexp), expr);
         }
         
-        if(PMATH_AS_INT32(exp_den) == 2
-            && pmath_number_sign(base) < 0) {
+        if( PMATH_AS_INT32(exp_den) == 2 &&
+            pmath_number_sign(base) < 0)
+        {
           // so exp_num = 1 or -1
           
           pmath_unref(expr);
@@ -1648,29 +1679,32 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr) {
   
   if(pmath_is_expr_of_len(base, PMATH_SYMBOL_POWER, 2)) { // (x^y)^exponent
     pmath_t inner_exp = pmath_expr_get_item(base, 2);
+    pmath_t inner_base;
     
     if(pmath_is_integer(exponent)) {
       pmath_unref(expr);
       return pmath_expr_set_item(base, 2, TIMES(exponent, inner_exp));
     }
     
-    if(pmath_is_rational(exponent) &&
-        pmath_is_rational(inner_exp))
-    {
-      if(pmath_number_sign(inner_exp) > 0) {
-        if(pmath_compare(inner_exp, PMATH_FROM_INT32(1)) < 0) {
-          pmath_unref(expr);
-          return pmath_expr_set_item(base, 2, TIMES(exponent, inner_exp));
-        }
-      }
-      else {
-        if(pmath_compare(inner_exp, PMATH_FROM_INT32(-1)) > 0) {
-          pmath_unref(expr);
-          return pmath_expr_set_item(base, 2, TIMES(exponent, inner_exp));
-        }
+    if(pmath_is_rational(inner_exp)) {
+      int sign = pmath_number_sign(inner_exp);
+      
+      if(sign * pmath_compare(inner_exp, INT(sign)) < 0) {
+        pmath_unref(expr);
+        return pmath_expr_set_item(base, 2, TIMES(exponent, inner_exp));
       }
     }
     
+    inner_base = pmath_expr_get_item(base, 1);
+    if( (_pmath_number_class(inner_base) & PMATH_CLASS_POS) &&
+        (_pmath_number_class(inner_exp) & PMATH_CLASS_REAL))
+    {
+      pmath_unref(expr);
+      pmath_unref(inner_base);
+      return pmath_expr_set_item(base, 2, TIMES(inner_exp, exponent));
+    }
+    
+    pmath_unref(inner_base);
     pmath_unref(inner_exp);
   }
   

@@ -668,17 +668,39 @@ static pmath_bool_t times_2_arg_pow(pmath_t *a, pmath_t *b) {
         {
           pmath_t         facA, facB;
           pmath_integer_t commonExponent, expA, expB;
-          
-          pmath_unref(*a);
-          pmath_unref(*b);
+          int             sign;
           
           pmath_unref(baseA);
           pmath_unref(baseB);
           
-          expA           = pmath_ref(numPowerA);
-          expB           = pmath_ref(numPowerB);
-          commonExponent = _add_nn(numPowerA, numPowerB);
+          commonExponent = _add_nn(pmath_ref(numPowerA), pmath_ref(numPowerB));
           
+          // prevent infinite recursion in Sqrt(8) -> 2 Sqrt(2) -> Sqrt(8) ...
+          sign = pmath_number_sign(commonExponent);
+          if( sign != 0 &&
+              sign * _pmath_numbers_compare(commonExponent, numPowerA) >= 0 &&
+              sign * _pmath_numbers_compare(commonExponent, numPowerB) >= 0)
+          {
+            pmath_unref(commonExponent);
+            pmath_unref(commonNum);
+            pmath_unref(commonDen);
+            pmath_unref(baseAnum);
+            pmath_unref(baseBnum);
+            pmath_unref(baseAden);
+            pmath_unref(baseBden);
+            
+            pmath_unref(numPowerA);
+            pmath_unref(numPowerB);
+            pmath_unref(restPowerA);
+            pmath_unref(restPowerB);
+            return FALSE;
+          }
+          
+          pmath_unref(*a);
+          pmath_unref(*b);
+          
+          expA = numPowerA;
+          expB = numPowerB;
           if(!pmath_same(restPowerA, PMATH_UNDEFINED)) {
             commonExponent = TIMES(commonExponent, pmath_ref(restPowerA));
             expA           = TIMES(expA,           restPowerA);
@@ -726,17 +748,41 @@ static pmath_bool_t times_2_arg_pow(pmath_t *a, pmath_t *b) {
         {
           pmath_t         facA, facB;
           pmath_integer_t commonExponent, expA, expB;
-          
-          pmath_unref(*a);
-          pmath_unref(*b);
+          int             sign;
           
           pmath_unref(baseA);
           pmath_unref(baseB);
           
-          expA           = pmath_ref(numPowerA);
-          expB           = pmath_ref(numPowerB);
-          commonExponent = _add_nn(numPowerA, pmath_number_neg(numPowerB));
+          commonExponent = _add_nn(
+                             pmath_ref(numPowerA),
+                             pmath_number_neg(pmath_ref(numPowerB)));
+                             
+          // prevent infinite recursion in 1/2 * 2^(-1/2) -> (1/2)^(3/2) -> 1/2 * 2^(-1/2) ...
+          sign = pmath_number_sign(commonExponent);
+          if( sign != 0 &&
+              sign * _pmath_numbers_compare(commonExponent, numPowerA) >= 0 &&
+              sign * _pmath_numbers_compare(commonExponent, numPowerB) >= 0)
+          {
+            pmath_unref(commonExponent);
+            pmath_unref(commonAnumBden);
+            pmath_unref(commonBnumAden);
+            pmath_unref(baseAnum);
+            pmath_unref(baseBnum);
+            pmath_unref(baseAden);
+            pmath_unref(baseBden);
+            
+            pmath_unref(numPowerA);
+            pmath_unref(numPowerB);
+            pmath_unref(restPowerA);
+            pmath_unref(restPowerB);
+            return FALSE;
+          }
           
+          pmath_unref(*a);
+          pmath_unref(*b);
+          
+          expA = numPowerA;
+          expB = numPowerB;
           if(!pmath_same(restPowerA, PMATH_UNDEFINED)) {
             expA = TIMES(expA, restPowerA);
             expB = TIMES(expB, restPowerB);

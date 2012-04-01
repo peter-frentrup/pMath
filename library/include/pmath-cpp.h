@@ -31,7 +31,7 @@ namespace pmath {
   
   /**\ingroup cpp_binding
      \brief A wrapper for pmath_t and drived types.
-     
+  
      This class wraps a single pmath_t, so its sizeof(Expr) == sizeof(pmath_t).
    */
   class Expr {
@@ -85,22 +85,22 @@ namespace pmath {
         return *this;
       }
       
-      #if __cplusplus >= 201103L
-      Expr(Expr &&src) throw()
+#if __cplusplus >= 201103L
+      Expr(Expr && src) throw()
         : _obj(src._obj)
       {
         src._obj = PMATH_NULL;
       }
       
-      Expr &operator=(Expr &&src) throw() {
-        if(this != &other){
+      Expr &operator=(Expr && src) throw() {
+        if(this != &other) {
           pmath_unref(_obj);
           _obj     = src._obj;
           src._obj = PMATH_NULL;
         }
         return *this;
       }
-      #endif
+#endif
       
       bool is_custom()   const throw() { return pmath_is_custom(_obj); }
       bool is_double()   const throw() { return pmath_is_double(_obj); }
@@ -277,11 +277,11 @@ namespace pmath {
         const uint16_t *data,
         int             len
       ) throw() {
-        *(pmath_string_t*)user = pmath_string_insert_ucs2(
-                                   *(pmath_string_t*)user,
-                                   pmath_string_length(*(pmath_string_t*)user),
-                                   data,
-                                   len);
+        *(pmath_string_t *)user = pmath_string_insert_ucs2(
+                                    *(pmath_string_t *)user,
+                                    pmath_string_length(*(pmath_string_t *)user),
+                                    data,
+                                    len);
       }
   };
   
@@ -314,7 +314,7 @@ namespace pmath {
   
   /**\ingroup cpp_binding
      \brief A wrapper for pmath_string_t.
-     
+  
      This class provides some string utility functions in addition to Expr.
    */
   class String: public Expr {
@@ -331,7 +331,7 @@ namespace pmath {
         pmath_unref(_str);
       }
       
-      explicit String(const Expr &src) throw()
+      String(const Expr &src) throw()
         : Expr(src.is_string() ? pmath_ref(src.get()) : PMATH_NULL)
       {
       }
@@ -360,11 +360,13 @@ namespace pmath {
           return String(pmath_string_insert_ucs2(PMATH_NULL, 0, u16, 1));
         }
         
-        if(unicode > 0x10FFFF
-            || (unicode & 0xFC00) == 0xD800
-            || (unicode & 0xFC00) == 0xDC00)
+        if(  unicode > 0x10FFFF          ||
+            (unicode & 0xFC00) == 0xD800 || 
+            (unicode & 0xFC00) == 0xDC00)
+        {
           return String();
-          
+        }
+        
         unicode -= 0x10000;
         u16[0] = 0xD800 | (unicode >> 10);
         u16[1] = 0xDC00 | (unicode & 0x3FF);
@@ -382,28 +384,28 @@ namespace pmath {
         return *this;
       }
       
-      #if __cplusplus >= 201103L
-      explicit String(Expr &&src) throw()
+#if __cplusplus >= 201103L
+      explicit String(Expr && src) throw()
         : _obj(src._obj)
       {
         src._obj = PMATH_NULL;
       }
       
-      String(String &&src) throw()
+      String(String && src) throw()
         : _obj(src._obj)
       {
         src._obj = PMATH_NULL;
       }
       
-      String &operator=(String &&src) throw() {
-        if(this != &other){
+      String &operator=(String && src) throw() {
+        if(this != &other) {
           pmath_unref(_obj);
           _obj     = src._obj;
           src._obj = PMATH_NULL;
         }
         return *this;
       }
-      #endif
+#endif
       
       /**\brief Append a string. */
       String &operator+=(const String &src) throw() {
@@ -502,7 +504,7 @@ namespace pmath {
         const uint16_t *buf   = buffer();
         
         while(len-- > 0)
-          if(*buf++ != *(unsigned char*)latin1++)
+          if(*buf++ != *(unsigned char *)latin1++)
             return false;
             
         return true;
@@ -576,7 +578,7 @@ namespace pmath {
       
       /**\brief Get the UCS-2/UTF-16 const string buffer. This is not zero-terminated */
       const uint16_t *buffer() const throw() {
-        return pmath_string_buffer(const_cast<pmath_string_t*>(&_obj));
+        return pmath_string_buffer(const_cast<pmath_string_t *>(&_obj));
       }
       
       /**\brief Get a single character or U+0000 on error. */
@@ -598,7 +600,7 @@ namespace pmath {
   
   /**\ingroup cpp_binding
      \brief Utility class for emitting and gathering expressions/building lists.
-     
+  
      Gathering begins with the construction of the object and ends with a call
      to end() or the object destruction. This removes the burden of calling
      pmath_gather_end() for every pmath_gather_begin().
@@ -811,7 +813,7 @@ namespace pmath {
   
   /**\ingroup cpp_binding
      \brief A wrapper for pMath file objects (data streams).
-     
+  
      This class provides some stream utility functions in addition to Expr.
      Note that a pMath file does not have to correspond to any operating system
      file object.
@@ -1167,7 +1169,7 @@ namespace pmath {
                  actually a user stream of class U.
        */
       template<class U, typename A>
-      static bool manipulate(File file, void (U::*callback)(const A&), const A &arg) {
+      static bool manipulate(File file, void (U::*callback)(const A &), const A &arg) {
         Manipulator<U, A> manipulator;
         
         manipulator.method = callback;
@@ -1210,7 +1212,7 @@ namespace pmath {
       /**\brief Called by pMath.
        */
       static void destructor_function(void *extra) {
-        UserStream *stream = (UserStream*)extra;
+        UserStream *stream = (UserStream *)extra;
         stream->dereference();
       }
       
@@ -1227,8 +1229,8 @@ namespace pmath {
           bool success;
           
           static void callback(void *extra, void *data) {
-            C                 *obj  = (C*)extra;
-            Manipulator<C, A> *info = (Manipulator<C, A>*)data;
+            C                 *obj  = (C *)extra;
+            Manipulator<C, A> *info = (Manipulator<C, A> *)data;
             
             (obj->*(info->method))(info->arg);
             info->success = true;
@@ -1242,8 +1244,8 @@ namespace pmath {
           bool success;
           
           static void callback(void *extra, void *data) {
-            C                  *obj  = (C*)extra;
-            VoidManipulator<C> *info = (VoidManipulator<C>*)data;
+            C                  *obj  = (C *)extra;
+            VoidManipulator<C> *info = (VoidManipulator<C> *)data;
             
             (obj->*(info->method))();
             info->success = true;
@@ -1301,22 +1303,22 @@ namespace pmath {
       
     private:
       static pmath_files_status_t status_function(void *extra) {
-        BinaryUserStream *stream = (BinaryUserStream*)extra;
+        BinaryUserStream *stream = (BinaryUserStream *)extra;
         return stream->status();
       }
       
       static void flush_function(void *extra) {
-        BinaryUserStream *stream = (BinaryUserStream*)extra;
+        BinaryUserStream *stream = (BinaryUserStream *)extra;
         return stream->flush();
       }
       
       static size_t read_function(void *extra, void *buffer, size_t buffer_size) {
-        BinaryUserStream *stream = (BinaryUserStream*)extra;
+        BinaryUserStream *stream = (BinaryUserStream *)extra;
         return stream->read(buffer, buffer_size);
       }
       
       static size_t write_function(void *extra, const void *buffer, size_t buffer_size) {
-        BinaryUserStream *stream = (BinaryUserStream*)extra;
+        BinaryUserStream *stream = (BinaryUserStream *)extra;
         return stream->write(buffer, buffer_size);
       }
   };
@@ -1365,22 +1367,22 @@ namespace pmath {
       
     private:
       static pmath_files_status_t status_function(void *extra) {
-        TextUserStream *stream = (TextUserStream*)extra;
+        TextUserStream *stream = (TextUserStream *)extra;
         return stream->status();
       }
       
       static void flush_function(void *extra) {
-        TextUserStream *stream = (TextUserStream*)extra;
+        TextUserStream *stream = (TextUserStream *)extra;
         return stream->flush();
       }
       
       static pmath_string_t readln_function(void *extra) {
-        TextUserStream *stream = (TextUserStream*)extra;
+        TextUserStream *stream = (TextUserStream *)extra;
         return stream->readline().release();
       }
       
       static pmath_bool_t write_function(void *extra, const uint16_t *str, int len) {
-        TextUserStream *stream = (TextUserStream*)extra;
+        TextUserStream *stream = (TextUserStream *)extra;
         return stream->write(str, len);
       }
   };
