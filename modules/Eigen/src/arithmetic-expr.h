@@ -243,12 +243,12 @@ namespace pmath4eigen {
 
 namespace std {
 
-#define P4E_IMPL_FUNC(NAME, PMCPP_NAME)          \
-  inline const pmath4eigen::ArithmeticExpr       \
-  NAME(const pmath4eigen::ArithmeticExpr &x)     \
-  {                                              \
-    return pmath4eigen::ArithmeticExpr(          \
-           pmath::Evaluate( PMCPP_NAME(x) ) );   \
+#define P4E_IMPL_FUNC(NAME, PMCPP_NAME)                   \
+  inline const pmath4eigen::ArithmeticExpr                \
+  NAME(const pmath4eigen::ArithmeticExpr &x)              \
+  {                                                       \
+    return pmath4eigen::ArithmeticExpr(                   \
+           pmath::Evaluate( PMCPP_NAME(x) ) );               \
   }
 
   P4E_IMPL_FUNC( abs,  pmath::Abs    )
