@@ -1192,21 +1192,17 @@ static Expr cnt_createdocument(Expr data) {
       for(size_t i = 1; i <= sections.expr_length(); ++i) {
         Expr item = sections[i];
         
-        if(item[0] == PMATH_SYMBOL_SECTION) {
-          Section *sect = Section::create_from_object(item);
-          if(sect)
-            doc->insert(doc->length(), sect);
-        }
-        else {
+        if( item[0] != PMATH_SYMBOL_SECTION      &&
+            item[0] != PMATH_SYMBOL_SECTIONGROUP) 
+        {
           item = Call(Symbol(PMATH_SYMBOL_SECTION),
                       Call(Symbol(PMATH_SYMBOL_BOXDATA),
                            Application::interrupt(Call(Symbol(PMATH_SYMBOL_TOBOXES), item))),
                       String("Input"));
-                      
-          Section *sect = Section::create_from_object(item);
-          if(sect)
-            doc->insert(doc->length(), sect);
         }
+        
+        int pos = doc->length();
+        doc->insert_pmath(&pos, item);
       }
     }
     

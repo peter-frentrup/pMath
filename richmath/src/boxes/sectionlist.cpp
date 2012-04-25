@@ -11,10 +11,10 @@ using namespace richmath;
 
 SectionList::SectionList()
   : Box(),
-  border_visible(true),
-  section_bracket_width(8),
-  section_bracket_right_margin(2),
-  _scrollx(0)
+    border_visible(true),
+    section_bracket_width(8),
+    section_bracket_right_margin(2),
+    _scrollx(0)
 {
 }
 
@@ -388,8 +388,9 @@ void SectionList::toggle_open_close_group(int i) {
 }
 
 void SectionList::insert_pmath(int *pos, Expr boxes) {
-  if(boxes[0] == PMATH_SYMBOL_SECTIONGROUP
-      && boxes[1][0] == PMATH_SYMBOL_LIST) {
+  if( boxes[0]    == PMATH_SYMBOL_SECTIONGROUP &&
+      boxes[1][0] == PMATH_SYMBOL_LIST)
+  {
     Expr sect = boxes[1];
     Expr open = boxes[2];
     
@@ -541,8 +542,8 @@ void SectionList::update_section_visibility() {
   while(pos < _sections.length()) {
     if(_group_info[pos].end != pos) {
       int start = pos;
-      if(_group_info[start].close_rel >= 0 && 
-        _group_info[start].close_rel <= _group_info[start].end - start) 
+      if(_group_info[start].close_rel >= 0 &&
+          _group_info[start].close_rel <= _group_info[start].end - start)
       {
         while(pos < start + _group_info[start].close_rel) {
           if(_sections[pos]->visible) {
@@ -592,14 +593,14 @@ bool SectionList::request_repaint_range(int start, int end) {
   if(start < _sections.length())
     y1 = _sections[start]->y_offset;
   else if(start > 0)
-    y1 = _sections[start-1]->y_offset + _sections[start-1]->extents().height();
+    y1 = _sections[start - 1]->y_offset + _sections[start - 1]->extents().height();
     
   float y2 = y1;
   
   if(end < _sections.length())
     y2 = _sections[end]->y_offset;
   else if(end > 0)
-    y2 = _sections[end-1]->y_offset + _sections[end-1]->extents().height();
+    y2 = _sections[end - 1]->y_offset + _sections[end - 1]->extents().height();
     
   return request_repaint(0, y1, _extents.width, y2 - y1);
   
@@ -687,7 +688,7 @@ void SectionList::paint_section_brackets(Context *context, int i, float right, f
     if(!_sections[i]->get_style(Editable))
       style = style + BorderNoEditable;
       
-    if(dynamic_cast<TextSection*>(_sections[i]))
+    if(dynamic_cast<TextSection *>(_sections[i]))
       style = style + BorderText;
       
     if(_sections[i]->get_style(SectionGenerated))

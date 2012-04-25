@@ -1911,6 +1911,13 @@ bool Document::is_tabkey_only_moving() {
   return false;
 }
 
+void Document::insert_pmath(int *pos, Expr boxes) {
+  must_resize_min = *pos + 1;
+  invalidate();
+  SectionList::insert_pmath(pos, boxes);
+  must_resize_min = *pos;
+}
+
 void Document::insert(int pos, Section *section) {
   must_resize_min = pos + 1;
   invalidate();
@@ -3597,6 +3604,18 @@ void Document::paint_resize(Canvas *canvas, bool resize_only) {
   
   context.canvas = 0;
   must_resize_min = 0;
+}
+
+Expr Document::to_pmath(int flags) {
+  Gather g;
+  
+  Gather::emit(List(SectionList::to_pmath(flags)));
+  
+  style->emit_to_pmath(false, true);
+  
+  Expr e = g.end();
+  e.set(0, Symbol(PMATH_SYMBOL_DOCUMENT));
+  return e;
 }
 
 void Document::set_prev_sel_line() {

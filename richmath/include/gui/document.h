@@ -93,6 +93,7 @@ namespace richmath {
       
       void select_prev(bool operands_only);
       
+      virtual void insert_pmath(int *pos, Expr boxes);
       virtual void insert(int pos, Section *section);
       virtual Section *swap(int pos, Section *section);
       
@@ -137,6 +138,7 @@ namespace richmath {
       
       void paint_resize(Canvas *canvas, bool resize_only);
       
+      virtual Expr to_pmath(int flags);
       virtual Expr to_pmath_symbol() { return Symbol(PMATH_SYMBOL_DOCUMENT); }
       
     public:
