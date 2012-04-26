@@ -9,6 +9,9 @@
   open is basically CreateDocument @@ Get("filename")
   save is (file:=OpenWrite("filename");file.Write(InputForm(DocumentGet(FrontEndObject( docId )))); file.Close())
 
+- BUG: f(~x ^ ?n)::= {x, n}   does not give {y,1} for f(y)  although Default(Power,2) = 1
+- BUG: "g(?n:c)::= n"  does not render correctly (n is not highlighted)
+  
 - add InverseFunction
 
 - produce syntax error when in "\U12345678", i.e. when the character is not in the unicode range.
