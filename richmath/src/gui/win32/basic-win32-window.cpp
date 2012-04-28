@@ -18,7 +18,11 @@ using namespace richmath;
 #define CAPTION_BUTTON_DIST     (-2)
 
 #ifndef WM_DWMCOMPOSITIONCHANGED
-#define WM_DWMCOMPOSITIONCHANGED   0x031E
+#  define WM_DWMCOMPOSITIONCHANGED   0x031E
+#endif
+
+#ifndef GW_ENABLEDPOPUP
+#  define GW_ENABLEDPOPUP  6
 #endif
 
 static cairo_surface_t *background_image = 0;
@@ -298,7 +302,7 @@ static BOOL CALLBACK snap_monitor(
   LPRECT   lprcMonitor,
   LPARAM   dwData
 ) {
-  struct snap_info_t *info = (struct snap_info_t*)dwData;
+  struct snap_info_t *info = (struct snap_info_t *)dwData;
   MONITORINFO moninfo;
   
   memset(&moninfo, 0, sizeof(moninfo));
@@ -317,7 +321,7 @@ static BOOL CALLBACK snap_monitor(
 }
 
 static BOOL CALLBACK snap_hwnd(HWND hwnd, LPARAM lParam) {
-  struct snap_info_t *info = (struct snap_info_t*)lParam;
+  struct snap_info_t *info = (struct snap_info_t *)lParam;
   
   if(hwnd != info->src
       && IsWindowVisible(hwnd)
@@ -429,10 +433,10 @@ struct find_snap_info_t {
 };
 
 BOOL CALLBACK BasicWin32Window::find_snap_hwnd(HWND hwnd, LPARAM lParam) {
-  struct find_snap_info_t *info = (struct find_snap_info_t*)lParam;
+  struct find_snap_info_t *info = (struct find_snap_info_t *)lParam;
   
   if(hwnd != info->dst && IsWindowVisible(hwnd)) {
-    BasicWin32Window *win = dynamic_cast<BasicWin32Window*>(
+    BasicWin32Window *win = dynamic_cast<BasicWin32Window *>(
                               BasicWin32Widget::from_hwnd(hwnd));
                               
     if(win && win->zorder_level <= info->min_level)
@@ -537,7 +541,7 @@ struct find_align_info_t {
 };
 
 static BOOL CALLBACK find_align_hwnd(HWND hwnd, LPARAM lParam) {
-  struct find_align_info_t *info = (struct find_align_info_t*)lParam;
+  struct find_align_info_t *info = (struct find_align_info_t *)lParam;
   
   if(hwnd != info->dst && IsWindowVisible(hwnd)) {
     RECT rect;
@@ -867,7 +871,7 @@ void get_system_button_bounds(HWND hwnd, RECT *rect) {
   for(int i = 2; i <= 5; ++i)
     UnionRect(rect, rect, &tbi.rgrect[i]);
     
-  POINT *pt = (POINT*)rect;
+  POINT *pt = (POINT *)rect;
   ScreenToClient(hwnd, &pt[0]);
   ScreenToClient(hwnd, &pt[1]);
 }
@@ -896,7 +900,7 @@ void BasicWin32Window::paint_themed_caption(HDC hdc_bitmap) {
 #define MAX_STR_LEN 1024
     WCHAR str[MAX_STR_LEN];
     GetWindowTextW(_hwnd, str, MAX_STR_LEN);
-    str[MAX_STR_LEN-1] = '\0';
+    str[MAX_STR_LEN - 1] = '\0';
     
     LOGFONTW log_font;
     HFONT old_font = NULL;
@@ -1057,7 +1061,7 @@ void BasicWin32Window::paint_background(Canvas *canvas, int x, int y, bool wallp
     
     RECT rect;
     GetWindowRect(_hwnd, &rect);
-    ScreenToClient(_hwnd, (POINT*)&rect);
+    ScreenToClient(_hwnd, (POINT *)&rect);
     
     canvas->translate(-x, -y);
     
@@ -1210,7 +1214,7 @@ void BasicWin32Window::paint_background(Canvas *canvas, int x, int y, bool wallp
           frameradius = 1;
         else if(style_ex & WS_EX_TOOLWINDOW)
           frameradius = 1;
-        else 
+        else
           frameradius = 6; //GetSystemMetrics(SM_CXFRAME)-2;
           
         canvas->move_to(rect.left,  rect.top);
@@ -1342,11 +1346,11 @@ struct remove_child_rgn_info_t {
 };
 
 static BOOL CALLBACK remove_child_rgn_callback(HWND hwnd, LPARAM lParam) {
-  struct remove_child_rgn_info_t *info = (struct remove_child_rgn_info_t*)lParam;
+  struct remove_child_rgn_info_t *info = (struct remove_child_rgn_info_t *)lParam;
   
   RECT rect;
   GetWindowRect(hwnd, &rect);
-  MapWindowPoints(NULL, info->parent, (POINT*)&rect, 2);
+  MapWindowPoints(NULL, info->parent, (POINT *)&rect, 2);
   
   HRGN rectrgn = CreateRectRgnIndirect(&rect);
   CombineRgn(info->region, info->region, rectrgn, RGN_DIFF);
@@ -1391,9 +1395,9 @@ struct redraw_glass_info_t {
 };
 
 static BOOL CALLBACK redraw_glass_callback(HWND hwnd, LPARAM lParam) {
-  struct redraw_glass_info_t *info = (struct redraw_glass_info_t*)lParam;
+  struct redraw_glass_info_t *info = (struct redraw_glass_info_t *)lParam;
   
-  Win32Widget *wid = dynamic_cast<Win32Widget*>(BasicWin32Widget::from_hwnd(hwnd));
+  Win32Widget *wid = dynamic_cast<Win32Widget *>(BasicWin32Widget::from_hwnd(hwnd));
   if(wid) {
     RECT rect, rect2;
     GetWindowRect(hwnd, &rect);
@@ -1407,6 +1411,37 @@ static BOOL CALLBACK redraw_glass_callback(HWND hwnd, LPARAM lParam) {
   return TRUE;
 }
 
+struct find_popup_info_t {
+  HWND popup;
+  
+  DWORD thread_id;
+};
+
+static BOOL CALLBACK find_popup_callback(HWND hwnd, LPARAM lParam) {
+  struct find_popup_info_t *info = (struct find_popup_info_t *)lParam;
+  
+  if(GetWindowThreadProcessId(hwnd, 0) != info->thread_id)
+    return TRUE;
+    
+  if(!IsWindowVisible(hwnd))
+    return TRUE;
+    
+  if(!IsWindowEnabled(hwnd))
+    return TRUE;
+    
+  Win32Widget *wid = dynamic_cast<Win32Widget *>(BasicWin32Widget::from_hwnd(hwnd));
+  if(wid) 
+    return TRUE;
+   
+  if(GetWindow(hwnd, GW_OWNER) != 0) {
+    info->popup = hwnd;
+    return FALSE;
+  }
+  
+  return TRUE;
+}
+
+
 LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
   LRESULT dwm_result = 0;
   
@@ -1419,12 +1454,13 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
     case WM_NCACTIVATE: {
         _active = wParam;
         
-        if(!Win32Themes::IsCompositionActive
-            || !Win32Themes::IsCompositionActive()) {
+        if( !Win32Themes::IsCompositionActive ||
+            !Win32Themes::IsCompositionActive())
+        {
           struct redraw_glass_info_t info;
           
           get_glassfree_rect(&info.inner);
-          POINT *pt = (POINT*)&info.inner;
+          POINT *pt = (POINT *)&info.inner;
           ClientToScreen(_hwnd, &pt[0]);
           ClientToScreen(_hwnd, &pt[1]);
           
@@ -1450,11 +1486,11 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
     switch(message) {
         //{ sizing & moving ...
       case WM_SIZING: {
-          on_sizing(wParam, (RECT*)lParam);
+          on_sizing(wParam, (RECT *)lParam);
         } break;
         
       case WM_MOVING: {
-          on_moving((RECT*)lParam);
+          on_moving((RECT *)lParam);
         } break;
         
       case WM_SIZE: {
@@ -1480,13 +1516,24 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
         //} ... sizing & moving
         
       case WM_WINDOWPOSCHANGING: {
-          WINDOWPOS *pos = (WINDOWPOS*)lParam;
+          WINDOWPOS *pos = (WINDOWPOS *)lParam;
           static bool during_pos_changing = false;
           
-          if(!during_pos_changing
-              && 0 == (pos->flags & SWP_NOZORDER)) {
+          if(!during_pos_changing &&
+              0 == (pos->flags & SWP_NOZORDER))
+          {
             during_pos_changing = true; // prevent recursive call
             // place behind all windows with higher zorder_level
+            
+            HWND active_window    = GetActiveWindow();
+            HWND own_popup_window = GetWindow(_hwnd, GW_ENABLEDPOPUP);
+            if(own_popup_window == _hwnd)
+              own_popup_window = 0;
+              
+            struct find_popup_info_t popup_info;
+            popup_info.thread_id = GetWindowThreadProcessId(_hwnd, 0);
+            popup_info.popup     = own_popup_window;
+            EnumWindows(find_popup_callback, (LPARAM)&popup_info);
             
             BasicWin32Window *last_higher = 0;
             BasicWin32Window *next = _next_window;
@@ -1499,12 +1546,12 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
             }
             
             // get all windows from higher level, sorted from back to front
-            static Array<BasicWin32Window*> all_higher;
+            static Array<BasicWin32Window *> all_higher;
             all_higher.length(0);
             if(last_higher) {
               HWND next_hwnd = GetNextWindow(last_higher->hwnd(), GW_HWNDNEXT);
               while(next_hwnd) {
-                BasicWin32Window *wnd = dynamic_cast<BasicWin32Window*>(
+                BasicWin32Window *wnd = dynamic_cast<BasicWin32Window *>(
                                           BasicWin32Widget::from_hwnd(next_hwnd));
                                           
                 if(wnd && wnd->zorder_level > zorder_level)
@@ -1517,7 +1564,7 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
               
               next_hwnd = GetNextWindow(last_higher->hwnd(), GW_HWNDPREV);
               while(next_hwnd) {
-                BasicWin32Window *wnd = dynamic_cast<BasicWin32Window*>(
+                BasicWin32Window *wnd = dynamic_cast<BasicWin32Window *>(
                                           BasicWin32Widget::from_hwnd(next_hwnd));
                                           
                 if(wnd && wnd->zorder_level > zorder_level)
@@ -1530,7 +1577,8 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
             /* Put the higher-level windows to the top again and place this window
                behind. */
             if(all_higher.length() > 0) {
-              pos->hwndInsertAfter = all_higher[0]->hwnd();
+              if(active_window == _hwnd)
+                pos->hwndInsertAfter = all_higher[0]->hwnd();
               
               for(int i = 0; i < all_higher.length(); ++i) {
                 if(!all_higher[i]->is_closed()) {
@@ -1538,6 +1586,12 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
                                SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
                 }
               }
+            }
+            
+            if(popup_info.popup != 0) {
+              pmath_debug_print("[popup_info.popup = %p]\n", popup_info.popup);
+              SetWindowPos(popup_info.popup, HWND_TOP, 0, 0, 0, 0,
+                           SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
             }
             
             during_pos_changing = false;

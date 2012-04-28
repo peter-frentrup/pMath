@@ -29,6 +29,18 @@ static pmath_t builtin_addconfigshaper(pmath_expr_t expr) {
   return PMATH_NULL;
 }
 
+static pmath_t builtin_colordialog(pmath_expr_t _expr) {
+  return Application::notify_wait(CNT_COLORDIALOG, Expr(_expr)).release();
+}
+
+static pmath_t builtin_filedialog(pmath_expr_t _expr) {
+  return Application::notify_wait(CNT_FILEDIALOG, Expr(_expr)).release();
+}
+
+static pmath_t builtin_fontdialog(pmath_expr_t _expr) {
+  return Application::notify_wait(CNT_FONTDIALOG, Expr(_expr)).release();
+}
+
 static pmath_t builtin_internalexecutefor(pmath_expr_t expr) {
   if(pmath_expr_length(expr) != 4)
     return expr;
@@ -1078,6 +1090,10 @@ bool richmath::init_bindings() {
   VERIFY(fe_symbols[MenuSymbol]               = NEW_SYMBOL("FE`Menu"))
   VERIFY(fe_symbols[InternalExecuteForSymbol] = NEW_SYMBOL("FE`InternalExecuteFor"))
   VERIFY(fe_symbols[SymbolDefinitionsSymbol]  = NEW_SYMBOL("FE`SymbolDefinitions"))
+  VERIFY(fe_symbols[FileOpenDialog]           = NEW_SYMBOL("FE`FileOpenDialog"))
+  VERIFY(fe_symbols[FileSaveDialog]           = NEW_SYMBOL("FE`FileSaveDialog"))
+  VERIFY(fe_symbols[ColorDialog]              = NEW_SYMBOL("FE`ColorDialog"))
+  VERIFY(fe_symbols[FontDialog]               = NEW_SYMBOL("FE`FontDialog"))
   
   VERIFY(BIND_DOWN(PMATH_SYMBOL_INTERNAL_DYNAMICUPDATED,  builtin_internal_dynamicupdated))
   
@@ -1098,6 +1114,10 @@ bool richmath::init_bindings() {
   
   VERIFY(BIND_DOWN(fe_symbols[AddConfigShaperSymbol],     builtin_addconfigshaper))
   VERIFY(BIND_DOWN(fe_symbols[InternalExecuteForSymbol],  builtin_internalexecutefor))
+  VERIFY(BIND_DOWN(fe_symbols[ColorDialog],               builtin_colordialog))
+  VERIFY(BIND_DOWN(fe_symbols[FileOpenDialog],            builtin_filedialog))
+  VERIFY(BIND_DOWN(fe_symbols[FileSaveDialog],            builtin_filedialog))
+  VERIFY(BIND_DOWN(fe_symbols[FontDialog],                builtin_fontdialog))
   
   pmath_symbol_set_attributes(
     fe_symbols[InternalExecuteForSymbol],

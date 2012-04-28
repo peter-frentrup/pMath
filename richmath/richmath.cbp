@@ -40,12 +40,13 @@
 					<Add library="pango-1.0" />
 					<Add library="pangocairo-1.0" />
 					<Add library="pangowin32-1.0" />
-					<Add library="gdi32" />
-					<Add library="usp10" />
 					<Add library="comctl32" />
-					<Add library="user32" />
+					<Add library="comdlg32" />
+					<Add library="gdi32" />
 					<Add library="ole32" />
+					<Add library="user32" />
 					<Add library="uuid" />
+					<Add library="usp10" />
 					<Add directory="..\library\bin\windows\debug" />
 					<Add directory="$(#cairo.lib)" />
 					<Add directory="$(#pango.lib)" />
@@ -94,9 +95,10 @@
 					<Add library="pangocairo-1.0" />
 					<Add library="pangowin32-1.0" />
 					<Add library="comctl32" />
-					<Add library="user32" />
+					<Add library="comdlg32" />
 					<Add library="gdi32" />
 					<Add library="ole32" />
+					<Add library="user32" />
 					<Add library="uuid" />
 					<Add library="fontconfig" />
 					<Add library="freetype" />
@@ -199,12 +201,13 @@
 					<Add library="pango-1.0" />
 					<Add library="pangocairo-1.0" />
 					<Add library="pangowin32-1.0" />
-					<Add library="gdi32" />
-					<Add library="usp10" />
 					<Add library="comctl32" />
-					<Add library="user32" />
+					<Add library="comdlg32" />
+					<Add library="gdi32" />
 					<Add library="ole32" />
+					<Add library="user32" />
 					<Add library="uuid" />
+					<Add library="usp10" />
 					<Add directory="..\library\bin\windows\release" />
 					<Add directory="$(#cairo.lib)" />
 					<Add directory="$(#pango.lib)" />
@@ -254,12 +257,13 @@
 					<Add library="pango-1.0" />
 					<Add library="pangocairo-1.0" />
 					<Add library="pangowin32-1.0" />
-					<Add library="gdi32" />
-					<Add library="usp10" />
 					<Add library="comctl32" />
-					<Add library="user32" />
+					<Add library="comdlg32" />
+					<Add library="gdi32" />
 					<Add library="ole32" />
+					<Add library="user32" />
 					<Add library="uuid" />
+					<Add library="usp10" />
 					<Add directory="..\library\bin\windows\msvc" />
 					<Add directory="$(#cairo.lib)" />
 					<Add directory="$(#pango.lib)" />
@@ -478,6 +482,12 @@
 			<Option target="Windows-Release" />
 			<Option target="Windows-MSVC" />
 		</Unit>
+		<Unit filename="include\gui\win32\win32-colordialog.h">
+			<Option target="Windows-Debug" />
+			<Option target="Windows-Debug-Freetype" />
+			<Option target="Windows-Release" />
+			<Option target="Windows-MSVC" />
+		</Unit>
 		<Unit filename="include\gui\win32\win32-control-painter.h">
 			<Option target="Windows-Debug" />
 			<Option target="Windows-Debug-Freetype" />
@@ -485,6 +495,18 @@
 			<Option target="Windows-MSVC" />
 		</Unit>
 		<Unit filename="include\gui\win32\win32-document-window.h">
+			<Option target="Windows-Debug" />
+			<Option target="Windows-Debug-Freetype" />
+			<Option target="Windows-Release" />
+			<Option target="Windows-MSVC" />
+		</Unit>
+		<Unit filename="include\gui\win32\win32-filedialog.h">
+			<Option target="Windows-Debug" />
+			<Option target="Windows-Debug-Freetype" />
+			<Option target="Windows-Release" />
+			<Option target="Windows-MSVC" />
+		</Unit>
+		<Unit filename="include\gui\win32\win32-fontdialog.h">
 			<Option target="Windows-Debug" />
 			<Option target="Windows-Debug-Freetype" />
 			<Option target="Windows-Release" />
@@ -683,6 +705,12 @@
 			<Option target="Windows-Release" />
 			<Option target="Windows-MSVC" />
 		</Unit>
+		<Unit filename="src\gui\win32\win32-colordialog.cpp">
+			<Option target="Windows-Debug" />
+			<Option target="Windows-Debug-Freetype" />
+			<Option target="Windows-Release" />
+			<Option target="Windows-MSVC" />
+		</Unit>
 		<Unit filename="src\gui\win32\win32-control-painter.cpp">
 			<Option target="Windows-Debug" />
 			<Option target="Windows-Debug-Freetype" />
@@ -690,6 +718,18 @@
 			<Option target="Windows-MSVC" />
 		</Unit>
 		<Unit filename="src\gui\win32\win32-document-window.cpp">
+			<Option target="Windows-Debug" />
+			<Option target="Windows-Debug-Freetype" />
+			<Option target="Windows-Release" />
+			<Option target="Windows-MSVC" />
+		</Unit>
+		<Unit filename="src\gui\win32\win32-filedialog.cpp">
+			<Option target="Windows-Debug" />
+			<Option target="Windows-Debug-Freetype" />
+			<Option target="Windows-Release" />
+			<Option target="Windows-MSVC" />
+		</Unit>
+		<Unit filename="src\gui\win32\win32-fontdialog.cpp">
 			<Option target="Windows-Debug" />
 			<Option target="Windows-Debug-Freetype" />
 			<Option target="Windows-Release" />

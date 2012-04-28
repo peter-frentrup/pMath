@@ -193,7 +193,7 @@ FontFace::FontFace(
     int len = name.length();
     if(len >= LF_FACESIZE)
       len = LF_FACESIZE - 1;
-    memcpy(logfontw.lfFaceName, name.buffer(), len *sizeof(WCHAR));
+    memcpy(logfontw.lfFaceName, name.buffer(), len * sizeof(WCHAR));
     logfontw.lfFaceName[len] = 0;
     
     _face = cairo_win32_font_face_create_for_logfontw(&logfontw);

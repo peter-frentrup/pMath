@@ -26,6 +26,9 @@ namespace richmath {
     CNT_GETEVALUATIONDOCUMENT,
     CNT_DOCUMENTGET,
     CNT_DOCUMENTREAD,
+    CNT_COLORDIALOG,
+    CNT_FONTDIALOG,
+    CNT_FILEDIALOG
   } ClientNotificationType;
   
   class Box;
@@ -33,7 +36,7 @@ namespace richmath {
   
   class Application: public Base {
     public:
-      static void notify(ClientNotificationType type, Expr data);
+      static void notify(     ClientNotificationType type, Expr data);
       static Expr notify_wait(ClientNotificationType type, Expr data);
       
       static void run_menucommand(Expr cmd) {
@@ -58,6 +61,8 @@ namespace richmath {
       static Box *find_current_job();
       static bool remove_job(Box *input_box, bool only_check_possibility);
       static void abort_all_jobs();
+      
+      static Box *get_evaluation_box();
       
       static bool is_idle();
       static bool is_idle(Box *box);

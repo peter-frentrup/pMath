@@ -17,7 +17,10 @@
 
 #ifdef RICHMATH_USE_WIN32_GUI
 #include <gui/win32/basic-win32-widget.h>
+#include <gui/win32/win32-colordialog.h>
 #include <gui/win32/win32-document-window.h>
+#include <gui/win32/win32-filedialog.h>
+#include <gui/win32/win32-fontdialog.h>
 #include <gui/win32/win32-menu.h>
 #endif
 
@@ -82,7 +85,7 @@ namespace {
     public:
       explicit Session(SharedPtr<Session> _next)
         : Shareable(),
-        next(_next)
+          next(_next)
       {
       }
       
@@ -106,8 +109,8 @@ static ConcurrentQueue<ClientNotification> notifications;
 
 static SharedPtr<Session> session = new Session(0);
 
-static Hashtable<Expr, bool (*)(Expr)> menu_commands;
-static Hashtable<Expr, bool (*)(Expr)> menu_command_testers;
+static Hashtable<Expr, bool ( *)(Expr)> menu_commands;
+static Hashtable<Expr, bool ( *)(Expr)> menu_command_testers;
 
 static Hashtable<int, Void, cast_hash> pending_dynamic_updates;
 static bool dynamic_update_delay = false;
@@ -244,6 +247,8 @@ Expr Application::notify_wait(ClientNotificationType type, Expr data) {
   if(pmath_atomic_read_aquire(&state) != Running)
     return Symbol(PMATH_SYMBOL_FAILED);
     
+  pmath_t result = PMATH_UNDEFINED;
+  
   if(
 #ifdef PMATH_OS_WIN32
     GetCurrentThreadId() == main_thread_id
@@ -253,10 +258,16 @@ Expr Application::notify_wait(ClientNotificationType type, Expr data) {
   ) {
     notify(type, data);
     return Symbol(PMATH_SYMBOL_FAILED);
+    
+//    ClientNotification cn;
+//    cn.type = type;
+//    cn.data = data;
+//    cn.result_ptr = &result;
+//    execute(cn);
+//    return Expr(result);
   }
   
   pmath_atomic_t finished = PMATH_ATOMIC_STATIC_INIT;
-  pmath_t result = PMATH_UNDEFINED;
   ClientNotification cn;
   cn.finished = &finished;
   cn.notify_queue = Expr(pmath_thread_get_queue());
@@ -336,7 +347,7 @@ void Application::register_menucommand(
 }
 
 static void write_data(void *user, const uint16_t *data, int len) {
-  FILE *file = (FILE*)user;
+  FILE *file = (FILE *)user;
   
 #define BUFSIZE 200
   char buf[BUFSIZE];
@@ -410,11 +421,11 @@ void Application::gui_print_section(Expr expr) {
     }
   }
   else {
-    if(expr[0] == PMATH_SYMBOL_SECTION){
+    if(expr[0] == PMATH_SYMBOL_SECTION) {
       Expr boxes = expr[1];
       if(boxes[0] == PMATH_SYMBOL_BOXDATA)
         boxes = boxes[1];
-      
+        
       expr = Call(Symbol(PMATH_SYMBOL_RAWBOXES), boxes);
     }
     
@@ -649,6 +660,39 @@ void Application::abort_all_jobs() {
   //Server::local_server->abort_all();
 }
 
+Box *Application::get_evaluation_box() {
+  Box *box = FrontEndObject::find_cast<Box>(Dynamic::current_evaluation_box_id);
+  
+  if(box)
+    return box;
+    
+  box = Application::find_current_job();
+  if(box)
+    return box;
+    
+  EvaluationPosition pos;
+  
+  pmath_atomic_lock(&print_pos_lock);
+  {
+    pos = print_pos;
+  }
+  pmath_atomic_unlock(&print_pos_lock);
+  
+  box = FrontEndObject::find_cast<Box>(pos.box_id);
+  if(box)
+    return box;
+    
+  box = FrontEndObject::find_cast<Box>(pos.section_id);
+  if(box)
+    return box;
+    
+  box = FrontEndObject::find_cast<Box>(pos.document_id);
+  if(box)
+    return box;
+    
+  return 0;
+}
+
 bool Application::is_idle() {
   return !session->current_job.is_valid();
 }
@@ -686,12 +730,11 @@ bool Application::is_idle(Box *box) {
 static void interrupt_wait_idle(void *data) {
   pmath_debug_print("[idle ");
   ConcurrentQueue<ClientNotification> *suppressed_notifications;
-  suppressed_notifications = (ConcurrentQueue<ClientNotification>*)data;
+  suppressed_notifications = (ConcurrentQueue<ClientNotification> *)data;
   
   ClientNotification cn;
   while(notifications.get(&cn)) {
-    if(cn.type == CNT_END
-        || cn.type == CNT_ENDSESSION) {
+    if(cn.type == CNT_END || cn.type == CNT_ENDSESSION) {
       notifications.put_front(cn);
       return;
     }
@@ -926,7 +969,7 @@ static void cnt_end(Expr data) {
         assert(doc);
         
         for(int s = 0; s < doc->count(); ++s) {
-          MathSection *math = dynamic_cast<MathSection*>(doc->section(s));
+          MathSection *math = dynamic_cast<MathSection *>(doc->section(s));
           
           if(math && math->get_style(ShowAutoStyles)) {
             math->invalidate();
@@ -1011,7 +1054,7 @@ static Expr cnt_getoptions(Expr data) {
     Gather gather;
     
     if(box->style)
-      box->style->emit_to_pmath(0 != dynamic_cast<Section*>(box), true);
+      box->style->emit_to_pmath(0 != dynamic_cast<Section *>(box), true);
       
     Expr options = gather.end();
     if(!box->to_pmath_symbol().is_symbol())
@@ -1079,7 +1122,7 @@ static void cnt_dynamicupate(Expr data) {
       if(SetTimer(info_window.hwnd(), TID_DYNAMIC_UPDATE, milliseconds, 0))
         dynamic_update_delay_timer_active = true;
 #endif
-      
+        
 #ifdef RICHMATH_USE_GTK_GUI
       if(g_timeout_add_full(G_PRIORITY_DEFAULT, milliseconds, on_dynamic_update_delay_timeout, NULL, NULL))
         dynamic_update_delay_timer_active = true;
@@ -1118,7 +1161,7 @@ static Expr cnt_createdocument(Expr data) {
     
     doc = get_current_document();
     if(doc) {
-      Win32Widget *wid = dynamic_cast<Win32Widget*>(doc->native());
+      Win32Widget *wid = dynamic_cast<Win32Widget *>(doc->native());
       if(wid) {
         HWND hwnd = wid->hwnd();
         while(GetParent(hwnd) != NULL)
@@ -1193,7 +1236,7 @@ static Expr cnt_createdocument(Expr data) {
         Expr item = sections[i];
         
         if( item[0] != PMATH_SYMBOL_SECTION      &&
-            item[0] != PMATH_SYMBOL_SECTIONGROUP) 
+            item[0] != PMATH_SYMBOL_SECTIONGROUP)
         {
           item = Call(Symbol(PMATH_SYMBOL_SECTION),
                       Call(Symbol(PMATH_SYMBOL_BOXDATA),
@@ -1273,24 +1316,13 @@ static Expr cnt_currentvalue(Expr data) {
 
 static Expr cnt_getevaluationdocument(Expr data) {
   Document *doc = 0;
-  Box      *box = FrontEndObject::find_cast<Box>(Dynamic::current_evaluation_box_id);
+  Box      *box = Application::get_evaluation_box();
   
   if(box)
     doc = box->find_parent<Document>(true);
-  
+    
   if(doc)
     return Call(Symbol(PMATH_SYMBOL_FRONTENDOBJECT), doc->id());
-    
-  int doc_id;
-  
-  pmath_atomic_lock(&print_pos_lock);
-  {
-    doc_id = print_pos.document_id;
-  }
-  pmath_atomic_unlock(&print_pos_lock);
-  
-  if(doc_id)
-    return Call(Symbol(PMATH_SYMBOL_FRONTENDOBJECT), doc_id);
     
   return Symbol(PMATH_SYMBOL_FAILED);
 }
@@ -1302,7 +1334,7 @@ static Expr cnt_documentget(Expr data) {
     box = get_current_document();
   else
     box = FrontEndObject::find_cast<Box>(data[1]);
-  
+    
   if(box == 0)
     return Symbol(PMATH_SYMBOL_FAILED);
     
@@ -1325,9 +1357,90 @@ static Expr cnt_documentread(Expr data) {
   if(!doc || !doc->selection_box() || doc->selection_length() == 0)
     return String("");
     
-  return doc->selection_box()->to_pmath(BoxFlagDefault, 
-                                        doc->selection_start(), 
+  return doc->selection_box()->to_pmath(BoxFlagDefault,
+                                        doc->selection_start(),
                                         doc->selection_end());
+}
+
+static Expr cnt_colordialog(Expr data) {
+  int initcolor = -1;
+  
+  if(data.expr_length() >= 1)
+    initcolor = pmath_to_color(data[1]);
+    
+#if RICHMATH_USE_WIN32_GUI
+  return Win32ColorDialog::show(initcolor);
+#endif
+  
+#ifdef RICHMATH_USE_GTK_GUI
+#endif
+  
+  return Symbol(PMATH_SYMBOL_FAILED);
+}
+
+static Expr cnt_fontdialog(Expr data) {
+  SharedPtr<Style> initial_style;
+  
+  if(data.expr_length() > 0)
+    initial_style = new Style(data);
+    
+#if RICHMATH_USE_WIN32_GUI
+  return Win32FontDialog::show(initial_style);
+#endif
+  
+#ifdef RICHMATH_USE_GTK_GUI
+#endif
+  
+  return Symbol(PMATH_SYMBOL_FAILED);
+}
+
+static Expr cnt_filedialog(Expr data) {
+// FE`FileOpenDialog("initialfile", {"filter1" -> {"*.ext1", ...}, ...}, WindowTitle -> ....)
+// FE`FileSaveDialog("initialfile", {"filter1" -> {"*.ext1", ...}, ...}, WindowTitle -> ....)
+  String title;
+  String filename;
+  Expr   filter;
+  
+  Expr head = data[0];
+  
+  size_t argi = 1;
+  if(data[argi].is_string()) {
+    filename = String(data[argi]);
+    ++argi;
+  }
+  
+  if(data[argi][0] == PMATH_SYMBOL_LIST) {
+    filter = data[argi];
+    ++argi;
+  }
+  
+  if(data.is_expr()) {
+    Expr options(pmath_options_extract(data.get(), argi - 1));
+    
+    if(options.is_valid()) {
+      Expr title_value(pmath_option_value(
+                         head.get(),
+                         PMATH_SYMBOL_WINDOWTITLE,
+                         options.get()));
+                         
+      if(title_value.is_string())
+        title = String(title_value);
+    }
+  }
+  
+#if RICHMATH_USE_WIN32_GUI
+  return Win32FileDialog::show(
+    head == GetSymbol(FileSaveDialog), 
+    filename, 
+    filter, 
+    title);
+#endif
+  
+#ifdef RICHMATH_USE_GTK_GUI
+  
+#endif
+  
+  return Symbol(PMATH_SYMBOL_FAILED);
 }
 
 static void execute(ClientNotification &cn) {
@@ -1403,15 +1516,30 @@ static void execute(ClientNotification &cn) {
       if(cn.result_ptr)
         *cn.result_ptr = cnt_getevaluationdocument(cn.data).release();
       break;
-        
+      
     case CNT_DOCUMENTGET:
       if(cn.result_ptr)
         *cn.result_ptr = cnt_documentget(cn.data).release();
       break;
-        
+      
     case CNT_DOCUMENTREAD:
       if(cn.result_ptr)
         *cn.result_ptr = cnt_documentread(cn.data).release();
+      break;
+      
+    case CNT_COLORDIALOG:
+      if(cn.result_ptr)
+        *cn.result_ptr = cnt_colordialog(cn.data).release();
+      break;
+      
+    case CNT_FONTDIALOG:
+      if(cn.result_ptr)
+        *cn.result_ptr = cnt_fontdialog(cn.data).release();
+      break;
+      
+    case CNT_FILEDIALOG:
+      if(cn.result_ptr)
+        *cn.result_ptr = cnt_filedialog(cn.data).release();
       break;
   }
   

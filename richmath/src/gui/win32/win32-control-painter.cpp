@@ -49,15 +49,15 @@ Win32ControlPainter Win32ControlPainter::win32_painter;
 
 Win32ControlPainter::Win32ControlPainter()
   : ControlPainter(),
-  blur_input_field(true),
-  button_theme(0),
-  edit_theme(0),
-  explorer_listview_theme(0),
-  tooltip_theme(0),
-  progress_theme(0),
-  scrollbar_theme(0),
-  slider_theme(0),
-  toolbar_theme(0)
+    blur_input_field(true),
+    button_theme(0),
+    edit_theme(0),
+    explorer_listview_theme(0),
+    tooltip_theme(0),
+    progress_theme(0),
+    scrollbar_theme(0),
+    slider_theme(0),
+    toolbar_theme(0)
 {
   ControlPainter::std = this;
 }
@@ -166,16 +166,16 @@ int Win32ControlPainter::control_font_color(ContainerType type, ControlState sta
     // TMT_TEXTCOLOR  = 3803
     // TMT_WINDOWTEXT  = 1609
     // TMT_BTNTEXT    = 1619
-    if(SUCCEEDED(Win32Themes::GetThemeColor(
-                   theme, theme_part, theme_state, 3803, &col))
-        || SUCCEEDED(Win32Themes::GetThemeColor(
-                       theme, theme_part, theme_state, 1609, &col))
-        || SUCCEEDED(Win32Themes::GetThemeColor(
-                       theme, theme_part, theme_state, 1619, &col))
-      ) {
-      return ((col & 0xFF0000) >> 16)
-             | (col & 0x00FF00)
-             | ((col & 0x0000FF) << 16);
+    if( SUCCEEDED(Win32Themes::GetThemeColor(
+                    theme, theme_part, theme_state, 3803, &col)) ||
+        SUCCEEDED(Win32Themes::GetThemeColor(
+                    theme, theme_part, theme_state, 1609, &col)) ||
+        SUCCEEDED(Win32Themes::GetThemeColor(
+                    theme, theme_part, theme_state, 1619, &col)))
+    {
+      return ((col & 0xFF0000) >> 16) |
+             ( col & 0x00FF00)        |
+             ((col & 0x0000FF) << 16);
     }
     
     return -1;
@@ -190,37 +190,37 @@ int Win32ControlPainter::control_font_color(ContainerType type, ControlState sta
     case DefaultPushButton:
     case PaletteButton: {
         DWORD col = GetSysColor(COLOR_BTNTEXT);
-        return ((col & 0xFF0000) >> 16)
-               | (col & 0x00FF00)
-               | ((col & 0x0000FF) << 16);
+        return ((col & 0xFF0000) >> 16) |
+               ( col & 0x00FF00)        |
+               ((col & 0x0000FF) << 16);
       } break;
       
     case InputField: {
         DWORD col = GetSysColor(COLOR_WINDOWTEXT);
-        return ((col & 0xFF0000) >> 16)
-               | (col & 0x00FF00)
-               | ((col & 0x0000FF) << 16);
+        return ((col & 0xFF0000) >> 16) |
+               ( col & 0x00FF00)        |
+               ((col & 0x0000FF) << 16);
       } break;
       
     case ListViewItem: {
         DWORD col = GetSysColor(COLOR_WINDOWTEXT);
-        return ((col & 0xFF0000) >> 16)
-               | (col & 0x00FF00)
-               | ((col & 0x0000FF) << 16);
+        return ((col & 0xFF0000) >> 16) |
+               ( col & 0x00FF00)        |
+               ((col & 0x0000FF) << 16);
       } break;
       
     case ListViewItemSelected: {
         DWORD col = GetSysColor(COLOR_HIGHLIGHTTEXT);
-        return ((col & 0xFF0000) >> 16)
-               | (col & 0x00FF00)
-               | ((col & 0x0000FF) << 16);
+        return ((col & 0xFF0000) >> 16) |
+               ( col & 0x00FF00)        |
+               ((col & 0x0000FF) << 16);
       } break;
       
     case TooltipWindow: {
         DWORD col = GetSysColor(COLOR_INFOTEXT);
-        return ((col & 0xFF0000) >> 16)
-               | (col & 0x00FF00)
-               | ((col & 0x0000FF) << 16);
+        return ((col & 0xFF0000) >> 16) |
+               ( col & 0x00FF00)        | 
+               ((col & 0x0000FF) << 16);
       } break;
       
     case SliderHorzChannel:
@@ -634,8 +634,8 @@ void Win32ControlPainter::draw_container(
           if(type == CheckboxIndeterminate) _state = DFCS_BUTTON3STATE | DFCS_CHECKED;
           
           switch(state) {
-            case Disabled:       _state|= DFCS_INACTIVE; break;
-            case PressedHovered: _state|= DFCS_PUSHED;   break;
+            case Disabled:       _state |= DFCS_INACTIVE; break;
+            case PressedHovered: _state |= DFCS_PUSHED;   break;
             default: break;
           }
           
@@ -653,8 +653,8 @@ void Win32ControlPainter::draw_container(
           if(type == RadioButtonChecked)    _state |= DFCS_CHECKED;
           
           switch(state) {
-            case Disabled:       _state|= DFCS_INACTIVE; break;
-            case PressedHovered: _state|= DFCS_PUSHED;   break;
+            case Disabled:       _state |= DFCS_INACTIVE; break;
+            case PressedHovered: _state |= DFCS_PUSHED;   break;
             default: break;
           }
           
@@ -865,7 +865,7 @@ void Win32ControlPainter::system_font_style(Style *style) {
     logfont = &nonclientmetrics.lfMessageFont;
   }
   
-  style->set(FontFamily, String::FromUcs2((const uint16_t*)logfont->lfFaceName));
+  style->set(FontFamily, String::FromUcs2((const uint16_t *)logfont->lfFaceName));
   style->set(FontSize, abs(logfont->lfHeight) * 3 / 4.f);
   
   if(logfont->lfWeight > FW_NORMAL)
@@ -1010,7 +1010,7 @@ void Win32ControlPainter::paint_scrollbar_part(
         case Disabled:        _state = 4; break;
         case PressedHovered:  _state = 3; break;
         case Hovered:         _state = 2; break;
-        case Hot:     
+        case Hot:
         case Pressed:
         case Normal:          _state = 1; break;
         
@@ -1127,10 +1127,10 @@ void Win32ControlPainter::paint_scrollbar_part(
     
     if(!bg) {
       switch(state) {
-        case PressedHovered:  _state|= DFCS_PUSHED;   break;
+        case PressedHovered:  _state |= DFCS_PUSHED;   break;
         case Hot:
-        case Hovered:         _state|= DFCS_HOT;      break;
-        case Disabled:        _state|= DFCS_INACTIVE; break;
+        case Hovered:         _state |= DFCS_HOT;      break;
+        case Disabled:        _state |= DFCS_INACTIVE; break;
         default: break;
       }
       
@@ -1343,7 +1343,7 @@ HANDLE Win32ControlPainter::get_control_theme(
               else
                 *theme_state = 2;
             } break;
-          
+            
           case Pressed:
           case Normal:
             if(type == DefaultPushButton) {

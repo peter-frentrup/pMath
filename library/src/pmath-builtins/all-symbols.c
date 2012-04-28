@@ -740,6 +740,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_BYTECOUNT                 = NEW_SYSTEM_SYMBOL("ByteCount"))
   VERIFY(   PMATH_SYMBOL_BYTEORDERING              = NEW_SYSTEM_SYMBOL("ByteOrdering"))
   VERIFY(   PMATH_SYMBOL_BYTEORDERINGDEFAULT       = NEW_SYSTEM_SYMBOL("$ByteOrdering"))
+  VERIFY(   PMATH_SYMBOL_CANCELED                  = NEW_SYSTEM_SYMBOL("$Canceled"))
   VERIFY(   PMATH_SYMBOL_CASES                     = NEW_SYSTEM_SYMBOL("Cases"))
   VERIFY(   PMATH_SYMBOL_CATCH                     = NEW_SYSTEM_SYMBOL("Catch"))
   VERIFY(   PMATH_SYMBOL_CEILING                   = NEW_SYSTEM_SYMBOL("Ceiling"))

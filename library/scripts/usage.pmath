@@ -2,6 +2,7 @@
 $ApplicationFileName::usage:= "$ApplicationFileName gives the file name of the \(StyleBox(\"pMath\", \"TI\")\) executable."
 $BaseDirectory::usage:= "$BaseDirectory gives the scripts directory of you installation."
 $ByteOrdering::usage:= "$ByteOrdering gives the native ordering of bytes in binary data on your computer."
+$Canceled::usage:= "$Canceled is a symbol returned when user input is canceled, for example from a dialog box."
 $CharacterEncoding::usage:= "$CharacterEncoding is the default character encoding for opening text files."
 $CommandLine::usage:= "$CommandLine is a list of the command line arguments that \(StyleBox(\"pMath\", \"TI\")\) was started with."
 $CreationDate::usage:= "$CreationDate is a list of the form {\(StyleBox(\"year\", \"Arg\")\), \(StyleBox(\"month\", \"Arg\")\), \(StyleBox(\"day\", \"Arg\")\), \(StyleBox(\"hour\", \"Arg\")\), \(StyleBox(\"minute\", \"Arg\")\), \(StyleBox(\"second\", \"Arg\")\)} which gives the compilation date and time of the \(StyleBox(\"pMath\", \"TI\")\) library."
