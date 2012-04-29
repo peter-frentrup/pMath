@@ -2,7 +2,6 @@
 	Button("italic", DocumentApply(SelectedDocument(), StyleBox("\[SelectionPlaceholder]", "TI"))),
 	Button("Arg Style", DocumentApply(SelectedDocument(), StyleBox("\[SelectionPlaceholder]", "Arg")))})
 
-- BUG: f(~x ^ ?n)::= {x, n}   does not give {y,1} for f(y)  although Default(Power,2) = 1
 - BUG: "g(?n:c)::= n"  does not render correctly (n is not highlighted)
   
 - richmath/GTK: implement system FE`ColorDialog, ...
