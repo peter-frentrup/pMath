@@ -63,10 +63,11 @@ PMATH_PRIVATE pmath_t builtin_renamedirectory_and_renamefile(pmath_expr_t expr) 
     name1 = pmath_string_insert_ucs2(name1, INT_MAX, &zero, 1);
     name2 = pmath_string_insert_ucs2(name2, INT_MAX, &zero, 1);
     
-    if(!pmath_is_null(name1)
-        && !pmath_is_null(name2)) {
+    if( !pmath_is_null(name1) &&
+        !pmath_is_null(name2))
+    {
       HANDLE h = CreateFileW(
-                   (const wchar_t*)pmath_string_buffer(&name1),
+                   (const wchar_t *)pmath_string_buffer(&name1),
                    0,
                    FILE_SHARE_READ | FILE_SHARE_WRITE,
                    NULL,
@@ -77,19 +78,19 @@ PMATH_PRIVATE pmath_t builtin_renamedirectory_and_renamefile(pmath_expr_t expr) 
       if(h != INVALID_HANDLE_VALUE) {
         BY_HANDLE_FILE_INFORMATION info;
         
-        if(GetFileInformationByHandle(h, &info)
-            && ((pmath_same(head, PMATH_SYMBOL_RENAMEDIRECTORY)
-                 && (info.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
-                || (pmath_same(head, PMATH_SYMBOL_RENAMEFILE)
-                    && !(info.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)))
-          ) {
+        if( GetFileInformationByHandle(h, &info) &&
+            ((pmath_same(head, PMATH_SYMBOL_RENAMEDIRECTORY) &&
+              (info.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) ||
+             (pmath_same(head, PMATH_SYMBOL_RENAMEFILE)      &&
+              !(info.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))))
+        {
           CloseHandle(h);
           
-          if(MoveFileExW(
-                (const wchar_t*)pmath_string_buffer(&name1),
-                (const wchar_t*)pmath_string_buffer(&name2),
-                MOVEFILE_COPY_ALLOWED)
-            ) {
+          if( MoveFileExW(
+                (const wchar_t *)pmath_string_buffer(&name1),
+                (const wchar_t *)pmath_string_buffer(&name2),
+                MOVEFILE_COPY_ALLOWED))
+          {
             name2 = pmath_string_part(name2, 0, pmath_string_length(name2) - 1);
             name2 = _pmath_canonical_file_name(name2);
           }
@@ -197,12 +198,12 @@ PMATH_PRIVATE pmath_t builtin_renamedirectory_and_renamefile(pmath_expr_t expr) 
       }
       else {
         errno = 0;
-        if(stat(str1, &buf) == 0
-            && ((pmath_same(head, PMATH_SYMBOL_RENAMEDIRECTORY)
-                 && S_ISDIR(buf.st_mode))
-                || (pmath_same(head, PMATH_SYMBOL_RENAMEFILE)
-                    && !S_ISDIR(buf.st_mode)))
-          ) {
+        if( stat(str1, &buf) == 0 &&
+            ((pmath_same(head, PMATH_SYMBOL_RENAMEDIRECTORY) &&
+              S_ISDIR(buf.st_mode)) ||
+             (pmath_same(head, PMATH_SYMBOL_RENAMEFILE) &&
+              !S_ISDIR(buf.st_mode))))
+        {
           errno = 0;
           if(rename(str1, str2) == 0) {
             name2 = _pmath_canonical_file_name(name2);

@@ -18,9 +18,10 @@ static pmath_bool_t binary_write(
   pmath_t  type,         // will be freed
   int      byte_ordering
 ) {
-  if(pmath_same(type, PMATH_SYMBOL_EXPRESSION)
-      || (pmath_is_string(type)
-          && pmath_string_equals_latin1(type, "Expression"))) {
+  if( pmath_same(type, PMATH_SYMBOL_EXPRESSION) ||
+      (pmath_is_string(type) &&
+       pmath_string_equals_latin1(type, "Expression")))
+  {
     pmath_unref(type);
     pmath_serialize(file, value);
     
@@ -91,9 +92,10 @@ static pmath_bool_t binary_write(
       const uint16_t *buf = pmath_string_buffer(&value);
       const int len = pmath_string_length(value);
       
-      if(pmath_is_null(type)
-          || pmath_string_equals_latin1(type, "Character8")
-          || pmath_string_equals_latin1(type, "TerminatedString")) {
+      if( pmath_is_null(type)                            ||
+          pmath_string_equals_latin1(type, "Character8") ||
+          pmath_string_equals_latin1(type, "TerminatedString"))
+      {
         uint8_t data[256];
         int datalen = sizeof(data);
         int i, j;
@@ -178,9 +180,10 @@ static pmath_bool_t binary_write(
         COMPLEX
       } out_type = NONE;
       
-      if(pmath_is_null(type)
-          || pmath_string_equals_latin1(type, "Byte")
-          || pmath_string_equals_latin1(type, "UnsignedInteger8")) {
+      if( pmath_is_null(type)                      ||
+          pmath_string_equals_latin1(type, "Byte") ||
+          pmath_string_equals_latin1(type, "UnsignedInteger8"))
+      {
         size = 1;
         out_type = UINT;
       }
@@ -274,8 +277,9 @@ static pmath_bool_t binary_write(
           int re_dir = 2;
           int im_dir = 2;
           
-          if(out_type == REAL
-              && pmath_equals(value, PMATH_FROM_INT32(0))) {
+          if( out_type == REAL &&
+              pmath_equals(value, PMATH_FROM_INT32(0)))
+          {
             pmath_unref(value);
             pmath_unref(type);
             
@@ -317,8 +321,9 @@ static pmath_bool_t binary_write(
             }
           }
           
-          if(pmath_is_float(value)
-              && out_type == REAL) {
+          if( pmath_is_float(value) &&
+              out_type == REAL)
+          {
             pmath_mpfloat_t f  = PMATH_NULL;
             pmath_mpint_t mant = _pmath_create_mp_int(0);
             long bits = 10;
@@ -354,8 +359,9 @@ static pmath_bool_t binary_write(
                     else
                       mpz_clrbit(PMATH_AS_MPZ(mant), bits);
                       
-                    if(exp <= 15
-                        && mpz_cmpabs_ui(PMATH_AS_MPZ(mant), 0x400) <= 0) {
+                    if( exp <= 15 &&
+                        mpz_cmpabs_ui(PMATH_AS_MPZ(mant), 0x400) <= 0)
+                    {
                       unsigned long umant = mpz_get_ui(PMATH_AS_MPZ(mant));
                       unsigned long uexp = (unsigned long)(exp + 15);
                       
@@ -385,8 +391,9 @@ static pmath_bool_t binary_write(
                     else
                       mpz_clrbit(PMATH_AS_MPZ(mant), bits);
                       
-                    if(exp <= 127
-                        && mpz_cmpabs_ui(PMATH_AS_MPZ(mant), 0x800000) <= 0) {
+                    if( exp <= 127 &&
+                        mpz_cmpabs_ui(PMATH_AS_MPZ(mant), 0x800000) <= 0)
+                    {
                       unsigned long umant = mpz_get_ui(PMATH_AS_MPZ(mant));
                       unsigned long uexp = (unsigned long)(exp + 127);
                       
@@ -621,11 +628,11 @@ static pmath_bool_t binary_write(
                     } break;
                     
                   default: {
-                      data[size-1] = 'P';
-                      data[size-2] = 'M';
-                      data[size-3] = 'A';
-                      data[size-4] = 'T';
-                      data[size-5] = 'H';
+                      data[size - 1] = 'P';
+                      data[size - 2] = 'M';
+                      data[size - 3] = 'A';
+                      data[size - 4] = 'T';
+                      data[size - 5] = 'H';
                     }
                 }
               }
@@ -656,8 +663,9 @@ static pmath_bool_t binary_write(
           size_t count;
           pmath_mpint_t pos = PMATH_NULL;
           
-          if(out_type == INT
-              && mpz_sgn(PMATH_AS_MPZ(value)) < 0) {
+          if( out_type == INT &&
+              mpz_sgn(PMATH_AS_MPZ(value)) < 0)
+          {
             pos = _pmath_create_mp_int(1);
             
             if(pmath_is_null(pos)) {
@@ -672,8 +680,9 @@ static pmath_bool_t binary_write(
               PMATH_AS_MPZ(pos),
               PMATH_AS_MPZ(value));
           }
-          else if((out_type == INT || out_type == UINT)
-                  && mpz_sgn(PMATH_AS_MPZ(value)) >= 0) {
+          else if( (out_type == INT || out_type == UINT) &&
+                   mpz_sgn(PMATH_AS_MPZ(value)) >= 0)
+          {
             pos = pmath_ref(value);
           }
           else {

@@ -14,8 +14,9 @@ PMATH_PRIVATE pmath_t builtin_or(pmath_expr_t expr) {
     for(i = 0; i <= elen; i++) {
       pmath_t item = pmath_evaluate(pmath_expr_get_item(expr, i));
       
-      if(pmath_same(item, PMATH_SYMBOL_TRUE)
-          || pmath_same(item, PMATH_SYMBOL_UNDEFINED)) {
+      if( pmath_same(item, PMATH_SYMBOL_TRUE) ||
+          pmath_same(item, PMATH_SYMBOL_UNDEFINED))
+      {
         pmath_unref(expr);
         return item;
       }

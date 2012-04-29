@@ -38,10 +38,12 @@ PMATH_PRIVATE pmath_t _pmath_directed_infinity_direction(
   pmath_t obj
 ) {
   pmath_t head;
-  if(!pmath_is_expr(obj)
-      || pmath_expr_length(obj) > 1)
+  if( !pmath_is_expr(obj) ||
+      pmath_expr_length(obj) > 1)
+  {
     return PMATH_NULL;
-    
+  }
+  
   head = pmath_expr_get_item(obj, 0);
   pmath_unref(head);
   if(!pmath_same(head, PMATH_SYMBOL_DIRECTEDINFINITY))
@@ -66,8 +68,10 @@ PMATH_PRIVATE pmath_t builtin_directedinfinity(pmath_expr_t expr) {
   }
   
   item = pmath_expr_get_item(expr, 1);
-  if(pmath_same(item, PMATH_SYMBOL_UNDEFINED)
-      || (pmath_is_number(item) && pmath_number_sign(item) == 0)) {
+  if( pmath_same(item, PMATH_SYMBOL_UNDEFINED) ||
+      (pmath_is_number(item) &&
+       pmath_number_sign(item) == 0))
+  {
     pmath_unref(item);
     pmath_unref(expr);
     return pmath_ref(_pmath_object_complex_infinity);

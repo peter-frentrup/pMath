@@ -324,7 +324,7 @@ static pmath_t assign_part(
           item = assign_part(item, position, position_start + 1, new_item, error);
           
           overlay = pmath_expr_set_item(overlay, i, item);
-                                     
+          
           pmath_unref(new_item);
         }
       }
@@ -342,7 +342,7 @@ static pmath_t assign_part(
     }
     else
       overlay = pmath_ref(new_value);
-    
+      
     if(!_pmath_expr_try_overlay(&list, overlay, start_index, end_index, step)) {
       pmath_message(PMATH_NULL, "partw", 2, pmath_ref(list), index);
       *error = TRUE;
@@ -425,8 +425,9 @@ PMATH_PRIVATE pmath_t builtin_assign_part(pmath_expr_t expr) {
     return rhs;
   }
   
-  if(!pmath_same(tag, PMATH_UNDEFINED)
-      && !pmath_same(tag, sym)) {
+  if( !pmath_same(tag, PMATH_UNDEFINED) &&
+      !pmath_same(tag, sym))
+  {
     pmath_message(PMATH_NULL, "tag", 3, tag, lhs, sym);
     
     if(assignment < 0) {

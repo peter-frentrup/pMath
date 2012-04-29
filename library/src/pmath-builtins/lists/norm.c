@@ -28,8 +28,9 @@ PMATH_PRIVATE pmath_t builtin_norm(pmath_expr_t expr) {
     
   matrix = pmath_expr_get_item(expr, 1);
   
-  if(pmath_is_string(ptype)
-      && pmath_string_equals_latin1(ptype, "Frobenius")) {
+  if( pmath_is_string(ptype) &&
+      pmath_string_equals_latin1(ptype, "Frobenius"))
+  {
     pmath_unref(ptype);
     
     if(_pmath_is_vector(matrix)) {
@@ -105,8 +106,9 @@ PMATH_PRIVATE pmath_t builtin_norm(pmath_expr_t expr) {
   
   // special casing Norm({a,b}) = Sqrt(a^2 + b^2) for double values
   // to circumvalent numerical underflow/owerflow
-  if(pmath_equals(ptype, PMATH_FROM_INT32(2))
-      && pmath_expr_length(matrix) == 2) {
+  if( pmath_equals(ptype, PMATH_FROM_INT32(2)) &&
+      pmath_expr_length(matrix) == 2)
+  {
     pmath_t a = pmath_expr_get_item(matrix, 1);
     pmath_t b = pmath_expr_get_item(matrix, 2);
     

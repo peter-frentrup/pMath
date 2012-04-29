@@ -20,8 +20,9 @@ PMATH_PRIVATE pmath_t builtin_assign_syntaxinformation(pmath_expr_t expr) {
   if(!assignment)
     return expr;
     
-  if(!pmath_is_expr_of_len(lhs, PMATH_SYMBOL_SYNTAXINFORMATION, 1)
-      || !pmath_same(tag, PMATH_UNDEFINED)) {
+  if( !pmath_is_expr_of_len(lhs, PMATH_SYMBOL_SYNTAXINFORMATION, 1) ||
+      !pmath_same(tag, PMATH_UNDEFINED))
+  {
     pmath_unref(tag);
     pmath_unref(lhs);
     pmath_unref(rhs);
@@ -84,8 +85,9 @@ PMATH_PRIVATE pmath_t builtin_syntaxinformation(pmath_expr_t expr) {
                              pmath_ref(PMATH_SYMBOL_UTILITIES_GETSYSTEMSYNTAXINFORMATION));
                              
   expr = pmath_evaluate(expr);
-  if(pmath_same(expr, PMATH_SYMBOL_FAILED)
-      || pmath_is_expr_of(expr, PMATH_SYMBOL_UTILITIES_GETSYSTEMSYNTAXINFORMATION)) {
+  if( pmath_same(expr, PMATH_SYMBOL_FAILED) ||
+      pmath_is_expr_of(expr, PMATH_SYMBOL_UTILITIES_GETSYSTEMSYNTAXINFORMATION))
+  {
     pmath_unref(expr);
     return pmath_ref(_pmath_object_emptylist);
   }

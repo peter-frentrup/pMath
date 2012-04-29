@@ -150,9 +150,10 @@ static pmath_t ordered(
           
           c = pmath_fuzzy_compare(prev, n);
           
-          if((c <  0 && (directions & DIRECTION_LESS) == 0)
-              || (c == 0 && (directions & DIRECTION_EQUAL) == 0)
-              || (c >  0 && (directions & DIRECTION_GREATER) == 0)) {
+          if( (c <  0 && (directions & DIRECTION_LESS)  == 0) ||
+              (c == 0 && (directions & DIRECTION_EQUAL) == 0) ||
+              (c >  0 && (directions & DIRECTION_GREATER) == 0))
+          {
             pmath_unref(prev);
             pmath_unref(next);
             pmath_unref(n);
@@ -183,9 +184,10 @@ static pmath_t ordered(
           
           c = pmath_fuzzy_compare(p, next);
           
-          if((c <  0 && (directions & DIRECTION_LESS) == 0)
-              || (c == 0 && (directions & DIRECTION_EQUAL) == 0)
-              || (c >  0 && (directions & DIRECTION_GREATER) == 0)) {
+          if( (c <  0 && (directions & DIRECTION_LESS)  == 0) ||
+              (c == 0 && (directions & DIRECTION_EQUAL) == 0) ||
+              (c >  0 && (directions & DIRECTION_GREATER) == 0))
+          {
             pmath_unref(prev);
             pmath_unref(next);
             pmath_unref(p);
@@ -208,9 +210,10 @@ static pmath_t ordered(
         if(pmath_is_number(prev) && pmath_is_number(next)) {
           int c = pmath_fuzzy_compare(prev, next);
           
-          if((c <  0 && (directions & DIRECTION_LESS) == 0)
-              || (c == 0 && (directions & DIRECTION_EQUAL) == 0)
-              || (c >  0 && (directions & DIRECTION_GREATER) == 0)) {
+          if( (c <  0 && (directions & DIRECTION_LESS)    == 0) ||
+              (c == 0 && (directions & DIRECTION_EQUAL)   == 0) ||
+              (c >  0 && (directions & DIRECTION_GREATER) == 0))
+          {
             pmath_unref(prev);
             pmath_unref(next);
             pmath_unref(expr);
@@ -231,10 +234,10 @@ static pmath_t ordered(
         if(pmath_is_string(prev) && pmath_is_string(next)) {
           pmath_bool_t equal = pmath_equals(prev, next);
           
-          if((equal && (directions & DIRECTION_EQUAL) == 0)
-              || (!equal && (directions & (DIRECTION_LESS |
-                                           DIRECTION_EQUAL |
-                                           DIRECTION_GREATER)) == DIRECTION_EQUAL))
+          if( ( equal && (directions & DIRECTION_EQUAL) == 0) ||
+              (!equal && (directions & (DIRECTION_LESS |
+                                        DIRECTION_EQUAL |
+                                        DIRECTION_GREATER)) == DIRECTION_EQUAL))
           {
             pmath_unref(prev);
             pmath_unref(next);
@@ -273,8 +276,9 @@ static pmath_t ordered(
             if(pmath_is_null(next_infdir) && pmath_is_numeric(n))
               n = pmath_approximate(n, -HUGE_VAL, -HUGE_VAL, NULL);
               
-            if(pmath_is_number(n)
-                || pmath_equals(next_infdir, PMATH_FROM_INT32(1))) {
+            if( pmath_is_number(n) ||
+                pmath_equals(next_infdir, PMATH_FROM_INT32(1)))
+            {
               if((directions & DIRECTION_LESS) == 0) {
                 pmath_unref(prev_infdir);
                 pmath_unref(next_infdir);
@@ -300,8 +304,9 @@ static pmath_t ordered(
             if(pmath_is_null(next_infdir) && pmath_is_numeric(n))
               n = pmath_approximate(n, -HUGE_VAL, -HUGE_VAL, NULL);
               
-            if(pmath_is_number(n)
-                || pmath_equals(next_infdir, PMATH_FROM_INT32(-1))) {
+            if( pmath_is_number(n) ||
+                pmath_equals(next_infdir, PMATH_FROM_INT32(-1)))
+            {
               if((directions & DIRECTION_GREATER) == 0) {
                 pmath_unref(prev_infdir);
                 pmath_unref(next_infdir);
@@ -326,8 +331,9 @@ static pmath_t ordered(
             if(pmath_is_null(prev_infdir) && pmath_is_numeric(p))
               p = pmath_approximate(p, -HUGE_VAL, -HUGE_VAL, NULL);
               
-            if(pmath_is_number(p)
-                || pmath_equals(prev_infdir, PMATH_FROM_INT32(1))) {
+            if( pmath_is_number(p) ||
+                pmath_equals(prev_infdir, PMATH_FROM_INT32(1)))
+            {
               if((directions & DIRECTION_GREATER) == 0) {
                 pmath_unref(prev_infdir);
                 pmath_unref(next_infdir);
@@ -352,8 +358,9 @@ static pmath_t ordered(
             if(pmath_is_null(prev_infdir) && pmath_is_numeric(p))
               p = pmath_approximate(p, -HUGE_VAL, -HUGE_VAL, NULL);
               
-            if(pmath_is_number(prev)
-                || pmath_equals(prev_infdir, PMATH_FROM_INT32(-1))) {
+            if( pmath_is_number(prev) ||
+                pmath_equals(prev_infdir, PMATH_FROM_INT32(-1)))
+            {
               if((directions & DIRECTION_LESS) == 0) {
                 pmath_unref(prev_infdir);
                 pmath_unref(next_infdir);
@@ -459,18 +466,7 @@ static pmath_t ordered(
                 
                 if(error1 || error2)
                   break;
-//                if(pprec >= DBL_MANT_DIG + pmath_max_extra_precision
-//                || nprec >= DBL_MANT_DIG + pmath_max_extra_precision){
-//                  if(c == 0){
-//                    pmath_message(PMATH_SYMBOL_N, "meprec", 2,
-//                      pmath_evaluate(pmath_ref(PMATH_SYMBOL_MAXEXTRAPRECISION)),
-//                      pmath_expr_get_item_range(expr, i-1, 2));
-//                    error1 = TRUE;
-//                  }
-//
-//                  break;
-//                }
-
+                  
                 pprec = 2 * pprec + 33;
                 nprec = 2 * nprec + 33;
                 
@@ -519,9 +515,10 @@ static pmath_t ordered(
             }
           }
           
-          if((c <  0 && (directions & DIRECTION_LESS) == 0)
-              || (c == 0 && (directions & DIRECTION_EQUAL) == 0)
-              || (c >  0 && (directions & DIRECTION_GREATER) == 0)) {
+          if( (c <  0 && (directions & DIRECTION_LESS)    == 0) ||
+              (c == 0 && (directions & DIRECTION_EQUAL)   == 0) ||
+              (c >  0 && (directions & DIRECTION_GREATER) == 0))
+          {
             pmath_unref(prev);
             pmath_unref(next);
             pmath_unref(expr);
@@ -668,32 +665,42 @@ static pmath_t combine_relations(pmath_t rel1, pmath_t rel2) {
   if(pmath_same(rel2, PMATH_SYMBOL_EQUAL))
     return rel1;
     
-  if(pmath_same(rel1, PMATH_SYMBOL_UNEQUAL)
-      || pmath_same(rel2, PMATH_SYMBOL_UNEQUAL))
+  if( pmath_same(rel1, PMATH_SYMBOL_UNEQUAL) ||
+      pmath_same(rel2, PMATH_SYMBOL_UNEQUAL))
+  {
     return PMATH_NULL;
-    
+  }
+  
   if(pmath_same(rel1, PMATH_SYMBOL_LESS)) {
-    if(pmath_same(rel2, PMATH_SYMBOL_LESS)
-        || pmath_same(rel2, PMATH_SYMBOL_LESSEQUAL))
+    if( pmath_same(rel2, PMATH_SYMBOL_LESS) ||
+        pmath_same(rel2, PMATH_SYMBOL_LESSEQUAL))
+    {
       return rel1;
+    }
   }
   
   if(pmath_same(rel1, PMATH_SYMBOL_LESSEQUAL)) {
-    if(pmath_same(rel2, PMATH_SYMBOL_LESS)
-        || pmath_same(rel2, PMATH_SYMBOL_LESSEQUAL))
+    if( pmath_same(rel2, PMATH_SYMBOL_LESS) ||
+        pmath_same(rel2, PMATH_SYMBOL_LESSEQUAL))
+    {
       return rel2;
+    }
   }
   
   if(pmath_same(rel1, PMATH_SYMBOL_GREATER)) {
-    if(pmath_same(rel2, PMATH_SYMBOL_GREATER)
-        || pmath_same(rel2, PMATH_SYMBOL_GREATEREQUAL))
+    if( pmath_same(rel2, PMATH_SYMBOL_GREATER) ||
+        pmath_same(rel2, PMATH_SYMBOL_GREATEREQUAL))
+    {
       return rel1;
+    }
   }
   
   if(pmath_same(rel1, PMATH_SYMBOL_GREATEREQUAL)) {
-    if(pmath_same(rel2, PMATH_SYMBOL_GREATER)
-        || pmath_same(rel2, PMATH_SYMBOL_GREATEREQUAL))
+    if( pmath_same(rel2, PMATH_SYMBOL_GREATER) ||
+        pmath_same(rel2, PMATH_SYMBOL_GREATEREQUAL))
+    {
       return rel2;
+    }
   }
   
   return PMATH_NULL;
@@ -737,8 +744,9 @@ PMATH_PRIVATE pmath_t builtin_inequation(pmath_expr_t expr) {
                        pmath_ref(prev),
                        pmath_ref(next)));
                        
-    if(pmath_same(test, PMATH_SYMBOL_FALSE)
-        || pmath_same(test, PMATH_SYMBOL_UNDEFINED)) {
+    if( pmath_same(test, PMATH_SYMBOL_FALSE) ||
+        pmath_same(test, PMATH_SYMBOL_UNDEFINED))
+    {
       pmath_unref(relation);
       pmath_unref(prev);
       pmath_unref(next);
@@ -770,11 +778,12 @@ PMATH_PRIVATE pmath_t builtin_inequation(pmath_expr_t expr) {
       if(i == 2) {
         direction = new_direction;
       }
-      else if(direction == 0 || new_direction == 0
-              || ((new_direction & DIRECTION_LESS) != 0
-                  && (direction & DIRECTION_GREATER) != 0)
-              || ((new_direction & DIRECTION_GREATER) != 0
-                  && (direction & DIRECTION_LESS) != 0))
+      else if( direction == 0                               ||
+               new_direction == 0                           ||
+               ((new_direction & DIRECTION_LESS)    != 0 &&
+                (direction     & DIRECTION_GREATER) != 0)   ||
+               ((new_direction & DIRECTION_GREATER) != 0 &&
+                (direction     & DIRECTION_LESS)    != 0))
       {
         pmath_expr_t until_here;
         pmath_t rest;

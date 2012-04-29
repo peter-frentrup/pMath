@@ -22,8 +22,9 @@ PMATH_PRIVATE pmath_t builtin_conditionalexpression(pmath_expr_t expr) {
     return value;
   }
   
-  if(pmath_same(test, PMATH_SYMBOL_FALSE)
-      || pmath_same(test, PMATH_SYMBOL_UNDEFINED)) {
+  if( pmath_same(test, PMATH_SYMBOL_FALSE) ||
+      pmath_same(test, PMATH_SYMBOL_UNDEFINED))
+  {
     pmath_unref(value);
     pmath_unref(test);
     pmath_unref(expr);
@@ -51,8 +52,9 @@ PMATH_PRIVATE pmath_t builtin_operate_conditionalexpression(pmath_expr_t expr) {
   pmath_t item = pmath_expr_get_item(expr, 0);
   size_t i;
   
-  if(!pmath_is_symbol(item)
-      || !(pmath_symbol_get_attributes(item) & (PMATH_SYMBOL_ATTRIBUTE_DEFINITEFUNCTION | PMATH_SYMBOL_ATTRIBUTE_NUMERICFUNCTION))) {
+  if( !pmath_is_symbol(item) ||
+      !(pmath_symbol_get_attributes(item) & (PMATH_SYMBOL_ATTRIBUTE_DEFINITEFUNCTION | PMATH_SYMBOL_ATTRIBUTE_NUMERICFUNCTION)))
+  {
     pmath_unref(item);
     return expr;
   }
@@ -96,8 +98,9 @@ PMATH_PRIVATE pmath_t builtin_operate_conditionalexpression(pmath_expr_t expr) {
 PMATH_PRIVATE pmath_t builtin_operate_undefined(pmath_expr_t expr) {
   pmath_t head = pmath_expr_get_item(expr, 0);
   
-  if(pmath_is_symbol(head)
-      && (pmath_symbol_get_attributes(head) & (PMATH_SYMBOL_ATTRIBUTE_DEFINITEFUNCTION | PMATH_SYMBOL_ATTRIBUTE_NUMERICFUNCTION)) != 0) {
+  if( pmath_is_symbol(head) &&
+      0 != (pmath_symbol_get_attributes(head) & (PMATH_SYMBOL_ATTRIBUTE_DEFINITEFUNCTION | PMATH_SYMBOL_ATTRIBUTE_NUMERICFUNCTION)))
+  {
     pmath_unref(head);
     pmath_unref(expr);
     return pmath_ref(PMATH_SYMBOL_UNDEFINED);

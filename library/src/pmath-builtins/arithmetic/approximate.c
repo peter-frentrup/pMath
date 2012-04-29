@@ -231,9 +231,10 @@ PMATH_PRIVATE pmath_t builtin_assign_approximate(pmath_expr_t expr) {
   if(!_pmath_is_assignment(expr, &tag, &lhs, &rhs))
     return expr;
     
-  if(!pmath_is_expr_of(lhs, PMATH_SYMBOL_N)
-      && pmath_expr_length(lhs) != 1
-      && pmath_expr_length(lhs) != 2) {
+  if( !pmath_is_expr_of(lhs, PMATH_SYMBOL_N) &&
+      pmath_expr_length(lhs) != 1            &&
+      pmath_expr_length(lhs) != 2)
+  {
     pmath_unref(tag);
     pmath_unref(lhs);
     pmath_unref(rhs);

@@ -143,8 +143,9 @@ PMATH_PRIVATE pmath_t builtin_copydirectory_and_copyfile(pmath_expr_t expr) {
   }
   
   name1 = pmath_expr_get_item(expr, 1);
-  if(!pmath_is_string(name1)
-      || pmath_string_length(name1) == 0) {
+  if( !pmath_is_string(name1) ||
+      pmath_string_length(name1) == 0)
+  {
     pmath_message(PMATH_NULL, "fstr", 1, name1);
     return expr;
   }
@@ -162,16 +163,18 @@ PMATH_PRIVATE pmath_t builtin_copydirectory_and_copyfile(pmath_expr_t expr) {
     pmath_string_t abs_name1 = _pmath_canonical_file_name(pmath_ref(name1));
     pmath_string_t abs_name2 = _pmath_canonical_file_name(pmath_ref(name2));
     
-    if(!pmath_is_null(abs_name1)
-        && !pmath_is_null(abs_name2)) {
+    if( !pmath_is_null(abs_name1) &&
+        !pmath_is_null(abs_name2))
+    {
       abs_name1 = pmath_string_insert_ucs2(abs_name1, INT_MAX, zerozero, 2);
       abs_name2 = pmath_string_insert_ucs2(abs_name2, INT_MAX, zerozero, 2);
     }
     
-    if(!pmath_is_null(abs_name1)
-        && !pmath_is_null(abs_name2)) {
+    if( !pmath_is_null(abs_name1) &&
+        !pmath_is_null(abs_name2))
+    {
       HANDLE h = CreateFileW(
-                   (const wchar_t*)pmath_string_buffer(&abs_name1),
+                   (const wchar_t *)pmath_string_buffer(&abs_name1),
                    0,
                    FILE_SHARE_READ | FILE_SHARE_WRITE,
                    NULL,
@@ -182,17 +185,17 @@ PMATH_PRIVATE pmath_t builtin_copydirectory_and_copyfile(pmath_expr_t expr) {
       if(h != INVALID_HANDLE_VALUE) {
         BY_HANDLE_FILE_INFORMATION info;
         
-        if(GetFileInformationByHandle(h, &info)
-            && ((pmath_same(head, PMATH_SYMBOL_COPYDIRECTORY)
-                 && (info.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
-                || (pmath_same(head, PMATH_SYMBOL_COPYFILE)
-                    && !(info.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)))
-          ) {
+        if( GetFileInformationByHandle(h, &info) &&
+            ((pmath_same(head, PMATH_SYMBOL_COPYDIRECTORY) &&
+              (info.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) ||
+             (pmath_same(head, PMATH_SYMBOL_COPYFILE) &&
+              !(info.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))))
+        {
           HANDLE h2;
           CloseHandle(h);
           
           h2 = CreateFileW(
-                 (const wchar_t*)pmath_string_buffer(&abs_name2),
+                 (const wchar_t *)pmath_string_buffer(&abs_name2),
                  0,
                  FILE_SHARE_READ | FILE_SHARE_WRITE,
                  NULL,
@@ -210,8 +213,8 @@ PMATH_PRIVATE pmath_t builtin_copydirectory_and_copyfile(pmath_expr_t expr) {
             
             memset(&op, 0, sizeof(op));
             op.wFunc  = FO_COPY;
-            op.pFrom  = (const wchar_t*)pmath_string_buffer(&abs_name1);
-            op.pTo    = (const wchar_t*)pmath_string_buffer(&abs_name2);
+            op.pFrom  = (const wchar_t *)pmath_string_buffer(&abs_name1);
+            op.pTo    = (const wchar_t *)pmath_string_buffer(&abs_name2);
             op.fFlags = FOF_NOCONFIRMATION | FOF_NOCONFIRMMKDIR | FOF_NOERRORUI | FOF_SILENT;
             
             switch(SHFileOperationW(&op)) {
@@ -295,12 +298,12 @@ PMATH_PRIVATE pmath_t builtin_copydirectory_and_copyfile(pmath_expr_t expr) {
         name2 = pmath_ref(PMATH_SYMBOL_FAILED);
       }
       else {
-        if(stat(str1, &buf) == 0
-            && ((pmath_same(head, PMATH_SYMBOL_COPYDIRECTORY)
-                 && S_ISDIR(buf.st_mode))
-                || (pmath_same(head, PMATH_SYMBOL_COPYFILE)
-                    && !S_ISDIR(buf.st_mode)))
-          ) {
+        if( stat(str1, &buf) == 0 &&
+            ((pmath_same(head, PMATH_SYMBOL_COPYDIRECTORY) &&
+              S_ISDIR(buf.st_mode)) ||
+             (pmath_same(head, PMATH_SYMBOL_COPYFILE) &&
+              !S_ISDIR(buf.st_mode))))
+        {
           errno = 0;
           if(copy_file_or_dir(str1, str2)) {
             name2 = _pmath_canonical_file_name(name2);

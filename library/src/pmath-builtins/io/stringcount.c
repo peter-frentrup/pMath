@@ -31,16 +31,16 @@ static pmath_t stringcount(
     
     offset = 0;
     
-    while(!pmath_aborting()
-          && _pmath_regex_match(
-            regex,
-            subject,
-            length,
-            offset,
-            PCRE_NO_UTF8_CHECK,
-            capture,
-            NULL)
-         ) {
+    while( !pmath_aborting() &&
+           _pmath_regex_match(
+             regex,
+             subject,
+             length,
+             offset,
+             PCRE_NO_UTF8_CHECK,
+             capture,
+             NULL))
+    {
       ++count;
       
       if(overlaps || capture->ovector[0] == capture->ovector[1])

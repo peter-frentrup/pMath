@@ -58,8 +58,10 @@ PMATH_PRIVATE pmath_bool_t _pmath_is_matrix(
   for(i = *rows; i > 1; --i) {
     row = pmath_expr_get_item(m, i);
     
-    if(!pmath_is_expr_of_len(row, PMATH_SYMBOL_LIST, *cols)
-        || (check_non_list_entries && !_pmath_is_vector(row))) {
+    if( !pmath_is_expr_of_len(row, PMATH_SYMBOL_LIST, *cols) ||
+        (check_non_list_entries &&
+         !_pmath_is_vector(row)))
+    {
       pmath_unref(row);
       return FALSE;
     }
@@ -142,7 +144,7 @@ PMATH_PRIVATE pmath_expr_t _pmath_dimensions(
   }
   pmath_unref(tmp);
   
-  data.dim_arr = (size_t*)pmath_mem_alloc(dims * sizeof(size_t));
+  data.dim_arr = (size_t *)pmath_mem_alloc(dims * sizeof(size_t));
   if(!data.dim_arr)
     return PMATH_NULL;
     

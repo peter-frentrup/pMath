@@ -9,43 +9,43 @@
 #include <pmath-builtins/control/messages-private.h>
 
 
-static void make_critical_message(pmath_t msg){ // msg will be freed
-  if(pmath_is_symbol(msg)){
+static void make_critical_message(pmath_t msg) { // msg will be freed
+  if(pmath_is_symbol(msg)) {
     msg = pmath_expr_new_extended(
-      pmath_ref(PMATH_SYMBOL_MESSAGENAME), 2,
-      msg,
-      pmath_ref(_pmath_object_singlematch));
+            pmath_ref(PMATH_SYMBOL_MESSAGENAME), 2,
+            msg,
+            pmath_ref(_pmath_object_singlematch));
   }
-  else{
+  else {
     pmath_t sym = pmath_expr_get_item(msg, 1);
     pmath_unref(sym);
     
     if(pmath_same(sym, PMATH_SYMBOL_GENERAL))
       msg = pmath_expr_set_item(msg, 1, pmath_ref(_pmath_object_singlematch));
   }
-    
+  
   // Internal`IsCriticalMessage(HoldPattern(msg)):= True
   msg = pmath_expr_new_extended(
-    pmath_ref(PMATH_SYMBOL_HOLDPATTERN), 1,
-    msg);
-  
+          pmath_ref(PMATH_SYMBOL_HOLDPATTERN), 1,
+          msg);
+          
   msg = pmath_expr_new_extended(
-    pmath_ref(PMATH_SYMBOL_INTERNAL_ISCRITICALMESSAGE), 1,
-    msg);
-  
+          pmath_ref(PMATH_SYMBOL_INTERNAL_ISCRITICALMESSAGE), 1,
+          msg);
+          
   msg = pmath_expr_new_extended(
-    pmath_ref(PMATH_SYMBOL_ASSIGN), 2,
-    msg,
-    pmath_ref(PMATH_SYMBOL_TRUE));
-  
+          pmath_ref(PMATH_SYMBOL_ASSIGN), 2,
+          msg,
+          pmath_ref(PMATH_SYMBOL_TRUE));
+          
   pmath_unref(pmath_evaluate(msg));
 }
 
-PMATH_PRIVATE pmath_t builtin_try(pmath_expr_t expr){
-/* Try(body, failexpr, messages)
-   Try(body, failexpr)
-   Try(body)
- */
+PMATH_PRIVATE pmath_t builtin_try(pmath_expr_t expr) {
+  /* Try(body, failexpr, messages)
+     Try(body, failexpr)
+     Try(body)
+   */
   pmath_t         body;
   pmath_t         failexpr;
   pmath_t         messages;
@@ -57,8 +57,8 @@ PMATH_PRIVATE pmath_t builtin_try(pmath_expr_t expr){
   size_t          i;
   
   exprlen = pmath_expr_length(expr);
-
-  if(exprlen < 1 || exprlen > 3){
+  
+  if(exprlen < 1 || exprlen > 3) {
     pmath_message_argxxx(pmath_expr_length(expr), 1, 3);
     return expr;
   }
@@ -67,33 +67,34 @@ PMATH_PRIVATE pmath_t builtin_try(pmath_expr_t expr){
   
   if(!thread)
     return expr;
-  
-  if(exprlen == 3){
+    
+  if(exprlen == 3) {
     messages = pmath_expr_get_item(expr, 3);
     
-    if(pmath_is_symbol(messages)){
+    if(pmath_is_symbol(messages)) {
       messages = pmath_build_value("(o)", messages);
     }
     
-    if(!pmath_is_expr(messages)){
+    if(!pmath_is_expr(messages)) {
       pmath_message(PMATH_NULL, "nomsgs", 1, messages);
       return expr;
     }
     
-    if(!_pmath_is_valid_messagename(messages)){
+    if(!_pmath_is_valid_messagename(messages)) {
       pmath_t item = pmath_expr_get_item(messages, 0);
       pmath_unref(item);
       
-      if(!pmath_same(item, PMATH_SYMBOL_LIST)){
+      if(!pmath_same(item, PMATH_SYMBOL_LIST)) {
         pmath_message(PMATH_NULL, "nomsgs", 1, messages);
         return expr;
       }
       
-      for(i = pmath_expr_length(messages);i > 0;--i){
+      for(i = pmath_expr_length(messages); i > 0; --i) {
         item = pmath_expr_get_item(messages, i);
         
-        if(!pmath_is_symbol(item)
-        && !_pmath_is_valid_messagename(item)){
+        if( !pmath_is_symbol(item) &&
+            !_pmath_is_valid_messagename(item))
+        {
           pmath_unref(item);
           pmath_message(PMATH_NULL, "nomsgs", 1, messages);
           return expr;
@@ -105,11 +106,11 @@ PMATH_PRIVATE pmath_t builtin_try(pmath_expr_t expr){
     
     failexpr = pmath_expr_get_item(expr, 2);
   }
-  else if(exprlen == 2){
+  else if(exprlen == 2) {
     messages = PMATH_NULL;
     failexpr = pmath_expr_get_item(expr, 2);
   }
-  else{
+  else {
     messages = PMATH_NULL;
     failexpr = pmath_ref(PMATH_SYMBOL_FAILED);
   }
@@ -118,33 +119,33 @@ PMATH_PRIVATE pmath_t builtin_try(pmath_expr_t expr){
   pmath_unref(expr);
   
   old_downrules = pmath_evaluate(
-    pmath_expr_new_extended(
-      pmath_ref(PMATH_SYMBOL_DOWNRULES), 1,
-      pmath_ref(PMATH_SYMBOL_INTERNAL_ISCRITICALMESSAGE)));
-  
-  if(exprlen == 3){
-    if(_pmath_is_valid_messagename(messages)){
+                    pmath_expr_new_extended(
+                      pmath_ref(PMATH_SYMBOL_DOWNRULES), 1,
+                      pmath_ref(PMATH_SYMBOL_INTERNAL_ISCRITICALMESSAGE)));
+                      
+  if(exprlen == 3) {
+    if(_pmath_is_valid_messagename(messages)) {
       make_critical_message(pmath_ref(messages));
     }
-    else{
-      for(i = pmath_expr_length(messages);i > 0;--i){
+    else {
+      for(i = pmath_expr_length(messages); i > 0; --i) {
         make_critical_message(pmath_expr_get_item(messages, i));
       }
     }
   }
-  else{
+  else {
     // Internal`IsCriticalMessage(~):= True
     pmath_t tmp;
     
     tmp = pmath_expr_new_extended(
-      pmath_ref(PMATH_SYMBOL_INTERNAL_ISCRITICALMESSAGE), 1,
-      pmath_ref(_pmath_object_singlematch));
-    
+            pmath_ref(PMATH_SYMBOL_INTERNAL_ISCRITICALMESSAGE), 1,
+            pmath_ref(_pmath_object_singlematch));
+            
     tmp = pmath_expr_new_extended(
-      pmath_ref(PMATH_SYMBOL_ASSIGN), 2,
-      tmp,
-      pmath_ref(PMATH_SYMBOL_TRUE));
-    
+            pmath_ref(PMATH_SYMBOL_ASSIGN), 2,
+            tmp,
+            pmath_ref(PMATH_SYMBOL_TRUE));
+            
     pmath_unref(pmath_evaluate(tmp));
   }
   
@@ -154,21 +155,21 @@ PMATH_PRIVATE pmath_t builtin_try(pmath_expr_t expr){
   body = pmath_evaluate(body);
   
   exception = _pmath_thread_catch(thread);
-  if(!pmath_same(exception, PMATH_UNDEFINED)){
-    if(_pmath_is_valid_messagename(exception)){
-      if(exprlen < 3 || pmath_equals(exception, messages)){
+  if(!pmath_same(exception, PMATH_UNDEFINED)) {
+    if(_pmath_is_valid_messagename(exception)) {
+      if(exprlen < 3 || pmath_equals(exception, messages)) {
         pmath_unref(body);
         pmath_unref(exception);
         body = failexpr;
         failexpr = PMATH_NULL;
         exception = PMATH_UNDEFINED;
       }
-      else if(!_pmath_is_valid_messagename(messages)){ // list of messages
-        for(i = pmath_expr_length(messages);i > 0;--i){
+      else if(!_pmath_is_valid_messagename(messages)) { // list of messages
+        for(i = pmath_expr_length(messages); i > 0; --i) {
           pmath_t item;
           
           item = pmath_expr_get_item(messages, i);
-          if(pmath_equals(exception, item)){
+          if(pmath_equals(exception, item)) {
             pmath_unref(item);
             pmath_unref(body);
             pmath_unref(exception);
@@ -193,14 +194,14 @@ PMATH_PRIVATE pmath_t builtin_try(pmath_expr_t expr){
     pmath_t tmp;
     
     tmp = pmath_expr_new_extended(
-      pmath_ref(PMATH_SYMBOL_DOWNRULES), 1, 
-      pmath_ref(PMATH_SYMBOL_INTERNAL_ISCRITICALMESSAGE));
-    
+            pmath_ref(PMATH_SYMBOL_DOWNRULES), 1,
+            pmath_ref(PMATH_SYMBOL_INTERNAL_ISCRITICALMESSAGE));
+            
     tmp = pmath_expr_new_extended(
-      pmath_ref(PMATH_SYMBOL_ASSIGN), 2, 
-      tmp,
-      old_downrules);
-    
+            pmath_ref(PMATH_SYMBOL_ASSIGN), 2,
+            tmp,
+            old_downrules);
+            
     pmath_unref(pmath_evaluate(tmp));
   }
   

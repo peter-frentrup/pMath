@@ -44,12 +44,12 @@ PMATH_PRIVATE pmath_t builtin_environment(pmath_expr_t expr) {
           if(*end == '=') {
             pmath_string_t value = pmath_string_insert_ucs2(
               PMATH_NULL, 0,
-              (const uint16_t*)(end + 1),
+              (const uint16_t *)(end + 1),
               -1);
               
             name = pmath_string_insert_ucs2(
               PMATH_NULL, 0,
-              (const uint16_t*)start,
+              (const uint16_t *)start,
               ((size_t)end - (size_t)start) / sizeof(uint16_t));
               
             pmath_emit(
@@ -153,8 +153,9 @@ PMATH_PRIVATE pmath_t builtin_assign_environment(pmath_expr_t expr) {
   if(!_pmath_is_assignment(expr, &tag, &lhs, &rhs))
     return expr;
     
-  if(!pmath_same(tag, PMATH_UNDEFINED)
-      || !pmath_is_expr_of_len(lhs, PMATH_SYMBOL_ENVIRONMENT, 1)) {
+  if( !pmath_same(tag, PMATH_UNDEFINED) ||
+      !pmath_is_expr_of_len(lhs, PMATH_SYMBOL_ENVIRONMENT, 1))
+  {
     pmath_unref(tag);
     pmath_unref(lhs);
     pmath_unref(rhs);
@@ -178,7 +179,7 @@ PMATH_PRIVATE pmath_t builtin_assign_environment(pmath_expr_t expr) {
       tag = pmath_string_insert_latin1(tag, INT_MAX, "", 1);
       
       if(!pmath_is_null(tag)) {
-        SetEnvironmentVariableW((const WCHAR*)pmath_string_buffer(&tag), NULL);
+        SetEnvironmentVariableW((const WCHAR *)pmath_string_buffer(&tag), NULL);
       }
     }
 #else
@@ -201,8 +202,8 @@ PMATH_PRIVATE pmath_t builtin_assign_environment(pmath_expr_t expr) {
       
       if(!pmath_is_null(tag) && !pmath_is_null(rhs)) {
         SetEnvironmentVariableW(
-          (const WCHAR*)pmath_string_buffer(&tag),
-          (const WCHAR*)pmath_string_buffer(&rhs));
+          (const WCHAR *)pmath_string_buffer(&tag),
+          (const WCHAR *)pmath_string_buffer(&rhs));
       }
     }
 #else

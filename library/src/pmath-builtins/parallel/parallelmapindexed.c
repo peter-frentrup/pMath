@@ -29,24 +29,24 @@ static void parallel_map_indexed(struct parallel_map_info_t *info) {
     
     info->items[i] = pmath_evaluate(
                        _pmath_map_indexed(
-                          &info->info, 
-                          info->items[i], 
-                          pmath_expr_new_extended(
-                            pmath_ref(PMATH_SYMBOL_LIST), 1,
-                            pmath_integer_new_uiptr(i))));
-                       
+                         &info->info,
+                         info->items[i],
+                         pmath_expr_new_extended(
+                           pmath_ref(PMATH_SYMBOL_LIST), 1,
+                           pmath_integer_new_uiptr(i))));
+                           
     i = pmath_atomic_fetch_add(&info->index, -1);
     while(i > 0 && !pmath_thread_aborting(thread)) {
       _pmath_thread_clean(FALSE);
       
       info->items[i] = pmath_evaluate(
                          _pmath_map_indexed(
-                            &info->info, 
-                            info->items[i], 
-                            pmath_expr_new_extended(
-                              pmath_ref(PMATH_SYMBOL_LIST), 1,
-                              pmath_integer_new_uiptr(i))));
-      
+                           &info->info,
+                           info->items[i],
+                           pmath_expr_new_extended(
+                             pmath_ref(PMATH_SYMBOL_LIST), 1,
+                             pmath_integer_new_uiptr(i))));
+                             
       i = pmath_atomic_fetch_add(&info->index, -1);
     }
     
@@ -107,20 +107,21 @@ PMATH_PRIVATE pmath_t builtin_parallelmapindexed(pmath_expr_t expr) {
     if(task_count > info.index._data)
       task_count = info.index._data;
       
-    tasks = (pmath_task_t*)pmath_mem_alloc(task_count * sizeof(pmath_task_t));
+    tasks = (pmath_task_t *)pmath_mem_alloc(task_count * sizeof(pmath_task_t));
     if(tasks) {
       size_t i;
       
       info.items = NULL;
       
-      if(pmath_refcount(obj) > 1
-          || PMATH_AS_PTR(obj)->type_shift != PMATH_TYPE_SHIFT_EXPRESSION_GENERAL) {
+      if( pmath_refcount(obj) > 1 ||
+          PMATH_AS_PTR(obj)->type_shift != PMATH_TYPE_SHIFT_EXPRESSION_GENERAL)
+      {
         pmath_expr_t obj2 = pmath_expr_new(
                               pmath_expr_get_item(obj, 0),
                               info.index._data);
                               
         if(!pmath_is_null(obj2)) {
-          info.items = ((struct _pmath_expr_t*)PMATH_AS_PTR(obj2))->items;
+          info.items = ((struct _pmath_expr_t *)PMATH_AS_PTR(obj2))->items;
           
           for(i = (size_t)info.index._data; i > 0; --i)
             info.items[i] = pmath_expr_get_item(obj, i);
@@ -130,7 +131,7 @@ PMATH_PRIVATE pmath_t builtin_parallelmapindexed(pmath_expr_t expr) {
         }
       }
       else
-        info.items = ((struct _pmath_expr_t*)PMATH_AS_PTR(obj))->items;
+        info.items = ((struct _pmath_expr_t *)PMATH_AS_PTR(obj))->items;
         
       info.parent = pmath_thread_get_current();
       

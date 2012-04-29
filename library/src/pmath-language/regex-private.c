@@ -70,8 +70,9 @@ PMATH_PRIVATE pmath_bool_t _pmath_regex_init_capture(
   c->ovecsize = 0;
   c->capture_max = -1;
   
-  if(re
-      && !pcre_fullinfo(re->code, NULL, PCRE_INFO_CAPTURECOUNT, &(c->capture_max))) {
+  if( re &&
+      !pcre_fullinfo(re->code, NULL, PCRE_INFO_CAPTURECOUNT, &(c->capture_max)))
+  {
     c->ovecsize = 3 * (c->capture_max + 1);
     c->ovector = pmath_mem_alloc(sizeof(int) * c->ovecsize);
     
@@ -161,11 +162,12 @@ static pmath_string_t get_capture_by_rhs( // PMATH_NULL if no capture was found
     }
   }
   
-  if(capture_num < 0
-      && pcre_fullinfo(re->code, NULL, PCRE_INFO_NAMECOUNT,     &namecount)
-      && pcre_fullinfo(re->code, NULL, PCRE_INFO_NAMEENTRYSIZE, &nameentrysize)
-      && pcre_fullinfo(re->code, NULL, PCRE_INFO_NAMETABLE,     &name)
-      && len + 2 <= nameentrysize) {
+  if( capture_num < 0                                                        &&
+      pcre_fullinfo(re->code, NULL, PCRE_INFO_NAMECOUNT,     &namecount)     &&
+      pcre_fullinfo(re->code, NULL, PCRE_INFO_NAMEENTRYSIZE, &nameentrysize) &&
+      pcre_fullinfo(re->code, NULL, PCRE_INFO_NAMETABLE,     &name)          &&
+      len + 2 <= nameentrysize)
+  {
     while(namecount > 0) {
       i = 0;
       while(i < len && name[2 + i] && name[2 + i] == buf[i])
@@ -174,25 +176,31 @@ static pmath_string_t get_capture_by_rhs( // PMATH_NULL if no capture was found
       if(i == len && name[2 + i] == '\0') {
         capture_num = (int)(((uint16_t)name[0] << 8) | (uint16_t)name[1]);
         
-        if(c->ovector[2 * capture_num] >= 0
-            && c->ovector[2 * capture_num + 1] >= 0)
+        if( c->ovector[2 * capture_num] >= 0 &&
+            c->ovector[2 * capture_num + 1] >= 0)
+        {
           break;
+        }
       }
       
       name += namecount;
     }
   }
   
-  if(capture_num < 0
-      || capture_num > c->capture_max)
+  if( capture_num < 0 ||
+      capture_num > c->capture_max)
+  {
     return PMATH_NULL;
-    
+  }
+  
   capture_num *= 2;
   
-  if(c->ovector[capture_num]     < 0
-      || c->ovector[capture_num + 1] < 0)
+  if( c->ovector[capture_num]     < 0 ||
+      c->ovector[capture_num + 1] < 0)
+  {
     return pmath_string_new(0);
-    
+  }
+  
   return pmath_string_from_utf8(
            subject + c->ovector[capture_num],
            c->ovector[capture_num + 1] - c->ovector[capture_num]);
@@ -243,8 +251,8 @@ static pmath_bool_t regex_equals_key(
   struct _regex_t       *re,
   struct _regex_key_t   *key
 ) {
-  return re->key.pcre_options == key->pcre_options
-         && pmath_equals(re->key.object, key->object);
+  return re->key.pcre_options == key->pcre_options &&
+         pmath_equals(re->key.object, key->object);
 }
 
 static const pmath_ht_class_t regex_cache_ht_class = {
@@ -292,7 +300,7 @@ static struct _regex_t *get_regex(pmath_t key, int pcre_options) { // key will b
   
   table = regex_cache_lock();
   {
-    result = _pmath_regex_ref((struct _regex_t*)pmath_ht_search(table, &k));
+    result = _pmath_regex_ref((struct _regex_t *)pmath_ht_search(table, &k));
   }
   regex_cache_unlock(table);
   
@@ -312,9 +320,9 @@ static void store_regex(struct _regex_t *re) {
     ++regex_cache_array_next;
     
     if(arr_re)
-      rem_re = (struct _regex_t*)pmath_ht_remove(table, &arr_re->key);
+      rem_re = (struct _regex_t *)pmath_ht_remove(table, &arr_re->key);
       
-    re = (struct _regex_t*)pmath_ht_insert(table, re);
+    re = (struct _regex_t *)pmath_ht_insert(table, re);
   }
   regex_cache_unlock(table);
   
@@ -361,26 +369,26 @@ static void concat_utf8(struct concat_t *cc, const char *str) {
 /*----------------------------------------------------------------------------*/
 
 static pmath_bool_t is_pcre_metachar(uint16_t ch) {
-  return ch == '\\'
-         || ch == '^'
-         || ch == '$'
-         || ch == '.'
-         || ch == '['
-         || ch == '|'
-         || ch == '('
-         || ch == ')'
-         || ch == '?'
-         || ch == '*'
-         || ch == '+'
-         || ch == '{';
+  return ch == '\\' ||
+         ch == '^'  ||
+         ch == '$'  ||
+         ch == '.'  ||
+         ch == '['  ||
+         ch == '|'  ||
+         ch == '('  ||
+         ch == ')'  ||
+         ch == '?'  ||
+         ch == '*'  ||
+         ch == '+'  ||
+         ch == '{';
 }
 
 static pmath_bool_t is_pcre_class_metachar(uint16_t ch) {
-  return ch == '\\'
-         || ch == '^'
-         || ch == '-'
-         || ch == '['
-         || ch == ']';
+  return ch == '\\' ||
+         ch == '^'  ||
+         ch == '-'  ||
+         ch == '['  ||
+         ch == ']';
 }
 
 struct compile_regex_info_t {
@@ -466,10 +474,11 @@ static pmath_bool_t is_charclass_item(pmath_t obj) {
     pmath_t start = pmath_expr_get_item(obj, 1);
     pmath_t end   = pmath_expr_get_item(obj, 2);
     
-    if(pmath_is_string(start)
-        && pmath_is_string(end)
-        && pmath_string_length(start) == 1
-        && pmath_string_length(end)   == 1) {
+    if( pmath_is_string(start)          &&
+        pmath_is_string(end)            &&
+        pmath_string_length(start) == 1 &&
+        pmath_string_length(end)   == 1)
+    {
       pmath_unref(start);
       pmath_unref(end);
       return TRUE;
@@ -480,10 +489,10 @@ static pmath_bool_t is_charclass_item(pmath_t obj) {
     return FALSE;
   }
   
-  return pmath_same(obj, PMATH_SYMBOL_DIGITCHARACTER)
-         || pmath_same(obj, PMATH_SYMBOL_LETTERCHARACTER)
-         || pmath_same(obj, PMATH_SYMBOL_WHITESPACECHARACTER)
-         || pmath_same(obj, PMATH_SYMBOL_WORDCHARACTER);
+  return pmath_same(obj, PMATH_SYMBOL_DIGITCHARACTER)      ||
+         pmath_same(obj, PMATH_SYMBOL_LETTERCHARACTER)     ||
+         pmath_same(obj, PMATH_SYMBOL_WHITESPACECHARACTER) ||
+         pmath_same(obj, PMATH_SYMBOL_WORDCHARACTER);
 }
 
 static void put_charclass_item(
@@ -492,7 +501,7 @@ static void put_charclass_item(
 ) {
   pmath_cstr_writer_info_t u8info;
   
-  u8info.write_cstr = (void(*)(void*, const char*))concat_utf8;
+  u8info.write_cstr = (void( *)(void *, const char *))concat_utf8;
   u8info.user = &(info->pattern);
   
   if(pmath_is_string(obj) && pmath_string_length(obj) == 1) {
@@ -507,10 +516,11 @@ static void put_charclass_item(
     pmath_t start = pmath_expr_get_item(obj, 1);
     pmath_t end   = pmath_expr_get_item(obj, 2);
     
-    if(pmath_is_string(start)
-        && pmath_is_string(end)
-        && pmath_string_length(start) == 1
-        && pmath_string_length(end)   == 1) {
+    if( pmath_is_string(start)          &&
+        pmath_is_string(end)            &&
+        pmath_string_length(start) == 1 &&
+        pmath_string_length(end)   == 1)
+    {
       const uint16_t *s = pmath_string_buffer(&start);
       const uint16_t *e = pmath_string_buffer(&end);
       
@@ -549,7 +559,7 @@ static pmath_bool_t compile_regex_part(
     
     pmath_cstr_writer_info_t u8info;
     
-    u8info.write_cstr = (void(*)(void*, const char*))concat_utf8;
+    u8info.write_cstr = (void( *)(void *, const char *))concat_utf8;
     u8info.user = &(info->pattern);
     
     buf = pmath_string_buffer(&part);
@@ -624,9 +634,10 @@ static pmath_bool_t compile_regex_part(
       return result;
     }
     
-    if(len > 0
-        && (pmath_same(head, PMATH_SYMBOL_LIST)
-            || pmath_same(head, PMATH_SYMBOL_ALTERNATIVES))) {
+    if( len > 0 &&
+        (pmath_same(head, PMATH_SYMBOL_LIST) ||
+         pmath_same(head, PMATH_SYMBOL_ALTERNATIVES)))
+    {
       pmath_bool_t result = TRUE;
       size_t i;
       
@@ -670,8 +681,9 @@ static pmath_bool_t compile_regex_part(
     if(len == 1 && pmath_same(head, PMATH_SYMBOL_EXCEPT)) {
       pmath_t p = pmath_expr_get_item(part, 1);
       
-      if(pmath_is_expr_of(p, PMATH_SYMBOL_LIST)
-          || pmath_is_expr_of(p, PMATH_SYMBOL_ALTERNATIVES)) {
+      if( pmath_is_expr_of(p, PMATH_SYMBOL_LIST) ||
+          pmath_is_expr_of(p, PMATH_SYMBOL_ALTERNATIVES))
+      {
         pmath_bool_t result = TRUE;
         size_t i, plen;
         
@@ -723,8 +735,9 @@ static pmath_bool_t compile_regex_part(
       size_t min = 1;
       size_t max = SIZE_MAX;
       
-      if(extract_range(range, &min, &max, TRUE)
-          && (int)min >= 0 && ((int)max >= 0 || max == SIZE_MAX)) {
+      if( extract_range(range, &min, &max, TRUE) &&
+          (int)min >= 0 && ((int)max >= 0 || max == SIZE_MAX))
+      {
         pmath_bool_t result;
         pmath_bool_t old_shortest = info->shortest;
         
@@ -833,7 +846,7 @@ static pmath_bool_t compile_regex_part(
       if(pmath_is_string(str)) {
         pmath_cstr_writer_info_t u8info;
         
-        u8info.write_cstr = (void(*)(void*, const char*))concat_utf8;
+        u8info.write_cstr = (void( *)(void *, const char *))concat_utf8;
         u8info.user = &(info->pattern);
         
         concat_utf8(&(info->pattern), "(?:");
@@ -949,7 +962,7 @@ static struct _regex_t *compile_regex(pmath_t obj, int pcre_options) {
     regex->named_subpatterns = info.subpatterns;
     
   regex->key.object       = info.all;
-  regex->key.pcre_options = pcre_options & ~PCRE_UTF8 & ~PCRE_NO_UTF8_CHECK;
+  regex->key.pcre_options = pcre_options &~PCRE_UTF8 &~PCRE_NO_UTF8_CHECK;
   
   if(!ok || !info.pattern.buf) {
     _pmath_regex_unref(regex);
@@ -1027,11 +1040,12 @@ static pmath_t replace_named_subpatterns(
     size_t i, len;
     
     item = pmath_expr_get_item(obj, 0);
-    if((pmath_same(item, PMATH_SYMBOL_FUNCTION)
-        || pmath_same(item, PMATH_SYMBOL_LOCAL)
-        || pmath_same(item, PMATH_SYMBOL_WITH))
-        && pmath_expr_length(obj) > 1
-        && _pmath_contains_any(obj, re->named_subpatterns)) {
+    if( (pmath_same(item, PMATH_SYMBOL_FUNCTION) ||
+         pmath_same(item, PMATH_SYMBOL_LOCAL)    ||
+         pmath_same(item, PMATH_SYMBOL_WITH)) &&
+        pmath_expr_length(obj) > 1            &&
+        _pmath_contains_any(obj, re->named_subpatterns))
+    {
       pmath_unref(item);
       
       obj = _pmath_preprocess_local(obj);
@@ -1091,11 +1105,12 @@ struct _callout_data_t {
 };
 
 static int callout(pcre_callout_block *block) {
-  if(block->callout_number == 0
-      && block->version >= 1
-      && block->callout_data) {
+  if( block->callout_number == 0 &&
+      block->version >= 1        &&
+      block->callout_data)
+  {
     struct _callout_t      *co;
-    struct _callout_data_t *data = (struct _callout_data_t*)block->callout_data;
+    struct _callout_data_t *data = (struct _callout_data_t *)block->callout_data;
     
     co = data->regex->callouts;
     while(co && co->pattern_position != block->pattern_position)

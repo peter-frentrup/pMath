@@ -57,8 +57,9 @@ PMATH_PRIVATE pmath_t builtin_arcsin(pmath_expr_t expr) {
   if(pmath_is_mpfloat(x)) {
     pmath_unref(expr);
     
-    if(mpfr_cmp_si(PMATH_AS_MP_VALUE(x), -1) > 0
-        && mpfr_cmp_si(PMATH_AS_MP_VALUE(x),  1) < 0) {
+    if( mpfr_cmp_si(PMATH_AS_MP_VALUE(x), -1) > 0 &&
+        mpfr_cmp_si(PMATH_AS_MP_VALUE(x),  1) < 0)
+    {
       pmath_mpfloat_t result;
       pmath_mpfloat_t tmp;
       double dprec;
@@ -163,9 +164,10 @@ PMATH_PRIVATE pmath_t builtin_arcsin(pmath_expr_t expr) {
   if(xclass & PMATH_CLASS_INF) {
     pmath_t infdir = _pmath_directed_infinity_direction(x);
     pmath_t re, im;
-    if(_pmath_re_im(infdir, &re, &im)
-        && pmath_is_number(re)
-        && pmath_is_number(im)) {
+    if( _pmath_re_im(infdir, &re, &im) &&
+        pmath_is_number(re) &&
+        pmath_is_number(im))
+    {
       int isgn = pmath_number_sign(im);
       int rsgn = pmath_number_sign(re);
       

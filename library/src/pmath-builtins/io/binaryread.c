@@ -81,9 +81,10 @@ static pmath_bool_t binary_read(
   pmath_t *type_value,
   int      byte_ordering
 ) {
-  if(pmath_same(*type_value, PMATH_SYMBOL_EXPRESSION)
-      || (pmath_is_string(*type_value)
-          && pmath_string_equals_latin1(*type_value, "Expression"))) {
+  if( pmath_same(*type_value, PMATH_SYMBOL_EXPRESSION) ||
+      (pmath_is_string(*type_value) &&
+       pmath_string_equals_latin1(*type_value, "Expression")))
+  {
     pmath_serialize_error_t error;
     
     pmath_unref(*type_value);
@@ -156,9 +157,10 @@ static pmath_bool_t binary_read(
         COMPLEX
       } type = NONE;
       
-      if(pmath_is_null(*type_value)
-          || pmath_string_equals_latin1(*type_value, "Byte")
-          || pmath_string_equals_latin1(*type_value, "UnsignedInteger8")) {
+      if( pmath_is_null(*type_value)                      ||
+          pmath_string_equals_latin1(*type_value, "Byte") ||
+          pmath_string_equals_latin1(*type_value, "UnsignedInteger8"))
+      {
         size = 1;
         type = UINT;
       }
@@ -267,8 +269,9 @@ static pmath_bool_t binary_read(
         pmath_unref(*type_value);
         *type_value = PMATH_NULL;
         
-        if(binary_read(file, &re, byte_ordering)
-            && binary_read(file, &im, byte_ordering)) {
+        if( binary_read(file, &re, byte_ordering) &&
+            binary_read(file, &im, byte_ordering))
+        {
           *type_value = make_complex(re, im);
           return TRUE;
         }
@@ -288,8 +291,9 @@ static pmath_bool_t binary_read(
         }
         
         if(type == INT) {
-          if((byte_ordering < 0 && (int8_t)data.buf[size - 1] < 0)
-              || (byte_ordering > 0 && (int8_t)data.buf[0]        < 0)) {
+          if( (byte_ordering < 0 && (int8_t)data.buf[size - 1] < 0) ||
+              (byte_ordering > 0 && (int8_t)data.buf[0]        < 0))
+          {
             size_t i;
             for(i = 0; i < size; ++i) {
               data.buf[i] = ~data.buf[i];
@@ -325,7 +329,7 @@ static pmath_bool_t binary_read(
             *type_value = pmath_string_insert_ucs2(PMATH_NULL, 0, &chr, 2);
           }
           else
-            *type_value = pmath_string_insert_latin1(PMATH_NULL, 0, (const char*)&data, 1);
+            *type_value = pmath_string_insert_latin1(PMATH_NULL, 0, (const char *)&data, 1);
             
           return TRUE;
         }
@@ -526,8 +530,9 @@ static pmath_bool_t binary_read(
       }
     }
   }
-  else if(pmath_is_expr_of(*type_value, PMATH_SYMBOL_LIST)
-          || pmath_is_expr_of(*type_value, PMATH_SYMBOL_HOLDCOMPLETE)) {
+  else if( pmath_is_expr_of(*type_value, PMATH_SYMBOL_LIST) ||
+           pmath_is_expr_of(*type_value, PMATH_SYMBOL_HOLDCOMPLETE))
+  {
     size_t i;
     
     for(i = 1; i <= pmath_expr_length(*type_value); ++i) {

@@ -29,8 +29,9 @@ static pmath_t nest_integer(
         return expr;
     }
     else if(!pmath_is_mpint(item)) {
-      if(pmath_equals(item, _pmath_object_overflow)
-          || pmath_equals(item, _pmath_object_underflow)) {
+      if( pmath_equals(item, _pmath_object_overflow) ||
+          pmath_equals(item, _pmath_object_underflow))
+      {
         pmath_unref(expr);
         return item;
       }

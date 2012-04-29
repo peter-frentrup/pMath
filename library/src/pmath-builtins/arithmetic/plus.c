@@ -723,8 +723,9 @@ static void plus_2_arg(pmath_t *a, pmath_t *b) {
       return;
     }
     
-    if(pmath_equals(*b, _pmath_object_overflow)
-        || pmath_equals(*b, _pmath_object_underflow)) {
+    if( pmath_equals(*b, _pmath_object_overflow) ||
+        pmath_equals(*b, _pmath_object_underflow))
+    {
       pmath_unref(*a);
       *a = *b;
       *b = PMATH_UNDEFINED;
@@ -777,10 +778,10 @@ static void plus_2_arg(pmath_t *a, pmath_t *b) {
     }
   }
   
-  if(pmath_equals(*a, _pmath_object_overflow)
-      && (pmath_equals(*b, _pmath_object_overflow)
-          || pmath_equals(*b, _pmath_object_underflow)
-          || pmath_is_numeric(*b)))
+  if( pmath_equals(*a, _pmath_object_overflow) &&
+      (pmath_equals(*b, _pmath_object_overflow)  ||
+       pmath_equals(*b, _pmath_object_underflow) ||
+       pmath_is_numeric(*b)))
   {
     pmath_unref(*b);
     *b = PMATH_UNDEFINED;

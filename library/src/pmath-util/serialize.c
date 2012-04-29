@@ -85,7 +85,7 @@ static pmath_bool_t int_object_entries_equal(
 }
 
 static unsigned int int_object_entry_hash(struct int_object_entry_t *e) {
-  return _pmath_hash_pointer((void*)e->key);
+  return _pmath_hash_pointer((void *)e->key);
 }
 
 static pmath_bool_t int_object_entry_equals_key(
@@ -213,8 +213,9 @@ static void serialize(
     
     assert(pmath_is_str2(object));
     
-    if(object.s.u.as_chars[0] <= 0xFF
-        && object.s.u.as_chars[1] <= 0xFF) {
+    if( object.s.u.as_chars[0] <= 0xFF &&
+        object.s.u.as_chars[1] <= 0xFF)
+    {
       write_ui8( info->file, TAG_STR8);
       write_ui32(info->file, 2);
       write_ui8(info->file, (uint8_t)object.s.u.as_chars[0]);
@@ -469,7 +470,7 @@ static pmath_t deserialize(struct deserializer_t *info) {
       
     case TAG_REF: {
         struct int_object_entry_t *entry;
-        entry = pmath_ht_search(info->int_to_object, (void*)(intptr_t)read_ui32(info));
+        entry = pmath_ht_search(info->int_to_object, (void *)(intptr_t)read_ui32(info));
         
         if(entry)
           return pmath_ref(entry->value);
@@ -511,7 +512,7 @@ static pmath_t deserialize(struct deserializer_t *info) {
         
         {
           uint16_t *buf       =           AFTER_STRING(result);
-          const uint8_t *data = (uint8_t*)AFTER_STRING(result);
+          const uint8_t *data = (uint8_t *)AFTER_STRING(result);
           
           --len;
           for(; len >= 0; --len)
@@ -551,7 +552,7 @@ static pmath_t deserialize(struct deserializer_t *info) {
         
 #if PMATH_BYTE_ORDER > 0
         {
-          uint16_t *buf = (uint16_t*)AFTER_STRING(result);
+          uint16_t *buf = (uint16_t *)AFTER_STRING(result);
           
           for(; len > 0; --len, ++buf)
             *buf = ((*buf & 0x00FF) << 8) | ((*buf & 0xFF00) >> 8);
@@ -639,11 +640,13 @@ static pmath_t deserialize(struct deserializer_t *info) {
         pmath_integer_t num = deserialize(info);
         pmath_integer_t den = deserialize(info);
         
-        if(pmath_is_integer(num)
-            && pmath_is_integer(den)
-            && pmath_number_sign(den) > 0)
+        if( pmath_is_integer(num) &&
+            pmath_is_integer(den) &&
+            pmath_number_sign(den) > 0)
+        {
           return pmath_rational_new(num, den);
-          
+        }
+        
         pmath_unref(num);
         pmath_unref(den);
         

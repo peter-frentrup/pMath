@@ -31,14 +31,17 @@ PMATH_PRIVATE pmath_t builtin_not(pmath_expr_t expr) {
   
   if(pmath_is_expr(item)) {
     pmath_t head = pmath_expr_get_item(item, 0);
-    if(pmath_same(head, PMATH_SYMBOL_NOT)
-        && pmath_expr_length(item) == 1) {
+    
+    if( pmath_same(head, PMATH_SYMBOL_NOT) &&
+        pmath_expr_length(item) == 1)
+    {
       pmath_t result = pmath_expr_get_item(item, 1);
       pmath_unref(head);
       pmath_unref(item);
       pmath_unref(expr);
       return result;
     }
+    
     pmath_unref(head);
   }
   pmath_unref(item);

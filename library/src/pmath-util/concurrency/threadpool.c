@@ -170,7 +170,7 @@ static struct _pmath_task_t *create_idle_task(
   assert(run);
   assert(destroy);
   
-  task = (struct _pmath_task_t*)pmath_mem_alloc(
+  task = (struct _pmath_task_t *)pmath_mem_alloc(
            sizeof(struct _pmath_task_t));
            
   if(!task) {
@@ -211,8 +211,9 @@ static void run_task(struct _pmath_task_t *task) {
     if(!pmath_same(task->thread->exception, PMATH_UNDEFINED)) {
       pmath_t exception = _pmath_thread_catch(task->thread);
       
-      if(!pmath_same(exception, PMATH_UNDEFINED)
-          && !pmath_same(exception, PMATH_ABORT_EXCEPTION)) {
+      if( !pmath_same(exception, PMATH_UNDEFINED) &&
+          !pmath_same(exception, PMATH_ABORT_EXCEPTION))
+      {
         if(task->thread->parent) {
           _pmath_thread_throw(task->thread->parent, exception);
         }
@@ -240,8 +241,9 @@ pmath_task_t pmath_task_ref(pmath_task_t task) {
 
 PMATH_API
 void pmath_task_unref(pmath_task_t task) {
-  if(PMATH_LIKELY(task)
-      && 1 == pmath_atomic_fetch_add(&task->refcount, -1)) {
+  if( PMATH_LIKELY(task) &&
+      1 == pmath_atomic_fetch_add(&task->refcount, -1))
+  {
     task->destroy(task->data);
     _pmath_thread_free(task->thread);
     sem_destroy(&task->done);
@@ -409,7 +411,7 @@ PMATH_API pmath_bool_t pmath_init(void);
 PMATH_API void pmath_done(void);
 
 static pmath_bool_t daemon_init(void *arg) {
-  struct daemon_t *me = (struct daemon_t*)arg;
+  struct daemon_t *me = (struct daemon_t *)arg;
   
   pmath_debug_print("[new deamon %p]\n", me);
   
@@ -444,7 +446,7 @@ static pmath_bool_t daemon_init(void *arg) {
 }
 
 static void daemon_proc(void *arg) {
-  struct daemon_t *me = (struct daemon_t*)arg;
+  struct daemon_t *me = (struct daemon_t *)arg;
   
   me->callback(me->cb_data);
   
@@ -559,14 +561,14 @@ struct unmanaged_thread_t {
   sem_t                 *init_sem;
   volatile pmath_bool_t *init_ok;
   
-  pmath_bool_t         (*init)(void*);
-  void                 (*callback)(void*);
+  pmath_bool_t         (*init)(void *);
+  void                 (*callback)(void *);
   void                  *data;
 };
 
 
 static THREAD_PROC(unmanaged_thread_proc, arg) {
-  struct unmanaged_thread_t *me = (struct unmanaged_thread_t*)arg;
+  struct unmanaged_thread_t *me = (struct unmanaged_thread_t *)arg;
   
   pmath_bool_t init_ok = TRUE;
   
@@ -590,8 +592,8 @@ static THREAD_PROC(unmanaged_thread_proc, arg) {
 
 PMATH_API
 pmath_bool_t pmath_thread_fork_unmanaged(
-  pmath_bool_t    (*init)(    void*),
-  void            (*callback)(void*),
+  pmath_bool_t    (*init)(    void *),
+  void            (*callback)(void *),
   void             *data
 ) {
   struct unmanaged_thread_t *arg;
@@ -670,7 +672,7 @@ static pmath_atomic_t init_threads_counter = PMATH_ATOMIC_STATIC_INIT;
 
 static struct worker_t {
   sem_t  finish_sem;
-}*workers;
+} *workers;
 
 static THREAD_PROC(worker_thread_proc, arg) {
   int worker_index = (int)arg;
@@ -724,7 +726,7 @@ PMATH_API void pmath_collect_temporary_symbols(void) {
 
 static pmath_bool_t gc_visit_ref(pmath_t obj, void *dummy) {
   if(pmath_is_symbol(obj) || pmath_is_expr(obj)) {
-    struct _pmath_gc_t *gc_obj = (void*)PMATH_AS_PTR(obj);
+    struct _pmath_gc_t *gc_obj = (void *)PMATH_AS_PTR(obj);
     
     if((gc_obj->gc_refcount & GC_PASS_MASK) == gc_pass) {
       gc_obj->gc_refcount += GC_PASS_COUNT;
@@ -740,7 +742,7 @@ static uintptr_t get_gc_refs(pmath_t obj) {
   
   assert(pmath_is_expr(obj) || pmath_is_symbol(obj));
   
-  gc_obj = (void*)PMATH_AS_PTR(obj);
+  gc_obj = (void *)PMATH_AS_PTR(obj);
   
   if((gc_obj->gc_refcount & GC_PASS_MASK) == gc_pass) {
     return gc_obj->gc_refcount >> GC_PASS_BITS;
@@ -1056,7 +1058,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_threadpool_init(void) {
     worker_count = 1;
   stop_threadpool = FALSE;
   
-  workers = (struct worker_t*)pmath_mem_alloc(worker_count * sizeof(struct worker_t));
+  workers = (struct worker_t *)pmath_mem_alloc(worker_count * sizeof(struct worker_t));
   pmath_atomic_write_release(&init_threads_counter, worker_count);
   if(!workers)
     goto WORKERS_ARRAY_FAIL;
@@ -1079,7 +1081,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_threadpool_init(void) {
         NULL,     // default security
         0,        // default stack size
         worker_thread_proc,
-        (void*)i, // argument
+        (void *)i, // argument
         0,        // running
         NULL);    // do not need thread id
         
@@ -1095,7 +1097,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_threadpool_init(void) {
         &thread,
         NULL,                  // default attributes
         worker_thread_proc,
-        (void*)(uintptr_t)i);  // argument
+        (void *)(uintptr_t)i); // argument
     
       if(!err) {
         pthread_detach(thread);

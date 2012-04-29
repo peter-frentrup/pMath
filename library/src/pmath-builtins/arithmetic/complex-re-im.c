@@ -128,10 +128,11 @@ PMATH_PRIVATE pmath_bool_t _pmath_re_im(
   if(re) *re = PMATH_NULL;
   if(im) *im = PMATH_NULL;
   
-  if(pmath_same(z, PMATH_SYMBOL_UNDEFINED)
-      || pmath_equals(z, _pmath_object_overflow)
-      || pmath_equals(z, _pmath_object_underflow)
-      || pmath_is_number(z)) {
+  if( pmath_same(z, PMATH_SYMBOL_UNDEFINED)    ||
+      pmath_equals(z, _pmath_object_overflow)  ||
+      pmath_equals(z, _pmath_object_underflow) ||
+      pmath_is_number(z))
+  {
     if(re) *re = z;
     if(im) *im = PMATH_FROM_INT32(0);
     return TRUE;
@@ -289,7 +290,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_re_im(
       
       pmath_unref(z2);
       
-      z2 = extract_complex((pmath_expr_t*)&z);
+      z2 = extract_complex((pmath_expr_t *)&z);
       
       if(!pmath_is_null(z2)) {
         pmath_number_t re2, im2, re3, im3;

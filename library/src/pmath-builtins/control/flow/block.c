@@ -89,8 +89,9 @@ PMATH_PRIVATE pmath_t builtin_block(pmath_expr_t expr) {
       continue;
     }
     
-    if(pmath_is_expr_of_len(def, PMATH_SYMBOL_ASSIGNDELAYED, 2)
-        || pmath_is_expr_of_len(def, PMATH_SYMBOL_ASSIGN, 2)) {
+    if( pmath_is_expr_of_len(def, PMATH_SYMBOL_ASSIGNDELAYED, 2) ||
+        pmath_is_expr_of_len(def, PMATH_SYMBOL_ASSIGN, 2))
+    {
       pmath_t lhs = pmath_expr_get_item(def, 1);
       
       if(pmath_is_symbol(lhs)) {

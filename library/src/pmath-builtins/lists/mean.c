@@ -17,8 +17,9 @@ PMATH_PRIVATE pmath_t builtin_mean(pmath_expr_t expr) {
   }
   
   item = pmath_expr_get_item(expr, 1);
-  if(!pmath_is_expr_of(item, PMATH_SYMBOL_LIST)
-      || pmath_expr_length(item) == 0) {
+  if( !pmath_is_expr_of(item, PMATH_SYMBOL_LIST) ||
+      pmath_expr_length(item) == 0)
+  {
     pmath_unref(item);
     return expr;
   }

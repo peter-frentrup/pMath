@@ -257,9 +257,10 @@ static int expr_precedence(pmath_t box, int *pos) { // box wont be freed
     return prec;
   }
   
-  if(pmath_is_expr_of(box, PMATH_SYMBOL_STYLEBOX)
-      || pmath_is_expr_of(box, PMATH_SYMBOL_TAGBOX)
-      || pmath_is_expr_of(box, PMATH_SYMBOL_INTERPRETATIONBOX)) {
+  if( pmath_is_expr_of(box, PMATH_SYMBOL_STYLEBOX) ||
+      pmath_is_expr_of(box, PMATH_SYMBOL_TAGBOX)   ||
+      pmath_is_expr_of(box, PMATH_SYMBOL_INTERPRETATIONBOX))
+  {
     pmath_t item = pmath_expr_get_item(box, 1);
     tok = expr_precedence(item, pos);
     pmath_unref(item);
@@ -606,8 +607,9 @@ static pmath_t extract_minus(pmath_t *box) {
   if(pmath_is_expr_of_len(*box, PMATH_SYMBOL_LIST, 2)) {
     pmath_t minus = pmath_expr_get_item(*box, 1);
     
-    if(pmath_is_string(minus)
-        && pmath_string_equals_latin1(minus, "-")) {
+    if( pmath_is_string(minus) &&
+        pmath_string_equals_latin1(minus, "-"))
+    {
       pmath_t x = pmath_expr_get_item(*box, 2);
       pmath_unref(*box);
       *box = x;
@@ -645,9 +647,9 @@ static pmath_bool_t negate_exponent(pmath_t *obj) {
 }
 
 static pmath_bool_t is_char(pmath_t obj, uint16_t ch) {
-  return pmath_is_string(obj)
-         && pmath_string_length(obj) == 1
-         && pmath_string_buffer(&obj)[0] == ch;
+  return pmath_is_string(obj)          &&
+         pmath_string_length(obj) == 1 &&
+         pmath_string_buffer(&obj)[0] == ch;
 }
 
 static pmath_bool_t is_char_at(pmath_expr_t expr, size_t i, uint16_t ch) {
@@ -667,15 +669,16 @@ static pmath_bool_t is_minus(pmath_t box) {
 }
 
 static pmath_bool_t is_inversion(pmath_t box) {
-  return pmath_is_expr_of_len(box, PMATH_SYMBOL_LIST, 3)
-         && is_char_at(box, 2, '/')
-         && is_char_at(box, 1, '1');
+  return pmath_is_expr_of_len(box, PMATH_SYMBOL_LIST, 3) &&
+         is_char_at(box, 2, '/')                         &&
+         is_char_at(box, 1, '1');
 }
 
 static pmath_t remove_paren(pmath_t box) {
-  if(pmath_is_expr_of_len(box, PMATH_SYMBOL_LIST, 3)
-      && is_char_at(box, 1, '(')
-      && is_char_at(box, 3, ')')) {
+  if( pmath_is_expr_of_len(box, PMATH_SYMBOL_LIST, 3) &&
+      is_char_at(box, 1, '(') &&
+      is_char_at(box, 3, ')'))
+  {
     pmath_t tmp = box;
     box = pmath_expr_get_item(tmp, 1);
     pmath_unref(tmp);
@@ -1252,9 +1255,10 @@ static pmath_t power_to_boxes(
       }
       
       if(fraction) {
-        if(thread->boxform != BOXFORM_STANDARDEXPONENT
-            && thread->boxform != BOXFORM_OUTPUTEXPONENT
-            && thread->boxform <= BOXFORM_OUTPUT) {
+        if( thread->boxform != BOXFORM_STANDARDEXPONENT &&
+            thread->boxform != BOXFORM_OUTPUTEXPONENT   &&
+            thread->boxform <= BOXFORM_OUTPUT)
+        {
           return pmath_expr_new_extended(
                    pmath_ref(PMATH_SYMBOL_FRACTIONBOX), 2,
                    PMATH_C_STRING("1"),
@@ -1282,8 +1286,9 @@ static pmath_t power_to_boxes(
       thread->boxform = old_boxform;
       
       if(thread->boxform < BOXFORM_INPUT) {
-        if(pmath_is_expr_of(base, PMATH_SYMBOL_SUBSCRIPT)
-            && pmath_expr_length(base) >= 2) {
+        if( pmath_is_expr_of(base, PMATH_SYMBOL_SUBSCRIPT) &&
+            pmath_expr_length(base) >= 2)
+        {
           pmath_expr_t indices;
           
           expr = base;
@@ -1328,9 +1333,10 @@ static pmath_t power_to_boxes(
       expr = base;
       
     if(fraction) {
-      if(thread->boxform != BOXFORM_STANDARDEXPONENT
-          && thread->boxform != BOXFORM_OUTPUTEXPONENT
-          && thread->boxform <= BOXFORM_OUTPUT) {
+      if( thread->boxform != BOXFORM_STANDARDEXPONENT &&
+          thread->boxform != BOXFORM_OUTPUTEXPONENT   &&
+          thread->boxform <= BOXFORM_OUTPUT)
+      {
         return pmath_expr_new_extended(
                  pmath_ref(PMATH_SYMBOL_FRACTIONBOX), 2,
                  PMATH_C_STRING("1"),
@@ -1366,9 +1372,10 @@ static pmath_t pureargument_to_boxes(
       pmath_t b = pmath_expr_get_item(item, 2);
       pmath_unref(b);
       
-      if(pmath_same(b, PMATH_SYMBOL_AUTOMATIC)
-          && pmath_is_integer(a)
-          && pmath_number_sign(a) > 0) {
+      if( pmath_same(b, PMATH_SYMBOL_AUTOMATIC) &&
+          pmath_is_integer(a)                   &&
+          pmath_number_sign(a) > 0)
+      {
         pmath_unref(item);
         pmath_unref(expr);
         
@@ -1658,9 +1665,10 @@ static pmath_t times_to_boxes(
     pmath_t minus = PMATH_NULL;
     pmath_t num, den;
     
-    if(thread->boxform != BOXFORM_STANDARDEXPONENT
-        && thread->boxform != BOXFORM_OUTPUTEXPONENT
-        && thread->boxform <= BOXFORM_OUTPUT) {
+    if( thread->boxform != BOXFORM_STANDARDEXPONENT &&
+        thread->boxform != BOXFORM_OUTPUTEXPONENT   &&
+        thread->boxform <= BOXFORM_OUTPUT)
+    {
       pmath_gather_begin(NUM_TAG);
       pmath_gather_begin(DEN_TAG);
       
@@ -1767,10 +1775,12 @@ static pmath_t times_to_boxes(
       }
     }
     else {
-      pmath_bool_t use_fraction_box = thread->boxform != BOXFORM_STANDARDEXPONENT
-                                      && thread->boxform != BOXFORM_OUTPUTEXPONENT
-                                      && thread->boxform <= BOXFORM_OUTPUT;
-                                      
+      pmath_bool_t use_fraction_box;
+      
+      use_fraction_box = thread->boxform != BOXFORM_STANDARDEXPONENT &&
+                         thread->boxform != BOXFORM_OUTPUTEXPONENT   &&
+                         thread->boxform <= BOXFORM_OUTPUT;
+                         
       if(pmath_expr_length(den) == 1) {
         pmath_t tmp = den;
         den = pmath_expr_get_item(tmp, 1);
@@ -1843,9 +1853,10 @@ static pmath_t baseform_to_boxes(
     pmath_t item;
     uint8_t oldbase;
     
-    if(!pmath_is_int32(base)
-        || PMATH_AS_INT32(base) < 2
-        || PMATH_AS_INT32(base) > 36) {
+    if( !pmath_is_int32(base)    ||
+        PMATH_AS_INT32(base) < 2 ||
+        PMATH_AS_INT32(base) > 36)
+    {
       pmath_unref(base);
       return call_to_boxes(thread, expr);;
     }
@@ -1871,8 +1882,9 @@ static pmath_t column_to_boxes(
   if(pmath_expr_length(expr) == 1) {
     pmath_t list = pmath_expr_get_item(expr, 1);
     
-    if(pmath_is_expr_of(list, PMATH_SYMBOL_LIST)
-        && pmath_expr_length(list) > 0) {
+    if( pmath_is_expr_of(list, PMATH_SYMBOL_LIST) &&
+        pmath_expr_length(list) > 0)
+    {
       size_t i;
       
       pmath_unref(expr);
@@ -1952,9 +1964,10 @@ static pmath_t grid_to_boxes(
       pmath_unref(obj);
       obj = pmath_expr_get_item(expr, 1);
       
-      if(_pmath_is_matrix(obj, &rows, &cols, FALSE)
-          && rows > 0
-          && cols > 0) {
+      if( _pmath_is_matrix(obj, &rows, &cols, FALSE) &&
+          rows > 0 &&
+          cols > 0)
+      {
         size_t i, j;
         
         expr = pmath_expr_set_item(expr, 1, PMATH_NULL);
@@ -2568,8 +2581,9 @@ static pmath_bool_t emit_stylebox_options(
       continue;
     }
     
-    if(pmath_is_expr_of_len(item, PMATH_SYMBOL_GRAYLEVEL, 1)
-        || pmath_is_expr_of_len(item, PMATH_SYMBOL_RGBCOLOR, 3)) {
+    if( pmath_is_expr_of_len(item, PMATH_SYMBOL_GRAYLEVEL, 1) ||
+        pmath_is_expr_of_len(item, PMATH_SYMBOL_RGBCOLOR, 3))
+    {
       pmath_emit(
         pmath_expr_new_extended(
           pmath_ref(PMATH_SYMBOL_RULE), 2,
@@ -2727,8 +2741,9 @@ static pmath_t piecewise_to_boxes(
     size_t rows, cols;
     pmath_expr_t mat = pmath_expr_get_item(expr, 1);
     
-    if(_pmath_is_matrix(mat, &rows, &cols, FALSE)
-        && cols == 2) {
+    if( _pmath_is_matrix(mat, &rows, &cols, FALSE) &&
+        cols == 2)
+    {
       size_t i, j;
       
       if(exprlen == 2) {
@@ -3188,12 +3203,13 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj) {
     pmath_write(
       obj,
       PMATH_WRITE_OPTIONS_INPUTEXPR,
-      (void(*)(void*, const uint16_t*, int))_pmath_write_to_string,
+      (void( *)(void *, const uint16_t *, int))_pmath_write_to_string,
       &s);
     pmath_unref(obj);
     
-    if(pmath_string_length(s) > 0
-        && *pmath_string_buffer(&s) == '-') {
+    if( pmath_string_length(s) > 0 &&
+        *pmath_string_buffer(&s) == '-')
+    {
       pmath_string_t minus = pmath_string_part(pmath_ref(s), 0, 1);
       return pmath_build_value("(oo)", minus, pmath_string_part(s, 1, -1));
     }
@@ -3233,10 +3249,12 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj) {
   if(PMATH_AS_PTR(obj) == NULL)
     return PMATH_C_STRING("/\\/");
     
-  if(thread->boxform < BOXFORM_OUTPUT
-      && user_make_boxes(&obj))
+  if( thread->boxform < BOXFORM_OUTPUT &&
+      user_make_boxes(&obj))
+  {
     return obj;
-    
+  }
+  
   if(!pmath_is_pointer(obj) || PMATH_AS_PTR(obj) == NULL) {
     pmath_debug_print("makeboxes: unexpected\n");
     return PMATH_C_STRING("/\\/");
@@ -3266,7 +3284,7 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj) {
         pmath_write(
           obj,
           thread->longform ? PMATH_WRITE_OPTIONS_FULLNAME : 0,
-          (void(*)(void*, const uint16_t*, int))_pmath_write_to_string,
+          (void( *)(void *, const uint16_t *, int))_pmath_write_to_string,
           &s);
         pmath_unref(obj);
         return s;
@@ -3283,12 +3301,13 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj) {
         pmath_write(
           obj,
           PMATH_WRITE_OPTIONS_INPUTEXPR,
-          (void(*)(void*, const uint16_t*, int))_pmath_write_to_string,
+          (void( *)(void *, const uint16_t *, int))_pmath_write_to_string,
           &s);
         pmath_unref(obj);
         
-        if(pmath_string_length(s) > 0
-            && *pmath_string_buffer(&s) == '-') {
+        if( pmath_string_length(s) > 0 &&
+            *pmath_string_buffer(&s) == '-')
+        {
           pmath_string_t minus = pmath_string_part(pmath_ref(s), 0, 1);
           return pmath_build_value("(oo)", minus, pmath_string_part(s, 1, -1));
         }
@@ -3304,13 +3323,13 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj) {
         pmath_write(
           PMATH_QUOT_NUM(obj),
           PMATH_WRITE_OPTIONS_INPUTEXPR,
-          (void(*)(void*, const uint16_t*, int))_pmath_write_to_string,
+          (void( *)(void *, const uint16_t *, int))_pmath_write_to_string,
           &n);
           
         pmath_write(
           PMATH_QUOT_DEN(obj),
           PMATH_WRITE_OPTIONS_INPUTEXPR,
-          (void(*)(void*, const uint16_t*, int))_pmath_write_to_string,
+          (void( *)(void *, const uint16_t *, int))_pmath_write_to_string,
           &d);
           
         if(pmath_string_length(n) > 0 && *pmath_string_buffer(&n) == '-') {
@@ -3320,9 +3339,10 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj) {
         
         pmath_unref(obj);
         
-        if(thread->boxform != BOXFORM_STANDARDEXPONENT
-            && thread->boxform != BOXFORM_OUTPUTEXPONENT
-            && thread->boxform <= BOXFORM_OUTPUT) {
+        if( thread->boxform != BOXFORM_STANDARDEXPONENT &&
+            thread->boxform != BOXFORM_OUTPUTEXPONENT   &&
+            thread->boxform <= BOXFORM_OUTPUT)
+        {
           result = pmath_expr_new_extended(
                      pmath_ref(PMATH_SYMBOL_FRACTIONBOX), 2,
                      n,

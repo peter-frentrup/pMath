@@ -27,7 +27,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_is_namespace(pmath_t name) {
   len = pmath_string_length(name);
   buf = pmath_string_buffer(&name);
   
-  if(len < 2 || buf[len-1] != '`' || buf[0] == '`')
+  if(len < 2 || buf[len - 1] != '`' || buf[0] == '`')
     return FALSE;
     
   for(i = 0; i < len - 1; ++i) {
@@ -150,8 +150,9 @@ PMATH_PRIVATE pmath_t builtin_assign_namespacepath(pmath_expr_t expr) {
   if(!kind)
     return expr;
     
-  if(!pmath_same(lhs, PMATH_SYMBOL_NAMESPACEPATH)
-      && !pmath_same(lhs, PMATH_SYMBOL_INTERNAL_NAMESPACESTACK)) {
+  if( !pmath_same(lhs, PMATH_SYMBOL_NAMESPACEPATH) &&
+      !pmath_same(lhs, PMATH_SYMBOL_INTERNAL_NAMESPACESTACK))
+  {
     pmath_unref(tag);
     pmath_unref(lhs);
     pmath_unref(rhs);
@@ -238,9 +239,10 @@ PMATH_PRIVATE pmath_t builtin_end(pmath_expr_t expr) {
   oldns   = pmath_thread_local_load(PMATH_SYMBOL_CURRENTNAMESPACE);
   nsstack = pmath_thread_local_load(PMATH_SYMBOL_INTERNAL_NAMESPACESTACK);
   
-  if(!_pmath_is_namespace(oldns)
-      || !_pmath_is_namespace_list(nsstack)
-      || pmath_expr_length(nsstack) == 0) {
+  if( !_pmath_is_namespace(oldns)        ||
+      !_pmath_is_namespace_list(nsstack) ||
+      pmath_expr_length(nsstack) == 0)
+  {
     pmath_unref(oldns);
     pmath_unref(nsstack);
     pmath_message(PMATH_NULL, "nons", 0);
@@ -409,11 +411,12 @@ PMATH_PRIVATE pmath_t builtin_endpackage(pmath_expr_t expr) {
   nspathstack = pmath_thread_local_load(PMATH_SYMBOL_INTERNAL_NAMESPACEPATHSTACK);
   nsstack     = pmath_thread_local_load(PMATH_SYMBOL_INTERNAL_NAMESPACESTACK);
   
-  if(!_pmath_is_namespace(oldns)
-      || !is_namespace_listlist(nspathstack)
-      || pmath_expr_length(nspathstack) == 0
-      || !_pmath_is_namespace_list(nsstack)
-      || pmath_expr_length(nsstack) == 0) {
+  if( !_pmath_is_namespace(oldns)         ||
+      !is_namespace_listlist(nspathstack) ||
+      pmath_expr_length(nspathstack) == 0 ||
+      !_pmath_is_namespace_list(nsstack)  ||
+      pmath_expr_length(nsstack) == 0)
+  {
     pmath_unref(oldns);
     pmath_unref(nsstack);
     pmath_unref(nspathstack);
@@ -435,10 +438,10 @@ PMATH_PRIVATE pmath_t builtin_endpackage(pmath_expr_t expr) {
   nspathstack = pmath_expr_get_item_range(expr, 1, nspathlen - 1);
   pmath_unref(expr);
   
-  if( pmath_is_null(ns)      || 
-      pmath_is_null(nspath)  || 
-      pmath_is_null(nsstack) || 
-      pmath_is_null(nspathstack)) 
+  if( pmath_is_null(ns)      ||
+      pmath_is_null(nspath)  ||
+      pmath_is_null(nsstack) ||
+      pmath_is_null(nspathstack))
   {
     pmath_unref(oldns);
     pmath_unref(ns);

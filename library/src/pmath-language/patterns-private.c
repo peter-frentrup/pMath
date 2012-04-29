@@ -73,9 +73,10 @@ pmath_bool_t _pmath_rhs_condition(
   obj = pmath_expr_get_item(*rhs, 0);
   pmath_unref(obj);
   
-  if((pmath_same(obj, PMATH_SYMBOL_CONDITION)
-      || pmath_same(obj, PMATH_SYMBOL_INTERNAL_CONDITION))
-      && pmath_expr_length(*rhs) == 2) {
+  if( (pmath_same(obj, PMATH_SYMBOL_CONDITION) ||
+       pmath_same(obj, PMATH_SYMBOL_INTERNAL_CONDITION)) &&
+      pmath_expr_length(*rhs) == 2)
+  {
     if(adjust) {
       *rhs = pmath_expr_set_item(
                *rhs, 0,
@@ -85,9 +86,10 @@ pmath_bool_t _pmath_rhs_condition(
     return TRUE;
   }
   
-  if(pmath_same(obj, PMATH_SYMBOL_EVALUATIONSEQUENCE)
-      || pmath_same(obj, PMATH_SYMBOL_LOCAL)
-      || pmath_same(obj, PMATH_SYMBOL_WITH)) {
+  if( pmath_same(obj, PMATH_SYMBOL_EVALUATIONSEQUENCE) ||
+      pmath_same(obj, PMATH_SYMBOL_LOCAL)              ||
+      pmath_same(obj, PMATH_SYMBOL_WITH))
+  {
     obj = pmath_expr_get_item(
             *rhs,
             pmath_expr_length(*rhs));
@@ -309,17 +311,17 @@ static int pattern_compare(
   //} ... SingleMatch(), SingleMatch(type)
   
   //{ TestPattern(pat, fn), Condition(pat, cond) ...
-  if(len1 == 2
-      && ( pmath_same(head1, PMATH_SYMBOL_TESTPATTERN)
-           || pmath_same(head1, PMATH_SYMBOL_CONDITION))
-    ) {
+  if( len1 == 2 &&
+      (pmath_same(head1, PMATH_SYMBOL_TESTPATTERN) ||
+       pmath_same(head1, PMATH_SYMBOL_CONDITION)))
+  {
     pmath_t p1 = pmath_expr_get_item(pat1, 1);
     int cmp;
     
-    if(len2 == 2
-        && ( pmath_same(head2, PMATH_SYMBOL_TESTPATTERN)
-             || pmath_same(head2, PMATH_SYMBOL_CONDITION))
-      ) {
+    if( len2 == 2 &&
+        (pmath_same(head2, PMATH_SYMBOL_TESTPATTERN) ||
+         pmath_same(head2, PMATH_SYMBOL_CONDITION)))
+    {
       pmath_t p2 = pmath_expr_get_item(pat2, 1);
       cmp = pattern_compare(p1, p2, status);
       pmath_unref(p1);
@@ -361,20 +363,22 @@ static int pattern_compare(
   //} ... TestPattern(pat, fn), Condition(pat, cond)
   
   //{ Longest(pat), Shortest(pat), HoldPattern(pat) ...
-  if(( pmath_same(head1, PMATH_SYMBOL_LONGEST)
-       || pmath_same(head1, PMATH_SYMBOL_SHORTEST)
-       || pmath_same(head1, PMATH_SYMBOL_HOLDPATTERN))
-      && len1 == 1) {
+  if( (pmath_same(head1, PMATH_SYMBOL_LONGEST) ||
+       pmath_same(head1, PMATH_SYMBOL_SHORTEST) ||
+       pmath_same(head1, PMATH_SYMBOL_HOLDPATTERN)) &&
+      len1 == 1)
+  {
     pmath_t p1 = pmath_expr_get_item(pat1, 1);
     int cmp = pattern_compare(p1, pat2, status);
     pmath_unref(p1);
     return cmp;
   }
   
-  if(( pmath_same(head2, PMATH_SYMBOL_LONGEST)
-       || pmath_same(head2, PMATH_SYMBOL_SHORTEST)
-       || pmath_same(head2, PMATH_SYMBOL_HOLDPATTERN))
-      && len2 == 1) {
+  if( (pmath_same(head2, PMATH_SYMBOL_LONGEST) ||
+       pmath_same(head2, PMATH_SYMBOL_SHORTEST) ||
+       pmath_same(head2, PMATH_SYMBOL_HOLDPATTERN)) &&
+      len2 == 1)
+  {
     pmath_t p2 = pmath_expr_get_item(pat2, 1);
     int cmp = pattern_compare(pat1, p2, status);
     pmath_unref(p2);
@@ -658,21 +662,22 @@ PMATH_PRIVATE pmath_bool_t _pmath_pattern_is_const(
   head = pmath_expr_get_item(pattern, 0);
   pmath_unref(head);
   
-  if((pmath_same(head, PMATH_SYMBOL_CONDITION)        &&  len == 2)
-      ||  pmath_same(head, PMATH_SYMBOL_ALTERNATIVES)
-      || (pmath_same(head, PMATH_SYMBOL_HOLDPATTERN)      &&  len == 1)
-      || (pmath_same(head, PMATH_SYMBOL_LONGEST)          &&  len == 1)
-      || (pmath_same(head, PMATH_SYMBOL_OPTIONAL)         && (len == 1 || len == 2))
-      || (pmath_same(head, PMATH_SYMBOL_EXCEPT)           && (len == 1 || len == 2))
-      || (pmath_same(head, PMATH_SYMBOL_PATTERN)          &&  len == 2)
-      ||  pmath_same(head, PMATH_SYMBOL_PATTERNSEQUENCE)
-      || (pmath_same(head, PMATH_SYMBOL_REPEATED)         &&  len == 2)
-      || (pmath_same(head, PMATH_SYMBOL_SHORTEST)         &&  len == 1)
-      || (pmath_same(head, PMATH_SYMBOL_SINGLEMATCH)      &&  len <= 1)
-      || (pmath_same(head, PMATH_SYMBOL_OPTIONSPATTERN)   &&  len <= 1)
-      || (pmath_same(head, PMATH_SYMBOL_TESTPATTERN)      &&  len == 2))
+  if( (pmath_same(head, PMATH_SYMBOL_CONDITION)        &&  len == 2)              ||
+      (pmath_same(head, PMATH_SYMBOL_ALTERNATIVES))                               ||
+      (pmath_same(head, PMATH_SYMBOL_HOLDPATTERN)      &&  len == 1)              ||
+      (pmath_same(head, PMATH_SYMBOL_LONGEST)          &&  len == 1)              ||
+      (pmath_same(head, PMATH_SYMBOL_OPTIONAL)         && (len == 1 || len == 2)) ||
+      (pmath_same(head, PMATH_SYMBOL_EXCEPT)           && (len == 1 || len == 2)) ||
+      (pmath_same(head, PMATH_SYMBOL_PATTERNSEQUENCE))                            ||
+      (pmath_same(head, PMATH_SYMBOL_REPEATED)         &&  len == 2)              ||
+      (pmath_same(head, PMATH_SYMBOL_SHORTEST)         &&  len == 1)              ||
+      (pmath_same(head, PMATH_SYMBOL_SINGLEMATCH)      &&  len <= 1)              ||
+      (pmath_same(head, PMATH_SYMBOL_OPTIONSPATTERN)   &&  len <= 1)              ||
+      (pmath_same(head, PMATH_SYMBOL_TESTPATTERN)      &&  len == 2))
+  {
     return FALSE;
-    
+  }
+  
   for(i = 0; i <= len; i++) {
     pmath_t pattern_i = pmath_expr_get_item(pattern, i);
     if(!_pmath_pattern_is_const(pattern_i)) {
@@ -853,7 +858,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_pattern_match(
       info.associative = (attrib & PMATH_SYMBOL_ATTRIBUTE_ASSOCIATIVE) != 0;
       if((attrib & PMATH_SYMBOL_ATTRIBUTE_SYMMETRIC) != 0) {
         info.symmetric = TRUE;
-        info.arg_usage = (char*)pmath_mem_alloc(funclen);
+        info.arg_usage = (char *)pmath_mem_alloc(funclen);
         if(!info.arg_usage) {
           pmath_unref(head);
           pmath_unref(pattern);
@@ -1018,9 +1023,10 @@ static match_kind_t match_atom(
       return PMATH_MATCH_KIND_NONE;
     }
     
-    if(len == 2
-        && (pmath_same(head, PMATH_SYMBOL_TESTPATTERN)  // pattern ? testfunc
-            || pmath_same(head, PMATH_SYMBOL_CONDITION))) { // pattern /? condition
+    if( len == 2 &&
+        (pmath_same(head, PMATH_SYMBOL_TESTPATTERN) || // pattern ? testfunc
+         pmath_same(head, PMATH_SYMBOL_CONDITION)))  // pattern /? condition
+    {
       pmath_t pattern = pmath_expr_get_item(pat, 1);
       pmath_t test = PMATH_NULL;
       
@@ -1113,9 +1119,10 @@ static match_kind_t match_atom(
       return kind;
     }
     
-    if((pmath_same(head, MAGIC_PATTERN_FOUND)   // FOUND(value, pattern)
-        || pmath_same(head, PMATH_SYMBOL_PATTERN)) // name: pattern
-        && len == 2) {
+    if( (pmath_same(head, MAGIC_PATTERN_FOUND) ||  // FOUND(value, pattern)
+         pmath_same(head, PMATH_SYMBOL_PATTERN)) && // name: pattern
+        len == 2)
+    {
       pmath_t pattern = pmath_expr_get_item(pat, 2);
       
       match_kind_t kind = match_atom(info, pattern, arg, index_of_arg, count_of_arg);
@@ -1200,10 +1207,11 @@ static match_kind_t match_atom(
       return PMATH_MATCH_KIND_NONE;
     }
     
-    if(len == 1
-        && (pmath_same(head, PMATH_SYMBOL_HOLDPATTERN)  // HoldPattern(p)
-            || pmath_same(head, PMATH_SYMBOL_LONGEST)      // Longest(p)
-            || pmath_same(head, PMATH_SYMBOL_SHORTEST))) { // Shortest(p)
+    if( len == 1 &&
+        (pmath_same(head, PMATH_SYMBOL_HOLDPATTERN) || // HoldPattern(p)
+         pmath_same(head, PMATH_SYMBOL_LONGEST)     || // Longest(p)
+         pmath_same(head, PMATH_SYMBOL_SHORTEST)))     // Shortest(p)
+    {
       pmath_t p = pmath_expr_get_item(pat, 1);
       match_kind_t kind = match_atom(info, p, arg, index_of_arg, count_of_arg);
       pmath_unref(p);
@@ -1232,26 +1240,31 @@ static match_kind_t match_atom(
       arglen = pmath_expr_length(arg);
       arghead = pmath_expr_get_item(arg, 0);
       pmath_unref(arghead);
-      if(arglen == 2
-          && (pmath_same(arghead, PMATH_SYMBOL_RULE)
-              || pmath_same(arghead, PMATH_SYMBOL_RULEDELAYED))) {
+      if( arglen == 2 &&
+          (pmath_same(arghead, PMATH_SYMBOL_RULE) ||
+           pmath_same(arghead, PMATH_SYMBOL_RULEDELAYED)))
+      {
         goto OPTIONSPATTERN_FIT;
       }
       
-      if(!pmath_same(arghead, MAGIC_PATTERN_SEQUENCE)
-          && !pmath_same(arghead, PMATH_SYMBOL_LIST))
+      if( !pmath_same(arghead, MAGIC_PATTERN_SEQUENCE) &&
+          !pmath_same(arghead, PMATH_SYMBOL_LIST))
+      {
         return PMATH_MATCH_KIND_NONE;
-        
+      }
+      
       for(i = 1; i <= arglen; ++i) {
         pmath_t argi = pmath_expr_get_item(arg, i);
         
-        if(pmath_is_expr(argi)
-            && pmath_expr_length(argi) == 2) {
+        if( pmath_is_expr(argi) &&
+            pmath_expr_length(argi) == 2)
+        {
           pmath_t argihead = pmath_expr_get_item(argi, 0);
           pmath_unref(argihead);
           
-          if(pmath_same(argihead, PMATH_SYMBOL_RULE)
-              || pmath_same(argihead, PMATH_SYMBOL_RULEDELAYED)) {
+          if( pmath_same(argihead, PMATH_SYMBOL_RULE) ||
+              pmath_same(argihead, PMATH_SYMBOL_RULEDELAYED))
+          {
             pmath_unref(argi);
             continue;
           }
@@ -1452,8 +1465,9 @@ PMATH_PRIVATE void _pmath_pattern_analyse(
       pmath_unref(input->pat);
       input->pat = tmppat;
     }
-    else if((len == 2 && pmath_same(head, PMATH_SYMBOL_TESTPATTERN))   // pat ? testfn
-            ||      (len == 1 && pmath_same(head, PMATH_SYMBOL_HOLDPATTERN))) { // pat /? testexpr
+    else if( (len == 2 && pmath_same(head, PMATH_SYMBOL_TESTPATTERN)) || // pat ? testfn
+             (len == 1 && pmath_same(head, PMATH_SYMBOL_HOLDPATTERN)))   // pat /? testexpr
+    {
       pmath_t tmppat = input->pat;
       input->pat = pmath_expr_get_item(tmppat, 1);
       _pmath_pattern_analyse(input, output);
@@ -1530,9 +1544,10 @@ PMATH_PRIVATE void _pmath_pattern_analyse(
       output->min = 0;
       output->max = SIZE_MAX;
     }
-    else if(input->associative
-            && len <= 1
-            && pmath_same(head, PMATH_SYMBOL_SINGLEMATCH)) { // ~ or ~:type
+    else if( input->associative &&
+             len <= 1           &&
+             pmath_same(head, PMATH_SYMBOL_SINGLEMATCH))  // ~ or ~:type
+    {
       output->max = SIZE_MAX;
       output->no_sequence = TRUE;
       output->longest = FALSE;
@@ -1619,8 +1634,9 @@ static match_kind_t match_repeated_left( // for non-symmetric functions
         return PMATH_MATCH_KIND_GLOBAL;
         
       if(kind == PMATH_MATCH_KIND_LOCAL) {
-        if(( data->analysed.longest && n == data->analysed.min)
-            || (!data->analysed.longest && n == data->analysed.max)) {
+        if( ( data->analysed.longest && n == data->analysed.min) ||
+            (!data->analysed.longest && n == data->analysed.max))
+        {
           if(func_start + n <= flen) {
             func_start += n;
             goto NEXT_ARG;
@@ -1775,8 +1791,9 @@ FIRST_PATARG: ;
       }
       
       if(kind == PMATH_MATCH_KIND_LOCAL) {
-        if(( patarg_out.longest && n == patarg_out.min)
-            || (!patarg_out.longest && n == patarg_out.max)/*patarg_out.min == patarg_out.max*/) {
+        if( ( patarg_out.longest && n == patarg_out.min) ||
+            (!patarg_out.longest && n == patarg_out.max))
+        {
           pmath_unref(patarg.pat);
           ++pat_start;
           func_start += n;
@@ -1792,9 +1809,10 @@ FIRST_PATARG: ;
       }
     }
     
-    if(data->info->associative
-        && pmath_same(data->func, data->info->func)
-        && func_start + patarg_out.min - 1 <= flen) {
+    if( data->info->associative                  &&
+        pmath_same(data->func, data->info->func) &&
+        func_start + patarg_out.min - 1 <= flen)
+    {
       if(pat_start == 1) {
         data->info->assoc_start = first_pat_func_start = ++func_start;
         goto NEXT_FUNCARG;
@@ -1890,13 +1908,13 @@ static match_kind_t match_func_symmetric(
   debug_indent(); pmath_debug_print("match_func_symmetric ...\n");
 #endif
   
-  args_in_use = (char*)pmath_mem_alloc(flen);
+  args_in_use = (char *)pmath_mem_alloc(flen);
   if(!args_in_use)
     return PMATH_MATCH_KIND_NONE;
     
   memset(args_in_use, NOT_IN_USE, flen);
   
-  indices = (size_t*)pmath_mem_alloc(flen * sizeof(size_t));
+  indices = (size_t *)pmath_mem_alloc(flen * sizeof(size_t));
   if(!indices)
     return PMATH_MATCH_KIND_NONE;
     
@@ -1966,15 +1984,19 @@ static match_kind_t match_func_symmetric(
         } while(index_next(indices, args_in_use, n, flen));
     }
     
-    if(data->associative && data->one_identity
-        && patarg_out.min > 1 && patarg_out.max >= patarg_out.min) {
+    if( data->associative  &&
+        data->one_identity &&
+        patarg_out.min > 1 &&
+        patarg_out.max >= patarg_out.min)
+    {
 #ifdef DEBUG_LOG_MATCH
       debug_indent(); pmath_debug_print("... retry with n = 1 ...\n");
 #endif
       
       n = 1;
       
-      if(index_start(indices, args_in_use, n, flen)) do {
+      if(index_start(indices, args_in_use, n, flen)) {
+        do {
           pmath_t arg = PMATH_NULL;
           match_kind_t kind;
           
@@ -2004,6 +2026,7 @@ static match_kind_t match_func_symmetric(
           }
           
         } while(index_next(indices, args_in_use, n, flen));
+      }
     }
     
     pmath_unref(patarg.pat);
@@ -2395,13 +2418,15 @@ static void preprocess_local_one(
     pmath_unref(*def);
     *def = newsym;
   }
-  else if(pmath_is_expr(*def)
-          && pmath_expr_length(*def) == 2) {
+  else if(pmath_is_expr(*def) &&
+          pmath_expr_length(*def) == 2)
+  {
     pmath_t obj = pmath_expr_get_item(*def, 0);
     pmath_unref(obj);
     
-    if(pmath_same(obj, PMATH_SYMBOL_ASSIGN)
-        || pmath_same(obj, PMATH_SYMBOL_ASSIGNDELAYED)) {
+    if( pmath_same(obj, PMATH_SYMBOL_ASSIGN) ||
+        pmath_same(obj, PMATH_SYMBOL_ASSIGNDELAYED))
+    {
       obj = pmath_expr_get_item(*def, 1);
       
       if(pmath_is_symbol(obj)) {
@@ -2463,11 +2488,12 @@ PMATH_PRIVATE pmath_t _pmath_replace_local(
     
   item = pmath_expr_get_item(object, 0);
   
-  if((pmath_same(item, PMATH_SYMBOL_FUNCTION)
-      || pmath_same(item, PMATH_SYMBOL_LOCAL)
-      || pmath_same(item, PMATH_SYMBOL_WITH))
-      && pmath_expr_length(object) > 1
-      && contains(object, name)) {
+  if( (pmath_same(item, PMATH_SYMBOL_FUNCTION) ||
+       pmath_same(item, PMATH_SYMBOL_LOCAL)    ||
+       pmath_same(item, PMATH_SYMBOL_WITH)) &&
+      pmath_expr_length(object) > 1         &&
+      contains(object, name))
+  {
     pmath_unref(item);
     object = _pmath_preprocess_local(object);
   }
@@ -2517,11 +2543,12 @@ static pmath_t replace_multiple(
     
   item = pmath_expr_get_item(object, 0);
   
-  if((pmath_same(item, PMATH_SYMBOL_FUNCTION)
-      || pmath_same(item, PMATH_SYMBOL_LOCAL)
-      || pmath_same(item, PMATH_SYMBOL_WITH))
-      && pmath_expr_length(object) > 1
-      && _pmath_contains_any(object, replacements)) {
+  if( (pmath_same(item, PMATH_SYMBOL_FUNCTION) ||
+       pmath_same(item, PMATH_SYMBOL_LOCAL)    ||
+       pmath_same(item, PMATH_SYMBOL_WITH)) &&
+      pmath_expr_length(object) > 1         &&
+      _pmath_contains_any(object, replacements))
+  {
     pmath_unref(item);
     
     object = _pmath_preprocess_local(object);
@@ -2540,8 +2567,7 @@ static pmath_t replace_multiple(
     
     item = replace_multiple(item, replacements);
     
-    if(/*i != 0 && */!do_flatten
-                     && pmath_is_expr(item)) {
+    if(/*i != 0 && */!do_flatten && pmath_is_expr(item)) {
       pmath_t head = pmath_expr_get_item(item, 0);
       pmath_unref(head);
       do_flatten = pmath_same(head, MAGIC_PATTERN_SEQUENCE);

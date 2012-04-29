@@ -42,7 +42,7 @@ static void write_short(void *user, const uint16_t *data, int len) {
   
   if(ws->have_error)
     return;
-  
+    
   ws->text = pmath_string_insert_ucs2(ws->text, INT_MAX, data, len);
   if(pmath_is_null(ws->text)) {
     ws->have_error = TRUE;
@@ -152,13 +152,13 @@ static void visit_spans(
     *pos = span->end;
   }
   
-  if(ws->post_write){
+  if(ws->post_write) {
     pmath_write_options_t old_options;
     if(span->owner)
       old_options = span->owner->options;
     else
       old_options = ws->options;
-    
+      
     ws->post_write(ws->user, span->item, old_options);
   }
 }
@@ -293,9 +293,10 @@ static void shorten_span(struct write_short_t *ws, struct write_short_span_t *sp
       }
     }
   }
-  else if(length > 6
-          && pmath_is_string(span->item)
-          && pmath_string_length(span->item) > 6) {
+  else if( length > 6                  &&
+           pmath_is_string(span->item) &&
+           pmath_string_length(span->item) > 6)
+  {
     struct write_short_span_t *skip;
     skip = pmath_mem_alloc(sizeof(struct write_short_span_t));
     
@@ -393,7 +394,7 @@ PMATH_PRIVATE pmath_t builtin_tostring(pmath_expr_t expr) {
   
   for(i = 1; i <= len; ++i) {
     pmath_t obj = pmath_expr_get_item(expr, i);
-    pmath_write(obj, 0, (void(*)(void*, const uint16_t*, int))_pmath_write_to_string, &result);
+    pmath_write(obj, 0, (void( *)(void *, const uint16_t *, int))_pmath_write_to_string, &result);
     pmath_unref(obj);
   }
   pmath_unref(expr);

@@ -50,19 +50,20 @@ static pmath_t stringreplace(
       for(i = count; i > 0; --i) {
         pmath_t rhs = pmath_expr_get_item(rhs_list, i);
         
-        if(_pmath_regex_match(
-              regex_list[i-1],
+        if( _pmath_regex_match(
+              regex_list[i - 1],
               subject,
               length,
               offset,
               PCRE_NO_UTF8_CHECK,
-              &capture_list[i-1],
-              &rhs)
-          ) {
-          if(next_match_rule == 0
-              || capture_list[i-1].ovector[0] <= next_match_pos) {
+              &capture_list[i - 1],
+              &rhs))
+        {
+          if( next_match_rule == 0 ||
+              capture_list[i - 1].ovector[0] <= next_match_pos)
+          {
             next_match_rule = i - 1;
-            next_match_pos = capture_list[i-1].ovector[0];
+            next_match_pos = capture_list[i - 1].ovector[0];
             pmath_unref(first_rhs);
             first_rhs = rhs;
             continue;
@@ -75,9 +76,10 @@ static pmath_t stringreplace(
       if(next_match_pos >= 0) {
         more = TRUE;
         
-        if(capture_list[next_match_rule].ovector[0] > last
-            || (options & SR_EMIT_EMPTY_BOUNDS)
-            || (last > 0 && (options & SR_EMIT_EMPTY))) {
+        if( capture_list[next_match_rule].ovector[0] > last ||
+            (options & SR_EMIT_EMPTY_BOUNDS)                ||
+            (last > 0 && (options & SR_EMIT_EMPTY)))
+        {
           pmath_emit(
             pmath_string_from_utf8(
               subject + last,
@@ -92,9 +94,11 @@ static pmath_t stringreplace(
         --max_matches;
         
         last = capture_list[next_match_rule].ovector[1];
-        if(next_match_rule == count - 1
-            && capture_list[next_match_rule].ovector[0] == last)
+        if( next_match_rule == count - 1 &&
+            capture_list[next_match_rule].ovector[0] == last)
+        {
           offset = last + 1;
+        }
         else
           offset = last;
       }
@@ -169,7 +173,7 @@ static pmath_t replace_all(
     return obj;
   }
   
-  regex_list   = pmath_mem_alloc(count * sizeof(struct _regex_t*));
+  regex_list   = pmath_mem_alloc(count * sizeof(struct _regex_t *));
   capture_list = pmath_mem_alloc(count * sizeof(struct _capture_t));
   
   if(regex_list && capture_list) {

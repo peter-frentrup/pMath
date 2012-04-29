@@ -27,7 +27,7 @@ struct _file_t {
   pmath_atomic_t _lock;
   
   void  *extra;
-  void (*extra_destructor)(void*);
+  void (*extra_destructor)(void *);
   
   pmath_files_status_t (*status_function)(void *extra);
   void                 (*flush_function)( void *extra);
@@ -84,7 +84,7 @@ static void destroy_binary_file(void *ptr) {
 }
 
 static void destroy_text_file(void *ptr) {
-  struct _pmath_text_file_t *f = (struct _pmath_text_file_t*)ptr;
+  struct _pmath_text_file_t *f = (struct _pmath_text_file_t *)ptr;
   
   f->inherited.extra_destructor(f->inherited.extra);
   
@@ -148,7 +148,7 @@ PMATH_API pmath_bool_t pmath_file_test(
         if((properties & PMATH_FILE_PROP_TEXT) == 0) {
           pmath_bool_t result = TRUE;
           
-          struct _pmath_binary_file_t *data = (struct _pmath_binary_file_t*)
+          struct _pmath_binary_file_t *data = (struct _pmath_binary_file_t *)
                                               pmath_custom_get_data(custom);
                                               
           if(properties & PMATH_FILE_PROP_READ)
@@ -165,7 +165,7 @@ PMATH_API pmath_bool_t pmath_file_test(
         if((properties & PMATH_FILE_PROP_BINARY) == 0) {
           pmath_bool_t result = TRUE;
           
-          struct _pmath_text_file_t *data = (struct _pmath_text_file_t*)
+          struct _pmath_text_file_t *data = (struct _pmath_text_file_t *)
                                             pmath_custom_get_data(custom);
                                             
           if(properties & PMATH_FILE_PROP_READ)
@@ -183,8 +183,9 @@ PMATH_API pmath_bool_t pmath_file_test(
     pmath_unref(custom);
   }
   else if(pmath_is_expr_of(file, PMATH_SYMBOL_LIST)) {
-    if((properties & PMATH_FILE_PROP_READ)  == 0
-        && (properties & PMATH_FILE_PROP_WRITE) != 0) {
+    if( (properties & PMATH_FILE_PROP_READ)  == 0 &&
+        (properties & PMATH_FILE_PROP_WRITE) != 0)
+    {
       size_t i;
       
       for(i = pmath_expr_length(file); i > 0; --i) {
@@ -218,10 +219,12 @@ PMATH_API pmath_files_status_t pmath_file_status(pmath_t file) {
           
           result = data->inherited.status_function(data->inherited.extra);
           
-          if(result == PMATH_FILE_ENDOFFILE
-              && data->current_buffer_start < data->current_buffer_end)
+          if( result == PMATH_FILE_ENDOFFILE &&
+              data->current_buffer_start < data->current_buffer_end)
+          {
             result = PMATH_FILE_OK;
-            
+          }
+          
           unlock_file(&data->inherited);
           
           pmath_unref(custom);
@@ -241,10 +244,12 @@ PMATH_API pmath_files_status_t pmath_file_status(pmath_t file) {
           
           result = data->inherited.status_function(data->inherited.extra);
           
-          if(result == PMATH_FILE_ENDOFFILE
-              && pmath_string_length(data->buffer) > 0)
+          if( result == PMATH_FILE_ENDOFFILE &&
+              pmath_string_length(data->buffer) > 0)
+          {
             result = PMATH_FILE_OK;
-            
+          }
+          
           unlock_file(&data->inherited);
           
           pmath_unref(custom);
@@ -323,7 +328,7 @@ PMATH_API size_t pmath_file_read(
             
             bufmax += data->read_function(
                         data->inherited.extra,
-                        (uint8_t*)buffer + bufmax,
+                        (uint8_t *)buffer + bufmax,
                         buffer_size - bufmax);
           }
           
@@ -444,8 +449,9 @@ PMATH_API size_t pmath_file_write(
   if(pmath_is_symbol(file)) {
     pmath_custom_t custom = pmath_symbol_get_value(file);
     
-    if(pmath_is_custom(custom)
-        && pmath_custom_has_destructor(custom, destroy_binary_file)) {
+    if( pmath_is_custom(custom) &&
+        pmath_custom_has_destructor(custom, destroy_binary_file))
+    {
       struct _pmath_binary_file_t *data = pmath_custom_get_data(custom);
       
       if(data->write_function) {
@@ -497,8 +503,9 @@ PMATH_API pmath_bool_t pmath_file_writetext(
   if(pmath_is_symbol(file)) {
     pmath_custom_t custom = pmath_symbol_get_value(file);
     
-    if(pmath_is_custom(custom)
-        && pmath_custom_has_destructor(custom, destroy_text_file)) {
+    if( pmath_is_custom(custom) &&
+        pmath_custom_has_destructor(custom, destroy_text_file))
+    {
       struct _pmath_text_file_t *data = pmath_custom_get_data(custom);
       
       if(data->write_function) {
@@ -539,9 +546,10 @@ PMATH_API void pmath_file_flush(pmath_t file) {
   if(pmath_is_symbol(file)) {
     pmath_custom_t custom = pmath_symbol_get_value(file);
     
-    if(pmath_is_custom(custom)
-        && (pmath_custom_has_destructor(custom, destroy_binary_file)
-            || pmath_custom_has_destructor(custom, destroy_text_file))) {
+    if( pmath_is_custom(custom) &&
+        (pmath_custom_has_destructor(custom, destroy_binary_file) ||
+         pmath_custom_has_destructor(custom, destroy_text_file)))
+    {
       struct _file_t *f = pmath_custom_get_data(custom);
       
       if(f->flush_function) {
@@ -599,17 +607,18 @@ PMATH_API pmath_bool_t pmath_file_write_object(
 PMATH_API
 void pmath_file_manipulate(
   pmath_t   file,
-  void    (*type)(void*),
-  void    (*callback)(void*, void*),
+  void    (*type)(void *),
+  void    (*callback)(void *, void *),
   void     *data
 ) {
   if(pmath_is_symbol(file)) {
     pmath_custom_t custom = pmath_symbol_get_value(file);
     
-    if(pmath_is_custom(custom)
-        && (pmath_custom_has_destructor(custom, destroy_binary_file)
-            || pmath_custom_has_destructor(custom, destroy_text_file))) {
-      struct _file_t *f = (struct _file_t*)pmath_custom_get_data(custom);
+    if( pmath_is_custom(custom) &&
+        (pmath_custom_has_destructor(custom, destroy_binary_file) ||
+         pmath_custom_has_destructor(custom, destroy_text_file)))
+    {
+      struct _file_t *f = (struct _file_t *)pmath_custom_get_data(custom);
       
       if(f->extra_destructor == type) {
         if(lock_file(f)) {
@@ -674,15 +683,15 @@ void pmath_file_close_if_unused(pmath_t file) {
       }
     }
   }
-  else if(pmath_is_expr_of(file, PMATH_SYMBOL_LIST)){
+  else if(pmath_is_expr_of(file, PMATH_SYMBOL_LIST)) {
     size_t i;
     
-    if(pmath_refcount(file) > 1){
+    if(pmath_refcount(file) > 1) {
       pmath_unref(file);
       return;
     }
     
-    for(i = pmath_expr_length(file);i > 0;--i){
+    for(i = pmath_expr_length(file); i > 0; --i) {
       pmath_file_close_if_unused(
         pmath_expr_extract_item(file, i));
     }
@@ -696,21 +705,21 @@ void pmath_file_close_if_unused(pmath_t file) {
 PMATH_API
 pmath_symbol_t pmath_file_create_binary(
   void                     *extra,
-  void                    (*extra_destructor)(void*),
+  void                    (*extra_destructor)(void *),
   pmath_binary_file_api_t  *api
 ) {
   struct _pmath_binary_file_t *data;
   pmath_custom_t custom;
   pmath_symbol_t file;
   
-  if( api->struct_size < sizeof(size_t) + 3 * sizeof(void*) ||
+  if( api->struct_size < sizeof(size_t) + 3 * sizeof(void *) ||
       !extra_destructor ||
       (!api->status_function && api->read_function))
   {
     return PMATH_NULL;
   }
   
-  data = (struct _pmath_binary_file_t*)pmath_mem_alloc(sizeof(struct _pmath_binary_file_t));
+  data = (struct _pmath_binary_file_t *)pmath_mem_alloc(sizeof(struct _pmath_binary_file_t));
   if(!data) {
     extra_destructor(extra);
     
@@ -725,12 +734,12 @@ pmath_symbol_t pmath_file_create_binary(
   data->read_function              = api->read_function;
   data->write_function             = api->write_function;
   
-  if(api->struct_size >= (size_t)&api->flush_function - (size_t)api + sizeof(void*))
+  if(api->struct_size >= (size_t)&api->flush_function - (size_t)api + sizeof(void *))
     data->inherited.flush_function = api->flush_function;
     
   if(data->read_function) {
     data->buffer_size = 256;
-    data->buffer = (uint8_t*)pmath_mem_alloc(data->buffer_size);
+    data->buffer = (uint8_t *)pmath_mem_alloc(data->buffer_size);
     if(!data->buffer) {
       destroy_binary_file(data);
       
@@ -770,20 +779,20 @@ PMATH_ATTRIBUTE_USE_RESULT
 PMATH_ATTRIBUTE_NONNULL(2)
 pmath_symbol_t pmath_file_create_text(
   void                   *extra,
-  void                  (*extra_destructor)(void*),
+  void                  (*extra_destructor)(void *),
   pmath_text_file_api_t  *api
 ) {
   struct _pmath_text_file_t *data;
   pmath_custom_t custom;
   pmath_symbol_t file;
   
-  if( api->struct_size < sizeof(size_t) + 3 * sizeof(void*) ||
+  if( api->struct_size < sizeof(size_t) + 3 * sizeof(void *) ||
       !extra_destructor || (!api->status_function && api->readln_function))
   {
     return PMATH_NULL;
   }
   
-  data = (struct _pmath_text_file_t*)pmath_mem_alloc(sizeof(struct _pmath_text_file_t));
+  data = (struct _pmath_text_file_t *)pmath_mem_alloc(sizeof(struct _pmath_text_file_t));
   if(!data) {
     extra_destructor(extra);
     
@@ -799,7 +808,7 @@ pmath_symbol_t pmath_file_create_text(
   data->readln_function            = api->readln_function;
   data->write_function             = api->write_function;
   
-  if(api->struct_size >= (size_t)&api->flush_function - (size_t)api + sizeof(void*))
+  if(api->struct_size >= (size_t)&api->flush_function - (size_t)api + sizeof(void *))
     data->inherited.flush_function = api->flush_function;
     
   custom = pmath_custom_new(data, destroy_text_file);
@@ -857,10 +866,12 @@ static void destroy_bintext_extra(void *data) {
 static pmath_files_status_t bintext_extra_status(struct _bintext_extra_t *extra) {
   pmath_files_status_t result = pmath_file_status(extra->binfile);
   
-  if(result == PMATH_FILE_ENDOFFILE
-      && pmath_string_length(extra->rest) > 0)
+  if( result == PMATH_FILE_ENDOFFILE &&
+      pmath_string_length(extra->rest) > 0)
+  {
     result = PMATH_FILE_OK;
-    
+  }
+  
   return result;
 }
 
@@ -940,7 +951,7 @@ pmath_string_t bintext_extra_readln(struct _bintext_extra_t *extra) {
       
     outbytesleft = sizeof(out);
     inbuf = in;
-    outbuf = (char*)out;
+    outbuf = (char *)out;
     
     len = pmath_string_length(result);
     
@@ -950,7 +961,7 @@ pmath_string_t bintext_extra_readln(struct _bintext_extra_t *extra) {
       if(ret == (size_t) - 1) {
         if(errno == EILSEQ) { // invalid input byte
           if(outbytesleft > 1) {
-            *((uint16_t*)outbuf) = *(uint8_t*)inbuf;
+            *((uint16_t *)outbuf) = *(uint8_t *)inbuf;
             
             outbuf += 2;
             outbytesleft -= 2;
@@ -1006,7 +1017,7 @@ pmath_string_t bintext_extra_readln(struct _bintext_extra_t *extra) {
             result = pmath_string_insert_ucs2(result, INT_MAX, str, chars_read);
           }
           
-          outbuf = (char*)out;
+          outbuf = (char *)out;
           outbytesleft = sizeof(out);
         }
       }
@@ -1086,7 +1097,7 @@ static pmath_bool_t bintext_extra_write(
     restlen -= len;
     
     {
-      char *inbuf = (char*)str;
+      char *inbuf = (char *)str;
       char *outbuf = buf;
       
       size_t inbytesleft = sizeof(uint16_t) * (size_t)len;
@@ -1188,7 +1199,7 @@ pmath_symbol_t pmath_file_create_text_from_binary(
     return PMATH_NULL;
   }
   
-  extra = (struct _bintext_extra_t*)pmath_mem_alloc(sizeof(struct _bintext_extra_t));
+  extra = (struct _bintext_extra_t *)pmath_mem_alloc(sizeof(struct _bintext_extra_t));
   
   if(!extra) {
     pmath_unref(binfile);
@@ -1213,8 +1224,8 @@ pmath_symbol_t pmath_file_create_text_from_binary(
       return PMATH_NULL;
     }
     
-    api.status_function = (pmath_files_status_t(*)(void*))bintext_extra_status;
-    api.readln_function = (pmath_string_t(*)(void*))bintext_extra_readln;
+    api.status_function = (pmath_files_status_t( *)(void *))bintext_extra_status;
+    api.readln_function = (pmath_string_t( *)(void *))bintext_extra_readln;
   }
   
   if(pmath_file_test(binfile, PMATH_FILE_PROP_BINARY | PMATH_FILE_PROP_WRITE)) {
@@ -1235,7 +1246,7 @@ pmath_symbol_t pmath_file_create_text_from_binary(
        */
       static const uint16_t inbuf = 'a';
       char outbuf[10];
-      char *in  = (char*)&inbuf;
+      char *in  = (char *)&inbuf;
       char *out = outbuf;
       size_t inleft  = sizeof(inbuf);
       size_t outleft = sizeof(outbuf);
@@ -1243,8 +1254,8 @@ pmath_symbol_t pmath_file_create_text_from_binary(
       iconv(extra->out_cd, &in, &inleft, &out, &outleft);
     }
     
-    api.write_function = (pmath_bool_t(*)(void*, const uint16_t*, int))bintext_extra_write;
-    api.flush_function = (void(*)(void*))bintext_extra_flush;
+    api.write_function = (pmath_bool_t( *)(void *, const uint16_t *, int))bintext_extra_write;
+    api.flush_function = (void( *)(void *))bintext_extra_flush;
   }
   
   binfile = pmath_file_create_text(
@@ -1256,10 +1267,12 @@ pmath_symbol_t pmath_file_create_text_from_binary(
     if(api.readln_function) { // skip byte order mark
       pmath_string_t line = pmath_file_readline(binfile);
       
-      if(pmath_string_length(line) > 0
-          && *pmath_string_buffer(&line) == 0xFEFF)
+      if( pmath_string_length(line) > 0 &&
+          *pmath_string_buffer(&line) == 0xFEFF)
+      {
         line = pmath_string_part(line, 1, -1);
-        
+      }
+      
       pmath_file_set_textbuffer(binfile, line);
     }
   }
@@ -1280,7 +1293,7 @@ struct binbuf_t {
 };
 
 static void destroy_binbuf(void *p) {
-  struct binbuf_t *bb = (struct binbuf_t*)p;
+  struct binbuf_t *bb = (struct binbuf_t *)p;
   
   pmath_mem_free(bb->data);
   pmath_mem_free(bb);
@@ -1304,7 +1317,7 @@ static struct binbuf_t *create_binbuf(size_t capacity) {
 }
 
 static pmath_files_status_t binbuf_status(void *p) {
-  struct binbuf_t *bb = (struct binbuf_t*)p;
+  struct binbuf_t *bb = (struct binbuf_t *)p;
   
   if(bb->error)
     return PMATH_FILE_OTHERERROR;
@@ -1319,7 +1332,7 @@ static pmath_files_status_t binbuf_status(void *p) {
 }
 
 static size_t binbuf_read(void *p, void *buffer, size_t buffer_size) {
-  struct binbuf_t *bb = (struct binbuf_t*)p;
+  struct binbuf_t *bb = (struct binbuf_t *)p;
   
   if(bb->error)
     return 0;
@@ -1337,7 +1350,7 @@ static size_t binbuf_read(void *p, void *buffer, size_t buffer_size) {
 }
 
 static size_t binbuf_write(void *p, const void *buffer, size_t buffer_size) {
-  struct binbuf_t *bb = (struct binbuf_t*)p;
+  struct binbuf_t *bb = (struct binbuf_t *)p;
   size_t have_written;
   
   if(bb->error)
@@ -1356,9 +1369,10 @@ static size_t binbuf_write(void *p, const void *buffer, size_t buffer_size) {
     else {
       size_t new_cap = bb->capacity ? bb->capacity : 0x100;
       
-      while(new_cap >= bb->capacity
-            && new_cap < 0x1000
-            && new_cap < have_written + buffer_size) {
+      while( new_cap >= bb->capacity &&
+             new_cap <  0x1000       &&
+             new_cap <  have_written + buffer_size)
+      {
         new_cap *= 2;
       }
       
@@ -1394,16 +1408,16 @@ static size_t binbuf_write(void *p, const void *buffer, size_t buffer_size) {
 }
 
 static void binbuf_get_readablebytes(void *p, void *result) {
-  struct binbuf_t *bb = (struct binbuf_t*)p;
+  struct binbuf_t *bb = (struct binbuf_t *)p;
   
   if(bb->error) {
-    *(size_t*)result = 0;
+    *(size_t *)result = 0;
   }
   else {
     assert((size_t)bb->data     <= (size_t)bb->read_ptr);
     assert((size_t)bb->read_ptr <= (size_t)bb->write_ptr);
     
-    *(size_t*)result = (size_t)bb->write_ptr - (size_t)bb->read_ptr;
+    *(size_t *)result = (size_t)bb->write_ptr - (size_t)bb->read_ptr;
   }
 }
 
@@ -1440,13 +1454,13 @@ size_t pmath_file_binary_buffer_size(
 }
 
 struct binbuf_manipulate_t {
-  void (*callback)(uint8_t*, uint8_t **, const uint8_t*, void*);
+  void (*callback)(uint8_t *, uint8_t **, const uint8_t *, void *);
   void *closure;
 };
 
 static void binbuf_manipulate(void *p, void *extra) {
-  struct binbuf_t *bb = (struct binbuf_t*)p;
-  struct binbuf_manipulate_t *info = (struct binbuf_manipulate_t*)extra;
+  struct binbuf_t *bb = (struct binbuf_t *)p;
+  struct binbuf_manipulate_t *info = (struct binbuf_manipulate_t *)extra;
   
   if(!bb->error) {
     assert((size_t)bb->data      <= (size_t)bb->read_ptr);

@@ -59,8 +59,9 @@ int _pmath_find_tag( // SYM_SEARCH_XXX
   *kind_of_lhs = OWN_RULES;
   
   if(pmath_is_symbol(lhs)) {
-    if(pmath_same(in_tag, lhs)
-        || pmath_same(in_tag, PMATH_UNDEFINED)) {
+    if( pmath_same(in_tag, lhs) ||
+        pmath_same(in_tag, PMATH_UNDEFINED))
+    {
       pmath_unref(*out_tag);
       *out_tag = pmath_ref(lhs);
       return SYM_SEARCH_OK;
@@ -82,20 +83,22 @@ int _pmath_find_tag( // SYM_SEARCH_XXX
         return SYM_SEARCH_ALTERNATIVES;
       }
       
-      if(pmath_same(item, PMATH_SYMBOL_EXCEPT)
-          || pmath_same(item, PMATH_SYMBOL_OPTIONAL)
-          || pmath_same(item, PMATH_SYMBOL_OPTIONSPATTERN)
-          || pmath_same(item, PMATH_SYMBOL_PATTERNSEQUENCE)) {
+      if( pmath_same(item, PMATH_SYMBOL_EXCEPT)         ||
+          pmath_same(item, PMATH_SYMBOL_OPTIONAL)       ||
+          pmath_same(item, PMATH_SYMBOL_OPTIONSPATTERN) ||
+          pmath_same(item, PMATH_SYMBOL_PATTERNSEQUENCE))
+      {
         pmath_unref(item);
         return SYM_SEARCH_NOTFOUND;
       }
       
-      if(pmath_same(item, PMATH_SYMBOL_CONDITION)
-          || pmath_same(item, PMATH_SYMBOL_REPEATED)
-          || pmath_same(item, PMATH_SYMBOL_LONGEST)
-          || pmath_same(item, PMATH_SYMBOL_SHORTEST)
-          || pmath_same(item, PMATH_SYMBOL_HOLDPATTERN)
-          || pmath_same(item, PMATH_SYMBOL_TESTPATTERN)) {
+      if( pmath_same(item, PMATH_SYMBOL_CONDITION)   ||
+          pmath_same(item, PMATH_SYMBOL_REPEATED)    ||
+          pmath_same(item, PMATH_SYMBOL_LONGEST)     ||
+          pmath_same(item, PMATH_SYMBOL_SHORTEST)    ||
+          pmath_same(item, PMATH_SYMBOL_HOLDPATTERN) ||
+          pmath_same(item, PMATH_SYMBOL_TESTPATTERN))
+      {
         pmath_unref(item);
         
         item = pmath_expr_get_item(lhs, 1);
@@ -130,8 +133,10 @@ int _pmath_find_tag( // SYM_SEARCH_XXX
         
         item = pmath_expr_get_item(lhs, 1);
         
-        if(pmath_same(item, in_tag)
-            || (!pmath_is_null(item) && pmath_same(in_tag, PMATH_UNDEFINED))) {
+        if( pmath_same(item, in_tag) ||
+            (!pmath_is_null(item) &&
+             pmath_same(in_tag, PMATH_UNDEFINED)))
+        {
           pmath_unref(*out_tag);
           *out_tag = item;
           *kind_of_lhs = DOWN_RULES;
@@ -464,8 +469,9 @@ PMATH_PRIVATE pmath_t builtin_assign_list(pmath_expr_t expr) {
   if(!_pmath_is_assignment(expr, &tag, &lhs, &rhs))
     return expr;
     
-  if(!pmath_same(tag, PMATH_UNDEFINED)
-      || !pmath_is_expr(lhs)) {
+  if( !pmath_same(tag, PMATH_UNDEFINED) ||
+      !pmath_is_expr(lhs))
+  {
     pmath_unref(tag);
     pmath_unref(lhs);
     pmath_unref(rhs);

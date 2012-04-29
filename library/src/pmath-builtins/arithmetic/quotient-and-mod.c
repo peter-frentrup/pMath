@@ -31,8 +31,9 @@ PMATH_PRIVATE pmath_t builtin_quotient(pmath_expr_t expr) {
     return expr;
   }
   
-  if(!pmath_is_numeric(m)
-      || !pmath_is_numeric(n)) {
+  if( !pmath_is_numeric(m) ||
+      !pmath_is_numeric(n))
+  {
     pmath_unref(m);
     pmath_unref(n);
     return expr;
@@ -80,8 +81,9 @@ PMATH_PRIVATE pmath_t builtin_mod(pmath_expr_t expr) {
     return expr;
   }
   
-  if(!pmath_is_numeric(m)
-      || !pmath_is_numeric(n)) {
+  if( !pmath_is_numeric(m) ||
+      !pmath_is_numeric(n))
+  {
     pmath_unref(m);
     pmath_unref(n);
     return expr;

@@ -42,14 +42,14 @@ static pmath_span_array_t *create_span_array(int length) {
   if(length < 1)
     return NULL;
     
-  result = (pmath_span_array_t*)pmath_mem_alloc(
-             sizeof(pmath_span_array_t) + (size_t)(length - 1) * sizeof(void*));
+  result = (pmath_span_array_t *)pmath_mem_alloc(
+             sizeof(pmath_span_array_t) + (size_t)(length - 1) * sizeof(void *));
              
   if(!result)
     return NULL;
     
   result->length = length;
-  memset(result->items, 0, (size_t)length * sizeof(void*));
+  memset(result->items, 0, (size_t)length * sizeof(void *));
   
   return result;
 }
@@ -68,12 +68,12 @@ static pmath_span_array_t *enlarge_span_array(
     
   result = pmath_mem_realloc_no_failfree(
              spans,
-             sizeof(pmath_span_array_t) + (size_t)(spans->length + extra_len - 1) * sizeof(void*));
+             sizeof(pmath_span_array_t) + (size_t)(spans->length + extra_len - 1) * sizeof(void *));
              
   if(!result)
     return spans;
     
-  memset(result->items + result->length, 0, extra_len * sizeof(void*));
+  memset(result->items + result->length, 0, extra_len * sizeof(void *));
   
   result->length += extra_len;
   return result;
@@ -164,10 +164,10 @@ typedef struct parser_t {
   
   
   pmath_span_array_t *spans;
-  pmath_string_t    (*read_line)(void*);
-  pmath_bool_t      (*subsuperscriptbox_at_index)(int, void*);
-  pmath_string_t    (*underoverscriptbox_at_index)(int, void*);
-  void              (*error)(pmath_string_t, int, void*, pmath_bool_t); //does not free 1st arg
+  pmath_string_t    (*read_line)(void *);
+  pmath_bool_t      (*subsuperscriptbox_at_index)(int, void *);
+  pmath_string_t    (*underoverscriptbox_at_index)(int, void *);
+  void              (*error)(pmath_string_t, int, void *, pmath_bool_t); //does not free 1st arg
   void               *data;
   
   scanner_t tokens;
@@ -190,17 +190,21 @@ static void span(scanner_t *tokens, int start) {
     start = 0;
     
   end = tokens->pos - 1;
-  while(end > start
-        && pmath_token_analyse(&tokens->str[end], 1, NULL) == PMATH_TOK_SPACE)
+  while( end > start &&
+         pmath_token_analyse(&tokens->str[end], 1, NULL) == PMATH_TOK_SPACE)
+  {
     --end;
-    
+  }
+  
   if(end < start)
     return;
     
-  if(SPAN_PTR(tokens->span_items[start])
-      && SPAN_PTR(tokens->span_items[start])->end >= end)
+  if( SPAN_PTR(tokens->span_items[start]) &&
+      SPAN_PTR(tokens->span_items[start])->end >= end)
+  {
     return;
-    
+  }
+  
   for(i = start; i < end; ++i)
     if(SPAN_TOK(tokens->span_items[i]))
       goto HAVE_MULTIPLE_TOKENS;
@@ -216,8 +220,9 @@ HAVE_MULTIPLE_TOKENS: ;
     s->end = end;
     s->next = SPAN_PTR(tokens->span_items[start]);
     tokens->span_items[start] =
-      (uintptr_t)s | SPAN_TOK(tokens->span_items[start])
-      | SPAN_OP( tokens->span_items[start]);
+      (uintptr_t)s                        |
+      SPAN_TOK(tokens->span_items[start]) |
+      SPAN_OP( tokens->span_items[start]);
   }
 }
 
@@ -278,8 +283,9 @@ static int next_token_pos(parser_t *parser) {
     return span->end + 1;
     
   next = parser->tokens.pos;
-  while(next < parser->tokens.len
-        && !pmath_span_array_is_token_end(parser->spans, next)) {
+  while( next < parser->tokens.len &&
+         !pmath_span_array_is_token_end(parser->spans, next))
+  {
     ++next;
   }
   
@@ -312,8 +318,9 @@ static pmath_bool_t read_more(parser_t *parser) {
   
   extralen = 1 + pmath_string_length(newline);
   parser->spans = enlarge_span_array(parser->spans, extralen);
-  if(!parser->spans
-      || parser->spans->length != parser->tokens.len + extralen) {
+  if( !parser->spans ||
+      parser->spans->length != parser->tokens.len + extralen)
+  {
     parser->tokens.span_items = NULL;
     pmath_unref(newline);
     handle_error(parser);
@@ -338,10 +345,11 @@ static pmath_bool_t read_more(parser_t *parser) {
 static void skip_space(parser_t *parser, int span_start, pmath_bool_t optional) {
   parser->last_was_newline = FALSE;
   
-  if(parser->tokens.pos < parser->tokens.len
-      && parser->tokens.str[parser->tokens.pos] == PMATH_CHAR_BOX
-      && parser->subsuperscriptbox_at_index
-      && parser->subsuperscriptbox_at_index(parser->tokens.pos, parser->data)) {
+  if( parser->tokens.pos < parser->tokens.len &&
+      parser->tokens.str[parser->tokens.pos] == PMATH_CHAR_BOX &&
+      parser->subsuperscriptbox_at_index &&
+      parser->subsuperscriptbox_at_index(parser->tokens.pos, parser->data))
+  {
     if(span_start >= 0)
       span(&parser->tokens, span_start);
     ++parser->tokens.pos;
@@ -351,8 +359,9 @@ static void skip_space(parser_t *parser, int span_start, pmath_bool_t optional) 
   for(;;) {
     pmath_token_t tok;
     
-    while(parser->tokens.pos < parser->tokens.len
-          && parser->tokens.str[parser->tokens.pos] != '\n') {
+    while( parser->tokens.pos < parser->tokens.len &&
+           parser->tokens.str[parser->tokens.pos] != '\n')
+    {
       tok = pmath_token_analyse(parser->tokens.str + parser->tokens.pos, 1, NULL);
       
       if(tok != PMATH_TOK_SPACE)
@@ -367,9 +376,10 @@ static void skip_space(parser_t *parser, int span_start, pmath_bool_t optional) 
       span = SPAN_PTR(parser->spans->items[parser->tokens.pos]);
       
       if(span) {
-        if(parser->tokens.pos + 1 < parser->tokens.len
-            && parser->tokens.str[parser->tokens.pos]   == '/'
-            && parser->tokens.str[parser->tokens.pos+1] == '*') {
+        if( parser->tokens.pos + 1 < parser->tokens.len       &&
+            parser->tokens.str[parser->tokens.pos]     == '/' &&
+            parser->tokens.str[parser->tokens.pos + 1] == '*')
+        {
           parser->tokens.pos = span->end + 1;
           continue;
         }
@@ -378,8 +388,9 @@ static void skip_space(parser_t *parser, int span_start, pmath_bool_t optional) 
       }
     }
     
-    if(parser->tokens.pos < parser->tokens.len
-        && parser->tokens.str[parser->tokens.pos] == '\n') {
+    if( parser->tokens.pos < parser->tokens.len &&
+        parser->tokens.str[parser->tokens.pos] == '\n')
+    {
       if(!optional || parser->fencelevel > 0) {
         ++parser->tokens.pos;
         parser->last_was_newline = TRUE;
@@ -389,24 +400,28 @@ static void skip_space(parser_t *parser, int span_start, pmath_bool_t optional) 
       break;
     }
     
-    if(parser->tokens.pos < parser->tokens.len
-        && parser->tokens.str[parser->tokens.pos] == '\\') {
+    if( parser->tokens.pos < parser->tokens.len &&
+        parser->tokens.str[parser->tokens.pos] == '\\')
+    {
       int i = parser->tokens.pos + 1;
       
-      while(i < parser->tokens.len
-            && parser->tokens.str[i] <= ' ')
+      while( i < parser->tokens.len &&
+             parser->tokens.str[i] <= ' ')
+      {
         ++i;
-        
+      }
+      
       if(i == parser->tokens.len) {
         parser->tokens.pos = i;
         optional = FALSE;
       }
     }
     
-    if(parser->tokens.pos + 1 < parser->tokens.len
-        && !parser->tokens.in_comment
-        && parser->tokens.str[parser->tokens.pos] == '/'
-        && parser->tokens.str[parser->tokens.pos+1] == '*') {
+    if( parser->tokens.pos + 1 < parser->tokens.len       &&
+        !parser->tokens.in_comment                        &&
+        parser->tokens.str[parser->tokens.pos]     == '/' &&
+        parser->tokens.str[parser->tokens.pos + 1] == '*')
+    {
       pmath_bool_t last_was_newline = FALSE;
       int last_space_start = parser->last_space_start;
       
@@ -418,9 +433,10 @@ static void skip_space(parser_t *parser, int span_start, pmath_bool_t optional) 
       while(parser->tokens.pos < parser->tokens.len) {
         int tmp;
         
-        if(parser->tokens.pos + 1 < parser->tokens.len
-            && parser->tokens.str[parser->tokens.pos]   == '*'
-            && parser->tokens.str[parser->tokens.pos+1] == '/') {
+        if( parser->tokens.pos + 1 < parser->tokens.len       &&
+            parser->tokens.str[parser->tokens.pos]     == '*' &&
+            parser->tokens.str[parser->tokens.pos + 1] == '/')
+        {
           parser->tokens.pos += 2;
           break;
         }
@@ -430,6 +446,7 @@ static void skip_space(parser_t *parser, int span_start, pmath_bool_t optional) 
         if(tmp == parser->tokens.pos)
           ++parser->tokens.pos;
       }
+      
       span(&parser->tokens, start);
       --parser->fencelevel;
       parser->tokens.in_comment = FALSE;
@@ -437,9 +454,11 @@ static void skip_space(parser_t *parser, int span_start, pmath_bool_t optional) 
       parser->last_was_newline = last_was_newline;
       parser->last_space_start = last_space_start;
     }
-    else if(parser->tokens.pos == parser->tokens.len
-            && (!optional || parser->fencelevel > 0)
-            && !pmath_aborting()) {
+    else if( parser->tokens.pos == parser->tokens.len &&
+             (!optional ||
+              parser->fencelevel > 0) &&
+             !pmath_aborting())
+    {
       if(!read_more(parser))
         break;
         
@@ -495,8 +514,9 @@ static void scan_next(scanner_t *tokens, parser_t *parser) {
         if(tokens->pos == tokens->len)
           break;
           
-        if(tokens->str[tokens->pos] == '+'   // ++
-            || tokens->str[tokens->pos] == '=') { // +=
+        if( tokens->str[tokens->pos] == '+' || // ++
+            tokens->str[tokens->pos] == '=')   // +=
+        {
           ++tokens->pos;
           break;
         }
@@ -508,9 +528,10 @@ static void scan_next(scanner_t *tokens, parser_t *parser) {
         if(tokens->pos == tokens->len)
           break;
           
-        if(tokens->str[tokens->pos] == '-'   // --
-            || tokens->str[tokens->pos] == '='   // -=
-            || tokens->str[tokens->pos] == '>') { // ->
+        if( tokens->str[tokens->pos] == '-' || // --
+            tokens->str[tokens->pos] == '=' || // -=
+            tokens->str[tokens->pos] == '>')   // ->
+        {
           ++tokens->pos;
           break;
         }
@@ -536,12 +557,13 @@ static void scan_next(scanner_t *tokens, parser_t *parser) {
           if(tokens->str[tokens->pos] == '*') {
             ++tokens->pos;
             
-            if(tokens->in_comment
-                && tokens->pos < tokens->len
-                && tokens->str[tokens->pos] == '/') { // ***/   ===   ** */
+            if( tokens->in_comment        &&
+                tokens->pos < tokens->len &&
+                tokens->str[tokens->pos] == '/') // ***/   ===   ** */
+            {
               tokens->in_comment = 0;
               if(tokens->span_items)
-                tokens->span_items[tokens->pos-2] = 1;
+                tokens->span_items[tokens->pos - 2] = 1;
               ++tokens->pos;
               break;
             }
@@ -549,11 +571,12 @@ static void scan_next(scanner_t *tokens, parser_t *parser) {
             break; // ***
           }
           
-          if(tokens->in_comment
-              && tokens->str[tokens->pos] == '/') { // **/   ===   * */
+          if( tokens->in_comment &&
+              tokens->str[tokens->pos] == '/') // **/   ===   * */
+          {
             tokens->in_comment = 0;
             if(tokens->span_items)
-              tokens->span_items[tokens->pos-2] = 1;
+              tokens->span_items[tokens->pos - 2] = 1;
             ++tokens->pos;
             break;
           }
@@ -561,8 +584,9 @@ static void scan_next(scanner_t *tokens, parser_t *parser) {
           break; // **
         }
         
-        if(tokens->in_comment
-            && tokens->str[tokens->pos] == '/') { // */
+        if( tokens->in_comment &&
+            tokens->str[tokens->pos] == '/') // */
+        {
           tokens->in_comment = 0;
           ++tokens->pos;
           break;
@@ -576,19 +600,21 @@ static void scan_next(scanner_t *tokens, parser_t *parser) {
         if(tokens->pos == tokens->len)
           break;
           
-        if(!tokens->in_comment
-            && !tokens->in_string
-            && tokens->str[tokens->pos] == '*') { // /*
+        if( !tokens->in_comment &&
+            !tokens->in_string &&
+            tokens->str[tokens->pos] == '*') // /*
+        {
           tokens->in_comment = 1;
           ++tokens->pos;
           break;
         }
         
-        if(tokens->str[tokens->pos] == '='   // /=
-            || tokens->str[tokens->pos] == '?'   // /?
-            || tokens->str[tokens->pos] == '@'   // /@
-            || tokens->str[tokens->pos] == '.'   // /.
-            || tokens->str[tokens->pos] == ':') { // /:
+        if( tokens->str[tokens->pos] == '=' || // /=
+            tokens->str[tokens->pos] == '?' || // /?
+            tokens->str[tokens->pos] == '@' || // /@
+            tokens->str[tokens->pos] == '.' || // /.
+            tokens->str[tokens->pos] == ':')   // /:
+        {
           ++tokens->pos;
           break;
         }
@@ -599,8 +625,9 @@ static void scan_next(scanner_t *tokens, parser_t *parser) {
           if(tokens->pos == tokens->len) // //
             break;
             
-          if(tokens->str[tokens->pos] == '@'   // //@
-              || tokens->str[tokens->pos] == '.') { // //.
+          if( tokens->str[tokens->pos] == '@' || // //@
+              tokens->str[tokens->pos] == '.')   // //.
+          {
             ++tokens->pos;
             break;
           }
@@ -608,11 +635,13 @@ static void scan_next(scanner_t *tokens, parser_t *parser) {
           break;
         }
         
-        if(tokens->pos + 1 < tokens->len
-            && tokens->str[tokens->pos]     == '\\'
-            && tokens->str[tokens->pos + 1] == '/')
+        if( tokens->pos + 1 < tokens->len        &&
+            tokens->str[tokens->pos]     == '\\' &&
+            tokens->str[tokens->pos + 1] == '/')
+        {
           tokens->pos += 2;
-          
+        }
+        
       } break;
       
     case '\\': {
@@ -627,8 +656,9 @@ static void scan_next(scanner_t *tokens, parser_t *parser) {
           int start = tokens->pos;
           ++tokens->pos;
           
-          if(tokens->pos >= tokens->len
-              || !pmath_char_is_hexdigit(tokens->str[tokens->pos])) {
+          if( tokens->pos >= tokens->len ||
+              !pmath_char_is_hexdigit(tokens->str[tokens->pos]))
+          {
             if(parser)
               handle_error(parser);
             tokens->pos = start;
@@ -636,8 +666,9 @@ static void scan_next(scanner_t *tokens, parser_t *parser) {
           }
           
           ++tokens->pos;
-          if(tokens->pos >= tokens->len
-              || !pmath_char_is_hexdigit(tokens->str[tokens->pos])) {
+          if( tokens->pos >= tokens->len ||
+              !pmath_char_is_hexdigit(tokens->str[tokens->pos]))
+          {
             if(parser)
               handle_error(parser);
             tokens->pos = start;
@@ -654,8 +685,9 @@ static void scan_next(scanner_t *tokens, parser_t *parser) {
           
           for(count = 4; count > 0; --count) {
             ++tokens->pos;
-            if(tokens->pos >= tokens->len
-                || !pmath_char_is_hexdigit(tokens->str[tokens->pos])) {
+            if( tokens->pos >= tokens->len ||
+                !pmath_char_is_hexdigit(tokens->str[tokens->pos]))
+            {
               if(parser)
                 handle_error(parser);
               tokens->pos = start;
@@ -676,8 +708,9 @@ static void scan_next(scanner_t *tokens, parser_t *parser) {
           
           for(count = 8; count > 0; --count) {
             ++tokens->pos;
-            if(tokens->pos >= tokens->len
-                || !pmath_char_is_hexdigit(tokens->str[tokens->pos])) {
+            if( tokens->pos >= tokens->len ||
+                !pmath_char_is_hexdigit(tokens->str[tokens->pos]))
+            {
               if(parser)
                 handle_error(parser);
               tokens->pos = start;
@@ -692,8 +725,9 @@ static void scan_next(scanner_t *tokens, parser_t *parser) {
           break;
         }
         
-        if(tokens->str[tokens->pos] == '"'
-            || tokens->str[tokens->pos] == '\\') {
+        if( tokens->str[tokens->pos] == '"' ||
+            tokens->str[tokens->pos] == '\\')
+        {
           ++tokens->pos;
           break;
         }
@@ -707,8 +741,9 @@ static void scan_next(scanner_t *tokens, parser_t *parser) {
         if(tokens->pos == tokens->len)
           break;
           
-        if(tokens->str[tokens->pos] == '='                            // <= >= !=
-            || tokens->str[tokens->pos] == tokens->str[tokens->pos - 1]) { // << >> !!
+        if( tokens->str[tokens->pos] == '=' ||                         // <= >= !=
+            tokens->str[tokens->pos] == tokens->str[tokens->pos - 1])  // << >> !!
+        {
           ++tokens->pos;
           break;
         }
@@ -717,10 +752,11 @@ static void scan_next(scanner_t *tokens, parser_t *parser) {
     case '=': {
         ++tokens->pos;
         
-        if(tokens->pos + 1 < tokens->len
-            && (tokens->str[tokens->pos] == '!'
-                || tokens->str[tokens->pos] == '=')
-            && tokens->str[tokens->pos+1] == '=') {
+        if( tokens->pos + 1 < tokens->len     &&
+            (tokens->str[tokens->pos] == '!' ||
+             tokens->str[tokens->pos] == '=') &&
+            tokens->str[tokens->pos + 1] == '=')
+        {
           tokens->pos += 2;
         }
       } break;
@@ -728,13 +764,16 @@ static void scan_next(scanner_t *tokens, parser_t *parser) {
     case '~': {
         ++tokens->pos;
         
-        if(tokens->pos < tokens->len
-            && tokens->str[tokens->pos] == '~') {
+        if( tokens->pos < tokens->len &&
+            tokens->str[tokens->pos] == '~')
+        {
           ++tokens->pos;
           
-          if(tokens->pos < tokens->len
-              && tokens->str[tokens->pos] == '~')
+          if( tokens->pos < tokens->len &&
+              tokens->str[tokens->pos] == '~')
+          {
             ++tokens->pos;
+          }
         }
       } break;
       
@@ -758,8 +797,9 @@ static void scan_next(scanner_t *tokens, parser_t *parser) {
           break; // ::
         }
         
-        if(tokens->str[tokens->pos] == '='   // :=
-            || tokens->str[tokens->pos] == '>') { // :>
+        if( tokens->str[tokens->pos] == '=' || // :=
+            tokens->str[tokens->pos] == '>')   // :>
+        {
           ++tokens->pos;
           break;
         }
@@ -770,9 +810,11 @@ static void scan_next(scanner_t *tokens, parser_t *parser) {
     case '&': {
         ++tokens->pos;
         
-        if(tokens->pos < tokens->len
-            && tokens->str[tokens->pos] == tokens->str[tokens->pos-1]) // ?? || &&
+        if( tokens->pos < tokens->len &&
+            tokens->str[tokens->pos] == tokens->str[tokens->pos - 1]) // ?? || &&
+        {
           ++tokens->pos;
+        }
       } break;
       
       //case '\'':
@@ -780,20 +822,26 @@ static void scan_next(scanner_t *tokens, parser_t *parser) {
     case '%':
     case '.': {
         ++tokens->pos;
-        while(tokens->pos < tokens->len
-              && tokens->str[tokens->pos] == tokens->str[tokens->pos-1])
+        while( tokens->pos < tokens->len &&
+               tokens->str[tokens->pos] == tokens->str[tokens->pos - 1])
+        {
           ++tokens->pos;
+        }
       } break;
       
     case '`': {
         ++tokens->pos;
-        while(tokens->pos < tokens->len
-              && pmath_char_is_digit(tokens->str[tokens->pos]))
+        while( tokens->pos < tokens->len &&
+               pmath_char_is_digit(tokens->str[tokens->pos]))
+        {
           ++tokens->pos;
-          
-        if(tokens->pos < tokens->len
-            && tokens->str[tokens->pos] == '`')
+        }
+        
+        if( tokens->pos < tokens->len &&
+            tokens->str[tokens->pos] == '`')
+        {
           ++tokens->pos;
+        }
       } break;
       
     case '"': {
@@ -804,8 +852,9 @@ static void scan_next(scanner_t *tokens, parser_t *parser) {
           
           ++tokens->pos;
           for(;;) {
-            while(tokens->pos < tokens->len
-                  && (k > 0 || tokens->str[tokens->pos] != '"')) {
+            while( tokens->pos < tokens->len &&
+                   (k > 0 || tokens->str[tokens->pos] != '"'))
+            {
               if(tokens->str[tokens->pos] == PMATH_CHAR_LEFT_BOX) {
                 ++k;
                 tokens->pos++;
@@ -830,11 +879,14 @@ static void scan_next(scanner_t *tokens, parser_t *parser) {
             }
           }
           
-          if(tokens->pos < tokens->len
-              && tokens->str[tokens->pos] == '"')
+          if( tokens->pos < tokens->len &&
+              tokens->str[tokens->pos] == '"')
+          {
             scan_next(tokens, parser);
+          }
           else if(parser)
             handle_error(parser);
+            
           tokens->in_string = FALSE;
           
           if(tokens->span_items)
@@ -867,10 +919,12 @@ static void scan_next(scanner_t *tokens, parser_t *parser) {
             }
             
             tok = pmath_token_analyse(tokens->str + tokens->pos, 1, NULL);
-            if(tok != PMATH_TOK_NAME
-                && tok != PMATH_TOK_DIGIT)
+            if( tok != PMATH_TOK_NAME &&
+                tok != PMATH_TOK_DIGIT)
+            {
               break;
-              
+            }
+            
             ++tokens->pos;
           }
           
@@ -883,10 +937,10 @@ static void scan_next(scanner_t *tokens, parser_t *parser) {
           } while(tokens->pos < tokens->len &&
                   pmath_char_is_digit(tokens->str[tokens->pos]));
                   
-          if( tokens->pos + 2 < tokens->len &&
-              tokens->str[tokens->pos]   == '^' &&
-              tokens->str[tokens->pos+1] == '^' &&
-              pmath_char_is_36digit(tokens->str[tokens->pos+2]))
+          if( tokens->pos + 2 < tokens->len       &&
+              tokens->str[tokens->pos]     == '^' &&
+              tokens->str[tokens->pos + 1] == '^' &&
+              pmath_char_is_36digit(tokens->str[tokens->pos + 2]))
           {
             tokens->pos += 3;
             while(tokens->pos < tokens->len &&
@@ -895,25 +949,25 @@ static void scan_next(scanner_t *tokens, parser_t *parser) {
               ++tokens->pos;
             }
             
-            if( tokens->pos + 1 < tokens->len &&
+            if( tokens->pos + 1 < tokens->len   &&
                 tokens->str[tokens->pos] == '.' &&
-                pmath_char_is_36digit(tokens->str[tokens->pos+1]))
+                pmath_char_is_36digit(tokens->str[tokens->pos + 1]))
             {
               tokens->pos += 2;
-              while(tokens->pos < tokens->len
-                    && pmath_char_is_36digit(tokens->str[tokens->pos]))
+              while( tokens->pos < tokens->len &&
+                     pmath_char_is_36digit(tokens->str[tokens->pos]))
               {
                 ++tokens->pos;
               }
             }
           }
-          else if(tokens->pos + 1 < tokens->len &&
+          else if(tokens->pos + 1 < tokens->len   &&
                   tokens->str[tokens->pos] == '.' &&
-                  pmath_char_is_digit(tokens->str[tokens->pos+1]))
+                  pmath_char_is_digit(tokens->str[tokens->pos + 1]))
           {
             tokens->pos += 2;
-            while(tokens->pos < tokens->len
-                  && pmath_char_is_digit(tokens->str[tokens->pos]))
+            while( tokens->pos < tokens->len &&
+                   pmath_char_is_digit(tokens->str[tokens->pos]))
             {
               ++tokens->pos;
             }
@@ -930,8 +984,9 @@ static void scan_next(scanner_t *tokens, parser_t *parser) {
               ++tokens->pos;
             }
             
-            if( tokens->pos + 1 < tokens->len &&
-                (tokens->str[tokens->pos] == '+' || tokens->str[tokens->pos] == '-') &&
+            if( tokens->pos + 1 < tokens->len     &&
+                (tokens->str[tokens->pos] == '+' ||
+                 tokens->str[tokens->pos] == '-') &&
                 pmath_char_is_digit(tokens->str[tokens->pos + 1]))
             {
               ++tokens->pos;
@@ -947,7 +1002,7 @@ static void scan_next(scanner_t *tokens, parser_t *parser) {
               
               if( tokens->pos + 1 < tokens->len &&
                   tokens->str[tokens->pos] == '.' &&
-                  pmath_char_is_digit(tokens->str[tokens->pos+1]))
+                  pmath_char_is_digit(tokens->str[tokens->pos + 1]))
               {
                 tokens->pos += 2;
                 while(tokens->pos < tokens->len &&
@@ -961,12 +1016,12 @@ static void scan_next(scanner_t *tokens, parser_t *parser) {
           
           if( tokens->pos + 2 < tokens->len &&
               tokens->str[tokens->pos]   == '*' &&
-              tokens->str[tokens->pos+1] == '^' &&
-              (pmath_char_is_digit(tokens->str[tokens->pos+2]) ||
+              tokens->str[tokens->pos + 1] == '^' &&
+              (pmath_char_is_digit(tokens->str[tokens->pos + 2]) ||
                (tokens->pos + 3 < tokens->len &&
-                (tokens->str[tokens->pos+2] == '-' ||
-                 tokens->str[tokens->pos+2] == '+') &&
-                pmath_char_is_digit(tokens->str[tokens->pos+3]))))
+                (tokens->str[tokens->pos + 2] == '-' ||
+                 tokens->str[tokens->pos + 2] == '+') &&
+                pmath_char_is_digit(tokens->str[tokens->pos + 3]))))
           {
             tokens->pos += 3;
             while(tokens->pos < tokens->len &&
@@ -983,15 +1038,15 @@ static void scan_next(scanner_t *tokens, parser_t *parser) {
   
 END_SCAN:
   if(tokens->span_items)
-    tokens->span_items[tokens->pos-1] = 1;
+    tokens->span_items[tokens->pos - 1] = 1;
 }
 
 PMATH_API pmath_span_array_t *pmath_spans_from_string(
   pmath_string_t   *code,
-  pmath_string_t  (*line_reader)(void*),
-  pmath_bool_t    (*subsuperscriptbox_at_index)(int, void*),
-  pmath_string_t  (*underoverscriptbox_at_index)(int, void*),
-  void            (*error)(  pmath_string_t, int, void*, pmath_bool_t), //does not free 1st arg
+  pmath_string_t  (*line_reader)(void *),
+  pmath_bool_t    (*subsuperscriptbox_at_index)(int, void *),
+  pmath_string_t  (*underoverscriptbox_at_index)(int, void *),
+  void            (*error)(  pmath_string_t, int, void *, pmath_bool_t), //does not free 1st arg
   void             *data
 ) {
   parser_t parser;
@@ -1070,9 +1125,10 @@ static pmath_token_t token_analyse(
                         next - parser->tokens.pos,
                         prec);
                         
-  if(tok == PMATH_TOK_NAME2
-      && parser->tokens.str[parser->tokens.pos] == PMATH_CHAR_BOX
-      && parser->underoverscriptbox_at_index) {
+  if( tok == PMATH_TOK_NAME2 &&
+      parser->tokens.str[parser->tokens.pos] == PMATH_CHAR_BOX &&
+      parser->underoverscriptbox_at_index)
+  {
     pmath_string_t str = parser->underoverscriptbox_at_index(parser->tokens.pos, parser->data);
     
     if(!pmath_is_null(str)) {
@@ -1135,8 +1191,8 @@ static pmath_bool_t plusplus_is_infix(parser_t *parser, int next) {
   skip_to(parser, -1, next, TRUE);
   next = next_token_pos(parser);
   
-  result = next > parser->tokens.pos
-           && pmath_token_maybe_first(token_analyse(parser, next, NULL));
+  result = next > parser->tokens.pos &&
+           pmath_token_maybe_first(token_analyse(parser, next, NULL));
            
   parser->last_was_newline = oldnl;
   parser->last_space_start = oldss;
@@ -1159,11 +1215,13 @@ static void parse_sequence(parser_t *parser) {
   while(next != parser->tokens.pos) {
     tok = token_analyse(parser, next, NULL);
     
-    if(tok == PMATH_TOK_RIGHT
-        || tok == PMATH_TOK_COMMENTEND
-        || tok == PMATH_TOK_SPACE)
+    if( tok == PMATH_TOK_RIGHT      ||
+        tok == PMATH_TOK_COMMENTEND ||
+        tok == PMATH_TOK_SPACE)
+    {
       break;
-      
+    }
+    
     parse_prim(parser, FALSE);
     parse_rest(parser, start, PMATH_PREC_ANY);
     
@@ -1446,9 +1504,7 @@ static void parse_rest(parser_t *parser, int lhs, int min_prec) {
           
           next = next_token_pos(parser);
           tok  = token_analyse(parser, next, &cur_prec);
-//        if(tok != PMATH_TOK_LEFTCALL
-//        || parser->last_space_start < parser->tokens.pos) // preceding space
-//          span(&parser->tokens, lhs);
+          
         } continue;
         
       case PMATH_TOK_LEFTCALL:
@@ -1459,15 +1515,17 @@ static void parse_rest(parser_t *parser, int lhs, int min_prec) {
             break;
             
           if(last_prec == cur_prec) {
-            if(cur_prec != PMATH_PREC_OR
-                && cur_prec != PMATH_PREC_AND
-                && cur_prec != PMATH_PREC_REL
-                && cur_prec != PMATH_PREC_ADD
-                && cur_prec != PMATH_PREC_MUL
-                && !same_token(parser, last_tok_start, last_tok_end, next)
-                && (last_tok_start + 1 != last_tok_end
-                    || parser->tokens.str[last_tok_start] != '.'))
+            if( cur_prec != PMATH_PREC_OR                               &&
+                cur_prec != PMATH_PREC_AND                              &&
+                cur_prec != PMATH_PREC_REL                              &&
+                cur_prec != PMATH_PREC_ADD                              &&
+                cur_prec != PMATH_PREC_MUL                              &&
+                !same_token(parser, last_tok_start, last_tok_end, next) &&
+                (last_tok_start + 1 != last_tok_end ||
+                 parser->tokens.str[last_tok_start] != '.'))
+            {
               span(&parser->tokens, lhs);
+            }
           }
           else if(last_prec >= 0)
             span(&parser->tokens, lhs);
@@ -1477,10 +1535,11 @@ static void parse_rest(parser_t *parser, int lhs, int min_prec) {
           
           ++parser->fencelevel;
           
-          if(next == parser->tokens.pos + 1
-              && next < parser->tokens.len
-              && parser->tokens.str[parser->tokens.pos] == '['
-              && parser->tokens.str[next]               == '[') { // [[
+          if( next == parser->tokens.pos + 1                &&
+              next < parser->tokens.len                     &&
+              parser->tokens.str[parser->tokens.pos] == '[' &&
+              parser->tokens.str[next]               == '[') // [[
+          {
             parser->spans->items[parser->tokens.pos] &= ~1; // no token end
             doublesq = TRUE;
             ++next;
@@ -1497,10 +1556,11 @@ static void parse_rest(parser_t *parser, int lhs, int min_prec) {
           
           if(token_analyse(parser, next, &cur_prec) == PMATH_TOK_RIGHT) {
             if(doublesq) {
-              if(next == parser->tokens.pos + 1
-                  && next < parser->tokens.len
-                  && parser->tokens.str[parser->tokens.pos] == ']'
-                  && parser->tokens.str[next]               == ']') {
+              if( next == parser->tokens.pos + 1                &&
+                  next < parser->tokens.len                     &&
+                  parser->tokens.str[parser->tokens.pos] == ']' &&
+                  parser->tokens.str[next]               == ']')
+              {
                 parser->spans->items[parser->tokens.pos] &= ~1; // no token end
                 ++next;
               }
@@ -1558,8 +1618,10 @@ static void parse_rest(parser_t *parser, int lhs, int min_prec) {
           next2 = next_token_pos(parser);
           tok2  = token_analyse(parser, next2, NULL);
           if(!pmath_token_maybe_first(tok2)) {
-            if(tok == PMATH_TOK_BINARY_LEFT_AUTOARG
-                || tok == PMATH_TOK_NARY_AUTOARG) {
+          
+            if( tok == PMATH_TOK_BINARY_LEFT_AUTOARG ||
+                tok == PMATH_TOK_NARY_AUTOARG)
+            {
               if(cur_prec < last_prec) {
                 int pos = parser->tokens.pos;
                 parser->tokens.pos = oldpos;
@@ -1608,13 +1670,15 @@ static void parse_rest(parser_t *parser, int lhs, int min_prec) {
           NARY:
           
             if(last_prec == cur_prec) {
-              if(cur_prec != PMATH_PREC_OR
-                  && cur_prec != PMATH_PREC_AND
-                  && cur_prec != PMATH_PREC_REL
-                  && cur_prec != PMATH_PREC_ADD
-                  && cur_prec != PMATH_PREC_MUL
-                  && !same_token(parser, last_tok_start, last_tok_end, next))
+              if( cur_prec != PMATH_PREC_OR  &&
+                  cur_prec != PMATH_PREC_AND &&
+                  cur_prec != PMATH_PREC_REL &&
+                  cur_prec != PMATH_PREC_ADD &&
+                  cur_prec != PMATH_PREC_MUL &&
+                  !same_token(parser, last_tok_start, last_tok_end, next))
+              {
                 span(&parser->tokens, lhs);
+              }
             }
             else //if(last_prec >= 0)
               span(&parser->tokens, lhs);
@@ -1625,15 +1689,15 @@ static void parse_rest(parser_t *parser, int lhs, int min_prec) {
             last_tok_end   = next;
             
             skip_to(parser, -1, next,
-                    tok == PMATH_TOK_NARY_AUTOARG
-                    || tok == PMATH_TOK_BINARY_LEFT_AUTOARG);
-                    
+                    (tok == PMATH_TOK_NARY_AUTOARG ||
+                     tok == PMATH_TOK_BINARY_LEFT_AUTOARG));
+                     
             rhs = parser->tokens.pos;
             parse_prim(
               parser,
-              tok == PMATH_TOK_NARY_AUTOARG
-              || tok == PMATH_TOK_BINARY_LEFT_AUTOARG);
-              
+              (tok == PMATH_TOK_NARY_AUTOARG ||
+               tok == PMATH_TOK_BINARY_LEFT_AUTOARG));
+               
             next = next_token_pos(parser);
             oldpos = parser->tokens.pos;
             while(oldpos != next) {
@@ -1659,9 +1723,10 @@ static void parse_rest(parser_t *parser, int lhs, int min_prec) {
               
               if(pmath_token_maybe_first(tok)) {
               
-                if((tok != PMATH_TOK_LEFTCALL
-                    || parser->last_space_start == parser->tokens.pos)
-                    && pmath_token_maybe_rest(tok)) {
+                if( (tok != PMATH_TOK_LEFTCALL ||
+                     parser->last_space_start == parser->tokens.pos) &&
+                    pmath_token_maybe_rest(tok))
+                {
                   if(next_prec > cur_prec) {
                     parse_rest(parser, rhs, next_prec); // =: rhs
                     
@@ -1731,8 +1796,9 @@ static void parse_textline(parser_t *parser) {
     return;
   }
   
-  while(parser->tokens.pos < parser->tokens.len
-        && parser->tokens.str[parser->tokens.pos] != '\n') {
+  while( parser->tokens.pos < parser->tokens.len &&
+         parser->tokens.str[parser->tokens.pos] != '\n')
+  {
     switch(parser->tokens.str[parser->tokens.pos]) {
       case '.':
       case '/':
@@ -1749,9 +1815,10 @@ static void parse_textline(parser_t *parser) {
     }
     
     tok = token_analyse(parser, parser->tokens.pos + 1, NULL);
-    if(tok == PMATH_TOK_NAME
-        || tok == PMATH_TOK_NAME2
-        || tok == PMATH_TOK_DIGIT) {
+    if( tok == PMATH_TOK_NAME  ||
+        tok == PMATH_TOK_NAME2 ||
+        tok == PMATH_TOK_DIGIT)
+    {
       ++parser->tokens.pos;
       continue;
     }
@@ -1779,24 +1846,27 @@ typedef struct {
   const uint16_t       *str;
   int                   pos;
   pmath_bool_t          parseable;
-  pmath_t             (*box_at_index)(int, void*);
+  pmath_t             (*box_at_index)(int, void *);
   void                 *data;
 } _pmath_group_t;
 
 static void skip_whitespace(_pmath_group_t *group) {
   for(;;) {
-    while(group->pos < group->spans->length
-          && pmath_token_analyse(&group->str[group->pos], 1, NULL) == PMATH_TOK_SPACE)
+    while( group->pos < group->spans->length &&
+           pmath_token_analyse(&group->str[group->pos], 1, NULL) == PMATH_TOK_SPACE)
+    {
       ++group->pos;
-      
+    }
+    
     if(group->pos < group->spans->length
         && group->str[group->pos] == '\\') {
       ++group->pos;
     }
-    else if(group->pos + 1 < group->spans->length
-            && group->str[group->pos]     == '/'
-            && group->str[group->pos + 1] == '*'
-            && !SPAN_TOK(group->spans->items[group->pos])) {
+    else if( group->pos + 1 < group->spans->length &&
+             group->str[group->pos]     == '/'     &&
+             group->str[group->pos + 1] == '*'     &&
+             !SPAN_TOK(group->spans->items[group->pos]))
+    {
       pmath_span_t *s = SPAN_PTR(group->spans->items[group->pos]);
       if(s) {
         while(s->next)
@@ -1833,9 +1903,12 @@ static void emit_span(pmath_span_t *span, _pmath_group_t *group) {
     else {
       int start = group->pos;
       
-      while(group->pos < group->spans->length
-            && !SPAN_TOK(group->spans->items[group->pos]))
+      while( group->pos < group->spans->length &&
+             !SPAN_TOK(group->spans->items[group->pos]))
+      {
         ++group->pos;
+      }
+      
       ++group->pos;
       
       pmath_emit(
@@ -1851,9 +1924,10 @@ static void emit_span(pmath_span_t *span, _pmath_group_t *group) {
     return;
   }
   
-  if(/*group->parseable
-  && */!span->next
-    && group->str[group->pos] == '"') {
+  if( /*group->parseable && */
+    !span->next &&
+    group->str[group->pos] == '"')
+  {
     pmath_string_t result = PMATH_NULL;
     int start = group->pos;
     while(group->pos <= span->end) {
@@ -1892,7 +1966,7 @@ static void emit_span(pmath_span_t *span, _pmath_group_t *group) {
         pmath_write(
           box,
           PMATH_WRITE_OPTIONS_FULLSTR,
-          (void(*)(void*, const uint16_t*, int))write_to_str,
+          (void( *)(void *, const uint16_t *, int))write_to_str,
           &result);
           
         pmath_unref(box);
@@ -1945,7 +2019,7 @@ PMATH_API pmath_t pmath_boxes_from_spans(
   pmath_span_array_t   *spans,
   pmath_string_t        string,
   pmath_bool_t          parseable,
-  pmath_t             (*box_at_index)(int, void*),
+  pmath_t             (*box_at_index)(int, void *),
   void                 *data
 ) {
   _pmath_group_t group;
@@ -1987,7 +2061,7 @@ typedef struct {
   pmath_span_array_t  *spans;
   uint16_t            *str;
   int                  pos;
-  void               (*make_box)(int, pmath_t, void*);
+  void               (*make_box)(int, pmath_t, void *);
   void                *data;
   pmath_bool_t         split_tokens;
 } _pmath_ungroup_t;
@@ -2119,7 +2193,7 @@ static void ungroup(
     }
     else {
       g->spans->items[start]    |= 2; // operand start
-      g->spans->items[g->pos-1] |= 1; // token end
+      g->spans->items[g->pos - 1] |= 1; // token end
     }
     
     pmath_unref(box);
@@ -2239,7 +2313,7 @@ static void ungroup(
 PMATH_API pmath_span_array_t *pmath_spans_from_boxes(
   pmath_t          boxes,  // will be freed
   pmath_string_t  *result_string,
-  void           (*make_box)(int, pmath_t, void*),
+  void           (*make_box)(int, pmath_t, void *),
   void            *data
 ) {
   _pmath_ungroup_t g;
@@ -2259,7 +2333,7 @@ PMATH_API pmath_span_array_t *pmath_spans_from_boxes(
     return NULL;
   }
   
-  g.str          = (uint16_t*)pmath_string_buffer(result_string);
+  g.str          = (uint16_t *)pmath_string_buffer(result_string);
   g.pos          = 0;
   g.make_box     = make_box;
   g.data         = data;
@@ -2363,7 +2437,7 @@ HAVE_STH_TO_EXPAND:
 
 static void syntax_error(pmath_string_t code, int pos, void *flag, pmath_bool_t critical) {
   if(critical)
-    *(pmath_bool_t*)flag = TRUE;
+    *(pmath_bool_t *)flag = TRUE;
   pmath_message_syntax_error(code, pos, PMATH_NULL, 0);
 }
 

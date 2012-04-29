@@ -38,9 +38,10 @@ PMATH_PRIVATE pmath_t builtin_select(pmath_expr_t expr) {
     if(pmath_is_int32(n) && PMATH_AS_INT32(n) >= 0) {
       count = (unsigned)PMATH_AS_INT32(n);
     }
-    else if(!pmath_equals(n, _pmath_object_infinity)
-            && !_pmath_is_rule(n)
-            && !_pmath_is_list_of_rules(n)) {
+    else if( !pmath_equals(n, _pmath_object_infinity) &&
+             !_pmath_is_rule(n)                       &&
+             !_pmath_is_list_of_rules(n))
+    {
       pmath_unref(n);
       pmath_unref(list);
       pmath_message(PMATH_NULL, "innf", 2, PMATH_FROM_INT32(4), pmath_ref(expr));

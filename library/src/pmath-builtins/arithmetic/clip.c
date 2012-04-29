@@ -126,16 +126,18 @@ PMATH_PRIVATE pmath_t builtin_clip(pmath_t expr) {
   
   if(exprlen == 3) {
     pmath_t vminmax = pmath_expr_get_item(expr, 3);
-    if(pmath_is_expr_of_len(vminmax, PMATH_SYMBOL_RANGE, 2)
-        || pmath_is_expr_of_len(vminmax, PMATH_SYMBOL_LIST,  2)) {
+    if( pmath_is_expr_of_len(vminmax, PMATH_SYMBOL_RANGE, 2) ||
+        pmath_is_expr_of_len(vminmax, PMATH_SYMBOL_LIST,  2))
+    {
       vmin = pmath_expr_get_item(vminmax, 1);
       vmax = pmath_expr_get_item(vminmax, 2);
     }
     else {
       pmath_unref(vminmax);
-      if(!all_non_complex(x)
-          || !all_non_complex(min)
-          || !all_non_complex(max)) {
+      if( !all_non_complex(x)   ||
+          !all_non_complex(min) ||
+          !all_non_complex(max))
+      {
         pmath_message(PMATH_NULL, "ncompl", 0);
       }
       pmath_unref(x);
@@ -149,9 +151,10 @@ PMATH_PRIVATE pmath_t builtin_clip(pmath_t expr) {
     vmax = pmath_ref(max);
   }
   
-  if(!all_non_complex(x)
-      || !all_non_complex(min)
-      || !all_non_complex(max)) {
+  if( !all_non_complex(x)   ||
+      !all_non_complex(min) ||
+      !all_non_complex(max))
+  {
     pmath_message(PMATH_NULL, "ncompl", 0);
     pmath_unref(x);
     pmath_unref(min);

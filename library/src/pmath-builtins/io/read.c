@@ -52,7 +52,7 @@ static pmath_files_status_t skip_whitespace(pmath_t file, pmath_bool_t *eol) {
 }
 
 static pmath_string_t readline(void *p) {
-  pmath_t file = *(pmath_t*)p;
+  pmath_t file = *(pmath_t *)p;
   
   return pmath_file_readline(file);
 }
@@ -63,8 +63,9 @@ static pmath_t read_expression(pmath_t file) {
   pmath_t result;
   
   code = pmath_file_readline(file);
-  while(pmath_string_length(code) == 0
-        && pmath_file_status(file) == PMATH_FILE_OK) {
+  while( pmath_string_length(code) == 0 &&
+         pmath_file_status(file) == PMATH_FILE_OK)
+  {
     pmath_unref(code);
     code = pmath_file_readline(file);
   }

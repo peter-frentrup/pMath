@@ -266,8 +266,9 @@ PMATH_PRIVATE pmath_bool_t _pmath_primetest_init(void) {
   product_of_small_primes  = pmath_integer_new_str(PRODUCT_OF_SMALL_PRIMES_HEX,  16);
   product_of_medium_primes = pmath_integer_new_str(PRODUCT_OF_MEDIUM_PRIMES_HEX, 16);
   
-  if(pmath_is_null(product_of_small_primes)
-      || pmath_is_null(product_of_medium_primes)) {
+  if( pmath_is_null(product_of_small_primes) ||
+      pmath_is_null(product_of_medium_primes))
+  {
     pmath_unref(product_of_small_primes);
     pmath_unref(product_of_medium_primes);
     return FALSE;
@@ -275,8 +276,9 @@ PMATH_PRIVATE pmath_bool_t _pmath_primetest_init(void) {
   
   VERIFY_PRIMES16BIT_SANE();
   
-  if(!VERIFY_SMALL_PRIMES()
-      || !VERIFY_MEDIUM_PRIMES()) {
+  if( !VERIFY_SMALL_PRIMES() ||
+      !VERIFY_MEDIUM_PRIMES())
+  {
     pmath_unref(product_of_small_primes);
     pmath_unref(product_of_medium_primes);
     return FALSE;

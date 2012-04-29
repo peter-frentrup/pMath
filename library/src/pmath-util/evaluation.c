@@ -290,8 +290,9 @@ static pmath_t evaluate_expression(
         expr_changes = _pmath_expr_last_change(expr);
         
         if(_pmath_run_code(head, PMATH_CODE_USAGE_EARLYCALL, &expr)) {
-          if(!pmath_is_expr(expr)
-              || expr_changes != _pmath_expr_last_change(expr)) {
+          if( !pmath_is_expr(expr) ||
+              expr_changes != _pmath_expr_last_change(expr))
+          {
             goto FINISH;
           }
         }

@@ -13,12 +13,12 @@
 
 #include <limits.h>
 
-struct index_t{
+struct index_t {
   struct index_t *prev;
   size_t i;
 };
 
-struct position_info_t{
+struct position_info_t {
   pmath_bool_t with_heads; // currently not set (allways FALSE)
   long levelmin;
   long levelmax;
@@ -31,58 +31,58 @@ static pmath_bool_t emit_pattern_position( // return = search more?
   pmath_t                 obj,     // will be freed
   pmath_t                 pattern, // wont be freed
   long                    level
-){
+) {
   struct index_t index;
   pmath_bool_t more = TRUE;
   int reldepth;
   
-  if(info->max == 0){
+  if(info->max == 0) {
     pmath_unref(obj);
     return FALSE;
   }
   
   reldepth = _pmath_object_in_levelspec(
-    obj, info->levelmin, info->levelmax, level);
-  
-  if(reldepth > 0){
+               obj, info->levelmin, info->levelmax, level);
+               
+  if(reldepth > 0) {
     pmath_unref(obj);
     return TRUE;
   }
   
   index.prev = prev;
   
-  if(pmath_is_expr(obj)){
+  if(pmath_is_expr(obj)) {
     size_t len = pmath_expr_length(obj);
     
-    for(index.i = info->with_heads ? 0 : 1;index.i <= len && more;index.i++){
+    for(index.i = info->with_heads ? 0 : 1; index.i <= len && more; index.i++) {
       more = emit_pattern_position(
-        &index,
-        info,
-        pmath_expr_get_item(obj, index.i),
-        pattern,
-        level + 1);
+               &index,
+               info,
+               pmath_expr_get_item(obj, index.i),
+               pattern,
+               level + 1);
     }
   }
   
-  if(more 
-  && reldepth == 0
-  && _pmath_pattern_match(obj, pmath_ref(pattern), NULL)){
+  if(more
+      && reldepth == 0
+      && _pmath_pattern_match(obj, pmath_ref(pattern), NULL)) {
     pmath_t pos;
     size_t len = 0;
     
     struct index_t *i = prev;
-    while(i){
+    while(i) {
       ++len;
       i = i->prev;
     }
     
     pos = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), len);
     i = prev;
-    while(i){
+    while(i) {
       pos = pmath_expr_set_item(
-        pos, len,
-        pmath_integer_new_uiptr(i->i));
-      
+              pos, len,
+              pmath_integer_new_uiptr(i->i));
+              
       --len;
       i = i->prev;
     }
@@ -98,14 +98,14 @@ static pmath_bool_t emit_pattern_position( // return = search more?
   return TRUE;
 }
 
-PMATH_PRIVATE pmath_t builtin_position(pmath_expr_t expr){
+PMATH_PRIVATE pmath_t builtin_position(pmath_expr_t expr) {
   /* Position(obj, pattern, levelspec, n)
-     Position(obj, pattern, levelspec)  = Position(obj, pattern, levelspec, Infinity) 
-     Position(obj, pattern)             = Position(obj, pattern, {0, Infinity}, Infinity) 
-     
+     Position(obj, pattern, levelspec)  = Position(obj, pattern, levelspec, Infinity)
+     Position(obj, pattern)             = Position(obj, pattern, {0, Infinity}, Infinity)
+  
      options:
        Heads->True
-     
+  
      messages:
        General::innf
        General::level
@@ -115,7 +115,7 @@ PMATH_PRIVATE pmath_t builtin_position(pmath_expr_t expr){
   pmath_expr_t options;
   pmath_t obj, pattern;
   
-  if(len < 2){
+  if(len < 2) {
     pmath_message_argxxx(len, 2, 4);
     return expr;
   }
@@ -125,28 +125,29 @@ PMATH_PRIVATE pmath_t builtin_position(pmath_expr_t expr){
   info.levelmin = 0;
   info.levelmax = LONG_MAX;
   info.max = SIZE_MAX;
-  if(len > 2){
+  if(len > 2) {
     pmath_t levels = pmath_expr_get_item(expr, 3);
     
-    if(_pmath_extract_levels(levels, &info.levelmin, &info.levelmax)){
+    if(_pmath_extract_levels(levels, &info.levelmin, &info.levelmax)) {
       last_nonoption = 3;
       
-      if(len > 3){
+      if(len > 3) {
         obj = pmath_expr_get_item(expr, 4);
         
-        if(pmath_is_integer(obj)
-        && pmath_number_sign(obj) >= 0){
+        if( pmath_is_integer(obj) &&
+            pmath_number_sign(obj) >= 0)
+        {
           last_nonoption = 4;
           if(pmath_is_int32(obj) && PMATH_AS_INT32(obj) >= 0)
             info.max = PMATH_AS_INT32(obj);
           else
             info.max = SIZE_MAX;
         }
-        else if(pmath_equals(obj, _pmath_object_infinity)){
+        else if(pmath_equals(obj, _pmath_object_infinity)) {
           last_nonoption = 4;
           info.max = SIZE_MAX;
         }
-        else if(!_pmath_is_rule(obj) && !_pmath_is_list_of_rules(obj)){
+        else if(!_pmath_is_rule(obj) && !_pmath_is_list_of_rules(obj)) {
           pmath_unref(obj);
           pmath_unref(levels);
           pmath_message(PMATH_NULL, "innf", 2, PMATH_FROM_INT32(4), pmath_ref(expr));
@@ -156,7 +157,7 @@ PMATH_PRIVATE pmath_t builtin_position(pmath_expr_t expr){
         pmath_unref(obj);
       }
     }
-    else if(!_pmath_is_rule(levels) && !_pmath_is_list_of_rules(levels)){
+    else if(!_pmath_is_rule(levels) && !_pmath_is_list_of_rules(levels)) {
       pmath_message(PMATH_NULL, "level", 1, levels);
       return expr;
     }
@@ -167,19 +168,19 @@ PMATH_PRIVATE pmath_t builtin_position(pmath_expr_t expr){
   pattern = pmath_expr_get_item(expr, 2);
   
   options = pmath_options_extract(expr, last_nonoption);
-  if(pmath_is_null(options)){
+  if(pmath_is_null(options)) {
     pmath_unref(pattern);
     return expr;
   }
   
   obj = pmath_evaluate(pmath_option_value(PMATH_NULL, PMATH_SYMBOL_HEADS, options));
-  if(pmath_same(obj, PMATH_SYMBOL_TRUE)){
+  if(pmath_same(obj, PMATH_SYMBOL_TRUE)) {
     info.with_heads = TRUE;
   }
-  else if(pmath_same(obj, PMATH_SYMBOL_FALSE)){
+  else if(pmath_same(obj, PMATH_SYMBOL_FALSE)) {
     info.with_heads = FALSE;
   }
-  else if(!pmath_same(obj, PMATH_SYMBOL_FALSE)){
+  else if(!pmath_same(obj, PMATH_SYMBOL_FALSE)) {
     pmath_unref(pattern);
     pmath_unref(options);
     pmath_message(
@@ -190,7 +191,7 @@ PMATH_PRIVATE pmath_t builtin_position(pmath_expr_t expr){
   }
   pmath_unref(obj);
   pmath_unref(options);
-
+  
   obj = pmath_expr_get_item(expr, 1);
   pmath_unref(expr);
   

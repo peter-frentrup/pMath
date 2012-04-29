@@ -219,8 +219,9 @@ PMATH_PRIVATE pmath_t builtin_gamma(pmath_expr_t expr) {
       return pmath_ref(_pmath_object_complex_infinity);
     }
     
-    if((num_class & PMATH_CLASS_CINF)
-        && (num_class & PMATH_CLASS_IMAGINARY)) {
+    if( (num_class & PMATH_CLASS_CINF) &&
+        (num_class & PMATH_CLASS_IMAGINARY))
+    {
       pmath_unref(z);
       pmath_unref(expr);
       return INT(0);
@@ -281,8 +282,9 @@ PMATH_PRIVATE pmath_t builtin_loggamma(pmath_expr_t expr) {
       return pmath_ref(_pmath_object_complex_infinity);
     }
     
-    if((num_class & PMATH_CLASS_CINF)
-        && (num_class & PMATH_CLASS_IMAGINARY)) {
+    if( (num_class & PMATH_CLASS_CINF) &&
+        (num_class & PMATH_CLASS_IMAGINARY))
+    {
       pmath_unref(z);
       pmath_unref(expr);
       return INT(0);
@@ -505,8 +507,9 @@ PMATH_PRIVATE pmath_t builtin_factorial(pmath_expr_t expr) {
       return pmath_ref(_pmath_object_complex_infinity);
     }
     
-    if((num_class & PMATH_CLASS_CINF)
-        && (num_class & PMATH_CLASS_IMAGINARY)) {
+    if( (num_class & PMATH_CLASS_CINF) &&
+        (num_class & PMATH_CLASS_IMAGINARY))
+    {
       pmath_unref(n);
       pmath_unref(expr);
       return INT(0);
@@ -626,8 +629,9 @@ PMATH_PRIVATE pmath_t builtin_factorial2(pmath_expr_t expr) {
       return pmath_ref(_pmath_object_complex_infinity);
     }
     
-    if((num_class & PMATH_CLASS_CINF)
-        && (num_class & PMATH_CLASS_IMAGINARY)) {
+    if( (num_class & PMATH_CLASS_CINF) &&
+        (num_class & PMATH_CLASS_IMAGINARY))
+    {
       pmath_unref(n);
       pmath_unref(expr);
       return INT(0);
@@ -649,8 +653,9 @@ PMATH_PRIVATE pmath_t builtin_binomial(pmath_expr_t expr) {
   z = pmath_expr_get_item(expr, 1);
   k = pmath_expr_get_item(expr, 2);
   
-  if((_pmath_is_inexact(z) && pmath_is_numeric(k))
-      || (pmath_is_numeric(z) && _pmath_is_inexact(k))) {
+  if( (_pmath_is_inexact(z) &&  pmath_is_numeric(k)) ||
+      ( pmath_is_numeric(z) && _pmath_is_inexact(k)))
+  {
     /* Binomial(z, k) = z!/(k! (n-k)!) = Gamma(z+1) / (Gamma(k+1) * Gamma(z-k+1))
     
        Todo:

@@ -5,27 +5,29 @@
 
 #include <pmath-builtins/all-symbols-private.h>
 
-PMATH_PRIVATE pmath_t builtin_history(pmath_expr_t expr){
+PMATH_PRIVATE pmath_t builtin_history(pmath_expr_t expr) {
   pmath_t obj;
-
-  if(pmath_expr_length(expr) != 1){
+  
+  if(pmath_expr_length(expr) != 1) {
     pmath_message_argxxx(pmath_expr_length(expr), 1, 1);
     return expr;
   }
-
+  
   obj = pmath_expr_get_item(expr, 1);
   
-  if(pmath_is_integer(obj)){
-    if(pmath_number_sign(obj) <= 0){
+  if(pmath_is_integer(obj)) {
+    if(pmath_number_sign(obj) <= 0) {
       obj = pmath_evaluate(
-        pmath_expr_new_extended(
-          pmath_ref(PMATH_SYMBOL_PLUS), 2,
-          pmath_ref(PMATH_SYMBOL_LINE),
-          obj));
-      
-      if(pmath_is_integer(obj)
-      && pmath_number_sign(obj) > 0)
+              pmath_expr_new_extended(
+                pmath_ref(PMATH_SYMBOL_PLUS), 2,
+                pmath_ref(PMATH_SYMBOL_LINE),
+                obj));
+                
+      if( pmath_is_integer(obj) &&
+          pmath_number_sign(obj) > 0)
+      {
         return pmath_expr_set_item( expr, 1, obj);
+      }
       
       pmath_unref(obj);
       pmath_unref(expr);

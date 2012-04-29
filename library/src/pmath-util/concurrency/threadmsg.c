@@ -276,7 +276,7 @@ static void destroy_msg_queue(void *mq_data) {
   struct message_t   *next;
   struct msg_queue_t *mq;
   
-  mq = (struct msg_queue_t*)mq_data;
+  mq = (struct msg_queue_t *)mq_data;
   
   assert(mq != NULL);
   assert(mq->notifiers == NULL);
@@ -418,10 +418,12 @@ PMATH_PRIVATE
 void _pmath_msg_queue_inform_death(pmath_messages_t mq) {
   struct msg_queue_t  *mq_data;
   
-  if(!pmath_is_custom(mq)
-      || pmath_custom_has_destructor(mq, destroy_msg_queue))
+  if( !pmath_is_custom(mq) ||
+      pmath_custom_has_destructor(mq, destroy_msg_queue))
+  {
     return;
-    
+  }
+  
   mq_data = pmath_custom_get_data(mq);
   assert(mq_data != NULL);
   
@@ -570,8 +572,8 @@ void _pmath_msq_queue_set_child(
 PMATH_API
 PMATH_ATTRIBUTE_PURE
 pmath_bool_t pmath_is_message_queue(pmath_t obj) {
-  return pmath_is_custom(obj)
-         && pmath_custom_has_destructor(obj, destroy_msg_queue);
+  return pmath_is_custom(obj) &&
+         pmath_custom_has_destructor(obj, destroy_msg_queue);
 }
 
 PMATH_API
@@ -620,7 +622,7 @@ double pmath_tickcount(void) {
 #ifdef PMATH_OS_WIN32
   {
     uint64_t ft;
-    GetSystemTimeAsFileTime((FILETIME*)&ft);
+    GetSystemTimeAsFileTime((FILETIME *)&ft);
     return (ft - win2unix_epoch) * 1e-7;
   }
 #else
@@ -634,8 +636,9 @@ double pmath_tickcount(void) {
 
 PMATH_API
 void pmath_thread_wakeup(pmath_messages_t mq) {
-  if(pmath_is_custom(mq)
-      && pmath_custom_has_destructor(mq, destroy_msg_queue)) {
+  if( pmath_is_custom(mq) &&
+      pmath_custom_has_destructor(mq, destroy_msg_queue))
+  {
     wakeup_msg_queue(pmath_custom_get_data(mq));
   }
 }
@@ -645,8 +648,9 @@ void pmath_thread_send(pmath_messages_t mq, pmath_t msg) {
   struct msg_queue_t  *mq_data;
   struct message_t    *msg_struct;
   
-  if(pmath_is_custom(mq)
-      && pmath_custom_has_destructor(mq, destroy_msg_queue)) {
+  if( pmath_is_custom(mq) &&
+      pmath_custom_has_destructor(mq, destroy_msg_queue))
+  {
     mq_data = pmath_custom_get_data(mq);
     assert(mq_data != NULL);
     
@@ -671,7 +675,7 @@ pmath_t pmath_thread_send_wait(
   pmath_messages_t mq,
   pmath_t          msg,
   double           timeout_seconds,
-  void           (*idle_function)(void*),
+  void           (*idle_function)(void *),
   void            *idle_data
 ) {
   struct msg_queue_t                *my_mq_data;
@@ -691,8 +695,9 @@ pmath_t pmath_thread_send_wait(
     return answer;
   }
   
-  if(pmath_is_custom(mq)
-      && pmath_custom_has_destructor(mq, destroy_msg_queue)) {
+  if( pmath_is_custom(mq) &&
+      pmath_custom_has_destructor(mq, destroy_msg_queue))
+  {
     mq_data = pmath_custom_get_data(mq);
     assert(mq_data != NULL);
     
@@ -778,8 +783,9 @@ void pmath_thread_send_delayed(
 ) {
   struct _pmath_timed_message_t *timed_msg;
   
-  if(!pmath_is_custom(mq)
-      || !pmath_custom_has_destructor(mq, destroy_msg_queue)) {
+  if( !pmath_is_custom(mq) ||
+      !pmath_custom_has_destructor(mq, destroy_msg_queue))
+  {
     pmath_unref(msg);
     return;
   }
@@ -884,7 +890,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_threadmsg_init(void) {
     unix_epoch.wDay   = 1;
     
     win2unix_epoch = 0;
-    SystemTimeToFileTime(&unix_epoch, (FILETIME*)&win2unix_epoch);
+    SystemTimeToFileTime(&unix_epoch, (FILETIME *)&win2unix_epoch);
   }
 #endif
   

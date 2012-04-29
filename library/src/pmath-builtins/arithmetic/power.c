@@ -279,8 +279,10 @@ pmath_t _pow_fi( // returns struct _pmath_mp_float_t* iff null_on_errors is TRUE
     
   mpfr_get_d_2exp(&lbaseexp, PMATH_AS_MP_VALUE(base), MPFR_RNDN);
   
-  if((exponent < 0 && 0 == 2 * (unsigned long) - exponent)
-      || exponent * lbaseexp > MPFR_EMAX_DEFAULT) {
+  if( (exponent < 0 &&
+       0 == 2 * (unsigned long) - exponent) ||
+      exponent * lbaseexp > MPFR_EMAX_DEFAULT)
+  {
     pmath_unref(base);
     if(null_on_errors)
       return PMATH_NULL;
@@ -414,8 +416,9 @@ static pmath_number_t evaluate_natural_power_of_number(
   if(pmath_is_double(base)) {
     double d = pow(PMATH_AS_DOUBLE(base), exponent);
     
-    if(isfinite(d)
-        && ((d == 0) == (PMATH_AS_DOUBLE(base) == 0))) {
+    if( isfinite(d) &&
+        ((d == 0) == (PMATH_AS_DOUBLE(base) == 0)))
+    {
       pmath_unref(base);
       return PMATH_FROM_DOUBLE(d);
     }
@@ -1329,8 +1332,9 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr) {
         if(pmath_is_int32(exp_num))
           exp_num = _pmath_create_mp_int(PMATH_AS_INT32(exp_num));
           
-        if(!pmath_is_null(exp_num)
-            && 0 < mpz_cmpabs(PMATH_AS_MPZ(exp_num), PMATH_AS_MPZ(exp_den))) {
+        if( !pmath_is_null(exp_num) &&
+            0 < mpz_cmpabs(PMATH_AS_MPZ(exp_num), PMATH_AS_MPZ(exp_den)))
+        {
           pmath_integer_t qexp;
           pmath_integer_t rexp;
           pmath_unref(exponent);

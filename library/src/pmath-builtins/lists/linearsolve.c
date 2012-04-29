@@ -166,11 +166,11 @@ PMATH_PRIVATE pmath_t builtin_linearsolve(pmath_expr_t expr) {
   
   // apply permutation:
   for(i = 1; i <= rows; ++i) {
-    if(indx[i-1] != i) {
+    if(indx[i - 1] != i) {
       pmath_t a = pmath_expr_get_item(vector, i);
-      pmath_t b = pmath_expr_get_item(vector, indx[i-1]);
+      pmath_t b = pmath_expr_get_item(vector, indx[i - 1]);
       vector    = pmath_expr_set_item(vector, i,         b);
-      vector    = pmath_expr_set_item(vector, indx[i-1], a);
+      vector    = pmath_expr_set_item(vector, indx[i - 1], a);
     }
   }
   pmath_mem_free(indx);
@@ -238,12 +238,13 @@ PMATH_PRIVATE pmath_t builtin_call_linearsolvefunction(pmath_expr_t expr) {
   headitem = pmath_expr_get_item(head, 1);
   pmath_unref(head);
   
-  if(!pmath_is_expr_of_len(headitem, PMATH_SYMBOL_LIST, 2)
-      || !_pmath_is_matrix(lumatrix, &rows, &cols, TRUE)
-      || rows == 0
-      || cols != rows
-      || rows >= 0x7FFFFFFF
-      || pmath_expr_length(vector) != cols) {
+  if( !pmath_is_expr_of_len(headitem, PMATH_SYMBOL_LIST, 2) ||
+      !_pmath_is_matrix(lumatrix, &rows, &cols, TRUE)       ||
+      rows == 0                                             ||
+      cols != rows                                          ||
+      rows >= 0x7FFFFFFF                                    ||
+      pmath_expr_length(vector) != cols)
+  {
     pmath_unref(lumatrix);
     pmath_unref(perm_vector);
     pmath_unref(headitem);
@@ -255,8 +256,9 @@ PMATH_PRIVATE pmath_t builtin_call_linearsolvefunction(pmath_expr_t expr) {
   obj2 = pmath_expr_get_item(headitem, 2);
   pmath_unref(headitem);
   
-  if(!pmath_same(obj1, PMATH_FROM_INT32(rows))
-      || !pmath_same(obj2, PMATH_FROM_INT32(cols))) {
+  if( !pmath_same(obj1, PMATH_FROM_INT32(rows)) ||
+      !pmath_same(obj2, PMATH_FROM_INT32(cols)))
+  {
     pmath_unref(obj1);
     pmath_unref(obj2);
     pmath_unref(lumatrix);
@@ -270,9 +272,10 @@ PMATH_PRIVATE pmath_t builtin_call_linearsolvefunction(pmath_expr_t expr) {
     size_t j;
     obj1 = pmath_expr_get_item(perm_vector, i);
     
-    if(!pmath_is_int32(obj1)
-        || PMATH_AS_INT32(obj1) <= 0
-        || (unsigned)PMATH_AS_INT32(obj1) > rows) {
+    if( !pmath_is_int32(obj1)     ||
+        PMATH_AS_INT32(obj1) <= 0 ||
+        (unsigned)PMATH_AS_INT32(obj1) > rows)
+    {
       pmath_unref(obj1);
       pmath_unref(lumatrix);
       pmath_unref(perm_vector);

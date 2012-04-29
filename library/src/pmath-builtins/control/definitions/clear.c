@@ -63,8 +63,9 @@ PMATH_PRIVATE pmath_t builtin_clear(pmath_expr_t expr) {
                           pmath_ref(PMATH_SYMBOL_NAMES), 1,
                           item));
                           
-      if(pmath_is_expr_of(known, PMATH_SYMBOL_LIST)
-          && pmath_expr_length(known) > 0) {
+      if( pmath_is_expr_of(known, PMATH_SYMBOL_LIST) &&
+          pmath_expr_length(known) > 0)
+      {
         size_t j;
         for(j = pmath_expr_length(known); j > 0; --j) {
           pmath_t sym = pmath_symbol_get(

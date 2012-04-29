@@ -19,9 +19,10 @@ PMATH_PRIVATE pmath_t builtin_assign_default(pmath_expr_t expr) {
   if(!_pmath_is_assignment(expr, &tag, &lhs, &rhs))
     return expr;
     
-  if(!pmath_is_expr_of(lhs, PMATH_SYMBOL_DEFAULT)
-      || pmath_expr_length(lhs) < 1
-      || pmath_expr_length(lhs) > 3) {
+  if( !pmath_is_expr_of(lhs, PMATH_SYMBOL_DEFAULT) ||
+      pmath_expr_length(lhs) < 1                   ||
+      pmath_expr_length(lhs) > 3)
+  {
     pmath_unref(tag);
     pmath_unref(lhs);
     pmath_unref(rhs);
@@ -30,8 +31,9 @@ PMATH_PRIVATE pmath_t builtin_assign_default(pmath_expr_t expr) {
   
   sym = pmath_expr_get_item(lhs, 1);
   
-  if(!pmath_same(tag, PMATH_UNDEFINED)
-      && !pmath_same(tag, sym)) {
+  if( !pmath_same(tag, PMATH_UNDEFINED) &&
+      !pmath_same(tag, sym))
+  {
     pmath_message(PMATH_NULL, "tag", 3, tag, lhs, sym);
     
     pmath_unref(expr);
@@ -98,8 +100,9 @@ PMATH_PRIVATE pmath_t builtin_default(pmath_expr_t expr) {
   pmath_unref(sym);
   
   if(rules) {
-    while(!_pmath_rulecache_find(&rules->default_rules, &expr)
-          && pmath_expr_length(expr) > 1) {
+    while( !_pmath_rulecache_find(&rules->default_rules, &expr) &&
+           pmath_expr_length(expr) > 1)
+    {
       pmath_t tmp = expr;
       expr = pmath_expr_get_item_range(tmp, 1, pmath_expr_length(expr) - 1);
       pmath_unref(tmp);

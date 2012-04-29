@@ -35,16 +35,16 @@ static pmath_t stringcases(
     offset = 0;
     tmprhs = pmath_ref(rhs);
     
-    while(max_matches > 0
-          && _pmath_regex_match(
-            regex,
-            subject,
-            length,
-            offset,
-            PCRE_NO_UTF8_CHECK,
-            capture,
-            &tmprhs)
-         ) {
+    while( max_matches > 0 &&
+           _pmath_regex_match(
+             regex,
+             subject,
+             length,
+             offset,
+             PCRE_NO_UTF8_CHECK,
+             capture,
+             &tmprhs))
+    {
       if(!pmath_same(tmprhs, PMATH_UNDEFINED)) {
         pmath_emit(tmprhs, PMATH_NULL);
         tmprhs = pmath_ref(rhs);

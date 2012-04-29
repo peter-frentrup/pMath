@@ -69,7 +69,7 @@ static struct _pmath_mp_int_t *int_cache_swap(
   
   assert(!value || value->inherited.refcount._data == 0);
   
-  return (struct _pmath_mp_int_t*)
+  return (struct _pmath_mp_int_t *)
          pmath_atomic_fetch_set(&int_cache[i], (intptr_t)value);
 }
 
@@ -112,10 +112,10 @@ PMATH_PRIVATE pmath_mpint_t _pmath_create_mp_int(signed long value) {
 #endif
   }
   
-  integer = (void*)PMATH_AS_PTR(_pmath_create_stub(
-                                  PMATH_TYPE_SHIFT_MP_INT,
-                                  sizeof(struct _pmath_mp_int_t)));
-                                  
+  integer = (void *)PMATH_AS_PTR(_pmath_create_stub(
+                                   PMATH_TYPE_SHIFT_MP_INT,
+                                   sizeof(struct _pmath_mp_int_t)));
+                                   
   if(integer) {
     mpz_init_set_si(integer->value, value);
   }
@@ -138,10 +138,10 @@ PMATH_PRIVATE pmath_quotient_t _pmath_create_quotient(
     return PMATH_NULL;
   }
   
-  quotient = (void*)PMATH_AS_PTR(_pmath_create_stub(
-                                   PMATH_TYPE_SHIFT_QUOTIENT,
-                                   sizeof(struct _pmath_quotient_t)));
-                                   
+  quotient = (void *)PMATH_AS_PTR(_pmath_create_stub(
+                                    PMATH_TYPE_SHIFT_QUOTIENT,
+                                    sizeof(struct _pmath_quotient_t)));
+                                    
   if(!quotient) {
     pmath_unref(numerator);
     pmath_unref(denominator);
@@ -174,7 +174,7 @@ static struct _pmath_mp_float_t *mp_cache_swap(
 ) {
   i = i &CACHE_MASK;
   
-  return (void*)pmath_atomic_fetch_set(&mp_cache[i], (intptr_t)f);
+  return (void *)pmath_atomic_fetch_set(&mp_cache[i], (intptr_t)f);
 }
 
 static void mp_cache_clear(void) {
@@ -224,10 +224,10 @@ PMATH_PRIVATE pmath_float_t _pmath_create_mp_float(mpfr_prec_t precision) {
 #endif
   }
   
-  f = (void*)PMATH_AS_PTR(_pmath_create_stub(
-                            PMATH_TYPE_SHIFT_MP_FLOAT,
-                            sizeof(struct _pmath_mp_float_t)));
-                            
+  f = (void *)PMATH_AS_PTR(_pmath_create_stub(
+                             PMATH_TYPE_SHIFT_MP_FLOAT,
+                             sizeof(struct _pmath_mp_float_t)));
+                             
   if(!f)
     return PMATH_NULL;
     
@@ -737,8 +737,9 @@ pmath_t _pmath_float_exceptions(
     pmath_message(PMATH_NULL, "unfl", 0);
     result = pmath_ref(_pmath_object_underflow);
   }
-  else if(mpfr_overflow_p()
-          || mpfr_zero_p(PMATH_AS_MP_ERROR(x))) {
+  else if (mpfr_overflow_p() ||
+           mpfr_zero_p(PMATH_AS_MP_ERROR(x)))
+  {
     pmath_message(PMATH_NULL, "ovfl", 0);
     result = pmath_ref(_pmath_object_overflow);
   }
@@ -1139,7 +1140,7 @@ static void destroy_mp_int(pmath_t integer) {
   
   assert(pmath_refcount(integer) == 0);
   
-  int_ptr = (void*)PMATH_AS_PTR(integer);
+  int_ptr = (void *)PMATH_AS_PTR(integer);
   int_ptr = int_cache_swap(i, int_ptr);
   if(int_ptr) {
     assert(int_ptr->inherited.refcount._data == 0);
@@ -1165,10 +1166,11 @@ void _pmath_write_machine_int(struct pmath_write_ex_t *info, pmath_t integer) {
   pmath_thread_t thread = pmath_thread_get_current();
   char s[40];
   
-  if(thread
-      && thread->numberbase != 10
-      && thread->numberbase >= 2
-      && thread->numberbase <= 36) {
+  if( thread                   &&
+      thread->numberbase != 10 &&
+      thread->numberbase >= 2  &&
+      thread->numberbase <= 36)
+  {
     unsigned val;
     int a, b;
     
@@ -1194,7 +1196,7 @@ void _pmath_write_machine_int(struct pmath_write_ex_t *info, pmath_t integer) {
       
       s[++b] = alphabet[mod];
     }
-    s[b+1] = '\0';
+    s[b + 1] = '\0';
     
     while(a < b) {
       char tmp = s[a];
@@ -1221,7 +1223,7 @@ static void write_mp_int(struct pmath_write_ex_t *info, pmath_t integer) {
     
   size = mpz_sizeinbase(PMATH_AS_MPZ(integer), base) + 6;
   
-  str = (char*)pmath_mem_alloc(size);
+  str = (char *)pmath_mem_alloc(size);
   if(!str) {
     write_cstr("<<out-of-memory>>", info->write, info->user);
     return;
@@ -1287,7 +1289,7 @@ static void destroy_mp_float(pmath_t f) {
   
   assert(pmath_refcount(f) == 0);
   
-  f_ptr = (void*)PMATH_AS_PTR(f);
+  f_ptr = (void *)PMATH_AS_PTR(f);
   f_ptr = mp_cache_swap(i, f_ptr);
   if(f_ptr) {
     assert(f_ptr->inherited.refcount._data == 0);
@@ -1312,7 +1314,7 @@ static unsigned int hash_mp_float(pmath_t f) {
 
 static void write_short_double(
   double   d,
-  void (*write)(void*, const uint16_t*, int),
+  void (*write)(void *, const uint16_t *, int),
   void    *user
 ) {
   char s[100];
@@ -1424,7 +1426,7 @@ static void write_mp_float_ex(
   if(digits > 5)
     size = digits + 2;
     
-  str = (char*)pmath_mem_alloc(size);
+  str = (char *)pmath_mem_alloc(size);
   if(!str) {
     write_cstr("<<out-of-memory>>", info->write, info->user);
     return;
@@ -1930,8 +1932,8 @@ pmath_bool_t _pmath_numbers_equal(
     
   if(pmath_is_quotient(numA)) {
     if(pmath_is_quotient(numB)) {
-      return _pmath_numbers_equal(PMATH_QUOT_NUM(numA), PMATH_QUOT_NUM(numB))
-             && _pmath_numbers_equal(PMATH_QUOT_DEN(numA), PMATH_QUOT_DEN(numB));
+      return _pmath_numbers_equal(PMATH_QUOT_NUM(numA), PMATH_QUOT_NUM(numB)) &&
+             _pmath_numbers_equal(PMATH_QUOT_DEN(numA), PMATH_QUOT_DEN(numB));
     }
     
     return FALSE;
@@ -1940,8 +1942,9 @@ pmath_bool_t _pmath_numbers_equal(
   if(pmath_is_quotient(numB))
     return _pmath_numbers_equal(numB, numA);
     
-  if(pmath_is_mpfloat(numA)
-      && pmath_is_mpfloat(numB)) {
+  if( pmath_is_mpfloat(numA) &&
+      pmath_is_mpfloat(numB))
+  {
     mpfr_prec_t precA = mpfr_get_prec(PMATH_AS_MP_VALUE(numA));
     mpfr_prec_t precB = mpfr_get_prec(PMATH_AS_MP_VALUE(numB));
     

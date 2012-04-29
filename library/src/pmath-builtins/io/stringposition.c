@@ -69,16 +69,16 @@ static pmath_t stringposition(
     pmath_gather_begin(PMATH_NULL);
     offset = 0;
     
-    while(max_matches > 0
-          && _pmath_regex_match(
-            regex,
-            subject,
-            length,
-            offset,
-            PCRE_NO_UTF8_CHECK,
-            capture,
-            NULL)
-         ) {
+    while( max_matches > 0 &&
+           _pmath_regex_match(
+             regex,
+             subject,
+             length,
+             offset,
+             PCRE_NO_UTF8_CHECK,
+             capture,
+             NULL))
+    {
       int off1 = utf8_to_utf16_offset(subject, buf, buflen, capture->ovector[0]);
       int off2 = utf8_to_utf16_offset(subject, buf, buflen, capture->ovector[1]);
       

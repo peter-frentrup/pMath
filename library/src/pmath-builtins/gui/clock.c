@@ -94,9 +94,10 @@ PMATH_PRIVATE pmath_t builtin_clock(pmath_expr_t expr) {
       return expr;
     }
     
-    if(pmath_is_null(min)
-        || pmath_is_null(max)
-        || pmath_is_null(delta)) {
+    if( pmath_is_null(min) ||
+        pmath_is_null(max) ||
+        pmath_is_null(delta))
+    {
       pmath_unref(duration);
       pmath_unref(min);
       pmath_unref(max);

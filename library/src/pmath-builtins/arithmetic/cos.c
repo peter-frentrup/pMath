@@ -171,12 +171,12 @@ PMATH_PRIVATE pmath_t builtin_cos(pmath_expr_t expr) {
                     pmath_ref(_pmath_one_half)));
                     
           pmath_unref(cmp);
-          if(pmath_same(cmp, PMATH_SYMBOL_TRUE)
-              && pmath_is_quotient(fst)
-              && pmath_is_int32(PMATH_QUOT_NUM(fst))
-              && pmath_is_int32(PMATH_QUOT_DEN(fst))
-              && PMATH_AS_INT32(PMATH_QUOT_NUM(fst)) >= 0
-            ) {
+          if( pmath_same(cmp, PMATH_SYMBOL_TRUE)       &&
+              pmath_is_quotient(fst)                   &&
+              pmath_is_int32(PMATH_QUOT_NUM(fst))      &&
+              pmath_is_int32(PMATH_QUOT_DEN(fst))      &&
+              PMATH_AS_INT32(PMATH_QUOT_NUM(fst)) >= 0)
+          {
             unsigned num = (unsigned)PMATH_AS_INT32(PMATH_QUOT_NUM(fst));
             unsigned den = (unsigned)PMATH_AS_INT32(PMATH_QUOT_DEN(fst));
             
@@ -281,8 +281,9 @@ PMATH_PRIVATE pmath_t builtin_cos(pmath_expr_t expr) {
       
       pmath_unref(fst);
     }
-    else if(pmath_same(head, PMATH_SYMBOL_PLUS)
-            && _pmath_contains_symbol(x, PMATH_SYMBOL_PI)) {
+    else if( pmath_same(head, PMATH_SYMBOL_PLUS) &&
+             _pmath_contains_symbol(x, PMATH_SYMBOL_PI))
+    {
       size_t i;
       for(i = pmath_expr_length(x); i > 0; --i) {
         pmath_t tmp = pmath_expr_get_item(x, i);

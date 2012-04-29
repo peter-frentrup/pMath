@@ -33,8 +33,9 @@ PMATH_PRIVATE pmath_t builtin_call_isheld(pmath_expr_t expr) {
     if(pmath_is_symbol(fn)) {
       pmath_symbol_attributes_t attr = pmath_symbol_get_attributes(fn);
       
-      if((attr & PMATH_SYMBOL_ATTRIBUTE_HOLDFIRST)
-          || (attr & PMATH_SYMBOL_ATTRIBUTE_HOLDALLCOMPLETE)) {
+      if( (attr & PMATH_SYMBOL_ATTRIBUTE_HOLDFIRST) ||
+          (attr & PMATH_SYMBOL_ATTRIBUTE_HOLDALLCOMPLETE))
+      {
         return pmath_expr_new_extended(fn, 1, obj);
       }
     }
@@ -165,8 +166,9 @@ PMATH_PRIVATE pmath_t builtin_iseven(pmath_expr_t expr) {
     return pmath_ref((PMATH_AS_INT32(obj) & 1) ? PMATH_SYMBOL_FALSE : PMATH_SYMBOL_TRUE);
   }
   
-  if(pmath_is_mpint(obj)
-      && mpz_even_p(PMATH_AS_MPZ(obj))) {
+  if( pmath_is_mpint(obj) &&
+      mpz_even_p(PMATH_AS_MPZ(obj)))
+  {
     pmath_unref(obj);
     return pmath_ref(PMATH_SYMBOL_TRUE);
   }
@@ -265,10 +267,10 @@ PMATH_PRIVATE pmath_t builtin_isinteger(pmath_expr_t expr) {
   return pmath_ref(PMATH_SYMBOL_FALSE);
 }
 
-PMATH_PRIVATE pmath_bool_t _pmath_is_machinenumber(pmath_t x){
-  if(pmath_is_double(x)) 
+PMATH_PRIVATE pmath_bool_t _pmath_is_machinenumber(pmath_t x) {
+  if(pmath_is_double(x))
     return TRUE;
-  
+    
   if(_pmath_is_nonreal_complex(x)) {
     pmath_t part = pmath_expr_get_item(x, 1);
     
@@ -300,7 +302,7 @@ PMATH_PRIVATE pmath_t builtin_ismachinenumber(pmath_expr_t expr) {
   obj = pmath_expr_get_item(expr, 1);
   pmath_unref(expr);
   
-  if(_pmath_is_machinenumber(obj)){
+  if(_pmath_is_machinenumber(obj)) {
     pmath_unref(obj);
     return pmath_ref(PMATH_SYMBOL_TRUE);
   }
@@ -344,8 +346,9 @@ PMATH_PRIVATE pmath_t builtin_isodd(pmath_expr_t expr) {
     return pmath_ref((PMATH_AS_INT32(obj) & 1) ? PMATH_SYMBOL_TRUE : PMATH_SYMBOL_FALSE);
   }
   
-  if(pmath_is_mpint(obj)
-      && mpz_odd_p(PMATH_AS_MPZ(obj))) {
+  if( pmath_is_mpint(obj) &&
+      mpz_odd_p(PMATH_AS_MPZ(obj)))
+  {
     pmath_unref(obj);
     return pmath_ref(PMATH_SYMBOL_TRUE);
   }

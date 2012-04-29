@@ -34,8 +34,9 @@ static void emit_directory_entries(
   struct _capture_t  *capture,
   pmath_t             directory // will be freed
 ) {
-  if(pmath_same(directory, PMATH_UNDEFINED)
-      || pmath_is_string(directory)) {
+  if( pmath_same(directory, PMATH_UNDEFINED) ||
+      pmath_is_string(directory))
+  {
 #ifdef PMATH_OS_WIN32
     {
       static const uint16_t rest[4] = {'.', '\\', '*', '\0'};
@@ -60,20 +61,24 @@ static void emit_directory_entries(
           
         if(h != INVALID_HANDLE_VALUE) {
           do {
-            pmath_string_t s;
-            int utf8_length;
-            char *utf8;
+            pmath_string_t  s;
+            int             utf8_length;
+            char           *utf8;
             
-            if(data.cFileName[0] == '.'
-                && data.cFileName[1] == '\0')
+            if( data.cFileName[0] == '.' &&
+            data.cFileName[1] == '\0')
+            {
               continue;
-              
-            if(data.cFileName[0] == '.'
-                && data.cFileName[1] == '.'
-                && data.cFileName[2] == '\0')
+            }
+            
+            if( data.cFileName[0] == '.' &&
+                data.cFileName[1] == '.' &&
+                data.cFileName[2] == '\0')
+            {
               continue;
-              
-            s = pmath_string_insert_ucs2(PMATH_NULL, 0, data.cFileName, -1);
+            }
+            
+            s    = pmath_string_insert_ucs2(PMATH_NULL, 0, data.cFileName, -1);
             utf8 = pmath_string_to_utf8(s, &utf8_length);
             
             if(!is_default)
@@ -91,7 +96,7 @@ static void emit_directory_entries(
               
               if(!pmath_is_null(s)) {
                 HANDLE hfile = CreateFileW(
-                                 (const wchar_t*)pmath_string_buffer(&s),
+                                 (const wchar_t *)pmath_string_buffer(&s),
                                  0,
                                  FILE_SHARE_DELETE | FILE_SHARE_READ | FILE_SHARE_WRITE,
                                  NULL,
@@ -113,7 +118,7 @@ static void emit_directory_entries(
                   
                   if(!pmath_is_null(s)) {
                     hfile = CreateFileW(
-                              (const wchar_t*)pmath_string_buffer(&s),
+                              (const wchar_t *)pmath_string_buffer(&s),
                               0,
                               FILE_SHARE_DELETE | FILE_SHARE_READ | FILE_SHARE_WRITE,
                               NULL,
@@ -198,10 +203,12 @@ static void emit_directory_entries(
         if(_pmath_native_encoding_is_utf8) {
           while(0 != (entry = readdir(dir))) {
             const char *utf8 = entry->d_name;
-            int len = strlen(utf8);
+            int         len  = strlen(utf8);
     
-            if(strcmp(utf8, ".") != 0 && strcmp(utf8, "..") != 0
-                && _pmath_regex_match(regex, utf8, len, 0, 0, capture, NULL)) {
+            if( strcmp(utf8, ".") != 0 &&
+            strcmp(utf8, "..") != 0 &&
+            _pmath_regex_match(regex, utf8, len, 0, 0, capture, NULL))
+            {
               pmath_string_t name = pmath_string_from_utf8(utf8, len);
     
               if(!pmath_same(directory, PMATH_UNDEFINED))
@@ -217,8 +224,10 @@ static void emit_directory_entries(
             int length;
             char *utf8 = pmath_string_to_utf8(s, &length);
             if(utf8) {
-              if(strcmp(utf8, ".") != 0 && strcmp(utf8, "..") != 0
-                  && _pmath_regex_match(regex, utf8, length, 0, 0, capture, NULL)) {
+              if( strcmp(utf8, ".")  != 0 &&
+                  strcmp(utf8, "..") != 0 &&
+                  _pmath_regex_match(regex, utf8, length, 0, 0, capture, NULL))
+              {
                 pmath_string_t name = pmath_ref(s);//pmath_string_from_utf8(utf8, length);
     
                 if(!pmath_same(directory, PMATH_UNDEFINED))
@@ -330,7 +339,7 @@ PMATH_PRIVATE pmath_t builtin_filenames(pmath_expr_t expr) {
     options = pmath_options_extract(expr, last_nonoption);
     if(pmath_is_null(options))
       return expr;
-    
+      
     option_value = pmath_evaluate(pmath_option_value(PMATH_NULL, PMATH_SYMBOL_IGNORECASE, options));
     pmath_unref(options);
     if(pmath_same(option_value, PMATH_SYMBOL_TRUE)) {

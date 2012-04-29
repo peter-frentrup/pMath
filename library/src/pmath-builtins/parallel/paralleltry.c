@@ -23,7 +23,7 @@ struct parallel_try_info_t {
 };
 
 static void parallel_try(void *ptr) {
-  struct parallel_try_info_t *info = (struct parallel_try_info_t*)ptr;
+  struct parallel_try_info_t *info = (struct parallel_try_info_t *)ptr;
   
   pmath_thread_t thread = _pmath_thread_new(info->parent);
   intptr_t i = pmath_atomic_fetch_add(&info->index, +1);
@@ -42,8 +42,9 @@ static void parallel_try(void *ptr) {
               obj);
       obj = pmath_evaluate(obj);
       
-      if(!pmath_same(obj, PMATH_SYMBOL_FAILED)
-          && !pmath_thread_aborting(thread)) {
+      if( !pmath_same(obj, PMATH_SYMBOL_FAILED) &&
+          !pmath_thread_aborting(thread))
+      {
         size_t ri = (size_t)pmath_atomic_fetch_add(&info->result_index, +1);
         
         if(ri >= info->results_count) {
@@ -118,7 +119,7 @@ PMATH_PRIVATE pmath_t builtin_paralleltry(pmath_expr_t expr) {
   assert(pmath_refcount(result) == 1);
   assert(PMATH_AS_PTR(result)->type_shift == PMATH_TYPE_SHIFT_EXPRESSION_GENERAL);
   
-  info.results = &((struct _pmath_expr_t*)PMATH_AS_PTR(result))->items[1];
+  info.results = &((struct _pmath_expr_t *)PMATH_AS_PTR(result))->items[1];
   info.result_index._data = 0;
   
   info.index._data = 1;
@@ -163,8 +164,9 @@ PMATH_PRIVATE pmath_t builtin_paralleltry(pmath_expr_t expr) {
   pmath_mem_free(tasks);
   
   exception = pmath_catch();
-  if(!pmath_same(exception, PMATH_UNDEFINED)
-      && !pmath_same(exception, PMATH_SYMBOL_PARALLEL_RETURN)) {
+  if( !pmath_same(exception, PMATH_UNDEFINED) &&
+      !pmath_same(exception, PMATH_SYMBOL_PARALLEL_RETURN))
+  {
     pmath_throw(exception);
   }
   else

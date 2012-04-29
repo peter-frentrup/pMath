@@ -50,8 +50,9 @@ PMATH_PRIVATE pmath_t builtin_assign_ownrules(pmath_expr_t expr) {
   
   sym = pmath_expr_get_item(lhs, 1);
   
-  if(!pmath_same(tag, PMATH_UNDEFINED)
-      && !pmath_same(tag, sym)) {
+  if( !pmath_same(tag, PMATH_UNDEFINED) &&
+      !pmath_same(tag, sym))
+  {
     pmath_message(PMATH_NULL, "tag", 3, tag, lhs, sym);
     
     pmath_unref(expr);
@@ -169,12 +170,13 @@ PMATH_PRIVATE pmath_t builtin_assign_symbol_rules(pmath_expr_t expr) {
   else
     kind = PMATH_NULL;
     
-  if(!pmath_same(kind, PMATH_SYMBOL_DEFAULTRULES)
-      && !pmath_same(kind, PMATH_SYMBOL_DOWNRULES)
-      && !pmath_same(kind, PMATH_SYMBOL_FORMATRULES)
-      && !pmath_same(kind, PMATH_SYMBOL_NRULES)
-      && !pmath_same(kind, PMATH_SYMBOL_SUBRULES)
-      && !pmath_same(kind, PMATH_SYMBOL_UPRULES)) {
+  if( !pmath_same(kind, PMATH_SYMBOL_DEFAULTRULES) &&
+      !pmath_same(kind, PMATH_SYMBOL_DOWNRULES)    &&
+      !pmath_same(kind, PMATH_SYMBOL_FORMATRULES)  &&
+      !pmath_same(kind, PMATH_SYMBOL_NRULES)       &&
+      !pmath_same(kind, PMATH_SYMBOL_SUBRULES)     &&
+      !pmath_same(kind, PMATH_SYMBOL_UPRULES))
+  {
     pmath_unref(tag);
     pmath_unref(lhs);
     pmath_unref(rhs);
@@ -184,8 +186,9 @@ PMATH_PRIVATE pmath_t builtin_assign_symbol_rules(pmath_expr_t expr) {
   if(pmath_expr_length(lhs) == 1) {
     sym = pmath_expr_get_item(lhs, 1);
     
-    if(!pmath_same(tag, PMATH_UNDEFINED)
-        && !pmath_same(tag, sym)) {
+    if( !pmath_same(tag, PMATH_UNDEFINED) &&
+        !pmath_same(tag, sym))
+    {
       pmath_message(PMATH_NULL, "tag", 3, tag, lhs, sym);
       
       pmath_unref(expr);

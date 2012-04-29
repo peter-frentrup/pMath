@@ -313,8 +313,9 @@ PMATH_API pmath_token_t pmath_token_analyse(
           return PMATH_TOK_NARY;
         }
         
-        if(str[1] == '!'   // =!=
-            || str[1] == '=') { // ===
+        if( str[1] == '!' || // =!=
+            str[1] == '=')   // ===
+        {
           *prec = PMATH_PREC_REL;
           return PMATH_TOK_NARY;
         }
@@ -431,7 +432,7 @@ PMATH_API int pmath_token_prefix_precedence(
   
   switch(defprec) {
     case PMATH_PREC_ADD:
-    case PMATH_PREC_PLUMI: return PMATH_PREC_DIV+1;
+    case PMATH_PREC_PLUMI: return PMATH_PREC_DIV + 1;
   }
   
   return defprec + 1;

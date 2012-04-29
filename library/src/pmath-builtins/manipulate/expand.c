@@ -106,8 +106,9 @@ static pmath_t expand_product(pmath_t expr, pmath_bool_t *changed) {
       return expr;
     }
     
-    if(pmath_same(item, PMATH_SYMBOL_POWER)
-        && pmath_expr_length(expr) == 2) {
+    if( pmath_same(item, PMATH_SYMBOL_POWER) &&
+        pmath_expr_length(expr) == 2)
+    {
       pmath_t exp = pmath_expr_get_item(expr, 2);
       
       if(pmath_is_int32(exp) && PMATH_AS_INT32(exp) >= 0) {
@@ -137,10 +138,11 @@ static pmath_t expand_product(pmath_t expr, pmath_bool_t *changed) {
           if(pmath_is_int32(den))
             num = _pmath_create_mp_int(PMATH_AS_INT32(den));
             
-          if(!pmath_is_null(q)
-              && !pmath_is_null(r)
-              && !pmath_is_null(num)
-              && !pmath_is_null(den)) {
+          if( !pmath_is_null(q)   &&
+              !pmath_is_null(r)   &&
+              !pmath_is_null(num) &&
+              !pmath_is_null(den))
+          {
             mpz_fdiv_qr(
               PMATH_AS_MPZ(q),
               PMATH_AS_MPZ(r),
@@ -191,8 +193,9 @@ PMATH_PRIVATE pmath_t builtin_expand(pmath_expr_t expr) {
     pmath_t head = pmath_expr_get_item(obj, 0);
     pmath_unref(head);
     
-    if(pmath_same(head, PMATH_SYMBOL_PLUS)
-        || pmath_same(head, PMATH_SYMBOL_LIST)) {
+    if( pmath_same(head, PMATH_SYMBOL_PLUS) ||
+        pmath_same(head, PMATH_SYMBOL_LIST))
+    {
       size_t i;
       pmath_unref(expr);
       expr = obj;

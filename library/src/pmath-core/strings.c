@@ -42,9 +42,9 @@ struct _pmath_string_t *_pmath_new_string_buffer(int size) {
   if(bytes / sizeof(uint16_t) != (size_t)size)
     return NULL;
     
-  result = (void*)PMATH_AS_PTR(_pmath_create_stub(
-                                 PMATH_TYPE_SHIFT_BIGSTRING,
-                                 STRING_HEADER_SIZE + bytes));
+  result = (void *)PMATH_AS_PTR(_pmath_create_stub(
+                                  PMATH_TYPE_SHIFT_BIGSTRING,
+                                  STRING_HEADER_SIZE + bytes));
   if(!result)
     return result;
     
@@ -108,8 +108,9 @@ struct _pmath_string_t *enlarge_string(
     
   assert(extra_start <= string->length);
   
-  if(string->buffer == NULL
-      && pmath_atomic_read_aquire(&string->inherited.refcount) == 1) {
+  if( string->buffer == NULL &&
+      pmath_atomic_read_aquire(&string->inherited.refcount) == 1)
+  {
     int newcap;
     size_t bytes;
     if(string->capacity_or_start >= string->length + extralen) {
@@ -129,7 +130,7 @@ struct _pmath_string_t *enlarge_string(
       return NULL;
     }
     
-    result = (struct _pmath_string_t*)
+    result = (struct _pmath_string_t *)
              pmath_mem_realloc(string, STRING_HEADER_SIZE + sizeof(uint16_t) * newcap);
     if(!result)
       return NULL;
@@ -181,7 +182,7 @@ struct _pmath_string_t *enlarge_string_2(
   
   if(pmath_is_pointer(string)) {
     return enlarge_string(
-             (struct _pmath_string_t*)PMATH_AS_PTR(string), extra_start, extralen);
+             (struct _pmath_string_t *)PMATH_AS_PTR(string), extra_start, extralen);
   }
   
   assert(pmath_is_ministr(string));
@@ -222,11 +223,11 @@ struct _pmath_string_t *enlarge_string_2(
   buffer = AFTER_STRING(result);
   if(extra_start == 0) {
     buffer[extralen]   = string.s.u.as_chars[0];
-    buffer[extralen+1] = string.s.u.as_chars[1];
+    buffer[extralen + 1] = string.s.u.as_chars[1];
   }
   else if(extra_start == 1) {
     buffer[0]          = string.s.u.as_chars[0];
-    buffer[extralen+1] = string.s.u.as_chars[1];
+    buffer[extralen + 1] = string.s.u.as_chars[1];
   }
   else {
     buffer[0] = string.s.u.as_chars[0];
@@ -237,7 +238,7 @@ struct _pmath_string_t *enlarge_string_2(
 }
 
 static void destroy_string(pmath_t p) {
-  struct _pmath_string_t *str = (void*)PMATH_AS_PTR(p);
+  struct _pmath_string_t *str = (void *)PMATH_AS_PTR(p);
   
   if(str->buffer)
     pmath_unref(PMATH_FROM_PTR(str->buffer));
@@ -323,7 +324,7 @@ static unsigned int hash_string(pmath_t str) {
 PMATH_PRIVATE
 void write_cstr(
   const char          *str,
-  void (*write_ucs2)(void*, const uint16_t*, int),
+  void (*write_ucs2)(void *, const uint16_t *, int),
   void                *user
 ) {
   int len = strlen(str);
@@ -350,8 +351,9 @@ static pmath_bool_t is_single_token(pmath_t box) {
   if(pmath_is_string(box))
     return TRUE;
     
-  if(pmath_is_expr_of(box, PMATH_NULL)
-      || pmath_is_expr_of(box, PMATH_SYMBOL_LIST)) {
+  if( pmath_is_expr_of(box, PMATH_NULL) ||
+      pmath_is_expr_of(box, PMATH_SYMBOL_LIST))
+  {
     pmath_t part;
     pmath_bool_t result;
     
@@ -399,11 +401,11 @@ static void write_and_skip_string_chars(void *user, const uint16_t *data, int le
   while(i < len) {
     if( data[i] == '\\' &&
         i + 1 < len &&
-        (data[i+1] == '"' || data[i+1] == '\\'))
+        (data[i + 1] == '"' || data[i + 1] == '\\'))
     {
       old_info->write(old_info->user, data, i);
       
-      old_info->write(old_info->user, &data[i+1], 1);
+      old_info->write(old_info->user, &data[i + 1], 1);
       
       i    += 2;
       data += i;
@@ -632,11 +634,12 @@ void _pmath_string_write(struct pmath_write_ex_t *info, pmath_t str) {
     while(s != end) {
       const uint16_t *start = s;
       int len = 0;
-      while(s != end
-            && *s >= ' '
-            && *s != '\"'
-            && *s != '\\'
-            && *s <= 0x7F) {
+      while( s != end   &&
+             *s >= ' '  &&
+             *s != '\"' &&
+             *s != '\\' &&
+             *s <= 0x7F)
+      {
         ++s;
         ++len;
       }
@@ -662,9 +665,10 @@ void _pmath_string_write(struct pmath_write_ex_t *info, pmath_t str) {
             break;
             
           default: {
-              if(s + 1 != end
-                  && (s[0] & 0xFC00) == 0xD800
-                  && (s[1] & 0xFC00) == 0xDC00) {
+              if( s + 1 != end              &&
+                  (s[0] & 0xFC00) == 0xD800 &&
+                  (s[1] & 0xFC00) == 0xDC00)
+              {
                 uint32_t u = 0x10000 | (((uint32_t)s[0] & 0x03FF) << 10) | (s[1] & 0x03FF);
                 const char *name = pmath_char_to_name(u);
                 
@@ -779,7 +783,7 @@ PMATH_API pmath_string_t pmath_string_insert_latin1(
   else if(pmath_is_str2(str))
     len = 2;
   else
-    len = ((struct _pmath_string_t*)PMATH_AS_PTR(str))->length;
+    len = ((struct _pmath_string_t *)PMATH_AS_PTR(str))->length;
     
   if(inspos < 0)
     inspos = 0;
@@ -817,8 +821,8 @@ pmath_string_t pmath_string_from_utf8(
     
   inbytesleft = (size_t)len;
   outbytesleft = sizeof(uint16_t) * result->length;
-  inbuf  = (char*)str;
-  outbuf = (char*)AFTER_STRING(result);
+  inbuf  = (char *)str;
+  outbuf = (char *)AFTER_STRING(result);
   
   while(inbytesleft > 0) {
     size_t ret = iconv(from_utf8, &inbuf, &inbytesleft, &outbuf, &outbytesleft);
@@ -833,7 +837,7 @@ pmath_string_t pmath_string_from_utf8(
         if(!result)
           return PMATH_NULL;
           
-        outbuf = ((char*)AFTER_STRING(result)) + bytes_written;
+        outbuf = ((char *)AFTER_STRING(result)) + bytes_written;
         outbytesleft = sizeof(uint16_t) * result->length - bytes_written;
       }
       else if(errno == EILSEQ) { // invalid input byte
@@ -861,7 +865,7 @@ char *pmath_string_to_utf8(
   int             len = pmath_string_length(str);
   size_t size         = 4 * ((size_t)len) + 1; // worst case: every character is 4 bytes in utf8
   char *res           = pmath_mem_alloc(size);
-  char *inbuf         = (char*)buf;
+  char *inbuf         = (char *)buf;
   char *outbuf        = res;
   size_t inbytesleft  = sizeof(uint16_t) * (size_t)len;
   size_t outbytesleft = size - 1;
@@ -891,7 +895,7 @@ char *pmath_string_to_utf8(
 
 PMATH_API
 void pmath_utf8_writer(void *user, const uint16_t *data, int len) {
-  char *inbuf  = (char*)data;
+  char *inbuf  = (char *)data;
   size_t inbytesleft = sizeof(uint16_t) * (size_t)len;
   char buf[100];
   char *outbuf = buf;
@@ -904,8 +908,8 @@ void pmath_utf8_writer(void *user, const uint16_t *data, int len) {
       if(errno == E2BIG) { // output buffer too small
         *outbuf = '\0';
         
-        ((pmath_cstr_writer_info_t*)user)->write_cstr(
-          ((pmath_cstr_writer_info_t*)user)->user,
+        ((pmath_cstr_writer_info_t *)user)->write_cstr(
+          ((pmath_cstr_writer_info_t *)user)->user,
           buf);
           
         outbuf = buf;
@@ -920,8 +924,8 @@ void pmath_utf8_writer(void *user, const uint16_t *data, int len) {
   
   *outbuf = '\0';
   if(*buf) {
-    ((pmath_cstr_writer_info_t*)user)->write_cstr(
-      ((pmath_cstr_writer_info_t*)user)->user,
+    ((pmath_cstr_writer_info_t *)user)->write_cstr(
+      ((pmath_cstr_writer_info_t *)user)->user,
       buf);
   }
 }
@@ -929,7 +933,7 @@ void pmath_utf8_writer(void *user, const uint16_t *data, int len) {
 PMATH_API
 void pmath_native_writer(void *user, const uint16_t *data, int len) {
   pmath_cstr_writer_info_t *info = user;
-  char *inbuf  = (char*)data;
+  char *inbuf  = (char *)data;
   size_t inbytesleft = sizeof(uint16_t) * (size_t)len;
   char buf[100];
   char *outbuf = buf;
@@ -950,11 +954,13 @@ void pmath_native_writer(void *user, const uint16_t *data, int len) {
 
       if(errno == EILSEQ && ((size_t)inbuf & 1) == 0 && inbytesleft >= 2) { // 2-byte aligned
         const char *name;
-        uint16_t *u16 = (void*)inbuf;
+        uint16_t *u16 = (void *)inbuf;
         uint32_t ch;
         
-        if((u16[0] & 0xFC00) == 0xD800 && inbytesleft >= 4
-            && (u16[1] & 0xFC00) == 0xDC00) {
+        if( (u16[0] & 0xFC00) == 0xD800 &&
+            inbytesleft >= 4 &&
+            (u16[1] & 0xFC00) == 0xDC00)
+        {
           ch = 0x10000 + ((uint32_t)(u16[0] & 0x3FF) << 10) + (u16[1] & 0x3FF);
           
           inbuf += 4;
@@ -1022,7 +1028,7 @@ pmath_string_t pmath_string_insert_codepage(
   else if(pmath_is_str2(str))
     len = 2;
   else
-    len = ((struct _pmath_string_t*)PMATH_AS_PTR(str))->length;
+    len = ((struct _pmath_string_t *)PMATH_AS_PTR(str))->length;
     
   if(inspos < 0)
     inspos = 0;
@@ -1035,7 +1041,7 @@ pmath_string_t pmath_string_insert_codepage(
     
   ucs = AFTER_STRING(result) + inspos;
   while(inslen-- > 0)
-    *ucs++ = cp[(unsigned char)*ins++];
+    *ucs++ = cp[(unsigned char) * ins++];
     
   return _pmath_from_buffer(result);
 }
@@ -1071,7 +1077,7 @@ pmath_string_t pmath_string_insert_ucs2(
   else if(pmath_is_str2(str))
     len = 2;
   else
-    len = ((struct _pmath_string_t*)PMATH_AS_PTR(str))->length;
+    len = ((struct _pmath_string_t *)PMATH_AS_PTR(str))->length;
     
   if(inspos < 0)
     inspos = 0;
@@ -1109,7 +1115,7 @@ pmath_string_t pmath_string_insert(
     return pmath_string_insert_ucs2(str, inspos, ins.s.u.as_chars, len);
   }
   
-  _ins = (struct _pmath_string_t*)PMATH_AS_PTR(ins);
+  _ins = (struct _pmath_string_t *)PMATH_AS_PTR(ins);
   
   if(pmath_is_str0(str)) {
     _str = NULL;
@@ -1138,14 +1144,15 @@ pmath_string_t pmath_string_insert(
     str = PMATH_FROM_PTR(_str);
   }
   else {
-    _str = (struct _pmath_string_t*)PMATH_AS_PTR(str);
+    _str = (struct _pmath_string_t *)PMATH_AS_PTR(str);
   }
   
-  if(_str && _ins
-      && _str->buffer
-      && _str->buffer == _ins->buffer
-      && _str->length == inspos
-      && _str->capacity_or_start + inspos == _ins->capacity_or_start) {
+  if( _str && _ins                 &&
+      _str->buffer                 &&
+      _str->buffer == _ins->buffer &&
+      _str->length == inspos       &&
+      _str->capacity_or_start + inspos == _ins->capacity_or_start)
+  {
     if(pmath_atomic_read_aquire(&_str->inherited.refcount) == 1) {
       _str->length += _ins->length;
       pmath_unref(ins);
@@ -1248,7 +1255,7 @@ pmath_string_t pmath_string_part(
     return string;
   }
   
-  _str = (struct _pmath_string_t*)PMATH_AS_PTR(string);
+  _str = (struct _pmath_string_t *)PMATH_AS_PTR(string);
   
   if(start < 0 || start >= _str->length) {
     pmath_unref(string);
@@ -1259,11 +1266,13 @@ pmath_string_t pmath_string_part(
     return string;
   }
   
-  if(length < 0
-      || start + length > _str->length
-      || length > _str->length)
+  if( length < 0                    ||
+      start + length > _str->length ||
+      length         > _str->length)
+  {
     length = _str->length - start;
-    
+  }
+  
   if(length <= 0) {
     pmath_unref(string);
     
@@ -1313,7 +1322,7 @@ pmath_string_t pmath_string_part(
     
     start += _str->capacity_or_start;
     string = pmath_ref(PMATH_FROM_PTR(_str->buffer));
-    _str = (struct _pmath_string_t*)PMATH_AS_PTR(string);
+    _str = (struct _pmath_string_t *)PMATH_AS_PTR(string);
     pmath_unref(tmp);
     
     assert(pmath_is_string(string));
@@ -1325,7 +1334,7 @@ pmath_string_t pmath_string_part(
   }
   
   {
-    struct _pmath_string_t *result = (void*)PMATH_AS_PTR(_pmath_create_stub(
+    struct _pmath_string_t *result = (void *)PMATH_AS_PTR(_pmath_create_stub(
                                        PMATH_TYPE_SHIFT_BIGSTRING,
                                        sizeof(struct _pmath_string_t)));
                                        
@@ -1353,7 +1362,7 @@ const uint16_t *pmath_string_buffer(pmath_string_t *string) {
     return &string->s.u.as_chars[0];
     
   assert(pmath_is_string(*string));
-  _str = (void*)PMATH_AS_PTR(*string);
+  _str = (void *)PMATH_AS_PTR(*string);
   
   if(_str->buffer == NULL)
     return AFTER_STRING(_str);
@@ -1376,7 +1385,7 @@ int pmath_string_length(pmath_string_t string) {
     
   assert(pmath_is_bigstr(string));
   
-  _str = (void*)PMATH_AS_PTR(string);
+  _str = (void *)PMATH_AS_PTR(string);
   
   assert(_str->length >= 0);
   return _str->length;
@@ -1423,8 +1432,8 @@ pmath_string_t pmath_string_from_native(
   
   inbytesleft = (size_t)len;
   outbytesleft = sizeof(uint16_t) * (size_t)len;
-  inbuf  = (char*)str;
-  outbuf = (char*)AFTER_STRING(result);
+  inbuf  = (char *)str;
+  outbuf = (char *)AFTER_STRING(result);
   
   if(!result)
     return PMATH_NULL;
@@ -1448,11 +1457,11 @@ char *pmath_string_to_native(pmath_string_t str, int *result_len) {
   const uint16_t *buf = pmath_string_buffer(&str);
   
   size_t s_size = 4 * ((size_t)len) + 1;
-  char *s = (char*)pmath_mem_alloc(s_size);
+  char *s = (char *)pmath_mem_alloc(s_size);
   
   size_t inbytesleft = sizeof(uint16_t) * (size_t)len;
   size_t outbytesleft = s_size - 1;
-  char *inbuf  = (char*)buf;
+  char *inbuf  = (char *)buf;
   char *outbuf = s;
   
   if(!s) {

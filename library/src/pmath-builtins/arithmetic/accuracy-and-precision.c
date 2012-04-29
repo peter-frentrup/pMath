@@ -183,9 +183,11 @@ pmath_t builtin_assign_maxextraprecision(pmath_expr_t expr) {
   lhs = pmath_expr_get_item(expr, 0);
   pmath_unref(lhs);
   pmath_unref(expr);
-  if(pmath_same(lhs, PMATH_SYMBOL_ASSIGNDELAYED)
-      || pmath_same(lhs, PMATH_SYMBOL_TAGASSIGNDELAYED))
+  if( pmath_same(lhs, PMATH_SYMBOL_ASSIGNDELAYED) ||
+      pmath_same(lhs, PMATH_SYMBOL_TAGASSIGNDELAYED))
+  {
     return PMATH_NULL;
-    
+  }
+  
   return pmath_ref(PMATH_SYMBOL_FAILED);
 }

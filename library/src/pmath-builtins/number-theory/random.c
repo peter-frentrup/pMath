@@ -140,9 +140,9 @@ static pmath_expr_t random_array(
   
   list = pmath_expr_new(
            pmath_ref(PMATH_SYMBOL_LIST),
-           data->lengths[data->dim-1]);
+           data->lengths[data->dim - 1]);
            
-  for(i = 1; i <= data->lengths[data->dim-1]; ++i) {
+  for(i = 1; i <= data->lengths[data->dim - 1]; ++i) {
     list = pmath_expr_set_item(list, i, random_array(data));
   }
   
@@ -339,8 +339,9 @@ PMATH_PRIVATE pmath_t builtin_randomreal(pmath_expr_t expr) {
           data.lengths[0] = (unsigned)PMATH_AS_INT32(tmp);
           last_nonoption = 2;
         }
-        else if(!_pmath_is_rule(tmp)
-                && !_pmath_is_list_of_rules(tmp)) {
+        else if( !_pmath_is_rule(tmp) &&
+                 !_pmath_is_list_of_rules(tmp))
+        {
           if(pmath_is_expr(tmp)) {
             pmath_t h = pmath_expr_get_item(tmp, 0);
             pmath_unref(h);
@@ -397,8 +398,9 @@ PMATH_PRIVATE pmath_t builtin_randomreal(pmath_expr_t expr) {
                options);
   pmath_unref(options);
   
-  if(!_pmath_to_precision(prec_obj, &data.working_precision)
-      || data.working_precision > PMATH_MP_PREC_MAX) {
+  if( !_pmath_to_precision(prec_obj, &data.working_precision) ||
+      data.working_precision > PMATH_MP_PREC_MAX)
+  {
     pmath_message(PMATH_NULL, "invprec", 1, prec_obj);
     return expr;
   }

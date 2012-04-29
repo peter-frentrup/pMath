@@ -15,13 +15,15 @@ PMATH_PRIVATE pmath_bool_t _pmath_run(pmath_t *in_out) {
     pmath_t head = pmath_expr_get_item(*in_out, 0);
     pmath_unref(head);
     
-    if(pmath_same(head, PMATH_SYMBOL_CONTINUE)
-        || pmath_same(head, PMATH_SYMBOL_BREAK)) {
+    if( pmath_same(head, PMATH_SYMBOL_CONTINUE) ||
+        pmath_same(head, PMATH_SYMBOL_BREAK))
+    {
       pmath_bool_t do_break = pmath_same(head, PMATH_SYMBOL_BREAK);
       
       pmath_t counter = pmath_expr_get_item(*in_out, 1);
-      if(pmath_is_integer(counter)
-          && pmath_compare(counter, PMATH_FROM_INT32(1)) > 0) {
+      if( pmath_is_integer(counter) &&
+          pmath_compare(counter, PMATH_FROM_INT32(1)) > 0)
+      {
         do_break = TRUE;
         counter = pmath_expr_new_extended(
                     pmath_ref(PMATH_SYMBOL_PLUS), 2,
@@ -38,9 +40,11 @@ PMATH_PRIVATE pmath_bool_t _pmath_run(pmath_t *in_out) {
       return do_break;
     }
     
-    if(pmath_same(head, PMATH_SYMBOL_RETURN)
-        || pmath_same(head, PMATH_SYMBOL_GOTO))
+    if( pmath_same(head, PMATH_SYMBOL_RETURN) ||
+        pmath_same(head, PMATH_SYMBOL_GOTO))
+    {
       return TRUE;
+    }
   }
   
   pmath_unref(*in_out);
@@ -100,10 +104,11 @@ static pmath_t release_hold(pmath_t expr) {
     pmath_bool_t must_flatten;
     pmath_t head = pmath_expr_get_item(expr, 0);
     
-    if(pmath_same(head, PMATH_SYMBOL_HOLD)
-        || pmath_same(head, PMATH_SYMBOL_HOLDCOMPLETE)
-        || pmath_same(head, PMATH_SYMBOL_HOLDFORM)
-        || pmath_same(head, PMATH_SYMBOL_HOLDPATTERN)) {
+    if( pmath_same(head, PMATH_SYMBOL_HOLD)         ||
+        pmath_same(head, PMATH_SYMBOL_HOLDCOMPLETE) ||
+        pmath_same(head, PMATH_SYMBOL_HOLDFORM)     ||
+        pmath_same(head, PMATH_SYMBOL_HOLDPATTERN))
+    {
       pmath_unref(head);
       return pmath_expr_set_item(expr, 0, PMATH_UNDEFINED);
     }
@@ -200,9 +205,10 @@ PMATH_PRIVATE pmath_t builtin_evaluationsequence(pmath_expr_t expr) {
       pmath_t head = pmath_expr_get_item(result, 0);
       pmath_unref(head);
       
-      if(pmath_same(head, PMATH_SYMBOL_BREAK)
-          || pmath_same(head, PMATH_SYMBOL_CONTINUE)
-          || pmath_same(head, PMATH_SYMBOL_RETURN)) {
+      if( pmath_same(head, PMATH_SYMBOL_BREAK)    ||
+          pmath_same(head, PMATH_SYMBOL_CONTINUE) ||
+          pmath_same(head, PMATH_SYMBOL_RETURN))
+      {
         pmath_unref(expr);
         return result;
       }
@@ -210,8 +216,9 @@ PMATH_PRIVATE pmath_t builtin_evaluationsequence(pmath_expr_t expr) {
       if(pmath_same(head, PMATH_SYMBOL_LABEL)) {
         have_label = TRUE;
       }
-      else if(pmath_same(head, PMATH_SYMBOL_GOTO)
-              && pmath_expr_length(result) == 1) {
+      else if( pmath_same(head, PMATH_SYMBOL_GOTO) &&
+               pmath_expr_length(result) == 1)
+      {
         pmath_t lbl = pmath_expr_get_item(result, 1);
         size_t j;
         

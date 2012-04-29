@@ -1,23 +1,23 @@
 #include <pmath-builtins/io-private.h>
 #include <pmath-util/stacks-private.h>
- 
+
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
- 
+
 #include <pmath.h>
 #include <pmath-private.h>
- 
+
 #include <pmath-core/objects-private.h>
 #include <pmath-core/strings-private.h>
 #include <pmath-core/expressions-private.h>
 #include <pmath-core/custom-private.h>
 #include <pmath-core/numbers-private.h>
 #include <pmath-core/symbols-private.h>
- 
+
 #include <pmath-language/patterns-private.h>
 #include <pmath-language/regex-private.h>
- 
+
 #include <pmath-util/concurrency/atomic-private.h>
 #include <pmath-util/concurrency/threadlocks-private.h>
 #include <pmath-util/concurrency/threadmsg-private.h>
@@ -27,10 +27,10 @@
 #include <pmath-util/hashtables-private.h>
 #include <pmath-util/modules-private.h>
 #include <pmath-util/symbol-values-private.h>
- 
+
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/number-theory-private.h>
- 
+
 #ifdef PMATH_OS_WIN32
 #  define NOGDI
 #  define WIN32_LEAN_AND_MEAN
@@ -43,37 +43,37 @@
 #  include <link.h>
 #  include <unistd.h>
 #endif
- 
+
 #if PMATH_USE_PTHREAD
 #  include <pthread.h>
 #endif
- 
+
 #include <time.h>
- 
- 
-PMATH_STATIC_ASSERT(sizeof(intptr_t) == sizeof(void*));
-PMATH_STATIC_ASSERT(8 * sizeof(void*) == PMATH_BITSIZE);
+
+
+PMATH_STATIC_ASSERT(sizeof(intptr_t) == sizeof(void *));
+PMATH_STATIC_ASSERT(8 * sizeof(void *) == PMATH_BITSIZE);
 PMATH_STATIC_ASSERT(sizeof(pmath_t) == 8);
- 
+
 #ifdef PMATH_OS_WIN32
 PMATH_STATIC_ASSERT(sizeof(wchar_t) == sizeof(uint16_t));
 #endif
- 
- 
+
+
 static volatile enum {
   PMATH_STATUS_NONE,
   PMATH_STATUS_INITIALIZING,
   PMATH_STATUS_RUNNING,
   PMATH_STATUS_DESTROYING
 } _pmath_status = PMATH_STATUS_NONE;
- 
+
 static pmath_atomic_t pmath_count = PMATH_ATOMIC_STATIC_INIT;
- 
+
 PMATH_PRIVATE
 pmath_bool_t _pmath_is_running(void) {
   return _pmath_status == PMATH_STATUS_RUNNING;
 }
- 
+
 static pmath_expr_t get_command_line(void) {
   pmath_gather_begin(PMATH_NULL);
 #ifdef PMATH_OS_WIN32
@@ -118,7 +118,7 @@ static pmath_expr_t get_command_line(void) {
   
   return pmath_gather_end();
 }
- 
+
 static void init_pagewidth(void) {
   int width = 80;
   
@@ -145,7 +145,7 @@ static void init_pagewidth(void) {
     
   PMATH_RUN_ARGS("$PageWidth:=`1`", "(i)", width);
 }
- 
+
 static pmath_expr_t get_exe_name(void) {
 #ifdef PMATH_OS_WIN32
   {
@@ -177,9 +177,9 @@ static pmath_expr_t get_exe_name(void) {
     FSRef               *fsr;
     char                *path;
   
-    if(GetCurrentProcess(&psn)              == noErr
-    && GetProcessBundleLocation(&psn, &fsr) == noErr
-    && FSRefMakePath(&fsr, (UInt8*)path, sizeof(path)))
+    if( GetCurrentProcess(&psn)              == noErr &&
+        GetProcessBundleLocation(&psn, &fsr) == noErr &&
+        FSRefMakePath(&fsr, (UInt8 *)path, sizeof(path)))
     {
       return pmath_string_from_utf8(path, -1);
     }
@@ -245,7 +245,7 @@ static pmath_expr_t get_exe_name(void) {
   }
 #endif
 }
- 
+
 PMATH_API pmath_bool_t pmath_init(void) {
   pmath_thread_t thread;
   
@@ -258,7 +258,7 @@ PMATH_API pmath_bool_t pmath_init(void) {
 //    #ifdef PMATH_OS_WIN32
 //      SetErrorMode(SEM_NOOPENFILEERRORBOX);
 //    #endif
- 
+
 #ifdef PMATH_DEBUG_TESTS
     {
       // This does not test for atomicity.
@@ -447,7 +447,7 @@ PMATH_API pmath_bool_t pmath_init(void) {
 //      pmath_ref(PMATH_SYMBOL_MESSAGENAME), 2,
 //      pmath_ref(PMATH_SYMBOL_GENERAL),
 //      PMATH_C_STRING("newsym"));
- 
+
       // MessageName(Get, "load")
       _pmath_object_loadlibrary_load_message = pmath_expr_new_extended(
             pmath_ref(PMATH_SYMBOL_MESSAGENAME), 2,
@@ -988,7 +988,7 @@ PMATH_API pmath_bool_t pmath_init(void) {
   
   return TRUE;
 }
- 
+
 PMATH_API void pmath_done(void) {
   intptr_t thread_count;
   pmath_thread_t thread;
@@ -1003,8 +1003,9 @@ PMATH_API void pmath_done(void) {
     return;
     
   thread_count = pmath_atomic_read_aquire(&pmath_count);
-  if(!thread->is_daemon
-      && thread_count == pmath_atomic_read_aquire(&_pmath_threadpool_deamon_count) + 1) {
+  if( !thread->is_daemon && 
+      thread_count == pmath_atomic_read_aquire(&_pmath_threadpool_deamon_count) + 1) 
+  {
     _pmath_threadpool_kill_daemons();
   }
   
@@ -1061,7 +1062,7 @@ PMATH_API void pmath_done(void) {
     mpfr_free_cache();
   }
 }
- 
+
 #ifdef PMATH_OS_WIN32
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
 
@@ -1099,11 +1100,11 @@ __attribute__((__constructor__))
 void shared_object_pmath_init(void) {
   fprintf(stderr, "[+ process]\n");
 }
- 
+
 static
 __attribute__((__destructor__))
 void shared_object_pmath_done(void) {
   fprintf(stderr, "[- process]\n");
 }
 #endif
- 
+

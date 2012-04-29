@@ -12,9 +12,10 @@ PMATH_PRIVATE pmath_t builtin_baseform(pmath_expr_t expr) {
   }
   
   base = pmath_expr_get_item(expr, 2);
-  if(!pmath_is_int32(base)
-      || PMATH_AS_INT32(base) < 2
-      || PMATH_AS_INT32(base) > 36) {
+  if( !pmath_is_int32(base)    ||
+      PMATH_AS_INT32(base) < 2 ||
+      PMATH_AS_INT32(base) > 36)
+  {
     pmath_message(PMATH_NULL, "basf", 2, base, PMATH_FROM_INT32(36));
     return expr;
   }

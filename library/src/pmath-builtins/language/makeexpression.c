@@ -518,8 +518,11 @@ PMATH_PRIVATE pmath_t _pmath_parse_number(
       prec_control = PMATH_PREC_CTRL_GIVEN_PREC;
     }
     
-    if(i < len
-        && (str[i] == '+' || str[i] == '-' || pmath_char_is_digit(str[i]))) {
+    if( i < len &&
+        (str[i] == '+' ||
+         str[i] == '-' ||
+         pmath_char_is_digit(str[i])))
+    {
       cstr[0] = (char)str[i];
       
       j = i;
@@ -542,9 +545,11 @@ PMATH_PRIVATE pmath_t _pmath_parse_number(
       prec_acc = pmath_strtod(cstr, NULL);
     }
     
-    if(prec_control == PMATH_PREC_CTRL_GIVEN_PREC
-        && !isfinite(prec_acc))
+    if( prec_control == PMATH_PREC_CTRL_GIVEN_PREC &&
+        !isfinite(prec_acc))
+    {
       prec_control = PMATH_PREC_CTRL_MACHINE_PREC;
+    }
   }
   
   for(j = start; j < end; ++j)
@@ -552,8 +557,9 @@ PMATH_PRIVATE pmath_t _pmath_parse_number(
   cstr[end - start] = '\0';
   
   exponent = PMATH_NULL;
-  if((i + 2 < len && str[i] == '*' && str[i + 1] == '^')
-      || (alternative && i + 1 < len && (str[i] == 'e' || str[i] == 'E'))) {
+  if( (i + 2 < len && str[i] == '*' && str[i + 1] == '^')             ||
+      (alternative && i + 1 < len && (str[i] == 'e' || str[i] == 'E')))
+  {
     int exp;
     int delta = end - start - i;
     
@@ -711,10 +717,12 @@ static pmath_t make_expression_from_name_token(pmath_string_t string) {
     }
     
     tok = pmath_token_analyse(str + i, 1, NULL);
-    if(tok != PMATH_TOK_NAME
-        && tok != PMATH_TOK_DIGIT)
+    if( tok != PMATH_TOK_NAME &&
+        tok != PMATH_TOK_DIGIT)
+    {
       break;
-      
+    }
+    
     ++i;
   }
   
@@ -2412,8 +2420,9 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
         if(!is_parse_error(lhs)) {
           pmath_t rhs;
           
-          if(pmath_same(box, PMATH_SYMBOL_ASSIGN)
-              && unichar_at(expr, 3) == '.') {
+          if( pmath_same(box, PMATH_SYMBOL_ASSIGN) &&
+              unichar_at(expr, 3) == '.')
+          {
             pmath_unref(expr);
             
             return HOLDCOMPLETE(
@@ -2525,8 +2534,9 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
           if(!is_parse_error(lhs)) {
             pmath_t rhs;
             
-            if(pmath_same(box, PMATH_SYMBOL_TAGASSIGN)
-                && unichar_at(expr, 5) == '.') {
+            if( pmath_same(box, PMATH_SYMBOL_TAGASSIGN) &&
+                unichar_at(expr, 5) == '.')
+            {
               pmath_unref(expr);
               
               return HOLDCOMPLETE(
@@ -2703,9 +2713,10 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
         for(i = 4; i < exprlen; i += 2) {
           pmath_string_t op = pmath_expr_get_item(expr, i);
           
-          if((pmath_string_length(op) != 1
-              || *pmath_string_buffer(&op) != 0x2227)
-              && !string_equals(op, "&&")) {
+          if( (pmath_string_length(op) != 1 ||
+               *pmath_string_buffer(&op) != 0x2227) &&
+              !string_equals(op, "&&"))
+          {
             pmath_unref(op);
             handle_row_error_at(expr, i);
             pmath_unref(expr);
@@ -2719,9 +2730,10 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
         for(i = 4; i < exprlen; i += 2) {
           pmath_string_t op = pmath_expr_get_item(expr, i);
           
-          if((pmath_string_length(op) != 1
-              || *pmath_string_buffer(&op) != 0x2228)
-              && !string_equals(op, "||")) {
+          if( (pmath_string_length(op) != 1 ||
+               *pmath_string_buffer(&op) != 0x2228) &&
+              !string_equals(op, "||"))
+          {
             pmath_unref(op);
             handle_row_error_at(expr, i);
             pmath_unref(expr);

@@ -18,8 +18,9 @@ static pmath_expr_t find_best(
   for(i = 1; i <= len; ++i) {
     pmath_t item = pmath_expr_get_item(list, i);
     
-    if(pmath_is_expr_of(item, PMATH_SYMBOL_LIST)
-        || pmath_is_expr_of(item, head)) {
+    if( pmath_is_expr_of(item, PMATH_SYMBOL_LIST) ||
+        pmath_is_expr_of(item, head))
+    {
       list = pmath_expr_set_item(list, i, PMATH_NULL);
       
       item = find_best(item, cmp, head);

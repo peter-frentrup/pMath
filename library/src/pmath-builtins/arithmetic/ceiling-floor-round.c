@@ -104,8 +104,11 @@ PMATH_PRIVATE pmath_t builtin_ceiling_or_floor_or_round(
             1);
             
           cmp = mpz_cmp(PMATH_AS_MPZ(rem), PMATH_AS_MPZ(half));
-          if(cmp > 0
-              || (cmp == 0 && even && mpz_odd_p(PMATH_AS_MPZ(result)))) {
+          if( cmp > 0 ||
+              (cmp == 0 &&
+               even &&
+               mpz_odd_p(PMATH_AS_MPZ(result))))
+          {
             mpz_add_ui(PMATH_AS_MPZ(result), PMATH_AS_MPZ(result), 1);
           }
         }
@@ -150,8 +153,10 @@ PMATH_PRIVATE pmath_t builtin_ceiling_or_floor_or_round(
         mpz_set_d(PMATH_AS_MPZ(result), f);
         f = PMATH_AS_DOUBLE(x) - f;
         
-        if(f > 0.5
-            || (f == 0.5 && mpz_odd_p(PMATH_AS_MPZ(result)))) {
+        if( f > 0.5 ||
+            (f == 0.5 &&
+             mpz_odd_p(PMATH_AS_MPZ(result))))
+        {
           mpz_add_ui(PMATH_AS_MPZ(result), PMATH_AS_MPZ(result), 1);
         }
       }

@@ -103,8 +103,9 @@ static int _simple_real_class(pmath_t obj) {
     
     if(pmath_is_int32(num)) {
       if(pmath_is_int32(den)) {
-        if(PMATH_AS_INT32(num) <  PMATH_AS_INT32(den)
-            && PMATH_AS_INT32(num) > -PMATH_AS_INT32(den)) {
+        if( PMATH_AS_INT32(num) <  PMATH_AS_INT32(den) &&
+            PMATH_AS_INT32(num) > -PMATH_AS_INT32(den))
+        {
           if(PMATH_AS_INT32(num) < 0)
             return PMATH_CLASS_NEGSMALL;
           return PMATH_CLASS_POSSMALL;

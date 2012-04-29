@@ -76,7 +76,7 @@ long _pmath_boxes_length(pmath_t boxes) { // boxes wont be freed
       long result = 0;
       int i = 1;
       
-      if(buf[len-1] == '"')
+      if(buf[len - 1] == '"')
         --len;
         
       while(i < len) {
@@ -99,15 +99,18 @@ long _pmath_boxes_length(pmath_t boxes) { // boxes wont be freed
     pmath_t item = pmath_expr_get_item(boxes, 0);
     pmath_unref(item);
     
-    if(pmath_same(item, PMATH_SYMBOL_RULE)
-        || pmath_same(item, PMATH_SYMBOL_RULEDELAYED))
+    if( pmath_same(item, PMATH_SYMBOL_RULE) ||
+        pmath_same(item, PMATH_SYMBOL_RULEDELAYED))
+    {
       return 0;
-      
-    if(pmath_same(item, PMATH_SYMBOL_FRACTIONBOX)
-        || pmath_same(item, PMATH_SYMBOL_OVERSCRIPTBOX)
-        || pmath_same(item, PMATH_SYMBOL_SUBSUPERSCRIPTBOX)
-        || pmath_same(item, PMATH_SYMBOL_UNDEROVERSCRIPTBOX)
-        || pmath_same(item, PMATH_SYMBOL_UNDERSCRIPTBOX)) {
+    }
+    
+    if( pmath_same(item, PMATH_SYMBOL_FRACTIONBOX)        ||
+        pmath_same(item, PMATH_SYMBOL_OVERSCRIPTBOX)      ||
+        pmath_same(item, PMATH_SYMBOL_SUBSUPERSCRIPTBOX)  ||
+        pmath_same(item, PMATH_SYMBOL_UNDEROVERSCRIPTBOX) ||
+        pmath_same(item, PMATH_SYMBOL_UNDERSCRIPTBOX))
+    {
       long sub;
       
       for(i = 0; i <= len; ++i) {
@@ -180,12 +183,9 @@ static pmath_bool_t is_operand(pmath_t box) {
       return FALSE;
       
     tok = pmath_token_analyse(buf, 1, NULL);
-    return tok == PMATH_TOK_DIGIT
-           || tok == PMATH_TOK_STRING
-           || tok == PMATH_TOK_NAME;
-//      return buf[0] == '"'
-//        || pmath_char_is_digit(buf[0])
-//        || pmath_char_is_name(buf[0]);
+    return tok == PMATH_TOK_DIGIT ||
+           tok == PMATH_TOK_STRING ||
+           tok == PMATH_TOK_NAME;
   }
   
   return TRUE;
@@ -213,10 +213,11 @@ pmath_t _pmath_shorten_boxes(pmath_t boxes, long length) {
     int len             = pmath_string_length(boxes);
     
     if(len > length && len > 2) {
-      if(len > length + 10
-          && buf[0] == '"'
-          && buf[len - 1] == '"'
-          && buf[len - 2] != '\\') {
+      if( len > length + 10   &&
+          buf[0]       == '"' &&
+          buf[len - 1] == '"' &&
+          buf[len - 2] != '\\')
+      {
         pmath_string_t fst, snd;
         length = (length - 2) / 2;
         
@@ -234,9 +235,10 @@ pmath_t _pmath_shorten_boxes(pmath_t boxes, long length) {
                                  snd);
       }
       
-      if(len > length + 10
-          && buf[0] >= '0'
-          && buf[0] <= '9') {
+      if( len > length + 10 &&
+          buf[0] >= '0' &&
+          buf[0] <= '9')
+      {
         int i;
         for(i = 1; i < len; ++i) {
           if(buf[i] < '0' || buf[i] > '9')
@@ -250,12 +252,13 @@ pmath_t _pmath_shorten_boxes(pmath_t boxes, long length) {
           fst = pmath_string_part(pmath_ref(boxes), 0, length);
           snd = pmath_string_part(boxes, len - length, -1);
           
-          return pmath_build_value("(ooo)",
-                                   fst,
-                                   pmath_evaluate(
-                                     pmath_parse_string_args(
-                                       "ToBoxes(Skeleton(`1`))", "(i)", len - 2 * length)),
-                                   snd);
+          return pmath_build_value(
+                   "(ooo)",
+                   fst,
+                   pmath_evaluate(
+                     pmath_parse_string_args(
+                       "ToBoxes(Skeleton(`1`))", "(i)", len - 2 * length)),
+                   snd);
         }
       }
       
@@ -383,17 +386,18 @@ pmath_t _pmath_shorten_boxes(pmath_t boxes, long length) {
       }
     }
     
-    if(pmath_same(item, PMATH_SYMBOL_FRAMEBOX)
-        || pmath_same(item, PMATH_SYMBOL_FRACTIONBOX)
-        || pmath_same(item, PMATH_SYMBOL_INTERPRETATIONBOX)
-        || pmath_same(item, PMATH_SYMBOL_OVERSCRIPTBOX)
-        || pmath_same(item, PMATH_SYMBOL_RADICALBOX)
-        || pmath_same(item, PMATH_SYMBOL_SQRTBOX)
-        || pmath_same(item, PMATH_SYMBOL_STYLEBOX)
-        || pmath_same(item, PMATH_SYMBOL_SUBSUPERSCRIPTBOX)
-        || pmath_same(item, PMATH_SYMBOL_TAGBOX)
-        || pmath_same(item, PMATH_SYMBOL_UNDEROVERSCRIPTBOX)
-        || pmath_same(item, PMATH_SYMBOL_UNDERSCRIPTBOX)) {
+    if( pmath_same(item, PMATH_SYMBOL_FRAMEBOX)           ||
+        pmath_same(item, PMATH_SYMBOL_FRACTIONBOX)        ||
+        pmath_same(item, PMATH_SYMBOL_INTERPRETATIONBOX)  ||
+        pmath_same(item, PMATH_SYMBOL_OVERSCRIPTBOX)      ||
+        pmath_same(item, PMATH_SYMBOL_RADICALBOX)         ||
+        pmath_same(item, PMATH_SYMBOL_SQRTBOX)            ||
+        pmath_same(item, PMATH_SYMBOL_STYLEBOX)           ||
+        pmath_same(item, PMATH_SYMBOL_SUBSUPERSCRIPTBOX)  ||
+        pmath_same(item, PMATH_SYMBOL_TAGBOX)             ||
+        pmath_same(item, PMATH_SYMBOL_UNDEROVERSCRIPTBOX) ||
+        pmath_same(item, PMATH_SYMBOL_UNDERSCRIPTBOX)) 
+    {
       for(; len > 0; --len) {
         boxes = pmath_expr_set_item(
                   boxes, len,

@@ -104,8 +104,9 @@ PMATH_PRIVATE pmath_t builtin_deletedirectory_and_deletefile(pmath_expr_t expr) 
   pmath_unref(head);
   
   if(pmath_expr_length(expr) != 1) {
-    if(pmath_same(head, PMATH_SYMBOL_DELETEFILE)
-        || pmath_expr_length(expr) < 1) {
+    if( pmath_same(head, PMATH_SYMBOL_DELETEFILE) ||
+        pmath_expr_length(expr) < 1)
+    {
       pmath_message_argxxx(pmath_expr_length(expr), 1, 1);
       return expr;
     }
@@ -147,7 +148,7 @@ PMATH_PRIVATE pmath_t builtin_deletedirectory_and_deletefile(pmath_expr_t expr) 
     
     if(!pmath_is_null(abs_name)) {
       HANDLE h = CreateFileW(
-                   (const wchar_t*)pmath_string_buffer(&abs_name),
+                   (const wchar_t *)pmath_string_buffer(&abs_name),
                    0,
                    FILE_SHARE_READ | FILE_SHARE_WRITE,
                    NULL,
@@ -158,12 +159,12 @@ PMATH_PRIVATE pmath_t builtin_deletedirectory_and_deletefile(pmath_expr_t expr) 
       if(h != INVALID_HANDLE_VALUE) {
         BY_HANDLE_FILE_INFORMATION info;
         
-        if(GetFileInformationByHandle(h, &info)
-            && ((pmath_same(head, PMATH_SYMBOL_DELETEDIRECTORY)
-                 && (info.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
-                || (pmath_same(head, PMATH_SYMBOL_DELETEFILE)
-                    && !(info.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)))
-          ) {
+        if( GetFileInformationByHandle(h, &info) &&
+            ((pmath_same(head, PMATH_SYMBOL_DELETEDIRECTORY) &&
+              (info.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) ||
+             (pmath_same(head, PMATH_SYMBOL_DELETEFILE) &&
+              !(info.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))))
+        {
           DWORD err = 0;
           CloseHandle(h);
           
@@ -171,18 +172,18 @@ PMATH_PRIVATE pmath_t builtin_deletedirectory_and_deletefile(pmath_expr_t expr) 
             SHFILEOPSTRUCTW op;
             memset(&op, 0, sizeof(op));
             op.wFunc  = FO_DELETE;
-            op.pFrom  = (const wchar_t*)pmath_string_buffer(&abs_name);
-            op.pTo    = (const wchar_t*)zerozero;
+            op.pFrom  = (const wchar_t *)pmath_string_buffer(&abs_name);
+            op.pTo    = (const wchar_t *)zerozero;
             op.fFlags = FOF_NOCONFIRMATION | FOF_NOCONFIRMMKDIR | FOF_NOERRORUI | FOF_SILENT;
             
             err = (DWORD)SHFileOperationW(&op);
           }
           else if(pmath_same(head, PMATH_SYMBOL_DELETEFILE)) {
-            if(!DeleteFileW((const wchar_t*)pmath_string_buffer(&abs_name)))
+            if(!DeleteFileW((const wchar_t *)pmath_string_buffer(&abs_name)))
               err = GetLastError();
           }
           else {
-            if(!RemoveDirectoryW((const wchar_t*)pmath_string_buffer(&abs_name)))
+            if(!RemoveDirectoryW((const wchar_t *)pmath_string_buffer(&abs_name)))
               err = GetLastError();
           }
           

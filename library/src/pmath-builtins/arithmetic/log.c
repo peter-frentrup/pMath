@@ -26,9 +26,10 @@ static pmath_integer_t logii(pmath_integer_t base, pmath_integer_t z) {
     return base;
   }
   
-  if(!pmath_is_null(base)
-      && !pmath_is_null(z)
-      && mpz_cmp_ui(PMATH_AS_MPZ(base), 1) >= 0) {
+  if( !pmath_is_null(base) &&
+      !pmath_is_null(z) &&
+      mpz_cmp_ui(PMATH_AS_MPZ(base), 1) >= 0)
+  {
     pmath_mpint_t tmp = _pmath_create_mp_int(0);
     
     if(!pmath_is_null(tmp)) {
@@ -189,10 +190,11 @@ PMATH_PRIVATE pmath_t builtin_log(pmath_expr_t expr) {
     return expr;
   }
   
-  if(pmath_is_rational(base)
-      && pmath_is_rational(x)
-      && pmath_number_sign(base) > 0
-      && pmath_number_sign(x)    > 0) {
+  if( pmath_is_rational(base)     &&
+      pmath_is_rational(x)        &&
+      pmath_number_sign(base) > 0 &&
+      pmath_number_sign(x)    > 0)
+  {
     pmath_t result = logrr(base, x);
     
     if(!pmath_is_null(result)) {
@@ -203,8 +205,9 @@ PMATH_PRIVATE pmath_t builtin_log(pmath_expr_t expr) {
     }
   }
   
-  if(pmath_equals(base, x)
-      && !pmath_equals(base, PMATH_FROM_INT32(1))) {
+  if( pmath_equals(base, x) &&
+      !pmath_equals(base, PMATH_FROM_INT32(1)))
+  {
     pmath_unref(expr);
     pmath_unref(base);
     pmath_unref(x);
@@ -311,8 +314,9 @@ PMATH_PRIVATE pmath_t builtin_log(pmath_expr_t expr) {
       return PLUS(re, expr);
     }
     
-    if(_pmath_is_inexact(re)
-        || _pmath_is_inexact(im)) {
+    if( _pmath_is_inexact(re) ||
+        _pmath_is_inexact(im))
+    {
       pmath_unref(re);
       pmath_unref(im);
       

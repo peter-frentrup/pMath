@@ -212,9 +212,9 @@ static pmath_expr_t partition(
 ) {
   pmath_expr_t result = PMATH_NULL;
   pmath_t item;
-  long *in_i   = (long*)pmath_mem_alloc(depth * sizeof(long));
-  long *out_i  = (long*)pmath_mem_alloc(depth * sizeof(long));
-  long *blocks = (long*)pmath_mem_alloc(depth * sizeof(long));
+  long *in_i   = (long *)pmath_mem_alloc(depth * sizeof(long));
+  long *out_i  = (long *)pmath_mem_alloc(depth * sizeof(long));
+  long *blocks = (long *)pmath_mem_alloc(depth * sizeof(long));
   long k, r, rr;
   
   pmath_bool_t have_undef = FALSE;
@@ -282,7 +282,7 @@ static long *get_n( // free it with pmath_mem_free(n, depth * sizeof(long))
   
   if(pmath_is_int32(n_obj)) {
     *depth = 1;
-    n = (long*)pmath_mem_alloc(sizeof(long));
+    n = (long *)pmath_mem_alloc(sizeof(long));
     
     n[0] = PMATH_AS_INT32(n_obj);
     return n;
@@ -294,7 +294,7 @@ static long *get_n( // free it with pmath_mem_free(n, depth * sizeof(long))
     if(*depth > 0) {
       long i;
       
-      n = (long*)pmath_mem_alloc((size_t) * depth * sizeof(long));
+      n = (long *)pmath_mem_alloc((size_t) * depth * sizeof(long));
       
       if(n) {
         for(i = 0; i < *depth; ++i) {
@@ -448,10 +448,12 @@ static pmath_bool_t set_leftright_overhang(
     return TRUE;
   }
   
-  if(!set_overhang(obj, pmath_ref(obj), left,  depth)
-      || !set_overhang(obj, pmath_ref(obj), right, depth))
+  if( !set_overhang(obj, pmath_ref(obj), left,  depth) ||
+      !set_overhang(obj, pmath_ref(obj), right, depth))
+  {
     return FALSE;
-    
+  }
+  
   return TRUE;
 }
 
@@ -615,10 +617,10 @@ PMATH_PRIVATE pmath_t builtin_partition(pmath_expr_t expr) {
     return expr;
   }
   
-  dim   = (long*)pmath_mem_alloc((size_t)depth * sizeof(long));
-  d     = (long*)pmath_mem_alloc((size_t)depth * sizeof(long));
-  left  = (long*)pmath_mem_alloc((size_t)depth * sizeof(long));
-  right = (long*)pmath_mem_alloc((size_t)depth * sizeof(long));
+  dim   = (long *)pmath_mem_alloc((size_t)depth * sizeof(long));
+  d     = (long *)pmath_mem_alloc((size_t)depth * sizeof(long));
+  left  = (long *)pmath_mem_alloc((size_t)depth * sizeof(long));
+  right = (long *)pmath_mem_alloc((size_t)depth * sizeof(long));
   
   if(depth == 0 || (n && dim && d && left && right)) {
     int res;

@@ -32,8 +32,9 @@ static pmath_t remove_whitespace_from_boxes(pmath_t boxes) {
   head = pmath_expr_get_item(boxes, 0);
   pmath_unref(head);
   
-  if(pmath_same(head, PMATH_SYMBOL_LIST)
-      || pmath_is_null(head)) {
+  if( pmath_same(head, PMATH_SYMBOL_LIST) ||
+      pmath_is_null(head))
+  {
     size_t i;
     pmath_t item;
     pmath_bool_t remove_empty = FALSE;
@@ -46,8 +47,9 @@ static pmath_t remove_whitespace_from_boxes(pmath_t boxes) {
         return pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), 0);
       }
       
-      if(pmath_string_equals_latin1(item, "<<")
-          || pmath_string_equals_latin1(item, "??")) {
+      if( pmath_string_equals_latin1(item, "<<") ||
+          pmath_string_equals_latin1(item, "??"))
+      {
         pmath_unref(item);
         return boxes;
       }
@@ -60,8 +62,9 @@ static pmath_t remove_whitespace_from_boxes(pmath_t boxes) {
       boxes = pmath_expr_set_item(boxes, i, PMATH_NULL);
       
       item = remove_whitespace_from_boxes(item);
-      if(pmath_is_expr_of_len(item, PMATH_SYMBOL_LIST, 0)
-          || pmath_is_expr_of_len(item, PMATH_NULL, 0)) {
+      if( pmath_is_expr_of_len(item, PMATH_SYMBOL_LIST, 0) ||
+          pmath_is_expr_of_len(item, PMATH_NULL, 0))
+      {
         remove_empty = TRUE;
         pmath_unref(item);
         item = PMATH_UNDEFINED;
@@ -76,10 +79,12 @@ static pmath_t remove_whitespace_from_boxes(pmath_t boxes) {
     return boxes;
   }
   
-  if(pmath_same(head, PMATH_SYMBOL_RULE)
-      || pmath_same(head, PMATH_SYMBOL_RULEDELAYED))
+  if( pmath_same(head, PMATH_SYMBOL_RULE) ||
+      pmath_same(head, PMATH_SYMBOL_RULEDELAYED))
+  {
     return boxes;
-    
+  }
+  
   if(pmath_same(head, PMATH_SYMBOL_GRIDBOX)) {
     size_t rows, cols;
     pmath_t matrix = pmath_expr_get_item(boxes, 1);

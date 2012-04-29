@@ -32,7 +32,7 @@ static pmath_string_t get_directory(void) {
     DWORD    reslen = 0;
     
     buflen = GetCurrentDirectory(0, NULL);
-    if((int)buflen *sizeof(wchar_t) <= 0)
+    if((int)buflen * sizeof(wchar_t) <= 0)
       return PMATH_NULL;
       
     buffer = pmath_mem_alloc(sizeof(wchar_t) * buflen);
@@ -40,17 +40,17 @@ static pmath_string_t get_directory(void) {
       return PMATH_NULL;
       
     GetCurrentDirectoryW(buflen, buffer);
-    buffer[buflen-1] = L'\0';
+    buffer[buflen - 1] = L'\0';
     
     reslen = GetFullPathNameW(buffer, 0, NULL, NULL);
-    if((int)reslen *sizeof(uint16_t) <= 0) {
+    if((int)reslen * sizeof(uint16_t) <= 0) {
       pmath_mem_free(buffer);
       return PMATH_NULL;
     }
     
     result = _pmath_new_string_buffer(reslen);
     if(result) {
-      GetFullPathNameW(buffer, reslen, (wchar_t*)AFTER_STRING(result), NULL);
+      GetFullPathNameW(buffer, reslen, (wchar_t *)AFTER_STRING(result), NULL);
       
       result->length = reslen - 1;
     }
@@ -130,7 +130,7 @@ pmath_string_t _pmath_canonical_file_name(pmath_string_t relname) {
       GetFullPathNameW(
         pmath_string_buffer(&relname),
         reslen,
-        (wchar_t*)AFTER_STRING(result),
+        (wchar_t *)AFTER_STRING(result),
         NULL);
       result->length = reslen - 1;
     }
@@ -220,9 +220,10 @@ pmath_string_t _pmath_canonical_file_name(pmath_string_t relname) {
     while(startname < namelen) {
       int next = startname + first_slash(obuf + startname, namelen - startname);
   
-      if(next == startname + 2
-          && obuf[startname]     == '.'
-          && obuf[startname + 1] == '.') {
+      if( next == startname + 2      &&
+          obuf[startname]     == '.' &&
+          obuf[startname + 1] == '.')
+      {
         enddir = last_slash(obuf, enddir - 1) + 1;
         if(enddir < 0)
           enddir = 0;
@@ -257,7 +258,7 @@ static pmath_bool_t try_change_directory(
     if(pmath_is_null(name))
       return FALSE;
       
-    if(SetCurrentDirectoryW((const wchar_t*)pmath_string_buffer(&name))) {
+    if(SetCurrentDirectoryW((const wchar_t *)pmath_string_buffer(&name))) {
       pmath_unref(name);
       return TRUE;
     }
@@ -320,8 +321,9 @@ PMATH_PRIVATE pmath_t builtin_directoryname(pmath_expr_t expr) {
   count = 1;
   if(exprlen == 2) {
     obj = pmath_expr_get_item(expr, 2);
-    if(!pmath_is_int32(obj)
-        || PMATH_AS_INT32(obj) < 0) {
+    if( !pmath_is_int32(obj) ||
+        PMATH_AS_INT32(obj) < 0)
+    {
       pmath_unref(obj);
       pmath_message(PMATH_NULL, "intpm", 2, pmath_ref(expr), PMATH_FROM_INT32(2));
       return expr;
@@ -440,8 +442,9 @@ PMATH_PRIVATE pmath_t builtin_resetdirectory(pmath_expr_t expr) {
   
   pmath_unref(expr);
   dirstack = pmath_thread_local_load(PMATH_SYMBOL_DIRECTORYSTACK);
-  if(!pmath_is_expr_of(dirstack, PMATH_SYMBOL_LIST)
-      || pmath_expr_length(dirstack) == 0) {
+  if( !pmath_is_expr_of(dirstack, PMATH_SYMBOL_LIST) ||
+      pmath_expr_length(dirstack) == 0)
+  {
     pmath_message(PMATH_NULL, "dtop", 0);
     pmath_unref(dirstack);
     return get_directory();

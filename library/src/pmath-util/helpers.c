@@ -37,8 +37,9 @@ PMATH_API pmath_bool_t pmath_is_expr_of_len(
   pmath_symbol_t head,
   size_t         length
 ) {
-  if(pmath_is_expr(obj)
-      && pmath_expr_length(obj) == length) {
+  if( pmath_is_expr(obj) &&
+      pmath_expr_length(obj) == length)
+  {
     pmath_t h = pmath_expr_get_item(obj, 0);
     pmath_unref(h);
     
@@ -144,7 +145,7 @@ static pmath_t next_value(const char **format, va_list *args) {
       }
       
     case 's': {
-        const char *s = va_arg(*args, const char*);
+        const char *s = va_arg(*args, const char *);
         int len = -1;
         
         if(**format == '#') {
@@ -156,11 +157,11 @@ static pmath_t next_value(const char **format, va_list *args) {
       }
       
     case 'z': return pmath_symbol_find(
-                         PMATH_C_STRING(va_arg(*args, const char*)),
+                         PMATH_C_STRING(va_arg(*args, const char *)),
                          TRUE);
                          
     case 'u': {
-        const char *s = va_arg(*args, const char*);
+        const char *s = va_arg(*args, const char *);
         int len = -1;
         
         if(**format == '#') {
@@ -172,7 +173,7 @@ static pmath_t next_value(const char **format, va_list *args) {
       }
       
     case 'U': {
-        const uint16_t *s = va_arg(*args, const uint16_t*);
+        const uint16_t *s = va_arg(*args, const uint16_t *);
         int len = -1;
         
         if(**format == '#') {
@@ -187,8 +188,9 @@ static pmath_t next_value(const char **format, va_list *args) {
         pmath_t real = next_value(format, args);
         pmath_t imag = next_value(format, args);
         
-        if(pmath_same(real, PMATH_UNDEFINED)
-            || pmath_same(imag, PMATH_UNDEFINED)) {
+        if( pmath_same(real, PMATH_UNDEFINED) ||
+            pmath_same(imag, PMATH_UNDEFINED))
+        {
           pmath_debug_print("unclosed complex\n");
           assert(0 && "unclosed complex");
         }
@@ -203,8 +205,9 @@ static pmath_t next_value(const char **format, va_list *args) {
         pmath_t num = next_value(format, args);
         pmath_t den = next_value(format, args);
         
-        if(pmath_same(num, PMATH_UNDEFINED)
-            || pmath_same(den, PMATH_UNDEFINED)) {
+        if( pmath_same(num, PMATH_UNDEFINED) ||
+            pmath_same(den, PMATH_UNDEFINED))
+        {
           pmath_debug_print("unclosed rational\n");
           assert(0 && "unclosed rational");
         }
@@ -222,22 +225,6 @@ static pmath_t next_value(const char **format, va_list *args) {
                    PMATH_FROM_INT32(-1)));
       }
       
-//    case '@': {
-//      pmath_t head = next_value(format, args);
-//      pmath_t expr = next_value(format, args);
-//
-//      if(pmath_same(head, PMATH_UNDEFINED)
-//      || pmath_same(expr, PMATH_UNDEFINED)){
-//        pmath_debug_print("unfinished function\n");
-//        assert(0 && "unfinished functionx");
-//      }
-//
-//      if(!pmath_is_expr(expr))
-//        return pmath_expr_new_extended(head, 1, expr);
-//
-//      return pmath_expr_set_item(expr, 0, head);
-//    }
-
     case '(': {
         pmath_gather_begin(PMATH_NULL);
         
@@ -540,8 +527,9 @@ PMATH_API void pmath_walk_stack(pmath_stack_walker_t walker, void *closure) {
 
 static void warn_uncaught_exception(void) {
   pmath_t exception = pmath_catch();
-  if(!pmath_same(exception, PMATH_UNDEFINED)
-      && !pmath_same(exception, PMATH_ABORT_EXCEPTION)) {
+  if( !pmath_same(exception, PMATH_UNDEFINED) &&
+      !pmath_same(exception, PMATH_ABORT_EXCEPTION))
+  {
     pmath_message(PMATH_SYMBOL_THROW, "nocatch", 1, exception);
   }
 }

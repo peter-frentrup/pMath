@@ -62,8 +62,11 @@ PMATH_PRIVATE pmath_t builtin_riffle(pmath_expr_t expr) {
       end_obj   = pmath_expr_get_item(obj, 2);
       step_obj  = pmath_expr_get_item(obj, 3);
       
-      if(pmath_is_integer(start_obj) && pmath_integer_fits_siptr(start_obj)
-          && pmath_is_integer(end_obj)   && pmath_integer_fits_siptr(end_obj)) {
+      if( pmath_is_integer(start_obj)         &&
+          pmath_integer_fits_siptr(start_obj) &&
+          pmath_is_integer(end_obj)           &&
+          pmath_integer_fits_siptr(end_obj))
+      {
         start = pmath_integer_get_siptr(start_obj);
         end   = pmath_integer_get_siptr(end_obj);
       }
@@ -78,8 +81,10 @@ PMATH_PRIVATE pmath_t builtin_riffle(pmath_expr_t expr) {
         return expr;
       }
       
-      if(pmath_expr_length(obj) == 3
-          && pmath_is_integer(step_obj) && pmath_integer_fits_siptr(step_obj)) {
+      if( pmath_expr_length(obj) == 3 &&
+          pmath_is_integer(step_obj)  &&
+          pmath_integer_fits_siptr(step_obj))
+      {
         step = pmath_integer_get_siptr(step_obj);
       }
       else if(pmath_expr_length(obj) != 2) {

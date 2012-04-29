@@ -37,7 +37,7 @@ static pmath_custom_t create_custom_task(pmath_t body) {
   struct custom_task_data *data;
   pmath_task_t task;
   
-  data = (struct custom_task_data*)pmath_mem_alloc(sizeof(struct custom_task_data));
+  data = (struct custom_task_data *)pmath_mem_alloc(sizeof(struct custom_task_data));
   
   if(!data) {
     pmath_unref(body);
@@ -104,8 +104,9 @@ PMATH_PRIVATE pmath_t builtin_wait(pmath_expr_t expr) {
   }
   
   custom_task = pmath_symbol_get_value(sym);
-  if(!pmath_is_custom(custom_task)
-      || !pmath_custom_has_destructor(custom_task, _pmath_custom_task_destroy)) {
+  if( !pmath_is_custom(custom_task) ||
+      !pmath_custom_has_destructor(custom_task, _pmath_custom_task_destroy))
+  {
     pmath_unref(custom_task);
     pmath_message(PMATH_NULL, "nothread", 1, sym);
     return expr;

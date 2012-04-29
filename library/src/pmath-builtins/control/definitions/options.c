@@ -113,8 +113,9 @@ PMATH_PRIVATE pmath_t builtin_optionvalue(pmath_expr_t expr) {
     for(start = end; start > 0; --start) {
       pmath_t opt = pmath_expr_get_item(fn, start);
       
-      if(!_pmath_is_list_of_rules(opt)
-          && !_pmath_is_rule(opt)) {
+      if( !_pmath_is_list_of_rules(opt) &&
+          !_pmath_is_rule(opt))
+      {
         pmath_unref(opt);
         break;
       }
