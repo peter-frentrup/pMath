@@ -15,7 +15,7 @@ using namespace pmath;
 static COLORREF default_init_color = 0;
 static COLORREF custom_colors[16] = {0};
 
-Expr Win32ColorDialog::show(int intialcolor) {
+Expr Win32ColorDialog::show(int initialcolor) {
   CHOOSECOLORW data;
   
   memset(&data, 0, sizeof(data));
@@ -23,10 +23,10 @@ Expr Win32ColorDialog::show(int intialcolor) {
   
   data.Flags = CC_ANYCOLOR | CC_RGBINIT | CC_FULLOPEN;
   
-  if(intialcolor >= 0) {
-    data.rgbResult = ((intialcolor & 0xFF0000) >> 16) |
-                     ( intialcolor & 0x00FF00)        |
-                     ((intialcolor & 0x0000FF) << 16);
+  if(initialcolor >= 0) {
+    data.rgbResult = ((initialcolor & 0xFF0000) >> 16) |
+                     ( initialcolor & 0x00FF00)        |
+                     ((initialcolor & 0x0000FF) << 16);
   }
   else
     data.rgbResult = default_init_color;

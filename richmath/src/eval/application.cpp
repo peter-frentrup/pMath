@@ -16,23 +16,24 @@
 #include <graphics/config-shaper.h>
 
 #ifdef RICHMATH_USE_WIN32_GUI
-#include <gui/win32/basic-win32-widget.h>
-#include <gui/win32/win32-colordialog.h>
-#include <gui/win32/win32-document-window.h>
-#include <gui/win32/win32-filedialog.h>
-#include <gui/win32/win32-fontdialog.h>
-#include <gui/win32/win32-menu.h>
+#  include <gui/win32/basic-win32-widget.h>
+#  include <gui/win32/win32-colordialog.h>
+#  include <gui/win32/win32-document-window.h>
+#  include <gui/win32/win32-filedialog.h>
+#  include <gui/win32/win32-fontdialog.h>
+#  include <gui/win32/win32-menu.h>
 #endif
 
 #ifdef RICHMATH_USE_GTK_GUI
-#include <gui/gtk/mgtk-document-window.h>
+#  include <gui/gtk/mgtk-colordialog.h>
+#  include <gui/gtk/mgtk-document-window.h>
 #endif
 
 
 #ifdef PMATH_OS_WIN32
-#include <windows.h>
+#  include <windows.h>
 #else
-#include <pthread.h>
+#  include <pthread.h>
 #endif
 
 
@@ -49,10 +50,10 @@
 
 #ifdef RICHMATH_USE_WIN32_GUI
 
-#define WM_CLIENTNOTIFY  (WM_USER + 1)
-#define WM_ADDJOB        (WM_USER + 2)
+#  define WM_CLIENTNOTIFY  (WM_USER + 1)
+#  define WM_ADDJOB        (WM_USER + 2)
 
-#define TID_DYNAMIC_UPDATE  1
+#  define TID_DYNAMIC_UPDATE  1
 
 #endif
 
@@ -1373,6 +1374,7 @@ static Expr cnt_colordialog(Expr data) {
 #endif
   
 #ifdef RICHMATH_USE_GTK_GUI
+  return MathGtkColorDialog::show(initcolor);
 #endif
   
   return Symbol(PMATH_SYMBOL_FAILED);

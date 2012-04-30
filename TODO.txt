@@ -4,7 +4,7 @@
 
 - BUG: "g(?n:c)::= n"  does not render correctly (n is not highlighted)
   
-- richmath/GTK: implement system FE`ColorDialog, ...
+- richmath/GTK: implement system FE`FontDialog, FE`FileOpenDialog(), FE`FileSaveDialog()...
 
 - add StyleData(...) and richmath::StyleSection class
 - allow creation of a richmath::Style from a richmath::StyleSection

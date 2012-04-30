@@ -1,9 +1,9 @@
 #include <gui/gtk/mgtk-widget.h>
- 
+
 #include <eval/binding.h>
 #include <gui/gtk/mgtk-clipboard.h>
 #include <gui/gtk/mgtk-tooltip-window.h>
- 
+
 #include <glib.h>
 #include <cmath>
 
@@ -17,14 +17,14 @@
 #  include <gdk/gdkx.h>
 #  include <X11/XKBlib.h>
 #endif
- 
- 
+
+
 using namespace richmath;
- 
+
 #define ANIMATION_DELAY  (50)
 static bool animation_running = false;
 Hashtable<SharedPtr<TimedEvent>, Void> animations;
- 
+
 static gboolean animation_timeout(gpointer data) {
   animation_running = false;
   
@@ -74,7 +74,7 @@ static void add_remove_widget(int delta) {
   }
 }
  
-//{ class MGtkWidget ...
+//{ class MathGtkWidget ...
  
 MathGtkWidget::MathGtkWidget(Document *doc)
   : NativeWidget(doc),
@@ -371,7 +371,7 @@ bool MathGtkWidget::is_mouse_down() {
   GdkWindow *w = gtk_widget_get_window(_widget);
   if(!w)
     return false;
-  
+    
   GdkModifierType mod = (GdkModifierType)0;
   
   gdk_window_get_pointer(w, NULL, NULL, &mod);
@@ -1224,9 +1224,10 @@ gboolean MathGtkWidget::blink_caret(gpointer id_as_ptr) {
     if(wid) {
       Context *ctx = wid->document_context();
       
-      if(ctx->old_selection == ctx->selection
-          || !gtk_widget_is_focus(wid->widget())
-          || wid->is_mouse_down()) {
+      if( ctx->old_selection == ctx->selection ||
+          !gtk_widget_is_focus(wid->widget()) ||
+          wid->is_mouse_down())
+      {
         ctx->old_selection.id = 0;
       }
       else
@@ -1244,7 +1245,8 @@ gboolean MathGtkWidget::blink_caret(gpointer id_as_ptr) {
   return FALSE;
 }
  
-//} ... class MGtkWidget
+//} ... class MathGtkWidget
+ 
  
  
  
