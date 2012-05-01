@@ -16,7 +16,24 @@ static Expr font_chooser_dialog_show(SharedPtr<Style> initial_style) {
   GtkFontChooserDialog *dialog;
   GtkFontChooser       *chooser;
   
-  dialog  = GTK_FONT_CHOOSER_DIALOG(gtk_font_chooser_dialog_new(NULL, NULL));
+  GtkWindow *parent_window = 0;
+  Box *box = Application::get_evaluation_box();
+  if(box) {
+    Document *doc = box->find_parent<Document>(true);
+    
+    if(doc) {
+      MathGtkWidget *widget = dynamic_cast<MathGtkWidget *>(doc->native());
+      
+      if(widget) {
+        GtkWidget *wid = widget->widget();
+        
+        if(wid)
+          parent_window = GTK_WINDOW(gtk_widget_get_ancestor(wid, GTK_TYPE_WINDOW));
+      }
+    }
+  }
+  
+  dialog  = GTK_FONT_CHOOSER_DIALOG(gtk_font_chooser_dialog_new(NULL, parent_window));
   chooser = GTK_FONT_CHOOSER(dialog);
   
   if(initial_style) {

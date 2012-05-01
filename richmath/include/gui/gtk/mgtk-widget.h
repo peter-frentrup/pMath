@@ -2,7 +2,7 @@
 #define __GUI__GTK__RMGTK_WIDGET_H__
 
 #ifndef RICHMATH_USE_GTK_GUI
-#error this header is gtk specific
+#  error this header is gtk specific
 #endif
 
 #include <gui/document.h>

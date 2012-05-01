@@ -1,8 +1,8 @@
-#ifndef __GUI__WIN32__WIN32_FILEDIALOG_H__
-#define __GUI__WIN32__WIN32_FILEDIALOG_H__
+#ifndef __GUI__GTK__MGTK_FILEDIALOG_H__
+#define __GUI__GTK__MGTK_FILEDIALOG_H__
 
-#ifndef RICHMATH_USE_WIN32_GUI
-#  error this header is win32 specific
+#ifndef RICHMATH_USE_GTK_GUI
+#  error this header is gtk specific
 #endif
 
 #include <pmath-cpp.h>
@@ -10,7 +10,7 @@
 
 
 namespace richmath {
-  class Win32FileDialog: public Base {
+  class MathGtkFileDialog: public Base {
     public:
       static pmath::Expr show(
         bool           save,
@@ -21,4 +21,4 @@ namespace richmath {
 }
 
 
-#endif // __GUI__WIN32__WIN32_FILEDIALOG_H__
+#endif // __GUI__GTK__MGTK_FILEDIALOG_H__

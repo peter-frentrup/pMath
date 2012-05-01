@@ -2,7 +2,7 @@
 #define __GUI__GTK__MGTK_MENU_BUILDER_H__
 
 #ifndef RICHMATH_USE_GTK_GUI
-#error this header is gtk specific
+#  error this header is gtk specific
 #endif
 
 #include <pmath-cpp.h>

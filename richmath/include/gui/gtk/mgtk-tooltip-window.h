@@ -1,6 +1,10 @@
 #ifndef __GUI__GTK__MGTK_TOOLTIP_WINDOW_H__
 #define __GUI__GTK__MGTK_TOOLTIP_WINDOW_H__
 
+#ifndef RICHMATH_USE_GTK_GUI
+#  error this header is gtk specific
+#endif
+
 #include <gui/gtk/mgtk-widget.h>
 
 

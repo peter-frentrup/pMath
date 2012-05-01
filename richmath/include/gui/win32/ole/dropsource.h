@@ -2,7 +2,7 @@
 #define __GUI__WIN32__OLE__DROPSOURCE_H__
 
 #ifndef RICHMATH_USE_WIN32_GUI
-#error this header is win32 specific
+#  error this header is win32 specific
 #endif
 
 #include <ole2.h>

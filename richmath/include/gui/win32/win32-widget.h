@@ -2,7 +2,7 @@
 #define __GUI__WIN32__WIN32_WIDGET_H__
 
 #ifndef RICHMATH_USE_WIN32_GUI
-  #error this header is win32 specific
+#  error this header is win32 specific
 #endif
 
 #include <gui/document.h>
@@ -10,38 +10,38 @@
 #include <gui/win32/basic-win32-widget.h>
 
 
-namespace richmath{
+namespace richmath {
   // Must call init() immediately after the construction of a derived object!
-  class Win32Widget: public NativeWidget, public BasicWin32Widget{
+  class Win32Widget: public NativeWidget, public BasicWin32Widget {
     protected:
       virtual void after_construction();
       
     public:
       Win32Widget(
         Document *doc,
-        DWORD style_ex, 
-        DWORD style, 
-        int x, 
-        int y, 
+        DWORD style_ex,
+        DWORD style,
+        int x,
+        int y,
         int width,
         int height,
         HWND *parent);
       virtual ~Win32Widget();
       
       virtual void window_size(float *w, float *h);
-      virtual void page_size(float *w, float *h){
-        window_size(w, h); 
+      virtual void page_size(float *w, float *h) {
+        window_size(w, h);
       }
       
-      virtual bool is_scrollable(){ return true; }
-      virtual bool autohide_vertical_scrollbar(){ return _autohide_vertical_scrollbar; }
+      virtual bool is_scrollable() { return true; }
+      virtual bool autohide_vertical_scrollbar() { return _autohide_vertical_scrollbar; }
       virtual void scroll_pos(float *x, float *y);
       virtual void scroll_to(float x, float y);
       
       virtual void show_tooltip(Expr boxes);
       virtual void hide_tooltip();
       
-      virtual bool is_scaleable(){ return true; }
+      virtual bool is_scaleable() { return true; }
       
       virtual double message_time();
       virtual double double_click_time();
@@ -50,7 +50,7 @@ namespace richmath{
       virtual bool cursor_position(float *x, float *y);
       
       virtual void bring_to_front();
-      virtual void close(){}
+      virtual void close() {}
       virtual void invalidate();
       virtual void invalidate_options();
       virtual void invalidate_rect(float x, float y, float w, float h);
@@ -63,7 +63,7 @@ namespace richmath{
       virtual bool is_mouse_down();
       
       virtual void beep();
-    
+      
       virtual bool register_timed_event(SharedPtr<TimedEvent> event);
       
     public:
@@ -87,7 +87,7 @@ namespace richmath{
       int _width;
       int _height;
       
-      Hashtable<SharedPtr<TimedEvent>,Void> animations;
+      Hashtable<SharedPtr<TimedEvent>, Void> animations;
       bool animation_running;
       bool is_dragging;
       bool is_drop_over;
