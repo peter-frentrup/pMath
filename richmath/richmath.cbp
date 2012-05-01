@@ -278,7 +278,7 @@
 				<Option platforms="Unix;" />
 				<Option output="bin/linux/debug/richmath" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/linux/debug" />
-				<Option external_deps="../../pmath_project/library/pmath.cbp;" />
+				<Option external_deps="../library/pmath.cbp;" />
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
@@ -298,7 +298,7 @@
 				<Linker>
 					<Add option="`pkg-config gtk+-2.0 --libs`" />
 					<Add option="-lX11" />
-					<Add option="-Wl,-rpath,\\$$ORIGIN" />
+					<Add option="-Wl,-rpath,?ORIGIN" />
 					<Add library="pmath" />
 					<Add directory="../library/bin/linux/debug" />
 					<Add directory="$(#cairo.lib)" />
@@ -306,15 +306,15 @@
 					<Add directory="$(#glib.lib)" />
 				</Linker>
 				<ExtraCommands>
-					<Add after="./post-build-linux.sh debug" />
+					<Add after="./post-build-linux.sh debug debug" />
 					<Mode after="always" />
 				</ExtraCommands>
 			</Target>
 			<Target title="Linux-Debug-Gtk3">
 				<Option platforms="Unix;" />
-				<Option output="bin/linux/debug/richmath-gtk3" prefix_auto="1" extension_auto="1" />
+				<Option output="bin/linux/debug-gtk3/richmath" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/linux/debug-gtk3" />
-				<Option external_deps="../../pmath_project/library/pmath.cbp;" />
+				<Option external_deps="../library/pmath.cbp;" />
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
@@ -334,7 +334,7 @@
 				<Linker>
 					<Add option="`pkg-config gtk+-3.0 --libs`" />
 					<Add option="-lX11" />
-					<Add option="-Wl,-rpath,\\$$ORIGIN" />
+					<Add option="-Wl,-rpath,?ORIGIN" />
 					<Add library="pmath" />
 					<Add directory="../library/bin/linux/debug" />
 					<Add directory="$(#cairo.lib)" />
@@ -342,7 +342,7 @@
 					<Add directory="$(#glib.lib)" />
 				</Linker>
 				<ExtraCommands>
-					<Add after="./post-build-linux.sh debug" />
+					<Add after="./post-build-linux.sh debug debug-gtk3" />
 					<Mode after="always" />
 				</ExtraCommands>
 			</Target>

@@ -37,8 +37,8 @@ Expr MathGtkFileDialog::show(
   }
   
   
-  char *utf8_title      = NULL;
-  char *utf8_title_data = NULL;
+  const char *utf8_title      = NULL;
+  char       *utf8_title_data = NULL;
   if(title.is_valid()){
     utf8_title = utf8_title_data = pmath_string_to_utf8(title.get_as_string(), NULL);
   }

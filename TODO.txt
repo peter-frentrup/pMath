@@ -4,8 +4,8 @@
 
 - BUG: "g(?n:c)::= n"  does not render correctly (n is not highlighted)
   
-- richmath/GTK: implement system FE`FontDialog, FE`FileOpenDialog(), FE`FileSaveDialog()...
-
+- enable CTRL+Numpad/ to be the same as CTRL+/ a.s.o.
+  
 - add StyleData(...) and richmath::StyleSection class
 - allow creation of a richmath::Style from a richmath::StyleSection
 - add DockedSections option for Document....
