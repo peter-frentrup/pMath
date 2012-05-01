@@ -47,9 +47,10 @@ Expr Win32FontDialog::show(SharedPtr<Style> initial_style) {
       
     int weight = FontWeightPlain;
     int slant  = FontSlantPlain;
-    if( initial_style->get(FontWeight, &weight) ||
-        initial_style->get(FontSlant, &slant))
-    {
+    
+    bool has_weight = initial_style->get(FontWeight, &weight);
+    bool has_slant  = initial_style->get(FontSlant, &slant);
+    if(has_weight || has_slant) {
       logfontw.lfWeight = (weight == FontWeightBold) ? FW_BOLD : FW_NORMAL;
       logfontw.lfItalic = (slant  == FontSlantItalic);
     }

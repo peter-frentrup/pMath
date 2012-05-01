@@ -3,16 +3,16 @@
 #include <graphics/fonts.h>
 
 #ifdef RICHMATH_USE_WIN32_FONT
-#include <windows.h>
-#include <usp10.h>
-#include <cairo-win32.h>
+#  include <windows.h>
+#  include <usp10.h>
+#  include <cairo-win32.h>
 #elif defined(RICHMATH_USE_FT_FONT)
-#include <pango/pangocairo.h>
-#include <cairo-ft.h>
-#include FT_TRUETYPE_TABLES_H
-#include <cstdio>
+#  include <pango/pangocairo.h>
+#  include <cairo-ft.h>
+#  include FT_TRUETYPE_TABLES_H
+#  include <cstdio>
 #else
-#error no support for font backend
+#  error no support for font backend
 #endif
 
 #include <graphics/canvas.h>

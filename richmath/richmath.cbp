@@ -434,6 +434,11 @@
 			<Option target="Linux-Debug" />
 			<Option target="Linux-Debug-Gtk3" />
 		</Unit>
+		<Unit filename="include/gui/gtk/mgtk-fontdialog.h">
+			<Option target="Windows-Debug-Gtk" />
+			<Option target="Linux-Debug" />
+			<Option target="Linux-Debug-Gtk3" />
+		</Unit>
 		<Unit filename="include/gui/gtk/mgtk-menu-builder.h">
 			<Option target="Windows-Debug-Gtk" />
 			<Option target="Linux-Debug" />
@@ -658,6 +663,11 @@
 			<Option target="Linux-Debug-Gtk3" />
 		</Unit>
 		<Unit filename="src/gui/gtk/mgtk-document-window.cpp">
+			<Option target="Windows-Debug-Gtk" />
+			<Option target="Linux-Debug" />
+			<Option target="Linux-Debug-Gtk3" />
+		</Unit>
+		<Unit filename="src/gui/gtk/mgtk-fontdialog.cpp">
 			<Option target="Windows-Debug-Gtk" />
 			<Option target="Linux-Debug" />
 			<Option target="Linux-Debug-Gtk3" />

@@ -26,6 +26,7 @@
 
 #ifdef RICHMATH_USE_GTK_GUI
 #  include <gui/gtk/mgtk-colordialog.h>
+#  include <gui/gtk/mgtk-fontdialog.h>
 #  include <gui/gtk/mgtk-document-window.h>
 #endif
 
@@ -1391,6 +1392,7 @@ static Expr cnt_fontdialog(Expr data) {
 #endif
   
 #ifdef RICHMATH_USE_GTK_GUI
+  return MathGtkFontDialog::show(initial_style);
 #endif
   
   return Symbol(PMATH_SYMBOL_FAILED);

@@ -2,7 +2,6 @@
 #define __GUI__WIN32__WIN32_FONTDIALOG_H__
 
 
-#include <pmath-cpp.h>
 #include <util/style.h>
 
 

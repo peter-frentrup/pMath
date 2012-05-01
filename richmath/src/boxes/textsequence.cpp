@@ -194,8 +194,8 @@ class GlobalPangoContext {
         pango_font_description_set_family_static(desc, utf8_name);
         
       pango_font_description_set_absolute_size(desc, ctx->canvas->get_font_size() * PANGO_SCALE);
-      pango_font_description_set_style(desc, style.italic ? PANGO_STYLE_ITALIC : PANGO_STYLE_NORMAL);
-      pango_font_description_set_weight(desc, style.bold   ? PANGO_WEIGHT_BOLD  : PANGO_WEIGHT_NORMAL);
+      pango_font_description_set_style(        desc, style.italic ? PANGO_STYLE_ITALIC : PANGO_STYLE_NORMAL);
+      pango_font_description_set_weight(       desc, style.bold   ? PANGO_WEIGHT_BOLD  : PANGO_WEIGHT_NORMAL);
       
       pango_context_set_font_description(singleton.context, desc);
       
