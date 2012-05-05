@@ -24,6 +24,8 @@ makeHeldGraphicsOption((h: Rule|RuleDelayed)(~lhs, NCache(~v,~)))::=
 
 MakeGraphicsExpressionOptions({~~~opts})::= ComposeHeldExpr(List, MakeGraphicsExpressionOptions(opts))
 MakeGraphicsExpressionOptions(~~~opts)::= Join @@ HoldComplete(opts).Map(makeHeldGraphicsOption)
+MakeGraphicsExpressionOptions({})::= HoldComplete({})
+MakeGraphicsExpressionOptions()::= HoldComplete()
 
 
 End()

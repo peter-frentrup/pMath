@@ -159,7 +159,7 @@ static pmath_t open_bin_file(
       case OPEN_WRITE:
         haccess = GENERIC_WRITE;
         hshare  = FILE_SHARE_READ;
-        hcredis = OPEN_ALWAYS;
+        hcredis = CREATE_ALWAYS;
         hflags = FILE_ATTRIBUTE_NORMAL;
         fdmode = 0;
         fmode = L"wb";
@@ -183,6 +183,7 @@ static pmath_t open_bin_file(
           hcredis,
           hflags,
           NULL);
+    
     fd = _open_osfhandle((intptr_t)h, fdmode);
     if(fd < 0)
       CloseHandle(h);

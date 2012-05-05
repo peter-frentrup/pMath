@@ -41,6 +41,8 @@ makeHeldGraphicsBoxOption((h: Rule|RuleDelayed)(~lhs ? isNumericCachableOption, 
 
 MakeGraphicsBoxesOptions({~~~opts})::= ComposeHeldExpr(List, MakeGraphicsBoxesOptions(opts))
 MakeGraphicsBoxesOptions(~~~opts)::= Join @@ HoldComplete(opts).Map(makeHeldGraphicsBoxOption)
+MakeGraphicsBoxesOptions({})::= HoldComplete({})
+MakeGraphicsBoxesOptions()::= HoldComplete()
 
 
 End()
