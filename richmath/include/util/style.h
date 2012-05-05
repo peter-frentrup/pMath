@@ -28,7 +28,8 @@ namespace richmath {
     ContinuousAction,
     Editable,
     Evaluatable,
-    InternalHavePendingDynamic,
+    InternalHasModifiedWindowOption,
+    InternalHasPendingDynamic,
     InternalUsesCurrentValueOfMouseOver,
     LineBreakWithin,
     Placeholder,
@@ -182,7 +183,7 @@ namespace richmath {
         remove((ObjectStyleOptionName)(n + DynamicOffset));
         set(   (ObjectStyleOptionName)(n + DynamicOffset), value);
         
-        set(InternalHavePendingDynamic, true);
+        set(InternalHasPendingDynamic, true);
       }
       
       void remove_dynamic(int n) {

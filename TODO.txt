@@ -2,7 +2,9 @@
 	Button("italic", DocumentApply(SelectedDocument(), StyleBox("\[SelectionPlaceholder]", "TI"))),
 	Button("Arg Style", DocumentApply(SelectedDocument(), StyleBox("\[SelectionPlaceholder]", "Arg")))})
 
-- BUG: "g(?n:c)::= n"  does not render correctly (n is not highlighted)
+- richmath: rendering artifacts during change of selection in a TextSequence via mouse move
+- richmath: "N(GoldenRatio, 80)"  CTRL+E  CTRL+E    --> error indicator after 80
+- richmath: "g(?n:c)::= n"  does not render correctly (n is not highlighted)
   
 - enable CTRL+Numpad/ to be the same as CTRL+/ a.s.o.
   

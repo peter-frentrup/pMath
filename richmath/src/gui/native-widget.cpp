@@ -75,8 +75,8 @@ NativeWidget *NativeWidget::dummy = &staticdummy;
 
 NativeWidget::NativeWidget(Document *doc)
   : Base(),
-  _scale_factor(ScaleDefault),
-  _document(0)
+    _scale_factor(ScaleDefault),
+    _document(0)
 {
   adopt(doc);
 }
@@ -98,12 +98,14 @@ void NativeWidget::scale_by(float ds) {
 }
 
 void NativeWidget::set_scale(float s) {
-  if(!is_scaleable()
-      || s == _scale_factor
-      || s < ScaleMin
-      || s > ScaleMax)
+  if( !is_scaleable()    ||
+      s == _scale_factor ||
+      s < ScaleMin       ||
+      s > ScaleMax)
+  {
     return;
-    
+  }
+  
   _scale_factor = s;
   if(fabs(_scale_factor - ScaleDefault) < 0.0001)
     _scale_factor = ScaleDefault;
@@ -127,10 +129,13 @@ bool NativeWidget::may_drop_into(Box *dst, int start, int end, bool self_is_sour
         int e = end;
         box = dst;
         
-        if(box == src
-            && s <= drag_source_reference().end && e >= drag_source_reference().start)
+        if( box == src &&
+            s <= drag_source_reference().end &&
+            e >= drag_source_reference().start)
+        {
           return false;
-          
+        }
+        
         while(box != src) {
           s = box->index();
           e = s + 1;
@@ -181,18 +186,18 @@ CursorType NativeWidget::size_cursor(float dx, float dy, CursorType base) {
   
   if(delta < -8 || delta > 8)
     return base;
-  
+    
   int part = (int)floor(atan2(dx, dy) * 4 / M_PI + 0.5);
   if(part == -4)
     part = 4;
-  
-  part+= delta;
+    
+  part += delta;
   
   if(part > 4)
-    part-= 8;
+    part -= 8;
   else if(part <= -4)
-    part+= 8;
-  
+    part += 8;
+    
   return (CursorType)(SizeNCursor + part);
 }
 

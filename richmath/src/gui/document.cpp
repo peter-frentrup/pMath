@@ -459,12 +459,12 @@ bool Document::try_load_from_object(Expr expr, int options) {
   Expr options_expr(pmath_options_extract(expr.get(), 1));
   if(!options_expr.is_valid())
     return false;
-  
+    
   sections_expr = Call(Symbol(PMATH_SYMBOL_SECTIONGROUP), sections_expr, Symbol(PMATH_SYMBOL_ALL));
   
   int pos = 0;
   insert_pmath(&pos, sections_expr, count());
-    
+  
   style->clear();
   style->add_pmath(options_expr);
   return true;
@@ -492,7 +492,11 @@ void Document::invalidate() {
 }
 
 void Document::invalidate_options() {
-  native()->invalidate_options();
+  if(get_own_style(InternalHasModifiedWindowOption)) {
+    style->set(InternalHasModifiedWindowOption, false);
+    
+    native()->invalidate_options();
+  }
   
   Box::invalidate_options();
 }
@@ -844,7 +848,7 @@ void Document::on_mouse_move(MouseEvent &event) {
     native()->double_click_dist(&ddx, &ddy);
     
     if(fabs(event.x - mouse_down_x) > ddx
-    || fabs(event.y - mouse_down_y) > ddy) {
+        || fabs(event.y - mouse_down_y) > ddy) {
       drag_status = DragStatusCurrentlyDragging;
       mouse_down_x = mouse_down_y = Infinity;
       native()->do_drag_drop(selection_box(), selection_start(), selection_end());
@@ -1206,7 +1210,7 @@ void Document::on_key_press(uint32_t unichar) {
     
   // handle parenthesis surrounding of selections:
   if(context.selection.start < context.selection.end
-  && unichar < 0xFFFF) {
+      && unichar < 0xFFFF) {
     int prec;
     uint16_t ch = (uint16_t)unichar;
     String selstr;
@@ -1331,7 +1335,7 @@ void Document::on_key_press(uint32_t unichar) {
         
         if(mseq == context.selection.get()
             && context.selection.start < mseq->length()
-        && mseq->text()[context.selection.start] == ' ') {
+            && mseq->text()[context.selection.start] == ' ') {
           context.selection.end++;
           
           if(ok)
@@ -1351,7 +1355,7 @@ void Document::on_key_press(uint32_t unichar) {
             && buf[i] <= 0x7F
             && buf[i] != ']'
             && buf[i] != '['
-      && i - context.selection.start < 64) {
+            && i - context.selection.start < 64) {
         ++i;
       }
       
@@ -1376,7 +1380,7 @@ void Document::on_key_press(uint32_t unichar) {
 // substart and subend may lie outside 0..subbox->length()
 bool Document::is_inside_selection(Box *subbox, int substart, int subend) {
   if(selection_box()
-  && selection_length() > 0) {
+      && selection_length() > 0) {
     // section selections are only at the right margin, the section content is
     // not inside the selection-frame
     if(selection_box() == this && subbox != this)
@@ -1788,7 +1792,7 @@ void Document::move_start_end(
     }
   }
   else if(context.selection.start < context.selection.end
-  && length() > 0) {
+          && length() > 0) {
     index = context.selection.start;
     if(context.selection.start < context.selection.end
         && direction == Forward)
@@ -1985,7 +1989,7 @@ void Document::select_prev(bool operands_only) {
         Span s = seq->span_array()[start];
         while(s) {
           if(s.end() == end
-          && seq->span_array().is_operand_start(start)) {
+              && seq->span_array().is_operand_start(start)) {
             move_to(seq, start, true);
             return;
           }
@@ -2112,18 +2116,21 @@ void Document::cut_to_clipboard() {
 }
 
 void Document::paste_from_boxes(Expr boxes) {
-  if(context.selection.get() == this &&
-      get_style(Editable, true) &&
-      (boxes[0] == PMATH_SYMBOL_SECTION || boxes[0] == PMATH_SYMBOL_SECTIONGROUP))
+  if( context.selection.get() == this &&
+      get_style(Editable, true))
   {
-    remove_selection(false);
-    
-    int i = context.selection.start;
-    insert_pmath(&i, boxes);
-    
-    select(this, i, i);
-    
-    return;
+    if( boxes[0] == PMATH_SYMBOL_SECTION ||
+        boxes[0] == PMATH_SYMBOL_SECTIONGROUP)
+    {
+      remove_selection(false);
+      
+      int i = context.selection.start;
+      insert_pmath(&i, boxes);
+      
+      select(this, i, i);
+      
+      return;
+    }
   }
   
   boxes = Application::interrupt(
@@ -2152,11 +2159,11 @@ void Document::paste_from_boxes(Expr boxes) {
       
       if(tmpgrid
           && tmpgrid->rows() <= h
-      && tmpgrid->cols() <= w) {
+          && tmpgrid->cols() <= w) {
         for(int col = 0; col < w; ++col) {
           for(int row = 0; row < h; ++row) {
             if(col < tmpgrid->cols()
-            && row < tmpgrid->rows()) {
+                && row < tmpgrid->rows()) {
               grid->item(row1 + row, col1 + col)->load_from_object(
                 Expr(tmpgrid->item(row, col)->to_pmath(BoxFlagDefault)),
                 BoxOptionFormatNumbers);
@@ -2792,7 +2799,7 @@ void Document::insert_matrix_column() {
   if(seq
       && context.selection.start > 0
       && context.selection.start == context.selection.end
-  && !seq->span_array().is_token_end(context.selection.start - 1)) {
+      && !seq->span_array().is_token_end(context.selection.start - 1)) {
     while(context.selection.end < seq->length()
           && !seq->span_array().is_token_end(context.selection.end))
       ++context.selection.end;
@@ -2883,7 +2890,7 @@ void Document::insert_matrix_row() {
   if(seq
       && context.selection.start > 0
       && context.selection.start == context.selection.end
-  && !seq->span_array().is_token_end(context.selection.start - 1)) {
+      && !seq->span_array().is_token_end(context.selection.start - 1)) {
     while(context.selection.end < seq->length()
           && !seq->span_array().is_token_end(context.selection.end))
       ++context.selection.end;
@@ -3122,7 +3129,7 @@ bool Document::remove_selection(bool insert_default) {
       if(insert_default
           && mseq->length() == 0
           && mseq->parent()
-      && mseq->parent()->remove_inserts_placeholder()) {
+          && mseq->parent()->remove_inserts_placeholder()) {
         mseq->insert(0, PMATH_CHAR_PLACEHOLDER);
         select(mseq, 0, 1);
         return true;
@@ -3309,7 +3316,7 @@ void Document::paint_resize(Canvas *canvas, bool resize_only) {
   
   if(!resize_only) {
     while(i < length()
-    && _extents.descent <= sy + h) {
+          && _extents.descent <= sy + h) {
       paint_section(&context, i, sx);
       
       section(i)->y_offset = _extents.descent;
@@ -3375,7 +3382,7 @@ void Document::paint_resize(Canvas *canvas, bool resize_only) {
   if(!resize_only) {
     // paint cursor (as a horizontal line) at end of document:
     if(context.selection.id == this->id()
-    && context.selection.start == context.selection.end) {
+        && context.selection.start == context.selection.end) {
       float y;
       if(context.selection.start < length())
         y = section(context.selection.start)->y_offset;
@@ -3424,7 +3431,7 @@ void Document::paint_resize(Canvas *canvas, bool resize_only) {
           && !seq->is_placeholder(start)
           && (start == 0
               || seq->span_array().is_token_end(start - 1))
-      && seq->span_array().is_token_end(end - 1)) {
+          && seq->span_array().is_token_end(end - 1)) {
         if(selection_is_name(this)) {
           String s = seq->text().part(start, len);
           
@@ -3436,7 +3443,7 @@ void Document::paint_resize(Canvas *canvas, bool resize_only) {
             
             while(0 != (find = search_string(
                                  find, &index, this, last_visible_section + 1, s, true))
-            ) {
+                 ) {
               int s = index - len;
               int e = index;
               Box *b = find->get_highlight_child(find, &s, &e);
@@ -3451,7 +3458,7 @@ void Document::paint_resize(Canvas *canvas, bool resize_only) {
             
             if(count_occurences == 1) {
               if(sel_sect >= first_visible_section
-              && sel_sect <= last_visible_section) {
+                  && sel_sect <= last_visible_section) {
                 // The one found occurency is the selection. Search for more
                 // occurencies outside the visible range.
                 find = this;
@@ -3459,7 +3466,7 @@ void Document::paint_resize(Canvas *canvas, bool resize_only) {
                 
                 while(0 != (find = search_string(
                                      find, &index, this, first_visible_section, s, true))
-                ) {
+                     ) {
                   do_fill = true;
                   break;
                 }
@@ -3470,7 +3477,7 @@ void Document::paint_resize(Canvas *canvas, bool resize_only) {
                   
                   while(0 != (find = search_string(
                                        find, &index, this, length(), s, true))
-                  ) {
+                       ) {
                     do_fill = true;
                     break;
                   }
@@ -3629,7 +3636,14 @@ void Document::paint_resize(Canvas *canvas, bool resize_only) {
 Expr Document::to_pmath(int flags) {
   Gather g;
   
-  Gather::emit(SectionList::to_pmath(flags));
+  Expr content = SectionList::to_pmath(flags);
+  if(content[0] == PMATH_SYMBOL_SECTIONGROUP) {
+    Expr inner = content[1];
+    if(inner.expr_length() == 1 && inner[0] == PMATH_SYMBOL_LIST)
+      content = inner[1];
+  }
+  
+  Gather::emit(List(content));
   
   style->emit_to_pmath(false, true);
   
@@ -3654,7 +3668,7 @@ bool Document::prepare_insert() {
   if(context.selection.id == this->id()) {
     prev_sel_line = -1;
     if(context.selection.start != context.selection.end
-    || !get_style(Editable, true)) {
+        || !get_style(Editable, true)) {
       return false;
     }
     

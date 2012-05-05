@@ -61,7 +61,7 @@ namespace richmath {
       virtual void paint(Context *context);
       virtual void selection_path(Canvas *canvas, int start, int end);
       
-      virtual Expr to_pmath_symbol() { return Expr(PMATH_SYMBOL_LIST); }
+      virtual Expr to_pmath_symbol() { return Expr(); }
       virtual Expr to_pmath(int flags);
       virtual Expr to_pmath(int flags, int start, int end);
       

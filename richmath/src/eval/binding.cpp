@@ -934,6 +934,8 @@ static bool open_cmd(Expr cmd) {
         else
           doc->select(0, 0, 0);
           
+        doc->invalidate_options();
+          
         continue;
       }
     }
@@ -952,6 +954,15 @@ static bool open_cmd(Expr cmd) {
     int pos = 0;
     Expr section_expr = Call(Symbol(PMATH_SYMBOL_SECTION), s, String("Text"));
     doc->insert_pmath(&pos, section_expr);
+    
+    int c = filename.length();
+    const uint16_t *buf = filename.buffer();
+    while(c >= 0 && buf[c] != '\\' && buf[c] != '/')
+      --c;
+    
+    doc->style->set(WindowTitle, filename.part(c + 1));
+    doc->style->set(InternalHasModifiedWindowOption, true);
+    doc->invalidate_options();
   }
   
   return true;

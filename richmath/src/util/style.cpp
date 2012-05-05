@@ -363,6 +363,8 @@ void Style::add_pmath(Expr options) {
               set(WindowTitle, String());
             else
               set_pmath_string(WindowTitle, rhs);
+            
+            set(InternalHasModifiedWindowOption, true);
           }
           else {
             pmath_debug_print_object("[unknown option ", rule.get(), "]\n");
@@ -714,7 +716,8 @@ bool Style::modifies_size(int style_name) {
     case ContinuousAction:
     case Editable:
     case Evaluatable:
-    case InternalHavePendingDynamic:
+    case InternalHasModifiedWindowOption:
+    case InternalHasPendingDynamic:
     case InternalUsesCurrentValueOfMouseOver:
     case Placeholder:
     case SectionGenerated:
@@ -741,10 +744,10 @@ bool Style::update_dynamic(Box *parent) {
     return false;
     
   int i;
-  if(!get(InternalHavePendingDynamic, &i) || !i)
+  if(!get(InternalHasPendingDynamic, &i) || !i)
     return false;
     
-  set(InternalHavePendingDynamic, false);
+  set(InternalHasPendingDynamic, false);
   
   static Array<int> dynamic_options(100);
   
@@ -765,7 +768,7 @@ bool Style::update_dynamic(Box *parent) {
   if(dynamic_options.length() == 0)
     return false;
     
-  set(InternalHavePendingDynamic, false);
+  set(InternalHasPendingDynamic, false);
   
   bool resize = false;
   for(i = 0; i < dynamic_options.length(); ++i) {
@@ -820,7 +823,8 @@ Expr Style::get_symbol(int n) {
     case ContinuousAction:                    return Symbol(PMATH_SYMBOL_CONTINUOUSACTION);
     case Editable:                            return Symbol(PMATH_SYMBOL_EDITABLE);
     case Evaluatable:                         return Symbol(PMATH_SYMBOL_EVALUATABLE);
-    case InternalHavePendingDynamic:          return Expr();
+    case InternalHasModifiedWindowOption:     return Expr();
+    case InternalHasPendingDynamic:           return Expr();
     case InternalUsesCurrentValueOfMouseOver: return Expr();
     case LineBreakWithin:                     return Symbol(PMATH_SYMBOL_LINEBREAKWITHIN);
     case Placeholder:                         return Symbol(PMATH_SYMBOL_PLACEHOLDER);

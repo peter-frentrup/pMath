@@ -150,7 +150,11 @@ Expr SectionList::to_pmath(int flags, int start, int end) {
   
   emit_pmath(flags, start, end);
   
-  return g.end();
+  Expr e = g.end();
+  if(e.expr_length() == 1)
+    return e[1];
+  
+  return Call(Symbol(PMATH_SYMBOL_SECTIONGROUP), e, Symbol(PMATH_SYMBOL_ALL));
 }
 
 void SectionList::emit_pmath(int flags, int start, int end) {

@@ -310,7 +310,7 @@ Expr Box::prepare_dynamic(Expr expr) {
 
 void Box::dynamic_updated() {
   if(style) {
-    style->set(InternalHavePendingDynamic, true);
+    style->set(InternalHasPendingDynamic, true);
     request_repaint_all();
   }
 }

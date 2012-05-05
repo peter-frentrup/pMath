@@ -812,7 +812,9 @@ Document *Application::create_document(Expr data) {
     set_current_document(doc);
   else
     doc->select(0, 0, 0);
-    
+  
+  doc->invalidate_options();
+  
   return doc;
 }
 

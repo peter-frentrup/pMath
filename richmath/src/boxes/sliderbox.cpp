@@ -122,8 +122,12 @@ bool SliderBox::try_load_from_object(Expr expr, int opts) {
     must_update = true;
   }
   
-  style->clear();
-  style->add_pmath(options);
+  if(style){
+    style->clear();
+    style->add_pmath(options);
+  }
+  else
+    style = new Style(options);
   
   range             = new_range;
   range_min         = new_range_min;
