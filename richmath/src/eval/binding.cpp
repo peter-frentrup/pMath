@@ -320,7 +320,7 @@ static bool can_duplicate_previous_input_output(Expr cmd) {
   bool input = String(cmd).equals("DuplicatePreviousInput");
   
   for(int i = a - 1; i >= 0; --i) {
-    MathSection *math = dynamic_cast<MathSection*>(doc->item(i));
+    MathSection *math = dynamic_cast<MathSection *>(doc->item(i));
     
     if(math &&
         (( input && math->get_style(Evaluatable)) ||
@@ -348,7 +348,7 @@ static bool can_expand_selection(Expr cmd) {
 static bool can_evaluate_in_place(Expr cmd) {
   Document *doc = get_current_document();
   
-  return doc && 0 != dynamic_cast<MathSequence*>(doc->selection_box());
+  return doc && 0 != dynamic_cast<MathSequence *>(doc->selection_box());
 }
 
 static bool can_evaluate_sections(Expr cmd) {
@@ -361,17 +361,17 @@ static bool can_evaluate_sections(Expr cmd) {
   
   if(box == doc) {
     for(int i = doc->selection_start(); i < doc->selection_end(); ++i) {
-      MathSection *math = dynamic_cast<MathSection*>(doc->item(i));
+      MathSection *math = dynamic_cast<MathSection *>(doc->item(i));
       
       if(math && math->get_style(Evaluatable))
         return true;
     }
   }
   else {
-    while(box && !dynamic_cast<MathSection*>(box))
+    while(box && !dynamic_cast<MathSection *>(box))
       box = box->parent();
       
-    MathSection *math = dynamic_cast<MathSection*>(box);
+    MathSection *math = dynamic_cast<MathSection *>(box);
     if(math && math->get_style(Evaluatable))
       return true;
   }
@@ -402,7 +402,7 @@ static bool can_find_matching_fence(Expr cmd) {
   if(!doc)
     return false;
     
-  MathSequence *seq = dynamic_cast<MathSequence*>(doc->selection_box());
+  MathSequence *seq = dynamic_cast<MathSequence *>(doc->selection_box());
   
   if(seq) {
     int pos = doc->selection_end() - 1;
@@ -456,7 +456,7 @@ static bool can_similar_section_below(Expr cmd) {
     box = box->parent();
   }
   
-  return 0 != dynamic_cast<AbstractSequenceSection*>(box);
+  return 0 != dynamic_cast<AbstractSequenceSection *>(box);
 }
 
 static bool can_subsession_evaluate_sections(Expr cmd) {
@@ -499,7 +499,7 @@ static bool convert_dynamic_to_literal(Expr cmd) {
   
   return true;
 }
- 
+
 static bool copy_cmd(Expr cmd) {
   Document *doc = get_current_document();
   
@@ -509,7 +509,7 @@ static bool copy_cmd(Expr cmd) {
   doc->copy_to_clipboard();
   return true;
 }
- 
+
 static bool cut_cmd(Expr cmd) {
   Document *doc = get_current_document();
   
@@ -519,16 +519,16 @@ static bool cut_cmd(Expr cmd) {
   doc->cut_to_clipboard();
   return true;
 }
- 
+
 static bool document_apply_cmd(Expr cmd) {
-  Document *doc = dynamic_cast<Document*>(Box::find(cmd[1]));
+  Document *doc = dynamic_cast<Document *>(Box::find(cmd[1]));
   
   if(!doc)
     return false;
     
   AbstractSequence *seq;
   
-  if(dynamic_cast<TextSequence*>(doc->selection_box()))
+  if(dynamic_cast<TextSequence *>(doc->selection_box()))
     seq = new TextSequence;
   else
     seq = new MathSequence;
@@ -538,14 +538,14 @@ static bool document_apply_cmd(Expr cmd) {
   
   return true;
 }
- 
+
 static bool document_delete_cmd(Expr cmd) {
   Document *doc;
   
   if(cmd.expr_length() == 0)
     doc = get_current_document();
   else
-    doc = dynamic_cast<Document*>(Box::find(cmd[1]));
+    doc = dynamic_cast<Document *>(Box::find(cmd[1]));
     
   if(!doc)
     return false;
@@ -554,16 +554,16 @@ static bool document_delete_cmd(Expr cmd) {
   
   return true;
 }
- 
+
 static bool document_write_cmd(Expr cmd) {
-  Document *doc = dynamic_cast<Document*>(Box::find(cmd[1]));
+  Document *doc = dynamic_cast<Document *>(Box::find(cmd[1]));
   
   if(!doc)
     return false;
     
   AbstractSequence *seq;
   
-  if(dynamic_cast<TextSequence*>(doc->selection_box()))
+  if(dynamic_cast<TextSequence *>(doc->selection_box()))
     seq = new TextSequence;
   else
     seq = new MathSequence;
@@ -573,7 +573,7 @@ static bool document_write_cmd(Expr cmd) {
   
   return true;
 }
- 
+
 static bool duplicate_previous_input_output_cmd(Expr cmd) {
   Document *doc = get_current_document();
   
@@ -593,7 +593,7 @@ static bool duplicate_previous_input_output_cmd(Expr cmd) {
   bool input = String(cmd).equals("DuplicatePreviousInput");
   
   for(int i = a - 1; i >= 0; --i) {
-    MathSection *math = dynamic_cast<MathSection*>(doc->item(i));
+    MathSection *math = dynamic_cast<MathSection *>(doc->item(i));
     
     if(math
         && ((input && math->get_style(Evaluatable))
@@ -609,7 +609,7 @@ static bool duplicate_previous_input_output_cmd(Expr cmd) {
   doc->native()->beep();
   return true;
 }
- 
+
 static bool edit_boxes_cmd(Expr cmd) {
   Document *doc = get_current_document();
   
@@ -633,7 +633,7 @@ static bool edit_boxes_cmd(Expr cmd) {
     doc->select(0, 0, 0);
     
     for(int i = a; i < b; ++i) {
-      EditSection *edit = dynamic_cast<EditSection*>(doc->section(i));
+      EditSection *edit = dynamic_cast<EditSection *>(doc->section(i));
       pmath_continue_after_abort();
       
       if(edit) {
@@ -671,14 +671,14 @@ static bool edit_boxes_cmd(Expr cmd) {
   
   return true;
 }
- 
+
 static bool evaluate_in_place_cmd(Expr cmd) {
   Document *doc = get_current_document();
   
   if(!doc)
     return false;
     
-  MathSequence *seq = dynamic_cast<MathSequence*>(doc->selection_box());
+  MathSequence *seq = dynamic_cast<MathSequence *>(doc->selection_box());
   
   if(seq) {
     Application::add_job(new ReplacementJob(
@@ -689,7 +689,7 @@ static bool evaluate_in_place_cmd(Expr cmd) {
   
   return true;
 }
- 
+
 static bool evaluate_sections_cmd(Expr cmd) {
   Document *doc = get_current_document();
   
@@ -700,17 +700,17 @@ static bool evaluate_sections_cmd(Expr cmd) {
   
   if(box == doc) {
     for(int i = doc->selection_start(); i < doc->selection_end(); ++i) {
-      MathSection *math = dynamic_cast<MathSection*>(doc->item(i));
+      MathSection *math = dynamic_cast<MathSection *>(doc->item(i));
       
       if(math && math->get_style(Evaluatable))
         Application::add_job(new InputJob(math));
     }
   }
   else {
-    while(box && !dynamic_cast<MathSection*>(box))
+    while(box && !dynamic_cast<MathSection *>(box))
       box = box->parent();
       
-    MathSection *math = dynamic_cast<MathSection*>(box);
+    MathSection *math = dynamic_cast<MathSection *>(box);
     if(math && math->get_style(Evaluatable))
       Application::add_job(new InputJob(math));
   }
@@ -721,7 +721,7 @@ static bool evaluate_sections_cmd(Expr cmd) {
   
   return true;
 }
- 
+
 static bool evaluator_subsession_cmd(Expr cmd) {
   if(Application::is_idle())
     return false;
@@ -731,7 +731,7 @@ static bool evaluator_subsession_cmd(Expr cmd) {
   
   return true;
 }
- 
+
 static bool expand_selection_cmd(Expr cmd) {
   Document *doc = get_current_document();
   
@@ -747,7 +747,7 @@ static bool expand_selection_cmd(Expr cmd) {
   doc->native()->invalidate();
   return true;
 }
- 
+
 static bool find_evaluating_section(Expr cmd) {
   Box *box = Application::find_current_job();
   Document *current_doc = get_current_document();
@@ -776,14 +776,14 @@ static bool find_evaluating_section(Expr cmd) {
   doc->select(sect->parent(), sect->index(), sect->index() + 1);
   return true;
 }
- 
+
 static bool find_matching_fence_cmd(Expr cmd) {
   Document *doc = get_current_document();
   
   if(!doc)
     return false;
     
-  MathSequence *seq = dynamic_cast<MathSequence*>(doc->selection_box());
+  MathSequence *seq = dynamic_cast<MathSequence *>(doc->selection_box());
   
   if(seq) {
     int pos = doc->selection_end() - 1;
@@ -801,7 +801,7 @@ static bool find_matching_fence_cmd(Expr cmd) {
   
   return true;
 }
- 
+
 static bool insert_column_cmd(Expr cmd) {
   Document *doc = get_current_document();
   
@@ -811,7 +811,7 @@ static bool insert_column_cmd(Expr cmd) {
   doc->insert_matrix_column();
   return true;
 }
- 
+
 static bool insert_fraction_cmd(Expr cmd) {
   Document *doc = get_current_document();
   
@@ -821,7 +821,7 @@ static bool insert_fraction_cmd(Expr cmd) {
   doc->insert_fraction();
   return true;
 }
- 
+
 static bool insert_opposite_cmd(Expr cmd) {
   Document *doc = get_current_document();
   
@@ -831,7 +831,7 @@ static bool insert_opposite_cmd(Expr cmd) {
   doc->complete_box();
   return true;
 }
- 
+
 static bool insert_overscript_cmd(Expr cmd) {
   Document *doc = get_current_document();
   
@@ -841,7 +841,7 @@ static bool insert_overscript_cmd(Expr cmd) {
   doc->insert_underoverscript(false);
   return true;
 }
- 
+
 static bool insert_radical_cmd(Expr cmd) {
   Document *doc = get_current_document();
   
@@ -851,7 +851,7 @@ static bool insert_radical_cmd(Expr cmd) {
   doc->insert_sqrt();
   return true;
 }
- 
+
 static bool insert_row_cmd(Expr cmd) {
   Document *doc = get_current_document();
   
@@ -861,7 +861,7 @@ static bool insert_row_cmd(Expr cmd) {
   doc->insert_matrix_row();
   return true;
 }
- 
+
 static bool insert_subscript_cmd(Expr cmd) {
   Document *doc = get_current_document();
   
@@ -871,7 +871,7 @@ static bool insert_subscript_cmd(Expr cmd) {
   doc->insert_subsuperscript(true);
   return true;
 }
- 
+
 static bool insert_superscript_cmd(Expr cmd) {
   Document *doc = get_current_document();
   
@@ -881,7 +881,7 @@ static bool insert_superscript_cmd(Expr cmd) {
   doc->insert_subsuperscript(false);
   return true;
 }
- 
+
 static bool insert_underscript_cmd(Expr cmd) {
   Document *doc = get_current_document();
   
@@ -891,7 +891,7 @@ static bool insert_underscript_cmd(Expr cmd) {
   doc->insert_underoverscript(true);
   return true;
 }
- 
+
 static bool new_cmd(Expr cmd) {
   Application::notify(
     CNT_CREATEDOCUMENT,
@@ -899,7 +899,64 @@ static bool new_cmd(Expr cmd) {
     
   return true;
 }
- 
+
+static bool open_cmd(Expr cmd) {
+  Expr filter = List(
+                  Rule(String("pMath Documents (*.pmathdoc)"), String("*.pmathdoc")),
+                  Rule(String("All Files (*.*)"),              String("*.*")));
+                  
+  Expr filenames = Application::run_filedialog(
+                     Call(
+                       GetSymbol(FileOpenDialog),
+                       filter));
+                       
+  if(filenames.is_string())
+    filenames = List(filenames);
+    
+  if(filenames[0] != PMATH_SYMBOL_LIST)
+    return false;
+    
+  for(size_t i = 1; i <= filenames.expr_length(); ++i) {
+    Document *doc = Application::create_document();
+    if(!doc)
+      continue;
+      
+    String filename(filenames[i]);
+    if(filename.part(filename.length() - 9).equals(".pmathdoc")) {
+      Expr boxes = Application::interrupt(
+                     Call(Symbol(PMATH_SYMBOL_GET), filename),
+                     Application::button_timeout);
+                     
+      if(doc->try_load_from_object(boxes, BoxOptionDefault)) {
+      
+        if(doc->selectable())
+          set_current_document(doc);
+        else
+          doc->select(0, 0, 0);
+          
+        continue;
+      }
+    }
+    
+    set_current_document(doc);
+    
+    ReadableTextFile file(Evaluate(Call(Symbol(PMATH_SYMBOL_OPENREAD), filename)));
+    String s;
+    
+    while(!pmath_aborting() && file.status() == PMATH_FILE_OK) {
+      if(s.is_valid())
+        s += "\n";
+      s += file.readline();
+    }
+    
+    int pos = 0;
+    Expr section_expr = Call(Symbol(PMATH_SYMBOL_SECTION), s, String("Text"));
+    doc->insert_pmath(&pos, section_expr);
+  }
+  
+  return true;
+}
+
 static bool open_close_group_cmd(Expr cmd) {
   Document *doc = get_current_document();
   
@@ -909,7 +966,7 @@ static bool open_close_group_cmd(Expr cmd) {
   doc->toggle_open_close_current_group();
   return true;
 }
- 
+
 static bool paste_cmd(Expr cmd) {
   Document *doc = get_current_document();
   
@@ -919,7 +976,7 @@ static bool paste_cmd(Expr cmd) {
   doc->paste_from_clipboard();
   return true;
 }
- 
+
 static bool remove_from_evaluation_queue(Expr cmd) {
   Document *doc = get_current_document();
   
@@ -953,7 +1010,7 @@ static bool remove_from_evaluation_queue(Expr cmd) {
   
   return true;
 }
- 
+
 static bool select_all_cmd(Expr cmd) {
   Document *doc = get_current_document();
   
@@ -982,7 +1039,7 @@ static bool select_all_cmd(Expr cmd) {
   
   return false;
 }
- 
+
 static bool similar_section_below_cmd(Expr cmd) {
   Document *doc = get_current_document();
   
@@ -994,14 +1051,14 @@ static bool similar_section_below_cmd(Expr cmd) {
     box = box->parent();
   }
   
-  if(dynamic_cast<AbstractSequenceSection*>(box)) {
+  if(dynamic_cast<AbstractSequenceSection *>(box)) {
     Style *style = new Style;
-    style->merge(static_cast<Section*>(box)->style);
+    style->merge(static_cast<Section *>(box)->style);
     style->remove(SectionLabel);
     style->remove(SectionGenerated);
     
     Section *section;
-    if(dynamic_cast<TextSection*>(box))
+    if(dynamic_cast<TextSection *>(box))
       section = new TextSection(style);
     else
       section = new MathSection(style);
@@ -1015,7 +1072,7 @@ static bool similar_section_below_cmd(Expr cmd) {
   doc->native()->beep();
   return false;
 }
- 
+
 static bool subsession_evaluate_sections_cmd(Expr cmd) {
   // non-blocking interrupt
   Application::execute_for(
@@ -1026,16 +1083,17 @@ static bool subsession_evaluate_sections_cmd(Expr cmd) {
     
   return false;
 }
- 
+
 //} ... menu commands
- 
+
 static pmath_symbol_t fe_symbols[FrontEndSymbolsCount];
- 
+
 bool richmath::init_bindings() {
 #define BIND_DOWN(SYMBOL, FUNC)  pmath_register_code(SYMBOL, FUNC, PMATH_CODE_USAGE_DOWNCALL)
 #define BIND_UP(  SYMBOL, FUNC)  pmath_register_code(SYMBOL, FUNC, PMATH_CODE_USAGE_UPCALL)
- 
+
   Application::register_menucommand(String("New"),                        new_cmd);
+  Application::register_menucommand(String("Open"),                       open_cmd);
   Application::register_menucommand(String("Close"),                      close_cmd);
   
   Application::register_menucommand(String("Copy"),                       copy_cmd,                            can_copy_cut);
@@ -1133,21 +1191,21 @@ FAIL_SYMBOLS:
   memset(fe_symbols, 0, sizeof(fe_symbols));
   return false;
 }
- 
+
 void richmath::done_bindings() {
   for(size_t i = 0; i < FrontEndSymbolsCount; ++i)
     pmath_unref(fe_symbols[i]);
     
   memset(fe_symbols, 0, sizeof(fe_symbols));
 }
- 
+
 Expr richmath::GetSymbol(FrontEndSymbolIndex i) {
   if((size_t)i >= (size_t)FrontEndSymbolsCount)
     return Expr();
     
   return Symbol(fe_symbols[(size_t)i]);
 }
- 
+
 void richmath::set_current_document(Document *document) {
   Document *old = get_current_document();
   
@@ -1159,8 +1217,8 @@ void richmath::set_current_document(Document *document) {
     
   current_document_id = document ? document->id() : 0;
 }
- 
+
 Document *richmath::get_current_document() {
-  return dynamic_cast<Document*>(Box::find(current_document_id));
+  return dynamic_cast<Document *>(Box::find(current_document_id));
 }
- 
+

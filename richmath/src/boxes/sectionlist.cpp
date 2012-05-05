@@ -150,16 +150,7 @@ Expr SectionList::to_pmath(int flags, int start, int end) {
   
   emit_pmath(flags, start, end);
   
-  Expr group = g.end();
-  
-  if(group.expr_length() == 1) {
-    return group[1];
-  }
-  
-  return Call(
-           Symbol(PMATH_SYMBOL_SECTIONGROUP),
-           group,
-           Symbol(PMATH_SYMBOL_ALL));
+  return g.end();
 }
 
 void SectionList::emit_pmath(int flags, int start, int end) {
@@ -387,42 +378,93 @@ void SectionList::toggle_open_close_group(int i) {
   }
 }
 
-void SectionList::insert_pmath(int *pos, Expr boxes) {
+void SectionList::internal_insert_pmath(int *pos, Expr boxes, int overwrite_until_index) {
+  if(overwrite_until_index > _sections.length())
+    overwrite_until_index  = _sections.length();
+    
   if( boxes[0]    == PMATH_SYMBOL_SECTIONGROUP &&
       boxes[1][0] == PMATH_SYMBOL_LIST)
   {
     Expr sect = boxes[1];
     Expr open = boxes[2];
     
-    int start = *pos;
-    int opened = 0;
+    int start     = *pos;
+    int opened    = 0;
     int close_rel = -1;
     if(open.is_int32()) {
       opened = PMATH_AS_INT32(open.get());
     }
     
-    size_t i;
-    for(i = 1; i <= sect.expr_length(); ++i) {
+    if(*pos < overwrite_until_index) {
+      int e = _group_info[*pos].end;
+      
+      if(e >= *pos && e < overwrite_until_index){
+        internal_remove(e + 1, overwrite_until_index);
+        overwrite_until_index = e + 1;
+      }
+    }
+    
+    for(size_t i = 1; i <= sect.expr_length(); ++i) {
       if(--opened == 0) {
         close_rel = *pos - start;
       }
       
-      insert_pmath(pos, sect[i]);
+      internal_insert_pmath(pos, sect[i], overwrite_until_index);
     }
     
     if(start < _sections.length() && close_rel >= 0) {
       _group_info[start].close_rel = close_rel;
-      update_section_visibility();
     }
   }
   else {
-    Section *s = Section::create_from_object(boxes);
+    Section *section;
     
-    if(s) {
-      insert(*pos, s);
-      ++*pos;
+    if(*pos < overwrite_until_index) {
+      section = _sections[*pos];
+      
+      if(section->try_load_from_object(boxes, BoxOptionDefault)) {
+        _group_info[*pos].precedence = section->get_own_style(SectionGroupPrecedence, 0.0);
+        
+        ++*pos;
+        internal_remove(*pos, overwrite_until_index);
+        return;
+      }
     }
+    
+    section = Section::create_from_object(boxes);
+    if(section) {
+      //insert(*pos, s);
+      _sections.insert(*pos, 1, &section);
+      adopt(section, *pos);
+      
+      SectionGroupInfo sgi;
+      sgi.precedence = section->get_own_style(SectionGroupPrecedence, 0.0);
+      sgi.close_rel  = -1; // open
+      _group_info.insert(*pos, 1, &sgi);
+  
+      ++*pos;
+      ++overwrite_until_index;
+    }
+    
+    internal_remove(*pos, overwrite_until_index);
   }
+}
+
+void SectionList::insert_pmath(int *pos, Expr boxes, int overwrite_until_index) {
+  assert(pos != NULL);
+  assert(*pos >= 0);
+  
+  int start = *pos;
+  
+  internal_insert_pmath(pos, boxes, overwrite_until_index);
+  
+  for(int i = start; i < _sections.length(); ++i)
+    adopt(_sections[i], i);
+        
+  recalc_group_info();
+  update_group_nesting();
+  update_section_visibility();
+  invalidate();
 }
 
 void SectionList::insert(int pos, Section *section) {
@@ -458,12 +500,10 @@ Section *SectionList::swap(int pos, Section *section) {
   return old;
 }
 
-void SectionList::remove(int start, int end) {
+void SectionList::internal_remove(int start, int end) {
   if(end <= start)
     return;
     
-  set_open_close_group(start, true);
-  
   for(int i = start; i < end; ++i)
     delete _sections[i];
     
@@ -479,6 +519,12 @@ void SectionList::remove(int start, int end) {
   
   _sections.remove(start, end - start);
   _group_info.remove(start, end - start);
+}
+
+
+void SectionList::remove(int start, int end) {
+  internal_remove(start, end);
+  
   for(int i = start; i < _sections.length(); ++i)
     adopt(_sections[i], i);
     
@@ -504,8 +550,9 @@ void SectionList::recalc_group_info_part(int *pos) {
   int start = *pos;
   ++*pos;
   
-  while(*pos < _group_info.length()
-        && _group_info[start].precedence < _group_info[*pos].precedence) {
+  while( *pos < _group_info.length() &&
+         _group_info[start].precedence < _group_info[*pos].precedence)
+  {
     _group_info[*pos].first = start;
     recalc_group_info_part(pos);
   }

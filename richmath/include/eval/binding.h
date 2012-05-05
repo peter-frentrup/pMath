@@ -32,7 +32,6 @@ namespace richmath {
   bool init_bindings();
   void done_bindings();
   
-  // caller has to reference the result.
   Expr GetSymbol(FrontEndSymbolIndex i);
   
   void set_current_document(Document *document);

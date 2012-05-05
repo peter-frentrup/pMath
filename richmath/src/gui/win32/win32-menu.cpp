@@ -51,8 +51,7 @@ static void add_remove_menu(int delta) {
 //{ class Win32Menu ...
 
 static HMENU create_menu(Expr expr) {
-  if(expr[0] != GetSymbol(MenuSymbol)
-      || expr.expr_length() != 2)
+  if(expr[0] != GetSymbol(MenuSymbol) || expr.expr_length() != 2)
     return NULL;
     
   String name(expr[1]);
@@ -68,8 +67,9 @@ static HMENU create_menu(Expr expr) {
     for(size_t i = 1; i <= expr.expr_length(); ++i) {
       Expr item = expr[i];
       
-      if(item[0] == GetSymbol(ItemSymbol)
-          && item.expr_length() == 2) {
+      if( item[0] == GetSymbol(ItemSymbol) &&
+          item.expr_length() == 2)
+      {
         String name(item[1]);
         String cmd(item[2]);
         
@@ -90,7 +90,7 @@ static HMENU create_menu(Expr expr) {
             menu,
             MF_STRING | MF_ENABLED,
             id,
-            (const wchar_t*)name.buffer());
+            (const wchar_t *)name.buffer());
         }
         
         continue;
@@ -105,8 +105,9 @@ static HMENU create_menu(Expr expr) {
         continue;
       }
       
-      if(item[0] == GetSymbol(MenuSymbol)
-          && item.expr_length() == 2) {
+      if( item[0] == GetSymbol(MenuSymbol) &&
+          item.expr_length() == 2)
+      {
         String name(item[1]);
         
         if(name.length() > 0) {
@@ -118,7 +119,7 @@ static HMENU create_menu(Expr expr) {
               menu,
               MF_STRING | MF_ENABLED | MF_POPUP,
               (UINT_PTR)submenu,
-              (const wchar_t*)name.buffer());
+              (const wchar_t *)name.buffer());
           }
         }
         continue;
@@ -351,7 +352,7 @@ static String vk_name(UINT vk) {
       buf[i] += 'a' - 'A';
   }
   
-  return String::FromUcs2((const uint16_t*)buf, len);
+  return String::FromUcs2((const uint16_t *)buf, len);
 }
 
 static String accel_text(const ACCEL &accel) {

@@ -542,9 +542,9 @@ int main(int argc, char **argv) {
   printf("cairo version: %s\n", cairo_version_string());
   printf("pango version: %s\n", pango_version_string());
   
-#ifdef RICHMATH_USE_GTK_GUI
+#  ifdef RICHMATH_USE_GTK_GUI
   printf("gtk version: %d.%d.%d\n", gtk_major_version, gtk_minor_version, gtk_micro_version);
-#endif
+#  endif
 #endif
   
   if(!pmath_init() || !init_bindings()) {

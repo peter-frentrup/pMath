@@ -137,7 +137,7 @@ pmath_t pmath_build_value(const char *format, ...);
    \param expr           The expression containing option values. It wont be 
                          freed.
    \param last_nonoption The index of the last argument that is not an option 
-                        rule.
+                         rule.
    \return A list of all given option values or PMATH_NULL on error. You must 
            destroy it.
 

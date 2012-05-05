@@ -696,6 +696,179 @@ Box *Application::get_evaluation_box() {
   return 0;
 }
 
+Document *Application::create_document() {
+  Document *doc = 0;
+  
+#ifdef RICHMATH_USE_WIN32_GUI
+  {
+    int x = CW_USEDEFAULT;
+    int y = CW_USEDEFAULT;
+    int w = 500;
+    int h = 550;
+    
+    doc = get_current_document();
+    if(doc) {
+      Win32Widget *wid = dynamic_cast<Win32Widget *>(doc->native());
+      if(wid) {
+        HWND hwnd = wid->hwnd();
+        while(GetParent(hwnd) != NULL)
+          hwnd = GetParent(hwnd);
+          
+        int dx = GetSystemMetrics(SM_CYCAPTION) + GetSystemMetrics(SM_CXSIZEFRAME);
+        int dy = GetSystemMetrics(SM_CYCAPTION) + GetSystemMetrics(SM_CYSIZEFRAME);
+        
+        RECT rect;
+        if(GetWindowRect(hwnd, &rect)) {
+          x = rect.left + dx;
+          y = rect.top  + dy;
+        }
+        
+        MONITORINFO monitor_info;
+        memset(&monitor_info, 0, sizeof(monitor_info));
+        monitor_info.cbSize = sizeof(monitor_info);
+        
+        HMONITOR hmon = MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST);
+        if(GetMonitorInfo(hmon, &monitor_info)) {
+        
+          if(y + h > monitor_info.rcWork.bottom) {
+            y = monitor_info.rcWork.top;
+          }
+          
+          if(x + w > monitor_info.rcWork.right) {
+            x = monitor_info.rcWork.left;
+            y = monitor_info.rcWork.top;
+          }
+        }
+      }
+    }
+    
+    Win32DocumentWindow *wnd = new Win32DocumentWindow(
+      new Document,
+      0, WS_OVERLAPPEDWINDOW,
+      x,
+      y,
+      w,
+      h);
+    wnd->init();
+    
+    doc = wnd->document();
+    
+    ShowWindow(wnd->hwnd(), SW_SHOWNORMAL);
+  }
+#endif
+  
+#ifdef RICHMATH_USE_GTK_GUI
+  {
+    MathGtkDocumentWindow *wnd = new MathGtkDocumentWindow();
+    wnd->init();
+    
+    doc = wnd->document();
+    
+    if(wnd->widget())
+      gtk_window_present(GTK_WINDOW(wnd->widget()));
+  }
+#endif
+  
+  return doc;
+}
+
+Document *Application::create_document(Expr data) {
+  // CreateDocument({sections...}, options...)
+  
+  // TODO: respect window-related options (WindowTitle...)
+  
+  Document *doc = Application::create_document();
+  
+  if(!doc)
+    return 0;
+    
+  if(data.expr_length() >= 1) {
+    Expr options(pmath_options_extract(data.get(), 1));
+    if(options.is_expr())
+      doc->style->add_pmath(options);
+      
+    Expr sections = data[1];
+    if(sections[0] != PMATH_SYMBOL_LIST)
+      sections = List(sections);
+      
+    for(size_t i = 1; i <= sections.expr_length(); ++i) {
+      Expr item = sections[i];
+      
+      if( item[0] != PMATH_SYMBOL_SECTION      &&
+          item[0] != PMATH_SYMBOL_SECTIONGROUP)
+      {
+        item = Call(Symbol(PMATH_SYMBOL_SECTION),
+                    Call(Symbol(PMATH_SYMBOL_BOXDATA),
+                         Application::interrupt(Call(Symbol(PMATH_SYMBOL_TOBOXES), item))),
+                    String("Input"));
+      }
+      
+      int pos = doc->length();
+      doc->insert_pmath(&pos, item);
+    }
+  }
+  
+  if(doc->selectable())
+    set_current_document(doc);
+  else
+    doc->select(0, 0, 0);
+    
+  return doc;
+}
+
+Expr Application::run_filedialog(Expr data) {
+// FE`FileOpenDialog("initialfile", {"filter1" -> {"*.ext1", ...}, ...}, WindowTitle -> ....)
+// FE`FileSaveDialog("initialfile", {"filter1" -> {"*.ext1", ...}, ...}, WindowTitle -> ....)
+  String title;
+  String filename;
+  Expr   filter;
+  
+  Expr head = data[0];
+  
+  size_t argi = 1;
+  if(data[argi].is_string()) {
+    filename = String(data[argi]);
+    ++argi;
+  }
+  
+  if(data[argi][0] == PMATH_SYMBOL_LIST) {
+    filter = data[argi];
+    ++argi;
+  }
+  
+  if(data.is_expr()) {
+    Expr options(pmath_options_extract(data.get(), argi - 1));
+    
+    if(options.is_valid()) {
+      Expr title_value(pmath_option_value(
+                         head.get(),
+                         PMATH_SYMBOL_WINDOWTITLE,
+                         options.get()));
+                         
+      if(title_value.is_string())
+        title = String(title_value);
+    }
+  }
+  
+#if RICHMATH_USE_WIN32_GUI
+  return Win32FileDialog::show(
+           head == GetSymbol(FileSaveDialog),
+           filename,
+           filter,
+           title);
+#endif
+           
+#ifdef RICHMATH_USE_GTK_GUI
+  return MathGtkFileDialog::show(
+           head == GetSymbol(FileSaveDialog),
+           filename,
+           filter,
+           title);
+#endif
+           
+  return Symbol(PMATH_SYMBOL_FAILED);
+}
+
 bool Application::is_idle() {
   return !session->current_job.is_valid();
 }
@@ -1151,113 +1324,11 @@ static void cnt_dynamicupate(Expr data) {
 }
 
 static Expr cnt_createdocument(Expr data) {
-  // CreateDocument({sections...}, options...)
+  Document *doc = Application::create_document(data);
   
-  Document *doc = 0;
-  
-#ifdef RICHMATH_USE_WIN32_GUI
-  {
-    int x = CW_USEDEFAULT;
-    int y = CW_USEDEFAULT;
-    int w = 500;
-    int h = 550;
-    
-    doc = get_current_document();
-    if(doc) {
-      Win32Widget *wid = dynamic_cast<Win32Widget *>(doc->native());
-      if(wid) {
-        HWND hwnd = wid->hwnd();
-        while(GetParent(hwnd) != NULL)
-          hwnd = GetParent(hwnd);
-          
-        int dx = GetSystemMetrics(SM_CYCAPTION) + GetSystemMetrics(SM_CXSIZEFRAME);
-        int dy = GetSystemMetrics(SM_CYCAPTION) + GetSystemMetrics(SM_CYSIZEFRAME);
-        
-        RECT rect;
-        if(GetWindowRect(hwnd, &rect)) {
-          x = rect.left + dx;
-          y = rect.top  + dy;
-        }
-        
-        MONITORINFO monitor_info;
-        memset(&monitor_info, 0, sizeof(monitor_info));
-        monitor_info.cbSize = sizeof(monitor_info);
-        
-        HMONITOR hmon = MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST);
-        if(GetMonitorInfo(hmon, &monitor_info)) {
-        
-          if(y + h > monitor_info.rcWork.bottom) {
-            y = monitor_info.rcWork.top;
-          }
-          
-          if(x + w > monitor_info.rcWork.right) {
-            x = monitor_info.rcWork.left;
-            y = monitor_info.rcWork.top;
-          }
-        }
-      }
-    }
-    
-    Win32DocumentWindow *wnd = new Win32DocumentWindow(
-      new Document,
-      0, WS_OVERLAPPEDWINDOW,
-      x,
-      y,
-      w,
-      h);
-    wnd->init();
-    
-    doc = wnd->document();
-    
-    ShowWindow(wnd->hwnd(), SW_SHOWNORMAL);
-  }
-#endif
-  
-#ifdef RICHMATH_USE_GTK_GUI
-  {
-    MathGtkDocumentWindow *wnd = new MathGtkDocumentWindow();
-    wnd->init();
-    
-    doc = wnd->document();
-    
-    if(wnd->widget())
-      gtk_window_present(GTK_WINDOW(wnd->widget()));
-  }
-#endif
-  
-  if(doc) {
-    if(data.expr_length() >= 1) {
-      Expr options(pmath_options_extract(data.get(), 1));
-      if(options.is_expr())
-        doc->style->add_pmath(options);
-        
-      Expr sections = data[1];
-      if(sections[0] != PMATH_SYMBOL_LIST)
-        sections = List(sections);
-        
-      for(size_t i = 1; i <= sections.expr_length(); ++i) {
-        Expr item = sections[i];
-        
-        if( item[0] != PMATH_SYMBOL_SECTION      &&
-            item[0] != PMATH_SYMBOL_SECTIONGROUP)
-        {
-          item = Call(Symbol(PMATH_SYMBOL_SECTION),
-                      Call(Symbol(PMATH_SYMBOL_BOXDATA),
-                           Application::interrupt(Call(Symbol(PMATH_SYMBOL_TOBOXES), item))),
-                      String("Input"));
-        }
-        
-        int pos = doc->length();
-        doc->insert_pmath(&pos, item);
-      }
-    }
-    
-    if(doc->selectable())
-      set_current_document(doc);
-      
+  if(doc)
     return Call(Symbol(PMATH_SYMBOL_FRONTENDOBJECT), doc->id());
-  }
-  
+    
   return Symbol(PMATH_SYMBOL_FAILED);
 }
 
@@ -1399,59 +1470,6 @@ static Expr cnt_fontdialog(Expr data) {
   return Symbol(PMATH_SYMBOL_FAILED);
 }
 
-static Expr cnt_filedialog(Expr data) {
-// FE`FileOpenDialog("initialfile", {"filter1" -> {"*.ext1", ...}, ...}, WindowTitle -> ....)
-// FE`FileSaveDialog("initialfile", {"filter1" -> {"*.ext1", ...}, ...}, WindowTitle -> ....)
-  String title;
-  String filename;
-  Expr   filter;
-  
-  Expr head = data[0];
-  
-  size_t argi = 1;
-  if(data[argi].is_string()) {
-    filename = String(data[argi]);
-    ++argi;
-  }
-  
-  if(data[argi][0] == PMATH_SYMBOL_LIST) {
-    filter = data[argi];
-    ++argi;
-  }
-  
-  if(data.is_expr()) {
-    Expr options(pmath_options_extract(data.get(), argi - 1));
-    
-    if(options.is_valid()) {
-      Expr title_value(pmath_option_value(
-                         head.get(),
-                         PMATH_SYMBOL_WINDOWTITLE,
-                         options.get()));
-                         
-      if(title_value.is_string())
-        title = String(title_value);
-    }
-  }
-  
-#if RICHMATH_USE_WIN32_GUI
-  return Win32FileDialog::show(
-    head == GetSymbol(FileSaveDialog), 
-    filename, 
-    filter, 
-    title);
-#endif
-  
-#ifdef RICHMATH_USE_GTK_GUI
-  return MathGtkFileDialog::show(
-    head == GetSymbol(FileSaveDialog), 
-    filename, 
-    filter, 
-    title);
-#endif
-  
-  return Symbol(PMATH_SYMBOL_FAILED);
-}
-
 static void execute(ClientNotification &cn) {
   switch(cn.type) {
     case CNT_STARTSESSION:
@@ -1548,7 +1566,7 @@ static void execute(ClientNotification &cn) {
       
     case CNT_FILEDIALOG:
       if(cn.result_ptr)
-        *cn.result_ptr = cnt_filedialog(cn.data).release();
+        *cn.result_ptr = Application::run_filedialog(cn.data).release();
       break;
   }
   

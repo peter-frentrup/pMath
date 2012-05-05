@@ -32,25 +32,26 @@ namespace richmath {
   } ClientNotificationType;
   
   class Box;
+  class Document;
   class Job;
   
   class Application: public Base {
     public:
-      static void notify(     ClientNotificationType type, Expr data);
-      static Expr notify_wait(ClientNotificationType type, Expr data);
+      static void notify(     ClientNotificationType type, Expr data); // callable from non-GUI thread
+      static Expr notify_wait(ClientNotificationType type, Expr data); // callable from non-GUI thread
       
-      static void run_menucommand(Expr cmd) {
+      static void run_menucommand(Expr cmd) { // callable from non-GUI thread
         notify(CNT_MENUCOMMAND, cmd);
       }
       
-      static bool is_menucommand_runnable(Expr cmd); // call from GUI thread only
+      static bool is_menucommand_runnable(Expr cmd);
       
       static void register_menucommand(
         Expr cmd,
         bool (*func)(Expr cmd),
         bool (*test)(Expr cmd) = 0);
         
-      static void gui_print_section(Expr expr); // call from GUI thread only
+      static void gui_print_section(Expr expr);
       
       static void init();
       static void doevents();
@@ -62,7 +63,10 @@ namespace richmath {
       static bool remove_job(Box *input_box, bool only_check_possibility);
       static void abort_all_jobs();
       
-      static Box *get_evaluation_box();
+      static Box      *get_evaluation_box();
+      static Document *create_document();          // may return NULL (no gui available ...)
+      static Document *create_document(Expr data); // may return NULL (no gui available ...)
+      static Expr      run_filedialog(Expr data);
       
       static bool is_idle();
       static bool is_idle(Box *box);

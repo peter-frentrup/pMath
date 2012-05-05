@@ -61,7 +61,7 @@ namespace richmath {
       virtual void paint(Context *context);
       virtual void selection_path(Canvas *canvas, int start, int end);
       
-      virtual Expr to_pmath_symbol() { return Expr(); }
+      virtual Expr to_pmath_symbol() { return Expr(PMATH_SYMBOL_LIST); }
       virtual Expr to_pmath(int flags);
       virtual Expr to_pmath(int flags, int start, int end);
       
@@ -91,13 +91,16 @@ namespace richmath {
       void set_open_close_group(int i, bool open);
       void toggle_open_close_group(int i);
       
-      virtual void insert_pmath(int *pos, Expr boxes);
+      virtual void insert_pmath(int *pos, Expr boxes, int overwrite_until_index = 0);
       virtual void insert(int pos, Section *section);
       virtual Section *swap(int pos, Section *section);
       virtual void remove(int start, int end); // not including end
       virtual Box *remove(int *index);
       
     protected:
+      void internal_insert_pmath(int *pos, Expr boxes, int overwrite_until_index);
+      void internal_remove(int start, int end); // not including end
+      
       void emit_pmath(int flags, int start, int end); // exclusive
       
       void recalc_group_info();
