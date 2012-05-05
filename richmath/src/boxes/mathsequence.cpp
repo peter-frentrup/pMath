@@ -903,9 +903,14 @@ Box *MathSequence::mouse_selection(
   bool  *was_inside_start
 ) {
   *was_inside_start = true;
+  
+  if(lines.length() == 0){
+    *start = *end = 0;
+    return this;
+  }
+  
   int line = 0;
-  while(line < lines.length() - 1
-        && y > lines[line].descent + 0.1 * em) {
+  while(line < lines.length() - 1 && y > lines[line].descent + 0.1 * em) {
     y -= lines[line].descent + line_spacing() + lines[line + 1].ascent;
     ++line;
   }
