@@ -564,16 +564,6 @@ bool MathSection::try_load_from_object(Expr expr, int opts) {
   style->add_pmath(options);
   style->set(BaseStyleName, stylename);
   
-  Expr new_label = Expr(pmath_option_value(
-                          PMATH_SYMBOL_SECTION,
-                          PMATH_SYMBOL_SECTIONLABEL,
-                          options.get()));
-                          
-  if(new_label.is_string())
-    label(new_label);
-  else
-    label(String(""));
-    
   opts = BoxOptionDefault;
   if(get_own_style(AutoNumberFormating))
     opts |= BoxOptionFormatNumbers;
@@ -618,16 +608,6 @@ bool TextSection::try_load_from_object(Expr expr, int opts) {
   style->add_pmath(options);
   style->set(BaseStyleName, stylename);
   
-  Expr new_label = Expr(pmath_option_value(
-                          PMATH_SYMBOL_SECTION,
-                          PMATH_SYMBOL_SECTIONLABEL,
-                          options.get()));
-                          
-  if(new_label.is_string())
-    label(new_label);
-  else
-    label(String(""));
-    
   opts = BoxOptionDefault;
   if(get_own_style(AutoNumberFormating))
     opts |= BoxOptionFormatNumbers;

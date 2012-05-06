@@ -1,6 +1,6 @@
 Document(
-  {SectionGroup({Section("Sample Document", "Title", SectionLabel -> ""), 
-     SectionGroup({Section("Text", "Section", SectionLabel -> ""), 
+  {SectionGroup({Section("Sample Document", "Title"), 
+     SectionGroup({Section("Text", "Section"), 
        Section(
         "Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod \
         tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim \
@@ -8,12 +8,11 @@ Document(
         ea commodi consequat. Quis aute iure reprehenderit in voluptate velit \
         esse cillum dolore eu fugiat nulla pariatur. Excepteur sint obcaecat \
         cupiditat non proident, sunt in culpa qui officia deserunt mollit anim \
-        id est laborum.", "Text", SectionLabel -> ""), 
+        id est laborum.", "Text"), 
        Section({"Here is the famous It\[OHat] Isometry for", 
          /\/(" ", {"f", "\[Element]", {{"C", SuperscriptBox({"1", ",", "2"})}, 
             "(", {"[", {"0", ",", "T"}, "]"}, ")"}})}, 
-        "Text", SectionLabel -> 
-         ""), 
+        "Text"), 
        Section(
         BoxData(/\/("\[RawTab]", 
           {
@@ -29,9 +28,9 @@ Document(
               "0", "t"), 
              {{{"f", "(", {"s", ",", {"W", SubscriptBox("s")}}, ")"}, 
                SuperscriptBox("2")}, {"\[DifferentialD]", "s"}}}, "]"}})), 
-        "Text", SectionLabel -> "")}, 
+        "Text")}, 
       All), 
-     SectionGroup({Section("Expressions", "Section", SectionLabel -> ""), 
+     SectionGroup({Section("Expressions", "Section"), 
        SectionGroup({Section(BoxData({"2", "+", "3"}), "Input", 
           SectionLabel -> "in [1]:"), Section(BoxData("5"), "Output", 
           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
@@ -51,11 +50,10 @@ Document(
            \"Arg\")\), \(StyleBox(\"n\", \"Arg\")\)) returns the result of \
            \(StyleBox(\"f\", \"Arg\")\) applied \(StyleBox(\"n\", \"Arg\")\) \
            times to \(StyleBox(\"expr\", \"Arg\")\).\""), "PrintUsage", 
-          SectionGenerated -> True, 
-          SectionLabel -> ""), 
+          SectionGenerated -> True), 
          Section(BoxData({{"Attributes", "(", "Nest", ")"}, 
             "\[Assign]", {"{", "Protected", "}"}}), "Print", 
-          SectionGenerated -> True, SectionLabel -> "")}, All), 
+          SectionGenerated -> True)}, All), 
        SectionGroup(
         {
          Section(
@@ -107,7 +105,7 @@ Document(
             FontColor -> RGBColor(0, 0, 0.4980392156862745`), 
             StripOnInput -> False)), "Output", SectionGenerated -> True, 
           SectionLabel -> "out [4]:")}, All)}, 
-      All), SectionGroup({Section("Graphics", "Section", SectionLabel -> ""), 
+      All), SectionGroup({Section("Graphics", "Section"), 
        SectionGroup(
         {
          Section(
@@ -439,7 +437,7 @@ Document(
             PlotRange -> NCache(
              {0 .. 1, 0 .. 1}, {0.0` .. 1.0`, 0.0` .. 1.0`}))), "Output", 
           SectionGenerated -> True, SectionLabel -> "out [5]:")}, All)}, All), 
-     SectionGroup({Section("Dynamic Objects", "Section", SectionLabel -> ""), 
+     SectionGroup({Section("Dynamic Objects", "Section"), 
        SectionGroup(
         {Section(BoxData({"Slider", "(", {"Dynamic", "(", "x", ")"}, ")"}), 
           "Input", SectionLabel -> "in [6]:"), 
