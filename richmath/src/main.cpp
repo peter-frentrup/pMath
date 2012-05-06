@@ -145,7 +145,7 @@ static void os_init() {
     HMODULE kernel32;
     
     // do not show message boxes on LoadLibrary errors:
-    SetErrorMode(SEM_NOOPENFILEERRORBOX);
+    SetErrorMode(SEM_NOOPENFILEERRORBOX | SEM_FAILCRITICALERRORS);
     
     // remove current directory from dll search path:
     kernel32 = GetModuleHandleW(L"Kernel32");
