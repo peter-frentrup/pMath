@@ -141,6 +141,14 @@ static double calc_penalty(struct linewriter_t *lw, int pos, int max) {
   error = 4.0 * error * error / ((double) max * max);
   error += 1.0 * lw->depths[pos - 1];
   
+  if(pos < lw->pos){
+    int prev_depth = lw->depths[0];
+    int next_depth = lw->depths[pos];
+    
+    if(prev_depth + pos <= next_depth)
+      error+= 10.0;
+  }
+  
   return error;
 }
 
@@ -189,8 +197,11 @@ static int find_best_linebreak(
     while(new_nl > 0) {
       if(lw->newlines[new_nl] & NEWLINE_OK) {
         double new_error = calc_penalty(lw, new_nl, last);
-        if(new_error < error)
-          nl = new_nl;
+        
+        if(new_error < error){
+          nl    = new_nl;
+          error = new_error;
+        }
       }
       
       --new_nl;

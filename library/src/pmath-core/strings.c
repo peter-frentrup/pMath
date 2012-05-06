@@ -638,7 +638,8 @@ void _pmath_string_write(struct pmath_write_ex_t *info, pmath_t str) {
              *s >= ' '  &&
              *s != '\"' &&
              *s != '\\' &&
-             *s <= 0x7F)
+             *s <= 0x7F &&
+             *s >= ' ')
       {
         ++s;
         ++len;

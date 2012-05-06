@@ -50,11 +50,11 @@ int richmath::pmath_to_color(Expr obj) {
         double g = obj[2].to_double();
         double b = obj[3].to_double();
         
-        if(r < 0) r = 0; else if(!(r <= 1)) r = 1;
-        if(g < 0) g = 0; else if(!(g <= 1)) g = 1;
-        if(b < 0) b = 0; else if(!(b <= 1)) b = 1;
+        if(r < 0) r = 0.0; else if(!(r <= 1)) r = 1.0;
+        if(g < 0) g = 0.0; else if(!(g <= 1)) g = 1.0;
+        if(b < 0) b = 0.0; else if(!(b <= 1)) b = 1.0;
         
-        return ((int)(r * 255) << 16) | ((int)(g * 255) << 8) | (int)(b * 255);
+        return ((int)(r * 255 + 0.5) << 16) | ((int)(g * 255 + 0.5) << 8) | (int)(b * 255 + 0.5);
       }
     }
     
@@ -100,12 +100,12 @@ int richmath::pmath_to_color(Expr obj) {
         
         switch(hi) {
           case 0:
-          case 6: return ((int)(v * 255) << 16) | ((int)(t * 255) << 8) | (int)(p * 255);
-          case 1: return ((int)(q * 255) << 16) | ((int)(v * 255) << 8) | (int)(p * 255);
-          case 2: return ((int)(p * 255) << 16) | ((int)(v * 255) << 8) | (int)(t * 255);
-          case 3: return ((int)(p * 255) << 16) | ((int)(q * 255) << 8) | (int)(v * 255);
-          case 4: return ((int)(t * 255) << 16) | ((int)(p * 255) << 8) | (int)(v * 255);
-          case 5: return ((int)(v * 255) << 16) | ((int)(p * 255) << 8) | (int)(q * 255);
+          case 6: return ((int)(v * 255 + 0.5) << 16) | ((int)(t * 255 + 0.5) << 8) | (int)(p * 255 + 0.5);
+          case 1: return ((int)(q * 255 + 0.5) << 16) | ((int)(v * 255 + 0.5) << 8) | (int)(p * 255 + 0.5);
+          case 2: return ((int)(p * 255 + 0.5) << 16) | ((int)(v * 255 + 0.5) << 8) | (int)(t * 255 + 0.5);
+          case 3: return ((int)(p * 255 + 0.5) << 16) | ((int)(q * 255 + 0.5) << 8) | (int)(v * 255 + 0.5);
+          case 4: return ((int)(t * 255 + 0.5) << 16) | ((int)(p * 255 + 0.5) << 8) | (int)(v * 255 + 0.5);
+          case 5: return ((int)(v * 255 + 0.5) << 16) | ((int)(p * 255 + 0.5) << 8) | (int)(q * 255 + 0.5);
         }
       }
     }
@@ -117,7 +117,7 @@ int richmath::pmath_to_color(Expr obj) {
       double l = obj[1].to_double();
       if(l < 0) l = 0; else if(!(l <= 1)) l = 1;
       
-      return ((int)(l * 255) << 16) | ((int)(l * 255) << 8) | (int)(l * 255);
+      return ((int)(l * 255 + 0.5) << 16) | ((int)(l * 255 + 0.5) << 8) | (int)(l * 255 + 0.5);
     }
   }
   
