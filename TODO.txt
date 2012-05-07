@@ -3,7 +3,6 @@
 	Button("Arg Style", DocumentApply(SelectedDocument(), StyleBox("\[SelectionPlaceholder]", "Arg")))})
 
 - richmath: rendering artifacts during change of selection in a TextSequence via mouse move
-- richmath: "N(GoldenRatio, 80)"  CTRL+E  CTRL+E    --> error indicator after 80
 - richmath: "g(?n:c)::= n"  does not render correctly (n is not highlighted)
   
 - enable CTRL+Numpad/ to be the same as CTRL+/ a.s.o.

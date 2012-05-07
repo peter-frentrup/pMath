@@ -497,6 +497,7 @@ static void scan_next(scanner_t *tokens, parser_t *parser) {
     
   switch(tokens->str[tokens->pos]) {
     case '#': {
+        tokens->span_items[tokens->pos] |= 2;
         ++tokens->pos;
         
         if(tokens->pos == tokens->len)
@@ -817,9 +818,10 @@ static void scan_next(scanner_t *tokens, parser_t *parser) {
         }
       } break;
       
-      //case '\'':
-    case '@':
     case '%':
+      tokens->span_items[tokens->pos] |= 2;
+      /* fall through */
+    case '@':
     case '.': {
         ++tokens->pos;
         while( tokens->pos < tokens->len &&
@@ -903,6 +905,8 @@ static void scan_next(scanner_t *tokens, parser_t *parser) {
         
         tok = pmath_token_analyse(tokens->str + tokens->pos, 1, NULL);
         if(tok == PMATH_TOK_NAME) {
+          tokens->span_items[tokens->pos] |= 2;
+          
           ++tokens->pos;
           while(tokens->pos < tokens->len) {
             if(tokens->str[tokens->pos] == '`') {
@@ -932,6 +936,8 @@ static void scan_next(scanner_t *tokens, parser_t *parser) {
         }
         
         if(tok == PMATH_TOK_DIGIT) {
+          tokens->span_items[tokens->pos] |= 2;
+          
           do {
             ++tokens->pos;
           } while(tokens->pos < tokens->len &&
@@ -1031,14 +1037,14 @@ static void scan_next(scanner_t *tokens, parser_t *parser) {
             }
           }
         }
-        else
+        else 
           ++tokens->pos;
       }
   }
   
 END_SCAN:
   if(tokens->span_items)
-    tokens->span_items[tokens->pos - 1] = 1;
+    tokens->span_items[tokens->pos - 1] |= 1;
 }
 
 PMATH_API pmath_span_array_t *pmath_spans_from_string(
@@ -2192,7 +2198,7 @@ static void ungroup(
         scan_next(&tokens, NULL);
     }
     else {
-      g->spans->items[start]    |= 2; // operand start
+      g->spans->items[start]      |= 2; // operand start
       g->spans->items[g->pos - 1] |= 1; // token end
     }
     
@@ -2208,8 +2214,6 @@ static void ungroup(
     {
       size_t i, len;
       int start = g->pos;
-      
-      g->spans->items[start] |= 2; // operand start
       
       len = pmath_expr_length(box);
       
@@ -2240,7 +2244,8 @@ static void ungroup(
         ungroup(g, pmath_expr_get_item(box, i));
         
     AFTER_UNGROUP:
-    
+      g->spans->items[start] |= 2; // operand start
+      
       if( len >= 1 &&
           start < g->pos &&
           pmath_same(head, PMATH_SYMBOL_LIST))

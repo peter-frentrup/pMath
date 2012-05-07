@@ -408,6 +408,23 @@ void MathSequence::paint(Context *context) {
           }
         }
         
+        //#ifndef NDEBUG
+        //if(spans.is_operand_start(pos)){
+        //  context->canvas->save();
+        //  
+        //  context->canvas->move_to(glyph_left + x_extra + glyphs[pos].x_offset, y - 1.5);
+        //  context->canvas->rel_line_to(0, 3);
+        //  context->canvas->rel_line_to(3, 0);
+        //  
+        //  context->canvas->set_color(0x008000);
+        //  context->canvas->hair_stroke();
+        //  
+        //  context->canvas->set_color(default_color);
+        //  context->canvas->restore();
+        //}
+        //#endif
+        
+        
         if(buf[pos] == PMATH_CHAR_BOX) {
           while(boxes[box]->index() < pos)
             ++box;
