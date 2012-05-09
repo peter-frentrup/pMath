@@ -39,7 +39,19 @@
 
 using namespace richmath;
 
-static const float ref_error_indicator_height = 1 / 3.0f;
+static const float RefErrorIndictorHeight = 1 / 3.0f;
+
+static const float UnderoverscriptOverhangCoverage = 0.75f;
+/*
+   A value of 1 would        A value of 0 would
+   yield:                    yield:
+    /   n       \                 n
+    | .---.     |             / .---.     \
+    |  \        |             |  \        |
+    |  /    ... |             |  /    ... |
+    | '---'     |             \ '---'     /
+    \  i=1      /                i=1
+*/
 
 static inline bool char_is_white(uint16_t ch) {
   return ch == ' ' || ch == '\n';
@@ -56,9 +68,9 @@ class ScanData {
 
 MathSequence::MathSequence()
   : AbstractSequence(),
-  str(""),
-  boxes_invalid(false),
-  spans_invalid(false)
+    str(""),
+    boxes_invalid(false),
+    spans_invalid(false)
 {
 }
 
@@ -151,7 +163,7 @@ void MathSequence::resize(Context *context) {
       
       if(se->count() == 0 || !se->item_as_text(0).equals("/*")) {
         colorizer.syntax_colorize_spanexpr(        se);
-        colorizer.arglist_errors_colorize_spanexpr(se, em * ref_error_indicator_height);
+        colorizer.arglist_errors_colorize_spanexpr(se, em * RefErrorIndictorHeight);
       }
       
       pos = se->end() + 1;
@@ -166,7 +178,7 @@ void MathSequence::resize(Context *context) {
     float d = 0;
     
     if(glyphs.length() == 1 &&
-        !dynamic_cast<UnderoverscriptBox*>(_parent))
+        !dynamic_cast<UnderoverscriptBox *>(_parent))
     {
       pmath_token_t tok = pmath_token_analyse(str.buffer(), 1, NULL);
       
@@ -226,7 +238,7 @@ void MathSequence::resize(Context *context) {
   context->section_content_window_width = old_scww;
   
   split_lines(context);
-  if(dynamic_cast<Section*>(_parent)) {
+  if(dynamic_cast<Section *>(_parent)) {
     hstretch_lines(
       context->width,
       context->section_content_window_width,
@@ -360,10 +372,10 @@ void MathSequence::paint(Context *context) {
     int pos = 0;
     
     if(line > 0)
-      pos = lines[line-1].end;
+      pos = lines[line - 1].end;
       
     if(pos > 0)
-      glyph_left = glyphs[pos-1].right;
+      glyph_left = glyphs[pos - 1].right;
       
     bool have_style = false;
     bool have_slant = false;
@@ -411,14 +423,14 @@ void MathSequence::paint(Context *context) {
         //#ifndef NDEBUG
         //if(spans.is_operand_start(pos)){
         //  context->canvas->save();
-        //  
+        //
         //  context->canvas->move_to(glyph_left + x_extra + glyphs[pos].x_offset, y - 1.5);
         //  context->canvas->rel_line_to(0, 3);
         //  context->canvas->rel_line_to(3, 0);
-        //  
+        //
         //  context->canvas->set_color(0x008000);
         //  context->canvas->hair_stroke();
-        //  
+        //
         //  context->canvas->set_color(default_color);
         //  context->canvas->restore();
         //}
@@ -459,7 +471,7 @@ void MathSequence::paint(Context *context) {
         }
         
         if(glyphs[pos].missing_after) {
-          float d = em * ref_error_indicator_height * 2 / 3.0f;
+          float d = em * RefErrorIndictorHeight * 2 / 3.0f;
           float dd = d / 4;
           
           context->canvas->move_to(glyphs[pos].right + x_extra, y + em / 8);
@@ -834,7 +846,7 @@ Box *MathSequence::move_vertical(
     if(*index > 0) {
       x += glyphs[*index - 1].right + indention_width(lines[line].indent);
       if(line > 0)
-        x -= glyphs[lines[line-1].end - 1].right;
+        x -= glyphs[lines[line - 1].end - 1].right;
     }
     dstline = direction == Forward ? line + 1 : line - 1;
   }
@@ -852,7 +864,7 @@ Box *MathSequence::move_vertical(
     float l = indention_width(lines[dstline].indent);
     if(dstline > 0) {
       i = lines[dstline - 1].end;
-      l -= glyphs[lines[dstline-1].end - 1].right;
+      l -= glyphs[lines[dstline - 1].end - 1].right;
     }
     
     while(i < lines[dstline].end
@@ -862,7 +874,7 @@ Box *MathSequence::move_vertical(
     if(i < lines[dstline].end
         && str[i] != PMATH_CHAR_BOX) {
       if( (i == 0 && l +  glyphs[i].right                      / 2 <= x) ||
-          (i >  0 && l + (glyphs[i].right + glyphs[i-1].right) / 2 <= x))
+          (i >  0 && l + (glyphs[i].right + glyphs[i - 1].right) / 2 <= x))
         ++i;
         
       if(is_utf16_high(str[i - 1]))
@@ -884,7 +896,7 @@ Box *MathSequence::move_vertical(
     else if(i > 0) {
       *index_rel_x -= glyphs[i - 1].right;
       if(dstline > 0)
-        *index_rel_x += glyphs[lines[dstline-1].end - 1].right;
+        *index_rel_x += glyphs[lines[dstline - 1].end - 1].right;
     }
     
     if(i < glyphs.length()
@@ -921,7 +933,7 @@ Box *MathSequence::mouse_selection(
 ) {
   *was_inside_start = true;
   
-  if(lines.length() == 0){
+  if(lines.length() == 0) {
     *start = *end = 0;
     return this;
   }
@@ -933,7 +945,7 @@ Box *MathSequence::mouse_selection(
   }
   
   if(line > 0)
-    *start = lines[line-1].end;
+    *start = lines[line - 1].end;
   else
     *start = 0;
     
@@ -1037,7 +1049,7 @@ void MathSequence::child_transformation(
   
   int l = 0;
   while(l + 1 < lines.length() && lines[l].end <= index) {
-    y += lines[l].descent + line_spacing() + lines[l+1].ascent;
+    y += lines[l].descent + line_spacing() + lines[l + 1].ascent;
     ++l;
   }
   
@@ -1218,12 +1230,12 @@ int MathSequence::matching_fence(int pos) {
 }
 
 pmath_bool_t MathSequence::subsuperscriptbox_at_index(int i, void *_data) {
-  ScanData *data = (ScanData*)_data;
+  ScanData *data = (ScanData *)_data;
   
   int start = data->current_box;
   while(data->current_box < data->sequence->boxes.length()) {
     if(data->sequence->boxes[data->current_box]->index() == i) {
-      SubsuperscriptBox *b = dynamic_cast<SubsuperscriptBox*>(
+      SubsuperscriptBox *b = dynamic_cast<SubsuperscriptBox *>(
                                data->sequence->boxes[data->current_box]);
       return 0 != b;
     }
@@ -1233,7 +1245,7 @@ pmath_bool_t MathSequence::subsuperscriptbox_at_index(int i, void *_data) {
   data->current_box = 0;
   while(data->current_box < start) {
     if(data->sequence->boxes[data->current_box]->index() == i)
-      return 0 != dynamic_cast<SubsuperscriptBox*>(
+      return 0 != dynamic_cast<SubsuperscriptBox *>(
                data->sequence->boxes[data->current_box]);
     ++data->current_box;
   }
@@ -1242,12 +1254,12 @@ pmath_bool_t MathSequence::subsuperscriptbox_at_index(int i, void *_data) {
 }
 
 pmath_string_t MathSequence::underoverscriptbox_at_index(int i, void *_data) {
-  ScanData *data = (ScanData*)_data;
+  ScanData *data = (ScanData *)_data;
   
   int start = data->current_box;
   while(data->current_box < data->sequence->boxes.length()) {
     if(data->sequence->boxes[data->current_box]->index() == i) {
-      UnderoverscriptBox *box = dynamic_cast<UnderoverscriptBox*>(
+      UnderoverscriptBox *box = dynamic_cast<UnderoverscriptBox *>(
                                   data->sequence->boxes[data->current_box]);
                                   
       if(box)
@@ -1259,7 +1271,7 @@ pmath_string_t MathSequence::underoverscriptbox_at_index(int i, void *_data) {
   data->current_box = 0;
   while(data->current_box < start) {
     if(data->sequence->boxes[data->current_box]->index() == i) {
-      UnderoverscriptBox *box = dynamic_cast<UnderoverscriptBox*>(
+      UnderoverscriptBox *box = dynamic_cast<UnderoverscriptBox *>(
                                   data->sequence->boxes[data->current_box]);
                                   
       if(box)
@@ -1272,7 +1284,7 @@ pmath_string_t MathSequence::underoverscriptbox_at_index(int i, void *_data) {
 }
 
 void MathSequence::syntax_error(pmath_string_t code, int pos, void *_data, pmath_bool_t err) {
-  ScanData *data = (ScanData*)_data;
+  ScanData *data = (ScanData *)_data;
   
   if(!data->sequence->get_style(ShowAutoStyles))
     return;
@@ -1299,7 +1311,7 @@ void MathSequence::syntax_error(pmath_string_t code, int pos, void *_data, pmath
 }
 
 pmath_t MathSequence::box_at_index(int i, void *_data) {
-  ScanData *data = (ScanData*)_data;
+  ScanData *data = (ScanData *)_data;
   
   int flags = data->flags;
   if((flags & BoxFlagParseable) && data->sequence->is_inside_string(i)) {
@@ -1563,7 +1575,7 @@ void MathSequence::stretch_span(
       }
       
       if(ch == PMATH_CHAR_BOX) {
-        UnderoverscriptBox *underover = dynamic_cast<UnderoverscriptBox*>(boxes[*box]);
+        UnderoverscriptBox *underover = dynamic_cast<UnderoverscriptBox *>(boxes[*box]);
         if(underover && underover->base()->length() == 1)
           ch = underover->base()->str[0];
       }
@@ -1578,27 +1590,33 @@ void MathSequence::stretch_span(
         while(*pos <= span.end() && !pmath_char_is_right(buf[*pos]))
           stretch_span(context, spans[*pos], pos, box, &ca, &cd, &a, &d);
           
+        float overhang_a = (a - ca) * UnderoverscriptOverhangCoverage;
+        float overhang_d = (d - cd) * UnderoverscriptOverhangCoverage;
+        
+        float new_ca = ca + overhang_a;
+        float new_cd = cd + overhang_d;
+        
         if(*pos <= span.end() && pmath_char_is_right(buf[*pos])) {
           context->math_shaper->vertical_stretch_char(
-            context, a, d, true, buf[*pos], &glyphs[*pos]);
+            context, new_ca, new_cd, true, buf[*pos], &glyphs[*pos]);
             
           ++*pos;
         }
         
         context->math_shaper->vertical_stretch_char(
-          context, a, d, true, buf[start], &glyphs[start]);
+          context, new_ca, new_cd, true, buf[start], &glyphs[start]);
           
         if(*ascent < a)
           *ascent = a;
           
-        if(*core_ascent <  a) *core_ascent =  a;
-        else if(*core_ascent < ca) *core_ascent = ca;
-        
+        if(*core_ascent < new_ca)
+          *core_ascent = new_ca;
+          
         if(*descent < d)
           *descent = d;
           
-        if(*core_descent <  d) *core_descent =  d;
-        else if(*core_descent < cd) *core_descent = cd;
+        if(*core_descent < new_cd)
+          *core_descent = new_cd;
       }
       else if(pmath_char_maybe_bigop(ch) || pmath_char_is_integral(ch)) {
         float a = 0;
@@ -1606,7 +1624,7 @@ void MathSequence::stretch_span(
         int startbox = *box;
         
         if(buf[start] == PMATH_CHAR_BOX) {
-          assert(dynamic_cast<UnderoverscriptBox*>(boxes[startbox]) != 0);
+          assert(dynamic_cast<UnderoverscriptBox *>(boxes[startbox]) != 0);
           
           ++*pos;
           ++*box;
@@ -1614,9 +1632,10 @@ void MathSequence::stretch_span(
         else {
           ++*pos;
           
-          if(*pos < glyphs.length()
-              && buf[*pos] == PMATH_CHAR_BOX) {
-            SubsuperscriptBox *subsup = dynamic_cast<SubsuperscriptBox*>(boxes[startbox]);
+          if( *pos < glyphs.length() &&
+              buf[*pos] == PMATH_CHAR_BOX)
+          {
+            SubsuperscriptBox *subsup = dynamic_cast<SubsuperscriptBox *>(boxes[startbox]);
             
             if(subsup) {
               ++*box;
@@ -1629,7 +1648,7 @@ void MathSequence::stretch_span(
           stretch_span(context, spans[*pos], pos, box, &a, &d, ascent, descent);
           
         if(buf[start] == PMATH_CHAR_BOX) {
-          UnderoverscriptBox *underover = dynamic_cast<UnderoverscriptBox*>(boxes[startbox]);
+          UnderoverscriptBox *underover = dynamic_cast<UnderoverscriptBox *>(boxes[startbox]);
           
           assert(underover != 0);
           
@@ -1677,9 +1696,10 @@ void MathSequence::stretch_span(
           size.bigger_y(core_ascent, core_descent);
           size.bigger_y(ascent,      descent);
           
-          if(start + 1 < glyphs.length()
-              && buf[start + 1] == PMATH_CHAR_BOX) {
-            SubsuperscriptBox *subsup = dynamic_cast<SubsuperscriptBox*>(boxes[startbox]);
+          if( start + 1 < glyphs.length() &&
+              buf[start + 1] == PMATH_CHAR_BOX)
+          {
+            SubsuperscriptBox *subsup = dynamic_cast<SubsuperscriptBox *>(boxes[startbox]);
             
             if(subsup) {
               subsup->stretch(context, size);
@@ -1701,9 +1721,10 @@ void MathSequence::stretch_span(
     else
       stretch_span(context, span.next(), pos, box, core_ascent, core_descent, ascent, descent);
       
-    if(*pos <= span.end()
-        && buf[*pos] == '/'
-        && spans.is_token_end(*pos)) {
+    if( *pos <= span.end() &&
+        buf[*pos] == '/' &&
+        spans.is_token_end(*pos))
+    {
       start = *pos;
       
       ++*pos;
@@ -1730,8 +1751,7 @@ void MathSequence::stretch_span(
       size.bigger_y(ascent,      descent);
     }
     
-    while(*pos <= span.end()
-          && (!pmath_char_is_left(buf[*pos]) || spans[*pos]))
+    while(*pos <= span.end() && (!pmath_char_is_left(buf[*pos]) || spans[*pos]))
       stretch_span(context, spans[*pos], pos, box, core_ascent, core_descent, ascent, descent);
       
     if(*pos < span.end()) {
@@ -1746,28 +1766,34 @@ void MathSequence::stretch_span(
       while(*pos <= span.end() && !pmath_char_is_right(buf[*pos]))
         stretch_span(context, spans[*pos], pos, box, &ca, &cd, &a, &d);
         
+      float overhang_a = (a - ca) * UnderoverscriptOverhangCoverage;
+      float overhang_d = (d - cd) * UnderoverscriptOverhangCoverage;
+      
+      float new_ca = ca + overhang_a;
+      float new_cd = cd + overhang_d;
+      
       if(*pos <= span.end() && pmath_char_is_right(buf[*pos])) {
         context->math_shaper->vertical_stretch_char(
-          context, a, d, false, buf[*pos], &glyphs[*pos]);
+          context, new_ca, new_cd, false, buf[*pos], &glyphs[*pos]);
           
         ++*pos;
       }
       
       context->math_shaper->vertical_stretch_char(
-        context, a, d, false, buf[start], &glyphs[start]);
+        context, new_ca, new_cd, false, buf[start], &glyphs[start]);
         
       if(*ascent < a)
         *ascent = a;
         
-      if(*core_ascent <  a) *core_ascent =  a;
-      else if(*core_ascent < ca) *core_ascent = ca;
-      
+      if(*core_ascent < new_ca)
+        *core_ascent = new_ca;
+        
       if(*descent < d)
         *descent = d;
         
-      if(*core_descent <  d) *core_descent =  d;
-      else if(*core_descent < cd) *core_descent = cd;
-      
+      if(*core_descent < new_cd)
+        *core_descent = new_cd;
+        
       while(*pos <= span.end()) {
         stretch_span(
           context,
@@ -1784,7 +1810,7 @@ void MathSequence::stretch_span(
   }
   
   if(buf[*pos] == PMATH_CHAR_BOX) {
-    SubsuperscriptBox *subsup = dynamic_cast<SubsuperscriptBox*>(boxes[*box]);
+    SubsuperscriptBox *subsup = dynamic_cast<SubsuperscriptBox *>(boxes[*box]);
     
     if(subsup && *pos > 0) {
       if(buf[*pos - 1] == PMATH_CHAR_BOX) {
@@ -1805,7 +1831,7 @@ void MathSequence::stretch_span(
       subsup->extents().bigger_y(core_ascent, core_descent);
     }
     else {
-      UnderoverscriptBox *underover = dynamic_cast<UnderoverscriptBox*>(boxes[*box]);
+      UnderoverscriptBox *underover = dynamic_cast<UnderoverscriptBox *>(boxes[*box]);
       
       if(underover) {
         uint16_t ch = 0;
@@ -1813,7 +1839,7 @@ void MathSequence::stretch_span(
         if(underover->base()->length() == 1)
           ch = underover->base()->text()[0];
           
-        if(spans.is_operand_start(*pos) &&
+        if( spans.is_operand_start(*pos) &&
             (pmath_char_maybe_bigop(ch) || pmath_char_is_integral(ch)))
         {
           context->math_shaper->vertical_stretch_char(
@@ -1850,9 +1876,10 @@ void MathSequence::stretch_span(
     return;
   }
   
-  if(spans.is_operand_start(*pos)
-      && length() > 1
-      && (pmath_char_maybe_bigop(buf[*pos]) || pmath_char_is_integral(buf[*pos]))) {
+  if( spans.is_operand_start(*pos) &&
+      length() > 1 &&
+      (pmath_char_maybe_bigop(buf[*pos]) || pmath_char_is_integral(buf[*pos])))
+  {
     context->math_shaper->vertical_stretch_char(
       context,
       0,
@@ -1914,7 +1941,7 @@ void MathSequence::enlarge_space(Context *context) {
     // italic correction
     if(glyphs[e].slant == FontSlantItalic
         && buf[e] != PMATH_CHAR_BOX
-        && (e + 1 == glyphs.length() || glyphs[e+1].slant != FontSlantItalic)) {
+        && (e + 1 == glyphs.length() || glyphs[e + 1].slant != FontSlantItalic)) {
       float ital_corr = context->math_shaper->italic_correction(
                           context,
                           buf[e],
@@ -1922,8 +1949,8 @@ void MathSequence::enlarge_space(Context *context) {
                           
       ital_corr *= em;
       if(e + 1 < glyphs.length()) {
-        glyphs[e+1].x_offset += ital_corr;
-        glyphs[e+1].right += ital_corr;
+        glyphs[e + 1].x_offset += ital_corr;
+        glyphs[e + 1].right += ital_corr;
       }
       else
         glyphs[e].right += ital_corr;
@@ -1936,7 +1963,7 @@ void MathSequence::enlarge_space(Context *context) {
       while(box < boxes.length() && boxes[box]->index() <= e)
         ++box;
         
-      if(box == boxes.length() || !dynamic_cast<SubsuperscriptBox*>(boxes[box]))
+      if(box == boxes.length() || !dynamic_cast<SubsuperscriptBox *>(boxes[box]))
         break;
         
       ++e;
@@ -1985,15 +2012,17 @@ void MathSequence::enlarge_space(Context *context) {
         ++box;
         
       if(box < boxes.length()) {
-        UnderoverscriptBox *underover = dynamic_cast<UnderoverscriptBox*>(boxes[box]);
+        UnderoverscriptBox *underover = dynamic_cast<UnderoverscriptBox *>(boxes[box]);
         if(underover && underover->base()->length() > 0) {
           op = underover->base()->text().buffer();
           ii = 0;
           ee = ii;
-          while(ee < underover->base()->length()
-                && !underover->base()->span_array().is_token_end(ee))
+          while( ee < underover->base()->length() &&
+                 !underover->base()->span_array().is_token_end(ee))
+          {
             ++ee;
-            
+          }
+          
           if(ee != underover->base()->length() - 1) {
             op = buf;
             ii = i;
@@ -2022,7 +2051,8 @@ void MathSequence::enlarge_space(Context *context) {
             goto INFIX;
             
           prec = PMATH_PREC_CALL;
-        } goto POSTFIX;
+        }
+        goto POSTFIX;
         
       case PMATH_TOK_BINARY_LEFT_OR_PREFIX:
       case PMATH_TOK_NARY_OR_PREFIX: {
@@ -2030,7 +2060,8 @@ void MathSequence::enlarge_space(Context *context) {
             prec = pmath_token_prefix_precedence(op + ii, ee - ii + 1, prec);
             goto PREFIX;
           }
-        } goto INFIX;
+        }
+        goto INFIX;
         
       case PMATH_TOK_BINARY_LEFT_AUTOARG:
       case PMATH_TOK_NARY_AUTOARG:
@@ -2097,7 +2128,8 @@ void MathSequence::enlarge_space(Context *context) {
             case PMATH_PREC_PRIM:
               break;
           }
-        } break;
+        }
+        break;
         
       case PMATH_TOK_POSTFIX_OR_PREFIX:
         if(!spans.is_operand_start(i))
@@ -2125,7 +2157,8 @@ void MathSequence::enlarge_space(Context *context) {
               
             default: break;
           }
-        } break;
+        }
+        break;
         
       case PMATH_TOK_POSTFIX: {
         POSTFIX:
@@ -2137,7 +2170,8 @@ void MathSequence::enlarge_space(Context *context) {
               
             default: break;
           }
-        } break;
+        }
+        break;
         
       case PMATH_TOK_COLON:
       case PMATH_TOK_ASSIGNTAG:
@@ -2230,8 +2264,8 @@ void MathSequence::enlarge_space(Context *context) {
       glyphs[i].x_offset += space_left;
       glyphs[i].right +=    space_left;
       if(e + 1 < glyphs.length()) {
-        glyphs[e+1].x_offset += space_right;
-        glyphs[e+1].right +=    space_right;
+        glyphs[e + 1].x_offset += space_right;
+        glyphs[e + 1].right +=    space_right;
       }
       else
         glyphs[e].right += space_right;
@@ -2260,15 +2294,15 @@ class BreakPositionWithPenalty {
   public:
     BreakPositionWithPenalty()
       : text_position(-1),
-      prev_break_index(-1),
-      penalty(Infinity)
+        prev_break_index(-1),
+        penalty(Infinity)
     {
     }
     
     BreakPositionWithPenalty(int tpos, int prev, double pen)
       : text_position(tpos),
-      prev_break_index(prev),
-      penalty(pen)
+        prev_break_index(prev),
+        penalty(pen)
     {}
     
   public:
@@ -2323,7 +2357,7 @@ void MathSequence::split_lines(Context *context) {
   for(int start_of_paragraph = 0; start_of_paragraph < glyphs.length();) {
     int end_of_paragraph = start_of_paragraph + 1;
     while(end_of_paragraph < glyphs.length()
-          && buf[end_of_paragraph-1] != '\n')
+          && buf[end_of_paragraph - 1] != '\n')
       ++end_of_paragraph;
       
     break_array.length(0);
@@ -2384,7 +2418,7 @@ void MathSequence::split_lines(Context *context) {
       int j = break_result[i];
       pos = break_array[j].text_position;
       
-      while(pos + 1 < end_of_paragraph && buf[pos+1] == ' ')
+      while(pos + 1 < end_of_paragraph && buf[pos + 1] == ' ')
         ++pos;
         
       if(pos < end_of_paragraph) {
@@ -2409,15 +2443,15 @@ void MathSequence::split_lines(Context *context) {
       while(boxes[box]->index() < lines[line].end - 1)
         ++box;
         
-      FillBox *fb = dynamic_cast<FillBox*>(boxes[box]);
+      FillBox *fb = dynamic_cast<FillBox *>(boxes[box]);
       if(fb) {
         if(buf[lines[line].end] == PMATH_CHAR_BOX
-            && dynamic_cast<FillBox*>(boxes[box+1]))
+            && dynamic_cast<FillBox *>(boxes[box + 1]))
           continue;
           
-        float w = glyphs[lines[line+1].end - 1].right - glyphs[lines[line].end - 1].right;
+        float w = glyphs[lines[line + 1].end - 1].right - glyphs[lines[line].end - 1].right;
         
-        if(fb->extents().width + w + indention_width(lines[line+1].indent) <= context->width) {
+        if(fb->extents().width + w + indention_width(lines[line + 1].indent) <= context->width) {
           lines[line].end--;
         }
       }
@@ -2440,14 +2474,14 @@ int MathSequence::fill_penalty_array(
           || buf[pos] == ':'
           || buf[pos] == PMATH_CHAR_ASSIGN
           || buf[pos] == PMATH_CHAR_ASSIGNDELAYED) {
-        penalty_array[pos-1] += DepthPenalty;
+        penalty_array[pos - 1] += DepthPenalty;
         //--depth;
       }
       
       if(buf[pos] == 0xA0   /* \[NonBreakingSpace] */
           || buf[pos] == 0x2011 /* non breaking hyphen */
           || buf[pos] == 0x2060 /* \[NonBreak] */) {
-        penalty_array[pos-1] = Infinity;
+        penalty_array[pos - 1] = Infinity;
         penalty_array[pos]   = Infinity;
         ++pos;
       }
@@ -2459,16 +2493,16 @@ int MathSequence::fill_penalty_array(
       while(boxes[*box]->index() < pos)
         ++*box;
         
-      if(dynamic_cast<SubsuperscriptBox*>(boxes[*box])) {
-        penalty_array[pos-1] = Infinity;
+      if(dynamic_cast<SubsuperscriptBox *>(boxes[*box])) {
+        penalty_array[pos - 1] = Infinity;
         return pos + 1;
       }
       
       if(spans.is_operand_start(pos - 1)
-          && dynamic_cast<GridBox*>(boxes[*box])) {
+          && dynamic_cast<GridBox *>(boxes[*box])) {
         if(pos > 0 && spans.is_operand_start(pos - 1)) {
-          if(buf[pos-1] == PMATH_CHAR_PIECEWISE) {
-            penalty_array[pos-1] = Infinity;
+          if(buf[pos - 1] == PMATH_CHAR_PIECEWISE) {
+            penalty_array[pos - 1] = Infinity;
             return pos + 1;
           }
           
@@ -2476,7 +2510,7 @@ int MathSequence::fill_penalty_array(
           
           if(tok == PMATH_TOK_LEFT
               || tok == PMATH_TOK_LEFTCALL)
-            penalty_array[pos-1] = Infinity;
+            penalty_array[pos - 1] = Infinity;
         }
         
         if(pos + 1 < glyphs.length()) {
@@ -2543,7 +2577,7 @@ int MathSequence::fill_penalty_array(
         case PMATH_TOK_NAME2:
         case PMATH_TOK_DIGIT:
           if(last_was_special)
-            penalty_array[next-1] -= WordPenalty;
+            penalty_array[next - 1] -= WordPenalty;
           last_was_special = false;
           break;
           
@@ -2643,7 +2677,7 @@ int MathSequence::fill_indention_array(
 
   bool depth_dec = false;
   while(next <= span.end()) {
-    if(in_string && next > 0 && buf[next-1] == '\n') {
+    if(in_string && next > 0 && buf[next - 1] == '\n') {
       indention_array[next] = depth; // 0
       ++next;
     }
@@ -2708,7 +2742,7 @@ void MathSequence::hstretch_lines(
         while(boxes[box]->index() < pos)
           ++box;
           
-        FillBox *fillbox = dynamic_cast<FillBox*>(boxes[box]);
+        FillBox *fillbox = dynamic_cast<FillBox *>(boxes[box]);
         if(fillbox && fillbox->weight > 0) {
           total_fill_weight += fillbox->weight;
           white += fillbox->extents().width;
@@ -2736,7 +2770,7 @@ void MathSequence::hstretch_lines(
             while(boxes[box]->index() < pos)
               ++box;
               
-            FillBox *fillbox = dynamic_cast<FillBox*>(boxes[box]);
+            FillBox *fillbox = dynamic_cast<FillBox *>(boxes[box]);
             if(fillbox && fillbox->weight > 0) {
               BoxSize size = fillbox->extents();
               dx -= size.width;
@@ -2807,7 +2841,7 @@ int MathSequence::insert(int pos, Box *box) {
   if(pos > length())
     pos = length();
     
-  if(MathSequence *sequence = dynamic_cast<MathSequence*>(box)) {
+  if(MathSequence *sequence = dynamic_cast<MathSequence *>(box)) {
     pos = insert(pos, sequence, 0, sequence->length());
     delete sequence;
     return pos;
@@ -2895,93 +2929,93 @@ static Box *create_box(Expr expr, int options) {
     return box;
   }
   
-  if(expr[0] == PMATH_SYMBOL_BUTTONBOX) 
+  if(expr[0] == PMATH_SYMBOL_BUTTONBOX)
     return create_or_error<  ButtonBox>(expr, options);
-  
-  if(expr[0] == PMATH_SYMBOL_CHECKBOXBOX) 
+    
+  if(expr[0] == PMATH_SYMBOL_CHECKBOXBOX)
     return create_or_error<  CheckboxBox>(expr, options);
-  
-  if(expr[0] == PMATH_SYMBOL_DYNAMICBOX) 
+    
+  if(expr[0] == PMATH_SYMBOL_DYNAMICBOX)
     return create_or_error<  DynamicBox>(expr, options);
-  
-  if(expr[0] == PMATH_SYMBOL_DYNAMICLOCALBOX) 
+    
+  if(expr[0] == PMATH_SYMBOL_DYNAMICLOCALBOX)
     return create_or_error<  DynamicLocalBox>(expr, options);
-  
-  if(expr[0] == PMATH_SYMBOL_FILLBOX) 
+    
+  if(expr[0] == PMATH_SYMBOL_FILLBOX)
     return create_or_error<  FillBox>(expr, options);
-  
-  if(expr[0] == PMATH_SYMBOL_FRACTIONBOX) 
+    
+  if(expr[0] == PMATH_SYMBOL_FRACTIONBOX)
     return create_or_error<  FractionBox>(expr, options);
-  
-  if(expr[0] == PMATH_SYMBOL_FRAMEBOX) 
+    
+  if(expr[0] == PMATH_SYMBOL_FRAMEBOX)
     return create_or_error<  FrameBox>(expr, options);
-  
+    
   if(expr[0] == PMATH_SYMBOL_GRAPHICSBOX)
     return create_or_error<  GraphicsBox>(expr, options);
-  
-  if(expr[0] == PMATH_SYMBOL_GRIDBOX) 
+    
+  if(expr[0] == PMATH_SYMBOL_GRIDBOX)
     return create_or_error<  GridBox>(expr, options);
-  
+    
   if(expr[0] == PMATH_SYMBOL_INPUTFIELDBOX)
     return create_or_error<  InputFieldBox>(expr, options);
-  
+    
   if(expr[0] == PMATH_SYMBOL_INTERPRETATIONBOX)
     return create_or_error<  InterpretationBox>(expr, options);
-  
+    
   if(expr[0] == PMATH_SYMBOL_PROGRESSINDICATORBOX)
     return create_or_error<  ProgressIndicatorBox>(expr, options);
-  
+    
   if(expr[0] == PMATH_SYMBOL_RADICALBOX)
     return create_or_error<  RadicalBox>(expr, options);
-  
+    
   if(expr[0] == PMATH_SYMBOL_RADIOBUTTONBOX)
     return create_or_error<  RadioButtonBox>(expr, options);
-  
-  if(expr[0] == PMATH_SYMBOL_ROTATIONBOX) 
+    
+  if(expr[0] == PMATH_SYMBOL_ROTATIONBOX)
     return create_or_error<  RotationBox>(expr, options);
-  
-  if(expr[0] == PMATH_SYMBOL_SETTERBOX) 
+    
+  if(expr[0] == PMATH_SYMBOL_SETTERBOX)
     return create_or_error<  SetterBox>(expr, options);
-  
-  if(expr[0] == PMATH_SYMBOL_SLIDERBOX) 
+    
+  if(expr[0] == PMATH_SYMBOL_SLIDERBOX)
     return create_or_error<  SliderBox>(expr, options);
-  
+    
   if(expr[0] == PMATH_SYMBOL_SUBSCRIPTBOX)
     return create_or_error<  SubsuperscriptBox>(expr, options);
-  
+    
   if(expr[0] == PMATH_SYMBOL_SUPERSCRIPTBOX)
     return create_or_error<  SubsuperscriptBox>(expr, options);
-  
+    
   if(expr[0] == PMATH_SYMBOL_SUBSUPERSCRIPTBOX)
     return create_or_error<  SubsuperscriptBox>(expr, options);
-  
+    
   if( expr[0] == PMATH_SYMBOL_SQRTBOX)
     return create_or_error<  RadicalBox>(expr, options);
-  
+    
   if(expr[0] == PMATH_SYMBOL_STYLEBOX)
     return create_or_error<  StyleBox>(expr, options);
-  
+    
   if(expr[0] == PMATH_SYMBOL_TAGBOX)
     return create_or_error<  TagBox>(expr, options);
-  
+    
   if(expr[0] == PMATH_SYMBOL_TOOLTIPBOX)
     return create_or_error<  TooltipBox>(expr, options);
-  
+    
   if(expr[0] == PMATH_SYMBOL_TRANSFORMATIONBOX)
     return create_or_error<  TransformationBox>(expr, options);
-  
+    
   if(expr[0] == PMATH_SYMBOL_UNDERSCRIPTBOX)
     return create_or_error<  UnderoverscriptBox>(expr, options);
-  
+    
   if(expr[0] == PMATH_SYMBOL_OVERSCRIPTBOX)
     return create_or_error<  UnderoverscriptBox>(expr, options);
-  
+    
   if(expr[0] == PMATH_SYMBOL_UNDEROVERSCRIPTBOX)
     return create_or_error<  UnderoverscriptBox>(expr, options);
-  
+    
   if(expr[0] == GetSymbol( NumberBoxSymbol))
     return create_or_error<NumberBox>(expr, options);
-  
+    
   return new ErrorBox(expr);
 }
 
@@ -3003,7 +3037,7 @@ class PositionedExpr {
 };
 
 static void defered_make_box(int pos, pmath_t obj, void *data) {
-  Array<PositionedExpr> *boxes = (Array<PositionedExpr>*)data;
+  Array<PositionedExpr> *boxes = (Array<PositionedExpr> *)data;
   
   boxes->add(PositionedExpr(Expr(obj), pos));
 }
@@ -3012,7 +3046,7 @@ class SpanSynchronizer: public Base {
   public:
     SpanSynchronizer(
       int                    _new_load_options,
-      Array<Box*>           &_old_boxes,
+      Array<Box *>           &_old_boxes,
       SpanArray             &_old_spans,
       Array<PositionedExpr> &_new_boxes,
       SpanArray             &_new_spans
@@ -3088,12 +3122,12 @@ class SpanSynchronizer: public Base {
     
   protected:
     void next(Span old_span, Span new_span) {
-      if(!is_in_range()){
+      if(!is_in_range()) {
         old_pos = old_spans.length();
         new_pos = new_spans.length();
         return;
       }
-        
+      
       if(old_span && new_span) {
         int old_start = old_pos;
         int new_start = new_pos;
@@ -3180,7 +3214,7 @@ class SpanSynchronizer: public Base {
     }
     
   public:
-    Array<Box*>     &old_boxes;
+    Array<Box *>     &old_boxes;
     const SpanArray &old_spans;
     int              old_pos;
     int              old_next_box;
@@ -3255,7 +3289,7 @@ int MathSequence::get_line(int index, int guide) {
   
   if(line < lines.length() && lines[line].end > index) {
     while(line > 0) {
-      if(lines[line-1].end <= index)
+      if(lines[line - 1].end <= index)
         return line;
         
       --line;

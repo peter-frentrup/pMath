@@ -1244,9 +1244,9 @@ void SimpleMathShaper::accent_positions(
   if(base->length() == 1)
     base_char = base->text()[0];
     
-  if(context->script_indent > 0 &&
-      (pmath_char_is_integral(base_char) /*|| pmath_char_maybe_bigop(base_char)*/))
-  {
+  bool is_integral = pmath_char_is_integral(base_char);
+    
+  if(context->script_indent > 0 && is_integral) {
     script_positions(
       context, base->extents().ascent, base->extents().descent,
       under, over,
@@ -1283,6 +1283,29 @@ void SimpleMathShaper::accent_positions(
   }
   
   *base_x = (w - base->extents().width) / 2;
+  
+  if(is_integral) {
+    float dummy_uy, dummy_oy;
+    script_positions(
+      context, base->extents().ascent, base->extents().descent,
+      under, over,
+      &dummy_uy, &dummy_oy);
+      
+    script_corrections(
+      context, base_char, base->glyph_array()[0],
+      under, over, dummy_uy, dummy_oy,
+      under_x, over_x);
+    
+    float diff = *over_x - *under_x;
+    
+    if(under)
+      *under_x = (w + *over_x - diff - under->extents().width) / 2;
+    
+    if(over)
+      *over_x = (w + *over_x + diff - over->extents().width) / 2;
+      
+    return;
+  }
   
   if(under)
     *under_x = (w - under->extents().width) / 2;
@@ -1333,8 +1356,8 @@ void SimpleMathShaper::script_corrections(
   Context           *context,
   uint16_t           base_char,
   const GlyphInfo   &base_info,
-  MathSequence          *sub,
-  MathSequence          *super,
+  MathSequence      *sub,
+  MathSequence      *super,
   float              sub_y,
   float              super_y,
   float             *sub_x,

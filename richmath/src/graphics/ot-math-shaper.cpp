@@ -16,13 +16,13 @@ using namespace richmath;
 static uint16_t SqrtChar = 0x221A;
 
 static uint16_t big_endian(uint16_t value) {
-  const uint8_t *p = (const uint8_t*)&value;
+  const uint8_t *p = (const uint8_t *)&value;
   
   return (p[0] << 8) + p[1];
 }
 
 static int16_t big_endian(int16_t value) {
-  const uint8_t *p = (const uint8_t*)&value;
+  const uint8_t *p = (const uint8_t *)&value;
   
   return (int16_t)((p[0] << 8) + p[1]);
 }
@@ -196,12 +196,14 @@ int16_t KernVertexObject::height_to_kern(int16_t height, bool above) {
   
   if(values.length() == 2 * h + 1) {
     for(int i = 0; i < h; ++i) {
-      if((above && values[i] <= height)
-          || (!above && values[i] >= height))
+      if( ( above && values[i] <= height) ||
+          (!above && values[i] >= height))
+      {
         return values[h + i];
+      }
     }
     
-    return values[2*h];
+    return values[2 * h];
   }
   
   return 0;
@@ -215,7 +217,7 @@ Hashtable<String, SharedPtr<OTMathShaperDB> > OTMathShaperDB::registered;
 
 OTMathShaperDB::OTMathShaperDB()
   : Shareable(),
-  fi(0)
+    fi(0)
 {
   private_characters.default_value = 0;
   alt_glyphs.default_value = 0;
@@ -355,38 +357,38 @@ SharedPtr<OTMathShaper> OTMathShaperDB::find(String name, FontStyle style) {
     db->fi->get_truetype_table(FONT_TABLE_NAME('M', 'A', 'T', 'H'), 0, data.items(), size);
     const uint8_t *table = data.items();
     
-    const MathTableHeader *header = (const MathTableHeader*)table;
+    const MathTableHeader *header = (const MathTableHeader *)table;
     
     {
-      uint16_t       *db_consts = (uint16_t*)&db->consts;
-      const uint16_t *consts    = (const uint16_t*)(table + big_endian(header->constants_offset));
+      uint16_t       *db_consts = (uint16_t *)&db->consts;
+      const uint16_t *consts    = (const uint16_t *)(table + big_endian(header->constants_offset));
       for(size_t i = 0; i < sizeof(MathConstants) / 2; ++i)
         db_consts[i] = big_endian(consts[i]);
     }
     
     if(header->glyphinfo_offset) {
-      const MathGlyphInfo *glyphinfo = (const MathGlyphInfo*)
+      const MathGlyphInfo *glyphinfo = (const MathGlyphInfo *)
                                        (table + big_endian(header->glyphinfo_offset));
                                        
       if(glyphinfo->kern_info_offset) {
-        const MathKernInfo *kern_info = (const MathKernInfo*)
-                                        (((const char*)glyphinfo) + big_endian(glyphinfo->kern_info_offset));
+        const MathKernInfo *kern_info = (const MathKernInfo *)
+                                        (((const char *)glyphinfo) + big_endian(glyphinfo->kern_info_offset));
                                         
-        const uint16_t *coverage = (const uint16_t*)
-                                   (((const char*)kern_info) + big_endian(kern_info->coverage_offset));
+        const uint16_t *coverage = (const uint16_t *)
+                                   (((const char *)kern_info) + big_endian(kern_info->coverage_offset));
                                    
         switch(big_endian(coverage[0])) { // coverage format
           case 1: {
-              const uint16_t *glyphs = (const uint16_t*)
-                                       (((const char*)coverage) + 4); // skip format, count
+              const uint16_t *glyphs = (const uint16_t *)
+                                       (((const char *)coverage) + 4); // skip format, count
                                        
               for(uint16_t i = 0; i < big_endian(kern_info->count); ++i) {
                 const MathKernVertex *vertex;
                 
                 for(int edge = 0; edge < 4; ++edge) {
                   if(kern_info->offsets[i][edge]) {
-                    vertex = (const MathKernVertex*)
-                             (((const char*)kern_info) + big_endian(kern_info->offsets[i][edge]));
+                    vertex = (const MathKernVertex *)
+                             (((const char *)kern_info) + big_endian(kern_info->offsets[i][edge]));
                              
                     db->math_kern[edge].set(
                       big_endian(glyphs[i]),
@@ -397,8 +399,8 @@ SharedPtr<OTMathShaper> OTMathShaperDB::find(String name, FontStyle style) {
             } break;
             
           case 2: {
-              const GlyphRangeRecord *ranges = (const GlyphRangeRecord*)
-                                               (((const char*)coverage) + 4);
+              const GlyphRangeRecord *ranges = (const GlyphRangeRecord *)
+                                               (((const char *)coverage) + 4);
                                                
               for(uint16_t r = 0; r < big_endian(coverage[1]); ++r) {
                 uint16_t start_glyph = big_endian(ranges[r].start_glyph);
@@ -412,8 +414,8 @@ SharedPtr<OTMathShaper> OTMathShaperDB::find(String name, FontStyle style) {
                   
                   for(int edge = 0; edge < 4; ++edge) {
                     if(kern_info->offsets[i][edge]) {
-                      vertex = (const MathKernVertex*)
-                               (((const char*)kern_info) + big_endian(kern_info->offsets[i][edge]));
+                      vertex = (const MathKernVertex *)
+                               (((const char *)kern_info) + big_endian(kern_info->offsets[i][edge]));
                                
                       db->math_kern[edge].set(g, KernVertexObject(vertex));
                     }
@@ -425,16 +427,16 @@ SharedPtr<OTMathShaper> OTMathShaperDB::find(String name, FontStyle style) {
       }
       
       if(glyphinfo->italics_correction_info_offset) {
-        const MathItalicsCorrectionInfo *ital_corr_info = (const MathItalicsCorrectionInfo*)
-            (((const char*)glyphinfo) + big_endian(glyphinfo->italics_correction_info_offset));
+        const MathItalicsCorrectionInfo *ital_corr_info = (const MathItalicsCorrectionInfo *)
+            (((const char *)glyphinfo) + big_endian(glyphinfo->italics_correction_info_offset));
             
-        const uint16_t *coverage = (const uint16_t*)
-                                   (((const char*)ital_corr_info) + big_endian(ital_corr_info->coverage_offset));
+        const uint16_t *coverage = (const uint16_t *)
+                                   (((const char *)ital_corr_info) + big_endian(ital_corr_info->coverage_offset));
                                    
         switch(big_endian(coverage[0])) { // coverage format
           case 1: {
-              const uint16_t *glyphs = (const uint16_t*)
-                                       (((const char*)coverage) + 4); // skip format, count
+              const uint16_t *glyphs = (const uint16_t *)
+                                       (((const char *)coverage) + 4); // skip format, count
                                        
               for(uint16_t i = 0; i < big_endian(ital_corr_info->count); ++i) {
                 db->italics_correction.set(
@@ -444,8 +446,8 @@ SharedPtr<OTMathShaper> OTMathShaperDB::find(String name, FontStyle style) {
             } break;
             
           case 2: {
-              const GlyphRangeRecord *ranges = (const GlyphRangeRecord*)
-                                               (((const char*)coverage) + 4);
+              const GlyphRangeRecord *ranges = (const GlyphRangeRecord *)
+                                               (((const char *)coverage) + 4);
                                                
               for(uint16_t r = 0; r < big_endian(coverage[1]); ++r) {
                 uint16_t start_glyph = big_endian(ranges[r].start_glyph);
@@ -464,16 +466,16 @@ SharedPtr<OTMathShaper> OTMathShaperDB::find(String name, FontStyle style) {
       }
       
       if(glyphinfo->top_accent_attachment_offset) {
-        const MathTopAccentAttachment *top_acc = (const MathTopAccentAttachment*)
-            (((const char*)glyphinfo) + big_endian(glyphinfo->top_accent_attachment_offset));
+        const MathTopAccentAttachment *top_acc = (const MathTopAccentAttachment *)
+            (((const char *)glyphinfo) + big_endian(glyphinfo->top_accent_attachment_offset));
             
-        const uint16_t *coverage = (const uint16_t*)
-                                   (((const char*)top_acc) + big_endian(top_acc->coverage_offset));
+        const uint16_t *coverage = (const uint16_t *)
+                                   (((const char *)top_acc) + big_endian(top_acc->coverage_offset));
                                    
         switch(big_endian(coverage[0])) { // coverage format
           case 1: {
-              const uint16_t *glyphs = (const uint16_t*)
-                                       (((const char*)coverage) + 4); // skip format, count
+              const uint16_t *glyphs = (const uint16_t *)
+                                       (((const char *)coverage) + 4); // skip format, count
                                        
               for(uint16_t i = 0; i < big_endian(top_acc->count); ++i) {
                 db->top_accents.set(
@@ -483,8 +485,8 @@ SharedPtr<OTMathShaper> OTMathShaperDB::find(String name, FontStyle style) {
             } break;
             
           case 2: {
-              const GlyphRangeRecord *ranges = (const GlyphRangeRecord*)
-                                               (((const char*)coverage) + 4);
+              const GlyphRangeRecord *ranges = (const GlyphRangeRecord *)
+                                               (((const char *)coverage) + 4);
                                                
               for(uint16_t r = 0; r < big_endian(coverage[1]); ++r) {
                 uint16_t start_glyph = big_endian(ranges[r].start_glyph);
@@ -507,27 +509,27 @@ SharedPtr<OTMathShaper> OTMathShaperDB::find(String name, FontStyle style) {
       static Array<MathGlyphVariantRecord> variant_array;
       static Array<MathGlyphPartRecord>    assambly_array;
       
-      const MathVariants *variants = (const MathVariants*)
+      const MathVariants *variants = (const MathVariants *)
                                      (table + big_endian(header->variants_offset));
                                      
       db->min_connector_overlap = big_endian(variants->min_connector_overlap);
       
       uint16_t vert_count = big_endian(variants->vert_glyph_count);
       for(uint16_t i = 0; i < vert_count; ++i) {
-        const MathGlyphConstruction *construction = (const MathGlyphConstruction*)
-            (((const char*)variants) + big_endian(variants->glyph_construction_offsets[i]));
+        const MathGlyphConstruction *construction = (const MathGlyphConstruction *)
+            (((const char *)variants) + big_endian(variants->glyph_construction_offsets[i]));
             
         if(construction->count) {
           if(construction->assembly_offset) {
-            const MathGlyphAssembly *assambly = (const MathGlyphAssembly*)
-                                                (((const char*)construction) + big_endian(construction->assembly_offset));
+            const MathGlyphAssembly *assambly = (const MathGlyphAssembly *)
+                                                (((const char *)construction) + big_endian(construction->assembly_offset));
                                                 
             if(assambly->count) {
               assambly_array.length(big_endian(assambly->count));
               
               for(int j = 0; j < assambly_array.length(); ++j) {
-                const uint16_t *src = (const uint16_t*)&assambly->parts[j];
-                uint16_t       *dst = (uint16_t*)&assambly_array[j];
+                const uint16_t *src = (const uint16_t *)&assambly->parts[j];
+                uint16_t       *dst = (uint16_t *)&assambly_array[j];
                 
                 for(size_t k = 0; k < sizeof(MathGlyphPartRecord) / 2; ++k)
                   dst[k] = big_endian(src[k]);
@@ -555,20 +557,20 @@ SharedPtr<OTMathShaper> OTMathShaperDB::find(String name, FontStyle style) {
       
       uint16_t horz_count = big_endian(variants->horz_glyph_count);
       for(uint16_t i = 0; i < horz_count; ++i) {
-        const MathGlyphConstruction *construction = (const MathGlyphConstruction*)
-            (((const char*)variants) + big_endian(variants->glyph_construction_offsets[vert_count + i]));
+        const MathGlyphConstruction *construction = (const MathGlyphConstruction *)
+            (((const char *)variants) + big_endian(variants->glyph_construction_offsets[vert_count + i]));
             
         if(construction->count) {
           if(construction->assembly_offset) {
-            const MathGlyphAssembly *assambly = (const MathGlyphAssembly*)
-                                                (((const char*)construction) + big_endian(construction->assembly_offset));
+            const MathGlyphAssembly *assambly = (const MathGlyphAssembly *)
+                                                (((const char *)construction) + big_endian(construction->assembly_offset));
                                                 
             if(assambly->count) {
               assambly_array.length(big_endian(assambly->count));
               
               for(int j = 0; j < assambly_array.length(); ++j) {
-                const uint16_t *src = (const uint16_t*)&assambly->parts[j];
-                uint16_t       *dst = (uint16_t*)&assambly_array[j];
+                const uint16_t *src = (const uint16_t *)&assambly->parts[j];
+                uint16_t       *dst = (uint16_t *)&assambly_array[j];
                 
                 for(size_t k = 0; k < sizeof(MathGlyphPartRecord) / 2; ++k)
                   dst[k] = big_endian(src[k]);
@@ -615,9 +617,9 @@ SharedPtr<OTMathShaper> OTMathShaperDB::find(String name, FontStyle style) {
       lig[0].full_advance = lig[1].full_advance =
                               (uint16_t)cte.x_advance + db->min_connector_overlap;
                               
-      cg.index = lig[lig.length()-1].glyph;
+      cg.index = lig[lig.length() - 1].glyph;
       static_canvas.canvas->glyph_extents(&cg, 1, &cte);
-      lig[lig.length()-1].full_advance = (uint16_t)cte.x_advance;
+      lig[lig.length() - 1].full_advance = (uint16_t)cte.x_advance;
       
       db->private_ligatures.set(PMATH_CHAR_ASSIGNDELAYED, lig);
     }
@@ -727,10 +729,10 @@ Array<MathGlyphPartRecord> *OTMathShaperDB::get_horz_assembly(uint32_t ch, uint1
 
 OTMathShaper::OTMathShaper(SharedPtr<OTMathShaperDB> _db, FontStyle _style)
   : MathShaper(),
-  db(_db),
-  text_shaper(new FallbackTextShaper(TextShaper::find(_db->name, _style))),
-  style(_style),
-  fi(text_shaper->font(0))
+    db(_db),
+    text_shaper(new FallbackTextShaper(TextShaper::find(_db->name, _style))),
+    style(_style),
+    fi(text_shaper->font(0))
 {
   text_shaper->add_default();
 }
@@ -853,10 +855,10 @@ void OTMathShaper::decode_token(
       
       if( sub_len + 1 < len &&
           is_utf16_high(str[sub_len]) &&
-          is_utf16_low(str[sub_len+1]))
+          is_utf16_low(str[sub_len + 1]))
       {
         uint32_t hi = str[sub_len];
-        uint32_t lo = str[sub_len+1];
+        uint32_t lo = str[sub_len + 1];
         ch = 0x10000 + (((hi & 0x03FF) << 10) | (lo & 0x03FF));
         
         char_len = 2;
@@ -1285,9 +1287,9 @@ void OTMathShaper::vertical_stretch_char(
     result->vertical_centered = 1;
     
     int i = 0;
-    if(context->script_indent == 0
-        && (pmath_char_is_integral(ch) || pmath_char_maybe_bigop(ch))) {
-      i = 1;
+    if(context->script_indent == 0) {
+      if(pmath_char_is_integral(ch) || pmath_char_maybe_bigop(ch))
+        i = 1;
     }
     
     for(; i < var->length(); ++i) {
@@ -1297,9 +1299,9 @@ void OTMathShaper::vertical_stretch_char(
       result->index = cg.index;
       result->right = cte.x_advance;
       
-      if(2 * half <= cte.height * 1.1
-          || max < cte.height
-          /*&& min <= cte.height*/) {
+      if( 2 * half <= cte.height * 1.1 ||
+          max < cte.height /*&& min <= cte.height*/)
+      {
         return;
       }
     }
@@ -1337,6 +1339,10 @@ void OTMathShaper::vertical_stretch_char(
     
     if(extenders) {
       int count = floorf((2 * half - non_ext_h) / ext_h + 0.5f);
+      
+      if(count * ext_h + non_ext_h <= 2 * half - 0.5 * em)
+        count += 1;
+        
       if(count >= 0) {
         result->index = count;
       }
@@ -1381,9 +1387,10 @@ void OTMathShaper::accent_positions(
   if(base->length() == 1)
     base_char = base->text()[0];
     
-  if(context->script_indent > 0 &&
-      (pmath_char_is_integral(base_char) /*|| pmath_char_maybe_bigop(base_char)*/))
-  {
+  bool is_integral = pmath_char_is_integral(base_char);
+  
+  // actually do subscript/superscript
+  if(context->script_indent > 0 && is_integral) {
     script_positions(
       context, base->extents().ascent, base->extents().descent,
       under, over,
@@ -1432,6 +1439,29 @@ void OTMathShaper::accent_positions(
     w = over->extents().width;
     
   *base_x = (w - base->extents().width) / 2;
+  
+  if(is_integral) {
+    float dummy_uy, dummy_oy;
+    script_positions(
+      context, base->extents().ascent, base->extents().descent,
+      under, over,
+      &dummy_uy, &dummy_oy);
+      
+    script_corrections(
+      context, base_char, base->glyph_array()[0],
+      under, over, dummy_uy, dummy_oy,
+      under_x, over_x);
+      
+    float diff = *over_x - *under_x;
+    
+    if(under)
+      *under_x = (w + *over_x - diff - under->extents().width) / 2;
+      
+    if(over)
+      *over_x = (w + *over_x + diff - over->extents().width) / 2;
+      
+    return;
+  }
   
   if(under)
     *under_x = (w - under->extents().width) / 2;
@@ -1534,27 +1564,60 @@ void OTMathShaper::script_corrections(
   
   *sub_x = *super_x = 0;
   
-  if(sub) {
-    kern = db->math_kern[MKE_BOTTOM_RIGHT].search(base_info.index);
+  if(base_info.composed) {
+    if(base_info.horizontal_stretch)
+      return;
     
-    if(kern) {
-      *sub_x = pt * kern->height_to_kern(
-                 (int16_t)((sub->extents().ascent - sub_y) / pt),
-                 false);
+    uint16_t glyph = fi.char_to_glyph(base_char);
+    
+    Array<MathGlyphPartRecord> *ass = db->get_vert_assembly(base_char, glyph);
+    if(ass && ass->length() > 0) {
+      cairo_text_extents_t  cte;
+      
+      cairo_glyph_t cg;
+      cg.x = 0;
+      cg.y = 0;
+      
+      // bottom glyph
+      cg.index = ass->get(0).glyph;
+      context->canvas->glyph_extents(&cg, 1, &cte);
+      
+      *sub_x = cte.x_bearing + cte.width - cte.x_advance;
+      
+      // top glyph
+      cg.index = ass->get(ass->length() - 1).glyph;
+      context->canvas->glyph_extents(&cg, 1, &cte);
+      
+      *super_x = cte.x_bearing + cte.width - cte.x_advance;
     }
-    else {
-      *sub_x = -db->italics_correction[base_info.index] * pt;
-    }
+    return;
   }
   
-  if(super) {
-    kern = db->math_kern[MKE_TOP_RIGHT].search(base_info.index);
+  
+  float sub_a = 0;
+  if(sub)
+    sub_a = sub->extents().ascent;
     
-    if(kern) {
-      *super_x = pt * kern->height_to_kern(
-                   (int16_t)((-super_y - super->extents().descent) / pt),
-                   true);
-    }
+  kern = db->math_kern[MKE_BOTTOM_RIGHT].search(base_info.index);
+  if(kern) {
+    *sub_x = pt * kern->height_to_kern(
+               (int16_t)((sub_a - sub_y) / pt),
+               false);
+  }
+  else {
+    *sub_x = -db->italics_correction[base_info.index] * pt;
+  }
+  
+  
+  float super_d = 0;
+  if(super)
+    super_d = super->extents().descent;
+    
+  kern = db->math_kern[MKE_TOP_RIGHT].search(base_info.index);
+  if(kern) {
+    *super_x = pt * kern->height_to_kern(
+                 (int16_t)((-super_y - super_d) / pt),
+                 true);
   }
 }
 
