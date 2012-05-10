@@ -2,6 +2,7 @@
 	Button("italic", DocumentApply(SelectedDocument(), StyleBox("\[SelectionPlaceholder]", "TI"))),
 	Button("Arg Style", DocumentApply(SelectedDocument(), StyleBox("\[SelectionPlaceholder]", "Arg")))})
 
+- richmath: line heights jump up and down in Column({Dynamic(x),Slider(Dynamic(x),0..9..1)})
 - richmath: rendering artifacts during change of selection in a TextSequence via mouse move
 - richmath: "g(?n:c)::= n"  does not render correctly (n is not highlighted)
   

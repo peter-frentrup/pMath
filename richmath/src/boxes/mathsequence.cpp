@@ -316,6 +316,10 @@ void MathSequence::resize(Context *context) {
     _extents.width = 0.75;
   }
   
+//  // round ascent/descent to next multiple of 0.75pt (= 1px by default):
+//  _extents.ascent  = ceilf(_extents.ascent  / 0.75f ) * 0.75f;
+//  _extents.descent = ceilf(_extents.descent / 0.75f ) * 0.75f;
+  
   if(context->sequence_unfilled_width == -HUGE_VAL)
     context->sequence_unfilled_width = _extents.width;
 }
@@ -1083,6 +1087,8 @@ Box *MathSequence::normalize_selection(int *start, int *end) {
 }
 
 bool MathSequence::is_inside_string(int pos) {
+  ensure_spans_valid();
+  
   const uint16_t *buf = str.buffer();
   int i = 0;
   while(i < pos) {
@@ -1093,8 +1099,11 @@ bool MathSequence::is_inside_string(int pos) {
         span = span.next();
       }
       
-      if(span)
+      if(span){
         i = span.end() + 1;
+        if(i >= pos && buf[i - 1] != '"')
+          return true;
+      }
       else
         ++i;
     }
