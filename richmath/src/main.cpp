@@ -834,14 +834,15 @@ int main(int argc, char **argv) {
     todo(main_doc, "Add CounterBox, CounterAssignments, CounterIncrements.");
     todo(main_doc, "Implement Options(FrontEndObject(id), option).");
     main_doc->select(main_doc, 0, 0);
-    main_doc->move_horizontal(Forward, true);
+    main_doc->move_horizontal(Forward,  true);
     main_doc->move_horizontal(Backward, false);
   }
   
   if(palette_doc) {
-    palette_doc->style->set(Editable, false);
-    palette_doc->style->set(Selectable, false);
-    palette_doc->style->set(WindowTitle, "Math Input");
+    palette_doc->style->set(Editable,                        false);
+    palette_doc->style->set(Selectable,                      false);
+    palette_doc->style->set(WindowTitle,                     "Math Input");
+    palette_doc->style->set(InternalHasModifiedWindowOption, true);
     palette_doc->select(0, 0, 0);
     
     write_section(

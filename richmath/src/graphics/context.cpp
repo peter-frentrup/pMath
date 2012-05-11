@@ -113,11 +113,10 @@ void Context::draw_selection_path() {
   cairo_path_t *path = cairo_copy_path(canvas->cairo());
   int num_points = 0;
   int end = 0;
-  while(end < path->num_data &&
-        path->data[end].header.type != CAIRO_PATH_CLOSE_PATH)
-  {
+  while(end < path->num_data) {
     end += path->data[end].header.length;
-    ++num_points;
+    if(path->data[end].header.type != CAIRO_PATH_CLOSE_PATH)
+      ++num_points;
   }
   
   if(num_points == 2) {

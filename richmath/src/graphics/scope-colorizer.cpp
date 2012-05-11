@@ -629,6 +629,28 @@ void ScopeColorizer::scope_colorize_spanexpr(
       return;
     }
     
+    if( se->item_as_char(2)    == ':' &&
+        se->item_first_char(0) == '?' &&
+        pmath_char_is_name(se->item_first_char(1)))
+    {
+      if(!state->in_pattern)
+        return;
+      
+      for(int i = 0; i < se->count(); ++i) {
+        SpanExpr *sub = se->item(i);
+        
+        scope_colorize_spanexpr(state, sub);
+      }
+      
+      symbol_colorize(state, se->item_pos(1), Parameter);
+      
+      int pos1 = se->item_pos(1);
+      for(int i = se->item_pos(0); i < pos1; ++i)
+        glyphs[i].style = glyphs[pos1].style;
+        
+      return;
+    }
+    
   }
   
   if(se->count() >= 4 && se->count() <= 5) { // x/:y:=z   x/:y::=z

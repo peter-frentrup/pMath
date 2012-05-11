@@ -1334,9 +1334,8 @@ static void parse_prim(parser_t *parser, pmath_bool_t prim_optional) {
           next = next_token_pos(parser);
           tok  = token_analyse(parser, next, &prec);
         }
-        else if(tok != PMATH_TOK_COLON) {
+        else
           handle_error(parser);
-        }
         
         if(tok == PMATH_TOK_COLON) { // ?x:type  ?:type
           skip_to(parser, -1, next, FALSE);

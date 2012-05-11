@@ -1318,7 +1318,7 @@ void Document::on_key_press(uint32_t unichar) {
           char name[64];
           
           int i;
-          for(i = 0;i < len - 3;++i)
+          for(i = 0; i < len - 3; ++i)
             name[i] = (char)buf[i + 2];
             
           name[i] = '\0';
@@ -1328,16 +1328,14 @@ void Document::on_key_press(uint32_t unichar) {
           if(unichar != 0xFFFFFFFFU) {
             String ins = String::FromChar(unichar);
             
-            seq->insert(alias_end, ins);
+            int i = seq->insert(alias_end, ins);
             seq->remove(alias_pos, alias_end);
             
-            i = alias_pos;
-            Box *box = seq->move_logical(Forward, false, &i);
-            move_to(box, i);
+            move_to(seq, i - (alias_end - alias_pos));
             return;
           }
         }
-        else{
+        else {
           Expr repl = String::FromChar(unicode_to_utf32(alias));
           
           if(repl.is_null())
@@ -1349,12 +1347,10 @@ void Document::on_key_press(uint32_t unichar) {
             String ins(repl);
             
             if(ins.is_valid()) {
-              seq->insert(alias_end, ins);
+              int i = seq->insert(alias_end, ins);
               seq->remove(alias_pos, alias_end);
               
-              int i = alias_pos;
-              Box *box = seq->move_logical(Forward, false, &i);
-              move_to(box, i);
+              move_to(seq, i - (alias_end - alias_pos));
               return;
             }
             else {
@@ -1363,6 +1359,14 @@ void Document::on_key_press(uint32_t unichar) {
               
               insert_box(repl_seq, true);
               seq->remove(alias_pos, alias_end);
+              
+              if(selection_box() == seq) {
+                select(
+                  seq,
+                  selection_start() - (alias_end - alias_pos),
+                  selection_end()   - (alias_end - alias_pos));
+              }
+              
               return;
             }
           }
