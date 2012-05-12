@@ -19,6 +19,7 @@ Expr Win32FileDialog::show(
   String  title
 ) {
   OPENFILENAMEW data;
+  String defaultextension;
   String filterstring;
   String titlestring;
   
@@ -46,10 +47,16 @@ Expr Win32FileDialog::show(
           continue;
           
         if(rhs.is_string()) {
+          String ext(rhs);
+          
           filterstring += String(lhs);
           filterstring += String::FromChar(0);
-          filterstring += String(rhs);
+          filterstring += ext;
           filterstring += String::FromChar(0);
+          
+          if(i == 1 && save && ext.starts_with("*.")) {
+            defaultextension = ext.part(2);
+          }
         }
         else if(rhs.expr_length() >= 1 && rhs[0] == PMATH_SYMBOL_LIST) {
           bool all_strings = true;
@@ -62,12 +69,18 @@ Expr Win32FileDialog::show(
           }
           
           if(all_strings) {
+            String ext1(rhs[1]);
             filterstring += String(lhs);
             filterstring += String::FromChar(0);
-            filterstring += String(rhs[1]);
+            filterstring += ext1;
+            
             for(size_t j = 2; j <= rhs.expr_length(); ++j) {
               filterstring += ';';
               filterstring += String(rhs[j]);
+            }
+            
+            if(i == 1 && save && ext1.starts_with("*.")) {
+              defaultextension = ext1.part(2);
             }
           }
         }
@@ -80,6 +93,22 @@ Expr Win32FileDialog::show(
     
     data.lpstrFilter  = (const WCHAR *)filterstring.buffer();
     data.nFilterIndex = 1;
+  }
+  
+  if(defaultextension.length() > 0) {
+    const uint16_t *buf = defaultextension.buffer();
+    for(int i = defaultextension.length() - 1; i >= 0; --i) {
+      if(buf[i] == '*' || buf[i] == '?') {
+        defaultextension = String();
+        break;
+      }
+    }
+    
+    if(defaultextension.length() > 0) {
+      defaultextension += String::FromChar(0);
+      
+      data.lpstrDefExt = (const WCHAR *)defaultextension.buffer();
+    }
   }
   
   if(initialfile.length() > 0) {
