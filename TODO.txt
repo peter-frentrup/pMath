@@ -4,9 +4,7 @@
 
 - richmath: line heights jump up and down in Column({Dynamic(x),Slider(Dynamic(x),0..9..1)})
 - richmath: rendering artifacts during change of selection in a TextSequence via mouse move
-  
-- enable CTRL+Numpad/ to be the same as CTRL+/ a.s.o.
-  
+
 - add StyleData(...) and richmath::StyleSection class
 - allow creation of a richmath::Style from a richmath::StyleSection
 - add DockedSections option for Document....
@@ -17,7 +15,7 @@
 - add InverseFunction
 
 - produce syntax error when in "\U12345678", i.e. when the character is not in the unicode range.
-	
+
 - add ArrayPad(), ArrayFlatten()
 
 - pmath-java: add pmath.Core.cleanup() to call pmath_done() on the current Java thread
@@ -28,14 +26,14 @@
 
 - add PreserveImageOptions option
 
-- BUG: MSVC-richmath crashes/hangs on CTRL-C 
+- BUG: MSVC-richmath crashes/hangs on CTRL-C
 	(seems to be connected with fully optimized build, pmath_file_create_compressor and pmath_serialize)
-	
+
 - pmath: implement ArcSinh, ArcCosh, ArcTanh, ArcCsch, ArcSech, ArcCoth
 
 - pmath: Sin(Infinity) ---> Interval(-1 .. 1) and so on
-   
-- richmath: add options for Section/Style to manipulate 
+
+- richmath: add options for Section/Style to manipulate
    Context::smaller_fraction_parts
 
 - richmath: fix syntax coloring in Literal(f)(x,y)
@@ -44,8 +42,8 @@
    " after a space or the beginning of the text gives left double quotation mark
    " after a number gives prime (or only after a digit?)
    " after anything else gives right quotation mark
-   analoguous for ' 
-   
+   analoguous for '
+
 - richmath: support Interrupt()
 
 - richmath: add DocumentEventActions
@@ -55,13 +53,13 @@
 - implement NumberForm
 
 - implement RotateLeft, RotateRight
-	
+
 - implement QRDecomposition() in C code
 
 - make $MaxExtraPrecision thread-local, add $MinExtraPrecision
 
 - add Developer`ClearCache() or sth like this to clear all caches
-    
+
 - pmath: implement Rationalize
 
 ? pmath: change pmath_tickcount to use GetTickCount()/clock_gettime() because the current mechanism is not suitable for time measurements.
@@ -71,17 +69,17 @@
 
 - pmath: implement MapAt, HasValue/IsValue
 
-? pmath: use timsort instead of platforms qsort: http://bugs.python.org/file4451/timsort.txt	
+? pmath: use timsort instead of platforms qsort: http://bugs.python.org/file4451/timsort.txt
 
 - richmath: FractionBox: change distance between fraction rule an numerator (too big)
 
 - pmath: crash with recursive String patterns
 
-!? make <<context` parse as Needs("context`") and do not provide special syntax for Get()	
-	
-? implement Stack(pattern)   
+!? make <<context` parse as Needs("context`") and do not provide special syntax for Get()
+
+? implement Stack(pattern)
 	this requires us to save a copy of the expression before pattern matching!
-	
+
 ? pmath: implement Transpose in C code (see transpose.pmath)
 
 - StyleBox: support FontSize values Smaller, Larger, Tiny, Small, Normal, Large, Huge
@@ -91,7 +89,7 @@
 - richmath: implement bidirectional text for MathSequences.
 
 ?! change all double-comparisions a==b to almost_equal_machine(a,b)  (as in compare.c)
-	A double could actually be held in an 80bit x87 floating point register and thus be != 0, but when converted to double (written to memory), it becomes 0, 
+	A double could actually be held in an 80bit x87 floating point register and thus be != 0, but when converted to double (written to memory), it becomes 0,
 	So "if(x!=0){ some_x_invariant_code_that_prevents_optimizing_the_assert_away; assert(x!=0); }" can actually crash!
 	[See "The pitfalls of verifying floating-point computations", Monniaux : http://hal.archives-ouvertes.fr/docs/00/28/14/29/PDF/floating-point-article.pdf]
 
@@ -102,7 +100,7 @@
 - eval Complex(0, x)^q with rational q
 
 - add KroneckerProduct(),
-	Inverse(), PseudoInverse(), RowReduce(), MatrixRank(), Normalize(), 
+	Inverse(), PseudoInverse(), RowReduce(), MatrixRank(), Normalize(),
 	Projection(), Orthogonalize(), ConjugateTranspose(),
 	IdentityMatrix(), ChracteristicPolynomial(), Eigenvalues(), Eigenvectors()
 
@@ -113,9 +111,9 @@
 - add option to write a BOM to unicode files. currently, it is added for "UTF-16" and "UTF-32"
   add the BOM automatically for UTF-8 on Windows but not on UNIX
 
-? Test what happens, when a thread-message is send to a parent thread (which waits for its children to finish). 
+? Test what happens, when a thread-message is send to a parent thread (which waits for its children to finish).
 	The message _should_ be handled by the currently waited-for child thread, but I have never tested it.
-	
+
 	TimeContrained() is implemented by letting the timer_thread (= low-prio GC thread) send a `Throw(...)` message in xx seconds.
 	That should also abort any child threads.
 
@@ -130,7 +128,7 @@
  => Parenthesize(a+b, Range)*c --> "a+b*c" instead of normal "(a+b)*c"
     Parenthesize(a*b, Times)+c --> "(a*b)+c" instead of normal "a*b+c"
 
-- hide/remove pmath_symbol_[get|set]_value(), 
+- hide/remove pmath_symbol_[get|set]_value(),
   ? publish _pmath_assign() from "src/pmath-builtins/control-private/assign.c" as pmath_symbol_assign()
   ? publish pmath_symbol_find_value() from <pmath-util/symbol-values-private.h>
 
@@ -144,7 +142,7 @@
 - add Insert()
 
 - improve Abs() => complex values
-  
+
 - add Outer()
 
 ? add IsRule(), IsRuleList(), IsRuleOrRuleList(), IsMatch(p)()
@@ -163,7 +161,7 @@
 - add support for file io in richmath (graphical frontend) and write help files for every symbol
 
 - builtin_power: handle approximate complex arguments (real or imaginary part is pmath_float_t)
-- builtin_power: handle special complex values (E^(I Pi) = -1, ...). 
+- builtin_power: handle special complex values (E^(I Pi) = -1, ...).
 
 - !!! implement FactorInteger() to factorize integers.
 

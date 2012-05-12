@@ -158,8 +158,7 @@ DWORD  Win32Menu::command_string_to_id(String str) {
 //{ class Win32AcceleratorTable ...
 
 static bool set_accel_key(Expr expr, ACCEL *accel) {
-  if(expr[0] != GetSymbol(KeyEventSymbol)
-      || expr.expr_length() != 2)
+  if(expr[0] != GetSymbol(KeyEventSymbol) || expr.expr_length() != 2)
     return false;
     
   Expr modifiers = expr[2];
@@ -208,7 +207,7 @@ static bool set_accel_key(Expr expr, ACCEL *accel) {
   
   accel->fVirt |= FVIRTKEY;
   
-  if(key.equals("F1"))                 accel->key = VK_F1;
+  if(     key.equals("F1"))                 accel->key = VK_F1;
   else if(key.equals("F2"))                 accel->key = VK_F2;
   else if(key.equals("F3"))                 accel->key = VK_F3;
   else if(key.equals("F4"))                 accel->key = VK_F4;
@@ -255,6 +254,10 @@ static bool set_accel_key(Expr expr, ACCEL *accel) {
   else if(key.equals("Numpad7"))            accel->key = VK_NUMPAD7;
   else if(key.equals("Numpad8"))            accel->key = VK_NUMPAD8;
   else if(key.equals("Numpad9"))            accel->key = VK_NUMPAD9;
+  else if(key.equals("Numpad+"))            accel->key = VK_ADD;
+  else if(key.equals("Numpad-"))            accel->key = VK_SUBTRACT;
+  else if(key.equals("Numpad*"))            accel->key = VK_MULTIPLY;
+  else if(key.equals("Numpad/"))            accel->key = VK_DIVIDE;
   else if(key.equals("Play"))               accel->key = VK_PLAY;
   else if(key.equals("Zoom"))               accel->key = VK_ZOOM;
   else                                      return false;
@@ -386,10 +389,11 @@ static HACCEL create_accel(Expr expr) {
     Expr item = expr[i];
     String cmd(item[2]);
     
-    if(item[0] == GetSymbol(ItemSymbol)
-        && item.expr_length() == 2
-        && cmd.length() > 0
-        && set_accel_key(item[1], &accel[j])) {
+    if( item[0] == GetSymbol(ItemSymbol) && 
+        item.expr_length() == 2          && 
+        cmd.length() > 0                 && 
+        set_accel_key(item[1], &accel[j])) 
+    {
       DWORD id = cmd_to_id[cmd];
       
       if(!id) {

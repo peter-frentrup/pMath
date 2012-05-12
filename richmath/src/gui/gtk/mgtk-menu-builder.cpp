@@ -114,8 +114,9 @@ void MathGtkMenuBuilder::append_to(GtkMenuShell *menu, GtkAccelGroup *accel_grou
   for(size_t i = 1; i <= list.expr_length(); ++i) {
     Expr item = list[i];
     
-    if(item[0] == GetSymbol(ItemSymbol)
-        && item.expr_length() == 2) {
+    if( item[0] == GetSymbol(ItemSymbol) && 
+        item.expr_length() == 2) 
+    {
       String name(item[1]);
       String cmd(item[2]);
       
@@ -156,8 +157,9 @@ void MathGtkMenuBuilder::append_to(GtkMenuShell *menu, GtkAccelGroup *accel_grou
       continue;
     }
     
-    if(item[0] == GetSymbol(MenuSymbol)
-        && item.expr_length() == 2) {
+    if( item[0] == GetSymbol(MenuSymbol) && 
+        item.expr_length() == 2) 
+    {
       String name(item[1]);
       
       if(name.length() > 0) {
@@ -209,8 +211,7 @@ void MathGtkMenuBuilder::append_to(GtkMenuShell *menu, GtkAccelGroup *accel_grou
 Array<String> MathGtkAccelerators::all_accelerators;
 
 static bool set_accel_key(Expr expr, guint *accel_key, GdkModifierType *accel_mods) {
-  if(expr[0] != GetSymbol(KeyEventSymbol)
-      || expr.expr_length() != 2)
+  if(expr[0] != GetSymbol(KeyEventSymbol) || expr.expr_length() != 2)
     return false;
     
   Expr modifiers = expr[2];
@@ -284,7 +285,7 @@ static bool set_accel_key(Expr expr, guint *accel_key, GdkModifierType *accel_mo
   else if(key.equals("Down"))               *accel_key = GDK_Down;
   else if(key.equals("Insert"))             *accel_key = GDK_Insert;
   else if(key.equals("Delete"))             *accel_key = GDK_Delete;
-  else if(key.equals("Numpad0"))            *accel_key = GDK_0;
+  else if(key.equals("Numpad0"))            *accel_key = GDK_0; // GDK_KP_0 ...?
   else if(key.equals("Numpad1"))            *accel_key = GDK_1;
   else if(key.equals("Numpad2"))            *accel_key = GDK_2;
   else if(key.equals("Numpad3"))            *accel_key = GDK_3;
@@ -294,6 +295,10 @@ static bool set_accel_key(Expr expr, guint *accel_key, GdkModifierType *accel_mo
   else if(key.equals("Numpad7"))            *accel_key = GDK_7;
   else if(key.equals("Numpad8"))            *accel_key = GDK_8;
   else if(key.equals("Numpad9"))            *accel_key = GDK_9;
+  else if(key.equals("Numpad+"))            accel->key = GDK_KP_Add;
+  else if(key.equals("Numpad-"))            accel->key = GDK_KP_Subtract;
+  else if(key.equals("Numpad*"))            accel->key = GDK_KP_Multiply;
+  else if(key.equals("Numpad/"))            accel->key = GDK_KP_Divide;
   else if(key.equals("Play"))               *accel_key = GDK_AudioPlay;
   else if(key.equals("Zoom"))               *accel_key = GDK_ZoomIn;
   else                                      return false;
@@ -312,11 +317,12 @@ void MathGtkAccelerators::load(Expr expr) {
     guint           accel_key;
     GdkModifierType accel_mod;
     
-    if(item[0] == GetSymbol(ItemSymbol)
-        && item.expr_length() == 2
-        && cmd.length() > 0
-        && set_accel_key(item[1], &accel_key, &accel_mod)
-        && gtk_accelerator_valid(accel_key, accel_mod)) {
+    if( item[0] == GetSymbol(ItemSymbol)               && 
+        item.expr_length() == 2                        && 
+        cmd.length() > 0                               && 
+        set_accel_key(item[1], &accel_key, &accel_mod) && 
+        gtk_accelerator_valid(accel_key, accel_mod)) 
+    {
       String accel_path(accel_path_prefix);
       accel_path += cmd;
       
