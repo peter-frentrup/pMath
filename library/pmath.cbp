@@ -13,11 +13,11 @@
 		<Build>
 			<Target title="Windows-Debug">
 				<Option platforms="Windows;" />
-				<Option output="bin\windows\debug\pmath" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj\windows\debug\" />
+				<Option output="bin/windows/debug/pmath" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/windows/debug/" />
 				<Option type="3" />
 				<Option compiler="gcc" />
-				<Option host_application="test\bin\windows\debug\test.exe" />
+				<Option host_application="test/bin/windows/debug/test.exe" />
 				<Option run_host_application_in_terminal="0" />
 				<Option createDefFile="1" />
 				<Option createStaticLib="1" />
@@ -54,11 +54,11 @@
 			</Target>
 			<Target title="Windows-Release">
 				<Option platforms="Windows;" />
-				<Option output="bin\windows\release\pmath" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj\windows\release\" />
+				<Option output="bin/windows/release/pmath" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/windows/release/" />
 				<Option type="3" />
 				<Option compiler="gcc" />
-				<Option host_application="test\bin\windows\release\test.exe" />
+				<Option host_application="test/bin/windows/release/test.exe" />
 				<Option run_host_application_in_terminal="0" />
 				<Option createDefFile="1" />
 				<Option createStaticLib="1" />
@@ -95,11 +95,11 @@
 			</Target>
 			<Target title="Windows-MSVC">
 				<Option platforms="Windows;" />
-				<Option output="bin\windows\msvc\pmath" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj\windows\msvc\" />
+				<Option output="bin/windows/msvc/libpmath" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/windows/msvc/" />
 				<Option type="3" />
 				<Option compiler="msvc8" />
-				<Option host_application="test\bin\windows\msvc\test.exe" />
+				<Option host_application="test/bin/windows/msvc/test.exe" />
 				<Option run_host_application_in_terminal="0" />
 				<Option createDefFile="1" />
 				<Option createStaticLib="1" />
@@ -113,7 +113,7 @@
 					<Add option="/DNDEBUG" />
 					<Add option="/DPMATH_USE_WINDOWS_THREADS=1" />
 					<Add option="/D_USE_MATH_DEFINES" />
-					<Add directory="..\msvc-c99" />
+					<Add directory="../msvc-c99" />
 				</Compiler>
 				<Linker>
 					<Add option="/DEBUG" />
@@ -131,13 +131,13 @@
 					<Mode after="always" />
 				</ExtraCommands>
 			</Target>
-			<Target title="Linux-Release">
+			<Target title="Linux-Release-x86">
 				<Option platforms="Unix;" />
-				<Option output="bin\linux\release\libpmath.so.0.1" prefix_auto="1" extension_auto="0" />
-				<Option object_output="obj\linux\release" />
+				<Option output="bin/linux/release/pmath.so.0.1" prefix_auto="1" extension_auto="0" />
+				<Option object_output="obj/linux/release" />
 				<Option type="3" />
 				<Option compiler="gcc" />
-				<Option host_application="test\bin\linux\release\test" />
+				<Option host_application="test/bin/linux/release/test" />
 				<Option run_host_application_in_terminal="0" />
 				<Compiler>
 					<Add option="-march=i686" />
@@ -178,13 +178,13 @@
 					<Mode after="always" />
 				</ExtraCommands>
 			</Target>
-			<Target title="Linux-Debug">
+			<Target title="Linux-Debug-x86">
 				<Option platforms="Unix;" />
-				<Option output="bin\linux\debug\libpmath.so.0.1" prefix_auto="1" extension_auto="0" />
-				<Option object_output="obj\linux\debug" />
+				<Option output="bin/linux/debug/pmath.so.0.1" prefix_auto="1" extension_auto="0" />
+				<Option object_output="obj/linux/debug" />
 				<Option type="3" />
 				<Option compiler="gcc" />
-				<Option host_application="test\bin\linux\debug\test" />
+				<Option host_application="test/bin/linux/debug/test" />
 				<Option run_host_application_in_terminal="0" />
 				<Compiler>
 					<Add option="-march=pentium4" />
@@ -230,13 +230,64 @@
 					<Mode after="always" />
 				</ExtraCommands>
 			</Target>
+			<Target title="Linux-Debug-x64">
+				<Option platforms="Unix;" />
+				<Option output="bin/linux/debug-x64/pmath.so.0.1" prefix_auto="1" extension_auto="0" />
+				<Option object_output="obj/linux/debug-x64" />
+				<Option type="3" />
+				<Option compiler="gcc" />
+				<Option host_application="test/bin/linux/debug/test" />
+				<Option run_host_application_in_terminal="0" />
+				<Compiler>
+					<Add option="-march=core2" />
+					<Add option="-Wundef" />
+					<Add option="-Winline" />
+					<Add option="-Wextra" />
+					<Add option="-Wall" />
+					<Add option="-g" />
+					<Add option="-fPIC" />
+					<Add option="-fno-stack-protector" />
+					<Add option="-Wno-unused-parameter" />
+					<Add option="-Wdeclaration-after-statement" />
+					<Add option="-Wpointer-arith" />
+					<Add option="-Wno-unused-but-set-variable" />
+					<Add option="-fno-var-tracking-assignments" />
+					<Add option="-mcx16" />
+					<Add option="-DPMATH_DEBUG_LOG" />
+					<Add option="-DPMATH_DEBUG_MEMORY" />
+					<Add option="-DPMATH_DEBUG_TESTS" />
+					<Add option="-DPMATH_DEBUG_NO_FASTREF" />
+					<Add option="-DPMATH_USE_DLMALLOC" />
+					<Add option="-DPMATH_USE_PTHREAD=1" />
+					<Add option="-D_POSIX_C_SOURCE=200112" />
+					<Add option="-D_ISOC99_SOURCE" />
+					<Add option="-D_XOPEN_SOURCE" />
+					<Add option="-D_BSD_SOURCE" />
+					<Add option="-D_GNU_SOURCE" />
+				</Compiler>
+				<Linker>
+					<Add option="-Wl,-soname,libpmath.so.0" />
+					<Add library="m" />
+					<Add library="pthread" />
+					<Add library="gmp" />
+					<Add library="mpfr" />
+					<Add library="iconv" />
+					<Add library="pcre" />
+					<Add library="dl" />
+					<Add library="z" />
+				</Linker>
+				<ExtraCommands>
+					<Add after="./post-build-linux.sh debug-x64" />
+					<Mode after="always" />
+				</ExtraCommands>
+			</Target>
 			<Target title="Windows-LLVM-Release">
 				<Option platforms="Windows;" />
-				<Option output="bin\windows\llvm-release\pmath" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj\windows\llvm-release\" />
+				<Option output="bin/windows/llvm-release/libpmath" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/windows/llvm-release/" />
 				<Option type="3" />
 				<Option compiler="llvmgcc" />
-				<Option host_application="test\bin\windows\release\test.exe" />
+				<Option host_application="test/bin/windows/release/test.exe" />
 				<Option run_host_application_in_terminal="0" />
 				<Option createDefFile="1" />
 				<Option createStaticLib="1" />
@@ -281,856 +332,856 @@
 			<Add option="-DBUILDING_PMATH" />
 			<Add directory="include" />
 		</Compiler>
-		<Unit filename="doc\html\index.chm" />
-		<Unit filename="doc\latex\refman.pdf" />
-		<Unit filename="include\pmath-builtins\all-symbols-private.h" />
-		<Unit filename="include\pmath-builtins\all-symbols.h" />
-		<Unit filename="include\pmath-builtins\arithmetic-private.h" />
-		<Unit filename="include\pmath-builtins\build-expr-private.h" />
-		<Unit filename="include\pmath-builtins\control-private.h" />
-		<Unit filename="include\pmath-builtins\control\definitions-private.h" />
-		<Unit filename="include\pmath-builtins\control\flow-private.h" />
-		<Unit filename="include\pmath-builtins\control\messages-private.h" />
-		<Unit filename="include\pmath-builtins\datetime-private.h" />
-		<Unit filename="include\pmath-builtins\formating-private.h" />
-		<Unit filename="include\pmath-builtins\io-private.h" />
-		<Unit filename="include\pmath-builtins\language-private.h" />
-		<Unit filename="include\pmath-builtins\lists-private.h" />
-		<Unit filename="include\pmath-builtins\logic-private.h" />
-		<Unit filename="include\pmath-builtins\manipulate-private.h" />
-		<Unit filename="include\pmath-builtins\number-theory-private.h" />
-		<Unit filename="include\pmath-builtins\parallel-private.h" />
-		<Unit filename="include\pmath-config.h" />
-		<Unit filename="include\pmath-core\custom-private.h" />
-		<Unit filename="include\pmath-core\custom.h" />
-		<Unit filename="include\pmath-core\expressions-private.h" />
-		<Unit filename="include\pmath-core\expressions.h" />
-		<Unit filename="include\pmath-core\numbers-private.h" />
-		<Unit filename="include\pmath-core\numbers.h" />
-		<Unit filename="include\pmath-core\objects-inline.h" />
-		<Unit filename="include\pmath-core\objects-private.h" />
-		<Unit filename="include\pmath-core\objects.h" />
-		<Unit filename="include\pmath-core\strings-private.h" />
-		<Unit filename="include\pmath-core\strings.h" />
-		<Unit filename="include\pmath-core\symbols-private.h" />
-		<Unit filename="include\pmath-core\symbols.h" />
-		<Unit filename="include\pmath-cpp.h" />
-		<Unit filename="include\pmath-language\charnames.h" />
-		<Unit filename="include\pmath-language\patterns-private.h" />
-		<Unit filename="include\pmath-language\regex-private.h" />
-		<Unit filename="include\pmath-language\scanner.h" />
-		<Unit filename="include\pmath-language\tokens.h" />
-		<Unit filename="include\pmath-private.h" />
-		<Unit filename="include\pmath-types.h" />
-		<Unit filename="include\pmath-util\approximate.h" />
-		<Unit filename="include\pmath-util\compression.h" />
-		<Unit filename="include\pmath-util\concurrency\atomic-private.h" />
-		<Unit filename="include\pmath-util\concurrency\atomic.h" />
-		<Unit filename="include\pmath-util\concurrency\atomic\gcc\built_in_functions.h" />
-		<Unit filename="include\pmath-util\concurrency\atomic\gcc\sun.h" />
-		<Unit filename="include\pmath-util\concurrency\atomic\gcc\x86-64.h" />
-		<Unit filename="include\pmath-util\concurrency\atomic\gcc\x86.h" />
-		<Unit filename="include\pmath-util\concurrency\atomic\msvc\intrinsic_functions.h" />
-		<Unit filename="include\pmath-util\concurrency\atomic\non-atomic.h" />
-		<Unit filename="include\pmath-util\concurrency\event-private.h" />
-		<Unit filename="include\pmath-util\concurrency\threadlocks-private.h" />
-		<Unit filename="include\pmath-util\concurrency\threadlocks.h" />
-		<Unit filename="include\pmath-util\concurrency\threadmsg-private.h" />
-		<Unit filename="include\pmath-util\concurrency\threadmsg.h" />
-		<Unit filename="include\pmath-util\concurrency\threadpool-private.h" />
-		<Unit filename="include\pmath-util\concurrency\threadpool.h" />
-		<Unit filename="include\pmath-util\concurrency\threads-private.h" />
-		<Unit filename="include\pmath-util\concurrency\threads.h" />
-		<Unit filename="include\pmath-util\debug.h" />
-		<Unit filename="include\pmath-util\dlmalloc.h" />
-		<Unit filename="include\pmath-util\dynamic-private.h" />
-		<Unit filename="include\pmath-util\emit-and-gather.h" />
-		<Unit filename="include\pmath-util\evaluation.h" />
-		<Unit filename="include\pmath-util\files.h" />
-		<Unit filename="include\pmath-util\hashtables-private.h" />
-		<Unit filename="include\pmath-util\hashtables.h" />
-		<Unit filename="include\pmath-util\helpers.h" />
-		<Unit filename="include\pmath-util\incremental-hash-private.h" />
-		<Unit filename="include\pmath-util\line-writer.h" />
-		<Unit filename="include\pmath-util\memory.h" />
-		<Unit filename="include\pmath-util\messages.h" />
-		<Unit filename="include\pmath-util\mixed-file.h" />
-		<Unit filename="include\pmath-util\modules-private.h" />
-		<Unit filename="include\pmath-util\serialize.h" />
-		<Unit filename="include\pmath-util\stacks-private.h" />
-		<Unit filename="include\pmath-util\stacks.h" />
-		<Unit filename="include\pmath-util\strtod.h" />
-		<Unit filename="include\pmath-util\symbol-values-private.h" />
-		<Unit filename="include\pmath-util\version-private.h" />
-		<Unit filename="include\pmath-util\version.h" />
-		<Unit filename="include\pmath.h" />
-		<Unit filename="scripts\maininit.pmath" />
-		<Unit filename="scripts\messages.pmath" />
-		<Unit filename="scripts\syntaxinformation.pmath" />
-		<Unit filename="scripts\usage.pmath" />
-		<Unit filename="src\pmath-builtins\all-symbols.c">
+		<Unit filename="doc/html/index.chm" />
+		<Unit filename="doc/latex/refman.pdf" />
+		<Unit filename="include/pmath-builtins/all-symbols-private.h" />
+		<Unit filename="include/pmath-builtins/all-symbols.h" />
+		<Unit filename="include/pmath-builtins/arithmetic-private.h" />
+		<Unit filename="include/pmath-builtins/build-expr-private.h" />
+		<Unit filename="include/pmath-builtins/control-private.h" />
+		<Unit filename="include/pmath-builtins/control/definitions-private.h" />
+		<Unit filename="include/pmath-builtins/control/flow-private.h" />
+		<Unit filename="include/pmath-builtins/control/messages-private.h" />
+		<Unit filename="include/pmath-builtins/datetime-private.h" />
+		<Unit filename="include/pmath-builtins/formating-private.h" />
+		<Unit filename="include/pmath-builtins/io-private.h" />
+		<Unit filename="include/pmath-builtins/language-private.h" />
+		<Unit filename="include/pmath-builtins/lists-private.h" />
+		<Unit filename="include/pmath-builtins/logic-private.h" />
+		<Unit filename="include/pmath-builtins/manipulate-private.h" />
+		<Unit filename="include/pmath-builtins/number-theory-private.h" />
+		<Unit filename="include/pmath-builtins/parallel-private.h" />
+		<Unit filename="include/pmath-config.h" />
+		<Unit filename="include/pmath-core/custom-private.h" />
+		<Unit filename="include/pmath-core/custom.h" />
+		<Unit filename="include/pmath-core/expressions-private.h" />
+		<Unit filename="include/pmath-core/expressions.h" />
+		<Unit filename="include/pmath-core/numbers-private.h" />
+		<Unit filename="include/pmath-core/numbers.h" />
+		<Unit filename="include/pmath-core/objects-inline.h" />
+		<Unit filename="include/pmath-core/objects-private.h" />
+		<Unit filename="include/pmath-core/objects.h" />
+		<Unit filename="include/pmath-core/strings-private.h" />
+		<Unit filename="include/pmath-core/strings.h" />
+		<Unit filename="include/pmath-core/symbols-private.h" />
+		<Unit filename="include/pmath-core/symbols.h" />
+		<Unit filename="include/pmath-cpp.h" />
+		<Unit filename="include/pmath-language/charnames.h" />
+		<Unit filename="include/pmath-language/patterns-private.h" />
+		<Unit filename="include/pmath-language/regex-private.h" />
+		<Unit filename="include/pmath-language/scanner.h" />
+		<Unit filename="include/pmath-language/tokens.h" />
+		<Unit filename="include/pmath-private.h" />
+		<Unit filename="include/pmath-types.h" />
+		<Unit filename="include/pmath-util/approximate.h" />
+		<Unit filename="include/pmath-util/compression.h" />
+		<Unit filename="include/pmath-util/concurrency/atomic-private.h" />
+		<Unit filename="include/pmath-util/concurrency/atomic.h" />
+		<Unit filename="include/pmath-util/concurrency/atomic/gcc/built_in_functions.h" />
+		<Unit filename="include/pmath-util/concurrency/atomic/gcc/sun.h" />
+		<Unit filename="include/pmath-util/concurrency/atomic/gcc/x86-64.h" />
+		<Unit filename="include/pmath-util/concurrency/atomic/gcc/x86.h" />
+		<Unit filename="include/pmath-util/concurrency/atomic/msvc/intrinsic_functions.h" />
+		<Unit filename="include/pmath-util/concurrency/atomic/non-atomic.h" />
+		<Unit filename="include/pmath-util/concurrency/event-private.h" />
+		<Unit filename="include/pmath-util/concurrency/threadlocks-private.h" />
+		<Unit filename="include/pmath-util/concurrency/threadlocks.h" />
+		<Unit filename="include/pmath-util/concurrency/threadmsg-private.h" />
+		<Unit filename="include/pmath-util/concurrency/threadmsg.h" />
+		<Unit filename="include/pmath-util/concurrency/threadpool-private.h" />
+		<Unit filename="include/pmath-util/concurrency/threadpool.h" />
+		<Unit filename="include/pmath-util/concurrency/threads-private.h" />
+		<Unit filename="include/pmath-util/concurrency/threads.h" />
+		<Unit filename="include/pmath-util/debug.h" />
+		<Unit filename="include/pmath-util/dlmalloc.h" />
+		<Unit filename="include/pmath-util/dynamic-private.h" />
+		<Unit filename="include/pmath-util/emit-and-gather.h" />
+		<Unit filename="include/pmath-util/evaluation.h" />
+		<Unit filename="include/pmath-util/files.h" />
+		<Unit filename="include/pmath-util/hashtables-private.h" />
+		<Unit filename="include/pmath-util/hashtables.h" />
+		<Unit filename="include/pmath-util/helpers.h" />
+		<Unit filename="include/pmath-util/incremental-hash-private.h" />
+		<Unit filename="include/pmath-util/line-writer.h" />
+		<Unit filename="include/pmath-util/memory.h" />
+		<Unit filename="include/pmath-util/messages.h" />
+		<Unit filename="include/pmath-util/mixed-file.h" />
+		<Unit filename="include/pmath-util/modules-private.h" />
+		<Unit filename="include/pmath-util/serialize.h" />
+		<Unit filename="include/pmath-util/stacks-private.h" />
+		<Unit filename="include/pmath-util/stacks.h" />
+		<Unit filename="include/pmath-util/strtod.h" />
+		<Unit filename="include/pmath-util/symbol-values-private.h" />
+		<Unit filename="include/pmath-util/version-private.h" />
+		<Unit filename="include/pmath-util/version.h" />
+		<Unit filename="include/pmath.h" />
+		<Unit filename="scripts/maininit.pmath" />
+		<Unit filename="scripts/messages.pmath" />
+		<Unit filename="scripts/syntaxinformation.pmath" />
+		<Unit filename="scripts/usage.pmath" />
+		<Unit filename="src/pmath-builtins/all-symbols.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\arithmetic\abs-and-sign.c">
+		<Unit filename="src/pmath-builtins/arithmetic/abs-and-sign.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\arithmetic\accuracy-and-precision.c">
+		<Unit filename="src/pmath-builtins/arithmetic/accuracy-and-precision.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\arithmetic\approximate.c">
+		<Unit filename="src/pmath-builtins/arithmetic/approximate.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\arithmetic\arcsin.c">
+		<Unit filename="src/pmath-builtins/arithmetic/arcsin.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\arithmetic\arctan.c">
+		<Unit filename="src/pmath-builtins/arithmetic/arctan.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\arithmetic\arg.c">
+		<Unit filename="src/pmath-builtins/arithmetic/arg.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\arithmetic\ceiling-floor-round.c">
+		<Unit filename="src/pmath-builtins/arithmetic/ceiling-floor-round.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\arithmetic\chop.c">
+		<Unit filename="src/pmath-builtins/arithmetic/chop.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\arithmetic\clip.c">
+		<Unit filename="src/pmath-builtins/arithmetic/clip.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\arithmetic\complex-re-im.c">
+		<Unit filename="src/pmath-builtins/arithmetic/complex-re-im.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\arithmetic\complexinfinity.c">
+		<Unit filename="src/pmath-builtins/arithmetic/complexinfinity.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\arithmetic\conjugate.c">
+		<Unit filename="src/pmath-builtins/arithmetic/conjugate.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\arithmetic\cos.c">
+		<Unit filename="src/pmath-builtins/arithmetic/cos.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\arithmetic\cosh.c">
+		<Unit filename="src/pmath-builtins/arithmetic/cosh.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\arithmetic\gamma.c">
+		<Unit filename="src/pmath-builtins/arithmetic/gamma.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\arithmetic\log.c">
+		<Unit filename="src/pmath-builtins/arithmetic/log.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\arithmetic\plus.c">
+		<Unit filename="src/pmath-builtins/arithmetic/plus.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\arithmetic\power.c">
+		<Unit filename="src/pmath-builtins/arithmetic/power.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\arithmetic\quotient-and-mod.c">
+		<Unit filename="src/pmath-builtins/arithmetic/quotient-and-mod.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\arithmetic\rescale.c">
+		<Unit filename="src/pmath-builtins/arithmetic/rescale.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\arithmetic\sin.c">
+		<Unit filename="src/pmath-builtins/arithmetic/sin.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\arithmetic\sinh.c">
+		<Unit filename="src/pmath-builtins/arithmetic/sinh.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\arithmetic\sum-and-product.c">
+		<Unit filename="src/pmath-builtins/arithmetic/sum-and-product.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\arithmetic\tan.c">
+		<Unit filename="src/pmath-builtins/arithmetic/tan.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\arithmetic\tanh.c">
+		<Unit filename="src/pmath-builtins/arithmetic/tanh.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\arithmetic\times.c">
+		<Unit filename="src/pmath-builtins/arithmetic/times.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\control\bytecount.c">
+		<Unit filename="src/pmath-builtins/control/bytecount.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\control\count.c">
+		<Unit filename="src/pmath-builtins/control/count.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\control\definitions\assign.c">
+		<Unit filename="src/pmath-builtins/control/definitions/assign.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\control\definitions\attributes.c">
+		<Unit filename="src/pmath-builtins/control/definitions/attributes.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\control\definitions\clear.c">
+		<Unit filename="src/pmath-builtins/control/definitions/clear.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\control\definitions\default.c">
+		<Unit filename="src/pmath-builtins/control/definitions/default.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\control\definitions\divideby-and-timesby.c">
+		<Unit filename="src/pmath-builtins/control/definitions/divideby-and-timesby.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\control\definitions\inc-and-dec.c">
+		<Unit filename="src/pmath-builtins/control/definitions/inc-and-dec.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\control\definitions\options.c">
+		<Unit filename="src/pmath-builtins/control/definitions/options.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\control\definitions\protect-and-unprotect.c">
+		<Unit filename="src/pmath-builtins/control/definitions/protect-and-unprotect.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\control\definitions\showdefinition.c">
+		<Unit filename="src/pmath-builtins/control/definitions/showdefinition.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\control\definitions\symbol-rules.c">
+		<Unit filename="src/pmath-builtins/control/definitions/symbol-rules.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\control\definitions\update.c">
+		<Unit filename="src/pmath-builtins/control/definitions/update.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\control\filterrules.c">
+		<Unit filename="src/pmath-builtins/control/filterrules.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\control\flow\block.c">
+		<Unit filename="src/pmath-builtins/control/flow/block.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\control\flow\do.c">
+		<Unit filename="src/pmath-builtins/control/flow/do.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\control\flow\evaluate.c">
+		<Unit filename="src/pmath-builtins/control/flow/evaluate.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\control\flow\finally.c">
+		<Unit filename="src/pmath-builtins/control/flow/finally.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\control\flow\for.c">
+		<Unit filename="src/pmath-builtins/control/flow/for.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\control\flow\function.c">
+		<Unit filename="src/pmath-builtins/control/flow/function.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\control\flow\if.c">
+		<Unit filename="src/pmath-builtins/control/flow/if.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\control\flow\internal-abortmessage.c">
+		<Unit filename="src/pmath-builtins/control/flow/internal-abortmessage.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\control\flow\local.c">
+		<Unit filename="src/pmath-builtins/control/flow/local.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\control\flow\piecewise.c">
+		<Unit filename="src/pmath-builtins/control/flow/piecewise.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\control\flow\stack.c">
+		<Unit filename="src/pmath-builtins/control/flow/stack.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\control\flow\switch.c">
+		<Unit filename="src/pmath-builtins/control/flow/switch.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\control\flow\synchronize.c">
+		<Unit filename="src/pmath-builtins/control/flow/synchronize.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\control\flow\throw-and-catch.c">
+		<Unit filename="src/pmath-builtins/control/flow/throw-and-catch.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\control\flow\which.c">
+		<Unit filename="src/pmath-builtins/control/flow/which.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\control\flow\while.c">
+		<Unit filename="src/pmath-builtins/control/flow/while.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\control\flow\with.c">
+		<Unit filename="src/pmath-builtins/control/flow/with.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\control\hash.c">
+		<Unit filename="src/pmath-builtins/control/hash.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\control\history.c">
+		<Unit filename="src/pmath-builtins/control/history.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\control\loadlibrary.c">
+		<Unit filename="src/pmath-builtins/control/loadlibrary.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\control\match.c">
+		<Unit filename="src/pmath-builtins/control/match.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\control\memoryusage.c">
+		<Unit filename="src/pmath-builtins/control/memoryusage.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\control\messages\isvalidargumentcount.c">
+		<Unit filename="src/pmath-builtins/control/messages/isvalidargumentcount.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\control\messages\message.c">
+		<Unit filename="src/pmath-builtins/control/messages/message.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\control\messages\messagename.c">
+		<Unit filename="src/pmath-builtins/control/messages/messagename.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\control\messages\messages.c">
+		<Unit filename="src/pmath-builtins/control/messages/messages.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\control\messages\on-and-off.c">
+		<Unit filename="src/pmath-builtins/control/messages/on-and-off.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\control\messages\try.c">
+		<Unit filename="src/pmath-builtins/control/messages/try.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\control\position.c">
+		<Unit filename="src/pmath-builtins/control/position.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\control\replace.c">
+		<Unit filename="src/pmath-builtins/control/replace.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\datetime\datelist.c">
+		<Unit filename="src/pmath-builtins/datetime/datelist.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\datetime\pause.c">
+		<Unit filename="src/pmath-builtins/datetime/pause.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\datetime\timecontrained.c">
+		<Unit filename="src/pmath-builtins/datetime/timecontrained.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\datetime\timing.c">
+		<Unit filename="src/pmath-builtins/datetime/timing.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\formating\baseform.c">
+		<Unit filename="src/pmath-builtins/formating/baseform.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\formating\makeboxes.c">
+		<Unit filename="src/pmath-builtins/formating/makeboxes.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\formating\stringform.c">
+		<Unit filename="src/pmath-builtins/formating/stringform.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\formating\syntaxinformation.c">
+		<Unit filename="src/pmath-builtins/formating/syntaxinformation.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\formating\toboxes.c">
+		<Unit filename="src/pmath-builtins/formating/toboxes.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\formating\tostring.c">
+		<Unit filename="src/pmath-builtins/formating/tostring.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\gui\button.c">
+		<Unit filename="src/pmath-builtins/gui/button.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\gui\clock.c">
+		<Unit filename="src/pmath-builtins/gui/clock.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\gui\dynamic.c">
+		<Unit filename="src/pmath-builtins/gui/dynamic.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\gui\refresh.c">
+		<Unit filename="src/pmath-builtins/gui/refresh.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\io\binaryread.c">
+		<Unit filename="src/pmath-builtins/io/binaryread.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\io\binarywrite.c">
+		<Unit filename="src/pmath-builtins/io/binarywrite.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\io\characters.c">
+		<Unit filename="src/pmath-builtins/io/characters.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\io\compress-and-uncompress.c">
+		<Unit filename="src/pmath-builtins/io/compress-and-uncompress.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\io\compressstream-and-uncompressstream.c">
+		<Unit filename="src/pmath-builtins/io/compressstream-and-uncompressstream.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\io\copydirectory-and-copyfile.c">
+		<Unit filename="src/pmath-builtins/io/copydirectory-and-copyfile.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\io\createdirectory.c">
+		<Unit filename="src/pmath-builtins/io/createdirectory.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\io\deletedirectory-and-deletefile.c">
+		<Unit filename="src/pmath-builtins/io/deletedirectory-and-deletefile.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\io\directory.c">
+		<Unit filename="src/pmath-builtins/io/directory.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\io\environment.c">
+		<Unit filename="src/pmath-builtins/io/environment.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\io\filebytecount.c">
+		<Unit filename="src/pmath-builtins/io/filebytecount.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\io\filenames.c">
+		<Unit filename="src/pmath-builtins/io/filenames.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\io\filetype.c">
+		<Unit filename="src/pmath-builtins/io/filetype.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\io\find.c">
+		<Unit filename="src/pmath-builtins/io/find.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\io\fromcharactercode.c">
+		<Unit filename="src/pmath-builtins/io/fromcharactercode.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\io\get.c">
+		<Unit filename="src/pmath-builtins/io/get.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\io\open-close.c">
+		<Unit filename="src/pmath-builtins/io/open-close.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\io\print.c">
+		<Unit filename="src/pmath-builtins/io/print.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\io\read.c">
+		<Unit filename="src/pmath-builtins/io/read.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\io\renamedirectory-and-renamefile.c">
+		<Unit filename="src/pmath-builtins/io/renamedirectory-and-renamefile.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\io\stringcases.c">
+		<Unit filename="src/pmath-builtins/io/stringcases.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\io\stringcount.c">
+		<Unit filename="src/pmath-builtins/io/stringcount.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\io\stringdrop.c">
+		<Unit filename="src/pmath-builtins/io/stringdrop.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\io\stringexpression.c">
+		<Unit filename="src/pmath-builtins/io/stringexpression.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\io\stringmatch.c">
+		<Unit filename="src/pmath-builtins/io/stringmatch.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\io\stringposition.c">
+		<Unit filename="src/pmath-builtins/io/stringposition.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\io\stringreplace-stringsplit.c">
+		<Unit filename="src/pmath-builtins/io/stringreplace-stringsplit.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\io\stringtake.c">
+		<Unit filename="src/pmath-builtins/io/stringtake.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\io\tocharactercode.c">
+		<Unit filename="src/pmath-builtins/io/tocharactercode.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\io\tofilename.c">
+		<Unit filename="src/pmath-builtins/io/tofilename.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\io\write.c">
+		<Unit filename="src/pmath-builtins/io/write.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\language\begin-and-end.c">
+		<Unit filename="src/pmath-builtins/language/begin-and-end.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\language\is-object-type.c">
+		<Unit filename="src/pmath-builtins/language/is-object-type.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\language\makeexpression.c">
+		<Unit filename="src/pmath-builtins/language/makeexpression.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\language\names.c">
+		<Unit filename="src/pmath-builtins/language/names.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\language\namespace.c">
+		<Unit filename="src/pmath-builtins/language/namespace.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\language\remove.c">
+		<Unit filename="src/pmath-builtins/language/remove.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\language\stringtoboxes.c">
+		<Unit filename="src/pmath-builtins/language/stringtoboxes.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\language\symbolname.c">
+		<Unit filename="src/pmath-builtins/language/symbolname.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\language\toexpression.c">
+		<Unit filename="src/pmath-builtins/language/toexpression.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\lists\append.c">
+		<Unit filename="src/pmath-builtins/lists/append.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\lists\apply.c">
+		<Unit filename="src/pmath-builtins/lists/apply.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\lists\array.c">
+		<Unit filename="src/pmath-builtins/lists/array.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\lists\cases.c">
+		<Unit filename="src/pmath-builtins/lists/cases.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\lists\complement.c">
+		<Unit filename="src/pmath-builtins/lists/complement.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\lists\depth.c">
+		<Unit filename="src/pmath-builtins/lists/depth.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\lists\det.c">
+		<Unit filename="src/pmath-builtins/lists/det.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\lists\diagonalmatrix.c">
+		<Unit filename="src/pmath-builtins/lists/diagonalmatrix.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\lists\dimensions.c">
+		<Unit filename="src/pmath-builtins/lists/dimensions.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\lists\dot-inner.c">
+		<Unit filename="src/pmath-builtins/lists/dot-inner.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\lists\drop-and-take.c">
+		<Unit filename="src/pmath-builtins/lists/drop-and-take.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\lists\emit-and-gather.c">
+		<Unit filename="src/pmath-builtins/lists/emit-and-gather.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\lists\extract-and-part.c">
+		<Unit filename="src/pmath-builtins/lists/extract-and-part.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\lists\first-last-most-rest.c">
+		<Unit filename="src/pmath-builtins/lists/first-last-most-rest.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\lists\flatten.c">
+		<Unit filename="src/pmath-builtins/lists/flatten.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\lists\fold-and-foldlist.c">
+		<Unit filename="src/pmath-builtins/lists/fold-and-foldlist.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\lists\head.c">
+		<Unit filename="src/pmath-builtins/lists/head.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\lists\identitymatrix.c">
+		<Unit filename="src/pmath-builtins/lists/identitymatrix.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\lists\intersection.c">
+		<Unit filename="src/pmath-builtins/lists/intersection.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\lists\isarray.c">
+		<Unit filename="src/pmath-builtins/lists/isarray.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\lists\isfreeof.c">
+		<Unit filename="src/pmath-builtins/lists/isfreeof.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\lists\isordered.c">
+		<Unit filename="src/pmath-builtins/lists/isordered.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\lists\join.c">
+		<Unit filename="src/pmath-builtins/lists/join.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\lists\leafcount.c">
+		<Unit filename="src/pmath-builtins/lists/leafcount.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\lists\length.c">
+		<Unit filename="src/pmath-builtins/lists/length.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\lists\lengthwhile.c">
+		<Unit filename="src/pmath-builtins/lists/lengthwhile.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\lists\level.c">
+		<Unit filename="src/pmath-builtins/lists/level.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\lists\linearsolve.c">
+		<Unit filename="src/pmath-builtins/lists/linearsolve.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\lists\ludecomposition.c">
+		<Unit filename="src/pmath-builtins/lists/ludecomposition.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\lists\map.c">
+		<Unit filename="src/pmath-builtins/lists/map.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\lists\mapindexed.c">
+		<Unit filename="src/pmath-builtins/lists/mapindexed.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\lists\mapthread.c">
+		<Unit filename="src/pmath-builtins/lists/mapthread.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\lists\max-and-min.c">
+		<Unit filename="src/pmath-builtins/lists/max-and-min.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\lists\mean.c">
+		<Unit filename="src/pmath-builtins/lists/mean.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\lists\nest.c">
+		<Unit filename="src/pmath-builtins/lists/nest.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\lists\nestlist.c">
+		<Unit filename="src/pmath-builtins/lists/nestlist.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\lists\nestwhile-and-nestwhilelist.c">
+		<Unit filename="src/pmath-builtins/lists/nestwhile-and-nestwhilelist.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\lists\norm.c">
+		<Unit filename="src/pmath-builtins/lists/norm.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\lists\operate.c">
+		<Unit filename="src/pmath-builtins/lists/operate.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\lists\padleft-and-padright.c">
+		<Unit filename="src/pmath-builtins/lists/padleft-and-padright.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\lists\partition.c">
+		<Unit filename="src/pmath-builtins/lists/partition.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\lists\prepend.c">
+		<Unit filename="src/pmath-builtins/lists/prepend.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\lists\range.c">
+		<Unit filename="src/pmath-builtins/lists/range.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\lists\replacepart.c">
+		<Unit filename="src/pmath-builtins/lists/replacepart.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\lists\reverse.c">
+		<Unit filename="src/pmath-builtins/lists/reverse.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\lists\riffle.c">
+		<Unit filename="src/pmath-builtins/lists/riffle.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\lists\scan.c">
+		<Unit filename="src/pmath-builtins/lists/scan.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\lists\select.c">
+		<Unit filename="src/pmath-builtins/lists/select.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\lists\sort.c">
+		<Unit filename="src/pmath-builtins/lists/sort.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\lists\split.c">
+		<Unit filename="src/pmath-builtins/lists/split.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\lists\table.c">
+		<Unit filename="src/pmath-builtins/lists/table.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\lists\takewhile.c">
+		<Unit filename="src/pmath-builtins/lists/takewhile.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\lists\thread.c">
+		<Unit filename="src/pmath-builtins/lists/thread.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\lists\through.c">
+		<Unit filename="src/pmath-builtins/lists/through.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\lists\total.c">
+		<Unit filename="src/pmath-builtins/lists/total.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\lists\union.c">
+		<Unit filename="src/pmath-builtins/lists/union.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\lists\unitvector.c">
+		<Unit filename="src/pmath-builtins/lists/unitvector.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\logic\and.c">
+		<Unit filename="src/pmath-builtins/logic/and.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\logic\boole.c">
+		<Unit filename="src/pmath-builtins/logic/boole.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\logic\comparisions.c">
+		<Unit filename="src/pmath-builtins/logic/comparisions.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\logic\conditionalexpression.c">
+		<Unit filename="src/pmath-builtins/logic/conditionalexpression.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\logic\identical.c">
+		<Unit filename="src/pmath-builtins/logic/identical.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\logic\not.c">
+		<Unit filename="src/pmath-builtins/logic/not.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\logic\or.c">
+		<Unit filename="src/pmath-builtins/logic/or.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\logic\xor.c">
+		<Unit filename="src/pmath-builtins/logic/xor.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\manipulate\expand.c">
+		<Unit filename="src/pmath-builtins/manipulate/expand.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\number-theory\bitand.c">
+		<Unit filename="src/pmath-builtins/number-theory/bitand.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\number-theory\bitclear.c">
+		<Unit filename="src/pmath-builtins/number-theory/bitclear.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\number-theory\bitget.c">
+		<Unit filename="src/pmath-builtins/number-theory/bitget.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\number-theory\bitlength.c">
+		<Unit filename="src/pmath-builtins/number-theory/bitlength.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\number-theory\bitnot.c">
+		<Unit filename="src/pmath-builtins/number-theory/bitnot.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\number-theory\bitor.c">
+		<Unit filename="src/pmath-builtins/number-theory/bitor.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\number-theory\bitset.c">
+		<Unit filename="src/pmath-builtins/number-theory/bitset.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\number-theory\bitshiftleft.c">
+		<Unit filename="src/pmath-builtins/number-theory/bitshiftleft.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\number-theory\bitshiftright.c">
+		<Unit filename="src/pmath-builtins/number-theory/bitshiftright.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\number-theory\bitxor.c">
+		<Unit filename="src/pmath-builtins/number-theory/bitxor.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\number-theory\extendedgcd.c">
+		<Unit filename="src/pmath-builtins/number-theory/extendedgcd.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\number-theory\gcd-and-lcm.c">
+		<Unit filename="src/pmath-builtins/number-theory/gcd-and-lcm.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\number-theory\isnumeric.c">
+		<Unit filename="src/pmath-builtins/number-theory/isnumeric.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\number-theory\isprime.c">
+		<Unit filename="src/pmath-builtins/number-theory/isprime.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\number-theory\jacobisymbol-and-kroneckersymbol.c">
+		<Unit filename="src/pmath-builtins/number-theory/jacobisymbol-and-kroneckersymbol.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\number-theory\nextprime.c">
+		<Unit filename="src/pmath-builtins/number-theory/nextprime.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\number-theory\primes16bit.c">
+		<Unit filename="src/pmath-builtins/number-theory/primes16bit.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\number-theory\random.c">
+		<Unit filename="src/pmath-builtins/number-theory/random.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\parallel\abort.c">
+		<Unit filename="src/pmath-builtins/parallel/abort.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\parallel\getthreadid.c">
+		<Unit filename="src/pmath-builtins/parallel/getthreadid.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\parallel\newtask-and-wait.c">
+		<Unit filename="src/pmath-builtins/parallel/newtask-and-wait.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\parallel\parallelmap.c">
+		<Unit filename="src/pmath-builtins/parallel/parallelmap.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\parallel\parallelmapindexed.c">
+		<Unit filename="src/pmath-builtins/parallel/parallelmapindexed.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\parallel\parallelscan.c">
+		<Unit filename="src/pmath-builtins/parallel/parallelscan.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\parallel\paralleltry.c">
+		<Unit filename="src/pmath-builtins/parallel/paralleltry.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\parallel\threadidle.c">
+		<Unit filename="src/pmath-builtins/parallel/threadidle.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-core\custom.c">
+		<Unit filename="src/pmath-core/custom.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-core\expressions.c">
+		<Unit filename="src/pmath-core/expressions.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-core\numbers.c">
+		<Unit filename="src/pmath-core/numbers.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-core\objects.c">
+		<Unit filename="src/pmath-core/objects.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-core\strings.c">
+		<Unit filename="src/pmath-core/strings.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-core\symbols.c">
+		<Unit filename="src/pmath-core/symbols.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-language\charnames.c">
+		<Unit filename="src/pmath-language/charnames.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-language\patterns-private.c">
+		<Unit filename="src/pmath-language/patterns-private.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-language\regex-private.c">
+		<Unit filename="src/pmath-language/regex-private.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-language\scanner.c">
+		<Unit filename="src/pmath-language/scanner.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-language\tokens.c">
+		<Unit filename="src/pmath-language/tokens.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-util\approximate.c">
+		<Unit filename="src/pmath-util/approximate.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-util\compression.c">
+		<Unit filename="src/pmath-util/compression.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-util\concurrency\event-private.c">
+		<Unit filename="src/pmath-util/concurrency/event-private.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-util\concurrency\threadlocks.c">
+		<Unit filename="src/pmath-util/concurrency/threadlocks.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-util\concurrency\threadmsg.c">
+		<Unit filename="src/pmath-util/concurrency/threadmsg.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-util\concurrency\threadpool.c">
+		<Unit filename="src/pmath-util/concurrency/threadpool.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-util\concurrency\threads.c">
+		<Unit filename="src/pmath-util/concurrency/threads.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-util\debug.c">
+		<Unit filename="src/pmath-util/debug.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-util\dlmalloc.c">
+		<Unit filename="src/pmath-util/dlmalloc.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-util\dynamic-private.c">
+		<Unit filename="src/pmath-util/dynamic-private.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-util\emit-and-gather.c">
+		<Unit filename="src/pmath-util/emit-and-gather.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-util\evaluation.c">
+		<Unit filename="src/pmath-util/evaluation.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-util\files.c">
+		<Unit filename="src/pmath-util/files.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-util\hashtables-private.c">
+		<Unit filename="src/pmath-util/hashtables-private.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-util\helpers.c">
+		<Unit filename="src/pmath-util/helpers.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-util\incremental-hash-private.c">
+		<Unit filename="src/pmath-util/incremental-hash-private.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-util\line-writer.c">
+		<Unit filename="src/pmath-util/line-writer.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-util\memory.c">
+		<Unit filename="src/pmath-util/memory.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-util\messages.c">
+		<Unit filename="src/pmath-util/messages.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-util\mixed-file.c">
+		<Unit filename="src/pmath-util/mixed-file.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-util\modules-private.c">
+		<Unit filename="src/pmath-util/modules-private.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-util\serialize.c">
+		<Unit filename="src/pmath-util/serialize.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-util\stacks.c">
+		<Unit filename="src/pmath-util/stacks.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-util\strtod.c">
+		<Unit filename="src/pmath-util/strtod.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-util\symbol-values-private.c">
+		<Unit filename="src/pmath-util/symbol-values-private.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-util\version.c">
+		<Unit filename="src/pmath-util/version.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath.c">
+		<Unit filename="src/pmath.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Extensions>

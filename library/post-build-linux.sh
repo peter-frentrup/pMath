@@ -14,8 +14,8 @@ cp scripts/maininit.5.txt         test/bin/linux/$1/maininit.pmath
 cp bin/linux/$1/libpmath.so.0.1   test/bin/linux/$1/
 
 function ln-copy-all {
-	ln-copy $(pwd)/libpmath.so.0.1 libpmath.so.0
-	ln-copy $(pwd)/libpmath.so.0   libpmath.so
+	ln-copy "$(pwd)/libpmath.so.0.1" libpmath.so.0
+	ln-copy "$(pwd)/libpmath.so.0"   libpmath.so
 }
 
 pushd bin/linux/$1

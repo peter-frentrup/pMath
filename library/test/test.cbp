@@ -75,7 +75,7 @@
 					<Add directory="../bin/windows/msvc" />
 				</Linker>
 			</Target>
-			<Target title="Linux-Release">
+			<Target title="Linux-Release-x86">
 				<Option platforms="Unix;" />
 				<Option output="bin/linux/release/test" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/linux/release/" />
@@ -102,7 +102,7 @@
 					<Add after="./post-build-linux.sh release" />
 				</ExtraCommands>
 			</Target>
-			<Target title="Linux-Debug">
+			<Target title="Linux-Debug-x86">
 				<Option platforms="Unix;" />
 				<Option output="bin/linux/debug/test" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/linux/debug/" />
@@ -128,6 +128,34 @@
 				</Linker>
 				<ExtraCommands>
 					<Add after="./post-build-linux.sh debug" />
+				</ExtraCommands>
+			</Target>
+			<Target title="Linux-Debug-x64">
+				<Option platforms="Unix;" />
+				<Option output="bin/linux/debug-x64/test" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/linux/debug-x64/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-march=core2" />
+					<Add option="-Wundef" />
+					<Add option="-Winline" />
+					<Add option="-Wall" />
+					<Add option="-g" />
+					<Add option="-Wdeclaration-after-statement" />
+					<Add option="-Wpointer-arith" />
+					<Add option="-mcx16" />
+					<Add option="-DNDEBUG" />
+					<Add directory="/usr/include" />
+				</Compiler>
+				<Linker>
+					<Add option="-Wl,-rpath,?ORIGIN" />
+					<Add library="pmath" />
+					<Add library="librt" />
+					<Add directory="bin/linux/debug-x64" />
+				</Linker>
+				<ExtraCommands>
+					<Add after="./post-build-linux.sh debug-x64" />
 				</ExtraCommands>
 			</Target>
 			<Target title="Windows-LLVM-Release">
