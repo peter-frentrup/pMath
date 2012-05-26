@@ -244,6 +244,7 @@
 {"Level", {"ArgumentCount" -> 2..3}},
 {"Line", {"ArgumentCount" -> 1}},
 {"LinearSolve", {"ArgumentCount" -> 1..2}},
+{"ListConvolve", {"ArgumentCount" -> 2..6}},
 {"Literal", {"ArgumentCount" -> 1}},
 {"LoadLibrary", {"ArgumentCount" -> 1}},
 {"Local", {"ArgumentCount" -> 2, "LocalVariables" -> {"Local", 1}}},

@@ -4,6 +4,7 @@
 
 - richmath: line heights jump up and down in Column({Dynamic(x),Slider(Dynamic(x),0..9..1)})
 - richmath: rendering artifacts during change of selection in a TextSequence via mouse move
+- richmath: DocumentApply(..., Section(...)) does not work (same for SectionGroup)
 
 - add StyleData(...) and richmath::StyleSection class
 - allow creation of a richmath::Style from a richmath::StyleSection
@@ -11,6 +12,9 @@
 - add Open/Save. File extension could be *.mdoc or *.pmathdoc
   open is basically CreateDocument @@ Get("filename")
   save is (file:=OpenWrite("filename");file.Write(InputForm(DocumentGet(FrontEndObject( docId )))); file.Close())
+
+- make ListConvolve work on multi-dimensional arrays
+- add Differences, Accumulate
 
 - add InverseFunction
 
@@ -21,8 +25,6 @@
 - pmath-java: add pmath.Core.cleanup() to call pmath_done() on the current Java thread
 
 - add ToAbsoluteFileName(), AppendTo(), PrependTo() [find better name for the last two!]
-
-- add Differences, Accumulate, ListConvolve
 
 - add PreserveImageOptions option
 

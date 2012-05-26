@@ -878,6 +878,9 @@
 		<Unit filename="src\pmath-builtins\lists\linearsolve.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="src\pmath-builtins\lists\listconvolve.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="src\pmath-builtins\lists\ludecomposition.c">
 			<Option compilerVar="CC" />
 		</Unit>

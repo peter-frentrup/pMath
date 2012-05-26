@@ -374,6 +374,7 @@ PMATH_PRIVATE pmath_t builtin_length(                       pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_lengthwhile(                  pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_level(                        pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_linearsolve(                  pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_listconvolve(                 pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_ludecomposition(              pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_map(                          pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_mapindexed(                   pmath_expr_t expr);
@@ -1008,6 +1009,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_LINEBREAKWITHIN           = NEW_SYSTEM_SYMBOL("LineBreakWithin"))
   VERIFY(   PMATH_SYMBOL_LIST                      = NEW_SYSTEM_SYMBOL("List"))
   VERIFY(   PMATH_SYMBOL_LISTABLE                  = NEW_SYSTEM_SYMBOL("Listable"))
+  VERIFY(   PMATH_SYMBOL_LISTCONVOLVE              = NEW_SYSTEM_SYMBOL("ListConvolve"))
   VERIFY(   PMATH_SYMBOL_LITERAL                   = NEW_SYSTEM_SYMBOL("Literal"))
   VERIFY(   PMATH_SYMBOL_LOADLIBRARY               = NEW_SYSTEM_SYMBOL("LoadLibrary"))
   VERIFY(   PMATH_SYMBOL_LOCAL                     = NEW_SYSTEM_SYMBOL("Local"))
@@ -1618,6 +1620,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   PMATH_SYMBOL_LESSEQUAL,                   builtin_lessequal)
   BIND_DOWN(   PMATH_SYMBOL_LEVEL,                       builtin_level)
   BIND_DOWN(   PMATH_SYMBOL_LINEARSOLVE,                 builtin_linearsolve)
+  BIND_DOWN(   PMATH_SYMBOL_LISTCONVOLVE,                builtin_listconvolve)
   BIND_DOWN(   PMATH_SYMBOL_LOADLIBRARY,                 builtin_loadlibrary)
   BIND_DOWN(   PMATH_SYMBOL_LOCAL,                       builtin_local)
   BIND_DOWN(   PMATH_SYMBOL_LOG,                         builtin_log)

@@ -808,5 +808,6 @@ pmath_bool_t pmath_register_approx_code(
 #define PMATH_SYMBOL_NCACHE                                 PMATH_SYMBOL_BUILTIN(716)
 #define PMATH_SYMBOL_GOLDENRATIO                            PMATH_SYMBOL_BUILTIN(717)
 #define PMATH_SYMBOL_CANCELED                               PMATH_SYMBOL_BUILTIN(718)
+#define PMATH_SYMBOL_LISTCONVOLVE                           PMATH_SYMBOL_BUILTIN(719)
 
 #endif /* __PMATH_BUILTINS__SYMBOLS_H__ */

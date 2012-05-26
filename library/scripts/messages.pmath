@@ -170,6 +170,10 @@ Join::strexpr:= "An expression and a string cannot be concatenated."
 
 Last::nolast:= "`1` has a length of zero and no last element."
 
+ListConvolve::nlen:= "The end conditions cannot be satisfied. A zero length list will be returned."
+ListConvolve::ohp:= "Overhang parameters in `1` must be nonzero machine-size integers." /* or lists of nonzero machine-size integers */
+ListConvolve::kldims:= "The kernel `1` and list `2` are not both nonempty lists." /* with the same tensor rank */
+							
 LoadLibrary::fail:= "Failed to load external library `1`."
 
 Local::lvlist:= With::lvlist:= "Local variable definition `1` is not a list."
