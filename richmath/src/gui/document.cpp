@@ -452,6 +452,7 @@ Document::Document()
   context.set_script_size_multis(Expr());
   
   style = new Style();
+  style->set(BaseStyleName, "Document");
 }
 
 Document::~Document() {
@@ -1211,6 +1212,8 @@ void Document::on_key_up(SpecialKeyEvent &event) {
 }
 
 void Document::on_key_press(uint32_t unichar) {
+  AbstractSequence *initial_seq = dynamic_cast<AbstractSequence *>(selection_box());
+  
   if(!prepare_insert()) {
     Document *cur = get_current_document();
     
@@ -1222,9 +1225,48 @@ void Document::on_key_press(uint32_t unichar) {
     return;
   }
   
-  if(unichar == '\n')
+  if(unichar == '\n') {
     prev_sel_line = -1;
     
+    // handle ReturnCreatesNewSection -> True ...
+    if(initial_seq == selection_box()) {
+      AbstractSequenceSection *sect = dynamic_cast<AbstractSequenceSection *>(initial_seq->parent());
+      
+      if(sect && sect->get_style(ReturnCreatesNewSection, false)) {
+      
+        if(selection_start() == initial_seq->length()) {
+          AbstractSequenceSection *new_sect;
+          SharedPtr<Style>         new_style = new Style();
+          
+          Expr new_style_expr = get_own_style(DefaultReturnCreatedSectionStyle, Symbol(PMATH_SYMBOL_AUTOMATIC));
+          
+          if(new_style_expr != PMATH_SYMBOL_AUTOMATIC)
+            new_style->add_pmath(new_style_expr);
+          else
+            new_style->add_pmath(sect->get_own_style(BaseStyleName));
+            
+          String lang;
+          if(context.stylesheet)
+            context.stylesheet->get(new_style, LanguageCategory, &lang);
+          else
+            new_style->get(LanguageCategory, &lang);
+            
+          if(lang.equals("pMath"))
+            new_sect = new MathSection(new_style);
+          else
+            new_sect = new TextSection(new_style);
+            
+          insert(sect->index() + 1, new_sect);
+          move_to(sect->abstract_content(), 0);
+          return;
+        }
+        
+        split_section();
+        return;
+      }
+    }
+  }
+  
   // handle parenthesis surrounding of selections:
   if( context.selection.start < context.selection.end &&
       unichar < 0xFFFF)
@@ -2383,6 +2425,107 @@ void Document::paste_from_clipboard() {
   }
   
   native()->beep();
+}
+
+bool Document::split_section(bool do_it) {
+  if(!get_own_style(Editable, false))
+    return false;
+    
+  AbstractSequence *seq = dynamic_cast<AbstractSequence *>(selection_box());
+  if(!seq)
+    return false;
+    
+  int start = selection_start();
+  int end   = selection_end();
+  
+  AbstractSequenceSection *sect = dynamic_cast<AbstractSequenceSection *>(seq->parent());
+  if(!sect || !sect->get_own_style(Editable, false))
+    return false;
+    
+  if(!do_it)
+    return true;
+    
+  SharedPtr<Style> new_style = new Style();
+  new_style->merge(sect->style);
+  
+  AbstractSequenceSection *new_sect;
+  if(dynamic_cast<MathSection *>(sect))
+    new_sect = new MathSection(new_style);
+  else
+    new_sect = new TextSection(new_style);
+    
+  int e = end;
+  if(start == e && seq->char_at(e) == '\n')
+    ++e;
+    
+  insert(sect->index() + 1, new_sect);
+  new_sect->abstract_content()->insert(0, seq, e, seq->length());
+  
+  if(start < end) {
+    new_style = new Style();
+    new_style->merge(sect->style);
+    
+    if(dynamic_cast<MathSection *>(sect))
+      new_sect = new MathSection(new_style);
+    else
+      new_sect = new TextSection(new_style);
+      
+    insert(sect->index() + 1, new_sect);
+    new_sect->abstract_content()->insert(0, seq, start, end);
+  }
+  else if(seq->char_at(start - 1) == '\n')
+    --start;
+    
+  seq->remove(start, seq->length());
+  
+  move_to(this, sect->index() + 1);
+  move_horizontal(Forward, false);
+  return true;
+}
+
+bool Document::merge_sections(bool do_it) {
+  if(selection_box() != this)
+    return false;
+    
+  if(!get_own_style(Editable, false))
+    return false;
+    
+  int start = selection_start();
+  int end   = selection_end();
+  if(start + 1 >= end)
+    return false;
+    
+  AbstractSequenceSection *first_sect = dynamic_cast<AbstractSequenceSection *>(item(start));
+  if( !first_sect                                   ||
+      !first_sect->selectable(0)                    ||
+      !first_sect->get_own_style(Editable, false))
+  {
+    return false;
+  }
+  for(int i = start + 1; i < end; ++i) {
+    AbstractSequenceSection *sect = dynamic_cast<AbstractSequenceSection *>(item(i));
+    
+    if(!sect || !sect->get_own_style(Editable, false))
+      return false;
+  }
+  
+  if(!do_it)
+    return true;
+    
+  AbstractSequence *seq = first_sect->abstract_content();
+  int pos = seq->length();
+  
+  for(int i = start + 1; i < end; ++i) {
+    AbstractSequenceSection *sect = dynamic_cast<AbstractSequenceSection *>(item(i));
+    AbstractSequence        *seq2 = sect->abstract_content();
+    
+    pos = seq->insert(pos, '\n');
+    pos = seq->insert(pos, seq2, 0, seq2->length());
+  }
+  
+  remove(start + 1, end);
+  move_to(seq, 0);
+  return true;
 }
 
 void Document::insert_string(String text, bool autoformat) {
@@ -3723,7 +3866,7 @@ Expr Document::to_pmath(int flags) {
   
   Gather::emit(List(content));
   
-  style->emit_to_pmath(false, true);
+  style->emit_to_pmath(false);
   
   Expr e = g.end();
   e.set(0, Symbol(PMATH_SYMBOL_DOCUMENT));
@@ -3751,8 +3894,26 @@ bool Document::prepare_insert() {
       return false;
     }
     
-    MathSection *sect = new MathSection(new Style(String("Input")));
+    Expr style_expr = get_group_style(
+                        context.selection.start - 1,
+                        DefaultNewSectionStyle,
+                        Symbol(PMATH_SYMBOL_FAILED));
+                        
+    SharedPtr<Style> section_style = new Style(style_expr);
     
+    String lang;
+    if(!section_style->get(LanguageCategory, &lang)) {
+      SharedPtr<Stylesheet> all = stylesheet();
+      if(all)
+        all->get(section_style, LanguageCategory, &lang);
+    }
+    
+    Section *sect;
+    if(lang.equals("pMath"))
+      sect = new MathSection(section_style);
+    else
+      sect = new TextSection(section_style);
+      
     insert(context.selection.start, sect);
     move_horizontal(Forward, false);
     

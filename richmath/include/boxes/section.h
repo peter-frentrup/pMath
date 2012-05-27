@@ -88,6 +88,8 @@ namespace richmath {
       AbstractSequenceSection(AbstractSequence *content, SharedPtr<Style> _style);
       virtual ~AbstractSequenceSection();
       
+      AbstractSequence *abstract_content() {return _content; };
+      
       virtual Box *item(int i);
       virtual int count() { return 1; }
       

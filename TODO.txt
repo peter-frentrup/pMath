@@ -6,16 +6,8 @@
 - richmath: rendering artifacts during change of selection in a TextSequence via mouse move
 - richmath: DocumentApply(..., Section(...)) does not work (same for SectionGroup)
 
-- add "SectionMerge" and "SectionSplit" front end tokens
-- add styles: 
-	DefaultNewSectionStyle ("Input", contols creation of all new section in the group starting with 
-		the current section/section above), 
-	DefaultReturnCreatedSectionStyle (Automatic, so the above is used)
-	ReturnCreatesNewSection (False)
-	SectionEditDuplicate (False, but True for "Output" style), 
-	SectionEditDuplicateMakesCopy (False, not needed?)
-	GeneratedSectionStyles ({"Output" -> "Output", "Print" -> "Print", "Message" -> "Message"},
-		the lhs are hard coded in richmath/pmath, but the rhs can be modified by the user)
+- add StyleDefinitions document option
+- respect WindowFrame option
 
 - add StyleData(...) and richmath::StyleSection class
 - allow creation of a richmath::Style from a richmath::StyleSection

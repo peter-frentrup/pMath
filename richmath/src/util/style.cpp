@@ -258,6 +258,15 @@ void Style::add_pmath(Expr options) {
           else if(lhs == PMATH_SYMBOL_CONTINUOUSACTION) {
             set_pmath_bool(ContinuousAction, rhs);
           }
+          else if(lhs == PMATH_SYMBOL_DEFAULTDUPLICATESECTIONSTYLE) {
+            set(DefaultDuplicateSectionStyle, rhs);
+          }
+          else if(lhs == PMATH_SYMBOL_DEFAULTNEWSECTIONSTYLE) {
+            set(DefaultNewSectionStyle, rhs);
+          }
+          else if(lhs == PMATH_SYMBOL_DEFAULTRETURNCREATEDSECTIONSTYLE) {
+            set(DefaultReturnCreatedSectionStyle, rhs);
+          }
           else if(lhs == PMATH_SYMBOL_EDITABLE) {
             set_pmath_bool(Editable, rhs);
           }
@@ -289,6 +298,9 @@ void Style::add_pmath(Expr options) {
             else if(rhs[0] == PMATH_SYMBOL_DYNAMIC)
               set_dynamic(FontWeight, rhs);
           }
+          else if(lhs == PMATH_SYMBOL_GENERATEDSECTIONSTYLES) {
+            set(GeneratedSectionStyles, rhs);
+          }
           else if(lhs == PMATH_SYMBOL_GRIDBOXCOLUMNSPACING) {
             set_pmath_float(GridBoxColumnSpacing, rhs);
           }
@@ -297,6 +309,9 @@ void Style::add_pmath(Expr options) {
           }
           else if(lhs == PMATH_SYMBOL_IMAGESIZE) {
             set_pmath_size(ImageSizeCommon, rhs);
+          }
+          else if(lhs == PMATH_SYMBOL_LANGUAGECATEGORY) {
+            set_pmath_string(LanguageCategory, rhs);
           }
           else if(lhs == PMATH_SYMBOL_LINEBREAKWITHIN) {
             set_pmath_bool(LineBreakWithin, rhs);
@@ -310,8 +325,17 @@ void Style::add_pmath(Expr options) {
           else if(lhs == PMATH_SYMBOL_PLOTRANGE) {
             set_pmath_object(PlotRange, rhs);
           }
+          else if(lhs == PMATH_SYMBOL_RETURNCREATESNEWSECTION) {
+            set_pmath_bool(ReturnCreatesNewSection, rhs);
+          }
           else if(lhs == PMATH_SYMBOL_SCRIPTSIZEMULTIPLIERS) {
             set_pmath_object(ScriptSizeMultipliers, rhs);
+          }
+          else if(lhs == PMATH_SYMBOL_SECTIONEDITDUPLICATE) {
+            set_pmath_bool(SectionEditDuplicate, rhs);
+          }
+          else if(lhs == PMATH_SYMBOL_SECTIONEDITDUPLICATEMAKESCOPY) {
+            set_pmath_bool(SectionEditDuplicateMakesCopy, rhs);
           }
           else if(lhs == PMATH_SYMBOL_SECTIONFRAME) {
             set_pmath_margin(SectionFrameLeft, rhs);
@@ -358,12 +382,17 @@ void Style::add_pmath(Expr options) {
           else if(lhs == PMATH_SYMBOL_TEXTSHADOW) {
             set_pmath_object(TextShadow, rhs);
           }
+          else if(lhs == PMATH_SYMBOL_WINDOWFRAME) {
+            set_pmath_string(WindowFrame, rhs);
+              
+            set(InternalHasModifiedWindowOption, true);
+          }
           else if(lhs == PMATH_SYMBOL_WINDOWTITLE) {
             if(rhs == PMATH_SYMBOL_AUTOMATIC)
               set(WindowTitle, String());
             else
               set_pmath_string(WindowTitle, rhs);
-            
+              
             set(InternalHasModifiedWindowOption, true);
           }
           else {
@@ -545,7 +574,7 @@ void Style::set_pmath_float(FloatStyleOptionName n, Expr obj) {
     
     if(!keep_dynamic)
       set((ObjectStyleOptionName)(n + DynamicOffset), obj);
-    
+      
     return;
   }
 }
@@ -581,7 +610,7 @@ void Style::set_pmath_size(FloatStyleOptionName n, Expr obj) {
     remove(n);
     if(!keep_dynamic)
       remove_dynamic(n);
-    
+      
     if(obj[1] == PMATH_SYMBOL_AUTOMATIC)
       set(Horizontal, ImageSizeAutomatic);
     else
@@ -607,9 +636,9 @@ void Style::set_pmath_size(FloatStyleOptionName n, Expr obj) {
   if(obj[0] == PMATH_SYMBOL_NCACHE) {
     set_pmath_size(n, obj[2]);
     
-    if(!keep_dynamic) 
+    if(!keep_dynamic)
       set((ObjectStyleOptionName)(n + DynamicOffset), obj);
-    
+      
     return;
   }
 }
@@ -720,19 +749,27 @@ bool Style::modifies_size(int style_name) {
     case InternalHasPendingDynamic:
     case InternalUsesCurrentValueOfMouseOver:
     case Placeholder:
+    case ReturnCreatesNewSection:
+    case SectionEditDuplicate:
+    case SectionEditDuplicateMakesCopy:
     case SectionGenerated:
     case SectionLabelAutoDelete:
     case Selectable:
     case ShowAutoStyles: // only modifies color
     case StripOnInput:
     
-    case SectionLabel:
+    case LanguageCategory:
     case Method:
+    case SectionLabel:
     case WindowTitle:
     
     case ButtonFunction:
     case ScriptSizeMultipliers:
     case TextShadow:
+    case DefaultDuplicateSectionStyle:
+    case DefaultNewSectionStyle:
+    case DefaultReturnCreatedSectionStyle:
+    case GeneratedSectionStyles:
       return false;
   }
   
@@ -817,6 +854,7 @@ Expr Style::get_symbol(int n) {
     
     case FontSlant:                           return Symbol(PMATH_SYMBOL_FONTSLANT);
     case FontWeight:                          return Symbol(PMATH_SYMBOL_FONTWEIGHT);
+    
     case AutoDelete:                          return Symbol(PMATH_SYMBOL_AUTODELETE);
     case AutoNumberFormating:                 return Symbol(PMATH_SYMBOL_AUTONUMBERFORMATING);
     case AutoSpacing:                         return Symbol(PMATH_SYMBOL_AUTOSPACING);
@@ -828,6 +866,9 @@ Expr Style::get_symbol(int n) {
     case InternalUsesCurrentValueOfMouseOver: return Expr();
     case LineBreakWithin:                     return Symbol(PMATH_SYMBOL_LINEBREAKWITHIN);
     case Placeholder:                         return Symbol(PMATH_SYMBOL_PLACEHOLDER);
+    case ReturnCreatesNewSection:             return Symbol(PMATH_SYMBOL_RETURNCREATESNEWSECTION);
+    case SectionEditDuplicate:                return Symbol(PMATH_SYMBOL_SECTIONEDITDUPLICATE);
+    case SectionEditDuplicateMakesCopy:       return Symbol(PMATH_SYMBOL_SECTIONEDITDUPLICATEMAKESCOPY);
     case SectionGenerated:                    return Symbol(PMATH_SYMBOL_SECTIONGENERATED);
     case SectionLabelAutoDelete:              return Symbol(PMATH_SYMBOL_SECTIONLABELAUTODELETE);
     case Selectable:                          return Symbol(PMATH_SYMBOL_SELECTABLE);
@@ -870,32 +911,38 @@ Expr Style::get_symbol(int n) {
   }
   
   switch(n) {
-    case BaseStyleName: return Symbol(PMATH_SYMBOL_BASESTYLE);
-    case FontFamily:    return Symbol(PMATH_SYMBOL_FONTFAMILY);
-    case SectionLabel:  return Symbol(PMATH_SYMBOL_SECTIONLABEL);
-    case Method:        return Symbol(PMATH_SYMBOL_METHOD);
-    case WindowTitle:   return Symbol(PMATH_SYMBOL_WINDOWTITLE);
+    case BaseStyleName:    return Symbol(PMATH_SYMBOL_BASESTYLE);
+    case FontFamily:       return Symbol(PMATH_SYMBOL_FONTFAMILY);
+    case Method:           return Symbol(PMATH_SYMBOL_METHOD);
+    
+    case LanguageCategory: return Symbol(PMATH_SYMBOL_LANGUAGECATEGORY);
+    case SectionLabel:     return Symbol(PMATH_SYMBOL_SECTIONLABEL);
+    
+    case WindowFrame:      return Symbol(PMATH_SYMBOL_WINDOWFRAME);
+    case WindowTitle:      return Symbol(PMATH_SYMBOL_WINDOWTITLE);
   }
   
   switch(n) {
-    case ButtonFunction:        return Symbol(PMATH_SYMBOL_BUTTONFUNCTION);
+    case ButtonFunction:                   return Symbol(PMATH_SYMBOL_BUTTONFUNCTION);
+    case ScriptSizeMultipliers:            return Symbol(PMATH_SYMBOL_SCRIPTSIZEMULTIPLIERS);
+    case TextShadow:                       return Symbol(PMATH_SYMBOL_TEXTSHADOW);
+    case UnknownOptions:                   return Expr();
     
-    case ScriptSizeMultipliers: return Symbol(PMATH_SYMBOL_SCRIPTSIZEMULTIPLIERS);
-    case TextShadow:            return Symbol(PMATH_SYMBOL_TEXTSHADOW);
+    case BoxRotation:                      return Symbol(PMATH_SYMBOL_BOXROTATION);
+    case BoxTransformation:                return Symbol(PMATH_SYMBOL_BOXTRANSFORMATION);
+    case PlotRange:                        return Symbol(PMATH_SYMBOL_PLOTRANGE);
     
-    case BoxRotation:           return Symbol(PMATH_SYMBOL_BOXROTATION);
-    case BoxTransformation:     return Symbol(PMATH_SYMBOL_BOXTRANSFORMATION);
+    case DefaultDuplicateSectionStyle:     return Symbol(PMATH_SYMBOL_DEFAULTDUPLICATESECTIONSTYLE);
+    case DefaultNewSectionStyle:           return Symbol(PMATH_SYMBOL_DEFAULTNEWSECTIONSTYLE);
+    case DefaultReturnCreatedSectionStyle: return Symbol(PMATH_SYMBOL_DEFAULTRETURNCREATEDSECTIONSTYLE);
     
-    case PlotRange:             return Symbol(PMATH_SYMBOL_PLOTRANGE);
+    case GeneratedSectionStyles:           return Symbol(PMATH_SYMBOL_GENERATEDSECTIONSTYLES);
   }
   
   return Expr();
 }
 
-void Style::emit_to_pmath(
-  bool for_sections,
-  bool with_inherited
-) {
+void Style::emit_to_pmath(bool with_inherited) {
   Expr e;
   String s;
   int i;
@@ -1036,6 +1083,39 @@ void Style::emit_to_pmath(
                    Symbol(i ? PMATH_SYMBOL_TRUE : PMATH_SYMBOL_FALSE)));
   }
   
+  if(get_dynamic(DefaultDuplicateSectionStyle, &e)) {
+    Gather::emit(Rule(
+                   get_symbol(DefaultDuplicateSectionStyle),
+                   e));
+  }
+  else if(get(DefaultDuplicateSectionStyle, &e)) {
+    Gather::emit(Rule(
+                   get_symbol(DefaultDuplicateSectionStyle),
+                   e));
+  }
+  
+  if(get_dynamic(DefaultNewSectionStyle, &e)) {
+    Gather::emit(Rule(
+                   get_symbol(DefaultNewSectionStyle),
+                   e));
+  }
+  else if(get(DefaultNewSectionStyle, &e)) {
+    Gather::emit(Rule(
+                   get_symbol(DefaultNewSectionStyle),
+                   e));
+  }
+  
+  if(get_dynamic(DefaultReturnCreatedSectionStyle, &e)) {
+    Gather::emit(Rule(
+                   get_symbol(DefaultReturnCreatedSectionStyle),
+                   e));
+  }
+  else if(get(DefaultReturnCreatedSectionStyle, &e)) {
+    Gather::emit(Rule(
+                   get_symbol(DefaultReturnCreatedSectionStyle),
+                   e));
+  }
+  
   if(get_dynamic(Editable, &e)) {
     Gather::emit(Rule(
                    get_symbol(Editable),
@@ -1133,6 +1213,17 @@ void Style::emit_to_pmath(
     }
   }
   
+  if(get_dynamic(GeneratedSectionStyles, &e)) {
+    Gather::emit(Rule(
+                   get_symbol(GeneratedSectionStyles),
+                   e));
+  }
+  else if(get(GeneratedSectionStyles, &e)) {
+    Gather::emit(Rule(
+                   get_symbol(GeneratedSectionStyles),
+                   e));
+  }
+  
   if(get_dynamic(GridBoxColumnSpacing, &e)) {
     Gather::emit(Rule(
                    get_symbol(GridBoxColumnSpacing),
@@ -1155,8 +1246,7 @@ void Style::emit_to_pmath(
                    Number(f)));
   }
   
-  if(get_dynamic(ImageSizeCommon, &e))
-  {
+  if(get_dynamic(ImageSizeCommon, &e)) {
     Gather::emit(Rule(
                    get_symbol(ImageSizeCommon),
                    e));
@@ -1200,6 +1290,17 @@ void Style::emit_to_pmath(
                      get_symbol(ImageSizeCommon),
                      List(horz, vert)));
     }
+  }
+  
+  if(get_dynamic(LanguageCategory, &e)) {
+    Gather::emit(Rule(
+                   get_symbol(LanguageCategory),
+                   e));
+  }
+  else if(get(LanguageCategory, &s)) {
+    Gather::emit(Rule(
+                   get_symbol(LanguageCategory),
+                   s));
   }
   
   if(get_dynamic(LineBreakWithin, &e)) {
@@ -1246,6 +1347,17 @@ void Style::emit_to_pmath(
                    e));
   }
   
+  if(get_dynamic(ReturnCreatesNewSection, &e)) {
+    Gather::emit(Rule(
+                   get_symbol(ReturnCreatesNewSection),
+                   e));
+  }
+  else if(get(ReturnCreatesNewSection, &i)) {
+    Gather::emit(Rule(
+                   get_symbol(ReturnCreatesNewSection),
+                   Symbol(i ? PMATH_SYMBOL_TRUE : PMATH_SYMBOL_FALSE)));
+  }
+  
   if(get_dynamic(ScriptSizeMultipliers, &e)) {
     Gather::emit(Rule(
                    get_symbol(ScriptSizeMultipliers),
@@ -1255,6 +1367,209 @@ void Style::emit_to_pmath(
     Gather::emit(Rule(
                    get_symbol(ScriptSizeMultipliers),
                    e));
+  }
+  
+  if(get_dynamic(SectionEditDuplicate, &e)) {
+    Gather::emit(Rule(
+                   get_symbol(SectionEditDuplicate),
+                   e));
+  }
+  else if(get(SectionEditDuplicate, &i)) {
+    Gather::emit(Rule(
+                   get_symbol(SectionEditDuplicate),
+                   Symbol(i ? PMATH_SYMBOL_TRUE : PMATH_SYMBOL_FALSE)));
+  }
+  
+  if(get_dynamic(SectionEditDuplicateMakesCopy, &e)) {
+    Gather::emit(Rule(
+                   get_symbol(SectionEditDuplicateMakesCopy),
+                   e));
+  }
+  else if(get(SectionEditDuplicateMakesCopy, &i)) {
+    Gather::emit(Rule(
+                   get_symbol(SectionEditDuplicateMakesCopy),
+                   Symbol(i ? PMATH_SYMBOL_TRUE : PMATH_SYMBOL_FALSE)));
+  }
+  
+  if(get_dynamic(SectionFrameLeft, &e)) {
+    Gather::emit(Rule(
+                   get_symbol(SectionFrameLeft),
+                   e));
+  }
+  else {
+    float left, right, top, bottom;
+    bool have_left, have_right, have_top, have_bottom;
+    
+    have_left   = get(SectionFrameLeft,   &left);
+    have_right  = get(SectionFrameRight,  &right);
+    have_top    = get(SectionFrameTop,    &top);
+    have_bottom = get(SectionFrameBottom, &bottom);
+    if(have_left || have_right || have_top || have_bottom) {
+      Expr l, r, t, b;
+      
+      if(have_left)
+        l = Number(left);
+      else
+        l = Symbol(PMATH_SYMBOL_INHERITED);
+        
+      if(have_right)
+        r = Number(right);
+      else
+        r = Symbol(PMATH_SYMBOL_INHERITED);
+        
+      if(have_top)
+        t = Number(top);
+      else
+        t = Symbol(PMATH_SYMBOL_INHERITED);
+        
+      if(have_bottom)
+        b = Number(bottom);
+      else
+        b = Symbol(PMATH_SYMBOL_INHERITED);
+        
+      Gather::emit(Rule(
+                     get_symbol(SectionFrameLeft),
+                     List(l, r, t, b)));
+    }
+  }
+  
+  if(get_dynamic(SectionFrameColor, &e)) {
+    Gather::emit(Rule(
+                   get_symbol(SectionFrameColor),
+                   e));
+  }
+  else if(get(SectionFrameColor, &i)) {
+    Gather::emit(Rule(
+                   get_symbol(SectionFrameColor),
+                   color_to_pmath(i)));
+  }
+  
+  if(get_dynamic(SectionFrameMarginLeft, &e)) {
+    Gather::emit(Rule(
+                   get_symbol(SectionFrameMarginLeft),
+                   e));
+  }
+  else {
+    float left, right, top, bottom;
+    bool have_left, have_right, have_top, have_bottom;
+    
+    have_left   = get(SectionFrameMarginLeft,   &left);
+    have_right  = get(SectionFrameMarginRight,  &right);
+    have_top    = get(SectionFrameMarginTop,    &top);
+    have_bottom = get(SectionFrameMarginBottom, &bottom);
+    if(have_left || have_right || have_top || have_bottom) {
+      Expr l, r, t, b;
+      
+      if(have_left)
+        l = Number(left);
+      else
+        l = Symbol(PMATH_SYMBOL_INHERITED);
+        
+      if(have_right)
+        r = Number(right);
+      else
+        r = Symbol(PMATH_SYMBOL_INHERITED);
+        
+      if(have_top)
+        t = Number(top);
+      else
+        t = Symbol(PMATH_SYMBOL_INHERITED);
+        
+      if(have_bottom)
+        b = Number(bottom);
+      else
+        b = Symbol(PMATH_SYMBOL_INHERITED);
+        
+      Gather::emit(Rule(
+                     get_symbol(SectionFrameMarginLeft),
+                     List(l, r, t, b)));
+    }
+  }
+  
+  if(get_dynamic(SectionGenerated, &e)) {
+    Gather::emit(Rule(
+                   get_symbol(SectionGenerated),
+                   e));
+  }
+  else if(get(SectionGenerated, &i)) {
+    Gather::emit(Rule(
+                   get_symbol(SectionGenerated),
+                   Symbol(i ? PMATH_SYMBOL_TRUE : PMATH_SYMBOL_FALSE)));
+  }
+  
+  if(get_dynamic(SectionGroupPrecedence, &e)) {
+    Gather::emit(Rule(
+                   get_symbol(SectionGroupPrecedence),
+                   e));
+  }
+  else if(get(SectionGroupPrecedence, &f)) {
+    Gather::emit(Rule(
+                   get_symbol(SectionGroupPrecedence),
+                   Number(f)));
+  }
+  
+  if(get_dynamic(SectionMarginLeft, &e)) {
+    Gather::emit(Rule(
+                   get_symbol(SectionMarginLeft),
+                   e));
+  }
+  else {
+    float left, right, top, bottom;
+    bool have_left, have_right, have_top, have_bottom;
+    
+    have_left   = get(SectionMarginLeft,   &left);
+    have_right  = get(SectionMarginRight,  &right);
+    have_top    = get(SectionMarginTop,    &top);
+    have_bottom = get(SectionMarginBottom, &bottom);
+    if(have_left || have_right || have_top || have_bottom) {
+      Expr l, r, t, b;
+      
+      if(have_left)
+        l = Number(left);
+      else
+        l = Symbol(PMATH_SYMBOL_INHERITED);
+        
+      if(have_right)
+        r = Number(right);
+      else
+        r = Symbol(PMATH_SYMBOL_INHERITED);
+        
+      if(have_top)
+        t = Number(top);
+      else
+        t = Symbol(PMATH_SYMBOL_INHERITED);
+        
+      if(have_bottom)
+        b = Number(bottom);
+      else
+        b = Symbol(PMATH_SYMBOL_INHERITED);
+        
+      Gather::emit(Rule(
+                     get_symbol(SectionMarginLeft),
+                     List(l, r, t, b)));
+    }
+  }
+  
+  if(get_dynamic(SectionLabel, &e)) {
+    Gather::emit(Rule(
+                   get_symbol(SectionLabel),
+                   e));
+  }
+  else if(get(SectionLabel, &s)) {
+    Gather::emit(Rule(
+                   get_symbol(SectionLabel),
+                   s.is_null() ? Symbol(PMATH_SYMBOL_NONE) : s));
+  }
+  
+  if(get_dynamic(SectionLabelAutoDelete, &e)) {
+    Gather::emit(Rule(
+                   get_symbol(SectionLabelAutoDelete),
+                   e));
+  }
+  else if(get(SectionLabelAutoDelete, &i)) {
+    Gather::emit(Rule(
+                   get_symbol(SectionLabelAutoDelete),
+                   Symbol(i ? PMATH_SYMBOL_TRUE : PMATH_SYMBOL_FALSE)));
   }
   
   if(get_dynamic(Selectable, &e)) {
@@ -1276,6 +1591,17 @@ void Style::emit_to_pmath(
   else if(get(ShowAutoStyles, &i)) {
     Gather::emit(Rule(
                    get_symbol(ShowAutoStyles),
+                   Symbol(i ? PMATH_SYMBOL_TRUE : PMATH_SYMBOL_FALSE)));
+  }
+  
+  if(get_dynamic(ShowSectionBracket, &e)) {
+    Gather::emit(Rule(
+                   get_symbol(ShowSectionBracket),
+                   e));
+  }
+  else if(get(ShowSectionBracket, &i)) {
+    Gather::emit(Rule(
+                   get_symbol(ShowSectionBracket),
                    Symbol(i ? PMATH_SYMBOL_TRUE : PMATH_SYMBOL_FALSE)));
   }
   
@@ -1312,6 +1638,17 @@ void Style::emit_to_pmath(
                    e));
   }
   
+  if(get_dynamic(WindowFrame, &e)) {
+    Gather::emit(Rule(
+                   get_symbol(WindowFrame),
+                   e));
+  }
+  else if(get(WindowFrame, &s)) {
+    Gather::emit(Rule(
+                   get_symbol(WindowFrame),
+                   s));
+  }
+  
   if(get_dynamic(WindowTitle, &e)) {
     Gather::emit(Rule(
                    get_symbol(WindowTitle),
@@ -1321,201 +1658,6 @@ void Style::emit_to_pmath(
     Gather::emit(Rule(
                    get_symbol(WindowTitle),
                    s.is_null() ? Symbol(PMATH_SYMBOL_AUTOMATIC) : s));
-  }
-  
-  if(for_sections) {
-    if(get_dynamic(SectionFrameLeft, &e)) {
-      Gather::emit(Rule(
-                     get_symbol(SectionFrameLeft),
-                     e));
-    }
-    else {
-      float left, right, top, bottom;
-      bool have_left, have_right, have_top, have_bottom;
-      
-      have_left   = get(SectionFrameLeft,   &left);
-      have_right  = get(SectionFrameRight,  &right);
-      have_top    = get(SectionFrameTop,    &top);
-      have_bottom = get(SectionFrameBottom, &bottom);
-      if(have_left || have_right || have_top || have_bottom) {
-        Expr l, r, t, b;
-        
-        if(have_left)
-          l = Number(left);
-        else
-          l = Symbol(PMATH_SYMBOL_INHERITED);
-          
-        if(have_right)
-          r = Number(right);
-        else
-          r = Symbol(PMATH_SYMBOL_INHERITED);
-          
-        if(have_top)
-          t = Number(top);
-        else
-          t = Symbol(PMATH_SYMBOL_INHERITED);
-          
-        if(have_bottom)
-          b = Number(bottom);
-        else
-          b = Symbol(PMATH_SYMBOL_INHERITED);
-          
-        Gather::emit(Rule(
-                       get_symbol(SectionFrameLeft),
-                       List(l, r, t, b)));
-      }
-    }
-    
-    if(get_dynamic(SectionFrameColor, &e)) {
-      Gather::emit(Rule(
-                     get_symbol(SectionFrameColor),
-                     e));
-    }
-    else if(get(SectionFrameColor, &i)) {
-      Gather::emit(Rule(
-                     get_symbol(SectionFrameColor),
-                     color_to_pmath(i)));
-    }
-    
-    if(get_dynamic(SectionFrameMarginLeft, &e)) {
-      Gather::emit(Rule(
-                     get_symbol(SectionFrameMarginLeft),
-                     e));
-    }
-    else {
-      float left, right, top, bottom;
-      bool have_left, have_right, have_top, have_bottom;
-      
-      have_left   = get(SectionFrameMarginLeft,   &left);
-      have_right  = get(SectionFrameMarginRight,  &right);
-      have_top    = get(SectionFrameMarginTop,    &top);
-      have_bottom = get(SectionFrameMarginBottom, &bottom);
-      if(have_left || have_right || have_top || have_bottom) {
-        Expr l, r, t, b;
-        
-        if(have_left)
-          l = Number(left);
-        else
-          l = Symbol(PMATH_SYMBOL_INHERITED);
-          
-        if(have_right)
-          r = Number(right);
-        else
-          r = Symbol(PMATH_SYMBOL_INHERITED);
-          
-        if(have_top)
-          t = Number(top);
-        else
-          t = Symbol(PMATH_SYMBOL_INHERITED);
-          
-        if(have_bottom)
-          b = Number(bottom);
-        else
-          b = Symbol(PMATH_SYMBOL_INHERITED);
-          
-        Gather::emit(Rule(
-                       get_symbol(SectionFrameMarginLeft),
-                       List(l, r, t, b)));
-      }
-    }
-    
-    if(get_dynamic(SectionGenerated, &e)) {
-      Gather::emit(Rule(
-                     get_symbol(SectionGenerated),
-                     e));
-    }
-    else if(get(SectionGenerated, &i)) {
-      Gather::emit(Rule(
-                     get_symbol(SectionGenerated),
-                     Symbol(i ? PMATH_SYMBOL_TRUE : PMATH_SYMBOL_FALSE)));
-    }
-    
-    if(get_dynamic(SectionGroupPrecedence, &e)) {
-      Gather::emit(Rule(
-                     get_symbol(SectionGroupPrecedence),
-                     e));
-    }
-    else if(get(SectionGroupPrecedence, &f)) {
-      Gather::emit(Rule(
-                     get_symbol(SectionGroupPrecedence),
-                     Number(f)));
-    }
-    
-    if(get_dynamic(SectionMarginLeft, &e)) {
-      Gather::emit(Rule(
-                     get_symbol(SectionMarginLeft),
-                     e));
-    }
-    else {
-      float left, right, top, bottom;
-      bool have_left, have_right, have_top, have_bottom;
-      
-      have_left   = get(SectionMarginLeft,   &left);
-      have_right  = get(SectionMarginRight,  &right);
-      have_top    = get(SectionMarginTop,    &top);
-      have_bottom = get(SectionMarginBottom, &bottom);
-      if(have_left || have_right || have_top || have_bottom) {
-        Expr l, r, t, b;
-        
-        if(have_left)
-          l = Number(left);
-        else
-          l = Symbol(PMATH_SYMBOL_INHERITED);
-          
-        if(have_right)
-          r = Number(right);
-        else
-          r = Symbol(PMATH_SYMBOL_INHERITED);
-          
-        if(have_top)
-          t = Number(top);
-        else
-          t = Symbol(PMATH_SYMBOL_INHERITED);
-          
-        if(have_bottom)
-          b = Number(bottom);
-        else
-          b = Symbol(PMATH_SYMBOL_INHERITED);
-          
-        Gather::emit(Rule(
-                       get_symbol(SectionMarginLeft),
-                       List(l, r, t, b)));
-      }
-    }
-    
-    if(get_dynamic(SectionLabel, &e)) {
-      Gather::emit(Rule(
-                     get_symbol(SectionLabel),
-                     e));
-    }
-    else if(get(SectionLabel, &s)) {
-      Gather::emit(Rule(
-                     get_symbol(SectionLabel),
-                     s.is_null() ? Symbol(PMATH_SYMBOL_NONE) : s));
-    }
-    
-    if(get_dynamic(SectionLabelAutoDelete, &e)) {
-      Gather::emit(Rule(
-                     get_symbol(SectionLabelAutoDelete),
-                     e));
-    }
-    else if(get(SectionLabelAutoDelete, &i)) {
-      Gather::emit(Rule(
-                     get_symbol(SectionLabelAutoDelete),
-                     Symbol(i ? PMATH_SYMBOL_TRUE : PMATH_SYMBOL_FALSE)));
-    }
-    
-    if(get_dynamic(ShowSectionBracket, &e)) {
-      Gather::emit(Rule(
-                     get_symbol(ShowSectionBracket),
-                     e));
-    }
-    else if(get(ShowSectionBracket, &i)) {
-      Gather::emit(Rule(
-                     get_symbol(ShowSectionBracket),
-                     Symbol(i ? PMATH_SYMBOL_TRUE : PMATH_SYMBOL_FALSE)));
-    }
-    
   }
   
   if(get(UnknownOptions, &e)) {

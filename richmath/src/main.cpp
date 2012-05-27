@@ -284,6 +284,9 @@ static void init_stylesheet() {
   Stylesheet::Default->base->set(Evaluatable,                         false);
   Stylesheet::Default->base->set(InternalUsesCurrentValueOfMouseOver, false);
   Stylesheet::Default->base->set(LineBreakWithin,                     true);
+  Stylesheet::Default->base->set(ReturnCreatesNewSection,             false);
+  Stylesheet::Default->base->set(SectionEditDuplicate,                false);
+  Stylesheet::Default->base->set(SectionEditDuplicateMakesCopy,       false);
   Stylesheet::Default->base->set(SectionGenerated,                    false);
   Stylesheet::Default->base->set(ShowAutoStyles,                      false);
   Stylesheet::Default->base->set(SectionLabelAutoDelete,              true);
@@ -321,17 +324,30 @@ static void init_stylesheet() {
              PMATH_SYMBOL_METHOD,
              PMATH_UNDEFINED)));
              
+  Stylesheet::Default->base->set(LanguageCategory, "NaturalLanguage");
+             
   Stylesheet::Default->base->set(ButtonFunction,
                                  Expr(pmath_option_value(
                                         PMATH_SYMBOL_BUTTONBOX,
                                         PMATH_SYMBOL_BUTTONFUNCTION,
                                         PMATH_UNDEFINED)));
+                                 
+//  Stylesheet::Default->base->set(GeneratedSectionStyles,
+//                                 Parse("{~FE`Private`style :> FE`Private`style}"));
                                         
   Style *s;
   
   s = new Style;
-  s->set(AutoSpacing,    true);
-  s->set(ShowAutoStyles, true);
+  s->set(WindowFrame,                      "Normal");
+  s->set(WindowTitle,                      String()); // === Automatic
+  s->set(DefaultNewSectionStyle,           String("Input"));
+  s->set(DefaultReturnCreatedSectionStyle, Symbol(PMATH_SYMBOL_AUTOMATIC));
+  Stylesheet::Default->styles.set("Document", s);
+  
+  s = new Style;
+  s->set(AutoSpacing,      true);
+  s->set(LanguageCategory, "pMath");
+  s->set(ShowAutoStyles,   true);
   Stylesheet::Default->styles.set("Edit", s);
   
   s = new Style;
@@ -356,21 +372,24 @@ static void init_stylesheet() {
   s->set(AutoSpacing,         true);
   s->set(AutoNumberFormating, false);
   s->set(Evaluatable,         true);
-  s->set(ShowAutoStyles,      true);
   s->set(FontSize,            11.0);
+  s->set(LanguageCategory,    "pMath");
   s->set(SectionMarginLeft,   56.0);
   s->set(SectionMarginTop,    10.0);
   s->set(SectionMarginBottom,  5.0);
+  s->set(ShowAutoStyles,      true);
   Stylesheet::Default->styles.set("Input", s);
   
   s = new Style;
-  s->set(BaseStyleName,           "Input");
-  s->set(AutoNumberFormating,     true);
-  s->set(Evaluatable,             false);
-  s->set(ShowAutoStyles,          false);
-  s->set(ShowStringCharacters,    false);
-  s->set(SectionGroupPrecedence,  10);
-  s->set(SectionMarginTop,         5.0);
+  s->set(BaseStyleName,                "Input");
+  s->set(AutoNumberFormating,          true);
+  s->set(DefaultDuplicateSectionStyle, String("Input"));
+  s->set(Evaluatable,                  false);
+  s->set(ShowAutoStyles,               false);
+  s->set(ShowStringCharacters,         false);
+  s->set(SectionGroupPrecedence,       10);
+  s->set(SectionMarginTop,              5.0);
+  s->set(SectionEditDuplicate,         true);
   Stylesheet::Default->styles.set("Output", s);
   
   s = new Style;

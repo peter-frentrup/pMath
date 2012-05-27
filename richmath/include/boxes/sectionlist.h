@@ -91,6 +91,8 @@ namespace richmath {
       void set_open_close_group(int i, bool open);
       void toggle_open_close_group(int i);
       
+      Expr get_group_style(int pos, ObjectStyleOptionName n, Expr result);
+      
       virtual void insert_pmath(int *pos, Expr boxes, int overwrite_until_index = 0);
       virtual void insert(int pos, Section *section);
       virtual Section *swap(int pos, Section *section);

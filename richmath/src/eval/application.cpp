@@ -407,7 +407,47 @@ void Application::gui_print_section(Expr expr) {
       
     sect = Section::create_from_object(expr);
     if(sect) {
-    
+      String base_style_name;
+      
+      if( session &&
+          session->current_job &&
+          sect->style &&
+          sect->style->get(BaseStyleName, &base_style_name))
+      {
+        Section *eval_sect = FrontEndObject::find_cast<Section>(session->current_job->position().section_id);
+        
+        if(eval_sect) {
+          Gather g;
+          Expr   rules;
+          
+          SharedPtr<Stylesheet> all   = eval_sect->stylesheet();
+          SharedPtr<Style>      style = eval_sect->style;
+          
+          for(int count = 20; count && style; --count) {
+            if(style->get(GeneratedSectionStyles, &rules))
+              Gather::emit(rules);
+              
+            String inherited;
+            if(all && style->get(BaseStyleName, &inherited))
+              style = all->styles[inherited];
+            else
+              break;
+          }
+          
+          rules = g.end();
+          Expr base_style = Evaluate(
+                              Parse(
+                                "Try(Replace(`1`, Flatten(`2`)))",
+                                base_style_name,
+                                rules));
+          
+          if(base_style != PMATH_SYMBOL_FAILED) {
+            sect->style->remove(BaseStyleName);
+            sect->style->add_pmath(base_style);
+          }
+        }
+      }
+      
       doc->insert(index, sect);
       
       print_pos = EvaluationPosition(sect);
@@ -812,7 +852,7 @@ Document *Application::create_document(Expr data) {
     set_current_document(doc);
   else
     doc->select(0, 0, 0);
-  
+    
   doc->invalidate_options();
   
   return doc;
@@ -1232,7 +1272,7 @@ static Expr cnt_getoptions(Expr data) {
     Gather gather;
     
     if(box->style)
-      box->style->emit_to_pmath(0 != dynamic_cast<Section *>(box), true);
+      box->style->emit_to_pmath(true);
       
     Expr options = gather.end();
     if(!box->to_pmath_symbol().is_symbol())

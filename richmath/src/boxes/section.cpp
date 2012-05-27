@@ -194,8 +194,20 @@ bool Section::edit_selection(Context *context) {
     invalidate();
   }
   
-  if(style && get_style(BaseStyleName).equals("Output")) {
-    style->set(BaseStyleName, "Input");
+  if(style && get_style(SectionEditDuplicate)){
+    if(get_style(SectionEditDuplicateMakesCopy)){
+      SectionList *slist = dynamic_cast<SectionList*>(parent());
+      
+      if(slist){
+        slist->insert(index(), Section::create_from_object(to_pmath(BoxOptionDefault)));
+      }
+    }
+    
+    Expr style_expr = get_style(DefaultDuplicateSectionStyle, Expr());
+    if(style_expr.is_null() && parent())
+      style_expr = parent()->get_style(DefaultDuplicateSectionStyle);
+    
+    style->add_pmath(style_expr);
     invalidate();
   }
   

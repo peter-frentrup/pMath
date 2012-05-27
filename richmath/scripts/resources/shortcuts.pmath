@@ -21,6 +21,8 @@ FE`Private`shortcuts:= {
 	Item(KeyEvent("X", {KeyControl}),               "Cut"),
 	Item(KeyEvent("C", {KeyControl}),               "Copy"),
 	Item(KeyEvent("V", {KeyControl}),               "Paste"),
+	Item(KeyEvent("D", {KeyControl, KeyShift}),     "SectionSplit"),
+	Item(KeyEvent("M", {KeyControl, KeyShift}),     "SectionMerge"),
 	Item(KeyEvent("E", {KeyControl, KeyShift}),     "EditBoxes"),
 	Item(KeyEvent(".", {KeyControl}),               "ExpandSelection"),
 	Item(KeyEvent("A", {KeyControl}),               "SelectAll"),

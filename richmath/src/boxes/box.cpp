@@ -11,11 +11,11 @@ using namespace richmath;
 
 MouseEvent::MouseEvent()
   : x(0),
-  y(0),
-  left(false),
-  middle(false),
-  right(false),
-  source(0)
+    y(0),
+    left(false),
+    middle(false),
+    right(false),
+    source(0)
 {
 }
 
@@ -47,9 +47,9 @@ void MouseEvent::set_source(Box *new_source) {
 
 Box::Box()
   : FrontEndObject(),
-  _extents(0, 0, 0),
-  _parent(0),
-  _index(0)
+    _extents(0, 0, 0),
+    _parent(0),
+    _index(0)
 {
 }
 
@@ -381,11 +381,13 @@ bool Box::edit_selection(Context *context) {
   if(_parent)
     return _parent->edit_selection(context);
     
-  if(context->stylesheet
-      && context->stylesheet->base
-      && context->stylesheet->base->get(Editable, &editable))
+  if( context->stylesheet       &&
+      context->stylesheet->base &&
+      context->stylesheet->base->get(Editable, &editable))
+  {
     return editable;
-    
+  }
+  
   return true;
 }
 
@@ -408,10 +410,12 @@ int Box::get_style(IntStyleOptionName n, int result) {
   if(all) {
     box = this;
     do {
-      if(box->changes_children_style()
-          && all->get(box->style, n, &result))
+      if( box->changes_children_style()   &&
+          all->get(box->style, n, &result))
+      {
         return result;
-        
+      }
+      
       box = box->_parent;
     } while(box);
     
@@ -421,11 +425,13 @@ int Box::get_style(IntStyleOptionName n, int result) {
   else {
     box = _parent;
     while(box) {
-      if(box->changes_children_style()
-          && box->style
-          && box->style->get(n, &result))
+      if( box->changes_children_style() &&
+          box->style                    &&
+          box->style->get(n, &result))
+      {
         return result;
-        
+      }
+      
       box = box->_parent;
     }
   }
@@ -443,10 +449,12 @@ float Box::get_style(FloatStyleOptionName n, float result) {
   if(all) {
     box = this;
     do {
-      if(box->changes_children_style()
-          && all->get(box->style, n, &result))
+      if( box->changes_children_style()   &&
+          all->get(box->style, n, &result))
+      {
         return result;
-        
+      }
+      
       box = box->_parent;
     } while(box);
     
@@ -456,11 +464,13 @@ float Box::get_style(FloatStyleOptionName n, float result) {
   else {
     box = _parent;
     while(box) {
-      if(box->changes_children_style()
-          && box->style
-          && box->style->get(n, &result))
+      if( box->changes_children_style() &&
+          box->style                    &&
+          box->style->get(n, &result))
+      {
         return result;
-        
+      }
+      
       box = box->_parent;
     }
   }
@@ -478,10 +488,12 @@ String Box::get_style(StringStyleOptionName n, String result) {
   if(all) {
     box = this;
     do {
-      if(box->changes_children_style()
-          && all->get(box->style, n, &result))
+      if( box->changes_children_style()   &&
+          all->get(box->style, n, &result))
+      {
         return result;
-        
+      }
+      
       box = box->_parent;
     } while(box);
     
@@ -491,11 +503,13 @@ String Box::get_style(StringStyleOptionName n, String result) {
   else {
     box = _parent;
     while(box) {
-      if(box->changes_children_style()
-          && box->style
-          && box->style->get(n, &result))
+      if( box->changes_children_style() &&
+          box->style                    &&
+          box->style->get(n, &result))
+      {
         return result;
-        
+      }
+      
       box = box->_parent;
     }
   }
@@ -513,10 +527,12 @@ Expr Box::get_style(ObjectStyleOptionName n, Expr result) {
   if(all) {
     box = this;
     do {
-      if(box->changes_children_style()
-          && all->get(box->style, n, &result))
+      if( box->changes_children_style() &&
+          all->get(box->style, n, &result))
+      {
         return result;
-        
+      }
+      
       box = box->_parent;
     } while(box);
     
@@ -526,11 +542,13 @@ Expr Box::get_style(ObjectStyleOptionName n, Expr result) {
   else {
     box = _parent;
     while(box) {
-      if(box->changes_children_style()
-          && box->style
-          && box->style->get(n, &result))
+      if( box->changes_children_style() &&
+          box->style                    &&
+          box->style->get(n, &result))
+      {
         return result;
-        
+      }
+      
       box = box->_parent;
     }
   }

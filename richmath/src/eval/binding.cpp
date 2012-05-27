@@ -445,6 +445,24 @@ static bool can_remove_from_evaluation_queue(Expr cmd) {
   return false;
 }
 
+static bool can_section_merge(Expr cmd) {
+  Document *doc = get_current_document();
+  
+  if(!doc)
+    return false;
+    
+  return doc->merge_sections(false);
+}
+
+static bool can_section_split(Expr cmd) {
+  Document *doc = get_current_document();
+  
+  if(!doc)
+    return false;
+    
+  return doc->split_section(false);
+}
+
 static bool can_similar_section_below(Expr cmd) {
   Document *doc = get_current_document();
   
@@ -595,9 +613,10 @@ static bool duplicate_previous_input_output_cmd(Expr cmd) {
   for(int i = a - 1; i >= 0; --i) {
     MathSection *math = dynamic_cast<MathSection *>(doc->item(i));
     
-    if(math
-        && ((input && math->get_style(Evaluatable))
-            || (!input && math->get_style(SectionGenerated)))) {
+    if( math &&
+        (( input && math->get_style(Evaluatable)) ||
+         (!input && math->get_style(SectionGenerated))))
+    {
       MathSequence *seq = new MathSequence;
       seq->load_from_object(Expr(math->content()->to_pmath(BoxFlagDefault)), 0);
       doc->insert_box(seq);
@@ -704,6 +723,8 @@ static bool evaluate_sections_cmd(Expr cmd) {
       
       if(math && math->get_style(Evaluatable))
         Application::add_job(new InputJob(math));
+      else
+        return false;
     }
   }
   else {
@@ -711,8 +732,15 @@ static bool evaluate_sections_cmd(Expr cmd) {
       box = box->parent();
       
     MathSection *math = dynamic_cast<MathSection *>(box);
-    if(math && math->get_style(Evaluatable))
+    if(math && math->get_style(Evaluatable)) {
       Application::add_job(new InputJob(math));
+    }
+    else {
+      if(dynamic_cast<AbstractSequence *>(doc->selection_box()))
+        doc->insert_string("\n", false);
+        
+      return false;
+    }
   }
   
   if(String(cmd).equals("EvaluateSectionsAndReturn")) {
@@ -1026,6 +1054,32 @@ static bool remove_from_evaluation_queue(Expr cmd) {
   return true;
 }
 
+static bool section_merge_cmd(Expr cmd) {
+  Document *doc = get_current_document();
+  
+  if(!doc)
+    return false;
+    
+  if(doc->merge_sections(true))
+    return true;
+  
+  doc->native()->beep();
+  return false;
+}
+
+static bool section_split_cmd(Expr cmd) {
+  Document *doc = get_current_document();
+  
+  if(!doc)
+    return false;
+    
+  if(doc->split_section(true))
+    return true;
+  
+  doc->native()->beep();
+  return false;
+}
+
 static bool select_all_cmd(Expr cmd) {
   Document *doc = get_current_document();
   
@@ -1067,16 +1121,17 @@ static bool similar_section_below_cmd(Expr cmd) {
   }
   
   if(dynamic_cast<AbstractSequenceSection *>(box)) {
-    Style *style = new Style;
+    SharedPtr<Style> style = new Style;
     style->merge(static_cast<Section *>(box)->style);
     style->remove(SectionLabel);
     style->remove(SectionGenerated);
     
     Section *section;
-    if(dynamic_cast<TextSection *>(box))
-      section = new TextSection(style);
-    else
+    //if(!dynamic_cast<TextSection *>(box))
+    if(box->get_own_style(LanguageCategory).equals("pMath"))
       section = new MathSection(style);
+    else
+      section = new TextSection(style);
       
     doc->insert(box->index() + 1, section);
     doc->move_to(doc, box->index() + 1);
@@ -1119,6 +1174,9 @@ bool richmath::init_bindings() {
   Application::register_menucommand(String("ExpandSelection"),            expand_selection_cmd,                can_expand_selection);
   Application::register_menucommand(String("FindMatchingFence"),          find_matching_fence_cmd,             can_find_matching_fence);
   Application::register_menucommand(String("SelectAll"),                  select_all_cmd);
+  
+  Application::register_menucommand(String("SectionMerge"),               section_merge_cmd,                   can_section_merge);
+  Application::register_menucommand(String("SectionSplit"),               section_split_cmd,                   can_section_split);
   
   Application::register_menucommand(String("DuplicatePreviousInput"),     duplicate_previous_input_output_cmd, can_duplicate_previous_input_output);
   Application::register_menucommand(String("DuplicatePreviousOutput"),    duplicate_previous_input_output_cmd, can_duplicate_previous_input_output);
@@ -1236,4 +1294,6 @@ void richmath::set_current_document(Document *document) {
 Document *richmath::get_current_document() {
   return dynamic_cast<Document *>(Box::find(current_document_id));
 }
+
+
 

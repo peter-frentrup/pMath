@@ -76,7 +76,7 @@ Expr RadioButtonBox::to_pmath(int flags) {
   Gather::emit(value);
   
   if(style)
-    style->emit_to_pmath(false, false);
+    style->emit_to_pmath(false);
     
   Expr result = gather.end();
   if(value == PMATH_SYMBOL_TRUE && result.expr_length() == 2) {

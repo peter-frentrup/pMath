@@ -94,7 +94,7 @@ Expr Win32FontDialog::show(SharedPtr<Style> initial_style) {
     }
     
     Gather g;
-    result_style->emit_to_pmath(false, false);
+    result_style->emit_to_pmath(false);
     return g.end();
   }
   

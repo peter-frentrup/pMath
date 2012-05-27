@@ -81,7 +81,7 @@ Expr CheckboxBox::to_pmath(int flags) {
     Gather::emit(values);
     
   if(style)
-    style->emit_to_pmath(false, false);
+    style->emit_to_pmath(false);
     
   Expr result = gather.end();
   if(values.is_null() && result.expr_length() == 2) {

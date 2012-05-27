@@ -53,7 +53,7 @@ Expr TooltipBox::to_pmath(int flags) {
   Gather::emit(tooltip_boxes);
   
   if(style)
-    style->emit_to_pmath(false, false);
+    style->emit_to_pmath(false);
     
   Expr result = g.end();
   result.set(0, Symbol(PMATH_SYMBOL_TOOLTIPBOX));

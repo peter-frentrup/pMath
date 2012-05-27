@@ -109,6 +109,9 @@ namespace richmath {
       void paste_from_binary(String mimetype, Expr file);
       void paste_from_clipboard();
       
+      bool split_section( bool do_it = true);
+      bool merge_sections(bool do_it = true);
+      
       void insert_string(String text, bool autoformat = true);
       void insert_box(Box *box, bool handle_placeholder = false); // deletes the box
       void insert_fraction();

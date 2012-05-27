@@ -33,6 +33,9 @@ namespace richmath {
     InternalUsesCurrentValueOfMouseOver,
     LineBreakWithin,
     Placeholder,
+    ReturnCreatesNewSection,
+    SectionEditDuplicate,
+    SectionEditDuplicateMakesCopy,
     SectionGenerated,
     SectionLabelAutoDelete,
     Selectable,
@@ -82,8 +85,12 @@ namespace richmath {
   enum StringStyleOptionName {
     BaseStyleName = 20000, // greater than any FloatStyleOptionName value
     FontFamily,
-    SectionLabel,
     Method,
+    
+    LanguageCategory,
+    SectionLabel,
+    
+    WindowFrame,
     WindowTitle
   };
   
@@ -95,7 +102,13 @@ namespace richmath {
     
     BoxRotation,
     BoxTransformation,
-    PlotRange
+    PlotRange,
+    
+    DefaultDuplicateSectionStyle,
+    DefaultNewSectionStyle,
+    DefaultReturnCreatedSectionStyle,
+    
+    GeneratedSectionStyles
   };
   
   const int DynamicOffset = 1000000;
@@ -168,7 +181,7 @@ namespace richmath {
       
       bool update_dynamic(Box *parent);
       
-      void emit_to_pmath(bool for_sections = true, bool with_inherited = false);
+      void emit_to_pmath(bool with_inherited = false);
       
     protected:
       static bool modifies_size(int style_name);

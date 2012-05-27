@@ -234,7 +234,7 @@ Expr InputFieldBox::to_pmath(int flags) {
   Gather::emit(input_type);
   
   if(style)
-    style->emit_to_pmath(false, false);
+    style->emit_to_pmath(false);
     
   Expr result = g.end();
   result.set(0, Symbol(PMATH_SYMBOL_INPUTFIELDBOX));

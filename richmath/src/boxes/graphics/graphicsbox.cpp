@@ -141,7 +141,7 @@ bool GraphicsBox::try_load_from_object(Expr expr, int opts) {
   if(user_has_changed_size) {
     Gather g;
     
-    style->emit_to_pmath(false, false);
+    style->emit_to_pmath(false);
     
     user_options = g.end();
     for(size_t i = user_options.expr_length(); i > 0; --i) {
@@ -539,7 +539,7 @@ Expr GraphicsBox::to_pmath(int flags) {
   Gather g;
   
   Gather::emit(elements.to_pmath(flags));
-  style->emit_to_pmath(false, false);
+  style->emit_to_pmath(false);
   
   Expr result = g.end();
   result.set(0, Symbol(PMATH_SYMBOL_GRAPHICSBOX));

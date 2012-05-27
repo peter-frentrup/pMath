@@ -72,7 +72,7 @@ Expr ButtonBox::to_pmath(int flags) {
   g.emit(_content->to_pmath(flags));
   
   if(style)
-    style->emit_to_pmath(false, false);
+    style->emit_to_pmath(false);
     
   Expr e = g.end();
   e.set(0, Symbol(PMATH_SYMBOL_BUTTONBOX));

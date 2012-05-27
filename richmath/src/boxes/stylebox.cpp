@@ -264,7 +264,7 @@ Expr StyleBox::to_pmath(int flags) {
       Gather::emit(s);
     }
   }
-  style->emit_to_pmath(false, with_inherited);
+  style->emit_to_pmath(with_inherited);
   
   e = g.end();
   e.set(0, Symbol(PMATH_SYMBOL_STYLEBOX));

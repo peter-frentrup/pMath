@@ -112,7 +112,7 @@ static Expr font_chooser_dialog_show(SharedPtr<Style> initial_style) {
         gtk_widget_destroy(GTK_WIDGET(dialog));
         
         Gather g;
-        result_style->emit_to_pmath(false, false);
+        result_style->emit_to_pmath(false);
         return g.end();
       }
   }
@@ -218,7 +218,7 @@ static Expr font_selection_dialog_show(SharedPtr<Style> initial_style) {
         gtk_widget_destroy(GTK_WIDGET(dialog));
 
         Gather g;
-        result_style->emit_to_pmath(false, false);
+        result_style->emit_to_pmath(false);
         return g.end();
       }
   }
