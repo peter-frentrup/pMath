@@ -48,7 +48,7 @@ struct _get_file_info {
 };
 
 static pmath_string_t scanner_read(void *data) {
-  struct _get_file_info *info = (struct _get_file_info*)data;
+  struct _get_file_info *info = (struct _get_file_info *)data;
   pmath_string_t line;
   
   if(pmath_aborting())
@@ -73,7 +73,7 @@ static void scanner_error(
   void *data,
   pmath_bool_t critical
 ) {
-  struct _get_file_info *info = (struct _get_file_info*)data;
+  struct _get_file_info *info = (struct _get_file_info *)data;
   if(critical)
     info->err = TRUE;
   pmath_message_syntax_error(code, pos, pmath_ref(info->name), info->startline);
@@ -81,7 +81,8 @@ static void scanner_error(
 
 static pmath_t get_file(
   pmath_t        file,          // will be freed and closed
-  pmath_string_t name           // will be freed
+  pmath_string_t name,          // will be freed
+  pmath_t        head           // will be freed
 ) {
   struct _get_file_info  info;
   
@@ -141,6 +142,12 @@ static pmath_t get_file(
                      pmath_ref(PMATH_SYMBOL_SEQUENCE));
       }
       
+      if(!pmath_same(head, PMATH_SYMBOL_IDENTITY)) {
+        result = pmath_expr_new_extended(
+                   pmath_ref(head), 1,
+                   result);
+      }
+      
       result = pmath_evaluate(result);
     }
     
@@ -163,6 +170,7 @@ static pmath_t get_file(
   pmath_unref(pmath_thread_local_save(PMATH_SYMBOL_INPUT, old_input));
   pmath_file_close(file);
   pmath_unref(name);
+  pmath_unref(head);
   
 //  if(package_check){
 //    name = pmath_evaluate(
@@ -182,8 +190,20 @@ static pmath_t get_file(
   return result;
 }
 
+static pmath_t open_read(pmath_t filename, pmath_t character_encoding) { // both will be freed
+  return pmath_evaluate(
+           pmath_expr_new_extended(
+             pmath_ref(PMATH_SYMBOL_OPENREAD), 2,
+             filename,
+             pmath_expr_new_extended(
+               pmath_ref(PMATH_SYMBOL_RULE), 2,
+               pmath_ref(PMATH_SYMBOL_CHARACTERENCODING),
+               character_encoding)));
+}
+
+
 PMATH_PRIVATE pmath_t builtin_get(pmath_expr_t expr) {
-  pmath_t options, path, name, file, file_type;
+  pmath_t options, character_encoding, head, path, name, file, file_type;
   
   if(pmath_expr_length(expr) < 1) {
     pmath_message_argxxx(pmath_expr_length(expr), 1, 1);
@@ -201,13 +221,18 @@ PMATH_PRIVATE pmath_t builtin_get(pmath_expr_t expr) {
   if(pmath_is_null(options))
     return expr;
     
-  path = pmath_evaluate(pmath_option_value(PMATH_NULL, PMATH_SYMBOL_PATH, options));
+  character_encoding = pmath_evaluate(pmath_option_value(PMATH_NULL, PMATH_SYMBOL_CHARACTERENCODING, options));
+  head               =                pmath_option_value(PMATH_NULL, PMATH_SYMBOL_HEAD,              options);
+  path               = pmath_evaluate(pmath_option_value(PMATH_NULL, PMATH_SYMBOL_PATH,              options));
+  
   pmath_unref(options);
   if(pmath_is_string(path))
     path = pmath_build_value("(o)", path);
     
   if(!check_path(path)) {
     pmath_unref(path);
+    pmath_unref(character_encoding);
+    pmath_unref(head);
     return expr;
   }
   
@@ -225,16 +250,19 @@ PMATH_PRIVATE pmath_t builtin_get(pmath_expr_t expr) {
                "IsFreeOf($Packages, `1`)",
                "(o)",
                pmath_ref(name)));
+               
     pmath_unref(expr);
     if(!pmath_same(expr, PMATH_SYMBOL_TRUE)) {
     
       PMATH_RUN_ARGS(
         "If(IsFreeOf($NamespacePath, `1`),"
         "  $NamespacePath:= Prepend($NamespacePath, `1`))",
-        "(o)", 
+        "(o)",
         name);
         
       pmath_unref(path);
+      pmath_unref(character_encoding);
+      pmath_unref(head);
       return PMATH_NULL;
     }
     
@@ -243,6 +271,8 @@ PMATH_PRIVATE pmath_t builtin_get(pmath_expr_t expr) {
     if(!fname) {
       pmath_unref(name);
       pmath_unref(path);
+      pmath_unref(character_encoding);
+      pmath_unref(head);
       return PMATH_NULL;
     }
     buf = AFTER_STRING(fname);
@@ -284,22 +314,20 @@ PMATH_PRIVATE pmath_t builtin_get(pmath_expr_t expr) {
                  pmath_expr_new_extended(
                    pmath_ref(PMATH_SYMBOL_FILETYPE), 1,
                    pmath_ref(testname)));
+                   
         pmath_unref(test);
-        
         if(pmath_same(test, PMATH_SYMBOL_FILE)) {
           pmath_unref(PMATH_FROM_PTR(fname));
           pmath_unref(path);
           pmath_unref(name);
           
-          file = pmath_evaluate(
-                   pmath_expr_new_extended(
-                     pmath_ref(PMATH_SYMBOL_OPENREAD), 1,
-                     pmath_ref(testname)));
+          file = open_read(pmath_ref(testname), character_encoding);
           if(!pmath_same(file, PMATH_SYMBOL_FAILED))
-            return get_file(file, testname);
+            return get_file(file, testname, head);
             
           pmath_unref(testname);
           pmath_unref(file);
+          pmath_unref(head);
           return pmath_ref(PMATH_SYMBOL_FAILED);
         }
       }
@@ -317,52 +345,54 @@ PMATH_PRIVATE pmath_t builtin_get(pmath_expr_t expr) {
                pmath_expr_new_extended(
                  pmath_ref(PMATH_SYMBOL_FILETYPE), 1,
                  pmath_ref(testname)));
+                 
       pmath_unref(test);
       if(pmath_same(test, PMATH_SYMBOL_FILE)) {
         pmath_unref(PMATH_FROM_PTR(fname));
         pmath_unref(path);
         pmath_unref(name);
         
-        file = pmath_evaluate(
-                 pmath_expr_new_extended(
-                   pmath_ref(PMATH_SYMBOL_OPENREAD), 1,
-                   pmath_ref(testname)));
+        file = open_read(pmath_ref(testname), character_encoding);
         if(!pmath_same(file, PMATH_SYMBOL_FAILED))
-          return get_file(file, testname);
+          return get_file(file, testname, head);
           
         pmath_unref(testname);
         pmath_unref(file);
+        pmath_unref(head);
         return pmath_ref(PMATH_SYMBOL_FAILED);
       }
       pmath_unref(testname);
     }
     
     pmath_unref(PMATH_FROM_PTR(fname));
-    pmath_message(PMATH_NULL, "noopen", 1, name);
+    pmath_unref(character_encoding);
+    pmath_unref(head);
     pmath_unref(path);
+    pmath_message(PMATH_NULL, "noopen", 1, name);
     return pmath_ref(PMATH_SYMBOL_FAILED);
   }
   
   pmath_unref(path);
   
   file_type = pmath_evaluate(
-           pmath_expr_new_extended(
-             pmath_ref(PMATH_SYMBOL_FILETYPE), 1,
-             pmath_ref(name)));
+                pmath_expr_new_extended(
+                  pmath_ref(PMATH_SYMBOL_FILETYPE), 1,
+                  pmath_ref(name)));
+                  
   pmath_unref(file_type);
   if(!pmath_same(file_type, PMATH_SYMBOL_FILE)) {
+    pmath_unref(character_encoding);
+    pmath_unref(head);
     pmath_message(PMATH_NULL, "noopen", 1, name);
     return pmath_ref(PMATH_SYMBOL_FAILED);
   }
   
-  file = pmath_evaluate(
-           pmath_expr_new_extended(
-             pmath_ref(PMATH_SYMBOL_OPENREAD), 1,
-             pmath_ref(name)));
+  file = open_read(pmath_ref(name), character_encoding);
   if(!pmath_same(file, PMATH_SYMBOL_FAILED))
-    return get_file(file, name);
+    return get_file(file, name, head);
     
   pmath_unref(file);
   pmath_unref(name);
+  pmath_unref(head);
   return pmath_ref(PMATH_SYMBOL_FAILED);
 }

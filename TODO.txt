@@ -6,7 +6,6 @@
 - richmath: rendering artifacts during change of selection in a TextSequence via mouse move
 - richmath: DocumentApply(..., Section(...)) does not work (same for SectionGroup)
 
-- do _not_ evaluate *.pmathdoc file contents!
 - add "SectionMerge" and "SectionSplit" front end tokens
 - add styles: 
 	DefaultNewSectionStyle ("Input", contols creation of all new section in the group starting with 

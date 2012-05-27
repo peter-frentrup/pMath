@@ -178,8 +178,8 @@ static pmath_expr_t get_exe_name(void) {
     char                *path;
   
     if( GetCurrentProcess(&psn)              == noErr &&
-        GetProcessBundleLocation(&psn, &fsr) == noErr &&
-        FSRefMakePath(&fsr, (UInt8 *)path, sizeof(path)))
+    GetProcessBundleLocation(&psn, &fsr) == noErr &&
+    FSRefMakePath(&fsr, (UInt8 *)path, sizeof(path)))
     {
       return pmath_string_from_utf8(path, -1);
     }
@@ -748,8 +748,11 @@ PMATH_API pmath_bool_t pmath_init(void) {
         "Options(FixedPoint):="
         "Options(FixedPointList):={SameTest->Identical}");
         
-      PMATH_RUN("Options(Get):={Path:>$Path}");
-      
+      PMATH_RUN("Options(Get):={"
+                "CharacterEncoding->Automatic,"
+                "Head->Identity,"
+                "Path:>$Path}");
+                
       PMATH_RUN("Options(Graphics):=Options(GraphicsBox):={"
                 "AspectRatio->Automatic,"
                 "Axes->False,"
@@ -1003,8 +1006,8 @@ PMATH_API void pmath_done(void) {
     return;
     
   thread_count = pmath_atomic_read_aquire(&pmath_count);
-  if( !thread->is_daemon && 
-      thread_count == pmath_atomic_read_aquire(&_pmath_threadpool_deamon_count) + 1) 
+  if( !thread->is_daemon &&
+      thread_count == pmath_atomic_read_aquire(&_pmath_threadpool_deamon_count) + 1)
   {
     _pmath_threadpool_kill_daemons();
   }

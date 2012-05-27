@@ -923,11 +923,15 @@ static bool open_cmd(Expr cmd) {
       
     String filename(filenames[i]);
     if(filename.part(filename.length() - 9).equals(".pmathdoc")) {
-      Expr boxes = Application::interrupt(
-                     Call(Symbol(PMATH_SYMBOL_GET), filename),
-                     Application::button_timeout);
-                     
-      if(doc->try_load_from_object(boxes, BoxOptionDefault)) {
+      Expr held_boxes = Application::interrupt(
+                          Parse("Get(`1`, Head->HoldComplete)", filename),
+                          Application::button_timeout);
+                          
+                          
+      if( held_boxes.expr_length() == 1 &&
+          held_boxes[0] == PMATH_SYMBOL_HOLDCOMPLETE &&
+          doc->try_load_from_object(held_boxes[1], BoxOptionDefault))
+      {
       
         if(doc->selectable())
           set_current_document(doc);
@@ -935,7 +939,7 @@ static bool open_cmd(Expr cmd) {
           doc->select(0, 0, 0);
           
         doc->invalidate_options();
-          
+        
         continue;
       }
     }
@@ -959,7 +963,7 @@ static bool open_cmd(Expr cmd) {
     const uint16_t *buf = filename.buffer();
     while(c >= 0 && buf[c] != '\\' && buf[c] != '/')
       --c;
-    
+      
     doc->style->set(WindowTitle, filename.part(c + 1));
     doc->style->set(InternalHasModifiedWindowOption, true);
     doc->invalidate_options();
