@@ -18,6 +18,9 @@
                             implicit line break.
 
    If \a page_width < 0, the global variable $PageWidth is used.
+   Line breaks will generally not appear within single tokens (e.g. very long 
+   symbol names) when those appear inside \c InputForm or when \a options 
+   contains <tt>PMATH_WRITE_OPTIONS_INPUTEXPR</tt>.
 
    \see pmath_write
  */

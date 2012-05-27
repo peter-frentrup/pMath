@@ -67,14 +67,14 @@ static void fill_newlines(struct linewriter_t *lw) {
     wp = wp->next;
   }
   
-  oldpos       = 0;
+  oldpos       = -1;
   string_depth = lw->string_depth;
   wp           = lw->all_write_pos;
   
   while(wp && wp->pos <= lw->line_length) {
     if(string_depth > 0) {
       while(oldpos < wp->pos)
-        lw->newlines[oldpos++] |= NEWLINE_INSTRING;
+        lw->newlines[++oldpos] |= NEWLINE_INSTRING;
     }
     
     oldpos = wp->pos;
@@ -87,6 +87,11 @@ static void fill_newlines(struct linewriter_t *lw) {
     }
     
     wp = wp->next;
+  }
+  
+  if(string_depth > 0) {
+    while(oldpos < lw->line_length)
+      lw->newlines[++oldpos] |= NEWLINE_INSTRING;
   }
 }
 
@@ -141,12 +146,12 @@ static double calc_penalty(struct linewriter_t *lw, int pos, int max) {
   error = 4.0 * error * error / ((double) max * max);
   error += 1.0 * lw->depths[pos - 1];
   
-  if(pos < lw->pos){
+  if(pos < lw->pos) {
     int prev_depth = lw->depths[0];
     int next_depth = lw->depths[pos];
     
     if(prev_depth + pos <= next_depth)
-      error+= 10.0;
+      error += 10.0;
   }
   
   return error;
@@ -167,7 +172,8 @@ static int get_expr_indention_depth(struct linewriter_t *lw) {
 
 static int find_best_linebreak(
   struct linewriter_t *lw,
-  pmath_bool_t        *is_inside_string
+  pmath_bool_t        *is_inside_string,
+  pmath_bool_t        *is_inside_token
 ) {
   int depth = get_expr_indention_depth(lw);
   int last  = lw->line_length - 1 - depth;
@@ -179,8 +185,6 @@ static int find_best_linebreak(
     --nl;
     
   if(nl == 0) {
-    *is_inside_string = TRUE;
-    
     nl = last - 1;
     while(nl > 0 && lw->buffer[nl] > ' ')
       --nl;
@@ -189,6 +193,9 @@ static int find_best_linebreak(
       nl = last - 1;
     else
       ++nl;
+    
+    *is_inside_string = (lw->newlines[nl] & NEWLINE_INSTRING) != 0;
+    *is_inside_token  = !*is_inside_string;
   }
   else {
     double error = calc_penalty(lw, nl, last);
@@ -198,7 +205,7 @@ static int find_best_linebreak(
       if(lw->newlines[new_nl] & NEWLINE_OK) {
         double new_error = calc_penalty(lw, new_nl, last);
         
-        if(new_error < error){
+        if(new_error < error) {
           nl    = new_nl;
           error = new_error;
         }
@@ -207,7 +214,8 @@ static int find_best_linebreak(
       --new_nl;
     }
     
-    *is_inside_string = (lw->newlines[nl - 1] & NEWLINE_INSTRING) != 0;
+    *is_inside_string = (lw->newlines[nl] & NEWLINE_INSTRING) != 0;
+    *is_inside_token  = FALSE;
   }
   
   return nl;
@@ -216,7 +224,9 @@ static int find_best_linebreak(
 static void flush_line(struct linewriter_t *lw) {
   int i, nl;
   pmath_bool_t is_inside_string;
-  pmath_bool_t escape_string;
+  pmath_bool_t is_inside_token;
+  pmath_bool_t hyphenate;
+  pmath_bool_t ignore_linebreak;
   int depth = get_expr_indention_depth(lw);
   
   if(lw->pos <= lw->line_length - depth) {
@@ -264,10 +274,18 @@ static void flush_line(struct linewriter_t *lw) {
     }
   }
   
-  nl            = find_best_linebreak(lw, &is_inside_string);
-  escape_string = (lw->char_options[nl - 1] & PMATH_WRITE_OPTIONS_FULLSTR) != 0;
   
-  if(is_inside_string && escape_string) {
+  nl = find_best_linebreak(lw, &is_inside_string, &is_inside_token);
+  
+  ignore_linebreak = FALSE;
+  hyphenate        = FALSE;
+  
+  if(is_inside_token)
+    ignore_linebreak = (lw->char_options[nl - 1] & PMATH_WRITE_OPTIONS_INPUTEXPR) != 0;
+  else if(is_inside_string)
+    hyphenate = (lw->char_options[nl - 1] & PMATH_WRITE_OPTIONS_FULLSTR) != 0;
+    
+  if(hyphenate && !ignore_linebreak) {
   
     if(nl > lw->line_length - 2)
       nl = lw->line_length - 2;
@@ -289,34 +307,42 @@ static void flush_line(struct linewriter_t *lw) {
   memmove(lw->char_options, lw->char_options + nl, sizeof(lw->char_options[0]) * (lw->buffer_length - nl));
   lw->pos -= nl;
   
-  if(is_inside_string && escape_string) {
+  if(ignore_linebreak)
+    return;
+  
+  depth = get_expr_indention_depth(lw);
+  if(depth >= nl)
+    return;
+    
+  if(hyphenate) {
     write_cstr("\\\n", lw->write, lw->user);
     
-    if( lw->pos > 0                         &&
-        lw->pos < lw->buffer_length - 4 + 1 &&
-        lw->buffer[0] <= ' ')
-    {
-      char hex_hi = HEX_DIGITS[lw->buffer[0] >> 4];
-      char hex_lo = HEX_DIGITS[lw->buffer[0] & 0xF];
-      
-      injection_adjust_write_pos(lw, 1, 3);
-      memmove(lw->buffer       + 3, lw->buffer,       sizeof(lw->buffer[      0]) * (lw->buffer_length - 3));
-      memmove(lw->depths       + 3, lw->depths,       sizeof(lw->depths[      0]) * (lw->buffer_length - 3));
-      memmove(lw->char_options + 3, lw->char_options, sizeof(lw->char_options[0]) * (lw->buffer_length - 3));
-      lw->pos+= 3;
-      
-      lw->depths[0]       = lw->depths[1]       = lw->depths[2]       = lw->depths[3];
-      lw->char_options[0] = lw->char_options[1] = lw->char_options[2] = lw->char_options[3];
-      lw->buffer[0] = '\\';
-      lw->buffer[1] = 'x';
-      lw->buffer[2] = hex_hi;
-      lw->buffer[3] = hex_lo;
+    if(is_inside_string) {
+      if( lw->pos > 0                         &&
+          lw->pos < lw->buffer_length - 4 + 1 &&
+          lw->buffer[0] <= ' ')
+      {
+        char hex_hi = HEX_DIGITS[lw->buffer[0] >> 4];
+        char hex_lo = HEX_DIGITS[lw->buffer[0] & 0xF];
+        
+        injection_adjust_write_pos(lw, 1, 3);
+        memmove(lw->buffer       + 3, lw->buffer,       sizeof(lw->buffer[      0]) * (lw->buffer_length - 3));
+        memmove(lw->depths       + 3, lw->depths,       sizeof(lw->depths[      0]) * (lw->buffer_length - 3));
+        memmove(lw->char_options + 3, lw->char_options, sizeof(lw->char_options[0]) * (lw->buffer_length - 3));
+        lw->pos += 3;
+        
+        lw->depths[0]       = lw->depths[1]       = lw->depths[2]       = lw->depths[3];
+        lw->char_options[0] = lw->char_options[1] = lw->char_options[2] = lw->char_options[3];
+        lw->buffer[0] = '\\';
+        lw->buffer[1] = 'x';
+        lw->buffer[2] = hex_hi;
+        lw->buffer[3] = hex_lo;
+      }
     }
   }
   else
     write_cstr("\n", lw->write, lw->user);
     
-  depth = get_expr_indention_depth(lw);
   i     = lw->indentation_width + depth;
   while(i-- > 0)
     write_cstr(" ", lw->write, lw->user);

@@ -6,11 +6,6 @@
 - richmath: rendering artifacts during change of selection in a TextSequence via mouse move
 - richmath: DocumentApply(..., Section(...)) does not work (same for SectionGroup)
 
-- parse line-broken symbols as one symbol:
-	aaa\
-	         bbb
-	should be parsed as the symbol aaabbb.
-
 - do _not_ evaluate *.pmathdoc file contents!
 - add "SectionMerge" and "SectionSplit" front end tokens
 - add styles: 
