@@ -40,6 +40,13 @@ Box *SelectionReference::get() {
 }
 
 void SelectionReference::set(Box *box, int _start, int _end) {
+  if(box)
+    box = box->normalize_selection(&_start, &_end);
+  
+  set_raw(box, _start, _end);
+}
+
+void SelectionReference::set_raw(Box *box, int _start, int _end) {
   if(box) {
     id = box->id();
     start = _start;

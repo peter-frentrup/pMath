@@ -358,6 +358,26 @@ void SectionList::child_transformation(
     cairo_matrix_translate(matrix, 0, _extents.height());
 }
 
+Box *SectionList::normalize_selection(int *start, int *end) {
+  bool equal_start_end = *start == *end;
+  
+  if(*end < 0)
+    *end = 0;
+  
+  while(*end < length() && !_sections[*end]->visible)
+    ++*end;
+  
+  if(equal_start_end) {
+    *start = *end;
+    return this;
+  }
+  
+  while(*start > 0 && !_sections[*start - 1]->visible)
+    --*start;
+  
+  return this;
+}
+
 void SectionList::set_open_close_group(int i, bool open) {
   if(_group_info[i].end > i) {
     _group_info[i].close_rel = open ? -1 : 0;

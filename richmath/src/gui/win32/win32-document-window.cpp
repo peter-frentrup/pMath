@@ -62,10 +62,10 @@ class richmath::Win32WorkingArea: public Win32Widget {
       int height,
       Win32DocumentWindow *_parent)
       : Win32Widget(doc, style_ex, style, x, y, width, height, &_parent->hwnd()),
-      parent(_parent),
-      auto_size(false),
-      best_width(1),
-      best_height(1)
+        parent(_parent),
+        auto_size(false),
+        best_width(1),
+        best_height(1)
     {
     }
     
@@ -322,8 +322,9 @@ class richmath::Win32Dock: public Win32Widget {
                 
                 float b = ControlPainter::std->scrollbar_width();
                 
-                if(x / scale_factor() >= w - b
-                    && y / scale_factor() >= h - b) {
+                if( x / scale_factor() >= w - b &&
+                    y / scale_factor() >= h - b)
+                {
                   SetCursor(LoadCursor(0, IDC_SIZENWSE));
                 }
               }
@@ -341,8 +342,9 @@ class richmath::Win32Dock: public Win32Widget {
                 
                 float b = ControlPainter::std->scrollbar_width();
                 
-                if(x / scale_factor() >= w - b
-                    && y / scale_factor() >= h - b) {
+                if( x / scale_factor() >= w - b &&
+                    y / scale_factor() >= h - b)
+                {
                   SendMessageW(_hwnd, WM_LBUTTONUP, wParam, lParam);
                   SendMessageW(parent->hwnd(), WM_NCLBUTTONDOWN, HTBOTTOMRIGHT, 0);
                   return 1;
@@ -396,8 +398,9 @@ class richmath::Win32GlassDock: public richmath::Win32Dock {
     }
     
     virtual void paint_background(Canvas *canvas) {
-      if(Win32Themes::IsCompositionActive
-          && Win32Themes::IsCompositionActive()) {
+      if( Win32Themes::IsCompositionActive &&
+          Win32Themes::IsCompositionActive())
+      {
         set_textshadows();
         canvas->glass_background = true;
         
@@ -438,9 +441,11 @@ class richmath::Win32GlassDock: public richmath::Win32Dock {
     }
     
     virtual void on_paint(HDC dc, bool from_wmpaint) {
-      if(Win32Themes::IsCompositionActive
-          && Win32Themes::IsCompositionActive())
+      if( Win32Themes::IsCompositionActive &&
+          Win32Themes::IsCompositionActive())
+      {
         _image_format = CAIRO_FORMAT_ARGB32;
+      }
       else
         _image_format = CAIRO_FORMAT_RGB24;
         
@@ -451,9 +456,10 @@ class richmath::Win32GlassDock: public richmath::Win32Dock {
       if(!initializing()) {
         switch(message) {
           case WM_LBUTTONDOWN: {
-              if(Win32Dock::callback(message, wParam, lParam) == 0
-                  && document()->clicked_box_id() == document()->id()
-                  && parent->glass_enabled()) {
+              if( Win32Dock::callback(message, wParam, lParam) == 0 &&
+                  document()->clicked_box_id() == document()->id() &&
+                  parent->glass_enabled())
+              {
                 SendMessageW(_hwnd, WM_LBUTTONUP, wParam, lParam);
                 SendMessageW(parent->hwnd(), WM_NCLBUTTONDOWN, HTCAPTION, lParam);
               }
@@ -574,12 +580,13 @@ Win32DocumentWindow::~Win32DocumentWindow() {
   if(!deleting_all) {
     bool have_only_palettes = true;
     FOREACH_WINDOW(win,
-    if(win != this && !win->_is_palette) {
-    have_only_palettes = false;
-    break;
-  }
-                );
-                
+    {
+      if(win != this && !win->_is_palette) {
+        have_only_palettes = false;
+        break;
+      }
+    });
+    
     if(have_only_palettes) {
       deleting_all = true;
       
@@ -714,8 +721,9 @@ void Win32DocumentWindow::rearrange() {
     };
     
     if(_working_area->document()->count() == 0) {
-      if(rect.bottom - rect.top <= mar.cyTopHeight + mar.cyBottomHeight + 1
-          || _working_area->auto_size) {
+      if( rect.bottom - rect.top <= mar.cyTopHeight + mar.cyBottomHeight + 1 ||
+          _working_area->auto_size)
+      {
         mar.cxLeftWidth = mar.cxRightWidth = mar.cyTopHeight = mar.cyBottomHeight = -1;
         
         SetWindowPos(_working_area->hwnd(), 0, 0, 0, 0, 0,
@@ -747,12 +755,13 @@ void Win32DocumentWindow::rearrange() {
     RECT oldrect;
     GetWindowRect(widgets[j], &oldrect);
     
-    if(oldrect.left   != rect.left
-        || oldrect.top    != new_ys[j]
-        || oldrect.right  != rect.right - rect.left
-        || oldrect.bottom != new_ys[j+1] - new_ys[j]) {
+    if( oldrect.left   != rect.left                ||
+        oldrect.top    != new_ys[j]                ||
+        oldrect.right  != rect.right - rect.left   ||
+        oldrect.bottom != new_ys[j + 1] - new_ys[j])
+    {
       int w = rect.right - rect.left;
-      int h = new_ys[j+1] - new_ys[j];
+      int h = new_ys[j + 1] - new_ys[j];
       
       SetWindowPos(
         widgets[j], NULL,
@@ -790,7 +799,7 @@ void Win32DocumentWindow::rearrange() {
 void Win32DocumentWindow::invalidate_options() {
   String s = document()->get_style(WindowTitle, String());
   
-  if(_title != s){
+  if(_title != s) {
     title(s);
   }
 }
@@ -800,13 +809,13 @@ void Win32DocumentWindow::title(String text) {
   
   if(text.is_null())
     text = "untitled";
-  
+    
   if(!Application::is_idle(document()))
     text = String("Running... ") + text;
     
   String tmp = text + String::FromChar(0);
   
-  SetWindowTextW(_hwnd, (const WCHAR*)tmp.buffer());
+  SetWindowTextW(_hwnd, (const WCHAR *)tmp.buffer());
 }
 
 void Win32DocumentWindow::is_palette(bool value) {
@@ -872,9 +881,10 @@ void Win32DocumentWindow::on_theme_changed() {
     menubar->appearence(MaAllwaysShow);
     
   DWORD style_ex = GetWindowLongW(_working_area->hwnd(), GWL_EXSTYLE);
-  if((Win32Themes::IsCompositionActive
-      && Win32Themes::IsCompositionActive())
-      || _is_palette) {
+  if( (Win32Themes::IsCompositionActive &&
+       Win32Themes::IsCompositionActive()) ||
+      _is_palette)
+  {
     style_ex = style_ex & ~WS_EX_STATICEDGE;
   }
   else {

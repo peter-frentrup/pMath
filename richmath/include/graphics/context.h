@@ -22,6 +22,7 @@ namespace richmath {
       
       Box *get();
       void set(Box *box, int _start, int _end);
+      void set_raw(Box *box, int _start, int _end);
       void reset() { set(0, 0, 0); }
       
       bool equals(Box *box, int _start, int _end) const;

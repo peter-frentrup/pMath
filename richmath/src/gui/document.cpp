@@ -1515,7 +1515,7 @@ void Document::raw_select(Box *box, int start, int end) {
     if(selection_box())
       selection_box()->request_repaint_range(selection_start(), selection_end());
       
-    context.selection.set(box, start, end);
+    context.selection.set_raw(box, start, end);
     
     if(box) {
       box->request_repaint_range(start, end);
@@ -1565,7 +1565,7 @@ void Document::select_range(
   }
   
   sel_first.set(box1, start1, end1);
-  sel_last.set(box2, start2, end2);
+  sel_last.set( box2, start2, end2);
   auto_scroll = (mouse_down_counter == 0);
   
   if(end1 < start1) {

@@ -86,7 +86,7 @@ namespace richmath {
         int             index,
         cairo_matrix_t *matrix);
         
-      virtual Box *normalize_selection(int *start, int *end) { return this; }
+      virtual Box *normalize_selection(int *start, int *end);
       
       void set_open_close_group(int i, bool open);
       void toggle_open_close_group(int i);
