@@ -25,7 +25,7 @@ void *_pmath_atomic_lock_ptr(pmath_atomic_t *ptr) {
   void *result;
   
   do {
-    result = (void*)pmath_atomic_fetch_set(ptr, (intptr_t)PMATH_INVALID_PTR);
+    result = (void *)pmath_atomic_fetch_set(ptr, (intptr_t)PMATH_INVALID_PTR);
   } while(result == PMATH_INVALID_PTR);
   
   return result;
@@ -33,7 +33,7 @@ void *_pmath_atomic_lock_ptr(pmath_atomic_t *ptr) {
 
 PMATH_FORCE_INLINE
 void _pmath_atomic_unlock_ptr(pmath_atomic_t *ptr, void *value) {
-  assert((void*)ptr->_data == PMATH_INVALID_PTR);
+  assert((void *)ptr->_data == PMATH_INVALID_PTR);
   assert(value != PMATH_INVALID_PTR);
   
   pmath_atomic_write_release(ptr, (intptr_t)value);
@@ -60,26 +60,26 @@ pmath_t _pmath_object_atomic_read_start(
     invalid.s.tag        = PMATH_TAG_INVALID;
     invalid.s.u.as_int32 = 0;
     
-    value.as_bits = pmath_atomic_fetch_set((pmath_atomic_t*)&ptr->_data.as_bits, invalid.as_bits);
+    value.as_bits = pmath_atomic_fetch_set((pmath_atomic_t *)&ptr->_data.as_bits, invalid.as_bits);
     
     while(PMATH_AS_TAG(value) == PMATH_TAG_INVALID) {
       pmath_atomic_loop_nop();
       
-      value.as_bits = pmath_atomic_fetch_set((pmath_atomic_t*)&ptr->_data.as_bits, invalid.as_bits);
+      value.as_bits = pmath_atomic_fetch_set((pmath_atomic_t *)&ptr->_data.as_bits, invalid.as_bits);
     }
     
   }
 #else
   {
-    value.s.tag = pmath_atomic_fetch_set((pmath_atomic_t*)&ptr->_data.s.tag, PMATH_TAG_INVALID);
+    value.s.tag = pmath_atomic_fetch_set((pmath_atomic_t *)&ptr->_data.s.tag, PMATH_TAG_INVALID);
   
     while(PMATH_AS_TAG(value) == PMATH_TAG_INVALID) {
       pmath_atomic_loop_nop();
   
-      value.s.tag = pmath_atomic_fetch_set((pmath_atomic_t*)&ptr->_data.s.tag, PMATH_TAG_INVALID);
+      value.s.tag = pmath_atomic_fetch_set((pmath_atomic_t *)&ptr->_data.s.tag, PMATH_TAG_INVALID);
     }
   
-    value.s.u.as_int32 = pmath_atomic_fetch_set((pmath_atomic_t*)&ptr->_data.s.u.as_int32, 0);
+    value.s.u.as_int32 = pmath_atomic_fetch_set((pmath_atomic_t *)&ptr->_data.s.u.as_int32, 0);
   
   }
 #endif
@@ -100,15 +100,15 @@ void _pmath_object_atomic_read_end(
     invalid.s.tag        = PMATH_TAG_INVALID;
     invalid.s.u.as_int32 = 0;
     
-    if(!pmath_atomic_compare_and_set((pmath_atomic_t*)&ptr->_data.as_bits, invalid.as_bits, value.as_bits))
+    if(!pmath_atomic_compare_and_set((pmath_atomic_t *)&ptr->_data.as_bits, invalid.as_bits, value.as_bits))
       pmath_unref(value);
   }
 #else
   {
     assert(PMATH_AS_TAG(ptr->_data) == PMATH_TAG_INVALID);
   
-    (void)pmath_atomic_fetch_set((pmath_atomic_t*)&ptr->_data.s.u.as_int32, value.s.u.as_int32);
-    (void)pmath_atomic_fetch_set((pmath_atomic_t*)&ptr->_data.s.tag,        value.s.tag);
+    (void)pmath_atomic_fetch_set((pmath_atomic_t *)&ptr->_data.s.u.as_int32, value.s.u.as_int32);
+    (void)pmath_atomic_fetch_set((pmath_atomic_t *)&ptr->_data.s.tag,        value.s.tag);
   
   }
 #endif
@@ -137,14 +137,9 @@ void _pmath_object_atomic_write(
   
 #if PMATH_BITSIZE == 64
   {
-    pmath_t invalid;
-    
-    invalid.s.tag = PMATH_TAG_INVALID;
-    invalid.s.u.as_int32 = 0;
-    
     old.as_bits = pmath_atomic_fetch_set(
-                    (pmath_atomic_t*)&ptr->_data.as_bits,
-                    invalid.as_bits);
+                    (pmath_atomic_t *)&ptr->_data.as_bits,
+                    value.as_bits);
                     
     if(PMATH_AS_TAG(old) != PMATH_TAG_INVALID)
       pmath_unref(old);
@@ -163,12 +158,12 @@ void _pmath_object_atomic_write(
 PMATH_FORCE_INLINE
 void *_pmath_atomic_global_need(
   pmath_atomic_t *ptr,
-  void *(*create_default)(void),
-  void (*ref)(void*)
+  void * (*create_default)(void),
+  void (*ref)(void *)
 ) {
   void *result;
   do {
-    result = (void*)pmath_atomic_fetch_set(ptr, (intptr_t)PMATH_INVALID_PTR);
+    result = (void *)pmath_atomic_fetch_set(ptr, (intptr_t)PMATH_INVALID_PTR);
   } while(result == PMATH_INVALID_PTR);
   
   if(result)
@@ -186,7 +181,7 @@ PMATH_FORCE_INLINE
 void *_pmath_atomic_global_done(
   pmath_atomic_t *ptr,
   void *expected_value,
-  void *(*decref)(void*)  // does not free its argument
+  void * (*decref)(void *) // does not free its argument
 ) {
   void *value;
   
@@ -196,7 +191,7 @@ void *_pmath_atomic_global_done(
   assert(expected_value != PMATH_INVALID_PTR);
   
   do {
-    value = (void*)pmath_atomic_fetch_set(ptr, (intptr_t)PMATH_INVALID_PTR);
+    value = (void *)pmath_atomic_fetch_set(ptr, (intptr_t)PMATH_INVALID_PTR);
   } while(value != expected_value); // value == PMATH_INVALID_PTR
   
   pmath_atomic_write_release(ptr, (intptr_t)decref(value));

@@ -17,7 +17,7 @@
 #define PMATH_VALID_TYPE_SHIFT(ts)  (((unsigned int)ts) < PMATH_TYPE_SHIFT_COUNT)
 
 #ifdef _MSC_VER
-#define snprintf sprintf_s
+#  define snprintf sprintf_s
 #endif
 
 typedef struct {

@@ -70,8 +70,8 @@ PMATH_PRIVATE
 void _pmath_event_timedwait(pmath_event_t *event, double abs_timeout) {
   struct timespec ts;
 
-  ts.tv_sec  = (time_t)abs_timeout;
-  ts.tv_nsec = (long)fmod(abs_timeout * 1e9, 1e9);
+  ts.tv_sec  = (time_t)floor(abs_timeout);
+  ts.tv_nsec = (long)((abs_timeout - ts.tv_sec) * 1e9);//(long)fmod(abs_timeout * 1.0e9, 1.0e9);
 
   pthread_mutex_lock(&event->mutex);
 

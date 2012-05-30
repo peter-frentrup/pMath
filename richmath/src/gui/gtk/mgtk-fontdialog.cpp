@@ -15,117 +15,123 @@ using namespace pmath;
 static Expr font_chooser_dialog_show(SharedPtr<Style> initial_style) {
   GtkFontChooserDialog *dialog;
   GtkFontChooser       *chooser;
-  
+
   GtkWindow *parent_window = 0;
   Box *box = Application::get_evaluation_box();
   if(box) {
     Document *doc = box->find_parent<Document>(true);
-    
+
     if(doc) {
       MathGtkWidget *widget = dynamic_cast<MathGtkWidget *>(doc->native());
-      
+
       if(widget) {
         GtkWidget *wid = widget->widget();
-        
+
         if(wid)
           parent_window = GTK_WINDOW(gtk_widget_get_ancestor(wid, GTK_TYPE_WINDOW));
       }
     }
   }
-  
+
   dialog  = GTK_FONT_CHOOSER_DIALOG(gtk_font_chooser_dialog_new(NULL, parent_window));
   chooser = GTK_FONT_CHOOSER(dialog);
-  
+
   if(initial_style) {
     PangoFontDescription *desc;
     char                 *utf8_name = 0;
-    
+
     desc = pango_font_description_new();
-    
+
     String family;
     if(initial_style->get(FontFamily, &family)) {
       char *utf8_name = pmath_string_to_utf8(family.get_as_string(), NULL);
       if(utf8_name)
         pango_font_description_set_family_static(desc, utf8_name);
     }
-    
+
     float size = 0;
     if(initial_style->get(FontSize, &size) && size >= 1) {
       pango_font_description_set_absolute_size(desc, size * PANGO_SCALE);
     }
-    
+
     int weight = FontWeightPlain;
     int slant  = FontSlantPlain;
-    
+
     bool has_weight = initial_style->get(FontWeight, &weight);
     bool has_slant  = initial_style->get(FontSlant, &slant);
     if(has_weight || has_slant) {
       pango_font_description_set_style( desc, slant  != FontSlantPlain ? PANGO_STYLE_ITALIC : PANGO_STYLE_NORMAL);
       pango_font_description_set_weight(desc, weight >= FontWeightBold ? PANGO_WEIGHT_BOLD  : PANGO_WEIGHT_NORMAL);
     }
-    
+
     gtk_font_chooser_set_font_desc(chooser, desc);
-    
+
     pango_font_description_free(desc);
     pmath_mem_free(utf8_name);
   }
-  
+
   int result = gtk_dialog_run(GTK_DIALOG(dialog));
-  
+
   switch(result) {
     case GTK_RESPONSE_ACCEPT:
     case GTK_RESPONSE_OK: {
         SharedPtr<Style> result_style = new Style();
-        
+
         PangoFontDescription *desc;
-        
+
         desc = gtk_font_chooser_get_font_desc(chooser);
         if(desc) {
           PangoFontMask set_fields = pango_font_description_get_set_fields(desc);
-          
+
           const char *utf8_name = pango_font_description_get_family(desc);
           if(utf8_name)
             result_style->set(FontFamily, String::FromUtf8(utf8_name));
-            
+
           if(set_fields & PANGO_FONT_MASK_WEIGHT) {
             PangoWeight weight = pango_font_description_get_weight(desc);
-            
+
             result_style->set(FontWeight, weight >= PANGO_WEIGHT_BOLD ? FontWeightBold  : FontWeightPlain);
           }
-          
+
           if(set_fields & PANGO_FONT_MASK_STYLE) {
             PangoStyle style = pango_font_description_get_style(desc);
-            
+
             result_style->set(FontSlant, style == PANGO_STYLE_NORMAL ? FontSlantPlain : FontSlantItalic);
           }
-          
+
           if(set_fields & PANGO_FONT_MASK_SIZE) {
             int size = pango_font_description_get_size(desc);
-            
+
             if(size > 0)
               result_style->set(FontSize, (float)size / PANGO_SCALE);
           }
-          
+
           pango_font_description_free(desc);
         }
-        
+
         gtk_widget_destroy(GTK_WIDGET(dialog));
-        
+
         Gather g;
         result_style->emit_to_pmath(false);
         return g.end();
       }
   }
-  
+
   //if(err)
   //  return Symbol(PMATH_SYMBOL_ABORTED);
-  
+
   gtk_widget_destroy(GTK_WIDGET(dialog));
-  
+
   return Symbol(PMATH_SYMBOL_CANCELED);
 }
 
 #else
+
+#if !GTK_CHECK_VERSION(2,22,0)
+static GtkWidget *gtk_font_selection_dialog_get_font_selection(GtkFontSelectionDialog *fsd){
+  return fsd->fontsel;
+}
+#endif
 
 static Expr font_selection_dialog_show(SharedPtr<Style> initial_style) {
   GtkFontSelectionDialog *dialog;

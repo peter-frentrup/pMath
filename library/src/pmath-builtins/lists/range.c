@@ -19,7 +19,7 @@ PMATH_PRIVATE pmath_bool_t extract_number(
     *num = max;
     return TRUE;
   }
-  
+
   if(pmath_is_int32(number)) {
     if(PMATH_AS_INT32(number) < 0) {
       *num = (unsigned) - PMATH_AS_INT32(number);
@@ -30,13 +30,13 @@ PMATH_PRIVATE pmath_bool_t extract_number(
     }
     else
       *num = PMATH_AS_INT32(number);
-      
+
     return TRUE;
   }
-  
+
   if(!pmath_is_mpint(number))
     return FALSE;
-    
+
   if(mpz_cmpabs_ui(PMATH_AS_MPZ(number), ULONG_MAX) > 0) {
     if(mpz_sgn(PMATH_AS_MPZ(number)) < 0)
       *num = SIZE_MAX;
@@ -52,7 +52,7 @@ PMATH_PRIVATE pmath_bool_t extract_number(
         *num = max + 1 - *num;
     }
   }
-  
+
   return TRUE;
 }
 
@@ -64,7 +64,7 @@ PMATH_PRIVATE pmath_bool_t extract_range(
 ) {
   if(pmath_is_expr_of_len(range, PMATH_SYMBOL_RANGE, 2)) {
     pmath_t obj = pmath_expr_get_item(range, 1);
-    
+
     if( !pmath_same(obj, PMATH_SYMBOL_AUTOMATIC) &&
         !extract_number(obj, *max, min))
     {
@@ -72,7 +72,7 @@ PMATH_PRIVATE pmath_bool_t extract_range(
       return FALSE;
     }
     pmath_unref(obj);
-    
+
     obj = pmath_expr_get_item(range, 2);
     if( !pmath_same(obj, PMATH_SYMBOL_AUTOMATIC) &&
         !extract_number(obj, *max, max))
@@ -81,10 +81,10 @@ PMATH_PRIVATE pmath_bool_t extract_range(
       return FALSE;
     }
     pmath_unref(obj);
-    
+
     return TRUE;
   }
-  
+
   if(change_min_on_number) {
     pmath_bool_t result = extract_number(range, *max, min);
     *max = *min;
@@ -95,7 +95,7 @@ PMATH_PRIVATE pmath_bool_t extract_range(
     pmath_bool_t result = extract_number(range, SIZE_MAX, &tmp);
     if(tmp != SIZE_MAX)
       *max = tmp;
-      
+
     return result;
   }
 }
@@ -109,11 +109,11 @@ PMATH_PRIVATE pmath_bool_t extract_delta_range(
   pmath_t count_obj = PMATH_NULL;
   *start = *delta = PMATH_NULL;
   *count = 0;
-  
+
   if(pmath_is_expr_of_len(range, PMATH_SYMBOL_RANGE, 2)) {
     *start = pmath_expr_get_item(range, 1);
     *delta = INT(1);
-    
+
     count_obj = PLUS3( // end + 1 - start
                   pmath_expr_get_item(range, 2),
                   INT(1),
@@ -122,7 +122,7 @@ PMATH_PRIVATE pmath_bool_t extract_delta_range(
   else if(pmath_is_expr_of_len(range, PMATH_SYMBOL_RANGE, 3)) {
     *start = pmath_expr_get_item(range, 1);
     *delta = pmath_expr_get_item(range, 3);
-    
+
     count_obj = PLUS( // 1 + (end - start)/delta
                   INT(1),
                   DIV(
@@ -134,22 +134,22 @@ PMATH_PRIVATE pmath_bool_t extract_delta_range(
   else {
     *start = INT(1);
     *delta = INT(1);
-    
+
     count_obj = pmath_ref(range);
   }
-  
+
   count_obj = pmath_evaluate(FUNC(pmath_ref(PMATH_SYMBOL_FLOOR), count_obj));
-  
+
   if(!pmath_is_int32(count_obj)) {
     pmath_unref(count_obj);
     return FALSE;
   }
-  
+
   if(PMATH_AS_INT32(count_obj) < 0) {
     *count = 0;
     return TRUE;
   }
-  
+
   *count = (unsigned)PMATH_AS_INT32(count_obj);
   return TRUE;
 }
@@ -167,26 +167,26 @@ pmath_bool_t _pmath_extract_longrange(
     *step  = 1;
     return TRUE;
   }
-  
+
   if(pmath_is_int32(range)) {
     *end  = PMATH_AS_INT32(range);
     *step = 1;
-    
+
     if(*end < 0) {
       *start = *end;
       *end   = -1;
     }
     else
       *start = 1;
-      
+
     return TRUE;
   }
-  
+
   if(pmath_is_expr_of_len(range, PMATH_SYMBOL_RANGE, 2)) {
     pmath_t a = pmath_expr_get_item(range, 1);
     pmath_t b = pmath_expr_get_item(range, 2);
     *step = 1;
-    
+
     if(pmath_is_int32(a)) {
       *start = PMATH_AS_INT32(a);
     }
@@ -198,7 +198,7 @@ pmath_bool_t _pmath_extract_longrange(
       pmath_unref(b);
       return FALSE;
     }
-    
+
     if(pmath_is_int32(b)) {
       *end = PMATH_AS_INT32(b);
     }
@@ -210,17 +210,17 @@ pmath_bool_t _pmath_extract_longrange(
       pmath_unref(b);
       return FALSE;
     }
-    
+
     pmath_unref(a);
     pmath_unref(b);
     return TRUE;
   }
-  
+
   if(pmath_is_expr_of_len(range, PMATH_SYMBOL_RANGE, 3)) {
     pmath_t a = pmath_expr_get_item(range, 1);
     pmath_t b = pmath_expr_get_item(range, 2);
     pmath_t c = pmath_expr_get_item(range, 3);
-    
+
     if(pmath_is_int32(c)) {
       *step = PMATH_AS_INT32(c);
     }
@@ -230,7 +230,7 @@ pmath_bool_t _pmath_extract_longrange(
       pmath_unref(c);
       return FALSE;
     }
-    
+
     if(pmath_is_int32(a)) {
       *start = PMATH_AS_INT32(a);
     }
@@ -243,7 +243,7 @@ pmath_bool_t _pmath_extract_longrange(
       pmath_unref(c);
       return FALSE;
     }
-    
+
     if(pmath_is_int32(b)) {
       *end = PMATH_AS_INT32(b);
     }
@@ -256,13 +256,13 @@ pmath_bool_t _pmath_extract_longrange(
       pmath_unref(c);
       return FALSE;
     }
-    
+
     pmath_unref(a);
     pmath_unref(b);
     pmath_unref(c);
     return TRUE;
   }
-  
+
   return FALSE;
 }
 
@@ -270,6 +270,6 @@ PMATH_PRIVATE pmath_t builtin_range(pmath_expr_t expr) {
   size_t exprlen = pmath_expr_length(expr);
   if(exprlen < 2 || exprlen > 3)
     pmath_message_argxxx(exprlen, 2, 3);
-    
+
   return expr;
 }

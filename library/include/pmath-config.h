@@ -172,8 +172,6 @@
    endianness       PMATH_BYTE_ORDER = -1 (little endian)  or = +1 (big endian)
    bits per word    PMATH_32BIT or PMATH_64BIT
                     PMATH_BITSIZE stores value (32 or 64)
-
-   bits per int     PMATH_INT_32BIT or PMATH_INT_64BIT
  */
 #if  (defined(__amd64__)  || \
       defined(__amd64)    || \
@@ -184,11 +182,6 @@
 #  define PMATH_64BIT                    1
 #  define PMATH_BITSIZE                 64
 #  define PMATH_BYTE_ORDER             (-1)
-#  ifdef PMATH_OS_WIN32
-#    define PMATH_INT_32BIT              1
-#  else
-#    define PMATH_INT_64BIT              1
-#  endif
 #elif (defined(i386)          || \
        defined(__i386__)      || \
        defined(_M_IX86)       || \
@@ -201,7 +194,6 @@
 #  define PMATH_32BIT                    1
 #  define PMATH_BITSIZE                 32
 #  define PMATH_BYTE_ORDER             (-1)
-#  define PMATH_INT_32BIT                1
 #elif (defined(sparc)       || \
        defined(__sparc)     || \
        defined(__sparc__)   || \
@@ -215,12 +207,10 @@
 #    define PMATH_SPARC64                1
 #    define PMATH_BITSIZE               64
 #    define PMATH_64BIT                  1
-#    define PMATH_INT_64BIT              1
 #  else
 #    define PMATH_SPARC32                1
 #    define PMATH_BITSIZE               32
 #    define PMATH_32BIT                  1
-#    define PMATH_INT_32BIT              1
 #  endif
 #endif
 
