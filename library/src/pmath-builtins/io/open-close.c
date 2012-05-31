@@ -642,7 +642,6 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr) {
     file = open_bin_file(file, kind);
     
   pmath_unref(options);
-  pmath_unref(expr);
   
   if(pmath_is_null(file)) {
     pmath_message(
@@ -650,7 +649,8 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr) {
       pmath_expr_get_item(expr, 1));
       
     pmath_unref(encoding);
-    
+    pmath_unref(page_width);
+    pmath_unref(expr);
     return pmath_ref(PMATH_SYMBOL_FAILED);
   }
   
@@ -691,6 +691,8 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr) {
     else {
       pmath_unref(file);
       pmath_unref(encoding);
+      pmath_unref(page_width);
+      pmath_unref(expr);
       return PMATH_NULL;
     }
     
@@ -700,7 +702,8 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr) {
         pmath_expr_get_item(expr, 1));
         
       pmath_unref(encoding);
-      
+      pmath_unref(page_width);
+      pmath_unref(expr);
       return pmath_ref(PMATH_SYMBOL_FAILED);
     }
     
@@ -725,6 +728,6 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr) {
   
   pmath_unref(encoding);
   pmath_unref(page_width);
-  
+  pmath_unref(expr);
   return file;
 }

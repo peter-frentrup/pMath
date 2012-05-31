@@ -1,54 +1,42 @@
-Document(
-  {
+Document({
    Section(
     BoxData(
-     GridBox(
-      {
-       {
-        ButtonBox({"\[SelectionPlaceholder]", 
+     GridBox({
+       {ButtonBox({"\[SelectionPlaceholder]", 
           SuperscriptBox("\[Placeholder]")}), "\[SpanFromLeft]", 
         "\[SpanFromLeft]", ButtonBox(FractionBox("\[SelectionPlaceholder]", 
-          "\[Placeholder]")), 
-        "\[SpanFromLeft]"}, {ButtonBox(SqrtBox("\[SelectionPlaceholder]")), 
-        "\[SpanFromLeft]", "\[SpanFromLeft]", 
-        ButtonBox(RadicalBox("\[SelectionPlaceholder]", "\[Placeholder]")), 
-        "\[SpanFromLeft]"}, 
-       {ButtonBox({"\[Integral]", "\[SelectionPlaceholder]", 
+          "\[Placeholder]")), "\[SpanFromLeft]"}, {
+        ButtonBox(SqrtBox("\[SelectionPlaceholder]")), "\[SpanFromLeft]", 
+        "\[SpanFromLeft]", ButtonBox(RadicalBox("\[SelectionPlaceholder]", 
+          "\[Placeholder]")), "\[SpanFromLeft]"}, {
+        ButtonBox({"\[Integral]", "\[SelectionPlaceholder]", 
           "\[DifferentialD]", "\[Placeholder]"}), "\[SpanFromLeft]", 
         "\[SpanFromLeft]", 
         ButtonBox({"\[PartialD]", SubscriptBox("\[Placeholder]"), 
-          "\[SelectionPlaceholder]"}), "\[SpanFromLeft]"}, 
-       {
+          "\[SelectionPlaceholder]"}), "\[SpanFromLeft]"}, {
         ButtonBox({"\[Integral]", SubsuperscriptBox("\[SelectionPlaceholder]", 
            "\[Placeholder]"), "\[Placeholder]", "\[DifferentialD]", 
-          "\[Placeholder]"}), "\[SpanFromLeft]", 
-        "\[SpanFromLeft]", 
-        ButtonBox(
-         {"\[PartialD]", SubscriptBox({"\[Placeholder]", ",", 
-            "\[Placeholder]"}), "\[SelectionPlaceholder]"}), 
-        "\[SpanFromLeft]"}, 
-       {
-        ButtonBox(
-         {UnderoverscriptBox("\[Sum]", {"\[SelectionPlaceholder]", "=", 
-            "\[Placeholder]"}, "\[Placeholder]"), "\[Placeholder]"}), 
-        "\[SpanFromLeft]", 
+          "\[Placeholder]"}), "\[SpanFromLeft]", "\[SpanFromLeft]", 
+        ButtonBox({"\[PartialD]", 
+          SubscriptBox({"\[Placeholder]", ",", "\[Placeholder]"}), 
+          "\[SelectionPlaceholder]"}), "\[SpanFromLeft]"}, {
+        ButtonBox({UnderoverscriptBox("\[Sum]", {
+            "\[SelectionPlaceholder]", "=", "\[Placeholder]"}, 
+           "\[Placeholder]"), "\[Placeholder]"}), "\[SpanFromLeft]", 
         "\[SpanFromLeft]", 
         ButtonBox({UnderoverscriptBox("\[Product]", {
             "\[SelectionPlaceholder]", "=", "\[Placeholder]"}, 
            "\[Placeholder]"), "\[Placeholder]"}), "\[SpanFromLeft]"}, {
-        StyleBox(
-         ButtonBox(
-          {"(", GridBox({{"\[Placeholder]", "\[Placeholder]"}, {
+        StyleBox(ButtonBox({"(", GridBox({{"\[Placeholder]", "\[Placeholder]"}, {
               "\[Placeholder]", "\[Placeholder]"}}), ")"}), 
          GridBoxColumnSpacing -> 0.20000000298023224`, 
          GridBoxRowSpacing -> 0.25`), "\[SpanFromLeft]", "\[SpanFromLeft]", 
-        StyleBox(
-         ButtonBox(
-          {"\[Piecewise]", GridBox({{"\[Placeholder]", "\[Placeholder]"}, {
+        StyleBox(ButtonBox({"\[Piecewise]", 
+           GridBox({{"\[Placeholder]", "\[Placeholder]"}, {
               "\[Placeholder]", "\[Placeholder]"}})}), 
          GridBoxColumnSpacing -> 0.20000000298023224`, 
-         GridBoxRowSpacing -> 0.25`), "\[SpanFromLeft]"}, 
-       {TooltipBox(ButtonBox("\[Pi]"), 
+         GridBoxRowSpacing -> 0.25`), "\[SpanFromLeft]"}, {
+        TooltipBox(ButtonBox("\[Pi]"), 
          "\"\[AliasDelimiter]p\[AliasDelimiter]\""), 
         TooltipBox(ButtonBox("\[ExponentialE]"), 
          "\"\[AliasDelimiter]ee\[AliasDelimiter]\""), 
@@ -57,8 +45,8 @@ Document(
         TooltipBox(ButtonBox("\[Infinity]"), 
          "\"\[AliasDelimiter]inf\[AliasDelimiter]\""), 
         TooltipBox(ButtonBox("\[Degree]"), 
-         "\"\[AliasDelimiter]deg\[AliasDelimiter]\"")}, 
-       {TooltipBox(ButtonBox("\[Times]"), 
+         "\"\[AliasDelimiter]deg\[AliasDelimiter]\"")}, {
+        TooltipBox(ButtonBox("\[Times]"), 
          "\"\[AliasDelimiter]*\[AliasDelimiter]\""), 
         TooltipBox(ButtonBox("\[Dot]"), 
          "\"\[AliasDelimiter].\[AliasDelimiter]\""), 
@@ -67,8 +55,8 @@ Document(
         TooltipBox(ButtonBox("\[Cross]"), 
          "\"\[AliasDelimiter]cross\[AliasDelimiter]\""), 
         TooltipBox(ButtonBox("\[PlusMinus]"), 
-         "\"\[AliasDelimiter]+-\[AliasDelimiter]\"")}, 
-       {TooltipBox(ButtonBox("\[Rule]"), 
+         "\"\[AliasDelimiter]+-\[AliasDelimiter]\"")}, {
+        TooltipBox(ButtonBox("\[Rule]"), 
          "\"\[AliasDelimiter]->\[AliasDelimiter]\""), 
         TooltipBox(ButtonBox("\[RuleDelayed]"), 
          "\"\[AliasDelimiter]:>\[AliasDelimiter]\""), 
@@ -77,8 +65,8 @@ Document(
         TooltipBox(ButtonBox("\u21D2"), 
          "\"\[AliasDelimiter]=>\[AliasDelimiter]\""), 
         TooltipBox(ButtonBox("\u21D4"), 
-         "\"\[AliasDelimiter]<=>\[AliasDelimiter]\"")}, 
-       {TooltipBox(ButtonBox("\[NotEqual]"), 
+         "\"\[AliasDelimiter]<=>\[AliasDelimiter]\"")}, {
+        TooltipBox(ButtonBox("\[NotEqual]"), 
          "\"\[AliasDelimiter]!=\[AliasDelimiter]\""), 
         TooltipBox(ButtonBox("\[LessEqual]"), 
          "\"\[AliasDelimiter]<=\[AliasDelimiter]\""), 
@@ -87,8 +75,8 @@ Document(
         TooltipBox(ButtonBox("\[Element]"), 
          "\"\[AliasDelimiter]elem\[AliasDelimiter]\""), 
         TooltipBox(ButtonBox("\[NotElement]"), 
-         "\"\[AliasDelimiter]!elem\[AliasDelimiter]\"")}, 
-       {TooltipBox(ButtonBox("\[Not]"), 
+         "\"\[AliasDelimiter]!elem\[AliasDelimiter]\"")}, {
+        TooltipBox(ButtonBox("\[Not]"), 
          "\"\[AliasDelimiter]!\[AliasDelimiter]\""), 
         TooltipBox(ButtonBox("\[And]"), 
          "\"\[AliasDelimiter]and\[AliasDelimiter]\""), 
@@ -97,8 +85,8 @@ Document(
         TooltipBox(ButtonBox("\[Intersection]"), 
          "\"\[AliasDelimiter]inter\[AliasDelimiter]\""), 
         TooltipBox(ButtonBox("\[Union]"), 
-         "\"\[AliasDelimiter]un\[AliasDelimiter]\"")}, 
-       {TooltipBox(ButtonBox("\[Alpha]"), 
+         "\"\[AliasDelimiter]un\[AliasDelimiter]\"")}, {
+        TooltipBox(ButtonBox("\[Alpha]"), 
          "\"\[AliasDelimiter]a\[AliasDelimiter]\""), 
         TooltipBox(ButtonBox("\[Beta]"), 
          "\"\[AliasDelimiter]b\[AliasDelimiter]\""), 
@@ -107,8 +95,8 @@ Document(
         TooltipBox(ButtonBox("\[Delta]"), 
          "\"\[AliasDelimiter]d\[AliasDelimiter]\""), 
         TooltipBox(ButtonBox("\[CurlyEpsilon]"), 
-         "\"\[AliasDelimiter]ce\[AliasDelimiter]\"")}, 
-       {TooltipBox(ButtonBox("\[Zeta]"), 
+         "\"\[AliasDelimiter]ce\[AliasDelimiter]\"")}, {
+        TooltipBox(ButtonBox("\[Zeta]"), 
          "\"\[AliasDelimiter]z\[AliasDelimiter]\""), 
         TooltipBox(ButtonBox("\[Eta]"), 
          "\"\[AliasDelimiter]h\[AliasDelimiter]\""), 
@@ -117,8 +105,8 @@ Document(
         TooltipBox(ButtonBox("\[CurlyTheta]"), 
          "\"\[AliasDelimiter]cq\[AliasDelimiter]\""), 
         TooltipBox(ButtonBox("\[Iota]"), 
-         "\"\[AliasDelimiter]i\[AliasDelimiter]\"")}, 
-       {TooltipBox(ButtonBox("\[Kappa]"), 
+         "\"\[AliasDelimiter]i\[AliasDelimiter]\"")}, {
+        TooltipBox(ButtonBox("\[Kappa]"), 
          "\"\[AliasDelimiter]k\[AliasDelimiter]\""), 
         TooltipBox(ButtonBox("\[Lambda]"), 
          "\"\[AliasDelimiter]l\[AliasDelimiter]\""), 
@@ -127,8 +115,8 @@ Document(
         TooltipBox(ButtonBox("\[Nu]"), 
          "\"\[AliasDelimiter]n\[AliasDelimiter]\""), 
         TooltipBox(ButtonBox("\[Xi]"), 
-         "\"\[AliasDelimiter]x\[AliasDelimiter]\"")}, 
-       {TooltipBox(ButtonBox("\[Pi]"), 
+         "\"\[AliasDelimiter]x\[AliasDelimiter]\"")}, {
+        TooltipBox(ButtonBox("\[Pi]"), 
          "\"\[AliasDelimiter]p\[AliasDelimiter]\""), 
         TooltipBox(ButtonBox("\[Rho]"), 
          "\"\[AliasDelimiter]r\[AliasDelimiter]\""), 
@@ -137,8 +125,8 @@ Document(
         TooltipBox(ButtonBox("\[FinalSigma]"), 
          "\"\[AliasDelimiter]varsigma\[AliasDelimiter]\""), 
         TooltipBox(ButtonBox("\[Upsilon]"), 
-         "\"\[AliasDelimiter]u\[AliasDelimiter]\"")}, 
-       {TooltipBox(ButtonBox("\[CurlyPhi]"), 
+         "\"\[AliasDelimiter]u\[AliasDelimiter]\"")}, {
+        TooltipBox(ButtonBox("\[CurlyPhi]"), 
          "\"\[AliasDelimiter]j\[AliasDelimiter]\""), 
         TooltipBox(ButtonBox("\[Phi]"), 
          "\"\[AliasDelimiter]f\[AliasDelimiter]\""), 
@@ -147,8 +135,8 @@ Document(
         TooltipBox(ButtonBox("\[Psi]"), 
          "\"\[AliasDelimiter]y\[AliasDelimiter]\""), 
         TooltipBox(ButtonBox("\[Omega]"), 
-         "\"\[AliasDelimiter]w\[AliasDelimiter]\"")}, 
-       {TooltipBox(ButtonBox("\[CapitalGamma]"), 
+         "\"\[AliasDelimiter]w\[AliasDelimiter]\"")}, {
+        TooltipBox(ButtonBox("\[CapitalGamma]"), 
          "\"\[AliasDelimiter]G\[AliasDelimiter]\""), 
         TooltipBox(ButtonBox("\[CapitalDelta]"), 
          "\"\[AliasDelimiter]D\[AliasDelimiter]\""), 
@@ -157,8 +145,8 @@ Document(
         TooltipBox(ButtonBox("\[CapitalLambda]"), 
          "\"\[AliasDelimiter]L\[AliasDelimiter]\""), 
         TooltipBox(ButtonBox("\[CapitalXi]"), 
-         "\"\[AliasDelimiter]X\[AliasDelimiter]\"")}, 
-       {TooltipBox(ButtonBox("\[CapitalPi]"), 
+         "\"\[AliasDelimiter]X\[AliasDelimiter]\"")}, {
+        TooltipBox(ButtonBox("\[CapitalPi]"), 
          "\"\[AliasDelimiter]P\[AliasDelimiter]\""), 
         TooltipBox(ButtonBox("\[CapitalSigma]"), 
          "\"\[AliasDelimiter]S\[AliasDelimiter]\""), 
@@ -167,8 +155,7 @@ Document(
         TooltipBox(ButtonBox("\[CapitalPsi]"), 
          "\"\[AliasDelimiter]Y\[AliasDelimiter]\""), 
         TooltipBox(ButtonBox("\[CapitalOmega]"), 
-         "\"\[AliasDelimiter]W\[AliasDelimiter]\"")}, 
-       {
+         "\"\[AliasDelimiter]W\[AliasDelimiter]\"")}, {
         ButtonBox({"\[SelectionPlaceholder]", 
           SubscriptBox("\[Placeholder]")}), 
         ButtonBox({"\[SelectionPlaceholder]", 
@@ -177,9 +164,9 @@ Document(
           "\[Placeholder]")), 
         ButtonBox(OverscriptBox("\[SelectionPlaceholder]", "\[Placeholder]")), 
         ButtonBox(UnderoverscriptBox("\[SelectionPlaceholder]", 
-          "\[Placeholder]", "\[Placeholder]"))}})), 
-    "Output", ButtonFrame -> "Palette", ButtonFunction -> (DocumentApply(
+          "\[Placeholder]", "\[Placeholder]"))}})), "Output", 
+    ButtonFrame -> "Palette", ButtonFunction -> (DocumentApply(
      SelectedDocument(), #1) &), FontSize -> 9, GridBoxColumnSpacing -> 0, 
     GridBoxRowSpacing -> 0, SectionMargins -> {0, 0, 0, 0}, 
-    SectionLabel -> "", ShowSectionBracket -> False)}, Editable -> False, 
-  Selectable -> False, WindowTitle -> "Math Input")
+    ShowSectionBracket -> False)}, Editable -> False, Selectable -> False, 
+  WindowFrame -> "Palette", WindowTitle -> "Math Input")
