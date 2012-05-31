@@ -44,11 +44,19 @@ namespace richmath {
     ShowStringCharacters,
     StripOnInput,
     
-    ButtonFrame // -1 = Automatic,  other: ContainerType value
+    ButtonFrame, // -1 = Automatic,  other: ContainerType value
+    WindowFrame  // WindowFrameType
   };
   
-  static const int FontWeightPlain = 0;
-  static const int FontWeightBold  = 100;
+  enum{
+    FontWeightPlain = 0,
+    FontWeightBold  = 100
+  };
+  
+  typedef enum {
+    WindowFrameNormal  = 0,
+    WindowFramePalette = 1
+  } WindowFrameType;
   
   static const float ImageSizeAutomatic = -1.0f;
   
@@ -90,7 +98,6 @@ namespace richmath {
     LanguageCategory,
     SectionLabel,
     
-    WindowFrame,
     WindowTitle
   };
   

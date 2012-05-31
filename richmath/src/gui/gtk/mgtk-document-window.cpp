@@ -19,7 +19,7 @@ class richmath::MathGtkWorkingArea: public MathGtkWidget {
   public:
     MathGtkWorkingArea(MathGtkDocumentWindow *parent)
       : MathGtkWidget(new Document()),
-      _parent(parent)
+        _parent(parent)
     {
     }
     
@@ -78,7 +78,9 @@ class richmath::MathGtkWorkingArea: public MathGtkWidget {
         int h = height();
         int w = width();
         if(h != rect.height || w != rect.width) {
-          _parent->is_palette(true); // GTK 3 shows the menu bar even if we said not to do so before
+          // GTK 3 shows the menu bar even if we said not to do so before,
+          // so we say it again.
+          _parent->reset_window_frame();
           
           _parent->set_gravity();
           gtk_widget_set_size_request(_widget, w, h);
@@ -101,7 +103,7 @@ class richmath::MathGtkDock: public MathGtkWidget {
   public:
     MathGtkDock(MathGtkDocumentWindow *parent)
       : MathGtkWidget(new Document()),
-      _parent(parent)
+        _parent(parent)
     {
     }
     
@@ -195,7 +197,7 @@ static void adjustment_changed_callback(
   GtkAdjustment *adjustment,
   void          *user_data
 ) {
-  MathGtkDocumentWindow *self = (MathGtkDocumentWindow*)user_data;
+  MathGtkDocumentWindow *self = (MathGtkDocumentWindow *)user_data;
   
   self->adjustment_changed(adjustment);
 }
@@ -204,13 +206,13 @@ static MathGtkDocumentWindow *_first_window = NULL;
 
 MathGtkDocumentWindow::MathGtkDocumentWindow()
   : BasicGtkWidget(),
-  _is_palette(false),
-  _menu_bar(0),
-  _hadjustment(GTK_ADJUSTMENT(gtk_adjustment_new(0, 0, 0, 0, 0, 0))),
-  _vadjustment(GTK_ADJUSTMENT(gtk_adjustment_new(0, 0, 0, 0, 0, 0))),
-  _hscrollbar(0),
-  _vscrollbar(0),
-  _table(0)
+    _window_frame(WindowFrameNormal),
+    _menu_bar(0),
+    _hadjustment(GTK_ADJUSTMENT(gtk_adjustment_new(0, 0, 0, 0, 0, 0))),
+    _vadjustment(GTK_ADJUSTMENT(gtk_adjustment_new(0, 0, 0, 0, 0, 0))),
+    _hscrollbar(0),
+    _vscrollbar(0),
+    _table(0)
 {
   _previous_rect.x = 0;
   _previous_rect.y = 0;
@@ -297,10 +299,10 @@ void MathGtkDocumentWindow::after_construction() {
     set_current_document(document());
   }
   
-  signal_connect<MathGtkDocumentWindow, GdkEvent*, &MathGtkDocumentWindow::on_configure>("configure-event");
-  signal_connect<MathGtkDocumentWindow, GdkEvent*, &MathGtkDocumentWindow::on_focus_in>("focus-in-event");
-  signal_connect<MathGtkDocumentWindow, GdkEvent*, &MathGtkDocumentWindow::on_focus_out>("focus-out-event");
-  signal_connect<MathGtkDocumentWindow, GdkEvent*, &MathGtkDocumentWindow::on_scroll>("scroll-event");
+  signal_connect<MathGtkDocumentWindow, GdkEvent *, &MathGtkDocumentWindow::on_configure>("configure-event");
+  signal_connect<MathGtkDocumentWindow, GdkEvent *, &MathGtkDocumentWindow::on_focus_in>("focus-in-event");
+  signal_connect<MathGtkDocumentWindow, GdkEvent *, &MathGtkDocumentWindow::on_focus_out>("focus-out-event");
+  signal_connect<MathGtkDocumentWindow, GdkEvent *, &MathGtkDocumentWindow::on_scroll>("scroll-event");
   
   title(String());
 }
@@ -358,10 +360,12 @@ MathGtkDocumentWindow::~MathGtkDocumentWindow() {
 
 void MathGtkDocumentWindow::invalidate_options() {
   String s = document()->get_style(WindowTitle, String());
-  
-  if(_title != s){
+  if(_title != s)
     title(s);
-  }
+    
+  WindowFrameType f = (WindowFrameType)document()->get_style(WindowFrame, _window_frame);
+  if(_window_frame != f)
+    window_frame(f);
 }
 
 void MathGtkDocumentWindow::title(String text) {
@@ -369,7 +373,7 @@ void MathGtkDocumentWindow::title(String text) {
   
   if(text.is_null())
     text = "untitled";
-  
+    
   if(!Application::is_idle(document()))
     text = String("Running... ") + text;
     
@@ -380,31 +384,49 @@ void MathGtkDocumentWindow::title(String text) {
   pmath_mem_free(str);
 }
 
-void MathGtkDocumentWindow::is_palette(bool value) {
-
+void MathGtkDocumentWindow::window_frame(WindowFrameType type) {
   if(!_widget) {
-    _is_palette = value;
+    _window_frame = type;
     return;
   }
   
-  gtk_window_set_resizable(   GTK_WINDOW(_widget), !value);
-  gtk_window_set_focus_on_map(GTK_WINDOW(_widget), !value);
+  gtk_window_set_resizable(   GTK_WINDOW(_widget), type == WindowFrameNormal);
+  gtk_window_set_focus_on_map(GTK_WINDOW(_widget), type == WindowFrameNormal);
   
-  gtk_widget_set_visible(_menu_bar, !value);
+  gtk_widget_set_visible(_menu_bar, type == WindowFrameNormal);
   
-  _working_area->document()->border_visible = !value;
-  _working_area->_autohide_vertical_scrollbar = value;
+  _working_area->document()->border_visible   = type == WindowFrameNormal;
+  _working_area->_autohide_vertical_scrollbar = type == WindowFramePalette;
   
-  if(_is_palette != value) {
+  if(_window_frame != type) {
     _working_area->invalidate();
     
-    if(value)
-      gtk_window_set_type_hint(GTK_WINDOW(_widget), GDK_WINDOW_TYPE_HINT_UTILITY);
-    else
-      gtk_window_set_type_hint(GTK_WINDOW(_widget), GDK_WINDOW_TYPE_HINT_NORMAL);
-      
-    _is_palette = value;
+    int x, y;
+    bool was_visible = gtk_widget_get_visible(_widget);
+    if(was_visible){
+      gtk_window_get_position(GTK_WINDOW(_widget), &x, &y);
+      gtk_widget_hide(_widget);
+    }
+    
+    switch(type) {
+      case WindowFrameNormal:
+        gtk_window_set_type_hint(        GTK_WINDOW(_widget), GDK_WINDOW_TYPE_HINT_UTILITY);
+        gtk_window_set_skip_taskbar_hint(GTK_WINDOW(_widget), true);
+        break;
+        
+      case WindowFramePalette:
+        gtk_window_set_type_hint(        GTK_WINDOW(_widget), GDK_WINDOW_TYPE_HINT_NORMAL);
+        gtk_window_set_skip_taskbar_hint(GTK_WINDOW(_widget), false);
+        break;
+    }
+    
+    if(was_visible){
+      gtk_widget_show(_widget);
+      gtk_window_move(GTK_WINDOW(_widget), x, y);
+    }
   }
+  
+  _window_frame = type;
 }
 
 void MathGtkDocumentWindow::run_menucommand(Expr cmd) {
@@ -481,14 +503,10 @@ void MathGtkDocumentWindow::set_gravity() {
     GdkRectangle outer;
     get_outer_rect(&outer);
     
-    pmath_debug_print("\nouter = (%d,%d,%d,%d)", outer.x, outer.y, outer.width, outer.height);
-    
     for(MathGtkDocumentWindow *win = next_window(); win != this; win = win->next_window()) {
       if(!win->is_palette()) {
         GdkRectangle rect;
         win->get_outer_rect(&rect);
-        
-        pmath_debug_print(", rect = (%d,%d,%d,%d)", rect.x, rect.y, rect.width, rect.height);
         
         int dx = SnapDistance;
         int dy = SnapDistance;
@@ -625,7 +643,7 @@ bool MathGtkDocumentWindow::test_rects_touch(const GdkRectangle &rect1, const Gd
     GDK_WINDOW_EDGE_SOUTH_WEST, GDK_WINDOW_EDGE_SOUTH, GDK_WINDOW_EDGE_SOUTH_EAST
   };
   
-  *edge = results[xdir+1 + 3*(ydir+1)];
+  *edge = results[xdir + 1 + 3 * (ydir + 1)];
   return true;
 }
 
@@ -640,11 +658,11 @@ void MathGtkDocumentWindow::move_palettes() {
   if(dx != 0 || dy != 0) {
     for(int i = 1; i < _snapped_documents.length(); ++i) {
       const DocumentPosition &pos = _snapped_documents[i];
-      Document *doc = dynamic_cast<Document*>(Box::find(pos.id));
+      Document *doc = dynamic_cast<Document *>(Box::find(pos.id));
       if(!doc)
         continue;
         
-      MathGtkWorkingArea *wid = dynamic_cast<MathGtkWorkingArea*>(doc->native());
+      MathGtkWorkingArea *wid = dynamic_cast<MathGtkWorkingArea *>(doc->native());
       if(!wid)
         continue;
         
@@ -659,7 +677,7 @@ void MathGtkDocumentWindow::move_palettes() {
 }
 
 bool MathGtkDocumentWindow::on_configure(GdkEvent *e) {
-  GdkEventConfigure *event = (GdkEventConfigure*)e;
+  GdkEventConfigure *event = (GdkEventConfigure *)e;
   
   GdkRectangle client_rect = {event->x, event->y, event->width, event->height};
   {
@@ -720,7 +738,7 @@ bool MathGtkDocumentWindow::on_focus_out(GdkEvent *e) {
 }
 
 bool MathGtkDocumentWindow::on_scroll(GdkEvent *e) {
-  GdkEventScroll *event = (GdkEventScroll*)e;
+  GdkEventScroll *event = (GdkEventScroll *)e;
   
   if(event->state & GDK_CONTROL_MASK) {
     if(event->direction == GDK_SCROLL_UP) {

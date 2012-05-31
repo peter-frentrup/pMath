@@ -383,7 +383,13 @@ void Style::add_pmath(Expr options) {
             set_pmath_object(TextShadow, rhs);
           }
           else if(lhs == PMATH_SYMBOL_WINDOWFRAME) {
-            set_pmath_string(WindowFrame, rhs);
+            String s_rhs(rhs);
+            if(s_rhs.equals("Normal"))
+              set(WindowFrame, WindowFrameNormal);
+            else if(s_rhs.equals("Palette"))
+              set(WindowFrame, WindowFramePalette);
+            else
+              set_dynamic(WindowFrame, rhs);
               
             set(InternalHasModifiedWindowOption, true);
           }
@@ -878,6 +884,7 @@ Expr Style::get_symbol(int n) {
     case StripOnInput:                        return Symbol(PMATH_SYMBOL_STRIPONINPUT);
     
     case ButtonFrame:                         return Symbol(PMATH_SYMBOL_BUTTONFRAME);
+    case WindowFrame:                         return Symbol(PMATH_SYMBOL_WINDOWFRAME);
   }
   
   switch(n) {
@@ -918,7 +925,6 @@ Expr Style::get_symbol(int n) {
     case LanguageCategory: return Symbol(PMATH_SYMBOL_LANGUAGECATEGORY);
     case SectionLabel:     return Symbol(PMATH_SYMBOL_SECTIONLABEL);
     
-    case WindowFrame:      return Symbol(PMATH_SYMBOL_WINDOWFRAME);
     case WindowTitle:      return Symbol(PMATH_SYMBOL_WINDOWTITLE);
   }
   
@@ -1643,10 +1649,20 @@ void Style::emit_to_pmath(bool with_inherited) {
                    get_symbol(WindowFrame),
                    e));
   }
-  else if(get(WindowFrame, &s)) {
-    Gather::emit(Rule(
-                   get_symbol(WindowFrame),
-                   s));
+  else if(get(WindowFrame, &i)) {
+    switch((WindowFrameType)i) {
+      case WindowFrameNormal:
+        Gather::emit(Rule(
+                       get_symbol(WindowFrame),
+                       String("Normal")));
+        break;
+        
+      case WindowFramePalette:
+        Gather::emit(Rule(
+                       get_symbol(WindowFrame),
+                       String("Palette")));
+        break;
+    }
   }
   
   if(get_dynamic(WindowTitle, &e)) {

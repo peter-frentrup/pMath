@@ -43,8 +43,8 @@ namespace richmath {
       void invalidate_options();
       void reset_title(){ title(_title); }
       
-      bool is_palette() { return _is_palette; }
-      void is_palette(bool value);
+      bool            is_palette() {   return _window_frame == WindowFramePalette; }
+      WindowFrameType window_frame() { return _window_frame; }
       
       virtual bool is_closed();
       
@@ -64,14 +64,14 @@ namespace richmath {
       Win32Menubar *menubar;
       bool creation;
       
-      bool _is_palette;
-      
-      String _title;
+      String          _title;
+      WindowFrameType _window_frame;
       
     protected:
       virtual void on_theme_changed();
       
-      void title(String text);
+      void title(       String          text);
+      void window_frame(WindowFrameType type);
       
       virtual LRESULT callback(UINT message, WPARAM wParam, LPARAM lParam);
   };

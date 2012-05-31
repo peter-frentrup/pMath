@@ -7,7 +7,6 @@
 - richmath: DocumentApply(..., Section(...)) does not work (same for SectionGroup)
 
 - add StyleDefinitions document option
-- respect WindowFrame option
 
 - add StyleData(...) and richmath::StyleSection class
 - allow creation of a richmath::Style from a richmath::StyleSection

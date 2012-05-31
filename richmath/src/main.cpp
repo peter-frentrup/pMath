@@ -338,7 +338,7 @@ static void init_stylesheet() {
   Style *s;
   
   s = new Style;
-  s->set(WindowFrame,                      "Normal");
+  s->set(WindowFrame,                      WindowFrameNormal);
   s->set(WindowTitle,                      String()); // === Automatic
   s->set(DefaultNewSectionStyle,           String("Input"));
   s->set(DefaultReturnCreatedSectionStyle, Symbol(PMATH_SYMBOL_AUTOMATIC));
@@ -764,7 +764,6 @@ int main(int argc, char **argv) {
     wndPalette->init();
     
     palette_doc = wndPalette->document();
-    wndPalette->is_palette(true);
     
     RECT rect;
     RECT pal_rect;
@@ -805,11 +804,11 @@ int main(int argc, char **argv) {
         0);
       wndInterrupt->init();
       
-      wndInterrupt->is_palette(true);
       Document *doc = wndInterrupt->document();
       
       doc->style->set(Editable,    false);
       doc->style->set(Selectable,  false);
+      doc->style->set(WindowFrame, WindowFramePalette);
       doc->style->set(WindowTitle, "Kernel Interrupt");
       
       write_section(doc, Evaluate(Parse(
@@ -849,7 +848,6 @@ int main(int argc, char **argv) {
     wndPalette->init();
     
     wndPalette->set_initial_rect(784, 50, 100, 100);
-    wndPalette->is_palette(true);
     
     palette_doc = wndPalette->document();
     
@@ -878,6 +876,7 @@ int main(int argc, char **argv) {
   if(palette_doc) {
     palette_doc->style->set(Editable,                        false);
     palette_doc->style->set(Selectable,                      false);
+    palette_doc->style->set(WindowFrame,                     WindowFramePalette);
     palette_doc->style->set(WindowTitle,                     "Math Input");
     palette_doc->style->set(InternalHasModifiedWindowOption, true);
     palette_doc->select(0, 0, 0);

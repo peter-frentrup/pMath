@@ -38,8 +38,8 @@ namespace richmath {
       void invalidate_options();
       void reset_title(){ title(_title); }
       
-      bool is_palette() { return _is_palette; }
-      void is_palette(bool value);
+      bool            is_palette() {   return _window_frame == WindowFramePalette; }
+      WindowFrameType window_frame() { return _window_frame; }
       
       void run_menucommand(Expr cmd);
       
@@ -61,6 +61,7 @@ namespace richmath {
       virtual void bring_to_front();
       virtual void close();
       
+      void reset_window_frame(){ window_frame(_window_frame); }
       void set_gravity();
       void set_initial_rect(int x, int y, int w, int h);
       
@@ -72,7 +73,8 @@ namespace richmath {
       void move_palettes();
       
     protected:
-      void title(String text);
+      void title(       String          text);
+      void window_frame(WindowFrameType type);
       
       virtual bool on_configure(GdkEvent *e);
       virtual bool on_focus_in(GdkEvent *e);
@@ -80,8 +82,9 @@ namespace richmath {
       virtual bool on_scroll(GdkEvent *e);
       
     private:
-      String _title;
-      bool _is_palette;
+      String          _title;
+      WindowFrameType _window_frame;
+      
       Array<DocumentPosition> _snapped_documents; // [0] = self
       
       GdkRectangle _previous_rect;

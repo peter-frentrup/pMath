@@ -495,7 +495,7 @@ Win32DocumentWindow::Win32DocumentWindow(
   _bottom_glass_area(0),
   menubar(0),
   creation(true),
-  _is_palette(false)
+  _window_frame(WindowFrameNormal)
 {
   _working_area = new Win32WorkingArea(
     doc,
@@ -581,7 +581,7 @@ Win32DocumentWindow::~Win32DocumentWindow() {
     bool have_only_palettes = true;
     FOREACH_WINDOW(win,
     {
-      if(win != this && !win->_is_palette) {
+      if(win != this && !win->is_palette()) {
         have_only_palettes = false;
         break;
       }
@@ -798,10 +798,12 @@ void Win32DocumentWindow::rearrange() {
 
 void Win32DocumentWindow::invalidate_options() {
   String s = document()->get_style(WindowTitle, String());
-  
-  if(_title != s) {
+  if(_title != s) 
     title(s);
-  }
+  
+  WindowFrameType f = (WindowFrameType)document()->get_style(WindowFrame, _window_frame);
+  if(_window_frame != f) 
+    window_frame(f);
 }
 
 void Win32DocumentWindow::title(String text) {
@@ -818,47 +820,55 @@ void Win32DocumentWindow::title(String text) {
   SetWindowTextW(_hwnd, (const WCHAR *)tmp.buffer());
 }
 
-void Win32DocumentWindow::is_palette(bool value) {
-  if(_is_palette == value)
-    return;
-    
-  _is_palette = value;
+void Win32DocumentWindow::window_frame(WindowFrameType type) {
+  _window_frame = type;
   
-  if(_is_palette) {
-    // tool window caption:
-    SetWindowLongW(_hwnd, GWL_EXSTYLE,
-                   GetWindowLongW(_hwnd, GWL_EXSTYLE) | WS_EX_TOOLWINDOW);
-                   
-    // in front of non-palettes:
-    zorder_level = 1;
-    
-    // also enable Minimize/Maximize in system menu:
-    SetWindowLongW(_hwnd, GWL_STYLE,
-                   GetWindowLongW(_hwnd, GWL_STYLE) & ~(WS_MAXIMIZEBOX | WS_MINIMIZEBOX));
-                   
-    menubar->appearence(MaNeverShow);
+  switch(_window_frame) {
+    case WindowFrameNormal:
+      {
+        _working_area->auto_size                    = false;
+        _working_area->document()->border_visible   = true;
+        _working_area->_autohide_vertical_scrollbar = false;
+        
+        // normal window caption:
+        SetWindowLongW(_hwnd, GWL_EXSTYLE,
+                       GetWindowLongW(_hwnd, GWL_EXSTYLE) & ~(WS_EX_TOOLWINDOW));
+                       
+        // behind palettes:
+        zorder_level = 0;
+        
+        // also enable Minimize/Maximize in system menu:
+        SetWindowLongW(_hwnd, GWL_STYLE,
+                       GetWindowLongW(_hwnd, GWL_STYLE) | (WS_MAXIMIZEBOX | WS_MINIMIZEBOX));
+                       
+        if(glass_enabled())
+          menubar->appearence(MaAutoShow);
+        else
+          menubar->appearence(MaAllwaysShow);
+      }
+      break;
+      
+    case WindowFramePalette:
+      {
+        _working_area->auto_size                    = true;
+        _working_area->document()->border_visible   = false;
+        _working_area->_autohide_vertical_scrollbar = true;
+        
+        // tool window caption:
+        SetWindowLongW(_hwnd, GWL_EXSTYLE,
+                       GetWindowLongW(_hwnd, GWL_EXSTYLE) | WS_EX_TOOLWINDOW);
+                       
+        // in front of non-palettes:
+        zorder_level = 1;
+        
+        // also enable Minimize/Maximize in system menu:
+        SetWindowLongW(_hwnd, GWL_STYLE,
+                       GetWindowLongW(_hwnd, GWL_STYLE) & ~(WS_MAXIMIZEBOX | WS_MINIMIZEBOX));
+                       
+        menubar->appearence(MaNeverShow);
+      }
+      break;
   }
-  else {
-    // normal window caption:
-    SetWindowLongW(_hwnd, GWL_EXSTYLE,
-                   GetWindowLongW(_hwnd, GWL_EXSTYLE) & ~(WS_EX_TOOLWINDOW));
-                   
-    // behind palettes:
-    zorder_level = 0;
-    
-    // also enable Minimize/Maximize in system menu:
-    SetWindowLongW(_hwnd, GWL_STYLE,
-                   GetWindowLongW(_hwnd, GWL_STYLE) | (WS_MAXIMIZEBOX | WS_MINIMIZEBOX));
-                   
-    if(glass_enabled())
-      menubar->appearence(MaAutoShow);
-    else
-      menubar->appearence(MaAllwaysShow);
-  }
-  
-  _working_area->auto_size = _is_palette;
-  _working_area->document()->border_visible = !_is_palette;
-  _working_area->_autohide_vertical_scrollbar = _is_palette;
   
   on_theme_changed();
 }
@@ -873,7 +883,7 @@ bool Win32DocumentWindow::is_closed() {
 void Win32DocumentWindow::on_theme_changed() {
   BasicWin32Window::on_theme_changed();
   
-  if(_is_palette)
+  if(is_palette())
     menubar->appearence(MaNeverShow);
   else if(glass_enabled())
     menubar->appearence(MaAutoShow);
@@ -883,7 +893,7 @@ void Win32DocumentWindow::on_theme_changed() {
   DWORD style_ex = GetWindowLongW(_working_area->hwnd(), GWL_EXSTYLE);
   if( (Win32Themes::IsCompositionActive &&
        Win32Themes::IsCompositionActive()) ||
-      _is_palette)
+      is_palette())
   {
     style_ex = style_ex & ~WS_EX_STATICEDGE;
   }
@@ -944,7 +954,7 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
             FOREACH_WINDOW(wnd,
             {
               if(wnd != this
-              && !wnd->_is_palette
+              && !wnd->is_palette()
               && IsWindowVisible(wnd->hwnd())
               && (GetWindowLongW(wnd->hwnd(), GWL_STYLE) & WS_MINIMIZE) == 0) {
                 have_only_palettes = false;
@@ -955,7 +965,7 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
             if(have_only_palettes) {
               FOREACH_WINDOW(tool,
               {
-                if(tool->_is_palette) {
+                if(tool->is_palette()) {
                   ShowWindow(tool->hwnd(), SW_HIDE);
                 }
               });
@@ -972,7 +982,7 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
             if(!already_activated) {
               FOREACH_WINDOW(wnd,
               {
-                if(!wnd->_is_palette) {
+                if(!wnd->is_palette()) {
                   SetWindowPos(wnd->hwnd(), HWND_TOP, 0, 0, 0, 0,
                   SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
                 }
