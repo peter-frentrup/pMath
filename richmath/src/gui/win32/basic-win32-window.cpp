@@ -1430,9 +1430,9 @@ static BOOL CALLBACK find_popup_callback(HWND hwnd, LPARAM lParam) {
     return TRUE;
     
   Win32Widget *wid = dynamic_cast<Win32Widget *>(BasicWin32Widget::from_hwnd(hwnd));
-  if(wid) 
+  if(wid)
     return TRUE;
-   
+    
   if(GetWindow(hwnd, GW_OWNER) != 0) {
     info->popup = hwnd;
     return FALSE;
@@ -1574,25 +1574,33 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
               }
             }
             
+            HDWP hdwp = BeginDeferWindowPos(all_higher.length());
+            
             /* Put the higher-level windows to the top again and place this window
                behind. */
             if(all_higher.length() > 0) {
               if(active_window == _hwnd)
                 pos->hwndInsertAfter = all_higher[0]->hwnd();
-              
+                
               for(int i = 0; i < all_higher.length(); ++i) {
                 if(!all_higher[i]->is_closed()) {
-                  SetWindowPos(all_higher[i]->hwnd(), HWND_TOP, 0, 0, 0, 0,
-                               SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
+                  hdwp = DeferWindowPos(
+                           hdwp,
+                           all_higher[i]->hwnd(), HWND_TOP, 0, 0, 0, 0,
+                           SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
                 }
               }
             }
             
             if(popup_info.popup != 0) {
               pmath_debug_print("[popup_info.popup = %p]\n", popup_info.popup);
-              SetWindowPos(popup_info.popup, HWND_TOP, 0, 0, 0, 0,
-                           SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
+              hdwp = DeferWindowPos(
+                       hdwp,
+                       popup_info.popup, HWND_TOP, 0, 0, 0, 0,
+                       SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
             }
+            
+            EndDeferWindowPos(hdwp);
             
             during_pos_changing = false;
           }

@@ -798,11 +798,11 @@ void Win32DocumentWindow::rearrange() {
 
 void Win32DocumentWindow::invalidate_options() {
   String s = document()->get_style(WindowTitle, String());
-  if(_title != s) 
+  if(_title != s)
     title(s);
-  
+    
   WindowFrameType f = (WindowFrameType)document()->get_style(WindowFrame, _window_frame);
-  if(_window_frame != f) 
+  if(_window_frame != f)
     window_frame(f);
 }
 
@@ -870,6 +870,9 @@ void Win32DocumentWindow::window_frame(WindowFrameType type) {
       break;
   }
   
+  SetWindowPos(
+    _hwnd, NULL, 0, 0, 0, 0,
+    SWP_FRAMECHANGED | SWP_NOSENDCHANGING | SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOZORDER);
   on_theme_changed();
 }
 
