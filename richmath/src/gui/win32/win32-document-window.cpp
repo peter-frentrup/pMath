@@ -823,6 +823,10 @@ void Win32DocumentWindow::title(String text) {
 void Win32DocumentWindow::window_frame(WindowFrameType type) {
   _window_frame = type;
   
+  bool hide_temporary = IsWindowVisible(_hwnd);
+  if(hide_temporary)
+    ShowWindow(_hwnd, SW_HIDE);
+  
   switch(_window_frame) {
     case WindowFrameNormal:
       {
@@ -870,9 +874,9 @@ void Win32DocumentWindow::window_frame(WindowFrameType type) {
       break;
   }
   
-  SetWindowPos(
-    _hwnd, NULL, 0, 0, 0, 0,
-    SWP_FRAMECHANGED | SWP_NOSENDCHANGING | SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOZORDER);
+  if(hide_temporary)
+    ShowWindow(_hwnd, SW_SHOW);
+    
   on_theme_changed();
 }
 
