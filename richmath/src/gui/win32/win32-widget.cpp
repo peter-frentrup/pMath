@@ -84,17 +84,24 @@ Win32Widget::Win32Widget(
   int height,
   HWND *parent)
   : NativeWidget(doc),
-  BasicWin32Widget(style_ex, style, x, y, width, height, parent),
-  _autohide_vertical_scrollbar(false),
-  _image_format(CAIRO_FORMAT_RGB24),
-  is_painting(false),
-  scrolling(false),
-  _width(0),
-  _height(0),
-  animation_running(false),
-  is_dragging(false),
-  is_drop_over(false)
+    BasicWin32Widget(style_ex, style, x, y, width, height, parent),
+    _autohide_vertical_scrollbar(false),
+    _image_format(CAIRO_FORMAT_RGB24),
+    is_painting(false),
+    scrolling(false),
+    _width(0),
+    _height(0),
+    animation_running(false),
+    is_dragging(false),
+    is_drop_over(false)
 {
+  if (HDC hdc = GetDC(NULL))
+  {
+    //int dpi_x = GetDeviceCaps(hdc, LOGPIXELSX);
+    //int dpi_y = GetDeviceCaps(hdc, LOGPIXELSY);
+    _dpi = GetDeviceCaps(hdc, LOGPIXELSY);
+    ReleaseDC(NULL, hdc);
+  }
 }
 
 void Win32Widget::after_construction() {
@@ -497,6 +504,8 @@ void Win32Widget::on_paint(HDC dc, bool from_wmpaint) {
   RECT rect;
   GetClientRect(_hwnd, &rect);
   
+  _dpi = GetDeviceCaps(dc, LOGPIXELSY);
+  
   cairo_surface_t *target = cairo_win32_surface_create_with_dib(
                               _image_format,
                               rect.right,
@@ -692,7 +701,7 @@ void Win32Widget::on_mousedown(MouseEvent &event) {
   else {
     Document *cur = get_current_document();
     if(cur && cur != document()) {
-      Win32Widget *wig = dynamic_cast<Win32Widget*>(cur->native());
+      Win32Widget *wig = dynamic_cast<Win32Widget *>(cur->native());
       
       if(wig && wig->hwnd() != GetFocus()) {
         SetFocus(wig->hwnd());
@@ -1184,7 +1193,7 @@ void Win32Widget::do_drop_data(IDataObject *data_object, DWORD effect) {
     if( data_object->QueryGetData(&fmt) == S_OK &&
         data_object->GetData(&fmt, &stgmed) == S_OK)
     {
-      const uint16_t *data = (const uint16_t*)GlobalLock(stgmed.hGlobal);
+      const uint16_t *data = (const uint16_t *)GlobalLock(stgmed.hGlobal);
       
       text_data = String::FromUcs2(data, -1);
       
@@ -1199,7 +1208,7 @@ void Win32Widget::do_drop_data(IDataObject *data_object, DWORD effect) {
     if( data_object->QueryGetData(&fmt) == S_OK &&
         data_object->GetData(&fmt, &stgmed) == S_OK)
     {
-      const uint16_t *data = (const uint16_t*)GlobalLock(stgmed.hGlobal);
+      const uint16_t *data = (const uint16_t *)GlobalLock(stgmed.hGlobal);
       
       text_data = String::FromUcs2(data, -1);
       
@@ -1212,7 +1221,7 @@ void Win32Widget::do_drop_data(IDataObject *data_object, DWORD effect) {
     if( data_object->QueryGetData(&fmt) == S_OK &&
         data_object->GetData(&fmt, &stgmed) == S_OK)
     {
-      const char *data = (const char*)GlobalLock(stgmed.hGlobal);
+      const char *data = (const char *)GlobalLock(stgmed.hGlobal);
       
       text_data = String(pmath_string_from_native(data, -1));
       

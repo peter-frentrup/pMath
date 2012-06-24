@@ -75,7 +75,8 @@ NativeWidget *NativeWidget::dummy = &staticdummy;
 
 NativeWidget::NativeWidget(Document *doc)
   : Base(),
-    _scale_factor(ScaleDefault),
+    _custom_scale_factor(ScaleDefault),
+    _dpi(96),
     _document(0)
 {
   adopt(doc);
@@ -94,21 +95,21 @@ void NativeWidget::scroll_by(float dx, float dy) {
 }
 
 void NativeWidget::scale_by(float ds) {
-  set_scale(scale_factor() * ds);
+  set_custom_scale(custom_scale_factor() * ds);
 }
 
-void NativeWidget::set_scale(float s) {
-  if( !is_scaleable()    ||
-      s == _scale_factor ||
-      s < ScaleMin       ||
+void NativeWidget::set_custom_scale(float s) {
+  if( !is_scaleable()           ||
+      s == _custom_scale_factor ||
+      s < ScaleMin              ||
       s > ScaleMax)
   {
     return;
   }
   
-  _scale_factor = s;
-  if(fabs(_scale_factor - ScaleDefault) < 0.0001)
-    _scale_factor = ScaleDefault;
+  _custom_scale_factor = s;
+  if(fabs(_custom_scale_factor - ScaleDefault) < 0.0001)
+    _custom_scale_factor = ScaleDefault;
     
   if(_document)
     _document->invalidate_all();

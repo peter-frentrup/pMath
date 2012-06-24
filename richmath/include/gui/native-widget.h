@@ -57,7 +57,7 @@ namespace richmath {
       
       virtual bool is_scaleable() = 0;
       void scale_by(float ds);
-      void set_scale(float s);
+      void set_custom_scale(float s);
       
       virtual double message_time() = 0;
       virtual double double_click_time() = 0;
@@ -87,7 +87,8 @@ namespace richmath {
       virtual bool register_timed_event(SharedPtr<TimedEvent> event) = 0;
       
       Document *document() { return _document; }
-      float scale_factor() { return _scale_factor; }
+      float custom_scale_factor() { return _custom_scale_factor; }
+      float scale_factor() {        return _custom_scale_factor * _dpi / 72; }
       
     public:
       static NativeWidget *dummy;
@@ -100,13 +101,14 @@ namespace richmath {
       SelectionReference &drag_source_reference();
       
     protected:
-      float _scale_factor;
+      float _custom_scale_factor;
+      float _dpi;
       
     private:
       Document *_document;
   };
   
-  static const float ScaleDefault = 4 / 3.f;
+  static const float ScaleDefault = 1.f;
   static const float ScaleMin     = 1 / 4.f;
   static const float ScaleMax     = 32.f;
 }
