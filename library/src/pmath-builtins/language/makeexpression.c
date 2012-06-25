@@ -15,6 +15,7 @@
 #include <pmath-util/strtod.h>
 
 #include <pmath-builtins/all-symbols-private.h>
+#include <pmath-builtins/arithmetic-private.h>
 #include <pmath-builtins/build-expr-private.h>
 #include <pmath-builtins/control-private.h>
 #include <pmath-builtins/lists-private.h>
@@ -2192,7 +2193,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
       }
     }
     
-    // a.f  x/y  f@x  f@@list  s::tag  f()  ~:t  ~~:t  ~~~:t  x:p  a//f  p/?c  l->r  l:=r  l+=r  l-=r  l:>r  l::=r  l..r
+    // a.f  f@x  f@@list  s::tag  f()  ~:t  ~~:t  ~~~:t  x:p  a//f  p/?c  l->r  l:=r  l+=r  l-=r  l:>r  l::=r  l..r
     if(exprlen == 3) {       // a.f
       if(secondchar == '.') {
         pmath_t arg = parse_at(expr, 1);
@@ -2660,6 +2661,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
       // x/y/.../z
       if(tokprec == PMATH_PREC_DIV) {
         pmath_expr_t result;
+        size_t previous_rational = 0;
         
         for(i = 4; i < exprlen; i += 2) {
           uint16_t ch = unichar_at(expr, i);
@@ -2683,15 +2685,33 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
           }
           
           if(i > 0) {
-            arg = pmath_expr_new_extended(
-                    pmath_ref(PMATH_SYMBOL_POWER), 2,
-                    arg,
-                    PMATH_FROM_INT32(-1));
+            if( pmath_is_integer(arg) &&
+                !pmath_same(arg, INT(0)))
+            {
+              arg = pmath_rational_new(INT(1), arg);
+              
+              if(previous_rational == i) {
+                pmath_rational_t prev = pmath_expr_get_item(result, i);
+                result = pmath_expr_set_item(result, i, PMATH_UNDEFINED);
+                
+                arg = _mul_nn(prev, arg);
+              }
+              
+              previous_rational = i + 1;
+            }
+            else
+              arg = INV(arg);
           }
+          else if(pmath_is_rational(arg))
+            previous_rational = 1;
+          
           
           result = pmath_expr_set_item(result, i + 1, arg);
         }
         
+        if(previous_rational > 0)
+          result = _pmath_expr_shrink_associative(result, PMATH_UNDEFINED);
+          
         pmath_unref(expr);
         return HOLDCOMPLETE(result);
       }

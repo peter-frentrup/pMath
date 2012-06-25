@@ -11,6 +11,13 @@
 #include <util/base.h>
 
 namespace richmath {
+
+  class Win32KeepAliveWindow {
+    public:
+      Win32KeepAliveWindow();
+      ~Win32KeepAliveWindow();
+  };
+  
   // Must call init() immediately init after the construction of a derived object!
   class BasicWin32Widget: public IDropTarget, public virtual Base {
       struct InitData {
@@ -73,7 +80,7 @@ namespace richmath {
       T *find_parent() {
         BasicWin32Widget *p = parent();
         while(p) {
-          T *t = dynamic_cast<T*>(p);
+          T *t = dynamic_cast<T *>(p);
           if(t)
             return t;
             

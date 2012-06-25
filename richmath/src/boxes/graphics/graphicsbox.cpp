@@ -158,6 +158,7 @@ bool GraphicsBox::try_load_from_object(Expr expr, int opts) {
   }
   
   style->clear();
+  style->set(BaseStyleName, "Graphics");
   style->add_pmath(options);
   style->add_pmath(user_options);
   

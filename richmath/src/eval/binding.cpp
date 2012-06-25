@@ -679,6 +679,9 @@ static bool edit_boxes_cmd(Expr cmd) {
         
         Expr obj(sect->to_pmath(BoxFlagDefault));
         
+        Expr tmp = Call(Symbol(PMATH_SYMBOL_FULLFORM), obj);
+        pmath_debug_print_object("\n fullform: ", tmp.get(), "\n");
+        
         doc->select(edit->content(), 0, 0);
         doc->insert_string(obj.to_string(
                              PMATH_WRITE_OPTIONS_FULLSTR | PMATH_WRITE_OPTIONS_INPUTEXPR));

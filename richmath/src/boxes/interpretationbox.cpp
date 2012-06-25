@@ -48,6 +48,7 @@ bool InterpretationBox::try_load_from_object(Expr expr, int opts) {
   if(options_expr != PMATH_UNDEFINED) {
     if(style) {
       style->clear();
+      style->set(Editable, false);
       style->add_pmath(options_expr);
     }
     else

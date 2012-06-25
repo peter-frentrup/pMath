@@ -48,6 +48,7 @@ bool InputFieldBox::try_load_from_object(Expr expr, int opts) {
   }
   
   style->clear();
+  style->set(BaseStyleName, String("InputField"));
   style->add_pmath(options);
   
   return true;

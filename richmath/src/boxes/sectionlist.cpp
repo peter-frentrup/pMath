@@ -414,7 +414,7 @@ Expr SectionList::get_group_style(int pos, ObjectStyleOptionName n, Expr result)
     pos = group_info(pos).first;
   }
   
-  return get_own_style(n, result);
+  return get_style(n, result); // get_own_style
 }
 
 void SectionList::internal_insert_pmath(int *pos, Expr boxes, int overwrite_until_index) {

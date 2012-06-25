@@ -476,6 +476,7 @@ bool Document::try_load_from_object(Expr expr, int options) {
   insert_pmath(&pos, sections_expr, count());
 
   style->clear();
+  style->set(BaseStyleName, "Document");
   style->add_pmath(options_expr);
   return true;
 }

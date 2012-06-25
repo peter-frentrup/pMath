@@ -520,13 +520,14 @@ String Box::get_style(StringStyleOptionName n, String result) {
 Expr Box::get_style(ObjectStyleOptionName n, Expr result) {
   Box  *box;
   
-  if(style && style->get(n, &result))
-    return result;
-    
   SharedPtr<Stylesheet> all = stylesheet();
   if(all) {
-    box = this;
-    do {
+    if(all->get(style, n, &result))
+      return result;
+  
+    box = _parent;
+    
+    while(box) {
       if( box->changes_children_style() &&
           all->get(box->style, n, &result))
       {
@@ -540,6 +541,9 @@ Expr Box::get_style(ObjectStyleOptionName n, Expr result) {
       return result;
   }
   else {
+    if(style && style->get(n, &result))
+      return result;
+    
     box = _parent;
     while(box) {
       if( box->changes_children_style() &&
