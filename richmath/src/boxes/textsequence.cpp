@@ -19,9 +19,9 @@ static const int   Utf8BoxCharLen = 3;
 
 TextBuffer::TextBuffer(char *buf, int len)
   : Base(),
-  _capacity(len),
-  _length(len),
-  _buffer(buf)
+    _capacity(len),
+    _length(len),
+    _buffer(buf)
 {
   if(len < 0) {
     _capacity = _length = strlen(buf);
@@ -109,7 +109,7 @@ int TextBuffer::insert(int pos, const char *ins, int inslen) {
     
   if(_length + inslen > _capacity) {
     _capacity = Array<char>::best_capacity(_length + inslen);
-    _buffer = (char*)pmath_mem_realloc(_buffer, _capacity);
+    _buffer = (char *)pmath_mem_realloc(_buffer, _capacity);
     
     if(!_buffer) {
       assert("not enough memory" && 0);
@@ -158,7 +158,7 @@ class GlobalPangoContext {
   public:
     static PangoContext *get_context() {
       if(!singleton.context) {
-        PangoCairoFontMap *fontmap = (PangoCairoFontMap*)pango_cairo_font_map_get_default();
+        PangoCairoFontMap *fontmap = (PangoCairoFontMap *)pango_cairo_font_map_get_default();
         
         singleton.context = pango_cairo_font_map_create_context(fontmap);
       }
@@ -204,8 +204,8 @@ class GlobalPangoContext {
     };
     
     static void box_shape_renderer(cairo_t *cr, PangoAttrShape *shape, gboolean do_path, void *data) {
-      Context *ctx = (Context*)data;
-      Box     *box = (Box*)shape->data;
+      Context *ctx = (Context *)data;
+      Box     *box = (Box *)shape->data;
       
       assert(ctx != 0);
       assert(box != 0);
@@ -240,8 +240,8 @@ GlobalPangoContext GlobalPangoContext::singleton;
 
 TextSequence::TextSequence()
   : AbstractSequence(),
-  text(0, 0),
-  _layout(pango_layout_new(GlobalPangoContext::get_context()))
+    text(0, 0),
+    _layout(pango_layout_new(GlobalPangoContext::get_context()))
 {
   pango_layout_set_spacing(_layout, pango_units_from_double(1.5));
   pango_layout_set_wrap(_layout, PANGO_WRAP_WORD_CHAR);
@@ -427,13 +427,32 @@ void TextSequence::selection_path(Canvas *canvas, int start, int end) {
     
     int line_index = 0;
     PangoLayoutIter *iter = get_iter();
+    
+    // adjust start...
+    PangoLayoutLine *prev = NULL;
+    do {
+      PangoLayoutLine *line = pango_layout_iter_get_line_readonly(iter);
+      
+      if(start < line->start_index) {
+        if(prev && prev->start_index + prev->length < start)
+          start = prev->start_index + prev->length;
+        
+        break;
+      }
+      
+      prev = line;
+    } while(pango_layout_iter_next_line(iter));
+    pango_layout_iter_free(iter);
+    prev = NULL;
+    
+    iter = get_iter();
     do {
       PangoLayoutLine *line = pango_layout_iter_get_line_readonly(iter);
       
       if(end <= line->start_index)
         break;
         
-      if(start < line->start_index + line->length) {
+      if(start <= line->start_index + line->length) {
         int *xranges;
         int num_xranges;
         float x, y;
@@ -459,9 +478,9 @@ void TextSequence::selection_path(Canvas *canvas, int start, int end) {
         
         for(int i = 0; i < num_xranges; ++i) {
           canvas->pixrect(
-            x0 + pango_units_to_double(xranges[2*i]),
+            x0 + pango_units_to_double(xranges[2 * i]),
             y0 + y - size.ascent,
-            x0 + pango_units_to_double(xranges[2*i+1]),
+            x0 + pango_units_to_double(xranges[2 * i + 1]),
             last_bottom,
             false);
         }
@@ -660,7 +679,7 @@ int TextSequence::insert(int pos, Box *box) {
   if(pos > text.length())
     pos = text.length();
     
-  if(TextSequence *txt = dynamic_cast<TextSequence*>(box)) {
+  if(TextSequence *txt = dynamic_cast<TextSequence *>(box)) {
     pos = insert(pos, txt, 0, txt->length());
     delete txt;
     return pos;
@@ -713,7 +732,7 @@ int TextSequence::insert(int pos, TextSequence *txt, int start, int end) {
 }
 
 int TextSequence::insert(int pos, AbstractSequence *seq, int start, int end) {
-  TextSequence *ts = dynamic_cast<TextSequence*>(seq);
+  TextSequence *ts = dynamic_cast<TextSequence *>(seq);
   
   if(ts)
     return insert(pos, ts, start, end);

@@ -2369,7 +2369,9 @@ void Document::paste_from_text(String mimetype, String data) {
   if(mimetype.equals(Clipboard::PlainText)) {
     if(prepare_insert()) {
       remove_selection(false);
-
+      
+      // todo: replace \r\n by \n
+      
       insert_string(data);
 
       return;
