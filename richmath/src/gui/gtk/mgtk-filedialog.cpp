@@ -1,6 +1,7 @@
 #include <gui/gtk/mgtk-filedialog.h>
 
 #include <eval/application.h>
+#include <eval/binding.h>
 #include <gui/gtk/mgtk-widget.h>
 
 
@@ -21,6 +22,9 @@ Expr MathGtkFileDialog::show(
   
   GtkWindow *parent_window = 0;
   Box *box = Application::get_evaluation_box();
+  if(!box)
+    box = get_current_document();
+    
   if(box) {
     Document *doc = box->find_parent<Document>(true);
     

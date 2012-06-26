@@ -18,6 +18,9 @@ static Expr font_chooser_dialog_show(SharedPtr<Style> initial_style) {
 
   GtkWindow *parent_window = 0;
   Box *box = Application::get_evaluation_box();
+  if(!box)
+    box = get_current_document();
+    
   if(box) {
     Document *doc = box->find_parent<Document>(true);
 

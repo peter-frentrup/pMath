@@ -3,6 +3,7 @@
 #include <windows.h>
 
 #include <eval/application.h>
+#include <eval/binding.h>
 #include <gui/win32/win32-widget.h>
 
 
@@ -34,6 +35,9 @@ Expr Win32ColorDialog::show(int initialcolor) {
   data.lpCustColors = custom_colors; // todo: save these at application exit
   
   Box *box = Application::get_evaluation_box();
+  if(!box)
+    box = get_current_document();
+  
   if(box){
     Document *doc = box->find_parent<Document>(true);
     

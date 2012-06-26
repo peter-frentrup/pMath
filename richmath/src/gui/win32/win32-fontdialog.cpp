@@ -3,6 +3,7 @@
 #include <windows.h>
 
 #include <eval/application.h>
+#include <eval/binding.h>
 #include <gui/win32/win32-widget.h>
 
 
@@ -23,7 +24,7 @@ Expr Win32FontDialog::show(SharedPtr<Style> initial_style) {
   data.lStructSize = sizeof(data);
   data.lpLogFont   = &logfontw;
   data.Flags       = CF_SCREENFONTS | CF_NOSCRIPTSEL /*| CF_EFFECTS*/;
-  
+   
   if(initial_style) {
     data.Flags |= CF_INITTOLOGFONTSTRUCT;
     
@@ -65,6 +66,9 @@ Expr Win32FontDialog::show(SharedPtr<Style> initial_style) {
   }
   
   Box *box = Application::get_evaluation_box();
+  if(!box)
+    box = get_current_document();
+    
   if(box) {
     Document *doc = box->find_parent<Document>(true);
     
