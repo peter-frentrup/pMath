@@ -95,7 +95,7 @@
 			</Target>
 			<Target title="Windows-MSVC">
 				<Option platforms="Windows;" />
-				<Option output="bin\windows\msvc\libpmath" prefix_auto="1" extension_auto="1" />
+				<Option output="bin\windows\msvc\pmath" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj\windows\msvc\" />
 				<Option type="3" />
 				<Option compiler="msvc8" />
