@@ -21,6 +21,11 @@
 #include <pmath-builtins/control/definitions-private.h>
 
 
+#ifndef va_copy
+#  define va_copy(dst, src) do{ dst = (src); }while(0)
+#endif
+
+
 PMATH_API pmath_bool_t pmath_is_expr_of(pmath_t obj, pmath_symbol_t head) {
   if(pmath_is_expr(obj)) {
     pmath_t h = pmath_expr_get_item(obj, 0);
