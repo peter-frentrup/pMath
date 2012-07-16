@@ -68,8 +68,8 @@ Which(
 		path:= Join(Environment("PATH").StringSplit($PathListSeparator),
 					Environment("ProgramFiles").StringSplit($PathListSeparator));
 		
-		path:= path.FileNames("Java").Reverse;
-		path:= Join(path.FileNames("jre*"), path.FileNames("jdk*").FileNames("jre"));
+		path:= path.FileNames("Java");
+		path:= Join(path.FileNames("jdk*").FileNames("jre"), path.FileNames("jre*")).Reverse;
 		path:= path.FileNames("bin");
 		path:= path.FileNames({"server","client"});
 		path:= path.FileNames("jvm.dll");
@@ -89,7 +89,7 @@ Which(
 			path:= {"/usr/lib", "/usr/local/lib"});
 		
 		path:= path.FileNames("jvm");
-		path:= path.FileNames("*");
+		path:= path.FileNames("*").Reverse;
 		path:= path.FileNames("jre");
 		path:= path.FileNames("lib");
 		path:= path.FileNames(arch);
