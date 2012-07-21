@@ -1399,13 +1399,15 @@ void Document::on_key_press(uint32_t unichar) {
               repl_seq->load_from_object(repl, BoxOptionDefault);
               
               insert_box(repl_seq, true);
+              int sel_start = selection_start();
+              int sel_end   = selection_end();
               seq->remove(alias_pos, alias_end);
               
-              if(selection_box() == seq) {
+              if(selection_box() == seq) { // renormalizes selection_[start|end]()
                 select(
                   seq,
-                  selection_start() - (alias_end - alias_pos),
-                  selection_end()   - (alias_end - alias_pos));
+                  sel_start - (alias_end - alias_pos),
+                  sel_end   - (alias_end - alias_pos));
               }
               
               return;

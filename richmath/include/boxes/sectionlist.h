@@ -49,6 +49,9 @@ namespace richmath {
   
   class SectionList: public Box {
     public:
+      static Expr group(Expr sections);
+      
+    public:
       SectionList();
       virtual ~SectionList();
       

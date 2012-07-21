@@ -2,17 +2,16 @@
 	Button("italic", DocumentApply(SelectedDocument(), StyleBox("\[SelectionPlaceholder]", "TI"))),
 	Button("Arg Style", DocumentApply(SelectedDocument(), StyleBox("\[SelectionPlaceholder]", "Arg")))})
 
+- BUG: Print(...) in a docked section (via button click) should print into the working area, not the 
+	docked section. Maybe EvaluationDocument() should also return the working area
+	
 - richmath: line heights jump up and down in Column({Dynamic(x),Slider(Dynamic(x),0..9..1)})
 - richmath: DocumentApply(..., Section(...)) does not work (same for SectionGroup)
 
-- add StyleDefinitions document option
-
-- add StyleData(...) and richmath::StyleSection class
+- add richmath::StyleSection class and handle Section(StyleData(...),...)
 - allow creation of a richmath::Style from a richmath::StyleSection
-- add DockedSections option for Document....
-- add Open/Save. File extension could be *.mdoc or *.pmathdoc
-  open is basically CreateDocument @@ Get("filename")
-  save is (file:=OpenWrite("filename");file.Write(InputForm(DocumentGet(FrontEndObject( docId )))); file.Close())
+- handle StyleDefinitions document option
+- add save, which is basically (file:=OpenWrite("filename");file.Write(InputForm(DocumentGet(FrontEndObject( docId )))); file.Close())
 
 - make ListConvolve work on multi-dimensional arrays
 - add Differences, Accumulate

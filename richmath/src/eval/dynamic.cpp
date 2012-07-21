@@ -41,8 +41,7 @@ Expr Dynamic::operator=(Expr expr) {
     
     if(_expr.expr_length() >= 2) {
       Expr snd = _expr[2];
-      if(snd.expr_length() == 2
-          && (snd[0] == PMATH_SYMBOL_RULE || snd[0] == PMATH_SYMBOL_RULEDELAYED))
+      if(snd.is_rule())
         options = Expr(pmath_options_extract(_expr.get(), 1));
       else
         options = Expr(pmath_options_extract(_expr.get(), 2));

@@ -107,6 +107,18 @@ class richmath::MathGtkDock: public MathGtkWidget {
     {
     }
     
+    void reload(Expr content) {
+      if(content == _content)
+        return;
+        
+      _content = content;
+      int i = 0;
+      
+      document()->insert_pmath(&i, content, document()->count());
+      document()->remove(i, document()->count());
+      document()->invalidate_all();
+    }
+    
     MathGtkDocumentWindow *parent() { return _parent; }
     
     virtual void page_size(float *w, float *h) {
@@ -189,6 +201,7 @@ class richmath::MathGtkDock: public MathGtkWidget {
     
   private:
     MathGtkDocumentWindow *_parent;
+    Expr                   _content;
 };
 
 //{ class MathGtkDocumentWindow ...
@@ -359,13 +372,23 @@ MathGtkDocumentWindow::~MathGtkDocumentWindow() {
 }
 
 void MathGtkDocumentWindow::invalidate_options() {
-  String s = document()->get_style(WindowTitle, String());
+  Document *doc = document();
+  
+  String s = doc->get_style(WindowTitle, String());
   if(_title != s)
     title(s);
     
-  WindowFrameType f = (WindowFrameType)document()->get_style(WindowFrame, _window_frame);
+  WindowFrameType f = (WindowFrameType)doc->get_style(WindowFrame, _window_frame);
   if(_window_frame != f)
     window_frame(f);
+  
+  Expr top          = SectionList::group(doc->get_style(DockedSectionsTop));
+  Expr top_glass    = SectionList::group(doc->get_style(DockedSectionsTopGlass));
+  Expr bottom       = SectionList::group(doc->get_style(DockedSectionsBottom));
+  Expr bottom_glass = SectionList::group(doc->get_style(DockedSectionsBottomGlass));
+  
+  _top_area->reload(   SectionList::group(List(top_glass, top)));
+  _bottom_area->reload(SectionList::group(List(bottom, bottom_glass)));
 }
 
 void MathGtkDocumentWindow::title(String text) {

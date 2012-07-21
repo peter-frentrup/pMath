@@ -60,9 +60,9 @@ class richmath::Win32WorkingArea: public Win32Widget {
       int y,
       int width,
       int height,
-      Win32DocumentWindow *_parent)
-      : Win32Widget(doc, style_ex, style, x, y, width, height, &_parent->hwnd()),
-        parent(_parent),
+      Win32DocumentWindow *parent)
+      : Win32Widget(doc, style_ex, style, x, y, width, height, &parent->hwnd()),
+        _parent(parent),
         auto_size(false),
         best_width(1),
         best_height(1)
@@ -77,26 +77,26 @@ class richmath::Win32WorkingArea: public Win32Widget {
     }
     
     virtual void running_state_changed() {
-      if(parent)
-        parent->reset_title();
+      if(_parent)
+        _parent->reset_title();
     }
     
     void bring_to_front() {
       SetFocus(_hwnd);
-      SetForegroundWindow(parent->hwnd());
+      SetForegroundWindow(_parent->hwnd());
     }
     
     virtual void close() {
-      SendMessageW(parent->hwnd(), WM_CLOSE, 0, 0);
+      SendMessageW(_parent->hwnd(), WM_CLOSE, 0, 0);
     }
     
     virtual void invalidate_options() {
-      if(parent)
-        parent->invalidate_options();
+      if(_parent)
+        _parent->invalidate_options();
     }
     
-  protected:
-    Win32DocumentWindow *parent;
+  private:
+    Win32DocumentWindow *_parent;
     
   public:
     bool auto_size;
@@ -111,7 +111,7 @@ class richmath::Win32WorkingArea: public Win32Widget {
         GetClientRect(_hwnd, &rect);
         if( best_width  != rect.right - rect.left ||
             best_height != rect.bottom - rect.top)
-          parent->rearrange();
+          _parent->rearrange();
       }
     }
     
@@ -123,8 +123,8 @@ class richmath::Win32WorkingArea: public Win32Widget {
     }
     
     virtual void paint_background(Canvas *canvas) {
-      if((auto_size && document()->count() == 0) || parent->is_palette()) {
-        parent->paint_background(canvas, _hwnd);
+      if((auto_size && document()->count() == 0) || _parent->is_palette()) {
+        _parent->paint_background(canvas, _hwnd);
       }
       else {
         canvas->set_color(0xffffff);
@@ -156,7 +156,7 @@ class richmath::Win32WorkingArea: public Win32Widget {
         best_height += outer.bottom - outer.top  - inner.bottom + inner.top;
         
         if(old_bw != best_width || old_bh != best_height)
-          parent->rearrange();
+          _parent->rearrange();
       }
       else
         best_width = best_height = 1;
@@ -183,15 +183,31 @@ class richmath::Win32Dock: public Win32Widget {
     }
     
   public:
-    Win32Dock(Win32DocumentWindow *_parent)
+    Win32Dock(Win32DocumentWindow *parent)
       : Win32Widget(
         new Document(),
         0,
         WS_CHILD | WS_VISIBLE,
         0, 0, 10, 10,
-        &_parent->hwnd()),
-      parent(_parent)
+        &parent->hwnd()),
+      _parent(parent)
     {
+    }
+    
+    void reload(Expr content, bool *change_flag) {
+      if(content == _content)
+        return;
+        
+      _content = content;
+      int i = 0;
+      
+      document()->insert_pmath(&i, content, document()->count());
+      document()->remove(i, document()->count());
+      document()->invalidate_all();
+      resize();
+      
+      *change_flag = true;
+      return;
     }
     
     virtual bool is_scrollable() { return false; }
@@ -200,11 +216,11 @@ class richmath::Win32Dock: public Win32Widget {
     
     void bring_to_front() {
       SetFocus(_hwnd);
-      SetForegroundWindow(parent->hwnd());
+      SetForegroundWindow(_parent->hwnd());
     }
     
     virtual void close() {
-      SendMessageW(parent->hwnd(), WM_CLOSE, 0, 0);
+      SendMessageW(_parent->hwnd(), WM_CLOSE, 0, 0);
     }
     
     virtual int height() {
@@ -216,8 +232,8 @@ class richmath::Win32Dock: public Win32Widget {
     }
     
     virtual void running_state_changed() {
-      if(parent)
-        parent->reset_title();
+      if(_parent)
+        _parent->reset_title();
     }
     
     void resize() {
@@ -230,13 +246,13 @@ class richmath::Win32Dock: public Win32Widget {
       RECT self_rect;
       RECT parent_rect;
       GetClientRect(_hwnd, &self_rect);
-      parent->get_client_rect(&parent_rect);
+      _parent->get_client_rect(&parent_rect);
       
       POINT pt;
       pt.x = 0;
       pt.y = self_rect.bottom;
       
-      MapWindowPoints(_hwnd, parent->hwnd(), &pt, 1);
+      MapWindowPoints(_hwnd, _parent->hwnd(), &pt, 1);
       return pt.y == parent_rect.bottom;
     }
     
@@ -253,9 +269,6 @@ class richmath::Win32Dock: public Win32Widget {
         
       return true;
     }
-    
-  protected:
-    Win32DocumentWindow *parent;
     
   protected:
     void paint_size_grip(Canvas *canvas) {
@@ -282,7 +295,7 @@ class richmath::Win32Dock: public Win32Widget {
     }
     
     virtual void paint_background(Canvas *canvas) {
-      parent->paint_background(canvas, _hwnd);
+      _parent->paint_background(canvas, _hwnd);
     }
     
     virtual void paint_canvas(Canvas *canvas, bool resize_only) {
@@ -299,7 +312,7 @@ class richmath::Win32Dock: public Win32Widget {
       RECT rect;
       GetClientRect(_hwnd, &rect);
       if(height() != rect.bottom)
-        parent->rearrange();
+        _parent->rearrange();
     }
     
     virtual void on_paint(HDC dc, bool from_wmpaint) {
@@ -346,7 +359,7 @@ class richmath::Win32Dock: public Win32Widget {
                     y / scale_factor() >= h - b)
                 {
                   SendMessageW(_hwnd, WM_LBUTTONUP, wParam, lParam);
-                  SendMessageW(parent->hwnd(), WM_NCLBUTTONDOWN, HTBOTTOMRIGHT, 0);
+                  SendMessageW(_parent->hwnd(), WM_NCLBUTTONDOWN, HTBOTTOMRIGHT, 0);
                   return 1;
                 }
               }
@@ -356,6 +369,10 @@ class richmath::Win32Dock: public Win32Widget {
       
       return Win32Widget::callback(message, wParam, lParam);
     }
+    
+  protected:
+    Win32DocumentWindow *_parent;
+    Expr                 _content;
 };
 
 class richmath::Win32GlassDock: public richmath::Win32Dock {
@@ -376,8 +393,8 @@ class richmath::Win32GlassDock: public richmath::Win32Dock {
     }
     
   public:
-    Win32GlassDock(Win32DocumentWindow *_parent)
-      : Win32Dock(_parent)
+    Win32GlassDock(Win32DocumentWindow *parent)
+      : Win32Dock(parent)
     {
     }
     
@@ -433,7 +450,7 @@ class richmath::Win32GlassDock: public richmath::Win32Dock {
         
         //canvas->native_show_glyphs = true;
         
-        if(parent->glass_enabled())
+        if(_parent->glass_enabled())
           canvas->glass_background = true;
       }
       
@@ -458,10 +475,10 @@ class richmath::Win32GlassDock: public richmath::Win32Dock {
           case WM_LBUTTONDOWN: {
               if( Win32Dock::callback(message, wParam, lParam) == 0 &&
                   document()->clicked_box_id() == document()->id() &&
-                  parent->glass_enabled())
+                  _parent->glass_enabled())
               {
                 SendMessageW(_hwnd, WM_LBUTTONUP, wParam, lParam);
-                SendMessageW(parent->hwnd(), WM_NCLBUTTONDOWN, HTCAPTION, lParam);
+                SendMessageW(_parent->hwnd(), WM_NCLBUTTONDOWN, HTCAPTION, lParam);
               }
             } return 0;
         }
@@ -797,13 +814,25 @@ void Win32DocumentWindow::rearrange() {
 }
 
 void Win32DocumentWindow::invalidate_options() {
-  String s = document()->get_style(WindowTitle, String());
+  Document *doc = document();
+  
+  String s = doc->get_style(WindowTitle, String());
   if(_title != s)
     title(s);
     
-  WindowFrameType f = (WindowFrameType)document()->get_style(WindowFrame, _window_frame);
+  WindowFrameType f = (WindowFrameType)doc->get_style(WindowFrame, _window_frame);
   if(_window_frame != f)
     window_frame(f);
+    
+  bool change = false;
+  
+  _top_area->reload(         SectionList::group(doc->get_style(DockedSectionsTop)),         &change);
+  _top_glass_area->reload(   SectionList::group(doc->get_style(DockedSectionsTopGlass)),    &change);
+  _bottom_area->reload(      SectionList::group(doc->get_style(DockedSectionsBottom)),      &change);
+  _bottom_glass_area->reload(SectionList::group(doc->get_style(DockedSectionsBottomGlass)), &change);
+  
+  if(change)
+    rearrange();
 }
 
 void Win32DocumentWindow::title(String text) {
@@ -826,7 +855,7 @@ void Win32DocumentWindow::window_frame(WindowFrameType type) {
   bool hide_temporary = IsWindowVisible(_hwnd);
   if(hide_temporary)
     ShowWindow(_hwnd, SW_HIDE);
-  
+    
   switch(_window_frame) {
     case WindowFrameNormal:
       {

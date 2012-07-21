@@ -9,6 +9,26 @@
 
 using namespace richmath;
 
+double round_factor(double x, double f) {
+  x = floor(x * f + 0.5);
+  x = x / f;
+  return x;
+}
+
+double round_to_prec(double x, int p) {
+  double y = 0.0;
+  double f = 1.0;
+  
+  for(int dmax = 10; dmax > 0; --dmax) {
+    y = round_factor(x, f);
+    if(fabs(y * p - x * p) < 0.5)
+      return y;
+    f *= 10;
+  }
+  
+  return y;
+}
+
 Expr richmath::color_to_pmath(int color) {
   if(color < 0)
     return Symbol(PMATH_SYMBOL_NONE);
@@ -17,16 +37,17 @@ Expr richmath::color_to_pmath(int color) {
   int g = (color & 0x00FF00) >>  8;
   int b =  color & 0x0000FF;
   
-  if(r == g && r == b)
+  if(r == g && r == b) {
     return Call(
              Symbol(PMATH_SYMBOL_GRAYLEVEL),
-             Number(r / 255.));
-             
+             Number(round_to_prec(r / 255.0, 255)));
+  }
+  
   return Call(
            Symbol(PMATH_SYMBOL_RGBCOLOR),
-           Number(r / 255.),
-           Number(g / 255.),
-           Number(b / 255.));
+           Number(round_to_prec(r / 255.0, 255)),
+           Number(round_to_prec(g / 255.0, 255)),
+           Number(round_to_prec(b / 255.0, 255)));
 }
 
 int richmath::pmath_to_color(Expr obj) {
@@ -211,13 +232,16 @@ void Style::add_pmath(Expr options) {
     for(size_t i = 1; i <= options.expr_length(); ++i) {
       Expr rule = options[i];
       
-      if( rule.is_expr() &&
-          rule.expr_length() == 2 &&
-          (rule[0] == PMATH_SYMBOL_RULE || rule[0] == PMATH_SYMBOL_RULEDELAYED))
-      {
+      if(rule.is_rule()) {
         Expr lhs = rule[1];
         Expr rhs = rule[2];
         
+//        // (a->b)->c  ===>  a->{b->c}
+//        if(lhs.is_rule()) {
+//          rhs = List(Rule(lhs[2], rhs));
+//          lhs = lhs[1];
+//        }
+
         if(rhs != PMATH_SYMBOL_INHERITED) {
           if(lhs == PMATH_SYMBOL_ANTIALIASING) {
             set_pmath_bool_auto(Antialiasing, rhs);
@@ -266,6 +290,9 @@ void Style::add_pmath(Expr options) {
           }
           else if(lhs == PMATH_SYMBOL_DEFAULTRETURNCREATEDSECTIONSTYLE) {
             set(DefaultReturnCreatedSectionStyle, rhs);
+          }
+          else if(lhs == PMATH_SYMBOL_DOCKEDSECTIONS) {
+            set_docked_sections(rhs);
           }
           else if(lhs == PMATH_SYMBOL_EDITABLE) {
             set_pmath_bool(Editable, rhs);
@@ -378,6 +405,9 @@ void Style::add_pmath(Expr options) {
           }
           else if(lhs == PMATH_SYMBOL_STRIPONINPUT) {
             set_pmath_bool(StripOnInput, rhs);
+          }
+          else if(lhs == PMATH_SYMBOL_STYLEDEFINITIONS) {
+            set_pmath_object(StyleDefinitions, rhs);
           }
           else if(lhs == PMATH_SYMBOL_TEXTSHADOW) {
             set_pmath_object(TextShadow, rhs);
@@ -742,6 +772,38 @@ void Style::set_pmath_object(ObjectStyleOptionName n, Expr obj) {
     set(n, obj);
 }
 
+void Style::set_docked_sections(Expr obj) {
+
+  if(obj[0] != PMATH_SYMBOL_LIST) {
+    return;
+  }
+  
+  for(size_t i = 1; i <= obj.expr_length(); ++i) {
+    Expr rule = obj[i];
+    
+    if(!rule.is_rule())
+      continue;
+      
+    String lhs(rule[1]);
+    Expr rhs(rule[2]);
+    
+    if(rhs == PMATH_SYMBOL_INHERITED)
+      continue;
+      
+    if(lhs.equals("Top"))
+      set_pmath_object(DockedSectionsTop, rhs);
+    else if(lhs.equals("TopGlass"))
+      set_pmath_object(DockedSectionsTopGlass, rhs);
+    else if(lhs.equals("Bottom"))
+      set_pmath_object(DockedSectionsBottom, rhs);
+    else if(lhs.equals("BottomGlass"))
+      set_pmath_object(DockedSectionsBottomGlass, rhs);
+      
+  }
+  
+  set(InternalHasModifiedWindowOption, true);
+}
+
 bool Style::modifies_size(int style_name) {
   switch(style_name) {
     case Background:
@@ -942,6 +1004,12 @@ Expr Style::get_symbol(int n) {
     case DefaultNewSectionStyle:           return Symbol(PMATH_SYMBOL_DEFAULTNEWSECTIONSTYLE);
     case DefaultReturnCreatedSectionStyle: return Symbol(PMATH_SYMBOL_DEFAULTRETURNCREATEDSECTIONSTYLE);
     
+    case DockedSectionsTop:                return Symbol(PMATH_SYMBOL_DOCKEDSECTIONS);
+    case DockedSectionsTopGlass:
+    case DockedSectionsBottom:
+    case DockedSectionsBottomGlass:        return Expr();
+    
+    case StyleDefinitions:                 return Symbol(PMATH_SYMBOL_STYLEDEFINITIONS);
     case GeneratedSectionStyles:           return Symbol(PMATH_SYMBOL_GENERATEDSECTIONSTYLES);
   }
   
@@ -1120,6 +1188,43 @@ void Style::emit_to_pmath(bool with_inherited) {
     Gather::emit(Rule(
                    get_symbol(DefaultReturnCreatedSectionStyle),
                    e));
+  }
+  
+  if(get_dynamic(DockedSectionsTop, &e)) {
+    Gather::emit(Rule(
+                   get_symbol(DockedSectionsTop),
+                   e));
+  }
+  else {
+    Expr top, top_glass, bottom, bottom_glass;
+    bool have_top, have_top_glass, have_bottom, have_bottom_glass;
+    
+    have_top          = get(DockedSectionsTop,         &top);
+    have_top_glass    = get(DockedSectionsTopGlass,    &top_glass);
+    have_bottom       = get(DockedSectionsBottom,      &bottom);
+    have_bottom_glass = get(DockedSectionsBottomGlass, &bottom_glass);
+    
+    if(have_top || have_top_glass || have_bottom || have_bottom_glass) {
+      Gather g;
+      
+      if(have_top)
+        Gather::emit(Rule(String("Top"), top));
+        
+      if(have_top_glass)
+        Gather::emit(Rule(String("TopGlass"), top_glass));
+        
+      if(have_bottom)
+        Gather::emit(Rule(String("Bottom"), bottom));
+        
+      if(have_bottom_glass)
+        Gather::emit(Rule(String("BottomGlass"), bottom_glass));
+        
+      Expr all = g.end();
+      
+      Gather::emit(Rule(
+                     get_symbol(DockedSectionsTop),
+                     all));
+    }
   }
   
   if(get_dynamic(Editable, &e)) {
@@ -1631,6 +1736,17 @@ void Style::emit_to_pmath(bool with_inherited) {
     Gather::emit(Rule(
                    get_symbol(StripOnInput),
                    Symbol(i ? PMATH_SYMBOL_TRUE : PMATH_SYMBOL_FALSE)));
+  }
+  
+  if(get_dynamic(StyleDefinitions, &e)) {
+    Gather::emit(Rule(
+                   get_symbol(StyleDefinitions),
+                   e));
+  }
+  else if(get(StyleDefinitions, &e)) {
+    Gather::emit(Rule(
+                   get_symbol(StyleDefinitions),
+                   e));
   }
   
   if(get_dynamic(TextShadow, &e)) {

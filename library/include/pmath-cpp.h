@@ -126,6 +126,20 @@ namespace pmath {
         return pmath_is_evaluated(_obj);
       }
       
+      bool is_rule() const throw() {
+        if(expr_length() != 2)
+          return false;
+          
+        Expr head = (*this)[0];
+        if(pmath_same(head._obj, PMATH_SYMBOL_RULE))
+          return true;
+        
+        if(pmath_same(head._obj, PMATH_SYMBOL_RULEDELAYED))
+          return true;
+        
+        return false;
+      }
+      
       /**\brief Get a hash value. */
       unsigned int hash() const throw() {
         return pmath_hash(_obj);

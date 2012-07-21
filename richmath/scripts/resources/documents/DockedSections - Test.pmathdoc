@@ -1,0 +1,29 @@
+Document({
+   SectionGroup({
+     Section(
+      BoxData({{"SetOptions", "(", {{"EvaluationDocument", "(", ")"}, ",", {
+           "DockedSections", "\[Rule]", {
+            "{", {"\"TopGlass\"", "\[Rule]", {
+              "Section", "(", {
+               {"BoxData", "@", {"{", {"\"\\\"Help Topic:  \\\"\"", ",", {
+                   "FillBox", "(", {"InputFieldBox", "(", {
+                     {"Dynamic", "(", "searchString", ")"}, ",", "String"}, 
+                    ")"}, ")"}, ",", {"ButtonBox", "(", {
+                    "\"\\\" Go \\\"\"", ",", {"ButtonFrame", "\[Rule]", 
+                     "\"Palette\""}, ",", {"ButtonFunction", "\[Rule]", " ", {
+                      "(", {{"Print", "(", {"{", {{"EvaluationDocument", "(", ")"}, 
+                          ",", {"SelectedDocument", "(", ")"}}, "}"}, ")"}, 
+                       "&"}, ")"}}}, ")"}}, "}"}}, ",", "\"Docked\"", ",", {
+                "LineBreakWithin", "\[Rule]", "False"}}, ")"}}, "}"}}}, ")"}, 
+        ";"}), "Input", SectionLabel -> "in [37]:"), 
+     SectionGroup({Section(BoxData({"Dynamic", "(", "searchString", ")"}), 
+        "Input", SectionLabel -> "in [29]:"), 
+       Section(BoxData(DynamicBox(ToBoxes(searchString))), "Output", 
+        SectionGenerated -> True, SectionLabel -> "out [29]:")}, All)}, All)}, 
+  DockedSections -> {"Top" -> {}, "TopGlass" -> Section(
+    BoxData({"\"Help Topic:  \"", 
+      FillBox(InputFieldBox(Dynamic(searchString), String)), 
+      ButtonBox("\" Go \"", ButtonFrame -> "Palette", 
+       ButtonFunction -> (Print({EvaluationDocument(), 
+         SelectedDocument()}) &))}), "Docked", LineBreakWithin -> False), 
+   "Bottom" -> {}, "BottomGlass" -> {}})

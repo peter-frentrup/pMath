@@ -9,6 +9,24 @@ using namespace richmath;
 
 //{ class SectionList ...
 
+Expr SectionList::group(Expr sections) {
+  if(!sections.is_valid()) {
+    return Call(
+             Symbol(PMATH_SYMBOL_SECTIONGROUP),
+             List(),
+             Symbol(PMATH_SYMBOL_ALL));
+  }
+  
+  if(sections[0] == PMATH_SYMBOL_LIST) {
+    return Call(
+             Symbol(PMATH_SYMBOL_SECTIONGROUP),
+             sections,
+             Symbol(PMATH_SYMBOL_ALL));
+  }
+  
+  return sections;
+}
+
 SectionList::SectionList()
   : Box(),
     border_visible(true),

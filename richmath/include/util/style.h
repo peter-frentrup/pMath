@@ -115,6 +115,12 @@ namespace richmath {
     DefaultNewSectionStyle,
     DefaultReturnCreatedSectionStyle,
     
+    DockedSectionsTop,
+    DockedSectionsTopGlass,
+    DockedSectionsBottom,
+    DockedSectionsBottomGlass,
+    
+    StyleDefinitions,
     GeneratedSectionStyles
   };
   
@@ -165,14 +171,16 @@ namespace richmath {
       void remove_dynamic(StringStyleOptionName n) { remove_dynamic((int)n); }
       void remove_dynamic(ObjectStyleOptionName n) { remove_dynamic((int)n); }
       
-      void set_pmath_bool_auto(IntStyleOptionName n, Expr obj); // 0/1=true/false, 2=auto
-      void set_pmath_bool(IntStyleOptionName      n, Expr obj);
-      void set_pmath_color(IntStyleOptionName     n, Expr obj);
-      void set_pmath_float(FloatStyleOptionName   n, Expr obj);
-      void set_pmath_margin(FloatStyleOptionName  n, Expr obj); // n + {0,1,2,3} ~= {Left, Right, Top, Bottom}
-      void set_pmath_size(  FloatStyleOptionName  n, Expr obj); // n + {0,1} ~= {Horizontal, Vertical}
-      void set_pmath_string(StringStyleOptionName n, Expr obj);
-      void set_pmath_object(ObjectStyleOptionName n, Expr obj);
+      void set_pmath_bool_auto(IntStyleOptionName    n, Expr obj); // 0/1=true/false, 2=auto
+      void set_pmath_bool(     IntStyleOptionName    n, Expr obj);
+      void set_pmath_color(    IntStyleOptionName    n, Expr obj);
+      void set_pmath_float(    FloatStyleOptionName  n, Expr obj);
+      void set_pmath_margin(   FloatStyleOptionName  n, Expr obj); // n + {0,1,2,3} ~= {Left, Right, Top, Bottom}
+      void set_pmath_size(     FloatStyleOptionName  n, Expr obj); // n + {0,1} ~= {Horizontal, Vertical}
+      void set_pmath_string(   StringStyleOptionName n, Expr obj);
+      void set_pmath_object(   ObjectStyleOptionName n, Expr obj);
+      
+      void set_docked_sections(Expr obj);
       
       unsigned int count();
       

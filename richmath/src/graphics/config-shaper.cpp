@@ -84,7 +84,7 @@ class GlyphGetter: public Base {
       }
       
       if(expr.is_string()) {
-        uint16_t res = ps2g[font & (FontsPerGlyphCount-1)][String(expr)];
+        uint16_t res = ps2g[font & (FontsPerGlyphCount - 1)][String(expr)];
         
 //        if(!res){
 //          pmath_debug_print_object("Unknown glyph ", expr.get(), "");
@@ -224,7 +224,7 @@ bool ConfigShaperDB::verify() {
   }
   
   if(radical.small_glyphs.length() >= 1) {
-    SmallRadicalGlyph &last = radical.small_glyphs[radical.small_glyphs.length()-1];
+    SmallRadicalGlyph &last = radical.small_glyphs[radical.small_glyphs.length() - 1];
     
     if(last.index != 0) {
       printf("[%s, %d]", FUNC_NAME, __LINE__);
@@ -429,7 +429,7 @@ static String find_font(Expr name) {
   }
   
   String s(name);
-  if(s.length() > 2 && s[0] == '<' && s[s.length()-1] == '>') {
+  if(s.length() > 2 && s[0] == '<' && s[s.length() - 1] == '>') {
     s = s.part(1, s.length() - 2);
     return s;
   }
@@ -455,8 +455,7 @@ SharedPtr<ConfigShaperDB> ConfigShaperDB::load_from_object(const Expr expr) {
     GG.ps2g[i].clear();
     
   for(size_t i = 1; i <= expr.expr_length(); ++i) {
-    if(expr[i][0] == PMATH_SYMBOL_RULE
-        && expr[i].expr_length() == 2) {
+    if(expr[i].is_rule()) {
       String lhs = expr[i][1];
       Expr   rhs = expr[i][2];
       
@@ -472,7 +471,7 @@ SharedPtr<ConfigShaperDB> ConfigShaperDB::load_from_object(const Expr expr) {
           db->math_fontnames.length(rhs.expr_length());
           
           for(int j = 0; j < db->math_fontnames.length(); ++j) {
-            db->math_fontnames[j] = find_font(rhs[j+1]);
+            db->math_fontnames[j] = find_font(rhs[j + 1]);
             if(db->math_fontnames[j].length() == 0)
               return 0;
           }
@@ -493,7 +492,7 @@ SharedPtr<ConfigShaperDB> ConfigShaperDB::load_from_object(const Expr expr) {
           db->text_fontnames.length(rhs.expr_length());
           
           for(int j = 0; j < db->text_fontnames.length(); ++j) {
-            db->text_fontnames[j] = find_font(rhs[j+1]);
+            db->text_fontnames[j] = find_font(rhs[j + 1]);
             if(db->math_fontnames[j].length() == 0)
               return 0;
           }
@@ -513,7 +512,7 @@ SharedPtr<ConfigShaperDB> ConfigShaperDB::load_from_object(const Expr expr) {
           db->script_size_multipliers.length(rhs.expr_length());
           
           for(int i = 0; i < db->script_size_multipliers.length(); ++i) {
-            db->script_size_multipliers[i] = rhs[i+1].to_double();
+            db->script_size_multipliers[i] = rhs[i + 1].to_double();
           }
         }
         else
@@ -527,7 +526,7 @@ SharedPtr<ConfigShaperDB> ConfigShaperDB::load_from_object(const Expr expr) {
           db->radical.small_glyphs.length(rhs.expr_length() + 1);
           
           for(int j = 0; j < db->radical.small_glyphs.length() - 1; ++j) {
-            Expr g = rhs[j+1];
+            Expr g = rhs[j + 1];
             
             if(g[0] == PMATH_SYMBOL_LIST
                 && g.expr_length() == 5) {
@@ -541,7 +540,7 @@ SharedPtr<ConfigShaperDB> ConfigShaperDB::load_from_object(const Expr expr) {
               break;
           }
           
-          db->radical.small_glyphs[db->radical.small_glyphs.length()-1] =
+          db->radical.small_glyphs[db->radical.small_glyphs.length() - 1] =
             SmallRadicalGlyph(0, 0, 0, 0, 0);
         }
         
@@ -567,8 +566,7 @@ SharedPtr<ConfigShaperDB> ConfigShaperDB::load_from_object(const Expr expr) {
           for(size_t j = rhs.expr_length(); j > 0; --j) {
             Expr rule = rhs[j];
             
-            if(rule[0] == PMATH_SYMBOL_RULE
-                && rule.expr_length() == 2) {
+            if(rule.is_rule()) {
               GlyphFontOffset gfo(rule[2]);
               
               if(gfo.glyph) {
@@ -619,21 +617,21 @@ SharedPtr<ConfigShaperDB> ConfigShaperDB::load_from_object(const Expr expr) {
           for(size_t j = rhs.expr_length(); j > 0; --j) {
             Expr rule = rhs[j];
             
-            if(rule[0] == PMATH_SYMBOL_RULE
-                && rule.expr_length() == 2
-                && rule[2][0] == PMATH_SYMBOL_LIST) {
+            if( rule.is_rule() &&
+                rule[2][0] == PMATH_SYMBOL_LIST)
+            {
               Expr list = rule[2];
               
               sga.glyphs.length(list.expr_length());
               sga.fonts.length(sga.glyphs.length(), 0);
               for(int k = 0; k < sga.glyphs.length(); ++k) {
-                if(list[k+1].expr_length() == 2
-                    && list[k+1][0] == PMATH_SYMBOL_LIST) {
-                  sga.fonts[k]  = expr_to_ui8(list[k+1][2]) - 1;
-                  sga.glyphs[k] = GG.expr_to_glyph(list[k+1][1], sga.fonts[k]);
+                if(list[k + 1].expr_length() == 2
+                    && list[k + 1][0] == PMATH_SYMBOL_LIST) {
+                  sga.fonts[k]  = expr_to_ui8(list[k + 1][2]) - 1;
+                  sga.glyphs[k] = GG.expr_to_glyph(list[k + 1][1], sga.fonts[k]);
                 }
                 else {
-                  sga.glyphs[k] = GG.expr_to_glyph(list[k+1], 0);
+                  sga.glyphs[k] = GG.expr_to_glyph(list[k + 1], 0);
                 }
               }
               
@@ -653,10 +651,10 @@ SharedPtr<ConfigShaperDB> ConfigShaperDB::load_from_object(const Expr expr) {
           for(size_t j = rhs.expr_length(); j > 0; --j) {
             Expr rule = rhs[j];
             
-            if(rule[0] == PMATH_SYMBOL_RULE
-                && rule.expr_length() == 2
-                && rule[2][0] == PMATH_SYMBOL_LIST
-                && rule[2].expr_length() == 2) {
+            if( rule.is_rule() &&
+                rule[2][0] == PMATH_SYMBOL_LIST &&
+                rule[2].expr_length() == 2)
+            {
               Expr list = rule[2];
               Expr gs   = list[1];
               
@@ -709,10 +707,10 @@ SharedPtr<ConfigShaperDB> ConfigShaperDB::load_from_object(const Expr expr) {
           for(size_t j = rhs.expr_length(); j > 0; --j) {
             Expr rule = rhs[j];
             
-            if(rule[0] == PMATH_SYMBOL_RULE
-                && rule.expr_length() == 2
-                && rule[2][0] == PMATH_SYMBOL_LIST
-                && rule[2].expr_length() == 4) {
+            if( rule.is_rule() &&
+                rule[2][0] == PMATH_SYMBOL_LIST &&
+                rule[2].expr_length() == 4)
+            {
               Expr list = rule[2];
               Expr gs   = list[1];
               
@@ -751,8 +749,7 @@ SharedPtr<ConfigShaperDB> ConfigShaperDB::load_from_object(const Expr expr) {
           for(size_t j = rhs.expr_length(); j > 0; --j) {
             Expr rule = rhs[j];
             
-            if(rule[0] == PMATH_SYMBOL_RULE
-                && rule.expr_length() == 2) {
+            if(rule.is_rule()) {
               uint32_t key = 0;
               Expr lhs = rule[1];
               
@@ -877,10 +874,10 @@ SharedPtr<ConfigShaper> ConfigShaperDB::find(FontStyle style) {
 
 ConfigShaper::ConfigShaper(SharedPtr<ConfigShaperDB> _db, FontStyle _style)
   : SimpleMathShaper(_db->radical.font),
-  db(_db),
-  text_shaper(new FallbackTextShaper(TextShaper::find(db->text_fontnames[0], _style))),
-  math_font_faces(_db->math_fontnames.length()),
-  style(_style)
+    db(_db),
+    text_shaper(new FallbackTextShaper(TextShaper::find(db->text_fontnames[0], _style))),
+    math_font_faces(_db->math_fontnames.length()),
+    style(_style)
 {
   for(int i = 1; i < db->text_fontnames.length(); ++i)
     text_shaper->add(TextShaper::find(db->text_fontnames[i], style));
@@ -1094,10 +1091,10 @@ void ConfigShaper::decode_token(
       
       if( sub_len + 1 < len &&
           is_utf16_high(str[sub_len]) &&
-          is_utf16_low(str[sub_len+1]))
+          is_utf16_low(str[sub_len + 1]))
       {
         uint32_t hi = str[sub_len];
-        uint32_t lo = str[sub_len+1];
+        uint32_t lo = str[sub_len + 1];
         uint32_t ch = 0x10000 + (((hi & 0x03FF) << 10) | (lo & 0x03FF));
         
         char_len = 2;

@@ -38,8 +38,7 @@ Expr Win32FileDialog::show(
     for(size_t i = 1; i <= filter.expr_length(); ++i) {
       Expr rule = filter[i];
       
-      if( rule.expr_length() == 2 &&
-          rule[0] == PMATH_SYMBOL_RULE)
+      if(rule.is_rule())
       {
         Expr lhs = rule[1];
         Expr rhs = rule[2];

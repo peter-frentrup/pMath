@@ -106,9 +106,7 @@ SyntaxInformation::SyntaxInformation(Expr name)
     for(size_t i = 1; i <= expr.expr_length(); ++i) {
       Expr opt = expr[i];
       
-      if(opt.is_expr()
-          && opt[0] == PMATH_SYMBOL_RULE
-          && opt.expr_length() == 2) {
+      if(opt.is_rule()) {
         String key(opt[1]);
         
         if(key.equals("ArgumentCount")) {

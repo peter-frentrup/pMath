@@ -105,8 +105,7 @@ static void load_aliases(
   if(aliases[0] == PMATH_SYMBOL_LIST) {
     for(size_t i = 1; i <= aliases.expr_length(); ++i) {
       Expr rule = aliases[i];
-      if(rule[0] == PMATH_SYMBOL_RULE
-          && rule.expr_length() == 2) {
+      if(rule.is_rule()) {
         String lhs = rule[1];
         Expr   rhs = rule[2];
         
@@ -121,8 +120,7 @@ static void load_aliases(
           for(size_t j = 1; j <= rhs.expr_length(); ++j) {
             Expr def = rhs[j];
             
-            if(def[0] == PMATH_SYMBOL_RULE
-                && def.expr_length() == 2) {
+            if(def.is_rule()) {
               String name = def[1];
               
               if(name.length() > 0)
