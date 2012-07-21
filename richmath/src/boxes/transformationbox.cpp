@@ -161,7 +161,7 @@ bool RotationBox::try_load_from_object(Expr expr, int opts) {
   /* now success is guaranteed */
   
   _content->load_from_object(expr[1], opts);
-  style->clear();
+  reset_style();
   style->add_pmath(options);
   angle(
     Expr(pmath_option_value(
@@ -236,7 +236,7 @@ bool TransformationBox::try_load_from_object(Expr expr, int opts) {
   
   /* now success is guaranteed */
   
-  style->clear();
+  reset_style();
   style->add_pmath(options);
   
   _content->load_from_object(expr[1], opts);

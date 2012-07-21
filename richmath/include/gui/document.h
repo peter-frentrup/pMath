@@ -137,7 +137,8 @@ namespace richmath {
       void reset_mouse();
       bool is_mouse_down() { return mouse_down_counter > 0; }
       
-      SharedPtr<Stylesheet> stylesheet() { return context.stylesheet; }
+      virtual SharedPtr<Stylesheet> stylesheet() { return context.stylesheet; }
+      virtual void reset_style();
       
       void paint_resize(Canvas *canvas, bool resize_only);
       

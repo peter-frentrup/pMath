@@ -43,14 +43,13 @@ namespace richmath {
   
   template<typename K> Void Entry<K, Void>::value;
   
-  template <
-  typename K,
-  typename V,
-  unsigned int (*hash_function)(const K &key) = object_hash >
+  template < typename K,
+           typename V,
+           unsigned int (*hash_function)(const K &key) = object_hash >
   class Hashtable: public Base {
     private:
       static const unsigned int MINSIZE = 8; // power of 2, >= 2
-      static Entry<K, V> *Deleted() { return (Entry<K, V>*)(-(size_t)1); }
+      static Entry<K, V> *Deleted() { return (Entry<K, V> *)(-(size_t)1); }
       
       static bool is_used(Entry<K, V> *e) {
         return ((size_t)e) + 1 > 1;
@@ -116,11 +115,11 @@ namespace richmath {
         if(capacity == MINSIZE)
           table = small_table;
         else
-          table = new Entry<K, V>*[capacity];
+          table = new Entry<K, V> *[capacity];
           
         assert(table != oldtable);
         
-        memset(table, 0, newsize * sizeof(Entry<K, V>*));
+        memset(table, 0, newsize * sizeof(Entry<K, V> *));
         
         unsigned int i = used_count;
         for(Entry<K, V> **entry_ptr = oldtable; i > 0; ++entry_ptr) {
@@ -146,7 +145,7 @@ namespace richmath {
         used_count    = 0;
         capacity      = MINSIZE;
         table         = small_table;
-        memset(table, 0, capacity * sizeof(Entry<K, V>*));
+        memset(table, 0, capacity * sizeof(Entry<K, V> *));
         
         assert(is_deleted(Deleted()));
         assert(!is_used(Deleted()));
@@ -209,10 +208,17 @@ namespace richmath {
       }
       
       void clear() {
-        for(unsigned int i = 0; i < capacity; ++i)
-          if(is_used(table[i]))
+        for(unsigned int i = 0; used_count > 0; ++i) {
+          assert(i < capacity);
+          
+          if(is_used(table[i])) {
+            --used_count;
             delete table[i];
-            
+          }
+        }
+        
+        assert(used_count == 0);
+        
         if(table != small_table)
           delete[] table;
           
@@ -220,7 +226,7 @@ namespace richmath {
         used_count    = 0;
         capacity      = MINSIZE;
         table         = small_table;
-        memset(table, 0, capacity * sizeof(Entry<K, V>*));
+        memset(table, 0, capacity * sizeof(Entry<K, V> *));
       }
       
       void remove(const K &key) {
@@ -254,7 +260,7 @@ namespace richmath {
         }
       }
       
-      template <typename K2, typename V2, unsigned int (*h2)(const K2&)>
+      template <typename K2, typename V2, unsigned int (*h2)(const K2 &)>
       void merge(Hashtable<K2, V2, h2> &other) {
         for(unsigned int i = 0; i < other.capacity; ++i) {
           if(is_used(other.table[i]))

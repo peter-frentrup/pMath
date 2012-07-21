@@ -13,18 +13,18 @@ using namespace richmath;
 
 InputFieldBox::InputFieldBox(MathSequence *content)
   : ContainerWidgetBox(InputField, content),
-  must_update(true),
-  invalidated(false),
-  transparent(false),
+    must_update(true),
+    invalidated(false),
+    transparent(false),
 //  autoscroll(false),
-  last_click_time(0),
-  last_click_global_x(0.0),
-  last_click_global_y(0.0),
-  frame_x(0)
+    last_click_time(0),
+    last_click_global_x(0.0),
+    last_click_global_y(0.0),
+    frame_x(0)
 {
   dynamic.init(this, Expr());
   input_type = Symbol(PMATH_SYMBOL_EXPRESSION);
-  style = new Style(String("InputField"));
+  reset_style();
   cx = 0;
 }
 
@@ -47,8 +47,7 @@ bool InputFieldBox::try_load_from_object(Expr expr, int opts) {
     must_update = true;
   }
   
-  style->clear();
-  style->set(BaseStyleName, String("InputField"));
+  reset_style();
   style->add_pmath(options);
   
   return true;
@@ -184,6 +183,15 @@ void InputFieldBox::paint_content(Context *context) {
   ContainerWidgetBox::paint_content(context);
   
   context->canvas->restore();
+}
+
+void InputFieldBox::reset_style() {
+  if(style)
+    style->clear();
+  else
+    style = new Style;
+  
+  style->set(BaseStyleName, String("InputField"));
 }
 
 void InputFieldBox::scroll_to(float x, float y, float w, float h) {

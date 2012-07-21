@@ -572,7 +572,7 @@ bool MathSection::try_load_from_object(Expr expr, int opts) {
   if(!stylename.is_string())
     stylename = String("Input");
     
-  style->clear();
+  reset_style();
   style->add_pmath(options);
   style->set(BaseStyleName, stylename);
   
@@ -616,7 +616,7 @@ bool TextSection::try_load_from_object(Expr expr, int opts) {
   if(!stylename.is_string())
     stylename = String("Input");
     
-  style->clear();
+  reset_style();
   style->add_pmath(options);
   style->set(BaseStyleName, stylename);
   

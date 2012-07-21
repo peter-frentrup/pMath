@@ -29,7 +29,7 @@ bool TooltipBox::try_load_from_object(Expr expr, int opts) {
   /* now success is guaranteed */
   
   if(style){
-    style->clear();
+    reset_style();
     style->add_pmath(options);
   }
   else if(options != PMATH_UNDEFINED)

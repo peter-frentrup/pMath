@@ -19,6 +19,8 @@ namespace richmath {
       virtual void resize(Context *context);
       virtual void paint_content(Context *context);
       
+      virtual void reset_style();
+      
       virtual void scroll_to(float x, float y, float w, float h);
       virtual void scroll_to(Canvas *canvas, Box *child, int start, int end);
       

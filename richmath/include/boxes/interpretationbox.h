@@ -11,6 +11,8 @@ namespace richmath {
       InterpretationBox(MathSequence *content);
       InterpretationBox(MathSequence *content, Expr _interpretation);
       
+      virtual void reset_style();
+      
       // Box::try_create<InterpretationBox>(expr, opts);
       virtual bool try_load_from_object(Expr expr, int opts);
       

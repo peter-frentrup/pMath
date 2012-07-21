@@ -319,7 +319,7 @@ void MathSequence::resize(Context *context) {
 //  // round ascent/descent to next multiple of 0.75pt (= 1px by default):
 //  _extents.ascent  = ceilf(_extents.ascent  / 0.75f ) * 0.75f;
 //  _extents.descent = ceilf(_extents.descent / 0.75f ) * 0.75f;
-  
+
   if(context->sequence_unfilled_width == -HUGE_VAL)
     context->sequence_unfilled_width = _extents.width;
 }
@@ -1099,7 +1099,7 @@ bool MathSequence::is_inside_string(int pos) {
         span = span.next();
       }
       
-      if(span){
+      if(span) {
         i = span.end() + 1;
         if(i >= pos && buf[i - 1] != '"')
           return true;
@@ -2998,7 +2998,7 @@ static Box *create_box(Expr expr, int options) {
   if(expr[0] == PMATH_SYMBOL_SUBSUPERSCRIPTBOX)
     return create_or_error<  SubsuperscriptBox>(expr, options);
     
-  if( expr[0] == PMATH_SYMBOL_SQRTBOX)
+  if(expr[0] == PMATH_SYMBOL_SQRTBOX)
     return create_or_error<  RadicalBox>(expr, options);
     
   if(expr[0] == PMATH_SYMBOL_STYLEBOX)
@@ -3036,7 +3036,8 @@ class PositionedExpr {
     }
     
     PositionedExpr(Expr _expr, int _pos)
-      : expr(_expr), pos(_pos)
+      : expr(_expr),
+        pos(_pos)
     {
     }
     
@@ -3055,7 +3056,7 @@ class SpanSynchronizer: public Base {
   public:
     SpanSynchronizer(
       int                    _new_load_options,
-      Array<Box *>           &_old_boxes,
+      Array<Box *>          &_old_boxes,
       SpanArray             &_old_spans,
       Array<PositionedExpr> &_new_boxes,
       SpanArray             &_new_spans

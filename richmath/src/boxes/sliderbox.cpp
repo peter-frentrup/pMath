@@ -123,7 +123,7 @@ bool SliderBox::try_load_from_object(Expr expr, int opts) {
   }
   
   if(style){
-    style->clear();
+    reset_style();
     style->add_pmath(options);
   }
   else

@@ -96,10 +96,7 @@ GraphicsBox::GraphicsBox()
     mouse_down_y(0),
     user_has_changed_size(false)
 {
-  if(!style)
-    style = new Style();
-    
-  style->set(BaseStyleName, "Graphics");
+  reset_style();
   
   x_axis_ticks = new AxisTicks;
   y_axis_ticks = new AxisTicks;
@@ -157,8 +154,7 @@ bool GraphicsBox::try_load_from_object(Expr expr, int opts) {
     }
   }
   
-  style->clear();
-  style->set(BaseStyleName, "Graphics");
+  reset_style();
   style->add_pmath(options);
   style->add_pmath(user_options);
   
@@ -285,7 +281,7 @@ void GraphicsBox::resize_axes(Context *context) {
     
     if(plot_range[0] == PMATH_SYMBOL_NCACHE)
       plot_range = plot_range[2];
-    
+      
     if(plot_range == PMATH_SYMBOL_AUTOMATIC) {
       elements.find_extends(bounds);
     }
@@ -534,6 +530,15 @@ void GraphicsBox::paint(Context *context) {
     }
   }
   cc.end();
+}
+
+void GraphicsBox::reset_style() {
+  if(style)
+    style->clear();
+  else
+    style = new Style();
+    
+  style->set(BaseStyleName, "Graphics");
 }
 
 Expr GraphicsBox::to_pmath(int flags) {

@@ -28,7 +28,9 @@ namespace richmath {
       virtual bool expand(const BoxSize &size);
       virtual void resize(Context *context);
       virtual void paint(Context *context);
-    
+      
+      virtual void reset_style();
+      
       virtual Box *remove(int *index) { return this; }
       
       virtual Expr to_pmath_symbol(){ return Symbol(PMATH_SYMBOL_GRAPHICSBOX); }

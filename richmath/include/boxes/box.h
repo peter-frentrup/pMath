@@ -210,6 +210,8 @@ namespace richmath {
       String get_own_style(StringStyleOptionName n);
       Expr   get_own_style(ObjectStyleOptionName n);
       
+      virtual void reset_style(){ if(style) style->clear(); }
+      
       virtual Box *mouse_sensitive();
       virtual void on_mouse_enter();
       virtual void on_mouse_exit();

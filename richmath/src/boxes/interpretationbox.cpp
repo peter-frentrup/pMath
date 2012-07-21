@@ -23,9 +23,17 @@ InterpretationBox::InterpretationBox(MathSequence *content)
 
 InterpretationBox::InterpretationBox(MathSequence *content, Expr _interpretation)
   : OwnerBox(content),
-  interpretation(_interpretation)
+    interpretation(_interpretation)
 {
-  style = new Style;
+  reset_style();
+}
+
+void InterpretationBox::reset_style() {
+  if(style)
+    style->clear();
+  else
+    style = new Style;
+    
   style->set(Editable, false);
 }
 
@@ -47,8 +55,7 @@ bool InterpretationBox::try_load_from_object(Expr expr, int opts) {
   
   if(options_expr != PMATH_UNDEFINED) {
     if(style) {
-      style->clear();
-      style->set(Editable, false);
+      reset_style();
       style->add_pmath(options_expr);
     }
     else
@@ -91,7 +98,7 @@ bool InterpretationBox::edit_selection(Context *context) {
     return false;
     
   if(get_own_style(AutoDelete)) {
-    MathSequence *seq = dynamic_cast<MathSequence*>(_parent);
+    MathSequence *seq = dynamic_cast<MathSequence *>(_parent);
     
     if(seq) {
       int len = _content->length();
