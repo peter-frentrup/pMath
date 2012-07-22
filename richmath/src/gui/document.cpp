@@ -1350,23 +1350,11 @@ void Document::on_key_press(uint32_t unichar) {
         const uint16_t *buf = alias.buffer();
         const int       len = alias.length();
         
-        if( len > 3              &&
-            len < 64 + 3         &&
-            buf[0]       == '\\' &&
-            buf[1]       == '['  &&
-            buf[len - 1] == ']')
-        {
-          char name[64];
+        if(len > 0 && buf[0] == '\\') {
+          uint32_t unichar;
+          const uint16_t *bufend = pmath_char_parse(buf, len, &unichar);
           
-          int i;
-          for(i = 0; i < len - 3; ++i)
-            name[i] = (char)buf[i + 2];
-            
-          name[i] = '\0';
-          
-          uint32_t unichar = pmath_char_from_name(name);
-          
-          if(unichar != 0xFFFFFFFFU) {
+          if(unichar <= 0x10FFFF && bufend == buf + len) {
             String ins = String::FromChar(unichar);
             
             int i = seq->insert(alias_end, ins);
@@ -4043,36 +4031,8 @@ bool Document::handle_macros(
     int e = selection_start();
     int i = e - 1;
     
-    if(i >= 3 && buf[i] == ']') {
-      while(i > 0 && buf[i] != '[' && buf[i] <= 0x7F && e - i - 2 < 64)
-        --i;
-        
-      if(i > 0 && buf[i] == '[' && buf[i - 1] == '\\' && e - i - 2 < 64) {
-        char name[64];
-        
-        int j;
-        for(j = 0; j < e - i - 2; ++j) {
-          name[j] = (char)buf[i + 1 + j];
-        }
-        name[j] = '\0';
-        
-        uint32_t unichar = pmath_char_from_name(name);
-        if(unichar != 0xFFFFFFFFU) {
-          String s = String::FromChar(unichar);
-          
-          --i;
-          seq->insert(e, s);
-          seq->remove(i, e);
-          move_to(selection_box(), i + s.length());
-          return true;
-        }
-      }
-      
-      i = e - 1;
-    }
-    else if(seq->is_inside_string(i)) {
+    if(seq->is_inside_string(i)) 
       return false;
-    }
     
     while(i >= 0 && buf[i] > ' ' && buf[i] != '\\')
       --i;
@@ -4082,13 +4042,20 @@ bool Document::handle_macros(
       --j;
       
     if(i < e - 1 && (i - j) % 2 == 1) {
-      String s = seq->text().part(i + 1, e - i - 1);
+      uint32_t unichar;
+      const uint16_t *bufend = pmath_char_parse(buf + i, e - i, &unichar);
       
-      Expr repl = String::FromChar(unicode_to_utf32(s));
+      Expr repl;// = String::FromChar(unicode_to_utf32(s));
+      if(bufend == buf + e && unichar <= 0x10FFFF) {
+        repl = String::FromChar(unichar);
+      }
+      else {
+        String s = seq->text().part(i + 1, e - i - 1);
+        repl = String::FromChar(unicode_to_utf32(s));
+        if(repl.is_null())
+          repl = table[s];
+      }
       
-      if(repl.is_null())
-        repl = table[s];
-        
       if(!repl.is_null()) {
         String s(repl);
         

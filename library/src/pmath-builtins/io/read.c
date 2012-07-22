@@ -15,8 +15,19 @@
 #include <pmath-builtins/io-private.h>
 #include <pmath-builtins/language-private.h>
 
+struct read_info_t {
+  pmath_t       file;
+  pmath_bool_t  have_critical_error;
+};
+
 static void syntax_error(pmath_string_t code, int pos, void *data, pmath_bool_t critical) {
-  pmath_message_syntax_error(code, pos, PMATH_NULL, 0);
+  struct read_info_t *info = data;
+  
+  if(!info->have_critical_error)
+    pmath_message_syntax_error(code, pos, PMATH_NULL, 0);
+    
+  if(critical)
+    info->have_critical_error = TRUE;
 }
 
 static pmath_files_status_t skip_whitespace(pmath_t file, pmath_bool_t *eol) {
@@ -52,12 +63,13 @@ static pmath_files_status_t skip_whitespace(pmath_t file, pmath_bool_t *eol) {
 }
 
 static pmath_string_t readline(void *p) {
-  pmath_t file = *(pmath_t *)p;
+  struct read_info_t *info = p;
   
-  return pmath_file_readline(file);
+  return pmath_file_readline(info->file);
 }
 
 static pmath_t read_expression(pmath_t file) {
+  struct read_info_t info;
   pmath_span_array_t *spans;
   pmath_string_t code;
   pmath_t result;
@@ -70,13 +82,15 @@ static pmath_t read_expression(pmath_t file) {
     code = pmath_file_readline(file);
   }
   
+  info.file = file;
+  info.have_critical_error = FALSE;
   spans = pmath_spans_from_string(
             &code,
             readline,
             NULL,
             NULL,
             syntax_error,
-            &file);
+            &info);
             
   result = pmath_boxes_from_spans(
              spans,

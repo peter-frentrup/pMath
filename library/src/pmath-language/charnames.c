@@ -4,6 +4,8 @@
 #include <pmath-util/hashtables.h>
 #include <pmath-util/incremental-hash-private.h>
 
+#include <pmath-language/tokens.h>
+
 #include <string.h>
 
 
@@ -183,7 +185,7 @@ static struct named_char_t named_char_array[] = {
   {0x1D517, "GothicCapitalT"},
   {0x1D518, "GothicCapitalU"},
   {0x1D519, "GothicCapitalV"},
-  {0x1D51A, "GothicCapitaLW"},
+  {0x1D51A, "GothicCapitalW"},
   {0x1D51B, "GothicCapitalX"},
   {0x1D51C, "GothicCapitalY"},
   { 0x2128, "GothicCapitalZ"},
@@ -705,50 +707,50 @@ static void destroy_nc(void *entry) {
 }
 
 static unsigned int hash_nc_char(void *_entry) {
-  struct named_char_t *entry = (struct named_char_t*)_entry;
+  struct named_char_t *entry = (struct named_char_t *)_entry;
   
   return entry->unichar;
 }
 
 static unsigned int hash_nc_name(void *_entry) {
-  struct named_char_t *entry = (struct named_char_t*)_entry;
+  struct named_char_t *entry = (struct named_char_t *)_entry;
   
   return incremental_hash(entry->name, strlen(entry->name), 0);
 }
 
 static pmath_bool_t nc_nc_equal_chars(void *_entry1, void *_entry2) {
-  struct named_char_t *entry1 = (struct named_char_t*)_entry1;
-  struct named_char_t *entry2 = (struct named_char_t*)_entry2;
+  struct named_char_t *entry1 = (struct named_char_t *)_entry1;
+  struct named_char_t *entry2 = (struct named_char_t *)_entry2;
   
   return entry1->unichar == entry2->unichar;
 }
 
 static pmath_bool_t nc_nc_equal_names(void *_entry1, void *_entry2) {
-  struct named_char_t *entry1 = (struct named_char_t*)_entry1;
-  struct named_char_t *entry2 = (struct named_char_t*)_entry2;
+  struct named_char_t *entry1 = (struct named_char_t *)_entry1;
+  struct named_char_t *entry2 = (struct named_char_t *)_entry2;
   
   return strcmp(entry1->name, entry2->name) == 0;
 }
 
 static unsigned int nc_char_hash(void *key) {
-  return *(uint32_t*)key;
+  return *(uint32_t *)key;
 }
 
 static unsigned int nc_name_hash(void *_key) {
-  const char *key = (const char*)_key;
+  const char *key = (const char *)_key;
   return incremental_hash(key, strlen(key), 0);
 }
 
 static pmath_bool_t nc_char_key_equal(void *_entry, void *key) {
-  struct named_char_t *entry = (struct named_char_t*)_entry;
+  struct named_char_t *entry = (struct named_char_t *)_entry;
   
-  return entry->unichar == *(uint32_t*)key;
+  return entry->unichar == *(uint32_t *)key;
 }
 
 static pmath_bool_t nc_name_key_equal(void *_entry, void *key) {
-  struct named_char_t *entry = (struct named_char_t*)_entry;
+  struct named_char_t *entry = (struct named_char_t *)_entry;
   
-  return strcmp(entry->name, (const char*)key) == 0;
+  return strcmp(entry->name, (const char *)key) == 0;
 }
 
 //} ... hashtable functions
@@ -772,7 +774,7 @@ static const pmath_ht_class_t char2name_ht_class = { // key is a (uint32_t*)
 
 PMATH_API
 uint32_t pmath_char_from_name(const char *name) {
-  struct named_char_t *entry = pmath_ht_search(name2char_ht, (void*)name);
+  struct named_char_t *entry = pmath_ht_search(name2char_ht, (void *)name);
   
   if(entry)
     return entry->unichar;
@@ -788,6 +790,156 @@ const char *pmath_char_to_name(uint32_t unichar) {
     return entry->name;
     
   return NULL;
+}
+
+static int hex(uint16_t ch) {
+  if(ch >= '0' && ch <= '9')
+    return ch - '0';
+  if(ch >= 'a' && ch <= 'f')
+    return ch - 'a' + 10;
+  if(ch >= 'A' && ch <= 'F')
+    return ch - 'A' + 10;
+  return -1;
+}
+
+static const uint16_t *skip_all_hex(const uint16_t *str, int maxlen){
+  while(maxlen > 0 && pmath_char_is_hexdigit(*str)){
+    ++str;
+    --maxlen;
+  }
+  
+  return str;
+}
+
+PMATH_API const uint16_t *pmath_char_parse(const uint16_t *str, int maxlen, uint32_t *result) {
+  assert(str    != NULL);
+  assert(result != NULL);
+  
+  *result = 0xFFFFFFFFU;
+  if(maxlen <= 0)
+    return str;
+    
+  if(str[0] != '\\') {
+    if((str[0] & 0xFC00) == 0xD800) {
+      if(maxlen == 1 || (str[1] & 0xFC00) != 0xDC00)
+        return str + 1;
+        
+      *result = 0x10000 | (((uint32_t)str[0] & 0x03FF) << 10) | (str[1] & 0x03FF);
+      return str + 2;
+    }
+    
+    *result = str[0];
+    return str + 1;
+  }
+  
+  if(maxlen < 2)
+    return str + 1;
+    
+  switch(str[1]) {
+    case '\\':
+    case '"':
+      *result = str[1];
+      return str + 2;
+      
+    case 'n':
+      *result = '\n';
+      return str + 2;
+      
+    case 'r':
+      *result = '\r';
+      return str + 2;
+      
+    case 't':
+      *result = '\t';
+      return str + 2;
+      
+    case '(':
+      *result = PMATH_CHAR_LEFT_BOX;
+      return str + 2;
+      
+    case ')':
+      *result = PMATH_CHAR_RIGHT_BOX;
+      return str + 2;
+      
+    case 'x':
+      if(maxlen >= 4) {
+        int h1 = hex(str[2]);
+        int h2 = hex(str[3]);
+        if(h1 >= 0 && h2 >= 0) {
+          *result = (uint32_t)((h1 << 4) | h2);
+          return str + 4;
+        }
+      }
+      return skip_all_hex(str + 2, maxlen - 2);
+    
+    case 'u':
+      if(maxlen >= 6) {
+        int h1 = hex(str[2]);
+        int h2 = hex(str[3]);
+        int h3 = hex(str[4]);
+        int h4 = hex(str[5]);
+        if(h1 >= 0 && h2 >= 0 && h3 >= 0 && h4 >= 0) {
+          *result = (uint32_t)((h1 << 12) | (h2 << 8) | (h3 << 4) | h4);
+          return str + 6;
+        }
+      }
+      return skip_all_hex(str + 2, maxlen - 2);
+    
+    case 'U':
+      if(maxlen >= 10) {
+        int h1 = hex(str[2]);
+        int h2 = hex(str[3]);
+        int h3 = hex(str[4]);
+        int h4 = hex(str[5]);
+        int h5 = hex(str[6]);
+        int h6 = hex(str[7]);
+        int h7 = hex(str[8]);
+        int h8 = hex(str[9]);
+        if( h1 >= 0 && h2 >= 0 && h3 >= 0 && h4 >= 0 &&
+            h5 >= 0 && h6 >= 0 && h7 >= 0 && h8 >= 0)
+        {
+          uint32_t u = ((uint32_t)h1) << 28;
+          u |= h2 << 24;
+          u |= h3 << 20;
+          u |= h4 << 16;
+          u |= h5 << 12;
+          u |= h6 <<  8;
+          u |= h7 <<  4;
+          u |= h8;
+          
+          if(u <= 0x10FFFF) {
+            *result = u;
+            return str + 10;
+          }
+        }
+      }
+      return skip_all_hex(str + 2, maxlen - 2);
+    
+    case '[': {
+        int e = 1;
+        while(e < maxlen && str[e] <= 0x7F && str[e] != ']') {
+          ++e;
+        }
+        
+        if(e < maxlen && str[e] == ']' && e - 2 < 64) {
+          char s[64];
+          int i;
+          
+          for(i = 0; i < e - 2; ++i) {
+            s[i] = (char)str[2 + i];
+          }
+          
+          s[i] = '\0';
+          *result = pmath_char_from_name(s);
+          if(*result != 0xFFFFFFFFU)
+            return str + e + 1;
+        }
+        
+        return str + 2;
+      }
+  }
+  
+  return str + 1;
 }
 
 PMATH_PRIVATE pmath_bool_t _pmath_charnames_init(void) {
@@ -808,7 +960,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_charnames_init(void) {
       pmath_debug_print("name used for multipe chars: \[%s] for U+%04X and U+%04X\n",
                         named_char_array[i].name,
                         (unsigned int)named_char_array[i].unichar,
-                        ((struct named_char_t*)dummy)->unichar);
+                        ((struct named_char_t *)dummy)->unichar);
     }
     
     dummy = pmath_ht_insert(char2name_ht, &named_char_array[i]);
@@ -817,7 +969,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_charnames_init(void) {
       pmath_debug_print("duplicate character: U+%04X = \\[%s] = \\[%s]\n",
                         (unsigned int)named_char_array[i].unichar,
                         named_char_array[i].name,
-                        ((struct named_char_t*)dummy)->name);
+                        ((struct named_char_t *)dummy)->name);
     }
   }
   

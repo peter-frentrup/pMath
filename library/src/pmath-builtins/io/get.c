@@ -68,15 +68,18 @@ static pmath_string_t scanner_read(void *data) {
 }
 
 static void scanner_error(
-  pmath_string_t code,
-  int pos,
-  void *data,
-  pmath_bool_t critical
+  pmath_string_t  code,
+  int             pos,
+  void           *data,
+  pmath_bool_t    critical
 ) {
-  struct _get_file_info *info = (struct _get_file_info *)data;
+  struct _get_file_info *info = data;
+  
+  if(!info->err)
+    pmath_message_syntax_error(code, pos, pmath_ref(info->name), info->startline);
+    
   if(critical)
     info->err = TRUE;
-  pmath_message_syntax_error(code, pos, pmath_ref(info->name), info->startline);
 }
 
 static pmath_t get_file(

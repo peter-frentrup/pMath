@@ -239,10 +239,13 @@ static pmath_string_t scanner_read(void *dummy) {
 }
 
 static void scanner_error(pmath_string_t code, int pos, void *flag, pmath_bool_t critical) {
+  pmath_bool_t *have_critical = flag;
+  
+  if(!*have_critical)
+    pmath_message_syntax_error(code, pos, PMATH_NULL, 0);
+  
   if(critical)
-    *(pmath_bool_t*)flag = TRUE;
-    
-  pmath_message_syntax_error(code, pos, PMATH_NULL, 0);
+    *have_critical = TRUE;
 }
 
 static void handle_options(int argc, const char **argv) {

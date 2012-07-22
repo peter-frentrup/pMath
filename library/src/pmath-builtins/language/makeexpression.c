@@ -20,18 +20,32 @@
 #include <pmath-builtins/control-private.h>
 #include <pmath-builtins/lists-private.h>
 
+#include <limits.h>
 #include <string.h>
 
-
+// only handles BMP chars U+0001 .. U+ffff, 0 on error
 static uint16_t unichar_at(
   pmath_expr_t expr,
   size_t i
 ) {
   pmath_string_t obj = pmath_expr_get_item(expr, i);
   uint16_t result = 0;
-  if(pmath_is_string(obj) && pmath_string_length(obj) == 1) {
-    result = *pmath_string_buffer(&obj);
+  
+  if(pmath_is_string(obj)) {
+    const uint16_t *buf = pmath_string_buffer(&obj);
+    int             len = pmath_string_length(obj);
+    uint32_t u;
+    
+    if(len > 1) {
+      const uint16_t *endbuf = pmath_char_parse(buf, len, &u);
+      
+      if(buf + len == endbuf && u <= 0xFFFF)
+        result = (uint16_t)u;
+    }
+    else
+      result = buf[0];
   }
+  
   pmath_unref(obj);
   return result;
 }
@@ -79,16 +93,6 @@ static pmath_bool_t is_string_at(
     
   pmath_unref(obj);
   return TRUE;
-}
-
-static int hex(uint16_t ch) {
-  if(ch >= '0' && ch <= '9')
-    return ch - '0';
-  if(ch >= 'a' && ch <= 'f')
-    return ch - 'a' + 10;
-  if(ch >= 'A' && ch <= 'F')
-    return ch - 'A' + 10;
-  return -1;
 }
 
 #define HOLDCOMPLETE(result) pmath_expr_new_extended(\
@@ -760,153 +764,33 @@ static pmath_t make_expression_from_string_token(pmath_string_t string) {
   
   while(i < len - 1) {
     if(k == 0 && str[i] == '\\') {
-      ++i;
-      if(i == len) {
-        AFTER_STRING(result)[j++] = '\\';
-      }
-      else switch(str[i]) {
-          case '\\':
-          case '"': AFTER_STRING(result)[j++] = str[i++]; break;
+      uint32_t u;
+      const uint16_t *end;
+      
+      if(i + 1 < len && str[i + 1] <= ' ') {
+        ++i;
+        while(i < len && str[i] <= ' ')
+          ++i;
           
-          case 'n':
-            ++i;
-            AFTER_STRING(result)[j++] = '\n';
-            break;
-            
-          case 'r':
-            ++i;
-            AFTER_STRING(result)[j++] = '\r';
-            break;
-            
-          case 't':
-            ++i;
-            AFTER_STRING(result)[j++] = '\t';
-            break;
-            
-          case '(':
-            ++i;
-            AFTER_STRING(result)[j++] = PMATH_CHAR_LEFT_BOX;
-            break;
-            
-          case ')':
-            ++i;
-            AFTER_STRING(result)[j++] = PMATH_CHAR_RIGHT_BOX;
-            break;
-            
-          case 'x':
-            if(i + 2 < len) {
-              int h1 = hex(str[++i]);
-              int h2 = hex(str[++i]);
-              if(h1 >= 0 && h2 >= 0) {
-                ++i;
-                AFTER_STRING(result)[j++] = (uint16_t)((h1 << 4) | h2);
-              }
-              else
-                i -= 2;
-            }
-            break;
-            
-          case 'u':
-            if(i + 4 < len) {
-              int h1 = hex(str[++i]);
-              int h2 = hex(str[++i]);
-              int h3 = hex(str[++i]);
-              int h4 = hex(str[++i]);
-              if(h1 >= 0 && h2 >= 0 && h3 >= 0 && h4 >= 0) {
-                ++i;
-                AFTER_STRING(result)[j++] = (uint16_t)((h1 << 12) | (h2 << 8) | (h3 << 4) | h4);
-              }
-              else
-                i -= 4;
-            }
-            break;
-            
-          case 'U':
-            if(i + 8 < len) {
-              int h1 = hex(str[++i]);
-              int h2 = hex(str[++i]);
-              int h3 = hex(str[++i]);
-              int h4 = hex(str[++i]);
-              int h5 = hex(str[++i]);
-              int h6 = hex(str[++i]);
-              int h7 = hex(str[++i]);
-              int h8 = hex(str[++i]);
-              if( h1 >= 0 && h2 >= 0 && h3 >= 0 && h4 >= 0 &&
-                  h5 >= 0 && h6 >= 0 && h7 >= 0 && h8 >= 0)
-              {
-                uint32_t u = ((uint32_t)h1) << 28;
-                u |= h2 << 24;
-                u |= h3 << 20;
-                u |= h4 << 16;
-                u |= h5 << 12;
-                u |= h6 <<  8;
-                u |= h7 <<  4;
-                u |= h8;
-                
-                if(u <= 0x10FFFF) {
-                  ++i;
-                  if(u <= 0xFFFF) {
-                    AFTER_STRING(result)[j++] = (uint16_t)u;
-                  }
-                  else {
-                    u -= 0x10000;
-                    AFTER_STRING(result)[j++] = 0xD800 | (uint16_t)((u >> 10) & 0x03FF);
-                    AFTER_STRING(result)[j++] = 0xDC00 | (uint16_t)(u & 0x03FF);
-                  }
-                }
-                else
-                  i -= 8;
-              }
-              else
-                i -= 8;
-            }
-            break;
-            
-          case '[': {
-              int e = i;
-              while(e < len && str[e] <= 0x7F && str[e] != ']') {
-                ++e;
-              }
-              
-              if(e < len && str[e] == ']' && e - i - 1 < 64) {
-                char s[64];
-                int ii;
-                unsigned int unichar;
-                
-                for(ii = 0; ii < e - i - 1; ++ii) {
-                  s[ii] = (char)str[i + 1 + ii];
-                }
-                
-                s[ii] = '\0';
-                unichar = pmath_char_from_name(s);
-                if(unichar != 0xFFFFFFFFU) {
-                
-                  if(unichar <= 0xFFFF) {
-                    AFTER_STRING(result)[j++] = (uint16_t)unichar;
-                  }
-                  else {
-                    unichar -= 0x10000;
-                    AFTER_STRING(result)[j++] = 0xD800 | (uint16_t)((unichar >> 10) & 0x03FF);
-                    AFTER_STRING(result)[j++] = 0xDC00 | (uint16_t)(unichar & 0x03FF);
-                  }
-                  
-                  i = e + 1;
-                  break;
-                }
-              }
-            } /* fall through */
-            
-          default:
-            if(str[i] <= ' ') {
-              ++i;
-              while(i < len && str[i] <= ' ')
-                ++i;
-            }
-            else {
-              AFTER_STRING(result)[j++] = '\\';
-              AFTER_STRING(result)[j++] = str[i++];
-            }
-        }
+        continue;
+      }
+      
+      end = pmath_char_parse(str + i, len - i, &u);
+      
+      if(u <= 0xFFFF) {
+        AFTER_STRING(result)[j++] = (uint16_t)u;
+        i = end - str;
+      }
+      else if(u <= 0x10FFFF) {
+        u -= 0x10000;
+        AFTER_STRING(result)[j++] = 0xD800 | (uint16_t)((u >> 10) & 0x03FF);
+        AFTER_STRING(result)[j++] = 0xDC00 | (uint16_t)(u & 0x03FF);
+        i = end - str;
+      }
+      else {
+        // TODO: error/warning
+        AFTER_STRING(result)[j++] = str[i++];
+      }
     }
     else {
       if(str[i] == PMATH_CHAR_LEFT_BOX)
@@ -928,6 +812,56 @@ static pmath_t make_expression_from_string_token(pmath_string_t string) {
   return pmath_ref(PMATH_SYMBOL_FAILED);
 }
 
+static pmath_string_t unescape_chars(pmath_string_t str) {
+  const uint16_t *buf = pmath_string_buffer(&str);
+  int             len = pmath_string_length( str);
+  int i;
+  pmath_string_t result;
+  
+  i = 0;
+  while(i < len && buf[i] != '\\')
+    ++i;
+    
+  if(i == len)
+    return str;
+    
+  result = pmath_string_new(len);
+  while(i < len) {
+    uint32_t u;
+    uint16_t u16[2];
+    const uint16_t *endchr;
+    int endpos;
+    
+    endchr = pmath_char_parse(buf + i, len - i, &u);
+    endpos = endchr - buf;
+    
+    result = pmath_string_insert_ucs2(result, INT_MAX, buf, i);
+    
+    if(u <= 0xFFFF) {
+      u16[0] = (uint16_t)u;
+      
+      result = pmath_string_insert_ucs2(result, INT_MAX, u16, 1);
+    }
+    else if(u <= 0x10FFFF) {
+      u -= 0x10000;
+      u16[0] = 0xD800 | (uint16_t)((u >> 10) & 0x03FF);
+      u16[1] = 0xDC00 | (uint16_t)(u & 0x03FF);
+      
+      result = pmath_string_insert_ucs2(result, INT_MAX, u16, 2);
+    }
+    else { // error
+      result = pmath_string_insert_ucs2(result, INT_MAX, buf + i, endpos - i);
+    }
+    
+    buf = endchr;
+    i   = 0;
+    len -= endpos;
+  }
+  
+  pmath_unref(str);
+  return result;
+}
+
 static pmath_t make_expression_from_string(pmath_string_t string) { // will be freed
   pmath_token_t   tok;
   const uint16_t *str = pmath_string_buffer(&string);
@@ -938,11 +872,21 @@ static pmath_t make_expression_from_string(pmath_string_t string) { // will be f
     return HOLDCOMPLETE(PMATH_NULL);
   }
   
-  str = pmath_string_buffer(&string);
-  
+  if(str[0] == '"')
+    return make_expression_from_string_token(string);
+    
   if(len > 1 && str[0] == '`' && str[len - 1] == '`')
     return get_parser_argument_from_string(string);
     
+    
+  string = unescape_chars(string);
+  str = pmath_string_buffer(&string);
+  len = pmath_string_length( string);
+  if(len == 0) {
+    pmath_unref(string);
+    return HOLDCOMPLETE(PMATH_NULL);
+  }
+  
   tok = pmath_token_analyse(str, 1, NULL);
   if(tok == PMATH_TOK_DIGIT) {
     pmath_number_t result = _pmath_parse_number(string, TRUE);
@@ -990,9 +934,6 @@ static pmath_t make_expression_from_string(pmath_string_t string) { // will be f
                           string));
   }
   
-  if(str[0] == '"')
-    return make_expression_from_string_token(string);
-    
   // now come special cases of generally longer expressions:
   
   if(len == 1 && str[0] == '#') {
@@ -2704,8 +2645,8 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
           }
           else if(pmath_is_rational(arg))
             previous_rational = 1;
-          
-          
+            
+            
           result = pmath_expr_set_item(result, i + 1, arg);
         }
         

@@ -6,9 +6,13 @@
 
 
 static void syntax_error(pmath_string_t code, int pos, void *flag, pmath_bool_t critical) {
+  pmath_bool_t *have_critical = flag;
+  
+  if(!*have_critical)
+    pmath_message_syntax_error(code, pos, PMATH_NULL, 0);
+  
   if(critical)
-    *(pmath_bool_t*)flag = TRUE;
-  pmath_message_syntax_error(code, pos, PMATH_NULL, 0);
+    *have_critical = TRUE;
 }
 
 PMATH_PRIVATE pmath_t builtin_stringtoboxes(pmath_expr_t expr) {
