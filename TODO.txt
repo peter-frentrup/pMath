@@ -6,7 +6,7 @@
 	docked section. Maybe EvaluationDocument() should also return the working area
 	
 - richmath: line heights jump up and down in Column({Dynamic(x),Slider(Dynamic(x),0..9..1)})
-- richmath: DocumentApply(..., Section(...)) does not work (same for SectionGroup)
+- richmath: DocumentApply(..., Section(...)) does not handle placeholders (same for SectionGroup)
 
 - add richmath::StyleSection class and handle Section(StyleData(...),...)
 - allow creation of a richmath::Style from a richmath::StyleSection

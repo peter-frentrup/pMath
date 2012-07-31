@@ -543,15 +543,32 @@ static bool document_apply_cmd(Expr cmd) {
   
   if(!doc)
     return false;
+  
+  Expr boxes = cmd[2];
+  if(boxes[0] == PMATH_SYMBOL_SECTION || boxes[0] == PMATH_SYMBOL_SECTIONGROUP) {
+    Box *box = doc->selection_box();
+    int i = doc->selection_end();
+    while(box && box != doc){
+      i = box->index() + 1;
+      box = box->parent();
+    }
+    
+    if(!box){
+      box = doc;
+      i = doc->length();
+    }
+    doc->insert_pmath(&i, boxes);
+    doc->move_to(box, i);
+    return true;
+  }
     
   AbstractSequence *seq;
-  
   if(dynamic_cast<TextSequence *>(doc->selection_box()))
     seq = new TextSequence;
   else
     seq = new MathSequence;
     
-  seq->load_from_object(cmd[2], BoxOptionDefault);
+  seq->load_from_object(boxes, BoxOptionDefault);
   doc->insert_box(seq, true);
   
   return true;
