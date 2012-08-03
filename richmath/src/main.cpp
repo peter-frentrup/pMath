@@ -776,7 +776,7 @@ int main(int argc, char **argv) {
       rect.top,
       0,
       0,
-      SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE);
+      SWP_NOSIZE | SWP_NOZORDER);
       
     SetWindowPos(
       wndPalette->hwnd(),
@@ -789,8 +789,9 @@ int main(int argc, char **argv) {
       
     // override CreateProcess STARTF_USESHOWWINDOW flag:
     //ShowWindow(wndMain->hwnd(), SW_SHOWDEFAULT);
-    ShowWindow(wndPalette->hwnd(), SW_SHOWNORMAL);
+    
     ShowWindow(wndMain->hwnd(),    SW_SHOWNORMAL);
+    ShowWindow(wndPalette->hwnd(), SW_SHOWNOACTIVATE);
     
     if(0) {
       Win32DocumentWindow *wndInterrupt = new Win32DocumentWindow(
@@ -826,7 +827,8 @@ int main(int argc, char **argv) {
     }
     
     Application::doevents();
-    SetActiveWindow(wndMain->hwnd());
+    //SetActiveWindow(wndMain->hwnd());
+    main_doc->native()->bring_to_front();
     
   }
 #endif

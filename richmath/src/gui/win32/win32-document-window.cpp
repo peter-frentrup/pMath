@@ -706,7 +706,7 @@ void Win32DocumentWindow::rearrange() {
         if(align_bottom)
           outer.top = outer.bottom - newh;
           
-        UINT flags = SWP_NOZORDER;
+        UINT flags = SWP_NOZORDER | SWP_NOACTIVATE;
         if(!align_right && !align_bottom)
           flags |= SWP_NOMOVE;
           
@@ -744,7 +744,7 @@ void Win32DocumentWindow::rearrange() {
         mar.cxLeftWidth = mar.cxRightWidth = mar.cyTopHeight = mar.cyBottomHeight = -1;
         
         SetWindowPos(_working_area->hwnd(), 0, 0, 0, 0, 0,
-                     SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+                     SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
       }
     }
     
@@ -783,7 +783,7 @@ void Win32DocumentWindow::rearrange() {
       SetWindowPos(
         widgets[j], NULL,
         rect.left, new_ys[j], w, h,
-        SWP_NOZORDER);
+        SWP_NOZORDER | SWP_NOACTIVATE);
     }
   }
   

@@ -801,10 +801,10 @@ void BasicWin32Window::on_moving(RECT *lParam) {
   HDWP hdwp = BeginDeferWindowPos(all_snappers.size());
   
   hdwp = move_all_snappers(
-    hdwp,
-    rect.left - last_moving_x,
-    rect.top  - last_moving_y);
-    
+           hdwp,
+           rect.left - last_moving_x,
+           rect.top  - last_moving_y);
+           
   EndDeferWindowPos(hdwp);
   
   last_moving_x = rect.left;
@@ -828,20 +828,20 @@ void BasicWin32Window::on_move(LPARAM lParam) {
   HDWP hdwp = BeginDeferWindowPos(1 + all_snappers.size());
   
   hdwp = tryDeferWindowPos(
-    hdwp, 
-    _hwnd, 
-    NULL, 
-    rect.left, 
-    rect.top, 
-    1, 
-    1, 
-    SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE);
-  
+           hdwp,
+           _hwnd,
+           NULL,
+           rect.left,
+           rect.top,
+           1,
+           1,
+           SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE);
+           
   hdwp = move_all_snappers(
-    hdwp,
-    rect.left - last_moving_x,
-    rect.top  - last_moving_y);
-    
+           hdwp,
+           rect.left - last_moving_x,
+           rect.top  - last_moving_y);
+           
   EndDeferWindowPos(hdwp);
   
   last_moving_x = rect.left;
@@ -1081,18 +1081,15 @@ void BasicWin32Window::extend_glass(Win32Themes::MARGINS *margins) {
     
     Win32Themes::DwmExtendFrameIntoClientArea(_hwnd, &nc);
     
-    RECT client;
-    GetWindowRect(_hwnd, &client);
-    
     // Inform application of the frame change.
     SetWindowPos(
       _hwnd,
       NULL,
-      client.left,
-      client.top,
-      client.right  - client.left,
-      client.bottom - client.top,
-      SWP_FRAMECHANGED);
+      0, //client.left,
+      0, //client.top,
+      1, //client.right  - client.left,
+      1, //client.bottom - client.top,
+      SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
   }
 }
 
@@ -1547,22 +1544,22 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
   
   if(!initializing()) {
     switch(message) {
-        //{ sizing & moving ...
-      case WM_SIZING: {
-          on_sizing(wParam, (RECT *)lParam);
-        } break;
+//{ sizing & moving ...
+      case WM_SIZING:
+        on_sizing(wParam, (RECT *)lParam);
+        break;
         
-      case WM_MOVING: {
-          on_moving((RECT *)lParam);
-        } break;
+      case WM_MOVING:
+        on_moving((RECT *)lParam);
+        return 1;
         
-      case WM_SIZE: {
-          invalidate_non_child();
-        } break;
+      case WM_SIZE:
+        invalidate_non_child();
+        break;
         
-      case WM_MOVE: {
-          on_move(lParam);
-        } break;
+      case WM_MOVE:
+        on_move(lParam);
+        break;
         
       case WM_ENTERSIZEMOVE: {
           RECT rect;
@@ -1573,10 +1570,10 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
           find_all_snappers();
         } break;
         
-      case WM_EXITSIZEMOVE: {
-          all_snappers.clear();
-        } break;
-        //} ... sizing & moving
+      case WM_EXITSIZEMOVE:
+        all_snappers.clear();
+        break;
+//} ... sizing & moving
         
       case WM_WINDOWPOSCHANGING: {
           WINDOWPOS *pos = (WINDOWPOS *)lParam;
