@@ -100,7 +100,7 @@ namespace richmath {
       
       void snap_rect_or_pt(RECT *windowrect, POINT *pt); // pt may be 0, rect must not
       void find_all_snappers();
-      void move_all_snappers(int dx, int dy);
+      HDWP move_all_snappers(HDWP hdwp, int dx, int dy);
   };
 }
 

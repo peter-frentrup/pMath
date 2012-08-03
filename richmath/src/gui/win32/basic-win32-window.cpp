@@ -78,6 +78,42 @@ static void remove_basic_window() {
   }
 }
 
+static HDWP tryDeferWindowPos(
+  HDWP hWinPosInfo,
+  HWND hWnd,
+  HWND hWndInsertAfter,
+  int x,
+  int y,
+  int cx,
+  int cy,
+  UINT uFlags
+
+) {
+  if(hWinPosInfo) {
+    return DeferWindowPos(
+             hWinPosInfo,
+             hWnd,
+             hWndInsertAfter,
+             x,
+             y,
+             cx,
+             cy,
+             uFlags);
+  }
+  else {
+    SetWindowPos(
+      hWnd,
+      hWndInsertAfter,
+      x,
+      y,
+      cx,
+      cy,
+      uFlags);
+      
+    return NULL;
+  }
+}
+
 //{ class BasicWin32Window ...
 
 static BasicWin32Window *_first_window = NULL;
@@ -507,7 +543,7 @@ void BasicWin32Window::find_all_snappers() {
   all_snappers.remove(_hwnd);
 }
 
-void BasicWin32Window::move_all_snappers(int dx, int dy) {
+HDWP BasicWin32Window::move_all_snappers(HDWP hdwp, int dx, int dy) {
   if(dx != 0 || dy != 0) {
     unsigned int i, count;
     for(i = count = 0; count < all_snappers.size(); ++i) {
@@ -519,16 +555,19 @@ void BasicWin32Window::move_all_snappers(int dx, int dy) {
         RECT rect;
         GetWindowRect(e->key, &rect);
         
-        SetWindowPos(
-          e->key,
-          NULL,
-          rect.left + dx,
-          rect.top + dy,
-          0, 0,
-          SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOZORDER);
+        hdwp = tryDeferWindowPos(
+                 hdwp,
+                 e->key,
+                 NULL,
+                 rect.left + dx,
+                 rect.top + dy,
+                 0, 0,
+                 SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOZORDER);
       }
     }
   }
+  
+  return hdwp;
 }
 
 struct find_align_info_t {
@@ -759,11 +798,20 @@ void BasicWin32Window::on_moving(RECT *lParam) {
 //    rect.left - last_moving_x,
 //    rect.top  - last_moving_y);
 
+  HDWP hdwp = BeginDeferWindowPos(all_snappers.size());
+  
+  hdwp = move_all_snappers(
+    hdwp,
+    rect.left - last_moving_x,
+    rect.top  - last_moving_y);
+    
+  EndDeferWindowPos(hdwp);
+  
   last_moving_x = rect.left;
   last_moving_y = rect.top;
 }
 
-void BasicWin32Window::on_move(LPARAM Param) {
+void BasicWin32Window::on_move(LPARAM lParam) {
   /* When a window is moved out of screen (on the top), Windows snaps it
      back so that the caption bar is allways on screen.
      This can arise when the window is moved by a mouse drag in the
@@ -777,10 +825,25 @@ void BasicWin32Window::on_move(LPARAM Param) {
   RECT rect;
   GetWindowRect(_hwnd, &rect);
   
-  move_all_snappers(
+  HDWP hdwp = BeginDeferWindowPos(1 + all_snappers.size());
+  
+  hdwp = tryDeferWindowPos(
+    hdwp, 
+    _hwnd, 
+    NULL, 
+    rect.left, 
+    rect.top, 
+    1, 
+    1, 
+    SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE);
+  
+  hdwp = move_all_snappers(
+    hdwp,
     rect.left - last_moving_x,
     rect.top  - last_moving_y);
     
+  EndDeferWindowPos(hdwp);
+  
   last_moving_x = rect.left;
   last_moving_y = rect.top;
 }
@@ -1519,90 +1582,90 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
           WINDOWPOS *pos = (WINDOWPOS *)lParam;
           static bool during_pos_changing = false;
           
-          if(!during_pos_changing &&
-              0 == (pos->flags & SWP_NOZORDER))
-          {
-            during_pos_changing = true; // prevent recursive call
-            // place behind all windows with higher zorder_level
-            
-            HWND active_window    = GetActiveWindow();
-            HWND own_popup_window = GetWindow(_hwnd, GW_ENABLEDPOPUP);
-            if(own_popup_window == _hwnd)
-              own_popup_window = 0;
+          if(!during_pos_changing) {
+            if(0 == (pos->flags & SWP_NOZORDER)) { // changing Z order...
+              during_pos_changing = true; // prevent recursive call
+              // place behind all windows with higher zorder_level
               
-            struct find_popup_info_t popup_info;
-            popup_info.thread_id = GetWindowThreadProcessId(_hwnd, 0);
-            popup_info.popup     = own_popup_window;
-            EnumWindows(find_popup_callback, (LPARAM)&popup_info);
-            
-            BasicWin32Window *last_higher = 0;
-            BasicWin32Window *next = _next_window;
-            while(next != this) {
-              if(next->zorder_level > zorder_level) {
-                last_higher = next;
-                break;
-              }
-              next = next->_next_window;
-            }
-            
-            // get all windows from higher level, sorted from back to front
-            static Array<BasicWin32Window *> all_higher;
-            all_higher.length(0);
-            if(last_higher) {
-              HWND next_hwnd = GetNextWindow(last_higher->hwnd(), GW_HWNDNEXT);
-              while(next_hwnd) {
-                BasicWin32Window *wnd = dynamic_cast<BasicWin32Window *>(
-                                          BasicWin32Widget::from_hwnd(next_hwnd));
-                                          
-                if(wnd && wnd->zorder_level > zorder_level)
-                  last_higher = wnd;
-                  
-                next_hwnd = GetNextWindow(next_hwnd, GW_HWNDNEXT);
-              }
-              
-              all_higher.add(last_higher);
-              
-              next_hwnd = GetNextWindow(last_higher->hwnd(), GW_HWNDPREV);
-              while(next_hwnd) {
-                BasicWin32Window *wnd = dynamic_cast<BasicWin32Window *>(
-                                          BasicWin32Widget::from_hwnd(next_hwnd));
-                                          
-                if(wnd && wnd->zorder_level > zorder_level)
-                  all_higher.add(wnd);
-                  
-                next_hwnd = GetNextWindow(next_hwnd, GW_HWNDPREV);
-              }
-            }
-            
-            HDWP hdwp = BeginDeferWindowPos(all_higher.length());
-            
-            /* Put the higher-level windows to the top again and place this window
-               behind. */
-            if(all_higher.length() > 0) {
-              if(active_window == _hwnd)
-                pos->hwndInsertAfter = all_higher[0]->hwnd();
+              HWND active_window    = GetActiveWindow();
+              HWND own_popup_window = GetWindow(_hwnd, GW_ENABLEDPOPUP);
+              if(own_popup_window == _hwnd)
+                own_popup_window = 0;
                 
-              for(int i = 0; i < all_higher.length(); ++i) {
-                if(!all_higher[i]->is_closed()) {
-                  hdwp = DeferWindowPos(
-                           hdwp,
-                           all_higher[i]->hwnd(), HWND_TOP, 0, 0, 0, 0,
-                           SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
+              struct find_popup_info_t popup_info;
+              popup_info.thread_id = GetWindowThreadProcessId(_hwnd, 0);
+              popup_info.popup     = own_popup_window;
+              EnumWindows(find_popup_callback, (LPARAM)&popup_info);
+              
+              BasicWin32Window *last_higher = 0;
+              BasicWin32Window *next = _next_window;
+              while(next != this) {
+                if(next->zorder_level > zorder_level) {
+                  last_higher = next;
+                  break;
+                }
+                next = next->_next_window;
+              }
+              
+              // get all windows from higher level, sorted from back to front
+              static Array<BasicWin32Window *> all_higher;
+              all_higher.length(0);
+              if(last_higher) {
+                HWND next_hwnd = GetNextWindow(last_higher->hwnd(), GW_HWNDNEXT);
+                while(next_hwnd) {
+                  BasicWin32Window *wnd = dynamic_cast<BasicWin32Window *>(
+                                            BasicWin32Widget::from_hwnd(next_hwnd));
+                                            
+                  if(wnd && wnd->zorder_level > zorder_level)
+                    last_higher = wnd;
+                    
+                  next_hwnd = GetNextWindow(next_hwnd, GW_HWNDNEXT);
+                }
+                
+                all_higher.add(last_higher);
+                
+                next_hwnd = GetNextWindow(last_higher->hwnd(), GW_HWNDPREV);
+                while(next_hwnd) {
+                  BasicWin32Window *wnd = dynamic_cast<BasicWin32Window *>(
+                                            BasicWin32Widget::from_hwnd(next_hwnd));
+                                            
+                  if(wnd && wnd->zorder_level > zorder_level)
+                    all_higher.add(wnd);
+                    
+                  next_hwnd = GetNextWindow(next_hwnd, GW_HWNDPREV);
                 }
               }
+              
+              HDWP hdwp = BeginDeferWindowPos(all_higher.length());
+              
+              /* Put the higher-level windows to the top again and place this window
+                 behind. */
+              if(all_higher.length() > 0) {
+                if(active_window == _hwnd)
+                  pos->hwndInsertAfter = all_higher[0]->hwnd();
+                  
+                for(int i = 0; i < all_higher.length(); ++i) {
+                  if(!all_higher[i]->is_closed()) {
+                    hdwp = tryDeferWindowPos(
+                             hdwp,
+                             all_higher[i]->hwnd(), HWND_TOP, 0, 0, 0, 0,
+                             SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
+                  }
+                }
+              }
+              
+              if(popup_info.popup != 0) {
+                pmath_debug_print("[popup_info.popup = %p]\n", popup_info.popup);
+                hdwp = tryDeferWindowPos(
+                         hdwp,
+                         popup_info.popup, HWND_TOP, 0, 0, 0, 0,
+                         SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
+              }
+              
+              EndDeferWindowPos(hdwp);
+              
+              during_pos_changing = false;
             }
-            
-            if(popup_info.popup != 0) {
-              pmath_debug_print("[popup_info.popup = %p]\n", popup_info.popup);
-              hdwp = DeferWindowPos(
-                       hdwp,
-                       popup_info.popup, HWND_TOP, 0, 0, 0, 0,
-                       SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
-            }
-            
-            EndDeferWindowPos(hdwp);
-            
-            during_pos_changing = false;
           }
         } break;
         
