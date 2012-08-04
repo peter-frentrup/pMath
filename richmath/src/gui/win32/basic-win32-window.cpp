@@ -873,7 +873,7 @@ void BasicWin32Window::on_theme_changed() {
   extend_glass(&_extra_glass);
   
   SetWindowPos(_hwnd, 0, 0, 0, 0, 0,
-               SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED | SWP_NOACTIVATE);
+               SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
 }
 
 void BasicWin32Window::paint_themed(HDC hdc) {
@@ -1089,7 +1089,7 @@ void BasicWin32Window::extend_glass(Win32Themes::MARGINS *margins) {
       0, //client.top,
       1, //client.right  - client.left,
       1, //client.bottom - client.top,
-      SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
+      SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
   }
 }
 
