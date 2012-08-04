@@ -1070,7 +1070,7 @@ static pmath_t make_expression_from_framebox(pmath_expr_t box) {
       return HOLDCOMPLETE(
                pmath_expr_new_extended(
                  pmath_ref(PMATH_SYMBOL_FRAMED), 1,
-                 box));
+                 item));
     }
   }
   
