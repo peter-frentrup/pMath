@@ -522,6 +522,12 @@ static pmath_token_t scan_next_escaped_char(struct scanner_t *tokens, struct par
     return pmath_token_analyse(u16, 2, NULL);
   }
   
+  if(tokens->pos + 1 == endpos) {
+    tokens->pos = endpos;
+    
+    return PMATH_TOK_NONE;
+  }
+  
   tokens->pos = endpos;
   
   if(parser)
