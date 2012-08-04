@@ -28,8 +28,19 @@ Expr Win32FontDialog::show(SharedPtr<Style> initial_style) {
   if(initial_style) {
     data.Flags |= CF_INITTOLOGFONTSTRUCT;
     
-    String family;
-    if(initial_style->get(FontFamily, &family)) {
+    Expr families;
+    if(initial_style->get(FontFamilies, &families)) {
+      String family(families);
+      
+      if(families[0] == PMATH_SYMBOL_LIST){
+        for(size_t i = 1;i <= families.expr_length();++i){
+          family = String(families[i]);
+          
+          if(FontInfo::font_exists(family))
+            break;
+        }
+      }
+      
       int len = family.length();
       if(len >= LF_FACESIZE)
         len = LF_FACESIZE - 1;
@@ -85,7 +96,7 @@ Expr Win32FontDialog::show(SharedPtr<Style> initial_style) {
     SharedPtr<Style> result_style = new Style();
     
     if(!(data.Flags & CF_NOFACESEL)){
-      result_style->set(FontFamily, String::FromUcs2((const uint16_t*)logfontw.lfFaceName));
+      result_style->set(FontFamilies, String::FromUcs2((const uint16_t*)logfontw.lfFaceName));
     }
     
     if(!(data.Flags & CF_NOSTYLESEL)) {

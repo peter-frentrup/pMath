@@ -58,8 +58,8 @@ class PrivateWin32Font: public Shareable {
   private:
     PrivateWin32Font(SharedPtr<PrivateWin32Font> _next)
       : Shareable(),
-      filename(0),
-      next(_next)
+        filename(0),
+        next(_next)
     {
     }
     
@@ -112,7 +112,7 @@ class PangoSettings {
       font_map = pango_cairo_font_map_new_for_font_type(CAIRO_FONT_TYPE_FT);
       
       if(font_map) {
-        pango_cairo_font_map_set_default((PangoCairoFontMap*)font_map);
+        pango_cairo_font_map_set_default((PangoCairoFontMap *)font_map);
       }
       else
         fprintf(stderr, "Cannot create Pango font map for Freetype backend.\n");
@@ -284,7 +284,7 @@ class richmath::FontInfoPrivate: public Shareable {
   public:
     FontInfoPrivate(FontFace font)
       : Shareable(),
-      scaled_font(0)
+        scaled_font(0)
     {
       static_canvas.canvas->set_font_face(font.cairo());
       scaled_font = cairo_scaled_font_reference(
@@ -306,14 +306,14 @@ class richmath::FontInfoPrivate: public Shareable {
 
 FontInfo::FontInfo(FontFace font)
   : Base(),
-  priv(new FontInfoPrivate(font))
+    priv(new FontInfoPrivate(font))
 {
 
 }
 
 FontInfo::FontInfo(FontInfo &src)
   : Base(),
-  priv(src.priv)
+    priv(src.priv)
 {
   src.priv->ref();
 }
@@ -339,7 +339,7 @@ static int CALLBACK emit_font(
   DWORD FontType,
   LPARAM lParam
 ) {
-  Gather::emit(String::FromUcs2((uint16_t*)lpelfe->elfLogFont.lfFaceName));
+  Gather::emit(String::FromUcs2((uint16_t *)lpelfe->elfLogFont.lfFaceName));
   return 1;
 }
 #endif
@@ -380,7 +380,7 @@ Expr FontInfo::all_fonts() {
         FcPattern *pattern = app_fonts->fonts[i];
         
         char *name;
-        if(pattern && FcPatternGetString(pattern, FC_FAMILY, 0, (FcChar8**)&name) == FcResultMatch)
+        if(pattern && FcPatternGetString(pattern, FC_FAMILY, 0, (FcChar8 **)&name) == FcResultMatch)
           expr.set(i + 1, String::FromUtf8(name));
       }
     }
@@ -390,7 +390,7 @@ Expr FontInfo::all_fonts() {
         FcPattern *pattern = sys_fonts->fonts[i];
         
         char *name;
-        if(pattern && FcPatternGetString(pattern, FC_FAMILY, 0, (FcChar8**)&name) == FcResultMatch)
+        if(pattern && FcPatternGetString(pattern, FC_FAMILY, 0, (FcChar8 **)&name) == FcResultMatch)
           expr.set(i + 1 + num_app_fonts, String::FromUtf8(name));
       }
     }
@@ -409,7 +409,7 @@ void FontInfo::add_private_font(String filename) {
   {
     char *file = pmath_string_to_utf8(filename.get(), NULL);
     
-    FcConfigAppFontAddFile(NULL, (const FcChar8*)file);
+    FcConfigAppFontAddFile(NULL, (const FcChar8 *)file);
     
     pmath_mem_free(file);
   }
@@ -424,12 +424,15 @@ static int CALLBACK search_font(
   LPARAM lParam
 ) {
   //Gather::emit(String::FromUcs2((uint16_t*)lpelfe->elfLogFont.lfFaceName));
-  *(bool*)(lParam) = true;
+  *(bool *)(lParam) = true;
   return 1;
 }
 #endif
 
 bool FontInfo::font_exists(String name) {
+  if(name.length() == 0)
+    return false;
+  
 #ifdef RICHMATH_USE_WIN32_FONT
   {
     name += String::FromChar(0);
@@ -504,9 +507,11 @@ bool FontInfo::font_exists(String name) {
     }
     
     char *str = 0;
-    if(FcResultTypeMismatch == FcPatternGetString(resolved, FC_FAMILY, 0, (FcChar8**)&str)
-    || !str
-    || 0 != strcmp(str, family)) {
+    
+    if( FcResultTypeMismatch == FcPatternGetString(resolved, FC_FAMILY, 0, (FcChar8 **)&str) 
+    || !str 
+    || 0 != strcmp(str, family))
+    {
       FcPatternDestroy(resolved);
       pmath_mem_free(family);
       return false;
@@ -564,21 +569,24 @@ uint16_t FontInfo::char_to_glyph(uint32_t ch) {
                 NULL,
                 NULL,
                 uniscribe_items,
-                &num_items)
-              && num_items == 1
-              && !ScriptShape(
-                dc.handle,
-                &cache,
-                str,
-                2,
-                2,
-                &uniscribe_items[0].a,
-                out_glyphs,
-                log_clust,
-                vis_attr,
-                &num_glyphs)
-              && num_glyphs == 1) {
-            index = out_glyphs[0];
+                &num_items) &&
+              num_items == 1)
+          {
+            if( !ScriptShape(
+                  dc.handle,
+                  &cache,
+                  str,
+                  2,
+                  2,
+                  &uniscribe_items[0].a,
+                  out_glyphs,
+                  log_clust,
+                  vis_attr,
+                  &num_glyphs) &&
+                num_glyphs == 1)
+            {
+              index = out_glyphs[0];
+            }
           }
         }
         
@@ -639,7 +647,7 @@ size_t FontInfo::get_truetype_table(
           name = ((name & 0xFF000000) >> 24) | ((name & 0xFF0000) >> 8) | ((name & 0xFF00) << 8) | ((name & 0xFF) << 24);
           
           FT_ULong len = length;
-          FT_Error err = FT_Load_Sfnt_Table(face, name, offset, (FT_Byte*)buffer, &len);
+          FT_Error err = FT_Load_Sfnt_Table(face, name, offset, (FT_Byte *)buffer, &len);
           length = len;
           
           if(err)
@@ -968,7 +976,7 @@ void FontInfo::get_postscript_names(
             
           int num_new_glyphs = 0;
           for(int g = 0; g < num_glyphs; ++g) {
-            uint16_t index = (glyph_table[2*g] << 8) | glyph_table[2*g+1];
+            uint16_t index = (glyph_table[2 * g] << 8) | glyph_table[2 * g + 1];
             
             if(index >= 258)
               ++num_new_glyphs;
@@ -988,7 +996,7 @@ void FontInfo::get_postscript_names(
           while(n < num_new_glyphs && i < name_table.length()) {
             int len = name_table[i];
             
-            const char *s = (const char*)&name_table[i+1];
+            const char *s = (const char *)&name_table[i + 1];
             int dotless = 0;
             while(dotless < len && s[dotless] != '.')
               ++dotless;
@@ -1003,7 +1011,7 @@ void FontInfo::get_postscript_names(
           }
           
           for(uint16_t g = 0; g < num_glyphs; ++g) {
-            uint16_t index = (glyph_table[2*g] << 8) | glyph_table[2*g+1];
+            uint16_t index = (glyph_table[2 * g] << 8) | glyph_table[2 * g + 1];
             
             if(index < 258) {
               if(name2glyph)

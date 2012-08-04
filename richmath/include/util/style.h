@@ -92,7 +92,6 @@ namespace richmath {
   
   enum StringStyleOptionName {
     BaseStyleName = 20000, // greater than any FloatStyleOptionName value
-    FontFamily,
     Method,
     
     LanguageCategory,
@@ -105,6 +104,7 @@ namespace richmath {
     ButtonFunction = 30000, // greater than any StringStyleOptionName value
     ScriptSizeMultipliers,
     TextShadow,
+    FontFamilies,
     UnknownOptions,
     
     BoxRotation,

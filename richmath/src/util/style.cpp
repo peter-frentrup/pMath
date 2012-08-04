@@ -304,7 +304,7 @@ void Style::add_pmath(Expr options) {
             set_pmath_color(FontColor, rhs);
           }
           else if(lhs == PMATH_SYMBOL_FONTFAMILY) {
-            set_pmath_string(FontFamily, rhs);
+            set_pmath_object(FontFamilies, rhs); // string or list of strings
           }
           else if(lhs == PMATH_SYMBOL_FONTSIZE) {
             set_pmath_float(FontSize, rhs);
@@ -981,7 +981,6 @@ Expr Style::get_symbol(int n) {
   
   switch(n) {
     case BaseStyleName:    return Symbol(PMATH_SYMBOL_BASESTYLE);
-    case FontFamily:       return Symbol(PMATH_SYMBOL_FONTFAMILY);
     case Method:           return Symbol(PMATH_SYMBOL_METHOD);
     
     case LanguageCategory: return Symbol(PMATH_SYMBOL_LANGUAGECATEGORY);
@@ -994,6 +993,7 @@ Expr Style::get_symbol(int n) {
     case ButtonFunction:                   return Symbol(PMATH_SYMBOL_BUTTONFUNCTION);
     case ScriptSizeMultipliers:            return Symbol(PMATH_SYMBOL_SCRIPTSIZEMULTIPLIERS);
     case TextShadow:                       return Symbol(PMATH_SYMBOL_TEXTSHADOW);
+    case FontFamilies:                     return Symbol(PMATH_SYMBOL_FONTFAMILY);
     case UnknownOptions:                   return Expr();
     
     case BoxRotation:                      return Symbol(PMATH_SYMBOL_BOXROTATION);
@@ -1260,15 +1260,15 @@ void Style::emit_to_pmath(bool with_inherited) {
                    color_to_pmath(i)));
   }
   
-  if(get_dynamic(FontFamily, &e)) {
+  if(get_dynamic(FontFamilies, &e)) {
     Gather::emit(Rule(
-                   get_symbol(FontFamily),
+                   get_symbol(FontFamilies),
                    e));
   }
-  else if(get(FontFamily, &s)) {
+  else if(get(FontFamilies, &e)) {
     Gather::emit(Rule(
-                   get_symbol(FontFamily),
-                   s));
+                   get_symbol(FontFamilies),
+                   e));
   }
   
   if(get_dynamic(FontSize, &e)) {

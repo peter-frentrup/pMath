@@ -865,7 +865,7 @@ void Win32ControlPainter::system_font_style(Style *style) {
     logfont = &nonclientmetrics.lfMessageFont;
   }
   
-  style->set(FontFamily, String::FromUcs2((const uint16_t *)logfont->lfFaceName));
+  style->set(FontFamilies, String::FromUcs2((const uint16_t *)logfont->lfFaceName));
   style->set(FontSize, abs(logfont->lfHeight) * 3 / 4.f);
   
   if(logfont->lfWeight > FW_NORMAL)

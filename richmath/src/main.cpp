@@ -264,6 +264,9 @@ static void load_math_shapers() {
 }
 
 static void init_stylesheet() {
+#define CAPTION_FONT List(String("Veranda"), String("Calibri"),    String("Arial"))
+#define TEXT_FONT    List(String("Georgia"), String("Constantia"), String("Times New Roman"))
+  
   Stylesheet::Default = new Stylesheet;
   
   Stylesheet::Default->base = new Style;
@@ -313,7 +316,7 @@ static void init_stylesheet() {
   
   Stylesheet::Default->base->set(SectionGroupPrecedence,    0);
   
-  //Stylesheet::Default->base->set(FontFamily,   "Arial");
+  //Stylesheet::Default->base->set(FontFamilies,   List("Veranda", "Arial"));
   //Stylesheet::Default->base->set(SectionLabel, "");
   
   Stylesheet::Default->base->set_pmath_string(Method,
@@ -332,7 +335,7 @@ static void init_stylesheet() {
                                  
 //  Stylesheet::Default->base->set(GeneratedSectionStyles,
 //                                 Parse("{~FE`Private`style :> FE`Private`style}"));
-                                        
+
   Style *s;
   
   s = new Style;
@@ -431,7 +434,7 @@ static void init_stylesheet() {
   s->set(ShowStringCharacters,    false);
   s->set(FontColor,               0x800000); // 0xAF501A
   s->set(FontSize,                8.0);
-//    s->set(FontFamily, "Arial"); // Segoe UI
+//    s->set(FontFamilies, List("Arial")); // Segoe UI
   s->set(SectionGroupPrecedence,  20);
   s->set(SectionMarginLeft,       50.0);
   Stylesheet::Default->styles.set("Message", s);
@@ -453,18 +456,15 @@ static void init_stylesheet() {
   s->set(SectionFrameMarginBottom, 6.0);
   s->set(SectionGroupPrecedence,   20);
   s->set(SectionMarginLeft,        50.0);
-//    s->set(FontFamily, "Arial");
+//    s->set(FontFamilies, List("Arial"));
   Stylesheet::Default->styles.set("PrintUsage", s);
-  
-#define CAPTION_FONT "Arial" //"Calibri"
-#define TEXT_FONT    "Times New Roman" //"Constantia"
   
   s = new Style;
   s->set(ShowStringCharacters, false);
   s->set(SectionMarginLeft,    50.0);
   s->set(SectionMarginTop,     7.0);
   s->set(SectionMarginBottom,  7.0);
-  s->set(FontFamily,           TEXT_FONT);
+  s->set(FontFamilies,         TEXT_FONT);
   Stylesheet::Default->styles.set("Text", s);
   
   s = new Style;
@@ -481,7 +481,7 @@ static void init_stylesheet() {
   s->set(SectionMarginLeft,      17.0);
   s->set(SectionMarginTop,       15.0);
   s->set(SectionMarginBottom,    5.0);
-  s->set(FontFamily,             CAPTION_FONT);
+  s->set(FontFamilies,           CAPTION_FONT);
   Stylesheet::Default->styles.set("Title", s);
   
   s = new Style;
@@ -491,7 +491,7 @@ static void init_stylesheet() {
   s->set(SectionMarginLeft,      17.0);
   s->set(SectionMarginTop,       2.0);
   s->set(SectionMarginBottom,    10.0);
-  s->set(FontFamily,             CAPTION_FONT);
+  s->set(FontFamilies,           CAPTION_FONT);
   Stylesheet::Default->styles.set("Subtitle", s);
   
   s = new Style;
@@ -501,7 +501,7 @@ static void init_stylesheet() {
   s->set(SectionMarginLeft,      17.0);
   s->set(SectionMarginTop,       2.0);
   s->set(SectionMarginBottom,    8.0);
-  s->set(FontFamily,             CAPTION_FONT);
+  s->set(FontFamilies,           CAPTION_FONT);
   Stylesheet::Default->styles.set("Subsubtitle", s);
   
   s = new Style;
@@ -514,7 +514,7 @@ static void init_stylesheet() {
   s->set(SectionMarginBottom,    8.0);
   s->set(SectionFrameTop,        0.75);
   s->set(SectionFrameMarginTop,  4.0);
-  s->set(FontFamily,             CAPTION_FONT);
+  s->set(FontFamilies,           CAPTION_FONT);
   Stylesheet::Default->styles.set("Section", s);
   
   s = new Style;
@@ -523,7 +523,7 @@ static void init_stylesheet() {
   s->set(FontWeight,             FontWeightBold);
   s->set(FontSize,               12.0);
   s->set(SectionMarginLeft,      40.0);
-  s->set(FontFamily,             CAPTION_FONT);
+  s->set(FontFamilies,           CAPTION_FONT);
   Stylesheet::Default->styles.set("Subsection", s);
   
   s = new Style;
@@ -532,7 +532,7 @@ static void init_stylesheet() {
   s->set(FontWeight,             FontWeightBold);
   s->set(FontSize,               10.0);
   s->set(SectionMarginLeft,      40.0);
-  s->set(FontFamily,             CAPTION_FONT);
+  s->set(FontFamilies,           CAPTION_FONT);
   Stylesheet::Default->styles.set("Subsubsection", s);
   
   s = new Style;

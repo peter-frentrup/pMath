@@ -17,8 +17,8 @@ using namespace richmath;
 
 SelectionReference::SelectionReference(int _id, int _start, int _end)
   : id(_id),
-  start(_start),
-  end(_end)
+    start(_start),
+    end(_end)
 {
 }
 
@@ -42,7 +42,7 @@ Box *SelectionReference::get() {
 void SelectionReference::set(Box *box, int _start, int _end) {
   if(box)
     box = box->normalize_selection(&_start, &_end);
-  
+    
   set_raw(box, _start, _end);
 }
 
@@ -75,24 +75,24 @@ bool SelectionReference::equals(const SelectionReference &other) const {
 
 Context::Context()
   : canvas(0),
-  width(HUGE_VAL),
-  section_content_window_width(HUGE_VAL),
-  sequence_unfilled_width(0),
-  text_shaper(0),
-  cursor_color(0x000000),
-  syntax(GeneralSyntaxInfo::std),
-  multiplication_sign(0x00D7),
-  show_auto_styles(true),
-  show_string_characters(true),
-  math_spacing(true),
-  smaller_fraction_parts(false),
-  single_letter_italics(true),
-  boxchar_fallback_enabled(true),
-  script_indent(0),
-  script_size_min(5),
-  mouseover_box_id(0),
-  clicked_box_id(0),
-  active(true)
+    width(HUGE_VAL),
+    section_content_window_width(HUGE_VAL),
+    sequence_unfilled_width(0),
+    text_shaper(0),
+    cursor_color(0x000000),
+    syntax(GeneralSyntaxInfo::std),
+    multiplication_sign(0x00D7),
+    show_auto_styles(true),
+    show_string_characters(true),
+    math_spacing(true),
+    smaller_fraction_parts(false),
+    single_letter_italics(true),
+    boxchar_fallback_enabled(true),
+    script_indent(0),
+    script_size_min(5),
+    mouseover_box_id(0),
+    clicked_box_id(0),
+    active(true)
 {
   script_size_multis.length(1, 0.71f);
 }
@@ -216,7 +216,7 @@ void Context::set_script_size_multis(Expr expr) {
   if(expr[0] == PMATH_SYMBOL_LIST) {
     script_size_multis.length(expr.expr_length());
     for(size_t i = 0; i < expr.expr_length(); ++i) {
-      script_size_multis[i] = expr[i+1].to_double();
+      script_size_multis[i] = expr[i + 1].to_double();
     }
     return;
   }
@@ -388,15 +388,45 @@ void ContextState::begin(SharedPtr<Style> style) {
     
     ctx->math_shaper = ctx->math_shaper->math_set_style(fs);
     
-    if(ctx->stylesheet->get(style, FontFamily, &s)) {
-      if(s.length() == 0)
-        ctx->text_shaper = ctx->math_shaper;
-      else
-        ctx->text_shaper = TextShaper::find(s, fs);
+    if(ctx->stylesheet->get(style, FontFamilies, &expr)) {
+      if(expr.is_string()) {
+        s = String(expr);
         
-      FallbackTextShaper *fts = new FallbackTextShaper(ctx->text_shaper);
-      fts->add(ctx->math_shaper);
-      ctx->text_shaper = fts;
+        if(FontInfo::font_exists(s)) {
+          FallbackTextShaper *fts = new FallbackTextShaper(TextShaper::find(s, fs));
+          fts->add(ctx->math_shaper);
+          ctx->text_shaper = fts;
+        }
+      }
+      else if(expr[0] == PMATH_SYMBOL_LIST) {
+        if(expr.expr_length() == 0) {
+          ctx->text_shaper = ctx->math_shaper;
+        }
+        else {
+          FallbackTextShaper *fts = 0;
+          
+          int max_fallbacks = FontsPerGlyphCount / 2;
+          
+          for(size_t i = 1; i <= expr.expr_length(); ++i) {
+            s = String(expr[i]);
+            
+            if(FontInfo::font_exists(s)) {
+              if(--max_fallbacks == 0)
+                break;
+              
+              if(fts)
+                fts->add(TextShaper::find(s, fs));
+              else
+                fts = new FallbackTextShaper(TextShaper::find(s, fs));
+            }
+          }
+          
+          if(fts){
+            fts->add(ctx->math_shaper);
+            ctx->text_shaper = fts;
+          }
+        }
+      }
     }
     else
       ctx->text_shaper = ctx->text_shaper->set_style(fs);
