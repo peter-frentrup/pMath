@@ -37,18 +37,18 @@ static double make_nan() {
 
 SliderBox::SliderBox()
   : Box(),
-  range_min(0.0),
-  range_max(1.0),
-  range_step(0.0),
-  range_value(0.5),
-  old_thumb_state(Normal),
-  new_thumb_state(Normal),
-  thumb_width(1),
-  channel_width(1),
-  must_update(true),
-  have_drawn(false),
-  mouse_down(false),
-  use_double_values(true)
+    range_min(0.0),
+    range_max(1.0),
+    range_step(0.0),
+    range_value(0.5),
+    old_thumb_state(Normal),
+    new_thumb_state(Normal),
+    thumb_width(1),
+    channel_width(1),
+    must_update(true),
+    have_drawn(false),
+    mouse_down(false),
+    use_double_values(true)
 {
   dynamic.init(this, Expr());
 }
@@ -122,13 +122,13 @@ bool SliderBox::try_load_from_object(Expr expr, int opts) {
     must_update = true;
   }
   
-  if(style){
+  if(style) {
     reset_style();
     style->add_pmath(options);
   }
   else
     style = new Style(options);
-  
+    
   range             = new_range;
   range_min         = new_range_min;
   range_max         = new_range_max;

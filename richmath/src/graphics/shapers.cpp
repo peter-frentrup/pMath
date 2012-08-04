@@ -5,14 +5,15 @@
 #include <boxes/mathsequence.h>
 
 #include <graphics/context.h>
+#include <graphics/rectangle.h>
 
 
 #ifdef RICHMATH_USE_WIN32_FONT
-#include <graphics/win32-shaper.h>
+#  include <graphics/win32-shaper.h>
 #elif defined(RICHMATH_USE_FT_FONT)
-#include <graphics/ft-shaper.h>
+#  include <graphics/ft-shaper.h>
 #else
-#error no support for font backend
+#  error no support for font backend
 #endif
 
 static float divide(float n, float d, float fail = 0) {
@@ -571,8 +572,29 @@ void CharBoxTextShaper::show_glyph(
   context->canvas->set_font_size(0.4 * em);
   context->canvas->set_font_face(digit_font);
   
-  context->canvas->pixframe(x, y, x + em, y + em, 0.1 * em);
-  context->canvas->fill();
+  {
+    Rectangle rect(x, y, em, em);
+    //BoxRadius radii(0.1 * em);
+    
+    rect.normalize();
+    rect.pixel_align(*context->canvas, false, +1);
+    
+    //radii.normalize(rect.width, rect.height);
+    rect.add_rect_path(*context->canvas, false);
+    
+    Point delta(-0.1f * em, -0.1f * em);
+    delta.pixel_align_distance(*context->canvas);
+    
+    rect.grow(delta);
+    rect.normalize_to_zero();
+    
+    //radii+= BoxRadius(delta.x, delta.y);
+    //radii.normalize(rect.width, rect.height);
+    
+    rect.add_rect_path(*context->canvas, true);
+    
+    context->canvas->fill();
+  }
   
   float inner = 0.8 * em;
   x += 0.1 * em;

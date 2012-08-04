@@ -32,6 +32,7 @@ namespace richmath {
       void save();
       void restore();
       
+      bool has_current_pos();
       void current_pos(float *x, float *y);
       void user_to_device(float *x, float *y);
       void user_to_device_dist(float *dx, float *dy);
@@ -61,17 +62,20 @@ namespace richmath {
         float angle2,
         bool negative);
         
+      void ellipse_arc(
+        float x, float y,
+        float radius_x,
+        float radius_y,
+        float angle1,
+        float angle2,
+        bool negative);
+        
       void close_path();
       
       void align_point(float *x, float *y, bool tostroke);
       
       void pixrect(float x1, float y1, float x2, float y2, bool tostroke);
-      void pixframe(float x1, float y1, float x2, float y2, float thickness);
       
-//      void paint_selection(
-//        float x1, float y1, float x2, float y2,
-//        bool rect = true);
-
       void show_blur_rect(
         float x1, float y1,
         float x2, float y2,

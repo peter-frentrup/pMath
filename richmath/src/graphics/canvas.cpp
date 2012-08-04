@@ -1,11 +1,14 @@
 #include <graphics/canvas.h>
 
+#include <graphics/rectangle.h>
+
 #include <cmath>
 
 #ifdef _WIN32
-#include <Windows.h>
-#include <cairo-win32.h>
+#  include <Windows.h>
+#  include <cairo-win32.h>
 #endif
+
 
 using namespace richmath;
 
@@ -85,6 +88,10 @@ void Canvas::save() {
 
 void Canvas::restore() {
   cairo_restore(_cr);
+}
+
+bool Canvas::has_current_pos() {
+  return cairo_has_current_point(_cr);
 }
 
 void Canvas::current_pos(float *x, float *y) {
@@ -190,12 +197,52 @@ void Canvas::arc(
   float angle2,
   bool negative
 ) {
+  if(radius == 0) {
+    if(!has_current_pos())
+      move_to(x, y);
+      
+    line_to(x, y);
+    return;
+  }
+
   if(negative)
     cairo_arc_negative(_cr, x, y, radius, angle1, angle2);
   else
     cairo_arc(_cr, x, y, radius, angle1, angle2);
 }
 
+void Canvas::ellipse_arc(
+  float x, float y,
+  float radius_x,
+  float radius_y,
+  float angle1,
+  float angle2,
+  bool negative
+) {
+  if(radius_x == radius_y) {
+    arc(x, y, radius_x, angle1, angle2, negative);
+    return;
+  }
+  
+  if(radius_x == 0 || radius_y == 0) {
+    if(has_current_pos())
+      line_to(x + radius_x * cos(angle1), y + radius_y * sin(angle1));
+    else
+      move_to(x + radius_x * cos(angle1), y + radius_y * sin(angle1));
+      
+    line_to(x + radius_x * cos(angle2), y + radius_y * sin(angle2));
+    return;
+  }
+  
+  save();
+  {
+    translate(x, y);
+    scale(radius_x, radius_y);
+    arc(0, 0, 1, angle1, angle2, negative);
+  }
+  restore();
+}
+        
 void Canvas::close_path() {
   cairo_close_path(_cr);
 }
@@ -223,91 +270,10 @@ void Canvas::align_point(float *x, float *y, bool tostroke) {
 }
 
 void Canvas::pixrect(float x1, float y1, float x2, float y2, bool tostroke) {
-  if(pixel_device) {
-    float x3 = x1;
-    float y3 = y2;
-    user_to_device(&x1, &y1);
-    user_to_device(&x2, &y2);
-    user_to_device(&x3, &y3);
-    
-    if(x3 == x1 || x3 == x2) {
-      /* only align to pixel boundaries,
-         if the rectangle is rotated by 0°, 90°, 180° or 270° */
-      if(tostroke) {
-        x1 = ceil(x1) - 0.5;
-        y1 = ceil(y1) - 0.5;
-        x2 = ceil(x2) - 0.5;
-        y2 = ceil(y2) - 0.5;
-      }
-      else {
-        x1 = floor(x1 + 0.5);
-        y1 = floor(y1 + 0.5);
-        x2 = floor(x2 + 0.5);
-        y2 = floor(y2 + 0.5);
-      }
-      
-//      if(x1 == x2)
-//        x2+= 1;
-//      if(y1 == y2)
-//        y2+= 1;
-    }
-    device_to_user(&x1, &y1);
-    device_to_user(&x2, &y2);
-  }
+  Rectangle rect(x1, y1, x2 - x1, y2 - y1);
   
-  move_to(x1, y1);
-  line_to(x2, y1);
-  line_to(x2, y2);
-  line_to(x1, y2);
-  close_path();
-}
-
-void Canvas::pixframe(float x1, float y1, float x2, float y2, float thickness) {
-  float tx = thickness;
-  float ty = thickness;
-  
-  if(pixel_device) {
-    float x3 = x1;
-    float y3 = y2;
-    user_to_device(&x1, &y1);
-    user_to_device(&x2, &y2);
-    user_to_device(&x3, &y3);
-    user_to_device_dist(&tx, &ty);
-    if(x3 == x1 || x3 == x2) {
-      /* only align to pixel boundaries,
-         if the rectangle is rotated by 0°, 90°, 180° or 270° */
-      x1 = floor(x1 + 0.5);
-      y1 = floor(y1 + 0.5);
-      x2 = floor(x2 + 0.5);
-      y2 = floor(y2 + 0.5);
-      tx = floor(tx);
-      ty = floor(ty);
-      if(tx < 0 && tx > -1)
-        tx = -1;
-      else if(tx >= 0 && tx < 1)
-        tx = 1;
-        
-      if(ty < 0 && ty > -1)
-        ty = -1;
-      else if(ty >= 0 && ty < 1)
-        ty = 1;
-    }
-    device_to_user(&x1, &y1);
-    device_to_user(&x2, &y2);
-    device_to_user_dist(&tx, &ty);
-  }
-  
-  move_to(x1, y1);
-  line_to(x1, y2);
-  line_to(x2, y2);
-  line_to(x2, y1);
-  close_path();
-  
-  move_to(x1 + tx, y1 + ty);
-  line_to(x2 - tx, y1 + ty);
-  line_to(x2 - tx, y2 - ty);
-  line_to(x1 + tx, y2 - ty);
-  close_path();
+  rect.pixel_align(*this, tostroke, 0);
+  rect.add_rect_path(*this);
 }
 
 void Canvas::show_blur_rect(

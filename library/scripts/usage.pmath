@@ -96,6 +96,7 @@ Block::usage:= "Block({\(StyleBox(\"x\", \"Arg\")\), \(StyleBox(\"y\", \"Arg\")\
 Blue::usage:= "Blue represents the color blue in graphics and style specifications."
 Bold::usage:= "Bold represents a bold font weight."
 Boole::uage:= "Boole(\(StyleBox(\"expr\", \"Arg\")\)) yields 1 if \(StyleBox(\"expr\", \"Arg\")\) is True and 0 if it is False."
+BorderRadius::usage:= "BorderRadius is an option for Style, Framed and related constructs which specifies the border radii to be used for the top-left, top-right, bottom-right and bottom-left corner."
 BoxData::usage:= "BoxData(\(StyleBox(\"boxes\", \"Arg\")\)) represents the content of a non-text-Section."
 BoxRotation::usage:= "BoxRotation is an option for RotationBox that specifies the angle by which its content should be rotated."
 BoxTransformation::usage:= "BoxTransformation is an option for TransformatBox which specifies the affine transformation matrix to apply to its content."

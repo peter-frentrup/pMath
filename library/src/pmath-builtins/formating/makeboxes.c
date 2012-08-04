@@ -2716,16 +2716,14 @@ static pmath_t framed_to_boxes(
   pmath_thread_t thread,
   pmath_expr_t   expr    // will be freed
 ) {
-  if(pmath_expr_length(expr) == 1) {
-    pmath_t item = pmath_expr_get_item(expr, 1);
-    
-    pmath_unref(expr);
+  if(pmath_expr_length(expr) >= 1) {
+    pmath_t item = pmath_expr_extract_item(expr, 1);
     
     item = object_to_boxes(thread, item);
     
-    return pmath_expr_new_extended(
-             pmath_ref(PMATH_SYMBOL_FRAMEBOX), 1,
-             item);
+    expr = pmath_expr_set_item(expr, 1, item);
+    expr = pmath_expr_set_item(expr, 0, pmath_ref(PMATH_SYMBOL_FRAMEBOX));
+    return expr;
   }
   
   return call_to_boxes(thread, expr);

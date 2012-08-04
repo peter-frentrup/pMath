@@ -7,6 +7,8 @@
 #include <boxes/textsequence.h>
 #include <eval/application.h>
 #include <graphics/context.h>
+#include <graphics/rectangle.h>
+
 
 using namespace richmath;
 
@@ -14,14 +16,14 @@ using namespace richmath;
 
 Section::Section(SharedPtr<Style> _style)
   : Box(),
-  y_offset(0),
-  top_margin(3),
-  bottom_margin(3),
-  unfilled_width(0),
-  must_resize(true),
-  visible(true),
-  evaluating(false),
-  dialog_start(false)
+    y_offset(0),
+    top_margin(3),
+    bottom_margin(3),
+    unfilled_width(0),
+    must_resize(true),
+    visible(true),
+    evaluating(false),
+    dialog_start(false)
 {
   style = _style.release();
 }
@@ -194,11 +196,11 @@ bool Section::edit_selection(Context *context) {
     invalidate();
   }
   
-  if(style && get_style(SectionEditDuplicate)){
-    if(get_style(SectionEditDuplicateMakesCopy)){
-      SectionList *slist = dynamic_cast<SectionList*>(parent());
+  if(style && get_style(SectionEditDuplicate)) {
+    if(get_style(SectionEditDuplicateMakesCopy)) {
+      SectionList *slist = dynamic_cast<SectionList *>(parent());
       
-      if(slist){
+      if(slist) {
         slist->insert(index(), Section::create_from_object(to_pmath(BoxOptionDefault)));
       }
     }
@@ -206,7 +208,7 @@ bool Section::edit_selection(Context *context) {
     Expr style_expr = get_style(DefaultDuplicateSectionStyle, Expr());
     if(style_expr.is_null() && parent())
       style_expr = parent()->get_style(DefaultDuplicateSectionStyle);
-    
+      
     style->add_pmath(style_expr);
     invalidate();
   }
@@ -240,7 +242,7 @@ bool Section::edit_selection(Context *context) {
 
 ErrorSection::ErrorSection(const Expr object)
   : Section(0),
-  _object(object)
+    _object(object)
 {
 }
 
@@ -294,7 +296,7 @@ Box *ErrorSection::mouse_selection(
 
 AbstractSequenceSection::AbstractSequenceSection(AbstractSequence *content, SharedPtr<Style> _style)
   : Section(_style),
-  _content(content)
+    _content(content)
 {
   adopt(_content, 0);
 }
@@ -402,17 +404,58 @@ void AbstractSequenceSection::paint(Context *context) {
   float left_margin = get_style(SectionMarginLeft);
   int   background  = get_style(Background);
   
-  if(background >= 0) {
-    if(context->canvas->show_only_text)
-      return;
-      
-    float x1 = x + left_margin;
-    float x2 = x + _extents.width;
-    float y1 = y + top_margin;
-    float y2 = y + _extents.descent - bottom_margin;
+  float l = get_style(SectionFrameLeft);
+  float r = get_style(SectionFrameRight);
+  float t = get_style(SectionFrameTop);
+  float b = get_style(SectionFrameBottom);
+  
+  if(background >= 0 || l != 0 || r != 0 || t != 0 || b != 0){
+    BoxRadius radii;
+    Expr expr;
+    if(context->stylesheet->get(style, BorderRadius, &expr))
+      radii = BoxRadius(expr);
     
-    context->canvas->pixrect(x1, y1, x2, y2, false);
-    context->canvas->set_color(background);
+    Rectangle rect(Point(x + left_margin,
+                         y + top_margin),
+                   Point(x + _extents.width,
+                         y + _extents.descent - bottom_margin));
+    rect.pixel_align(*context->canvas, false);
+    radii.normalize(rect.width, rect.height);
+    
+    // outer rounded rectangle
+    rect.add_round_rect_path(*context->canvas, radii, false);
+      
+    if(background >= 0 && !context->canvas->show_only_text) {
+      context->canvas->set_color(background);
+      context->canvas->fill_preserve();
+    }
+    
+    Point delta_tl(l, t);
+    delta_tl.pixel_align_distance(*context->canvas);
+    rect.x+= delta_tl.x; rect.width -= delta_tl.x;
+    rect.y+= delta_tl.y; rect.height-= delta_tl.y;
+    
+    Point delta_br(r, b);
+    delta_br.pixel_align_distance(*context->canvas);
+    rect.width -= delta_br.x;
+    rect.height-= delta_br.y;
+    
+    radii.top_left_x    -= delta_tl.x;
+    radii.top_left_y    -= delta_tl.y;
+    radii.top_right_x   -= delta_br.x;
+    radii.top_right_y   -= delta_tl.y;
+    radii.bottom_right_x-= delta_br.x;
+    radii.bottom_right_y-= delta_br.y;
+    radii.bottom_left_x -= delta_tl.x;
+    radii.bottom_left_y -= delta_br.y;
+    
+    rect.normalize_to_zero();
+    radii.normalize(rect.width, rect.height);
+    
+    // inner rounded rectangle
+    rect.add_round_rect_path(*context->canvas, radii, true);
+    
+    context->canvas->set_color(get_style(SectionFrameColor));
     context->canvas->fill();
   }
   
@@ -433,40 +476,6 @@ void AbstractSequenceSection::paint(Context *context) {
   context->stylesheet->get(style, TextShadow, &expr);
   context->draw_with_text_shadows(_content, expr);
   
-  float l = get_style(SectionFrameLeft);
-  float r = get_style(SectionFrameRight);
-  float t = get_style(SectionFrameTop);
-  float b = get_style(SectionFrameBottom);
-  
-  if(background >= 0 || l != 0 || r != 0 || t != 0 || b != 0) {
-    float x1 = x + left_margin;
-    float x2 = x + _extents.width;
-    float y1 = y + top_margin;
-    float y2 = y + _extents.descent - bottom_margin;
-    
-    context->canvas->align_point(&x1, &y1, false);
-    context->canvas->align_point(&x2, &y2, false);
-    
-    context->canvas->move_to(x1, y1);
-    context->canvas->line_to(x2, y1);
-    context->canvas->line_to(x2, y2);
-    context->canvas->line_to(x1, y2);
-    
-    x1 += l;
-    x2 -= r;
-    y1 += t;
-    y2 -= b;
-    
-    context->canvas->move_to(x1, y1);
-    context->canvas->line_to(x1, y2);
-    context->canvas->line_to(x2, y2);
-    context->canvas->line_to(x2, y1);
-    
-    context->canvas->set_color(get_style(SectionFrameColor));
-    
-    context->canvas->fill();
-  }
-  
   cc.end();
 }
 
@@ -479,7 +488,7 @@ Expr AbstractSequenceSection::to_pmath(int flags) {
   Gather g;
   
   Expr cont = _content->to_pmath(flags/* & ~BoxFlagParseable*/);
-  if(dynamic_cast<MathSequence*>(_content))
+  if(dynamic_cast<MathSequence *>(_content))
     cont = Call(Symbol(PMATH_SYMBOL_BOXDATA), cont);
     
   Gather::emit(cont);
@@ -634,7 +643,7 @@ bool TextSection::try_load_from_object(Expr expr, int opts) {
 
 EditSection::EditSection()
   : MathSection(new Style(String("Edit"))),
-  original(0)
+    original(0)
 {
 }
 

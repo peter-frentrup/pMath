@@ -758,6 +758,9 @@ PMATH_API pmath_bool_t pmath_init(void) {
         "Options(FixedPoint):="
         "Options(FixedPointList):={SameTest->Identical}");
 
+      PMATH_RUN("Options(Framed):=Options(FrameBox):={"
+                "BorderRadius->0}");
+
       PMATH_RUN("Options(Get):={"
                 "CharacterEncoding->Automatic,"
                 "Head->Identity,"
@@ -826,6 +829,7 @@ PMATH_API pmath_bool_t pmath_init(void) {
                 "AutoSpacing->Inherited,"
                 "Background->None,"
                 "BaseStyle->None,"
+                "BorderRadius->0,"
                 "ButtonFrame->Inherited,"
                 "ButtonFunction->Inherited,"
                 "Editable->Inherited,"
@@ -852,6 +856,7 @@ PMATH_API pmath_bool_t pmath_init(void) {
                 "AutoSpacing->Inherited,"
                 "Background->Automatic,"
                 "BaseStyle->None,"
+                "BorderRadius->0,"
                 "ButtonFrame->Automatic,"
                 "ButtonFunction->(/\\/ &),"
                 "DefaultDuplicateSectionStyle->Inherited,"

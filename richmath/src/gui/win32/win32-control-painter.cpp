@@ -219,7 +219,7 @@ int Win32ControlPainter::control_font_color(ContainerType type, ControlState sta
     case TooltipWindow: {
         DWORD col = GetSysColor(COLOR_INFOTEXT);
         return ((col & 0xFF0000) >> 16) |
-               ( col & 0x00FF00)        | 
+               ( col & 0x00FF00)        |
                ((col & 0x0000FF) << 16);
       } break;
       
@@ -321,12 +321,13 @@ void Win32ControlPainter::draw_container(
     canvas->device_to_user_dist(&width, &height);
   }
   
-  if(type == InputField
-      && Win32Themes::IsThemeActive
-      && Win32Themes::IsThemeActive()
-      && Win32Themes::OpenThemeData
-      && Win32Themes::CloseThemeData
-      && Win32Themes::DrawThemeBackground) {
+  if( type == InputField           &&
+      Win32Themes::IsThemeActive   &&
+      Win32Themes::IsThemeActive() &&
+      Win32Themes::OpenThemeData   &&
+      Win32Themes::CloseThemeData  &&
+      Win32Themes::DrawThemeBackground)
+  {
     canvas->save();
     int c = canvas->get_color();
     
@@ -384,8 +385,8 @@ void Win32ControlPainter::draw_container(
       }
       
       DWORD col = GetSysColor(COLOR_WINDOW);
-      col = ((col & 0xFF0000) >> 16)
-            | (col & 0x00FF00)
+      col = (  (col & 0xFF0000) >> 16)
+            |  (col & 0x00FF00)
             | ((col & 0x0000FF) << 16);
             
       canvas->set_color(col);
@@ -426,10 +427,11 @@ void Win32ControlPainter::draw_container(
     cairo_matrix_t ctm;
     cairo_get_matrix(canvas->cairo(), &ctm);
     
-    if((ctm.xx == 0) == (ctm.yy == 0)
-        && (ctm.xy == 0) == (ctm.yx == 0)
-        && (ctm.xx == 0) != (ctm.xy == 0)
-        && rect_in_clip(canvas, x, y, width, height)) {
+    if( (ctm.xx == 0) == (ctm.yy == 0) &&
+        (ctm.xy == 0) == (ctm.yx == 0) &&
+        (ctm.xx == 0) != (ctm.xy == 0) &&
+        rect_in_clip(canvas, x, y, width, height))
+    {
       float ux = x;
       float uy = y;
       canvas->user_to_device(&ux, &uy);
@@ -443,12 +445,13 @@ void Win32ControlPainter::draw_container(
   }
   
   if(!dc) {
-    if(Win32Themes::IsThemeActive
-        && Win32Themes::IsThemeActive()
-        && Win32Themes::IsCompositionActive /* XP not enough */
-        && Win32Themes::OpenThemeData
-        && Win32Themes::CloseThemeData
-        && Win32Themes::DrawThemeBackground) {
+    if( Win32Themes::IsThemeActive       &&
+        Win32Themes::IsThemeActive()     &&
+        Win32Themes::IsCompositionActive && /* XP not enough */
+        Win32Themes::OpenThemeData       &&
+        Win32Themes::CloseThemeData      &&
+        Win32Themes::DrawThemeBackground)
+    {
       surface = cairo_win32_surface_create_with_dib(
                   CAIRO_FORMAT_ARGB32,
                   w,
@@ -726,8 +729,7 @@ SharedPtr<BoxAnimation> Win32ControlPainter::control_transition(
   float          width,
   float          height
 ) {
-  if(!Win32Themes::GetThemeTransitionDuration
-      || widget_id == 0)
+  if(!Win32Themes::GetThemeTransitionDuration || widget_id == 0)
     return 0;
     
   bool repeat = false;
@@ -736,22 +738,27 @@ SharedPtr<BoxAnimation> Win32ControlPainter::control_transition(
     repeat = true;
   }
   
-  if(state1 == Normal && (state2 == Hot || state2 == Hovered)
-      && type2 == PaletteButton)
+  if( state1 == Normal                      &&
+      (state2 == Hot || state2 == Hovered)  &&
+      type2 == PaletteButton)
+  {
     return 0;
-    
+  }
+  
   int theme_part, theme_state1, theme_state2;
   HANDLE theme = get_control_theme(type1, state1, &theme_part, &theme_state1);
   get_control_theme(type2, state2, &theme_part, &theme_state2);
   if(!theme)
     return 0;
     
-  if(type2 == PushButton
-      || type2 == DefaultPushButton
-      || type2 == PaletteButton) {
+  if( type2 == PushButton        ||
+      type2 == DefaultPushButton ||
+      type2 == PaletteButton)
+  {
     if(state2 == PressedHovered/* || state1 == Normal*/)
       return 0;
   }
+  
   DWORD duration = 0;
   /* TMT_TRANSITIONDURATIONS = 6000 */
   Win32Themes::GetThemeTransitionDuration(
@@ -878,8 +885,8 @@ void Win32ControlPainter::system_font_style(Style *style) {
 
 int Win32ControlPainter::selection_color() {
   DWORD col = GetSysColor(COLOR_HIGHLIGHT);
-  return ((col & 0xFF0000) >> 16)
-         | (col & 0x00FF00)
+  return (  (col & 0xFF0000) >> 16)
+         |  (col & 0x00FF00)
          | ((col & 0x0000FF) << 16);
 }
 
@@ -962,9 +969,10 @@ void Win32ControlPainter::paint_scrollbar_part(
   rect.right  = dc_x + w;
   rect.bottom = dc_y + h;
   
-  if(Win32Themes::OpenThemeData
-      && Win32Themes::CloseThemeData
-      && Win32Themes::DrawThemeBackground) {
+  if( Win32Themes::OpenThemeData  &&
+      Win32Themes::CloseThemeData &&
+      Win32Themes::DrawThemeBackground)
+  {
     if(!scrollbar_theme)
       scrollbar_theme = Win32Themes::OpenThemeData(0, L"SCROLLBAR");
       
@@ -1176,9 +1184,10 @@ void Win32ControlPainter::paint_scrollbar_part(
 }
 
 void Win32ControlPainter::draw_menubar(HDC dc, RECT *rect) {
-  if(Win32Themes::OpenThemeData
-      && Win32Themes::CloseThemeData
-      && Win32Themes::DrawThemeBackground) {
+  if( Win32Themes::OpenThemeData  &&
+      Win32Themes::CloseThemeData &&
+      Win32Themes::DrawThemeBackground)
+  {
     HANDLE theme = Win32Themes::OpenThemeData(0, L"MENU");
     if(!theme)
       goto FALLBACK;
@@ -1194,15 +1203,16 @@ void Win32ControlPainter::draw_menubar(HDC dc, RECT *rect) {
     Win32Themes::CloseThemeData(theme);
   }
   else {
-  FALLBACK: ;
+  FALLBACK: 
     FillRect(dc, rect, GetSysColorBrush(COLOR_BTNFACE));
   }
 }
 
 bool Win32ControlPainter::draw_menubar_itembg(HDC dc, RECT *rect, ControlState state) {
-  if(Win32Themes::OpenThemeData
-      && Win32Themes::CloseThemeData
-      && Win32Themes::DrawThemeBackground) {
+  if( Win32Themes::OpenThemeData  && 
+      Win32Themes::CloseThemeData && 
+      Win32Themes::DrawThemeBackground) 
+  {
     HANDLE theme = Win32Themes::OpenThemeData(0, L"MENU");
     
     if(!theme)

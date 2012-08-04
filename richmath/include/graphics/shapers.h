@@ -5,6 +5,7 @@
 #define CHAR_REPLACEMENT        0x001A
 
 #include <graphics/canvas.h>
+#include <graphics/rectangle.h>
 
 #include <util/array.h>
 #include <util/hashtable.h>
@@ -90,6 +91,14 @@ namespace richmath {
         if(*d < descent)
           *d = descent;
       };
+      
+      Rectangle to_rectangle() const {
+        return to_rectangle(Point(0, 0));
+      }
+      
+      Rectangle to_rectangle(const Point &origin) const {
+        return Rectangle(origin.x, origin.y - ascent, width, height());
+      }
   };
   
   class TextShaper: public Shareable {

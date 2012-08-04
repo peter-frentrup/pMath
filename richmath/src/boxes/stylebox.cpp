@@ -4,6 +4,8 @@
 
 #include <boxes/mathsequence.h>
 #include <graphics/context.h>
+#include <graphics/rectangle.h>
+
 
 using namespace richmath;
 
@@ -33,15 +35,21 @@ void AbstractStyleBox::paint_or_resize(Context *context, bool paint) {
         if(i >= 0) {
           if(context->canvas->show_only_text)
             return;
-            
+          
+          Rectangle rect(x, y - _extents.ascent, _extents.width, _extents.height());
+          BoxRadius radii;
+          
+          Expr expr;
+          if(context->stylesheet->get(style, BorderRadius, &expr))
+            radii = BoxRadius(expr);
+          
+          rect.normalize();
+          rect.pixel_align(*context->canvas, false, +1);
+          
+          radii.normalize(rect.width, rect.height);
+          rect.add_round_rect_path(*context->canvas, radii, false);
+          
           context->canvas->set_color(i);
-          context->canvas->pixrect(
-            x,
-            y - _extents.ascent,
-            x + _extents.width,
-            y + _extents.descent,
-            false);
-            
           context->canvas->fill();
         }
       }

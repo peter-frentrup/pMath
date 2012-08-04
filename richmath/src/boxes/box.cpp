@@ -524,7 +524,7 @@ Expr Box::get_style(ObjectStyleOptionName n, Expr result) {
   if(all) {
     if(all->get(style, n, &result))
       return result;
-  
+      
     box = _parent;
     
     while(box) {
@@ -543,7 +543,7 @@ Expr Box::get_style(ObjectStyleOptionName n, Expr result) {
   else {
     if(style && style->get(n, &result))
       return result;
-    
+      
     box = _parent;
     while(box) {
       if( box->changes_children_style() &&

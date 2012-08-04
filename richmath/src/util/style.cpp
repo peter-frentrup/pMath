@@ -267,6 +267,9 @@ void Style::add_pmath(Expr options) {
             else
               add_pmath(rhs);
           }
+          else if(lhs == PMATH_SYMBOL_BORDERRADIUS) {
+            set_pmath_object(BorderRadius, rhs);
+          }
           else if(lhs == PMATH_SYMBOL_BUTTONFRAME) {
             if(rhs[0] == PMATH_SYMBOL_DYNAMIC)
               set_dynamic(ButtonFrame, rhs);
@@ -999,6 +1002,7 @@ Expr Style::get_symbol(int n) {
     case BoxRotation:                      return Symbol(PMATH_SYMBOL_BOXROTATION);
     case BoxTransformation:                return Symbol(PMATH_SYMBOL_BOXTRANSFORMATION);
     case PlotRange:                        return Symbol(PMATH_SYMBOL_PLOTRANGE);
+    case BorderRadius:                     return Symbol(PMATH_SYMBOL_BORDERRADIUS);
     
     case DefaultDuplicateSectionStyle:     return Symbol(PMATH_SYMBOL_DEFAULTDUPLICATESECTIONSTYLE);
     case DefaultNewSectionStyle:           return Symbol(PMATH_SYMBOL_DEFAULTNEWSECTIONSTYLE);
@@ -1100,6 +1104,17 @@ void Style::emit_to_pmath(bool with_inherited) {
                      get_symbol(BaseStyleName),
                      s));
     }
+  }
+  
+  if(get_dynamic(BorderRadius, &e)) {
+    Gather::emit(Rule(
+                   get_symbol(BorderRadius),
+                   e));
+  }
+  else if(get(BorderRadius, &e)) {
+    Gather::emit(Rule(
+                   get_symbol(BorderRadius),
+                   e));
   }
   
   if(get_dynamic(BoxRotation, &e)) {

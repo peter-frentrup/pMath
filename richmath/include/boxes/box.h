@@ -23,8 +23,7 @@ namespace richmath {
       void set_source(Box *new_source);
       
     public:
-      float x;
-      float y;
+      float x, y;
       bool left;
       bool middle;
       bool right;

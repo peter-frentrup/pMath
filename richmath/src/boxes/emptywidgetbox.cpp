@@ -1,6 +1,7 @@
 #include <boxes/emptywidgetbox.h>
 
 #include <graphics/context.h>
+#include <graphics/rectangle.h>
 
 #include <gui/document.h>
 #include <gui/native-widget.h>
@@ -12,14 +13,14 @@ using namespace richmath;
 
 EmptyWidgetBox::EmptyWidgetBox(ContainerType _type)
   : Box(),
-  type(_type),
-  old_type(_type),
-  old_state(Normal),
-  mouse_inside(false),
-  mouse_left_down(false),
-  mouse_middle_down(false),
-  mouse_right_down(false),
-  must_update(true)
+    type(_type),
+    old_type(_type),
+    old_state(Normal),
+    mouse_inside(false),
+    mouse_left_down(false),
+    mouse_middle_down(false),
+    mouse_right_down(false),
+    must_update(true)
 {
 }
 
@@ -62,11 +63,11 @@ void EmptyWidgetBox::paint(Context *context) {
                   type,
                   old_state,
                   state,
-                  x,
-                  y - _extents.ascent,
-                  _extents.width,
+                  x, 
+                  y - _extents.ascent, 
+                  _extents.width, 
                   _extents.height());
-                  
+                            
     old_state = state;
   }
   
@@ -85,10 +86,10 @@ void EmptyWidgetBox::paint(Context *context) {
                     type,
                     old_state,
                     old_state,
-                    x,
-                    y - _extents.ascent,
-                    _extents.width,
-                    _extents.height());
+                    x, 
+                  y - _extents.ascent, 
+                  _extents.width, 
+                  _extents.height());
     }
   }
   
@@ -97,10 +98,10 @@ void EmptyWidgetBox::paint(Context *context) {
       context->canvas,
       type,
       state,
-      x,
-      y - _extents.ascent,
-      _extents.width,
-      _extents.height());
+      x, 
+                  y - _extents.ascent, 
+                  _extents.width, 
+                  _extents.height());
   }
   
   ControlPainter::std->container_content_move(
@@ -111,13 +112,11 @@ void EmptyWidgetBox::paint(Context *context) {
   if(type == FramelessButton && state == PressedHovered) {
     context->canvas->save();
     {
-      context->canvas->pixrect(
-        x,
-        y - _extents.ascent,
-        x + _extents.width,
-        y + _extents.descent,
-        false);
-        
+      Rectangle rect(x, y - _extents.ascent, _extents.width, _extents.height());
+      
+      rect.pixel_align(*context->canvas, false, 0);
+      rect.add_rect_path(*context->canvas, false);
+      
       cairo_set_operator(context->canvas->cairo(), CAIRO_OPERATOR_DIFFERENCE);
       context->canvas->set_color(0xffffff);
       context->canvas->fill();
@@ -168,10 +167,7 @@ void EmptyWidgetBox::on_mouse_down(MouseEvent &event) {
   mouse_left_down   = mouse_left_down   || event.left;
   mouse_middle_down = mouse_middle_down || event.middle;
   mouse_right_down  = mouse_right_down  || event.right;
-  mouse_inside = event.x >= 0
-                 && event.x <= _extents.width
-                 && event.y >= -_extents.ascent
-                 && event.y <= _extents.descent;
+  mouse_inside      = _extents.to_rectangle().contains(event.x, event.y);
                  
   request_repaint_all();
 }
@@ -183,10 +179,7 @@ void EmptyWidgetBox::on_mouse_move(MouseEvent &event) {
   if(mouse_inside && doc)
     doc->native()->set_cursor(DefaultCursor);
     
-  bool mi = event.x >= 0
-            && event.x <= _extents.width
-            && event.y >= -_extents.ascent
-            && event.y <= _extents.descent;
+  bool mi = _extents.to_rectangle().contains(event.x, event.y);
             
   if(mi != mouse_inside)
     request_repaint_all();

@@ -110,6 +110,7 @@ namespace richmath {
     BoxRotation,
     BoxTransformation,
     PlotRange,
+    BorderRadius,
     
     DefaultDuplicateSectionStyle,
     DefaultNewSectionStyle,

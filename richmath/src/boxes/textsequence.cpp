@@ -5,6 +5,8 @@
 #include <boxes/mathsequence.h>
 #include <boxes/ownerbox.h>
 #include <graphics/context.h>
+#include <graphics/rectangle.h>
+
 
 using namespace richmath;
 
@@ -436,7 +438,7 @@ void TextSequence::selection_path(Canvas *canvas, int start, int end) {
       if(start < line->start_index) {
         if(prev && prev->start_index + prev->length < start)
           start = prev->start_index + prev->length;
-        
+          
         break;
       }
       
@@ -464,12 +466,18 @@ void TextSequence::selection_path(Canvas *canvas, int start, int end) {
           
         if(start < line->start_index) {
           size.ascent +=  spacing;
-          canvas->pixrect(
-            x0 + x,
-            last_bottom,
-            x0 + _extents.width,
-            y0 + y - size.ascent,
-            false);
+          
+          Rectangle rect(x0 + x, last_bottom, _extents.width - x, y0 + y - size.ascent - last_bottom);
+          rect.normalize();
+          rect.pixel_align(  *canvas, false, 0);
+          rect.add_rect_path(*canvas, false);
+          
+          //canvas->pixrect(
+          //  x0 + x,
+          //  last_bottom,
+          //  x0 + _extents.width,
+          //  y0 + y - size.ascent,
+          //  false);
         }
         
         last_bottom = y0 + y + size.descent;
@@ -477,12 +485,21 @@ void TextSequence::selection_path(Canvas *canvas, int start, int end) {
         pango_layout_line_get_x_ranges(line, start, end, &xranges, &num_xranges);
         
         for(int i = 0; i < num_xranges; ++i) {
-          canvas->pixrect(
-            x0 + pango_units_to_double(xranges[2 * i]),
-            y0 + y - size.ascent,
-            x0 + pango_units_to_double(xranges[2 * i + 1]),
-            last_bottom,
-            false);
+          Rectangle rect(
+            Point(x0 + pango_units_to_double(xranges[2 * i]),
+                  y0 + y - size.ascent),
+            Point(x0 + pango_units_to_double(xranges[2 * i + 1]),
+                  last_bottom));
+          
+          rect.pixel_align(  *canvas, false, 0);
+          rect.add_rect_path(*canvas, false);
+                  
+          //canvas->pixrect(
+          //  x0 + pango_units_to_double(xranges[2 * i]),
+          //  y0 + y - size.ascent,
+          //  x0 + pango_units_to_double(xranges[2 * i + 1]),
+          //  last_bottom,
+          //  false);
         }
         
         g_free(xranges);
