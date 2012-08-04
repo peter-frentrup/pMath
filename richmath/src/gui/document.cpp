@@ -594,6 +594,7 @@ void Document::mouse_down(MouseEvent &event) {
     }
   }
   
+  finish_editing(receiver);
   receiver->on_mouse_down(event);
 }
 
@@ -611,6 +612,37 @@ void Document::mouse_up(MouseEvent &event) {
     receiver->on_mouse_up(event);
     
   context.clicked_box_id = next_clicked_box_id;
+}
+
+void Document::finish_editing(Box *except_box) {
+  Box *b1 = selection_box();
+  Box *b2 = except_box;
+  int d1 = box_depth(b1);
+  int d2 = box_depth(b2);
+  
+  while(d1 > d2) {
+    b1 = b1->parent();
+    --d1;
+  }
+  
+  while(d2 > d1) {
+    b2 = b2->parent();
+    --d2;
+  }
+  
+  if(b1 == b2)
+    return;
+  
+  while(b1 != b2 && b1 && b2) {
+    b1 = b1->parent();
+    b2 = b2->parent();
+  }
+  
+  b1 = selection_box();
+  while(b1 && b1 != b2){
+    b1->on_finish_editing();
+    b1 = b1->parent();
+  }
 }
 
 static void reverse_mouse_enter(Box *base, Box *child) {
@@ -784,7 +816,7 @@ void Document::on_mouse_down(MouseEvent &event) {
                  event.x, event.y,
                  &start, &end,
                  &was_inside_start);
-                 
+    
     if(double_click) {
       Box *selbox = context.selection.get();
       if(selbox == this) {

@@ -669,13 +669,12 @@ void Box::on_mouse_cancel() {
 }
 
 void Box::on_enter() {
-//  if(_parent)
-//    _parent->on_enter();
 }
 
 void Box::on_exit() {
-//  if(_parent)
-//    _parent->on_exit();
+}
+
+void Box::on_finish_editing() {
 }
 
 void Box::on_key_down(SpecialKeyEvent &event) {

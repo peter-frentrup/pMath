@@ -167,10 +167,33 @@ void InputFieldBox::paint_content(Context *context) {
   float x, y;
   context->canvas->current_pos(&x, &y);
   
+  if(invalidated) {
+    context->canvas->save();
+    
+    float cx = x + _extents.width;
+    float cy = y - _extents.ascent;
+    float r  = _extents.height();
+    cairo_pattern_t *pat;
+    
+    pat = cairo_pattern_create_radial(cx, cy, 0, cx, cy, r);
+    cairo_pattern_add_color_stop_rgba(pat, 0,  1.0, 0.5, 0.0, 0.8);
+    cairo_pattern_add_color_stop_rgba(pat, 1,  1.0, 0.5, 0.0, 0.0);
+    
+    cairo_set_source(context->canvas->cairo(), pat);
+    cairo_pattern_destroy(pat);
+    
+    context->canvas->move_to(cx, cy);
+    context->canvas->arc(cx, cy, r, M_PI / 2, M_PI, false);
+    context->canvas->fill();
+    
+    context->canvas->restore();
+  }
+  
   float dx = frame_x - 0.75f;
   float dy = frame_x;
   
   context->canvas->save();
+  
   context->canvas->pixrect(
     x + dx,
     y - _extents.ascent + dy,
@@ -179,7 +202,6 @@ void InputFieldBox::paint_content(Context *context) {
     false);
   context->canvas->clip();
   context->canvas->move_to(x, y);
-  
   ContainerWidgetBox::paint_content(context);
   
   context->canvas->restore();
@@ -361,22 +383,25 @@ void InputFieldBox::on_mouse_move(MouseEvent &event) {
 }
 
 void InputFieldBox::on_enter() {
-  //if(transparent) {
   request_repaint_all();
-  //}
   
   ContainerWidgetBox::on_enter();
 }
 
 void InputFieldBox::on_exit() {
-  //if(transparent) {
   request_repaint_all();
-  //}
   
   ContainerWidgetBox::on_exit();
   
   if(invalidated)
     assign_dynamic();
+}
+
+void InputFieldBox::on_finish_editing() {
+  if(invalidated)
+    assign_dynamic();
+    
+  ContainerWidgetBox::on_finish_editing();
 }
 
 void InputFieldBox::on_key_down(SpecialKeyEvent &event) {
@@ -466,9 +491,10 @@ bool InputFieldBox::assign_dynamic() {
                       
     value = Expr(pmath_evaluate(value.release()));
     
-    if(value[0] == PMATH_SYMBOL_HOLDCOMPLETE
-        && value.expr_length() == 1
-        && value[1].is_number()) {
+    if( value[0] == PMATH_SYMBOL_HOLDCOMPLETE &&
+        value.expr_length() == 1              &&
+        value[1].is_number())
+    {
       dynamic.assign(value[1]);
       return true;
     }

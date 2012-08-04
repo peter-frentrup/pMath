@@ -423,7 +423,7 @@ static void init_stylesheet() {
   s->set(SectionFrameMarginRight,  3);
   s->set(SectionFrameMarginTop,    3);
   s->set(SectionFrameMarginBottom, 3);
-  s->set(SectionFrameBottom,       0.0001f);
+  s->set(SectionFrameBottom,       1e-6);
   Stylesheet::Default->styles.set("Docked", s);
   
   s = new Style;

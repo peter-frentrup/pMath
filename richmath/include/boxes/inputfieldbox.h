@@ -47,6 +47,7 @@ namespace richmath {
       
       virtual void on_enter();
       virtual void on_exit();
+      virtual void on_finish_editing();
       
       virtual void on_key_down(SpecialKeyEvent &event);
       virtual void on_key_press(uint32_t unichar);

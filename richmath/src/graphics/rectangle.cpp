@@ -62,8 +62,8 @@ void Point::pixel_align_distance(Canvas &canvas) {
     {
       canvas.user_to_device_dist(&x, &y);
       
-      bool x_was_zero = x == 0;
-      bool y_was_zero = y == 0;
+      bool x_was_zero = fabs(x) < 1e-5;
+      bool y_was_zero = fabs(y) < 1e-5;
       
       x = floor(x + 0.5);
       y = floor(y + 0.5);

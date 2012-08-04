@@ -41,6 +41,7 @@ namespace richmath {
       void mouse_down(MouseEvent &event);
       void mouse_up(MouseEvent &event);
       void mouse_move(MouseEvent &event);
+      void finish_editing(Box *except_box);
       
       void focus_set();
       void focus_killed();
