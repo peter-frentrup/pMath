@@ -916,26 +916,41 @@ PMATH_API const uint16_t *pmath_char_parse(const uint16_t *str, int maxlen, uint
       return skip_all_hex(str + 2, maxlen - 2);
     
     case '[': {
-        int e = 1;
-        while(e < maxlen && str[e] <= 0x7F && str[e] != ']') {
-          ++e;
-        }
+        char s[64];
         
-        if(e < maxlen && str[e] == ']' && e - 2 < 64) {
-          char s[64];
-          int i;
-          
-          for(i = 0; i < e - 2; ++i) {
-            s[i] = (char)str[2 + i];
+        int e = 2;
+        int n = 0;
+        
+        while(e < maxlen && 
+              n < sizeof(s) - 1 &&
+              str[e] <= 0x7F && 
+              str[e] != ']' && 
+              str[e] != '[') 
+        {
+          if(str[e] == '\\') {
+            if(e + 1 < maxlen && str[e+1] == '\n') {
+              ++e;
+              while(e < maxlen && str[e] <= ' ')
+                ++e;
+                
+              continue;
+            }
+            else
+              break;
           }
           
-          s[i] = '\0';
+          s[n++] = str[e++];
+        }
+        
+        if(e < maxlen && str[e] == ']' && n < sizeof(s) - 1) {
+          s[n] = '\0';
           *result = pmath_char_from_name(s);
           if(*result != 0xFFFFFFFFU)
             return str + e + 1;
         }
         
-        return str + 2;
+        return str + e;
+        //return str + 2;
       }
   }
   

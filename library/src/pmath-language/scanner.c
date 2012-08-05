@@ -502,6 +502,8 @@ static pmath_token_t scan_next_escaped_char(struct scanner_t *tokens, struct par
   int endpos;
   uint16_t u16[2];
   
+START:
+
   endstr = pmath_char_parse(tokens->str + tokens->pos, tokens->len - tokens->pos, &u);
   endpos = endstr - tokens->str;
   *chr = u;
@@ -522,15 +524,27 @@ static pmath_token_t scan_next_escaped_char(struct scanner_t *tokens, struct par
     return pmath_token_analyse(u16, 2, NULL);
   }
   
-  if(tokens->pos + 1 == endpos) {
+  if( tokens->pos + 1 == endpos)
+  {
     tokens->pos = endpos;
+    //++tokens->pos;
     
     return PMATH_TOK_NONE;
   }
   
+  if(endpos + 1 == tokens->len && tokens->str[endpos] == '\\') {
+    /*   "\[Raw\
+           Plus]"
+      should be parsed as "\[RawPlus]"
+    */
+    
+    if(parser && parser->tokenizing && read_more(parser))
+      goto START;
+  }
+  
   tokens->pos = endpos;
   
-  if(parser)
+  if(parser && !tokens->in_comment)
     handle_error(parser);
     
   return PMATH_TOK_NONE;
@@ -2410,7 +2424,7 @@ static void syntax_error(pmath_string_t code, int pos, void *flag, pmath_bool_t 
   
   if(!*have_critical)
     pmath_message_syntax_error(code, pos, PMATH_NULL, 0);
-  
+    
   if(critical)
     *have_critical = TRUE;
 }
