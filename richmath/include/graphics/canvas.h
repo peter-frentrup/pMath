@@ -119,6 +119,8 @@ namespace richmath {
       float              _font_size;
       int                _color;
   };
+  
+  typedef AutoRefBase < cairo_surface_t, cairo_surface_reference, cairo_surface_destroy > AutoCairoSurface;
 }
 
 #endif // __GRAPHICS__CANVAS_H__

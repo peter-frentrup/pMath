@@ -421,6 +421,8 @@ void Style::add_pmath(Expr options) {
               set(WindowFrame, WindowFrameNormal);
             else if(s_rhs.equals("Palette"))
               set(WindowFrame, WindowFramePalette);
+            else if(s_rhs.equals("Dialog"))
+              set(WindowFrame, WindowFrameDialog);
             else
               set_dynamic(WindowFrame, rhs);
               
@@ -1792,6 +1794,12 @@ void Style::emit_to_pmath(bool with_inherited) {
         Gather::emit(Rule(
                        get_symbol(WindowFrame),
                        String("Palette")));
+        break;
+        
+      case WindowFrameDialog:
+        Gather::emit(Rule(
+                       get_symbol(WindowFrame),
+                       String("Dialog")));
         break;
     }
   }

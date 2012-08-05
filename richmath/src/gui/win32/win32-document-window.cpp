@@ -123,7 +123,7 @@ class richmath::Win32WorkingArea: public Win32Widget {
     }
     
     virtual void paint_background(Canvas *canvas) {
-      if((auto_size && document()->count() == 0) || _parent->is_palette()) {
+      if((auto_size && document()->count() == 0) || _parent->window_frame() != WindowFrameNormal) {
         _parent->paint_background(canvas, _hwnd);
       }
       else {
@@ -327,7 +327,7 @@ class richmath::Win32Dock: public Win32Widget {
               Win32Widget::callback(message, wParam, lParam);
               
               if(have_size_grip()) {
-                int x = (int16_t)(lParam & 0xFFFF)            + GetScrollPos(_hwnd, SB_HORZ);
+                int x = (int16_t) (lParam & 0xFFFF)            + GetScrollPos(_hwnd, SB_HORZ);
                 int y = (int16_t)((lParam & 0xFFFF0000) >> 16) + GetScrollPos(_hwnd, SB_VERT);
                 
                 float w, h;
@@ -347,7 +347,7 @@ class richmath::Win32Dock: public Win32Widget {
               Win32Widget::callback(message, wParam, lParam);
               
               if(have_size_grip()) {
-                int x = (int16_t)(lParam & 0xFFFF)            + GetScrollPos(_hwnd, SB_HORZ);
+                int x = (int16_t) (lParam & 0xFFFF)            + GetScrollPos(_hwnd, SB_HORZ);
                 int y = (int16_t)((lParam & 0xFFFF0000) >> 16) + GetScrollPos(_hwnd, SB_VERT);
                 
                 float w, h;
@@ -901,6 +901,27 @@ void Win32DocumentWindow::window_frame(WindowFrameType type) {
         menubar->appearence(MaNeverShow);
       }
       break;
+      
+    case WindowFrameDialog:
+      {
+        _working_area->auto_size                    = true;
+        _working_area->document()->border_visible   = false;
+        _working_area->_autohide_vertical_scrollbar = true;
+        
+        // normal window caption:
+        SetWindowLongW(_hwnd, GWL_EXSTYLE,
+                       GetWindowLongW(_hwnd, GWL_EXSTYLE) & ~(WS_EX_TOOLWINDOW));
+                       
+        // behind palettes:
+        zorder_level = 0;
+        
+        // also enable Minimize/Maximize in system menu:
+        SetWindowLongW(_hwnd, GWL_STYLE,
+                       GetWindowLongW(_hwnd, GWL_STYLE) & ~(WS_MAXIMIZEBOX | WS_MINIMIZEBOX));
+                       
+        menubar->appearence(MaNeverShow);
+      }
+      break;
   }
   
   if(hide_temporary)
@@ -919,7 +940,7 @@ bool Win32DocumentWindow::is_closed() {
 void Win32DocumentWindow::on_theme_changed() {
   BasicWin32Window::on_theme_changed();
   
-  if(is_palette())
+  if(window_frame() != WindowFrameNormal)
     menubar->appearence(MaNeverShow);
   else if(glass_enabled())
     menubar->appearence(MaAutoShow);

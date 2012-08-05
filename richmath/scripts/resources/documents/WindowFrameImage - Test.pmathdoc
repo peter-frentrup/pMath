@@ -1,0 +1,88 @@
+Document({SectionGroup({Section("Using FE`$WindowFrameImage", "Title"), 
+     Section(
+      "You need to turn on \[HighSixDoubleQuote]Aero \
+      Glass\[HighNineDoubleQuote] to see the frame image.", "Text"), 
+     SectionGroup({
+       Section(BoxData({"Button", "(", {"\"Open Window with Frame Image\"", 
+           ",", {"With", "(", {
+             {"{", {"imgFile", "\[Assign]", {"FE`FileOpenDialog", "(", {
+                 {"If", "(", {{"IsString", "(", "lastChosenImage", ")"}, ",", 
+                   "lastChosenImage", ",", "\"\""}, ")"}, ",", {
+                  "{", {"\"PNG Images\"", "->", "\"*.png\""}, "}"}}, ")"}}, 
+              "}"}, ",", "\n", {
+              {"If", "(", {{"IsString", "(", "imgFile", ")"}, ",", "\n", {
+                 {"lastChosenImage", "\[Assign]", "imgFile"}, ";", "\n", {
+                  "Block", "(", {{"{", "FE`$WindowFrameImage", "}"}, ",", {
+                    {"FE`$WindowFrameImage", "\[Assign]", "imgFile"}, ";", {
+                     "CreateDocument", "@@", {"DocumentGet", "(", {
+                       "EvaluationDocument", "(", ")"}, ")"}}}}, ")"}}}, ")"}, 
+              ";"}}, ")"}}, ")"}), "Input", SectionLabel -> "in [41]:"), 
+       Section(BoxData(ButtonBox("\"Open Window with Frame Image\"", 
+          ButtonFunction -> (With({
+            imgFile:= FE`FileOpenDialog(If(IsString(lastChosenImage), 
+              lastChosenImage, ""), {"PNG Images" -> "*.png"})}, 
+           If(IsString(imgFile), lastChosenImage:= imgFile; Block({
+              FE`$WindowFrameImage}, FE`$WindowFrameImage:= imgFile; Apply(
+              DocumentGet(EvaluationDocument()), CreateDocument)));) &))), 
+        "Output", SectionGenerated -> True, SectionLabel -> "out [41]:")}, 2), 
+     SectionGroup({
+       Section(BoxData({"Grid", "(", {
+           "{", {{"{", "\"last chosen \
+             image:\\[RawTab]\\[RawTab]\\[RawTab]\\[RawTab]\\[RawTab]\\[RawTab\
+             ]\\[RawTab]\\[RawTab]\\[RawTab]\\[RawTab]\\[RawTab]\\[RawTab]\\[R\
+             awTab]\"", "}"}, ",", {
+             "{", {"InputField", "(", {
+               {"Dynamic", "(", "lastChosenImage", ")"}, ",", "String"}, ")"}, 
+             "}"}}, "}"}, ")"}), "Input", SectionLabel -> "in [15]:"), 
+       Section(BoxData(TagBox(GridBox({{"\"last chosen \
+             image:\[RawTab]\[RawTab]\[RawTab]\[RawTab]\[RawTab]\[RawTab]\[Raw\
+             Tab]\[RawTab]\[RawTab]\[RawTab]\[RawTab]\[RawTab]\[RawTab]\""}, {
+             InputFieldBox(Dynamic(lastChosenImage), String)}}), "Grid")), 
+        "Output", SectionGenerated -> True, SectionLabel -> "out [15]:")}, 2), 
+     SectionGroup({
+       Section(BoxData({"Button", "(", {"\"+\"", ",", "\n", {
+            "With", "(", {
+             {"{", {"old", "\[Assign]", {"\"TopGlass\"", ".", "Replace", "(", {
+                 "DockedSections", ".", "Replace", "(", {
+                  "Options", "(", {{"EvaluationDocument", "(", ")"}, ",", 
+                   "DockedSections"}, ")"}, ")"}, ")"}}, "}"}, ",", "\n", {
+              "SetOptions", "(", {{"EvaluationDocument", "(", ")"}, ",", {
+                "DockedSections", "\[Rule]", {
+                 "{", {"\"TopGlass\"", "\[Rule]", {
+                   "Flatten", "@", {"{", {"old", ",", {"Section", "(", {
+                       "\"\"", ",", "\"Docked\""}, ")"}}, "}"}}}, "}"}}}, 
+              ")"}}, ")"}}, "\n", ")"}), "Input", SectionLabel -> "in [9]:"), 
+       Section(BoxData(ButtonBox("\"+\"", 
+          ButtonFunction -> (With({
+            old:= Replace("TopGlass", Replace(DockedSections, 
+              Options(EvaluationDocument(), DockedSections)))}, 
+           SetOptions(EvaluationDocument(), 
+            DockedSections -> {"TopGlass" -> Flatten({
+               old, Section("", "Docked")})})) &))), "Output", 
+        SectionGenerated -> True, SectionLabel -> "out [9]:")}, 2), 
+     SectionGroup({
+       Section(BoxData({"Button", "(", {"\"-\"", ",", "\n", {
+            "With", "(", {
+             {"{", {"old", "\[Assign]", {
+                "Flatten", "@", {"{", {"\"TopGlass\"", ".", "Replace", "(", {
+                   "DockedSections", ".", "Replace", "(", {
+                    "Options", "(", {{"EvaluationDocument", "(", ")"}, ",", 
+                     "DockedSections"}, ")"}, ")"}, ")"}, "}"}}}, "}"}, ",", 
+             "\n", {"If", "(", {{{"Length", "(", "old", ")"}, ">", "0"}, ",", {
+                "SetOptions", "(", {{"EvaluationDocument", "(", ")"}, ",", {
+                  "DockedSections", "\[Rule]", {
+                   "{", {"\"TopGlass\"", "\[Rule]", {"Most", "@", "old"}}, 
+                   "}"}}}, ")"}}, ")"}}, "\n", ")"}}, "\n", ")"}), "Input", 
+        SectionLabel -> "in [36]:"), 
+       Section(BoxData(ButtonBox("\"-\"", 
+          ButtonFunction -> (With({
+            old:= Flatten({
+              Replace("TopGlass", Replace(DockedSections, 
+                Options(EvaluationDocument(), DockedSections)))})}, 
+           If(Length(old) > 0, SetOptions(EvaluationDocument(), 
+             DockedSections -> {"TopGlass" -> Most(old)}))) &))), "Output", 
+        SectionGenerated -> True, SectionLabel -> "out [36]:")}, 2)}, All)}, 
+  Background -> GrayLevel(1), DockedSections -> {
+   "TopGlass" -> {Section("", "Docked")}}, Editable -> False, 
+  Selectable -> False, WindowFrame -> "Dialog", 
+  WindowTitle -> "Using FE`$WindowFrameImage")

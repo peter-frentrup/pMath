@@ -63,6 +63,8 @@ namespace richmath {
       // bordering window whit a higher zorder_level when moved.
       int zorder_level;
       
+      AutoCairoSurface background_image;
+      
     protected:
       virtual void on_sizing(WPARAM wParam, RECT *lParam);
       virtual void on_moving(RECT *lParam);

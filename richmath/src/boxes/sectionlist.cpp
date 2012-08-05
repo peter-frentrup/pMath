@@ -56,21 +56,22 @@ void SectionList::resize(Context *context) {
     resize_section(context, i);
     
     _sections[i]->y_offset = _extents.descent;
-    if(_sections[i]->visible)
+    if(_sections[i]->visible) {
       _extents.descent += _sections[i]->extents().height();
       
-    float w  = _sections[i]->extents().width;
-    float uw = _sections[i]->unfilled_width;
-    if(border_visible) {
-      w +=  section_bracket_right_margin + section_bracket_width * _group_info[i].nesting;
-      uw += section_bracket_right_margin + section_bracket_width * _group_info[i].nesting;
-    }
-    
-    if(_extents.width < w)
-      _extents.width = w;
+      float w  = _sections[i]->extents().width;
+      float uw = _sections[i]->unfilled_width;
+      if(border_visible) {
+        w +=  section_bracket_right_margin + section_bracket_width * _group_info[i].nesting;
+        uw += section_bracket_right_margin + section_bracket_width * _group_info[i].nesting;
+      }
       
-    if(unfilled_width < uw)
-      unfilled_width = uw;
+      if(_extents.width < w)
+        _extents.width = w;
+        
+      if(unfilled_width < uw)
+        unfilled_width = uw;
+    }
   }
   
 //  if(border_visible){

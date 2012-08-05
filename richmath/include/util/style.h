@@ -55,7 +55,8 @@ namespace richmath {
   
   typedef enum {
     WindowFrameNormal  = 0,
-    WindowFramePalette = 1
+    WindowFramePalette = 1,
+    WindowFrameDialog  = 2
   } WindowFrameType;
   
   static const float ImageSizeAutomatic = -1.0f;

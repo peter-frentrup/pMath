@@ -807,7 +807,7 @@ int main(int argc, char **argv) {
       
       doc->style->set(Editable,    false);
       doc->style->set(Selectable,  false);
-      doc->style->set(WindowFrame, WindowFramePalette);
+      doc->style->set(WindowFrame, WindowFrameDialog);
       doc->style->set(WindowTitle, "Kernel Interrupt");
       
       write_section(doc, Evaluate(Parse(

@@ -25,27 +25,38 @@ using namespace richmath;
 #  define GW_ENABLEDPOPUP  6
 #endif
 
-static cairo_surface_t *background_image = 0;
+
+static Hashtable<String, AutoCairoSurface> background_image_cache;
+
 static HANDLE composition_window_theme = 0;
 
-static void init_basic_window_data() {
-  if(!background_image) {
-    Expr e = Evaluate(Parse("FE`$WindowFrameImage"));
+static AutoCairoSurface get_background_image() {
+  Expr expr = Evaluate(Parse("FE`$WindowFrameImage"));
+  
+  String key(expr);
+  if(key.is_null())
+    key = Application::application_directory + "\\frame.png";
     
-    String s(e);
-    if(s.is_null())
-      s = Application::application_directory + "\\frame.png";
-      
-    int len;
-    char *imgname = pmath_string_to_utf8(s.get(), &len);
+  AutoCairoSurface *result = background_image_cache.search(key);
+  if(result)
+    return *result;
     
-    if(imgname) {
-      background_image = cairo_image_surface_create_from_png(imgname);
-      
-      pmath_mem_free(imgname);
-    }
+  int len;
+  char *imgname = pmath_string_to_utf8(key.get(), &len);
+  
+  if(imgname) {
+    AutoCairoSurface img(cairo_image_surface_create_from_png(imgname));
+    
+    pmath_mem_free(imgname);
+    
+    background_image_cache.set(key, img);
+    return img;
   }
   
+  return AutoCairoSurface();
+}
+
+static void init_basic_window_data() {
   if(!composition_window_theme &&
       Win32Themes::OpenThemeData)
   {
@@ -66,10 +77,7 @@ static void remove_basic_window() {
     
   Win32TooltipWindow::delete_global_tooltip();
   
-  if(background_image) {
-    cairo_surface_destroy(background_image);
-    background_image = 0;
-  }
+  background_image_cache.clear();
   
   if(composition_window_theme
       && Win32Themes::CloseThemeData) {
@@ -138,6 +146,7 @@ BasicWin32Window::BasicWin32Window(
   min_client_width(0),
   max_client_width(-1),
   zorder_level(0),
+  background_image(get_background_image()),
   _active(false),
   _glass_enabled(false),
   _themed_frame(false),
@@ -252,8 +261,9 @@ static bool snap_inside(
   bool have_snapped_x = false;
   bool have_snapped_y = false;
   
-  if((outer.bottom >= orig.top && outer.top    <= orig.bottom)
-      || (outer.top    >= orig.top && outer.bottom <= orig.bottom)) {
+  if( (outer.bottom >= orig.top && outer.top    <= orig.bottom) ||
+      (outer.top    >= orig.top && outer.bottom <= orig.bottom))
+  {
     if(pt) {
       if(abs(outer.left - pt->x) < *max_dx) {
         *dx = *max_dx = outer.left - pt->x;
@@ -1091,21 +1101,22 @@ void BasicWin32Window::extend_glass(Win32Themes::MARGINS *margins) {
       1, //client.right  - client.left,
       1, //client.bottom - client.top,
       SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
-    
-    if(_themed_frame){
-      RECT client;
-      GetClientRect(_hwnd, &client);
       
-      RECT rect;
-      rect.left   = nc.cxLeftWidth - 3;
-      rect.right  = nc.cxLeftWidth;
-      rect.top    = 0;
-      rect.bottom = client.bottom;
-      InvalidateRect(_hwnd, &rect, FALSE);
-      
-      rect.left   = client.right - nc.cxRightWidth;
-      rect.right  = rect.left + 3;
-      InvalidateRect(_hwnd, &rect, FALSE);
+    if(_themed_frame) {
+      invalidate_non_child();
+      //RECT client;
+      //GetClientRect(_hwnd, &client);
+      //
+      //RECT rect;
+      //rect.left   = nc.cxLeftWidth - 3;
+      //rect.right  = nc.cxLeftWidth;
+      //rect.top    = 0;
+      //rect.bottom = client.bottom;
+      //InvalidateRect(_hwnd, &rect, FALSE);
+      //
+      //rect.left   = client.right - nc.cxRightWidth;
+      //rect.right  = rect.left + 3;
+      //InvalidateRect(_hwnd, &rect, FALSE);
     }
   }
 }
@@ -1321,15 +1332,16 @@ void BasicWin32Window::paint_background(Canvas *canvas, int x, int y, bool wallp
 }
 
 void BasicWin32Window::on_paint_background(Canvas *canvas) {
-  if(_themed_frame
-      && background_image
-      && cairo_surface_status(background_image) == CAIRO_STATUS_SUCCESS) {
+  if( _themed_frame          &&
+      background_image.ptr() &&
+      cairo_surface_status(background_image.ptr()) == CAIRO_STATUS_SUCCESS)
+  {
     RECT rect, glassfree;
     GetClientRect(_hwnd, &rect);
     get_glassfree_rect(&glassfree);
     
-    int x = rect.right - cairo_image_surface_get_width(background_image);
-    cairo_set_source_surface(canvas->cairo(), background_image, x, 0);
+    int x = rect.right - cairo_image_surface_get_width(background_image.ptr());
+    cairo_set_source_surface(canvas->cairo(), background_image.ptr(), x, 0);
     //canvas->set_color(0xff0000);
     
     canvas->move_to(rect.left,  rect.top);
@@ -1383,28 +1395,33 @@ LRESULT BasicWin32Window::nc_hit_test(WPARAM wParam, LPARAM lParam) {
   USHORT uCol = 1;
   bool fOnResizeBorder = false;
   
-  if(ptMouse.y >= rcWindow.top
-      && ptMouse.y < rcWindow.top + margins.cyTopHeight) {
+  if( ptMouse.y >= rcWindow.top &&
+      ptMouse.y < rcWindow.top + margins.cyTopHeight)
+  {
     fOnResizeBorder = (ptMouse.y < (rcWindow.top - rcFrame.top));
     uRow = 0;
   }
-  else if(ptMouse.y < rcWindow.bottom
-          && ptMouse.y >= rcWindow.bottom - margins.cyBottomHeight) {
+  else if(ptMouse.y < rcWindow.bottom &&
+          ptMouse.y >= rcWindow.bottom - margins.cyBottomHeight)
+  {
     uRow = 2;
   }
   
-  if(ptMouse.x >= rcWindow.left
-      && ptMouse.x < rcWindow.left + margins.cxLeftWidth) {
+  if( ptMouse.x >= rcWindow.left &&
+      ptMouse.x < rcWindow.left + margins.cxLeftWidth)
+  {
     uCol = 0;
   }
-  else if(ptMouse.x < rcWindow.right
-          && ptMouse.x >= rcWindow.right - margins.cxRightWidth) {
+  else if(ptMouse.x < rcWindow.right &&
+          ptMouse.x >= rcWindow.right - margins.cxRightWidth)
+  {
     uCol = 2;
   }
   
-  if(!fOnResizeBorder
-      && ptMouse.x <= rcWindow.left + GetSystemMetrics(SM_CXSMICON) - rcFrame.left
-      && ptMouse.y <= rcWindow.top  + GetSystemMetrics(SM_CYSMICON) - rcFrame.top) {
+  if( !fOnResizeBorder &&
+      ptMouse.x <= rcWindow.left + GetSystemMetrics(SM_CXSMICON) - rcFrame.left &&
+      ptMouse.y <= rcWindow.top  + GetSystemMetrics(SM_CYSMICON) - rcFrame.top)
+  {
     return HTSYSMENU;
   }
   
@@ -1721,10 +1738,11 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
         } break;
         
       case WM_NCMOUSEMOVE: {
-          if(wParam == HTMINBUTTON
-              || wParam == HTMAXBUTTON
-              || wParam == HTCLOSE
-              || wParam == HTHELP) {
+          if( wParam == HTMINBUTTON ||
+              wParam == HTMAXBUTTON ||
+              wParam == HTCLOSE     ||
+              wParam == HTHELP)
+          {
             if(!_mouse_over_caption_buttons)
               invalidate_caption();
             _mouse_over_caption_buttons = true;
@@ -1744,8 +1762,7 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
         } break;
         
       case WM_NCRBUTTONUP: {
-          if(_themed_frame
-              && (wParam == HTCAPTION || wParam == HTSYSMENU)) {
+          if(_themed_frame && (wParam == HTCAPTION || wParam == HTSYSMENU)) {
             HMENU menu = GetSystemMenu(_hwnd, FALSE);
             
             if(menu) {

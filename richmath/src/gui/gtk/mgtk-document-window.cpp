@@ -28,7 +28,7 @@ class richmath::MathGtkWorkingArea: public MathGtkWidget {
     virtual void page_size(float *w, float *h) {
       MathGtkWidget::page_size(w, h);
       
-      if(_parent->is_palette())
+      if(_parent->window_frame() != WindowFrameNormal)
         *w = HUGE_VAL;
     }
     
@@ -71,7 +71,7 @@ class richmath::MathGtkWorkingArea: public MathGtkWidget {
     }
     
     void rearrange() {
-      if(_parent->is_palette()) {
+      if(_parent->window_frame() != WindowFrameNormal) {
         GtkAllocation rect;
         gtk_widget_get_allocation(_widget, &rect);
         
@@ -419,7 +419,7 @@ void MathGtkDocumentWindow::window_frame(WindowFrameType type) {
   gtk_widget_set_visible(_menu_bar, type == WindowFrameNormal);
   
   _working_area->document()->border_visible   = type == WindowFrameNormal;
-  _working_area->_autohide_vertical_scrollbar = type == WindowFramePalette;
+  _working_area->_autohide_vertical_scrollbar = type == WindowFramePalette || type == WindowFrameDialog;
   
   if(_window_frame != type) {
     _working_area->invalidate();
@@ -440,6 +440,11 @@ void MathGtkDocumentWindow::window_frame(WindowFrameType type) {
       case WindowFramePalette:
         gtk_window_set_type_hint(        GTK_WINDOW(_widget), GDK_WINDOW_TYPE_HINT_NORMAL);
         gtk_window_set_skip_taskbar_hint(GTK_WINDOW(_widget), false);
+        break;
+        
+      case WindowFrameDialog:
+        gtk_window_set_type_hint(        GTK_WINDOW(_widget), GDK_WINDOW_TYPE_HINT_DIALOG);
+        gtk_window_set_skip_taskbar_hint(GTK_WINDOW(_widget), true);
         break;
     }
     
@@ -497,7 +502,7 @@ void MathGtkDocumentWindow::adjustment_changed(GtkAdjustment *adjustment) {
                "upper",     &hi,
                NULL);
                
-  gtk_widget_set_visible(scrollbar, !is_palette() && lo + page < hi);
+  gtk_widget_set_visible(scrollbar, (window_frame() == WindowFrameNormal) && lo + page < hi);
 }
 
 MathGtkDocumentWindow *MathGtkDocumentWindow::first_window() {

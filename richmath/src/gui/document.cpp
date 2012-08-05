@@ -632,14 +632,14 @@ void Document::finish_editing(Box *except_box) {
   
   if(b1 == b2)
     return;
-  
+    
   while(b1 != b2 && b1 && b2) {
     b1 = b1->parent();
     b2 = b2->parent();
   }
   
   b1 = selection_box();
-  while(b1 && b1 != b2){
+  while(b1 && b1 != b2) {
     b1->on_finish_editing();
     b1 = b1->parent();
   }
@@ -816,7 +816,7 @@ void Document::on_mouse_down(MouseEvent &event) {
                  event.x, event.y,
                  &start, &end,
                  &was_inside_start);
-    
+                 
     if(double_click) {
       Box *selbox = context.selection.get();
       if(selbox == this) {
@@ -3538,22 +3538,23 @@ void Document::paint_resize(Canvas *canvas, bool resize_only) {
       break;
       
     section(i)->y_offset = _extents.descent;
-    if(section(i)->visible)
+    if(section(i)->visible) {
       _extents.descent += section(i)->extents().descent;
       
-    float w  = section(i)->extents().width;
-    float uw = section(i)->unfilled_width;
-    if(border_visible) {
-      w +=  section_bracket_right_margin + section_bracket_width * group_info(i).nesting;
-      uw += section_bracket_right_margin + section_bracket_width * group_info(i).nesting;
+      float w  = section(i)->extents().width;
+      float uw = section(i)->unfilled_width;
+      if(border_visible) {
+        w +=  section_bracket_right_margin + section_bracket_width * group_info(i).nesting;
+        uw += section_bracket_right_margin + section_bracket_width * group_info(i).nesting;
+      }
+      
+      if(_extents.width < w)
+        _extents.width = w;
+        
+      if(unfilled_width < uw)
+        unfilled_width = uw;
     }
     
-    if(_extents.width < w)
-      _extents.width = w;
-      
-    if(unfilled_width < uw)
-      unfilled_width = uw;
-      
     ++i;
   }
   
@@ -3571,22 +3572,23 @@ void Document::paint_resize(Canvas *canvas, bool resize_only) {
       paint_section(&context, i, sx);
       
       section(i)->y_offset = _extents.descent;
-      if(section(i)->visible)
+      if(section(i)->visible) {
         _extents.descent += section(i)->extents().descent;
         
-      float w  = section(i)->extents().width;
-      float uw = section(i)->unfilled_width;
-      if(border_visible) {
-        w +=  section_bracket_right_margin + section_bracket_width * group_info(i).nesting;
-        uw += section_bracket_right_margin + section_bracket_width * group_info(i).nesting;
+        float w  = section(i)->extents().width;
+        float uw = section(i)->unfilled_width;
+        if(border_visible) {
+          w +=  section_bracket_right_margin + section_bracket_width * group_info(i).nesting;
+          uw += section_bracket_right_margin + section_bracket_width * group_info(i).nesting;
+        }
+        
+        if(_extents.width < w)
+          _extents.width = w;
+          
+        if(unfilled_width < uw)
+          unfilled_width = uw;
       }
       
-      if(_extents.width < w)
-        _extents.width = w;
-        
-      if(unfilled_width < uw)
-        unfilled_width = uw;
-        
       ++i;
     }
   }
@@ -3612,21 +3614,21 @@ void Document::paint_resize(Canvas *canvas, bool resize_only) {
     section(i)->y_offset = _extents.descent;
     if(section(i)->visible) {
       _extents.descent += section(i)->extents().descent;
+      
+      float w  = section(i)->extents().width;
+      float uw = section(i)->unfilled_width;
+      if(border_visible) {
+        w +=  section_bracket_right_margin + section_bracket_width * group_info(i).nesting;
+        uw += section_bracket_right_margin + section_bracket_width * group_info(i).nesting;
+      }
+      
+      if(_extents.width < w)
+        _extents.width = w;
+        
+      if(unfilled_width < uw)
+        unfilled_width = uw;
     }
     
-    float w  = section(i)->extents().width;
-    float uw = section(i)->unfilled_width;
-    if(border_visible) {
-      w +=  section_bracket_right_margin + section_bracket_width * group_info(i).nesting;
-      uw += section_bracket_right_margin + section_bracket_width * group_info(i).nesting;
-    }
-    
-    if(_extents.width < w)
-      _extents.width = w;
-      
-    if(unfilled_width < uw)
-      unfilled_width = uw;
-      
     ++i;
   }
   
@@ -3953,15 +3955,6 @@ bool Document::prepare_insert() {
   }
   else {
     if(selection_box() && selection_box()->edit_selection(&context)) {
-      Section *s = selection_box()->find_parent<Section>(true);
-      
-      while(s && s->parent() != this) {
-        s = s->find_parent<Section>(false);
-      }
-      
-      if(s)
-        set_open_close_group(s->index(), true);
-        
       set_prev_sel_line();
       return true;
     }
@@ -4063,9 +4056,9 @@ bool Document::handle_macros(
     int e = selection_start();
     int i = e - 1;
     
-    if(seq->is_inside_string(i)) 
+    if(seq->is_inside_string(i))
       return false;
-    
+      
     while(i >= 0 && buf[i] > ' ' && buf[i] != '\\')
       --i;
       

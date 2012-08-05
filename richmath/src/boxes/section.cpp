@@ -175,8 +175,9 @@ bool Section::edit_selection(Context *context) {
   if(!Box::edit_selection(context))
     return false;
     
-  if(get_style(SectionLabel).length() > 0
-      && get_style(SectionLabelAutoDelete)) {
+  if( get_style(SectionLabel).length() > 0 &&
+      get_style(SectionLabelAutoDelete))
+  {
     if(style) {
       String s;
       
@@ -197,10 +198,11 @@ bool Section::edit_selection(Context *context) {
   }
   
   if(style && get_style(SectionEditDuplicate)) {
-    if(get_style(SectionEditDuplicateMakesCopy)) {
-      SectionList *slist = dynamic_cast<SectionList *>(parent());
+    SectionList *slist = dynamic_cast<SectionList *>(parent());
+    if(slist) {
+      slist->set_open_close_group(index(), true);
       
-      if(slist) {
+      if(get_style(SectionEditDuplicateMakesCopy)) {
         slist->insert(index(), Section::create_from_object(to_pmath(BoxOptionDefault)));
       }
     }
@@ -409,12 +411,12 @@ void AbstractSequenceSection::paint(Context *context) {
   float t = get_style(SectionFrameTop);
   float b = get_style(SectionFrameBottom);
   
-  if(background >= 0 || l != 0 || r != 0 || t != 0 || b != 0){
+  if(background >= 0 || l != 0 || r != 0 || t != 0 || b != 0) {
     BoxRadius radii;
     Expr expr;
     if(context->stylesheet->get(style, BorderRadius, &expr))
       radii = BoxRadius(expr);
-    
+      
     Rectangle rect(Point(x + left_margin,
                          y + top_margin),
                    Point(x + _extents.width,
@@ -424,7 +426,7 @@ void AbstractSequenceSection::paint(Context *context) {
     
     // outer rounded rectangle
     rect.add_round_rect_path(*context->canvas, radii, false);
-      
+    
     if(background >= 0 && !context->canvas->show_only_text) {
       context->canvas->set_color(background);
       context->canvas->fill_preserve();
@@ -432,20 +434,20 @@ void AbstractSequenceSection::paint(Context *context) {
     
     Point delta_tl(l, t);
     delta_tl.pixel_align_distance(*context->canvas);
-    rect.x+= delta_tl.x; rect.width -= delta_tl.x;
-    rect.y+= delta_tl.y; rect.height-= delta_tl.y;
+    rect.x += delta_tl.x; rect.width -= delta_tl.x;
+    rect.y += delta_tl.y; rect.height -= delta_tl.y;
     
     Point delta_br(r, b);
     delta_br.pixel_align_distance(*context->canvas);
     rect.width -= delta_br.x;
-    rect.height-= delta_br.y;
+    rect.height -= delta_br.y;
     
     radii.top_left_x    -= delta_tl.x;
     radii.top_left_y    -= delta_tl.y;
     radii.top_right_x   -= delta_br.x;
     radii.top_right_y   -= delta_tl.y;
-    radii.bottom_right_x-= delta_br.x;
-    radii.bottom_right_y-= delta_br.y;
+    radii.bottom_right_x -= delta_br.x;
+    radii.bottom_right_y -= delta_br.y;
     radii.bottom_left_x -= delta_tl.x;
     radii.bottom_left_y -= delta_br.y;
     
