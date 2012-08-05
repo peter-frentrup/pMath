@@ -64,15 +64,15 @@ static void init_basic_window_data() {
   }
 }
 
-static int basic_window_count = 0;
+static int _basic_window_count = 0;
 static void add_basic_window() {
-  ++basic_window_count;
+  ++_basic_window_count;
   
   init_basic_window_data();
 }
 
 static void remove_basic_window() {
-  if(--basic_window_count != 0)
+  if(--_basic_window_count != 0)
     return;
     
   Win32TooltipWindow::delete_global_tooltip();
@@ -86,45 +86,10 @@ static void remove_basic_window() {
   }
 }
 
-static HDWP tryDeferWindowPos(
-  HDWP hWinPosInfo,
-  HWND hWnd,
-  HWND hWndInsertAfter,
-  int x,
-  int y,
-  int cx,
-  int cy,
-  UINT uFlags
-
-) {
-  if(hWinPosInfo) {
-    return DeferWindowPos(
-             hWinPosInfo,
-             hWnd,
-             hWndInsertAfter,
-             x,
-             y,
-             cx,
-             cy,
-             uFlags);
-  }
-  else {
-    SetWindowPos(
-      hWnd,
-      hWndInsertAfter,
-      x,
-      y,
-      cx,
-      cy,
-      uFlags);
-      
-    return NULL;
-  }
-}
-
 //{ class BasicWin32Window ...
 
 static BasicWin32Window *_first_window = NULL;
+bool BasicWin32Window::during_pos_changing = false;
 
 BasicWin32Window::BasicWin32Window(
   DWORD style_ex,
@@ -145,7 +110,7 @@ BasicWin32Window::BasicWin32Window(
   max_client_height(-1),
   min_client_width(0),
   max_client_width(-1),
-  zorder_level(0),
+  _zorder_level(0),
   background_image(get_background_image()),
   _active(false),
   _glass_enabled(false),
@@ -486,7 +451,7 @@ BOOL CALLBACK BasicWin32Window::find_snap_hwnd(HWND hwnd, LPARAM lParam) {
     BasicWin32Window *win = dynamic_cast<BasicWin32Window *>(
                               BasicWin32Widget::from_hwnd(hwnd));
                               
-    if(win && win->zorder_level <= info->min_level)
+    if(win && win->zorder_level() <= info->min_level)
       return TRUE;
       
     RECT rect;
@@ -520,7 +485,7 @@ void BasicWin32Window::find_all_snappers() {
   all_snappers.clear();
   
   info.dst = _hwnd;
-  info.min_level = zorder_level;
+  info.min_level = zorder_level();
   GetWindowRect(info.dst, &info.dst_rect);
   info.snappers = &all_snappers;
   
@@ -884,7 +849,7 @@ void BasicWin32Window::on_theme_changed() {
   extend_glass(&_extra_glass);
   
   SetWindowPos(_hwnd, 0, 0, 0, 0, 0,
-               SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+               SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
 }
 
 void BasicWin32Window::paint_themed(HDC hdc) {
@@ -1075,9 +1040,13 @@ void BasicWin32Window::paint_themed_caption(HDC hdc_bitmap) {
   }
 }
 
-void BasicWin32Window::extend_glass(Win32Themes::MARGINS *margins) {
-  if(margins != &_extra_glass)
+void BasicWin32Window::extend_glass(const Win32Themes::MARGINS *margins) {
+  if(margins != &_extra_glass) {
+    if(0 == memcmp(&_extra_glass, &margins, sizeof(_extra_glass)))
+      return;
+    
     memcpy(&_extra_glass, margins, sizeof(_extra_glass));
+  }
     
   if(Win32Themes::DwmExtendFrameIntoClientArea) {
     Win32Themes::MARGINS nc;
@@ -1100,7 +1069,7 @@ void BasicWin32Window::extend_glass(Win32Themes::MARGINS *margins) {
       0, //client.top,
       1, //client.right  - client.left,
       1, //client.bottom - client.top,
-      SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+      SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
       
     if(_themed_frame) {
       invalidate_non_child();
@@ -1371,6 +1340,10 @@ void BasicWin32Window::on_paint_background(Canvas *canvas) {
   }
 }
 
+int BasicWin32Window::basic_window_count(){
+  return _basic_window_count;
+}
+
 BasicWin32Window *BasicWin32Window::first_window() {
   return _first_window;
 }
@@ -1611,7 +1584,6 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
 
       case WM_WINDOWPOSCHANGING: {
           WINDOWPOS *pos = (WINDOWPOS *)lParam;
-          static bool during_pos_changing = false;
           
           if(!during_pos_changing) {
             if(0 == (pos->flags & SWP_NOZORDER)) { // changing Z order...
@@ -1631,7 +1603,7 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
               BasicWin32Window *last_higher = 0;
               BasicWin32Window *next = _next_window;
               while(next != this) {
-                if(next->zorder_level > zorder_level) {
+                if(next->zorder_level() > zorder_level()) {
                   last_higher = next;
                   break;
                 }
@@ -1647,7 +1619,7 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
                   BasicWin32Window *wnd = dynamic_cast<BasicWin32Window *>(
                                             BasicWin32Widget::from_hwnd(next_hwnd));
                                             
-                  if(wnd && wnd->zorder_level > zorder_level)
+                  if(wnd && wnd->zorder_level() > zorder_level())
                     last_higher = wnd;
                     
                   next_hwnd = GetNextWindow(next_hwnd, GW_HWNDNEXT);
@@ -1660,7 +1632,7 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
                   BasicWin32Window *wnd = dynamic_cast<BasicWin32Window *>(
                                             BasicWin32Widget::from_hwnd(next_hwnd));
                                             
-                  if(wnd && wnd->zorder_level > zorder_level)
+                  if(wnd && wnd->zorder_level() > zorder_level())
                     all_higher.add(wnd);
                     
                   next_hwnd = GetNextWindow(next_hwnd, GW_HWNDPREV);
@@ -1699,7 +1671,7 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
             }
           }
         } break;
-        
+
       case WM_THEMECHANGED:
       case WM_DWMCOMPOSITIONCHANGED: {
           if(Win32Themes::DwmEnableComposition)
@@ -1847,4 +1819,38 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
     return dwm_result;
 }
 
+HDWP BasicWin32Window::tryDeferWindowPos(
+  HDWP hWinPosInfo,
+  HWND hWnd,
+  HWND hWndInsertAfter,
+  int x,
+  int y,
+  int cx,
+  int cy,
+  UINT uFlags
+) {
+  if(hWinPosInfo) {
+    return DeferWindowPos(
+             hWinPosInfo,
+             hWnd,
+             hWndInsertAfter,
+             x,
+             y,
+             cx,
+             cy,
+             uFlags);
+  }
+  else {
+    SetWindowPos(
+      hWnd,
+      hWndInsertAfter,
+      x,
+      y,
+      cx,
+      cy,
+      uFlags);
+      
+    return NULL;
+  }
+}
 //} ... class BasicWin32Window

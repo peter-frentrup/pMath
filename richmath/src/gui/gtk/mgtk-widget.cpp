@@ -1111,25 +1111,25 @@ bool MathGtkWidget::on_button_press(GdkEvent *e) {
   if(document()->selection_box()) {
     gtk_widget_grab_focus(_widget);
   }
-  else {
-    Document *cur = get_current_document();
-    if(cur && cur != document()) {
-      MathGtkWidget *w = dynamic_cast<MathGtkWidget*>(cur->native());
-
-      if(w && !gtk_widget_has_focus(w->widget())) {
-
-        GtkWidget *wid = w->widget();
-        GtkWidget *parent = gtk_widget_get_parent(wid);
-        while(parent) {
-          wid = parent;
-          parent = gtk_widget_get_parent(wid);
-        }
-        gtk_widget_grab_focus(wid);
-
-        gtk_widget_grab_focus(w->widget());
-      }
-    }
-  }
+//  else {
+//    Document *cur = get_current_document();
+//    if(cur && cur != document()) {
+//      MathGtkWidget *w = dynamic_cast<MathGtkWidget*>(cur->native());
+//
+//      if(w && !gtk_widget_has_focus(w->widget())) {
+//
+//        GtkWidget *wid = w->widget();
+//        GtkWidget *parent = gtk_widget_get_parent(wid);
+//        while(parent) {
+//          wid = parent;
+//          parent = gtk_widget_get_parent(wid);
+//        }
+//        gtk_widget_grab_focus(wid);
+//
+//        gtk_widget_grab_focus(w->widget());
+//      }
+//    }
+//  }
 
   return true;
 }

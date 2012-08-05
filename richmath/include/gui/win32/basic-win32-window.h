@@ -35,7 +35,7 @@ namespace richmath {
       
       void get_snap_alignment(bool *right, bool *bottom);
       
-      void extend_glass(Win32Themes::MARGINS *margins);
+      void extend_glass(const Win32Themes::MARGINS *margins);
       bool glass_enabled() { return _glass_enabled; }
       
       virtual bool is_closed();
@@ -47,9 +47,16 @@ namespace richmath {
       bool has_themed_frame() { return _themed_frame; }
       
       // all windows are arranged in a ring buffer:
+      static int basic_window_count();
       static BasicWin32Window *first_window();
       BasicWin32Window *prev_window() { return _prev_window; }
       BasicWin32Window *next_window() { return _next_window; }
+      
+      // All windows with zorder_level = i are always in front of all
+      // windows with zorder_level < i.
+      // Snap affinity is also guided by zorder_level: a window carries any
+      // bordering window whit a higher zorder_level when moved.
+      int zorder_level() { return _zorder_level; }
       
     protected:
       int min_client_height;
@@ -57,13 +64,11 @@ namespace richmath {
       int min_client_width;
       int max_client_width;
       
-      // All windows with zorder_level = i are always in front of all
-      // windows with zorder_level < i.
-      // Snap affinity is also guided by zorder_level: a window carries any
-      // bordering window whit a higher zorder_level when moved.
-      int zorder_level;
+      int _zorder_level;
       
       AutoCairoSurface background_image;
+      
+      static bool during_pos_changing;
       
     protected:
       virtual void on_sizing(WPARAM wParam, RECT *lParam);
@@ -103,6 +108,18 @@ namespace richmath {
       void snap_rect_or_pt(RECT *windowrect, POINT *pt); // pt may be 0, rect must not
       void find_all_snappers();
       HDWP move_all_snappers(HDWP hdwp, int dx, int dy);
+    
+    public:
+      static HDWP tryDeferWindowPos(
+        HDWP hWinPosInfo,
+        HWND hWnd,
+        HWND hWndInsertAfter,
+        int x,
+        int y,
+        int cx,
+        int cy,
+        UINT uFlags);
+        
   };
 }
 

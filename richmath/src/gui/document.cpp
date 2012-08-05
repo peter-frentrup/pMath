@@ -727,14 +727,16 @@ void Document::focus_killed() {
   context.active = false;
   reset_mouse();
   
-  if(selection_box())
-    selection_box()->on_exit();
+  Box *sel = selection_box();
+  
+  if(sel) {
+    sel->on_exit();
     
-  if(!selectable())
-    select(0, 0, 0);
-    
-  if(selection_length() > 0 && selection_box())
-    selection_box()->request_repaint_range(selection_start(), selection_end());
+    if(!sel->selectable())
+      select(0, 0, 0);
+    else if(selection_length() > 0)
+      sel->request_repaint_range(selection_start(), selection_end());
+  }
 }
 
 void Document::key_down(SpecialKeyEvent &event) {

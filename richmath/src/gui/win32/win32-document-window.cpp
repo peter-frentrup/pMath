@@ -744,7 +744,7 @@ void Win32DocumentWindow::rearrange() {
         mar.cxLeftWidth = mar.cxRightWidth = mar.cyTopHeight = mar.cyBottomHeight = -1;
         
         SetWindowPos(_working_area->hwnd(), 0, 0, 0, 0, 0,
-                     SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+                     SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
       }
     }
     
@@ -868,7 +868,7 @@ void Win32DocumentWindow::window_frame(WindowFrameType type) {
                        GetWindowLongW(_hwnd, GWL_EXSTYLE) & ~(WS_EX_TOOLWINDOW));
                        
         // behind palettes:
-        zorder_level = 0;
+        _zorder_level = 0;
         
         // also enable Minimize/Maximize in system menu:
         SetWindowLongW(_hwnd, GWL_STYLE,
@@ -892,7 +892,7 @@ void Win32DocumentWindow::window_frame(WindowFrameType type) {
                        GetWindowLongW(_hwnd, GWL_EXSTYLE) | WS_EX_TOOLWINDOW);
                        
         // in front of non-palettes:
-        zorder_level = 1;
+        _zorder_level = 1;
         
         // also enable Minimize/Maximize in system menu:
         SetWindowLongW(_hwnd, GWL_STYLE,
@@ -913,7 +913,7 @@ void Win32DocumentWindow::window_frame(WindowFrameType type) {
                        GetWindowLongW(_hwnd, GWL_EXSTYLE) & ~(WS_EX_TOOLWINDOW));
                        
         // behind palettes:
-        zorder_level = 0;
+        _zorder_level = 0;
         
         // also enable Minimize/Maximize in system menu:
         SetWindowLongW(_hwnd, GWL_STYLE,
@@ -950,7 +950,7 @@ void Win32DocumentWindow::on_theme_changed() {
   DWORD style_ex = GetWindowLongW(_working_area->hwnd(), GWL_EXSTYLE);
   if( (Win32Themes::IsCompositionActive &&
        Win32Themes::IsCompositionActive()) ||
-      is_palette())
+      window_frame() != WindowFrameNormal)
   {
     style_ex = style_ex & ~WS_EX_STATICEDGE;
   }
@@ -1036,17 +1036,52 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
           Document *current_doc = get_current_document();
           
           if(wParam) { // activate
-            if(!already_activated) {
-              FOREACH_WINDOW(wnd,
-              {
-                if(!wnd->is_palette()) {
-                  SetWindowPos(wnd->hwnd(), HWND_TOP, 0, 0, 0, 0,
-                  SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
-                }
-              });
-            }
-            
+            bool was_already_activated = already_activated;
             already_activated = true;
+            
+            if(!was_already_activated && !BasicWin32Window::during_pos_changing) {
+              
+              Array<BasicWin32Window*> all_lower(BasicWin32Window::basic_window_count());
+              all_lower.length(0);
+              
+              HWND next_hwnd = GetWindow(_hwnd, GW_HWNDFIRST);
+              while(next_hwnd){
+                BasicWin32Window *wnd = dynamic_cast<BasicWin32Window *>(
+                                          BasicWin32Widget::from_hwnd(next_hwnd));
+                                          
+                if(wnd)// && wnd->zorder_level() <= zorder_level()) 
+                  all_lower.add(wnd);
+                    
+                next_hwnd = GetWindow(next_hwnd, GW_HWNDNEXT);
+              }
+              
+              // now put this window in front of all windows with the same zorder_level
+              for(int i = 0;i < all_lower.length();++i){
+                if(all_lower[i] == this){
+                  int j = i - 1;
+                  while(j >= 0 && all_lower[j]->zorder_level() == zorder_level()){
+                    all_lower[j + 1] = all_lower[j];
+                    --j;
+                  }
+                  all_lower[j + 1] = this;
+                  break;
+                }
+              }
+              
+              BasicWin32Window::during_pos_changing = true;
+              
+              HDWP hdwp = BeginDeferWindowPos(all_lower.length());
+              
+              for(int i = all_lower.length() - 1;i >= 0;--i) {
+                hdwp = tryDeferWindowPos(
+                  hdwp, all_lower[i]->hwnd(), HWND_TOP, 0, 0, 0, 0,
+                  SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE/* | SWP_SHOWWINDOW*/);
+              }
+              
+              EndDeferWindowPos(hdwp);
+              
+              BasicWin32Window::during_pos_changing = false;
+            }
             
             if(current_doc)
               current_doc->focus_set();

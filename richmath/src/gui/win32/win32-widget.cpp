@@ -699,15 +699,18 @@ void Win32Widget::on_mousedown(MouseEvent &event) {
     SetFocus(_hwnd);
   }
   else {
-    Document *cur = get_current_document();
-    if(cur && cur != document()) {
-      Win32Widget *wig = dynamic_cast<Win32Widget *>(cur->native());
-      
-      if(wig && wig->hwnd() != GetFocus()) {
-        SetFocus(wig->hwnd());
-      }
-    }
+    SetWindowPos(GetAncestor(_hwnd, GA_ROOT), HWND_TOP, 0,0,1,1,SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE);
   }
+//  else {
+//    Document *cur = get_current_document();
+//    if(cur && cur != document()) {
+//      Win32Widget *wig = dynamic_cast<Win32Widget *>(cur->native());
+//      
+//      if(wig && wig->hwnd() != GetFocus()) {
+//        SetFocus(wig->hwnd());
+//      }
+//    }
+//  }
 }
 
 void Win32Widget::on_mouseup(MouseEvent &event) {
