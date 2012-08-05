@@ -149,7 +149,11 @@ void InputFieldBox::paint_content(Context *context) {
       
       content()->load_from_object(result, opt);
       context->canvas->save();
-      resize(context);
+      {
+        float w = _extents.width;
+        resize(context);
+        _extents.width = w;
+      }
       context->canvas->restore();
       
       if(was_parent) {

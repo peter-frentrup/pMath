@@ -9,10 +9,10 @@ using namespace richmath;
 
 GridItem::GridItem()
   : OwnerBox(),
-  _span_right(0),
-  _span_down(0),
-  _really_span_from_left(false),
-  _really_span_from_above(false)
+    _span_right(0),
+    _span_down(0),
+    _really_span_from_left(false),
+    _really_span_from_above(false)
 {
   _content->insert(0, PMATH_CHAR_PLACEHOLDER);
 }
@@ -82,7 +82,7 @@ bool GridItem::span_from_any() {
 
 GridBox::GridBox()
   : Box(),
-  items(1, 1)
+    items(1, 1)
 {
   items[0] = new GridItem;
   adopt(items[0], 0);
@@ -90,7 +90,7 @@ GridBox::GridBox()
 
 GridBox::GridBox(int rows, int cols)
   : Box(),
-  items(rows > 0 ? rows : 1, cols > 0 ? cols : 1)
+    items(rows > 0 ? rows : 1, cols > 0 ? cols : 1)
 {
   for(int i = 0; i < items.length(); ++i) {
     items[i] = new GridItem();
@@ -264,8 +264,9 @@ int GridBox::resize_items(Context *context) {
       
       if(!gi->span_from_any()) {
         gi->_span_right = 1;
-        while(x + gi->_span_right < cols()
-              && item(y, x + gi->_span_right)->span_from_left()) {
+        while(x + gi->_span_right < cols() &&
+              item(y, x + gi->_span_right)->span_from_left())
+        {
           item(y, x + gi->_span_right)->_really_span_from_left = true;
           gi->_span_right++;
         }
@@ -434,8 +435,9 @@ void GridBox::resize(Context *context) {
             
             gi->expand(size);
           }
-          else if(gi->index() >= first_span
-                  && w < gi->extents().width) {
+          else if(gi->index() >= first_span &&
+                  w < gi->extents().width)
+          {
             float delta = gi->extents().width - w;
             
             for(int x2 = x + gi->_span_right + 1; x2 < cols(); ++x2) {
@@ -446,9 +448,10 @@ void GridBox::resize(Context *context) {
             for(int y2 = 0; y2 < rows(); ++y2) {
               GridItem *gi2 = item(y2, x + gi->_span_right);
               
-              if(!gi2->_span_right
-                  && !gi2->_really_span_from_left
-                  && !gi2->_really_span_from_above) {
+              if( !gi2->_span_right            &&
+                  !gi2->_really_span_from_left &&
+                  !gi2->_really_span_from_above)
+              {
                 BoxSize size = gi2->extents();
                 size.width += delta;
                 
@@ -491,8 +494,9 @@ void GridBox::resize(Context *context) {
             
             gi->expand(size);
           }
-          else if(gi->index() >= first_span
-                  && h < gi->extents().height()) {
+          else if(gi->index() >= first_span &&
+                  h < gi->extents().height())
+          {
             float delta = gi->extents().height() - h;
             
             for(int y2 = y + gi->_span_down + 1; y2 < rows(); ++y2) {
@@ -504,10 +508,11 @@ void GridBox::resize(Context *context) {
             for(int x2 = 0; x2 < cols(); ++x2) {
               GridItem *gi2 = item(y + gi->_span_down, x2);
               
-              if(!gi2->_span_right
-                  && !gi2->_span_down
-                  && !gi2->_really_span_from_left
-                  && !gi2->_really_span_from_above) {
+              if( !gi2->_span_right            &&
+                  !gi2->_span_down             &&
+                  !gi2->_really_span_from_left &&
+                  !gi2->_really_span_from_above)
+              {
                 BoxSize size = gi2->extents();
                 size.ascent +=  delta / 2;
                 size.descent += delta / 2;
@@ -690,7 +695,7 @@ Box *GridBox::remove_range(int *start, int end) {
     if(cols() == 1) {
       if(ay == 1 && by == rows() - 1) {
         *start = _index;
-        MathSequence *seq = dynamic_cast<MathSequence*>(_parent);
+        MathSequence *seq = dynamic_cast<MathSequence *>(_parent);
         
         if(seq) {
           MathSequence *content = items[0]->content();
@@ -706,7 +711,7 @@ Box *GridBox::remove_range(int *start, int end) {
       }
       else if(ay == 0 && by == rows() - 2) {
         *start = _index;
-        MathSequence *seq = dynamic_cast<MathSequence*>(_parent);
+        MathSequence *seq = dynamic_cast<MathSequence *>(_parent);
         
         if(seq) {
           MathSequence *content = items[items.length() - 1]->content();
@@ -729,7 +734,7 @@ Box *GridBox::remove_range(int *start, int end) {
     if(rows() == 1) {
       if(ax == 1 && bx == cols() - 1) {
         *start = _index;
-        MathSequence *seq = dynamic_cast<MathSequence*>(_parent);
+        MathSequence *seq = dynamic_cast<MathSequence *>(_parent);
         
         if(seq) {
           MathSequence *content = items[0]->content();
@@ -745,7 +750,7 @@ Box *GridBox::remove_range(int *start, int end) {
       }
       else if(ax == 0 && bx == cols() - 2) {
         *start = _index;
-        MathSequence *seq = dynamic_cast<MathSequence*>(_parent);
+        MathSequence *seq = dynamic_cast<MathSequence *>(_parent);
         
         if(seq) {
           MathSequence *content = items[items.length() - 1]->content();
@@ -809,8 +814,9 @@ Box *GridBox::remove_range(int *start, int end) {
   if(ay == 0 && by == 0 && ax == bx) {
     bool all_empty = true;
     for(int y = 1; y < rows(); ++y)
-      if(item(y, ax)->content()->length() > 0
-          && !item(y, ax)->content()->is_placeholder()) {
+      if( item(y, ax)->content()->length() > 0 &&
+          !item(y, ax)->content()->is_placeholder())
+      {
         all_empty = false;
         break;
       }
@@ -836,8 +842,9 @@ Box *GridBox::remove_range(int *start, int end) {
   if(ax == 0 && bx == 0 && ay == by) {
     bool all_empty = true;
     for(int x = 1; x < cols(); ++x)
-      if(item(ay, x)->content()->length() > 0
-          && !item(ay, x)->content()->is_placeholder()) {
+      if( item(ay, x)->content()->length() > 0 &&
+          !item(ay, x)->content()->is_placeholder())
+      {
         all_empty = false;
         break;
       }
@@ -877,8 +884,9 @@ Box *GridBox::remove_range(int *start, int end) {
 }
 
 Box *GridBox::remove(int *index) {
-  if(items[*index]->content()->length() == 0
-      || items[*index]->content()->is_placeholder()) {
+  if( items[*index]->content()->length() == 0 ||
+      items[*index]->content()->is_placeholder())
+  {
     return remove_range(index, *index + 1);
   }
   

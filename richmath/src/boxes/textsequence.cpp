@@ -490,10 +490,10 @@ void TextSequence::selection_path(Canvas *canvas, int start, int end) {
                   y0 + y - size.ascent),
             Point(x0 + pango_units_to_double(xranges[2 * i + 1]),
                   last_bottom));
-          
+                  
           rect.pixel_align(  *canvas, false, 0);
           rect.add_rect_path(*canvas, false);
-                  
+          
           //canvas->pixrect(
           //  x0 + pango_units_to_double(xranges[2 * i]),
           //  y0 + y - size.ascent,
@@ -838,25 +838,26 @@ Box *TextSequence::move_logical(
     }
     
     if(jumping) { // next word
-      PangoLogAttr *log_attrs;
+      const PangoLogAttr *log_attrs;
       int n_attrs;
       
-      pango_layout_get_log_attrs(_layout, &log_attrs, &n_attrs);
+      log_attrs = pango_layout_get_log_attrs_readonly(_layout, &n_attrs);
       
-      int pos = *index;
-      ++pos;
-      while(pos < n_attrs && !log_attrs[pos].is_word_end)
-        ++pos;
-        
-      g_free(log_attrs);
+      int c = g_utf8_pointer_to_offset(text.buffer(), s);
+      ++c;
+      while(c < n_attrs && (!log_attrs[c].is_word_boundary || !log_attrs[c].is_cursor_position))
+        ++c;
       
-      *index = pos;
+      while(c < n_attrs && (log_attrs[c].is_white || !log_attrs[c].is_cursor_position))
+        ++c;
+      
+      *index = (int)(g_utf8_offset_to_pointer(text.buffer(), c) - text.buffer());
       return this;
     }
     
     s = g_utf8_find_next_char(s, s_end);
     if(s)
-      *index = (int)((size_t)s - (size_t)text.buffer());
+      *index = (int)(s - text.buffer());
     else
       *index = text.length();
       
@@ -876,10 +877,14 @@ Box *TextSequence::move_logical(
     return this;
   }
   
-  const char *s = text.buffer() + *index;
-  s = g_utf8_prev_char(s);
+  const char *s       = text.buffer() + *index;
+  s = g_utf8_find_prev_char(text.buffer(), s);
   
-  *index = (int)((size_t)s - (size_t)text.buffer());
+  if(!s)
+    s = text.buffer();
+    
+  *index = (int)(s - text.buffer());
+  
   if(text.is_box_at(*index)) {
     if(jumping)
       return this;
@@ -893,18 +898,18 @@ Box *TextSequence::move_logical(
   }
   
   if(jumping) { // prev. word
-    PangoLogAttr *log_attrs;
+    const PangoLogAttr *log_attrs;
     int n_attrs;
     
-    pango_layout_get_log_attrs(_layout, &log_attrs, &n_attrs);
+    log_attrs = pango_layout_get_log_attrs_readonly(_layout, &n_attrs);
     
-    int pos = *index;
-    while(pos > 0 && !log_attrs[pos].is_word_start)
-      --pos;
-      
-    g_free(log_attrs);
+    int c = g_utf8_pointer_to_offset(text.buffer(), s);
+    while(c > 0 && (log_attrs[c].is_white || !log_attrs[c].is_cursor_position))
+      --c;
+    while(c > 0 && (!log_attrs[c].is_word_boundary || !log_attrs[c].is_cursor_position))
+      --c;
     
-    *index = pos;
+    *index = (int)(g_utf8_offset_to_pointer(text.buffer(), c) - text.buffer());
     return this;
   }
   

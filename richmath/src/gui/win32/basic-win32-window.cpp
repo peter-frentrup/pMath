@@ -592,24 +592,24 @@ void BasicWin32Window::get_snap_alignment(bool *right, bool *bottom) {
   *right  = info.align_right  && !info.align_left;
   *bottom = info.align_bottom && !info.align_top;
   
-  if( !info.align_left &&
-      !info.align_right &&
-      !info.align_top &&
-      !info.align_bottom)
-  {
-    MONITORINFO monitor_info;
-    memset(&monitor_info, 0, sizeof(monitor_info));
-    monitor_info.cbSize = sizeof(monitor_info);
-    
-    HMONITOR hmon = MonitorFromWindow(_hwnd, MONITOR_DEFAULTTONEAREST);
-    if(GetMonitorInfo(hmon, &monitor_info)) {
-      *right  = (info.dst_rect.left       + info.dst_rect.right)
-                > (monitor_info.rcWork.left + monitor_info.rcWork.right);
-                
-      *bottom = (info.dst_rect.top        + info.dst_rect.bottom)
-                > (monitor_info.rcWork.top  + monitor_info.rcWork.bottom);
-    }
-  }
+//  if( !info.align_left &&
+//      !info.align_right &&
+//      !info.align_top &&
+//      !info.align_bottom)
+//  {
+//    MONITORINFO monitor_info;
+//    memset(&monitor_info, 0, sizeof(monitor_info));
+//    monitor_info.cbSize = sizeof(monitor_info);
+//    
+//    HMONITOR hmon = MonitorFromWindow(_hwnd, MONITOR_DEFAULTTONEAREST);
+//    if(GetMonitorInfo(hmon, &monitor_info)) {
+//      *right  = (info.dst_rect.left       + info.dst_rect.right)
+//                > (monitor_info.rcWork.left + monitor_info.rcWork.right);
+//                
+//      *bottom = (info.dst_rect.top        + info.dst_rect.bottom)
+//                > (monitor_info.rcWork.top  + monitor_info.rcWork.bottom);
+//    }
+//  }
 }
 
 void BasicWin32Window::on_sizing(WPARAM wParam, RECT *lParam) {
