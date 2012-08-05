@@ -510,7 +510,6 @@
 			<Option target="Linux-Debug-Gtk3" />
 			<Option target="Linux-Debug-x64" />
 		</Unit>
-		<Unit filename="include\gui\menu.h" />
 		<Unit filename="include\gui\native-widget.h" />
 		<Unit filename="include\gui\win32\basic-win32-widget.h">
 			<Option target="Windows-Debug" />
@@ -760,7 +759,6 @@
 			<Option target="Linux-Debug-Gtk3" />
 			<Option target="Linux-Debug-x64" />
 		</Unit>
-		<Unit filename="src\gui\menu.cpp" />
 		<Unit filename="src\gui\native-widget.cpp" />
 		<Unit filename="src\gui\win32\basic-win32-widget.cpp">
 			<Option target="Windows-Debug" />
