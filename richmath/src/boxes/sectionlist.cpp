@@ -95,8 +95,9 @@ void SectionList::paint(Context *context) {
     paint_section(context, i, _scrollx);
   }
   
-  if(context->selection.get() == this
-      && context->selection.start == _sections.length()) {
+  if( context->selection.get() == this &&
+      context->selection.start == _sections.length())
+  {
     float x1 = 0;
     float y1 = _extents.descent;
     float x2 = _extents.width;
@@ -194,9 +195,11 @@ void SectionList::emit_pmath(int flags, int start, int end) {
       
       Expr group = g.end();
       Expr open;
-      if(_group_info[start].close_rel >= 0
-          && _group_info[start].close_rel <= e)
+      if( _group_info[start].close_rel >= 0 &&
+          _group_info[start].close_rel <= e)
+      {
         open = Expr(_group_info[start].close_rel + 1);
+      }
       else
         open = Symbol(PMATH_SYMBOL_ALL);
         
@@ -423,12 +426,12 @@ void SectionList::toggle_open_close_group(int i) {
 Expr SectionList::get_group_style(int pos, ObjectStyleOptionName n, Expr result) {
   if(pos >= length())
     pos = length() - 1;
-  
-  while(pos >= 0){
+    
+  while(pos >= 0) {
     Expr value = _sections[pos]->get_own_style(n, Symbol(PMATH_UNDEFINED));
     if(value != PMATH_UNDEFINED)
       return value;
-    
+      
     pos = group_info(pos).first;
   }
   
@@ -722,28 +725,35 @@ void SectionList::init_section_bracket_sizes(Context *context) {
 }
 
 void SectionList::resize_section(Context *context, int i) {
-  float old_w = context->width;
+  float old_w    = context->width;
+  float old_scww = context->section_content_window_width;
   
   if(border_visible) {
-    context->width -= section_bracket_right_margin + section_bracket_width * _group_info[i].nesting;
+    context->width                        -= section_bracket_right_margin + section_bracket_width * _group_info[i].nesting;
+    context->section_content_window_width -= section_bracket_right_margin + section_bracket_width * _group_info[i].nesting;
   }
   
   _sections[i]->resize(context);
   
-  context->width = old_w;
+  context->width                        = old_w;
+  context->section_content_window_width = old_scww;
 }
 
 void SectionList::paint_section(Context *context, int i, float scrollx) {
-  float old_w = context->width;
+  float old_w    = context->width;
+  float old_scww = context->section_content_window_width;
   _scrollx = scrollx;
   
-  if(border_visible)
-    context->width -= section_bracket_right_margin + section_bracket_width * _group_info[i].nesting;
-    
+  if(border_visible) {
+    context->width                        -= section_bracket_right_margin + section_bracket_width * _group_info[i].nesting;
+    context->section_content_window_width -= section_bracket_right_margin + section_bracket_width * _group_info[i].nesting;
+  }
+  
   if(_sections[i]->must_resize)
     _sections[i]->resize(context);
     
-  context->width = old_w;
+  context->width                        = old_w;
+  context->section_content_window_width = old_scww;
   
   if(!_sections[i]->visible)
     return;

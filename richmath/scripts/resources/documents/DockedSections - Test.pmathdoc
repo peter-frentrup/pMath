@@ -5,25 +5,52 @@ Document({
            "DockedSections", "\[Rule]", {
             "{", {"\"TopGlass\"", "\[Rule]", {
               "Section", "(", {
-               {"BoxData", "@", {"{", {"\"\\\"Help Topic:  \\\"\"", ",", {
+               {"BoxData", "@", {
+                 "{", {{"ButtonBox", "(", {{"{", {{"StyleBox", "(", {{"FrameBox", "(", {"\"\\\"\u2190\\\"\"", ",", {
+                           "BorderRadius", "\[Rule]", "100"}}, ")"}, ",", {
+                         "Background", "\[Rule]", "White"}, ",", {
+                         "BorderRadius", "\[Rule]", "100"}}, ")"}, ",", 
+                      "\" \""}, "}"}, ",", {"ButtonFrame", "\[Rule]", 
+                     "\"Frameless\""}}, ")"}, ",", "\n", 
+                  "\"\\[InvisibleSpace]\"", ",", "\n", {
+                   "ButtonBox", "(", {{"{", {{"StyleBox", "(", {{"FrameBox", "(", {"\"\\\"\[Rule]\\\"\"", ",", {
+                           "BorderRadius", "\[Rule]", "100"}}, ")"}, ",", {
+                         "Background", "\[Rule]", "White"}, ",", {
+                         "BorderRadius", "\[Rule]", "100"}}, ")"}, ",", 
+                      "\" \""}, "}"}, ",", {"ButtonFrame", "\[Rule]", 
+                     "\"Frameless\""}}, ")"}, ",", "\n", {
                    "FillBox", "(", {"InputFieldBox", "(", {
                      {"Dynamic", "(", "searchString", ")"}, ",", "String"}, 
                     ")"}, ")"}, ",", {"ButtonBox", "(", {
-                    "\"\\\" Go \\\"\"", ",", {"ButtonFrame", "\[Rule]", 
-                     "\"Palette\""}, ",", {"ButtonFunction", "\[Rule]", " ", {
-                      "(", {{"Print", "(", {"{", {{"EvaluationDocument", "(", ")"}, 
-                          ",", {"SelectedDocument", "(", ")"}}, "}"}, ")"}, 
+                    {"StyleBox", "(", {{"FrameBox", "(", {"\"\\\"\[VeryThinSpace]\u21B2\[VeryThinSpace]\\\"\"", 
+                        ",", {"BorderRadius", "\[Rule]", "100"}}, ")"}, ",", {
+                       "Background", "\[Rule]", "White"}, ",", {
+                       "BorderRadius", "\[Rule]", "100"}}, ")"}, ",", {
+                     "ButtonFrame", "\[Rule]", "\"Frameless\""}, ",", {
+                     "ButtonFunction", "\[Rule]", " ", {
+                      "(", {{"(", {"searchString", "\[Assign]", {
+                          "ToString", "@", {"{", {{"EvaluationDocument", "(", ")"}, ",", {
+                             "SelectedDocument", "(", ")"}}, "}"}}}, ")"}, 
                        "&"}, ")"}}}, ")"}}, "}"}}, ",", "\"Docked\"", ",", {
                 "LineBreakWithin", "\[Rule]", "False"}}, ")"}}, "}"}}}, ")"}, 
-        ";"}), "Input", SectionLabel -> "in [37]:"), 
+        ";"}), "Input", SectionLabel -> "in [30]:"), 
      SectionGroup({Section(BoxData({"Dynamic", "(", "searchString", ")"}), 
         "Input", SectionLabel -> "in [29]:"), 
        Section(BoxData(DynamicBox(ToBoxes(searchString))), "Output", 
         SectionGenerated -> True, SectionLabel -> "out [29]:")}, All)}, All)}, 
   DockedSections -> {"Top" -> {}, "TopGlass" -> Section(
-    BoxData({"\"Help Topic:  \"", 
+    BoxData({
+      ButtonBox({StyleBox(FrameBox("\"\u2190\"", BorderRadius -> 100), 
+         Background -> GrayLevel(1), BorderRadius -> 100), " "}, 
+       ButtonFrame -> "Frameless"), "\[InvisibleSpace]", 
+      ButtonBox({StyleBox(FrameBox("\"\[Rule]\"", BorderRadius -> 100), 
+         Background -> GrayLevel(1), BorderRadius -> 100), " "}, 
+       ButtonFrame -> "Frameless"), 
       FillBox(InputFieldBox(Dynamic(searchString), String)), 
-      ButtonBox("\" Go \"", ButtonFrame -> "Palette", 
-       ButtonFunction -> (Print({EvaluationDocument(), 
-         SelectedDocument()}) &))}), "Docked", LineBreakWithin -> False), 
-   "Bottom" -> {}, "BottomGlass" -> {}})
+      ButtonBox(
+       StyleBox(FrameBox("\"\[VeryThinSpace]\u21B2\[VeryThinSpace]\"", 
+         BorderRadius -> 100), Background -> GrayLevel(1), 
+        BorderRadius -> 100), ButtonFrame -> "Frameless", 
+       ButtonFunction -> ((searchString:= ToString({
+         EvaluationDocument(), SelectedDocument()})) &))}), "Docked", 
+    LineBreakWithin -> False), "Bottom" -> {}, "BottomGlass" -> {}})

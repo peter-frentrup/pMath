@@ -1062,15 +1062,14 @@ static pmath_t make_expression_from_fractionbox(pmath_expr_t box) {
 static pmath_t make_expression_from_framebox(pmath_expr_t box) {
   size_t len = pmath_expr_length(box);
   
-  if(len == 1) {
-    pmath_t item = pmath_expr_get_item(box, 1);
+  if(len >= 1) {
+    pmath_t content = pmath_expr_get_item(box, 1);
     
-    if(parse(&item)) {
-      pmath_unref(box);
-      return HOLDCOMPLETE(
-               pmath_expr_new_extended(
-                 pmath_ref(PMATH_SYMBOL_FRAMED), 1,
-                 item));
+    if(parse(&content)) {
+      box = pmath_expr_set_item(box, 1, content);
+      box = pmath_expr_set_item(box, 0, pmath_ref(PMATH_SYMBOL_FRAMED));
+      
+      return HOLDCOMPLETE(box);
     }
   }
   

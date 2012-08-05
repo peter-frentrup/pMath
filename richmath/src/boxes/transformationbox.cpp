@@ -237,7 +237,10 @@ bool TransformationBox::try_load_from_object(Expr expr, int opts) {
   /* now success is guaranteed */
   
   reset_style();
-  style->add_pmath(options);
+  if(style)
+    style->add_pmath(options);
+  else
+    style = new Style(options);
   
   _content->load_from_object(expr[1], opts);
   

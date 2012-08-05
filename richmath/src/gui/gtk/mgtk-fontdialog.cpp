@@ -136,6 +136,28 @@ static GtkWidget *gtk_font_selection_dialog_get_font_selection(GtkFontSelectionD
 }
 #endif
 
+static Expr split_family_names(const char *str_utf8){
+  Gather g;
+  
+  while(*str_utf8){
+    const char *next = str_utf8;
+    while(*next && *next != ',')
+      ++next;
+    
+    Gather::emit(String::FromUtf8(str_utf8, (int)(next - str_utf8)));
+    
+    str_utf8 = next;
+    if(*str_utf8)
+      ++str_utf8;
+  }
+  
+  Expr e = g.end();
+  if(e.expr_length() == 1)
+    return e[1];
+  
+  return e;
+}
+
 static Expr font_selection_dialog_show(SharedPtr<Style> initial_style) {
   GtkFontSelectionDialog *dialog;
   GtkFontSelection       *widget;
@@ -148,10 +170,25 @@ static Expr font_selection_dialog_show(SharedPtr<Style> initial_style) {
     char                 *utf8_name = 0;
 
     desc = pango_font_description_new();
-
-    String family;
-    if(initial_style->get(FontFamily, &family)) {
-      char *utf8_name = pmath_string_to_utf8(family.get_as_string(), NULL);
+    
+    Expr families;
+    if(initial_style->get(FontFamilies, &families)) {
+      String family(families);
+      
+      if(families[0] == PMATH_SYMBOL_LIST){
+        for(size_t i = 1;i <= families.expr_length();++i){
+          String fam(families[i]);
+          
+          if(FontInfo::font_exists(fam)) {
+            if(family.length() > 0)
+              family+= ",";
+            
+            family+= fam;
+          }
+        }
+      }
+      
+      utf8_name = pmath_string_to_utf8(family.get_as_string(), NULL);
       if(utf8_name)
         pango_font_description_set_family_static(desc, utf8_name);
     }
@@ -198,8 +235,9 @@ static Expr font_selection_dialog_show(SharedPtr<Style> initial_style) {
           set_fields = pango_font_description_get_set_fields(desc);
 
           const char *utf8_name = pango_font_description_get_family(desc);
-          if(utf8_name)
-            result_style->set(FontFamily, String::FromUtf8(utf8_name));
+          if(utf8_name){
+            result_style->set(FontFamilies, split_family_names(utf8_name));
+          }
 
           if(set_fields & PANGO_FONT_MASK_WEIGHT) {
             PangoWeight weight = pango_font_description_get_weight(desc);

@@ -209,10 +209,11 @@ void BasicWin32Window::get_client_size(int *width, int *height) {
 }
 
 void BasicWin32Window::get_glassfree_rect(RECT *rect) {
-  if(_extra_glass.cxLeftWidth    == -1
-      && _extra_glass.cxRightWidth   == -1
-      && _extra_glass.cyTopHeight    == -1
-      && _extra_glass.cyBottomHeight == -1) {
+  if( _extra_glass.cxLeftWidth    == -1 &&
+      _extra_glass.cxRightWidth   == -1 &&
+      _extra_glass.cyTopHeight    == -1 &&
+      _extra_glass.cyBottomHeight == -1)
+  {
     SetRectEmpty(rect);
   }
   else {
@@ -1090,6 +1091,22 @@ void BasicWin32Window::extend_glass(Win32Themes::MARGINS *margins) {
       1, //client.right  - client.left,
       1, //client.bottom - client.top,
       SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+    
+    if(_themed_frame){
+      RECT client;
+      GetClientRect(_hwnd, &client);
+      
+      RECT rect;
+      rect.left   = nc.cxLeftWidth - 3;
+      rect.right  = nc.cxLeftWidth;
+      rect.top    = 0;
+      rect.bottom = client.bottom;
+      InvalidateRect(_hwnd, &rect, FALSE);
+      
+      rect.left   = client.right - nc.cxRightWidth;
+      rect.right  = rect.left + 3;
+      InvalidateRect(_hwnd, &rect, FALSE);
+    }
   }
 }
 
@@ -1351,9 +1368,9 @@ LRESULT BasicWin32Window::nc_hit_test(WPARAM wParam, LPARAM lParam) {
   
   Win32Themes::MARGINS margins;
   get_nc_margins(&margins);
-  margins.cxLeftWidth   += _extra_glass.cxLeftWidth;
-  margins.cxRightWidth  += _extra_glass.cxRightWidth;
-  margins.cyTopHeight   += _extra_glass.cyTopHeight;
+  margins.cxLeftWidth    += _extra_glass.cxLeftWidth;
+  margins.cxRightWidth   += _extra_glass.cxRightWidth;
+  margins.cyTopHeight    += _extra_glass.cyTopHeight;
   margins.cyBottomHeight += _extra_glass.cyBottomHeight;
   
   RECT rcWindow;
@@ -1574,7 +1591,7 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
         all_snappers.clear();
         break;
 //} ... sizing & moving
-        
+
       case WM_WINDOWPOSCHANGING: {
           WINDOWPOS *pos = (WINDOWPOS *)lParam;
           static bool during_pos_changing = false;

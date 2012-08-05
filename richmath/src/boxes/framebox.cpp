@@ -55,8 +55,8 @@ void FrameBox::resize(Context *context) {
   if(_extents.ascent < em)
     _extents.ascent = em;
     
-  if(_extents.descent < em * 0.5f)
-    _extents.descent = em * 0.5f;
+  if(_extents.descent < em * 0.4f)
+    _extents.descent = em * 0.4f;
     
   context->width = old_width;
 }
@@ -93,7 +93,10 @@ void FrameBox::paint(Context *context) {
   
   rect.add_round_rect_path(*context->canvas, radii, true);
   
+  bool sot = context->canvas->show_only_text;
+  context->canvas->show_only_text = false;
   context->canvas->fill();
+  context->canvas->show_only_text = sot;
   
   context->canvas->move_to(x, y);
   OwnerBox::paint(context);
