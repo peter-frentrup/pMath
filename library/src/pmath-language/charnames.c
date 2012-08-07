@@ -922,7 +922,7 @@ PMATH_API const uint16_t *pmath_char_parse(const uint16_t *str, int maxlen, uint
         int n = 0;
         
         while(e < maxlen && 
-              n < sizeof(s) - 1 &&
+              n < (int)sizeof(s) - 1 &&
               str[e] <= 0x7F && 
               str[e] != ']' && 
               str[e] != '[') 
@@ -939,10 +939,10 @@ PMATH_API const uint16_t *pmath_char_parse(const uint16_t *str, int maxlen, uint
               break;
           }
           
-          s[n++] = str[e++];
+          s[n++] = (char)str[e++];
         }
         
-        if(e < maxlen && str[e] == ']' && n < sizeof(s) - 1) {
+        if(e < maxlen && str[e] == ']' && n < (int)sizeof(s) - 1) {
           s[n] = '\0';
           *result = pmath_char_from_name(s);
           if(*result != 0xFFFFFFFFU)

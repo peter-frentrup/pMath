@@ -557,16 +557,16 @@ int main(int argc, char **argv) {
     char str[200];
     snprintf(str, sizeof(str),
              "Cairo Version 1.10.0 or newer needed, but only %s found.",
-             pango_version_string());
+             cairo_version_string());
              
     message_dialog("pMath Fatal Error", str);
     return 1;
   }
   
-  if(pango_version() < PANGO_VERSION_ENCODE(1, 28, 0)) {
+  if(pango_version() < PANGO_VERSION_ENCODE(1, 29, 0)) {
     char str[200];
     snprintf(str, sizeof(str),
-             "Pango Version 1.28.0 or newer needed, but only %s found.",
+             "Pango Version 1.29.0 or newer needed, but only %s found.",
              pango_version_string());
              
     message_dialog("pMath Fatal Error", str);

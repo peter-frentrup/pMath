@@ -4,6 +4,11 @@
 #include <cmath>
 
 
+#ifdef min
+  #undef min
+#endif
+
+
 using namespace richmath;
 
 
