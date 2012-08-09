@@ -3536,7 +3536,7 @@ void Document::paint_resize(Canvas *canvas, bool resize_only) {
     if(section(i)->must_resize || i == sel_sect)
       resize_section(&context, i);
       
-    if(_extents.descent + section(i)->extents().height() >= sy)
+    if(_extents.descent + section(i)->extents().height() >= sy && !resize_only)
       break;
       
     section(i)->y_offset = _extents.descent;

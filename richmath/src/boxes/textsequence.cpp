@@ -338,6 +338,8 @@ void TextSequence::resize(Context *context) {
   _extents.width   = pango_units_to_double(rect.width);
   _extents.ascent  = pango_units_to_double(pango_layout_get_baseline(_layout) - line_y_corrections[0]);
   _extents.descent = pango_units_to_double(rect.height - corr) - _extents.ascent;
+  
+  context->sequence_unfilled_width = _extents.width;
 }
 
 void TextSequence::paint(Context *context) {
