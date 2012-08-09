@@ -148,8 +148,8 @@ static void os_init() {
     // remove current directory from dll search path:
     kernel32 = GetModuleHandleW(L"Kernel32");
     if(kernel32) {
-      BOOL (WINAPI * SetDllDirectoryW_ptr)(const WCHAR*);
-      SetDllDirectoryW_ptr = (BOOL (WINAPI*)(const WCHAR*))
+      BOOL (WINAPI * SetDllDirectoryW_ptr)(const WCHAR *);
+      SetDllDirectoryW_ptr = (BOOL (WINAPI *)(const WCHAR *))
       GetProcAddress(kernel32, "SetDllDirectoryW");
       
       if(SetDllDirectoryW_ptr)
@@ -266,7 +266,7 @@ static void load_math_shapers() {
 static void init_stylesheet() {
 #define CAPTION_FONT List(String("Veranda"), String("Calibri"),    String("Arial"))
 #define TEXT_FONT    List(String("Georgia"), String("Constantia"), String("Times New Roman"))
-  
+
   Stylesheet::Default = new Stylesheet;
   
   Stylesheet::Default->base = new Style;
@@ -293,6 +293,7 @@ static void init_stylesheet() {
   Stylesheet::Default->base->set(SectionLabelAutoDelete,              true);
   Stylesheet::Default->base->set(ShowSectionBracket,                  true);
   Stylesheet::Default->base->set(ShowStringCharacters,                true);
+  Stylesheet::Default->base->set(Visible,                             true);
   
   Stylesheet::Default->base->set(FontSize,                 10.0);
   Stylesheet::Default->base->set(AspectRatio,               1.0);
@@ -326,19 +327,20 @@ static void init_stylesheet() {
              PMATH_UNDEFINED)));
              
   Stylesheet::Default->base->set(LanguageCategory, "NaturalLanguage");
-             
+  
   Stylesheet::Default->base->set(ButtonFunction,
                                  Expr(pmath_option_value(
                                         PMATH_SYMBOL_BUTTONBOX,
                                         PMATH_SYMBOL_BUTTONFUNCTION,
                                         PMATH_UNDEFINED)));
-                                 
+                                        
 //  Stylesheet::Default->base->set(GeneratedSectionStyles,
 //                                 Parse("{~FE`Private`style :> FE`Private`style}"));
 
   Style *s;
   
   s = new Style;
+  s->set(Visible,                          true);
   s->set(WindowFrame,                      WindowFrameNormal);
   s->set(WindowTitle,                      String()); // === Automatic
   s->set(DefaultNewSectionStyle,           String("Input"));
@@ -546,6 +548,24 @@ static void init_stylesheet() {
   Stylesheet::Default->styles.set("Placeholder", s);
 }
 
+static bool have_visible_documents() {
+  for(unsigned int count = 0, i = 0; count < all_document_ids.size(); ++i) {
+    if(all_document_ids.entry(i)) {
+      ++count;
+      
+      Document *doc = FrontEndObject::find_cast<Document>(all_document_ids.entry(i)->key);
+      
+      assert(doc);
+      
+      if(doc->get_style(Visible, true)) {
+        return true;
+      }
+    }
+  }
+  
+  return false;
+}
+
 int main(int argc, char **argv) {
   os_init();
   
@@ -630,8 +650,8 @@ int main(int argc, char **argv) {
   
   PMATH_RUN("EndPackage()"); /* FE` */
   
-  Document *palette_doc = 0;
-  Document *main_doc = 0;
+  //Document *palette_doc = 0;
+  Document *main_doc    = 0;
   int result = 0;
   
   if(!MathShaper::available_shapers.default_value) {
@@ -644,115 +664,46 @@ int main(int argc, char **argv) {
   
 #ifdef RICHMATH_USE_WIN32_GUI
   {
-    Win32DocumentWindow *wndMain;
-    Win32DocumentWindow *wndPalette;
-    
-    wndMain = new Win32DocumentWindow(
+    Win32DocumentWindow *wndMain = new Win32DocumentWindow(
       new Document,
       0, WS_OVERLAPPEDWINDOW,
       CW_USEDEFAULT,
       CW_USEDEFAULT,
-      580,
-      600);
+      500,
+      550);
     wndMain->init();
-    
     main_doc = wndMain->document();
     
-//    wndMain->top_glass()->insert(0,
-//      Section::create_from_object(Evaluate(Parse(
-//        "Section(BoxData("
-//          "{\"\\\" Help Topic:  \\\"\","
-//            "FillBox(InputFieldBox(\"not yet implemented\", String)),"
-//            "ButtonBox("
-//              "\"\\\" Go \\\"\","
-//              "ButtonFrame->\"Palette\")}),"
-//          "\"Docked\","
-//          "LineBreakWithin->False,"
-//          "SectionMargins->{0.75, 0.75, 3, 4.5},"
-//          "SectionFrameMargins->0)"
-//        ))));
-
-//    wndMain->top_glass()->insert(1,
-//      Section::create_from_object(Evaluate(Parse(
-//        "Section({\" Help Topic: \n not yet implemented\"},"
-//          "\"Docked\")"))));
-
-//    wndMain->top()->insert(0,
-//      Section::create_from_object(Evaluate(Parse(
-//        "Section(BoxData({"
-//          "GridBox({{"
-//            "ButtonBox(\"\\\" a \\\"\", ButtonFrame->\"Palette\"),"
-//            "ButtonBox(\"\\\" b \\\"\", ButtonFrame->\"Palette\"),"
-//            "ButtonBox(\"\\\" c \\\"\", ButtonFrame->\"Palette\"),"
-//            "ButtonBox(\"\\\" d \\\"\", ButtonFrame->\"Palette\"),"
-//            "\"\\\" \\u2190 Toolbar\\\"\""
-//            "}},"
-//            "GridBoxColumnSpacing->0)"
-//        "}),\"Docked\","
-//        "SectionFrame->{0,0,0,0.5},"
-//        "SectionFrameColor->GrayLevel(0.5),"
-//        "SectionFrameMargins->{1, 1, 0, 0},"
-//        "SectionMargins->0)"))));
-//
-//    wndMain->top()->insert(wndMain->top()->length(),
-//    Section::create_from_object(Evaluate(Parse(
-//      "Section(BoxData({"
-//          "\"\\\"Warning\\\"\","
-//          "FillBox(\"\"),"
-//          "ButtonBox(\"\\\" Apply \\\"\"),"
-//          "ButtonBox("
-//            "StyleBox("
-//                "\"\\[Times]\","
-//              "FontWeight->Bold,"
-//              "FontColor->RGBColor(0.2),"
-//              "TextShadow->{{0,0.75,GrayLevel(0.8)}}),"
-//            "ButtonFrame->\"Palette\")"
-//        "}),\"Docked\","
-//        "Background->RGBColor(1, 0.8, 0.8),"
-//        "SectionFrame->{0,0,0,0.5},"
-//        "SectionFrameColor->GrayLevel(0.5),"
-//        "SectionFrameMargins->{2, 2, 0, 0},"
-//        "SectionMargins->0)"))));
-//
-//    wndMain->bottom()->insert(0,
-//    Section::create_from_object(Evaluate(Parse(
-//      "Section(BoxData({"
-//          "\"\\\"InfoInfoInfoInfo\\\"\","
-//          "FillBox(\"\"),"
-//          "ButtonBox(\"\\\" Apply \\\"\"),"
-//          "ButtonBox("
-//            "StyleBox("
-//                "\"\\[Times]\","
-//              "FontWeight->Bold,"
-//              "FontColor->GrayLevel(0.2),"
-//              "TextShadow->{{0,0.75,GrayLevel(0.8)}}),"
-//            "ButtonFrame->\"Palette\")"
-//        "}),\"Docked\","
-//        //"Background->RGBColor(1, 0.847, 0),"
-//        "SectionFrame->{0,0,0.5,0},"
-//        "SectionFrameColor->GrayLevel(0.5),"
-//        "SectionFrameMargins->{2, 2, 0, 0},"
-//        "SectionMargins->0)"))));
-
-//    PMATH_RUN(
-////      "FE`$StatusSlider:= 0.5;"
-//      "FE`$StatusText:=\"Press ALT to show the menu.\"");
-
-//    wndMain->bottom_glass()->insert(0,
-//    Section::create_from_object(Evaluate(Parse(
-//      "Section(BoxData({"
-//          "DynamicBox(ToBoxes(FE`$StatusText)),"
-//          "FillBox(\"\")"
-////          ",\"\\[CircleMinus]\","
-////          "SliderBox(Dynamic(FE`$StatusSlider, "
-////            "With({val:= If(Abs(# - 0.5) < 0.05, 0.5, #)}, If(val != FE`$StatusSlider, FE`$StatusSlider:= val))&),0..1),"
-////          "\"\\[CirclePlus]\""
-//        "}),\"Docked\","
-//        "LineBreakWithin->False,"
-//        "SectionMargins->{0, 12, 1.5, 0},"
-//        "SectionFrameMargins->0)"))));
-
-    wndPalette = new Win32DocumentWindow(
+    MONITORINFO monitor_info;
+    memset(&monitor_info, 0, sizeof(monitor_info));
+    monitor_info.cbSize = sizeof(monitor_info);
+    
+    HMONITOR hmon = MonitorFromWindow(wndMain->hwnd(), MONITOR_DEFAULTTONEAREST);
+    if(GetMonitorInfo(hmon, &monitor_info)) {
+      RECT rect;
+      GetWindowRect(wndMain->hwnd(), &rect);
+    
+      int w = rect.right  - rect.left;
+      int h = rect.bottom - rect.top;
+      
+      if(w > monitor_info.rcWork.right - monitor_info.rcWork.left)
+        w  = monitor_info.rcWork.right - monitor_info.rcWork.left;
+      
+      if(h > monitor_info.rcWork.bottom - monitor_info.rcWork.top)
+        h  = monitor_info.rcWork.bottom - monitor_info.rcWork.top;
+      
+      int x = monitor_info.rcWork.left + (monitor_info.rcWork.right - monitor_info.rcWork.left - w) / 2;
+      int y = monitor_info.rcWork.top  + (monitor_info.rcWork.bottom - monitor_info.rcWork.top - h) / 3;
+      
+      SetWindowPos(
+        wndMain->hwnd(), NULL,
+        x, y, w, h,
+        SWP_NOZORDER | SWP_NOACTIVATE);
+    }
+  
+    
+    
+    /*Win32DocumentWindow *wndPalette = new Win32DocumentWindow(
       new Document,
       0, WS_OVERLAPPEDWINDOW,
       0,//CW_USEDEFAULT,
@@ -761,75 +712,7 @@ int main(int argc, char **argv) {
       0);
     wndPalette->init();
     
-    palette_doc = wndPalette->document();
-    
-    RECT rect;
-    RECT pal_rect;
-    GetWindowRect(wndMain->hwnd(), &rect);
-    GetWindowRect(wndPalette->hwnd(), &pal_rect);
-    rect.left += 100;
-    
-    SetWindowPos(
-      wndMain->hwnd(),
-      NULL,
-      rect.left,
-      rect.top,
-      0,
-      0,
-      SWP_NOSIZE | SWP_NOZORDER);
-      
-    SetWindowPos(
-      wndPalette->hwnd(),
-      NULL,
-      rect.left - (pal_rect.right - pal_rect.left),//rect.right,
-      rect.top,
-      0,
-      0,
-      SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE);
-      
-    // override CreateProcess STARTF_USESHOWWINDOW flag:
-    //ShowWindow(wndMain->hwnd(), SW_SHOWDEFAULT);
-    
-    ShowWindow(wndMain->hwnd(),    SW_SHOWNORMAL);
-    ShowWindow(wndPalette->hwnd(), SW_SHOWNOACTIVATE);
-    
-    if(0) {
-      Win32DocumentWindow *wndInterrupt = new Win32DocumentWindow(
-        new Document,
-        0, WS_OVERLAPPEDWINDOW,
-        CW_USEDEFAULT,
-        CW_USEDEFAULT,
-        0,
-        0);
-      wndInterrupt->init();
-      
-      Document *doc = wndInterrupt->document();
-      
-      doc->style->set(Editable,    false);
-      doc->style->set(Selectable,  false);
-      doc->style->set(WindowFrame, WindowFrameDialog);
-      doc->style->set(WindowTitle, "Kernel Interrupt");
-      
-      write_section(doc, Evaluate(Parse(
-                                    "Section(BoxData("
-                                    "GridBox({"
-                                    "{ButtonBox(\"\\\"Abort Command Being Evaluated\\\"\")},"
-                                    "{ButtonBox(\"\\\"Enter Subsession\\\"\")},"
-                                    "{ButtonBox(\"\\\"Continue Evaluation\\\"\")}})),"
-                                    "\"ControlStyle\","
-                                    "FontSize->9,"
-                                    "ShowSectionBracket->False,"
-                                    "ShowStringCharacters->False)")));
-                                    
-      doc->select(0, 0, 0);
-      doc->invalidate_options();
-      ShowWindow(wndInterrupt->hwnd(), SW_SHOWNORMAL);
-    }
-    
-    Application::doevents();
-    //SetActiveWindow(wndMain->hwnd());
-    main_doc->native()->bring_to_front();
-    
+    palette_doc = wndPalette->document();*/
   }
 #endif
   
@@ -841,17 +724,14 @@ int main(int argc, char **argv) {
     main_doc = wndMain->document();
     
     wndMain->set_initial_rect(200, 50, 580, 600);
-    gtk_window_present(GTK_WINDOW(wndMain->widget()));
     
     
-    MathGtkDocumentWindow *wndPalette = new MathGtkDocumentWindow();
+    /*MathGtkDocumentWindow *wndPalette = new MathGtkDocumentWindow();
     wndPalette->init();
     
     wndPalette->set_initial_rect(784, 50, 100, 100);
     
-    palette_doc = wndPalette->document();
-    
-    gtk_window_present(GTK_WINDOW(wndPalette->widget()));
+    palette_doc = wndPalette->document();*/
   }
 #endif
   
@@ -871,14 +751,15 @@ int main(int argc, char **argv) {
     main_doc->select(main_doc, 0, 0);
     main_doc->move_horizontal(Forward,  true);
     main_doc->move_horizontal(Backward, false);
+    
+    main_doc->invalidate_options();
   }
   
-  if(palette_doc) {
-    palette_doc->style->set(Editable,                        false);
-    palette_doc->style->set(Selectable,                      false);
-    palette_doc->style->set(WindowFrame,                     WindowFramePalette);
-    palette_doc->style->set(WindowTitle,                     "Math Input");
-    palette_doc->style->set(InternalHasModifiedWindowOption, true);
+  /*if(palette_doc) {
+    palette_doc->style->set(Editable,    false);
+    palette_doc->style->set(Selectable,  false);
+    palette_doc->style->set(WindowFrame, WindowFramePalette);
+    palette_doc->style->set(WindowTitle, "Math Input");
     palette_doc->select(0, 0, 0);
     
     write_section(
@@ -1001,11 +882,15 @@ int main(int argc, char **argv) {
           //".Replace(TooltipBox(~FE`Private`x,~) :> FE`Private`x)"
         )));
         
-    palette_doc->invalidate_options();
     palette_doc->invalidate();
+    palette_doc->invalidate_options();
+  }*/
+  
+  if(main_doc) {
+    main_doc->native()->bring_to_front();
   }
   
-  if(all_document_ids.size() == 0) {
+  if(!have_visible_documents()) {
     message_dialog("pMath Error",
                    "No document window could be opened. pMath will quit now.");
   }

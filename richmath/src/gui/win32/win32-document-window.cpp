@@ -210,6 +210,11 @@ class richmath::Win32Dock: public Win32Widget {
       return;
     }
     
+    virtual void page_size(float *w, float *h) {
+      Win32Widget::page_size(w, h);
+      *w = HUGE_VAL;
+    }
+    
     virtual bool is_scrollable() { return false; }
     virtual void scroll_pos(float *x, float *y) { *x = *y = 0; }
     virtual void scroll_to(float x, float y) {}
@@ -541,6 +546,13 @@ void Win32DocumentWindow::after_construction() {
   bottom()->main_document       = document();
   bottom_glass()->main_document = document();
   
+  // for debugging purposes:
+  SetWindowText(_working_area->hwnd(),      "WorkingArea");
+  SetWindowText(_top_glass_area->hwnd(),    "TopGlassArea");
+  SetWindowText(_top_area->hwnd(),          "TopArea");
+  SetWindowText(_bottom_area->hwnd(),       "BottomArea");
+  SetWindowText(_bottom_glass_area->hwnd(), "BottomGlassArea");
+  
   menubar = new Win32Menubar(
     this, _hwnd,
     Win32Menu::main_menu);
@@ -571,8 +583,10 @@ void Win32DocumentWindow::after_construction() {
   creation = false;
   
   on_theme_changed();
-  
   title(String());
+  
+  working_area()->document()->style->set(Visible,                         true);
+  working_area()->document()->style->set(InternalHasModifiedWindowOption, true);
 }
 
 Win32DocumentWindow::~Win32DocumentWindow() {
@@ -598,7 +612,7 @@ Win32DocumentWindow::~Win32DocumentWindow() {
     bool have_only_palettes = true;
     FOREACH_WINDOW(win,
     {
-      if(win != this && !win->is_palette()) {
+      if(win != this && !win->is_palette() && win->document()->get_style(Visible, true)) {
         have_only_palettes = false;
         break;
       }
@@ -716,7 +730,7 @@ void Win32DocumentWindow::rearrange() {
           neww, newh,
           flags);
           
-        rect.right +=  neww - oldw;
+        //rect.right +=  neww - oldw;
         rect.bottom += newh - oldh;
         
         for(int i = 4; i <= PARTCOUNT; ++i)
@@ -820,10 +834,6 @@ void Win32DocumentWindow::invalidate_options() {
   if(_title != s)
     title(s);
     
-  WindowFrameType f = (WindowFrameType)doc->get_style(WindowFrame, _window_frame);
-  if(_window_frame != f)
-    window_frame(f);
-    
   bool change = false;
   
   _top_area->reload(         SectionList::group(doc->get_style(DockedSectionsTop)),         &change);
@@ -831,8 +841,34 @@ void Win32DocumentWindow::invalidate_options() {
   _bottom_area->reload(      SectionList::group(doc->get_style(DockedSectionsBottom)),      &change);
   _bottom_glass_area->reload(SectionList::group(doc->get_style(DockedSectionsBottomGlass)), &change);
   
-  if(change)
+  if(change) {
+    _top_area->resize();
+    _top_glass_area->resize();
+    _bottom_area->resize();
+    _bottom_glass_area->resize();
     rearrange();
+  }
+  
+  WindowFrameType f = (WindowFrameType)doc->get_style(WindowFrame, _window_frame);
+  if(_window_frame != f)
+    window_frame(f);
+    
+  if(doc->get_style(Visible, true)) {
+    if(!IsWindowVisible(_hwnd)) {
+      SetWindowPos(
+        _hwnd, NULL,
+        0, 0, 1, 1,
+        SWP_SHOWWINDOW | SWP_NOSIZE | SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE);
+    }
+  }
+  else {
+    if(IsWindowVisible(_hwnd))
+      SetWindowPos(
+        _hwnd, NULL,
+        0, 0, 1, 1,
+        SWP_HIDEWINDOW | SWP_NOSIZE | SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE);
+  }
+  
 }
 
 void Win32DocumentWindow::title(String text) {
@@ -1040,26 +1076,26 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
             already_activated = true;
             
             if(!was_already_activated && !BasicWin32Window::during_pos_changing) {
-              
-              Array<BasicWin32Window*> all_lower(BasicWin32Window::basic_window_count());
+            
+              Array<BasicWin32Window *> all_lower(BasicWin32Window::basic_window_count());
               all_lower.length(0);
               
               HWND next_hwnd = GetWindow(_hwnd, GW_HWNDFIRST);
-              while(next_hwnd){
+              while(next_hwnd) {
                 BasicWin32Window *wnd = dynamic_cast<BasicWin32Window *>(
                                           BasicWin32Widget::from_hwnd(next_hwnd));
                                           
-                if(wnd)// && wnd->zorder_level() <= zorder_level()) 
+                if(wnd)// && wnd->zorder_level() <= zorder_level())
                   all_lower.add(wnd);
-                    
+                  
                 next_hwnd = GetWindow(next_hwnd, GW_HWNDNEXT);
               }
               
               // now put this window in front of all windows with the same zorder_level
-              for(int i = 0;i < all_lower.length();++i){
-                if(all_lower[i] == this){
+              for(int i = 0; i < all_lower.length(); ++i) {
+                if(all_lower[i] == this) {
                   int j = i - 1;
-                  while(j >= 0 && all_lower[j]->zorder_level() == zorder_level()){
+                  while(j >= 0 && all_lower[j]->zorder_level() == zorder_level()) {
                     all_lower[j + 1] = all_lower[j];
                     --j;
                   }
@@ -1072,10 +1108,10 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
               
               HDWP hdwp = BeginDeferWindowPos(all_lower.length());
               
-              for(int i = all_lower.length() - 1;i >= 0;--i) {
+              for(int i = all_lower.length() - 1; i >= 0; --i) {
                 hdwp = tryDeferWindowPos(
-                  hdwp, all_lower[i]->hwnd(), HWND_TOP, 0, 0, 0, 0,
-                  SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE/* | SWP_SHOWWINDOW*/);
+                         hdwp, all_lower[i]->hwnd(), HWND_TOP, 0, 0, 0, 0,
+                         SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE/* | SWP_SHOWWINDOW*/);
               }
               
               EndDeferWindowPos(hdwp);

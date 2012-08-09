@@ -792,8 +792,6 @@ Document *Application::create_document() {
     wnd->init();
     
     doc = wnd->document();
-    
-    ShowWindow(wnd->hwnd(), SW_SHOWNORMAL);
   }
 #endif
   
@@ -803,9 +801,6 @@ Document *Application::create_document() {
     wnd->init();
     
     doc = wnd->document();
-    
-    if(wnd->widget())
-      gtk_window_present(GTK_WINDOW(wnd->widget()));
   }
 #endif
   
@@ -848,13 +843,11 @@ Document *Application::create_document(Expr data) {
     }
   }
   
-  if(doc->selectable())
-    set_current_document(doc);
-  else
+  if(!doc->selectable())
     doc->select(0, 0, 0);
     
   doc->invalidate_options();
-  
+
   return doc;
 }
 
@@ -1368,9 +1361,12 @@ static void cnt_dynamicupate(Expr data) {
 static Expr cnt_createdocument(Expr data) {
   Document *doc = Application::create_document(data);
   
-  if(doc)
-    return Call(Symbol(PMATH_SYMBOL_FRONTENDOBJECT), doc->id());
+  if(doc) {
+    doc->invalidate_options();
     
+    return Call(Symbol(PMATH_SYMBOL_FRONTENDOBJECT), doc->id());
+  }
+  
   return Symbol(PMATH_SYMBOL_FAILED);
 }
 

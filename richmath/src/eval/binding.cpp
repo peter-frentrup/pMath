@@ -941,9 +941,15 @@ static bool insert_underscript_cmd(Expr cmd) {
 }
 
 static bool new_cmd(Expr cmd) {
-  Application::notify(
-    CNT_CREATEDOCUMENT,
-    Call(Symbol(PMATH_SYMBOL_CREATEDOCUMENT), List()));
+//  Application::notify(
+//    CNT_CREATEDOCUMENT,
+//    Call(Symbol(PMATH_SYMBOL_CREATEDOCUMENT), List()));
+  Document *doc = Application::create_document();
+  if(!doc)
+    return false;
+  
+  doc->invalidate_options();
+  doc->native()->bring_to_front();
     
   return true;
 }
@@ -980,19 +986,15 @@ static bool open_cmd(Expr cmd) {
           held_boxes[0] == PMATH_SYMBOL_HOLDCOMPLETE &&
           doc->try_load_from_object(held_boxes[1], BoxOptionDefault))
       {
-      
-        if(doc->selectable())
-          set_current_document(doc);
-        else
+        if(!doc->selectable())
           doc->select(0, 0, 0);
           
+        doc->style->set(Visible, true);
         doc->invalidate_options();
-        
+        doc->native()->bring_to_front();
         continue;
       }
     }
-    
-    set_current_document(doc);
     
     ReadableTextFile file(Evaluate(Call(Symbol(PMATH_SYMBOL_OPENREAD), filename)));
     String s;
@@ -1014,7 +1016,9 @@ static bool open_cmd(Expr cmd) {
       
     doc->style->set(WindowTitle, filename.part(c + 1));
     doc->style->set(InternalHasModifiedWindowOption, true);
+    
     doc->invalidate_options();
+    doc->native()->bring_to_front();
   }
   
   return true;

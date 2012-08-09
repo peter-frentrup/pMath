@@ -318,6 +318,9 @@ void MathGtkDocumentWindow::after_construction() {
   signal_connect<MathGtkDocumentWindow, GdkEvent *, &MathGtkDocumentWindow::on_scroll>("scroll-event");
   
   title(String());
+  
+  working_area()->document()->style->set(Visible,                         true);
+  working_area()->document()->style->set(InternalHasModifiedWindowOption, true);
 }
 
 MathGtkDocumentWindow::~MathGtkDocumentWindow() {
@@ -329,7 +332,7 @@ MathGtkDocumentWindow::~MathGtkDocumentWindow() {
   if(!deleting_all) {
     bool have_only_palettes = true;
     for(MathGtkDocumentWindow *win = next_window(); win != this; win = win->next_window()) {
-      if(!win->is_palette()) {
+      if(!win->is_palette() && win->document()->get_style(Visible, true)) {
         have_only_palettes = false;
         break;
       }
@@ -389,6 +392,18 @@ void MathGtkDocumentWindow::invalidate_options() {
   
   _top_area->reload(   SectionList::group(List(top_glass, top)));
   _bottom_area->reload(SectionList::group(List(bottom, bottom_glass)));
+  
+  if(doc->get_style(Visible, true)) {
+    //gtk_window_present(GTK_WINDOW(_widget));
+    
+    if(!gtk_widget_get_visible(_widget))
+      gtk_widget_show(_widget);
+  }
+  else{
+    if(gtk_widget_get_visible(_widget))
+      gtk_widget_hide(_widget);
+  }
+  
 }
 
 void MathGtkDocumentWindow::title(String text) {

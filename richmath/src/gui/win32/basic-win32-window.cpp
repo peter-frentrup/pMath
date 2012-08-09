@@ -600,12 +600,12 @@ void BasicWin32Window::get_snap_alignment(bool *right, bool *bottom) {
 //    MONITORINFO monitor_info;
 //    memset(&monitor_info, 0, sizeof(monitor_info));
 //    monitor_info.cbSize = sizeof(monitor_info);
-//    
+//
 //    HMONITOR hmon = MonitorFromWindow(_hwnd, MONITOR_DEFAULTTONEAREST);
 //    if(GetMonitorInfo(hmon, &monitor_info)) {
 //      *right  = (info.dst_rect.left       + info.dst_rect.right)
 //                > (monitor_info.rcWork.left + monitor_info.rcWork.right);
-//                
+//
 //      *bottom = (info.dst_rect.top        + info.dst_rect.bottom)
 //                > (monitor_info.rcWork.top  + monitor_info.rcWork.bottom);
 //    }
@@ -1044,22 +1044,32 @@ void BasicWin32Window::extend_glass(const Win32Themes::MARGINS *margins) {
   if(margins != &_extra_glass) {
     if(0 == memcmp(&_extra_glass, &margins, sizeof(_extra_glass)))
       return;
-    
+      
     memcpy(&_extra_glass, margins, sizeof(_extra_glass));
   }
-    
+  
   if(Win32Themes::DwmExtendFrameIntoClientArea) {
-    Win32Themes::MARGINS nc;
-    memset(&nc, 0, sizeof(nc));
-    if(_themed_frame)
-      get_nc_margins(&nc);
-      
-    nc.cxLeftWidth +=    margins->cxLeftWidth;
-    nc.cxRightWidth +=   margins->cxRightWidth;
-    nc.cyTopHeight +=    margins->cyTopHeight;
-    nc.cyBottomHeight += margins->cyBottomHeight;
     
-    Win32Themes::DwmExtendFrameIntoClientArea(_hwnd, &nc);
+    if( margins->cxLeftWidth    == -1 &&
+        margins->cxRightWidth   == -1 &&
+        margins->cyTopHeight    == -1 &&
+        margins->cyBottomHeight == -1)
+    {
+      Win32Themes::DwmExtendFrameIntoClientArea(_hwnd, margins);
+    }
+    else{
+      Win32Themes::MARGINS nc;
+      memset(&nc, 0, sizeof(nc));
+      if(_themed_frame)
+        get_nc_margins(&nc);
+        
+      nc.cxLeftWidth +=    margins->cxLeftWidth;
+      nc.cxRightWidth +=   margins->cxRightWidth;
+      nc.cyTopHeight +=    margins->cyTopHeight;
+      nc.cyBottomHeight += margins->cyBottomHeight;
+      
+      Win32Themes::DwmExtendFrameIntoClientArea(_hwnd, &nc);
+    }
     
     // Inform application of the frame change.
     SetWindowPos(
@@ -1160,8 +1170,10 @@ void BasicWin32Window::paint_background(Canvas *canvas, int x, int y, bool wallp
         }
       }
       else {
+        cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_CLEAR);
         canvas->set_color(0x000000, 0);
         canvas->paint();
+        cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_OVER);
       }
       
       if(!IsRectEmpty(&glassfree)) {
@@ -1186,13 +1198,12 @@ void BasicWin32Window::paint_background(Canvas *canvas, int x, int y, bool wallp
     
     if(_themed_frame) {
       LONG style_ex = GetWindowLongW(_hwnd, GWL_EXSTYLE);
-      RECT rect, glassfree;
       GetClientRect(_hwnd, &rect);
       get_glassfree_rect(&glassfree);
       
       cairo_reset_clip(canvas->cairo());
       
-      { // show border between glass/nonglass
+      if(!IsRectEmpty(&glassfree)) { // show border between glass/nonglass
         cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_DEST_OUT);
         
         canvas->move_to(rect.left,  rect.top);
@@ -1319,28 +1330,32 @@ void BasicWin32Window::on_paint_background(Canvas *canvas) {
     canvas->line_to(rect.left,  rect.bottom);
     canvas->close_path();
     
-    canvas->move_to(glassfree.left,  glassfree.top);
-    canvas->line_to(glassfree.left,  glassfree.bottom);
-    canvas->line_to(glassfree.right, glassfree.bottom);
-    canvas->line_to(glassfree.right, glassfree.top);
-    canvas->close_path();
+    if(!IsRectEmpty(&glassfree)) {
+      canvas->move_to(glassfree.left,  glassfree.top);
+      canvas->line_to(glassfree.left,  glassfree.bottom);
+      canvas->line_to(glassfree.right, glassfree.bottom);
+      canvas->line_to(glassfree.right, glassfree.top);
+      canvas->close_path();
+    }
     
     canvas->clip();
     canvas->paint_with_alpha(0.8);
     
-    cairo_reset_clip(canvas->cairo());
-    canvas->move_to(glassfree.left,  glassfree.top);
-    canvas->line_to(glassfree.left,  glassfree.bottom);
-    canvas->line_to(glassfree.right, glassfree.bottom);
-    canvas->line_to(glassfree.right, glassfree.top);
-    canvas->close_path();
-    canvas->clip();
-    
-    canvas->paint_with_alpha(0.25);
+    if(!IsRectEmpty(&glassfree)) {
+      cairo_reset_clip(canvas->cairo());
+      canvas->move_to(glassfree.left,  glassfree.top);
+      canvas->line_to(glassfree.left,  glassfree.bottom);
+      canvas->line_to(glassfree.right, glassfree.bottom);
+      canvas->line_to(glassfree.right, glassfree.top);
+      canvas->close_path();
+      canvas->clip();
+      
+      canvas->paint_with_alpha(0.25);
+    }
   }
 }
 
-int BasicWin32Window::basic_window_count(){
+int BasicWin32Window::basic_window_count() {
   return _basic_window_count;
 }
 
@@ -1671,7 +1686,7 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
             }
           }
         } break;
-
+        
       case WM_THEMECHANGED:
       case WM_DWMCOMPOSITIONCHANGED: {
           if(Win32Themes::DwmEnableComposition)

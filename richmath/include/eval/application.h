@@ -64,9 +64,14 @@ namespace richmath {
       static void abort_all_jobs();
       
       static Box      *get_evaluation_box();
-      static Document *create_document();          // may return NULL (no gui available ...)
-      static Document *create_document(Expr data); // may return NULL (no gui available ...)
       static Expr      run_filedialog(Expr data);
+      
+      /* These may return NULL (no gui available ...)
+         The document will not be visible, call invslidate_options() to 
+         recognize the "Visible" style option.
+      */
+      static Document *create_document();
+      static Document *create_document(Expr data);
       
       static bool is_idle();
       static bool is_idle(Box *box);
