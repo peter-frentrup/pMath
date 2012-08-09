@@ -676,6 +676,18 @@ PMATH_API pmath_bool_t pmath_init(void) {
         "Options(ReplaceRepeated):="
         "Options(Scan):={Heads->False}");
 
+      PMATH_RUN("Options(BinaryRead):=Options(BinaryWrite):={"
+                "ByteOrdering:>$ByteOrdering}");
+
+      PMATH_RUN("Options(Button):={"
+                "ButtonFrame->Automatic,"
+                "Method->\"Preemptive\"}");
+
+      PMATH_RUN("Options(ButtonBox):={"
+                "ButtonFrame->Automatic,"
+                "ButtonFunction->(/\\/ &),"
+                "Method->\"Preemptive\"}");
+
       PMATH_RUN("Options(Complement):={SameTest->Automatic}");
 
       PMATH_RUN("Options(CreateDocument):=Options(Document):={"
@@ -709,6 +721,7 @@ PMATH_API pmath_bool_t pmath_init(void) {
                 "ShowStringCharacters->Inherited,"
                 "StyleDefinitions->Inherited,"
                 "TextShadow->Inherited,"
+                "Visible->True,"
                 "WindowFrame->Inherited,"
                 "WindowTitle->Inherited"
                 "}");
@@ -730,18 +743,6 @@ PMATH_API pmath_bool_t pmath_init(void) {
         "DynamicLocalValues->Automatic,"
         "UnsavedVariables->{}"
         "}");
-
-      PMATH_RUN("Options(BinaryRead):=Options(BinaryWrite):={"
-                "ByteOrdering:>$ByteOrdering}");
-
-      PMATH_RUN("Options(Button):={"
-                "ButtonFrame->Automatic,"
-                "Method->\"Preemptive\"}");
-
-      PMATH_RUN("Options(ButtonBox):={"
-                "ButtonFrame->Automatic,"
-                "ButtonFunction->(/\\/ &),"
-                "Method->\"Preemptive\"}");
 
       PMATH_RUN("Options(DeleteDirectory):={DeleteContents->False}");
 

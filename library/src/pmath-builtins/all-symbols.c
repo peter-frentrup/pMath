@@ -1377,6 +1377,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_UPRULES                          = NEW_SYSTEM_SYMBOL("UpRules"))
   VERIFY(   PMATH_SYMBOL_VERSIONLIST                      = NEW_SYSTEM_SYMBOL("$VersionList"))
   VERIFY(   PMATH_SYMBOL_VERSIONNUMBER                    = NEW_SYSTEM_SYMBOL("$VersionNumber"))
+  VERIFY(   PMATH_SYMBOL_VISIBLE                          = NEW_SYSTEM_SYMBOL("Visible"))
   VERIFY(   PMATH_SYMBOL_WAIT                             = NEW_SYSTEM_SYMBOL("Wait"))
   VERIFY(   PMATH_SYMBOL_WHICH                            = NEW_SYSTEM_SYMBOL("Which"))
   VERIFY(   PMATH_SYMBOL_WHILE                            = NEW_SYSTEM_SYMBOL("While"))
