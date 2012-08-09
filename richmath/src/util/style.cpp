@@ -415,6 +415,11 @@ void Style::add_pmath(Expr options) {
           else if(lhs == PMATH_SYMBOL_TEXTSHADOW) {
             set_pmath_object(TextShadow, rhs);
           }
+          else if(lhs == PMATH_SYMBOL_VISIBLE) {
+            set_pmath_bool(Visible, rhs);
+            
+            set(InternalHasModifiedWindowOption, true);
+          }
           else if(lhs == PMATH_SYMBOL_WINDOWFRAME) {
             String s_rhs(rhs);
             if(s_rhs.equals("Normal"))
@@ -949,6 +954,7 @@ Expr Style::get_symbol(int n) {
     case ShowSectionBracket:                  return Symbol(PMATH_SYMBOL_SHOWSECTIONBRACKET);
     case ShowStringCharacters:                return Symbol(PMATH_SYMBOL_SHOWSTRINGCHARACTERS);
     case StripOnInput:                        return Symbol(PMATH_SYMBOL_STRIPONINPUT);
+    case Visible:                             return Symbol(PMATH_SYMBOL_VISIBLE);
     
     case ButtonFrame:                         return Symbol(PMATH_SYMBOL_BUTTONFRAME);
     case WindowFrame:                         return Symbol(PMATH_SYMBOL_WINDOWFRAME);
@@ -1022,124 +1028,226 @@ Expr Style::get_symbol(int n) {
   return Expr();
 }
 
+void Style::emit_pmath_bool_auto(IntStyleOptionName n) { // 0/1=false/true, 2=auto
+  Expr e;
+  int i;
+  
+  if(get_dynamic(n, &e)) {
+    Gather::emit(Rule(
+                   get_symbol(n),
+                   e));
+  }
+  else if(get(n, &i)) {
+    switch(i) {
+      case 0:
+        Gather::emit(Rule(get_symbol(n), Symbol(PMATH_SYMBOL_FALSE)));
+        break;
+        
+      case 1:
+        Gather::emit(Rule(get_symbol(n), Symbol(PMATH_SYMBOL_TRUE)));
+        break;
+        
+      default:
+        Gather::emit(Rule(get_symbol(n), Symbol(PMATH_SYMBOL_AUTOMATIC)));
+        break;
+    }
+  }
+}
+
+void Style::emit_pmath_bool(IntStyleOptionName n) {
+  Expr e;
+  int i;
+  
+  if(get_dynamic(n, &e)) {
+    Gather::emit(Rule(
+                   get_symbol(n),
+                   e));
+  }
+  else if(get(n, &i)) {
+    Gather::emit(Rule(
+                   get_symbol(n),
+                   Symbol(i ? PMATH_SYMBOL_TRUE : PMATH_SYMBOL_FALSE)));
+  }
+}
+
+void Style::emit_pmath_color(IntStyleOptionName n) {
+  Expr e;
+  int i;
+  
+  if(get_dynamic(n, &e)) {
+    Gather::emit(Rule(
+                   get_symbol(n),
+                   e));
+  }
+  else if(get(n, &i)) {
+    Gather::emit(Rule(
+                   get_symbol(n),
+                   color_to_pmath(i)));
+  }
+}
+
+void Style::emit_pmath_float(FloatStyleOptionName n) {
+  Expr e;
+  float f;
+  
+  if(get_dynamic(n, &e)) {
+    Gather::emit(Rule(
+                   get_symbol(n),
+                   e));
+  }
+  else if(get(n, &f)) {
+    Gather::emit(Rule(
+                   get_symbol(n),
+                   Number(f)));
+  }
+}
+
+void Style::emit_pmath_margin(FloatStyleOptionName n) { // n + {0,1,2,3} ~= {Left, Right, Top, Bottom}
+  Expr e;
+  
+  if(get_dynamic(n, &e)) {
+    Gather::emit(Rule(
+                   get_symbol(n),
+                   e));
+  }
+  else {
+    float left, right, top, bottom;
+    bool have_left, have_right, have_top, have_bottom;
+    
+    have_left   = get(                     n,      &left);
+    have_right  = get(FloatStyleOptionName(n + 1), &right);
+    have_top    = get(FloatStyleOptionName(n + 2), &top);
+    have_bottom = get(FloatStyleOptionName(n + 3), &bottom);
+    
+    if(have_left || have_right || have_top || have_bottom) {
+      Expr l, r, t, b;
+      
+      if(have_left)
+        l = Number(left);
+      else
+        l = Symbol(PMATH_SYMBOL_INHERITED);
+        
+      if(have_right)
+        r = Number(right);
+      else
+        r = Symbol(PMATH_SYMBOL_INHERITED);
+        
+      if(have_top)
+        t = Number(top);
+      else
+        t = Symbol(PMATH_SYMBOL_INHERITED);
+        
+      if(have_bottom)
+        b = Number(bottom);
+      else
+        b = Symbol(PMATH_SYMBOL_INHERITED);
+        
+      Gather::emit(Rule(
+                     get_symbol(n),
+                     List(l, r, t, b)));
+    }
+  }
+}
+
+void Style::emit_pmath_size(FloatStyleOptionName  n) { // n + {0,1,2} ~= {Common, Horizontal, Vertical}
+  Expr e;
+  
+  if(get_dynamic(n, &e)) {
+    Gather::emit(Rule(
+                   get_symbol(n),
+                   e));
+  }
+  else {
+    bool have_horz, have_vert;
+    Expr horz, vert;
+    
+    have_horz = get_dynamic(n + 1, &horz);
+    if(!have_horz) {
+      float h;
+      have_horz = get(FloatStyleOptionName(n + 1), &h);
+      
+      if(have_horz) {
+        if(h > 0)
+          horz = Number(h);
+        else
+          horz = Symbol(PMATH_SYMBOL_AUTOMATIC);
+      }
+      else
+        horz = Symbol(PMATH_SYMBOL_INHERITED);
+    }
+    
+    have_vert = get_dynamic(n + 2, &vert);
+    if(!have_vert) {
+      float v;
+      have_vert = get(FloatStyleOptionName(n + 2), &v);
+      
+      if(have_vert) {
+        if(v > 0)
+          vert = Number(v);
+        else
+          vert = Symbol(PMATH_SYMBOL_AUTOMATIC);
+      }
+      else
+        vert = Symbol(PMATH_SYMBOL_INHERITED);
+    }
+    
+    if(have_horz || have_vert) {
+      Gather::emit(Rule(
+                     get_symbol(n),
+                     List(horz, vert)));
+    }
+  }
+}
+
+void Style::emit_pmath_string(StringStyleOptionName n) {
+  Expr e;
+  String s;
+  
+  if(get_dynamic(n, &e)) {
+    Gather::emit(Rule(
+                   get_symbol(n),
+                   e));
+  }
+  else if(get(n, &s)) {
+    Gather::emit(Rule(
+                   get_symbol(n),
+                   s));
+  }
+}
+
+void Style::emit_pmath_object(ObjectStyleOptionName n) {
+  Expr e;
+  
+  if(get_dynamic(n, &e)) {
+    Gather::emit(Rule(
+                   get_symbol(n),
+                   e));
+  }
+  else if(get(n, &e)) {
+    Gather::emit(Rule(
+                   get_symbol(n),
+                   e));
+  }
+}
+
 void Style::emit_to_pmath(bool with_inherited) {
   Expr e;
   String s;
   int i;
-  float f;
   
-  if(get_dynamic(Antialiasing, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(Antialiasing),
-                   e));
-  }
-  else if(get(Antialiasing, &i)) {
-    Gather::emit(Rule(
-                   get_symbol(Antialiasing),
-                   Symbol(i == 0 ? PMATH_SYMBOL_FALSE :
-                          (i == 1 ? PMATH_SYMBOL_TRUE : PMATH_SYMBOL_AUTOMATIC))));
-  }
+  emit_pmath_bool_auto(Antialiasing);
+  emit_pmath_float(    AspectRatio);
+  emit_pmath_bool(     AutoDelete);
+  emit_pmath_bool(     AutoNumberFormating);
+  emit_pmath_bool(     AutoSpacing);
+  emit_pmath_color(    Background);
   
-  if(get_dynamic(AspectRatio, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(AspectRatio),
-                   e));
-  }
-  else if(get(AspectRatio, &f)) {
-    Gather::emit(Rule(
-                   get_symbol(AspectRatio),
-                   Number(f)));
-  }
+  if(with_inherited) 
+    emit_pmath_string(BaseStyleName);
   
-  if(get_dynamic(AutoDelete, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(AutoDelete),
-                   e));
-  }
-  else if(get(AutoDelete, &i)) {
-    Gather::emit(Rule(
-                   get_symbol(AutoDelete),
-                   Symbol(i ? PMATH_SYMBOL_TRUE : PMATH_SYMBOL_FALSE)));
-  }
-  
-  if(get_dynamic(AutoNumberFormating, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(AutoNumberFormating),
-                   e));
-  }
-  else if(get(AutoNumberFormating, &i)) {
-    Gather::emit(Rule(
-                   get_symbol(AutoNumberFormating),
-                   Symbol(i ? PMATH_SYMBOL_TRUE : PMATH_SYMBOL_FALSE)));
-  }
-  
-  if(get_dynamic(AutoSpacing, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(AutoSpacing),
-                   e));
-  }
-  else if(get(AutoSpacing, &i)) {
-    Gather::emit(Rule(
-                   get_symbol(AutoSpacing),
-                   Symbol(i ? PMATH_SYMBOL_TRUE : PMATH_SYMBOL_FALSE)));
-  }
-  
-  if(get_dynamic(Background, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(Background),
-                   e));
-  }
-  else if(get(Background, &i)) {
-    Gather::emit(Rule(
-                   get_symbol(Background),
-                   color_to_pmath(i)));
-  }
-  
-  if(with_inherited) {
-    if(get_dynamic(BaseStyleName, &e)) {
-      Gather::emit(Rule(
-                     get_symbol(BaseStyleName),
-                     e));
-    }
-    else if(get(BaseStyleName, &s)) {
-      Gather::emit(Rule(
-                     get_symbol(BaseStyleName),
-                     s));
-    }
-  }
-  
-  if(get_dynamic(BorderRadius, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(BorderRadius),
-                   e));
-  }
-  else if(get(BorderRadius, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(BorderRadius),
-                   e));
-  }
-  
-  if(get_dynamic(BoxRotation, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(BoxRotation),
-                   e));
-  }
-  else if(get(BoxRotation, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(BoxRotation),
-                   e));
-  }
-  
-  if(get_dynamic(BoxTransformation, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(BoxTransformation),
-                   e));
-  }
-  else if(get(BoxTransformation, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(BoxTransformation),
-                   e));
-  }
+  emit_pmath_object(BorderRadius);
+  emit_pmath_object(BoxRotation);
+  emit_pmath_object(BoxTransformation);
   
   if(get_dynamic(ButtonFrame, &e)) {
     Gather::emit(Rule(
@@ -1152,60 +1260,11 @@ void Style::emit_to_pmath(bool with_inherited) {
                    buttonframe_to_rhs(i)));
   }
   
-  if(get_dynamic(ButtonFunction, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(ButtonFunction),
-                   e));
-  }
-  else if(get(ButtonFunction, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(ButtonFunction),
-                   e));
-  }
-  
-  if(get_dynamic(ContinuousAction, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(ContinuousAction),
-                   e));
-  }
-  else if(get(ContinuousAction, &i)) {
-    Gather::emit(Rule(
-                   get_symbol(ContinuousAction),
-                   Symbol(i ? PMATH_SYMBOL_TRUE : PMATH_SYMBOL_FALSE)));
-  }
-  
-  if(get_dynamic(DefaultDuplicateSectionStyle, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(DefaultDuplicateSectionStyle),
-                   e));
-  }
-  else if(get(DefaultDuplicateSectionStyle, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(DefaultDuplicateSectionStyle),
-                   e));
-  }
-  
-  if(get_dynamic(DefaultNewSectionStyle, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(DefaultNewSectionStyle),
-                   e));
-  }
-  else if(get(DefaultNewSectionStyle, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(DefaultNewSectionStyle),
-                   e));
-  }
-  
-  if(get_dynamic(DefaultReturnCreatedSectionStyle, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(DefaultReturnCreatedSectionStyle),
-                   e));
-  }
-  else if(get(DefaultReturnCreatedSectionStyle, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(DefaultReturnCreatedSectionStyle),
-                   e));
-  }
+  emit_pmath_object(ButtonFunction);
+  emit_pmath_bool(  ContinuousAction);
+  emit_pmath_object(DefaultDuplicateSectionStyle);
+  emit_pmath_object(DefaultNewSectionStyle);
+  emit_pmath_object(DefaultReturnCreatedSectionStyle);
   
   if(get_dynamic(DockedSectionsTop, &e)) {
     Gather::emit(Rule(
@@ -1244,60 +1303,11 @@ void Style::emit_to_pmath(bool with_inherited) {
     }
   }
   
-  if(get_dynamic(Editable, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(Editable),
-                   e));
-  }
-  else if(get(Editable, &i)) {
-    Gather::emit(Rule(
-                   get_symbol(Editable),
-                   Symbol(i ? PMATH_SYMBOL_TRUE : PMATH_SYMBOL_FALSE)));
-  }
-  
-  if(get_dynamic(Evaluatable, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(Evaluatable),
-                   e));
-  }
-  else if(get(Evaluatable, &i)) {
-    Gather::emit(Rule(
-                   get_symbol(Evaluatable),
-                   Symbol(i ? PMATH_SYMBOL_TRUE : PMATH_SYMBOL_FALSE)));
-  }
-  
-  if(get_dynamic(FontColor, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(FontColor),
-                   e));
-  }
-  else if(get(FontColor, &i)) {
-    Gather::emit(Rule(
-                   get_symbol(FontColor),
-                   color_to_pmath(i)));
-  }
-  
-  if(get_dynamic(FontFamilies, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(FontFamilies),
-                   e));
-  }
-  else if(get(FontFamilies, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(FontFamilies),
-                   e));
-  }
-  
-  if(get_dynamic(FontSize, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(FontSize),
-                   e));
-  }
-  else if(get(FontSize, &f)) {
-    Gather::emit(Rule(
-                   get_symbol(FontSize),
-                   Number(f)));
-  }
+  emit_pmath_bool(  Editable);
+  emit_pmath_bool(  Evaluatable);
+  emit_pmath_color( FontColor);
+  emit_pmath_object(FontFamilies);
+  emit_pmath_float( FontSize);
   
   if(get_dynamic(FontSlant, &e)) {
     Gather::emit(Rule(
@@ -1341,342 +1351,25 @@ void Style::emit_to_pmath(bool with_inherited) {
     }
   }
   
-  if(get_dynamic(GeneratedSectionStyles, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(GeneratedSectionStyles),
-                   e));
-  }
-  else if(get(GeneratedSectionStyles, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(GeneratedSectionStyles),
-                   e));
-  }
-  
-  if(get_dynamic(GridBoxColumnSpacing, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(GridBoxColumnSpacing),
-                   e));
-  }
-  else if(get(GridBoxColumnSpacing, &f)) {
-    Gather::emit(Rule(
-                   get_symbol(GridBoxColumnSpacing),
-                   Number(f)));
-  }
-  
-  if(get_dynamic(GridBoxRowSpacing, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(GridBoxRowSpacing),
-                   e));
-  }
-  else if(get(GridBoxRowSpacing, &f)) {
-    Gather::emit(Rule(
-                   get_symbol(GridBoxRowSpacing),
-                   Number(f)));
-  }
-  
-  if(get_dynamic(ImageSizeCommon, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(ImageSizeCommon),
-                   e));
-  }
-  else {
-    bool have_horz, have_vert;
-    Expr horz, vert;
-    
-    have_horz = get_dynamic(ImageSizeHorizontal, &horz);
-    if(!have_horz) {
-      float h;
-      have_horz = get(ImageSizeHorizontal, &h);
-      
-      if(have_horz) {
-        if(h > 0)
-          horz = Number(h);
-        else
-          horz = Symbol(PMATH_SYMBOL_AUTOMATIC);
-      }
-      else
-        horz = Symbol(PMATH_SYMBOL_INHERITED);
-    }
-    
-    have_vert = get_dynamic(ImageSizeVertical, &vert);
-    if(!have_vert) {
-      float v;
-      have_vert = get(ImageSizeVertical, &v);
-      
-      if(have_vert) {
-        if(v > 0)
-          vert = Number(v);
-        else
-          vert = Symbol(PMATH_SYMBOL_AUTOMATIC);
-      }
-      else
-        vert = Symbol(PMATH_SYMBOL_INHERITED);
-    }
-    
-    if(have_horz || have_vert) {
-      Gather::emit(Rule(
-                     get_symbol(ImageSizeCommon),
-                     List(horz, vert)));
-    }
-  }
-  
-  if(get_dynamic(LanguageCategory, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(LanguageCategory),
-                   e));
-  }
-  else if(get(LanguageCategory, &s)) {
-    Gather::emit(Rule(
-                   get_symbol(LanguageCategory),
-                   s));
-  }
-  
-  if(get_dynamic(LineBreakWithin, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(LineBreakWithin),
-                   e));
-  }
-  else if(get(LineBreakWithin, &i)) {
-    Gather::emit(Rule(
-                   get_symbol(LineBreakWithin),
-                   Symbol(i ? PMATH_SYMBOL_TRUE : PMATH_SYMBOL_FALSE)));
-  }
-  
-  if(get_dynamic(Method, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(Method),
-                   e));
-  }
-  else if(get(Method, &s)) {
-    Gather::emit(Rule(
-                   get_symbol(Method),
-                   s));
-  }
-  
-  if(get_dynamic(Placeholder, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(Placeholder),
-                   e));
-  }
-  else if(get(Placeholder, &i)) {
-    Gather::emit(Rule(
-                   get_symbol(Placeholder),
-                   Symbol(i ? PMATH_SYMBOL_TRUE : PMATH_SYMBOL_FALSE)));
-  }
-  
-  if(get_dynamic(PlotRange, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(PlotRange),
-                   e));
-  }
-  else if(get(PlotRange, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(PlotRange),
-                   e));
-  }
-  
-  if(get_dynamic(ReturnCreatesNewSection, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(ReturnCreatesNewSection),
-                   e));
-  }
-  else if(get(ReturnCreatesNewSection, &i)) {
-    Gather::emit(Rule(
-                   get_symbol(ReturnCreatesNewSection),
-                   Symbol(i ? PMATH_SYMBOL_TRUE : PMATH_SYMBOL_FALSE)));
-  }
-  
-  if(get_dynamic(ScriptSizeMultipliers, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(ScriptSizeMultipliers),
-                   e));
-  }
-  else if(get(ScriptSizeMultipliers, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(ScriptSizeMultipliers),
-                   e));
-  }
-  
-  if(get_dynamic(SectionEditDuplicate, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(SectionEditDuplicate),
-                   e));
-  }
-  else if(get(SectionEditDuplicate, &i)) {
-    Gather::emit(Rule(
-                   get_symbol(SectionEditDuplicate),
-                   Symbol(i ? PMATH_SYMBOL_TRUE : PMATH_SYMBOL_FALSE)));
-  }
-  
-  if(get_dynamic(SectionEditDuplicateMakesCopy, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(SectionEditDuplicateMakesCopy),
-                   e));
-  }
-  else if(get(SectionEditDuplicateMakesCopy, &i)) {
-    Gather::emit(Rule(
-                   get_symbol(SectionEditDuplicateMakesCopy),
-                   Symbol(i ? PMATH_SYMBOL_TRUE : PMATH_SYMBOL_FALSE)));
-  }
-  
-  if(get_dynamic(SectionFrameLeft, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(SectionFrameLeft),
-                   e));
-  }
-  else {
-    float left, right, top, bottom;
-    bool have_left, have_right, have_top, have_bottom;
-    
-    have_left   = get(SectionFrameLeft,   &left);
-    have_right  = get(SectionFrameRight,  &right);
-    have_top    = get(SectionFrameTop,    &top);
-    have_bottom = get(SectionFrameBottom, &bottom);
-    if(have_left || have_right || have_top || have_bottom) {
-      Expr l, r, t, b;
-      
-      if(have_left)
-        l = Number(left);
-      else
-        l = Symbol(PMATH_SYMBOL_INHERITED);
-        
-      if(have_right)
-        r = Number(right);
-      else
-        r = Symbol(PMATH_SYMBOL_INHERITED);
-        
-      if(have_top)
-        t = Number(top);
-      else
-        t = Symbol(PMATH_SYMBOL_INHERITED);
-        
-      if(have_bottom)
-        b = Number(bottom);
-      else
-        b = Symbol(PMATH_SYMBOL_INHERITED);
-        
-      Gather::emit(Rule(
-                     get_symbol(SectionFrameLeft),
-                     List(l, r, t, b)));
-    }
-  }
-  
-  if(get_dynamic(SectionFrameColor, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(SectionFrameColor),
-                   e));
-  }
-  else if(get(SectionFrameColor, &i)) {
-    Gather::emit(Rule(
-                   get_symbol(SectionFrameColor),
-                   color_to_pmath(i)));
-  }
-  
-  if(get_dynamic(SectionFrameMarginLeft, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(SectionFrameMarginLeft),
-                   e));
-  }
-  else {
-    float left, right, top, bottom;
-    bool have_left, have_right, have_top, have_bottom;
-    
-    have_left   = get(SectionFrameMarginLeft,   &left);
-    have_right  = get(SectionFrameMarginRight,  &right);
-    have_top    = get(SectionFrameMarginTop,    &top);
-    have_bottom = get(SectionFrameMarginBottom, &bottom);
-    if(have_left || have_right || have_top || have_bottom) {
-      Expr l, r, t, b;
-      
-      if(have_left)
-        l = Number(left);
-      else
-        l = Symbol(PMATH_SYMBOL_INHERITED);
-        
-      if(have_right)
-        r = Number(right);
-      else
-        r = Symbol(PMATH_SYMBOL_INHERITED);
-        
-      if(have_top)
-        t = Number(top);
-      else
-        t = Symbol(PMATH_SYMBOL_INHERITED);
-        
-      if(have_bottom)
-        b = Number(bottom);
-      else
-        b = Symbol(PMATH_SYMBOL_INHERITED);
-        
-      Gather::emit(Rule(
-                     get_symbol(SectionFrameMarginLeft),
-                     List(l, r, t, b)));
-    }
-  }
-  
-  if(get_dynamic(SectionGenerated, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(SectionGenerated),
-                   e));
-  }
-  else if(get(SectionGenerated, &i)) {
-    Gather::emit(Rule(
-                   get_symbol(SectionGenerated),
-                   Symbol(i ? PMATH_SYMBOL_TRUE : PMATH_SYMBOL_FALSE)));
-  }
-  
-  if(get_dynamic(SectionGroupPrecedence, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(SectionGroupPrecedence),
-                   e));
-  }
-  else if(get(SectionGroupPrecedence, &f)) {
-    Gather::emit(Rule(
-                   get_symbol(SectionGroupPrecedence),
-                   Number(f)));
-  }
-  
-  if(get_dynamic(SectionMarginLeft, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(SectionMarginLeft),
-                   e));
-  }
-  else {
-    float left, right, top, bottom;
-    bool have_left, have_right, have_top, have_bottom;
-    
-    have_left   = get(SectionMarginLeft,   &left);
-    have_right  = get(SectionMarginRight,  &right);
-    have_top    = get(SectionMarginTop,    &top);
-    have_bottom = get(SectionMarginBottom, &bottom);
-    if(have_left || have_right || have_top || have_bottom) {
-      Expr l, r, t, b;
-      
-      if(have_left)
-        l = Number(left);
-      else
-        l = Symbol(PMATH_SYMBOL_INHERITED);
-        
-      if(have_right)
-        r = Number(right);
-      else
-        r = Symbol(PMATH_SYMBOL_INHERITED);
-        
-      if(have_top)
-        t = Number(top);
-      else
-        t = Symbol(PMATH_SYMBOL_INHERITED);
-        
-      if(have_bottom)
-        b = Number(bottom);
-      else
-        b = Symbol(PMATH_SYMBOL_INHERITED);
-        
-      Gather::emit(Rule(
-                     get_symbol(SectionMarginLeft),
-                     List(l, r, t, b)));
-    }
-  }
+  emit_pmath_object(GeneratedSectionStyles);
+  emit_pmath_float( GridBoxColumnSpacing);
+  emit_pmath_float( GridBoxRowSpacing);
+  emit_pmath_size(  ImageSizeCommon);
+  emit_pmath_string(LanguageCategory);
+  emit_pmath_bool(  LineBreakWithin);
+  emit_pmath_string(Method);
+  emit_pmath_bool(  Placeholder);
+  emit_pmath_object(PlotRange);
+  emit_pmath_bool(  ReturnCreatesNewSection);
+  emit_pmath_object(ScriptSizeMultipliers);
+  emit_pmath_bool(  SectionEditDuplicate);
+  emit_pmath_bool(  SectionEditDuplicateMakesCopy);
+  emit_pmath_margin(SectionFrameLeft);
+  emit_pmath_color( SectionFrameColor);
+  emit_pmath_margin(SectionFrameMarginLeft);
+  emit_pmath_bool(  SectionGenerated);
+  emit_pmath_float( SectionGroupPrecedence);
+  emit_pmath_margin(SectionFrameLeft);
   
   if(get_dynamic(SectionLabel, &e)) {
     Gather::emit(Rule(
@@ -1689,93 +1382,15 @@ void Style::emit_to_pmath(bool with_inherited) {
                    s.is_null() ? Symbol(PMATH_SYMBOL_NONE) : s));
   }
   
-  if(get_dynamic(SectionLabelAutoDelete, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(SectionLabelAutoDelete),
-                   e));
-  }
-  else if(get(SectionLabelAutoDelete, &i)) {
-    Gather::emit(Rule(
-                   get_symbol(SectionLabelAutoDelete),
-                   Symbol(i ? PMATH_SYMBOL_TRUE : PMATH_SYMBOL_FALSE)));
-  }
-  
-  if(get_dynamic(Selectable, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(Selectable),
-                   e));
-  }
-  else if(get(Selectable, &i)) {
-    Gather::emit(Rule(
-                   get_symbol(Selectable),
-                   Symbol(i ? PMATH_SYMBOL_TRUE : PMATH_SYMBOL_FALSE)));
-  }
-  
-  if(get_dynamic(ShowAutoStyles, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(ShowAutoStyles),
-                   e));
-  }
-  else if(get(ShowAutoStyles, &i)) {
-    Gather::emit(Rule(
-                   get_symbol(ShowAutoStyles),
-                   Symbol(i ? PMATH_SYMBOL_TRUE : PMATH_SYMBOL_FALSE)));
-  }
-  
-  if(get_dynamic(ShowSectionBracket, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(ShowSectionBracket),
-                   e));
-  }
-  else if(get(ShowSectionBracket, &i)) {
-    Gather::emit(Rule(
-                   get_symbol(ShowSectionBracket),
-                   Symbol(i ? PMATH_SYMBOL_TRUE : PMATH_SYMBOL_FALSE)));
-  }
-  
-  if(get_dynamic(ShowStringCharacters, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(ShowStringCharacters),
-                   e));
-  }
-  else if(get(ShowStringCharacters, &i)) {
-    Gather::emit(Rule(
-                   get_symbol(ShowStringCharacters),
-                   Symbol(i ? PMATH_SYMBOL_TRUE : PMATH_SYMBOL_FALSE)));
-  }
-  
-  if(get_dynamic(StripOnInput, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(StripOnInput),
-                   e));
-  }
-  else if(get(StripOnInput, &i)) {
-    Gather::emit(Rule(
-                   get_symbol(StripOnInput),
-                   Symbol(i ? PMATH_SYMBOL_TRUE : PMATH_SYMBOL_FALSE)));
-  }
-  
-  if(get_dynamic(StyleDefinitions, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(StyleDefinitions),
-                   e));
-  }
-  else if(get(StyleDefinitions, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(StyleDefinitions),
-                   e));
-  }
-  
-  if(get_dynamic(TextShadow, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(TextShadow),
-                   e));
-  }
-  else if(get(TextShadow, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(TextShadow),
-                   e));
-  }
+  emit_pmath_bool(  SectionLabelAutoDelete);
+  emit_pmath_bool(  Selectable);
+  emit_pmath_bool(  ShowAutoStyles);
+  emit_pmath_bool(  ShowSectionBracket);
+  emit_pmath_bool(  ShowStringCharacters);
+  emit_pmath_bool(  StripOnInput);
+  emit_pmath_object(StyleDefinitions);
+  emit_pmath_object(TextShadow);
+  emit_pmath_bool(  Visible);
   
   if(get_dynamic(WindowFrame, &e)) {
     Gather::emit(Rule(

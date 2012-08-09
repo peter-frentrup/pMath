@@ -43,6 +43,7 @@ namespace richmath {
     ShowSectionBracket,
     ShowStringCharacters,
     StripOnInput,
+    Visible,
     
     ButtonFrame, // -1 = Automatic,  other: ContainerType value
     WindowFrame  // WindowFrameType
@@ -132,7 +133,7 @@ namespace richmath {
     int   int_value;
     float float_value;
   } IntFloatUnion;
-  
+   
   class Style: public Shareable {
     public:
       Style();
@@ -178,7 +179,7 @@ namespace richmath {
       void set_pmath_color(    IntStyleOptionName    n, Expr obj);
       void set_pmath_float(    FloatStyleOptionName  n, Expr obj);
       void set_pmath_margin(   FloatStyleOptionName  n, Expr obj); // n + {0,1,2,3} ~= {Left, Right, Top, Bottom}
-      void set_pmath_size(     FloatStyleOptionName  n, Expr obj); // n + {0,1} ~= {Horizontal, Vertical}
+      void set_pmath_size(     FloatStyleOptionName  n, Expr obj); // n + {0,1,2} ~= {Common, Horizontal, Vertical}
       void set_pmath_string(   StringStyleOptionName n, Expr obj);
       void set_pmath_object(   ObjectStyleOptionName n, Expr obj);
       
@@ -197,6 +198,15 @@ namespace richmath {
       static Expr get_symbol(ObjectStyleOptionName n) { return get_symbol((int)n); }
       
       bool update_dynamic(Box *parent);
+      
+      void emit_pmath_bool_auto(IntStyleOptionName    n); // 0/1=false/true, 2=auto
+      void emit_pmath_bool(     IntStyleOptionName    n);
+      void emit_pmath_color(    IntStyleOptionName    n);
+      void emit_pmath_float(    FloatStyleOptionName  n);
+      void emit_pmath_margin(   FloatStyleOptionName  n); // n + {0,1,2,3} ~= {Left, Right, Top, Bottom}
+      void emit_pmath_size(     FloatStyleOptionName  n); // n + {0,1} ~= {Horizontal, Vertical}
+      void emit_pmath_string(   StringStyleOptionName n);
+      void emit_pmath_object(   ObjectStyleOptionName n);
       
       void emit_to_pmath(bool with_inherited = false);
       
