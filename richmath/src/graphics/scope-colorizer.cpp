@@ -18,7 +18,7 @@ using namespace richmath;
 
 ScopeColorizer::ScopeColorizer(MathSequence *_sequence)
   : Base(),
-  sequence(_sequence)
+    sequence(_sequence)
 {
 }
 
@@ -421,7 +421,7 @@ void ScopeColorizer::scope_colorize_spanexpr(
       have_integral = true;
     }
     else {
-      UnderoverscriptBox *uo = dynamic_cast<UnderoverscriptBox*>(se->item_as_box(0));
+      UnderoverscriptBox *uo = dynamic_cast<UnderoverscriptBox *>(se->item_as_box(0));
       
       if(uo
           && uo->base()->length() == 1
@@ -461,7 +461,7 @@ void ScopeColorizer::scope_colorize_spanexpr(
     MathSequence *bigop_init = 0;
     int next_item = 1;
     if(pmath_char_maybe_bigop(se->item_as_char(0))) {
-      SubsuperscriptBox *subsup = dynamic_cast<SubsuperscriptBox*>(se->item_as_box(1));
+      SubsuperscriptBox *subsup = dynamic_cast<SubsuperscriptBox *>(se->item_as_box(1));
       
       if(subsup) {
         bigop_init = subsup->subscript();
@@ -469,7 +469,7 @@ void ScopeColorizer::scope_colorize_spanexpr(
       }
     }
     else {
-      UnderoverscriptBox *uo = dynamic_cast<UnderoverscriptBox*>(se->item_as_box(0));
+      UnderoverscriptBox *uo = dynamic_cast<UnderoverscriptBox *>(se->item_as_box(0));
       
       if( uo &&
           uo->base()->length() == 1 &&
@@ -635,7 +635,7 @@ void ScopeColorizer::scope_colorize_spanexpr(
     {
       if(!state->in_pattern)
         return;
-      
+        
       for(int i = 0; i < se->count(); ++i) {
         SpanExpr *sub = se->item(i);
         
@@ -755,6 +755,16 @@ void ScopeColorizer::comments_colorize_span(Span span, int *pos) {
 void ScopeColorizer::syntax_colorize_spanexpr(SpanExpr *se) {
   const Array<GlyphInfo> &glyphs = se->sequence()->glyph_array();
   
+  if(se->first_char() == '"') {
+    if(se->count() == 0 || se->item_pos(0) > se->start()) {
+      for(int i = 1 + se->start(); i < se->end(); ++i)
+        glyphs[i].style = GlyphStyleString;
+        
+      if(se->sequence()->text()[se->end()] != '"')
+        glyphs[se->end()].style = GlyphStyleString;
+    }
+  }
+  
   if(se->count() == 0) {
     if(pmath_char_is_left( se->as_char())) {
       SpanExpr *parent = se->parent();
@@ -783,14 +793,6 @@ void ScopeColorizer::syntax_colorize_spanexpr(SpanExpr *se) {
           
       glyphs[se->start()].style = GlyphStyleSyntaxError;
       return;
-    }
-    
-    if(se->first_char() == '"') {
-      for(int i = 1 + se->start(); i < se->end(); ++i)
-        glyphs[i].style = GlyphStyleString;
-        
-      if(se->sequence()->text()[se->end()] != '"')
-        glyphs[se->end()].style = GlyphStyleString;
     }
     
     return;

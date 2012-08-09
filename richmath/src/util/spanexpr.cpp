@@ -11,24 +11,24 @@ using namespace richmath;
 
 SpanExpr::SpanExpr(int position, MathSequence *sequence)
   : Base(),
-  _parent(0),
-  _start(position),
-  _end(position - 1),
-  _span(0),
-  _sequence(sequence)
+    _parent(0),
+    _start(position),
+    _end(position - 1),
+    _span(0),
+    _sequence(sequence)
 {
 }
 
 SpanExpr::SpanExpr(int start, Span span, MathSequence *sequence)
   : Base(),
-  _span(0)
+    _span(0)
 {
   init(0, start, span, sequence);
 }
 
 SpanExpr::SpanExpr(SpanExpr *parent, int start, Span span, MathSequence *sequence)
   : Base(),
-  _span(0)
+    _span(0)
 {
   init(parent, start, span, sequence);
 }
@@ -62,9 +62,11 @@ void SpanExpr::init(SpanExpr *parent, int start, Span span, MathSequence *sequen
   
   const uint16_t *str = sequence->text().buffer();
   
-  if(str[_start] == '"' && _span && !_span.next())
-    _span = 0;
-    
+  if(str[_start] == '"' && _span && !_span.next()) {
+    // strings contain no expressions
+    return;
+  }
+  
   if(_span) {
     int prev = _start;
     int pos = prev;
@@ -197,7 +199,7 @@ SpanExpr *SpanExpr::expand(bool self_destruction) {
           index = box->index();
           box   = box->parent();
           
-          if(MathSequence *seq = dynamic_cast<MathSequence*>(box)) {
+          if(MathSequence *seq = dynamic_cast<MathSequence *>(box)) {
             result = new SpanExpr(0, index, 0, seq);
             delete this;
             return result;
@@ -322,17 +324,17 @@ pmath_token_t SpanExpr::as_token(int *prec) {
     
   Box *b = as_box();
   if(b) {
-    if(dynamic_cast<SubsuperscriptBox*>(b)) {
+    if(dynamic_cast<SubsuperscriptBox *>(b)) {
       if(prec)
         *prec = PMATH_PREC_POW;
       return PMATH_TOK_BINARY_RIGHT;
     }
     
-    if( dynamic_cast<UnderoverscriptBox*>(b) ||
-        dynamic_cast<StyleBox*>(b)           ||
-        dynamic_cast<InterpretationBox*>(b))
+    if( dynamic_cast<UnderoverscriptBox *>(b) ||
+        dynamic_cast<StyleBox *>(b)           ||
+        dynamic_cast<InterpretationBox *>(b))
     {
-      MathSequence *seq = dynamic_cast<MathSequence*>(b->item(0));
+      MathSequence *seq = dynamic_cast<MathSequence *>(b->item(0));
       assert(seq);
       
       seq->ensure_spans_valid();
@@ -368,11 +370,11 @@ int SpanExpr::as_prefix_prec(int defprec) {
     
   Box *b = as_box();
   if(b) {
-    if( dynamic_cast<UnderoverscriptBox*>(b) ||
-        dynamic_cast<StyleBox*>(b)           ||
-        dynamic_cast<InterpretationBox*>(b))
+    if( dynamic_cast<UnderoverscriptBox *>(b) ||
+        dynamic_cast<StyleBox *>(b)           ||
+        dynamic_cast<InterpretationBox *>(b))
     {
-      MathSequence *seq = dynamic_cast<MathSequence*>(b->item(0));
+      MathSequence *seq = dynamic_cast<MathSequence *>(b->item(0));
       assert(seq);
       
       seq->ensure_spans_valid();
@@ -614,7 +616,7 @@ Box *SpanExpr::item_as_box(int i) {
 
 SequenceSpan::SequenceSpan(SpanExpr *span, bool take_ownership)
   : _span(span),
-  _has_ownership (take_ownership)
+    _has_ownership (take_ownership)
 {
   init(span);
 }
@@ -632,7 +634,7 @@ void SequenceSpan::set(SpanExpr *span, bool take_ownership) {
 SequenceSpan &SequenceSpan::operator=(const SequenceSpan &other) {
   if(this == &other)
     return *this;
-  
+    
   init(other._span);
   _has_ownership = other._has_ownership;
   
