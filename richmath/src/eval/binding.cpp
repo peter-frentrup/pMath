@@ -159,16 +159,18 @@ static pmath_t builtin_feo_options(pmath_expr_t _expr) {
       return opts.release();
     }
     
-    if(expr.expr_length() == 2
-        && expr[1][0] == PMATH_SYMBOL_FRONTENDOBJECT) {
+    if( expr.expr_length() == 2 &&
+        expr[1][0] == PMATH_SYMBOL_FRONTENDOBJECT)
+    {
       Expr opts = Application::notify_wait(CNT_GETOPTIONS, expr[1]);
       
       expr.set(1, opts);
     }
   }
   else if(expr[0] == PMATH_SYMBOL_SETOPTIONS) {
-    if(expr.expr_length() >= 1
-        && expr[1][0] == PMATH_SYMBOL_FRONTENDOBJECT) {
+    if( expr.expr_length() >= 1 &&
+        expr[1][0] == PMATH_SYMBOL_FRONTENDOBJECT)
+    {
       Expr opts = Application::notify_wait(CNT_SETOPTIONS, expr);
       
       return opts.release();
@@ -543,17 +545,17 @@ static bool document_apply_cmd(Expr cmd) {
   
   if(!doc)
     return false;
-  
+    
   Expr boxes = cmd[2];
   if(boxes[0] == PMATH_SYMBOL_SECTION || boxes[0] == PMATH_SYMBOL_SECTIONGROUP) {
     Box *box = doc->selection_box();
     int i = doc->selection_end();
-    while(box && box != doc){
+    while(box && box != doc) {
       i = box->index() + 1;
       box = box->parent();
     }
     
-    if(!box){
+    if(!box) {
       box = doc;
       i = doc->length();
     }
@@ -561,7 +563,7 @@ static bool document_apply_cmd(Expr cmd) {
     doc->move_to(box, i);
     return true;
   }
-    
+  
   AbstractSequence *seq;
   if(dynamic_cast<TextSequence *>(doc->selection_box()))
     seq = new TextSequence;
@@ -947,10 +949,10 @@ static bool new_cmd(Expr cmd) {
   Document *doc = Application::create_document();
   if(!doc)
     return false;
-  
+    
   doc->invalidate_options();
   doc->native()->bring_to_front();
-    
+  
   return true;
 }
 
@@ -989,7 +991,8 @@ static bool open_cmd(Expr cmd) {
         if(!doc->selectable())
           doc->select(0, 0, 0);
           
-        doc->style->set(Visible, true);
+        doc->style->set(Visible,                         true);
+        doc->style->set(InternalHasModifiedWindowOption, true);
         doc->invalidate_options();
         doc->native()->bring_to_front();
         continue;
@@ -1014,9 +1017,9 @@ static bool open_cmd(Expr cmd) {
     while(c >= 0 && buf[c] != '\\' && buf[c] != '/')
       --c;
       
-    doc->style->set(WindowTitle, filename.part(c + 1));
+    doc->style->set(WindowTitle,                     filename.part(c + 1));
+    doc->style->set(Visible,                         true);
     doc->style->set(InternalHasModifiedWindowOption, true);
-    
     doc->invalidate_options();
     doc->native()->bring_to_front();
   }
@@ -1086,7 +1089,7 @@ static bool section_merge_cmd(Expr cmd) {
     
   if(doc->merge_sections(true))
     return true;
-  
+    
   doc->native()->beep();
   return false;
 }
@@ -1099,7 +1102,7 @@ static bool section_split_cmd(Expr cmd) {
     
   if(doc->split_section(true))
     return true;
-  
+    
   doc->native()->beep();
   return false;
 }

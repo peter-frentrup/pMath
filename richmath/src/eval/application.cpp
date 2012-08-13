@@ -945,10 +945,13 @@ static void interrupt_wait_idle(void *data) {
   
   ClientNotification cn;
   while(notifications.get(&cn)) {
-    if(cn.type == CNT_END || cn.type == CNT_ENDSESSION) {
-      notifications.put_front(cn);
-      return;
-    }
+//    if(cn.type == CNT_END || cn.type == CNT_ENDSESSION) {
+//      //notifications.put_front(cn);
+//      //break;
+//      
+//      suppressed_notifications->put_front(cn);
+//      continue;
+//    }
     
     /* We must filter out CNT_DYNAMICUPDATE because that could update a parent
        DynamicBox of the DynamicBox that is currently updated during its
@@ -1433,6 +1436,9 @@ static Expr cnt_getevaluationdocument(Expr data) {
   if(box)
     doc = box->find_parent<Document>(true);
     
+  if(doc->main_document)  
+    doc = doc->main_document;
+  
   if(doc)
     return Call(Symbol(PMATH_SYMBOL_FRONTENDOBJECT), doc->id());
     
