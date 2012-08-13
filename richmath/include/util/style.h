@@ -129,6 +129,25 @@ namespace richmath {
   
   const int DynamicOffset = 1000000;
   
+  enum StyleType{
+    StyleTypeNone,
+    
+    StyleTypeBool,
+    StyleTypeBoolAuto,
+    StyleTypeColor,
+    StyleTypeNumber,
+    StyleTypeMargin,
+    StyleTypeSize,
+    StyleTypeString,
+    StyleTypeAny,
+    
+    StyleTypeFontSlant,
+    StyleTypeFontWeight,
+    StyleTypeButtonFrame,
+    StyleTypeWindowFrame,
+    StyleTypeDockedSections4
+  };
+
   typedef union {
     int   int_value;
     float float_value;
@@ -138,6 +157,7 @@ namespace richmath {
     public:
       Style();
       Style(Expr options);
+      virtual ~Style();
       
       void clear();
       void add_pmath(Expr options);

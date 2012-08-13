@@ -210,13 +210,173 @@ static Expr buttonframe_to_rhs(int value) {
 
 static bool keep_dynamic = false;
 
+namespace {
+  class StyleInformation: public Base {
+    public:
+      static void add_style() {
+        if(_num_styles++ == 0){
+          _symbol_to_key.default_value = -1;
+          _key_to_type.default_value   = StyleTypeNone;
+        
+          add(StyleTypeColor,           Background,                       PMATH_SYMBOL_BACKGROUND);
+          add(StyleTypeColor,           FontColor,                        PMATH_SYMBOL_FONTCOLOR);
+          add(StyleTypeColor,           SectionFrameColor,                PMATH_SYMBOL_SECTIONFRAMECOLOR);
+          add(StyleTypeBoolAuto,        Antialiasing,                     PMATH_SYMBOL_ANTIALIASING);
+          add(StyleTypeFontSlant,       FontSlant,                        PMATH_SYMBOL_FONTSLANT);
+          add(StyleTypeFontWeight,      FontWeight,                       PMATH_SYMBOL_FONTWEIGHT);
+          add(StyleTypeBool,            AutoDelete,                       PMATH_SYMBOL_AUTODELETE);
+          add(StyleTypeBool,            AutoNumberFormating,              PMATH_SYMBOL_AUTONUMBERFORMATING);
+          add(StyleTypeBool,            AutoSpacing,                      PMATH_SYMBOL_AUTOSPACING);
+          add(StyleTypeBool,            ContinuousAction,                 PMATH_SYMBOL_CONTINUOUSACTION);
+          add(StyleTypeBool,            Editable,                         PMATH_SYMBOL_EDITABLE);
+          add(StyleTypeBool,            Evaluatable,                      PMATH_SYMBOL_EVALUATABLE);
+          add(StyleTypeBool,            LineBreakWithin,                  PMATH_SYMBOL_LINEBREAKWITHIN);
+          add(StyleTypeBool,            Placeholder,                      PMATH_SYMBOL_PLACEHOLDER);
+          add(StyleTypeBool,            ReturnCreatesNewSection,          PMATH_SYMBOL_RETURNCREATESNEWSECTION);
+          add(StyleTypeBool,            SectionEditDuplicate,             PMATH_SYMBOL_SECTIONEDITDUPLICATE);
+          add(StyleTypeBool,            SectionEditDuplicateMakesCopy,    PMATH_SYMBOL_SECTIONEDITDUPLICATEMAKESCOPY);
+          add(StyleTypeBool,            SectionGenerated,                 PMATH_SYMBOL_SECTIONGENERATED);
+          add(StyleTypeBool,            SectionLabelAutoDelete,           PMATH_SYMBOL_SECTIONLABELAUTODELETE);
+          add(StyleTypeBool,            Selectable,                       PMATH_SYMBOL_SELECTABLE);
+          add(StyleTypeBool,            ShowAutoStyles,                   PMATH_SYMBOL_SHOWAUTOSTYLES);
+          add(StyleTypeBool,            ShowSectionBracket,               PMATH_SYMBOL_SHOWSECTIONBRACKET);
+          add(StyleTypeBool,            ShowStringCharacters,             PMATH_SYMBOL_SHOWSTRINGCHARACTERS);
+          add(StyleTypeBool,            StripOnInput,                     PMATH_SYMBOL_STRIPONINPUT);
+          add(StyleTypeBool,            Visible,                          PMATH_SYMBOL_VISIBLE);
+          add(StyleTypeButtonFrame,     ButtonFrame,                      PMATH_SYMBOL_BUTTONFRAME);
+          add(StyleTypeWindowFrame,     WindowFrame,                      PMATH_SYMBOL_WINDOWFRAME);
+          
+          add(StyleTypeNumber,          FontSize,                         PMATH_SYMBOL_FONTSIZE);
+          add(StyleTypeNumber,          AspectRatio,                      PMATH_SYMBOL_ASPECTRATIO);
+          add(StyleTypeNumber,          GridBoxColumnSpacing,             PMATH_SYMBOL_GRIDBOXCOLUMNSPACING);
+          add(StyleTypeNumber,          GridBoxRowSpacing,                PMATH_SYMBOL_GRIDBOXROWSPACING);
+          add(StyleTypeSize,            ImageSizeCommon,                  PMATH_SYMBOL_IMAGESIZE);
+          // ImageSizeHorizontal
+          // ImageSizeVertical
+          add(StyleTypeMargin,          SectionMarginLeft,                PMATH_SYMBOL_SECTIONMARGINS);
+          // SectionMarginRight
+          // SectionMarginTop
+          // SectionMarginBottom
+          add(StyleTypeMargin,          SectionFrameLeft,                 PMATH_SYMBOL_SECTIONFRAME);
+          // SectionFrameRight
+          // SectionFrameTop
+          // SectionFrameBottom
+          add(StyleTypeMargin,          SectionFrameMarginLeft,           PMATH_SYMBOL_SECTIONFRAMEMARGINS);
+          // SectionFrameMarginRight
+          // SectionFrameMarginTop
+          // SectionFrameMarginBottom
+          add(StyleTypeMargin,          SectionGroupPrecedence,           PMATH_SYMBOL_SECTIONGROUPPRECEDENCE);
+          
+          
+          add(StyleTypeString,          BaseStyleName,                    PMATH_SYMBOL_BASESTYLE);
+          add(StyleTypeString,          Method,                           PMATH_SYMBOL_METHOD);
+          add(StyleTypeString,          LanguageCategory,                 PMATH_SYMBOL_LANGUAGECATEGORY);
+          add(StyleTypeString,          SectionLabel,                     PMATH_SYMBOL_SECTIONLABEL);
+          add(StyleTypeString,          WindowTitle,                      PMATH_SYMBOL_WINDOWTITLE);
+          
+          add(StyleTypeAny,             ButtonFunction,                   PMATH_SYMBOL_BUTTONFUNCTION);
+          add(StyleTypeAny,             ScriptSizeMultipliers,            PMATH_SYMBOL_SCRIPTSIZEMULTIPLIERS);
+          add(StyleTypeAny,             TextShadow,                       PMATH_SYMBOL_TEXTSHADOW);
+          add(StyleTypeAny,             FontFamilies,                     PMATH_SYMBOL_FONTFAMILY);
+          add(StyleTypeAny,             BoxRotation,                      PMATH_SYMBOL_BOXROTATION);
+          add(StyleTypeAny,             BoxTransformation,                PMATH_SYMBOL_BOXTRANSFORMATION);
+          add(StyleTypeAny,             PlotRange,                        PMATH_SYMBOL_PLOTRANGE);
+          add(StyleTypeAny,             BorderRadius,                     PMATH_SYMBOL_BORDERRADIUS);
+          add(StyleTypeAny,             DefaultDuplicateSectionStyle,     PMATH_SYMBOL_DEFAULTDUPLICATESECTIONSTYLE);
+          add(StyleTypeAny,             DefaultNewSectionStyle,           PMATH_SYMBOL_DEFAULTNEWSECTIONSTYLE);
+          add(StyleTypeAny,             DefaultReturnCreatedSectionStyle, PMATH_SYMBOL_DEFAULTRETURNCREATEDSECTIONSTYLE);
+          add(StyleTypeDockedSections4, DockedSectionsTop,                PMATH_SYMBOL_DOCKEDSECTIONS);
+          //DockedSectionsTopGlass
+          //DockedSectionsBottom
+          //DockedSectionsBottomGlass
+          add(StyleTypeAny,             StyleDefinitions,                 PMATH_SYMBOL_STYLEDEFINITIONS);
+          add(StyleTypeAny,             GeneratedSectionStyles,           PMATH_SYMBOL_GENERATEDSECTIONSTYLES);
+        }
+      }
+      
+      static void remove_style() {
+        if(--_num_styles == 0){
+          _key_to_symbol.clear();
+          _symbol_to_key.clear();
+        }
+      }
+      
+      static bool is_window_option(int key){
+        return key == Visible     ||
+               key == WindowFrame ||
+               key == WindowTitle;
+      }
+      
+      static int get_number_of_keys(enum StyleType type){
+        switch(type) {
+          case StyleTypeMargin:          return 4;
+          case StyleTypeSize:            return 3;
+          case StyleTypeDockedSections4: return 4;
+          
+          default:
+            return 1;
+        }
+      }
+      
+      static enum StyleType get_type(int key) {
+        return _key_to_type[key];
+      }
+    
+      static Expr get_symbol(int key) {
+        return _key_to_symbol[key];
+      }
+    
+      static int get_key(Expr symbol) {
+        return _symbol_to_key[symbol];
+      }
+    
+    private:
+      static void add(StyleType type, IntStyleOptionName key, pmath_symbol_t symbol){
+        add(type, (int)key, symbol);
+      }
+      static void add(StyleType type, FloatStyleOptionName key, pmath_symbol_t symbol){
+        add(type, (int)key, symbol);
+      }
+      static void add(StyleType type, StringStyleOptionName key, pmath_symbol_t symbol){
+        add(type, (int)key, symbol);
+      }
+      static void add(StyleType type, ObjectStyleOptionName key, pmath_symbol_t symbol){
+        add(type, (int)key, symbol);
+      }
+      
+      static void add(StyleType type, int key, pmath_symbol_t symbol){
+        Expr sym = Symbol(symbol);
+        
+        _key_to_type.set(  key, type);
+        _key_to_symbol.set(key, sym);
+        _symbol_to_key.set(sym, key);
+      }
+      
+    private:
+      static int _num_styles;
+      
+      static Hashtable<int, enum StyleType> _key_to_type;
+      static Hashtable<int, Expr>           _key_to_symbol;
+      static Hashtable<Expr, int>           _symbol_to_key;
+  };
+  
+  int StyleInformation::_num_styles = 0;
+}
+
 //{ class Style ...
 
 Style::Style(): Shareable() {
+  StyleInformation::add_style();
 }
 
 Style::Style(Expr options): Shareable() {
+  StyleInformation::add_style();
+  
   add_pmath(options);
+}
+
+Style::~Style() {
+  StyleInformation::remove_style();
 }
 
 void Style::clear() {
@@ -243,205 +403,13 @@ void Style::add_pmath(Expr options) {
 //        }
 
         if(rhs != PMATH_SYMBOL_INHERITED) {
-          if(lhs == PMATH_SYMBOL_ANTIALIASING) {
-            set_pmath_bool_auto(Antialiasing, rhs);
-          }
-          else if(lhs == PMATH_SYMBOL_ASPECTRATIO) {
-            set_pmath_float(AspectRatio, rhs);
-          }
-          else if(lhs == PMATH_SYMBOL_AUTODELETE) {
-            set_pmath_bool(AutoDelete, rhs);
-          }
-          else if(lhs == PMATH_SYMBOL_AUTONUMBERFORMATING) {
-            set_pmath_bool(AutoNumberFormating, rhs);
-          }
-          else if(lhs == PMATH_SYMBOL_AUTOSPACING) {
-            set_pmath_bool(AutoSpacing, rhs);
-          }
-          else if(lhs == PMATH_SYMBOL_BACKGROUND) {
-            set_pmath_color(Background, rhs);
-          }
-          else if(lhs == PMATH_SYMBOL_BASESTYLE) {
-            if(rhs[0] == PMATH_SYMBOL_DYNAMIC)
-              set_dynamic(BaseStyleName, rhs);
-            else
-              add_pmath(rhs);
-          }
-          else if(lhs == PMATH_SYMBOL_BORDERRADIUS) {
-            set_pmath_object(BorderRadius, rhs);
-          }
-          else if(lhs == PMATH_SYMBOL_BUTTONFRAME) {
-            if(rhs[0] == PMATH_SYMBOL_DYNAMIC)
-              set_dynamic(ButtonFrame, rhs);
-            else
-              set(ButtonFrame, rhs_to_buttonframe(rhs));
-          }
-          else if(lhs == PMATH_SYMBOL_BOXROTATION) {
-            set_pmath_object(BoxRotation, rhs);
-          }
-          else if(lhs == PMATH_SYMBOL_BUTTONFUNCTION) {
-            set(ButtonFunction, rhs);
-          }
-          else if(lhs == PMATH_SYMBOL_CONTINUOUSACTION) {
-            set_pmath_bool(ContinuousAction, rhs);
-          }
-          else if(lhs == PMATH_SYMBOL_DEFAULTDUPLICATESECTIONSTYLE) {
-            set(DefaultDuplicateSectionStyle, rhs);
-          }
-          else if(lhs == PMATH_SYMBOL_DEFAULTNEWSECTIONSTYLE) {
-            set(DefaultNewSectionStyle, rhs);
-          }
-          else if(lhs == PMATH_SYMBOL_DEFAULTRETURNCREATEDSECTIONSTYLE) {
-            set(DefaultReturnCreatedSectionStyle, rhs);
-          }
-          else if(lhs == PMATH_SYMBOL_DOCKEDSECTIONS) {
-            set_docked_sections(rhs);
-          }
-          else if(lhs == PMATH_SYMBOL_EDITABLE) {
-            set_pmath_bool(Editable, rhs);
-          }
-          else if(lhs == PMATH_SYMBOL_EVALUATABLE) {
-            set_pmath_bool(Evaluatable, rhs);
-          }
-          else if(lhs == PMATH_SYMBOL_FONTCOLOR) {
-            set_pmath_color(FontColor, rhs);
-          }
-          else if(lhs == PMATH_SYMBOL_FONTFAMILY) {
-            set_pmath_object(FontFamilies, rhs); // string or list of strings
-          }
-          else if(lhs == PMATH_SYMBOL_FONTSIZE) {
-            set_pmath_float(FontSize, rhs);
-          }
-          else if(lhs == PMATH_SYMBOL_FONTSLANT) {
-            if(rhs == PMATH_SYMBOL_PLAIN)
-              set(FontSlant, FontSlantPlain);
-            else if(rhs == PMATH_SYMBOL_ITALIC)
-              set(FontSlant, FontSlantItalic);
-            else if(rhs[0] == PMATH_SYMBOL_DYNAMIC)
-              set_dynamic(FontSlant, rhs);
-          }
-          else if(lhs == PMATH_SYMBOL_FONTWEIGHT) {
-            if(rhs == PMATH_SYMBOL_PLAIN)
-              set(FontWeight, FontWeightPlain);
-            else if(rhs == PMATH_SYMBOL_BOLD)
-              set(FontWeight, FontWeightBold);
-            else if(rhs[0] == PMATH_SYMBOL_DYNAMIC)
-              set_dynamic(FontWeight, rhs);
-          }
-          else if(lhs == PMATH_SYMBOL_GENERATEDSECTIONSTYLES) {
-            set(GeneratedSectionStyles, rhs);
-          }
-          else if(lhs == PMATH_SYMBOL_GRIDBOXCOLUMNSPACING) {
-            set_pmath_float(GridBoxColumnSpacing, rhs);
-          }
-          else if(lhs == PMATH_SYMBOL_GRIDBOXROWSPACING) {
-            set_pmath_float(GridBoxRowSpacing, rhs);
-          }
-          else if(lhs == PMATH_SYMBOL_IMAGESIZE) {
-            set_pmath_size(ImageSizeCommon, rhs);
-          }
-          else if(lhs == PMATH_SYMBOL_LANGUAGECATEGORY) {
-            set_pmath_string(LanguageCategory, rhs);
-          }
-          else if(lhs == PMATH_SYMBOL_LINEBREAKWITHIN) {
-            set_pmath_bool(LineBreakWithin, rhs);
-          }
-          else if(lhs == PMATH_SYMBOL_METHOD) {
-            set_pmath_string(Method, rhs);
-          }
-          else if(lhs == PMATH_SYMBOL_PLACEHOLDER) {
-            set_pmath_bool(Placeholder, rhs);
-          }
-          else if(lhs == PMATH_SYMBOL_PLOTRANGE) {
-            set_pmath_object(PlotRange, rhs);
-          }
-          else if(lhs == PMATH_SYMBOL_RETURNCREATESNEWSECTION) {
-            set_pmath_bool(ReturnCreatesNewSection, rhs);
-          }
-          else if(lhs == PMATH_SYMBOL_SCRIPTSIZEMULTIPLIERS) {
-            set_pmath_object(ScriptSizeMultipliers, rhs);
-          }
-          else if(lhs == PMATH_SYMBOL_SECTIONEDITDUPLICATE) {
-            set_pmath_bool(SectionEditDuplicate, rhs);
-          }
-          else if(lhs == PMATH_SYMBOL_SECTIONEDITDUPLICATEMAKESCOPY) {
-            set_pmath_bool(SectionEditDuplicateMakesCopy, rhs);
-          }
-          else if(lhs == PMATH_SYMBOL_SECTIONFRAME) {
-            set_pmath_margin(SectionFrameLeft, rhs);
-          }
-          else if(lhs == PMATH_SYMBOL_SECTIONFRAMECOLOR) {
-            set_pmath_color(SectionFrameColor, rhs);
-          }
-          else if(lhs == PMATH_SYMBOL_SECTIONFRAMEMARGINS) {
-            set_pmath_margin(SectionFrameMarginLeft, rhs);
-          }
-          else if(lhs == PMATH_SYMBOL_SECTIONGENERATED) {
-            set_pmath_bool(SectionGenerated, rhs);
-          }
-          else if(lhs == PMATH_SYMBOL_SECTIONGROUPPRECEDENCE) {
-            set_pmath_float(SectionGroupPrecedence, rhs);
-          }
-          else if(lhs == PMATH_SYMBOL_SECTIONMARGINS) {
-            set_pmath_margin(SectionMarginLeft, rhs);
-          }
-          else if(lhs == PMATH_SYMBOL_SECTIONLABEL) {
-            if(rhs == PMATH_SYMBOL_NONE)
-              set(SectionLabel, String());
-            else
-              set_pmath_string(SectionLabel, rhs);
-          }
-          else if(lhs == PMATH_SYMBOL_SECTIONLABELAUTODELETE) {
-            set_pmath_bool(SectionLabelAutoDelete, rhs);
-          }
-          else if(lhs == PMATH_SYMBOL_SELECTABLE) {
-            set_pmath_bool(Selectable, rhs);
-          }
-          else if(lhs == PMATH_SYMBOL_SHOWAUTOSTYLES) {
-            set_pmath_bool(ShowAutoStyles, rhs);
-          }
-          else if(lhs == PMATH_SYMBOL_SHOWSECTIONBRACKET) {
-            set_pmath_bool(ShowSectionBracket, rhs);
-          }
-          else if(lhs == PMATH_SYMBOL_SHOWSTRINGCHARACTERS) {
-            set_pmath_bool(ShowStringCharacters, rhs);
-          }
-          else if(lhs == PMATH_SYMBOL_STRIPONINPUT) {
-            set_pmath_bool(StripOnInput, rhs);
-          }
-          else if(lhs == PMATH_SYMBOL_STYLEDEFINITIONS) {
-            set_pmath_object(StyleDefinitions, rhs);
-          }
-          else if(lhs == PMATH_SYMBOL_TEXTSHADOW) {
-            set_pmath_object(TextShadow, rhs);
-          }
-          else if(lhs == PMATH_SYMBOL_VISIBLE) {
-            set_pmath_bool(Visible, rhs);
-            
-            set(InternalHasModifiedWindowOption, true);
-          }
-          else if(lhs == PMATH_SYMBOL_WINDOWFRAME) {
-            String s_rhs(rhs);
-            if(s_rhs.equals("Normal"))
-              set(WindowFrame, WindowFrameNormal);
-            else if(s_rhs.equals("Palette"))
-              set(WindowFrame, WindowFramePalette);
-            else if(s_rhs.equals("Dialog"))
-              set(WindowFrame, WindowFrameDialog);
-            else
-              set_dynamic(WindowFrame, rhs);
-              
-            set(InternalHasModifiedWindowOption, true);
-          }
-          else if(lhs == PMATH_SYMBOL_WINDOWTITLE) {
-            if(rhs == PMATH_SYMBOL_AUTOMATIC)
-              set(WindowTitle, String());
-            else
-              set_pmath_string(WindowTitle, rhs);
-              
-            set(InternalHasModifiedWindowOption, true);
-          }
-          else {
+          int key;
+          enum StyleType type;
+          
+          key  = StyleInformation::get_key(lhs);
+          type = StyleInformation::get_type(key);
+          
+          if(key < 0 || type == StyleTypeNone){
             pmath_debug_print_object("[unknown option ", rule.get(), "]\n");
             
             Expr sym;
@@ -458,6 +426,85 @@ void Style::add_pmath(Expr options) {
                                   rule));
                                   
             Evaluate(eval);
+            continue;
+          }
+          
+          if(StyleInformation::is_window_option(key))
+            set(InternalHasModifiedWindowOption, true);
+            
+          switch(type){
+            case StyleTypeBool:
+              set_pmath_bool((IntStyleOptionName)key, rhs);
+              break;
+              
+            case StyleTypeBoolAuto:
+              set_pmath_bool_auto((IntStyleOptionName)key, rhs);
+              break;
+              
+            case StyleTypeColor:
+              set_pmath_color((IntStyleOptionName)key, rhs);
+              break;
+              
+            case StyleTypeNumber:
+              set_pmath_float((FloatStyleOptionName)key, rhs);
+              break;
+              
+            case StyleTypeMargin:
+              set_pmath_margin((FloatStyleOptionName)key, rhs);
+              break;
+              
+            case StyleTypeSize:
+              set_pmath_size((FloatStyleOptionName)key, rhs);
+              break;
+              
+            case StyleTypeString:
+              set_pmath_string((StringStyleOptionName)key, rhs);
+              break;
+            
+            case StyleTypeAny: 
+              set_pmath_object((ObjectStyleOptionName)key, rhs);
+              break;
+              
+            case StyleTypeDockedSections4:
+              set_docked_sections(/*(ObjectStyleOptionName)key,*/ rhs);
+              break;
+              
+            case StyleTypeFontSlant: {
+              if(rhs == PMATH_SYMBOL_PLAIN)
+                set((FloatStyleOptionName)key, FontSlantPlain);
+              else if(rhs == PMATH_SYMBOL_ITALIC)
+                set((FloatStyleOptionName)key, FontSlantItalic);
+              else if(rhs[0] == PMATH_SYMBOL_DYNAMIC)
+                set_dynamic(key, rhs);
+            } break;
+              
+            case StyleTypeFontWeight: {
+              if(rhs == PMATH_SYMBOL_PLAIN)
+                set((FloatStyleOptionName)key, FontWeightPlain);
+              else if(rhs == PMATH_SYMBOL_BOLD)
+                set((FloatStyleOptionName)key, FontWeightBold);
+              else if(rhs[0] == PMATH_SYMBOL_DYNAMIC)
+                set_dynamic(key, rhs);
+            } break;
+              
+            case StyleTypeButtonFrame: {
+              if(rhs[0] == PMATH_SYMBOL_DYNAMIC)
+                set_dynamic(key, rhs);
+              else
+                set((FloatStyleOptionName)key, rhs_to_buttonframe(rhs));
+            } break;
+              
+            case StyleTypeWindowFrame: {
+              String s_rhs(rhs);
+              if(s_rhs.equals("Normal"))
+                set((FloatStyleOptionName)key, WindowFrameNormal);
+              else if(s_rhs.equals("Palette"))
+                set((FloatStyleOptionName)key, WindowFramePalette);
+              else if(s_rhs.equals("Dialog"))
+                set((FloatStyleOptionName)key, WindowFrameDialog);
+              else
+                set_dynamic(key, rhs);
+            } break;
           }
         }
       }
@@ -720,8 +767,9 @@ void Style::set_pmath_margin(FloatStyleOptionName n, Expr obj) {
     return;
   }
   
-  if(obj.is_expr()
-      && obj[0] == PMATH_SYMBOL_LIST) {
+  if( obj.is_expr() &&
+      obj[0] == PMATH_SYMBOL_LIST)
+  {
     if(obj.expr_length() == 4) {
       set_pmath_float(Left,   obj[1]);
       set_pmath_float(Right,  obj[2]);
@@ -736,9 +784,10 @@ void Style::set_pmath_margin(FloatStyleOptionName n, Expr obj) {
         set(Left,  f);
         set(Right, f);
       }
-      else if(obj[1].is_expr()
-              && obj[1][0] == PMATH_SYMBOL_LIST
-              && obj[1].expr_length() == 2) {
+      else if(obj[1].is_expr() &&
+              obj[1][0] == PMATH_SYMBOL_LIST &&
+              obj[1].expr_length() == 2)
+      {
         set_pmath_float(Left,  obj[1][1]);
         set_pmath_float(Right, obj[1][2]);
       }
@@ -748,9 +797,10 @@ void Style::set_pmath_margin(FloatStyleOptionName n, Expr obj) {
         set(Top,    f);
         set(Bottom, f);
       }
-      else if(obj[2].is_expr()
-              && obj[2][0] == PMATH_SYMBOL_LIST
-              && obj[2].expr_length() == 2) {
+      else if(obj[2].is_expr() &&
+              obj[2][0] == PMATH_SYMBOL_LIST &&
+              obj[2].expr_length() == 2)
+      {
         set_pmath_float(Top,    obj[2][1]);
         set_pmath_float(Bottom, obj[2][2]);
       }
@@ -923,109 +973,7 @@ unsigned int Style::count() {
 }
 
 Expr Style::get_symbol(int n) {
-  switch(n) {
-    case Background:                          return Symbol(PMATH_SYMBOL_BACKGROUND);
-    case FontColor:                           return Symbol(PMATH_SYMBOL_FONTCOLOR);
-    case SectionFrameColor:                   return Symbol(PMATH_SYMBOL_SECTIONFRAMECOLOR);
-    
-    case Antialiasing:                        return Symbol(PMATH_SYMBOL_ANTIALIASING);
-    
-    case FontSlant:                           return Symbol(PMATH_SYMBOL_FONTSLANT);
-    case FontWeight:                          return Symbol(PMATH_SYMBOL_FONTWEIGHT);
-    
-    case AutoDelete:                          return Symbol(PMATH_SYMBOL_AUTODELETE);
-    case AutoNumberFormating:                 return Symbol(PMATH_SYMBOL_AUTONUMBERFORMATING);
-    case AutoSpacing:                         return Symbol(PMATH_SYMBOL_AUTOSPACING);
-    case ContinuousAction:                    return Symbol(PMATH_SYMBOL_CONTINUOUSACTION);
-    case Editable:                            return Symbol(PMATH_SYMBOL_EDITABLE);
-    case Evaluatable:                         return Symbol(PMATH_SYMBOL_EVALUATABLE);
-    case InternalHasModifiedWindowOption:     return Expr();
-    case InternalHasPendingDynamic:           return Expr();
-    case InternalUsesCurrentValueOfMouseOver: return Expr();
-    case LineBreakWithin:                     return Symbol(PMATH_SYMBOL_LINEBREAKWITHIN);
-    case Placeholder:                         return Symbol(PMATH_SYMBOL_PLACEHOLDER);
-    case ReturnCreatesNewSection:             return Symbol(PMATH_SYMBOL_RETURNCREATESNEWSECTION);
-    case SectionEditDuplicate:                return Symbol(PMATH_SYMBOL_SECTIONEDITDUPLICATE);
-    case SectionEditDuplicateMakesCopy:       return Symbol(PMATH_SYMBOL_SECTIONEDITDUPLICATEMAKESCOPY);
-    case SectionGenerated:                    return Symbol(PMATH_SYMBOL_SECTIONGENERATED);
-    case SectionLabelAutoDelete:              return Symbol(PMATH_SYMBOL_SECTIONLABELAUTODELETE);
-    case Selectable:                          return Symbol(PMATH_SYMBOL_SELECTABLE);
-    case ShowAutoStyles:                      return Symbol(PMATH_SYMBOL_SHOWAUTOSTYLES);
-    case ShowSectionBracket:                  return Symbol(PMATH_SYMBOL_SHOWSECTIONBRACKET);
-    case ShowStringCharacters:                return Symbol(PMATH_SYMBOL_SHOWSTRINGCHARACTERS);
-    case StripOnInput:                        return Symbol(PMATH_SYMBOL_STRIPONINPUT);
-    case Visible:                             return Symbol(PMATH_SYMBOL_VISIBLE);
-    
-    case ButtonFrame:                         return Symbol(PMATH_SYMBOL_BUTTONFRAME);
-    case WindowFrame:                         return Symbol(PMATH_SYMBOL_WINDOWFRAME);
-  }
-  
-  switch(n) {
-    case FontSize:                 return Symbol(PMATH_SYMBOL_FONTSIZE);
-    
-    case AspectRatio:              return Symbol(PMATH_SYMBOL_ASPECTRATIO);
-    
-    case GridBoxColumnSpacing:     return Symbol(PMATH_SYMBOL_GRIDBOXCOLUMNSPACING);
-    case GridBoxRowSpacing:        return Symbol(PMATH_SYMBOL_GRIDBOXROWSPACING);
-    
-    case ImageSizeCommon:          return Symbol(PMATH_SYMBOL_IMAGESIZE);
-    case ImageSizeHorizontal:
-    case ImageSizeVertical:        return Expr();
-    
-    case SectionMarginLeft:        return Symbol(PMATH_SYMBOL_SECTIONMARGINS);
-    case SectionMarginRight:
-    case SectionMarginTop:
-    case SectionMarginBottom:      return Expr();
-    
-    case SectionFrameLeft:         return Symbol(PMATH_SYMBOL_SECTIONFRAME);
-    case SectionFrameRight:
-    case SectionFrameTop:
-    case SectionFrameBottom:       return Expr();
-    
-    case SectionFrameMarginLeft:   return Symbol(PMATH_SYMBOL_SECTIONFRAMEMARGINS);
-    case SectionFrameMarginRight:
-    case SectionFrameMarginTop:
-    case SectionFrameMarginBottom: return Expr();
-    
-    case SectionGroupPrecedence:   return Symbol(PMATH_SYMBOL_SECTIONGROUPPRECEDENCE);
-  }
-  
-  switch(n) {
-    case BaseStyleName:    return Symbol(PMATH_SYMBOL_BASESTYLE);
-    case Method:           return Symbol(PMATH_SYMBOL_METHOD);
-    
-    case LanguageCategory: return Symbol(PMATH_SYMBOL_LANGUAGECATEGORY);
-    case SectionLabel:     return Symbol(PMATH_SYMBOL_SECTIONLABEL);
-    
-    case WindowTitle:      return Symbol(PMATH_SYMBOL_WINDOWTITLE);
-  }
-  
-  switch(n) {
-    case ButtonFunction:                   return Symbol(PMATH_SYMBOL_BUTTONFUNCTION);
-    case ScriptSizeMultipliers:            return Symbol(PMATH_SYMBOL_SCRIPTSIZEMULTIPLIERS);
-    case TextShadow:                       return Symbol(PMATH_SYMBOL_TEXTSHADOW);
-    case FontFamilies:                     return Symbol(PMATH_SYMBOL_FONTFAMILY);
-    case UnknownOptions:                   return Expr();
-    
-    case BoxRotation:                      return Symbol(PMATH_SYMBOL_BOXROTATION);
-    case BoxTransformation:                return Symbol(PMATH_SYMBOL_BOXTRANSFORMATION);
-    case PlotRange:                        return Symbol(PMATH_SYMBOL_PLOTRANGE);
-    case BorderRadius:                     return Symbol(PMATH_SYMBOL_BORDERRADIUS);
-    
-    case DefaultDuplicateSectionStyle:     return Symbol(PMATH_SYMBOL_DEFAULTDUPLICATESECTIONSTYLE);
-    case DefaultNewSectionStyle:           return Symbol(PMATH_SYMBOL_DEFAULTNEWSECTIONSTYLE);
-    case DefaultReturnCreatedSectionStyle: return Symbol(PMATH_SYMBOL_DEFAULTRETURNCREATEDSECTIONSTYLE);
-    
-    case DockedSectionsTop:                return Symbol(PMATH_SYMBOL_DOCKEDSECTIONS);
-    case DockedSectionsTopGlass:
-    case DockedSectionsBottom:
-    case DockedSectionsBottomGlass:        return Expr();
-    
-    case StyleDefinitions:                 return Symbol(PMATH_SYMBOL_STYLEDEFINITIONS);
-    case GeneratedSectionStyles:           return Symbol(PMATH_SYMBOL_GENERATEDSECTIONSTYLES);
-  }
-  
-  return Expr();
+  return StyleInformation::get_symbol(n);
 }
 
 void Style::emit_pmath_bool_auto(IntStyleOptionName n) { // 0/1=false/true, 2=auto
@@ -1242,9 +1190,9 @@ void Style::emit_to_pmath(bool with_inherited) {
   emit_pmath_bool(     AutoSpacing);
   emit_pmath_color(    Background);
   
-  if(with_inherited) 
+  if(with_inherited)
     emit_pmath_string(BaseStyleName);
-  
+    
   emit_pmath_object(BorderRadius);
   emit_pmath_object(BoxRotation);
   emit_pmath_object(BoxTransformation);
