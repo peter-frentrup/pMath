@@ -412,6 +412,12 @@ void AbstractSequenceSection::paint(Context *context) {
   float b = get_style(SectionFrameBottom);
   
   if(background >= 0 || l != 0 || r != 0 || t != 0 || b != 0) {
+    /* Cairo 1.12.2 bug: 
+      With BorderRadius->0, and one of l,r,t,b != 0, e.g. SectionFrame->{0,0,1,0}
+      The whole section is filled, not only the frame. Another BorderRadius
+      fixes that
+     */
+  
     BoxRadius radii;
     Expr expr;
     if(context->stylesheet->get(style, BorderRadius, &expr))

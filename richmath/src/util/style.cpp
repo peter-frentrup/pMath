@@ -405,10 +405,10 @@ void Style::add_pmath(Expr options) {
         if(rhs != PMATH_SYMBOL_INHERITED) {
           int key;
           enum StyleType type;
-          
+            
           key  = StyleInformation::get_key(lhs);
           type = StyleInformation::get_type(key);
-          
+              
           if(key < 0 || type == StyleTypeNone){
             pmath_debug_print_object("[unknown option ", rule.get(), "]\n");
             
@@ -505,11 +505,11 @@ void Style::add_pmath(Expr options) {
               else
                 set_dynamic(key, rhs);
             } break;
-          }
         }
       }
     }
   }
+}
 }
 
 void Style::merge(SharedPtr<Style> other) {
@@ -974,8 +974,8 @@ unsigned int Style::count() {
 
 Expr Style::get_symbol(int n) {
   return StyleInformation::get_symbol(n);
-}
-
+  }
+  
 void Style::emit_pmath_bool_auto(IntStyleOptionName n) { // 0/1=false/true, 2=auto
   Expr e;
   int i;
@@ -1190,9 +1190,9 @@ void Style::emit_to_pmath(bool with_inherited) {
   emit_pmath_bool(     AutoSpacing);
   emit_pmath_color(    Background);
   
-  if(with_inherited)
+  if(with_inherited) 
     emit_pmath_string(BaseStyleName);
-    
+  
   emit_pmath_object(BorderRadius);
   emit_pmath_object(BoxRotation);
   emit_pmath_object(BoxTransformation);
@@ -1317,7 +1317,7 @@ void Style::emit_to_pmath(bool with_inherited) {
   emit_pmath_margin(SectionFrameMarginLeft);
   emit_pmath_bool(  SectionGenerated);
   emit_pmath_float( SectionGroupPrecedence);
-  emit_pmath_margin(SectionFrameLeft);
+  emit_pmath_margin(SectionMarginLeft);
   
   if(get_dynamic(SectionLabel, &e)) {
     Gather::emit(Rule(
