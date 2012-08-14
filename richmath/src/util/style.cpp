@@ -145,35 +145,35 @@ int richmath::pmath_to_color(Expr obj) {
   return -2;
 }
 
-static int rhs_to_buttonframe(Expr rhs) {
+/*static int rhs_to_buttonframe(Expr rhs) {
   if(rhs.is_string()) {
     String str(rhs);
-    
+
     if(str.equals("Generic"))
       return GenericButton;
-      
+
     if(str.equals("DialogBox"))
       return PushButton;
-      
+
     if(str.equals("Defaulted"))
       return DefaultPushButton;
-      
+
     if(str.equals("Palette"))
       return PaletteButton;
-      
+
     if(str.equals("Frameless"))
       return FramelessButton;
-      
+
     if(str.equals("TooltipWindow"))
       return TooltipWindow;
-      
+
     if(str.equals("ListViewItemSelected"))
       return ListViewItemSelected;
-      
+
     if(str.equals("ListViewItem"))
       return ListViewItem;
   }
-  
+
   return -1;
 }
 
@@ -206,162 +206,310 @@ static Expr buttonframe_to_rhs(int value) {
     default:
       return Symbol(PMATH_SYMBOL_AUTOMATIC);
   }
-}
+}*/
 
 static bool keep_dynamic = false;
 
 namespace {
+  class ButtonFrameStyleEnumConverter: public StyleEnumConverter {
+    public:
+      ButtonFrameStyleEnumConverter()
+        : StyleEnumConverter()
+      {
+        _int_to_expr.default_value = Symbol(PMATH_SYMBOL_AUTOMATIC);
+        _expr_to_int.default_value = -1;//PushButton;
+        
+        add(FramelessButton,      String("Frameless"));
+        add(GenericButton,        String("Generic"));
+        add(PushButton,           String("DialogBox"));
+        add(DefaultPushButton,    String("Defaulted"));
+        add(PaletteButton,        String("Palette"));
+        add(TooltipWindow,        String("TooltipWindow"));
+        add(ListViewItemSelected, String("ListViewItemSelected"));
+        add(ListViewItem,         String("ListViewItem"));
+      }
+  };
+  
+  class WindowFrameStyleEnumConverter: public StyleEnumConverter {
+    public:
+      WindowFrameStyleEnumConverter()
+        : StyleEnumConverter()
+      {
+        _int_to_expr.default_value = Expr();
+        _expr_to_int.default_value = -1;
+        
+        add(WindowFrameNormal,  String("Normal"));
+        add(WindowFramePalette, String("Palette"));
+        add(WindowFrameDialog,  String("Dialog"));
+      }
+  };
+  
+  class FontSlantStyleEnumConverter: public StyleEnumConverter {
+    public:
+      FontSlantStyleEnumConverter()
+        : StyleEnumConverter()
+      {
+        _int_to_expr.default_value = Expr();
+        _expr_to_int.default_value = -1;
+        
+        add(FontSlantPlain,  Symbol(PMATH_SYMBOL_PLAIN));
+        add(FontSlantItalic, Symbol(PMATH_SYMBOL_ITALIC));
+      }
+  };
+  
+  class FontWeightStyleEnumConverter: public StyleEnumConverter {
+    public:
+      FontWeightStyleEnumConverter()
+        : StyleEnumConverter()
+      {
+        _int_to_expr.default_value = Expr();
+        _expr_to_int.default_value = -1;
+        
+        add(FontWeightPlain, Symbol(PMATH_SYMBOL_PLAIN));
+        add(FontWeightBold,  Symbol(PMATH_SYMBOL_BOLD));
+      }
+  };
+  
+  class SubRuleConverter: public StyleEnumConverter {
+    public:
+      void add(int val, Expr expr) {
+        StyleEnumConverter::add(val, expr);
+      }
+  };
+  
   class StyleInformation: public Base {
     public:
       static void add_style() {
-        if(_num_styles++ == 0){
-          _symbol_to_key.default_value = -1;
-          _key_to_type.default_value   = StyleTypeNone;
-        
-          add(StyleTypeColor,           Background,                       PMATH_SYMBOL_BACKGROUND);
-          add(StyleTypeColor,           FontColor,                        PMATH_SYMBOL_FONTCOLOR);
-          add(StyleTypeColor,           SectionFrameColor,                PMATH_SYMBOL_SECTIONFRAMECOLOR);
-          add(StyleTypeBoolAuto,        Antialiasing,                     PMATH_SYMBOL_ANTIALIASING);
-          add(StyleTypeFontSlant,       FontSlant,                        PMATH_SYMBOL_FONTSLANT);
-          add(StyleTypeFontWeight,      FontWeight,                       PMATH_SYMBOL_FONTWEIGHT);
-          add(StyleTypeBool,            AutoDelete,                       PMATH_SYMBOL_AUTODELETE);
-          add(StyleTypeBool,            AutoNumberFormating,              PMATH_SYMBOL_AUTONUMBERFORMATING);
-          add(StyleTypeBool,            AutoSpacing,                      PMATH_SYMBOL_AUTOSPACING);
-          add(StyleTypeBool,            ContinuousAction,                 PMATH_SYMBOL_CONTINUOUSACTION);
-          add(StyleTypeBool,            Editable,                         PMATH_SYMBOL_EDITABLE);
-          add(StyleTypeBool,            Evaluatable,                      PMATH_SYMBOL_EVALUATABLE);
-          add(StyleTypeBool,            LineBreakWithin,                  PMATH_SYMBOL_LINEBREAKWITHIN);
-          add(StyleTypeBool,            Placeholder,                      PMATH_SYMBOL_PLACEHOLDER);
-          add(StyleTypeBool,            ReturnCreatesNewSection,          PMATH_SYMBOL_RETURNCREATESNEWSECTION);
-          add(StyleTypeBool,            SectionEditDuplicate,             PMATH_SYMBOL_SECTIONEDITDUPLICATE);
-          add(StyleTypeBool,            SectionEditDuplicateMakesCopy,    PMATH_SYMBOL_SECTIONEDITDUPLICATEMAKESCOPY);
-          add(StyleTypeBool,            SectionGenerated,                 PMATH_SYMBOL_SECTIONGENERATED);
-          add(StyleTypeBool,            SectionLabelAutoDelete,           PMATH_SYMBOL_SECTIONLABELAUTODELETE);
-          add(StyleTypeBool,            Selectable,                       PMATH_SYMBOL_SELECTABLE);
-          add(StyleTypeBool,            ShowAutoStyles,                   PMATH_SYMBOL_SHOWAUTOSTYLES);
-          add(StyleTypeBool,            ShowSectionBracket,               PMATH_SYMBOL_SHOWSECTIONBRACKET);
-          add(StyleTypeBool,            ShowStringCharacters,             PMATH_SYMBOL_SHOWSTRINGCHARACTERS);
-          add(StyleTypeBool,            StripOnInput,                     PMATH_SYMBOL_STRIPONINPUT);
-          add(StyleTypeBool,            Visible,                          PMATH_SYMBOL_VISIBLE);
-          add(StyleTypeButtonFrame,     ButtonFrame,                      PMATH_SYMBOL_BUTTONFRAME);
-          add(StyleTypeWindowFrame,     WindowFrame,                      PMATH_SYMBOL_WINDOWFRAME);
+        if(_num_styles++ == 0) {
+          _name_to_key.default_value = -1;
+          _key_to_type.default_value = StyleTypeNone;
           
-          add(StyleTypeNumber,          FontSize,                         PMATH_SYMBOL_FONTSIZE);
-          add(StyleTypeNumber,          AspectRatio,                      PMATH_SYMBOL_ASPECTRATIO);
-          add(StyleTypeNumber,          GridBoxColumnSpacing,             PMATH_SYMBOL_GRIDBOXCOLUMNSPACING);
-          add(StyleTypeNumber,          GridBoxRowSpacing,                PMATH_SYMBOL_GRIDBOXROWSPACING);
-          add(StyleTypeSize,            ImageSizeCommon,                  PMATH_SYMBOL_IMAGESIZE);
+          add_enum(ButtonFrame, Symbol( PMATH_SYMBOL_BUTTONFRAME), new ButtonFrameStyleEnumConverter);
+          add_enum(FontSlant,   Symbol( PMATH_SYMBOL_FONTSLANT),   new FontSlantStyleEnumConverter);
+          add_enum(FontWeight,  Symbol( PMATH_SYMBOL_FONTWEIGHT),  new FontWeightStyleEnumConverter);
+          add_enum(WindowFrame, Symbol( PMATH_SYMBOL_WINDOWFRAME), new WindowFrameStyleEnumConverter);
+          
+          add_ruleset_head(DockedSections, Symbol( PMATH_SYMBOL_DOCKEDSECTIONS));
+          
+          
+          add(StyleTypeColor,           Background,                       Symbol( PMATH_SYMBOL_BACKGROUND));
+          add(StyleTypeColor,           FontColor,                        Symbol( PMATH_SYMBOL_FONTCOLOR));
+          add(StyleTypeColor,           SectionFrameColor,                Symbol( PMATH_SYMBOL_SECTIONFRAMECOLOR));
+          add(StyleTypeBoolAuto,        Antialiasing,                     Symbol( PMATH_SYMBOL_ANTIALIASING));
+          add(StyleTypeBool,            AutoDelete,                       Symbol( PMATH_SYMBOL_AUTODELETE));
+          add(StyleTypeBool,            AutoNumberFormating,              Symbol( PMATH_SYMBOL_AUTONUMBERFORMATING));
+          add(StyleTypeBool,            AutoSpacing,                      Symbol( PMATH_SYMBOL_AUTOSPACING));
+          add(StyleTypeBool,            ContinuousAction,                 Symbol( PMATH_SYMBOL_CONTINUOUSACTION));
+          add(StyleTypeBool,            Editable,                         Symbol( PMATH_SYMBOL_EDITABLE));
+          add(StyleTypeBool,            Evaluatable,                      Symbol( PMATH_SYMBOL_EVALUATABLE));
+          add(StyleTypeBool,            LineBreakWithin,                  Symbol( PMATH_SYMBOL_LINEBREAKWITHIN));
+          add(StyleTypeBool,            Placeholder,                      Symbol( PMATH_SYMBOL_PLACEHOLDER));
+          add(StyleTypeBool,            ReturnCreatesNewSection,          Symbol( PMATH_SYMBOL_RETURNCREATESNEWSECTION));
+          add(StyleTypeBool,            SectionEditDuplicate,             Symbol( PMATH_SYMBOL_SECTIONEDITDUPLICATE));
+          add(StyleTypeBool,            SectionEditDuplicateMakesCopy,    Symbol( PMATH_SYMBOL_SECTIONEDITDUPLICATEMAKESCOPY));
+          add(StyleTypeBool,            SectionGenerated,                 Symbol( PMATH_SYMBOL_SECTIONGENERATED));
+          add(StyleTypeBool,            SectionLabelAutoDelete,           Symbol( PMATH_SYMBOL_SECTIONLABELAUTODELETE));
+          add(StyleTypeBool,            Selectable,                       Symbol( PMATH_SYMBOL_SELECTABLE));
+          add(StyleTypeBool,            ShowAutoStyles,                   Symbol( PMATH_SYMBOL_SHOWAUTOSTYLES));
+          add(StyleTypeBool,            ShowSectionBracket,               Symbol( PMATH_SYMBOL_SHOWSECTIONBRACKET));
+          add(StyleTypeBool,            ShowStringCharacters,             Symbol( PMATH_SYMBOL_SHOWSTRINGCHARACTERS));
+          add(StyleTypeBool,            StripOnInput,                     Symbol( PMATH_SYMBOL_STRIPONINPUT));
+          add(StyleTypeBool,            Visible,                          Symbol( PMATH_SYMBOL_VISIBLE));
+          
+          add(StyleTypeNumber,          FontSize,                         Symbol( PMATH_SYMBOL_FONTSIZE));
+          add(StyleTypeNumber,          AspectRatio,                      Symbol( PMATH_SYMBOL_ASPECTRATIO));
+          add(StyleTypeNumber,          GridBoxColumnSpacing,             Symbol( PMATH_SYMBOL_GRIDBOXCOLUMNSPACING));
+          add(StyleTypeNumber,          GridBoxRowSpacing,                Symbol( PMATH_SYMBOL_GRIDBOXROWSPACING));
+          add(StyleTypeSize,            ImageSizeCommon,                  Symbol( PMATH_SYMBOL_IMAGESIZE));
           // ImageSizeHorizontal
           // ImageSizeVertical
-          add(StyleTypeMargin,          SectionMarginLeft,                PMATH_SYMBOL_SECTIONMARGINS);
+          add(StyleTypeMargin,          SectionMarginLeft,                Symbol( PMATH_SYMBOL_SECTIONMARGINS));
           // SectionMarginRight
           // SectionMarginTop
           // SectionMarginBottom
-          add(StyleTypeMargin,          SectionFrameLeft,                 PMATH_SYMBOL_SECTIONFRAME);
+          add(StyleTypeMargin,          SectionFrameLeft,                 Symbol( PMATH_SYMBOL_SECTIONFRAME));
           // SectionFrameRight
           // SectionFrameTop
           // SectionFrameBottom
-          add(StyleTypeMargin,          SectionFrameMarginLeft,           PMATH_SYMBOL_SECTIONFRAMEMARGINS);
+          add(StyleTypeMargin,          SectionFrameMarginLeft,           Symbol( PMATH_SYMBOL_SECTIONFRAMEMARGINS));
           // SectionFrameMarginRight
           // SectionFrameMarginTop
           // SectionFrameMarginBottom
-          add(StyleTypeMargin,          SectionGroupPrecedence,           PMATH_SYMBOL_SECTIONGROUPPRECEDENCE);
+          add(StyleTypeNumber,          SectionGroupPrecedence,           Symbol( PMATH_SYMBOL_SECTIONGROUPPRECEDENCE));
           
           
-          add(StyleTypeString,          BaseStyleName,                    PMATH_SYMBOL_BASESTYLE);
-          add(StyleTypeString,          Method,                           PMATH_SYMBOL_METHOD);
-          add(StyleTypeString,          LanguageCategory,                 PMATH_SYMBOL_LANGUAGECATEGORY);
-          add(StyleTypeString,          SectionLabel,                     PMATH_SYMBOL_SECTIONLABEL);
-          add(StyleTypeString,          WindowTitle,                      PMATH_SYMBOL_WINDOWTITLE);
+          add(StyleTypeString,          BaseStyleName,                    Symbol( PMATH_SYMBOL_BASESTYLE));
+          add(StyleTypeString,          Method,                           Symbol( PMATH_SYMBOL_METHOD));
+          add(StyleTypeString,          LanguageCategory,                 Symbol( PMATH_SYMBOL_LANGUAGECATEGORY));
+          add(StyleTypeString,          SectionLabel,                     Symbol( PMATH_SYMBOL_SECTIONLABEL));
+          add(StyleTypeString,          WindowTitle,                      Symbol( PMATH_SYMBOL_WINDOWTITLE));
           
-          add(StyleTypeAny,             ButtonFunction,                   PMATH_SYMBOL_BUTTONFUNCTION);
-          add(StyleTypeAny,             ScriptSizeMultipliers,            PMATH_SYMBOL_SCRIPTSIZEMULTIPLIERS);
-          add(StyleTypeAny,             TextShadow,                       PMATH_SYMBOL_TEXTSHADOW);
-          add(StyleTypeAny,             FontFamilies,                     PMATH_SYMBOL_FONTFAMILY);
-          add(StyleTypeAny,             BoxRotation,                      PMATH_SYMBOL_BOXROTATION);
-          add(StyleTypeAny,             BoxTransformation,                PMATH_SYMBOL_BOXTRANSFORMATION);
-          add(StyleTypeAny,             PlotRange,                        PMATH_SYMBOL_PLOTRANGE);
-          add(StyleTypeAny,             BorderRadius,                     PMATH_SYMBOL_BORDERRADIUS);
-          add(StyleTypeAny,             DefaultDuplicateSectionStyle,     PMATH_SYMBOL_DEFAULTDUPLICATESECTIONSTYLE);
-          add(StyleTypeAny,             DefaultNewSectionStyle,           PMATH_SYMBOL_DEFAULTNEWSECTIONSTYLE);
-          add(StyleTypeAny,             DefaultReturnCreatedSectionStyle, PMATH_SYMBOL_DEFAULTRETURNCREATEDSECTIONSTYLE);
-          add(StyleTypeDockedSections4, DockedSectionsTop,                PMATH_SYMBOL_DOCKEDSECTIONS);
-          //DockedSectionsTopGlass
-          //DockedSectionsBottom
-          //DockedSectionsBottomGlass
-          add(StyleTypeAny,             StyleDefinitions,                 PMATH_SYMBOL_STYLEDEFINITIONS);
-          add(StyleTypeAny,             GeneratedSectionStyles,           PMATH_SYMBOL_GENERATEDSECTIONSTYLES);
+          add(StyleTypeAny,             ButtonFunction,                   Symbol( PMATH_SYMBOL_BUTTONFUNCTION));
+          add(StyleTypeAny,             ScriptSizeMultipliers,            Symbol( PMATH_SYMBOL_SCRIPTSIZEMULTIPLIERS));
+          add(StyleTypeAny,             TextShadow,                       Symbol( PMATH_SYMBOL_TEXTSHADOW));
+          add(StyleTypeAny,             FontFamilies,                     Symbol( PMATH_SYMBOL_FONTFAMILY));
+          add(StyleTypeAny,             BoxRotation,                      Symbol( PMATH_SYMBOL_BOXROTATION));
+          add(StyleTypeAny,             BoxTransformation,                Symbol( PMATH_SYMBOL_BOXTRANSFORMATION));
+          add(StyleTypeAny,             PlotRange,                        Symbol( PMATH_SYMBOL_PLOTRANGE));
+          add(StyleTypeAny,             BorderRadius,                     Symbol( PMATH_SYMBOL_BORDERRADIUS));
+          add(StyleTypeAny,             DefaultDuplicateSectionStyle,     Symbol( PMATH_SYMBOL_DEFAULTDUPLICATESECTIONSTYLE));
+          add(StyleTypeAny,             DefaultNewSectionStyle,           Symbol( PMATH_SYMBOL_DEFAULTNEWSECTIONSTYLE));
+          add(StyleTypeAny,             DefaultReturnCreatedSectionStyle, Symbol( PMATH_SYMBOL_DEFAULTRETURNCREATEDSECTIONSTYLE));
+          add(StyleTypeAny,             StyleDefinitions,                 Symbol( PMATH_SYMBOL_STYLEDEFINITIONS));
+          add(StyleTypeAny,             GeneratedSectionStyles,           Symbol( PMATH_SYMBOL_GENERATEDSECTIONSTYLES));
+          
+          add(StyleTypeAny, DockedSectionsTop,         Rule(Symbol(PMATH_SYMBOL_DOCKEDSECTIONS), String("Top")));
+          add(StyleTypeAny, DockedSectionsTopGlass,    Rule(Symbol(PMATH_SYMBOL_DOCKEDSECTIONS), String("TopGlass")));
+          add(StyleTypeAny, DockedSectionsBottom,      Rule(Symbol(PMATH_SYMBOL_DOCKEDSECTIONS), String("Bottom")));
+          add(StyleTypeAny, DockedSectionsBottomGlass, Rule(Symbol(PMATH_SYMBOL_DOCKEDSECTIONS), String("BottomGlass")));
         }
       }
       
       static void remove_style() {
-        if(--_num_styles == 0){
-          _key_to_symbol.clear();
-          _symbol_to_key.clear();
+        if(--_num_styles == 0) {
+          _key_to_enum_converter.clear();
+          _key_to_type.clear();
+          _key_to_name.clear();
+          _name_to_key.clear();
         }
       }
       
-      static bool is_window_option(int key){
-        return key == Visible     ||
-               key == WindowFrame ||
-               key == WindowTitle;
+      static bool is_window_option(int key) {
+        return key == Visible                   ||
+               key == WindowFrame               ||
+               key == WindowTitle               ||
+               key == DockedSectionsTop         ||
+               key == DockedSectionsTopGlass    ||
+               key == DockedSectionsBottom      ||
+               key == DockedSectionsBottomGlass;
       }
       
-      static int get_number_of_keys(enum StyleType type){
+      /*static int get_number_of_keys(enum StyleType type) {
         switch(type) {
           case StyleTypeMargin:          return 4;
           case StyleTypeSize:            return 3;
           case StyleTypeDockedSections4: return 4;
-          
+      
           default:
             return 1;
         }
-      }
+      }*/
       
       static enum StyleType get_type(int key) {
         return _key_to_type[key];
       }
-    
-      static Expr get_symbol(int key) {
-        return _key_to_symbol[key];
-      }
-    
-      static int get_key(Expr symbol) {
-        return _symbol_to_key[symbol];
-      }
-    
-    private:
-      static void add(StyleType type, IntStyleOptionName key, pmath_symbol_t symbol){
-        add(type, (int)key, symbol);
-      }
-      static void add(StyleType type, FloatStyleOptionName key, pmath_symbol_t symbol){
-        add(type, (int)key, symbol);
-      }
-      static void add(StyleType type, StringStyleOptionName key, pmath_symbol_t symbol){
-        add(type, (int)key, symbol);
-      }
-      static void add(StyleType type, ObjectStyleOptionName key, pmath_symbol_t symbol){
-        add(type, (int)key, symbol);
+      
+      static Expr get_name(int key) {
+        return _key_to_name[key];
       }
       
-      static void add(StyleType type, int key, pmath_symbol_t symbol){
-        Expr sym = Symbol(symbol);
+      static int get_key(Expr name) {
+        return _name_to_key[name];
+      }
+      
+      static SharedPtr<StyleEnumConverter> get_enum_converter(int key) {
+        return _key_to_enum_converter[key];
+      }
+      
+    private:
+      static void add(StyleType type, IntStyleOptionName key, const Expr &name) {
+        add(type, (int)key, name);
+      }
+      static void add(StyleType type, FloatStyleOptionName key, const Expr &name) {
+        add(type, (int)key, name);
+      }
+      static void add(StyleType type, StringStyleOptionName key, const Expr &name) {
+        add(type, (int)key, name);
+      }
+      static void add(StyleType type, ObjectStyleOptionName key, const Expr &name) {
+        add(type, (int)key, name);
+      }
+      
+      static void add(StyleType type, int key, const Expr &name) {
+        assert(type != StyleTypeEnum);
         
         _key_to_type.set(  key, type);
-        _key_to_symbol.set(key, sym);
-        _symbol_to_key.set(sym, key);
+        _key_to_name.set(key, name);
+        _name_to_key.set(name, key);
+        
+        add_to_ruleset(key, name);
+      }
+      
+      static void add_enum(
+        IntStyleOptionName             key,
+        const Expr                    &name,
+        SharedPtr<StyleEnumConverter>  enum_converter
+      ) {
+        _key_to_enum_converter.set(key, enum_converter);
+        _key_to_type.set(          key, StyleTypeEnum);
+        _key_to_name.set(          key, name);
+        _name_to_key.set(          name, key);
+        
+        add_to_ruleset(key, name);
+      }
+      
+      static void add_to_ruleset(int key, const Expr &name) {
+        if(name.is_rule()) {
+          Expr super_name = name[1];
+          Expr sub_name   = name[2];
+          
+          int super_key = _name_to_key[super_name];
+          if(_key_to_type[super_key] != StyleTypeRuleSet) {
+            pmath_debug_print_object("[not a StyleTypeRuleSet: ", super_name.get(), "]\n");
+            return;
+          }
+          
+          SharedPtr<StyleEnumConverter> sec = _key_to_enum_converter[super_key];
+          SubRuleConverter *sur = dynamic_cast<SubRuleConverter *>(sec.ptr());
+          if(!sur) {
+            pmath_debug_print_object("[invalid StyleEnumConverter: ", super_name.get(), "]\n");
+            return;
+          }
+          
+          sur->add(key, sub_name);
+        }
+      }
+      
+      static void add_ruleset_head(
+        int         key,
+        const Expr &symbol
+      ) {
+        _key_to_enum_converter.set(key, new SubRuleConverter);
+        _key_to_type.set(          key, StyleTypeRuleSet);
+        _key_to_name.set(          key, symbol);
+        _name_to_key.set(          symbol, key);
       }
       
     private:
       static int _num_styles;
       
-      static Hashtable<int, enum StyleType> _key_to_type;
-      static Hashtable<int, Expr>           _key_to_symbol;
-      static Hashtable<Expr, int>           _symbol_to_key;
+      static Hashtable<int, SharedPtr<StyleEnumConverter>, cast_hash> _key_to_enum_converter;
+      static Hashtable<int, enum StyleType, cast_hash>                _key_to_type;
+      static Hashtable<int, Expr,           cast_hash>                _key_to_name;
+      static Hashtable<Expr, int>                                     _name_to_key;
   };
   
-  int StyleInformation::_num_styles = 0;
+  int                                                      StyleInformation::_num_styles = 0;
+  Hashtable<int, SharedPtr<StyleEnumConverter>, cast_hash> StyleInformation::_key_to_enum_converter;
+  Hashtable<int, enum StyleType, cast_hash>                StyleInformation::_key_to_type;
+  Hashtable<int, Expr,           cast_hash>                StyleInformation::_key_to_name;
+  Hashtable<Expr, int>                                     StyleInformation::_name_to_key;
 }
+
+//{ class StyleEnumConverter ...
+
+StyleEnumConverter::StyleEnumConverter()
+  : Shareable()
+{
+  _expr_to_int.default_value = -1;
+}
+
+void StyleEnumConverter::add(int val, Expr expr) {
+  _int_to_expr.set(val, expr);
+  _expr_to_int.set(expr, val);
+}
+
+//} ... class StyleEnumConverter
 
 //{ class Style ...
 
@@ -404,12 +552,10 @@ void Style::add_pmath(Expr options) {
 
         if(rhs != PMATH_SYMBOL_INHERITED) {
           int key;
-          enum StyleType type;
-            
+          
           key  = StyleInformation::get_key(lhs);
-          type = StyleInformation::get_type(key);
-              
-          if(key < 0 || type == StyleTypeNone){
+          
+          if(key < 0) {
             pmath_debug_print_object("[unknown option ", rule.get(), "]\n");
             
             Expr sym;
@@ -426,90 +572,13 @@ void Style::add_pmath(Expr options) {
                                   rule));
                                   
             Evaluate(eval);
-            continue;
           }
           
-          if(StyleInformation::is_window_option(key))
-            set(InternalHasModifiedWindowOption, true);
-            
-          switch(type){
-            case StyleTypeBool:
-              set_pmath_bool((IntStyleOptionName)key, rhs);
-              break;
-              
-            case StyleTypeBoolAuto:
-              set_pmath_bool_auto((IntStyleOptionName)key, rhs);
-              break;
-              
-            case StyleTypeColor:
-              set_pmath_color((IntStyleOptionName)key, rhs);
-              break;
-              
-            case StyleTypeNumber:
-              set_pmath_float((FloatStyleOptionName)key, rhs);
-              break;
-              
-            case StyleTypeMargin:
-              set_pmath_margin((FloatStyleOptionName)key, rhs);
-              break;
-              
-            case StyleTypeSize:
-              set_pmath_size((FloatStyleOptionName)key, rhs);
-              break;
-              
-            case StyleTypeString:
-              set_pmath_string((StringStyleOptionName)key, rhs);
-              break;
-            
-            case StyleTypeAny: 
-              set_pmath_object((ObjectStyleOptionName)key, rhs);
-              break;
-              
-            case StyleTypeDockedSections4:
-              set_docked_sections(/*(ObjectStyleOptionName)key,*/ rhs);
-              break;
-              
-            case StyleTypeFontSlant: {
-              if(rhs == PMATH_SYMBOL_PLAIN)
-                set((FloatStyleOptionName)key, FontSlantPlain);
-              else if(rhs == PMATH_SYMBOL_ITALIC)
-                set((FloatStyleOptionName)key, FontSlantItalic);
-              else if(rhs[0] == PMATH_SYMBOL_DYNAMIC)
-                set_dynamic(key, rhs);
-            } break;
-              
-            case StyleTypeFontWeight: {
-              if(rhs == PMATH_SYMBOL_PLAIN)
-                set((FloatStyleOptionName)key, FontWeightPlain);
-              else if(rhs == PMATH_SYMBOL_BOLD)
-                set((FloatStyleOptionName)key, FontWeightBold);
-              else if(rhs[0] == PMATH_SYMBOL_DYNAMIC)
-                set_dynamic(key, rhs);
-            } break;
-              
-            case StyleTypeButtonFrame: {
-              if(rhs[0] == PMATH_SYMBOL_DYNAMIC)
-                set_dynamic(key, rhs);
-              else
-                set((FloatStyleOptionName)key, rhs_to_buttonframe(rhs));
-            } break;
-              
-            case StyleTypeWindowFrame: {
-              String s_rhs(rhs);
-              if(s_rhs.equals("Normal"))
-                set((FloatStyleOptionName)key, WindowFrameNormal);
-              else if(s_rhs.equals("Palette"))
-                set((FloatStyleOptionName)key, WindowFramePalette);
-              else if(s_rhs.equals("Dialog"))
-                set((FloatStyleOptionName)key, WindowFrameDialog);
-              else
-                set_dynamic(key, rhs);
-            } break;
+          set_pmath(key, rhs);
         }
       }
     }
   }
-}
 }
 
 void Style::merge(SharedPtr<Style> other) {
@@ -620,6 +689,174 @@ void Style::remove(StringStyleOptionName n) {
 
 void Style::remove(ObjectStyleOptionName n) {
   object_values.remove(n);
+}
+
+
+bool Style::modifies_size(int style_name) {
+  switch(style_name) {
+    case Background:
+    case FontColor:
+    case SectionFrameColor:
+    case AutoDelete:
+    case ContinuousAction:
+    case Editable:
+    case Evaluatable:
+    case InternalHasModifiedWindowOption:
+    case InternalHasPendingDynamic:
+    case InternalUsesCurrentValueOfMouseOver:
+    case Placeholder:
+    case ReturnCreatesNewSection:
+    case SectionEditDuplicate:
+    case SectionEditDuplicateMakesCopy:
+    case SectionGenerated:
+    case SectionLabelAutoDelete:
+    case Selectable:
+    case ShowAutoStyles: // only modifies color
+    case StripOnInput:
+    
+    case LanguageCategory:
+    case Method:
+    case SectionLabel:
+    case WindowTitle:
+    
+    case ButtonFunction:
+    case ScriptSizeMultipliers:
+    case TextShadow:
+    case DefaultDuplicateSectionStyle:
+    case DefaultNewSectionStyle:
+    case DefaultReturnCreatedSectionStyle:
+    case GeneratedSectionStyles:
+      return false;
+  }
+  
+  return true;
+}
+
+bool Style::update_dynamic(Box *parent) {
+  if(!parent)
+    return false;
+    
+  int i;
+  if(!get(InternalHasPendingDynamic, &i) || !i)
+    return false;
+    
+  set(InternalHasPendingDynamic, false);
+  
+  static Array<int> dynamic_options(100);
+  
+  dynamic_options.length(0);
+  
+  unsigned cnt = object_values.size();
+  for(unsigned ui = 0; cnt > 0; ++ui) {
+    Entry<int, Expr> *e = object_values.entry(ui);
+    
+    if(e) {
+      --cnt;
+      
+      if(e->key >= DynamicOffset)
+        dynamic_options.add(e->key - DynamicOffset);
+    }
+  }
+  
+  if(dynamic_options.length() == 0)
+    return false;
+    
+  set(InternalHasPendingDynamic, false);
+  
+  bool resize = false;
+  for(i = 0; i < dynamic_options.length(); ++i) {
+    if(modifies_size(dynamic_options[i])) {
+      resize = true;
+      break;
+    }
+  }
+  
+  {
+    Gather g;
+    for(i = 0; i < dynamic_options.length(); ++i) {
+      Expr e = object_values[DynamicOffset + dynamic_options[i]];
+      Dynamic dyn(parent, e);
+      
+      e = dyn.get_value_now();
+      
+      if(e != PMATH_SYMBOL_ABORTED && e[0] != PMATH_SYMBOL_DYNAMIC)
+        Gather::emit(Rule(get_name(dynamic_options[i]), e));
+    }
+    
+    keep_dynamic = true;
+    add_pmath(g.end());
+    keep_dynamic = false;
+  }
+  
+  if(resize)
+    parent->invalidate();
+  else
+    parent->request_repaint_all();
+    
+  return true;
+}
+
+unsigned int Style::count() {
+  return int_float_values.size() + object_values.size();
+}
+
+Expr Style::get_name(int n) {
+  return StyleInformation::get_name(n);
+}
+
+enum StyleType Style::get_type(int n) {
+  return StyleInformation::get_type(n);
+}
+
+
+void Style::set_pmath(int key, Expr value) {
+  if(StyleInformation::is_window_option(key))
+    set(InternalHasModifiedWindowOption, true);
+    
+  enum StyleType type = StyleInformation::get_type(key);
+  
+  switch(type) {
+    case StyleTypeBool:
+      set_pmath_bool((IntStyleOptionName)key, value);
+      break;
+      
+    case StyleTypeBoolAuto:
+      set_pmath_bool_auto((IntStyleOptionName)key, value);
+      break;
+      
+    case StyleTypeColor:
+      set_pmath_color((IntStyleOptionName)key, value);
+      break;
+      
+    case StyleTypeNumber:
+      set_pmath_float((FloatStyleOptionName)key, value);
+      break;
+      
+    case StyleTypeMargin:
+      set_pmath_margin((FloatStyleOptionName)key, value);
+      break;
+      
+    case StyleTypeSize:
+      set_pmath_size((FloatStyleOptionName)key, value);
+      break;
+      
+    case StyleTypeString:
+      set_pmath_string((StringStyleOptionName)key, value);
+      break;
+      
+    case StyleTypeNone:
+    case StyleTypeAny:
+      set_pmath_object((ObjectStyleOptionName)key, value);
+      break;
+      
+    case StyleTypeEnum:
+      set_pmath_enum((IntStyleOptionName)key, value);
+      break;
+      
+    case StyleTypeRuleSet:
+      set_pmath_ruleset((ObjectStyleOptionName)key, value);
+      break;
+  }
 }
 
 void Style::set_pmath_bool_auto(IntStyleOptionName n, Expr obj) {
@@ -832,24 +1069,65 @@ void Style::set_pmath_object(ObjectStyleOptionName n, Expr obj) {
     set(n, obj);
 }
 
-void Style::set_docked_sections(Expr obj) {
+void Style::set_pmath_enum(IntStyleOptionName n, Expr obj) {
+  if(obj[0] == PMATH_SYMBOL_DYNAMIC) {
+    set_dynamic(n, obj);
+  }
+  else {
+    SharedPtr<StyleEnumConverter> enum_converter = StyleInformation::get_enum_converter(n);
+    
+    assert(enum_converter.is_valid());
+    
+    if(enum_converter->is_valid_expr(obj))
+      set((IntStyleOptionName)n, enum_converter->to_int(obj));
+  }
+}
+
+void Style::set_pmath_ruleset(ObjectStyleOptionName n, Expr obj) {
+  SharedPtr<StyleEnumConverter> key_converter = StyleInformation::get_enum_converter(n);
+  assert(key_converter.is_valid());
+  
+  if(obj[0] == PMATH_SYMBOL_LIST) {
+    for(size_t i = 1; i <= obj.expr_length(); ++i) {
+      Expr rule = obj[i];
+      
+      if(rule.is_rule()) {
+        Expr lhs = rule[1];
+        Expr rhs = rule[2];
+        
+        if(rhs == PMATH_SYMBOL_INHERITED)
+          continue;
+          
+        int sub_key = key_converter->to_int(lhs);
+        if(sub_key < 0) {
+          pmath_debug_print_object("[ignoring unknown sub-option ", lhs.get(), "]\n");
+        }
+        else {
+          set_pmath(sub_key, rhs);
+        }
+      }
+    }
+  }
+}
+
+/*void Style::set_docked_sections(Expr obj) {
 
   if(obj[0] != PMATH_SYMBOL_LIST) {
     return;
   }
-  
+
   for(size_t i = 1; i <= obj.expr_length(); ++i) {
     Expr rule = obj[i];
-    
+
     if(!rule.is_rule())
       continue;
-      
+
     String lhs(rule[1]);
     Expr rhs(rule[2]);
-    
+
     if(rhs == PMATH_SYMBOL_INHERITED)
       continue;
-      
+
     if(lhs.equals("Top"))
       set_pmath_object(DockedSectionsTop, rhs);
     else if(lhs.equals("TopGlass"))
@@ -858,526 +1136,320 @@ void Style::set_docked_sections(Expr obj) {
       set_pmath_object(DockedSectionsBottom, rhs);
     else if(lhs.equals("BottomGlass"))
       set_pmath_object(DockedSectionsBottomGlass, rhs);
-      
+
   }
-  
+
   set(InternalHasModifiedWindowOption, true);
-}
+}*/
 
-bool Style::modifies_size(int style_name) {
-  switch(style_name) {
-    case Background:
-    case FontColor:
-    case SectionFrameColor:
-    case AutoDelete:
-    case ContinuousAction:
-    case Editable:
-    case Evaluatable:
-    case InternalHasModifiedWindowOption:
-    case InternalHasPendingDynamic:
-    case InternalUsesCurrentValueOfMouseOver:
-    case Placeholder:
-    case ReturnCreatesNewSection:
-    case SectionEditDuplicate:
-    case SectionEditDuplicateMakesCopy:
-    case SectionGenerated:
-    case SectionLabelAutoDelete:
-    case Selectable:
-    case ShowAutoStyles: // only modifies color
-    case StripOnInput:
-    
-    case LanguageCategory:
-    case Method:
-    case SectionLabel:
-    case WindowTitle:
-    
-    case ButtonFunction:
-    case ScriptSizeMultipliers:
-    case TextShadow:
-    case DefaultDuplicateSectionStyle:
-    case DefaultNewSectionStyle:
-    case DefaultReturnCreatedSectionStyle:
-    case GeneratedSectionStyles:
-      return false;
-  }
-  
-  return true;
-}
 
-bool Style::update_dynamic(Box *parent) {
-  if(!parent)
-    return false;
-    
-  int i;
-  if(!get(InternalHasPendingDynamic, &i) || !i)
-    return false;
-    
-  set(InternalHasPendingDynamic, false);
+Expr Style::get_pmath(int key) {
+  enum StyleType type = StyleInformation::get_type(key);
   
-  static Array<int> dynamic_options(100);
-  
-  dynamic_options.length(0);
-  
-  unsigned cnt = object_values.size();
-  for(unsigned ui = 0; cnt > 0; ++ui) {
-    Entry<int, Expr> *e = object_values.entry(ui);
-    
-    if(e) {
-      --cnt;
-      
-      if(e->key >= DynamicOffset)
-        dynamic_options.add(e->key - DynamicOffset);
-    }
-  }
-  
-  if(dynamic_options.length() == 0)
-    return false;
-    
-  set(InternalHasPendingDynamic, false);
-  
-  bool resize = false;
-  for(i = 0; i < dynamic_options.length(); ++i) {
-    if(modifies_size(dynamic_options[i])) {
-      resize = true;
+  switch(type) {
+    case StyleTypeNone:
       break;
-    }
+      
+    case StyleTypeBool:
+      return get_pmath_bool((IntStyleOptionName)key);
+      
+    case StyleTypeBoolAuto:
+      return get_pmath_bool_auto((IntStyleOptionName)key);
+      
+    case StyleTypeColor:
+      return get_pmath_color((IntStyleOptionName)key);
+      
+    case StyleTypeNumber:
+      return get_pmath_float((FloatStyleOptionName)key);
+      
+    case StyleTypeMargin:
+      return get_pmath_margin((FloatStyleOptionName)key);
+      
+    case StyleTypeSize:
+      return get_pmath_size((FloatStyleOptionName)key);
+      
+    case StyleTypeString:
+      return get_pmath_string((StringStyleOptionName)key);
+      
+    case StyleTypeAny:
+      return get_pmath_object((ObjectStyleOptionName)key);
+      
+    case StyleTypeEnum:
+      return get_pmath_enum((IntStyleOptionName)key);
+      
+    case StyleTypeRuleSet:
+      return get_pmath_ruleset((ObjectStyleOptionName)key);
   }
   
-  {
-    Gather g;
-    for(i = 0; i < dynamic_options.length(); ++i) {
-      Expr e = object_values[DynamicOffset + dynamic_options[i]];
-      Dynamic dyn(parent, e);
-      
-      e = dyn.get_value_now();
-      
-      if(e != PMATH_SYMBOL_ABORTED && e[0] != PMATH_SYMBOL_DYNAMIC)
-        Gather::emit(Rule(get_symbol(dynamic_options[i]), e));
-    }
-    
-    keep_dynamic = true;
-    add_pmath(g.end());
-    keep_dynamic = false;
-  }
-  
-  if(resize)
-    parent->invalidate();
-  else
-    parent->request_repaint_all();
-    
-  return true;
+  return Symbol(PMATH_SYMBOL_INHERITED);
 }
 
-unsigned int Style::count() {
-  return int_float_values.size() + object_values.size();
-}
-
-Expr Style::get_symbol(int n) {
-  return StyleInformation::get_symbol(n);
-  }
-  
-void Style::emit_pmath_bool_auto(IntStyleOptionName n) { // 0/1=false/true, 2=auto
-  Expr e;
+Expr Style::get_pmath_bool_auto(IntStyleOptionName n) {
   int i;
   
-  if(get_dynamic(n, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(n),
-                   e));
-  }
-  else if(get(n, &i)) {
+  if(get(n, &i)) {
     switch(i) {
       case 0:
-        Gather::emit(Rule(get_symbol(n), Symbol(PMATH_SYMBOL_FALSE)));
-        break;
+        return Symbol(PMATH_SYMBOL_FALSE);
         
       case 1:
-        Gather::emit(Rule(get_symbol(n), Symbol(PMATH_SYMBOL_TRUE)));
-        break;
+        return Symbol(PMATH_SYMBOL_TRUE);
         
       default:
-        Gather::emit(Rule(get_symbol(n), Symbol(PMATH_SYMBOL_AUTOMATIC)));
-        break;
+        return Symbol(PMATH_SYMBOL_AUTOMATIC);
     }
   }
+  
+  return Symbol(PMATH_SYMBOL_INHERITED);
 }
 
-void Style::emit_pmath_bool(IntStyleOptionName n) {
-  Expr e;
+Expr Style::get_pmath_bool(IntStyleOptionName n) {
   int i;
   
-  if(get_dynamic(n, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(n),
-                   e));
+  if(get(n, &i)) {
+    if(i)
+      return Symbol(PMATH_SYMBOL_TRUE);
+      
+    return Symbol(PMATH_SYMBOL_FALSE);
   }
-  else if(get(n, &i)) {
-    Gather::emit(Rule(
-                   get_symbol(n),
-                   Symbol(i ? PMATH_SYMBOL_TRUE : PMATH_SYMBOL_FALSE)));
-  }
+  
+  return Symbol(PMATH_SYMBOL_INHERITED);
 }
 
-void Style::emit_pmath_color(IntStyleOptionName n) {
-  Expr e;
+Expr Style::get_pmath_color(IntStyleOptionName n) {
   int i;
   
-  if(get_dynamic(n, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(n),
-                   e));
-  }
-  else if(get(n, &i)) {
-    Gather::emit(Rule(
-                   get_symbol(n),
-                   color_to_pmath(i)));
-  }
+  if(get(n, &i))
+    return color_to_pmath(i);
+    
+  return Symbol(PMATH_SYMBOL_INHERITED);
 }
 
-void Style::emit_pmath_float(FloatStyleOptionName n) {
-  Expr e;
+Expr Style::get_pmath_float(FloatStyleOptionName n) {
   float f;
   
-  if(get_dynamic(n, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(n),
-                   e));
-  }
-  else if(get(n, &f)) {
-    Gather::emit(Rule(
-                   get_symbol(n),
-                   Number(f)));
-  }
+  if(get(n, &f))
+    return Number(f);
+    
+  return Symbol(PMATH_SYMBOL_INHERITED);
 }
 
-void Style::emit_pmath_margin(FloatStyleOptionName n) { // n + {0,1,2,3} ~= {Left, Right, Top, Bottom}
-  Expr e;
+Expr Style::get_pmath_margin(FloatStyleOptionName n) { // n + {0,1,2,3} ~= {Left, Right, Top, Bottom}
+  float left, right, top, bottom;
+  bool have_left, have_right, have_top, have_bottom;
   
-  if(get_dynamic(n, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(n),
-                   e));
-  }
-  else {
-    float left, right, top, bottom;
-    bool have_left, have_right, have_top, have_bottom;
-    
-    have_left   = get(                     n,      &left);
-    have_right  = get(FloatStyleOptionName(n + 1), &right);
-    have_top    = get(FloatStyleOptionName(n + 2), &top);
-    have_bottom = get(FloatStyleOptionName(n + 3), &bottom);
-    
-    if(have_left || have_right || have_top || have_bottom) {
-      Expr l, r, t, b;
-      
-      if(have_left)
-        l = Number(left);
-      else
-        l = Symbol(PMATH_SYMBOL_INHERITED);
-        
-      if(have_right)
-        r = Number(right);
-      else
-        r = Symbol(PMATH_SYMBOL_INHERITED);
-        
-      if(have_top)
-        t = Number(top);
-      else
-        t = Symbol(PMATH_SYMBOL_INHERITED);
-        
-      if(have_bottom)
-        b = Number(bottom);
-      else
-        b = Symbol(PMATH_SYMBOL_INHERITED);
-        
-      Gather::emit(Rule(
-                     get_symbol(n),
-                     List(l, r, t, b)));
-    }
-  }
-}
-
-void Style::emit_pmath_size(FloatStyleOptionName  n) { // n + {0,1,2} ~= {Common, Horizontal, Vertical}
-  Expr e;
+  have_left   = get(                     n,      &left);
+  have_right  = get(FloatStyleOptionName(n + 1), &right);
+  have_top    = get(FloatStyleOptionName(n + 2), &top);
+  have_bottom = get(FloatStyleOptionName(n + 3), &bottom);
   
-  if(get_dynamic(n, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(n),
-                   e));
-  }
-  else {
-    bool have_horz, have_vert;
-    Expr horz, vert;
+  if(have_left || have_right || have_top || have_bottom) {
+    Expr l, r, t, b;
     
-    have_horz = get_dynamic(n + 1, &horz);
-    if(!have_horz) {
-      float h;
-      have_horz = get(FloatStyleOptionName(n + 1), &h);
+    if(have_left)
+      l = Number(left);
+    else
+      l = Symbol(PMATH_SYMBOL_INHERITED);
       
-      if(have_horz) {
-        if(h > 0)
-          horz = Number(h);
-        else
-          horz = Symbol(PMATH_SYMBOL_AUTOMATIC);
-      }
-      else
-        horz = Symbol(PMATH_SYMBOL_INHERITED);
-    }
-    
-    have_vert = get_dynamic(n + 2, &vert);
-    if(!have_vert) {
-      float v;
-      have_vert = get(FloatStyleOptionName(n + 2), &v);
+    if(have_right)
+      r = Number(right);
+    else
+      r = Symbol(PMATH_SYMBOL_INHERITED);
       
-      if(have_vert) {
-        if(v > 0)
-          vert = Number(v);
-        else
-          vert = Symbol(PMATH_SYMBOL_AUTOMATIC);
-      }
-      else
-        vert = Symbol(PMATH_SYMBOL_INHERITED);
-    }
-    
-    if(have_horz || have_vert) {
-      Gather::emit(Rule(
-                     get_symbol(n),
-                     List(horz, vert)));
-    }
+    if(have_top)
+      t = Number(top);
+    else
+      t = Symbol(PMATH_SYMBOL_INHERITED);
+      
+    if(have_bottom)
+      b = Number(bottom);
+    else
+      b = Symbol(PMATH_SYMBOL_INHERITED);
+      
+    return List(l, r, t, b);
   }
+  
+  return Symbol(PMATH_SYMBOL_INHERITED);
 }
 
-void Style::emit_pmath_string(StringStyleOptionName n) {
-  Expr e;
+Expr Style::get_pmath_size(FloatStyleOptionName n) { // n + {0,1,2} ~= {Common, Horizontal, Vertical}
+  bool have_horz, have_vert;
+  Expr horz, vert;
+  
+  have_horz = get_dynamic(n + 1, &horz);
+  if(!have_horz) {
+    float h;
+    have_horz = get(FloatStyleOptionName(n + 1), &h);
+    
+    if(have_horz) {
+      if(h > 0)
+        horz = Number(h);
+      else
+        horz = Symbol(PMATH_SYMBOL_AUTOMATIC);
+    }
+    else
+      horz = Symbol(PMATH_SYMBOL_INHERITED);
+  }
+  
+  have_vert = get_dynamic(n + 2, &vert);
+  if(!have_vert) {
+    float v;
+    have_vert = get(FloatStyleOptionName(n + 2), &v);
+    
+    if(have_vert) {
+      if(v > 0)
+        vert = Number(v);
+      else
+        vert = Symbol(PMATH_SYMBOL_AUTOMATIC);
+    }
+    else
+      vert = Symbol(PMATH_SYMBOL_INHERITED);
+  }
+  
+  if(have_horz || have_vert)
+    return List(horz, vert);
+    
+  return Symbol(PMATH_SYMBOL_INHERITED);
+}
+
+Expr Style::get_pmath_string(StringStyleOptionName n) {
   String s;
   
-  if(get_dynamic(n, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(n),
-                   e));
-  }
-  else if(get(n, &s)) {
-    Gather::emit(Rule(
-                   get_symbol(n),
-                   s));
-  }
+  if(get(n, &s))
+    return s;
+    
+  return Symbol(PMATH_SYMBOL_INHERITED);
 }
 
-void Style::emit_pmath_object(ObjectStyleOptionName n) {
+Expr Style::get_pmath_object(ObjectStyleOptionName n) {
+  Expr e;
+  
+  if(get(n, &e))
+    return e;
+    
+  return Symbol(PMATH_SYMBOL_INHERITED);
+}
+
+Expr Style::get_pmath_enum(IntStyleOptionName n) {
+  int i;
+  
+  if(get(n, &i)) {
+    SharedPtr<StyleEnumConverter> enum_converter = StyleInformation::get_enum_converter(n);
+    
+    assert(enum_converter.is_valid());
+  
+    return enum_converter->to_expr(i);
+  }
+  
+  return Symbol(PMATH_SYMBOL_INHERITED);
+}
+
+Expr Style::get_pmath_ruleset(ObjectStyleOptionName n) {
+  SharedPtr<StyleEnumConverter> key_converter = StyleInformation::get_enum_converter(n);
+  
+  assert(key_converter.is_valid());
+  
+  const Hashtable<Expr, int> &table = key_converter->expr_to_int();
+  
+  bool all_inherited = true;
+  Gather g;
+  
+  for(unsigned int i = 0, count = table.size();count > 0;++i) {
+    const Entry<Expr, int> *entry = table.entry(i);
+    
+    if(entry){
+      --count;
+      
+      Expr value = get_pmath(entry->value);
+      Gather::emit(Rule(entry->key, value));
+      
+      if(value != PMATH_SYMBOL_INHERITED)
+        all_inherited = false;
+    }
+  }
+  
+  Expr e = g.end();
+  if(all_inherited) 
+    return Symbol(PMATH_SYMBOL_INHERITED);
+    
+  return e;
+}
+
+
+void Style::emit_pmath(int n) {
   Expr e;
   
   if(get_dynamic(n, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(n),
-                   e));
+    Gather::emit(Rule(get_name(n), e));
+    return;  
   }
-  else if(get(n, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(n),
-                   e));
-  }
+  
+  e = get_pmath(n);
+  if(e != PMATH_SYMBOL_INHERITED)
+    Gather::emit(Rule(get_name(n), e));
 }
 
 void Style::emit_to_pmath(bool with_inherited) {
+  emit_pmath(Antialiasing);
+  emit_pmath(AspectRatio);
+  emit_pmath(AutoDelete);
+  emit_pmath(AutoNumberFormating);
+  emit_pmath(AutoSpacing);
+  emit_pmath(Background);
+  
+  if(with_inherited)
+    emit_pmath(BaseStyleName);
+    
+  emit_pmath(BorderRadius);
+  emit_pmath(BoxRotation);
+  emit_pmath(BoxTransformation);
+  emit_pmath(ButtonFrame);
+  emit_pmath(ButtonFunction);
+  emit_pmath(ContinuousAction);
+  emit_pmath(DefaultDuplicateSectionStyle);
+  emit_pmath(DefaultNewSectionStyle);
+  emit_pmath(DefaultReturnCreatedSectionStyle);
+  emit_pmath(DockedSections);
+  emit_pmath(Editable);
+  emit_pmath(Evaluatable);
+  emit_pmath(FontColor);
+  emit_pmath(FontFamilies);
+  emit_pmath(FontSize);
+  emit_pmath(FontSlant);
+  emit_pmath(FontWeight);
+  emit_pmath(GeneratedSectionStyles);
+  emit_pmath(GridBoxColumnSpacing);
+  emit_pmath(GridBoxRowSpacing);
+  emit_pmath(ImageSizeCommon);
+  emit_pmath(LanguageCategory);
+  emit_pmath(LineBreakWithin);
+  emit_pmath(Method);
+  emit_pmath(Placeholder);
+  emit_pmath(PlotRange);
+  emit_pmath(ReturnCreatesNewSection);
+  emit_pmath(ScriptSizeMultipliers);
+  emit_pmath(SectionEditDuplicate);
+  emit_pmath(SectionEditDuplicateMakesCopy);
+  emit_pmath(SectionFrameLeft);
+  emit_pmath(SectionFrameColor);
+  emit_pmath(SectionFrameMarginLeft);
+  emit_pmath(SectionGenerated);
+  emit_pmath(SectionGroupPrecedence);
+  emit_pmath(SectionMarginLeft);
+  emit_pmath(SectionLabel);
+  emit_pmath(SectionLabelAutoDelete);
+  emit_pmath(Selectable);
+  emit_pmath(ShowAutoStyles);
+  emit_pmath(ShowSectionBracket);
+  emit_pmath(ShowStringCharacters);
+  emit_pmath(StripOnInput);
+  emit_pmath(StyleDefinitions);
+  emit_pmath(TextShadow);
+  emit_pmath(Visible);
+  emit_pmath(WindowFrame);
+  emit_pmath(WindowTitle);
+  
   Expr e;
-  String s;
-  int i;
-  
-  emit_pmath_bool_auto(Antialiasing);
-  emit_pmath_float(    AspectRatio);
-  emit_pmath_bool(     AutoDelete);
-  emit_pmath_bool(     AutoNumberFormating);
-  emit_pmath_bool(     AutoSpacing);
-  emit_pmath_color(    Background);
-  
-  if(with_inherited) 
-    emit_pmath_string(BaseStyleName);
-  
-  emit_pmath_object(BorderRadius);
-  emit_pmath_object(BoxRotation);
-  emit_pmath_object(BoxTransformation);
-  
-  if(get_dynamic(ButtonFrame, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(ButtonFrame),
-                   e));
-  }
-  else if(get(ButtonFrame, &i)) {
-    Gather::emit(Rule(
-                   get_symbol(ButtonFrame),
-                   buttonframe_to_rhs(i)));
-  }
-  
-  emit_pmath_object(ButtonFunction);
-  emit_pmath_bool(  ContinuousAction);
-  emit_pmath_object(DefaultDuplicateSectionStyle);
-  emit_pmath_object(DefaultNewSectionStyle);
-  emit_pmath_object(DefaultReturnCreatedSectionStyle);
-  
-  if(get_dynamic(DockedSectionsTop, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(DockedSectionsTop),
-                   e));
-  }
-  else {
-    Expr top, top_glass, bottom, bottom_glass;
-    bool have_top, have_top_glass, have_bottom, have_bottom_glass;
-    
-    have_top          = get(DockedSectionsTop,         &top);
-    have_top_glass    = get(DockedSectionsTopGlass,    &top_glass);
-    have_bottom       = get(DockedSectionsBottom,      &bottom);
-    have_bottom_glass = get(DockedSectionsBottomGlass, &bottom_glass);
-    
-    if(have_top || have_top_glass || have_bottom || have_bottom_glass) {
-      Gather g;
-      
-      if(have_top)
-        Gather::emit(Rule(String("Top"), top));
-        
-      if(have_top_glass)
-        Gather::emit(Rule(String("TopGlass"), top_glass));
-        
-      if(have_bottom)
-        Gather::emit(Rule(String("Bottom"), bottom));
-        
-      if(have_bottom_glass)
-        Gather::emit(Rule(String("BottomGlass"), bottom_glass));
-        
-      Expr all = g.end();
-      
-      Gather::emit(Rule(
-                     get_symbol(DockedSectionsTop),
-                     all));
-    }
-  }
-  
-  emit_pmath_bool(  Editable);
-  emit_pmath_bool(  Evaluatable);
-  emit_pmath_color( FontColor);
-  emit_pmath_object(FontFamilies);
-  emit_pmath_float( FontSize);
-  
-  if(get_dynamic(FontSlant, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(FontSlant),
-                   e));
-  }
-  else if(get(FontSlant, &i)) {
-    switch(i) {
-      case FontSlantPlain:
-        Gather::emit(Rule(
-                       get_symbol(FontSlant),
-                       Symbol(PMATH_SYMBOL_PLAIN)));
-        break;
-        
-      case FontSlantItalic:
-        Gather::emit(Rule(
-                       get_symbol(FontSlant),
-                       Symbol(PMATH_SYMBOL_ITALIC)));
-        break;
-    }
-  }
-  
-  if(get_dynamic(FontWeight, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(FontWeight),
-                   e));
-  }
-  else if(get(FontWeight, &i)) {
-    switch(i) {
-      case FontWeightPlain:
-        Gather::emit(Rule(
-                       get_symbol(FontWeight),
-                       Symbol(PMATH_SYMBOL_PLAIN)));
-        break;
-        
-      case FontWeightBold:
-        Gather::emit(Rule(
-                       get_symbol(FontWeight),
-                       Symbol(PMATH_SYMBOL_BOLD)));
-        break;
-    }
-  }
-  
-  emit_pmath_object(GeneratedSectionStyles);
-  emit_pmath_float( GridBoxColumnSpacing);
-  emit_pmath_float( GridBoxRowSpacing);
-  emit_pmath_size(  ImageSizeCommon);
-  emit_pmath_string(LanguageCategory);
-  emit_pmath_bool(  LineBreakWithin);
-  emit_pmath_string(Method);
-  emit_pmath_bool(  Placeholder);
-  emit_pmath_object(PlotRange);
-  emit_pmath_bool(  ReturnCreatesNewSection);
-  emit_pmath_object(ScriptSizeMultipliers);
-  emit_pmath_bool(  SectionEditDuplicate);
-  emit_pmath_bool(  SectionEditDuplicateMakesCopy);
-  emit_pmath_margin(SectionFrameLeft);
-  emit_pmath_color( SectionFrameColor);
-  emit_pmath_margin(SectionFrameMarginLeft);
-  emit_pmath_bool(  SectionGenerated);
-  emit_pmath_float( SectionGroupPrecedence);
-  emit_pmath_margin(SectionMarginLeft);
-  
-  if(get_dynamic(SectionLabel, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(SectionLabel),
-                   e));
-  }
-  else if(get(SectionLabel, &s)) {
-    Gather::emit(Rule(
-                   get_symbol(SectionLabel),
-                   s.is_null() ? Symbol(PMATH_SYMBOL_NONE) : s));
-  }
-  
-  emit_pmath_bool(  SectionLabelAutoDelete);
-  emit_pmath_bool(  Selectable);
-  emit_pmath_bool(  ShowAutoStyles);
-  emit_pmath_bool(  ShowSectionBracket);
-  emit_pmath_bool(  ShowStringCharacters);
-  emit_pmath_bool(  StripOnInput);
-  emit_pmath_object(StyleDefinitions);
-  emit_pmath_object(TextShadow);
-  emit_pmath_bool(  Visible);
-  
-  if(get_dynamic(WindowFrame, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(WindowFrame),
-                   e));
-  }
-  else if(get(WindowFrame, &i)) {
-    switch((WindowFrameType)i) {
-      case WindowFrameNormal:
-        Gather::emit(Rule(
-                       get_symbol(WindowFrame),
-                       String("Normal")));
-        break;
-        
-      case WindowFramePalette:
-        Gather::emit(Rule(
-                       get_symbol(WindowFrame),
-                       String("Palette")));
-        break;
-        
-      case WindowFrameDialog:
-        Gather::emit(Rule(
-                       get_symbol(WindowFrame),
-                       String("Dialog")));
-        break;
-    }
-  }
-  
-  if(get_dynamic(WindowTitle, &e)) {
-    Gather::emit(Rule(
-                   get_symbol(WindowTitle),
-                   e));
-  }
-  else if(get(WindowTitle, &s)) {
-    Gather::emit(Rule(
-                   get_symbol(WindowTitle),
-                   s.is_null() ? Symbol(PMATH_SYMBOL_AUTOMATIC) : s));
-  }
-  
   if(get(UnknownOptions, &e)) {
     Expr rules = Evaluate(Call(Symbol(PMATH_SYMBOL_DOWNRULES), e));
     

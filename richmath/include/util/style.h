@@ -49,7 +49,7 @@ namespace richmath {
     WindowFrame  // WindowFrameType
   };
   
-  enum{
+  enum {
     FontWeightPlain = 0,
     FontWeightBold  = 100
   };
@@ -118,6 +118,7 @@ namespace richmath {
     DefaultNewSectionStyle,
     DefaultReturnCreatedSectionStyle,
     
+    DockedSections,
     DockedSectionsTop,
     DockedSectionsTopGlass,
     DockedSectionsBottom,
@@ -129,7 +130,7 @@ namespace richmath {
   
   const int DynamicOffset = 1000000;
   
-  enum StyleType{
+  enum StyleType {
     StyleTypeNone,
     
     StyleTypeBool,
@@ -141,18 +142,45 @@ namespace richmath {
     StyleTypeString,
     StyleTypeAny,
     
-    StyleTypeFontSlant,
-    StyleTypeFontWeight,
-    StyleTypeButtonFrame,
-    StyleTypeWindowFrame,
-    StyleTypeDockedSections4
+    StyleTypeEnum,
+    StyleTypeRuleSet
   };
-
+  
   typedef union {
     int   int_value;
     float float_value;
   } IntFloatUnion;
-   
+  
+  class StyleEnumConverter: public Shareable {
+    public:
+      StyleEnumConverter();
+      
+      bool is_valid_int(int val) {
+        return _int_to_expr.search(val) != 0;
+      }
+      
+      bool is_valid_expr(Expr expr) {
+        return _expr_to_int.search(expr) != 0;
+      }
+      
+      int  to_int(Expr expr) {
+        return _expr_to_int[expr];
+      }
+      
+      Expr to_expr(int val) {
+        return _int_to_expr[val];
+      }
+      
+      const Hashtable<Expr, int> &expr_to_int(){ return _expr_to_int; }
+      
+    protected:
+      void add(int val, Expr expr);
+      
+    protected:
+      Hashtable<int, Expr, cast_hash> _int_to_expr;
+      Hashtable<Expr, int>            _expr_to_int;
+  };
+  
   class Style: public Shareable {
     public:
       Style();
@@ -194,17 +222,6 @@ namespace richmath {
       void remove_dynamic(StringStyleOptionName n) { remove_dynamic((int)n); }
       void remove_dynamic(ObjectStyleOptionName n) { remove_dynamic((int)n); }
       
-      void set_pmath_bool_auto(IntStyleOptionName    n, Expr obj); // 0/1=true/false, 2=auto
-      void set_pmath_bool(     IntStyleOptionName    n, Expr obj);
-      void set_pmath_color(    IntStyleOptionName    n, Expr obj);
-      void set_pmath_float(    FloatStyleOptionName  n, Expr obj);
-      void set_pmath_margin(   FloatStyleOptionName  n, Expr obj); // n + {0,1,2,3} ~= {Left, Right, Top, Bottom}
-      void set_pmath_size(     FloatStyleOptionName  n, Expr obj); // n + {0,1,2} ~= {Common, Horizontal, Vertical}
-      void set_pmath_string(   StringStyleOptionName n, Expr obj);
-      void set_pmath_object(   ObjectStyleOptionName n, Expr obj);
-      
-      void set_docked_sections(Expr obj);
-      
       unsigned int count();
       
       static bool modifies_size(IntStyleOptionName    style_name) { return modifies_size((int)style_name); }
@@ -212,28 +229,69 @@ namespace richmath {
       static bool modifies_size(StringStyleOptionName style_name) { return modifies_size((int)style_name); }
       static bool modifies_size(ObjectStyleOptionName style_name) { return modifies_size((int)style_name); }
       
-      static Expr get_symbol(IntStyleOptionName    n) { return get_symbol((int)n); }
-      static Expr get_symbol(FloatStyleOptionName  n) { return get_symbol((int)n); }
-      static Expr get_symbol(StringStyleOptionName n) { return get_symbol((int)n); }
-      static Expr get_symbol(ObjectStyleOptionName n) { return get_symbol((int)n); }
+      static Expr get_name(IntStyleOptionName    n) { return get_name((int)n); }
+      static Expr get_name(FloatStyleOptionName  n) { return get_name((int)n); }
+      static Expr get_name(StringStyleOptionName n) { return get_name((int)n); }
+      static Expr get_name(ObjectStyleOptionName n) { return get_name((int)n); }
+      
+      static enum StyleType get_type(IntStyleOptionName    n) { return get_type((int)n); }
+      static enum StyleType get_type(FloatStyleOptionName  n) { return get_type((int)n); }
+      static enum StyleType get_type(StringStyleOptionName n) { return get_type((int)n); }
+      static enum StyleType get_type(ObjectStyleOptionName n) { return get_type((int)n); }
+      
+      static SharedPtr<StyleEnumConverter> get_enum_values(IntStyleOptionName n);
+      static SharedPtr<StyleEnumConverter> get_sub_rules(ObjectStyleOptionName n);
+      
+      void set_pmath(IntStyleOptionName    n, Expr value) { set_pmath((int)n, value); }
+      void set_pmath(FloatStyleOptionName  n, Expr value) { set_pmath((int)n, value); }
+      void set_pmath(StringStyleOptionName n, Expr value) { set_pmath((int)n, value); }
+      void set_pmath(ObjectStyleOptionName n, Expr value) { set_pmath((int)n, value); }
+      
+      Expr get_pmath(IntStyleOptionName    n) { return get_pmath((int)n); }
+      Expr get_pmath(FloatStyleOptionName  n) { return get_pmath((int)n); }
+      Expr get_pmath(StringStyleOptionName n) { return get_pmath((int)n); }
+      Expr get_pmath(ObjectStyleOptionName n) { return get_pmath((int)n); }
       
       bool update_dynamic(Box *parent);
       
-      void emit_pmath_bool_auto(IntStyleOptionName    n); // 0/1=false/true, 2=auto
-      void emit_pmath_bool(     IntStyleOptionName    n);
-      void emit_pmath_color(    IntStyleOptionName    n);
-      void emit_pmath_float(    FloatStyleOptionName  n);
-      void emit_pmath_margin(   FloatStyleOptionName  n); // n + {0,1,2,3} ~= {Left, Right, Top, Bottom}
-      void emit_pmath_size(     FloatStyleOptionName  n); // n + {0,1} ~= {Horizontal, Vertical}
-      void emit_pmath_string(   StringStyleOptionName n);
-      void emit_pmath_object(   ObjectStyleOptionName n);
+      void emit_pmath(IntStyleOptionName    n) { return emit_pmath((int)n); }
+      void emit_pmath(FloatStyleOptionName  n) { return emit_pmath((int)n); }
+      void emit_pmath(StringStyleOptionName n) { return emit_pmath((int)n); }
+      void emit_pmath(ObjectStyleOptionName n) { return emit_pmath((int)n); }
       
       void emit_to_pmath(bool with_inherited = false);
       
     protected:
       static bool modifies_size(int style_name);
       
-      static Expr get_symbol(int n);
+      static Expr           get_name(int n);
+      static enum StyleType get_type(int n);
+      
+      void set_pmath(          int key,                 Expr value);
+      void set_pmath_bool_auto(IntStyleOptionName    n, Expr obj);
+      void set_pmath_bool(     IntStyleOptionName    n, Expr obj);
+      void set_pmath_color(    IntStyleOptionName    n, Expr obj);
+      void set_pmath_float(    FloatStyleOptionName  n, Expr obj);
+      void set_pmath_margin(   FloatStyleOptionName  n, Expr obj); // n + {0,1,2,3} ~= {Left, Right, Top, Bottom}
+      void set_pmath_size(     FloatStyleOptionName  n, Expr obj); // n + {0,1,2} ~= {Common, Horizontal, Vertical}
+      void set_pmath_string(   StringStyleOptionName n, Expr obj);
+      void set_pmath_object(   ObjectStyleOptionName n, Expr obj);
+      void set_pmath_enum(     IntStyleOptionName    n, Expr obj);
+      void set_pmath_ruleset(  ObjectStyleOptionName n, Expr obj);
+      
+      Expr get_pmath(          int                   n);
+      Expr get_pmath_bool_auto(IntStyleOptionName    n);
+      Expr get_pmath_bool(     IntStyleOptionName    n);
+      Expr get_pmath_color(    IntStyleOptionName    n);
+      Expr get_pmath_float(    FloatStyleOptionName  n);
+      Expr get_pmath_margin(   FloatStyleOptionName  n); // n + {0,1,2,3} ~= {Left, Right, Top, Bottom}
+      Expr get_pmath_size(     FloatStyleOptionName  n); // n + {0,1,2} ~= {Common, Horizontal, Vertical}
+      Expr get_pmath_string(   StringStyleOptionName n);
+      Expr get_pmath_object(   ObjectStyleOptionName n);
+      Expr get_pmath_enum(     IntStyleOptionName    n);
+      Expr get_pmath_ruleset(  ObjectStyleOptionName n);
+      
+      void emit_pmath(int n);
       
       bool get_dynamic(int n, Expr *value) {
         return get((ObjectStyleOptionName)(n + DynamicOffset), value);

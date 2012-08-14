@@ -320,7 +320,7 @@ static void init_stylesheet() {
   //Stylesheet::Default->base->set(FontFamilies,   List("Veranda", "Arial"));
   Stylesheet::Default->base->set(SectionLabel, "");
   
-  Stylesheet::Default->base->set_pmath_string(Method,
+  Stylesheet::Default->base->set_pmath(Method,
       Expr(pmath_option_value(
              PMATH_SYMBOL_BUTTONBOX,
              PMATH_SYMBOL_METHOD,

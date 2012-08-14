@@ -231,7 +231,7 @@ bool StyleBox::try_load_from_object(Expr expr, int opts) {
     if(!style)
       style = new Style();
     
-    style->set_pmath_string(BaseStyleName, expr[2]);
+    style->set_pmath(BaseStyleName, expr[2]);
   }
   
   if(options != PMATH_UNDEFINED) {
