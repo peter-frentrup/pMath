@@ -142,7 +142,7 @@ Box *AbstractStyleBox::mouse_selection(
   int   *end,
   bool  *was_inside_start
 ) {
-  if(style && _parent) {
+  if(_parent) {
     if(get_own_style(Placeholder)) {
       *start = _index;
       *end = _index + 1;
@@ -150,7 +150,7 @@ Box *AbstractStyleBox::mouse_selection(
       return _parent;
     }
     
-    if(!get_own_style(Selectable, true)) {
+    if(y < -_extents.ascent || y > _extents.descent || !get_own_style(Selectable, true)) {
       if(x <= _extents.width / 2) {
         *start = *end = _index;
         *was_inside_start = true;

@@ -350,7 +350,13 @@ static bool can_expand_selection(Expr cmd) {
 static bool can_evaluate_in_place(Expr cmd) {
   Document *doc = get_current_document();
   
-  return doc && 0 != dynamic_cast<MathSequence *>(doc->selection_box());
+  if(!doc)
+    return false;
+  
+  if(!dynamic_cast<MathSequence *>(doc->selection_box()))
+    return false;
+  
+  return doc->selection_length() > 0;
 }
 
 static bool can_evaluate_sections(Expr cmd) {
@@ -721,7 +727,7 @@ static bool evaluate_in_place_cmd(Expr cmd) {
     
   MathSequence *seq = dynamic_cast<MathSequence *>(doc->selection_box());
   
-  if(seq) {
+  if(seq && doc->selection_length() > 0) {
     Application::add_job(new ReplacementJob(
                            seq,
                            doc->selection_start(),
