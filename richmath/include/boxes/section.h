@@ -16,9 +16,6 @@ namespace richmath {
       
       static Section *create_from_object(const Expr expr);
       
-      const String label() { return get_style(SectionLabel); } // { return style->section_label; }
-      void label(const String str);
-      
       float label_width();
       void resize_label(Context *context);
       void paint_label(Context *context);
@@ -53,6 +50,7 @@ namespace richmath {
       
     private:
       Array<GlyphInfo>  label_glyphs;
+      String            label_string;
   };
   
   class ErrorSection: public Section {

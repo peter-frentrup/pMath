@@ -118,7 +118,9 @@ bool InputJob::start() {
   else if(dlvl != PMATH_FROM_INT32(0))
     label = String("(Dialog ") + dlvl.to_string() + String(") ") + label;
     
-  section->label(label + line.to_string() + String("]:"));
+  if(!section->style)
+    section->style = new Style;
+  section->style->set(SectionLabel, label + line.to_string() + String("]:"));
   section->invalidate();
   
   Server::local_server->run_boxes(

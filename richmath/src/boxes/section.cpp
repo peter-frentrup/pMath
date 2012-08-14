@@ -49,18 +49,6 @@ Section *Section::create_from_object(const Expr expr) {
   return new ErrorSection(expr);
 }
 
-void Section::label(const String str) {
-  if(!str.is_null()) {
-    if(!style)
-      style = new Style;
-      
-    style->set(SectionLabel, str);
-    label_glyphs.length(0);
-  }
-  else if(style)
-    style->remove(SectionLabel);
-}
-
 float Section::label_width() {
   if(label_glyphs.length() == 0)
     return 0;
@@ -70,8 +58,10 @@ float Section::label_width() {
 
 void Section::resize_label(Context *context) {
   String lbl = get_style(SectionLabel);
-  if(lbl.is_null() || label_glyphs.length() == lbl.length())
+  if(lbl.is_null() || label_string == lbl)
     return;
+    
+  label_string = lbl;
     
   SharedPtr<TextShaper> shaper = TextShaper::find("Arial", NoStyle);
   
