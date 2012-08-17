@@ -42,9 +42,8 @@ void Win32TooltipWindow::after_construction() {
     document()->style = new Style;
   document()->style->set(Editable,            false);
   document()->style->set(Selectable,          false);
+  document()->style->set(ShowSectionBracket,  false);
   document()->select(0, 0, 0);
-  
-  document()->border_visible = false;
 }
 
 Win32TooltipWindow::~Win32TooltipWindow() {

@@ -167,6 +167,6 @@ Document({
           "\[Placeholder]", "\[Placeholder]"))}})), "Output", 
     ButtonFrame -> "Palette", ButtonFunction -> (DocumentApply(
      SelectedDocument(), #1) &), FontSize -> 9, GridBoxColumnSpacing -> 0, 
-    GridBoxRowSpacing -> 0, SectionMargins -> {0, 0, 0, 0}, 
-    ShowSectionBracket -> False)}, Editable -> False, Selectable -> False, 
+    GridBoxRowSpacing -> 0, SectionMargins -> {0, 0, 0, 0})}, 
+  Editable -> False, Selectable -> False, ShowSectionBracket -> False,
   WindowFrame -> "Palette", WindowTitle -> "Math Input")

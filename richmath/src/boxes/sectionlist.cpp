@@ -29,7 +29,6 @@ Expr SectionList::group(Expr sections) {
 
 SectionList::SectionList()
   : Box(),
-    border_visible(true),
     section_bracket_width(8),
     section_bracket_right_margin(2),
     _scrollx(0)
@@ -61,7 +60,7 @@ void SectionList::resize(Context *context) {
       
       float w  = _sections[i]->extents().width;
       float uw = _sections[i]->unfilled_width;
-      if(border_visible) {
+      if(get_own_style(ShowSectionBracket, true)) {
         w +=  section_bracket_right_margin + section_bracket_width * _group_info[i].nesting;
         uw += section_bracket_right_margin + section_bracket_width * _group_info[i].nesting;
       }
@@ -74,7 +73,7 @@ void SectionList::resize(Context *context) {
     }
   }
   
-//  if(border_visible){
+//  if(get_own_style(ShowSectionBracket, true)){
 //    _extents.width+= BorderWidth;
 //    unfilled_width+= BorderWidth;
 //  }
@@ -294,8 +293,7 @@ Box *SectionList::mouse_selection(
   float right = _scrollx + _window_width - section_bracket_right_margin;
   int border_level = -1;
   
-  if(border_visible
-      && section_bracket_width > 0) {
+  if(get_own_style(ShowSectionBracket, true) && section_bracket_width > 0) {
     border_level = (int)ceil((right - x) / section_bracket_width + 0.2);
     if(border_level < 0)
       border_level = 0;
@@ -729,7 +727,7 @@ void SectionList::resize_section(Context *context, int i) {
   float old_w    = context->width;
   float old_scww = context->section_content_window_width;
   
-  if(border_visible) {
+  if(get_own_style(ShowSectionBracket, true)) {
     context->width                        -= section_bracket_right_margin + section_bracket_width * _group_info[i].nesting;
     context->section_content_window_width -= section_bracket_right_margin + section_bracket_width * _group_info[i].nesting;
   }
@@ -745,7 +743,7 @@ void SectionList::paint_section(Context *context, int i, float scrollx) {
   float old_scww = context->section_content_window_width;
   _scrollx = scrollx;
   
-  if(border_visible) {
+  if(get_own_style(ShowSectionBracket, true)) {
     context->width                        -= section_bracket_right_margin + section_bracket_width * _group_info[i].nesting;
     context->section_content_window_width -= section_bracket_right_margin + section_bracket_width * _group_info[i].nesting;
   }
@@ -791,7 +789,7 @@ void SectionList::paint_section(Context *context, int i, float scrollx) {
 }
 
 void SectionList::paint_section_brackets(Context *context, int i, float right, float top) {
-  if(border_visible) {
+  if(get_own_style(ShowSectionBracket, true)) {
     int style = BorderDefault;
     
     if(_sections[i]->evaluating)

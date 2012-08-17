@@ -2,6 +2,8 @@
 	Button("italic", DocumentApply(SelectedDocument(), StyleBox("\[SelectionPlaceholder]", "TI"))),
 	Button("Arg Style", DocumentApply(SelectedDocument(), StyleBox("\[SelectionPlaceholder]", "Arg")))})
 
+- add various space characters to pMathFallback.otf
+
 ? add InputDocument(): Palettes may be the SelectedDocument(), but never the InputDocument()
 	
 - BUG: Print(...) in a docked section (via button click) should print into the working area, not the 

@@ -174,10 +174,10 @@ class richmath::MathGtkDock: public MathGtkWidget {
       if(!document()->style)
         document()->style = new Style();
         
-      document()->style->set(Selectable, false);
+      document()->style->set(Selectable,         false);
+      document()->style->set(ShowSectionBracket, false);
       
       document()->select(0, 0, 0);
-      document()->border_visible = false;
     }
     
     virtual void paint_background(Canvas *canvas) {
@@ -433,7 +433,6 @@ void MathGtkDocumentWindow::window_frame(WindowFrameType type) {
   
   gtk_widget_set_visible(_menu_bar, type == WindowFrameNormal);
   
-  _working_area->document()->border_visible   = type == WindowFrameNormal;
   _working_area->_autohide_vertical_scrollbar = type == WindowFramePalette || type == WindowFrameDialog;
   
   if(_window_frame != type) {

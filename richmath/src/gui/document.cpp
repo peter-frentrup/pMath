@@ -3545,7 +3545,7 @@ void Document::paint_resize(Canvas *canvas, bool resize_only) {
       
       float w  = section(i)->extents().width;
       float uw = section(i)->unfilled_width;
-      if(border_visible) {
+      if(get_own_style(ShowSectionBracket, true)) {
         w +=  section_bracket_right_margin + section_bracket_width * group_info(i).nesting;
         uw += section_bracket_right_margin + section_bracket_width * group_info(i).nesting;
       }
@@ -3579,7 +3579,7 @@ void Document::paint_resize(Canvas *canvas, bool resize_only) {
         
         float w  = section(i)->extents().width;
         float uw = section(i)->unfilled_width;
-        if(border_visible) {
+        if(get_own_style(ShowSectionBracket, true)) {
           w +=  section_bracket_right_margin + section_bracket_width * group_info(i).nesting;
           uw += section_bracket_right_margin + section_bracket_width * group_info(i).nesting;
         }
@@ -3619,7 +3619,7 @@ void Document::paint_resize(Canvas *canvas, bool resize_only) {
       
       float w  = section(i)->extents().width;
       float uw = section(i)->unfilled_width;
-      if(border_visible) {
+      if(get_own_style(ShowSectionBracket, true)) {
         w +=  section_bracket_right_margin + section_bracket_width * group_info(i).nesting;
         uw += section_bracket_right_margin + section_bracket_width * group_info(i).nesting;
       }

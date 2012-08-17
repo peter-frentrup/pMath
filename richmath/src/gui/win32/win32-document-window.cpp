@@ -176,10 +176,10 @@ class richmath::Win32Dock: public Win32Widget {
       
       assert(document()->style.is_valid());
       
-      document()->style->set(Selectable, false);
+      document()->style->set(Selectable,         false);
+      document()->style->set(ShowSectionBracket, false);
       
       document()->select(0, 0, 0);
-      document()->border_visible = false;
     }
     
   public:
@@ -896,7 +896,6 @@ void Win32DocumentWindow::window_frame(WindowFrameType type) {
     case WindowFrameNormal:
       {
         _working_area->auto_size                    = false;
-        _working_area->document()->border_visible   = true;
         _working_area->_autohide_vertical_scrollbar = false;
         
         // normal window caption:
@@ -920,7 +919,6 @@ void Win32DocumentWindow::window_frame(WindowFrameType type) {
     case WindowFramePalette:
       {
         _working_area->auto_size                    = true;
-        _working_area->document()->border_visible   = false;
         _working_area->_autohide_vertical_scrollbar = true;
         
         // tool window caption:
@@ -941,7 +939,6 @@ void Win32DocumentWindow::window_frame(WindowFrameType type) {
     case WindowFrameDialog:
       {
         _working_area->auto_size                    = true;
-        _working_area->document()->border_visible   = false;
         _working_area->_autohide_vertical_scrollbar = true;
         
         // normal window caption:

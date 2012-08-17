@@ -84,5 +84,5 @@ Document({SectionGroup({Section("Using FE`$WindowFrameImage", "Title"),
         SectionGenerated -> True, SectionLabel -> "out [36]:")}, 2)}, All)}, 
   Background -> GrayLevel(1), DockedSections -> {
    "TopGlass" -> {Section("", "Docked")}}, Editable -> False, 
-  Selectable -> False, WindowFrame -> "Dialog", 
+  Selectable -> False, WindowFrame -> "Dialog", ShowSectionBracket -> False, 
   WindowTitle -> "Using FE`$WindowFrameImage")

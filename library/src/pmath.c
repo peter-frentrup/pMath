@@ -718,6 +718,7 @@ PMATH_API pmath_bool_t pmath_init(void) {
                 "SectionEditDuplicateMakesCopy->Inherited,"
                 "Selectable->Inherited,"
                 "ShowAutoStyles->Inherited,"
+                "ShowSectionBracket->Inherited,"
                 "ShowStringCharacters->Inherited,"
                 "StyleDefinitions->Inherited,"
                 "TextShadow->Inherited,"

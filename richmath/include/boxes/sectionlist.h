@@ -131,7 +131,6 @@ namespace richmath {
         int      style); // int BorderXXX constants
         
     public:
-      bool  border_visible;
       float section_bracket_width;
       float section_bracket_right_margin;
       float unfilled_width;
