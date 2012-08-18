@@ -75,10 +75,11 @@ class LocalServer: public Server {
                                     pmath_ref(object[i].get())),
                                   &aborted));
                                   
-                if(return_from_dialog
-                    && !aborted
-                    && result[0] == PMATH_SYMBOL_RETURN
-                    && result.expr_length() <= 1) {
+                if( return_from_dialog               && 
+                    !aborted                         && 
+                    result[0] == PMATH_SYMBOL_RETURN && 
+                    result.expr_length() <= 1) 
+                {
                   *return_from_dialog = result[1];
                   rkind = Returned;
                   break;
@@ -95,10 +96,11 @@ class LocalServer: public Server {
                                   pmath_ref(object.get())),
                                 &aborted));
                                 
-              if(return_from_dialog
-                  && !aborted
-                  && result[0] == PMATH_SYMBOL_RETURN
-                  && result.expr_length() <= 1) {
+              if( return_from_dialog               && 
+                  !aborted                         && 
+                  result[0] == PMATH_SYMBOL_RETURN && 
+                  result.expr_length() <= 1) 
+              {
                 *return_from_dialog = result[1];
                 rkind = Returned;
               }
@@ -112,10 +114,11 @@ class LocalServer: public Server {
                               pmath_ref(object.get()),
                               &aborted));
                               
-            if(return_from_dialog
-                && !aborted
-                && result[0] == PMATH_SYMBOL_RETURN
-                && result.expr_length() <= 1) {
+            if( return_from_dialog               && 
+                !aborted                         && 
+                result[0] == PMATH_SYMBOL_RETURN && 
+                result.expr_length() <= 1) 
+            {
               *return_from_dialog = result[1];
               rkind = Returned;
             }
@@ -295,8 +298,9 @@ class LocalServer: public Server {
         Application::notify(CNT_STARTSESSION, Expr());
         
         firsteval = Expr(pmath_evaluate(firsteval.release()));
-        if(firsteval[0] == PMATH_SYMBOL_RETURN
-            && firsteval.expr_length() <= 1) {
+        if( firsteval[0] == PMATH_SYMBOL_RETURN && 
+            firsteval.expr_length() <= 1) 
+        {
           result = firsteval[1];
           goto FINISH;
         }

@@ -63,7 +63,7 @@ PMATH_PRIVATE pmath_t builtin_refresh(pmath_expr_t expr) {
     opt = pmath_evaluate(pmath_option_value(
                            PMATH_NULL, PMATH_SYMBOL_UPDATEINTERVAL, options));
                            
-    if(!pmath_same(opt, _pmath_object_infinity)) {
+    if(!pmath_equals(opt, _pmath_object_infinity)) {
       pmath_t sec_obj = pmath_approximate(pmath_ref(opt), -HUGE_VAL, -HUGE_VAL, NULL);
       double seconds = 0.0;
       

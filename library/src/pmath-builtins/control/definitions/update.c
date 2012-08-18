@@ -24,6 +24,5 @@ PMATH_PRIVATE pmath_t builtin_update(pmath_expr_t expr) {
   
   pmath_symbol_update(sym);
   pmath_unref(sym);
-  pmath_unref(expr);
   return PMATH_NULL;
 }
