@@ -106,12 +106,10 @@ ContainerType RadioButtonBox::calc_type(Expr result) {
   return RadioButtonUnchecked;
 }
 
-void RadioButtonBox::on_mouse_up(MouseEvent &event) {
-  if(event.left) {
-    dynamic.assign(value);
-  }
+void RadioButtonBox::click() {
+  dynamic.assign(value);
   
-  EmptyWidgetBox::on_mouse_up(event);
+  //EmptyWidgetBox::click();
 }
 
 //} ... class RadioButtonBox

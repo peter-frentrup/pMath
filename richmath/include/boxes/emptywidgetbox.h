@@ -35,6 +35,8 @@ namespace richmath {
       virtual void on_mouse_up(MouseEvent &event);
       virtual void on_mouse_cancel();
       
+      virtual void click();
+      
     protected:
       explicit EmptyWidgetBox(ContainerType _type);
       

@@ -36,18 +36,15 @@ static double make_nan() {
 //{ class SliderBox ...
 
 SliderBox::SliderBox()
-  : Box(),
+  : EmptyWidgetBox(SliderHorzThumb),
     range_min(0.0),
     range_max(1.0),
     range_step(0.0),
     range_value(0.5),
-    old_thumb_state(Normal),
-    new_thumb_state(Normal),
     thumb_width(1),
     channel_width(1),
-    must_update(true),
     have_drawn(false),
-    mouse_down(false),
+    mouse_over_thumb(false),
     use_double_values(true)
 {
   dynamic.init(this, Expr());
@@ -136,6 +133,16 @@ bool SliderBox::try_load_from_object(Expr expr, int opts) {
   use_double_values = new_use_double_values;
   
   return true;
+}
+
+ControlState SliderBox::calc_state(Context *context) {
+  if(mouse_left_down)
+    return PressedHovered;
+  
+  if(mouse_inside && mouse_over_thumb)
+    return Hovered;
+  
+  return Normal;
 }
 
 void SliderBox::resize(Context *context) {
@@ -245,21 +252,23 @@ void SliderBox::paint(Context *context) {
     _extents.width,
     channel_width);
     
+  ControlState new_state = calc_state(context);
+  
   if(old_value == range_value) {
-    if(new_thumb_state != old_thumb_state || !animation) {
+    if(new_state != old_state || !animation) {
       animation = ControlPainter::std->control_transition(
                     id(),
                     context->canvas,
                     SliderHorzThumb,
                     SliderHorzThumb,
-                    old_thumb_state,
-                    new_thumb_state,
+                    old_state,
+                    new_state,
                     thumb_x,
                     y,
                     thumb_width,
                     h);
                     
-      old_thumb_state = new_thumb_state;
+      old_state = new_state;
     }
     
     if(animation) {
@@ -271,8 +280,8 @@ void SliderBox::paint(Context *context) {
                     context->canvas,
                     SliderHorzThumb,
                     SliderHorzThumb,
-                    new_thumb_state,
-                    new_thumb_state,
+                    new_state,
+                    new_state,
                     thumb_x,
                     y,
                     thumb_width,
@@ -283,7 +292,7 @@ void SliderBox::paint(Context *context) {
   ControlPainter::std->draw_container(
     context->canvas,
     SliderHorzThumb,
-    new_thumb_state,
+    new_state,
     thumb_x,
     y,
     thumb_width,
@@ -411,19 +420,14 @@ void SliderBox::assign_dynamic_value(double d) {
   }
 }
 
-void SliderBox::on_mouse_enter() {
-}
-
 void SliderBox::on_mouse_exit() {
-  if(!mouse_down && new_thumb_state != Normal) {
-    new_thumb_state = Normal;
-    request_repaint_all();
-  }
+  EmptyWidgetBox::on_mouse_exit();
 }
 
 void SliderBox::on_mouse_down(MouseEvent &event) {
-  if(event.left) {
-    mouse_down = true;
+  EmptyWidgetBox::on_mouse_down(event);
+  
+  if(mouse_left_down) {
     event.set_source(this);
     
     double val = mouse_to_val(event.x);
@@ -432,21 +436,15 @@ void SliderBox::on_mouse_down(MouseEvent &event) {
       assign_dynamic_value(val);
     else
       range_value = val;
-      
-    new_thumb_state = PressedHovered;
-    request_repaint_all();
   }
 }
 
 void SliderBox::on_mouse_move(MouseEvent &event) {
-  Document *doc = find_parent<Document>(false);
+  EmptyWidgetBox::on_mouse_move(event);
   
-  if(doc) {
-    doc->native()->set_cursor(DefaultCursor);
-  }
+  event.set_source(this);
   
-  if(event.left) {
-    event.set_source(this);
+  if(mouse_left_down) {
     double val = mouse_to_val(event.x);
     
     if(val != range_value) {
@@ -458,36 +456,39 @@ void SliderBox::on_mouse_move(MouseEvent &event) {
       request_repaint_all();
     }
   }
-  
-  if(!mouse_down) {
-    event.set_source(this);
+  else {
     float tx = calc_thumb_pos(range_value);
     
-    ControlState old_state = new_thumb_state;
-    if(tx <= event.x && event.x <= tx + thumb_width)
-      new_thumb_state = Hovered;
-    else
-      new_thumb_state = Normal;
-      
-    if(old_state != new_thumb_state)
+    bool old_mot = mouse_over_thumb;
+    mouse_over_thumb = (tx <= event.x && event.x <= tx + thumb_width);
+    
+    if(old_mot != mouse_over_thumb)
       request_repaint_all();
   }
 }
 
 void SliderBox::on_mouse_up(MouseEvent &event) {
   if(event.left) {
-    mouse_down = false;
-    new_thumb_state = Normal;
-    
     event.set_source(this);
     double val = mouse_to_val(event.x);
-    if(val != range_value
-        || dynamic.synchronous_updating() == 2
-        || !get_own_style(ContinuousAction, true))
+    if( val != range_value                  || 
+        dynamic.synchronous_updating() == 2 || 
+        !get_own_style(ContinuousAction, true))
+    {
       assign_dynamic_value(val);
-      
-    request_repaint_all();
+    }
   }
+  
+  EmptyWidgetBox::on_mouse_up(event);
 }
+
+/*void SliderBox::on_mouse_cancel() {
+  Document *doc = find_parent<Document>(false);
+  
+  if(doc)
+    doc->native()->beep();
+  
+  EmptyWidgetBox::on_mouse_cancel();
+}*/
 
 //} ... class SliderBox

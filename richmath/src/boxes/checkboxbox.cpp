@@ -124,27 +124,25 @@ ContainerType CheckboxBox::calc_type(Expr result) {
   return CheckboxIndeterminate;
 }
 
-void CheckboxBox::on_mouse_up(MouseEvent &event) {
-  if(event.left) {
-    if(type == CheckboxChecked) {
-      if(values.is_null()) {
-        dynamic.assign(Symbol(PMATH_SYMBOL_FALSE));
-      }
-      else if(values.expr_length() == 2) {
-        dynamic.assign(values[1]);
-      }
+void CheckboxBox::click() {
+  if(type == CheckboxChecked) {
+    if(values.is_null()) {
+      dynamic.assign(Symbol(PMATH_SYMBOL_FALSE));
     }
-    else {
-      if(values.is_null()) {
-        dynamic.assign(Symbol(PMATH_SYMBOL_TRUE));
-      }
-      else if(values.expr_length() == 2) {
-        dynamic.assign(values[2]);
-      }
+    else if(values.expr_length() == 2) {
+      dynamic.assign(values[1]);
+    }
+  }
+  else {
+    if(values.is_null()) {
+      dynamic.assign(Symbol(PMATH_SYMBOL_TRUE));
+    }
+    else if(values.expr_length() == 2) {
+      dynamic.assign(values[2]);
     }
   }
   
-  EmptyWidgetBox::on_mouse_up(event);
+  // EmptyWidgetBox::click();
 }
 
 //} ... class CheckboxBox

@@ -1,13 +1,12 @@
 #ifndef __RICHMATH__BOXES__SLIDERBOX_H__
 #define __RICHMATH__BOXES__SLIDERBOX_H__
 
-#include <boxes/box.h>
+#include <boxes/emptywidgetbox.h>
 #include <eval/dynamic.h>
-#include <gui/control-painter.h>
 
 
 namespace richmath {
-  class SliderBox: public Box {
+  class SliderBox: public EmptyWidgetBox {
     public:
       explicit SliderBox();
       virtual ~SliderBox();
@@ -18,6 +17,8 @@ namespace richmath {
       virtual Box *item(int i) { return 0; }
       virtual int count() { return 0; }
       virtual int length() { return 0; }
+      
+      virtual ControlState calc_state(Context *context);
       
       virtual void resize(Context *context);
       virtual void paint(Context *context);
@@ -37,12 +38,11 @@ namespace richmath {
         int   *end,
         bool  *was_inside_start);
         
-      virtual Box *mouse_sensitive() { return this; }
-      virtual void on_mouse_enter();
       virtual void on_mouse_exit();
       virtual void on_mouse_down(MouseEvent &event);
       virtual void on_mouse_move(MouseEvent &event);
       virtual void on_mouse_up(MouseEvent &event);
+      //virtual void on_mouse_cancel();
       
     protected:
       float calc_thumb_pos(double val);
@@ -57,14 +57,10 @@ namespace richmath {
       Expr range;
       Dynamic dynamic;
       
-      SharedPtr<BoxAnimation> animation;
-      ControlState old_thumb_state;
-      ControlState new_thumb_state;
       float thumb_width;
       float channel_width;
-      bool must_update;
       bool have_drawn;
-      bool mouse_down;
+      bool mouse_over_thumb;
       bool use_double_values;
   };
 }

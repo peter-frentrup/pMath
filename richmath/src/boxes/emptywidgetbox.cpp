@@ -168,8 +168,9 @@ void EmptyWidgetBox::on_mouse_down(MouseEvent &event) {
   mouse_middle_down = mouse_middle_down || event.middle;
   mouse_right_down  = mouse_right_down  || event.right;
   mouse_inside      = _extents.to_rectangle().contains(event.x, event.y);
-                 
-  request_repaint_all();
+  
+  if(event.left)
+    request_repaint_all();
 }
 
 void EmptyWidgetBox::on_mouse_move(MouseEvent &event) {
@@ -188,7 +189,12 @@ void EmptyWidgetBox::on_mouse_move(MouseEvent &event) {
 }
 
 void EmptyWidgetBox::on_mouse_up(MouseEvent &event) {
-  request_repaint_all();
+  if(event.left) {
+    request_repaint_all();
+    
+    if(mouse_inside && mouse_left_down)
+      click();
+  }
   
   mouse_left_down   = mouse_left_down   && !event.left;
   mouse_middle_down = mouse_middle_down && !event.middle;
@@ -201,4 +207,7 @@ void EmptyWidgetBox::on_mouse_cancel() {
   mouse_left_down = mouse_middle_down = mouse_right_down = false;
 }
 
+void EmptyWidgetBox::click() {
+}
+      
 //} ... class EmptyWidgetBox

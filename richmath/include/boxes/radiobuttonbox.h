@@ -21,7 +21,7 @@ namespace richmath {
       virtual void dynamic_finished(Expr info, Expr result);
       virtual Box *dynamic_to_literal(int *start, int *end);
       
-      virtual void on_mouse_up(MouseEvent &event);
+      virtual void click();
       
     protected:
       ContainerType calc_type(Expr result);
