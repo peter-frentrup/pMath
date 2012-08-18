@@ -772,8 +772,10 @@ void ScopeColorizer::syntax_colorize_spanexpr(SpanExpr *se) {
       if( !parent ||
           !pmath_char_is_right(parent->item_as_char(parent->count() - 1)))
       {
-        glyphs[se->start()].style = GlyphStyleSyntaxError;
-        return;
+        if(pmath_right_fence(se->as_char()) != 0){
+          glyphs[se->start()].style = GlyphStyleSyntaxError;
+          return;
+        }
       }
       
       return;

@@ -486,33 +486,35 @@ void Style::add_pmath(Expr options) {
 //          rhs = List(Rule(lhs[2], rhs));
 //          lhs = lhs[1];
 //        }
-
-        if(rhs != PMATH_SYMBOL_INHERITED) {
-          int key;
-          
-          key  = StyleInformation::get_key(lhs);
-          
-          if(key < 0) {
-            pmath_debug_print_object("[unknown option ", rule.get(), "]\n");
-            
-            Expr sym;
-            if(!get(UnknownOptions, &sym) || !sym.is_symbol()) {
-              sym = Expr(pmath_symbol_create_temporary(PMATH_C_STRING("FE`Styles`unknown"), TRUE));
-              set(UnknownOptions, sym);
-            }
-            
-            rule.set(1, Call(Symbol(PMATH_SYMBOL_HOLDPATTERN), Call(sym, lhs)));
-            Expr eval = Call(Symbol(PMATH_SYMBOL_ASSIGN),
-                             Call(Symbol(PMATH_SYMBOL_DOWNRULES), sym),
-                             Call(Symbol(PMATH_SYMBOL_APPEND),
-                                  Call(Symbol(PMATH_SYMBOL_DOWNRULES), sym),
-                                  rule));
-                                  
-            Evaluate(eval);
-          }
-          
-          set_pmath(key, rhs);
-        }
+        
+        set_pmath(lhs, rhs);
+        
+//        if(rhs != PMATH_SYMBOL_INHERITED) {
+//          int key;
+//          
+//          key  = StyleInformation::get_key(lhs);
+//          
+//          if(key < 0) {
+//            pmath_debug_print_object("[unknown option ", rule.get(), "]\n");
+//            
+//            Expr sym;
+//            if(!get(UnknownOptions, &sym) || !sym.is_symbol()) {
+//              sym = Expr(pmath_symbol_create_temporary(PMATH_C_STRING("FE`Styles`unknown"), TRUE));
+//              set(UnknownOptions, sym);
+//            }
+//            
+//            rule.set(1, Call(Symbol(PMATH_SYMBOL_HOLDPATTERN), Call(sym, lhs)));
+//            Expr eval = Call(Symbol(PMATH_SYMBOL_ASSIGN),
+//                             Call(Symbol(PMATH_SYMBOL_DOWNRULES), sym),
+//                             Call(Symbol(PMATH_SYMBOL_APPEND),
+//                                  Call(Symbol(PMATH_SYMBOL_DOWNRULES), sym),
+//                                  rule));
+//                                  
+//            Evaluate(eval);
+//          }
+//          
+//          set_pmath(key, rhs);
+//        }
       }
     }
   }
@@ -754,18 +756,32 @@ void Style::set_pmath(Expr lhs, Expr rhs) {
     Expr sym;
     if(!get(UnknownOptions, &sym) || !sym.is_symbol()) {
       sym = Expr(pmath_symbol_create_temporary(PMATH_C_STRING("FE`Styles`unknown"), TRUE));
+      
+      pmath_symbol_set_attributes(sym.get(),
+                                  PMATH_SYMBOL_ATTRIBUTE_TEMPORARY | PMATH_SYMBOL_ATTRIBUTE_HOLDALLCOMPLETE);
+                                  
       set(UnknownOptions, sym);
     }
     
-    Expr eval = Call(Symbol(PMATH_SYMBOL_ASSIGN),
-                     Call(Symbol(PMATH_SYMBOL_DOWNRULES), sym),
-                     Call(Symbol(PMATH_SYMBOL_APPEND),
-                          Call(Symbol(PMATH_SYMBOL_DOWNRULES), sym),
-                          Rule(
-                            Call(Symbol(PMATH_SYMBOL_HOLDPATTERN),
-                                 Call(sym, lhs)),
-                            rhs)));
-                                 
+    Expr eval;
+    if(rhs == PMATH_SYMBOL_INHERITED) {
+      eval = Call(Symbol(PMATH_SYMBOL_UNASSIGN),
+                  Call(sym, lhs));
+    }
+    else {
+      eval = Call(Symbol(PMATH_SYMBOL_ASSIGN),
+                  Call(sym, lhs), rhs);
+    }
+    
+//    Expr eval = Call(Symbol(PMATH_SYMBOL_ASSIGN),
+//                     Call(Symbol(PMATH_SYMBOL_DOWNRULES), sym),
+//                     Call(Symbol(PMATH_SYMBOL_APPEND),
+//                          Call(Symbol(PMATH_SYMBOL_DOWNRULES), sym),
+//                          Rule(
+//                            Call(Symbol(PMATH_SYMBOL_HOLDPATTERN),
+//                                 Call(sym, lhs)),
+//                            rhs)));
+
     Evaluate(eval);
     return;
   }
@@ -832,6 +848,11 @@ void Style::set_pmath_bool_auto(IntStyleOptionName n, Expr obj) {
     set(n, 2);
   else if(obj[0] == PMATH_SYMBOL_DYNAMIC)
     set_dynamic(n, obj);
+  else if(obj == PMATH_SYMBOL_INHERITED) {
+    remove(n);
+    if(!keep_dynamic)
+      remove_dynamic(n);
+  }
 }
 
 void Style::set_pmath_bool(IntStyleOptionName n, Expr obj) {
@@ -841,6 +862,11 @@ void Style::set_pmath_bool(IntStyleOptionName n, Expr obj) {
     set(n, false);
   else if(obj[0] == PMATH_SYMBOL_DYNAMIC)
     set_dynamic(n, obj);
+  else if(obj == PMATH_SYMBOL_INHERITED) {
+    remove(n);
+    if(!keep_dynamic)
+      remove_dynamic(n);
+  }
 }
 
 void Style::set_pmath_color(IntStyleOptionName n, Expr obj) {
@@ -850,6 +876,11 @@ void Style::set_pmath_color(IntStyleOptionName n, Expr obj) {
     set(n, c);
   else if(obj[0] == PMATH_SYMBOL_DYNAMIC)
     set_dynamic(n, obj);
+  else if(obj == PMATH_SYMBOL_INHERITED) {
+    remove(n);
+    if(!keep_dynamic)
+      remove_dynamic(n);
+  }
 }
 
 void Style::set_pmath_float(FloatStyleOptionName n, Expr obj) {
@@ -870,6 +901,12 @@ void Style::set_pmath_float(FloatStyleOptionName n, Expr obj) {
       set((ObjectStyleOptionName)(n + DynamicOffset), obj);
       
     return;
+  }
+  
+  if(obj == PMATH_SYMBOL_INHERITED) {
+    remove(n);
+    if(!keep_dynamic)
+      remove_dynamic(n);
   }
 }
 
@@ -921,8 +958,8 @@ void Style::set_pmath_size(FloatStyleOptionName n, Expr obj) {
     remove(n);
     remove(Horizontal);
     remove(Vertical);
-    remove((ObjectStyleOptionName)(Horizontal + DynamicOffset));
-    remove((ObjectStyleOptionName)(Vertical   + DynamicOffset));
+    remove_dynamic(Horizontal);
+    remove_dynamic(Vertical);
     set_dynamic(n, obj);
     return;
   }
@@ -934,6 +971,17 @@ void Style::set_pmath_size(FloatStyleOptionName n, Expr obj) {
       set((ObjectStyleOptionName)(n + DynamicOffset), obj);
       
     return;
+  }
+  
+  if(obj == PMATH_SYMBOL_INHERITED) {
+    remove(n);
+    remove(Horizontal);
+    remove(Vertical);
+    if(!keep_dynamic) {
+      remove_dynamic(n);
+      remove_dynamic(Horizontal);
+      remove_dynamic(Vertical);
+    }
   }
 }
 
@@ -1017,6 +1065,19 @@ void Style::set_pmath_margin(FloatStyleOptionName n, Expr obj) {
     remove(Bottom);
     set_dynamic(Left, obj);
   }
+  
+  if(obj == PMATH_SYMBOL_INHERITED) {
+    remove(Left);
+    remove(Right);
+    remove(Top);
+    remove(Bottom);
+    if(!keep_dynamic) {
+      remove_dynamic(Left);
+      remove_dynamic(Right);
+      remove_dynamic(Top);
+      remove_dynamic(Bottom);
+    }
+  }
 }
 
 void Style::set_pmath_string(StringStyleOptionName n, Expr obj) {
@@ -1024,18 +1085,33 @@ void Style::set_pmath_string(StringStyleOptionName n, Expr obj) {
     set(n, String(obj));
   else if(obj[0] == PMATH_SYMBOL_DYNAMIC)
     set_dynamic(n, obj);
+  else if(obj == PMATH_SYMBOL_INHERITED) {
+    remove(n);
+    if(!keep_dynamic) 
+      remove_dynamic(n);
+  }
 }
 
 void Style::set_pmath_object(ObjectStyleOptionName n, Expr obj) {
   if(obj[0] == PMATH_SYMBOL_DYNAMIC)
     set_dynamic(n, obj);
-  else
+  else if(obj == PMATH_SYMBOL_INHERITED) {
+    remove(n);
+    if(!keep_dynamic) 
+      remove_dynamic(n);
+  }
+  else 
     set(n, obj);
 }
 
 void Style::set_pmath_enum(IntStyleOptionName n, Expr obj) {
   if(obj[0] == PMATH_SYMBOL_DYNAMIC) {
     set_dynamic(n, obj);
+  }
+  else if(obj == PMATH_SYMBOL_INHERITED) {
+    remove(n);
+    if(!keep_dynamic) 
+      remove_dynamic(n);
   }
   else {
     SharedPtr<StyleEnumConverter> enum_converter = StyleInformation::get_enum_converter(n);
@@ -1059,9 +1135,9 @@ void Style::set_pmath_ruleset(ObjectStyleOptionName n, Expr obj) {
         Expr lhs = rule[1];
         Expr rhs = rule[2];
         
-        if(rhs == PMATH_SYMBOL_INHERITED)
-          continue;
-          
+//        if(rhs == PMATH_SYMBOL_INHERITED)
+//          continue;
+
         int sub_key = key_converter->to_int(lhs);
         if(sub_key < 0) {
           pmath_debug_print_object("[ignoring unknown sub-option ", lhs.get(), "]\n");
@@ -1072,6 +1148,7 @@ void Style::set_pmath_ruleset(ObjectStyleOptionName n, Expr obj) {
       }
     }
   }
+  
 }
 
 
@@ -1080,7 +1157,7 @@ Expr Style::get_pmath(Expr lhs) const {
   
   if(key >= 0)
     return get_pmath(key);
-  
+    
   return Symbol(PMATH_SYMBOL_INHERITED);
 }
 
