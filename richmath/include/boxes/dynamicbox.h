@@ -34,9 +34,6 @@ namespace richmath {
       
       virtual bool edit_selection(Context *context);
       
-      virtual void on_mouse_enter();
-      virtual void on_mouse_exit();
-      
     public:
       Dynamic dynamic;
       

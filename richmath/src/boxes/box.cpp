@@ -651,9 +651,13 @@ Box *Box::mouse_sensitive() {
 }
 
 void Box::on_mouse_enter() {
+  if(get_own_style(InternalUsesCurrentValueOfMouseOver, false))
+    dynamic_updated();
 }
 
 void Box::on_mouse_exit() {
+  if(get_own_style(InternalUsesCurrentValueOfMouseOver, false))
+    dynamic_updated();
 }
 
 void Box::on_mouse_down(MouseEvent &event) {

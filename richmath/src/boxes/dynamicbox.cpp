@@ -152,16 +152,4 @@ bool DynamicBox::edit_selection(Context *context) {
   return false;
 }
 
-void DynamicBox::on_mouse_enter() {
-  AbstractDynamicBox::on_mouse_enter();
-  if(get_own_style(InternalUsesCurrentValueOfMouseOver, false))
-    dynamic_updated();
-}
-
-void DynamicBox::on_mouse_exit() {
-  AbstractDynamicBox::on_mouse_exit();
-  if(get_own_style(InternalUsesCurrentValueOfMouseOver, false))
-    dynamic_updated();
-}
-
 //} ... class DynamicBox
