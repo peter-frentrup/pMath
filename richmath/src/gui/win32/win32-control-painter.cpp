@@ -182,6 +182,7 @@ int Win32ControlPainter::control_font_color(ContainerType type, ControlState sta
   }
   
   switch(type) {
+    case NoContainerType:
     case FramelessButton:
     case GenericButton:
       return ControlPainter::control_font_color(type, state);
@@ -240,6 +241,7 @@ int Win32ControlPainter::control_font_color(ContainerType type, ControlState sta
 
 bool Win32ControlPainter::is_very_transparent(ContainerType type, ControlState state) {
   switch(type) {
+    case NoContainerType:
     case FramelessButton:
     case GenericButton:
       return ControlPainter::is_very_transparent(type, state);
@@ -305,6 +307,7 @@ void Win32ControlPainter::draw_container(
     return;
     
   switch(type) {
+    case NoContainerType:
     case FramelessButton:
     case GenericButton:
       ControlPainter::generic_painter.draw_container(
@@ -522,6 +525,7 @@ void Win32ControlPainter::draw_container(
   else {
   FALLBACK: ;
     switch(type) {
+      case NoContainerType:
       case FramelessButton:
         break;
         

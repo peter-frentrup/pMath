@@ -6,7 +6,7 @@ using namespace richmath;
 
 RadioButtonBox::RadioButtonBox()
   : EmptyWidgetBox(RadioButtonUnchecked),
-  first_paint(true)
+    first_paint(true)
 {
   dynamic.init(this, Expr());
 }
@@ -34,11 +34,11 @@ bool RadioButtonBox::try_load_from_object(Expr expr, int opts) {
   
   value = new_value;
   
-  if(expr.expr_length() >= 1) 
+  if(expr.expr_length() >= 1)
     dynamic = expr[1];
-  else 
+  else
     dynamic = Symbol(PMATH_SYMBOL_FALSE);
-  
+    
   if(style) {
     reset_style();
     style->add_pmath(options);
@@ -54,13 +54,17 @@ void RadioButtonBox::paint(Context *context) {
     must_update = false;
     
     Expr val;
-    if(dynamic.get_value(&val))
+    if(dynamic.get_value(&val)) {
       type = calc_type(val);
+      //pmath_debug_print("[%d RadioButtonBox::paint: calc_type -> %d]\n", id(), (int)type);
+    }
   }
   
-  if(first_paint)
+  if(type == RadioButtonChecked || first_paint) {
     old_type = type;
-    
+    animation = 0;
+  }
+  
   EmptyWidgetBox::paint(context);
   first_paint = false;
 }
@@ -89,6 +93,7 @@ Expr RadioButtonBox::to_pmath(int flags) {
 
 void RadioButtonBox::dynamic_finished(Expr info, Expr result) {
   type = calc_type(result);
+  //pmath_debug_print("[%d RadioButtonBox::dynamic_finished: calc_type -> %d]\n", id(), (int)type);
   
   request_repaint_all();
 }
@@ -108,7 +113,6 @@ ContainerType RadioButtonBox::calc_type(Expr result) {
 
 void RadioButtonBox::click() {
   dynamic.assign(value);
-  
   //EmptyWidgetBox::click();
 }
 

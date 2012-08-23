@@ -98,7 +98,7 @@ bool LinearTransition::paint(Canvas *canvas) {
     
   double t = timer();
   if(t < 0)
-    return false;
+    t = 0;
     
   if(t > seconds) {
     if(repeat) {

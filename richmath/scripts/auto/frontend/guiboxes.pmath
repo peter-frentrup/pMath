@@ -54,11 +54,11 @@ MakeBoxes(RadioButton(~state, ~value, options:OptionsPattern()))::= RadioButtonB
 
 
 MakeBoxes(rb: RadioButtonBar(~var:Dynamic, values:{((~ -> ~) | (~ :> ~))**}, options:OptionsPattern()))::= 
-	With({boxes:= ToBoxes(Grid({values.Map(Row({RadioButton(var, #[1]), #[2]}, "\[InvisibleSpace]")&)}))},
+	With({boxes:= ToBoxes(Grid({values.Map(Setter(var, #[1], Row({RadioButton(var, #[1]), #[2]}, "\[InvisibleSpace]"), ButtonFrame->None)&)}))},
 		InterpretationBox(boxes, rb))
 
 MakeBoxes(rb: RadioButtonBar(~var:Dynamic, values:{~~}, options:OptionsPattern()))::= 
-	With({boxes:= ToBoxes(Grid({values.Map(Row({RadioButton(var, #), #}, "\[InvisibleSpace]")&)}))},
+	With({boxes:= ToBoxes(Grid({values.Map(Setter(var, #, Row({RadioButton(var, #), #}, "\[InvisibleSpace]"), ButtonFrame->None)&)}))},
 		InterpretationBox(boxes, rb))
 
 MakeBoxes(RadioButtonBar(val: Except(~:Dynamic), values:{~~}, options:OptionsPattern()))::=

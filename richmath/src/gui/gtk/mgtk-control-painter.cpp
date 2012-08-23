@@ -338,6 +338,7 @@ GtkStyleContext *MathGtkControlPainter::get_control_theme(ContainerType type) {
   }
   
   switch(type) {
+    case NoContainerType:
     case FramelessButton:
     case GenericButton:
       break;

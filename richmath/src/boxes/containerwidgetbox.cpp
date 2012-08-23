@@ -134,7 +134,11 @@ void ContainerWidgetBox::paint(Context *context) {
   if(type == FramelessButton && state == PressedHovered) {
     context->canvas->save();
     {
-      rect.add_rect_path(*context->canvas);
+    /* Workaround for Cairo/win32 1.10.0 bug (fixed in 1.12.0?):
+       Fill with CAIRO_OPERATOR_DIFFERENCE crshes the simple rectangle fast path
+     */
+      rect.add_round_rect_path(*context->canvas, BoxRadius(0.75));
+      //rect.add_rect_path(*context->canvas);
       
       cairo_set_operator(context->canvas->cairo(), CAIRO_OPERATOR_DIFFERENCE);
       context->canvas->set_color(0xffffff);

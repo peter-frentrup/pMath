@@ -63,11 +63,11 @@ void EmptyWidgetBox::paint(Context *context) {
                   type,
                   old_state,
                   state,
-                  x, 
-                  y - _extents.ascent, 
-                  _extents.width, 
+                  x,
+                  y - _extents.ascent,
+                  _extents.width,
                   _extents.height());
-                            
+                  
     old_state = state;
   }
   
@@ -86,10 +86,10 @@ void EmptyWidgetBox::paint(Context *context) {
                     type,
                     old_state,
                     old_state,
-                    x, 
-                  y - _extents.ascent, 
-                  _extents.width, 
-                  _extents.height());
+                    x,
+                    y - _extents.ascent,
+                    _extents.width,
+                    _extents.height());
     }
   }
   
@@ -98,10 +98,10 @@ void EmptyWidgetBox::paint(Context *context) {
       context->canvas,
       type,
       state,
-      x, 
-                  y - _extents.ascent, 
-                  _extents.width, 
-                  _extents.height());
+      x,
+      y - _extents.ascent,
+      _extents.width,
+      _extents.height());
   }
   
   ControlPainter::std->container_content_move(
@@ -181,7 +181,7 @@ void EmptyWidgetBox::on_mouse_move(MouseEvent &event) {
     doc->native()->set_cursor(DefaultCursor);
     
   bool mi = _extents.to_rectangle().contains(event.x, event.y);
-            
+  
   if(mi != mouse_inside)
     request_repaint_all();
     
@@ -209,5 +209,5 @@ void EmptyWidgetBox::on_mouse_cancel() {
 
 void EmptyWidgetBox::click() {
 }
-      
+
 //} ... class EmptyWidgetBox

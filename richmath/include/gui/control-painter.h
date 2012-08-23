@@ -12,6 +12,7 @@ namespace richmath {
   class Style;
   
   typedef enum {
+    NoContainerType,
     FramelessButton,
     GenericButton,
     PushButton,

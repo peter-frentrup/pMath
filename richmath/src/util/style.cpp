@@ -156,6 +156,7 @@ namespace {
         _int_to_expr.default_value = Symbol(PMATH_SYMBOL_AUTOMATIC);
         _expr_to_int.default_value = -1;//PushButton;
         
+        add(NoContainerType,      Symbol(PMATH_SYMBOL_NONE));
         add(FramelessButton,      String("Frameless"));
         add(GenericButton,        String("Generic"));
         add(PushButton,           String("DialogBox"));

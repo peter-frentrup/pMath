@@ -20,6 +20,7 @@ void ControlPainter::calc_container_size(
   BoxSize       *extents // in/out
 ) {
   switch(type) {
+    case NoContainerType:
     case FramelessButton: break;
     
     case GenericButton:
@@ -111,7 +112,7 @@ int ControlPainter::control_font_color(ContainerType type, ControlState state) {
 }
 
 bool ControlPainter::is_very_transparent(ContainerType type, ControlState state) {
-  return type == FramelessButton;
+  return type == NoContainerType || type == FramelessButton;
 }
 
 static void paint_frame(
@@ -195,6 +196,7 @@ void ControlPainter::draw_container(
   }
   
   switch(type) {
+    case NoContainerType:
     case FramelessButton: break;
     
     case GenericButton:
