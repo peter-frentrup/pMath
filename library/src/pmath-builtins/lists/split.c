@@ -106,7 +106,7 @@ PMATH_PRIVATE pmath_t builtin_split(pmath_expr_t expr) {
                                      pmath_ref(b)));
       pmath_unref(test_result);
       
-      if(!pmath_same(test_result, PMATH_SYMBOL_FALSE)) {
+      if(!pmath_same(test_result, PMATH_SYMBOL_TRUE)) {
         pmath_unref(b);
         
         b = pmath_gather_end();
