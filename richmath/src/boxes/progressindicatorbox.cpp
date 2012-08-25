@@ -10,13 +10,11 @@ using namespace richmath;
 using namespace std;
 
 #ifdef _MSC_VER
-
-#define isnan  _isnan
-
+#  define isnan  _isnan
 #endif
 
 #ifndef NAN
-#define NAN numeric_limits<double>::quiet_NaN()
+#  define NAN numeric_limits<double>::quiet_NaN()
 #endif
 
 //{ class ProgressIndicatorBox ...

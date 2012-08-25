@@ -5,9 +5,61 @@
 #include <graphics/context.h>
 
 #include <cmath>
+#include <limits>
+
+#ifndef NAN
+#  define NAN numeric_limits<double>::quiet_NaN()
+#endif
 
 
 using namespace richmath;
+
+template<typename T>
+static T clip(const T &x, const T &min, const T &max) {
+  if(min < x) {
+    if(x < max)
+      return x;
+      
+    return max;
+  }
+  
+  return min;
+}
+
+static void get_tick_length(Expr expr, float *plen, float *nlen){
+  *plen = 0.0;
+  *nlen = 0.02;
+  
+  if(expr[0] == PMATH_SYMBOL_NCACHE)
+    expr = expr[2];
+  
+  if(expr.is_number()) {
+    *plen = clip((float)expr.to_double(), -1000.0f, 1000.0f);
+    *nlen = *plen;
+    return;
+  }
+  
+  if(expr[0] == PMATH_SYMBOL_LIST && expr.expr_length() == 2) {
+    Expr sub = expr[1];
+    
+    if(sub[0] == PMATH_SYMBOL_NCACHE)
+      sub = sub[2];
+    
+    if(sub.is_number()) 
+      *plen = clip((float)sub.to_double(), -1000.0f, 1000.0f);
+    
+    sub = expr[2];
+    
+    if(sub[0] == PMATH_SYMBOL_NCACHE)
+      sub = sub[2];
+    
+    if(sub.is_number()) 
+      *nlen = clip((float)sub.to_double(), -1000.0f, 1000.0f);
+    
+    return;
+  }
+  
+}
 
 //{ class AxisTicks ...
 
@@ -20,9 +72,12 @@ AxisTicks::AxisTicks()
   label_direction_x(0),
   label_direction_y(0),
   label_center_distance_min(0),
+  tick_length_factor(0),
   extra_offset(0),
   start_position(0),
-  end_position(0)
+  end_position(0),
+  ignore_label_position(NAN),
+  axis_hidden(false)
 {
 }
 
@@ -42,37 +97,64 @@ void AxisTicks::load_from_object(Expr expr, int options) { // BoxOptionXXX
     return;
     
   set_count((int)expr.expr_length());
+  _max_rel_tick = 0.0;
   
   for(int i = 0; i < count(); ++i) {
     AbstractSequence *seq = label(i);
     Expr tick = expr[i + 1];
     
     if( tick[0] == PMATH_SYMBOL_LIST &&
-        tick.expr_length() >= 2 &&
-        tick[1].is_number())
+        tick.expr_length() >= 2)
     {
-      position(i) = tick[1].to_double();
+      Expr pos_expr = tick[1];
+      if(pos_expr[0] == PMATH_SYMBOL_NCACHE)
+        pos_expr = pos_expr[2];
+        
+      if(pos_expr.is_number())
+        position(i) = pos_expr.to_double();
+      else
+        position(i) = 0.0;
+      
       seq->load_from_object(tick[2], options);
+      
+      float ptic, ntic;
+      get_tick_length(tick[3], &ptic, &ntic);
+      
+      _rel_tick_pos[i] = ptic;
+      _rel_tick_neg[i] = ntic;
+      
+      if(_max_rel_tick < ptic)
+         _max_rel_tick = ptic;
+      
       continue;
     }
     
     seq->remove(0, seq->length());
     position(i) = 0.0;
+    _rel_tick_pos[i] = 0;
+    _rel_tick_neg[i] = 0;
   }
 }
 
 void AxisTicks::resize(Context *context) {
-  float old_width = context->width;
+  float old_w = context->width;
+  float old_fs = context->canvas->get_font_size();
+  
   context->width = HUGE_VAL;
+  
+  context->canvas->set_font_size(0.8 * old_fs);
   
   for(int i = 0; i < _labels.length(); ++i)
     _labels[i]->resize(context);
     
+  context->canvas->set_font_size(old_fs);
+  context->width = old_w;
+  
   _extents.width   = 0;
   _extents.ascent  = 0;
   _extents.descent = 0;
   
-  context->width = old_width;
+  context->width = old_w;
 }
 
 void AxisTicks::paint(Context *context) {
@@ -80,20 +162,43 @@ void AxisTicks::paint(Context *context) {
   
   context->canvas->current_pos(&x, &y);
   
+  float old_fs = context->canvas->get_font_size();
+  context->canvas->set_font_size(0.8 * old_fs);
+  
+  bool have_ilp = is_visible(ignore_label_position);
+  
   for(int i = 0; i < count(); ++i) {
     if(is_visible(position(i))) {
-      float lx, ly;
-      get_label_position(i, &lx, &ly);
+      Point p;
+      get_tick_position(position(i), &p.x, &p.y);
       
-      context->canvas->move_to(x + lx, y + ly);
-      label(i)->paint(context);
+      draw_tick(context->canvas, x + p.x, y + p.y,   _rel_tick_pos[i] * tick_length_factor);
+      draw_tick(context->canvas, x + p.x, y + p.y, - _rel_tick_neg[i] * tick_length_factor);
       
-      float tx, ty;
-      get_tick_position(position(i), &tx, &ty);
       
-      draw_tick(context->canvas, x + tx, y + ty, extra_offset / 2);
+      get_label_position(i, &p.x, &p.y);
+      
+      Box *lbl = label(i);
+      
+      if(have_ilp){
+        Point ign;
+        
+        get_label_center(
+          ignore_label_position,
+          lbl->extents().width,
+          lbl->extents().height(),
+          &ign.x, &ign.y);
+        
+        if(lbl->extents().to_rectangle(p).contains(ign))
+          continue;
+      }
+    
+      context->canvas->move_to(x + p.x, y + p.y);
+      lbl->paint(context);
     }
   }
+  
+  context->canvas->set_font_size(old_fs);
 }
 
 void AxisTicks::calc_bounds(float *x1, float *y1, float *x2, float *y2) {
@@ -215,6 +320,8 @@ void AxisTicks::set_count(int new_count) {
   
   _labels.length(new_count, 0);
   _positions.length(new_count, 0.0);
+  _rel_tick_pos.length(new_count, 0.0);
+  _rel_tick_neg.length(new_count, 0.0);
   
   for(int i = old_count; i < new_count; ++i) {
     AbstractSequence *label = new MathSequence();
@@ -247,9 +354,16 @@ void AxisTicks::draw_tick(Canvas *canvas, float x, float y, float length) {
     canvas->align_point(&x2, &y2, true);
   }
   
-  canvas->move_to(x1, y1);
-  canvas->line_to(x2, y2);
-  canvas->hair_stroke();
+  canvas->save();
+  {
+    cairo_set_line_cap(canvas->cairo(), CAIRO_LINE_CAP_SQUARE);
+    
+    canvas->move_to(x1, y1);
+    canvas->line_to(x2, y2);
+  
+    canvas->hair_stroke();
+  }
+  canvas->restore();
 }
 
 void AxisTicks::get_tick_position(

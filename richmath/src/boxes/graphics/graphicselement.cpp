@@ -8,7 +8,13 @@
 #include <cmath>
 
 
+#ifdef _MSC_VER
+#  define isfinite(x)  (_finite(x))
+#endif
+
+
 using namespace richmath;
+using namespace std;
 
 namespace {
   class DummyGraphicsElement: public GraphicsElement {
@@ -41,6 +47,10 @@ GraphicsBounds::GraphicsBounds() {
   
   xmin = ymin =  HUGE_VAL;
   xmax = ymax = -HUGE_VAL;
+}
+
+bool GraphicsBounds::is_finite(){
+  return isfinite(xmin) && isfinite(ymin) && isfinite(xmax) && isfinite(ymax);
 }
 
 void GraphicsBounds::add_point(double elem_x, double elem_y) {

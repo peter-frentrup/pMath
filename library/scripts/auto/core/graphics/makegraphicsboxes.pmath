@@ -21,6 +21,7 @@ isNumericCachableOption(~):= False
 isNumericCachableOption(AspectRatio):= True
 isNumericCachableOption(ImageSize):= True
 isNumericCachableOption(PlotRange):= True
+isNumericCachableOption(AxesOrigin):= True
 
 
 Attributes(isHeldNumericList):= {HoldAllComplete}
@@ -28,6 +29,25 @@ isHeldNumericList(~val)::= IsNumeric @ Unevaluated(val)
 isHeldNumericList(~val:List) ::= And @@ val.Unevaluated.Map(isHeldNumericList)
 isHeldNumericList(~val:Range)::= And @@ val.Unevaluated.Map(isHeldNumericList)
 
+Attributes(isHeldNumeric):= {HoldAllComplete}
+isHeldNumeric(~val)::= IsNumeric @ Unevaluated(val)
+
+cache(~t) ::= With({nt:= N(t)}, If(nt === t, t, NCache(t, nt)))
+
+Attributes(heldTickToBoxes):= {HoldAllComplete}
+tickToBoxes(~t)::= {0.0, MakeBoxes(t), {0.0, 0.02}} /* error */
+tickToBoxes(~t ? isHeldNumeric)::= {cache(t), MakeBoxes(t), {0.0, 0.02}}
+tickToBoxes({~t, ~lbl}) ::= {cache(t), MakeBoxes(t), {0.0, 0.02}}
+tickToBoxes({~t ? isHeldNumeric, ~lbl, len: (~ | {~,~}) ? isHeldNumericList})::= {cache(t), MakeBoxes(lbl), cache(len)}
+
+Attributes(tickListsToBoxes):= {HoldAllComplete}
+tickListsToBoxes(0, {~~~ticks})::= List @@ HoldComplete(ticks).Map(tickToBoxes)
+tickListsToBoxes(~depth, {~~~lists})::= 
+	With({depth:= depth - 1}, 
+		List @@ HoldComplete(lists).Map(Function(l, tickListsToBoxes(depth, l),{HoldAllComplete}))
+		)
+tickListsToBoxes(~, other: (True | All | None | Automatic))::= other
+tickListsToBoxes(~, ~)::= Automatic /* error */
 
 Attributes(makeHeldGraphicsBoxOption):= {HoldAllComplete}
 makeHeldGraphicsBoxOption(~r)::= HoldComplete(r)
@@ -37,6 +57,8 @@ makeHeldGraphicsBoxOption((h: Rule|RuleDelayed)(~lhs ? isNumericCachableOption, 
 			Return(HoldComplete(h(lhs, rhs))));
 		Return(HoldComplete(h(lhs, NCache(rhs, num))))
 		)
+makeHeldGraphicsBoxOption((h: Rule|RuleDelayed)(Ticks, ~rhs))::=      HoldComplete @@ {h(Ticks,      tickListsToBoxes(1, rhs))}
+makeHeldGraphicsBoxOption((h: Rule|RuleDelayed)(FrameTicks, ~rhs))::= HoldComplete @@ {h(FrameTicks, tickListsToBoxes(2, rhs))}
 
 
 MakeGraphicsBoxesOptions({~~~opts})::= ComposeHeldExpr(List, MakeGraphicsBoxesOptions(opts))

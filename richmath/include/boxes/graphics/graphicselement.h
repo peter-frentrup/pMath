@@ -15,6 +15,8 @@ namespace richmath {
     public:
       GraphicsBounds();
       
+      bool is_finite();
+      
       void add_point(double elem_x, double elem_y);
       
     public:

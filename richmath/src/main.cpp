@@ -364,11 +364,11 @@ static void init_stylesheet() {
   Stylesheet::Default->styles.set("TI", s);
   
   s = new Style;
-  s->set(AspectRatio,         0.61803);
+  s->set(AspectRatio,         1.0); //0.61803
   s->set(AutoNumberFormating, true);
   s->set(AutoSpacing,         true);
   s->set(ShowAutoStyles,      false);
-  s->set(FontSize,            8.0);
+  //s->set(FontSize,            8.0);
   Stylesheet::Default->styles.set("Graphics", s);
   
   s = new Style;

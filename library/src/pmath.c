@@ -771,6 +771,9 @@ PMATH_API pmath_bool_t pmath_init(void) {
       PMATH_RUN("Options(Graphics):=Options(GraphicsBox):={"
                 "AspectRatio->Automatic,"
                 "Axes->False,"
+                "AxesOrigin->Automatic,"
+                "Frame->False,"
+                "FrameTicks->Automatic,"
                 "ImageSize->Automatic,"
                 "PlotRange->Automatic,"
                 "Ticks->Automatic}");

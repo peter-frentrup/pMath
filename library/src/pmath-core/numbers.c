@@ -1616,8 +1616,7 @@ void _pmath_write_machine_float(struct pmath_write_ex_t *info, pmath_t f) {
   int base = 10;
   char s[100];
   double test;
-  int maxprec = 1 + (int)ceil(DBL_MANT_DIG * LOG10_2);
-  int len, i;
+  int minprec, maxprec, len, i;
 
   if(thread && thread->numberbase >= 2 && thread->numberbase <= 36)
     base = thread->numberbase;
@@ -1630,15 +1629,42 @@ void _pmath_write_machine_float(struct pmath_write_ex_t *info, pmath_t f) {
     pmath_unref(mpf);
     return;
   }
-
-  for(len = 1; len <= maxprec; ++len) {
+  
+  maxprec = 1 + (int)ceil(DBL_MANT_DIG * LOG10_2);
+  
+  test = fabs(PMATH_AS_DOUBLE(f));
+  if(test > 10000.0)
+    minprec = 6;
+  else if(test > 1000.0)
+    minprec = 5;
+  else if(test > 100.0)
+    minprec = 4;
+  else if(test > 10.0)
+    minprec = 3;
+  else if(test > 1.0)
+    minprec = 2;
+  else
+    minprec = 1;
+    
+  for(len = minprec; len <= 6; ++len) {
     snprintf(s, sizeof(s), "%.*g", len, PMATH_AS_DOUBLE(f));
 
     // not pmath_strtod() because sprintf gives locale specific result
     test = strtod(s, NULL);
     if(test == PMATH_AS_DOUBLE(f))
-      break;
+      goto FOUND;
   }
+
+  for(len = 6; len <= maxprec; ++len) {
+    snprintf(s, sizeof(s), "%.*e", len, PMATH_AS_DOUBLE(f));
+
+    // not pmath_strtod() because sprintf gives locale specific result
+    test = strtod(s, NULL);
+    if(test == PMATH_AS_DOUBLE(f))
+      goto FOUND;
+  }
+
+FOUND:
 
   len = strlen(s);
   i = 0;

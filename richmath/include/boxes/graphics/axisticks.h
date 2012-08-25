@@ -19,6 +19,7 @@ namespace richmath {
       
       AbstractSequence *label(   int i) { return _labels[   i]; }
       double           &position(int i) { return _positions[i]; }
+      float             max_rel_tick(){   return _max_rel_tick; }
       
       bool is_visible(double t){ return start_position <= t && t <= end_position; }
       
@@ -74,6 +75,9 @@ namespace richmath {
     private:
       Array<AbstractSequence*>  _labels;
       Array<double>             _positions;
+      Array<float>              _rel_tick_pos;
+      Array<float>              _rel_tick_neg;
+      float                     _max_rel_tick;
       
     public:
       float start_x;
@@ -83,9 +87,13 @@ namespace richmath {
       float label_direction_x;
       float label_direction_y;
       float label_center_distance_min;
+      float tick_length_factor;
       float extra_offset;
       double start_position;
       double end_position;
+      double ignore_label_position;
+      Expr _expr;
+      bool axis_hidden;
   };
 }
 

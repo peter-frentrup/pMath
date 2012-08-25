@@ -1,10 +1,12 @@
 #include <boxes/graphics/graphicsbox.h>
 #include <boxes/graphics/axisticks.h>
 
+#include <boxes/dynamicbox.h>
 #include <boxes/fillbox.h>
 #include <boxes/gridbox.h>
 #include <boxes/inputfieldbox.h>
 #include <boxes/section.h>
+#include <boxes/stylebox.h>
 
 #include <graphics/context.h>
 
@@ -15,6 +17,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <limits>
 
 #ifdef max
 #  undef max
@@ -23,6 +26,10 @@
 
 #ifdef _MSC_VER
 #  define isfinite(x)  (_finite(x))
+#endif
+
+#ifndef NAN
+#  define NAN numeric_limits<double>::quiet_NaN()
 #endif
 
 
@@ -35,6 +42,28 @@ enum SyntaxPosition {
   InsideList,
   InsideOther
 };
+
+template<typename T>
+static T max(const T &a, const T &b, const T &c) {
+  return std::max(std::max(a, b), c);
+}
+
+template<typename T>
+static T max(const T &a, const T &b, const T &c, const T &d) {
+  return std::max(std::max(a, b), std::max(c, d));
+}
+
+template<typename T>
+static T clip(const T &x, const T &min, const T &max) {
+  if(min < x) {
+    if(x < max)
+      return x;
+      
+    return max;
+  }
+  
+  return min;
+}
 
 
 static enum SyntaxPosition find_syntax_position(Box *box, int index) {
@@ -74,7 +103,16 @@ static enum SyntaxPosition find_syntax_position(Box *box, int index) {
     return pos;
   }
   
-  if(dynamic_cast<GridBox *>(box) || dynamic_cast<OwnerBox *>(box)) {
+  if( dynamic_cast<AbstractDynamicBox *>(box) ||
+      dynamic_cast<AbstractStyleBox *>(box) ||
+      dynamic_cast<GridItem *>(box) )
+  {
+    return find_syntax_position(box->parent(), box->index());
+  }
+  
+  if( dynamic_cast<GridBox *>(box) ||
+      dynamic_cast<OwnerBox *>(box))
+  {
     enum SyntaxPosition pos = find_syntax_position(box->parent(), box->index());
     
     if(pos < InsideList)
@@ -98,22 +136,29 @@ GraphicsBox::GraphicsBox()
 {
   reset_style();
   
-  x_axis_ticks = new AxisTicks;
-  y_axis_ticks = new AxisTicks;
+  for(int part = 0; part < 6; ++part) {
+    ticks[part] = new AxisTicks;
+    adopt(ticks[part], part);
+  }
   
-  adopt(x_axis_ticks, 0);
-  adopt(y_axis_ticks, 1);
+  ticks[AxisIndexX     ]->label_direction_x =  0;
+  ticks[AxisIndexBottom]->label_direction_x =  0;
+  ticks[AxisIndexTop   ]->label_direction_x =  0;
+  ticks[AxisIndexX     ]->label_direction_y =  1;
+  ticks[AxisIndexBottom]->label_direction_y =  1;
+  ticks[AxisIndexTop   ]->label_direction_y = -1;
   
-  x_axis_ticks->label_direction_x = 0;
-  x_axis_ticks->label_direction_y = 1;
-  
-  y_axis_ticks->label_direction_x = -1;
-  y_axis_ticks->label_direction_y =  0;
+  ticks[AxisIndexY     ]->label_direction_x = -1;
+  ticks[AxisIndexLeft  ]->label_direction_x = -1;
+  ticks[AxisIndexRight ]->label_direction_x =  1;
+  ticks[AxisIndexY     ]->label_direction_y =  0;
+  ticks[AxisIndexLeft  ]->label_direction_y =  0;
+  ticks[AxisIndexRight ]->label_direction_y =  0;
 }
 
 GraphicsBox::~GraphicsBox() {
-  delete x_axis_ticks;
-  delete y_axis_ticks;
+  for(int part = 0; part < 6; ++part)
+    delete ticks[part];
 }
 
 bool GraphicsBox::try_load_from_object(Expr expr, int opts) {
@@ -164,16 +209,13 @@ bool GraphicsBox::try_load_from_object(Expr expr, int opts) {
 }
 
 Box *GraphicsBox::item(int i) {
-  switch(i) {
-    case 0: return x_axis_ticks;
-    case 1: return y_axis_ticks;
-  }
+  assert(0 <= i && i < 6);
   
-  return 0;
+  return ticks[i];
 }
 
 int GraphicsBox::count() {
-  return 2;
+  return 6;
 }
 
 bool GraphicsBox::expand(const BoxSize &size) {
@@ -198,16 +240,54 @@ void GraphicsBox::resize(Context *context) {
   margin_top    = 0;
   margin_bottom = 0;
   
-  BoxSize xlabels = x_axis_ticks->all_labels_extents();
-  BoxSize ylabels = y_axis_ticks->all_labels_extents();
+  BoxSize label_sizes[6];
+  for(int part = 0; part < 6; ++part) {
+    label_sizes[part] = ticks[part]->all_labels_extents();
+    
+    ticks[part]->extra_offset = 0.75 * 6;
+  }
   
-  x_axis_ticks->extra_offset = 0.75 * 6;
-  y_axis_ticks->extra_offset = 0.75 * 6;
-  
-  margin_left   = std::max(ylabels.width    + x_axis_ticks->extra_offset, xlabels.width    / 2);
-  margin_bottom = std::max(xlabels.height() + y_axis_ticks->extra_offset, ylabels.height() / 2);
-  margin_right  = xlabels.width    / 2;
-  margin_top    = ylabels.height() / 2;
+  bool left, right, bottom, top;
+  if(have_frame(&left, &right, &bottom, &top)) {
+    margin_left = max(
+                    label_sizes[AxisIndexLeft].width + ticks[AxisIndexLeft]->extra_offset,
+                    label_sizes[AxisIndexBottom].width / 2,
+                    label_sizes[AxisIndexTop].width / 2);
+                    
+    margin_right = max(
+                     label_sizes[AxisIndexRight].width + ticks[AxisIndexRight]->extra_offset,
+                     label_sizes[AxisIndexBottom].width / 2,
+                     label_sizes[AxisIndexTop].width / 2);
+                     
+    margin_bottom = max(
+                      label_sizes[AxisIndexBottom].height() + ticks[AxisIndexBottom]->extra_offset,
+                      label_sizes[AxisIndexLeft].height() / 2,
+                      label_sizes[AxisIndexRight].height() / 2);
+                      
+    margin_top = max(
+                   label_sizes[AxisIndexTop].height() + ticks[AxisIndexTop]->extra_offset,
+                   label_sizes[AxisIndexLeft].height() / 2,
+                   label_sizes[AxisIndexRight].height() / 2);
+  }
+  else {
+    margin_left = max(
+                    ticks[AxisIndexLeft]->extra_offset,
+                    label_sizes[AxisIndexY].width + ticks[AxisIndexY]->extra_offset,
+                    label_sizes[AxisIndexX].width / 2);
+                    
+    margin_right = max(
+                     ticks[AxisIndexRight]->extra_offset,
+                     label_sizes[AxisIndexX].width / 2);
+                     
+    margin_bottom = max(
+                      ticks[AxisIndexBottom]->extra_offset,
+                      label_sizes[AxisIndexX].height() + ticks[AxisIndexY]->extra_offset,
+                      label_sizes[AxisIndexY].height() / 2);
+                      
+    margin_top = max(
+                   ticks[AxisIndexTop]->extra_offset,
+                   label_sizes[AxisIndexY].height() / 2);
+  }
   
   calculate_size();
 }
@@ -229,15 +309,15 @@ void GraphicsBox::calculate_size(const float *optional_expand_width) {
       
       switch(pos) {
         case Alone:
-          w = 30 * em;
+          w = 24 * em;
           break;
           
         case InsideList:
-          w = 15 * em;
+          w = 20 * em;
           break;
           
         case InsideOther:
-          w = 8 * em;
+          w = 15 * em;
           break;
       }
     }
@@ -260,129 +340,471 @@ void GraphicsBox::calculate_size(const float *optional_expand_width) {
   _extents.descent = h - _extents.ascent;
   
   
-  x_axis_ticks->start_x = margin_left;
-  x_axis_ticks->start_y = _extents.descent - margin_bottom;
-  x_axis_ticks->end_x   = _extents.width   - margin_right;
-  x_axis_ticks->end_y   = _extents.descent - margin_bottom;
+  ticks[AxisIndexLeft ]->start_y            = _extents.descent - margin_bottom;
+  ticks[AxisIndexRight]->start_y            = _extents.descent - margin_bottom;
+  ticks[AxisIndexY    ]->start_y            = _extents.descent - margin_bottom;
+  ticks[AxisIndexLeft ]->end_y              = margin_top - _extents.ascent;
+  ticks[AxisIndexRight]->end_y              = margin_top - _extents.ascent;
+  ticks[AxisIndexY    ]->end_y              = margin_top - _extents.ascent;
+  ticks[AxisIndexLeft ]->tick_length_factor = w - margin_left - margin_right;
+  ticks[AxisIndexRight]->tick_length_factor = w - margin_left - margin_right;
+  ticks[AxisIndexY    ]->tick_length_factor = w - margin_left - margin_right;
   
-  y_axis_ticks->start_x = margin_left;
-  y_axis_ticks->start_y = _extents.descent - margin_bottom;
-  y_axis_ticks->end_x   = margin_left;
-  y_axis_ticks->end_y   = margin_top - _extents.ascent;
+  ticks[AxisIndexLeft]->start_x = margin_left;
+  ticks[AxisIndexLeft]->end_x   = margin_left;
+  
+  ticks[AxisIndexRight]->start_x = w - margin_right;
+  ticks[AxisIndexRight]->end_x   = w - margin_right;
+  
+  
+  ticks[AxisIndexBottom]->start_x            = margin_left;
+  ticks[AxisIndexTop   ]->start_x            = margin_left;
+  ticks[AxisIndexX     ]->start_x            = margin_left;
+  ticks[AxisIndexBottom]->end_x              = w - margin_right;
+  ticks[AxisIndexTop   ]->end_x              = w - margin_right;
+  ticks[AxisIndexX     ]->end_x              = w - margin_right;
+  ticks[AxisIndexBottom]->tick_length_factor = h - margin_bottom - margin_top;
+  ticks[AxisIndexTop   ]->tick_length_factor = h - margin_bottom - margin_top;
+  ticks[AxisIndexX     ]->tick_length_factor = h - margin_bottom - margin_top;
+  
+  ticks[AxisIndexBottom]->start_y = _extents.descent - margin_bottom;
+  ticks[AxisIndexBottom]->end_y   = _extents.descent - margin_bottom;
+  
+  ticks[AxisIndexTop]->start_y = margin_top - _extents.ascent;
+  ticks[AxisIndexTop]->end_y   = margin_top - _extents.ascent;
+  
+  GraphicsBounds bounds;
+  bounds.xmin = ticks[AxisIndexX]->start_position;
+  bounds.xmax = ticks[AxisIndexX]->end_position;
+  bounds.ymin = ticks[AxisIndexY]->start_position;
+  bounds.ymax = ticks[AxisIndexY]->end_position;
+  
+  double ox = 0, oy = 0;
+  get_axes_origin(bounds, &ox, &oy);
+  float tx = 0;
+  float ty = 0;
+  float dummy;
+  bool valid_ox = ticks[AxisIndexBottom]->is_visible(ox);
+  bool valid_oy = ticks[AxisIndexLeft  ]->is_visible(oy);
+  
+  ticks[AxisIndexBottom]->get_tick_position(ox, &tx,    &dummy);
+  ticks[AxisIndexLeft  ]->get_tick_position(oy, &dummy, &ty);
+  
+  ticks[AxisIndexY]->start_x     = tx;
+  ticks[AxisIndexY]->end_x       = tx;
+  
+  ticks[AxisIndexX]->start_y     = ty;
+  ticks[AxisIndexX]->end_y       = ty;
+  
+  if(valid_ox) {
+    ticks[AxisIndexX]->ignore_label_position = ox;
+  }
+  else {
+    ticks[AxisIndexX]->ignore_label_position = NAN;
+    
+    ticks[AxisIndexY]->axis_hidden = true;
+  }
+  
+  if(valid_oy) {
+    ticks[AxisIndexY]->ignore_label_position = oy;
+  }
+  else {
+    ticks[AxisIndexY]->ignore_label_position = NAN;
+    
+    ticks[AxisIndexX]->axis_hidden = true;
+  }
+  
+  if(valid_ox && ty >= _extents.descent - margin_bottom - ticks[AxisIndexX]->extra_offset / 2)
+    ticks[AxisIndexX]->ignore_label_position = NAN;
+    
+  if(valid_oy && tx <= margin_left + ticks[AxisIndexY]->extra_offset / 2)
+    ticks[AxisIndexY]->ignore_label_position = NAN;
+    
+}
+
+void GraphicsBox::get_axes_origin(const GraphicsBounds &bounds, double *ox, double *oy) {
+  *ox = clip(0.0, bounds.xmin, bounds.xmax);
+  *oy = clip(0.0, bounds.ymin, bounds.ymax);
+  
+  Expr e = get_own_style(AxesOrigin);
+  if(e[0] == PMATH_SYMBOL_NCACHE)
+    e = e[2];
+    
+  if(e[0] == PMATH_SYMBOL_LIST && e.expr_length() == 2) {
+    if(e[1].is_number())
+      *ox = e[1].to_double();
+      
+    if(e[2].is_number())
+      *oy = e[2].to_double();
+  }
+}
+
+GraphicsBounds GraphicsBox::calculate_plotrange() {
+  GraphicsBounds bounds;
+  
+  Expr plot_range = get_own_style(PlotRange, Symbol(PMATH_SYMBOL_AUTOMATIC));
+  
+  if(plot_range[0] == PMATH_SYMBOL_NCACHE)
+    plot_range = plot_range[2];
+    
+  if( plot_range[0] == PMATH_SYMBOL_LIST &&
+      plot_range.expr_length() == 2)
+  {
+    Expr xrange = plot_range[1];
+    Expr yrange = plot_range[2];
+    
+    if( xrange[0] == PMATH_SYMBOL_RANGE &&
+        xrange.expr_length() == 2)
+    {
+      Expr xmin = xrange[1];
+      if(xmin[0] == PMATH_SYMBOL_NCACHE)
+        xmin = xmin[2];
+        
+      Expr xmax = xrange[2];
+      if(xmax[0] == PMATH_SYMBOL_NCACHE)
+        xmax = xmax[2];
+        
+      if(xmin.is_number() && xmax.is_number()) {
+        bounds.xmin = xmin.to_double();
+        bounds.xmax = xmax.to_double();
+      }
+    }
+    
+    if( yrange[0] == PMATH_SYMBOL_RANGE &&
+        yrange.expr_length() == 2)
+    {
+      Expr ymin = yrange[1];
+      if(ymin[0] == PMATH_SYMBOL_NCACHE)
+        ymin = ymin[2];
+        
+      Expr ymax = yrange[2];
+      if(ymax[0] == PMATH_SYMBOL_NCACHE)
+        ymax = ymax[2];
+        
+      if(ymin.is_number() && ymax.is_number()) {
+        bounds.ymin = ymin.to_double();
+        bounds.ymax = ymax.to_double();
+      }
+    }
+  }
+  
+  if(!bounds.is_finite()) {
+    GraphicsBounds auto_bounds;
+    elements.find_extends(auto_bounds);
+    
+    double ox, oy;
+    get_axes_origin(auto_bounds, &ox, &oy);
+    
+    auto_bounds.add_point(ox, oy);
+    
+    if(!isfinite(bounds.xmin)) bounds.xmin = auto_bounds.xmin;
+    if(!isfinite(bounds.xmax)) bounds.xmax = auto_bounds.xmax;
+    if(!isfinite(bounds.ymin)) bounds.ymin = auto_bounds.ymin;
+    if(!isfinite(bounds.ymax)) bounds.ymax = auto_bounds.ymax;
+  }
+  
+  if( !isfinite(bounds.xmin) ||
+      !isfinite(bounds.xmax) ||
+      bounds.xmin > bounds.xmax)
+  {
+    bounds.xmin = -1;
+    bounds.xmax = 1;
+  }
+  
+  if( !isfinite(bounds.ymin) ||
+      !isfinite(bounds.ymax) ||
+      bounds.ymin > bounds.ymax)
+  {
+    bounds.ymin = -1;
+    bounds.ymax = 1;
+  }
+  
+  if(bounds.xmin == bounds.xmax) {
+    double dist = 0.5 * max(fabs(bounds.xmin), fabs(0.5 * bounds.ymin + 0.5 * bounds.ymax));
+    
+    bounds.xmin -= dist;
+    bounds.xmax += dist;
+    
+    if(bounds.xmin == bounds.xmax){
+      bounds.xmin -= 1;
+      bounds.xmax += 1;
+    }
+  }
+  
+  
+  if(bounds.ymin == bounds.ymax) {
+    double dist = 0.5 * max(fabs(bounds.ymin), fabs(0.5 * bounds.xmin + 0.5 * bounds.xmax));
+    
+    bounds.ymin -= dist;
+    bounds.ymax += dist;
+    
+    if(bounds.ymin == bounds.ymax){
+      bounds.ymin -= 1;
+      bounds.ymax += 1;
+    }
+  }
+  return bounds;
+}
+
+bool GraphicsBox::have_frame(bool *left, bool *right, bool *bottom, bool *top) {
+  *left   = false;
+  *right  = false;
+  *bottom = false;
+  *top    = false;
+  
+  Expr e = get_own_style(Frame);
+  
+  if(e == PMATH_SYMBOL_FALSE || e == PMATH_SYMBOL_NONE)
+    return false;
+    
+  if(e == PMATH_SYMBOL_TRUE || e == PMATH_SYMBOL_ALL) {
+    *left   = true;
+    *right  = true;
+    *bottom = true;
+    *top    = true;
+    return true;
+  }
+  
+  if(e[0] == PMATH_SYMBOL_LIST && e.expr_length() == 2) {
+    Expr sub = e[1];
+    if(sub == PMATH_SYMBOL_TRUE) {
+      *left   = true;
+      *right  = true;
+    }
+    else if(sub[0] == PMATH_SYMBOL_LIST && sub.expr_length() == 2) {
+      if(sub[1] == PMATH_SYMBOL_TRUE)
+        *left = true;
+        
+      if(sub[2] == PMATH_SYMBOL_TRUE)
+        *right = true;
+    }
+    
+    sub = e[2];
+    if(sub == PMATH_SYMBOL_TRUE) {
+      *bottom = true;
+      *top    = true;
+    }
+    else if(sub[0] == PMATH_SYMBOL_LIST && sub.expr_length() == 2) {
+      if(sub[1] == PMATH_SYMBOL_TRUE)
+        *bottom = true;
+        
+      if(sub[2] == PMATH_SYMBOL_TRUE)
+        *top = true;
+    }
+    
+    return *left || *right || *bottom || *top;
+  }
+  
+  return false;
+}
+
+bool GraphicsBox::have_axes(bool *x, bool *y) {
+  *x = false;
+  *y = false;
+  
+  Expr e = get_own_style(Axes);
+  
+  if(e == PMATH_SYMBOL_FALSE)
+    return false;
+    
+  if(e == PMATH_SYMBOL_TRUE) {
+    *x = true;
+    *y = true;
+    return true;
+  }
+  
+  if(e[0] == PMATH_SYMBOL_LIST && e.expr_length() == 2) {
+    if(e[1] == PMATH_SYMBOL_TRUE)
+      *x = true;
+      
+    if(e[2] == PMATH_SYMBOL_TRUE)
+      *y = true;
+      
+    return *x || *y;
+  }
+  
+  return false;
+}
+
+Expr GraphicsBox::generate_default_ticks(double min, double max, bool with_labels) {
+  return Evaluate(
+           Parse(
+             "FE`Graphics`DefaultTickBoxes(`1`, `2`, `3`)",
+             min,
+             max,
+             Symbol(with_labels ? PMATH_SYMBOL_TRUE : PMATH_SYMBOL_FALSE)));
+}
+
+Expr GraphicsBox::generate_ticks(const GraphicsBounds &bounds, enum AxisIndex part) {
+  Expr ticks = get_ticks(bounds, part);
+  
+  if(ticks[0] == PMATH_SYMBOL_LIST)
+    return ticks;
+    
+  if(ticks == PMATH_SYMBOL_NONE)
+    return List();
+    
+  if(ticks == PMATH_SYMBOL_ALL) {
+    switch(part) {
+      case AxisIndexX:
+      case AxisIndexBottom:
+      case AxisIndexTop:
+        return generate_default_ticks(bounds.xmin, bounds.xmax, true);
+        
+      case AxisIndexY:
+      case AxisIndexLeft:
+      case AxisIndexRight:
+        return generate_default_ticks(bounds.ymin, bounds.ymax, true);
+    }
+  }
+  
+  if(ticks == PMATH_SYMBOL_AUTOMATIC) {
+    switch(part) {
+      case AxisIndexX:
+      case AxisIndexBottom:
+        return generate_default_ticks(bounds.xmin, bounds.xmax, true);
+        
+      case AxisIndexTop:
+        return generate_default_ticks(bounds.xmin, bounds.xmax, false);
+        
+      case AxisIndexY:
+      case AxisIndexLeft:
+        return generate_default_ticks(bounds.ymin, bounds.ymax, true);
+        
+      case AxisIndexRight:
+        return generate_default_ticks(bounds.ymin, bounds.ymax, false);
+    }
+  }
+  
+  return List();
+}
+
+Expr GraphicsBox::get_ticks(const GraphicsBounds &bounds, enum AxisIndex part) {
+  Expr e;
+  switch(part) {
+    case AxisIndexX:
+    case AxisIndexY:
+      e = get_own_style(Ticks, Symbol(PMATH_SYMBOL_AUTOMATIC));
+      break;
+      
+    case AxisIndexLeft:
+    case AxisIndexRight:
+    case AxisIndexBottom:
+    case AxisIndexTop:
+      e = get_own_style(FrameTicks, Symbol(PMATH_SYMBOL_AUTOMATIC));
+      break;
+  }
+  
+  if(e[0] == PMATH_SYMBOL_NCACHE)
+    e = e[2];
+    
+  if(e == PMATH_SYMBOL_TRUE)
+    return Symbol(PMATH_SYMBOL_AUTOMATIC);
+    
+  if(e[0] == PMATH_SYMBOL_LIST) {
+    if(e.expr_length() != 2)
+      return List();
+      
+    Expr sub;
+    switch(part) {
+      case AxisIndexX: return e[1];
+      case AxisIndexY: return e[2];
+      
+      case AxisIndexLeft:
+      case AxisIndexRight:
+        sub = e[1];
+        break;
+        
+      case AxisIndexBottom:
+      case AxisIndexTop:
+        sub = e[2];
+        break;
+    }
+    
+    if(sub[0] == PMATH_SYMBOL_NCACHE)
+      sub = sub[2];
+      
+    if(sub[0] == PMATH_SYMBOL_LIST) {
+      if(sub.expr_length() != 2)
+        return List();
+        
+      switch(part) {
+        case AxisIndexLeft:
+        case AxisIndexBottom:
+          return sub[1];
+          
+        case AxisIndexRight:
+        case AxisIndexTop:
+          return sub[2];
+          
+        case AxisIndexX:
+        case AxisIndexY:
+          assert(!"not reached");
+      }
+    }
+    
+    return sub;
+  }
+  
+  return e;
+}
+
+bool GraphicsBox::set_axis_ends(enum AxisIndex part, const GraphicsBounds &bounds) { // true if ends changed
+  double min, max;
+  
+  if(part == AxisIndexX || part == AxisIndexBottom || part == AxisIndexTop) {
+    min = bounds.xmin;
+    max = bounds.xmax;
+  }
+  else {
+    min = bounds.ymin;
+    max = bounds.ymax;
+  }
+  
+  if(ticks[part]->start_position != min || ticks[part]->end_position != max) {
+    ticks[part]->start_position = min;
+    ticks[part]->end_position   = max;
+    return true;
+  }
+  
+  return false;
 }
 
 void GraphicsBox::resize_axes(Context *context) {
   ContextState cc(context);
   cc.begin(style);
   {
-    GraphicsBounds bounds;
+    GraphicsBounds bounds = calculate_plotrange();
     
-    Expr plot_range = get_own_style(PlotRange, Symbol(PMATH_SYMBOL_AUTOMATIC));
+    bool have_axis[6];
     
-    if(plot_range[0] == PMATH_SYMBOL_NCACHE)
-      plot_range = plot_range[2];
+    bool any_frame = have_frame(
+                       &have_axis[AxisIndexLeft],
+                       &have_axis[AxisIndexRight],
+                       &have_axis[AxisIndexBottom],
+                       &have_axis[AxisIndexTop]);
+    have_axes(
+      &have_axis[AxisIndexX],
+      &have_axis[AxisIndexY]);
       
-    if(plot_range == PMATH_SYMBOL_AUTOMATIC) {
-      elements.find_extends(bounds);
-    }
-    else if(plot_range[0] == PMATH_SYMBOL_LIST &&
-            plot_range.expr_length() == 2)
-    {
-      Expr xrange = plot_range[1];
-      Expr yrange = plot_range[2];
+    for(int part = 0; part < 6; ++part)
+      ticks[part]->axis_hidden = !have_axis[part];
       
-      if(xrange == PMATH_SYMBOL_AUTOMATIC || yrange == PMATH_SYMBOL_AUTOMATIC)
-        elements.find_extends(bounds);
-        
-      if( xrange[0] == PMATH_SYMBOL_RANGE &&
-          xrange.expr_length() == 2)
-      {
-        Expr xmin = xrange[1];
-        if(xmin[0] == PMATH_SYMBOL_NCACHE)
-          xmin = xmin[2];
-          
-        Expr xmax = xrange[2];
-        if(xmax[0] == PMATH_SYMBOL_NCACHE)
-          xmax = xmax[2];
-          
-        if(xmin.is_number() && xmax.is_number()) {
-          bounds.xmin = xmin.to_double();
-          bounds.xmax = xmax.to_double();
-        }
-      }
+    if(any_frame) {
+      have_axis[AxisIndexX] = false;
+      have_axis[AxisIndexY] = false;
+    }
+    
+    for(int part = 0; part < 6; ++part) {
+      set_axis_ends((AxisIndex)part, bounds);
       
-      if( yrange[0] == PMATH_SYMBOL_RANGE &&
-          yrange.expr_length() == 2)
-      {
-        Expr ymin = yrange[1];
-        if(ymin[0] == PMATH_SYMBOL_NCACHE)
-          ymin = ymin[2];
-          
-        Expr ymax = yrange[2];
-        if(ymax[0] == PMATH_SYMBOL_NCACHE)
-          ymax = ymax[2];
-          
-        if(ymin.is_number() && ymax.is_number()) {
-          bounds.ymin = ymin.to_double();
-          bounds.ymax = ymax.to_double();
-        }
-      }
-    }
-    
-    if( !isfinite(bounds.xmin) ||
-        !isfinite(bounds.xmax) ||
-        bounds.xmin >= bounds.xmax)
-    {
-      bounds.xmin = -1;
-      bounds.xmax = 1;
-    }
-    else if(bounds.xmin == bounds.xmax) {
-      bounds.xmin -= 1;
-      bounds.xmax += 1;
-    }
-    
-    if( !isfinite(bounds.ymin) ||
-        !isfinite(bounds.ymax) ||
-        bounds.ymin >= bounds.ymax)
-    {
-      bounds.ymin = -1;
-      bounds.ymax = 1;
-    }
-    else if(bounds.ymin == bounds.ymax) {
-      bounds.ymin -= 1;
-      bounds.ymax += 1;
-    }
-    
-    if( x_axis_ticks->start_position != bounds.xmin ||
-        x_axis_ticks->end_position   != bounds.xmax)
-    {
-      x_axis_ticks->load_from_object(
-        Evaluate(Parse(
-                   "FE`Graphics`TickPositions(`1`, `2`).Map({#, ToBoxes(#)}&)",
-                   bounds.xmin,
-                   bounds.xmax)),
-        BoxOptionFormatNumbers);
+      if(have_axis[part])
+        ticks[part]->load_from_object(generate_ticks(bounds, (AxisIndex)part), BoxOptionFormatNumbers);
+      else
+        ticks[part]->load_from_object(List(), BoxOptionDefault);
         
-      x_axis_ticks->start_position = bounds.xmin;
-      x_axis_ticks->end_position   = bounds.xmax;
+      ticks[part]->resize(context);
     }
-    
-    if( y_axis_ticks->start_position != bounds.ymin ||
-        y_axis_ticks->end_position   != bounds.ymax)
-    {
-      y_axis_ticks->load_from_object(
-        Evaluate(Parse(
-                   "FE`Graphics`TickPositions(`1`, `2`).Map({#, ToBoxes(#)}&)",
-                   bounds.ymin,
-                   bounds.ymax)),
-        BoxOptionFormatNumbers);
-        
-      y_axis_ticks->start_position = bounds.ymin;
-      y_axis_ticks->end_position   = bounds.ymax;
-    }
-    
-    x_axis_ticks->resize(context);
-    y_axis_ticks->resize(context);
   }
   cc.end();
 }
@@ -438,60 +860,34 @@ void GraphicsBox::paint(Context *context) {
     
     context->canvas->save();
     {
-      context->canvas->pixrect(
-        x     - 0.75f,
-        y     - 0.75f,
-        x + w + 0.75f,
-        y + h + 0.75f,
-        false);
-      context->canvas->clip();
+      int old_color = context->canvas->get_color();
+      context->canvas->set_color(0x000000);
       
-      if(x_axis_ticks->is_visible(0.0)) {
-        float zero_x, zero_y1, zero_y2;
-        x_axis_ticks->get_tick_position(0.0, &zero_x, &zero_y1);
-        
-        zero_x += x;
-        zero_y1 = y + margin_top;
-        zero_y2 = y + h - margin_bottom;
-        
-        context->canvas->align_point(&zero_x, &zero_y1, true);
-        context->canvas->align_point(&zero_x, &zero_y2, true);
-        
-        context->canvas->move_to(zero_x, zero_y1);
-        context->canvas->line_to(zero_x, zero_y2);
-        context->canvas->hair_stroke();
+      for(int axis = 0; axis < 6; ++axis) {
+        if(!ticks[axis]->axis_hidden) {
+          float x1 = ticks[axis]->start_x + x;
+          float y1 = ticks[axis]->start_y + y + _extents.ascent;
+          float x2 = ticks[axis]->end_x   + x;
+          float y2 = ticks[axis]->end_y   + y + _extents.ascent;
+          
+          context->canvas->align_point(&x1, &y1, true);
+          context->canvas->align_point(&x2, &y2, true);
+          
+          context->canvas->move_to(x1, y1);
+          context->canvas->line_to(x2, y2);
+          context->canvas->hair_stroke();
+          
+        }
       }
       
-      if(y_axis_ticks->is_visible(0.0)) {
-        float zero_x1, zero_x2, zero_y;
-        y_axis_ticks->get_tick_position(0.0, &zero_x1, &zero_y);
-        
-        zero_x1 = x + margin_left;
-        zero_x2 = x + w - margin_right;
-        zero_y += y + _extents.ascent;
-        
-        context->canvas->align_point(&zero_x1, &zero_y, true);
-        context->canvas->align_point(&zero_x2, &zero_y, true);
-        
-        context->canvas->move_to(zero_x1, zero_y);
-        context->canvas->line_to(zero_x2, zero_y);
-        context->canvas->hair_stroke();
+      for(int axis = 0; axis < 6; ++axis) {
+        if(!ticks[axis]->axis_hidden) {
+          context->canvas->move_to(x, y + _extents.ascent);
+          ticks[axis]->paint(context);
+        }
       }
       
-      context->canvas->pixrect(
-        x +     margin_left,
-        y +     margin_top,
-        x + w - margin_right,
-        y + h - margin_bottom,
-        true);
-        
-      context->canvas->hair_stroke();
-      
-      context->canvas->move_to(x, y + _extents.ascent);
-      x_axis_ticks->paint(context);
-      
-      context->canvas->move_to(x, y + _extents.ascent);
-      y_axis_ticks->paint(context);
+      context->canvas->set_color(old_color);
     }
     context->canvas->restore();
     
@@ -591,8 +987,8 @@ void GraphicsBox::transform_inner_to_outer(cairo_matrix_t *mat) {
   
   cairo_matrix_scale(mat, sx, sy);
   
-  sx = x_axis_ticks->end_position - x_axis_ticks->start_position;
-  sy = y_axis_ticks->end_position - y_axis_ticks->start_position;
+  sx = ticks[AxisIndexBottom]->end_position - ticks[AxisIndexBottom]->start_position;
+  sy = ticks[AxisIndexLeft  ]->end_position - ticks[AxisIndexLeft  ]->start_position;
   if(sx == 0) sx = 1;
   if(sy == 0) sy = 1;
   
@@ -600,8 +996,8 @@ void GraphicsBox::transform_inner_to_outer(cairo_matrix_t *mat) {
   
   cairo_matrix_translate(
     mat,
-    - x_axis_ticks->start_position,
-    - y_axis_ticks->start_position);
+    - ticks[AxisIndexBottom]->start_position,
+    - ticks[AxisIndexLeft  ]->start_position);
 }
 
 Box *GraphicsBox::mouse_selection(
@@ -611,16 +1007,13 @@ Box *GraphicsBox::mouse_selection(
   int   *end,
   bool  *was_inside_start
 ) {
-  Box *tmp = x_axis_ticks->mouse_selection(x, y, start, end, was_inside_start);
-  
-  if(tmp != x_axis_ticks)
-    return tmp;
+  for(int axis = 0; axis < 6; ++axis) {
+    Box *tmp = ticks[axis]->mouse_selection(x, y, start, end, was_inside_start);
     
-  tmp = y_axis_ticks->mouse_selection(x, y, start, end, was_inside_start);
+    if(tmp != ticks[axis])
+      return tmp;
+  }
   
-  if(tmp != y_axis_ticks)
-    return tmp;
-    
   //if(!selectable())
   //  return Box::mouse_selection(x, y, start, end, was_inside_start);
   

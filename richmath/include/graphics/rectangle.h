@@ -21,6 +21,24 @@ namespace richmath {
         return *this;
       }
       
+      Point &operator-= (const Point &delta) {
+        x -= delta.x;
+        y -= delta.y;
+        return *this;
+      }
+      
+      Point &operator*= (float m) {
+        x *= m;
+        y *= m;
+        return *this;
+      }
+      
+      Point &operator/= (float m) {
+        x /= m;
+        y /= m;
+        return *this;
+      }
+      
       void pixel_align_point(Canvas &canvas, bool tostroke);
       void pixel_align_distance(Canvas &canvas);
       

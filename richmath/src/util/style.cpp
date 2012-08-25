@@ -3,8 +3,17 @@
 #include <gui/control-painter.h>
 #include <eval/dynamic.h>
 
-#include <climits>
 #include <cmath>
+#include <limits>
+
+#ifdef _MSC_VER
+#  define isnan  _isnan
+#endif
+
+#ifndef NAN
+#  define NAN numeric_limits<double>::quiet_NaN()
+#endif
+
 
 
 using namespace richmath;
@@ -282,6 +291,11 @@ namespace {
           add(StyleTypeString,          SectionLabel,                     Symbol( PMATH_SYMBOL_SECTIONLABEL));
           add(StyleTypeString,          WindowTitle,                      Symbol( PMATH_SYMBOL_WINDOWTITLE));
           
+          add(StyleTypeAny,             Axes,                             Symbol( PMATH_SYMBOL_AXES));
+          add(StyleTypeAny,             Ticks,                            Symbol( PMATH_SYMBOL_TICKS));
+          add(StyleTypeAny,             Frame,                            Symbol( PMATH_SYMBOL_FRAME));
+          add(StyleTypeAny,             FrameTicks,                       Symbol( PMATH_SYMBOL_FRAMETICKS));
+          add(StyleTypeAny,             AxesOrigin,                       Symbol( PMATH_SYMBOL_AXESORIGIN));
           add(StyleTypeAny,             ButtonFunction,                   Symbol( PMATH_SYMBOL_BUTTONFUNCTION));
           add(StyleTypeAny,             ScriptSizeMultipliers,            Symbol( PMATH_SYMBOL_SCRIPTSIZEMULTIPLIERS));
           add(StyleTypeAny,             TextShadow,                       Symbol( PMATH_SYMBOL_TEXTSHADOW));
@@ -326,6 +340,7 @@ namespace {
         switch(type) {
           case StyleTypeMargin:          return 4;
           case StyleTypeSize:            return 3;
+          case StyleTypePointAuto:       return 2;
           case StyleTypeDockedSections4: return 4;
       
           default:
@@ -487,33 +502,33 @@ void Style::add_pmath(Expr options) {
 //          rhs = List(Rule(lhs[2], rhs));
 //          lhs = lhs[1];
 //        }
-        
+
         set_pmath(lhs, rhs);
         
 //        if(rhs != PMATH_SYMBOL_INHERITED) {
 //          int key;
-//          
+//
 //          key  = StyleInformation::get_key(lhs);
-//          
+//
 //          if(key < 0) {
 //            pmath_debug_print_object("[unknown option ", rule.get(), "]\n");
-//            
+//
 //            Expr sym;
 //            if(!get(UnknownOptions, &sym) || !sym.is_symbol()) {
 //              sym = Expr(pmath_symbol_create_temporary(PMATH_C_STRING("FE`Styles`unknown"), TRUE));
 //              set(UnknownOptions, sym);
 //            }
-//            
+//
 //            rule.set(1, Call(Symbol(PMATH_SYMBOL_HOLDPATTERN), Call(sym, lhs)));
 //            Expr eval = Call(Symbol(PMATH_SYMBOL_ASSIGN),
 //                             Call(Symbol(PMATH_SYMBOL_DOWNRULES), sym),
 //                             Call(Symbol(PMATH_SYMBOL_APPEND),
 //                                  Call(Symbol(PMATH_SYMBOL_DOWNRULES), sym),
 //                                  rule));
-//                                  
+//
 //            Evaluate(eval);
 //          }
-//          
+//
 //          set_pmath(key, rhs);
 //        }
       }
@@ -1088,7 +1103,7 @@ void Style::set_pmath_string(StringStyleOptionName n, Expr obj) {
     set_dynamic(n, obj);
   else if(obj == PMATH_SYMBOL_INHERITED) {
     remove(n);
-    if(!keep_dynamic) 
+    if(!keep_dynamic)
       remove_dynamic(n);
   }
 }
@@ -1098,10 +1113,10 @@ void Style::set_pmath_object(ObjectStyleOptionName n, Expr obj) {
     set_dynamic(n, obj);
   else if(obj == PMATH_SYMBOL_INHERITED) {
     remove(n);
-    if(!keep_dynamic) 
+    if(!keep_dynamic)
       remove_dynamic(n);
   }
-  else 
+  else
     set(n, obj);
 }
 
@@ -1111,7 +1126,7 @@ void Style::set_pmath_enum(IntStyleOptionName n, Expr obj) {
   }
   else if(obj == PMATH_SYMBOL_INHERITED) {
     remove(n);
-    if(!keep_dynamic) 
+    if(!keep_dynamic)
       remove_dynamic(n);
   }
   else {
@@ -1421,6 +1436,8 @@ void Style::emit_to_pmath(bool with_inherited) const {
   emit_pmath(AutoDelete);
   emit_pmath(AutoNumberFormating);
   emit_pmath(AutoSpacing);
+  emit_pmath(Axes);
+  emit_pmath(AxesOrigin);
   emit_pmath(Background);
   
   if(with_inherited)
@@ -1443,6 +1460,8 @@ void Style::emit_to_pmath(bool with_inherited) const {
   emit_pmath(FontSize);
   emit_pmath(FontSlant);
   emit_pmath(FontWeight);
+  emit_pmath(Frame);
+  emit_pmath(FrameTicks);
   emit_pmath(GeneratedSectionStyles);
   emit_pmath(GridBoxColumnSpacing);
   emit_pmath(GridBoxRowSpacing);
@@ -1471,6 +1490,7 @@ void Style::emit_to_pmath(bool with_inherited) const {
   emit_pmath(StripOnInput);
   emit_pmath(StyleDefinitions);
   emit_pmath(TextShadow);
+  emit_pmath(Ticks);
   emit_pmath(Visible);
   emit_pmath(WindowFrame);
   emit_pmath(WindowTitle);

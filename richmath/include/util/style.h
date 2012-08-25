@@ -103,7 +103,13 @@ namespace richmath {
   };
   
   enum ObjectStyleOptionName {
-    ButtonFunction = 30000, // greater than any StringStyleOptionName value
+    Axes = 30000, // greater than any StringStyleOptionName value
+    Ticks,
+    Frame,
+    FrameTicks,
+    AxesOrigin,
+    
+    ButtonFunction,
     ScriptSizeMultipliers,
     TextShadow,
     FontFamilies,
@@ -271,29 +277,29 @@ namespace richmath {
       static Expr           get_name(int n);
       static enum StyleType get_type(int n);
       
-      void set_pmath(          int                   n, Expr obj);
-      void set_pmath_bool_auto(IntStyleOptionName    n, Expr obj);
-      void set_pmath_bool(     IntStyleOptionName    n, Expr obj);
-      void set_pmath_color(    IntStyleOptionName    n, Expr obj);
-      void set_pmath_float(    FloatStyleOptionName  n, Expr obj);
-      void set_pmath_margin(   FloatStyleOptionName  n, Expr obj); // n + {0,1,2,3} ~= {Left, Right, Top, Bottom}
-      void set_pmath_size(     FloatStyleOptionName  n, Expr obj); // n + {0,1,2} ~= {Common, Horizontal, Vertical}
-      void set_pmath_string(   StringStyleOptionName n, Expr obj);
-      void set_pmath_object(   ObjectStyleOptionName n, Expr obj);
-      void set_pmath_enum(     IntStyleOptionName    n, Expr obj);
-      void set_pmath_ruleset(  ObjectStyleOptionName n, Expr obj);
+      void set_pmath(           int                   n, Expr obj);
+      void set_pmath_bool_auto( IntStyleOptionName    n, Expr obj);
+      void set_pmath_bool(      IntStyleOptionName    n, Expr obj);
+      void set_pmath_color(     IntStyleOptionName    n, Expr obj);
+      void set_pmath_float(     FloatStyleOptionName  n, Expr obj);
+      void set_pmath_margin(    FloatStyleOptionName  n, Expr obj); // n + {0,1,2,3} ~= {Left, Right, Top, Bottom}
+      void set_pmath_size(      FloatStyleOptionName  n, Expr obj); // n + {0,1,2} ~= {Common, Horizontal, Vertical}
+      void set_pmath_string(    StringStyleOptionName n, Expr obj);
+      void set_pmath_object(    ObjectStyleOptionName n, Expr obj);
+      void set_pmath_enum(      IntStyleOptionName    n, Expr obj);
+      void set_pmath_ruleset(   ObjectStyleOptionName n, Expr obj);
       
-      Expr get_pmath(          int                   n) const;
-      Expr get_pmath_bool_auto(IntStyleOptionName    n) const;
-      Expr get_pmath_bool(     IntStyleOptionName    n) const;
-      Expr get_pmath_color(    IntStyleOptionName    n) const;
-      Expr get_pmath_float(    FloatStyleOptionName  n) const;
-      Expr get_pmath_margin(   FloatStyleOptionName  n) const; // n + {0,1,2,3} ~= {Left, Right, Top, Bottom}
-      Expr get_pmath_size(     FloatStyleOptionName  n) const; // n + {0,1,2} ~= {Common, Horizontal, Vertical}
-      Expr get_pmath_string(   StringStyleOptionName n) const;
-      Expr get_pmath_object(   ObjectStyleOptionName n) const;
-      Expr get_pmath_enum(     IntStyleOptionName    n) const;
-      Expr get_pmath_ruleset(  ObjectStyleOptionName n) const;
+      Expr get_pmath(           int                   n) const;
+      Expr get_pmath_bool_auto( IntStyleOptionName    n) const;
+      Expr get_pmath_bool(      IntStyleOptionName    n) const;
+      Expr get_pmath_color(     IntStyleOptionName    n) const;
+      Expr get_pmath_float(     FloatStyleOptionName  n) const;
+      Expr get_pmath_margin(    FloatStyleOptionName  n) const; // n + {0,1,2,3} ~= {Left, Right, Top, Bottom}
+      Expr get_pmath_size(      FloatStyleOptionName  n) const; // n + {0,1,2} ~= {Common, Horizontal, Vertical}
+      Expr get_pmath_string(    StringStyleOptionName n) const;
+      Expr get_pmath_object(    ObjectStyleOptionName n) const;
+      Expr get_pmath_enum(      IntStyleOptionName    n) const;
+      Expr get_pmath_ruleset(   ObjectStyleOptionName n) const;
       
       void emit_pmath(int n) const;
       

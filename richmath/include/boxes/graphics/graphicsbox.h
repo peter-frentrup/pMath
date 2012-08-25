@@ -14,6 +14,15 @@ namespace richmath {
   
   class AxisTicks;
   
+  enum AxisIndex{
+    AxisIndexX = 0,
+    AxisIndexY,
+    AxisIndexLeft,
+    AxisIndexRight,
+    AxisIndexBottom,
+    AxisIndexTop
+  };
+  
   class GraphicsBox: public Box {
     public:
       GraphicsBox();
@@ -68,9 +77,7 @@ namespace richmath {
       float margin_bottom;
       
       float em;
-      
-      AxisTicks *x_axis_ticks;
-      AxisTicks *y_axis_ticks;
+      AxisTicks *ticks[6]; // indexd by enum AxisIndex
       
       GraphicsElementCollection elements;
       Expr                      error_boxes_expr;
@@ -79,6 +86,18 @@ namespace richmath {
       
     protected:
       void calculate_size(const float *optional_expand_width = 0);
+      
+      void get_axes_origin(const GraphicsBounds &bounds, double *ox, double *oy);
+      GraphicsBounds calculate_plotrange();
+      bool have_frame(bool *left, bool *right, bool *bottom, bool *top);
+      bool have_axes(bool *x, bool *y);
+      
+      Expr generate_default_ticks(double min, double max, bool with_labels);
+      Expr generate_ticks(const GraphicsBounds &bounds, enum AxisIndex part);
+      Expr get_ticks(const GraphicsBounds &bounds, enum AxisIndex part);
+      
+      bool set_axis_ends(enum AxisIndex part, const GraphicsBounds &bounds); // true if ends changed
+      
       void resize_axes(Context *context);
   };
 }

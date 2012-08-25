@@ -6,7 +6,6 @@ MakeGraphicsExpressionOptions
 
 Begin("System`Graphics`Private`")
 
-
 MakeGraphicsExpression(~x)               ::= HoldComplete(x);
 
 MakeGraphicsExpression(~multi: List)     ::= HoldComplete @@ List @ HoldComplete(multi).Map(MakeGraphicsExpression, 2).ReleaseHold.Replace(HoldComplete(~~~x) :> x, 1)
@@ -15,11 +14,34 @@ MakeGraphicsExpression(~c: RGBColor)     ::= HoldComplete(c);
 MakeGraphicsExpression(~c: Hue)          ::= HoldComplete(c);
 MakeGraphicsExpression(~c: GrayLevel)    ::= HoldComplete(c);
 
+moveHold(~f(args: HoldComplete(~~~)***))::=
+	(HoldComplete @@ {Join(args)}).Replace(HoldComplete(HoldComplete(~~~a)) :> HoldComplete(f(a)), 0)
+
+removeCacheHold(~v)::= HoldComplete(v).Replace(NCache(~x, ~) :> x)
+
+tickBoxToHeldExpr({~v, ~box, len: Repeated(~, 0..1)})::= 
+	With({
+			ev:= HoldComplete(v).Replace(NCache(~x, ~) :> x),
+			lbl:= MakeExpression(box).Replace($Failed :> HoldComplete(RawBoxes(box)), 0),
+			elen:= HoldComplete(len).Replace(NCache(~x, ~) :> x)
+		}, 
+		moveHold({removeCacheHold(v), lbl, removeCacheHold(len)})
+		)
+
+tickBoxListsToHeldExpr(0, ~ticks:List)::= moveHold(ticks.Map(tickBoxToHeldExpr))
+tickBoxListsToHeldExpr(~depth, ~lists:List)::= 
+	With({depth:= depth - 1}, 
+		moveHold(lists.Map(tickBoxListsToHeldExpr(depth, #) &))
+		)
+tickBoxListsToHeldExpr(~, other: (True | All | None | Automatic))::= HoldComplete(other)
+tickBoxListsToHeldExpr(~, ~)::= HoldComplete(Automatic) /* error */
 
 Attributes(makeHeldGraphicsOption):= {HoldAllComplete}
 makeHeldGraphicsOption(~r)::= HoldComplete(r)
-makeHeldGraphicsOption((h: Rule|RuleDelayed)(~lhs, NCache(~v,~)))::=
-	HoldComplete(h(lhs, v))
+makeHeldGraphicsOption((h: Rule|RuleDelayed)(~lhs, ~rhs))::=       moveHold(h(HoldComplete(lhs),        removeCacheHold(rhs)))
+makeHeldGraphicsOption((h: Rule|RuleDelayed)(Ticks, ~rhs))::=      moveHold(h(HoldComplete(Ticks),      tickBoxListsToHeldExpr(1, rhs)))
+makeHeldGraphicsOption((h: Rule|RuleDelayed)(FrameTicks, ~rhs))::= moveHold(h(HoldComplete(FrameTicks), tickBoxListsToHeldExpr(2, rhs)))
+
 
 
 MakeGraphicsExpressionOptions({~~~opts})::= ComposeHeldExpr(List, MakeGraphicsExpressionOptions(opts))

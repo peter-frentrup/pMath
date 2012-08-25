@@ -823,5 +823,8 @@ pmath_bool_t pmath_register_approx_code(
 #define PMATH_SYMBOL_STYLEDEFINITIONS                       PMATH_SYMBOL_BUILTIN(731)
 #define PMATH_SYMBOL_BORDERRADIUS                           PMATH_SYMBOL_BUILTIN(732)
 #define PMATH_SYMBOL_VISIBLE                                PMATH_SYMBOL_BUILTIN(733)
+#define PMATH_SYMBOL_AXESORIGIN                             PMATH_SYMBOL_BUILTIN(734)
+#define PMATH_SYMBOL_FRAME                                  PMATH_SYMBOL_BUILTIN(735)
+#define PMATH_SYMBOL_FRAMETICKS                             PMATH_SYMBOL_BUILTIN(736)
 
 #endif /* __PMATH_BUILTINS__SYMBOLS_H__ */
