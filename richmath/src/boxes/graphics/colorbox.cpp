@@ -17,12 +17,24 @@ ColorBox::ColorBox(int color)
 ColorBox::~ColorBox() {
 }
 
-ColorBox *ColorBox::create(Expr expr, int opts) {
+bool ColorBox::try_load_from_object(Expr expr, int opts) {
   int c = pmath_to_color(expr);
   if(c < 0)
+    return false;
+  
+  _color = c;
+  return true;
+}
+
+ColorBox *ColorBox::create(Expr expr, int opts) {
+  ColorBox *box = new ColorBox;
+  
+  if(!box->try_load_from_object(expr, opts)) {
+    delete box;
     return 0;
-    
-  return new ColorBox(c);
+  }
+  
+  return box;
 }
 
 void ColorBox::paint(Context *context) {

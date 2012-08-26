@@ -1,0 +1,106 @@
+
+BeginPackage("System`Graphics`ListLinePlot`")
+
+System`ListLinePlot
+
+System`DataRange
+System`Directive
+System`PlotStyle
+
+Begin("System`Graphics`ListLinePlot`Private`")
+
+Options(ListLinePlot):= {
+	AspectRatio -> 1/GoldenRatio, 
+	Axes -> True, 
+	AxesOrigin -> Automatic,
+	DataRange -> Automatic,
+	Frame -> False,
+	FrameTicks -> Automatic,
+	ImageSize -> Automatic,
+	PlotRange -> Automatic,
+	Ticks -> Automatic}
+
+ListLinePlot(~~~args)::= With({g:= Catch(tryListLinePlot(args), $Failed)}, g /? Head(g) === Graphics)
+
+ListLinePlot::lpn:= "`1` is neither a list of numbers nor a list of pairs of numbers."
+
+$defaultListLinePlotStyle:= {
+	RGBColor(0, 0, 0.5), 
+	RGBColor(0, 0.5, 0), 
+	RGBColor(0.5, 0, 0),
+	RGBColor(0, 0.5, 0.5), 
+	RGBColor(0.5, 0.5, 0), 
+	RGBColor(0.5, 0, 0.5)}
+
+getPlotStyle(~i, ~plotStyle)::=
+	With({def:= $defaultListLinePlotStyle[1 + Mod(i - 1, Length($defaultListLinePlotStyle))]},
+		If(plotStyle === Automatic || plotStyle === {},
+			Return(def));
+		If(Head(plotStyle) === List,
+			Return(Directive(def, plotStyle[1 + Mod(i - 1, Length(plotStyle))])));
+		Return(Directive(def, plotStyle));
+		)
+
+
+addXdata({}, ~)::= {}
+addXdata(~heights, ~xmin ? IsNumeric .. ~xmax ? IsNumeric)::= 
+	With({m:= Length(heights) - 1}, Array({xmax * # / m + xmin * (m - #)/m, heights[# + 1]} &, m + 1, 0))
+addXdata(~heights, ~xmin ? IsNumeric ..)::= 
+	Array({xmin + #, heights[# + 1]} &, Length(heights), 0)
+addXdata(~heights, .. ~xmax ? IsNumeric)::= 
+	With({n:= Length(heights)}, Array({xmax + # - n, heights[#]} &, n))
+addXdata(~heights, ~)::= 
+	Array({#, heights[#]} &, Length(heights))
+
+makeXy(~data, ~dataRange)::= (
+	If(IsVector(data),
+		Return(addXdata(data, dataRange)));
+	If(IsMatrix(data) && (Length(data[1]) === 2),
+		Return(data));
+	Message(ListLinePlot::lpn, data); 
+	Throw($Failed)
+	)
+
+makeXyLists(~data, ~dataRange)::= (
+	If(IsVector(data),
+		Return({makeXy(data, dataRange)}));
+	If(IsMatrix(data) && (Length(data[1]) === 2),
+		Return({data}));
+	If(Head(data) === List && Length(data) > 0,
+		Return(data.Map(makeXy(#, dataRange) &)));
+	Message(ListLinePlot::lpn, data); 
+	Throw($Failed)
+	)
+
+makeLine(~xyData)::=
+	With({splitXyData:= xyData
+			.Split(#1.Map(IsNumber) === #2.Map(IsNumber) &)
+			.Select(#[1].Map(IsNumber) === {True, True} &)
+		},
+		Return(splitXyData.Map(Line));
+		)
+
+makeMultipleLines(~datas, ~plotStyles)::= 
+	Array({getPlotStyle(#, plotStyles), makeLine(datas[#])} &, Length(datas))
+
+normalizePlotRange(~r: Range)::= {All, r}
+normalizePlotRange(~r)::= r /* TODO: handle errors */
+
+/* tryListLinePlot(~~~args) /? Length:= (Message(ListLinePlot::arg1, ListLinePlot, Length({args})); $Failed) */
+tryListLinePlot(~data, opts: OptionsPattern(ListLinePlot))::= 
+	Local({defRules, allRules, plotRange, gRules},
+		defRules:= FilterRules(Options(ListLinePlot), Except(Flatten({opts})));
+		allRules:= Flatten({opts, defRules});
+		plotRange:= normalizePlotRange(PlotRange.Replace(allRules));
+		allRules:= Join(FilterRules(allRules, Except(PlotRange)), {PlotRange -> plotRange});
+		gRules:= FilterRules(allRules, Options(Graphics));
+		gRules:= Complement(gRules, Options(Graphics));
+		
+		Return(Graphics(
+			makeMultipleLines(makeXyLists(data, DataRange.Replace(allRules) // N), PlotStyle.Replace(allRules)),
+			gRules));
+		)
+
+End()
+
+EndPackage()

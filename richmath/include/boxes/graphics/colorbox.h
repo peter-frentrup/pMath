@@ -7,9 +7,10 @@
 namespace richmath {
   class ColorBox: public GraphicsElement {
     public:
-      ColorBox(int color = 0);
-      static ColorBox *create(Expr expr, int opts);
+      static ColorBox *create(Expr expr, int opts); // may return 0
       virtual ~ColorBox();
+      
+      virtual bool try_load_from_object(Expr expr, int opts);
       
       virtual void find_extends(GraphicsBounds &bounds){}
       virtual void paint(Context *context);
@@ -18,6 +19,8 @@ namespace richmath {
       
     protected:
       int _color;
+      
+      ColorBox(int color = 0);
   };
 }
 

@@ -7,6 +7,9 @@ System`Graphics`MakeGraphicsBoxesOptions
 System`Graphics`MakeGraphicsExpression
 System`Graphics`MakeGraphicsExpressionOptions
 
+System`ListLinePlot
+System`PlotStyle
+
 Begin("System`Graphics`Private`")
 
 
@@ -43,6 +46,9 @@ AutoLoad(Hold(MakeGraphicsBoxes, MakeGraphicsBoxesOptions),
 
 AutoLoad(Hold(MakeGraphicsExpression, MakeGraphicsExpressionOptions),
 	ToFileName(DirectoryName($Input), "makegraphicsexpression.pmath"))
+
+AutoLoad(Hold(ListLinePlot),
+	ToFileName(DirectoryName($Input), "ListLinePlot.pmath"))
 
 
 End()

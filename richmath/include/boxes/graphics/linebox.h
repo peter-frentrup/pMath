@@ -23,8 +23,10 @@ namespace richmath {
       };
       
     public:
-      static LineBox *create(Expr expr, int opts);
+      static LineBox *create(Expr expr, int opts); // may return NULL
       virtual ~LineBox();
+      
+      virtual bool try_load_from_object(Expr expr, int opts);
       
       virtual void find_extends(GraphicsBounds &bounds);
       virtual void paint(Context *context);

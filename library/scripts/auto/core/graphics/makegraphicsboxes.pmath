@@ -25,6 +25,12 @@ isNumericCachableOption(AxesOrigin):= True
 
 
 Attributes(isHeldNumericList):= {HoldAllComplete}
+isHeldNumericList(Automatic):= True
+isHeldNumericList(All):= True
+isHeldNumericList(None):= True
+isHeldNumericList(True):= True
+isHeldNumericList(False):= True
+isHeldNumericList(/\/):= True
 isHeldNumericList(~val)::= IsNumeric @ Unevaluated(val)
 isHeldNumericList(~val:List) ::= And @@ val.Unevaluated.Map(isHeldNumericList)
 isHeldNumericList(~val:Range)::= And @@ val.Unevaluated.Map(isHeldNumericList)

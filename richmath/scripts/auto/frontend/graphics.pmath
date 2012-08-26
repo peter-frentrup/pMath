@@ -2,6 +2,7 @@
 
 BeginPackage("FE`Graphics`")
 
+FE`Graphics`DefaultAxesOrigin
 FE`Graphics`DefaultTickBoxes
 
 Begin("FE`Graphics`Private`")
@@ -23,9 +24,18 @@ largeTickPositions(~start, ~end) /? start < end ::=
 
 isSmallInt(~s:String)::= s.StringMatch(".0`" ++ EndOfString)
 isSmallInt(~)::= False
-allLabelsArrSmallInt(~ticks)::= And @@ ticks.Map(isSmallInt)
+allLabelsArrSmallInt(~ticks)::= And @@ ticks.Map(isSmallInt(#[2]) &)
 
 makeIntTick({~x, ~lblBox, ~~~rest})::= {x, lblBox.StringReplace(".0`" ++ EndOfString :> ""), rest}
+
+DefaultAxesOrigin(~start, ~end)::= (
+	If(start <= 0.0 <= end,
+		Return (0.0));
+	If(end < 0.0,
+		Return(Floor(end, stepSize(end - start)));
+		);
+	Return(Ceiling(start, stepSize(end - start)));
+	)
 
 DefaultTickBoxes(~start, ~end, True) /? start < end ::=
 	Join(

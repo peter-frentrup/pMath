@@ -17,17 +17,7 @@
 
 using namespace richmath;
 using namespace std;
-
-//{ class LineBox ...
-
-LineBox::LineBox()
-  : GraphicsElement()
-{
-}
-
-LineBox::~LineBox() {
-}
-
+  
 static bool load_point(LineBox::Point &point, Expr coords) {
   if(coords[0] != PMATH_SYMBOL_LIST)
     return false;
@@ -75,11 +65,42 @@ static bool load_lines(Array< Array<LineBox::Point> > &lines, Expr coords) {
   return true;
 }
 
+//{ class LineBox ...
+
+LineBox::LineBox()
+  : GraphicsElement()
+{
+}
+
+LineBox::~LineBox() {
+}
+
+bool LineBox::try_load_from_object(Expr expr, int opts) {
+  if(expr[0] != PMATH_SYMBOL_LINEBOX)
+    return false;
+    
+  if(expr.expr_length() != 1)
+    return false;
+  
+  if(_expr == expr)
+    return true;
+  
+  if(load_lines(_lines, expr[1])) {
+    _expr = expr;
+    return true;
+  }
+  
+  _expr = Expr();
+  return false;
+}
+    
 LineBox *LineBox::create(Expr expr, int opts) {
   LineBox *box = new LineBox;
-  box->_expr = expr;
   
-  load_lines(box->_lines, expr[1]);
+  if(!box->try_load_from_object(expr, opts)) {
+    delete box;
+    return 0;
+  }
   
   return box;
 }

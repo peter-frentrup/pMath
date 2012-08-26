@@ -826,5 +826,9 @@ pmath_bool_t pmath_register_approx_code(
 #define PMATH_SYMBOL_AXESORIGIN                             PMATH_SYMBOL_BUILTIN(734)
 #define PMATH_SYMBOL_FRAME                                  PMATH_SYMBOL_BUILTIN(735)
 #define PMATH_SYMBOL_FRAMETICKS                             PMATH_SYMBOL_BUILTIN(736)
+#define PMATH_SYMBOL_PLOTSTYLE                              PMATH_SYMBOL_BUILTIN(737)
+#define PMATH_SYMBOL_LISTLINEPLOT                           PMATH_SYMBOL_BUILTIN(738)
+#define PMATH_SYMBOL_DIRECTIVE                              PMATH_SYMBOL_BUILTIN(739)
+#define PMATH_SYMBOL_DATARANGE                              PMATH_SYMBOL_BUILTIN(740)
 
 #endif /* __PMATH_BUILTINS__SYMBOLS_H__ */

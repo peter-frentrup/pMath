@@ -380,7 +380,7 @@ void GraphicsBox::calculate_size(const float *optional_expand_width) {
   bounds.ymax = ticks[AxisIndexY]->end_position;
   
   double ox = 0, oy = 0;
-  get_axes_origin(bounds, &ox, &oy);
+  calculate_axes_origin(bounds, &ox, &oy);
   float tx = 0;
   float ty = 0;
   float dummy;
@@ -422,21 +422,58 @@ void GraphicsBox::calculate_size(const float *optional_expand_width) {
     
 }
 
-void GraphicsBox::get_axes_origin(const GraphicsBounds &bounds, double *ox, double *oy) {
-  *ox = clip(0.0, bounds.xmin, bounds.xmax);
-  *oy = clip(0.0, bounds.ymin, bounds.ymax);
-  
+void GraphicsBox::try_get_axes_origin(const GraphicsBounds &bounds, double *ox, double *oy) {
   Expr e = get_own_style(AxesOrigin);
+  
   if(e[0] == PMATH_SYMBOL_NCACHE)
     e = e[2];
     
   if(e[0] == PMATH_SYMBOL_LIST && e.expr_length() == 2) {
-    if(e[1].is_number())
-      *ox = e[1].to_double();
+    Expr sub = e[1];
+    if(sub[0] == PMATH_SYMBOL_NCACHE)
+      sub = sub[2];
       
-    if(e[2].is_number())
-      *oy = e[2].to_double();
+    if(sub.is_number())
+      *ox = sub.to_double();
+      
+    sub = e[2];
+    if(sub[0] == PMATH_SYMBOL_NCACHE)
+      sub = sub[2];
+      
+    if(sub.is_number())
+      *oy = sub.to_double();
   }
+}
+
+void GraphicsBox::calculate_axes_origin(const GraphicsBounds &bounds, double *ox, double *oy) {
+  *ox = NAN;
+  *oy = NAN;
+  
+  try_get_axes_origin(bounds, ox, oy);
+  
+  if(!isfinite(*ox)) {
+    Expr e = Evaluate(
+               Parse(
+                 "FE`Graphics`DefaultAxesOrigin(`1`, `2`)",
+                 bounds.xmin,
+                 bounds.xmax));
+    *ox = e.to_double();
+  }
+  
+  if(!isfinite(*oy)) {
+    Expr e = Evaluate(
+               Parse(
+                 "FE`Graphics`DefaultAxesOrigin(`1`, `2`)",
+                 bounds.ymin,
+                 bounds.ymax));
+    *oy = e.to_double();
+  }
+  
+  if(!isfinite(*ox))
+    *ox = clip(0.0, bounds.xmin, bounds.xmax);
+    
+  if(!isfinite(*oy))
+    *oy = clip(0.0, bounds.ymin, bounds.ymax);
 }
 
 GraphicsBounds GraphicsBox::calculate_plotrange() {
@@ -492,8 +529,9 @@ GraphicsBounds GraphicsBox::calculate_plotrange() {
     GraphicsBounds auto_bounds;
     elements.find_extends(auto_bounds);
     
-    double ox, oy;
-    get_axes_origin(auto_bounds, &ox, &oy);
+    double ox = clip(0.0, bounds.xmin, bounds.xmax);
+    double oy = clip(0.0, bounds.ymin, bounds.ymax);
+    try_get_axes_origin(auto_bounds, &ox, &oy);
     
     auto_bounds.add_point(ox, oy);
     
@@ -525,7 +563,7 @@ GraphicsBounds GraphicsBox::calculate_plotrange() {
     bounds.xmin -= dist;
     bounds.xmax += dist;
     
-    if(bounds.xmin == bounds.xmax){
+    if(bounds.xmin == bounds.xmax) {
       bounds.xmin -= 1;
       bounds.xmax += 1;
     }
@@ -538,7 +576,7 @@ GraphicsBounds GraphicsBox::calculate_plotrange() {
     bounds.ymin -= dist;
     bounds.ymax += dist;
     
-    if(bounds.ymin == bounds.ymax){
+    if(bounds.ymin == bounds.ymax) {
       bounds.ymin -= 1;
       bounds.ymax += 1;
     }

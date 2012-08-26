@@ -87,7 +87,9 @@ namespace richmath {
     protected:
       void calculate_size(const float *optional_expand_width = 0);
       
-      void get_axes_origin(const GraphicsBounds &bounds, double *ox, double *oy);
+      void try_get_axes_origin(const GraphicsBounds &bounds, double *ox, double *oy);
+      void calculate_axes_origin(const GraphicsBounds &bounds, double *ox, double *oy);
+      
       GraphicsBounds calculate_plotrange();
       bool have_frame(bool *left, bool *right, bool *bottom, bool *top);
       bool have_axes(bool *x, bool *y);
