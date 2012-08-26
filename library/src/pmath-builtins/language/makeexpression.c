@@ -602,14 +602,7 @@ PMATH_PRIVATE pmath_t _pmath_parse_number(
     result = pmath_integer_new_str(cstr, base);
     
   if(!pmath_is_null(exponent)) {
-    result = pmath_evaluate(
-               pmath_expr_new_extended(
-                 pmath_ref(PMATH_SYMBOL_TIMES), 2,
-                 result,
-                 pmath_expr_new_extended(
-                   pmath_ref(PMATH_SYMBOL_POWER), 2,
-                   PMATH_FROM_INT32(base),
-                   exponent)));
+    result = pmath_evaluate(TIMES(result, POW(INT(base), exponent)));
   }
   
   pmath_mem_free(cstr);
@@ -2047,11 +2040,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
           pmath_unref(expr);
           
           if(parse(&base) && parse(&exp)) {
-            return HOLDCOMPLETE(
-                     pmath_expr_new_extended(
-                       pmath_ref(PMATH_SYMBOL_POWER), 2,
-                       base,
-                       exp));
+            return HOLDCOMPLETE(POW(base, exp));
           }
           
           pmath_unref(base);
@@ -2509,7 +2498,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
       }
     }
     
-    // infix operators (except * /) ...
+    // infix operators (except * ) ...
     if(exprlen & 1) {
       int tokprec;
       
@@ -2642,15 +2631,21 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
             else
               arg = INV(arg);
           }
-          else if(pmath_is_rational(arg))
+          else if(pmath_is_rational(arg)) 
             previous_rational = 1;
-            
-            
+          
           result = pmath_expr_set_item(result, i + 1, arg);
         }
         
-        if(previous_rational > 0)
+        if(previous_rational > 0) {
+          pmath_t first = pmath_expr_get_item(result, 1);
+          if(pmath_same(first, INT(1))) 
+            result = pmath_expr_set_item(result, 1, PMATH_UNDEFINED);
+          else
+            pmath_unref(first);
+          
           result = _pmath_expr_shrink_associative(result, PMATH_UNDEFINED);
+        }
           
         pmath_unref(expr);
         return HOLDCOMPLETE(result);

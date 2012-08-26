@@ -240,7 +240,7 @@ PMATH_PRIVATE pmath_float_t _pmath_create_mp_float(mpfr_prec_t precision) {
 
 PMATH_PRIVATE
 pmath_float_t _pmath_create_mp_float_from_d(double value) {
-  pmath_float_t result = _pmath_create_mp_float(0);
+  pmath_float_t result = _pmath_create_mp_float(DBL_MANT_DIG); // (0);
 
   if(!pmath_is_null(result)) {
     mpfr_set_d(PMATH_AS_MP_VALUE(result), value, MPFR_RNDN);
@@ -1616,7 +1616,7 @@ void _pmath_write_machine_float(struct pmath_write_ex_t *info, pmath_t f) {
   int base = 10;
   char s[100];
   double test;
-  int minprec, maxprec, len, i;
+  int minprec, midprec, maxprec, len, i;
 
   if(thread && thread->numberbase >= 2 && thread->numberbase <= 36)
     base = thread->numberbase;
@@ -1631,6 +1631,7 @@ void _pmath_write_machine_float(struct pmath_write_ex_t *info, pmath_t f) {
   }
   
   maxprec = 1 + (int)ceil(DBL_MANT_DIG * LOG10_2);
+  midprec = 6;
   
   test = fabs(PMATH_AS_DOUBLE(f));
   if(test > 10000.0)
@@ -1643,10 +1644,13 @@ void _pmath_write_machine_float(struct pmath_write_ex_t *info, pmath_t f) {
     minprec = 3;
   else if(test > 1.0)
     minprec = 2;
-  else
+  else 
     minprec = 1;
     
-  for(len = minprec; len <= 6; ++len) {
+  if(test < 10.0)
+    midprec = maxprec;
+  
+  for(len = minprec; len <= midprec; ++len) {
     snprintf(s, sizeof(s), "%.*g", len, PMATH_AS_DOUBLE(f));
 
     // not pmath_strtod() because sprintf gives locale specific result
@@ -1655,7 +1659,7 @@ void _pmath_write_machine_float(struct pmath_write_ex_t *info, pmath_t f) {
       goto FOUND;
   }
 
-  for(len = 6; len <= maxprec; ++len) {
+  for(len = midprec + 1; len <= maxprec; ++len) {
     snprintf(s, sizeof(s), "%.*e", len, PMATH_AS_DOUBLE(f));
 
     // not pmath_strtod() because sprintf gives locale specific result
