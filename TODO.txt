@@ -4,6 +4,8 @@
 
 ? add InputDocument(): Palettes may be the SelectedDocument(), but never the InputDocument()
 
+- BUG: infinite repaints/resizes in ListLinePlot({1,2,1,3},AxesOrigin->Dynamic({ox,oy}))
+
 - BUG: Print(...) in a docked section (via button click) should print into the working area, not the 
 	docked section. Maybe EvaluationDocument() should also return the working area
 	

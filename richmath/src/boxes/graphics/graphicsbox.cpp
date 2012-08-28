@@ -240,6 +240,35 @@ void GraphicsBox::resize(Context *context) {
   margin_top    = 0;
   margin_bottom = 0;
   
+  calculate_size();
+}
+
+static float calc_margin_width(float w, float lbl_w, double all_x, double other_x) {
+  if(other_x > all_x)
+    other_x = all_x;
+    
+  if(w <= 0)
+    return lbl_w;
+    
+  double min_ox = (w - lbl_w) * all_x / w;
+  if(other_x < min_ox)
+    return 0;
+    
+  return w - (w - lbl_w) * all_x / other_x;
+}
+
+void GraphicsBox::calculate_size(const float *optional_expand_width) {
+  GraphicsBounds bounds;
+  bounds.xmin = ticks[AxisIndexX]->start_position;
+  bounds.xmax = ticks[AxisIndexX]->end_position;
+  bounds.ymin = ticks[AxisIndexY]->start_position;
+  bounds.ymax = ticks[AxisIndexY]->end_position;
+  
+  double ox = 0, oy = 0;
+  calculate_axes_origin(bounds, &ox, &oy);
+  bool valid_ox = ticks[AxisIndexBottom]->is_visible(ox);
+  bool valid_oy = ticks[AxisIndexLeft  ]->is_visible(oy);
+  
   BoxSize label_sizes[6];
   for(int part = 0; part < 6; ++part) {
     label_sizes[part] = ticks[part]->all_labels_extents();
@@ -248,7 +277,8 @@ void GraphicsBox::resize(Context *context) {
   }
   
   bool left, right, bottom, top;
-  if(have_frame(&left, &right, &bottom, &top)) {
+  bool any_frame = have_frame(&left, &right, &bottom, &top);
+  if(any_frame) {
     margin_left = max(
                     label_sizes[AxisIndexLeft].width + ticks[AxisIndexLeft]->extra_offset,
                     label_sizes[AxisIndexBottom].width / 2,
@@ -270,29 +300,19 @@ void GraphicsBox::resize(Context *context) {
                    label_sizes[AxisIndexRight].height() / 2);
   }
   else {
-    margin_left = max(
-                    ticks[AxisIndexLeft]->extra_offset,
-                    label_sizes[AxisIndexY].width + ticks[AxisIndexY]->extra_offset,
-                    label_sizes[AxisIndexX].width / 2);
-                    
+    margin_left = ticks[AxisIndexLeft]->extra_offset;
+    
+    margin_bottom = ticks[AxisIndexBottom]->extra_offset;
+    
     margin_right = max(
                      ticks[AxisIndexRight]->extra_offset,
                      label_sizes[AxisIndexX].width / 2);
                      
-    margin_bottom = max(
-                      ticks[AxisIndexBottom]->extra_offset,
-                      label_sizes[AxisIndexX].height() + ticks[AxisIndexY]->extra_offset,
-                      label_sizes[AxisIndexY].height() / 2);
-                      
     margin_top = max(
                    ticks[AxisIndexTop]->extra_offset,
                    label_sizes[AxisIndexY].height() / 2);
   }
   
-  calculate_size();
-}
-
-void GraphicsBox::calculate_size(const float *optional_expand_width) {
   float w     = get_own_style(ImageSizeHorizontal, ImageSizeAutomatic);
   float h     = get_own_style(ImageSizeVertical,   ImageSizeAutomatic);
   float ratio = get_own_style(AspectRatio, 1.0f); //0.61803f
@@ -323,16 +343,56 @@ void GraphicsBox::calculate_size(const float *optional_expand_width) {
     }
   }
   
+  if(w > 0 && !any_frame) {
+    margin_left = max(
+                    label_sizes[AxisIndexX].width / 2,
+                    calc_margin_width(
+                      w - margin_right,
+                      label_sizes[AxisIndexY].width + ticks[AxisIndexY]->extra_offset,
+                      bounds.xmax - bounds.xmin,
+                      bounds.xmax - ox));
+  }
+  
+  if(h > 0 && !any_frame) {
+    margin_bottom = max(
+                      label_sizes[AxisIndexY].height() / 2,
+                      calc_margin_width(
+                        h - margin_top,
+                        label_sizes[AxisIndexX].height() + ticks[AxisIndexX]->extra_offset,
+                        bounds.ymax - bounds.ymin,
+                        bounds.ymax - oy));
+  }
+  
   if(w <= 0) {
     float content_h = h - margin_top - margin_bottom;
     
-    w = content_h / ratio + margin_left + margin_right;
+    w = content_h / ratio + /*margin_left +*/ margin_right;
+    
+    if(!any_frame) {
+      margin_left = max(
+                      label_sizes[AxisIndexX].width / 2,
+                      calc_margin_width(
+                        w - margin_right,
+                        label_sizes[AxisIndexY].width + ticks[AxisIndexY]->extra_offset,
+                        bounds.xmax - bounds.xmin,
+                        bounds.xmax - ox));
+    }
   }
   
   if(h <= 0) {
     float content_w = w - margin_left - margin_right;
     
-    h = content_w * ratio + margin_top  + margin_bottom;
+    h = content_w * ratio + margin_top/* + margin_bottom*/;
+    
+    if(!any_frame) {
+      margin_bottom = max(
+                        label_sizes[AxisIndexY].height() / 2,
+                        calc_margin_width(
+                          h - margin_top,
+                          label_sizes[AxisIndexX].height() + ticks[AxisIndexX]->extra_offset,
+                          bounds.ymax - bounds.ymin,
+                          bounds.ymax - oy));
+    }
   }
   
   _extents.width = w;
@@ -373,20 +433,9 @@ void GraphicsBox::calculate_size(const float *optional_expand_width) {
   ticks[AxisIndexTop]->start_y = margin_top - _extents.ascent;
   ticks[AxisIndexTop]->end_y   = margin_top - _extents.ascent;
   
-  GraphicsBounds bounds;
-  bounds.xmin = ticks[AxisIndexX]->start_position;
-  bounds.xmax = ticks[AxisIndexX]->end_position;
-  bounds.ymin = ticks[AxisIndexY]->start_position;
-  bounds.ymax = ticks[AxisIndexY]->end_position;
-  
-  double ox = 0, oy = 0;
-  calculate_axes_origin(bounds, &ox, &oy);
   float tx = 0;
   float ty = 0;
   float dummy;
-  bool valid_ox = ticks[AxisIndexBottom]->is_visible(ox);
-  bool valid_oy = ticks[AxisIndexLeft  ]->is_visible(oy);
-  
   ticks[AxisIndexBottom]->get_tick_position(ox, &tx,    &dummy);
   ticks[AxisIndexLeft  ]->get_tick_position(oy, &dummy, &ty);
   
