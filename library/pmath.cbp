@@ -435,7 +435,7 @@
 		<Unit filename="src\pmath-builtins\arithmetic\arg.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src\pmath-builtins\arithmetic\ceiling-floor-round.c">
+		<Unit filename="src\pmath-builtins\arithmetic\ceiling-floor-round-integerpart.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src\pmath-builtins\arithmetic\chop.c">
@@ -457,6 +457,9 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src\pmath-builtins\arithmetic\cosh.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\pmath-builtins\arithmetic\fractionalpart.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src\pmath-builtins\arithmetic\gamma.c">
@@ -916,6 +919,9 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src\pmath-builtins\lists\prepend.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\pmath-builtins\lists\quantile.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src\pmath-builtins\lists\range.c">

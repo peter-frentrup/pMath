@@ -76,12 +76,14 @@ General::numn:= "Non-negative number expected at position `1` in `2`."
 General::ns:= "Invalid namespace specified at position `1` in `2`. A namespace must consist of valid symbol names separated by and ending with `."
 General::nsls:= "Namespace or nonempty list of namespaces expected at position `1` in `2`."
 General::range:= "Range `1` does not have valid bounds."
+General::shlen:= "Argument `1` should have at least two elements."
 General::sing:= "Matrix `1` is singular."
 General::str:= "String expected at position `1` in `2`."
 General::strse:= "String or list of strings expected at position `1` in `2`."
 General::sym:= "Argument `1` at position `2` is expected to be a symbol."
 General::timc:= "Number of seconds `1` is neither a positive machine-size integer nor Infinity."
 General::vecmat:= "Argument `1` is neither a nonempty vector nor a nonempty matrix."
+General::vecmatn:= "Argument `1` is neither a nonempty real vector nor a nonempty real matrix."
 
 /* level and part specification errors */
 General::level:= "`1` is no valid level specification."
@@ -209,6 +211,9 @@ Partition::pdep:= "Depth `1` requested in object with dimensions `2`."
 
 Piecewise::pairs:= "The first argument `1` of Piecewise is not a list of pairs."
 
+Quantile::nquan:= "The Quantile specification `1` should be a number or a list of numbers between 0 and 1."
+Quantile::parm:= "The Quantile parameters `1` should be given as a 2 x 2 matrix of real numbers {{a,b},{c,d}} or as a pair of real plot point parameters {a,b}."
+						
 Read::readf:= "`1` is not a valid format specification."
 Read::readn:= "Invalid real number found."
 

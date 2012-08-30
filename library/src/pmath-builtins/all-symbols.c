@@ -393,6 +393,7 @@ PMATH_PRIVATE pmath_t builtin_ordering(                     pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_padleft_and_padright(         pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_partition(                    pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_prepend(                      pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_quantile(                     pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_range(                        pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_regather(                     pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_rest(                         pmath_expr_t expr);
@@ -1181,6 +1182,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_PROTECTED                        = NEW_SYSTEM_SYMBOL("Protected"))
   VERIFY(   PMATH_SYMBOL_PUREARGUMENT                     = NEW_SYSTEM_SYMBOL("PureArgument"))
   VERIFY(   PMATH_SYMBOL_QRDECOMPOSITION                  = NEW_SYSTEM_SYMBOL("QRDecomposition"))
+  VERIFY(   PMATH_SYMBOL_QUANTILE                         = NEW_SYSTEM_SYMBOL("Quantile"))
   VERIFY(   PMATH_SYMBOL_QUIT                             = NEW_SYSTEM_SYMBOL("Quit"))
   VERIFY(   PMATH_SYMBOL_QUOTIENT                         = NEW_SYSTEM_SYMBOL("Quotient"))
   VERIFY(   PMATH_SYMBOL_RADICALBOX                       = NEW_SYSTEM_SYMBOL("RadicalBox"))
@@ -1713,6 +1715,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   PMATH_SYMBOL_PRINT,                       builtin_print)
   BIND_DOWN(   PMATH_SYMBOL_PRODUCT,                     builtin_product)
   BIND_DOWN(   PMATH_SYMBOL_PROTECT,                     builtin_protect_or_unprotect)
+  BIND_DOWN(   PMATH_SYMBOL_QUANTILE,                    builtin_quantile)
   BIND_DOWN(   PMATH_SYMBOL_QUOTIENT,                    builtin_quotient)
   BIND_DOWN(   PMATH_SYMBOL_RANDOMINTEGER,               builtin_randominteger)
   BIND_DOWN(   PMATH_SYMBOL_RANDOMREAL,                  builtin_randomreal)
