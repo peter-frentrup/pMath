@@ -6,21 +6,24 @@
 
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/arithmetic-private.h>
+#include <pmath-builtins/build-expr-private.h>
 
-PMATH_PRIVATE pmath_t builtin_ceiling_or_floor_or_round(
-  pmath_expr_t expr
-) {
-  /* Ceiling(x)       smallest integer greater than or equal to x
-     Ceiling(x, a)    smallest multiple of a that is not less than x
-     Ceiling(a + b*I) = Ceil(a) + Ceil(b)*I
+
+PMATH_PRIVATE pmath_t builtin_round_functions(pmath_expr_t expr) {
+  /* Ceiling(x)           smallest integer greater than or equal to x
+     Ceiling(x, a)        smallest multiple of a that is not less than x
+     Ceiling(a + b*I)     = Ceil(a) + Ceil(b)*I
   
-     Floor(x)       greatest integer less than or equal to x
-     Floor(x, a)    greatest multiple of a that is not greater than x
-     Floor(a + b*I) = Floor(a) + Floor(b)*I
+     Floor(x)             greatest integer less than or equal to x
+     Floor(x, a)          greatest multiple of a that is not greater than x
+     Floor(a + b*I)       = Floor(a) + Floor(b)*I
   
-     Round(x)       integer closest to x
-     Round(x, a)    nearest multiple of a to x
-     Round(a + b*I) = Round(a) + Round(b)*I
+     Round(x)             integer closest to x, ties to even
+     Round(x, a)          nearest multiple of a to x
+     Round(a + b*I)       = Round(a) + Round(b)*I
+     
+     IntegerPart(x)       round to zero
+     IntegerPart(a + b*I) = IntegerPart(a) + IntegerPart(b)*I
   
    */
   size_t len = pmath_expr_length(expr);
@@ -34,10 +37,9 @@ PMATH_PRIVATE pmath_t builtin_ceiling_or_floor_or_round(
       pmath_t im = pmath_expr_get_item(x, 2);
       pmath_unref(x);
       pmath_unref(expr);
-      x = pmath_expr_new_extended(
-            pmath_ref(PMATH_SYMBOL_COMPLEX), 2,
-            pmath_expr_new_extended(pmath_ref(head), 1, re),
-            pmath_expr_new_extended(pmath_ref(head), 1, im));
+      x = COMPLEX(
+            FUNC(pmath_ref(head), re),
+            FUNC(pmath_ref(head), im));
       pmath_unref(head);
       return x;
     }
@@ -83,7 +85,13 @@ PMATH_PRIVATE pmath_t builtin_ceiling_or_floor_or_round(
           PMATH_AS_MPZ(num),
           PMATH_AS_MPZ(den));
       }
-      else {
+      else if(pmath_same(head, PMATH_SYMBOL_INTEGERPART)) {
+        mpz_tdiv_q(
+          PMATH_AS_MPZ(result),
+          PMATH_AS_MPZ(num),
+          PMATH_AS_MPZ(den));
+      }
+      else /*if(pmath_same(head, PMATH_SYMBOL_ROUND)) */{
         pmath_bool_t even;
         int cmp;
         pmath_mpint_t rem  = _pmath_create_mp_int(0);
@@ -138,16 +146,23 @@ PMATH_PRIVATE pmath_t builtin_ceiling_or_floor_or_round(
       }
       
       if(pmath_same(head, PMATH_SYMBOL_CEILING)) {
+        // TODO: prevent overflow
         mpz_set_d(
           PMATH_AS_MPZ(result),
           ceil(PMATH_AS_DOUBLE(x)));
       }
       else if(pmath_same(head, PMATH_SYMBOL_FLOOR)) {
+        // TODO: prevent overflow
         mpz_set_d(
           PMATH_AS_MPZ(result),
-          PMATH_AS_DOUBLE(x));
+          floor(PMATH_AS_DOUBLE(x)));
       }
-      else {
+      else if(pmath_same(head, PMATH_SYMBOL_INTEGERPART)) {
+        mpz_set_d(
+          PMATH_AS_MPZ(result),
+          PMATH_AS_DOUBLE(x)); // mpz_set_d truncates x
+      }
+      else /*if(pmath_same(head, PMATH_SYMBOL_ROUND)) */{
         double f = floor(PMATH_AS_DOUBLE(x));
         
         mpz_set_d(PMATH_AS_MPZ(result), f);
@@ -187,7 +202,13 @@ PMATH_PRIVATE pmath_t builtin_ceiling_or_floor_or_round(
           PMATH_AS_MP_VALUE(x),
           MPFR_RNDD);
       }
-      else {
+      else if(pmath_same(head, PMATH_SYMBOL_INTEGERPART)) {
+        mpfr_get_z(
+          PMATH_AS_MPZ(result),
+          PMATH_AS_MP_VALUE(x),
+          MPFR_RNDZ);
+      }
+      else /*if(pmath_same(head, PMATH_SYMBOL_ROUND)) */{
         mpfr_get_z(
           PMATH_AS_MPZ(result),
           PMATH_AS_MP_VALUE(x),
@@ -200,20 +221,43 @@ PMATH_PRIVATE pmath_t builtin_ceiling_or_floor_or_round(
     }
     
     {
+      pmath_t re, im;
+      pmath_unref(head);
+      
       //expr = pmath_expr_set_item(expr, 1, PMATH_NULL);
       x = pmath_approximate(x, HUGE_VAL, 2 * LOG2_10, NULL);
       
-      if(pmath_is_float(x)) {
-        pmath_unref(head);
-        expr = pmath_expr_set_item(expr, 1, x);
+      if(pmath_is_float(x))
+        return pmath_expr_set_item(expr, 1, x);
         
-        return expr;
+      if( _pmath_re_im(x, &re, &im) && // frees x
+          pmath_is_float(re) &&
+          pmath_is_float(im)) 
+      {
+        return pmath_expr_set_item(expr, 1, x);
       }
+      
+      pmath_unref(re);
+      pmath_unref(im);
+      return expr;
     }
+    
+    pmath_unref(head);
+    pmath_unref(x);
+    return expr;
   }
-  else if(len == 2) {
-    pmath_t a = pmath_expr_get_item(expr, 2);
-    pmath_t div;
+  
+  if(pmath_same(head, PMATH_SYMBOL_INTEGERPART)) {
+    pmath_unref(head);
+    pmath_unref(x);
+    pmath_message_argxxx(len, 1, 1);
+    return expr;
+  }
+  
+  if(len == 2) {
+    pmath_t a, div;
+    
+    a = pmath_expr_get_item(expr, 2);
     
 //    if(_pmath_is_nonreal_complex(x)){
 //      pmath_t re = pmath_expr_get_item((pmath_expr_t)x, 1);
@@ -244,14 +288,9 @@ PMATH_PRIVATE pmath_t builtin_ceiling_or_floor_or_round(
              pmath_expr_new_extended(head, 1, div),
              a);
   }
-  else {
-    pmath_unref(head);
-    pmath_unref(x);
-    pmath_message_argxxx(len, 1, 2);
-    return expr;
-  }
   
   pmath_unref(head);
   pmath_unref(x);
+  pmath_message_argxxx(len, 1, 2);
   return expr;
 }

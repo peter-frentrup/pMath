@@ -79,47 +79,48 @@ static const pmath_ht_class_t function_table_class = {
 //} ============================================================================
 
 //{ builtins from src/pmath-builtins/arithmetic/ ...
-PMATH_PRIVATE pmath_t builtin_abs(                      pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_accuracy(                 pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_approximate(              pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_arcsin(                   pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_arctan(                   pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_arg(                      pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_binomial(                 pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_ceiling_or_floor_or_round(pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_chop(                     pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_clip(                     pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_complex(                  pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_conjugate(                pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_cos(                      pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_cosh(                     pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_directedinfinity(         pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_exp(                      pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_factorial(                pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_factorial2(               pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_gamma(                    pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_im(                       pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_log(                      pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_loggamma(                 pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_mod(                      pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_plus(                     pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_polygamma(                pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_power(                    pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_precision(                pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_product(                  pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_quotient(                 pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_re(                       pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_rescale(                  pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_setaccuracy(              pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_setprecision(             pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_sign(                     pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_sin(                      pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_sinh(                     pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_sqrt(                     pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_sum(                      pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_tan(                      pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_tanh(                     pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_times(                    pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_abs(             pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_accuracy(        pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_approximate(     pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_arcsin(          pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_arctan(          pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_arg(             pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_binomial(        pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_chop(            pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_clip(            pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_complex(         pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_conjugate(       pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_cos(             pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_cosh(            pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_directedinfinity(pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_exp(             pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_factorial(       pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_factorial2(      pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_fractionalpart(  pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_gamma(           pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_im(              pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_log(             pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_loggamma(        pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_mod(             pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_plus(            pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_polygamma(       pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_power(           pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_precision(       pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_product(         pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_quotient(        pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_re(              pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_rescale(         pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_round_functions( pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_setaccuracy(     pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_setprecision(    pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_sign(            pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_sin(             pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_sinh(            pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_sqrt(            pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_sum(             pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_tan(             pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_tanh(            pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_times(           pmath_expr_t expr);
 
 PMATH_PRIVATE pmath_t builtin_approximate_e(               pmath_t obj, double prec, double acc);
 PMATH_PRIVATE pmath_t builtin_approximate_eulergamma(      pmath_t obj, double prec, double acc);
@@ -890,6 +891,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_FONTWEIGHT                       = NEW_SYSTEM_SYMBOL("FontWeight"))
   VERIFY(   PMATH_SYMBOL_FOR                              = NEW_SYSTEM_SYMBOL("For"))
   VERIFY(   PMATH_SYMBOL_FORMATRULES                      = NEW_SYSTEM_SYMBOL("FormatRules"))
+  VERIFY(   PMATH_SYMBOL_FRACTIONALPART                   = NEW_SYSTEM_SYMBOL("FractionalPart"))
   VERIFY(   PMATH_SYMBOL_FRACTIONBOX                      = NEW_SYSTEM_SYMBOL("FractionBox"))
   VERIFY(   PMATH_SYMBOL_FRAME                            = NEW_SYSTEM_SYMBOL("Frame"))
   VERIFY(   PMATH_SYMBOL_FRAMEBOX                         = NEW_SYSTEM_SYMBOL("FrameBox"))
@@ -958,6 +960,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_INPUTFIELDBOX                    = NEW_SYSTEM_SYMBOL("InputFieldBox"))
   VERIFY(   PMATH_SYMBOL_INPUTFORM                        = NEW_SYSTEM_SYMBOL("InputForm"))
   VERIFY(   PMATH_SYMBOL_INTEGER                          = NEW_SYSTEM_SYMBOL("Integer"))
+  VERIFY(   PMATH_SYMBOL_INTEGERPART                      = NEW_SYSTEM_SYMBOL("IntegerPart"))
   VERIFY(   PMATH_SYMBOL_INTERPRETATION                   = NEW_SYSTEM_SYMBOL("Interpretation"))
   VERIFY(   PMATH_SYMBOL_INTERPRETATIONBOX                = NEW_SYSTEM_SYMBOL("InterpretationBox"))
   VERIFY(   PMATH_SYMBOL_INTERRUPT                        = NEW_SYSTEM_SYMBOL("Interrupt"))
@@ -1497,7 +1500,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   PMATH_SYMBOL_BYTECOUNT,                   builtin_bytecount)
   BIND_DOWN(   PMATH_SYMBOL_CASES,                       builtin_cases)
   BIND_DOWN(   PMATH_SYMBOL_CATCH,                       builtin_catch)
-  BIND_DOWN(   PMATH_SYMBOL_CEILING,                     builtin_ceiling_or_floor_or_round)
+  BIND_DOWN(   PMATH_SYMBOL_CEILING,                     builtin_round_functions)
   BIND_DOWN(   PMATH_SYMBOL_CHARACTERS,                  builtin_characters)
   BIND_DOWN(   PMATH_SYMBOL_CHOP,                        builtin_chop)
   BIND_DOWN(   PMATH_SYMBOL_CLEAR,                       builtin_clear)
@@ -1572,11 +1575,12 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   PMATH_SYMBOL_FIXEDPOINT,                  builtin_fixedpoint_and_fixedpointlist)
   BIND_DOWN(   PMATH_SYMBOL_FIXEDPOINTLIST,              builtin_fixedpoint_and_fixedpointlist)
   BIND_DOWN(   PMATH_SYMBOL_FLATTEN,                     builtin_flatten)
-  BIND_DOWN(   PMATH_SYMBOL_FLOOR,                       builtin_ceiling_or_floor_or_round)
+  BIND_DOWN(   PMATH_SYMBOL_FLOOR,                       builtin_round_functions)
   BIND_DOWN(   PMATH_SYMBOL_FOLD,                        builtin_fold)
   BIND_DOWN(   PMATH_SYMBOL_FOLDLIST,                    builtin_foldlist)
   BIND_DOWN(   PMATH_SYMBOL_FOR,                         builtin_for)
   BIND_DOWN(   PMATH_SYMBOL_FORMATRULES,                 builtin_symbol_rules)
+  BIND_DOWN(   PMATH_SYMBOL_FRACTIONALPART,              builtin_fractionalpart)
   BIND_DOWN(   PMATH_SYMBOL_FROMCHARACTERCODE,           builtin_fromcharactercode)
   BIND_DOWN(   PMATH_SYMBOL_FRONTENDTOKENEXECUTE,        general_builtin_nofront)
   BIND_DOWN(   PMATH_SYMBOL_FUNCTION,                    builtin_function)
@@ -1598,6 +1602,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   PMATH_SYMBOL_INCREMENT,                   builtin_dec_or_inc_or_postdec_or_postinc)
   BIND_DOWN(   PMATH_SYMBOL_INEQUATION,                  builtin_inequation)
   BIND_DOWN(   PMATH_SYMBOL_INNER,                       builtin_inner)
+  BIND_DOWN(   PMATH_SYMBOL_INTEGERPART,                 builtin_round_functions)
   BIND_DOWN(   PMATH_SYMBOL_INTERRUPT,                   general_builtin_nofront)
   BIND_DOWN(   PMATH_SYMBOL_INTERSECTION,                builtin_intersection)
   BIND_DOWN(   PMATH_SYMBOL_ISARRAY,                     builtin_isarray)
@@ -1731,7 +1736,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   PMATH_SYMBOL_RETURN,                      general_builtin_zerotwoarg)
   BIND_DOWN(   PMATH_SYMBOL_REVERSE,                     builtin_reverse)
   BIND_DOWN(   PMATH_SYMBOL_RIFFLE,                      builtin_riffle)
-  BIND_DOWN(   PMATH_SYMBOL_ROUND,                       builtin_ceiling_or_floor_or_round)
+  BIND_DOWN(   PMATH_SYMBOL_ROUND,                       builtin_round_functions)
   BIND_DOWN(   PMATH_SYMBOL_SCAN,                        builtin_scan)
   BIND_DOWN(   PMATH_SYMBOL_SECTIONPRINT,                builtin_sectionprint)
   BIND_DOWN(   PMATH_SYMBOL_SELECT,                      builtin_select)
@@ -1924,6 +1929,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   SET_ATTRIB( PMATH_SYMBOL_FLOOR,                            DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
   SET_ATTRIB( PMATH_SYMBOL_FOR,                              HOLDALL);
   SET_ATTRIB( PMATH_SYMBOL_FORMATRULES,                      HOLDALL);
+  SET_ATTRIB( PMATH_SYMBOL_FRACTIONALPART,                   DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
   SET_ATTRIB( PMATH_SYMBOL_FUNCTION,                         DEEPHOLDALL | HOLDALL);
   SET_ATTRIB( PMATH_SYMBOL_GAMMA,                            DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
   SET_ATTRIB( PMATH_SYMBOL_GATHER,                           HOLDFIRST);
@@ -1937,6 +1943,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   SET_ATTRIB( PMATH_SYMBOL_IM,                               DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
   SET_ATTRIB( PMATH_SYMBOL_INCREMENT,                        HOLDFIRST);
   SET_ATTRIB( PMATH_SYMBOL_INPUT,                            THREADLOCAL);
+  SET_ATTRIB( PMATH_SYMBOL_INTEGERPART,                      DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
   SET_ATTRIB( PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATE,         HOLDALLCOMPLETE);
   SET_ATTRIB( PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATEMULTIPLE, HOLDALLCOMPLETE);
   SET_ATTRIB( PMATH_SYMBOL_INTERNAL_NAMESPACEPATHSTACK,      THREADLOCAL);

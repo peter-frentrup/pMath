@@ -830,5 +830,7 @@ pmath_bool_t pmath_register_approx_code(
 #define PMATH_SYMBOL_LISTLINEPLOT                           PMATH_SYMBOL_BUILTIN(738)
 #define PMATH_SYMBOL_DIRECTIVE                              PMATH_SYMBOL_BUILTIN(739)
 #define PMATH_SYMBOL_DATARANGE                              PMATH_SYMBOL_BUILTIN(740)
+#define PMATH_SYMBOL_INTEGERPART                            PMATH_SYMBOL_BUILTIN(741)
+#define PMATH_SYMBOL_FRACTIONALPART                         PMATH_SYMBOL_BUILTIN(742)
 
 #endif /* __PMATH_BUILTINS__SYMBOLS_H__ */
