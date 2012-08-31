@@ -18,18 +18,18 @@
 #include <resources.h>
 
 #ifndef TPM_NOANIMATION
-#define TPM_NOANIMATION 0x4000
+#  define TPM_NOANIMATION 0x4000
 #endif
 
 #ifndef TBCDRF_USECDCOLORS
-#define TBCDRF_USECDCOLORS  0x00800000
+#  define TBCDRF_USECDCOLORS  0x00800000
 #endif
+
+#define WM_MY_SHOWMENUITEM   (WM_USER + 1)
 
 using namespace richmath;
 
 static Win32Menubar *current_menubar = 0;
-
-#define WM_MY_SHOWMENUITEM   (WM_USER + 1)
 
 static POINT dword_to_point(DWORD dw) {
   POINT pt;
@@ -373,6 +373,8 @@ void Win32Menubar::set_focus(int item) {
   if(!visible()) {
     ShowWindow(_hwnd, SW_SHOWNOACTIVATE);
     _window->rearrange();
+    InvalidateRect(_hwnd, NULL, FALSE);
+    UpdateWindow(_hwnd);
   }
   
   focused = true;
