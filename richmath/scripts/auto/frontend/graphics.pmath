@@ -14,19 +14,26 @@ stepSize(~width ? IsPositive)::=
 		width < 8 # &, 
 		1)
 
-smallTickPositions(~start, ~end) /? start < end ::=
+smallTickPositions(~start .. ~end) /? start < end ::=
 	With({step:= stepSize(stepSize(end - start))},
 		N @ Array(Ceiling(start, step) .. end .. step))
 		
-largeTickPositions(~start, ~end) /? start < end ::=
+largeTickPositions(~start .. ~end) /? start < end ::=
 	With({step:= stepSize(end - start)},
 		N @ Array(Ceiling(start, step) .. end .. step))
 
-isSmallInt(~s:String)::= s.StringMatch(".0`" ++ EndOfString)
-isSmallInt(~)::= False
-allLabelsArrSmallInt(~ticks)::= And @@ ticks.Map(isSmallInt(#[2]) &)
+snapRange(~start .. ~end) /? start < end ::=
+	With({err:= (end - start) * 10^-5, step:= stepSize(end - start)},
+		With({f:= Floor(start, step), c:= Ceiling(end, step)},
+			If(start - f < err, f, start, start) .. If(c - end < err, c, end, end)
+			)
+		)
 
-makeIntTick({~x, ~lblBox, ~~~rest})::= {x, lblBox.StringReplace(".0`" ++ EndOfString :> ""), rest}
+isSmallInt(~s:String)::= s.StringMatch((".0`" | ".0") ++ EndOfString)
+isSmallInt(~)::= False
+allLabelsAreSmallInt(~ticks)::= And @@ ticks.Map(isSmallInt(#[2]) &)
+
+makeIntTick({~x, ~lblBox, ~~~rest})::= {x, lblBox.StringReplace((".0`" | ".0") ++ EndOfString :> ""), rest}
 
 DefaultAxesOrigin(~start, ~end)::= (
 	If(start <= 0.0 <= end,
@@ -38,18 +45,21 @@ DefaultAxesOrigin(~start, ~end)::= (
 	)
 
 DefaultTickBoxes(~start, ~end, True) /? start < end ::=
-	Join(
-		With({t:= largeTickPositions(start, end).Map({#, ToBoxes(#), {0.0, 0.02}}&)},
-			If(allLabelsArrSmallInt(t),
-				t.Map(makeIntTick),
-				t)), 
-		smallTickPositions(start, end).Map({#, "",         {0.0, 0.01}}&))
+	With({range:= snapRange(start .. end)},
+		Join(
+			With({t:= largeTickPositions(range).Map({#, ToBoxes(#), {0.0, 0.02}}&)},
+				If(allLabelsAreSmallInt(t),
+					t.Map(makeIntTick),
+					t)), 
+			smallTickPositions(range).Map({#, "", {0.0, 0.01}}&))
+		)
 
 DefaultTickBoxes(~start, ~end, False) /? start < end ::=
-	Join(
-		largeTickPositions(start, end).Map({#, "", {0.0, 0.02}}&), 
-		smallTickPositions(start, end).Map({#, "", {0.0, 0.01}}&))
-
+	With({range:= snapRange(start .. end)},
+		Join(
+			largeTickPositions(range).Map({#, "", {0.0, 0.02}}&), 
+			smallTickPositions(range).Map({#, "", {0.0, 0.01}}&))
+		)
 
 End()
 

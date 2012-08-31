@@ -31,7 +31,7 @@ namespace richmath {
       virtual void find_extends(GraphicsBounds &bounds);
       virtual void paint(Context *context);
       
-      virtual Expr to_pmath(int flags) { return _expr; } // BoxFlagXXX
+      virtual Expr to_pmath(int flags); // BoxFlagXXX
       
     protected:
       Expr                  _expr;

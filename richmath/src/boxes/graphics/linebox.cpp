@@ -85,7 +85,17 @@ bool LineBox::try_load_from_object(Expr expr, int opts) {
   if(_expr == expr)
     return true;
   
-  if(load_lines(_lines, expr[1])) {
+  Expr data = expr[1];
+  if(data[0] == PMATH_SYMBOL_UNCOMPRESS && data[1].is_string()){
+    data = Call(Symbol(PMATH_SYMBOL_UNCOMPRESS), data[1], Symbol(PMATH_SYMBOL_HOLDCOMPLETE));
+    data = Evaluate(data);
+    if(data[0] == PMATH_SYMBOL_HOLDCOMPLETE && data.expr_length() == 1) {
+      data = data[1];
+      expr.set(1, data);
+    }
+  }
+  
+  if(load_lines(_lines, data)) {
     _expr = expr;
     return true;
   }
@@ -132,6 +142,22 @@ void LineBox::paint(Context *context) {
   }
   
   context->canvas->hair_stroke();
+}
+
+Expr LineBox::to_pmath(int flags) {  // BoxFlagXXX
+  if(_expr[0] != PMATH_SYMBOL_LINEBOX || _expr.expr_length() != 1)
+    return _expr;
+  
+  Expr data = _expr[1];
+  size_t size = pmath_object_bytecount(data.get());
+  
+  if(size > 4096) {
+    data = Evaluate(Call(Symbol(PMATH_SYMBOL_COMPRESS), data));
+    data = Call(Symbol(PMATH_SYMBOL_UNCOMPRESS), data);
+    return Call(Symbol(PMATH_SYMBOL_LINEBOX), data);
+  }
+  
+  return _expr; 
 }
 
 //} ... class LineBox

@@ -136,6 +136,12 @@ void AxisTicks::load_from_object(Expr expr, int options) { // BoxOptionXXX
   }
 }
 
+bool AxisTicks::is_visible(double t){ 
+  double err = (end_position - start_position) * 1.0e-4;
+  
+  return start_position - err <= t && t <= end_position + err; 
+}
+
 void AxisTicks::resize(Context *context) {
   float old_w = context->width;
   float old_fs = context->canvas->get_font_size();

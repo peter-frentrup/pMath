@@ -21,7 +21,7 @@ namespace richmath {
       double           &position(int i) { return _positions[i]; }
       float             max_rel_tick(){   return _max_rel_tick; }
       
-      bool is_visible(double t){ return start_position <= t && t <= end_position; }
+      bool is_visible(double t);
       
       virtual void resize(Context *context);
       virtual void paint(Context *context);

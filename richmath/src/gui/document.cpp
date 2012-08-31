@@ -2754,6 +2754,22 @@ void Document::insert_string(String text, bool autoformat) {
       int last = 0;
       int pos = 0;
       while(pos < len) {
+        if(buf[pos] == '"'){
+          do {
+            if(buf[pos] == '\\') {
+              if(pos + 1 < len)
+                pos += 2;
+              else
+                ++pos;
+            }
+            else
+              ++pos;
+          } while(pos < len && buf[pos] != '"');
+          
+          if(pos < len && buf[pos] == '"')
+            ++pos;
+        }
+        
         int next = pos;
         while(!spans.is_token_end(next))
           ++next;
