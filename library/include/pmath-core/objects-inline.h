@@ -24,9 +24,12 @@ struct _pmath_t { // do not access members
 
 PMATH_FORCE_INLINE
 struct _pmath_t *PMATH_AS_PTR(pmath_t obj) {
+#ifndef NDEBUG
   if(!pmath_is_pointer(obj)) {
     assert(pmath_is_pointer(obj));
   }
+#endif
+  
 #if PMATH_BITSIZE == 64
   return (struct _pmath_t *)((obj.as_bits << PMATH_TAGMASK_BITCOUNT) >> PMATH_TAGMASK_BITCOUNT);
 #elif PMATH_BITSIZE == 32
@@ -36,9 +39,12 @@ struct _pmath_t *PMATH_AS_PTR(pmath_t obj) {
 
 PMATH_FORCE_INLINE
 double PMATH_AS_DOUBLE(pmath_t obj) {
+#ifndef NDEBUG
   if(!pmath_is_double(obj)) {
     assert(pmath_is_double(obj));
   }
+#endif
+
   return obj.as_double;
 }
 
@@ -151,9 +157,11 @@ pmath_t pmath_ref(pmath_t obj) {
   (void)pmath_atomic_fetch_add(&(PMATH_AS_PTR(obj)->refcount), 1);
 #else
   if(pmath_atomic_fetch_add(&(PMATH_AS_PTR(obj)->refcount), 1) == 0) {
+#  ifndef NDEBUG
     if(PMATH_AS_PTR(obj)->type_shift != PMATH_TYPE_SHIFT_SYMBOL) {
       assert("referencing deleted object" && 0);
     }
+#  endif
   }
 #endif
   

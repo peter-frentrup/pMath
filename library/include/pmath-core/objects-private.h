@@ -15,6 +15,30 @@ enum { // private pmath_type_t ...
 
 #define pmath_is_multirule(obj)  (pmath_is_pointer_of(obj, PMATH_TYPE_MULTIRULE))
 
+PMATH_FORCE_INLINE
+PMATH_ATTRIBUTE_NONNULL(1)
+intptr_t _pmath_refcount_ptr(struct _pmath_t *obj) {
+  return pmath_atomic_read_aquire(&obj->refcount);
+}
+
+PMATH_FORCE_INLINE
+PMATH_ATTRIBUTE_NONNULL(1)
+void _pmath_ref_ptr(struct _pmath_t *obj) {
+  (void)pmath_atomic_fetch_add(&(obj->refcount), 1);
+}
+
+PMATH_FORCE_INLINE
+PMATH_ATTRIBUTE_NONNULL(1)
+void _pmath_unref_ptr(struct _pmath_t *obj) {
+  pmath_atomic_barrier();
+  if(1 == pmath_atomic_fetch_add(&(obj->refcount), -1)) { // was 1 -> is 0
+    _pmath_destroy_object(PMATH_FROM_PTR(obj));
+  }
+  pmath_atomic_barrier();
+}
+
+
+
 extern PMATH_PRIVATE int pmath_maxrecursion;
 
 #if PMATH_BITSIZE < 64
