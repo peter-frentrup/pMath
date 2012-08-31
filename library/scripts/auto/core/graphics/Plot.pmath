@@ -203,7 +203,7 @@ makeFunctionList(~, ~)::= {}
 makeFunctionList({~~~fxs}, ~x:Symbol -> ~)::= 
 	List @@ Hold(fxs).Map(
 		Function(,
-			With({x:= x}, 
+			With({x::= x}, 
 				Function(x, 
 					With({y:= #}, 
 						If(IsNumber(y) && IsReal(y),
