@@ -204,6 +204,7 @@ bool GraphicsBox::try_load_from_object(Expr expr, int opts) {
   style->add_pmath(user_options);
   
   elements.load_from_object(expr[1], opts);
+  invalidate();
   
   return true;
 }

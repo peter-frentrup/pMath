@@ -3,6 +3,7 @@
 #include <cmath>
 #include <cstdio>
 
+#include <boxes/graphics/graphicsbox.h>
 #include <boxes/buttonbox.h>
 #include <boxes/fractionbox.h>
 #include <boxes/gridbox.h>
@@ -2334,6 +2335,18 @@ void Document::paste_from_boxes(Expr boxes) {
     
     grid->invalidate();
     return;
+  }
+  
+  GraphicsBox *graphics = dynamic_cast<GraphicsBox *>(context.selection.get());
+  if(graphics && graphics->get_style(Editable)) {
+    int options = BoxOptionDefault;
+    if(graphics->get_style(AutoNumberFormating))
+      options |= BoxOptionFormatNumbers;
+        
+    if(graphics->try_load_from_object(boxes, options)) 
+      return;
+    
+    //select(graphics->parent(), graphics->index(), graphics->index() + 1);
   }
   
   remove_selection(false);
