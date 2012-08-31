@@ -58,6 +58,7 @@ Options(ListLinePlot):= {
 	FrameTicks -> Automatic,
 	ImageSize -> Automatic,
 	PlotRange -> Automatic,
+	PlotStyle -> Automatic,
 	Ticks -> Automatic}
 	
 Options(Plot):= {

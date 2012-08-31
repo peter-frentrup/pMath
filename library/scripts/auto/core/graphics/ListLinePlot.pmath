@@ -18,6 +18,7 @@ Begin("System`Graphics`ListLinePlot`Private`")
 	FrameTicks -> Automatic,
 	ImageSize -> Automatic,
 	PlotRange -> Automatic,
+	PlotStyle -> Automatic,
 	Ticks -> Automatic}*/
 
 ListLinePlot(~~~args)::= With({g:= Catch(tryListLinePlot(args), $Failed)}, g /? Head(g) === Graphics)
