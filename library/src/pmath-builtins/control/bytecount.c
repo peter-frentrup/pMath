@@ -6,9 +6,9 @@
 
 #include <pmath-builtins/all-symbols-private.h>
 
-static size_t bytecount(
-  pmath_t obj // wont be freed
-){
+
+PMATH_API
+size_t pmath_object_bytecount(pmath_t obj) {
   if(!pmath_is_pointer(obj) || PMATH_AS_PTR(obj) == NULL)
     return 0;
   
@@ -18,8 +18,8 @@ static size_t bytecount(
            + sizeof(struct _pmath_mp_int_t);
     
     case PMATH_TYPE_SHIFT_QUOTIENT: 
-      return bytecount(PMATH_QUOT_NUM(obj))
-           + bytecount(PMATH_QUOT_DEN(obj))
+      return pmath_object_bytecount(PMATH_QUOT_NUM(obj))
+           + pmath_object_bytecount(PMATH_QUOT_DEN(obj))
            + sizeof(struct _pmath_quotient_t);
     
     case PMATH_TYPE_SHIFT_MP_FLOAT:
@@ -41,7 +41,7 @@ static size_t bytecount(
       for(i = 0;i <= len;++i){
         pmath_t item = pmath_expr_get_item(obj, i);
         
-        result+= bytecount(item);
+        result+= pmath_object_bytecount(item);
         
         pmath_unref(item);
       }
@@ -65,7 +65,7 @@ PMATH_PRIVATE pmath_t builtin_bytecount(pmath_expr_t expr){
   obj = pmath_expr_get_item(expr, 1);
   pmath_unref(expr);
 
-  result = bytecount(obj) + sizeof(pmath_t);
+  result = pmath_object_bytecount(obj) + sizeof(pmath_t);
   pmath_unref(obj);
 
   return pmath_integer_new_uiptr(result);

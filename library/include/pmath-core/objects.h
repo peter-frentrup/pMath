@@ -368,6 +368,16 @@ PMATH_API
 PMATH_ATTRIBUTE_PURE
 pmath_bool_t pmath_is_evaluated(pmath_t obj);
 
+/**\brief Get the byte count of an object 
+   \param obj The object. It wont be freed
+   \return An estimate for the memory usage of this object. Symbols count as 0.
+           Any elements that reference to the same object are treated as 
+           distinct.
+ */
+PMATH_API
+size_t pmath_object_bytecount(pmath_t obj); // implemented in bytecount.c
+
+
 /** @} */
 
 #endif /* __PMATH_CORE__OBJECTS_H__ */

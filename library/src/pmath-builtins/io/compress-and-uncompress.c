@@ -41,11 +41,15 @@ PMATH_PRIVATE pmath_t builtin_compress(pmath_expr_t expr) {
 }
 
 PMATH_PRIVATE pmath_t builtin_uncompress(pmath_expr_t expr) {
+/* Uncompress("data")
+   Uncompress("data", head)
+ */
   pmath_t obj, str, bfile, tfile, zfile;
   pmath_serialize_error_t err;
+  size_t exprlen = pmath_expr_length(expr);
   
-  if(pmath_expr_length(expr) != 1) {
-    pmath_message_argxxx(pmath_expr_length(expr), 1, 1);
+  if(exprlen < 1 || exprlen > 2) {
+    pmath_message_argxxx(exprlen, 1, 2);
     return expr;
   }
   
@@ -71,6 +75,11 @@ PMATH_PRIVATE pmath_t builtin_uncompress(pmath_expr_t expr) {
       pmath_message(PMATH_NULL, "corrupt", 1, str);
     pmath_unref(obj);
     return expr;
+  }
+  
+  if(exprlen == 2){
+    pmath_t head = pmath_expr_get_item(expr, 2);
+    obj = pmath_expr_new_extended(head, 1, obj);
   }
   
   pmath_unref(str);
