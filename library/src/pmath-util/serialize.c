@@ -367,19 +367,31 @@ static void serialize(
         
         prec = mpfr_get_prec(PMATH_AS_MP_VALUE(object));
         
-        exp = mpfr_get_z_exp(
-                PMATH_AS_MPZ(mantissa),
-                PMATH_AS_MP_VALUE(object));
-                
-        write_ui8( info->file, 9);
+        if(mpfr_zero_p(PMATH_AS_MP_VALUE(object))) {
+          exp = 0;
+          mpz_set_ui(PMATH_AS_MPZ(mantissa), 0);
+        }
+        else {
+          exp = mpfr_get_z_exp(
+                  PMATH_AS_MPZ(mantissa),
+                  PMATH_AS_MP_VALUE(object));
+        }
+        
+        write_ui8( info->file, TAG_MPFLOAT);
         write_ui32(info->file, (uint32_t)prec);
         write_si32(info->file, (int32_t)exp);
         serialize(info, _pmath_mp_int_normalize(pmath_ref(mantissa)));
         
-        exp = mpfr_get_z_exp(
-                PMATH_AS_MPZ(mantissa),
-                PMATH_AS_MP_ERROR(object));
-                
+        if(mpfr_zero_p(PMATH_AS_MP_ERROR(object))) {
+          exp = 0;
+          mpz_set_ui(PMATH_AS_MPZ(mantissa), 0);
+        }
+        else {
+          exp = mpfr_get_z_exp(
+                  PMATH_AS_MPZ(mantissa),
+                  PMATH_AS_MP_ERROR(object));
+        }
+        
         write_si32(info->file, (int32_t)exp);
         serialize(info, _pmath_mp_int_normalize(mantissa));
       } break;
