@@ -23,6 +23,7 @@
 #include <limits.h>
 #include <string.h>
 
+
 // only handles BMP chars U+0001 .. U+ffff, 0 on error
 static uint16_t unichar_at(
   pmath_expr_t expr,
@@ -613,7 +614,7 @@ PMATH_PRIVATE pmath_t _pmath_parse_number(
   
   if(pmath_is_number(result)) {
     pmath_unref(string);
-  
+    
     if(neg)
       return pmath_number_neg(result);
       
@@ -2629,22 +2630,22 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
             else
               arg = INV(arg);
           }
-          else if(pmath_is_rational(arg)) 
+          else if(pmath_is_rational(arg))
             previous_rational = 1;
-          
+            
           result = pmath_expr_set_item(result, i + 1, arg);
         }
         
         if(previous_rational > 0) {
           pmath_t first = pmath_expr_get_item(result, 1);
-          if(pmath_same(first, INT(1))) 
+          if(pmath_same(first, INT(1)))
             result = pmath_expr_set_item(result, 1, PMATH_UNDEFINED);
           else
             pmath_unref(first);
-          
+            
           result = _pmath_expr_shrink_associative(result, PMATH_UNDEFINED);
         }
-          
+        
         pmath_unref(expr);
         return HOLDCOMPLETE(result);
       }

@@ -1410,9 +1410,9 @@ static void write_mp_float_ex(
     
     if(for_machine_float) {
       if(info->options & PMATH_WRITE_OPTIONS_INPUTEXPR)
-        write_cstr("0.0", info->write, info->user);
-      else
         write_cstr("0.0`", info->write, info->user);
+      else
+        write_cstr("0.0", info->write, info->user);
     }
     else if(info->options & PMATH_WRITE_OPTIONS_INPUTEXPR) {
       d = exp * LOG10_2 + log10(d);
