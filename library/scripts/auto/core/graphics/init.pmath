@@ -8,7 +8,7 @@ System`Graphics`MakeGraphicsExpression
 System`Graphics`MakeGraphicsExpressionOptions
 
 System`ListLinePlot
-System`PlotStyle
+System`Plot
 
 Begin("System`Graphics`Private`")
 
@@ -41,14 +41,43 @@ Attributes(MakeGraphicsBoxesOptions):=      {HoldAllComplete, Protected}
 Attributes(MakeGraphicsExpression):=        {HoldAllComplete, Protected}
 Attributes(MakeGraphicsExpressionOptions):= {HoldAllComplete, Protected}
 
+Attributes(Plot):= {HoldAll, Protected}
+
 AutoLoad(Hold(MakeGraphicsBoxes, MakeGraphicsBoxesOptions), 
 	ToFileName(DirectoryName($Input), "makegraphicsboxes.pmath"))
 
 AutoLoad(Hold(MakeGraphicsExpression, MakeGraphicsExpressionOptions),
 	ToFileName(DirectoryName($Input), "makegraphicsexpression.pmath"))
 
+Options(ListLinePlot):= {
+	AspectRatio -> 1/GoldenRatio, 
+	Axes -> True, 
+	AxesOrigin -> Automatic,
+	DataRange -> Automatic,
+	Frame -> False,
+	FrameTicks -> Automatic,
+	ImageSize -> Automatic,
+	PlotRange -> Automatic,
+	Ticks -> Automatic}
+	
+Options(Plot):= {
+	AspectRatio -> 1/GoldenRatio, 
+	Axes -> True, 
+	AxesOrigin -> Automatic,
+	Frame -> False,
+	FrameTicks -> Automatic,
+	ImageSize -> Automatic,
+	MaxRecursion -> Automatic,
+	PlotPoints -> Automatic,
+	PlotRange -> Automatic,
+	PlotStyle -> Automatic,
+	Ticks -> Automatic,
+	WorkingPrecision -> MachinePrecision}
+	
 AutoLoad(Hold(ListLinePlot),
 	ToFileName(DirectoryName($Input), "ListLinePlot.pmath"))
+AutoLoad(Hold(Plot),
+	ToFileName(DirectoryName($Input), "Plot.pmath"))
 
 
 End()

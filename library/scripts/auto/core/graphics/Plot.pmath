@@ -1,0 +1,229 @@
+
+BeginPackage("System`Graphics`Plot`")
+
+
+System`Plot
+
+
+Begin("System`Graphics`Plot`Private`")
+
+
+/* Options(Plot):= {
+	AspectRatio -> 1/GoldenRatio, 
+	Axes -> True, 
+	AxesOrigin -> Automatic,
+	Frame -> False,
+	FrameTicks -> Automatic,
+	ImageSize -> Automatic,
+	MaxRecursion -> Automatic,
+	PlotPoints -> Automatic,
+	PlotRange -> Automatic,
+	PlotStyle -> Automatic,
+	Ticks -> Automatic,
+	WorkingPrecision -> MachinePrecision}*/
+
+$PlotFailed	
+
+Attributes(Plot):= {HoldAll}
+Plot(~~~args)::= With({g:= Catch(tryPlot(args), $PlotFailed)}, g /? Head(g) === Graphics)
+
+Plot::plld:= "Endpoints for `1` in `2` must have distinct machine-precision numerical values."
+Plot::pllim:= "Range specification `1` is not of the form x -> xmin..xmax."
+
+Protect(Plot)
+
+
+isRealNumber(~x)::= IsNumber(x) && IsReal(x)
+
+getPlotRange(~xys, ~xmin .. ~xmax)::=
+	Local({ymin, ymax, ndxs, ndys, tans, is, mi, ma},
+		With({xs:= xys[All, 1], ys:= xys[All, 2], maxTan:= Tan(80.0 Degree)}, 
+			{ymin, ymax}:= getRangeList(ys);
+			ndxs:= xs.ListConvolve({1, -1}) / (xmax - xmin); /* Differences */
+			ndys:= ys.ListConvolve({1, -1}) / (ymax - ymin); /* Differences */
+			tans:= ndys / ndxs;
+			
+			is:= Flatten @ Position(tans, ~t /? Abs(t) < maxTan, 1..1);
+			is:= Union(is, is + 1);
+			{mi, ma}:= ({Min(#), Max(#)} &)(ys[is]);
+			/*{mi, ma}:= (mi + ma)/2 + (ma - mi)/2 * {-1.02, 1.02};*/
+			
+			If(mi - (ma - mi)/5 < 0 < mi,
+				Return(0 .. ma));
+			
+			If(ma < 0 < ma + (ma - mi)/5,
+				Return(mi .. 0));
+			
+			If(mi < ma,
+				Return(mi .. ma));
+			
+			If(isRealNumber(mi),
+				Return(mi - 1 .. mi + 1));
+			
+			Return(-1 .. 1);
+			)
+		)
+
+getRangeList(~ys)::= 
+	With({nys:= Select(ys, isRealNumber)},
+		If(nys === {},
+			Return({-1, 1}));
+		If(Length(nys) = 1,
+			Return(First(nys) + {-1, 1}));
+		
+		With({mima:= Quantile(nys, {0.05, 0.95}, {{0,0},{0,1}})}, /* linear interpolation */
+			If(First(mima) = Last(mima),
+				Return(First(mima) + {-1, 1}));
+				
+			Return(mima);
+			);
+		)
+
+initData(~f, ~xmin .. ~xmax, ~numPoints, ~prec)::= 
+	With({ts:= Array(0 .. numPoints - 1) / (numPoints - 1)},
+		With({xs:= N(SetPrecision(xmax ts + xmin (1 - ts), prec), prec)},
+			Return(xs.Map({#, f(#)} &))
+			)
+		)
+
+calcCosines(~xys, ~xmin .. ~xmax)::= 
+	Local({ymin, ymax, ndxs, ndys, tans, cos2s},
+		With({xs:= xys[All, 1], ys:= xys[All, 2]}, 
+			{ymin, ymax}:= getRangeList(ys);
+			ndxs:= xs.ListConvolve({1, -1}) / (xmax - xmin); /* Differences */
+			ndys:= ys.ListConvolve({1, -1}) / (ymax - ymin); /* Differences */
+			tans:= ndys / ndxs;
+			With({tas:= Most(tans), tbs:= Rest(tans)}, 
+				cos2s:= (1 + tas tbs) / Sqrt((1 + tas^2)*(1 + tbs^2));
+				cos2s:= cos2s.Replace(~?(!isRealNumber(#) &) -> -1 /* Cos(180 Degree) */, 1..1);
+				Return(cos2s);
+				);
+			)
+		)
+
+cosMinFunction(~stepNumber, ~numPoints)::=
+	Max(
+		With({n:= numPoints}, Cos(180.0 Degree * Piecewise({{1, n < 2000}, {1 - ((n - 2000) / (4000 - 2000))^3, n < 4000}}, 0))),
+		With({n:= stepNumber}, Cos(180.0 Degree * Piecewise({{1, n < 10}, {1 - ((n - 10) / (20 - 10))^2, n < 20}}, 0))))
+
+refineData(~f, ~xrange, ~xys, ~prec, ~stepNumber)::=
+	With({
+			cosines:= calcCosines(xys, xrange),
+			cosMax:= Cos(5.0 Degree), 
+			cosMin:= cosMinFunction(stepNumber, Length(xs))
+		},
+		Local({is, newxs},
+			is:= Flatten @ Position(cosines, ~ ? (cosMin <= # <= cosMax &), 1..1, Heads -> False);
+			
+			If(Length(is) = 0,
+				Return({}));
+			
+			is:= Union(is, is + 1);
+			
+			newxs:= N(SetPrecision(xys[is, 1] / 2 + xys[is + 1, 1] / 2, prec), prec);
+			Return(newxs.Map({#, f(#)} &))
+			)
+		)
+
+generateData(~f, ~xrange, ~numPoints, ~prec, ~maxrecurs)::= 
+	Local({xys, newxys, step},
+		xys:= initData(f, xrange, numPoints, prec);
+		step:= 0;
+		While(step < maxrecurs,
+			step+= 1;
+			newxys:= refineData(f, xrange, xys, prec, step);
+			If(newxys === {},
+				Break());
+			xys:= SortBy(Join(xys, newxys), First);
+			);
+		
+		Return(xys);
+		)
+
+
+joinLists():= {}
+joinLists(~~~args)::= Join(args)
+
+normalizePlotRange(~xyDatas, ~xrange, ~r: Range)::= {xrange, r}
+normalizePlotRange(~xyDatas, ~xrange, Automatic)::= {xrange, getPlotRange(joinLists @@ xyDatas, xrange)}
+normalizePlotRange(~xyDatas, ~xrange, {~xr, Automatic})::= {xr, getPlotRange(joinLists @@ xyDatas, xrange)}
+normalizePlotRange(~xyDatas, ~xrange, ~r)::= r /* TODO: handle errors */
+
+tryPlotFunction(~fs, ~xrange, ~options)::= 
+	Local({defRules, allRules, plotPoints, workingPrecision, maxRecursion, plotRange, xyDatas, gRules},
+		defRules:= FilterRules(Options(Plot), Except(options));
+		allRules:= Join(defRules, options);
+		
+		plotPoints:= PlotPoints.Replace(allRules);
+		If(plotPoints === Automatic,
+			plotPoints:= 15);
+		If(!IsInteger(plotPoints) || plotPoints < 2,
+			/* error message ... */
+			plotPoints:= 15);
+		
+		maxRecursion:= MaxRecursion.Replace(allRules);
+		If(maxRecursion === Automatic,
+			maxRecursion:= Infinity);
+		
+		workingPrecision:= WorkingPrecision.Replace(allRules);
+		If(Try(SetPrecision(1, workingPrecision), $Failed, SetPrecision::invprec) === $Failed,
+			Message(Plot::invprec, workingPrecision);
+			Return($PlotFailed);
+			);
+		
+		xyDatas:= fs.Map(generateData(#, xrange, plotPoints, workingPrecision, maxRecursion) &);
+		
+		plotRange:= normalizePlotRange(xyDatas, xrange, PlotRange.Replace(allRules));
+		allRules:= Join(FilterRules(allRules, Except(PlotRange)), {PlotRange -> plotRange});
+		gRules:= FilterRules(allRules, Options(ListLinePlot));
+		gRules:= Complement(gRules, Options(ListLinePlot));
+		
+		Return(ListLinePlot(xyDatas, gRules));
+		)
+
+Attributes(checkRange):= {HoldAll}
+checkRange(spec: (~x:Symbol -> ~xmin..~xmax))::= 
+	With({evalxmin:= xmin, evalxmax:= xmax},
+		If((evalxmin < evalxmax) =!= True,
+			Message(Plot::plld, HoldForm(x), HoldForm(spec));
+			Throw($PlotFailed);
+			);
+		Return(evalxmin .. evalxmax);
+		)
+checkRange(~spec)::= (Message(Plot::pllim, HoldForm(spec)); Throw($PlotFailed))
+
+
+/* Attributes(makeFunction):= {HoldAll}
+makeFunction(~fx, ~x:Symbol -> ~)::= With({x:= x}, Function(x, fx))
+makeFunction(~, ~)::= (Undefined &) */
+
+Attributes(makeFunctionList):= {HoldAll}
+makeFunctionList(~fx, ~xspec)::= makeFunctionList({fx}, xspec)
+makeFunctionList(~, ~)::= {}
+makeFunctionList({~~~fxs}, ~x:Symbol -> ~)::= 
+	List @@ Hold(fxs).Map(
+		Function(,
+			With({x:= x}, 
+				Function(x, 
+					With({y:= #}, 
+						If(IsNumber(y) && IsReal(y),
+							y,
+							Undefined,
+							Undefined)
+						)
+					)
+				), 
+			{HoldAllComplete}))
+
+
+Attributes(tryPlot):= {HoldAll}
+tryPlot(~fx, ~xspec, opts: OptionsPattern(Plot))::= 
+	tryPlotFunction(
+		makeFunctionList(fx, xspec), 
+		checkRange(xspec), 
+		Flatten({opts, FilterRules(Options(Plot), Except(Flatten({opts})))}))
+
+
+End()
+
+EndPackage()

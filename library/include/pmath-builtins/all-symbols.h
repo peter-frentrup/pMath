@@ -833,5 +833,8 @@ pmath_bool_t pmath_register_approx_code(
 #define PMATH_SYMBOL_INTEGERPART                            PMATH_SYMBOL_BUILTIN(741)
 #define PMATH_SYMBOL_FRACTIONALPART                         PMATH_SYMBOL_BUILTIN(742)
 #define PMATH_SYMBOL_QUANTILE                               PMATH_SYMBOL_BUILTIN(743)
+#define PMATH_SYMBOL_PLOT                                   PMATH_SYMBOL_BUILTIN(744)
+#define PMATH_SYMBOL_PLOTPOINTS                             PMATH_SYMBOL_BUILTIN(745)
+#define PMATH_SYMBOL_MAXRECURSION                           PMATH_SYMBOL_BUILTIN(746)
 
 #endif /* __PMATH_BUILTINS__SYMBOLS_H__ */
