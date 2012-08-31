@@ -122,6 +122,9 @@ PMATH_PRIVATE pmath_bool_t extract_delta_range(
   else if(pmath_is_expr_of_len(range, PMATH_SYMBOL_RANGE, 3)) {
     *start = pmath_expr_get_item(range, 1);
     *delta = pmath_expr_get_item(range, 3);
+    
+    if(pmath_is_number(*delta) && pmath_number_sign(*delta) == 0)
+      return FALSE;
 
     count_obj = PLUS( // 1 + (end - start)/delta
                   INT(1),

@@ -17,6 +17,9 @@ struct _pmath_expr_t {
 };
 
 PMATH_PRIVATE
+struct _pmath_expr_t *_pmath_expr_new_noinit(size_t length);
+
+PMATH_PRIVATE
 size_t _pmath_expr_find_sorted(
   pmath_expr_t sorted_expr, // wont be freed
   pmath_t      item);       // wont be freed

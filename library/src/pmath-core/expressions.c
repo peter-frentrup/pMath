@@ -87,7 +87,8 @@ static void expr_cache_clear(void) {
   }
 }
 
-static struct _pmath_expr_t *create_expr_noinit(size_t length) {
+PMATH_PRIVATE
+struct _pmath_expr_t *_pmath_expr_new_noinit(size_t length) {
   struct _pmath_expr_t *expr;
   
   assert(length < UINTPTR_MAX / sizeof(pmath_t) - sizeof(struct _pmath_expr_t));
@@ -152,7 +153,7 @@ pmath_expr_t pmath_expr_new(
     return PMATH_NULL;
   }
   
-  expr = create_expr_noinit(length);
+  expr = _pmath_expr_new_noinit(length);
   
   if(PMATH_UNLIKELY(!expr)) {
     pmath_unref(head);
@@ -190,7 +191,7 @@ pmath_expr_t pmath_expr_new_extended(
     return PMATH_NULL;
   }
   
-  expr = create_expr_noinit(length);
+  expr = _pmath_expr_new_noinit(length);
   if(PMATH_UNLIKELY(!expr)) {
     pmath_unref(head);
     
@@ -238,7 +239,7 @@ pmath_expr_t pmath_expr_resize(
   if( pmath_refcount(expr) > 1 ||
       PMATH_AS_PTR(expr)->type_shift != PMATH_TYPE_SHIFT_EXPRESSION_GENERAL)
   {
-    new_expr = create_expr_noinit(new_length);
+    new_expr = _pmath_expr_new_noinit(new_length);
     
     if(new_expr) {
       size_t init_len = old_expr->length;
@@ -477,7 +478,7 @@ PMATH_API pmath_expr_t pmath_expr_get_item_range(
                 old_expr_part->buffer->items[old_expr_part->start - 1],
                 old_expr->items[0]))
           {
-            struct _pmath_expr_t *new_expr = create_expr_noinit(length);
+            struct _pmath_expr_t *new_expr = _pmath_expr_new_noinit(length);
             size_t i;
             
             if(!new_expr)
@@ -556,7 +557,7 @@ PMATH_API pmath_expr_t pmath_expr_set_item(
           return expr;
         }
         
-        new_expr = create_expr_noinit(old_expr->length);
+        new_expr = _pmath_expr_new_noinit(old_expr->length);
         if(!new_expr) {
           pmath_unref(item);
           pmath_unref(expr);
@@ -627,7 +628,7 @@ PMATH_API pmath_expr_t pmath_expr_set_item(
           return expr;
         }
         
-        new_expr = create_expr_noinit(old_expr->length);
+        new_expr = _pmath_expr_new_noinit(old_expr->length);
         if(!new_expr) {
           pmath_unref(item);
           pmath_unref(expr);
