@@ -463,14 +463,10 @@ PMATH_PRIVATE pmath_t _pmath_parse_number(
     pmath_mem_free(cstr);
     
     if(base < 2 || base > 36) {
-      if(!alternative) {
-        pmath_message(
-          PMATH_NULL, "base", 2,
-          pmath_string_part(string, 0, i),
-          pmath_ref(string));
-      }
-      else
-        pmath_unref(string);
+      pmath_message(
+        PMATH_NULL, "base", 2,
+        pmath_string_part(string, 0, i),
+        pmath_ref(string));
         
       return PMATH_NULL;
     }
@@ -488,18 +484,20 @@ PMATH_PRIVATE pmath_t _pmath_parse_number(
       ++i;
   }
   
-  if(!alternative && i < len && pmath_char_is_36digit(str[i])) {
-    end = i + 1;
-    while(end < len && pmath_char_is_36digit(str[end]))
-      ++end;
-      
-    pmath_message(
-      PMATH_NULL, "digit", 3,
-      PMATH_FROM_INT32(i - start + 1),
-      pmath_string_part(string, start, end - start),
-      PMATH_FROM_INT32(base));
-      
-    return PMATH_NULL;
+  if(i < len && pmath_char_is_36digit(str[i])) {
+    if(!alternative || (str[i] != 'e' && str[i] != 'E') || base > 10) {
+      end = i + 1;
+      while(end < len && pmath_char_is_36digit(str[end]))
+        ++end;
+        
+      pmath_message(
+        PMATH_NULL, "digit", 3,
+        PMATH_FROM_INT32(i - start + 1),
+        pmath_string_part(string, start, end - start),
+        PMATH_FROM_INT32(base));
+        
+      return PMATH_NULL;
+    }
   }
   
   end = i;
@@ -608,21 +606,21 @@ PMATH_PRIVATE pmath_t _pmath_parse_number(
   pmath_mem_free(cstr);
   
   if(i < len) {
-    if(!alternative)
-      pmath_message(PMATH_NULL, "inv", 1, string);
+    pmath_message(PMATH_NULL, "inv", 1, string);
     pmath_unref(result);
     return PMATH_NULL;
   }
   
-  pmath_unref(string);
-  
   if(pmath_is_number(result)) {
+    pmath_unref(string);
+  
     if(neg)
       return pmath_number_neg(result);
       
     return result;
   }
   
+  pmath_message(PMATH_NULL, "inv", 1, string);
   pmath_unref(result);
   return PMATH_NULL;
 }
