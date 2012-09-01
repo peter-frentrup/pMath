@@ -345,7 +345,7 @@ static pmath_t const_list(pmath_t c, size_t length) {
   if(!list)
     return PMATH_NULL;
   
-  if(pmath_is_pointer(c)) {
+  if(pmath_is_pointer(c) && PMATH_AS_PTR(c)) {
     (void)pmath_atomic_fetch_add(&(PMATH_AS_PTR(c)->refcount), (intptr_t)length - 1);
   }
   
