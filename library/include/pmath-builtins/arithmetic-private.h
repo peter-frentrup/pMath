@@ -90,7 +90,7 @@ pmath_bool_t _pmath_equals_rational_at(
 PMATH_PRIVATE
 pmath_bool_t _pmath_to_precision(
   pmath_t   obj, // wont be freed
-  double   *result);
+  double   *result); // precision in bits
 
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
