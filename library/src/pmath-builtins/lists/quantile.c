@@ -81,6 +81,7 @@ static pmath_bool_t is_real_matrix(pmath_t x, size_t *rows, size_t *cols) {
   }
   
   *cols = pmath_expr_length(xi);
+  pmath_unref(xi);
   
   for(i = *rows - 1; i > 0; --i) {
     xi = pmath_expr_get_item(x, i);

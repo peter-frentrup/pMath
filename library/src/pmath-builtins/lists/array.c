@@ -36,6 +36,8 @@ struct _array_data_t {
   size_t dim;
   size_t depth;
   pmath_bool_t start_is_list;
+  pmath_bool_t evaluate_immediately;
+  pmath_bool_t mark_as_updated;
 };
 
 static pmath_t array(struct _array_data_t *data) {
@@ -61,10 +63,14 @@ static pmath_t array(struct _array_data_t *data) {
                         data->index, data->dim,
                         ind);
                         
-        list = pmath_expr_set_item(list, i,
-                                   pmath_expr_set_item(
-                                     pmath_ref(data->index), 0,
-                                     pmath_ref(data->function)));
+        ind = pmath_expr_set_item(
+                pmath_ref(data->index), 0,
+                pmath_ref(data->function));
+                
+        if(data->evaluate_immediately)
+          ind = pmath_evaluate(ind);
+          
+        list = pmath_expr_set_item(list, i, ind);
       }
     }
     else {
@@ -79,14 +85,20 @@ static pmath_t array(struct _array_data_t *data) {
                         data->index, data->dim,
                         ind);
                         
-        list = pmath_expr_set_item(list, i,
-                                   pmath_expr_set_item(
-                                     pmath_ref(data->index), 0,
-                                     pmath_ref(data->function)));
+        ind = pmath_expr_set_item(
+                pmath_ref(data->index), 0,
+                pmath_ref(data->function));
+                
+        if(data->evaluate_immediately)
+          ind = pmath_evaluate(ind);
+          
+        list = pmath_expr_set_item(list, i, ind);
       }
     }
     
-    _pmath_expr_update(list);
+    if(data->mark_as_updated)
+      _pmath_expr_update(list);
+      
     return list;
   }
   
@@ -122,8 +134,9 @@ static pmath_t array(struct _array_data_t *data) {
   }
   data->dim--;
   
-  
-  _pmath_expr_update(list);
+  if(data->mark_as_updated)
+    _pmath_expr_update(list);
+    
   return list;
 }
 
@@ -207,7 +220,7 @@ PMATH_PRIVATE pmath_t builtin_array(pmath_expr_t expr) {
           delta = PMATH_FROM_DOUBLE((double)PMATH_AS_INT32(delta));
       }
       
-      if(pmath_is_double(delta)){
+      if(pmath_is_double(delta)) {
         if(pmath_is_double(data.start)) {
           double s = PMATH_AS_DOUBLE(data.start);
           double d = PMATH_AS_DOUBLE(delta);
@@ -244,13 +257,13 @@ PMATH_PRIVATE pmath_t builtin_array(pmath_expr_t expr) {
           if(len < (size_t)(max / d))
             return array_range_int(s, d, len);
         }
-        else if(d > INT32_MIN){
+        else if(d > INT32_MIN) {
           int min = INT32_MIN;
           assert(d < 0);
           
           if(s < 0)
             min -= s;
-          
+            
           if(len < (size_t)(min / d))
             return array_range_int(s, d, len);
         }
@@ -324,6 +337,16 @@ PMATH_PRIVATE pmath_t builtin_array(pmath_expr_t expr) {
   data.dim = 1;
   data.index = pmath_expr_new(PMATH_NULL, data.depth);
   pmath_unref(expr);
+  
+  if(pmath_same(data.head, PMATH_SYMBOL_LIST)) {
+    data.evaluate_immediately = TRUE;
+    data.mark_as_updated      = TRUE;
+  }
+  else {
+    data.evaluate_immediately = FALSE;
+    data.mark_as_updated      = FALSE;
+  }
+  
   expr = array(&data);
   
   pmath_unref(data.function);
@@ -344,17 +367,18 @@ static pmath_t const_list(pmath_t c, size_t length) {
   
   if(!list)
     return PMATH_NULL;
-  
+    
   if(pmath_is_pointer(c) && PMATH_AS_PTR(c)) {
     (void)pmath_atomic_fetch_add(&(PMATH_AS_PTR(c)->refcount), (intptr_t)length - 1);
   }
   
   list->items[0] = pmath_ref(PMATH_SYMBOL_LIST);
-  for(i = length;i > 0;--i)
+  for(i = length; i > 0; --i)
     list->items[i] = c;
-  
+    
   expr = PMATH_FROM_PTR(list);
-  _pmath_expr_update(expr);
+  if(pmath_is_evaluated(c))
+    _pmath_expr_update(expr);
   return expr;
 }
 
@@ -375,7 +399,7 @@ PMATH_PRIVATE pmath_t builtin_constantarray(pmath_expr_t expr) {
   c = pmath_expr_get_item(expr, 1);
   n = pmath_expr_get_item(expr, 2);
   
-  if(pmath_is_int32(n) && PMATH_AS_INT32(n) >= 0){
+  if(pmath_is_int32(n) && PMATH_AS_INT32(n) >= 0) {
     pmath_unref(expr);
     return const_list(c, (size_t)PMATH_AS_INT32(n));
   }
@@ -384,11 +408,11 @@ PMATH_PRIVATE pmath_t builtin_constantarray(pmath_expr_t expr) {
     size_t depth = pmath_expr_length(n);
     size_t i;
     
-    for(i = depth;i > 0;--i) {
+    for(i = depth; i > 0; --i) {
       pmath_t ni = pmath_expr_get_item(n, i);
       
-      if(pmath_is_int32(ni) && PMATH_AS_INT32(ni) >= 0){
-        c = const_list(c, (size_t)PMATH_AS_INT32(n));
+      if(pmath_is_int32(ni) && PMATH_AS_INT32(ni) >= 0) {
+        c = const_list(c, (size_t)PMATH_AS_INT32(ni));
         continue;
       }
       
