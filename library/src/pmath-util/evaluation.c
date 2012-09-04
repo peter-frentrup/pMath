@@ -227,8 +227,8 @@ static pmath_t evaluate_expression(
   head_sym          = _pmath_topmost_symbol(head);
   attr              = pmath_symbol_get_attributes(head_sym);
   
-  exprlen                  = pmath_expr_length(expr);
-  expr_with_unevaluated    = PMATH_NULL;
+  exprlen               = pmath_expr_length(expr);
+  expr_with_unevaluated = PMATH_NULL;
 
   hold_first            = FALSE;
   hold_rest             = FALSE;
@@ -505,6 +505,7 @@ static pmath_t evaluate_expression(
   if(!pmath_is_null(expr_with_unevaluated)) {
     pmath_unref(expr);
     expr = expr_with_unevaluated;
+    expr_with_unevaluated = PMATH_NULL;
     
     _pmath_expr_update(expr);
   }
@@ -515,6 +516,8 @@ FINISH:
   pmath_unref(head_sym);
   pmath_unref(head);
   (*thread_ptr)->evaldepth--;
+  
+  pmath_unref(expr_with_unevaluated);
   
   return expr;
 }
