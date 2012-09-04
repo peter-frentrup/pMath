@@ -170,7 +170,6 @@ static pmath_t evaluate_expression(
   pmath_bool_t                   symmetric;
   pmath_t                        item;
   pmath_expr_t                   expr_with_unevaluated;
-  pmath_expr_t                   expr_without_unevaluated;
   size_t                         i;
   size_t                         exprlen;
   _pmath_timer_t                 expr_changes;
@@ -218,27 +217,26 @@ static pmath_t evaluate_expression(
   }
   
   (*thread_ptr)->evaldepth++;
-  stack_frame.value = PMATH_NULL;
-  stack_frame.next = (*thread_ptr)->stack_info;
+  stack_frame.value         = PMATH_NULL;
+  stack_frame.next          = (*thread_ptr)->stack_info;
   (*thread_ptr)->stack_info = &stack_frame;
   
-  head = evaluate(pmath_expr_get_item(expr, 0), thread_ptr);
-  expr = pmath_expr_set_item(expr, 0, pmath_ref(head));
+  head              = evaluate(pmath_expr_get_item(expr, 0), thread_ptr);
+  expr              = pmath_expr_set_item(expr, 0, pmath_ref(head));
   stack_frame.value = pmath_ref(head);
-  head_sym = _pmath_topmost_symbol(head);
-  attr = pmath_symbol_get_attributes(head_sym);
+  head_sym          = _pmath_topmost_symbol(head);
+  attr              = pmath_symbol_get_attributes(head_sym);
   
-  exprlen = pmath_expr_length(expr);
-  expr_with_unevaluated = PMATH_NULL;
-  expr_without_unevaluated = PMATH_NULL;
-  
-  hold_first    = FALSE;
-  hold_rest     = FALSE;
-  hold_complete = FALSE;
-  listable      = FALSE;
-  associative   = FALSE;
-  sequence_hold = FALSE;
-  symmetric     = FALSE;
+  exprlen                  = pmath_expr_length(expr);
+  expr_with_unevaluated    = PMATH_NULL;
+
+  hold_first            = FALSE;
+  hold_rest             = FALSE;
+  hold_complete         = FALSE;
+  listable              = FALSE;
+  associative           = FALSE;
+  sequence_hold         = FALSE;
+  symmetric             = FALSE;
   if(pmath_same(head_sym, head)) {
     hold_complete = (attr & PMATH_SYMBOL_ATTRIBUTE_HOLDALLCOMPLETE) != 0;
     if(!hold_complete) {
@@ -366,42 +364,39 @@ static pmath_t evaluate_expression(
     if(symmetric)
       expr = pmath_expr_sort(expr);
       
-    for(i = 1; i <= exprlen; ++i) { // Unevaluated(...) items
-      item = pmath_expr_get_item(expr, i);
-      
-      if(pmath_is_expr_of_len(item, PMATH_SYMBOL_UNEVALUATED, 1)) {
-        expr_with_unevaluated = pmath_ref(expr);
+    if(apply_rules) {
+      for(i = 1; i <= exprlen; ++i) { // Unevaluated(...) items
+        item = pmath_expr_get_item(expr, i);
         
-        expr = pmath_expr_set_item(
-                 expr, i,
-                 pmath_expr_get_item(
-                   item, 1));
-                   
-        pmath_unref(item);
-        
-        for(++i; i <= exprlen; ++i) {
-          item = pmath_expr_get_item(expr, i);
+        if(pmath_is_expr_of_len(item, PMATH_SYMBOL_UNEVALUATED, 1)) {
+          expr_with_unevaluated = pmath_ref(expr);
           
-          if(pmath_is_expr_of_len(item, PMATH_SYMBOL_UNEVALUATED, 1)) {
-            expr = pmath_expr_set_item(
-                     expr, i,
-                     pmath_expr_get_item(
-                       item, 1));
+          expr = pmath_expr_set_item(
+                   expr, i,
+                   pmath_expr_get_item(
+                     item, 1));
+                     
+          pmath_unref(item);
+          
+          for(++i; i <= exprlen; ++i) {
+            item = pmath_expr_get_item(expr, i);
+            
+            if(pmath_is_expr_of_len(item, PMATH_SYMBOL_UNEVALUATED, 1)) {
+              expr = pmath_expr_set_item(
+                       expr, i,
+                       pmath_expr_get_item(
+                         item, 1));
+            }
+            
+            pmath_unref(item);
           }
           
-          pmath_unref(item);
+          break;
         }
         
-        break;
+        pmath_unref(item);
       }
       
-      pmath_unref(item);
-    }
-    
-    if(!pmath_is_null(expr_with_unevaluated)) // expr contained Unevaluated(...) items
-      expr_without_unevaluated = pmath_ref(expr);
-      
-    if(apply_rules) {
       for(i = 1; i <= exprlen; ++i) { // up rules
         pmath_symbol_t sym;
         
@@ -480,8 +475,9 @@ static pmath_t evaluate_expression(
       stack_frame.value = pmath_ref(head_sym);
       
       if(_pmath_run_code(head_sym, PMATH_CODE_USAGE_DOWNCALL, &expr)) {
-        if(!pmath_is_expr(expr) ||
-            expr_changes != _pmath_expr_last_change(expr)) {
+        if( !pmath_is_expr(expr) ||
+            expr_changes != _pmath_expr_last_change(expr)) 
+        {
           goto FINISH;
         }
       }
@@ -491,8 +487,9 @@ static pmath_t evaluate_expression(
       stack_frame.value = pmath_ref(head_sym);
       
       if(_pmath_run_code(head_sym, PMATH_CODE_USAGE_SUBCALL, &expr)) {
-        if(!pmath_is_expr(expr) ||
-            expr_changes != _pmath_expr_last_change(expr)) {
+        if( !pmath_is_expr(expr) ||
+            expr_changes != _pmath_expr_last_change(expr)) 
+        {
           goto FINISH;
         }
       }
@@ -505,19 +502,14 @@ static pmath_t evaluate_expression(
     _pmath_expr_update(expr);
   }
   
-FINISH:
-  if(!pmath_is_null(expr_with_unevaluated) || !pmath_is_null(expr_without_unevaluated)) {
-    if(apply_rules && pmath_equals(expr, expr_without_unevaluated)) {
-      pmath_unref(expr);
-      expr = expr_with_unevaluated;
-      _pmath_expr_update(expr);
-    }
-    else
-      pmath_unref(expr_with_unevaluated);
-      
-    pmath_unref(expr_without_unevaluated);
+  if(!pmath_is_null(expr_with_unevaluated)) {
+    pmath_unref(expr);
+    expr = expr_with_unevaluated;
+    
+    _pmath_expr_update(expr);
   }
   
+FINISH:
   (*thread_ptr)->stack_info = stack_frame.next;
   pmath_unref(stack_frame.value);
   pmath_unref(head_sym);
