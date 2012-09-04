@@ -320,38 +320,6 @@ static pmath_t evaluate_expression(
       }
     }
     
-    for(i = 1; i <= exprlen; ++i) { // Unevaluated(...) items
-      item = pmath_expr_get_item(expr, i);
-      
-      if(pmath_is_expr_of_len(item, PMATH_SYMBOL_UNEVALUATED, 1)) {
-        expr_with_unevaluated = pmath_ref(expr);
-        
-        expr = pmath_expr_set_item(
-                 expr, i,
-                 pmath_expr_get_item(
-                   item, 1));
-                   
-        pmath_unref(item);
-        
-        for(++i; i <= exprlen; ++i) {
-          item = pmath_expr_get_item(expr, i);
-          
-          if(pmath_is_expr_of_len(item, PMATH_SYMBOL_UNEVALUATED, 1)) {
-            expr = pmath_expr_set_item(
-                     expr, i,
-                     pmath_expr_get_item(
-                       item, 1));
-          }
-          
-          pmath_unref(item);
-        }
-        
-        break;
-      }
-      
-      pmath_unref(item);
-    }
-    
     if(associative) {
       expr = pmath_expr_flatten(
                expr,
@@ -398,6 +366,38 @@ static pmath_t evaluate_expression(
     if(symmetric)
       expr = pmath_expr_sort(expr);
       
+    for(i = 1; i <= exprlen; ++i) { // Unevaluated(...) items
+      item = pmath_expr_get_item(expr, i);
+      
+      if(pmath_is_expr_of_len(item, PMATH_SYMBOL_UNEVALUATED, 1)) {
+        expr_with_unevaluated = pmath_ref(expr);
+        
+        expr = pmath_expr_set_item(
+                 expr, i,
+                 pmath_expr_get_item(
+                   item, 1));
+                   
+        pmath_unref(item);
+        
+        for(++i; i <= exprlen; ++i) {
+          item = pmath_expr_get_item(expr, i);
+          
+          if(pmath_is_expr_of_len(item, PMATH_SYMBOL_UNEVALUATED, 1)) {
+            expr = pmath_expr_set_item(
+                     expr, i,
+                     pmath_expr_get_item(
+                       item, 1));
+          }
+          
+          pmath_unref(item);
+        }
+        
+        break;
+      }
+      
+      pmath_unref(item);
+    }
+    
     if(!pmath_is_null(expr_with_unevaluated)) // expr contained Unevaluated(...) items
       expr_without_unevaluated = pmath_ref(expr);
       

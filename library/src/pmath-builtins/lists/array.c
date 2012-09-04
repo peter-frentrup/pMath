@@ -52,6 +52,8 @@ static pmath_t array(struct _array_data_t *data) {
   list = pmath_expr_new(pmath_ref(data->head), len);
   
   if(data->dim >= data->depth) {
+    pmath_bool_t has_sequence = FALSE;
+    
     if(data->start_is_list) {
       for(i = 1; i <= len && !pmath_aborting(); ++i) {
         pmath_t ind = pmath_expr_get_item(data->start, data->dim);
@@ -67,9 +69,13 @@ static pmath_t array(struct _array_data_t *data) {
                 pmath_ref(data->index), 0,
                 pmath_ref(data->function));
                 
-        if(data->evaluate_immediately)
+        if(data->evaluate_immediately) {
           ind = pmath_evaluate(ind);
           
+          if(!has_sequence && pmath_is_expr_of(ind, PMATH_SYMBOL_SEQUENCE))
+            has_sequence = TRUE;
+        }
+        
         list = pmath_expr_set_item(list, i, ind);
       }
     }
@@ -89,18 +95,27 @@ static pmath_t array(struct _array_data_t *data) {
                 pmath_ref(data->index), 0,
                 pmath_ref(data->function));
                 
-        if(data->evaluate_immediately)
+        if(data->evaluate_immediately) {
           ind = pmath_evaluate(ind);
           
+          if(!has_sequence && pmath_is_expr_of(ind, PMATH_SYMBOL_SEQUENCE))
+            has_sequence = TRUE;
+        }
+        
         list = pmath_expr_set_item(list, i, ind);
       }
     }
     
-    if(data->mark_as_updated)
+    if(has_sequence)
+      list = pmath_evaluate(list);
+    else if(data->mark_as_updated)
       _pmath_expr_update(list);
       
     return list;
   }
+  
+  if(pmath_aborting())
+    return list;
   
   data->dim++;
   if(data->start_is_list) {
@@ -362,9 +377,10 @@ PMATH_PRIVATE pmath_t builtin_array(pmath_expr_t expr) {
 // frees c
 static pmath_t const_list(pmath_t c, size_t length) {
   pmath_expr_t expr;
-  struct _pmath_expr_t *list = _pmath_expr_new_noinit(length);
+  struct _pmath_expr_t *list;
   size_t i;
   
+  list = _pmath_expr_new_noinit(length);
   if(!list)
     return PMATH_NULL;
     
@@ -408,7 +424,7 @@ PMATH_PRIVATE pmath_t builtin_constantarray(pmath_expr_t expr) {
     size_t depth = pmath_expr_length(n);
     size_t i;
     
-    for(i = depth; i > 0; --i) {
+    for(i = depth; i > 0 && !pmath_aborting(); --i) {
       pmath_t ni = pmath_expr_get_item(n, i);
       
       if(pmath_is_int32(ni) && PMATH_AS_INT32(ni) >= 0) {
