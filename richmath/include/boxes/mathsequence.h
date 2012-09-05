@@ -105,6 +105,7 @@ namespace richmath {
         float   *ascent,
         float   *descent);
         
+      void group_number_digits(Context *context, int start, int end);
       void enlarge_space(Context *context);
       
       void split_lines(Context *context);

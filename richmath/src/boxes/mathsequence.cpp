@@ -395,7 +395,7 @@ void MathSequence::paint(Context *context) {
       y += lines[line].ascent;
       
       for(; pos < lines[line].end; ++pos) {
-        if(buf[pos] <= '\n') {
+        if(buf[pos] == '\n') {
           glyph_left = glyphs[pos].right;
           continue;
         }
@@ -1924,6 +1924,59 @@ void MathSequence::stretch_span(
     *descent = *core_descent;
 }
 
+void MathSequence::group_number_digits(Context *context, int start, int end) {
+  static const int min_int_digits  = 5;
+  static const int min_frac_digits = 7;//INT_MAX;
+  static const int int_group_size  = 3;
+  static const int frac_group_size = 5;
+  
+  const uint16_t *buf = str.buffer();
+  int decimal_point = end + 1;
+  
+  float half_space_width = em / 10; // total: em/5 = thin space
+  
+  for(int i = start; i <= end; ++i) {
+    if(buf[i] < '0' || buf[i] > '9') {
+      if(buf[i] == '^') // explicitly specified base
+        return;
+        
+      if(buf[i] == '.' && i < decimal_point) {
+        decimal_point = i;
+        continue;
+      }
+      
+      if(buf[i] == '`') { // precision control
+        end = i - 1;
+        break;
+      }
+    }
+  }
+  
+  if( int_group_size        >  0              && 
+      decimal_point - start >= min_int_digits &&
+      decimal_point - start >  int_group_size) 
+  {
+    for(int i = decimal_point - int_group_size; i > start; i -= int_group_size) {
+      glyphs[i - 1].right += half_space_width;
+      
+      glyphs[i].x_offset  += half_space_width;
+      glyphs[i].right     += half_space_width;
+    }
+  }
+  
+  if( frac_group_size     >  0               &&
+      end - decimal_point >= min_frac_digits &&
+      end - decimal_point >  frac_group_size)
+  {
+    for(int i = decimal_point + frac_group_size; i < end; i += frac_group_size) {
+      glyphs[i].right        += half_space_width;
+      
+      glyphs[i + 1].x_offset += half_space_width;
+      glyphs[i + 1].right    += half_space_width;
+    }
+  }
+}
+
 void MathSequence::enlarge_space(Context *context) {
   if(context->script_indent > 0)
     return;
@@ -1948,9 +2001,10 @@ void MathSequence::enlarge_space(Context *context) {
       ++e;
       
     // italic correction
-    if(glyphs[e].slant == FontSlantItalic
-        && buf[e] != PMATH_CHAR_BOX
-        && (e + 1 == glyphs.length() || glyphs[e + 1].slant != FontSlantItalic)) {
+    if( glyphs[e].slant == FontSlantItalic &&
+        buf[e] != PMATH_CHAR_BOX &&
+        (e + 1 == glyphs.length() || glyphs[e + 1].slant != FontSlantItalic))
+    {
       float ital_corr = context->math_shaper->italic_correction(
                           context,
                           buf[e],
@@ -1980,9 +2034,9 @@ void MathSequence::enlarge_space(Context *context) {
     
     if(buf[i] == '\t') {
       static uint16_t arrow = 0x21e2;//0x27F6;
-      float width = 2 * context->canvas->get_font_size();
+      float width = 4 * context->canvas->get_font_size();
       
-      if(context->show_auto_styles) {
+      if(context->show_auto_styles && !in_string) {
         context->math_shaper->decode_token(
           context,
           1,
@@ -1992,6 +2046,9 @@ void MathSequence::enlarge_space(Context *context) {
         glyphs[i].x_offset = (width - glyphs[i].right) / 2;
         
         glyphs[i].style = GlyphStyleImplicit;
+      }
+      else {
+        glyphs[i].index = 0;
       }
       
       glyphs[i].right = width;
@@ -2099,7 +2156,7 @@ void MathSequence::enlarge_space(Context *context) {
             case PMATH_PREC_COND:
             case PMATH_PREC_ARROW:
             case PMATH_PREC_REL:
-              space_left = space_right = em * 5 / 18;
+              space_left = space_right = em * 5 / 18; // total: 10/18 em
               break;
               
             case PMATH_PREC_ALT:
@@ -2111,7 +2168,7 @@ void MathSequence::enlarge_space(Context *context) {
             case PMATH_PREC_RANGE:
             case PMATH_PREC_ADD:
             case PMATH_PREC_PLUMI:
-              space_left = space_right = em * 4 / 18;
+              space_left = space_right = em * 4 / 18; // total: 8/18 em
               break;
               
             case PMATH_PREC_CIRCADD:
@@ -2120,14 +2177,14 @@ void MathSequence::enlarge_space(Context *context) {
             case PMATH_PREC_DIV:
             case PMATH_PREC_MIDDOT:
             case PMATH_PREC_MUL2:
-              space_left = space_right = em * 3 / 18;
+              space_left = space_right = em * 3 / 18; // total: 6/18 em
               break;
               
             case PMATH_PREC_CROSS:
             case PMATH_PREC_POW:
             case PMATH_PREC_APL:
             case PMATH_PREC_TEST:
-              space_left = space_right = em * 2 / 18;
+              space_left = space_right = em * 2 / 18; // total: 4/18 em
               break;
               
             case PMATH_PREC_REPEAT:
@@ -2189,14 +2246,16 @@ void MathSequence::enlarge_space(Context *context) {
         
       case PMATH_TOK_SPACE: {
           // implicit multiplication:
-          if(buf[i] == ' '
-              && e + 1 < glyphs.length()
-              && last_was_factor && context->multiplication_sign) {
+          if( buf[i] == ' '           &&
+              e + 1 < glyphs.length() &&
+              last_was_factor && context->multiplication_sign)
+          {
             pmath_token_t tok2 = pmath_token_analyse(buf + e + 1, 1, NULL);
             
-            if(tok2 == PMATH_TOK_DIGIT
-                || tok2 == PMATH_TOK_LEFT
-                || tok2 == PMATH_TOK_LEFTCALL) {
+            if( tok2 == PMATH_TOK_DIGIT ||
+                tok2 == PMATH_TOK_LEFT  ||
+                tok2 == PMATH_TOK_LEFTCALL)
+            {
               context->math_shaper->decode_token(
                 context,
                 1,
@@ -2216,6 +2275,11 @@ void MathSequence::enlarge_space(Context *context) {
         } break;
         
       case PMATH_TOK_DIGIT:
+        {
+          if(!in_string)
+            group_number_digits(context, i, e);
+        }
+        /* no break */
       case PMATH_TOK_STRING:
       case PMATH_TOK_NAME:
       case PMATH_TOK_NAME2:
