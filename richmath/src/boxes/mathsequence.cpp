@@ -57,6 +57,45 @@ static inline bool char_is_white(uint16_t ch) {
   return ch == ' ' || ch == '\n';
 }
 
+static pmath_token_t get_box_start_token(Box *box) {
+  while(box) {
+    if(AbstractStyleBox *asb = dynamic_cast<AbstractStyleBox*>(box)) {
+      box = asb->content();
+      continue;
+    }
+  
+    if(UnderoverscriptBox *uob = dynamic_cast<UnderoverscriptBox*>(box)) {
+      box = uob->base();
+      continue;
+    }
+  
+    if(NumberBox *nb = dynamic_cast<NumberBox*>(box)) {
+      box = nb->content();
+      continue;
+    }
+  
+    if(MathSequence *seq = dynamic_cast<MathSequence*>(box)) {
+      if(seq->length() == 0)
+        break;
+      
+      const uint16_t *buf = seq->text().buffer();
+      if(buf[0] == PMATH_CHAR_BOX) {
+        box = seq->item(0);
+        continue;
+      }
+        
+      return pmath_token_analyse(buf, 1, NULL);
+    }
+  
+    if(dynamic_cast<FractionBox *>(box))
+      return PMATH_TOK_DIGIT;
+      
+    break;
+  }
+  
+  return PMATH_TOK_NAME2;
+}
+
 class ScanData {
   public:
     MathSequence *sequence;
@@ -1028,8 +1067,7 @@ Box *MathSequence::mouse_selection(
     if(buf[*start - 1] == '\n' && (line == 0 || lines[line - 1].end != lines[line].end)) {
       --*start;
     }
-    else if(buf[*start - 1] == ' '
-            && *start < glyphs.length())
+    else if(buf[*start - 1] == ' ' && *start < glyphs.length())
       --*start;
   }
   
@@ -1952,9 +1990,9 @@ void MathSequence::group_number_digits(Context *context, int start, int end) {
     }
   }
   
-  if( int_group_size        >  0              && 
+  if( int_group_size        >  0              &&
       decimal_point - start >= min_int_digits &&
-      decimal_point - start >  int_group_size) 
+      decimal_point - start >  int_group_size)
   {
     for(int i = decimal_point - int_group_size; i > start; i -= int_group_size) {
       glyphs[i - 1].right += half_space_width;
@@ -2078,23 +2116,68 @@ void MathSequence::enlarge_space(Context *context) {
         ++box;
         
       if(box < boxes.length()) {
-        UnderoverscriptBox *underover = dynamic_cast<UnderoverscriptBox *>(boxes[box]);
-        if(underover && underover->base()->length() > 0) {
-          op = underover->base()->text().buffer();
-          ii = 0;
-          ee = ii;
-          while( ee < underover->base()->length() &&
-                 !underover->base()->span_array().is_token_end(ee))
-          {
-            ++ee;
+        Box *tmp = boxes[box];
+        while(tmp){
+          if(AbstractStyleBox *asb = dynamic_cast<AbstractStyleBox*>(tmp)) {
+            tmp = asb->content();
+            continue;
           }
           
-          if(ee != underover->base()->length() - 1) {
-            op = buf;
-            ii = i;
-            ee = e;
+          if(MathSequence *seq = dynamic_cast<MathSequence*>(tmp)) {
+            if(seq->length() == 1 && seq->count() == 1) {
+              tmp = seq->item(0);
+              continue;
+            }
+            
+            op = seq->text().buffer();
+            ii = 0;
+            ee = ii;
+            while( ee < seq->length() &&
+                   !seq->span_array().is_token_end(ee))
+            {
+              ++ee;
+            }
+            
+            if(ee != seq->length() - 1){
+              op = buf;
+              ii = i;
+              ee = e;
+            }
+            
+            break;
           }
+          
+          if(UnderoverscriptBox *uob = dynamic_cast<UnderoverscriptBox *>(tmp)) {
+            tmp = uob->base();
+            continue;
+          }
+          
+//          if(FractionBox *fb = dynamic_cast<FractionBox *>(tmp)) {
+//            if(i > 0 && pmath_char_is_digit(buf[i - 1])) {
+//              
+//            }
+//          }
+          
+          break;
         }
+        
+//        UnderoverscriptBox *underover = dynamic_cast<UnderoverscriptBox *>(tmp);
+//        if(underover && underover->base()->length() > 0) {
+//          op = underover->base()->text().buffer();
+//          ii = 0;
+//          ee = ii;
+//          while( ee < underover->base()->length() &&
+//                 !underover->base()->span_array().is_token_end(ee))
+//          {
+//            ++ee;
+//          }
+//          
+//          if(ee != underover->base()->length() - 1) {
+//            op = buf;
+//            ii = i;
+//            ee = e;
+//          }
+//        }
       }
     }
     
@@ -2251,6 +2334,12 @@ void MathSequence::enlarge_space(Context *context) {
               last_was_factor && context->multiplication_sign)
           {
             pmath_token_t tok2 = pmath_token_analyse(buf + e + 1, 1, NULL);
+            
+            if(buf[e + 1] == PMATH_CHAR_BOX) {
+              Box *next_box = boxes[get_box(e + 1, box)];
+              
+              tok2 = get_box_start_token(next_box);
+            }
             
             if( tok2 == PMATH_TOK_DIGIT ||
                 tok2 == PMATH_TOK_LEFT  ||
