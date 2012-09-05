@@ -1203,6 +1203,22 @@ void BasicWin32Window::paint_background(Canvas *canvas, int x, int y, bool wallp
       
       cairo_reset_clip(canvas->cairo());
       
+      int buttonradius;
+      int frameradius;
+      
+      if(Win32Themes::check_osversion(6, 2)) { // Windows 8 or newer
+        buttonradius = 1;
+        frameradius  = 1;
+      }
+      else if(style_ex & WS_EX_TOOLWINDOW) {
+        buttonradius = 1;
+        frameradius  = 1;
+      }
+      else {
+        buttonradius = 5;
+        frameradius  = 6; //GetSystemMetrics(SM_CXFRAME)-2;
+      }
+      
       if(!IsRectEmpty(&glassfree)) { // show border between glass/nonglass
         cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_DEST_OUT);
         
@@ -1252,7 +1268,6 @@ void BasicWin32Window::paint_background(Canvas *canvas, int x, int y, bool wallp
           canvas->close_path();
         }
         else {
-          int buttonradius = 5;
           canvas->move_to(buttons.left + 0.5,   buttons.top);
           canvas->arc(    buttons.left + 0.5  + buttonradius, buttons.bottom - 0.5 - buttonradius, buttonradius, M_PI,   M_PI / 2, true);
           canvas->arc(    buttons.right - 0.5 - buttonradius, buttons.bottom - 0.5 - buttonradius, buttonradius, M_PI / 2, 0,      true);
@@ -1276,15 +1291,6 @@ void BasicWin32Window::paint_background(Canvas *canvas, int x, int y, bool wallp
       }
       
       { // make the edges round again
-        int frameradius;
-        
-        if(Win32Themes::check_osversion(6, 2)) // Windows 8 or newer
-          frameradius = 1;
-        else if(style_ex & WS_EX_TOOLWINDOW)
-          frameradius = 1;
-        else
-          frameradius = 6; //GetSystemMetrics(SM_CXFRAME)-2;
-          
         canvas->move_to(rect.left,  rect.top);
         canvas->line_to(rect.left,  rect.bottom);
         canvas->line_to(rect.right, rect.bottom);
