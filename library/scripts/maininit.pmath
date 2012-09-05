@@ -49,7 +49,7 @@ AutoLoad(~o:Hold, ~f)::= Local(
 	{p},
 	(
 		p:= Unprotect @@ o;
-		List @@ o.Map((#::= AutoLoad(Hold(#), o, f); Attributes(#):= Attributes(#).Append(ReadProtected))&);
+		o.Scan(Function(s, s ::= AutoLoad(Hold(s), o, f); Attributes(s):= Attributes(s).Append(ReadProtected), {HoldAll}));
 	).Finally(Protect @@ p))
 Attributes(Autoload):= {Protected, ReadProtected}
 

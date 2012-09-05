@@ -137,6 +137,66 @@ struct _pmath_expr_t *_pmath_expr_new_noinit(size_t length) {
   return expr;
 }
 
+
+PMATH_PRIVATE
+struct _pmath_expr_t *_pmath_expr_make_writeable(pmath_expr_t expr) {
+  struct _pmath_t *ptr;
+  
+  ptr = PMATH_AS_PTR(expr);
+  
+  if(PMATH_UNLIKELY(!ptr))
+    return NULL;
+    
+  switch(ptr->type_shift) {
+    case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL:
+      {
+        struct _pmath_expr_t *old_expr;
+        struct _pmath_expr_t *new_expr;
+        size_t i;
+        
+        old_expr = (void *)ptr;
+        
+        if(_pmath_refcount_ptr(ptr)== 1)
+          return old_expr;
+          
+        new_expr = _pmath_expr_new_noinit(old_expr->length);
+        if(!new_expr) {
+          pmath_unref(expr);
+          return NULL;
+        }
+        
+        for(i = 0; i <= old_expr->length; ++i)
+          new_expr->items[i] = pmath_ref(old_expr->items[i]);
+          
+        return new_expr;
+      }
+      
+    case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL_PART:
+      {
+        struct _pmath_expr_part_t *old_expr;
+        struct _pmath_expr_t      *new_expr;
+        size_t i;
+        
+        old_expr = (void *)ptr;
+        new_expr = _pmath_expr_new_noinit(old_expr->inherited.length);
+        if(!new_expr) {
+          pmath_unref(expr);
+          return NULL;
+        }
+        
+        new_expr->items[0] = pmath_ref(old_expr->inherited.items[0]);
+        for(i = 0; i <= old_expr->inherited.length; ++i)
+          new_expr->items[i] = pmath_ref(old_expr->buffer->items[i + old_expr->start]);
+          
+        pmath_unref(expr);
+        return new_expr;
+      }
+  }
+  
+  assert("invalid expression type" && 0);
+  return NULL;
+}
+
 /*============================================================================*/
 
 PMATH_API
@@ -201,7 +261,7 @@ pmath_expr_t pmath_expr_new_extended(
     va_end(items);
     return PMATH_NULL;
   }
-    
+  
   expr->items[0] = head;
   
   for(i = 1; i <= length; i++)
@@ -462,8 +522,8 @@ PMATH_API pmath_expr_t pmath_expr_get_item_range(
         new_expr_part->inherited.items[0] = pmath_ref(old_expr->items[0]);
         
         new_expr_part->start  = start;
-        new_expr_part->buffer = old_expr;  
-        _pmath_ref_ptr((void*)  old_expr);
+        new_expr_part->buffer = old_expr;
+        _pmath_ref_ptr((void *)  old_expr);
         
         return PMATH_FROM_PTR(new_expr_part);
       }
@@ -510,8 +570,8 @@ PMATH_API pmath_expr_t pmath_expr_get_item_range(
         new_expr_part->inherited.items[0] = pmath_ref(old_expr->items[0]);
         
         new_expr_part->start  = start + old_expr_part->start - 1;
-        new_expr_part->buffer = old_expr_part->buffer; 
-        _pmath_ref_ptr((void*)  old_expr_part->buffer);
+        new_expr_part->buffer = old_expr_part->buffer;
+        _pmath_ref_ptr((void *)  old_expr_part->buffer);
         
         return PMATH_FROM_PTR(new_expr_part);
       }
@@ -549,7 +609,7 @@ PMATH_API pmath_expr_t pmath_expr_set_item(
           return expr;
         }
         
-        if(_pmath_refcount_ptr((void*)old_expr) == 1) {
+        if(_pmath_refcount_ptr((void *)old_expr) == 1) {
           pmath_unref(old_expr->items[index]);
           
           old_expr->items[index] = item;
@@ -592,7 +652,7 @@ PMATH_API pmath_expr_t pmath_expr_set_item(
             return expr;
           }
           
-          if(_pmath_refcount_ptr((void*)old_expr) == 1) {
+          if(_pmath_refcount_ptr((void *)old_expr) == 1) {
             pmath_unref(old_expr->items[0]);
             
             old_expr->items[0] = item;
@@ -617,8 +677,8 @@ PMATH_API pmath_expr_t pmath_expr_set_item(
           new_expr_part->inherited.items[0]                        = pmath_ref(item);
           
           new_expr_part->start  = old_expr_part->start;
-          new_expr_part->buffer = old_expr_part->buffer; 
-          _pmath_ref_ptr((void*)  old_expr_part->buffer);
+          new_expr_part->buffer = old_expr_part->buffer;
+          _pmath_ref_ptr((void *)  old_expr_part->buffer);
           
           return PMATH_FROM_PTR(new_expr_part);
         }
@@ -653,7 +713,7 @@ PMATH_API pmath_expr_t pmath_expr_set_item(
         pmath_unref(expr);
         return PMATH_FROM_PTR(new_expr);
       }
-    
+      
   }
   
   assert("invalid expression type" && 0);
@@ -977,6 +1037,132 @@ PMATH_API pmath_expr_t pmath_expr_sort(
   pmath_expr_t expr
 ) {
   return _pmath_expr_sort_ex(expr, stable_sort_cmp_objs);
+}
+
+PMATH_PRIVATE
+PMATH_ATTRIBUTE_USE_RESULT
+pmath_expr_t _pmath_expr_map(
+  pmath_expr_t  expr, // will be freed
+  size_t        start,
+  size_t        end,
+  pmath_t     (*func)(pmath_t, void *),
+  void         *context
+) {
+  const pmath_t        *old_items;
+  struct _pmath_expr_t *old_expr;
+  pmath_t item;
+  
+  old_expr = (void *)PMATH_AS_PTR(expr);
+  if(!old_expr)
+    return expr;
+    
+  if(start > old_expr->length || end < start)
+    return expr;
+    
+  if(end > old_expr->length)
+    end = old_expr->length;
+    
+  if(start == 0) {
+    /* Special case for start = 0, because expr could be a
+       EXPRESSION_GENERAL_PART and those have their head stored apart from the
+       other items.
+     */
+    start = 1;
+    
+    item = old_expr->items[0];
+    item = (*func)(pmath_ref(item), context);
+    expr = pmath_expr_set_item(expr, 0, item);
+    if(pmath_is_null(expr))
+      return expr;
+      
+    old_expr = (void *)PMATH_AS_PTR(expr);
+  }
+  
+  switch(old_expr->inherited.inherited.inherited.type_shift) {
+    case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL:
+      old_items = &old_expr->items[0];
+      break;
+      
+    case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL_PART:
+      {
+        const struct _pmath_expr_part_t *old_expr_part = (void *)old_expr;
+        old_items = &old_expr_part->buffer->items[old_expr_part->start - 1];
+      } break;
+      
+    default:
+      assert(0 && "unknown expression type");
+  }
+  
+  for(; start <= end; ++start) {
+    item = (*func)(pmath_ref(old_items[start]), context);
+    
+    if(pmath_same(item, old_items[start])) {
+      pmath_unref(item);
+      continue;
+    }
+    else {
+      struct _pmath_expr_t *new_expr;
+      size_t i;
+      
+      switch(old_expr->inherited.inherited.inherited.type_shift) {
+        case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL:
+          {
+            if(_pmath_refcount_ptr((void*)old_expr) != 1) {
+              new_expr = _pmath_expr_new_noinit(old_expr->length);
+              if(!new_expr) {
+                pmath_unref(item);
+                pmath_unref(expr);
+                return PMATH_NULL;
+              }
+              
+              new_expr->items[0] = pmath_ref(old_expr->items[0]);
+              for(i = 1; i < start; ++i)
+                new_expr->items[i] = pmath_ref(old_items[i]);
+              
+              for(i = end + 1; i < new_expr->length; ++i)
+                new_expr->items[i] = pmath_ref(old_items[i]);
+            }
+            else {
+              new_expr = old_expr;
+              _pmath_ref_ptr((void*)old_expr);
+            }
+          }
+          break;
+          
+        case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL_PART:
+          {
+            new_expr = _pmath_expr_new_noinit(old_expr->length);
+            if(!new_expr) {
+              pmath_unref(item);
+              pmath_unref(expr);
+              return PMATH_NULL;
+            }
+            
+            new_expr->items[0] = pmath_ref(old_expr->items[0]);
+            for(i = 1; i < start; ++i)
+              new_expr->items[i] = pmath_ref(old_items[i]);
+            
+            for(i = end + 1; i < new_expr->length; ++i)
+              new_expr->items[i] = pmath_ref(old_items[i]);
+          }
+          break;
+        
+        default:
+          assert(0 && "unknown expression type");
+      }
+      
+      new_expr->items[start] = item;
+      for(++start;start <= end;++start) {
+        item = (*func)(pmath_ref(old_items[start]), context);
+        new_expr->items[start] = item;
+      }
+      
+      pmath_unref(expr);
+      return PMATH_FROM_PTR(new_expr);
+    }
+  }
+  
+  return expr;
 }
 
 /*----------------------------------------------------------------------------*/

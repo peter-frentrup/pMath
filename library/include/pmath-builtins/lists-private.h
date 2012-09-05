@@ -130,6 +130,7 @@ struct _pmath_scan_info_t {
   long         levelmax;
 };
 
+// Note: _pmath_map() already evaluates the result!
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_t _pmath_map(

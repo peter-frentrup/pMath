@@ -77,9 +77,9 @@ PMATH_PRIVATE pmath_t builtin_mapindexed(pmath_expr_t expr) {
   }
   
   info.with_heads = FALSE;
-  info.levelmin = 1;
-  info.levelmax = 1;
-  last_nonoption = 2;
+  info.levelmin   = 1;
+  info.levelmax   = 1;
+  last_nonoption  = 2;
   if(len >= 3) {
     pmath_t levels = pmath_expr_get_item(expr, 3);
     

@@ -76,8 +76,8 @@ PMATH_PRIVATE pmath_t builtin_parallelmapindexed(pmath_expr_t expr) {
   }
   
   info.info.with_heads = FALSE;
-  info.info.levelmin = 1;
-  info.info.levelmax = 1;
+  info.info.levelmin   = 1;
+  info.info.levelmax   = 1;
   
   if(len == 3) {
     pmath_t levels = pmath_expr_get_item(expr, 3);
