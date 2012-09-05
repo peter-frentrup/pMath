@@ -171,7 +171,7 @@ struct ordering_context_t {
   pmath_t cmp_ctx;
 };
 
-static int ordering_cmp(void *p, pmath_t *a, pmath_t *b) {
+static int ordering_cmp(void *p, const pmath_t *a, const pmath_t *b) {
   struct ordering_context_t *context = (struct ordering_context_t*)p;
   int result;
   pmath_t a_item, b_item;
@@ -262,7 +262,7 @@ struct sort_context_t {
   pmath_t cmp;
 };
 
-static int user_cmp_objs(void *p, pmath_t *a, pmath_t *b) {
+static int user_cmp_objs(void *p, const pmath_t *a, const pmath_t *b) {
   struct sort_context_t *context = (struct sort_context_t*)p;
   
   if(!pmath_equals(*a, *b)) {
@@ -322,7 +322,7 @@ PMATH_PRIVATE pmath_t builtin_sort(pmath_expr_t expr) {
   return pmath_expr_sort(list);
 }
 
-static int sortby_cmp(pmath_t *a, pmath_t *b) {
+static int sortby_cmp(const pmath_t *a, const pmath_t *b) {
   /* (*a) and (*b) are expressions of the form fn(x)(x) with evaluated fn(x)
      compare fn(x)... first, if it equals, compare x
    */

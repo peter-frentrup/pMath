@@ -525,6 +525,33 @@ PMATH_API pmath_expr_t pmath_expr_get_item_range(
   return expr;
 }
 
+PMATH_API
+const pmath_t *pmath_expr_read_item_data(pmath_expr_t expr) {
+  struct _pmath_expr_t *ptr;
+  
+  if(pmath_is_null(expr))
+    return NULL;
+    
+  assert(pmath_is_expr(expr));
+  
+  ptr = (void *)PMATH_AS_PTR(expr);
+  
+  switch(ptr->inherited.inherited.inherited.type_shift) {
+    case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL:
+      return &ptr->items[1];
+      
+    case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL_PART:
+      {
+        struct _pmath_expr_part_t *part_ptr = (void *)ptr;
+        
+        return &part_ptr->buffer->items[part_ptr->start];
+      }
+  }
+  
+  assert("invalid expression type" && 0);
+  return NULL;
+}
+
 PMATH_API pmath_expr_t pmath_expr_set_item(
   pmath_expr_t expr,
   size_t       index,
@@ -800,10 +827,11 @@ static int cmp_glibc(const void *a, const void *b, void *c) {
 
 PMATH_PRIVATE pmath_expr_t _pmath_expr_sort_ex(
   pmath_expr_t expr, // will be freed
-  int(*cmp)(pmath_t *, pmath_t *)
+  int(*cmp)(const pmath_t *, const pmath_t *)
 ) {
   size_t i, length;
   struct _pmath_expr_part_t *expr_part_ptr;
+  const pmath_t *initial_items;
   
   if(PMATH_UNLIKELY(pmath_is_null(expr)))
     return PMATH_NULL;
@@ -815,6 +843,22 @@ PMATH_PRIVATE pmath_expr_t _pmath_expr_sort_ex(
   if(length < 2)
     return expr;
     
+  initial_items = pmath_expr_read_item_data(expr);
+  if(initial_items) {
+    pmath_bool_t is_sorted = TRUE;
+    
+    for(i = 1; i < length; ++i) {
+      int c = (*cmp)(&initial_items[i - 1], &initial_items[i]);
+      if(c > 0) {
+        is_sorted = FALSE;
+        break;
+      }
+    }
+    
+    if(is_sorted)
+      return expr;
+  }
+  
   if( pmath_refcount(expr) > 1 ||
       PMATH_AS_PTR(expr)->type_shift != PMATH_TYPE_SHIFT_EXPRESSION_GENERAL)
   {
@@ -850,7 +894,7 @@ PMATH_PRIVATE pmath_expr_t _pmath_expr_sort_ex(
   }
   else
     touch_expr(&expr_part_ptr->inherited);
-  
+    
   qsort(
     expr_part_ptr->inherited.items + 1,
     length,
@@ -862,11 +906,12 @@ PMATH_PRIVATE pmath_expr_t _pmath_expr_sort_ex(
 
 PMATH_PRIVATE pmath_expr_t _pmath_expr_sort_ex_context(
   pmath_expr_t expr, // will be freed
-  int(*cmp)(void *, pmath_t *, pmath_t *),
+  int(*cmp)(void *, const pmath_t *, const pmath_t *),
   void *context
 ) {
   size_t i, length;
   struct _pmath_expr_part_t *expr_part_ptr;
+  const pmath_t *initial_items;
   
   if(PMATH_UNLIKELY(pmath_is_null(expr)))
     return PMATH_NULL;
@@ -878,6 +923,22 @@ PMATH_PRIVATE pmath_expr_t _pmath_expr_sort_ex_context(
   if(length < 2)
     return expr;
     
+  initial_items = pmath_expr_read_item_data(expr);
+  if(initial_items) {
+    pmath_bool_t is_sorted = TRUE;
+    
+    for(i = 1; i < length; ++i) {
+      int c = (*cmp)(context, &initial_items[i - 1], &initial_items[i]);
+      if(c > 0) {
+        is_sorted = FALSE;
+        break;
+      }
+    }
+    
+    if(is_sorted)
+      return expr;
+  }
+  
   if( pmath_refcount(expr) > 1 ||
       PMATH_AS_PTR(expr)->type_shift != PMATH_TYPE_SHIFT_EXPRESSION_GENERAL)
   {
@@ -914,16 +975,16 @@ PMATH_PRIVATE pmath_expr_t _pmath_expr_sort_ex_context(
   }
   else
     touch_expr(&expr_part_ptr->inherited);
-  
+    
 #ifdef __GNUC__
-  
+    
   // MinGW does not know Microsoft's qsort_s even though it is in msvcrt.dll
   // And glibc uses a different parameter order for both qsort_r and its
   // comparision function than BSD (which implemented qsort_r first).
   // Sometimes, GNU sucks.
   {
     int cmp2(const void * a, const void * b) {
-      return cmp(context, (pmath_t *)a, (pmath_t *)b);
+      return cmp(context, a, b);
     };
     
     qsort(
@@ -971,7 +1032,7 @@ PMATH_PRIVATE pmath_expr_t _pmath_expr_sort_ex_context(
   return expr;
 }
 
-static int stable_sort_cmp_objs(pmath_t *a, pmath_t *b) {
+static int stable_sort_cmp_objs(const pmath_t *a, const pmath_t *b) {
   int cmp = pmath_compare(*a, *b);
   if(cmp != 0)
     return cmp;
@@ -1038,7 +1099,7 @@ pmath_expr_t _pmath_expr_map(
       } break;
       
     default:
-      assert(0 && "unknown expression type");
+      assert("invalid expression type" && 0);
   }
   
   for(; start <= end; ++start) {
@@ -1055,7 +1116,7 @@ pmath_expr_t _pmath_expr_map(
       switch(old_expr->inherited.inherited.inherited.type_shift) {
         case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL:
           {
-            if(_pmath_refcount_ptr((void*)old_expr) != 1) {
+            if(_pmath_refcount_ptr((void *)old_expr) != 1) {
               new_expr = _pmath_expr_new_noinit(old_expr->length);
               if(!new_expr) {
                 pmath_unref(item);
@@ -1066,13 +1127,13 @@ pmath_expr_t _pmath_expr_map(
               new_expr->items[0] = pmath_ref(old_expr->items[0]);
               for(i = 1; i < start; ++i)
                 new_expr->items[i] = pmath_ref(old_items[i]);
-              
+                
               for(i = end + 1; i < new_expr->length; ++i)
                 new_expr->items[i] = pmath_ref(old_items[i]);
             }
             else {
               new_expr = old_expr;
-              _pmath_ref_ptr((void*)old_expr);
+              _pmath_ref_ptr((void *)old_expr);
               
               touch_expr(old_expr);
             }
@@ -1091,18 +1152,18 @@ pmath_expr_t _pmath_expr_map(
             new_expr->items[0] = pmath_ref(old_expr->items[0]);
             for(i = 1; i < start; ++i)
               new_expr->items[i] = pmath_ref(old_items[i]);
-            
+              
             for(i = end + 1; i < new_expr->length; ++i)
               new_expr->items[i] = pmath_ref(old_items[i]);
           }
           break;
-        
+          
         default:
-          assert(0 && "unknown expression type");
+          assert("invalid expression type" && 0);
       }
       
       new_expr->items[start] = item;
-      for(++start;start <= end;++start) {
+      for(++start; start <= end; ++start) {
         item = (*func)(pmath_ref(old_items[start]), start, context);
         new_expr->items[start] = item;
       }
@@ -1345,7 +1406,7 @@ PMATH_PRIVATE pmath_expr_t _pmath_expr_thread(
   
   if(show_message)
     *error_message = FALSE;
-   
+    
   first_thread_over_arg = 0;
   last_thread_over_arg  = 0;
   
@@ -1384,7 +1445,7 @@ PMATH_PRIVATE pmath_expr_t _pmath_expr_thread(
   
   if(!have_sth_to_thread)
     return expr;
-  
+    
   if(first_thread_over_arg == last_thread_over_arg) {
     struct thread_one_arg_t context;
     pmath_t list;
@@ -1398,7 +1459,7 @@ PMATH_PRIVATE pmath_expr_t _pmath_expr_thread(
     pmath_unref(expr);
     return list;
   }
-    
+  
   result = pmath_expr_new(pmath_ref(head), len);
   
   for(i = 1; i <= len; ++i) {

@@ -156,6 +156,20 @@ pmath_expr_t pmath_expr_get_item_range(
   pmath_expr_t expr,
   size_t       start,
   size_t       length);
+
+/**\brief Get a pointer to the expression's internal items array.
+   \memberof pmath_expr_t
+   \param expr A pMath expression. It will *not* be destroyed.
+   \return A 0-based array of pmath_t or NULL on error. This array is only valid
+           while \a expr is valid and not changed.
+   
+   This function is for fast reading access to multiple items. You have to do 
+   all the error checking alone. 
+   Note that result[0] === pmath_expr_get_item(expr, 1), a.s.o.
+ */
+PMATH_API
+const pmath_t *pmath_expr_read_item_data(pmath_expr_t expr);
+
   
 /**\brief Set an item in an expression.
    \memberof pmath_expr_t

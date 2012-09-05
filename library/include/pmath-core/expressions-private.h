@@ -29,13 +29,13 @@ PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_expr_t _pmath_expr_sort_ex(
   pmath_expr_t   expr, // will be freed
-  int          (*cmp)(pmath_t*, pmath_t*));
+  int          (*cmp)(const pmath_t*, const pmath_t*));
 
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_expr_t _pmath_expr_sort_ex_context(
   pmath_expr_t   expr, // will be freed
-  int          (*cmp)(void*, pmath_t*, pmath_t*),
+  int          (*cmp)(void*, const pmath_t*, const pmath_t*),
   void          *context);
   
 PMATH_PRIVATE
