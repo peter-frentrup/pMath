@@ -26,13 +26,13 @@ static void parallel_map(struct parallel_map_info_t *info) {
     pmath_thread_t old = pmath_thread_get_current();
     _pmath_thread_set_current(thread);
     
-    info->items[i] = _pmath_map(&info->info, info->items[i], 1);
+    info->items[i] = _pmath_map_eval(&info->info, info->items[i], 1);
                        
     i = pmath_atomic_fetch_add(&info->index, -1);
     while(i > 0 && !pmath_thread_aborting(thread)) {
       _pmath_thread_clean(FALSE);
       
-      info->items[i] = _pmath_map(&info->info, info->items[i], 1);
+      info->items[i] = _pmath_map_eval(&info->info, info->items[i], 1);
       
       i = pmath_atomic_fetch_add(&info->index, -1);
     }
@@ -150,7 +150,7 @@ PMATH_PRIVATE pmath_t builtin_parallelmap(pmath_expr_t expr) {
   }
   else if(reldepth > 0) {
     pmath_message(PMATH_NULL, "nopar1", 1, expr);
-    obj = _pmath_map(&info.info, obj, 0);
+    obj = _pmath_map_eval(&info.info, obj, 0);
   }
   else
     pmath_unref(expr);

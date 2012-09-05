@@ -63,7 +63,7 @@ struct map_impl_callback_t {
   pmath_bool_t has_sequence;
 };
 
-static pmath_t map_impl_callback(pmath_t obj, void *data) {
+static pmath_t map_impl_callback(pmath_t obj, size_t i, void *data) {
   struct map_impl_callback_t *context = data;
   
   obj = map_impl(context->info, obj, context->next_level, context->next_eval_imm);
@@ -149,7 +149,7 @@ static pmath_t map_impl(
 
 
 PMATH_PRIVATE
-pmath_t _pmath_map(
+pmath_t _pmath_map_eval(
   struct _pmath_map_info_t *info,
   pmath_t                   obj, // will be freed
   long                      level
@@ -232,7 +232,7 @@ PMATH_PRIVATE pmath_t builtin_map(pmath_expr_t expr) {
   
   obj = pmath_expr_get_item(expr, 1);
   pmath_unref(expr);
-  obj = _pmath_map(&info, obj, 0);
+  obj = _pmath_map_eval(&info, obj, 0);
   pmath_unref(info.function);
   return obj;
 }

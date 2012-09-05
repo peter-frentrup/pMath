@@ -306,7 +306,7 @@ static pmath_t evaluate_expression(
           pmath_unref(item);
           
           expr = _pmath_expr_thread(
-                   expr, PMATH_SYMBOL_LIST, 1, exprlen, &error_message);
+                   expr, PMATH_SYMBOL_LIST, 1, i, &error_message);
                    
           if(error_message)
             _pmath_expr_update(expr);

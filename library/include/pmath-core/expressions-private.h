@@ -20,11 +20,6 @@ PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
 struct _pmath_expr_t *_pmath_expr_new_noinit(size_t length);
 
-// expr will be freed
-PMATH_PRIVATE
-PMATH_ATTRIBUTE_USE_RESULT
-struct _pmath_expr_t *_pmath_expr_make_writeable(pmath_expr_t expr);
-
 PMATH_PRIVATE
 size_t _pmath_expr_find_sorted(
   pmath_expr_t sorted_expr, // wont be freed
@@ -49,10 +44,12 @@ pmath_expr_t _pmath_expr_map(
   pmath_expr_t  expr, // will be freed
   size_t        start,
   size_t        end,
-  pmath_t     (*func)(pmath_t, void*),
+  pmath_t     (*func)(pmath_t, size_t, void*),
   void         *context);
 
-// expr=f(args): thread f over any expression with head h in the first coun args.
+/* expr=f(args): thread f over any expression with given head in the range 
+                 start .. end 
+ */
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_expr_t _pmath_expr_thread(

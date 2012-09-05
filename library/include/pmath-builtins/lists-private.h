@@ -130,10 +130,10 @@ struct _pmath_scan_info_t {
   long         levelmax;
 };
 
-// Note: _pmath_map() already evaluates the result!
+// Note: _pmath_map_eval() already evaluates the result!
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
-pmath_t _pmath_map(
+pmath_t _pmath_map_eval(
   struct _pmath_map_info_t *info,
   pmath_t                   obj,   // will be freed
   long                      level);
