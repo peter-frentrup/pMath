@@ -112,8 +112,24 @@ static pmath_string_t read_line(FILE *file) {
   return result;
 }
 
+
+static size_t bytes_since_last_abortcheck = 0;
+
 static void write_cstr(FILE *file, const char *cstr) {
-  fwrite(cstr, 1, strlen(cstr), file);
+  size_t len = strlen(cstr);
+  
+  if(bytes_since_last_abortcheck + len > 100) {
+    if(pmath_aborting()) {
+      bytes_since_last_abortcheck = 100;
+      return;
+    }
+    else
+      bytes_since_last_abortcheck = 0;
+  }
+  else
+    bytes_since_last_abortcheck+= len;
+  
+  fwrite(cstr, 1, len, file);
 }
 
 static pmath_threadlock_t print_lock = NULL;
