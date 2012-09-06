@@ -23,13 +23,14 @@
 
 
 #ifdef _MSC_VER
-#define snprintf sprintf_s
+#  define snprintf sprintf_s
 #endif
+
 
 struct _pmath_expr_part_t {
   struct _pmath_expr_t   inherited; // item: length = 1
-  size_t                 start;
   struct _pmath_expr_t  *buffer;
+  size_t                 start;
 };
 
 // initialization in pmath_init():
@@ -139,6 +140,36 @@ struct _pmath_expr_t *_pmath_expr_new_noinit(size_t length) {
   expr->length                = length;
   
   return expr;
+}
+
+// called when all items are freed
+static void end_destroy_general_expression(struct _pmath_expr_t *expr) {
+  if(expr->length < CACHES_MAX) {
+    uintptr_t ui = expr_cache_inc(expr->length, +1);
+    
+    expr = expr_cache_swap(expr->length, ui, expr);
+  }
+  
+  pmath_mem_free(expr);
+}
+
+static void destroy_general_expression(pmath_t expr) {
+  struct _pmath_expr_t *_expr = (void *)PMATH_AS_PTR(expr);
+  
+  size_t i;
+  for(i = 0; i <= _expr->length; i++)
+    pmath_unref(_expr->items[i]);
+    
+  end_destroy_general_expression(_expr);
+}
+
+static void destroy_part_expression(pmath_t expr) {
+  struct _pmath_expr_part_t *_expr = (void *)PMATH_AS_PTR(expr);
+  
+  pmath_unref(_expr->inherited.items[0]);
+  pmath_unref(PMATH_FROM_PTR(_expr->buffer));
+  
+  pmath_mem_free(_expr);
 }
 
 /*============================================================================*/
@@ -696,22 +727,26 @@ PMATH_PRIVATE pmath_t _pmath_expr_shrink_associative(
   pmath_t       magic_rem
 ) {
   size_t len = pmath_expr_length(expr);
-  size_t srci = 1;
-  size_t dsti = 1;
+  size_t srci0 = 0;
+  size_t dsti  = 1;
   
-  while(srci <= len) {
-    pmath_t item = PMATH_NULL;
-    do {
-      pmath_unref(item);
-      item = pmath_expr_get_item(expr, srci++);
-    } while(pmath_same(item, magic_rem) && srci <= len);
+  if(pmath_is_null(expr))
+    return expr;
     
-    if(pmath_same(item, magic_rem)) {
-      pmath_unref(item);
+  while(srci0 < len) {
+    const pmath_t *items;
+    
+    items = pmath_expr_read_item_data(expr);
+    assert(items != NULL);
+    
+    while(srci0 <= len && pmath_same(items[srci0], magic_rem))
+      ++srci0;
+      
+    if(srci0 >= len)
       break;
-    }
-    
-    expr = pmath_expr_set_item(expr, dsti++, item);
+      
+    expr = pmath_expr_set_item(expr, dsti++, pmath_ref(items[srci0]));
+    ++srci0;
   }
   
   if(dsti == 2) {
@@ -727,25 +762,27 @@ PMATH_API pmath_expr_t pmath_expr_remove_all(
   pmath_expr_t expr,
   pmath_t      rem
 ) {
-  pmath_bool_t equaled = FALSE;
   size_t len = pmath_expr_length(expr);
-  size_t srci = 1;
+  size_t srci0 = 0;
   size_t dsti = 1;
   
-  while(srci <= len) {
-    pmath_t item = PMATH_NULL;
-    do {
-      pmath_unref(item);
-      item = pmath_expr_get_item(expr, srci++);
-      equaled = pmath_equals(item, rem);
-    } while(equaled && srci <= len);
+  if(pmath_is_null(expr))
+    return expr;
     
-    if(equaled) {
-      pmath_unref(item);
+  while(srci0 < len) {
+    const pmath_t *items;
+    
+    items = pmath_expr_read_item_data(expr);
+    assert(items != NULL);
+    
+    while(srci0 <= len && pmath_equals(items[srci0], rem))
+      ++srci0;
+      
+    if(srci0 >= len)
       break;
-    }
-    
-    expr = pmath_expr_set_item(expr, dsti++, item);
+      
+    expr = pmath_expr_set_item(expr, dsti++, pmath_ref(items[srci0]));
+    ++srci0;
   }
   
   return pmath_expr_resize(expr, dsti - 1);
@@ -805,7 +842,7 @@ size_t _pmath_expr_find_sorted(
       }
   }
   
-  assert("unknown expression type" && 0);
+  assert("invalid expression type" && 0);
   
   return 0;
 }
@@ -1682,30 +1719,6 @@ static unsigned int hash_expression(
     next = incremental_hash(&h, sizeof(h), next);
   }
   return next;
-}
-
-static void destroy_general_expression(pmath_t expr) {
-  struct _pmath_expr_t *_expr = (void *)PMATH_AS_PTR(expr);
-  
-  size_t i;
-  for(i = 0; i <= _expr->length; i++)
-    pmath_unref(_expr->items[i]);
-    
-  if(_expr->length < CACHES_MAX) {
-    uintptr_t ui = expr_cache_inc(_expr->length, +1);
-    
-    _expr = expr_cache_swap(_expr->length, ui, _expr);
-  }
-  pmath_mem_free(_expr);
-}
-
-static void destroy_part_expression(pmath_t expr) {
-  struct _pmath_expr_part_t *_expr = (void *)PMATH_AS_PTR(expr);
-  
-  pmath_unref(_expr->inherited.items[0]);
-  pmath_unref(PMATH_FROM_PTR(_expr->buffer));
-  
-  pmath_mem_free(_expr);
 }
 
 //{ writing expressions
@@ -3277,7 +3290,7 @@ static void write_expression(struct pmath_write_ex_t *info, pmath_t expr) {
 PMATH_PRIVATE pmath_bool_t _pmath_expressions_init(void) {
 //  global_change_time = 0;
 
-  memset(expr_caches,    0, sizeof(expr_caches));
+  memset(expr_caches,            0, sizeof(expr_caches));
   memset((void *)expr_cache_pos, 0, sizeof(expr_cache_pos));
   
 #ifdef PMATH_DEBUG_LOG

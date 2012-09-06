@@ -99,7 +99,7 @@ static pmath_bool_t is_real_matrix(pmath_t x, size_t *rows, size_t *cols) {
   return TRUE;
 }
 
-static int cmp_less(pmath_t *a, pmath_t *b) {
+static int cmp_less(const pmath_t *a, const pmath_t *b) {
   pmath_t tmp;
   
   // fast path
