@@ -1644,7 +1644,7 @@ void _pmath_write_machine_float(struct pmath_write_ex_t *info, pmath_t f) {
     int minprec, midprec, maxprec, len, i;
     maxprec = 1 + (int)ceil(DBL_MANT_DIG * LOG10_2);
     midprec = 6;
-    
+  
     test = fabs(PMATH_AS_DOUBLE(f));
     if(test > 10000.0)
       minprec = 6;
@@ -1658,38 +1658,38 @@ void _pmath_write_machine_float(struct pmath_write_ex_t *info, pmath_t f) {
       minprec = 2;
     else
       minprec = 1;
-      
+  
     if(test < 10.0)
       midprec = maxprec;
-      
+  
     for(len = minprec; len <= midprec; ++len) {
       snprintf(s, sizeof(s), "%.*g", len, PMATH_AS_DOUBLE(f));
-      
+  
       // not pmath_strtod() because sprintf gives locale specific result
       test = strtod(s, NULL);
       if(test == PMATH_AS_DOUBLE(f))
         goto FOUND;
     }
-    
+  
     for(len = midprec + 1; len <= maxprec; ++len) {
       snprintf(s, sizeof(s), "%.*e", len, PMATH_AS_DOUBLE(f));
-      
+  
       // not pmath_strtod() because sprintf gives locale specific result
       test = strtod(s, NULL);
       if(test == PMATH_AS_DOUBLE(f))
         goto FOUND;
     }
-    
+  
   FOUND:
   
     len = strlen(s);
     i = 0;
     while(i < len && s[i] != '.' && s[i] != ',' && s[i] != 'e')
       ++i;
-      
+  
     if(i < len && s[i] == ',')
       s[i] = '.';
-      
+  
     if(i == len) {
       write_cstr(s, info->write, info->user);
       if(info->options & PMATH_WRITE_OPTIONS_INPUTEXPR)
@@ -1698,13 +1698,13 @@ void _pmath_write_machine_float(struct pmath_write_ex_t *info, pmath_t f) {
         write_cstr(".0", info->write, info->user);
       return;
     }
-    
+  
     if(s[i] == 'e') {
       int exp = atoi(s + i + 1);
-      
+  
       s[i] = '\0';
       write_cstr(s, info->write, info->user);
-      
+  
       if(exp > 0 && exp < 6) {
         char zeros[] = "000000";
         zeros[exp] = '\0';
@@ -1720,35 +1720,35 @@ void _pmath_write_machine_float(struct pmath_write_ex_t *info, pmath_t f) {
           write_cstr(".0`*^", info->write, info->user);
         else
           write_cstr(".0*^", info->write, info->user);
-          
+  
         snprintf(s, sizeof(s), "%d", exp);
         write_cstr(s, info->write, info->user);
         return;
       }
     }
-    
+  
     while(i < len && s[i] != 'e')
       ++i;
-      
+  
     if(i < len) {
       int exp = atoi(s + i + 1);
-      
+  
       s[i] = '\0';
       write_cstr(s, info->write, info->user);
       if(info->options & PMATH_WRITE_OPTIONS_INPUTEXPR)
         write_cstr("`*^", info->write, info->user);
       else
         write_cstr("*^", info->write, info->user);
-        
+  
       snprintf(s, sizeof(s), "%d", exp);
       write_cstr(s, info->write, info->user);
       return;
     }
-    
+  
     write_cstr(s, info->write, info->user);
     if(info->options & PMATH_WRITE_OPTIONS_INPUTEXPR)
       write_cstr("`", info->write, info->user);
-    
+  
     return;
   }
   */
@@ -1771,42 +1771,39 @@ int _pmath_numbers_compare(
   pmath_number_t numA,
   pmath_number_t numB
 ) {
-  if(pmath_is_int32(numA))
-    numA = PMATH_FROM_DOUBLE(PMATH_AS_INT32(numA));
+#define RETURN_SIMPLE_CMP \
+  if(a < b)    \
+    return -1; \
+  if(a > b)    \
+    return 1;  \
+  return 0;
+  
+  if(pmath_is_int32(numA)) {
+    int a = PMATH_AS_INT32(numA);
     
-  if(pmath_is_int32(numB))
-    numB = PMATH_FROM_DOUBLE(PMATH_AS_INT32(numB));
-    
-  if(pmath_is_double(numA)) {
-    if(pmath_is_double(numB)) {
-      if(PMATH_AS_DOUBLE(numA) < PMATH_AS_DOUBLE(numB))
-        return -1;
-        
-      if(PMATH_AS_DOUBLE(numA) > PMATH_AS_DOUBLE(numB))
-        return 1;
-        
-      return 0;
+    if(pmath_is_int32(numB)) {
+      int b = PMATH_AS_INT32(numB);
+      
+      RETURN_SIMPLE_CMP
     }
     
-    assert(pmath_is_pointer(numB));
-    assert(!pmath_is_null(numB));
+    if(pmath_is_double(numB)) {
+      double b = PMATH_AS_DOUBLE(numB);
+      
+      RETURN_SIMPLE_CMP
+    }
     
     switch(PMATH_AS_PTR(numB)->type_shift) {
       case PMATH_TYPE_SHIFT_MP_INT:
-        return -mpz_cmp_d(PMATH_AS_MPZ(numB), PMATH_AS_DOUBLE(numA));
+        return -mpz_cmp_si(PMATH_AS_MPZ(numB), a);
         
       case PMATH_TYPE_SHIFT_MP_FLOAT:
-        return -mpfr_cmp_d(PMATH_AS_MP_VALUE(numB), PMATH_AS_DOUBLE(numA));
+        return -mpfr_cmp_si(PMATH_AS_MP_VALUE(numB), a);
         
       case PMATH_TYPE_SHIFT_QUOTIENT: {
           double b = pmath_number_get_d(PMATH_QUOT_NUM(numB)) / pmath_number_get_d(PMATH_QUOT_DEN(numB));
           
-          if(PMATH_AS_DOUBLE(numA) < b)
-            return -1;
-            
-          if(PMATH_AS_DOUBLE(numA) > b)
-            return 1;
-            
+          RETURN_SIMPLE_CMP
         } return 0;
     }
     
@@ -1814,7 +1811,42 @@ int _pmath_numbers_compare(
     return 0;
   }
   
-  if(pmath_is_double(numB))
+  if(pmath_is_double(numA)) {
+    double a = PMATH_AS_DOUBLE(numA);
+    
+    if(pmath_is_int32(numB)) {
+      int b = PMATH_AS_INT32(numB);
+      
+      RETURN_SIMPLE_CMP
+    }
+    
+    if(pmath_is_double(numB)) {
+      double b = PMATH_AS_DOUBLE(numB);
+      
+      RETURN_SIMPLE_CMP
+    }
+    
+    switch(PMATH_AS_PTR(numB)->type_shift) {
+      case PMATH_TYPE_SHIFT_MP_INT:
+        return -mpz_cmp_d(PMATH_AS_MPZ(numB), a);
+        
+      case PMATH_TYPE_SHIFT_MP_FLOAT:
+        return -mpfr_cmp_d(PMATH_AS_MP_VALUE(numB), a);
+        
+      case PMATH_TYPE_SHIFT_QUOTIENT: {
+          double b = pmath_number_get_d(PMATH_QUOT_NUM(numB)) / pmath_number_get_d(PMATH_QUOT_DEN(numB));
+          
+          RETURN_SIMPLE_CMP
+        } return 0;
+    }
+    
+    assert("unknown number type" && 0);
+    return 0;
+  }
+  
+#undef RETURN_SIMPLE_CMP
+  
+  if(pmath_is_double(numB) || pmath_is_int32(numB))
     return - _pmath_numbers_compare(numB, numA);
     
   assert(pmath_is_pointer(numA));

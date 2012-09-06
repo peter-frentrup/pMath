@@ -1137,6 +1137,7 @@ pmath_expr_t _pmath_expr_map(
       
     default:
       assert("invalid expression type" && 0);
+      return PMATH_NULL;
   }
   
   for(; start <= end; ++start) {
@@ -1197,6 +1198,7 @@ pmath_expr_t _pmath_expr_map(
           
         default:
           assert("invalid expression type" && 0);
+          return PMATH_NULL;
       }
       
       new_expr->items[start] = item;
