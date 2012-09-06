@@ -61,14 +61,14 @@ namespace w { // win32 typedefs that mingw does not provide
 
 Win32Menubar::Win32Menubar(Win32DocumentWindow *window, HWND parent, SharedPtr<Win32Menu> menu)
   : Base(),
-  _appearence(MaAllwaysShow),
-  _window(window),
-  _hwnd(0),
-  _menu(menu),
-  focused(false),
-  current_popup(0),
-  current_item(0),
-  next_item(0)
+    _appearence(MaAllwaysShow),
+    _window(window),
+    _hwnd(0),
+    _menu(menu),
+    focused(false),
+    current_popup(0),
+    current_item(0),
+    next_item(0)
 {
   INITCOMMONCONTROLSEX icex;
   icex.dwSize = sizeof(INITCOMMONCONTROLSEX);
@@ -275,7 +275,7 @@ void Win32Menubar::show_menu(int item) {
       pt.x = tpm.rcExclude.right;
     }
     
-    UINT flags = TPM_RETURNCMD | GetSystemMetrics(SM_MENUDROPALIGNMENT);
+    UINT flags = TPM_RETURNCMD | align;
     if(!menu_animation)
       flags |= TPM_NOANIMATION;
       
@@ -345,7 +345,7 @@ void Win32Menubar::show_sysmenu() {
     
     int cmd = TrackPopupMenuEx(
                 current_popup,
-                GetSystemMetrics(SM_MENUDROPALIGNMENT) | TPM_RETURNCMD,
+                align | TPM_RETURNCMD,
                 x,
                 tpm.rcExclude.bottom,
                 parent,
@@ -473,12 +473,12 @@ void Win32Menubar::resized() {
 bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM lParam) {
   switch(message) {
     case WM_NOTIFY: {
-        NMHDR *header = (NMHDR*)lParam;
+        NMHDR *header = (NMHDR *)lParam;
         
         if(header->hwndFrom == _hwnd) {
           switch(header->code) {
             case TBN_DROPDOWN: {
-                NMTOOLBARW *tb = (NMTOOLBARW*)lParam;
+                NMTOOLBARW *tb = (NMTOOLBARW *)lParam;
                 
                 show_menu(tb->iItem);
                 
@@ -486,12 +486,13 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
               } return true;
               
             case TBN_HOTITEMCHANGE: {
-                NMTBHOTITEM *hi = (NMTBHOTITEM*)lParam;
+                NMTBHOTITEM *hi = (NMTBHOTITEM *)lParam;
                 
-                if((hi->dwFlags & (HICF_MOUSE | ~HICF_LEAVING))
-                    && current_menubar == this
-                    && current_item != hi->idNew
-                    && hi->idNew) {
+                if((hi->dwFlags & (HICF_MOUSE | ~HICF_LEAVING)) &&
+                    current_menubar == this                     &&
+                    current_item != hi->idNew                   &&
+                    hi->idNew)
+                {
                   if(hi->idNew <= separator_index) {
                     next_item = hi->idNew;
                     
@@ -506,7 +507,7 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
               } break;
               
             case NM_CLICK: {
-                POINT pt = ((NMMOUSE*)lParam)->pt;
+                POINT pt = ((NMMOUSE *)lParam)->pt;
                 
                 if(current_popup == 0) {
                   int index = SendMessageW(_hwnd, TB_HITTEST, 0, (LPARAM)&pt);
@@ -536,7 +537,7 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
               } break;
               
             case NM_KEYDOWN: {
-                w::NMKEY *key = (w::NMKEY*)lParam;
+                w::NMKEY *key = (w::NMKEY *)lParam;
                 
                 switch(key->nVKey) {
                   case VK_MENU:
@@ -548,7 +549,7 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
               } break;
               
             case NM_CHAR: {
-                w::NMCHAR *chr = (w::NMCHAR*)lParam;
+                w::NMCHAR *chr = (w::NMCHAR *)lParam;
                 
                 if(chr->ch == ' ') {
                   show_sysmenu();
@@ -558,7 +559,7 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
               } break;
               
             case NM_CUSTOMDRAW: {
-                NMTBCUSTOMDRAW *draw = (NMTBCUSTOMDRAW*)lParam;
+                NMTBCUSTOMDRAW *draw = (NMTBCUSTOMDRAW *)lParam;
                 
                 // The normal menu (Vista) also has no animation, but a toolbar has.
                 // TODO: This has no effect before the first menu popped up
@@ -762,7 +763,7 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
 
 LRESULT CALLBACK Win32Menubar::menu_hook_proc(int code, WPARAM h_wParam, LPARAM h_lParam) {
   if(code == MSGF_MENU && current_menubar) {
-    MSG *msg = (MSG*)h_lParam;
+    MSG *msg = (MSG *)h_lParam;
     
     switch(msg->message) {
       case WM_LBUTTONDOWN:
