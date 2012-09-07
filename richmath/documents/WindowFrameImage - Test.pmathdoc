@@ -1,10 +1,11 @@
-Document({SectionGroup({Section("Using FE`$WindowFrameImage", "Title"), 
+Document({
+   SectionGroup({Section("Using $WindowFrameImage", "Title"), 
      Section(
       "You need to turn on \[HighSixDoubleQuote]Aero \
       Glass\[HighNineDoubleQuote] to see the frame image.", "Text"), 
      SectionGroup({
        Section(BoxData({"Button", "(", {"\"Open Window with Frame Image\"", 
-           ",", {"With", "(", {
+           ",", "\n", {"With", "(", {
              {"{", {"imgFile", "\[Assign]", {"FE`FileOpenDialog", "(", {
                  {"If", "(", {{"IsString", "(", "lastChosenImage", ")"}, ",", 
                    "lastChosenImage", ",", "\"\""}, ")"}, ",", {
@@ -16,7 +17,7 @@ Document({SectionGroup({Section("Using FE`$WindowFrameImage", "Title"),
                     {"FE`$WindowFrameImage", "\[Assign]", "imgFile"}, ";", {
                      "CreateDocument", "@@", {"DocumentGet", "(", {
                        "EvaluationDocument", "(", ")"}, ")"}}}}, ")"}}}, ")"}, 
-              ";"}}, ")"}}, ")"}), "Input", SectionLabel -> "in [41]:"), 
+              ";"}}, ")"}}, ")"}), "Input"), 
        Section(BoxData(ButtonBox("\"Open Window with Frame Image\"", 
           ButtonFunction -> (With({
             imgFile:= FE`FileOpenDialog(If(IsString(lastChosenImage), 
@@ -24,21 +25,19 @@ Document({SectionGroup({Section("Using FE`$WindowFrameImage", "Title"),
            If(IsString(imgFile), lastChosenImage:= imgFile; Block({
               FE`$WindowFrameImage}, FE`$WindowFrameImage:= imgFile; Apply(
               DocumentGet(EvaluationDocument()), CreateDocument)));) &))), 
-        "Output", SectionGenerated -> True, SectionLabel -> "out [41]:")}, 2), 
+        "Output", SectionGenerated -> True)}, 2), 
      SectionGroup({
        Section(BoxData({"Grid", "(", {
-           "{", {{"{", "\"last chosen \
-             image:\\[RawTab]\\[RawTab]\\[RawTab]\\[RawTab]\\[RawTab]\\[RawTab\
-             ]\\[RawTab]\\[RawTab]\\[RawTab]\\[RawTab]\\[RawTab]\\[RawTab]\\[R\
-             awTab]\"", "}"}, ",", {
+           "{", {{"{", {"\"last chosen image:\"", "++", {
+               "StringExpression", "@@", {"ConstantArray", "(", {
+                 "\"\\u2003\"", ",", "20"}, ")"}}}, "}"}, ",", "\n", {
              "{", {"InputField", "(", {
                {"Dynamic", "(", "lastChosenImage", ")"}, ",", "String"}, ")"}, 
-             "}"}}, "}"}, ")"}), "Input", SectionLabel -> "in [15]:"), 
+             "}"}}, "}"}, ")"}), "Input"), 
        Section(BoxData(TagBox(GridBox({{"\"last chosen \
-             image:\[RawTab]\[RawTab]\[RawTab]\[RawTab]\[RawTab]\[RawTab]\[Raw\
-             Tab]\[RawTab]\[RawTab]\[RawTab]\[RawTab]\[RawTab]\[RawTab]\""}, {
-             InputFieldBox(Dynamic(lastChosenImage), String)}}), "Grid")), 
-        "Output", SectionGenerated -> True, SectionLabel -> "out [15]:")}, 2), 
+             image:\u2003\u2003\u2003\u2003\u2003\u2003\u2003\u2003\u2003\u2003\
+			 \u2003\u2003\u2003\u2003\u2003\u2003\u2003\u2003\u2003\u2003\""}, {InputFieldBox(Dynamic(lastChosenImage), String)}}), "Grid")), 
+        "Output", SectionGenerated -> True)}, 2), 
      SectionGroup({
        Section(BoxData({"Button", "(", {"\"+\"", ",", "\n", {
             "With", "(", {
@@ -51,7 +50,7 @@ Document({SectionGroup({Section("Using FE`$WindowFrameImage", "Title"),
                  "{", {"\"TopGlass\"", "\[Rule]", {
                    "Flatten", "@", {"{", {"old", ",", {"Section", "(", {
                        "\"\"", ",", "\"Docked\""}, ")"}}, "}"}}}, "}"}}}, 
-              ")"}}, ")"}}, "\n", ")"}), "Input", SectionLabel -> "in [9]:"), 
+              ")"}}, ")"}}, "\n", ")"}), "Input"), 
        Section(BoxData(ButtonBox("\"+\"", 
           ButtonFunction -> (With({
             old:= Replace("TopGlass", Replace(DockedSections, 
@@ -59,7 +58,7 @@ Document({SectionGroup({Section("Using FE`$WindowFrameImage", "Title"),
            SetOptions(EvaluationDocument(), 
             DockedSections -> {"TopGlass" -> Flatten({
                old, Section("", "Docked")})})) &))), "Output", 
-        SectionGenerated -> True, SectionLabel -> "out [9]:")}, 2), 
+        SectionGenerated -> True)}, 2), 
      SectionGroup({
        Section(BoxData({"Button", "(", {"\"-\"", ",", "\n", {
             "With", "(", {
@@ -81,8 +80,9 @@ Document({SectionGroup({Section("Using FE`$WindowFrameImage", "Title"),
                 Options(EvaluationDocument(), DockedSections)))})}, 
            If(Length(old) > 0, SetOptions(EvaluationDocument(), 
              DockedSections -> {"TopGlass" -> Most(old)}))) &))), "Output", 
-        SectionGenerated -> True, SectionLabel -> "out [36]:")}, 2)}, All)}, 
-  Background -> GrayLevel(1), DockedSections -> {
-   "TopGlass" -> {Section("", "Docked")}}, Editable -> False, 
-  Selectable -> False, WindowFrame -> "Dialog", ShowSectionBracket -> False, 
-  WindowTitle -> "Using FE`$WindowFrameImage")
+        SectionGenerated -> True)}, 2)}, All)}, Background -> GrayLevel(1), 
+  DockedSections -> {"Top" -> Inherited, "BottomGlass" -> Inherited, 
+   "TopGlass" -> {Section("", "Docked")}, "Bottom" -> Inherited}, 
+  Editable -> False, Selectable -> False, ShowSectionBracket -> False, 
+  Visible -> True, WindowFrame -> "Dialog", 
+  WindowTitle -> "Using $WindowFrameImage")

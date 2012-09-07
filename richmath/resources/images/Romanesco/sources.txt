@@ -1,0 +1,5 @@
+frame (original).jpg:
+	by:      Darya Pino ("SummerTomato")
+	license: CC BY 2.0
+	date:    2012-09-07
+	url:     http://www.flickr.com/photos/summertomato/3540719643/
