@@ -8,8 +8,8 @@
 
 #include <pmath-builtins/all-symbols-private.h>
 
-
 #include <string.h>
+
 
 struct write_pos_t {
   pmath_t             item;
@@ -170,6 +170,81 @@ static int get_expr_indention_depth(struct linewriter_t *lw) {
   return depth;
 }
 
+static void get_string_token_bounds(
+  struct linewriter_t *lw,
+  int                  pos,
+  int                 *start,
+  int                 *next
+) {
+  int i;
+  assert(pos <= lw->line_length);
+  
+  if(pos >= lw->line_length) {
+    *start = pos;
+    *next  = pos;
+    return;
+  }
+  
+  *start = pos;
+  *next  = pos + 1;
+  
+  for(i = pos; i > 0; --i) {
+    if((lw->newlines[i] & NEWLINE_INSTRING) == 0)
+      break;
+      
+    if(lw->buffer[i - 1] <= ' ')
+      break;
+      
+    if(lw->buffer[i - 1] == '\\') {
+      int s = i;
+      while(s > 0 && lw->buffer[s - 1] == '\\')
+        --s;
+        
+      if((i - s) % 2 == 0)
+        return;
+        
+      switch(lw->buffer[i]) {
+        case 'x':
+          if(pos - i >= 3)
+            return;
+            
+          *start = i - 1;
+          *next  = i + 3;
+          if(*next > lw->buffer_length)
+            *next = lw->buffer_length;
+          return;
+          
+        case 'u':
+          if(pos - i >= 5)
+            return;
+            
+          *start = i - 1;
+          *next  = i + 5;
+          if(*next > lw->buffer_length)
+            *next = lw->buffer_length;
+          return;
+          
+        case 'U':
+          if(pos - i >= 9)
+            return;
+            
+          *start = i - 1;
+          *next  = i + 9;
+          if(*next > lw->buffer_length)
+            *next = lw->buffer_length;
+          return;
+      }
+      
+      if(pos > i)
+        return;
+        
+      *start = i - 1;
+      *next  = i + 1;
+      return;
+    }
+  }
+}
+
 static int find_best_linebreak(
   struct linewriter_t *lw,
   pmath_bool_t        *is_inside_string,
@@ -193,9 +268,23 @@ static int find_best_linebreak(
       nl = last - 1;
     else
       ++nl;
-    
-    *is_inside_string = (lw->newlines[nl] & NEWLINE_INSTRING) != 0;
-    *is_inside_token  = !*is_inside_string;
+      
+    if((lw->newlines[nl] & NEWLINE_INSTRING) != 0) {
+      int s, e;
+      
+      get_string_token_bounds(lw, nl, &s, &e);
+      if(s > 0)
+        nl = s;
+      else
+        nl = e;
+        
+      *is_inside_string = TRUE;
+      *is_inside_token  = FALSE;
+    }
+    else {
+      *is_inside_string = FALSE;
+      *is_inside_token  = TRUE;
+    }
   }
   else {
     double error = calc_penalty(lw, nl, last);
@@ -309,7 +398,7 @@ static void flush_line(struct linewriter_t *lw) {
   
   if(ignore_linebreak)
     return;
-  
+    
   depth = get_expr_indention_depth(lw);
   if(depth >= nl)
     return;
