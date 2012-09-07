@@ -139,7 +139,7 @@ PMATH_PRIVATE pmath_t builtin_replace(pmath_expr_t expr) {
     if(_pmath_extract_levels(levels, &info.levelmin, &info.levelmax)) {
       last_nonoption = 3;
     }
-    else if(!_pmath_is_rule(levels) && !_pmath_is_list_of_rules(levels)) {
+    else if(!_pmath_is_set_of_options(levels)) {
       pmath_message(PMATH_NULL, "level", 1, levels);
       return expr;
     }
@@ -281,7 +281,7 @@ PMATH_PRIVATE pmath_t builtin_replacelist(pmath_expr_t expr) {
   if(len > 3) {
     n = pmath_expr_get_item(expr, 3);
     
-    if(!_pmath_is_rule(n) && !_pmath_is_list_of_rules(n)) {
+    if(!_pmath_is_set_of_options(n)) {
       last_nonoption = 3;
     }
     else if( (!pmath_is_integer(n) ||

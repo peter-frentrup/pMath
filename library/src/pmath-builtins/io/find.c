@@ -117,7 +117,7 @@ PMATH_PRIVATE pmath_t builtin_findlist(pmath_expr_t expr) {
   if(pmath_expr_length(expr) >= 3) {
     pmath_t n = pmath_expr_get_item(expr, 3);
     
-    if(!_pmath_is_rule(n) && !_pmath_is_list_of_rules(n)) {
+    if(!_pmath_is_set_of_options(n)) {
       last_nonoption = 3;
       if(pmath_is_int32(n) && PMATH_AS_INT32(n) >= 0) {
         count = (size_t)PMATH_AS_INT32(n);

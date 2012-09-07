@@ -261,7 +261,7 @@ PMATH_PRIVATE pmath_t builtin_stringreplace(pmath_expr_t expr) {
       pmath_unref(obj);
       last_nonoption = 3;
     }
-    else if(!_pmath_is_rule(obj) && !_pmath_is_list_of_rules(obj)) {
+    else if(!_pmath_is_set_of_options(obj)) {
       pmath_unref(obj);
       pmath_message(PMATH_NULL, "intnm", 2, PMATH_FROM_INT32(3), pmath_ref(expr));
       return expr;
@@ -330,7 +330,7 @@ PMATH_PRIVATE pmath_t builtin_stringsplit(pmath_expr_t expr) {
       sr_options |= SR_EMIT_EMPTY_BOUNDS;
       last_nonoption = 3;
     }
-    else if(!_pmath_is_rule(obj) && !_pmath_is_list_of_rules(obj)) {
+    else if(!_pmath_is_set_of_options(obj)) {
       pmath_unref(obj);
       pmath_message(PMATH_NULL, "intpm", 2, pmath_ref(expr), PMATH_FROM_INT32(3));
       return expr;

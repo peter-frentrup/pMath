@@ -80,7 +80,7 @@ PMATH_PRIVATE pmath_t builtin_apply(pmath_expr_t expr) {
     if(_pmath_extract_levels(levels, &info.levelmin, &info.levelmax)) {
       last_nonoption = 3;
     }
-    else if(!_pmath_is_rule(levels) && !_pmath_is_list_of_rules(levels)) {
+    else if(!_pmath_is_set_of_options(levels)) {
       pmath_message(PMATH_NULL, "level", 1, levels);
       return expr;
     }
@@ -89,6 +89,9 @@ PMATH_PRIVATE pmath_t builtin_apply(pmath_expr_t expr) {
   }
   
   options = pmath_options_extract(expr, last_nonoption);
+  if(pmath_is_null(options)) 
+    return expr;
+  
   f = pmath_evaluate(pmath_option_value(PMATH_NULL, PMATH_SYMBOL_HEADS, options));
   if(pmath_same(f, PMATH_SYMBOL_TRUE)) {
     info.with_heads = TRUE;

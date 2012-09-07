@@ -192,7 +192,7 @@ pmath_t builtin_toexpression(pmath_expr_t expr) {
   head = PMATH_UNDEFINED;
   if(exprlen >= 2) {
     head = pmath_expr_get_item(expr, 2);
-    if(_pmath_is_rule(head) || _pmath_is_list_of_rules(head)) {
+    if(_pmath_is_set_of_options(head)) {
       pmath_unref(head);
       head = PMATH_UNDEFINED;
     }

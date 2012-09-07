@@ -11,6 +11,33 @@
 #include <pmath-builtins/control/definitions-private.h>
 #include <pmath-builtins/control-private.h>
 
+
+PMATH_PRIVATE pmath_bool_t _pmath_is_set_of_options(pmath_t opts) {
+  size_t i;
+  
+  if(!pmath_is_expr(opts))
+    return FALSE;
+  
+  if(_pmath_is_rule(opts))
+    return TRUE;
+  
+  if(pmath_is_expr_of(opts, PMATH_SYMBOL_LIST))
+    return TRUE;
+  
+  for(i = pmath_expr_length(opts);i > 0;--i) {
+    pmath_t o = pmath_expr_get_item(opts, i);
+    
+    if(!_pmath_is_set_of_options(o)) {
+      pmath_unref(o);
+      return FALSE;
+    }
+    
+    pmath_unref(o);
+  }
+  
+  return TRUE;
+}
+
 PMATH_PRIVATE pmath_t builtin_assign_options(pmath_expr_t expr) {
   struct _pmath_symbol_rules_t *rules;
   pmath_t tag;
@@ -113,9 +140,7 @@ PMATH_PRIVATE pmath_t builtin_optionvalue(pmath_expr_t expr) {
     for(start = end; start > 0; --start) {
       pmath_t opt = pmath_expr_get_item(fn, start);
       
-      if( !_pmath_is_list_of_rules(opt) &&
-          !_pmath_is_rule(opt))
-      {
+      if(!_pmath_is_set_of_options(opt)) {
         pmath_unref(opt);
         break;
       }
@@ -189,16 +214,12 @@ PMATH_PRIVATE pmath_t builtin_options(pmath_expr_t expr) {
   options = PMATH_NULL;
   if(pmath_is_expr(sym)) {
     size_t start, end;
-    pmath_bool_t have_rule_list = FALSE;
     
     end = pmath_expr_length(sym);
     for(start = end; start > 0; --start) {
       pmath_t opt = pmath_expr_get_item(sym, start);
       
-      if(_pmath_is_list_of_rules(opt)) {
-        have_rule_list = TRUE;
-      }
-      else if(!_pmath_is_rule(opt)) {
+      if(!_pmath_is_set_of_options(opt)) { // for the expression ....
         pmath_unref(opt);
         break;
       }
@@ -213,10 +234,8 @@ PMATH_PRIVATE pmath_t builtin_options(pmath_expr_t expr) {
       options = pmath_expr_set_item(
                   options, 0, pmath_ref(PMATH_SYMBOL_LIST));
                   
-      if(have_rule_list) {
-        options = pmath_expr_flatten(
-                    options, pmath_ref(PMATH_SYMBOL_LIST), SIZE_MAX);
-      }
+      options = pmath_expr_flatten(
+                  options, pmath_ref(PMATH_SYMBOL_LIST), SIZE_MAX);
     }
   }
   else {

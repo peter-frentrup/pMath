@@ -86,7 +86,7 @@ PMATH_PRIVATE pmath_t builtin_datelist(pmath_expr_t expr) {
   if(pmath_expr_length(expr) > 0) {
     pmath_t item = pmath_expr_get_item(expr, 1);
     
-    if(_pmath_is_rule(item) || _pmath_is_list_of_rules(item)) {
+    if(_pmath_is_set_of_options(item)) {
       options = pmath_options_extract(expr, 0);
     }
     else {

@@ -11,6 +11,7 @@ General::argm:=  "`1` called with `2` arguments; `3` or more arguments are expec
 
 /* invalid options */
 General::nonopt:= "Option rules expected but `1` found after position `2` in `3`."
+General::optx:= "Unknown option `1` in `2`."
 General::opttf:= "Value of option `1` -> `2` should be True or False."
 General::opttfa:= "Value of option `1` -> `2` should be True, False, or Automatic."
 

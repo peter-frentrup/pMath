@@ -330,7 +330,7 @@ PMATH_PRIVATE pmath_t builtin_read(pmath_expr_t expr) {
   }
   
   type = pmath_expr_get_item(expr, 2);
-  if(pmath_is_null(type) || _pmath_is_rule(type) || _pmath_is_list_of_rules(type)) {
+  if(pmath_is_null(type) || _pmath_is_set_of_options(type)) {
     pmath_unref(type);
     type = pmath_ref(PMATH_SYMBOL_EXPRESSION);
     last_nonoption = 1;
@@ -384,7 +384,7 @@ PMATH_PRIVATE pmath_t builtin_readlist(pmath_expr_t expr) {
   }
   
   type = pmath_expr_get_item(expr, 2);
-  if(pmath_is_null(type) || _pmath_is_rule(type) || _pmath_is_list_of_rules(type)) {
+  if(pmath_is_null(type) || _pmath_is_set_of_options(type)) {
     pmath_unref(type);
     type = pmath_ref(PMATH_SYMBOL_EXPRESSION);
     last_nonoption = 1;
@@ -392,7 +392,7 @@ PMATH_PRIVATE pmath_t builtin_readlist(pmath_expr_t expr) {
   else {
     pmath_t n = pmath_expr_get_item(expr, 3);
     
-    if(pmath_is_null(n) || _pmath_is_rule(n) || _pmath_is_list_of_rules(n)) {
+    if(pmath_is_null(n) || _pmath_is_set_of_options(n)) {
       last_nonoption = 2;
     }
     else {

@@ -289,7 +289,7 @@ PMATH_PRIVATE pmath_t builtin_position(pmath_expr_t expr) {
           last_nonoption = 4;
           info.max = SIZE_MAX;
         }
-        else if(!_pmath_is_rule(obj) && !_pmath_is_list_of_rules(obj)) {
+        else if(!_pmath_is_set_of_options(obj)) {
           pmath_unref(obj);
           pmath_unref(levels);
           pmath_message(PMATH_NULL, "innf", 2, PMATH_FROM_INT32(4), pmath_ref(expr));
@@ -299,7 +299,7 @@ PMATH_PRIVATE pmath_t builtin_position(pmath_expr_t expr) {
         pmath_unref(obj);
       }
     }
-    else if(!_pmath_is_rule(levels) && !_pmath_is_list_of_rules(levels)) {
+    else if(!_pmath_is_set_of_options(levels)) {
       pmath_message(PMATH_NULL, "level", 1, levels);
       return expr;
     }

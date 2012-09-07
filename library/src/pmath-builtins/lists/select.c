@@ -39,8 +39,7 @@ PMATH_PRIVATE pmath_t builtin_select(pmath_expr_t expr) {
       count = (unsigned)PMATH_AS_INT32(n);
     }
     else if( !pmath_equals(n, _pmath_object_infinity) &&
-             !_pmath_is_rule(n)                       &&
-             !_pmath_is_list_of_rules(n))
+             !_pmath_is_set_of_options(n))
     {
       pmath_unref(n);
       pmath_unref(list);

@@ -58,8 +58,9 @@ PMATH_PRIVATE pmath_t builtin_assign_messages(pmath_expr_t expr){
     return pmath_ref(PMATH_SYMBOL_FAILED);
   }
   
-  if(pmath_same(rhs, PMATH_UNDEFINED)
-  || pmath_is_expr_of_len(rhs, PMATH_SYMBOL_LIST, 0)){
+  if( pmath_same(rhs, PMATH_UNDEFINED) || 
+      pmath_is_expr_of_len(rhs, PMATH_SYMBOL_LIST, 0))
+  {
     rules = _pmath_symbol_get_rules(sym, RULES_READ);
     
     if(rules){

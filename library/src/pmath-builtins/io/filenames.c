@@ -321,7 +321,7 @@ PMATH_PRIVATE pmath_t builtin_filenames(pmath_expr_t expr) {
   if(exprlen >= 2) {
     pmath_t snd = pmath_expr_get_item(expr, 2);
     
-    if(!_pmath_is_list_of_rules(snd)) {
+    if(!_pmath_is_set_of_options(snd)) {
       directory = pmath_expr_get_item(expr, 1);
       last_nonoption = 2;
     }
