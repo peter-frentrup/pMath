@@ -1154,27 +1154,35 @@ pmath_expr_t _pmath_expr_map(
       switch(old_expr->inherited.inherited.inherited.type_shift) {
         case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL:
           {
-            if(_pmath_refcount_ptr((void *)old_expr) != 1) {
-              new_expr = _pmath_expr_new_noinit(old_expr->length);
-              if(!new_expr) {
-                pmath_unref(item);
-                pmath_unref(expr);
-                return PMATH_NULL;
+            if(_pmath_refcount_ptr((void *)old_expr) == 1) {
+              new_expr = old_expr;
+              
+              assert(new_expr->items == old_items);
+              
+              pmath_unref(new_expr->items[start]);
+              new_expr->items[start] = item;
+              for(++start; start <= end; ++start) {
+                item = (*func)(new_expr->items[start], start, context);
+                new_expr->items[start] = item;
               }
               
-              new_expr->items[0] = pmath_ref(old_expr->items[0]);
-              for(i = 1; i < start; ++i)
-                new_expr->items[i] = pmath_ref(old_items[i]);
-                
-              for(i = end + 1; i < new_expr->length; ++i)
-                new_expr->items[i] = pmath_ref(old_items[i]);
+              touch_expr(new_expr);
+              return PMATH_FROM_PTR(new_expr);
             }
-            else {
-              new_expr = old_expr;
-              _pmath_ref_ptr((void *)old_expr);
+            
+            new_expr = _pmath_expr_new_noinit(old_expr->length);
+            if(!new_expr) {
+              pmath_unref(item);
+              pmath_unref(expr);
+              return PMATH_NULL;
+            }
+            
+            new_expr->items[0] = pmath_ref(old_expr->items[0]);
+            for(i = 1; i < start; ++i)
+              new_expr->items[i] = pmath_ref(old_items[i]);
               
-              touch_expr(old_expr);
-            }
+            for(i = end + 1; i < new_expr->length; ++i)
+              new_expr->items[i] = pmath_ref(old_items[i]);
           }
           break;
           
