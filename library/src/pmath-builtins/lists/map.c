@@ -98,7 +98,7 @@ static pmath_t map_impl(
   if(reldepth == 0 && info->function_holds_args)
     context.next_eval_imm = FALSE;
     
-  if(reldepth < 0 || info->info.levelmax < 0) {
+  if(info->info.levelmax < 0 || level < info->info.levelmax) {
     if(pmath_is_expr(obj)) {
       pmath_bool_t update_only_result;
       

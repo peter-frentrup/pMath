@@ -1,10 +1,12 @@
+#include <pmath-core/expressions-private.h>
 #include <pmath-core/numbers-private.h>
 
 #include <pmath-language/patterns-private.h>
 
-#include <pmath-util/emit-and-gather.h>
+#include <pmath-util/concurrency/threads.h>
 #include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
+#include <pmath-util/memory.h>
 #include <pmath-util/messages.h>
 
 #include <pmath-builtins/all-symbols-private.h>
@@ -15,88 +17,227 @@
 
 
 struct index_t {
-  struct index_t *prev;
+  struct index_t *next;
+  
   size_t i;
 };
 
+struct index_lists_t {
+  struct index_lists_t *next;
+  
+  struct index_t       *list;
+};
+
 struct position_info_t {
-  pmath_bool_t with_heads; // currently not set (allways FALSE)
   long levelmin;
   long levelmax;
   size_t max;
+  pmath_bool_t with_heads;
 };
 
-static pmath_bool_t emit_pattern_position( // return = search more?
-  struct index_t         *prev,
-  struct position_info_t *info,
-  pmath_t                 obj,     // will be freed
-  pmath_t                 pattern, // wont be freed
-  long                    level
+static void destroy_index(struct index_t *idx) {
+  while(idx) {
+    struct index_t *next = idx->next;
+    pmath_mem_free(idx);
+    idx = next;
+  }
+}
+
+static void destroy_index_lists(struct index_lists_t *ids) {
+  while(ids) {
+    struct index_lists_t *next = ids->next;
+    destroy_index(ids->list);
+    pmath_mem_free(ids);
+    ids = next;
+  }
+}
+
+static pmath_bool_t prepend_index(struct index_lists_t *lists, size_t i) {
+  struct index_t *new_ind;
+  
+  while(lists) {
+    new_ind = pmath_mem_alloc(sizeof(struct index_t));
+    if(!new_ind)
+      return FALSE;
+      
+    new_ind->next = lists->list;
+    new_ind->i    = i;
+    lists->list   = new_ind;
+    
+    lists = lists->next;
+  }
+  
+  return TRUE;
+}
+
+static struct index_lists_t **collect_position(
+  struct position_info_t  *info,
+  struct index_lists_t   **list_end,
+  pmath_t                  expr, // wont be freed
+  long                     level,
+  pmath_bool_t           (*test)(pmath_t, void *),
+  void                    *test_context
 ) {
-  struct index_t index;
-  pmath_bool_t more = TRUE;
   int reldepth;
   
-  if(info->max == 0) {
-    pmath_unref(obj);
-    return FALSE;
-  }
-  
+  if(info->max == 0 || pmath_aborting())
+    return list_end;
+    
   reldepth = _pmath_object_in_levelspec(
-               obj, info->levelmin, info->levelmax, level);
+               expr, info->levelmin, info->levelmax, level);
                
-  if(reldepth > 0) {
-    pmath_unref(obj);
-    return TRUE;
-  }
-  
-  index.prev = prev;
-  
-  if(pmath_is_expr(obj)) {
-    size_t len = pmath_expr_length(obj);
+  if(reldepth > 0)
+    return list_end;
     
-    for(index.i = info->with_heads ? 0 : 1; index.i <= len && more; index.i++) {
-      more = emit_pattern_position(
-               &index,
-               info,
-               pmath_expr_get_item(obj, index.i),
-               pattern,
-               level + 1);
+  if(pmath_is_expr(expr)) {
+    if(info->levelmax < 0 || level < info->levelmax) {
+      const pmath_t *items;
+      struct index_lists_t **new_end;
+      
+      if(info->with_heads) {
+        pmath_t head = pmath_expr_get_item(expr, 0);
+        
+        new_end = collect_position(
+                    info,
+                    list_end,
+                    head,
+                    level + 1,
+                    test,
+                    test_context);
+                    
+        pmath_unref(head);
+        prepend_index(*list_end, 0);
+        list_end = new_end;
+      }
+      
+      items = pmath_expr_read_item_data(expr);
+      if(items) {
+        size_t len = pmath_expr_length(expr);
+        size_t i;
+        
+        for(i = 0; i < len; ++i) {
+          new_end = collect_position(
+                      info,
+                      list_end,
+                      items[i],
+                      level + 1,
+                      test,
+                      test_context);
+                      
+          prepend_index(*list_end, i + 1);
+          list_end = new_end;
+        }
+      }
     }
   }
   
-  if(more
-      && reldepth == 0
-      && _pmath_pattern_match(obj, pmath_ref(pattern), NULL)) {
-    pmath_t pos;
-    size_t len = 0;
+  if(info->max == 0)
+    return list_end;
     
-    struct index_t *i = prev;
-    while(i) {
-      ++len;
-      i = i->prev;
-    }
+  if(reldepth < 0)
+    return list_end;
+  
+  if((*test)(expr, test_context)) {
+    struct index_lists_t *result;
     
-    pos = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), len);
-    i = prev;
-    while(i) {
-      pos = pmath_expr_set_item(
-              pos, len,
-              pmath_integer_new_uiptr(i->i));
-              
-      --len;
-      i = i->prev;
-    }
-    
-    pmath_emit(pos, PMATH_NULL);
-    
-    pmath_unref(obj);
+    result = pmath_mem_alloc(sizeof(struct index_lists_t));
+    if(!result)
+      return list_end;
+      
     info->max--;
-    return info->max > 0;
+    result->next = NULL;
+    result->list = NULL;
+    *list_end = result;
+    return &result->next;
   }
   
-  pmath_unref(obj);
-  return TRUE;
+  return list_end;
+}
+
+static size_t list_length(void **ind) {
+  size_t len = 0;
+  
+  while(ind) {
+    ++len;
+    ind = *ind;
+  }
+  
+  return len;
+}
+
+static pmath_expr_t index_to_expr(struct index_t *idx) {
+  pmath_expr_t result;
+  struct _pmath_expr_t *expr;
+  size_t i;
+  
+  expr = _pmath_expr_new_noinit(list_length((void **)idx));
+  if(!expr)
+    return PMATH_NULL;
+    
+  expr->items[0] = pmath_ref(PMATH_SYMBOL_LIST);
+  for(i = 1; idx != NULL; idx = idx->next, ++i) {
+    expr->items[i] = pmath_integer_new_uiptr(idx->i);
+  }
+  
+  assert(i == expr->length + 1);
+  assert(idx == NULL);
+  
+  result = PMATH_FROM_PTR(expr);
+  _pmath_expr_update(result);
+  return result;
+}
+
+static pmath_expr_t index_lists_to_expr(struct index_lists_t *ids) {
+  pmath_expr_t result;
+  struct _pmath_expr_t *expr;
+  size_t i;
+  
+  expr = _pmath_expr_new_noinit(list_length((void **)ids));
+  if(!expr)
+    return PMATH_NULL;
+    
+  expr->items[0] = pmath_ref(PMATH_SYMBOL_LIST);
+  for(i = 1; ids != NULL; ids = ids->next, ++i) {
+    expr->items[i] = index_to_expr(ids->list);
+  }
+  
+  assert(i == expr->length + 1);
+  assert(ids == NULL);
+  
+  result = PMATH_FROM_PTR(expr);
+  _pmath_expr_update(result);
+  return result;
+}
+
+
+static pmath_bool_t pattern_tester(pmath_t obj, void *pattern_ptr) {
+  pmath_t *pattern = pattern_ptr;
+  
+  return _pmath_pattern_match(obj, pmath_ref(*pattern), NULL);
+}
+
+static pmath_expr_t position(
+  struct position_info_t *info,
+  pmath_t                 expr,   // will be freed
+  pmath_t                 pattern // will be freed
+) {
+  struct index_lists_t *lists = NULL;
+  
+  collect_position(
+    info,
+    &lists,
+    expr,
+    0,
+    pattern_tester,
+    &pattern);
+    
+  pmath_unref(expr);
+  pmath_unref(pattern);
+  
+  expr = index_lists_to_expr(lists);
+  destroy_index_lists(lists);
+  
+  return expr;
 }
 
 PMATH_PRIVATE pmath_t builtin_position(pmath_expr_t expr) {
@@ -112,12 +253,12 @@ PMATH_PRIVATE pmath_t builtin_position(pmath_expr_t expr) {
        General::level
    */
   struct position_info_t info;
-  size_t last_nonoption, len = pmath_expr_length(expr);
+  size_t last_nonoption, exprlen = pmath_expr_length(expr);
   pmath_expr_t options;
   pmath_t obj, pattern;
   
-  if(len < 2) {
-    pmath_message_argxxx(len, 2, 4);
+  if(exprlen < 2) {
+    pmath_message_argxxx(exprlen, 2, 4);
     return expr;
   }
   
@@ -126,13 +267,13 @@ PMATH_PRIVATE pmath_t builtin_position(pmath_expr_t expr) {
   info.levelmin = 0;
   info.levelmax = LONG_MAX;
   info.max = SIZE_MAX;
-  if(len > 2) {
+  if(exprlen > 2) {
     pmath_t levels = pmath_expr_get_item(expr, 3);
     
     if(_pmath_extract_levels(levels, &info.levelmin, &info.levelmax)) {
       last_nonoption = 3;
       
-      if(len > 3) {
+      if(exprlen > 3) {
         obj = pmath_expr_get_item(expr, 4);
         
         if( pmath_is_integer(obj) &&
@@ -196,8 +337,5 @@ PMATH_PRIVATE pmath_t builtin_position(pmath_expr_t expr) {
   obj = pmath_expr_get_item(expr, 1);
   pmath_unref(expr);
   
-  pmath_gather_begin(PMATH_NULL);
-  emit_pattern_position(NULL, &info, obj, pattern, 0);
-  pmath_unref(pattern);
-  return pmath_gather_end();
+  return position(&info, obj, pattern);
 }
