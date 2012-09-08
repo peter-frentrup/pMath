@@ -5,38 +5,13 @@
 #include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
+#include <pmath-util/option-helpers-private.h>
 #include <pmath-util/symbol-values-private.h>
 
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/control/definitions-private.h>
 #include <pmath-builtins/control-private.h>
 
-
-PMATH_PRIVATE pmath_bool_t _pmath_is_set_of_options(pmath_t opts) {
-  size_t i;
-  
-  if(!pmath_is_expr(opts))
-    return FALSE;
-  
-  if(_pmath_is_rule(opts))
-    return TRUE;
-  
-  if(pmath_is_expr_of(opts, PMATH_SYMBOL_LIST))
-    return TRUE;
-  
-  for(i = pmath_expr_length(opts);i > 0;--i) {
-    pmath_t o = pmath_expr_get_item(opts, i);
-    
-    if(!_pmath_is_set_of_options(o)) {
-      pmath_unref(o);
-      return FALSE;
-    }
-    
-    pmath_unref(o);
-  }
-  
-  return TRUE;
-}
 
 PMATH_PRIVATE pmath_t builtin_assign_options(pmath_expr_t expr) {
   struct _pmath_symbol_rules_t *rules;
@@ -108,89 +83,154 @@ PMATH_PRIVATE pmath_t builtin_assign_options(pmath_expr_t expr) {
   return rhs;
 }
 
+PMATH_PRIVATE pmath_t builtin_isoption(pmath_expr_t expr) {
+ /* IsOption(e)
+  */
+  pmath_t arg;
+  
+  if(pmath_expr_length(expr) != 1) {
+    pmath_message_argxxx(pmath_expr_length(expr), 1, 1);
+    return expr;
+  }
+  
+  arg = pmath_expr_get_item(expr, 1);
+  pmath_unref(expr);
+  
+  if(pmath_is_set_of_options(arg))
+    return pmath_ref(PMATH_SYMBOL_TRUE);
+    
+  return pmath_ref(PMATH_SYMBOL_FALSE);
+}
+
+static
+pmath_bool_t check_set_of_options(pmath_t expr) {
+  size_t i;
+  
+  if(!pmath_is_expr(expr)) {
+    pmath_message(PMATH_NULL, "rep", 1, pmath_ref(expr));
+    return FALSE;
+  }
+  
+  if(_pmath_is_rule(expr))
+    return TRUE;
+    
+  if(!pmath_is_expr_of(expr, PMATH_SYMBOL_LIST)) {
+    pmath_message(PMATH_NULL, "rep", 1, pmath_ref(expr));
+    return FALSE;
+  }
+  
+  for(i = pmath_expr_length(expr); i > 0; --i) {
+    pmath_t o = pmath_expr_get_item(expr, i);
+    
+    if(!check_set_of_options(o)) {
+      pmath_unref(o);
+      return FALSE;
+    }
+    
+    pmath_unref(o);
+  }
+  
+  return TRUE;
+}
+
 PMATH_PRIVATE pmath_t builtin_optionvalue(pmath_expr_t expr) {
   /* OptionValue(fn, extrarules, names)
      OptionValue(fn, names)
      OptionValue(names)
-   */
-  pmath_t fn, name, extra;
   
-  size_t len = pmath_expr_length(expr);
-  if(len < 1 || len > 3) {
-    pmath_message_argxxx(len, 1, 3);
+     OptionValue(fn, extrarules, names, Hold)
+     OptionValue(Automatic, Automatic, names, Hold)
+   */
+  pmath_t func, name, extra, result_head, default_opts;
+  
+  size_t exprlen = pmath_expr_length(expr);
+  if(exprlen < 1 || exprlen > 4) {
+    pmath_message_argxxx(exprlen, 1, 4);
     return expr;
   }
   
-  if(len == 1)
+  if(exprlen == 1)
     return expr;
     
-  fn = pmath_expr_get_item(expr, 1);
-  name = pmath_expr_get_item(expr, len);
+  func  = pmath_expr_get_item(expr, 1);
   extra = PMATH_UNDEFINED;
   
-  if(len == 3) {
+  if(exprlen >= 3)
     extra = pmath_expr_get_item(expr, 2);
+    
+  if(exprlen >= 4) {
+    name        = pmath_expr_get_item(expr, 3);
+    result_head = pmath_expr_get_item(expr, 4);
   }
-  pmath_unref(expr);
+  else {
+    name        = pmath_expr_get_item(expr, exprlen);
+    result_head = PMATH_UNDEFINED;
+  }
   
-  if(pmath_is_expr(fn)) {
-    size_t start, end;
-    
-    end = pmath_expr_length(fn);
-    for(start = end; start > 0; --start) {
-      pmath_t opt = pmath_expr_get_item(fn, start);
-      
-      if(!_pmath_is_set_of_options(opt)) {
-        pmath_unref(opt);
-        break;
-      }
-      
-      pmath_unref(opt);
-    }
-    ++start;
-    
-    if(start <= end) {
-      pmath_t extra2 = pmath_expr_get_item_range(fn, start, SIZE_MAX);
-      
-      extra2 = pmath_expr_set_item(
-                 extra2, 0, pmath_ref(PMATH_SYMBOL_LIST));
-                 
-      if(pmath_same(extra, PMATH_UNDEFINED)) {
-        extra = pmath_expr_flatten(extra2, pmath_ref(PMATH_SYMBOL_LIST), SIZE_MAX);
-      }
-      else {
-        extra = pmath_expr_flatten(
-                  pmath_expr_new_extended(
-                    pmath_ref(PMATH_SYMBOL_LIST), 2,
-                    extra2,
-                    extra),
-                  pmath_ref(PMATH_SYMBOL_LIST), SIZE_MAX);
-      }
-    }
+  pmath_unref(expr);
+  default_opts = _pmath_options_from_expr(func);
+  
+  if(!pmath_same(extra, PMATH_UNDEFINED)) {
+    if(check_set_of_options(extra))
+      _pmath_options_check_subset_of(extra, default_opts, "optnf", func);
   }
   
   if(pmath_is_expr_of(name, PMATH_SYMBOL_LIST)) {
+    pmath_t name_list = name;
     size_t i;
     
-    for(i = pmath_expr_length(name); i > 0; --i) {
-      expr = pmath_expr_get_item(name, i);
+    for(i = pmath_expr_length(name_list); i > 0; --i) {
+      name = pmath_expr_get_item(name, i);
       
-      name = pmath_expr_set_item(
-               name, i,
-               pmath_option_value(fn, expr, extra));
-               
-      pmath_unref(expr);
+      expr = _pmath_option_find_value(name, extra);
+      if(pmath_same(expr, PMATH_UNDEFINED))
+        expr = _pmath_option_find_value(name, default_opts);
+        
+      if(pmath_same(expr, PMATH_UNDEFINED)) {
+        pmath_message(
+          PMATH_NULL, "optnf", 2,
+          pmath_ref(name),
+          func);
+          
+        expr = pmath_ref(name);
+      }
+      
+      if(!pmath_same(result_head, PMATH_UNDEFINED))
+        expr = pmath_expr_new_extended(pmath_ref(result_head), 1, expr);
+        
+      name_list = pmath_expr_set_item(
+                    name_list, i,
+                    expr);
+                    
+      pmath_unref(name);
     }
     
+    pmath_unref(result_head);
     pmath_unref(extra);
-    pmath_unref(fn);
-    return name;
+    pmath_unref(func);
+    return name_list;
   }
   
-  expr = pmath_option_value(fn, name, extra);
+  expr = _pmath_option_find_value(name, extra);
+  if(pmath_same(expr, PMATH_UNDEFINED))
+    expr = _pmath_option_find_value(name, default_opts);
+    
+  if(pmath_same(expr, PMATH_UNDEFINED)) {
+    pmath_message(
+      PMATH_NULL, "optnf", 2,
+      pmath_ref(name),
+      func);
+      
+    expr = pmath_ref(name);
+  }
+  
+  if(!pmath_same(result_head, PMATH_UNDEFINED))
+    expr = pmath_expr_new_extended(result_head, 1, expr);
+    
+  pmath_unref(default_opts);
   pmath_unref(extra);
   pmath_unref(name);
-  pmath_unref(fn);
+  pmath_unref(func);
   return expr;
 }
 
@@ -198,7 +238,7 @@ PMATH_PRIVATE pmath_t builtin_options(pmath_expr_t expr) {
   /* Options(f)
      Options(f, names)
    */
-  pmath_t options;
+  pmath_expr_t options;
   pmath_t sym;
   size_t len;
   
@@ -210,60 +250,14 @@ PMATH_PRIVATE pmath_t builtin_options(pmath_expr_t expr) {
   }
   
   sym = pmath_expr_get_item(expr, 1);
-  
-  options = PMATH_NULL;
-  if(pmath_is_expr(sym)) {
-    size_t start, end;
+  if(pmath_is_string(sym))
+    sym = pmath_symbol_find(sym, FALSE);
     
-    end = pmath_expr_length(sym);
-    for(start = end; start > 0; --start) {
-      pmath_t opt = pmath_expr_get_item(sym, start);
-      
-      if(!_pmath_is_set_of_options(opt)) { // for the expression ....
-        pmath_unref(opt);
-        break;
-      }
-      
-      pmath_unref(opt);
-    }
-    ++start;
-    
-    if(start <= end) {
-      options = pmath_expr_get_item_range(sym, start, SIZE_MAX);
-      
-      options = pmath_expr_set_item(
-                  options, 0, pmath_ref(PMATH_SYMBOL_LIST));
-                  
-      options = pmath_expr_flatten(
-                  options, pmath_ref(PMATH_SYMBOL_LIST), SIZE_MAX);
-    }
-  }
-  else {
-    if(pmath_is_string(sym)) {
-      sym = pmath_symbol_find(sym, FALSE);
-    }
-    
-    if(pmath_is_symbol(sym)) {
-      struct _pmath_symbol_rules_t *rules;
-      
-      rules = _pmath_symbol_get_rules(sym, RULES_READ);
-      
-      if(rules) {
-        options = pmath_expr_new_extended(
-                    pmath_ref(PMATH_SYMBOL_OPTIONS), 1,
-                    pmath_ref(sym));
-//        options = pmath_expr_get_item_range(expr, 1, 1);
-        if(!_pmath_rulecache_find(&rules->default_rules, &options)) {
-          pmath_unref(options);
-          options = PMATH_NULL;
-        }
-      }
-    }
-  }
+  options = _pmath_options_from_expr(sym);
   
   if(len == 2) {
-    size_t i, j;
-    pmath_bool_t have_error, found;
+    size_t i;
+    pmath_bool_t have_error;
     pmath_t names;
     
     names = pmath_expr_get_item(expr, 2);
@@ -278,29 +272,12 @@ PMATH_PRIVATE pmath_t builtin_options(pmath_expr_t expr) {
     have_error = FALSE;
     for(i = 1; i <= pmath_expr_length(names); ++i) {
       pmath_t name = pmath_expr_get_item(names, i);
+      pmath_t rule = _pmath_option_find_rule(name, options);
       
-      found = FALSE;
-      for(j = 1; j <= pmath_expr_length(options); ++j) {
-        pmath_t rule = pmath_expr_get_item(options, j);
-        
-        if(_pmath_is_rule(rule)) {
-          pmath_t lhs = pmath_expr_get_item(rule, 1);
-          
-          if(pmath_equals(lhs, name)) {
-            pmath_unref(lhs);
-            names = pmath_expr_set_item(names, i, rule);
-            
-            found = TRUE;
-            break;
-          }
-          
-          pmath_unref(lhs);
-        }
-        
-        pmath_unref(rule);
+      if(pmath_is_expr(rule)) {
+        names = pmath_expr_set_item(names, i, rule);
       }
-      
-      if(!found) {
+      else {
         pmath_message(
           PMATH_NULL, "optnf", 2,
           name,
@@ -309,8 +286,38 @@ PMATH_PRIVATE pmath_t builtin_options(pmath_expr_t expr) {
         have_error = TRUE;
         names = pmath_expr_set_item(names, i, PMATH_UNDEFINED);
       }
-      else
-        pmath_unref(name);
+//      found = FALSE;
+//      for(j = 1; j <= pmath_expr_length(options); ++j) {
+//        pmath_t rule = pmath_expr_get_item(options, j);
+//
+//        if(_pmath_is_rule(rule)) {
+//          pmath_t lhs = pmath_expr_get_item(rule, 1);
+//
+//          if(pmath_equals(lhs, name)) {
+//            pmath_unref(lhs);
+//            names = pmath_expr_set_item(names, i, rule);
+//
+//            found = TRUE;
+//            break;
+//          }
+//
+//          pmath_unref(lhs);
+//        }
+//
+//        pmath_unref(rule);
+//      }
+//
+//      if(!found) {
+//        pmath_message(
+//          PMATH_NULL, "optnf", 2,
+//          name,
+//          pmath_ref(sym));
+//
+//        have_error = TRUE;
+//        names = pmath_expr_set_item(names, i, PMATH_UNDEFINED);
+//      }
+//      else
+//        pmath_unref(name);
     }
     
     if(have_error)
@@ -323,8 +330,9 @@ PMATH_PRIVATE pmath_t builtin_options(pmath_expr_t expr) {
   
   pmath_unref(expr);
   pmath_unref(sym);
-  if(pmath_is_null(options))
-    return pmath_ref(_pmath_object_emptylist);
+  
+  if(pmath_is_expr(options))
+    options = pmath_expr_flatten(options, pmath_ref(PMATH_SYMBOL_LIST), SIZE_MAX);
     
   return options;
 }

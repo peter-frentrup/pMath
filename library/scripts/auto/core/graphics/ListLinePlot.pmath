@@ -89,9 +89,9 @@ normalizePlotRange(~r)::= r /* TODO: handle errors */
 
 /* tryListLinePlot(~~~args) /? Length:= (Message(ListLinePlot::arg1, ListLinePlot, Length({args})); $Failed) */
 tryListLinePlot(~data, opts: OptionsPattern(ListLinePlot))::= 
-	Local({defRules, allRules, plotRange, gRules},
-		defRules:= FilterRules(Options(ListLinePlot), Except(Flatten({opts})));
-		allRules:= Flatten({opts, defRules});
+	Local({allRules, plotRange, gRules},
+		/* defRules:= FilterRules(Options(ListLinePlot), Except(Flatten({opts})));*/
+		allRules:= Flatten({opts, Options(ListLinePlot)});
 		plotRange:= normalizePlotRange(PlotRange.Replace(allRules));
 		allRules:= Join(FilterRules(allRules, Except(PlotRange)), {PlotRange -> plotRange});
 		gRules:= FilterRules(allRules, Options(Graphics));
@@ -101,6 +101,11 @@ tryListLinePlot(~data, opts: OptionsPattern(ListLinePlot))::=
 			makeMultipleLines(makeXyLists(data, DataRange.Replace(allRules) // N), PlotStyle.Replace(allRules)),
 			gRules));
 		)
+	
+tryListLinePlot()::=  (IsValidArgumentCount(Plot, 0, 1, 1); $Failed)
+tryListLinePlot(args: PatternSequence(~, ~~~, ~err ? isNotHeldOption, ~~~))::=
+	(Message(ListLinePlot::optx, HoldForm(err), 2, HoldForm(ListLinePlot(args))); $Failed)
+	
 
 End()
 

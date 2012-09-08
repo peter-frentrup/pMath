@@ -12,7 +12,4 @@
 PMATH_PRIVATE pmath_bool_t _pmath_is_rule(pmath_t rule);
 PMATH_PRIVATE pmath_bool_t _pmath_is_list_of_rules(pmath_t rules);
 
-// gives _pmath_is_list_of_rules( Flatten({opts}) )
-PMATH_PRIVATE pmath_bool_t _pmath_is_set_of_options(pmath_t opts);
-
 #endif /* __PMATH_BUILTINS__CONTROL_PRIVATE_H__ */

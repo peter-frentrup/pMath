@@ -4,8 +4,8 @@
 #include <pmath-util/concurrency/threadmsg.h>
 #include <pmath-util/concurrency/threads-private.h>
 #include <pmath-util/evaluation.h>
-#include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
+#include <pmath-util/option-helpers.h>
 
 #include <pmath-builtins/all-symbols-private.h>
 

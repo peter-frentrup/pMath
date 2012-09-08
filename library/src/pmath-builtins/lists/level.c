@@ -5,6 +5,7 @@
 #include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
+#include <pmath-util/option-helpers.h>
 
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/control-private.h>
@@ -162,7 +163,7 @@ PMATH_PRIVATE pmath_t builtin_level(pmath_expr_t expr) {
   if(len >= 3) {
     head = pmath_expr_get_item(expr, 3);
 
-    if(_pmath_is_set_of_options(head)) {
+    if(pmath_is_set_of_options(head)) {
       pmath_unref(head);
       head = pmath_ref(PMATH_SYMBOL_LIST);
     }

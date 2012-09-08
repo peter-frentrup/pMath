@@ -4,6 +4,7 @@
 #include <pmath-util/helpers.h>
 #include <pmath-util/memory.h>
 #include <pmath-util/messages.h>
+#include <pmath-util/option-helpers.h>
 
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/arithmetic-private.h>
@@ -439,7 +440,7 @@ PMATH_PRIVATE pmath_t builtin_randomreal(pmath_expr_t expr) {
   if(exprlen >= 1) {
     pmath_t range = pmath_expr_get_item(expr, 1);
     
-    if(_pmath_is_set_of_options(range)) {
+    if(pmath_is_set_of_options(range)) {
       last_non_option = 0;
       
       pmath_unref(range);

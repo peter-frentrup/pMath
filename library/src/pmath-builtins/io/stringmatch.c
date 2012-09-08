@@ -6,11 +6,13 @@
 #include <pmath-util/helpers.h>
 #include <pmath-util/memory.h>
 #include <pmath-util/messages.h>
+#include <pmath-util/option-helpers.h>
 
 #include <pmath-builtins/all-symbols-private.h>
 
 #define PCRE_STATIC
 #include <pcre.h>
+
 
 static pmath_t stringmatch(
   pmath_t          obj,      // will be freed

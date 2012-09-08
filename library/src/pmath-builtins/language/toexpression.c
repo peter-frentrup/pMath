@@ -3,6 +3,7 @@
 #include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
+#include <pmath-util/option-helpers.h>
 
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/control-private.h>
@@ -143,8 +144,9 @@ static pmath_t remove_whitespace_from_boxes(pmath_t boxes) {
   else if(pmath_same(head, PMATH_SYMBOL_UNDERSCRIPTBOX))      max_boxes = 2;
   else if(pmath_same(head, PMATH_SYMBOL_UNDEROVERSCRIPTBOX))  max_boxes = 3;
   
-  if(pmath_same(head, PMATH_SYMBOL_STYLEBOX)
-      || pmath_same(head, PMATH_SYMBOL_TOOLTIPBOX)) {
+  if( pmath_same(head, PMATH_SYMBOL_STYLEBOX) || 
+      pmath_same(head, PMATH_SYMBOL_TOOLTIPBOX)) 
+  {
     pmath_expr_t options = pmath_options_extract(boxes, max_boxes);
     
     if(!pmath_is_null(options)) {
@@ -192,7 +194,7 @@ pmath_t builtin_toexpression(pmath_expr_t expr) {
   head = PMATH_UNDEFINED;
   if(exprlen >= 2) {
     head = pmath_expr_get_item(expr, 2);
-    if(_pmath_is_set_of_options(head)) {
+    if(pmath_is_set_of_options(head)) {
       pmath_unref(head);
       head = PMATH_UNDEFINED;
     }

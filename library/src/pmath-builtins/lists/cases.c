@@ -4,8 +4,8 @@
 
 #include <pmath-util/emit-and-gather.h>
 #include <pmath-util/evaluation.h>
-#include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
+#include <pmath-util/option-helpers.h>
 
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/control-private.h>
@@ -116,7 +116,7 @@ PMATH_PRIVATE pmath_t builtin_cases(pmath_expr_t expr) {
             info.count = (unsigned)PMATH_AS_INT32(n);
         }
         else if ( !pmath_equals(n, _pmath_object_infinity) &&
-                  !_pmath_is_set_of_options(n))
+                  !pmath_is_set_of_options(n))
         {
           pmath_unref(n);
           pmath_unref(levels);
@@ -127,7 +127,7 @@ PMATH_PRIVATE pmath_t builtin_cases(pmath_expr_t expr) {
         pmath_unref(n);
       }
     }
-    else if(!_pmath_is_set_of_options(levels)) {
+    else if(!pmath_is_set_of_options(levels)) {
       pmath_message(PMATH_NULL, "level", 1, levels);
       return expr;
     }

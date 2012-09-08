@@ -5,9 +5,9 @@
 
 #include <pmath-util/concurrency/threads.h>
 #include <pmath-util/evaluation.h>
-#include <pmath-util/helpers.h>
 #include <pmath-util/memory.h>
 #include <pmath-util/messages.h>
+#include <pmath-util/option-helpers.h>
 
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/control-private.h>
@@ -289,7 +289,7 @@ PMATH_PRIVATE pmath_t builtin_position(pmath_expr_t expr) {
           last_nonoption = 4;
           info.max = SIZE_MAX;
         }
-        else if(!_pmath_is_set_of_options(obj)) {
+        else if(!pmath_is_set_of_options(obj)) {
           pmath_unref(obj);
           pmath_unref(levels);
           pmath_message(PMATH_NULL, "innf", 2, PMATH_FROM_INT32(4), pmath_ref(expr));
@@ -299,7 +299,7 @@ PMATH_PRIVATE pmath_t builtin_position(pmath_expr_t expr) {
         pmath_unref(obj);
       }
     }
-    else if(!_pmath_is_set_of_options(levels)) {
+    else if(!pmath_is_set_of_options(levels)) {
       pmath_message(PMATH_NULL, "level", 1, levels);
       return expr;
     }

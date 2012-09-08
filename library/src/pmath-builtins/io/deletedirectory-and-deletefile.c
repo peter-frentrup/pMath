@@ -1,7 +1,7 @@
 #include <pmath-util/concurrency/threads.h>
-#include <pmath-util/helpers.h>
 #include <pmath-util/memory.h>
 #include <pmath-util/messages.h>
+#include <pmath-util/option-helpers.h>
 
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/io-private.h>
@@ -20,6 +20,7 @@
 #  include <string.h>
 #  include <sys/stat.h>
 #endif
+
 
 #ifndef PMATH_OS_WIN32
 static pmath_bool_t delete_file_or_dir(

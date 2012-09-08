@@ -178,6 +178,7 @@ PMATH_PRIVATE pmath_t builtin_assign_default(pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_default(       pmath_expr_t expr);
 
 PMATH_PRIVATE pmath_t builtin_assign_options(pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_isoption(      pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_options(       pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_optionvalue(   pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_setoptions(    pmath_expr_t expr);
@@ -985,6 +986,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_ISNUMBER                         = NEW_SYSTEM_SYMBOL("IsNumber"))
   VERIFY(   PMATH_SYMBOL_ISNUMERIC                        = NEW_SYSTEM_SYMBOL("IsNumeric"))
   VERIFY(   PMATH_SYMBOL_ISODD                            = NEW_SYSTEM_SYMBOL("IsOdd"))
+  VERIFY(   PMATH_SYMBOL_ISOPTION                         = NEW_SYSTEM_SYMBOL("IsOption"))
   VERIFY(   PMATH_SYMBOL_ISORDERED                        = NEW_SYSTEM_SYMBOL("IsOrdered"))
   VERIFY(   PMATH_SYMBOL_ISPOSITIVE                       = NEW_SYSTEM_SYMBOL("IsPositive"))
   VERIFY(   PMATH_SYMBOL_ISPRIME                          = NEW_SYSTEM_SYMBOL("IsPrime"))
@@ -1628,6 +1630,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   PMATH_SYMBOL_ISNUMBER,                    builtin_isnumber)
   BIND_DOWN(   PMATH_SYMBOL_ISNUMERIC,                   builtin_isnumeric)
   BIND_DOWN(   PMATH_SYMBOL_ISODD,                       builtin_isodd)
+  BIND_DOWN(   PMATH_SYMBOL_ISOPTION,                    builtin_isoption)
   BIND_DOWN(   PMATH_SYMBOL_ISORDERED,                   builtin_isordered)
   BIND_DOWN(   PMATH_SYMBOL_ISPOSITIVE,                  builtin_ispos_or_isneg)
   BIND_DOWN(   PMATH_SYMBOL_ISPRIME,                     builtin_isprime)

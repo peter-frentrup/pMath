@@ -132,45 +132,6 @@ pmath_t pmath_build_value(const char *format, ...);
 
 /*============================================================================*/
 
-/**\brief Extract option values from an expression.
-   \relates pmath_expr_t
-   \param expr           The expression containing option values. It wont be 
-                         freed.
-   \param last_nonoption The index of the last argument that is not an option 
-                         rule.
-   \return A list of all given option values or PMATH_NULL on error. You must 
-           destroy it.
-
-   Imagine, \c expr = `f(a,b,A->1,B->2)` and \c last_nonoption = 2, then the
-   return value is a list `{A->1, B->2}`. You can now use this return value as 
-   the \c extra parameter in pmath_option_value().
-
-   If \c last_nonoption was 1, a message would be generated (b is no rule ...)
-   and the return value is PMATH_NULL. In that case, the calling function should 
-   have no further effects and return.
- */
-PMATH_API 
-PMATH_ATTRIBUTE_USE_RESULT
-pmath_expr_t pmath_options_extract(pmath_expr_t expr, size_t last_nonoption);
-
-/**\brief Retrieve a option value of a given function.
-   \relates pmath_expr_t
-   \param fn The function for which the requested option value is defined. It
-          wont be freed. If it is PMATH_NULL, the current head 
-          (see \ref pmath_current_head ) will be used.
-   \param name The name of the option value (in general, a symbol). It wont be
-          freed.
-   \param extra A list of extra option rules or PMATH_UNDEFINED. It wont be 
-          freed. If it is not PMATH_UNDEFINED, it must be a rule 
-          (`a->b`, `a:>b`) or a list of rules.
-   \return The requested option value.
- */
-PMATH_API 
-PMATH_ATTRIBUTE_USE_RESULT
-pmath_t pmath_option_value(pmath_t fn, pmath_t name, pmath_t extra);
-
-/*============================================================================*/
-
 /**\brief Get the currently evaluated function.
    \return The head of the expression that is currently evaluated (in the
            calling thread). You have to destroy it.

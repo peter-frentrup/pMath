@@ -9,11 +9,13 @@
 #include <pmath-util/files.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
+#include <pmath-util/option-helpers.h>
 
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/control-private.h>
 #include <pmath-builtins/io-private.h>
 #include <pmath-builtins/language-private.h>
+
 
 struct read_info_t {
   pmath_t       file;
@@ -330,7 +332,7 @@ PMATH_PRIVATE pmath_t builtin_read(pmath_expr_t expr) {
   }
   
   type = pmath_expr_get_item(expr, 2);
-  if(pmath_is_null(type) || _pmath_is_set_of_options(type)) {
+  if(pmath_is_null(type) || pmath_is_set_of_options(type)) {
     pmath_unref(type);
     type = pmath_ref(PMATH_SYMBOL_EXPRESSION);
     last_nonoption = 1;
@@ -384,7 +386,7 @@ PMATH_PRIVATE pmath_t builtin_readlist(pmath_expr_t expr) {
   }
   
   type = pmath_expr_get_item(expr, 2);
-  if(pmath_is_null(type) || _pmath_is_set_of_options(type)) {
+  if(pmath_is_null(type) || pmath_is_set_of_options(type)) {
     pmath_unref(type);
     type = pmath_ref(PMATH_SYMBOL_EXPRESSION);
     last_nonoption = 1;
@@ -392,7 +394,7 @@ PMATH_PRIVATE pmath_t builtin_readlist(pmath_expr_t expr) {
   else {
     pmath_t n = pmath_expr_get_item(expr, 3);
     
-    if(pmath_is_null(n) || _pmath_is_set_of_options(n)) {
+    if(pmath_is_null(n) || pmath_is_set_of_options(n)) {
       last_nonoption = 2;
     }
     else {

@@ -6,6 +6,7 @@
 #include <pmath-util/helpers.h>
 #include <pmath-util/memory.h>
 #include <pmath-util/messages.h>
+#include <pmath-util/option-helpers.h>
 
 #include <pmath-builtins/all-symbols-private.h>
 
@@ -16,19 +17,20 @@
 #include <iconv.h>
 
 #ifdef PMATH_OS_WIN32
-#define NOGDI
-#define WIN32_LEAN_AND_MEAN
-#include <fcntl.h>
-#include <io.h>
-#include <windows.h>
+#  define NOGDI
+#  define WIN32_LEAN_AND_MEAN
+#  include <fcntl.h>
+#  include <io.h>
+#  include <windows.h>
 #else
-#include <langinfo.h>
-#include <locale.h>
+#  include <langinfo.h>
+#  include <locale.h>
 #endif
 
 #ifdef _MSC_VER
-#define snprintf sprintf_s
+#  define snprintf sprintf_s
 #endif
+
 
 static pmath_bool_t eq_caseless(const char *s1, const char *s2) {
   while(*s1 && *s2) {

@@ -10,6 +10,7 @@
 #include <pmath-util/helpers.h>
 #include <pmath-util/memory.h>
 #include <pmath-util/messages.h>
+#include <pmath-util/option-helpers.h>
 
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/control-private.h>
@@ -28,6 +29,7 @@
 
 #define PCRE_STATIC
 #include <pcre.h>
+
 
 static void emit_directory_entries(
   struct _regex_t    *regex,
@@ -321,7 +323,7 @@ PMATH_PRIVATE pmath_t builtin_filenames(pmath_expr_t expr) {
   if(exprlen >= 2) {
     pmath_t snd = pmath_expr_get_item(expr, 2);
     
-    if(!_pmath_is_set_of_options(snd)) {
+    if(!pmath_is_set_of_options(snd)) {
       directory = pmath_expr_get_item(expr, 1);
       last_nonoption = 2;
     }

@@ -6,6 +6,7 @@
 #include <pmath-util/helpers.h>
 #include <pmath-util/memory.h>
 #include <pmath-util/messages.h>
+#include <pmath-util/option-helpers.h>
 
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/control-private.h>
@@ -16,6 +17,7 @@
 #define SR_EMIT_LIST          1
 #define SR_EMIT_EMPTY         2
 #define SR_EMIT_EMPTY_BOUNDS  4
+
 
 static pmath_t stringreplace(
   pmath_t              obj,           // will be freed
@@ -261,7 +263,7 @@ PMATH_PRIVATE pmath_t builtin_stringreplace(pmath_expr_t expr) {
       pmath_unref(obj);
       last_nonoption = 3;
     }
-    else if(!_pmath_is_set_of_options(obj)) {
+    else if(!pmath_is_set_of_options(obj)) {
       pmath_unref(obj);
       pmath_message(PMATH_NULL, "intnm", 2, PMATH_FROM_INT32(3), pmath_ref(expr));
       return expr;
@@ -330,7 +332,7 @@ PMATH_PRIVATE pmath_t builtin_stringsplit(pmath_expr_t expr) {
       sr_options |= SR_EMIT_EMPTY_BOUNDS;
       last_nonoption = 3;
     }
-    else if(!_pmath_is_set_of_options(obj)) {
+    else if(!pmath_is_set_of_options(obj)) {
       pmath_unref(obj);
       pmath_message(PMATH_NULL, "intpm", 2, pmath_ref(expr), PMATH_FROM_INT32(3));
       return expr;

@@ -5,6 +5,7 @@
 #include <pmath-util/helpers.h>
 #include <pmath-util/memory.h>
 #include <pmath-util/messages.h>
+#include <pmath-util/option-helpers.h>
 #include <pmath-util/serialize.h>
 
 #include <pmath-builtins/all-symbols-private.h>
@@ -571,7 +572,7 @@ PMATH_PRIVATE pmath_t builtin_binaryread(pmath_expr_t expr) {
   }
 
   type = pmath_expr_get_item(expr, 2);
-  if(pmath_is_null(type) || _pmath_is_set_of_options(type)) {
+  if(pmath_is_null(type) || pmath_is_set_of_options(type)) {
     pmath_unref(type);
     type = PMATH_NULL;
     last_nonoption = 1;

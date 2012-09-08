@@ -1,6 +1,7 @@
 #include <pmath-util/evaluation.h>
-#include <pmath-util/helpers.h>
+#include <pmath-util/option-helpers.h>
 #include <pmath-util/messages.h>
+
 
 PMATH_PRIVATE pmath_t builtin_button(pmath_expr_t expr) {
   size_t i;

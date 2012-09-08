@@ -7,9 +7,9 @@
 #include <pmath-util/emit-and-gather.h>
 #include <pmath-util/evaluation.h>
 #include <pmath-util/files.h>
-#include <pmath-util/helpers.h>
 #include <pmath-util/memory.h>
 #include <pmath-util/messages.h>
+#include <pmath-util/option-helpers.h>
 
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/control-private.h>
@@ -117,7 +117,7 @@ PMATH_PRIVATE pmath_t builtin_findlist(pmath_expr_t expr) {
   if(pmath_expr_length(expr) >= 3) {
     pmath_t n = pmath_expr_get_item(expr, 3);
     
-    if(!_pmath_is_set_of_options(n)) {
+    if(!pmath_is_set_of_options(n)) {
       last_nonoption = 3;
       if(pmath_is_int32(n) && PMATH_AS_INT32(n) >= 0) {
         count = (size_t)PMATH_AS_INT32(n);

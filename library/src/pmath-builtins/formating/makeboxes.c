@@ -10,6 +10,7 @@
 #include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
+#include <pmath-util/option-helpers.h>
 #include <pmath-util/symbol-values-private.h>
 
 #include <pmath-builtins/all-symbols-private.h>
@@ -22,8 +23,9 @@
 #include <string.h>
 
 #ifdef _MSC_VER
-#define snprintf sprintf_s
+#  define snprintf sprintf_s
 #endif
+
 
 //{ operator precedence of boxes ...
 

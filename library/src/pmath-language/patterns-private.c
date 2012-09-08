@@ -6,6 +6,7 @@
 #include <pmath-util/hashtables-private.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/evaluation.h>
+#include <pmath-util/option-helpers.h>
 #include <pmath-util/memory.h>
 
 #include <pmath-util/concurrency/threads.h>
@@ -1256,22 +1257,12 @@ static match_kind_t match_atom(
       for(i = 1; i <= arglen; ++i) {
         pmath_t argi = pmath_expr_get_item(arg, i);
         
-        if( pmath_is_expr(argi) &&
-            pmath_expr_length(argi) == 2)
-        {
-          pmath_t argihead = pmath_expr_get_item(argi, 0);
-          pmath_unref(argihead);
-          
-          if( pmath_same(argihead, PMATH_SYMBOL_RULE) ||
-              pmath_same(argihead, PMATH_SYMBOL_RULEDELAYED))
-          {
-            pmath_unref(argi);
-            continue;
-          }
+        if(!pmath_is_set_of_options(argi)) {
+          pmath_unref(argi);
+          return PMATH_MATCH_KIND_NONE;
         }
         
         pmath_unref(argi);
-        return PMATH_MATCH_KIND_NONE;
       }
       
     OPTIONSPATTERN_FIT:
@@ -2290,11 +2281,28 @@ static pmath_t replace_option_value(
   len  = pmath_expr_length(body);
   head = pmath_expr_get_item(body, 0);
   
-  if(pmath_same(head, PMATH_SYMBOL_OPTIONVALUE) && (len == 1 || len == 2)) {
+  if(pmath_same(head, PMATH_SYMBOL_OPTIONVALUE) && (len == 1 || len == 2 || len == 4)) {
     pmath_t current_fn;
     pmath_expr_t iter_optionvaluerules;
     
-    if(len == 1)
+    if(len == 4) {
+      // OptionValue(Automatic, Automatic, name, h)
+      pmath_t rules = pmath_expr_get_item(body, 2);
+      pmath_unref(rules);
+      
+      if(pmath_same(rules, PMATH_SYMBOL_AUTOMATIC)) {
+        current_fn = pmath_expr_get_item(body, 1);
+        
+        if(pmath_same(current_fn, PMATH_SYMBOL_AUTOMATIC)) {
+          pmath_unref(current_fn);
+          
+          current_fn = pmath_ref(default_head);
+        }
+      }
+      else
+        current_fn = PMATH_UNDEFINED;
+    }
+    else if(len == 1)
       current_fn = pmath_ref(default_head);
     else
       current_fn = pmath_expr_get_item(body, 1);
@@ -2315,15 +2323,22 @@ static pmath_t replace_option_value(
                     arg, 0,
                     pmath_ref(PMATH_SYMBOL_LIST));
                     
-          tmp = body;
-          body = pmath_expr_new_extended(
-                   pmath_ref(PMATH_SYMBOL_OPTIONVALUE), 3,
-                   current_fn,
-                   arg,
-                   pmath_expr_get_item(tmp, len));
+          if(len == 4) {
+            body = pmath_expr_set_item(body, 1, current_fn);
+            body = pmath_expr_set_item(body, 2, arg);
+          }
+          else {
+            tmp = body;
+            body = pmath_expr_new_extended(
+                     pmath_ref(PMATH_SYMBOL_OPTIONVALUE), 3,
+                     current_fn,
+                     arg,
+                     pmath_expr_get_item(tmp, len));
+            pmath_unref(tmp);
+          }
+          
           pmath_unref(fn);
           pmath_unref(iter_optionvaluerules);
-          pmath_unref(tmp);
           pmath_unref(head);
           return body;
         }
@@ -2346,10 +2361,11 @@ static pmath_t replace_option_value(
     body = pmath_expr_set_item(
              body, i,
              replace_option_value(
-               pmath_expr_get_item(body, i),
+               pmath_expr_extract_item(body, i),
                default_head,
                optionvaluerules));
   }
+  
   return body;
 }
 

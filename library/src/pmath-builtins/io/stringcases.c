@@ -6,12 +6,14 @@
 #include <pmath-util/helpers.h>
 #include <pmath-util/memory.h>
 #include <pmath-util/messages.h>
+#include <pmath-util/option-helpers.h>
 
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/control-private.h>
 
 #define PCRE_STATIC
 #include <pcre.h>
+
 
 static pmath_t stringcases(
   pmath_t            obj,      // will be freed
@@ -117,7 +119,7 @@ PMATH_PRIVATE pmath_t builtin_stringcases(pmath_expr_t expr) {
       pmath_unref(obj);
       last_nonoption = 3;
     }
-    else if(!_pmath_is_set_of_options(obj)) {
+    else if(!pmath_is_set_of_options(obj)) {
       pmath_unref(obj);
       pmath_message(PMATH_NULL, "intnm", 2, PMATH_FROM_INT32(3), pmath_ref(expr));
       return expr;

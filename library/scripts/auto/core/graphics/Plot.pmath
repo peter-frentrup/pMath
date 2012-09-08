@@ -32,6 +32,8 @@ Plot::pllim:= "Range specification `1` is not of the form x -> xmin..xmax."
 
 Protect(Plot)
 
+Attributes(isNotHeldOption):= {HoldAll}
+isNotHeldOption(~x)::= !IsOption(Unevaluated(x))
 
 isRealNumber(~x)::= IsNumber(x) && IsReal(x)
 
@@ -149,10 +151,9 @@ normalizePlotRange(~xyDatas, ~xrange, Automatic)::= {xrange, getPlotRange(joinLi
 normalizePlotRange(~xyDatas, ~xrange, {~xr, Automatic})::= {xr, getPlotRange(joinLists @@ xyDatas, xrange)}
 normalizePlotRange(~xyDatas, ~xrange, ~r)::= r /* TODO: handle errors */
 
-tryPlotFunction(~fs, ~xrange, ~options)::= 
-	Local({defRules, allRules, plotPoints, workingPrecision, maxRecursion, plotRange, xyDatas, gRules},
-		defRules:= FilterRules(Options(Plot), Except(options));
-		allRules:= Join(defRules, options);
+tryPlotFunction(~fs, ~xrange, opts: OptionsPattern(Plot))::= 
+	Local({allRules, plotPoints, workingPrecision, maxRecursion, plotRange, xyDatas, gRules},
+		allRules:= Flatten({opts, Options(Plot)});
 		
 		plotPoints:= PlotPoints.Replace(allRules);
 		If(plotPoints === Automatic,
@@ -221,9 +222,13 @@ tryPlot(~fx, ~xspec, opts: OptionsPattern(Plot))::=
 	tryPlotFunction(
 		makeFunctionList(fx, xspec), 
 		checkRange(xspec), 
-		Flatten({opts, FilterRules(Options(Plot), Except(Flatten({opts})))}))
-
-
+		opts)
+	
+tryPlot()::=  (IsValidArgumentCount(Plot, 0, 2, 2); $Failed)
+tryPlot(~)::= (IsValidArgumentCount(Plot, 1, 2, 2); $Failed)
+tryPlot(args: PatternSequence(~, ~, ~~~, ~err ? isNotHeldOption, ~~~))::=
+	(Message(Plot::optx, HoldForm(err), 2, HoldForm(Plot(args))); $Failed)
+	
 End()
 
 EndPackage()

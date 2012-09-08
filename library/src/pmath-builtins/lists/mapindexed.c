@@ -1,8 +1,8 @@
 #include <pmath-core/numbers.h>
 
 #include <pmath-util/evaluation.h>
-#include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
+#include <pmath-util/option-helpers.h>
 
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/control-private.h>
@@ -86,7 +86,7 @@ PMATH_PRIVATE pmath_t builtin_mapindexed(pmath_expr_t expr) {
     if(_pmath_extract_levels(levels, &info.levelmin, &info.levelmax)) {
       last_nonoption = 3;
     }
-    else if(!_pmath_is_set_of_options(levels)) {
+    else if(!pmath_is_set_of_options(levels)) {
       pmath_message(PMATH_NULL, "level", 1, levels);
       return expr;
     }

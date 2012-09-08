@@ -402,6 +402,8 @@
 		<Unit filename="include\pmath-util\messages.h" />
 		<Unit filename="include\pmath-util\mixed-file.h" />
 		<Unit filename="include\pmath-util\modules-private.h" />
+		<Unit filename="include\pmath-util\option-helpers-private.h" />
+		<Unit filename="include\pmath-util\option-helpers.h" />
 		<Unit filename="include\pmath-util\serialize.h" />
 		<Unit filename="include\pmath-util\stacks-private.h" />
 		<Unit filename="include\pmath-util\stacks.h" />
@@ -1168,6 +1170,9 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src\pmath-util\modules-private.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\pmath-util\option-helpers.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src\pmath-util\serialize.c">

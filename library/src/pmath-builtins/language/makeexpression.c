@@ -12,6 +12,7 @@
 #include <pmath-util/helpers.h>
 #include <pmath-util/memory.h>
 #include <pmath-util/messages.h>
+#include <pmath-util/option-helpers.h>
 #include <pmath-util/strtod.h>
 
 #include <pmath-builtins/all-symbols-private.h>
@@ -2844,43 +2845,43 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
         return pmath_ref(PMATH_SYMBOL_FAILED);
       }
       
-      // l[[x]]
-      if( (secondchar == 0x27E6        && unichar_at(expr, 4) == 0x27E7) ||
-          (is_string_at(expr, 2, "[[") && is_string_at(expr, 4, "]]")))
-      {
-        pmath_t args, list;
-        
-        list = parse_at(expr, 1);
-        if(is_parse_error(list)) {
-          pmath_unref(expr);
-          return pmath_ref(PMATH_SYMBOL_FAILED);
-        }
-        
-        args = pmath_evaluate(
-                 pmath_expr_new_extended(
-                   pmath_ref(PMATH_SYMBOL_MAKEEXPRESSION), 1,
-                   pmath_expr_get_item(expr, 3)));
-        pmath_unref(expr);
-        
-        if(pmath_is_expr(args)) {
-          size_t i, argslen;
-          argslen = pmath_expr_length(args);
-          
-          for(i = 1; i <= argslen; ++i) {
-            list = pmath_expr_new_extended(
-                     pmath_ref(PMATH_SYMBOL_OPTIONVALUE), 2,
-                     list,
-                     pmath_expr_get_item(args, i));
-          }
-          
-          pmath_unref(args);
-          return HOLDCOMPLETE(list);
-        }
-        
-        pmath_unref(list);
-        pmath_unref(args);
-        return pmath_ref(PMATH_SYMBOL_FAILED);
-      }
+//      // l[[x]]
+//      if( (secondchar == 0x27E6        && unichar_at(expr, 4) == 0x27E7) ||
+//          (is_string_at(expr, 2, "[[") && is_string_at(expr, 4, "]]")))
+//      {
+//        pmath_t args, list;
+//        
+//        list = parse_at(expr, 1);
+//        if(is_parse_error(list)) {
+//          pmath_unref(expr);
+//          return pmath_ref(PMATH_SYMBOL_FAILED);
+//        }
+//        
+//        args = pmath_evaluate(
+//                 pmath_expr_new_extended(
+//                   pmath_ref(PMATH_SYMBOL_MAKEEXPRESSION), 1,
+//                   pmath_expr_get_item(expr, 3)));
+//        pmath_unref(expr);
+//        
+//        if(pmath_is_expr(args)) {
+//          size_t i, argslen;
+//          argslen = pmath_expr_length(args);
+//          
+//          for(i = 1; i <= argslen; ++i) {
+//            list = pmath_expr_new_extended(
+//                     pmath_ref(PMATH_SYMBOL_OPTIONVALUE), 2,
+//                     list,
+//                     pmath_expr_get_item(args, i));
+//          }
+//          
+//          pmath_unref(args);
+//          return HOLDCOMPLETE(list);
+//        }
+//        
+//        pmath_unref(list);
+//        pmath_unref(args);
+//        return pmath_ref(PMATH_SYMBOL_FAILED);
+//      }
     }
     
     // a.f()

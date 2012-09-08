@@ -486,53 +486,26 @@ void Style::clear() {
 }
 
 void Style::add_pmath(Expr options) {
-  if(options.is_string()) {
+  static bool allow_strings = true;
+  
+  if(allow_strings && options.is_string()) {
     set(BaseStyleName, String(options));
   }
-  else if(options.is_expr()) {
-    for(size_t i = 1; i <= options.expr_length(); ++i) {
-      Expr rule = options[i];
-      
-      if(rule.is_rule()) {
-        Expr lhs = rule[1];
-        Expr rhs = rule[2];
-        
-//        // (a->b)->c  ===>  a->{b->c}
-//        if(lhs.is_rule()) {
-//          rhs = List(Rule(lhs[2], rhs));
-//          lhs = lhs[1];
-//        }
-
-        set_pmath(lhs, rhs);
-        
-//        if(rhs != PMATH_SYMBOL_INHERITED) {
-//          int key;
-//
-//          key  = StyleInformation::get_key(lhs);
-//
-//          if(key < 0) {
-//            pmath_debug_print_object("[unknown option ", rule.get(), "]\n");
-//
-//            Expr sym;
-//            if(!get(UnknownOptions, &sym) || !sym.is_symbol()) {
-//              sym = Expr(pmath_symbol_create_temporary(PMATH_C_STRING("FE`Styles`unknown"), TRUE));
-//              set(UnknownOptions, sym);
-//            }
-//
-//            rule.set(1, Call(Symbol(PMATH_SYMBOL_HOLDPATTERN), Call(sym, lhs)));
-//            Expr eval = Call(Symbol(PMATH_SYMBOL_ASSIGN),
-//                             Call(Symbol(PMATH_SYMBOL_DOWNRULES), sym),
-//                             Call(Symbol(PMATH_SYMBOL_APPEND),
-//                                  Call(Symbol(PMATH_SYMBOL_DOWNRULES), sym),
-//                                  rule));
-//
-//            Evaluate(eval);
-//          }
-//
-//          set_pmath(key, rhs);
-//        }
-      }
+  else if(options[0] == PMATH_SYMBOL_LIST) {
+    bool old_allow_strings = allow_strings;
+    allow_strings = false;
+    
+    for(size_t i = options.expr_length(); i > 0; --i) {
+      add_pmath(options[i]);
     }
+    
+    allow_strings = old_allow_strings;
+  }
+  else if(options.is_rule()) {
+    Expr lhs = options[1];
+    Expr rhs = options[2];
+    
+    set_pmath(lhs, rhs);
   }
 }
 

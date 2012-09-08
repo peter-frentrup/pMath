@@ -335,6 +335,7 @@ IsNonPositive::usage:= "IsNonPositive(\(StyleBox(\"x\", \"Arg\")\)) gives True i
 IsNumber::usage:= "IsNumber(\(StyleBox(\"x\", \"Arg\")\)) yields True if \(StyleBox(\"x\", \"Arg\")\) is a real or complex number and yields False otherwise."
 IsNumeric::usage:= "IsNumeric(\(StyleBox(\"x\", \"Arg\")\)) yields True if \(StyleBox(\"x\", \"Arg\")\) is a numeric quantity and False otherwise."
 IsOdd:usage:= "IsOdd(\(StyleBox(\"x\", \"Arg\")\)) yields True if \(StyleBox(\"x\", \"Arg\")\) is an odd integer number and yields False otherwise."
+IsOption::usage:= "IsOption(\(StyleBox(\"e\", \"Arg\")\)) returns True if \(StyleBox(\"e\", \"Arg\")\) is an option or list of options, and False otherwise."
 IsOrdered::usage:= "IsOrdered(\(StyleBox(\"h\", \"Arg\")\)(\(StyleBox(\"e\", \"Arg\")\)\(SubscriptBox(\"1\")\), \(StyleBox(\"e\", \"Arg\")\)\(SubscriptBox(\"2\")\), \[Ellipsis])) gives True if the \(StyleBox(\"e\", \"Arg\")\)\(SubscriptBox(StyleBox(\"i\", \"Arg\"))\) are in canonical order and False otherwise."
 IsPositive::usage:= "IsPositive(\(StyleBox(\"x\", \"Arg\")\)) gives True if \(StyleBox(\"x\", \"Arg\")\) is a positive number."
 IsPrime::usage:= "IsPrime(\(StyleBox(\"n\", \"Arg\")\)) gives True if \(StyleBox(\"n\", \"Arg\")\) is determined to be a prime number and False otherwise."

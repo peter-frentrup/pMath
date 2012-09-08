@@ -4,6 +4,7 @@
 #include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
+#include <pmath-util/option-helpers.h>
 
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/control-private.h>
@@ -86,7 +87,7 @@ PMATH_PRIVATE pmath_t builtin_datelist(pmath_expr_t expr) {
   if(pmath_expr_length(expr) > 0) {
     pmath_t item = pmath_expr_get_item(expr, 1);
     
-    if(_pmath_is_set_of_options(item)) {
+    if(pmath_is_set_of_options(item)) {
       options = pmath_options_extract(expr, 0);
     }
     else {

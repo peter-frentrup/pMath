@@ -10,7 +10,7 @@ General::argmu:= "`1` called with 1 argument; `2` or more arguments are expected
 General::argm:=  "`1` called with `2` arguments; `3` or more arguments are expected."
 
 /* invalid options */
-General::nonopt:= "Option rules expected but `1` found after position `2` in `3`."
+General::nonopt:= "Options expected but `1` found beyond position `2` in `3`."
 General::optx:= "Unknown option `1` in `2`."
 General::opttf:= "Value of option `1` -> `2` should be True or False."
 General::opttfa:= "Value of option `1` -> `2` should be True, False, or Automatic."
@@ -92,6 +92,7 @@ General::level:= "`1` is no valid level specification."
 General::partd:= "The part specification `1` is longer than the object's depth."
 General::pspec:= "`1` is no valid part specification."
 General::partw:= "`1` has no part `2`."
+General::rep:= "`1` is not a valid replacement rule."
 General::reps:= "`1` is not a list of replacement rules."
 General::seqs:= "Sequence specification (+n, -n, m..n, m..n..s or All) expected at position `2` in `1`."
 

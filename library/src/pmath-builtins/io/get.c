@@ -8,12 +8,14 @@
 #include <pmath-util/files.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
+#include <pmath-util/option-helpers.h>
 
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/language-private.h>
 #include <pmath-builtins/io-private.h>
 
 #include <string.h>
+
 
 static pmath_bool_t check_path(pmath_t path) {
   size_t i;
