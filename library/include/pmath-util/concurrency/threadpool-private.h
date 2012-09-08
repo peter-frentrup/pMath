@@ -13,7 +13,7 @@ struct _pmath_timed_message_t {
   struct _pmath_timed_message_t *_reserved_next;
   
   pmath_t  message_queue; // pmath_messages_t
-  double   absolute_time;
+  double   fire_at_tick;
   pmath_t  subject;
 };
 

@@ -20,10 +20,10 @@ void _pmath_event_wait(pmath_event_t *event) {
 }
 
 PMATH_PRIVATE
-void _pmath_event_timedwait(pmath_event_t *event, double abs_timeout) {
+void _pmath_event_timedwait(pmath_event_t *event, double timeout_tick) {
   double now = pmath_tickcount();
-  if(abs_timeout - now >= 0)
-    WaitForSingleObject(*event, (long)((abs_timeout - now) * 1000));
+  if(timeout_tick - now >= 0)
+    WaitForSingleObject(*event, (long)((timeout_tick - now) * 1000));
 }
 
 PMATH_PRIVATE
@@ -33,12 +33,17 @@ void _pmath_event_signal(pmath_event_t *event) {
 
 #else
 
-#include <math.h>
+#  include <math.h>
 
 PMATH_PRIVATE
 pmath_bool_t _pmath_event_init(pmath_event_t *event) {
+  pthread_condattr_t condatt;
+  
   if(0 != pthread_cond_init(&event->cond, NULL))
     return FALSE;
+  
+  pthread_condattr_init(&condatt);
+  pthread_condattr_setclock(&condatt, _pmath_tickcount_clockid);
 
   if(0 != pthread_mutex_init(&event->mutex, NULL)) {
     pthread_cond_destroy(&event->cond);
@@ -67,11 +72,11 @@ void _pmath_event_wait(pmath_event_t *event) {
 }
 
 PMATH_PRIVATE
-void _pmath_event_timedwait(pmath_event_t *event, double abs_timeout) {
+void _pmath_event_timedwait(pmath_event_t *event, double timeout_tick) {
   struct timespec ts;
 
-  ts.tv_sec  = (time_t)floor(abs_timeout);
-  ts.tv_nsec = (long)((abs_timeout - ts.tv_sec) * 1e9);//(long)fmod(abs_timeout * 1.0e9, 1.0e9);
+  ts.tv_sec  = (time_t)floor(timeout_tick);
+  ts.tv_nsec = (long)((timeout_tick - ts.tv_sec) * 1e9);//(long)fmod(timeout_tick * 1.0e9, 1.0e9);
 
   pthread_mutex_lock(&event->mutex);
 

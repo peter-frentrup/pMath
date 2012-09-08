@@ -2,10 +2,20 @@
 #define __PMATH_UTIL__CONCURRENCY__THREADMSG_PRIVATE_H__
 
 #ifndef BUILDING_PMATH
-#error This header file is not part of the public pMath API
+#  error This header file is not part of the public pMath API
 #endif
 
 #include <pmath-util/concurrency/threadmsg.h>
+
+#ifdef PMATH_OS_UNIX
+#  include <sys/time.h>
+#  include <time.h>
+
+PMATH_PRIVATE
+extern clockid_t _pmath_tickcount_clockid;
+
+#endif
+
 
 struct _pmath_thread_t;
 

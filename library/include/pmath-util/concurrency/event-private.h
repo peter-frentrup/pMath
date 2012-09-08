@@ -39,7 +39,7 @@ void _pmath_event_wait(pmath_event_t *event);
 
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_NONNULL(1)
-void _pmath_event_timedwait(pmath_event_t *event, double abs_timeout);
+void _pmath_event_timedwait(pmath_event_t *event, double timeout_tick);
 
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_NONNULL(1)

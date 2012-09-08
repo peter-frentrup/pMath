@@ -73,19 +73,19 @@ void pmath_thread_sleep(void);
 /**\brief Send the current thread to sleep.
    \relates pmath_thread_t
    \relates pmath_messages_t
-   \param abs_timeout Timeout in seconds since January 1, 1970 (UTC).
+   \param timeout_end_tick  When to end the sleep. By means of pmath_tickcount().
 
    The thread will fall asleep until
    - it receives a message or
    - it is waken up with pmath_thread_wakeup() or
    - an abort-condition (pmath_abort_please() or pmath_throw()) is met \em
      anywhere in the system or
-   - \arg abs_timeout is passed.
+   - pmath_tickcount() passes \arg timeout_end_tick.
 
    \see pmath_thread_sleep, pmath_tickcount
  */
 PMATH_API
-void pmath_thread_sleep_timeout(double abs_timeout);
+void pmath_thread_sleep_timeout(double timeout_end_tick);
 
 /**\brief Measuring durations.
    \return The number of seconds since an arbitrary fixed point of time in the 

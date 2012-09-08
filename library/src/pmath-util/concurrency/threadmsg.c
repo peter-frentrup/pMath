@@ -16,7 +16,9 @@
 #  include <sys/time.h>
 #  include <time.h>
 
-static clockid_t tickcount_clockid;
+PMATH_PRIVATE
+clockid_t _pmath_tickcount_clockid;
+
 #endif
 
 struct notifier_t {
@@ -154,7 +156,7 @@ static void msg_queue_sleep(struct msg_queue_t *mq_data) {
 }
 
 // may only be called from the current thread / not reentrant
-static void msg_queue_sleep_timeout(struct msg_queue_t *mq_data, double abs_timeout) {
+static void msg_queue_sleep_timeout(struct msg_queue_t *mq_data, double timeout_end_tick) {
   struct msg_queue_t *sl;
   struct msg_queue_t *next;
   struct msg_queue_t *prev;
@@ -182,7 +184,7 @@ static void msg_queue_sleep_timeout(struct msg_queue_t *mq_data, double abs_time
   }
   pmath_atomic_unlock(&sleeplist_spin);
   
-  _pmath_event_timedwait(&mq_data->sleep_event, abs_timeout);
+  _pmath_event_timedwait(&mq_data->sleep_event, timeout_end_tick);
   
   pmath_atomic_lock(&sleeplist_spin);
   {
@@ -604,7 +606,7 @@ void pmath_thread_sleep(void) {
 }
 
 PMATH_API
-void pmath_thread_sleep_timeout(double abs_timeout) {
+void pmath_thread_sleep_timeout(double timeout_end_tick) {
   struct msg_queue_t *mq_data;
   pmath_thread_t me = pmath_thread_get_current();
   
@@ -613,7 +615,7 @@ void pmath_thread_sleep_timeout(double abs_timeout) {
     
   mq_data = pmath_custom_get_data(me->message_queue);
   assert(mq_data != NULL);
-  msg_queue_sleep_timeout(mq_data, abs_timeout);
+  msg_queue_sleep_timeout(mq_data, timeout_end_tick);
   
   _pmath_msq_queue_handle_next(me);
 }
@@ -629,7 +631,7 @@ double pmath_tickcount(void) {
 #else
   {
     struct timespec ts = {0, 0};
-    clock_gettime(tickcount_clockid, &ts);
+    clock_gettime(_pmath_tickcount_clockid, &ts);
     return (double)ts.tv_sec + ts.tv_nsec * 1e-9;
   }
 #endif
@@ -817,7 +819,7 @@ void pmath_thread_send_delayed(
   timed_msg->_reserved_next = NULL;
   timed_msg->message_queue  = pmath_ref(mq);
   timed_msg->subject        = msg;
-  timed_msg->absolute_time  = pmath_tickcount() + seconds;
+  timed_msg->fire_at_tick   = pmath_tickcount() + seconds;
   
   _pmath_register_timed_msg(timed_msg);
 }
@@ -914,7 +916,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_threadmsg_init(void) {
   {
     struct timespec ts = {0, 0};
     
-    tickcount_clockid = CLOCK_MONOTONIC;
+    _pmath_tickcount_clockid = CLOCK_MONOTONIC;
     
     if(clock_gettime(CLOCK_MONOTONIC, &ts) != 0) {
       pmath_debug_print("[clock_gettime(CLOCK_MONOTONIC, ...) failed with errno=%d]\n", errno);
@@ -922,7 +924,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_threadmsg_init(void) {
 
 #  ifdef CLOCK_MONOTONIC_RAW
     if(clock_gettime(CLOCK_MONOTONIC_RAW, &ts) == 0) {
-      tickcount_clockid = CLOCK_MONOTONIC_RAW;
+      _pmath_tickcount_clockid = CLOCK_MONOTONIC_RAW;
     }
 #  endif
   }

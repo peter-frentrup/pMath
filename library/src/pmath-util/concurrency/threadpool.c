@@ -49,99 +49,11 @@ static int sem_post(sem_t *sem) {
 }
 
 #else
-
 #  include <stdio.h>
 #  include <string.h>
-
-#  ifdef __APPLE__
-/* Mac OS X has no sem_timedwait. We use pthread_mutex_t with pthread_cond_t
-   instead. See Firebird: src/common/classes/semaphore.h for the idea.
- */
-
-typedef struct {
-  pthread_mutex_t mutex;
-  pthread_cond_t  cond;
-} sem_t;
-
-static int sem_init(sem_t *sem, int pshared, unsigned int value) {
-  int err;
-
-  err = pthread_mutex_init(&sem->mutex, NULL);
-  if(err)
-    return -1;
-
-  err = pthread_cond_init(&sem->cond, NULL);
-  return err ? -1 : 0;
-}
-
-static int sem_destroy(sem_t *sem) {
-  int err;
-
-  err = pthread_mutex_destroy(&sem->mutex);
-  if(err)
-    return -1;
-
-  err = pthread_cond_destroy(&sem->cond);
-  return err ? -1 : 0;
-}
-
-static int sem_wait(sem_t *sem) {
-  int err;
-  errno = 0;
-
-  err = pthread_mutex_lock(&sem->mutex);
-  if(err)
-    return -1;
-
-  do {
-    err = pthread_cond_wait(&sem->cond, &sem->mutex);
-  } while(err == EINTR);
-
-  pthread_mutex_unlock(&sem->mutex);
-
-  errno = 0;
-  return 0;
-}
-
-static int sem_timedwait(sem_t *sem, const struct timespec *abs_timeout) {
-  int err;
-  errno = 0;
-
-  err = pthread_mutex_lock(&sem->mutex);
-  if(err)
-    return -1;
-
-  do {
-    err = pthread_cond_timedwait(&sem->cond, &sem->mutex, abs_timeout);
-  } while(err == EINTR);
-
-  pthread_mutex_unlock(&sem->mutex);
-
-  errno = 0;
-  return 0;
-}
-
-static int sem_post(sem_t *sem) {
-  int err;
-  errno = 0;
-
-  err = pthread_mutex_lock(&sem->mutex);
-  if(err)
-    return -1;
-
-  err = pthread_cond_broadcast(&sem->cond);
-
-  pthread_mutex_unlock(&sem->mutex);
-  return err ? -1 : 0;
-}
-
-#  else
-
-#    include <semaphore.h>
-#    include <time.h>
-#    include <unistd.h>
-
-#  endif
+#  include <semaphore.h>
+#  include <time.h>
+#  include <unistd.h>
 #endif
 
 struct _pmath_task_t {
@@ -879,7 +791,7 @@ PMATH_PRIVATE void _pmath_register_timed_msg(struct _pmath_timed_message_t *msg)
   if(!msg)
     return;
 
-  if(!(msg->absolute_time < HUGE_VAL) || stop_threadpool) {
+  if(!(msg->fire_at_tick < HUGE_VAL) || stop_threadpool) {
     pmath_unref(msg->message_queue);
     pmath_unref(msg->subject);
     pmath_mem_free(msg);
@@ -937,7 +849,7 @@ static void timer_thread_proc(void *dummy) {
     while(umsg) {
       struct _pmath_timed_message_t **prev = &sorted_msgs;
       msg = *prev;
-      while(msg && msg->absolute_time < umsg->absolute_time) {
+      while(msg && msg->fire_at_tick < umsg->fire_at_tick) {
         prev = &msg->_reserved_next;
         msg = *prev;
       }
@@ -954,7 +866,7 @@ static void timer_thread_proc(void *dummy) {
     while(sorted_msgs) {
       msg = sorted_msgs;
 
-      if(msg->absolute_time <= now) {
+      if(msg->fire_at_tick <= now) {
         sorted_msgs = sorted_msgs->_reserved_next;
 
         pmath_thread_send(msg->message_queue, msg->subject);
@@ -975,8 +887,8 @@ static void timer_thread_proc(void *dummy) {
     }
 
     next_event = last_gc_time + GC_WAIT_SEC;
-    if(sorted_msgs && sorted_msgs->absolute_time < next_event)
-      next_event = sorted_msgs->absolute_time;
+    if(sorted_msgs && sorted_msgs->fire_at_tick < next_event)
+      next_event = sorted_msgs->fire_at_tick;
   }
 
   while(sorted_msgs) {
