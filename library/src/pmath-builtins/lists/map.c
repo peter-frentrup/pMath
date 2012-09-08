@@ -18,7 +18,7 @@ static pmath_bool_t can_evaluate_all_args_for(pmath_t head) {
   if(pmath_is_symbol(head)) {
     att = pmath_symbol_get_attributes(head);
     
-    return (att & PMATH_SYMBOL_ATTRIBUTE_HOLDALL) == 0;
+    return (att & (PMATH_SYMBOL_ATTRIBUTE_HOLDALL | PMATH_SYMBOL_ATTRIBUTE_HOLDALLCOMPLETE)) == 0;
   }
   
   if(pmath_is_expr_of(head, PMATH_SYMBOL_FUNCTION)) {
@@ -32,7 +32,7 @@ static pmath_bool_t can_evaluate_all_args_for(pmath_t head) {
       return FALSE;
       
     pmath_unref(att_spec);
-    return (att & PMATH_SYMBOL_ATTRIBUTE_HOLDALL) == 0;
+    return (att & (PMATH_SYMBOL_ATTRIBUTE_HOLDALL | PMATH_SYMBOL_ATTRIBUTE_HOLDALLCOMPLETE)) == 0;
   }
   
   sym = _pmath_topmost_symbol(head);

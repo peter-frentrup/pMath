@@ -1419,14 +1419,17 @@ PMATH_API pmath_expr_t pmath_expr_flatten(
 /*----------------------------------------------------------------------------*/
 
 struct thread_one_arg_t {
-  size_t arg_index;
-  pmath_t expr;
+  size_t       arg_index;
+  pmath_t      expr;
+  pmath_bool_t can_eval;
 };
 
 static pmath_t thread_one_arg_callback(pmath_t obj, size_t i, void *data) {
   struct thread_one_arg_t *context = data;
   
   obj = pmath_expr_set_item(pmath_ref(context->expr), context->arg_index, obj);
+  if(context->can_eval)
+    obj = pmath_evaluate(obj);
   
   return obj;
 }
@@ -1440,9 +1443,11 @@ PMATH_PRIVATE pmath_expr_t _pmath_expr_thread(
 ) {
   pmath_bool_t have_sth_to_thread = FALSE;
   pmath_bool_t show_message       = error_message && *error_message;
+  pmath_bool_t can_eval;
   size_t i, len, exprlen;
   size_t first_thread_over_arg, last_thread_over_arg;
-  pmath_expr_t result;
+  struct _pmath_expr_t *result;
+  
   
   exprlen = pmath_expr_length(expr);
   
@@ -1493,21 +1498,38 @@ PMATH_PRIVATE pmath_expr_t _pmath_expr_thread(
   if(!have_sth_to_thread)
     return expr;
     
+  can_eval = FALSE;
+  if(pmath_is_symbol(head)){
+    pmath_symbol_attributes_t att = pmath_symbol_get_attributes(head);
+    
+    can_eval = !(att & (PMATH_SYMBOL_ATTRIBUTE_HOLDALL | PMATH_SYMBOL_ATTRIBUTE_HOLDALLCOMPLETE));
+  }
+  
   if(first_thread_over_arg == last_thread_over_arg) {
     struct thread_one_arg_t context;
     pmath_t list;
     
     context.arg_index = first_thread_over_arg;
     context.expr      = expr;
+    context.can_eval  = can_eval;
     
     list = pmath_expr_extract_item(expr, context.arg_index);
     list = _pmath_expr_map(list, 1, SIZE_MAX, thread_one_arg_callback, &context);
+    
+    if(can_eval) {
+      if(pmath_same(head, PMATH_SYMBOL_LIST))
+        _pmath_expr_update(list);
+    }
     
     pmath_unref(expr);
     return list;
   }
   
-  result = pmath_expr_new(pmath_ref(head), len);
+  result = _pmath_expr_new_noinit(len);
+  if(!result)
+    return expr;
+    
+  result->items[0] = pmath_ref(head);
   
   for(i = 1; i <= len; ++i) {
     pmath_expr_t f = pmath_ref(expr);
@@ -1515,8 +1537,10 @@ PMATH_PRIVATE pmath_expr_t _pmath_expr_thread(
     size_t j;
     for(j = start; j <= end; ++j) {
       pmath_t arg = pmath_expr_get_item(expr, j);
+      
       if(pmath_is_expr(arg)) {
         pmath_t arg_head = pmath_expr_get_item(arg, 0);
+        
         if(pmath_equals(head, arg_head)) {
           f = pmath_expr_set_item(
                 f, j,
@@ -1531,11 +1555,21 @@ PMATH_PRIVATE pmath_expr_t _pmath_expr_thread(
         f = pmath_expr_set_item(f, j, arg);
     }
     
-    result = pmath_expr_set_item(result, i, f);
+    if(can_eval)
+      f = pmath_evaluate(f);
+    
+    result->items[i] = f;
   }
   
   pmath_unref(expr);
-  return result;
+  expr = PMATH_FROM_PTR((void*)result);
+  
+  if(can_eval) {
+    if(pmath_same(head, PMATH_SYMBOL_LIST))
+      _pmath_expr_update(expr);
+  }
+  
+  return expr;
 }
 
 /*----------------------------------------------------------------------------*/

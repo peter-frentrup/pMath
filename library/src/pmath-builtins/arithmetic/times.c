@@ -876,22 +876,24 @@ static pmath_bool_t times_2_arg_overflow(pmath_t *a, pmath_t *b) {
   return FALSE;
 }
 
-static void times_2_arg(pmath_t *a, pmath_t *b) {
+static pmath_bool_t times_2_arg(pmath_t *a, pmath_t *b) {
   if(times_2_arg_num(a, b))
-    return;
+    return TRUE;
     
   if(times_2_arg_inf(a, b))
-    return;
+    return TRUE;
     
   if(times_2_arg_pow(a, b))
-    return;
+    return TRUE;
     
-  times_2_arg_overflow(a, b);
+  return times_2_arg_overflow(a, b);
 }
 
 PMATH_PRIVATE pmath_t builtin_times(pmath_expr_t expr) {
   size_t ia, ib;
   const size_t elen = pmath_expr_length(expr);
+//  _pmath_timer_t last_change;
+//  pmath_bool_t any_change;
   
   if(elen == 0) {
     pmath_unref(expr);
@@ -904,26 +906,52 @@ PMATH_PRIVATE pmath_t builtin_times(pmath_expr_t expr) {
     return item;
   }
   
+//  /* Using 
+//     a = pmath_expr_extract_item(expr, ia);
+//     expr = pmath_expr_set_item(expr, ia, a);
+//     might mark the expression as changed because ..._extract_... temporaryliy
+//     writes PMATH_UNDEFINED which is later compared with a in ..._set_...
+//     and since both do not equal, the change timer is set.
+//     
+//     So we have to reset that timer ourself when nothing realy happend.
+//     
+//     An alternative would be to implement whe loop below twice: once with 
+//     direct access to the items for pmath_refcount(expr) == 1 && expr is a 
+//     PMATH_TYPE_EXPRESSION_GENERAL and once with pmath_expr_get_item() for all
+//     other cases.
+//  */
+//  
+//  last_change = ((struct _pmath_timed_t*)PMATH_AS_PTR(expr))->last_change;
+//  any_change = FALSE;
+  
   ia = 1;
   while(ia < elen) {
-    pmath_t a = pmath_expr_get_item(expr, ia);
+    pmath_t a = pmath_expr_get_item(expr, ia); // = pmath_expr_extract_item(expr, ia);
     
     if(!pmath_same(a, PMATH_UNDEFINED)) {
       ib = ia + 1;
       while(ib <= elen) {
-        pmath_t b = pmath_expr_get_item(expr, ib);
+        pmath_t b = pmath_expr_get_item(expr, ib); // = pmath_expr_extract_item(expr, ib);
         
         if(!pmath_same(b, PMATH_UNDEFINED)) {
           times_2_arg(&a, &b);
-          expr = pmath_expr_set_item(expr, ia, pmath_ref(a));
+//          if(times_2_arg(&a, &b))
+//            any_change = TRUE;
+          
           expr = pmath_expr_set_item(expr, ib, b);
         }
         ++ib;
       }
-      pmath_unref(a);
+      
+      expr = pmath_expr_set_item(expr, ia, a);
     }
     ++ia;
   }
+  
+//  if(!any_change){
+//    ((struct _pmath_timed_t*)PMATH_AS_PTR(expr))->last_change = last_change;
+//    return expr;
+//  }
   
   return _pmath_expr_shrink_associative(expr, PMATH_UNDEFINED);
 }
