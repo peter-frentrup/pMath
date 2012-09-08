@@ -47,7 +47,6 @@
 #include <eval/server.h>
 
 #include <util/concurrent-queue.h>
-#include <util/semaphore.h>
 
 
 #ifdef RICHMATH_USE_WIN32_GUI
