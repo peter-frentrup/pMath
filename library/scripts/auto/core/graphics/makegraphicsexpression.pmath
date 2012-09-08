@@ -27,6 +27,8 @@ tickBoxToHeldExpr({~v, ~box, len: Repeated(~, 0..1)})::=
 		}, 
 		moveHold({removeCacheHold(v), lbl, removeCacheHold(len)})
 		)
+tickBoxToHeldExpr(~t:HoldComplete)::= t /* invalid tick boxes */
+tickBoxToHeldExpr(~t)::= HoldComplete(RawBoxes(t)) /* invalid tick boxes */
 
 tickBoxListsToHeldExpr(0, ~ticks:List)::= moveHold(ticks.Map(tickBoxToHeldExpr))
 tickBoxListsToHeldExpr(~depth, ~lists:List)::= 
@@ -34,7 +36,7 @@ tickBoxListsToHeldExpr(~depth, ~lists:List)::=
 		moveHold(lists.Map(tickBoxListsToHeldExpr(depth, #) &))
 		)
 tickBoxListsToHeldExpr(~, other: (True | All | None | Automatic))::= HoldComplete(other)
-tickBoxListsToHeldExpr(~, ~)::= HoldComplete(Automatic) /* error */
+tickBoxListsToHeldExpr(~, ~other)::= HoldComplete(RawBoxes(other)) /* error */
 
 Attributes(makeHeldGraphicsOption):= {HoldAllComplete}
 makeHeldGraphicsOption(~r)::= HoldComplete(r)

@@ -90,8 +90,9 @@ normalizePlotRange(~r)::= r /* TODO: handle errors */
 /* tryListLinePlot(~~~args) /? Length:= (Message(ListLinePlot::arg1, ListLinePlot, Length({args})); $Failed) */
 tryListLinePlot(~data, opts: OptionsPattern(ListLinePlot))::= 
 	Local({allRules, plotRange, gRules},
-		/* defRules:= FilterRules(Options(ListLinePlot), Except(Flatten({opts})));*/
-		allRules:= Flatten({opts, Options(ListLinePlot)});
+		allRules:= Flatten({opts});
+		allRules:= Join(allRules, FilterRules(Options(ListLinePlot), Except(allRules)));
+		
 		plotRange:= normalizePlotRange(PlotRange.Replace(allRules));
 		allRules:= Join(FilterRules(allRules, Except(PlotRange)), {PlotRange -> plotRange});
 		gRules:= FilterRules(allRules, Options(Graphics));

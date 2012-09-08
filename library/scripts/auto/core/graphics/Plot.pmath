@@ -153,7 +153,8 @@ normalizePlotRange(~xyDatas, ~xrange, ~r)::= r /* TODO: handle errors */
 
 tryPlotFunction(~fs, ~xrange, opts: OptionsPattern(Plot))::= 
 	Local({allRules, plotPoints, workingPrecision, maxRecursion, plotRange, xyDatas, gRules},
-		allRules:= Flatten({opts, Options(Plot)});
+		allRules:= Flatten({opts});
+		allRules:= Join(allRules, FilterRules(Options(Plot), Except(allRules)));
 		
 		plotPoints:= PlotPoints.Replace(allRules);
 		If(plotPoints === Automatic,

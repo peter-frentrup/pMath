@@ -15,7 +15,7 @@
 - add richmath::StyleSection class and handle Section(StyleData(...),...)
 - allow creation of a richmath::Style from a richmath::StyleSection
 - handle StyleDefinitions document option
-- add save, which is basically (file:=OpenWrite("filename");file.Write(InputForm(DocumentGet(FrontEndObject( docId )))); file.Close())
+- add save, which is basically Block({$NamespacePath:={"System`"}, $Namespace:= "System`"},file:=OpenWrite("filename");file.Write(InputForm(DocumentGet(FrontEndObject( docId )))); file.Close())
 
 - make ListConvolve work on multi-dimensional arrays
 - add Differences, Accumulate

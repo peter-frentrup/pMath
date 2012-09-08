@@ -911,7 +911,7 @@ void GraphicsBox::paint(Context *context) {
   ContextState cc(context);
   cc.begin(style);
   {
-    if(error_boxes_expr.is_valid())
+    if(static_error_boxes.is_valid() || dynamic_error_boxes.is_valid())
       context->draw_error_rect(x, y, x + w, y + h);
       
     context->canvas->save();
@@ -1133,11 +1133,16 @@ Box *GraphicsBox::mouse_sensitive() {
 }
 
 void GraphicsBox::on_mouse_enter() {
-  if(error_boxes_expr.is_valid()) {
+  if(error_boxes_expr.is_valid() || dynamic_error_boxes.is_valid()) {
     Document *doc = find_parent<Document>(false);
     
-    if(doc)
-      doc->native()->show_tooltip(error_boxes_expr);
+    if(doc) {
+      Expr error_boxes = error_boxes_expr;
+      if(dynamic_error_boxes.is_valid())
+        error_boxes = List(error_boxes, String("\n"), dynamic_error_boxes);
+      
+      doc->native()->show_tooltip(error_boxes);
+    }
   }
 }
 
