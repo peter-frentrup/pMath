@@ -43,8 +43,8 @@ pmath_bool_t pmath_is_message_queue(pmath_t obj);
 /**\brief Get the current thread's message queue.
    \relates pmath_thread_t
    \relates pmath_messages_t
-   \return A refernce to the message queue or PMATH_NULL on error. You must destroy it
-   with pmath_unref() when its no longer needed.
+   \return A refernce to the message queue or PMATH_NULL on error. You must 
+           destroy it with pmath_unref() when its no longer needed.
  */
 PMATH_API
 PMATH_ATTRIBUTE_USE_RESULT
@@ -87,11 +87,22 @@ void pmath_thread_sleep(void);
 PMATH_API
 void pmath_thread_sleep_timeout(double abs_timeout);
 
-/**\brief Gives the seconds since January 1, 1970 (UTC)
-   \return The number of seconds since January 1, 1970 (UTC)
+/**\brief Measuring durations.
+   \return The number of seconds since an arbitrary fixed point of time in the 
+           past.
+   
+   This function can be used for measuring durations. It uses a monotonic clock.
  */
 PMATH_API
 double pmath_tickcount(void);
+
+/**\brief Gives the seconds since January 1, 1970 (UTC)
+   \return The number of seconds since January 1, 1970 (UTC)
+   
+   This function is *not* appropriate for measureing durations.
+ */
+PMATH_API
+double pmath_datetime(void);
 
 /**\brief Wake up another thread.
    \relates pmath_thread_t
@@ -100,7 +111,7 @@ double pmath_tickcount(void);
              freed.
 
    This function wakes up the thread that is associated with the message queue.
-   It is safe to try to wake up threads, that are not sleeping.
+   It is safe to try to wake up threads that are not sleeping.
 
    To follow the loop-style waiting idiom described in pmath_thread_sleep(), you
    must modify <tt>some_wait_condition</tt> \em before calling this function to
@@ -112,12 +123,12 @@ void pmath_thread_wakeup(pmath_messages_t mq);
 /**\brief Asynchronously send a message to another thread.
    \relates pmath_thread_t
    \relates pmath_messages_t
-   \param mq The receivers message queue. It wont be freed.
+   \param mq The receivers message queue. It won't be freed.
    \param msg The message. It will be freed.
 
    The message will be evaluated by the receiver. This function returns
    immediately. If the receiver cannot handle the message (since it is dead or
-   there is not enough memory), the message will be deleted.
+   there is not enough memory), the message will be discarded.
 
    Note that messages might not be handled in the order they were send.
  */
@@ -127,7 +138,7 @@ void pmath_thread_send(pmath_messages_t mq, pmath_t msg);
 /**\brief Send a message to another thread and wait for the answer.
    \relates pmath_thread_t
    \relates pmath_messages_t
-   \param mq The receivers message queue. It wont be freed.
+   \param mq The receivers message queue. It won't be freed.
    \param msg The message. It will be freed.
    \param timeout_seconds The maximum number of seconds tho wait for the answer.
                           Use HUGE_VAL if you do not want a timeout.
@@ -139,16 +150,16 @@ void pmath_thread_send(pmath_messages_t mq, pmath_t msg);
 
    The message will be evaluated by the receiver. If the receiver cannot handle
    it (since it is dead or there is not enough memory), the message will be
-   deleted.
+   discarded.
 
    The calling thread will fall asleep until
    - it receives an answer to return or
-   - the message is deleted or
+   - the message is discarded or
    - the timeout is reached or
    - another abort situation occurs in the calling thread (e.g.
      pmath_abort_please() is called anywhere in the system)
 
-   In the last two cases (timeout or abort), a the remote evaluation will be
+   In the last two cases (timeout or abort), the remote evaluation will be
    aborted.
 
    \todo Check, what happens if mq belongs to a parent thread.
@@ -171,7 +182,7 @@ pmath_t pmath_thread_send_wait(
 
    The message will be evaluated by the receiver. This function returns
    immediately. If the receiver cannot handle the message (since it is dead or
-   there is not enough memory), the message will be deleted.
+   there is not enough memory), the message will be discarded.
  */
 PMATH_API
 void pmath_thread_send_delayed(

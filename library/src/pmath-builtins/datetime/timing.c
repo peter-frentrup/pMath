@@ -17,8 +17,10 @@ PMATH_PRIVATE pmath_t builtin_timing(pmath_expr_t expr) {
   }
   
   start = pmath_tickcount();
-  obj = pmath_evaluate(pmath_expr_get_item(expr, 1));
+  
+  obj = pmath_expr_get_item(expr, 1);
   pmath_unref(expr);
+  obj = pmath_evaluate(obj);
   
   end = pmath_tickcount();
   

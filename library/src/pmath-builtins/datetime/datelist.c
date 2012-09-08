@@ -82,7 +82,7 @@ PMATH_PRIVATE pmath_t builtin_datelist(pmath_expr_t expr) {
   static const int days_per_400years = 97 * 366 + 303 * 365;
   pmath_t options = PMATH_UNDEFINED;
   
-  timestamp = pmath_tickcount();
+  timestamp = pmath_datetime();
   
   if(pmath_expr_length(expr) > 0) {
     pmath_t item = pmath_expr_get_item(expr, 1);

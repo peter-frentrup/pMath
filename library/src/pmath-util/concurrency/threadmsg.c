@@ -13,9 +13,8 @@
 #include <string.h>
 
 #ifdef PMATH_OS_UNIX
-
-#include <sys/time.h>
-
+#  include <sys/time.h>
+#  include <time.h>
 #endif
 
 struct notifier_t {
@@ -621,6 +620,23 @@ PMATH_API
 double pmath_tickcount(void) {
 #ifdef PMATH_OS_WIN32
   {
+    // TODO: use GetTickCount64() on Vista or newer
+    DWORD ms = GetTickCount();
+    return ms * 1e-3;
+  }
+#else
+  {
+    struct timespec ts = {0, 0};
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    return (double)ts.tv_sec + ts.tv_nsec * 1e-9;
+  }
+#endif
+}
+
+PMATH_API
+double pmath_datetime(void) {
+#ifdef PMATH_OS_WIN32
+  {
     uint64_t ft;
     GetSystemTimeAsFileTime((FILETIME *)&ft);
     return (ft - win2unix_epoch) * 1e-7;
@@ -891,6 +907,13 @@ PMATH_PRIVATE pmath_bool_t _pmath_threadmsg_init(void) {
     
     win2unix_epoch = 0;
     SystemTimeToFileTime(&unix_epoch, (FILETIME *)&win2unix_epoch);
+  }
+#else
+  {
+    struct timespec ts = {0, 0};
+    if(clock_gettime(CLOCK_MONOTONIC, &ts) != 0) {
+      pmath_debug_print("clock_gettime(CLOCK_MONOTONIC, ...) failed with %d\n", errno);
+    }
   }
 #endif
   

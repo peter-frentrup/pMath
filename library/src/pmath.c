@@ -246,6 +246,85 @@ static pmath_expr_t get_exe_name(void) {
 #endif
 }
 
+#ifdef PMATH_DEBUG_TESTS
+  static void TEST_ATOMIC_OPS(void) {
+    // This does not test for atomicity.
+    pmath_atomic_t a;
+    intptr_t b;
+    pmath_atomic2_t c;
+    pmath_bool_t test;
+
+    pmath_atomic_write_release(&a, 5);
+    assert(a._data == 5);
+
+    b = pmath_atomic_fetch_add(&a, 2);
+    assert(b == 5 && pmath_atomic_read_aquire(&a) == 7);
+    assert(b == 5 && a._data                      == 7);
+
+    b = pmath_atomic_fetch_set(&a, 27);
+    assert(b == 7 && a._data == 27);
+
+    b = pmath_atomic_fetch_compare_and_set(&a, 26, 11);
+    assert(b == 27 && a._data == 27);
+    b = pmath_atomic_fetch_compare_and_set(&a, 27, 11);
+    assert(b == 27 && a._data == 11);
+
+    test = pmath_atomic_compare_and_set(&a, 13, 22);
+    assert(!test && a._data == 11);
+    test = pmath_atomic_compare_and_set(&a, 11, 22);
+    assert(test && a._data == 22);
+
+    if(pmath_atomic_have_cas2()) {
+      c._data[0] = 8;
+      c._data[1] = 33;
+      test = pmath_atomic_compare_and_set_2(&c, 5, 6, 1, 2);
+      assert(!test && c._data[0] == 8 && c._data[1] == 33);
+      test = pmath_atomic_compare_and_set_2(&c, 8, 33, 1, 2);
+      assert(test && c._data[0] == 1 && c._data[1] == 2);
+    }
+    else
+      fprintf(stderr, "no CAS2 available\n");
+  }
+
+  static void TEST_STACKS(void) {
+    typedef struct {
+      void *reserved;
+      int value;
+    } stack_test_item_t;
+    stack_test_item_t a, b, c, *p;
+    pmath_stack_t stack;
+
+    a.value = 1;
+    b.value = 2;
+    c.value = 3;
+    stack = pmath_stack_new();
+    if(stack) {
+      p = pmath_stack_pop(stack);
+      assert(p == NULL);
+
+      pmath_stack_push(stack, &a);
+      pmath_stack_push(stack, &b);
+      p = pmath_stack_pop(stack);
+      assert(p && p->value == 2);
+
+      pmath_stack_push(stack, &c);
+      p = pmath_stack_pop(stack);
+      assert(p && p->value == 3);
+
+      p = pmath_stack_pop(stack);
+      assert(p && p->value == 1);
+
+      p = pmath_stack_pop(stack);
+      assert(p == NULL);
+
+      pmath_stack_free(stack);
+    }
+  }
+#else
+  #define TEST_ATOMIC_OPS()  ((void)0)
+  #define TEST_STACKS()      ((void)0)
+#endif
+
 PMATH_API pmath_bool_t pmath_init(void) {
   pmath_thread_t thread;
 
@@ -258,48 +337,9 @@ PMATH_API pmath_bool_t pmath_init(void) {
 //    #ifdef PMATH_OS_WIN32
 //      SetErrorMode(SEM_NOOPENFILEERRORBOX);
 //    #endif
-
-#ifdef PMATH_DEBUG_TESTS
-    {
-      // This does not test for atomicity.
-      pmath_atomic_t a;
-      intptr_t b;
-      pmath_atomic2_t c;
-      pmath_bool_t test;
-
-      pmath_atomic_write_release(&a, 5);
-      assert(a._data == 5);
-
-      b = pmath_atomic_fetch_add(&a, 2);
-      assert(b == 5 && pmath_atomic_read_aquire(&a) == 7);
-      assert(b == 5 && a._data                      == 7);
-
-      b = pmath_atomic_fetch_set(&a, 27);
-      assert(b == 7 && a._data == 27);
-
-      b = pmath_atomic_fetch_compare_and_set(&a, 26, 11);
-      assert(b == 27 && a._data == 27);
-      b = pmath_atomic_fetch_compare_and_set(&a, 27, 11);
-      assert(b == 27 && a._data == 11);
-
-      test = pmath_atomic_compare_and_set(&a, 13, 22);
-      assert(!test && a._data == 11);
-      test = pmath_atomic_compare_and_set(&a, 11, 22);
-      assert(test && a._data == 22);
-
-      if(pmath_atomic_have_cas2()) {
-        c._data[0] = 8;
-        c._data[1] = 33;
-        test = pmath_atomic_compare_and_set_2(&c, 5, 6, 1, 2);
-        assert(!test && c._data[0] == 8 && c._data[1] == 33);
-        test = pmath_atomic_compare_and_set_2(&c, 8, 33, 1, 2);
-        assert(test && c._data[0] == 1 && c._data[1] == 2);
-      }
-      else
-        fprintf(stderr, "no CAS2 available\n");
-    }
-#endif
-
+    
+    TEST_ATOMIC_OPS();
+    
     _pmath_object_complex_infinity         = PMATH_NULL;
     _pmath_object_emptylist                = PMATH_NULL;
     _pmath_object_get_load_message         = PMATH_NULL;
@@ -319,44 +359,8 @@ PMATH_API pmath_bool_t pmath_init(void) {
     if(!_pmath_debug_library_init())          goto FAIL_DEBUG_LIBRARY;
     if(!_pmath_stacks_init())                 goto FAIL_STACKS_LIBRARY;
     if(!_pmath_memory_manager_init())         goto FAIL_MEMORY_MANAGER;
-
-#ifdef PMATH_DEBUG_TESTS
-    {
-      typedef struct {
-        void *reserved;
-        int value;
-      } stack_test_item_t;
-      stack_test_item_t a, b, c, *p;
-      pmath_stack_t stack;
-
-      a.value = 1;
-      b.value = 2;
-      c.value = 3;
-      stack = pmath_stack_new();
-      if(stack) {
-        p = pmath_stack_pop(stack);
-        assert(p == NULL);
-
-        pmath_stack_push(stack, &a);
-        pmath_stack_push(stack, &b);
-        p = pmath_stack_pop(stack);
-        assert(p && p->value == 2);
-
-        pmath_stack_push(stack, &c);
-        p = pmath_stack_pop(stack);
-        assert(p && p->value == 3);
-
-        p = pmath_stack_pop(stack);
-        assert(p && p->value == 1);
-
-        p = pmath_stack_pop(stack);
-        assert(p == NULL);
-
-        pmath_stack_free(stack);
-      }
-    }
-#endif
-
+    
+    TEST_STACKS();
     PMATH_TEST_NEW_HASHTABLES();
 
     if(!_pmath_threads_init())                goto FAIL_THREADS;
