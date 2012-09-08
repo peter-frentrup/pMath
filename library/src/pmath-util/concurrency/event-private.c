@@ -38,13 +38,18 @@ void _pmath_event_signal(pmath_event_t *event) {
 PMATH_PRIVATE
 pmath_bool_t _pmath_event_init(pmath_event_t *event) {
   pthread_condattr_t condatt;
-  
-  if(0 != pthread_cond_init(&event->cond, NULL))
-    return FALSE;
+  pmath_bool_t       success;
   
   pthread_condattr_init(&condatt);
   pthread_condattr_setclock(&condatt, _pmath_tickcount_clockid);
 
+  success = (0 == pthread_cond_init(&event->cond, &condatt));
+  
+  pthread_condattr_destroy(&condatt);
+  
+  if(!success)
+    return FALSE;
+  
   if(0 != pthread_mutex_init(&event->mutex, NULL)) {
     pthread_cond_destroy(&event->cond);
     return FALSE;
