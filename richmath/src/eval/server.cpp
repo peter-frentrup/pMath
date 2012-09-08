@@ -63,6 +63,8 @@ class LocalServer: public Server {
           pmath_bool_t aborted = FALSE;
           ResultKind rkind = Normal;
           
+          pmath_debug_print("\n[Start token]\n");
+            
           pmath_resume_all();
           
           if(boxes) {
@@ -113,7 +115,9 @@ class LocalServer: public Server {
                             pmath_session_execute(
                               pmath_ref(object.get()),
                               &aborted));
-                              
+            
+            pmath_debug_print_object("\n[token result=", result.get(), "]\n");
+            
             if( return_from_dialog               && 
                 !aborted                         && 
                 result[0] == PMATH_SYMBOL_RETURN && 
@@ -127,13 +131,16 @@ class LocalServer: public Server {
           }
           
           if(aborted) {
+            pmath_debug_print("\n[Aborted token]\n");
             //pmath_resume_all();
             Application::notify(CNT_END, Symbol(PMATH_SYMBOL_ABORTED));
             rkind = Aborted;
           }
-          else
+          else {
+            pmath_debug_print("\n[End token]\n");
             Application::notify(CNT_END, Expr());
-            
+          }
+          
           return rkind;
         }
     };
