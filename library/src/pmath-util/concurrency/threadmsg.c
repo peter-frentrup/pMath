@@ -624,7 +624,8 @@ PMATH_API
 double pmath_tickcount(void) {
 #ifdef PMATH_OS_WIN32
   {
-    // TODO: use GetTickCount64() on Vista or newer
+    // TODO: use GetTickCount64() on Vista or newer, but also want to continue 
+    //       support for Windows 2000 and newer, esp. WinXP
     DWORD ms = GetTickCount();
     return ms * 1e-3;
   }
