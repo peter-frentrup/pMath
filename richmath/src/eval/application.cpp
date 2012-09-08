@@ -379,7 +379,7 @@ void Application::gui_print_section(Expr expr) {
   Document *doc = FrontEndObject::find_cast<Document>(print_pos.document_id);
   Section *sect = FrontEndObject::find_cast<Section>(print_pos.section_id);
   
-  if(doc) {
+  if(doc && doc->get_own_style(Editable)) {
     int index;
     if(sect && sect->parent() == doc) {
       index = sect->index() + 1;

@@ -1327,6 +1327,3 @@ void richmath::set_current_document(Document *document) {
 Document *richmath::get_current_document() {
   return dynamic_cast<Document *>(Box::find(current_document_id));
 }
-
-
-

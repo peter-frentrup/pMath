@@ -898,6 +898,9 @@ void GraphicsBox::resize_axes(Context *context) {
 }
 
 void GraphicsBox::paint(Context *context) {
+  GraphicsBoxContext gctx(this, context);
+  error_boxes_expr = Expr();
+  
   style->update_dynamic(this);
   
   float x, y;
@@ -911,7 +914,7 @@ void GraphicsBox::paint(Context *context) {
   ContextState cc(context);
   cc.begin(style);
   {
-    if(static_error_boxes.is_valid() || dynamic_error_boxes.is_valid())
+    if(error_boxes_expr.is_valid())
       context->draw_error_rect(x, y, x + w, y + h);
       
     context->canvas->save();
@@ -939,7 +942,7 @@ void GraphicsBox::paint(Context *context) {
       //context->canvas->hair_stroke();
       
       context->canvas->set_color(0x000000);
-      elements.paint(context);
+      elements.paint(&gctx);
       
       context->canvas->set_color(old_color);
     }
@@ -1133,16 +1136,11 @@ Box *GraphicsBox::mouse_sensitive() {
 }
 
 void GraphicsBox::on_mouse_enter() {
-  if(error_boxes_expr.is_valid() || dynamic_error_boxes.is_valid()) {
+  if(error_boxes_expr.is_valid()) {
     Document *doc = find_parent<Document>(false);
     
-    if(doc) {
-      Expr error_boxes = error_boxes_expr;
-      if(dynamic_error_boxes.is_valid())
-        error_boxes = List(error_boxes, String("\n"), dynamic_error_boxes);
-      
-      doc->native()->show_tooltip(error_boxes);
-    }
+    if(doc) 
+      doc->native()->show_tooltip(error_boxes_expr);
   }
 }
 

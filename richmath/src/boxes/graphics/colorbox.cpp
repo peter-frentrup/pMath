@@ -37,8 +37,8 @@ ColorBox *ColorBox::create(Expr expr, int opts) {
   return box;
 }
 
-void ColorBox::paint(Context *context) {
-  context->canvas->set_color(_color);
+void ColorBox::paint(GraphicsBoxContext *context) {
+  context->ctx->canvas->set_color(_color);
 }
 
 Expr ColorBox::to_pmath(int flags) {

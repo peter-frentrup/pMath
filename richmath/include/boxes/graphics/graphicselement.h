@@ -10,6 +10,21 @@
 
 namespace richmath {
   class Context;
+  class GraphicsBox;
+  
+  class GraphicsBoxContext: public Base {
+    public:
+      GraphicsBoxContext(GraphicsBox *_box, Context *_ctx)
+        : Base(),
+          box(_box),
+          ctx(_ctx)
+      {
+      }
+      
+    public:
+      GraphicsBox *box;
+      Context     *ctx;
+  };
   
   class GraphicsBounds {
     public:
@@ -36,7 +51,7 @@ namespace richmath {
       virtual bool try_load_from_object(Expr expr, int opts) = 0;
       
       virtual void find_extends(GraphicsBounds &bounds) = 0;
-      virtual void paint(Context *context) = 0;
+      virtual void paint(GraphicsBoxContext *context) = 0;
       virtual Expr to_pmath(int flags) = 0; // BoxFlagXXX
       
     protected:
@@ -58,11 +73,11 @@ namespace richmath {
       void remove(int i);
       
       virtual void find_extends(GraphicsBounds &bounds);
-      virtual void paint(Context *context);
+      virtual void paint(GraphicsBoxContext *context);
       virtual Expr to_pmath(int flags); // BoxFlagXXX
       
     private:
-      Array<GraphicsElement*> _items;
+      Array<GraphicsElement *> _items;
   };
   
   class GraphicsElementCollection: public GraphicsDirective {
@@ -73,7 +88,7 @@ namespace richmath {
       virtual bool try_load_from_object(Expr expr, int opts);
       void load_from_object(Expr expr, int opts);
       
-      virtual void paint(Context *context);
+      virtual void paint(GraphicsBoxContext *context);
       virtual Expr to_pmath(int flags); // BoxFlagXXX
   };
 }

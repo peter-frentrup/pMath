@@ -176,6 +176,7 @@ class richmath::Win32Dock: public Win32Widget {
       
       assert(document()->style.is_valid());
       
+      document()->style->set(Editable,           false); // redirect Print() to console
       document()->style->set(Selectable,         false);
       document()->style->set(ShowSectionBracket, false);
       

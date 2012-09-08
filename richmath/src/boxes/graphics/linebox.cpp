@@ -126,22 +126,22 @@ void LineBox::find_extends(GraphicsBounds &bounds) {
   }
 }
 
-void LineBox::paint(Context *context) {
+void LineBox::paint(GraphicsBoxContext *context) {
   for(int i = 0; i < _lines.length(); ++i) {
     Array<Point> &line = _lines[i];
     
     if(line.length() > 1) {
       Point &pt = line[0];
-      cairo_move_to(context->canvas->cairo(), pt.x, pt.y);
+      cairo_move_to(context->ctx->canvas->cairo(), pt.x, pt.y);
       
       for(int j = 1; j < line.length(); ++j) {
         Point &pt = line[j];
-        cairo_line_to(context->canvas->cairo(), pt.x, pt.y);
+        cairo_line_to(context->ctx->canvas->cairo(), pt.x, pt.y);
       }
     }
   }
   
-  context->canvas->hair_stroke();
+  context->ctx->canvas->hair_stroke();
 }
 
 Expr LineBox::to_pmath(int flags) {  // BoxFlagXXX

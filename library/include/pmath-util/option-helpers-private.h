@@ -5,7 +5,7 @@
 #  error This header file is not part of the public pMath API
 #endif
 
-#include <pmath-util/option-helpers-private.h>
+#include <pmath-util/option-helpers.h>
 
 
 /* name won't be freed

@@ -13,7 +13,7 @@ namespace richmath {
       virtual bool try_load_from_object(Expr expr, int opts);
       
       virtual void find_extends(GraphicsBounds &bounds){}
-      virtual void paint(Context *context);
+      virtual void paint(GraphicsBoxContext *context);
       
       virtual Expr to_pmath(int flags);
       

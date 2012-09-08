@@ -174,6 +174,7 @@ class richmath::MathGtkDock: public MathGtkWidget {
       if(!document()->style)
         document()->style = new Style();
         
+      document()->style->set(Editable,           false); // redirect Print() to console
       document()->style->set(Selectable,         false);
       document()->style->set(ShowSectionBracket, false);
       

@@ -32,7 +32,7 @@ namespace {
       virtual void find_extends(GraphicsBounds &bounds) {
       }
       
-      virtual void paint(Context *context) {
+      virtual void paint(GraphicsBoxContext *context) {
       }
       
       virtual Expr to_pmath(int flags) { // BoxFlagXXX
@@ -205,7 +205,7 @@ void GraphicsDirective::find_extends(GraphicsBounds &bounds) {
     item(i)->find_extends(bounds);
 }
 
-void GraphicsDirective::paint(Context *context) {
+void GraphicsDirective::paint(GraphicsBoxContext *context) {
   for(int i = 0; i < count(); ++i)
     item(i)->paint(context);
 }
@@ -251,14 +251,14 @@ void GraphicsElementCollection::load_from_object(Expr expr, int opts) {
   GraphicsDirective::try_load_from_object(expr, opts);
 }
 
-void GraphicsElementCollection::paint(Context *context) {
-  context->canvas->save();
-  int old_color = context->canvas->get_color();
+void GraphicsElementCollection::paint(GraphicsBoxContext *context) {
+  context->ctx->canvas->save();
+  int old_color = context->ctx->canvas->get_color();
   
   GraphicsDirective::paint(context);
   
-  context->canvas->set_color(old_color);
-  context->canvas->restore();
+  context->ctx->canvas->set_color(old_color);
+  context->ctx->canvas->restore();
 }
 
 Expr GraphicsElementCollection::to_pmath(int flags) { // BoxFlagXXX

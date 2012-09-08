@@ -80,8 +80,7 @@ namespace richmath {
       AxisTicks *ticks[6]; // indexd by enum AxisIndex
       
       GraphicsElementCollection elements;
-      Expr                      static_error_boxes;
-      Expr                      dynamic_error_boxes;
+      Expr                      error_boxes_expr;
       
       bool user_has_changed_size;
       
