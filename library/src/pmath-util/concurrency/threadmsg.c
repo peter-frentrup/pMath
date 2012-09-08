@@ -15,6 +15,8 @@
 #ifdef PMATH_OS_UNIX
 #  include <sys/time.h>
 #  include <time.h>
+
+static clockid_t tickcount_clockid;
 #endif
 
 struct notifier_t {
@@ -627,7 +629,7 @@ double pmath_tickcount(void) {
 #else
   {
     struct timespec ts = {0, 0};
-    clock_gettime(CLOCK_MONOTONIC, &ts);
+    clock_gettime(tickcount_clockid, &ts);
     return (double)ts.tv_sec + ts.tv_nsec * 1e-9;
   }
 #endif
@@ -911,9 +913,18 @@ PMATH_PRIVATE pmath_bool_t _pmath_threadmsg_init(void) {
 #else
   {
     struct timespec ts = {0, 0};
+    
+    tickcount_clockid = CLOCK_MONOTONIC;
+    
     if(clock_gettime(CLOCK_MONOTONIC, &ts) != 0) {
-      pmath_debug_print("clock_gettime(CLOCK_MONOTONIC, ...) failed with %d\n", errno);
+      pmath_debug_print("[clock_gettime(CLOCK_MONOTONIC, ...) failed with errno=%d]\n", errno);
     }
+
+#  ifdef CLOCK_MONOTONIC_RAW
+    if(clock_gettime(CLOCK_MONOTONIC_RAW, &ts) == 0) {
+      tickcount_clockid = CLOCK_MONOTONIC_RAW;
+    }
+#  endif
   }
 #endif
   
