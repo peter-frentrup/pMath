@@ -301,17 +301,8 @@ void GraphicsBox::calculate_size(const float *optional_expand_width) {
                    label_sizes[AxisIndexRight].height() / 2);
   }
   else {
-    margin_left = ticks[AxisIndexLeft]->extra_offset;
-    
-    margin_bottom = ticks[AxisIndexBottom]->extra_offset;
-    
-    margin_right = max(
-                     ticks[AxisIndexRight]->extra_offset,
-                     label_sizes[AxisIndexX].width / 2);
-                     
-    margin_top = max(
-                   ticks[AxisIndexTop]->extra_offset,
-                   label_sizes[AxisIndexY].height() / 2);
+    margin_left   = margin_right = label_sizes[AxisIndexX].width / 2;
+    margin_bottom = margin_top   = label_sizes[AxisIndexY].height() / 2;
   }
   
   float w     = get_own_style(ImageSizeHorizontal, ImageSizeAutomatic);
