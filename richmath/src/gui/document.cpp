@@ -3562,7 +3562,7 @@ void Document::paint_resize(Canvas *canvas, bool resize_only) {
   int i = 0;
   
   while(i < length()) {
-    if(section(i)->must_resize || i == sel_sect)
+    if(section(i)->must_resize) // || i == sel_sect)
       resize_section(&context, i);
       
     if(_extents.descent + section(i)->extents().height() >= sy && !resize_only)

@@ -6,8 +6,6 @@
 
 - pause all EvaluateDelayed() or only abortion times durin GUI operations
 
-- BUG: infinite repaints/resizes in ListLinePlot({1,2,1,3},AxesOrigin->Dynamic({ox,oy}))
-
 - richmath: line heights jump up and down in Column({Dynamic(x),Slider(Dynamic(x),0..9..1)})
 - richmath: DocumentApply(..., Section(...)) does not handle placeholders (same for SectionGroup)
 

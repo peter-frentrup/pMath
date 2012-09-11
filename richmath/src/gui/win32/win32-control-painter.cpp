@@ -790,11 +790,13 @@ SharedPtr<BoxAnimation> Win32ControlPainter::control_transition(
       x1, y1, w1, h1,
       duration / 1000.0);
       
-    if(anim->box_id == 0
-        || !anim->buf1
-        || !anim->buf2)
+    if( anim->box_id == 0 || 
+        !anim->buf1       || 
+        !anim->buf2)
+    {
       return 0;
-      
+    }
+    
     anim->repeat = repeat;
     
     draw_container(

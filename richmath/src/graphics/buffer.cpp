@@ -44,7 +44,7 @@ void Buffer::init(Canvas *dst, cairo_format_t format, float x, float y, float w,
         float x0, y0;
         dst->current_pos(&x0, &y0);
         
-        dst->save();
+        //dst->save();
         cairo_get_matrix(dst->cairo(), &u2d_matrix);
         
         float mx0 = u2d_matrix.x0;
@@ -93,7 +93,11 @@ void Buffer::init(Canvas *dst, cairo_format_t format, float x, float y, float w,
         _canvas = new Canvas(_cr);
         cairo_set_line_width(_cr, cairo_get_line_width(dst->cairo()));
         cairo_set_matrix(_cr, &u2d_matrix);
-        dst->restore();
+        //dst->restore();
+        
+        _canvas->move_to(0,0);
+        //dst->current_pos(&x0, &y0);
+        //_canvas->move_to(x0, y0);
         
         _canvas->glass_background   = dst->glass_background;
 //      _canvas->text_emboss_size   = dst->text_emboss_size;
@@ -142,10 +146,11 @@ bool Buffer::is_compatible(Canvas *dst) {
         cairo_matrix_t mat;
         cairo_get_matrix(dst->cairo(), &mat);
         
-        if(mat.xx == u2d_matrix.xx
-            && mat.xy == u2d_matrix.xy
-            && mat.yx == u2d_matrix.yx
-            && mat.yy == u2d_matrix.yy) {
+        if( mat.xx == u2d_matrix.xx && 
+            mat.xy == u2d_matrix.xy && 
+            mat.yx == u2d_matrix.yx && 
+            mat.yy == u2d_matrix.yy) 
+        {
           return true;
         }
       } break;
@@ -246,14 +251,16 @@ bool Buffer::clear() {
 }
 
 bool Buffer::blend(SharedPtr<Buffer> buf1, SharedPtr<Buffer> buf2, double t) {
-  if(!buf1 || !buf1->_canvas
-      || !buf2 || !buf2->_canvas
-      || _width != buf1->_width
-      || _width != buf2->_width
-      || _height != buf1->_height
-      || _height != buf2->_height)
+  if( !buf1 || !buf1->_canvas  || 
+      !buf2 || !buf2->_canvas  || 
+      _width != buf1->_width   || 
+      _width != buf2->_width   || 
+      _height != buf1->_height || 
+      _height != buf2->_height)
+  {
     return false;
-    
+  }
+  
   // CLEAR:           xR <- 0
   // ADD (mask: 1-t): xR <- (1-t) * xA + xR = (1-t) * xA
   // ADD (mask: t):   xR <-     t * xB + xR = t * xB + (1-t) * xA

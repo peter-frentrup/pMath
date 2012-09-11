@@ -4,6 +4,7 @@
 #include <boxes/box.h>
 #include <boxes/graphics/graphicselement.h>
 
+#include <graphics/buffer.h>
 
 namespace richmath {
   const int GraphicsPartNone            = -1;
@@ -33,6 +34,9 @@ namespace richmath {
       
       virtual Box *item(int i);
       virtual int count();
+      
+      virtual void invalidate();
+      virtual bool request_repaint(float x, float y, float w, float h);
       
       virtual bool expand(const BoxSize &size);
       virtual void resize(Context *context);
@@ -81,8 +85,10 @@ namespace richmath {
       
       GraphicsElementCollection elements;
       Expr                      error_boxes_expr;
+      SharedPtr<Buffer>         cached_bitmap;
       
       bool user_has_changed_size;
+      bool is_currently_resizing;
       
     protected:
       void calculate_size(const float *optional_expand_width = 0);

@@ -74,6 +74,16 @@ namespace richmath {
       float height() const { return ascent + descent; }
       float center() const { return (ascent - descent) / 2; }
       
+      bool operator==(const BoxSize &other) const {
+        return other.width   == width &&
+               other.ascent  == ascent &&
+               other.descent == descent;
+      }
+      
+      bool operator!=(const BoxSize &other) const {
+        return !(*this == other);
+      }
+      
       const BoxSize &merge(const BoxSize &other) {
         if(other.width > width)
           width = other.width;
