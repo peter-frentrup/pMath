@@ -1,3 +1,4 @@
+#include <pmath-core/expressions-private.h>
 #include <pmath-core/numbers-private.h>
 
 #include <pmath-util/evaluation.h>
@@ -8,6 +9,130 @@
 #include <pmath-builtins/control-private.h>
 
 
+#ifdef MIN
+#  undef MIN
+#endif
+
+#define MIN(a, b)  (((a) < (b)) ? (a) : (b))
+
+pmath_expr_t expr_select(
+  pmath_expr_t   list, // will be freed
+  pmath_bool_t (*test)(pmath_t, void*), // does not free first argument
+  void          *context,
+  size_t         max
+) {
+  size_t i0, length, first_fail, resi1;
+  const pmath_t *old_items;
+  pmath_t result;
+  struct _pmath_expr_t *new_list;
+  
+  if(pmath_is_null(list))
+    return list;
+  
+  length = pmath_expr_length(list);
+  old_items = pmath_expr_read_item_data(list);
+  
+  if(max > length)
+    max = length;
+    
+  i0 = 0;
+  while(max > 0 && (*test)(old_items[i0], context)) {
+    ++i0;
+    --max;
+  }
+  
+  if(i0 == length)
+    return list;
+  
+  if(max == 0){
+    result = pmath_expr_get_item_range(list, 1, i0);
+    pmath_unref(list);
+    return result;
+  }
+  
+  first_fail = i0;
+  ++i0;
+  while(i0 < length && !(*test)(old_items[i0], context)) {
+    ++i0;
+  }
+  
+  if(i0 == length){
+    result = pmath_expr_get_item_range(list, 1, first_fail);
+    pmath_unref(list);
+    return result;
+  }
+  
+  if(pmath_refcount(list) == 1 && pmath_is_pointer_of(list, PMATH_TYPE_EXPRESSION_GENERAL)) {
+    new_list = (void*)PMATH_AS_PTR(list);
+    
+    resi1 = first_fail + 1;
+    for(++first_fail;first_fail <= i0;++first_fail) {
+      pmath_unref(new_list->items[first_fail]);
+      new_list->items[first_fail] = PMATH_UNDEFINED;
+    }
+    
+    new_list->items[resi1] = new_list->items[i0 + 1];
+    new_list->items[i0 + 1] = PMATH_UNDEFINED;
+    ++resi1;
+    --max;
+    
+    for(++i0; i0 < length && max > 0; ++i0) {
+      if((*test)(new_list->items[i0 + 1], context)) {
+        new_list->items[resi1] = new_list->items[i0 + 1];
+        new_list->items[i0 + 1] = PMATH_UNDEFINED;
+        ++resi1;
+        --max;
+      }
+      else{
+        pmath_unref(new_list->items[i0 + 1]);
+        new_list->items[i0 + 1] = PMATH_UNDEFINED;
+      }
+    }
+    
+    return pmath_expr_resize(list, resi1 - 1);
+  }
+  
+  new_list = _pmath_expr_new_noinit(first_fail + MIN(max, length - i0));
+  if(!new_list){
+    pmath_unref(list);
+    return PMATH_NULL;
+  }
+  
+  new_list->items[0] = pmath_expr_get_item(list, 0);
+  for(resi1 = 1;resi1 <= first_fail;++resi1) 
+    new_list->items[resi1] = pmath_ref(old_items[resi1 - 1]);
+  
+  new_list->items[resi1] = pmath_ref(old_items[i0]);
+  ++resi1;
+  --max;
+  
+  for(++i0; i0 < length && max > 0; ++i0) {
+    if((*test)(old_items[i0], context)) {
+      new_list->items[resi1] = pmath_ref(old_items[i0]);
+      ++resi1;
+      --max;
+    }
+  }
+  
+  pmath_unref(list);
+  
+  --resi1;
+  // set rest to bytes 0 == (double) 0.0
+  memset(&new_list->items[resi1 + 1], 0, (new_list->length - resi1) * sizeof(pmath_t));
+  
+  return pmath_expr_resize(PMATH_FROM_PTR(new_list), resi1);
+}
+
+static pmath_bool_t eval_test(pmath_t item, void *context) {
+  pmath_t *crit = context;
+  
+  item = pmath_expr_new_extended(pmath_ref(*crit), 1, pmath_ref(item));
+  item = pmath_evaluate(item);
+  pmath_unref(item);
+  
+  return pmath_same(item, PMATH_SYMBOL_TRUE);
+}
+
 PMATH_PRIVATE pmath_t builtin_select(pmath_expr_t expr) {
   /* Select(list, crit, n)
      Select(list, crit)    = Select(list, crit, Infinity)
@@ -17,7 +142,7 @@ PMATH_PRIVATE pmath_t builtin_select(pmath_expr_t expr) {
        General::nexprat
    */
   pmath_t list, crit;
-  size_t exprlen, i, count;
+  size_t exprlen, count;
   
   exprlen = pmath_expr_length(expr);
   
@@ -54,24 +179,29 @@ PMATH_PRIVATE pmath_t builtin_select(pmath_expr_t expr) {
   crit = pmath_expr_get_item(expr, 2);
   pmath_unref(expr);
   
-  exprlen = pmath_expr_length(list);
-  for(i = 1; i <= exprlen && count > 0; ++i) {
-    pmath_t obj = pmath_expr_new_extended(
-                    pmath_ref(crit), 1,
-                    pmath_expr_get_item(list, i));
-                    
-    obj = pmath_evaluate(obj);
-    pmath_unref(obj);
-    
-    if(!pmath_same(obj, PMATH_SYMBOL_TRUE))
-      list = pmath_expr_set_item(list, i, PMATH_UNDEFINED);
-    else
-      --count;
-  }
-  
-  for(; i <= exprlen; ++i)
-    list = pmath_expr_set_item(list, i, PMATH_UNDEFINED);
-    
+//  exprlen = pmath_expr_length(list);
+//  for(i = 1; i <= exprlen && count > 0; ++i) {
+//    pmath_t obj = pmath_expr_new_extended(
+//                    pmath_ref(crit), 1,
+//                    pmath_expr_get_item(list, i));
+//                    
+//    obj = pmath_evaluate(obj);
+//    pmath_unref(obj);
+//    
+//    if(!pmath_same(obj, PMATH_SYMBOL_TRUE))
+//      list = pmath_expr_set_item(list, i, PMATH_UNDEFINED);
+//    else
+//      --count;
+//  }
+//  
+//  for(; i <= exprlen; ++i)
+//    list = pmath_expr_set_item(list, i, PMATH_UNDEFINED);
+//    
+//  pmath_unref(crit);
+//  return pmath_expr_remove_all(list, PMATH_UNDEFINED);
+
+  list = expr_select(list, eval_test, &crit, count);
+
   pmath_unref(crit);
-  return pmath_expr_remove_all(list, PMATH_UNDEFINED);
+  return list;
 }
