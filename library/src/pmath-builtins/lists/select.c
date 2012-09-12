@@ -1,6 +1,7 @@
 #include <pmath-core/expressions-private.h>
 #include <pmath-core/numbers-private.h>
 
+#include <pmath-util/debug.h>
 #include <pmath-util/evaluation.h>
 #include <pmath-util/messages.h>
 #include <pmath-util/option-helpers.h>
@@ -29,8 +30,14 @@ pmath_expr_t expr_select(
   if(pmath_is_null(list))
     return list;
   
-  length = pmath_expr_length(list);
+  length    = pmath_expr_length(list);
   old_items = pmath_expr_read_item_data(list);
+  
+  if(!old_items) {
+    pmath_debug_print("[pmath_expr_read_item_data() gave NULL in %s:%d]\n", __FILE__, __LINE__);
+    pmath_unref(list);
+    return pmath_ref(_pmath_object_emptylist);
+  }
   
   if(max > length)
     max = length;

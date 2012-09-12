@@ -1,6 +1,7 @@
 #include <pmath-core/expressions-private.h>
 #include <pmath-core/numbers.h>
 
+#include <pmath-util/debug.h>
 #include <pmath-util/messages.h>
 
 #include <pmath-builtins/all-symbols-private.h>
@@ -74,28 +75,32 @@ PMATH_PRIVATE pmath_t builtin_union(pmath_expr_t expr) {
     size_t k;
     
     joined_list = _pmath_expr_new_noinit(joined_length);
-    if(!joined_list){
+    if(!joined_list) {
       pmath_unref(item);
       return expr;
     }
     
     joined_list->items[0] = item;
     k = 1;
-    for(i = 1;i <= exprlen;++i) {
+    for(i = 1; i <= exprlen; ++i) {
       size_t len;
       list = pmath_expr_get_item(expr, i);
       
       list_items = pmath_expr_read_item_data(list);
       
-      len = pmath_expr_length(list);
-      for(j = 0;j < len;++j,++k)
-        joined_list->items[k] = pmath_ref(list_items[j]);
-      
+      if(list_items) {
+        len = pmath_expr_length(list);
+        for(j = 0; j < len; ++j, ++k)
+          joined_list->items[k] = pmath_ref(list_items[j]);
+      }
+      else
+        pmath_debug_print("[pmath_expr_read_item_data() gave NULL in %s:%d]\n", __FILE__, __LINE__);
+        
       pmath_unref(list);
     }
     
     assert(k == joined_length + 1);
-  
+    
     pmath_unref(expr);
     list = PMATH_FROM_PTR(joined_list);
   }
@@ -109,34 +114,41 @@ PMATH_PRIVATE pmath_t builtin_union(pmath_expr_t expr) {
   list = pmath_expr_sort(list);
   
   // delete duplicates ...
-  i = 1;
   have_duplicates = FALSE;
-  exprlen         = pmath_expr_length(list);
   list_items      = pmath_expr_read_item_data(list);
-  while(i < exprlen) {
-    item = list_items[i - 1];
-    
-    for(j = i + 1; j <= exprlen; ++j) {
-      current = list_items[j - 1];
-      
-      if(pmath_same(current, item)) {
-        have_duplicates = TRUE;
-        
-        list       = pmath_expr_set_item(list, j, PMATH_UNDEFINED);
-        list_items = pmath_expr_read_item_data(list);
-        
-        if(!list_items){
-          pmath_unref(list);
-          return PMATH_NULL;
-        }
-      }
-      else 
-        break;
-    }
-    
-    i = j;
-  }
   
+  if(list_items) {
+    i       = 1;
+    exprlen = pmath_expr_length(list);
+    
+    while(i < exprlen) {
+      item = list_items[i - 1];
+      
+      for(j = i + 1; j <= exprlen; ++j) {
+        current = list_items[j - 1];
+        
+        if(pmath_same(current, item)) {
+          have_duplicates = TRUE;
+          
+          list       = pmath_expr_set_item(list, j, PMATH_UNDEFINED);
+          list_items = pmath_expr_read_item_data(list);
+          
+          if(!list_items) {
+            pmath_debug_print("[pmath_expr_read_item_data() gave NULL in %s:%d]\n", __FILE__, __LINE__);
+            pmath_unref(list);
+            return PMATH_NULL;
+          }
+        }
+        else
+          break;
+      }
+      
+      i = j;
+    }
+  }
+  else
+    pmath_debug_print("[pmath_expr_read_item_data() gave NULL in %s:%d]\n", __FILE__, __LINE__);
+    
   if(have_duplicates)
     return pmath_expr_remove_all(list, PMATH_UNDEFINED);
     

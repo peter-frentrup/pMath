@@ -2,9 +2,10 @@
 #include <pmath-core/numbers.h>
 #include <pmath-core/symbols-private.h>
 
-#include <pmath-util/option-helpers.h>
+#include <pmath-util/debug.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
+#include <pmath-util/option-helpers.h>
 #include <pmath-util/symbol-values-private.h>
 
 #include <pmath-builtins/all-symbols-private.h>
@@ -14,9 +15,9 @@
 static pmath_t get_default_options(pmath_t head) {
   struct _pmath_symbol_rules_t  *rules;
   
-  if(!pmath_is_symbol(head)) 
+  if(!pmath_is_symbol(head))
     return pmath_ref(_pmath_object_emptylist);
-  
+    
   rules = _pmath_symbol_get_rules(head, RULES_READ);
   if(rules) {
     pmath_t result = pmath_expr_new_extended(
@@ -51,6 +52,11 @@ pmath_expr_t _pmath_option_find_rule(pmath_t name, pmath_t option_set) {
     size_t len = pmath_expr_length(option_set);
     const pmath_t *items = pmath_expr_read_item_data(option_set);
     
+    if(!items) {
+      pmath_debug_print("[pmath_expr_read_item_data() gave NULL in %s:%d]\n", __FILE__, __LINE__);
+      return PMATH_NULL;
+    }
+    
     for(i = 0; i < len; ++i) {
       pmath_t result = _pmath_option_find_rule(name, items[i]);
       
@@ -69,7 +75,7 @@ pmath_t _pmath_option_find_value(pmath_t name, pmath_t option_set) {
   
   if(pmath_is_null(rule))
     return PMATH_UNDEFINED;
-  
+    
   value = pmath_expr_get_item(rule, 2);
   pmath_unref(rule);
   return value;
@@ -80,15 +86,15 @@ static pmath_bool_t is_option_name_of(pmath_t name, pmath_t option_set) {
   
   if(pmath_same(value, PMATH_UNDEFINED))
     return FALSE;
-  
+    
   pmath_unref(value);
   return TRUE;
 }
 
 PMATH_PRIVATE
 pmath_bool_t _pmath_options_check_subset_of(
-  pmath_t     set, 
-  pmath_t     default_options, 
+  pmath_t     set,
+  pmath_t     default_options,
   const char *msg_tag, // "optx" or NULL
   pmath_t     msg_arg
 ) {
@@ -115,6 +121,11 @@ pmath_bool_t _pmath_options_check_subset_of(
     size_t len = pmath_expr_length(set);
     const pmath_t *items = pmath_expr_read_item_data(set);
     
+    if(!items) {
+      pmath_debug_print("[pmath_expr_read_item_data() gave NULL in %s:%d]\n", __FILE__, __LINE__);
+      return FALSE;
+    }
+    
     for(i = 0; i < len; ++i) {
       if(!_pmath_options_check_subset_of(items[i], default_options, msg_tag, msg_arg))
         return FALSE;
@@ -130,19 +141,24 @@ PMATH_PRIVATE
 pmath_t _pmath_options_from_expr(pmath_t expr) {
   if(pmath_is_symbol(expr))
     return get_default_options(expr);
-  
+    
   if(pmath_is_expr(expr)) {
     pmath_t item, def;
     size_t i;
     size_t len = pmath_expr_length(expr);
     const pmath_t *items = pmath_expr_read_item_data(expr);
     
+    if(!items) {
+      pmath_debug_print("[pmath_expr_read_item_data() gave NULL in %s:%d]\n", __FILE__, __LINE__);
+      return pmath_ref(_pmath_object_emptylist);
+    }
+    
     item = pmath_expr_get_item(expr, 0);
     def = get_default_options(item);
     pmath_unref(item);
     
-    for(i = len;i > 0;--i) {
-      if(!_pmath_options_check_subset_of(items[i - 1], def, NULL, PMATH_NULL)) 
+    for(i = len; i > 0; --i) {
+      if(!_pmath_options_check_subset_of(items[i - 1], def, NULL, PMATH_NULL))
         break;
     }
     ++i;
@@ -151,7 +167,7 @@ pmath_t _pmath_options_from_expr(pmath_t expr) {
     
     if(i > len)
       return pmath_ref(_pmath_object_emptylist);
-    
+      
     item = pmath_expr_get_item_range(expr, i, SIZE_MAX);
     item = pmath_expr_set_item(item, 0, pmath_ref(PMATH_SYMBOL_LIST));
     return item;
@@ -164,10 +180,10 @@ PMATH_API
 pmath_bool_t pmath_is_set_of_options(pmath_t expr) {
   size_t i;
   
-  if(!pmath_is_expr(expr)) 
+  if(!pmath_is_expr(expr))
     return FALSE;
-  
-  if(_pmath_is_rule(expr)) 
+    
+  if(_pmath_is_rule(expr))
     return TRUE;
     
   if(!pmath_is_expr_of(expr, PMATH_SYMBOL_LIST))
@@ -194,7 +210,7 @@ PMATH_API pmath_expr_t pmath_options_extract(
   pmath_t head;
   pmath_t option_set;
   size_t i, exprlen;
-  const pmath_t *items = pmath_expr_read_item_data(expr);
+  const pmath_t *items;
   
   exprlen = pmath_expr_length(expr);
   if(last_nonoption > exprlen) {
@@ -205,6 +221,12 @@ PMATH_API pmath_expr_t pmath_options_extract(
   if(last_nonoption == exprlen)
     return pmath_ref(_pmath_object_emptylist);
     
+  items = pmath_expr_read_item_data(expr);
+  if(!items) {
+    pmath_debug_print("[pmath_expr_read_item_data() gave NULL in %s:%d]\n", __FILE__, __LINE__);
+    return pmath_ref(_pmath_object_emptylist);
+  }
+  
   for(i = last_nonoption; i < exprlen; ++i) {
     if(!pmath_is_set_of_options(items[i])) {
       pmath_message(
@@ -243,15 +265,15 @@ PMATH_API pmath_t pmath_option_value(
   pmath_t value;
   
   value = _pmath_option_find_value(name, more);
-  if(!pmath_same(value, PMATH_UNDEFINED)) 
+  if(!pmath_same(value, PMATH_UNDEFINED))
     return value;
-  
+    
   if(pmath_is_null(head))
     head = pmath_current_head();
   else
     head = pmath_ref(head);
     
-  if(pmath_is_symbol(head)){
+  if(pmath_is_symbol(head)) {
     pmath_t default_options = get_default_options(head);
     
     value = _pmath_option_find_value(name, default_options);
@@ -260,7 +282,7 @@ PMATH_API pmath_t pmath_option_value(
       pmath_unref(default_options);
       return value;
     }
-  
+    
     pmath_unref(default_options);
     pmath_message(
       PMATH_SYMBOL_OPTIONVALUE, "optnf", 2,
@@ -272,13 +294,13 @@ PMATH_API pmath_t pmath_option_value(
   
   pmath_unref(head);
   
-  if(pmath_same(more, PMATH_UNDEFINED)) 
+  if(pmath_same(more, PMATH_UNDEFINED))
     more = _pmath_object_emptylist;
-  
+    
   pmath_message(
     PMATH_SYMBOL_OPTIONVALUE, "optnf", 2,
     pmath_ref(name),
     pmath_ref(more));
-  
+    
   return pmath_ref(name);
 }

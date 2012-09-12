@@ -737,6 +737,9 @@ PMATH_PRIVATE pmath_t _pmath_expr_shrink_associative(
     const pmath_t *items;
     
     items = pmath_expr_read_item_data(expr);
+    if(!items)
+      pmath_debug_print("[pmath_expr_read_item_data() gave NULL in %s:%d]\n", __FILE__, __LINE__);
+      
     assert(items != NULL);
     
     while(srci0 <= len && pmath_same(items[srci0], magic_rem))
@@ -773,6 +776,8 @@ PMATH_API pmath_expr_t pmath_expr_remove_all(
     const pmath_t *items;
     
     items = pmath_expr_read_item_data(expr);
+    if(!items)
+      pmath_debug_print("[pmath_expr_read_item_data() gave NULL in %s:%d]\n", __FILE__, __LINE__);
     assert(items != NULL);
     
     while(srci0 <= len && pmath_equals(items[srci0], rem))
@@ -895,6 +900,8 @@ PMATH_PRIVATE pmath_expr_t _pmath_expr_sort_ex(
     if(is_sorted)
       return expr;
   }
+  else
+    pmath_debug_print("[pmath_expr_read_item_data() gave NULL in %s:%d]\n", __FILE__, __LINE__);
   
   if( pmath_refcount(expr) > 1 ||
       PMATH_AS_PTR(expr)->type_shift != PMATH_TYPE_SHIFT_EXPRESSION_GENERAL)
@@ -975,6 +982,8 @@ PMATH_PRIVATE pmath_expr_t _pmath_expr_sort_ex_context(
     if(is_sorted)
       return expr;
   }
+  else
+    pmath_debug_print("[pmath_expr_read_item_data() gave NULL in %s:%d]\n", __FILE__, __LINE__);
   
   if( pmath_refcount(expr) > 1 ||
       PMATH_AS_PTR(expr)->type_shift != PMATH_TYPE_SHIFT_EXPRESSION_GENERAL)

@@ -163,6 +163,8 @@ pmath_expr_t pmath_expr_get_item_range(
    \return A 0-based array of pmath_t or NULL on error. This array is only valid
            while \a expr is valid and not changed.
    
+   Note that this may return NULL even for valid expressions. E.g. for sparse
+   arrays.
    This function is for fast reading access to multiple items. You have to do 
    all the error checking alone. 
    Note that result[0] === pmath_expr_get_item(expr, 1), a.s.o.

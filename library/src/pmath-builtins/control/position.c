@@ -4,6 +4,7 @@
 #include <pmath-language/patterns-private.h>
 
 #include <pmath-util/concurrency/threads.h>
+#include <pmath-util/debug.h>
 #include <pmath-util/evaluation.h>
 #include <pmath-util/memory.h>
 #include <pmath-util/messages.h>
@@ -128,6 +129,8 @@ static struct index_lists_t **collect_position(
           list_end = new_end;
         }
       }
+      else
+        pmath_debug_print("[pmath_expr_read_item_data() gave NULL in %s:%d]\n", __FILE__, __LINE__);
     }
   }
   
