@@ -48,6 +48,9 @@ namespace richmath {
       
       virtual bool is_closed();
       
+      virtual String filename() { return _filename; }
+      virtual void filename(String new_filename);
+      
       Win32Widget *top_glass_area() {    return (Win32Widget*)_top_glass_area;    }
       Win32Widget *top_area() {          return (Win32Widget*)_top_area;          }
       Win32Widget *working_area() {      return (Win32Widget*)_working_area;      }
@@ -66,6 +69,7 @@ namespace richmath {
       
       String          _title;
       WindowFrameType _window_frame;
+      String          _filename;
       
     protected:
       virtual void on_theme_changed();

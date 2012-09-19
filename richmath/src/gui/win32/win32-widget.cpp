@@ -345,11 +345,11 @@ void Win32Widget::running_state_changed() {
 }
 
 bool Win32Widget::is_mouse_down() {
-  return GetKeyState(VK_LBUTTON) < 0
-         || GetKeyState(VK_RBUTTON) < 0
-         || GetKeyState(VK_MBUTTON) < 0
-         || GetKeyState(VK_XBUTTON1) < 0
-         || GetKeyState(VK_XBUTTON2) < 0;
+  return GetKeyState(VK_LBUTTON)  < 0 || 
+         GetKeyState(VK_RBUTTON)  < 0 || 
+         GetKeyState(VK_MBUTTON)  < 0 || 
+         GetKeyState(VK_XBUTTON1) < 0 || 
+         GetKeyState(VK_XBUTTON2) < 0;
 }
 
 void Win32Widget::beep() {

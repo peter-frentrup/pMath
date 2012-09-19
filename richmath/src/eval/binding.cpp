@@ -140,6 +140,15 @@ static pmath_t builtin_documents(pmath_expr_t expr) {
   return Application::notify_wait(CNT_GETDOCUMENTS, Expr()).release();
 }
 
+static pmath_t builtin_documentsave(pmath_expr_t _expr) {
+  if(pmath_expr_length(_expr) > 2) {
+    pmath_message_argxxx(pmath_expr_length(_expr), 0, 2);
+    return _expr;
+  }
+  
+  return Application::notify_wait(CNT_SAVE, Expr(_expr)).release();
+}
+
 static pmath_t builtin_currentvalue(pmath_expr_t expr) {
   return Application::notify_wait(CNT_CURRENTVALUE, Expr(expr)).release();
 }
@@ -984,6 +993,8 @@ static bool open_cmd(Expr cmd) {
       continue;
       
     String filename(filenames[i]);
+    doc->native()->filename(filename);
+    
     if(filename.part(filename.length() - 9).equals(".pmathdoc")) {
       Expr held_boxes = Application::interrupt(
                           Parse("Get(`1`, Head->HoldComplete)", filename),
@@ -1018,12 +1029,6 @@ static bool open_cmd(Expr cmd) {
     Expr section_expr = Call(Symbol(PMATH_SYMBOL_SECTION), s, String("Text"));
     doc->insert_pmath(&pos, section_expr);
     
-    int c = filename.length();
-    const uint16_t *buf = filename.buffer();
-    while(c >= 0 && buf[c] != '\\' && buf[c] != '/')
-      --c;
-      
-    doc->style->set(WindowTitle,                     filename.part(c + 1));
     doc->style->set(Visible,                         true);
     doc->style->set(InternalHasModifiedWindowOption, true);
     doc->invalidate_options();
@@ -1083,6 +1088,18 @@ static bool remove_from_evaluation_queue(Expr cmd) {
     doc->native()->beep();
     return false;
   }
+  
+  return true;
+}
+
+static bool save_cmd(Expr cmd) {
+  Application::notify_wait(CNT_SAVE, List(Symbol(PMATH_SYMBOL_AUTOMATIC), Symbol(PMATH_SYMBOL_AUTOMATIC)));
+  
+  return true;
+}
+
+static bool saveas_cmd(Expr cmd) {
+  Application::notify_wait(CNT_SAVE, List(Symbol(PMATH_SYMBOL_AUTOMATIC), Symbol(PMATH_SYMBOL_NONE)));
   
   return true;
 }
@@ -1197,6 +1214,8 @@ bool richmath::init_bindings() {
 
   Application::register_menucommand(String("New"),                        new_cmd);
   Application::register_menucommand(String("Open"),                       open_cmd);
+  Application::register_menucommand(String("Save"),                       save_cmd);
+  Application::register_menucommand(String("SaveAs"),                     saveas_cmd);
   Application::register_menucommand(String("Close"),                      close_cmd);
   
   Application::register_menucommand(String("Copy"),                       copy_cmd,                            can_copy_cut);
@@ -1269,6 +1288,7 @@ bool richmath::init_bindings() {
   VERIFY(BIND_DOWN(PMATH_SYMBOL_DOCUMENTREAD,             builtin_documentread))
   VERIFY(BIND_DOWN(PMATH_SYMBOL_DOCUMENTWRITE,            builtin_documentapply_or_documentwrite))
   VERIFY(BIND_DOWN(PMATH_SYMBOL_DOCUMENTS,                builtin_documents))
+  VERIFY(BIND_DOWN(PMATH_SYMBOL_DOCUMENTSAVE,             builtin_documentsave))
   VERIFY(BIND_DOWN(PMATH_SYMBOL_EVALUATIONDOCUMENT,       builtin_evaluationdocument))
   VERIFY(BIND_DOWN(PMATH_SYMBOL_FRONTENDTOKENEXECUTE,     builtin_frontendtokenexecute))
   VERIFY(BIND_DOWN(PMATH_SYMBOL_SECTIONPRINT,             builtin_sectionprint))

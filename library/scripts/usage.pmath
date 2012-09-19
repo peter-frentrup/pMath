@@ -188,6 +188,7 @@ DocumentGet::usage:= "DocumentGet() gives the raw boxes expression of the curren
 DocumentRead::usage:= "DocumentRead() gives the raw boxes expression of the current selection.\nDocumentRead(\(StyleBox(\"document\", \"Arg\")\)) gives the raw boxes expression of the current selection in the given document."
 DocumentWrite::usage:= "DocumentWrite(\(StyleBox(\"document\", \"Arg\")\), \(StyleBox(\"data\", \"Arg\")\)) writes \(StyleBox(\"data\", \"Arg\")\) into a document at the current selection and then setting the cursor just after the data written."
 Documents::usage:= "Documents() gives a list of all documents currently opened in the front-end."
+DocumentSave::usage:= "DocumentSave() saves the current document.\nDocumentSave(\(StyleBox(\"doc\", \"Arg\")\)) saves some document identified by \(StyleBox(\"doc\", \"Arg\")\).\nDocumentSave(\(StyleBox(\"doc\", \"Arg\")\), \"\(StyleBox(\"filename\", \"Arg\")\)\") saves the document to a given file name."
 Dot::usage:= "Dot(\(StyleBox(\"a\", \"Arg\")\), \(StyleBox(\"b\", \"Arg\")\), \[Ellipsis]) gives the products of vectors, matrices and tensors."
 DotEqual::usage:= "DotEqual(\({StyleBox(\"x\", \"Arg\"), \",\", StyleBox(\"y\", \"Arg\"), \",\", \"\\[Ellipsis]\"}\)) displays as \(StyleBox(\"x\", \"Arg\")\) \[DotEqual] \(StyleBox(\"y\", \"Arg\")\) \[DotEqual] \[Ellipsis]."
 DownRules::usage:= "DownRules(\(StyleBox(\"f\", \"Arg\")\)) gives a list of transformation rules corresponding to all definitions \(StyleBox(\"f\", \"Arg\")\)(\[Ellipsis]) \[AssignDelayed] \[Ellipsis]."

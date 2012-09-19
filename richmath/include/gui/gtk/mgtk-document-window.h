@@ -72,6 +72,9 @@ namespace richmath {
       
       void move_palettes();
       
+      String filename(){ return _filename; }
+      void filename(String new_filename);
+      
     protected:
       void title(       String          text);
       void window_frame(WindowFrameType type);
@@ -84,6 +87,7 @@ namespace richmath {
     private:
       String          _title;
       WindowFrameType _window_frame;
+      String          _filename;
       
       Array<DocumentPosition> _snapped_documents; // [0] = self
       

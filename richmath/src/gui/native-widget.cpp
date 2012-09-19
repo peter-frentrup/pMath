@@ -67,6 +67,8 @@ class DummyNativeWidget: public NativeWidget {
       return false;
     }
     
+    virtual String filename(){ return String(); }
+    virtual void filename(String new_filename) {}
 };
 
 static DummyNativeWidget staticdummy;

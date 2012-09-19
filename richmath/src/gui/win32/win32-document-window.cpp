@@ -94,6 +94,9 @@ class richmath::Win32WorkingArea: public Win32Widget {
       if(_parent)
         _parent->invalidate_options();
     }
+  
+    virtual String filename() { return _parent->filename(); }
+    virtual void filename(String new_filename) { _parent->filename(new_filename); }
     
   private:
     Win32DocumentWindow *_parent;
@@ -241,6 +244,9 @@ class richmath::Win32Dock: public Win32Widget {
       if(_parent)
         _parent->reset_title();
     }
+    
+    virtual String filename() { return _parent->filename(); }
+    virtual void filename(String new_filename) { _parent->filename(new_filename); }
     
     void resize() {
       HDC dc = GetDC(_hwnd);
@@ -875,9 +881,19 @@ void Win32DocumentWindow::invalidate_options() {
 void Win32DocumentWindow::title(String text) {
   _title = text;
   
-  if(text.is_null())
-    text = "untitled";
-    
+  if(text.is_null()) {
+    if(_filename.is_valid()) {
+      int c = _filename.length();
+      const uint16_t *buf = _filename.buffer();
+      while(c >= 0 && buf[c] != '\\' && buf[c] != '/')
+        --c;
+      
+      text = _filename.part(c + 1);
+    }
+    else
+      text = "untitled";
+  }
+  
   if(!Application::is_idle(document()))
     text = String("Running... ") + text;
     
@@ -970,6 +986,12 @@ bool Win32DocumentWindow::is_closed() {
     
   return BasicWin32Window::is_closed();
 }
+
+void Win32DocumentWindow::filename(String new_filename) { 
+  _filename = new_filename;
+  reset_title();
+}
+    
 
 void Win32DocumentWindow::on_theme_changed() {
   BasicWin32Window::on_theme_changed();

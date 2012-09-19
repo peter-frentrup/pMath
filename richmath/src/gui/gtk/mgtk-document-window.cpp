@@ -64,6 +64,9 @@ class richmath::MathGtkWorkingArea: public MathGtkWidget {
       return h;
     }
     
+    virtual String filename() { return _parent->filename(); }
+    virtual void filename(String new_filename) { _parent->filename(new_filename); }
+    
   protected:
     virtual void paint_background(Canvas *canvas) {
       if(!_parent->is_palette())
@@ -166,6 +169,9 @@ class richmath::MathGtkDock: public MathGtkWidget {
     virtual void running_state_changed() {
       _parent->reset_title();
     }
+    
+    virtual String filename() { return _parent->filename(); }
+    virtual void filename(String new_filename) { _parent->filename(new_filename); }
     
   protected:
     virtual void after_construction() {
@@ -410,9 +416,19 @@ void MathGtkDocumentWindow::invalidate_options() {
 void MathGtkDocumentWindow::title(String text) {
   _title = text;
   
-  if(text.is_null())
-    text = "untitled";
-    
+  if(text.is_null()) {
+    if(_filename.is_valid()) {
+      int c = _filename.length();
+      const uint16_t *buf = _filename.buffer();
+      while(c >= 0 && buf[c] != '\\' && buf[c] != '/')
+        --c;
+      
+      text = _filename.part(c + 1);
+    }
+    else
+      text = "untitled";
+  }
+  
   if(!Application::is_idle(document()))
     text = String("Running... ") + text;
     
@@ -717,6 +733,11 @@ void MathGtkDocumentWindow::move_palettes() {
       gtk_window_set_gravity(GTK_WINDOW(win->widget()), old_gravity);
     }
   }
+}
+
+void filename(String new_filename) { 
+  _filename = new_filename; 
+  reset_title();
 }
 
 bool MathGtkDocumentWindow::on_configure(GdkEvent *e) {

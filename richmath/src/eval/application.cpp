@@ -439,7 +439,7 @@ void Application::gui_print_section(Expr expr) {
                                 "Try(Replace(`1`, Flatten(`2`)))",
                                 base_style_name,
                                 rules));
-          
+                                
           if(base_style != PMATH_SYMBOL_FAILED) {
             sect->style->remove(BaseStyleName);
             sect->style->add_pmath(base_style);
@@ -846,7 +846,7 @@ Document *Application::create_document(Expr data) {
     doc->select(0, 0, 0);
     
   doc->invalidate_options();
-
+  
   return doc;
 }
 
@@ -947,11 +947,11 @@ static void interrupt_wait_idle(void *data) {
 //    if(cn.type == CNT_END || cn.type == CNT_ENDSESSION) {
 //      //notifications.put_front(cn);
 //      //break;
-//      
+//
 //      suppressed_notifications->put_front(cn);
 //      continue;
 //    }
-    
+
     /* We must filter out CNT_DYNAMICUPDATE because that could update a parent
        DynamicBox of the DynamicBox that is currently updated during its
        paint() event. That would cause a memory corruption/crash.
@@ -1435,9 +1435,9 @@ static Expr cnt_getevaluationdocument(Expr data) {
   if(box)
     doc = box->find_parent<Document>(true);
     
-  if(doc->main_document)  
+  if(doc->main_document)
     doc = doc->main_document;
-  
+    
   if(doc)
     return Call(Symbol(PMATH_SYMBOL_FRONTENDOBJECT), doc->id());
     
@@ -1513,6 +1513,73 @@ static Expr cnt_fontdialog(Expr data) {
   return Symbol(PMATH_SYMBOL_FAILED);
 }
 
+static Expr cnt_save(Expr data) {
+  // data = {document, filename}
+  // data = {document, None} = always ask for new file name
+  // data = {document}       = use document file name if available, ask otherwise
+  // data = {Automatic, ...}
+  
+  Document *doc = 0;
+  
+  if(data[1].is_expr()) {
+    Box *box = FrontEndObject::find_cast<Box>(data[1]);
+    
+    if(box)
+      doc = box->find_parent<Document>(true);
+  }
+  else
+    doc = get_current_document();
+    
+  if(!doc)
+    return Symbol(PMATH_SYMBOL_FAILED);
+    
+  Expr filename = data[2];
+  
+  if(!filename.is_string() && filename != PMATH_SYMBOL_NONE)
+    filename = doc->native()->filename();
+    
+  if(!filename.is_string()) {
+    String initialfile = doc->native()->filename();
+    
+    if(initialfile.is_null())
+      initialfile = String("untitled.pmathdoc");
+      
+    Expr filter = List(
+                    Rule(String("pMath Documents (*.pmathdoc)"), String("*.pmathdoc"))/*,
+                    Rule(String("All Files (*.*)"),              String("*.*"))*/);
+
+    filename = Application::run_filedialog(
+                 Call(
+                   GetSymbol(FileSaveDialog),
+                   filter));
+  }
+  
+  if(!filename.is_string())
+    return Symbol(PMATH_SYMBOL_FAILED);
+    
+  WriteableTextFile file(Evaluate(Call(Symbol(PMATH_SYMBOL_OPENWRITE), filename)));
+  if(!file.is_file())
+    return Symbol(PMATH_SYMBOL_FAILED);
+    
+  Expr nsp(pmath_symbol_get_value(PMATH_SYMBOL_NAMESPACEPATH));
+  Expr ns( pmath_symbol_get_value(PMATH_SYMBOL_NAMESPACE));
+  Expr boxes = doc->to_pmath(BoxOptionDefault);
+  
+  file.write("/* pMath Document */\n\n");
+  
+  pmath_symbol_set_value(PMATH_SYMBOL_NAMESPACEPATH, List().release());
+  pmath_symbol_set_value(PMATH_SYMBOL_NAMESPACE,     String("Symbol`").release());
+  
+  boxes.write_to_file(file, PMATH_WRITE_OPTIONS_INPUTEXPR | PMATH_WRITE_OPTIONS_FULLSTR);
+  
+  pmath_symbol_set_value(PMATH_SYMBOL_NAMESPACEPATH, nsp.release());
+  pmath_symbol_set_value(PMATH_SYMBOL_NAMESPACE,     ns.release());
+  
+  file.close();
+  doc->native()->filename(filename);
+  return filename;
+}
+
 static void execute(ClientNotification &cn) {
   switch(cn.type) {
     case CNT_STARTSESSION:
@@ -1562,7 +1629,6 @@ static void execute(ClientNotification &cn) {
         *cn.result_ptr = cnt_setoptions(cn.data).release();
       else
         cnt_setoptions(cn.data);
-        
       break;
       
     case CNT_DYNAMICUPDATE:
@@ -1574,7 +1640,6 @@ static void execute(ClientNotification &cn) {
         *cn.result_ptr = cnt_createdocument(cn.data).release();
       else
         cnt_createdocument(cn.data);
-        
       break;
       
     case CNT_CURRENTVALUE:
@@ -1610,6 +1675,13 @@ static void execute(ClientNotification &cn) {
     case CNT_FILEDIALOG:
       if(cn.result_ptr)
         *cn.result_ptr = Application::run_filedialog(cn.data).release();
+      break;
+      
+    case CNT_SAVE:
+      if(cn.result_ptr)
+        *cn.result_ptr = cnt_save(cn.data).release();
+      else
+        cnt_save(cn.data);
       break;
   }
   

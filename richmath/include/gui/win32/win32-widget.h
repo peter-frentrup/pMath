@@ -66,6 +66,9 @@ namespace richmath {
       
       virtual bool register_timed_event(SharedPtr<TimedEvent> event);
       
+      virtual String filename(){ return String(); }
+      virtual void filename(String new_filename) {}
+      
     public:
       STDMETHODIMP DragEnter(IDataObject *data_object, DWORD key_state, POINTL pt, DWORD *effect);
       STDMETHODIMP DragLeave(void);

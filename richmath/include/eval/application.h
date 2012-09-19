@@ -28,7 +28,8 @@ namespace richmath {
     CNT_DOCUMENTREAD,
     CNT_COLORDIALOG,
     CNT_FONTDIALOG,
-    CNT_FILEDIALOG
+    CNT_FILEDIALOG,
+    CNT_SAVE
   } ClientNotificationType;
   
   class Box;

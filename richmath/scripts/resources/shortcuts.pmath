@@ -17,6 +17,7 @@ Begin("FE`Private`")
 FE`Private`shortcuts:= {
 	Item(KeyEvent("N", {KeyControl}),               "New"),
 	Item(KeyEvent("O", {KeyControl}),               "Open"),
+	Item(KeyEvent("S", {KeyControl}),               "Save"),
    
 	Item(KeyEvent("X", {KeyControl}),               "Cut"),
 	Item(KeyEvent("C", {KeyControl}),               "Copy"),

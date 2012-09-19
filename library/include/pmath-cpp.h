@@ -877,7 +877,7 @@ namespace pmath {
       /**\brief Closes a file immediatly instead of letting the garbage collector close it later.
        */
       void close() throw() {
-        pmath_file_close(_obj);
+        pmath_file_close(release());
       }
       
     private:

@@ -59,6 +59,9 @@ namespace richmath {
       
       virtual bool register_timed_event(SharedPtr<TimedEvent> event);
       
+      virtual String filename(){ return String(); }
+      virtual void filename(String new_filename) {}
+      
       GtkAdjustment *hadjustment() { return _hadjustment; }
       GtkAdjustment *vadjustment() { return _vadjustment; }
       void hadjustment(GtkAdjustment *ha);

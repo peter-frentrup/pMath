@@ -64,7 +64,7 @@ namespace richmath {
       virtual void double_click_dist(float *dx, float *dy) = 0;
       virtual void do_drag_drop(Box *src, int start, int end) = 0;
       virtual bool cursor_position(float *x, float *y) = 0;
-      virtual bool may_drop_into(Box *dst, int strt, int end, bool self_is_source);
+      virtual bool may_drop_into(Box *dst, int start, int end, bool self_is_source);
       
       virtual void bring_to_front() = 0;
       virtual void close() = 0;
@@ -85,6 +85,9 @@ namespace richmath {
       virtual void beep() = 0;
       
       virtual bool register_timed_event(SharedPtr<TimedEvent> event) = 0;
+      
+      virtual String filename() = 0;
+      virtual void filename(String new_filename) = 0;
       
       Document *document() { return _document; }
       float custom_scale_factor() { return _custom_scale_factor; }

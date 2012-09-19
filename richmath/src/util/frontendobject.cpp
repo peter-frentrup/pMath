@@ -26,8 +26,9 @@ FrontEndObject *FrontEndObject::find(int id) {
 }
 
 FrontEndObject *FrontEndObject::find(Expr frontendobject) {
-  if(frontendobject.expr_length() == 1
-      && frontendobject[0] == PMATH_SYMBOL_FRONTENDOBJECT) {
+  if( frontendobject.expr_length() == 1 && 
+      frontendobject[0] == PMATH_SYMBOL_FRONTENDOBJECT) 
+  {
     Expr num = frontendobject[1];
     
     if(num.is_int32())
