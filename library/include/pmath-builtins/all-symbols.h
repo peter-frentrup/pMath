@@ -837,5 +837,6 @@ pmath_bool_t pmath_register_approx_code(
 #define PMATH_SYMBOL_PLOTPOINTS                             PMATH_SYMBOL_BUILTIN(745)
 #define PMATH_SYMBOL_MAXRECURSION                           PMATH_SYMBOL_BUILTIN(746)
 #define PMATH_SYMBOL_ISOPTION                               PMATH_SYMBOL_BUILTIN(747)
+#define PMATH_SYMBOL_DOCUMENTSAVE                           PMATH_SYMBOL_BUILTIN(748)
 
 #endif /* __PMATH_BUILTINS__SYMBOLS_H__ */

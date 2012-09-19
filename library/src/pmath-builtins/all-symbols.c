@@ -832,6 +832,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_DOCUMENTREAD                     = NEW_SYSTEM_SYMBOL("DocumentRead"))
   VERIFY(   PMATH_SYMBOL_DOCUMENTWRITE                    = NEW_SYSTEM_SYMBOL("DocumentWrite"))
   VERIFY(   PMATH_SYMBOL_DOCUMENTS                        = NEW_SYSTEM_SYMBOL("Documents"))
+  VERIFY(   PMATH_SYMBOL_DOCUMENTSAVE                     = NEW_SYSTEM_SYMBOL("DocumentSave"))
   VERIFY(   PMATH_SYMBOL_DOT                              = NEW_SYSTEM_SYMBOL("Dot"))
   VERIFY(   PMATH_SYMBOL_DOTEQUAL                         = NEW_SYSTEM_SYMBOL("DotEqual"))
   VERIFY(   PMATH_SYMBOL_DOWNRULES                        = NEW_SYSTEM_SYMBOL("DownRules"))
@@ -1552,6 +1553,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   PMATH_SYMBOL_DOCUMENTREAD,                general_builtin_nofront);
   BIND_DOWN(   PMATH_SYMBOL_DOCUMENTWRITE,               general_builtin_nofront);
   BIND_DOWN(   PMATH_SYMBOL_DOCUMENTS,                   general_builtin_nofront);
+  BIND_DOWN(   PMATH_SYMBOL_DOCUMENTSAVE,                general_builtin_nofront);
   BIND_DOWN(   PMATH_SYMBOL_DOT,                         builtin_dot)
   BIND_DOWN(   PMATH_SYMBOL_DOWNRULES,                   builtin_symbol_rules)
   BIND_DOWN(   PMATH_SYMBOL_DROP,                        builtin_drop)
