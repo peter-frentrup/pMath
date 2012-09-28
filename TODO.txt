@@ -4,7 +4,12 @@
 
 ? add InputDocument(): Palettes may be the SelectedDocument(), but never the InputDocument()
 
-- pause all EvaluateDelayed() or only abortion times durin GUI operations
+- support FontSlant->Toggle, FontWeight->Toggle, FontSize->Larger, FontSize->Smaller
+
+- add "GraphicsOriginalSize" (make standard size)
+
+- pause all EvaluateDelayed() or only abortion times durin GUI operations, delay abort-actions 
+  during Finally()
 
 - richmath: line heights jump up and down in Column({Dynamic(x),Slider(Dynamic(x),0..9..1)})
 - richmath: DocumentApply(..., Section(...)) does not handle placeholders (same for SectionGroup)

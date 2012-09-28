@@ -95,23 +95,23 @@ bool Win32Clipboard::has_format(String mimetype) {
   return false;
 }
 
-Expr Win32Clipboard::read_as_binary_file(String mimetype) {
+ReadableBinaryFile Win32Clipboard::read_as_binary_file(String mimetype) {
   unsigned int id = mime_to_win32cbformat[mimetype];
   
   if(!id || !IsClipboardFormatAvailable(id))
-    return Expr();
+    return ReadableBinaryFile();
     
   if(!OpenClipboard(w32cbinfo.hwnd()))
-    return Expr();
+    return ReadableBinaryFile();
     
-  Expr result;
+  ReadableBinaryFile result;
   HANDLE hglb = GetClipboardData(id);
   if(hglb) {
     void *data = GlobalLock(hglb);
     if(data) {
       size_t size = GlobalSize(hglb);
       
-      result = Expr(pmath_file_create_binary_buffer(size));
+      result = ReadableBinaryFile(pmath_file_create_binary_buffer(size));
       pmath_file_write(result.get(), data, size);
       
       GlobalUnlock(hglb);

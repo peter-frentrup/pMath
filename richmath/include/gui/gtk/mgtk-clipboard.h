@@ -21,8 +21,8 @@ namespace richmath {
       
       virtual bool has_format(String mimetype);
       
-      virtual Expr   read_as_binary_file(String mimetype);
-      virtual String read_as_text(String mimetype);
+      virtual ReadableBinaryFile read_as_binary_file(String mimetype);
+      virtual String             read_as_text(String mimetype);
       
       virtual SharedPtr<OpenedClipboard> open_write();
       

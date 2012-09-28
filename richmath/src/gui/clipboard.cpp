@@ -8,8 +8,8 @@ class DummyClipboard: public Clipboard {
       return false;
     }
     
-    virtual Expr read_as_binary_file(String mimetype) {
-      return Expr();
+    virtual ReadableBinaryFile read_as_binary_file(String mimetype) {
+      return ReadableBinaryFile();
     }
     
     virtual String read_as_text(String mimetype) {
@@ -50,13 +50,13 @@ static void abf_flush(
                     (size_t) * writable - (size_t)readable);
 }
 
-bool OpenedClipboard::add_binary_file(String mimetype, Expr binfile) {
+bool OpenedClipboard::add_binary_buffer(String mimetype, Expr binbuffer) {
   struct abf_info_t info;
   info.self     = this;
   info.mimetype = mimetype;
   info.success  = false;
   
-  pmath_file_binary_buffer_manipulate(binfile.get(), abf_flush, &info);
+  pmath_file_binary_buffer_manipulate(binbuffer.get(), abf_flush, &info);
   
   return info.success;
 }

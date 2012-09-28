@@ -11,7 +11,7 @@ namespace richmath {
       virtual bool add_binary(String mimetype, void *data, size_t size) = 0;
       virtual bool add_text(String mimetype, String data) = 0;
       
-      virtual bool add_binary_file(String mimetype, Expr binfile);
+      virtual bool add_binary_buffer(String mimetype, Expr binbuffer);
   };
   
   class Clipboard: public Base {
@@ -29,8 +29,8 @@ namespace richmath {
       
       virtual bool has_format(String mimetype) = 0;
       
-      virtual Expr   read_as_binary_file(String mimetype) = 0;
-      virtual String read_as_text(String mimetype) = 0;
+      virtual ReadableBinaryFile read_as_binary_file(String mimetype) = 0;
+      virtual String             read_as_text(String mimetype) = 0;
       
       virtual SharedPtr<OpenedClipboard> open_write() = 0;
   };

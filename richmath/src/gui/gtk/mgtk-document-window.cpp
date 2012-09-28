@@ -735,7 +735,7 @@ void MathGtkDocumentWindow::move_palettes() {
   }
 }
 
-void filename(String new_filename) { 
+void MathGtkDocumentWindow::filename(String new_filename) { 
   _filename = new_filename; 
   reset_title();
 }

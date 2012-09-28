@@ -2226,8 +2226,8 @@ void Document::copy_to_clipboard() {
   }
   
   Expr file = Expr(pmath_file_create_binary_buffer(0));
-  copy_to_binary(Clipboard::BoxesBinary, file);
-  cb->add_binary_file(Clipboard::BoxesBinary, file);
+  copy_to_binary(Clipboard::BoxesBinary, binbuffer);
+  cb->add_binary_buffer(Clipboard::BoxesBinary, binbuffer);
   
   //cb->add_text(Clipboard::BoxesText, copy_to_text(Clipboard::BoxesText));
   cb->add_text(Clipboard::PlainText, copy_to_text(Clipboard::PlainText));

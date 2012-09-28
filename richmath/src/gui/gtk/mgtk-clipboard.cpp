@@ -148,23 +148,23 @@ bool MathGtkClipboard::has_format(String mimetype) {
   return false;
 }
 
-Expr MathGtkClipboard::read_as_binary_file(String mimetype) {
+ReadableBinaryFile MathGtkClipboard::read_as_binary_file(String mimetype) {
   GtkSelectionData *data = gtk_clipboard_wait_for_contents(
                              clipboard(),
                              MathGtkClipboard::mimetype_to_atom(mimetype));
                              
   if(!data)
-    return Expr();
+    return ReadableBinaryFile();
     
   int size = gtk_selection_data_get_length(data);
   if(size < 0)
-    return Expr();
+    return ReadableBinaryFile();
     
   Expr result(pmath_file_create_binary_buffer((size_t)size));
   pmath_file_write(result.get(), gtk_selection_data_get_data(data), (size_t)size);
   
   gtk_selection_data_free(data);
-  return result;
+  return ReadableBinaryFile(result);
 }
 
 String MathGtkClipboard::read_as_text(String mimetype) {
