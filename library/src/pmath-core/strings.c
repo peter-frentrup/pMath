@@ -894,6 +894,23 @@ char *pmath_string_to_utf8(
   return res;
 }
 
+static void write_with_nulls(pmath_cstr_writer_info_t *info, const char *str, const char *end){
+  int len = (int)(end - str);
+  
+  while(len > 0){
+    int sublen = strlen(str) + 1;
+    
+    info->write_cstr(info->user, str);
+    
+    str+= sublen;
+    len-= sublen;
+    
+    if(len > 0){
+      info->write_cstr(info->user, "\\x00");
+    }
+  }
+}
+
 PMATH_API
 void pmath_utf8_writer(void *user, const uint16_t *data, int len) {
   char *inbuf  = (char *)data;
@@ -909,9 +926,7 @@ void pmath_utf8_writer(void *user, const uint16_t *data, int len) {
       if(errno == E2BIG) { // output buffer too small
         *outbuf = '\0';
         
-        ((pmath_cstr_writer_info_t *)user)->write_cstr(
-          ((pmath_cstr_writer_info_t *)user)->user,
-          buf);
+        write_with_nulls(user, buf, outbuf);
           
         outbuf = buf;
         outbytesleft = sizeof(buf) - 1;
@@ -924,11 +939,7 @@ void pmath_utf8_writer(void *user, const uint16_t *data, int len) {
   }
   
   *outbuf = '\0';
-  if(*buf) {
-    ((pmath_cstr_writer_info_t *)user)->write_cstr(
-      ((pmath_cstr_writer_info_t *)user)->user,
-      buf);
-  }
+  write_with_nulls(user, buf, outbuf);
 }
 
 PMATH_API
@@ -947,7 +958,7 @@ void pmath_native_writer(void *user, const uint16_t *data, int len) {
 //      if(errno == E2BIG){ // output buffer too small
       *outbuf = '\0';
       
-      info->write_cstr(info->user, buf);
+      write_with_nulls(info, buf, outbuf);
       
       outbuf = buf;
       outbytesleft = sizeof(buf) - 1;
@@ -997,8 +1008,7 @@ void pmath_native_writer(void *user, const uint16_t *data, int len) {
   }
   
   *outbuf = '\0';
-  if(*buf)
-    info->write_cstr(info->user, buf);
+  write_with_nulls(info, buf, outbuf);
 }
 
 PMATH_API
