@@ -119,7 +119,7 @@ PMATH_API unsigned int pmath_hash(pmath_t obj) {
 }
 
 #ifdef pmath_equals
-#undef pmath_equals
+#  undef pmath_equals
 #endif
 
 PMATH_API pmath_bool_t pmath_equals(

@@ -314,8 +314,10 @@ static pmath_bool_t binary_read(
                           0,
                           &data);
 
-          if(type == INT)
+          if(type == INT) {
+            *type_value = _add_nn(*type_value, PMATH_FROM_INT32(1));
             *type_value = pmath_number_neg(*type_value);
+          }
           return TRUE;
         }
 
