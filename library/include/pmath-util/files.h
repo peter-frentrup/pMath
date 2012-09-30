@@ -122,9 +122,14 @@ PMATH_API pmath_bool_t pmath_file_writetext(
   int              len);
 
 /**\brief Flush the output buffer of a writeable file.
-   \param file A writeable binary file object. It wont be freed.
+   \param file A writeable file object (binary or text). It wont be freed.
  */
 PMATH_API void pmath_file_flush(pmath_t file);
+
+/**\brief Get the stream's position, if possible
+   \param file A file object. It wont be freed.
+ */
+PMATH_API int64_t pmath_file_get_position(pmath_t file);
 
 /**\brief Write an object to a text file.
    \param file A writeable text file object. It wont be freed.
@@ -219,6 +224,12 @@ typedef struct {
   /**\brief An optional callback function for flushing an output buffer.
    */
   void (*flush_function)(void *extra);
+  
+  /**\brief An optional callback function for retrieving the current stream 
+     position.
+   */
+  int64_t (*get_pos_function)(void *extra);
+  
 } pmath_binary_file_api_t;
 
 /**\brief Create a binary file object.
@@ -268,6 +279,12 @@ typedef struct {
   /**\brief An optional callback function for flushing an output buffer.
    */
   void (*flush_function)(void *extra);
+  
+  /**\brief An optional callback function for retrieving the current stream 
+     position.
+   */
+  int64_t (*get_pos_function)(void *extra);
+  
 } pmath_text_file_api_t;
 
 /**\brief Create a text file object.

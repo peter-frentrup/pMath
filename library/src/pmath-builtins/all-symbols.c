@@ -289,6 +289,7 @@ PMATH_PRIVATE pmath_t builtin_renamedirectory_and_renamefile(pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_resetdirectory(                pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_sectionprint(                  pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_setdirectory(                  pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_streamposition(                pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_stringcases(                   pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_stringcount(                   pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_stringdrop(                    pmath_expr_t expr);
@@ -1291,6 +1292,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_STANDARDFORM                     = NEW_SYSTEM_SYMBOL("StandardForm"))
   VERIFY(   PMATH_SYMBOL_STARTOFLINE                      = NEW_SYSTEM_SYMBOL("StartOfLine"))
   VERIFY(   PMATH_SYMBOL_STARTOFSTRING                    = NEW_SYSTEM_SYMBOL("StartOfString"))
+  VERIFY(   PMATH_SYMBOL_STREAMPOSITION                   = NEW_SYSTEM_SYMBOL("StreamPosition"))
   VERIFY(   PMATH_SYMBOL_STRING                           = NEW_SYSTEM_SYMBOL("String"))
   VERIFY(   PMATH_SYMBOL_STRINGCASES                      = NEW_SYSTEM_SYMBOL("StringCases"))
   VERIFY(   PMATH_SYMBOL_STRINGCOUNT                      = NEW_SYSTEM_SYMBOL("StringCount"))
@@ -1766,6 +1768,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   PMATH_SYMBOL_SPLIT,                       builtin_split)
   BIND_DOWN(   PMATH_SYMBOL_SQRT,                        builtin_sqrt)
   BIND_DOWN(   PMATH_SYMBOL_STACK,                       builtin_stack)
+  BIND_DOWN(   PMATH_SYMBOL_STREAMPOSITION,              builtin_streamposition)
   BIND_DOWN(   PMATH_SYMBOL_STRINGCASES,                 builtin_stringcases)
   BIND_DOWN(   PMATH_SYMBOL_STRINGCOUNT,                 builtin_stringcount)
   BIND_DOWN(   PMATH_SYMBOL_STRINGDROP,                  builtin_stringdrop)

@@ -1,0 +1,348 @@
+/* read 32bit little endian *.mx files (tested with Mathematica 6: version 16^^40180000)*/
+
+readString(~mx)::= 
+	Local({len, bytelen, bytes},
+		len:= mx.BinaryRead("UnsignedInteger32");
+		If(len < 1,
+			Message(readString::"0len");
+			Return($Failed);
+			);
+		bytelen:= BitAnd(len + 3, BitNot(3));
+		bytes:= mx.BinaryRead(ConstantArray("Byte", bytelen));
+		If(bytes.Length != bytelen,
+			Message(readString::"eof");
+			Return($Failed);
+			);
+		If(bytes[len] != 0,
+			
+			Message(readString::"0term");
+			Return($Failed);
+			);
+		
+		Return(FromCharacterCode(bytes[1 .. len-1]));
+	)
+
+readMagicString(~mx, ~str, ~errsym)::= 
+	With({read:= mx.readString()},
+		If(read =!= str, 
+			Message(errsym::"magic", str, read);
+			Return(False));
+		Return(True);
+		)
+
+readMagicUI32(~mx, ~val, ~errsym)::= 
+	With({read:= mx.BinaryRead("UnsignedInteger32")},
+		If(read =!= val, 
+			Message(errsym::"magic", BaseForm(val, 16), BaseForm(read, 16));
+			Return(False));
+		Return(True);
+		)
+
+doStage1(~mx)::= 
+	Local({constantCache, numConsts, typeId, subTypeId, val, i, len, sgn, exp, prec1, prec2, total, dims},
+		If(!mx.readMagicString("Stage 1", doStage1),
+			Return({});
+			);
+		
+		numConsts:= mx.BinaryRead("UnsignedInteger32");
+		constantCache:= ConstantArray($Failed, numConsts);
+		
+		Do(
+			typeId:= mx.BinaryRead("Integer32");
+			
+			Switch(typeId,
+				-1, constantCache[i]:= mx.BinaryRead("Real64"),
+				
+				-2, constantCache[i]:= mx.BinaryRead("Integer32"),
+				
+				-3, ( /* packed array of ... */
+					subTypeId:= mx.BinaryRead("Integer32");
+					
+					Switch(subTypeId,
+						2, ( /* packed array of Integer32 */
+							len:= mx.BinaryRead("UnsignedInteger32");
+							total:= mx.BinaryRead("UnsignedInteger32");
+							dims:= mx.BinaryRead(ConstantArray("UnsignedInteger32", len));
+							
+							If(Times @@ dims =!= total,
+								Message(doStage1::"dimtotal", i, typeId, subTypeId, total, dims); 
+								Break();
+								);
+							
+							val:= mx.BinaryRead(ConstantArray("Integer32", dims));
+							constantCache[i]:= val;
+							),
+						
+						3, ( /* packed array of Real64 */
+							len:= mx.BinaryRead("UnsignedInteger32");
+							total:= mx.BinaryRead("UnsignedInteger32");
+							dims:= mx.BinaryRead(ConstantArray("UnsignedInteger32", len));
+							
+							If(Times @@ dims =!= total,
+								Message(doStage1::"dimtotal", i, typeId, subTypeId, total, dims); 
+								Break();
+								);
+							
+							val:= mx.BinaryRead(ConstantArray("Real64", dims));
+							constantCache[i]:= val;
+							),
+						
+						4, ( /* packed array of Complex128 */
+							len:= mx.BinaryRead("UnsignedInteger32");
+							total:= mx.BinaryRead("UnsignedInteger32");
+							dims:= mx.BinaryRead(ConstantArray("UnsignedInteger32", len));
+							
+							If(Times @@ dims =!= total,
+								Message(doStage1::"dimtotal", i, typeId, subTypeId, total, dims); 
+								Break();
+								);
+							
+							val:= mx.BinaryRead(ConstantArray("Complex128", dims));
+							constantCache[i]:= val;
+							),
+							
+						~, (
+							Message(doStage1::"arrtyp", i, typeId, subTypeId); 
+							Break();
+							));
+					),
+				
+				-6, constantCache[i]:= mx.readString(),
+				
+				-7, ( /* bigint */
+					len:= mx.BinaryRead("UnsignedInteger32");
+					sgn:= mx.BinaryRead("UnsignedInteger32"); /* 0 or 1 */
+					If(sgn =!= 0 && sgn =!= 1,
+						Message(doStage1::"invsign", i, typeId, sgn); 
+						Break();
+						);
+					val:= mx.BinaryRead(ConstantArray("UnsignedInteger32", len));
+					val:= Total(val * 2^(32 Array(0 .. len-1)));
+					If(sgn === 1,
+						val:= -val);
+					constantCache[i]:= val;
+					),
+				
+				-8, ( /* bigfloat */
+					len:= mx.BinaryRead("UnsignedInteger32");
+					sgn:= mx.BinaryRead("UnsignedInteger32"); /* 0 or 1 */
+					If(sgn =!= 0 && sgn =!= 1,
+						Message(doStage1::"invsign", i, typeId, sgn); 
+						Break();
+						);
+					exp:= mx.BinaryRead("Integer32"); 
+					prec1:= mx.BinaryRead("Real64"); 
+					prec2:= mx.BinaryRead("Real64"); 
+					val:= mx.BinaryRead(ConstantArray("UnsignedInteger32", len));
+					val:= Total(val * 2^(-32 Array(len .. 1 .. -1)));
+					val:= val * 2^(32 exp);
+					If(sgn === 1,
+						val:= -val);
+					val:= SetPrecision(val, ((len - 1) * prec1 - prec2) Log(10, 2));
+					constantCache[i]:= val;
+					),
+					
+				~, (
+					Message(doStage1::"invtyp", i, typeId); 
+					Break();
+					));
+			,i -> numConsts);
+		
+		Return(constantCache);
+		)
+
+doStage2(~mx, ~constantCache)::= 
+	Local({symbolCache, numSymbols, i, fields},
+		If(!mx.readMagicString("Stage 2", doStage2),
+			Return({});
+			);
+		
+		/* This a table containing 5 fields (UnsignedInteger32) per symbol: 
+		 * {namespaceNamePtr, namePtr, ?, ?, attributes}
+		 * 
+		 * attributes: (Stub is missing, high order word = 0)
+		 *   ____----____----
+		 *   0001000101111000
+		 *    | | | | | | | ^ ?                   0
+		 *    | | | | | | |^- HoldFirst           1
+		 *    | | | | | | '-- HoldRest            2
+		 *    | | | | | |^--- Flat                3
+		 *    | | | | | '---- Orderless           4
+		 *    | | | | |^----- OneIdentity         5
+		 *    | | | | '------ Listable            6
+		 *    | | | |^------- Constant            7
+		 *    | | | '-------- Protected           8
+		 *    | | |^--------- ReadProtected       9
+		 *    | | '---------- NHoldFirst         10
+		 *    | |^----------- NHoldRest          11
+		 *    | '------------ NumericFunction    12
+		 *    |^------------- SequenceHold       13
+		 *    '-------------- HoldAllComplete    14
+		 *   ^--------------- Temporary          15
+		 */
+		
+		numSymbols:= mx.BinaryRead("UnsignedInteger32");
+		symbolCache:= ConstantArray($Failed, numSymbols);
+		
+		Do(
+			fields:= mx.BinaryRead({
+				"UnsignedInteger32",
+				"UnsignedInteger32",
+				"UnsignedInteger32",
+				"UnsignedInteger32",
+				"UnsignedInteger32"});
+			
+			fields[1]:= constantCache[fields[1]];
+			fields[2]:= constantCache[fields[2]];
+			
+			symbolCache[i]:= fields;
+			
+			,i -> numSymbols);
+		
+		Return(symbolCache);
+		)
+		
+doStage3(~mx, ~constantCache, ~symbolCache)::= 
+	Local({exprCache, numExpr, i, j, len, flags, exprItems, typeId, ptr, pos},
+		exprCache(~p)::= (Message(doStage3::noexpr, p); $Failed);
+		
+		If(!mx.readMagicString("Stage 3", doStage3),
+			Return(exprCache);
+			);
+		
+		numExpr:= mx.BinaryRead("UnsignedInteger32");
+		exprCache(Length):= numExpr;
+		
+		Do(
+			pos:= mx.StreamPosition;
+			len:= mx.BinaryRead("Integer32");
+			
+			If(len < 0,
+				If(len =!= -1,
+					Message(doStage3::"len", i, len));
+				exprCache(i):= {len, {}, pos};
+				Continue());
+			
+			flags:= mx.BinaryRead({"UnsignedInteger32", "UnsignedInteger32", "UnsignedInteger32"});
+			
+			exprItems:= ConstantArray($Failed, len);
+			exprItems[0]:= $Failed;
+			
+			Do(
+				typeId:= mx.BinaryRead("Integer32");
+				
+				Switch(typeId,
+					0 | 2 | 6 | 7, ( /* i32, real, string, packed */
+						ptr:= mx.BinaryRead("UnsignedInteger32");
+						If(ptr > constantCache.Length || ptr < 1,
+							Message(doStage3::invconst, i, j, typeId, ptr);
+							Continue());
+						exprItems[j]:= MxConst(constantCache[ptr], ptr, typeId);
+						),
+						
+					4, ( /* expr */
+						ptr:= mx.BinaryRead("UnsignedInteger32");
+						If(ptr >= i || ptr < 1,
+							Message(doStage3::invexpr, i, j, typeId, ptr);
+							Continue());
+						exprItems[j]:= MxExpr(ptr); /* exprCache(ptr) */
+						),
+						
+					5, ( /* symbol */
+						ptr:= mx.BinaryRead("UnsignedInteger32");
+						If(ptr > symbolCache.Length || ptr < 1,
+							Message(doStage3::invsym, i, j, typeId, ptr);
+							Continue());
+						exprItems[j]:= MxSym(symbolCache[ptr, 1] ++ symbolCache[ptr, 2], ptr);
+						),
+					
+					
+					
+					~, (
+						Message(doStage3::"typeId", i, j, typeId);
+						exprItems[j]:= MxOther(typeId, mx.BinaryRead("UnsignedInteger32"));
+						)
+					);
+				
+				,j -> 0 .. len);
+			
+				exprCache(i):= {exprItems, flags, pos};
+			
+			,i -> numExpr);
+		
+		Return(exprCache);
+		)
+
+doStage4(~mx, ~constantCache, ~symbolCache)::= 
+	Local({mainCache, i, sym, b, c, d},
+		If(!mx.readMagicString("Stage 4", doStage4),
+			Return({});
+			);
+		
+		Return(Last @ Gather(
+			While(True,
+				sym:= mx.BinaryRead("Integer32");
+				If(sym < 0, Break());
+				If(sym === EndOfFile,
+					Message(doStage4::"eof");
+					Break());
+				
+				If(sym > symbolCache.Length || sym < 1,
+					Message(doStage4::invsym, sym);
+				,
+					sym:= MxSym(symbolCache[sym, 1] ++ symbolCache[sym, 2], sym);
+					);
+					
+				{b, c, d}:= mx.BinaryRead({"Integer32", "Integer32", "Integer32"});
+				c:= MxExpr(c);
+				Emit({sym, b, c, d});
+				)
+			));
+		)
+
+niceObj(~exprCache, MxConst(~c, ~, ~), ~)::= If(c.IsString, c.InputForm.ToString, c, c);
+niceObj(~exprCache, MxSym(~s, ~), ~)::= s;
+niceObj(~exprCache, MxSym("System`List", ~), ~)::= List;
+niceObj(~exprCache, MxOther(~id, ~ptr), ~)::= StringForm("[other `1`: `2`]", id, ptr);
+niceObj(~exprCache, MxExpr(~p), ~d)::= niceExpr(exprCache, p, d);
+niceExpr(~exprCache, ~ptr, 0)::= 
+	(
+		If(exprCache(ptr)[1].IsNegative,
+			Return(StringForm("[`1`: `2`]", ptr, exprCache(ptr)[1]))
+			);
+		Return(StringForm("[`1`]", ptr));
+	)
+niceExpr(~exprCache, ~ptr, ~maxDepth)::=
+	(
+		If(exprCache(ptr)[1].IsNegative,
+			Return(StringForm("[`1`: `2`]", ptr, exprCache(ptr)[1])));
+		
+		Return(exprCache(ptr)[1].Map(niceObj(exprCache, #, maxDepth - 1) &, Heads->True));
+	)
+
+/*
+mx:= OpenRead("D:/tmp/dump/temp.mx", BinaryFormat->True)
+*/
+mx:= OpenRead("C:/Program Files/Wolfram Research/Mathematica/6.0/SystemFiles/Kernel/SystemResources/Windows/FEKernelInit.mx", BinaryFormat->True)
+
+mx.BinaryRead("TerminatedString")
+
+mx.BinaryRead("Byte").BaseForm(16) /* 16^^00, maybe also use "TerminatedString" ? */
+
+mx.readMagicUI32(16^^08080808, doHeader)
+mx.readMagicUI32(16^^00000000, doHeader)
+
+mxVersion:= mx.BinaryRead("UnsignedInteger32");
+mxVersion.BaseForm(16) /* version number ?  16^^40180000 or 16^^40140000 ... */
+
+mx.readString() /* e.g. "Windows" */
+
+mx.readMagicString("ENDCONT", doHeader)
+
+constantCache:= mx.doStage1();
+
+symbolCache:= mx.doStage2(constantCache);
+
+exprCache:= mx.doStage3(constantCache, symbolCache);
+
+mainCache:= mx.doStage4()

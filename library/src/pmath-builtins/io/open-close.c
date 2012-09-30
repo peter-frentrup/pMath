@@ -103,6 +103,16 @@ static void bin_file_flush(void *h) {
 #endif
 }
 
+static int64_t bin_file_get_pos(void *h) {
+  FILE *file = h;
+  
+#ifdef _MSC_VER
+  return _ftelli64_nolock(file);
+#else
+  return ftello64(file);
+#endif
+}
+
 static pmath_t open_bin_file(
   pmath_string_t name, // will be freed
   enum open_kind kind
@@ -115,14 +125,16 @@ static pmath_t open_bin_file(
   
   switch(kind) {
     case OPEN_READ:
-      api.status_function = bin_file_status;
-      api.read_function   = bin_file_read;
+      api.status_function  = bin_file_status;
+      api.read_function    = bin_file_read;
+      api.get_pos_function = bin_file_get_pos;
       break;
       
     case OPEN_WRITE:
     case OPEN_APPEND:
-      api.write_function = bin_file_write;
-      api.flush_function = bin_file_flush;
+      api.write_function   = bin_file_write;
+      api.flush_function   = bin_file_flush;
+      api.get_pos_function = bin_file_get_pos;
       break;
   }
   

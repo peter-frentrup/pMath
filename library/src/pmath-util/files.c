@@ -29,8 +29,9 @@ struct _file_t {
   void  *extra;
   void (*extra_destructor)(void *);
 
-  pmath_files_status_t (*status_function)(void *extra);
-  void                 (*flush_function)( void *extra);
+  pmath_files_status_t (*status_function)( void *extra);
+  void                 (*flush_function)(  void *extra);
+  int64_t              (*get_pos_function)(void *extra);
 };
 
 struct _pmath_binary_file_t {
@@ -565,6 +566,52 @@ PMATH_API void pmath_file_flush(pmath_t file) {
   }
 }
 
+/**\brief Get the stream's position, if possible
+   \param file A file object. It wont be freed.
+ */
+PMATH_API int64_t pmath_file_get_position(pmath_t file) {
+  int64_t result = -1;
+  
+  if(pmath_is_symbol(file)) {
+    pmath_custom_t custom = pmath_symbol_get_value(file);
+
+    if( pmath_is_custom(custom) &&
+        pmath_custom_has_destructor(custom, destroy_binary_file))
+    {
+      struct _pmath_binary_file_t *f = pmath_custom_get_data(custom);
+
+      if(f->inherited.get_pos_function) {
+        if(lock_file(&f->inherited)) {
+          result = f->inherited.get_pos_function(f->inherited.extra);
+          
+          if(f->current_buffer_start < f->current_buffer_end) {
+            result-= (int64_t)(f->current_buffer_end - f->current_buffer_start);
+          }
+
+          unlock_file(&f->inherited);
+        }
+      }
+    }
+    else if(pmath_is_custom(custom) &&
+            pmath_custom_has_destructor(custom, destroy_text_file))
+    {
+      struct _file_t *f = pmath_custom_get_data(custom);
+
+      if(f->get_pos_function) {
+        if(lock_file(f)) {
+          result = f->get_pos_function(f->extra);
+
+          unlock_file(f);
+        }
+      }
+    }
+
+    pmath_unref(custom);
+  }
+  
+  return result;
+}
+
 typedef struct {
   pmath_t  file;
   pmath_bool_t success;
@@ -737,6 +784,9 @@ pmath_symbol_t pmath_file_create_binary(
   if(api->struct_size >= (size_t)&api->flush_function - (size_t)api + sizeof(void *))
     data->inherited.flush_function = api->flush_function;
 
+  if(api->struct_size >= (size_t)&api->get_pos_function - (size_t)api + sizeof(void *))
+    data->inherited.get_pos_function = api->get_pos_function;
+
   if(data->read_function) {
     data->buffer_size = 256;
     data->buffer = (uint8_t *)pmath_mem_alloc(data->buffer_size);
@@ -811,6 +861,9 @@ pmath_symbol_t pmath_file_create_text(
   if(api->struct_size >= (size_t)&api->flush_function - (size_t)api + sizeof(void *))
     data->inherited.flush_function = api->flush_function;
 
+  if(api->struct_size >= (size_t)&api->get_pos_function - (size_t)api + sizeof(void *))
+    data->inherited.get_pos_function = api->get_pos_function;
+
   custom = pmath_custom_new(data, destroy_text_file);
   if(pmath_is_null(custom))
     return PMATH_NULL;
@@ -848,8 +901,8 @@ struct _bintext_extra_t {
   iconv_t  out_cd;
 };
 
-static void destroy_bintext_extra(void *data) {
-  struct _bintext_extra_t *extra = data;
+static void destroy_bintext_extra(void *closure) {
+  struct _bintext_extra_t *extra = closure;
 
   pmath_file_close_if_unused(extra->binfile);
   pmath_unref(extra->rest);
@@ -863,7 +916,8 @@ static void destroy_bintext_extra(void *data) {
   pmath_mem_free(extra);
 }
 
-static pmath_files_status_t bintext_extra_status(struct _bintext_extra_t *extra) {
+static pmath_files_status_t bintext_extra_status(void *closure) {
+  struct _bintext_extra_t *extra = closure;
   pmath_files_status_t result = pmath_file_status(extra->binfile);
 
   if( result == PMATH_FILE_ENDOFFILE &&
@@ -875,7 +929,8 @@ static pmath_files_status_t bintext_extra_status(struct _bintext_extra_t *extra)
   return result;
 }
 
-pmath_string_t bintext_extra_readln(struct _bintext_extra_t *extra) {
+pmath_string_t bintext_extra_readln(void *closure) {
+  struct _bintext_extra_t *extra = closure;
   pmath_string_t result = PMATH_NULL;
 
   uint16_t out[100];
@@ -1074,10 +1129,11 @@ pmath_string_t bintext_extra_readln(struct _bintext_extra_t *extra) {
 }
 
 static pmath_bool_t bintext_extra_write(
-  struct _bintext_extra_t *extra,
-  const uint16_t          *str,
-  int                      len
+  void           *closure,
+  const uint16_t *str,
+  int             len
 ) {
+  struct _bintext_extra_t *extra = closure;
   pmath_bool_t result = TRUE;
   char buf[100];
 
@@ -1178,9 +1234,17 @@ static pmath_bool_t bintext_extra_write(
   return result;
 }
 
-static void bintext_extra_flush(struct _bintext_extra_t *extra) {
+static void bintext_extra_flush(void *closure) {
+  struct _bintext_extra_t *extra = closure;
+  
   pmath_file_flush(extra->binfile);
 }
+
+/*static int64_t bintext_extra_get_pos(void *closure) {
+  struct _bintext_extra_t *extra = closure;
+  
+  return pmath_file_get_position(extra->binfile);
+}*/
 
 //------------------------------------------------------------------------------
 
@@ -1224,8 +1288,9 @@ pmath_symbol_t pmath_file_create_text_from_binary(
       return PMATH_NULL;
     }
 
-    api.status_function = (pmath_files_status_t( *)(void *))bintext_extra_status;
-    api.readln_function = (pmath_string_t( *)(void *))bintext_extra_readln;
+    api.status_function  = bintext_extra_status;
+    api.readln_function  = bintext_extra_readln;
+    //api.get_pos_function = bintext_extra_get_pos;
   }
 
   if(pmath_file_test(binfile, PMATH_FILE_PROP_BINARY | PMATH_FILE_PROP_WRITE)) {
@@ -1254,8 +1319,9 @@ pmath_symbol_t pmath_file_create_text_from_binary(
       iconv(extra->out_cd, &in, &inleft, &out, &outleft);
     }
 
-    api.write_function = (pmath_bool_t( *)(void *, const uint16_t *, int))bintext_extra_write;
-    api.flush_function = (void( *)(void *))bintext_extra_flush;
+    api.write_function   = bintext_extra_write;
+    api.flush_function   = bintext_extra_flush;
+    //api.get_pos_function = bintext_extra_get_pos;
   }
 
   binfile = pmath_file_create_text(

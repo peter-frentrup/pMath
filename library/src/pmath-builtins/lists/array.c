@@ -273,7 +273,7 @@ PMATH_PRIVATE pmath_t builtin_array(pmath_expr_t expr) {
             return array_range_int(s, d, len);
         }
         else if(d > INT32_MIN) {
-          int min = INT32_MIN;
+          int min = -INT32_MAX; // = INT32_MIN + 1
           assert(d < 0);
           
           if(s < 0)
