@@ -389,7 +389,10 @@ void MathSequence::paint(Context *context) {
   
   context->syntax->glyph_style_colors[GlyphStyleNone] = default_color;
   
-  float y = y0 - lines[0].ascent;
+  float y = y0;
+  if(lines.length() > 0)
+    y -= lines[0].ascent;
+  
   const uint16_t *buf = str.buffer();
   
   double clip_x1, clip_y1, clip_x2, clip_y2;
