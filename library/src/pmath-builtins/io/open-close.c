@@ -9,6 +9,7 @@
 #include <pmath-util/option-helpers.h>
 
 #include <pmath-builtins/all-symbols-private.h>
+#include <pmath-builtins/io-private.h>
 
 #include <ctype.h>
 #include <stdio.h>
@@ -156,6 +157,11 @@ static pmath_t open_bin_file(
              &zero,
              1);
              
+    if(pmath_is_null(name)) {
+      pmath_unref(name);
+      return PMATH_NULL;
+    }
+    
 //    f = _wfopen((const wchar_t*)pmath_string_buffer(&name), mode);
     // _wfopen cannot open pipes.
     // But CreateFileW, _open_osfhandle, _wfdopen works.
@@ -190,14 +196,14 @@ static pmath_t open_bin_file(
     }
     
     h = CreateFileW(
-          (const wchar_t*)pmath_string_buffer(&name),
+          (const wchar_t *)pmath_string_buffer(&name),
           haccess,
           hshare,
           NULL,
           hcredis,
           hflags,
           NULL);
-    
+          
     fd = _open_osfhandle((intptr_t)h, fdmode);
     if(fd < 0)
       CloseHandle(h);
@@ -228,7 +234,7 @@ static pmath_t open_bin_file(
   if(!f)
     return PMATH_NULL;
     
-  return pmath_file_create_binary(f, (void(*)(void*))bin_file_destroy, &api);
+  return pmath_file_create_binary(f, (void( *)(void *))bin_file_destroy, &api);
 }
 
 PMATH_PRIVATE pmath_bool_t _pmath_file_check(pmath_t file, int properties) {
@@ -462,6 +468,7 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr) {
      OpenWrite(binarystream)
    */
   pmath_expr_t options;
+  pmath_t filename;
   pmath_t file;
   
   pmath_bool_t binary_format = TRUE;
@@ -475,11 +482,11 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr) {
     return expr;
   }
   
-  file = pmath_expr_get_item(expr, 1);
+  filename = pmath_expr_get_item(expr, 1);
   
   options = pmath_options_extract(expr, 1);
   if(pmath_is_null(options)) {
-    pmath_unref(file);
+    pmath_unref(filename);
     return expr;
   }
   
@@ -493,7 +500,7 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr) {
       binary_format = FALSE;
     }
     else {
-      pmath_unref(file);
+      pmath_unref(filename);
       pmath_unref(options);
       pmath_message(
         PMATH_NULL, "opttf", 2,
@@ -517,53 +524,56 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr) {
       kind = OPEN_READ;
   }
   
-  if(pmath_is_symbol(file)) {
+  if(pmath_is_symbol(filename)) {
     if(kind == OPEN_APPEND) {
-      pmath_message(PMATH_NULL, "fstr", 1, file);
+      pmath_message(PMATH_NULL, "fstr", 1, filename);
       return expr;
     }
     
     if(kind == OPEN_WRITE) {
-      if(!pmath_file_test(file, PMATH_FILE_PROP_WRITE)) {
-        pmath_message(PMATH_NULL, "iow", 1, file);
+      if(!pmath_file_test(filename, PMATH_FILE_PROP_WRITE)) {
+        pmath_message(PMATH_NULL, "iow", 1, filename);
         pmath_unref(expr);
         return pmath_ref(PMATH_SYMBOL_FAILED);
       }
       
-      if(!pmath_file_test(file, PMATH_FILE_PROP_WRITE | PMATH_FILE_PROP_BINARY)) {
-        pmath_message(PMATH_NULL, "iob", 1, file);
+      if(!pmath_file_test(filename, PMATH_FILE_PROP_WRITE | PMATH_FILE_PROP_BINARY)) {
+        pmath_message(PMATH_NULL, "iob", 1, filename);
         pmath_unref(expr);
         return pmath_ref(PMATH_SYMBOL_FAILED);
       }
       
       if(binary_format) {
-        pmath_message(PMATH_NULL, "text", 1, file);
+        pmath_message(PMATH_NULL, "text", 1, filename);
         pmath_unref(expr);
         return pmath_ref(PMATH_SYMBOL_FAILED);
       }
     }
     else if(kind == OPEN_READ) {
-      if(!pmath_file_test(file, PMATH_FILE_PROP_READ)) {
-        pmath_message(PMATH_NULL, "ior", 1, file);
+      if(!pmath_file_test(filename, PMATH_FILE_PROP_READ)) {
+        pmath_message(PMATH_NULL, "ior", 1, filename);
         pmath_unref(expr);
         return pmath_ref(PMATH_SYMBOL_FAILED);
       }
       
-      if(!pmath_file_test(file, PMATH_FILE_PROP_READ | PMATH_FILE_PROP_BINARY)) {
-        pmath_message(PMATH_NULL, "iob", 1, file);
+      if(!pmath_file_test(filename, PMATH_FILE_PROP_READ | PMATH_FILE_PROP_BINARY)) {
+        pmath_message(PMATH_NULL, "iob", 1, filename);
         pmath_unref(expr);
         return pmath_ref(PMATH_SYMBOL_FAILED);
       }
       
       if(binary_format) {
-        pmath_message(PMATH_NULL, "text", 1, file);
+        pmath_message(PMATH_NULL, "text", 1, filename);
         pmath_unref(expr);
         return pmath_ref(PMATH_SYMBOL_FAILED);
       }
     }
   }
-  else if(!pmath_is_string(file) || pmath_string_length(file) < 1) {
-    pmath_message(PMATH_NULL, "fstr", 1, file);
+  else if(pmath_is_string(filename) && pmath_string_length(filename) >= 1) {
+    filename = _pmath_canonical_file_name(filename);
+  }
+  else {
+    pmath_message(PMATH_NULL, "fstr", 1, filename);
     return expr;
   }
   
@@ -575,7 +585,7 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr) {
         !pmath_is_string(encoding))
     {
       pmath_message(PMATH_NULL, "charcode", 1, encoding);
-      pmath_unref(file);
+      pmath_unref(filename);
       pmath_unref(options);
       return expr;
     }
@@ -586,11 +596,11 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr) {
                    pmath_option_value(PMATH_NULL, PMATH_SYMBOL_PAGEWIDTH, options));
   }
   
-  if(kind == OPEN_READ && pmath_is_string(file)) {
+  if(kind == OPEN_READ && pmath_is_string(filename)) {
     pmath_t type = pmath_evaluate(
                      pmath_expr_new_extended(
                        pmath_ref(PMATH_SYMBOL_FILETYPE), 1,
-                       pmath_ref(file)));
+                       pmath_ref(filename)));
                        
     pmath_unref(type);
     if(!pmath_same(type, PMATH_SYMBOL_FILE))
@@ -607,15 +617,15 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr) {
     
     memset(buf, 0, sizeof(buf));
     
-    if(pmath_is_string(file)) {
+    if(pmath_is_string(filename)) {
       pmath_t tmpfile;
       
-      tmpfile = open_bin_file(pmath_ref(file), OPEN_READ);
+      tmpfile = open_bin_file(pmath_ref(filename), OPEN_READ);
       count = pmath_file_read(tmpfile, buf, sizeof(buf), FALSE);
       pmath_file_close(tmpfile);
     }
     else {
-      count = pmath_file_read(file, buf, sizeof(buf), TRUE); /* preserve internal buffer */
+      count = pmath_file_read(filename, buf, sizeof(buf), TRUE); /* preserve internal buffer */
     }
     
     pmath_unref(encoding);
@@ -652,9 +662,18 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr) {
     }
   }
   
-  if(pmath_is_string(file))
-    file = open_bin_file(file, kind);
-    
+  if(pmath_is_string(filename)) {
+    file = open_bin_file(pmath_ref(filename), kind);
+  }
+  else {
+    file = filename;
+    filename = pmath_evaluate(
+                 pmath_parse_string_args(
+                   "File.Replace(Join(Options(`1`), File->/\\/))",
+                   "(0)",
+                   pmath_ref(file)));
+  }
+  
   pmath_unref(options);
   
   if(pmath_is_null(file)) {
@@ -679,7 +698,7 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr) {
     buf = pmath_string_buffer(&encoding);
     len = pmath_string_length(encoding);
     
-    str = (char*)pmath_mem_alloc(len + 1);
+    str = (char *)pmath_mem_alloc(len + 1);
     if(str) {
       for(i = 0; i < len; ++i) {
         str[i] = (char)(unsigned char)buf[i];
@@ -720,27 +739,28 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr) {
       pmath_unref(expr);
       return pmath_ref(PMATH_SYMBOL_FAILED);
     }
+  }
+  else {
+    pmath_unref(encoding);
+    encoding = PMATH_NULL;
+  }
+  
+  PMATH_RUN_ARGS(
+    "Unprotect(`1`);"
+    "Options(`1`):= Union("
+    " Options(`1`),"
+    " If(`2` =!= /\\/, {File->`2`}, {}),"
+    " If(`3` =!= /\\/, {PageWidth->`3`}, {}),"
+    " If(`4` =!= /\\/, {CharacterEncoding->`4`}, {}));"
+    "Protect(`1`)",
+    "(oooo)",
+    pmath_ref(file),
+    pmath_ref(filename),
+    pmath_ref(page_width),
+    pmath_ref(encoding));
     
-    PMATH_RUN_ARGS(
-      "Unprotect(`1`);"
-      "Options(`1`):= Union(Options(`1`), {CharacterEncoding->`2`});"
-      "Protect(`1`)",
-      "(oo)",
-      pmath_ref(file),
-      pmath_ref(encoding));
-  }
-  
-  if(kind != OPEN_READ) {
-    PMATH_RUN_ARGS(
-      "Unprotect(`1`);"
-      "Options(`1`):= Union(Options(`1`), {PageWidth->`2`});"
-      "Protect(`1`)",
-      "(oo)",
-      pmath_ref(file),
-      pmath_ref(page_width));
-  }
-  
   pmath_unref(encoding);
+  pmath_unref(filename);
   pmath_unref(page_width);
   pmath_unref(expr);
   return file;

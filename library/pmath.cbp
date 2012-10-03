@@ -325,6 +325,8 @@
 		</Build>
 		<Compiler>
 			<Add option="-DBUILDING_PMATH" />
+			<Add option="-D_LARGEFILE64_SOURCE=1" />
+			<Add option="-D_FILE_OFFSET_BITS=64" />
 			<Add directory="include" />
 		</Compiler>
 		<Unit filename="doc\html\index.chm" />
@@ -732,6 +734,9 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src\pmath-builtins\io\renamedirectory-and-renamefile.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\pmath-builtins\io\streamposition.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src\pmath-builtins\io\stringcases.c">

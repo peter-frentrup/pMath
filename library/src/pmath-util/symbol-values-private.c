@@ -205,11 +205,27 @@ pmath_bool_t _pmath_symbol_value_visit(
   }
   
   if(pmath_is_expr(value)) {
-    size_t i;
+    size_t i, len;
+    const pmath_t *items = pmath_expr_read_item_data(value);
     
-    for(i = 0; i <= pmath_expr_length(value); ++i) {
+    if(!items){
+      pmath_unref(value);
+      return FALSE;
+    }
+    
+    if(!_pmath_symbol_value_visit(
+          pmath_expr_get_item(value, 0),
+          callback,
+          closure))
+    {
+      pmath_unref(value);
+      return FALSE;
+    }
+    
+    len = pmath_expr_length(value);
+    for(i = 0; i < len; ++i) {
       if(!_pmath_symbol_value_visit(
-            pmath_expr_get_item(value, i),
+            pmath_ref(items[i]),
             callback,
             closure))
       {

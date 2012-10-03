@@ -804,7 +804,7 @@ pmath_symbol_t pmath_file_create_binary(
     return PMATH_NULL;
 
   file = pmath_symbol_create_temporary(
-           PMATH_C_STRING("System`Private`io`object"),
+           PMATH_C_STRING("System`Private`io`binStream"),
            TRUE);
 
   PMATH_RUN_ARGS(
@@ -869,7 +869,7 @@ pmath_symbol_t pmath_file_create_text(
     return PMATH_NULL;
 
   file = pmath_symbol_create_temporary(
-           PMATH_C_STRING("System`Private`io`object"),
+           PMATH_C_STRING("System`Private`io`textStream"),
            TRUE);
 
   PMATH_RUN_ARGS(

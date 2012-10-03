@@ -1,26 +1,21 @@
 /* read 32bit little endian *.mx files (tested with Mathematica 6: version 16^^40180000)*/
 
 readString(~mx)::= 
-	Local({len, bytelen, bytes},
-		len:= mx.BinaryRead("UnsignedInteger32");
+	With({len:= mx.BinaryRead("UnsignedInteger32")},
 		If(len < 1,
 			Message(readString::"0len");
 			Return($Failed);
 			);
-		bytelen:= BitAnd(len + 3, BitNot(3));
-		bytes:= mx.BinaryRead(ConstantArray("Byte", bytelen));
-		If(bytes.Length != bytelen,
-			Message(readString::"eof");
-			Return($Failed);
-			);
-		If(bytes[len] != 0,
+		With({bytes:= mx.BinaryRead(ConstantArray("Byte", BitAnd(len + 3, BitNot(3))))},
+			If(bytes[len] != 0,
+				
+				Message(readString::"0term");
+				Return($Failed);
+				);
 			
-			Message(readString::"0term");
-			Return($Failed);
-			);
-		
-		Return(FromCharacterCode(bytes[1 .. len-1]));
-	)
+			Return(FromCharacterCode(bytes[1 .. len-1]));
+			)
+		)
 
 readMagicString(~mx, ~str, ~errsym)::= 
 	With({read:= mx.readString()},
@@ -160,7 +155,7 @@ doStage2(~mx, ~constantCache)::=
 		/* This a table containing 5 fields (UnsignedInteger32) per symbol: 
 		 * {namespaceNamePtr, namePtr, ?, ?, attributes}
 		 * 
-		 * attributes: (Stub is missing, high order word = 0)
+		 * attributes: (Locked, Stub is missing, high order word = 0)
 		 *   ____----____----
 		 *   0001000101111000
 		 *    | | | | | | | ^ ?                   0
@@ -218,9 +213,7 @@ doStage3(~mx, ~constantCache, ~symbolCache)::=
 			len:= mx.BinaryRead("Integer32");
 			
 			If(len < 0,
-				If(len =!= -1,
-					Message(doStage3::"len", i, len));
-				exprCache(i):= {len, {}, pos};
+				exprCache(i):= {MxConstExpr({}, len), {}, pos};
 				Continue());
 			
 			flags:= mx.BinaryRead({"UnsignedInteger32", "UnsignedInteger32", "UnsignedInteger32"});
@@ -301,27 +294,40 @@ doStage4(~mx, ~constantCache, ~symbolCache)::=
 		)
 
 niceObj(~exprCache, MxConst(~c, ~, ~), ~)::= If(c.IsString, c.InputForm.ToString, c, c);
-niceObj(~exprCache, MxSym(~s, ~), ~)::= s;
-niceObj(~exprCache, MxSym("System`List", ~), ~)::= List;
+niceObj(~exprCache, MxSym(~s, ~), ~)::= s.StringReplace({StartOfString ++ ~~ ++ "`" ++ n:(("a".."z") ++ Except("`")*** ++ EndOfString) :> n})
 niceObj(~exprCache, MxOther(~id, ~ptr), ~)::= StringForm("[other `1`: `2`]", id, ptr);
 niceObj(~exprCache, MxExpr(~p), ~d)::= niceExpr(exprCache, p, d);
-niceExpr(~exprCache, ~ptr, 0)::= 
-	(
-		If(exprCache(ptr)[1].IsNegative,
-			Return(StringForm("[`1`: `2`]", ptr, exprCache(ptr)[1]))
-			);
-		Return(StringForm("[`1`]", ptr));
-	)
+niceExpr(~exprCache, ~ptr, 0)::= StringForm("[`1`]", ptr)
 niceExpr(~exprCache, ~ptr, ~maxDepth)::=
 	(
-		If(exprCache(ptr)[1].IsNegative,
-			Return(StringForm("[`1`: `2`]", ptr, exprCache(ptr)[1])));
+		If(exprCache(ptr)[1, 0] === MxConstExpr,
+			Return(exprCache(ptr)[1,1]));
 		
-		Return(exprCache(ptr)[1].Map(niceObj(exprCache, #, maxDepth - 1) &, Heads->True));
+		With({expr:= exprCache(ptr)[1].Map(niceObj(exprCache, #, maxDepth - 1) &, Heads->True)},
+			Switch(expr[0],
+				"System`List", Return(expr.ReplacePart(0 -> List)),
+				"System`Set",                If(expr.Length === 2,     Return(HoldForm(expr).ReplacePart({1,0} -> Assign))),
+				"System`SetDelayed",         If(expr.Length === 2,     Return(HoldForm(expr).ReplacePart({1,0} -> AssignDelayed))),
+				"System`Rule",               If(expr.Length === 2,     Return(HoldForm(expr).ReplacePart({1,0} -> Rule))),
+				"System`RuleDelayed",        If(expr.Length === 2,     Return(HoldForm(expr).ReplacePart({1,0} -> RuleDelayed))),
+				"System`Pattern",            If(expr.Length === 2,     Return(HoldForm(expr).ReplacePart({1,0} -> Pattern))),
+				"System`Blank",              If(expr.Length <= 1,      Return(HoldForm(expr).ReplacePart({1,0} -> SingleMatch))),
+				"System`Equal",              If(expr.Length >= 2,      Return(HoldForm(expr).ReplacePart({1,0} -> Equal))),
+				"System`Unequal",            If(expr.Length = 2,       Return(HoldForm(expr).ReplacePart({1,0} -> Unequal))),
+				"System`SameQ",              If(expr.Length >= 2,      Return(HoldForm(expr).ReplacePart({1,0} -> Identical))),
+				"System`UnsameQ",            If(expr.Length >= 2,      Return(HoldForm(expr).ReplacePart({1,0} -> Unidentical))),
+				"System`If",                 If(2 <= expr.Length <= 3, Return(HoldForm(expr).ReplacePart({1,0} -> If))),
+				"System`CompoundExpression", If(expr.Length > 0,       Return(HoldForm(expr).ReplacePart({1,0} -> EvaluationSequence)))
+				);
+			Return(expr);
+			);
 	)
 
 /*
 mx:= OpenRead("D:/tmp/dump/temp.mx", BinaryFormat->True)
+
+mx:= OpenRead("C:/Program Files/Wolfram Research/Mathematica/6.0/SystemFiles/Kernel/SystemResources/Windows/SystemUtilities.mx", BinaryFormat->True)
+
 */
 mx:= OpenRead("C:/Program Files/Wolfram Research/Mathematica/6.0/SystemFiles/Kernel/SystemResources/Windows/FEKernelInit.mx", BinaryFormat->True)
 
@@ -345,4 +351,4 @@ symbolCache:= mx.doStage2(constantCache);
 
 exprCache:= mx.doStage3(constantCache, symbolCache);
 
-mainCache:= mx.doStage4()
+mainCache:= mx.doStage4(constantCache, symbolCache);
