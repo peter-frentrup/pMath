@@ -854,7 +854,9 @@ void _pmath_rulecache_clear(struct _pmath_rulecache_t *rc) {
   rulecache_table_unlock(rc, NULL);
   
   pmath_unref(more);
-  pmath_ht_destroy(table);
+  if(table){
+    pmath_ht_destroy(table);
+  }
 }
 
 PMATH_PRIVATE

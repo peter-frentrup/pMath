@@ -637,18 +637,23 @@ PMATH_API void pmath_collect_temporary_symbols(void) {
   pmath_thread_wakeup(timer_thread_mq);
 }
 
-static pmath_bool_t gc_visit_check_ref(pmath_t obj, void *dummy) {
-  if(pmath_is_symbol(obj) || pmath_is_expr(obj)) {
-    struct _pmath_gc_t *gc_obj = (void *)PMATH_AS_PTR(obj);
-    
-    if((gc_obj->gc_refcount & GC_PASS_MASK) != ((gc_pass - 1) & GC_PASS_MASK)) {
-      pmath_debug_print_object("[not from prev. pass: ", obj , "]\n");
-      
-      return FALSE;
-    }
-  }
-  return TRUE;
-}
+//#ifdef PMATH_DEBUG_LOG
+//static pmath_bool_t gc_visit_check_ref(pmath_t obj, void *dummy) {
+//  if(pmath_is_symbol(obj) || pmath_is_expr(obj)) {
+//    struct _pmath_gc_t *gc_obj = (void *)PMATH_AS_PTR(obj);
+//    
+//    if( 0 != gc_obj->gc_refcount && 
+//        (gc_obj->gc_refcount & GC_PASS_MASK) != ((gc_pass - 1) & GC_PASS_MASK)) 
+//    {
+//      pmath_debug_print("[not from prev. pass: %"PRIxPTR", ", gc_obj->gc_refcount);
+//      pmath_debug_print_object("", obj , "]\n");
+//      
+//      return FALSE;
+//    }
+//  }
+//  return TRUE;
+//}
+//#endif
 
 static pmath_bool_t gc_visit_ref(pmath_t obj, void *dummy) {
   if(pmath_is_symbol(obj) || pmath_is_expr(obj)) {
@@ -705,29 +710,29 @@ static void run_gc(void) {
   mark_start = pmath_tickcount();
 #endif
   
-#ifdef PMATH_DEBUG_LOG
-  { // (debug) check that all gc_refs are set to the previous pass
-    sym = pmath_ref(PMATH_SYMBOL_LIST);
-    do {
-      if(pmath_symbol_get_attributes(sym) & PMATH_SYMBOL_ATTRIBUTE_TEMPORARY) {
-        struct _pmath_symbol_rules_t *rules;
-        
-        _pmath_symbol_value_visit(
-          _pmath_symbol_get_global_value(sym),
-          gc_visit_check_ref,
-          NULL);
-          
-        rules = _pmath_symbol_get_rules(sym, RULES_READ);
-        
-        if(rules)
-          _pmath_symbol_rules_visit(rules, gc_visit_check_ref, NULL);
-      }
-      
-      sym = pmath_symbol_iter_next(sym);
-    } while(!pmath_is_null(sym) && !pmath_same(sym, PMATH_SYMBOL_LIST));
-    pmath_unref(sym);
-  }
-#endif
+//#ifdef PMATH_DEBUG_LOG
+//  { // (debug) check that all gc_refs are set to the previous pass
+//    sym = pmath_ref(PMATH_SYMBOL_LIST);
+//    do {
+//      if(pmath_symbol_get_attributes(sym) & PMATH_SYMBOL_ATTRIBUTE_TEMPORARY) {
+//        struct _pmath_symbol_rules_t *rules;
+//        
+//        _pmath_symbol_value_visit(
+//          _pmath_symbol_get_global_value(sym),
+//          gc_visit_check_ref,
+//          NULL);
+//          
+//        rules = _pmath_symbol_get_rules(sym, RULES_READ);
+//        
+//        if(rules)
+//          _pmath_symbol_rules_visit(rules, gc_visit_check_ref, NULL);
+//      }
+//      
+//      sym = pmath_symbol_iter_next(sym);
+//    } while(!pmath_is_null(sym) && !pmath_same(sym, PMATH_SYMBOL_LIST));
+//    pmath_unref(sym);
+//  }
+//#endif
   
   // mark/reference all temp. symbol values
   sym = pmath_ref(PMATH_SYMBOL_LIST);
@@ -759,15 +764,13 @@ static void run_gc(void) {
   do {
     if(pmath_symbol_get_attributes(sym) & PMATH_SYMBOL_ATTRIBUTE_TEMPORARY) {
       uintptr_t gc_refs = get_gc_refs(sym);
-      uintptr_t self_refs = gc_refs;
+      uintptr_t actual_refs = (uintptr_t)pmath_refcount(sym);
       pmath_bool_t checked_code_tables = FALSE;
       
       // one reference is held by sym
       ++gc_refs;
       
-      if( gc_refs     <  (uintptr_t)pmath_refcount(sym) &&
-          gc_refs + 3 >= (uintptr_t)pmath_refcount(sym))
-      {
+      if(gc_refs < actual_refs && actual_refs <= gc_refs + 3) {
         checked_code_tables = TRUE;
         
         if(_pmath_have_code(sym, PMATH_CODE_USAGE_DOWNCALL))
@@ -780,7 +783,7 @@ static void run_gc(void) {
           ++gc_refs;
       }
       
-      if(gc_refs == (uintptr_t)pmath_refcount(sym)) {
+      if(gc_refs == actual_refs) {
         pmath_bool_t all_visited;
         
         all_visited = _pmath_symbol_value_visit(
@@ -807,16 +810,11 @@ static void run_gc(void) {
                 _pmath_symbol_rules_clear(rules);
             }
             
-            if(gc_refs == self_refs + 1) {
-              if((uintptr_t)pmath_refcount(sym) != 1) {
-                pmath_debug_print("[unexpected refcount %d: ", (int)pmath_refcount(sym));
-                pmath_debug_print_object("", sym, "]\n");
-              }
+            if(checked_code_tables) {
+              pmath_register_code(sym, NULL, PMATH_CODE_USAGE_DOWNCALL);
+              pmath_register_code(sym, NULL, PMATH_CODE_USAGE_UPCALL);
+              pmath_register_code(sym, NULL, PMATH_CODE_USAGE_SUBCALL);
             }
-            
-            pmath_register_code(sym, NULL, PMATH_CODE_USAGE_DOWNCALL);
-            pmath_register_code(sym, NULL, PMATH_CODE_USAGE_UPCALL);
-            pmath_register_code(sym, NULL, PMATH_CODE_USAGE_SUBCALL);
           }
         }
       }

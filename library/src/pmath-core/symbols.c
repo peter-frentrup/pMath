@@ -1044,6 +1044,20 @@ static void destroy_symbol(pmath_t s) {
     if(pmath_atomic_compare_and_set(&symbol->inherited.inherited.inherited.refcount, 0, 1)) {
       void *removed_entry;
       
+#ifdef PMATH_DEBUG_LOG
+      if(_pmath_have_code(s, PMATH_CODE_USAGE_DOWNCALL)) {
+        pmath_debug_print_object("[symbol still used in DOWNCALL: ", s , "]\n");
+      }
+      
+      if(_pmath_have_code(s, PMATH_CODE_USAGE_SUBCALL)) {
+        pmath_debug_print_object("[symbol still used in SUBCALL: ", s , "]\n");
+      }
+      
+      if(_pmath_have_code(s, PMATH_CODE_USAGE_UPCALL)) {
+        pmath_debug_print_object("[symbol still used in UPCALL: ", s , "]\n");
+      }
+#endif
+      
       assert(pmath_is_string(symbol->name));
       assert(pmath_refcount(symbol->name) >= 1);
       
