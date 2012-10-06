@@ -898,7 +898,7 @@ namespace pmath {
       }
       
       explicit BinaryFile(pmath_t file_object) throw()
-        : File(pmath_file_test(file_object, PMATH_FILE_PROP_BINARY) ? file_object : PMATH_NULL)
+        : File(pmath_file_test(file_object, PMATH_FILE_PROP_BINARY) ? pmath_ref(file_object) : PMATH_NULL)
       {
         pmath_unref(file_object);
       }
