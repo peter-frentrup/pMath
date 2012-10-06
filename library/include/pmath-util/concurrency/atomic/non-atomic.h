@@ -28,6 +28,22 @@
  */
 #define PMATH_DECLARE_ALIGNED(TYPE, NAME, ALIGNMENT)  TYPE NAME
 
+/**\brief Atomically read a value with aquire semantics.
+ */
+PMATH_FORCE_INLINE
+intptr_t pmath_atomic_read_aquire(pmath_atomic_t *atom) {
+  pmath_atomic_barrier();
+  return atom->_data;
+}
+
+/**\brief Atomically write a value with release semantics.
+ */
+PMATH_FORCE_INLINE
+void pmath_atomic_write_release(pmath_atomic_t *atom, intptr_t value){
+  atom->_data = value;
+  pmath_atomic_barrier();
+}
+
 /**\brief Add a value to another.
    \param atom An atomic variable.
    \param delta The difference between the new and the old value.

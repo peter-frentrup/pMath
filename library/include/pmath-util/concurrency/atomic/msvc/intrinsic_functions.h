@@ -19,7 +19,7 @@ void pmath_atomic_barrier(void){
 
 
 PMATH_FORCE_INLINE
-intptr_t pmath_atomic_read_aquire(pmath_atomic_t *atom){
+intptr_t pmath_atomic_read_aquire(pmath_atomic_t *atom) {
   pmath_atomic_barrier();
   return atom->_data;
 }
