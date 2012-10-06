@@ -522,6 +522,12 @@
 		"," -> "\[InvisibleComma]",
 		"+" -> "\[InvisiblePlus]",
 		
+		"dhy" -> "\[DiscretionaryHyphen]",
+		"shy" -> "\[DiscretionaryHyphen]",
+		"hy" -> "\[Hyphen]",
+		"-" -> "\[Dash]",
+		"--" -> "\[LongDash]",
+		
 		"pw" -> "\[Piecewise]",
 		"sfl" -> "\[SpanFromLeft]",
 		"sfa" -> "\[SpanFromAbove]",
