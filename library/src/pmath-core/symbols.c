@@ -6,6 +6,7 @@
 #include <pmath-util/concurrency/atomic-private.h>
 #include <pmath-util/concurrency/threadmsg.h>
 #include <pmath-util/concurrency/threads-private.h>
+#include <pmath-util/concurrency/threadpool-private.h>
 #include <pmath-util/debug.h>
 #include <pmath-util/dynamic-private.h>
 #include <pmath-util/evaluation.h>
@@ -1045,16 +1046,20 @@ static void destroy_symbol(pmath_t s) {
       void *removed_entry;
       
 #ifdef PMATH_DEBUG_LOG
+      if(pmath_atomic_read_aquire(&_pmath_debug_current_gc_symbol) == (intptr_t)symbol){
+        pmath_debug_print_object("\n[symbol still used by GC: ", s , "]\n");
+      }
+      
       if(_pmath_have_code(s, PMATH_CODE_USAGE_DOWNCALL)) {
-        pmath_debug_print_object("[symbol still used in DOWNCALL: ", s , "]\n");
+        pmath_debug_print_object("\n[symbol still used in DOWNCALL: ", s , "]\n");
       }
       
       if(_pmath_have_code(s, PMATH_CODE_USAGE_SUBCALL)) {
-        pmath_debug_print_object("[symbol still used in SUBCALL: ", s , "]\n");
+        pmath_debug_print_object("\n[symbol still used in SUBCALL: ", s , "]\n");
       }
       
       if(_pmath_have_code(s, PMATH_CODE_USAGE_UPCALL)) {
-        pmath_debug_print_object("[symbol still used in UPCALL: ", s , "]\n");
+        pmath_debug_print_object("\n[symbol still used in UPCALL: ", s , "]\n");
       }
 #endif
       

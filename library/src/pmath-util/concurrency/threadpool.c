@@ -632,6 +632,13 @@ static pmath_bool_t gc_is_running = FALSE;
 static pmath_messages_t       timer_thread_mq;
 static struct _pmath_stack_t  unsorted_msgs;
 
+#ifdef PMATH_DEBUG_LOG
+
+PMATH_PRIVATE
+pmath_atomic_t _pmath_debug_current_gc_symbol = PMATH_ATOMIC_STATIC_INIT;
+
+#endif
+
 PMATH_API void pmath_collect_temporary_symbols(void) {
   last_gc_time -= GC_WAIT_SEC;
   pmath_thread_wakeup(timer_thread_mq);
@@ -801,6 +808,8 @@ static void run_gc(void) {
              by temp. symbols and so was visited by the gc in the previous loop.
            */
           if(all_visited) {
+            pmath_atomic_write_release(&_pmath_debug_current_gc_symbol, (intptr_t)PMATH_AS_PTR(sym));
+            
             pmath_symbol_set_attributes(sym, PMATH_SYMBOL_ATTRIBUTE_TEMPORARY);
             _pmath_symbol_set_global_value(sym, PMATH_UNDEFINED);
             
@@ -813,9 +822,13 @@ static void run_gc(void) {
             // go on for debugging purposes (detect premature destruction):
 //            if(checked_code_tables) {
               pmath_register_code(sym, NULL, PMATH_CODE_USAGE_DOWNCALL);
+              
               pmath_register_code(sym, NULL, PMATH_CODE_USAGE_UPCALL);
+              
               pmath_register_code(sym, NULL, PMATH_CODE_USAGE_SUBCALL);
 //            }
+
+            pmath_atomic_write_release(&_pmath_debug_current_gc_symbol, 0);
           }
         }
       }

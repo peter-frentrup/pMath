@@ -2,7 +2,7 @@
 #define __PMATH_UTIL__CONCURRENCY__THREADPOOL_PRIVATE_H__
 
 #ifndef BUILDING_PMATH
-#error This header file is not part of the public pMath API
+#  error This header file is not part of the public pMath API
 #endif
 
 #include <pmath-util/concurrency/threadpool.h>
@@ -16,6 +16,13 @@ struct _pmath_timed_message_t {
   double   fire_at_tick;
   pmath_t  subject;
 };
+
+#ifdef PMATH_DEBUG_LOG
+
+PMATH_PRIVATE
+extern pmath_atomic_t _pmath_debug_current_gc_symbol;
+
+#endif
 
 /* this is private, because the caller must ensure that thread's parent waits
    for the task and does not run any evaluation. We can only ensure this for
