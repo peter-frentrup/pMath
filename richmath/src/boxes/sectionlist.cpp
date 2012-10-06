@@ -89,10 +89,10 @@ void SectionList::paint(Context *context) {
   context->canvas->save();
   cairo_translate(context->canvas->cairo(), x, y);
   
-  _scrollx = 0;
+  //_scrollx = 0;
   for(int i = 0; i < _sections.length(); ++i) {
     context->canvas->move_to(0, _sections[i]->y_offset);
-    paint_section(context, i, _scrollx);
+    paint_section(context, i);
   }
   
   if( context->selection.get() == this &&
@@ -357,6 +357,7 @@ Box *SectionList::mouse_selection(
         }
         
         y -= _sections[*start]->y_offset;
+        x+= get_content_scroll_correction_x(*start);
         return _sections[*start]->mouse_selection(x, y, start, end, was_inside_start);
       }
     }
@@ -372,10 +373,18 @@ void SectionList::child_transformation(
   int             index,
   cairo_matrix_t *matrix
 ) {
-  if(index < _sections.length())
-    cairo_matrix_translate(matrix, 0, _sections[index]->y_offset);
-  else
-    cairo_matrix_translate(matrix, 0, _extents.height());
+  if(index < _sections.length()) {
+    cairo_matrix_translate(
+      matrix, 
+      - get_content_scroll_correction_x(index), 
+      _sections[index]->y_offset);
+  }
+  else {
+    cairo_matrix_translate(
+      matrix, 
+      0, 
+      _extents.height());
+  }
 }
 
 Box *SectionList::normalize_selection(int *start, int *end) {
@@ -738,10 +747,28 @@ void SectionList::resize_section(Context *context, int i) {
   context->section_content_window_width = old_scww;
 }
 
-void SectionList::paint_section(Context *context, int i, float scrollx) {
+float SectionList::get_content_scroll_correction_x(int i){
+  float ssx = _scrollx;
+  
+  float content_window_width = _window_width;
+  
+  if(get_own_style(ShowSectionBracket, true)) {
+    content_window_width-= section_bracket_right_margin + section_bracket_width * _group_info[i].nesting;
+  }
+  
+  if(ssx > _sections[i]->extents().width - content_window_width)
+    ssx =  _sections[i]->extents().width - content_window_width;
+    
+  if(ssx < 0)
+    ssx =  0;
+  
+  return ssx - _scrollx;
+}
+
+void SectionList::paint_section(Context *context, int i) {
   float old_w    = context->width;
   float old_scww = context->section_content_window_width;
-  _scrollx = scrollx;
+  //_scrollx = scrollx;
   
   if(get_own_style(ShowSectionBracket, true)) {
     context->width                        -= section_bracket_right_margin + section_bracket_width * _group_info[i].nesting;
@@ -750,19 +777,25 @@ void SectionList::paint_section(Context *context, int i, float scrollx) {
   
   if(_sections[i]->must_resize)
     _sections[i]->resize(context);
-    
+  
   context->width                        = old_w;
   context->section_content_window_width = old_scww;
   
   if(!_sections[i]->visible)
     return;
     
+  float scroll_cor_x = get_content_scroll_correction_x(i);
+  
   float x, y;
   context->canvas->current_pos(&x, &y);
   
   float w = context->width;
   if(w == HUGE_VAL) {
     w = _window_width;
+  }
+  
+  if(get_own_style(ShowSectionBracket, true)) {
+    w -= section_bracket_right_margin + section_bracket_width * _group_info[i].nesting;
   }
   
   context->canvas->save();
@@ -775,7 +808,7 @@ void SectionList::paint_section(Context *context, int i, float scrollx) {
       false);
     context->canvas->clip();
     
-    context->canvas->move_to(x, y);
+    context->canvas->move_to(x - scroll_cor_x, y);
     
     Expr expr;
     context->stylesheet->get(style, TextShadow, &expr);

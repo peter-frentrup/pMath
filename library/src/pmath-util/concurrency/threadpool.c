@@ -810,11 +810,12 @@ static void run_gc(void) {
                 _pmath_symbol_rules_clear(rules);
             }
             
-            if(checked_code_tables) {
+            // go on for debugging purposes (detect premature destruction):
+//            if(checked_code_tables) {
               pmath_register_code(sym, NULL, PMATH_CODE_USAGE_DOWNCALL);
               pmath_register_code(sym, NULL, PMATH_CODE_USAGE_UPCALL);
               pmath_register_code(sym, NULL, PMATH_CODE_USAGE_SUBCALL);
-            }
+//            }
           }
         }
       }

@@ -328,8 +328,7 @@ void AbstractSequenceSection::resize(Context *context) {
   float t = get_style(SectionFrameTop);
   float b = get_style(SectionFrameBottom);
   
-  bool have_frame = get_style(Background) >= 0
-                    || l != 0 || r != 0 || t != 0 || b != 0;
+  bool have_frame = get_style(Background) >= 0 || l != 0 || r != 0 || t != 0 || b != 0;
   if(have_frame) {
     cx += l;
     cx += get_style(SectionFrameMarginLeft);

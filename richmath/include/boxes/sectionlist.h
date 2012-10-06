@@ -116,9 +116,11 @@ namespace richmath {
       
       virtual bool request_repaint_range(int start, int end);
       
+      float get_content_scroll_correction_x(int i);
+      
       void init_section_bracket_sizes(Context *context);
       void resize_section(Context *context, int i);
-      void paint_section(Context *context, int i, float scrollx);
+      void paint_section(Context *context, int i);
       
       void paint_section_brackets(Context *context, int i, float right, float top);
       

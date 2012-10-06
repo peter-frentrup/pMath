@@ -525,17 +525,23 @@ void Document::scroll_to(float x, float y, float w, float h) {
   native()->window_size(&_w, &_h);
   native()->scroll_pos(&_x, &_y);
   
-  if(y < _y) {
+  if(y < _y && y + h < _y + _h) {
     _y = y - _h / 6.f;
+    if(y + h > _y + _h)
+      _y = y + h - _h;
   }
-  else if(y + h >= _y + _h) {
+  else if(y + h >= _y + _h && y > _y) {
     _y = y + h - _h * 5 / 6.f;
+    if(y < _y)
+      _y = y;
   }
   
-  if(x < _x) {
+  if(x < _x && x + w < _x + _w) {
     _x = x - _w / 6.f;
+    if(x + w > _x + _w)
+      _x = x + w - _w;
   }
-  else if(x + w >= _x + _w) {
+  else if(x + w >= _x + _w && x > _x) {
     _x = x + w - _w * 5 / 6.f;
     if(x < _x)
       _x = x;
@@ -3532,10 +3538,10 @@ void Document::paint_resize(Canvas *canvas, bool resize_only) {
   
   context.canvas = canvas;
   
-  float sx, sy, h;
+  float sy, h;
   native()->window_size(&_window_width, &h);
   native()->page_size(&_page_width, &h);
-  native()->scroll_pos(&sx, &sy);
+  native()->scroll_pos(&_scrollx, &sy);
   
   context.width = _page_width;
   context.section_content_window_width = _window_width;
@@ -3548,7 +3554,7 @@ void Document::paint_resize(Canvas *canvas, bool resize_only) {
   unfilled_width = 0;
   _extents.ascent = _extents.descent = 0;
   
-  canvas->translate(-sx, -sy);
+  canvas->translate(-_scrollx, -sy);
   
   init_section_bracket_sizes(&context);
   
@@ -3600,7 +3606,7 @@ void Document::paint_resize(Canvas *canvas, bool resize_only) {
   
   if(!resize_only) {
     while(i < length() && _extents.descent <= sy + h) {
-      paint_section(&context, i, sx);
+      paint_section(&context, i);
       
       section(i)->y_offset = _extents.descent;
       if(section(i)->visible) {
@@ -3674,9 +3680,9 @@ void Document::paint_resize(Canvas *canvas, bool resize_only) {
       else
         y = _extents.descent;
         
-      float x1 = sx;
+      float x1 = 0;
       float y1 = y + 0.5;
-      float x2 = sx + _extents.width;
+      float x2 = _extents.width;
       float y2 = y + 0.5;
       
       context.canvas->align_point(&x1, &y1, true);
@@ -3695,6 +3701,8 @@ void Document::paint_resize(Canvas *canvas, bool resize_only) {
       }
       else
         x1 = 20 * 0.75;
+      
+      x1+= _scrollx;
       x2 = x1 + 40 * 0.75;
       
       context.canvas->align_point(&x1, &y1, true);
@@ -3762,8 +3770,8 @@ void Document::paint_resize(Canvas *canvas, bool resize_only) {
                   index = last_visible_section + 1;
                   
                   while(0 != (find = search_string(
-                                       find, &index, this, length(), s, true))
-                       ) {
+                                       find, &index, this, length(), s, true))) 
+                  {
                     do_fill = true;
                     break;
                   }
@@ -3912,7 +3920,7 @@ void Document::paint_resize(Canvas *canvas, bool resize_only) {
       }
     }
     
-    canvas->translate(sx, sy);
+    canvas->translate(_scrollx, sy);
   }
   
   context.canvas = 0;
