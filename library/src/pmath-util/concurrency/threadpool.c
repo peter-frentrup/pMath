@@ -808,8 +808,9 @@ static void run_gc(void) {
              by temp. symbols and so was visited by the gc in the previous loop.
            */
           if(all_visited) {
+#          ifdef PMATH_DEBUG_LOG
             pmath_atomic_write_release(&_pmath_debug_current_gc_symbol, (intptr_t)PMATH_AS_PTR(sym));
-            
+#          endif            
             pmath_symbol_set_attributes(sym, PMATH_SYMBOL_ATTRIBUTE_TEMPORARY);
             _pmath_symbol_set_global_value(sym, PMATH_UNDEFINED);
             
@@ -819,7 +820,6 @@ static void run_gc(void) {
                 _pmath_symbol_rules_clear(rules);
             }
             
-            // go on for debugging purposes (detect premature destruction):
 //            if(checked_code_tables) {
               pmath_register_code(sym, NULL, PMATH_CODE_USAGE_DOWNCALL);
               
@@ -828,7 +828,9 @@ static void run_gc(void) {
               pmath_register_code(sym, NULL, PMATH_CODE_USAGE_SUBCALL);
 //            }
 
+#          ifdef PMATH_DEBUG_LOG
             pmath_atomic_write_release(&_pmath_debug_current_gc_symbol, 0);
+#          endif            
           }
         }
       }

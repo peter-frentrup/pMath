@@ -1,4 +1,5 @@
 #include <pmath-util/compression.h>
+#include <pmath-util/debug.h>
 #include <pmath-util/memory.h>
 
 
@@ -132,6 +133,36 @@ static void compressor_flush(void *extra) {
   compressor_deflate(data, NULL, 0, Z_SYNC_FLUSH);
 }
 
+static int64_t compressor_get_position(void *extra) {
+  struct compressor_data_t *data = extra;
+  
+  int64_t pos = pmath_file_get_position(data->file);
+  if(pos < 0)
+    return -1;
+  
+  if(data->info.next_in == data->outbuffer) {
+    pos-= data->info.avail_in;
+    
+    if(pos < 0){
+      pmath_debug_print("[decompressor: avail_in > pmath_file_get_position]\n");
+    }
+    
+    return pos;
+  }
+  
+  if(data->info.next_out == data->outbuffer) {
+    pos-= data->info.avail_out;
+    
+    if(pos < 0){
+      pmath_debug_print("[compressor: avail_out > pmath_file_get_position]\n");
+    }
+    
+    return pos;
+  }
+  
+  return pos;
+}
+
 static void compressor_deflate_destructor(void *extra) {
   struct compressor_data_t *data = extra;
   
@@ -160,9 +191,10 @@ pmath_symbol_t pmath_file_create_compressor(pmath_t dstfile) {
   memset(&api, 0, sizeof(api));
   api.struct_size = sizeof(api);
   
-  api.status_function = compressor_status;
-  api.write_function  = compressor_write;
-  api.flush_function  = compressor_flush;
+  api.status_function  = compressor_status;
+  api.write_function   = compressor_write;
+  api.flush_function   = compressor_flush;
+  api.get_pos_function = compressor_get_position;
   
   if(!pmath_file_test(dstfile, PMATH_FILE_PROP_WRITE | PMATH_FILE_PROP_BINARY)) {
     pmath_unref(dstfile);
@@ -202,8 +234,9 @@ pmath_symbol_t pmath_file_create_uncompressor(pmath_t srcfile) {
   memset(&api, 0, sizeof(api));
   api.struct_size = sizeof(api);
   
-  api.status_function = compressor_status;
-  api.read_function   = compressor_read;
+  api.status_function  = compressor_status;
+  api.read_function    = compressor_read;
+  api.get_pos_function = compressor_get_position;
   
   if(!pmath_file_test(srcfile, PMATH_FILE_PROP_READ | PMATH_FILE_PROP_BINARY)) {
     pmath_unref(srcfile);
