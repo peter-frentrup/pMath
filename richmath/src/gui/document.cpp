@@ -1990,7 +1990,7 @@ void Document::move_tab(LogicalDirection direction) {
         ++i;
     }
     
-    MathSequence *seq = dynamic_cast<MathSequence *>(box);
+    AbstractSequence *seq = dynamic_cast<AbstractSequence *>(box);
     if(seq && seq->is_placeholder(i)) {
       select(box, i, i + 1);
       return;
@@ -2047,31 +2047,44 @@ bool Document::is_inside_alias() {
 bool Document::is_tabkey_only_moving() {
   Box *selbox = context.selection.get();
   
-  if(dynamic_cast<TextSequence *>(selbox))
-    return false;
-    
   if(context.selection.start != context.selection.end)
     return true;
     
-  if(selbox == this)
+  if(!selbox || selbox == this)
     return false;
     
-  MathSequence *seq = dynamic_cast<MathSequence *>(selbox);
-  
-  if(!seq || !dynamic_cast<Section *>(seq->parent()))
+  if(!dynamic_cast<Section *>(selbox->parent()))
     return true;
-    
-  const uint16_t *buf = seq->text().buffer();
   
-  for(int i = context.selection.start - 1; i >= 0; ++i) {
-    if(buf[i] == '\n')
-      return false;
-      
-    if(buf[i] != '\t' && buf[i] != ' ')
-      return true;
+  if(MathSequence *seq = dynamic_cast<MathSequence *>(selbox)){
+    const uint16_t *buf = seq->text().buffer();
+    
+    for(int i = context.selection.start - 1; i >= 0; ++i) {
+      if(buf[i] == '\n')
+        return false;
+        
+      if(buf[i] != '\t' && buf[i] != ' ')
+        return true;
+    }
+    
+    return false;
   }
   
-  return false;
+  if(TextSequence *seq = dynamic_cast<TextSequence *>(selbox)){
+    const char *buf = seq->text_buffer().buffer();
+        
+    for(int i = context.selection.start - 1; i >= 0; ++i) {
+      if(buf[i] == '\n')
+        return false;
+        
+      if(buf[i] != '\t' && buf[i] != ' ')
+        return true;
+    }
+    
+    return false;
+  }
+  
+  return true;
 }
 
 void Document::insert_pmath(int *pos, Expr boxes, int overwrite_until_index) {

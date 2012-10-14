@@ -36,6 +36,30 @@
 		"scale" -> TransformationBox("\[SelectionPlaceholder]", BoxTransformation->{{2,0},{0,2}}),
 		"trans" -> TransformationBox("\[SelectionPlaceholder]", BoxTransformation->{{1,0.3},{0,1}}),
 		
+		"fr\""  -> "\[LeftGuillemet]\[SelectionPlaceholder]\[RightGuillemet]",
+		"frquo" -> "\[LeftGuillemet]\[SelectionPlaceholder]\[RightGuillemet]",
+		"fr'"    -> "\[LeftSingleGuillemet]\[SelectionPlaceholder]\[RightSingleGuillemet]",
+		"frsquo" -> "\[LeftSingleGuillemet]\[SelectionPlaceholder]\[RightSingleGuillemet]",
+		
+		"en\""  -> "\[HighSixDoubleQuote]\[SelectionPlaceholder]\[HighNineDoubleQuote]",
+		"enquo" -> "\[HighSixDoubleQuote]\[SelectionPlaceholder]\[HighNineDoubleQuote]",
+		"en'"    -> "\[HighSixQuote]\[SelectionPlaceholder]\[HighNineQuote]",
+		"ensquo" -> "\[HighSixQuote]\[SelectionPlaceholder]\[HighNineQuote]",
+		
+		"de\""  -> "\[LowNineDoubleQuote]\[SelectionPlaceholder]\[HighSixDoubleQuote]",
+		"dequo" -> "\[LowNineDoubleQuote]\[SelectionPlaceholder]\[HighSixDoubleQuote]",
+		"de'"    -> "\[LowNineQuote]\[SelectionPlaceholder]\[HighSixQuote]",
+		"desquo" -> "\[LowNineQuote]\[SelectionPlaceholder]\[HighSixQuote]",
+		
+		"apostrophe" -> "\[HighNineQuote]",
+		"apos" -> "\[HighNineQuote]",
+		
+		"prime" -> "\[Prime]",
+		"'" -> "\[Prime]",
+		"''" -> "\[DoublePrime]",
+		"'''" -> "\[TriplePrime]",
+		"''''" -> "\[QuadruplePrime]",
+		
 		"a"     -> "\[Alpha]",
 		"alpha" -> "\[Alpha]",
 		"b"    -> "\[Beta]",

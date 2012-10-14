@@ -266,7 +266,7 @@ String TextSequence::raw_substring(int start, int length) {
 bool TextSequence::is_placeholder(int i) {
   uint32_t ch = char_at(i);
   
-  return ch == PMATH_CHAR_PLACEHOLDER || CHAR_REPLACEMENT;
+  return ch == PMATH_CHAR_PLACEHOLDER || ch == CHAR_REPLACEMENT;
 }
 
 void TextSequence::resize(Context *context) {

@@ -533,6 +533,12 @@ static struct named_char_t named_char_array[] = {
   { 0x2020, "Dagger"},
   { 0x2021, "DoubleDagger"},
   { 0x2026, "Ellipsis"},
+  { 0x2032, "Prime"},
+  { 0x2033, "DoublePrime"},
+  { 0x2034, "TriplePrime"},
+  { 0x2039, "LeftSingleGuillemet"},
+  { 0x203A, "RightSingleGuillemet"},
+  { 0x2057, "QuadruplePrime"},
   
   { 0x2145, "CapitalDifferentialD"},
   { 0x2146, "DifferentialD"},
