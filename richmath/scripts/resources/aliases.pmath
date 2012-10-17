@@ -36,6 +36,21 @@
 		"scale" -> TransformationBox("\[SelectionPlaceholder]", BoxTransformation->{{2,0},{0,2}}),
 		"trans" -> TransformationBox("\[SelectionPlaceholder]", BoxTransformation->{{1,0.3},{0,1}}),
 		
+		"<<" -> "\[LeftGuillemet]",
+		">>" -> "\[RightGuillemet]",
+		"< " -> "\[LeftSingleGuillemet]", /* "<" and ">" is for angle brackets */
+		"> " -> "\[RightSingleGuillemet]",
+		
+		"^6" -> "\[HighSixQuote]",
+		"^9" -> "\[HighNineQuote]",
+		"_9" -> "\[LowNineQuote]",
+		"^-9" -> "\[HighReversedNineQuote]",
+		
+		"^66" -> "\[HighSixDoubleQuote]",
+		"^99" -> "\[HighNineDoubleQuote]",
+		"_99" -> "\[LowNineDoubleQuote]",
+		"^-99" -> "\[HighReversedNineDoubleQuote]",
+		
 		"fr\""  -> "\[LeftGuillemet]\[SelectionPlaceholder]\[RightGuillemet]",
 		"frquo" -> "\[LeftGuillemet]\[SelectionPlaceholder]\[RightGuillemet]",
 		"fr'"    -> "\[LeftSingleGuillemet]\[SelectionPlaceholder]\[RightSingleGuillemet]",

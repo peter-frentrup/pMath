@@ -65,8 +65,8 @@ static const struct char_info_t u0000_u00ff[256] = {
   /* 007 */ ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  LEF, ALT, RI2, TIL, ERR,
   /* 008 */ ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR,
   /* 009 */ ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR,
-  /* 00A */ ___, ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  NOT, ID,  ID,  ID,
-  /* 00B */ ID2, AD2, DIF, DIF, ID,  ID,  ID,  MID, ID,  DIF, ID,  ID,  ID2, ID2, ID2, ID,
+  /* 00A */ ___, ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID2, NOT, ID,  ID,  ID,
+  /* 00B */ ID2, AD2, DIF, DIF, ID,  ID,  ID,  MID, ID,  DIF, ID,  ID2, ID2, ID2, ID2, ID,
   /* 00C */ ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,
   /* 00D */ ID,  ID,  ID,  ID,  ID,  ID,  ID,  MUL, ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,
   /* 00E */ ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,
@@ -80,7 +80,8 @@ static const struct char_info_t u2000_u206f[112] = {
   /* 202 */ ID2, ID2, ID2, ID2, ID2, ID2, ID2, ID2, ID2, ID2, ID2, ID2, ID2, ID2, ID2, ID2,
   /* 203 */ ID2, ID2, ID2, ID2, ID2, ID2, ID2, ID2, ID2, LEF, RI1, ID2, ID2, ID2, ID2, ID2,
   /* 204 */ ID2, ID2, ID2, ID2, DIV, LEF, RI1, ID2, ID2, ID2, ID2, ID2, ID2, ID2, ID2, ID2,
-  /* 205 */ ID,  APL, MUL, SEQ, ADD, ERR, ERR, ERR, ERR, ERR, ID,  ID,  ID,  ID,  ID,  ID
+  /* 205 */ ID2, ID2, ID2, ID2, ID2, ID2, ID2, ID2, ID2, ID2, ID2, ID2, ID2, ID2, ID2, ID2,
+  /* 206 */ ID,  APL, MUL, SEQ, ADD, ERR, ERR, ERR, ERR, ERR, ID,  ID,  ID,  ID,  ID,  ID
 };
 
 static const struct char_info_t u2100_u230f[528] = {
@@ -161,7 +162,7 @@ static const struct char_info_t u2900_u2aff[512] = {
   /* 2AC */ REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL,
   /* 2AD */ REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL,
   /* 2AE */ REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL,
-  /* 2AF */ REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL,
+  /* 2AF */ REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL
 };
 
 static const struct char_info_t *find_char_info(uint16_t ch) {
@@ -196,7 +197,8 @@ static const struct char_info_t *find_char_info(uint16_t ch) {
       
     case PMATH_CHAR_BOX:
     case PMATH_CHAR_LEFT_BOX:
-    case PMATH_CHAR_RIGHT_BOX: return &id2;
+    case PMATH_CHAR_RIGHT_BOX: 
+    case PMATH_CHAR_PLACEHOLDER: return &id2;
   }
   
   return &id;
