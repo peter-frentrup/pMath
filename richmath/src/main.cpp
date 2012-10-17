@@ -264,7 +264,7 @@ static void load_math_shapers() {
 }
 
 static void init_stylesheet() {
-#define CAPTION_FONT List(String("Veranda"), String("Calibri"),    String("Arial"))
+#define CAPTION_FONT List(String("Calibri"), String("Verdana"),    String("Arial"))
 #define TEXT_FONT    List(String("Georgia"), String("Constantia"), String("Times New Roman"))
 
   Stylesheet::Default = new Stylesheet;
