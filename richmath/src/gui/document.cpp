@@ -273,6 +273,24 @@ static void selection_path(
   }
 }
 
+static int index_of_replacement(const String &s){
+  const uint16_t *buf = s.buffer();
+  int             len = s.length();
+  
+  if(len <= 1)
+    return -1;
+  
+  for(int i = 0;i < len;++i)
+    if(buf[i] == CHAR_REPLACEMENT)
+      return i;
+  
+  for(int i = 0;i < len;++i)
+    if(buf[i] == PMATH_CHAR_PLACEHOLDER)
+      return i;
+  
+  return -1;
+}
+
 static MathSequence *search_string(
   Box *box,
   int *index,
@@ -1417,10 +1435,22 @@ void Document::on_key_press(uint32_t unichar) {
             String ins(repl);
             
             if(ins.is_valid()) {
-              int i = seq->insert(alias_end, ins);
-              seq->remove(alias_pos, alias_end);
+              int repl_index = index_of_replacement(ins);
               
-              move_to(seq, i - (alias_end - alias_pos));
+              if(repl_index >= 0){
+                int new_sel_start = seq->insert(alias_end, ins.part(0, repl_index));
+                int new_sel_end   = seq->insert(new_sel_start, PMATH_CHAR_PLACEHOLDER);
+                seq->insert(new_sel_end, ins.part(repl_index + 1));
+                seq->remove(alias_pos, alias_end);
+                
+                select(seq, new_sel_start - (alias_end - alias_pos), new_sel_end - (alias_end - alias_pos));
+              }
+              else{
+                int i = seq->insert(alias_end, ins);
+                seq->remove(alias_pos, alias_end);
+                move_to(seq, i - (alias_end - alias_pos));
+              }
+              
               return;
             }
             else {
@@ -2842,7 +2872,9 @@ void Document::insert_box(Box *box, bool handle_placeholder) {
   if( !is_inside_string() &&
       !is_inside_alias() &&
       !handle_immediate_macros())
+  {
     handle_macros();
+  }
     
   if(AbstractSequence *seq = dynamic_cast<AbstractSequence *>(context.selection.get())) {
     Box *new_sel_box = 0;
@@ -4065,11 +4097,9 @@ bool Document::handle_immediate_macros(
       --i;
     ++i;
     
-    int e = selection_start() - 1;
-    while(e < seq->length() && !seq->span_array().is_token_end(e))
-      ++e;
+    int e = selection_start();
       
-    Expr repl = table[seq->text().part(i, e - i + 1)];
+    Expr repl = table[seq->text().part(i, e - i)];
     
     if(!repl.is_null()) {
       String s(repl);
@@ -4078,15 +4108,26 @@ bool Document::handle_immediate_macros(
         MathSequence *repl_seq = new MathSequence();
         repl_seq->load_from_object(repl, BoxOptionDefault);
         
-        seq->remove(i, e + 1);
+        seq->remove(i, e);
         move_to(selection_box(), i);
         insert_box(repl_seq, true);
         return true;
       }
       else {
-        seq->insert(e + 1, s);
-        seq->remove(i, e + 1);
-        move_to(selection_box(), i + s.length());
+        int repl_index = index_of_replacement(s);
+        if(repl_index >= 0){
+          int new_sel_start = seq->insert(e, s.part(0, repl_index));
+          int new_sel_end   = seq->insert(new_sel_start, PMATH_CHAR_PLACEHOLDER);
+          seq->insert(new_sel_end, s.part(repl_index + 1));
+          seq->remove(i, e);
+          
+          select(seq, new_sel_start - (e - i), new_sel_end - (e - i));
+        }
+        else{
+          seq->insert(e, s);
+          seq->remove(i, e);
+          move_to(selection_box(), i + s.length());
+        }
         return true;
       }
     }
@@ -4137,9 +4178,20 @@ bool Document::handle_macros(
         String s(repl);
         
         if(!s.is_null()) {
-          seq->insert(e, s);
-          seq->remove(i, e);
-          move_to(selection_box(), i + s.length());
+          int repl_index = index_of_replacement(s);
+          if(repl_index >= 0) {
+            int new_sel_start = seq->insert(e, s.part(0, repl_index));
+            int new_sel_end   = seq->insert(new_sel_start, PMATH_CHAR_PLACEHOLDER);
+            seq->insert(new_sel_end, s.part(repl_index + 1));
+            seq->remove(i, e);
+            
+            select(seq, new_sel_start - (e - i), new_sel_end - (e - i));
+          }
+          else{
+            seq->insert(e, s);
+            seq->remove(i, e);
+            move_to(selection_box(), i + s.length());
+          }
           return true;
         }
         else {

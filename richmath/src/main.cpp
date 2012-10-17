@@ -203,7 +203,7 @@ static void load_fonts() {
   }
   
   if(!fonttable.search("pMathFallback")) {
-    FontInfo::add_private_font(Application::application_directory + "/pMathFallback.otf");
+    FontInfo::add_private_font(Application::application_directory + "/pMathFallback.ttf");
   }
 }
 
