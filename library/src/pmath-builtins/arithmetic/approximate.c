@@ -12,7 +12,6 @@
 #include <pmath-builtins/control/definitions-private.h>
 #include <pmath-builtins/lists-private.h>
 
-PMATH_PRIVATE double pmath_max_extra_precision = 50 * LOG2_10;
 
 static pmath_t prec_to_obj(double binprec) {
   if(binprec == -HUGE_VAL)

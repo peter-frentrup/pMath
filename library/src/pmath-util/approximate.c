@@ -1,5 +1,6 @@
 #include <pmath-util/approximate.h>
-#include <pmath-util/concurrency/threads.h>
+
+#include <pmath-util/concurrency/threads-private.h>
 #include <pmath-util/evaluation.h>
 #include <pmath-util/messages.h>
 
@@ -488,6 +489,10 @@ PMATH_API pmath_t pmath_approximate(
   pmath_bool_t *aborted
 ) {
   double prec, acc, prec2, acc2;
+  pmath_thread_t me = pmath_thread_get_current();
+  
+  if(!me)
+    return obj;
   
   if(aborted)
     *aborted = FALSE;
@@ -516,8 +521,8 @@ PMATH_API pmath_t pmath_approximate(
       acc = 2 * acc - acc2 + 2;
       
     pmath_unref(res);
-    if( prec > precision_goal + pmath_max_extra_precision ||
-        acc  > accuracy_goal  + pmath_max_extra_precision)
+    if( prec > precision_goal + me->max_extra_precision ||
+        acc  > accuracy_goal  + me->max_extra_precision)
     {
       // max. extra precision reached
       if(aborted) {
@@ -529,12 +534,12 @@ PMATH_API pmath_t pmath_approximate(
                       pmath_ref(obj));
       }
       
-      prec = precision_goal + pmath_max_extra_precision;
-      acc  = accuracy_goal  + pmath_max_extra_precision;
+      prec = precision_goal + me->max_extra_precision;
+      acc  = accuracy_goal  + me->max_extra_precision;
       
       return pmath_evaluate(_pmath_approximate_step(obj, prec, acc));
     }
   }
   
-  return PMATH_NULL;
+  return obj;
 }

@@ -99,6 +99,4 @@ pmath_t _pmath_approximate_step(
   double  prec, // -inf = MachinePrecision
   double  acc); // -inf = MachinePrecision
 
-PMATH_PRIVATE extern double pmath_max_extra_precision;
-
 #endif /* __PMATH_BUILTINS__ARITHMETIC_PRIVATE_H__ */

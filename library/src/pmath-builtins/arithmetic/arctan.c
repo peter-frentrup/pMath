@@ -1,5 +1,6 @@
 #include <pmath-core/numbers-private.h>
 
+#include <pmath-util/concurrency/threads-private.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
 
@@ -12,6 +13,10 @@
 PMATH_PRIVATE pmath_t builtin_arctan(pmath_expr_t expr) {
   pmath_t x;
   int xclass;
+  pmath_thread_t me = pmath_thread_get_current();
+  
+  if(!me)
+    return expr;
   
   if(pmath_expr_length(expr) != 1) {
     pmath_message_argxxx(pmath_expr_length(expr), 1, 1);
@@ -65,8 +70,8 @@ PMATH_PRIVATE pmath_t builtin_arctan(pmath_expr_t expr) {
       prec = mpfr_get_d(PMATH_AS_MP_VALUE(x), MPFR_RNDN);
       prec = -log2(fabs(atan(prec))) + acc;
       
-      if(prec > acc + pmath_max_extra_precision)
-        prec = acc + pmath_max_extra_precision;
+      if(prec > acc + me->max_extra_precision)
+        prec  = acc + me->max_extra_precision;
       else if(prec < 0)
         prec = 0;
         

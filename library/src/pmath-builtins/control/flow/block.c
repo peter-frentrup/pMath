@@ -28,29 +28,54 @@ static pmath_t get_definition_and_clear(pmath_symbol_t sym) {
   rhs = pmath_evaluate(pmath_ref(lhs));
   pmath_emit(pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_ASSIGN), 2, lhs, rhs), PMATH_NULL);
   
+  
   lhs = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_DOWNRULES), 1, pmath_ref(sym));
   rhs = pmath_evaluate(pmath_ref(lhs));
   pmath_emit(pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_ASSIGN), 2, lhs, rhs), PMATH_NULL);
+  
   
   lhs = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_FORMATRULES), 1, pmath_ref(sym));
   rhs = pmath_evaluate(pmath_ref(lhs));
   pmath_emit(pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_ASSIGN), 2, lhs, rhs), PMATH_NULL);
   
+  
   lhs = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_NRULES), 1, pmath_ref(sym));
   rhs = pmath_evaluate(pmath_ref(lhs));
   pmath_emit(pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_ASSIGN), 2, lhs, rhs), PMATH_NULL);
   
+  
   lhs = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_OWNRULES), 1, pmath_ref(sym));
   rhs = pmath_evaluate(pmath_ref(lhs));
-  pmath_emit(pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_ASSIGN), 2, lhs, rhs), PMATH_NULL);
+  
+  // special case for $MaxExtraPrecision/... symbols which might use 
+  // external storage. Use SYM:= VAL instead of OwnRules(SYM):= {HoldPattern(SYM) :> VAL}
+  if(pmath_is_expr_of_len(rhs, PMATH_SYMBOL_LIST, 1) && _pmath_have_code(sym, PMATH_CODE_USAGE_UPCALL)) {
+    pmath_t value = pmath_symbol_get_value(sym);
+    
+    if(pmath_is_evaluatable(value)) {
+      pmath_unref(rhs);
+      rhs = PMATH_UNDEFINED;
+      pmath_emit(pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_ASSIGNDELAYED), 2, pmath_ref(sym), value), PMATH_NULL);
+    }
+    else
+      pmath_unref(value);
+  }
+  
+  if(pmath_same(rhs, PMATH_SYMBOL_UNDEFINED))
+    pmath_unref(lhs);
+  else
+    pmath_emit(pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_ASSIGN), 2, lhs, rhs), PMATH_NULL);
+  
   
   lhs = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_SUBRULES), 1, pmath_ref(sym));
   rhs = pmath_evaluate(pmath_ref(lhs));
   pmath_emit(pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_ASSIGN), 2, lhs, rhs), PMATH_NULL);
   
+  
   lhs = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_UPRULES), 1, pmath_ref(sym));
   rhs = pmath_evaluate(pmath_ref(lhs));
   pmath_emit(pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_ASSIGN), 2, lhs, rhs), PMATH_NULL);
+  
   
   if(att & PMATH_SYMBOL_ATTRIBUTE_PROTECTED) {
     pmath_emit(

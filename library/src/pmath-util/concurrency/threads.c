@@ -1,13 +1,11 @@
 #include <pmath-util/concurrency/threads-private.h>
 
+#include <pmath-core/numbers-private.h>
 #include <pmath-core/symbols-private.h>
 
 #include <pmath-util/concurrency/atomic-private.h>
 #include <pmath-util/concurrency/threadmsg-private.h>
-//#include <pmath-util/debug.h>
 #include <pmath-util/hashtables-private.h>
-//#include <pmath-util/memory.h>
-//#include <pmath-util/messages.h>
 
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/control/definitions-private.h>
@@ -515,6 +513,7 @@ PMATH_PRIVATE pmath_thread_t _pmath_thread_new(pmath_thread_t parent) {
   thread->exception             = PMATH_UNDEFINED;
   thread->message_queue         = _pmath_msg_queue_create();
   thread->abortable_messages    = parent ? pmath_ref(parent->abortable_messages) : PMATH_NULL;
+  thread->max_extra_precision   = 50 * LOG2_10;
   thread->current_dynamic_id    = parent ? parent->current_dynamic_id            : 0;
   thread->critical_messages     = parent ? parent->critical_messages             : FALSE;
   thread->is_daemon             = FALSE;

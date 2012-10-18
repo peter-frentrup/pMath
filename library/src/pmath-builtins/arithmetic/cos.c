@@ -1,5 +1,6 @@
 #include <pmath-core/numbers-private.h>
 
+#include <pmath-util/concurrency/threads-private.h>
 #include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
@@ -9,8 +10,13 @@
 #include <pmath-builtins/build-expr-private.h>
 #include <pmath-builtins/lists-private.h>
 
+
 PMATH_PRIVATE pmath_t builtin_cos(pmath_expr_t expr) {
   pmath_t x;
+  pmath_thread_t me = pmath_thread_get_current();
+  
+  if(!me)
+    return expr;
   
   if(pmath_expr_length(expr) != 1) {
     pmath_message_argxxx(pmath_expr_length(expr), 1, 1);
@@ -56,8 +62,8 @@ PMATH_PRIVATE pmath_t builtin_cos(pmath_expr_t expr) {
       acc  = -log2(fabs(accmant)) - accexp;
       prec = -log2(fabs(cos_val)) + acc;
       
-      if(prec > acc + pmath_max_extra_precision)
-        prec = acc + pmath_max_extra_precision;
+      if(prec > acc + me->max_extra_precision)
+        prec  = acc + me->max_extra_precision;
       else if(prec < 0)
         prec = 0;
         

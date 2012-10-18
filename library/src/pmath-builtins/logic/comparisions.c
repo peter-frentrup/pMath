@@ -1,5 +1,6 @@
 #include <pmath-util/approximate.h>
-#include <pmath-util/concurrency/threads.h>
+
+#include <pmath-util/concurrency/threads-private.h>
 #include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
@@ -396,6 +397,11 @@ static int ordered_pair(pmath_t prev, pmath_t next, int directions) {
       pmath_t p;
       pmath_t n;
       
+      pmath_thread_t me = pmath_thread_get_current();
+      
+      if(!me)
+        return UNKNOWN;
+      
       p = pmath_approximate(pmath_ref(prev), pprec, HUGE_VAL, &error1);
       n = pmath_approximate(pmath_ref(next), nprec, HUGE_VAL, &error2);
       
@@ -410,8 +416,8 @@ static int ordered_pair(pmath_t prev, pmath_t next, int directions) {
       if(c == 0 && !pmath_aborting()) {
         nprec += 1;
         while(c == 0 && !pmath_aborting() && !error1 && !error2) {
-          error1 = (pprec >= DBL_MANT_DIG + pmath_max_extra_precision);
-          error2 = (nprec >= DBL_MANT_DIG + pmath_max_extra_precision);
+          error1 = (pprec >= DBL_MANT_DIG + me->max_extra_precision);
+          error2 = (nprec >= DBL_MANT_DIG + me->max_extra_precision);
           
           if(error1 || error2)
             break;
@@ -419,10 +425,10 @@ static int ordered_pair(pmath_t prev, pmath_t next, int directions) {
           pprec = 2 * pprec + 33;
           nprec = 2 * nprec + 33;
           
-          if(pprec > DBL_MANT_DIG + pmath_max_extra_precision)
-            pprec  = DBL_MANT_DIG + pmath_max_extra_precision;
-          if(nprec > DBL_MANT_DIG + pmath_max_extra_precision)
-            nprec  = DBL_MANT_DIG + pmath_max_extra_precision;
+          if(pprec > DBL_MANT_DIG + me->max_extra_precision)
+            pprec  = DBL_MANT_DIG + me->max_extra_precision;
+          if(nprec > DBL_MANT_DIG + me->max_extra_precision)
+            nprec  = DBL_MANT_DIG + me->max_extra_precision;
             
           pmath_unref(n);
           pmath_unref(p);

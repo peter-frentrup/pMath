@@ -1,5 +1,6 @@
 #include <pmath-core/numbers-private.h>
 
+#include <pmath-util/concurrency/threads-private.h>
 #include <pmath-util/approximate.h>
 #include <pmath-util/messages.h>
 
@@ -130,6 +131,10 @@ pmath_t builtin_assign_maxextraprecision(pmath_expr_t expr) {
   pmath_t tag;
   pmath_t lhs;
   pmath_t rhs;
+  pmath_thread_t me = pmath_thread_get_current();
+  
+  if(!me)
+    return expr;
   
   if(!_pmath_is_assignment(expr, &tag, &lhs, &rhs))
     return expr;
@@ -142,7 +147,7 @@ pmath_t builtin_assign_maxextraprecision(pmath_expr_t expr) {
   }
   
   if(pmath_same(rhs, PMATH_UNDEFINED)) { // $MaxExtraPrecision:= .
-    pmath_max_extra_precision = 50 * LOG2_10;
+    me->max_extra_precision = 50 * LOG2_10;
     
     pmath_unref(tag);
     pmath_unref(rhs);
@@ -155,7 +160,7 @@ pmath_t builtin_assign_maxextraprecision(pmath_expr_t expr) {
   }
   
   if(pmath_equals(rhs, _pmath_object_infinity)) {
-    pmath_max_extra_precision = HUGE_VAL;
+    me->max_extra_precision = HUGE_VAL;
     
     pmath_unref(tag);
     pmath_unref(lhs);
@@ -167,7 +172,7 @@ pmath_t builtin_assign_maxextraprecision(pmath_expr_t expr) {
     double d = pmath_number_get_d(rhs);
     
     if(d > 0) {
-      pmath_max_extra_precision = d * LOG2_10;
+      me->max_extra_precision = d * LOG2_10;
       
       pmath_unref(tag);
       pmath_unref(lhs);
