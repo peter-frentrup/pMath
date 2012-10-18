@@ -1,6 +1,7 @@
 #include <pmath-util/approximate.h>
 #include <pmath-util/concurrency/threads.h>
 #include <pmath-util/evaluation.h>
+#include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
 
 #include <pmath-builtins/all-symbols-private.h>
@@ -102,6 +103,29 @@ static pmath_bool_t almost_equal(pmath_t a, pmath_t b) {
   else if(pmath_is_mpfloat(a) && pmath_is_mpfloat(b)) {
     return almost_equal_mp(a, b);
   }
+  else if(pmath_is_expr_of_len(a, PMATH_SYMBOL_COMPLEX, 2) ||
+          pmath_is_expr_of_len(a, PMATH_SYMBOL_COMPLEX, 2))
+  {
+    pmath_t re_a, im_a, re_b, im_b;
+    
+    if( _pmath_re_im(pmath_ref(a), &re_a, &im_a) &&
+        _pmath_re_im(pmath_ref(b), &re_b, &im_b) &&
+        (!pmath_is_null(im_a) || !pmath_is_null(im_b)))
+    {
+      pmath_bool_t eq = almost_equal(re_a, re_b) && almost_equal(im_a, im_b);
+      
+      pmath_unref(re_a);
+      pmath_unref(im_a);
+      pmath_unref(re_b);
+      pmath_unref(im_b);
+      return eq;
+    }
+    
+    pmath_unref(re_a);
+    pmath_unref(im_a);
+    pmath_unref(re_b);
+    pmath_unref(im_b);
+  }
   
   return pmath_equals(a, b);
 }
@@ -113,8 +137,346 @@ static int pmath_fuzzy_compare(pmath_t a, pmath_t b) {
   return pmath_compare(a, b);
 }
 
+#define UNKNOWN (-1)
+
+// TRUE, FALSE or UNKNOWN
+static int ordered_pair(pmath_t prev, pmath_t next, int directions) {
+  if(pmath_is_double(prev) && pmath_is_numeric(next)) {
+    pmath_t n = pmath_approximate(pmath_ref(next), -HUGE_VAL, -HUGE_VAL, NULL);
+    int c;
+    
+    if(!pmath_is_number(n)) {
+      pmath_unref(n);
+      return UNKNOWN;
+    }
+    
+    c = pmath_fuzzy_compare(prev, n);
+    pmath_unref(n);
+    
+    if( (c <  0 && (directions & DIRECTION_LESS)  == 0) ||
+        (c == 0 && (directions & DIRECTION_EQUAL) == 0) ||
+        (c >  0 && (directions & DIRECTION_GREATER) == 0))
+    {
+      return FALSE;
+    }
+    
+    return TRUE;
+  }
+  
+  if(pmath_is_double(next) && pmath_is_numeric(prev)) {
+    pmath_t p = pmath_approximate(pmath_ref(prev), -HUGE_VAL, -HUGE_VAL, NULL);
+    int c;
+    
+    if(!pmath_is_number(p)) {
+      pmath_unref(p);
+      return UNKNOWN;
+    }
+    
+    c = pmath_fuzzy_compare(p, next);
+    pmath_unref(p);
+    
+    if( (c <  0 && (directions & DIRECTION_LESS)  == 0) ||
+        (c == 0 && (directions & DIRECTION_EQUAL) == 0) ||
+        (c >  0 && (directions & DIRECTION_GREATER) == 0))
+    {
+      return FALSE;
+    }
+    
+    return TRUE;
+  }
+  
+  if(pmath_is_number(prev) && pmath_is_number(next)) {
+    int c = pmath_fuzzy_compare(prev, next);
+    
+    if( (c <  0 && (directions & DIRECTION_LESS)    == 0) ||
+        (c == 0 && (directions & DIRECTION_EQUAL)   == 0) ||
+        (c >  0 && (directions & DIRECTION_GREATER) == 0))
+    {
+      return FALSE;
+    }
+    
+    return TRUE;
+  }
+  
+  /*if(pmath_is_string(prev) && pmath_is_string(next)) {
+    pmath_bool_t equal = pmath_equals(prev, next);
+    
+    if( ( equal && (directions & DIRECTION_EQUAL) == 0) ||
+        (!equal && (directions & (DIRECTION_LESS |
+                                  DIRECTION_EQUAL |
+                                  DIRECTION_GREATER)) == DIRECTION_EQUAL))
+    {
+      pmath_unref(prev);
+      pmath_unref(next);
+      pmath_unref(expr);
+      return pmath_ref(PMATH_SYMBOL_FALSE);
+    }
+    
+    continue;
+  }*/
+  
+  if(pmath_equals(prev, next)) { // symbols, expressions
+    if(directions & DIRECTION_EQUAL) 
+      return TRUE;
+    
+    return FALSE;
+  }
+  
+  { // +/- Infinity ...
+    pmath_t prev_infdir = _pmath_directed_infinity_direction(prev);
+    pmath_t next_infdir = _pmath_directed_infinity_direction(next);
+    pmath_t p;
+    pmath_t n;
+    
+    if(pmath_equals(prev_infdir, PMATH_FROM_INT32(-1))) {
+      n = pmath_ref(next);
+      
+      if(pmath_is_null(next_infdir) && pmath_is_numeric(n))
+        n = pmath_approximate(n, -HUGE_VAL, -HUGE_VAL, NULL);
+        
+      if( pmath_is_number(n) ||
+          pmath_equals(next_infdir, PMATH_FROM_INT32(1)))
+      {
+        pmath_unref(prev_infdir);
+        pmath_unref(next_infdir);
+        pmath_unref(n);
+          
+        if(directions & DIRECTION_LESS) 
+          return TRUE;
+          
+        return FALSE;
+      }
+      
+      pmath_unref(prev_infdir);
+      pmath_unref(next_infdir);
+      pmath_unref(n);
+      return UNKNOWN;
+    }
+    
+    if(pmath_equals(prev_infdir, PMATH_FROM_INT32(1))) {
+      n = pmath_ref(next);
+      
+      if(pmath_is_null(next_infdir) && pmath_is_numeric(n))
+        n = pmath_approximate(n, -HUGE_VAL, -HUGE_VAL, NULL);
+        
+      if( pmath_is_number(n) ||
+          pmath_equals(next_infdir, PMATH_FROM_INT32(-1)))
+      {
+        pmath_unref(prev_infdir);
+        pmath_unref(next_infdir);
+        pmath_unref(n);
+          
+        if(directions & DIRECTION_GREATER) 
+          return TRUE;
+        
+        return FALSE;
+      }
+      
+      pmath_unref(prev_infdir);
+      pmath_unref(next_infdir);
+      pmath_unref(n);
+      return UNKNOWN;
+    }
+    
+    if(pmath_equals(next_infdir, PMATH_FROM_INT32(-1))) {
+      p = pmath_ref(prev);
+      
+      if(pmath_is_null(prev_infdir) && pmath_is_numeric(p))
+        p = pmath_approximate(p, -HUGE_VAL, -HUGE_VAL, NULL);
+        
+      if( pmath_is_number(p) ||
+          pmath_equals(prev_infdir, PMATH_FROM_INT32(1)))
+      {
+        pmath_unref(prev_infdir);
+        pmath_unref(next_infdir);
+        pmath_unref(p);
+        
+        if(directions & DIRECTION_GREATER) 
+          return TRUE;
+        
+        return FALSE;
+      }
+    
+      pmath_unref(prev_infdir);
+      pmath_unref(next_infdir);
+      pmath_unref(p);
+      return UNKNOWN;
+    }
+    
+    if(pmath_equals(next_infdir, PMATH_FROM_INT32(1))) {
+      p = pmath_ref(prev);
+      
+      if(pmath_is_null(prev_infdir) && pmath_is_numeric(p))
+        p = pmath_approximate(p, -HUGE_VAL, -HUGE_VAL, NULL);
+        
+      if( pmath_is_number(p) ||
+          pmath_equals(prev_infdir, PMATH_FROM_INT32(-1)))
+      {
+        pmath_unref(prev_infdir);
+        pmath_unref(next_infdir);
+        pmath_unref(p);
+        
+        if(directions & DIRECTION_LESS) 
+          return TRUE;
+        
+        return FALSE;
+      }
+      
+      pmath_unref(prev_infdir);
+      pmath_unref(next_infdir);
+      pmath_unref(p);
+      return UNKNOWN;
+    }
+    
+    pmath_unref(prev_infdir);
+    pmath_unref(next_infdir);
+    return UNKNOWN;
+  }
+  
+  if(pmath_is_numeric(prev) && pmath_is_numeric(next)) {
+    int c = 0;
+    
+    if(pmath_is_mpfloat(prev)) {
+      double precacc = DBL_MANT_DIG + LOG10_2;
+      pmath_t n;
+      
+      n = pmath_approximate(pmath_ref(next), precacc, HUGE_VAL, NULL);
+      
+      if(!pmath_is_number(n)) {
+        pmath_unref(n);
+        return UNKNOWN;
+      }
+      
+      c = pmath_fuzzy_compare(prev, n);
+      if(c == 0) {
+        precacc = DBL_MANT_DIG + pmath_accuracy(n);
+        n = pmath_approximate(pmath_ref(next), HUGE_VAL, precacc, NULL);
+        
+        if(!pmath_is_number(n)) {
+          pmath_unref(n);
+          return UNKNOWN;
+        }
+        
+        c = pmath_fuzzy_compare(prev, n);
+      }
+      
+      pmath_unref(n);
+    }
+    else if(pmath_is_mpfloat(next)) {
+      double precacc = DBL_MANT_DIG + LOG10_2;
+      pmath_t p;
+      
+      p = pmath_approximate(pmath_ref(prev), precacc, HUGE_VAL, NULL);
+      
+      if(!pmath_is_number(p)) {
+        pmath_unref(p);
+        return UNKNOWN;
+      }
+      
+      c = pmath_fuzzy_compare(p, next);
+      if(c == 0) {
+        precacc = DBL_MANT_DIG + pmath_accuracy(p);
+        p = pmath_approximate(pmath_ref(prev), HUGE_VAL, precacc, NULL);
+        
+        if(!pmath_is_number(p)) {
+          pmath_unref(p);
+          return UNKNOWN;
+        }
+        
+        c = pmath_fuzzy_compare(p, next);
+      }
+      
+      pmath_unref(p);
+    }
+    else {
+      pmath_bool_t error1;
+      pmath_bool_t error2;
+      double pprec = DBL_MANT_DIG + LOG10_2;
+      double nprec = DBL_MANT_DIG + LOG10_2;
+      pmath_t p;
+      pmath_t n;
+      
+      p = pmath_approximate(pmath_ref(prev), pprec, HUGE_VAL, &error1);
+      n = pmath_approximate(pmath_ref(next), nprec, HUGE_VAL, &error2);
+      
+      // TODO: check complex values for equality...
+      if(!pmath_is_number(p) || !pmath_is_number(n)) {
+        pmath_unref(p);
+        pmath_unref(n);
+        return UNKNOWN;
+      }
+      
+      c = pmath_fuzzy_compare(p, n);
+      if(c == 0 && !pmath_aborting()) {
+        nprec += 1;
+        while(c == 0 && !pmath_aborting() && !error1 && !error2) {
+          error1 = (pprec >= DBL_MANT_DIG + pmath_max_extra_precision);
+          error2 = (nprec >= DBL_MANT_DIG + pmath_max_extra_precision);
+          
+          if(error1 || error2)
+            break;
+            
+          pprec = 2 * pprec + 33;
+          nprec = 2 * nprec + 33;
+          
+          if(pprec > DBL_MANT_DIG + pmath_max_extra_precision)
+            pprec  = DBL_MANT_DIG + pmath_max_extra_precision;
+          if(nprec > DBL_MANT_DIG + pmath_max_extra_precision)
+            nprec  = DBL_MANT_DIG + pmath_max_extra_precision;
+            
+          pmath_unref(n);
+          pmath_unref(p);
+          
+          p = pmath_approximate(pmath_ref(prev), pprec, HUGE_VAL, &error1);
+          n = pmath_approximate(pmath_ref(next), nprec, HUGE_VAL, &error2);
+          
+          if(!pmath_is_number(p) || !pmath_is_number(n))
+            break;
+            
+          c = pmath_fuzzy_compare(p, n);
+        }
+      }
+      
+      pmath_unref(n);
+      pmath_unref(p);
+      
+      if(pmath_aborting())
+        return UNKNOWN;
+        
+      if((directions & ~DIRECTION_EQUAL) == 0) {
+        if(error1) {
+          pmath_message(PMATH_SYMBOL_N, "meprec", 2,
+                        pmath_evaluate(pmath_ref(PMATH_SYMBOL_MAXEXTRAPRECISION)),
+                        pmath_ref(prev));
+                        
+          return UNKNOWN;
+        }
+        
+        if(error2) {
+          pmath_message(PMATH_SYMBOL_N, "meprec", 2,
+                        pmath_evaluate(pmath_ref(PMATH_SYMBOL_MAXEXTRAPRECISION)),
+                        pmath_ref(next));
+                        
+          return UNKNOWN;
+        }
+      }
+    }
+    
+    if( (c <  0 && (directions & DIRECTION_LESS)    == 0) ||
+        (c == 0 && (directions & DIRECTION_EQUAL)   == 0) ||
+        (c >  0 && (directions & DIRECTION_GREATER) == 0))
+    {
+      return FALSE;
+    }
+    
+    return TRUE;
+  }
+  
+  return UNKNOWN;
+}
+
 static pmath_t ordered(
-  pmath_expr_t expr,      // will be freed
+  pmath_expr_t expr,       // will be freed
   int          directions // DIRECTION_XXX bitset
 ) {
   size_t len = pmath_expr_length(expr);
@@ -135,410 +497,28 @@ static pmath_t ordered(
     for(i = 2; i <= len; i++) {
       pmath_t next = pmath_expr_get_item(expr, i);
       
-      do { /* ... while(0) */
-        pmath_bool_t old_prev_was_true = prev_was_true;
+      int test = ordered_pair(prev, next, directions);
+      
+      if(test == 0) {
+        pmath_unref(next);
+        pmath_unref(prev);
+        pmath_unref(expr);
+        return pmath_ref(PMATH_SYMBOL_FALSE);
+      }
+      
+      if(test > 0) {
+        if(start == i - 1) {
+          start++;
+        }
+        else if(prev_was_true) {
+          have_marker_after_start = TRUE;
+          expr = pmath_expr_set_item(expr, i - 1, PMATH_UNDEFINED);
+        }
+        
         prev_was_true = TRUE;
-        
-        if(pmath_is_double(prev) && pmath_is_numeric(next)) {
-          pmath_t n = pmath_approximate(pmath_ref(next), -HUGE_VAL, -HUGE_VAL, NULL);
-          int c;
-          
-          if(!pmath_is_number(n)) {
-            pmath_unref(n);
-            continue;
-          }
-          
-          c = pmath_fuzzy_compare(prev, n);
-          
-          if( (c <  0 && (directions & DIRECTION_LESS)  == 0) ||
-              (c == 0 && (directions & DIRECTION_EQUAL) == 0) ||
-              (c >  0 && (directions & DIRECTION_GREATER) == 0))
-          {
-            pmath_unref(prev);
-            pmath_unref(next);
-            pmath_unref(n);
-            pmath_unref(expr);
-            return pmath_ref(PMATH_SYMBOL_FALSE);
-          }
-          
-          if(start == i - 1) {
-            start++;
-          }
-          else if(old_prev_was_true) {
-            have_marker_after_start = TRUE;
-            expr = pmath_expr_set_item(expr, i - 1, PMATH_UNDEFINED);
-          }
-          
-          pmath_unref(n);
-          continue;
-        }
-        
-        if(pmath_is_double(next) && pmath_is_numeric(prev)) {
-          pmath_t p = pmath_approximate(pmath_ref(prev), -HUGE_VAL, -HUGE_VAL, NULL);
-          int c;
-          
-          if(!pmath_is_number(p)) {
-            pmath_unref(p);
-            continue;
-          }
-          
-          c = pmath_fuzzy_compare(p, next);
-          
-          if( (c <  0 && (directions & DIRECTION_LESS)  == 0) ||
-              (c == 0 && (directions & DIRECTION_EQUAL) == 0) ||
-              (c >  0 && (directions & DIRECTION_GREATER) == 0))
-          {
-            pmath_unref(prev);
-            pmath_unref(next);
-            pmath_unref(p);
-            pmath_unref(expr);
-            return pmath_ref(PMATH_SYMBOL_FALSE);
-          }
-          
-          if(start == i - 1) {
-            start++;
-          }
-          else if(old_prev_was_true) {
-            have_marker_after_start = TRUE;
-            expr = pmath_expr_set_item(expr, i - 1, PMATH_UNDEFINED);
-          }
-          
-          pmath_unref(p);
-          continue;
-        }
-        
-        if(pmath_is_number(prev) && pmath_is_number(next)) {
-          int c = pmath_fuzzy_compare(prev, next);
-          
-          if( (c <  0 && (directions & DIRECTION_LESS)    == 0) ||
-              (c == 0 && (directions & DIRECTION_EQUAL)   == 0) ||
-              (c >  0 && (directions & DIRECTION_GREATER) == 0))
-          {
-            pmath_unref(prev);
-            pmath_unref(next);
-            pmath_unref(expr);
-            return pmath_ref(PMATH_SYMBOL_FALSE);
-          }
-          
-          if(start == i - 1) {
-            start++;
-          }
-          else if(old_prev_was_true) {
-            have_marker_after_start = TRUE;
-            expr = pmath_expr_set_item(expr, i - 1, PMATH_UNDEFINED);
-          }
-          
-          continue;
-        }
-        
-        if(pmath_is_string(prev) && pmath_is_string(next)) {
-          pmath_bool_t equal = pmath_equals(prev, next);
-          
-          if( ( equal && (directions & DIRECTION_EQUAL) == 0) ||
-              (!equal && (directions & (DIRECTION_LESS |
-                                        DIRECTION_EQUAL |
-                                        DIRECTION_GREATER)) == DIRECTION_EQUAL))
-          {
-            pmath_unref(prev);
-            pmath_unref(next);
-            pmath_unref(expr);
-            return pmath_ref(PMATH_SYMBOL_FALSE);
-          }
-          
-          continue;
-        }
-        
-        if(pmath_equals(prev, next)) { // symbols, expressions
-          if((directions & DIRECTION_EQUAL) == 0) {
-            pmath_unref(prev);
-            pmath_unref(next);
-            pmath_unref(expr);
-            return pmath_ref(PMATH_SYMBOL_FALSE);
-          }
-          
-          if(start == i - 1)
-            start++;
-          else if(old_prev_was_true) {
-            have_marker_after_start = TRUE;
-            expr = pmath_expr_set_item(expr, i - 1, PMATH_UNDEFINED);
-          }
-          continue;
-        }
-        
-        { // +/- Infinity ...
-          pmath_t prev_infdir = _pmath_directed_infinity_direction(prev);
-          pmath_t next_infdir = _pmath_directed_infinity_direction(next);
-          pmath_t p;
-          pmath_t n;
-          
-          if(pmath_equals(prev_infdir, PMATH_FROM_INT32(-1))) {
-            n = pmath_ref(next);
-            if(pmath_is_null(next_infdir) && pmath_is_numeric(n))
-              n = pmath_approximate(n, -HUGE_VAL, -HUGE_VAL, NULL);
-              
-            if( pmath_is_number(n) ||
-                pmath_equals(next_infdir, PMATH_FROM_INT32(1)))
-            {
-              if((directions & DIRECTION_LESS) == 0) {
-                pmath_unref(prev_infdir);
-                pmath_unref(next_infdir);
-                pmath_unref(prev);
-                pmath_unref(next);
-                pmath_unref(n);
-                pmath_unref(expr);
-                return pmath_ref(PMATH_SYMBOL_FALSE);
-              }
-              else if(start == i - 1) {
-                ++start;
-              }
-              else if(old_prev_was_true) {
-                have_marker_after_start = TRUE;
-                expr = pmath_expr_set_item(expr, i - 1, PMATH_UNDEFINED);
-              }
-            }
-            
-            pmath_unref(n);
-          }
-          else if(pmath_equals(prev_infdir, PMATH_FROM_INT32(1))) {
-            n = pmath_ref(next);
-            if(pmath_is_null(next_infdir) && pmath_is_numeric(n))
-              n = pmath_approximate(n, -HUGE_VAL, -HUGE_VAL, NULL);
-              
-            if( pmath_is_number(n) ||
-                pmath_equals(next_infdir, PMATH_FROM_INT32(-1)))
-            {
-              if((directions & DIRECTION_GREATER) == 0) {
-                pmath_unref(prev_infdir);
-                pmath_unref(next_infdir);
-                pmath_unref(prev);
-                pmath_unref(next);
-                pmath_unref(n);
-                pmath_unref(expr);
-                return pmath_ref(PMATH_SYMBOL_FALSE);
-              }
-              else if(start == i - 1)
-                start++;
-              else if(old_prev_was_true) {
-                have_marker_after_start = TRUE;
-                expr = pmath_expr_set_item(expr, i - 1, PMATH_UNDEFINED);
-              }
-            }
-            
-            pmath_unref(n);
-          }
-          else if(pmath_equals(next_infdir, PMATH_FROM_INT32(-1))) {
-            p = pmath_ref(prev);
-            if(pmath_is_null(prev_infdir) && pmath_is_numeric(p))
-              p = pmath_approximate(p, -HUGE_VAL, -HUGE_VAL, NULL);
-              
-            if( pmath_is_number(p) ||
-                pmath_equals(prev_infdir, PMATH_FROM_INT32(1)))
-            {
-              if((directions & DIRECTION_GREATER) == 0) {
-                pmath_unref(prev_infdir);
-                pmath_unref(next_infdir);
-                pmath_unref(prev);
-                pmath_unref(p);
-                pmath_unref(next);
-                pmath_unref(expr);
-                return pmath_ref(PMATH_SYMBOL_FALSE);
-              }
-              else if(start == i - 1)
-                start++;
-              else if(old_prev_was_true) {
-                have_marker_after_start = TRUE;
-                expr = pmath_expr_set_item(expr, i - 1, PMATH_UNDEFINED);
-              }
-            }
-            
-            pmath_unref(p);
-          }
-          else if(pmath_equals(next_infdir, PMATH_FROM_INT32(1))) {
-            p = pmath_ref(prev);
-            if(pmath_is_null(prev_infdir) && pmath_is_numeric(p))
-              p = pmath_approximate(p, -HUGE_VAL, -HUGE_VAL, NULL);
-              
-            if( pmath_is_number(prev) ||
-                pmath_equals(prev_infdir, PMATH_FROM_INT32(-1)))
-            {
-              if((directions & DIRECTION_LESS) == 0) {
-                pmath_unref(prev_infdir);
-                pmath_unref(next_infdir);
-                pmath_unref(prev);
-                pmath_unref(p);
-                pmath_unref(next);
-                pmath_unref(expr);
-                return pmath_ref(PMATH_SYMBOL_FALSE);
-              }
-              else if(start == i - 1)
-                start++;
-              else if(old_prev_was_true) {
-                have_marker_after_start = TRUE;
-                expr = pmath_expr_set_item(expr, i - 1, PMATH_UNDEFINED);
-              }
-            }
-            
-            pmath_unref(p);
-          }
-          
-          pmath_unref(prev_infdir);
-          pmath_unref(next_infdir);
-        }
-        
-        if(pmath_is_numeric(prev) && pmath_is_numeric(next)) {
-          int c = 0;
-          
-          if(pmath_is_mpfloat(prev)) {
-            double precacc = DBL_MANT_DIG + LOG10_2;
-            pmath_t n;
-            
-            n = pmath_approximate(pmath_ref(next), precacc, HUGE_VAL, NULL);
-            
-            if(!pmath_is_number(n)) {
-              pmath_unref(n);
-              continue;
-            }
-            
-            c = pmath_fuzzy_compare(prev, n);
-            if(c == 0) {
-              precacc = DBL_MANT_DIG + pmath_accuracy(n);
-              n = pmath_approximate(pmath_ref(next), HUGE_VAL, precacc, NULL);
-              
-              if(!pmath_is_number(n)) {
-                pmath_unref(n);
-                continue;
-              }
-              
-              c = pmath_fuzzy_compare(prev, n);
-            }
-            
-            pmath_unref(n);
-          }
-          else if(pmath_is_mpfloat(next)) {
-            double precacc = DBL_MANT_DIG + LOG10_2;
-            pmath_t p;
-            
-            p = pmath_approximate(pmath_ref(prev), precacc, HUGE_VAL, NULL);
-            
-            if(!pmath_is_number(p)) {
-              pmath_unref(p);
-              continue;
-            }
-            
-            c = pmath_fuzzy_compare(p, next);
-            if(c == 0) {
-              precacc = DBL_MANT_DIG + pmath_accuracy(p);
-              p = pmath_approximate(pmath_ref(prev), HUGE_VAL, precacc, NULL);
-              
-              if(!pmath_is_number(p)) {
-                pmath_unref(p);
-                continue;
-              }
-              
-              c = pmath_fuzzy_compare(p, next);
-            }
-            
-            pmath_unref(p);
-          }
-          else {
-            pmath_bool_t error1;
-            pmath_bool_t error2;
-            double pprec = DBL_MANT_DIG + LOG10_2;
-            double nprec = DBL_MANT_DIG + LOG10_2;
-            pmath_t p;
-            pmath_t n;
-            
-            p = pmath_approximate(pmath_ref(prev), pprec, HUGE_VAL, &error1);
-            n = pmath_approximate(pmath_ref(next), nprec, HUGE_VAL, &error2);
-            
-            if(!pmath_is_number(p) || !pmath_is_number(n)) {
-              pmath_unref(p);
-              pmath_unref(n);
-              continue;
-            }
-            
-            c = pmath_fuzzy_compare(p, n);
-            if(c == 0 && !pmath_aborting()) {
-              nprec += 1;
-              while(c == 0 && !pmath_aborting() && !error1 && !error2) {
-                error1 = (pprec >= DBL_MANT_DIG + pmath_max_extra_precision);
-                error2 = (nprec >= DBL_MANT_DIG + pmath_max_extra_precision);
-                
-                if(error1 || error2)
-                  break;
-                  
-                pprec = 2 * pprec + 33;
-                nprec = 2 * nprec + 33;
-                
-                if(pprec > DBL_MANT_DIG + pmath_max_extra_precision)
-                  pprec = DBL_MANT_DIG + pmath_max_extra_precision;
-                if(nprec > DBL_MANT_DIG + pmath_max_extra_precision)
-                  nprec = DBL_MANT_DIG + pmath_max_extra_precision;
-                  
-                pmath_unref(n);
-                pmath_unref(p);
-                
-                p = pmath_approximate(pmath_ref(prev), pprec, HUGE_VAL, &error1);
-                n = pmath_approximate(pmath_ref(next), nprec, HUGE_VAL, &error2);
-                
-                if(!pmath_is_number(p) || !pmath_is_number(n))
-                  break;
-                  
-                c = pmath_fuzzy_compare(p, n);
-              }
-            }
-            
-            pmath_unref(n);
-            pmath_unref(p);
-            
-            if(pmath_aborting())
-              continue;
-              
-            if((directions & ~DIRECTION_EQUAL) == 0) {
-              if(error1) {
-                pmath_message(PMATH_SYMBOL_N, "meprec", 2,
-                              pmath_evaluate(pmath_ref(PMATH_SYMBOL_MAXEXTRAPRECISION)),
-                              pmath_expr_get_item(expr, i - 1));
-                              
-                prev_was_true = FALSE;
-                continue;
-              }
-              
-              if(error2) {
-                pmath_message(PMATH_SYMBOL_N, "meprec", 2,
-                              pmath_evaluate(pmath_ref(PMATH_SYMBOL_MAXEXTRAPRECISION)),
-                              pmath_expr_get_item(expr, i));
-                              
-                prev_was_true = FALSE;
-                continue;
-              }
-            }
-          }
-          
-          if( (c <  0 && (directions & DIRECTION_LESS)    == 0) ||
-              (c == 0 && (directions & DIRECTION_EQUAL)   == 0) ||
-              (c >  0 && (directions & DIRECTION_GREATER) == 0))
-          {
-            pmath_unref(prev);
-            pmath_unref(next);
-            pmath_unref(expr);
-            return pmath_ref(PMATH_SYMBOL_FALSE);
-          }
-          
-          if(start == i - 1) {
-            start++;
-          }
-          else if(old_prev_was_true) {
-            have_marker_after_start = TRUE;
-            expr = pmath_expr_set_item(expr, i - 1, PMATH_UNDEFINED);
-          }
-          
-          continue;
-        }
-        
+      }
+      else
         prev_was_true = FALSE;
-        
-      } while(0);
       
       pmath_unref(prev);
       prev = next;

@@ -22,6 +22,7 @@ General::infy:= "Infinite expression `1` encountered."
 General::ovfl:= "An overflow occured in compution."
 General::unfl:= "An underflow occured in compution."
 General::meprec:= "Internal precision limit $MaxExtraPrecision = `1` reached while evaluating `2`."
+General::nord:= "Invalid comparison with `1` attempted."
 General::precw:= "The precision of the parameter `1` is less than WorkingPrecision (`2`)."
 
 /* stack overflow */
