@@ -913,7 +913,7 @@ void _pmath_symbol_value_emit(
   if(pmath_is_multirule(value)) {
     _pmath_multirules_emit(value);
   }
-  else if(pmath_is_evaluatable(value)) {
+  else {
     pmath_emit(
       pmath_expr_new_extended(
         pmath_ref(PMATH_SYMBOL_RULEDELAYED), 2,
@@ -923,8 +923,6 @@ void _pmath_symbol_value_emit(
         value),
       PMATH_NULL);
   }
-  else
-    pmath_unref(value);
 }
 
 PMATH_PRIVATE
