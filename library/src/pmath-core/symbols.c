@@ -689,8 +689,7 @@ struct _pmath_symbol_rules_t *_pmath_symbol_get_rules(
         return NULL;
     }
     
-    entry = (struct _pmath_symbol_rules_entry_t *)pmath_mem_alloc(
-              sizeof(struct _pmath_symbol_rules_entry_t));
+    entry = pmath_mem_alloc(sizeof(struct _pmath_symbol_rules_entry_t));
               
     if(!entry)
       return NULL;
@@ -717,7 +716,7 @@ struct _pmath_symbol_rules_t *_pmath_symbol_get_rules(
     if(rules || access == RULES_READ)
       return rules;
       
-    new_rules = (struct _pmath_symbol_rules_t *)pmath_mem_alloc(sizeof(struct _pmath_symbol_rules_t));
+    new_rules = pmath_mem_alloc(sizeof(struct _pmath_symbol_rules_t));
     if(new_rules) {
       _pmath_symbol_rules_copy(new_rules, NULL);
       
@@ -739,8 +738,8 @@ struct _pmath_symbol_rules_t *_pmath_symbol_get_rules(
 PMATH_PRIVATE
 pmath_bool_t _pmath_symbol_assign_value(
   pmath_symbol_t  symbol, // wont be freed
-  pmath_t  lhs,    // will be freed. typically pmath_ref(symbol)
-  pmath_t  rhs     // will be freed
+  pmath_t         lhs,    // will be freed. typically pmath_ref(symbol)
+  pmath_t         rhs     // will be freed
 ) {
   struct _pmath_symbol_t *sym_ptr = (void *)PMATH_AS_PTR(symbol);
   

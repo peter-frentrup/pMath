@@ -72,16 +72,16 @@ pmath_bool_t _pmath_symbol_value_visit(
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_NONNULL(1)
 pmath_bool_t _pmath_rulecache_visit(
-  struct _pmath_rulecache_t *rc,
-  pmath_bool_t (*callback)(pmath_t, void*),
-  void *closure);
+  struct _pmath_rulecache_t  *rc,
+  pmath_bool_t              (*callback)(pmath_t, void*),
+  void                       *closure);
 
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_NONNULL(1)
 pmath_bool_t _pmath_symbol_rules_visit(
-  struct _pmath_symbol_rules_t *rules,
-  pmath_bool_t (*callback)(pmath_t, void*),
-  void *closure);
+  struct _pmath_symbol_rules_t  *rules,
+  pmath_bool_t                 (*callback)(pmath_t, void*),
+  void                          *closure);
 
 /*============================================================================*/
 
@@ -96,15 +96,15 @@ PMATH_PRIVATE
 PMATH_ATTRIBUTE_NONNULL(1)
 void _pmath_rulecache_remove_all(
   struct _pmath_rulecache_t *rc,
-  pmath_t             to_be_removed, // wont be freed
-  pmath_t             replacement);  // wont be freed
+  pmath_t                    to_be_removed, // wont be freed
+  pmath_t                    replacement);  // wont be freed
 
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_NONNULL(1)
 void _pmath_symbol_rules_remove_all(
   struct _pmath_symbol_rules_t *rules,
-  pmath_t                to_be_removed, // wont be freed
-  pmath_t                replacement);  // wont be freed
+  pmath_t                       to_be_removed, // wont be freed
+  pmath_t                       replacement);  // wont be freed
 
 /*============================================================================*/
 
@@ -112,14 +112,14 @@ PMATH_PRIVATE
 PMATH_ATTRIBUTE_NONNULL(1)
 pmath_bool_t _pmath_rulecache_find(
   struct _pmath_rulecache_t *rc,
-  pmath_t            *inout);
+  pmath_t                   *inout);
 
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_NONNULL(1)
 void _pmath_rulecache_change(
   struct _pmath_rulecache_t *rc,
-  pmath_t             pattern, // will be freed
-  pmath_t             body);   // will be freed, PMATH_UNDEFINED => remove rules
+  pmath_t                    pattern, // will be freed
+  pmath_t                    body);   // will be freed, PMATH_UNDEFINED => remove rules
 
 /*============================================================================*/
 

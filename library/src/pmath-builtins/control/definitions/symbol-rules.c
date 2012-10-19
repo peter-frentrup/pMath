@@ -229,7 +229,7 @@ PMATH_PRIVATE pmath_t builtin_assign_symbol_rules(pmath_expr_t expr) {
     return pmath_ref(PMATH_SYMBOL_FAILED);
   }
   
-  if(pmath_same(kind, PMATH_SYMBOL_DEFAULTRULES)) rc = &rules->default_rules;
+  if(     pmath_same(kind, PMATH_SYMBOL_DEFAULTRULES)) rc = &rules->default_rules;
   else if(pmath_same(kind, PMATH_SYMBOL_DOWNRULES))    rc = &rules->down_rules;
   else if(pmath_same(kind, PMATH_SYMBOL_FORMATRULES))  rc = &rules->format_rules;
   else if(pmath_same(kind, PMATH_SYMBOL_NRULES))       rc = &rules->approx_rules;
@@ -359,7 +359,7 @@ PMATH_PRIVATE pmath_t builtin_symbol_rules(pmath_expr_t expr) {
   rules = _pmath_symbol_get_rules(sym, RULES_READ);
   
   if(rules) {
-    if(pmath_same(head, PMATH_SYMBOL_DEFAULTRULES)) _pmath_rulecache_emit(&rules->default_rules);
+    if(     pmath_same(head, PMATH_SYMBOL_DEFAULTRULES)) _pmath_rulecache_emit(&rules->default_rules);
     else if(pmath_same(head, PMATH_SYMBOL_DOWNRULES))    _pmath_rulecache_emit(&rules->down_rules);
     else if(pmath_same(head, PMATH_SYMBOL_FORMATRULES))  _pmath_rulecache_emit(&rules->format_rules);
     else if(pmath_same(head, PMATH_SYMBOL_NRULES))       _pmath_rulecache_emit(&rules->approx_rules);

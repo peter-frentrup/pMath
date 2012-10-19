@@ -187,19 +187,27 @@ PMATH_PRIVATE pmath_t builtin_showdefinition(pmath_expr_t expr) {
     
     obj = pmath_symbol_get_value(sym);
     if(!pmath_same(obj, PMATH_UNDEFINED)) {
-      if(pmath_is_evaluated(obj)) {
-        PMATH_RUN_ARGS(
-          "SectionPrint(\"Print\", HoldForm(`1`:= `2`))",
-          "(oo)",
-          pmath_ref(sym),
-          obj);
+      if(pmath_is_evaluatable(obj)) {
+        if(pmath_is_evaluated(obj)) {
+          PMATH_RUN_ARGS(
+            "SectionPrint(\"Print\", HoldForm(`1`:= `2`))",
+            "(oo)",
+            pmath_ref(sym),
+            obj);
+        }
+        else {
+          PMATH_RUN_ARGS(
+            "SectionPrint(\"Print\", HoldForm(`1`::= `2`))",
+            "(oo)",
+            pmath_ref(sym),
+            obj);
+        }
       }
       else {
-        PMATH_RUN_ARGS(
-          "SectionPrint(\"Print\", HoldForm(`1`::= `2`))",
-          "(oo)",
-          pmath_ref(sym),
-          obj);
+        pmath_unref(obj);
+        
+        obj = EVAL_CODE_ARGS("OwnRules(`1`)", "(o)", pmath_ref(sym));
+        print_rule_defs(sym, obj, FALSE);
       }
     }
   }
