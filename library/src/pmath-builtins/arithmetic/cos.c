@@ -20,27 +20,31 @@ static double dx_to_accuracy(mpfr_t dx) {
   return -log2(fabs(accmant)) - accexp;
 }
 
+static double double_max(double a, double b) {
+  if(a < b)
+    return a;
+  return b;
+}
+
 // x will be freed, x may be PMATH_NULL
 PMATH_PRIVATE void _pmath_sin_cos(
   pmath_mpfloat_t  x,
-  pmath_mpfloat_t *si,
-  pmath_mpfloat_t *co
+  pmath_mpfloat_t *sin_val,
+  pmath_mpfloat_t *cos_val
 ) {
   pmath_thread_t thread = pmath_thread_get_current();
   double min_prec, max_prec;
   double sin_prec, cos_prec;
+  pmath_mpfloat_t err_x;
   
-  MPFR_DECL_INIT(err_x,    PMATH_MP_ERROR_PREC);
-  MPFR_DECL_INIT(min_sin,  PMATH_MP_ERROR_PREC);
-  MPFR_DECL_INIT(min_cos,  PMATH_MP_ERROR_PREC);
-  MPFR_DECL_INIT(max_sin,  PMATH_MP_ERROR_PREC);
-  MPFR_DECL_INIT(max_cos,  PMATH_MP_ERROR_PREC);
-  MPFR_DECL_INIT(diff_sin, PMATH_MP_ERROR_PREC);
-  MPFR_DECL_INIT(diff_cos, PMATH_MP_ERROR_PREC);
+  MPFR_DECL_INIT(left_sin,  PMATH_MP_ERROR_PREC);
+  MPFR_DECL_INIT(left_cos,  PMATH_MP_ERROR_PREC);
+  MPFR_DECL_INIT(right_sin, PMATH_MP_ERROR_PREC);
+  MPFR_DECL_INIT(right_cos, PMATH_MP_ERROR_PREC);
   
   
-  *si = PMATH_NULL;
-  *co = PMATH_NULL;
+  *sin_val = PMATH_NULL;
+  *cos_val = PMATH_NULL;
   
   if(pmath_is_null(x))
     return;
@@ -68,47 +72,47 @@ PMATH_PRIVATE void _pmath_sin_cos(
   assert(pmath_is_mpfloat(x));
   
   if(min_prec == max_prec) {
-    *si = _pmath_create_mp_float((mpfr_prec_t)ceil(min_prec));
-    *co = _pmath_create_mp_float((mpfr_prec_t)ceil(min_prec));
+    *sin_val = _pmath_create_mp_float((mpfr_prec_t)ceil(min_prec));
+    *cos_val = _pmath_create_mp_float((mpfr_prec_t)ceil(min_prec));
     
-    if(pmath_is_null(*si) || pmath_is_null(*co)) {
-      pmath_unref(*si); *si = PMATH_NULL;
-      pmath_unref(*co); *co = PMATH_NULL;
+    if(pmath_is_null(*sin_val) || pmath_is_null(*cos_val)) {
+      pmath_unref(*sin_val); *sin_val = PMATH_NULL;
+      pmath_unref(*cos_val); *cos_val = PMATH_NULL;
       pmath_unref(x);
       return;
     }
     
     mpfr_sin_cos(
-      PMATH_AS_MP_VALUE(*si),
-      PMATH_AS_MP_VALUE(*co),
+      PMATH_AS_MP_VALUE(*sin_val),
+      PMATH_AS_MP_VALUE(*cos_val),
       PMATH_AS_MP_VALUE(x),
       MPFR_RNDN);
     
-    mpfr_set_d(min_sin, -min_prec, MPFR_RNDN);
+    mpfr_set_d(left_sin, -min_prec, MPFR_RNDN);
     mpfr_ui_pow(
-      err_x,
+      right_sin,
       2,
-      min_sin,
+      left_sin,
       MPFR_RNDU);
       
     mpfr_mul(
-      PMATH_AS_MP_ERROR(*si), 
-      PMATH_AS_MP_VALUE(*si), 
-      err_x,
+      PMATH_AS_MP_ERROR(*sin_val), 
+      PMATH_AS_MP_VALUE(*sin_val), 
+      right_sin,
       MPFR_RNDA);
     mpfr_abs(
-      PMATH_AS_MP_ERROR(*si),
-      PMATH_AS_MP_ERROR(*si),
+      PMATH_AS_MP_ERROR(*sin_val),
+      PMATH_AS_MP_ERROR(*sin_val),
       MPFR_RNDU);
       
     mpfr_mul(
-      PMATH_AS_MP_ERROR(*co), 
-      PMATH_AS_MP_VALUE(*co), 
-      err_x,
+      PMATH_AS_MP_ERROR(*cos_val), 
+      PMATH_AS_MP_VALUE(*cos_val), 
+      right_sin,
       MPFR_RNDA);
     mpfr_abs(
-      PMATH_AS_MP_ERROR(*co),
-      PMATH_AS_MP_ERROR(*co),
+      PMATH_AS_MP_ERROR(*cos_val),
+      PMATH_AS_MP_ERROR(*cos_val),
       MPFR_RNDU);
       
     pmath_unref(x);
@@ -117,69 +121,112 @@ PMATH_PRIVATE void _pmath_sin_cos(
   
   // give up when error is > 1.0 (= some arbitaray threshold < Pi)
   if(mpfr_cmp_d(PMATH_AS_MP_ERROR(x), 1.0) >= 0) {
-    *si = _pmath_create_mp_float((mpfr_prec_t)ceil(min_prec));
-    *co = _pmath_create_mp_float((mpfr_prec_t)ceil(min_prec));
+    *sin_val = _pmath_create_mp_float((mpfr_prec_t)ceil(min_prec));
+    *cos_val = _pmath_create_mp_float((mpfr_prec_t)ceil(min_prec));
     
-    if(pmath_is_null(*si) || pmath_is_null(*co)) {
-      pmath_unref(*si); *si = PMATH_NULL;
-      pmath_unref(*co); *co = PMATH_NULL;
+    if(pmath_is_null(*sin_val) || pmath_is_null(*cos_val)) {
+      pmath_unref(*sin_val); *sin_val = PMATH_NULL;
+      pmath_unref(*cos_val); *cos_val = PMATH_NULL;
       pmath_unref(x);
       return;
     }
     
-    mpfr_set_ui(PMATH_AS_MP_VALUE(*si), 0, MPFR_RNDN);
-    mpfr_set_ui(PMATH_AS_MP_ERROR(*si), 1, MPFR_RNDN);
+    mpfr_set_ui(PMATH_AS_MP_VALUE(*sin_val), 0, MPFR_RNDN);
+    mpfr_set_ui(PMATH_AS_MP_ERROR(*sin_val), 1, MPFR_RNDN);
     
-    mpfr_set_ui(PMATH_AS_MP_VALUE(*co), 0, MPFR_RNDN);
-    mpfr_set_ui(PMATH_AS_MP_ERROR(*co), 1, MPFR_RNDN);
+    mpfr_set_ui(PMATH_AS_MP_VALUE(*cos_val), 0, MPFR_RNDN);
+    mpfr_set_ui(PMATH_AS_MP_ERROR(*cos_val), 1, MPFR_RNDN);
     
     pmath_unref(x);
     return;
   }
   
+  err_x = _pmath_create_mp_float(mpfr_get_prec(PMATH_AS_MP_VALUE(x)));
+  if(pmath_is_null(err_x)) {
+    pmath_unref(x);
+    return;
+  }
+   
   mpfr_add(
-    err_x,
+    PMATH_AS_MP_VALUE(err_x),
     PMATH_AS_MP_VALUE(x),
     PMATH_AS_MP_ERROR(x),
-    MPFR_RNDN);
+    MPFR_RNDU);
     
   mpfr_sin_cos(
-    max_sin,
-    max_cos,
-    err_x,
+    right_sin,
+    right_cos,
+    PMATH_AS_MP_VALUE(err_x),
     MPFR_RNDN);
     
   mpfr_sub(
-    err_x,
+    PMATH_AS_MP_VALUE(err_x),
     PMATH_AS_MP_VALUE(x),
     PMATH_AS_MP_ERROR(x),
-    MPFR_RNDN);
+    MPFR_RNDD);
     
   mpfr_sin_cos(
-    min_sin,
-    min_cos,
-    err_x,
+    left_sin,
+    left_cos,
+    PMATH_AS_MP_VALUE(err_x),
     MPFR_RNDN);
     
-  mpfr_sub(
-    diff_sin,
-    max_sin,
-    min_sin,
-    MPFR_RNDA);
-  mpfr_abs(diff_sin, diff_sin, MPFR_RNDU);
-  mpfr_div_2ui(diff_sin, diff_sin, 1, MPFR_RNDU);
-  
-  mpfr_sub(
-    diff_cos,
-    max_cos,
-    min_cos,
-    MPFR_RNDA);
-  mpfr_abs(diff_cos, diff_cos, MPFR_RNDU);
-  mpfr_div_2ui(diff_cos, diff_cos, 1, MPFR_RNDU);
+  pmath_unref(err_x); err_x = PMATH_NULL;  
   
   // -1 <= Sin(x), Cos(x) <= 1  => precision === Log(2, |y|) + accuracy <= accuracy
-  sin_prec = ceil(dx_to_accuracy(diff_sin));
-  cos_prec = ceil(dx_to_accuracy(diff_cos));
+  // accuracy = -Log(2, dx)
+  if(mpfr_sgn(left_sin) < 0 && 0 < mpfr_sgn(right_sin)) {
+    double left_cos_d  = mpfr_get_d(left_cos,  MPFR_RNDN);
+    double right_cos_d = mpfr_get_d(right_cos, MPFR_RNDN);
+    
+    // Cos(x) ~= +1
+    cos_prec = -log2(double_max(fabs(+1 - left_cos_d), fabs(+1 - right_cos_d)));
+  }
+  else if(mpfr_sgn(left_sin) > 0 && 0 > mpfr_sgn(right_sin)) {
+    double left_cos_d  = mpfr_get_d(left_cos,  MPFR_RNDN);
+    double right_cos_d = mpfr_get_d(right_cos, MPFR_RNDN);
+    
+    // Cos(x) ~= -1
+    cos_prec = -log2(double_max(fabs(-1 - left_cos_d), fabs(-1 - right_cos_d)));
+  }
+  else{
+    MPFR_DECL_INIT(diff_cos, PMATH_MP_ERROR_PREC);
+    
+    mpfr_sub(
+      diff_cos,
+      right_cos,
+      left_cos,
+      MPFR_RNDA);
+  
+    cos_prec = dx_to_accuracy(diff_cos);
+  }
+  
+  if(mpfr_sgn(left_cos) < 0 && 0 < mpfr_sgn(right_cos)) {
+    double left_sin_d  = mpfr_get_d(left_sin,  MPFR_RNDN);
+    double right_sin_d = mpfr_get_d(right_sin, MPFR_RNDN);
+    
+    // Sin(x) ~= -1
+    sin_prec = -log2(double_max(fabs(-1 - left_sin_d), fabs(-1 - right_sin_d)));
+  }
+  else if(mpfr_sgn(left_cos) > 0 && 0 > mpfr_sgn(right_cos)) {
+    double left_sin_d  = mpfr_get_d(left_sin,  MPFR_RNDN);
+    double right_sin_d = mpfr_get_d(right_sin, MPFR_RNDN);
+    
+    // Sin(x) ~= +1
+    sin_prec = -log2(double_max(fabs(+1 - left_sin_d), fabs(+1 - right_sin_d)));
+  }
+  else{
+    MPFR_DECL_INIT(diff_sin, PMATH_MP_ERROR_PREC);
+    
+    mpfr_sub(
+      diff_sin,
+      right_sin,
+      left_sin,
+      MPFR_RNDA);
+  
+    sin_prec = dx_to_accuracy(diff_sin);
+  }
+  
   
   if(sin_prec < min_prec)
     sin_prec  = min_prec;
@@ -191,58 +238,62 @@ PMATH_PRIVATE void _pmath_sin_cos(
   else if(cos_prec > max_prec)
     cos_prec       = max_prec;
     
-  *si = _pmath_create_mp_float((mpfr_prec_t)ceil(sin_prec));
-  *co = _pmath_create_mp_float((mpfr_prec_t)ceil(cos_prec));
+  *sin_val = _pmath_create_mp_float((mpfr_prec_t)ceil(sin_prec));
+  *cos_val = _pmath_create_mp_float((mpfr_prec_t)ceil(cos_prec));
   
-  if(pmath_is_null(*si) || pmath_is_null(*co)) {
-    pmath_unref(*si); *si = PMATH_NULL;
-    pmath_unref(*co); *co = PMATH_NULL;
+  if(pmath_is_null(*sin_val) || pmath_is_null(*cos_val)) {
+    pmath_unref(*sin_val); *sin_val = PMATH_NULL;
+    pmath_unref(*cos_val); *cos_val = PMATH_NULL;
     pmath_unref(x);
     return;
   }
   
   mpfr_sin_cos(
-    PMATH_AS_MP_VALUE(*si),
-    PMATH_AS_MP_VALUE(*co),
+    PMATH_AS_MP_VALUE(*sin_val),
+    PMATH_AS_MP_VALUE(*cos_val),
     PMATH_AS_MP_VALUE(x),
     MPFR_RNDN);
     
-  _pmath_mp_float_include_error(*si, max_sin);
-  _pmath_mp_float_include_error(*si, min_sin);
+  _pmath_mp_float_include_error(*sin_val, left_sin);
+  _pmath_mp_float_include_error(*sin_val, right_sin);
   
-  _pmath_mp_float_include_error(*co, max_cos);
-  _pmath_mp_float_include_error(*co, min_cos);
+  _pmath_mp_float_include_error(*cos_val, left_cos);
+  _pmath_mp_float_include_error(*cos_val, right_cos);
   
-  if(mpfr_sgn(min_sin) < 0 && 0 < mpfr_sgn(max_sin)) {
+  if(mpfr_sgn(left_sin) < 0 && 0 < mpfr_sgn(right_sin)) {
+    // Cos(x) ~= +1
     MPFR_DECL_INIT(one, PMATH_MP_ERROR_PREC);
     mpfr_set_si(one, 1, MPFR_RNDN);
     
-    _pmath_mp_float_include_error(*co, one);
+    _pmath_mp_float_include_error(*cos_val, one);
   }
-  else if(mpfr_sgn(min_sin) > 0 && 0 > mpfr_sgn(max_sin)) {
-    MPFR_DECL_INIT(negone, PMATH_MP_ERROR_PREC);
-    mpfr_set_si(negone, -1, MPFR_RNDN);
+  else if(mpfr_sgn(left_sin) > 0 && 0 > mpfr_sgn(right_sin)) {
+    // Cos(x) ~= -1
+    MPFR_DECL_INIT(neg_one, PMATH_MP_ERROR_PREC);
+    mpfr_set_si(neg_one, -1, MPFR_RNDN);
     
-    _pmath_mp_float_include_error(*co, negone);
+    _pmath_mp_float_include_error(*cos_val, neg_one);
   }
   
-  if(mpfr_sgn(min_cos) < 0 && 0 < mpfr_sgn(min_cos)) {
-    MPFR_DECL_INIT(negone, PMATH_MP_ERROR_PREC);
-    mpfr_set_si(negone, -1, MPFR_RNDN);
+  if(mpfr_sgn(left_cos) < 0 && 0 < mpfr_sgn(right_cos)) {
+    // Sin(x) ~= -1
+    MPFR_DECL_INIT(neg_one, PMATH_MP_ERROR_PREC);
+    mpfr_set_si(neg_one, -1, MPFR_RNDN);
     
-    _pmath_mp_float_include_error(*si, negone);
+    _pmath_mp_float_include_error(*sin_val, neg_one);
   }
-  else if(mpfr_sgn(min_cos) > 0 && 0 > mpfr_sgn(min_cos)) {
+  else if(mpfr_sgn(left_cos) > 0 && 0 > mpfr_sgn(right_cos)) {
+    // Sin(x) ~= +1
     MPFR_DECL_INIT(one, PMATH_MP_ERROR_PREC);
     mpfr_set_si(one, 1, MPFR_RNDN);
     
-    _pmath_mp_float_include_error(*si, one);
+    _pmath_mp_float_include_error(*sin_val, one);
   }
   
   pmath_unref(x);
   
-  _pmath_mp_float_clip_error(*si, min_prec, max_prec);
-  _pmath_mp_float_clip_error(*co, min_prec, max_prec);
+  _pmath_mp_float_clip_error(*sin_val, min_prec, max_prec);
+  _pmath_mp_float_clip_error(*cos_val, min_prec, max_prec);
   
   //*si = _pmath_float_exceptions(*si);
   //*co = _pmath_float_exceptions(*co);

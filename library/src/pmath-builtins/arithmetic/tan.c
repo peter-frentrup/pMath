@@ -27,12 +27,11 @@ static double log2abs(mpfr_t x) {
 static pmath_t mp_tan(pmath_mpfloat_t x) {
   pmath_thread_t thread = pmath_thread_get_current();
   double min_prec, max_prec, prec1, prec2;
-  pmath_mpfloat_t val;
+  pmath_mpfloat_t val, err_x;
   
-  MPFR_DECL_INIT(err_x,    PMATH_MP_ERROR_PREC);
-  MPFR_DECL_INIT(min_val,  PMATH_MP_ERROR_PREC);
-  MPFR_DECL_INIT(max_val,  PMATH_MP_ERROR_PREC);
-  MPFR_DECL_INIT(diff_val, PMATH_MP_ERROR_PREC);
+  MPFR_DECL_INIT(left_val,  PMATH_MP_ERROR_PREC);
+  MPFR_DECL_INIT(right_val, PMATH_MP_ERROR_PREC);
+  MPFR_DECL_INIT(diff_val,  PMATH_MP_ERROR_PREC);
   
   if(pmath_is_null(x))
     return PMATH_NULL;
@@ -79,17 +78,17 @@ static pmath_t mp_tan(pmath_mpfloat_t x) {
       return CINFTY;
     }
     
-    mpfr_set_d(min_val, -min_prec, MPFR_RNDN);
+    mpfr_set_d(left_val, -min_prec, MPFR_RNDN);
     mpfr_ui_pow(
-      err_x,
+      right_val,
       2,
-      min_val,
+      left_val,
       MPFR_RNDU);
       
     mpfr_mul(
       PMATH_AS_MP_ERROR(val), 
       PMATH_AS_MP_VALUE(val), 
-      err_x,
+      right_val,
       MPFR_RNDA);
     mpfr_abs(
       PMATH_AS_MP_ERROR(val),
@@ -106,50 +105,56 @@ static pmath_t mp_tan(pmath_mpfloat_t x) {
     return CINFTY;
   }
   
+  err_x = _pmath_create_mp_float(mpfr_get_prec(PMATH_AS_MP_VALUE(x)));
+  if(pmath_is_null(err_x)) {
+    pmath_unref(x);
+    return PMATH_NULL;
+  }
+  
   mpfr_add(
-    err_x,
+    PMATH_AS_MP_VALUE(err_x),
     PMATH_AS_MP_VALUE(x),
     PMATH_AS_MP_ERROR(x),
     MPFR_RNDU);
     
   mpfr_tan(
-    max_val,
-    err_x,
+    right_val,
+    PMATH_AS_MP_VALUE(err_x),
     MPFR_RNDU);
     
   mpfr_sub(
-    err_x,
+    PMATH_AS_MP_VALUE(err_x),
     PMATH_AS_MP_VALUE(x),
     PMATH_AS_MP_ERROR(x),
     MPFR_RNDD);
     
   mpfr_tan(
-    min_val,
-    err_x,
+    left_val,
+    PMATH_AS_MP_VALUE(err_x),
     MPFR_RNDD);
   
-  if(mpfr_lessequal_p(max_val, min_val)) { // Tan is increasing, so we must have passed a pole
+  pmath_unref(err_x); err_x = PMATH_NULL;
+  
+  if(mpfr_lessequal_p(right_val, left_val)) { // Tan is increasing, so we must have passed a pole
     pmath_unref(x);
     return CINFTY;
   }
     
   mpfr_sub(
     diff_val,
-    max_val,
-    min_val,
+    right_val,
+    left_val,
     MPFR_RNDA);
-  mpfr_abs(diff_val, diff_val, MPFR_RNDU);
-  mpfr_div_2ui(diff_val, diff_val, 1, MPFR_RNDU);
   
   if(!mpfr_number_p(diff_val)) {
     pmath_unref(x);
-    return CINFTY;
+    return pmath_ref(_pmath_object_overflow);
   }
   
   // precision === Log(2, |y|) + accuracy
   // accuracy = -Log(2, dy)
-  prec1 = log2abs(min_val);
-  prec2 = log2abs(max_val);
+  prec1 = log2abs(left_val);
+  prec2 = log2abs(right_val);
   
   if(prec1 < prec2)
     prec1 = prec2;
@@ -173,8 +178,8 @@ static pmath_t mp_tan(pmath_mpfloat_t x) {
     PMATH_AS_MP_VALUE(x),
     MPFR_RNDN);
     
-  _pmath_mp_float_include_error(val, max_val);
-  _pmath_mp_float_include_error(val, min_val);
+  _pmath_mp_float_include_error(val, right_val);
+  _pmath_mp_float_include_error(val, left_val);
   
   pmath_unref(x);
   
