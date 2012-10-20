@@ -1,5 +1,6 @@
 #include <pmath-core/numbers-private.h>
 
+#include <pmath-util/concurrency/threads-private.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
 
@@ -7,6 +8,170 @@
 #include <pmath-builtins/arithmetic-private.h>
 #include <pmath-builtins/build-expr-private.h>
 #include <pmath-builtins/number-theory-private.h>
+
+
+static double log2abs(mpfr_t x) {
+  mpfr_exp_t accexp;
+  double accmant;
+  
+  if(mpfr_zero_p(x))
+    return -HUGE_VAL;
+  
+  // accuracy = -Log(2, dx)
+  accmant = mpfr_get_d_2exp(&accexp, x, MPFR_RNDN);
+  return log2(fabs(accmant)) + accexp;
+}
+
+// x will be freed, x may be PMATH_NULL
+static pmath_mpfloat_t mp_arcsin(pmath_mpfloat_t x) {
+  pmath_thread_t thread = pmath_thread_get_current();
+  double min_prec, max_prec, prec1, prec2;
+  pmath_mpfloat_t val;
+  
+  MPFR_DECL_INIT(err_x,     PMATH_MP_ERROR_PREC);
+  MPFR_DECL_INIT(left_val,  PMATH_MP_ERROR_PREC);
+  MPFR_DECL_INIT(right_val, PMATH_MP_ERROR_PREC);
+  MPFR_DECL_INIT(diff_val,  PMATH_MP_ERROR_PREC);
+  
+  if(pmath_is_null(x))
+    return PMATH_NULL;
+    
+  if(!thread) {
+    pmath_unref(x);
+    return PMATH_NULL;
+  }
+  
+  min_prec = thread->min_precision;
+  max_prec = thread->max_precision;
+  
+  if(min_prec < 0)
+    min_prec  = 0;
+    
+  if(min_prec > PMATH_MP_PREC_MAX)
+    min_prec  = PMATH_MP_PREC_MAX;
+    
+  if(max_prec > PMATH_MP_PREC_MAX)
+    max_prec  = PMATH_MP_PREC_MAX;
+    
+  if(max_prec < min_prec)
+    max_prec  = min_prec;
+    
+  assert(pmath_is_mpfloat(x));
+  
+  if(mpfr_cmp_abs(PMATH_AS_MP_VALUE(x), PMATH_AS_MP_ERROR(x)) < 0)
+    return x;
+  
+  if( mpfr_cmp_si(PMATH_AS_MP_VALUE(x),  1) > 0 ||
+      mpfr_cmp_si(PMATH_AS_MP_VALUE(x), -1) < 0)
+  {
+    pmath_unref(x);
+    return PMATH_NULL;
+  }
+  
+  if(min_prec == max_prec) {
+    val = _pmath_create_mp_float((mpfr_prec_t)ceil(min_prec));
+    
+    if(pmath_is_null(val)) {
+      pmath_unref(x);
+      return val;
+    }
+    
+    mpfr_asin(
+      PMATH_AS_MP_VALUE(val),
+      PMATH_AS_MP_VALUE(x),
+      MPFR_RNDN);
+    
+    mpfr_set_d(left_val, -min_prec, MPFR_RNDN);
+    mpfr_ui_pow(
+      err_x,
+      2,
+      left_val,
+      MPFR_RNDU);
+      
+    mpfr_mul(
+      PMATH_AS_MP_ERROR(val), 
+      PMATH_AS_MP_VALUE(val), 
+      err_x,
+      MPFR_RNDA);
+    mpfr_abs(
+      PMATH_AS_MP_ERROR(val),
+      PMATH_AS_MP_ERROR(val),
+      MPFR_RNDU);
+      
+    pmath_unref(x);
+    return val;
+  }
+  
+  mpfr_add(
+    err_x,
+    PMATH_AS_MP_VALUE(x),
+    PMATH_AS_MP_ERROR(x),
+    MPFR_RNDU);
+  
+  if(mpfr_cmp_si(err_x, 1) > 0) 
+    mpfr_set_si(err_x, 1, MPFR_RNDN);
+  
+  mpfr_asin(
+    right_val,
+    err_x,
+    MPFR_RNDU);
+    
+  mpfr_sub(
+    err_x,
+    PMATH_AS_MP_VALUE(x),
+    PMATH_AS_MP_ERROR(x),
+    MPFR_RNDN);
+    
+  if(mpfr_cmp_si(err_x, -1) < 0) 
+    mpfr_set_si(err_x, -1, MPFR_RNDN);
+  
+  mpfr_asin(
+    left_val,
+    err_x,
+    MPFR_RNDD);
+    
+  mpfr_sub(
+    diff_val,
+    right_val,
+    left_val,
+    MPFR_RNDA);
+  
+  // precision === Log(2, |y|) + accuracy
+  // accuracy = -Log(2, dy)
+  prec1 = log2abs(left_val);
+  prec2 = log2abs(right_val);
+  
+  if(prec1 < prec2)
+    prec1 = prec2;
+  
+  prec1-= log2abs(diff_val);
+  
+  if(prec1 > max_prec)
+    prec1  = max_prec;
+  else if(!(prec1 > min_prec))
+    prec1         = min_prec;
+  
+  val = _pmath_create_mp_float((mpfr_prec_t)ceil(prec1));
+  
+  if(pmath_is_null(val)) {
+    pmath_unref(x);
+    return val;
+  }
+  
+  mpfr_asin(
+    PMATH_AS_MP_VALUE(val),
+    PMATH_AS_MP_VALUE(x),
+    MPFR_RNDN);
+    
+  _pmath_mp_float_include_error(val, right_val);
+  _pmath_mp_float_include_error(val, left_val);
+  
+  pmath_unref(x);
+  
+  _pmath_mp_float_clip_error(val, min_prec, max_prec);
+  val = _pmath_float_exceptions(val);
+  return val;
+}
 
 static pmath_t arcsin_as_log(pmath_t x) {
   // -I Log(I x + Sqrt(1 - x^2))
@@ -57,75 +222,12 @@ PMATH_PRIVATE pmath_t builtin_arcsin(pmath_expr_t expr) {
   if(pmath_is_mpfloat(x)) {
     pmath_unref(expr);
     
-    if( mpfr_cmp_si(PMATH_AS_MP_VALUE(x), -1) > 0 &&
-        mpfr_cmp_si(PMATH_AS_MP_VALUE(x),  1) < 0)
-    {
-      pmath_mpfloat_t result;
-      pmath_mpfloat_t tmp;
-      double dprec;
-      long exp;
-      
-      tmp = _pmath_create_mp_float(PMATH_MP_ERROR_PREC);
-      if(!pmath_is_null(tmp)) {
-        // dy = dx / Sqrt(1 - x^2)
-        mpfr_sqr(
-          PMATH_AS_MP_VALUE(tmp),
-          PMATH_AS_MP_VALUE(x),
-          MPFR_RNDU);
-          
-        mpfr_ui_sub(
-          PMATH_AS_MP_ERROR(tmp),
-          1,
-          PMATH_AS_MP_VALUE(tmp),
-          MPFR_RNDU);
-          
-        if(mpfr_sgn(PMATH_AS_MP_ERROR(tmp)) > 0) {
-          mpfr_sqrt(
-            PMATH_AS_MP_VALUE(tmp),
-            PMATH_AS_MP_ERROR(tmp),
-            MPFR_RNDU);
-            
-          mpfr_div(
-            PMATH_AS_MP_ERROR(tmp),
-            PMATH_AS_MP_ERROR(x),
-            PMATH_AS_MP_VALUE(tmp),
-            MPFR_RNDU);
-            
-          // precision = -Log(2, dy/Abs(y))
-          mpfr_div(
-            PMATH_AS_MP_VALUE(tmp),
-            PMATH_AS_MP_ERROR(tmp),
-            PMATH_AS_MP_VALUE(x),
-            MPFR_RNDU);
-            
-          dprec = mpfr_get_d_2exp(&exp, PMATH_AS_MP_VALUE(tmp), MPFR_RNDN);
-          dprec = -log(fabs(dprec)) - exp;
-          
-          if(dprec < 1)
-            dprec = 1;
-          else if(dprec > PMATH_MP_PREC_MAX)
-            dprec = PMATH_MP_PREC_MAX;
-            
-          result = _pmath_create_mp_float((mpfr_prec_t)ceil(dprec));
-          if(!pmath_is_null(result)) {
-            mpfr_swap(PMATH_AS_MP_ERROR(result), PMATH_AS_MP_ERROR(tmp));
-            
-            mpfr_asin(
-              PMATH_AS_MP_VALUE(result),
-              PMATH_AS_MP_VALUE(x),
-              MPFR_RNDN);
-              
-            pmath_unref(x);
-            pmath_unref(tmp);
-            return result;
-          }
-        }
-        
-        pmath_unref(tmp);
-      }
-    }
+    expr = mp_arcsin(pmath_ref(x));
+    if(pmath_is_null(expr))
+      return arcsin_as_log(x);
     
-    return arcsin_as_log(x);
+    pmath_unref(x);
+    return expr;
   }
   
   if(pmath_is_expr_of(x, PMATH_SYMBOL_TIMES)) {

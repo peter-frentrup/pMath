@@ -27,10 +27,10 @@ static pmath_mpfloat_t mp_cosh(pmath_mpfloat_t x) {
   double min_prec, max_prec, prec1, prec2;
   pmath_mpfloat_t val;
   
-  MPFR_DECL_INIT(err_x,    PMATH_MP_ERROR_PREC);
-  MPFR_DECL_INIT(min_val,  PMATH_MP_ERROR_PREC);
-  MPFR_DECL_INIT(max_val,  PMATH_MP_ERROR_PREC);
-  MPFR_DECL_INIT(diff_val, PMATH_MP_ERROR_PREC);
+  MPFR_DECL_INIT(err_x,     PMATH_MP_ERROR_PREC);
+  MPFR_DECL_INIT(left_val,  PMATH_MP_ERROR_PREC);
+  MPFR_DECL_INIT(right_val, PMATH_MP_ERROR_PREC);
+  MPFR_DECL_INIT(diff_val,  PMATH_MP_ERROR_PREC);
   
   if(pmath_is_null(x))
     return PMATH_NULL;
@@ -70,11 +70,11 @@ static pmath_mpfloat_t mp_cosh(pmath_mpfloat_t x) {
       PMATH_AS_MP_VALUE(x),
       MPFR_RNDN);
     
-    mpfr_set_d(min_val, -min_prec, MPFR_RNDN);
+    mpfr_set_d(left_val, -min_prec, MPFR_RNDN);
     mpfr_ui_pow(
       err_x,
       2,
-      min_val,
+      left_val,
       MPFR_RNDU);
       
     mpfr_mul(
@@ -91,40 +91,51 @@ static pmath_mpfloat_t mp_cosh(pmath_mpfloat_t x) {
     return val;
   }
   
-  mpfr_add(
-    err_x,
-    PMATH_AS_MP_VALUE(x),
-    PMATH_AS_MP_ERROR(x),
-    MPFR_RNDN);
-    
-  mpfr_cosh(
-    max_val,
-    err_x,
-    MPFR_RNDN);
-    
-  mpfr_sub(
-    err_x,
-    PMATH_AS_MP_VALUE(x),
-    PMATH_AS_MP_ERROR(x),
-    MPFR_RNDN);
-    
-  mpfr_cosh(
-    min_val,
-    err_x,
-    MPFR_RNDN);
+  if(mpfr_sgn(PMATH_AS_MP_VALUE(x)) >= 0){
+    mpfr_add(
+      err_x,
+      PMATH_AS_MP_VALUE(x),
+      PMATH_AS_MP_ERROR(x),
+      MPFR_RNDN);
+      
+    mpfr_cosh(
+      right_val,
+      err_x,
+      MPFR_RNDU);
+      
+    mpfr_cosh(
+      left_val,
+      PMATH_AS_MP_VALUE(x),
+      MPFR_RNDD);
+  }
+  else {
+    mpfr_sub(
+      err_x,
+      PMATH_AS_MP_VALUE(x),
+      PMATH_AS_MP_ERROR(x),
+      MPFR_RNDN);
+      
+    mpfr_cosh(
+      left_val,
+      err_x,
+      MPFR_RNDU);
+      
+    mpfr_cosh(
+      right_val,
+      PMATH_AS_MP_VALUE(x),
+      MPFR_RNDD);
+  }
     
   mpfr_sub(
     diff_val,
-    max_val,
-    min_val,
+    right_val,
+    left_val,
     MPFR_RNDA);
-  mpfr_abs(diff_val, diff_val, MPFR_RNDU);
-  mpfr_div_2ui(diff_val, diff_val, 1, MPFR_RNDU);
   
   // precision === Log(2, |y|) + accuracy
   // accuracy = -Log(2, dy)
-  prec1 = log2abs(min_val);
-  prec2 = log2abs(max_val);
+  prec1 = log2abs(left_val);
+  prec2 = log2abs(right_val);
   
   if(prec1 < prec2)
     prec1 = prec2;
@@ -148,8 +159,8 @@ static pmath_mpfloat_t mp_cosh(pmath_mpfloat_t x) {
     PMATH_AS_MP_VALUE(x),
     MPFR_RNDN);
     
-  _pmath_mp_float_include_error(val, max_val);
-  _pmath_mp_float_include_error(val, min_val);
+  _pmath_mp_float_include_error(val, right_val);
+  _pmath_mp_float_include_error(val, left_val);
   
   if(mpfr_cmp_abs(PMATH_AS_MP_VALUE(x), PMATH_AS_MP_ERROR(x)) < 0) {
     MPFR_DECL_INIT(one, PMATH_MP_ERROR_PREC);

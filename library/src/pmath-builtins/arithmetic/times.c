@@ -2,6 +2,7 @@
 #include <pmath-core/numbers-private.h>
 
 #include <pmath-util/approximate.h>
+#include <pmath-util/concurrency/threads-private.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
 
@@ -9,6 +10,7 @@
 #include <pmath-builtins/build-expr-private.h>
 #include <pmath-builtins/arithmetic-private.h>
 #include <pmath-builtins/number-theory-private.h>
+
 
 static pmath_rational_t _mul_qi(
   pmath_quotient_t quotA, // will be freed. not PMATH_NULL!
@@ -85,7 +87,7 @@ static pmath_mpfloat_t _mul_fi(
     return PMATH_NULL;
   }
   
-  // dxy = y dx + x dy = y dx   (dy = 0)
+  // dxy = y dx + x dy + dx dy = y dx   (dy = 0)
   mpfr_mul_z(
     PMATH_AS_MP_ERROR(result),
     PMATH_AS_MP_ERROR(floatA),
@@ -120,7 +122,7 @@ static pmath_mpfloat_t _div_fi(
     return PMATH_NULL;
   }
   
-  // d(x/y) = 1/y dx + x d(1/y) = 1/y dx   (d(1/y) = 0)
+  // d(x/y) = 1/y dx + x d(1/y) + dx d(1/y) = 1/y dx   (d(1/y) = 0)
   if(pmath_is_int32(intB)) {
     mpfr_div_si(
       PMATH_AS_MP_ERROR(result),
@@ -177,60 +179,119 @@ static pmath_mpfloat_t _mul_ff(
   pmath_mpfloat_t floatB  // will be freed. not PMATH_NULL!
 ) {
   pmath_mpfloat_t result;
-  pmath_mpfloat_t tmp_err;
   double fprec;
   mpfr_prec_t prec;
+  MPFR_DECL_INIT(err1, PMATH_MP_ERROR_PREC);
+  MPFR_DECL_INIT(err2, PMATH_MP_ERROR_PREC);
+  double min_prec, max_prec;
+  pmath_thread_t thread = pmath_thread_get_current();
   
-  fprec = pmath_precision(pmath_ref(floatA))
-          + pmath_precision(pmath_ref(floatB));
-          
-  if(fprec < MPFR_PREC_MIN)
-    prec = MPFR_PREC_MIN;
-  else if(fprec > PMATH_MP_PREC_MAX)
-    prec = PMATH_MP_PREC_MAX;
-  else
-    prec = (mpfr_prec_t)ceil(fprec);
-    
-  result = _pmath_create_mp_float(prec);
-  tmp_err = _pmath_create_mp_float(PMATH_MP_ERROR_PREC);
-  
-  if(pmath_is_null(result) || pmath_is_null(tmp_err)) {
-    pmath_unref(result);
-    pmath_unref(tmp_err);
+  if(!thread) {
     pmath_unref(floatA);
     pmath_unref(floatB);
     return PMATH_NULL;
   }
   
-  // dxy = y dx + x dy
+  min_prec = thread->min_precision;
+  max_prec = thread->max_precision;
+  
+  if(min_prec < 0)
+    min_prec  = 0;
+    
+  if(min_prec > PMATH_MP_PREC_MAX)
+    min_prec  = PMATH_MP_PREC_MAX;
+    
+  if(max_prec > PMATH_MP_PREC_MAX)
+    max_prec  = PMATH_MP_PREC_MAX;
+    
+  if(max_prec < min_prec)
+    max_prec  = min_prec;
+    
+  assert(pmath_is_mpfloat(floatA));
+  assert(pmath_is_mpfloat(floatB));
+  
+  if(min_prec == max_prec) {
+    result = _pmath_create_mp_float((mpfr_prec_t)ceil(min_prec));
+    
+    if(pmath_is_null(result)) {
+      pmath_unref(floatA);
+      pmath_unref(floatB);
+      return result;
+    }
+    
+    mpfr_mul(
+      PMATH_AS_MP_VALUE(result),
+      PMATH_AS_MP_VALUE(floatA),
+      PMATH_AS_MP_VALUE(floatB),
+      MPFR_RNDN);
+      
+    mpfr_set_d(err1, -min_prec, MPFR_RNDN);
+    mpfr_ui_pow(
+      err2,
+      2,
+      err1,
+      MPFR_RNDU);
+      
+    if(!mpfr_zero_p(PMATH_AS_MP_VALUE(result))) {
+      mpfr_mul(
+        PMATH_AS_MP_ERROR(result),
+        PMATH_AS_MP_VALUE(result),
+        err2,
+        MPFR_RNDA);
+      mpfr_abs(
+        PMATH_AS_MP_ERROR(result),
+        PMATH_AS_MP_ERROR(result),
+        MPFR_RNDU);
+    }
+    
+    pmath_unref(floatA);
+    pmath_unref(floatB);
+    return result;
+  }
+  
+  fprec = pmath_precision(pmath_ref(floatA)) +
+          pmath_precision(pmath_ref(floatB));
+  
+          
+  if(fprec < min_prec)
+    fprec  = min_prec;
+  else if(fprec > max_prec)
+    fprec = max_prec;
+  
+  fprec = (mpfr_prec_t)ceil(fprec);
+    
+  result = _pmath_create_mp_float(prec);
+  
+  if(pmath_is_null(result)) {
+    pmath_unref(result);
+    pmath_unref(floatA);
+    pmath_unref(floatB);
+    return PMATH_NULL;
+  }
+  
+  // dxy = y dx + x dy + dx dy
   
   mpfr_mul(
-    PMATH_AS_MP_VALUE(tmp_err),
+    err1,
     PMATH_AS_MP_VALUE(floatB),
     PMATH_AS_MP_ERROR(floatA),
     MPFR_RNDA);
-    
-  mpfr_abs(PMATH_AS_MP_VALUE(tmp_err), PMATH_AS_MP_VALUE(tmp_err), MPFR_RNDU);
+  mpfr_abs(err1, err1, MPFR_RNDU);
   
   mpfr_mul(
-    PMATH_AS_MP_ERROR(tmp_err),
+    err2,
     PMATH_AS_MP_VALUE(floatA),
     PMATH_AS_MP_ERROR(floatB),
     MPFR_RNDA);
-    
-  mpfr_abs(PMATH_AS_MP_ERROR(tmp_err), PMATH_AS_MP_ERROR(tmp_err), MPFR_RNDU);
+  mpfr_abs(err2, err2, MPFR_RNDU);
   
-  mpfr_add(
-    PMATH_AS_MP_ERROR(result),
-    PMATH_AS_MP_VALUE(tmp_err),
-    PMATH_AS_MP_ERROR(tmp_err),
-    MPFR_RNDU);
-    
+  mpfr_add(err1, err1, err2, MPFR_RNDU);
+  
   mpfr_fma(
     PMATH_AS_MP_ERROR(result),
     PMATH_AS_MP_ERROR(floatA),
     PMATH_AS_MP_ERROR(floatB),
-    PMATH_AS_MP_ERROR(result),
+    err1,
     MPFR_RNDU);
     
   mpfr_mul(
@@ -239,11 +300,11 @@ static pmath_mpfloat_t _mul_ff(
     PMATH_AS_MP_VALUE(floatB),
     MPFR_RNDN);
     
-  _pmath_mp_float_normalize(result);
-  
   pmath_unref(floatA);
   pmath_unref(floatB);
-  pmath_unref(tmp_err);
+  
+  _pmath_mp_float_clip_error(result, min_prec, max_prec);
+  _pmath_mp_float_normalize(result);
   return result;
 }
 
@@ -894,7 +955,7 @@ PMATH_PRIVATE pmath_t builtin_times(pmath_expr_t expr) {
   const size_t elen = pmath_expr_length(expr);
 //  _pmath_timer_t last_change;
 //  pmath_bool_t any_change;
-  
+
   if(elen == 0) {
     pmath_unref(expr);
     return PMATH_FROM_INT32(1);
@@ -906,24 +967,24 @@ PMATH_PRIVATE pmath_t builtin_times(pmath_expr_t expr) {
     return item;
   }
   
-//  /* Using 
+//  /* Using
 //     a = pmath_expr_extract_item(expr, ia);
 //     expr = pmath_expr_set_item(expr, ia, a);
 //     might mark the expression as changed because ..._extract_... temporaryliy
 //     writes PMATH_UNDEFINED which is later compared with a in ..._set_...
 //     and since both do not equal, the change timer is set.
-//     
+//
 //     So we have to reset that timer ourself when nothing realy happend.
-//     
-//     An alternative would be to implement whe loop below twice: once with 
-//     direct access to the items for pmath_refcount(expr) == 1 && expr is a 
+//
+//     An alternative would be to implement whe loop below twice: once with
+//     direct access to the items for pmath_refcount(expr) == 1 && expr is a
 //     PMATH_TYPE_EXPRESSION_GENERAL and once with pmath_expr_get_item() for all
 //     other cases.
 //  */
-//  
+//
 //  last_change = ((struct _pmath_timed_t*)PMATH_AS_PTR(expr))->last_change;
 //  any_change = FALSE;
-  
+
   ia = 1;
   while(ia < elen) {
     pmath_t a = pmath_expr_get_item(expr, ia); // = pmath_expr_extract_item(expr, ia);
@@ -937,7 +998,7 @@ PMATH_PRIVATE pmath_t builtin_times(pmath_expr_t expr) {
           times_2_arg(&a, &b);
 //          if(times_2_arg(&a, &b))
 //            any_change = TRUE;
-          
+
           expr = pmath_expr_set_item(expr, ib, b);
         }
         ++ib;
@@ -952,6 +1013,6 @@ PMATH_PRIVATE pmath_t builtin_times(pmath_expr_t expr) {
 //    ((struct _pmath_timed_t*)PMATH_AS_PTR(expr))->last_change = last_change;
 //    return expr;
 //  }
-  
+
   return _pmath_expr_shrink_associative(expr, PMATH_UNDEFINED);
 }
