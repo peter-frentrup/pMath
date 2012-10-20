@@ -258,39 +258,6 @@ PMATH_PRIVATE pmath_t builtin_tanh(pmath_expr_t expr) {
     }
   }
   
-  {
-    pmath_t dir = _pmath_directed_infinity_direction(x);
-    
-    if(!pmath_is_null(dir)) {
-      int dirclass = _pmath_number_class(dir);
-      pmath_unref(dir);
-      
-      if(dirclass & PMATH_CLASS_ZERO) {
-        pmath_unref(expr);
-        pmath_unref(x);
-        return pmath_ref(PMATH_SYMBOL_UNDEFINED);
-      }
-      
-      if(dirclass & PMATH_CLASS_POS) {
-        pmath_unref(expr);
-        pmath_unref(x);
-        return INT(1);
-      }
-      
-      if(dirclass & PMATH_CLASS_NEG) {
-        pmath_unref(expr);
-        pmath_unref(x);
-        return INT(-1);
-      }
-      
-      if(dirclass & PMATH_CLASS_IMAGINARY) {
-        pmath_unref(expr);
-        pmath_unref(x);
-        return CINFTY;
-      }
-    }
-  }
-  
   pmath_unref(x);
   return expr;
 }

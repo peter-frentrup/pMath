@@ -22,8 +22,8 @@ static double dx_to_accuracy(mpfr_t dx) {
 
 // x will be freed, x may be PMATH_NULL
 PMATH_PRIVATE void _pmath_sin_cos(
-  pmath_mpfloat_t  x, 
-  pmath_mpfloat_t *si, 
+  pmath_mpfloat_t  x,
+  pmath_mpfloat_t *si,
   pmath_mpfloat_t *co
 ) {
   pmath_thread_t thread = pmath_thread_get_current();
@@ -44,7 +44,7 @@ PMATH_PRIVATE void _pmath_sin_cos(
   
   if(pmath_is_null(x))
     return;
-  
+    
   if(!thread) {
     pmath_unref(x);
     return;
@@ -55,19 +55,19 @@ PMATH_PRIVATE void _pmath_sin_cos(
   
   if(min_prec < 0)
     min_prec  = 0;
-  
+    
   if(min_prec > PMATH_MP_PREC_MAX)
     min_prec  = PMATH_MP_PREC_MAX;
-  
+    
   if(max_prec > PMATH_MP_PREC_MAX)
     max_prec  = PMATH_MP_PREC_MAX;
-  
+    
   if(max_prec < min_prec)
     max_prec  = min_prec;
     
   assert(pmath_is_mpfloat(x));
   
-  if(min_prec == max_prec){
+  if(min_prec == max_prec) {
     *si = _pmath_create_mp_float((mpfr_prec_t)ceil(min_prec));
     *co = _pmath_create_mp_float((mpfr_prec_t)ceil(min_prec));
     
@@ -84,6 +84,16 @@ PMATH_PRIVATE void _pmath_sin_cos(
       PMATH_AS_MP_VALUE(x),
       MPFR_RNDN);
     
+    mpfr_set_d(err_x, -min_prec, MPFR_RNDN);
+    
+    mpfr_ui_pow(
+      PMATH_AS_MP_ERROR(*co),
+      2,
+      err_x,
+      MPFR_RNDU);
+      
+    mpfr_set(PMATH_AS_MP_ERROR(*si), PMATH_AS_MP_ERROR(*co), MPFR_RNDN);
+      
     pmath_unref(x);
     return;
   }
@@ -115,25 +125,25 @@ PMATH_PRIVATE void _pmath_sin_cos(
     PMATH_AS_MP_VALUE(x),
     PMATH_AS_MP_ERROR(x),
     MPFR_RNDN);
-  
+    
   mpfr_sin_cos(
     max_sin,
     max_cos,
     err_x,
     MPFR_RNDN);
-  
+    
   mpfr_sub(
     err_x,
     PMATH_AS_MP_VALUE(x),
     PMATH_AS_MP_ERROR(x),
     MPFR_RNDN);
-  
+    
   mpfr_sin_cos(
     min_sin,
     min_cos,
     err_x,
     MPFR_RNDN);
-  
+    
   mpfr_sub(
     diff_sin,
     max_sin,
@@ -163,10 +173,10 @@ PMATH_PRIVATE void _pmath_sin_cos(
     cos_prec  = min_prec;
   else if(cos_prec > max_prec)
     cos_prec       = max_prec;
-  
+    
   *si = _pmath_create_mp_float((mpfr_prec_t)ceil(sin_prec));
   *co = _pmath_create_mp_float((mpfr_prec_t)ceil(cos_prec));
-
+  
   if(pmath_is_null(*si) || pmath_is_null(*co)) {
     pmath_unref(*si); *si = PMATH_NULL;
     pmath_unref(*co); *co = PMATH_NULL;
@@ -179,7 +189,7 @@ PMATH_PRIVATE void _pmath_sin_cos(
     PMATH_AS_MP_VALUE(*co),
     PMATH_AS_MP_VALUE(x),
     MPFR_RNDN);
-  
+    
   _pmath_mp_float_include_error(*si, max_sin);
   _pmath_mp_float_include_error(*si, min_sin);
   
@@ -214,14 +224,13 @@ PMATH_PRIVATE void _pmath_sin_cos(
   pmath_unref(x);
 }
 
-
 PMATH_PRIVATE pmath_t builtin_cos(pmath_expr_t expr) {
   pmath_t x;
   pmath_thread_t me = pmath_thread_get_current();
   
   if(!me)
     return expr;
-  
+    
   if(pmath_expr_length(expr) != 1) {
     pmath_message_argxxx(pmath_expr_length(expr), 1, 1);
     return expr;
