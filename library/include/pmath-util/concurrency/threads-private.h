@@ -72,6 +72,8 @@ struct _pmath_thread_t {
   pmath_t abortable_messages; // pmath_custom_t -> _pmath_abortable_message_t
   
   double max_extra_precision; // in bits
+  double min_precision;       // in bits
+  double max_precision;       // in bits
   
   intptr_t current_dynamic_id;
   

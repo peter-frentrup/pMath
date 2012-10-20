@@ -151,6 +151,9 @@ pmath_t _pmath_float_exceptions(
   pmath_number_t x);  // will be freed.
 
 PMATH_PRIVATE
+void _pmath_mp_float_include_error(pmath_mpfloat_t f, mpfr_t err_f);
+
+PMATH_PRIVATE
 void _pmath_mp_float_normalize(pmath_mpfloat_t f);
 
 PMATH_PRIVATE

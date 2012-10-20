@@ -197,9 +197,9 @@ PMATH_PRIVATE pmath_float_t _pmath_create_mp_float(mpfr_prec_t precision) {
   struct _pmath_mp_float_t *f;
   uintptr_t i;
   
-  if(precision == 0)
+  /*if(precision == 0)
     precision = mpfr_get_default_prec();
-  else if(precision < MPFR_PREC_MIN)
+  else */if(precision < MPFR_PREC_MIN)
     precision = MPFR_PREC_MIN;
   else if(precision > PMATH_MP_PREC_MAX) // MPFR_PREC_MAX is too big! (not enough memory)
     precision =       PMATH_MP_PREC_MAX; // overflow error message?
@@ -779,6 +779,27 @@ pmath_t _pmath_float_exceptions(
   mpfr_clear_flags();
   pmath_unref(x);
   return result;
+}
+
+PMATH_PRIVATE
+void _pmath_mp_float_include_error(pmath_mpfloat_t f, mpfr_t err_f) {
+  MPFR_DECL_INIT(diff, PMATH_MP_ERROR_PREC);
+  
+  assert(pmath_is_mpfloat(f));
+  assert(pmath_refcount(f) == 1);
+  
+  mpfr_sub(
+    diff,
+    err_f,
+    PMATH_AS_MP_VALUE(f),
+    MPFR_RNDA);
+  
+  mpfr_abs(diff, diff, MPFR_RNDA);
+  mpfr_max(
+    PMATH_AS_MP_ERROR(f),
+    PMATH_AS_MP_ERROR(f),
+    diff,
+    MPFR_RNDU);
 }
 
 PMATH_PRIVATE

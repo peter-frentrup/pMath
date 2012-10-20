@@ -31,6 +31,12 @@ pmath_t _pow_fi( // returns struct _pmath_mp_float_t* iff null_on_errors is TRUE
   pmath_float_t base,  // will be freed. not PMATH_NULL!
   long          exponent,
   pmath_bool_t  null_on_errors);
+  
+PMATH_PRIVATE 
+void _pmath_sin_cos(
+  pmath_mpfloat_t  x, // will be freed, may be PMATH_NULL
+  pmath_mpfloat_t *si, 
+  pmath_mpfloat_t *co);
 
 PMATH_PRIVATE
 pmath_integer_t _pmath_factor_gcd_int(

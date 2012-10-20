@@ -33,50 +33,13 @@ PMATH_PRIVATE pmath_t builtin_sin(pmath_expr_t expr) {
   }
   
   if(pmath_is_mpfloat(x)) {
-    pmath_mpfloat_t tmp = _pmath_create_mp_float(PMATH_MP_ERROR_PREC);
+    pmath_mpfloat_t si, co;
     
-    if(!pmath_is_null(tmp)) {
-      pmath_mpfloat_t result;
-      double sin_val;
-      double accmant, acc, prec;
-      long accexp;
-      
-      mpfr_sin_cos(
-        PMATH_AS_MP_ERROR(tmp), // sin
-        PMATH_AS_MP_VALUE(tmp), // cos
-        PMATH_AS_MP_VALUE(x),
-        MPFR_RNDN);
-        
-      sin_val = mpfr_get_d(PMATH_AS_MP_ERROR(tmp), MPFR_RNDN);
-      
-      // dy = d(sin(x)) = cos(x) * dx
-      mpfr_mul(
-        PMATH_AS_MP_ERROR(tmp),
-        PMATH_AS_MP_VALUE(tmp),
-        PMATH_AS_MP_ERROR(x),
-        MPFR_RNDN);
-        
-      // Precision(y) = -Log(base, y) + Accuracy(y)
-      accmant = mpfr_get_d_2exp(&accexp, PMATH_AS_MP_ERROR(tmp), MPFR_RNDN);
-      acc  = -log2(fabs(accmant)) - accexp;
-      prec = -log2(fabs(sin_val)) + acc;
-      
-      if(prec > acc + me->max_extra_precision)
-        prec  = acc + me->max_extra_precision;
-      else if(prec < 0)
-        prec = 0;
-        
-      result = _pmath_create_mp_float((mpfr_prec_t)prec);
-      if(!pmath_is_null(result)) {
-        mpfr_sin(PMATH_AS_MP_VALUE(result), PMATH_AS_MP_VALUE(x),   MPFR_RNDN);
-        mpfr_abs(PMATH_AS_MP_ERROR(result), PMATH_AS_MP_ERROR(tmp), MPFR_RNDU);
-      }
-      
-      pmath_unref(expr);
-      pmath_unref(x);
-      pmath_unref(tmp);
-      return result;
-    }
+    pmath_unref(expr);
+    _pmath_sin_cos(x, &si, &co);
+    pmath_unref(co);
+    
+    return si;
   }
   
   if(pmath_is_number(x)) {

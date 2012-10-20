@@ -514,6 +514,8 @@ PMATH_PRIVATE pmath_thread_t _pmath_thread_new(pmath_thread_t parent) {
   thread->message_queue         = _pmath_msg_queue_create();
   thread->abortable_messages    = parent ? pmath_ref(parent->abortable_messages) : PMATH_NULL;
   thread->max_extra_precision   = 50 * LOG2_10;
+  thread->min_precision         = 0.0;
+  thread->max_precision         = HUGE_VAL;
   thread->current_dynamic_id    = parent ? parent->current_dynamic_id            : 0;
   thread->critical_messages     = parent ? parent->critical_messages             : FALSE;
   thread->is_daemon             = FALSE;

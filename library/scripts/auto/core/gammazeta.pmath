@@ -36,9 +36,9 @@ Begin("System`Gamma`")
 	
 	for a --> Infinity
 	                                     a-1       k-1
-	                      z+1/2         .---.  (-1)          k-1/2  Exp(-k)
-	Gamma(z+1) --> (z + a)      Exp(-z)  >    --------- (a-k)      ---------
-	                                    '---'   (k-1)!                z+k
+	                      z+1/2         .---.  (-1)         k-1/2 Exp(-k)
+	Gamma(z+1) <-- (z + a)      Exp(-z)  >    -------- (a-k)      -------
+										'---'  (k-1)!               z+k
 	                                     k=1
    TODO: increase working precision, calculate final precision in advance
 */
