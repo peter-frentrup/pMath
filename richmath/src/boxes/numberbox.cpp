@@ -321,21 +321,61 @@ void NumberBox::set_number(String n) {
   _expstart = _numend;
   _content->remove(0, _content->length());
   
-  if( numbase >= 2 &&
-      numbase <= 36 &&
-      (_numend + 1 == len ||
+  if(numbase >= 2 && numbase <= 36) {
+    if((_numend + 1 == len ||
        (_numend + 1 < len &&
         buf[_numend + 1] != '`' &&
         !pmath_char_is_digit(buf[_numend + 1]))))
-  {
-    // machine number: do not show all digits
-    int digits = 6;
-    
-    if(numbase != 10) {
-      digits = (int)ceil(digits * log(10.0) / log((double)numbase));
+    {
+      // machine number: do not show all digits
+      int digits = 6;
+      
+      if(numbase != 10) {
+        digits = (int)ceil(digits * log(10.0) / log((double)numbase));
+      }
+      
+      _content->insert(0, round_digits(_number.part(_numstart, _numend - _numstart), digits, numbase));
     }
-    
-    _content->insert(0, round_digits(_number.part(_numstart, _numend - _numstart), digits, numbase));
+    else if(_numend + 1 < len && pmath_char_is_digit(buf[_numend + 1])){
+      int digits = 0;
+      
+      int i = _numend + 1;
+      while(i < len && digits < 1000000 && pmath_char_is_digit(buf[i])) {
+        digits = 10 * digits + (buf[i] - '0');
+        ++i;
+      }
+      
+      if(numbase != 10){
+        digits = (int)ceil(digits * log(10.0) / log((double)numbase));
+      }
+//      else if(i < len && buf[i] == '.') {
+//        ++i;
+//        while(i < len){
+//          if(buf[i] >= '1' && buf[i] <= '9') {
+//            ++digits;
+//            break;
+//          }
+//          
+//          if(buf[i] != '0')
+//            break;
+//          
+//          ++i;
+//        }
+//      }
+      
+      if(_numend - _numstart - 1 >= digits) {
+        _content->insert(0, round_digits(_number.part(_numstart, _numend - _numstart), digits, numbase));
+      }
+      else {
+        _content->insert(0, _number.part(_numstart, _numend - _numstart));
+        
+        i = digits - (_numend - _numstart - 1);
+        while(i-- > 0) 
+          _content->insert(_content->length(), '0');
+      }
+    }
+    else
+      _content->insert(0, _number.part(_numstart, _numend - _numstart));
   }
   else
     _content->insert(0, _number.part(_numstart, _numend - _numstart));
