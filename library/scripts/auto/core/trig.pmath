@@ -6,8 +6,8 @@ BeginPackage("System`")
 
 Begin("System`Trigonometry`Private`")
 
-(Pi*{1/3,1/4,1/5,2/5,1/6,1/10,3/10,1/12,5/12}).Map((ArcSin(Sin(#)):= #)&)
-(Pi*{1/3,1/4,1/5,2/5,1/6,1/10,3/10,1/12,5/12}).Map((ArcTan(Tan(#)):= #)&)
+(Pi*{1/3,1/4,1/5,2/5,1/6,1/10,3/10,1/12,5/12}).Scan((ArcSin(Sin(#)):= #)&)
+(Pi*{1/3,1/4,1/5,2/5,1/6,1/10,3/10,1/12,5/12}).Scan((ArcTan(Tan(#)):= #)&)
 
 ArcCsc(~x /? x=0):= ComplexInfinity
 ArcCsc(~x)::= With({y:= ArcSin(1/x)}, y /? y.IsFreeOf(ArcSin))
@@ -41,6 +41,45 @@ Csch /: Csch(~x)^(~n?IsInteger /? n < 0)::= Sinh(x)^-n
 Sech /: Sech(~x)^(~n?IsInteger /? n < 0)::= Cosh(x)^-n
 Sinh /: Sinh(~x)^(~n?IsInteger /? n < 0)::= Csch(x)^-n
 Tanh /: Tanh(~x)^(~n?IsInteger /? n < 0)::= Coth(x)^-n
+
+
+Cos(Infinity)::= Interval(-1..1)
+Cos(-Infinity)::= Interval(-1..1)
+Cos(I Infinity)::= Infinity
+Cos(-I Infinity)::= Infinity
+Cos(DirectedInfinity(~))::= ComplexInfinity
+Cos(ComplexInfinity)::= Undefined
+
+Cosh(Infinity)::= Infinity
+Cosh(-Infinity)::= Infinity
+Cosh(I Infinity)::= Interval(-1..1)
+Cosh(-I Infinity)::= Interval(-1..1)
+Cosh(DirectedInfinity(~))::= ComplexInfinity
+Cosh(ComplexInfinity)::= Undefined
+
+Sin(Infinity)::= Interval(-1..1)
+Sin(-Infinity)::= Interval(-1..1)
+Sin(I Infinity)::= I Infinity
+Sin(-I Infinity)::= -I Infinity
+Sin(DirectedInfinity(~))::= ComplexInfinity
+Sin(ComplexInfinity)::= Undefined
+
+Sinh(Infinity)::= Infinity
+Sinh(-Infinity)::= -Infinity
+Sinh(I Infinity)::= Interval(-1..1)
+Sinh(-I Infinity)::= Interval(-1..1)
+Sinh(DirectedInfinity(~))::= ComplexInfinity
+Sinh(ComplexInfinity)::= Undefined
+
+Tan(Infinity)::= Interval(-Infinity .. Infinity)
+Tan(-Infinity)::= Interval(-Infinity .. Infinity)
+Tan(DirectedInfinity(Complex(~, ~im)))::= I Sign(im)
+Tan(ComplexInfinity)::= Undefined
+
+Tanh(I Infinity)::= I Interval(-Infinity..Infinity)
+Tanh(-I Infinity)::= I Interval(-Infinity..Infinity)
+Tanh(DirectedInfinity(~z))::= Sign(Re(z))
+Tanh(ComplexInfinity)::= Undefined
 
 End()
 

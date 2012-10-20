@@ -246,8 +246,8 @@ IntervalCoshRange(~a ? IsRealOrInfinity .. ~b ? IsRealOrInfinity)::= (
 
 
 /* IntervalPlus */
-Interval/: ~a:Interval ? IsInterval + ~b:Interval ? IsInterval       ::= IntervalPlus(a, b)
-Interval/: ~a:Interval ? IsInterval + ~b          ? IsRealOrInfinity ::= IntervalPlus(a, Interval(b))
+Interval/: (h:Plus)(~a:Interval ? IsInterval, ~b:Interval ? IsInterval)           ::= IntervalPlus(a, b)
+Interval/: (h:Plus)(~a:Interval ? IsInterval, ~b          ? IsRealOrInfinity) ::= IntervalPlus(a, Interval(b))
 
 IntervalPlus(~i1, ~i2)::= Union @@ (List @@ i2).Map(IntervalPlusRange(i1, #) &)
 
@@ -257,8 +257,8 @@ IntervalRangesPlus(~a1 .. ~a2, ~b1 .. ~b2)::= a1 + b1 .. a2 + b2
 
 
 /* IntervalTimes */
-Interval/: ~a:Interval ? IsInterval * ~b:Interval ? IsInterval       ::= IntervalTimes(a, b)
-Interval/: ~a:Interval ? IsInterval * ~b          ? IsRealOrInfinity ::= IntervalTimes(a, Interval(b))
+Interval/: (h:Times)(~a:Interval ? IsInterval, ~b:Interval ? IsInterval)           ::= IntervalTimes(a, b)
+Interval/: (h:Times)(~a:Interval ? IsInterval, ~b          ? IsRealOrInfinity) ::= IntervalTimes(a, Interval(b))
 
 IntervalTimes(~i1, ~i2)::= Union @@ (List @@ i2).Map(IntervalTimesRange(i1, #) &)
 
@@ -270,9 +270,9 @@ IntervalRangesTimes(~a1 .. ~a2, ~b1 .. ~b2)::=
 
 
 /* IntervalPower */
-Interval/: ~a:Interval ? IsInterval       ^ ~b:Interval ? IsInterval       ::= IntervalPower(         a,          b )
-Interval/: ~a:Interval ? IsInterval       ^ ~b          ? IsRealOrInfinity ::= IntervalPower(         a, Interval(b))
-Interval/: ~a          ? IsRealOrInfinity ^ ~b:Interval ? IsInterval       ::= IntervalPower(Interval(a),         b )
+Interval/: (h: Power)(~a:Interval ? IsInterval,           ~b:Interval ? IsInterval)           ::= IntervalPower(         a,          b )
+Interval/: (h: Power)(~a:Interval ? IsInterval,           ~b          ? IsRealOrInfinity) ::= IntervalPower(         a, Interval(b))
+Interval/: (h: Power)(~a          ? IsRealOrInfinity, ~b:Interval ? IsInterval)           ::= IntervalPower(Interval(a),         b )
 
 IntervalPower(~i1, ~i2)::= Interval @@ Flatten @ (List @@ i2).Map(IntervalPowerRange(i1, #) &)
 
