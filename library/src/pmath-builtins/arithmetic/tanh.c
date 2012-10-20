@@ -11,6 +11,133 @@
 #include <pmath-builtins/number-theory-private.h>
 
 
+static double dx_to_accuracy(mpfr_t dx) {
+  mpfr_exp_t accexp;
+  double accmant;
+  
+  // accuracy = -Log(2, dx)
+  accmant = mpfr_get_d_2exp(&accexp, dx, MPFR_RNDN);
+  return -log2(fabs(accmant)) - accexp;
+}
+
+// x will be freed, x may be PMATH_NULL
+static pmath_mpfloat_t mp_tanh(pmath_mpfloat_t x) {
+  pmath_thread_t thread = pmath_thread_get_current();
+  double min_prec, max_prec, prec;
+  pmath_mpfloat_t val;
+  
+  MPFR_DECL_INIT(err_x,    PMATH_MP_ERROR_PREC);
+  MPFR_DECL_INIT(min_val,  PMATH_MP_ERROR_PREC);
+  MPFR_DECL_INIT(max_val,  PMATH_MP_ERROR_PREC);
+  MPFR_DECL_INIT(diff_val, PMATH_MP_ERROR_PREC);
+  
+  if(pmath_is_null(x))
+    return PMATH_NULL;
+    
+  if(!thread) {
+    pmath_unref(x);
+    return PMATH_NULL;
+  }
+  
+  min_prec = thread->min_precision;
+  max_prec = thread->max_precision;
+  
+  if(min_prec < 0)
+    min_prec  = 0;
+    
+  if(min_prec > PMATH_MP_PREC_MAX)
+    min_prec  = PMATH_MP_PREC_MAX;
+    
+  if(max_prec > PMATH_MP_PREC_MAX)
+    max_prec  = PMATH_MP_PREC_MAX;
+    
+  if(max_prec < min_prec)
+    max_prec  = min_prec;
+    
+  assert(pmath_is_mpfloat(x));
+  
+  if(min_prec == max_prec) {
+    val = _pmath_create_mp_float((mpfr_prec_t)ceil(min_prec));
+    
+    if(pmath_is_null(val)) {
+      pmath_unref(x);
+      return val;
+    }
+    
+    mpfr_tanh(
+      PMATH_AS_MP_VALUE(val),
+      PMATH_AS_MP_VALUE(x),
+      MPFR_RNDN);
+    
+    mpfr_set_d(err_x, -min_prec, MPFR_RNDN);
+    
+    mpfr_ui_pow(
+      PMATH_AS_MP_ERROR(val),
+      2,
+      err_x,
+      MPFR_RNDU);
+      
+    pmath_unref(x);
+    return val;
+  }
+  
+  mpfr_add(
+    err_x,
+    PMATH_AS_MP_VALUE(x),
+    PMATH_AS_MP_ERROR(x),
+    MPFR_RNDN);
+    
+  mpfr_tanh(
+    max_val,
+    err_x,
+    MPFR_RNDN);
+    
+  mpfr_sub(
+    err_x,
+    PMATH_AS_MP_VALUE(x),
+    PMATH_AS_MP_ERROR(x),
+    MPFR_RNDN);
+    
+  mpfr_tanh(
+    min_val,
+    err_x,
+    MPFR_RNDN);
+    
+  mpfr_sub(
+    diff_val,
+    max_val,
+    min_val,
+    MPFR_RNDA);
+  mpfr_abs(diff_val, diff_val, MPFR_RNDU);
+  mpfr_div_2ui(diff_val, diff_val, 1, MPFR_RNDU);
+  
+  // -1 <= Tanh(x) <= 1  => precision === Log(2, |y|) + accuracy <= accuracy
+  prec = ceil(dx_to_accuracy(diff_val));
+  
+  if(prec > max_prec)
+    prec  = max_prec;
+  else if(!(prec > min_prec))
+    prec         = min_prec;
+  
+  val = _pmath_create_mp_float((mpfr_prec_t)ceil(prec));
+  
+  if(pmath_is_null(val)) {
+    pmath_unref(x);
+    return val;
+  }
+  
+  mpfr_tanh(
+    PMATH_AS_MP_VALUE(val),
+    PMATH_AS_MP_VALUE(x),
+    MPFR_RNDN);
+    
+  _pmath_mp_float_include_error(val, max_val);
+  _pmath_mp_float_include_error(val, min_val);
+  
+  pmath_unref(x);
+  return val;
+}
+
 PMATH_PRIVATE pmath_t builtin_tanh(pmath_expr_t expr) {
   pmath_t x;
   pmath_thread_t me = pmath_thread_get_current();
@@ -39,53 +166,9 @@ PMATH_PRIVATE pmath_t builtin_tanh(pmath_expr_t expr) {
   }
   
   if(pmath_is_mpfloat(x)) {
-    pmath_mpfloat_t tmp = _pmath_create_mp_float(PMATH_MP_ERROR_PREC);
-    
-    if(!pmath_is_null(tmp)) {
-      pmath_mpfloat_t result;
-      double accmant, acc, prec, val;
-      long accexp;
-      
-      mpfr_sech(
-        PMATH_AS_MP_ERROR(tmp),
-        PMATH_AS_MP_VALUE(x),
-        MPFR_RNDN);
-        
-      // dy = d(tanh(x)) = sech(x)^2 * dx
-      mpfr_sqr(
-        PMATH_AS_MP_VALUE(tmp),
-        PMATH_AS_MP_ERROR(tmp),
-        MPFR_RNDU);
-        
-      mpfr_mul(
-        PMATH_AS_MP_ERROR(tmp),
-        PMATH_AS_MP_VALUE(tmp),
-        PMATH_AS_MP_ERROR(x),
-        MPFR_RNDU);
-        
-      // Precision(y) = -Log(base, y) + Accuracy(y)
-      val = mpfr_get_d(PMATH_AS_MP_VALUE(x), MPFR_RNDN);
-      val = tanh(val);
-      accmant = mpfr_get_d_2exp(&accexp, PMATH_AS_MP_ERROR(tmp), MPFR_RNDN);
-      acc  = -log2(fabs(accmant)) - accexp;
-      prec = -log2(fabs(val)) + acc;
-      
-      if(prec > acc + me->max_extra_precision)
-        prec  = acc + me->max_extra_precision;
-      else if(prec < 0)
-        prec = 0;
-        
-      result = _pmath_create_mp_float((mpfr_prec_t)prec);
-      if(!pmath_is_null(result)) {
-        mpfr_tanh(PMATH_AS_MP_VALUE(result), PMATH_AS_MP_VALUE(x),   MPFR_RNDN);
-        mpfr_abs(PMATH_AS_MP_ERROR(result), PMATH_AS_MP_ERROR(tmp), MPFR_RNDU);
-      }
-      
-      pmath_unref(expr);
-      pmath_unref(x);
-      pmath_unref(tmp);
-      return result;
-    }
+    pmath_unref(expr);
+    x = mp_tanh(x);
+    return x;
   }
   
   if(pmath_is_number(x)) {
